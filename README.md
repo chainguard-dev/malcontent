@@ -4,7 +4,8 @@ Fast capability enumeration of binaries through static analysis. Powered by YARA
 
 ## Features
 
-- Generic support for all binary formats
+- Generic support for all binary formats and languages
+  - Development is currently furthest on MachO (C/ObjC) binaries
 - syscall enumeration (IN DEVELOPMENT)
 - pledge enumeration (IN DEVELOPMENT)
 - Scripting language & source code support (TBD)
