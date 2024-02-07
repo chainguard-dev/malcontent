@@ -18,10 +18,10 @@ type Config struct {
 
 type Capability struct {
 	Rule        string
-	Namespace   string
+	RuleSource  string
 	Description string
 	Key         string
-	Markers     []string
+	Data        string
 }
 
 type FileResult struct {
@@ -71,33 +71,36 @@ func compileRules(roots []string) (*yara.Rules, error) {
 	return yc.GetRules()
 }
 
-func namespaceToKey(ns string, rule string) string {
-	key := strings.ReplaceAll(ns, "rules/", "")
-	key = strings.ReplaceAll(key, ".yara", "")
-	return fmt.Sprintf("%s/%s", key, rule)
+func generateKey(c Capability) string {
+	_, after, _ := strings.Cut(c.RuleSource, "rules/")
+	return filepath.Dir(after)
 }
 
 func matchToCapabilities(mrs yara.MatchRules) []Capability {
 	caps := []Capability{}
 	for _, m := range mrs {
-		cap := Capability{
-			Rule:      m.Rule,
-			Namespace: m.Namespace,
-			Key:       namespaceToKey(m.Namespace, m.Rule),
-		}
+		desc := ""
 		for _, meta := range m.Metas {
 			if meta.Identifier == "description" {
-				cap.Description = fmt.Sprintf("%s", meta.Value)
+				desc = fmt.Sprintf("%s", meta.Value)
 			}
 
 		}
-		markers := []string{}
+		data := []string{}
 		for _, st := range m.Strings {
-			markers = append(markers, strings.Replace(st.Name, "$", "", 1))
+			data = append(data, string(st.Data))
 		}
-		slices.Sort(markers)
-		cap.Markers = slices.Compact(markers)
-		caps = append(caps, cap)
+		slices.Sort(data)
+		for _, d := range slices.Compact(data) {
+			c := Capability{
+				Rule:        m.Rule,
+				RuleSource:  m.Namespace,
+				Description: desc,
+				Data:        d,
+			}
+			c.Key = generateKey(c)
+			caps = append(caps, c)
+		}
 	}
 	klog.V(1).Infof("yara matches: %+v", mrs)
 	return caps

@@ -5,11 +5,11 @@ rule fts {
 		syscall_linux_fts_children = "getdents"
 		pledge = "rpath"
 	strings:
-		$fts_open = "fts_open"
-		$fts_read = "fts_read"
-		$fts_children = "fts_children"
-		$fts_set = "fts_set"
-		$fts_close = "fts_close"
+		$fts_open = "_fts_open" fullword
+		$fts_read = "_fts_read" fullword
+		$fts_children = "_fts_children" fullword
+		$fts_set = "_fts_set" fullword
+		$fts_close = "_fts_close" fullword
 	condition:
 		2 of them
 }
