@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"slices"
+	"strings"
 
 	"github.com/tstromberg/bincapz/pkg/bincapz"
 	"gopkg.in/yaml.v3"
@@ -16,6 +17,9 @@ func main() {
 	rulesDirFlag := flag.String("rules-dir", "rules", "Path to rules file")
 	jsonFlag := flag.Bool("json", false, "JSON output")
 	yamlFlag := flag.Bool("yaml", false, "YAML output")
+	ignoreTagsFlag := flag.String("ignore-tags", "harmless", "Rule tags to ignore")
+	allFlag := flag.Bool("all", false, "Ignore nothing, show all")
+
 	flag.Parse()
 	args := flag.Args()
 
@@ -24,9 +28,15 @@ func main() {
 		os.Exit(2)
 	}
 
+	ignoreTags := strings.Split(*ignoreTagsFlag, ",")
+	if *allFlag {
+		ignoreTags = []string{}
+	}
+
 	bc := bincapz.Config{
-		RulePaths: []string{*rulesDirFlag},
-		ScanPaths: args,
+		RulePaths:  []string{*rulesDirFlag},
+		ScanPaths:  args,
+		IgnoreTags: ignoreTags,
 	}
 
 	res, err := bincapz.Scan(bc)

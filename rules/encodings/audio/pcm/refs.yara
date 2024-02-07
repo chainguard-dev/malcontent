@@ -1,5 +1,5 @@
 
-rule pcm {
+rule pcm : harmless {
 	strings:
 		$pcm_mulaw = "pcm_mulaw" fullword
 		$pcm_alaw = "pcm_mulaw" fullword

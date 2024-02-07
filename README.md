@@ -2,6 +2,13 @@
 
 Fast capability enumeration of binaries through static analysis. Powered by YARA rules.
 
+## Features
+
+- Generic support for all binary formats
+- syscall enumeration (IN DEVELOPMENT)
+- pledge enumeration (IN DEVELOPMENT)
+- Scripting language & source code support (TBD)
+
 ## Basic Example
 
 When run against /sbin/ping:
@@ -39,7 +46,7 @@ One day, your CI breaks because the capabilities have changed unexpectedly to:
 - time/clock/sleep
 ```
 
-Would you research it?
+That's a good sign to look into the root of the update.
 
 ## Usage
 
@@ -47,9 +54,27 @@ Would you research it?
 go run ./cmd/bincapz /sbin/ping
 ```
 
+Some flags are accepted:
+
+```
+  -all
+    	Ignore nothing, show all
+  -ignore-tags string
+    	Rule tags to ignore (default "harmless")
+  -json
+    	JSON output
+  -rules-dir string
+    	Path to rules file (default "rules")
+  -yaml
+        YAML output
+```
+
+By default, bincapz filters out "harmless" capabilities, such as calling "stat()" on a file.
+
 ## Related Programs
 
 ### CAPA
 
 bincapz's hierarchy of capabilities are inspired by https://github.com/mandiant/capa. bincapz aims to support a wider variety of programs more efficiently.
 
+m
