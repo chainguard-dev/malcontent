@@ -12,8 +12,9 @@ import (
 )
 
 type Config struct {
-	RulePaths []string
-	ScanPaths []string
+	RulePaths  []string
+	ScanPaths  []string
+	IgnoreTags []string
 }
 
 type Capability struct {
@@ -76,9 +77,27 @@ func generateKey(c Capability) string {
 	return filepath.Dir(after)
 }
 
-func matchToCapabilities(mrs yara.MatchRules) []Capability {
+func ignoreMatch(m yara.MatchRule, ignoreTags map[string]bool) bool {
+	for _, t := range m.Tags {
+		if ignoreTags[t] {
+			return true
+		}
+	}
+	return false
+}
+
+func matchToCapabilities(mrs yara.MatchRules, ignoreTags []string) []Capability {
+	ignore := map[string]bool{}
+	for _, t := range ignoreTags {
+		ignore[t] = true
+	}
+
 	caps := []Capability{}
 	for _, m := range mrs {
+		if ignoreMatch(m, ignore) {
+			continue
+		}
+
 		desc := ""
 		for _, meta := range m.Metas {
 			if meta.Identifier == "description" {
@@ -107,6 +126,7 @@ func matchToCapabilities(mrs yara.MatchRules) []Capability {
 }
 
 func Scan(c Config) (*Result, error) {
+	//	klog.Infof("scan config: %+v", c)
 	r := &Result{}
 	yrs, err := compileRules(c.RulePaths)
 	klog.V(1).Infof("%d rules loaded", len(yrs.GetRules()))
@@ -120,7 +140,7 @@ func Scan(c Config) (*Result, error) {
 		if err := yrs.ScanFile(p, 0, 0, &mrs); err != nil {
 			return r, fmt.Errorf("scanfile: %w", err)
 		}
-		caps := matchToCapabilities(mrs)
+		caps := matchToCapabilities(mrs, c.IgnoreTags)
 		r.Files = append(r.Files, FileResult{Path: p, Capabilities: caps})
 	}
 

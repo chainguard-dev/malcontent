@@ -1,4 +1,4 @@
-rule bsd_streams {
+rule bsd_streams : harmless {
 	strings:
 		$_fclose = "_fclose"
 		$_fflush = "_fflush"

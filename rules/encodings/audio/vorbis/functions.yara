@@ -1,5 +1,5 @@
 
-rule vorbisdsp {
+rule vorbisdsp : harmless {
 	strings:
 		$vorbisdsp = "vorbisdsp"
 	condition:

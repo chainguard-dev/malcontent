@@ -1,4 +1,4 @@
-rule bsd {
+rule bsd : harmless {
 	strings:
 		$asctime = "asctime" fullword
 		$ctime = "ctime" fullword
