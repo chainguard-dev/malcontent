@@ -76,5 +76,3 @@ By default, bincapz filters out "harmless" capabilities, such as calling "stat()
 ### CAPA
 
 bincapz's hierarchy of capabilities are inspired by https://github.com/mandiant/capa. bincapz aims to support a wider variety of programs more efficiently.
-
-m
