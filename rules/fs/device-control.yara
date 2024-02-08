@@ -1,4 +1,4 @@
-rule ioctl {
+rule ioctl : harmless {
 	meta:
 		pledge = "wpath"
 		syscall = "ioctl"

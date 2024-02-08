@@ -2,16 +2,25 @@
 rule gethostbyname {
 	meta:
 		description = "Uses libc functions to resolve network hosts"
-		pledge = "???"
+		pledge = "inet"
 	strings:
 		$gethostbyname2 = "gethostbyname2" fullword
 		$gethostbyname = "gethostbyname" fullword
 	condition:
 		any of them
 }
-rule resolution {
+rule refs {
 	strings:
 		$cannot_resolve = "cannot resolve"
+	condition:
+		any of them
+}
+
+rule go {
+	meta:
+		description = "Uses Go to resolve network hosts"
+	strings:
+		$net_lookup = "net.hostLookup"
 	condition:
 		any of them
 }

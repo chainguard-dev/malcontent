@@ -7,3 +7,10 @@ rule bsd {
 	condition:
 		any of them
 }
+
+rule macos_scnetwork {
+	strings:
+		$ref = "SCNetworkServiceGet" fullword
+	condition:
+		any of them
+}

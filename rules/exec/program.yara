@@ -9,8 +9,10 @@ rule bsd_libc {
 		$execv = "execv" fullword
 		$execvp = "execvp" fullword
 		$execvP = "execvP" fullword
+
+		$go = "syscall.libc_execve_trampoline"
 	condition:
-		any of them
+		any of ($exec*) and not $go
 }
 
 rule syscall {
@@ -19,6 +21,17 @@ rule syscall {
 		pledge = "exec"
 	strings:
 		$execve = "execve" fullword
+		$go = "syscall.libc_execve_trampoline"
 	condition:
-		any of them
+		any of ($exec*) and not $go
+}
+
+rule go {
+	meta:
+		syscall = "execve"
+		pledge = "exec"
+	strings:
+		$ref = "exec.(*Cmd).Run"
+	condition:
+		all of them
 }

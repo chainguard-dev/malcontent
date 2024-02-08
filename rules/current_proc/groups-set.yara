@@ -5,6 +5,7 @@ rule setgroups {
 		pledge = "id"
 	strings:
 		$ref = "setgroups" fullword
+		$go = "_syscall.libc_setgroups_trampoline"
 	condition:
-		any of them
+		$ref and not $go
 }

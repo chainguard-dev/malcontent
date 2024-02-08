@@ -3,7 +3,8 @@ rule rmdir {
 		description = "Uses libc functions to remove directories"
 		pledge = "wpath"
 	strings:
-		$rmdir = "rmdir"
+		$rmdir = "rmdir" fullword
+		$Rmdir = "Rmdir" fullword
 	condition:
 		any of them
 }

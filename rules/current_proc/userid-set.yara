@@ -5,8 +5,9 @@ rule setuid {
 		pledge = "id"
 	strings:
 		$ref = "setuid" fullword
+		$go = "_syscall.libc_setuid_trampoline"
 	condition:
-		any of them
+		$ref and not $go
 }
 
 rule seteuid {
