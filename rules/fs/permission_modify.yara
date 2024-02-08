@@ -1,19 +1,12 @@
-rule chmod {
+rule bsd_libc {
 	meta:
 		description = "Uses libc functions to change file permissions"
 		pledge = "wpath"
 	strings:
-		$_chmod = "_chmod"
+		$chmod = "chmod" fullword
+		$fchmod = "fchmod" fullword
+		$_setmode = "_setmode" fullword
 	condition:
 		any of them
 }
 
-rule setmode {
-	meta:
-		description = "Uses libc functions to change file permissions"
-		pledge = "wpath"
-	strings:
-		$_setmode = "_setmode"
-	condition:
-		any of them
-}
