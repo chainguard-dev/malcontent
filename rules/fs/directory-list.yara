@@ -5,6 +5,7 @@ rule bsd_libc : harmless {
 	strings:
 		$opendir = "opendir" fullword
 		$readdir = "_readdir" fullword
+		$readdir64 = "readdir64" fullword
 		$fdopendir = "fdopendir" fullword
 		$taildir = "taildir" fullword
 		$seekdir = "seekdir" fullword
