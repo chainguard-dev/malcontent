@@ -1,6 +1,6 @@
-rule bsd_libc {
+rule bsd_libc : harmless {
   strings:
-	$getenv = "_getenv" fullword
+	$getenv = "getenv" fullword
   condition:
 	any of them
 }
