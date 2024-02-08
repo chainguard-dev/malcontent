@@ -18,6 +18,7 @@ func main() {
 	jsonFlag := flag.Bool("json", false, "JSON output")
 	yamlFlag := flag.Bool("yaml", false, "YAML output")
 	ignoreTagsFlag := flag.String("ignore-tags", "harmless", "Rule tags to ignore")
+	outputFlag := flag.String("output", "caps", "output type: caps,pledges,syscalls")
 	allFlag := flag.Bool("all", false, "Ignore nothing, show all")
 
 	flag.Parse()
@@ -61,13 +62,23 @@ func main() {
 
 	for _, fr := range res.Files {
 		fmt.Printf("%s\n", fr.Path)
-		caps := []string{}
+		deets := []string{}
 		for _, c := range fr.Capabilities {
-			caps = append(caps, c.Key)
+			key := c.Key
+			switch *outputFlag {
+			case "pledges":
+				key = c.Pledge
+			case "syscalls":
+				key = c.Syscall
+			}
+			if key != "" {
+				deets = append(deets, key)
+			}
 		}
-		slices.Sort(caps)
-		for _, c := range slices.Compact(caps) {
-			fmt.Printf("- %s\n", c)
+
+		slices.Sort(deets)
+		for _, d := range slices.Compact(deets) {
+			fmt.Printf("- %s\n", d)
 		}
 	}
 	// klog.Infof("res: %+v", res)
