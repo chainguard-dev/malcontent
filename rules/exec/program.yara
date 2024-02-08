@@ -35,3 +35,14 @@ rule go {
 	condition:
 		all of them
 }
+
+
+rule perl_php {
+	meta:
+		syscall = "execve"
+		pledge = "exec"
+	strings:
+		$ref = "system(" fullword
+	condition:
+		all of them
+}
