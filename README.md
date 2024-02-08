@@ -1,16 +1,22 @@
 # bincapz (proof of concept)
 
-Fast capability enumeration of binaries through static analysis. Powered by YARA rules.
+Fast capability enumeration of binaries through static analysis. Powered by YARA.
 
 ## Features
 
 - Generic support for all binary formats and languages
-  - Development is currently furthest on MachO (C/ObjC) binaries
-- syscall enumeration (IN DEVELOPMENT)
-- pledge enumeration (IN DEVELOPMENT)
-- Scripting language & source code support (TBD)
+- Focused on UNIX platforms, like Linux, MacOS, FreeBSD, OpenBSD
+- Works for analyzing code written in C, ObjC, Swift, Go, PHP, Python, Perl, and more.
+- syscall enumeration (beta)
+- pledge enumeration (beta)
 
-## Basic Example
+## Installation
+
+```shell
+go install github.com/tstromberg/bincapz@latest
+```
+
+## Demo - ping
 
 When run against /sbin/ping:
 
@@ -58,22 +64,15 @@ That's a good sign to look into the root of the update. And yes, that is real ou
 ## Usage
 
 ```
-go run ./cmd/bincapz /sbin/ping
+bincapz <path...>
 ```
 
 Some flags are accepted:
 
-```
-  -all
-    	Ignore nothing, show all
-  -ignore-tags string
-    	Rule tags to ignore (default "harmless")
-  -json
-    	JSON output
-  -rules-dir string
-    	Path to rules file (default "rules")
-  -yaml
-        YAML output
+* --all - Ignore nothing, show all
+* --ignore-tags - Rule tags to ignore (default "harmless")
+* --json - JSON output
+* --yaml - YAML output
 ```
 
 By default, bincapz filters out "harmless" capabilities, such as calling "stat()" on a file.
