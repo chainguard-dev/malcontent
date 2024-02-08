@@ -1,4 +1,4 @@
-rule macho {
+rule macho : harmless {
   strings:
     $not_jar = "META-INF/"
     $not_dwarf = "_DWARF"

@@ -3,7 +3,7 @@ rule link {
 		syscall = "link"
 		pledge = "cpath"
 	strings:
-		$rename = "link" fullword
+		$ref = "_link" fullword
 	condition:
 		any of them
 }

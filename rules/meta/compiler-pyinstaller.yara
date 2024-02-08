@@ -1,4 +1,4 @@
-rule pyinstaller {
+rule pyinstaller_refs {
   strings:
 	$pyinstaller = "Cannot open PyInstaller"
 	$onedir = "_PYI_ONEDIR_MODE"

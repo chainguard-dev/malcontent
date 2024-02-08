@@ -1,4 +1,4 @@
-rule Z {
+rule Z : harmless {
   strings:
 	$zprefix = "__Z"
   condition:

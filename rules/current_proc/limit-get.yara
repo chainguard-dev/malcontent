@@ -5,6 +5,7 @@ rule getrlimit : harmless {
 		pledge = "id"
 	strings:
 		$ref = "getrlimit" fullword
+		$go = "Getrlimit" fullword
 	condition:
 		any of them
 }

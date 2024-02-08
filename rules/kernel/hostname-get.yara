@@ -1,9 +1,10 @@
 
 rule gethostname {
+	meta:
+		pledge = "sysctl"
+		syscall = "sysctl"
 	strings:
 		$gethostname = "gethostname"
-		$pledge = "sysctl"
-		$syscall = "sysctl"
 	condition:
 		any of them
 }

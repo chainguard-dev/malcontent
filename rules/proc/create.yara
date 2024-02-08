@@ -3,7 +3,7 @@ rule fork {
 		pledge = "exec"
 		syscall = "fork"
 	strings:
-		$fork = "fork" fullword
+		$fork = "_fork" fullword
 	condition:
 		any of them
 }

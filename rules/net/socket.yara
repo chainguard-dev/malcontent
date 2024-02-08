@@ -2,7 +2,6 @@ rule sendmsg {
 	meta:
 		description = "send a message to a socket"
 		syscall = "sendmsg"
-//		pledge = "rpath"
 	strings:
 		$sendmsg = "sendmsg" fullword
 	condition:
@@ -13,7 +12,6 @@ rule recvmsg {
 	meta:
 		description = "receive a message from a socket"
 		syscall = "sendmsg"
-//		pledge = "rpath"
 	strings:
 		$sendmsg = "recvmsg" fullword
 	condition:
@@ -28,12 +26,6 @@ rule setsockopt {
 		syscall = "setsockopt"
 	strings:
 		$setsockopt = "setsockopt" fullword
-	condition:
-		any of them
-}
-rule socket {
-	strings:
-		$socket = "socket" fullword
 	condition:
 		any of them
 }
