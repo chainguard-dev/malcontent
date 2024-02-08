@@ -1,6 +1,8 @@
+// bincapz returns information about a binaries capabilities
 package main
 
 import (
+	"embed"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -13,13 +15,17 @@ import (
 	"k8s.io/klog/v2"
 )
 
+//go:embed rules
+var ruleFs embed.FS
+
 func main() {
-	rulesDirFlag := flag.String("rules-dir", "rules", "Path to rules file")
 	jsonFlag := flag.Bool("json", false, "JSON output")
 	yamlFlag := flag.Bool("yaml", false, "YAML output")
 	ignoreTagsFlag := flag.String("ignore-tags", "harmless", "Rule tags to ignore")
 	outputFlag := flag.String("output", "caps", "output type: caps,pledges,syscalls")
 	allFlag := flag.Bool("all", false, "Ignore nothing, show all")
+
+	klog.InitFlags(nil)
 
 	flag.Parse()
 	args := flag.Args()
@@ -35,7 +41,7 @@ func main() {
 	}
 
 	bc := bincapz.Config{
-		RulePaths:  []string{*rulesDirFlag},
+		RuleFS:     ruleFs,
 		ScanPaths:  args,
 		IgnoreTags: ignoreTags,
 	}

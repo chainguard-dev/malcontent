@@ -42,7 +42,7 @@ rule perl_php {
 		syscall = "execve"
 		pledge = "exec"
 	strings:
-		$ref = "system(" fullword
+		$ref = "system("
 	condition:
 		all of them
 }

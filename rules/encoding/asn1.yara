@@ -1,0 +1,8 @@
+
+rule go {
+	strings:
+		$gocsv = "encoding/asn1"
+		$unmarshal = "asn1.parse"
+	condition:
+		any of them
+}
