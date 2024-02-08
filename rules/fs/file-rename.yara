@@ -1,4 +1,4 @@
-rule rename {
+rule rename : harmless {
 	meta:
 		syscall = "rename"
 		pledge = "cpath"

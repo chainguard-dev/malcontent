@@ -1,10 +1,12 @@
 
 rule ref {
 	strings:
-		$new65 = "readdir64" fullword
-		$old64  = "_readdir64"
-		$new32 = "readdir" fullword
-		$old32  = "_readdir"
+		$r_new65 = "readdir64" fullword
+		$r_old64  = "_readdir64"
+		$r_new32 = "readdir" fullword
+		$r_old32  = "_readdir"
+
+		$ld_debug = "LD_DEBUG"
 	condition:
-		all of them
+		all of ($r*) and not $ld_debug
 }
