@@ -3,7 +3,17 @@ rule mkdir {
 		description = "Uses libc functions to create directories"
 		pledge = "wpath"
 	strings:
-		$_mkdir = "_mkdir"
+		$mkdir = "mkdir" fullword
+	condition:
+		any of them
+}
+
+rule mkdtemp {
+	meta:
+		description = "Uses libc functions to create a temporary directory"
+		pledge = "wpath"
+	strings:
+		$mkdtemp = "mkdtemp" fullword
 	condition:
 		any of them
 }
