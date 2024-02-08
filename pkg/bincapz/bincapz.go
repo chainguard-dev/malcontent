@@ -74,7 +74,8 @@ func compileRules(roots []string) (*yara.Rules, error) {
 
 func generateKey(c Capability) string {
 	_, after, _ := strings.Cut(c.RuleSource, "rules/")
-	return filepath.Dir(after)
+	key := strings.ReplaceAll(after, "_", "/")
+	return strings.ReplaceAll(key, ".yara", "")
 }
 
 func ignoreMatch(m yara.MatchRule, ignoreTags map[string]bool) bool {
