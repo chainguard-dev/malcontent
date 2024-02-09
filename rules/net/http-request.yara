@@ -1,4 +1,6 @@
 rule http_request {
+	meta:
+		pledge = "inet"
 	strings:
 		$httpRequest = "httpRequest"
 		$user_agent = "User-Agent"

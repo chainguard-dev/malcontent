@@ -1,4 +1,6 @@
 rule cryptonight {
+	meta:
+		description = "References CryptoNight, a proof-of-work algorithm"
 	strings:
 		$ref = "cryptonight"
 	condition:

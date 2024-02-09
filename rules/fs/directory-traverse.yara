@@ -1,8 +1,7 @@
 rule fts {
 	meta:
 		description = "Uses fts_* libc functions to traverse a file hierarchy"
-		syscall_linux_fts_open = "openat,openat"
-		syscall_linux_fts_children = "getdents"
+		syscall = "openat,getdents"
 		pledge = "rpath"
 	strings:
 		$fts_open = "_fts_open" fullword

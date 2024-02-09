@@ -1,20 +1,21 @@
 package bincapz
 
-type Capability struct {
-	Rule        string
-	RuleSource  string `json:",omitempty" yaml:",omitempty"`
+type Behavior struct {
 	Description string `json:",omitempty" yaml:",omitempty"`
-	Key         string
-	Syscall     string   `json:",omitempty" yaml:",omitempty"`
-	Pledge      string   `json:",omitempty" yaml:",omitempty"`
-	Matched     []string `json:",omitempty" yaml:",omitempty"`
+	Risk        int
 }
 
-type FileResult struct {
-	Path         string
-	Capabilities []Capability
+type FileReport struct {
+	// compiler -> x
+	Meta              map[string]string `json:",omitempty" yaml:",omitempty"`
+	Syscalls          []string          `json:",omitempty" yaml:",omitempty"`
+	Pledge            []string          `json:",omitempty" yaml:",omitempty"`
+	Capabililies      []string          `json:",omitempty" yaml:",omitempty"`
+	Behaviors         map[string]Behavior
+	FilteredBehaviors int `json:",omitempty" yaml:",omitempty"`
 }
 
-type Result struct {
-	Files []FileResult
+type Report struct {
+	Files  map[string]FileReport
+	Filter string
 }

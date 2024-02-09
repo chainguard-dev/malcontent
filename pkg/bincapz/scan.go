@@ -3,6 +3,7 @@ package bincapz
 import (
 	"fmt"
 	"io/fs"
+	"strings"
 
 	"github.com/hillu/go-yara/v4"
 	"k8s.io/klog/v2"
@@ -14,9 +15,15 @@ type Config struct {
 	IgnoreTags []string
 }
 
-func Scan(c Config) (*Result, error) {
+func Scan(c Config) (*Report, error) {
 	//	klog.Infof("scan config: %+v", c)
-	r := &Result{}
+	r := &Report{
+		Files: map[string]FileReport{},
+	}
+	if len(c.IgnoreTags) > 0 {
+		r.Filter = strings.Join(c.IgnoreTags, ",")
+	}
+
 	yrs, err := compileRules(c.RuleFS)
 	klog.V(1).Infof("%d rules loaded", len(yrs.GetRules()))
 	if err != nil {
@@ -29,8 +36,9 @@ func Scan(c Config) (*Result, error) {
 		if err := yrs.ScanFile(p, 0, 0, &mrs); err != nil {
 			return r, fmt.Errorf("scanfile: %w", err)
 		}
-		caps := matchToCapabilities(mrs, c.IgnoreTags)
-		r.Files = append(r.Files, FileResult{Path: p, Capabilities: caps})
+
+		fr := fileReport(mrs, c.IgnoreTags)
+		r.Files[p] = fr
 	}
 
 	return r, nil

@@ -7,7 +7,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"slices"
 	"strings"
 
 	"github.com/tstromberg/bincapz/pkg/bincapz"
@@ -22,7 +21,7 @@ func main() {
 	jsonFlag := flag.Bool("json", false, "JSON output")
 	yamlFlag := flag.Bool("yaml", false, "YAML output")
 	ignoreTagsFlag := flag.String("ignore-tags", "harmless", "Rule tags to ignore")
-	outputFlag := flag.String("output", "caps", "output type: caps,pledges,syscalls")
+	// outputFlag := flag.String("output", "caps", "output type: caps,pledges,syscalls")
 	allFlag := flag.Bool("all", false, "Ignore nothing, show all")
 
 	klog.InitFlags(nil)
@@ -66,25 +65,10 @@ func main() {
 		os.Exit(0)
 	}
 
-	for _, fr := range res.Files {
-		fmt.Printf("%s\n", fr.Path)
-		deets := []string{}
-		for _, c := range fr.Capabilities {
-			key := c.Key
-			switch *outputFlag {
-			case "pledges":
-				key = c.Pledge
-			case "syscalls":
-				key = c.Syscall
-			}
-			if key != "" {
-				deets = append(deets, key)
-			}
-		}
-
-		slices.Sort(deets)
-		for _, d := range slices.Compact(deets) {
-			fmt.Printf("- %s\n", d)
+	for path, fr := range res.Files {
+		fmt.Printf("%s\n", path)
+		for key := range fr.Behaviors {
+			fmt.Printf("- %s\n", key)
 		}
 	}
 	// klog.Infof("res: %+v", res)
