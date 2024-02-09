@@ -1,4 +1,4 @@
-rule bsd {
+rule bsd_rand {
 	strings:
 		$_rand = "_rand" fullword
 	condition:

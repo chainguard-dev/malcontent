@@ -2,8 +2,9 @@ rule mknod {
 	meta:
 		pledge = "wpath"
 		syscall = "mknod"
+		capability = "CAP_MKNOD"
 	strings:
-		$chown = "mknod" fullword
+		$ref = "mknod" fullword
 	condition:
 		any of them
 }
@@ -12,8 +13,9 @@ rule mknodat {
 	meta:
 		pledge = "wpath"
 		syscall = "mknodat"
+		capability = "CAP_MKNOD"
 	strings:
-		$chown = "mknodat" fullword
+		$ref2 = "mknodat" fullword
 	condition:
 		any of them
 }

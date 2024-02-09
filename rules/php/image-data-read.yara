@@ -1,4 +1,4 @@
-rule eval {
+rule eval_image_data {
 	meta:
 		description = "Extracts content from an inline image/png"
 	strings:

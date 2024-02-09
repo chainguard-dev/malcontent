@@ -1,4 +1,4 @@
-rule ref {
+rule etc_resolv_conf {
 	strings:
 		$resolv = "/etc/resolv.conf" fullword
 	condition:

@@ -1,6 +1,7 @@
-rule ref {
+rule ssh_cert {
 	strings:
-		$ref = "ssh-rsa " fullword
+		$rsa = "ssh-rsa " fullword
+		$dsa = "ssh-dsa " fullword
 	condition:
 		any of them
 }

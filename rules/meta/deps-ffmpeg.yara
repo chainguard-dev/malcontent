@@ -1,5 +1,5 @@
 
-rule pcm : harmless {
+rule ffmpeg_pcm : harmless {
 	strings:
 		$pcm_mulaw = "pcm_mulaw" fullword
 		$pcm_alaw = "pcm_mulaw" fullword

@@ -1,7 +1,8 @@
 rule mkfifo {
 	meta:
 		pledge = "wpath"
-		syscall = "mknodat"
+		syscall = "mknod"
+		description = "make a FIFO special file (a named pipe)"
 	strings:
 		$ref = "mkfifo" fullword
 	condition:
@@ -11,7 +12,8 @@ rule mkfifo {
 rule mkfifoat {
 	meta:
 		pledge = "wpath"
-		syscall = "mknodat"
+		syscall = "mknod"
+		description = "make a FIFO special file (a named pipe)"
 	strings:
 		$ref = "mkfifoat" fullword
 	condition:

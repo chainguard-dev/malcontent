@@ -1,4 +1,4 @@
-rule bsd_libc : harmless {
+rule setenv_putenv : harmless {
   strings:
 	$setenv = "_setenv" fullword
 	$putenv = "_putenv" fullword

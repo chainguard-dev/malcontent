@@ -1,4 +1,4 @@
-rule lkm {
+rule lkm_dirent {
 	strings:
 		$dirent = "linux_dirent"
 		$Linux = "Linux"

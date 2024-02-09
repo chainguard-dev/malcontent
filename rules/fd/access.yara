@@ -1,4 +1,7 @@
 rule bsd_streams : harmless {
+	meta:
+		description = "Access file descriptors"
+		pledge = "stdio"
 	strings:
 		$_fclose = "_fclose"
 		$_fflush = "_fflush"

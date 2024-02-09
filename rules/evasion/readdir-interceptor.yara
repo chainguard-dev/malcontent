@@ -1,5 +1,5 @@
 
-rule ref {
+rule readdir_intercept : suspicious {
 	strings:
 		$r_new65 = "readdir64" fullword
 		$r_old64  = "_readdir64"

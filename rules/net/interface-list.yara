@@ -1,4 +1,4 @@
-rule bsd {
+rule bsd_ifaddrs {
 	strings:
 		$getifaddrs = "getifaddrs" fullword
 		$freeifaddrs = "freeifaddrs" fullword

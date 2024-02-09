@@ -1,4 +1,4 @@
-rule bsd_libc : harmless {
+rule unsetenv : harmless {
   strings:
 	$ref = "unsetenv" fullword
   condition:

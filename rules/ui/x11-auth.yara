@@ -1,5 +1,5 @@
 
-rule refs {
+rule x11_refs {
 	strings:
 		$cookie = "MIT-MAGIC-COOKIE-1" fullword
 		$xauth = "xauth" fullword
