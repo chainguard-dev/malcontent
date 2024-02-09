@@ -1,6 +1,10 @@
 rule dylib {
+	meta:
+		description = "makes use of dynamic libraries"
 	strings:
-		$dlopen = "_dlopen" fullword
+		$dlopen = "dlopen" fullword
+		$dlclose = "dlclose" fullword
 	condition:
 		any of them
 }
+

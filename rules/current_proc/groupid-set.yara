@@ -5,9 +5,10 @@ rule setgid {
 		pledge = "id"
 	strings:
 		$ref = "setgid" fullword
-		$go = "_syscall.libc_setgid_trampoline"
+		$not_go = "_syscall.libc_setgid_trampoline"
+		$not_ls = "file that is setgid"
 	condition:
-		$ref and not $go
+		$ref and none of ($not*)
 }
 
 rule setegid {

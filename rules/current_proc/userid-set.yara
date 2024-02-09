@@ -6,9 +6,10 @@ rule setuid {
 		capability = "CAP_SETUID"
 	strings:
 		$ref = "setuid" fullword
-		$go = "_syscall.libc_setuid_trampoline"
+		$not_go = "_syscall.libc_setuid_trampoline"
+		$not_ls = "file that is setuid"
 	condition:
-		$ref and not $go
+		$ref and none of ($not*)
 }
 
 rule seteuid {
