@@ -18,8 +18,6 @@ rule recvmsg {
 		any of them
 }
 
-
-
 rule setsockopt {
 	meta:
 		description = "set socket options"
