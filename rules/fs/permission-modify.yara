@@ -1,6 +1,6 @@
 rule chmod {
 	meta:
-		description = "Change file permissions"
+		description = "Modifies file permissions using chmod"
 		pledge = "fattr"
 		syscall = "chmod"
 	strings:
@@ -14,7 +14,7 @@ rule chmod {
 
 rule fchmod {
 	meta:
-		description = "Uses libc functions to change file permissions"
+		description = "Modifies file permissions using fchmod"
 		pledge = "fattr"
 		syscall = "fchmodat"
 	strings:
