@@ -1,4 +1,4 @@
-rule bsd : harmless {
+rule bsd_time_conversion : harmless {
 	strings:
 		$asctime = "asctime" fullword
 		$ctime = "ctime" fullword

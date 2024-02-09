@@ -1,4 +1,4 @@
-rule bsd {
+rule bsd_if {
 	meta:
 		description = "libc functions for retrieving network interface"
 	strings:

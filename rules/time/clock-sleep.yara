@@ -1,4 +1,4 @@
-rule bsd {
+rule bsd_sleep {
 	strings:
 		$_sleep = "_sleep" fullword
 		// common in programs, doesn't seem important

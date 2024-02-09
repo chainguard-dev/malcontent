@@ -1,4 +1,4 @@
-rule bsd_libc {
+rule execall {
 	meta:
 		syscall = "execve"
 		pledge = "exec"
@@ -15,7 +15,7 @@ rule bsd_libc {
 		any of ($exec*) and not $go
 }
 
-rule syscall {
+rule execve {
 	meta:
 		syscall = "execve"
 		pledge = "exec"
@@ -26,7 +26,7 @@ rule syscall {
 		any of ($exec*) and not $go
 }
 
-rule go {
+rule exec_cmd_run {
 	meta:
 		syscall = "execve"
 		pledge = "exec"
@@ -37,7 +37,7 @@ rule go {
 }
 
 
-rule perl_php {
+rule system {
 	meta:
 		syscall = "execve"
 		pledge = "exec"

@@ -1,4 +1,4 @@
-rule bsd_libc : harmless {
+rule opendir_readdir : harmless {
 	meta:
 		description = "Uses libc functions to list a directory"
 		pledge = "rpath"
@@ -14,7 +14,7 @@ rule bsd_libc : harmless {
 		any of them
 }
 
-rule go {
+rule OpenReadDir {
 	meta:
 		description = "Uses Go functions to list a directory"
 		pledge = "rpath"

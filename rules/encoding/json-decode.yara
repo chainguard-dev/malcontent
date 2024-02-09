@@ -8,7 +8,7 @@ rule JSONDecode {
 
 
 // harmless because all binaries include it
-rule go : harmless {
+rule jsondecode : harmless {
 	strings:
 		$jsond = "JSONDecode"
 		$unmarshal = "UnmarshalJSON"

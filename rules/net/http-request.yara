@@ -5,6 +5,9 @@ rule http_request {
 	strings:
 		$httpRequest = "httpRequest"
 		$user_agent = "User-Agent"
+		$assemble = "httpAssemble"
+		$connect = "httpConnect"
+		$close = "httpClose"
 		$http1 = "HTTP/1."
 	condition:
 		any of them

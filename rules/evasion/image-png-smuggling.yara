@@ -1,4 +1,4 @@
-rule eval {
+rule png {
 	strings:
 		$eval = "<img src=\"data:image/png;(.*)\""
 	condition:

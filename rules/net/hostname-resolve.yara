@@ -9,7 +9,7 @@ rule gethostbyname {
 	condition:
 		any of them
 }
-rule refs {
+rule cannot_resolve {
 	meta:
 		description = "Resolves network host names"
 	strings:
@@ -18,7 +18,7 @@ rule refs {
 		any of them
 }
 
-rule go {
+rule net_hostlookup {
 	meta:
 		description = "Uses Go to resolve network hosts"
 	strings:

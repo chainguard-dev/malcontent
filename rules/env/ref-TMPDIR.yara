@@ -1,4 +1,4 @@
-rule tmpdir {
+rule TMPDIR {
   strings:
 	$ref = "TMPDIR" fullword
 	$getenv = "getenv"

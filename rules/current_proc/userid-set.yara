@@ -3,6 +3,7 @@ rule setuid {
 		syscall = "setuid"
 		description = "set real and effective user ID of process"
 		pledge = "id"
+		capability = "CAP_SETUID"
 	strings:
 		$ref = "setuid" fullword
 		$go = "_syscall.libc_setuid_trampoline"
@@ -15,6 +16,7 @@ rule seteuid {
 		syscall = "seteuid"
 		description = "set effective user ID of process"
 		pledge = "id"
+		capability = "CAP_SETUID"
 	strings:
 		$ref = "seteuid" fullword
 	condition:
@@ -26,6 +28,7 @@ rule setreuid {
 		syscall = "setreuid"
 		description = "set real and effective user ID of process"
 		pledge = "id"
+		capability = "CAP_SETUID"
 	strings:
 		$ref = "setreuid" fullword
 	condition:
@@ -37,8 +40,21 @@ rule setresuid {
 		syscall = "setresuid"
 		description = "set real, effective, and saved user ID of process"
 		pledge = "id"
+		capability = "CAP_SETUID"
 	strings:
 		$ref = "setresuid" fullword
+	condition:
+		any of them
+}
+
+rule setfsuid {
+	meta:
+		syscall = "setfsuid"
+		description = "set user identity used for filesystem checks"
+		pledge = "id"
+		capability = "CAP_SETUID"
+	strings:
+		$ref = "setfsuid" fullword
 	condition:
 		any of them
 }

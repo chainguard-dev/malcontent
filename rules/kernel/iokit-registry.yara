@@ -1,4 +1,4 @@
-rule ref {
+rule IORegistry {
 	meta:
 		description = "Accesses the IOKit device driver registry"
 	strings:

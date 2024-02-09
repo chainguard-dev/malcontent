@@ -3,6 +3,7 @@ rule chown : harmless {
 		description = "Uses libc functions to change file permissions"
 		pledge = "wpath"
 		syscall = "chown"
+		capability = "CAP_CHOWN"
 	strings:
 		$chown = "chown" fullword
 	condition:
@@ -13,6 +14,7 @@ rule fchown {
 	meta:
 		pledge = "wpath"
 		syscall = "fchown"
+		capability = "CAP_CHOWN"
 	strings:
 		$chown = "fchown" fullword
 	condition:
@@ -23,6 +25,7 @@ rule fchownat {
 	meta:
 		pledge = "wpath"
 		syscall = "fchown"
+		capability = "CAP_CHOWN"
 	strings:
 		$chown = "fchownat" fullword
 	condition:

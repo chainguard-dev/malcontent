@@ -1,4 +1,4 @@
-rule ref {
+rule elliptic {
 	strings:
 		$go = "crypto/elliptic"
 		$p224 = "elliptic.p224"

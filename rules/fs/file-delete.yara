@@ -1,5 +1,5 @@
 
-rule bsd_libc {
+rule unlink {
 	meta:
 		pledge = "wpath"
 		syscall = "unlink"
