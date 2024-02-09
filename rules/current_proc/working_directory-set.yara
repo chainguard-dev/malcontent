@@ -1,4 +1,4 @@
-rule chdir {
+rule chdir : harmless {
 	meta:
 		pledge = "rpath"
 	strings:
