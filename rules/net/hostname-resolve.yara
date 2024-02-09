@@ -10,6 +10,8 @@ rule gethostbyname {
 		any of them
 }
 rule refs {
+	meta:
+		description = "Resolves network host names"
 	strings:
 		$cannot_resolve = "cannot resolve"
 	condition:

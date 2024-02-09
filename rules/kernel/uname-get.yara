@@ -1,7 +1,7 @@
 
 rule uname {
 	meta:
-		description = "get system identification"
+		description = "get system identification (uname)"
 		pledge = "sysctl"
 		syscall = "sysctl"
 	strings:
@@ -12,7 +12,7 @@ rule uname {
 
 rule os_release {
 	meta:
-		description = "get system identification"
+		description = "get system identification (os_release)"
 		pledge = "sysctl"
 		syscall = "sysctl"
 	strings:

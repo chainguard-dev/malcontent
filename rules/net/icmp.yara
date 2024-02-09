@@ -1,4 +1,6 @@
 rule icmp {
+	meta:
+		description = "ICMP (Internet Control Message Protocol), aka ping packets"
 	strings:
 		$ICMP = "ICMP" fullword
 		$icmp = "icmp" fullword

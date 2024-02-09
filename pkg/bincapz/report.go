@@ -86,17 +86,29 @@ func fileReport(mrs yara.MatchRules, ignoreTags []string) FileReport {
 		}
 		if ignoreMatch(m.Tags, ignore) {
 			fr.FilteredBehaviors++
-		} else {
-			fr.Behaviors[key] = b
+			continue
 		}
 
-		slices.Sort(pledges)
-		slices.Sort(syscalls)
-		slices.Sort(caps)
-		fr.Pledge = slices.Compact(pledges)
-		fr.Syscalls = slices.Compact(syscalls)
-		fr.Capabililies = slices.Compact(caps)
+		// We've already seen a similar behavior: do we augment it or replace it?
+		existing, exists := fr.Behaviors[key]
+		if !exists || existing.Risk < b.Risk {
+			fr.Behaviors[key] = b
+			continue
+		}
+
+		if len(existing.Description) < len(b.Description) {
+			existing.Description = b.Description
+			fr.Behaviors[key] = existing
+		}
 	}
+
+	slices.Sort(pledges)
+	slices.Sort(syscalls)
+	slices.Sort(caps)
+	fr.Pledge = slices.Compact(pledges)
+	fr.Syscalls = slices.Compact(syscalls)
+	fr.Capabililies = slices.Compact(caps)
+
 	klog.V(1).Infof("yara matches: %+v", mrs)
 	return fr
 }
