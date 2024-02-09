@@ -5,6 +5,7 @@ rule pivot_root {
 		syscall = "pivot_root"
 	strings:
 		$ref = "pivot_root" fullword
+		$not_pivot = "no_pivot_root"
 	condition:
-		any of them
+		$ref and none of ($not*)
 }

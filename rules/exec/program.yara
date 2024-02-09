@@ -2,6 +2,7 @@ rule execall {
 	meta:
 		syscall = "execve"
 		pledge = "exec"
+		description = "calls other programs"
 	strings:
 		$execl = "execl" fullword
 		$execle = "execle" fullword
@@ -19,6 +20,7 @@ rule execve {
 	meta:
 		syscall = "execve"
 		pledge = "exec"
+		description = "calls other programs"
 	strings:
 		$execve = "execve" fullword
 		$go = "syscall.libc_execve_trampoline"
@@ -30,6 +32,7 @@ rule exec_cmd_run {
 	meta:
 		syscall = "execve"
 		pledge = "exec"
+		description = "calls other programs"
 	strings:
 		$ref = "exec.(*Cmd).Run"
 	condition:
@@ -41,6 +44,7 @@ rule system {
 	meta:
 		syscall = "execve"
 		pledge = "exec"
+		description = "calls other programs"
 	strings:
 		$ref = "system("
 	condition:

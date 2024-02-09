@@ -3,7 +3,7 @@ rule icmp {
 		description = "ICMP (Internet Control Message Protocol), aka ping packets"
 	strings:
 		$ICMP = "ICMP" fullword
-		$icmp = "icmp" fullword
+//		$icmp = "icmp" fullword
 	condition:
 		any of them
 }
