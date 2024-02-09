@@ -7,8 +7,10 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"slices"
 	"strings"
 
+	"github.com/olekukonko/tablewriter"
 	"github.com/tstromberg/bincapz/pkg/bincapz"
 	"gopkg.in/yaml.v3"
 	"k8s.io/klog/v2"
@@ -18,8 +20,7 @@ import (
 var ruleFs embed.FS
 
 func main() {
-	jsonFlag := flag.Bool("json", false, "JSON output")
-	yamlFlag := flag.Bool("yaml", false, "YAML output")
+	formatFlag := flag.String("format", "table", "Output type. Valid values are: table, simple, json, yaml")
 	ignoreTagsFlag := flag.String("ignore-tags", "harmless", "Rule tags to ignore")
 	// outputFlag := flag.String("output", "caps", "output type: caps,pledges,syscalls")
 	allFlag := flag.Bool("all", false, "Ignore nothing, show all")
@@ -47,31 +48,74 @@ func main() {
 
 	res, err := bincapz.Scan(bc)
 
-	if *jsonFlag {
+	switch *formatFlag {
+	case "json":
 		json, err := json.Marshal(res)
 		if err != nil {
 			klog.Fatalf("marshal: %v", err)
 		}
 		fmt.Printf("%s\n", json)
-		os.Exit(0)
-	}
-
-	if *yamlFlag {
+	case "yaml":
 		yaml, err := yaml.Marshal(res)
 		if err != nil {
 			klog.Fatalf("marshal: %v", err)
 		}
 		fmt.Printf("%s\n", yaml)
-		os.Exit(0)
-	}
+	case "simple":
+		filtered := 0
 
-	for path, fr := range res.Files {
-		fmt.Printf("%s\n", path)
-		for key := range fr.Behaviors {
-			fmt.Printf("- %s\n", key)
+		for path, fr := range res.Files {
+			fmt.Printf("# %s\n", path)
+			keys := []string{}
+			for key := range fr.Behaviors {
+				keys = append(keys, key)
+			}
+			slices.Sort(keys)
+			for _, key := range keys {
+				fmt.Printf("- %s\n", key)
+			}
+			if fr.FilteredBehaviors > 0 {
+				filtered++
+			}
 		}
+
+		if filtered > 0 {
+			fmt.Printf("\n# %d behaviors filtered out, use --all to see more\n", filtered)
+		}
+	case "table":
+
+		filtered := 0
+
+		for path, fr := range res.Files {
+			fmt.Printf("%s\n", path)
+			keys := []string{}
+			for key := range fr.Behaviors {
+				keys = append(keys, key)
+			}
+			slices.Sort(keys)
+
+			if fr.FilteredBehaviors > 0 {
+				filtered++
+			}
+
+			data := [][]string{}
+			for _, k := range keys {
+				b := fr.Behaviors[k]
+				data = append(data, []string{fmt.Sprintf("%d", b.Risk), k, b.Description})
+			}
+			table := tablewriter.NewWriter(os.Stdout)
+			table.SetHeader([]string{"Risk", "Key", "Description"})
+			//table.SetBorder(false)
+			table.AppendBulk(data) // Add Bulk Data
+			table.Render()
+
+		}
+
+		if filtered > 0 {
+			fmt.Printf("\n# %d behaviors filtered out, use --all to see more\n", filtered)
+		}
+
 	}
-	// klog.Infof("res: %+v", res)
 	if err != nil {
 		klog.Errorf("failed: %v", err)
 		os.Exit(1)
