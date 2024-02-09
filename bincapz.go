@@ -104,6 +104,7 @@ func main() {
 				data = append(data, []string{fmt.Sprintf("%d", b.Risk), k, b.Description})
 			}
 			table := tablewriter.NewWriter(os.Stdout)
+			table.SetAutoWrapText(false)
 			table.SetHeader([]string{"Risk", "Key", "Description"})
 			//table.SetBorder(false)
 			table.AppendBulk(data) // Add Bulk Data
