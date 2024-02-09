@@ -1,6 +1,6 @@
-rule xmrig {
+rule ref {
 	strings:
-		$ref = "XMRig"
+		$ref = "ssh-rsa " fullword
 	condition:
 		any of them
 }

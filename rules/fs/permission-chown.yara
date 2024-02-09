@@ -1,4 +1,4 @@
-rule chown {
+rule chown : harmless {
 	meta:
 		description = "Uses libc functions to change file permissions"
 		pledge = "wpath"

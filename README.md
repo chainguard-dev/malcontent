@@ -69,10 +69,11 @@ bincapz <path...>
 
 Some flags are accepted:
 
-* --all - Ignore nothing, show all
-* --ignore-tags - Rule tags to ignore (default "harmless")
-* --json - JSON output
-* --yaml - YAML output
+- --all - Ignore nothing, show all
+- --ignore-tags - Rule tags to ignore (default "harmless")
+- --json - JSON output
+- --yaml - YAML output
+
 ```
 
 By default, bincapz filters out "harmless" capabilities, such as calling "stat()" on a file.
@@ -81,4 +82,7 @@ By default, bincapz filters out "harmless" capabilities, such as calling "stat()
 
 ### CAPA
 
-bincapz's hierarchy of capabilities are inspired by https://github.com/mandiant/capa. bincapz aims to support a wider variety of programs more efficiently.
+Much of bincapz's functionality is inspired by https://github.com/mandiant/capa. CAPA 
+
+
+bincapz aims to support a wider variety of programs, and 

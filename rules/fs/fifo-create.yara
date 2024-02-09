@@ -1,9 +1,9 @@
 rule mkfifo {
 	meta:
 		pledge = "wpath"
-		syscall = "chown"
+		syscall = "mknodat"
 	strings:
-		$chown = "mkfifo" fullword
+		$ref = "mkfifo" fullword
 	condition:
 		any of them
 }
@@ -11,9 +11,9 @@ rule mkfifo {
 rule mkfifoat {
 	meta:
 		pledge = "wpath"
-		syscall = "fchown"
+		syscall = "mknodat"
 	strings:
-		$chown = "mkfifoat" fullword
+		$ref = "mkfifoat" fullword
 	condition:
 		any of them
 }
