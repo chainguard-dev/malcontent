@@ -6,7 +6,7 @@ rule ioctl_iflags {
 		description = "ioctl operations for inode flags"
 		capability = "CAP_FOWNER"
 	strings:
-		$ioctl = "ioctl" fullword
+		$ioctl = "ioctl_iflags" fullword
 	condition:
 		any of them
 }
