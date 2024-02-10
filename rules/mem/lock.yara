@@ -1,9 +1,8 @@
-
-rule mlock {
+rule mlock : harmless {
 	meta:
 		pledge = "wpath"
 		syscall = "mlock"
-		description = "lcok memory"
+		description = "lock a processes virtual address space"
 		capability = "CAP_IPC_LOCK"
 	strings:
 		$ref = "mlock" fullword
