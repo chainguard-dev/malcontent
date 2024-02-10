@@ -99,7 +99,7 @@ func main() {
 			data := [][]string{}
 			for _, k := range keys {
 				b := fr.Behaviors[k]
-				val := strings.Join(b.Strings, "\n")
+				val := strings.Join(b.Strings, " ")
 				if len(val) > 24 {
 					val = val[0:24] + ".."
 				}
@@ -107,7 +107,7 @@ func main() {
 			}
 			table := tablewriter.NewWriter(os.Stdout)
 			table.SetAutoWrapText(false)
-			table.SetHeader([]string{"Risk", "Key", "Example", "Description"})
+			table.SetHeader([]string{"Risk", "Key", "Values", "Description"})
 			//table.SetBorder(false)
 			table.AppendBulk(data) // Add Bulk Data
 			table.Render()
