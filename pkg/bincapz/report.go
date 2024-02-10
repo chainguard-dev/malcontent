@@ -10,6 +10,27 @@ import (
 	"k8s.io/klog/v2"
 )
 
+type Behavior struct {
+	Description string `json:",omitempty" yaml:",omitempty"`
+	Strings     []string
+	Risk        int
+}
+
+type FileReport struct {
+	// compiler -> x
+	Meta              map[string]string `json:",omitempty" yaml:",omitempty"`
+	Syscalls          []string          `json:",omitempty" yaml:",omitempty"`
+	Pledge            []string          `json:",omitempty" yaml:",omitempty"`
+	Capabililies      []string          `json:",omitempty" yaml:",omitempty"`
+	Behaviors         map[string]Behavior
+	FilteredBehaviors int `json:",omitempty" yaml:",omitempty"`
+}
+
+type Report struct {
+	Files  map[string]FileReport
+	Filter string
+}
+
 func generateKey(src string) string {
 	_, after, _ := strings.Cut(src, "rules/")
 	key := strings.ReplaceAll(after, "-", "/")
@@ -39,6 +60,20 @@ func behaviorRisk(tags []string) int {
 	return risk
 }
 
+func matchStrings(ms []yara.MatchString) []string {
+	ss := []string{}
+	lastS := ""
+	for _, m := range ms {
+		s := string(m.Data)
+		if lastS != "" && strings.Contains(lastS, s) {
+			continue
+		}
+		ss = append(ss, s)
+	}
+	slices.Sort(ss)
+	return slices.Compact(ss)
+}
+
 func fileReport(mrs yara.MatchRules, ignoreTags []string) FileReport {
 	ignore := map[string]bool{}
 	for _, t := range ignoreTags {
@@ -57,7 +92,8 @@ func fileReport(mrs yara.MatchRules, ignoreTags []string) FileReport {
 
 	for _, m := range mrs {
 		b := Behavior{
-			Risk: behaviorRisk(m.Tags),
+			Risk:    behaviorRisk(m.Tags),
+			Strings: matchStrings(m.Strings),
 		}
 
 		for _, meta := range m.Metas {
