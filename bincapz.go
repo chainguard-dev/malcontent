@@ -83,9 +83,7 @@ func main() {
 			fmt.Printf("\n# %d behavior(s) filtered out, use --all to see more\n", filtered)
 		}
 	case "table":
-
 		filtered := 0
-
 		for path, fr := range res.Files {
 			fmt.Printf("%s\n", path)
 			keys := []string{}
@@ -101,11 +99,15 @@ func main() {
 			data := [][]string{}
 			for _, k := range keys {
 				b := fr.Behaviors[k]
-				data = append(data, []string{fmt.Sprintf("%d", b.Risk), k, b.Description})
+				val := strings.Join(b.Strings, "\n")
+				if len(val) > 24 {
+					val = val[0:24] + ".."
+				}
+				data = append(data, []string{fmt.Sprintf("%d", b.Risk), k, val, b.Description})
 			}
 			table := tablewriter.NewWriter(os.Stdout)
 			table.SetAutoWrapText(false)
-			table.SetHeader([]string{"Risk", "Key", "Description"})
+			table.SetHeader([]string{"Risk", "Key", "Example", "Description"})
 			//table.SetBorder(false)
 			table.AppendBulk(data) // Add Bulk Data
 			table.Render()
