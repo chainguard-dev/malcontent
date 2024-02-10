@@ -75,12 +75,12 @@ func main() {
 				fmt.Printf("- %s\n", key)
 			}
 			if fr.FilteredBehaviors > 0 {
-				filtered++
+				filtered += fr.FilteredBehaviors
 			}
 		}
 
 		if filtered > 0 {
-			fmt.Printf("\n# %d behaviors filtered out, use --all to see more\n", filtered)
+			fmt.Printf("\n# %d behavior(s) filtered out, use --all to see more\n", filtered)
 		}
 	case "table":
 
@@ -95,7 +95,7 @@ func main() {
 			slices.Sort(keys)
 
 			if fr.FilteredBehaviors > 0 {
-				filtered++
+				filtered += fr.FilteredBehaviors
 			}
 
 			data := [][]string{}
@@ -113,7 +113,7 @@ func main() {
 		}
 
 		if filtered > 0 {
-			fmt.Printf("\n# %d behaviors filtered out, use --all to see more\n", filtered)
+			fmt.Printf("\n%d behavior(s) filtered out, use --all to see them\n", filtered)
 		}
 
 	}

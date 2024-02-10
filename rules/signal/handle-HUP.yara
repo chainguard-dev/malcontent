@@ -1,6 +1,9 @@
-rule sigaction_SIGHUP {
+rule sigaction_SIGHUP : harmless {
+  meta:
+	description = "Listen for SIGHUP (hangup) events"
   strings:
-	$ref = "sigaction SIGHUP"
+	$sigaction="sigaction" fullword
+	$sigalrm="HUP"
   condition:
-	any of them
+	all of them
 }

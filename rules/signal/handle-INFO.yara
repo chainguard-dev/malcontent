@@ -1,6 +1,9 @@
-rule sigaction_SIGINFO {
+rule sigaction_SIGINFO : harmless {
+  meta:
+	description = "Listen for SIGINFO (information) events"
   strings:
-	$ref = "sigaction SIGINFO"
+	$sigaction="sigaction" fullword
+	$sigalrm="SIGINFO"
   condition:
-	any of them
+	all of them
 }
