@@ -1,6 +1,9 @@
-rule sigaction_SIGALRM {
+rule sigaction_SIGALRM : harmless {
+  meta:
+	description = "Listen for SIGALRM (timeout) events"
   strings:
-	$ref = "sigaction SIGALRM"
+	$sigaction="sigaction" fullword
+	$sigalrm="ALRM"
   condition:
-	any of them
+	all of them
 }

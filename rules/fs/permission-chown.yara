@@ -1,6 +1,6 @@
 rule chown : harmless {
 	meta:
-		description = "Uses libc functions to change file permissions"
+		description = "May change file ownership"
 		pledge = "wpath"
 		syscall = "chown"
 		capability = "CAP_CHOWN"
@@ -12,6 +12,7 @@ rule chown : harmless {
 
 rule fchown {
 	meta:
+		description = "May change file ownership"
 		pledge = "wpath"
 		syscall = "fchown"
 		capability = "CAP_CHOWN"
@@ -23,6 +24,7 @@ rule fchown {
 
 rule fchownat {
 	meta:
+		description = "May change file ownership"
 		pledge = "wpath"
 		syscall = "fchown"
 		capability = "CAP_CHOWN"

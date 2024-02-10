@@ -1,6 +1,9 @@
-rule sigaction_SIGINT {
+rule sigaction_SIGINT : harmless {
+  meta:
+	description = "Listen for SIGINT (ctrl-C) events"
   strings:
-	$ref = "sigaction SIGINT"
+	$sigaction="sigaction" fullword
+	$sigalrm="SIGINT"
   condition:
-	any of them
+	all of them
 }
