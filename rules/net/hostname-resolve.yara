@@ -23,6 +23,7 @@ rule net_hostlookup {
 		description = "Uses Go to resolve network hosts"
 	strings:
 		$net_lookup = "net.hostLookup"
+		$hostip = "LookupHostIP"
 	condition:
 		any of them
 }
