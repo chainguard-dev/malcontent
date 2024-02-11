@@ -13,13 +13,15 @@ Fast capability enumeration of binaries through static analysis. Powered by YARA
 
 ## Installation
 
+Requires `yara`
+
 ```shell
 go install github.com/tstromberg/bincapz@latest
 ```
 
 ## Demo - ping
 
-When run against /sbin/ping:
+When run against `/sbin/ping`:
 
 ```
 +------+-------------------------+------------------------+------------------------------------------------------------+
@@ -81,7 +83,7 @@ That's a good sign to look into the root of the update. And yes, that is real ou
 ## Usage
 
 ```
-bincapz <path...>
+bincapz <path to binary>
 ```
 
 Some flags are accepted:
