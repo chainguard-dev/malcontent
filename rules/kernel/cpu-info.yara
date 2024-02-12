@@ -21,3 +21,16 @@ rule host_processors {
 	condition:
 		any of them
 }
+
+
+
+rule processor_count {
+	meta:
+		description = "gets number of processors"
+		ref = "https://man7.org/linux/man-pages/man3/get_nprocs.3.html"
+	strings:
+		$ref = "get_nprocs" fullword
+		$ref2 = "nproc" fullword
+	condition:
+		any of them
+}

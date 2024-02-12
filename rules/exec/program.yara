@@ -50,3 +50,15 @@ rule system {
 	condition:
 		all of them
 }
+
+
+rule posix_spawn {
+	meta:
+		syscall = "posix_spawn"
+		pledge = "exec"
+		description = "spawn a process"
+	strings:
+		$ref = "posix_spawn"
+	condition:
+		all of them
+}
