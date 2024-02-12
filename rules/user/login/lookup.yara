@@ -1,5 +1,4 @@
-
-rule getpwuid {
+rule getpwuid : harmless {
 	meta:
 		description = "get entry from passwd (user) database"
 	strings:

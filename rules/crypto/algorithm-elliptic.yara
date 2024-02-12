@@ -1,4 +1,4 @@
-rule elliptic {
+rule elliptic : harmless {
 	strings:
 		$go = "crypto/elliptic"
 		$p224 = "elliptic.p224"

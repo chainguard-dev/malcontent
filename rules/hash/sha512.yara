@@ -1,4 +1,4 @@
-rule SHA512 {
+rule SHA512 : harmless {
   meta:
 	description = "Uses the SHA512 signature format"
   strings:

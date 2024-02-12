@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
+	"unicode"
 
 	"github.com/hillu/go-yara/v4"
 	"k8s.io/klog/v2"
@@ -60,11 +61,23 @@ func behaviorRisk(tags []string) int {
 	return risk
 }
 
+func unprintableString(s string) bool {
+	for _, r := range s {
+		if !unicode.IsPrint(r) {
+			return true
+		}
+	}
+	return false
+}
+
 func matchStrings(ms []yara.MatchString) []string {
 	ss := []string{}
 	lastS := ""
 	for _, m := range ms {
 		s := string(m.Data)
+		if unprintableString(s) {
+			s = m.Name
+		}
 		if lastS != "" && strings.Contains(lastS, s) {
 			continue
 		}

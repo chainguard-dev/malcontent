@@ -1,5 +1,4 @@
-
-rule protobuf {
+rule protobuf : harmless {
 	strings:
 		$ref = "protobuf" fullword
 	condition:
