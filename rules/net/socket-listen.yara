@@ -2,6 +2,7 @@ rule listen {
 	meta:
 		description = "listen on a socket"
 		pledge = "inet"
+		syscall = "accept"
 	strings:
 		$socket = "socket" fullword
 		$listen = "listen" fullword

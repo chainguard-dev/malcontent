@@ -1,4 +1,4 @@
-rule etc_path {
+rule tmp_path {
 	meta:
 		description = "References paths within /tmp"
 	strings:
