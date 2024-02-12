@@ -14,7 +14,7 @@ rule stat : harmless {
 rule fstat : harmless {
 	meta:
 		pledge = "rpath"
-		syscall = "stat"
+		syscall = "fstat"
 	strings:
 		$ref = "fstat" fullword
 		$ref2 = "fstat64" fullword
@@ -28,7 +28,7 @@ rule fstat : harmless {
 rule lstat : harmless {
 	meta:
 		pledge = "rpath"
-		syscall = "stat"
+		syscall = "lstat"
 	strings:
 		$ref = "lstat" fullword
 	condition:

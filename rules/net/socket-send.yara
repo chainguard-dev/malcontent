@@ -2,7 +2,7 @@
 rule sendmsg {
 	meta:
 		description = "send a message to a socket"
-		syscall = "sendmsg"
+		syscall = "sendmsg,sendto"
 //		pledge = "rpath"
 	strings:
 		$sendmsg = "sendmsg" fullword
