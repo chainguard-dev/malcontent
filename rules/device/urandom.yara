@@ -1,5 +1,5 @@
 
-rule urandom {
+rule urandom : harmless {
 	meta:
 		description = "references /dev/urandom"
 	strings:

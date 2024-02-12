@@ -1,4 +1,4 @@
-rule getegid {
+rule getegid : harmless {
 	meta:
 		syscall = "getegid"
 		description = "returns the effective group id of the current process"

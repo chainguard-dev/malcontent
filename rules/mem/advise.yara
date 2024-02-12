@@ -1,4 +1,4 @@
-rule madvise {
+rule madvise : harmless {
 	meta:
 		syscall = "madvise"
 		description = "give advice about use of memory"

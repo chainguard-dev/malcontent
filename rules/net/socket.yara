@@ -1,4 +1,4 @@
-rule setsockopt {
+rule setsockopt : harmless {
 	meta:
 		description = "set socket options"
 		syscall = "setsockopt"

@@ -1,4 +1,4 @@
-rule geteuid {
+rule geteuid : harmless {
 	meta:
 		syscall = "geteuid"
 		description = "returns the effective user id of the current process"
