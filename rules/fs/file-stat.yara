@@ -17,6 +17,8 @@ rule fstat : harmless {
 		syscall = "stat"
 	strings:
 		$ref = "fstat" fullword
+		$ref2 = "fstat64" fullword
+		$ref3 = "fstatat64" fullword
 	condition:
 		any of them
 }
