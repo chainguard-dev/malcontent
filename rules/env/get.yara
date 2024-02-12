@@ -4,6 +4,7 @@ rule getenv : harmless {
   strings:
 	$getenv = "getenv" fullword
 	$go_Getenv = "Getenv" fullword
+	$secure_getenv = "secure_getenv" fullword
   condition:
 	any of them
 }
