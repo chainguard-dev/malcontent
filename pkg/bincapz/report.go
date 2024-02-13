@@ -19,10 +19,10 @@ type Behavior struct {
 
 type FileReport struct {
 	// compiler -> x
-	Meta              map[string]string `json:",omitempty" yaml:",omitempty"`
-	Syscalls          []string          `json:",omitempty" yaml:",omitempty"`
-	Pledge            []string          `json:",omitempty" yaml:",omitempty"`
-	Capabililies      []string          `json:",omitempty" yaml:",omitempty"`
+	Meta              map[string]string
+	Syscalls          []string
+	Pledge            []string
+	Capabilities      []string
 	Behaviors         map[string]Behavior
 	FilteredBehaviors int `json:",omitempty" yaml:",omitempty"`
 }
@@ -156,7 +156,7 @@ func fileReport(mrs yara.MatchRules, ignoreTags []string) FileReport {
 	slices.Sort(caps)
 	fr.Pledge = slices.Compact(pledges)
 	fr.Syscalls = slices.Compact(syscalls)
-	fr.Capabililies = slices.Compact(caps)
+	fr.Capabilities = slices.Compact(caps)
 
 	klog.V(1).Infof("yara matches: %+v", mrs)
 	return fr
