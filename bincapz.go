@@ -20,7 +20,6 @@ var ruleFs embed.FS
 func main() {
 	formatFlag := flag.String("format", "table", "Output type. Valid values are: table, simple, json, yaml")
 	ignoreTagsFlag := flag.String("ignore-tags", "harmless", "Rule tags to ignore")
-	// outputFlag := flag.String("output", "caps", "output type: caps,pledges,syscalls")
 	allFlag := flag.Bool("all", false, "Ignore nothing, show all")
 
 	klog.InitFlags(nil)
