@@ -5,6 +5,7 @@ rule popen {
 	strings:
 		$_popen = "_popen" fullword
 		$_pclose = "_pclose" fullword
+		$os_popen = "os.popen" fullword
 	condition:
 		any of them
 }

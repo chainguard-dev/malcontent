@@ -22,8 +22,6 @@ rule host_processors {
 		any of them
 }
 
-
-
 rule processor_count {
 	meta:
 		description = "gets number of processors"

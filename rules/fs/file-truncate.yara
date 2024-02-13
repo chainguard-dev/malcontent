@@ -12,7 +12,7 @@ rule ftruncate {
 
 
 
-rule truncate {
+rule truncate : harmless {
 	meta:
 		syscall = "truncate"
 		description = "truncate a file to a specified length"
