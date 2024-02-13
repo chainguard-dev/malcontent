@@ -22,7 +22,7 @@ func RenderTable(res *Report, w io.Writer) {
 		data := [][]string{}
 
 		for k, v := range fr.Meta {
-			data = append(data, []string{"", k, v, ""})
+			data = append(data, []string{"-", k, v, ""})
 		}
 		data = append(data, []string{"", "", "", ""})
 		for _, k := range keys {
