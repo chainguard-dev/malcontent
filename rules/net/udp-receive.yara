@@ -3,6 +3,7 @@ rule udp_listen {
 		description = "Listens for UDP responses"
 	strings:
 		$ref = "listenUDP"
+		$ref2 = "ReadFromUDP"
 	condition:
 		any of them
 }

@@ -2,7 +2,7 @@ rule etc_path {
 	meta:
 		description = "References paths within /etc"
 	strings:
-		$resolv = /\/etc\/[\w\.\-\/]{0,64}/ 
+		$resolv = /\/etc\/[a-z\.\-\/]{4,64}/ 
 	condition:
 		any of them
 }

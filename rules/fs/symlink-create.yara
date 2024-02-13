@@ -1,4 +1,4 @@
-rule symlink {
+rule symlink : harmless {
 	meta:
 		syscall = "symlink"
 		pledge = "cpath"
@@ -10,7 +10,7 @@ rule symlink {
 		$ref and not $ls
 }
 
-rule _symlink {
+rule _symlink : harmless {
 	meta:
 		syscall = "symlink"
 		pledge = "cpath"
@@ -21,7 +21,7 @@ rule _symlink {
 		any of them
 }
 
-rule symlinkat {
+rule symlinkat : harmless {
 	meta:
 		syscall = "symlinkat"
 		pledge = "cpath"

@@ -1,7 +1,7 @@
 rule setrlimit : harmless {
 	meta:
 		syscall = "setrlimit"
-		description = " control maximum system resource consumption"
+		description = "set resource limits"
 		pledge = "id"
 	strings:
 		$ref = "setrlimit" fullword

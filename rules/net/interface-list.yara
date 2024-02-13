@@ -4,6 +4,7 @@ rule bsd_ifaddrs {
 	strings:
 		$getifaddrs = "getifaddrs" fullword
 		$freeifaddrs = "freeifaddrs" fullword
+		$ifconfig = "ifconfig" fullword
 	condition:
 		any of them
 }
