@@ -50,7 +50,7 @@ func main() {
 
 	switch *formatFlag {
 	case "json":
-		json, err := json.Marshal(res)
+		json, err := json.MarshalIndent(res, "", "    ")
 		if err != nil {
 			klog.Fatalf("marshal: %v", err)
 		}
