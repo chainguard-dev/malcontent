@@ -1,5 +1,5 @@
 
-rule syslog {
+rule syslog : harmless {
 	meta:
 		description = "Use the syslog (system log) service"
 		// The truth is a bit more nuanced

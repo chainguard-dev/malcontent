@@ -1,4 +1,4 @@
-rule dylib {
+rule dylib : harmless {
 	meta:
 		description = "makes use of dynamic libraries"
 	strings:
@@ -7,4 +7,3 @@ rule dylib {
 	condition:
 		any of them
 }
-
