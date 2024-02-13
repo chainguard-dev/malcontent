@@ -20,6 +20,11 @@ func RenderTable(res *Report, w io.Writer) {
 		slices.Sort(keys)
 
 		data := [][]string{}
+
+		for k, v := range fr.Meta {
+			data = append(data, []string{"", k, v, ""})
+		}
+		data = append(data, []string{"", "", "", ""})
 		for _, k := range keys {
 			b := fr.Behaviors[k]
 			val := strings.Join(b.Strings, " ")
