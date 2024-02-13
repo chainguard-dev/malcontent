@@ -1,23 +1,12 @@
-
-rule reboot {
-	meta:
-		capability = "CAP_SYS_BOOT"
-		description = "reboot system"
-	strings:
-		$ref = "reboot" fullword
-		$not_daily = "daily" fullword
-	condition:
-		$ref and none of ($not*)
-}
-
-rule _reboot {
+rule _reboot : harmless {
 	meta:
 		capability = "CAP_SYS_BOOT"
 		description = "reboot system"
 	strings:
 		$ref = "_reboot" fullword
+		$not_master = "master_reboot"
 	condition:
-		$ref
+		$ref and none of ($not*)
 }
 
 rule kexec_load {
