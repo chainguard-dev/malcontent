@@ -6,6 +6,7 @@ rule popen : notable {
 		$_popen = "_popen" fullword
 		$_pclose = "_pclose" fullword
 		$os_popen = "os.popen" fullword
+		$pipe_glibc = "pipe@@GLIBC"
 	condition:
 		any of them
 }

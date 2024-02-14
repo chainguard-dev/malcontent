@@ -1,5 +1,5 @@
 
-rule uname {
+rule uname : notable {
 	meta:
 		description = "get system identification (uname)"
 		pledge = "sysctl"
@@ -10,7 +10,7 @@ rule uname {
 		any of them
 }
 
-rule os_release {
+rule os_release : notable {
 	meta:
 		description = "get system identification (os_release)"
 		pledge = "sysctl"

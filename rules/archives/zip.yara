@@ -1,5 +1,5 @@
 
-rule zip : suspicious {
+rule zip : notable {
 	meta:
 		description = "Works with zip files"
 	strings:

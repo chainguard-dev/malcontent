@@ -2,7 +2,8 @@ rule tls {
 	strings:
 		$go = "crypto/tls"
 		$tlsversion = "TLSVersion"
-		$tls123 = "TLS13"
+		$TLS123 = "TLS13"
+		$tls123 = "tls123"
 	condition:
 		any of them
 }

@@ -1,4 +1,4 @@
-rule whoami : suspicious {
+rule whoami : notable {
 	meta:
 		syscall = "getuid"
 		description = "returns the user name running this process"

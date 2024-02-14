@@ -1,4 +1,4 @@
-rule etc_hosts : suspicious {
+rule etc_hosts : notable {
 	meta:
 		description = "References /etc/hosts"
 	strings:

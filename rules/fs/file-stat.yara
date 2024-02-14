@@ -34,3 +34,16 @@ rule lstat : harmless {
 	condition:
 		any of them
 }
+
+
+
+rule go_stat : harmless {
+	meta:
+		description = "Access filesystem information"
+		pledge = "rpath"
+		syscall = "stat"
+	strings:
+		$filestat = "os.(*fileStat)"
+	condition:
+		any of them
+}

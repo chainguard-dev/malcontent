@@ -1,4 +1,4 @@
-rule getlogin : harmless {
+rule getlogin {
 	meta:
 		syscall = "getlogin"
 		description = "get login name"
