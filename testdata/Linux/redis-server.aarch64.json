@@ -1,0 +1,196 @@
+{
+    "Files": {
+        "redis-server.aarch64": {
+            "Meta": {
+                "compiler": "gcc"
+            },
+            "Syscalls": [
+                "accept",
+                "close",
+                "execve",
+                "fchmodat",
+                "flock",
+                "fstat",
+                "fsync",
+                "ftruncate",
+                "getcwd",
+                "getpeername",
+                "getpid",
+                "getsockname",
+                "getuid",
+                "ioctl",
+                "madvise",
+                "mprotect",
+                "open",
+                "prctl",
+                "rename",
+                "setsid",
+                "setsockopt",
+                "stat",
+                "sysctl",
+                "truncate",
+                "unlink"
+            ],
+            "Pledge": [
+                "cpath",
+                "exec",
+                "fattr",
+                "flock",
+                "id",
+                "inet",
+                "proc",
+                "rpath",
+                "stdio",
+                "sysctl",
+                "wpath"
+            ],
+            "Capabilities": [],
+            "Behaviors": {
+                "current_proc/whoami": {
+                    "Description": "returns the user name running this process",
+                    "Strings": [
+                        "whoami"
+                    ],
+                    "Risk": 3
+                },
+                "exec/program": {
+                    "Description": "calls other programs",
+                    "Strings": [
+                        "execve"
+                    ],
+                    "Risk": 1
+                },
+                "exec/program/background": {
+                    "Description": "Waits for a process to exit",
+                    "Strings": [
+                        "waitpid"
+                    ],
+                    "Risk": 1
+                },
+                "fd/epoll": {
+                    "Description": "I/O event notification facility",
+                    "Strings": [
+                        "epoll_create",
+                        "epoll_wait"
+                    ],
+                    "Risk": 1
+                },
+                "fs/directory/create": {
+                    "Description": "Uses libc functions to create directories",
+                    "Strings": [
+                        "mkdir"
+                    ],
+                    "Risk": 1
+                },
+                "fs/directory/remove": {
+                    "Description": "Uses libc functions to remove directories",
+                    "Strings": [
+                        "rmdir"
+                    ],
+                    "Risk": 1
+                },
+                "fs/file/delete": {
+                    "Description": "deletes files",
+                    "Strings": [
+                        "unlink"
+                    ],
+                    "Risk": 1
+                },
+                "fs/file/truncate": {
+                    "Description": "truncate a file to a specified length",
+                    "Strings": [
+                        "ftruncate",
+                        "ftruncate64"
+                    ],
+                    "Risk": 1
+                },
+                "fs/lock/update": {
+                    "Description": "apply or remove an advisory lock on a file",
+                    "Strings": [
+                        "flock"
+                    ],
+                    "Risk": 1
+                },
+                "fs/permission/modify": {
+                    "Description": "Modifies file permissions using fchmod",
+                    "Strings": [
+                        "fchmod"
+                    ],
+                    "Risk": 1
+                },
+                "fs/tempfile/create": {
+                    "Description": "Uses mktemp to create temporary files",
+                    "Strings": [
+                        "temp file"
+                    ],
+                    "Risk": 1
+                },
+                "kernel/uname/get": {
+                    "Description": "get system identification (uname)",
+                    "Strings": [
+                        "uname"
+                    ],
+                    "Risk": 1
+                },
+                "net/socket/listen": {
+                    "Description": "listen on a socket",
+                    "Strings": [
+                        "accept",
+                        "listen",
+                        "socket"
+                    ],
+                    "Risk": 1
+                },
+                "net/socket/local/address": {
+                    "Description": "get local address of connected socket",
+                    "Strings": [
+                        "getsockname"
+                    ],
+                    "Risk": 1
+                },
+                "net/socket/peer/address": {
+                    "Description": "get peer address of connected socket",
+                    "Strings": [
+                        "getpeername"
+                    ],
+                    "Risk": 1
+                },
+                "random/insecure": {
+                    "Description": "generate random numbers insecurely",
+                    "Strings": [
+                        "srand"
+                    ],
+                    "Risk": 1
+                },
+                "ref/path/etc": {
+                    "Description": "References paths within /etc",
+                    "Strings": [
+                        "/etc/myredis.conf",
+                        "/etc/rc.local",
+                        "/etc/redis/",
+                        "/etc/sentinel.conf",
+                        "/etc/sysctl.conf"
+                    ],
+                    "Risk": 1
+                },
+                "ref/path/tmp": {
+                    "Description": "References paths within /tmp",
+                    "Strings": [
+                        "/tmp/dump.bin",
+                        "/tmp/dump.hex"
+                    ],
+                    "Risk": 1
+                },
+                "ref/path/var": {
+                    "Description": "References paths within /var",
+                    "Strings": [
+                        "/var/run/redis.pid"
+                    ],
+                    "Risk": 1
+                }
+            },
+            "FilteredBehaviors": 35
+        }
+    },
+    "Filter": "harmless"
+}

@@ -11,10 +11,18 @@ import (
 	"k8s.io/klog/v2"
 )
 
+var riskLevels = map[int]string{
+	0: "NONE",   // harmless: common to all executables, no system impact
+	1: "LOW",    // undefined: low impact, common to good and bad executables
+	2: "MEDIUM", // notable: may have impact, but common
+	3: "HIGH",   // suspicious: uncommon
+}
+
 type Behavior struct {
 	Description string `json:",omitempty" yaml:",omitempty"`
 	Strings     []string
-	Risk        int
+	RiskScore   int
+	RiskLevel   string
 }
 
 type FileReport struct {
@@ -52,7 +60,7 @@ func behaviorRisk(tags []string) int {
 	if slices.Contains(tags, "harmless") {
 		risk = 0
 	}
-	if slices.Contains(tags, "risky") {
+	if slices.Contains(tags, "notable") {
 		risk = 2
 	}
 	if slices.Contains(tags, "suspicious") {
@@ -104,9 +112,11 @@ func fileReport(mrs yara.MatchRules, ignoreTags []string) FileReport {
 	desc := ""
 
 	for _, m := range mrs {
+		risk := behaviorRisk(m.Tags)
 		b := Behavior{
-			Risk:    behaviorRisk(m.Tags),
-			Strings: matchStrings(m.Strings),
+			RiskScore: risk,
+			RiskLevel: riskLevels[risk],
+			Strings:   matchStrings(m.Strings),
 		}
 
 		for _, meta := range m.Metas {
@@ -140,7 +150,7 @@ func fileReport(mrs yara.MatchRules, ignoreTags []string) FileReport {
 
 		// We've already seen a similar behavior: do we augment it or replace it?
 		existing, exists := fr.Behaviors[key]
-		if !exists || existing.Risk < b.Risk {
+		if !exists || existing.RiskScore < b.RiskScore {
 			fr.Behaviors[key] = b
 			continue
 		}

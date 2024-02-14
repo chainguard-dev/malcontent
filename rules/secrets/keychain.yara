@@ -1,4 +1,4 @@
-rule keychain {
+rule keychain : notable {
 	meta:
 		description = "Accesses the system keychain"
 	strings:

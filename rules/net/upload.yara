@@ -1,7 +1,7 @@
 
-rule upload {
+rule upload : notable {
 	meta:
-		description = "Uploads files via an unknown protocol"
+		description = "Uploads files"
 	strings:
 		$ref = "upload" fullword
 		$ref2 = "UPLOAD" fullword

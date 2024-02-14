@@ -1,6 +1,6 @@
 {
     "Files": {
-        "testdata/3CX_clean_ffmpeg.dylib": {
+        "3CX_clean_ffmpeg.dylib": {
             "Meta": {
                 "deps": "ffmpeg",
                 "format": "macho"

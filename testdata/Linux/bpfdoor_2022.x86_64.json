@@ -1,0 +1,126 @@
+{
+    "Files": {
+        "bpfdoor_2022.x86_64": {
+            "Meta": {
+                "compiler": "gcc"
+            },
+            "Syscalls": [
+                "accept",
+                "chroot",
+                "execve",
+                "getpid",
+                "getuid",
+                "ioctl",
+                "prctl",
+                "sendmsg",
+                "sendto",
+                "setsid",
+                "setsockopt",
+                "unlink",
+                "utimes",
+                "vhangup"
+            ],
+            "Pledge": [
+                "exec",
+                "fattr",
+                "inet",
+                "proc",
+                "rpath",
+                "wpath"
+            ],
+            "Capabilities": [],
+            "Behaviors": {
+                "device/pseudo_terminal": {
+                    "Description": "pseudo-terminal access functions",
+                    "Strings": [
+                        "grantpt",
+                        "ptsname",
+                        "unlockpt"
+                    ],
+                    "Risk": 1
+                },
+                "exec/program": {
+                    "Description": "calls other programs",
+                    "Strings": [
+                        "execve"
+                    ],
+                    "Risk": 1
+                },
+                "exec/program/background": {
+                    "Description": "Waits for a process to exit",
+                    "Strings": [
+                        "waitpid"
+                    ],
+                    "Risk": 1
+                },
+                "fs/file/delete": {
+                    "Description": "deletes files",
+                    "Strings": [
+                        "unlink"
+                    ],
+                    "Risk": 1
+                },
+                "net/socket/listen": {
+                    "Description": "listen on a socket",
+                    "Strings": [
+                        "accept",
+                        "listen",
+                        "socket"
+                    ],
+                    "Risk": 1
+                },
+                "net/socket/receive": {
+                    "Description": "receive a message from a socket",
+                    "Strings": [
+                        "recvfrom"
+                    ],
+                    "Risk": 1
+                },
+                "net/socket/send": {
+                    "Description": "send a message to a socket",
+                    "Strings": [
+                        "sendto"
+                    ],
+                    "Risk": 1
+                },
+                "proc/chroot": {
+                    "Description": "change the location of root for the process",
+                    "Strings": [
+                        "chroot"
+                    ],
+                    "Risk": 1
+                },
+                "random/insecure": {
+                    "Description": "generate random numbers insecurely",
+                    "Strings": [
+                        "srand"
+                    ],
+                    "Risk": 1
+                },
+                "ref/path/usr/sbin": {
+                    "Description": "References paths within /usr/sbin",
+                    "Strings": [
+                        "/usr/sbin/console-kit-daemon"
+                    ],
+                    "Risk": 1
+                },
+                "service/daemon": {
+                    "Description": "Run as a background daemon",
+                    "Strings": [
+                        "daemon"
+                    ],
+                    "Risk": 1
+                },
+                "tty/vhangup": {
+                    "Description": "virtually hangup the current terminal",
+                    "Strings": [
+                        "vhangup"
+                    ],
+                    "Risk": 1
+                }
+            },
+            "FilteredBehaviors": 8
+        }
+    },
+    "Filter": "harmless"
+}

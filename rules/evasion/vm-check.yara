@@ -15,3 +15,4 @@ rule vm_checker : suspicious {
   condition:
     2 of ($a_*) and none of ($not_*)
 }
+

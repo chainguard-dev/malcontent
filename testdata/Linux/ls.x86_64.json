@@ -1,0 +1,33 @@
+{
+    "Files": {
+        "ls.x86_64": {
+            "Meta": {
+                "compiler": "gcc"
+            },
+            "Syscalls": [
+                "close",
+                "getcwd",
+                "ioctl",
+                "open",
+                "sysctl"
+            ],
+            "Pledge": [
+                "rpath",
+                "sysctl",
+                "wpath"
+            ],
+            "Capabilities": [],
+            "Behaviors": {
+                "kernel/hostname/get": {
+                    "Description": "gets the hostname of the machine",
+                    "Strings": [
+                        "gethostname"
+                    ],
+                    "Risk": 1
+                }
+            },
+            "FilteredBehaviors": 12
+        }
+    },
+    "Filter": "harmless"
+}

@@ -1,4 +1,4 @@
-rule popen {
+rule popen : notable {
 	meta:
 		description = "Uses popen to launch a program and pipe output to/from it"
 		syscall = "pipe"

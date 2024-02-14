@@ -1,4 +1,4 @@
-rule execall {
+rule execall : notable {
 	meta:
 		syscall = "execve"
 		pledge = "exec"
