@@ -1,5 +1,7 @@
 
 rule readdir_intercept : suspicious {
+	meta:
+		description = "userland rootkit designed to hide files"
 	strings:
 		$r_new65 = "readdir64" fullword
 		$r_old64  = "_readdir64"

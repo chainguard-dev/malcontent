@@ -1,4 +1,4 @@
-rule setlogin {
+rule setlogin : notable {
 	meta:
 		syscall = "setlogin"
 		description = "set login name"

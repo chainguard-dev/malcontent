@@ -1,4 +1,4 @@
-rule mounts : suspicious {
+rule mount_files : suspicious {
 	meta:
 		description = "Parses active mounts (/etc/fstab, /etc/mtab)"
 		pledge = "stdio"

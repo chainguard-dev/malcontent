@@ -1,4 +1,4 @@
-rule udp_listen {
+rule udp_send {
 	meta:
 		description = "Sends UDP packets"
 	strings:

@@ -2,6 +2,7 @@
 rule JSONDecode {
 	strings:
 		$jsond = "JSONDecode"
+		$unmarshal = "UnmarshalJSON" fullword
 	condition:
 		any of them
 }

@@ -1,4 +1,4 @@
-rule dns_refs {
+rule dns_txt {
 	meta:
 		description = "Uses DNS TXT (text) records"
 	strings:

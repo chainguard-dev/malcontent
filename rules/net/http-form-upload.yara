@@ -1,4 +1,4 @@
-rule content_type {
+rule http_form : notable {
 	meta:
 		pledge = "inet"
 		description = "Able to submit content to an HTML form"

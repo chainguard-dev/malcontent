@@ -1,6 +1,7 @@
 rule Z : harmless {
   strings:
-	$zprefix = "__Z"
+	$zprefix = "_Z"
   condition:
 	#zprefix > 5
 }
+

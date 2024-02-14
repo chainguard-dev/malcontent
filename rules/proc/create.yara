@@ -21,7 +21,7 @@ rule syscall_vfork {
 }
 
 
-rule syscall_clone {
+rule syscall_clone : harmless {
 	meta:
 		pledge = "exec"
 		syscall = "clone"

@@ -1,4 +1,3 @@
-
 rule sysctl : harmless {
 	meta:
 		description = "get or set kernel stat"
@@ -8,3 +7,5 @@ rule sysctl : harmless {
 	condition:
 		any of them
 }
+
+

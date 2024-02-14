@@ -1,5 +1,5 @@
 
-rule pty {
+rule pty : notable {
 	meta:
 		description = "pseudo-terminal access functions"
 	strings:

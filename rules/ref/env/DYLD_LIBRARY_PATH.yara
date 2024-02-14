@@ -1,4 +1,4 @@
-rule dyld_library_path {
+rule dyld_library_path : notable {
   strings:
 	$ref = "DYLD_LIBRARY_PATH"
   condition:

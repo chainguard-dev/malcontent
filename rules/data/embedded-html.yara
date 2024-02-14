@@ -1,4 +1,4 @@
-rule html : suspicious {
+rule html : notable {
     meta:
         description = "Contains HTML content"
     strings:
