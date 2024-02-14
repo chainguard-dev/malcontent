@@ -1,0 +1,85 @@
+{
+    "Files": {
+        "does-nothing": {
+            "Meta": {
+                "compiler": "go"
+            },
+            "Syscalls": [
+                "clone",
+                "fsync",
+                "getpid",
+                "getrlimit",
+                "getuid",
+                "ioctl",
+                "madvise",
+                "pread64",
+                "pwrite64",
+                "setrlimit",
+                "symlinkat",
+                "truncate",
+                "unlink"
+            ],
+            "Pledge": [
+                "cpath",
+                "exec",
+                "id",
+                "stdio",
+                "wpath"
+            ],
+            "Capabilities": [],
+            "Behaviors": {
+                "encoding/base64": {
+                    "Description": "Supports base64 encoded strings",
+                    "Strings": [
+                        "base64"
+                    ],
+                    "Risk": 1
+                },
+                "encoding/json": {
+                    "Description": "Supports JSON encoded objects",
+                    "Strings": [
+                        "encoding/json"
+                    ],
+                    "Risk": 1
+                },
+                "fs/directory/remove": {
+                    "Description": "Uses libc functions to remove directories",
+                    "Strings": [
+                        "Rmdir"
+                    ],
+                    "Risk": 1
+                },
+                "fs/file/delete": {
+                    "Description": "deletes files",
+                    "Strings": [
+                        "unlinkat"
+                    ],
+                    "Risk": 1
+                },
+                "kernel/cpu/info": {
+                    "Description": "gets number of processors",
+                    "Strings": [
+                        "nproc"
+                    ],
+                    "Risk": 1
+                },
+                "proc/create": {
+                    "Description": "Create a new child process using clone",
+                    "Strings": [
+                        "clone"
+                    ],
+                    "Risk": 1
+                },
+                "ref/path/etc": {
+                    "Description": "References paths within /etc",
+                    "Strings": [
+                        "/etc/zoneinfo"
+                    ],
+                    "Risk": 1
+                }
+            },
+            "FilteredBehaviors": 24
+        }
+    },
+    "Filter": "harmless"
+}

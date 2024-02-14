@@ -1,0 +1,106 @@
+{
+    "Files": {
+        "ping.x86_64": {
+            "Meta": {
+                "compiler": "gcc"
+            },
+            "Syscalls": [
+                "close",
+                "geteuid",
+                "getpid",
+                "getsockname",
+                "getuid",
+                "ioctl",
+                "open",
+                "prctl",
+                "sendmsg",
+                "sendto",
+                "setsockopt",
+                "setuid"
+            ],
+            "Pledge": [
+                "id",
+                "inet",
+                "wpath"
+            ],
+            "Capabilities": [],
+            "Behaviors": {
+                "current_proc/userid/set": {
+                    "Description": "set real and effective user ID of process",
+                    "Strings": [
+                        "setuid"
+                    ],
+                    "Risk": 1
+                },
+                "net/icmp": {
+                    "Description": "ICMP (Internet Control Message Protocol), aka ping packets",
+                    "Strings": [
+                        "ICMP"
+                    ],
+                    "Risk": 1
+                },
+                "net/interface/get": {
+                    "Description": "libc functions for retrieving network interface",
+                    "Strings": [
+                        "if_nametoindex"
+                    ],
+                    "Risk": 1
+                },
+                "net/interface/list": {
+                    "Description": "list network interfaces and their associated addresses",
+                    "Strings": [
+                        "freeifaddrs",
+                        "getifaddrs"
+                    ],
+                    "Risk": 1
+                },
+                "net/ip/multicast/send": {
+                    "Description": "Send data to multiple nodes simultaneously",
+                    "Strings": [
+                        "multicast"
+                    ],
+                    "Risk": 1
+                },
+                "net/ip/send/unicast": {
+                    "Description": "send data to the internet",
+                    "Strings": [
+                        "unicast"
+                    ],
+                    "Risk": 1
+                },
+                "net/raw_sockets": {
+                    "Description": "Uses raw sockets",
+                    "Strings": [
+                        "SOCK_RAW",
+                        "raw socket"
+                    ],
+                    "Risk": 3
+                },
+                "net/socket/local/address": {
+                    "Description": "get local address of connected socket",
+                    "Strings": [
+                        "getsockname"
+                    ],
+                    "Risk": 1
+                },
+                "net/socket/receive": {
+                    "Description": "receive a message from a socket",
+                    "Strings": [
+                        "recvmsg"
+                    ],
+                    "Risk": 1
+                },
+                "net/socket/send": {
+                    "Description": "send a message to a socket",
+                    "Strings": [
+                        "sendmsg",
+                        "sendto"
+                    ],
+                    "Risk": 1
+                }
+            },
+            "FilteredBehaviors": 11
+        }
+    },
+    "Filter": "harmless"
+}

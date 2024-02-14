@@ -1,6 +1,6 @@
 
 
-rule DADisk {
+rule DADisk : notable {
 	meta:
 		description = "Get information about disks"
 		ref = "https://developer.apple.com/documentation/diskarbitration"

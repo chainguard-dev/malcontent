@@ -5,19 +5,32 @@ import (
 	"io"
 	"os"
 	"slices"
+	"sort"
 	"strings"
 
 	"github.com/olekukonko/tablewriter"
 )
 
+type KeyedBehavior struct {
+	Key      string
+	Behavior Behavior
+}
+
 func RenderTable(res *Report, w io.Writer) {
 	for path, fr := range res.Files {
 		fmt.Printf("%s\n", path)
-		keys := []string{}
-		for key := range fr.Behaviors {
-			keys = append(keys, key)
+
+		kbs := []KeyedBehavior{}
+		for k, b := range fr.Behaviors {
+			kbs = append(kbs, KeyedBehavior{Key: k, Behavior: b})
 		}
-		slices.Sort(keys)
+
+		sort.Slice(kbs, func(i, j int) bool {
+			if kbs[i].Behavior.RiskScore == kbs[j].Behavior.RiskScore {
+				return kbs[i].Key < kbs[j].Key
+			}
+			return kbs[i].Behavior.RiskScore < kbs[j].Behavior.RiskScore
+		})
 
 		data := [][]string{}
 
@@ -25,13 +38,13 @@ func RenderTable(res *Report, w io.Writer) {
 			data = append(data, []string{"-", k, v, ""})
 		}
 		data = append(data, []string{"", "", "", ""})
-		for _, k := range keys {
-			b := fr.Behaviors[k]
-			val := strings.Join(b.Strings, " ")
+
+		for _, k := range kbs {
+			val := strings.Join(k.Behavior.Strings, " ")
 			if len(val) > 24 {
 				val = val[0:24] + ".."
 			}
-			data = append(data, []string{fmt.Sprintf("%d", b.Risk), k, val, b.Description})
+			data = append(data, []string{fmt.Sprintf("%d/%s", k.Behavior.RiskScore, k.Behavior.RiskLevel), k.Key, val, k.Behavior.Description})
 		}
 		table := tablewriter.NewWriter(os.Stdout)
 		table.SetAutoWrapText(false)

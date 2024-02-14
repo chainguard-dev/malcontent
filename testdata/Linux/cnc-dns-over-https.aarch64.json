@@ -1,0 +1,267 @@
+{
+    "Files": {
+        "cnc-dns-over-https.aarch64": {
+            "Meta": {
+                "compiler": "go"
+            },
+            "Syscalls": [
+                "accept",
+                "clone",
+                "getpeername",
+                "getpid",
+                "getrlimit",
+                "getsockname",
+                "ioctl",
+                "lstat",
+                "madvise",
+                "pread64",
+                "pwrite64",
+                "sendfile",
+                "sendmsg",
+                "sendto",
+                "setrlimit",
+                "setsockopt",
+                "stat",
+                "truncate"
+            ],
+            "Pledge": [
+                "exec",
+                "id",
+                "inet",
+                "rpath",
+                "stdio",
+                "wpath"
+            ],
+            "Capabilities": [],
+            "Behaviors": {
+                "compression/gzip": {
+                    "Description": "Works with gzip files",
+                    "Strings": [
+                        "gzip"
+                    ],
+                    "Risk": 1
+                },
+                "crypto/algorithm/aes": {
+                    "Description": "Uses the Go crypto/aes library",
+                    "Strings": [
+                        "crypto/aes"
+                    ],
+                    "Risk": 1
+                },
+                "crypto/algorithm/ecdsa": {
+                    "Description": "Uses the Go crypto/ecdsa library",
+                    "Strings": [
+                        "crypto/ecdsa"
+                    ],
+                    "Risk": 1
+                },
+                "crypto/algorithm/ed25519": {
+                    "Description": "Elliptic curve algorithm used by TLS and SSH",
+                    "Strings": [
+                        "ed25519"
+                    ],
+                    "Risk": 1
+                },
+                "crypto/tls": {
+                    "Strings": [
+                        "TLS13",
+                        "TLSVersion",
+                        "crypto/tls"
+                    ],
+                    "Risk": 1
+                },
+                "encoding/base64": {
+                    "Description": "Supports base64 encoded strings",
+                    "Strings": [
+                        "base64"
+                    ],
+                    "Risk": 1
+                },
+                "encoding/json": {
+                    "Description": "Supports JSON encoded objects",
+                    "Strings": [
+                        "encoding/json"
+                    ],
+                    "Risk": 1
+                },
+                "fs/directory/list": {
+                    "Description": "Uses Go functions to list a directory",
+                    "Strings": [
+                        ".ReadDir"
+                    ],
+                    "Risk": 1
+                },
+                "kernel/cpu/info": {
+                    "Description": "gets number of processors",
+                    "Strings": [
+                        "nproc"
+                    ],
+                    "Risk": 1
+                },
+                "net/dns": {
+                    "Description": "Uses DNS (Domain Name Service)",
+                    "Strings": [
+                        "dnsmessage"
+                    ],
+                    "Risk": 1
+                },
+                "net/dns/over/https": {
+                    "Description": "Supports DNS (Domain Name Service) over HTTPS",
+                    "Strings": [
+                        "dnspod",
+                        "doh.Provider"
+                    ],
+                    "Risk": 3
+                },
+                "net/dns/txt": {
+                    "Description": "Uses DNS TXT (text) records",
+                    "Strings": [
+                        "TXT",
+                        "dns"
+                    ],
+                    "Risk": 1
+                },
+                "net/hostname/resolve": {
+                    "Description": "Uses Go to resolve network hosts",
+                    "Strings": [
+                        "net.hostLookup"
+                    ],
+                    "Risk": 1
+                },
+                "net/http/accept/encoding": {
+                    "Description": "Able to decode multiple forms of HTTP responses (example: gzip)",
+                    "Strings": [
+                        "Accept-Encoding"
+                    ],
+                    "Risk": 1
+                },
+                "net/http/request": {
+                    "Description": "Makes HTTP (Hypertext Transport Protocol) requests",
+                    "Strings": [
+                        "HTTP/1.",
+                        "User-Agent"
+                    ],
+                    "Risk": 1
+                },
+                "net/http2": {
+                    "Description": "Uses the HTTP/2 protocol",
+                    "Strings": [
+                        "HTTP/2"
+                    ],
+                    "Risk": 1
+                },
+                "net/http_proxy": {
+                    "Description": "Able to use an HTTP proxy that requires authentication",
+                    "Strings": [
+                        "Proxy-Authorization"
+                    ],
+                    "Risk": 1
+                },
+                "net/sendfile": {
+                    "Description": "transfer data between file descriptors",
+                    "Strings": [
+                        "sendfile"
+                    ],
+                    "Risk": 1
+                },
+                "net/socket/listen": {
+                    "Description": "listen on a socket",
+                    "Strings": [
+                        "accept",
+                        "socket"
+                    ],
+                    "Risk": 1
+                },
+                "net/socket/local/address": {
+                    "Description": "get local address of connected socket",
+                    "Strings": [
+                        "getsockname"
+                    ],
+                    "Risk": 1
+                },
+                "net/socket/peer/address": {
+                    "Description": "get peer address of connected socket",
+                    "Strings": [
+                        "getpeername"
+                    ],
+                    "Risk": 1
+                },
+                "net/socket/receive": {
+                    "Description": "receive a message from a socket",
+                    "Strings": [
+                        "recvfrom"
+                    ],
+                    "Risk": 1
+                },
+                "net/socket/send": {
+                    "Description": "send a message to a socket",
+                    "Strings": [
+                        "sendto"
+                    ],
+                    "Risk": 1
+                },
+                "net/udp/receive": {
+                    "Description": "Listens for UDP responses",
+                    "Strings": [
+                        "ReadFromUDP"
+                    ],
+                    "Risk": 1
+                },
+                "net/udp/send": {
+                    "Description": "Sends UDP packets",
+                    "Strings": [
+                        "WriteMsgUDP"
+                    ],
+                    "Risk": 1
+                },
+                "proc/create": {
+                    "Description": "Create a new child process using clone",
+                    "Strings": [
+                        "clone"
+                    ],
+                    "Risk": 1
+                },
+                "ref/path/etc": {
+                    "Description": "References paths within /etc",
+                    "Strings": [
+                        "/etc/apache",
+                        "/etc/apache/mime.types",
+                        "/etc/hostsgetsockoptnetlinkrib",
+                        "/etc/httpd/conf/mime.typesinvalid",
+                        "/etc/mime.types",
+                        "/etc/nsswitch.confinvalid",
+                        "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pemx",
+                        "/etc/pki/tls/cacert.peminvalid",
+                        "/etc/pki/tls/certs/ca-bundle.crtx",
+                        "/etc/pki/tls/certsnon-minimal",
+                        "/etc/protocolsunknown",
+                        "/etc/resolv.confnon-",
+                        "/etc/services",
+                        "/etc/ssl/ca-bundle.pemx",
+                        "/etc/ssl/cert.peminvalid",
+                        "/etc/ssl/certs",
+                        "/etc/ssl/certs/ca-certificates.crtadding",
+                        "/etc/zoneinfoparsing"
+                    ],
+                    "Risk": 1
+                },
+                "ref/path/etc/hosts": {
+                    "Description": "References /etc/hosts",
+                    "Strings": [
+                        "/etc/hosts"
+                    ],
+                    "Risk": 3
+                },
+                "ref/site/download/sites": {
+                    "Description": "References known file hosting site",
+                    "Strings": [
+                        "blogspot.com"
+                    ],
+                    "Risk": 3
+                }
+            },
+            "FilteredBehaviors": 26
+        }
+    },
+    "Filter": "harmless"
+}

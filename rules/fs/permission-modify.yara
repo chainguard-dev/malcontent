@@ -1,4 +1,4 @@
-rule chmod {
+rule chmod : notable {
 	meta:
 		description = "Modifies file permissions using chmod"
 		pledge = "fattr"
@@ -12,7 +12,7 @@ rule chmod {
 }
 
 
-rule fchmod {
+rule fchmod : notamble {
 	meta:
 		description = "Modifies file permissions using fchmod"
 		pledge = "fattr"

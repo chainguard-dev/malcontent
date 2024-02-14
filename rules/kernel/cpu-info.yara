@@ -1,5 +1,5 @@
 
-rule host_processor_info {
+rule host_processor_info : notable {
 	meta:
 		syscall = "host_processor_info"
 		description = "returns hardware processor, count"

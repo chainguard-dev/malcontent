@@ -1,0 +1,337 @@
+{
+    "Files": {
+        "Previewers": {
+            "Meta": {},
+            "Syscalls": [
+                "accept",
+                "clone",
+                "connect",
+                "execve",
+                "fork",
+                "fstat",
+                "getcwd",
+                "geteuid",
+                "getpeername",
+                "getsockname",
+                "getuid",
+                "host_processor_info",
+                "ioctl",
+                "kill",
+                "lstat",
+                "mmap",
+                "mprotect",
+                "posix_spawn",
+                "sendmsg",
+                "sendto",
+                "setgid",
+                "setgroups",
+                "setpgid",
+                "setsockopt",
+                "setuid",
+                "stat",
+                "symlink",
+                "sysctl",
+                "sysinfo",
+                "truncate",
+                "unlink"
+            ],
+            "Pledge": [
+                "cpath",
+                "exec",
+                "id",
+                "inet",
+                "proc",
+                "rpath",
+                "stdio",
+                "sysctl",
+                "wpath"
+            ],
+            "Capabilities": [],
+            "Behaviors": {
+                "archives/zip": {
+                    "Description": "Works with zip files",
+                    "Strings": [
+                        "ZIP64"
+                    ],
+                    "Risk": 3
+                },
+                "compression/bzip2": {
+                    "Description": "Works with bzip2 files",
+                    "Strings": [
+                        "bzip2"
+                    ],
+                    "Risk": 1
+                },
+                "compression/zstd": {
+                    "Description": "Zstandard - fast real-time compression algorithm",
+                    "Strings": [
+                        "zstd"
+                    ],
+                    "Risk": 1
+                },
+                "crypto/algorithm/aes": {
+                    "Description": "Uses the Go crypto/aes library",
+                    "Strings": [
+                        "AES"
+                    ],
+                    "Risk": 1
+                },
+                "current_proc/groupid/set": {
+                    "Description": "set real and effective group ID of process",
+                    "Strings": [
+                        "setgid"
+                    ],
+                    "Risk": 1
+                },
+                "current_proc/groups/set": {
+                    "Description": "set group access list",
+                    "Strings": [
+                        "setgroups"
+                    ],
+                    "Risk": 1
+                },
+                "current_proc/userid/set": {
+                    "Description": "set real and effective user ID of process",
+                    "Strings": [
+                        "setuid"
+                    ],
+                    "Risk": 1
+                },
+                "device/disk/info": {
+                    "Description": "Get information about disks",
+                    "Strings": [
+                        "DADiskCopyDescription"
+                    ],
+                    "Risk": 1
+                },
+                "encoding/base64": {
+                    "Description": "Supports base64 encoded strings",
+                    "Strings": [
+                        "base64"
+                    ],
+                    "Risk": 1
+                },
+                "exec/program": {
+                    "Description": "calls other programs",
+                    "Strings": [
+                        "execvp"
+                    ],
+                    "Risk": 1
+                },
+                "exec/program/background": {
+                    "Description": "Waits for a process to exit",
+                    "Strings": [
+                        "waitpid"
+                    ],
+                    "Risk": 1
+                },
+                "fs/directory/create": {
+                    "Description": "Uses libc functions to create directories",
+                    "Strings": [
+                        "mkdir"
+                    ],
+                    "Risk": 1
+                },
+                "fs/directory/list": {
+                    "Description": "Uses Go functions to list a directory",
+                    "Strings": [
+                        ".ReadDir"
+                    ],
+                    "Risk": 1
+                },
+                "fs/directory/remove": {
+                    "Description": "Uses libc functions to remove directories",
+                    "Strings": [
+                        "rmdir"
+                    ],
+                    "Risk": 1
+                },
+                "fs/file/delete": {
+                    "Description": "deletes files",
+                    "Strings": [
+                        "unlink",
+                        "unlinkat"
+                    ],
+                    "Risk": 1
+                },
+                "fs/tempfile/create": {
+                    "Description": "Uses mktemp to create temporary files",
+                    "Strings": [
+                        "temp file"
+                    ],
+                    "Risk": 1
+                },
+                "kernel/cpu/info": {
+                    "Description": "returns hardware processor, count",
+                    "Strings": [
+                        "host_processor_info"
+                    ],
+                    "Risk": 1
+                },
+                "kernel/dispatch/semaphore": {
+                    "Description": "Uses Dispatch Semaphores",
+                    "Strings": [
+                        "dispatch_semaphore_signal"
+                    ],
+                    "Risk": 1
+                },
+                "kernel/hostname/get": {
+                    "Description": "gets the hostname of the machine",
+                    "Strings": [
+                        "gethostname"
+                    ],
+                    "Risk": 1
+                },
+                "kernel/sysinfo": {
+                    "Description": "get system information (load, swap)",
+                    "Strings": [
+                        "sysinfo"
+                    ],
+                    "Risk": 1
+                },
+                "net/dns/txt": {
+                    "Description": "Uses DNS TXT (text) records",
+                    "Strings": [
+                        "TXT",
+                        "dns"
+                    ],
+                    "Risk": 1
+                },
+                "net/http/request": {
+                    "Description": "Makes HTTP (Hypertext Transport Protocol) requests",
+                    "Strings": [
+                        "HTTP/1.",
+                        "User-Agent"
+                    ],
+                    "Risk": 1
+                },
+                "net/http2": {
+                    "Description": "Uses the HTTP/2 protocol",
+                    "Strings": [
+                        "HTTP/2"
+                    ],
+                    "Risk": 1
+                },
+                "net/http_proxy": {
+                    "Description": "Able to use an HTTP proxy that requires authentication",
+                    "Strings": [
+                        "Proxy-Authorization"
+                    ],
+                    "Risk": 1
+                },
+                "net/interface/get": {
+                    "Description": "libc functions for retrieving network interface",
+                    "Strings": [
+                        "if_indextoname"
+                    ],
+                    "Risk": 1
+                },
+                "net/socket/connect": {
+                    "Description": "initiate a connection on a socket",
+                    "Strings": [
+                        "_connect"
+                    ],
+                    "Risk": 1
+                },
+                "net/socket/listen": {
+                    "Description": "listen on a socket",
+                    "Strings": [
+                        "accept",
+                        "socket"
+                    ],
+                    "Risk": 1
+                },
+                "net/socket/local/address": {
+                    "Description": "get local address of connected socket",
+                    "Strings": [
+                        "getsockname"
+                    ],
+                    "Risk": 1
+                },
+                "net/socket/peer/address": {
+                    "Description": "get peer address of connected socket",
+                    "Strings": [
+                        "getpeername"
+                    ],
+                    "Risk": 1
+                },
+                "net/socket/receive": {
+                    "Description": "receive a message from a socket",
+                    "Strings": [
+                        "_recv"
+                    ],
+                    "Risk": 1
+                },
+                "net/socket/send": {
+                    "Description": "send a message to a socket",
+                    "Strings": [
+                        "_send"
+                    ],
+                    "Risk": 1
+                },
+                "net/upload": {
+                    "Description": "Uploads files via an unknown protocol",
+                    "Strings": [
+                        "upload"
+                    ],
+                    "Risk": 1
+                },
+                "persistence/macos/launch/agent": {
+                    "Description": "Persist via LaunchAgents",
+                    "Strings": [
+                        "LaunchAgents"
+                    ],
+                    "Risk": 3
+                },
+                "persistence/macos/launchd/manipulation": {
+                    "Description": "Interfaces with launchd using launchctl",
+                    "Strings": [
+                        "LaunchAgents"
+                    ],
+                    "Risk": 3
+                },
+                "proc/create": {
+                    "Description": "Create a new child process using clone",
+                    "Strings": [
+                        "_fork"
+                    ],
+                    "Risk": 1
+                },
+                "ref/ip": {
+                    "Strings": [
+                        "193.29.13.167",
+                        "93.29.13.167"
+                    ],
+                    "Risk": 3
+                },
+                "ref/path/etc": {
+                    "Description": "References paths within /etc",
+                    "Strings": [
+                        "/etc/localtime/usr/share/zoneinfounable",
+                        "/etc/zoneinforemaining"
+                    ],
+                    "Risk": 1
+                },
+                "secrets/keychain": {
+                    "Description": "Accesses the system keychain",
+                    "Strings": [
+                        "Keychain",
+                        "keychain"
+                    ],
+                    "Risk": 1
+                },
+                "sync/semaphore/user": {
+                    "Description": "uses semaphores to synchronize data between processes or threads",
+                    "Strings": [
+                        "semaphore_create",
+                        "semaphore_signal",
+                        "semaphore_wait"
+                    ],
+                    "Risk": 1
+                }
+            },
+            "FilteredBehaviors": 26
+        }
+    },
+    "Filter": "harmless"
+}

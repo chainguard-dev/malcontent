@@ -1,6 +1,6 @@
 {
     "Files": {
-        "testdata/3CX_SmoothOperator_ffmpeg.dylib": {
+        "3CX_SmoothOperator_ffmpeg.dylib": {
             "Meta": {
                 "deps": "ffmpeg",
                 "format": "macho",
