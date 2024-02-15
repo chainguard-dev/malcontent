@@ -1,4 +1,4 @@
-rule gcloud : suspicious {
+rule gcloud_config : notable {
 	meta:
 		description = "Access gcloud configuration files"
 	strings:

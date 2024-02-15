@@ -18,7 +18,8 @@ rule xor_commands : suspicious {
     $b_dev_tcp = "/dev/tcp" xor(1-31)
     $b_bash_i = "bash -i" xor(1-31)
     $b_bash_c = "bash -c" xor(1-31)
-
+	$b_base64 = "base64" xor(1-31)
+	$b_eval = "eval(" xor(1-31)
 // can false
 //   $b_chmod2 = "chmod" xor(33-255)
     $b_curl2 = "curl -" xor(33-255)
@@ -35,6 +36,8 @@ rule xor_commands : suspicious {
     $b_dev_tcp2 = "/dev/tcp" xor(33-255)
     $b_bash_i2 = "bash -i" xor(33-255)
     $b_bash_c2 = "bash -c" xor(33-255)
+	$b_base642 = "base64" xor(33-255)
+	$b_eval2 = "eval(" xor(33-255)
   condition:
     any of ($b_*)
 }
