@@ -1,4 +1,4 @@
-rule http_cookie : suspicious {
+rule http_cookie : notable {
 	meta:
 		pledge = "inet"
 		description = "Able to access HTTP resources using cookies"
