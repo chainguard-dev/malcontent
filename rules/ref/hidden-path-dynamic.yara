@@ -5,6 +5,7 @@ rule dyntamic_hidden_path : suspicious {
 		ref = "https://objective-see.org/blog/blog_0x73.html"
 	strings:
 		$ref = /%s\/\.[a-z][\w-]{0,32}/
+		$config = "%s/.config"
 	condition:
-		any of them
+		$ref and not $config
 }

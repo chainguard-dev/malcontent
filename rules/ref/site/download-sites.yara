@@ -14,7 +14,6 @@ rule download_sites : suspicious {
     $d_ngrok_io = "ngrok.io"
     $d_rentry = "rentry.co"
     $d_penyacom = "penyacom"
-	$d_blogspot = "blogspot.com"
     $d_controlc = "controlc.com"
     $d_privnote = "privnote.com"
     $d_hushnote = "hushnote"
