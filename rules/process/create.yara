@@ -1,4 +1,4 @@
-rule fork {
+rule _fork {
 	meta:
 		pledge = "exec"
 		syscall = "fork"
@@ -7,6 +7,17 @@ rule fork {
 		$fork = "_fork" fullword
 	condition:
 		any of them
+}
+
+rule fork {
+	meta:
+		pledge = "exec"
+		syscall = "fork"
+		description = "Create a new child process using fork"
+	strings:
+		$fork = "fork" fullword
+	condition:
+		any of them in (1500..3000)
 }
 
 rule syscall_vfork {

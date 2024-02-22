@@ -10,3 +10,16 @@ rule recvmsg {
 	condition:
 		any of them
 }
+
+
+
+rule recv {
+	meta:
+		description = "receive a message to a socket"
+		syscall = "recv"
+	strings:
+		$send = "recv" fullword
+		$socket = "socket" fullword
+	condition:
+		all of them
+}
