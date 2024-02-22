@@ -18,4 +18,13 @@ rule inet_pton : notable {
 		any of them
 }
 
-
+rule ip_go : notable {
+	meta:
+		pledge = "inet"
+		description = "Parse an IP address (IPv4 or IPv6)"
+	strings:
+		$ref = "IsSingleIP"
+		$ref2 = "IsLinkLocalUnicast"
+	condition:
+		any of them
+}

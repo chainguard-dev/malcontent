@@ -14,6 +14,7 @@ rule jsondecode : harmless {
 		$jsond = "JSONDecode"
 		$unmarshal = "UnmarshalJSON"
 		$ju = "json.Unmarshal"
+		$jp = "JSON.parse"
 	condition:
 		any of them
 }

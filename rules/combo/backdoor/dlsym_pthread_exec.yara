@@ -7,5 +7,5 @@ rule dlsym_openpty_system : suspicious {
 		$openpty = "pthread_create" fullword
 		$system = "execl" fullword
 	condition:
-		all of them in (1500..3000)
+		all of them in (1200..3000)
 }

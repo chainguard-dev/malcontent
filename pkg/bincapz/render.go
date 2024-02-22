@@ -41,8 +41,8 @@ func RenderTable(res *Report, w io.Writer) {
 
 		for _, k := range kbs {
 			val := strings.Join(k.Behavior.Strings, " ")
-			if len(val) > 24 {
-				val = val[0:24] + ".."
+			if len(val) > 48 {
+				val = val[0:48] + ".."
 			}
 			data = append(data, []string{fmt.Sprintf("%d/%s", k.Behavior.RiskScore, k.Behavior.RiskLevel), k.Key, val, k.Behavior.Description})
 		}

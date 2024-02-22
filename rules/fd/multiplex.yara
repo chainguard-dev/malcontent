@@ -8,5 +8,5 @@ rule select {
 	strings:
 		$ref = "select" fullword
 	condition:
-		any of them in (1500..3000)
+		any of them in (1200..3000)
 }

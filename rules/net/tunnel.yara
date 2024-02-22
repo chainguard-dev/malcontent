@@ -3,8 +3,18 @@ rule tunnel : suspicious {
 		description = "Creates a network tunnel"
 		syscall = "setsockopt"
 	strings:
-		$subnet = "tunnel" fullword
+		$tunnel = "tunnel" fullword
 		$inet = "inet_addr" fullword
+	condition:
+		all of them
+}
+
+rule tunnel2 : suspicious {
+	meta:
+		description = "Creates a network tunnel"
+		syscall = "setsockopt"
+	strings:
+		$Tunnel = "Tunnel"
 	condition:
 		all of them
 }

@@ -56,3 +56,12 @@ rule fake_user_agent_netscape {
   	condition:
     	any of ($u_*) and none of ($not_*)
 }
+
+
+rule fake_user_agent_curl {
+	strings:
+		$u_curl = "User-Agent: curl/"
+		$not_access_log = "\"GET http://"
+  	condition:
+    	any of ($u_*) and none of ($not_*)
+}

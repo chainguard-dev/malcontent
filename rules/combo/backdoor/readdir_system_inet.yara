@@ -7,5 +7,5 @@ rule readdir_inet_system : suspicious {
 		$openpty = "inet_addr" fullword
 		$system = "system" fullword
 	condition:
-		all of them in (1500..3000)
+		all of them in (1200..3000)
 }

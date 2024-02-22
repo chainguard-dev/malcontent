@@ -2,7 +2,7 @@ rule execall : notable {
 	meta:
 		syscall = "execve"
 		pledge = "exec"
-		description = "calls other programs"
+		description = "executes another program"
 	strings:
 		$execl = "execl" fullword
 		$execle = "execle" fullword
@@ -20,10 +20,11 @@ rule execve : notable {
 	meta:
 		syscall = "execve"
 		pledge = "exec"
-		description = "calls other programs"
+		description = "executes another program"
 	strings:
 		$execve = "execve" fullword
 		$go = "syscall.libc_execve_trampoline"
+		$execve_f = "fexecve" fullword
 	condition:
 		any of ($exec*) and not $go
 }
@@ -32,19 +33,20 @@ rule exec_cmd_run : notable {
 	meta:
 		syscall = "execve"
 		pledge = "exec"
-		description = "calls other programs"
+		description = "executes another program"
 	strings:
 		$ref = "exec.(*Cmd).Run"
+		$ref2 = ").CombinedOutput"
 	condition:
-		all of them
+		any of them
 }
 
 
-rule system : notable {
+rule perl_system : notable {
 	meta:
 		syscall = "execve"
 		pledge = "exec"
-		description = "calls other programs"
+		description = "executes another program"
 	strings:
 		$ref = "system("
 	condition:
@@ -56,7 +58,7 @@ rule subprocess : notable {
 	meta:
 		syscall = "execve"
 		pledge = "exec"
-		description = "calls other programs"
+		description = "executes another program"
 	strings:
 		$ref = "subprocess"
 	condition:

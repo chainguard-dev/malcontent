@@ -1,5 +1,5 @@
 
-rule crypto_ssh {
+rule crypto_ssh : notable {
 	meta:
 		description = "Uses crypto/ssh to connect to the SSH (secure shell) service"
 	strings:

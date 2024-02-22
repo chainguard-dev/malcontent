@@ -7,5 +7,5 @@ rule system : notable {
 	strings:
 		$system = "system" fullword
 	condition:
-		all of them in (1500..3000)
+		all of them in (1200..3000)
 }

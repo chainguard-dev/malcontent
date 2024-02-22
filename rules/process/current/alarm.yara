@@ -5,7 +5,7 @@ rule alarm {
 	strings:
 		$ref = "alarm"
 	condition:
-		any of them in (1500..3000)
+		any of them in (1200..3000)
 }
 
 rule setitimer {
@@ -15,5 +15,5 @@ rule setitimer {
 	strings:
 		$ref = "setitimer"
 	condition:
-		any of them in (1500..3000)
+		any of them in (1200..3000)
 }

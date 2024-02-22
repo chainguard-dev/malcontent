@@ -1,7 +1,7 @@
 rule SHELL {
   strings:
 	$ref = "SHELL" fullword
-	$getenv = "getenv"
+//	$getenv = "getenv"
   condition:
 	all of them
 }

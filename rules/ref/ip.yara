@@ -1,4 +1,6 @@
 rule hardcoded_ip : notable {
+  meta:
+	description = "Contains hardcoded IP address"
   strings:
     $ipv4 = /([1-9][0-9]{1,2}\.){3}[1-9][0-9]{1,2}/ fullword
     $not_localhost = "127.0.0.1"
@@ -14,6 +16,8 @@ rule hardcoded_ip : notable {
 }
 
 rule hardcoded_hostport : notable {
+  meta:
+	description = "Contains hardcoded IP:port address"
   strings:
     $ipv4_hostport = /([0-9]{1,3}\.){3}[0-9]{1,3}:\d{2,5}/
     $not_localhost = "127.0.0.1"
