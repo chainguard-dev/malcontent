@@ -7,7 +7,7 @@ rule reverse_shell : suspicious {
     hash_2023_Linux_Malware_Samples_d744 = "d7444cf0e30f3fc35cf13fa3726041bf0fbf80b289a88632fdae062a41094fb8"
   strings:
     $bash_dev_tcp = "bash -i >& /dev/tcp/"
-    $stdin_redir = "0>&1"
+    $stdin_redir = "0>&1" fullword
     $reverse_shell = "reverse_shell"
     $reverse_space_shell = "reverse shell" nocase
     $revshell = "revshell"

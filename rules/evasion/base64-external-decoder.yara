@@ -1,4 +1,4 @@
-rule base64_shell_decode : suspicious {
+rule base64_shell_decode : notable {
   meta:
 	description = "calls base64 command to decode strings"
   strings:
@@ -9,6 +9,8 @@ rule base64_shell_decode : suspicious {
     $base64_decode = "base64 --decode"
     $base64_decode_b64 = "base64 --decode" base64
     $base64_re = /base64 [\w\%\@\- ]{0,16} -[dD]/
+
+	$not_example = "base64 --decode | keybase"
   condition:
-    any of them
+    any of ($base64*) and none of ($not*)
 }

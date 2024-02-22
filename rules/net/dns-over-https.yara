@@ -1,4 +1,4 @@
-rule doh_refs : suspicious {
+rule doh_refs : notable {
 	meta:
 		description = "Supports DNS (Domain Name Service) over HTTPS"
 	strings:

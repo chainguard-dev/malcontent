@@ -1,4 +1,3 @@
-
 rule readdir_intercept : suspicious {
 	meta:
 		description = "userland rootkit designed to hide files"
@@ -8,7 +7,8 @@ rule readdir_intercept : suspicious {
 		$r_new32 = "readdir" fullword
 		$r_old32  = "_readdir"
 
-		$ld_debug = "LD_DEBUG"
+		$not_ld_debug = "LD_DEBUG"
+		$not_libc = "getusershell"
 	condition:
-		all of ($r*) and not $ld_debug
+		all of ($r*) and none of ($not*)
 }

@@ -1,4 +1,4 @@
-rule monero_pool : suspicious {
+rule nicehash_pool : suspicious {
 	meta:
 		description = "References Nicehash and mining pools"
 	strings:

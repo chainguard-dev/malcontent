@@ -7,6 +7,7 @@ rule miner_kvryr_stak_alike : suspicious {
 		$shell = "shell"
 		$tcsetattr = "tcsetattr"
 		$execve = "execve"
+		$numa = "NUMA"
 	condition:
 		all of them
 }

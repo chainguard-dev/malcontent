@@ -1,4 +1,4 @@
-rule whirlpool : suspicious {
+rule whirlpool : notable {
 	meta:
 		description = "Uses the WHIRLPOOL hash function (sometimes used for cryptomining"
 		ref = "https://en.wikipedia.org/wiki/Whirlpool_(hash_function)"
