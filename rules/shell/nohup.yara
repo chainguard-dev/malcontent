@@ -1,4 +1,4 @@
-rule nohup_reference : suspicious {
+rule nohup_reference : notable {
   meta:
     hash_2018_MacOS_CoinTicker = "c344730f41f52a2edabf95730389216a9327d6acc98346e5738b3eb99631634d"
     hash_2019_Cointrazer = "138a54a0a1fe717cf0ffd63ef2a27d296456b5338aed8ef301ad0e90b0fe25ae"

@@ -1,10 +1,10 @@
 
-rule vm_checker : suspicious {
+rule vm_checker : notable {
   meta:
 	description = "Checks to see if it is running with a VM"
   strings:
     $a_vmware = "VMware"
-    $a_qemu = "QEMU"
+    $a_qemu = "QEMU Virtual CPU"
     $a_apple_vm = "Apple Virtual Machine"
     $a_intel = "GenuineIntel"
     $a_amd = "GenuineAMD"

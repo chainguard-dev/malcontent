@@ -1,5 +1,5 @@
 
-rule LaunchAgents : suspicious {
+rule LaunchAgents : notable {
 	meta:
 		description = "Persist via LaunchAgents"
 		platforms = "darwin"

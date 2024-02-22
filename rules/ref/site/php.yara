@@ -1,5 +1,5 @@
 
-rule http_url_with_php : suspicious {
+rule http_url_with_php : notable {
  meta:
 	description = "Accesses hosted PHP files directly"
   strings:
@@ -13,6 +13,7 @@ rule http_url_with_php : suspicious {
     $not_brotli = "cardshillsteamsPhototruthclean"
     $not_brotli2 = "examplepersonallyindex"
     $not_manual = "manually upload"
+	$not_ecma = "http://wiki.ecmascript.org"
   condition:
     any of ($php*) and none of ($not_*)
 }

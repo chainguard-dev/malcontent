@@ -1,4 +1,4 @@
-rule iptables : suspicious {
+rule iptables : notable {
 	meta:
 		description = "interacts with the iptables/nftables firewall"
 		ref = "https://www.netfilter.org/projects/iptables/"

@@ -3,9 +3,12 @@ rule bpfdoor_alike : suspicious {
 	meta:
 		description = "Listens, provides a terminal, runs program"
 	strings:
-		$listen = "listen" fullword
-		$grantpt =  "grantpt"  fullword
-		$execve = "execve" fullword
+		$f_listen = "listen" fullword
+		$f_grantpt =  "grantpt"  fullword
+		$f_execve = "execve" fullword
+		$f_ptmx = "/dev/ptmx"
+		$not_sql_db = "sql.DB"
+		$not_libc = "getusershell"
 	condition:
-		all of them
+		all of ($f*) and none of ($not*)
 }

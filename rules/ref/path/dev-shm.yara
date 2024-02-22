@@ -1,8 +1,18 @@
-rule tmp_path : suspicious {
+rule dev_shm : notable {
 	meta:
 		description = "References paths within /dev/shm (world writeable)"
 	strings:
-		$resolv = /\/dev\/shm\/[%\w\.\-\/]{0,64}/ 
+		$ref = /\/dev\/shm\/[%\w\.\-\/]{0,64}/ 
+	condition:
+		any of them
+}
+
+
+rule dev_shm_hidden : suspicious {
+	meta:
+		description = "References paths within /dev/shm (world writeable)"
+	strings:
+		$dev_shm = /\/dev\/shm\/\.[%\w\.\-\/]{0,64}/ 
 	condition:
 		any of them
 }

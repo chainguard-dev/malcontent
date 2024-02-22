@@ -1,4 +1,4 @@
-rule contains_base64_url : suspicious {
+rule contains_base64_url : notable {
 	meta:
         description = "Contains base64 url"
     strings:

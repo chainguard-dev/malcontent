@@ -17,9 +17,12 @@ rule base64_commands : suspicious {
     $b_zmodload = "zmodload" base64
     $b_dev_tcp = "/dev/tcp" base64
     $b_bash_i = "bash -i" base64
+	$b_tar_c = "tar -c" base64
+	$b_tar_x = "tar -x" base64
     $b_bash_c = "bash -c" base64
     $not_kandji = "kandji-parameter-agent"
     $not_mdmprofile = "mdmprofile"
+	$not_example = "commands are encoded"
   condition:
     any of ($b_*) and none of ($not_*)
 }

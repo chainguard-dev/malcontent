@@ -1,4 +1,4 @@
-rule monero_pool : suspicious {
+rule monero_pool : notable {
 	meta:
 		description = "References Monero mining pools"
 	strings:

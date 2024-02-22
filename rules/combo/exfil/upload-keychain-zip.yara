@@ -5,7 +5,7 @@ rule previewers_alike: suspicious {
 	strings:
 		$upload = "upload"
 		$zip = "zip"
-		$keychain = "keychain"
+		$keychain = "keychain_item"
 	condition:
 		all of them
 }

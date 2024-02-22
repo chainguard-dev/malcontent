@@ -1,5 +1,5 @@
 
-rule proc_mounts : suspicious {
+rule proc_mounts : notable {
 	meta:
 		description = "Parses active mounts (/proc/mounts"
 		pledge = "stdio"

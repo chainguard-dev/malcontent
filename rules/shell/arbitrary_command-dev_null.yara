@@ -1,4 +1,4 @@
-rule cmd_dev_null : suspicious {
+rule cmd_dev_null : notable {
 	meta:
 		description = "Runs arbitrary commands redirecting output to /dev/null"
 	strings:

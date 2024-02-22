@@ -3,7 +3,7 @@ rule xor_commands : suspicious {
   meta:
 	description = "commands obfuscated using xor"
   strings:
-    $b_chmod = "chmod" xor(1-31)
+    $b_chmod = "chmod " xor(1-31)
     $b_curl = "curl -" xor(1-31)
     $b_bin_sh = "/bin/sh" xor(1-31)
     $b_bin_bash = "/bin/bash" xor(1-31)
@@ -21,7 +21,7 @@ rule xor_commands : suspicious {
 	$b_base64 = "base64" xor(1-31)
 	$b_eval = "eval(" xor(1-31)
 // can false
-//   $b_chmod2 = "chmod" xor(33-255)
+   $b_chmod2 = "chmod " xor(33-255)
     $b_curl2 = "curl -" xor(33-255)
     $b_bin_sh2 = "/bin/sh" xor(33-255)
     $b_bin_bash2 = "/bin/bash" xor(33-255)
