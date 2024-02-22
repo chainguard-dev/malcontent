@@ -8,3 +8,16 @@ rule fd_read : harmless {
 	condition:
 		any of them
 }
+
+
+rule fread : harmless {
+	meta:
+		description = "Read binary from a file descriptor"
+		ref = "https://man7.org/linux/man-pages/man3/fread.3p.html"
+		pledge = "stdio"
+		syscall = "pread644"
+	strings:
+		$ref = "fread" fullword
+	condition:
+		any of them
+}

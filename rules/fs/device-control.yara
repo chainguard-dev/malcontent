@@ -1,7 +1,8 @@
-rule ioctl : harmless {
+rule ioctl {
 	meta:
 		pledge = "wpath"
 		syscall = "ioctl"
+		description = "manipulate the device parameters of special files"
 	strings:
 		$ioctl = "ioctl" fullword
 	condition:
