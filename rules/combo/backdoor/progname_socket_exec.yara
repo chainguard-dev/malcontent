@@ -7,5 +7,5 @@ rule progname_socket_waitpid : suspicious {
 		$openpty = "socket" fullword
 		$system = "waitpid" fullword
 	condition:
-		all of them in (1500..3000)
+		all of them in (1200..3000)
 }

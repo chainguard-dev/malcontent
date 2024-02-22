@@ -4,6 +4,7 @@ rule url {
 	strings:
 		$ref = "NSURL"
 		$ref2 = "URLContext"
+		$ref3 = "RequestURI"
 	condition:
 		any of them
 }

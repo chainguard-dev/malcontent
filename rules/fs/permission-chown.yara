@@ -33,3 +33,15 @@ rule fchownat {
 	condition:
 		any of them
 }
+
+rule Chown : notable {
+	meta:
+		description = "Changes file ownership"
+		pledge = "wpath"
+		syscall = "fchown"
+		capability = "CAP_CHOWN"
+	strings:
+		$chown = "Chown" fullword
+	condition:
+		any of them
+}

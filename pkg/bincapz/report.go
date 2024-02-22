@@ -12,10 +12,11 @@ import (
 )
 
 var riskLevels = map[int]string{
-	0: "NONE",   // harmless: common to all executables, no system impact
-	1: "LOW",    // undefined: low impact, common to good and bad executables
-	2: "MEDIUM", // notable: may have impact, but common
-	3: "HIGH",   // suspicious: uncommon
+	0: "NONE", // harmless: common to all executables, no system impact
+	1: "LOW",  // undefined: low impact, common to good and bad executables
+	2: "MED",  // notable: may have impact, but common
+	3: "HIGH", // suspicious: uncommon, but could be legit
+	4: "CRIT", // critical: certainly malware
 }
 
 type Behavior struct {
@@ -65,6 +66,9 @@ func behaviorRisk(tags []string) int {
 	}
 	if slices.Contains(tags, "suspicious") {
 		risk = 3
+	}
+	if slices.Contains(tags, "critical") {
+		risk = 4
 	}
 	return risk
 }

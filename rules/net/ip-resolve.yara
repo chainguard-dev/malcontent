@@ -1,7 +1,7 @@
 
 rule gethostbyaddr {
 	meta:
-		description = "Uses libc functions to resolve network hosts"
+		description = "resolves network hosts via IP address"
 		pledge = "dns"
 	strings:
 		$gethostbyname2 = "gethostbyaddr" fullword

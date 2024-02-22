@@ -9,6 +9,11 @@ rule iplookup_website : suspicious {
     $iplogger = "iplogger.org"
     $getjsonip = "getjsonip"
 	$ipconfig_me = "ifconfig.me"
+	$icanhazip = "icanhazip"
+	$ident_me = "ident.me" fullword
+	$showip_net = "showip.net" fullword
+	$ifconfig_io = "ifconfig.io" fullword
+	$ifconfig_co = "ifconfig.co" fullword
     $ipinfo = "ipinfo.io"
     $ipify_b = "ipify.org" base64
     $wtfismyip_b = "wtfismyip" base64

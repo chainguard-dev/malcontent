@@ -1,4 +1,4 @@
-rule tmp_path {
+rule tmp_path : notable {
 	meta:
 		description = "References paths within /tmp"
 	strings:

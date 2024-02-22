@@ -1,7 +1,7 @@
 
 rule gethostbyname {
 	meta:
-		description = "Uses libc functions to resolve network hosts"
+		description = "resolves network hosts via name"
 		pledge = "inet"
 	strings:
 		$gethostbyname2 = "gethostbyname2" fullword
