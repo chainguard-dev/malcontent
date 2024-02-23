@@ -15,6 +15,10 @@ rule obfuscated_elf : suspicious {
     $libstdc = "libstdc" fullword
     $glibc = "glibc" fullword 
 	$setsid = "setsid" fullword
+	$gmon = "__gmon_start__"
+	$glibc2 = "@GLIBC"
+	$cxa = "__cxa_finalize"
+	$dereg = "__deregister_frame_info"
 	$__libc_start_main = "__libc_start_main"
   condition:
     uint32(0) == 1179403647 and none of them

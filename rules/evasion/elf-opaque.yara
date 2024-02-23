@@ -12,6 +12,8 @@ rule opaque_elf_binary : critical {
 	description = "Opaque ELF binary (few words)"
   strings:
     $word_with_spaces = /[a-z\-]{2,} [a-z]{2,}/
+	$gmon_start = "__gmon_start__"
+	$usage = "usage:" fullword
   condition:
-    uint32(0) == 1179403647 and filesize < 10485760 and #word_with_spaces < 3
+    uint32(0) == 1179403647 and filesize < 10485760 and #word_with_spaces < 3 and not $gmon_start and not $usage
 }
