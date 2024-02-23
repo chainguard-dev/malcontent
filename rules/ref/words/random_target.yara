@@ -6,6 +6,7 @@ rule random_target : suspicious {
 	strings:
 		$ref = "random target"
 		$ref2 = "RandomTarget"
+		$ref3 = "randomIP"
 	condition:
 		any of them
 }

@@ -13,3 +13,15 @@ rule listen {
 }
 
 
+rule go_listen {
+	meta:
+		description = "listen on a socket"
+		pledge = "inet"
+		syscall = "accept"
+	strings:
+		$net_listen = "net.Listen"
+	condition:
+		any of them
+}
+
+

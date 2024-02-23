@@ -3,6 +3,7 @@ rule udp_send {
 		description = "Sends UDP packets"
 	strings:
 		$ref = "WriteMsgUDP"
+		$ref2 = "DialUDP"
 	condition:
 		any of them
 }

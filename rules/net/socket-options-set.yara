@@ -4,6 +4,7 @@ rule setsockopt : harmless {
 		syscall = "setsockopt"
 	strings:
 		$setsockopt = "setsockopt" fullword
+		$Setsockopt = "Setsockopt" fullword
 	condition:
 		any of them
 }

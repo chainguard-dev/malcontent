@@ -1,4 +1,4 @@
-rule url {
+rule url_handle {
 	meta:
 		description = "Handles URL strings"
 	strings:
