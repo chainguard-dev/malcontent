@@ -1,4 +1,4 @@
-rule waitpid : notable {
+rule waitpid {
 	meta:
 		description = "Waits for a process to exit"
 	strings:

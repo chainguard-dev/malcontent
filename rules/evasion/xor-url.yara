@@ -16,7 +16,7 @@ rule xor_url : suspicious {
 		$http2 = "http://" xor(33-255)
 		$https2 = "https://" xor(33-255)
 		$ftp2 = "ftp://" xor(33-255)
-		$office2 = "office" xor(33-255)
+//		$office2 = "office" xor(33-255)
 		$google2 = "google." xor(33-255)
 		$microsoft2 = "microsoft" xor(33-255)
 		$apple2 = "apple." xor(33-255)

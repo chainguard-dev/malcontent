@@ -1,5 +1,5 @@
 
-rule iptables_upload_http : critical {
+rule iptables_upload_http : suspicious {
 	meta:
 		description = "Uploads, uses iptables and HTTP"
 	strings:

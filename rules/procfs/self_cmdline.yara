@@ -1,5 +1,5 @@
 
-rule proc_self_exe : notable {
+rule proc_self_cmdline : notable {
 	meta:
 		description = "Gets the command-line associated to this process"
 		pledge = "stdio"

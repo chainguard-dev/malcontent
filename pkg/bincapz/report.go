@@ -28,6 +28,7 @@ type Behavior struct {
 
 type FileReport struct {
 	// compiler -> x
+	Error             string
 	Meta              map[string]string
 	Syscalls          []string
 	Pledge            []string
@@ -99,7 +100,7 @@ func matchStrings(ms []yara.MatchString) []string {
 	return slices.Compact(ss)
 }
 
-func fileReport(mrs yara.MatchRules, ignoreTags []string) FileReport {
+func fileReport(mrs yara.MatchRules, ignoreTags []string, minLevel int) FileReport {
 	ignore := map[string]bool{}
 	for _, t := range ignoreTags {
 		ignore[t] = true
@@ -117,6 +118,9 @@ func fileReport(mrs yara.MatchRules, ignoreTags []string) FileReport {
 
 	for _, m := range mrs {
 		risk := behaviorRisk(m.Tags)
+		if risk < minLevel {
+			continue
+		}
 		b := Behavior{
 			RiskScore: risk,
 			RiskLevel: riskLevels[risk],

@@ -19,7 +19,8 @@ var ruleFs embed.FS
 
 func main() {
 	formatFlag := flag.String("format", "table", "Output type. Valid values are: table, simple, json, yaml")
-	ignoreTagsFlag := flag.String("ignore-tags", "harmless", "Rule tags to ignore")
+	ignoreTagsFlag := flag.String("ignore-tags", "", "Rule tags to ignore")
+	minLevelFlag := flag.Int("min-level", 1, "minimum suspicion level to report (1=low, 2=medium, 3=high, 4=critical)")
 	allFlag := flag.Bool("all", false, "Ignore nothing, show all")
 
 	klog.InitFlags(nil)
@@ -41,6 +42,7 @@ func main() {
 		RuleFS:     ruleFs,
 		ScanPaths:  args,
 		IgnoreTags: ignoreTags,
+		MinLevel:   *minLevelFlag,
 	}
 
 	res, err := bincapz.Scan(bc)

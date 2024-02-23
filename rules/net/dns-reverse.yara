@@ -8,4 +8,3 @@ rule in_addr_arpa : notable {
 	condition:
 		any of them
 }
-

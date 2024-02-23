@@ -1,5 +1,5 @@
 
-rule iptables_gdns_http : critical {
+rule iptables_gdns_http : suspicious {
 	meta:
 		description = "Uses iptables, Google Public DNS, and HTTP"
 	strings:

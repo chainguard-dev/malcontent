@@ -2,7 +2,8 @@ rule home_path : notable {
 	meta:
 		description = "References paths within /home"
 	strings:
-		$resolv = /\/home\/[%\w\.\-\/]{0,64}/
+		$home = /\/home\/[%\w\.\-\/]{0,64}/
+		$home_build = "/home/build"
 	condition:
-		any of them
+		$home and not $home_build
 }

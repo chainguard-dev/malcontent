@@ -3,7 +3,8 @@ rule go_nps_mux : suspicious {
 		description = "Uses github.com/smallbutstrong/nps-mux to multiplex network connections"
 	strings:
 		$ref1 = ").ReturnBucket"
+		$ref2 = ").NewTrafficControl"
 		$ref3 = ").SetReadDeadline"
 	condition:
-		any of them
+		all of them
 }

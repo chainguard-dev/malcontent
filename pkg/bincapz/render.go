@@ -25,6 +25,10 @@ func RenderTable(res *Report, w io.Writer) {
 			kbs = append(kbs, KeyedBehavior{Key: k, Behavior: b})
 		}
 
+		if len(kbs) == 0 {
+			continue
+		}
+
 		sort.Slice(kbs, func(i, j int) bool {
 			if kbs[i].Behavior.RiskScore == kbs[j].Behavior.RiskScore {
 				return kbs[i].Key < kbs[j].Key
@@ -37,7 +41,9 @@ func RenderTable(res *Report, w io.Writer) {
 		for k, v := range fr.Meta {
 			data = append(data, []string{"-", k, v, ""})
 		}
-		data = append(data, []string{"", "", "", ""})
+		if len(data) > 0 {
+			data = append(data, []string{"", "", "", ""})
+		}
 
 		for _, k := range kbs {
 			val := strings.Join(k.Behavior.Strings, " ")
