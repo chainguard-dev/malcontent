@@ -1,4 +1,4 @@
-rule etc_path {
+rule etc_resolv_conf {
 	meta:
 		description = "References /etc/resolv.conf (DNS resolver configuration)"
 	strings:

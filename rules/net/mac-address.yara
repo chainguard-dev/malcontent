@@ -1,4 +1,4 @@
-rule macaddr {
+rule macaddr : notable {
 	meta:
 		description = "Retrieves network MAC address"
 	strings:

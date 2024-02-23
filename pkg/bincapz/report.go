@@ -65,8 +65,22 @@ func behaviorRisk(tags []string) int {
 	if slices.Contains(tags, "notable") {
 		risk = 2
 	}
+	if slices.Contains(tags, "medium") {
+		risk = 2
+	}
+
 	if slices.Contains(tags, "suspicious") {
 		risk = 3
+	}
+	if slices.Contains(tags, "weird") {
+		risk = 3
+	}
+	if slices.Contains(tags, "high") {
+		risk = 3
+	}
+
+	if slices.Contains(tags, "crit") {
+		risk = 4
 	}
 	if slices.Contains(tags, "critical") {
 		risk = 4

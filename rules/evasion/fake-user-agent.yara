@@ -65,3 +65,12 @@ rule fake_user_agent_curl {
   	condition:
     	any of ($u_*) and none of ($not_*)
 }
+
+rule elf_faker : high {
+  meta:
+	description = "Fake user agent inside ELF binary"
+  strings:
+	$ref = /Mozilla\/5/
+  condition:
+    uint32(0) == 1179403647 and $ref
+}

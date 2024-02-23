@@ -1,5 +1,5 @@
 
-rule dlsym_openpty_system : suspicious {
+rule dlsym_pthread_exec: suspicious {
 	meta:
 		description = "Resolves library, creates threads, calls programs"
 	strings:

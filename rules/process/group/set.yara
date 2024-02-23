@@ -1,4 +1,4 @@
-rule syscalls : harmless {
+rule setpgid : harmless {
 	meta:
 		pledge = "proc"
 		syscall = "setpgid"

@@ -34,15 +34,17 @@ func main() {
 	}
 
 	ignoreTags := strings.Split(*ignoreTagsFlag, ",")
+	minLevel := *minLevelFlag
 	if *allFlag {
 		ignoreTags = []string{}
+		minLevel = -1
 	}
 
 	bc := bincapz.Config{
 		RuleFS:     ruleFs,
 		ScanPaths:  args,
 		IgnoreTags: ignoreTags,
-		MinLevel:   *minLevelFlag,
+		MinLevel:   minLevel,
 	}
 
 	res, err := bincapz.Scan(bc)
