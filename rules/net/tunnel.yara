@@ -15,6 +15,7 @@ rule tunnel2 : suspicious {
 		syscall = "setsockopt"
 	strings:
 		$Tunnel = "Tunnel"
+		$inet = "inet_addr" fullword
 	condition:
 		all of them
 }

@@ -1,4 +1,4 @@
-rule http_dynamic : suspicious exfil {
+rule http_dynamic : notable {
   meta:
 	description = "URL that is dynamically generated"
   strings:

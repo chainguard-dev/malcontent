@@ -1,6 +1,6 @@
-rule __progname : suspicious {
+rule __progname : notable {
 	meta:
-		description = "get or more typically set the current programs name"
+		description = "get or set the programs name"
 	strings:
 		$ref = "__progname"
 	condition:

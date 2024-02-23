@@ -13,6 +13,7 @@ type Config struct {
 	RuleFS     fs.FS
 	ScanPaths  []string
 	IgnoreTags []string
+	MinLevel   int
 }
 
 func Scan(c Config) (*Report, error) {
@@ -34,10 +35,11 @@ func Scan(c Config) (*Report, error) {
 		var mrs yara.MatchRules
 		// klog.Infof("scanning: %s", p)
 		if err := yrs.ScanFile(p, 0, 0, &mrs); err != nil {
-			return r, fmt.Errorf("scanfile: %w", err)
+			r.Files[p] = FileReport{Error: fmt.Sprintf("scanfile: %v", err)}
+			continue
 		}
 
-		fr := fileReport(mrs, c.IgnoreTags)
+		fr := fileReport(mrs, c.IgnoreTags, c.MinLevel)
 		r.Files[p] = fr
 	}
 

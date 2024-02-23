@@ -11,7 +11,7 @@ rule opaque_elf_binary : critical {
     hash_2023_Linux_Malware_Samples_16e0 = "16e09592a9e85cd67530ec365ac2c50e48e873335c1ad0f984e3daaefc8a57b5"
 	description = "Opaque ELF binary (few words)"
   strings:
-    $word_with_spaces = /[a-z]{2,} [a-z]{2,}/
+    $word_with_spaces = /[a-z\-]{2,} [a-z]{2,}/
   condition:
-    uint32(0) == 1179403647 and filesize < 10485760 and #word_with_spaces < 4
+    uint32(0) == 1179403647 and filesize < 10485760 and #word_with_spaces < 3
 }

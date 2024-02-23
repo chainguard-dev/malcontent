@@ -1,10 +1,10 @@
-rule shell_echo : suspicious {
+rule elf_calls_shell_echo : notable {
 	meta:
 		syscall = "posix_spawn"
 		pledge = "exec"
 		description = "uses the echo command to generate output"
 	strings:
-		$ref = /echo ['"%\w\>\/ \.]{0,64}/
+		$ref = /echo ['"%\w\>\/ \.]{1,64}/
 	condition:
-		all of them
+	    uint32(0) == 1179403647 and $ref
 }
