@@ -9,20 +9,9 @@ rule lkm {
 		all of them
 }
 
-rule init_module {
-	meta:
-		description = "Load Linux kernel module"
-		syscall = "init_module"
-		capability = "CAP_SYS_MODULE"
-	strings:
-		$ref = "init_module" fullword
-	condition:
-		all of them
-}
-
 rule delete_module {
 	meta:
-		description = "Load Linux kernel module"
+		description = "Unload Linux kernel module"
 		syscall = "delete_module"
 		capability = "CAP_SYS_MODULE"
 	strings:
