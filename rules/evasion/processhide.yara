@@ -6,5 +6,16 @@ rule processhide : suspicious {
 		$prochide = "processhide"
 		$process_to_filter = "process_to_filter"
 	condition:
-		all of them
+		uint32(0) == 1179403647 and all of them
+}
+
+rule possible_prochid : suspicious {
+  meta:
+    ref = "prochid.c"
+  strings:
+    $proc_self_fd = "/proc/self/fd/%d"
+    $proc_stat = "/proc/%s/stat"
+    $readdir = "readdir"
+  condition:
+    uint32(0) == 1179403647 and all of them
 }

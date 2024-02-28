@@ -4,8 +4,8 @@ rule chmod : notable {
 		pledge = "fattr"
 		syscall = "chmod"
 	strings:
-		$chmod = "_chmod" fullword
-		$dotChmod = ".Chmod" fullword
+		$chmod = "chmod" fullword
+		$dotChmod = "Chmod" fullword
 		$_setmode = "_setmode" fullword
 	condition:
 		any of them

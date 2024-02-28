@@ -55,6 +55,10 @@ var yaraForgeJunkWords = map[string]bool{
 	"trojan":            true,
 	"m":                 true,
 	"hunting":           true,
+	"dynamic":           true,
+	"big":               true,
+	"small":             true,
+	"encoded":           true,
 	"forensicartifacts": true,
 }
 
