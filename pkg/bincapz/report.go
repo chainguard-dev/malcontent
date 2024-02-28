@@ -3,6 +3,7 @@ package bincapz
 import (
 	"fmt"
 	"path/filepath"
+	"regexp"
 	"slices"
 	"strconv"
 	"strings"
@@ -46,15 +47,18 @@ type Report struct {
 
 // yaraForge has some very very long rule names
 var yaraForgeJunkWords = map[string]bool{
-	"controller": true,
-	"generic":    true,
-	"apt":        true,
-	"malware":    true,
-	"mal":        true,
-	"trojan":     true,
-	"m":          true,
-	"hunting":    true,
+	"controller":        true,
+	"generic":           true,
+	"apt":               true,
+	"malware":           true,
+	"mal":               true,
+	"trojan":            true,
+	"m":                 true,
+	"hunting":           true,
+	"forensicartifacts": true,
 }
+
+var dateRe = regexp.MustCompile(`[a-z]{3}\d{1,2}`)
 
 func yaraForgeKey(rule string) string {
 	// ELASTIC_Linux_Trojan_Gafgyt_E4A1982B
@@ -67,7 +71,12 @@ func yaraForgeKey(rule string) string {
 		words = words[0 : len(words)-1]
 	}
 	keepWords := []string{}
-	for _, w := range words {
+	for x, w := range words {
+		// ends with a date
+		if x == len(words)-1 && dateRe.MatchString(w) {
+			continue
+		}
+
 		if !yaraForgeJunkWords[w] {
 			keepWords = append(keepWords, w)
 		}

@@ -17,8 +17,13 @@ type KeyedBehavior struct {
 }
 
 func RenderTable(res *Report, w io.Writer) {
+	files := 0
 	for path, fr := range res.Files {
+		if files > 0 {
+			fmt.Print("\n")
+		}
 		fmt.Printf("%s\n", path)
+		files++
 
 		kbs := []KeyedBehavior{}
 		for k, b := range fr.Behaviors {
