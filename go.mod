@@ -1,4 +1,4 @@
-module chainguard.dev/bincapz
+module github.com/chainguard-dev/bincapz
 
 go 1.21.6
 

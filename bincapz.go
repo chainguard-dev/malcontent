@@ -9,7 +9,7 @@ import (
 	"os"
 	"strings"
 
-	"chainguard.dev/bincapz/pkg/bincapz"
+	"github.com/chainguard-dev/bincapz/pkg/bincapz"
 	"gopkg.in/yaml.v3"
 	"k8s.io/klog/v2"
 )

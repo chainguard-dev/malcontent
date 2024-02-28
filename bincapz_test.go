@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"chainguard.dev/bincapz/pkg/bincapz"
+	"github.com/chainguard-dev/bincapz/pkg/bincapz"
 	"github.com/google/go-cmp/cmp"
 )
 
