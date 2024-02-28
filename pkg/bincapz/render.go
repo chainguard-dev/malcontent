@@ -26,6 +26,7 @@ func RenderTable(res *Report, w io.Writer) {
 		}
 		fmt.Printf("%s\n", path)
 		files++
+		tableShown = false
 
 		kbs := []KeyedBehavior{}
 		for k, b := range fr.Behaviors {

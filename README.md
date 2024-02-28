@@ -1,15 +1,26 @@
-# bincapz (proof of concept)
+# bincapz
 
-Fast capability enumeration of binaries through static analysis. Powered by YARA.
+![bincapz logo](./images/logo_small.jpg)
+
+Enumerate the capabilities of a binary through static artifact analysis.
 
 ## Features
 
-- Generic support for all binary formats and languages
-- Focused on UNIX platforms, like Linux, MacOS, FreeBSD, OpenBSD
+- Excellent support for Linux (ELF) and macOS (Mach-O) binaries
+- Also supports binaries for other POSIX platforms (OpenBSD, FreeBSD, etc)
 - Works for analyzing code written in C, ObjC, Swift, Go, PHP, Python, Perl, and more.
-- syscall enumeration
-- pledge enumeration
-- Linux capability enumeration
+- Enumerates syscalls, pledge(2) classes, and Linux capability(7) requirements
+- Integrated Malware detection (10,000+ rules)
+- Supports [YARA forge](https://yarahq.github.io/), which integrates rules from Avast, Elastic, FireEye, Google, Mandiant, Nextron, ReversingLabs and more.
+- Generic support for any architecture (arm64, amd64, riscv, ppc)
+- Diff-friendly output (JSON, table, simple) to detect when capabilities change
+- CI/CD friendly
+  
+## Shortcomings
+
+- Limited support for Python, PHP, and Perl programs (in development)
+- Capability analysis biases toward false positives versus false negatives
+- Does not understand Java bytecode
 
 ## Installation
 
