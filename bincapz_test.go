@@ -9,8 +9,8 @@ import (
 	"strings"
 	"testing"
 
+	"chainguard.dev/bincapz/pkg/bincapz"
 	"github.com/google/go-cmp/cmp"
-	"github.com/tstromberg/bincapz/pkg/bincapz"
 )
 
 var testDataRoot = "testdata"
