@@ -25,7 +25,7 @@ Enumerate the capabilities of a binary through static artifact analysis.
 ## Installation
 
 ```shell
-go install chainguard.dev/bincapz@latest
+go install github.com/chainguard-dev/bincapz@latest
 ```
 
 ## Demo - ping
