@@ -1,4 +1,4 @@
-rule target_ip : suspicious {
+rule target_ip : notable {
 	meta:
 		description = "References a target IP"
 	strings:

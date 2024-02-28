@@ -258,6 +258,6 @@ func fileReport(mrs yara.MatchRules, ignoreTags []string, minLevel int) FileRepo
 	fr.Syscalls = slices.Compact(syscalls)
 	fr.Capabilities = slices.Compact(caps)
 
-	klog.V(1).Infof("yara matches: %+v", mrs)
+	klog.V(4).Infof("yara matches: %+v", mrs)
 	return fr
 }

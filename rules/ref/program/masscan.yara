@@ -1,4 +1,4 @@
-rule masscan : suspicious {
+rule masscan : notable {
   strings:
 	$ref = "masscan" fullword
   condition:

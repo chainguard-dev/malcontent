@@ -18,8 +18,10 @@ type KeyedBehavior struct {
 
 func RenderTable(res *Report, w io.Writer) {
 	files := 0
+	tableShown := false
+
 	for path, fr := range res.Files {
-		if files > 0 {
+		if files > 0 && tableShown {
 			fmt.Print("\n")
 		}
 		fmt.Printf("%s\n", path)
@@ -70,6 +72,7 @@ func RenderTable(res *Report, w io.Writer) {
 			}
 			data = append(data, []string{fmt.Sprintf("%d/%s", k.Behavior.RiskScore, k.Behavior.RiskLevel), k.Key, val, desc})
 		}
+		tableShown = true
 		table := tablewriter.NewWriter(os.Stdout)
 		table.SetAutoWrapText(false)
 		table.SetHeader([]string{"Risk", "Key", "Values", "Description"})

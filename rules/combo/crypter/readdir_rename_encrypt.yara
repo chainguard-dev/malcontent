@@ -1,5 +1,5 @@
 
-rule conti_alike : suspicious {
+rule conti_alike : notable {
 	meta:
 		description = "Reads directories, renames files, encrypts files"
 	strings:

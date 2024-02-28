@@ -21,6 +21,7 @@ type Config struct {
 
 // return a list of files within a path
 func findFilesRecursively(root string) ([]string, error) {
+	klog.V(1).Infof("finding files in %s ...", root)
 	files := []string{}
 
 	err := filepath.Walk(root,
@@ -51,7 +52,7 @@ func Scan(c Config) (*Report, error) {
 		return r, fmt.Errorf("YARA rule compilation: %w", err)
 	}
 
-	klog.V(1).Infof("%d rules loaded", len(yrs.GetRules()))
+	klog.Infof("%d rules loaded", len(yrs.GetRules()))
 
 	for _, sp := range c.ScanPaths {
 		rp, err := findFilesRecursively(sp)
@@ -61,13 +62,14 @@ func Scan(c Config) (*Report, error) {
 		// TODO: support zip files and such
 		for _, p := range rp {
 			var mrs yara.MatchRules
-			// klog.Infof("scanning: %s", p)
+			klog.V(1).Infof("scanning: %s", p)
 			if err := yrs.ScanFile(p, 0, 0, &mrs); err != nil {
 				r.Files[p] = FileReport{Error: fmt.Sprintf("scanfile: %v", err)}
 				continue
 			}
 
 			fr := fileReport(mrs, c.IgnoreTags, c.MinLevel)
+			klog.V(2).Infof("%d matches for %s", len(mrs), p)
 			r.Files[p] = fr
 		}
 	}
