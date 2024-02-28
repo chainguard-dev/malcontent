@@ -25,7 +25,8 @@ func main() {
 	allFlag := flag.Bool("all", false, "Ignore nothing, show all")
 
 	klog.InitFlags(nil)
-
+	flag.Set("logtostderr", "false")
+	flag.Set("alsologtostderr", "false")
 	flag.Parse()
 	args := flag.Args()
 

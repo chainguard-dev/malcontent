@@ -71,7 +71,7 @@ func compileRules(root fs.FS, thirdParty bool) (*yara.Rules, error) {
 		return nil, fmt.Errorf("walk: %w", err)
 	}
 	for _, ycw := range yc.Warnings {
-		klog.Errorf("warning from %s: %v", ycw.Rule.Namespace(), ycw.Text)
+		klog.Warningf("warning from %s: %v", ycw.Rule.Namespace(), ycw.Text)
 	}
 
 	for _, yce := range yc.Errors {
