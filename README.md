@@ -33,23 +33,25 @@ go install github.com/tstromberg/bincapz@latest
 When run against /sbin/ping:
 
 ```
-+------+-------------------------+------------------------+------------------------------------------------------------+
-| RISK |           KEY           |         VALUES         |                        DESCRIPTION                         |
-+------+-------------------------+------------------------+------------------------------------------------------------+
-|    1 | current_proc/userid/set | setuid                 | set real and effective user ID of process                  |
-|    1 | net/hostname/resolve    | gethostbyname2         | Uses libc functions to resolve network hosts               |
-|    1 | net/icmp                | ICMP                   | ICMP (Internet Control Message Protocol), aka ping packets |
-|    1 | net/interface/get       | if_nametoindex         | libc functions for retrieving network interface            |
-|    1 | net/interface/list      | freeifaddrs getifaddrs | list network interfaces and their associated addresses     |
-|    1 | net/ip                  | invalid packet         | Internet Protocol user                                     |
-|    1 | net/ip/multicast/send   | multicast              | Send data to multiple nodes simultaneously                 |
-|    1 | net/ip/resolve          | gethostbyaddr          | Uses libc functions to resolve network hosts               |
-|    1 | net/ip/send/unicast     | unicast                | send data to the internet                                  |
-|    1 | net/socket              | setsockopt             | set socket options                                         |
-|    1 | net/socket/connect      | _connect               | initiate a connection on a socket                          |
-|    1 | net/socket/receive      | recvmsg                | receive a message from a socket                            |
-|    1 | net/socket/send         | sendmsg                | send a message to a socket                                 |
-+------+-------------------------+------------------------+------------------------------------------------------------+```
++-------+----------------------------+--------------------------+------------------------------------------------------------+
+| RISK  |            KEY             |          VALUES          |                        DESCRIPTION                         |
++-------+----------------------------+--------------------------+------------------------------------------------------------+
+| 1/LOW | fs/device/control          | ioctl                    | manipulate the device parameters of special files          |
+| 1/LOW | net/icmp                   | ICMP                     | ICMP (Internet Control Message Protocol), aka ping packets |
+| 1/LOW | net/interface/get          | if_nametoindex           | libc functions for retrieving network interface            |
+| 1/LOW | net/interface/list         | freeifaddrs getifaddrs   | list network interfaces and their associated addresses     |
+| 1/LOW | net/ip/multicast/send      | multicast                | Send data to multiple nodes simultaneously                 |
+| 1/LOW | net/ip/send/unicast        | unicast                  | send data to the internet                                  |
+| 1/LOW | net/socket/local/address   | getsockname              | get local address of connected socket                      |
+| 1/LOW | net/socket/receive         | recvmsg                  | receive a message from a socket                            |
+| 1/LOW | net/socket/send            | sendmsg sendto           | send a message to a socket                                 |
+| 1/LOW | process/current/userid/set | setuid                   | set real and effective user ID of process                  |
+| 1/LOW | ref/path/usr               | /usr/share/locale        | References paths within /usr/                              |
+| 2/MED | net/hostport/parse         | freeaddrinfo getaddrinfo | Network address and service translation                    |
+| 2/MED | net/ip/parse               | inet_pton                | Parse an IP address (IPv4 or IPv6)                         |
+| 2/MED | net/ip/string              | inet_ntoa inet_ntop      | Convert IP from byte form to string                        |
+| 2/MED | net/raw_sockets            | SOCK_RAW raw socket      | Uses raw sockets                                           |
++-------+----------------------------+--------------------------+------------------------------------------------------------+
 ```
 
 ## 3CX Supply-chain verification
