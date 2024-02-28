@@ -10,5 +10,5 @@ rule readdir_intercept : suspicious {
 		$not_ld_debug = "LD_DEBUG"
 		$not_libc = "getusershell"
 	condition:
-		all of ($r*) and none of ($not*)
+		uint32(0) == 1179403647 and all of ($r*) and none of ($not*)
 }

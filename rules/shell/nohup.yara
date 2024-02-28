@@ -1,5 +1,6 @@
 rule nohup_reference : notable {
   meta:
+	description = "Runs command that is protected from termination"
     hash_2018_MacOS_CoinTicker = "c344730f41f52a2edabf95730389216a9327d6acc98346e5738b3eb99631634d"
     hash_2019_Cointrazer = "138a54a0a1fe717cf0ffd63ef2a27d296456b5338aed8ef301ad0e90b0fe25ae"
     hash_2013_trojan_Janicab_python = "7684a74becf520141ff59dcfe5cbc391d5d710a67c2241bb75a05e9694156982"
@@ -17,4 +18,17 @@ rule nohup_reference : notable {
     $bin_bash = "#!/bin/bash"
   condition:
     filesize < 52428800 and $nohup and none of ($not*) and not $bin_sh in (0..2) and not $bin_bash in (0..2)
+}
+
+rule elf_nohup : suspicious {
+  meta:
+	description = "Runs command that is protected from termination"
+  strings:
+    $nohup = "nohup" fullword
+    $not_append = "appending output"
+    $not_usage = "usage: nohup"
+    $not_nohup_out = "nohup.out"
+    $not_pushd = "pushd"
+  condition:
+	uint32(0) == 1179403647 and $nohup and none of ($not*)
 }

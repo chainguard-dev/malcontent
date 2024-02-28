@@ -1,5 +1,6 @@
 rule crontab_writer : suspicious {
   meta:
+	description = "May use crontab to persist"
     hash_2020_FinSpy_helper2 = "af4ad3b8bf81a877a47ded430ac27fdcb3ddd33d3ace52395f76cbdde46dbfe0"
     hash_2022_XorDDoS_0Xorddos = "d920dec25946a86aeaffd5a53ce8c3f05c9a7bac44d5c71481f497de430cb67e"
     hash_2013_Resources_installer = "5dce86eb6881f8088660b961746623b81d38f8bccb6693116296748fbe1f3719"

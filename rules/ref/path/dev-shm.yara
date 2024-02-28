@@ -7,6 +7,15 @@ rule dev_shm : notable {
 		any of them
 }
 
+rule dev_shm_sh : suspicious {
+	meta:
+		description = "References shell script within /dev/shm (world writeable)"
+	strings:
+		$ref = /\/dev\/shm\/[%\w\.\-\/]{0,64}\.sh/ 
+	condition:
+		any of them
+}
+
 
 rule dev_shm_hidden : suspicious {
 	meta:
