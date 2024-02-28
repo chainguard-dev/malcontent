@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"slices"
+	"strconv"
 	"strings"
 	"unicode"
 
@@ -24,6 +25,7 @@ type Behavior struct {
 	Strings     []string
 	RiskScore   int
 	RiskLevel   string
+	RuleAuthor  string
 }
 
 type FileReport struct {
@@ -42,8 +44,35 @@ type Report struct {
 	Filter string
 }
 
-func generateKey(src string) string {
-	_, after, _ := strings.Cut(src, "rules/")
+func yaraForgeKey(rule string) string {
+	// ELASTIC_Linux_Trojan_Gafgyt_E4A1982B
+	words := strings.Split(strings.ToLower(rule), "_")
+
+	// strip off the last wold if it's a hex key
+	lastWord := words[len(words)-1]
+	_, err := strconv.ParseUint(lastWord, 16, 64)
+	if err == nil {
+		words = words[0 : len(words)-1]
+	}
+	key := fmt.Sprintf("third_party/%s", strings.Join(words, "/"))
+	return key
+}
+
+func generateKey(src string, rule string) string {
+	// It's Yara FORGE
+	if strings.Contains(src, "yara-rules") {
+		return yaraForgeKey(rule)
+	}
+
+	_, after, _ := strings.Cut(src, "third_party/")
+	if after != "" {
+		key := strings.ReplaceAll(after, "-", "/")
+		key = strings.ReplaceAll(key, "/rules", "")
+		key = strings.ReplaceAll(key, "/yara", "")
+		return "third_party/" + strings.ReplaceAll(key, ".yar", "")
+	}
+
+	_, after, _ = strings.Cut(src, "rules/")
 	key := strings.ReplaceAll(after, "-", "/")
 	return strings.ReplaceAll(key, ".yara", "")
 }
@@ -57,7 +86,7 @@ func ignoreMatch(tags []string, ignoreTags map[string]bool) bool {
 	return false
 }
 
-func behaviorRisk(tags []string) int {
+func behaviorRisk(ns string, tags []string) int {
 	risk := 1
 	if slices.Contains(tags, "harmless") {
 		risk = 0
@@ -85,6 +114,11 @@ func behaviorRisk(tags []string) int {
 	if slices.Contains(tags, "critical") {
 		risk = 4
 	}
+
+	if strings.Contains(ns, "third_party") {
+		risk = 4
+	}
+
 	return risk
 }
 
@@ -129,9 +163,10 @@ func fileReport(mrs yara.MatchRules, ignoreTags []string, minLevel int) FileRepo
 	caps := []string{}
 	syscalls := []string{}
 	desc := ""
+	author := ""
 
 	for _, m := range mrs {
-		risk := behaviorRisk(m.Tags)
+		risk := behaviorRisk(m.Namespace, m.Tags)
 		if risk < minLevel {
 			continue
 		}
@@ -143,7 +178,13 @@ func fileReport(mrs yara.MatchRules, ignoreTags []string, minLevel int) FileRepo
 
 		for _, meta := range m.Metas {
 			switch meta.Identifier {
-			case "description":
+			case "author":
+				author = fmt.Sprintf("%s", meta.Value)
+				if len(author) > len(b.RuleAuthor) {
+					b.RuleAuthor = author
+				}
+
+			case "description", "threat_name", "name":
 				desc = fmt.Sprintf("%s", meta.Value)
 				if len(desc) > len(b.Description) {
 					b.Description = desc
@@ -158,7 +199,7 @@ func fileReport(mrs yara.MatchRules, ignoreTags []string, minLevel int) FileRepo
 			}
 		}
 
-		key := generateKey(m.Namespace)
+		key := generateKey(m.Namespace, m.Rule)
 		if strings.HasPrefix(key, "meta/") {
 			k := filepath.Dir(key)
 			v := filepath.Base(key)

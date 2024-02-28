@@ -14,13 +14,14 @@ import (
 	"k8s.io/klog/v2"
 )
 
-//go:embed rules
+//go:embed rules third_party
 var ruleFs embed.FS
 
 func main() {
 	formatFlag := flag.String("format", "table", "Output type. Valid values are: table, simple, json, yaml")
 	ignoreTagsFlag := flag.String("ignore-tags", "", "Rule tags to ignore")
 	minLevelFlag := flag.Int("min-level", 1, "minimum suspicion level to report (1=low, 2=medium, 3=high, 4=critical)")
+	thirdPartyFlag := flag.Bool("third-party", true, "include third-party rules, which may have licensing restrictions")
 	allFlag := flag.Bool("all", false, "Ignore nothing, show all")
 
 	klog.InitFlags(nil)
@@ -41,10 +42,11 @@ func main() {
 	}
 
 	bc := bincapz.Config{
-		RuleFS:     ruleFs,
-		ScanPaths:  args,
-		IgnoreTags: ignoreTags,
-		MinLevel:   minLevel,
+		RuleFS:          ruleFs,
+		ScanPaths:       args,
+		IgnoreTags:      ignoreTags,
+		MinLevel:        minLevel,
+		ThirdPartyRules: *thirdPartyFlag,
 	}
 
 	res, err := bincapz.Scan(bc)

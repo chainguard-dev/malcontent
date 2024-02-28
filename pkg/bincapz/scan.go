@@ -10,10 +10,11 @@ import (
 )
 
 type Config struct {
-	RuleFS     fs.FS
-	ScanPaths  []string
-	IgnoreTags []string
-	MinLevel   int
+	RuleFS          fs.FS
+	ScanPaths       []string
+	IgnoreTags      []string
+	MinLevel        int
+	ThirdPartyRules bool
 }
 
 func Scan(c Config) (*Report, error) {
@@ -25,11 +26,12 @@ func Scan(c Config) (*Report, error) {
 		r.Filter = strings.Join(c.IgnoreTags, ",")
 	}
 
-	yrs, err := compileRules(c.RuleFS)
-	klog.V(1).Infof("%d rules loaded", len(yrs.GetRules()))
+	yrs, err := compileRules(c.RuleFS, c.ThirdPartyRules)
 	if err != nil {
-		return r, fmt.Errorf("compile: %w", err)
+		return r, fmt.Errorf("YARA rule compilation: %w", err)
 	}
+
+	klog.V(1).Infof("%d rules loaded", len(yrs.GetRules()))
 
 	for _, p := range c.ScanPaths {
 		var mrs yara.MatchRules
