@@ -32,6 +32,10 @@ func findFilesRecursively(root string) ([]string, error) {
 			if info.IsDir() {
 				return nil
 			}
+			// False positives in refs file
+			if strings.Contains(path, "/.git/") {
+				return nil
+			}
 			files = append(files, path)
 			return nil
 		})
