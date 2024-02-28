@@ -1,4 +1,4 @@
-rule glibc_tunables : suspicious {
+rule glibc_tunables : notable {
   strings:
 	$ref = "GLIBC_TUNABLES"
   condition:

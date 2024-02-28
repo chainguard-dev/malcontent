@@ -1,7 +1,7 @@
 
-rule raw_flooder : critical {
+rule raw_flooder : notable {
 	meta:
-		description = "raw sockets, appears to flood"
+		description = "raw sockets with multiple targets, could be used for DDoS attacks"
 	strings:
 		$r_raw = "raw socket"
 		$r_hdr = "HDRINCL"

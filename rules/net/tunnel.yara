@@ -1,4 +1,4 @@
-rule tunnel : suspicious {
+rule tunnel : notable {
 	meta:
 		description = "Creates a network tunnel"
 		syscall = "setsockopt"
@@ -9,7 +9,7 @@ rule tunnel : suspicious {
 		all of them
 }
 
-rule tunnel2 : suspicious {
+rule tunnel2 : notable {
 	meta:
 		description = "Creates a network tunnel"
 		syscall = "setsockopt"
