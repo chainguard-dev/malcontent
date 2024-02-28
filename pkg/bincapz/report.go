@@ -44,6 +44,18 @@ type Report struct {
 	Filter string
 }
 
+// yaraForge has some very very long rule names
+var yaraForgeJunkWords = map[string]bool{
+	"controller": true,
+	"generic":    true,
+	"apt":        true,
+	"malware":    true,
+	"mal":        true,
+	"trojan":     true,
+	"m":          true,
+	"hunting":    true,
+}
+
 func yaraForgeKey(rule string) string {
 	// ELASTIC_Linux_Trojan_Gafgyt_E4A1982B
 	words := strings.Split(strings.ToLower(rule), "_")
@@ -54,8 +66,14 @@ func yaraForgeKey(rule string) string {
 	if err == nil {
 		words = words[0 : len(words)-1]
 	}
-	key := fmt.Sprintf("third_party/%s", strings.Join(words, "/"))
-	return key
+	keepWords := []string{}
+	for _, w := range words {
+		if !yaraForgeJunkWords[w] {
+			keepWords = append(keepWords, w)
+		}
+	}
+	key := fmt.Sprintf("3P/%s", strings.Join(keepWords, "/"))
+	return strings.ReplaceAll(key, "signature/base", "signature_base")
 }
 
 func generateKey(src string, rule string) string {
