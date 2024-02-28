@@ -28,7 +28,7 @@ func compileRules(root fs.FS, thirdParty bool) (*yara.Rules, error) {
 		}
 	}
 
-	fs.WalkDir(root, ".", func(path string, d fs.DirEntry, err error) error {
+	err = fs.WalkDir(root, ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return nil
 		}
