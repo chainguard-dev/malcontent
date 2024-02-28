@@ -50,7 +50,20 @@ func RenderTable(res *Report, w io.Writer) {
 			if len(val) > 48 {
 				val = val[0:48] + ".."
 			}
-			data = append(data, []string{fmt.Sprintf("%d/%s", k.Behavior.RiskScore, k.Behavior.RiskLevel), k.Key, val, k.Behavior.Description})
+
+			desc := k.Behavior.Description
+			before, _, found := strings.Cut(desc, ". ")
+			if found {
+				desc = before
+			}
+			if k.Behavior.RuleAuthor != "" {
+				if desc != "" {
+					desc = fmt.Sprintf("%s, by %s", desc, k.Behavior.RuleAuthor)
+				} else {
+					desc = fmt.Sprintf("by %s", k.Behavior.RuleAuthor)
+				}
+			}
+			data = append(data, []string{fmt.Sprintf("%d/%s", k.Behavior.RiskScore, k.Behavior.RiskLevel), k.Key, val, desc})
 		}
 		table := tablewriter.NewWriter(os.Stdout)
 		table.SetAutoWrapText(false)
