@@ -1,5 +1,5 @@
 
-rule launchctl : suspicious {
+rule launchctl : notable {
 	meta:
 		description = "Interfaces with launchd using LaunchAgents"
 		platforms = "darwin"
