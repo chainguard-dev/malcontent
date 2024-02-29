@@ -7,6 +7,7 @@ rule file_crypter : suspicious {
 		$ref3 = "encrypts files"
 		$ref4 = "files_encrypted"
 		$ref5 = "EncryptFile"
+		$ref6 = "cryptor" fullword
 	condition:
 		any of them
 }

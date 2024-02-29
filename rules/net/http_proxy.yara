@@ -7,6 +7,15 @@ rule proxy_auth {
 		any of them
 }
 
+rule proxy_pac {
+	meta:
+		description = "Able to find proxies via a PAC file"
+	strings:
+		$ref = "PACFile" fullword
+	condition:
+		any of them
+}
+
 rule http_proxy_env {
 	meta:
 		description = "Able to find HTTP proxies"

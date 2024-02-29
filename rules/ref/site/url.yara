@@ -1,4 +1,3 @@
-
 rule url {
   meta:
 	description = "Embedded URL"
