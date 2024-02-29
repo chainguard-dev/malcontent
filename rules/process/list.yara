@@ -1,5 +1,5 @@
 
-rule proc_listallpids {
+rule proc_listallpids : notable {
 	meta:
 		pledge = "exec"
 		syscall = "vfork"
@@ -9,3 +9,16 @@ rule proc_listallpids {
 		any of them
 }
 
+rule ps_exec : notable {
+  meta:
+	pledge = "exec"
+	syscall = "vfork"
+  strings:
+    $ps_ef = "ps -ef |"
+    $ps_ax = "ps -ax"
+    $hash_bang = "#!"
+    $not_node = "NODE_DEBUG_NATIVE"
+    $not_apple = "com.apple."
+  condition:
+    any of ($ps*) and not $hash_bang in (0..2) and none of ($not*)
+}

@@ -52,3 +52,12 @@ rule apk_installer : suspicious {
 	$ref
 }
 
+rule pip_installer : suspicious {
+  meta:
+	description = "Installs software using pip"
+  strings:
+    $ref = /pip3* add[ \w\-\_%]{0,32}/
+  condition:
+	$ref
+}
+
