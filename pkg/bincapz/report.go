@@ -81,10 +81,16 @@ func yaraForgeKey(rule string) string {
 		if x == len(words)-1 && dateRe.MatchString(w) {
 			continue
 		}
+		if w == "" {
+			continue
+		}
 
 		if !yaraForgeJunkWords[w] {
 			keepWords = append(keepWords, w)
 		}
+	}
+	if len(keepWords) > 4 {
+		keepWords = keepWords[0:4]
 	}
 	key := fmt.Sprintf("3P/%s", strings.Join(keepWords, "/"))
 	return strings.ReplaceAll(key, "signature/base", "signature_base")
@@ -247,6 +253,11 @@ func fileReport(mrs yara.MatchRules, ignoreTags []string, minLevel int) FileRepo
 		if ignoreMatch(m.Tags, ignore) {
 			fr.FilteredBehaviors++
 			continue
+		}
+
+		// We forgot :(
+		if b.Description == "" {
+			b.Description = strings.ReplaceAll(m.Rule, "_", " ")
 		}
 
 		// We've already seen a similar behavior: do we augment it or replace it?
