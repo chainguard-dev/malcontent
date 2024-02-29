@@ -60,6 +60,7 @@ var yaraForgeJunkWords = map[string]bool{
 	"small":             true,
 	"encoded":           true,
 	"forensicartifacts": true,
+	"lnx":               true,
 }
 
 var dateRe = regexp.MustCompile(`[a-z]{3}\d{1,2}`)
