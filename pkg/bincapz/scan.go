@@ -17,6 +17,7 @@ type Config struct {
 	IgnoreTags      []string
 	MinLevel        int
 	ThirdPartyRules bool
+	OmitEmpty       bool
 }
 
 // return a list of files within a path
@@ -74,7 +75,9 @@ func Scan(c Config) (*Report, error) {
 			}
 
 			fr := fileReport(mrs, c.IgnoreTags, c.MinLevel)
-			klog.V(2).Infof("%d matches for %s", len(mrs), p)
+			if len(fr.Behaviors) == 0 && c.OmitEmpty {
+				continue
+			}
 			r.Files[p] = fr
 		}
 	}

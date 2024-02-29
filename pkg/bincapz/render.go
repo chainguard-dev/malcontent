@@ -16,6 +16,18 @@ type KeyedBehavior struct {
 	Behavior Behavior
 }
 
+func forceWrap(s string, x int) string {
+	words, _ := tablewriter.WrapString(s, x)
+	fw := []string{}
+	for _, w := range words {
+		if len(w) > x-2 {
+			w = w[0:x-2] + ".."
+		}
+		fw = append(fw, w)
+	}
+	return strings.Join(fw, "\n")
+}
+
 func RenderTable(res *Report, w io.Writer) {
 	files := 0
 	tableShown := false
@@ -55,11 +67,7 @@ func RenderTable(res *Report, w io.Writer) {
 
 		for _, k := range kbs {
 			val := strings.Join(k.Behavior.Strings, " ")
-			if len(val) > 128 {
-				val = val[0:128] + ".."
-			}
-			words, _ := tablewriter.WrapString(val, 24)
-			val = strings.Join(words, "\n")
+			val = forceWrap(val, 32)
 
 			desc := k.Behavior.Description
 			before, _, found := strings.Cut(desc, ". ")
@@ -74,7 +82,7 @@ func RenderTable(res *Report, w io.Writer) {
 				}
 			}
 
-			words, _ = tablewriter.WrapString(desc, 48)
+			words, _ := tablewriter.WrapString(desc, 48)
 			desc = strings.Join(words, "\n")
 
 			data = append(data, []string{fmt.Sprintf("%d/%s", k.Behavior.RiskScore, k.Behavior.RiskLevel), k.Key, val, desc})

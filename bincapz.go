@@ -22,6 +22,7 @@ func main() {
 	ignoreTagsFlag := flag.String("ignore-tags", "", "Rule tags to ignore")
 	minLevelFlag := flag.Int("min-level", 1, "minimum suspicion level to report (1=low, 2=medium, 3=high, 4=critical)")
 	thirdPartyFlag := flag.Bool("third-party", true, "include third-party rules, which may have licensing restrictions")
+	omitEmptyFlag := flag.Bool("omit-empty", false, "omit files that contain no matches")
 	allFlag := flag.Bool("all", false, "Ignore nothing, show all")
 
 	klog.InitFlags(nil)
@@ -46,10 +47,12 @@ func main() {
 		RuleFS:          ruleFs,
 		ScanPaths:       args,
 		IgnoreTags:      ignoreTags,
+		OmitEmpty:       *omitEmptyFlag,
 		MinLevel:        minLevel,
 		ThirdPartyRules: *thirdPartyFlag,
 	}
 
+	fmt.Fprintf(os.Stderr, "scanning %s ...\n", strings.Join(args, " "))
 	res, err := bincapz.Scan(bc)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "scan failed: %v\n", err)
