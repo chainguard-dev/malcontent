@@ -120,6 +120,12 @@ func ignoreMatch(tags []string, ignoreTags map[string]bool) bool {
 
 func behaviorRisk(ns string, tags []string) int {
 	risk := 1
+
+	// In case we forget to add a tag
+	if strings.Contains(ns, "combo/") {
+		risk = 2
+	}
+
 	if slices.Contains(tags, "harmless") {
 		risk = 0
 	}
@@ -147,7 +153,7 @@ func behaviorRisk(ns string, tags []string) int {
 		risk = 4
 	}
 
-	if strings.Contains(ns, "third_party") {
+	if strings.Contains(ns, "third_party/") {
 		risk = 4
 	}
 
