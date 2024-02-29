@@ -55,9 +55,11 @@ func RenderTable(res *Report, w io.Writer) {
 
 		for _, k := range kbs {
 			val := strings.Join(k.Behavior.Strings, " ")
-			if len(val) > 48 {
-				val = val[0:48] + ".."
+			if len(val) > 128 {
+				val = val[0:128] + ".."
 			}
+			words, _ := tablewriter.WrapString(val, 24)
+			val = strings.Join(words, "\n")
 
 			desc := k.Behavior.Description
 			before, _, found := strings.Cut(desc, ". ")
@@ -71,6 +73,10 @@ func RenderTable(res *Report, w io.Writer) {
 					desc = fmt.Sprintf("by %s", k.Behavior.RuleAuthor)
 				}
 			}
+
+			words, _ = tablewriter.WrapString(desc, 48)
+			desc = strings.Join(words, "\n")
+
 			data = append(data, []string{fmt.Sprintf("%d/%s", k.Behavior.RiskScore, k.Behavior.RiskLevel), k.Key, val, desc})
 		}
 		tableShown = true
