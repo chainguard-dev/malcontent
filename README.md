@@ -18,9 +18,10 @@ Enumerate the capabilities of a binary through static artifact analysis.
   
 ## Shortcomings
 
-- Does not extract archive files of any sort (jar, zip, apk)
+- Does not process archive files (jar, zip, apk)
 - Does not understand Java bytecode
 - It's slow! (~5 seconds per binary)
+- It's in early development, most rules lack full metadata
 
 ## Installation
 
