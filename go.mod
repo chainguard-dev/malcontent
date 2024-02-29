@@ -12,5 +12,6 @@ require (
 
 require (
 	github.com/go-logr/logr v1.4.1 // indirect
+	github.com/liamg/magic v0.0.1 // indirect
 	github.com/mattn/go-runewidth v0.0.9 // indirect
 )
