@@ -20,7 +20,7 @@ Enumerate the capabilities of a binary through static artifact analysis.
 
 - Does not extract archive files of any sort (jar, zip, apk)
 - Does not understand Java bytecode
-- It's slower than we'd like
+- It's slow! (~5 seconds per binary)
 
 ## Installation
 
