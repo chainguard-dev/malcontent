@@ -23,6 +23,7 @@ func main() {
 	minLevelFlag := flag.Int("min-level", 1, "minimum suspicion level to report (1=low, 2=medium, 3=high, 4=critical)")
 	thirdPartyFlag := flag.Bool("third-party", true, "include third-party rules, which may have licensing restrictions")
 	omitEmptyFlag := flag.Bool("omit-empty", false, "omit files that contain no matches")
+	onlyProgramFilesFlag := flag.Bool("only-programs", true, "skip non-program files for faster scanning")
 	allFlag := flag.Bool("all", false, "Ignore nothing, show all")
 
 	klog.InitFlags(nil)
@@ -50,6 +51,7 @@ func main() {
 		OmitEmpty:       *omitEmptyFlag,
 		MinLevel:        minLevel,
 		ThirdPartyRules: *thirdPartyFlag,
+		OnlyPrograms:    *onlyProgramFilesFlag,
 	}
 
 	fmt.Fprintf(os.Stderr, "scanning %s ...\n", strings.Join(args, " "))
