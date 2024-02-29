@@ -10,11 +10,14 @@ rule crontab_writer : suspicious {
     hash_2020_Prometei_lbjon = "75ea0d099494b0397697d5245ea6f2b5bf8f22bb3c3e6d6d81e736ac0dac9fbc"
     hash_2023_Linux_Malware_Samples_aab5 = "aab526b32d703fd9273635393011a05c9c3f6204854367eb0eb80894bbcfdd42"
   strings:
-    $c_etc_crontab = "/etc/crontab"
+    $c_etc_crontab = /\/etc\/cron[\/\w\.]{0,32}/
     $c_crontab_e = "crontab -"
+    $c_var_spool_cron = "/var/spool/cron"
     $c_root_cron_entry = "* * * * root"
     $c_reboot = "@reboot"
+    $c_daily = "@daily"
     $not_usage = "usage: cron"
   condition:
     filesize < 2097152 and any of ($c*) and none of ($not*)
 }
+

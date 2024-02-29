@@ -1,4 +1,3 @@
-
 rule reverse_shell : suspicious {
   meta:
     hash_2018_MacOS_CoinTicker = "c344730f41f52a2edabf95730389216a9327d6acc98346e5738b3eb99631634d"
@@ -13,4 +12,21 @@ rule reverse_shell : suspicious {
     $revshell = "revshell"
   condition:
     any of them
+}
+
+rule perl_reverse_shell : suspicious {
+  meta:
+    hash_2023_Linux_Malware_Samples_caa1 = "caa114893cf5cb213b39591bbcb72f66ee4519be07269968e714a8d3f24c3382"
+    hash_2018_OSX_Dummy_script = "ced05b1f429ade707691b04f59d7929961661963311b768d438317f4d3d82953"
+    hash_2023_Win_Trojan_Perl_9aed = "9aed7ab8806a90aa9fac070fbf788466c6da3d87deba92a25ac4dd1d63ce4c44"
+    hash_2023_uacert_socket = "912dc3aee7d5c397225f77e3ddbe3f0f4cf080de53ccdb09c537749148c1cc08"
+  strings:
+    $socket = "socket("
+    $open = "open("
+    $redir_double = "\">&"
+    $redir_single = "'>&"
+
+    $sh_i = "sh -i"
+  condition:
+    $socket and $open and any of ($redir*) and $sh_i
 }

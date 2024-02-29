@@ -25,3 +25,20 @@ rule fchmod : notamble {
 		any of them
 }
 
+rule chmod_executable_plus : notable {
+  meta:
+	description = "Makes program an execuatble (plus syntax)"
+  strings:
+	$ref = /chmod [\-\w ]{0,4}\+[rw]{0,2}x[ \$\w\/\.]{0,64}/
+  condition:
+	$ref
+}
+
+rule chmod_executable_octal : notable {
+  meta:
+	description = "Makes program an execuatble (octal)"
+  strings:
+	$ref = /chmod [\-\w ]{0,4}\+[rw]{0,2}[75][ \$\w\/\.]{0,64}/
+  condition:
+	$ref
+}

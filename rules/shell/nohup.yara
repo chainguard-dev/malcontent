@@ -32,3 +32,13 @@ rule elf_nohup : suspicious {
   condition:
 	uint32(0) == 1179403647 and $nohup and none of ($not*)
 }
+
+rule trap_1 : suspicious {
+  meta:
+	description = "Protects itself from early termination via SIGHUP"
+  strings:
+    $ref = "trap '' 1"
+	$ref2 = "trap \"\" 1"
+  condition:
+	any of them
+}
