@@ -1,4 +1,4 @@
-rule nmap : suspicious {
+rule nmap : notable {
   strings:
 	$ref = "nmap" fullword
   condition:
