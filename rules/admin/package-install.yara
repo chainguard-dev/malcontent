@@ -56,8 +56,11 @@ rule pip_installer : suspicious {
   meta:
 	description = "Installs software using pip"
   strings:
-    $ref = /pip3* add[ \w\-\_%]{0,32}/
+    $regex = /pip[3 \'\"]{0,5}install[ \'\"\w\-\_%]{0,32}/
+    $pip_install = "os.system('pip install"
+    $pip_install_spaces = "'pip', 'install'"
+    $pip_install_args = "'pip','install'"
   condition:
-	$ref
+	any of them
 }
 
