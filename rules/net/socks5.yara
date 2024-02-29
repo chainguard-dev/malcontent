@@ -5,6 +5,12 @@ rule socks5 : notable {
 	strings:
 		$ref = ".Socks5"
 		$ref2 = "SOCKS5"
+	    $p_connect = "CONNECT %s"
+		$p_socksproxy = "socksproxy"
+		$p_socks_proxy = "socks proxy"
+		$p_socksv5 = "SOCKSv5"
+		$p_socks_percent = "SOCKS %"
+		$p_socks5 = "socks5" fullword
 	condition:
 		any of them
 }

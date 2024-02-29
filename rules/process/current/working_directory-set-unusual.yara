@@ -1,13 +1,17 @@
 rule unusual_cd : suspicious {
 	meta:
-		description = "changes to an unusual directory"
+		description = "changes to an unusual system directory"
 	strings:
-		$ref1 = "cd /var/run"
-		$ref2 = "cd /var/tmp"
-		$ref3 = "cd /dev"
-		$ref4 = "cd /mnt"
-		$ref5 = "cd /root"
-		$ref6 = "cd /usr"
+		$dev = "cd /dev"
+		$dev_mqueue = "cd /dev/mqueue"
+		$dev_shm = "cd /dev/shm"
+		$mnt = "cd /mnt"
+		$root = "cd /root"
+		$tmp = "cd /tmp"
+		$usr = "cd /usr"
+		$var_log = "cd /var/log"
+		$var_run = "cd /var/run"
+		$var_tmp = "cd /var/tmp"
 	condition:
 		any of them
 }
