@@ -27,6 +27,7 @@ func findFilesRecursively(root string) ([]string, error) {
 	err := filepath.Walk(root,
 		func(path string, info os.FileInfo, err error) error {
 			if err != nil {
+				klog.Errorf("walk %s: %v", path, err)
 				return err
 			}
 			if info.IsDir() {

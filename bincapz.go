@@ -51,6 +51,10 @@ func main() {
 	}
 
 	res, err := bincapz.Scan(bc)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "scan failed: %v\n", err)
+		os.Exit(3)
+	}
 
 	switch *formatFlag {
 	case "json":
