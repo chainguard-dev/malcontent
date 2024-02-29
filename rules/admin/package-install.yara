@@ -52,14 +52,25 @@ rule apk_installer : suspicious {
 	$ref
 }
 
-rule pip_installer : suspicious {
+rule pip_installer_regex : notable {
   meta:
-	description = "Installs software using pip"
+	description = "Includes 'pip install' command for installing Python modules"
   strings:
     $regex = /pip[3 \'\"]{0,5}install[ \'\"\w\-\_%]{0,32}/
+  condition:
+	any of them
+}
+
+rule pip_installer : suspicious {
+  meta:
+	description = "Installs software using pip from python"
+  strings:
     $pip_install = "os.system('pip install"
     $pip_install_spaces = "'pip', 'install'"
     $pip_install_args = "'pip','install'"
+    $pip3_install = "os.system('pip3 install"
+    $pip3_install_spaces = "'pip3', 'install'"
+    $pip3_install_args = "'pip3','install'"
   condition:
 	any of them
 }

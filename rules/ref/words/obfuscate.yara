@@ -3,8 +3,9 @@ rule obfuscate {
 	description = "Mentions the word obfuscate"
   strings:
     $obfuscate = /obfuscate[\w]{0,32}/
+	$not_ticket = "obfuscatedTicket"
   condition:
-	$obfuscate
+	$obfuscate and none of ($not*)
 }
 
 rule obfuscator {
