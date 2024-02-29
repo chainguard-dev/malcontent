@@ -28,3 +28,13 @@ rule linux_kernel_module_getdents64 : critical {
   condition:
     all of them
 }
+
+rule funky_high_signal_killer : suspicious {
+  meta:
+	description = "Uses high signals to communicate to a rootkit"
+    hash_2023_QubitStrike_mi = "9a5f6318a395600637bd98e83d2aea787353207ed7792ec9911b775b79443dcd"
+  strings:
+    $high_sig = /kill -[123456]\d{1,128}/
+  condition:
+    any of them
+}

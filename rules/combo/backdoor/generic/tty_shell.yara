@@ -9,3 +9,13 @@ rule tty_shell : suspicious {
   condition:
     filesize < 26214400 and any of ($s*) and none of ($not*)
 }
+
+rule python_pty_spawner : suspicious {
+  meta:
+    ref1 = "https://juggernaut-sec.com/docker-breakout-lpe/"
+    ref2 = "https://www.mandiant.com/resources/blog/barracuda-esg-exploited-globally"
+  strings:
+    $pty_spawn_bash = "pty.spawn(\"/bin/bash"
+  condition:
+    any of them
+}
