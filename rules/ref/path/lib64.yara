@@ -1,4 +1,4 @@
-rule elf_lib_dir_refs {
+rule elf_lib_dir_refs : harmless {
   meta:
 	description = "References /lib64 path"
   strings:
