@@ -19,6 +19,7 @@ rule obfuscated_elf : suspicious {
 	$glibc2 = "@GLIBC"
 	$cxa = "__cxa_finalize"
 	$dereg = "__deregister_frame_info"
+	$symtab = ".symtab" fullword
 	$__libc_start_main = "__libc_start_main"
   condition:
     uint32(0) == 1179403647 and none of them

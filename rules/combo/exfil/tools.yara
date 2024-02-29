@@ -15,9 +15,8 @@ rule executable_calls_archive_tool : notable {
     $a_tar_T = "tar -T"
     $a_zip_x = "zip -X"
     $a_zip_r = "zip -r"
-    $hash = "#"
     $not_applet = "zip -r ../applet.zip"
     $not_usage = "Usage:"
   condition:
-    any of ($a*) and not $hash at 0 and none of ($not*)
+    any of ($a*) and none of ($not*)
 }

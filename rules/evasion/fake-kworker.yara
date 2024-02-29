@@ -2,7 +2,8 @@ rule fake_kworker : critical {
   meta:
 	description = "Pretends to be a kworker kernel thread"
   strings:
-	$kworker = /\[*kworker[\/\d:\]]{0,5}/
+	$kworker = /\[{0,1}kworker\/[\d:\]]{1,5}/
+	$kworker2 = "kworker" fullword
   condition:
-	$kworker
+	any of them
 }
