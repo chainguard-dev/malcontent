@@ -18,6 +18,7 @@ type Config struct {
 	MinLevel        int
 	ThirdPartyRules bool
 	OmitEmpty       bool
+	OnlyPrograms    bool
 }
 
 // return a list of files within a path
@@ -69,6 +70,12 @@ func Scan(c Config) (*Report, error) {
 		for _, p := range rp {
 			var mrs yara.MatchRules
 			klog.V(1).Infof("scanning: %s", p)
+			kind := programKind(p)
+			if c.OnlyPrograms && kind == "" {
+				klog.V(1).Infof("skippnig %s - does not appear to be a program")
+				continue
+			}
+
 			if err := yrs.ScanFile(p, 0, 0, &mrs); err != nil {
 				r.Files[p] = FileReport{Error: fmt.Sprintf("scanfile: %v", err)}
 				continue
