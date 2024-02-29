@@ -1,4 +1,4 @@
-rule var_tmp_path : suspicious {
+rule var_tmp_path : notable {
 	meta:
 		description = "References paths within /var/tmp"
 	strings:

@@ -89,7 +89,6 @@ rule executable_calls_fetch_tool {
     $not_c_string = "%wget"
     $not_curlopt = "CURLOPT"
     $not_program = "@(#)PROGRAM:"
-    $hash = "#"
   condition:
-    any of ($t_*) and not $hash at 0 and none of ($not*)
+    any of ($t_*) and none of ($not*)
 }

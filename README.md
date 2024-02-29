@@ -18,9 +18,9 @@ Enumerate the capabilities of a binary through static artifact analysis.
   
 ## Shortcomings
 
-- Limited support for Python, PHP, and Perl programs (in development)
-- Capability analysis biases toward false positives versus false negatives
+- Does not extract archive files of any sort (jar, zip, apk)
 - Does not understand Java bytecode
+- It's slower than we'd like
 
 ## Installation
 
@@ -109,4 +109,4 @@ By default, bincapz filters out "harmless" capabilities, such as calling "stat()
 
 ### CAPA
 
-Much of bincapz's functionality is inspired by https://github.com/mandiant/capa. Unfortunately, Capa only works on x86-64 binaries, ELF/PE, and is exceptionally slow yet thorough.
+Much of bincapz's functionality is inspired by https://github.com/mandiant/capa. Unfortunately, capa only works on x86-64 binaries (ELF/PE), and does not work for macOS Mach-O programs, arm64 binaries, or scripting languages. It's a pretty amazinng tool though - check it out!
