@@ -1,4 +1,4 @@
-rule built_by_archaic_gcc_version : notable {
+rule built_by_archaic_gcc_version : suspicious {
   meta:
     hash_2023_XorDDoS = "311c93575efd4eeeb9c6674d0ab8de263b72a8fb060d04450daccc78ec095151"
     hash_2023_icmpshell = "4305c04df40d3ac7966289cc0a81cedbdd4eee2f92324b26fe26f57f57265bca"

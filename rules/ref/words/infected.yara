@@ -4,6 +4,7 @@ rule infected : suspicious {
 	strings:
 		$ref = "infected"
 		$ref2 = "INFECTED"
+		$ref3 = "infectio"
 	condition:
 		any of them
 }
