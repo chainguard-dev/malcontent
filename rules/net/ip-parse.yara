@@ -1,7 +1,7 @@
 rule inet_addr : notable {
 	meta:
 		pledge = "inet"
-		description = "Parse an IP address"
+		description = "parses IP address"
 	strings:
 		$ref = "inet_addr"
 	condition:
@@ -11,7 +11,7 @@ rule inet_addr : notable {
 rule inet_pton : notable {
 	meta:
 		pledge = "inet"
-		description = "Parse an IP address (IPv4 or IPv6)"
+		description = "parses IP address (IPv4 or IPv6)"
 	strings:
 		$ref = "inet_pton"
 	condition:
@@ -21,7 +21,7 @@ rule inet_pton : notable {
 rule ip_go : notable {
 	meta:
 		pledge = "inet"
-		description = "Parse an IP address (IPv4 or IPv6)"
+		description = "parses IP address (IPv4 or IPv6)"
 	strings:
 		$ref = "IsSingleIP"
 		$ref2 = "IsLinkLocalUnicast"

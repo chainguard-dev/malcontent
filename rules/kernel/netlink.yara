@@ -1,8 +1,6 @@
-
-
-rule netlink : suspicious {
+rule netlink : notable {
 	meta:
-		description = "communication between kernel and user space (possible network sniffer)"
+		description = "communication between kernel and user space"
 	strings:
 		$ref = "nl_socket" fullword
 		$ref2 = "AF_NETLINK" fullword
