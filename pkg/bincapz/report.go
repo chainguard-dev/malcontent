@@ -32,6 +32,7 @@ type Behavior struct {
 type FileReport struct {
 	// compiler -> x
 	Error             string
+	Skipped           string
 	Meta              map[string]string
 	Syscalls          []string
 	Pledge            []string
