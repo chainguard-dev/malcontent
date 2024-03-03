@@ -36,6 +36,19 @@ func RenderTable(res *Report, w io.Writer) {
 		if files > 0 && tableShown {
 			fmt.Print("\n")
 		}
+
+		if fr.Error != "" {
+			fmt.Printf("%s - error: %s\n", path, fr.Error)
+			tableShown = false
+			continue
+		}
+
+		if fr.Skipped != "" {
+			fmt.Printf("%s - skipped: %s\n", path, fr.Skipped)
+			tableShown = false
+			continue
+		}
+
 		fmt.Printf("%s\n", path)
 		files++
 		tableShown = false
