@@ -12,13 +12,13 @@ import (
 )
 
 type Config struct {
-	RuleFS          fs.FS
-	ScanPaths       []string
-	IgnoreTags      []string
-	MinLevel        int
-	ThirdPartyRules bool
-	OmitEmpty       bool
-	OnlyPrograms    bool
+	RuleFS           fs.FS
+	ScanPaths        []string
+	IgnoreTags       []string
+	MinLevel         int
+	ThirdPartyRules  bool
+	OmitEmpty        bool
+	IncludeDataFiles bool
 }
 
 // return a list of files within a path
@@ -71,8 +71,9 @@ func Scan(c Config) (*Report, error) {
 			var mrs yara.MatchRules
 			klog.V(1).Infof("scanning: %s", p)
 			kind := programKind(p)
-			if c.OnlyPrograms && kind == "" {
-				klog.V(1).Infof("skippnig %s - does not appear to be a program")
+			if !c.IncludeDataFiles && kind == "" {
+				r.Files[p] = FileReport{Skipped: fmt.Sprintf("data file")}
+				klog.Infof("skipping %s - does not appear to be a program")
 				continue
 			}
 
