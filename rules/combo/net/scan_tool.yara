@@ -1,6 +1,6 @@
 rule generic_scan_tool : notable {
   meta:
-	description = "May perform network scanning"
+	description = "may perform network scanning"
     hash_2023_Downloads_06ab = "06abc46d5dbd012b170c97d142c6b679183159197e9d3f6a76ba5e5abf999725"
     hash_2022_trojan_Winnti = "2f1321c6cf0bc3cf955e86692bfc4ba836f5580c8b1469ce35aa250c97f0076e"
     hash_2023_Downloads_b56a = "b56a89db553d4d927f661f6ff268cd94bdcfe341fd75ba4e7c464946416ac309"
