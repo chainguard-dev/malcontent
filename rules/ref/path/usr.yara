@@ -2,7 +2,11 @@ rule usr_path : harmless {
 	meta:
 		description = "References paths within /usr/"
 	strings:
-		$resolv = /\/usr\/[\w\.\-\/]{0,64}/ 
+		$ref = /\/usr\/[\w\.\-\/]{0,64}/
+		$not_lib_go = "/usr/lib/go"
+		$not_local_go = "/usr/local/go"
+		$not_local_lib_go = "/usr/local/lib/go"
+		$not_include = "/usr/include"
 	condition:
-		any of them
+		$ref and none of ($not*)
 }

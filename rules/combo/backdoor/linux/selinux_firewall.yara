@@ -9,6 +9,10 @@ rule selinux_firewall : suspicious{
     $selinux = /SELINUX[=\w]{0,32}/ fullword
     $f_iptables = /iptables[ -\w]{0,32}/
     $f_firewalld = /[\w ]{0,32}firewalld/
+
+	$not_ip6tables = "NFTNL_RULE_TABLE"
+	$not_iptables = "iptables-restore"
+	$not_iptables_nft = "iptables-nft"
   condition:
-	$selinux and any of ($f*)
+	$selinux and any of ($f*) and none of ($not*)
 }
