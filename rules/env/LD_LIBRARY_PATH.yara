@@ -1,4 +1,4 @@
-rule ld_library_path : notable {
+rule ld_library_path {
   strings:
 	$ref = "LD_LIBRARY_PATH" fullword
   condition:

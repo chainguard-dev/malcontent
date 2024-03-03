@@ -15,7 +15,7 @@ rule python_pty_spawner : suspicious {
     ref1 = "https://juggernaut-sec.com/docker-breakout-lpe/"
     ref2 = "https://www.mandiant.com/resources/blog/barracuda-esg-exploited-globally"
   strings:
-    $pty_spawn_bash = "pty.spawn(\"/bin/bash"
+    $pty_spawn_bash = /pty.spawn\(\"\/bin\/[\w\" -\)]{,16}/
   condition:
     any of them
 }
