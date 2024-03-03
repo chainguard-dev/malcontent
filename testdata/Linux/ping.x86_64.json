@@ -1,50 +1,42 @@
 {
     "Files": {
-        "ping.x86_64": {
-            "Meta": {
-                "compiler": "gcc"
-            },
+        "./Linux/ping.x86_64": {
             "Syscalls": [
-                "close",
-                "geteuid",
-                "getpid",
                 "getsockname",
-                "getuid",
-                "ioctl",
-                "open",
-                "prctl",
+                "send",
                 "sendmsg",
                 "sendto",
-                "setsockopt",
                 "setuid"
             ],
             "Pledge": [
                 "id",
-                "inet",
-                "wpath"
+                "inet"
             ],
-            "Capabilities": [],
             "Behaviors": {
-                "current_proc/userid/set": {
-                    "Description": "set real and effective user ID of process",
+                "net/hostport/parse": {
+                    "Description": "Network address and service translation",
                     "Strings": [
-                        "setuid"
+                        "freeaddrinfo",
+                        "getaddrinfo"
                     ],
-                    "Risk": 1
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
                 "net/icmp": {
-                    "Description": "ICMP (Internet Control Message Protocol), aka ping packets",
+                    "Description": "ICMP (Internet Control Message Protocol), aka ping",
                     "Strings": [
                         "ICMP"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "net/interface/get": {
-                    "Description": "libc functions for retrieving network interface",
+                    "Description": "get network interfaces by name or index",
                     "Strings": [
                         "if_nametoindex"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "net/interface/list": {
                     "Description": "list network interfaces and their associated addresses",
@@ -52,21 +44,41 @@
                         "freeifaddrs",
                         "getifaddrs"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "net/ip/multicast/send": {
-                    "Description": "Send data to multiple nodes simultaneously",
+                    "Description": "send data to multiple nodes simultaneously",
                     "Strings": [
                         "multicast"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
+                "net/ip/parse": {
+                    "Description": "Parse an IP address (IPv4 or IPv6)",
+                    "Strings": [
+                        "inet_pton"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
                 "net/ip/send/unicast": {
                     "Description": "send data to the internet",
                     "Strings": [
                         "unicast"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
+                "net/ip/string": {
+                    "Description": "converts IP address from byte to string",
+                    "Strings": [
+                        "inet_ntoa",
+                        "inet_ntop"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
                 "net/raw_sockets": {
                     "Description": "Uses raw sockets",
@@ -74,21 +86,24 @@
                         "SOCK_RAW",
                         "raw socket"
                     ],
-                    "Risk": 3
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
                 "net/socket/local/address": {
                     "Description": "get local address of connected socket",
                     "Strings": [
                         "getsockname"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "net/socket/receive": {
                     "Description": "receive a message from a socket",
                     "Strings": [
                         "recvmsg"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "net/socket/send": {
                     "Description": "send a message to a socket",
@@ -96,11 +111,18 @@
                         "sendmsg",
                         "sendto"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
+                "process/current/userid/set": {
+                    "Description": "set real and effective user ID of process",
+                    "Strings": [
+                        "setuid"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 }
-            },
-            "FilteredBehaviors": 11
+            }
         }
-    },
-    "Filter": "harmless"
+    }
 }

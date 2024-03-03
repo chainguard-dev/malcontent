@@ -1,150 +1,172 @@
 {
     "Files": {
-        "Previewers": {
-            "Meta": {},
+        "./macOS/Previewers": {
             "Syscalls": [
                 "accept",
-                "clone",
                 "connect",
                 "execve",
                 "fork",
-                "fstat",
-                "getcwd",
-                "geteuid",
                 "getpeername",
                 "getsockname",
-                "getuid",
                 "host_processor_info",
-                "ioctl",
-                "kill",
-                "lstat",
-                "mmap",
-                "mprotect",
                 "posix_spawn",
+                "pthread_create",
+                "recv",
+                "send",
                 "sendmsg",
                 "sendto",
                 "setgid",
                 "setgroups",
-                "setpgid",
-                "setsockopt",
                 "setuid",
-                "stat",
-                "symlink",
                 "sysctl",
                 "sysinfo",
-                "truncate",
                 "unlink"
             ],
             "Pledge": [
-                "cpath",
                 "exec",
                 "id",
                 "inet",
-                "proc",
                 "rpath",
-                "stdio",
                 "sysctl",
                 "wpath"
             ],
-            "Capabilities": [],
             "Behaviors": {
                 "archives/zip": {
                     "Description": "Works with zip files",
                     "Strings": [
                         "ZIP64"
                     ],
-                    "Risk": 3
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
+                },
+                "combo/exfil/connect_glob_exec": {
+                    "Description": "Makes connections, runs programs, uses glob",
+                    "Strings": [
+                        "_connect",
+                        "_exec",
+                        "_glob",
+                        "https"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
+                },
+                "combo/exfil/upload/keychain/zip": {
+                    "Description": "Uploads, accesses a keychain, uses ZIP files",
+                    "Strings": [
+                        "keychain_item",
+                        "upload",
+                        "zip"
+                    ],
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH"
+                },
+                "combo/net/tunnel_proxy": {
+                    "Description": "Likely a tunnel proxy",
+                    "Strings": [
+                        "crypto",
+                        "proxy",
+                        "socket",
+                        "tunnel"
+                    ],
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH"
                 },
                 "compression/bzip2": {
                     "Description": "Works with bzip2 files",
                     "Strings": [
                         "bzip2"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "compression/zstd": {
                     "Description": "Zstandard - fast real-time compression algorithm",
                     "Strings": [
                         "zstd"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
-                "crypto/algorithm/aes": {
+                "crypto/aes": {
                     "Description": "Uses the Go crypto/aes library",
                     "Strings": [
                         "AES"
                     ],
-                    "Risk": 1
-                },
-                "current_proc/groupid/set": {
-                    "Description": "set real and effective group ID of process",
-                    "Strings": [
-                        "setgid"
-                    ],
-                    "Risk": 1
-                },
-                "current_proc/groups/set": {
-                    "Description": "set group access list",
-                    "Strings": [
-                        "setgroups"
-                    ],
-                    "Risk": 1
-                },
-                "current_proc/userid/set": {
-                    "Description": "set real and effective user ID of process",
-                    "Strings": [
-                        "setuid"
-                    ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "device/disk/info": {
                     "Description": "Get information about disks",
                     "Strings": [
                         "DADiskCopyDescription"
                     ],
-                    "Risk": 1
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
+                },
+                "dylib/symbol/address": {
+                    "Description": "get the address of a symbol",
+                    "Strings": [
+                        "dlsym"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "encoding/base64": {
                     "Description": "Supports base64 encoded strings",
                     "Strings": [
                         "base64"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
+                "env/USER": {
+                    "Description": "USER",
+                    "Strings": [
+                        "USER",
+                        "getenv"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "exec/program": {
-                    "Description": "calls other programs",
+                    "Description": "executes another program",
                     "Strings": [
                         "execvp"
                     ],
-                    "Risk": 1
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
                 "exec/program/background": {
                     "Description": "Waits for a process to exit",
                     "Strings": [
                         "waitpid"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "fs/directory/create": {
                     "Description": "Uses libc functions to create directories",
                     "Strings": [
                         "mkdir"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "fs/directory/list": {
                     "Description": "Uses Go functions to list a directory",
                     "Strings": [
                         ".ReadDir"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "fs/directory/remove": {
                     "Description": "Uses libc functions to remove directories",
                     "Strings": [
                         "rmdir"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "fs/file/delete": {
                     "Description": "deletes files",
@@ -152,42 +174,59 @@
                         "unlink",
                         "unlinkat"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "fs/tempfile/create": {
                     "Description": "Uses mktemp to create temporary files",
                     "Strings": [
                         "temp file"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "kernel/cpu/info": {
                     "Description": "returns hardware processor, count",
                     "Strings": [
                         "host_processor_info"
                     ],
-                    "Risk": 1
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
                 "kernel/dispatch/semaphore": {
                     "Description": "Uses Dispatch Semaphores",
                     "Strings": [
                         "dispatch_semaphore_signal"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
+                "kernel/hardware/info": {
+                    "Description": "gets detailed hardware information using sysctl",
+                    "Strings": [
+                        "hw.cpufrequency",
+                        "kern.osproductversion",
+                        "machdep.cpu.brand_string",
+                        "machdep.cpu.vendor"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "kernel/hostname/get": {
                     "Description": "gets the hostname of the machine",
                     "Strings": [
                         "gethostname"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "kernel/sysinfo": {
                     "Description": "get system information (load, swap)",
                     "Strings": [
                         "sysinfo"
                     ],
-                    "Risk": 1
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
                 "net/dns/txt": {
                     "Description": "Uses DNS TXT (text) records",
@@ -195,7 +234,26 @@
                         "TXT",
                         "dns"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
+                "net/hostport/parse": {
+                    "Description": "Network address and service translation",
+                    "Strings": [
+                        "freeaddrinfo",
+                        "getaddrinfo"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
+                },
+                "net/http/post": {
+                    "Description": "Able to submit content via HTTP POST",
+                    "Strings": [
+                        "HTTP",
+                        "POST"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
                 "net/http/request": {
                     "Description": "Makes HTTP (Hypertext Transport Protocol) requests",
@@ -203,35 +261,40 @@
                         "HTTP/1.",
                         "User-Agent"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "net/http2": {
                     "Description": "Uses the HTTP/2 protocol",
                     "Strings": [
                         "HTTP/2"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "net/http_proxy": {
                     "Description": "Able to use an HTTP proxy that requires authentication",
                     "Strings": [
                         "Proxy-Authorization"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "net/interface/get": {
-                    "Description": "libc functions for retrieving network interface",
+                    "Description": "get network interfaces by name or index",
                     "Strings": [
                         "if_indextoname"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "net/socket/connect": {
                     "Description": "initiate a connection on a socket",
                     "Strings": [
                         "_connect"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "net/socket/listen": {
                     "Description": "listen on a socket",
@@ -239,70 +302,112 @@
                         "accept",
                         "socket"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "net/socket/local/address": {
                     "Description": "get local address of connected socket",
                     "Strings": [
                         "getsockname"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "net/socket/peer/address": {
                     "Description": "get peer address of connected socket",
                     "Strings": [
                         "getpeername"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "net/socket/receive": {
                     "Description": "receive a message from a socket",
                     "Strings": [
                         "_recv"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "net/socket/send": {
                     "Description": "send a message to a socket",
                     "Strings": [
                         "_send"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "net/upload": {
-                    "Description": "Uploads files via an unknown protocol",
+                    "Description": "Uploads files",
                     "Strings": [
                         "upload"
                     ],
-                    "Risk": 1
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
                 "persistence/macos/launch/agent": {
                     "Description": "Persist via LaunchAgents",
                     "Strings": [
                         "LaunchAgents"
                     ],
-                    "Risk": 3
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
                 "persistence/macos/launchd/manipulation": {
-                    "Description": "Interfaces with launchd using launchctl",
+                    "Description": "Interfaces with launchd using LaunchAgents",
                     "Strings": [
                         "LaunchAgents"
                     ],
-                    "Risk": 3
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
-                "proc/create": {
-                    "Description": "Create a new child process using clone",
+                "process/create": {
+                    "Description": "Create a new child process using fork",
                     "Strings": [
                         "_fork"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
+                "process/current/groupid/set": {
+                    "Description": "set real and effective group ID of process",
+                    "Strings": [
+                        "setgid"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
+                "process/current/groups/set": {
+                    "Description": "set group access list",
+                    "Strings": [
+                        "setgroups"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
+                "process/current/userid/set": {
+                    "Description": "set real and effective user ID of process",
+                    "Strings": [
+                        "setuid"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
+                "process/thread/create": {
+                    "Description": "create a new thread",
+                    "Strings": [
+                        "pthread_create"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
                 "ref/ip": {
+                    "Description": "Contains hardcoded IP address",
                     "Strings": [
-                        "193.29.13.167",
-                        "93.29.13.167"
+                        "193.29.13.167"
                     ],
-                    "Risk": 3
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
                 "ref/path/etc": {
                     "Description": "References paths within /etc",
@@ -310,7 +415,49 @@
                         "/etc/localtime/usr/share/zoneinfounable",
                         "/etc/zoneinforemaining"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
+                "ref/path/hidden": {
+                    "Description": "Possible hidden file path",
+                    "Strings": [
+                        "/runner/.cargo"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
+                "ref/site/http/ip": {
+                    "Description": "URL pointing to an IP address rather than DNS name",
+                    "Strings": [
+                        "https://193.29.13.167"
+                    ],
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH"
+                },
+                "ref/site/url": {
+                    "Description": "contains embedded HTTPS URLs",
+                    "Strings": [
+                        "https://193.29.13.167/os_versionsrc/main.rspwdidgateway/reportError",
+                        "https://codeberg.org/flausch/gethostname.rs/issues"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
+                "ref/words/iintercept": {
+                    "Description": "References interception",
+                    "Strings": [
+                        "intercepts"
+                    ],
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH"
+                },
+                "ref/words/password": {
+                    "Description": "References a password",
+                    "Strings": [
+                        "password"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
                 "secrets/keychain": {
                     "Description": "Accesses the system keychain",
@@ -318,7 +465,8 @@
                         "Keychain",
                         "keychain"
                     ],
-                    "Risk": 1
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
                 "sync/semaphore/user": {
                     "Description": "uses semaphores to synchronize data between processes or threads",
@@ -327,11 +475,10 @@
                         "semaphore_signal",
                         "semaphore_wait"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 }
-            },
-            "FilteredBehaviors": 26
+            }
         }
-    },
-    "Filter": "harmless"
+    }
 }

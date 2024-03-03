@@ -1,109 +1,228 @@
 {
     "Files": {
-        "cnc-dns-over-https.aarch64": {
+        "./Linux/cnc-dns-over-https.aarch64": {
             "Meta": {
                 "compiler": "go"
             },
             "Syscalls": [
                 "accept",
-                "clone",
+                "chmod",
+                "close",
+                "fchown",
                 "getpeername",
-                "getpid",
-                "getrlimit",
                 "getsockname",
-                "ioctl",
-                "lstat",
-                "madvise",
-                "pread64",
-                "pwrite64",
+                "open",
+                "posix_spawn",
+                "readlink",
+                "recv",
+                "send",
                 "sendfile",
                 "sendmsg",
                 "sendto",
-                "setrlimit",
-                "setsockopt",
-                "stat",
-                "truncate"
+                "sysctl"
             ],
             "Pledge": [
                 "exec",
-                "id",
+                "fattr",
                 "inet",
                 "rpath",
-                "stdio",
+                "sysctl",
                 "wpath"
             ],
-            "Capabilities": [],
             "Behaviors": {
+                "combo/exfil/readdir_socks": {
+                    "Description": "socks directory scanner",
+                    "Strings": [
+                        "SOCKS",
+                        "readdir"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
+                },
+                "combo/recon/password/finder": {
+                    "Description": "Password finder/dumper, such as MimiPengiuin",
+                    "Strings": [
+                        "Finder",
+                        "apache2",
+                        "password",
+                        "ssh"
+                    ],
+                    "RiskScore": 4,
+                    "RiskLevel": "CRIT"
+                },
                 "compression/gzip": {
                     "Description": "Works with gzip files",
                     "Strings": [
                         "gzip"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
-                "crypto/algorithm/aes": {
+                "crypto/aes": {
                     "Description": "Uses the Go crypto/aes library",
                     "Strings": [
                         "crypto/aes"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
-                "crypto/algorithm/ecdsa": {
+                "crypto/ecdsa": {
                     "Description": "Uses the Go crypto/ecdsa library",
                     "Strings": [
                         "crypto/ecdsa"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
-                "crypto/algorithm/ed25519": {
+                "crypto/ed25519": {
                     "Description": "Elliptic curve algorithm used by TLS and SSH",
                     "Strings": [
                         "ed25519"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "crypto/tls": {
+                    "Description": "tls",
                     "Strings": [
                         "TLS13",
                         "TLSVersion",
                         "crypto/tls"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "encoding/base64": {
                     "Description": "Supports base64 encoded strings",
                     "Strings": [
                         "base64"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "encoding/json": {
                     "Description": "Supports JSON encoded objects",
                     "Strings": [
                         "encoding/json"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
+                "encoding/json/decode": {
+                    "Description": "JSONDecode",
+                    "Strings": [
+                        "UnmarshalJSON"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
+                "encoding/json/encode": {
+                    "Description": "JSONEncode",
+                    "Strings": [
+                        "MarshalJSON"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
+                "evasion/xor/table": {
+                    "Description": "Contains a table that may be used for XOR decryption",
+                    "Strings": [
+                        "56789abcdefghijklmnopqrstuvwxyzABCDE"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
+                },
+                "exec/program": {
+                    "Description": "spawn a process",
+                    "Strings": [
+                        "exec_unix.go"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
+                },
+                "exec/shell_echo": {
+                    "Description": "uses the echo command to generate output",
+                    "Strings": [
+                        "echo the legacy session IDtls"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
                 "fs/directory/list": {
                     "Description": "Uses Go functions to list a directory",
                     "Strings": [
                         ".ReadDir"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
+                "fs/file/read": {
+                    "Description": "reads files",
+                    "Strings": [
+                        "os.(*File).Read"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
+                "fs/link/read": {
+                    "Description": "read value of a symbolic link",
+                    "Strings": [
+                        "readlink",
+                        "readlinkat"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
+                "fs/permission/chown": {
+                    "Description": "Changes file ownership",
+                    "Strings": [
+                        "Chown"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
+                },
+                "fs/permission/modify": {
+                    "Description": "Modifies file permissions using chmod",
+                    "Strings": [
+                        "Chmod",
+                        "chmod"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
                 "kernel/cpu/info": {
                     "Description": "gets number of processors",
                     "Strings": [
                         "nproc"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
+                "kernel/hostname/get": {
+                    "Description": "gets the hostname of the machine",
+                    "Strings": [
+                        "/proc/sys/kernel/hostname"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
+                "kernel/netlink": {
+                    "Description": "communication between kernel and user space (possible network sniffer)",
+                    "Strings": [
+                        "netlink"
+                    ],
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH"
                 },
                 "net/dns": {
                     "Description": "Uses DNS (Domain Name Service)",
                     "Strings": [
+                        "CNAMEResource",
+                        "SetEDNS0",
                         "dnsmessage"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "net/dns/over/https": {
                     "Description": "Supports DNS (Domain Name Service) over HTTPS",
@@ -111,7 +230,8 @@
                         "dnspod",
                         "doh.Provider"
                     ],
-                    "Risk": 3
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
                 "net/dns/txt": {
                     "Description": "Uses DNS TXT (text) records",
@@ -119,21 +239,42 @@
                         "TXT",
                         "dns"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "net/hostname/resolve": {
                     "Description": "Uses Go to resolve network hosts",
                     "Strings": [
                         "net.hostLookup"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "net/http/accept/encoding": {
                     "Description": "Able to decode multiple forms of HTTP responses (example: gzip)",
                     "Strings": [
                         "Accept-Encoding"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
+                "net/http/cookies": {
+                    "Description": "Able to access HTTP resources using cookies",
+                    "Strings": [
+                        "Cookie",
+                        "HTTP"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
+                },
+                "net/http/post": {
+                    "Description": "Able to submit content via HTTP POST",
+                    "Strings": [
+                        "HTTP",
+                        "POST"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
                 "net/http/request": {
                     "Description": "Makes HTTP (Hypertext Transport Protocol) requests",
@@ -141,28 +282,48 @@
                         "HTTP/1.",
                         "User-Agent"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "net/http2": {
                     "Description": "Uses the HTTP/2 protocol",
                     "Strings": [
                         "HTTP/2"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "net/http_proxy": {
                     "Description": "Able to use an HTTP proxy that requires authentication",
                     "Strings": [
                         "Proxy-Authorization"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
+                "net/ip/parse": {
+                    "Description": "Parse an IP address (IPv4 or IPv6)",
+                    "Strings": [
+                        "IsLinkLocalUnicast"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
+                },
+                "net/raw_sockets": {
+                    "Description": "Uses raw sockets",
+                    "Strings": [
+                        "RawSock"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
                 "net/sendfile": {
                     "Description": "transfer data between file descriptors",
                     "Strings": [
                         "sendfile"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "net/socket/listen": {
                     "Description": "listen on a socket",
@@ -170,56 +331,81 @@
                         "accept",
                         "socket"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "net/socket/local/address": {
                     "Description": "get local address of connected socket",
                     "Strings": [
                         "getsockname"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "net/socket/peer/address": {
                     "Description": "get peer address of connected socket",
                     "Strings": [
                         "getpeername"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "net/socket/receive": {
                     "Description": "receive a message from a socket",
                     "Strings": [
                         "recvfrom"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "net/socket/send": {
                     "Description": "send a message to a socket",
                     "Strings": [
                         "sendto"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "net/udp/receive": {
                     "Description": "Listens for UDP responses",
                     "Strings": [
                         "ReadFromUDP"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "net/udp/send": {
                     "Description": "Sends UDP packets",
                     "Strings": [
+                        "DialUDP",
                         "WriteMsgUDP"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
-                "proc/create": {
-                    "Description": "Create a new child process using clone",
+                "net/url": {
+                    "Description": "Handles URL strings",
                     "Strings": [
-                        "clone"
+                        "RequestURI"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
+                "process/current/working_directory/set": {
+                    "Description": "changes the current working directory",
+                    "Strings": [
+                        "cd "
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
+                },
+                "ref/ip/dns_resolver": {
+                    "Description": "Hardcodes 'Quad9' DNS resolver IP",
+                    "Strings": [
+                        "9.9.9.9"
+                    ],
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH"
                 },
                 "ref/path/etc": {
                     "Description": "References paths within /etc",
@@ -243,25 +429,68 @@
                         "/etc/ssl/certs/ca-certificates.crtadding",
                         "/etc/zoneinfoparsing"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "ref/path/etc/hosts": {
                     "Description": "References /etc/hosts",
                     "Strings": [
                         "/etc/hosts"
                     ],
-                    "Risk": 3
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
-                "ref/site/download/sites": {
-                    "Description": "References known file hosting site",
+                "ref/path/etc/resolv.conf": {
+                    "Description": "References /etc/resolv.conf (DNS resolver configuration)",
                     "Strings": [
-                        "blogspot.com"
+                        "/etc/resolv.conf"
                     ],
-                    "Risk": 3
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
+                "ref/path/home": {
+                    "Description": "References paths within /home",
+                    "Strings": [
+                        "/home/t/go/pkg/mod/github.com/",
+                        "/home/t/go/pkg/mod/github.com/likexian/doh-go",
+                        "/home/t/go/pkg/mod/github.com/likexian/gokit",
+                        "/home/t/go/pkg/mod/golang.org/x/net",
+                        "/home/t/go/pkg/mod/golang.org/x/text",
+                        "/home/t/src/ttp-bench/cmd/cnc-dns-over-https/main.go",
+                        "/home/t/src/ttp-bench/pkg/simulate/doh.go"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
+                },
+                "ref/site/http/ip": {
+                    "Description": "URL pointing to an IP address rather than DNS name",
+                    "Strings": [
+                        "http://119.29.29.29"
+                    ],
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH"
+                },
+                "ref/site/url": {
+                    "Description": "contains embedded HTTPS URLs",
+                    "Strings": [
+                        "https://cloudflare-dns.com/dns-querydoh",
+                        "https://dns.google.com/resolvehttps",
+                        "https://dns10.quad9.net",
+                        "https://dns9.quad9.net"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
+                "ref/words/password": {
+                    "Description": "References a password",
+                    "Strings": [
+                        "Password",
+                        "password"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 }
-            },
-            "FilteredBehaviors": 26
+            }
         }
-    },
-    "Filter": "harmless"
+    }
 }

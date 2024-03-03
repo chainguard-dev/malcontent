@@ -1,85 +1,181 @@
 {
     "Files": {
-        "does-nothing": {
+        "./does-nothing/does-nothing": {
             "Meta": {
                 "compiler": "go"
             },
             "Syscalls": [
-                "clone",
-                "fsync",
-                "getpid",
-                "getrlimit",
-                "getuid",
-                "ioctl",
-                "madvise",
-                "pread64",
-                "pwrite64",
-                "setrlimit",
-                "symlinkat",
-                "truncate",
+                "chmod",
+                "close",
+                "fchown",
+                "open",
+                "posix_spawn",
+                "pthread_create",
+                "recv",
+                "send",
+                "sysctl",
                 "unlink"
             ],
             "Pledge": [
-                "cpath",
                 "exec",
-                "id",
-                "stdio",
+                "fattr",
+                "sysctl",
                 "wpath"
             ],
-            "Capabilities": [],
             "Behaviors": {
+                "combo/net/raw_flooder": {
+                    "Description": "raw sockets with multiple targets, could be used for DDoS attacks",
+                    "Strings": [
+                        "ip_header",
+                        "pthread",
+                        "rand",
+                        "target"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
+                },
                 "encoding/base64": {
                     "Description": "Supports base64 encoded strings",
                     "Strings": [
                         "base64"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "encoding/json": {
                     "Description": "Supports JSON encoded objects",
                     "Strings": [
                         "encoding/json"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
+                "encoding/json/decode": {
+                    "Description": "JSONDecode",
+                    "Strings": [
+                        "UnmarshalJSON"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
+                "encoding/json/encode": {
+                    "Description": "JSONEncode",
+                    "Strings": [
+                        "MarshalJSON"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
+                "exec/program": {
+                    "Description": "spawn a process",
+                    "Strings": [
+                        "exec_unix.go"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
                 "fs/directory/remove": {
                     "Description": "Uses libc functions to remove directories",
                     "Strings": [
                         "Rmdir"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "fs/file/delete": {
                     "Description": "deletes files",
                     "Strings": [
                         "unlinkat"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
+                "fs/file/read": {
+                    "Description": "reads files",
+                    "Strings": [
+                        "os.(*File).Read"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
+                "fs/permission/chown": {
+                    "Description": "Changes file ownership",
+                    "Strings": [
+                        "Chown"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
+                },
+                "fs/permission/modify": {
+                    "Description": "Modifies file permissions using chmod",
+                    "Strings": [
+                        "Chmod",
+                        "chmod"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
                 "kernel/cpu/info": {
                     "Description": "gets number of processors",
                     "Strings": [
                         "nproc"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
-                "proc/create": {
-                    "Description": "Create a new child process using clone",
+                "kernel/hostname/get": {
+                    "Description": "gets the hostname of the machine",
                     "Strings": [
-                        "clone"
+                        "/proc/sys/kernel/hostname"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
+                "net/socket/receive": {
+                    "Description": "receive a message to a socket",
+                    "Strings": [
+                        "recv",
+                        "socket"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
+                "net/socket/send": {
+                    "Description": "send a message to a socket",
+                    "Strings": [
+                        "send",
+                        "socket"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
+                "process/thread/create": {
+                    "Description": "create a new thread",
+                    "Strings": [
+                        "pthread_create"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
                 "ref/path/etc": {
                     "Description": "References paths within /etc",
                     "Strings": [
                         "/etc/zoneinfo"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
+                "ref/path/home": {
+                    "Description": "References paths within /home",
+                    "Strings": [
+                        "/home/t/go/pkg/mod/github.com/go-logr/logr",
+                        "/home/t/go/pkg/mod/k8s.io/klog/v2",
+                        "/home/t/src/bincapz/testdata/does-nothing/does-nothing.go"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 }
-            },
-            "FilteredBehaviors": 24
+            }
         }
-    },
-    "Filter": "harmless"
+    }
 }
