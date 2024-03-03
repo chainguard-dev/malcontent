@@ -8,3 +8,13 @@ rule pthread_create : notable {
 	condition:
 		any of them
 }
+
+rule py_thread_create : notable {
+	meta:
+		syscall = "pthread_create"
+		description = "create a new thread"
+	strings:
+		$ref = "threading.Thread"
+	condition:
+		any of them
+}

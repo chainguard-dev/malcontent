@@ -1,4 +1,4 @@
-rule reverse_shell : suspicious {
+rule reverse_shell : critical {
   meta:
     hash_2018_MacOS_CoinTicker = "c344730f41f52a2edabf95730389216a9327d6acc98346e5738b3eb99631634d"
     hash_2021_Gmera_Licatrade = "ad27ae075010795c04a6c5f1303531f3f2884962be4d741bf38ced0180710d06"
@@ -14,7 +14,7 @@ rule reverse_shell : suspicious {
     any of them
 }
 
-rule perl_reverse_shell : suspicious {
+rule perl_reverse_shell : critical {
   meta:
     hash_2023_Linux_Malware_Samples_caa1 = "caa114893cf5cb213b39591bbcb72f66ee4519be07269968e714a8d3f24c3382"
     hash_2018_OSX_Dummy_script = "ced05b1f429ade707691b04f59d7929961661963311b768d438317f4d3d82953"

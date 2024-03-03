@@ -14,7 +14,7 @@ rule static_hidden_path {
 	meta:
 		description = "Possible hidden file path"
 	strings:
-		$ref = /\/[a-z]{3,10}[\w\/]{0,24}\/\.[\w\_\-\.]{0,16}/
+		$ref = /\/[a-z]{3,10}[\w\/]{0,24}\/\.\w[\w\_\-\.]{0,16}/
 	condition:
 		$ref
 }

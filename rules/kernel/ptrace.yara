@@ -1,5 +1,5 @@
 
-rule ptrace : unusual {
+rule ptrace : suspicious {
 	meta:
 		capability = "CAP_SYS_PTRACE"
 		description = "Trace calls within arbitrary processes"
