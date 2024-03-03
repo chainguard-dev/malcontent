@@ -9,3 +9,14 @@ rule file_open : harmless {
 	condition:
 		any of them
 }
+
+
+rule py_open : harmless {
+	meta:
+		description = "opens files"
+		syscall = "open,close"
+	strings:
+		$of = " open("
+	condition:
+		any of them
+}

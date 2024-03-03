@@ -20,3 +20,12 @@ rule os_release : notable {
 	condition:
 		any of them
 }
+
+rule python_uname : notable {
+	meta:
+		description = "get system identification (platform.dist)"
+	strings:
+		$ref = "platform.dist()"
+	condition:
+		any of them
+}

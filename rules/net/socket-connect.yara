@@ -10,8 +10,6 @@ rule _connect {
 		any of them
 }
 
-
-
 rule connect {
 	meta:
 		description = "initiate a connection on a socket"
@@ -20,4 +18,16 @@ rule connect {
 		$connect = "connect" fullword
 	condition:
 		any of them in (1200..3000)
+}
+
+
+rule py_connect {
+	meta:
+		description = "initiate a connection on a socket"
+		syscall = "connect"
+	strings:
+		$socket = "socket.socket"
+		$ref = ".connect("
+	condition:
+		all of them
 }

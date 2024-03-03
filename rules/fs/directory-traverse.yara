@@ -12,3 +12,12 @@ rule fts {
 	condition:
 		2 of them
 }
+
+rule py_walk : notable {
+	meta:
+		description = "Traverses the filesystem"
+	strings:
+		$walk = "os.walk"
+	condition:
+		any of them
+}

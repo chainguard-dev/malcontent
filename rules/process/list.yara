@@ -22,3 +22,14 @@ rule ps_exec : notable {
   condition:
     any of ($ps*) and not $hash_bang in (0..2) and none of ($not*)
 }
+
+rule procfs_listdir : notable {
+	meta:
+		pledge = "exec"
+		syscall = "vfork"
+	strings:
+		$shell = "ls /proc" fullword
+		$python = "os.listdir('/proc')"
+	condition:
+		any of them
+}
