@@ -1,6 +1,6 @@
 rule rootkit : suspicious {
 	meta:
-		description = "References a rootkit"
+		description = "references a 'rootkit'"
 	strings:
 		$s_Rootkit = "Rootkit"
 		$s_r00tkit = "r00tkit"
