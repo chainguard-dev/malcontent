@@ -1,4 +1,3 @@
-
 rule var_run_subfolder : notable {
   meta:
     description = "References a subfolder within /var/run (rare)"
