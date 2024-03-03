@@ -1,64 +1,124 @@
 {
     "Files": {
-        "3CX_SmoothOperator_ffmpeg.dylib": {
+        "./macOS/3CX_SmoothOperator_ffmpeg.dylib": {
             "Meta": {
-                "deps": "ffmpeg",
-                "format": "macho",
                 "lang": "objc"
             },
             "Syscalls": [
                 "chmod",
-                "clone",
-                "close",
                 "flock",
-                "open",
                 "pipe",
-                "rename",
-                "stat",
+                "pthread_create",
                 "sysctl"
             ],
             "Pledge": [
-                "cpath",
-                "exec",
                 "fattr",
                 "flock",
                 "inet",
-                "rpath",
-                "stdio",
                 "sysctl",
                 "wpath"
             ],
-            "Capabilities": [],
             "Behaviors": {
+                "3P/godmoderules/iddqd/god/mode": {
+                    "Description": "Detects a wide array of cyber threats, from malware and ransomware to advanced persistent threats (APTs)",
+                    "Strings": [
+                        "$"
+                    ],
+                    "RiskScore": 4,
+                    "RiskLevel": "CRIT",
+                    "RuleAuthor": "Florian Roth",
+                    "RuleLicense": "https://github.com/Neo23x0/god-mode-rules//blob/c6de81ded89d2727bec9e0f6ed490f6c8ab380f2/LICENSE"
+                },
+                "3P/signature_base/3cxdesktopapp/macos": {
+                    "Description": "Detects 3CXDesktopApp MacOS Backdoor component",
+                    "Strings": [
+                        "$op1",
+                        "$op2",
+                        "%s/.main_storage",
+                        "%s/UpdateAgent"
+                    ],
+                    "RiskScore": 4,
+                    "RiskLevel": "CRIT",
+                    "RuleAuthor": "X__Junior (Nextron Systems)",
+                    "RuleLicense": "https://github.com/Neo23x0/signature-base/blob/cd7651d2ccf4158a35a8d1cc0441928f7d92818f/LICENSE"
+                },
+                "3P/signature_base/macos/nk": {
+                    "Description": "Detects malicious DYLIB files related to 3CX compromise",
+                    "Strings": [
+                        "$xc1",
+                        "$xc2",
+                        "$xc3"
+                    ],
+                    "RiskScore": 4,
+                    "RiskLevel": "CRIT",
+                    "RuleAuthor": "Florian Roth (Nextron Systems)",
+                    "RuleLicense": "https://github.com/Neo23x0/signature-base/blob/cd7651d2ccf4158a35a8d1cc0441928f7d92818f/LICENSE"
+                },
+                "3P/signature_base/susp/xored": {
+                    "Description": "Detects suspicious single byte XORed keyword 'Mozilla/5.0' - it uses yara's XOR modifier and therefore cannot print the XOR key. You can use the CyberChef recipe linked in the reference field to brute force the used key.",
+                    "Strings": [
+                        "$xo1"
+                    ],
+                    "RiskScore": 4,
+                    "RiskLevel": "CRIT",
+                    "RuleAuthor": "Florian Roth",
+                    "RuleLicense": "https://github.com/Neo23x0/signature-base/blob/cd7651d2ccf4158a35a8d1cc0441928f7d92818f/LICENSE"
+                },
+                "3P/volexity/mac/iconic": {
+                    "Description": "Detects the MACOS version of the ICONIC loader.",
+                    "Strings": [
+                        "$str1",
+                        "$str2",
+                        "$str3"
+                    ],
+                    "RiskScore": 4,
+                    "RiskLevel": "CRIT",
+                    "RuleAuthor": "threatintel@volexity.com",
+                    "RuleLicense": "https://github.com/volexity/threat-intel/blob/ae4bcf3413927d976bf3f8ee107bd928c575aded/LICENSE.txt"
+                },
+                "combo/exfil/connect_glob_exec": {
+                    "Description": "Makes connections, runs programs, uses glob",
+                    "Strings": [
+                        "_connect",
+                        "_exec",
+                        "_glob",
+                        "https"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
+                },
                 "compression/gzip": {
                     "Description": "Works with gzip files",
                     "Strings": [
                         "gzip"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
-                "crypto/algorithm/aes": {
+                "crypto/aes": {
                     "Description": "Uses the Go crypto/aes library",
                     "Strings": [
                         "AES"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "encoding/base64": {
                     "Description": "Supports base64 encoded strings",
                     "Strings": [
                         "base64"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
-                "evasion/xor/url": {
-                    "Description": "URL hidden using XOR encryption",
+                "env/HOME": {
+                    "Description": "Looks up the HOME directory for the current user",
                     "Strings": [
-                        "$dot_com_slash2",
-                        "$google2",
-                        "$office2"
+                        "HOME",
+                        "getenv"
                     ],
-                    "Risk": 3
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "exec/pipe": {
                     "Description": "Uses popen to launch a program and pipe output to/from it",
@@ -66,49 +126,74 @@
                         "_pclose",
                         "_popen"
                     ],
-                    "Risk": 1
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
                 "fs/directory/create": {
                     "Description": "Uses libc functions to create directories",
                     "Strings": [
                         "mkdir"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "fs/lock/update": {
                     "Description": "apply or remove an advisory lock on a file",
                     "Strings": [
                         "flock"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "fs/permission/modify": {
                     "Description": "Modifies file permissions using chmod",
                     "Strings": [
-                        "_chmod"
+                        "chmod"
                     ],
-                    "Risk": 1
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
                 "kernel/dispatch/semaphore": {
                     "Description": "Uses Dispatch Semaphores",
                     "Strings": [
                         "dispatch_semaphore_signal"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "kernel/hostname/get": {
                     "Description": "gets the hostname of the machine",
                     "Strings": [
                         "gethostname"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "net/http/accept/encoding": {
                     "Description": "Able to decode multiple forms of HTTP responses (example: gzip)",
                     "Strings": [
                         "Accept-Encoding"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
+                "net/http/cookies": {
+                    "Description": "Able to access HTTP resources using cookies",
+                    "Strings": [
+                        "Cookie",
+                        "HTTP"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
+                },
+                "net/http/post": {
+                    "Description": "Able to submit content via HTTP POST",
+                    "Strings": [
+                        "HTTP",
+                        "POST"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
                 "net/url": {
                     "Description": "Handles URL strings",
@@ -116,21 +201,24 @@
                         "NSURL",
                         "URLContext"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "net/url/request": {
                     "Description": "Makes network requests using a URL",
                     "Strings": [
                         "NSMutableURLRequest"
                     ],
-                    "Risk": 1
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
-                "proc/create": {
-                    "Description": "Create a new child process using clone",
+                "process/thread/create": {
+                    "Description": "create a new thread",
                     "Strings": [
-                        "clone"
+                        "pthread_create"
                     ],
-                    "Risk": 1
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
                 "random/insecure": {
                     "Description": "generate random numbers insecurely",
@@ -138,28 +226,24 @@
                         "_rand",
                         "srand"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
-                "ref/env/HOME": {
-                    "Strings": [
-                        "HOME",
-                        "getenv"
-                    ],
-                    "Risk": 1
-                },
-                "ref/hidden/path/dynamic": {
+                "ref/path/hidden": {
                     "Description": "References a hidden file that can be generated dynamically",
                     "Strings": [
                         "%s/.main_storage"
                     ],
-                    "Risk": 3
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
                 "ref/path/tmp": {
                     "Description": "References paths within /tmp",
                     "Strings": [
                         "/tmp/%sXXXXXX"
                     ],
-                    "Risk": 1
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
                 "shell/arbitrary_command/dev_null": {
                     "Description": "Runs arbitrary commands redirecting output to /dev/null",
@@ -167,7 +251,8 @@
                         "\"%s\" \u003e/dev/null",
                         "%s\" \u003e/dev/null"
                     ],
-                    "Risk": 3
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
                 "sync/semaphore/user": {
                     "Description": "uses semaphores to synchronize data between processes or threads",
@@ -176,11 +261,10 @@
                         "semaphore_signal",
                         "semaphore_wait"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 }
-            },
-            "FilteredBehaviors": 16
+            }
         }
-    },
-    "Filter": "harmless"
+    }
 }
