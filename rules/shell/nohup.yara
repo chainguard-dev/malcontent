@@ -42,3 +42,12 @@ rule trap_1 : suspicious {
   condition:
 	any of them
 }
+
+rule nohup_bash : suspicious {
+  meta:
+	description = "Calls bash with nohup"
+  strings:
+	$ref = /nohup bash[ \w\/\&\.\-\%\>]{0,32}/
+  condition:
+    any of them
+}

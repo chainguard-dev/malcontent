@@ -1,4 +1,4 @@
-rule linux_critical_system_paths : notable {
+rule linux_critical_system_paths : suspicious {
   meta:
 	description = "Accesses multiple critical Linux system paths"
     hash_2023_XorDDoS = "311c93575efd4eeeb9c6674d0ab8de263b72a8fb060d04450daccc78ec095151"
