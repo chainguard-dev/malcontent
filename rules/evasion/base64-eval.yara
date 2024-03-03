@@ -1,11 +1,11 @@
-rule eval_base64 {
+rule eval_base64 : suspicious {
 	strings:
 		$eval = /eval\(.{0,64}base64/
 	condition:
 		any of them
 }
 
-rule echo_decode_bash {
+rule echo_decode_bash : suspicious {
   meta:
     hash_2021_trojan_Gafgyt_fszhv = "1794cf09f4ea698759b294e27412aa09eda0860475cd67ce7b23665ea6c5d58b"
     hash_2021_trojan_Gafgyt_malxmr = "1b5bd0d4989c245af027f6bc0c331417f81a87fff757e19cdbdfe25340be01a6"

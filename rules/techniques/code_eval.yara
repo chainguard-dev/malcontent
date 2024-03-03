@@ -1,16 +1,15 @@
-rule php_eval {
+rule php_eval : suspicious {
 	meta:
 		description = "evaluate PHP code dynamically using eval"
 	strings:
 		$php = "<?php"
 		$eval = "eval(" fullword
-		$exec = "exec(" fullword
 	condition:
-		all of them
+		$php and any of ($e*)
 }
 
 
-rule python_eval {
+rule python_eval : suspicious {
 	meta:
 		description = "evaluate Python dynamically using eval"
 	strings:
