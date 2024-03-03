@@ -1,0 +1,30 @@
+{
+    "Files": {
+        "./Linux/roothelper_uselvjf23": {
+            "Syscalls": [
+                "execve"
+            ],
+            "Pledge": [
+                "exec"
+            ],
+            "Behaviors": {
+                "evasion/packer/shc": {
+                    "Description": "Binary generated with SHC (Shell Script Compiler)",
+                    "Strings": [
+                        "argv[0] nor $_"
+                    ],
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH"
+                },
+                "exec/program": {
+                    "Description": "executes another program",
+                    "Strings": [
+                        "execvp"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
+                }
+            }
+        }
+    }
+}

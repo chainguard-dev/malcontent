@@ -1,71 +1,83 @@
 {
     "Files": {
-        "3CX_clean_ffmpeg.dylib": {
-            "Meta": {
-                "deps": "ffmpeg",
-                "format": "macho"
-            },
+        "./macOS/3CX_clean_ffmpeg.dylib": {
             "Syscalls": [
-                "clone",
-                "close",
-                "open",
-                "rename",
-                "stat"
+                "pthread_create"
             ],
             "Pledge": [
-                "cpath",
-                "exec",
-                "rpath",
-                "stdio",
+                "inet",
                 "wpath"
             ],
-            "Capabilities": [],
             "Behaviors": {
-                "crypto/algorithm/aes": {
+                "combo/exfil/connect_glob_exec": {
+                    "Description": "Makes connections, runs programs, uses glob",
+                    "Strings": [
+                        "_connect",
+                        "_exec",
+                        "_glob",
+                        "https"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
+                },
+                "crypto/aes": {
                     "Description": "Uses the Go crypto/aes library",
                     "Strings": [
                         "AES"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "encoding/base64": {
                     "Description": "Supports base64 encoded strings",
                     "Strings": [
                         "base64"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "fs/directory/create": {
                     "Description": "Uses libc functions to create directories",
                     "Strings": [
                         "mkdir"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
+                "net/http/post": {
+                    "Description": "Able to submit content via HTTP POST",
+                    "Strings": [
+                        "HTTP",
+                        "POST"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
                 "net/url": {
                     "Description": "Handles URL strings",
                     "Strings": [
                         "URLContext"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
-                "proc/create": {
-                    "Description": "Create a new child process using clone",
+                "process/thread/create": {
+                    "Description": "create a new thread",
                     "Strings": [
-                        "clone"
+                        "pthread_create"
                     ],
-                    "Risk": 1
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
                 "ref/path/tmp": {
                     "Description": "References paths within /tmp",
                     "Strings": [
                         "/tmp/%sXXXXXX"
                     ],
-                    "Risk": 1
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 }
-            },
-            "FilteredBehaviors": 15
+            }
         }
-    },
-    "Filter": "harmless"
+    }
 }

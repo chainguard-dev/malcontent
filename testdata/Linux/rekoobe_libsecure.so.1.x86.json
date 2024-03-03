@@ -1,42 +1,52 @@
 {
     "Files": {
-        "./testdata/Linux/rekoobe_libsecure.so.1.x86": {
-            "Meta": {
-                "compiler": "gcc"
-            },
+        "./Linux/rekoobe_libsecure.so.1.x86": {
             "Syscalls": [
                 "accept",
-                "close",
                 "connect",
                 "execve",
                 "fork",
-                "getpid",
-                "getsockopt",
-                "gettimeofday",
-                "ioctl",
-                "open",
                 "posix_spawn",
-                "pread644",
                 "pthread_create",
-                "pwrite64",
                 "readlink",
                 "recv",
                 "select",
                 "send",
-                "setsid",
                 "setsockopt"
             ],
             "Pledge": [
                 "exec",
                 "inet",
-                "proc",
                 "rpath",
-                "stdio",
-                "wpath"
+                "stdio"
             ],
-            "Capabilities": [],
             "Behaviors": {
-                "combo/backdoor/connect_execl_inet": {
+                "3P/signature_base/backdoor/zipline": {
+                    "Description": "This rule detects unique strings in ZIPLINE, a passive ELF backdoor that waits for incoming TCP connections to receive commands from the threat actor.",
+                    "Strings": [
+                        "$(exec $installer $@)",
+                        "./installer/bom_files/",
+                        "./installer/do-install",
+                        "/tmp/data/root/etc/ld.so.preload",
+                        "/tmp/data/root/home/etc/manifest/exclusion_list",
+                        "SSH-2.0-OpenSSH_0.3xx"
+                    ],
+                    "RiskScore": 4,
+                    "RiskLevel": "CRIT",
+                    "RuleAuthor": "Mandiant",
+                    "RuleLicense": "https://github.com/Neo23x0/signature-base/blob/cd7651d2ccf4158a35a8d1cc0441928f7d92818f/LICENSE"
+                },
+                "3P/signature_base/unc5221/ivanti": {
+                    "Description": "Detects forensic artifacts found in the Ivanti VPN exploitation campaign by APT UNC5221",
+                    "Strings": [
+                        "sed -i '/retval=$(exec $installer $@)/d' /pkg/do-install"
+                    ],
+                    "RiskScore": 4,
+                    "RiskLevel": "CRIT",
+                    "RuleAuthor": "Florian Roth",
+                    "RuleLicense": "https://github.com/Neo23x0/signature-base/blob/cd7651d2ccf4158a35a8d1cc0441928f7d92818f/LICENSE"
+                },
+                "combo/backdoor/generic/connect_execl_inet": {
                     "Description": "Listens, provides a terminal, runs program",
                     "Strings": [
                         "execl",
@@ -46,27 +56,7 @@
                     "RiskScore": 3,
                     "RiskLevel": "HIGH"
                 },
-                "combo/backdoor/dlsym_and_openpty": {
-                    "Description": "Resolves library, opens terminal, calls shell",
-                    "Strings": [
-                        "dlsym",
-                        "openpty",
-                        "system"
-                    ],
-                    "RiskScore": 3,
-                    "RiskLevel": "HIGH"
-                },
-                "combo/backdoor/dlsym_pthread_exec": {
-                    "Description": "Resolves library, creates threads, calls programs",
-                    "Strings": [
-                        "dlsym",
-                        "execl",
-                        "pthread_create"
-                    ],
-                    "RiskScore": 3,
-                    "RiskLevel": "HIGH"
-                },
-                "combo/backdoor/progname_socket_exec": {
+                "combo/backdoor/generic/progname_socket_exec": {
                     "Description": "Sets program name, accesses internet, calls programs",
                     "Strings": [
                         "__progname",
@@ -76,7 +66,7 @@
                     "RiskScore": 3,
                     "RiskLevel": "HIGH"
                 },
-                "combo/backdoor/readdir_openpty_inet": {
+                "combo/backdoor/generic/readdir_openpty_inet": {
                     "Description": "Lists directories, opens pseudoterminals, resolves IPs",
                     "Strings": [
                         "inet_addr",
@@ -86,12 +76,32 @@
                     "RiskScore": 3,
                     "RiskLevel": "HIGH"
                 },
-                "combo/backdoor/readdir_system_inet": {
+                "combo/backdoor/generic/readdir_system_inet": {
                     "Description": "Lists directories, resolves IPs, calls shells",
                     "Strings": [
                         "inet_addr",
                         "readdir",
                         "system"
+                    ],
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH"
+                },
+                "combo/backdoor/macos/dlsym_and_openpty": {
+                    "Description": "Resolves library, opens terminal, calls shell",
+                    "Strings": [
+                        "dlsym",
+                        "openpty",
+                        "system"
+                    ],
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH"
+                },
+                "combo/backdoor/macos/dlsym_pthread_exec": {
+                    "Description": "Resolves library, creates threads, calls programs",
+                    "Strings": [
+                        "dlsym",
+                        "execl",
+                        "pthread_create"
                     ],
                     "RiskScore": 3,
                     "RiskLevel": "HIGH"
@@ -121,20 +131,20 @@
                     "RiskLevel": "HIGH"
                 },
                 "exec/program": {
-                    "Description": "calls other programs",
+                    "Description": "executes another program",
                     "Strings": [
                         "execl"
                     ],
                     "RiskScore": 2,
-                    "RiskLevel": "MEDIUM"
+                    "RiskLevel": "MED"
                 },
                 "exec/program/background": {
                     "Description": "Waits for a process to exit",
                     "Strings": [
                         "waitpid"
                     ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM"
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 },
                 "exec/shell_command": {
                     "Description": "execute a shell command",
@@ -142,7 +152,7 @@
                         "system"
                     ],
                     "RiskScore": 2,
-                    "RiskLevel": "MEDIUM"
+                    "RiskLevel": "MED"
                 },
                 "exec/shell_echo": {
                     "Description": "uses the echo command to generate output",
@@ -150,21 +160,13 @@
                         "echo '%s' \u003e\u003e ./installer/bom_files/%s",
                         "echo '%s' \u003e\u003e /tmp/data/root/home/etc/manifest/exclusion_list"
                     ],
-                    "RiskScore": 3,
-                    "RiskLevel": "HIGH"
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
                 "fd/multiplex": {
                     "Description": "monitor multiple file descriptors",
                     "Strings": [
                         "select"
-                    ],
-                    "RiskScore": 1,
-                    "RiskLevel": "LOW"
-                },
-                "fs/device/control": {
-                    "Description": "manipulate the device parameters of special files",
-                    "Strings": [
-                        "ioctl"
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW"
@@ -175,7 +177,7 @@
                         "creat"
                     ],
                     "RiskScore": 2,
-                    "RiskLevel": "MEDIUM"
+                    "RiskLevel": "MED"
                 },
                 "fs/link/read": {
                     "Description": "read value of a symbolic link",
@@ -192,7 +194,7 @@
                         "getaddrinfo"
                     ],
                     "RiskScore": 2,
-                    "RiskLevel": "MEDIUM"
+                    "RiskLevel": "MED"
                 },
                 "net/ip/parse": {
                     "Description": "Parse an IP address (IPv4 or IPv6)",
@@ -200,15 +202,15 @@
                         "inet_addr"
                     ],
                     "RiskScore": 2,
-                    "RiskLevel": "MEDIUM"
+                    "RiskLevel": "MED"
                 },
                 "net/ip/string": {
-                    "Description": "Convert IP from byte form to string",
+                    "Description": "converts IP address from byte to string",
                     "Strings": [
                         "inet_ntoa"
                     ],
                     "RiskScore": 2,
-                    "RiskLevel": "MEDIUM"
+                    "RiskLevel": "MED"
                 },
                 "net/socket/connect": {
                     "Description": "initiate a connection on a socket",
@@ -252,8 +254,8 @@
                         "inet_addr",
                         "tunnel"
                     ],
-                    "RiskScore": 3,
-                    "RiskLevel": "HIGH"
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
                 "process/create": {
                     "Description": "Create a new child process using fork",
@@ -277,15 +279,15 @@
                         "program_invocation_short_name"
                     ],
                     "RiskScore": 2,
-                    "RiskLevel": "MEDIUM"
+                    "RiskLevel": "MED"
                 },
                 "process/current/name/set": {
-                    "Description": "get or more typically set the current programs name",
+                    "Description": "get or set the programs name",
                     "Strings": [
                         "__progname"
                     ],
-                    "RiskScore": 3,
-                    "RiskLevel": "HIGH"
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
                 "process/thread/create": {
                     "Description": "create a new thread",
@@ -293,7 +295,7 @@
                         "pthread_create"
                     ],
                     "RiskScore": 2,
-                    "RiskLevel": "MEDIUM"
+                    "RiskLevel": "MED"
                 },
                 "procfs/self_cmdline": {
                     "Description": "Gets the command-line associated to this process",
@@ -301,7 +303,7 @@
                         "/proc/self/cmdline"
                     ],
                     "RiskScore": 2,
-                    "RiskLevel": "MEDIUM"
+                    "RiskLevel": "MED"
                 },
                 "procfs/self_exe": {
                     "Description": "Gets the file associated to this process",
@@ -309,7 +311,7 @@
                         "/proc/self/exe"
                     ],
                     "RiskScore": 2,
-                    "RiskLevel": "MEDIUM"
+                    "RiskLevel": "MED"
                 },
                 "ref/path/etc": {
                     "Description": "References paths within /etc",
@@ -328,13 +330,35 @@
                     "RiskScore": 3,
                     "RiskLevel": "HIGH"
                 },
+                "ref/path/home": {
+                    "Description": "References paths within /home",
+                    "Strings": [
+                        "/home/etc/manifest/exclusion_list",
+                        "/home/lib",
+                        "/home/lib/%s"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
+                },
                 "ref/path/lib/dynamic": {
                     "Description": "References a library file that can be generated dynamically",
                     "Strings": [
                         "/lib/%s"
                     ],
-                    "RiskScore": 3,
-                    "RiskLevel": "HIGH"
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
+                },
+                "ref/path/root": {
+                    "Description": "References paths within /root",
+                    "Strings": [
+                        "/root",
+                        "/root/etc/ld.so.preload",
+                        "/root/home/etc/manifest/exclusion_list",
+                        "/root/home/lib",
+                        "/root/home/lib/%s"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
                 "ref/path/tmp": {
                     "Description": "References paths within /tmp",
@@ -344,8 +368,8 @@
                         "/tmp/data/root/home/lib",
                         "/tmp/data/root/home/lib/%s"
                     ],
-                    "RiskScore": 1,
-                    "RiskLevel": "LOW"
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
                 },
                 "tty/open": {
                     "Description": "finds and opens an available pseudoterminal",
@@ -353,7 +377,7 @@
                         "openpty"
                     ],
                     "RiskScore": 2,
-                    "RiskLevel": "MEDIUM"
+                    "RiskLevel": "MED"
                 },
                 "tty/pathname": {
                     "Description": "returns the pathname of a terminal device",
@@ -361,11 +385,9 @@
                         "ttyname"
                     ],
                     "RiskScore": 2,
-                    "RiskLevel": "MEDIUM"
+                    "RiskLevel": "MED"
                 }
-            },
-            "FilteredBehaviors": 12
+            }
         }
-    },
-    "Filter": "harmless"
+    }
 }

@@ -1,33 +1,51 @@
 {
     "Files": {
-        "ls.x86_64": {
-            "Meta": {
-                "compiler": "gcc"
-            },
+        "./Linux/ls.x86_64": {
             "Syscalls": [
-                "close",
-                "getcwd",
-                "ioctl",
-                "open",
+                "readlink",
                 "sysctl"
             ],
             "Pledge": [
                 "rpath",
-                "sysctl",
-                "wpath"
+                "sysctl"
             ],
-            "Capabilities": [],
             "Behaviors": {
+                "fs/link/read": {
+                    "Description": "read value of a symbolic link",
+                    "Strings": [
+                        "readlink"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
                 "kernel/hostname/get": {
                     "Description": "gets the hostname of the machine",
                     "Strings": [
                         "gethostname"
                     ],
-                    "Risk": 1
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
+                },
+                "process/current/name/set": {
+                    "Description": "get or set the programs name",
+                    "Strings": [
+                        "__progname"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MED"
+                },
+                "ref/site/url": {
+                    "Description": "contains embedded HTTPS URLs",
+                    "Strings": [
+                        "https://gnu.org/licenses/gpl.html",
+                        "https://translationproject.org/team/",
+                        "https://wiki.xiph.org/MIME_Types_and_File_Extensions",
+                        "https://www.gnu.org/software/coreutils/"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW"
                 }
-            },
-            "FilteredBehaviors": 12
+            }
         }
-    },
-    "Filter": "harmless"
+    }
 }

@@ -22,29 +22,29 @@ var riskLevels = map[int]string{
 }
 
 type Behavior struct {
-	Description string `json:",omitempty" yaml:",omitempty"`
-	Strings     []string
+	Description string   `json:",omitempty" yaml:",omitempty"`
+	Strings     []string `json:",omitempty" yaml:",omitempty"`
 	RiskScore   int
-	RiskLevel   string
-	RuleAuthor  string
-	RuleLicense string
+	RiskLevel   string `json:",omitempty" yaml:",omitempty"`
+	RuleAuthor  string `json:",omitempty" yaml:",omitempty"`
+	RuleLicense string `json:",omitempty" yaml:",omitempty"`
 }
 
 type FileReport struct {
 	// compiler -> x
-	Error             string
-	Skipped           string
-	Meta              map[string]string
-	Syscalls          []string
-	Pledge            []string
-	Capabilities      []string
-	Behaviors         map[string]Behavior
-	FilteredBehaviors int `json:",omitempty" yaml:",omitempty"`
+	Error             string              `json:",omitempty" yaml:",omitempty"`
+	Skipped           string              `json:",omitempty" yaml:",omitempty"`
+	Meta              map[string]string   `json:",omitempty" yaml:",omitempty"`
+	Syscalls          []string            `json:",omitempty" yaml:",omitempty"`
+	Pledge            []string            `json:",omitempty" yaml:",omitempty"`
+	Capabilities      []string            `json:",omitempty" yaml:",omitempty"`
+	Behaviors         map[string]Behavior `json:",omitempty" yaml:",omitempty"`
+	FilteredBehaviors int                 `json:",omitempty" yaml:",omitempty"`
 }
 
 type Report struct {
 	Files  map[string]FileReport
-	Filter string
+	Filter string `json:",omitempty" yaml:",omitempty"`
 }
 
 // yaraForge has some very very long rule names
