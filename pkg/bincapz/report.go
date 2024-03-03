@@ -27,6 +27,7 @@ type Behavior struct {
 	RiskScore   int
 	RiskLevel   string
 	RuleAuthor  string
+	RuleLicense string
 }
 
 type FileReport struct {
@@ -209,6 +210,7 @@ func fileReport(mrs yara.MatchRules, ignoreTags []string, minLevel int) FileRepo
 	syscalls := []string{}
 	desc := ""
 	author := ""
+	license := ""
 
 	for _, m := range mrs {
 		risk := behaviorRisk(m.Namespace, m.Tags)
@@ -227,6 +229,12 @@ func fileReport(mrs yara.MatchRules, ignoreTags []string, minLevel int) FileRepo
 				author = fmt.Sprintf("%s", meta.Value)
 				if len(author) > len(b.RuleAuthor) {
 					b.RuleAuthor = author
+				}
+
+			case "license", "license_url":
+				license = fmt.Sprintf("%s", meta.Value)
+				if len(license) > len(b.RuleLicense) {
+					b.RuleLicense = license
 				}
 
 			case "description", "threat_name", "name":
