@@ -4,3 +4,11 @@ rule dev_null_rm : notable {
   condition:
     any of them
 }
+
+
+rule sleep_rm : notable {
+  strings:
+    $dev_null_rm = /sleep;rm[ \w\/\&\.\-\%]{0,32}/
+  condition:
+    any of them
+}

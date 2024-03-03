@@ -3,6 +3,7 @@ rule root_path : notable {
 		description = "References paths within /root"
 	strings:
 		$root = /\/root\/[%\w\.\-\/]{0,64}/
+		$root2 = "/root" fullword
 	condition:
-		$root
+		any of them
 }
