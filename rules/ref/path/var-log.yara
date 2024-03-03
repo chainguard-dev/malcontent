@@ -1,6 +1,6 @@
 rule var_log_path : notable {
 	meta:
-		description = "References paths within /var/log"
+		description = "references paths within /var/log"
 	strings:
 		$ref = /\/var\/log\/[\%\w\.\-\/]{4,32}/ fullword
 	condition:
@@ -9,7 +9,7 @@ rule var_log_path : notable {
 
 rule elf_var_log_path : suspicious {
 	meta:
-		description = "References paths within /var/log"
+		description = "references paths within /var/log"
 	strings:
 		$ref = /\/var\/log\/[\%\w\.\-\/]{4,32}/ fullword
 	condition:

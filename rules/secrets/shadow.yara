@@ -1,6 +1,6 @@
 rule etc_shadow : suspicious {
   meta:
-	description = "Accesses /etc/shadow" 
+	description = "accesses /etc/shadow" 
   strings:
 	$ref = "etc/shadow"
   condition:

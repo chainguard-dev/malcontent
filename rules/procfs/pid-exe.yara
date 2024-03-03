@@ -1,6 +1,6 @@
 rule proc_exe : suspicious {
 	meta:
-		description = "Accesses the underlying executable of other processes"
+		description = "accesses underlying executable of other processes"
 	strings:
 		$string = "/proc/%s/exe" fullword
 		$digit = "/proc/%d/exe" fullword
