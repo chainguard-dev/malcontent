@@ -1,5 +1,5 @@
 
-rule pcap_shell_exec : critical {
+rule pcap_shell_exec : suspicious {
   meta:
 	description = "Sniffs network traffic, executes code through a shell"
   strings:
