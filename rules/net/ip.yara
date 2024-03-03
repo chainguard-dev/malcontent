@@ -1,7 +1,7 @@
 rule packets {
 	meta:
 		pledge = "inet"
-		description = "Internet Protocol user"
+		description = "access the internet"
 	strings:
 		$invalid_packet = "invalid packet" fullword
 	condition:

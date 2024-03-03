@@ -1,4 +1,4 @@
-rule usr_path {
+rule usr_path : harmless {
 	meta:
 		description = "References paths within /usr/"
 	strings:
