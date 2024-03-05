@@ -1,4 +1,4 @@
-rule dev_shm : notable {
+rule dev_shm : suspiciuos {
 	meta:
 		description = "References paths within /dev/shm (world writeable)"
 	strings:
@@ -7,7 +7,7 @@ rule dev_shm : notable {
 		any of them
 }
 
-rule dev_shm_sh : suspicious {
+rule dev_shm_sh : critical {
 	meta:
 		description = "References shell script within /dev/shm (world writeable)"
 	strings:
@@ -17,7 +17,7 @@ rule dev_shm_sh : suspicious {
 }
 
 
-rule dev_shm_hidden : suspicious {
+rule dev_shm_hidden : critical {
 	meta:
 		description = "References paths within /dev/shm (world writeable)"
 	strings:
