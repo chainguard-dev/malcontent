@@ -15,7 +15,8 @@ rule ps_exec : notable {
 	syscall = "vfork"
   strings:
     $ps_ef = "ps -ef |"
-    $ps_ax = "ps -ax"
+    $ps__ax = "ps -ax"
+	$ps_ax = "ps ax"
     $hash_bang = "#!"
     $not_node = "NODE_DEBUG_NATIVE"
     $not_apple = "com.apple."

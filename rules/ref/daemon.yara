@@ -5,6 +5,7 @@ rule daemon : notable {
 	strings:
 		$ref = "daemon" fullword
 		$ref2 = "daemonize" fullword
+		$ref3 = "xdaemon" fullword
 	condition:
 		all of them
 }
