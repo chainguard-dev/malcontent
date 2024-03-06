@@ -64,7 +64,7 @@ rule shell_toucher : notable {
   meta:
  	description = "change file timestamps"
   strings:
-	$ref = /touch [\%\w\-\_\.\/ ]{0,24}/ fullword
+	$ref = /touch [\$\%\w\-\_\.\/ ]{0,24}/ fullword
   condition:
 	$ref
 }
