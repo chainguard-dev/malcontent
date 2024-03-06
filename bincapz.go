@@ -46,6 +46,18 @@ func main() {
 		includeDataFiles = true
 	}
 
+	var rf bincapz.RenderFunc
+	switch *formatFlag {
+	case "simple":
+		rf = bincapz.RenderSimple
+	case "table":
+		rf = bincapz.RenderTable
+	case "json", "yaml":
+	default:
+		fmt.Printf("what kind of format is %q?\n", *formatFlag)
+		os.Exit(3)
+	}
+
 	bc := bincapz.Config{
 		RuleFS:           ruleFs,
 		ScanPaths:        args,
@@ -54,6 +66,8 @@ func main() {
 		MinLevel:         minLevel,
 		ThirdPartyRules:  *thirdPartyFlag,
 		IncludeDataFiles: includeDataFiles,
+		RenderFunc:       rf,
+		Output:           os.Stdout,
 	}
 
 	fmt.Fprintf(os.Stderr, "scanning %s ...\n", strings.Join(args, " "))
@@ -76,13 +90,6 @@ func main() {
 			klog.Fatalf("marshal: %v", err)
 		}
 		fmt.Printf("%s\n", yaml)
-	case "simple":
-		bincapz.RenderSimple(res, os.Stdout)
-	case "table":
-		bincapz.RenderTable(res, os.Stdout)
-	default:
-		fmt.Printf("what kind of format is %q?\n", *formatFlag)
-		os.Exit(3)
 	}
 	if err != nil {
 		klog.Errorf("failed: %v", err)
