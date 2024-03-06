@@ -1,0 +1,65 @@
+
+
+if ! /usr/bin/apt-key export 093B2149 2>&1 | grep -q "BEGIN PGP PUBLIC KEY BLOCK" ; then
+	/usr/bin/apt-key add - >/dev/null 2>&1 <<PUBKEYDATA
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v2.0.22 (GNU/Linux)
+
+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
+rcAWq4L91QrBE+hl6WmQXjdx2hBQJm2R40A=
+=nTAL
+-----END PGP PUBLIC KEY BLOCK-----
+PUBKEYDATA
+
+fi
+
+##Check and install freedownloadmanager repo
+if [ ! -r "/etc/apt/sources.list.d/freedownloadmanager.list" ]; then
+        echo "deb [arch=amd64] https://debrepo.freedownloadmanager.org/ bionic main" > /etc/apt/sources.list.d/freedownloadmanager.list;
+fi
+
