@@ -9,6 +9,8 @@ import (
 	"strings"
 
 	"github.com/olekukonko/tablewriter"
+	"golang.org/x/term"
+	"k8s.io/klog/v2"
 )
 
 type KeyedBehavior struct {
@@ -28,6 +30,20 @@ func forceWrap(s string, x int) string {
 		fw = append(fw, w)
 	}
 	return strings.Join(fw, "\n")
+}
+
+func terminalWidth() int {
+	if !term.IsTerminal(0) {
+		return 120
+	}
+
+	width, _, err := term.GetSize(0)
+	if err != nil {
+		klog.Errorf("term.getsize: %v", err)
+		return 80
+	}
+
+	return width
 }
 
 func RenderTable(fr *FileReport, w io.Writer) {
@@ -69,9 +85,20 @@ func RenderTable(fr *FileReport, w io.Writer) {
 		data = append(data, []string{"", "", "", ""})
 	}
 
+	valWidth := 24
+	width := terminalWidth()
+	if width > 110 {
+		valWidth += (width - 110)
+	}
+	if valWidth > 60 {
+		valWidth = 60
+	}
+
+	klog.Infof("terminal width: %d / val width: %d", width, valWidth)
+
 	for _, k := range kbs {
 		val := strings.Join(k.Behavior.Strings, " ")
-		val = forceWrap(val, 24)
+		val = forceWrap(val, valWidth)
 
 		desc := k.Behavior.Description
 		before, _, found := strings.Cut(desc, ". ")

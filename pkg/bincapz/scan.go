@@ -76,7 +76,7 @@ func Scan(c Config) (*Report, error) {
 			kind := programKind(p)
 			if !c.IncludeDataFiles && kind == "" {
 				r.Files[p] = FileReport{Skipped: fmt.Sprintf("data file")}
-				klog.Infof("skipping %s - does not appear to be a program")
+				klog.Infof("not a program: %s", p)
 				continue
 			}
 
