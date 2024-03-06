@@ -11,5 +11,5 @@ rule password_finder : critical {
 	$finder = "Finder"
 	$ssh = "ssh"
   condition:
-	4 of them
+	5 of them
 }

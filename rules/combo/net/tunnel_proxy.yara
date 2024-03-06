@@ -1,6 +1,6 @@
-rule tunnel_proxy : suspicious {
+rule tunnel_proxy : notables {
   meta:
-	description = "Likely a tunnel proxy"
+	description = "network tunnel proxy"
   strings:
 	$t_tunnel = "tunnel" fullword
 	$t_Tunnel = "Tunnel" fullword

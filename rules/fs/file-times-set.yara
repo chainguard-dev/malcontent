@@ -36,11 +36,11 @@ rule lutimes : notable {
 }
 
 
-rule utimensat : notable {
+rule utimensat {
 	meta:
 		syscall = "utimensat"
 		pledge = "fattr"
-		description = " change file timestamps with nanosecond precision"
+		description = "change file timestamps with nanosecond precision"
 		ref = "https://linux.die.net/man/3/futimens"
 	strings:
 		$ref = "utimensat" fullword
@@ -48,11 +48,11 @@ rule utimensat : notable {
 		any of them
 }
 
-rule futimens : notable {
+rule futimens {
 	meta:
 		syscall = "futimens"
 		pledge = "fattr"
-		description = " change file timestamps with nanosecond precision"
+		description = "change file timestamps with nanosecond precision"
 		ref = "https://linux.die.net/man/3/futimens"
 	strings:
 		$ref = "futimens" fullword
