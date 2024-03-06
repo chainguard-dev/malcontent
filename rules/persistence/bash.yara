@@ -1,10 +1,10 @@
-rule bash_persist : high {
+rule bash_persist : notable {
   meta:
-	description = "Writes to bash configuration files"
+	description = "Accesses bash startup files"
   strings:
 	$ref = ".bash_profile"
-	$ref2 = ".profile"
-	$ref3 = ".bashrc"
+	$ref2 = ".profile" fullword
+	$ref3 = ".bashrc" fullword
 	$ref4 = ".bash_logout"
 	$ref5 = "/etc/profile"
 	$ref6 = "/etc/bashrc"

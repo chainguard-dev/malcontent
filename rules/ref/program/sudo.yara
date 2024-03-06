@@ -1,4 +1,3 @@
-
 rule sudo : notable {
   meta:
 	description = "Mentions sudo"

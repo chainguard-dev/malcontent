@@ -23,7 +23,8 @@ rule rm_f_hardcoded_tmp_path : suspicious {
     hash_2023_Perl_Backdoor_Perl_Dompu = "f17b6917b835603ef24ab6926d938cbdefbfb537d43fa11965f2e2fdaf80faf6"
     hash_2023_Downloads_6e35 = "6e35b5670953b6ab15e3eb062b8a594d58936dd93ca382bbb3ebdbf076a1f83b"
   strings:
-    $rm_f_tmp_var_dev = /rm +\-[a-zA-Z]{,1}f[a-zA-Z]{,1} \/(tmp|var|dev)\/[\w\/\.\-\%]{0,64}/
+    $ref = /rm +\-[a-zA-Z]{,1}f[a-zA-Z]{,1} \/(tmp|var|dev)\/[\w\/\.\-\%]{0,64}/
+	$not_apt = "/var/lib/apt/lists"
   condition:
-    any of them
+	$ref and none of ($not*)
 }

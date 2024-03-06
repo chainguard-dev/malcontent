@@ -1,14 +1,3 @@
-rule ransomware_mention : suspicious {
-	meta:
-		description = "Mentions ransomware"
-	strings:
-		$ransomware = "ransomware"
-		$locker = "locker encrypt"
-	condition:
-		any of them
-}
-
-
 rule ransom_detection {
   meta:
     hash_2020_gonnacry = "f5de75a6db591fe6bb6b656aa1dcfc8f7fe0686869c34192bfa4ec092554a4ac"

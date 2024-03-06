@@ -8,3 +8,12 @@ rule infected : suspicious {
 	condition:
 		any of them
 }
+
+rule infection : notable {
+	meta:
+		description = "References 'infectio'"
+	strings:
+		$ref3 = "infectio"
+	condition:
+		any of them
+}
