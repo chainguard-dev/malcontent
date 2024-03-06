@@ -1,6 +1,6 @@
 
 
-rule random_target : suspicious {
+rule random_target : notable {
 	meta:
 		description = "References a random target"
 	strings:

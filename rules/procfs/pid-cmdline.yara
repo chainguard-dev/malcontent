@@ -8,4 +8,3 @@ rule proc_cmdline : notable {
 	condition:
 		any of them
 }
-

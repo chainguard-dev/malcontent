@@ -9,7 +9,8 @@ rule tor_user : suspicious {
     $t_hidden_service_port = "HiddenServicePort" nocase
 	$t_go = "go-libtor"
 	$t_rust = "libtor" fullword
-    $not_drop = "[.onion] drop policy"	
+    $not_drop = "[.onion] drop policy"
+	$not_bug = "Tor Browser bug"
   condition:
     filesize < 20971520 and any of ($t*) and none of ($not*)
 }

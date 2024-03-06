@@ -9,13 +9,13 @@ rule php_eval : suspicious {
 }
 
 
-rule python_eval : suspicious {
+rule python_eval : notable {
 	meta:
 		description = "evaluate Python dynamically using eval"
 	strings:
 		$python = "python"
 		$eval = "eval(" fullword
-		$exec = "exec(" fullword
+//		$exec = "exec(" fullword
 	condition:
 		$python and any of ($e*)
 }

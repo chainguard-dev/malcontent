@@ -12,3 +12,13 @@ rule sleep_rm : notable {
   condition:
     any of them
 }
+
+
+rule nohup_bash_background : suspicious {
+  strings:
+	$ref = /nohup bash [\%\w\/\>]{0,64} &/
+  condition:
+    any of them
+}
+
+
