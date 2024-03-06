@@ -1,4 +1,4 @@
-rule apt_add_key : suspicious {
+rule apt_add_key : notable {
   meta:
 	description = "Installs apt repository keys"
   strings:
