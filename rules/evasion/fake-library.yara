@@ -24,7 +24,7 @@ rule libc_fake_number : suspicious {
     ref = "https://cert.gov.ua/article/6123309"
 	description = "References a non-standard libc library (normally libc.so.6)"
   strings:
-    $fake_libc_version = /libc.so.[02345789]/
+    $fake_libc_version = /libc.so.[2345789]/
   condition:
     any of them
 }

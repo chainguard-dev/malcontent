@@ -1,6 +1,6 @@
-rule zsh_persist : high {
+rule zsh_persist : notable {
   meta:
-	description = "Writes to bash configuration files"
+	description = "Accesses zsh startup files"
   strings:
 	$ref = ".zprofile"
 	$ref2 = ".zshrc"
@@ -13,7 +13,7 @@ rule zsh_persist : high {
 
 rule zsh_logout_persist : suspicious {
   meta:
-	description = "Writes to bash configuration files to persist"
+	description = "Writes to zsh configuration files to persist"
   strings:
 	$ref = ".zlogout"
 	$ref2 = "/etc/zlogout"

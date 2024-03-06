@@ -1,4 +1,4 @@
-rule interceptor : suspicious {
+rule interceptor : notable {
 	meta:
 		description = "References interception"
 	strings:

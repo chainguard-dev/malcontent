@@ -34,7 +34,9 @@ rule funky_high_signal_killer : suspicious {
 	description = "Uses high signals to communicate to a rootkit"
     hash_2023_QubitStrike_mi = "9a5f6318a395600637bd98e83d2aea787353207ed7792ec9911b775b79443dcd"
   strings:
-    $high_sig = /kill -[123456]\d{1,128}/
+    $odd_teen_sig = /kill -1[012346789]/ fullword
+	// limit is 64
+    $high_sig = /kill -[23456]\d/ fullword
   condition:
     any of them
 }

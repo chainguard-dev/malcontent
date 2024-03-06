@@ -35,5 +35,5 @@ rule multiple_cloud_credentials : suspicious {
     $s_smbcredentials = ".smbcredentials"
     $s_adc = "application_default_credentials.json"
   condition:
-    4 of them
+    5 of them
 }

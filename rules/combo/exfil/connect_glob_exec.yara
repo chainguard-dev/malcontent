@@ -14,7 +14,7 @@ rule http_digest_auth_exec_connector : suspicious {
     all of ($d_*)
 }
 
-rule connect_glob_exec_https : suspicious {
+rule connect_glob_exec_https : notable {
   meta:
 	description = "makes HTTPS connections, runs programs, finds files"
   strings:

@@ -1,4 +1,4 @@
-rule password : notable {
+rule password {
 	meta:
 		description = "References a password"
 	strings:
