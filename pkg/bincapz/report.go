@@ -31,6 +31,7 @@ type Behavior struct {
 }
 
 type FileReport struct {
+	Path string
 	// compiler -> x
 	Error             string              `json:",omitempty" yaml:",omitempty"`
 	Skipped           string              `json:",omitempty" yaml:",omitempty"`
@@ -194,13 +195,14 @@ func matchStrings(ms []yara.MatchString) []string {
 	return slices.Compact(ss)
 }
 
-func fileReport(mrs yara.MatchRules, ignoreTags []string, minLevel int) FileReport {
+func fileReport(path string, mrs yara.MatchRules, ignoreTags []string, minLevel int) FileReport {
 	ignore := map[string]bool{}
 	for _, t := range ignoreTags {
 		ignore[t] = true
 	}
 
 	fr := FileReport{
+		Path:      path,
 		Meta:      map[string]string{},
 		Behaviors: map[string]Behavior{},
 	}

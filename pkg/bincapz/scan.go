@@ -2,6 +2,7 @@ package bincapz
 
 import (
 	"fmt"
+	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -19,6 +20,8 @@ type Config struct {
 	ThirdPartyRules  bool
 	OmitEmpty        bool
 	IncludeDataFiles bool
+	RenderFunc       RenderFunc
+	Output           io.Writer
 }
 
 // return a list of files within a path
@@ -78,15 +81,17 @@ func Scan(c Config) (*Report, error) {
 			}
 
 			if err := yrs.ScanFile(p, 0, 0, &mrs); err != nil {
-				r.Files[p] = FileReport{Error: fmt.Sprintf("scanfile: %v", err)}
+				klog.Infof("skipping %s - %v", err)
+				r.Files[p] = FileReport{Path: p, Error: fmt.Sprintf("scanfile: %v", err)}
 				continue
 			}
 
-			fr := fileReport(mrs, c.IgnoreTags, c.MinLevel)
+			fr := fileReport(p, mrs, c.IgnoreTags, c.MinLevel)
 			if len(fr.Behaviors) == 0 && c.OmitEmpty {
 				continue
 			}
 			r.Files[p] = fr
+			c.RenderFunc(&fr, c.Output)
 		}
 	}
 
