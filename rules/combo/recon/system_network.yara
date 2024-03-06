@@ -15,6 +15,11 @@ rule recon_commands : suspicious {
     $c_ifconfig = "ifconfig" fullword
     $c_uname = "uname -a"
     $c_lspi = "lspci"
+	$c_ufw = "ufw status"
+	$c_sudo = "sudo -l"
+	$c_ip_route = "ip route"
+	$c_netstat = "netstat -a"
+	$c_ip_addr = "ip addr"
     $not_usage = "Usage: inet"
     $not_apple_smb = "com.apple.smbd"
     $not_bashopts = "BASHOPTS"
