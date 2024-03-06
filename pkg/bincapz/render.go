@@ -122,7 +122,28 @@ func RenderTable(fr *FileReport, w io.Writer) {
 	table.SetAutoWrapText(false)
 	table.SetHeader([]string{"Risk", "Key", "Values", "Description"})
 	//table.SetBorder(false)
-	table.AppendBulk(data) // Add Bulk Data
+	for _, d := range data {
+		if strings.Contains(d[0], "LOW") {
+			table.Rich(d, []tablewriter.Colors{tablewriter.Colors{tablewriter.Normal, tablewriter.FgGreenColor}})
+			continue
+		}
+
+		if strings.Contains(d[0], "MED") {
+			table.Rich(d, []tablewriter.Colors{tablewriter.Colors{tablewriter.Normal, tablewriter.FgYellowColor}})
+			continue
+		}
+
+		if strings.Contains(d[0], "HIGH") {
+			table.Rich(d, []tablewriter.Colors{tablewriter.Colors{tablewriter.Normal, tablewriter.FgRedColor}})
+			continue
+		}
+		if strings.Contains(d[0], "CRIT") {
+			table.Rich(d, []tablewriter.Colors{tablewriter.Colors{tablewriter.Normal, tablewriter.FgHiRedColor}})
+			continue
+		}
+
+		table.Append(d)
+	}
 	table.Render()
 
 	fmt.Println("")
