@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/liamg/magic"
+	"k8s.io/klog/v2"
 )
 
 // programKind tries to identify if a path is a program
@@ -28,7 +29,8 @@ func programKind(path string) string {
 			desc = kind.Description
 		}
 	}
-	// log.Printf("len=%d header=%s err=%v", len, header[:], err)
+
+	klog.V(1).Infof("desc: %q header: %q err: %v", desc, header[:], err)
 
 	// By Magic
 	d := strings.ToLower(desc)
@@ -44,10 +46,14 @@ func programKind(path string) string {
 		return "Linux ELF binary"
 	case strings.Contains(path, ".xcoff"):
 		return "XCOFF progam"
+	case strings.Contains(path, ".dylib"):
+		return "macOS dynamic library"
+	case strings.HasSuffix(path, "profile"):
+		return "Shell script"
 	}
 
 	switch filepath.Ext(path) {
-	case ".scpt":
+	case ".scpt", "scptd":
 		return "compiled AppleScript"
 	case ".sh":
 		return "Shell script"
@@ -90,7 +96,7 @@ func programKind(path string) string {
 	switch {
 	case strings.Contains(s, "import "):
 		return "Python"
-	case strings.HasPrefix(s, "#!/bin/sh") || strings.HasPrefix(s, "#!/bin/bash"):
+	case strings.HasPrefix(s, "#!/bin/sh") || strings.HasPrefix(s, "#!/bin/bash") || strings.Contains(s, `echo "`) || strings.Contains(s, `if [`) || strings.Contains(s, `grep `) || strings.Contains(s, "if !"):
 		return "Shell"
 	case strings.HasPrefix(s, "#!"):
 		return "script"
