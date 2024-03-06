@@ -9,12 +9,16 @@ import (
 	"strings"
 
 	"github.com/olekukonko/tablewriter"
+	"golang.org/x/term"
+	"k8s.io/klog/v2"
 )
 
 type KeyedBehavior struct {
 	Key      string
 	Behavior Behavior
 }
+
+type RenderFunc func(f *FileReport, w io.Writer)
 
 func forceWrap(s string, x int) string {
 	words, _ := tablewriter.WrapString(s, x)
@@ -28,106 +32,111 @@ func forceWrap(s string, x int) string {
 	return strings.Join(fw, "\n")
 }
 
-func RenderTable(res *Report, w io.Writer) {
-	files := 0
-	tableShown := false
-
-	for path, fr := range res.Files {
-		if files > 0 && tableShown {
-			fmt.Print("\n")
-		}
-
-		if fr.Error != "" {
-			fmt.Printf("%s - error: %s\n", path, fr.Error)
-			tableShown = false
-			continue
-		}
-
-		if fr.Skipped != "" {
-			fmt.Printf("%s - skipped: %s\n", path, fr.Skipped)
-			tableShown = false
-			continue
-		}
-
-		fmt.Printf("%s\n", path)
-		files++
-		tableShown = false
-
-		kbs := []KeyedBehavior{}
-		for k, b := range fr.Behaviors {
-			kbs = append(kbs, KeyedBehavior{Key: k, Behavior: b})
-		}
-
-		if len(kbs) == 0 {
-			continue
-		}
-
-		sort.Slice(kbs, func(i, j int) bool {
-			if kbs[i].Behavior.RiskScore == kbs[j].Behavior.RiskScore {
-				return kbs[i].Key < kbs[j].Key
-			}
-			return kbs[i].Behavior.RiskScore < kbs[j].Behavior.RiskScore
-		})
-
-		data := [][]string{}
-
-		for k, v := range fr.Meta {
-			data = append(data, []string{"-", k, v, ""})
-		}
-		if len(data) > 0 {
-			data = append(data, []string{"", "", "", ""})
-		}
-
-		for _, k := range kbs {
-			val := strings.Join(k.Behavior.Strings, " ")
-			val = forceWrap(val, 24)
-
-			desc := k.Behavior.Description
-			before, _, found := strings.Cut(desc, ". ")
-			if found {
-				desc = before
-			}
-			if k.Behavior.RuleAuthor != "" {
-				if desc != "" {
-					desc = fmt.Sprintf("%s, by %s", desc, k.Behavior.RuleAuthor)
-				} else {
-					desc = fmt.Sprintf("by %s", k.Behavior.RuleAuthor)
-				}
-			}
-
-			words, _ := tablewriter.WrapString(desc, 52)
-			desc = strings.Join(words, "\n")
-
-			data = append(data, []string{fmt.Sprintf("%d/%s", k.Behavior.RiskScore, k.Behavior.RiskLevel), k.Key, val, desc})
-		}
-		tableShown = true
-		table := tablewriter.NewWriter(os.Stdout)
-		table.SetAutoWrapText(false)
-		table.SetHeader([]string{"Risk", "Key", "Values", "Description"})
-		//table.SetBorder(false)
-		table.AppendBulk(data) // Add Bulk Data
-		table.Render()
-
-		if fr.FilteredBehaviors > 0 {
-			fmt.Fprintf(w, "\n# %d behavior(s) filtered out, use --all to see more\n", fr.FilteredBehaviors)
-		}
+func terminalWidth() int {
+	if !term.IsTerminal(0) {
+		return 120
 	}
+
+	width, _, err := term.GetSize(0)
+	if err != nil {
+		klog.Errorf("term.getsize: %v", err)
+		return 80
+	}
+
+	return width
 }
 
-func RenderSimple(res *Report, w io.Writer) {
-	for path, fr := range res.Files {
-		fmt.Fprintf(w, "# %s\n", path)
-		keys := []string{}
-		for key := range fr.Behaviors {
-			keys = append(keys, key)
+func RenderTable(fr *FileReport, w io.Writer) {
+	path := fr.Path
+	if fr.Error != "" {
+		fmt.Printf("%s - error: %s\n", path, fr.Error)
+		return
+	}
+
+	if fr.Skipped != "" {
+		fmt.Printf("%s - skipped: %s\n", path, fr.Skipped)
+		return
+	}
+
+	fmt.Printf("%s\n", path)
+
+	kbs := []KeyedBehavior{}
+	for k, b := range fr.Behaviors {
+		kbs = append(kbs, KeyedBehavior{Key: k, Behavior: b})
+	}
+
+	if len(kbs) == 0 {
+		return
+	}
+
+	sort.Slice(kbs, func(i, j int) bool {
+		if kbs[i].Behavior.RiskScore == kbs[j].Behavior.RiskScore {
+			return kbs[i].Key < kbs[j].Key
 		}
-		slices.Sort(keys)
-		for _, key := range keys {
-			fmt.Fprintf(w, "- %s\n", key)
+		return kbs[i].Behavior.RiskScore < kbs[j].Behavior.RiskScore
+	})
+
+	data := [][]string{}
+
+	for k, v := range fr.Meta {
+		data = append(data, []string{"-", k, v, ""})
+	}
+	if len(data) > 0 {
+		data = append(data, []string{"", "", "", ""})
+	}
+
+	valWidth := 24
+	width := terminalWidth()
+	if width > 110 {
+		valWidth += (width - 110)
+	}
+	if valWidth > 60 {
+		valWidth = 60
+	}
+
+	klog.Infof("terminal width: %d / val width: %d", width, valWidth)
+
+	for _, k := range kbs {
+		val := strings.Join(k.Behavior.Strings, " ")
+		val = forceWrap(val, valWidth)
+
+		desc := k.Behavior.Description
+		before, _, found := strings.Cut(desc, ". ")
+		if found {
+			desc = before
+		}
+		if k.Behavior.RuleAuthor != "" {
+			if desc != "" {
+				desc = fmt.Sprintf("%s, by %s", desc, k.Behavior.RuleAuthor)
+			} else {
+				desc = fmt.Sprintf("by %s", k.Behavior.RuleAuthor)
+			}
 		}
 
-		if fr.FilteredBehaviors > 0 {
-			fmt.Fprintf(w, "\n# %d behavior(s) filtered out, use --all to see more\n", fr.FilteredBehaviors)
-		}
+		words, _ := tablewriter.WrapString(desc, 52)
+		desc = strings.Join(words, "\n")
+
+		data = append(data, []string{fmt.Sprintf("%d/%s", k.Behavior.RiskScore, k.Behavior.RiskLevel), k.Key, val, desc})
+	}
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetAutoWrapText(false)
+	table.SetHeader([]string{"Risk", "Key", "Values", "Description"})
+	//table.SetBorder(false)
+	table.AppendBulk(data) // Add Bulk Data
+	table.Render()
+
+	fmt.Println("")
+}
+
+func RenderSimple(fr *FileReport, w io.Writer) {
+	path := fr.Path
+	fmt.Fprintf(w, "# %s\n", path)
+	keys := []string{}
+	for key := range fr.Behaviors {
+		keys = append(keys, key)
+	}
+	slices.Sort(keys)
+	for _, key := range keys {
+		fmt.Fprintf(w, "- %s\n", key)
 	}
 }
