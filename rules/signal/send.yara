@@ -4,6 +4,7 @@ rule kill : harmless {
 		pledge = "proc"
 	strings:
 		$kill = "_kill" fullword
+		$go = "syscall.Kill" fullword
 	condition:
 		any of them
 }

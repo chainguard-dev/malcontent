@@ -6,6 +6,7 @@ rule file_open : harmless {
 		$fopen = "fopen" fullword
 		$fopen64 = "fopen64" fullword
 		$fclose = "fclose" fullword
+		$file_open = "file open failed"
 	condition:
 		any of them
 }

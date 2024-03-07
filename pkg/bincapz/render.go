@@ -90,8 +90,8 @@ func RenderTable(fr *FileReport, w io.Writer) {
 	if width > 110 {
 		valWidth += (width - 110)
 	}
-	if valWidth > 60 {
-		valWidth = 60
+	if valWidth > 65 {
+		valWidth = 65
 	}
 
 	klog.Infof("terminal width: %d / val width: %d", width, valWidth)
