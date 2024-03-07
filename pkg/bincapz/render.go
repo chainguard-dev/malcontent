@@ -97,8 +97,9 @@ func RenderTable(fr *FileReport, w io.Writer) {
 	klog.Infof("terminal width: %d / val width: %d", width, valWidth)
 
 	for _, k := range kbs {
-		val := strings.Join(k.Behavior.Strings, " ")
+		val := strings.Join(k.Behavior.Strings, "|||")
 		val = forceWrap(val, valWidth)
+		val = strings.ReplaceAll(val, "|||", "\n")
 
 		desc := k.Behavior.Description
 		before, _, found := strings.Cut(desc, ". ")
