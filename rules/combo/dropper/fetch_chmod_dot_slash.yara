@@ -1,4 +1,4 @@
-rule curl_chmod_relative_run : suspicious{
+rule curl_chmod_relative_run : suspicious {
   meta:
 	description = "fetches file, makes it executable, runs it"
   strings:
@@ -9,7 +9,7 @@ rule curl_chmod_relative_run : suspicious{
 	all of them
 }
 
-rule wget_chmod_relative_run : suspicious{
+rule wget_chmod_relative_run : suspicious {
   meta:
 	description = "fetches file, makes it executable, runs it"
   strings:

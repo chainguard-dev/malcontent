@@ -10,3 +10,12 @@ rule pty : notable {
 	condition:
 		2 of them
 }
+
+rule go_pty : suspicious {
+	meta:
+		description = "pseudo-terminal access"
+	strings:
+		$ref = "creack/pty"
+	condition:
+		any of them
+}
