@@ -7,13 +7,11 @@ rule multiple_cloud_credentials : suspicious {
   strings:
     $s_access_tokens_db = "access_tokens.db"
 	$s_config_gcloud = ".config/gcloud"
-	$s_gcloud = "gcloud"
     $s_accounts_xml = "accounts.xml"
     $s_authinfo2 = "authinfo2"
     $s_azure_json = "azure.json"
     $s_boto = ".boto"
     $s_censys_cfg = "censys.cfg"
-    $s_credentials = "credentials" fullword
     $s_credentials_db = "credentials.db"
     $s_filezilla_xml = "filezilla.xml"
     $s_git_credentials = ".git-credentials"
@@ -29,7 +27,6 @@ rule multiple_cloud_credentials : suspicious {
     $s_s3cfg = ".s3cfg"
     $s_s3proxy_conf = "s3proxy.conf"
     $s_samba_credentials = ".samba_credentials"
-    $s_secrets = "secrets" fullword
     $s_servlist_conf = "servlist.conf"
     $s_smbclient_conf = ".smbclient.conf"
     $s_smbcredentials = ".smbcredentials"

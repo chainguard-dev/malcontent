@@ -4,6 +4,7 @@ rule zip : notable {
 		description = "Works with zip files"
 	strings:
 		$ref = "ZIP64" fullword
+		$ref2 = "archive/zip"
 	condition:
 		any of them
 }

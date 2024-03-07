@@ -1,4 +1,4 @@
-rule netlink : notable {
+rule netlink {
 	meta:
 		description = "communication between kernel and user space"
 	strings:
