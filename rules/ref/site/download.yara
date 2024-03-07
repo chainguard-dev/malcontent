@@ -13,6 +13,7 @@ rule download_sites : suspicious {
     $d_rentry = "rentry.co"
     $d_penyacom = "penyacom"
     $d_controlc = "controlc.com"
+	$d_anotepad = "anotepad.com"
     $d_privnote = "privnote.com"
     $d_hushnote = "hushnote"
     $not_mozilla = "download.mozilla.org"

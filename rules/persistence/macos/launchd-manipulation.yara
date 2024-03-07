@@ -5,7 +5,8 @@ rule launchctl : notable {
 		platforms = "darwin"
 	strings:
 		$ref = "LaunchAgents" fullword
+		$ref2 = "launchctl"
 	condition:
-		any of them
+		all of them
 }
 

@@ -6,6 +6,7 @@ rule fsync : harmless {
 		syscall = "fsync"
 	strings:
 		$ref = "fsync" fullword
+		$ref2 = "syscall.Fsync" fullword
 	condition:
 		any of them
 }
