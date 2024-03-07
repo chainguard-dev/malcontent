@@ -17,3 +17,4 @@ rule system_fs_manipulator : notable {
   condition:
 	$in_usr and none of ($not*)
 }
+
