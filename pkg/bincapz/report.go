@@ -178,11 +178,20 @@ func unprintableString(s string) bool {
 	return false
 }
 
-func matchStrings(ms []yara.MatchString) []string {
+// remove duplicate strings
+func matchStrings(name string, ms []yara.MatchString) []string {
 	ss := []string{}
+
 	lastS := ""
 	for _, m := range ms {
 		s := string(m.Data)
+		if strings.Contains(name, "base64") && !strings.Contains(s, "base64") {
+			s = fmt.Sprintf("%s (%s)", s, m.Name)
+		}
+		if strings.Contains(name, "xor") && !strings.Contains(s, "xor") {
+			s = fmt.Sprintf("%s (%s)", s, m.Name)
+		}
+
 		if unprintableString(s) {
 			s = m.Name
 		}
@@ -191,6 +200,7 @@ func matchStrings(ms []yara.MatchString) []string {
 		}
 		ss = append(ss, s)
 	}
+
 	slices.Sort(ss)
 	return slices.Compact(ss)
 }
@@ -222,7 +232,7 @@ func fileReport(path string, mrs yara.MatchRules, ignoreTags []string, minLevel 
 		b := Behavior{
 			RiskScore: risk,
 			RiskLevel: riskLevels[risk],
-			Strings:   matchStrings(m.Strings),
+			Strings:   matchStrings(m.Rule, m.Strings),
 		}
 
 		for _, meta := range m.Metas {
