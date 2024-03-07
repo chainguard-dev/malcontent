@@ -8,6 +8,7 @@ rule getpwuid : harmless {
 		$ref4 = "getpwuuid" fullword
 		$ref5 = "setpassen" fullword
 		$ref6 = "endpwent" fullword
+		$ref7 = "user/lookup" fullword
 	condition:
 		any of them
 }

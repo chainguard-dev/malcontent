@@ -1,7 +1,7 @@
 
 rule oauth2 {
 	meta:
-		description = "Uses OAuth2 credentials"
+		description = "supports OAuth2"
 	strings:
 		$ref = "oauth2" fullword
 	condition:

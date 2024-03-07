@@ -14,7 +14,7 @@ rule relative_background_launcher : suspicious {
   meta:
 	description = "Launches background processes from a relative path"
   strings:
-    $b_relative_background = /\.\/[\w\/ \.\%]{1,64} \&[^&]/
+    $b_relative_background = /\.\/\w[\w\/ \.\%]{1,64} \&[^&]/
     $not_private = "/System/Library/PrivateFrameworks/"
     $not_node = "NODE_DEBUG_NATIVE"
     $not_from = "from &"

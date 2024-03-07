@@ -19,7 +19,7 @@ rule recon_commands : suspicious {
 	$c_sudo = "sudo -l"
 	$c_ip_route = "ip route"
 	$c_netstat = "netstat -a"
-	$c_ip_addr = "ip addr"
+	$c_ip_addr = "ip addr" fullword
     $not_usage = "Usage: inet"
     $not_apple_smb = "com.apple.smbd"
     $not_bashopts = "BASHOPTS"
