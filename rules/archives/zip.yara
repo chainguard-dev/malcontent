@@ -5,6 +5,8 @@ rule zip : notable {
 	strings:
 		$ref = "ZIP64" fullword
 		$ref2 = "archive/zip"
+		$ref3 = "zip_writer" fullword
+		$ref4 = "ZIP archive" fullword
 	condition:
 		any of them
 }

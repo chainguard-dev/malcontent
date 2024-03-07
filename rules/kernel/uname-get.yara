@@ -6,6 +6,7 @@ rule uname : notable {
 		syscall = "sysctl"
 	strings:
 		$uname = "uname" fullword
+		$uname2 = "syscall.Uname" fullword
 	condition:
 		any of them
 }
