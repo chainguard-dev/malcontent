@@ -1,21 +1,8 @@
-rule php_eval : suspicious {
+rule eval : suspicious {
 	meta:
-		description = "evaluate PHP code dynamically using eval"
+		description = "evaluate code dynamically using eval()"
 	strings:
-		$php = "<?php"
-		$eval = "eval(" fullword
+		$ref = /eval\([\w\(\,\)]{0,32}/ fullword
 	condition:
-		$php and any of ($e*)
-}
-
-
-rule python_eval : notable {
-	meta:
-		description = "evaluate Python dynamically using eval"
-	strings:
-		$python = "python"
-		$eval = "eval(" fullword
-//		$exec = "exec(" fullword
-	condition:
-		$python and any of ($e*)
+		any of them
 }

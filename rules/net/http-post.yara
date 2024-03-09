@@ -4,9 +4,10 @@ rule http_post : notable {
 		description = "Able to submit content via HTTP POST"
 	strings:
 		$POST = "POST"
-		$HTTP = "HTTP"
+		$h_HTTP = "HTTP"
+		$http = "http"
 	condition:
-		all of them
+		$POST and any of ($h*)
 }
 
 rule form_data_reference : notable {

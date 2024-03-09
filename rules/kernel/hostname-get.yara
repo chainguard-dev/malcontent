@@ -7,6 +7,7 @@ rule gethostname {
 	strings:
 		$gethostname = "gethostname"
 		$proc = "/proc/sys/kernel/hostname"
+		$python = "socket.gethostname"
 	condition:
 		any of them
 }
