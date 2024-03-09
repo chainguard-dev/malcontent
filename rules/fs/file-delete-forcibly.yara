@@ -8,6 +8,17 @@ rule rm_force {
 	$ref
 }
 
+
+rule rm_recursive_force : suspicious {
+  meta:
+	description = "Forcibly deletes files using rm -R"
+  strings:
+	$ref = /rm -[Rr]f [ \$\w\/\.]{0,32}/
+	$ref2 = /rm -f[Rr] [ \$\w\/\.]{0,32}/
+  condition:
+	any of them
+}
+
 rule background_rm_rf : suspicious {
   meta:
     ref = "https://cert.gov.ua/article/6123309"

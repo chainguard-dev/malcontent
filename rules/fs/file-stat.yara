@@ -47,3 +47,15 @@ rule go_stat : harmless {
 	condition:
 		any of them
 }
+
+
+rule npm_stat {
+	meta:
+		description = "Access filesystem information"
+		pledge = "rpath"
+		syscall = "stat"
+	strings:
+		$filestat = /fs\.stat[\w\(\'\.\)]{0,32}/
+	condition:
+		any of them
+}
