@@ -9,6 +9,8 @@ rule http_request {
 		$connect = "httpConnect"
 		$close = "httpClose"
 		$http1 = "HTTP/1."
+		$http2 = "Referer" fullword
+		$http3 = "https"
 	condition:
 		any of them
 }

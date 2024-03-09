@@ -27,6 +27,19 @@ rule python_uname : notable {
 		description = "get system identification (platform.dist)"
 	strings:
 		$ref = "platform.dist()"
+		$ref2 = "platform.platform()"
+	condition:
+		any of them
+}
+
+
+rule npm_uname : notable {
+	meta:
+		description = "get system identification"
+	strings:
+		$ref = "process.platform"
+		$ref2 = "process.arch"
+		$ref3 = "process.versions"
 	condition:
 		any of them
 }

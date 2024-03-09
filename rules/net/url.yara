@@ -5,6 +5,7 @@ rule url_handle {
 		$ref = "NSURL"
 		$ref2 = "URLContext"
 		$ref3 = "RequestURI"
+		$ref4 = "urllib"
 	condition:
 		any of them
 }

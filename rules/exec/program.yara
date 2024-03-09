@@ -78,8 +78,6 @@ rule posix_spawn : notable {
 }
 
 
-
-
 rule go_exec : notable {
 	meta:
 		syscall = "posix_spawn"
@@ -87,6 +85,18 @@ rule go_exec : notable {
 		description = "spawn a process"
 	strings:
 		$ref = "exec_unix.go"
+	condition:
+		all of them
+}
+
+rule npm_exec : notable {
+	meta:
+		syscall = "posix_spawn"
+		pledge = "exec"
+		description = "spawn a process"
+	strings:
+		$child = "child_process"
+		$ref = /exec\(\'[\w \/\'\)]{0,64}/
 	condition:
 		all of them
 }
