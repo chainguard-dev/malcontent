@@ -1,6 +1,6 @@
-rule generic_scan_tool : critical {
+rule generic_scan_tool : suspicious {
   meta:
-	description = "Probably an SSH worm, like SSH-Snake"
+	description = "possible SSH worm like SSH-Snake"
   strings:
 	$s_dot_ssh = ".ssh"
 	$s_authorized_keys = "authorized_keys"
