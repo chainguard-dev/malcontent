@@ -1,5 +1,4 @@
-
-rule system_log_references {
+rule system_log_references : suspicious {
   meta:
 	description = "Accesses multiple sensitive Linux logs"
   strings:

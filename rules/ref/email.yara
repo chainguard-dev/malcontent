@@ -1,4 +1,4 @@
-rule email_addr {
+rule email_addr : harmless {
   meta:
 	description = "Contains an email address"
   strings:

@@ -25,6 +25,7 @@ func forceWrap(s string, x int) string {
 	fw := []string{}
 	for _, w := range words {
 		if len(w) > x-2 {
+			klog.Infof("wrapping %s - longer than %d", w, x-2)
 			w = w[0:x-2] + ".."
 		}
 		fw = append(fw, w)
@@ -85,11 +86,13 @@ func RenderTable(fr *FileReport, w io.Writer) {
 		data = append(data, []string{"", "", "", ""})
 	}
 
-	valWidth := 24
 	width := terminalWidth()
-	if width > 110 {
-		valWidth += (width - 110)
+	valWidth := 8
+
+	if width > 90 {
+		valWidth = (width - 90)
 	}
+
 	if valWidth > 65 {
 		valWidth = 65
 	}
@@ -97,7 +100,7 @@ func RenderTable(fr *FileReport, w io.Writer) {
 	klog.Infof("terminal width: %d / val width: %d", width, valWidth)
 
 	for _, k := range kbs {
-		val := strings.Join(k.Behavior.Strings, "|||")
+		val := strings.Join(k.Behavior.Strings, "\n")
 		val = forceWrap(val, valWidth)
 		val = strings.ReplaceAll(val, "|||", "\n")
 
@@ -114,7 +117,7 @@ func RenderTable(fr *FileReport, w io.Writer) {
 			}
 		}
 
-		words, _ := tablewriter.WrapString(desc, 52)
+		words, _ := tablewriter.WrapString(desc, 40)
 		desc = strings.Join(words, "\n")
 
 		data = append(data, []string{fmt.Sprintf("%d/%s", k.Behavior.RiskScore, k.Behavior.RiskLevel), k.Key, val, desc})
@@ -122,7 +125,7 @@ func RenderTable(fr *FileReport, w io.Writer) {
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetAutoWrapText(false)
 	table.SetHeader([]string{"Risk", "Key", "Values", "Description"})
-	//table.SetBorder(false)
+	table.SetBorder(false)
 	for _, d := range data {
 		if strings.Contains(d[0], "LOW") {
 			table.Rich(d, []tablewriter.Colors{tablewriter.Colors{tablewriter.Normal, tablewriter.FgGreenColor}})
