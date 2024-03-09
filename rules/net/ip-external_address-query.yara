@@ -58,3 +58,12 @@ rule iplookup_website_xor : critical {
   condition:
     any of them
 }
+
+rule python_list_comprehension : suspicious {
+	meta:
+		description = "discover IP address via socket connection"
+	strings:
+		$ref = "[socket.socket(socket.AF_INET, socket.SOCK_DGRAM"
+	condition:
+		any of them
+}

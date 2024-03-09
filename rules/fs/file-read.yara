@@ -18,3 +18,14 @@ rule py_file_read {
 	condition:
 		any of them
 }
+
+
+rule node_file_read {
+	meta:
+		description = "reads files"
+		syscall = "open,close"
+	strings:
+		$read = "fs.readFile"
+	condition:
+		any of them
+}
