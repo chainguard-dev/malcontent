@@ -23,7 +23,7 @@ var riskLevels = map[int]string{
 
 type Behavior struct {
 	Description string   `json:",omitempty" yaml:",omitempty"`
-	Strings     []string `json:",omitempty" yaml:",omitempty"`
+	Values      []string `json:",omitempty" yaml:",omitempty"`
 	RiskScore   int
 	RiskLevel   string `json:",omitempty" yaml:",omitempty"`
 	RuleAuthor  string `json:",omitempty" yaml:",omitempty"`
@@ -179,31 +179,68 @@ func unprintableString(s string) bool {
 	return false
 }
 
-// remove duplicate strings
-func matchStrings(name string, ms []yara.MatchString) []string {
-	ss := []string{}
+// extrach match strings, but only if the rule name or match variable indicate preservation
+func matchValues(key string, ruleName string, ms []yara.MatchString) []string {
+	raw := []string{}
 
-	lastS := ""
 	for _, m := range ms {
+		keep := false
+
+		switch {
+		case strings.HasSuffix(m.Name, "val"):
+			keep = true
+		case strings.Contains(key, "combo/"):
+			keep = true
+		case strings.Contains(key, "ref/"):
+			keep = true
+		case strings.Contains(ruleName, "value"):
+			keep = true
+		}
+		if !keep {
+			continue
+		}
+
+		klog.Infof("keeping: %s - %s - %s: %s", key, ruleName, m.Name, m.Data)
+
 		s := string(m.Data)
-		if strings.Contains(name, "base64") && !strings.Contains(s, "base64") {
+		if strings.Contains(ruleName, "base64") && !strings.Contains(s, "base64") {
 			s = fmt.Sprintf("%s (%s)", s, m.Name)
 		}
-		if strings.Contains(name, "xor") && !strings.Contains(s, "xor") {
+		if strings.Contains(ruleName, "xor") && !strings.Contains(s, "xor") {
 			s = fmt.Sprintf("%s (%s)", s, m.Name)
 		}
 
 		if unprintableString(s) {
 			s = m.Name
 		}
-		if lastS != "" && strings.Contains(lastS, s) {
-			continue
-		}
-		ss = append(ss, s)
+		raw = append(raw, s)
 	}
 
-	slices.Sort(ss)
-	return slices.Compact(ss)
+	slices.Sort(raw)
+	longest := []string{}
+
+	// inefficiently remove substring matches
+	for _, s := range slices.Compact(raw) {
+		if s == "" {
+			continue
+		}
+
+		isLongest := true
+		for _, o := range raw {
+			if o != s && strings.Contains(o, s) {
+				klog.Infof("%s contains %s", o, s)
+				isLongest = false
+				break
+			}
+		}
+		if isLongest {
+			longest = append(longest, s)
+		}
+	}
+	klog.Infof("longest: %v", longest)
+
+	slices.Sort(longest)
+	return longest
 }
 
 func fileReport(path string, mrs yara.MatchRules, ignoreTags []string, minLevel int) FileReport {
@@ -230,10 +267,12 @@ func fileReport(path string, mrs yara.MatchRules, ignoreTags []string, minLevel 
 		if risk < minLevel {
 			continue
 		}
+		key := generateKey(m.Namespace, m.Rule)
+
 		b := Behavior{
 			RiskScore: risk,
 			RiskLevel: riskLevels[risk],
-			Strings:   matchStrings(m.Rule, m.Strings),
+			Values:    matchValues(key, m.Rule, m.Strings),
 		}
 
 		for _, meta := range m.Metas {
@@ -265,7 +304,6 @@ func fileReport(path string, mrs yara.MatchRules, ignoreTags []string, minLevel 
 			}
 		}
 
-		key := generateKey(m.Namespace, m.Rule)
 		if strings.HasPrefix(key, "meta/") {
 			k := filepath.Dir(key)
 			v := filepath.Base(key)

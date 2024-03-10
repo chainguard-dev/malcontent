@@ -75,7 +75,7 @@ func Scan(c Config) (*Report, error) {
 			klog.V(1).Infof("scanning: %s", p)
 			kind := programKind(p)
 			if !c.IncludeDataFiles && kind == "" {
-				r.Files[p] = FileReport{Skipped: fmt.Sprintf("data file")}
+				r.Files[p] = FileReport{Skipped: "data file"}
 				klog.Infof("not a program: %s", p)
 				continue
 			}
@@ -91,7 +91,9 @@ func Scan(c Config) (*Report, error) {
 				continue
 			}
 			r.Files[p] = fr
-			c.RenderFunc(&fr, c.Output)
+			if c.RenderFunc != nil {
+				c.RenderFunc(&fr, c.Output)
+			}
 		}
 	}
 

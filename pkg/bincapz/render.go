@@ -86,24 +86,15 @@ func RenderTable(fr *FileReport, w io.Writer) {
 		data = append(data, []string{"", "", "", ""})
 	}
 
-	width := terminalWidth()
-	valWidth := 8
-
-	if width > 90 {
-		valWidth = (width - 90)
+	tWidth := terminalWidth()
+	keyWidth := 35
+	riskWidth := 5
+	descWidth := tWidth - keyWidth - riskWidth
+	if descWidth > 80 {
+		descWidth = 80
 	}
-
-	if valWidth > 65 {
-		valWidth = 65
-	}
-
-	klog.Infof("terminal width: %d / val width: %d", width, valWidth)
 
 	for _, k := range kbs {
-		val := strings.Join(k.Behavior.Strings, "\n")
-		val = forceWrap(val, valWidth)
-		val = strings.ReplaceAll(val, "|||", "\n")
-
 		desc := k.Behavior.Description
 		before, _, found := strings.Cut(desc, ". ")
 		if found {
@@ -116,15 +107,22 @@ func RenderTable(fr *FileReport, w io.Writer) {
 				desc = fmt.Sprintf("by %s", k.Behavior.RuleAuthor)
 			}
 		}
+		words, _ := tablewriter.WrapString(desc, descWidth)
 
-		words, _ := tablewriter.WrapString(desc, 40)
+		//		klog.Infof("%s / %s - %s", k.Key, desc, k.Behavior.)
 		desc = strings.Join(words, "\n")
+		if len(k.Behavior.Values) > 0 {
+			klog.Infof("VALUES: %s", k.Behavior.Values)
+			desc = fmt.Sprintf("%s:\n%s", desc, forceWrap(strings.Join(k.Behavior.Values, "\n"), descWidth))
+		}
 
-		data = append(data, []string{fmt.Sprintf("%d/%s", k.Behavior.RiskScore, k.Behavior.RiskLevel), k.Key, val, desc})
+		key := forceWrap(k.Key, keyWidth)
+		data = append(data, []string{fmt.Sprintf("%d/%s", k.Behavior.RiskScore, k.Behavior.RiskLevel), key, desc})
 	}
+
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetAutoWrapText(false)
-	table.SetHeader([]string{"Risk", "Key", "Values", "Description"})
+	table.SetHeader([]string{"Risk", "Key", "Description"})
 	table.SetBorder(false)
 	for _, d := range data {
 		if strings.Contains(d[0], "LOW") {
