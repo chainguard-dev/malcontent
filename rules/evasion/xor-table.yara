@@ -1,5 +1,5 @@
 
-rule xor_table : notable {
+rule xor_table {
   meta:
 	description = "Contains a table that may be used for XOR decryption"
   strings:
