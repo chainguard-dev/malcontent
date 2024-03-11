@@ -81,7 +81,7 @@ func Scan(c Config) (*Report, error) {
 			}
 
 			if err := yrs.ScanFile(p, 0, 0, &mrs); err != nil {
-				klog.Infof("skipping %s - %v", err)
+				klog.Infof("skipping %s - %v", p, err)
 				r.Files[p] = FileReport{Path: p, Error: fmt.Sprintf("scanfile: %v", err)}
 				continue
 			}

@@ -70,7 +70,7 @@ func main() {
 		Output:           os.Stdout,
 	}
 
-	fmt.Fprintf(os.Stderr, "scanning %s ...\n", strings.Join(args, " "))
+	//fmt.Fprintf(os.Stderr, "scanning %s ...\n", strings.Join(args, " "))
 	res, err := bincapz.Scan(bc)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "scan failed: %v\n", err)

@@ -1,7 +1,11 @@
 package bincapz
 
 import (
+	"crypto/sha256"
 	"fmt"
+	"io"
+	"log"
+	"os"
 	"path/filepath"
 	"regexp"
 	"slices"
@@ -22,12 +26,15 @@ var riskLevels = map[int]string{
 }
 
 type Behavior struct {
-	Description string   `json:",omitempty" yaml:",omitempty"`
-	Values      []string `json:",omitempty" yaml:",omitempty"`
-	RiskScore   int
-	RiskLevel   string `json:",omitempty" yaml:",omitempty"`
-	RuleAuthor  string `json:",omitempty" yaml:",omitempty"`
-	RuleLicense string `json:",omitempty" yaml:",omitempty"`
+	Description string `json:",omitempty" yaml:",omitempty"`
+	// Values are critical values to be surfaced in the UI
+	Values []string `json:",omitempty" yaml:",omitempty"`
+	// MatchStrings are all strings found relating to this behavior
+	MatchStrings []string `json:",omitempty" yaml:",omitempty"`
+	RiskScore    int
+	RiskLevel    string `json:",omitempty" yaml:",omitempty"`
+	RuleAuthor   string `json:",omitempty" yaml:",omitempty"`
+	RuleLicense  string `json:",omitempty" yaml:",omitempty"`
 }
 
 type FileReport struct {
@@ -179,44 +186,7 @@ func unprintableString(s string) bool {
 	return false
 }
 
-// extrach match strings, but only if the rule name or match variable indicate preservation
-func matchValues(key string, ruleName string, ms []yara.MatchString) []string {
-	raw := []string{}
-
-	for _, m := range ms {
-		keep := false
-
-		switch {
-		case strings.HasSuffix(m.Name, "val"):
-			keep = true
-		case strings.Contains(key, "combo/"):
-			keep = true
-		case strings.Contains(key, "ref/"):
-			keep = true
-		case strings.Contains(ruleName, "value"):
-			keep = true
-		}
-		if !keep {
-			continue
-		}
-
-		klog.Infof("keeping: %s - %s - %s: %s", key, ruleName, m.Name, m.Data)
-
-		s := string(m.Data)
-		if strings.Contains(ruleName, "base64") && !strings.Contains(s, "base64") {
-			s = fmt.Sprintf("%s (%s)", s, m.Name)
-		}
-		if strings.Contains(ruleName, "xor") && !strings.Contains(s, "xor") {
-			s = fmt.Sprintf("%s (%s)", s, m.Name)
-		}
-
-		if unprintableString(s) {
-			s = m.Name
-		}
-		raw = append(raw, s)
-	}
-
-	slices.Sort(raw)
+func longestUnique(raw []string) []string {
 	longest := []string{}
 
 	// inefficiently remove substring matches
@@ -237,10 +207,89 @@ func matchValues(key string, ruleName string, ms []yara.MatchString) []string {
 			longest = append(longest, s)
 		}
 	}
-	klog.Infof("longest: %v", longest)
-
-	slices.Sort(longest)
 	return longest
+}
+
+// convert MatchString to a usable string
+func matchToString(ruleName string, m yara.MatchString) string {
+	s := string(m.Data)
+	if strings.Contains(ruleName, "base64") && !strings.Contains(s, "base64") {
+		s = fmt.Sprintf("%s::%s", s, m.Name)
+	}
+	if strings.Contains(ruleName, "xor") && !strings.Contains(s, "xor") {
+		s = fmt.Sprintf("%s::%s", s, m.Name)
+	}
+
+	if unprintableString(s) {
+		s = m.Name
+	}
+	// bad hack, can we do this in YARA?
+	if strings.Contains(m.Name, "xml_key_val") {
+		s = strings.ReplaceAll(s, "<key>", "")
+		s = strings.ReplaceAll(s, "</key>", "")
+	}
+	return strings.TrimSpace(s)
+}
+
+// extract important values
+func matchValues(key string, ruleName string, ms []yara.MatchString) []string {
+	raw := []string{}
+
+	for _, m := range ms {
+		keep := false
+
+		switch {
+		case strings.HasSuffix(m.Name, "val"):
+			keep = true
+		case strings.Contains(key, "combo/"):
+			keep = true
+		case strings.Contains(key, "ref/"):
+			keep = true
+		case strings.Contains(key, "xor/"):
+			keep = true
+		case strings.Contains(key, "base64/"):
+			keep = true
+		case strings.Contains(ruleName, "value"):
+			keep = true
+		}
+
+		if !keep {
+			continue
+		}
+
+		klog.Infof("keeping: %s - %s - %s: %s", key, ruleName, m.Name, m.Data)
+		raw = append(raw, matchToString(ruleName, m))
+	}
+
+	slices.Sort(raw)
+	return longestUnique(raw)
+}
+
+// extract match strings
+func matchStrings(ruleName string, ms []yara.MatchString) []string {
+	raw := []string{}
+
+	for _, m := range ms {
+		raw = append(raw, matchToString(ruleName, m))
+	}
+
+	slices.Sort(raw)
+	return longestUnique(raw)
+}
+
+func pathChecksum(path string) string {
+	f, err := os.Open(path)
+	if err != nil {
+		return fmt.Sprintf("err-%v", err)
+	}
+	defer f.Close()
+
+	h := sha256.New()
+	if _, err := io.Copy(h, f); err != nil {
+		log.Fatal(err)
+	}
+
+	return fmt.Sprintf("%x", h.Sum(nil))
 }
 
 func fileReport(path string, mrs yara.MatchRules, ignoreTags []string, minLevel int) FileReport {
@@ -250,8 +299,10 @@ func fileReport(path string, mrs yara.MatchRules, ignoreTags []string, minLevel 
 	}
 
 	fr := FileReport{
-		Path:      path,
-		Meta:      map[string]string{},
+		Path: path,
+		Meta: map[string]string{
+			"sha256": pathChecksum(path),
+		},
 		Behaviors: map[string]Behavior{},
 	}
 
@@ -270,9 +321,10 @@ func fileReport(path string, mrs yara.MatchRules, ignoreTags []string, minLevel 
 		key := generateKey(m.Namespace, m.Rule)
 
 		b := Behavior{
-			RiskScore: risk,
-			RiskLevel: riskLevels[risk],
-			Values:    matchValues(key, m.Rule, m.Strings),
+			RiskScore:    risk,
+			RiskLevel:    riskLevels[risk],
+			Values:       matchValues(key, m.Rule, m.Strings),
+			MatchStrings: matchStrings(m.Rule, m.Strings),
 		}
 
 		for _, meta := range m.Metas {
@@ -304,10 +356,16 @@ func fileReport(path string, mrs yara.MatchRules, ignoreTags []string, minLevel 
 			}
 		}
 
+		// Meta names are weird and unfortunate, depending if they hold a value
 		if strings.HasPrefix(key, "meta/") {
-			k := filepath.Dir(key)
+			k := strings.ReplaceAll(filepath.Dir(key), "meta/", "")
 			v := filepath.Base(key)
-			fr.Meta[strings.ReplaceAll(k, "meta/", "")] = v
+			if len(b.Values) > 0 {
+				k = strings.ReplaceAll(key, "meta/", "")
+				v = strings.Join(b.Values, "\n")
+			}
+
+			fr.Meta[k] = v
 			continue
 		}
 		if ignoreMatch(m.Tags, ignore) {
