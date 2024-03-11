@@ -1,5 +1,5 @@
 
-rule xor_table {
+rule xor_table : harmless {
   meta:
 	description = "Contains a table that may be used for XOR decryption"
   strings:
