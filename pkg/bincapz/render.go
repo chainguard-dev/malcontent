@@ -59,8 +59,6 @@ func RenderTable(fr *FileReport, w io.Writer) {
 		return
 	}
 
-	fmt.Printf("%s\n", path)
-
 	kbs := []KeyedBehavior{}
 	for k, b := range fr.Behaviors {
 		kbs = append(kbs, KeyedBehavior{Key: k, Behavior: b})
@@ -80,19 +78,22 @@ func RenderTable(fr *FileReport, w io.Writer) {
 	data := [][]string{}
 
 	for k, v := range fr.Meta {
-		data = append(data, []string{"-", k, v, ""})
+		data = append(data, []string{"meta", k, v})
 	}
 	if len(data) > 0 {
-		data = append(data, []string{"", "", "", ""})
+		data = append(data, []string{"", "", ""})
 	}
 
 	tWidth := terminalWidth()
 	keyWidth := 35
 	riskWidth := 5
-	descWidth := tWidth - keyWidth - riskWidth
+	borderWidth := 2
+	descWidth := tWidth - keyWidth - riskWidth - borderWidth
 	if descWidth > 80 {
 		descWidth = 80
 	}
+
+	fmt.Printf("%s\n%s\n", path, strings.Repeat("-", tWidth))
 
 	for _, k := range kbs {
 		desc := k.Behavior.Description
@@ -126,21 +127,21 @@ func RenderTable(fr *FileReport, w io.Writer) {
 	table.SetBorder(false)
 	for _, d := range data {
 		if strings.Contains(d[0], "LOW") {
-			table.Rich(d, []tablewriter.Colors{tablewriter.Colors{tablewriter.Normal, tablewriter.FgGreenColor}})
+			table.Rich(d, []tablewriter.Colors{{tablewriter.Normal, tablewriter.FgGreenColor}})
 			continue
 		}
 
 		if strings.Contains(d[0], "MED") {
-			table.Rich(d, []tablewriter.Colors{tablewriter.Colors{tablewriter.Normal, tablewriter.FgYellowColor}})
+			table.Rich(d, []tablewriter.Colors{{tablewriter.Normal, tablewriter.FgYellowColor}})
 			continue
 		}
 
 		if strings.Contains(d[0], "HIGH") {
-			table.Rich(d, []tablewriter.Colors{tablewriter.Colors{tablewriter.Normal, tablewriter.FgRedColor}})
+			table.Rich(d, []tablewriter.Colors{{tablewriter.Normal, tablewriter.FgRedColor}})
 			continue
 		}
 		if strings.Contains(d[0], "CRIT") {
-			table.Rich(d, []tablewriter.Colors{tablewriter.Colors{tablewriter.Normal, tablewriter.FgHiRedColor}})
+			table.Rich(d, []tablewriter.Colors{{tablewriter.Normal, tablewriter.FgHiRedColor}})
 			continue
 		}
 
