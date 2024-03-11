@@ -3,7 +3,8 @@ rule home_path : notable {
 		description = "peferences path within /home"
 	strings:
 		$home = /\/home\/[%\w\.\-\/]{0,64}/
-		$home_build = "/home/build"
+		$not_build = "/home/build"
+		$not_runner = "/home/runner"
 	condition:
-		$home and not $home_build
+		$home and none of ($not*)
 }

@@ -1,7 +1,7 @@
 rule setuid {
 	meta:
 		syscall = "setuid"
-		description = "set real and effective user ID of process"
+		description = "set real and effective user ID of current process"
 		pledge = "id"
 		capability = "CAP_SETUID"
 	strings:
@@ -15,7 +15,7 @@ rule setuid {
 rule seteuid {
 	meta:
 		syscall = "seteuid"
-		description = "set effective user ID of process"
+		description = "set effective user ID of current process"
 		pledge = "id"
 		capability = "CAP_SETUID"
 	strings:
@@ -27,7 +27,7 @@ rule seteuid {
 rule setreuid {
 	meta:
 		syscall = "setreuid"
-		description = "set real and effective user ID of process"
+		description = "set real and effective user ID of current process"
 		pledge = "id"
 		capability = "CAP_SETUID"
 	strings:

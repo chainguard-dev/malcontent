@@ -1,4 +1,4 @@
-rule tunnel_proxy : notables {
+rule tunnel_proxy : suspicious {
   meta:
 	description = "network tunnel proxy"
   strings:
