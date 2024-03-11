@@ -1,8 +1,8 @@
 rule apple_program {
   meta:
-	use_value = "1"
+  	description = "program name"
   strings:
-	$program = /PROGRAM:[\w-]{1,64} /
+	$program_val = /PROGRAM:[\w-]{1,64} /
 condition:
 	all of them
 }
