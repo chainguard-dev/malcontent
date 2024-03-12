@@ -23,7 +23,7 @@ func main() {
 	minLevelFlag := flag.Int("min-level", 1, "minimum suspicion level to report (1=low, 2=medium, 3=high, 4=critical)")
 	thirdPartyFlag := flag.Bool("third-party", true, "include third-party rules, which may have licensing restrictions")
 	omitEmptyFlag := flag.Bool("omit-empty", false, "omit files that contain no matches")
-	includeDataFilesFlag := flag.Bool("include-data-files", false, "include files that are detected to as non-program (binary or source) files")
+	includeDataFilesFlag := flag.Bool("data-files", false, "include files that are detected to as non-program (binary or source) files")
 	allFlag := flag.Bool("all", false, "Ignore nothing, show all")
 
 	klog.InitFlags(nil)
