@@ -1,4 +1,4 @@
-rule password_finder : critical {
+rule password_finder_mimipenguin : critical {
   meta:
 	description = "Password finder/dumper, such as MimiPengiuin"
   strings:
