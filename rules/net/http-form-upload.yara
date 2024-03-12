@@ -1,9 +1,11 @@
 rule http_form : notable {
 	meta:
 		pledge = "inet"
-		description = "Able to submit content to an HTML form"
+		description = "upload content via HTTP form"
 	strings:
-		$ref = "Content-Type: application/x-www-form-urlencoded"
+		$ref = /Content-Type.{0,8}application\/x-www-form-urlencoded/
+		$ref2 = "\"application/x-www-form-urlencoded"
+		$ref3 = "'application/x-www-form-urlencoded"
 	condition:
 		any of them
 }
