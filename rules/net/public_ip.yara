@@ -1,4 +1,4 @@
-rule iplookup_website : suspicious {
+rule iplookup_website_value : suspicious {
   meta:
     hash_2023_stealer_hashbreaker = "016a1a4fe3e9d57ab0b2a11e37ad94cc922290d2499b8d96957c3ddbdc516d74"
     hash_2022_CloudMensis_WindowServer_2 = "b8a61adccefb13b7058e47edcd10a127c483403cf38f7ece126954e95e86f2bd"
