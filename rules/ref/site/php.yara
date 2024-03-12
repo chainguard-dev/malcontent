@@ -1,10 +1,10 @@
 
 rule http_url_with_php : notable {
  meta:
-	description = "Accesses hosted PHP files directly"
+	description = "accesses hardcoded PHP endpoint"
   strings:
-    $php_url = /https*:\/\/[\w\.]{0,160}\/[\/\w\_\-]{0,160}\.php/
-    $php_question = /[\.\w\-\_\/:]{0,160}\.php\?/
+    $php_url = /https*:\/\/[\w\.]{0,160}\/[\/\w\_\-\?\@=]{0,160}\.php/
+    $php_question = /[\.\w\-\_\/:]{0,160}\.php\?[\w\-@\=]{0,32}/
     $php_c = /https*:\/\/%s\/[\w\/\-\_]{0,160}.php/
     $not_bom = "BOMStorage"
     $not_path_example = " <path"

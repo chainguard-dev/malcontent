@@ -2,7 +2,7 @@ rule https_url {
   meta:
 	description = "contains embedded HTTPS URLs"
   strings:
-    $ref = /https:\/\/[\w][\w\.\/\-_]{8,64}/
+    $ref = /https:\/\/[\w][\w\.\/\-_\?=\@]{8,64}/
 	$not_apple = "https://www.apple.com/appleca/"
   condition:
 	$ref and none of ($not*)
@@ -12,7 +12,7 @@ rule http_url {
   meta:
 	description = "contains embedded HTTP URLs"
   strings:
-    $ref = /http:\/\/[\w][\w\.\/\-_]{8,64}/
+    $ref = /http:\/\/[\w][\w\.\/\-_\?=\@]{8,64}/
 	$not_apple = "http://crl.apple.com/"
   condition:
 	$ref and none of ($not*)
