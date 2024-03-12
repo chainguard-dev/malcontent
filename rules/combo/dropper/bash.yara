@@ -1,4 +1,4 @@
-rule fetch_chmod_run_oneliner_value : suspicious {
+rule fetch_chmod_run_oneliner_value : critical {
 	meta:
 		description = "fetches, chmods, and runs a program"
 	strings:
