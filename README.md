@@ -1,5 +1,3 @@
-Saved
-
 # bincapz
 
 ![bincapz logo](./images/logo_small.jpg)
