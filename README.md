@@ -10,30 +10,23 @@ Experimental tool to enumerate capabilities and detect malicious behavior within
 
 ## Features
 
-- Tuned for UNIX platforms, but runs anywhere
 - Analyzes binaries from any architecture - arm64, amd64, riscv, ppc64, sparc64
-- Analyzes scripting languages such as bash, PHP, Perl, Ruby, NodeJS, and Python
-- 12,000+ rules - everything from ioctl access to malware detection
-- Integrates [YARA forge](https://yarahq.github.io/), which includes rules by Avast, Elastic, FireEye, Google, Mandiant, Nextron, ReversingLabs and more.
-
+- Supports scripting languages such as bash, PHP, Perl, Ruby, NodeJS, and Python
+- 13,000+ rules, for detecting everything from ioctl access to malware
+- Integrates [YARA forge](https://yarahq.github.io/), with rules by Avast, Elastic, FireEye, Google, Mandiant, Nextron, and more.
 - Diff-friendly JSON output to detect when capabilities change over time
-
 - CI/CD friendly
 
 ## Shortcomings
 
 - This tool is in early development with unstable output
-
 - Does not attempt to process archive files (jar, zip, apk)
-
-- It's slow! (~5 seconds per binary)
+- Minimal rule support for Windows executables (help wanted!)
 
 ## Installation
 
 ```shell
-
 go install github.com/chainguard-dev/bincapz@latest
-
 ```
 
 ## Usage
@@ -41,9 +34,7 @@ go install github.com/chainguard-dev/bincapz@latest
 To inspect a binary, pass it as an argument to dump a list of predicted capabilities:
 
 ```shell
-
 bincapz /bin/ping
-
 ```
 
 ```
@@ -76,73 +67,44 @@ bincapz /bin/ping
 
 That seems low-risk to me. Now, let's analyze a suspected malicious binary:
 
-```shell
-
-testdata/Linux/bpfdoor_2022.x86_64
-
-+--------+--------------------------------------------+--------------------------+------------------------------------------------------+
-
-|  RISK  |                    KEY                     |          VALUES          |                     DESCRIPTION                      |
-
-+--------+--------------------------------------------+--------------------------+------------------------------------------------------+
-
-| 1/LOW  | exec/program/background                    | waitpid                  | Waits for a process to exit                          |
-
-| 1/LOW  | fd/multiplex                               | select                   | monitor multiple file descriptors                    |
-
-| 1/LOW  | fs/file/delete                             | unlink                   | deletes files                                        |
-
-| 1/LOW  | net/socket/connect                         | connect                  | initiate a connection on a socket                    |
-
-| 1/LOW  | net/socket/listen                          | accept listen socket     | listen on a socket                                   |
-
-| 1/LOW  | net/socket/receive                         | recvfrom                 | receive a message from a socket                      |
-
-| 1/LOW  | net/socket/send                            | sendto                   | send a message to a socket                           |
-
-| 1/LOW  | process/create                             | fork                     | Create a new child process using fork                |
-
-| 1/LOW  | process/current/chroot                     | chroot                   | change the location of root for the process          |
-
-| 1/LOW  | random/insecure                            | srand                    | generate random numbers insecurely                   |
-
-| 1/LOW  | ref/path/usr/sbin                          | /usr/sbin/console-kit-.. | References paths within /usr/sbin                    |
-
-| 1/LOW  | tty/vhangup                                | vhangup                  | virtually hangup the current terminal                |
-
-| 2/MED  | device/pseudo_terminal                     | grantpt ptsname unlock.. | pseudo-terminal access functions                     |
-
-| 2/MED  | exec/program                               | execve                   | executes another program                             |
-
-| 2/MED  | exec/shell_command                         | system                   | execute a shell command                              |
-
-| 2/MED  | fs/file/times/set                          | utimes                   | change file last access and modification times       |
-
-| 2/MED  | net/ip/byte/order                          | htons                    | convert values between host and network byte order   |
-
-| 2/MED  | net/ip/string                              | inet_ntoa                | converts IP address from byte to string              |
-
-| 3/HIGH | combo/backdoor/linux/listen_terminal_exec  | /dev/ptmx execve grant.. | Listens, provides a terminal, runs program           |
-
-|        |                                            | listen                   |                                                      |
-
-| 3/HIGH | combo/backdoor/linux/multiple_sys_commands | auditd systemd/systemd   | multiple sys commands                                |
-
-| 3/HIGH | ref/program/ancient_gcc                    | GCC: (GNU) 4.4.7         | built by archaic gcc version                         |
-
-| 4/CRIT | 3P/elastic/linux/bpfdoor                   | $a1                      | Detects Linux Trojan Bpfdoor (Linux.Trojan.BPFDoor), |
-
-|        |                                            |                          | by Elastic Security                                  |
-
-| 4/CRIT | 3P/signature_base/redmenshen/bpfdoor       | $op1 $op2 $op3 $op4      | Detects BPFDoor implants used by Chinese actor Red   |
-
-|        |                                            |                          | Menshen, by Florian Roth (Nextron Systems)           |
-
-+--------+--------------------------------------------+--------------------------+------------------------------------------------------+
-
+```log
+bpfdoor_2022.x86_64
+------------------------------------------------------------------------------------------------------------------------------
+RISK  |                 KEY                 |                                 DESCRIPTION
+---------+-------------------------------------+------------------------------------------------------------------------------
+meta   | sha256                              | fd1b20ee5bd429046d3c04e9c675c41e9095bea70e0329bd32d7edd17ebaf68a
+|                                     |
+1/LOW  | exec/program/background             | Waits for a process to exit
+1/LOW  | fd/multiplex                        | monitor multiple file descriptors
+1/LOW  | fs/file/delete                      | deletes files
+1/LOW  | net/socket/connect                  | initiate a connection on a socket
+1/LOW  | net/socket/listen                   | listen on a socket
+1/LOW  | net/socket/receive                  | receive a message from a socket
+1/LOW  | net/socket/send                     | send a message to a socket
+1/LOW  | process/chroot                      | change the location of root for the process
+1/LOW  | process/create                      | Create a new child process using fork
+1/LOW  | random/insecure                     | generate random numbers insecurely
+1/LOW  | ref/path/usr/sbin                   | References paths within /usr/sbin:
+|                                     | /usr/sbin/console-kit-daemon
+1/LOW  | tty/vhangup                         | virtually hangup the current terminal
+2/MED  | device/pseudo_terminal              | pseudo-terminal access functions
+2/MED  | exec/program                        | executes another program
+2/MED  | exec/shell_command                  | execute a shell command
+2/MED  | fs/file/times/set                   | change file last access and modification times
+2/MED  | net/ip/byte/order                   | convert values between host and network byte order
+2/MED  | net/ip/string                       | converts IP address from byte to string
+3/HIGH | combo/backdoor/net_term             | Listens, provides a terminal, runs program:
+|                                     | /dev/ptmx execve grantpt listen
+3/HIGH | combo/backdoor/sys_cmd              | multiple sys commands:
+|                                     | auditd systemd/systemd
+3/HIGH | ref/program/ancient_gcc             | built by archaic gcc version:
+|                                     | GCC: (GNU) 4.4.7
+4/CRIT | 3P/elastic/bpfdoor                  | Detects Linux Trojan Bpfdoor (Linux.Trojan.BPFDoor), by Elastic Security
+4/CRIT | 3P/signature_base/redmenshen/bpfd.. | Detects BPFDoor implants used by Chinese actor Red Menshen, by Florian Roth
+|                                     | (Nextron Systems)
 ```
 
-If you want to focus on the most suspciious behaviors, you can pass `--min-level=3`, which will remove a lot of the noise by only showing "HIGH" or "CRITICAL" risk behaviors.
+If you want to focus on the most suspicious behaviors, you can pass `--min-level=3`, which will remove a lot of the noise by only showing "HIGH" or "CRITICAL" risk behaviors.
 
 ## Detecting supply-chain compromises
 
@@ -265,15 +227,15 @@ That is a lot of unusual new capabilities for a video processing library.
 
 Through the execution of 12,000+ YARA rules.
 
-bincapz outomates the initial triage step used by any security analyst when faced with an unknown binary:  `strings`. While this seems absurdly simple, it is exceptionally effective, as every binary leaves traces of it's capabilities in its contents, particularly on UNIX platforms. These fragments are typically  `libc` or `syscall` references or error codes. Due to the C-like background of many scripting languages such as PHP or Perl, the same fragment detection rules often apply.
+bincapz automates the initial triage step used by any security analyst when faced with an unknown binary:  `strings`. While this seems absurdly simple, it is exceptionally effective, as every binary leaves traces of its capabilities in its contents, particularly on UNIX platforms. These fragments are typically  `libc` or `syscall` references or error codes. Due to the C-like background of many scripting languages such as PHP or Perl, the same fragment detection rules often apply.
 
 ### Why not properly reverse-engineer binaries?
 
-Mostly because fragment analysis is so effective. Capability analysis through reverse-engineering is challenging to get right, particularly for programs that execute other programs, such as malware that executes `/bin/rm`. Capability analysis through reverse-engineering that supports a wide array of file formats also requires significant engineering investment.
+Mostly because fragment analysis is so effective. Capability analysis through reverse engineering is challenging to get right, particularly for programs that execute other programs, such as malware that executes `/bin/rm`. Capability analysis through reverse engineering that supports a wide array of file formats also requires significant engineering investment.
 
 ### Why not just observe binaries in a sandbox?
 
-The most exciting malware only triggers when the right conditions are met. Nation-state actors in particular are fond of time-bombs and locale detection. bincapz will enumerate the capabilities, regardless of conditions.
+The most exciting malware only triggers when the right conditions are met. Nation-state actors in particular are fond of time bombs and locale detection. bincapz will enumerate the capabilities, regardless of conditions.
 
 ### Why not just analyze the source code?
 
