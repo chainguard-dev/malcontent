@@ -4,18 +4,16 @@ Saved
 
 ![bincapz logo](./images/logo_small.jpg)
 
-Enumerate the capabilities and detect malicious behavior within binaries through fragment analysis.
+Experimental tool to enumerate capabilities and detect malicious behavior within binaries through fragment analysis.
+
+![screenshot](./images/screenshot.png)
 
 ## Features
 
-- Tuned for analyzing binaries from POSIX platforms (Linux, macOS, FreeBSD, Solaris, etc)
-
-- Supports scripting languages such as bash, PHP, Perl, Ruby, and Python
-
-- Supports binaries from any architecture - arm64, amd64, riscv, ppc64, sparc64
-
+- Tuned for UNIX platforms, but runs anywhere
+- Analyzes binaries from any architecture - arm64, amd64, riscv, ppc64, sparc64
+- Analyzes scripting languages such as bash, PHP, Perl, Ruby, NodeJS, and Python
 - 12,000+ rules - everything from ioctl access to malware detection
-
 - Integrates [YARA forge](https://yarahq.github.io/), which includes rules by Avast, Elastic, FireEye, Google, Mandiant, Nextron, ReversingLabs and more.
 
 - Diff-friendly JSON output to detect when capabilities change over time
@@ -27,10 +25,6 @@ Enumerate the capabilities and detect malicious behavior within binaries through
 - This tool is in early development with unstable output
 
 - Does not attempt to process archive files (jar, zip, apk)
-
-- Does not attempt to unpack files but will report them as suspicious
-
-- Java, JavaScript, and Typescript support is limited and focused on malware detection
 
 - It's slow! (~5 seconds per binary)
 
@@ -53,43 +47,31 @@ bincapz /bin/ping
 ```
 
 ```
-
-+-------+----------------------------+--------------------------+----------------------------------------------------+
-
-| RISK  |            KEY             |          VALUES          |                    DESCRIPTION                     |
-
-+-------+----------------------------+--------------------------+----------------------------------------------------+
-
-| 1/LOW | net/icmp                   | ICMP                     | ICMP (Internet Control Message Protocol), aka ping |
-
-| 1/LOW | net/interface/get          | if_nametoindex           | get network interfaces by name or index            |
-
-| 1/LOW | net/interface/list         | freeifaddrs getifaddrs   | list network interfaces and their associated       |
-
-|       |                            |                          | addresses                                          |
-
-| 1/LOW | net/ip/multicast/send      | multicast                | send data to multiple nodes simultaneously         |
-
-| 1/LOW | net/ip/send/unicast        | unicast                  | send data to the internet                          |
-
-| 1/LOW | net/socket/local/address   | getsockname              | get local address of connected socket              |
-
-| 1/LOW | net/socket/receive         | recvmsg                  | receive a message from a socket                    |
-
-| 1/LOW | net/socket/send            | sendmsg sendto           | send a message to a socket                         |
-
-| 1/LOW | process/current/userid/set | setuid                   | set real and effective user ID of process          |
-
-| 2/MED | net/hostport/parse         | freeaddrinfo getaddrin.. | Network address and service translation            |
-
-| 2/MED | net/ip/parse               | inet_pton                | Parse an IP address (IPv4 or IPv6)                 |
-
-| 2/MED | net/ip/string              | inet_ntoa inet_ntop      | converts IP address from byte to string            |
-
-| 2/MED | net/raw_sockets            | SOCK_RAW raw socket      | Uses raw sockets                                   |
-
-+-------+----------------------------+--------------------------+----------------------------------------------------+
-
+/sbin/ping
+--------------------------------------------------------------------------------------------------
+  RISK  |          KEY          |                           DESCRIPTION
+--------+-----------------------+-------------------------------------------------------------------
+  meta  | sha256                | 1eec23e4189171ea689c7fe6a133e5f22b9683f633e414bde9ca47b9644f090b
+  meta  | entitlements          | com.apple.private.network.management.data.development
+        |                       | com.apple.security.network.client
+        |                       | com.apple.security.network.server
+        |                       |
+  1/LOW | net/hostname/resolve  | resolves network hosts via name
+  1/LOW | net/http/request      | Makes HTTP (Hypertext Transport Protocol) requests
+  1/LOW | net/icmp              | ICMP (Internet Control Message Protocol), aka ping
+  1/LOW | net/interface/get     | get network interfaces by name or index
+  1/LOW | net/interface/list    | list network interfaces and their associated addresses
+  1/LOW | net/ip                | access the internet
+  1/LOW | net/ip/multicast/send | send data to multiple nodes simultaneously
+  1/LOW | net/ip/resolve        | resolves network hosts via IP address
+  1/LOW | net/ip/send/unicast   | send data to the internet
+  1/LOW | net/socket/connect    | initiate a connection on a socket
+  1/LOW | net/socket/receive    | receive a message from a socket
+  1/LOW | net/socket/send       | send a message to a socket
+  1/LOW | process/userid/set    | set real and effective user ID of current process
+  2/MED | combo/net/scan_tool   | may scan networks:
+        |                       | connect gethostbyname port scan socket
+  2/MED | net/ip/string         | converts IP address from byte to string
 ```
 
 That seems low-risk to me. Now, let's analyze a suspected malicious binary:

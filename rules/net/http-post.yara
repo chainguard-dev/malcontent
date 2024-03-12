@@ -22,5 +22,5 @@ rule form_data_reference : notable {
     $f_content_dispo_name = "Content-Disposition: form-data; name="
     $f_multipart = "multipart/form-data; boundary="
   condition:
-    all of ($f_*)
+    any of ($f_*)
 }
