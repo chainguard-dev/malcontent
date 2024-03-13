@@ -1,7 +1,7 @@
 rule chdir : harmless {
 	meta:
 		pledge = "rpath"
-		description = "changes the current working directory"
+		description = "changes current working directory"
 	strings:
 		$chdir = "chdir" fullword
 	condition:
@@ -11,9 +11,9 @@ rule chdir : harmless {
 rule chdir_shell : notable {
 	meta:
 		pledge = "rpath"
-		description = "changes the current working directory"
+		description = "changes current working directory"
 	strings:
-		$ref = /cd [\w\-\_\.\/ ]{0,16}/ fullword
+		$val = /cd [\w\-\_\.\/ ]{0,16}/ fullword
 	condition:
-		$ref
+		$val
 }

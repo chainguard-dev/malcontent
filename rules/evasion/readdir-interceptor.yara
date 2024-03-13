@@ -12,3 +12,23 @@ rule readdir_intercept : suspicious {
 	condition:
 		uint32(0) == 1179403647 and all of ($r*) and none of ($not*)
 }
+
+rule readdir_intercept_source : suspicious {
+	meta:
+		description = "userland rootkit designed to hide files"
+	strings:
+		$declare = "DECLARE_READDIR"
+		$hide = "hide"
+	condition:
+		all of them
+}
+
+rule lkm_dirent : suspicious {
+	meta:
+		description = "kernel rootkit designed to hide files"
+	strings:
+		$dirent = "linux_dirent"
+		$Linux = "Linux"
+	condition:
+		all of them
+}

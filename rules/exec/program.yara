@@ -96,7 +96,7 @@ rule npm_exec : notable {
 		description = "spawn a process"
 	strings:
 		$child = "child_process"
-		$ref = /exec\(\'[\w \/\'\)]{0,64}/
+		$ref_val = /exec\(\'[\w \/\'\)]{0,64}/
 	condition:
 		all of them
 }

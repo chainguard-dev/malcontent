@@ -1,6 +1,6 @@
 rule hardcoded_ip : notable {
   meta:
-	description = "Contains hardcoded IP address"
+	description = "hardcoded IP address"
   strings:
     $ipv4 = /([1-9][0-9]{1,2}\.){3}[1-9][0-9]{1,2}/ fullword
     $not_localhost = "127.0.0.1"

@@ -72,6 +72,9 @@ var yaraForgeJunkWords = map[string]bool{
 	"forensicartifacts": true,
 	"lnx":               true,
 	"linux":             true,
+	"macos":             true,
+	"osx":               true,
+	"mac":               true,
 }
 
 var dateRe = regexp.MustCompile(`[a-z]{3}\d{1,2}`)
@@ -251,8 +254,9 @@ func matchValues(key string, ruleName string, ms []yara.MatchString) []string {
 			keep = true
 		case strings.Contains(ruleName, "value"):
 			keep = true
+		case strings.HasSuffix(ruleName, "val"):
+			keep = true
 		}
-
 		if !keep {
 			continue
 		}
