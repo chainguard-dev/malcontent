@@ -1,4 +1,4 @@
-rule unusual_cd : suspicious {
+rule unusual_cd_val : suspicious {
 	meta:
 		description = "changes to an unusual system directory"
 	strings:

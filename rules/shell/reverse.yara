@@ -14,6 +14,17 @@ rule reverse_shell : critical {
     any of them
 }
 
+rule mkfifo_netcat : critical {
+	meta:
+		description = "creates a reverse shell using mkfifo and netcat"
+	strings:
+		$mkfifo = "mkfifo" fullword
+		$sh_i = "sh -i"
+		$nc = /\| {0,2}nc /
+	condition:
+		filesize < 16384 and all of them
+}
+
 rule perl_reverse_shell : critical {
   meta:
     hash_2023_Linux_Malware_Samples_caa1 = "caa114893cf5cb213b39591bbcb72f66ee4519be07269968e714a8d3f24c3382"

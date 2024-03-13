@@ -1,6 +1,6 @@
 rule netlink {
 	meta:
-		description = "communication between kernel and user space"
+		description = "communicate with kernel services"
 	strings:
 		$ref = "nl_socket" fullword
 		$ref2 = "AF_NETLINK" fullword

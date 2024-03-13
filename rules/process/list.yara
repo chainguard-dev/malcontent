@@ -34,3 +34,13 @@ rule procfs_listdir : notable {
 	condition:
 		any of them
 }
+
+
+rule proclist : high {
+	meta:
+		description = "accesses process list"
+	strings:
+		$proclist = "proclist" fullword
+	condition:
+		any of them
+}

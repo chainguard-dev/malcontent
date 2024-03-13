@@ -1,14 +1,15 @@
 
 rule fake_user_agent_msie : suspicious {
   strings:
-    $u_msie = "compatible; MSIE"
+    $u_MSIE = "compatible; MSIE"
+    $u_msie = "compatible; msie"
     $u_msie2 = "MSIE 9.0"
 	$not_access_log = "\"GET http://"
   condition:
     any of ($u_*) and none of ($not_*)
 }
 
-rule fake_user_agent_khtml : suspicious {
+rule fake_user_agent_khtml_val : suspicious {
   strings:
     $u_khtml = /KHTML, like Gecko\w Version\/\d+.\d+ Safari/
     $not_nuclei = "NUCLEI_TEMPLATES"
@@ -66,11 +67,21 @@ rule fake_user_agent_curl {
     	any of ($u_*) and none of ($not_*)
 }
 
-rule elf_faker : high {
+rule elf_faker_val : high {
   meta:
 	description = "Fake user agent inside ELF binary"
   strings:
 	$ref = /Mozilla\/5[\.\w ]{0,32}/
   condition:
     uint32(0) == 1179403647 and $ref
+}
+
+
+rule lowercase_mozilla_val : suspicious {
+  meta:
+	description = "Fake user agent"
+  strings:
+	$ref = /mozilla\/\d{1,2}\.[\.\w ]{0,32}/
+  condition:
+	$ref
 }

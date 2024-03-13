@@ -1,4 +1,4 @@
-rule chmod_dangerous : notable {
+rule chmod_dangerous_val : notable {
   meta:
 	description = "Makes a world writeable file"
   strings:
@@ -7,7 +7,7 @@ rule chmod_dangerous : notable {
 	$ref
 }
 
-rule chmod_dangerous_exec : suspicious exfil {
+rule chmod_dangerous_exec_val : suspicious exfil {
   meta:
 	description = "Makes a world writeable executable"
   strings:

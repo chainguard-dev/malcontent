@@ -3,7 +3,7 @@ rule sshd : notable {
   meta:
 	description = "Mentions SSHD"
   strings:
-	$ref = "fullword"
+	$ref = "sshd" fullword
   condition:
     $ref
 }
