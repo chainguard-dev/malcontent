@@ -10,7 +10,7 @@ Experimental tool to enumerate capabilities and detect malicious behavior within
 
 - Analyzes binaries from any architecture - arm64, amd64, riscv, ppc64, sparc64
 - Supports scripting languages such as bash, PHP, Perl, Ruby, NodeJS, and Python
-- 13,000+ rules, for detecting everything from ioctl access to malware
+- 12,000+ rules, for detecting everything from ioctl access to malware
 - Integrates [YARA forge](https://yarahq.github.io/), with rules by Avast, Elastic, FireEye, Google, Mandiant, Nextron, and more.
 - Diff-friendly JSON output to detect when capabilities change over time
 - CI/CD friendly
