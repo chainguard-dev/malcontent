@@ -1,6 +1,6 @@
 rule mkdir {
 	meta:
-		description = "Uses libc functions to create directories"
+		description = "creates directories"
 		pledge = "wpath"
 	strings:
 		$mkdir = "mkdir" fullword

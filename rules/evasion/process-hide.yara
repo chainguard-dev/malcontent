@@ -6,23 +6,25 @@ rule elf_processhide : suspicious {
 		$prochide = "processhide"
 		$process_to_filter = "process_to_filter"
 	condition:
-		uint32(0) == 1179403647 and all of them
+		all of them
 }
 
 rule elf_possible_prochid : suspicious {
   meta:
+	description = "userland rootkit designed to hide processes"
     ref = "prochid.c"
   strings:
     $proc_self_fd = "/proc/self/fd/%d"
     $proc_stat = "/proc/%s/stat"
     $readdir = "readdir"
   condition:
-    uint32(0) == 1179403647 and all of them
+    all of them
 }
 
 
 rule process_hider {
   meta:
+	description = "userland rootkit designed to hide processes"
     hash_2014_MacOS_logind = "65c89525ea4da91500c021e5ac3cb67cf2c29086cca3ef7c75a44ac38cc1cce5"
     hash_2023_FontOnLake_1F52DB8E3FC3040C017928F5FFD99D9FA4757BF8_elf = "efbd281cebd62c70e6f5f1910051584da244e56e2a3228673e216f83bdddf0aa"
     hash_2023_FontOnLake_27E868C0505144F0708170DF701D7C1AE8E1FAEA_elf = "d7ad1bff4c0e6d094af27b4d892b3398b48eab96b64a8f8a2392e26658c63f30"

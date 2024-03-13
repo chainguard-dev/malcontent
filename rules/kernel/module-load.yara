@@ -1,4 +1,4 @@
-rule init_module {
+rule init_module : notable {
 	meta:
 		description = "Load Linux kernel module"
 		syscall = "init_module"
@@ -13,7 +13,7 @@ rule kernel_module_loader : suspicious {
   meta:
     hash_2023_installer_mi = "9a5f6318a395600637bd98e83d2aea787353207ed7792ec9911b775b79443dcd"
   strings:
-    $insmod = /insmod [ \w\.\/_-]{1,32}\.ko/
+    $insmod = /insmod [ \$\%\w\.\/_-]{1,32}\.ko/
   condition:
     all of them
 }
