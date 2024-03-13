@@ -85,15 +85,16 @@ func RenderTable(fr *FileReport, w io.Writer) {
 	}
 
 	tWidth := terminalWidth()
-	keyWidth := 35
-	riskWidth := 5
-	borderWidth := 4
-	descWidth := tWidth - keyWidth - riskWidth - borderWidth
-	if descWidth > 80 {
-		descWidth = 80
+	keyWidth := 36
+	riskWidth := 6
+	padding := 4
+	descWidth := tWidth - keyWidth - riskWidth - padding
+	if descWidth > 120 {
+		descWidth = 120
 	}
 
-	fmt.Printf("%s\n%s\n", path, strings.Repeat("-", tWidth))
+	klog.Infof("terminal width: %d - desc width: %d", tWidth, descWidth)
+	maxKeyLen := 0
 
 	for _, k := range kbs {
 		desc := k.Behavior.Description
@@ -118,13 +119,22 @@ func RenderTable(fr *FileReport, w io.Writer) {
 		}
 
 		key := forceWrap(k.Key, keyWidth)
+		if len(key) > maxKeyLen {
+			maxKeyLen = len(key)
+		}
 		data = append(data, []string{fmt.Sprintf("%d/%s", k.Behavior.RiskScore, k.Behavior.RiskLevel), key, desc})
 	}
 
+	fmt.Fprintf(w, "%s\n%s\n", path, strings.Repeat("-", maxKeyLen+riskWidth+padding+64))
+
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetAutoWrapText(false)
-	table.SetHeader([]string{"Risk", "Key", "Description"})
+	//	table.SetHeader([]string{"Risk", "Key", "Description"})
 	table.SetBorder(false)
+	//	ttable.SetBorders(tablewriter.Border{Left: false, Top: true, Right: false, Bottom: false})
+	table.SetNoWhiteSpace(true)
+	table.SetTablePadding("  ")
+
 	for _, d := range data {
 		if strings.Contains(d[0], "LOW") {
 			table.Rich(d, []tablewriter.Colors{{tablewriter.Normal, tablewriter.FgGreenColor}})
