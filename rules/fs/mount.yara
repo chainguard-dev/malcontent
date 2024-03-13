@@ -1,7 +1,7 @@
 rule _mount {
 	meta:
 		capability = "CAP_SYS_SYSADMIN"
-		description = "mount file system"
+		description = "mounts file systems"
 		syscall = "mount"
 	strings:
 		$ref = "_mount" fullword
@@ -12,7 +12,7 @@ rule _mount {
 rule mount {
 	meta:
 		capability = "CAP_SYS_SYSADMIN"
-		description = "mount file system"
+		description = "mounts file systems"
 		syscall = "mount"
 	strings:
 		$mount = "mount" fullword

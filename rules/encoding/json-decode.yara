@@ -1,20 +1,21 @@
 
-rule JSONDecode {
+
+// harmless because all binaries include it
+rule jsondecode {
 	strings:
 		$jsond = "JSONDecode"
-		$unmarshal = "UnmarshalJSON" fullword
+		$ju = "json.Unmarshal"
+		$jp = "JSON.parse"
 	condition:
 		any of them
 }
 
 
-// harmless because all binaries include it
-rule jsondecode : harmless {
+
+// harmless because all Go binaries include it
+rule unmarshal_json : harmless {
 	strings:
-		$jsond = "JSONDecode"
 		$unmarshal = "UnmarshalJSON"
-		$ju = "json.Unmarshal"
-		$jp = "JSON.parse"
 	condition:
 		any of them
 }

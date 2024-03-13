@@ -1,7 +1,7 @@
 rule http_request {
 	meta:
 		pledge = "inet"
-		description = "Makes HTTP (Hypertext Transport Protocol) requests"
+		description = "makes HTTP requests"
 	strings:
 		$httpRequest = "httpRequest"
 		$user_agent = "User-Agent"
@@ -11,6 +11,7 @@ rule http_request {
 		$http1 = "HTTP/1."
 		$http2 = "Referer" fullword
 		$http3 = "https"
+		$uri = "open-uri" fullword
 	condition:
 		any of them
 }

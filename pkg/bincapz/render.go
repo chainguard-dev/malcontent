@@ -87,7 +87,7 @@ func RenderTable(fr *FileReport, w io.Writer) {
 	tWidth := terminalWidth()
 	keyWidth := 36
 	riskWidth := 6
-	padding := 4
+	padding := 7
 	descWidth := tWidth - keyWidth - riskWidth - padding
 	if descWidth > 120 {
 		descWidth = 120
@@ -115,13 +115,24 @@ func RenderTable(fr *FileReport, w io.Writer) {
 		desc = strings.Join(words, "\n")
 		if len(k.Behavior.Values) > 0 {
 			klog.Infof("VALUES: %s", k.Behavior.Values)
-			desc = fmt.Sprintf("%s:\n%s", desc, forceWrap(strings.Join(k.Behavior.Values, "\n"), descWidth))
+			values := strings.Join(k.Behavior.Values, "\n")
+			before := " \""
+			after := "\""
+			if (len(desc) + len(values) + 3) > descWidth {
+				before = "\n"
+				after = ""
+			}
+			desc = fmt.Sprintf("%s:%s%s%s", desc, before, forceWrap(strings.Join(k.Behavior.Values, "\n"), descWidth), after)
 		}
 
 		key := forceWrap(k.Key, keyWidth)
 		if len(key) > maxKeyLen {
 			maxKeyLen = len(key)
 		}
+
+		// lowercase first character for consistency
+		desc = strings.ToLower(string(desc[0])) + desc[1:]
+
 		data = append(data, []string{fmt.Sprintf("%d/%s", k.Behavior.RiskScore, k.Behavior.RiskLevel), key, desc})
 	}
 

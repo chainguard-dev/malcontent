@@ -1,5 +1,7 @@
 
 rule JSONEncode {
+	meta:
+		description = "encodes JSON"
 	strings:
 		$jsone = "JSONEncode"
 		$marshal = "MarshalJSON" fullword

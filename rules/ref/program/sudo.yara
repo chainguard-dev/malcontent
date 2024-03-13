@@ -1,8 +1,9 @@
 rule sudo : notable {
   meta:
-	description = "Mentions sudo"
+	description = "calls sudo"
   strings:
-	$ref = "fullword"
+	$raw = "sudo" fullword
+	$cmd_val = /sudo [ \/\.\w\%\$\-]{0,32}/ fullword
   condition:
-    $ref
+    $raw or $cmd_val
 }
