@@ -17,7 +17,7 @@ func NewSimple(w io.Writer) Simple {
 }
 
 func (r Simple) File(fr bincapz.FileReport) error {
-	fmt.Fprintf(r.w, "%s\n", fr.Path)
+	fmt.Fprintf(r.w, "# %s\n", fr.Path)
 	bs := []string{}
 
 	for k := range fr.Behaviors {
@@ -25,7 +25,7 @@ func (r Simple) File(fr bincapz.FileReport) error {
 	}
 	sort.Strings(bs)
 	for _, k := range bs {
-		fmt.Fprintf(r.w, "  * %s\n", k)
+		fmt.Fprintf(r.w, "%s\n", k)
 	}
 	return nil
 }
@@ -33,21 +33,41 @@ func (r Simple) File(fr bincapz.FileReport) error {
 func (r Simple) Full(rep bincapz.Report) error {
 	for f, fr := range rep.Diff.Removed {
 		fmt.Fprintf(r.w, "--- missing: %s\n", f)
+
+		bs := []string{}
 		for k := range fr.Behaviors {
+			bs = append(bs, k)
+		}
+		sort.Strings(bs)
+
+		for _, k := range bs {
 			fmt.Fprintf(r.w, "-%s\n", k)
 		}
 	}
 
 	for f, fr := range rep.Diff.Removed {
 		fmt.Fprintf(r.w, "++++ added: %s\n", f)
+		bs := []string{}
 		for k := range fr.Behaviors {
+			bs = append(bs, k)
+		}
+		sort.Strings(bs)
+
+		for _, k := range bs {
 			fmt.Fprintf(r.w, "+%s\n", k)
 		}
 	}
 
 	for _, fr := range rep.Diff.Modified {
 		fmt.Fprintf(r.w, "*** changed: %s\n", fr.Path)
-		for k, b := range fr.Behaviors {
+		bs := []string{}
+		for k := range fr.Behaviors {
+			bs = append(bs, k)
+		}
+		sort.Strings(bs)
+
+		for _, k := range bs {
+			b := fr.Behaviors[k]
 			if b.DiffRemoved {
 				fmt.Fprintf(r.w, "-%s\n", k)
 				continue
