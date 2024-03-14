@@ -133,14 +133,22 @@ func renderTable(fr *bincapz.FileReport, w io.Writer, rc tableConfig) {
 	tWidth := terminalWidth()
 	keyWidth := 36
 	riskWidth := 7
-	padding := 7
-	descWidth := tWidth - keyWidth - riskWidth - padding
+	padding := 4
+	maxKeyLen := 0
+
+	for _, k := range kbs {
+		key := forceWrap(k.Key, keyWidth)
+		if len(key) > maxKeyLen {
+			maxKeyLen = len(key)
+		}
+	}
+
+	descWidth := tWidth - maxKeyLen - riskWidth - padding
 	if descWidth > 120 {
 		descWidth = 120
 	}
 
 	klog.Infof("terminal width: %d - desc width: %d", tWidth, descWidth)
-	maxKeyLen := 0
 
 	for _, k := range kbs {
 		desc := k.Behavior.Description
@@ -155,6 +163,8 @@ func renderTable(fr *bincapz.FileReport, w io.Writer, rc tableConfig) {
 				desc = fmt.Sprintf("by %s", k.Behavior.RuleAuthor)
 			}
 		}
+
+		key := forceWrap(k.Key, keyWidth)
 		words, _ := tablewriter.WrapString(desc, descWidth)
 
 		//		klog.Infof("%s / %s - %s", k.Key, desc, k.Behavior.)
@@ -169,11 +179,6 @@ func renderTable(fr *bincapz.FileReport, w io.Writer, rc tableConfig) {
 				after = ""
 			}
 			desc = fmt.Sprintf("%s:%s%s%s", desc, before, forceWrap(strings.Join(k.Behavior.Values, "\n"), descWidth), after)
-		}
-
-		key := forceWrap(k.Key, keyWidth)
-		if len(key) > maxKeyLen {
-			maxKeyLen = len(key)
 		}
 
 		// lowercase first character for consistency
@@ -191,14 +196,31 @@ func renderTable(fr *bincapz.FileReport, w io.Writer, rc tableConfig) {
 
 	if title != "" {
 		fmt.Fprintf(w, "%s\n", title)
-		fmt.Fprintf(w, "%s\n", strings.Repeat("-", 70))
 	}
 
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetAutoWrapText(false)
 	//	table.SetHeader([]string{"Risk", "Key", "Description"})
 	table.SetBorder(false)
-	//	ttable.SetBorders(tablewriter.Border{Left: false, Top: true, Right: false, Bottom: false})
+	table.SetCenterSeparator("")
+	// SetBorders miscalculates length with NoWhiteSpace
+	//table.SetBorders(tablewriter.Border{Left: false, Top: true, Right: false, Bottom: false})
+	maxDescWidth := 0
+	maxRiskWidth := 0
+	for _, d := range data {
+		if len(d[0]) > maxRiskWidth {
+			maxRiskWidth = len(d[0])
+		}
+		for _, l := range strings.Split(d[2], "\n") {
+			if len(l) > maxDescWidth {
+				maxDescWidth = len(l)
+			}
+		}
+
+	}
+	tableWidth := maxKeyLen + maxDescWidth + padding + maxRiskWidth
+	klog.Infof("table width: %d", tableWidth)
+	fmt.Fprintf(w, "%s\n", strings.Repeat("-", tableWidth))
 	table.SetNoWhiteSpace(true)
 	table.SetTablePadding("  ")
 	descColor := tablewriter.Normal
