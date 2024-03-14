@@ -104,109 +104,74 @@ meta   | sha256                              | fd1b20ee5bd429046d3c04e9c675c41e9
 
 If you want to focus on the most suspicious behaviors, you can pass `--min-level=3`, which will remove a lot of the noise by only showing "HIGH" or "CRITICAL" risk behaviors.
 
-## Detecting supply-chain compromises
+## Diff mode for detecting supply-chain compromises
 
-Let's say you are a company that is sensitive to supply-chain compromises. You can use the JSON output to store a record of known capabilities for each file, for instance:
+Let's say you are a company that is sensitive to supply-chain compromises. You want to make sure an update doesn't introduce unexpected capability changes. There's a `--diff` mode for that:
 
+```shell
+bincapz -diff old_ffmpeg.dylib new_ffmpeg.dylib
 ```
 
-bincapz --format=json 3CX_clean_ffmpeg.dylib | jq  '.Files.[].Behaviors | keys'
+Here is a result using the 3CX compromise as a test case. 
 
 ```
-
-which outputs:
-
-```json
-
-[
-
-"combo/exfil/connect_glob_exec",
-
-"crypto/aes",
-
-"encoding/base64",
-
-"fs/directory/create",
-
-"net/http/post",
-
-"net/url",
-
-"process/thread/create",
-
-"ref/path/tmp"
-
-]
-
+🐙 changed behaviors: new_ffmpeg.dylib
+------------------------------------------------------------------------------------------------------------------
++1/LOW   compression/gzip                      works with gzip files
++1/LOW   env/HOME                              looks up the HOME directory
+for the current user
++1/LOW   fs/lock/update                        apply or remove an advisory
+lock on a file
++1/LOW   kernel/dispatch/semaphore             uses Dispatch Semaphores
++1/LOW   kernel/hostname/get                   gets the hostname of the
+machine
++1/LOW   net/http/accept/encoding              able to decode multiple forms
+of HTTP responses (example:
+gzip)
++1/LOW   random/insecure                       generate random numbers
+insecurely
++1/LOW   sync/semaphore/user                   uses semaphores to synchronize
+data between processes or
+threads
++2/MED   exec/pipe                             uses popen to launch a program
+and pipe output to/from it
++2/MED   fs/permission/modify                  modifies file permissions
+using chmod
++2/MED   net/http/cookies                      able to access HTTP resources
+using cookies
++2/MED   net/url/request                       requests resources via URL
++2/MED   ref/path/hidden                       references a hidden file that
+can be generated dynamically:
+%s/.main_storage
++2/MED   shell/arbitrary_command/dev_null      runs arbitrary commands
+redirecting output to
+/dev/null
++4/CRIT  3P/godmoderules/iddqd/god/mode        detects a wide array of
+cyber threats, from malware
+and ransomware to advanced
+persistent threats (APTs), by
+Florian Roth
++4/CRIT  3P/signature_base/3cxdesktopapp/ba..  detects 3CXDesktopApp MacOS
+Backdoor component, by
+X__Junior (Nextron Systems)
++4/CRIT  3P/signature_base/nk/3cx              detects malicious DYLIB files
+related to 3CX compromise, by
+Florian Roth (Nextron Systems)
++4/CRIT  3P/signature_base/susp/xored          detects suspicious single byte
+XORed keyword 'Mozilla/5.0'
+- it uses yara's XOR modifier
+and therefore cannot print the
+XOR key, by Florian Roth
++4/CRIT  3P/volexity/iconic                    detects the MACOS version
+of the ICONIC loader., by
+threatintel@volexity.com
 ```
 
-Now you can detect during PR review or release time if you have suffered a supply-chain attack. Here's what the diff would look like if you suffered the same compromise as 3CX did:
+Alternatively, you can also store the JSON output and diff the keys by hand:
 
-```diff
-
-[
-
-+  "3P/godmoderules/iddqd/god/mode",
-
-+  "3P/signature_base/3cxdesktopapp/macos",
-
-+  "3P/signature_base/macos/nk",
-
-+  "3P/signature_base/susp/xored",
-
-+  "3P/volexity/mac/iconic",
-
-"combo/exfil/connect_glob_exec",
-
-+  "compression/gzip",
-
-"crypto/aes",
-
-"encoding/base64",
-
-+  "env/HOME",
-
-+  "exec/pipe",
-
-"fs/directory/create",
-
-+  "fs/lock/update",
-
-+  "fs/permission/modify",
-
-+  "kernel/dispatch/semaphore",
-
-+  "kernel/hostname/get",
-
-+  "net/http/accept/encoding",
-
-+  "net/http/cookies",
-
-"net/http/post",
-
-"net/url",
-
-+  "net/url/request",
-
-"process/thread/create",
-
--  "ref/path/tmp"
-
-+  "random/insecure",
-
-+  "ref/path/hidden",
-
-+  "ref/path/tmp",
-
-+  "shell/arbitrary_command/dev_null",
-
-+  "sync/semaphore/user"
-
-]
-
+```shell
+bincapz --format=json <file> | jq  '.Files.[].Behaviors | keys'
 ```
-
-That is a lot of unusual new capabilities for a video processing library.
 
 ## Supported Flags
 
@@ -224,9 +189,9 @@ That is a lot of unusual new capabilities for a video processing library.
 
 ### How does it work?
 
-Through the execution of 12,000+ YARA rules.
+bincapz automates the same steps that almost any security analyst performs when faced with an unknown binary: a cursory `strings` inspection. It does this using a library of 12,000+ YARA rules, including some that read byte streams and decrypt XOR/BASE64 data.
 
-bincapz automates the initial triage step used by any security analyst when faced with an unknown binary:  `strings`. While this seems absurdly simple, it is exceptionally effective, as every binary leaves traces of its capabilities in its contents, particularly on UNIX platforms. These fragments are typically  `libc` or `syscall` references or error codes. Due to the C-like background of many scripting languages such as PHP or Perl, the same fragment detection rules often apply.
+While this seems absurdly simple, it is exceptionally effective, as every binary leaves traces of its capabilities in its contents, particularly on UNIX platforms. These fragments are typically  `libc` or `syscall` references or error codes. Due to the C-like background of many scripting languages such as PHP or Perl, the same fragment detection rules often apply.
 
 ### Why not properly reverse-engineer binaries?
 
