@@ -26,15 +26,15 @@ func (r Markdown) File(fr bincapz.FileReport) error {
 
 func (r Markdown) Full(rep bincapz.Report) error {
 	for f, fr := range rep.Diff.Removed {
-		markdownTable(&fr, r.w, tableConfig{Title: fmt.Sprintf("### ➖ file removed: %s", f), DiffRemoved: true})
+		markdownTable(&fr, r.w, tableConfig{Title: fmt.Sprintf("## ➖ file removed: %s", f), DiffRemoved: true})
 	}
 
 	for f, fr := range rep.Diff.Added {
-		markdownTable(&fr, r.w, tableConfig{Title: fmt.Sprintf("### ➕ file added: %s", f), DiffAdded: true})
+		markdownTable(&fr, r.w, tableConfig{Title: fmt.Sprintf("## ➕ file added: %s", f), DiffAdded: true})
 	}
 
 	for _, fr := range rep.Diff.Modified {
-		markdownTable(&fr, r.w, tableConfig{Title: fmt.Sprintf("### 🐙 changed behaviors: %s", fr.Path)})
+		markdownTable(&fr, r.w, tableConfig{Title: fmt.Sprintf("## 🐙 changed behaviors: %s", fr.Path)})
 	}
 	return nil
 }
@@ -58,6 +58,10 @@ func markdownTable(fr *bincapz.FileReport, w io.Writer, rc tableConfig) {
 
 	if len(kbs) == 0 {
 		return
+	}
+
+	if rc.Title != "" {
+		fmt.Fprintf(w, "%s\n\n", rc.Title)
 	}
 
 	sort.Slice(kbs, func(i, j int) bool {
@@ -127,4 +131,5 @@ func markdownTable(fr *bincapz.FileReport, w io.Writer, rc tableConfig) {
 	table.SetCenterSeparator("|")
 	table.AppendBulk(data) // Add Bulk Data
 	table.Render()
+	fmt.Fprintln(w, "")
 }
