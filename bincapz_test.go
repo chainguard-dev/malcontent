@@ -9,6 +9,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/chainguard-dev/bincapz/pkg/action"
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
 	"github.com/google/go-cmp/cmp"
 )
@@ -41,14 +42,14 @@ func TestJSON(t *testing.T) {
 				t.Fatalf("testdata unmarshal: %v", err)
 			}
 
-			bc := bincapz.Config{
+			bc := action.Config{
 				// defined in bincapz.go
 				//				RuleFS:     ruleFs,
 				ScanPaths:  []string{binPath},
 				IgnoreTags: []string{"harmless"},
 			}
 
-			got, err := bincapz.Scan(bc)
+			got, err := action.Scan(bc)
 			if err != nil {
 				t.Fatalf("scan failed: %v", err)
 			}

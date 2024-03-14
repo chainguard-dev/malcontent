@@ -1,4 +1,4 @@
-package bincapz
+package report
 
 import (
 	"crypto/sha256"
@@ -13,6 +13,7 @@ import (
 	"strings"
 	"unicode"
 
+	"github.com/chainguard-dev/bincapz/pkg/bincapz"
 	"github.com/hillu/go-yara/v4"
 	"k8s.io/klog/v2"
 )
@@ -23,46 +24,6 @@ var riskLevels = map[int]string{
 	2: "MED",  // notable: may have impact, but common
 	3: "HIGH", // suspicious: uncommon, but could be legit
 	4: "CRIT", // critical: certainly malware
-}
-
-type Behavior struct {
-	Description string `json:",omitempty" yaml:",omitempty"`
-	// Values are critical values to be surfaced in the UI
-	Values []string `json:",omitempty" yaml:",omitempty"`
-	// MatchStrings are all strings found relating to this behavior
-	MatchStrings []string `json:",omitempty" yaml:",omitempty"`
-	RiskScore    int
-	RiskLevel    string `json:",omitempty" yaml:",omitempty"`
-	RuleAuthor   string `json:",omitempty" yaml:",omitempty"`
-	RuleLicense  string `json:",omitempty" yaml:",omitempty"`
-
-	DiffAdded   bool `json:",omitempty" yaml:",omitempty"`
-	DiffRemoved bool `json:",omitempty" yaml:",omitempty"`
-}
-
-type FileReport struct {
-	Path string
-	// compiler -> x
-	Error             string              `json:",omitempty" yaml:",omitempty"`
-	Skipped           string              `json:",omitempty" yaml:",omitempty"`
-	Meta              map[string]string   `json:",omitempty" yaml:",omitempty"`
-	Syscalls          []string            `json:",omitempty" yaml:",omitempty"`
-	Pledge            []string            `json:",omitempty" yaml:",omitempty"`
-	Capabilities      []string            `json:",omitempty" yaml:",omitempty"`
-	Behaviors         map[string]Behavior `json:",omitempty" yaml:",omitempty"`
-	FilteredBehaviors int                 `json:",omitempty" yaml:",omitempty"`
-}
-
-type DiffReport struct {
-	Added    map[string]FileReport `json:",omitempty" yaml:",omitempty"`
-	Removed  map[string]FileReport `json:",omitempty" yaml:",omitempty"`
-	Modified map[string]FileReport `json:",omitempty" yaml:",omitempty"`
-}
-
-type Report struct {
-	Files  map[string]FileReport `json:",omitempty" yaml:",omitempty"`
-	Diff   DiffReport            `json:",omitempty" yaml:",omitempty"`
-	Filter string                `json:",omitempty" yaml:",omitempty"`
 }
 
 // yaraForge has some very very long rule names
@@ -306,18 +267,18 @@ func pathChecksum(path string) string {
 	return fmt.Sprintf("%x", h.Sum(nil))
 }
 
-func fileReport(path string, mrs yara.MatchRules, ignoreTags []string, minLevel int) FileReport {
+func Generate(path string, mrs yara.MatchRules, ignoreTags []string, minLevel int) bincapz.FileReport {
 	ignore := map[string]bool{}
 	for _, t := range ignoreTags {
 		ignore[t] = true
 	}
 
-	fr := FileReport{
+	fr := bincapz.FileReport{
 		Path: path,
 		Meta: map[string]string{
 			"sha256": pathChecksum(path),
 		},
-		Behaviors: map[string]Behavior{},
+		Behaviors: map[string]bincapz.Behavior{},
 	}
 
 	pledges := []string{}
@@ -334,7 +295,7 @@ func fileReport(path string, mrs yara.MatchRules, ignoreTags []string, minLevel 
 		}
 		key := generateKey(m.Namespace, m.Rule)
 
-		b := Behavior{
+		b := bincapz.Behavior{
 			RiskScore:    risk,
 			RiskLevel:    riskLevels[risk],
 			Values:       matchValues(key, m.Rule, m.Strings),

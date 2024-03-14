@@ -1,4 +1,4 @@
-package bincapz
+package render
 
 import (
 	"fmt"
@@ -7,6 +7,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/chainguard-dev/bincapz/pkg/bincapz"
 	"github.com/olekukonko/tablewriter"
 	"golang.org/x/term"
 	"k8s.io/klog/v2"
@@ -14,17 +15,15 @@ import (
 
 type KeyedBehavior struct {
 	Key      string
-	Behavior Behavior
+	Behavior bincapz.Behavior
 }
 
-type RenderConfig struct {
+type tableConfig struct {
 	Title       string
 	ShowTitle   bool
 	DiffRemoved bool
 	DiffAdded   bool
 }
-
-type RenderFunc func(f *FileReport, w io.Writer, rc RenderConfig)
 
 func forceWrap(s string, x int) string {
 	words, _ := tablewriter.WrapString(s, x)
@@ -53,7 +52,35 @@ func terminalWidth() int {
 	return width
 }
 
-func RenderTable(fr *FileReport, w io.Writer, rc RenderConfig) {
+type Terminal struct {
+	w io.Writer
+}
+
+func NewTerminal(w io.Writer) Terminal {
+	return Terminal{w: w}
+}
+
+func (r Terminal) File(fr bincapz.FileReport) error {
+	renderTable(&fr, r.w, tableConfig{Title: fmt.Sprintf("> %s", fr.Path)})
+	return nil
+}
+
+func (r Terminal) Full(rep bincapz.Report) error {
+	for f, fr := range rep.Diff.Removed {
+		renderTable(&fr, r.w, tableConfig{Title: fmt.Sprintf("➖ file removed: %s", f), DiffRemoved: true})
+	}
+
+	for f, fr := range rep.Diff.Added {
+		renderTable(&fr, r.w, tableConfig{Title: fmt.Sprintf("➕ file added: %s", f), DiffAdded: true})
+	}
+
+	for _, fr := range rep.Diff.Modified {
+		renderTable(&fr, r.w, tableConfig{Title: fmt.Sprintf("🐙 changed behaviors: %s", fr.Path)})
+	}
+	return nil
+}
+
+func renderTable(fr *bincapz.FileReport, w io.Writer, rc tableConfig) {
 	title := rc.Title
 
 	path := fr.Path
@@ -208,18 +235,4 @@ func RenderTable(fr *FileReport, w io.Writer, rc RenderConfig) {
 	}
 	table.Render()
 	fmt.Fprintf(w, "\n")
-}
-
-func RenderDiff(r *Report, w io.Writer) {
-	for f, fr := range r.Diff.Removed {
-		RenderTable(&fr, w, RenderConfig{Title: fmt.Sprintf("➖ file removed: %s", f), DiffRemoved: true})
-	}
-
-	for f, fr := range r.Diff.Added {
-		RenderTable(&fr, w, RenderConfig{Title: fmt.Sprintf("➕ file added: %s", f), DiffAdded: true})
-	}
-
-	for _, fr := range r.Diff.Modified {
-		RenderTable(&fr, w, RenderConfig{Title: fmt.Sprintf("🐙 changed behaviors: %s", fr.Path)})
-	}
 }
