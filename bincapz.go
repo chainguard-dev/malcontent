@@ -24,6 +24,7 @@ func main() {
 	thirdPartyFlag := flag.Bool("third-party", true, "include third-party rules, which may have licensing restrictions")
 	omitEmptyFlag := flag.Bool("omit-empty", false, "omit files that contain no matches")
 	includeDataFilesFlag := flag.Bool("data-files", false, "include files that are detected to as non-program (binary or source) files")
+	diffFlag := flag.Bool("diff", false, "show capability drift between two files")
 	allFlag := flag.Bool("all", false, "Ignore nothing, show all")
 
 	klog.InitFlags(nil)
@@ -48,8 +49,6 @@ func main() {
 
 	var rf bincapz.RenderFunc
 	switch *formatFlag {
-	case "simple":
-		rf = bincapz.RenderSimple
 	case "table":
 		rf = bincapz.RenderTable
 	case "json", "yaml":
@@ -58,22 +57,33 @@ func main() {
 		os.Exit(3)
 	}
 
+	yrs, err := bincapz.CompileRules(ruleFs, *thirdPartyFlag)
+	if err != nil {
+		fmt.Printf("YARA rule compilation: %v", err)
+		os.Exit(4)
+	}
+
 	bc := bincapz.Config{
-		RuleFS:           ruleFs,
+		Rules:            yrs,
 		ScanPaths:        args,
 		IgnoreTags:       ignoreTags,
 		OmitEmpty:        *omitEmptyFlag,
 		MinLevel:         minLevel,
-		ThirdPartyRules:  *thirdPartyFlag,
 		IncludeDataFiles: includeDataFiles,
 		RenderFunc:       rf,
 		Output:           os.Stdout,
 	}
 
+	var res *bincapz.Report
 	//fmt.Fprintf(os.Stderr, "scanning %s ...\n", strings.Join(args, " "))
-	res, err := bincapz.Scan(bc)
+	if *diffFlag {
+		res, err = bincapz.Diff(bc)
+	} else {
+		res, err = bincapz.Scan(bc)
+	}
+
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "scan failed: %v\n", err)
+		fmt.Fprintf(os.Stderr, "failed: %v\n", err)
 		os.Exit(3)
 	}
 
@@ -90,7 +100,12 @@ func main() {
 			klog.Fatalf("marshal: %v", err)
 		}
 		fmt.Printf("%s\n", yaml)
+	case "table":
+		if *diffFlag {
+			bincapz.RenderDiff(res, os.Stdout)
+		}
 	}
+
 	if err != nil {
 		klog.Errorf("failed: %v", err)
 		os.Exit(1)

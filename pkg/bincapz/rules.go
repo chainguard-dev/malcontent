@@ -14,7 +14,7 @@ var skipFiles = map[string]bool{
 	"third_party/Neo23x0/yara/configured_vulns_ext_vars.yar": true,
 }
 
-func compileRules(root fs.FS, thirdParty bool) (*yara.Rules, error) {
+func CompileRules(root fs.FS, thirdParty bool) (*yara.Rules, error) {
 	yc, err := yara.NewCompiler()
 	if err != nil {
 		return nil, fmt.Errorf("yara compiler: %w", err)
