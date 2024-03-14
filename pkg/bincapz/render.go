@@ -94,7 +94,7 @@ func RenderTable(fr *FileReport, w io.Writer, rc RenderConfig) {
 
 	tWidth := terminalWidth()
 	keyWidth := 36
-	riskWidth := 6
+	riskWidth := 7
 	padding := 7
 	descWidth := tWidth - keyWidth - riskWidth - padding
 	if descWidth > 120 {
