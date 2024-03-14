@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"slices"
 	"sort"
 	"strings"
 
@@ -18,7 +17,14 @@ type KeyedBehavior struct {
 	Behavior Behavior
 }
 
-type RenderFunc func(f *FileReport, w io.Writer)
+type RenderConfig struct {
+	Title       string
+	ShowTitle   bool
+	DiffRemoved bool
+	DiffAdded   bool
+}
+
+type RenderFunc func(f *FileReport, w io.Writer, rc RenderConfig)
 
 func forceWrap(s string, x int) string {
 	words, _ := tablewriter.WrapString(s, x)
@@ -47,15 +53,17 @@ func terminalWidth() int {
 	return width
 }
 
-func RenderTable(fr *FileReport, w io.Writer) {
+func RenderTable(fr *FileReport, w io.Writer, rc RenderConfig) {
+	title := rc.Title
+
 	path := fr.Path
 	if fr.Error != "" {
-		fmt.Printf("%s - error: %s\n", path, fr.Error)
+		fmt.Printf("⚠️ %s - error: %s\n", path, fr.Error)
 		return
 	}
 
 	if fr.Skipped != "" {
-		fmt.Printf("%s - skipped: %s\n", path, fr.Skipped)
+		// fmt.Printf("%s - skipped: %s\n", path, fr.Skipped)
 		return
 	}
 
@@ -132,11 +140,20 @@ func RenderTable(fr *FileReport, w io.Writer) {
 
 		// lowercase first character for consistency
 		desc = strings.ToLower(string(desc[0])) + desc[1:]
+		risk := fmt.Sprintf("%d/%s", k.Behavior.RiskScore, k.Behavior.RiskLevel)
+		if k.Behavior.DiffAdded || rc.DiffAdded {
+			risk = fmt.Sprintf("+%s", risk)
+		}
+		if k.Behavior.DiffRemoved || rc.DiffRemoved {
+			risk = fmt.Sprintf("-%s", risk)
+		}
 
-		data = append(data, []string{fmt.Sprintf("%d/%s", k.Behavior.RiskScore, k.Behavior.RiskLevel), key, desc})
+		data = append(data, []string{risk, key, desc})
 	}
 
-	fmt.Fprintf(w, "%s\n%s\n", path, strings.Repeat("-", maxKeyLen+riskWidth+padding+64))
+	if title != "" {
+		fmt.Fprintf(w, "%s\n%s\n", title, strings.Repeat("-", maxKeyLen+riskWidth+padding+64))
+	}
 
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetAutoWrapText(false)
@@ -145,43 +162,64 @@ func RenderTable(fr *FileReport, w io.Writer) {
 	//	ttable.SetBorders(tablewriter.Border{Left: false, Top: true, Right: false, Bottom: false})
 	table.SetNoWhiteSpace(true)
 	table.SetTablePadding("  ")
+	descColor := tablewriter.Normal
 
 	for _, d := range data {
+		keyColor := tablewriter.Normal
+		riskColor := tablewriter.Normal
+
+		if strings.HasPrefix(d[0], "+") {
+			keyColor = tablewriter.FgHiWhiteColor
+		}
+		if strings.HasPrefix(d[0], "-") {
+			keyColor = tablewriter.FgHiBlackColor
+		}
+
 		if strings.Contains(d[0], "LOW") {
-			table.Rich(d, []tablewriter.Colors{{tablewriter.Normal, tablewriter.FgGreenColor}})
-			continue
+			riskColor = tablewriter.FgGreenColor
+			if strings.HasPrefix(d[0], "+") {
+				riskColor = tablewriter.FgHiGreenColor
+			}
 		}
 
 		if strings.Contains(d[0], "MED") {
-			table.Rich(d, []tablewriter.Colors{{tablewriter.Normal, tablewriter.FgYellowColor}})
-			continue
+			riskColor = tablewriter.FgYellowColor
+			if strings.HasPrefix(d[0], "-") {
+				riskColor = tablewriter.FgHiYellowColor
+			}
 		}
 
 		if strings.Contains(d[0], "HIGH") {
-			table.Rich(d, []tablewriter.Colors{{tablewriter.Normal, tablewriter.FgRedColor}})
-			continue
+			riskColor = tablewriter.FgRedColor
+			if strings.HasPrefix(d[0], "+") {
+				riskColor = tablewriter.FgHiRedColor
+			}
 		}
 		if strings.Contains(d[0], "CRIT") {
-			table.Rich(d, []tablewriter.Colors{{tablewriter.Normal, tablewriter.FgHiRedColor}})
-			continue
+			riskColor = tablewriter.FgMagentaColor
+			if strings.HasPrefix(d[0], "+") {
+				riskColor = tablewriter.FgHiMagentaColor
+			}
 		}
 
-		table.Append(d)
+		table.Rich(d, []tablewriter.Colors{{riskColor}, {keyColor}, {descColor}})
+
+		//		table.Append(d)
 	}
 	table.Render()
-
-	fmt.Println("")
+	fmt.Fprintf(w, "\n")
 }
 
-func RenderSimple(fr *FileReport, w io.Writer) {
-	path := fr.Path
-	fmt.Fprintf(w, "# %s\n", path)
-	keys := []string{}
-	for key := range fr.Behaviors {
-		keys = append(keys, key)
+func RenderDiff(r *Report, w io.Writer) {
+	for f, fr := range r.Diff.Removed {
+		RenderTable(&fr, w, RenderConfig{Title: fmt.Sprintf("➖ file removed: %s", f), DiffRemoved: true})
 	}
-	slices.Sort(keys)
-	for _, key := range keys {
-		fmt.Fprintf(w, "- %s\n", key)
+
+	for f, fr := range r.Diff.Added {
+		RenderTable(&fr, w, RenderConfig{Title: fmt.Sprintf("➕ file added: %s", f), DiffAdded: true})
+	}
+
+	for _, fr := range r.Diff.Modified {
+		RenderTable(&fr, w, RenderConfig{Title: fmt.Sprintf("🐙 changed behaviors: %s", fr.Path)})
 	}
 }

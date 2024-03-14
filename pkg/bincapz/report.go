@@ -35,6 +35,9 @@ type Behavior struct {
 	RiskLevel    string `json:",omitempty" yaml:",omitempty"`
 	RuleAuthor   string `json:",omitempty" yaml:",omitempty"`
 	RuleLicense  string `json:",omitempty" yaml:",omitempty"`
+
+	DiffAdded   bool `json:",omitempty" yaml:",omitempty"`
+	DiffRemoved bool `json:",omitempty" yaml:",omitempty"`
 }
 
 type FileReport struct {
@@ -50,9 +53,16 @@ type FileReport struct {
 	FilteredBehaviors int                 `json:",omitempty" yaml:",omitempty"`
 }
 
+type DiffReport struct {
+	Added    map[string]FileReport `json:",omitempty" yaml:",omitempty"`
+	Removed  map[string]FileReport `json:",omitempty" yaml:",omitempty"`
+	Modified map[string]FileReport `json:",omitempty" yaml:",omitempty"`
+}
+
 type Report struct {
-	Files  map[string]FileReport
-	Filter string `json:",omitempty" yaml:",omitempty"`
+	Files  map[string]FileReport `json:",omitempty" yaml:",omitempty"`
+	Diff   DiffReport            `json:",omitempty" yaml:",omitempty"`
+	Filter string                `json:",omitempty" yaml:",omitempty"`
 }
 
 // yaraForge has some very very long rule names

@@ -32,6 +32,11 @@ func programKind(path string) string {
 
 	klog.V(1).Infof("desc: %q header: %q err: %v", desc, header[:], err)
 
+	// the magic library gets these wrong
+	if strings.HasSuffix(path, ".json") {
+		return ""
+	}
+
 	// By Magic
 	d := strings.ToLower(desc)
 	if strings.Contains(d, "executable") || strings.Contains(d, "mach-o") || strings.Contains(d, "script") {
