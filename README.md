@@ -210,14 +210,15 @@ That is a lot of unusual new capabilities for a video processing library.
 
 ## Supported Flags
 
-* `-all` - Don't filter anything out, include even harmless capabilities
-* `-alsologtostderr` - log to standard error
-* `-format string` - Output type. Valid values are: table, simple, json, yaml (default "table")
-*  `-ignore-tags` - Rule tags to ignore
-* `-include-data-files` - include files that are detected to as non-program (binary or source) files
-* `-min-level` - minimum suspicion level to report (1=low, 2=medium, 3=high, 4=critical) (default 1)
-* `-omit-empty` - don't report on files that have no matches
-* `-third-party` - include third-party rules, which may have licensing restrictions (default true)
+* `--all` - Don't filter anything out, include even harmless capabilities
+* `--alsologtostderr` - log to standard error
+* `--format string` - Output type. Valid values are: table, json (default "table")
+* `--ignore-tags` - Rule tags to ignore
+* `--diff` - show the diff between two files or directories
+* `--data-files` - include files that are detected to as non-program (binary or source) files
+* `--min-level` - minimum suspicion level to report (1=low, 2=medium, 3=high, 4=critical) (default 1)
+* `--omit-empty` - don't report on files that have no matches
+* `--third-party` - include third-party rules, which may have licensing restrictions (default true)
 
 ## FAQ
 
