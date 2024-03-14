@@ -3,7 +3,6 @@ package bincapz
 import (
 	"fmt"
 	"io"
-	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -13,11 +12,10 @@ import (
 )
 
 type Config struct {
-	RuleFS           fs.FS
+	Rules            *yara.Rules
 	ScanPaths        []string
 	IgnoreTags       []string
 	MinLevel         int
-	ThirdPartyRules  bool
 	OmitEmpty        bool
 	IncludeDataFiles bool
 	RenderFunc       RenderFunc
@@ -48,6 +46,28 @@ func findFilesRecursively(root string) ([]string, error) {
 	return files, err
 }
 
+func scanSinglePath(c Config, yrs *yara.Rules, path string) (*FileReport, error) {
+	var mrs yara.MatchRules
+	klog.V(1).Infof("scanning: %s", path)
+	kind := programKind(path)
+	klog.V(1).Infof("%s kind: %q", path, kind)
+	if !c.IncludeDataFiles && kind == "" {
+		klog.Infof("not a program: %s", path)
+		return &FileReport{Skipped: "data file"}, nil
+	}
+
+	if err := yrs.ScanFile(path, 0, 0, &mrs); err != nil {
+		klog.Infof("skipping %s - %v", path, err)
+		return &FileReport{Path: path, Error: fmt.Sprintf("scanfile: %v", err)}, nil
+	}
+
+	fr := fileReport(path, mrs, c.IgnoreTags, c.MinLevel)
+	if len(fr.Behaviors) == 0 && c.OmitEmpty {
+		return nil, nil
+	}
+	return &fr, nil
+}
+
 func Scan(c Config) (*Report, error) {
 	//	klog.Infof("scan config: %+v", c)
 	r := &Report{
@@ -57,11 +77,7 @@ func Scan(c Config) (*Report, error) {
 		r.Filter = strings.Join(c.IgnoreTags, ",")
 	}
 
-	yrs, err := compileRules(c.RuleFS, c.ThirdPartyRules)
-	if err != nil {
-		return r, fmt.Errorf("YARA rule compilation: %w", err)
-	}
-
+	yrs := c.Rules
 	klog.Infof("%d rules loaded", len(yrs.GetRules()))
 
 	for _, sp := range c.ScanPaths {
@@ -71,29 +87,15 @@ func Scan(c Config) (*Report, error) {
 		}
 		// TODO: support zip files and such
 		for _, p := range rp {
-			var mrs yara.MatchRules
-			klog.V(1).Infof("scanning: %s", p)
-			kind := programKind(p)
-			if !c.IncludeDataFiles && kind == "" {
-				r.Files[p] = FileReport{Skipped: "data file"}
-				klog.Infof("not a program: %s", p)
+			fr, err := scanSinglePath(c, yrs, p)
+			if err != nil {
+				klog.Errorf("scan path: %v", err)
 				continue
 			}
-
-			if err := yrs.ScanFile(p, 0, 0, &mrs); err != nil {
-				klog.Infof("skipping %s - %v", p, err)
-				r.Files[p] = FileReport{Path: p, Error: fmt.Sprintf("scanfile: %v", err)}
-				continue
-			}
-
-			fr := fileReport(p, mrs, c.IgnoreTags, c.MinLevel)
-			if len(fr.Behaviors) == 0 && c.OmitEmpty {
-				continue
-			}
-			r.Files[p] = fr
 			if c.RenderFunc != nil {
-				c.RenderFunc(&fr, c.Output)
+				c.RenderFunc(fr, c.Output, RenderConfig{Title: fmt.Sprintf("✨ %s", p)})
 			}
+			r.Files[p] = *fr
 		}
 	}
 
