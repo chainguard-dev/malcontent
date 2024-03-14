@@ -43,7 +43,7 @@ func TestJSON(t *testing.T) {
 
 			bc := bincapz.Config{
 				// defined in bincapz.go
-				RuleFS:     ruleFs,
+				//				RuleFS:     ruleFs,
 				ScanPaths:  []string{binPath},
 				IgnoreTags: []string{"harmless"},
 			}
