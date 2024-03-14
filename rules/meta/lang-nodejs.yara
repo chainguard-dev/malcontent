@@ -1,4 +1,4 @@
-rule nodejs : harmless {
+rule nodejs {
   strings:
 	$ref = "bin/env node"
 	$ref2 = "import {"
