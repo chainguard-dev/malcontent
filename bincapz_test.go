@@ -135,8 +135,8 @@ func TestSimple(t *testing.T) {
 	})
 }
 
-func TestSimpleDiff(t *testing.T) {
-	yrs, err := rules.Compile(ruleFs, false)
+func TestDiff(t *testing.T) {
+	yrs, err := rules.Compile(ruleFs, true)
 	if err != nil {
 		t.Fatalf("compile: %v", err)
 	}
@@ -144,11 +144,13 @@ func TestSimpleDiff(t *testing.T) {
 	fileSystem := os.DirFS(testDataRoot)
 
 	tests := []struct {
-		diff string
-		src  string
-		dest string
+		diff   string
+		format string
+		src    string
+		dest   string
 	}{
-		{"freedownloadmanager.sdiff", "testdata/Linux/freedownloadmanager_clear_postinst", "testdata/Linux/freedownloadmanager_infected_postinst"},
+		{"Linux/freedownloadmanager.sdiff", "simple", "testdata/Linux/freedownloadmanager_clear_postinst", "testdata/Linux/freedownloadmanager_infected_postinst"},
+		{"macOS/libffmpeg.dirty.mdiff", "markdown", "testdata/macOS/libffmpeg.dylib", "testdata/macOS/libffmpeg.dirty.dylib"},
 	}
 
 	for _, tc := range tests {
@@ -160,7 +162,7 @@ func TestSimpleDiff(t *testing.T) {
 
 			want := string(td)
 			var out bytes.Buffer
-			simple, err := render.New("simple", &out)
+			simple, err := render.New(tc.format, &out)
 			if err != nil {
 				t.Fatalf("render: %v", err)
 			}
