@@ -185,7 +185,7 @@ func TestDiff(t *testing.T) {
 
 			got := out.String()
 			if diff := cmp.Diff(got, want); diff != "" {
-				t.Errorf("unexpected diff: %s\ngot: %s", diff, got)
+				t.Errorf("unexpected diff: %s", diff)
 			}
 
 		})

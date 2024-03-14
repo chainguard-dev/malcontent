@@ -1,6 +1,6 @@
 rule getmode {
 	meta:
-		description = "Uses libc functions to access filesystem information"
+		description = "looks up file permissions"
 		pledge = "rpath"
 	strings:
 		$_chmod = "_getmode"
