@@ -1,22 +1,23 @@
-package bincapz
+package action
 
 import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/chainguard-dev/bincapz/pkg/bincapz"
 	"k8s.io/klog/v2"
 )
 
-func relFileReport(c Config, path string) (map[string]FileReport, error) {
+func relFileReport(c Config, path string) (map[string]bincapz.FileReport, error) {
 	fromPath := path
 	fromConfig := c
-	fromConfig.RenderFunc = nil
+	fromConfig.Renderer = nil
 	fromConfig.ScanPaths = []string{fromPath}
 	fromReport, err := Scan(fromConfig)
 	if err != nil {
 		return nil, err
 	}
-	fromRelPath := map[string]FileReport{}
+	fromRelPath := map[string]bincapz.FileReport{}
 	for fname, f := range fromReport.Files {
 		if f.Skipped != "" || f.Error != "" {
 			continue
@@ -33,7 +34,7 @@ func relFileReport(c Config, path string) (map[string]FileReport, error) {
 	return fromRelPath, nil
 }
 
-func Diff(c Config) (*Report, error) {
+func Diff(c Config) (*bincapz.Report, error) {
 	if len(c.ScanPaths) != 2 {
 		return nil, fmt.Errorf("diff mode requires 2 paths, you passed in %d path(s)", len(c.ScanPaths))
 	}
@@ -47,10 +48,10 @@ func Diff(c Config) (*Report, error) {
 		return nil, err
 	}
 
-	d := DiffReport{
-		Added:    map[string]FileReport{},
-		Removed:  map[string]FileReport{},
-		Modified: map[string]FileReport{},
+	d := bincapz.DiffReport{
+		Added:    map[string]bincapz.FileReport{},
+		Removed:  map[string]bincapz.FileReport{},
+		Modified: map[string]bincapz.FileReport{},
 	}
 
 	// things that appear in the source
@@ -60,9 +61,9 @@ func Diff(c Config) (*Report, error) {
 			d.Removed[relPath] = fr
 			continue
 		}
-		rbs := FileReport{
+		rbs := bincapz.FileReport{
 			Path:      tr.Path,
-			Behaviors: map[string]Behavior{},
+			Behaviors: map[string]bincapz.Behavior{},
 		}
 
 		// if source behavior is not in the destination
@@ -82,9 +83,9 @@ func Diff(c Config) (*Report, error) {
 			d.Added[relPath] = tr
 			continue
 		}
-		abs := FileReport{
+		abs := bincapz.FileReport{
 			Path:      tr.Path,
-			Behaviors: map[string]Behavior{},
+			Behaviors: map[string]bincapz.Behavior{},
 		}
 
 		// if destination behavior is not in the source
@@ -107,7 +108,7 @@ func Diff(c Config) (*Report, error) {
 
 	klog.V(1).Infof("diff: %+v", d)
 
-	r := &Report{
+	r := &bincapz.Report{
 		Diff: d,
 	}
 
