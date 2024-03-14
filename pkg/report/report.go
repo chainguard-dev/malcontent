@@ -274,10 +274,9 @@ func Generate(path string, mrs yara.MatchRules, ignoreTags []string, minLevel in
 	}
 
 	fr := bincapz.FileReport{
-		Path: path,
-		Meta: map[string]string{
-			"sha256": pathChecksum(path),
-		},
+		Path:      path,
+		SHA256:    pathChecksum(path),
+		Meta:      map[string]string{},
 		Behaviors: map[string]bincapz.Behavior{},
 	}
 
