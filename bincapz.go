@@ -3,14 +3,15 @@ package main
 
 import (
 	"embed"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
 	"strings"
 
+	"github.com/chainguard-dev/bincapz/pkg/action"
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
-	"gopkg.in/yaml.v3"
+	"github.com/chainguard-dev/bincapz/pkg/render"
+	"github.com/chainguard-dev/bincapz/pkg/rules"
 	"k8s.io/klog/v2"
 )
 
@@ -18,7 +19,7 @@ import (
 var ruleFs embed.FS
 
 func main() {
-	formatFlag := flag.String("format", "table", "Output type. Valid values are: table, simple, json, yaml")
+	formatFlag := flag.String("format", "terminal", "Output type. Valid values are: json, markdown, simple, terminal, yaml")
 	ignoreTagsFlag := flag.String("ignore-tags", "", "Rule tags to ignore")
 	minLevelFlag := flag.Int("min-level", 1, "minimum suspicion level to report (1=low, 2=medium, 3=high, 4=critical)")
 	thirdPartyFlag := flag.Bool("third-party", true, "include third-party rules, which may have licensing restrictions")
@@ -47,39 +48,34 @@ func main() {
 		includeDataFiles = true
 	}
 
-	var rf bincapz.RenderFunc
-	switch *formatFlag {
-	case "table":
-		rf = bincapz.RenderTable
-	case "json", "yaml":
-	default:
+	renderer, err := render.New(*formatFlag, os.Stdout)
+	if err != nil {
 		fmt.Printf("what kind of format is %q?\n", *formatFlag)
 		os.Exit(3)
 	}
 
-	yrs, err := bincapz.CompileRules(ruleFs, *thirdPartyFlag)
+	yrs, err := rules.Compile(ruleFs, *thirdPartyFlag)
 	if err != nil {
 		fmt.Printf("YARA rule compilation: %v", err)
 		os.Exit(4)
 	}
 
-	bc := bincapz.Config{
+	bc := action.Config{
 		Rules:            yrs,
 		ScanPaths:        args,
 		IgnoreTags:       ignoreTags,
 		OmitEmpty:        *omitEmptyFlag,
 		MinLevel:         minLevel,
 		IncludeDataFiles: includeDataFiles,
-		RenderFunc:       rf,
-		Output:           os.Stdout,
+		Renderer:         renderer,
 	}
 
 	var res *bincapz.Report
-	//fmt.Fprintf(os.Stderr, "scanning %s ...\n", strings.Join(args, " "))
+
 	if *diffFlag {
-		res, err = bincapz.Diff(bc)
+		res, err = action.Diff(bc)
 	} else {
-		res, err = bincapz.Scan(bc)
+		res, err = action.Scan(bc)
 	}
 
 	if err != nil {
@@ -87,24 +83,7 @@ func main() {
 		os.Exit(3)
 	}
 
-	switch *formatFlag {
-	case "json":
-		json, err := json.MarshalIndent(res, "", "    ")
-		if err != nil {
-			klog.Fatalf("marshal: %v", err)
-		}
-		fmt.Printf("%s\n", json)
-	case "yaml":
-		yaml, err := yaml.Marshal(res)
-		if err != nil {
-			klog.Fatalf("marshal: %v", err)
-		}
-		fmt.Printf("%s\n", yaml)
-	case "table":
-		if *diffFlag {
-			bincapz.RenderDiff(res, os.Stdout)
-		}
-	}
+	renderer.Full(*res)
 
 	if err != nil {
 		klog.Errorf("failed: %v", err)
