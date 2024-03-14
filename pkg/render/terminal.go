@@ -61,7 +61,21 @@ func NewTerminal(w io.Writer) Terminal {
 }
 
 func (r Terminal) File(fr bincapz.FileReport) error {
-	renderTable(&fr, r.w, tableConfig{Title: fmt.Sprintf("> %s", fr.Path)})
+	symbol := "✅"
+	maxRisk := 0
+	for _, b := range fr.Behaviors {
+		if b.RiskScore > maxRisk {
+			maxRisk = b.RiskScore
+		}
+	}
+	switch maxRisk {
+	case 3:
+		symbol = "🔥"
+	case 4:
+		symbol = "🚨"
+	}
+
+	renderTable(&fr, r.w, tableConfig{Title: fmt.Sprintf("%s %s", symbol, fr.Path)})
 	return nil
 }
 
@@ -114,9 +128,6 @@ func renderTable(fr *bincapz.FileReport, w io.Writer, rc tableConfig) {
 
 	for k, v := range fr.Meta {
 		data = append(data, []string{"meta", k, v})
-	}
-	if len(data) > 0 {
-		data = append(data, []string{"", "", ""})
 	}
 
 	tWidth := terminalWidth()
@@ -179,7 +190,9 @@ func renderTable(fr *bincapz.FileReport, w io.Writer, rc tableConfig) {
 	}
 
 	if title != "" {
-		fmt.Fprintf(w, "%s\n%s\n", title, strings.Repeat("-", maxKeyLen+riskWidth+padding+64))
+		fmt.Fprintf(w, "%s\n", title)
+		fmt.Fprintf(w, strings.Repeat("-", 70))
+		fmt.Fprintf(w, "\n")
 	}
 
 	table := tablewriter.NewWriter(os.Stdout)

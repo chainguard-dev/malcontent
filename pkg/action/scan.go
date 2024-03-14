@@ -67,6 +67,10 @@ func Scan(c Config) (*bincapz.Report, error) {
 		r.Filter = strings.Join(c.IgnoreTags, ",")
 	}
 
+	if c.Rules == nil {
+		return nil, fmt.Errorf("rules have not been loaded")
+	}
+
 	yrs := c.Rules
 	klog.Infof("%d rules loaded", len(yrs.GetRules()))
 

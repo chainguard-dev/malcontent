@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"io/fs"
 	"log"
@@ -11,12 +12,19 @@ import (
 
 	"github.com/chainguard-dev/bincapz/pkg/action"
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
+	"github.com/chainguard-dev/bincapz/pkg/render"
+	"github.com/chainguard-dev/bincapz/pkg/rules"
 	"github.com/google/go-cmp/cmp"
 )
 
 var testDataRoot = "testdata"
 
 func TestJSON(t *testing.T) {
+	yrs, err := rules.Compile(ruleFs, false)
+	if err != nil {
+		t.Fatalf("compile: %v", err)
+	}
+
 	fileSystem := os.DirFS(testDataRoot)
 
 	fs.WalkDir(fileSystem, ".", func(path string, d fs.DirEntry, err error) error {
@@ -42,11 +50,16 @@ func TestJSON(t *testing.T) {
 				t.Fatalf("testdata unmarshal: %v", err)
 			}
 
+			var out bytes.Buffer
+			render, err := render.New("json", &out)
+			if err != nil {
+				t.Fatalf("render: %v", err)
+			}
 			bc := action.Config{
-				// defined in bincapz.go
-				//				RuleFS:     ruleFs,
 				ScanPaths:  []string{binPath},
 				IgnoreTags: []string{"harmless"},
+				Renderer:   render,
+				Rules:      yrs,
 			}
 
 			got, err := action.Scan(bc)
@@ -56,6 +69,124 @@ func TestJSON(t *testing.T) {
 
 			if diff := cmp.Diff(*got, want); diff != "" {
 				t.Errorf("unexpected diff: %s", diff)
+			}
+
+		})
+		return nil
+	})
+}
+
+func TestSimple(t *testing.T) {
+	yrs, err := rules.Compile(ruleFs, false)
+	if err != nil {
+		t.Fatalf("compile: %v", err)
+	}
+
+	fileSystem := os.DirFS(testDataRoot)
+
+	fs.WalkDir(fileSystem, ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			log.Fatal(err)
+		}
+		if !strings.HasSuffix(path, ".simple") {
+			return nil
+		}
+
+		name := strings.ReplaceAll(path, ".simple", "")
+		testPath := path
+		binPath := filepath.Join(testDataRoot, name)
+
+		t.Run(name, func(t *testing.T) {
+			td, err := fs.ReadFile(fileSystem, testPath)
+			if err != nil {
+				t.Fatalf("testdata read failed: %v", err)
+			}
+
+			want := string(td)
+			var out bytes.Buffer
+			simple, err := render.New("simple", &out)
+			if err != nil {
+				t.Fatalf("render: %v", err)
+			}
+
+			bc := action.Config{
+				ScanPaths:  []string{binPath},
+				IgnoreTags: []string{"harmless"},
+				Renderer:   simple,
+				Rules:      yrs,
+			}
+
+			res, err := action.Scan(bc)
+			if err != nil {
+				t.Fatalf("scan failed: %v", err)
+			}
+
+			if err := simple.Full(*res); err != nil {
+				t.Fatalf("full: %v", err)
+			}
+
+			got := out.String()
+			if diff := cmp.Diff(got, want); diff != "" {
+				t.Errorf("unexpected diff: %s\ngot: %s", diff, got)
+			}
+
+		})
+		return nil
+	})
+}
+
+func TestMarkdown(t *testing.T) {
+	yrs, err := rules.Compile(ruleFs, false)
+	if err != nil {
+		t.Fatalf("compile: %v", err)
+	}
+
+	fileSystem := os.DirFS(testDataRoot)
+
+	fs.WalkDir(fileSystem, ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			log.Fatal(err)
+		}
+		if !strings.HasSuffix(path, ".md") {
+			return nil
+		}
+
+		name := strings.ReplaceAll(path, ".md", "")
+		testPath := path
+		binPath := filepath.Join(testDataRoot, name)
+
+		t.Run(name, func(t *testing.T) {
+			td, err := fs.ReadFile(fileSystem, testPath)
+			if err != nil {
+				t.Fatalf("testdata read failed: %v", err)
+			}
+
+			want := string(td)
+			var out bytes.Buffer
+			simple, err := render.New("markdown", &out)
+			if err != nil {
+				t.Fatalf("render: %v", err)
+			}
+
+			bc := action.Config{
+				ScanPaths:  []string{binPath},
+				IgnoreTags: []string{"harmless"},
+				Renderer:   simple,
+				Rules:      yrs,
+			}
+
+			res, err := action.Scan(bc)
+			if err != nil {
+				t.Fatalf("scan failed: %v", err)
+			}
+
+			if err := simple.Full(*res); err != nil {
+				t.Fatalf("full: %v", err)
+			}
+
+			got := out.String()
+			if diff := cmp.Diff(got, want); diff != "" {
+				t.Errorf("unexpected diff: %s\ngot: %s", diff, got)
 			}
 
 		})

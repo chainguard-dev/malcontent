@@ -3,6 +3,7 @@ package render
 import (
 	"fmt"
 	"io"
+	"sort"
 
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
 )
@@ -17,7 +18,13 @@ func NewSimple(w io.Writer) Simple {
 
 func (r Simple) File(fr bincapz.FileReport) error {
 	fmt.Fprintf(r.w, "%s\n", fr.Path)
+	bs := []string{}
+
 	for k := range fr.Behaviors {
+		bs = append(bs, k)
+	}
+	sort.Strings(bs)
+	for _, k := range bs {
 		fmt.Fprintf(r.w, "  * %s\n", k)
 	}
 	return nil
