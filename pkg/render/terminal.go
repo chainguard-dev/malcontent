@@ -191,8 +191,7 @@ func renderTable(fr *bincapz.FileReport, w io.Writer, rc tableConfig) {
 
 	if title != "" {
 		fmt.Fprintf(w, "%s\n", title)
-		fmt.Fprintf(w, strings.Repeat("-", 70))
-		fmt.Fprintf(w, "\n")
+		fmt.Fprintf(w, "%s\n", strings.Repeat("-", 70))
 	}
 
 	table := tablewriter.NewWriter(os.Stdout)

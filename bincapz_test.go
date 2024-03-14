@@ -135,6 +135,61 @@ func TestSimple(t *testing.T) {
 	})
 }
 
+func TestSimpleDiff(t *testing.T) {
+	yrs, err := rules.Compile(ruleFs, false)
+	if err != nil {
+		t.Fatalf("compile: %v", err)
+	}
+
+	fileSystem := os.DirFS(testDataRoot)
+
+	tests := []struct {
+		diff string
+		src  string
+		dest string
+	}{
+		{"freedownloadmanager.sdiff", "testdata/Linux/freedownloadmanager_clear_postinst", "testdata/Linux/freedownloadmanager_infected_postinst"},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.diff, func(t *testing.T) {
+			td, err := fs.ReadFile(fileSystem, tc.diff)
+			if err != nil {
+				t.Fatalf("testdata read failed: %v", err)
+			}
+
+			want := string(td)
+			var out bytes.Buffer
+			simple, err := render.New("simple", &out)
+			if err != nil {
+				t.Fatalf("render: %v", err)
+			}
+
+			bc := action.Config{
+				ScanPaths:  []string{tc.src, tc.dest},
+				IgnoreTags: []string{"harmless"},
+				Renderer:   simple,
+				Rules:      yrs,
+			}
+
+			res, err := action.Diff(bc)
+			if err != nil {
+				t.Fatalf("diff failed: %v", err)
+			}
+
+			if err := simple.Full(*res); err != nil {
+				t.Fatalf("full: %v", err)
+			}
+
+			got := out.String()
+			if diff := cmp.Diff(got, want); diff != "" {
+				t.Errorf("unexpected diff: %s\ngot: %s", diff, got)
+			}
+
+		})
+	}
+}
+
 func TestMarkdown(t *testing.T) {
 	yrs, err := rules.Compile(ruleFs, false)
 	if err != nil {
