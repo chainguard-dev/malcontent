@@ -1,6 +1,6 @@
 rule fts {
 	meta:
-		description = "traverse filesystem hierarchies"
+		description = "traverse filesystem hierarchy"
 		syscall = "openat,getdents"
 		pledge = "rpath"
 	strings:
@@ -15,7 +15,7 @@ rule fts {
 
 rule py_walk : notable {
 	meta:
-		description = "traverse filesystem hierarchies"
+		description = "traverse filesystem hierarchy"
 	strings:
 		$walk = "os.walk"
 	condition:
