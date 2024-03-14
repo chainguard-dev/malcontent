@@ -5,7 +5,7 @@ rule raw_flooder : notable {
 	strings:
 		$r_raw = "raw socket"
 		$r_hdr = "HDRINCL"
-		$r_iph = "ip_header"
+	//	$r_iph = "ip_header"
 		$r_pack = "IPPacket"
 
 		$f_flood = "flood"

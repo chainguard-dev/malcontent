@@ -1,4 +1,4 @@
-rule clang : harmless {
+rule clang {
   meta:
 	description = "Compiled with LLVM C Compiler"
   strings:

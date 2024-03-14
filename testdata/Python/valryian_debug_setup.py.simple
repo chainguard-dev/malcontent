@@ -1,0 +1,15 @@
+# testdata/Python/valryian_debug_setup.py
+combo/recon/system_network
+exec/pipe
+exec/program
+exec/shell_command
+fs/file/times/set
+kernel/uname/get
+net/fetch
+net/http/post
+net/interface/list
+net/public_ip
+process/username/get
+ref/path/hidden
+ref/path/tmp
+ref/site/url
