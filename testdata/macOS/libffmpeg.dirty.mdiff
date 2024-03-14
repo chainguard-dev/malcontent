@@ -1,0 +1,24 @@
+## 🐙 changed behaviors: testdata/macOS/libffmpeg.dirty.dylib
+
+|  RISK   |                     KEY                      |                                                                   DESCRIPTION                                                                    |
+|---------|----------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
+| +1/LOW  | **compression/gzip**                         | works with gzip files                                                                                                                            |
+| +1/LOW  | **env/HOME**                                 | looks up the HOME directory for the current user                                                                                                 |
+| +1/LOW  | **fs/lock/update**                           | apply or remove an advisory lock on a file                                                                                                       |
+| +1/LOW  | **kernel/dispatch/semaphore**                | uses Dispatch Semaphores                                                                                                                         |
+| +1/LOW  | **kernel/hostname/get**                      | gets the hostname of the machine                                                                                                                 |
+| +1/LOW  | **net/http/accept/encoding**                 | able to decode multiple forms of HTTP responses (example: gzip)                                                                                  |
+| +1/LOW  | **random/insecure**                          | generate random numbers insecurely                                                                                                               |
+| +1/LOW  | **sync/semaphore/user**                      | uses semaphores to synchronize data between processes or threads                                                                                 |
+| +2/MED  | **exec/pipe**                                | uses popen to launch a program and pipe output to/from it                                                                                        |
+| +2/MED  | **fs/permission/modify**                     | modifies file permissions using chmod                                                                                                            |
+| +2/MED  | **net/http/cookies**                         | able to access HTTP resources using cookies                                                                                                      |
+| +2/MED  | **net/url/request**                          | requests resources via URL                                                                                                                       |
+| +2/MED  | **ref/path/hidden**                          | references a hidden file that can be generated dynamically: "%s/.main_storage"                                                                   |
+| +2/MED  | **shell/arbitrary_command/dev_null**         | runs arbitrary commands redirecting output to /dev/null                                                                                          |
+| +4/CRIT | **3P/godmoderules/iddqd/god/mode**           | detects a wide array of cyber threats, from malware and ransomware to advanced persistent threats (APTs), by Florian Roth                        |
+| +4/CRIT | **3P/signature_base/3cxdesktopapp/backdoor** | detects 3CXDesktopApp MacOS Backdoor component, by X__Junior (Nextron Systems)                                                                   |
+| +4/CRIT | **3P/signature_base/nk/3cx**                 | detects malicious DYLIB files related to 3CX compromise, by Florian Roth (Nextron Systems)                                                       |
+| +4/CRIT | **3P/signature_base/susp/xored**             | detects suspicious single byte XORed keyword 'Mozilla/5.0' - it uses yara's XOR modifier and therefore cannot print the XOR key, by Florian Roth |
+| +4/CRIT | **3P/volexity/iconic**                       | detects the MACOS version of the ICONIC loader., by threatintel@volexity.com                                                                     |
+
