@@ -21,7 +21,20 @@ Enumerates program capabilities and malicious behaviors using fragment analysis.
 - Does not attempt to process archive files (jar, zip, apk)
 - Minimal rule support for Windows and Java (help wanted!)
 
+## Requirements
+
+* go 1.21+
+* yara 4.3+
+
 ## Installation
+
+If you don't have it already, install yara. Something like this should work:
+
+```shell
+brew install yara || sudo apt install libyara-devel || sudo dnf install yara-devel || sudo pacman -S yara
+```
+
+Then install libcapz:
 
 ```shell
 go install github.com/chainguard-dev/bincapz@latest
@@ -149,3 +162,18 @@ Much of bincapz's functionality is inspired by <https://github.com/mandiant/capa
 ### How can I help?
 
 If you find malware that `bincapz` doesn't surface suspicious behaviors for, send us a patch! All of the rules are defined in YARA format, and can be found in the `rules/` folder.
+
+### Error: ld: library 'yara' not found
+
+If you get this error at installation:
+
+```
+ld: warning: search path '/opt/homebrew/Cellar/yara/4.5.0/lib' not found
+ld: library 'yara' not found
+```
+
+You'll need to install the `yara` C library:
+
+```
+brew install yara || sudo apt install libyara-devel || sudo dnf install yara-devel || sudo pacman -S yara
+```
