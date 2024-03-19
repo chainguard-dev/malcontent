@@ -1,4 +1,3 @@
-
 rule ptrace : notable {
 	meta:
 		capability = "CAP_SYS_PTRACE"

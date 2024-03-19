@@ -92,6 +92,10 @@ func programKind(path string) string {
 		return "Java program"
 	case ".asm":
 		return ""
+	case ".service":
+		return "systemd"
+	case ".cron", ".crontab":
+		return "crontab"
 	case ".c":
 		return "C source"
 	}

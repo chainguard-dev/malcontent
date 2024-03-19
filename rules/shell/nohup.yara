@@ -1,4 +1,4 @@
-rule nohup_reference : notable {
+rule nohup_reference_value : notable {
   meta:
 	description = "Runs command that is protected from termination"
     hash_2018_MacOS_CoinTicker = "c344730f41f52a2edabf95730389216a9327d6acc98346e5738b3eb99631634d"
@@ -10,6 +10,7 @@ rule nohup_reference : notable {
     hash_2021_gjif_tsunami_Gafygt = "e2125d9ce884c0fb3674bd12308ed1c10651dc4ff917b5e393d7c56d7b809b87"
   strings:
     $nohup = "nohup" fullword
+	$nohup_re_val = /nohup[ \%\{\}\$\-\w\"\']{2,64}/
     $not_append = "appending output"
     $not_usage = "usage: nohup"
     $not_nohup_out = "nohup.out"
@@ -17,7 +18,7 @@ rule nohup_reference : notable {
     $bin_sh = "#!/bin/sh"
     $bin_bash = "#!/bin/bash"
   condition:
-    filesize < 52428800 and $nohup and none of ($not*) and not $bin_sh in (0..2) and not $bin_bash in (0..2)
+    filesize < 52428800 and any of ($nohup*) and none of ($not*) and not $bin_sh in (0..2) and not $bin_bash in (0..2)
 }
 
 rule elf_nohup : suspicious {
@@ -25,12 +26,13 @@ rule elf_nohup : suspicious {
 	description = "Runs command that is protected from termination"
   strings:
     $nohup = "nohup" fullword
+	$nohup_re_val = /nohup[ \%\{\}\$\-\w\"\']{2,64}/
     $not_append = "appending output"
     $not_usage = "usage: nohup"
     $not_nohup_out = "nohup.out"
     $not_pushd = "pushd"
   condition:
-	uint32(0) == 1179403647 and $nohup and none of ($not*)
+	uint32(0) == 1179403647 and any of ($nohup*) and none of ($not*)
 }
 
 rule trap_1 : suspicious {

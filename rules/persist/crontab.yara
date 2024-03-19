@@ -21,3 +21,14 @@ rule crontab_writer : suspicious {
     filesize < 2097152 and any of ($c*) and none of ($not*)
 }
 
+
+rule crontab_danger_path : suspicious {
+  meta:
+    ref = "https://blog.xlab.qianxin.com/mirai-nomi-en/"
+	description = "Starts from a dangerous-looking path"
+  strings:
+    $any_val = /\* \* \* \/(boot|var|tmp|dev|root)\/[\/\.\w\ \-]{0,64}/
+    $reboot_val = /@reboot \/(boot|var|tmp|dev|root)\/[\/\.\w\ \-]{0,64}/
+  condition:
+    filesize < 100MB and any of them
+}
