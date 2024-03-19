@@ -15,7 +15,7 @@ rule dynamic_dns_user : notable {
     $d_hopto_org = "hopto.org"
     $d_ddns_name = "ddns.name"
     $d_duckdns = "duckdns"
-
+	$d_dont = "donttargetme"
 	$junk = "amakawababia"
   condition:
     any of ($d*) and not $junk

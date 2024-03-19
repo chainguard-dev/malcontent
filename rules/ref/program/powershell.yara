@@ -1,7 +1,7 @@
 rule powershell : notable {
   strings:
-	$ref = "powershell" fullword
+	$val = /powershell[ \w\-]{0,32}/ fullword
 	$not_completions = "powershell_completion"
   condition:
-	$ref and none of ($not*)
+	$val and none of ($not*)
 }

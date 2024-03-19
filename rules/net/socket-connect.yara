@@ -1,5 +1,5 @@
 
-rule _connect {
+rule _connect : notable {
 	meta:
 		description = "initiate a connection on a socket"
 		syscall = "connect"
@@ -10,7 +10,7 @@ rule _connect {
 		any of them
 }
 
-rule connect {
+rule connect : notable {
 	meta:
 		description = "initiate a connection on a socket"
 		syscall = "connect"
@@ -21,7 +21,7 @@ rule connect {
 }
 
 
-rule py_connect {
+rule py_connect : notable {
 	meta:
 		description = "initiate a connection on a socket"
 		syscall = "connect"

@@ -1,18 +1,14 @@
-rule execstart_danger_path : suspicious {
+rule execstart_danger_path_val : suspicious {
   meta:
     ref = "https://sandflysecurity.com/blog/log4j-kinsing-linux-malware-in-the-wild/"
-	description = "Starts from an unusual path"
+	description = "Starts from a dangerous-looking path"
   strings:
-    $bad_boot = "ExecStart=/boot"
-    $bad_var = "ExecStart=/var"
-    $bad_tmp = "ExecStart=/tmp"
-    $bad_dev = "ExecStart=/dev"
-    $bad_root = "ExecStart=/root"
+    $awkward = /ExecStart=\/(boot|var|tmp|dev|root)\/[\.\w\-\/]{0,32}/
   condition:
     filesize < 4KB and any of them
 }
 
-rule execstart_unexpected_dir : notable {
+rule execstart_unexpected_dir_val : notable {
   meta:
 	description = "Starts from an unusual path"
     ref = "https://sandflysecurity.com/blog/log4j-kinsing-linux-malware-in-the-wild/"

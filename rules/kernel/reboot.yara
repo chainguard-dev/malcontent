@@ -20,3 +20,14 @@ rule kexec_load {
 		any of them
 }
 
+rule reboot_command_val : suspicious {
+	meta:
+		description = "Forcibly reboots machine"
+	strings:
+		$usr_sbin = "/usr/sbin/reboot" fullword
+		$sbin = "/sbin/reboot" fullword
+		$bin = "/bin/reboot" fullword
+		$usr_bin = "/usr/bin/reboot" fullword
+	condition:
+		any of them
+}
