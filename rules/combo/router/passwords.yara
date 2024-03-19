@@ -1,4 +1,4 @@
-rule router_password_references {
+rule router_password_references : critical {
   meta:
     hash_2021_trojan_Mirai_Gafgyt_bonb = "68c67c4e38c1b5a1a2897c5f6d25456e989f5a94c359137ea040e79ca4a588aa"
     hash_2023_Linux_Malware_Samples_efa8 = "efa875506296d77178884ba8ac68a8b6d6aef24e79025359cf5259669396e8dd"

@@ -1,4 +1,4 @@
-rule generic_scan_tool : suspicious {
+rule ssh_snake_worm : suspicious {
   meta:
 	description = "possible SSH worm like SSH-Snake"
   strings:
@@ -12,4 +12,21 @@ rule generic_scan_tool : suspicious {
 	$u_uname = "uname"
   condition:
 	all of ($s*) and any of ($h*) and any of ($u*)
+}
+
+rule ssh_worm_router : suspicious {
+  meta:
+	description = "ssh worm targetting routers"
+  strings:
+	$s_dot_ssh = ".ssh"
+
+	$h_etc_hosts = "/etc/hosts"
+
+    $p_root123 = "root123"
+    $p_passw0rd = "Passw0rd"
+    $p_admin123 = "admin123"
+    $p_Admin123 = "Admin123"
+	$p_qwerty123 = "qwerty123"
+  condition:
+	all of ($s*) and any of ($h*) and any of ($p*)
 }

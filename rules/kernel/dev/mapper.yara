@@ -1,9 +1,10 @@
-rule mapper {
+rule dev_mapper : notable {
 	meta:
 		description = "uses the device mapper framework"
 		ref = "https://en.wikipedia.org/wiki/Device_mapper"
 	strings:
-		$ref = "/dev/mapper"
+		$val = /\/dev\/mapper[\$\%\w\{\}]{0,16}/
 	condition:
 		any of them
 }
+
