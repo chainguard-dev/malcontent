@@ -1,4 +1,4 @@
-rule process_injector : critical {
+rule process_injector_value : critical {
 	meta:
 		description = "may inject code into other processes"
 	strings:

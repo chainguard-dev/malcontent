@@ -1,5 +1,5 @@
 
-rule getaddrinfo : notable {
+rule getaddrinfo : low {
 	meta:
 		pledge = "inet"
 		description = "Network address and service translation"
