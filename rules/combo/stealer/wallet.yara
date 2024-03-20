@@ -15,6 +15,12 @@ rule crypto_stealer : critical {
 	$w_oa = "OasisWallet"
 	$w_bn = "BinanceChain"
 	$w_tl = "TronLink" 
+	$w_hycon = "Hycon L"
+	$w_coin = "Coinbas"
+	$w_wallet = /[\w\/]{0,32}\/\.walle[\w\/]{0,16}/
+	$w_trezor = "Trezor"
+	$w_exodus = "Exodus"
+	$w_coinomi = "Coinomi"
   condition:
 	$http and 2 of ($w*)
 }

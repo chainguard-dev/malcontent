@@ -13,3 +13,4 @@ rule telegram_bot : suspicious {
   condition:
     2 of ($s*) or (2 of ($p*) and 1 of ($s*))
 }
+

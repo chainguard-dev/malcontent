@@ -17,6 +17,7 @@ rule suspected_data_stealer : suspicious {
     $s_binance = "Binance"
     $s_discord = "Discord"
     $s_electrum = "Electrum"
+	$s_electrum2 = "/.elect"
     $s_exodus = "Exodus"
     $s_obs = "obs-studio"
     $s_pidgin = "Pidgin"

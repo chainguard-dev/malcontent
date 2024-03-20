@@ -15,6 +15,7 @@ rule executable_calls_archive_tool : notable {
     $a_tar_T = "tar -T"
     $a_zip_x = "zip -X"
     $a_zip_r = "zip -r"
+	$a_ditto = /ditto -[\w\-\/ ]{0,32}/
     $not_applet = "zip -r ../applet.zip"
     $not_usage = "Usage:"
   condition:
