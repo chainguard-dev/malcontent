@@ -53,3 +53,24 @@ rule multiple_browser_credentials_2 {
     3 of ($a_*) and none of ($not_*)
 }
 
+
+rule multiple_browser_refs : suspicious {
+  meta:
+	description = "Uses HTTP, archives, and references multiple browsers"
+  strings:
+	$h_http = "http" fullword
+	$h_POST = "POST" fullword
+
+	$z_zip = "zip" fullword
+	$z_ZIP = "ZIP" fullword
+	$z_ditto = "ditto" fullword
+	$z_tar = "tar" fullword
+
+	$b_Yandex = "Yandex"
+	$b_Brave = "Brave"
+	$b_Firefox = "Firefox"
+	$b_Safari = "Safari"
+	$b_Chrome = "Chrome"
+  condition:
+    any of ($h*) and any of ($z*) and 2 of ($b*)
+}
