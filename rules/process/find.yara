@@ -3,7 +3,7 @@ rule pgrep : notable {
   meta:
 	description = "Finds program in process table"
   strings:
-	$ref = "pgrep" fullword
+	$val = /pgrep[ \w\$]{0,32}/ fullword
   condition:
-	$ref
+	$val
 }

