@@ -14,3 +14,6 @@
 
 # Go workspace file
 go.work
+
+# added by lint-install
+out/
