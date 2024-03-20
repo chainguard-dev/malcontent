@@ -1,4 +1,4 @@
-rule pthread_create : notable {
+rule pthread_create {
 	meta:
 		syscall = "pthread_create"
 		description = "uses pthreads"
