@@ -18,20 +18,12 @@ rule upx : suspicious {
     any of them in (0..1024)
 }
 
-rule tampered_upx : suspicious {
+rule upx_elf: suspicious {
   meta:
-	description = "Binary is packed with UPX and further tampered with"
-    hash_2021_trojan_Mirai_genericrxmj = "c187548577d9c3afc2d2d8dcb4c92279994bc6151472a7a076a596286ad8e404"
-    hash_2021_trojan_Mirai_lrzjy = "1a796f26d5d9cc76978ecaa0ef63e603a47722545fa1e6939bd85144edcebe86"
-    hash_2020_trojan_FDNCQLX_uxgkp = "ecec4df631dcebc59cc96bd1ac22657d58be0ecb7d58a74971cf90de3b4daed3"
-    hash_2023_Linux_Malware_Samples_2010 = "201083e4e4e6fc5c91a21e7c84151978ceb2cd40c74d7f08afe497c699cdf1b4"
-    hash_2023_Linux_Malware_Samples_4a19 = "4a192a222de58048d9fdfe160d2cec8723b50785903f9e2e9aee122fccf15e10"
-    hash_2023_Linux_Malware_Samples_5304 = "53046ec20ff41109e92ae74a5d9ea300d01c07d08fff936f2c7f527cae6384ec"
-    hash_2023_Linux_Malware_Samples_7935 = "793599165003c5f0cb774236db8c99554286b73d3b804b79f1f7b9864481f9fa"
-    hash_2023_Linux_Malware_Samples_bb04 = "bb04b1c4160c9e614178dae9d97077791a7db01fd785bdb5640939628b09fd6b"
+	description = "Binary is packed with UPX"
   strings:
-    $upx_sig = "UPX!"
+    $proc_self = "/proc/self/exe"
     $prot_exec = "PROT_EXEC|PROT_WRITE failed"
   condition:
-    filesize < 1048576 and $prot_exec and not $upx_sig
+	$prot_exec and $proc_self
 }
