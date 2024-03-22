@@ -5,6 +5,9 @@ rule http_cookie : notable {
 	strings:
 		$Cookie = "Cookie"
 		$HTTP = "HTTP"
+
+		$http_cookie = "http_cookie"
+		$http_cookie2 = "HTTP_COOKIE"
 	condition:
-		all of them
+		any of ($http_cookie*) or ($Cookie and $HTTP)
 }
