@@ -20,6 +20,7 @@ Enumerates program capabilities and malicious behaviors using fragment analysis.
 
 - Does not attempt to process archive files (jar, zip, apk)
 - Minimal rule support for Windows and Java (help wanted!)
+- Early in development; output is subject to change
 
 ## Requirements
 
