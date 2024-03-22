@@ -25,7 +25,6 @@ rule obfuscated_elf : suspicious {
     uint32(0) == 1179403647 and none of them
 }
 
-
 rule obfuscated_macho : suspicious {
   meta:
     hash_2021_XLoader_kIbwf02l = "97d6b194da410db82d9974aec984cff8ac0a6ad59ec72b79d4b2a4672b5aa8aa"
