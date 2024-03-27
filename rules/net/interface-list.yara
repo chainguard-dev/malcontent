@@ -1,4 +1,4 @@
-rule bsd_ifaddrs {
+rule bsd_ifaddrs : notable {
 	meta:
 		description = "list network interfaces and their associated addresses"
 	strings:

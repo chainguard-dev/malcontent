@@ -7,9 +7,9 @@ rule http_digest_auth_exec_connector : suspicious {
     $d_digest = "Digest"
     $d_https = "https"
     $d_rspauth = "rspauth"
-    $d_exec = "_exec"
-    $d_connect_f = "_connect"
-    $d_glob = "_glob"
+    $d_exec = "_exec" fullword
+    $d_connect_f = "_connect" fullword
+    $d_glob = "_glob" fullword
   condition:
     all of ($d_*)
 }
@@ -19,9 +19,9 @@ rule connect_glob_exec_https : notable {
 	description = "makes HTTPS connections, runs programs, finds files"
   strings:
     $d_https = "https"
-    $d_exec = "_exec"
-    $d_connect_f = "_connect"
-    $d_glob = "_glob"
+    $d_exec = "_exec" fullword
+    $d_connect_f = "_connect" fullword
+    $d_glob = "_glob" fullword
   condition:
     all of ($d_*)
 }
