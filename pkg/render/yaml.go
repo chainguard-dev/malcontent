@@ -16,7 +16,7 @@ func NewYAML(w io.Writer) YAML {
 	return YAML{w: w}
 }
 
-func (r YAML) File(fr bincapz.FileReport) error {
+func (r YAML) File(_ bincapz.FileReport) error {
 	return nil
 }
 

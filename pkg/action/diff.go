@@ -61,9 +61,14 @@ func Diff(c Config) (*bincapz.Report, error) {
 			d.Removed[relPath] = fr
 			continue
 		}
+		// This file exists in both source & destination
 		rbs := bincapz.FileReport{
-			Path:      tr.Path,
-			Behaviors: map[string]bincapz.Behavior{},
+			Path:              tr.Path,
+			Behaviors:         map[string]bincapz.Behavior{},
+			PreviousRiskScore: fr.RiskScore,
+			PreviousRiskLevel: fr.RiskLevel,
+			RiskLevel:         tr.RiskLevel,
+			RiskScore:         tr.RiskScore,
 		}
 
 		// if source behavior is not in the destination
@@ -73,6 +78,7 @@ func Diff(c Config) (*bincapz.Report, error) {
 				rbs.Behaviors[key] = b
 			}
 		}
+
 		d.Modified[relPath] = rbs
 	}
 
@@ -83,9 +89,16 @@ func Diff(c Config) (*bincapz.Report, error) {
 			d.Added[relPath] = tr
 			continue
 		}
+
+		// This file exists in both source and destination
 		abs := bincapz.FileReport{
-			Path:      tr.Path,
-			Behaviors: map[string]bincapz.Behavior{},
+			Path:              tr.Path,
+			Behaviors:         map[string]bincapz.Behavior{},
+			PreviousRiskScore: fr.RiskScore,
+			PreviousRiskLevel: fr.RiskLevel,
+
+			RiskScore: tr.RiskScore,
+			RiskLevel: tr.RiskLevel,
 		}
 
 		// if destination behavior is not in the source

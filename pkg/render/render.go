@@ -7,13 +7,13 @@ import (
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
 )
 
-// Renderer is a common interface for Renderers
+// Renderer is a common interface for Renderers.
 type Renderer interface {
 	File(bincapz.FileReport) error
 	Full(bincapz.Report) error
 }
 
-// New returns a new Renderer
+// New returns a new Renderer.
 func New(kind string, w io.Writer) (Renderer, error) {
 	switch kind {
 	case "", "auto", "terminal":
