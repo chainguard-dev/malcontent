@@ -37,7 +37,7 @@ func (r Markdown) Full(rep bincapz.Report) error {
 
 	for _, fr := range rep.Diff.Modified {
 		fr := fr
-		title := fmt.Sprintf("## Modified: %s\n", fr.Path)
+		title := fmt.Sprintf("## Changed: %s\n", fr.Path)
 		if fr.RiskScore != fr.PreviousRiskScore {
 			title = fmt.Sprintf("%s\nPrevious Risk: %s\nNew Risk:      %s",
 				title,
