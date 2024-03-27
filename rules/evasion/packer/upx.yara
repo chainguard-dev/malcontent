@@ -17,13 +17,3 @@ rule upx : suspicious {
   condition:
     any of them in (0..1024)
 }
-
-rule upx_elf: suspicious {
-  meta:
-	description = "Binary is packed with UPX"
-  strings:
-    $proc_self = "/proc/self/exe"
-    $prot_exec = "PROT_EXEC|PROT_WRITE failed"
-  condition:
-	$prot_exec and $proc_self
-}
