@@ -19,11 +19,11 @@ import (
 )
 
 var riskLevels = map[int]string{
-	0: "NONE", // harmless: common to all executables, no system impact
-	1: "LOW",  // undefined: low impact, common to good and bad executables
-	2: "MED",  // notable: may have impact, but common
-	3: "HIGH", // suspicious: uncommon, but could be legit
-	4: "CRIT", // critical: certainly malware
+	0: "NONE",     // harmless: common to all executables, no system impact
+	1: "LOW",      // undefined: low impact, common to good and bad executables
+	2: "MEDIUM",   // notable: may have impact, but common
+	3: "HIGH",     // suspicious: uncommon, but could be legit
+	4: "CRITICAL", // critical: certainly malware
 }
 
 // yaraForge has some very very long rule names
@@ -267,7 +267,7 @@ func pathChecksum(path string) string {
 	return fmt.Sprintf("%x", h.Sum(nil))
 }
 
-func Generate(path string, mrs yara.MatchRules, ignoreTags []string, minLevel int) bincapz.FileReport {
+func Generate(path string, mrs yara.MatchRules, ignoreTags []string, minScore int) bincapz.FileReport {
 	ignore := map[string]bool{}
 	for _, t := range ignoreTags {
 		ignore[t] = true
@@ -286,10 +286,16 @@ func Generate(path string, mrs yara.MatchRules, ignoreTags []string, minLevel in
 	desc := ""
 	author := ""
 	license := ""
+	overallRiskScore := 0
+	riskCounts := map[int]int{}
 
 	for _, m := range mrs {
 		risk := behaviorRisk(m.Namespace, m.Tags)
-		if risk < minLevel {
+		if risk > overallRiskScore {
+			overallRiskScore = risk
+		}
+		riskCounts[risk]++
+		if risk < minScore {
 			continue
 		}
 		key := generateKey(m.Namespace, m.Rule)
@@ -363,6 +369,12 @@ func Generate(path string, mrs yara.MatchRules, ignoreTags []string, minLevel in
 			existing.Description = b.Description
 			fr.Behaviors[key] = existing
 		}
+
+	}
+
+	// If something has a lot of high, it's probably critical
+	if riskCounts[3] >= 4 {
+		overallRiskScore = 4
 	}
 
 	slices.Sort(pledges)
@@ -371,6 +383,8 @@ func Generate(path string, mrs yara.MatchRules, ignoreTags []string, minLevel in
 	fr.Pledge = slices.Compact(pledges)
 	fr.Syscalls = slices.Compact(syscalls)
 	fr.Capabilities = slices.Compact(caps)
+	fr.RiskScore = overallRiskScore
+	fr.RiskLevel = riskLevels[fr.RiskScore]
 
 	klog.V(4).Infof("yara matches: %+v", mrs)
 	return fr

@@ -13,6 +13,11 @@ import (
 	"k8s.io/klog/v2"
 )
 
+// ignoreMeta are fields to ignore in output.
+var ignoreMeta = map[string]bool{
+	"format": true,
+}
+
 type KeyedBehavior struct {
 	Key      string
 	Behavior bincapz.Behavior
@@ -60,36 +65,67 @@ func NewTerminal(w io.Writer) Terminal {
 	return Terminal{w: w}
 }
 
-func (r Terminal) File(fr bincapz.FileReport) error {
+func decorativeRisk(score int, level string) string {
 	symbol := "✅"
-	maxRisk := 0
-	for _, b := range fr.Behaviors {
-		if b.RiskScore > maxRisk {
-			maxRisk = b.RiskScore
-		}
-	}
-	switch maxRisk {
+	switch score {
 	case 3:
 		symbol = "🔥"
 	case 4:
 		symbol = "🚨"
 	}
 
-	renderTable(&fr, r.w, tableConfig{Title: fmt.Sprintf("%s %s", symbol, fr.Path)})
+	return fmt.Sprintf("%s %d/%s", symbol, score, level)
+}
+
+func shortRisk(s string) string {
+	if len(s) < 4 {
+		return s
+	}
+	short := s[0:4]
+	if s == "MEDIUM" {
+		return "MED"
+	}
+	return short
+}
+
+func (r Terminal) File(fr bincapz.FileReport) error {
+	renderTable(&fr, r.w,
+		tableConfig{
+			Title: fmt.Sprintf("Path: %s\nRisk: %s", fr.Path, decorativeRisk(fr.RiskScore, fr.RiskLevel)),
+		},
+	)
 	return nil
 }
 
 func (r Terminal) Full(rep bincapz.Report) error {
 	for f, fr := range rep.Diff.Removed {
-		renderTable(&fr, r.w, tableConfig{Title: fmt.Sprintf("➖ file removed: %s", f), DiffRemoved: true})
+		fr := fr
+		renderTable(&fr, r.w, tableConfig{
+			Title:       fmt.Sprintf("➖ Deleted: %s", f),
+			DiffRemoved: true,
+		})
 	}
 
 	for f, fr := range rep.Diff.Added {
-		renderTable(&fr, r.w, tableConfig{Title: fmt.Sprintf("➕ file added: %s", f), DiffAdded: true})
+		fr := fr
+		renderTable(&fr, r.w, tableConfig{
+			Title:     fmt.Sprintf("Added: %s\nAdded Risk: %s", f, decorativeRisk(fr.RiskScore, fr.RiskLevel)),
+			DiffAdded: true,
+		})
 	}
 
 	for _, fr := range rep.Diff.Modified {
-		renderTable(&fr, r.w, tableConfig{Title: fmt.Sprintf("🐙 changed behaviors: %s", fr.Path)})
+		fr := fr
+		title := fmt.Sprintf("Changed: %s", fr.Path)
+		if fr.RiskScore != fr.PreviousRiskScore {
+			title = fmt.Sprintf("%s\nPrevious Risk: %s\nNew Risk:      %s",
+				title,
+				decorativeRisk(fr.PreviousRiskScore, fr.PreviousRiskLevel),
+				decorativeRisk(fr.RiskScore, fr.RiskLevel))
+		}
+		renderTable(&fr, r.w, tableConfig{
+			Title: title,
+		})
 	}
 	return nil
 }
@@ -121,19 +157,21 @@ func renderTable(fr *bincapz.FileReport, w io.Writer, rc tableConfig) {
 		if kbs[i].Behavior.RiskScore == kbs[j].Behavior.RiskScore {
 			return kbs[i].Key < kbs[j].Key
 		}
-		return kbs[i].Behavior.RiskScore < kbs[j].Behavior.RiskScore
+		return kbs[i].Behavior.RiskScore > kbs[j].Behavior.RiskScore
 	})
 
 	data := [][]string{}
 
 	for k, v := range fr.Meta {
-		data = append(data, []string{"meta", k, v})
+		if ignoreMeta[k] {
+			data = append(data, []string{"meta", k, v})
+		}
 	}
 
 	tWidth := terminalWidth()
 	keyWidth := 36
 	riskWidth := 7
-	padding := 4
+	padding := 6
 	maxKeyLen := 0
 
 	for _, k := range kbs {
@@ -183,7 +221,7 @@ func renderTable(fr *bincapz.FileReport, w io.Writer, rc tableConfig) {
 
 		// lowercase first character for consistency
 		desc = strings.ToLower(string(desc[0])) + desc[1:]
-		risk := fmt.Sprintf("%d/%s", k.Behavior.RiskScore, k.Behavior.RiskLevel)
+		risk := fmt.Sprintf("%d/%s", k.Behavior.RiskScore, shortRisk(k.Behavior.RiskLevel))
 		if k.Behavior.DiffAdded || rc.DiffAdded {
 			risk = fmt.Sprintf("+%s", risk)
 		}
@@ -200,11 +238,8 @@ func renderTable(fr *bincapz.FileReport, w io.Writer, rc tableConfig) {
 
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetAutoWrapText(false)
-	//	table.SetHeader([]string{"Risk", "Key", "Description"})
 	table.SetBorder(false)
 	table.SetCenterSeparator("")
-	// SetBorders miscalculates length with NoWhiteSpace
-	//table.SetBorders(tablewriter.Border{Left: false, Top: true, Right: false, Bottom: false})
 	maxDescWidth := 0
 	maxRiskWidth := 0
 	for _, d := range data {
@@ -216,8 +251,8 @@ func renderTable(fr *bincapz.FileReport, w io.Writer, rc tableConfig) {
 				maxDescWidth = len(l)
 			}
 		}
-
 	}
+
 	tableWidth := maxKeyLen + maxDescWidth + padding + maxRiskWidth
 	klog.Infof("table width: %d", tableWidth)
 	fmt.Fprintf(w, "%s\n", strings.Repeat("-", tableWidth))

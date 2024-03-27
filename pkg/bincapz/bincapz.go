@@ -27,6 +27,12 @@ type FileReport struct {
 	Capabilities      []string            `json:",omitempty" yaml:",omitempty"`
 	Behaviors         map[string]Behavior `json:",omitempty" yaml:",omitempty"`
 	FilteredBehaviors int                 `json:",omitempty" yaml:",omitempty"`
+
+	PreviousRiskScore int    `json:",omitempty" yaml:",omitempty"`
+	PreviousRiskLevel string `json:",omitempty" yaml:",omitempty"`
+
+	RiskScore int
+	RiskLevel string `json:",omitempty" yaml:",omitempty"`
 }
 
 type DiffReport struct {
