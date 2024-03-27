@@ -20,21 +20,32 @@ func NewMarkdown(w io.Writer) Markdown {
 }
 
 func (r Markdown) File(fr bincapz.FileReport) error {
-	markdownTable(&fr, r.w, tableConfig{Title: fmt.Sprintf("## %s", fr.Path)})
+	markdownTable(&fr, r.w, tableConfig{Title: fmt.Sprintf("## %s\n\nOverall risk: %s", fr.Path, decorativeRisk(fr.RiskScore, fr.RiskLevel))})
 	return nil
 }
 
 func (r Markdown) Full(rep bincapz.Report) error {
 	for f, fr := range rep.Diff.Removed {
-		markdownTable(&fr, r.w, tableConfig{Title: fmt.Sprintf("## ➖ file removed: %s", f), DiffRemoved: true})
+		fr := fr
+		markdownTable(&fr, r.w, tableConfig{Title: fmt.Sprintf("## Deleted: %s", f), DiffRemoved: true})
 	}
 
 	for f, fr := range rep.Diff.Added {
-		markdownTable(&fr, r.w, tableConfig{Title: fmt.Sprintf("## ➕ file added: %s", f), DiffAdded: true})
+		fr := fr
+		markdownTable(&fr, r.w, tableConfig{Title: fmt.Sprintf("## Added: %s\n\nOverall risk: %s", f, decorativeRisk(fr.RiskScore, fr.RiskLevel)), DiffAdded: true})
 	}
 
 	for _, fr := range rep.Diff.Modified {
-		markdownTable(&fr, r.w, tableConfig{Title: fmt.Sprintf("## 🐙 changed behaviors: %s", fr.Path)})
+		fr := fr
+		title := fmt.Sprintf("## Changed: %s\n", fr.Path)
+		if fr.RiskScore != fr.PreviousRiskScore {
+			title = fmt.Sprintf("%s\nPrevious Risk: %s\nNew Risk:      %s",
+				title,
+				decorativeRisk(fr.PreviousRiskScore, fr.PreviousRiskLevel),
+				decorativeRisk(fr.RiskScore, fr.RiskLevel))
+		}
+
+		markdownTable(&fr, r.w, tableConfig{Title: title})
 	}
 	return nil
 }
@@ -68,7 +79,7 @@ func markdownTable(fr *bincapz.FileReport, w io.Writer, rc tableConfig) {
 		if kbs[i].Behavior.RiskScore == kbs[j].Behavior.RiskScore {
 			return kbs[i].Key < kbs[j].Key
 		}
-		return kbs[i].Behavior.RiskScore < kbs[j].Behavior.RiskScore
+		return kbs[i].Behavior.RiskScore > kbs[j].Behavior.RiskScore
 	})
 
 	data := [][]string{}
