@@ -21,3 +21,23 @@ rule remote_eval_close : critical {
   condition:
 	math.max(@header, @eval) - math.min(@header, @eval) < 96
 }
+
+rule python_exec_near_requests : critical {
+  meta:
+	description = "Evaluates code from encrypted content"
+  strings:
+	$exec = "exec("
+	$requests = "equests.get("
+  condition:
+	all of them and math.abs(@requests - @exec) <= 128
+}
+
+rule python_eval_near_requests : critical {
+  meta:
+	description = "Evaluates code from encrypted content"
+  strings:
+	$eval = "eval("
+	$requests = "equests.get("
+  condition:
+	all of them and math.abs(@requests - @eval) <= 128
+}
