@@ -3,7 +3,7 @@ rule discord_password_post_chat : suspicious {
 	description = "gets passwords, makes HTTP requests, and uses Discord"
   strings:
 	$c1 = "discordapp.com"
-	$c2 = "Discord"
+//	$c2 = "Discord"
 
 	$h1 = "get("
 	$h2 = "post("

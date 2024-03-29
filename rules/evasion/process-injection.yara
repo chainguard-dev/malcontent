@@ -12,6 +12,8 @@ rule process_injector_value : critical {
 
 		$ptrace = "trace" fullword
 		$proc = "process" fullword
+
+		$not_qemu = "QEMU_IS_ALIGNED"
 	condition:
-		any of ($m*) and any of ($i*) and any of ($p*)
+		any of ($m*) and any of ($i*) and any of ($p*) and none of ($not*)
 }

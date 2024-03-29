@@ -10,7 +10,7 @@ rule readdir_openpty_socket : suspicious {
 		all of them in (1200..3000)
 }
 
-rule pseudoterminal_tunnel : critical {
+rule pseudoterminal_tunnel : suspicious {
 	meta:
 		description = "accesses pseudoterminals and sets up a tunnel"
 	strings:
@@ -19,8 +19,10 @@ rule pseudoterminal_tunnel : critical {
 
 		$t = "tunnel" fullword
 		$t2 = "TUNNEL" fullword
+
+		$not_qemu = "QEMU_IS_ALIGNED"
 	condition:
-		any of ($p*) and any of ($t*)
+		any of ($p*) and any of ($t*) and none of ($not_qemu*)
 }
 
 

@@ -39,8 +39,10 @@ rule apt_get_installer : suspicious {
 	description = "Installs software using apt-get"
   strings:
     $val = /apt-get install[ \w\-\_%]{0,32}/
+
+	$foo = "install foo"
   condition:
-	$val
+	$val and not $foo
 }
 
 rule apk_installer : suspicious {

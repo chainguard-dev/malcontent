@@ -3,6 +3,7 @@ rule proc_listallpids : notable {
 	meta:
 		pledge = "exec"
 		syscall = "vfork"
+		description = "calls proc_listallpid"
 	strings:
 		$ref = "proc_listallpid" fullword
 	condition:
@@ -36,7 +37,7 @@ rule procfs_listdir : notable {
 }
 
 
-rule proclist : high {
+rule proclist : medium {
 	meta:
 		description = "accesses process list"
 	strings:

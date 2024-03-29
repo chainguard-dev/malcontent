@@ -8,7 +8,7 @@ rule keychain : notable macos {
 		any of them
 }
 
-rule macos_library_keychains : suspicious macos {
+rule macos_library_keychains : notable {
 	meta:
 		description = "Accesses the system keychain via files"
 	strings:

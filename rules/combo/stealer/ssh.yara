@@ -1,5 +1,7 @@
 
-rule tar_ssh_net : suspicious {
+rule tar_ssh_net : notable {
+  meta:
+	description = "possible SSH stealer"
   strings:
 	$s_curl = "curl" fullword
 	$s_wget = "wget" fullword
