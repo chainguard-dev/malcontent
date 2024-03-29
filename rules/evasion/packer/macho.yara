@@ -26,6 +26,8 @@ rule obfuscated_macho : suspicious {
     $common_swift_get = "swift_get"
     $common_swift = "_swift_"
 	$common_java = "java/lang"
+	$common_dladdr = "_dladdr" fullword
+	$common_environ = "__mh_execute_header" fullword
   condition:
     filesize < 52428800 and (uint32(0) == 4277009102 or uint32(0) == 3472551422 or uint32(0) == 4277009103 or uint32(0) == 3489328638 or uint32(0) == 3405691582 or uint32(0) == 3199925962) and none of ($common*)
 }

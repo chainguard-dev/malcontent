@@ -14,6 +14,7 @@ rule crypto_stealer : critical {
 	$w_ms = "MonstraWallet"
 	$w_oa = "OasisWallet"
 	$w_bn = "BinanceChain"
+	$w_ir = "Iridium"
 	$w_tl = "TronLink" 
 	$w_hycon = "Hycon L"
 	$w_coin = "Coinbas"

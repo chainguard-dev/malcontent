@@ -7,9 +7,9 @@ rule fetch_chmod_run_oneliner_value : critical {
 		any of them
 }
 
-rule curl_chmod_relative_run : suspicious {
+rule curl_chmod_relative_run : notable {
   meta:
-	description = "fetches file, makes it executable, runs it"
+	description = "may fetch file, make it executable, and run it"
   strings:
 	$chmcurlod = /curl [\-\w \$\@\{\w\/\.\:]{0,96}/
 	$chmod = /chmod [\-\w \$\@\{\w\/\.]{0,64}/
@@ -18,9 +18,9 @@ rule curl_chmod_relative_run : suspicious {
 	all of them
 }
 
-rule wget_chmod_relative_run : suspicious {
+rule wget_chmod_relative_run : notable {
   meta:
-	description = "fetches file, makes it executable, runs it"
+	description = "may fetch file, make it executable, and run it"
   strings:
 	$chmcurlod = /wget [\-\w \$\@\{\w\/\.\:]{0,96}/
 	$chmod = /chmod [\-\w \$\@\{\w\/\.]{0,64}/

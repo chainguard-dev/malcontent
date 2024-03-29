@@ -88,7 +88,7 @@ rule exec_getprog_socket_waitpid_combo {
 }
 
 
-rule exec_chdir_and_socket : suspicious {
+rule exec_chdir_and_socket : notable {
   strings:
     $socket = "socket" fullword
     $chdir = "chdir" fullword

@@ -1,4 +1,4 @@
-rule command_and_control : suspicious {
+rule command_and_control : notable {
   meta:
 	description = "Uses terms that may reference a command and control server"
   strings:

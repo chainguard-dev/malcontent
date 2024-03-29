@@ -9,9 +9,9 @@ rule rm_force {
 }
 
 
-rule rm_recursive_force : suspicious {
+rule rm_recursive_force : medium {
   meta:
-	description = "Forcibly deletes files using rm -R"
+	description = "Forcibly recursively deletes files using rm -R"
   strings:
 	$ref = /rm -[Rr]f [ \$\w\/\.]{0,32}/
 	$ref2 = /rm -f[Rr] [ \$\w\/\.]{0,32}/

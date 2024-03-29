@@ -69,8 +69,10 @@ rule php_bin_hashbang : critical {
   strings:
     $x_php = "<?php"
     $script = "#!/bin/"
+
+	$not_php = "PHP_VERSION_ID"
   condition:
-    $script and any of ($x*)
+    $script and any of ($x*) and none of ($not*)
 }
 
 rule php_urlvar_recon_exec : critical {
@@ -91,8 +93,10 @@ rule php_urlvar_recon_exec : critical {
     $f_phpinfo = "phpinfo("
     $x_GET = "_GET"
     $x_POST = "_POST"
+
+	$not_php = "PHP_VERSION_ID"
   condition:
-    any of ($e*) and any of ($f*) and any of ($x*)
+    any of ($e*) and any of ($f*) and any of ($x*) and none of ($not*)
 }
 
 rule php_system_to_perl {
@@ -111,13 +115,15 @@ rule php_eval_gzinflate_base64_backdoor : critical {
     hash_2023_0xShell_lndex = "9b073472cac7f3f8274165a575e96cfb4f4eb38471f6a8e57bb9789f3f307495"
     hash_2023_0xShell_lndex = "9b073472cac7f3f8274165a575e96cfb4f4eb38471f6a8e57bb9789f3f307495"
   strings:
-    $eval = "eval("
-    $html_special = "htmlspecialchars_decode"
-    $gzinflate = "gzinflate("
-    $base64_decode = "base64_decode"
+    $f_eval = "eval("
+    $f_html_special = "htmlspecialchars_decode"
+    $f_gzinflate = "gzinflate("
+    $f_base64_decode = "base64_decode"
+
+	$not_php = "PHP_FLOAT_DIG" fullword
   condition:
-    all of them
-}
+    all of ($f*) and none of ($not*)
+ }
 
 
 rule php_obfuscated_with_hex_characters : critical {
@@ -214,11 +220,15 @@ rule php_insecure_curl_uploader : critical {
     hash_2023_0xShell_f = "9ce3da0322ee42e9119abb140b829efc3c94ea802df7a6f3968829645e1a5330"
   strings:
     $CURLOPT_SSL_VERIFYPEER = "CURLOPT_SSL_VERIFYPEER"
+	$php = "<?php"
+
     $f_file_get_contents = "file_get_contents"
     $f_eval = "eval"
     $f_stream_get_contents = "stream_get_contents"
+
+	$not_php = "PHP_VERSION_ID"
   condition:
-    $CURLOPT_SSL_VERIFYPEER and any of ($f*)
+    $CURLOPT_SSL_VERIFYPEER and $php and any of ($f*) and none of ($not*)
 }
 
 rule php_eval_get_contents : critical {

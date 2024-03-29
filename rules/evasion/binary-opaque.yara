@@ -1,4 +1,4 @@
-rule opaque_binary : suspicious {
+rule opaque_binary : notable {
   meta:
     hash_2023_MacOS_applet = "54db4cc34db4975a60c919cd79bb01f9e0c3e8cf89571fee09c75dfff77a0bcd"
     hash_2021_CDDS_arch = "a63466d09c3a6a2596a98de36083b6d268f393a27f7b781e52eeb98ae055af97"
@@ -12,6 +12,8 @@ rule opaque_binary : suspicious {
     $word_with_spaces = /[a-z]{2,} [a-z]{2,}/
 	$not_gmon_start = "__gmon_start__"
 	$not_usage = "usage:" fullword
+	$not_usage2 = "Usage:" fullword
+	$not_USAGE = "USAGE:" fullword
 	$not_java = "java/lang"
   condition:
 	// matches elf or macho

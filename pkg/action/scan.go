@@ -86,6 +86,9 @@ func Scan(c Config) (*bincapz.Report, error) {
 				klog.Errorf("scan path: %v", err)
 				continue
 			}
+			if fr == nil {
+				continue
+			}
 			if c.Renderer != nil {
 				if err := c.Renderer.File(*fr); err != nil {
 					return r, fmt.Errorf("render: %w", err)
