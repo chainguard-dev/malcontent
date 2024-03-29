@@ -9,7 +9,7 @@ rule busybox_runner : suspicious {
     hash_2023_Linux_Malware_Samples_bc5c = "bc5c2358e58876be7955fa0c8f5514f4d35e5353b93ba091216b2371470da988"
     hash_2021_trojan_Mirai_Tsunami = "c8aeb927cd1b897a9c31199f33a6df9f297707bed1aa0e66d167270f1fde6ff5"
   strings:
-    $b_busybox = /\/bin\/busybox \w{2,16}[ \/\w\.]{0,64}/
+    $b_busybox_val = /\/bin\/busybox \w{2,16}[ \/\w\.]{0,64}/
   condition:
     all of them
 }

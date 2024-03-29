@@ -11,9 +11,11 @@ rule upx : suspicious {
     hash_2023_Linux_Malware_Samples_0a4b = "0a4b417193f63a3cce4550e363548384eb007f89e89eb831cf1b7f5ddf230a51"
     hash_2023_Linux_Malware_Samples_0b9d = "0b9d850ad22de9ed4951984456e77789793017e9df41271c58f45f411ef0c3d2"
   strings:
-    $upx_sig = "UPX!"
-    $packed = "executable packer"
-    $is_packed = "This file is packed"
+    $u_upx_sig = "UPX!"
+    $u_packed = "executable packer"
+    $u_is_packed = "This file is packed"
+
+	$not_upx = "UPX_DEBUG_DOCTEST_DISABLE"
   condition:
-    any of them in (0..1024)
+    any of ($u*) in (0..1024) and none of ($not*)
 }

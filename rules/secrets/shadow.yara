@@ -3,6 +3,7 @@ rule etc_shadow : suspicious {
 	description = "accesses /etc/shadow" 
   strings:
 	$ref = "etc/shadow"
+	$not_vim = "VIMRUNTIME"
   condition:
-    any of them
+    $ref and none of ($not*)
 }

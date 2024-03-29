@@ -1,4 +1,4 @@
-rule chmod_executable_plus : suspicious {
+rule chmod_executable_plus : notable {
   meta:
 	description = "makes file executable"
   strings:
