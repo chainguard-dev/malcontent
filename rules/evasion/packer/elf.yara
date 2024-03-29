@@ -34,7 +34,7 @@ rule upx_elf: suspicious {
     $proc_self = "/proc/self/exe"
     $prot_exec = "PROT_EXEC|PROT_WRITE failed"
   condition:
-	$prot_exec and $proc_self
+	uint32(0) == 1179403647 and $prot_exec and $proc_self
 }
 
 rule upx_elf_tampered: critical {
@@ -45,7 +45,7 @@ rule upx_elf_tampered: critical {
     $prot_exec = "PROT_EXEC|PROT_WRITE failed"
 	$upx = "UPX!"
   condition:
-	$prot_exec and $proc_self and not $upx
+	uint32(0) == 1179403647 and $prot_exec and $proc_self and not $upx
 }
 
 

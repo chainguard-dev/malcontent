@@ -2,9 +2,10 @@ rule eval : suspicious {
 	meta:
 		description = "evaluate code dynamically using eval()"
 	strings:
-		$ref = /eval\([\w\(\,\)]{0,32}/ fullword
+		$ref = /eval\([a-z\"\'\(\,\)]{1,32}/ fullword
+		$empty = "eval()"
 	condition:
-		any of them
+		$ref and not $empty
 }
 
 
@@ -12,7 +13,8 @@ rule python_exec : suspicious {
 	meta:
 		description = "evaluate code dynamically using exec()"
 	strings:
-		$ref = /exec\([\w\(\,\)]{0,32}/ fullword
+		$ref = /exec\([a-z\"\'\(\,\)]{1,32}/ fullword
+		$empty = "exec()"
 	condition:
-		any of them
+		$ref and not $empty
 }

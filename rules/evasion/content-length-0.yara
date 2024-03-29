@@ -1,4 +1,4 @@
-rule content_length_0 : suspicious {
+rule content_length_0 : notable {
   meta:
 	description = "Sets HTTP content length to zero"
   strings:

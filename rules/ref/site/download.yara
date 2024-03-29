@@ -9,8 +9,9 @@ rule download_sites : suspicious {
    // $d_paste_dot = /paste\.[\w\.]{2,3}/
     $d_pastecode_dot = /pastecode\.[\w\.]+/
     $d_discord = "cdn.discordapp.com"
+	$d_pastebinger = "paste.bingner.com"
     $d_transfer_sh = "transfer.sh"
-    $d_rentry = "rentry.co"
+    $d_rentry = "rentry.co" fullword
     $d_penyacom = "penyacom"
     $d_controlc = "controlc.com"
 	$d_anotepad = "anotepad.com"

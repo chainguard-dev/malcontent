@@ -60,9 +60,10 @@ rule subprocess : notable {
 		pledge = "exec"
 		description = "executes another program"
 	strings:
-		$ref = "subprocess"
+		$naked = "subprocess"
+		$val = /subprocess\.\w{1,16}[\(\"\/\w\'\.\- \,\[\]]{0,64}/
 	condition:
-		all of them
+		any of them
 }
 
 

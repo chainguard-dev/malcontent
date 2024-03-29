@@ -1,4 +1,4 @@
-rule server_address : suspicious {
+rule server_address : notable {
 	meta:
 		description = "references a 'server address', possible C2 client"
 	strings:
