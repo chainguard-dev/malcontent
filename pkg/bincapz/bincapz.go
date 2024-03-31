@@ -28,8 +28,12 @@ type FileReport struct {
 	Behaviors         map[string]Behavior `json:",omitempty" yaml:",omitempty"`
 	FilteredBehaviors int                 `json:",omitempty" yaml:",omitempty"`
 
-	PreviousRiskScore int    `json:",omitempty" yaml:",omitempty"`
-	PreviousRiskLevel string `json:",omitempty" yaml:",omitempty"`
+	// The relative path we think this moved from.
+	PreviousRelPath string `json:",omitempty" yaml:",omitempty"`
+	// The levenshtein distance between the previous path and the current path
+	PreviousRelPathScore float64 `json:",omitempty" yaml:",omitempty"`
+	PreviousRiskScore    int     `json:",omitempty" yaml:",omitempty"`
+	PreviousRiskLevel    string  `json:",omitempty" yaml:",omitempty"`
 
 	RiskScore int
 	RiskLevel string `json:",omitempty" yaml:",omitempty"`

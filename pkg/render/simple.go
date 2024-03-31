@@ -58,8 +58,12 @@ func (r Simple) Full(rep bincapz.Report) error {
 		}
 	}
 
-	for _, fr := range rep.Diff.Modified {
-		fmt.Fprintf(r.w, "*** changed: %s\n", fr.Path)
+	for f, fr := range rep.Diff.Modified {
+		if fr.PreviousRelPath != "" {
+			fmt.Fprintf(r.w, ">>> moved: %s -> %s (score: %f)\n", fr.PreviousRelPath, f, fr.PreviousRelPathScore)
+		} else {
+			fmt.Fprintf(r.w, "*** changed: %s\n", fr.Path)
+		}
 		bs := []string{}
 		for k := range fr.Behaviors {
 			bs = append(bs, k)
