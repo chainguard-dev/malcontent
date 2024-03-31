@@ -1,4 +1,4 @@
-rule TERM : harmless {
+rule TERM {
   meta:
 	description = "Look up or override terminal settings"
   strings:
