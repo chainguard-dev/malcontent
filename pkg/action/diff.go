@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/agext/levenshtein"
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
 	"k8s.io/klog/v2"
 )
@@ -116,6 +117,53 @@ func Diff(c Config) (*bincapz.Report, error) {
 			for key, b := range abs.Behaviors {
 				d.Modified[relPath].Behaviors[key] = b
 			}
+		}
+	}
+
+	// Walk over the added/removed paths and infer moves based on the
+	// levenshtein distance of the file names.  If the distance is a 90+% match,
+	// then treat it as a move.
+	for rpath, fr := range d.Removed {
+		for apath, tr := range d.Added {
+			score := levenshtein.Match(rpath, apath, levenshtein.NewParams())
+			if score < 0.9 {
+				continue
+			}
+
+			// We think that this file moved from rpath to apath.
+			abs := bincapz.FileReport{
+				Path:                 tr.Path,
+				PreviousRelPath:      rpath,
+				PreviousRelPathScore: score,
+
+				Behaviors:         map[string]bincapz.Behavior{},
+				PreviousRiskScore: fr.RiskScore,
+				PreviousRiskLevel: fr.RiskLevel,
+
+				RiskScore: tr.RiskScore,
+				RiskLevel: tr.RiskLevel,
+			}
+
+			// if destination behavior is not in the source
+			for key, b := range tr.Behaviors {
+				if _, exists := fr.Behaviors[key]; !exists {
+					b.DiffAdded = true
+					abs.Behaviors[key] = b
+				}
+			}
+
+			// if source behavior is not in the destination
+			for key, b := range fr.Behaviors {
+				if _, exists := tr.Behaviors[key]; !exists {
+					b.DiffRemoved = true
+					abs.Behaviors[key] = b
+				}
+			}
+
+			// Move these into the modified list.
+			d.Modified[apath] = abs
+			delete(d.Removed, rpath)
+			delete(d.Added, apath)
 		}
 	}
 

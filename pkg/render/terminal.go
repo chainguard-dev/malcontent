@@ -114,9 +114,14 @@ func (r Terminal) Full(rep bincapz.Report) error {
 		})
 	}
 
-	for _, fr := range rep.Diff.Modified {
+	for f, fr := range rep.Diff.Modified {
 		fr := fr
-		title := fmt.Sprintf("Changed: %s", fr.Path)
+		var title string
+		if fr.PreviousRelPath != "" {
+			title = fmt.Sprintf("Moved: %s -> %s (score: %f)", fr.PreviousRelPath, f, fr.PreviousRelPathScore)
+		} else {
+			title = fmt.Sprintf("Changed: %s", f)
+		}
 		if fr.RiskScore != fr.PreviousRiskScore {
 			title = fmt.Sprintf("%s\nPrevious Risk: %s\nNew Risk:      %s",
 				title,
@@ -150,6 +155,9 @@ func renderTable(fr *bincapz.FileReport, w io.Writer, rc tableConfig) {
 	}
 
 	if len(kbs) == 0 {
+		if fr.PreviousRelPath != "" && title != "" {
+			fmt.Fprintf(w, "%s\n", title)
+		}
 		return
 	}
 
