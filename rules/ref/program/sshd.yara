@@ -8,6 +8,14 @@ rule sshd : notable {
     $ref
 }
 
+rule sshd_path_value : suspicious {
+  meta:
+	description = "Mentions the SSH daemon by path"
+  strings:
+	$ref = "/usr/bin/sshd" fullword
+  condition:
+    $ref
+}
 
 rule sshd_net : suspicious {
   meta:
