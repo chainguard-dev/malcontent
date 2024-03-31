@@ -5,7 +5,7 @@ rule pipe_to_shell : notable {
     $val_sh = "| sh"
     $val_bin_sh = "| /bin/sh"
     $val_bash = "| bash"
-    $val_bash = "| /bin/bash"
+    $val_bin_bash = "| /bin/bash"
   condition:
 	any of them
 }
