@@ -35,9 +35,14 @@ func (r Markdown) Full(rep bincapz.Report) error {
 		markdownTable(&fr, r.w, tableConfig{Title: fmt.Sprintf("## Added: %s\n\nOverall risk: %s", f, decorativeRisk(fr.RiskScore, fr.RiskLevel)), DiffAdded: true})
 	}
 
-	for _, fr := range rep.Diff.Modified {
+	for f, fr := range rep.Diff.Modified {
 		fr := fr
-		title := fmt.Sprintf("## Changed: %s\n", fr.Path)
+		var title string
+		if fr.PreviousRelPath != "" {
+			title = fmt.Sprintf("## Moved: %s -> %s (score: %f)", fr.PreviousRelPath, f, fr.PreviousRelPathScore)
+		} else {
+			title = fmt.Sprintf("## Changed: %s\n", f)
+		}
 		if fr.RiskScore != fr.PreviousRiskScore {
 			title = fmt.Sprintf("%s\nPrevious Risk: %s\nNew Risk:      %s",
 				title,
@@ -68,6 +73,9 @@ func markdownTable(fr *bincapz.FileReport, w io.Writer, rc tableConfig) {
 	}
 
 	if len(kbs) == 0 {
+		if fr.PreviousRelPath != "" && rc.Title != "" {
+			fmt.Fprintf(w, "%s\n\n", rc.Title)
+		}
 		return
 	}
 
