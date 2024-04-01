@@ -66,7 +66,6 @@ func Compile(root fs.FS, thirdParty bool) (*yara.Rules, error) {
 
 		return nil
 	})
-
 	if err != nil {
 		return nil, fmt.Errorf("walk: %w", err)
 	}
