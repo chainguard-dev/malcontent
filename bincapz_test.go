@@ -70,7 +70,6 @@ func TestJSON(t *testing.T) {
 			if diff := cmp.Diff(*got, want); diff != "" {
 				t.Errorf("unexpected diff: %s", diff)
 			}
-
 		})
 		return nil
 	})
@@ -129,7 +128,6 @@ func TestSimple(t *testing.T) {
 			if diff := cmp.Diff(got, want); diff != "" {
 				t.Errorf("unexpected diff: %s\ngot: %s", diff, got)
 			}
-
 		})
 		return nil
 	})
@@ -187,7 +185,6 @@ func TestDiff(t *testing.T) {
 			if diff := cmp.Diff(got, want); diff != "" {
 				t.Errorf("unexpected diff: %s", diff)
 			}
-
 		})
 	}
 }
@@ -245,7 +242,6 @@ func TestMarkdown(t *testing.T) {
 			if diff := cmp.Diff(got, want); diff != "" {
 				t.Errorf("unexpected diff: %s\ngot: %s", diff, got)
 			}
-
 		})
 		return nil
 	})
