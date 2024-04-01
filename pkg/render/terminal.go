@@ -165,7 +165,7 @@ func renderTable(fr *bincapz.FileReport, w io.Writer, rc tableConfig) {
 		if kbs[i].Behavior.RiskScore == kbs[j].Behavior.RiskScore {
 			return kbs[i].Key < kbs[j].Key
 		}
-		return kbs[i].Behavior.RiskScore > kbs[j].Behavior.RiskScore
+		return kbs[i].Behavior.RiskScore < kbs[j].Behavior.RiskScore
 	})
 
 	data := [][]string{}
