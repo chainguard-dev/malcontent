@@ -35,7 +35,7 @@ func main() {
 	args := flag.Args()
 
 	if len(args) == 0 {
-		fmt.Printf("usage: bincap [flags] <directories>\n")
+		fmt.Printf("usage: bincapz [flags] <directories>\n")
 		os.Exit(2)
 	}
 
