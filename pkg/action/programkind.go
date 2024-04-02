@@ -11,10 +11,36 @@ import (
 	"k8s.io/klog/v2"
 )
 
+// map from extensions to program kinds
+var extMap = map[string]string{
+	".scpt":    "compiled AppleScript",
+	".scptd":   "compiled AppleScript",
+	".sh":      "Shell script",
+	".rb":      "Ruby script",
+	".py":      "Python script",
+	".pl":      "PERL script",
+	".yara":    "",
+	".expect":  "Expect script",
+	".php":     "PHP file",
+	".html":    "",
+	".js":      "Javascript",
+	".ts":      "Typescript",
+	".7z":      "",
+	".json":    "",
+	".yml":     "",
+	".yaml":    "",
+	".java":    "Java source",
+	".jar":     "Java program",
+	".asm":     "",
+	".service": "systemd",
+	".cron":    "crontab",
+	".crontab": "crontab",
+	".c":       "C source",
+}
+
 // programKind tries to identify if a path is a program
 func programKind(path string) string {
 	var header [263]byte
-
 	f, err := os.Open(path)
 	if err != nil {
 		log.Printf("os.Open[%s]: %v", path, err)
@@ -23,14 +49,26 @@ func programKind(path string) string {
 	defer f.Close()
 
 	desc := ""
-	if _, err := io.ReadFull(f, header[:]); err == nil {
-		kind, err := magic.Lookup(header[:])
+	var headerString string
+	n, err := io.ReadFull(f, header[:])
+	switch {
+	case err == nil || err == io.ErrUnexpectedEOF:
+		// Read the full buffer, or some bytes, all good
+		kind, err := magic.Lookup(header[:n])
 		if err == nil {
 			desc = kind.Description
+		} else {
+			desc = ""
 		}
+		headerString = string(header[:n])
+	case err == io.EOF:
+		// Nothing was read, so set the buffer so.
+		desc = ""
+		headerString = ""
 	}
 
-	klog.V(1).Infof("desc: %q header: %q err: %v", desc, header[:], err)
+	// TODO: Is it safe to log unsanitized file stuff?
+	klog.V(1).Infof("desc: %q header: %q err: %v", desc, headerString, err)
 
 	// the magic library gets these wrong
 	if strings.HasSuffix(path, ".json") {
@@ -57,63 +95,27 @@ func programKind(path string) string {
 		return "Shell script"
 	}
 
-	switch filepath.Ext(path) {
-	case ".scpt", "scptd":
-		return "compiled AppleScript"
-	case ".sh":
-		return "Shell script"
-	case ".rb":
-		return "Ruby script"
-	case ".py":
-		return "Python script"
-	case ".pl":
-		return "PERL script"
-	case ".yara":
-		return ""
-	case ".expect":
-		return "Expect script"
-	case ".php":
-		return "PHP file"
-	case ".html":
-		return ""
-	case ".js":
-		return "Javascript"
-	case ".ts":
-		return "Typescript"
-	case ".7z":
-		return ""
-	case ".json":
-		return ""
-	case ".yml", ".yaml":
-		return ""
-	case ".java":
-		return "Java source"
-	case ".jar":
-		return "Java program"
-	case ".asm":
-		return ""
-	case ".service":
-		return "systemd"
-	case ".cron", ".crontab":
-		return "crontab"
-	case ".c":
-		return "C source"
+	if found, kind := byExtension(path); found {
+		return kind
 	}
 
 	// By string match
-	s := string(header[:])
 	switch {
-	case strings.Contains(s, "import "):
-		return "Python"
-	case strings.HasPrefix(s, "#!/bin/sh") || strings.HasPrefix(s, "#!/bin/bash") || strings.Contains(s, `echo "`) || strings.Contains(s, `if [`) || strings.Contains(s, `grep `) || strings.Contains(s, "if !"):
-		return "Shell"
-	case strings.HasPrefix(s, "#!"):
+	case strings.Contains(headerString, "import "):
+		return "Python script"
+	case strings.HasPrefix(headerString, "#!/bin/sh") || strings.HasPrefix(headerString, "#!/bin/bash") || strings.Contains(headerString, `echo "`) || strings.Contains(headerString, `if [`) || strings.Contains(headerString, `grep `) || strings.Contains(headerString, "if !"):
+		return "Shell script"
+	case strings.HasPrefix(headerString, "#!"):
 		return "script"
-	case strings.Contains(s, "#include <"):
+	case strings.Contains(headerString, "#include <"):
 		return "C Program"
 	}
-
-	// fmt.Printf("File %s string: %s", path, s)
-	// fmt.Printf("File %s: desc: %s\n", path, desc)
 	return ""
+}
+
+// byExtension returns true, and descriptive file type if the extension is
+// known, and false otherwise.
+func byExtension(path string) (bool, string) {
+	ret, ok := extMap[filepath.Ext(path)]
+	return ok, ret
 }
