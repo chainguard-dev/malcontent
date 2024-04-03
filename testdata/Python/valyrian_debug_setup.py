@@ -1,4 +1,4 @@
-# based on valryian_debug-0.0.1 from the backstabbers knife collection
+# based on valyrian_debug-0.0.1 from the backstabbers knife collection
 import json
 import os
 import sys

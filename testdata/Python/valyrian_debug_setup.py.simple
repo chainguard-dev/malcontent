@@ -1,4 +1,5 @@
-# testdata/Python/valryian_debug_setup.py
+# testdata/Python/valyrian_debug_setup.py
+combo/backdoor/py_setuptools
 combo/recon/system_network
 exec/pipe
 exec/program
