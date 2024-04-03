@@ -85,7 +85,7 @@ func TestSimple(t *testing.T) {
 
 	fs.WalkDir(fileSystem, ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
-			log.Fatal(err)
+			t.Fatal(err)
 		}
 		if !strings.HasSuffix(path, ".simple") {
 			return nil
