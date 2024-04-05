@@ -8,8 +8,8 @@ import (
 	"testing"
 )
 
-func TestProgramKindMagic(t *testing.T) {
-
+func TestProgramKindMagic(_ *testing.T) {
+	// nop for now
 }
 
 func TestProgramStringMatch(t *testing.T) {

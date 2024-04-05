@@ -26,9 +26,9 @@ Enumerates program capabilities and malicious behaviors using fragment analysis.
 
 * go 1.21+
 * yara 4.3+ library - you can use this one-liner to install it if necessary:
-  
+
 ```shell
-brew install yara || sudo apt install libyara-devel \
+brew install yara || sudo apt install libyara-dev \
   || sudo dnf install yara-devel || sudo pacman -S yara
 ```
 

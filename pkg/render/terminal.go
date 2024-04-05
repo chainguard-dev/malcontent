@@ -138,7 +138,7 @@ func (r Terminal) Full(rep bincapz.Report) error {
 	return nil
 }
 
-func renderTable(fr *bincapz.FileReport, w io.Writer, rc tableConfig) {
+func renderTable(fr *bincapz.FileReport, w io.Writer, rc tableConfig) { //nolint: cyclop // TODO: review this cyclomatic complexity for function renderTable is 39, max is 37
 	title := rc.Title
 
 	path := fr.Path

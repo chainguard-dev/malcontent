@@ -4,6 +4,7 @@
 package action
 
 import (
+	"errors"
 	"io"
 	"log"
 	"os"
@@ -14,7 +15,7 @@ import (
 	"k8s.io/klog/v2"
 )
 
-// map from extensions to program kinds
+// map from extensions to program kinds.
 var extMap = map[string]string{
 	".scpt":    "compiled AppleScript",
 	".scptd":   "compiled AppleScript",
@@ -41,7 +42,7 @@ var extMap = map[string]string{
 	".c":       "C source",
 }
 
-// programKind tries to identify if a path is a program
+// programKind tries to identify if a path is a program.
 func programKind(path string) string {
 	var header [263]byte
 	f, err := os.Open(path)
@@ -55,7 +56,7 @@ func programKind(path string) string {
 	var headerString string
 	n, err := io.ReadFull(f, header[:])
 	switch {
-	case err == nil || err == io.ErrUnexpectedEOF:
+	case err == nil || errors.Is(err, io.ErrUnexpectedEOF):
 		// Read the full buffer, or some bytes, all good
 		kind, err := magic.Lookup(header[:n])
 		if err == nil {
@@ -64,7 +65,7 @@ func programKind(path string) string {
 			desc = ""
 		}
 		headerString = string(header[:n])
-	case err == io.EOF:
+	case errors.Is(err, io.EOF):
 		// Nothing was read, so set the buffer so.
 		desc = ""
 		headerString = ""
