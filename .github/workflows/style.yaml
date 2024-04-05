@@ -1,0 +1,110 @@
+# Copyright 2024 Chainguard, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+name: Code Style
+
+on:
+  pull_request:
+    branches:
+      - 'main'
+  push:
+    branches:
+      - 'main'
+
+jobs:
+
+  gofmt:
+    name: check gofmt
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
+
+      - name: Set up Go
+        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
+        with:
+          go-version: '1.21'
+          check-latest: true
+
+      - uses: chainguard-dev/actions/gofmt@main
+        with:
+          args: -s
+
+  goimports:
+    name: check goimports
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
+
+      - name: Set up Go
+        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
+        with:
+          go-version: '1.21'
+          check-latest: true
+
+      - uses: chainguard-dev/actions/goimports@main
+
+  golangci-lint:
+    name: golangci-lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
+
+      - name: Set up Go
+        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
+        with:
+          go-version: '1.21'
+          check-latest: true
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@3cfe3a4abbb849e10058ce4af15d205b6da42804 # v3.7.1
+        with:
+          version: v1.56
+          args: --timeout=5m
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
+
+      - name: Set up Go
+        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
+        with:
+          go-version: '1.21'
+          check-latest: true
+
+      - uses: chainguard-dev/actions/trailing-space@main
+        if: ${{ always() }}
+
+      - uses: chainguard-dev/actions/eof-newline@main
+        if: ${{ always() }}
+
+      - uses: reviewdog/action-tflint@master
+        if: ${{ always() }}
+        with:
+          github_token: ${{ secrets.github_token }}
+          fail_on_error: true
+
+      - uses: reviewdog/action-misspell@5bd7be2fc7ae56a517184f5c4bbcf2fd7afe3927 # v1.17.0
+        if: ${{ always() }}
+        with:
+          github_token: ${{ secrets.github_token }}
+          fail_on_error: true
+          locale: "US"
+          exclude: |
+            **/go.sum
+            **/third_party/**
+            ./*.yml
+
+      - uses: get-woke/woke-action-reviewdog@d71fd0115146a01c3181439ce714e21a69d75e31 # v0
+        if: ${{ always() }}
+        with:
+          github-token: ${{ secrets.github_token }}
+          reporter: github-pr-check
+          level: error
+          fail-on-error: true

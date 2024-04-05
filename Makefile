@@ -1,3 +1,6 @@
+# Copyright 2024 Chainguard, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 # BEGIN: lint-install ../bincapz
 # http://github.com/tinkerbell/lint-install
 
@@ -41,5 +44,9 @@ _lint: $(LINTERS)
 
 .PHONY: fix $(FIXERS)
 fix: $(FIXERS)
+
+.PHONY: test
+test:
+	go test ./... -v
 
 # END: lint-install ../bincapz
