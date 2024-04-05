@@ -1,10 +1,15 @@
+# Copyright 2024 Chainguard, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 name: Go Tests
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - "main"
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - "main"
 
 jobs:
   test:
@@ -28,5 +33,15 @@ jobs:
 
       - uses: chainguard-dev/actions/goimports@main
 
+      - name: install libyara-dev
+        run: |
+          sudo add-apt-repository -n -y "deb http://archive.ubuntu.com/ubuntu/ mantic main restricted universe multiverse"
+          sudo add-apt-repository -n -y "deb http://archive.ubuntu.com/ubuntu/ mantic-updates main restricted universe multiverse"
+          sudo add-apt-repository -n -y "deb http://archive.ubuntu.com/ubuntu/ mantic-backports main restricted universe multiverse"
+          sudo add-apt-repository -n -y "deb http://security.ubuntu.com/ubuntu mantic-security main restricted universe multiverse"
+
+          sudo apt update && sudo apt install libyara-dev -y
+
       - name: Test
-        run: make test
+        run: |
+          make test

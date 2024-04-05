@@ -1,10 +1,12 @@
+// Copyright 2024 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
 package main
 
 import (
 	"bytes"
 	"encoding/json"
 	"io/fs"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -27,9 +29,9 @@ func TestJSON(t *testing.T) {
 
 	fileSystem := os.DirFS(testDataRoot)
 
-	fs.WalkDir(fileSystem, ".", func(path string, d fs.DirEntry, err error) error {
+	fs.WalkDir(fileSystem, ".", func(path string, _ fs.DirEntry, err error) error {
 		if err != nil {
-			log.Fatal(err)
+			t.Fatal(err)
 		}
 		if !strings.HasSuffix(path, ".json") {
 			return nil
@@ -83,7 +85,7 @@ func TestSimple(t *testing.T) {
 
 	fileSystem := os.DirFS(testDataRoot)
 
-	fs.WalkDir(fileSystem, ".", func(path string, d fs.DirEntry, err error) error {
+	fs.WalkDir(fileSystem, ".", func(path string, _ fs.DirEntry, err error) error {
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -197,9 +199,9 @@ func TestMarkdown(t *testing.T) {
 
 	fileSystem := os.DirFS(testDataRoot)
 
-	fs.WalkDir(fileSystem, ".", func(path string, d fs.DirEntry, err error) error {
+	fs.WalkDir(fileSystem, ".", func(path string, _ fs.DirEntry, err error) error {
 		if err != nil {
-			log.Fatal(err)
+			t.Fatal(err)
 		}
 		if !strings.HasSuffix(path, ".md") {
 			return nil

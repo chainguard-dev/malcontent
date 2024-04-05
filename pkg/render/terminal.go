@@ -1,3 +1,6 @@
+// Copyright 2024 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
 package render
 
 import (
@@ -135,7 +138,7 @@ func (r Terminal) Full(rep bincapz.Report) error {
 	return nil
 }
 
-func renderTable(fr *bincapz.FileReport, w io.Writer, rc tableConfig) {
+func renderTable(fr *bincapz.FileReport, w io.Writer, rc tableConfig) { //nolint: cyclop // TODO: review this cyclomatic complexity for function renderTable is 39, max is 37
 	title := rc.Title
 
 	path := fr.Path

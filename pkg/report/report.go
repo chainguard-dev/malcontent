@@ -1,10 +1,12 @@
+// Copyright 2024 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
 package report
 
 import (
 	"crypto/sha256"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -26,7 +28,7 @@ var riskLevels = map[int]string{
 	4: "CRITICAL", // critical: certainly malware
 }
 
-// yaraForge has some very very long rule names
+// yaraForge has some very very long rule names.
 var yaraForgeJunkWords = map[string]bool{
 	"controller":        true,
 	"generic":           true,
@@ -184,7 +186,7 @@ func longestUnique(raw []string) []string {
 	return longest
 }
 
-// convert MatchString to a usable string
+// convert MatchString to a usable string.
 func matchToString(ruleName string, m yara.MatchString) string {
 	s := string(m.Data)
 	if strings.Contains(ruleName, "base64") && !strings.Contains(s, "base64") {
@@ -205,7 +207,7 @@ func matchToString(ruleName string, m yara.MatchString) string {
 	return strings.TrimSpace(s)
 }
 
-// extract important values
+// extract important values.
 func matchValues(key string, ruleName string, ms []yara.MatchString) []string {
 	raw := []string{}
 
@@ -240,7 +242,7 @@ func matchValues(key string, ruleName string, ms []yara.MatchString) []string {
 	return longestUnique(raw)
 }
 
-// extract match strings
+// extract match strings.
 func matchStrings(ruleName string, ms []yara.MatchString) []string {
 	raw := []string{}
 
@@ -252,30 +254,35 @@ func matchStrings(ruleName string, ms []yara.MatchString) []string {
 	return longestUnique(raw)
 }
 
-func pathChecksum(path string) string {
+func pathChecksum(path string) (string, error) {
 	f, err := os.Open(path)
 	if err != nil {
-		return fmt.Sprintf("err-%v", err)
+		return fmt.Sprintf("err-%v", err), nil
 	}
 	defer f.Close()
 
 	h := sha256.New()
 	if _, err := io.Copy(h, f); err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 
-	return fmt.Sprintf("%x", h.Sum(nil))
+	return fmt.Sprintf("%x", h.Sum(nil)), nil
 }
 
-func Generate(path string, mrs yara.MatchRules, ignoreTags []string, minScore int) bincapz.FileReport {
+func Generate(path string, mrs yara.MatchRules, ignoreTags []string, minScore int) (bincapz.FileReport, error) {
 	ignore := map[string]bool{}
 	for _, t := range ignoreTags {
 		ignore[t] = true
 	}
 
+	ptCheck, err := pathChecksum(path)
+	if err != nil {
+		return bincapz.FileReport{}, err
+	}
+
 	fr := bincapz.FileReport{
 		Path:      path,
-		SHA256:    pathChecksum(path),
+		SHA256:    ptCheck,
 		Meta:      map[string]string{},
 		Behaviors: map[string]bincapz.Behavior{},
 	}
@@ -369,9 +376,7 @@ func Generate(path string, mrs yara.MatchRules, ignoreTags []string, minScore in
 			existing.Description = b.Description
 			fr.Behaviors[key] = existing
 		}
-
 	}
-
 	// If something has a lot of high, it's probably critical
 	if riskCounts[3] >= 4 {
 		overallRiskScore = 4
@@ -387,5 +392,5 @@ func Generate(path string, mrs yara.MatchRules, ignoreTags []string, minScore in
 	fr.RiskLevel = riskLevels[fr.RiskScore]
 
 	klog.V(4).Infof("yara matches: %+v", mrs)
-	return fr
+	return fr, nil
 }

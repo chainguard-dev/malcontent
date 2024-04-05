@@ -1,0 +1,40 @@
+# Copyright 2024 Chainguard, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+name: Boilerplate
+
+on:
+  pull_request:
+    branches:
+      - 'main'
+
+jobs:
+
+  check:
+    permissions:
+      contents: read
+
+    name: Boilerplate Check
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false # Keep running if one leg fails.
+      matrix:
+        extension:
+        - go
+        - sh
+
+        # Map between extension and human-readable name.
+        include:
+        - extension: go
+          language: Go
+        - extension: sh
+          language: Bash
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
+
+      - uses: chainguard-dev/actions/boilerplate@main
+        with:
+          extension: ${{ matrix.extension }}
+          language: ${{ matrix.language }}
