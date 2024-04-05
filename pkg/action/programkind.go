@@ -4,15 +4,16 @@
 package action
 
 import (
+	"context"
 	"errors"
 	"io"
-	"log"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/chainguard-dev/clog"
 	"github.com/liamg/magic"
-	"k8s.io/klog/v2"
 )
 
 // map from extensions to program kinds.
@@ -43,11 +44,12 @@ var extMap = map[string]string{
 }
 
 // programKind tries to identify if a path is a program.
-func programKind(path string) string {
+func programKind(ctx context.Context, path string) string {
 	var header [263]byte
+	logger := clog.FromContext(ctx).With("path", path)
 	f, err := os.Open(path)
 	if err != nil {
-		log.Printf("os.Open[%s]: %v", path, err)
+		logger.Error("os.Open", slog.Any("error", err))
 		return ""
 	}
 	defer f.Close()
@@ -72,7 +74,7 @@ func programKind(path string) string {
 	}
 
 	// TODO: Is it safe to log unsanitized file stuff?
-	klog.V(1).Infof("desc: %q header: %q err: %v", desc, headerString, err)
+	logger.Debug("magic", slog.String("desc", desc), slog.String("header", headerString), slog.Any("err", err))
 
 	// the magic library gets these wrong
 	if strings.HasSuffix(path, ".json") {

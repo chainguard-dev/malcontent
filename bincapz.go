@@ -5,9 +5,11 @@
 package main
 
 import (
+	"context"
 	"embed"
 	"flag"
 	"fmt"
+	"log/slog"
 	"os"
 	"strings"
 
@@ -15,7 +17,7 @@ import (
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
 	"github.com/chainguard-dev/bincapz/pkg/render"
 	"github.com/chainguard-dev/bincapz/pkg/rules"
-	"k8s.io/klog/v2"
+	"github.com/chainguard-dev/clog"
 )
 
 //go:embed rules third_party
@@ -30,17 +32,20 @@ func main() {
 	includeDataFilesFlag := flag.Bool("data-files", false, "include files that are detected to as non-program (binary or source) files")
 	diffFlag := flag.Bool("diff", false, "show capability drift between two files")
 	allFlag := flag.Bool("all", false, "Ignore nothing, show all")
+	logSource := flag.Bool("log-source", false, "Include source code location in log messages")
 
-	klog.InitFlags(nil)
-	_ = flag.Set("logtostderr", "false")
-	_ = flag.Set("alsologtostderr", "false")
 	flag.Parse()
 	args := flag.Args()
 
 	if len(args) == 0 {
-		fmt.Printf("usage: bincapz [flags] <directories>\n")
-		os.Exit(2)
+		fmt.Printf("usage: bincapz [flags] <directories>")
+		os.Exit(1)
 	}
+
+	log := clog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{AddSource: *logSource}))
+
+	ctx := clog.WithLogger(context.Background(), log)
+	clog.FromContext(ctx).Info("bincapz starting")
 
 	ignoreTags := strings.Split(*ignoreTagsFlag, ",")
 	includeDataFiles := *includeDataFilesFlag
@@ -53,14 +58,12 @@ func main() {
 
 	renderer, err := render.New(*formatFlag, os.Stdout)
 	if err != nil {
-		fmt.Printf("what kind of format is %q?\n", *formatFlag)
-		os.Exit(3)
+		log.Fatal("invalid format", slog.Any("error", err), slog.String("format", *formatFlag))
 	}
 
-	yrs, err := rules.Compile(ruleFs, *thirdPartyFlag)
+	yrs, err := rules.Compile(ctx, ruleFs, *thirdPartyFlag)
 	if err != nil {
-		fmt.Printf("YARA rule compilation: %v", err)
-		os.Exit(4)
+		log.Fatal("YARA rule compilation", slog.Any("error", err))
 	}
 
 	bc := action.Config{
@@ -76,18 +79,16 @@ func main() {
 	var res *bincapz.Report
 
 	if *diffFlag {
-		res, err = action.Diff(bc)
+		res, err = action.Diff(ctx, bc)
 	} else {
-		res, err = action.Scan(bc)
+		res, err = action.Scan(ctx, bc)
 	}
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "failed: %v\n", err)
-		os.Exit(3)
+		log.Fatal("failed", slog.Any("error", err))
 	}
 
-	err = renderer.Full(*res)
+	err = renderer.Full(ctx, *res)
 	if err != nil {
-		klog.Errorf("failed: %v", err)
-		os.Exit(1)
+		clog.Fatal("render failed", slog.Any("error", err))
 	}
 }
