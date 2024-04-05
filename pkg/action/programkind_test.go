@@ -1,3 +1,6 @@
+// Copyright 2024 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
 package action
 
 import (
@@ -5,8 +8,8 @@ import (
 	"testing"
 )
 
-func TestProgramKindMagic(t *testing.T) {
-
+func TestProgramKindMagic(_ *testing.T) {
+	// nop for now
 }
 
 func TestProgramStringMatch(t *testing.T) {

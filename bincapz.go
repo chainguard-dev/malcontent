@@ -1,3 +1,6 @@
+// Copyright 2024 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
 // bincapz returns information about a binaries capabilities
 package main
 
@@ -29,8 +32,8 @@ func main() {
 	allFlag := flag.Bool("all", false, "Ignore nothing, show all")
 
 	klog.InitFlags(nil)
-	flag.Set("logtostderr", "false")
-	flag.Set("alsologtostderr", "false")
+	_ = flag.Set("logtostderr", "false")
+	_ = flag.Set("alsologtostderr", "false")
 	flag.Parse()
 	args := flag.Args()
 
@@ -77,14 +80,12 @@ func main() {
 	} else {
 		res, err = action.Scan(bc)
 	}
-
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed: %v\n", err)
 		os.Exit(3)
 	}
 
-	renderer.Full(*res)
-
+	err = renderer.Full(*res)
 	if err != nil {
 		klog.Errorf("failed: %v", err)
 		os.Exit(1)

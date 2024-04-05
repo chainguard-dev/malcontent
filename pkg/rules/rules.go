@@ -1,3 +1,6 @@
+// Copyright 2024 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
 package rules
 
 import (
@@ -30,7 +33,7 @@ func Compile(root fs.FS, thirdParty bool) (*yara.Rules, error) {
 
 	err = fs.WalkDir(root, ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
-			return nil
+			return nil //nolint: nilerr // TODO: review this part
 		}
 
 		if !thirdParty && strings.Contains(path, "third_party") {

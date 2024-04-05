@@ -1,13 +1,26 @@
+# Copyright 2024 Chainguard, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+---
 version: 2
 updates:
-- package-ecosystem: gomod
-  directory: "/"
-  schedule:
-    interval: weekly
-  open-pull-requests-limit: 10
+  - package-ecosystem: gomod
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    groups:
+      all:
+        update-types:
+          - "patch"
 
-- package-ecosystem: "github-actions"
-  directory: "/"
-  schedule:
-    interval: weekly
-  open-pull-requests-limit: 10
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    groups:
+      all:
+        update-types:
+          - "minor"
+          - "patch"

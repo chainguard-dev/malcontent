@@ -1,3 +1,6 @@
+// Copyright 2024 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
 package action
 
 import (
@@ -12,7 +15,7 @@ import (
 	"k8s.io/klog/v2"
 )
 
-// return a list of files within a path
+// return a list of files within a path.
 func findFilesRecursively(root string) ([]string, error) {
 	klog.V(1).Infof("finding files in %s ...", root)
 	files := []string{}
@@ -51,10 +54,14 @@ func scanSinglePath(c Config, yrs *yara.Rules, path string) (*bincapz.FileReport
 		return &bincapz.FileReport{Path: path, Error: fmt.Sprintf("scanfile: %v", err)}, nil
 	}
 
-	fr := report.Generate(path, mrs, c.IgnoreTags, c.MinLevel)
+	fr, err := report.Generate(path, mrs, c.IgnoreTags, c.MinLevel)
+	if err != nil {
+		return nil, err
+	}
 	if len(fr.Behaviors) == 0 && c.OmitEmpty {
 		return nil, nil
 	}
+
 	return &fr, nil
 }
 
