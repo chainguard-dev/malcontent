@@ -33,7 +33,15 @@ jobs:
 
       - uses: chainguard-dev/actions/goimports@main
 
+      - name: install libyara-dev
+        run: |
+          sudo add-apt-repository -n -y "deb http://archive.ubuntu.com/ubuntu/ mantic main restricted universe multiverse"
+          sudo add-apt-repository -n -y "deb http://archive.ubuntu.com/ubuntu/ mantic-updates main restricted universe multiverse"
+          sudo add-apt-repository -n -y "deb http://archive.ubuntu.com/ubuntu/ mantic-backports main restricted universe multiverse"
+          sudo add-apt-repository -n -y "deb http://security.ubuntu.com/ubuntu mantic-security main restricted universe multiverse"
+
+          sudo apt update && sudo apt install libyara-dev -y
+
       - name: Test
         run: |
-          sudo apt update && sudo apt install libyara-dev -y
           make test
