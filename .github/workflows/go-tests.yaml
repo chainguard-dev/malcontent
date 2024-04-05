@@ -34,4 +34,6 @@ jobs:
       - uses: chainguard-dev/actions/goimports@main
 
       - name: Test
-        run: make test
+        run: |
+          sudo apt update && sudo apt install libyara-dev -y
+          make test
