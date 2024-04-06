@@ -4,6 +4,7 @@
 package report
 
 import (
+	"context"
 	"crypto/sha256"
 	"fmt"
 	"io"
@@ -16,8 +17,8 @@ import (
 	"unicode"
 
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
+	"github.com/chainguard-dev/clog"
 	"github.com/hillu/go-yara/v4"
-	"k8s.io/klog/v2"
 )
 
 var riskLevels = map[int]string{
@@ -162,7 +163,7 @@ func unprintableString(s string) bool {
 	return false
 }
 
-func longestUnique(raw []string) []string {
+func longestUnique(ctx context.Context, raw []string) []string {
 	longest := []string{}
 
 	// inefficiently remove substring matches
@@ -174,7 +175,7 @@ func longestUnique(raw []string) []string {
 		isLongest := true
 		for _, o := range raw {
 			if o != s && strings.Contains(o, s) {
-				klog.Infof("%s contains %s", o, s)
+				clog.InfoContextf(ctx, "%s contains %s", o, s)
 				isLongest = false
 				break
 			}
@@ -208,7 +209,7 @@ func matchToString(ruleName string, m yara.MatchString) string {
 }
 
 // extract important values.
-func matchValues(key string, ruleName string, ms []yara.MatchString) []string {
+func matchValues(ctx context.Context, key string, ruleName string, ms []yara.MatchString) []string {
 	raw := []string{}
 
 	for _, m := range ms {
@@ -234,16 +235,16 @@ func matchValues(key string, ruleName string, ms []yara.MatchString) []string {
 			continue
 		}
 
-		klog.Infof("keeping: %s - %s - %s: %s", key, ruleName, m.Name, m.Data)
+		clog.InfoContextf(ctx, "keeping: %s - %s - %s: %s", key, ruleName, m.Name, m.Data)
 		raw = append(raw, matchToString(ruleName, m))
 	}
 
 	slices.Sort(raw)
-	return longestUnique(raw)
+	return longestUnique(ctx, raw)
 }
 
 // extract match strings.
-func matchStrings(ruleName string, ms []yara.MatchString) []string {
+func matchStrings(ctx context.Context, ruleName string, ms []yara.MatchString) []string {
 	raw := []string{}
 
 	for _, m := range ms {
@@ -251,7 +252,7 @@ func matchStrings(ruleName string, ms []yara.MatchString) []string {
 	}
 
 	slices.Sort(raw)
-	return longestUnique(raw)
+	return longestUnique(ctx, raw)
 }
 
 func pathChecksum(path string) (string, error) {
@@ -269,7 +270,7 @@ func pathChecksum(path string) (string, error) {
 	return fmt.Sprintf("%x", h.Sum(nil)), nil
 }
 
-func Generate(path string, mrs yara.MatchRules, ignoreTags []string, minScore int) (bincapz.FileReport, error) {
+func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags []string, minScore int) (bincapz.FileReport, error) {
 	ignore := map[string]bool{}
 	for _, t := range ignoreTags {
 		ignore[t] = true
@@ -310,8 +311,8 @@ func Generate(path string, mrs yara.MatchRules, ignoreTags []string, minScore in
 		b := bincapz.Behavior{
 			RiskScore:    risk,
 			RiskLevel:    riskLevels[risk],
-			Values:       matchValues(key, m.Rule, m.Strings),
-			MatchStrings: matchStrings(m.Rule, m.Strings),
+			Values:       matchValues(ctx, key, m.Rule, m.Strings),
+			MatchStrings: matchStrings(ctx, m.Rule, m.Strings),
 		}
 
 		for _, meta := range m.Metas {
@@ -391,6 +392,6 @@ func Generate(path string, mrs yara.MatchRules, ignoreTags []string, minScore in
 	fr.RiskScore = overallRiskScore
 	fr.RiskLevel = riskLevels[fr.RiskScore]
 
-	klog.V(4).Infof("yara matches: %+v", mrs)
+	clog.InfoContextf(ctx, "yara matches: %+v", mrs)
 	return fr, nil
 }

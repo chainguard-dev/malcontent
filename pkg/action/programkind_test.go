@@ -6,6 +6,8 @@ package action
 import (
 	"fmt"
 	"testing"
+
+	"github.com/chainguard-dev/clog/slogtest"
 )
 
 func TestProgramKindMagic(_ *testing.T) {
@@ -36,7 +38,8 @@ func TestProgramStringMatch(t *testing.T) {
 	}}
 	for _, tt := range tests {
 		t.Run(tt.filename, func(t *testing.T) {
-			got := programKind(fmt.Sprintf("testdata/%s", tt.filename))
+			ctx := slogtest.TestContextWithLogger(t)
+			got := programKind(ctx, fmt.Sprintf("testdata/%s", tt.filename))
 			if got != tt.want {
 				t.Errorf("programKind() = %v, want %v", got, tt.want)
 			}
