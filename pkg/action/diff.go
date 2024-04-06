@@ -4,20 +4,23 @@
 package action
 
 import (
+	"context"
 	"fmt"
+	"log/slog"
 	"path/filepath"
 
 	"github.com/agext/levenshtein"
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
-	"k8s.io/klog/v2"
+	"github.com/chainguard-dev/clog"
 )
 
-func relFileReport(c Config, path string) (map[string]bincapz.FileReport, error) {
+func relFileReport(ctx context.Context, c Config, path string) (map[string]bincapz.FileReport, error) {
+	logger := clog.FromContext(ctx).With("path", path)
 	fromPath := path
 	fromConfig := c
 	fromConfig.Renderer = nil
 	fromConfig.ScanPaths = []string{fromPath}
-	fromReport, err := Scan(fromConfig)
+	fromReport, err := Scan(ctx, fromConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -26,28 +29,29 @@ func relFileReport(c Config, path string) (map[string]bincapz.FileReport, error)
 		if f.Skipped != "" || f.Error != "" {
 			continue
 		}
-		klog.V(1).Infof("report on %q: %+v", fname, f)
+		logger.Info("file report", slog.String("file", fname), slog.Any("report", f))
 		rel, err := filepath.Rel(fromPath, f.Path)
 		if err != nil {
 			return nil, fmt.Errorf("rel(%q,%q): %w", fromPath, f.Path, err)
 		}
 		fromRelPath[rel] = f
-		klog.Infof("%s = %+v", rel, f)
+		logger.Info("relative file report", slog.String("relpath", rel), slog.Any("report", f))
 	}
 
 	return fromRelPath, nil
 }
 
-func Diff(c Config) (*bincapz.Report, error) {
+func Diff(ctx context.Context, c Config) (*bincapz.Report, error) {
+	clog.InfoContext(ctx, "diffing", slog.Any("scanpaths", c.ScanPaths))
 	if len(c.ScanPaths) != 2 {
 		return nil, fmt.Errorf("diff mode requires 2 paths, you passed in %d path(s)", len(c.ScanPaths))
 	}
-	from, err := relFileReport(c, c.ScanPaths[0])
+	from, err := relFileReport(ctx, c, c.ScanPaths[0])
 	if err != nil {
 		return nil, err
 	}
 
-	to, err := relFileReport(c, c.ScanPaths[1])
+	to, err := relFileReport(ctx, c, c.ScanPaths[1])
 	if err != nil {
 		return nil, err
 	}
@@ -170,7 +174,7 @@ func Diff(c Config) (*bincapz.Report, error) {
 		}
 	}
 
-	klog.V(1).Infof("diff: %+v", d)
+	clog.FromContext(ctx).Info("diff result", slog.Any("diff", d))
 
 	r := &bincapz.Report{
 		Diff: d,

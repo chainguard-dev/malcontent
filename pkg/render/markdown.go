@@ -4,14 +4,16 @@
 package render
 
 import (
+	"context"
 	"fmt"
 	"io"
+	"log/slog"
 	"sort"
 	"strings"
 
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
+	"github.com/chainguard-dev/clog"
 	"github.com/olekukonko/tablewriter"
-	"k8s.io/klog/v2"
 )
 
 type Markdown struct {
@@ -22,20 +24,20 @@ func NewMarkdown(w io.Writer) Markdown {
 	return Markdown{w: w}
 }
 
-func (r Markdown) File(fr bincapz.FileReport) error {
-	markdownTable(&fr, r.w, tableConfig{Title: fmt.Sprintf("## %s\n\nOverall risk: %s", fr.Path, decorativeRisk(fr.RiskScore, fr.RiskLevel))})
+func (r Markdown) File(ctx context.Context, fr bincapz.FileReport) error {
+	markdownTable(ctx, &fr, r.w, tableConfig{Title: fmt.Sprintf("## %s\n\nOverall risk: %s", fr.Path, decorativeRisk(fr.RiskScore, fr.RiskLevel))})
 	return nil
 }
 
-func (r Markdown) Full(rep bincapz.Report) error {
+func (r Markdown) Full(ctx context.Context, rep bincapz.Report) error {
 	for f, fr := range rep.Diff.Removed {
 		fr := fr
-		markdownTable(&fr, r.w, tableConfig{Title: fmt.Sprintf("## Deleted: %s", f), DiffRemoved: true})
+		markdownTable(ctx, &fr, r.w, tableConfig{Title: fmt.Sprintf("## Deleted: %s", f), DiffRemoved: true})
 	}
 
 	for f, fr := range rep.Diff.Added {
 		fr := fr
-		markdownTable(&fr, r.w, tableConfig{Title: fmt.Sprintf("## Added: %s\n\nOverall risk: %s", f, decorativeRisk(fr.RiskScore, fr.RiskLevel)), DiffAdded: true})
+		markdownTable(ctx, &fr, r.w, tableConfig{Title: fmt.Sprintf("## Added: %s\n\nOverall risk: %s", f, decorativeRisk(fr.RiskScore, fr.RiskLevel)), DiffAdded: true})
 	}
 
 	for f, fr := range rep.Diff.Modified {
@@ -53,12 +55,12 @@ func (r Markdown) Full(rep bincapz.Report) error {
 				decorativeRisk(fr.RiskScore, fr.RiskLevel))
 		}
 
-		markdownTable(&fr, r.w, tableConfig{Title: title})
+		markdownTable(ctx, &fr, r.w, tableConfig{Title: title})
 	}
 	return nil
 }
 
-func markdownTable(fr *bincapz.FileReport, w io.Writer, rc tableConfig) {
+func markdownTable(ctx context.Context, fr *bincapz.FileReport, w io.Writer, rc tableConfig) {
 	path := fr.Path
 	if fr.Error != "" {
 		fmt.Printf("⚠️ %s - error: %s\n", path, fr.Error)
@@ -118,7 +120,7 @@ func markdownTable(fr *bincapz.FileReport, w io.Writer, rc tableConfig) {
 		}
 
 		if len(k.Behavior.Values) > 0 {
-			klog.Infof("VALUES: %s", k.Behavior.Values)
+			clog.InfoContext(ctx, "", slog.String("description", k.Behavior.Description), slog.Any("values", k.Behavior.Values))
 			values := strings.Join(k.Behavior.Values, "\n")
 			before := " \""
 			after := "\""

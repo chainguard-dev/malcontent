@@ -5,8 +5,10 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"io/fs"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
@@ -16,13 +18,18 @@ import (
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
 	"github.com/chainguard-dev/bincapz/pkg/render"
 	"github.com/chainguard-dev/bincapz/pkg/rules"
+	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/clog/slogtest"
 	"github.com/google/go-cmp/cmp"
 )
 
 var testDataRoot = "testdata"
 
 func TestJSON(t *testing.T) {
-	yrs, err := rules.Compile(ruleFs, false)
+	ctx := slogtest.TestContextWithLogger(t)
+	clog.FromContext(ctx).With("test", "TestJSON")
+
+	yrs, err := rules.Compile(ctx, ruleFs, false)
 	if err != nil {
 		t.Fatalf("compile: %v", err)
 	}
@@ -64,7 +71,9 @@ func TestJSON(t *testing.T) {
 				Rules:      yrs,
 			}
 
-			got, err := action.Scan(bc)
+			tcLogger := clog.FromContext(ctx).With("test", name)
+			ctx := clog.WithLogger(ctx, tcLogger)
+			got, err := action.Scan(ctx, bc)
 			if err != nil {
 				t.Fatalf("scan failed: %v", err)
 			}
@@ -78,7 +87,10 @@ func TestJSON(t *testing.T) {
 }
 
 func TestSimple(t *testing.T) {
-	yrs, err := rules.Compile(ruleFs, false)
+	ctx := slogtest.TestContextWithLogger(t)
+	clog.FromContext(ctx).With("test", "simple")
+
+	yrs, err := rules.Compile(ctx, ruleFs, false)
 	if err != nil {
 		t.Fatalf("compile: %v", err)
 	}
@@ -117,12 +129,14 @@ func TestSimple(t *testing.T) {
 				Rules:      yrs,
 			}
 
-			res, err := action.Scan(bc)
+			tcLogger := clog.FromContext(ctx).With("test", name)
+			ctx := clog.WithLogger(ctx, tcLogger)
+			res, err := action.Scan(ctx, bc)
 			if err != nil {
 				t.Fatalf("scan failed: %v", err)
 			}
 
-			if err := simple.Full(*res); err != nil {
+			if err := simple.Full(ctx, *res); err != nil {
 				t.Fatalf("full: %v", err)
 			}
 
@@ -136,7 +150,7 @@ func TestSimple(t *testing.T) {
 }
 
 func TestDiff(t *testing.T) {
-	yrs, err := rules.Compile(ruleFs, true)
+	yrs, err := rules.Compile(context.TODO(), ruleFs, true)
 	if err != nil {
 		t.Fatalf("compile: %v", err)
 	}
@@ -174,12 +188,14 @@ func TestDiff(t *testing.T) {
 				Rules:      yrs,
 			}
 
-			res, err := action.Diff(bc)
+			logger := clog.New(slog.Default().Handler()).With("src", tc.src)
+			ctx := clog.WithLogger(context.Background(), logger)
+			res, err := action.Diff(ctx, bc)
 			if err != nil {
 				t.Fatalf("diff failed: %v", err)
 			}
 
-			if err := simple.Full(*res); err != nil {
+			if err := simple.Full(ctx, *res); err != nil {
 				t.Fatalf("full: %v", err)
 			}
 
@@ -192,7 +208,9 @@ func TestDiff(t *testing.T) {
 }
 
 func TestMarkdown(t *testing.T) {
-	yrs, err := rules.Compile(ruleFs, false)
+	ctx := slogtest.TestContextWithLogger(t)
+	clog.FromContext(ctx).With("test", "TestMarkDown")
+	yrs, err := rules.Compile(ctx, ruleFs, false)
 	if err != nil {
 		t.Fatalf("compile: %v", err)
 	}
@@ -231,12 +249,15 @@ func TestMarkdown(t *testing.T) {
 				Rules:      yrs,
 			}
 
-			res, err := action.Scan(bc)
+			tcLogger := clog.FromContext(ctx).With("test", name)
+			ctx := clog.WithLogger(ctx, tcLogger)
+
+			res, err := action.Scan(ctx, bc)
 			if err != nil {
 				t.Fatalf("scan failed: %v", err)
 			}
 
-			if err := simple.Full(*res); err != nil {
+			if err := simple.Full(ctx, *res); err != nil {
 				t.Fatalf("full: %v", err)
 			}
 
