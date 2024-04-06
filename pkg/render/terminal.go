@@ -35,7 +35,7 @@ type tableConfig struct {
 	DiffAdded   bool
 }
 
-func forceWrap(ctx context.Context, s string, x int) string {
+func forceWrap(_ context.Context, s string, x int) string {
 	words, _ := tablewriter.WrapString(s, x)
 	fw := []string{}
 	for _, w := range words {

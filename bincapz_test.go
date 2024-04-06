@@ -191,7 +191,6 @@ func TestDiff(t *testing.T) {
 			logger := clog.New(slog.Default().Handler()).With("src", tc.src)
 			ctx := clog.WithLogger(context.Background(), logger)
 			res, err := action.Diff(ctx, bc)
-
 			if err != nil {
 				t.Fatalf("diff failed: %v", err)
 			}
