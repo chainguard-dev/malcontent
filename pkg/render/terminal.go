@@ -4,16 +4,18 @@
 package render
 
 import (
+	"context"
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"sort"
 	"strings"
 
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
+	"github.com/chainguard-dev/clog"
 	"github.com/olekukonko/tablewriter"
 	"golang.org/x/term"
-	"k8s.io/klog/v2"
 )
 
 // ignoreMeta are fields to ignore in output.
@@ -33,12 +35,12 @@ type tableConfig struct {
 	DiffAdded   bool
 }
 
-func forceWrap(s string, x int) string {
+func forceWrap(_ context.Context, s string, x int) string {
 	words, _ := tablewriter.WrapString(s, x)
 	fw := []string{}
 	for _, w := range words {
 		if len(w) > x-2 {
-			klog.Infof("wrapping %s - longer than %d", w, x-2)
+			clog.Info("wrapping", slog.Any("word", w), slog.Int("length", len(w)), slog.Int("max", x-2))
 			w = w[0:x-2] + ".."
 		}
 		fw = append(fw, w)
@@ -46,14 +48,14 @@ func forceWrap(s string, x int) string {
 	return strings.Join(fw, "\n")
 }
 
-func terminalWidth() int {
+func terminalWidth(ctx context.Context) int {
 	if !term.IsTerminal(0) {
 		return 120
 	}
 
 	width, _, err := term.GetSize(0)
 	if err != nil {
-		klog.Errorf("term.getsize: %v", err)
+		clog.ErrorContext(ctx, "term.getsize", slog.Any("error", err))
 		return 80
 	}
 
@@ -91,8 +93,8 @@ func shortRisk(s string) string {
 	return short
 }
 
-func (r Terminal) File(fr bincapz.FileReport) error {
-	renderTable(&fr, r.w,
+func (r Terminal) File(ctx context.Context, fr bincapz.FileReport) error {
+	renderTable(ctx, &fr, r.w,
 		tableConfig{
 			Title: fmt.Sprintf("Path: %s\nRisk: %s", fr.Path, decorativeRisk(fr.RiskScore, fr.RiskLevel)),
 		},
@@ -100,10 +102,10 @@ func (r Terminal) File(fr bincapz.FileReport) error {
 	return nil
 }
 
-func (r Terminal) Full(rep bincapz.Report) error {
+func (r Terminal) Full(ctx context.Context, rep bincapz.Report) error {
 	for f, fr := range rep.Diff.Removed {
 		fr := fr
-		renderTable(&fr, r.w, tableConfig{
+		renderTable(ctx, &fr, r.w, tableConfig{
 			Title:       fmt.Sprintf("➖ Deleted: %s", f),
 			DiffRemoved: true,
 		})
@@ -111,7 +113,7 @@ func (r Terminal) Full(rep bincapz.Report) error {
 
 	for f, fr := range rep.Diff.Added {
 		fr := fr
-		renderTable(&fr, r.w, tableConfig{
+		renderTable(ctx, &fr, r.w, tableConfig{
 			Title:     fmt.Sprintf("Added: %s\nAdded Risk: %s", f, decorativeRisk(fr.RiskScore, fr.RiskLevel)),
 			DiffAdded: true,
 		})
@@ -131,14 +133,14 @@ func (r Terminal) Full(rep bincapz.Report) error {
 				decorativeRisk(fr.PreviousRiskScore, fr.PreviousRiskLevel),
 				decorativeRisk(fr.RiskScore, fr.RiskLevel))
 		}
-		renderTable(&fr, r.w, tableConfig{
+		renderTable(ctx, &fr, r.w, tableConfig{
 			Title: title,
 		})
 	}
 	return nil
 }
 
-func renderTable(fr *bincapz.FileReport, w io.Writer, rc tableConfig) { //nolint: cyclop // TODO: review this cyclomatic complexity for function renderTable is 39, max is 37
+func renderTable(ctx context.Context, fr *bincapz.FileReport, w io.Writer, rc tableConfig) { //nolint: cyclop // TODO: review this cyclomatic complexity for function renderTable is 39, max is 37
 	title := rc.Title
 
 	path := fr.Path
@@ -179,14 +181,14 @@ func renderTable(fr *bincapz.FileReport, w io.Writer, rc tableConfig) { //nolint
 		}
 	}
 
-	tWidth := terminalWidth()
+	tWidth := terminalWidth(ctx)
 	keyWidth := 36
 	riskWidth := 7
 	padding := 6
 	maxKeyLen := 0
 
 	for _, k := range kbs {
-		key := forceWrap(k.Key, keyWidth)
+		key := forceWrap(ctx, k.Key, keyWidth)
 		if len(key) > maxKeyLen {
 			maxKeyLen = len(key)
 		}
@@ -197,7 +199,7 @@ func renderTable(fr *bincapz.FileReport, w io.Writer, rc tableConfig) { //nolint
 		descWidth = 120
 	}
 
-	klog.Infof("terminal width: %d - desc width: %d", tWidth, descWidth)
+	clog.InfoContext(ctx, "terminal width", slog.Int("width", tWidth), slog.Int("descWidth", descWidth))
 
 	for _, k := range kbs {
 		desc := k.Behavior.Description
@@ -213,13 +215,11 @@ func renderTable(fr *bincapz.FileReport, w io.Writer, rc tableConfig) { //nolint
 			}
 		}
 
-		key := forceWrap(k.Key, keyWidth)
+		key := forceWrap(ctx, k.Key, keyWidth)
 		words, _ := tablewriter.WrapString(desc, descWidth)
-
-		//		klog.Infof("%s / %s - %s", k.Key, desc, k.Behavior.)
 		desc = strings.Join(words, "\n")
 		if len(k.Behavior.Values) > 0 {
-			klog.Infof("VALUES: %s", k.Behavior.Values)
+			clog.InfoContext(ctx, "Values", slog.String("description", k.Behavior.Description), slog.Any("values", k.Behavior.Values))
 			values := strings.Join(k.Behavior.Values, "\n")
 			before := " \""
 			after := "\""
@@ -227,7 +227,7 @@ func renderTable(fr *bincapz.FileReport, w io.Writer, rc tableConfig) { //nolint
 				before = "\n"
 				after = ""
 			}
-			desc = fmt.Sprintf("%s:%s%s%s", desc, before, forceWrap(strings.Join(k.Behavior.Values, "\n"), descWidth), after)
+			desc = fmt.Sprintf("%s:%s%s%s", desc, before, forceWrap(ctx, strings.Join(k.Behavior.Values, "\n"), descWidth), after)
 		}
 
 		// lowercase first character for consistency
@@ -265,7 +265,7 @@ func renderTable(fr *bincapz.FileReport, w io.Writer, rc tableConfig) { //nolint
 	}
 
 	tableWidth := maxKeyLen + maxDescWidth + padding + maxRiskWidth
-	klog.Infof("table width: %d", tableWidth)
+	clog.InfoContextf(ctx, "table width: %d", tableWidth)
 	fmt.Fprintf(w, "%s\n", strings.Repeat("-", tableWidth))
 	table.SetNoWhiteSpace(true)
 	table.SetTablePadding("  ")

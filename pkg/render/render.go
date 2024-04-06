@@ -4,6 +4,7 @@
 package render
 
 import (
+	"context"
 	"fmt"
 	"io"
 
@@ -12,8 +13,8 @@ import (
 
 // Renderer is a common interface for Renderers.
 type Renderer interface {
-	File(bincapz.FileReport) error
-	Full(bincapz.Report) error
+	File(context.Context, bincapz.FileReport) error
+	Full(context.Context, bincapz.Report) error
 }
 
 // New returns a new Renderer.
