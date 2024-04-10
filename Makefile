@@ -45,8 +45,13 @@ _lint: $(LINTERS)
 .PHONY: fix $(FIXERS)
 fix: $(FIXERS)
 
+# END: lint-install ../bincapz
+
 .PHONY: test
 test:
 	go test ./... -v
 
-# END: lint-install ../bincapz
+.PHONY: update-yaraforge
+update-yaraforge:
+	curl -sL -o out/yaraforge.zip https://github.com/YARAHQ/yara-forge/releases/latest/download/yara-forge-rules-full.zip
+	unzip -o -j out/yaraforge.zip packages/full/yara-rules-full.yar -d third_party/
