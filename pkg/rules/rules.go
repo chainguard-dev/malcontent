@@ -11,9 +11,12 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/chainguard-dev/bincapz/rules"
 	"github.com/chainguard-dev/clog"
 	"github.com/hillu/go-yara/v4"
 )
+
+var FS = rules.FS
 
 var skipFiles = map[string]bool{
 	"third_party/Neo23x0/yara/configured_vulns_ext_vars.yar": true,

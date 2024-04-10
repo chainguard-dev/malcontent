@@ -6,7 +6,6 @@ package main
 
 import (
 	"context"
-	"embed"
 	"flag"
 	"fmt"
 	"log/slog"
@@ -19,9 +18,6 @@ import (
 	"github.com/chainguard-dev/bincapz/pkg/rules"
 	"github.com/chainguard-dev/clog"
 )
-
-//go:embed rules third_party
-var ruleFs embed.FS
 
 func main() {
 	formatFlag := flag.String("format", "terminal", "Output type. Valid values are: json, markdown, simple, terminal, yaml")
@@ -61,7 +57,7 @@ func main() {
 		log.Fatal("invalid format", slog.Any("error", err), slog.String("format", *formatFlag))
 	}
 
-	yrs, err := rules.Compile(ctx, ruleFs, *thirdPartyFlag)
+	yrs, err := rules.Compile(ctx, rules.FS, *thirdPartyFlag)
 	if err != nil {
 		log.Fatal("YARA rule compilation", slog.Any("error", err))
 	}

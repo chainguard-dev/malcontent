@@ -1,7 +1,7 @@
 // Copyright 2024 Chainguard, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-package main
+package samples
 
 import (
 	"bytes"
@@ -23,13 +23,13 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-var testDataRoot = "testdata"
+var testDataRoot = "."
 
 func TestJSON(t *testing.T) {
 	ctx := slogtest.TestContextWithLogger(t)
 	clog.FromContext(ctx).With("test", "TestJSON")
 
-	yrs, err := rules.Compile(ctx, ruleFs, false)
+	yrs, err := rules.Compile(ctx, rules.FS, false)
 	if err != nil {
 		t.Fatalf("compile: %v", err)
 	}
@@ -90,7 +90,7 @@ func TestSimple(t *testing.T) {
 	ctx := slogtest.TestContextWithLogger(t)
 	clog.FromContext(ctx).With("test", "simple")
 
-	yrs, err := rules.Compile(ctx, ruleFs, false)
+	yrs, err := rules.Compile(ctx, rules.FS, false)
 	if err != nil {
 		t.Fatalf("compile: %v", err)
 	}
@@ -150,7 +150,7 @@ func TestSimple(t *testing.T) {
 }
 
 func TestDiff(t *testing.T) {
-	yrs, err := rules.Compile(context.TODO(), ruleFs, true)
+	yrs, err := rules.Compile(context.TODO(), rules.FS, true)
 	if err != nil {
 		t.Fatalf("compile: %v", err)
 	}
@@ -210,7 +210,7 @@ func TestDiff(t *testing.T) {
 func TestMarkdown(t *testing.T) {
 	ctx := slogtest.TestContextWithLogger(t)
 	clog.FromContext(ctx).With("test", "TestMarkDown")
-	yrs, err := rules.Compile(ctx, ruleFs, false)
+	yrs, err := rules.Compile(ctx, rules.FS, false)
 	if err != nil {
 		t.Fatalf("compile: %v", err)
 	}
