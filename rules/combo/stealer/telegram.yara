@@ -16,6 +16,9 @@ rule discord_password_post_chat : suspicious {
 	$p2 = "Password"
 	$p3 = "credentials"
 	$p4 = "creds" 
+
+	$not_prometheus = "prometheus-operator"
+	$not_telegram_configs = "WithTelegramConfigs"
   condition:
-	any of ($c*) and any of ($h*) and any of ($p*)
+	any of ($c*) and any of ($h*) and any of ($p*) and none of ($not*)
 }

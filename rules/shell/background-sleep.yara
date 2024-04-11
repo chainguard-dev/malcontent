@@ -1,5 +1,6 @@
 rule sleep_and_background : notable {
   meta:
+    description = "calls sleep and runs shell code in the background"
     hash_gmera_licatrade = "49feb795e6d9bce63ee445e581c4cf4a8297fbf7848b6026538298d708bed172"
     hash_2019_Cointrazer = "138a54a0a1fe717cf0ffd63ef2a27d296456b5338aed8ef301ad0e90b0fe25ae"
     hash_2019_trojan_NukeSped_Lazarus_AppleJeus = "e352d6ea4da596abfdf51f617584611fc9321d5a6d1c22aff243aecdef8e7e55"
