@@ -9,6 +9,7 @@ import (
 	"embed"
 	"flag"
 	"fmt"
+	"io"
 	"log/slog"
 	"os"
 	"strings"
@@ -32,6 +33,7 @@ func main() {
 	includeDataFilesFlag := flag.Bool("data-files", false, "include files that are detected to as non-program (binary or source) files")
 	diffFlag := flag.Bool("diff", false, "show capability drift between two files")
 	allFlag := flag.Bool("all", false, "Ignore nothing, show all")
+	logToStderrFlag := flag.Bool("log-to-stderr", false, "show log messages to stderr")
 	logSource := flag.Bool("log-source", false, "Include source code location in log messages")
 
 	flag.Parse()
@@ -42,7 +44,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	log := clog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{AddSource: *logSource}))
+	errOutput := io.Discard
+	if *logToStderrFlag {
+		errOutput = os.Stderr
+	}
+	log := clog.New(slog.NewTextHandler(errOutput, &slog.HandlerOptions{AddSource: *logSource}))
 
 	ctx := clog.WithLogger(context.Background(), log)
 	clog.FromContext(ctx).Info("bincapz starting")
