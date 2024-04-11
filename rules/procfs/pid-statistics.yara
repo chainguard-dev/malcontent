@@ -1,4 +1,4 @@
-rule proc_pid_stat {
+rule proc_pid_stat_val {
 	meta:
 		description = "Accesses process stats using /pid/%d/stat"
 	strings:
