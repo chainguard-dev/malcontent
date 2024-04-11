@@ -98,7 +98,6 @@ func generateKey(src string, rule string) string {
 		return "third_party/" + strings.ReplaceAll(key, ".yar", "")
 	}
 
-	//	_, after, _ = strings.Cut(src, "rules/")
 	key := strings.ReplaceAll(src, "-", "/")
 	return strings.ReplaceAll(key, ".yara", "")
 }
