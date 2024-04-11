@@ -58,7 +58,7 @@ func (r Markdown) Full(ctx context.Context, rep bincapz.Report) error {
 	return nil
 }
 
-func markdownTable(ctx context.Context, fr *bincapz.FileReport, w io.Writer, rc tableConfig) {
+func markdownTable(_ context.Context, fr *bincapz.FileReport, w io.Writer, rc tableConfig) {
 	path := fr.Path
 	if fr.Error != "" {
 		fmt.Printf("⚠️ %s - error: %s\n", path, fr.Error)
