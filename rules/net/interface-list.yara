@@ -9,3 +9,4 @@ rule bsd_ifaddrs : notable {
 	condition:
 		any of them
 }
+

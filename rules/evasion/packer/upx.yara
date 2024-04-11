@@ -19,3 +19,25 @@ rule upx : suspicious {
   condition:
     any of ($u*) in (0..1024) and none of ($not*)
 }
+
+rule upx_elf: suspicious {
+  meta:
+	description = "Linux ELF binary packed with UPX"
+  strings:
+    $proc_self = "/proc/self/exe"
+    $prot_exec = "PROT_EXEC|PROT_WRITE failed"
+  condition:
+	uint32(0) == 1179403647 and $prot_exec and $proc_self
+}
+
+rule upx_elf_tampered: critical {
+  meta:
+	description = "Linux ELF binary packed with modified UPX"
+  strings:
+// only in some versions
+//    $proc_self = "/proc/self/exe"
+    $prot_exec = "PROT_EXEC|PROT_WRITE failed"
+	$upx = "UPX!"
+  condition:
+	uint32(0) == 1179403647 and $prot_exec and not $upx
+}

@@ -1,10 +1,12 @@
-rule ignore_output : notable {
+rule ignore_output_val : notable {
 	meta:
 		description = "Runs shell commands but throws output away"
 	strings:
-		$bash = /> {0,2}\/dev\/null 2> {0,2}&1/
-		$both = /> {0,2}\/dev\/null 2> {0,2}\/dev\/null/
-	    $redir_all = "> /dev/null 2>&1"
+		$kind_bash = /[\/\-\w ]{0,64}\> {0,2}\/dev\/null 2> {0,2}&1/
+		$kind_both = /[\/\-\w ]{0,64}\> {0,2}\/dev\/null 2> {0,2}\/dev\/null/
+	    $kind_all = /[\/\-\w ]{0,64}> \/dev\/null 2>&1/
+
+		$not_declare = /declare -\w [\w]{0,64} >/
 	condition:
-		any of them
+		any of ($kind*) and none of ($not*)
 }
