@@ -24,7 +24,7 @@ rule basic_recon : notable {
 }
 
 
-rule invasive_recon : notable {
+rule invasive_recon_val : notable {
   meta:
     hash_2020_trojan_webshell_quwmldl_rfxn = "f1375cf097b3f28247762147f8ee3755e0ce26e24fbf8a785fe4e5b42c1fed05"
     hash_2017_Perl_FruitFly_afpscan = "bbbf73741078d1e74ab7281189b13f13b50308cf03d3df34bc9f6a90065a4a55"
@@ -34,14 +34,14 @@ rule invasive_recon : notable {
     hash_2023_Linux_Malware_Samples_2c98 = "2c98b196a51f737f29689d16abeea620b0acfa6380bdc8e94a7a927477d81e3a"
     hash_2023_Linux_Malware_Samples_3ffc = "3ffc2327a5dd17978f62c44807e5bf9904bcdef222012a11e48801faf6861a67"
     hash_2023_Linux_Malware_Samples_564a = "564a666d0a7efc39c9d53f5c6c4d95d5f7f6b7bff2dc9aa3c871f8c49650a99b"
-  strings:
-    $c_ifconfig = "ifconfig" fullword
+  strings: 
+    $c_ifconfig = /ifconfig.{0,4}-a/ fullword
     $c_lspi = "lspci"
-	$c_ufw = "ufw status"
-	$c_sudo = "sudo -l"
-	$c_ip_route = "ip route"
-	$c_netstat = "netstat -a"
-	$c_ip_addr = "ip addr" fullword
+	$c_ufw = /ufw.{0,4}status/
+	$c_sudo = /sudo.{0,4}-l/
+	$c_ip_route = /ip.{0,4}route/
+	$c_netstat = /netstat.{0,4}-a/
+	$c_ip_addr = /ip.{0,4}addr/ fullword
     $not_usage = "Usage: inet"
     $not_apple_smb = "com.apple.smbd"
     $not_bashopts = "BASHOPTS"
