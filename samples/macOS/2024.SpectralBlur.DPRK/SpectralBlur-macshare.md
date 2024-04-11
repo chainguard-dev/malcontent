@@ -21,6 +21,7 @@ Overall risk: 🔥 3/HIGH
 | 2/MEDIUM | net/ip/string           | converts IP address from byte to string             |
 | 2/MEDIUM | net/socket/connect      | initiate a connection on a socket                   |
 | 2/MEDIUM | net/upload              | uploads files                                       |
+| 2/MEDIUM | shell/exec              | executes a shell                                    |
 | 1/LOW    | env/SHELL               | users preferred SHELL path                          |
 | 1/LOW    | exec/program/background | waits for a process to exit                         |
 | 1/LOW    | fs/file/delete          | deletes files                                       |
