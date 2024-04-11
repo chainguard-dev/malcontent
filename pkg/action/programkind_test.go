@@ -39,7 +39,7 @@ func TestProgramStringMatch(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.filename, func(t *testing.T) {
 			ctx := slogtest.TestContextWithLogger(t)
-			got := programKind(ctx, fmt.Sprintf("samples/%s", tt.filename))
+			got := programKind(ctx, fmt.Sprintf("testdata/%s", tt.filename))
 			if got != tt.want {
 				t.Errorf("programKind() = %v, want %v", got, tt.want)
 			}
