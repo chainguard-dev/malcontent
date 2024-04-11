@@ -158,13 +158,19 @@ func TestDiff(t *testing.T) {
 	fileSystem := os.DirFS(testDataRoot)
 
 	tests := []struct {
-		diff   string
-		format string
-		src    string
-		dest   string
+		diff           string
+		format         string
+		src            string
+		dest           string
+		minResultScore int
+		minFileScore   int
 	}{
-		{"Linux/2023.FreeDownloadManager/freedownloadmanager.sdiff", "simple", "Linux/2023.FreeDownloadManager/freedownloadmanager_clear_postinst", "Linux/2023.FreeDownloadManager/freedownloadmanager_infected_postinst"},
-		{"macOS/2023.3CX/libffmpeg.dirty.mdiff", "markdown", "macOS/2023.3CX/libffmpeg.dylib", "macOS/2023.3CX/libffmpeg.dirty.dylib"},
+		{diff: "Linux/2023.FreeDownloadManager/freedownloadmanager.sdiff", format: "simple", src: "Linux/2023.FreeDownloadManager/freedownloadmanager_clear_postinst", dest: "Linux/2023.FreeDownloadManager/freedownloadmanager_infected_postinst", minResultScore: 1, minFileScore: 0},
+		{diff: "macOS/clean/ls.mdiff.level_2", format: "simple", src: "Linux/clean/ls.x86_64", dest: "macOS/clean/ls", minResultScore: 2, minFileScore: 2},
+		{diff: "macOS/clean/ls.mdiff.trigger_2", format: "simple", src: "Linux/clean/ls.x86_64", dest: "macOS/clean/ls", minResultScore: 1, minFileScore: 2},
+		// Important: minFileScore should apply to source or destination
+		{diff: "macOS/clean/ls.mdiff.trigger_3", format: "simple", src: "Linux/clean/ls.x86_64", dest: "macOS/clean/ls", minResultScore: 1, minFileScore: 3},
+		{diff: "macOS/2023.3CX/libffmpeg.dirty.mdiff", format: "markdown", src: "macOS/2023.3CX/libffmpeg.dylib", dest: "macOS/2023.3CX/libffmpeg.dirty.dylib"},
 	}
 
 	for _, tc := range tests {
@@ -182,10 +188,12 @@ func TestDiff(t *testing.T) {
 			}
 
 			bc := action.Config{
-				ScanPaths:  []string{tc.src, tc.dest},
-				IgnoreTags: []string{"harmless"},
-				Renderer:   simple,
-				Rules:      yrs,
+				ScanPaths:      []string{tc.src, tc.dest},
+				IgnoreTags:     []string{"harmless"},
+				Renderer:       simple,
+				Rules:          yrs,
+				MinResultScore: tc.minResultScore,
+				MinFileScore:   tc.minFileScore,
 			}
 
 			logger := clog.New(slog.Default().Handler()).With("src", tc.src)

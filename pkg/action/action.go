@@ -14,7 +14,8 @@ type Config struct {
 	Rules            *yara.Rules
 	ScanPaths        []string
 	IgnoreTags       []string
-	MinLevel         int
+	MinResultScore   int
+	MinFileScore     int
 	OmitEmpty        bool
 	IncludeDataFiles bool
 	Renderer         render.Renderer
