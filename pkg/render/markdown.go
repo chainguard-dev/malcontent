@@ -7,12 +7,10 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"log/slog"
 	"sort"
 	"strings"
 
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
-	"github.com/chainguard-dev/clog"
 	"github.com/olekukonko/tablewriter"
 )
 
@@ -120,7 +118,6 @@ func markdownTable(ctx context.Context, fr *bincapz.FileReport, w io.Writer, rc 
 		}
 
 		if len(k.Behavior.Values) > 0 {
-			clog.InfoContext(ctx, "", slog.String("description", k.Behavior.Description), slog.Any("values", k.Behavior.Values))
 			values := strings.Join(k.Behavior.Values, "\n")
 			before := " \""
 			after := "\""

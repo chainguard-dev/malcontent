@@ -35,12 +35,11 @@ type tableConfig struct {
 	DiffAdded   bool
 }
 
-func forceWrap(_ context.Context, s string, x int) string {
+func forceWrap(s string, x int) string {
 	words, _ := tablewriter.WrapString(s, x)
 	fw := []string{}
 	for _, w := range words {
 		if len(w) > x-2 {
-			clog.Info("wrapping", slog.Any("word", w), slog.Int("length", len(w)), slog.Int("max", x-2))
 			w = w[0:x-2] + ".."
 		}
 		fw = append(fw, w)
@@ -188,7 +187,7 @@ func renderTable(ctx context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 	maxKeyLen := 0
 
 	for _, k := range kbs {
-		key := forceWrap(ctx, k.Key, keyWidth)
+		key := forceWrap(k.Key, keyWidth)
 		if len(key) > maxKeyLen {
 			maxKeyLen = len(key)
 		}
@@ -198,8 +197,6 @@ func renderTable(ctx context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 	if descWidth > 120 {
 		descWidth = 120
 	}
-
-	clog.InfoContext(ctx, "terminal width", slog.Int("width", tWidth), slog.Int("descWidth", descWidth))
 
 	for _, k := range kbs {
 		desc := k.Behavior.Description
@@ -215,11 +212,10 @@ func renderTable(ctx context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 			}
 		}
 
-		key := forceWrap(ctx, k.Key, keyWidth)
+		key := forceWrap(k.Key, keyWidth)
 		words, _ := tablewriter.WrapString(desc, descWidth)
 		desc = strings.Join(words, "\n")
 		if len(k.Behavior.Values) > 0 {
-			clog.InfoContext(ctx, "Values", slog.String("description", k.Behavior.Description), slog.Any("values", k.Behavior.Values))
 			values := strings.Join(k.Behavior.Values, "\n")
 			before := " \""
 			after := "\""
@@ -227,7 +223,7 @@ func renderTable(ctx context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 				before = "\n"
 				after = ""
 			}
-			desc = fmt.Sprintf("%s:%s%s%s", desc, before, forceWrap(ctx, strings.Join(k.Behavior.Values, "\n"), descWidth), after)
+			desc = fmt.Sprintf("%s:%s%s%s", desc, before, forceWrap(strings.Join(k.Behavior.Values, "\n"), descWidth), after)
 		}
 
 		// lowercase first character for consistency
@@ -265,7 +261,6 @@ func renderTable(ctx context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 	}
 
 	tableWidth := maxKeyLen + maxDescWidth + padding + maxRiskWidth
-	clog.InfoContextf(ctx, "table width: %d", tableWidth)
 	fmt.Fprintf(w, "%s\n", strings.Repeat("-", tableWidth))
 	table.SetNoWhiteSpace(true)
 	table.SetTablePadding("  ")
