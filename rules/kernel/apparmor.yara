@@ -1,4 +1,6 @@
 rule apparmor : notable {
+  meta:
+    description = "Mentions 'apparmor'"
   strings:
 	$ref = "apparmor" fullword
   condition:
@@ -6,17 +8,19 @@ rule apparmor : notable {
 }
 
 rule apparmor_stop : suspicious {
+  meta:
+	description = "Stops the AppArmor service"
   strings:
-	$ref = "apparmor stop"
+	$val = "apparmor stop"
   condition:
 	any of them
 }
 
 rule disable_apparmor : suspicious {
+  meta:
+	description = "Disables the AppArmor service"
   strings:
-	$ref = "disable apparmor"
+	$val = "disable apparmor"
   condition:
 	any of them
 }
-
-

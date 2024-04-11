@@ -4,6 +4,7 @@ rule etc_shadow : suspicious {
   strings:
 	$ref = "etc/shadow"
 	$not_vim = "VIMRUNTIME"
+	$not_go_selinux = "SELINUXTYPE"
   condition:
     $ref and none of ($not*)
 }

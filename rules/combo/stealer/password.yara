@@ -3,13 +3,13 @@ rule password_finder_mimipenguin : critical {
 	description = "Password finder/dumper, such as MimiPengiuin"
   strings:
 	$lightdm = "lightdm" fullword
-	$apache2 = "apache2"
-	$vsftpd = "vsftpd"
+	$apache2 = "apache2.conf" fullword
+	$vsftpd = "vsftpd" fullword
 	$shadow = "/etc/shadow"
 	$gnome = "gnome-keyring-daemon"
 	$password = "password"
 	$finder = "Finder"
-	$ssh = "ssh"
+	$sshd_config = "sshd_config" fullword
   condition:
 	5 of them
 }

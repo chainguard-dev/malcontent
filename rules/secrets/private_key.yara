@@ -1,6 +1,6 @@
-rule private_key {
+rule private_key_val {
   meta:
-	ref = "References private keys"
+	description = "References private keys"
   strings:
 	$ref = "private_key"
 	$ref2 = "PRIVATE_KEY"
