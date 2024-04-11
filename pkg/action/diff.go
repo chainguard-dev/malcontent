@@ -20,7 +20,7 @@ func relFileReport(ctx context.Context, c Config, path string) (map[string]binca
 	fromConfig := c
 	fromConfig.Renderer = nil
 	fromConfig.ScanPaths = []string{fromPath}
-	fromReport, err := Scan(ctx, fromConfig)
+	fromReport, err := recursiveScan(ctx, fromConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -46,6 +46,7 @@ func Diff(ctx context.Context, c Config) (*bincapz.Report, error) {
 	if len(c.ScanPaths) != 2 {
 		return nil, fmt.Errorf("diff mode requires 2 paths, you passed in %d path(s)", len(c.ScanPaths))
 	}
+
 	from, err := relFileReport(ctx, c, c.ScanPaths[0])
 	if err != nil {
 		return nil, err
@@ -69,7 +70,12 @@ func Diff(ctx context.Context, c Config) (*bincapz.Report, error) {
 			d.Removed[relPath] = fr
 			continue
 		}
-		// This file exists in both source & destination
+		// We've now established that file exists in both source & destination
+		if fr.RiskScore < c.MinFileScore && tr.RiskScore < c.MinFileScore {
+			clog.FromContext(ctx).Info("diff does not meet min trigger level", slog.Any("path", tr.Path))
+			continue
+		}
+
 		rbs := bincapz.FileReport{
 			Path:              tr.Path,
 			Behaviors:         map[string]bincapz.Behavior{},
@@ -98,7 +104,12 @@ func Diff(ctx context.Context, c Config) (*bincapz.Report, error) {
 			continue
 		}
 
-		// This file exists in both source and destination
+		// We've now established that this file exists in both source and destination
+		if fr.RiskScore < c.MinFileScore && tr.RiskScore < c.MinFileScore {
+			clog.FromContext(ctx).Info("diff does not meet min trigger level", slog.Any("path", tr.Path))
+			continue
+		}
+
 		abs := bincapz.FileReport{
 			Path:              tr.Path,
 			Behaviors:         map[string]bincapz.Behavior{},
@@ -134,6 +145,11 @@ func Diff(ctx context.Context, c Config) (*bincapz.Report, error) {
 		for apath, tr := range d.Added {
 			score := levenshtein.Match(rpath, apath, levenshtein.NewParams())
 			if score < 0.9 {
+				continue
+			}
+
+			if fr.RiskScore < c.MinFileScore && tr.RiskScore < c.MinFileScore {
+				clog.FromContext(ctx).Info("diff doe not meet min trigger level", slog.Any("path", tr.Path))
 				continue
 			}
 
