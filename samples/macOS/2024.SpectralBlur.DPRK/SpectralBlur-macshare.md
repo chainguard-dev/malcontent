@@ -1,4 +1,4 @@
-## testdata/macOS/SpectralBlur-macshare
+## macOS/2024.SpectralBlur.DPRK/SpectralBlur-macshare
 
 Overall risk: 🔥 3/HIGH
 

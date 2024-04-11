@@ -98,8 +98,7 @@ func generateKey(src string, rule string) string {
 		return "third_party/" + strings.ReplaceAll(key, ".yar", "")
 	}
 
-	_, after, _ = strings.Cut(src, "rules/")
-	key := strings.ReplaceAll(after, "-", "/")
+	key := strings.ReplaceAll(src, "-", "/")
 	return strings.ReplaceAll(key, ".yara", "")
 }
 
@@ -297,16 +296,20 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 	overallRiskScore := 0
 	riskCounts := map[int]int{}
 
-	for _, m := range mrs {
+	for x, m := range mrs {
+		clog.InfoContextf(ctx, "yara match[%d]: %+v", x, m)
+
 		risk := behaviorRisk(m.Namespace, m.Tags)
 		if risk > overallRiskScore {
 			overallRiskScore = risk
 		}
 		riskCounts[risk]++
 		if risk < minScore {
+			clog.InfoContextf(ctx, "dropping %s (risk %d is too low)", m.Namespace, risk)
 			continue
 		}
 		key := generateKey(m.Namespace, m.Rule)
+		clog.InfoContextf(ctx, "%s key=%s", m.Namespace, key)
 
 		b := bincapz.Behavior{
 			RiskScore:    risk,
@@ -356,8 +359,10 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 			fr.Meta[k] = v
 			continue
 		}
+
 		if ignoreMatch(m.Tags, ignore) {
 			fr.FilteredBehaviors++
+			clog.InfoContextf(ctx, "dropping %s (tags match ignore list)", m.Namespace)
 			continue
 		}
 
@@ -392,6 +397,5 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 	fr.RiskScore = overallRiskScore
 	fr.RiskLevel = riskLevels[fr.RiskScore]
 
-	clog.InfoContextf(ctx, "yara matches: %+v", mrs)
 	return fr, nil
 }

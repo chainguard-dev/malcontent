@@ -1,7 +1,7 @@
 // Copyright 2024 Chainguard, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-package main
+package samples
 
 import (
 	"bytes"
@@ -23,13 +23,13 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-var testDataRoot = "testdata"
+var testDataRoot = "."
 
 func TestJSON(t *testing.T) {
 	ctx := slogtest.TestContextWithLogger(t)
 	clog.FromContext(ctx).With("test", "TestJSON")
 
-	yrs, err := rules.Compile(ctx, ruleFs, false)
+	yrs, err := rules.Compile(ctx, rules.FS, false)
 	if err != nil {
 		t.Fatalf("compile: %v", err)
 	}
@@ -90,7 +90,7 @@ func TestSimple(t *testing.T) {
 	ctx := slogtest.TestContextWithLogger(t)
 	clog.FromContext(ctx).With("test", "simple")
 
-	yrs, err := rules.Compile(ctx, ruleFs, false)
+	yrs, err := rules.Compile(ctx, rules.FS, false)
 	if err != nil {
 		t.Fatalf("compile: %v", err)
 	}
@@ -150,7 +150,7 @@ func TestSimple(t *testing.T) {
 }
 
 func TestDiff(t *testing.T) {
-	yrs, err := rules.Compile(context.TODO(), ruleFs, true)
+	yrs, err := rules.Compile(context.TODO(), rules.FS, true)
 	if err != nil {
 		t.Fatalf("compile: %v", err)
 	}
@@ -163,8 +163,8 @@ func TestDiff(t *testing.T) {
 		src    string
 		dest   string
 	}{
-		{"Linux/freedownloadmanager.sdiff", "simple", "testdata/Linux/freedownloadmanager_clear_postinst", "testdata/Linux/freedownloadmanager_infected_postinst"},
-		{"macOS/libffmpeg.dirty.mdiff", "markdown", "testdata/macOS/libffmpeg.dylib", "testdata/macOS/libffmpeg.dirty.dylib"},
+		{"Linux/2023.FreeDownloadManager/freedownloadmanager.sdiff", "simple", "Linux/2023.FreeDownloadManager/freedownloadmanager_clear_postinst", "Linux/2023.FreeDownloadManager/freedownloadmanager_infected_postinst"},
+		{"macOS/2023.3CX/libffmpeg.dirty.mdiff", "markdown", "macOS/2023.3CX/libffmpeg.dylib", "macOS/2023.3CX/libffmpeg.dirty.dylib"},
 	}
 
 	for _, tc := range tests {
@@ -210,7 +210,7 @@ func TestDiff(t *testing.T) {
 func TestMarkdown(t *testing.T) {
 	ctx := slogtest.TestContextWithLogger(t)
 	clog.FromContext(ctx).With("test", "TestMarkDown")
-	yrs, err := rules.Compile(ctx, ruleFs, false)
+	yrs, err := rules.Compile(ctx, rules.FS, false)
 	if err != nil {
 		t.Fatalf("compile: %v", err)
 	}

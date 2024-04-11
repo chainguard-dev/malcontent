@@ -1,4 +1,4 @@
-# testdata/does-nothing/does-nothing
+# does-nothing/does-nothing
 encoding/base64
 encoding/json
 encoding/json/encode
