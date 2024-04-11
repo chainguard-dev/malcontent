@@ -58,10 +58,11 @@ func scanSinglePath(ctx context.Context, c Config, yrs *yara.Rules, path string)
 		return &bincapz.FileReport{Path: path, Error: fmt.Sprintf("scanfile: %v", err)}, nil
 	}
 
-	fr, err := report.Generate(ctx, path, mrs, c.IgnoreTags, c.MinLevel)
+	fr, err := report.Generate(ctx, path, mrs, c.IgnoreTags, c.MinResultScore)
 	if err != nil {
 		return nil, err
 	}
+
 	if len(fr.Behaviors) == 0 && c.OmitEmpty {
 		return nil, nil
 	}
@@ -69,7 +70,7 @@ func scanSinglePath(ctx context.Context, c Config, yrs *yara.Rules, path string)
 	return &fr, nil
 }
 
-func Scan(ctx context.Context, c Config) (*bincapz.Report, error) {
+func recursiveScan(ctx context.Context, c Config) (*bincapz.Report, error) {
 	logger := clog.FromContext(ctx)
 	logger.Debug("scan", slog.Any("config", c))
 	r := &bincapz.Report{
@@ -102,6 +103,9 @@ func Scan(ctx context.Context, c Config) (*bincapz.Report, error) {
 				continue
 			}
 			if c.Renderer != nil {
+				if fr.RiskScore < c.MinFileScore {
+					continue
+				}
 				if err := c.Renderer.File(ctx, *fr); err != nil {
 					return r, fmt.Errorf("render: %w", err)
 				}
@@ -110,5 +114,18 @@ func Scan(ctx context.Context, c Config) (*bincapz.Report, error) {
 		}
 	}
 
+	return r, nil
+}
+
+func Scan(ctx context.Context, c Config) (*bincapz.Report, error) {
+	r, err := recursiveScan(ctx, c)
+	if err != nil {
+		return r, err
+	}
+	for path, rf := range r.Files {
+		if rf.RiskScore < c.MinFileScore {
+			delete(r.Files, path)
+		}
+	}
 	return r, nil
 }
