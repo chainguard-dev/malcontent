@@ -163,8 +163,8 @@ func TestDiff(t *testing.T) {
 		src    string
 		dest   string
 	}{
-		{"Linux/freedownloadmanager.sdiff", "simple", "testdata/Linux/freedownloadmanager_clear_postinst", "testdata/Linux/freedownloadmanager_infected_postinst"},
-		{"macOS/libffmpeg.dirty.mdiff", "markdown", "testdata/macOS/libffmpeg.dylib", "testdata/macOS/libffmpeg.dirty.dylib"},
+		{"Linux/2023.FreeDownloadManager/freedownloadmanager.sdiff", "simple", "Linux/2023.FreeDownloadManager/freedownloadmanager_clear_postinst", "Linux/2023.FreeDownloadManager/freedownloadmanager_infected_postinst"},
+		{"macOS/2023.3CX/libffmpeg.dirty.mdiff", "markdown", "macOS/2023.3CX/libffmpeg.dylib", "macOS/2023.3CX/libffmpeg.dirty.dylib"},
 	}
 
 	for _, tc := range tests {

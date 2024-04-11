@@ -32,3 +32,4 @@ Overall risk: 🔥 3/HIGH
 | 1/LOW    | process/multithreaded   | uses pthreads                                       |
 | 1/LOW    | process/username/get    | get login name                                      |
 | 1/LOW    | random/insecure         | generate random numbers insecurely                  |
+
