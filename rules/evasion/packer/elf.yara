@@ -27,31 +27,14 @@ rule obfuscated_elf : suspicious {
     uint32(0) == 1179403647 and none of them
 }
 
-rule upx_elf: suspicious {
-  meta:
-	description = "Linux ELF binary packed with UPX"
-  strings:
-    $proc_self = "/proc/self/exe"
-    $prot_exec = "PROT_EXEC|PROT_WRITE failed"
-  condition:
-	uint32(0) == 1179403647 and $prot_exec and $proc_self
-}
-
-rule upx_elf_tampered: critical {
-  meta:
-	description = "Linux ELF binary packed with modified UPX"
-  strings:
-    $proc_self = "/proc/self/exe"
-    $prot_exec = "PROT_EXEC|PROT_WRITE failed"
-	$upx = "UPX!"
-  condition:
-	uint32(0) == 1179403647 and $prot_exec and $proc_self and not $upx
-}
-
 
 rule high_entropy_elf : suspicious {
   meta:
 	description = "Obfuscated ELF binary (high entropy content)"
+  strings:
+	$not_pyinst = "pyi-bootloader-ignore-signals"
+	$not_go = "syscall_linux.go"
+	$not_go2 = "vdso_linux.go"
   condition:
-    uint32(0) == 1179403647 and math.entropy(1200,6000) > 7
+    uint32(0) == 1179403647 and math.entropy(1200,4096) > 7 and none of ($not*)
 }
