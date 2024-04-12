@@ -2,8 +2,7 @@ rule base64_decode : notable python {
   meta:
 	description = "decodes base64 strings"
   strings:
-//	$b64decode = "b64decode"
-	$urlsafe_decode64_ruby = "urlsafe_decode64"
+	$b64decode = "b64decode"
   condition:
 	any of them
 }
