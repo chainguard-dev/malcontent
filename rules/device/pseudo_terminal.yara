@@ -11,9 +11,9 @@ rule pty : notable {
 		2 of them
 }
 
-rule go_pty : suspicious {
+rule go_pty : notable {
 	meta:
-		description = "pseudo-terminal access"
+		description = "pseudo-terminal access from Go"
 	strings:
 		$ref = "creack/pty"
 	condition:

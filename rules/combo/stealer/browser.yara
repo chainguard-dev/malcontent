@@ -54,7 +54,7 @@ rule multiple_browser_credentials_2 {
 }
 
 
-rule multiple_browser_refs : suspicious {
+rule multiple_browser_refs : notable {
   meta:
 	description = "Uses HTTP, archives, and references multiple browsers"
   strings:
