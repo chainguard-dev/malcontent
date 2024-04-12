@@ -15,7 +15,6 @@ import (
 )
 
 func relFileReport(ctx context.Context, c Config, path string) (map[string]bincapz.FileReport, error) {
-	logger := clog.FromContext(ctx).With("path", path)
 	fromPath := path
 	fromConfig := c
 	fromConfig.Renderer = nil
@@ -25,24 +24,22 @@ func relFileReport(ctx context.Context, c Config, path string) (map[string]binca
 		return nil, err
 	}
 	fromRelPath := map[string]bincapz.FileReport{}
-	for fname, f := range fromReport.Files {
+	for _, f := range fromReport.Files {
 		if f.Skipped != "" || f.Error != "" {
 			continue
 		}
-		logger.Info("file report", slog.String("file", fname), slog.Any("report", f))
+
 		rel, err := filepath.Rel(fromPath, f.Path)
 		if err != nil {
 			return nil, fmt.Errorf("rel(%q,%q): %w", fromPath, f.Path, err)
 		}
 		fromRelPath[rel] = f
-		logger.Info("relative file report", slog.String("relpath", rel), slog.Any("report", f))
 	}
 
 	return fromRelPath, nil
 }
 
 func Diff(ctx context.Context, c Config) (*bincapz.Report, error) {
-	clog.InfoContext(ctx, "diffing", slog.Any("scanpaths", c.ScanPaths))
 	if len(c.ScanPaths) != 2 {
 		return nil, fmt.Errorf("diff mode requires 2 paths, you passed in %d path(s)", len(c.ScanPaths))
 	}
@@ -190,11 +187,5 @@ func Diff(ctx context.Context, c Config) (*bincapz.Report, error) {
 		}
 	}
 
-	clog.FromContext(ctx).Info("diff result", slog.Any("diff", d))
-
-	r := &bincapz.Report{
-		Diff: d,
-	}
-
-	return r, err
+	return &bincapz.Report{Diff: d}, err
 }

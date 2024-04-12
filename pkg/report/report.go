@@ -162,7 +162,7 @@ func unprintableString(s string) bool {
 	return false
 }
 
-func longestUnique(ctx context.Context, raw []string) []string {
+func longestUnique(raw []string) []string {
 	longest := []string{}
 
 	// inefficiently remove substring matches
@@ -174,7 +174,6 @@ func longestUnique(ctx context.Context, raw []string) []string {
 		isLongest := true
 		for _, o := range raw {
 			if o != s && strings.Contains(o, s) {
-				clog.InfoContextf(ctx, "%s contains %s", o, s)
 				isLongest = false
 				break
 			}
@@ -208,7 +207,7 @@ func matchToString(ruleName string, m yara.MatchString) string {
 }
 
 // extract important values.
-func matchValues(ctx context.Context, key string, ruleName string, ms []yara.MatchString) []string {
+func matchValues(key string, ruleName string, ms []yara.MatchString) []string {
 	raw := []string{}
 
 	for _, m := range ms {
@@ -234,16 +233,15 @@ func matchValues(ctx context.Context, key string, ruleName string, ms []yara.Mat
 			continue
 		}
 
-		clog.InfoContextf(ctx, "keeping: %s - %s - %s: %s", key, ruleName, m.Name, m.Data)
 		raw = append(raw, matchToString(ruleName, m))
 	}
 
 	slices.Sort(raw)
-	return longestUnique(ctx, raw)
+	return longestUnique(raw)
 }
 
 // extract match strings.
-func matchStrings(ctx context.Context, ruleName string, ms []yara.MatchString) []string {
+func matchStrings(ruleName string, ms []yara.MatchString) []string {
 	raw := []string{}
 
 	for _, m := range ms {
@@ -251,7 +249,7 @@ func matchStrings(ctx context.Context, ruleName string, ms []yara.MatchString) [
 	}
 
 	slices.Sort(raw)
-	return longestUnique(ctx, raw)
+	return longestUnique(raw)
 }
 
 func pathChecksum(path string) (string, error) {
@@ -296,26 +294,22 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 	overallRiskScore := 0
 	riskCounts := map[int]int{}
 
-	for x, m := range mrs {
-		clog.InfoContextf(ctx, "yara match[%d]: %+v", x, m)
-
+	for _, m := range mrs {
 		risk := behaviorRisk(m.Namespace, m.Tags)
 		if risk > overallRiskScore {
 			overallRiskScore = risk
 		}
 		riskCounts[risk]++
 		if risk < minScore {
-			clog.InfoContextf(ctx, "dropping %s (risk %d is too low)", m.Namespace, risk)
 			continue
 		}
 		key := generateKey(m.Namespace, m.Rule)
-		clog.InfoContextf(ctx, "%s key=%s", m.Namespace, key)
 
 		b := bincapz.Behavior{
 			RiskScore:    risk,
 			RiskLevel:    riskLevels[risk],
-			Values:       matchValues(ctx, key, m.Rule, m.Strings),
-			MatchStrings: matchStrings(ctx, m.Rule, m.Strings),
+			Values:       matchValues(key, m.Rule, m.Strings),
+			MatchStrings: matchStrings(m.Rule, m.Strings),
 		}
 
 		for _, meta := range m.Metas {
@@ -362,7 +356,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 
 		if ignoreMatch(m.Tags, ignore) {
 			fr.FilteredBehaviors++
-			clog.InfoContextf(ctx, "dropping %s (tags match ignore list)", m.Namespace)
+			clog.DebugContextf(ctx, "dropping %s (tags match ignore list)", m.Namespace)
 			continue
 		}
 

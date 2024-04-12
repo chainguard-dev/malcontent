@@ -18,10 +18,6 @@ import (
 
 var FS = rules.FS
 
-var skipFiles = map[string]bool{
-	"third_party/Neo23x0/yara/configured_vulns_ext_vars.yar": true,
-}
-
 func Compile(ctx context.Context, root fs.FS, thirdParty bool) (*yara.Rules, error) {
 	yc, err := yara.NewCompiler()
 	if err != nil {
@@ -47,14 +43,7 @@ func Compile(ctx context.Context, root fs.FS, thirdParty bool) (*yara.Rules, err
 			return nil
 		}
 
-		if skipFiles[path] {
-			logger.Info("skipping (skipFiles)")
-			return nil
-		}
-
 		if !d.IsDir() && filepath.Ext(path) == ".yara" || filepath.Ext(path) == ".yar" {
-			logger.Info("reading")
-
 			bs, err := fs.ReadFile(root, path)
 			if err != nil {
 				return fmt.Errorf("readfile: %w", err)
