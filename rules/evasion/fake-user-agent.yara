@@ -71,9 +71,9 @@ rule elf_faker_val : high {
   meta:
 	description = "Fake user agent inside ELF binary"
   strings:
-	$ref = /Mozilla\/5[\.\w ]{0,32}/
+	$val = /Mozilla\/5[\.\w ]{0,64}/
   condition:
-    uint32(0) == 1179403647 and $ref
+    uint32(0) == 1179403647 and $val
 }
 
 

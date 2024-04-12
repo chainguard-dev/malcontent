@@ -1,6 +1,6 @@
 rule keychain : notable macos {
 	meta:
-		description = "Accesses the system keychain"
+		description = "May access the macOS keychain"
 	strings:
 		$ref = "Keychain"
 		$ref2 = "keychain"
