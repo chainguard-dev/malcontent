@@ -1,6 +1,6 @@
-rule hostinfo_collector : suspicious {
+rule process_capabilities_val : notable {
   meta:
-	description = "enumerates process capabilities"
+	description = "enumerates Linux capabilities for process"
   strings:
 	$capsh = "capsh" fullword
 	$self_status = "/proc/self/status"

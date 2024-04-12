@@ -1,4 +1,7 @@
-rule syn_cookie : suspicious {
+rule syn_cookie : notable {
+  meta:
+	description = "references SYN cookies, used to resist DoS attacks"
+	ref = "https://en.wikipedia.org/wiki/SYN_cookies"
   strings:
     $syncookie = "syncookie"
     $syn_cookie = "syn_cookie"

@@ -54,10 +54,13 @@ rule multiple_browser_credentials_2 {
 }
 
 
-rule multiple_browser_refs : suspicious {
+rule multiple_browser_refs : notable {
   meta:
 	description = "Uses HTTP, archives, and references multiple browsers"
   strings:
+	$d_config = ".config" fullword
+	$d_app_support = "Application Support" fullword
+
 	$h_http = "http" fullword
 	$h_POST = "POST" fullword
 
@@ -72,5 +75,5 @@ rule multiple_browser_refs : suspicious {
 	$b_Safari = "Safari"
 	$b_Chrome = "Chrome"
   condition:
-    any of ($h*) and any of ($z*) and 2 of ($b*)
+    any of ($d*) and any of ($h*) and any of ($z*) and 2 of ($b*)
 }

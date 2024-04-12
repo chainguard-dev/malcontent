@@ -1,7 +1,7 @@
 
 rule unusual_nodename {
   meta:
-	description = "Contains HTTP hostname with a long node namhe"
+	description = "Contains HTTP hostname with a long node name"
   strings:
     $ref = /https*:\/\/\w{16,}\//
   condition:
