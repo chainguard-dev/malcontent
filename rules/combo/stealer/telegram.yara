@@ -2,8 +2,7 @@ rule discord_password_post_chat : suspicious {
   meta:
 	description = "gets passwords, makes HTTP requests, and uses Telegram"
   strings:
-	$c3 = "api.telegram"
-	$c4 = "Telegram"
+	$c3 = "api.telegram.org"
 
 	$h1 = "get("
 	$h2 = "post("

@@ -1,4 +1,4 @@
-rule ssh_authorized_key : suspicious {
+rule ssh_authorized_key_val : suspicious {
   meta:
     ref = "https://www.sentinelone.com/blog/macos-malware-2023-a-deep-dive-into-emerging-trends-and-evolving-techniques/"
 	description = "Accesses SSH authorized_keys"

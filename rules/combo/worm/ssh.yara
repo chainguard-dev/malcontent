@@ -10,8 +10,10 @@ rule ssh_snake_worm : suspicious {
 
 	$u_base64 = "base64"
 	$u_uname = "uname"
+
+	$strict_host = "StrictHostKeyChecking"
   condition:
-	all of ($s*) and any of ($h*) and any of ($u*)
+	$strict_host and all of ($s*) and any of ($h*) and any of ($u*)
 }
 
 rule ssh_worm_router : suspicious {

@@ -14,6 +14,7 @@ rule unusual_http_hostname : suspicious {
     $not_electron = "ELECTRON_RUN_AS_NODE"
     $not_mail_ru = "go.mail.ru"
     $not_rambler = "novarambler.ru"
+	$not_localhost_app = "localhostapplication"
   condition:
     any of ($http*) and none of ($not_*)
 }

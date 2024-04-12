@@ -1,4 +1,4 @@
-rule eval : suspicious {
+rule eval : notable {
 	meta:
 		description = "evaluate code dynamically using eval()"
 	strings:
@@ -8,7 +8,7 @@ rule eval : suspicious {
 		$val and none of ($not*)
 }
 
-rule python_exec : suspicious {
+rule python_exec : notable {
 	meta:
 		description = "evaluate code dynamically using exec()"
 	strings:
@@ -18,9 +18,9 @@ rule python_exec : suspicious {
 		$val and not $empty
 }
 
-rule shell_eval : suspicious {
+rule shell_eval : notable {
 	meta:
-		description = "evaluate code dynamically using eval"	
+		description = "evaluate shell code dynamically using eval"	
 	strings:
 		$val = /eval \$\w{0,64}/ fullword
 		// https://github.com/spf13/cobra/blob/0fc86c2ffd0326b6f6ed5fa36803d26993655c08/fish_completions.go#L59

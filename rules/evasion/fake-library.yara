@@ -1,4 +1,4 @@
-rule libnetresolv_fake : suspicious {
+rule libnetresolv_fake_val : suspicious {
   meta:
     ref = "https://cert.gov.ua/article/6123309"
 	description = "references fake library - possible dynamic library hijacking"
@@ -8,7 +8,7 @@ rule libnetresolv_fake : suspicious {
     any of them
 }
 
-rule libs_fake : suspicious {
+rule libs_fake_val : suspicious {
   meta:
     ref = "https://cert.gov.ua/article/6123309"
 	description = "references fake library, possible dynamic library hijacking"
@@ -19,7 +19,7 @@ rule libs_fake : suspicious {
 }
 
 
-rule libc_fake_number : suspicious {
+rule libc_fake_number_val : suspicious {
   meta:
     ref = "https://cert.gov.ua/article/6123309"
 	description = "references a non-standard libc library (normally libc.so.6)"
@@ -29,7 +29,7 @@ rule libc_fake_number : suspicious {
     any of them
 }
 
-rule hardcoded_usr_local_lib : suspicious {
+rule hardcoded_usr_local_lib_val : suspicious {
   meta:
     ref = "https://www.cadosecurity.com/migo-a-redis-miner-with-novel-system-weakening-techniques/"
 	description = "hardcodes /usr/local/lib path, possible dynamic library hijacking"
