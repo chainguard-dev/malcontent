@@ -12,6 +12,7 @@ rule elf_var_log_path : suspicious {
 		description = "references paths within /var/log"
 	strings:
 		$ref = /\/var\/log\/[\%\w\.\-\/]{4,32}/ fullword
+		$not_amazon = "/var/log/amazon/"
 	condition:
-		uint32(0) == 1179403647 and $ref
+		uint32(0) == 1179403647 and $ref and none of ($not*)
 }

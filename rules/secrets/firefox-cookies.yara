@@ -3,9 +3,7 @@ rule firefox_cookies : suspicious {
 		description = "Accesses Firefox cookies"
 	strings:
 		$firefox = "Firefox"
-		$cookie = "cookie"
-		$cookie2 = "Cookie"
-		$sqlite = "sqlite"
+		$cookie = "cookies.sqlite"
 	condition:
-		$firefox and ($sqlite and any of ($cookie*))
+		all of them
 }
