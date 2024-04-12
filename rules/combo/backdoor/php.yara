@@ -9,7 +9,7 @@ rule php_possible_backdoor : critical {
     hash_2023_0xShell_0xShellori = "506e12e4ce1359ffab46038c4bf83d3ab443b7c5db0d5c8f3ad05340cb09c38e"
     hash_2023_0xShell_wesoori = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"
   strings:
-    $php = "php"
+    $php = "<?php"
     $php_or = "<? "
     $f_base64_decode = "base64_decode"
     $f_strrev = "strrev"

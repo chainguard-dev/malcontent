@@ -1,5 +1,5 @@
 
-rule shutdown_s : suspicious {
+rule shutdown_val : notable {
   meta:
 	description = "calls shutdown command"
   strings:

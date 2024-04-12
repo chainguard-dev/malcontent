@@ -30,7 +30,7 @@ rule suspicious_fetch_command_val : suspicious {
     hash_2021_trojan_Gafgyt_DDoS = "1f94aa7ad1803a08dab3442046c9d96fc3d19d62189f541b07ed732e0d62bf05"
     hash_2021_trojan_Gafgyt_23DZ = "b34bb82ef2a0f3d02b93ed069fee717bd1f9ed9832e2d51b0b2642cb0b4f3891"
   strings:
-    $c_curl_d = /curl [\- \w]{0,16}-[ALCdOok][\/\- \w\%\(\{\}\'\"\)\$]{0,128}/
+    $c_curl_d = /curl [\- \w]{0,16}-[dOok][\/\- \w\%\(\{\}\'\"\)\$]{0,128}/
     $c_curl_insecure = /curl [\- \w]{0,128}--insecure[\/\- \w\%\(\{\}\'\"\)\$]{0,128}/
     $c_kinda_curl_silent_insecure = "--silent --insecure"
     $c_kinda_curl_silent_k = "-k --insecure"
