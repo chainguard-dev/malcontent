@@ -21,7 +21,7 @@ import (
 
 func main() {
 	formatFlag := flag.String("format", "terminal", "Output type. Valid values are: json, markdown, simple, terminal, yaml")
-	ignoreTagsFlag := flag.String("ignore-tags", "disabled", "Rule tags to ignore")
+	ignoreTagsFlag := flag.String("ignore-tags", "", "Rule tags to ignore")
 	minLevelFlag := flag.Int("min-level", 1, "minimum risk level to show results for (1=low, 2=medium, 3=high, 4=critical)")
 	minFileLevelFlag := flag.Int("min-file-level", 0, "only show results for files that meet this risk level (1=low, 2=medium, 3=high, 4=critical)")
 	thirdPartyFlag := flag.Bool("third-party", true, "include third-party rules, which may have licensing restrictions")
