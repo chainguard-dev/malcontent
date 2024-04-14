@@ -7,9 +7,9 @@ rule http_open_write_system : suspicious {
 	$http_urrlib = "urllib.request" fullword
 	$http_urlopen = "urlopen" fullword
 
-	$open = "open(" fullword
+	$open = "open("
 
-	$write = "write(" fullword
+	$write = "write("
 
 	$system = "os.system" fullword
 	$sys_popen = "os.popen" fullword

@@ -64,7 +64,9 @@ ref/site/github_raw
 ref/site/http/dynamic
 ref/site/url
 ref/words/password
+secrets/chromium_credit_cards
+secrets/chromium_master_password
 secrets/firefox/cookies
-secrets/firefox/formhistory
+secrets/firefox/master_password
 secrets/private_key
 ui/clipboard
