@@ -10,7 +10,7 @@ rule unusual_sudo_commands_value : suspicious {
   strings:
     $sudo_echo = /sudo echo[\"\%@\-\$\w]{0,32}/
     $sudo_u_echo = /sudo -u [\%@\-\$\w]{2,32} echo/
-    $sudo_u_args = /sudo -u [\%\$\{]{1,2}[ \%\$\w\/]{0,32}/
+    $sudo_u_args = /sudo -u [\%\$\{\}]{1,2}[ \%\$\w\/]{0,32}/
     $sudo_args =/sudo %@\"\%@\-\$\w]/
     $sudo_no_sleep = /[\|\"\w\-]{0,16}sudo -S[ \%\$\w\/]{1,32}/
     $sudo_bash = /sudo bash[\"\%@\-\$\w]{1,64}/

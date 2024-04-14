@@ -1,4 +1,4 @@
-rule file_crypter : suspicious {
+rule file_crypter : notable {
 	meta:
 		description = "Encrypts files"
 	strings:

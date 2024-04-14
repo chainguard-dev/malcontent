@@ -1,4 +1,4 @@
-rule yum_installer : suspicious {
+rule yum_installer : notable {
   meta:
 	description = "Installs software using yum"
   strings:
@@ -7,7 +7,7 @@ rule yum_installer : suspicious {
 	$val
 }
 
-rule dnf_installer : suspicious {
+rule dnf_installer : notable {
   meta:
 	description = "Installs software using dnf"
   strings:
@@ -16,7 +16,7 @@ rule dnf_installer : suspicious {
 	$val
 }
 
-rule rpm_installer : suspicious {
+rule rpm_installer : notable {
   meta:
 	description = "Installs software using rpm"
   strings:
@@ -25,7 +25,7 @@ rule rpm_installer : suspicious {
 	$val
 }
 
-rule apt_installer : suspicious {
+rule apt_installer : notable {
   meta:
 	description = "Installs software using apt"
   strings:
@@ -34,7 +34,7 @@ rule apt_installer : suspicious {
 	$val
 }
 
-rule apt_get_installer : suspicious {
+rule apt_get_installer : notable {
   meta:
 	description = "Installs software using apt-get"
   strings:
@@ -45,7 +45,7 @@ rule apt_get_installer : suspicious {
 	$val and not $foo
 }
 
-rule apk_installer : suspicious {
+rule apk_installer : notable {
   meta:
 	description = "Installs software using APK"
   strings:
@@ -62,18 +62,3 @@ rule pip_installer_regex : notable {
   condition:
 	any of them
 }
-
-rule pip_installer : suspicious {
-  meta:
-	description = "Installs software using pip from python"
-  strings:
-    $pip_install = "os.system('pip install"
-    $pip_install_spaces = "'pip', 'install'"
-    $pip_install_args = "'pip','install'"
-    $pip3_install = "os.system('pip3 install"
-    $pip3_install_spaces = "'pip3', 'install'"
-    $pip3_install_args = "'pip3','install'"
-  condition:
-	any of them
-}
-

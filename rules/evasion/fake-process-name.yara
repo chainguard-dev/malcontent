@@ -1,4 +1,4 @@
-rule fake_kworker : critical {
+rule fake_kworker_val : critical {
   meta:
 	description = "Pretends to be a kworker kernel thread"
   strings:
@@ -18,12 +18,12 @@ rule fake_syslogd : critical {
 	any of them
 }
 
-rule bash_sets_name : critical {
+rule bash_sets_name_val : critical {
   meta:
 	description = "uses 'exec -a' to set a process name"
 	ref = "https://www.jamf.com/blog/cryptojacking-macos-malware-discovered-by-jamf-threat-labs/"
   strings:
-	$ref = "exec -a"
+	$ref = /exec -a[ \w\/\.]{0,64}/
   condition:
 	any of them
 }

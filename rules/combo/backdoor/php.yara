@@ -9,7 +9,7 @@ rule php_possible_backdoor : critical {
     hash_2023_0xShell_0xShellori = "506e12e4ce1359ffab46038c4bf83d3ab443b7c5db0d5c8f3ad05340cb09c38e"
     hash_2023_0xShell_wesoori = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"
   strings:
-    $php = "php"
+    $php = "<?php"
     $php_or = "<? "
     $f_base64_decode = "base64_decode"
     $f_strrev = "strrev"
@@ -77,6 +77,7 @@ rule php_bin_hashbang : critical {
 
 rule php_urlvar_recon_exec : critical {
   meta:
+	description = "Runs programs, gets URL data, and looks up system info"
     ref = "Backdoor.PHP.Llama"
     hash_2023_PHP_Backdoor_PHP_Goonshell_a = "42e5fafe25af2d2600691a26144cc47320ccfd07a224b72452dfa7de2e86ece3"
     hash_2023_PHP_Backdoor_PHP_Llama = "8de0f8ef54bff5e3b694b7585dc66ef9fd5a4b019a6650b8a2211db888e59dac"
@@ -87,6 +88,8 @@ rule php_urlvar_recon_exec : critical {
     hash_2023_Sysrv_Hello_sys_x86_64 = "cd784dc1f7bd95cac84dc696d63d8c807129ef47b3ce08cd08afb7b7456a8cd3"
     hash_2023_0xShell_0xShellori = "506e12e4ce1359ffab46038c4bf83d3ab443b7c5db0d5c8f3ad05340cb09c38e"
   strings:
+    $php = "<?php"
+
     $e_popen = "popen("
     $e_exec = "exec("
     $f_uname = "uname("
@@ -96,7 +99,7 @@ rule php_urlvar_recon_exec : critical {
 
 	$not_php = "PHP_VERSION_ID"
   condition:
-    any of ($e*) and any of ($f*) and any of ($x*) and none of ($not*)
+    any of ($p*) and any of ($e*) and any of ($f*) and any of ($x*) and none of ($not*)
 }
 
 rule php_system_to_perl {
