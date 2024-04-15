@@ -127,8 +127,8 @@ bincapz --format=json <file> | jq  '.Files.[].Behaviors | keys'
 * `--ignore-tags` string: Rule tags to ignore
 * `--min-level`: minimum suspicion level to report (1=low, 2=medium, 3=high, 4=critical) (default 1)
 * `--omit-empty`: omit files that contain no matches
-* `--third-party`: include third-party rules, which may have licensing restrictions (default true)
 * `--stats`: display statistics for risk level and `programkind`
+* `--third-party`: include third-party rules, which may have licensing restrictions (default true)
 
 ## FAQ
 
