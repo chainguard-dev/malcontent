@@ -96,8 +96,8 @@ func Statistics(r *bincapz.Report) error {
 	fmt.Printf("%s Package Risk Percentage\n", packageSymbol)
 	fmt.Println("---")
 	fmt.Printf("\033[1;37m%-*s \033[1;37m%10s\033[0m\n", width, "Package", "Percentage")
-	for _, kv := range packageRiskPercentages {
-		fmt.Printf("%-*s %10.2f%s\n", width, kv.Key, kv.Value, "%")
+	for _, pkg := range packageRiskPercentages {
+		fmt.Printf("%-*s %10.2f%s\n", width, pkg.Key, pkg.Value, "%")
 	}
 
 	return nil
