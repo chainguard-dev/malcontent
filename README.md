@@ -120,7 +120,7 @@ bincapz --format=json <file> | jq  '.Files.[].Behaviors | keys'
 
 ## Supported Flags
 
-* `--all`: Ignore nothing, show all
+* `--all`: ignore nothing, show all
 * `--data-files`: include files that are detected to as non-program (binary or source) files
 * `--diff`: show capability drift between two files
 * `--format` string: Output type. Valid values are: json, markdown, simple, terminal, yaml (default "terminal")
@@ -128,6 +128,7 @@ bincapz --format=json <file> | jq  '.Files.[].Behaviors | keys'
 * `--min-level`: minimum suspicion level to report (1=low, 2=medium, 3=high, 4=critical) (default 1)
 * `--omit-empty`: omit files that contain no matches
 * `--third-party`: include third-party rules, which may have licensing restrictions (default true)
+* `--stats`: display statistics for risk level and `programkind`
 
 ## FAQ
 

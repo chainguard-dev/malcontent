@@ -38,8 +38,9 @@ type FileReport struct {
 	PreviousRiskScore    int     `json:",omitempty" yaml:",omitempty"`
 	PreviousRiskLevel    string  `json:",omitempty" yaml:",omitempty"`
 
-	RiskScore int
-	RiskLevel string `json:",omitempty" yaml:",omitempty"`
+	RiskScore   int
+	RiskLevel   string   `json:",omitempty" yaml:",omitempty"`
+	PackageRisk []string `json:",omitempty" yaml:",omitempty"`
 }
 
 type DiffReport struct {
@@ -52,4 +53,14 @@ type Report struct {
 	Files  map[string]FileReport `json:",omitempty" yaml:",omitempty"`
 	Diff   DiffReport            `json:",omitempty" yaml:",omitempty"`
 	Filter string                `json:",omitempty" yaml:",omitempty"`
+}
+
+type Kv struct {
+	Key   int
+	Value float64
+}
+
+type KvStr struct {
+	Key   string
+	Value float64
 }
