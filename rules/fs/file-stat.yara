@@ -49,9 +49,22 @@ rule go_stat : harmless {
 }
 
 
+rule py_timestamps {
+	meta:
+		description = "Access filesystem timestamps"
+		pledge = "rpath"
+		syscall = "stat"
+	strings:
+		$atime = "os.path.getatime"
+		$mtime = "os.path.getmtime"
+		$ctime = "os.path.getctime"
+	condition:
+		any of them
+}
+
 rule npm_stat {
 	meta:
-		description = "Access filesystem information"
+		description = "Access filesystem metadata"
 		pledge = "rpath"
 		syscall = "stat"
 	strings:

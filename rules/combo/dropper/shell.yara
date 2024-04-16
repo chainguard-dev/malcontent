@@ -43,12 +43,24 @@ rule sleep_rm : notable {
     any of them
 }
 
-
 rule nohup_bash_background : suspicious {
   strings:
 	$ref = /nohup bash [\%\w\/\>]{0,64} &/
   condition:
     any of them
 }
+
+rule fetch_pipe_shell_value : suspicious {
+  meta:
+	description = "fetches content and pipes it to a shell"
+  strings:
+	$wget_bash = /wget .{8,128}\| {0,2}bash/
+	$wget_sh = /wget .{8,128}\| {0,2}sh/
+	$curl_bash = /curl .{8,128}\| {0,2}bash/
+	$curl_sh = /curl .{8,128}\| {0,2}sh/
+  condition:
+    any of them
+}
+
 
 
