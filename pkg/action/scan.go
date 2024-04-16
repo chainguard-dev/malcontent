@@ -88,8 +88,8 @@ func recursiveScan(ctx context.Context, c Config) (*bincapz.Report, error) {
 	logger.Infof("%d rules loaded", len(yrs.GetRules()))
 
 	for _, sp := range c.ScanPaths {
-		var err error
 		if c.OCI {
+			var err error
 			sp, err = oci(sp)
 			if err != nil {
 				return nil, fmt.Errorf("failed to prepare OCI image for scanning: %w", err)
