@@ -55,12 +55,12 @@ type Report struct {
 	Filter string                `json:",omitempty" yaml:",omitempty"`
 }
 
-type Kv struct {
+type IntMetric struct {
 	Key   int
 	Value float64
 }
 
-type KvStr struct {
+type StrMetric struct {
 	Key   string
 	Value float64
 }
