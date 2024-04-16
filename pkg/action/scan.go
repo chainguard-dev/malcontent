@@ -92,7 +92,7 @@ func recursiveScan(ctx context.Context, c Config) (*bincapz.Report, error) {
 		if c.OCI {
 			sp, err = oci(sp)
 			if err != nil {
-				return nil, fmt.Errorf("failed to extract image: %w", err)
+				return nil, fmt.Errorf("failed to prepare OCI image for scanning: %w", err)
 			}
 		}
 		rp, err := findFilesRecursively(ctx, sp)
