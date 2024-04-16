@@ -14,7 +14,7 @@ Overall risk: 🔥 3/HIGH
 |          |                         | tcsetattr                                           |
 |          |                         | upload"                                             |
 | 2/MEDIUM | device/pseudo_terminal  | pseudo-terminal access functions                    |
-| 2/MEDIUM | exec/program            | executes another program                            |
+| 2/MEDIUM | exec/program            | executes external programs                          |
 | 2/MEDIUM | kernel/uname/get        | get system identification (uname)                   |
 | 2/MEDIUM | net/download            | downloads files                                     |
 | 2/MEDIUM | net/ip/parse            | parses IP address                                   |
