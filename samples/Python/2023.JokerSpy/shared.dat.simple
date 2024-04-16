@@ -1,10 +1,12 @@
 # Python/2023.JokerSpy/shared.dat
+combo/dropper/python
 combo/recon/system_network
 encoding/base64
 evasion/base64/decode
 evasion/codecs_decode
 exec/program
 fs/file/read
+fs/tempdir
 kernel/uname/get
 net/interface/list
 net/url/request
