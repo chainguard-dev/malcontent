@@ -88,6 +88,13 @@ func recursiveScan(ctx context.Context, c Config) (*bincapz.Report, error) {
 	logger.Infof("%d rules loaded", len(yrs.GetRules()))
 
 	for _, sp := range c.ScanPaths {
+		var err error
+		if c.OCI {
+			sp, err = oci(sp)
+			if err != nil {
+				return nil, fmt.Errorf("failed to extract image: %w", err)
+			}
+		}
 		rp, err := findFilesRecursively(ctx, sp)
 		if err != nil {
 			return nil, fmt.Errorf("find files: %w", err)
@@ -111,6 +118,11 @@ func recursiveScan(ctx context.Context, c Config) (*bincapz.Report, error) {
 				}
 			}
 			r.Files[p] = *fr
+		}
+		if c.OCI {
+			if err := os.RemoveAll(sp); err != nil {
+				logger.Errorf("remove %s: %v", sp, err)
+			}
 		}
 	}
 

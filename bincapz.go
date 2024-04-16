@@ -30,6 +30,7 @@ func main() {
 	diffFlag := flag.Bool("diff", false, "show capability drift between two files")
 	allFlag := flag.Bool("all", false, "Ignore nothing, show all")
 	verboseFlag := flag.Bool("verbose", false, "emit verbose logging messages to stderr")
+	ociFlag := flag.Bool("oci", false, "scan an OCI image")
 
 	flag.Parse()
 	args := flag.Args()
@@ -80,6 +81,7 @@ func main() {
 		MinFileScore:     *minFileLevelFlag,
 		IncludeDataFiles: includeDataFiles,
 		Renderer:         renderer,
+		OCI:              *ociFlag,
 	}
 
 	var res *bincapz.Report
