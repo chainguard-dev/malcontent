@@ -42,6 +42,7 @@ rule proclist : medium {
 		description = "accesses process list"
 	strings:
 		$proclist = "proclist" fullword
+		$gops = "shirou/gopsutil"
 	condition:
 		any of them
 }
