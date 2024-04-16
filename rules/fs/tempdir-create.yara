@@ -1,7 +1,7 @@
 
 rule mkdtemp {
 	meta:
-		description = "Uses libc functions to create a temporary directory"
+		description = "creates temporary directory"
 		pledge = "wpath"
 	strings:
 		$mkdtemp = "mkdtemp" fullword
