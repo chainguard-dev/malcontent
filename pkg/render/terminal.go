@@ -69,6 +69,10 @@ func decorativeRisk(score int, level string) string {
 	return fmt.Sprintf("%s %s", symbol, riskColor(level))
 }
 
+func darkBrackets(s string) string {
+	return fmt.Sprintf("%s%s%s", color.HiBlackString("["), s, color.HiBlackString("]"))
+}
+
 func riskColor(level string) string {
 	switch level {
 	case "LOW":
@@ -98,7 +102,7 @@ func ShortRisk(s string) string {
 func (r Terminal) File(ctx context.Context, fr bincapz.FileReport) error {
 	renderTable(ctx, &fr, r.w,
 		tableConfig{
-			Title: fmt.Sprintf("%s %s %s risk", fr.Path, color.HiBlackString("—"), decorativeRisk(fr.RiskScore, fr.RiskLevel)),
+			Title: fmt.Sprintf("%s %s", fr.Path, darkBrackets(decorativeRisk(fr.RiskScore, fr.RiskLevel))),
 		},
 	)
 	return nil
@@ -108,7 +112,7 @@ func (r Terminal) Full(ctx context.Context, rep bincapz.Report) error {
 	for f, fr := range rep.Diff.Removed {
 		fr := fr
 		renderTable(ctx, &fr, r.w, tableConfig{
-			Title:       fmt.Sprintf("➖ Deleted: %s", f),
+			Title:       fmt.Sprintf("Deleted: %s %s", f, darkBrackets(decorativeRisk(fr.RiskScore, fr.RiskLevel))),
 			DiffRemoved: true,
 		})
 	}
@@ -116,7 +120,7 @@ func (r Terminal) Full(ctx context.Context, rep bincapz.Report) error {
 	for f, fr := range rep.Diff.Added {
 		fr := fr
 		renderTable(ctx, &fr, r.w, tableConfig{
-			Title:     fmt.Sprintf("Added: %s\nAdded Risk: %s", f, decorativeRisk(fr.RiskScore, fr.RiskLevel)),
+			Title:     fmt.Sprintf("Added: %s %s", f, darkBrackets(decorativeRisk(fr.RiskScore, fr.RiskLevel))),
 			DiffAdded: true,
 		})
 	}
@@ -131,23 +135,35 @@ func (r Terminal) Full(ctx context.Context, rep bincapz.Report) error {
 		}
 
 		if fr.RiskScore != fr.PreviousRiskScore {
-			title = fmt.Sprintf("%s\nPrevious Risk: %s\nNew Risk:      %s\n\n",
-				title,
-				decorativeRisk(fr.PreviousRiskScore, fr.PreviousRiskLevel),
-				decorativeRisk(fr.RiskScore, fr.RiskLevel))
+			title = fmt.Sprintf("%s %s\n\n", title,
+				darkBrackets(fmt.Sprintf("%s %s %s", decorativeRisk(fr.PreviousRiskScore, fr.PreviousRiskLevel), color.HiWhiteString("→"), decorativeRisk(fr.RiskScore, fr.RiskLevel))))
 		}
 
 		fmt.Fprint(r.w, title)
+		added := 0
+		removed := 0
+		for _, b := range fr.Behaviors {
+			if b.DiffAdded {
+				added++
+			}
+			if b.DiffRemoved {
+				removed++
+			}
+		}
 
-		renderTable(ctx, &fr, r.w, tableConfig{
-			Title:       color.HiWhiteString("+++ ADDED +++"),
-			SkipRemoved: true,
-		})
+		if added > 0 {
+			renderTable(ctx, &fr, r.w, tableConfig{
+				Title:       color.HiWhiteString("+++ ADDED: %d behavior(s) +++", added),
+				SkipRemoved: true,
+			})
+		}
 
-		renderTable(ctx, &fr, r.w, tableConfig{
-			Title:     color.HiWhiteString("--- REMOVED ---"),
-			SkipAdded: true,
-		})
+		if removed > 0 {
+			renderTable(ctx, &fr, r.w, tableConfig{
+				Title:     color.HiWhiteString("--- REMOVED: %d behavior(s) ---", removed),
+				SkipAdded: true,
+			})
+		}
 	}
 
 	return nil
@@ -241,12 +257,12 @@ func renderTable(ctx context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 		}
 		evidence := strings.Join(k.Behavior.MatchStrings, "\n")
 
-		risk := ShortRisk(k.Behavior.RiskLevel)
+		risk := riskColor(ShortRisk(k.Behavior.RiskLevel))
 		if k.Behavior.DiffAdded || rc.DiffAdded {
 			if rc.SkipAdded {
 				continue
 			}
-			risk = fmt.Sprintf("%s%s", color.HiWhiteString("+"), riskColor(risk))
+			risk = fmt.Sprintf("%s%s", color.HiWhiteString("+"), riskColor(ShortRisk(k.Behavior.RiskLevel)))
 		}
 
 		wKey := wrapKey(k.Key, keyWidth)
@@ -256,9 +272,7 @@ func renderTable(ctx context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 			if rc.SkipRemoved {
 				continue
 			}
-			risk = fmt.Sprintf("%s%s", color.WhiteString("-"), riskColor(risk))
-			wKey = darkenText(wKey)
-			wDesc = darkenText(wDesc)
+			risk = fmt.Sprintf("%s%s", color.WhiteString("-"), riskColor(ShortRisk(k.Behavior.RiskLevel)))
 			evidence = darkenText(evidence)
 		}
 
@@ -266,7 +280,7 @@ func renderTable(ctx context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 	}
 
 	if title != "" {
-		fmt.Fprintf(w, "%s\n", title)
+		fmt.Fprintf(w, "%s", title)
 	}
 	fmt.Fprintf(w, "\n")
 
@@ -280,8 +294,8 @@ func renderTable(ctx context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 	table.SetCenterSeparator("")
 	table.SetColumnSeparator("")
 	table.SetRowSeparator("-")
-	table.SetHeaderLine(false)
-	table.SetBorder(false)
+	table.SetHeaderLine(true)
+	table.SetBorder(true)
 	table.SetTablePadding("  ")
 	table.SetNoWhiteSpace(true)
 	table.AppendBulk(data)
