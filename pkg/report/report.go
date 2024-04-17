@@ -49,6 +49,8 @@ var yaraForgeJunkWords = map[string]bool{
 	"macos":             true,
 	"osx":               true,
 	"mac":               true,
+	"indicator":         true,
+	"suspicious":        true,
 }
 
 var dateRe = regexp.MustCompile(`[a-z]{3}\d{1,2}`)
