@@ -32,7 +32,6 @@ func main() {
 	statsFlag := flag.Bool("stats", false, "show statistics about the scan")
 	verboseFlag := flag.Bool("verbose", false, "emit verbose logging messages to stderr")
 	ociFlag := flag.Bool("oci", false, "scan an OCI image")
-	archiveFlag := flag.Bool("archive", false, "scan an archive (.zip, .tar, .jar, etc.)")
 
 	flag.Parse()
 	args := flag.Args()
@@ -86,7 +85,6 @@ func main() {
 		Renderer:         renderer,
 		OCI:              *ociFlag,
 		Stats:            stats,
-		Archive:          *archiveFlag,
 	}
 
 	var res *bincapz.Report

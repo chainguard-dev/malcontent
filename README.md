@@ -120,7 +120,6 @@ bincapz --format=json <file> | jq  '.Files.[].Behaviors | keys'
 
 ## Supported Flags
 
-* `--archive`: scan `.apk`, `.jar`, `.tar`, `.tar.gz`, `.tar.xz`, and `.zip` archives
 * `--all`: ignore nothing, show all
 * `--data-files`: include files that are detected to as non-program (binary or source) files
 * `--diff`: show capability drift between two files

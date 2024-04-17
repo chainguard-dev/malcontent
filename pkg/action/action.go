@@ -22,5 +22,4 @@ type Config struct {
 	Output           io.Writer
 	OCI              bool
 	Stats            bool
-	Archive          bool
 }

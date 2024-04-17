@@ -18,6 +18,7 @@ import (
 
 const maxBytes = 1 << 29 // 512MB
 
+// copyArchive copies the source archive file to the temporary directory.
 func copyArchive(src string, dst string) error {
 	r, err := os.Open(src)
 	if err != nil {
@@ -43,6 +44,7 @@ func copyArchive(src string, dst string) error {
 	return nil
 }
 
+// tempDir creates a temporary directory.
 func tempDir(p string) (string, error) {
 	tmpDir, err := os.MkdirTemp("", fmt.Sprintf("bincapz-%s", filepath.Base(p)))
 	if err != nil {
@@ -57,7 +59,9 @@ func tempDir(p string) (string, error) {
 	return tmpDir, nil
 }
 
+// extractTar extracts .apk and .tar* archives.
 func extractTar(d string, f string) error {
+	// Check if the file is valid
 	_, err := os.Stat(f)
 	if err != nil {
 		return fmt.Errorf("failed to stat file: %w", err)
@@ -127,7 +131,9 @@ func extractTar(d string, f string) error {
 	return nil
 }
 
+// extractZip extracts .jar and .zip archives.
 func extractZip(d string, f string) error {
+	// Check if the file is valid
 	_, err := os.Stat(f)
 	if err != nil {
 		return fmt.Errorf("failed to stat file: %w", err)
@@ -140,7 +146,18 @@ func extractZip(d string, f string) error {
 	defer read.Close()
 
 	for _, file := range read.File {
+		name := filepath.Join(d, filepath.Clean(filepath.ToSlash(file.Name)))
+
+		// Check if a directory with the same name exists
+		if info, err := os.Stat(name); err == nil && info.IsDir() {
+			continue
+		}
+
 		if file.Mode().IsDir() {
+			err := os.MkdirAll(name, file.Mode())
+			if err != nil {
+				return fmt.Errorf("failed to create directory: %w", err)
+			}
 			continue
 		}
 
@@ -148,50 +165,48 @@ func extractZip(d string, f string) error {
 		if err != nil {
 			return fmt.Errorf("failed to open file in zip: %w", err)
 		}
+		defer open.Close()
 
-		name := filepath.Join(d, filepath.Clean(filepath.ToSlash(file.Name)))
 		err = os.MkdirAll(path.Dir(name), 0o755)
 		if err != nil {
-			open.Close()
 			return fmt.Errorf("failed to create directory: %w", err)
 		}
 
 		mode := file.Mode() | 0o200
 		create, err := os.OpenFile(name, os.O_RDWR|os.O_CREATE|os.O_TRUNC, mode)
 		if err != nil {
-			open.Close()
 			return fmt.Errorf("failed to create file: %w", err)
 		}
+		defer create.Close()
 
-		if _, err = io.Copy(create, io.LimitReader(open, maxBytes)); err != nil {
-			return fmt.Errorf("failed to copy file: %w", err)
-		}
-
-		open.Close()
-		create.Close()
-		if err != nil {
+		if _, err = io.Copy(create, open); err != nil {
 			return fmt.Errorf("failed to copy file: %w", err)
 		}
 	}
 	return nil
 }
 
+// extractArchive specifies which extraction method to use based on the archive type.
 func extractArchive(d string, f string) error {
 	switch {
+	// .jar and .zip files can be extracted using the same method
 	case strings.Contains(f, ".jar") || strings.Contains(f, ".zip"):
 		if err := extractZip(d, f); err != nil {
 			return fmt.Errorf("failed to extract zip-based file: %w", err)
 		}
+	// .apk and .tar* files can be extracted using the same method
 	case strings.Contains(f, ".apk") || strings.Contains(f, ".tar"):
 		if err := extractTar(d, f); err != nil {
 			return fmt.Errorf("failed to extract tar-based file: %w", err)
 		}
+	// Unsupported archive type
 	default:
 		return fmt.Errorf("unsupported archive type: %s", f)
 	}
 	return nil
 }
 
+// archive creates a temporary directory and extracts the archive file for scanning.
 func archive(sp string) (string, error) {
 	tmpDir, err := tempDir(sp)
 	if err != nil {
