@@ -20,4 +20,6 @@ type Config struct {
 	IncludeDataFiles bool
 	Renderer         render.Renderer
 	Output           io.Writer
+	OCI              bool
+	Stats            bool
 }

@@ -29,7 +29,9 @@ func main() {
 	includeDataFilesFlag := flag.Bool("data-files", false, "include files that are detected to as non-program (binary or source) files")
 	diffFlag := flag.Bool("diff", false, "show capability drift between two files")
 	allFlag := flag.Bool("all", false, "Ignore nothing, show all")
+	statsFlag := flag.Bool("stats", false, "show statistics about the scan")
 	verboseFlag := flag.Bool("verbose", false, "emit verbose logging messages to stderr")
+	ociFlag := flag.Bool("oci", false, "scan an OCI image")
 
 	flag.Parse()
 	args := flag.Args()
@@ -55,6 +57,7 @@ func main() {
 	ignoreTags := strings.Split(*ignoreTagsFlag, ",")
 	includeDataFiles := *includeDataFilesFlag
 	minLevel := *minLevelFlag
+	stats := *statsFlag
 	if *allFlag {
 		ignoreTags = []string{}
 		minLevel = -1
@@ -80,6 +83,8 @@ func main() {
 		MinFileScore:     *minFileLevelFlag,
 		IncludeDataFiles: includeDataFiles,
 		Renderer:         renderer,
+		OCI:              *ociFlag,
+		Stats:            stats,
 	}
 
 	var res *bincapz.Report
