@@ -148,8 +148,8 @@ func (r Terminal) Full(ctx context.Context, rep bincapz.Report) error {
 			Title:     color.HiWhiteString("--- REMOVED ---"),
 			SkipAdded: true,
 		})
-
 	}
+
 	return nil
 }
 
@@ -272,6 +272,7 @@ func renderTable(ctx context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader([]string{"risk", "key", "description", "evidence"})
+
 	table.SetAutoWrapText(false)
 	table.SetAutoFormatHeaders(true)
 	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
