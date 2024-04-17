@@ -149,7 +149,6 @@ func getExt(path string) string {
 		return path[first:]
 	}
 
-	// Otherwise, return the part from the last dot
 	last := strings.LastIndex(path, ".")
 	return path[last:]
 }
