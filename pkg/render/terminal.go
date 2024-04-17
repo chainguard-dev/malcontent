@@ -29,6 +29,8 @@ type tableConfig struct {
 	ShowTitle   bool
 	DiffRemoved bool
 	DiffAdded   bool
+	SkipAdded   bool
+	SkipRemoved bool
 }
 
 func terminalWidth(ctx context.Context) int {
@@ -64,7 +66,22 @@ func decorativeRisk(score int, level string) string {
 		symbol = "🚨"
 	}
 
-	return fmt.Sprintf("%s %s", symbol, level)
+	return fmt.Sprintf("%s %s", symbol, riskColor(level))
+}
+
+func riskColor(level string) string {
+	switch level {
+	case "LOW":
+		return color.HiGreenString(level)
+	case "MEDIUM", "MED":
+		return color.HiYellowString(level)
+	case "HIGH":
+		return color.HiRedString(level)
+	case "CRITICAL", "CRIT":
+		return color.HiMagentaString(level)
+	default:
+		return color.WhiteString(level)
+	}
 }
 
 func ShortRisk(s string) string {
@@ -112,15 +129,26 @@ func (r Terminal) Full(ctx context.Context, rep bincapz.Report) error {
 		} else {
 			title = fmt.Sprintf("Changed: %s", f)
 		}
+
 		if fr.RiskScore != fr.PreviousRiskScore {
-			title = fmt.Sprintf("%s\nPrevious Risk: %s\nNew Risk:      %s",
+			title = fmt.Sprintf("%s\nPrevious Risk: %s\nNew Risk:      %s\n\n",
 				title,
 				decorativeRisk(fr.PreviousRiskScore, fr.PreviousRiskLevel),
 				decorativeRisk(fr.RiskScore, fr.RiskLevel))
 		}
+
+		fmt.Fprint(r.w, title)
+
 		renderTable(ctx, &fr, r.w, tableConfig{
-			Title: title,
+			Title:       color.HiWhiteString("+++ ADDED +++"),
+			SkipRemoved: true,
 		})
+
+		renderTable(ctx, &fr, r.w, tableConfig{
+			Title:     color.HiWhiteString("--- REMOVED ---"),
+			SkipAdded: true,
+		})
+
 	}
 	return nil
 }
@@ -134,6 +162,14 @@ func wrapKey(s string, i int) string {
 	w := wrap(strings.ReplaceAll(s, "/", " "), i)
 	w = strings.ReplaceAll(w, " ", "/")
 	return strings.ReplaceAll(w, "\n", "/\n")
+}
+
+func darkenText(s string) string {
+	cw := []string{}
+	for _, w := range strings.Split(s, "\n") {
+		cw = append(cw, color.HiBlackString(w))
+	}
+	return strings.Join(cw, "\n")
 }
 
 func renderTable(ctx context.Context, fr *bincapz.FileReport, w io.Writer, rc tableConfig) {
@@ -207,22 +243,35 @@ func renderTable(ctx context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 
 		risk := ShortRisk(k.Behavior.RiskLevel)
 		if k.Behavior.DiffAdded || rc.DiffAdded {
-			risk = fmt.Sprintf("+%s", risk)
-		}
-		if k.Behavior.DiffRemoved || rc.DiffRemoved {
-			risk = fmt.Sprintf("-%s", risk)
+			if rc.SkipAdded {
+				continue
+			}
+			risk = fmt.Sprintf("%s%s", color.HiWhiteString("+"), riskColor(risk))
 		}
 
-		data = append(data, []string{risk, wrapKey(k.Key, keyWidth), wrap(desc, descWidth), evidence})
+		wKey := wrapKey(k.Key, keyWidth)
+		wDesc := wrap(desc, descWidth)
+
+		if k.Behavior.DiffRemoved || rc.DiffRemoved {
+			if rc.SkipRemoved {
+				continue
+			}
+			risk = fmt.Sprintf("%s%s", color.WhiteString("-"), riskColor(risk))
+			wKey = darkenText(wKey)
+			wDesc = darkenText(wDesc)
+			evidence = darkenText(evidence)
+		}
+
+		data = append(data, []string{risk, wKey, wDesc, evidence})
 	}
 
 	if title != "" {
 		fmt.Fprintf(w, "%s\n", title)
 	}
+	fmt.Fprintf(w, "\n")
 
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader([]string{"risk", "key", "description", "evidence"})
-
 	table.SetAutoWrapText(false)
 	table.SetAutoFormatHeaders(true)
 	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
@@ -234,39 +283,7 @@ func renderTable(ctx context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 	table.SetBorder(false)
 	table.SetTablePadding("  ")
 	table.SetNoWhiteSpace(true)
-
-	fmt.Fprintln(w, "")
-	descColor := tablewriter.Normal
-
-	for _, d := range data {
-		keyColor := tablewriter.Normal
-		riskColor := tablewriter.Normal
-
-		if strings.HasPrefix(d[0], "+") {
-			keyColor = tablewriter.FgHiWhiteColor
-		}
-		if strings.HasPrefix(d[0], "-") {
-			keyColor = tablewriter.FgHiBlackColor
-			riskColor = keyColor
-		} else {
-			if strings.Contains(d[0], "LOW") {
-				riskColor = tablewriter.FgHiGreenColor
-			}
-
-			if strings.Contains(d[0], "MED") {
-				riskColor = tablewriter.FgHiYellowColor
-			}
-
-			if strings.Contains(d[0], "HIGH") {
-				riskColor = tablewriter.FgHiRedColor
-			}
-			if strings.Contains(d[0], "CRIT") {
-				riskColor = tablewriter.FgHiMagentaColor
-			}
-		}
-
-		table.Rich(d, []tablewriter.Colors{{riskColor}, {keyColor}, {descColor}, {keyColor}})
-	}
+	table.AppendBulk(data)
 	table.Render()
 	fmt.Fprintf(w, "\n")
 }
