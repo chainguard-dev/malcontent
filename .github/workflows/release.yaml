@@ -3,7 +3,7 @@ name: bincapz GoReleaser
 on:
   push:
     tags:
-      - '*'
+      - 'v*'
 
 permissions:
   contents: write
