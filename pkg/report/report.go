@@ -21,7 +21,7 @@ import (
 	"github.com/hillu/go-yara/v4"
 )
 
-var riskLevels = map[int]string{
+var RiskLevels = map[int]string{
 	0: "NONE",     // harmless: common to all executables, no system impact
 	1: "LOW",      // undefined: low impact, common to good and bad executables
 	2: "MEDIUM",   // notable: may have impact, but common
@@ -114,36 +114,25 @@ func ignoreMatch(tags []string, ignoreTags map[string]bool) bool {
 func behaviorRisk(ns string, tags []string) int {
 	risk := 1
 
-	// In case we forget to add a tag
+	levels := map[string]int{
+		"harmless":   0,
+		"notable":    2,
+		"medium":     2,
+		"suspicious": 3,
+		"weird":      3,
+		"high":       3,
+		"crit":       4,
+		"critical":   4,
+	}
+
 	if strings.Contains(ns, "combo/") {
 		risk = 2
 	}
 
-	if slices.Contains(tags, "harmless") {
-		risk = 0
-	}
-	if slices.Contains(tags, "notable") {
-		risk = 2
-	}
-	if slices.Contains(tags, "medium") {
-		risk = 2
-	}
-
-	if slices.Contains(tags, "suspicious") {
-		risk = 3
-	}
-	if slices.Contains(tags, "weird") {
-		risk = 3
-	}
-	if slices.Contains(tags, "high") {
-		risk = 3
-	}
-
-	if slices.Contains(tags, "crit") {
-		risk = 4
-	}
-	if slices.Contains(tags, "critical") {
-		risk = 4
+	for _, tag := range tags {
+		if r, ok := levels[tag]; ok {
+			risk = r
+		}
 	}
 
 	if strings.Contains(ns, "third_party/") {
@@ -210,23 +199,30 @@ func matchToString(ruleName string, m yara.MatchString) string {
 func matchValues(key string, ruleName string, ms []yara.MatchString) []string {
 	raw := []string{}
 
+	keyHasCombo := strings.Contains(key, "combo/")
+	keyHasRef := strings.Contains(key, "ref/")
+	keyHasXor := strings.Contains(key, "xor/")
+	keyHasBase64 := strings.Contains(key, "base64/")
+	ruleHasValue := strings.Contains(ruleName, "value")
+	ruleHasVal := strings.HasSuffix(ruleName, "val")
+
 	for _, m := range ms {
 		keep := false
 
 		switch {
 		case strings.HasSuffix(m.Name, "val"):
 			keep = true
-		case strings.Contains(key, "combo/"):
+		case keyHasCombo:
 			keep = true
-		case strings.Contains(key, "ref/"):
+		case keyHasRef:
 			keep = true
-		case strings.Contains(key, "xor/"):
+		case keyHasXor:
 			keep = true
-		case strings.Contains(key, "base64/"):
+		case keyHasBase64:
 			keep = true
-		case strings.Contains(ruleName, "value"):
+		case ruleHasValue:
 			keep = true
-		case strings.HasSuffix(ruleName, "val"):
+		case ruleHasVal:
 			keep = true
 		}
 		if !keep {
@@ -293,6 +289,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 	license := ""
 	overallRiskScore := 0
 	riskCounts := map[int]int{}
+	packageRisks := []string{}
 
 	for _, m := range mrs {
 		risk := behaviorRisk(m.Namespace, m.Tags)
@@ -304,10 +301,11 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 			continue
 		}
 		key := generateKey(m.Namespace, m.Rule)
+		packageRisks = append(packageRisks, key)
 
 		b := bincapz.Behavior{
 			RiskScore:    risk,
-			RiskLevel:    riskLevels[risk],
+			RiskLevel:    RiskLevels[risk],
 			Values:       matchValues(key, m.Rule, m.Strings),
 			MatchStrings: matchStrings(m.Rule, m.Strings),
 		}
@@ -319,13 +317,11 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 				if len(author) > len(b.RuleAuthor) {
 					b.RuleAuthor = author
 				}
-
 			case "license", "license_url":
 				license = fmt.Sprintf("%s", meta.Value)
 				if len(license) > len(b.RuleLicense) {
 					b.RuleLicense = license
 				}
-
 			case "description", "threat_name", "name":
 				desc = fmt.Sprintf("%s", meta.Value)
 				if len(desc) > len(b.Description) {
@@ -389,7 +385,8 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 	fr.Syscalls = slices.Compact(syscalls)
 	fr.Capabilities = slices.Compact(caps)
 	fr.RiskScore = overallRiskScore
-	fr.RiskLevel = riskLevels[fr.RiskScore]
+	fr.RiskLevel = RiskLevels[fr.RiskScore]
+	fr.PackageRisk = packageRisks
 
 	return fr, nil
 }
