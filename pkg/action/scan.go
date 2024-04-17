@@ -18,8 +18,6 @@ import (
 	"github.com/hillu/go-yara/v4"
 )
 
-var archiveExtensions = []string{".apk", ".jar", ".tar", ".tar.gz", ".tar.xz", ".zip"}
-
 // return a list of files within a path.
 func findFilesRecursively(ctx context.Context, root string) ([]string, error) {
 	clog.FromContext(ctx).Infof("finding files in %s ...", root)
@@ -98,12 +96,11 @@ func recursiveScan(ctx context.Context, c Config) (*bincapz.Report, error) {
 				return nil, fmt.Errorf("failed to prepare OCI image for scanning: %w", err)
 			}
 		}
+
 		var isArchive bool
-		for _, ext := range archiveExtensions {
-			if strings.HasSuffix(sp, ext) {
-				isArchive = true
-				break
-			}
+		ext := getExt(sp)
+		if _, ok := archiveMap[ext]; ok {
+			isArchive = true
 		}
 		if isArchive {
 			var err error
@@ -112,6 +109,7 @@ func recursiveScan(ctx context.Context, c Config) (*bincapz.Report, error) {
 				return nil, fmt.Errorf("failed to prepare archive for scanning: %w", err)
 			}
 		}
+
 		rp, err := findFilesRecursively(ctx, sp)
 		if err != nil {
 			return nil, fmt.Errorf("find files: %w", err)

@@ -154,7 +154,8 @@ func extractZip(d string, f string) error {
 		}
 
 		if file.Mode().IsDir() {
-			err := os.MkdirAll(name, file.Mode())
+			mode := file.Mode() | 0o755
+			err := os.MkdirAll(name, mode)
 			if err != nil {
 				return fmt.Errorf("failed to create directory: %w", err)
 			}
@@ -163,9 +164,9 @@ func extractZip(d string, f string) error {
 
 		open, err := file.Open()
 		if err != nil {
+			open.Close()
 			return fmt.Errorf("failed to open file in zip: %w", err)
 		}
-		defer open.Close()
 
 		err = os.MkdirAll(path.Dir(name), 0o755)
 		if err != nil {
@@ -175,13 +176,16 @@ func extractZip(d string, f string) error {
 		mode := file.Mode() | 0o200
 		create, err := os.OpenFile(name, os.O_RDWR|os.O_CREATE|os.O_TRUNC, mode)
 		if err != nil {
+			create.Close()
 			return fmt.Errorf("failed to create file: %w", err)
 		}
-		defer create.Close()
 
-		if _, err = io.Copy(create, open); err != nil {
+		if _, err = io.Copy(create, io.LimitReader(open, maxBytes)); err != nil {
 			return fmt.Errorf("failed to copy file: %w", err)
 		}
+
+		open.Close()
+		create.Close()
 	}
 	return nil
 }

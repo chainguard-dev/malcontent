@@ -16,31 +16,40 @@ import (
 	"github.com/liamg/magic"
 )
 
+var archiveMap = map[string]bool{
+	".apk":    true,
+	".jar":    true,
+	".tar":    true,
+	".tar.gz": true,
+	".tar.xz": true,
+	".zip":    true,
+}
+
 // map from extensions to program kinds.
 var extMap = map[string]string{
-	".scpt":    "compiled AppleScript",
-	".scptd":   "compiled AppleScript",
-	".sh":      "Shell script",
-	".rb":      "Ruby script",
-	".py":      "Python script",
-	".pl":      "PERL script",
-	".yara":    "",
-	".expect":  "Expect script",
-	".php":     "PHP file",
-	".html":    "",
-	".js":      "Javascript",
-	".ts":      "Typescript",
 	".7z":      "",
-	".json":    "",
-	".yml":     "",
-	".yaml":    "",
-	".java":    "Java source",
-	".jar":     "Java program",
 	".asm":     "",
-	".service": "systemd",
+	".c":       "C source",
 	".cron":    "crontab",
 	".crontab": "crontab",
-	".c":       "C source",
+	".expect":  "Expect script",
+	".html":    "",
+	".jar":     "Java program",
+	".java":    "Java source",
+	".js":      "Javascript",
+	".json":    "",
+	".php":     "PHP file",
+	".pl":      "PERL script",
+	".py":      "Python script",
+	".rb":      "Ruby script",
+	".scpt":    "compiled AppleScript",
+	".scptd":   "compiled AppleScript",
+	".service": "systemd",
+	".sh":      "Shell script",
+	".ts":      "Typescript",
+	".yaml":    "",
+	".yara":    "",
+	".yml":     "",
 }
 
 // programKind tries to identify if a path is a program.
@@ -124,4 +133,23 @@ func programKind(ctx context.Context, path string) string {
 func byExtension(path string) (bool, string) {
 	ret, ok := extMap[filepath.Ext(path)]
 	return ok, ret
+}
+
+// getExt returns the extension of a file path
+// and attempts to avoid including fragments of filenames with other dots before the extension.
+func getExt(path string) string {
+	first := strings.Index(path, ".")
+	if first == -1 || first == len(path)-1 {
+		return ""
+	}
+
+	rp := path[first+1:]
+	second := strings.Index(rp, ".")
+	if second != -1 && !strings.Contains(rp[second+1:], ".") {
+		return path[first:]
+	}
+
+	// Otherwise, return the part from the last dot
+	last := strings.LastIndex(path, ".")
+	return path[last:]
 }
