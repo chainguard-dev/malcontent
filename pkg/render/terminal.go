@@ -81,7 +81,7 @@ func decorativeRisk(score int, level string) string {
 	return fmt.Sprintf("%s %d/%s", symbol, score, level)
 }
 
-func shortRisk(s string) string {
+func ShortRisk(s string) string {
 	if len(s) < 4 {
 		return s
 	}
@@ -228,7 +228,7 @@ func renderTable(ctx context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 
 		// lowercase first character for consistency
 		desc = strings.ToLower(string(desc[0])) + desc[1:]
-		risk := fmt.Sprintf("%d/%s", k.Behavior.RiskScore, shortRisk(k.Behavior.RiskLevel))
+		risk := fmt.Sprintf("%d/%s", k.Behavior.RiskScore, ShortRisk(k.Behavior.RiskLevel))
 		if k.Behavior.DiffAdded || rc.DiffAdded {
 			risk = fmt.Sprintf("+%s", risk)
 		}
