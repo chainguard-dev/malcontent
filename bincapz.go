@@ -31,6 +31,7 @@ func main() {
 	allFlag := flag.Bool("all", false, "Ignore nothing, show all")
 	statsFlag := flag.Bool("stats", false, "show statistics about the scan")
 	verboseFlag := flag.Bool("verbose", false, "emit verbose logging messages to stderr")
+	ociFlag := flag.Bool("oci", false, "scan an OCI image")
 
 	flag.Parse()
 	args := flag.Args()
@@ -82,6 +83,7 @@ func main() {
 		MinFileScore:     *minFileLevelFlag,
 		IncludeDataFiles: includeDataFiles,
 		Renderer:         renderer,
+		OCI:              *ociFlag,
 		Stats:            stats,
 	}
 
