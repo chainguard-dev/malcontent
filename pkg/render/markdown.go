@@ -52,7 +52,6 @@ func (r Markdown) Full(ctx context.Context, rep bincapz.Report) error {
 				decorativeRisk(fr.PreviousRiskScore, fr.PreviousRiskLevel),
 				decorativeRisk(fr.RiskScore, fr.RiskLevel))
 		}
-
 		markdownTable(ctx, &fr, r.w, tableConfig{Title: title})
 	}
 	return nil
@@ -144,7 +143,6 @@ func markdownTable(_ context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 		}
 		data = append(data, []string{risk, key, desc})
 	}
-
 	table := tablewriter.NewWriter(w)
 	table.SetAutoWrapText(false)
 	table.SetHeader([]string{"Risk", "Key", "Description"})

@@ -21,4 +21,5 @@ type Config struct {
 	Renderer         render.Renderer
 	Output           io.Writer
 	OCI              bool
+	Stats            bool
 }

@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
+	"github.com/chainguard-dev/bincapz/pkg/render"
 	"github.com/chainguard-dev/bincapz/pkg/report"
 	"github.com/chainguard-dev/clog"
 	"github.com/hillu/go-yara/v4"
@@ -137,6 +138,13 @@ func Scan(ctx context.Context, c Config) (*bincapz.Report, error) {
 	for path, rf := range r.Files {
 		if rf.RiskScore < c.MinFileScore {
 			delete(r.Files, path)
+		}
+	}
+
+	if c.Stats {
+		err = render.Statistics(r)
+		if err != nil {
+			return r, err
 		}
 	}
 	return r, nil
