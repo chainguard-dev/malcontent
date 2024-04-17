@@ -4,22 +4,25 @@ import (
 	"archive/tar"
 	"archive/zip"
 	"compress/gzip"
+	"context"
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
 
+	"github.com/chainguard-dev/clog"
 	"github.com/ulikunitz/xz"
 )
 
 const maxBytes = 1 << 29 // 512MB
 
 // copyArchive copies the source archive file to the temporary directory.
-func copyArchive(src string, dst string) error {
+func copyArchive(ctx context.Context, src string, dst string) error {
+	logger := clog.FromContext(ctx).With("src", src, "dst", dst)
+	logger.Info("copying archive")
 	r, err := os.Open(src)
 	if err != nil {
 		return fmt.Errorf("failed to open source file: %w", err)
@@ -33,7 +36,7 @@ func copyArchive(src string, dst string) error {
 
 	defer func() {
 		if cerr := w.Close(); cerr != nil {
-			log.Printf("failed to close file: %v", cerr)
+			err = fmt.Errorf("failed to close file: %v", cerr)
 		}
 	}()
 
@@ -41,17 +44,19 @@ func copyArchive(src string, dst string) error {
 		return fmt.Errorf("failed to copy data: %w", err)
 	}
 
-	return nil
+	return err
 }
 
-// tempDir creates a temporary directory.
-func tempDir(p string) (string, error) {
+// tempDir creates a temporary directory and copies the archive file into it.
+func tempDir(ctx context.Context, p string) (string, error) {
+	logger := clog.FromContext(ctx).With("path", p)
+	logger.Info("creating temp dir")
 	tmpDir, err := os.MkdirTemp("", fmt.Sprintf("bincapz-%s", filepath.Base(p)))
 	if err != nil {
 		return "", fmt.Errorf("failed to create temp dir: %w", err)
 	}
 
-	if err := copyArchive(p, tmpDir); err != nil {
+	if err := copyArchive(ctx, p, tmpDir); err != nil {
 		os.RemoveAll(tmpDir)
 		return "", fmt.Errorf("failed to copy archive: %w", err)
 	}
@@ -60,7 +65,10 @@ func tempDir(p string) (string, error) {
 }
 
 // extractTar extracts .apk and .tar* archives.
-func extractTar(d string, f string) error {
+func extractTar(ctx context.Context, d string, f string) error {
+	logger := clog.FromContext(ctx).With("dir", d, "file", f)
+	logger.Info("extracting tar")
+
 	// Check if the file is valid
 	_, err := os.Stat(f)
 	if err != nil {
@@ -132,7 +140,10 @@ func extractTar(d string, f string) error {
 }
 
 // extractZip extracts .jar and .zip archives.
-func extractZip(d string, f string) error {
+func extractZip(ctx context.Context, d string, f string) error {
+	logger := clog.FromContext(ctx).With("dir", d, "file", f)
+	logger.Info("extracting zip")
+
 	// Check if the file is valid
 	_, err := os.Stat(f)
 	if err != nil {
@@ -191,16 +202,16 @@ func extractZip(d string, f string) error {
 }
 
 // extractArchive specifies which extraction method to use based on the archive type.
-func extractArchive(d string, f string) error {
+func extractArchive(ctx context.Context, d string, f string) error {
 	switch {
 	// .jar and .zip files can be extracted using the same method
 	case strings.Contains(f, ".jar") || strings.Contains(f, ".zip"):
-		if err := extractZip(d, f); err != nil {
+		if err := extractZip(ctx, d, f); err != nil {
 			return fmt.Errorf("failed to extract zip-based file: %w", err)
 		}
 	// .apk and .tar* files can be extracted using the same method
-	case strings.Contains(f, ".apk") || strings.Contains(f, ".tar"):
-		if err := extractTar(d, f); err != nil {
+	case strings.Contains(f, ".apk") || strings.Contains(f, ".tar") || strings.Contains(f, ".tgz"):
+		if err := extractTar(ctx, d, f); err != nil {
 			return fmt.Errorf("failed to extract tar-based file: %w", err)
 		}
 	// Unsupported archive type
@@ -211,13 +222,13 @@ func extractArchive(d string, f string) error {
 }
 
 // archive creates a temporary directory and extracts the archive file for scanning.
-func archive(sp string) (string, error) {
-	tmpDir, err := tempDir(sp)
+func archive(ctx context.Context, sp string) (string, error) {
+	tmpDir, err := tempDir(ctx, sp)
 	if err != nil {
 		return "", fmt.Errorf("failed to create temp dir: %w", err)
 	}
 
-	if err := extractArchive(tmpDir, sp); err != nil {
+	if err := extractArchive(ctx, tmpDir, sp); err != nil {
 		return "", fmt.Errorf("failed to extract archive: %w", err)
 	}
 

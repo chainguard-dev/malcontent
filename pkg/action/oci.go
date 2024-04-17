@@ -7,11 +7,14 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/chainguard-dev/clog"
 	"github.com/google/go-containerregistry/pkg/crane"
 	v1 "github.com/google/go-containerregistry/pkg/v1"
 )
 
-func prepareImage(d string) (string, *os.File, error) {
+func prepareImage(ctx context.Context, d string) (string, *os.File, error) {
+	logger := clog.FromContext(ctx).With("image", d)
+	logger.Info("preparing image")
 	tmpDir, err := os.MkdirTemp("", fmt.Sprintf("bincapz-%s", filepath.Base(d)))
 	if err != nil {
 		return "", nil, fmt.Errorf("failed to create temp dir: %w", err)
@@ -37,13 +40,13 @@ func prepareImage(d string) (string, *os.File, error) {
 }
 
 // return a directory with the extracted image directories/files in it.
-func oci(path string) (string, error) {
-	tmpDir, tmpFile, err := prepareImage(path)
+func oci(ctx context.Context, path string) (string, error) {
+	tmpDir, tmpFile, err := prepareImage(ctx, path)
 	if err != nil {
 		return "", fmt.Errorf("failed to prepare image: %w", err)
 	}
 
-	err = extractTar(tmpDir, tmpFile.Name())
+	err = extractTar(ctx, tmpDir, tmpFile.Name())
 	if err != nil {
 		return "", fmt.Errorf("failed to extract image: %w", err)
 	}

@@ -91,7 +91,7 @@ func recursiveScan(ctx context.Context, c Config) (*bincapz.Report, error) {
 	for _, sp := range c.ScanPaths {
 		if c.OCI {
 			var err error
-			sp, err = oci(sp)
+			sp, err = oci(ctx, sp)
 			if err != nil {
 				return nil, fmt.Errorf("failed to prepare OCI image for scanning: %w", err)
 			}
@@ -104,7 +104,7 @@ func recursiveScan(ctx context.Context, c Config) (*bincapz.Report, error) {
 		}
 		if isArchive {
 			var err error
-			sp, err = archive(sp)
+			sp, err = archive(ctx, sp)
 			if err != nil {
 				return nil, fmt.Errorf("failed to prepare archive for scanning: %w", err)
 			}

@@ -6,10 +6,12 @@ package action
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"log/slog"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/chainguard-dev/clog"
@@ -20,6 +22,7 @@ var archiveMap = map[string]bool{
 	".apk":    true,
 	".jar":    true,
 	".tar":    true,
+	".tgz":    true,
 	".tar.gz": true,
 	".tar.xz": true,
 	".zip":    true,
@@ -138,17 +141,27 @@ func byExtension(path string) (bool, string) {
 // getExt returns the extension of a file path
 // and attempts to avoid including fragments of filenames with other dots before the extension.
 func getExt(path string) string {
-	first := strings.Index(path, ".")
-	if first == -1 || first == len(path)-1 {
-		return ""
+	base := filepath.Base(path)
+
+	// Handle files with version numbers in the name
+	// e.g. file1.2.3.tar.gz -> .tar.gz
+	re := regexp.MustCompile(`\d+\.\d+\.\d+$`)
+	base = re.ReplaceAllString(base, "")
+
+	ext := filepath.Ext(base)
+
+	if ext != "" && strings.Contains(base, ".") {
+		parts := strings.Split(base, ".")
+		if len(parts) > 2 {
+			subExt := fmt.Sprintf(".%s%s", parts[len(parts)-2], ext)
+			if isValidExt := func(ext string) bool {
+				_, ok := archiveMap[ext]
+				return ok
+			}(subExt); isValidExt {
+				return subExt
+			}
+		}
 	}
 
-	rp := path[first+1:]
-	second := strings.Index(rp, ".")
-	if second != -1 && !strings.Contains(rp[second+1:], ".") {
-		return path[first:]
-	}
-
-	last := strings.LastIndex(path, ".")
-	return path[last:]
+	return ext
 }
