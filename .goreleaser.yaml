@@ -1,0 +1,22 @@
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+    goos:
+      - linux
+      - windows
+      - darwin
+    ldflags:
+      - -X main.BuildVersion={{.Version}}
+
+    binary: bincapz
+
+checksum:
+  name_template: 'checksums.txt'
+
+changelog:
+  sort: asc
+
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
