@@ -28,7 +28,7 @@ A container runtime environment such as Podman or Docker, or local developer too
 
 * [go](https://go.dev/) 1.21+
 * [pkg-config](https://www.freedesktop.org/wiki/Software/pkg-config/) - included in many UNIX distributions
-* [yara](https://virustotal.github.io/yara/) - you can use this one-liner to install it:
+* [yara](https://virustotal.github.io/yara/)
 
 ## Installation
 
@@ -38,14 +38,14 @@ A container runtime environment such as Podman or Docker, or local developer too
 
 ### Local
 
-install YARA:
+Install YARA (dependency):
 
 ```shell
 brew install yara || sudo apt install libyara-dev \
   || sudo dnf install yara-devel || sudo pacman -S yara
 ```
 
-install bincapz:
+Install bincapz:
 
 ```shell
 go install github.com/chainguard-dev/bincapz@latest
