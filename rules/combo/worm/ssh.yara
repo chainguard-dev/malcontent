@@ -12,8 +12,9 @@ rule ssh_snake_worm : suspicious {
 	$u_uname = "uname"
 
 	$strict_host = "StrictHostKeyChecking"
+	$user_known_hosts = "UserKnownHostsFile"
   condition:
-	$strict_host and all of ($s*) and any of ($h*) and any of ($u*)
+	filesize < 64MB and $strict_host and $user_known_hosts and all of ($s*) and any of ($h*) and any of ($u*)
 }
 
 rule ssh_worm_router : suspicious {

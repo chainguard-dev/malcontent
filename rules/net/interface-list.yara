@@ -1,6 +1,6 @@
 rule bsd_ifaddrs : notable {
 	meta:
-		description = "list network interfaces and their associated addresses"
+		description = "list network interfaces"
 	strings:
 		$getifaddrs = "getifaddrs" fullword
 		$freeifaddrs = "freeifaddrs" fullword

@@ -1,9 +1,13 @@
 rule mem : suspicious {
 	meta:
 		capability = "CAP_SYS_RAWIO"
-		description = "Accesses raw system memory"
+		description = "access raw system memory"
 	strings:
 		$val = "/dev/mem"
+
+		// entries from include/paths.h
+		$not_cshell = "_PATH_CSHELL" fullword
+		$not_rwho = "_PATH_RWHODIR" fullword
 	condition:
-		any of them
+		$val and none of ($not*)
 }

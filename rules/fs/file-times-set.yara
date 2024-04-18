@@ -65,6 +65,7 @@ rule shell_toucher : notable {
  	description = "change file timestamps"
   strings:
 	$ref = /touch [\$\%\w\-\_\.\/ ]{0,24}/ fullword
+	$not_touch_a = "touch a"
   condition:
-	$ref
+	$ref and none of ($not*)
 }

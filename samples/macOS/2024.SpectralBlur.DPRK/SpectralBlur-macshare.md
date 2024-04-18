@@ -15,15 +15,15 @@ Overall risk: 🔥 HIGH
 |          |                         | upload"                                             |
 | 2/MEDIUM | device/pseudo_terminal  | pseudo-terminal access functions                    |
 | 2/MEDIUM | exec/program            | executes external programs                          |
-| 2/MEDIUM | kernel/uname/get        | get system identification (uname)                   |
-| 2/MEDIUM | net/download            | downloads files                                     |
+| 2/MEDIUM | kernel/uname/get        | get system identification                           |
+| 2/MEDIUM | net/download            | download files                                      |
 | 2/MEDIUM | net/ip/parse            | parses IP address                                   |
 | 2/MEDIUM | net/ip/string           | converts IP address from byte to string             |
 | 2/MEDIUM | net/socket/connect      | initiate a connection on a socket                   |
 | 2/MEDIUM | net/upload              | uploads files                                       |
-| 2/MEDIUM | shell/exec              | executes a shell                                    |
+| 2/MEDIUM | shell/exec              | executes shell                                      |
 | 1/LOW    | env/SHELL               | users preferred SHELL path                          |
-| 1/LOW    | exec/program/background | waits for a process to exit                         |
+| 1/LOW    | exec/program/background | wait for process to exit                            |
 | 1/LOW    | fs/file/delete          | deletes files                                       |
 | 1/LOW    | fs/symlink/resolve      | resolves symbolic links                             |
 | 1/LOW    | net/hostname/resolve    | resolves network hosts via name                     |

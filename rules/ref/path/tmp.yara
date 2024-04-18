@@ -1,6 +1,6 @@
 rule tmp_path : notable {
 	meta:
-		description = "References paths within /tmp"
+		description = "path reference within /tmp"
 	strings:
 		$resolv = /\/tmp\/[%\w\.\-\/]{0,64}/ 
 	condition:
@@ -10,7 +10,7 @@ rule tmp_path : notable {
 
 rule weird_tmp_path_not_hidden : notable {
   meta:
-	description = "References an unusual path within /tmp"
+	description = "references an unusual path within /tmp"
     hash_2017_Dockster = "8da09fec9262d8bbeb07c4e403d1da88c04393c8fc5db408e1a3a3d86dddc552"
     hash_2017_FileCoder = "c9c7c7f1afa1d0760f63d895b8c9d5ab49821b2e4fe596b0c5ae94c308009e89"
     hash_1980_FruitFly_A_205f = "205f5052dc900fc4010392a96574aed5638acf51b7ec792033998e4043efdf6c"

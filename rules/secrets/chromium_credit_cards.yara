@@ -6,6 +6,8 @@ rule chromium_master_password : suspicious {
 		$encrypted_key = "credit_cards"
 		$c = "Chrome"
 		$c2 = "Chromium"
+
+		$not_chromium = "CHROMIUM_TIMESTAMP"
 	condition:
-		any of ($c*) and $web_data and $encrypted_key
+		any of ($c*) and $web_data and $encrypted_key and none of ($not*)
 }

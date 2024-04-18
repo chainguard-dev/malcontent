@@ -1,7 +1,7 @@
 
 rule uname : notable {
 	meta:
-		description = "get system identification (uname)"
+		description = "get system identification"
 		pledge = "sysctl"
 		syscall = "sysctl"
 	strings:
@@ -13,7 +13,7 @@ rule uname : notable {
 
 rule os_release : notable {
 	meta:
-		description = "get system identification (os_release)"
+		description = "get system identification"
 		pledge = "sysctl"
 		syscall = "sysctl"
 	strings:
@@ -24,7 +24,7 @@ rule os_release : notable {
 
 rule python_uname : notable {
 	meta:
-		description = "get system identification (platform.dist)"
+		description = "get system identification"
 	strings:
 		$ref = "platform.dist()"
 		$ref2 = "platform.platform()"

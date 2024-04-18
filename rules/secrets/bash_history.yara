@@ -1,6 +1,6 @@
 rule bash_history : suspicious {
   meta:
-	description = "Accesses .bash_history file"
+	description = "access .bash_history file"
   strings:
 	$ref = ".bash_history" fullword
   condition:

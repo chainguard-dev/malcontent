@@ -2,9 +2,13 @@
 rule kmem : suspicious {
 	meta:
 		capability = "CAP_SYS_RAWIO"
-		description = "Accesses raw kernel memory"
+		description = "access raw kernel memory"
 	strings:
 		$val = "/dev/kmem"
+
+		// entries from include/paths.h
+		$not_cshell = "_PATH_CSHELL" fullword
+		$not_rwho = "_PATH_RWHODIR" fullword		
 	condition:
-		any of them
+		$val and none of ($not*)
 }

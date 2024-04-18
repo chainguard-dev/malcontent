@@ -6,6 +6,7 @@ rule jsondecode {
 		$jsond = "JSONDecode"
 		$ju = "json.Unmarshal"
 		$jp = "JSON.parse"
+		$jl = "json.loads"
 	condition:
 		any of them
 }

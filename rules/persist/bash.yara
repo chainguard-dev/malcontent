@@ -1,6 +1,6 @@
 rule bash_persist : notable {
   meta:
-	description = "Accesses bash startup files"
+	description = "access bash startup files"
   strings:
 	$ref = ".bash_profile"
 	$ref2 = ".profile" fullword

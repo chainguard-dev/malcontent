@@ -1,0 +1,18 @@
+# Linux/2022.bpfdoor/bpfdoor_2
+combo/backdoor/net_shell
+combo/backdoor/socket_filter_exec
+device/pseudo_terminal
+evasion/hide_shell_history
+exec/program
+exec/program/background
+fs/file/delete
+fs/file/times/set
+net/sniffer
+net/socket/connect
+net/socket_filter
+process/create
+ref/path/usr/bin
+ref/path/usr/local
+ref/path/var
+shell/exec
+tty/vhangup

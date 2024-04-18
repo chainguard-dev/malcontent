@@ -1,4 +1,4 @@
-rule env_LD_DEBUG : suspicious {
+rule env_LD_DEBUG : notable {
   meta:
     description = "Checks if dynamic linker debugging is enabled"
   strings:

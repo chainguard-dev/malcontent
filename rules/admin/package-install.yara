@@ -1,6 +1,6 @@
 rule yum_installer : notable {
   meta:
-	description = "Installs software using yum"
+	description = "install software with yum"
   strings:
     $val = /yum install[ \w\-\_%]{0,32}/
   condition:
@@ -9,7 +9,7 @@ rule yum_installer : notable {
 
 rule dnf_installer : notable {
   meta:
-	description = "Installs software using dnf"
+	description = "install software with dnf"
   strings:
     $val = /dnf install[ \w\-\_%]{0,32}/
   condition:
@@ -18,7 +18,7 @@ rule dnf_installer : notable {
 
 rule rpm_installer : notable {
   meta:
-	description = "Installs software using rpm"
+	description = "install software with rpm"
   strings:
     $val = /rpm -i[ \w\-\_%]{0,32}/
   condition:
@@ -27,7 +27,7 @@ rule rpm_installer : notable {
 
 rule apt_installer : notable {
   meta:
-	description = "Installs software using apt"
+	description = "install software with apt"
   strings:
     $val = /apt install[ \w\-\_%]{0,32}/
   condition:
@@ -36,7 +36,7 @@ rule apt_installer : notable {
 
 rule apt_get_installer : notable {
   meta:
-	description = "Installs software using apt-get"
+	description = "install software with apt-get"
   strings:
     $val = /apt-get install[ \w\-\_%]{0,32}/
 
@@ -47,7 +47,7 @@ rule apt_get_installer : notable {
 
 rule apk_installer : notable {
   meta:
-	description = "Installs software using APK"
+	description = "install software with APK"
   strings:
     $val = /apk add[ \w\-\_%]{0,32}/
   condition:
