@@ -171,6 +171,7 @@ func TestDiff(t *testing.T) {
 		// Important: minFileScore should apply to source or destination
 		{diff: "macOS/clean/ls.mdiff.trigger_3", format: "simple", src: "Linux/clean/ls.x86_64", dest: "macOS/clean/ls", minResultScore: 1, minFileScore: 3},
 		{diff: "macOS/2023.3CX/libffmpeg.dirty.mdiff", format: "markdown", src: "macOS/2023.3CX/libffmpeg.dylib", dest: "macOS/2023.3CX/libffmpeg.dirty.dylib"},
+		{diff: "Linux/2024.sbcl.market/sbcl.sdiff", format: "simple", src: "Linux/2024.sbcl.market/sbcl.clean", dest: "Linux/2024.sbcl.market/sbcl.dirty"},
 	}
 
 	for _, tc := range tests {
