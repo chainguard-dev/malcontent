@@ -10,6 +10,7 @@ require (
 	github.com/hillu/go-yara/v4 v4.3.2
 	github.com/liamg/magic v0.0.1
 	github.com/olekukonko/tablewriter v0.0.5
+	github.com/ulikunitz/xz v0.5.12
 	golang.org/x/term v0.19.0
 	gopkg.in/yaml.v3 v3.0.1
 )

@@ -137,3 +137,76 @@ func TestProgramKindExtensions(t *testing.T) {
 		})
 	}
 }
+
+func TestGetExt(t *testing.T) {
+	tests := []struct {
+		path string
+		want string
+	}{
+		{
+			path: "testdata/file.apk",
+			want: ".apk",
+		}, {
+			path: "testdata/file.jar",
+			want: ".jar",
+		}, {
+			path: "testdata/file.tar",
+			want: ".tar",
+		}, {
+			path: "testdata/file.tgz",
+			want: ".tgz",
+		}, {
+			path: "testdata/file.tar.gz",
+			want: ".tar.gz",
+		}, {
+			path: "testdata/file.tar.xz",
+			want: ".tar.xz",
+		}, {
+			path: "testdata/file.zip",
+			want: ".zip",
+		}, {
+			path: "testdata/file_1.0.0",
+			want: "",
+		}, {
+			path: "testdata/file_1.0.0.apk",
+			want: ".apk",
+		}, {
+			path: "testdata/file_1.0.0.jar",
+			want: ".jar",
+		}, {
+			path: "testdata/file_1.0.0.tar",
+			want: ".tar",
+		}, {
+			path: "testdata/file_1.0.0.tgz",
+			want: ".tgz",
+		}, {
+			path: "testdata/file_1.0.0.tar.gz",
+			want: ".tar.gz",
+		}, {
+			path: "testdata/file_1.0.0.tar.xz",
+			want: ".tar.xz",
+		}, {
+			path: "testdata/file_1.0.0.zip",
+			want: ".zip",
+		}, {
+			path: "testdata/file.a.b.c.tar.gz",
+			want: ".tar.gz",
+		}, {
+			path: "testdata/file_a.b.c.tar.xz",
+			want: ".tar.xz",
+		}, {
+			path: "testdata/file_a.b.0.tar",
+			want: ".tar",
+		}, {
+			path: "testdata/file_no_ext",
+			want: "",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.path, func(t *testing.T) {
+			if got := getExt(tt.path); got != tt.want {
+				t.Errorf("getExt() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
