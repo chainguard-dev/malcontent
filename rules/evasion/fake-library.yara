@@ -28,13 +28,3 @@ rule libc_fake_number_val : suspicious {
   condition:
     any of them
 }
-
-rule hardcoded_usr_local_lib_val : suspicious {
-  meta:
-    ref = "https://www.cadosecurity.com/migo-a-redis-miner-with-novel-system-weakening-techniques/"
-	description = "hardcodes /usr/local/lib path, possible dynamic library hijacking"
-  strings:
-    $ref = /\/usr\/local\/lib\/[\w\-\.]{0,32}.so/
-  condition:
-    any of them
-}

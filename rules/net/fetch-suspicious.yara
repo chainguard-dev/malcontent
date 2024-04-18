@@ -38,6 +38,7 @@ rule suspicious_fetch_command_val : suspicious {
     $c_wget_insecure = /wget --no-check-certificate[\/\- \w\%\(\{\}\'\"\)\$]{0,128}/
 
 	$not_curl_response_code = "%{response_code}"
+	$not_oh_my_zsh = "oh-my-zsh-master"
   condition:
     any of ($c*) and none of ($not*)
 }

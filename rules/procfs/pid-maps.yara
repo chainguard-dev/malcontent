@@ -1,6 +1,6 @@
 rule proc_maps : notable {
 	meta:
-		description = "Accesses process memory maps using /pid/%d/maps"
+		description = "access process memory maps"
 	strings:
 		$string = "/proc/%s/maps" fullword
 		$digit = "/proc/%d/maps" fullword

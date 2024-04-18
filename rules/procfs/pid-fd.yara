@@ -3,7 +3,9 @@ rule proc_fd : suspicious {
 		description = "accesses file descriptors of other processes"
 		ref = "https://s.tencent.com/research/report/1219.html"
 	strings:
-		$string = /\/proc\/[%{$][\w\}]{0,12}\/fd/ 
+		$ref = /\/proc\/[%{$][\w\}]{0,12}\/fd/ 
+		// https://github.com/ClickHouse/ClickHouse/blob/7022adefb0356b86e91a3dc139446e9909ce0130/src/Common/getCurrentProcessFDCount.cpp#L19
+		$not_dev_fd = "/dev/fd"
 	condition:
-		any of them
+		$ref and none of ($not*)
 }

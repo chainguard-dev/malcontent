@@ -1,5 +1,6 @@
 rule multiple_sys_commands : suspicious {
   meta:
+	description = "mentions multiple unrelated system commands"
     hash_2022_XorDDoS = "311c93575efd4eeeb9c6674d0ab8de263b72a8fb060d04450daccc78ec095151"
     hash_2020_trojan_SAgnt_vnqci_sshd = "df3b41b28d5e7679cddb68f92ec98bce090af0b24484b4636d7d84f579658c52"
     hash_2023_articles_https_pberba_github_io_security_2022_02_07_linux_threat_hunting_for_persistence_systemd_generators = "8c227f67a16162ffd5b453a478ced2950eba4cbe3b004c5cc935fb9551dc2289"
@@ -18,5 +19,5 @@ rule multiple_sys_commands : suspicious {
     $sdpd = "/usr/sbin/sdpd"
     $gam = "/usr/libexec/gam_server"
   condition:
-    2 of them
+    filesize < 64MB and 3 of them
 }

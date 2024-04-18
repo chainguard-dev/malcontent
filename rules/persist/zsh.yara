@@ -1,6 +1,6 @@
 rule zsh_persist : notable {
   meta:
-	description = "Accesses zsh startup files"
+	description = "access zsh startup files"
   strings:
 	$ref = ".zprofile"
 	$ref2 = ".zshrc"

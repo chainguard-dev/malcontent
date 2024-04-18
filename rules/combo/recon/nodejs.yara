@@ -1,7 +1,7 @@
 
-rule npm_sysinfoexfil : suspicious {
+rule npm_sysinfoexfil : high {
 	meta:
-		description = "exfiltrate system information"
+		description = "may gather and exfiltrate system information"
 	strings:
 		$proc1 = "process.platform"
 		$proc2 = "process.arch"
@@ -11,5 +11,5 @@ rule npm_sysinfoexfil : suspicious {
 
 		$post = "POST"
 	condition:
-		$h and $post and any of ($proc*)
+		filesize < 32MB and $h and $post and any of ($proc*)
 }

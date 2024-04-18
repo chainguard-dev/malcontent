@@ -58,7 +58,7 @@ rule readdir_inet_system : suspicious {
 
 rule pcap_shell_exec : suspicious {
   meta:
-	description = "Sniffs network traffic, executes code through a shell"
+	description = "sniffs network traffic, executes shell"
   strings:
     $libpcap = "libpcap"
 

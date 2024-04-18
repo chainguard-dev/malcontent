@@ -1,16 +1,3 @@
-rule geoip_crypto_exec : suspicious {
-  meta:
-	description = "cryptography, geolocation, and command execution"
-    hash_hash_2015_trojan_Eleanor_conn = "5c16f53276cc4ef281e82febeda254d5a80cd2a0d5d2cd400a3e9f4fc06e28ad"
-  strings:
-    $s_geoip = "geoip"
-    $s_crypto = "crypto"
-    $s_exec = "exec"
-    $not_unsupported = "not supported in this build"
-  condition:
-    all of ($s*) and none of ($not*)
-}
-
 rule macos_kitchen_sink_binary {
   meta:
     hash_2023_KandyKorn_kandykorn = "927b3564c1cf884d2a05e1d7bd24362ce8563a1e9b85be776190ab7f8af192f6"
@@ -33,16 +20,15 @@ rule macos_kitchen_sink_binary {
     90% of ($f*) and none of ($not*)
 }
 
-
-rule ssh_socks5_exec : suspicious {
+rule ssh_socks5_exec : notable {
 	meta:
-		description = "Supports SOCKS5, SSH, and executing programs"
+		description = "supports SOCKS5, SSH, and executing programs"
 	strings:
 		$socks5 = "Socks5"
 		$ssh = "crypto/ssh"
 		$exec = "os/exec.Command"
 	condition:
-		all of them
+		filesize < 64MB and all of them
 }
 
 
@@ -99,13 +85,14 @@ rule exec_chdir_and_socket : notable {
     filesize < 52428800 and (uint32(0) == 1179403647 or uint32(0) == 4277009102 or uint32(0) == 3472551422 or uint32(0) == 4277009103 or uint32(0) == 3489328638 or uint32(0) == 3405691582 or uint32(0) == 3199925962) and $chdir and $socket and 1 of ($exec*) and none of ($not*)
 }
 
-rule connects_and_executes : suspicious {
+rule listens_and_executes : notable {
 	meta:
 		description = "Listens, provides a terminal, runs program"
 	strings:
 		$f_socket = "socket" fullword
 		$f_execl =  "execl"  fullword
 		$f_inet_addr = "inet_addr" fullword
+		$f_listen = "listen" fullword
 
 		$not_setlocale = "setlocale" fullword
 		$not_ptrace = "ptrace" fullword

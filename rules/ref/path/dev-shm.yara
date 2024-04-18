@@ -1,6 +1,6 @@
 rule dev_shm : suspiciuos {
 	meta:
-		description = "References paths within /dev/shm (world writeable)"
+		description = "path reference within /dev/shm (world writeable)"
 	strings:
 		$ref = /\/dev\/shm\/[%\w\.\-\/]{0,64}/ 
 	condition:
@@ -19,7 +19,7 @@ rule dev_shm_sh : critical {
 
 rule dev_shm_hidden : critical {
 	meta:
-		description = "References paths within /dev/shm (world writeable)"
+		description = "path reference within /dev/shm (world writeable)"
 	strings:
 		$dev_shm = /\/dev\/shm\/\.[%\w\.\-\/]{0,64}/ 
 	condition:
