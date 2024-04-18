@@ -24,15 +24,28 @@ Enumerates program capabilities and malicious behaviors using fragment analysis.
 
 ## Requirements
 
-* go 1.21+
-* yara 4.3+ library - you can use this one-liner to install it if necessary:
+A container runtime environment such as Podman or Docker, or local developer tools:
+
+* [go](https://go.dev/) 1.21+
+* [pkg-config](https://www.freedesktop.org/wiki/Software/pkg-config/) - included in many UNIX distributions
+* [yara](https://virustotal.github.io/yara/)
+
+## Installation
+
+### Containerized
+
+`docker pull cgr.dev/chainguard/bincapz:latest`
+
+### Local
+
+Install YARA (dependency):
 
 ```shell
 brew install yara || sudo apt install libyara-dev \
   || sudo dnf install yara-devel || sudo pacman -S yara
 ```
 
-## Installation
+Install bincapz:
 
 ```shell
 go install github.com/chainguard-dev/bincapz@latest
