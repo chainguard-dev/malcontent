@@ -10,6 +10,7 @@ Enumerates program capabilities and malicious behaviors using fragment analysis.
 
 - Analyzes binaries from any architecture - arm64, amd64, riscv, ppc64, sparc64
 - Supports scripting languages such as bash, PHP, Perl, Ruby, NodeJS, and Python
+- Supports OCI images and archives
 - Integrates [YARA forge](https://yarahq.github.io/) for rules by Avast, Elastic, FireEye, Google, Nextron, and others.
 - 12,000+ rules that detect everything from ioctl's to malware
 - Tuned for especially excellent performance with Linux programs
@@ -18,7 +19,6 @@ Enumerates program capabilities and malicious behaviors using fragment analysis.
 
 ## Shortcomings
 
-- Does not attempt to process archive files (jar, zip, apk)
 - Minimal rule support for Windows and Java (help wanted!)
 - Early in development; output is subject to change
 
@@ -139,6 +139,7 @@ bincapz --format=json <file> | jq  '.Files.[].Behaviors | keys'
 * `--format` string: Output type. Valid values are: json, markdown, simple, terminal, yaml (default "terminal")
 * `--ignore-tags` string: Rule tags to ignore
 * `--min-level`: minimum suspicion level to report (1=low, 2=medium, 3=high, 4=critical) (default 1)
+* `--oci`: scan OCI images
 * `--omit-empty`: omit files that contain no matches
 * `--stats`: display statistics for risk level and `programkind`
 * `--third-party`: include third-party rules, which may have licensing restrictions (default true)

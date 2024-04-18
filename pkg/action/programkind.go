@@ -6,41 +6,53 @@ package action
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"log/slog"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/liamg/magic"
 )
 
+var archiveMap = map[string]bool{
+	".apk":    true,
+	".jar":    true,
+	".tar.gz": true,
+	".tar.xz": true,
+	".tar":    true,
+	".tgz":    true,
+	".zip":    true,
+}
+
 // map from extensions to program kinds.
 var extMap = map[string]string{
-	".scpt":    "compiled AppleScript",
-	".scptd":   "compiled AppleScript",
-	".sh":      "Shell script",
-	".rb":      "Ruby script",
-	".py":      "Python script",
-	".pl":      "PERL script",
-	".yara":    "",
-	".expect":  "Expect script",
-	".php":     "PHP file",
-	".html":    "",
-	".js":      "Javascript",
-	".ts":      "Typescript",
 	".7z":      "",
-	".json":    "",
-	".yml":     "",
-	".yaml":    "",
-	".java":    "Java source",
-	".jar":     "Java program",
 	".asm":     "",
-	".service": "systemd",
+	".c":       "C source",
 	".cron":    "crontab",
 	".crontab": "crontab",
-	".c":       "C source",
+	".expect":  "Expect script",
+	".html":    "",
+	".jar":     "Java program",
+	".java":    "Java source",
+	".js":      "Javascript",
+	".json":    "",
+	".php":     "PHP file",
+	".pl":      "PERL script",
+	".py":      "Python script",
+	".rb":      "Ruby script",
+	".scpt":    "compiled AppleScript",
+	".scptd":   "compiled AppleScript",
+	".service": "systemd",
+	".sh":      "Shell script",
+	".ts":      "Typescript",
+	".yaml":    "",
+	".yara":    "",
+	".yml":     "",
 }
 
 // programKind tries to identify if a path is a program.
@@ -124,4 +136,32 @@ func programKind(ctx context.Context, path string) string {
 func byExtension(path string) (bool, string) {
 	ret, ok := extMap[filepath.Ext(path)]
 	return ok, ret
+}
+
+// getExt returns the extension of a file path
+// and attempts to avoid including fragments of filenames with other dots before the extension.
+func getExt(path string) string {
+	base := filepath.Base(path)
+
+	// Handle files with version numbers in the name
+	// e.g. file1.2.3.tar.gz -> .tar.gz
+	re := regexp.MustCompile(`\d+\.\d+\.\d+$`)
+	base = re.ReplaceAllString(base, "")
+
+	ext := filepath.Ext(base)
+
+	if ext != "" && strings.Contains(base, ".") {
+		parts := strings.Split(base, ".")
+		if len(parts) > 2 {
+			subExt := fmt.Sprintf(".%s%s", parts[len(parts)-2], ext)
+			if isValidExt := func(ext string) bool {
+				_, ok := archiveMap[ext]
+				return ok
+			}(subExt); isValidExt {
+				return subExt
+			}
+		}
+	}
+
+	return ext
 }
