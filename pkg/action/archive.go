@@ -83,7 +83,7 @@ func extractTar(ctx context.Context, d string, f string) error {
 
 	tr := tar.NewReader(tf)
 
-	if strings.Contains(f, ".apk") || strings.Contains(f, ".tar.gz") {
+	if strings.Contains(f, ".apk") || strings.Contains(f, ".tar.gz") || strings.Contains(f, ".tgz") {
 		gzStream, err := gzip.NewReader(tf)
 		if err != nil {
 			return fmt.Errorf("failed to create gzip reader: %w", err)
