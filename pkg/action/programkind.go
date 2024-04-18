@@ -21,10 +21,10 @@ import (
 var archiveMap = map[string]bool{
 	".apk":    true,
 	".jar":    true,
-	".tar":    true,
-	".tgz":    true,
 	".tar.gz": true,
 	".tar.xz": true,
+	".tar":    true,
+	".tgz":    true,
 	".zip":    true,
 }
 
