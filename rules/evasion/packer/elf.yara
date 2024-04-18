@@ -28,7 +28,7 @@ rule obfuscated_elf : suspicious {
 }
 
 
-rule high_entropy_elf : suspicious {
+rule high_entropy_header : suspicious {
   meta:
 	description = "Obfuscated ELF binary (high entropy content)"
   strings:
