@@ -26,7 +26,7 @@ func prepareImage(ctx context.Context, d string) (string, *os.File, error) {
 	}
 
 	var image v1.Image
-	if image, err = crane.Pull(d, crane.WithContext(context.Background())); err != nil {
+	if image, err = crane.Pull(d, crane.WithContext(ctx)); err != nil {
 		return "", nil, fmt.Errorf("failed to pull image: %w", err)
 	}
 	if err := crane.Export(image, tmpFile); err != nil {
