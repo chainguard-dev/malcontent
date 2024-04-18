@@ -36,7 +36,7 @@ func copyArchive(ctx context.Context, src string, dst string) error {
 
 	defer func() {
 		if cerr := w.Close(); cerr != nil {
-			err = fmt.Errorf("failed to close file: %v", cerr)
+			logger.Errorf("failed to close file: %v", cerr)
 		}
 	}()
 
@@ -44,7 +44,7 @@ func copyArchive(ctx context.Context, src string, dst string) error {
 		return fmt.Errorf("failed to copy data: %w", err)
 	}
 
-	return err
+	return nil
 }
 
 // tempDir creates a temporary directory and copies the archive file into it.
