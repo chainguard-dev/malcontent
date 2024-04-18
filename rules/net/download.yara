@@ -1,11 +1,13 @@
 
 rule download : notable {
 	meta:
-		description = "Downloads files"
+		description = "download files"
 	strings:
-		$ref = "download" fullword
-		$ref2 = "DOWNLOAD" fullword
-		$ref3 = "Download" fullword
+		$ref = /[a-zA-Z\-_ ]{0,16}download[a-zA-Z\-_ ]{0,16}/ fullword
+		$ref2 = /[a-zA-Z\-_ ]{0,16}DOWNLOAD[a-zA-Z\-_ ]{0,16}/ fullword
+		$ref3 = /[a-zA-Z\-_ ]{0,16}Download[a-zA-Z\-_ ]{0,16}/ fullword
+
+		$not_be = "be downloaded"
 	condition:
-		any of them
+		any of ($ref*) and none of ($not*)
 }

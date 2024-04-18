@@ -1,6 +1,6 @@
 rule usr_local_path : harmless {
 	meta:
-		description = "references paths within /usr/local"
+		description = "path reference within /usr/local"
 	strings:
 		$val = /\/usr\/local\/[\w\.\-\/]{0,64}/ 
 		$go = "/usr/local/go"
@@ -10,7 +10,7 @@ rule usr_local_path : harmless {
 
 rule usr_local_bin_path : notable {
 	meta:
-		description = "references paths within /usr/local/bin"
+		description = "path reference within /usr/local/bin"
 	strings:
 		$val = /\/usr\/local\/bin[\w\.\-\/]{0,64}/ 
 	condition:
@@ -19,7 +19,7 @@ rule usr_local_bin_path : notable {
 
 rule usr_local_lib_path : notable {
 	meta:
-		description = "references paths within /usr/local/lib"
+		description = "path reference within /usr/local/lib"
 	strings:
 		$val = /\/usr\/local\/lib[\w\.\-\/]{0,64}/ 
 	condition:

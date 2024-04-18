@@ -1,7 +1,7 @@
 
 rule browser_extensions : notable {
   meta:
-	description = "Accesses Browser extensions"
+	description = "access Browser extensions"
   strings:
     $b_firefoxExtension = "Firefox/extensions"
     $b_safariExtension = "Safari/Extensions"

@@ -1,7 +1,7 @@
 
 rule raw_sockets : notable {
 	meta:
-		description = "Uses raw sockets"
+		description = "able to send raw malformed IP packets"
 		capability = "CAP_SYS_RAW"
 		ref = "https://man7.org/linux/man-pages/man7/raw.7.html"
 	strings:

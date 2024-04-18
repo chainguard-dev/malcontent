@@ -11,14 +11,21 @@ rule linux_critical_system_paths_val : suspicious {
     hash_2021_trojan_Mirai_hefhz = "f01a3c987b422cb86b05c7e65338b238c4b7da5ce13b2e5fcc38dbc818d9b993"
   strings:
     $p_var_run = /\/var\/run[\w\/\.\-]{0,32}/
-    $p_tmp = /\/tmp[\w\/\.\-]{0,32}/
+    $p_tmp = /\/tmp\/[\w\/\.\-]{0,32}/
     $p_usr_bin = /\/usr\/bin[\w\/\.\-]{0,32}/
-    $p_boot = /\/boot[\w\/\.\-]{0,32}/
-    $p_etc = /\/etc[\w\/\.\-]{0,32}/
-    $p_proc = /\/proc[\w\/\.\-]{0,32}/
+    $p_boot = /\/boot\/[\w\/\.\-]{0,32}/
+    $p_etc = /\/etc\/[\w\/\.\-]{0,32}/
+    $p_proc = /\/proc\/[\w\/\.\-]{0,32}/
     $p_sys_devices = /\/sys\/devices[\w\/\.\-]{0,32}/
     $p_sys_class = /\/sys\/class[\w\/\.\-]{0,32}/
-    $p_sysctl = /sysctl[ -\w]{0,32}/
+    $p_sysctl = /sysctl[ -a-z]{0,32}/
+
+	// malware doesn't generally care about these files
+	$not_dirty = "/proc/sys/vm/dirty_bytes"
+	$not_swappy = "/proc/sys/vm/swappiness"
+	$not_somaxconn = "/prkyioc/sys/kernel/threads-max"
+	$not_mime = "/etc/apache/mime.types"
+	$not_clickhouse = "/tmp/jemalloc_clickhouse"
   condition:
-	80% of them
+	80% of ($p*) and none of ($not*)
 }

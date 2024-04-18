@@ -10,7 +10,7 @@ rule keychain : notable macos {
 
 rule macos_library_keychains : notable {
 	meta:
-		description = "Accesses the system keychain via files"
+		description = "access system keychain via files"
 	strings:
 		$ref = "/Library/Keychains"
 	condition:

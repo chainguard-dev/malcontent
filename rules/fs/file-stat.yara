@@ -1,7 +1,7 @@
 
 rule stat : harmless {
 	meta:
-		description = "Uses libc functions to access filesystem information"
+		description = "access filesystem information"
 		pledge = "rpath"
 		syscall = "stat"
 	strings:
@@ -39,7 +39,7 @@ rule lstat : harmless {
 
 rule go_stat : harmless {
 	meta:
-		description = "Access filesystem information"
+		description = "access filesystem information"
 		pledge = "rpath"
 		syscall = "stat"
 	strings:
@@ -64,7 +64,7 @@ rule py_timestamps {
 
 rule npm_stat {
 	meta:
-		description = "Access filesystem metadata"
+		description = "access filesystem metadata"
 		pledge = "rpath"
 		syscall = "stat"
 	strings:

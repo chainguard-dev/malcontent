@@ -1,10 +1,14 @@
 
 rule fake_user_agent_msie : suspicious {
+  meta:
+	description = "pretends to be MSIE"
   strings:
-    $u_MSIE = "compatible; MSIE"
-    $u_msie = "compatible; msie"
-    $u_msie2 = "MSIE 9.0"
+    $u_MSIE = /compatible; MSIE[ \;\(\)\w]{0,32}/
+    $u_msie = /compatible; msie[ \;\(\)\w]{0,32}/
+    $u_msie2 = /MSIE 9.0{/
 	$not_access_log = "\"GET http://"
+	$not_pixel = "Pixel 5"
+	$not_ipad = "iPad Mini"
   condition:
     any of ($u_*) and none of ($not_*)
 }
@@ -67,11 +71,11 @@ rule fake_user_agent_curl {
     	any of ($u_*) and none of ($not_*)
 }
 
-rule elf_faker_val : high {
+rule elf_faker_val : notable {
   meta:
-	description = "Fake user agent inside ELF binary"
+	description = "Fake user agent"
   strings:
-	$val = /Mozilla\/5[\.\w ]{0,64}/
+	$val = /Mozilla\/5[\.\w ]{4,64}/
   condition:
     uint32(0) == 1179403647 and $val
 }

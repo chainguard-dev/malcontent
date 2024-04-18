@@ -1,6 +1,6 @@
 rule proc_pid_stat_val {
 	meta:
-		description = "Accesses process stats using /pid/%d/stat"
+		description = "access process stats using /pid/%d/stat"
 	strings:
 		$string = "/proc/%s/stat" fullword
 		$digit = "/proc/%d/stat" fullword

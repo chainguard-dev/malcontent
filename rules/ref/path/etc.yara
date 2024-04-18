@@ -1,6 +1,6 @@
 rule etc_path {
 	meta:
-		description = "References paths within /etc"
+		description = "path reference within /etc"
 	strings:
 		$resolv = /\/etc\/[a-z\.\-\/]{4,32}/ 
 	condition:

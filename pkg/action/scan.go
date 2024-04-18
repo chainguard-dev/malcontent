@@ -91,16 +91,29 @@ func recursiveScan(ctx context.Context, c Config) (*bincapz.Report, error) {
 	for _, sp := range c.ScanPaths {
 		if c.OCI {
 			var err error
-			sp, err = oci(sp)
+			sp, err = oci(ctx, sp)
 			if err != nil {
 				return nil, fmt.Errorf("failed to prepare OCI image for scanning: %w", err)
 			}
 		}
+
+		var isArchive bool
+		ext := getExt(sp)
+		if _, ok := archiveMap[ext]; ok {
+			isArchive = true
+		}
+		if isArchive {
+			var err error
+			sp, err = archive(ctx, sp)
+			if err != nil {
+				return nil, fmt.Errorf("failed to prepare archive for scanning: %w", err)
+			}
+		}
+
 		rp, err := findFilesRecursively(ctx, sp)
 		if err != nil {
 			return nil, fmt.Errorf("find files: %w", err)
 		}
-		// TODO: support zip files and such
 		for _, p := range rp {
 			fr, err := scanSinglePath(ctx, c, yrs, p)
 			if err != nil {
@@ -120,7 +133,7 @@ func recursiveScan(ctx context.Context, c Config) (*bincapz.Report, error) {
 			}
 			r.Files[p] = *fr
 		}
-		if c.OCI {
+		if c.OCI || isArchive {
 			if err := os.RemoveAll(sp); err != nil {
 				logger.Errorf("remove %s: %v", sp, err)
 			}

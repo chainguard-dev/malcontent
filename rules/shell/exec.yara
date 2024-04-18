@@ -1,6 +1,6 @@
 rule calls_shell : notable {
   meta:
-	description = "Executes a shell"
+	description = "executes shell"
   strings:
 	$bin_sh = "/bin/sh"
 	$bin_bash = "/bin/bash"
