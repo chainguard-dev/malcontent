@@ -26,6 +26,9 @@ rule chattr_caller : suspicious {
     hash_2023_Unix_Downloader_Rocke_6107 = "61075056b46d001e2e08f7e5de3fb9bfa2aabf8fb948c41c62666fd4fab1040f"
   strings:
     $chattr = /chattr [-\+][\w\- ]{0,32} [\w\.\/]{0,64}/
+
+	// unvrelated command
+	$not_chezmoi = "chezmoi chattr"
   condition:
-    any of them
+    $chattr and none of ($not*)
 }

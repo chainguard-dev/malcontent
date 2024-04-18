@@ -1,6 +1,6 @@
 rule popen : notable {
 	meta:
-		description = "Uses popen to launch a program and pipe output to/from it"
+		description = "launches program and reads its output"
 		syscall = "pipe"
 	strings:
 		$_popen = "_popen" fullword

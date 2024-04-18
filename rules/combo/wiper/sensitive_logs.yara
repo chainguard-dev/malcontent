@@ -1,6 +1,6 @@
 rule system_log_references : suspicious {
   meta:
-	description = "Accesses multiple sensitive Linux logs"
+	description = "sensitive Linux logs"
   strings:
     $wtmp = "/var/log/wtmp"
     $secure = "/var/log/secure"
@@ -14,5 +14,5 @@ rule system_log_references : suspicious {
     $lastlog = "/var/log/lastlog"
 	$run_log = "/run/log/"
   condition:
-    2 of them
+    filesize < 64MB and 3 of them
 }

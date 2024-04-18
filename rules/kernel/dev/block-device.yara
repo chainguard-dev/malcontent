@@ -11,7 +11,7 @@ rule block_devices : notable {
 rule dev_sd : notable {
 	meta:
 		capability = "CAP_SYS_RAWIO"
-		description = "Accesses raw generic block devices"
+		description = "access raw generic block devices"
 	strings:
 		$val = /\/dev\/sd[\$%\w\{\}]{0,10}/
 	condition:

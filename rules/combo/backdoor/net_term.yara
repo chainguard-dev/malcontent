@@ -12,19 +12,22 @@ rule readdir_openpty_socket : suspicious {
 
 rule pseudoterminal_tunnel : suspicious {
 	meta:
-		description = "accesses pseudoterminals and sets up a tunnel"
+		description = "pseudoterminal and tunnel support"
 	strings:
 		$pty = "creack/pty" fullword
 		$ptsname = "ptsname" fullword
 
-		$t = "tunnel" fullword
-		$t2 = "TUNNEL" fullword
+		$t = /[\w]{0,16}tunnel[\w]{0,16}/ fullword
+		$t2 = /[\w]{0,16}TUNNEL[\w]{0,16}/ fullword
 
 		$not_qemu = "QEMU_IS_ALIGNED"
+		// random wordlist, found in clickhouse and chezmoi
+		$not_unbounded = "UNBOUNDED"
+		// https://github.com/aws-samples/aws-iot-securetunneling-localproxy data
+		$not_iot = "iotsecuredtunnel"
 	condition:
-		any of ($p*) and any of ($t*) and none of ($not_qemu*)
+		any of ($p*) and any of ($t*) and none of ($not*)
 }
-
 
 rule tty_shell : suspicious {
   meta:
@@ -74,7 +77,7 @@ rule miner_kvryr_stak_alike : suspicious {
 		$execve = "execve"
 		$numa = "NUMA"
 	condition:
-		all of them
+		filesize < 64MB and all of them
 }
 
 rule proxy_http_aes_terminal_combo : notable {
@@ -99,7 +102,6 @@ rule proxy_http_aes_terminal_combo : notable {
     filesize < 26214400 and 85% of them
 }
 
-
 rule bpfdoor_alike : suspicious {
 	meta:
 		description = "Listens, provides a terminal, runs program"
@@ -113,7 +115,6 @@ rule bpfdoor_alike : suspicious {
 	condition:
 		all of ($f*) and none of ($not*)
 }
-
 
 rule dlsym_openpty_system : suspicious {
 	meta:

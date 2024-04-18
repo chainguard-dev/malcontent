@@ -1,10 +1,10 @@
 rule http_open_write_system : suspicious {
   meta:
-  	description = "may fetch and execute programs from the internet"
+  	description = "fetch and execute programs"
   strings:
-	$http = "http"
-	$http_requests = "requests.get" fullword
-	$http_urrlib = "urllib.request" fullword
+	$http_requests_get = "requests.get" fullword
+	$http_requests_post = "requests.post" fullword
+	$http_urllib = "urllib.request" fullword
 	$http_urlopen = "urlopen" fullword
 
 	$open = "open("
@@ -20,12 +20,13 @@ rule http_open_write_system : suspicious {
 
 rule setuptools_dropper : critical {
 	meta:
-		description = "setuptools script that downloads and executes content"
+		description = "setuptools script that fetches and executes"
 	strings:
 		$setup = "setup("
 		$setuptools = "setuptools" fullword
 
 		$http_requests = "requests.get" fullword
+		$http_requests_post = "requests.post" fullword
 		$http_urrlib = "urllib.request" fullword
 		$http_urlopen = "urlopen" fullword
 

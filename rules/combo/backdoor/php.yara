@@ -67,12 +67,14 @@ rule php_bin_hashbang : critical {
     hash_2015_Resources_agent = "5a61246c9fe8e52347e35664e0c86ab2897d807792008680e04306e6c2104941"
     hash_2023_UPX_0a07c056fec72668d3f05863f103987cc1aaec92e72148bf16db6cfd58308617_elf_x86_64 = "94f4de1bd8c85b8f820bab936ec16cdb7f7bc19fa60d46ea8106cada4acc79a2"
   strings:
-    $x_php = "<?php"
+    $php = "<?php"
     $script = "#!/bin/"
+	$post = "$_POST" fullword
+	$get = "$_GET" fullword
 
 	$not_php = "PHP_VERSION_ID"
   condition:
-    $script and any of ($x*) and none of ($not*)
+    $php and $script and ($post or $get) and none of ($not*)
 }
 
 rule php_urlvar_recon_exec : critical {

@@ -1,6 +1,6 @@
 rule usr_path : harmless {
 	meta:
-		description = "References paths within /usr/"
+		description = "path reference within /usr/"
 	strings:
 		$ref = /\/usr\/[\w\.\-\/]{0,64}/
 		$not_lib_go = "/usr/lib/go"

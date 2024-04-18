@@ -1,6 +1,6 @@
 rule IORegistry {
 	meta:
-		description = "Accesses the IOKit device driver registry"
+		description = "access IOKit device driver registry"
 	strings:
 		$ref = "IORegistry"
 	condition:

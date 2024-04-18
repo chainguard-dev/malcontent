@@ -1,6 +1,6 @@
 rule proc_status : notable {
 	meta:
-		description = "Accesses the status fields for other processes"
+		description = "access status fields for other processes"
 	strings:
 		$string = "/proc/%s/status" fullword
 		$digit = "/proc/%d/status" fullword

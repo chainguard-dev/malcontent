@@ -18,5 +18,5 @@ rule uname_hostname_encrypt_wipe_kill : suspicious {
     $uname = "uname" fullword
     $hostname = "hostname" fullword
   condition:
-    all of them
+    filesize < 64MB and all of them
 }

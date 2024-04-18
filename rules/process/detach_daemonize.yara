@@ -1,10 +1,10 @@
 
-rule detach : suspicious {
+rule detach : notable {
   meta:
 	description = "process detaches and daemonizes"
   strings:
-	$ref = "xdaemon"
-	$ref2 = "go-daemon"
+	$ref = /[\w\/]{0,16}xdaemon/
+	$ref2 = /[\w\/]{0,16}go-daemon/
   condition:
 	any of them
 }
