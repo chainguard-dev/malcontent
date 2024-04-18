@@ -14,14 +14,10 @@ import (
 
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
 	"github.com/chainguard-dev/clog"
+	"github.com/fatih/color"
 	"github.com/olekukonko/tablewriter"
 	"golang.org/x/term"
 )
-
-// ignoreMeta are fields to ignore in output.
-var ignoreMeta = map[string]bool{
-	"format": true,
-}
 
 type KeyedBehavior struct {
 	Key      string
@@ -33,18 +29,8 @@ type tableConfig struct {
 	ShowTitle   bool
 	DiffRemoved bool
 	DiffAdded   bool
-}
-
-func forceWrap(s string, x int) string {
-	words, _ := tablewriter.WrapString(s, x)
-	fw := []string{}
-	for _, w := range words {
-		if len(w) > x-2 {
-			w = w[0:x-2] + ".."
-		}
-		fw = append(fw, w)
-	}
-	return strings.Join(fw, "\n")
+	SkipAdded   bool
+	SkipRemoved bool
 }
 
 func terminalWidth(ctx context.Context) int {
@@ -72,16 +58,37 @@ func NewTerminal(w io.Writer) Terminal {
 func decorativeRisk(score int, level string) string {
 	symbol := "✅"
 	switch score {
+	case 2:
+		symbol = "⚠️ "
 	case 3:
 		symbol = "🔥"
 	case 4:
 		symbol = "🚨"
 	}
 
-	return fmt.Sprintf("%s %d/%s", symbol, score, level)
+	return fmt.Sprintf("%s %s", symbol, riskColor(level))
 }
 
-func shortRisk(s string) string {
+func darkBrackets(s string) string {
+	return fmt.Sprintf("%s%s%s", color.HiBlackString("["), s, color.HiBlackString("]"))
+}
+
+func riskColor(level string) string {
+	switch level {
+	case "LOW":
+		return color.HiGreenString(level)
+	case "MEDIUM", "MED":
+		return color.HiYellowString(level)
+	case "HIGH":
+		return color.HiRedString(level)
+	case "CRITICAL", "CRIT":
+		return color.HiMagentaString(level)
+	default:
+		return color.WhiteString(level)
+	}
+}
+
+func ShortRisk(s string) string {
 	if len(s) < 4 {
 		return s
 	}
@@ -95,7 +102,7 @@ func shortRisk(s string) string {
 func (r Terminal) File(ctx context.Context, fr bincapz.FileReport) error {
 	renderTable(ctx, &fr, r.w,
 		tableConfig{
-			Title: fmt.Sprintf("Path: %s\nRisk: %s", fr.Path, decorativeRisk(fr.RiskScore, fr.RiskLevel)),
+			Title: fmt.Sprintf("%s %s", fr.Path, darkBrackets(decorativeRisk(fr.RiskScore, fr.RiskLevel))),
 		},
 	)
 	return nil
@@ -105,7 +112,7 @@ func (r Terminal) Full(ctx context.Context, rep bincapz.Report) error {
 	for f, fr := range rep.Diff.Removed {
 		fr := fr
 		renderTable(ctx, &fr, r.w, tableConfig{
-			Title:       fmt.Sprintf("➖ Deleted: %s", f),
+			Title:       fmt.Sprintf("Deleted: %s %s", f, darkBrackets(decorativeRisk(fr.RiskScore, fr.RiskLevel))),
 			DiffRemoved: true,
 		})
 	}
@@ -113,7 +120,7 @@ func (r Terminal) Full(ctx context.Context, rep bincapz.Report) error {
 	for f, fr := range rep.Diff.Added {
 		fr := fr
 		renderTable(ctx, &fr, r.w, tableConfig{
-			Title:     fmt.Sprintf("Added: %s\nAdded Risk: %s", f, decorativeRisk(fr.RiskScore, fr.RiskLevel)),
+			Title:     fmt.Sprintf("Added: %s %s", f, darkBrackets(decorativeRisk(fr.RiskScore, fr.RiskLevel))),
 			DiffAdded: true,
 		})
 	}
@@ -126,20 +133,62 @@ func (r Terminal) Full(ctx context.Context, rep bincapz.Report) error {
 		} else {
 			title = fmt.Sprintf("Changed: %s", f)
 		}
+
 		if fr.RiskScore != fr.PreviousRiskScore {
-			title = fmt.Sprintf("%s\nPrevious Risk: %s\nNew Risk:      %s",
-				title,
-				decorativeRisk(fr.PreviousRiskScore, fr.PreviousRiskLevel),
-				decorativeRisk(fr.RiskScore, fr.RiskLevel))
+			title = fmt.Sprintf("%s %s\n\n", title,
+				darkBrackets(fmt.Sprintf("%s %s %s", decorativeRisk(fr.PreviousRiskScore, fr.PreviousRiskLevel), color.HiWhiteString("→"), decorativeRisk(fr.RiskScore, fr.RiskLevel))))
 		}
-		renderTable(ctx, &fr, r.w, tableConfig{
-			Title: title,
-		})
+
+		fmt.Fprint(r.w, title)
+		added := 0
+		removed := 0
+		for _, b := range fr.Behaviors {
+			if b.DiffAdded {
+				added++
+			}
+			if b.DiffRemoved {
+				removed++
+			}
+		}
+
+		if added > 0 {
+			renderTable(ctx, &fr, r.w, tableConfig{
+				Title:       color.HiWhiteString("+++ ADDED: %d behavior(s) +++", added),
+				SkipRemoved: true,
+			})
+		}
+
+		if removed > 0 {
+			renderTable(ctx, &fr, r.w, tableConfig{
+				Title:     color.HiWhiteString("--- REMOVED: %d behavior(s) ---", removed),
+				SkipAdded: true,
+			})
+		}
 	}
+
 	return nil
 }
 
-func renderTable(ctx context.Context, fr *bincapz.FileReport, w io.Writer, rc tableConfig) { //nolint: cyclop // TODO: review this cyclomatic complexity for function renderTable is 39, max is 37
+func wrap(s string, i int) string {
+	w, _ := tablewriter.WrapString(s, i)
+	return strings.Join(w, "\n")
+}
+
+func wrapKey(s string, i int) string {
+	w := wrap(strings.ReplaceAll(s, "/", " "), i)
+	w = strings.ReplaceAll(w, " ", "/")
+	return strings.ReplaceAll(w, "\n", "/\n")
+}
+
+func darkenText(s string) string {
+	cw := []string{}
+	for _, w := range strings.Split(s, "\n") {
+		cw = append(cw, color.HiBlackString(w))
+	}
+	return strings.Join(cw, "\n")
+}
+
+func renderTable(ctx context.Context, fr *bincapz.FileReport, w io.Writer, rc tableConfig) {
 	title := rc.Title
 
 	path := fr.Path
@@ -149,7 +198,6 @@ func renderTable(ctx context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 	}
 
 	if fr.Skipped != "" {
-		// fmt.Printf("%s - skipped: %s\n", path, fr.Skipped)
 		return
 	}
 
@@ -174,28 +222,24 @@ func renderTable(ctx context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 
 	data := [][]string{}
 
-	for k, v := range fr.Meta {
-		if ignoreMeta[k] {
-			data = append(data, []string{"meta", k, v})
-		}
-	}
-
 	tWidth := terminalWidth(ctx)
-	keyWidth := 36
-	riskWidth := 7
-	padding := 6
-	maxKeyLen := 0
+	keyWidth := 24
+	if tWidth >= 120 {
+		keyWidth = 32
+	}
+	maxEvidenceWidth := 0
 
 	for _, k := range kbs {
-		key := forceWrap(k.Key, keyWidth)
-		if len(key) > maxKeyLen {
-			maxKeyLen = len(key)
+		for _, e := range k.Behavior.MatchStrings {
+			if len(e) > maxEvidenceWidth {
+				maxEvidenceWidth = len(e)
+			}
 		}
 	}
 
-	descWidth := tWidth - maxKeyLen - riskWidth - padding
-	if descWidth > 120 {
-		descWidth = 120
+	descWidth := tWidth - maxEvidenceWidth - keyWidth - 12
+	if descWidth > 54 {
+		descWidth = 54
 	}
 
 	for _, k := range kbs {
@@ -211,103 +255,50 @@ func renderTable(ctx context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 				desc = fmt.Sprintf("by %s", k.Behavior.RuleAuthor)
 			}
 		}
+		evidence := strings.Join(k.Behavior.MatchStrings, "\n")
 
-		key := forceWrap(k.Key, keyWidth)
-		words, _ := tablewriter.WrapString(desc, descWidth)
-		desc = strings.Join(words, "\n")
-		if len(k.Behavior.Values) > 0 {
-			values := strings.Join(k.Behavior.Values, "\n")
-			before := " \""
-			after := "\""
-			if (len(desc) + len(values) + 3) > descWidth {
-				before = "\n"
-				after = ""
-			}
-			desc = fmt.Sprintf("%s:%s%s%s", desc, before, forceWrap(strings.Join(k.Behavior.Values, "\n"), descWidth), after)
-		}
-
-		// lowercase first character for consistency
-		desc = strings.ToLower(string(desc[0])) + desc[1:]
-		risk := fmt.Sprintf("%d/%s", k.Behavior.RiskScore, shortRisk(k.Behavior.RiskLevel))
+		risk := riskColor(ShortRisk(k.Behavior.RiskLevel))
 		if k.Behavior.DiffAdded || rc.DiffAdded {
-			risk = fmt.Sprintf("+%s", risk)
-		}
-		if k.Behavior.DiffRemoved || rc.DiffRemoved {
-			risk = fmt.Sprintf("-%s", risk)
+			if rc.SkipAdded {
+				continue
+			}
+			risk = fmt.Sprintf("%s%s", color.HiWhiteString("+"), riskColor(ShortRisk(k.Behavior.RiskLevel)))
 		}
 
-		data = append(data, []string{risk, key, desc})
+		wKey := wrapKey(k.Key, keyWidth)
+		wDesc := wrap(desc, descWidth)
+
+		if k.Behavior.DiffRemoved || rc.DiffRemoved {
+			if rc.SkipRemoved {
+				continue
+			}
+			risk = fmt.Sprintf("%s%s", color.WhiteString("-"), riskColor(ShortRisk(k.Behavior.RiskLevel)))
+			evidence = darkenText(evidence)
+		}
+
+		data = append(data, []string{risk, wKey, wDesc, evidence})
 	}
 
 	if title != "" {
-		fmt.Fprintf(w, "%s\n", title)
+		fmt.Fprintf(w, "%s", title)
 	}
+	fmt.Fprintf(w, "\n")
 
 	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"risk", "key", "description", "evidence"})
+
 	table.SetAutoWrapText(false)
-	table.SetBorder(false)
+	table.SetAutoFormatHeaders(true)
+	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
+	table.SetAlignment(tablewriter.ALIGN_LEFT)
 	table.SetCenterSeparator("")
-	maxDescWidth := 0
-	maxRiskWidth := 0
-	for _, d := range data {
-		if len(d[0]) > maxRiskWidth {
-			maxRiskWidth = len(d[0])
-		}
-		for _, l := range strings.Split(d[2], "\n") {
-			if len(l) > maxDescWidth {
-				maxDescWidth = len(l)
-			}
-		}
-	}
-
-	tableWidth := maxKeyLen + maxDescWidth + padding + maxRiskWidth
-	fmt.Fprintf(w, "%s\n", strings.Repeat("-", tableWidth))
-	table.SetNoWhiteSpace(true)
+	table.SetColumnSeparator("")
+	table.SetRowSeparator("-")
+	table.SetHeaderLine(true)
+	table.SetBorder(true)
 	table.SetTablePadding("  ")
-	descColor := tablewriter.Normal
-
-	for _, d := range data {
-		keyColor := tablewriter.Normal
-		riskColor := tablewriter.Normal
-
-		if strings.HasPrefix(d[0], "+") {
-			keyColor = tablewriter.FgHiWhiteColor
-		}
-		if strings.HasPrefix(d[0], "-") {
-			keyColor = tablewriter.FgHiBlackColor
-		}
-
-		if strings.Contains(d[0], "LOW") {
-			riskColor = tablewriter.FgGreenColor
-			if strings.HasPrefix(d[0], "+") {
-				riskColor = tablewriter.FgHiGreenColor
-			}
-		}
-
-		if strings.Contains(d[0], "MED") {
-			riskColor = tablewriter.FgYellowColor
-			if strings.HasPrefix(d[0], "-") {
-				riskColor = tablewriter.FgHiYellowColor
-			}
-		}
-
-		if strings.Contains(d[0], "HIGH") {
-			riskColor = tablewriter.FgRedColor
-			if strings.HasPrefix(d[0], "+") {
-				riskColor = tablewriter.FgHiRedColor
-			}
-		}
-		if strings.Contains(d[0], "CRIT") {
-			riskColor = tablewriter.FgMagentaColor
-			if strings.HasPrefix(d[0], "+") {
-				riskColor = tablewriter.FgHiMagentaColor
-			}
-		}
-
-		table.Rich(d, []tablewriter.Colors{{riskColor}, {keyColor}, {descColor}})
-
-		//		table.Append(d)
-	}
+	table.SetNoWhiteSpace(true)
+	table.AppendBulk(data)
 	table.Render()
 	fmt.Fprintf(w, "\n")
 }

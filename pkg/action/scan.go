@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
+	"github.com/chainguard-dev/bincapz/pkg/render"
 	"github.com/chainguard-dev/bincapz/pkg/report"
 	"github.com/chainguard-dev/clog"
 	"github.com/hillu/go-yara/v4"
@@ -88,6 +89,13 @@ func recursiveScan(ctx context.Context, c Config) (*bincapz.Report, error) {
 	logger.Infof("%d rules loaded", len(yrs.GetRules()))
 
 	for _, sp := range c.ScanPaths {
+		if c.OCI {
+			var err error
+			sp, err = oci(sp)
+			if err != nil {
+				return nil, fmt.Errorf("failed to prepare OCI image for scanning: %w", err)
+			}
+		}
 		rp, err := findFilesRecursively(ctx, sp)
 		if err != nil {
 			return nil, fmt.Errorf("find files: %w", err)
@@ -112,6 +120,11 @@ func recursiveScan(ctx context.Context, c Config) (*bincapz.Report, error) {
 			}
 			r.Files[p] = *fr
 		}
+		if c.OCI {
+			if err := os.RemoveAll(sp); err != nil {
+				logger.Errorf("remove %s: %v", sp, err)
+			}
+		}
 	}
 
 	return r, nil
@@ -125,6 +138,13 @@ func Scan(ctx context.Context, c Config) (*bincapz.Report, error) {
 	for path, rf := range r.Files {
 		if rf.RiskScore < c.MinFileScore {
 			delete(r.Files, path)
+		}
+	}
+
+	if c.Stats {
+		err = render.Statistics(r)
+		if err != nil {
+			return r, err
 		}
 	}
 	return r, nil

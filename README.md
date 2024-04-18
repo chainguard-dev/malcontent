@@ -24,15 +24,28 @@ Enumerates program capabilities and malicious behaviors using fragment analysis.
 
 ## Requirements
 
-* go 1.21+
-* yara 4.3+ library - you can use this one-liner to install it if necessary:
+A container runtime environment such as Podman or Docker, or local developer tools:
+
+* [go](https://go.dev/) 1.21+
+* [pkg-config](https://www.freedesktop.org/wiki/Software/pkg-config/) - included in many UNIX distributions
+* [yara](https://virustotal.github.io/yara/)
+
+## Installation
+
+### Containerized
+
+`docker pull cgr.dev/chainguard/bincapz:latest`
+
+### Local
+
+Install YARA (dependency):
 
 ```shell
 brew install yara || sudo apt install libyara-dev \
   || sudo dnf install yara-devel || sudo pacman -S yara
 ```
 
-## Installation
+Install bincapz:
 
 ```shell
 go install github.com/chainguard-dev/bincapz@latest
@@ -120,13 +133,14 @@ bincapz --format=json <file> | jq  '.Files.[].Behaviors | keys'
 
 ## Supported Flags
 
-* `--all`: Ignore nothing, show all
+* `--all`: ignore nothing, show all
 * `--data-files`: include files that are detected to as non-program (binary or source) files
 * `--diff`: show capability drift between two files
 * `--format` string: Output type. Valid values are: json, markdown, simple, terminal, yaml (default "terminal")
 * `--ignore-tags` string: Rule tags to ignore
 * `--min-level`: minimum suspicion level to report (1=low, 2=medium, 3=high, 4=critical) (default 1)
 * `--omit-empty`: omit files that contain no matches
+* `--stats`: display statistics for risk level and `programkind`
 * `--third-party`: include third-party rules, which may have licensing restrictions (default true)
 
 ## FAQ

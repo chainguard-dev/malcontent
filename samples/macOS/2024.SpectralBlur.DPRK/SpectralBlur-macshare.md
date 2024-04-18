@@ -1,6 +1,6 @@
 ## macOS/2024.SpectralBlur.DPRK/SpectralBlur-macshare
 
-Overall risk: 🔥 3/HIGH
+Overall risk: 🔥 HIGH
 
 |   RISK   |           KEY           |                     DESCRIPTION                     |
 |----------|-------------------------|-----------------------------------------------------|
