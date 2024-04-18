@@ -14,8 +14,28 @@ rule iptables_disable : critical {
 		description = "stops or disables the iptables firewall"
 		ref = "https://www.netfilter.org/projects/iptables/"
 	strings:
-		$ref = /[\w ]{0,16} iptables (off|stop|disable)/
-		$ref2 = /[\w ]{0,16} (stop|disable) iptables/
+		$systemctl = /systemctl[\w\- ]{0,16} (stop|disable) iptables/
+		$service = /service[\w\- ]{0,16} iptables (stop|disable)/
+	condition:
+		any of them
+}
+
+rule iptables_flush : notable {
+	meta:
+		description = "flushes firewall rules"
+		ref = "https://www.netfilter.org/projects/iptables/"
+	strings:
+		$ref = /iptables -F[\w]{0,16}/
+	condition:
+		any of them
+}
+
+rule iptables_delete : notable {
+	meta:
+		description = "deletes firewall rules"
+		ref = "https://www.netfilter.org/projects/iptables/"
+	strings:
+		$ref = /iptables -X[\w]{0,16}/
 	condition:
 		any of them
 }

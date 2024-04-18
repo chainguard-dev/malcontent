@@ -1,9 +1,11 @@
 rule firefox_cookies : suspicious {
 	meta:
-		description = "Accesses Firefox cookies"
+		description = "access Firefox cookies"
 	strings:
 		$firefox = "Firefox"
-		$cookie = "cookies.sqlite"
+		$fcookie = "cookies.sqlite"
+
+		$not_chromium = "CHROMIUM_TIMESTAMP"
 	condition:
-		all of them
+		all of ($f*) and none of ($not*)
 }

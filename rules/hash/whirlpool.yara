@@ -1,6 +1,6 @@
 rule whirlpool : notable {
 	meta:
-		description = "Uses the WHIRLPOOL hash function (sometimes used for cryptomining"
+		description = "hash function often used for cryptomining"
 		ref = "https://en.wikipedia.org/wiki/Whirlpool_(hash_function)"
 	strings:
 		$ref = "WHIRLPOOL" fullword

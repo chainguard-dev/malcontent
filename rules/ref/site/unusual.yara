@@ -9,7 +9,7 @@ rule unusual_http_hostname : suspicious {
     hash_2021_trojan_Mirai_gnlsp = "bc5c2358e58876be7955fa0c8f5514f4d35e5353b93ba091216b2371470da988"
     hash_2021_trojan_Mirai_Tsunami = "c8aeb927cd1b897a9c31199f33a6df9f297707bed1aa0e66d167270f1fde6ff5"
   strings:
-    $http_long_nodename = /https*:\/\/\w{16,}\//
+    $http_long_nodename = /https*:\/\/[a-zA-Z0-9]{16,64}\//
     $http_exotic_tld = /https*:\/\/[\w\-\.]+\.(vip|red|cc|wtf|zw|bd|ke|ru|am|sbs|date|pw|quest|cd|bid|xyz|cm|xxx|casino|poker)\//
     $not_electron = "ELECTRON_RUN_AS_NODE"
     $not_mail_ru = "go.mail.ru"

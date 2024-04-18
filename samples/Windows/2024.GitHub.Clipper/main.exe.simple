@@ -11,6 +11,7 @@ crypto/aes
 crypto/ecdsa
 crypto/ed25519
 crypto/tls
+databases/leveldb
 databases/sqlite
 encoding/base64
 encoding/json

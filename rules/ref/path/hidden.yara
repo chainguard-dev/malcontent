@@ -1,7 +1,7 @@
 
 rule dynamic_hidden_path : notable {
 	meta:
-		description = "References a hidden file that can be generated dynamically"
+		description = "hidden path generated dynamically"
 		ref = "https://objective-see.org/blog/blog_0x73.html"
 	strings:
 		$ref = /%s\/\.[a-z][\w-]{0,32}/
@@ -12,7 +12,7 @@ rule dynamic_hidden_path : notable {
 
 rule static_hidden_path {
 	meta:
-		description = "Possible hidden file path"
+		description = "possible hidden file path"
 	strings:
 		$ref = /\/[a-z]{3,10}[\w\/]{0,24}\/\.\w[\w\_\-\.]{0,16}/
 	condition:
@@ -21,7 +21,7 @@ rule static_hidden_path {
 
 rule hidden_path {
   meta:
-	description = "Hidden file path in a system directory"
+	description = "hidden path in a system directory"
     hash_2016_trojan_Eleanor_eleanr_A_timegrabber = "2532a3feeb656c5467bedfcc0cb4bfa3eb26bcc36b33a51b13f38ae2eef22797"
     hash_2016_trojan_Eleanor_eleanr_A_plist = "a975d8232b264e2981559b2e76f779335af37605ca300906fea737f125914c4b"
     hash_2016_Eleanor_eleanr_check_hostname = "8b1d98777bd98faeeaed9f2289d8dba8e34c46c694f6f31141404853c3af239d"
@@ -60,7 +60,7 @@ rule hidden_path {
 
 rule hidden_library : suspicious {
   meta:
-	description = "Hidden file path in a Library directory"
+	description = "hidden path in a Library directory"
     hash_2016_Calisto = "81c127c3cceaf44df10bb3ceb20ce1774f6a9ead0db4bd991abf39db828661cc"
     hash_2020_MacOS_TinkaOTP = "90fbc26c65e4aa285a3f7ee6ff8a3a4318a8961ebca71d47f51ef0b4b7829fd0"
     hash_2016_Eleanor_eleanr_check_hostname = "8b1d98777bd98faeeaed9f2289d8dba8e34c46c694f6f31141404853c3af239d"

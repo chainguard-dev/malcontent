@@ -3,6 +3,11 @@ rule usr_sbin_telnetd : suspicious {
 		description = "References /usr/sbin/telnetd"
 	strings:
 		$ref = "/usr/sbin/telnetd"
+
+		// ignore lists of busybox hard links
+		$not_dos2unix = "/usr/bin/dos2unix"
+		$not_setfont = "/usr/sbin/setfont"
+
 	condition:
-		any of them
+		$ref and none of ($not*)
 }

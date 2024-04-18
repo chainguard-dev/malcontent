@@ -1,6 +1,6 @@
 rule argparse : harmless {
   meta:
-	description = "Parses command-line arguments"
+	description = "parse command-line arguments"
   strings:
 	$ref = "argparse" fullword
 	$ref2 = "optarg" fullword

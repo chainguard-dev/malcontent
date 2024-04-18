@@ -1,6 +1,6 @@
 rule fd_write : harmless {
 	meta:
-		description = "Writes to file descriptors"
+		description = "write to file descriptor"
 		pledge = "stdio"
 		syscall = "pwrite64"
 	strings:
@@ -13,7 +13,7 @@ rule fd_write : harmless {
 
 rule fwrite : harmless {
 	meta:
-		description = "Write binary to a file descriptor"
+		description = "write binary to file descriptor"
 		ref = "https://man7.org/linux/man-pages/man3/fwrite.3p.html"
 		pledge = "stdio"
 		syscall = "pwrite64"

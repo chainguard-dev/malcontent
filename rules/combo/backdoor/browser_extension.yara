@@ -18,6 +18,8 @@ rule browser_extension_installer : suspicious {
   strings:
     $a_loadExtensionFlag = "--load-extension"
     $a_chrome = "Chrome"
+
+	$not_chromium = "CHROMIUM_TIMESTAMP"
  condition:
-    all of ($a*)
+    all of ($a*) and none of ($not*)
 }

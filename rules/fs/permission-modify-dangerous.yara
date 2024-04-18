@@ -12,7 +12,10 @@ rule chmod_dangerous_exec_val : suspicious exfil {
 	description = "Makes a world writeable executable"
   strings:
 	$ref = /chmod [\-\w ]{0,4}777[ \$\w\/\.]{0,32}/
+
+	$not_dev_shm = "chmod 1777 /dev/shm"
+	$not_chromium = "CHROMIUM_TIMESTAMP"
   condition:
-	$ref
+	$ref and not ($not_dev_shm and $not_chromium)
 }
 

@@ -3,6 +3,8 @@ rule hardcoded_onion : critical {
 	description = "Contains hardcoded TOR onion address"
   strings:
     $ref = /[a-z0-9]{56}\.onion/
+
+	$not_listen = "listen.onion"
   condition:
-	$ref
+	$ref and none of ($not*)
 }

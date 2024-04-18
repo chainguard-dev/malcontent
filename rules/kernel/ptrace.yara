@@ -1,7 +1,7 @@
 rule ptrace : notable {
 	meta:
 		capability = "CAP_SYS_PTRACE"
-		description = "Trace calls within arbitrary processes"
+		description = "trace or modify system calls"
 	strings:
 		$ref = "ptrace" fullword
 	condition:
