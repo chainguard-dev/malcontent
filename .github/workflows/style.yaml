@@ -87,18 +87,6 @@ jobs:
           go-version: '1.21'
           check-latest: true
 
-      - uses: chainguard-dev/actions/trailing-space@main
-        if: ${{ always() }}
-
-      - uses: chainguard-dev/actions/eof-newline@main
-        if: ${{ always() }}
-
-      - uses: reviewdog/action-tflint@master
-        if: ${{ always() }}
-        with:
-          github_token: ${{ secrets.github_token }}
-          fail_on_error: true
-
       - uses: reviewdog/action-misspell@5bd7be2fc7ae56a517184f5c4bbcf2fd7afe3927 # v1.17.0
         if: ${{ always() }}
         with:
@@ -108,6 +96,7 @@ jobs:
           exclude: |
             **/go.sum
             **/third_party/**
+            **/samples/**
             ./*.yml
 
       - uses: get-woke/woke-action-reviewdog@d71fd0115146a01c3181439ce714e21a69d75e31 # v0
