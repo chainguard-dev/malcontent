@@ -78,9 +78,9 @@ func Statistics(r *bincapz.Report) error {
 	pkgSymbol := "📦"
 	fmt.Printf("%s Statistics\n", statsSymbol)
 	fmt.Println("---")
-	fmt.Printf("%s Risk Level Percentage\n", riskSymbol)
-	fmt.Println("---")
 	fmt.Printf("\033[1;37m%-12s \033[1;37m%10s\033[0m\n", "Total Risks", fmt.Sprintf("%d", totalRisks))
+	fmt.Println("---")
+	fmt.Printf("%s Risk Level Percentage\n", riskSymbol)
 	fmt.Println("---")
 	fmt.Printf("\033[1;37m%-12s  \033[1;37m%10s %s\033[0m\n", "Risk Level", "Percentage", "Count/Total")
 	for _, stat := range riskStats {
@@ -102,9 +102,9 @@ func Statistics(r *bincapz.Report) error {
 	}
 
 	fmt.Println("---")
-	fmt.Printf("%s Package Risk Percentage\n", pkgSymbol)
-	fmt.Println("---")
 	fmt.Printf("\033[1;37m%-12s \033[1;37m%10s\033[0m\n", "Total Packages", fmt.Sprintf("%d", totalPkgs))
+	fmt.Println("---")
+	fmt.Printf("%s Package Risk Percentage\n", pkgSymbol)
 	fmt.Println("---")
 	fmt.Printf("\033[1;37m%-*s  \033[1;37m%10s %s\033[0m\n", width, "Package", "Percentage", "Count/Total")
 	for _, pkg := range pkgStats {
