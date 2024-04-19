@@ -53,5 +53,6 @@ test:
 
 .PHONY: update-yaraforge
 update-yaraforge:
+	mkdir -p out
 	curl -sL -o out/yaraforge.zip https://github.com/YARAHQ/yara-forge/releases/latest/download/yara-forge-rules-full.zip
 	unzip -o -j out/yaraforge.zip packages/full/yara-rules-full.yar -d rules/third_party/
