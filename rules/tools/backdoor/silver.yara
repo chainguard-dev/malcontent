@@ -22,3 +22,13 @@ rule c2_implant_sliver_functions : critical {
   condition:
     filesize < 20971520 and 2 of them
 }
+
+rule beaconjitter_xor : suspicious {
+  meta:
+	description = "Sliver C2 implant"
+  strings:
+	// extracted from https://github.com/Neo23x0/god-mode-rules/blob/master/godmode.yar
+	$ref = "BeaconJitter" xor
+  condition:
+     any of them
+}
