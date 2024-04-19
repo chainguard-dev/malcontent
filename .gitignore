@@ -17,3 +17,6 @@ go.work
 
 # added by lint-install
 out/
+
+# macOS
+*.DS_Store
