@@ -53,7 +53,7 @@ var yaraForgeJunkWords = map[string]bool{
 	"suspicious":        true,
 }
 
-// dropRules are noisy 3rd party rules we drop results for
+// dropRules are noisy 3rd party rules to silently ignore.
 var dropRules = map[string]bool{
 	"3P/godmoderules/iddqd/god/mode": true,
 }
