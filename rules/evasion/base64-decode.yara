@@ -1,6 +1,6 @@
 rule base64_decode : notable python {
   meta:
-	description = "decodes base64 strings"
+	description = "decode base64 strings"
   strings:
 	$b64decode = "b64decode"
   condition:
@@ -9,9 +9,18 @@ rule base64_decode : notable python {
 
 rule urlsafe_decode64 : notable ruby {
   meta:
-	description = "decodes base64 strings"
+	description = "decode base64 strings"
   strings:
 	$urlsafe_decode64_ruby = "urlsafe_decode64"
+  condition:
+	any of them
+}
+
+rule powershell_decode : notable {
+  meta:
+	description = "decode base64 strings"
+  strings:
+	$ref = "[System.Convert]::FromBase64String" ascii
   condition:
 	any of them
 }
