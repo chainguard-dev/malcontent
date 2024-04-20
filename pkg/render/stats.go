@@ -8,7 +8,9 @@ import (
 	"github.com/chainguard-dev/bincapz/pkg/report"
 )
 
-func riskStatistics(files map[string]bincapz.FileReport, riskMap map[int][]string, riskStats map[int]float64) []bincapz.IntMetric {
+func riskStatistics(files map[string]bincapz.FileReport) ([]bincapz.IntMetric, int) {
+	riskMap := make(map[int][]string)
+	riskStats := make(map[int]float64)
 	for path, rf := range files {
 		riskMap[rf.RiskScore] = append(riskMap[rf.RiskScore], path)
 		for riskLevel := range riskMap {
@@ -17,18 +19,26 @@ func riskStatistics(files map[string]bincapz.FileReport, riskMap map[int][]strin
 	}
 
 	var stats []bincapz.IntMetric
+	total := func() int {
+		var t int
+		for _, v := range riskMap {
+			t += len(v)
+		}
+		return t
+	}
 	for k, v := range riskStats {
-		stats = append(stats, bincapz.IntMetric{Key: k, Value: v})
+		stats = append(stats, bincapz.IntMetric{Key: k, Value: v, Count: len(riskMap[k]), Total: total()})
 	}
 	sort.Slice(stats, func(i, j int) bool {
 		return stats[i].Value > stats[j].Value
 	})
 
-	return stats
+	return stats, total()
 }
 
-func pkgStatistics(files map[string]bincapz.FileReport, pkgMap map[string]int) ([]bincapz.StrMetric, int) {
-	var numNamespaces int
+func pkgStatistics(files map[string]bincapz.FileReport) ([]bincapz.StrMetric, int, int) {
+	numNamespaces := 0
+	pkgMap := make(map[string]int)
 	pkg := make(map[string]float64)
 	for _, rf := range files {
 		for _, namespace := range rf.PackageRisk {
@@ -51,29 +61,28 @@ func pkgStatistics(files map[string]bincapz.FileReport, pkgMap map[string]int) (
 	}
 	var stats []bincapz.StrMetric
 	for k, v := range pkg {
-		stats = append(stats, bincapz.StrMetric{Key: k, Value: v})
+		stats = append(stats, bincapz.StrMetric{Key: k, Value: v, Count: pkgMap[k], Total: numNamespaces})
 	}
 	sort.Slice(stats, func(i, j int) bool {
 		return stats[i].Value > stats[j].Value
 	})
-	return stats, width
+	return stats, width, numNamespaces
 }
 
 func Statistics(r *bincapz.Report) error {
-	riskMap := make(map[int][]string)
-	pkgMap := make(map[string]int)
-	statsMap := make(map[int]float64)
-	riskStats := riskStatistics(r.Files, riskMap, statsMap)
-	pkgStats, width := pkgStatistics(r.Files, pkgMap)
+	riskStats, totalRisks := riskStatistics(r.Files)
+	pkgStats, width, totalPkgs := pkgStatistics(r.Files)
 
 	statsSymbol := "📊"
 	riskSymbol := "⚠️ "
 	pkgSymbol := "📦"
 	fmt.Printf("%s Statistics\n", statsSymbol)
 	fmt.Println("---")
+	fmt.Printf("\033[1;37m%-12s \033[1;37m%10s\033[0m\n", "Total Risks", fmt.Sprintf("%d", totalRisks))
+	fmt.Println("---")
 	fmt.Printf("%s Risk Level Percentage\n", riskSymbol)
 	fmt.Println("---")
-	fmt.Printf("\033[1;37m%-12s \033[1;37m%10s\033[0m\n", "Risk Level", "Percentage")
+	fmt.Printf("\033[1;37m%-12s  \033[1;37m%10s %s\033[0m\n", "Risk Level", "Percentage", "Count/Total")
 	for _, stat := range riskStats {
 		level := ShortRisk(report.RiskLevels[stat.Key])
 		color := ""
@@ -89,15 +98,17 @@ func Statistics(r *bincapz.Report) error {
 		case "CRIT":
 			color = "\033[35m"
 		}
-		fmt.Printf("%s%-12s %10.2f%s\033[0m\n", color, fmt.Sprintf("%d/%s", stat.Key, ShortRisk(level)), stat.Value, "%")
+		fmt.Printf("%s%-12s %10.2f%s %d/%d\033[0m\n", color, fmt.Sprintf("%d/%s", stat.Key, ShortRisk(level)), stat.Value, "%", stat.Count, stat.Total)
 	}
 
 	fmt.Println("---")
+	fmt.Printf("\033[1;37m%-12s \033[1;37m%10s\033[0m\n", "Total Packages", fmt.Sprintf("%d", totalPkgs))
+	fmt.Println("---")
 	fmt.Printf("%s Package Risk Percentage\n", pkgSymbol)
 	fmt.Println("---")
-	fmt.Printf("\033[1;37m%-*s \033[1;37m%10s\033[0m\n", width, "Package", "Percentage")
+	fmt.Printf("\033[1;37m%-*s  \033[1;37m%10s %s\033[0m\n", width, "Package", "Percentage", "Count/Total")
 	for _, pkg := range pkgStats {
-		fmt.Printf("%-*s %10.2f%s\n", width, pkg.Key, pkg.Value, "%")
+		fmt.Printf("%-*s %10.2f%s %d/%d\n", width, pkg.Key, pkg.Value, "%", pkg.Count, pkg.Total)
 	}
 
 	return nil
