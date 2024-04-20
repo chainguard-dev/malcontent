@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net/url"
 	"sort"
 	"strings"
 
@@ -57,6 +58,20 @@ func (r Markdown) Full(ctx context.Context, rep bincapz.Report) error {
 	return nil
 }
 
+// generate a markdown link for matched text
+func matchLink(s string) string {
+	// it's probably the name of a matched YARA field, for example, if it's xor'ed data
+	if strings.HasPrefix(s, "$") {
+		return s
+	}
+
+	if strings.HasPrefix(s, "https:") || strings.HasPrefix(s, "http://") {
+		return fmt.Sprintf("[%s](%s)", s, s)
+	}
+
+	return fmt.Sprintf("[%s](https://github.com/search?q=%s&type=code)", s, url.QueryEscape(s))
+}
+
 func markdownTable(_ context.Context, fr *bincapz.FileReport, w io.Writer, rc tableConfig) {
 	path := fr.Path
 	if fr.Error != "" {
@@ -65,7 +80,6 @@ func markdownTable(_ context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 	}
 
 	if fr.Skipped != "" {
-		// fmt.Printf("%s - skipped: %s\n", path, fr.Skipped)
 		return
 	}
 
@@ -104,11 +118,21 @@ func markdownTable(_ context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 		if found {
 			desc = before
 		}
+
+		if k.Behavior.ReferenceURL != "" {
+			desc = fmt.Sprintf("[%s](%s)", desc, k.Behavior.ReferenceURL)
+		}
+
 		if k.Behavior.RuleAuthor != "" {
+			author := k.Behavior.RuleAuthor
+			if k.Behavior.RuleAuthorURL != "" {
+				author = fmt.Sprintf("[%s](%s)", author, k.Behavior.RuleAuthorURL)
+			}
+
 			if desc != "" {
-				desc = fmt.Sprintf("%s, by %s", desc, k.Behavior.RuleAuthor)
+				desc = fmt.Sprintf("%s, by %s", desc, author)
 			} else {
-				desc = fmt.Sprintf("by %s", k.Behavior.RuleAuthor)
+				desc = fmt.Sprintf("by %s", author)
 			}
 		}
 
@@ -125,7 +149,12 @@ func markdownTable(_ context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 		if strings.HasPrefix(risk, "+") {
 			key = fmt.Sprintf("**%s**", key)
 		}
-		evidence := strings.Join(k.Behavior.MatchStrings, "<br>")
+
+		matchLinks := []string{}
+		for _, m := range k.Behavior.MatchStrings {
+			matchLinks = append(matchLinks, matchLink(m))
+		}
+		evidence := strings.Join(matchLinks, "<br>")
 		data = append(data, []string{risk, key, desc, evidence})
 	}
 	table := tablewriter.NewWriter(w)

@@ -91,10 +91,14 @@ func yaraForgeKey(rule string) string {
 	return strings.ReplaceAll(key, "signature/base", "signature_base")
 }
 
+// yaraForge returns whether the rule is sourced from YARAForge.
+func yaraForge(src string) bool {
+	return strings.Contains(src, "yara-rules")
+}
+
 func generateKey(src string, rule string) string {
-	// It's Yara FORGE
-	if strings.Contains(src, "yara-rules") {
-		return yaraForgeKey(rule)]
+	if yaraForge(src) {
+		return yaraForgeKey(rule)
 	}
 
 	_, after, _ := strings.Cut(src, "third_party/")
@@ -110,15 +114,9 @@ func generateKey(src string, rule string) string {
 }
 
 func generateRuleURL(src string, rule string) string {
-	// It's Yara FORGE
-	if strings.Contains(src, "yara-rules") {
-		return ""
-	}
-
 	// TODO: get the exact lines to highlight
 	return fmt.Sprintf("https://github.com/chainguard-dev/bincapz/blob/main/rules/%s#%s", src, rule)
 }
-
 
 func ignoreMatch(tags []string, ignoreTags map[string]bool) bool {
 	for _, t := range tags {
@@ -303,16 +301,11 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 	pledges := []string{}
 	caps := []string{}
 	syscalls := []string{}
-	desc := ""
 	overallRiskScore := 0
 	riskCounts := map[int]int{}
 	packageRisks := []string{}
 
 	for _, m := range mrs {
-		author := ""
-		authorURL := ""
-		license := ""
-	
 		risk := behaviorRisk(m.Namespace, m.Tags)
 		if risk > overallRiskScore {
 			overallRiskScore = risk
@@ -326,7 +319,6 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 			continue
 		}
 
-
 		ruleURL := generateRuleURL(m.Namespace, m.Rule)
 		packageRisks = append(packageRisks, key)
 
@@ -335,44 +327,47 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 			RiskLevel:    RiskLevels[risk],
 			Values:       matchValues(key, m.Rule, m.Strings),
 			MatchStrings: matchStrings(m.Rule, m.Strings),
-			RuleURL: ruleURL,
+			RuleURL:      ruleURL,
 		}
 
+		// process YARA meta key/value pairs
 		for _, meta := range m.Metas {
-			switch meta.Identifier {
+			k := meta.Identifier
+			v := fmt.Sprintf("%s", meta.Value)
+
+			switch k {
 			case "source_url":
-				ruleURL = fmt.Sprintf("%s", meta.Value)
-				if len(ruleURL) > len(b.RuleURL) {
-					b.RuleURL = ruleURL
-				}
+				b.RuleURL = v
 			case "author":
-				author = fmt.Sprintf("%s", meta.Value)
-				if len(author) > len(b.RuleAuthor) {
-					b.RuleAuthor = author
+				b.RuleAuthor = v
+			case "author_url":
+				b.RuleAuthorURL = v
+			case "reference", "ref":
+				if yaraForge(m.Namespace) {
+					b.RuleAuthorURL = v
+					continue
 				}
-			case "reference", "author_url":
-				authorURL = fmt.Sprintf("%s", meta.Value)
-				if len(authorURL) > len(b.AuthorURL) {
-					b.RuleAuthorURL = authorURL
-				}
+				b.ReferenceURL = v
 			case "license", "license_url":
-				license = fmt.Sprintf("%s", meta.Value)
-				if len(license) > len(b.RuleLicense) {
-					b.RuleLicense = license
-				}
+				b.RuleLicense = v
 			case "description", "threat_name", "name":
-				desc = fmt.Sprintf("%s", meta.Value)
-				if len(desc) > len(b.Description) {
-					b.Description = desc
+				if len(v) > len(b.Description) {
+					b.Description = v
 				}
 			case "pledge":
-				pledges = append(pledges, fmt.Sprintf("%s", meta.Value))
+				pledges = append(pledges, v)
 			case "syscall":
-				sy := strings.Split(fmt.Sprintf("%s", meta.Value), ",")
+				sy := strings.Split(v, ",")
 				syscalls = append(syscalls, sy...)
 			case "cap":
-				caps = append(caps, fmt.Sprintf("%s", meta.Value))
+				caps = append(caps, v)
 			}
+		}
+
+		// This weird-looking heuristic fixes YARA Forge rules that were imported without a reference; for example, Elastic
+		if !strings.HasPrefix(b.RuleURL, b.RuleAuthorURL) {
+			b.ReferenceURL = b.RuleAuthorURL
+			b.RuleAuthorURL = ""
 		}
 
 		// Meta names are weird and unfortunate, depending if they hold a value
