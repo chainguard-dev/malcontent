@@ -89,7 +89,7 @@ func yaraForgeKey(rule string) string {
 func generateKey(src string, rule string) string {
 	// It's Yara FORGE
 	if strings.Contains(src, "yara-rules") {
-		return yaraForgeKey(rule)
+		return yaraForgeKey(rule)]
 	}
 
 	_, after, _ := strings.Cut(src, "third_party/")
@@ -103,6 +103,17 @@ func generateKey(src string, rule string) string {
 	key := strings.ReplaceAll(src, "-", "/")
 	return strings.ReplaceAll(key, ".yara", "")
 }
+
+func generateRuleURL(src string, rule string) string {
+	// It's Yara FORGE
+	if strings.Contains(src, "yara-rules") {
+		return ""
+	}
+
+	// TODO: get the exact lines to highlight
+	return fmt.Sprintf("https://github.com/chainguard-dev/bincapz/blob/main/rules/%s#%s", src, rule)
+}
+
 
 func ignoreMatch(tags []string, ignoreTags map[string]bool) bool {
 	for _, t := range tags {
@@ -189,6 +200,7 @@ func matchToString(ruleName string, m yara.MatchString) string {
 	if unprintableString(s) {
 		s = m.Name
 	}
+
 	// bad hack, can we do this in YARA?
 	if strings.Contains(m.Name, "xml_key_val") {
 		s = strings.ReplaceAll(s, "<key>", "")
@@ -287,13 +299,15 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 	caps := []string{}
 	syscalls := []string{}
 	desc := ""
-	author := ""
-	license := ""
 	overallRiskScore := 0
 	riskCounts := map[int]int{}
 	packageRisks := []string{}
 
 	for _, m := range mrs {
+		author := ""
+		authorURL := ""
+		license := ""
+	
 		risk := behaviorRisk(m.Namespace, m.Tags)
 		if risk > overallRiskScore {
 			overallRiskScore = risk
@@ -303,6 +317,8 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 			continue
 		}
 		key := generateKey(m.Namespace, m.Rule)
+
+		ruleURL := generateRuleURL(m.Namespace, m.Rule)
 		packageRisks = append(packageRisks, key)
 
 		b := bincapz.Behavior{
@@ -310,14 +326,25 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 			RiskLevel:    RiskLevels[risk],
 			Values:       matchValues(key, m.Rule, m.Strings),
 			MatchStrings: matchStrings(m.Rule, m.Strings),
+			RuleURL: ruleURL,
 		}
 
 		for _, meta := range m.Metas {
 			switch meta.Identifier {
+			case "source_url":
+				ruleURL = fmt.Sprintf("%s", meta.Value)
+				if len(ruleURL) > len(b.RuleURL) {
+					b.RuleURL = ruleURL
+				}
 			case "author":
 				author = fmt.Sprintf("%s", meta.Value)
 				if len(author) > len(b.RuleAuthor) {
 					b.RuleAuthor = author
+				}
+			case "reference", "author_url":
+				authorURL = fmt.Sprintf("%s", meta.Value)
+				if len(authorURL) > len(b.AuthorURL) {
+					b.RuleAuthorURL = authorURL
 				}
 			case "license", "license_url":
 				license = fmt.Sprintf("%s", meta.Value)

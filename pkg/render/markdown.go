@@ -94,14 +94,10 @@ func markdownTable(_ context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 
 	data := [][]string{}
 
-	for k, v := range fr.Meta {
-		data = append(data, []string{"meta", k, v})
-	}
 	if len(data) > 0 {
 		data = append(data, []string{"", "", ""})
 	}
 
-	maxDescWidth := 180
 	for _, k := range kbs {
 		desc := k.Behavior.Description
 		before, _, found := strings.Cut(desc, ". ")
@@ -116,20 +112,8 @@ func markdownTable(_ context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 			}
 		}
 
-		if len(k.Behavior.Values) > 0 {
-			values := strings.Join(k.Behavior.Values, "\n")
-			before := " \""
-			after := "\""
-			if (len(desc) + len(values) + 3) > maxDescWidth {
-				before = "\n"
-				after = ""
-			}
-			desc = fmt.Sprintf("%s:%s%s%s", desc, before, strings.Join(k.Behavior.Values, "\n"), after)
-		}
-
 		// lowercase first character for consistency
-		desc = strings.ToLower(string(desc[0])) + desc[1:]
-		risk := fmt.Sprintf("%d/%s", k.Behavior.RiskScore, k.Behavior.RiskLevel)
+		risk := k.Behavior.RiskLevel
 		if k.Behavior.DiffAdded || rc.DiffAdded {
 			risk = fmt.Sprintf("+%s", risk)
 		}
@@ -137,15 +121,16 @@ func markdownTable(_ context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 			risk = fmt.Sprintf("-%s", risk)
 		}
 
-		key := k.Key
+		key := fmt.Sprintf("[%s](%s)", k.Key, k.Behavior.RuleURL)
 		if strings.HasPrefix(risk, "+") {
 			key = fmt.Sprintf("**%s**", key)
 		}
-		data = append(data, []string{risk, key, desc})
+		evidence := strings.Join(k.Behavior.MatchStrings, "<br>")
+		data = append(data, []string{risk, key, desc, evidence})
 	}
 	table := tablewriter.NewWriter(w)
 	table.SetAutoWrapText(false)
-	table.SetHeader([]string{"Risk", "Key", "Description"})
+	table.SetHeader([]string{"Risk", "Key", "Description", "Evidence"})
 	table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
 	table.SetCenterSeparator("|")
 	table.AppendBulk(data) // Add Bulk Data
