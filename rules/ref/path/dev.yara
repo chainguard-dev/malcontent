@@ -6,5 +6,5 @@ rule dev_path : notable {
         $ignore_null = /\/dev\/nu[l]{1,2}/
         $ignore_shm = "/dev/shm/"
     condition:
-        $path and (none of ($ignore*))
+        $path and none of ($ignore*)
 }
