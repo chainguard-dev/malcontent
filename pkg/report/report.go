@@ -53,6 +53,11 @@ var yaraForgeJunkWords = map[string]bool{
 	"suspicious":        true,
 }
 
+// dropRules are noisy 3rd party rules to silently ignore.
+var dropRules = map[string]bool{
+	"3P/godmoderules/iddqd/god/mode": true,
+}
+
 var dateRe = regexp.MustCompile(`[a-z]{3}\d{1,2}`)
 
 func yaraForgeKey(rule string) string {
@@ -317,6 +322,10 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 			continue
 		}
 		key := generateKey(m.Namespace, m.Rule)
+		if dropRules[key] {
+			continue
+		}
+
 
 		ruleURL := generateRuleURL(m.Namespace, m.Rule)
 		packageRisks = append(packageRisks, key)

@@ -11,3 +11,14 @@ rule mem : suspicious {
 	condition:
 		$val and none of ($not*)
 }
+
+rule comsvcs_minidump : suspicious {
+  meta:
+	description = "dump process memory using comsvcs.ddl"
+	author = "Florian Roth"
+  strings:
+	// extracted from https://github.com/Neo23x0/god-mode-rules/blob/master/godmode.yar
+	$ref = /comsvcs(\.dll)?[, ]{1,2}(MiniDump|#24)/
+  condition:
+    any of them
+}
