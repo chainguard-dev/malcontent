@@ -61,11 +61,15 @@ type Report struct {
 }
 
 type IntMetric struct {
+	Count int
 	Key   int
+	Total int
 	Value float64
 }
 
 type StrMetric struct {
+	Count int
 	Key   string
+	Total int
 	Value float64
 }
