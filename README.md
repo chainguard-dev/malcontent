@@ -61,33 +61,26 @@ bincapz /bin/ping
 
 There are flags for controlling output (see the Usage section) and filtering out rules. Here's the `--format=markdown` output:
 
+{Overall risk: ⚠️  MEDIUM
 
-| RISK  |          KEY          |                      DESCRIPTION                       |
-|-------|-----------------------|--------------------------------------------------------|
-| meta  | entitlements          | com.apple.private.network.management.data.development  |
-|       |                       | com.apple.security.network.client                      |
-|       |                       | com.apple.security.network.server                      |
-| meta  | format                | macho                                                  |
-|       |                       |                                                        |
-| 1/LOW | net/hostname/resolve  | resolves network hosts via name                        |
-| 1/LOW | net/icmp              | iCMP (Internet Control Message Protocol), aka ping     |
-| 1/LOW | net/interface/get     | get network interfaces by name or index                |
-| 1/LOW | net/interface/list    | list network interfaces and their associated addresses |
-| 1/LOW | net/ip                | access the internet                                    |
-| 1/LOW | net/ip/multicast/send | send data to multiple nodes simultaneously             |
-| 1/LOW | net/ip/resolve        | resolves network hosts via IP address                  |
-| 1/LOW | net/ip/send/unicast   | send data to the internet                              |
-| 1/LOW | net/socket/connect    | initiate a connection on a socket                      |
-| 1/LOW | net/socket/receive    | receive a message from a socket                        |
-| 1/LOW | net/socket/send       | send a message to a socket                             |
-| 1/LOW | process/userid/set    | set real and effective user ID of current process      |
-| 2/MED | combo/net/scan_tool   | may scan networks: "connect                            |
-|       |                       | gethostbyname                                          |
-|       |                       | port                                                   |
-|       |                       | scan                                                   |
-|       |                       | socket"                                                |
-| 2/MED | net/ip/string         | converts IP address from byte to string                |
-
+|   RISK   |            KEY             |                                DESCRIPTION                                |           EVIDENCE           |
+|----------|----------------------------|---------------------------------------------------------------------------|------------------------------|
+| 2/MEDIUM | combo/net/raw_flooder      | raw sockets with multiple targets, possible DoS or security scanning tool | flood<br>raw socket<br>srand |
+| 2/MEDIUM | combo/recon/system_network | invasive recon val                                                        | ipv4=addr<br>ipv6=addr       |
+| 2/MEDIUM | net/interface/list         | list network interfaces                                                   | freeifaddrs<br>getifaddrs    |
+| 2/MEDIUM | net/ip/parse               | parses IP address (IPv4 or IPv6)                                          | inet_pton                    |
+| 2/MEDIUM | net/ip/string              | converts IP address from byte to string                                   | inet_ntoa<br>inet_ntop       |
+| 2/MEDIUM | net/raw_sockets            | able to send raw malformed IP packets                                     | SOCK_RAW<br>raw socket       |
+| 1/LOW    | net/hostport/parse         | network address and service translation                                   | freeaddrinfo<br>getaddrinfo  |
+| 1/LOW    | net/icmp                   | iCMP (Internet Control Message Protocol), aka ping                        | ICMP                         |
+| 1/LOW    | net/interface/get          | get network interfaces by name or index                                   | if_nametoindex               |
+| 1/LOW    | net/ip/multicast/send      | send data to multiple nodes simultaneously                                | multicast                    |
+| 1/LOW    | net/ip/send/unicast        | send data to the internet                                                 | unicast                      |
+| 1/LOW    | net/socket/local/address   | get local address of connected socket                                     | getsockname                  |
+| 1/LOW    | net/socket/receive         | receive a message from a socket                                           | recvmsg                      |
+| 1/LOW    | net/socket/send            | send a message to a socket                                                | sendmsg<br>sendto            |
+| 1/LOW    | process/userid/set         | set real and effective user ID of current process                         | setuid                       |
+| 1/LOW    | random/insecure            | generate random numbers insecurely                                        | srand                        |
 
 Behaviors are sorted by lowest to highest risk: this binary doesn't have anything particularly exciting about it. If you want to only show output for the most suspicious behaviors, use `--min-level=3`, which shows only "HIGH" or "CRITICAL" risk behaviors.
 
@@ -103,27 +96,32 @@ Here is a result using the 3CX compromise as a test case. Each of the lines that
 
 ## 🐙 changed behaviors: testdata/macOS/libffmpeg.dirty.dylib
 
-|  RISK   |                     KEY                      |                                                                   DESCRIPTION                                                                    |
-|---------|----------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
-| +1/LOW  | **compression/gzip**                         | works with gzip files                                                                                                                            |
-| +1/LOW  | **env/HOME**                                 | looks up the HOME directory for the current user                                                                                                 |
-| +1/LOW  | **fs/lock/update**                           | apply or remove an advisory lock on a file                                                                                                       |
-| +1/LOW  | **kernel/dispatch/semaphore**                | uses Dispatch Semaphores                                                                                                                         |
-| +1/LOW  | **kernel/hostname/get**                      | gets the hostname of the machine                                                                                                                 |
-| +1/LOW  | **net/http/accept/encoding**                 | able to decode multiple forms of HTTP responses (example: gzip)                                                                                  |
-| +1/LOW  | **random/insecure**                          | generate random numbers insecurely                                                                                                               |
-| +1/LOW  | **sync/semaphore/user**                      | uses semaphores to synchronize data between processes or threads                                                                                 |
-| +2/MED  | **exec/pipe**                                | uses popen to launch a program and pipe output to/from it                                                                                        |
-| +2/MED  | **fs/permission/modify**                     | modifies file permissions                                                                                                                        |
-| +2/MED  | **net/http/cookies**                         | able to access HTTP resources using cookies                                                                                                      |
-| +2/MED  | **net/url/request**                          | requests resources via URL                                                                                                                       |
-| +2/MED  | **ref/path/hidden**                          | references a hidden file that can be generated dynamically: "%s/.main_storage"                                                                   |
-| +2/MED  | **shell/arbitrary_command/dev_null**         | runs arbitrary commands redirecting output to /dev/null                                                                                          |
-| +4/CRIT | **3P/godmoderules/iddqd/god/mode**           | detects a wide array of cyber threats, from malware and ransomware to advanced persistent threats (APTs), by Florian Roth                        |
-| +4/CRIT | **3P/signature_base/3cxdesktopapp/backdoor** | detects 3CXDesktopApp MacOS Backdoor component, by X__Junior (Nextron Systems)                                                                   |
-| +4/CRIT | **3P/signature_base/nk/3cx**                 | detects malicious DYLIB files related to 3CX compromise, by Florian Roth (Nextron Systems)                                                       |
-| +4/CRIT | **3P/signature_base/susp/xored**             | detects suspicious single byte XORed keyword 'Mozilla/5.0' - it uses yara's XOR modifier and therefore cannot print the XOR key, by Florian Roth |
-| +4/CRIT | **3P/volexity/iconic**                       | detects the MACOS version of the ICONIC loader., by threatintel@volexity.com    
+Previous Risk: ⚠️  MEDIUM
+New Risk:      🚨 CRITICAL
+
+|    RISK     |                     KEY                      |                                                                   DESCRIPTION                                                                    |                                      EVIDENCE                                      |
+|-------------|----------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------|
+| +4/CRITICAL | **3P/signature_base/3cxdesktopapp/backdoor** | detects 3CXDesktopApp MacOS Backdoor component, by X__Junior (Nextron Systems)                                                                   | $op1<br>$op2<br>%s/.main_storage<br>%s/UpdateAgent                                 |
+| +4/CRITICAL | **3P/signature_base/nk/3cx**                 | detects malicious DYLIB files related to 3CX compromise, by Florian Roth (Nextron Systems)                                                       | $xc1<br>$xc2<br>$xc3                                                               |
+| +4/CRITICAL | **3P/signature_base/susp/xored**             | detects suspicious single byte XORed keyword 'Mozilla/5.0' - it uses yara's XOR modifier and therefore cannot print the XOR key, by Florian Roth | $xo1                                                                               |
+| +4/CRITICAL | **3P/volexity/iconic**                       | detects the MACOS version of the ICONIC loader., by threatintel@volexity.com                                                                     | $str1<br>$str2<br>$str3                                                            |
+| +4/CRITICAL | **evasion/xor/user_agent**                   | xOR'ed user agent, often found in backdoors, by Florian Roth                                                                                     | $Mozilla_5_0                                                                       |
+| +2/MEDIUM   | **exec/pipe**                                | launches program and reads its output                                                                                                            | _pclose<br>_popen                                                                  |
+| +2/MEDIUM   | **fs/permission/modify**                     | modifies file permissions                                                                                                                        | chmod                                                                              |
+| +2/MEDIUM   | **net/http/cookies**                         | able to access HTTP resources using cookies                                                                                                      | Cookie<br>HTTP                                                                     |
+| +2/MEDIUM   | **net/url/request**                          | requests resources via URL                                                                                                                       | NSMutableURLRequest                                                                |
+| +2/MEDIUM   | **ref/path/hidden**                          | hidden path generated dynamically                                                                                                                | %s/.main_storage                                                                   |
+| +2/MEDIUM   | **shell/arbitrary_command/dev_null**         | runs commands, discards output                                                                                                                   | "%s" >/dev/null                                                                    |
+| +1/LOW      | **compression/gzip**                         | works with gzip files                                                                                                                            | gzip                                                                               |
+| +1/LOW      | **env/HOME**                                 | looks up the HOME directory for the current user                                                                                                 | HOME<br>getenv                                                                     |
+| +1/LOW      | **fs/lock/update**                           | apply or remove an advisory lock on a file                                                                                                       | flock                                                                              |
+| +1/LOW      | **kernel/dispatch/semaphore**                | uses Dispatch Semaphores                                                                                                                         | dispatch_semaphore_signal                                                          |
+| +1/LOW      | **kernel/hostname/get**                      | gets the hostname of the machine                                                                                                                 | gethostname                                                                        |
+| +1/LOW      | **net/http/accept/encoding**                 | able to decode multiple forms of HTTP responses (example: gzip)                                                                                  | Accept-Encoding                                                                    |
+| +1/LOW      | **random/insecure**                          | generate random numbers insecurely                                                                                                               | _rand<br>srand                                                                     |
+| +1/LOW      | **ref/path/home_library**                    | path reference within ~/Library                                                                                                                  | /System/Library/Frameworks/CoreFoundation<br>/System/Library/Frameworks/Foundation |
+| +1/LOW      | **sync/semaphore/user**                      | uses semaphores to synchronize data between processes or threads                                                                                 | semaphore_create<br>semaphore_signal<br>semaphore_wait 
+
 
 If you like to do things the hard way, you can also store the JSON output and diff the keys by hand:
 
