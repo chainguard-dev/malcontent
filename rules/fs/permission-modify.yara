@@ -3,6 +3,7 @@ rule chmod : notable {
 		description = "modifies file permissions"
 		pledge = "fattr"
 		syscall = "chmod"
+		ref = "https://linux.die.net/man/1/chmod"
 	strings:
 		$chmod = "chmod" fullword
 		$dotChmod = "Chmod" fullword
@@ -17,6 +18,7 @@ rule fchmod : notamble {
 		description = "modifies file permissions"
 		pledge = "fattr"
 		syscall = "fchmodat"
+		ref = "https://linux.die.net/man/2/fchmodat"
 	strings:
 		$fchmod = "fchmod" fullword
 		$dotfchmod = ".Fchmod" fullword

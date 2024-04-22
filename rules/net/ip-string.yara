@@ -1,6 +1,7 @@
 rule inet_ntoa : notable {
 	meta:
 		pledge = "inet"
+		ref = "https://linux.die.net/man/3/inet_ntoa"
 		description = "converts IP address from byte to string"
 	strings:
 		$ref = "inet_ntoa" fullword
