@@ -16,6 +16,7 @@ net/socket/send
 process/chroot
 process/create
 random/insecure
+ref/path/dev
 ref/path/usr/sbin
 ref/program/ancient_gcc
 tty/vhangup
