@@ -15,7 +15,7 @@ Overall risk: 🔥 HIGH
 |          |                         | upload"                                             |
 | 2/MEDIUM | device/pseudo_terminal  | pseudo-terminal access functions                    |
 | 2/MEDIUM | exec/program            | executes external programs                          |
-| 2/MEDIUM | kernel/uname/get        | get system identification                           |
+| 2/MEDIUM | kernel/uname/get        | system identification (uname)                       |
 | 2/MEDIUM | net/download            | download files                                      |
 | 2/MEDIUM | net/ip/parse            | parses IP address                                   |
 | 2/MEDIUM | net/ip/string           | converts IP address from byte to string             |
@@ -30,7 +30,7 @@ Overall risk: 🔥 HIGH
 | 1/LOW    | net/socket/receive      | receive a message from a socket                     |
 | 1/LOW    | net/socket/send         | send a message to a socket                          |
 | 1/LOW    | process/create          | create a new child process using fork               |
-| 1/LOW    | process/multithreaded   | uses pthreads                                       |
+| 1/LOW    | process/multithreaded   | creates pthreads                                    |
 | 1/LOW    | process/username/get    | get login name                                      |
 | 1/LOW    | random/insecure         | generate random numbers insecurely                  |
 
