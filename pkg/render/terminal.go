@@ -19,7 +19,6 @@ import (
 	"golang.org/x/term"
 )
 
-
 var maxExampleCount = 8
 
 type KeyedBehavior struct {
