@@ -187,3 +187,13 @@ You'll need to install the `yara` C library:
 ```
 brew install yara || sudo apt install libyara-devel || sudo dnf install yara-devel || sudo pacman -S yara
 ```
+
+### MacOS: `bincapz` will damage your computer
+
+The Rules from https://github.com/mthcht/ThreatHunting-Keywords-yara-rules will set off macOS' malware protections.
+
+In order to compile the rules from this project there are a couple of options:
+1. Run `bincapz` by pulling the official image `docker pull cgr.dev/chainguard/bincapz:latest`
+2. Run a Linux container or VM of choice and install `bincapz` and its dependencies
+
+Disabling macOS' System Integrity Protection via `csrutil` to run `bincapz` with `--third-party` is *not* recommended.

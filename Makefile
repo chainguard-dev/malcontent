@@ -56,3 +56,8 @@ update-yaraforge:
 	mkdir -p out
 	curl -sL -o out/yaraforge.zip https://github.com/YARAHQ/yara-forge/releases/latest/download/yara-forge-rules-full.zip
 	unzip -o -j out/yaraforge.zip packages/full/yara-rules-full.yar -d rules/third_party/
+
+.PHONY: update-threathunting-keywords
+update-threathunting-keywords:
+	mkdir -p out
+	curl -sL -o rules/third_party/mthcht_thk_yara_rules.yar https://raw.githubusercontent.com/mthcht/ThreatHunting-Keywords-yara-rules/main/yara_rules/all.yara

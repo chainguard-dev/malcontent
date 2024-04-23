@@ -11,6 +11,7 @@ type Behavior struct {
 	RiskLevel    string `json:",omitempty" yaml:",omitempty"`
 	RuleAuthor   string `json:",omitempty" yaml:",omitempty"`
 	RuleLicense  string `json:",omitempty" yaml:",omitempty"`
+	RuleProject  string `json:",omitempty" yaml:",omitempty"`
 
 	DiffAdded   bool `json:",omitempty" yaml:",omitempty"`
 	DiffRemoved bool `json:",omitempty" yaml:",omitempty"`

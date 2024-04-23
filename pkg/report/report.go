@@ -253,6 +253,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 	desc := ""
 	author := ""
 	license := ""
+	project := ""
 	overallRiskScore := 0
 	riskCounts := map[int]int{}
 	packageRisks := []string{}
@@ -303,6 +304,11 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 				syscalls = append(syscalls, sy...)
 			case "cap":
 				caps = append(caps, fmt.Sprintf("%s", meta.Value))
+			case "reference":
+				project = fmt.Sprintf("%s", meta.Value)
+				if len(project) > len(b.RuleProject) {
+					b.RuleProject = project
+				}
 			}
 		}
 
