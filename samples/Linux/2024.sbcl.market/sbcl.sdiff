@@ -1,5 +1,4 @@
 *** changed: Linux/2024.sbcl.market/sbcl.dirty
 +data/embedded/zstd
 +evasion/packer/high_entropy
-+evasion/packer/zstd
 +net/dns/txt

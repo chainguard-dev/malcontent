@@ -11,6 +11,7 @@ rule raw_sockets : notable {
 		$ipproto_raw = "IPPROTO_RAW" fullword
 		$proc_net_raw = "/proc/net/raw"
 		$make_ip = "makeIPPacket"
+		$impacket = "impacket."
 	//	$rawsock = "RawSock"
 	condition:
 		any of them
