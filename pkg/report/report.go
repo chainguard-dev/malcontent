@@ -202,47 +202,6 @@ func matchToString(ruleName string, m yara.MatchString) string {
 	return strings.TrimSpace(s)
 }
 
-// extract important values.
-func matchValues(key string, ruleName string, ms []yara.MatchString) []string {
-	raw := []string{}
-
-	keyHasCombo := strings.Contains(key, "combo/")
-	keyHasRef := strings.Contains(key, "ref/")
-	keyHasXor := strings.Contains(key, "xor/")
-	keyHasBase64 := strings.Contains(key, "base64/")
-	ruleHasValue := strings.Contains(ruleName, "value")
-	ruleHasVal := strings.HasSuffix(ruleName, "val")
-
-	for _, m := range ms {
-		keep := false
-
-		switch {
-		case strings.HasSuffix(m.Name, "val"):
-			keep = true
-		case keyHasCombo:
-			keep = true
-		case keyHasRef:
-			keep = true
-		case keyHasXor:
-			keep = true
-		case keyHasBase64:
-			keep = true
-		case ruleHasValue:
-			keep = true
-		case ruleHasVal:
-			keep = true
-		}
-		if !keep {
-			continue
-		}
-
-		raw = append(raw, matchToString(ruleName, m))
-	}
-
-	slices.Sort(raw)
-	return longestUnique(raw)
-}
-
 // extract match strings.
 func matchStrings(ruleName string, ms []yara.MatchString) []string {
 	raw := []string{}
@@ -317,7 +276,6 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 		b := bincapz.Behavior{
 			RiskScore:    risk,
 			RiskLevel:    RiskLevels[risk],
-			Values:       matchValues(key, m.Rule, m.Strings),
 			MatchStrings: matchStrings(m.Rule, m.Strings),
 		}
 
@@ -352,10 +310,6 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 		if strings.HasPrefix(key, "meta/") {
 			k := strings.ReplaceAll(filepath.Dir(key), "meta/", "")
 			v := filepath.Base(key)
-			if len(b.Values) > 0 {
-				k = strings.ReplaceAll(key, "meta/", "")
-				v = strings.Join(b.Values, "\n")
-			}
 
 			fr.Meta[k] = v
 			continue
