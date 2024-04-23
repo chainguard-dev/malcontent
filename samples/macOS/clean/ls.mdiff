@@ -1,0 +1,16 @@
+## Changed: . [⚠️ MEDIUM → ✅ LOW]
+
+### 1 new behaviors
+
+| RISK |            KEY            |          DESCRIPTION          |                             EVIDENCE                              |
+|------|---------------------------|-------------------------------|-------------------------------------------------------------------|
+| +LOW | **fs/directory/traverse** | traverse filesystem hierarchy | _fts_children<br>_fts_close<br>_fts_open<br>_fts_read<br>_fts_set |
+
+### 3 removed behaviors
+
+|  RISK   |         KEY         |           DESCRIPTION            |                                                                                   EVIDENCE                                                                                   |
+|---------|---------------------|----------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| -MEDIUM | process/name/set    | get or set the programs name     | __progname                                                                                                                                                                   |
+| -LOW    | kernel/hostname/get | gets the hostname of the machine | gethostname                                                                                                                                                                  |
+| -LOW    | ref/site/url        | contains embedded HTTPS URLs     | https://gnu.org/licenses/gpl.html<br>https://translationproject.org/team/<br>https://wiki.xiph.org/MIME_Types_and_File_Extensions<br>https://www.gnu.org/software/coreutils/ |
+
