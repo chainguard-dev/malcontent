@@ -1,6 +1,7 @@
 rule bsd_rand {
 	meta:
 		description = "generate random numbers insecurely"
+		ref = "https://man.openbsd.org/rand"
 	strings:
 		$_rand = "_rand" fullword
 		$srand = "srand" fullword
@@ -11,6 +12,7 @@ rule bsd_rand {
 rule rand {
 	meta:
 		description = "generate random numbers insecurely"
+		ref = "https://man7.org/linux/man-pages/man3/srand.3.html"
 	strings:
 		$ref = "rand" fullword
 	condition:

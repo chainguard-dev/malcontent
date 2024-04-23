@@ -3,7 +3,7 @@ rule sendmsg {
 	meta:
 		description = "send a message to a socket"
 		syscall = "sendmsg,sendto"
-//		pledge = "rpath"
+		ref = "https://linux.die.net/man/2/sendmsg"
 	strings:
 		$sendmsg = "sendmsg" fullword
 		$sendto = "sendto" fullword
@@ -17,6 +17,7 @@ rule sendmsg {
 rule send {
 	meta:
 		description = "send a message to a socket"
+		ref = "https://linux.die.net/man/2/send"
 		syscall = "send"
 	strings:
 		$send = "send" fullword
