@@ -46,7 +46,7 @@ func (r Markdown) Full(ctx context.Context, rep bincapz.Report) error {
 		fr := fr
 		var title string
 		if fr.PreviousRelPath != "" {
-			title = fmt.Sprintf("## Moved: %s -> %s (similarity: %0.12)", fr.PreviousRelPath, f, fr.PreviousRelPathScore)
+			title = fmt.Sprintf("## Moved: %s -> %s (similarity: %0.2f)", fr.PreviousRelPath, f, fr.PreviousRelPathScore)
 		} else {
 			title = fmt.Sprintf("## Changed: %s", f)
 		}
