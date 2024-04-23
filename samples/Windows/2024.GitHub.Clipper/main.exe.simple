@@ -57,6 +57,7 @@ net/vnc
 privesc/uac_bypass
 process/list
 ref/extensions/office
+ref/path/dev
 ref/path/etc
 ref/path/etc/hosts
 ref/path/etc/resolv.conf
