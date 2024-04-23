@@ -120,7 +120,7 @@ New Risk:      🚨 CRITICAL
 | +1/LOW      | **net/http/accept/encoding**                 | able to decode multiple forms of HTTP responses (example: gzip)                                                                                  | Accept-Encoding                                                                    |
 | +1/LOW      | **random/insecure**                          | generate random numbers insecurely                                                                                                               | _rand<br>srand                                                                     |
 | +1/LOW      | **ref/path/home_library**                    | path reference within ~/Library                                                                                                                  | /System/Library/Frameworks/CoreFoundation<br>/System/Library/Frameworks/Foundation |
-| +1/LOW      | **sync/semaphore/user**                      | uses semaphores to synchronize data between processes or threads                                                                                 | semaphore_create<br>semaphore_signal<br>semaphore_wait 
+| +1/LOW      | **sync/semaphore/user**                      | uses semaphores to synchronize data between processes or threads                                                                                 | semaphore_create<br>semaphore_signal<br>semaphore_wait
 
 
 If you like to do things the hard way, you can also store the JSON output and diff the keys by hand:
@@ -148,7 +148,7 @@ bincapz --format=json <file> | jq  '.Files.[].Behaviors | keys'
 
 bincapz behaves similarly to the initial triage step most security analysts use when faced with an unknown binary: a cursory `strings` inspection. bincapz has several advantages over human analysis: the ability to match raw byte sequences, decrypt data, and a library of 12,000+ YARA rules that combines the experience of security engineers worldwide.
 
-This strategy works, as every program leaves traces of its capabilities in its contents, particularly on UNIX platforms. These fragments are typically  `libc` or `syscall` references or error codes. Scripting languages are easier to analyze due to their cleartext nature and are also supported. 
+This strategy works, as every program leaves traces of its capabilities in its contents, particularly on UNIX platforms. These fragments are typically `libc` or `syscall` references or error codes. Scripting languages are easier to analyze due to their cleartext nature and are also supported.
 
 ### Why not properly reverse-engineer binaries?
 
