@@ -59,5 +59,4 @@ update-yaraforge:
 
 .PHONY: update-threathunting-keywords
 update-threathunting-keywords:
-	mkdir -p out
 	curl -sL -o rules/third_party/mthcht_thk_yara_rules.yar https://raw.githubusercontent.com/mthcht/ThreatHunting-Keywords-yara-rules/main/yara_rules/all.yara
