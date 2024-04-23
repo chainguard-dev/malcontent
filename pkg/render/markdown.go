@@ -22,7 +22,6 @@ func NewMarkdown(w io.Writer) Markdown {
 	return Markdown{w: w}
 }
 
-
 func mdRisk(score int, level string) string {
 	return fmt.Sprintf("%s %s", riskEmoji(score), level)
 }
@@ -53,12 +52,12 @@ func (r Markdown) Full(ctx context.Context, rep bincapz.Report) error {
 		}
 		if fr.RiskScore != fr.PreviousRiskScore {
 			title = fmt.Sprintf("%s [%s → %s]",
-			title,
-			mdRisk(fr.PreviousRiskScore, fr.PreviousRiskLevel),
-			mdRisk(fr.RiskScore, fr.RiskLevel))
+				title,
+				mdRisk(fr.PreviousRiskScore, fr.PreviousRiskLevel),
+				mdRisk(fr.RiskScore, fr.RiskLevel))
 		}
 
-		fmt.Fprint(r.w, title + "\n\n")
+		fmt.Fprint(r.w, title+"\n\n")
 		added := 0
 		removed := 0
 		for _, b := range fr.Behaviors {
