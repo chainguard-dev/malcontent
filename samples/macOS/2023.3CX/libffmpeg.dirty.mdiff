@@ -1,29 +1,28 @@
-## Changed: .
+## Changed: . [⚠️ MEDIUM → 🚨 CRITICAL]
 
-Previous Risk: ⚠️  MEDIUM
-New Risk:      🚨 CRITICAL
+### 20 new behaviors
 
-|    RISK     |                     KEY                      |                                                                   DESCRIPTION                                                                    |
-|-------------|----------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
-| +4/CRITICAL | **3P/signature_base/3cxdesktopapp/backdoor** | detects 3CXDesktopApp MacOS Backdoor component, by X__Junior (Nextron Systems)                                                                   |
-| +4/CRITICAL | **3P/signature_base/nk/3cx**                 | detects malicious DYLIB files related to 3CX compromise, by Florian Roth (Nextron Systems)                                                       |
-| +4/CRITICAL | **3P/signature_base/susp/xored**             | detects suspicious single byte XORed keyword 'Mozilla/5.0' - it uses yara's XOR modifier and therefore cannot print the XOR key, by Florian Roth |
-| +4/CRITICAL | **3P/volexity/iconic**                       | detects the MACOS version of the ICONIC loader., by threatintel@volexity.com                                                                     |
-| +4/CRITICAL | **evasion/xor/user_agent**                   | xOR'ed user agent, often found in backdoors, by Florian Roth: "$Mozilla_5_0"                                                                     |
-| +2/MEDIUM   | **exec/pipe**                                | launches program and reads its output                                                                                                            |
-| +2/MEDIUM   | **fs/permission/modify**                     | modifies file permissions                                                                                                                        |
-| +2/MEDIUM   | **net/http/cookies**                         | able to access HTTP resources using cookies                                                                                                      |
-| +2/MEDIUM   | **net/url/request**                          | requests resources via URL                                                                                                                       |
-| +2/MEDIUM   | **ref/path/hidden**                          | hidden path generated dynamically: "%s/.main_storage"                                                                                            |
-| +2/MEDIUM   | **shell/arbitrary_command/dev_null**         | runs commands, discards output                                                                                                                   |
-| +1/LOW      | **compression/gzip**                         | works with gzip files                                                                                                                            |
-| +1/LOW      | **env/HOME**                                 | looks up the HOME directory for the current user                                                                                                 |
-| +1/LOW      | **fs/lock/update**                           | apply or remove an advisory lock on a file                                                                                                       |
-| +1/LOW      | **kernel/dispatch/semaphore**                | uses Dispatch Semaphores                                                                                                                         |
-| +1/LOW      | **kernel/hostname/get**                      | gets the hostname of the machine                                                                                                                 |
-| +1/LOW      | **net/http/accept/encoding**                 | able to decode multiple forms of HTTP responses (example: gzip)                                                                                  |
-| +1/LOW      | **random/insecure**                          | generate random numbers insecurely                                                                                                               |
-| +1/LOW      | **ref/path/home_library**                    | path reference within ~/Library: "/System/Library/Frameworks/CoreFoundation                                                                      |
-|             |                                              | /System/Library/Frameworks/Foundation"                                                                                                           |
-| +1/LOW      | **sync/semaphore/user**                      | uses semaphores to synchronize data between processes or threads                                                                                 |
+|   RISK    |                     KEY                      |                                                                   DESCRIPTION                                                                    |
+|-----------|----------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
+| +CRITICAL | **3P/signature_base/3cxdesktopapp/backdoor** | detects 3CXDesktopApp MacOS Backdoor component, by X__Junior (Nextron Systems)                                                                   |
+| +CRITICAL | **3P/signature_base/nk/3cx**                 | detects malicious DYLIB files related to 3CX compromise, by Florian Roth (Nextron Systems)                                                       |
+| +CRITICAL | **3P/signature_base/susp/xored**             | detects suspicious single byte XORed keyword 'Mozilla/5.0' - it uses yara's XOR modifier and therefore cannot print the XOR key, by Florian Roth |
+| +CRITICAL | **3P/volexity/iconic**                       | detects the MACOS version of the ICONIC loader., by threatintel@volexity.com                                                                     |
+| +CRITICAL | **evasion/xor/user_agent**                   | xOR'ed user agent, often found in backdoors, by Florian Roth: "$Mozilla_5_0"                                                                     |
+| +MEDIUM   | **exec/pipe**                                | launches program and reads its output                                                                                                            |
+| +MEDIUM   | **fs/permission/modify**                     | modifies file permissions                                                                                                                        |
+| +MEDIUM   | **net/http/cookies**                         | able to access HTTP resources using cookies                                                                                                      |
+| +MEDIUM   | **net/url/request**                          | requests resources via URL                                                                                                                       |
+| +MEDIUM   | **ref/path/hidden**                          | hidden path generated dynamically: "%s/.main_storage"                                                                                            |
+| +MEDIUM   | **shell/arbitrary_command/dev_null**         | runs commands, discards output                                                                                                                   |
+| +LOW      | **compression/gzip**                         | works with gzip files                                                                                                                            |
+| +LOW      | **env/HOME**                                 | looks up the HOME directory for the current user                                                                                                 |
+| +LOW      | **fs/lock/update**                           | apply or remove an advisory lock on a file                                                                                                       |
+| +LOW      | **kernel/dispatch/semaphore**                | uses Dispatch Semaphores                                                                                                                         |
+| +LOW      | **kernel/hostname/get**                      | gets the hostname of the machine                                                                                                                 |
+| +LOW      | **net/http/accept/encoding**                 | able to decode multiple forms of HTTP responses (example: gzip)                                                                                  |
+| +LOW      | **random/insecure**                          | generate random numbers insecurely                                                                                                               |
+| +LOW      | **ref/path/home_library**                    | path reference within ~/Library: "/System/Library/Frameworks/CoreFoundation                                                                      |
+|           |                                              | /System/Library/Frameworks/Foundation"                                                                                                           |
+| +LOW      | **sync/semaphore/user**                      | uses semaphores to synchronize data between processes or threads                                                                                 |
 

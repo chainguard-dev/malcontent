@@ -1,0 +1,20 @@
+## Changed: . [⚠️ MEDIUM → ✅ LOW]
+
+### 1 new behaviors
+
+| RISK |            KEY            |          DESCRIPTION          |
+|------|---------------------------|-------------------------------|
+| +LOW | **fs/directory/traverse** | traverse filesystem hierarchy |
+
+### 3 removed behaviors
+
+|  RISK   |         KEY         |                     DESCRIPTION                      |
+|---------|---------------------|------------------------------------------------------|
+| -MEDIUM | process/name/set    | get or set the programs name                         |
+| -LOW    | kernel/hostname/get | gets the hostname of the machine                     |
+| -LOW    | ref/site/url        | contains embedded HTTPS URLs:                        |
+|         |                     | https://gnu.org/licenses/gpl.html                    |
+|         |                     | https://translationproject.org/team/                 |
+|         |                     | https://wiki.xiph.org/MIME_Types_and_File_Extensions |
+|         |                     | https://www.gnu.org/software/coreutils/              |
+

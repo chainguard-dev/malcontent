@@ -22,37 +22,67 @@ func NewMarkdown(w io.Writer) Markdown {
 	return Markdown{w: w}
 }
 
+
+func mdRisk(score int, level string) string {
+	return fmt.Sprintf("%s %s", riskEmoji(score), level)
+}
+
 func (r Markdown) File(ctx context.Context, fr bincapz.FileReport) error {
-	markdownTable(ctx, &fr, r.w, tableConfig{Title: fmt.Sprintf("## %s\n\nOverall risk: %s", fr.Path, decorativeRisk(fr.RiskScore, fr.RiskLevel))})
+	markdownTable(ctx, &fr, r.w, tableConfig{Title: fmt.Sprintf("## %s [%s]", fr.Path, mdRisk(fr.RiskScore, fr.RiskLevel))})
 	return nil
 }
 
 func (r Markdown) Full(ctx context.Context, rep bincapz.Report) error {
 	for f, fr := range rep.Diff.Removed {
 		fr := fr
-		markdownTable(ctx, &fr, r.w, tableConfig{Title: fmt.Sprintf("## Deleted: %s", f), DiffRemoved: true})
+		markdownTable(ctx, &fr, r.w, tableConfig{Title: fmt.Sprintf("## Deleted: %s [%s]", f, mdRisk(fr.RiskScore, fr.RiskLevel)), DiffRemoved: true})
 	}
 
 	for f, fr := range rep.Diff.Added {
 		fr := fr
-		markdownTable(ctx, &fr, r.w, tableConfig{Title: fmt.Sprintf("## Added: %s\n\nOverall risk: %s", f, decorativeRisk(fr.RiskScore, fr.RiskLevel)), DiffAdded: true})
+		markdownTable(ctx, &fr, r.w, tableConfig{Title: fmt.Sprintf("## Added: %s [%s]", f, mdRisk(fr.RiskScore, fr.RiskLevel)), DiffAdded: true})
 	}
 
 	for f, fr := range rep.Diff.Modified {
 		fr := fr
 		var title string
 		if fr.PreviousRelPath != "" {
-			title = fmt.Sprintf("## Moved: %s -> %s (score: %f)", fr.PreviousRelPath, f, fr.PreviousRelPathScore)
+			title = fmt.Sprintf("## Moved: %s -> %s (similarity: %0.12)", fr.PreviousRelPath, f, fr.PreviousRelPathScore)
 		} else {
-			title = fmt.Sprintf("## Changed: %s\n", f)
+			title = fmt.Sprintf("## Changed: %s", f)
 		}
 		if fr.RiskScore != fr.PreviousRiskScore {
-			title = fmt.Sprintf("%s\nPrevious Risk: %s\nNew Risk:      %s",
-				title,
-				decorativeRisk(fr.PreviousRiskScore, fr.PreviousRiskLevel),
-				decorativeRisk(fr.RiskScore, fr.RiskLevel))
+			title = fmt.Sprintf("%s [%s → %s]",
+			title,
+			mdRisk(fr.PreviousRiskScore, fr.PreviousRiskLevel),
+			mdRisk(fr.RiskScore, fr.RiskLevel))
 		}
-		markdownTable(ctx, &fr, r.w, tableConfig{Title: title})
+
+		fmt.Fprint(r.w, title + "\n\n")
+		added := 0
+		removed := 0
+		for _, b := range fr.Behaviors {
+			if b.DiffAdded {
+				added++
+			}
+			if b.DiffRemoved {
+				removed++
+			}
+		}
+
+		if added > 0 {
+			markdownTable(ctx, &fr, r.w, tableConfig{
+				Title:       fmt.Sprintf("### %d new behaviors", added),
+				SkipRemoved: true,
+			})
+		}
+
+		if removed > 0 {
+			markdownTable(ctx, &fr, r.w, tableConfig{
+				Title:     fmt.Sprintf("### %d removed behaviors", removed),
+				SkipAdded: true,
+			})
+		}
 	}
 	return nil
 }
@@ -129,11 +159,17 @@ func markdownTable(_ context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 
 		// lowercase first character for consistency
 		desc = strings.ToLower(string(desc[0])) + desc[1:]
-		risk := fmt.Sprintf("%d/%s", k.Behavior.RiskScore, k.Behavior.RiskLevel)
+		risk := k.Behavior.RiskLevel
 		if k.Behavior.DiffAdded || rc.DiffAdded {
+			if rc.SkipAdded {
+				continue
+			}
 			risk = fmt.Sprintf("+%s", risk)
 		}
 		if k.Behavior.DiffRemoved || rc.DiffRemoved {
+			if rc.SkipRemoved {
+				continue
+			}
 			risk = fmt.Sprintf("-%s", risk)
 		}
 
