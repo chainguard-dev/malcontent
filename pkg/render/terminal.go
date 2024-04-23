@@ -19,6 +19,8 @@ import (
 	"golang.org/x/term"
 )
 
+var maxExampleCount = 8
+
 type KeyedBehavior struct {
 	Key      string
 	Behavior bincapz.Behavior
@@ -224,22 +226,33 @@ func renderTable(ctx context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 
 	tWidth := terminalWidth(ctx)
 	keyWidth := 24
+	descWidth := 30
+	extraWidth := 12
+
+	if tWidth >= 100 {
+		keyWidth = 30
+		descWidth = 45
+	}
+
 	if tWidth >= 120 {
 		keyWidth = 32
+		descWidth = 54
 	}
-	maxEvidenceWidth := 0
+
+	maxEvidenceWidth := tWidth - keyWidth - extraWidth - descWidth
+	longestEvidence := 0
 
 	for _, k := range kbs {
 		for _, e := range k.Behavior.MatchStrings {
 			if len(e) > maxEvidenceWidth {
-				maxEvidenceWidth = len(e)
+				longestEvidence = maxEvidenceWidth
+				break
+			}
+
+			if len(e) > longestEvidence {
+				longestEvidence = len(e)
 			}
 		}
-	}
-
-	descWidth := tWidth - maxEvidenceWidth - keyWidth - 12
-	if descWidth > 54 {
-		descWidth = 54
 	}
 
 	for _, k := range kbs {
@@ -255,7 +268,19 @@ func renderTable(ctx context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 				desc = fmt.Sprintf("by %s", k.Behavior.RuleAuthor)
 			}
 		}
-		evidence := strings.Join(k.Behavior.MatchStrings, "\n")
+
+		abbreviatedEv := []string{}
+		for _, e := range k.Behavior.MatchStrings {
+			if len(e) > maxEvidenceWidth {
+				e = e[0:maxEvidenceWidth-1] + "…"
+			}
+			abbreviatedEv = append(abbreviatedEv, e)
+			if len(abbreviatedEv) >= maxExampleCount {
+				abbreviatedEv = append(abbreviatedEv, "…")
+				break
+			}
+		}
+		evidence := strings.Join(abbreviatedEv, "\n")
 
 		risk := riskColor(ShortRisk(k.Behavior.RiskLevel))
 		if k.Behavior.DiffAdded || rc.DiffAdded {
