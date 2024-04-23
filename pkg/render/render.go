@@ -34,3 +34,17 @@ func New(kind string, w io.Writer) (Renderer, error) {
 		return nil, fmt.Errorf("unknown renderer: %q", kind)
 	}
 }
+
+func riskEmoji(score int) string {
+	symbol := "✅"
+	switch score {
+	case 2:
+		symbol = "⚠️"
+	case 3:
+		symbol = "🔥"
+	case 4:
+		symbol = "🚨"
+	}
+
+	return symbol
+}
