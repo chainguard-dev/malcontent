@@ -123,14 +123,6 @@ func markdownTable(_ context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 
 	data := [][]string{}
 
-	for k, v := range fr.Meta {
-		data = append(data, []string{"meta", k, v})
-	}
-	if len(data) > 0 {
-		data = append(data, []string{"", "", ""})
-	}
-
-	maxDescWidth := 180
 	for _, k := range kbs {
 		desc := k.Behavior.Description
 		before, _, found := strings.Cut(desc, ". ")
@@ -143,17 +135,6 @@ func markdownTable(_ context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 			} else {
 				desc = fmt.Sprintf("by %s", k.Behavior.RuleAuthor)
 			}
-		}
-
-		if len(k.Behavior.Values) > 0 {
-			values := strings.Join(k.Behavior.Values, "\n")
-			before := " \""
-			after := "\""
-			if (len(desc) + len(values) + 3) > maxDescWidth {
-				before = "\n"
-				after = ""
-			}
-			desc = fmt.Sprintf("%s:%s%s%s", desc, before, strings.Join(k.Behavior.Values, "\n"), after)
 		}
 
 		// lowercase first character for consistency
@@ -176,11 +157,13 @@ func markdownTable(_ context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 		if strings.HasPrefix(risk, "+") {
 			key = fmt.Sprintf("**%s**", key)
 		}
-		data = append(data, []string{risk, key, desc})
+
+		evidence := strings.Join(k.Behavior.MatchStrings, "<br>")
+		data = append(data, []string{risk, key, desc, evidence})
 	}
 	table := tablewriter.NewWriter(w)
 	table.SetAutoWrapText(false)
-	table.SetHeader([]string{"Risk", "Key", "Description"})
+	table.SetHeader([]string{"Risk", "Key", "Description", "Evidence"})
 	table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
 	table.SetCenterSeparator("|")
 	table.AppendBulk(data) // Add Bulk Data

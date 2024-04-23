@@ -1,34 +1,26 @@
 ## macOS/2024.SpectralBlur.DPRK/SpectralBlur-macshare [🔥 HIGH]
 
-|  RISK  |           KEY           |                     DESCRIPTION                     |
-|--------|-------------------------|-----------------------------------------------------|
-| meta   | format                  | macho                                               |
-|        |                         |                                                     |
-| HIGH   | combo/backdoor/net_term | uploads, provides a terminal, runs program: "_uname |
-|        |                         | _unlink                                             |
-|        |                         | _waitpid                                            |
-|        |                         | execve                                              |
-|        |                         | shell                                               |
-|        |                         | tcsetattr                                           |
-|        |                         | upload"                                             |
-| MEDIUM | device/pseudo_terminal  | pseudo-terminal access functions                    |
-| MEDIUM | exec/program            | executes external programs                          |
-| MEDIUM | kernel/uname/get        | get system identification                           |
-| MEDIUM | net/download            | download files                                      |
-| MEDIUM | net/ip/parse            | parses IP address                                   |
-| MEDIUM | net/ip/string           | converts IP address from byte to string             |
-| MEDIUM | net/socket/connect      | initiate a connection on a socket                   |
-| MEDIUM | net/upload              | uploads files                                       |
-| MEDIUM | shell/exec              | executes shell                                      |
-| LOW    | env/SHELL               | users preferred SHELL path                          |
-| LOW    | exec/program/background | wait for process to exit                            |
-| LOW    | fs/file/delete          | deletes files                                       |
-| LOW    | fs/symlink/resolve      | resolves symbolic links                             |
-| LOW    | net/hostname/resolve    | resolves network hosts via name                     |
-| LOW    | net/socket/receive      | receive a message from a socket                     |
-| LOW    | net/socket/send         | send a message to a socket                          |
-| LOW    | process/create          | create a new child process using fork               |
-| LOW    | process/multithreaded   | uses pthreads                                       |
-| LOW    | process/username/get    | get login name                                      |
-| LOW    | random/insecure         | generate random numbers insecurely                  |
+|  RISK  |           KEY           |                DESCRIPTION                 |                                EVIDENCE                                 |
+|--------|-------------------------|--------------------------------------------|-------------------------------------------------------------------------|
+| HIGH   | combo/backdoor/net_term | uploads, provides a terminal, runs program | _uname<br>_unlink<br>_waitpid<br>execve<br>shell<br>tcsetattr<br>upload |
+| MEDIUM | device/pseudo_terminal  | pseudo-terminal access functions           | grantpt<br>posix_openpt<br>ptsname<br>unlockpt                          |
+| MEDIUM | exec/program            | executes external programs                 | execve                                                                  |
+| MEDIUM | kernel/uname/get        | get system identification                  | uname                                                                   |
+| MEDIUM | net/download            | download files                             | _proc_download_content                                                  |
+| MEDIUM | net/ip/parse            | parses IP address                          | inet_addr                                                               |
+| MEDIUM | net/ip/string           | converts IP address from byte to string    | inet_ntoa                                                               |
+| MEDIUM | net/socket/connect      | initiate a connection on a socket          | _connect                                                                |
+| MEDIUM | net/upload              | uploads files                              | upload                                                                  |
+| MEDIUM | shell/exec              | executes shell                             | /bin/sh                                                                 |
+| LOW    | env/SHELL               | users preferred SHELL path                 | SHELL                                                                   |
+| LOW    | exec/program/background | wait for process to exit                   | waitpid                                                                 |
+| LOW    | fs/file/delete          | deletes files                              | unlink                                                                  |
+| LOW    | fs/symlink/resolve      | resolves symbolic links                    | realpath                                                                |
+| LOW    | net/hostname/resolve    | resolves network hosts via name            | gethostbyname                                                           |
+| LOW    | net/socket/receive      | receive a message from a socket            | _recv                                                                   |
+| LOW    | net/socket/send         | send a message to a socket                 | _send                                                                   |
+| LOW    | process/create          | create a new child process using fork      | _fork                                                                   |
+| LOW    | process/multithreaded   | uses pthreads                              | pthread_create                                                          |
+| LOW    | process/username/get    | get login name                             | getlogin                                                                |
+| LOW    | random/insecure         | generate random numbers insecurely         | _rand<br>srand                                                          |
 

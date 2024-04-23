@@ -5,8 +5,6 @@ package bincapz
 
 type Behavior struct {
 	Description string `json:",omitempty" yaml:",omitempty"`
-	// Values are critical values to be surfaced in the UI
-	Values []string `json:",omitempty" yaml:",omitempty"`
 	// MatchStrings are all strings found relating to this behavior
 	MatchStrings []string `json:",omitempty" yaml:",omitempty"`
 	RiskScore    int
