@@ -3,14 +3,18 @@ before:
     - go mod tidy
 
 builds:
+  - id: bincapz-build
+    binary: bincapz
+    main: ./
     goos:
+      - darwin
       - linux
       - windows
-      - darwin
+    flags:
+      - -trimpath
+    mod_timestamp: '{{ .CommitTimestamp }}'
     ldflags:
       - -X main.BuildVersion={{.Version}}
-
-    binary: bincapz
 
 checksum:
   name_template: 'checksums.txt'
