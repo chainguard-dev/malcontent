@@ -35,6 +35,11 @@ jobs:
 
       - name: install libyara-dev
         run: |
+          # temporarily remove microsoft-prod repository
+          # reference: https://github.com/microsoft/linux-package-repositories/issues/130
+          sudo rm /etc/apt/sources.list.d/microsoft-prod.list
+          sudo apt -y update
+
           sudo add-apt-repository -n -y "deb http://archive.ubuntu.com/ubuntu/ mantic main restricted universe multiverse"
           sudo add-apt-repository -n -y "deb http://archive.ubuntu.com/ubuntu/ mantic-updates main restricted universe multiverse"
           sudo add-apt-repository -n -y "deb http://archive.ubuntu.com/ubuntu/ mantic-backports main restricted universe multiverse"
