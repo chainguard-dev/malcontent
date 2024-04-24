@@ -1,7 +1,7 @@
 
 rule previewers_alike: suspicious {
 	meta:
-		description = "Uploads, accesses a keychain, uses ZIP files"
+		description = "uploads, accesses a keychain, uses ZIP files"
 	strings:
 		$upload = "upload"
 		$zip = "zip"

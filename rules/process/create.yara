@@ -2,7 +2,8 @@ rule _fork {
 	meta:
 		pledge = "exec"
 		syscall = "fork"
-		description = "Create a new child process using fork"
+		description = "create child process"
+		ref = "https://man7.org/linux/man-pages/man2/fork.2.html"
 	strings:
 		$fork = "_fork" fullword
 	condition:
@@ -13,7 +14,8 @@ rule fork {
 	meta:
 		pledge = "exec"
 		syscall = "fork"
-		description = "Create a new child process using fork"
+		description = "create child process"
+		ref = "https://man7.org/linux/man-pages/man2/fork.2.html"
 	strings:
 		$fork = "fork" fullword
 	condition:
@@ -24,7 +26,8 @@ rule syscall_vfork {
 	meta:
 		pledge = "exec"
 		syscall = "vfork"
-		description = "Create a new child process using vfork"
+		description = "create child process"
+		ref = "https://man7.org/linux/man-pages/man2/vfork.2.html"
 	strings:
 		$vfork = "vfork" fullword
 	condition:
@@ -36,7 +39,8 @@ rule syscall_clone : harmless {
 	meta:
 		pledge = "exec"
 		syscall = "clone"
-		description = "Create a new child process using clone"
+		description = "create child process"
+		ref = "https://man7.org/linux/man-pages/man2/clone.2.html"
 	strings:
 		$clone = "clone" fullword
 		$clone2 = "clone2" fullword
