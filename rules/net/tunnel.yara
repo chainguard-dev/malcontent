@@ -1,6 +1,6 @@
 rule tunnel : notable {
 	meta:
-		description = "Creates a network tunnel"
+		description = "creates a network tunnel"
 		syscall = "setsockopt"
 	strings:
 		$tunnel = "tunnel" fullword
@@ -11,7 +11,7 @@ rule tunnel : notable {
 
 rule tunnel2 : notable {
 	meta:
-		description = "Creates a network tunnel"
+		description = "creates a network tunnel"
 		syscall = "setsockopt"
 	strings:
 		$Tunnel = "Tunnel"
