@@ -1,7 +1,7 @@
 
 rule iptables_upload_http : notable {
 	meta:
-		description = "Uploads, uses iptables and HTTP"
+		description = "uploads, uses iptables and HTTP"
 	strings:
 		$ref1 = /upload[a-zA-Z]{0,16}/
 		$ref2 = "HTTP" fullword

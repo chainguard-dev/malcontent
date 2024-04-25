@@ -8,6 +8,7 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -58,6 +59,9 @@ var dropRules = map[string]bool{
 	"3P/godmoderules/iddqd/god/mode": true,
 }
 
+// authorWithURLRe matcehs "Arnim Rupp (https://github.com/ruppde)"
+var authorWithURLRe = regexp.MustCompile(`(.*?) \((http.*)\)`)
+
 var dateRe = regexp.MustCompile(`[a-z]{3}\d{1,2}`)
 
 func yaraForgeKey(rule string) string {
@@ -91,9 +95,18 @@ func yaraForgeKey(rule string) string {
 	return strings.ReplaceAll(key, "signature/base", "signature_base")
 }
 
+// yaraForge returns whether the rule is sourced from YARAForge.
+func yaraForge(src string) bool {
+	return strings.Contains(src, "yara-rules")
+}
+
+func isValidURL(s string) bool {
+	_, err := url.Parse(s)
+	return err == nil
+}
+
 func generateKey(src string, rule string) string {
-	// It's Yara FORGE
-	if strings.Contains(src, "yara-rules") {
+	if yaraForge(src) {
 		return yaraForgeKey(rule)
 	}
 
@@ -107,6 +120,12 @@ func generateKey(src string, rule string) string {
 
 	key := strings.ReplaceAll(src, "-", "/")
 	return strings.ReplaceAll(key, ".yara", "")
+}
+
+func generateRuleURL(src string, rule string) string {
+	// Linking to exact commit and line number would be ideal, but
+	// we aren't parsing that information out of our YARA files yet
+	return fmt.Sprintf("https://github.com/chainguard-dev/bincapz/blob/main/rules/%s#%s", src, rule)
 }
 
 func ignoreMatch(tags []string, ignoreTags map[string]bool) bool {
@@ -229,6 +248,12 @@ func pathChecksum(path string) (string, error) {
 	return fmt.Sprintf("%x", h.Sum(nil)), nil
 }
 
+// fixURL fixes badly formed URLs.
+func fixURL(s string) string {
+	// YARAforge forgets to encode spaces, but encodes everything else
+	return strings.ReplaceAll(s, " ", "%20")
+}
+
 func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags []string, minScore int) (bincapz.FileReport, error) {
 	ignore := map[string]bool{}
 	for _, t := range ignoreTags {
@@ -250,10 +275,6 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 	pledges := []string{}
 	caps := []string{}
 	syscalls := []string{}
-	desc := ""
-	author := ""
-	license := ""
-	project := ""
 	overallRiskScore := 0
 	riskCounts := map[int]int{}
 	packageRisks := []string{}
@@ -272,44 +293,71 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 			continue
 		}
 
+		ruleURL := generateRuleURL(m.Namespace, m.Rule)
 		packageRisks = append(packageRisks, key)
 
 		b := bincapz.Behavior{
 			RiskScore:    risk,
 			RiskLevel:    RiskLevels[risk],
 			MatchStrings: matchStrings(m.Rule, m.Strings),
+			RuleURL:      ruleURL,
 		}
 
 		for _, meta := range m.Metas {
-			switch meta.Identifier {
+			k := meta.Identifier
+			v := fmt.Sprintf("%s", meta.Value)
+			// Empty data is unusual, so just ignore it.
+			if k == "" || v == "" {
+				continue
+			}
+
+			switch k {
 			case "author":
-				author = fmt.Sprintf("%s", meta.Value)
-				if len(author) > len(b.RuleAuthor) {
-					b.RuleAuthor = author
+				b.RuleAuthor = v
+				m := authorWithURLRe.FindStringSubmatch(v)
+				if len(m) > 0 && isValidURL(m[2]) {
+					b.RuleAuthor = m[1]
+					b.RuleAuthorURL = m[2]
 				}
-			case "license", "license_url":
-				license = fmt.Sprintf("%s", meta.Value)
-				if len(license) > len(b.RuleLicense) {
-					b.RuleLicense = license
-				}
+			case "author_url":
+				b.RuleAuthorURL = v
+			case "license":
+				b.RuleLicense = v
+			case "license_url":
+				b.RuleLicenseURL = v
 			case "description", "threat_name", "name":
-				desc = fmt.Sprintf("%s", meta.Value)
-				if len(desc) > len(b.Description) {
-					b.Description = desc
+				if len(v) > len(b.Description) {
+					b.Description = v
 				}
+			case "ref", "reference":
+				u := fixURL(v)
+				if isValidURL(u) {
+					b.ReferenceURL = u
+				}
+			case "source_url":
+				// YARAforge forgets to encode spaces
+				b.RuleURL = fixURL(v)
 			case "pledge":
-				pledges = append(pledges, fmt.Sprintf("%s", meta.Value))
+				pledges = append(pledges, v)
 			case "syscall":
-				sy := strings.Split(fmt.Sprintf("%s", meta.Value), ",")
+				sy := strings.Split(v, ",")
 				syscalls = append(syscalls, sy...)
 			case "cap":
+				caps = append(caps, v)
 				caps = append(caps, fmt.Sprintf("%s", meta.Value))
-			case "reference":
-				project = fmt.Sprintf("%s", meta.Value)
-				if len(project) > len(b.RuleProject) {
-					b.RuleProject = project
-				}
 			}
+		}
+
+		// Fix YARA Forge rules that record their author URL as reference URLs
+		if strings.HasPrefix(b.RuleURL, b.ReferenceURL) {
+			b.RuleAuthorURL = b.ReferenceURL
+			b.ReferenceURL = ""
+		}
+
+		// Fix YARA Forge rules that record their author URL as reference URLs
+		if strings.HasPrefix(b.RuleURL, b.ReferenceURL) {
+			b.RuleAuthorURL = b.ReferenceURL
+			b.ReferenceURL = ""
 		}
 
 		// Meta names are weird and unfortunate, depending if they hold a value
@@ -327,22 +375,25 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 			continue
 		}
 
-		// We forgot :(
+		// If the rule does not have a description, make one up based on the rule name
 		if b.Description == "" {
 			b.Description = strings.ReplaceAll(m.Rule, "_", " ")
 		}
 
-		// We've already seen a similar behavior: do we augment it or replace it?
 		existing, exists := fr.Behaviors[key]
+		// If we have matched a lower priority rule in the same namespace, replace it
 		if !exists || existing.RiskScore < b.RiskScore {
 			fr.Behaviors[key] = b
 			continue
 		}
 
+		// If the existing description is longer,
 		if len(existing.Description) < len(b.Description) {
 			existing.Description = b.Description
 			fr.Behaviors[key] = existing
 		}
+
+		// TODO: If we match multiple rules within a single namespace, merge matchstrings
 	}
 	// If something has a lot of high, it's probably critical
 	if riskCounts[3] >= 4 {
