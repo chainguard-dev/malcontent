@@ -1,6 +1,7 @@
 rule proxy_auth {
 	meta:
-		description = "Able to use an HTTP proxy that requires authentication"
+		description = "use HTTP proxy that requires authentication"
+		ref = "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Proxy-Authorization"
 	strings:
 		$ref = "Proxy-Authorization"
 	condition:
@@ -9,7 +10,8 @@ rule proxy_auth {
 
 rule proxy_pac {
 	meta:
-		description = "Able to find proxies via a PAC file"
+		description = "discover proxy address via PAC file"
+		ref = "https://developer.mozilla.org/en-US/docs/Web/HTTP/Proxy_servers_and_tunneling/Proxy_Auto-Configuration_PAC_file"
 	strings:
 		$ref = "PACFile" fullword
 	condition:
@@ -18,7 +20,8 @@ rule proxy_pac {
 
 rule http_proxy_env {
 	meta:
-		description = "Able to find HTTP proxies"
+		description = "discover proxy address via environment"
+		ref = "https://www.ibm.com/docs/en/ste/11.0.0?topic=node-proxy-configuration-using-environment-variables"
 	strings:
 		$ref = "HTTP_PROXY"
 		$ref2 = "HTTPS_PROXY"
