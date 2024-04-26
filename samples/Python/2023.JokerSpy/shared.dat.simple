@@ -7,7 +7,7 @@ evasion/codecs_decode
 exec/program
 fs/file/read
 fs/tempdir
-kernel/uname/get
+kernel/platform
 net/interface/list
 net/url/request
 process/username/get

@@ -5,7 +5,7 @@ exec/pipe
 exec/program
 exec/shell_command
 fs/file/times/set
-kernel/uname/get
+kernel/platform
 net/fetch
 net/http/post
 net/interface/list

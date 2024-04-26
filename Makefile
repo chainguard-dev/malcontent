@@ -56,3 +56,17 @@ update-yaraforge:
 	mkdir -p out
 	curl -sL -o out/yaraforge.zip https://github.com/YARAHQ/yara-forge/releases/latest/download/yara-forge-rules-full.zip
 	unzip -o -j out/yaraforge.zip packages/full/yara-rules-full.yar -d rules/third_party/
+
+
+.PHONY: update-huntress
+update-huntress:
+	mkdir -p out
+	curl -sL -o out/huntress.zip https://github.com/huntresslabs/threat-intel/archive/refs/heads/main.zip
+	unzip -o out/huntress.zip -d rules/third_party/huntress/
+	mv rules/third_party/huntress/threat-intel-main/* rules/third_party/huntress/
+	mv rules/third_party/huntress/2*/2* rules/third_party/huntress/
+	find rules/third_party/huntress -name "*.yml" -delete
+	find rules/third_party/huntress -name "*.ps1" -delete
+	find rules/third_party/huntress -name ".*" -type f -delete
+	find rules/third_party/huntress -type d -delete
+

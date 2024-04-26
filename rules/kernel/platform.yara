@@ -1,5 +1,5 @@
 
-rule uname : notable {
+rule uname {
 	meta:
 		description = "system identification"
 		pledge = "sysctl"

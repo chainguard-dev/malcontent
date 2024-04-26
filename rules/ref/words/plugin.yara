@@ -1,4 +1,4 @@
-rule plugin : notable {
+rule plugin {
 	meta:
 		description = "references a 'plugin'"
 	strings:

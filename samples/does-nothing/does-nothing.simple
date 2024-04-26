@@ -10,9 +10,10 @@ fs/permission/chown
 fs/permission/modify
 kernel/cpu/info
 kernel/hostname/get
-kernel/uname/get
+kernel/platform
 net/socket/receive
 net/socket/send
 process/multithreaded
 ref/path/etc
 ref/path/home
+ref/words/plugin
