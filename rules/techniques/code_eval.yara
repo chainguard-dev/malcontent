@@ -1,3 +1,5 @@
+include "rules/language/python.yara"
+
 rule eval : notable {
 	meta:
 		description = "evaluate code dynamically using eval()"
@@ -5,7 +7,7 @@ rule eval : notable {
 		$val = /eval\([a-z\"\'\(\,\)]{1,32}/ fullword
 		$not_empty = "eval()"
 	condition:
-		$val and none of ($not*)
+		$val and none of ($not*) and ignore_f_string
 }
 
 rule python_exec : notable {
@@ -15,7 +17,7 @@ rule python_exec : notable {
 		$val = /exec\([a-z\"\'\(\,\)]{1,32}/ fullword
 		$empty = "exec()"
 	condition:
-		$val and not $empty
+		$val and not $empty and ignore_f_string
 }
 
 rule shell_eval : notable {
