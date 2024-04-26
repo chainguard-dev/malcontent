@@ -60,7 +60,7 @@ update-yaraforge:
 .PHONY: update-threathunting-keywords
 update-threathunting-keywords:
 	@current_sha=a21391e7280a4347dd7faebd7b5f54344b484ec7; \
-	upstream_sha=$$(curl -s https://api.github.com/repos/mthcht/ThreatHunting-Keywords-yara-rules/commits/main | jq -r '.sha'); \
+	upstream_sha=$$(curl -s https://api.github.com/repos/mthcht/ThreatHunting-Keywords-yara-rules/commits/main | grep sha | head -n 1 | cut -d '"' -f 4); \
 	if [ "$$current_sha" != "$$upstream_sha" ]; then \
 		echo "ThreatHunting-Keywords-yara-rules has been updated. Please update the current_sha in the Makefile."; \
 	else \
