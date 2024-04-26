@@ -1,13 +1,11 @@
-rule ignore_f_string {
-	meta:
-		description = "detect f-string usage and ignore"
-	strings:
-		$fstring_single = /f'\s*\w{1,32}/
-		$fstring_double = /f"\s*\w{1,32}/
-		$fstring_triple_single = /f'''\s*\w{1,32}/
-		$fstring_triple_double = /f"""\s*\w{1,32}/
-	condition:
-		none of them
+rule dangerous_fstring : notable {
+    strings:
+		$f_string = /f'[^']*?{.*?(__import__|os\.system|os\.popen|subprocess|eval|exec|open).*?}/
+		$f_string_double = /f"[^"]*?{.*?(__import__|os\.system|os\.popen|subprocess|eval|exec|open).*?}/
+		$f_string_triple = /f'''[^''']*?{.*?(__import__|os\.system|os\.popen|subprocess|eval|exec|open).*?}/
+		$f_string_triple_double = /f"""[^"""]*?{.*?(__import__|os\.system|os\.popen|subprocess|eval|exec|open).*?}/
+    condition:
+        any of ($f_string*)
 }
 
 rule ignore_comment {
