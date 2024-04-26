@@ -41,7 +41,7 @@ rule dropbox_disk_user : notable {
 
 rule google_drive_uploader : suspicious {
   meta:
-	description = "Uploads content to Google Drive"
+	description = "uploads content to Google Drive"
   strings:
     $guploader = "x-guploader-client-info"
   condition:
@@ -50,7 +50,7 @@ rule google_drive_uploader : suspicious {
 
 rule google_docs_uploader : suspicious {
   meta:
-	description = "Uploads content to Google Drive"
+	description = "uploads content to Google Drive"
   strings:
     $writely = "www.google.com/accounts/ServiceLogin?service=writely"
   condition:

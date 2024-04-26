@@ -58,17 +58,7 @@ func NewTerminal(w io.Writer) Terminal {
 }
 
 func decorativeRisk(score int, level string) string {
-	symbol := "✅"
-	switch score {
-	case 2:
-		symbol = "⚠️ "
-	case 3:
-		symbol = "🔥"
-	case 4:
-		symbol = "🚨"
-	}
-
-	return fmt.Sprintf("%s %s", symbol, riskColor(level))
+	return fmt.Sprintf("%s %s", riskEmoji(score), riskColor(level))
 }
 
 func darkBrackets(s string) string {

@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net/url"
 	"sort"
 	"strings"
 
@@ -22,37 +23,80 @@ func NewMarkdown(w io.Writer) Markdown {
 	return Markdown{w: w}
 }
 
+func mdRisk(score int, level string) string {
+	return fmt.Sprintf("%s %s", riskEmoji(score), level)
+}
+
+// generate a markdown link for a matched fragment.
+func matchFragmentLink(s string) string {
+	// it's probably the name of a matched YARA field, for example, if it's xor'ed data
+	if strings.HasPrefix(s, "$") {
+		return s
+	}
+
+	if strings.HasPrefix(s, "https:") || strings.HasPrefix(s, "http://") {
+		return fmt.Sprintf("[%s](%s)", s, s)
+	}
+
+	return fmt.Sprintf("[%s](https://github.com/search?q=%s&type=code)", s, url.QueryEscape(s))
+}
+
 func (r Markdown) File(ctx context.Context, fr bincapz.FileReport) error {
-	markdownTable(ctx, &fr, r.w, tableConfig{Title: fmt.Sprintf("## %s\n\nOverall risk: %s", fr.Path, decorativeRisk(fr.RiskScore, fr.RiskLevel))})
+	markdownTable(ctx, &fr, r.w, tableConfig{Title: fmt.Sprintf("## %s [%s]", fr.Path, mdRisk(fr.RiskScore, fr.RiskLevel))})
 	return nil
 }
 
 func (r Markdown) Full(ctx context.Context, rep bincapz.Report) error {
 	for f, fr := range rep.Diff.Removed {
 		fr := fr
-		markdownTable(ctx, &fr, r.w, tableConfig{Title: fmt.Sprintf("## Deleted: %s", f), DiffRemoved: true})
+		markdownTable(ctx, &fr, r.w, tableConfig{Title: fmt.Sprintf("## Deleted: %s [%s]", f, mdRisk(fr.RiskScore, fr.RiskLevel)), DiffRemoved: true})
 	}
 
 	for f, fr := range rep.Diff.Added {
 		fr := fr
-		markdownTable(ctx, &fr, r.w, tableConfig{Title: fmt.Sprintf("## Added: %s\n\nOverall risk: %s", f, decorativeRisk(fr.RiskScore, fr.RiskLevel)), DiffAdded: true})
+		markdownTable(ctx, &fr, r.w, tableConfig{Title: fmt.Sprintf("## Added: %s [%s]", f, mdRisk(fr.RiskScore, fr.RiskLevel)), DiffAdded: true})
 	}
 
 	for f, fr := range rep.Diff.Modified {
 		fr := fr
 		var title string
 		if fr.PreviousRelPath != "" {
-			title = fmt.Sprintf("## Moved: %s -> %s (score: %f)", fr.PreviousRelPath, f, fr.PreviousRelPathScore)
+			title = fmt.Sprintf("## Moved: %s -> %s (similarity: %0.2f)", fr.PreviousRelPath, f, fr.PreviousRelPathScore)
 		} else {
-			title = fmt.Sprintf("## Changed: %s\n", f)
+			title = fmt.Sprintf("## Changed: %s", f)
 		}
 		if fr.RiskScore != fr.PreviousRiskScore {
-			title = fmt.Sprintf("%s\nPrevious Risk: %s\nNew Risk:      %s",
+			title = fmt.Sprintf("%s [%s → %s]",
 				title,
-				decorativeRisk(fr.PreviousRiskScore, fr.PreviousRiskLevel),
-				decorativeRisk(fr.RiskScore, fr.RiskLevel))
+				mdRisk(fr.PreviousRiskScore, fr.PreviousRiskLevel),
+				mdRisk(fr.RiskScore, fr.RiskLevel))
 		}
-		markdownTable(ctx, &fr, r.w, tableConfig{Title: title})
+
+		fmt.Fprint(r.w, title+"\n\n")
+		added := 0
+		removed := 0
+		for _, b := range fr.Behaviors {
+			if b.DiffAdded {
+				added++
+			}
+			if b.DiffRemoved {
+				removed++
+			}
+		}
+
+		if added > 0 {
+			markdownTable(ctx, &fr, r.w, tableConfig{
+				Title:       fmt.Sprintf("### %d new behaviors", added),
+				SkipRemoved: true,
+			})
+		}
+
+		if removed > 0 {
+			markdownTable(ctx, &fr, r.w, tableConfig{
+				Title:     fmt.Sprintf("### %d removed behaviors", removed),
+				SkipAdded: true,
+			})
+		}
 	}
 	return nil
 }
@@ -94,58 +138,59 @@ func markdownTable(_ context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 
 	data := [][]string{}
 
-	for k, v := range fr.Meta {
-		data = append(data, []string{"meta", k, v})
-	}
-	if len(data) > 0 {
-		data = append(data, []string{"", "", ""})
-	}
-
-	maxDescWidth := 180
 	for _, k := range kbs {
 		desc := k.Behavior.Description
 		before, _, found := strings.Cut(desc, ". ")
 		if found {
 			desc = before
 		}
+
+		if k.Behavior.ReferenceURL != "" {
+			desc = fmt.Sprintf("[%s](%s)", desc, k.Behavior.ReferenceURL)
+		}
+
 		if k.Behavior.RuleAuthor != "" {
+			author := k.Behavior.RuleAuthor
+			if k.Behavior.RuleAuthorURL != "" {
+				author = fmt.Sprintf("[%s](%s)", author, k.Behavior.RuleAuthorURL)
+			}
+
 			if desc != "" {
-				desc = fmt.Sprintf("%s, by %s", desc, k.Behavior.RuleAuthor)
+				desc = fmt.Sprintf("%s, by %s", desc, author)
 			} else {
-				desc = fmt.Sprintf("by %s", k.Behavior.RuleAuthor)
+				desc = fmt.Sprintf("by %s", author)
 			}
 		}
 
-		if len(k.Behavior.Values) > 0 {
-			values := strings.Join(k.Behavior.Values, "\n")
-			before := " \""
-			after := "\""
-			if (len(desc) + len(values) + 3) > maxDescWidth {
-				before = "\n"
-				after = ""
-			}
-			desc = fmt.Sprintf("%s:%s%s%s", desc, before, strings.Join(k.Behavior.Values, "\n"), after)
-		}
-
-		// lowercase first character for consistency
-		desc = strings.ToLower(string(desc[0])) + desc[1:]
-		risk := fmt.Sprintf("%d/%s", k.Behavior.RiskScore, k.Behavior.RiskLevel)
+		risk := k.Behavior.RiskLevel
 		if k.Behavior.DiffAdded || rc.DiffAdded {
+			if rc.SkipAdded {
+				continue
+			}
 			risk = fmt.Sprintf("+%s", risk)
 		}
 		if k.Behavior.DiffRemoved || rc.DiffRemoved {
+			if rc.SkipRemoved {
+				continue
+			}
 			risk = fmt.Sprintf("-%s", risk)
 		}
 
-		key := k.Key
+		key := fmt.Sprintf("[%s](%s)", k.Key, k.Behavior.RuleURL)
 		if strings.HasPrefix(risk, "+") {
 			key = fmt.Sprintf("**%s**", key)
 		}
-		data = append(data, []string{risk, key, desc})
+
+		matchLinks := []string{}
+		for _, m := range k.Behavior.MatchStrings {
+			matchLinks = append(matchLinks, matchFragmentLink(m))
+		}
+		evidence := strings.Join(matchLinks, "<br>")
+		data = append(data, []string{risk, key, desc, evidence})
 	}
 	table := tablewriter.NewWriter(w)
 	table.SetAutoWrapText(false)
-	table.SetHeader([]string{"Risk", "Key", "Description"})
+	table.SetHeader([]string{"Risk", "Key", "Description", "Evidence"})
 	table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
 	table.SetCenterSeparator("|")
 	table.AppendBulk(data) // Add Bulk Data

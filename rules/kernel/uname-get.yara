@@ -1,9 +1,10 @@
 
 rule uname : notable {
 	meta:
-		description = "get system identification"
+		description = "system identification (uname)"
 		pledge = "sysctl"
 		syscall = "sysctl"
+		ref = "https://man7.org/linux/man-pages/man1/uname.1.html"
 	strings:
 		$uname = "uname" fullword
 		$uname2 = "syscall.Uname" fullword
@@ -13,18 +14,20 @@ rule uname : notable {
 
 rule os_release : notable {
 	meta:
-		description = "get system identification"
+		description = "operating-system identification"
 		pledge = "sysctl"
 		syscall = "sysctl"
+		ref = "https://developer.apple.com/documentation/os/1524245-os_release"
 	strings:
 		$ref = "os_release" fullword
 	condition:
 		any of them
 }
 
-rule python_uname : notable {
+rule python_platform : notable {
 	meta:
-		description = "get system identification"
+		description = "system platform identification"
+		ref = "https://docs.python.org/3/library/platform.html"
 	strings:
 		$ref = "platform.dist()"
 		$ref2 = "platform.platform()"
@@ -37,6 +40,7 @@ rule python_uname : notable {
 rule npm_uname : notable {
 	meta:
 		description = "get system identification"
+		ref = "https://nodejs.org/api/process.html"
 	strings:
 		$ref = "process.platform"
 		$ref2 = "process.arch"

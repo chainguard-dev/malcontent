@@ -1,11 +1,30 @@
-rule wifi {
+rule bssid {
 	meta:
-		description = "Wireless networking"
+		description = "wireless network base station ID"
 	strings:
 		$ref = "BSSID"
 		$ref2 = "bssid"
-		$ref3 = "wps_supplicant"
-		$ref4 = "wpa_supplicant"
+	condition:
+		any of them
+}
+
+rule wpa_supplicant {
+	meta:
+		description = "access WPA encrypted wireless networks"
+		ref = "https://wiki.archlinux.org/title/wpa_supplicant"
+	strings:
+		$ref = "wpa_supplicant"
+	condition:
+		any of them
+}
+
+
+rule wps_supplicant {
+	meta:
+		description = "access WPS encrypted wireless networks"
+		ref = "https://wiki.archlinux.org/title/wps_supplicant"
+	strings:
+		$ref = "wps_supplicant"
 	condition:
 		any of them
 }

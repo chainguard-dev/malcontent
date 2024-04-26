@@ -1,7 +1,7 @@
 
 rule reuseport : notable {
 	meta:
-		description = "able to listen and dial from the same TCP/UDP port"
+		description = "reuse TCP/IP ports for listening and connecting"
 	strings:
 		$go = "go-reuseport"
 		$so_readdr = "SO_REUSEADDR"

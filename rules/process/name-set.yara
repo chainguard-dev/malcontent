@@ -1,13 +1,12 @@
 rule __progname : notable {
 	meta:
-		description = "get or set the programs name"
+		description = "get or set the current process name"
+		ref = "https://stackoverflow.com/questions/273691/using-progname-instead-of-argv0"
 	strings:
 		$ref = "__progname"
 	condition:
 		any of them
 }
-
-
 
 rule bash_sets_name_val : notable {
   meta:

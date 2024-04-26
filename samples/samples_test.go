@@ -165,12 +165,13 @@ func TestDiff(t *testing.T) {
 		minResultScore int
 		minFileScore   int
 	}{
-		{diff: "Linux/2023.FreeDownloadManager/freedownloadmanager.sdiff", format: "simple", src: "Linux/2023.FreeDownloadManager/freedownloadmanager_clear_postinst", dest: "Linux/2023.FreeDownloadManager/freedownloadmanager_infected_postinst", minResultScore: 1, minFileScore: 0},
-		{diff: "macOS/clean/ls.mdiff.level_2", format: "simple", src: "Linux/clean/ls.x86_64", dest: "macOS/clean/ls", minResultScore: 2, minFileScore: 2},
-		{diff: "macOS/clean/ls.mdiff.trigger_2", format: "simple", src: "Linux/clean/ls.x86_64", dest: "macOS/clean/ls", minResultScore: 1, minFileScore: 2},
-		// Important: minFileScore should apply to source or destination
-		{diff: "macOS/clean/ls.mdiff.trigger_3", format: "simple", src: "Linux/clean/ls.x86_64", dest: "macOS/clean/ls", minResultScore: 1, minFileScore: 3},
+		{diff: "macOS/clean/ls.mdiff", format: "markdown", src: "Linux/clean/ls.x86_64", dest: "macOS/clean/ls"},
 		{diff: "macOS/2023.3CX/libffmpeg.dirty.mdiff", format: "markdown", src: "macOS/2023.3CX/libffmpeg.dylib", dest: "macOS/2023.3CX/libffmpeg.dirty.dylib"},
+		{diff: "Linux/2023.FreeDownloadManager/freedownloadmanager.sdiff", format: "simple", src: "Linux/2023.FreeDownloadManager/freedownloadmanager_clear_postinst", dest: "Linux/2023.FreeDownloadManager/freedownloadmanager_infected_postinst", minResultScore: 1, minFileScore: 0},
+		{diff: "macOS/clean/ls.sdiff.level_2", format: "simple", src: "Linux/clean/ls.x86_64", dest: "macOS/clean/ls", minResultScore: 2, minFileScore: 2},
+		{diff: "macOS/clean/ls.sdiff.trigger_2", format: "simple", src: "Linux/clean/ls.x86_64", dest: "macOS/clean/ls", minResultScore: 1, minFileScore: 2},
+		// Important: minFileScore should apply to source or destination
+		{diff: "macOS/clean/ls.sdiff.trigger_3", format: "simple", src: "Linux/clean/ls.x86_64", dest: "macOS/clean/ls", minResultScore: 1, minFileScore: 3},
 		{diff: "Linux/2024.sbcl.market/sbcl.sdiff", format: "simple", src: "Linux/2024.sbcl.market/sbcl.clean", dest: "Linux/2024.sbcl.market/sbcl.dirty"},
 	}
 
@@ -219,7 +220,7 @@ func TestDiff(t *testing.T) {
 func TestMarkdown(t *testing.T) {
 	ctx := slogtest.TestContextWithLogger(t)
 	clog.FromContext(ctx).With("test", "TestMarkDown")
-	yrs, err := rules.Compile(ctx, rules.FS, false)
+	yrs, err := rules.Compile(ctx, rules.FS, true)
 	if err != nil {
 		t.Fatalf("compile: %v", err)
 	}

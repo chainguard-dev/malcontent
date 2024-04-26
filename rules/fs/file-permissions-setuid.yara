@@ -6,6 +6,7 @@ rule make_setuid {
     hash_2023_OrBit_f161 = "f1612924814ac73339f777b48b0de28b716d606e142d4d3f4308ec648e3f56c8"
     hash_2023_Backdoors_Backdoor_Linux_Galore_11 = "5320a828ceff981ca08b671b8f1b6da78aed7b6e1e247a2d32f3ae555a58bc2b"
     hash_2023_Perl_Backdoor_Perl_Galore = "e20fb8f5899b747bcf1bc67b5fbb0e64ea2af24c676f8337f20e7aa17b1d24af"
+	ref = "https://en.wikipedia.org/wiki/Setuid"
   strings:
     $chmod_47 = "chmod 47"
     $chmod_s = "chmod +s"
