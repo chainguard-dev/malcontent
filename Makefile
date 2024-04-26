@@ -66,4 +66,4 @@ update-threathunting-keywords:
 	else \
 		echo "ThreatHunting-Keywords-yara-rules is up to date."; \
 	fi; \
-	curl -L -o rules/third_party/mthcht_thk_yara_rules.yar https://raw.githubusercontent.com/mthcht/ThreatHunting-Keywords-yara-rules/$$current_sha/yara_rules/all.yara
+	curl -sL -o rules/third_party/mthcht_thk_yara_rules.yar https://raw.githubusercontent.com/mthcht/ThreatHunting-Keywords-yara-rules/$$current_sha/yara_rules/all.yara
