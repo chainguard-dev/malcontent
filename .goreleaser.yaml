@@ -5,22 +5,40 @@ before:
     - go mod tidy
 
 builds:
-  - id: bincapz
-    binary: bincapz
+  # - id: bincapz
+  #   binary: bincapz
+  #   main: ./
+  #   goos:
+  #     - darwin
+  #     # - linux
+  #     # - windows
+  #   goarch:
+  #     # - amd64
+  #     - arm64
+  #     # - arm
+  #   flags:
+  #     - -trimpath
+  #   mod_timestamp: '{{ .CommitTimestamp }}'
+  #   ldflags:
+  #     - -X main.BuildVersion={{.Version}}
+  #   env:
+  #     - CGO_ENABLED=1
+
+  - id: darwin-amd64
+    binary: bincapz-darwin-amd64
+    no_unique_dist_dir: true
+    env:
+      - CC=o64-clang
+      - CXX=o64-clang++
+      - CGO_ENABLED=1
     main: ./
-    goos:
-      - darwin
-      - linux
-      - windows
-    goarch:
-      - amd64
-      - arm64
-      - arm
     flags:
       - -trimpath
     mod_timestamp: '{{ .CommitTimestamp }}'
-    ldflags:
-      - -X main.BuildVersion={{.Version}}
+    goos:
+      - darwin
+    goarch:
+      - amd64
 
 signs:
   - id: bincapz
