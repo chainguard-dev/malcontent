@@ -7,7 +7,7 @@ rule dangerous_fstring : notable {
 		$f_string_triple = /f'''[^''']*?{.*?(__import__|os\.system|os\.popen|subprocess|eval|exec|open).*?}/
 		$f_string_triple_double = /f"""[^"""]*?{.*?(__import__|os\.system|os\.popen|subprocess|eval|exec|open).*?}/
     condition:
-        any of ($f_string*)
+        any of them
 }
 
 rule ignore_comment {
