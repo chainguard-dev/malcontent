@@ -344,14 +344,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 				syscalls = append(syscalls, sy...)
 			case "cap":
 				caps = append(caps, v)
-				caps = append(caps, fmt.Sprintf("%s", meta.Value))
 			}
-		}
-
-		// Fix YARA Forge rules that record their author URL as reference URLs
-		if strings.HasPrefix(b.RuleURL, b.ReferenceURL) {
-			b.RuleAuthorURL = b.ReferenceURL
-			b.ReferenceURL = ""
 		}
 
 		// Fix YARA Forge rules that record their author URL as reference URLs
