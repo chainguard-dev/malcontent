@@ -5,18 +5,36 @@ before:
     - go mod tidy
 
 builds:
-  - id: bincapz-build
+  - id: bincapz
     binary: bincapz
     main: ./
     goos:
       - darwin
       - linux
       - windows
+    goarch:
+      - amd64
+      - arm64
+      - arm
     flags:
       - -trimpath
     mod_timestamp: '{{ .CommitTimestamp }}'
     ldflags:
       - -X main.BuildVersion={{.Version}}
+
+signs:
+  - id: bincapz
+    signature: "${artifact}.sig"
+    certificate: "${artifact}.pem"
+    cmd: cosign
+    args: ["sign-blob", "--output-signature", "${artifact}.sig", "--output-certificate", "${artifact}.pem", "${artifact}"]
+    artifacts: binary
+  - id: checksum
+    signature: "${artifact}.sig"
+    certificate: "${artifact}.pem"
+    cmd: cosign
+    args: ["sign-blob", "--output-signature", "${artifact}.sig", "--output-certificate", "${artifact}.pem", "${artifact}"]
+    artifacts: checksum
 
 checksum:
   name_template: 'checksums.txt'

@@ -20,3 +20,4 @@ out/
 
 # macOS
 *.DS_Store
+dist/
