@@ -1,4 +1,6 @@
 rule dangerous_fstring : notable {
+	meta:
+		description = "detects dangerous f-strings that can be used for code execution"
     strings:
 		$f_string = /f'[^']*?{.*?(__import__|os\.system|os\.popen|subprocess|eval|exec|open).*?}/
 		$f_string_double = /f"[^"]*?{.*?(__import__|os\.system|os\.popen|subprocess|eval|exec|open).*?}/
