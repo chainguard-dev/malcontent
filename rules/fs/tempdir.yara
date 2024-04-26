@@ -7,6 +7,7 @@ rule tempdir {
 		$gettempdir = "gettempdir" fullword
 		$tempdir = "TEMPDIR" fullword
 		$tmpdir = "TMPDIR" fullword
+		$cocoa = "NSTemporaryDirectory" fullword
 	condition:
 		any of them
 }

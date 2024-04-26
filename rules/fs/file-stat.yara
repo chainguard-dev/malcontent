@@ -59,3 +59,15 @@ rule npm_stat {
 	condition:
 		any of them
 }
+
+
+rule file_attributes {
+	meta:
+		description = "access filesystem attributes"
+		pledge = "rpath"
+		syscall = "stat"
+	strings:
+		$attr = "fileAttributes"
+	condition:
+		any of them
+}
