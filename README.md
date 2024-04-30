@@ -167,7 +167,9 @@ bincapz was initially inspired by [mandiant/capa](https://github.com/mandiant/ca
 
 If you find malware that `bincapz` doesn't surface suspicious behaviors for, send us a patch! All of the rules are defined in YARA format, and can be found in the `rules/` folder.
 
-### Error: ld: library 'yara' not found
+### Troubleshooting
+
+#### Error: ld: library 'yara' not found
 
 If you get this error at installation:
 
@@ -180,3 +182,19 @@ You'll need to install the `yara` C library:
 ```
 brew install yara || sudo apt install libyara-devel || sudo dnf install yara-devel || sudo pacman -S yara
 ```
+
+Additionally, ensure that Yara's version is `4.3.2`. 
+
+If this version is not available via package managers, manually download the release from [here](https://github.com/VirusTotal/yara/releases) and build it from source by following [these](https://yara.readthedocs.io/en/latest/gettingstarted.html#compiling-and-installing-yara) steps.
+
+Once Yara is installed, run `sudo ldconfig -v` to ensure that the library is loaded.
+
+#### MacOS: `bincapz` will damage your computer
+
+The Rules from https://github.com/mthcht/ThreatHunting-Keywords-yara-rules will set off macOS' malware protections.
+
+In order to compile the rules from this project there are a couple of options:
+1. Run `bincapz` by pulling the official image `docker pull cgr.dev/chainguard/bincapz:latest`
+2. Run a Linux container or VM of choice and install `bincapz` and its dependencies
+
+Disabling macOS' System Integrity Protection via `csrutil` to run `bincapz` with `--third-party` is *not* recommended.
