@@ -48,13 +48,13 @@ rule perl_system : notable {
 		pledge = "exec"
 		description = "executes external programs"
 	strings:
-		$ref = "system("
+		$system = /system\([\"\'\w\ \-\)\/]{0,64}/
+		$perl = "perl" fullword
 	condition:
-		all of them
+		filesize < 65535 and $perl and $system
 }
 
-
-rule subprocess : notable {
+rule py_subprocess : notable {
 	meta:
 		syscall = "execve"
 		pledge = "exec"
@@ -63,10 +63,10 @@ rule subprocess : notable {
 	strings:
 		$naked = "subprocess"
 		$val = /subprocess\.\w{1,16}[\(\"\/\w\'\.\- \,\[\]]{0,64}/
+		$os_system = /os.system\([\"\'\w\ \-\)\/]{0,64}/
 	condition:
 		any of them
 }
-
 
 rule posix_spawn : notable {
 	meta:
