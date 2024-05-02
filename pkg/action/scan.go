@@ -155,7 +155,7 @@ func processArchive(
 		return fmt.Errorf("failed to prepare archive for scanning: %w", err)
 	}
 	var ap []string
-	ap, err = findFilesRecursively(ctx, p)
+	ap, err = findFilesRecursively(ctx, p, c)
 	if err != nil {
 		return fmt.Errorf("find files: %w", err)
 	}
