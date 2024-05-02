@@ -220,7 +220,7 @@ func TestDiff(t *testing.T) {
 func TestMarkdown(t *testing.T) {
 	ctx := slogtest.TestContextWithLogger(t)
 	clog.FromContext(ctx).With("test", "TestMarkDown")
-	yrs, err := rules.Compile(ctx, rules.FS, false)
+	yrs, err := rules.Compile(ctx, rules.FS, true)
 	if err != nil {
 		t.Fatalf("compile: %v", err)
 	}

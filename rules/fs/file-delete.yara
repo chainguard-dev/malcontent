@@ -1,16 +1,15 @@
-
 rule unlink {
 	meta:
 		pledge = "wpath"
 		syscall = "unlink"
 		description = "deletes files"
+		ref = "https://man7.org/linux/man-pages/man2/unlink.2.html"
 	strings:
 		$unlink = "unlink" fullword
 		$unlinkat = "unlinkat" fullword
 	condition:
 		any of them
 }
-
 
 rule rm_f_hardcoded_tmp_path : suspicious {
   meta:
@@ -22,6 +21,7 @@ rule rm_f_hardcoded_tmp_path : suspicious {
     hash_2023_Mirai_Family_Mirai_Linux_yakuza = "c8175e88ccf35532184c42506c99dde75d582e276fa7c2fd46dccbf7e640e278"
     hash_2023_Perl_Backdoor_Perl_Dompu = "f17b6917b835603ef24ab6926d938cbdefbfb537d43fa11965f2e2fdaf80faf6"
     hash_2023_Downloads_6e35 = "6e35b5670953b6ab15e3eb062b8a594d58936dd93ca382bbb3ebdbf076a1f83b"
+	ref = "https://attack.mitre.org/techniques/T1485/"
   strings:
     $ref = /rm +\-[a-zA-Z]{,1}f[a-zA-Z]{,1} \/(tmp|var|dev)\/[\w\/\.\-\%]{0,64}/
 	$not_apt = "/var/lib/apt/lists"

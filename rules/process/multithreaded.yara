@@ -1,7 +1,7 @@
 rule pthread_create {
 	meta:
 		syscall = "pthread_create"
-		description = "uses pthreads"
+		description = "creates pthreads"
 		ref = "https://man7.org/linux/man-pages/man3/pthread_create.3.html"
 	strings:
 		$ref = "pthread_create" fullword
@@ -13,6 +13,7 @@ rule py_thread_create : notable {
 	meta:
 		syscall = "pthread_create"
 		description = "uses python threading"
+		ref = "https://docs.python.org/3/library/threading.html"
 	strings:
 		$ref = "threading.Thread"
 	condition:

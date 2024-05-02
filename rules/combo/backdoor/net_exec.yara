@@ -34,7 +34,7 @@ rule ssh_socks5_exec : notable {
 
 rule progname_socket_waitpid : suspicious {
 	meta:
-		description = "Sets program name, accesses internet, calls programs"
+		description = "sets process name, accesses internet, calls programs"
 	strings:
 		$dlsym = "__progname" fullword
 		$openpty = "socket" fullword

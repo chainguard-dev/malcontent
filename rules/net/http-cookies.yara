@@ -1,7 +1,8 @@
 rule http_cookie : notable {
 	meta:
 		pledge = "inet"
-		description = "Able to access HTTP resources using cookies"
+		description = "access HTTP resources using cookies"
+		ref = "https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies"
 	strings:
 		$Cookie = "Cookie"
 		$HTTP = "HTTP"

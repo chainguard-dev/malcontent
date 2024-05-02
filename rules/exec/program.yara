@@ -58,7 +58,8 @@ rule subprocess : notable {
 	meta:
 		syscall = "execve"
 		pledge = "exec"
-		description = "executes external programs"
+		description = "execute external program"
+		ref = "https://man7.org/linux/man-pages/man2/execve.2.html"
 	strings:
 		$naked = "subprocess"
 		$val = /subprocess\.\w{1,16}[\(\"\/\w\'\.\- \,\[\]]{0,64}/
@@ -72,6 +73,7 @@ rule posix_spawn : notable {
 		syscall = "posix_spawn"
 		pledge = "exec"
 		description = "spawn a process"
+		ref = "https://man7.org/linux/man-pages/man3/posix_spawn.3.html"
 	strings:
 		$ref = "posix_spawn"
 	condition:
@@ -83,7 +85,8 @@ rule go_exec : notable {
 	meta:
 		syscall = "posix_spawn"
 		pledge = "exec"
-		description = "spawn a process"
+		description = "run external command"
+		ref = "https://pkg.go.dev/os/exec"
 	strings:
 		$ref = "exec_unix.go"
 	condition:
@@ -95,6 +98,7 @@ rule npm_exec : notable {
 		syscall = "posix_spawn"
 		pledge = "exec"
 		description = "spawn a process"
+		ref = "https://nodejs.org/api/child_process.html"
 	strings:
 		$child = "child_process"
 		$ref_val = /exec\([\'\"][\w \/\'\)]{0,64}/
