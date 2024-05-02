@@ -57,16 +57,28 @@ update-yaraforge:
 	curl -sL -o out/yaraforge.zip https://github.com/YARAHQ/yara-forge/releases/latest/download/yara-forge-rules-full.zip
 	unzip -o -j out/yaraforge.zip packages/full/yara-rules-full.yar -d rules/third_party/
 
-
 .PHONY: update-huntress
 update-huntress:
-	mkdir -p out
-	curl -sL -o out/huntress.zip https://github.com/huntresslabs/threat-intel/archive/refs/heads/main.zip
-	unzip -o out/huntress.zip -d rules/third_party/huntress/
-	mv rules/third_party/huntress/threat-intel-main/* rules/third_party/huntress/
-	mv rules/third_party/huntress/2*/2* rules/third_party/huntress/
-	find rules/third_party/huntress -name "*.yml" -delete
-	find rules/third_party/huntress -name "*.ps1" -delete
-	find rules/third_party/huntress -name ".*" -type f -delete
-	find rules/third_party/huntress -type d -delete
+	rm -Rf out/huntress  rules/third_party/huntress
+	mkdir -p out rules/third_party/huntress
+	git clone https://github.com/huntresslabs/threat-intel.git out/huntress
+	find out/huntress \( -name "*.yar*" -o -name "*LICENSE*" \) -print -exec cp {} rules/third_party/huntress/ \;
+	set -e ;\
+	cd out/huntress ;\
+	COMMIT=$$(git rev-parse head) ;\
+	echo $$COMMIT > ../../rules/huntress/COMMIT ;\
+	echo "to commit update, use:" ;\
+	echo "git commit rules/huntress -m \"update huntress threat-intel to latest - $$COMMIT\""
 
+.PHONY: update-threathunting-keywords
+update-threathunting-keywords:
+	@current_sha=a21391e7280a4347dd7faebd7b5f54344b484ec7; \
+	upstream_sha=$$(curl -s https://api.github.com/repos/mthcht/ThreatHunting-Keywords-yara-rules/commits/main | grep sha | head -n 1 | cut -d '"' -f 4); \
+	if [ "$$current_sha" != "$$upstream_sha" ]; then \
+		echo -e "ThreatHunting-Keywords-yara-rules has been updated to $$upstream_sha.\nPlease update the current_sha in the Makefile."; \
+	else \
+		echo "ThreatHunting-Keywords-yara-rules is up to date."; \
+	fi; \
+	curl -sL -o rules/third_party/mthcht_thk_yara_rules.yar https://raw.githubusercontent.com/mthcht/ThreatHunting-Keywords-yara-rules/$$current_sha/yara_rules/all.yara
+# rewrite Chrome extension ID's to avoid XProtect matching bincapz
+	perl -p -i -e 's#\/([a-z]{31})([a-z])\/#\/$$1\[$$2\]\/#;' rules/third_party/mthcht_thk_yara_rules.yar

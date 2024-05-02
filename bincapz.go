@@ -20,18 +20,19 @@ import (
 )
 
 func main() {
-	formatFlag := flag.String("format", "terminal", "Output type. Valid values are: json, markdown, simple, terminal, yaml")
-	ignoreTagsFlag := flag.String("ignore-tags", "", "Rule tags to ignore")
-	minLevelFlag := flag.Int("min-level", 1, "minimum risk level to show results for (1=low, 2=medium, 3=high, 4=critical)")
-	minFileLevelFlag := flag.Int("min-file-level", 0, "only show results for files that meet this risk level (1=low, 2=medium, 3=high, 4=critical)")
-	thirdPartyFlag := flag.Bool("third-party", true, "include third-party rules, which may have licensing restrictions")
-	omitEmptyFlag := flag.Bool("omit-empty", false, "omit files that contain no matches")
-	includeDataFilesFlag := flag.Bool("data-files", false, "include files that are detected to as non-program (binary or source) files")
-	diffFlag := flag.Bool("diff", false, "show capability drift between two files")
 	allFlag := flag.Bool("all", false, "Ignore nothing, show all")
-	statsFlag := flag.Bool("stats", false, "show statistics about the scan")
-	verboseFlag := flag.Bool("verbose", false, "emit verbose logging messages to stderr")
+	diffFlag := flag.Bool("diff", false, "show capability drift between two files")
+	formatFlag := flag.String("format", "terminal", "Output type. Valid values are: json, markdown, simple, terminal, yaml")
+	ignoreSelfFlag := flag.Bool("ignore-self", true, "ignore the bincapz repository")
+	ignoreTagsFlag := flag.String("ignore-tags", "", "Rule tags to ignore")
+	includeDataFilesFlag := flag.Bool("data-files", false, "include files that are detected to as non-program (binary or source) files")
+	minFileLevelFlag := flag.Int("min-file-level", 0, "only show results for files that meet this risk level (1=low, 2=medium, 3=high, 4=critical)")
+	minLevelFlag := flag.Int("min-level", 1, "minimum risk level to show results for (1=low, 2=medium, 3=high, 4=critical)")
 	ociFlag := flag.Bool("oci", false, "scan an OCI image")
+	omitEmptyFlag := flag.Bool("omit-empty", false, "omit files that contain no matches")
+	statsFlag := flag.Bool("stats", false, "show statistics about the scan")
+	thirdPartyFlag := flag.Bool("third-party", true, "include third-party rules, which may have licensing restrictions")
+	verboseFlag := flag.Bool("verbose", false, "emit verbose logging messages to stderr")
 
 	flag.Parse()
 	args := flag.Args()
@@ -75,15 +76,16 @@ func main() {
 	}
 
 	bc := action.Config{
+		IgnoreSelf:       *ignoreSelfFlag,
+		IgnoreTags:       ignoreTags,
+		IncludeDataFiles: includeDataFiles,
+		MinFileScore:     *minFileLevelFlag,
+		MinResultScore:   minLevel,
+		OCI:              *ociFlag,
+		OmitEmpty:        *omitEmptyFlag,
+		Renderer:         renderer,
 		Rules:            yrs,
 		ScanPaths:        args,
-		IgnoreTags:       ignoreTags,
-		OmitEmpty:        *omitEmptyFlag,
-		MinResultScore:   minLevel,
-		MinFileScore:     *minFileLevelFlag,
-		IncludeDataFiles: includeDataFiles,
-		Renderer:         renderer,
-		OCI:              *ociFlag,
 		Stats:            stats,
 	}
 
