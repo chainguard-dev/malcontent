@@ -65,10 +65,11 @@ func TestJSON(t *testing.T) {
 				t.Fatalf("render: %v", err)
 			}
 			bc := action.Config{
-				ScanPaths:  []string{binPath},
+				IgnoreSelf: false,
 				IgnoreTags: []string{"harmless"},
 				Renderer:   render,
 				Rules:      yrs,
+				ScanPaths:  []string{binPath},
 			}
 
 			tcLogger := clog.FromContext(ctx).With("test", name)
@@ -123,10 +124,11 @@ func TestSimple(t *testing.T) {
 			}
 
 			bc := action.Config{
-				ScanPaths:  []string{binPath},
+				IgnoreSelf: false,
 				IgnoreTags: []string{"harmless"},
 				Renderer:   simple,
 				Rules:      yrs,
+				ScanPaths:  []string{binPath},
 			}
 
 			tcLogger := clog.FromContext(ctx).With("test", name)
@@ -190,12 +192,13 @@ func TestDiff(t *testing.T) {
 			}
 
 			bc := action.Config{
-				ScanPaths:      []string{tc.src, tc.dest},
+				IgnoreSelf:     false,
 				IgnoreTags:     []string{"harmless"},
+				MinFileScore:   tc.minFileScore,
+				MinResultScore: tc.minResultScore,
 				Renderer:       simple,
 				Rules:          yrs,
-				MinResultScore: tc.minResultScore,
-				MinFileScore:   tc.minFileScore,
+				ScanPaths:      []string{tc.src, tc.dest},
 			}
 
 			logger := clog.New(slog.Default().Handler()).With("src", tc.src)
@@ -253,10 +256,11 @@ func TestMarkdown(t *testing.T) {
 			}
 
 			bc := action.Config{
-				ScanPaths:  []string{binPath},
+				IgnoreSelf: false,
 				IgnoreTags: []string{"harmless"},
 				Renderer:   simple,
 				Rules:      yrs,
+				ScanPaths:  []string{binPath},
 			}
 
 			tcLogger := clog.FromContext(ctx).With("test", name)
