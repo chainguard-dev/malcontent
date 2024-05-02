@@ -54,7 +54,7 @@ rule python_pty_spawner : suspicious {
 
 rule spectralblur_alike : suspicious {
 	meta:
-		description = "Uploads, provides a terminal, runs program"
+		description = "uploads, provides a terminal, runs program"
 	strings:
 		$upload = "upload"
 		$shell = "shell"
@@ -69,7 +69,7 @@ rule spectralblur_alike : suspicious {
 
 rule miner_kvryr_stak_alike : suspicious {
 	meta:
-		description = "Uploads, provides a terminal, runs program"
+		description = "uploads, provides a terminal, runs program"
 	strings:
 		$upload = "upload"
 		$shell = "shell"
