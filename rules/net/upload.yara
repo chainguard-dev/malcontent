@@ -1,7 +1,7 @@
 
 rule upload : notable {
 	meta:
-		description = "Uploads files"
+		description = "uploads files"
 	strings:
 		$ref = "upload" fullword
 		$ref2 = "UPLOAD" fullword

@@ -1,17 +1,29 @@
-
 rule gethostbyname {
 	meta:
-		description = "resolves network hosts via name"
+		description = "resolve network host name to IP address"
 		pledge = "inet"
+		ref = "https://linux.die.net/man/3/gethostbyname"
 	strings:
-		$gethostbyname2 = "gethostbyname2" fullword
-		$gethostbyname = "gethostbyname" fullword
+		$gethostbyname2 = "gethostbyname" fullword
 	condition:
 		any of them
 }
+
+
+rule gethostbyname2 {
+	meta:
+		description = "resolve network host name to IP address"
+		pledge = "inet"
+		ref = "https://linux.die.net/man/3/gethostbyname2"
+	strings:
+		$gethostbyname2 = "gethostbyname2" fullword
+	condition:
+		any of them
+}
+
 rule cannot_resolve {
 	meta:
-		description = "Resolves network host names"
+		description = "resolve network host name to IP address"
 	strings:
 		$cannot_resolve = "cannot resolve"
 	condition:
@@ -20,7 +32,7 @@ rule cannot_resolve {
 
 rule net_hostlookup {
 	meta:
-		description = "Uses Go to resolve network hosts"
+		description = "resolve network host name to IP address"
 	strings:
 		$net_lookup = "net.hostLookup"
 		$hostip = "LookupHostIP"

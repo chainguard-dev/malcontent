@@ -2,7 +2,8 @@ rule elf_calls_shell_echo : notable {
 	meta:
 		syscall = "posix_spawn"
 		pledge = "exec"
-		description = "uses the echo command to generate output"
+		description = "program generates text with echo command"
+		ref = "https://linux.die.net/man/1/echo"
 	strings:
 		$val = /echo ['"%\w\>\/ \.]{1,64}/
 		$not_echo = "not echo"

@@ -4,6 +4,7 @@ rule setuid {
 		description = "set real and effective user ID of current process"
 		pledge = "id"
 		capability = "CAP_SETUID"
+		ref = "https://man7.org/linux/man-pages/man2/setuid.2.html"
 	strings:
 		$ref = "setuid" fullword
 		$not_go = "_syscall.libc_setuid_trampoline"
@@ -17,6 +18,7 @@ rule seteuid {
 		syscall = "seteuid"
 		description = "set effective user ID of current process"
 		pledge = "id"
+		ref = "https://man7.org/linux/man-pages/man2/seteuid.2.html"
 		capability = "CAP_SETUID"
 	strings:
 		$ref = "seteuid" fullword
@@ -30,6 +32,7 @@ rule setreuid {
 		description = "set real and effective user ID of current process"
 		pledge = "id"
 		capability = "CAP_SETUID"
+		ref = "https://man7.org/linux/man-pages/man2/setreuid.2.html"
 	strings:
 		$ref = "setreuid" fullword
 	condition:
@@ -41,6 +44,7 @@ rule setresuid {
 		syscall = "setresuid"
 		description = "set real, effective, and saved user ID of process"
 		pledge = "id"
+		ref = "https://man7.org/linux/man-pages/man2/setresuid.2.html"
 		capability = "CAP_SETUID"
 	strings:
 		$ref = "setresuid" fullword
@@ -53,6 +57,7 @@ rule setfsuid {
 		syscall = "setfsuid"
 		description = "set user identity used for filesystem checks"
 		pledge = "id"
+		ref = "https://man7.org/linux/man-pages/man2/setfsuid.2.html"
 		capability = "CAP_SETUID"
 	strings:
 		$ref = "setfsuid" fullword

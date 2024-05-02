@@ -5,14 +5,19 @@ package bincapz
 
 type Behavior struct {
 	Description string `json:",omitempty" yaml:",omitempty"`
-	// Values are critical values to be surfaced in the UI
-	Values []string `json:",omitempty" yaml:",omitempty"`
 	// MatchStrings are all strings found relating to this behavior
 	MatchStrings []string `json:",omitempty" yaml:",omitempty"`
 	RiskScore    int
 	RiskLevel    string `json:",omitempty" yaml:",omitempty"`
-	RuleAuthor   string `json:",omitempty" yaml:",omitempty"`
-	RuleLicense  string `json:",omitempty" yaml:",omitempty"`
+
+	RuleURL      string `json:",omitempty" yaml:",omitempty"`
+	ReferenceURL string `json:",omitempty" yaml:",omitempty"`
+
+	RuleAuthor    string `json:",omitempty" yaml:",omitempty"`
+	RuleAuthorURL string `json:",omitempty" yaml:",omitempty"`
+
+	RuleLicense    string `json:",omitempty" yaml:",omitempty"`
+	RuleLicenseURL string `json:",omitempty" yaml:",omitempty"`
 
 	DiffAdded   bool `json:",omitempty" yaml:",omitempty"`
 	DiffRemoved bool `json:",omitempty" yaml:",omitempty"`

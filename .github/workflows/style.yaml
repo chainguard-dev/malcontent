@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
-        uses: actions/checkout@1d96c772d19495a3b5c517cd2bc0cb401ea0529f # v4.1.3
+        uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
 
       - name: Set up Go
         uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
-        uses: actions/checkout@1d96c772d19495a3b5c517cd2bc0cb401ea0529f # v4.1.3
+        uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
 
       - name: Set up Go
         uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
@@ -50,7 +50,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@1d96c772d19495a3b5c517cd2bc0cb401ea0529f # v4.1.3
+      - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
 
       - name: Set up Go
         uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
@@ -68,7 +68,7 @@ jobs:
           sudo apt update && sudo apt install libyara-dev -y
 
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@3cfe3a4abbb849e10058ce4af15d205b6da42804 # v3.7.1
+        uses: golangci/golangci-lint-action@82d40c283aeb1f2b6595839195e95c2d6a49081b # v3.7.1
         with:
           version: v1.57
           args: --timeout=5m
@@ -79,25 +79,13 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@1d96c772d19495a3b5c517cd2bc0cb401ea0529f # v4.1.3
+        uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
 
       - name: Set up Go
         uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
         with:
           go-version: '1.21'
           check-latest: true
-
-      - uses: chainguard-dev/actions/trailing-space@main
-        if: ${{ always() }}
-
-      - uses: chainguard-dev/actions/eof-newline@main
-        if: ${{ always() }}
-
-      - uses: reviewdog/action-tflint@master
-        if: ${{ always() }}
-        with:
-          github_token: ${{ secrets.github_token }}
-          fail_on_error: true
 
       - uses: reviewdog/action-misspell@5bd7be2fc7ae56a517184f5c4bbcf2fd7afe3927 # v1.17.0
         if: ${{ always() }}
@@ -108,6 +96,7 @@ jobs:
           exclude: |
             **/go.sum
             **/third_party/**
+            **/samples/**
             ./*.yml
 
       - uses: get-woke/woke-action-reviewdog@d71fd0115146a01c3181439ce714e21a69d75e31 # v0
