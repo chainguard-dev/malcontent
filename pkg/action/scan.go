@@ -108,43 +108,30 @@ func recursiveScan(ctx context.Context, c Config) (*bincapz.Report, error) {
 			}
 		}
 
-		var isArchive bool
-		ext := getExt(sp)
-		if _, ok := archiveMap[ext]; ok {
-			isArchive = true
-		}
-		if isArchive {
-			var err error
-			sp, err = archive(ctx, sp)
-			if err != nil {
-				return nil, fmt.Errorf("failed to prepare archive for scanning: %w", err)
-			}
-		}
-
 		rp, err := findFilesRecursively(ctx, sp, c)
 		if err != nil {
 			return nil, fmt.Errorf("find files: %w", err)
 		}
+
 		for _, p := range rp {
-			fr, err := scanSinglePath(ctx, c, yrs, p)
-			if err != nil {
-				logger.Errorf("scan path: %v", err)
-				continue
+			isArchive := false
+			ext := getExt(p)
+			if _, ok := archiveMap[ext]; ok {
+				isArchive = true
 			}
-			if fr == nil {
-				continue
-			}
-			if c.Renderer != nil {
-				if fr.RiskScore < c.MinFileScore {
-					continue
+			if isArchive {
+				err = processArchive(ctx, c, yrs, r, p, logger)
+				if err != nil {
+					return nil, err
 				}
-				if err := c.Renderer.File(ctx, *fr); err != nil {
-					return r, fmt.Errorf("render: %w", err)
+			} else {
+				err = processFile(ctx, c, yrs, r, p, logger)
+				if err != nil {
+					return nil, err
 				}
 			}
-			r.Files[p] = *fr
 		}
-		if c.OCI || isArchive {
+		if c.OCI {
 			if err := os.RemoveAll(sp); err != nil {
 				logger.Errorf("remove %s: %v", sp, err)
 			}
@@ -152,6 +139,63 @@ func recursiveScan(ctx context.Context, c Config) (*bincapz.Report, error) {
 	}
 
 	return r, nil
+}
+
+func processArchive(
+	ctx context.Context,
+	c Config,
+	yrs *yara.Rules,
+	r *bincapz.Report,
+	p string,
+	logger *clog.Logger,
+) error {
+	var err error
+	p, err = archive(ctx, p)
+	if err != nil {
+		return fmt.Errorf("failed to prepare archive for scanning: %w", err)
+	}
+	var ap []string
+	ap, err = findFilesRecursively(ctx, p, c)
+	if err != nil {
+		return fmt.Errorf("find files: %w", err)
+	}
+	for _, a := range ap {
+		err = processFile(ctx, c, yrs, r, a, logger)
+		if err != nil {
+			return err
+		}
+	}
+	if err := os.RemoveAll(p); err != nil {
+		logger.Errorf("remove %s: %v", p, err)
+	}
+	return nil
+}
+
+func processFile(
+	ctx context.Context,
+	c Config, yrs *yara.Rules,
+	r *bincapz.Report,
+	p string,
+	logger *clog.Logger,
+) error {
+	fr, err := scanSinglePath(ctx, c, yrs, p)
+	if err != nil {
+		logger.Errorf("scan path: %v", err)
+		return nil
+	}
+	if fr == nil {
+		return nil
+	}
+	if c.Renderer != nil {
+		if fr.RiskScore < c.MinFileScore {
+			return nil
+		}
+		if err := c.Renderer.File(ctx, *fr); err != nil {
+			return fmt.Errorf("render: %w", err)
+		}
+	}
+	r.Files[p] = *fr
+	return nil
 }
 
 func Scan(ctx context.Context, c Config) (*bincapz.Report, error) {
