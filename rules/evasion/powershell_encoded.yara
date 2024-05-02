@@ -3,7 +3,7 @@ rule powershell_encoded_command_val : suspicious {
 	description = "Runs powershell with an encoded command"
   strings:
 	$ps = "powershell"
-	$enc = /\-EncodedCommand [\w\=]{0,64}/
+	$enc = /\-EncodedCommand [\w\=]{0,256}/
   condition:
 	all of them
 }
