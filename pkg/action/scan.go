@@ -19,7 +19,7 @@ import (
 )
 
 // return a list of files within a path.
-func findFilesRecursively(ctx context.Context, root string) ([]string, error) {
+func findFilesRecursively(ctx context.Context, root string, c Config) ([]string, error) {
 	clog.FromContext(ctx).Infof("finding files in %s ...", root)
 	files := []string{}
 
@@ -35,6 +35,17 @@ func findFilesRecursively(ctx context.Context, root string) ([]string, error) {
 			// False positives in refs file
 			if strings.Contains(path, "/.git/") {
 				return nil
+			}
+			// Skip the bincapz directory if IgnoreSelf is true
+			if c.IgnoreSelf {
+				// we need the fully-qualified path here
+				fq, err := filepath.Abs(path)
+				if err != nil {
+					return err
+				}
+				if strings.Contains(fq, "bincapz") {
+					return nil
+				}
 			}
 			files = append(files, path)
 			return nil
@@ -110,7 +121,7 @@ func recursiveScan(ctx context.Context, c Config) (*bincapz.Report, error) {
 			}
 		}
 
-		rp, err := findFilesRecursively(ctx, sp)
+		rp, err := findFilesRecursively(ctx, sp, c)
 		if err != nil {
 			return nil, fmt.Errorf("find files: %w", err)
 		}

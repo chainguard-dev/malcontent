@@ -11,15 +11,16 @@ import (
 )
 
 type Config struct {
+	IgnoreSelf       bool
+	IgnoreTags       []string
+	IncludeDataFiles bool
+	MinFileScore     int
+	MinResultScore   int
+	OCI              bool
+	OmitEmpty        bool
+	Output           io.Writer
+	Renderer         render.Renderer
 	Rules            *yara.Rules
 	ScanPaths        []string
-	IgnoreTags       []string
-	MinResultScore   int
-	MinFileScore     int
-	OmitEmpty        bool
-	IncludeDataFiles bool
-	Renderer         render.Renderer
-	Output           io.Writer
-	OCI              bool
 	Stats            bool
 }
