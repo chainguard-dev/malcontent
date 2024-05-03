@@ -183,11 +183,18 @@ You'll need to install the `yara` C library:
 brew install yara || sudo apt install libyara-devel || sudo dnf install yara-devel || sudo pacman -S yara
 ```
 
-Additionally, ensure that Yara's version is `4.3.2`. 
+If you wish to install a known, working version of Yara from source, run the following Makefile target:
+```
+make build-yara
+```
 
-If this version is not available via package managers, manually download the release from [here](https://github.com/VirusTotal/yara/releases) and build it from source by following [these](https://yara.readthedocs.io/en/latest/gettingstarted.html#compiling-and-installing-yara) steps.
-
-Once Yara is installed, run `sudo ldconfig -v` to ensure that the library is loaded.
+This has been tested on the following Platforms:
+- Alpine
+- CentOS
+- Fedora
+- macOS
+- Rocky
+- Wolfi
 
 #### MacOS: `bincapz` will damage your computer
 
