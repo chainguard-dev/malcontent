@@ -83,7 +83,7 @@ yara-reqs:
 		elif [ "$(LINT_DISTRO)" = "fedora" ] || [ "$(LINT_DISTRO)" = "rocky" ]; then \
 			sudo dnf -y update && sudo dnf install -y automake bison flex gcc libtool make openssl-devel pkg-config; \
 		elif [ "$(LINT_DISTRO)" = "alpine" ]; then \
-			sudo apk update && sudo apk add autoconf automake bison build-base flex gcc libtool linux-headers make openssl-dev pkgconf; \
+			sudo apk update && sudo apk add autoconf automake bison build-base flex gcc libtool linux-headers make openssl-dev pkgconf-dev; \
 		elif [ "$(LINT_DISTRO)" = "wolfi" ]; then \
 			apk update && apk add autoconf automake bison build-base curl flex gcc libtool linux-headers make openssl-dev pkgconf-dev sudo; \
 		elif [ "$(LINT_DISTRO)" = "arch" ] || [ "$(LINT_DISTRO)" = "archarm" ]; then \
