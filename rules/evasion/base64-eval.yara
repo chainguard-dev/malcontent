@@ -31,21 +31,20 @@ rule ruby_eval2_near_enough: critical {
 	description = "Evaluates base64 content"
   strings:
     $eval = "eval("
-	$base64 = "base64"
+	$base64 = "b64decode"
   condition:
-	  all of them and math.abs(@base64 - @eval) <= 128
+	  all of them and math.abs(@base64 - @eval) <= 64
 }
 
 rule python_exec_near_enough: critical {
   meta:
 	description = "Evaluates base64 content"
   strings:
-    $eval = "exec("
-	$base64 = "base64"
+    $exec = "exec("
+	$base64 = "b64decode"
   condition:
-	  all of them and math.abs(@base64 - @eval) <= 128
+	  all of them and math.abs(@base64 - @exec) < 128
 }
-
 
 rule echo_decode_bash : suspicious {
   meta:
