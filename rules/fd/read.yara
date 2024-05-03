@@ -21,3 +21,13 @@ rule fread : harmless {
 	condition:
 		any of them
 }
+
+rule py_fd_read {
+	meta:
+		description = "reads from a file handle"
+		syscall = "open,close"
+	strings:
+		$read_val = /[\w\(\)]{1,32}\.read\(\)/
+	condition:
+		any of them
+}
