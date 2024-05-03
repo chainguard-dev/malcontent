@@ -199,6 +199,8 @@ This has been tested on the following Platforms:
 - Rocky
 - Wolfi
 
+For other distributions, consult the distribution's package manager to install the equivalent packages outlined [here](https://yara.readthedocs.io/en/latest/gettingstarted.html).
+
 #### MacOS: `bincapz` will damage your computer
 
 The Rules from https://github.com/mthcht/ThreatHunting-Keywords-yara-rules will set off macOS' malware protections.
