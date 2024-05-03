@@ -190,8 +190,10 @@ make build-yara
 
 This has been tested on the following Platforms:
 - Alpine
+- Arch
 - CentOS
 - Fedora
+- Kali
 - macOS
 - Rocky
 - Wolfi

@@ -76,8 +76,8 @@ yara-reqs:
 	@if [ "$(LINT_OS_LOWER)" = "darwin" ]; then \
 		brew install automake bison flex gcc libtool m4 make pkg-config; \
 	elif [ "$(LINT_OS_LOWER)" = "linux" ]; then \
-		if [ "$(LINT_DISTRO)" = "ubuntu" ] || [ "$(LINT_DISTRO)" = "debian" ]; then \
-			sudo apt-get update && sudo apt-get install -y automake bison flex gcc libtool libssl-dev make pkg-config; \
+		if [ "$(LINT_DISTRO)" = "ubuntu" ] || [ "$(LINT_DISTRO)" = "debian" ] || [ "$(LINT_DISTRO)" = "kali" ]; then \
+			sudo apt-get -y update && sudo apt-get install -y automake bison flex gcc libtool libssl-dev make pkg-config; \
 		elif [ "$(LINT_DISTRO)" = "centos" ] || [ "$(LINT_DISTRO)" = "redhat" ]; then \
 			sudo yum -y update && sudo yum install -y automake bison flex gcc libtool make openssl-devel pkg-config; \
 		elif [ "$(LINT_DISTRO)" = "fedora" ] || [ "$(LINT_DISTRO)" = "rocky" ]; then \
@@ -86,6 +86,10 @@ yara-reqs:
 			sudo apk update && sudo apk add autoconf automake bison build-base flex gcc libtool linux-headers make openssl-dev pkgconf; \
 		elif [ "$(LINT_DISTRO)" = "wolfi" ]; then \
 			apk update && apk add autoconf automake bison build-base curl flex gcc libtool linux-headers make openssl-dev pkgconf-dev sudo; \
+		elif [ "$(LINT_DISTRO)" = "arch" ] || [ "$(LINT_DISTRO)" = "archarm" ]; then \
+			sudo pacman -Syu --noconfirm autoconf automake bison flex gcc libtool make openssl pkgconf; \
+			sudo mkdir -p /etc/ld.so.conf.d; \
+			echo "/usr/local/lib" | sudo tee /etc/ld.so.conf.d/local.conf; \
 		else \
 			echo "Unsupported Linux distribution: $(LINT_DISTRO)"; \
 		fi; \
