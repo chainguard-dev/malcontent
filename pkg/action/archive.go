@@ -51,7 +51,7 @@ func copyArchive(ctx context.Context, src string, dst string) error {
 func tempDir(ctx context.Context, p string) (string, error) {
 	logger := clog.FromContext(ctx).With("path", p)
 	logger.Info("creating temp dir")
-	tmpDir, err := os.MkdirTemp("", fmt.Sprintf("bincapz-%s", filepath.Base(p)))
+	tmpDir, err := os.MkdirTemp("", filepath.Base(p))
 	if err != nil {
 		return "", fmt.Errorf("failed to create temp dir: %w", err)
 	}

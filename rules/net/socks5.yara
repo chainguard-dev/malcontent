@@ -5,13 +5,15 @@ rule socks5 : notable {
 	strings:
 		$ref = ".Socks5"
 		$ref2 = "SOCKS5"
-	    $p_connect = "CONNECT %s"
-		$p_socksproxy = "socksproxy"
-		$p_socks_proxy = "socks proxy"
-		$p_socksv5 = "SOCKSv5"
-		$p_socks_percent = "SOCKS %"
-		$p_socks5 = "socks5" fullword
-		$go_socks5 = "go-socks5"
+	    $rp_connect = "CONNECT %s"
+		$rp_socksproxy = "socksproxy"
+		$rp_socks_proxy = "socks proxy"
+		$rp_socksv5 = "SOCKSv5"
+		$rp_socks_percent = "SOCKS %"
+		$rp_socks5 = "socks5" fullword
+		$rgo_socks5 = "go-socks5"
+
+		$not_etc_services = "Registered Ports are not controlled by the IANA"
 	condition:
-		any of them
+		any of ($r*) and none of ($not*)
 }
