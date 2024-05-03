@@ -77,15 +77,15 @@ yara-reqs:
 		brew install automake bison flex gcc libtool m4 make pkg-config; \
 	elif [ "$(LINT_OS_LOWER)" = "linux" ]; then \
 		if [ "$(LINT_DISTRO)" = "ubuntu" ] || [ "$(LINT_DISTRO)" = "debian" ]; then \
-			sudo apt-get update && sudo apt-get install -y automake bison flex gcc libtool make pkg-config; \
+			sudo apt-get update && sudo apt-get install -y automake bison flex gcc libtool libssl-dev make pkg-config; \
 		elif [ "$(LINT_DISTRO)" = "centos" ] || [ "$(LINT_DISTRO)" = "redhat" ]; then \
-			sudo yum -y update && sudo yum install -y automake bison flex gcc libtool make pkg-config; \
+			sudo yum -y update && sudo yum install -y automake bison flex gcc libtool make openssl-devel pkg-config; \
 		elif [ "$(LINT_DISTRO)" = "fedora" ] || [ "$(LINT_DISTRO)" = "rocky" ]; then \
-			sudo dnf -y update && sudo dnf install -y automake bison flex gcc libtool make pkg-config; \
+			sudo dnf -y update && sudo dnf install -y automake bison flex gcc libtool make openssl-devel pkg-config; \
 		elif [ "$(LINT_DISTRO)" = "alpine" ]; then \
-			sudo apk update && sudo apk add autoconf automake bison build-base flex gcc libtool linux-headers make pkgconf; \
+			sudo apk update && sudo apk add autoconf automake bison build-base flex gcc libtool linux-headers make openssl-dev pkgconf; \
 		elif [ "$(LINT_DISTRO)" = "wolfi" ]; then \
-			apk update && apk add autoconf automake bison build-base curl flex gcc libtool linux-headers make pkgconf-dev sudo; \
+			apk update && apk add autoconf automake bison build-base curl flex gcc libtool linux-headers make openssl-dev pkgconf-dev sudo; \
 		else \
 			echo "Unsupported Linux distribution: $(LINT_DISTRO)"; \
 		fi; \
