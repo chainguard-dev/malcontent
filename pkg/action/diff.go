@@ -75,6 +75,7 @@ func Diff(ctx context.Context, c Config) (*bincapz.Report, error) {
 
 		rbs := bincapz.FileReport{
 			Path:              tr.Path,
+			AlternatePath:     tr.AlternatePath,
 			Behaviors:         map[string]bincapz.Behavior{},
 			PreviousRiskScore: fr.RiskScore,
 			PreviousRiskLevel: fr.RiskLevel,
@@ -109,12 +110,12 @@ func Diff(ctx context.Context, c Config) (*bincapz.Report, error) {
 
 		abs := bincapz.FileReport{
 			Path:              tr.Path,
+			AlternatePath:     tr.AlternatePath,
 			Behaviors:         map[string]bincapz.Behavior{},
 			PreviousRiskScore: fr.RiskScore,
 			PreviousRiskLevel: fr.RiskLevel,
-
-			RiskScore: tr.RiskScore,
-			RiskLevel: tr.RiskLevel,
+			RiskScore:         tr.RiskScore,
+			RiskLevel:         tr.RiskLevel,
 		}
 
 		// if destination behavior is not in the source
@@ -153,6 +154,7 @@ func Diff(ctx context.Context, c Config) (*bincapz.Report, error) {
 			// We think that this file moved from rpath to apath.
 			abs := bincapz.FileReport{
 				Path:                 tr.Path,
+				AlternatePath:        tr.AlternatePath,
 				PreviousRelPath:      rpath,
 				PreviousRelPathScore: score,
 

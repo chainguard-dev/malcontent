@@ -136,19 +136,31 @@ func (r Terminal) Full(ctx context.Context, rep bincapz.Report) error {
 
 	for f, fr := range rep.Diff.Modified {
 		fr := fr
+		fileName := fr.Path[strings.LastIndex(fr.Path, "/")+1:]
 		var title string
+		var subtitle string
 		if fr.PreviousRelPath != "" {
-			title = fmt.Sprintf("Moved: %s -> %s (score: %f)", fr.PreviousRelPath, f, fr.PreviousRelPathScore)
+			title = fmt.Sprintf("Moved: %s -> %s (score: %f)\n", fr.PreviousRelPath, f, fr.PreviousRelPathScore)
+			if fr.AlternatePath != "" {
+				subtitle = fmt.Sprintf("Original Path: %s > %s\n", fr.AlternatePath, fileName)
+			}
 		} else {
-			title = fmt.Sprintf("Changed: %s", f)
+			title = fmt.Sprintf("Changed: %s\n", f)
+			subtitle = fmt.Sprintf("Original Path: %s > %s\n", fr.AlternatePath, fileName)
 		}
 
 		if fr.RiskScore != fr.PreviousRiskScore {
 			title = fmt.Sprintf("%s %s\n\n", title,
-				darkBrackets(fmt.Sprintf("%s %s %s", decorativeRisk(fr.PreviousRiskScore, fr.PreviousRiskLevel), color.HiWhiteString("→"), decorativeRisk(fr.RiskScore, fr.RiskLevel))))
+				darkBrackets(fmt.Sprintf("%s %s %s\n", decorativeRisk(fr.PreviousRiskScore, fr.PreviousRiskLevel), color.HiWhiteString("→"), decorativeRisk(fr.RiskScore, fr.RiskLevel))))
+			if fr.AlternatePath != "" {
+				subtitle = fmt.Sprintf("Original Path: %s > %s\n", fr.AlternatePath, fileName)
+			}
 		}
 
-		fmt.Fprint(r.w, title)
+		fmt.Fprintf(r.w, "%s\n", title)
+		if subtitle != "" {
+			fmt.Fprintf(r.w, "%s\n", subtitle)
+		}
 		added := 0
 		removed := 0
 		for _, b := range fr.Behaviors {
