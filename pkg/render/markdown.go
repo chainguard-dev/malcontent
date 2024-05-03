@@ -44,7 +44,8 @@ func matchFragmentLink(s string) string {
 func (r Markdown) File(ctx context.Context, fr bincapz.FileReport) error {
 	tableCfg := tableConfig{Title: fmt.Sprintf("## Scanned Path: %s [%s]", fr.Path, mdRisk(fr.RiskScore, fr.RiskLevel))}
 	if fr.AlternatePath != "" {
-		tableCfg.SubTitle = fmt.Sprintf("### Original Path: %s", fr.AlternatePath)
+		fileName := fr.Path[strings.LastIndex(fr.Path, "/")+1:]
+		tableCfg.SubTitle = fmt.Sprintf("### Original Path: %s > %s", fr.AlternatePath, fileName)
 	}
 	markdownTable(ctx, &fr, r.w, tableCfg)
 	return nil
@@ -53,18 +54,20 @@ func (r Markdown) File(ctx context.Context, fr bincapz.FileReport) error {
 func (r Markdown) Full(ctx context.Context, rep bincapz.Report) error {
 	for f, fr := range rep.Diff.Removed {
 		fr := fr
+		fileName := fr.Path[strings.LastIndex(fr.Path, "/")+1:]
 		tableCfg := tableConfig{Title: fmt.Sprintf("## Deleted: %s [%s]", f, mdRisk(fr.RiskScore, fr.RiskLevel)), DiffRemoved: true}
 		if fr.AlternatePath != "" {
-			tableCfg.SubTitle = fmt.Sprintf("### Original Path: %s", fr.AlternatePath)
+			tableCfg.SubTitle = fmt.Sprintf("### Original Path: %s > %s", fr.AlternatePath, fileName)
 		}
 		markdownTable(ctx, &fr, r.w, tableCfg)
 	}
 
 	for f, fr := range rep.Diff.Added {
 		fr := fr
+		fileName := fr.Path[strings.LastIndex(fr.Path, "/")+1:]
 		tableCfg := tableConfig{Title: fmt.Sprintf("## Added: %s [%s]", f, mdRisk(fr.RiskScore, fr.RiskLevel)), DiffAdded: true}
 		if fr.AlternatePath != "" {
-			tableCfg.SubTitle = fmt.Sprintf("### Original Path: %s", fr.AlternatePath)
+			tableCfg.SubTitle = fmt.Sprintf("### Original Path: %s > %s", fr.AlternatePath, fileName)
 		}
 		markdownTable(ctx, &fr, r.w, tableCfg)
 	}

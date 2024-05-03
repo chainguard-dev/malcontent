@@ -93,11 +93,12 @@ func ShortRisk(s string) string {
 }
 
 func (r Terminal) File(ctx context.Context, fr bincapz.FileReport) error {
+	fileName := fr.Path[strings.LastIndex(fr.Path, "/")+1:]
 	tableCfg := tableConfig{
 		Title: fmt.Sprintf("Scanned Path: %s %s", fr.Path, darkBrackets(decorativeRisk(fr.RiskScore, fr.RiskLevel))),
 	}
 	if fr.AlternatePath != "" {
-		tableCfg.SubTitle = fmt.Sprintf("Original Path: %s", fr.AlternatePath)
+		tableCfg.SubTitle = fmt.Sprintf("Original Path: %s > %s", fr.AlternatePath, fileName)
 	}
 
 	renderTable(ctx, &fr, r.w, tableCfg)
@@ -107,12 +108,13 @@ func (r Terminal) File(ctx context.Context, fr bincapz.FileReport) error {
 func (r Terminal) Full(ctx context.Context, rep bincapz.Report) error {
 	for f, fr := range rep.Diff.Removed {
 		fr := fr
+		fileName := fr.Path[strings.LastIndex(fr.Path, "/")+1:]
 		tableCfg := tableConfig{
 			Title:       fmt.Sprintf("Deleted: %s %s", f, darkBrackets(decorativeRisk(fr.RiskScore, fr.RiskLevel))),
 			DiffRemoved: true,
 		}
 		if fr.AlternatePath != "" {
-			tableCfg.SubTitle = fmt.Sprintf("Original Path: %s", fr.AlternatePath)
+			tableCfg.SubTitle = fmt.Sprintf("Original Path: %s > %s", fr.AlternatePath, fileName)
 		}
 
 		renderTable(ctx, &fr, r.w, tableCfg)
@@ -120,12 +122,13 @@ func (r Terminal) Full(ctx context.Context, rep bincapz.Report) error {
 
 	for f, fr := range rep.Diff.Added {
 		fr := fr
+		fileName := fr.Path[strings.LastIndex(fr.Path, "/")+1:]
 		tableCfg := tableConfig{
 			Title:     fmt.Sprintf("Added: %s %s", f, darkBrackets(decorativeRisk(fr.RiskScore, fr.RiskLevel))),
 			DiffAdded: true,
 		}
 		if fr.AlternatePath != "" {
-			tableCfg.SubTitle = fmt.Sprintf("Original Path: %s", fr.AlternatePath)
+			tableCfg.SubTitle = fmt.Sprintf("Original Path: %s > %s", fr.AlternatePath, fileName)
 		}
 
 		renderTable(ctx, &fr, r.w, tableCfg)
