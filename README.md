@@ -195,6 +195,7 @@ This has been tested on the following Platforms:
 - Fedora
 - Kali
 - macOS
+- OpenSUSE
 - Rocky
 - Wolfi
 

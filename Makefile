@@ -90,6 +90,8 @@ yara-reqs:
 			sudo pacman -Syu --noconfirm autoconf automake bison flex gcc libtool make openssl pkgconf; \
 			sudo mkdir -p /etc/ld.so.conf.d; \
 			echo "/usr/local/lib" | sudo tee /etc/ld.so.conf.d/local.conf; \
+		elif [ "$(LINT_DISTRO)" = "opensuse" ] || [ "$(LINT_DISTRO)" = "opensuse-leap" ]; then \
+			sudo zypper refresh && sudo zypper install -y autoconf automake bison flex gcc libopenssl-devel libtool make pkg-config; \
 		else \
 			echo "Unsupported Linux distribution: $(LINT_DISTRO)"; \
 		fi; \
