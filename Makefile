@@ -67,3 +67,5 @@ update-threathunting-keywords:
 		echo "ThreatHunting-Keywords-yara-rules is up to date."; \
 	fi; \
 	curl -sL -o rules/third_party/mthcht_thk_yara_rules.yar https://raw.githubusercontent.com/mthcht/ThreatHunting-Keywords-yara-rules/$$current_sha/yara_rules/all.yara
+# rewrite Chrome extension ID's to avoid XProtect matching bincapz
+	perl -p -i -e 's#\/([a-z]{31})([a-z])\/#\/$$1\[$$2\]\/#;' rules/third_party/mthcht_thk_yara_rules.yar
