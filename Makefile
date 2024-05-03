@@ -8,6 +8,7 @@
 lint: _lint
 
 LINT_ARCH := $(shell uname -m)
+LINT_DISTRO := $(shell cat /etc/*-release 2>/dev/null | grep '^ID=' | cut -d= -f2 | tr -d '"')
 LINT_OS := $(shell uname)
 LINT_OS_LOWER := $(shell echo $(LINT_OS) | tr '[:upper:]' '[:lower:]')
 LINT_ROOT := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
@@ -69,3 +70,39 @@ update-threathunting-keywords:
 	curl -sL -o rules/third_party/mthcht_thk_yara_rules.yar https://raw.githubusercontent.com/mthcht/ThreatHunting-Keywords-yara-rules/$$current_sha/yara_rules/all.yara
 # rewrite Chrome extension ID's to avoid XProtect matching bincapz
 	perl -p -i -e 's#\/([a-z]{31})([a-z])\/#\/$$1\[$$2\]\/#;' rules/third_party/mthcht_thk_yara_rules.yar
+
+.PHONY: yara-reqs
+yara-reqs:
+	@if [ "$(LINT_OS_LOWER)" = "darwin" ]; then \
+		brew install automake bison flex gcc libtool m4 make pkg-config; \
+	elif [ "$(LINT_OS_LOWER)" = "linux" ]; then \
+		if [ "$(LINT_DISTRO)" = "ubuntu" ] || [ "$(LINT_DISTRO)" = "debian" ]; then \
+			sudo apt-get update && sudo apt-get install -y automake bison flex gcc libtool make pkg-config; \
+		elif [ "$(LINT_DISTRO)" = "centos" ] || [ "$(LINT_DISTRO)" = "redhat" ]; then \
+			sudo yum -y update && sudo yum install -y automake bison flex gcc libtool make pkg-config; \
+		elif [ "$(LINT_DISTRO)" = "fedora" ] || [ "$(LINT_DISTRO)" = "rocky" ]; then \
+			sudo dnf -y update && sudo dnf install -y automake bison flex gcc libtool make pkg-config; \
+		elif [ "$(LINT_DISTRO)" = "alpine" ]; then \
+			sudo apk update && sudo apk add autoconf automake bison build-base flex gcc libtool linux-headers make pkgconf; \
+		elif [ "$(LINT_DISTRO)" = "wolfi" ]; then \
+			apk update && apk add autoconf automake bison build-base curl flex gcc libtool linux-headers make pkgconf-dev sudo; \
+		else \
+			echo "Unsupported Linux distribution: $(LINT_DISTRO)"; \
+		fi; \
+	fi
+
+.PHONY: build-yara
+build-yara: yara-reqs
+	@yara_release=4.3.2; \
+	mkdir -p out; \
+	curl -sL -o out/yara_$$yara_release.tar.gz https://github.com/VirusTotal/yara/archive/refs/tags/v$$yara_release.tar.gz; \
+	tar -xzf out/yara_$$yara_release.tar.gz -C out; \
+	cd out/yara-$$yara_release; \
+	./bootstrap.sh; \
+	./configure; \
+	make; \
+	sudo make install; \
+	make check; \
+	sudo ldconfig -v; \
+	cd -; \
+	rm -rf out/yara-$$yara_release out/yara_$$yara_release.tar.gz
