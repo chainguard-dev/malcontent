@@ -96,7 +96,9 @@ func (r Markdown) Full(ctx context.Context, rep bincapz.Report) error {
 		}
 
 		fmt.Fprint(r.w, title+"\n\n")
-		fmt.Fprintf(r.w, subtitle+"\n\n")
+		if subtitle != "" {
+			fmt.Fprintf(r.w, subtitle+"\n\n")
+		}
 		added := 0
 		removed := 0
 		for _, b := range fr.Behaviors {
