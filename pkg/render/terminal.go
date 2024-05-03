@@ -142,7 +142,7 @@ func (r Terminal) Full(ctx context.Context, rep bincapz.Report) error {
 		if fr.PreviousRelPath != "" {
 			title = fmt.Sprintf("Moved: %s -> %s (score: %f)\n", fr.PreviousRelPath, f, fr.PreviousRelPathScore)
 			if fr.AlternatePath != "" {
-				subtitle = fmt.Sprintf("Original Path: %s > %s\n", fr.AlternatePath, fileName)
+				subtitle = fmt.Sprintf("Original Path (From): %s > %s\nOriginal Path (To): %s > %s\n", fr.PreviousAbsPath, fileName, fr.AlternatePath, fileName)
 			}
 		} else {
 			title = fmt.Sprintf("Changed: %s\n", f)
@@ -153,7 +153,7 @@ func (r Terminal) Full(ctx context.Context, rep bincapz.Report) error {
 			title = fmt.Sprintf("%s %s\n\n", title,
 				darkBrackets(fmt.Sprintf("%s %s %s\n", decorativeRisk(fr.PreviousRiskScore, fr.PreviousRiskLevel), color.HiWhiteString("→"), decorativeRisk(fr.RiskScore, fr.RiskLevel))))
 			if fr.AlternatePath != "" {
-				subtitle = fmt.Sprintf("Original Path: %s > %s\n", fr.AlternatePath, fileName)
+				subtitle = fmt.Sprintf("Original Path (From): %s > %s\nOriginal Path (To): %s > %s\n", fr.PreviousAbsPath, fileName, fr.AlternatePath, fileName)
 			}
 		}
 

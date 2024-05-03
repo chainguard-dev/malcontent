@@ -156,6 +156,7 @@ func Diff(ctx context.Context, c Config) (*bincapz.Report, error) {
 				Path:                 tr.Path,
 				AlternatePath:        tr.AlternatePath,
 				PreviousRelPath:      rpath,
+				PreviousAbsPath:      fr.AlternatePath,
 				PreviousRelPathScore: score,
 
 				Behaviors:         map[string]bincapz.Behavior{},

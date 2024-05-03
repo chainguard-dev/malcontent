@@ -39,6 +39,7 @@ type FileReport struct {
 
 	// The relative path we think this moved from.
 	PreviousRelPath string `json:",omitempty" yaml:",omitempty"`
+	PreviousAbsPath string `json:",omitempty" yaml:",omitempty"`
 	// The levenshtein distance between the previous path and the current path
 	PreviousRelPathScore float64 `json:",omitempty" yaml:",omitempty"`
 	PreviousRiskScore    int     `json:",omitempty" yaml:",omitempty"`
