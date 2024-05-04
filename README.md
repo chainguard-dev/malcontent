@@ -217,13 +217,13 @@ OpenSSL's libraries are required for Yara (depending on the platform being used)
 
 A non-exhaustive list of Linux distributions and their respectie package names can be found below:
 
-* Debian, Ubuntu
-  * `libssl-dev`
-* CentOS, Fedora, RHEL, Rocky:
-  * `openssl-devel`
 * Alpine/Wolfi:
   * `openssl-dev`
 * Arch:
   * `openssl` (Arch includes the libraries)
+* CentOS, Fedora, RHEL, Rocky:
+  * `openssl-devel`
+* Debian, Ubuntu
+  * `libssl-dev`
 * OpenSUSE:
   * `libopenssl-devel`
