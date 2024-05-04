@@ -196,6 +196,8 @@ This has been tested on the following Platforms:
 - Kali
 - macOS
 - OpenSUSE
+    - Leap
+    - Tumbleweed
 - Rocky
 - Wolfi
 
