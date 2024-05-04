@@ -210,3 +210,20 @@ In order to compile the rules from this project there are a couple of options:
 2. Run a Linux container or VM of choice and install `bincapz` and its dependencies
 
 Disabling macOS' System Integrity Protection via `csrutil` to run `bincapz` with `--third-party` is *not* recommended.
+
+#### `yara addfile third_party/yara-rules-full.yar: invalid field name "imphash"`
+
+OpenSSL's libraries are required for Yara (depending on the platform being used).
+
+A non-exhaustive list of Linux distributions and their respectie package names can be found below:
+
+* Debian, Ubuntu
+  * `libssl-dev`
+* CentOS, Fedora, RHEL, Rocky:
+  * `openssl-devel`
+* Alpine/Wolfi:
+  * `openssl-dev`
+* Arch:
+  * `openssl` (Arch includes the libraries)
+* OpenSUSE:
+  * `libopenssl-devel`
