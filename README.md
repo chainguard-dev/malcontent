@@ -26,7 +26,7 @@ Enumerates program capabilities and malicious behaviors using fragment analysis.
 
 A container runtime environment such as Podman or Docker, or local developer tools:
 
-- [go](https://go.dev/) 1.21+
+- [go](https://go.dev/) 1.22+
 - [pkg-config](https://www.freedesktop.org/wiki/Software/pkg-config/) - included in many UNIX distributions
 - [yara](https://virustotal.github.io/yara/)
 
