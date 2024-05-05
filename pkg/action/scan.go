@@ -97,7 +97,7 @@ func recursiveScan(ctx context.Context, c Config) (*bincapz.Report, error) {
 			}
 		}
 
-		rp, err := findFilesRecursively(ctx, sp, c)
+		rp, err := findFilesRecursively(ctx, sp)
 		if err != nil {
 			return nil, fmt.Errorf("find files: %w", err)
 		}
@@ -144,7 +144,7 @@ func processArchive(
 		return fmt.Errorf("failed to prepare archive for scanning: %w", err)
 	}
 	var ap []string
-	ap, err = findFilesRecursively(ctx, p, c)
+	ap, err = findFilesRecursively(ctx, p)
 	if err != nil {
 		return fmt.Errorf("find files: %w", err)
 	}
