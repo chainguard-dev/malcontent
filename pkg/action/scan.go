@@ -33,7 +33,7 @@ func findFilesRecursively(ctx context.Context, root string, c Config) ([]string,
 				return nil
 			}
 			// False positives in refs file
-			if strings.HasPrefix(path, ".git/") {
+			if strings.Contains(path, "/.git/") {
 				return nil
 			}
 			files = append(files, path)
