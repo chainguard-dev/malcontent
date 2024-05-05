@@ -1,6 +1,7 @@
 run:
   # The default runtime timeout is 1m, which doesn't work well on Github Actions.
   timeout: 10m
+  go: "1.22"
 
 # NOTE: This file is populated by the lint-install tool. Local adjustments may be overwritten.
 linters-settings:
@@ -90,12 +91,6 @@ linters-settings:
       - name: var-naming
       - name: unconditional-recursion
       - name: waitgroup-by-value
-
-  staticcheck:
-    go: "1.18"
-
-  unused:
-    go: "1.18"
 
 output:
   sort-results: true
