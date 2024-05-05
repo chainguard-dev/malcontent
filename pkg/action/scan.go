@@ -76,7 +76,7 @@ func scanSinglePath(
 
 	if err := yrs.ScanFile(path, 0, 0, &mrs); err != nil {
 		logger.Info("skipping", slog.Any("error", err))
-		return &bincapz.FileReport{Path: path, AlternatePath: aPath, Error: fmt.Sprintf("scanfile: %v", err)}, nil
+		return &bincapz.FileReport{Path: path, OriginalAbsPath: aPath, Error: fmt.Sprintf("scanfile: %v", err)}, nil
 	}
 
 	fr, err := report.Generate(ctx, path, aPath, mrs, c.IgnoreTags, c.MinResultScore)

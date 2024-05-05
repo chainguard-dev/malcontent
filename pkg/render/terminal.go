@@ -95,10 +95,10 @@ func ShortRisk(s string) string {
 func (r Terminal) File(ctx context.Context, fr bincapz.FileReport) error {
 	fileName := fr.Path[strings.LastIndex(fr.Path, "/")+1:]
 	tableCfg := tableConfig{
-		Title: fmt.Sprintf("Scanned Path: %s %s", fr.Path, darkBrackets(decorativeRisk(fr.RiskScore, fr.RiskLevel))),
+		Title: fmt.Sprintf("%s %s", fr.Path, darkBrackets(decorativeRisk(fr.RiskScore, fr.RiskLevel))),
 	}
-	if fr.AlternatePath != "" {
-		tableCfg.SubTitle = fmt.Sprintf("Original Path: %s > %s", fr.AlternatePath, fileName)
+	if fr.OriginalAbsPath != "" {
+		tableCfg.SubTitle = fmt.Sprintf("Original Path: %s > %s", fr.OriginalAbsPath, fileName)
 	}
 
 	renderTable(ctx, &fr, r.w, tableCfg)
@@ -113,8 +113,8 @@ func (r Terminal) Full(ctx context.Context, rep bincapz.Report) error {
 			Title:       fmt.Sprintf("Deleted: %s %s", f, darkBrackets(decorativeRisk(fr.RiskScore, fr.RiskLevel))),
 			DiffRemoved: true,
 		}
-		if fr.AlternatePath != "" {
-			tableCfg.SubTitle = fmt.Sprintf("Original Path: %s > %s", fr.AlternatePath, fileName)
+		if fr.OriginalAbsPath != "" {
+			tableCfg.SubTitle = fmt.Sprintf("Original Path: %s > %s", fr.OriginalAbsPath, fileName)
 		}
 
 		renderTable(ctx, &fr, r.w, tableCfg)
@@ -127,8 +127,8 @@ func (r Terminal) Full(ctx context.Context, rep bincapz.Report) error {
 			Title:     fmt.Sprintf("Added: %s %s", f, darkBrackets(decorativeRisk(fr.RiskScore, fr.RiskLevel))),
 			DiffAdded: true,
 		}
-		if fr.AlternatePath != "" {
-			tableCfg.SubTitle = fmt.Sprintf("Original Path: %s > %s", fr.AlternatePath, fileName)
+		if fr.OriginalAbsPath != "" {
+			tableCfg.SubTitle = fmt.Sprintf("Original Path: %s > %s", fr.OriginalAbsPath, fileName)
 		}
 
 		renderTable(ctx, &fr, r.w, tableCfg)
@@ -141,19 +141,19 @@ func (r Terminal) Full(ctx context.Context, rep bincapz.Report) error {
 		var subtitle string
 		if fr.PreviousRelPath != "" {
 			title = fmt.Sprintf("Moved: %s -> %s (score: %f)\n", fr.PreviousRelPath, f, fr.PreviousRelPathScore)
-			if fr.AlternatePath != "" {
-				subtitle = fmt.Sprintf("Original Path (From): %s > %s\nOriginal Path (To): %s > %s\n", fr.PreviousAbsPath, fileName, fr.AlternatePath, fileName)
+			if fr.OriginalAbsPath != "" {
+				subtitle = fmt.Sprintf("Original Path (From): %s > %s\nOriginal Path (To): %s > %s\n", fr.PreviousAbsPath, fileName, fr.OriginalAbsPath, fileName)
 			}
 		} else {
 			title = fmt.Sprintf("Changed: %s\n", f)
-			subtitle = fmt.Sprintf("Original Path: %s > %s\n", fr.AlternatePath, fileName)
+			subtitle = fmt.Sprintf("Original Path: %s > %s\n", fr.OriginalAbsPath, fileName)
 		}
 
 		if fr.RiskScore != fr.PreviousRiskScore {
 			title = fmt.Sprintf("%s %s\n\n", title,
 				darkBrackets(fmt.Sprintf("%s %s %s\n", decorativeRisk(fr.PreviousRiskScore, fr.PreviousRiskLevel), color.HiWhiteString("→"), decorativeRisk(fr.RiskScore, fr.RiskLevel))))
-			if fr.AlternatePath != "" {
-				subtitle = fmt.Sprintf("Original Path (From): %s > %s\nOriginal Path (To): %s > %s\n", fr.PreviousAbsPath, fileName, fr.AlternatePath, fileName)
+			if fr.OriginalAbsPath != "" {
+				subtitle = fmt.Sprintf("Original Path (From): %s > %s\nOriginal Path (To): %s > %s\n", fr.PreviousAbsPath, fileName, fr.OriginalAbsPath, fileName)
 			}
 		}
 

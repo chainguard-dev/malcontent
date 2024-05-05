@@ -22,8 +22,8 @@ func NewSimple(w io.Writer) Simple {
 
 func (r Simple) File(_ context.Context, fr bincapz.FileReport) error {
 	fmt.Fprintf(r.w, "# %s\n", fr.Path)
-	if fr.AlternatePath != "" {
-		fmt.Fprintf(r.w, "## Original Path: %s\n", fr.AlternatePath)
+	if fr.OriginalAbsPath != "" {
+		fmt.Fprintf(r.w, "## Original Path: %s\n", fr.OriginalAbsPath)
 	}
 	bs := []string{}
 

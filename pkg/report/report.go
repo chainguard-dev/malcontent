@@ -290,11 +290,11 @@ func Generate(
 	}
 
 	fr := bincapz.FileReport{
-		Path:          path,
-		AlternatePath: aPath,
-		SHA256:        ptCheck,
-		Meta:          map[string]string{},
-		Behaviors:     map[string]bincapz.Behavior{},
+		Path:            path,
+		OriginalAbsPath: aPath,
+		SHA256:          ptCheck,
+		Meta:            map[string]string{},
+		Behaviors:       map[string]bincapz.Behavior{},
 	}
 
 	pledges := []string{}

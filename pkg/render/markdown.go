@@ -42,10 +42,10 @@ func matchFragmentLink(s string) string {
 }
 
 func (r Markdown) File(ctx context.Context, fr bincapz.FileReport) error {
-	tableCfg := tableConfig{Title: fmt.Sprintf("## Scanned Path: %s [%s]", fr.Path, mdRisk(fr.RiskScore, fr.RiskLevel))}
-	if fr.AlternatePath != "" {
+	tableCfg := tableConfig{Title: fmt.Sprintf("## %s [%s]", fr.Path, mdRisk(fr.RiskScore, fr.RiskLevel))}
+	if fr.OriginalAbsPath != "" {
 		fileName := fr.Path[strings.LastIndex(fr.Path, "/")+1:]
-		tableCfg.SubTitle = fmt.Sprintf("### Original Path (From): %s > %s\n### Original Path (To): %s > %s", fr.PreviousAbsPath, fileName, fr.AlternatePath, fileName)
+		tableCfg.SubTitle = fmt.Sprintf("### Original Path (From): %s > %s\n### Original Path (To): %s > %s", fr.PreviousAbsPath, fileName, fr.OriginalAbsPath, fileName)
 	}
 	markdownTable(ctx, &fr, r.w, tableCfg)
 	return nil
@@ -56,8 +56,8 @@ func (r Markdown) Full(ctx context.Context, rep bincapz.Report) error {
 		fr := fr
 		fileName := fr.Path[strings.LastIndex(fr.Path, "/")+1:]
 		tableCfg := tableConfig{Title: fmt.Sprintf("## Deleted: %s [%s]", f, mdRisk(fr.RiskScore, fr.RiskLevel)), DiffRemoved: true}
-		if fr.AlternatePath != "" {
-			tableCfg.SubTitle = fmt.Sprintf("### Original Path (From): %s > %s\n### Original Path (To): %s > %s", fr.PreviousAbsPath, fileName, fr.AlternatePath, fileName)
+		if fr.OriginalAbsPath != "" {
+			tableCfg.SubTitle = fmt.Sprintf("### Original Path (From): %s > %s\n### Original Path (To): %s > %s", fr.PreviousAbsPath, fileName, fr.OriginalAbsPath, fileName)
 		}
 		markdownTable(ctx, &fr, r.w, tableCfg)
 	}
@@ -66,8 +66,8 @@ func (r Markdown) Full(ctx context.Context, rep bincapz.Report) error {
 		fr := fr
 		fileName := fr.Path[strings.LastIndex(fr.Path, "/")+1:]
 		tableCfg := tableConfig{Title: fmt.Sprintf("## Added: %s [%s]", f, mdRisk(fr.RiskScore, fr.RiskLevel)), DiffAdded: true}
-		if fr.AlternatePath != "" {
-			tableCfg.SubTitle = fmt.Sprintf("### Original Path (From): %s > %s\n### Original Path (To): %s > %s", fr.PreviousAbsPath, fileName, fr.AlternatePath, fileName)
+		if fr.OriginalAbsPath != "" {
+			tableCfg.SubTitle = fmt.Sprintf("### Original Path (From): %s > %s\n### Original Path (To): %s > %s", fr.PreviousAbsPath, fileName, fr.OriginalAbsPath, fileName)
 		}
 		markdownTable(ctx, &fr, r.w, tableCfg)
 	}
@@ -79,13 +79,13 @@ func (r Markdown) Full(ctx context.Context, rep bincapz.Report) error {
 		fileName := fr.Path[strings.LastIndex(fr.Path, "/")+1:]
 		if fr.PreviousRelPath != "" {
 			title = fmt.Sprintf("## Moved: %s -> %s (similarity: %0.2f)", fr.PreviousRelPath, f, fr.PreviousRelPathScore)
-			if fr.AlternatePath != "" {
-				subtitle = fmt.Sprintf("### Original Path (From): %s > %s\n### Original Path (To): %s > %s", fr.PreviousAbsPath, fileName, fr.AlternatePath, fileName)
+			if fr.OriginalAbsPath != "" {
+				subtitle = fmt.Sprintf("### Original Path (From): %s > %s\n### Original Path (To): %s > %s", fr.PreviousAbsPath, fileName, fr.OriginalAbsPath, fileName)
 			}
 		} else {
 			title = fmt.Sprintf("## Changed: %s", f)
-			if fr.AlternatePath != "" {
-				subtitle = fmt.Sprintf("### Original Path (From): %s > %s\n### Original Path (To): %s > %s", fr.PreviousAbsPath, fileName, fr.AlternatePath, fileName)
+			if fr.OriginalAbsPath != "" {
+				subtitle = fmt.Sprintf("### Original Path (From): %s > %s\n### Original Path (To): %s > %s", fr.PreviousAbsPath, fileName, fr.OriginalAbsPath, fileName)
 			}
 		}
 		if fr.RiskScore != fr.PreviousRiskScore {
@@ -155,7 +155,7 @@ func markdownTable(_ context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 		fmt.Fprintf(w, "%s\n\n", rc.Title)
 	}
 
-	if fr.AlternatePath != "" {
+	if fr.OriginalAbsPath != "" {
 		fmt.Fprintf(w, "%s\n\n", rc.SubTitle)
 	}
 
