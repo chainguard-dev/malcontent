@@ -23,7 +23,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
         with:
-          go-version: '1.21'
+          go-version-file: go.mod
           check-latest: true
 
       - uses: chainguard-dev/actions/gofmt@main
@@ -40,7 +40,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
         with:
-          go-version: '1.21'
+          go-version-file: go.mod
           check-latest: true
 
       - uses: chainguard-dev/actions/goimports@main
@@ -55,7 +55,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
         with:
-          go-version: '1.21'
+          go-version-file: go.mod
           check-latest: true
 
       - name: install libyara-dev
@@ -70,7 +70,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@82d40c283aeb1f2b6595839195e95c2d6a49081b # v3.7.1
         with:
-          version: v1.57
+          version: v1.58
           args: --timeout=5m
 
   lint:
@@ -84,7 +84,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
         with:
-          go-version: '1.21'
+          go-version-file: go.mod
           check-latest: true
 
       - uses: reviewdog/action-misspell@5bd7be2fc7ae56a517184f5c4bbcf2fd7afe3927 # v1.17.0
