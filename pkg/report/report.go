@@ -36,6 +36,8 @@ var yaraForgeJunkWords = map[string]bool{
 	"generic":           true,
 	"apt":               true,
 	"malware":           true,
+	"YARAForge":         true,
+	"exe":               true,
 	"mal":               true,
 	"trojan":            true,
 	"m":                 true,
@@ -69,8 +71,14 @@ var authorWithURLRe = regexp.MustCompile(`(.*?) \((http.*)\)`)
 var dateRe = regexp.MustCompile(`[a-z]{3}\d{1,2}`)
 
 func thirdPartyKey(path string, rule string) string {
+	// include the directory
+	pathParts := strings.Split(path, "/")
+	subDir := pathParts[slices.Index(pathParts, "third_party")+1]
+
+	words := []string{subDir}
+
 	// ELASTIC_Linux_Trojan_Gafgyt_E4A1982B
-	words := strings.Split(strings.ToLower(rule), "_")
+	words = append(words, strings.Split(strings.ToLower(rule), "_")...)
 
 	// strip off the last wold if it's a hex key
 	lastWord := words[len(words)-1]
@@ -96,7 +104,7 @@ func thirdPartyKey(path string, rule string) string {
 		keepWords = keepWords[0:4]
 	}
 
-	key := fmt.Sprintf("3P/%s/%s", filepath.Base(filepath.Dir(path)), strings.Join(keepWords, "/"))
+	key := fmt.Sprintf("3P/%s", strings.Join(keepWords, "/"))
 	return strings.ReplaceAll(key, "signature/base", "signature_base")
 }
 

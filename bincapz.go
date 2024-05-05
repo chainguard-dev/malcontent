@@ -19,8 +19,6 @@ import (
 	"github.com/chainguard-dev/clog"
 )
 
-const __BINCAPZ__ = 1
-
 func main() {
 	allFlag := flag.Bool("all", false, "Ignore nothing, show all")
 	diffFlag := flag.Bool("diff", false, "show capability drift between two files")
