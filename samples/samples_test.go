@@ -65,7 +65,6 @@ func TestJSON(t *testing.T) {
 				t.Fatalf("render: %v", err)
 			}
 			bc := action.Config{
-				IgnoreSelf: false,
 				IgnoreTags: []string{"harmless"},
 				Renderer:   render,
 				Rules:      yrs,
@@ -124,7 +123,6 @@ func TestSimple(t *testing.T) {
 			}
 
 			bc := action.Config{
-				IgnoreSelf: false,
 				IgnoreTags: []string{"harmless"},
 				Renderer:   simple,
 				Rules:      yrs,
@@ -192,7 +190,6 @@ func TestDiff(t *testing.T) {
 			}
 
 			bc := action.Config{
-				IgnoreSelf:     false,
 				IgnoreTags:     []string{"harmless"},
 				MinFileScore:   tc.minFileScore,
 				MinResultScore: tc.minResultScore,
@@ -256,7 +253,6 @@ func TestMarkdown(t *testing.T) {
 			}
 
 			bc := action.Config{
-				IgnoreSelf: false,
 				IgnoreTags: []string{"harmless"},
 				Renderer:   simple,
 				Rules:      yrs,

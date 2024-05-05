@@ -36,18 +36,6 @@ func findFilesRecursively(ctx context.Context, root string, c Config) ([]string,
 			if strings.HasPrefix(path, ".git/") {
 				return nil
 			}
-			// Skip the bincapz directory if IgnoreSelf is true
-			// with the exception of the samples directory
-			if c.IgnoreSelf {
-				// we need the fully-qualified path here
-				fq, err := filepath.Abs(path)
-				if err != nil {
-					return err
-				}
-				if strings.Contains(fq, "bincapz") && !strings.Contains(fq, "samples") {
-					return nil
-				}
-			}
 			files = append(files, path)
 			return nil
 		})
