@@ -19,7 +19,7 @@ import (
 )
 
 // return a list of files within a path.
-func findFilesRecursively(ctx context.Context, root string, c Config) ([]string, error) {
+func findFilesRecursively(ctx context.Context, root string) ([]string, error) {
 	clog.FromContext(ctx).Infof("finding files in %s ...", root)
 	files := []string{}
 
