@@ -59,6 +59,15 @@ To inspect a binary, pass it as an argument to dump a list of predicted capabili
 bincapz /bin/ping
 ```
 
+To specify path exclusions and inclusions, specify multiple paths with `/-` or `/+`:
+```
+bincapz bincapz/- samples/+
+```
+
+> In this example, all `bincapz` paths will be ignored while `samples` paths will be allowed.
+
+The `/-, /+` syntax is entirely optional and specifying multiple paths/binaries without this syntax will scan each in succession without any filtering.
+
 There are flags for controlling output (see the Usage section) and filtering out rules. Here's the `--format=markdown` output:
 | RISK | KEY | DESCRIPTION | EVIDENCE |
 |--------|-----------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|

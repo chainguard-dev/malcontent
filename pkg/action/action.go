@@ -11,7 +11,8 @@ import (
 )
 
 type Config struct {
-	IgnoreSelf       bool
+	ExcludePaths     []string
+	IncludePaths     []string
 	IgnoreTags       []string
 	IncludeDataFiles bool
 	MinFileScore     int

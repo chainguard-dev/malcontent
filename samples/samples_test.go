@@ -65,7 +65,6 @@ func TestJSON(t *testing.T) {
 				t.Fatalf("render: %v", err)
 			}
 			bc := action.Config{
-				IgnoreSelf: false,
 				IgnoreTags: []string{"harmless"},
 				Renderer:   render,
 				Rules:      yrs,
@@ -124,7 +123,6 @@ func TestSimple(t *testing.T) {
 			}
 
 			bc := action.Config{
-				IgnoreSelf: false,
 				IgnoreTags: []string{"harmless"},
 				Renderer:   simple,
 				Rules:      yrs,
@@ -192,7 +190,6 @@ func TestDiff(t *testing.T) {
 			}
 
 			bc := action.Config{
-				IgnoreSelf:     false,
 				IgnoreTags:     []string{"harmless"},
 				MinFileScore:   tc.minFileScore,
 				MinResultScore: tc.minResultScore,
@@ -256,7 +253,6 @@ func TestMarkdown(t *testing.T) {
 			}
 
 			bc := action.Config{
-				IgnoreSelf: false,
 				IgnoreTags: []string{"harmless"},
 				Renderer:   simple,
 				Rules:      yrs,
@@ -266,6 +262,134 @@ func TestMarkdown(t *testing.T) {
 			tcLogger := clog.FromContext(ctx).With("test", name)
 			ctx := clog.WithLogger(ctx, tcLogger)
 
+			res, err := action.Scan(ctx, bc)
+			if err != nil {
+				t.Fatalf("scan failed: %v", err)
+			}
+
+			if err := simple.Full(ctx, *res); err != nil {
+				t.Fatalf("full: %v", err)
+			}
+
+			got := out.String()
+			if diff := cmp.Diff(got, want); diff != "" {
+				t.Errorf("unexpected diff: %s\ngot: %s", diff, got)
+			}
+		})
+		return nil
+	})
+}
+
+func TestFilter(t *testing.T) {
+	ctx := slogtest.TestContextWithLogger(t)
+	clog.FromContext(ctx).With("test", "test", "filter")
+	yrs, err := rules.Compile(ctx, rules.FS, true)
+	if err != nil {
+		t.Fatalf("compile: %v", err)
+	}
+
+	fileSystem := os.DirFS(testDataRoot)
+
+	fs.WalkDir(fileSystem, ".", func(path string, _ fs.DirEntry, err error) error {
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !strings.HasSuffix(path, ".simple") {
+			return nil
+		}
+
+		name := strings.ReplaceAll(path, ".simple", "")
+		testPath := path
+		binPath := filepath.Join(testDataRoot, name)
+
+		t.Run(name, func(t *testing.T) {
+			_, err := fs.ReadFile(fileSystem, testPath)
+			if err != nil {
+				t.Fatalf("testdata read failed: %v", err)
+			}
+
+			want := ""
+			var out bytes.Buffer
+			simple, err := render.New("simple", &out)
+			if err != nil {
+				t.Fatalf("render: %v", err)
+			}
+
+			bc := action.Config{
+				ExcludePaths: []string{"bincapz"},
+				IgnoreTags:   []string{"harmless"},
+				Renderer:     simple,
+				Rules:        yrs,
+				ScanPaths:    []string{binPath},
+			}
+
+			tcLogger := clog.FromContext(ctx).With("test", name)
+			ctx := clog.WithLogger(ctx, tcLogger)
+			res, err := action.Scan(ctx, bc)
+			if err != nil {
+				t.Fatalf("scan failed: %v", err)
+			}
+
+			if err := simple.Full(ctx, *res); err != nil {
+				t.Fatalf("full: %v", err)
+			}
+
+			got := out.String()
+			if diff := cmp.Diff(got, want); diff != "" {
+				t.Errorf("unexpected diff: %s\ngot: %s", diff, got)
+			}
+		})
+		return nil
+	})
+}
+
+func TestFilterAllow(t *testing.T) {
+	ctx := slogtest.TestContextWithLogger(t)
+	clog.FromContext(ctx).With("test", "filter", "allow")
+
+	yrs, err := rules.Compile(ctx, rules.FS, false)
+	if err != nil {
+		t.Fatalf("compile: %v", err)
+	}
+
+	fileSystem := os.DirFS(testDataRoot)
+
+	fs.WalkDir(fileSystem, ".", func(path string, _ fs.DirEntry, err error) error {
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !strings.HasSuffix(path, ".simple") {
+			return nil
+		}
+
+		name := strings.ReplaceAll(path, ".simple", "")
+		testPath := path
+		binPath := filepath.Join(testDataRoot, name)
+
+		t.Run(name, func(t *testing.T) {
+			td, err := fs.ReadFile(fileSystem, testPath)
+			if err != nil {
+				t.Fatalf("testdata read failed: %v", err)
+			}
+
+			want := string(td)
+			var out bytes.Buffer
+			simple, err := render.New("simple", &out)
+			if err != nil {
+				t.Fatalf("render: %v", err)
+			}
+
+			bc := action.Config{
+				ExcludePaths: []string{"bincapz"},
+				IncludePaths: []string{"samples"},
+				IgnoreTags:   []string{"harmless"},
+				Renderer:     simple,
+				Rules:        yrs,
+				ScanPaths:    []string{binPath},
+			}
+
+			tcLogger := clog.FromContext(ctx).With("test", name)
+			ctx := clog.WithLogger(ctx, tcLogger)
 			res, err := action.Scan(ctx, bc)
 			if err != nil {
 				t.Fatalf("scan failed: %v", err)

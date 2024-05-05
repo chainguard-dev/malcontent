@@ -23,7 +23,6 @@ func main() {
 	allFlag := flag.Bool("all", false, "Ignore nothing, show all")
 	diffFlag := flag.Bool("diff", false, "show capability drift between two files")
 	formatFlag := flag.String("format", "terminal", "Output type. Valid values are: json, markdown, simple, terminal, yaml")
-	ignoreSelfFlag := flag.Bool("ignore-self", true, "ignore the bincapz repository")
 	ignoreTagsFlag := flag.String("ignore-tags", "", "Rule tags to ignore")
 	includeDataFilesFlag := flag.Bool("data-files", false, "include files that are detected to as non-program (binary or source) files")
 	minFileLevelFlag := flag.Int("min-file-level", 0, "only show results for files that meet this risk level (1=low, 2=medium, 3=high, 4=critical)")
@@ -56,6 +55,26 @@ func main() {
 	clog.FromContext(ctx).Info("bincapz starting")
 
 	ignoreTags := strings.Split(*ignoreTagsFlag, ",")
+
+	scanPaths := args
+	// Allow paths to be selectively included or excluded
+	excludePaths := []string{}
+	includePaths := []string{}
+	for _, path := range args {
+		if strings.HasSuffix(path, "/-") {
+			excludePaths = append(excludePaths, strings.TrimSuffix(path, "/-"))
+		} else if strings.HasSuffix(path, "/+") {
+			includePaths = append(includePaths, strings.TrimSuffix(path, "/+"))
+		}
+	}
+	// only allow includes if an exclude is specified
+	if len(excludePaths) == 0 && len(includePaths) > 0 {
+		clog.Error("include paths specified without exclude paths")
+	} else if len(excludePaths) > 0 {
+		scanPaths = append([]string{}, excludePaths...)
+		scanPaths = append(scanPaths, includePaths...)
+	}
+
 	includeDataFiles := *includeDataFilesFlag
 	minLevel := *minLevelFlag
 	stats := *statsFlag
@@ -76,8 +95,9 @@ func main() {
 	}
 
 	bc := action.Config{
-		IgnoreSelf:       *ignoreSelfFlag,
+		ExcludePaths:     excludePaths,
 		IgnoreTags:       ignoreTags,
+		IncludePaths:     includePaths,
 		IncludeDataFiles: includeDataFiles,
 		MinFileScore:     *minFileLevelFlag,
 		MinResultScore:   minLevel,
@@ -85,7 +105,7 @@ func main() {
 		OmitEmpty:        *omitEmptyFlag,
 		Renderer:         renderer,
 		Rules:            yrs,
-		ScanPaths:        args,
+		ScanPaths:        scanPaths,
 		Stats:            stats,
 	}
 
