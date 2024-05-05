@@ -4,6 +4,7 @@ combo/recon/system_network
 exec/pipe
 exec/program
 exec/shell_command
+fd/read
 fs/file/times/set
 kernel/platform
 net/fetch
