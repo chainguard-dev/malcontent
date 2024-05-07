@@ -57,23 +57,26 @@ var yaraForgeJunkWords = map[string]bool{
 	"indicator":         true,
 	"suspicious":        true,
 	"offensive":         true,
+	"greyware":          true,
 }
 
 // dropRules are noisy 3rd party rules to silently ignore.
 var dropRules = map[string]bool{
-	"3P/godmoderules/iddqd/god/mode": true,
-	"3P/keywords/rdpassspray":        true,
+	"3P/godmoderules/iddqd/god/mode":         true,
+	"3P/threat_hunting_keywords/rdpassspray": true,
 }
 
 // authorWithURLRe matcehs "Arnim Rupp (https://github.com/ruppde)"
 var authorWithURLRe = regexp.MustCompile(`(.*?) \((http.*)\)`)
+
+var threatHuntingKeywordRe = regexp.MustCompile(`Detection patterns for the tool '(.*)' taken from the ThreatHunting-Keywords github project`)
 
 var dateRe = regexp.MustCompile(`[a-z]{3}\d{1,2}`)
 
 func thirdPartyKey(path string, rule string) string {
 	// include the directory
 	pathParts := strings.Split(path, "/")
-	subDir := pathParts[slices.Index(pathParts, "third_party")+1]
+	subDir := pathParts[slices.Index(pathParts, "yara")+1]
 
 	words := []string{subDir}
 
@@ -110,7 +113,7 @@ func thirdPartyKey(path string, rule string) string {
 
 // thirdParty returns whether the rule is sourced from a 3rd party.
 func thirdParty(src string) bool {
-	return strings.Contains(src, "third_party")
+	return strings.Contains(src, "yara/")
 }
 
 func isValidURL(s string) bool {
@@ -121,14 +124,6 @@ func isValidURL(s string) bool {
 func generateKey(src string, rule string) string {
 	if thirdParty(src) {
 		return thirdPartyKey(src, rule)
-	}
-
-	_, after, _ := strings.Cut(src, "third_party/")
-	if after != "" {
-		key := strings.ReplaceAll(after, "-", "/")
-		key = strings.ReplaceAll(key, "/rules", "")
-		key = strings.ReplaceAll(key, "/yara", "")
-		return "third_party/" + strings.ReplaceAll(key, ".yar", "")
 	}
 
 	key := strings.ReplaceAll(src, "-", "/")
@@ -154,9 +149,9 @@ func behaviorRisk(ns string, tags []string) int {
 	risk := 1
 
 	// default to critical
-	if strings.Contains(ns, "third_party/") {
+	if thirdParty(ns) {
 		risk = 4
-		if strings.Contains(ns, "mthcht") {
+		if strings.Contains(ns, "keyword") {
 			risk = 2
 		}
 	}
@@ -271,6 +266,17 @@ func fixURL(s string) string {
 	return strings.ReplaceAll(s, " ", "%20")
 }
 
+// mungeDescription shortens verbose descriptions.
+func mungeDescription(s string) string {
+	// in: Detection patterns for the tool 'Nsight RMM' taken from the ThreatHunting-Keywords github project
+	// out: references 'Nsight RMM'
+	m := threatHuntingKeywordRe.FindStringSubmatch(s)
+	if len(m) > 0 {
+		return fmt.Sprintf("references '%s'", m[1])
+	}
+	return s
+}
+
 func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags []string, minScore int) (bincapz.FileReport, error) {
 	ignore := map[string]bool{}
 	for _, t := range ignoreTags {
@@ -345,8 +351,9 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 			case "license_url":
 				b.RuleLicenseURL = v
 			case "description", "threat_name", "name":
-				if len(v) > len(b.Description) {
-					b.Description = v
+				desc := mungeDescription(v)
+				if len(desc) > len(b.Description) {
+					b.Description = desc
 				}
 			case "ref", "reference":
 				u := fixURL(v)

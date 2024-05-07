@@ -8,14 +8,17 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"io/fs"
 	"log/slog"
 	"os"
 	"strings"
 
 	"github.com/chainguard-dev/bincapz/pkg/action"
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
+	"github.com/chainguard-dev/bincapz/pkg/compile"
 	"github.com/chainguard-dev/bincapz/pkg/render"
-	"github.com/chainguard-dev/bincapz/pkg/rules"
+	"github.com/chainguard-dev/bincapz/rules"
+	thirdparty "github.com/chainguard-dev/bincapz/third_party"
 	"github.com/chainguard-dev/clog"
 )
 
@@ -71,7 +74,12 @@ func main() {
 		log.Fatal("invalid format", slog.Any("error", err), slog.String("format", *formatFlag))
 	}
 
-	yrs, err := rules.Compile(ctx, rules.FS, *thirdPartyFlag)
+	rfs := []fs.FS{rules.FS}
+	if *thirdPartyFlag {
+		rfs = append(rfs, thirdparty.FS)
+	}
+
+	yrs, err := compile.Recursive(ctx, rfs)
 	if err != nil {
 		log.Fatal("YARA rule compilation", slog.Any("error", err))
 	}
