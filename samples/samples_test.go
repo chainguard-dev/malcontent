@@ -79,8 +79,8 @@ func TestJSON(t *testing.T) {
 				t.Fatalf("scan failed: %v", err)
 			}
 
-			if diff := cmp.Diff(*got, want); diff != "" {
-				t.Errorf("unexpected diff: %s", diff)
+			if diff := cmp.Diff(want, got); diff != "" {
+				t.Errorf("JSON output mismatch: (-want +got):\n%s", diff)
 			}
 		})
 		return nil
@@ -143,8 +143,8 @@ func TestSimple(t *testing.T) {
 			}
 
 			got := out.String()
-			if diff := cmp.Diff(got, want); diff != "" {
-				t.Errorf("unexpected diff: %s\ngot: %s", diff, got)
+			if diff := cmp.Diff(want, got); diff != "" {
+				t.Errorf("Simple output mismatch: (-want +got):\n%s", diff)
 			}
 		})
 		return nil
@@ -213,8 +213,8 @@ func TestDiff(t *testing.T) {
 			}
 
 			got := out.String()
-			if diff := cmp.Diff(got, want); diff != "" {
-				t.Errorf("unexpected diff: %s", diff)
+			if diff := cmp.Diff(want, got); diff != "" {
+				t.Errorf("simple diff output mismatch: (-want +got):\n%s", diff)
 			}
 		})
 	}
@@ -276,8 +276,8 @@ func TestMarkdown(t *testing.T) {
 			}
 
 			got := out.String()
-			if diff := cmp.Diff(got, want); diff != "" {
-				t.Errorf("unexpected diff: %s\ngot: %s", diff, got)
+			if diff := cmp.Diff(want, got); diff != "" {
+				t.Errorf("markdown output mismatch: (-want +got):\n%s", diff)
 			}
 		})
 		return nil
