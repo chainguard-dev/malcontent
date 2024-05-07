@@ -60,6 +60,8 @@ function update_dep() {
 	echo "updated ${kind} to ${rel}"
 }
 
+cd "$(dirname $0)"
+
 if [[ "$1" != "" ]]; then
 	update_dep "$1"
 else

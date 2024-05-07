@@ -50,3 +50,7 @@ fix: $(FIXERS)
 .PHONY: test
 test:
 	go test ./... -v
+
+.PHONY: update-third-party
+update-third-party:
+	./third_party/yara/update.sh
