@@ -1,4 +1,5 @@
 # macOS/2024.LightSpy/dropper
+3P/huntress/lightspy/loader
 combo/recon/system_network
 crypto/aes
 crypto/xor
@@ -29,4 +30,3 @@ ref/path/users
 ref/site/url
 ref/words/plugin
 sync/semaphore/user
-third_party/huntress/2024/04/macos/lightspy/lightspya

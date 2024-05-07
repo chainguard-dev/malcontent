@@ -81,7 +81,7 @@ rule MACOS_LIGHTSPY_BROWSERHISTORYDYLIB_20240422 {
     strings:
         $path = "/usr/local/lib/libBrowserHistory.dylib"
 
-        $a0 = "/Library/Application Support/Google/Chrome/Default/History"
+        $a0 = /\/Library\/Application Support\/Google\/Chrome\/Default\/History/
         $a1 = "/Library/Safari/History.db"
         $a2 = { 42 72 6f 77 73 65 72 48 69 73 74 6f 72 79 }
         $a3 = { 61 72 63 6c 69 74 65 }

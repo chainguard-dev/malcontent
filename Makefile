@@ -63,10 +63,11 @@ update-huntress:
 	mkdir -p out rules/third_party/huntress
 	git clone https://github.com/huntresslabs/threat-intel.git out/huntress
 	find out/huntress \( -name "*.yar*" -o -name "*LICENSE*" \) -print -exec cp {} rules/third_party/huntress/ \;
+	perl -p -i -e 's#"/Library/Application Support/Google/Chrome/Default/History"#/\\/Library\\/Application Support\\/Google\\/Chrome\\/Default\\/History\/#' rules/third_party/huntress/lightspy.yara
 	set -e ;\
 	cd out/huntress ;\
 	COMMIT=$$(git rev-parse head) ;\
-	echo $$COMMIT > ../../rules/huntress/COMMIT ;\
+	echo $$COMMIT > ../../rules/third_party/huntress/COMMIT ;\
 	echo "to commit update, use:" ;\
 	echo "git commit rules/huntress -m \"update huntress threat-intel to latest - $$COMMIT\""
 
