@@ -46,6 +46,8 @@ type FileReport struct {
 	RiskScore   int
 	RiskLevel   string   `json:",omitempty" yaml:",omitempty"`
 	PackageRisk []string `json:",omitempty" yaml:",omitempty"`
+
+	IsBincapz bool `json:",omitempty" yaml:",omitempty"`
 }
 
 type DiffReport struct {
