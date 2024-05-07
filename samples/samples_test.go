@@ -65,10 +65,11 @@ func TestJSON(t *testing.T) {
 				t.Fatalf("render: %v", err)
 			}
 			bc := action.Config{
-				ScanPaths:  []string{binPath},
+				IgnoreSelf: false,
 				IgnoreTags: []string{"harmless"},
 				Renderer:   render,
 				Rules:      yrs,
+				ScanPaths:  []string{binPath},
 			}
 
 			tcLogger := clog.FromContext(ctx).With("test", name)
@@ -78,8 +79,8 @@ func TestJSON(t *testing.T) {
 				t.Fatalf("scan failed: %v", err)
 			}
 
-			if diff := cmp.Diff(*got, want); diff != "" {
-				t.Errorf("unexpected diff: %s", diff)
+			if diff := cmp.Diff(want, got); diff != "" {
+				t.Errorf("JSON output mismatch: (-want +got):\n%s", diff)
 			}
 		})
 		return nil
@@ -90,7 +91,7 @@ func TestSimple(t *testing.T) {
 	ctx := slogtest.TestContextWithLogger(t)
 	clog.FromContext(ctx).With("test", "simple")
 
-	yrs, err := rules.Compile(ctx, rules.FS, false)
+	yrs, err := rules.Compile(ctx, rules.FS, true)
 	if err != nil {
 		t.Fatalf("compile: %v", err)
 	}
@@ -123,10 +124,11 @@ func TestSimple(t *testing.T) {
 			}
 
 			bc := action.Config{
-				ScanPaths:  []string{binPath},
+				IgnoreSelf: false,
 				IgnoreTags: []string{"harmless"},
 				Renderer:   simple,
 				Rules:      yrs,
+				ScanPaths:  []string{binPath},
 			}
 
 			tcLogger := clog.FromContext(ctx).With("test", name)
@@ -141,8 +143,8 @@ func TestSimple(t *testing.T) {
 			}
 
 			got := out.String()
-			if diff := cmp.Diff(got, want); diff != "" {
-				t.Errorf("unexpected diff: %s\ngot: %s", diff, got)
+			if diff := cmp.Diff(want, got); diff != "" {
+				t.Errorf("Simple output mismatch: (-want +got):\n%s", diff)
 			}
 		})
 		return nil
@@ -190,12 +192,13 @@ func TestDiff(t *testing.T) {
 			}
 
 			bc := action.Config{
-				ScanPaths:      []string{tc.src, tc.dest},
+				IgnoreSelf:     false,
 				IgnoreTags:     []string{"harmless"},
+				MinFileScore:   tc.minFileScore,
+				MinResultScore: tc.minResultScore,
 				Renderer:       simple,
 				Rules:          yrs,
-				MinResultScore: tc.minResultScore,
-				MinFileScore:   tc.minFileScore,
+				ScanPaths:      []string{tc.src, tc.dest},
 			}
 
 			logger := clog.New(slog.Default().Handler()).With("src", tc.src)
@@ -210,8 +213,8 @@ func TestDiff(t *testing.T) {
 			}
 
 			got := out.String()
-			if diff := cmp.Diff(got, want); diff != "" {
-				t.Errorf("unexpected diff: %s", diff)
+			if diff := cmp.Diff(want, got); diff != "" {
+				t.Errorf("simple diff output mismatch: (-want +got):\n%s", diff)
 			}
 		})
 	}
@@ -253,10 +256,11 @@ func TestMarkdown(t *testing.T) {
 			}
 
 			bc := action.Config{
-				ScanPaths:  []string{binPath},
+				IgnoreSelf: false,
 				IgnoreTags: []string{"harmless"},
 				Renderer:   simple,
 				Rules:      yrs,
+				ScanPaths:  []string{binPath},
 			}
 
 			tcLogger := clog.FromContext(ctx).With("test", name)
@@ -272,8 +276,8 @@ func TestMarkdown(t *testing.T) {
 			}
 
 			got := out.String()
-			if diff := cmp.Diff(got, want); diff != "" {
-				t.Errorf("unexpected diff: %s\ngot: %s", diff, got)
+			if diff := cmp.Diff(want, got); diff != "" {
+				t.Errorf("markdown output mismatch: (-want +got):\n%s", diff)
 			}
 		})
 		return nil

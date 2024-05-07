@@ -1,11 +1,13 @@
 # Python/2022.PyPI.valyrian_debug/valyrian_debug_setup.py
+3P/keywords/whoami/greyware
 combo/backdoor/py_setuptools
 combo/recon/system_network
 exec/pipe
 exec/program
 exec/shell_command
+fd/read
 fs/file/times/set
-kernel/uname/get
+kernel/platform
 net/fetch
 net/http/post
 net/interface/list

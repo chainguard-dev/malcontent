@@ -1,0 +1,16 @@
+# Linux/2024.PAN-OS.Upstyle/update_base64_payload2.py
+3P/volexity/py/upstyle
+encoding/base64
+env/SHELL
+evasion/base64/command
+evasion/base64/decode
+exec/pipe
+fd/read
+fd/write
+fs/file/read
+fs/file/stat
+fs/file/times/set
+fs/file/write
+process/multithreaded
+ref/path/var
+ref/path/var/log

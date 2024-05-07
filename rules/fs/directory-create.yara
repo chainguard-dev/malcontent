@@ -5,6 +5,7 @@ rule mkdir {
 		ref = "https://man7.org/linux/man-pages/man2/mkdir.2.html"
 	strings:
 		$mkdir = "mkdir" fullword
+		$createFolder = "createFolder" fullword
 	condition:
 		any of them
 }

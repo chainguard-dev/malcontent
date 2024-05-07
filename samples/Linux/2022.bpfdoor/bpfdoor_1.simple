@@ -1,4 +1,6 @@
 # Linux/2022.bpfdoor/bpfdoor_1
+3P/elastic/bpfdoor
+3P/signature_base/redmenshen/bpfdoor
 combo/backdoor/net_term
 device/pseudo_terminal
 exec/program
@@ -16,6 +18,7 @@ net/socket/send
 process/chroot
 process/create
 random/insecure
+ref/daemon
 ref/path/dev
 ref/path/usr/sbin
 ref/program/ancient_gcc

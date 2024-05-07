@@ -1,10 +1,10 @@
 import "math"
 
-private rule pythonSetup {
+rule pythonSetup {
 	strings:
 		$i_distutils = "from distutils.core import setup"
 		$i_setuptools = "setuptools"
-		$setup = "setup(" fullword
+		$setup = "setup("
 	condition:
 		filesize < 32768 and $setup and any of ($i*)
 }

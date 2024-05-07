@@ -3,8 +3,8 @@ rule daemon : notable {
 	meta:
 		description = "Run as a background daemon"
 	strings:
-		$ref = "daemon" fullword
+		$ref = /[\w\-]{0,8}daemon/ fullword
 		$ref2 = "daemonize" fullword
 	condition:
-		all of them
+		any of them
 }

@@ -21,3 +21,13 @@ rule mntent : notable {
 	condition:
 		any of them
 }
+
+rule gemntinfo : notable {
+	meta:
+		description = "gets information on mounted volumes"
+		ref = "https://man.freebsd.org/cgi/man.cgi?query=getmntinfo&manpath=FreeBSD+12.1-RELEASE+and+Ports"
+	strings:
+		$ref = "getmntinfo" fullword
+	condition:
+		any of them
+}

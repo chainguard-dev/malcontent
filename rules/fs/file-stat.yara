@@ -49,13 +49,38 @@ rule go_stat : harmless {
 }
 
 
+rule py_timestamps {
+	meta:
+		description = "Access filesystem timestamps"
+		pledge = "rpath"
+		syscall = "stat"
+	strings:
+		$atime = "os.path.getatime"
+		$mtime = "os.path.getmtime"
+		$ctime = "os.path.getctime"
+	condition:
+		any of them
+}
+
 rule npm_stat {
 	meta:
-		description = "access filesystem information"
+		description = "access filesystem metadata"
 		pledge = "rpath"
 		syscall = "stat"
 	strings:
 		$filestat = /fs\.stat[\w\(\'\.\)]{0,32}/
+	condition:
+		any of them
+}
+
+
+rule file_attributes {
+	meta:
+		description = "access filesystem attributes"
+		pledge = "rpath"
+		syscall = "stat"
+	strings:
+		$attr = "fileAttributes"
 	condition:
 		any of them
 }
