@@ -24,8 +24,9 @@ type Behavior struct {
 }
 
 type FileReport struct {
-	Path   string
-	SHA256 string
+	Path          string
+	AlternatePath string
+	SHA256        string
 	// compiler -> x
 	Error             string              `json:",omitempty" yaml:",omitempty"`
 	Skipped           string              `json:",omitempty" yaml:",omitempty"`

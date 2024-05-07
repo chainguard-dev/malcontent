@@ -28,6 +28,7 @@ type KeyedBehavior struct {
 
 type tableConfig struct {
 	Title       string
+	SubTitle    string
 	ShowTitle   bool
 	DiffRemoved bool
 	DiffAdded   bool
@@ -92,29 +93,42 @@ func ShortRisk(s string) string {
 }
 
 func (r Terminal) File(ctx context.Context, fr bincapz.FileReport) error {
-	renderTable(ctx, &fr, r.w,
-		tableConfig{
-			Title: fmt.Sprintf("%s %s", fr.Path, darkBrackets(decorativeRisk(fr.RiskScore, fr.RiskLevel))),
-		},
-	)
+	tableCfg := tableConfig{
+		Title: fmt.Sprintf("Scanned Path: %s %s", fr.Path, darkBrackets(decorativeRisk(fr.RiskScore, fr.RiskLevel))),
+	}
+	if fr.AlternatePath != "" {
+		tableCfg.SubTitle = fmt.Sprintf("Original Path: %s", fr.AlternatePath)
+	}
+
+	renderTable(ctx, &fr, r.w, tableCfg)
 	return nil
 }
 
 func (r Terminal) Full(ctx context.Context, rep bincapz.Report) error {
 	for f, fr := range rep.Diff.Removed {
 		fr := fr
-		renderTable(ctx, &fr, r.w, tableConfig{
+		tableCfg := tableConfig{
 			Title:       fmt.Sprintf("Deleted: %s %s", f, darkBrackets(decorativeRisk(fr.RiskScore, fr.RiskLevel))),
 			DiffRemoved: true,
-		})
+		}
+		if fr.AlternatePath != "" {
+			tableCfg.SubTitle = fmt.Sprintf("Original Path: %s", fr.AlternatePath)
+		}
+
+		renderTable(ctx, &fr, r.w, tableCfg)
 	}
 
 	for f, fr := range rep.Diff.Added {
 		fr := fr
-		renderTable(ctx, &fr, r.w, tableConfig{
+		tableCfg := tableConfig{
 			Title:     fmt.Sprintf("Added: %s %s", f, darkBrackets(decorativeRisk(fr.RiskScore, fr.RiskLevel))),
 			DiffAdded: true,
-		})
+		}
+		if fr.AlternatePath != "" {
+			tableCfg.SubTitle = fmt.Sprintf("Original Path: %s", fr.AlternatePath)
+		}
+
+		renderTable(ctx, &fr, r.w, tableCfg)
 	}
 
 	for f, fr := range rep.Diff.Modified {
@@ -182,6 +196,7 @@ func darkenText(s string) string {
 
 func renderTable(ctx context.Context, fr *bincapz.FileReport, w io.Writer, rc tableConfig) {
 	title := rc.Title
+	subtitle := rc.SubTitle
 
 	path := fr.Path
 	if fr.Error != "" {
@@ -295,7 +310,10 @@ func renderTable(ctx context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 	}
 
 	if title != "" {
-		fmt.Fprintf(w, "%s", title)
+		fmt.Fprintf(w, "%s\n", title)
+	}
+	if subtitle != "" {
+		fmt.Fprintf(w, "%s\n", subtitle)
 	}
 	fmt.Fprintf(w, "\n")
 

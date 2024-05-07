@@ -56,7 +56,13 @@ func findFilesRecursively(ctx context.Context, root string, c Config) ([]string,
 	return files, err
 }
 
-func scanSinglePath(ctx context.Context, c Config, yrs *yara.Rules, path string) (*bincapz.FileReport, error) {
+func scanSinglePath(
+	ctx context.Context,
+	c Config,
+	yrs *yara.Rules,
+	path string,
+	aPath string,
+) (*bincapz.FileReport, error) {
 	logger := clog.FromContext(ctx)
 	var mrs yara.MatchRules
 	logger = logger.With("path", path)
@@ -70,10 +76,10 @@ func scanSinglePath(ctx context.Context, c Config, yrs *yara.Rules, path string)
 
 	if err := yrs.ScanFile(path, 0, 0, &mrs); err != nil {
 		logger.Info("skipping", slog.Any("error", err))
-		return &bincapz.FileReport{Path: path, Error: fmt.Sprintf("scanfile: %v", err)}, nil
+		return &bincapz.FileReport{Path: path, AlternatePath: aPath, Error: fmt.Sprintf("scanfile: %v", err)}, nil
 	}
 
-	fr, err := report.Generate(ctx, path, mrs, c.IgnoreTags, c.MinResultScore)
+	fr, err := report.Generate(ctx, path, aPath, mrs, c.IgnoreTags, c.MinResultScore)
 	if err != nil {
 		return nil, err
 	}
@@ -128,7 +134,7 @@ func recursiveScan(ctx context.Context, c Config) (*bincapz.Report, error) {
 					return nil, err
 				}
 			} else {
-				err = processFile(ctx, c, yrs, r, p, logger)
+				err = processFile(ctx, c, yrs, r, p, "", logger)
 				if err != nil {
 					return nil, err
 				}
@@ -153,22 +159,25 @@ func processArchive(
 	logger *clog.Logger,
 ) error {
 	var err error
-	p, err = archive(ctx, p)
+	var ap string
+	ap, err = archive(ctx, p)
 	if err != nil {
 		return fmt.Errorf("failed to prepare archive for scanning: %w", err)
 	}
-	var ap []string
-	ap, err = findFilesRecursively(ctx, p, c)
+	var af []string
+	af, err = findFilesRecursively(ctx, ap, c)
 	if err != nil {
 		return fmt.Errorf("find files: %w", err)
 	}
-	for _, a := range ap {
-		err = processFile(ctx, c, yrs, r, a, logger)
+	for _, a := range af {
+		// a is the scan path (within the temp directory)
+		// p is the original path to the archive file
+		err = processFile(ctx, c, yrs, r, a, p, logger)
 		if err != nil {
 			return err
 		}
 	}
-	if err := os.RemoveAll(p); err != nil {
+	if err := os.RemoveAll(ap); err != nil {
 		logger.Errorf("remove %s: %v", p, err)
 	}
 	return nil
@@ -176,12 +185,14 @@ func processArchive(
 
 func processFile(
 	ctx context.Context,
-	c Config, yrs *yara.Rules,
+	c Config,
+	yrs *yara.Rules,
 	r *bincapz.Report,
 	p string,
+	a string,
 	logger *clog.Logger,
 ) error {
-	fr, err := scanSinglePath(ctx, c, yrs, p)
+	fr, err := scanSinglePath(ctx, c, yrs, p, a)
 	if err != nil {
 		logger.Errorf("scan path: %v", err)
 		return nil

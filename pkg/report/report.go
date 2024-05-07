@@ -271,7 +271,14 @@ func fixURL(s string) string {
 	return strings.ReplaceAll(s, " ", "%20")
 }
 
-func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags []string, minScore int) (bincapz.FileReport, error) {
+func Generate(
+	ctx context.Context,
+	path string,
+	aPath string,
+	mrs yara.MatchRules,
+	ignoreTags []string,
+	minScore int,
+) (bincapz.FileReport, error) {
 	ignore := map[string]bool{}
 	for _, t := range ignoreTags {
 		ignore[t] = true
@@ -283,10 +290,11 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 	}
 
 	fr := bincapz.FileReport{
-		Path:      path,
-		SHA256:    ptCheck,
-		Meta:      map[string]string{},
-		Behaviors: map[string]bincapz.Behavior{},
+		Path:          path,
+		AlternatePath: aPath,
+		SHA256:        ptCheck,
+		Meta:          map[string]string{},
+		Behaviors:     map[string]bincapz.Behavior{},
 	}
 
 	pledges := []string{}

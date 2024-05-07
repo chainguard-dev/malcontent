@@ -42,19 +42,31 @@ func matchFragmentLink(s string) string {
 }
 
 func (r Markdown) File(ctx context.Context, fr bincapz.FileReport) error {
-	markdownTable(ctx, &fr, r.w, tableConfig{Title: fmt.Sprintf("## %s [%s]", fr.Path, mdRisk(fr.RiskScore, fr.RiskLevel))})
+	tableCfg := tableConfig{Title: fmt.Sprintf("## Scanned Path: %s [%s]", fr.Path, mdRisk(fr.RiskScore, fr.RiskLevel))}
+	if fr.AlternatePath != "" {
+		tableCfg.SubTitle = fmt.Sprintf("### Original Path: %s", fr.AlternatePath)
+	}
+	markdownTable(ctx, &fr, r.w, tableCfg)
 	return nil
 }
 
 func (r Markdown) Full(ctx context.Context, rep bincapz.Report) error {
 	for f, fr := range rep.Diff.Removed {
 		fr := fr
-		markdownTable(ctx, &fr, r.w, tableConfig{Title: fmt.Sprintf("## Deleted: %s [%s]", f, mdRisk(fr.RiskScore, fr.RiskLevel)), DiffRemoved: true})
+		tableCfg := tableConfig{Title: fmt.Sprintf("## Deleted: %s [%s]", f, mdRisk(fr.RiskScore, fr.RiskLevel)), DiffRemoved: true}
+		if fr.AlternatePath != "" {
+			tableCfg.SubTitle = fmt.Sprintf("### Original Path: %s", fr.AlternatePath)
+		}
+		markdownTable(ctx, &fr, r.w, tableCfg)
 	}
 
 	for f, fr := range rep.Diff.Added {
 		fr := fr
-		markdownTable(ctx, &fr, r.w, tableConfig{Title: fmt.Sprintf("## Added: %s [%s]", f, mdRisk(fr.RiskScore, fr.RiskLevel)), DiffAdded: true})
+		tableCfg := tableConfig{Title: fmt.Sprintf("## Added: %s [%s]", f, mdRisk(fr.RiskScore, fr.RiskLevel)), DiffAdded: true}
+		if fr.AlternatePath != "" {
+			tableCfg.SubTitle = fmt.Sprintf("### Original Path: %s", fr.AlternatePath)
+		}
+		markdownTable(ctx, &fr, r.w, tableCfg)
 	}
 
 	for f, fr := range rep.Diff.Modified {
@@ -127,6 +139,10 @@ func markdownTable(_ context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 
 	if rc.Title != "" {
 		fmt.Fprintf(w, "%s\n\n", rc.Title)
+	}
+
+	if fr.AlternatePath != "" {
+		fmt.Fprintf(w, "%s\n\n", rc.SubTitle)
 	}
 
 	sort.Slice(kbs, func(i, j int) bool {
