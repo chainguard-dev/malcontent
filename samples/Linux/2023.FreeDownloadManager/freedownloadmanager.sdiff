@@ -1,5 +1,5 @@
 *** changed: Linux/2023.FreeDownloadManager/freedownloadmanager_infected_postinst
-+3P/keywords/touch/greyware
++3P/threat_hunting_keywords/touch
 +data/embedded/base64/terms
 +data/embedded/base64/url
 +encoding/base64

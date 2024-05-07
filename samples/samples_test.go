@@ -16,8 +16,10 @@ import (
 
 	"github.com/chainguard-dev/bincapz/pkg/action"
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
+	"github.com/chainguard-dev/bincapz/pkg/compile"
 	"github.com/chainguard-dev/bincapz/pkg/render"
-	"github.com/chainguard-dev/bincapz/pkg/rules"
+	"github.com/chainguard-dev/bincapz/rules"
+	thirdparty "github.com/chainguard-dev/bincapz/third_party"
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/clog/slogtest"
 	"github.com/google/go-cmp/cmp"
@@ -29,7 +31,7 @@ func TestJSON(t *testing.T) {
 	ctx := slogtest.TestContextWithLogger(t)
 	clog.FromContext(ctx).With("test", "TestJSON")
 
-	yrs, err := rules.Compile(ctx, rules.FS, false)
+	yrs, err := compile.Recursive(ctx, []fs.FS{rules.FS})
 	if err != nil {
 		t.Fatalf("compile: %v", err)
 	}
@@ -91,7 +93,7 @@ func TestSimple(t *testing.T) {
 	ctx := slogtest.TestContextWithLogger(t)
 	clog.FromContext(ctx).With("test", "simple")
 
-	yrs, err := rules.Compile(ctx, rules.FS, true)
+	yrs, err := compile.Recursive(ctx, []fs.FS{rules.FS, thirdparty.FS})
 	if err != nil {
 		t.Fatalf("compile: %v", err)
 	}
@@ -152,7 +154,10 @@ func TestSimple(t *testing.T) {
 }
 
 func TestDiff(t *testing.T) {
-	yrs, err := rules.Compile(context.TODO(), rules.FS, true)
+	ctx := slogtest.TestContextWithLogger(t)
+	clog.FromContext(ctx).With("test", "diff")
+
+	yrs, err := compile.Recursive(ctx, []fs.FS{rules.FS, thirdparty.FS})
 	if err != nil {
 		t.Fatalf("compile: %v", err)
 	}
@@ -223,7 +228,8 @@ func TestDiff(t *testing.T) {
 func TestMarkdown(t *testing.T) {
 	ctx := slogtest.TestContextWithLogger(t)
 	clog.FromContext(ctx).With("test", "TestMarkDown")
-	yrs, err := rules.Compile(ctx, rules.FS, true)
+
+	yrs, err := compile.Recursive(ctx, []fs.FS{rules.FS, thirdparty.FS})
 	if err != nil {
 		t.Fatalf("compile: %v", err)
 	}
