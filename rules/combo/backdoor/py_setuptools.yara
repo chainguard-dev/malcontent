@@ -46,8 +46,6 @@ rule setuptools_url_access : suspicious {
 		$setup and ($setuptools or $distutils) and any of ($s_*)
 }
 
-
-
 rule setuptools_random : critical {
 	meta:
 		description = "Python library installer that exhibits random behavior"
@@ -61,8 +59,6 @@ rule setuptools_random : critical {
 	condition:
 		$setup and ($setuptools or $distutils) and any of ($s_*)
 }
-
-
 
 rule setuptools_builtins : notable {
 	meta:

@@ -3,9 +3,9 @@ rule upload : notable {
 	meta:
 		description = "uploads files"
 	strings:
-		$ref = "upload" fullword
-		$ref2 = "UPLOAD" fullword
-		$ref3 = "Upload" fullword
+		$ref = /upload\w{0,16}/
+		$ref2 = /UPLOAD\w{0,16}/
+		$ref3 = /Upload\w{0,16}/
 	condition:
 		any of them
 }

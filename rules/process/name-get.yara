@@ -7,3 +7,13 @@ rule progname : notable {
 	condition:
 		any of them in (1200..3000)
 }
+
+rule process_name : notable {
+	meta:
+		description = "get the current process name"
+	strings:
+		$ref = "processName"
+		$ref2 = "process_name"
+	condition:
+		any of them
+}
