@@ -48,13 +48,11 @@ type FileReport struct {
 	RiskLevel   string   `json:",omitempty" yaml:",omitempty"`
 	PackageRisk []string `json:",omitempty" yaml:",omitempty"`
 
-<<<<<<< HEAD
 	IsBincapz bool `json:",omitempty" yaml:",omitempty"`
-=======
+
 	// The original path for scanned archive files
 	// When not scanning archives, this will be empty
 	OriginalAbsPath string
->>>>>>> bf5a1eb (Address PR comments)
 }
 
 type DiffReport struct {
