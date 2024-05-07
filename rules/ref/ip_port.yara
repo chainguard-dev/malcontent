@@ -12,3 +12,19 @@ rule hardcoded_ip_port : high {
     any of ($ip*) and none of ($not*)
 }
 
+rule ip_and_port : notable {
+  meta:
+	description = "mentions an IP and port"
+  strings:
+	$camelPort = /[a-z]{0,8}Port/ fullword
+	$camelIP = /[a-z]{0,8}Ip/ fullword
+
+	$underPort = /[a-z]{0,8}_port/ fullword
+	$underIP = /[a-z]{0,8}_ip/ fullword
+
+	$wordPort = "Port" fullword
+	$wordIP = "IP" fullword
+  condition:
+	all of ($camel*) or all of ($under*) or all of ($word*)
+}
+

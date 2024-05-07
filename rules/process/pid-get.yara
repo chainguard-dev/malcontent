@@ -5,6 +5,7 @@ rule getpid : harmless {
 	strings:
 		$ref = "getpid" fullword
 		$Getpid = "Getpid" fullword
+		$procID = "processID" fullword
 	condition:
 		any of them
 }

@@ -43,6 +43,7 @@ rule proclist : medium {
 	strings:
 		$proclist = "proclist" fullword
 		$gops = "shirou/gopsutil"
+		$running = "RunningProcesses"
 	condition:
 		any of them
 }

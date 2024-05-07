@@ -29,6 +29,7 @@ rule processor_count {
 	strings:
 		$ref = "get_nprocs" fullword
 		$ref2 = "nproc" fullword
+		$ref3 = "numProcessors" fullword
 	condition:
 		any of them
 }

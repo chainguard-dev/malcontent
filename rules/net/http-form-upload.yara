@@ -1,11 +1,10 @@
-rule http_form : notable {
+rule http_form_upload : notable {
 	meta:
 		pledge = "inet"
 		description = "upload content via HTTP form"
 	strings:
-		$ref = /Content-Type.{0,8}application\/x-www-form-urlencoded/
-		$ref2 = "\"application/x-www-form-urlencoded"
-		$ref3 = "'application/x-www-form-urlencoded"
+		$header = "application/x-www-form-urlencoded"
+		$POST = "POST" fullword
 	condition:
-		any of them
+		all of them
 }

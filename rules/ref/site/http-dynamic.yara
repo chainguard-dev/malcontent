@@ -3,6 +3,7 @@ rule http_dynamic : notable {
 	description = "URL that is dynamically generated"
   strings:
     $ref = /https*:\/\/%s[\/\w\.]{0,64}/
+	$ref2 = "https://%@:%@%@"
   condition:
-	$ref
+	any of them
 }

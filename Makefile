@@ -57,6 +57,20 @@ update-yaraforge:
 	curl -sL -o out/yaraforge.zip https://github.com/YARAHQ/yara-forge/releases/latest/download/yara-forge-rules-full.zip
 	unzip -o -j out/yaraforge.zip packages/full/yara-rules-full.yar -d rules/third_party/
 
+.PHONY: update-huntress
+update-huntress:
+	rm -Rf out/huntress  rules/third_party/huntress
+	mkdir -p out rules/third_party/huntress
+	git clone https://github.com/huntresslabs/threat-intel.git out/huntress
+	find out/huntress \( -name "*.yar*" -o -name "*LICENSE*" \) -print -exec cp {} rules/third_party/huntress/ \;
+	perl -p -i -e 's#"/Library/Application Support/Google/Chrome/Default/History"#/\\/Library\\/Application Support\\/Google\\/Chrome\\/Default\\/History\/#' rules/third_party/huntress/lightspy.yara
+	set -e ;\
+	cd out/huntress ;\
+	COMMIT=$$(git rev-parse head) ;\
+	echo $$COMMIT > ../../rules/third_party/huntress/COMMIT ;\
+	echo "to commit update, use:" ;\
+	echo "git commit rules/huntress -m \"update huntress threat-intel to latest - $$COMMIT\""
+
 .PHONY: update-threathunting-keywords
 update-threathunting-keywords:
 	@current_sha=a21391e7280a4347dd7faebd7b5f54344b484ec7; \
