@@ -73,7 +73,7 @@ var dateRe = regexp.MustCompile(`[a-z]{3}\d{1,2}`)
 func thirdPartyKey(path string, rule string) string {
 	// include the directory
 	pathParts := strings.Split(path, "/")
-	subDir := pathParts[slices.Index(pathParts, "third_party")+1]
+	subDir := pathParts[slices.Index(pathParts, "yara")+1]
 
 	words := []string{subDir}
 
@@ -110,7 +110,7 @@ func thirdPartyKey(path string, rule string) string {
 
 // thirdParty returns whether the rule is sourced from a 3rd party.
 func thirdParty(src string) bool {
-	return strings.Contains(src, "third_party")
+	return strings.Contains(src, "yara/")
 }
 
 func isValidURL(s string) bool {
@@ -121,14 +121,6 @@ func isValidURL(s string) bool {
 func generateKey(src string, rule string) string {
 	if thirdParty(src) {
 		return thirdPartyKey(src, rule)
-	}
-
-	_, after, _ := strings.Cut(src, "third_party/")
-	if after != "" {
-		key := strings.ReplaceAll(after, "-", "/")
-		key = strings.ReplaceAll(key, "/rules", "")
-		key = strings.ReplaceAll(key, "/yara", "")
-		return "third_party/" + strings.ReplaceAll(key, ".yar", "")
 	}
 
 	key := strings.ReplaceAll(src, "-", "/")
