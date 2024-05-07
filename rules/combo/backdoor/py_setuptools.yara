@@ -1,6 +1,6 @@
 import "math"
 
-rule pythonSetup {
+private rule pythonSetup {
 	strings:
 		$i_distutils = "from distutils.core import setup"
 		$i_setuptools = "setuptools"
