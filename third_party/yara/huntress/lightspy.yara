@@ -124,7 +124,7 @@ rule MACOS_LIGHTSPY_FILEMANAGEDYLIB_20240422 {
     strings:
         $path = "/usr/local/lib/libFileManage.dylib"
 
-        $a0 = "GetTelegramFileDir" 
+        $a0 = "GetTelegramFileDir"
         $a1 = { 46 69 6c 65 4d 61 6e 61 67 65 20 44 6f 77 6e 4c 6f 61 64 46 69 6c 65 }
 
     condition:
