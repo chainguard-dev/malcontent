@@ -1,5 +1,13 @@
 #!/bin/bash
 # re-pin a third_party YARA dependency to the latest version
+#
+# usage:
+#
+#   Upgrade YARAForge rules:
+#      ./update.sh YARAForge
+#   Upgrade all third party rules:
+#      ./update.sh
+
 set -ex -o pipefail
 
 # latest_github_release returns the most recent release tag for a GitHub project
@@ -12,7 +20,7 @@ latest_github_release() {
 # fixup_rules fixes rules up, including lightly obfuscating them to avoid XProtect from matching bincapz
 function fixup_rules() {
 	perl -p -i -e 's#"/Library/Application Support/Google/Chrome/Default/History"#/\\/Library\\/Application Support\\/Google\\/Chrome\\/Default\\/History\/#' "$@"
-	perl -p -i -e 's#\/([a-z]{31})([a-z])\/#\/$$1\[$$2\]\/#;' "$@"
+	perl -p -i -e 's#\/([a-z]{31})([a-z])\/#\/$1\[$2\]\/#;' "$@"
 	# trailing spaces
 	perl -p -i -e 's/ +$//;' "$@"
 }
@@ -43,10 +51,17 @@ function update_dep() {
 		;;
     esac
 	
-	fixup_rules ${kind}/*.yar*
+	fixup_rules ${kind}/*.yar* # nolint
 	echo "${rel}" > "${kind}/RELEASE"
 	echo "updated ${kind} to ${rel}"
 }
 
-
-update_dep "$1"
+if [[ "$1" != "" ]]; then
+  update_dep "$1"
+else
+  for dir in *; do
+    if [[ -f "${dir}/RELEASE" ]]; then
+	  update_dep "${dir}"
+	fi
+   done
+fi
