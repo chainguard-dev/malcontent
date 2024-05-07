@@ -1,4 +1,5 @@
 # Linux/2022.bpfdoor/bpfdoor_2
+3P/elastic/bpfdoor
 combo/backdoor/net_shell
 combo/backdoor/socket_filter_exec
 device/pseudo_terminal
@@ -10,6 +11,7 @@ fs/file/times/set
 net/sniffer
 net/socket/connect
 net/socket_filter
+persist/pid_file
 process/create
 ref/path/usr/bin
 ref/path/usr/local

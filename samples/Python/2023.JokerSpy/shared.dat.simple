@@ -8,7 +8,7 @@ exec/program
 fd/read
 fd/write
 fs/tempdir
-kernel/uname/get
+kernel/platform
 net/interface/list
 net/url/request
 process/username/get

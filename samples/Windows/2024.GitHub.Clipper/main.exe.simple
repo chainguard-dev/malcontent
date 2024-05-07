@@ -1,4 +1,13 @@
 # Windows/2024.GitHub.Clipper/main.exe
+3P/ditekshen/discordurl
+3P/ditekshen/rawgithub/url
+3P/ditekshen/vm/evasion/macaddrcomb
+3P/keywords
+3P/keywords/cstealer
+3P/keywords/fentanyl
+3P/keywords/github/greyware
+3P/keywords/runascs
+3P/keywords/wireshark/greyware
 archives/zip
 combo/net/scan_tool
 combo/stealer/browser
@@ -23,8 +32,10 @@ exec/program
 exfil/discord
 fs/directory/list
 fs/file/read
+fs/file/write
 fs/permission/chown
 fs/permission/modify
+hash/md5
 kernel/cpu/info
 malware/family/skuld
 net/dns
@@ -54,18 +65,22 @@ net/upload
 net/url
 net/url/request
 net/vnc
+persist/pid_file
 privesc/uac_bypass
 process/list
 ref/extensions/office
+ref/ip_port
 ref/path/dev
 ref/path/etc
 ref/path/etc/hosts
 ref/path/etc/resolv.conf
+ref/path/users
 ref/site/download
 ref/site/github_raw
 ref/site/http/dynamic
 ref/site/url
 ref/words/password
+ref/words/plugin
 secrets/chromium_credit_cards
 secrets/chromium_master_password
 secrets/firefox/cookies

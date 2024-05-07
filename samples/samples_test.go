@@ -91,7 +91,7 @@ func TestSimple(t *testing.T) {
 	ctx := slogtest.TestContextWithLogger(t)
 	clog.FromContext(ctx).With("test", "simple")
 
-	yrs, err := rules.Compile(ctx, rules.FS, false)
+	yrs, err := rules.Compile(ctx, rules.FS, true)
 	if err != nil {
 		t.Fatalf("compile: %v", err)
 	}

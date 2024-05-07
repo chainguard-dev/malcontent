@@ -36,6 +36,8 @@ var yaraForgeJunkWords = map[string]bool{
 	"generic":           true,
 	"apt":               true,
 	"malware":           true,
+	"YARAForge":         true,
+	"exe":               true,
 	"mal":               true,
 	"trojan":            true,
 	"m":                 true,
@@ -50,13 +52,17 @@ var yaraForgeJunkWords = map[string]bool{
 	"macos":             true,
 	"osx":               true,
 	"mac":               true,
+	"tool":              true,
+	"keyword":           true,
 	"indicator":         true,
 	"suspicious":        true,
+	"offensive":         true,
 }
 
 // dropRules are noisy 3rd party rules to silently ignore.
 var dropRules = map[string]bool{
 	"3P/godmoderules/iddqd/god/mode": true,
+	"3P/keywords/rdpassspray":        true,
 }
 
 // authorWithURLRe matcehs "Arnim Rupp (https://github.com/ruppde)"
@@ -64,9 +70,15 @@ var authorWithURLRe = regexp.MustCompile(`(.*?) \((http.*)\)`)
 
 var dateRe = regexp.MustCompile(`[a-z]{3}\d{1,2}`)
 
-func yaraForgeKey(rule string) string {
+func thirdPartyKey(path string, rule string) string {
+	// include the directory
+	pathParts := strings.Split(path, "/")
+	subDir := pathParts[slices.Index(pathParts, "third_party")+1]
+
+	words := []string{subDir}
+
 	// ELASTIC_Linux_Trojan_Gafgyt_E4A1982B
-	words := strings.Split(strings.ToLower(rule), "_")
+	words = append(words, strings.Split(strings.ToLower(rule), "_")...)
 
 	// strip off the last wold if it's a hex key
 	lastWord := words[len(words)-1]
@@ -91,13 +103,14 @@ func yaraForgeKey(rule string) string {
 	if len(keepWords) > 4 {
 		keepWords = keepWords[0:4]
 	}
+
 	key := fmt.Sprintf("3P/%s", strings.Join(keepWords, "/"))
 	return strings.ReplaceAll(key, "signature/base", "signature_base")
 }
 
-// yaraForge returns whether the rule is sourced from YARAForge.
-func yaraForge(src string) bool {
-	return strings.Contains(src, "yara-rules")
+// thirdParty returns whether the rule is sourced from a 3rd party.
+func thirdParty(src string) bool {
+	return strings.Contains(src, "third_party")
 }
 
 func isValidURL(s string) bool {
@@ -106,8 +119,8 @@ func isValidURL(s string) bool {
 }
 
 func generateKey(src string, rule string) string {
-	if yaraForge(src) {
-		return yaraForgeKey(rule)
+	if thirdParty(src) {
+		return thirdPartyKey(src, rule)
 	}
 
 	_, after, _ := strings.Cut(src, "third_party/")
@@ -140,6 +153,14 @@ func ignoreMatch(tags []string, ignoreTags map[string]bool) bool {
 func behaviorRisk(ns string, tags []string) int {
 	risk := 1
 
+	// default to critical
+	if strings.Contains(ns, "third_party/") {
+		risk = 4
+		if strings.Contains(ns, "mthcht") {
+			risk = 2
+		}
+	}
+
 	levels := map[string]int{
 		"harmless":   0,
 		"notable":    2,
@@ -159,10 +180,6 @@ func behaviorRisk(ns string, tags []string) int {
 		if r, ok := levels[tag]; ok {
 			risk = r
 		}
-	}
-
-	if strings.Contains(ns, "third_party/") {
-		risk = 4
 	}
 
 	return risk

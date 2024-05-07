@@ -1,7 +1,7 @@
 
-rule uname : notable {
+rule uname {
 	meta:
-		description = "system identification (uname)"
+		description = "system identification"
 		pledge = "sysctl"
 		syscall = "sysctl"
 		ref = "https://man7.org/linux/man-pages/man1/uname.1.html"
@@ -20,6 +20,20 @@ rule os_release : notable {
 		ref = "https://developer.apple.com/documentation/os/1524245-os_release"
 	strings:
 		$ref = "os_release" fullword
+	condition:
+		any of them
+}
+
+rule macos_platform_check : notable {
+	meta:
+		description = "platform check"
+		pledge = "sysctl"
+		syscall = "sysctl"
+		ref = "https://developer.apple.com/documentation/os/1524245-os_release"
+	strings:
+		$ref = "isPlatformOrVariantPlatformVersionAtLeast" fullword
+		$ref2 = "/System/Library/CoreServices/SystemVersion.plist" fullword
+		$ref3 = "IOPlatformExpertDevice" fullword
 	condition:
 		any of them
 }
