@@ -63,6 +63,7 @@ func main() {
 		ignoreTags = []string{}
 		minLevel = -1
 		includeDataFiles = true
+		*ignoreSelfFlag = false
 	}
 
 	renderer, err := render.New(*formatFlag, os.Stdout)

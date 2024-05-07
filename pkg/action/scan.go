@@ -23,7 +23,12 @@ func findFilesRecursively(ctx context.Context, root string, c Config) ([]string,
 	clog.FromContext(ctx).Infof("finding files in %s ...", root)
 	files := []string{}
 
-	err := filepath.Walk(root,
+	self, err := os.Executable()
+	if err != nil {
+		return nil, fmt.Errorf("abs: %w", err)
+	}
+
+	err = filepath.Walk(root,
 		func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				clog.FromContext(ctx).Errorf("walk %s: %v", path, err)
@@ -36,16 +41,14 @@ func findFilesRecursively(ctx context.Context, root string, c Config) ([]string,
 			if strings.Contains(path, "/.git/") {
 				return nil
 			}
-			// Skip the bincapz directory if IgnoreSelf is true
-			if c.IgnoreSelf {
-				// we need the fully-qualified path here
-				fq, err := filepath.Abs(path)
-				if err != nil {
-					return err
-				}
-				if strings.Contains(fq, "bincapz") {
-					return nil
-				}
+			abs, err := filepath.Abs(path)
+			if err != nil {
+				return err
+			}
+
+			if c.IgnoreSelf && abs == self {
+				clog.FromContext(ctx).Infof("skipping %s (self)", path)
+				return nil
 			}
 			files = append(files, path)
 			return nil
@@ -186,6 +189,12 @@ func processFile(
 	if fr == nil {
 		return nil
 	}
+
+	if c.IgnoreSelf && fr.IsBincapz {
+		clog.FromContext(ctx).Infof("dropping results for %s (it's bincapz)...", fr.Path)
+		return nil
+	}
+
 	if c.Renderer != nil {
 		if fr.RiskScore < c.MinFileScore {
 			return nil

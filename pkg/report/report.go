@@ -321,6 +321,8 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 				}
 			case "author_url":
 				b.RuleAuthorURL = v
+			case "__bincapz__":
+				fr.IsBincapz = true
 			case "license":
 				b.RuleLicense = v
 			case "license_url":
