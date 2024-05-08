@@ -1,5 +1,5 @@
 
-rule dynamic_hidden_path : notable {
+rule dynamic_hidden_path : medium {
   meta:
     description = "hidden path generated dynamically"
     ref = "https://objective-see.org/blog/blog_0x73.html"
@@ -40,7 +40,7 @@ rule hidden_path {
     $crit and none of ($not*)
 }
 
-rule hidden_library : suspicious {
+rule hidden_library : high {
   meta:
     description = "hidden path in a Library directory"
     hash_2018_Calisto = "81c127c3cceaf44df10bb3ceb20ce1774f6a9ead0db4bd991abf39db828661cc"

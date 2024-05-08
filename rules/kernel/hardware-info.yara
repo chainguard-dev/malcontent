@@ -11,7 +11,7 @@ rule sysctl_machdep {
     2 of them
 }
 
-rule macos_hardware_profiler : notable {
+rule macos_hardware_profiler : medium {
   meta:
     description = "Gathers hardware information"
     hash_2023_Downloads_016a = "016a1a4fe3e9d57ab0b2a11e37ad94cc922290d2499b8d96957c3ddbdc516d74"

@@ -1,5 +1,5 @@
 
-rule nohup_reference_value : notable {
+rule nohup_reference_value : medium {
   meta:
     description = "Runs command that is protected from termination"
     hash_2024_Downloads_4ba700b0e86da21d3dcd6b450893901c252bf817bd8792548fc8f389ee5aec78 = "fd3e21b8e2d8acf196cb63a23fc336d7078e72c2c3e168ee7851ea2bef713588"
@@ -18,7 +18,7 @@ rule nohup_reference_value : notable {
     filesize < 52428800 and any of ($nohup*) and none of ($not*) and not $bin_sh in (0..2) and not $bin_bash in (0..2)
 }
 
-rule elf_nohup : suspicious {
+rule elf_nohup : high {
   meta:
     description = "Runs command that is protected from termination"
     hash_2023_Merlin_48a7 = "48a70bd18a23fce3208195f4ad2e92fce78d37eeaa672f83af782656a4b2d07f"
@@ -35,7 +35,7 @@ rule elf_nohup : suspicious {
     uint32(0) == 1179403647 and any of ($nohup*) and none of ($not*)
 }
 
-rule trap_1 : suspicious {
+rule trap_1 : high {
   meta:
     description = "Protects itself from early termination via SIGHUP"
     hash_2023_Linux_Malware_Samples_3059 = "305901aa920493695729132cfd20cbddc9db2cf861071450a646c6a07b4a50f3"
@@ -48,7 +48,7 @@ rule trap_1 : suspicious {
     any of them
 }
 
-rule nohup_bash : suspicious {
+rule nohup_bash : high {
   meta:
     description = "Calls bash with nohup"
     hash_2023_Sysrv_Hello_sys_x86_64 = "cd784dc1f7bd95cac84dc696d63d8c807129ef47b3ce08cd08afb7b7456a8cd3"

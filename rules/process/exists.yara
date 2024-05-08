@@ -1,5 +1,5 @@
 
-rule proc_probe_with_ps : notable {
+rule proc_probe_with_ps : medium {
   meta:
     description = "Checks if a process ID is running"
     hash_2021_CDDS_installer_v2021 = "cf5edcff4053e29cb236d3ed1fe06ca93ae6f64f26e25117d68ee130b9bc60c8"

@@ -1,5 +1,5 @@
 
-rule readdir_openpty_socket : suspicious {
+rule readdir_openpty_socket : high {
   meta:
     description = "Lists directories, opens pseudoterminals, resolves IPs"
     hash_2024_Downloads_8cad = "8cad755bcf420135c0f406fb92138dcb0c1602bf72c15ed725bd3b76062dafe5"
@@ -11,7 +11,7 @@ rule readdir_openpty_socket : suspicious {
     all of them in (1200..3000)
 }
 
-rule pseudoterminal_tunnel : suspicious {
+rule pseudoterminal_tunnel : high {
   meta:
     description = "pseudoterminal and tunnel support"
     hash_2023_OK_ad69 = "ad69e198905a8d4a4e5c31ca8a3298a0a5d761740a5392d2abb5d6d2e966822f"
@@ -27,7 +27,7 @@ rule pseudoterminal_tunnel : suspicious {
     any of ($p*) and any of ($t*) and none of ($not*)
 }
 
-rule tty_shell : suspicious {
+rule tty_shell : high {
   strings:
     $s_tty_shell = "tty shell" nocase
     $s_SSLshell = /SSL *Shell/ nocase
@@ -37,7 +37,7 @@ rule tty_shell : suspicious {
     filesize < 26214400 and any of ($s*) and none of ($not*)
 }
 
-rule python_pty_spawner : suspicious {
+rule python_pty_spawner : high {
   meta:
     ref1 = "https://juggernaut-sec.com/docker-breakout-lpe/"
     ref2 = "https://www.mandiant.com/resources/blog/barracuda-esg-exploited-globally"
@@ -47,7 +47,7 @@ rule python_pty_spawner : suspicious {
     any of them
 }
 
-rule spectralblur_alike : suspicious {
+rule spectralblur_alike : high {
   meta:
     description = "uploads, provides a terminal, runs program"
     hash_2024_SpectralBlur_macshare = "6f3e849ee0fe7a6453bd0408f0537fa894b17fc55bc9d1729ae035596f5c9220"
@@ -63,7 +63,7 @@ rule spectralblur_alike : suspicious {
     all of them
 }
 
-rule miner_kvryr_stak_alike : suspicious {
+rule miner_kvryr_stak_alike : high {
   meta:
     description = "uploads, provides a terminal, runs program"
     hash_2023_Linux_Malware_Samples_1b1a = "1b1a56aec5b02355b90f911cdd27a35d099690fcbeb0e0622eaea831d64014d3"
@@ -79,7 +79,7 @@ rule miner_kvryr_stak_alike : suspicious {
     filesize < 67108864 and all of them
 }
 
-rule proxy_http_aes_terminal_combo : notable {
+rule proxy_http_aes_terminal_combo : medium {
   meta:
     hash_2023_Linux_Malware_Samples_00ae = "00ae07c9fe63b080181b8a6d59c6b3b6f9913938858829e5a42ab90fb72edf7a"
     hash_2023_Linux_Malware_Samples_0ad6 = "0ad6c635d583de499148b1ec46d8b39ae2785303e8b81996d3e9e47934644e73"
@@ -96,7 +96,7 @@ rule proxy_http_aes_terminal_combo : notable {
     filesize < 26214400 and 85% of them
 }
 
-rule bpfdoor_alike : suspicious {
+rule bpfdoor_alike : high {
   meta:
     description = "Listens, provides a terminal, runs program"
     hash_2023_BPFDoor_07ec = "07ecb1f2d9ffbd20a46cd36cd06b022db3cc8e45b1ecab62cd11f9ca7a26ab6d"
@@ -113,7 +113,7 @@ rule bpfdoor_alike : suspicious {
     all of ($f*) and none of ($not*)
 }
 
-rule dlsym_openpty_system : suspicious {
+rule dlsym_openpty_system : high {
   meta:
     description = "Resolves library, opens terminal, calls shell"
     hash_2024_Downloads_8cad = "8cad755bcf420135c0f406fb92138dcb0c1602bf72c15ed725bd3b76062dafe5"

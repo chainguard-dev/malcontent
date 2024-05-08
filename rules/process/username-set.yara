@@ -1,5 +1,5 @@
 
-rule setlogin : notable {
+rule setlogin : medium {
   meta:
     syscall = "setlogin"
     description = "set login name"

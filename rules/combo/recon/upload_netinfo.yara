@@ -1,6 +1,6 @@
 import "math"
 
-rule user_agent_ifconfig : suspicious {
+rule user_agent_ifconfig : high {
   meta:
     description = "Has a user agent and collects network info"
   strings:
@@ -13,7 +13,7 @@ rule user_agent_ifconfig : suspicious {
     any of ($ua*) and math.abs(@net_ifconfig - @net_ifconfig_a) <= 8
 }
 
-rule user_agent_proc_net_route : suspicious {
+rule user_agent_proc_net_route : high {
   meta:
     description = "Has a user agent and collects network info"
     hash_2023_Unix_Dropper_Mirai_1703 = "1703bd27e0ae38a53e897b82554f95eaa5a88f2b0a6c2c9d973d7e34d05b2539"

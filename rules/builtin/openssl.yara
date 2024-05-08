@@ -1,5 +1,5 @@
 
-rule openssl : notable {
+rule openssl : medium {
   meta:
     description = "This binary includes OpenSSL source code"
     hash_2023_Linux_Malware_Samples_00ae = "00ae07c9fe63b080181b8a6d59c6b3b6f9913938858829e5a42ab90fb72edf7a"
@@ -11,7 +11,7 @@ rule openssl : notable {
     any of them
 }
 
-rule elf_with_bundled_openssl : suspicious {
+rule elf_with_bundled_openssl : high {
   meta:
     hash_2023_Unix_Malware_Bruteforce_4020 = "4020b018fcebf76672af2824636e7948131b313f723adef6cf41ad06bd2c6a6f"
     hash_2023_Linux_Malware_Samples_24ee = "24ee0e3d65b0593198fbe973a58ca54402b0879d71912f44f4b831003a5c7819"

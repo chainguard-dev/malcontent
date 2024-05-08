@@ -1,5 +1,5 @@
 
-rule browser_extensions : notable {
+rule browser_extensions : medium {
   meta:
     description = "access Browser extensions"
     hash_2024_2019_02_Shlayer_Malware_a2ec = "a2ec5d9c80794c26a7eaac8586521f7b0eb24aba9ad393c194c86cfd150e5189"

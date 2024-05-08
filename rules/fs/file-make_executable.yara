@@ -1,5 +1,5 @@
 
-rule chmod_executable_plus : notable {
+rule chmod_executable_plus : medium {
   meta:
     description = "makes file executable"
     hash_2024_Downloads_4ba700b0e86da21d3dcd6b450893901c252bf817bd8792548fc8f389ee5aec78 = "fd3e21b8e2d8acf196cb63a23fc336d7078e72c2c3e168ee7851ea2bef713588"
@@ -11,7 +11,7 @@ rule chmod_executable_plus : notable {
     $val
 }
 
-rule chmod_executable_octal : suspicious {
+rule chmod_executable_octal : high {
   meta:
     description = "makes file executable"
     hash_2023_Unix_Downloader_Rocke_228e = "228ec858509a928b21e88d582cb5cfaabc03f72d30f2179ef6fb232b6abdce97"
@@ -23,7 +23,7 @@ rule chmod_executable_octal : suspicious {
     $val
 }
 
-rule chmod_executable_ruby : suspicious {
+rule chmod_executable_ruby : high {
   meta:
     jumpcloud = "https://www.mandiant.com/resources/blog/north-korea-supply-chain"
     hash_2024_jumpcloud_init = "6acfc6f82f0fea6cc2484021e87fec5e47be1459e71201fbec09372236f8fc5a"

@@ -1,5 +1,5 @@
 
-rule linux_network_filter : notable {
+rule linux_network_filter : medium {
   meta:
     description = "listens for packets without a socket"
     hash_2023_BPFDoor_dc83 = "dc8346bf443b7b453f062740d8ae8d8d7ce879672810f4296158f90359dcae3a"

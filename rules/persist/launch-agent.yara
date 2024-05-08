@@ -1,5 +1,5 @@
 
-rule macos_LaunchAgents : notable {
+rule macos_LaunchAgents : medium {
   meta:
     description = "persist via LaunchAgents"
     platforms = "darwin"
@@ -12,7 +12,7 @@ rule macos_LaunchAgents : notable {
     any of them
 }
 
-rule launchctl : notable {
+rule launchctl : medium {
   meta:
     description = "sets up a LaunchAgent and launches it"
     platforms = "darwin"
@@ -27,7 +27,7 @@ rule launchctl : notable {
     $launch and ($upper_val or $lower_val)
 }
 
-rule macos_personal_launch_agent : notable {
+rule macos_personal_launch_agent : medium {
   meta:
     description = "sets up a personal launch agent"
     hash_2024_2019_02_Shlayer_Malware_a2ec = "a2ec5d9c80794c26a7eaac8586521f7b0eb24aba9ad393c194c86cfd150e5189"

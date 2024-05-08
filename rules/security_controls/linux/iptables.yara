@@ -1,5 +1,5 @@
 
-rule iptables : notable {
+rule iptables : medium {
   meta:
     description = "interacts with the iptables/nftables firewall"
     ref = "https://www.netfilter.org/projects/iptables/"
@@ -27,7 +27,7 @@ rule iptables_disable : critical {
     any of them
 }
 
-rule iptables_flush : notable {
+rule iptables_flush : medium {
   meta:
     description = "flushes firewall rules"
     ref = "https://www.netfilter.org/projects/iptables/"
@@ -40,7 +40,7 @@ rule iptables_flush : notable {
     any of them
 }
 
-rule iptables_delete : notable {
+rule iptables_delete : medium {
   meta:
     description = "deletes firewall rules"
     ref = "https://www.netfilter.org/projects/iptables/"

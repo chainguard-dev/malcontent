@@ -1,5 +1,5 @@
 
-rule upload : notable {
+rule upload : medium {
   meta:
     description = "uploads files"
     hash_2023_0xShell_0xShellori = "506e12e4ce1359ffab46038c4bf83d3ab443b7c5db0d5c8f3ad05340cb09c38e"
@@ -13,7 +13,7 @@ rule upload : notable {
     any of them
 }
 
-rule curl_upload_command : suspicious {
+rule curl_upload_command : high {
   meta:
     description = "Uses curl to upload data"
     hash_2023_Qubitstrike_branch_raw_mi = "9a5f6318a395600637bd98e83d2aea787353207ed7792ec9911b775b79443dcd"

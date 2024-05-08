@@ -1,5 +1,5 @@
 
-rule executable_calls_archive_tool : notable {
+rule executable_calls_archive_tool : medium {
   meta:
     hash_2023_0xShell_wesoori = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"
     hash_2023_Downloads_589d = "589dbb3f678511825c310447b6aece312a4471394b3bc40dde6c75623fc108c0"

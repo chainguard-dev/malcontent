@@ -1,5 +1,5 @@
 
-rule creat : notable {
+rule creat : medium {
   meta:
     description = "create a new file or rewrite an existing one"
     syscalls = "open"

@@ -1,5 +1,5 @@
 
-rule tmp_path : notable {
+rule tmp_path : medium {
   meta:
     description = "path reference within /tmp"
     hash_2023_0xShell_wesoori = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"
@@ -11,7 +11,7 @@ rule tmp_path : notable {
     any of them
 }
 
-rule weird_tmp_path_not_hidden : notable {
+rule weird_tmp_path_not_hidden : medium {
   meta:
     description = "references an unusual path within /tmp"
     hash_2023_0xShell_wesoori = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"

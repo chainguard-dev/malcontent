@@ -1,5 +1,5 @@
 
-rule ssh_public_key : suspicious {
+rule ssh_public_key : high {
   meta:
     description = "contains SSH public key"
     ref = "https://unfinished.bike/qubitstrike-and-diamorphine-linux-kernel-rootkits-go-mainstream"

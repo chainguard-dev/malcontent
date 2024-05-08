@@ -1,5 +1,5 @@
 
-rule chmod_dangerous_val : notable {
+rule chmod_dangerous_val : medium {
   meta:
     description = "Makes a world writeable file"
   strings:
@@ -8,7 +8,7 @@ rule chmod_dangerous_val : notable {
     $ref
 }
 
-rule chmod_dangerous_exec_val : suspicious exfil {
+rule chmod_dangerous_exec_val : high exfil {
   meta:
     description = "Makes a world writeable executable"
     hash_2023_APT31_1d60 = "1d60edb577641ce47dc2a8299f8b7f878e37120b192655aaf80d1cde5ee482d2"

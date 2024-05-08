@@ -1,5 +1,5 @@
 
-rule usr_sbin_telnetd : suspicious {
+rule usr_sbin_telnetd : high {
   meta:
     description = "References /usr/sbin/telnetd"
     hash_2023_Unix_Dropper_Mirai_8f9d = "8f9d9e08af48d596a32d8a7da5d045c8b1d3ffd8ccffcf85db7ecb9043c0d4be"

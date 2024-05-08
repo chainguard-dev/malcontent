@@ -1,5 +1,5 @@
 
-rule sysinfo : notable {
+rule sysinfo : medium {
   meta:
     description = "get system information (load, swap)"
     syscall = "sysinfo"

@@ -1,5 +1,5 @@
 
-rule content_length_0 : notable {
+rule content_length_0 : medium {
   meta:
     description = "Sets HTTP content length to zero"
     hash_2023_Downloads_21b3 = "21b3e304db526e2c80df1f2da2f69ab130bdad053cb6df1e05eb487a86a19b7c"

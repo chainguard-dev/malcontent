@@ -1,5 +1,5 @@
 
-rule http_open_write_system : suspicious {
+rule http_open_write_system : high {
   meta:
     description = "fetch and execute programs"
     hash_2022_laysound_4_5_2_setup = "4465bbf91efedb996c80c773494295ae3bff27c0fff139c6aefdb9efbdf7d078"

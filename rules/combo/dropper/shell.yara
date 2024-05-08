@@ -11,7 +11,7 @@ rule fetch_chmod_run_oneliner_value : critical {
     any of them
 }
 
-rule curl_chmod_relative_run : notable {
+rule curl_chmod_relative_run : medium {
   meta:
     description = "may fetch file, make it executable, and run it"
     hash_2024_Downloads_4ba700b0e86da21d3dcd6b450893901c252bf817bd8792548fc8f389ee5aec78 = "fd3e21b8e2d8acf196cb63a23fc336d7078e72c2c3e168ee7851ea2bef713588"
@@ -25,7 +25,7 @@ rule curl_chmod_relative_run : notable {
     all of them
 }
 
-rule wget_chmod_relative_run : notable {
+rule wget_chmod_relative_run : medium {
   meta:
     description = "may fetch file, make it executable, and run it"
     hash_2024_Downloads_4ba700b0e86da21d3dcd6b450893901c252bf817bd8792548fc8f389ee5aec78 = "fd3e21b8e2d8acf196cb63a23fc336d7078e72c2c3e168ee7851ea2bef713588"
@@ -39,28 +39,28 @@ rule wget_chmod_relative_run : notable {
     all of them
 }
 
-rule dev_null_rm : notable {
+rule dev_null_rm : medium {
   strings:
     $dev_null_rm = /[ \w\.\/\&\-%]{0,32}\/dev\/null\;rm[ \w\/\&\.\-\%]{0,32}/
   condition:
     any of them
 }
 
-rule sleep_rm : notable {
+rule sleep_rm : medium {
   strings:
     $dev_null_rm = /sleep;rm[ \w\/\&\.\-\%]{0,32}/
   condition:
     any of them
 }
 
-rule nohup_bash_background : suspicious {
+rule nohup_bash_background : high {
   strings:
     $ref = /nohup bash [\%\w\/\>]{0,64} &/
   condition:
     any of them
 }
 
-rule fetch_pipe_shell_value : suspicious {
+rule fetch_pipe_shell_value : high {
   meta:
     description = "fetches content and pipes it to a shell"
     hash_2023_OK_29c2 = "29c2f559a9494bce3d879aff8731a5d70a3789028055fd170c90965ce9cf0ea4"

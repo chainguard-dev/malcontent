@@ -1,5 +1,5 @@
 
-rule unusual_cd_val : suspicious {
+rule unusual_cd_val : high {
   meta:
     description = "changes to an unusual system directory"
     hash_2023_Py_Trojan_NecroBot_0e60 = "0e600095a3c955310d27c08f98a012720caff698fe24303d7e0dcb4c5e766322"
@@ -19,7 +19,7 @@ rule unusual_cd_val : suspicious {
     any of them
 }
 
-rule unusual_cd_dev_val : suspicious {
+rule unusual_cd_dev_val : high {
   meta:
     description = "changes to an unusual system directory"
     hash_2023_init_d_vm_agent = "663b75b098890a9b8b02ee4ec568636eeb7f53414a71e2dbfbb9af477a4c7c3d"

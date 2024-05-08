@@ -1,5 +1,5 @@
 
-rule xor_commands : suspicious {
+rule xor_commands : high {
   meta:
     description = "commands obfuscated using xor"
     hash_2023_Linux_Trojan_ShellBot_accc = "acccf2fa4e21f2cd1d7305186e4c83d6cde5ee98f1b37022b70170533e399a89"

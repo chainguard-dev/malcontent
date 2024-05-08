@@ -1,5 +1,5 @@
 
-rule tcgetattr : notable {
+rule tcgetattr : medium {
   meta:
     description = "get terminal parameters"
     hash_2023_Linux_Malware_Samples_3292 = "329255e33f43e6e9ae5d5efd6f5c5745c35a30d42fb5099beb51a6e40fe9bd76"

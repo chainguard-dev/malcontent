@@ -1,5 +1,5 @@
 
-rule exotic_pid_file : suspicious {
+rule exotic_pid_file : high {
   meta:
     description = "unusual pid (process id) file location"
     hash_2023_Unix_Coinminer_Xanthe_7ea1 = "7ea112aadebb46399a05b2f7cc258fea02f55cf2ae5257b331031448f15beb8f"

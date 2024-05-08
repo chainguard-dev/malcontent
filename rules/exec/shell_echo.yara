@@ -1,5 +1,5 @@
 
-rule elf_calls_shell_echo : notable {
+rule elf_calls_shell_echo : medium {
   meta:
     syscall = "posix_spawn"
     pledge = "exec"

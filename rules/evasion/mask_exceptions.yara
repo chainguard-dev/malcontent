@@ -1,6 +1,6 @@
 import "math"
 
-rule setuptools_no_fail : suspicious {
+rule setuptools_no_fail : high {
   meta:
     description = "Python library installer that hides exceptions"
     hash_2023_grandmask_3_13_setup = "8835778f9e75e6493693fc6163477ec94aba723c091393a30d7e7b9eed4f5a54"
@@ -15,7 +15,7 @@ rule setuptools_no_fail : suspicious {
     $setup and ($setuptools or $distutils) and $e_val
 }
 
-rule setuptools_no_fail2 : suspicious {
+rule setuptools_no_fail2 : high {
   meta:
     description = "Python library installer that hides exceptions"
   strings:

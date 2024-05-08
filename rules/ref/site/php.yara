@@ -1,5 +1,5 @@
 
-rule http_url_with_php : notable {
+rule http_url_with_php : medium {
   meta:
     description = "accesses hardcoded PHP endpoint"
     hash_2023_0xShell_wesoori = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"

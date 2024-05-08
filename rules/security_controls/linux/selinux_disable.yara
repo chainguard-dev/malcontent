@@ -1,5 +1,5 @@
 
-rule selinux_disable_val : suspicious {
+rule selinux_disable_val : high {
   meta:
     description = "disables SELinux security control"
     hash_2023_Chaos_1d36 = "1d36f4bebd21a01c12fde522defee4c6b4d3d574c825ecc20a2b7a8baa122819"

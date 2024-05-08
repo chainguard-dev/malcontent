@@ -1,5 +1,5 @@
 
-rule http_server : notable {
+rule http_server : medium {
   meta:
     pledge = "inet"
     description = "serves HTTP requests"

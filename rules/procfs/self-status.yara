@@ -1,5 +1,5 @@
 
-rule proc_self_status : notable {
+rule proc_self_status : medium {
   meta:
     description = "gets status associated to this process, including capabilities"
     pledge = "stdio"

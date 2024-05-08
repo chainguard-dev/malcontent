@@ -12,7 +12,7 @@ rule uname {
     any of them
 }
 
-rule os_release : notable {
+rule os_release : medium {
   meta:
     description = "operating-system identification"
     pledge = "sysctl"
@@ -27,7 +27,7 @@ rule os_release : notable {
     any of them
 }
 
-rule macos_platform_check : notable {
+rule macos_platform_check : medium {
   meta:
     description = "platform check"
     pledge = "sysctl"
@@ -44,7 +44,7 @@ rule macos_platform_check : notable {
     any of them
 }
 
-rule python_platform : notable {
+rule python_platform : medium {
   meta:
     description = "system platform identification"
     ref = "https://docs.python.org/3/library/platform.html"
@@ -59,7 +59,7 @@ rule python_platform : notable {
     any of them
 }
 
-rule npm_uname : notable {
+rule npm_uname : medium {
   meta:
     description = "get system identification"
     ref = "https://nodejs.org/api/process.html"

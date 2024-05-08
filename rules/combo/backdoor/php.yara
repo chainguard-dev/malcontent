@@ -131,7 +131,7 @@ rule php_base64_eval_uname : critical {
     all of them
 }
 
-rule php_post_system : suspicious {
+rule php_post_system : high {
   meta:
     hash_2023_Sysrv_Hello_sys_x86_64 = "cd784dc1f7bd95cac84dc696d63d8c807129ef47b3ce08cd08afb7b7456a8cd3"
     hash_2023_UPX_0a07c056fec72668d3f05863f103987cc1aaec92e72148bf16db6cfd58308617_elf_x86_64 = "94f4de1bd8c85b8f820bab936ec16cdb7f7bc19fa60d46ea8106cada4acc79a2"
@@ -145,7 +145,7 @@ rule php_post_system : suspicious {
     $php and any of ($method*) and $system
 }
 
-rule php_error_reporting_disable : suspicious {
+rule php_error_reporting_disable : high {
   meta:
     hash_2023_systembc_password = "236cff4506f94c8c1059c8545631fa2dcd15b086c1ade4660b947b59bdf2afbd"
     hash_2023_0xShell_0xShellori = "506e12e4ce1359ffab46038c4bf83d3ab443b7c5db0d5c8f3ad05340cb09c38e"
@@ -157,7 +157,7 @@ rule php_error_reporting_disable : suspicious {
     all of them
 }
 
-rule php_system_manipulation : suspicious {
+rule php_system_manipulation : high {
   meta:
     hash_2023_0xShell_0xShellori = "506e12e4ce1359ffab46038c4bf83d3ab443b7c5db0d5c8f3ad05340cb09c38e"
     hash_2023_0xShell_untitled = "39b2fd6b4b2c11a9cbfc8efbb09fc14d502cde1344f52e1269228fc95b938621"
@@ -223,7 +223,7 @@ rule php_is_jpeg : critical {
     all of them
 }
 
-rule php_copy_files : suspicious {
+rule php_copy_files : high {
   meta:
     hash_2023_0xShell_0xShellori = "506e12e4ce1359ffab46038c4bf83d3ab443b7c5db0d5c8f3ad05340cb09c38e"
     hash_2023_0xShell_tifa_png = "1a13a6c6bb6815ba352b43971e4e961615367aec714e0a0005c28b3ebbc544c6"

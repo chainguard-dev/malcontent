@@ -1,5 +1,5 @@
 
-rule powershell_hidden_short : suspicious {
+rule powershell_hidden_short : high {
   meta:
     description = "Runs powershell with a hidden command"
     hash_2023_Sysrv_Hello_sys_x86_64 = "cd784dc1f7bd95cac84dc696d63d8c807129ef47b3ce08cd08afb7b7456a8cd3"
@@ -10,7 +10,7 @@ rule powershell_hidden_short : suspicious {
     all of them
 }
 
-rule powershell_hidden_long : notable {
+rule powershell_hidden_long : medium {
   meta:
     description = "Runs powershell with a hidden command"
     hash_2023_grandmask_3_13_setup = "8835778f9e75e6493693fc6163477ec94aba723c091393a30d7e7b9eed4f5a54"

@@ -1,5 +1,5 @@
 
-rule upx : suspicious {
+rule upx : high {
   meta:
     description = "Binary is packed with UPX"
     hash_2023_UPX_0c25 = "0c25a05bdddc144fbf1ffa29372481b50ec6464592fdfb7dec95d9e1c6101d0d"
@@ -14,7 +14,7 @@ rule upx : suspicious {
     any of ($u*) in (0..1024) and none of ($not*)
 }
 
-rule upx_elf : suspicious {
+rule upx_elf : high {
   meta:
     description = "Linux ELF binary packed with UPX"
     hash_2023_UPX_0c25 = "0c25a05bdddc144fbf1ffa29372481b50ec6464592fdfb7dec95d9e1c6101d0d"

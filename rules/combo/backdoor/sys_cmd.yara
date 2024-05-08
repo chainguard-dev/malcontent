@@ -1,5 +1,5 @@
 
-rule multiple_sys_commands : suspicious {
+rule multiple_sys_commands : high {
   meta:
     description = "mentions multiple unrelated system commands"
     hash_2023_Unix_Trojan_Xorddos_c9bd = "c9bd6d01eb7258fef88ec5c9276431c1db45f063b316f83943e45b6a40a76783"

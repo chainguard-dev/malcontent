@@ -1,5 +1,5 @@
 
-rule github_raw_usercontent : notable {
+rule github_raw_usercontent : medium {
   meta:
     description = "References raw.githubusercontent.com"
   strings:
@@ -9,7 +9,7 @@ rule github_raw_usercontent : notable {
     $raw_github and $not_node
 }
 
-rule github_raw_user : notable {
+rule github_raw_user : medium {
   meta:
     hash_2018_MacOS_CoinTicker = "c344730f41f52a2edabf95730389216a9327d6acc98346e5738b3eb99631634d"
     hash_2023_usr_adxintrin_b = "a51a4ddcd092b102af94139252c898d7c1c48f322bae181bd99499a79c12c500"

@@ -1,5 +1,5 @@
 
-rule iplookup_website_value : suspicious {
+rule iplookup_website_value : high {
   meta:
     description = "public service to discover external IP address"
     hash_2023_Unix_Coinminer_Xanthe_7ea1 = "7ea112aadebb46399a05b2f7cc258fea02f55cf2ae5257b331031448f15beb8f"
@@ -58,7 +58,7 @@ rule iplookup_website_xor : critical {
     any of them
 }
 
-rule python_list_comprehension : suspicious {
+rule python_list_comprehension : high {
   meta:
     description = "discover IP address via socket connection"
     hash_2023_libcurl_setup = "5deef153a6095cd263d5abb2739a7b18aa9acb7fb0d542a2b7ff75b3506877ac"

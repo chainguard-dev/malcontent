@@ -1,5 +1,5 @@
 
-rule executable_calls_archive_tool : suspicious {
+rule executable_calls_archive_tool : high {
   meta:
     description = "command shells out to tar"
     hash_2023_0xShell_wesoori = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"

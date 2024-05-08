@@ -1,5 +1,5 @@
 
-rule crypto_stealer : suspicious {
+rule crypto_stealer : high {
   meta:
     description = "makes HTTP connections and creates archives using ditto"
     hash_2023_Downloads_016a = "016a1a4fe3e9d57ab0b2a11e37ad94cc922290d2499b8d96957c3ddbdc516d74"

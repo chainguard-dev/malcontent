@@ -1,5 +1,5 @@
 
-rule linux_critical_system_paths_val : suspicious {
+rule linux_critical_system_paths_val : high {
   meta:
     description = "accesses multiple critical Linux paths"
   strings:

@@ -1,5 +1,5 @@
 
-rule pty : notable {
+rule pty : medium {
   meta:
     description = "pseudo-terminal access functions"
     ref = "https://man7.org/linux/man-pages/man3/grantpt.3.html"
@@ -15,7 +15,7 @@ rule pty : notable {
     2 of them
 }
 
-rule go_pty : notable {
+rule go_pty : medium {
   meta:
     description = "pseudo-terminal access from Go"
     ref = "https://github.com/creack/pty"

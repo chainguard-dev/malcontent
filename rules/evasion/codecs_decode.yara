@@ -1,5 +1,5 @@
 
-rule codecs_decode : suspicious {
+rule codecs_decode : high {
   meta:
     description = "decodes text with an arbitrary codec"
     hash_2023_JokerSpy_shared = "5fe1790667ee5085e73b054566d548eb4473c20cf962368dd53ba776e9642272"

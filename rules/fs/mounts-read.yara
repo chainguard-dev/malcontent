@@ -1,5 +1,5 @@
 
-rule mount_files : notable {
+rule mount_files : medium {
   meta:
     description = "Parses active mounts (/etc/fstab, /etc/mtab)"
     pledge = "stdio"
@@ -14,7 +14,7 @@ rule mount_files : notable {
     any of them
 }
 
-rule mntent : notable {
+rule mntent : medium {
   meta:
     description = "Parses active mounts (/etc/fstab, /etc/mtab)"
     pledge = "stdio"
@@ -29,7 +29,7 @@ rule mntent : notable {
     any of them
 }
 
-rule gemntinfo : notable {
+rule gemntinfo : medium {
   meta:
     description = "gets information on mounted volumes"
     ref = "https://man.freebsd.org/cgi/man.cgi?query=getmntinfo&manpath=FreeBSD+12.1-RELEASE+and+Ports"

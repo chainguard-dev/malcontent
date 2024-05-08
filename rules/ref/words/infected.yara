@@ -1,5 +1,5 @@
 
-rule infected : notable {
+rule infected : medium {
   meta:
     description = "References being 'infected'"
     hash_2024_Downloads_a031 = "a031da66c6f6cd07343d5bc99cc283528a5b7f04f97b2c33c2226a388411ec61"
@@ -12,7 +12,7 @@ rule infected : notable {
     any of them
 }
 
-rule infection : notable {
+rule infection : medium {
   meta:
     description = "References 'infectio'"
     hash_2023_Downloads_Brawl_Earth = "fe3ac61c701945f833f218c98b18dca704e83df2cf1a8994603d929f25d1cce2"

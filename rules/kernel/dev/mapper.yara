@@ -1,5 +1,5 @@
 
-rule dev_mapper : notable {
+rule dev_mapper : medium {
   meta:
     description = "uses the device mapper framework"
     ref = "https://en.wikipedia.org/wiki/Device_mapper"

@@ -1,5 +1,5 @@
 
-rule socks5 : notable {
+rule socks5 : medium {
   meta:
     description = "Supports SOCK5 proxies"
     hash_2024_Downloads_0f66 = "0f66a4daba647486d2c9d838592cba298df2dbf38f2008b6571af8a562bc306c"

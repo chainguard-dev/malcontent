@@ -9,7 +9,7 @@ rule usr_local_path : harmless {
     $val and not $go
 }
 
-rule usr_local_bin_path : notable {
+rule usr_local_bin_path : medium {
   meta:
     description = "path reference within /usr/local/bin"
     hash_2023_Downloads_311c = "311c93575efd4eeeb9c6674d0ab8de263b72a8fb060d04450daccc78ec095151"
@@ -21,7 +21,7 @@ rule usr_local_bin_path : notable {
     $val
 }
 
-rule usr_local_lib_path : notable {
+rule usr_local_lib_path : medium {
   meta:
     description = "path reference within /usr/local/lib"
     hash_2024_Downloads_0f66 = "0f66a4daba647486d2c9d838592cba298df2dbf38f2008b6571af8a562bc306c"

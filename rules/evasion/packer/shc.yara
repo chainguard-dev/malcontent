@@ -1,5 +1,5 @@
 
-rule shc : suspicious {
+rule shc : high {
   meta:
     description = "Binary generated with SHC (Shell Script Compiler)"
     ref = "https://github.com/neurobin/shc"

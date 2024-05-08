@@ -1,5 +1,5 @@
 
-rule _connect : notable {
+rule _connect : medium {
   meta:
     description = "initiate a connection on a socket"
     syscall = "connect"
@@ -14,7 +14,7 @@ rule _connect : notable {
     any of them
 }
 
-rule connect : notable {
+rule connect : medium {
   meta:
     description = "initiate a connection on a socket"
     syscall = "connect"
@@ -28,7 +28,7 @@ rule connect : notable {
     any of them in (1200..3000)
 }
 
-rule py_connect : notable {
+rule py_connect : medium {
   meta:
     description = "initiate a connection on a socket"
     syscall = "connect"

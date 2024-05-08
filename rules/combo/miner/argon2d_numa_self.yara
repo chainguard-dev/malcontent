@@ -1,5 +1,5 @@
 
-rule probably_a_miner : suspicious {
+rule probably_a_miner : high {
   meta:
     hash_2023_Multios_Coinminer_Miner_6f28 = "6f2825856a5ae87face1c68ccb7f56f726073b8639a0897de77da25c8ecbeb19"
     hash_2023_gcclib_xfitaarch = "163f78541c2fbdad128997534ecc2ad31b112f779347c526dd4e071a608de85c"

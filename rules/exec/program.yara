@@ -1,5 +1,5 @@
 
-rule execall : notable {
+rule execall : medium {
   meta:
     syscall = "execve"
     pledge = "exec"
@@ -19,7 +19,7 @@ rule execall : notable {
     any of ($exec*) and not $go
 }
 
-rule execve : notable {
+rule execve : medium {
   meta:
     syscall = "execve"
     pledge = "exec"
@@ -35,7 +35,7 @@ rule execve : notable {
     any of ($exec*) and not $go
 }
 
-rule exec_cmd_run : notable {
+rule exec_cmd_run : medium {
   meta:
     syscall = "execve"
     pledge = "exec"
@@ -50,7 +50,7 @@ rule exec_cmd_run : notable {
     any of them
 }
 
-rule perl_system : notable {
+rule perl_system : medium {
   meta:
     syscall = "execve"
     pledge = "exec"
@@ -64,7 +64,7 @@ rule perl_system : notable {
     all of them
 }
 
-rule subprocess : notable {
+rule subprocess : medium {
   meta:
     syscall = "execve"
     pledge = "exec"
@@ -80,7 +80,7 @@ rule subprocess : notable {
     any of them
 }
 
-rule posix_spawn : notable {
+rule posix_spawn : medium {
   meta:
     syscall = "posix_spawn"
     pledge = "exec"
@@ -95,7 +95,7 @@ rule posix_spawn : notable {
     all of them
 }
 
-rule go_exec : notable {
+rule go_exec : medium {
   meta:
     syscall = "posix_spawn"
     pledge = "exec"
@@ -110,7 +110,7 @@ rule go_exec : notable {
     all of them
 }
 
-rule npm_exec : notable {
+rule npm_exec : medium {
   meta:
     syscall = "posix_spawn"
     pledge = "exec"

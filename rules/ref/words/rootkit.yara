@@ -1,5 +1,5 @@
 
-rule rootkit_up : suspicious {
+rule rootkit_up : high {
   meta:
     description = "references a 'rootkit'"
     hash_2023_articles_https_pberba_github_io_security_2022_02_07_linux_threat_hunting_for_persistence_systemd_generators = "8c227f67a16162ffd5b453a478ced2950eba4cbe3b004c5cc935fb9551dc2289"
@@ -11,7 +11,7 @@ rule rootkit_up : suspicious {
     any of them
 }
 
-rule rootkit : notable {
+rule rootkit : medium {
   meta:
     description = "references a 'rootkit'"
     hash_2023_Linux_Malware_Samples_5d63 = "5d637915abc98b21f94b0648c552899af67321ab06fb34e33339ae38401734cf"

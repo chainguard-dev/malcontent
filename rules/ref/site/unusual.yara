@@ -1,5 +1,5 @@
 
-rule unusual_http_hostname : suspicious {
+rule unusual_http_hostname : high {
   meta:
     hash_2023_Unix_Downloader_Rocke_2f64 = "2f642efdf56b30c1909c44a65ec559e1643858aaea9d5f18926ee208ec6625ed"
     hash_2023_UPX_cc996d19c3e9b732b5f61fb7a2ad20a4f9e1fd7e62f484f15c7cc984a32dec01_elf_mips = "da7ab6f220f797d3fe3e0daf704cdceba25f3c21f108457344c475de6a23ccf5"

@@ -35,7 +35,7 @@ rule fchownat {
     any of them
 }
 
-rule Chown : notable {
+rule Chown : medium {
   meta:
     description = "Changes file ownership"
     pledge = "wpath"

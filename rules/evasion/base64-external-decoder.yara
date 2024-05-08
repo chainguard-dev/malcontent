@@ -1,5 +1,5 @@
 
-rule base64_shell_decode : notable {
+rule base64_shell_decode : medium {
   meta:
     description = "calls base64 command to decode strings"
     hash_2023_Linux_Malware_Samples_1794 = "1794cf09f4ea698759b294e27412aa09eda0860475cd67ce7b23665ea6c5d58b"

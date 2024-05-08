@@ -1,5 +1,5 @@
 
-rule office_extensions : notable {
+rule office_extensions : medium {
   meta:
     description = "References multiple Office file extensions (possible exfil)"
     hash_2023_Downloads_24b5 = "24b5cdfc8de10c99929b230f0dcbf7fcefe9de448eeb6c75675cfe6c44633073"

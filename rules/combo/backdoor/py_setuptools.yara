@@ -1,6 +1,6 @@
 import "math"
 
-rule setuptools_cmd_exec : suspicious {
+rule setuptools_cmd_exec : high {
   meta:
     description = "Python library installer that executes external commands"
     hash_2022_laysound_4_5_2_setup = "4465bbf91efedb996c80c773494295ae3bff27c0fff139c6aefdb9efbdf7d078"
@@ -33,7 +33,7 @@ rule setuptools_eval : critical {
     $setup and ($setuptools or $distutils) and any of ($s_*)
 }
 
-rule setuptools_url_access : suspicious {
+rule setuptools_url_access : high {
   meta:
     description = "Python library installer that accesses external URLs"
     hash_2022_laysound_4_5_2_setup = "4465bbf91efedb996c80c773494295ae3bff27c0fff139c6aefdb9efbdf7d078"
@@ -63,7 +63,7 @@ rule setuptools_random : critical {
     $setup and ($setuptools or $distutils) and any of ($s_*)
 }
 
-rule setuptools_builtins : notable {
+rule setuptools_builtins : medium {
   meta:
     description = "Python library installer that directly references builtins"
     hash_2023_yfinancce_0_1_setup = "3bde1e9207dd331806bf58926d842e2d0f6a82424abd38a8b708e9f4e3e12049"

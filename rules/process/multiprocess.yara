@@ -1,5 +1,5 @@
 
-rule py_multiprocessing : notable {
+rule py_multiprocessing : medium {
   meta:
     syscall = "pthread_create"
     description = "uses python multiprocessing"

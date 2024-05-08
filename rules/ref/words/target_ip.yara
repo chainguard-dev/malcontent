@@ -1,5 +1,5 @@
 
-rule target_ip : notable {
+rule target_ip : medium {
   meta:
     description = "References a target IP"
     hash_2023_Linux_Malware_Samples_123e = "123e6d1138bfd58de1173818d82b504ef928d5a3be7756dd627c594de4aad096"

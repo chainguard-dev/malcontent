@@ -1,5 +1,5 @@
 
-rule file_crypter : notable {
+rule file_crypter : medium {
   meta:
     description = "Encrypts files"
     hash_2023_Downloads_24b5 = "24b5cdfc8de10c99929b230f0dcbf7fcefe9de448eeb6c75675cfe6c44633073"

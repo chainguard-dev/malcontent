@@ -1,5 +1,5 @@
 
-rule rc4_constants : notable {
+rule rc4_constants : medium {
   meta:
     descrption = "Identify constants used by the ARC4 cryptographic algorithm."
     author = "@shellcromancer <root@shellcromancer.io>"

@@ -1,5 +1,5 @@
 
-rule mysql : notable {
+rule mysql : medium {
   meta:
     description = "accesses MySQL databases"
     hash_2023_0xShell_0xShellori = "506e12e4ce1359ffab46038c4bf83d3ab443b7c5db0d5c8f3ad05340cb09c38e"

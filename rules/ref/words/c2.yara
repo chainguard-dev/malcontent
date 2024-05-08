@@ -1,5 +1,5 @@
 
-rule command_and_control : notable {
+rule command_and_control : medium {
   meta:
     description = "Uses terms that may reference a command and control server"
     hash_2023_Linux_Malware_Samples_24f3 = "24f3ac76dcd4b0830a1ebd82cc9b1abe98450b8df29cb4f18f032f1077d24404"
@@ -14,7 +14,7 @@ rule command_and_control : notable {
     any of them
 }
 
-rule send_to_c2 : suspicious {
+rule send_to_c2 : high {
   meta:
     description = "References sending data to a C2 server"
   strings:
@@ -23,7 +23,7 @@ rule send_to_c2 : suspicious {
     any of them
 }
 
-rule remote_control : notable {
+rule remote_control : medium {
   meta:
     description = "Uses terms that may reference remote control abilities"
     hash_2023_Linux_Malware_Samples_2c98 = "2c98b196a51f737f29689d16abeea620b0acfa6380bdc8e94a7a927477d81e3a"

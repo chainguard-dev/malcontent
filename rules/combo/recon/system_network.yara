@@ -1,5 +1,5 @@
 
-rule basic_recon : notable {
+rule basic_recon : medium {
   meta:
     hash_2023_Downloads_f864 = "f864922f947a6bb7d894245b53795b54b9378c0f7633c521240488e86f60c2c5"
     hash_2023_Linux_Malware_Samples_2c98 = "2c98b196a51f737f29689d16abeea620b0acfa6380bdc8e94a7a927477d81e3a"
@@ -19,7 +19,7 @@ rule basic_recon : notable {
     filesize < 26214400 and 3 of ($c*) and none of ($not*)
 }
 
-rule invasive_recon_val : notable {
+rule invasive_recon_val : medium {
   meta:
     hash_2023_0xShell_wesoori = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"
     hash_2023_Downloads_016a = "016a1a4fe3e9d57ab0b2a11e37ad94cc922290d2499b8d96957c3ddbdc516d74"

@@ -1,5 +1,5 @@
 
-rule debug_program_with_suspicious_refs : suspicious {
+rule debug_program_with_high_refs : high {
   meta:
     hash_2023_Downloads_Chrome_Update = "eed1859b90b8832281786b74dc428a01dbf226ad24b182d09650c6e7895007ea"
     hash_2019_C_unioncryptoupdater = "631ac269925bb72b5ad8f469062309541e1edfec5610a21eecded75a35e65680"

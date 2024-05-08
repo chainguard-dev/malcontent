@@ -1,5 +1,5 @@
 
-rule ssh_authorized_key_val : notable {
+rule ssh_authorized_key_val : medium {
   meta:
     ref = "https://www.sentinelone.com/blog/macos-malware-2023-a-deep-dive-into-emerging-trends-and-evolving-techniques/"
     description = "access SSH authorized_keys"

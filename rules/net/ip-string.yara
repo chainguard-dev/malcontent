@@ -1,5 +1,5 @@
 
-rule inet_ntoa : notable {
+rule inet_ntoa : medium {
   meta:
     pledge = "inet"
     ref = "https://linux.die.net/man/3/inet_ntoa"

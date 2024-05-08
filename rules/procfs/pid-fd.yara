@@ -1,5 +1,5 @@
 
-rule proc_fd : suspicious {
+rule proc_fd : high {
   meta:
     description = "accesses file descriptors of other processes"
     ref = "https://s.tencent.com/research/report/1219.html"

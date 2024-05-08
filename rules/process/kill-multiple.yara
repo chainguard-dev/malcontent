@@ -1,5 +1,5 @@
 
-rule sigkill_multiple : notable {
+rule sigkill_multiple : medium {
   meta:
     hash_2023_Downloads_9929 = "99296550ab836f29ab7b45f18f1a1cb17a102bb81cad83561f615f3a707887d7"
     hash_2024_Downloads_e241 = "e241a3808e1f8c4811759e1761e2fb31ce46ad1e412d65bb1ad9e697432bd4bd"

@@ -1,5 +1,5 @@
 
-rule bash_persist : notable {
+rule bash_persist : medium {
   meta:
     description = "access bash startup files"
     hash_2024_Downloads_036a = "036a2f04ab56b5e7098c7d866eb21307011b812f126793159be1c853a6a54796"
@@ -18,7 +18,7 @@ rule bash_persist : notable {
     filesize < 2097152 and any of ($ref*) and none of ($not*)
 }
 
-rule bash_logout_persist : suspicious {
+rule bash_logout_persist : high {
   meta:
     description = "Writes to bash configuration files to persist"
   strings:

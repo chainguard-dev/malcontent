@@ -1,4 +1,4 @@
-rule apt_add_key : notable {
+rule apt_add_key : medium {
   meta:
 	description = "Installs apt repository keys"
   strings:

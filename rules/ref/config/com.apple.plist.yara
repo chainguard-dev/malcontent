@@ -1,5 +1,5 @@
 
-rule references_com_apple_preferences_file : notable {
+rule references_com_apple_preferences_file : medium {
   meta:
     ref = "https://securelist.com/triangulation-validators-modules/110847/"
     hash_2022_CloudMensis_WindowServer = "317ce26cae14dc9a5e4d4667f00fee771b4543e91c944580bbb136e7fe339427"

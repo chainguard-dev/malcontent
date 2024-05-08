@@ -1,5 +1,5 @@
 
-rule proc_self_status : notable {
+rule proc_self_status : medium {
   meta:
     description = "gets mountinfo associated to this process"
     pledge = "stdio"

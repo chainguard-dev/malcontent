@@ -1,5 +1,7 @@
 
-rule macos_kitchen_sink_binary {
+rule macos_kitchen_sink_binary : medium {
+  meta:
+    hash_2023_KandyKorn_kandykorn = "927b3564c1cf884d2a05e1d7bd24362ce8563a1e9b85be776190ab7f8af192f6"
   strings:
     $f_sysctl = "sysctl"
     $f_mkdtemp = "mkdtemp"
@@ -15,10 +17,10 @@ rule macos_kitchen_sink_binary {
     $f_chmod = "chmod"
     $not_osquery = "OSQUERY"
   condition:
-    90% of ($f*) and none of ($not*)
+    filesize < 20971520 and 90% of ($f*) and none of ($not*)
 }
 
-rule ssh_socks5_exec : notable {
+rule ssh_socks5_exec : medium {
   meta:
     description = "supports SOCKS5, SSH, and executing programs"
     hash_2024_Downloads_e100 = "e100be934f676c64528b5e8a609c3fb5122b2db43b9aee3b2cf30052799a82da"
@@ -32,7 +34,7 @@ rule ssh_socks5_exec : notable {
     filesize < 67108864 and all of them
 }
 
-rule progname_socket_waitpid : suspicious {
+rule progname_socket_waitpid : high {
   meta:
     description = "sets process name, accesses internet, calls programs"
     hash_2024_Downloads_8cad = "8cad755bcf420135c0f406fb92138dcb0c1602bf72c15ed725bd3b76062dafe5"
@@ -44,7 +46,7 @@ rule progname_socket_waitpid : suspicious {
     all of them in (1200..3000)
 }
 
-rule POST_command_executer : suspicious {
+rule POST_command_executer : high {
   meta:
     hash_2023_ObjCShellz_ProcessRequest = "8bfa4fe0534c0062393b6a2597c3491f7df3bf2eabfe06544c53bdf1f38db6d4"
     hash_2023_ObjCShellz_ProcessRequest_2 = "b8c751694945bff749b6a0cd71e465747402cfd25b18dc233c336e417b3e1525"
@@ -55,7 +57,9 @@ rule POST_command_executer : suspicious {
     all of them
 }
 
-rule exec_getprog_socket_waitpid_combo {
+rule exec_getprog_socket_waitpid_combo : high {
+  meta:
+    hash_2021_DoubleFantasy_mdworker = "502a80f81cf39f6c559ab138a39dd4ad5fca697dbca4a62b36527be9e55400f5"
   strings:
     $execle = "_execl"
     $execve = "_execve"
@@ -68,10 +72,10 @@ rule exec_getprog_socket_waitpid_combo {
     $f_waitpid = "_waitpid"
     $f_rand = "_random"
   condition:
-    8 of ($f*) and 1 of ($exec*)
+    filesize < 262144000 and 8 of ($f*) and 1 of ($exec*)
 }
 
-rule exec_chdir_and_socket : notable {
+rule exec_chdir_and_socket : medium {
   meta:
     hash_2023_Downloads_21b3 = "21b3e304db526e2c80df1f2da2f69ab130bdad053cb6df1e05eb487a86a19b7c"
     hash_2023_Downloads_4305 = "4305c04df40d3ac7966289cc0a81cedbdd4eee2f92324b26fe26f57f57265bca"
@@ -86,7 +90,7 @@ rule exec_chdir_and_socket : notable {
     filesize < 52428800 and (uint32(0) == 1179403647 or uint32(0) == 4277009102 or uint32(0) == 3472551422 or uint32(0) == 4277009103 or uint32(0) == 3489328638 or uint32(0) == 3405691582 or uint32(0) == 3199925962) and $chdir and $socket and 1 of ($exec*) and none of ($not*)
 }
 
-rule listens_and_executes : notable {
+rule listens_and_executes : medium {
   meta:
     description = "Listens, provides a terminal, runs program"
     hash_2024_Downloads_8cad = "8cad755bcf420135c0f406fb92138dcb0c1602bf72c15ed725bd3b76062dafe5"

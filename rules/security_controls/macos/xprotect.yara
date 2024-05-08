@@ -1,5 +1,5 @@
 
-rule XProtectMention : notable {
+rule XProtectMention : medium {
   meta:
     hash_2023_JokerSpy_xcc = "d895075057e491b34b0f8c0392b44e43ade425d19eaaacea6ef8c5c9bd3487d8"
     hash_2023_JokerSpy_xcc_2 = "951039bf66cdf436c240ef206ef7356b1f6c8fffc6cbe55286ec2792bf7fe16c"

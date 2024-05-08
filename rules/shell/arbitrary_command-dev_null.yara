@@ -1,5 +1,5 @@
 
-rule cmd_dev_null : notable {
+rule cmd_dev_null : medium {
   meta:
     description = "runs commands, discards output"
     hash_2023_Linux_Malware_Samples_a07b = "a07bd8aedde27e776480bb375d191ce11c3a03275f6a03616b4a0bfbc1b9dfe6"

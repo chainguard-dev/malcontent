@@ -1,5 +1,5 @@
 
-rule usr_lib_python_path_val : notable {
+rule usr_lib_python_path_val : medium {
   meta:
     description = "References paths within /usr/lib/python"
     hash_2024_2024_PAN_OS_Upstyle_update = "3de2a4392b8715bad070b2ae12243f166ead37830f7c6d24e778985927f9caac"

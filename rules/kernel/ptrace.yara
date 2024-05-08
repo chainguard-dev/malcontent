@@ -1,5 +1,5 @@
 
-rule ptrace : notable {
+rule ptrace : medium {
   meta:
     capability = "CAP_SYS_PTRACE"
     description = "trace or modify system calls"

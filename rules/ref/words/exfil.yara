@@ -1,4 +1,4 @@
-rule exfil : notable {
+rule exfil : medium {
 	meta:
 		description = "References 'exfil'"
 	strings:

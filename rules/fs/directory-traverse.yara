@@ -14,7 +14,7 @@ rule fts {
     2 of them
 }
 
-rule py_walk : notable {
+rule py_walk : medium {
   meta:
     description = "traverse filesystem hierarchy"
     hash_2024_scripts_sync_csv = "aa7a7ad320421cdbeb2f488318849c3494b8ecba4e0f9c3623c3c16287cdd55a"

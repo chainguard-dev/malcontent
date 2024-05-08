@@ -1,5 +1,5 @@
 
-rule hide_shell_history : suspicious {
+rule hide_shell_history : high {
   meta:
     description = "Hides shell command history"
     hash_2023_BPFDoor_8b9d = "8b9db0bc9152628bdacc32dab01590211bee9f27d58e0f66f6a1e26aea7552a6"

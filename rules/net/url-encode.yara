@@ -1,5 +1,5 @@
 
-rule url_encode : notable {
+rule url_encode : medium {
   meta:
     description = "encodes URL, likely to pass GET variables"
     hash_2023_0xShell_adminer = "2fd7e6d8f987b243ab1839249551f62adce19704c47d3d0c8dd9e57ea5b9c6b3"

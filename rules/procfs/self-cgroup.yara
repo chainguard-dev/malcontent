@@ -1,5 +1,5 @@
 
-rule pid_self_cgroup : notable {
+rule pid_self_cgroup : medium {
   meta:
     description = "accesses /proc files within own cgroup"
     hash_2023_Downloads_45b8 = "45b8678f74d29c87e2d06410245ab6c2762b76190594cafc9543fb9db90f3d4f"

@@ -1,6 +1,6 @@
 import "math"
 
-rule eval_base64 : suspicious {
+rule eval_base64 : high {
   meta:
     hash_2023_0xShell = "acf556b26bb0eb193e68a3863662d9707cbf827d84c34fbc8c19d09b8ea811a1"
     hash_2023_0xShell_0xObs = "6391e05c8afc30de1e7980dda872547620754ce55c36da15d4aefae2648a36e5"
@@ -58,7 +58,7 @@ rule python_exec_near_enough : critical {
     all of them and math.abs(@base64 - @exec) < 128
 }
 
-rule echo_decode_bash : suspicious {
+rule echo_decode_bash : high {
   meta:
     hash_2023_OrBit_f161 = "f1612924814ac73339f777b48b0de28b716d606e142d4d3f4308ec648e3f56c8"
     hash_2023_Unix_Coinminer_Xanthe_7ea1 = "7ea112aadebb46399a05b2f7cc258fea02f55cf2ae5257b331031448f15beb8f"

@@ -1,5 +1,5 @@
 
-rule contains_base64 : notable {
+rule contains_base64 : medium {
   meta:
     description = "Contains base64 content"
     hash_2023_0xShell_0xShellori = "506e12e4ce1359ffab46038c4bf83d3ab443b7c5db0d5c8f3ad05340cb09c38e"
@@ -17,7 +17,7 @@ rule contains_base64 : notable {
     any of them
 }
 
-rule contains_base64_certificate : notable {
+rule contains_base64_certificate : medium {
   meta:
     description = "Contains base64 CERTIFICATE"
     hash_2024_Downloads_e241 = "e241a3808e1f8c4811759e1761e2fb31ce46ad1e412d65bb1ad9e697432bd4bd"

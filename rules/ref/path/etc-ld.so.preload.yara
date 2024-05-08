@@ -1,5 +1,5 @@
 
-rule etc_ld_preload : suspicious {
+rule etc_ld_preload : high {
   meta:
     description = "References /etc/ld.so.preload"
     hash_2023_Lightning_fd28 = "fd285c2fb4d42dde23590118dba016bf5b846625da3abdbe48773530a07bcd1e"

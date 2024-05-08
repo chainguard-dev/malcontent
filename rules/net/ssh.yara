@@ -1,5 +1,5 @@
 
-rule crypto_ssh : notable {
+rule crypto_ssh : medium {
   meta:
     description = "Uses crypto/ssh to connect to the SSH (secure shell) service"
     hash_2024_Downloads_e100 = "e100be934f676c64528b5e8a609c3fb5122b2db43b9aee3b2cf30052799a82da"

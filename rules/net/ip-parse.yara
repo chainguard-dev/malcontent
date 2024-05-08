@@ -1,5 +1,5 @@
 
-rule inet_addr : notable {
+rule inet_addr : medium {
   meta:
     pledge = "inet"
     description = "parses IP address"
@@ -12,7 +12,7 @@ rule inet_addr : notable {
     any of them
 }
 
-rule inet_pton : notable {
+rule inet_pton : medium {
   meta:
     pledge = "inet"
     description = "parses IP address (IPv4 or IPv6)"
@@ -25,7 +25,7 @@ rule inet_pton : notable {
     any of them
 }
 
-rule ip_go : notable {
+rule ip_go : medium {
   meta:
     pledge = "inet"
     description = "parses IP address (IPv4 or IPv6)"

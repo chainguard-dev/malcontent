@@ -1,5 +1,5 @@
 
-rule proc_exe : suspicious {
+rule proc_exe : high {
   meta:
     description = "accesses underlying executable of other processes"
     hash_2023_OK_4f5c = "4f5cfb805feb7576e594f1bb3b773ba0ca80e09e49bfb7e3507f815f774ac62d"

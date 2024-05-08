@@ -1,5 +1,5 @@
 
-rule i2p_user : suspicious {
+rule i2p_user : high {
   meta:
     description = "Uses the I2P Anonymous Network"
     hash_2023_Linux_Malware_Samples_2bc8 = "2bc860efee229662a3c55dcf6e50d6142b3eec99c606faa1210f24541cad12f5"

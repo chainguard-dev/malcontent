@@ -1,5 +1,5 @@
 
-rule tell_app_system_events : notable {
+rule tell_app_system_events : medium {
   meta:
     hash_2011_bin_kcd = "1ae8945732fa3aa6c59220a5b18abeb4e6a0f723c3bb0d3dbae3ad7c64541be1"
     hash_2017_MacOS_AppStore = "4131d4737fe8dfe66d407bfd0a0df18a4a77b89347471cc012da8efc93c661a5"

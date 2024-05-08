@@ -1,5 +1,5 @@
 
-rule netcat_exec_backdoor : suspicious {
+rule netcat_exec_backdoor : high {
   meta:
     ref = "https://cert.gov.ua/article/6123309"
     hash_2023_uacert_nc = "dd8a8a9dde32a14a7222a28e878d13c4f0bccd5eb54d0575fa6332d001226715"
@@ -23,7 +23,7 @@ rule generic_perl_socket_exec {
     filesize < 1048576 and $perl and any of ($socket*) and any of ($and_*) and none of ($not_*)
 }
 
-rule ipinfo_and_bash : suspicious {
+rule ipinfo_and_bash : high {
   meta:
     hash_2023_Unix_Coinminer_Xanthe_7ea1 = "7ea112aadebb46399a05b2f7cc258fea02f55cf2ae5257b331031448f15beb8f"
     hash_2022_CloudMensis_WindowServer = "317ce26cae14dc9a5e4d4667f00fee771b4543e91c944580bbb136e7fe339427"
@@ -35,7 +35,7 @@ rule ipinfo_and_bash : suspicious {
     all of them
 }
 
-rule readdir_inet_system : suspicious {
+rule readdir_inet_system : high {
   meta:
     description = "Lists directories, resolves IPs, calls shells"
     hash_2023_Lightning_48f9 = "48f9471c20316b295704e6f8feb2196dd619799edec5835734fc24051f45c5b7"
@@ -49,7 +49,7 @@ rule readdir_inet_system : suspicious {
     all of them in (1200..3000)
 }
 
-rule pcap_shell_exec : suspicious {
+rule pcap_shell_exec : high {
   meta:
     description = "sniffs network traffic, executes shell"
     hash_2023_BPFDoor_dc83 = "dc8346bf443b7b453f062740d8ae8d8d7ce879672810f4296158f90359dcae3a"

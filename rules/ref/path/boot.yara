@@ -1,5 +1,5 @@
 
-rule boot_path : notable {
+rule boot_path : medium {
   meta:
     description = "path reference within /boot"
     hash_2023_Downloads_6e35 = "6e35b5670953b6ab15e3eb062b8a594d58936dd93ca382bbb3ebdbf076a1f83b"
@@ -11,7 +11,7 @@ rule boot_path : notable {
     $ref
 }
 
-rule elf_boot_path : notable {
+rule elf_boot_path : medium {
   meta:
     description = "path reference within /boot"
     hash_2023_Unix_Malware_Kaiji_3e68 = "3e68118ad46b9eb64063b259fca5f6682c5c2cb18fd9a4e7d97969226b2e6fb4"

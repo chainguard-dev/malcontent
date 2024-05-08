@@ -1,5 +1,5 @@
 
-rule irc : suspicious {
+rule irc : high {
   meta:
     pledge = "inet"
     description = "Uses IRC (Internet Relay Chat"

@@ -1,5 +1,5 @@
 
-rule keychain : notable macos {
+rule keychain : medium macos {
   meta:
     description = "May access the macOS keychain"
     hash_2023_Downloads_016a = "016a1a4fe3e9d57ab0b2a11e37ad94cc922290d2499b8d96957c3ddbdc516d74"
@@ -12,7 +12,7 @@ rule keychain : notable macos {
     any of them
 }
 
-rule macos_library_keychains : notable {
+rule macos_library_keychains : medium {
   meta:
     description = "access system keychain via files"
     hash_2023_Downloads_016a = "016a1a4fe3e9d57ab0b2a11e37ad94cc922290d2499b8d96957c3ddbdc516d74"
@@ -24,7 +24,7 @@ rule macos_library_keychains : notable {
     any of them
 }
 
-rule find_generic_password : suspicious {
+rule find_generic_password : high {
   meta:
     description = "Looks up a password from the Keychain"
   strings:
@@ -34,7 +34,7 @@ rule find_generic_password : suspicious {
     $ref and not $ctkcard
 }
 
-rule find_internet_password : suspicious {
+rule find_internet_password : high {
   meta:
     description = "Looks up an internet password from the Keychain"
   strings:

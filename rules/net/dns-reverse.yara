@@ -1,5 +1,5 @@
 
-rule in_addr_arpa : notable {
+rule in_addr_arpa : medium {
   meta:
     pledge = "inet"
     description = "looks up the reverse hostname for an IP"

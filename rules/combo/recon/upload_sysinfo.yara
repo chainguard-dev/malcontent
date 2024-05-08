@@ -1,5 +1,5 @@
 
-rule sw_vers_and_libcurl : notable {
+rule sw_vers_and_libcurl : medium {
   meta:
     description = "fetches macOS system version and uses libcurl"
     hash_2023_Downloads_Chrome_Update = "eed1859b90b8832281786b74dc428a01dbf226ad24b182d09650c6e7895007ea"

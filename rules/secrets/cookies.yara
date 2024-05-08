@@ -1,5 +1,5 @@
 
-rule macos_cookies_val : suspicious {
+rule macos_cookies_val : high {
   meta:
     ref = "https://www.sentinelone.com/blog/macos-malware-2023-a-deep-dive-into-emerging-trends-and-evolving-techniques/"
     description = "access macOS Cookie files"
@@ -11,7 +11,7 @@ rule macos_cookies_val : suspicious {
     any of them
 }
 
-rule browser_cookies : suspicious {
+rule browser_cookies : high {
   meta:
     description = "accesses browser cookies"
     ref = "https://pypi.org/project/pycookiecheat/"

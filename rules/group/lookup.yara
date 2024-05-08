@@ -1,5 +1,5 @@
 
-rule getgrent : notable {
+rule getgrent : medium {
   meta:
     description = "get entry from group database"
     hash_2023_Linux_Malware_Samples_1020 = "1020ce1f18a2721b873152fd9f76503dcba5af7b0dd26d80fdb11efaf4878b1a"

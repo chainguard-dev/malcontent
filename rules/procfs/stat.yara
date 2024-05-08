@@ -1,5 +1,5 @@
 
-rule proc_stat : notable {
+rule proc_stat : medium {
   meta:
     description = "gets kernel/system statistics"
     hash_2024_Downloads_036a = "036a2f04ab56b5e7098c7d866eb21307011b812f126793159be1c853a6a54796"

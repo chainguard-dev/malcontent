@@ -13,7 +13,7 @@ rule linux_kernel_module_getdents64 : critical {
     all of them
 }
 
-rule funky_high_signal_killer : suspicious {
+rule funky_high_signal_killer : high {
   meta:
     description = "Uses high signals to communicate to a rootkit"
     hash_2023_Qubitstrike_branch_raw_mi = "9a5f6318a395600637bd98e83d2aea787353207ed7792ec9911b775b79443dcd"

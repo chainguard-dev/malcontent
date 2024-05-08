@@ -1,5 +1,5 @@
 
-rule dl_user : suspicious {
+rule dl_user : high {
   meta:
     description = "dynamically executes code bundles"
     ref = "https://developer.apple.com/documentation/foundation/bundle"

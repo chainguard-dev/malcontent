@@ -12,7 +12,7 @@ rule unlink {
     any of them
 }
 
-rule rm_f_hardcoded_tmp_path : suspicious {
+rule rm_f_hardcoded_tmp_path : high {
   meta:
     ref = "https://attack.mitre.org/techniques/T1485/"
     hash_2023_BPFDoor_8b84 = "8b84336e73c6a6d154e685d3729dfa4e08e4a3f136f0b2e7c6e5970df9145e95"

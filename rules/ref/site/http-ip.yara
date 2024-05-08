@@ -1,5 +1,5 @@
 
-rule http_hardcoded_ip : suspicious exfil {
+rule http_hardcoded_ip : high exfil {
   meta:
     description = "hardcoded IP address within a URL"
     hash_2023_Merlin_48a7 = "48a70bd18a23fce3208195f4ad2e92fce78d37eeaa672f83af782656a4b2d07f"

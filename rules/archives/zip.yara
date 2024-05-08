@@ -1,5 +1,5 @@
 
-rule zip : notable {
+rule zip : medium {
   meta:
     description = "Works with zip files"
     hash_2024_Downloads_7c63 = "7c636f1c9e4d9032d66a58f263b3006788047488e00fc26997b915e9d1f174bf"

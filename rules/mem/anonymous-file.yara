@@ -1,5 +1,5 @@
 
-rule memfd_create : notable {
+rule memfd_create : medium {
   meta:
     syscall = "memfd_create"
     description = "create an anonymous file"

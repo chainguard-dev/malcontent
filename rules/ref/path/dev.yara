@@ -1,5 +1,5 @@
 
-rule dev_path : notable {
+rule dev_path : medium {
   meta:
     description = "path reference within /dev"
     hash_2023_Downloads_039e = "039e1765de1cdec65ad5e49266ab794f8e5642adb0bdeb78d8c0b77e8b34ae09"

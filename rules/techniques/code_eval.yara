@@ -1,5 +1,5 @@
 
-rule eval : notable {
+rule eval : medium {
   meta:
     description = "evaluate code dynamically using eval()"
     hash_2023_0xShell_f = "9ce3da0322ee42e9119abb140b829efc3c94ea802df7a6f3968829645e1a5330"
@@ -12,7 +12,7 @@ rule eval : notable {
     $val and none of ($not*)
 }
 
-rule python_exec : notable {
+rule python_exec : medium {
   meta:
     description = "evaluate code dynamically using exec()"
     hash_2023_0xShell_0xShellori = "506e12e4ce1359ffab46038c4bf83d3ab443b7c5db0d5c8f3ad05340cb09c38e"
@@ -25,7 +25,7 @@ rule python_exec : notable {
     $val and not $empty
 }
 
-rule shell_eval : notable {
+rule shell_eval : medium {
   meta:
     description = "evaluate shell code dynamically using eval"
     hash_1980_FruitFly_A_205f = "205f5052dc900fc4010392a96574aed5638acf51b7ec792033998e4043efdf6c"

@@ -1,5 +1,5 @@
 
-rule flooder : suspicious {
+rule flooder : high {
   meta:
     description = "References an IP flooder"
     hash_2023_Downloads_21ca = "21ca44d382102e0ae33d02f499a5aa2a01e0749be956cbd417aae64085f28368"
@@ -16,7 +16,7 @@ rule flooder : suspicious {
     any of them
 }
 
-rule ddos : notable {
+rule ddos : medium {
   meta:
     description = "References DDoS"
     hash_2023_Downloads_039e = "039e1765de1cdec65ad5e49266ab794f8e5642adb0bdeb78d8c0b77e8b34ae09"

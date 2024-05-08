@@ -1,5 +1,5 @@
 
-rule readdir_intercept : suspicious {
+rule readdir_intercept : high {
   meta:
     description = "userland rootkit designed to hide files"
     hash_2023_lib_pkit = "8faa04955eeb6f45043003e23af39b86f1dbfaa12695e0e1a1f0bc7a15d0d116"
@@ -16,7 +16,7 @@ rule readdir_intercept : suspicious {
     uint32(0) == 1179403647 and all of ($r*) and none of ($not*)
 }
 
-rule readdir_intercept_source : suspicious {
+rule readdir_intercept_source : high {
   meta:
     description = "userland rootkit designed to hide files"
   strings:
@@ -26,7 +26,7 @@ rule readdir_intercept_source : suspicious {
     all of them
 }
 
-rule lkm_dirent : suspicious {
+rule lkm_dirent : high {
   meta:
     description = "kernel rootkit designed to hide files"
     hash_2023_LQvKibDTq4_diamorphine = "e93e524797907d57cb37effc8ebe14e6968f6bca899600561971e39dfd49831d"

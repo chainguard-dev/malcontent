@@ -1,5 +1,5 @@
 
-rule semicolon_relative_path : suspicious {
+rule semicolon_relative_path : high {
   meta:
     ref = "https://www.mandiant.com/resources/blog/barracuda-esg-exploited-globally"
     hash_2023_Py_Trojan_NecroBot_0e60 = "0e600095a3c955310d27c08f98a012720caff698fe24303d7e0dcb4c5e766322"

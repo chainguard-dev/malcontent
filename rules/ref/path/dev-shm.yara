@@ -8,7 +8,7 @@ rule dev_shm {
     any of them
 }
 
-rule dev_shm_file : suspicious {
+rule dev_shm_file : high {
   meta:
     description = "reference file within /dev/shm (world writeable)"
     hash_2023_BPFDoor_8b84 = "8b84336e73c6a6d154e685d3729dfa4e08e4a3f136f0b2e7c6e5970df9145e95"

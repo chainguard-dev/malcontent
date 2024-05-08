@@ -1,5 +1,5 @@
 
-rule dyld_library_path : notable {
+rule dyld_library_path : medium {
   meta:
     hash_2023_Downloads_e6b6 = "e6b6cf40d605fc7a5e8ba168a8a5d8699b0879e965d2b803e29b87926cba861f"
     hash_2017_5_QtCore = "d697c055b965e261483cbecf44c2a47b822caccf0c386d5e1c4f4fbbba9ab129"

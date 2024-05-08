@@ -10,7 +10,7 @@ rule pthread_create {
     any of them
 }
 
-rule py_thread_create : notable {
+rule py_thread_create : medium {
   meta:
     syscall = "pthread_create"
     description = "uses python threading"

@@ -1,5 +1,5 @@
 
-rule proc_self_exe : notable {
+rule proc_self_exe : medium {
   meta:
     description = "gets executable associated to this process"
     pledge = "stdio"

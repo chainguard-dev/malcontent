@@ -1,5 +1,5 @@
 
-rule chmod : notable {
+rule chmod : medium {
   meta:
     description = "modifies file permissions"
     pledge = "fattr"

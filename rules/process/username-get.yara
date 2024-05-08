@@ -12,7 +12,7 @@ rule getlogin {
     any of them
 }
 
-rule whoami : notable {
+rule whoami : medium {
   meta:
     syscall = "getuid"
     description = "returns the user name running this process"

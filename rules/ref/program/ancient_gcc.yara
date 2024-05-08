@@ -1,5 +1,5 @@
 
-rule built_by_archaic_gcc_version : suspicious {
+rule built_by_archaic_gcc_version : high {
   meta:
     hash_2023_BPFDoor_07ec = "07ecb1f2d9ffbd20a46cd36cd06b022db3cc8e45b1ecab62cd11f9ca7a26ab6d"
     hash_2023_BPFDoor_2e0a = "2e0aa3da45a0360d051359e1a038beff8551b957698f21756cfc6ed5539e4bdb"

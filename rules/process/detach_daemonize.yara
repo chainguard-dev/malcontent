@@ -1,5 +1,5 @@
 
-rule detach : notable {
+rule detach : medium {
   meta:
     description = "process detaches and daemonizes"
     hash_2023_Linux_Malware_Samples_741a = "741af7d54a95dd3b4497c73001e7b2ba1f607d19d63068b611505f9ce14c7776"

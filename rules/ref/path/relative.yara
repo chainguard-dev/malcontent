@@ -1,5 +1,5 @@
 
-rule relative_path_val : notable {
+rule relative_path_val : medium {
   meta:
     description = "references and possibly executes relative path"
     hash_2023_3_2_0_servlet_api_3_2_0_sources = "117d692f8796bf9114d99f1486d8e1ea55a62804838b1dc3287c6287039192ef"

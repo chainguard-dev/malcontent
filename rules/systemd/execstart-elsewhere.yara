@@ -1,5 +1,5 @@
 
-rule execstart_danger_path_val : suspicious {
+rule execstart_danger_path_val : high {
   meta:
     ref = "https://sandflysecurity.com/blog/log4j-kinsing-linux-malware-in-the-wild/"
     description = "Starts from a dangerous-looking path"
@@ -9,7 +9,7 @@ rule execstart_danger_path_val : suspicious {
     filesize < 4096 and any of them
 }
 
-rule execstart_unexpected_dir_val : notable {
+rule execstart_unexpected_dir_val : medium {
   meta:
     description = "Starts from an unusual path"
     ref = "https://sandflysecurity.com/blog/log4j-kinsing-linux-malware-in-the-wild/"

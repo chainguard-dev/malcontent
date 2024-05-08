@@ -1,5 +1,5 @@
 
-rule py_lib_alias_val : notable {
+rule py_lib_alias_val : medium {
   meta:
     description = "aliases core python library to an alternate name"
     hash_2022_requests_init = "4b62b48e754fe824ab4f9d5272d172881d177c8f07f4db7b12acc44400f8e208"

@@ -1,5 +1,5 @@
 
-rule generic_launchctl_loader : suspicious {
+rule generic_launchctl_loader : high {
   meta:
     hash_2024_2019_02_Shlayer_Malware_a2ec = "a2ec5d9c80794c26a7eaac8586521f7b0eb24aba9ad393c194c86cfd150e5189"
     hash_2024_2019_02_Shlayer_Malware_fd93 = "fd93c08678392eae99a1281577a54875a0e1920c49cdea6d56b53dabc4597803"

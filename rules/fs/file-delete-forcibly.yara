@@ -21,7 +21,7 @@ rule rm_recursive_force : medium {
     any of them
 }
 
-rule background_rm_rf : suspicious {
+rule background_rm_rf : high {
   meta:
     ref = "https://cert.gov.ua/article/6123309"
     hash_2023_uacert_destructor = "50aea94a6e503d0d3f7c5aa0284746262a3d1afe092b369992070af94a4c1997"

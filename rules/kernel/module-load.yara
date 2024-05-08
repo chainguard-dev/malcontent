@@ -1,5 +1,5 @@
 
-rule init_module : notable {
+rule init_module : medium {
   meta:
     description = "Load Linux kernel module"
     syscall = "init_module"
@@ -13,7 +13,7 @@ rule init_module : notable {
     all of them
 }
 
-rule kernel_module_loader : suspicious {
+rule kernel_module_loader : high {
   meta:
     hash_2023_init_d_vm_agent = "663b75b098890a9b8b02ee4ec568636eeb7f53414a71e2dbfbb9af477a4c7c3d"
     hash_2023_rc0_d_K70vm_agent = "663b75b098890a9b8b02ee4ec568636eeb7f53414a71e2dbfbb9af477a4c7c3d"

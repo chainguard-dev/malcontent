@@ -1,5 +1,5 @@
 
-rule libnetresolv_fake_val : suspicious {
+rule libnetresolv_fake_val : high {
   meta:
     ref = "https://cert.gov.ua/article/6123309"
     description = "references fake library - possible dynamic library hijacking"
@@ -11,7 +11,7 @@ rule libnetresolv_fake_val : suspicious {
     any of them
 }
 
-rule libs_fake_val : suspicious {
+rule libs_fake_val : high {
   meta:
     ref = "https://cert.gov.ua/article/6123309"
     description = "references fake library, possible dynamic library hijacking"
@@ -22,7 +22,7 @@ rule libs_fake_val : suspicious {
     any of them
 }
 
-rule libc_fake_number_val : suspicious {
+rule libc_fake_number_val : high {
   meta:
     ref = "https://cert.gov.ua/article/6123309"
     description = "references a non-standard libc library (normally libc.so.6)"

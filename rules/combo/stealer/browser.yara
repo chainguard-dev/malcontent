@@ -1,5 +1,5 @@
 
-rule multiple_browser_credentials : suspicious {
+rule multiple_browser_credentials : high {
   meta:
     hash_2023_Downloads_016a = "016a1a4fe3e9d57ab0b2a11e37ad94cc922290d2499b8d96957c3ddbdc516d74"
     hash_2023_Downloads_589d = "589dbb3f678511825c310447b6aece312a4471394b3bc40dde6c75623fc108c0"
@@ -36,13 +36,11 @@ rule multiple_browser_credentials_2 {
     $a_chrome_local_state = "Chrome/Local State"
     $a_brave_software = "BraveSoftware"
     $a_opera = "Opera Software"
-    $not_osquery = "OSQUERY_WORKER"
-    $not_private = "/System/Library/PrivateFrameworks/"
   condition:
-    3 of ($a_*) and none of ($not_*)
+    4 of ($a_*)
 }
 
-rule multiple_browser_refs : notable {
+rule multiple_browser_refs : medium {
   meta:
     description = "Uses HTTP, archives, and references multiple browsers"
     hash_2023_Downloads_016a = "016a1a4fe3e9d57ab0b2a11e37ad94cc922290d2499b8d96957c3ddbdc516d74"

@@ -1,5 +1,5 @@
 
-rule cp_to_apple_directory : suspicious {
+rule cp_to_apple_directory : high {
   meta:
     ref = "https://triangletoot.party/@philofishal@infosec.exchange/111211016916902934"
   strings:

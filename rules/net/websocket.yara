@@ -1,5 +1,5 @@
 
-rule websocket : notable {
+rule websocket : medium {
   meta:
     description = "supports web sockets"
     ref = "https://www.rfc-editor.org/rfc/rfc6455"

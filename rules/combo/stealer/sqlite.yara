@@ -1,5 +1,5 @@
 
-rule py_crypto_sqlite_requests : suspicious {
+rule py_crypto_sqlite_requests : high {
   meta:
     ref = "objective-see/GravityRAT/Enigma/Enigma"
   strings:

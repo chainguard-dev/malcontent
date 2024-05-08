@@ -1,5 +1,5 @@
 
-rule iptables_delete : suspicious {
+rule iptables_delete : high {
   meta:
     syscall = "posix_spawn"
     pledge = "exec"

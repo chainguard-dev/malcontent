@@ -1,5 +1,5 @@
 
-rule hidden_background_launcher : suspicious {
+rule hidden_background_launcher : high {
   meta:
     description = "Launches background processes from a hidden path"
     hash_2023_rc_d = "30b0e00414ce76f7f64175fb133632d5c517394bc013b0efe3d8ead384d5e464"
@@ -14,7 +14,7 @@ rule hidden_background_launcher : suspicious {
     any of ($b*) and none of ($not*)
 }
 
-rule relative_background_launcher : suspicious {
+rule relative_background_launcher : high {
   meta:
     description = "Launches background processes from a relative path"
     hash_2023_src_pscan = "59bb224cca5d33e442d21da26a33eaab1aa57dac5ba4e43bd72e262d115c23c8"

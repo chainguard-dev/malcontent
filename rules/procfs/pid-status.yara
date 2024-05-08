@@ -1,5 +1,5 @@
 
-rule proc_status : notable {
+rule proc_status : medium {
   meta:
     description = "access status fields for other processes"
     hash_2023_Linux_Malware_Samples_1822 = "1822454a2f12fae1725ef96e588e6fa2eeab58a8043e9a56ac328c14100ba937"

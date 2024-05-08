@@ -1,5 +1,5 @@
 
-rule google_dns_ip : notable {
+rule google_dns_ip : medium {
   meta:
     description = "contains Google Public DNS resolver IP"
     hash_2023_libcurl_setup = "5deef153a6095cd263d5abb2739a7b18aa9acb7fb0d542a2b7ff75b3506877ac"
@@ -12,7 +12,7 @@ rule google_dns_ip : notable {
     any of them
 }
 
-rule opendns_ip : notable {
+rule opendns_ip : medium {
   meta:
     description = "contains OpenDNS DNS resolver IP"
     hash_2023_Downloads_2f13 = "2f1321c6cf0bc3cf955e86692bfc4ba836f5580c8b1469ce35aa250c97f0076e"
@@ -24,7 +24,7 @@ rule opendns_ip : notable {
     any of them
 }
 
-rule ctrld_ip : suspicious {
+rule ctrld_ip : high {
   meta:
     description = "contains 'Control D' DNS resolver IP"
   strings:
@@ -34,7 +34,7 @@ rule ctrld_ip : suspicious {
     any of them
 }
 
-rule quad9_ip : notable {
+rule quad9_ip : medium {
   meta:
     description = "contains Quad9 DNS resolver IP"
     hash_2023_APT31_1d60 = "1d60edb577641ce47dc2a8299f8b7f878e37120b192655aaf80d1cde5ee482d2"
@@ -47,7 +47,7 @@ rule quad9_ip : notable {
     any of them
 }
 
-rule one_one_four_dns_ip : notable {
+rule one_one_four_dns_ip : medium {
   meta:
     description = "contains I14DNS DNS resolver IP"
     hash_2024_Downloads_036a = "036a2f04ab56b5e7098c7d866eb21307011b812f126793159be1c853a6a54796"
@@ -59,7 +59,7 @@ rule one_one_four_dns_ip : notable {
     any of them
 }
 
-rule ipinfo_dns_ip : suspicious {
+rule ipinfo_dns_ip : high {
   meta:
     description = "contains IPInfo DNS resolver IP"
     hash_2023_Unix_Malware_Setag_2f41 = "2f4163b6a30d738f619513cdcc8ee40056eeef9244455225d629a0fc2c58638a"

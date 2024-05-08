@@ -1,5 +1,5 @@
 
-rule crontab_writer : suspicious {
+rule crontab_writer : high {
   meta:
     description = "May use crontab to persist"
     hash_2023_usr_adxintrin_b = "a51a4ddcd092b102af94139252c898d7c1c48f322bae181bd99499a79c12c500"
@@ -17,7 +17,7 @@ rule crontab_writer : suspicious {
     filesize < 2097152 and any of ($c*) and none of ($not*)
 }
 
-rule crontab_danger_path : suspicious {
+rule crontab_danger_path : high {
   meta:
     ref = "https://blog.xlab.qianxin.com/mirai-nomi-en/"
     description = "Starts from a dangerous-looking path"

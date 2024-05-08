@@ -1,6 +1,6 @@
 import "math"
 
-rule obfuscated_elf : suspicious {
+rule obfuscated_elf : high {
   meta:
     description = "Obfuscated ELF binary (missing content)"
     hash_2023_APT31_1d60 = "1d60edb577641ce47dc2a8299f8b7f878e37120b192655aaf80d1cde5ee482d2"
@@ -22,7 +22,7 @@ rule obfuscated_elf : suspicious {
     uint32(0) == 1179403647 and none of them
 }
 
-rule high_entropy_header : suspicious {
+rule high_entropy_header : high {
   meta:
     description = "Obfuscated ELF binary (high entropy content)"
     hash_2023_UPX_0c25 = "0c25a05bdddc144fbf1ffa29372481b50ec6464592fdfb7dec95d9e1c6101d0d"

@@ -1,5 +1,5 @@
 
-rule proc_arbitrary : notable {
+rule proc_arbitrary : medium {
   meta:
     description = "access /proc for arbitrary pids"
     hash_2024_Downloads_036a = "036a2f04ab56b5e7098c7d866eb21307011b812f126793159be1c853a6a54796"

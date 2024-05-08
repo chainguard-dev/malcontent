@@ -33,7 +33,7 @@ rule python_exec_near_requests : critical {
     $exec = "exec("
     $requests = "equests.get("
   condition:
-    all of them and math.abs(@requests - @exec) <= 128
+    all of them and math.abs(@requests - @exec) <= 256
 }
 
 rule python_eval_near_requests : critical {
@@ -43,5 +43,5 @@ rule python_eval_near_requests : critical {
     $eval = "eval("
     $requests = "equests.get("
   condition:
-    all of them and math.abs(@requests - @eval) <= 128
+    all of them and math.abs(@requests - @eval) <= 256
 }

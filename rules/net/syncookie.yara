@@ -1,5 +1,5 @@
 
-rule syn_cookie : notable {
+rule syn_cookie : medium {
   meta:
     description = "references SYN cookies, used to resist DoS attacks"
     ref = "https://en.wikipedia.org/wiki/SYN_cookies"

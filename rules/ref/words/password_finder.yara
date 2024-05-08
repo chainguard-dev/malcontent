@@ -1,5 +1,5 @@
 
-rule password_finder_generic : suspicious {
+rule password_finder_generic : high {
   meta:
     description = "password finder or dumper"
     hash_2024_hCrypto_main_en = "4d4d52eed849554e1c31d56239bcf8ddc7e27fd387330f5ab1ce7d118589e5f3"
@@ -11,7 +11,7 @@ rule password_finder_generic : suspicious {
     any of them
 }
 
-rule password_dumper_generic : suspicious {
+rule password_dumper_generic : high {
   meta:
     description = "password dumper"
   strings:

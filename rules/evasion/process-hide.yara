@@ -1,5 +1,5 @@
 
-rule elf_processhide : suspicious {
+rule elf_processhide : high {
   meta:
     description = "userland rootkit designed to hide processes"
     hash_2023_Unix_Coinminer_Xanthe_0e6d = "0e6d37099dd89c7eed44063420bd05a2d7b0865a0f690e12457fbec68f9b67a8"
@@ -12,7 +12,7 @@ rule elf_processhide : suspicious {
     all of them
 }
 
-rule elf_possible_prochid : suspicious {
+rule elf_possible_prochid : high {
   meta:
     description = "userland rootkit designed to hide processes"
     ref = "prochid.c"

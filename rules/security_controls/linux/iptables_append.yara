@@ -1,5 +1,5 @@
 
-rule iptables_append : suspicious {
+rule iptables_append : high {
   meta:
     syscall = "posix_spawn"
     pledge = "exec"

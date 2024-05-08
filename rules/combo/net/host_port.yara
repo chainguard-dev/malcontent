@@ -1,5 +1,5 @@
 
-rule go_scan_tool_val : notable {
+rule go_scan_tool_val : medium {
   meta:
     description = "Uses struct with JSON representations for host:port"
     hash_2023_Downloads_21ca = "21ca44d382102e0ae33d02f499a5aa2a01e0749be956cbd417aae64085f28368"

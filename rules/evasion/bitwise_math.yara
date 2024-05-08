@@ -1,5 +1,5 @@
 
-rule excessive_bitwise_math : notable {
+rule excessive_bitwise_math : medium {
   meta:
     description = "excessive use of bitwise math"
     hash_2023_yfinancce_0_1_setup = "3bde1e9207dd331806bf58926d842e2d0f6a82424abd38a8b708e9f4e3e12049"

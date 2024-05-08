@@ -1,5 +1,5 @@
 
-rule danger_crypto_miner : suspicious {
+rule danger_crypto_miner : high {
   meta:
     hash_2023_Multios_Coinminer_Miner_6f28 = "6f2825856a5ae87face1c68ccb7f56f726073b8639a0897de77da25c8ecbeb19"
     hash_2023_Py_Trojan_NecroBot_0e60 = "0e600095a3c955310d27c08f98a012720caff698fe24303d7e0dcb4c5e766322"

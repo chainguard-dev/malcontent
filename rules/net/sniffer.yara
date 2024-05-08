@@ -1,5 +1,5 @@
 
-rule pcap_user : notable {
+rule pcap_user : medium {
   meta:
     hash_2023_Linux_Malware_Samples_1384 = "1384790107a5f200cab9593a39d1c80136762b58d22d9b3f081c91d99e5d0376"
     hash_2023_Linux_Malware_Samples_d13f = "d13fd21514f7ee5e58343aa99bf551c6a56486731c50daefcce233fdb162def8"

@@ -1,4 +1,4 @@
-rule go_nps_mux : suspicious {
+rule go_nps_mux : high {
 	meta:
 		description = "Uses github.com/smallbutstrong/nps-mux to multiplex network connections"
 	strings:

@@ -1,5 +1,8 @@
 
-rule ioplatform_expert_with_sketchy_calls {
+rule ioplatform_expert_with_sketchy_calls : high {
+  meta:
+    hash_2022_DazzleSpy_softwareupdate = "f9ad42a9bd9ade188e997845cae1b0587bf496a35c3bffacd20fefe07860a348"
+    hash_2017_FileCoder = "c9c7c7f1afa1d0760f63d895b8c9d5ab49821b2e4fe596b0c5ae94c308009e89"
   strings:
     $ioplatform = "IOPlatformExpertDevice" fullword
     $o_ioreg = "ioreg -"
@@ -19,17 +22,6 @@ rule ioplatform_expert_with_sketchy_calls {
     $o_launch = "rm -rf"
     $o_decrypting = "Decrypting"
     $o_encrypting = "Encrypting"
-    $not_electron = "ELECTRON_RUN_AS_NODE"
-    $not_crashpad = "crashpad_info"
-    $not_osquery = "OSQUERY_WORKER"
-    $not_kandji = "com.kandji.profile.mdmprofile"
-    $not_private = "/System/Library/PrivateFrameworks/"
-    $not_kolide = "KOLIDE_LAUNCHER_OPTION"
-    $not_chromium = "RasterCHROMIUM"
-    $not_c1_msal = "MSALAuthScheme"
-    $not_license = "LicensePrice"
-    $not_licensed = "licensed"
-    $not_arc = "WelcomeToArc"
   condition:
-    (filesize < 157286400 and $ioplatform and 3 of ($o_*)) and none of ($not*)
+    filesize < 104857600 and $ioplatform and 4 of ($o_*)
 }

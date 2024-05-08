@@ -1,5 +1,5 @@
 
-rule lkm : notable {
+rule lkm : medium {
   meta:
     description = "Contains a Linux kernel module"
     capability = "CAP_SYS_MODULE"
@@ -13,7 +13,7 @@ rule lkm : notable {
     all of them
 }
 
-rule delete_module : notable {
+rule delete_module : medium {
   meta:
     description = "Unload Linux kernel module"
     syscall = "delete_module"

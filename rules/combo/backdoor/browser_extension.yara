@@ -1,5 +1,5 @@
 
-rule chrome_extension_abuser : suspicious {
+rule chrome_extension_abuser : high {
   meta:
     hash_2017_CoinThief = "7f32fdcaefee42f93590f9490ab735ac9dfeb22a951ff06d721145baf563d53b"
   strings:
@@ -11,7 +11,7 @@ rule chrome_extension_abuser : suspicious {
     2 of ($s*) and none of ($not*)
 }
 
-rule browser_extension_installer : suspicious {
+rule browser_extension_installer : high {
   strings:
     $a_loadExtensionFlag = "--load-extension"
     $a_chrome = "Chrome"

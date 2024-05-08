@@ -1,5 +1,5 @@
 
-rule python_sysinfo_http : suspicious {
+rule python_sysinfo_http : high {
   meta:
     description = "exfiltrate system information"
     hash_2023_libcurl_setup = "5deef153a6095cd263d5abb2739a7b18aa9acb7fb0d542a2b7ff75b3506877ac"

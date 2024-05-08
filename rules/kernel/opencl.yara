@@ -1,5 +1,5 @@
 
-rule OpenCL : notable {
+rule OpenCL : medium {
   meta:
     description = "support for OpenCL"
     hash_2023_Linux_Malware_Samples_00ae = "00ae07c9fe63b080181b8a6d59c6b3b6f9913938858829e5a42ab90fb72edf7a"

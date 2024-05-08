@@ -1,5 +1,5 @@
 
-rule http_cookie : notable {
+rule http_cookie : medium {
   meta:
     pledge = "inet"
     description = "access HTTP resources using cookies"

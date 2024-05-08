@@ -1,5 +1,5 @@
 
-rule http_form_upload : notable {
+rule http_form_upload : medium {
   meta:
     pledge = "inet"
     description = "upload content via HTTP form"

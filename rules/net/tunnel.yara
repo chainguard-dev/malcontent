@@ -1,5 +1,5 @@
 
-rule tunnel : notable {
+rule tunnel : medium {
   meta:
     description = "creates a network tunnel"
     syscall = "setsockopt"
@@ -13,7 +13,7 @@ rule tunnel : notable {
     all of them
 }
 
-rule tunnel2 : notable {
+rule tunnel2 : medium {
   meta:
     description = "creates a network tunnel"
     syscall = "setsockopt"

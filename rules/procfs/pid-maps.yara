@@ -1,5 +1,5 @@
 
-rule proc_maps : notable {
+rule proc_maps : medium {
   meta:
     description = "access process memory maps"
     hash_2023_Downloads_98e7 = "98e7808bd5bfd72c08429ffe0ffb52ae54bce7e6389f17ae523e8ae0099489ab"

@@ -1,5 +1,5 @@
 
-rule progname : notable {
+rule progname : medium {
   meta:
     description = "get the current process name"
     ref = "https://linux.die.net/man/3/program_invocation_short_name"
@@ -11,7 +11,7 @@ rule progname : notable {
     any of them in (1200..3000)
 }
 
-rule process_name : notable {
+rule process_name : medium {
   meta:
     description = "get the current process name"
     hash_2024_Downloads_0f66 = "0f66a4daba647486d2c9d838592cba298df2dbf38f2008b6571af8a562bc306c"

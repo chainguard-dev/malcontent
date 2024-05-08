@@ -1,5 +1,5 @@
 
-rule mem : suspicious {
+rule mem : high {
   meta:
     capability = "CAP_SYS_RAWIO"
     description = "access raw system memory"
@@ -14,7 +14,7 @@ rule mem : suspicious {
     $val and none of ($not*)
 }
 
-rule comsvcs_minidump : suspicious {
+rule comsvcs_minidump : high {
   meta:
     description = "dump process memory using comsvcs.ddl"
     author = "Florian Roth"

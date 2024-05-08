@@ -1,5 +1,5 @@
 
-rule curl_value : notable {
+rule curl_value : medium {
   meta:
     description = "Invokes curl"
     hash_2023_0xShell_0xShellori = "506e12e4ce1359ffab46038c4bf83d3ab443b7c5db0d5c8f3ad05340cb09c38e"
@@ -11,7 +11,7 @@ rule curl_value : notable {
     $ref
 }
 
-rule curl_download_val : notable {
+rule curl_download_val : medium {
   meta:
     description = "Invokes curl to download a file"
     hash_2024_Downloads_4ba700b0e86da21d3dcd6b450893901c252bf817bd8792548fc8f389ee5aec78 = "fd3e21b8e2d8acf196cb63a23fc336d7078e72c2c3e168ee7851ea2bef713588"

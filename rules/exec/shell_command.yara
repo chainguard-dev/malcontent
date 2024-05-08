@@ -1,5 +1,5 @@
 
-rule system : notable {
+rule system : medium {
   meta:
     description = "execute a shell command"
     syscalls = "fork,execl"

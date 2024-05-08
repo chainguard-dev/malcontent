@@ -1,5 +1,5 @@
 
-rule base64_decode : notable python {
+rule base64_decode : medium python {
   meta:
     description = "decode base64 strings"
     ref = "https://docs.python.org/3/library/base64.html"
@@ -12,7 +12,7 @@ rule base64_decode : notable python {
     any of them
 }
 
-rule urlsafe_decode64 : notable ruby {
+rule urlsafe_decode64 : medium ruby {
   meta:
     description = "decode base64 strings"
     ref = "https://ruby-doc.org/3.3.0/stdlibs/base64/Base64.html"
@@ -25,7 +25,7 @@ rule urlsafe_decode64 : notable ruby {
     any of them
 }
 
-rule powershell_decode : notable {
+rule powershell_decode : medium {
   meta:
     description = "decode base64 strings"
     ref = "https://learn.microsoft.com/en-us/dotnet/api/system.convert.frombase64string?view=net-8.0"

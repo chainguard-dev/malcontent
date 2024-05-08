@@ -1,5 +1,5 @@
 
-rule embedded_zstd : notable {
+rule embedded_zstd : medium {
   meta:
     description = "Contains compressed content in ZStandard format"
     ref = "https://github.com/facebook/zstd"

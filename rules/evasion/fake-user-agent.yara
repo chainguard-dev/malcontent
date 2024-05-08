@@ -1,5 +1,5 @@
 
-rule fake_user_agent_msie : suspicious {
+rule fake_user_agent_msie : high {
   meta:
     description = "pretends to be MSIE"
     hash_2023_Chaos_1d36 = "1d36f4bebd21a01c12fde522defee4c6b4d3d574c825ecc20a2b7a8baa122819"
@@ -16,7 +16,7 @@ rule fake_user_agent_msie : suspicious {
     any of ($u_*) and none of ($not_*)
 }
 
-rule fake_user_agent_khtml_val : suspicious {
+rule fake_user_agent_khtml_val : high {
   strings:
     $u_khtml = /KHTML, like Gecko\w Version\/\d+.\d+ Safari/
     $not_nuclei = "NUCLEI_TEMPLATES"
@@ -26,7 +26,7 @@ rule fake_user_agent_khtml_val : suspicious {
     any of ($u_*) and none of ($not_*)
 }
 
-rule fake_user_agent_chrome : notable {
+rule fake_user_agent_chrome : medium {
   meta:
     hash_2024_Downloads_036a = "036a2f04ab56b5e7098c7d866eb21307011b812f126793159be1c853a6a54796"
     hash_2024_Downloads_0fa8a2e98ba17799d559464ab70cce2432f0adae550924e83d3a5a18fe1a9fc8 = "503fcf8b03f89483c0335c2a7637670c8dea59e21c209ab8e12a6c74f70c7f38"
@@ -40,7 +40,7 @@ rule fake_user_agent_chrome : notable {
     any of ($u_*) and none of ($not_*)
 }
 
-rule fake_user_agent_wordpress : suspicious {
+rule fake_user_agent_wordpress : high {
   strings:
     $u_wordpress = "User-Agent: Internal Wordpress RPC connection"
     $not_nuclei = "NUCLEI_TEMPLATES"
@@ -50,7 +50,7 @@ rule fake_user_agent_wordpress : suspicious {
     any of ($u_*) and none of ($not_*)
 }
 
-rule fake_user_agent_firefox : notable {
+rule fake_user_agent_firefox : medium {
   meta:
     hash_2023_0xShell_0xShellori = "506e12e4ce1359ffab46038c4bf83d3ab443b7c5db0d5c8f3ad05340cb09c38e"
     hash_2024_Downloads_036a = "036a2f04ab56b5e7098c7d866eb21307011b812f126793159be1c853a6a54796"
@@ -80,7 +80,7 @@ rule fake_user_agent_curl {
     any of ($u_*) and none of ($not_*)
 }
 
-rule elf_faker_val : notable {
+rule elf_faker_val : medium {
   meta:
     description = "Fake user agent"
     hash_2024_Downloads_fd0b = "fd0b5348bbfd013359f9651268ee67a265bce4e3a1cacf61956e3246bac482e8"
@@ -92,7 +92,7 @@ rule elf_faker_val : notable {
     uint32(0) == 1179403647 and $val
 }
 
-rule lowercase_mozilla_val : suspicious {
+rule lowercase_mozilla_val : high {
   meta:
     description = "Fake user agent"
     hash_2023_rustbucket_example = "c54bfacc63cd61c7d66e7282f17402c851b2b4cfdc9af7c1a81ad6a7838df19a"

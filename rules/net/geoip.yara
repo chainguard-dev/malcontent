@@ -1,5 +1,5 @@
 
-rule geoip_website_value : suspicious {
+rule geoip_website_value : high {
   meta:
     description = "public service for IP geolocation"
     hash_2024_2021_ua_parser_js_preinstall = "156ee05a1c1c1c68441fb8eedc034c50293ff0a643a8a1c132363e612a08fa6d"

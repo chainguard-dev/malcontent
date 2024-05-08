@@ -1,5 +1,5 @@
 
-rule curl_agent_val : suspicious {
+rule curl_agent_val : high {
   meta:
     description = "Invokes curl with a custom user agent"
   strings:
@@ -8,7 +8,7 @@ rule curl_agent_val : suspicious {
     $ref
 }
 
-rule urllib_oneliner : suspicious {
+rule urllib_oneliner : high {
   meta:
     hash_2023_Qubitstrike_branch_raw_mi = "9a5f6318a395600637bd98e83d2aea787353207ed7792ec9911b775b79443dcd"
     hash_2023_Qubitstrike_mi = "9a5f6318a395600637bd98e83d2aea787353207ed7792ec9911b775b79443dcd"
@@ -18,9 +18,9 @@ rule urllib_oneliner : suspicious {
     any of them
 }
 
-rule suspicious_fetch_command_val : suspicious {
+rule high_fetch_command_val : high {
   meta:
-    description = "suspicious fetch command"
+    description = "high fetch command"
     hash_2023_Chaos_1d36 = "1d36f4bebd21a01c12fde522defee4c6b4d3d574c825ecc20a2b7a8baa122819"
     hash_2023_Chaos_1fc4 = "1fc412b47b736f8405992e3744690b58ec4d611c550a1b4f92f08dfdad5f7a30"
     hash_2023_Chaos_27cd = "27cdb8d8f64ce395795fdbde10cf3a08e7b217c92b7af89cde22abbf951b9e99"

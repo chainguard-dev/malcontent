@@ -1,5 +1,5 @@
 
-rule uname_hostname_encrypt_wipe_kill : suspicious {
+rule uname_hostname_encrypt_wipe_kill : high {
   meta:
     description = "May encrypt, wipe files, and kill processes"
     hash_2023_ZIP_locker_Apple_M1_64 = "3e4bbd21756ae30c24ff7d6942656be024139f8180b7bddd4e5c62a9dfbd8c79"

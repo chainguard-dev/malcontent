@@ -1,5 +1,5 @@
 
-rule var_log_syslog : suspicious {
+rule var_log_syslog : high {
   meta:
     description = "accesses system logs"
     hash_2023_init_d_abrt_oops = "192b763638d0be61c4ba45e08f86df22318ab741297d6841d1009cca9bddad30"

@@ -1,5 +1,5 @@
 
-rule leveldb : notable {
+rule leveldb : medium {
   meta:
     description = "accesses LevelDB databases"
     hash_2023_Downloads_589d = "589dbb3f678511825c310447b6aece312a4471394b3bc40dde6c75623fc108c0"

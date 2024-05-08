@@ -1,5 +1,5 @@
 
-rule htonl : notable {
+rule htonl : medium {
   meta:
     pledge = "inet"
     description = "convert values between host and network byte order"

@@ -1,5 +1,5 @@
 
-rule xor_certs : suspicious {
+rule xor_certs : high {
   meta:
     description = "key material obfuscated using xor"
     hash_2023_ZIP_locker_AArch_64 = "724eb1c8e51f184495cfe81df7049531d413dd3e434ee3506b6cc6b18c61e96d"

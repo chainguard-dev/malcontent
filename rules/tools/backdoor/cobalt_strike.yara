@@ -1,5 +1,5 @@
 
-rule cobalt_strike_indicator : suspicious {
+rule cobalt_strike_indicator : high {
   meta:
     description = "CobaltStrike indicator"
     author = "Florian Roth"

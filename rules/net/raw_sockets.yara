@@ -1,5 +1,5 @@
 
-rule raw_sockets : notable {
+rule raw_sockets : medium {
   meta:
     description = "send raw and/or malformed IP packets"
     capability = "CAP_SYS_RAW"

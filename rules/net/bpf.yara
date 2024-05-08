@@ -1,5 +1,5 @@
 
-rule bpf : notable {
+rule bpf : medium {
   meta:
     capability = "CAP_SYS_BPF"
     description = "BPF (Berkeley Packet Filter)"

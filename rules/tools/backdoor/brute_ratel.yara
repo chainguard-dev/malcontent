@@ -1,4 +1,4 @@
-rule brute_ratel_c4 : suspicious {
+rule brute_ratel_c4 : high {
   meta:
 	description = "XOR'ed shellcode from Brute Ratel"
 	author = "Florian Roth"

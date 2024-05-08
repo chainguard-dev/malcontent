@@ -1,5 +1,5 @@
 
-rule system_fs_manipulator : notable {
+rule system_fs_manipulator : medium {
   meta:
     description = "Modifies files within system directories"
     hash_2023_Linux_Malware_Samples_3059 = "305901aa920493695729132cfd20cbddc9db2cf861071450a646c6a07b4a50f3"

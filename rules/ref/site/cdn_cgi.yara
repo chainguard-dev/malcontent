@@ -1,5 +1,5 @@
 
-rule cdn_cgi : notable {
+rule cdn_cgi : medium {
   meta:
     description = "Mentions Cloudflare cdn-cgi endpoint"
     hash_2023_Downloads_5f73 = "5f73f54865a1be276d39f5426f497c21e44a309e165e5e2d02f5201e8c1f05e0"
@@ -12,7 +12,7 @@ rule cdn_cgi : notable {
     $cdn_cgi and not $not_ct
 }
 
-rule cdn_cgi_xor : suspicious {
+rule cdn_cgi_xor : high {
   meta:
     description = "Mentions Cloudflare cdn-cgi endpoint, XOR"
     hash_2023_Unix_Dropper_Mirai_d4b9d82859b3624f50c5ad0972f11aa92d19c44dbaaaeb556e0a8_elf = "ee96dc17057d4b9d82859b3624f50c5ad0972f11aa92d19c44dbaaaeb556e0a8"

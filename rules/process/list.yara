@@ -1,5 +1,5 @@
 
-rule proc_listallpids : notable {
+rule proc_listallpids : medium {
   meta:
     pledge = "exec"
     syscall = "vfork"
@@ -10,7 +10,7 @@ rule proc_listallpids : notable {
     any of them
 }
 
-rule ps_exec : notable {
+rule ps_exec : medium {
   meta:
     pledge = "exec"
     syscall = "vfork"
@@ -28,7 +28,7 @@ rule ps_exec : notable {
     any of ($ps*) and not $hash_bang in (0..2) and none of ($not*)
 }
 
-rule procfs_listdir : notable {
+rule procfs_listdir : medium {
   meta:
     pledge = "exec"
     syscall = "vfork"

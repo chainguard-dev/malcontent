@@ -1,5 +1,5 @@
 
-rule http_post : notable {
+rule http_post : medium {
   meta:
     pledge = "inet"
     description = "submit content to websites"
@@ -14,7 +14,7 @@ rule http_post : notable {
     $POST and any of ($h*)
 }
 
-rule form_data_reference : notable {
+rule form_data_reference : medium {
   meta:
     description = "submit form content to websites"
     hash_2019_restclient_payload = "97b4859cd7ff37977e76079c1b2dbe80adcbe80893afc6fb9876cac8d2373d10"

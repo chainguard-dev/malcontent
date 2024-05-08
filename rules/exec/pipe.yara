@@ -1,5 +1,5 @@
 
-rule popen : notable {
+rule popen : medium {
   meta:
     description = "launches program and reads its output"
     syscall = "pipe"

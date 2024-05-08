@@ -1,5 +1,5 @@
 
-rule iptables_upload_http : notable {
+rule iptables_upload_http : medium {
   meta:
     description = "uploads, uses iptables and HTTP"
     hash_2023_0xShell_wesoori = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"
@@ -12,7 +12,7 @@ rule iptables_upload_http : notable {
     all of them
 }
 
-rule iptables_ssh : notable {
+rule iptables_ssh : medium {
   meta:
     description = "Supports iptables and ssh"
     hash_2023_Downloads_6e35 = "6e35b5670953b6ab15e3eb062b8a594d58936dd93ca382bbb3ebdbf076a1f83b"
@@ -25,7 +25,7 @@ rule iptables_ssh : notable {
     all of them
 }
 
-rule iptables_gdns_http : notable {
+rule iptables_gdns_http : medium {
   meta:
     description = "Uses iptables, Google Public DNS, and HTTP"
     hash_2024_Downloads_8907 = "89073097e72070cc7cc73c178447b70e07b603ccecfe406fe92fe9eafaae830f"

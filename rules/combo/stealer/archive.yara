@@ -1,5 +1,5 @@
 
-rule py_crypto_urllib_multiprocessing : suspicious {
+rule py_crypto_urllib_multiprocessing : high {
   meta:
     deescription = "calls multiple functions useful for exfiltrating data"
     ref = "trojan.python/drop - e8eb4f2a73181711fc5439d0dc90059f54820fe07d9727cf5f2417c5cec6da0e"
@@ -19,7 +19,7 @@ rule py_crypto_urllib_multiprocessing : suspicious {
     80% of ($f*) and none of ($not*)
 }
 
-rule open_and_archive : suspicious {
+rule open_and_archive : high {
   meta:
     hash_2017_CoinThief = "7f32fdcaefee42f93590f9490ab735ac9dfeb22a951ff06d721145baf563d53b"
   strings:

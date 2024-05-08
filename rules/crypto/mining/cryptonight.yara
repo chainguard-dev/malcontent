@@ -1,5 +1,5 @@
 
-rule cryptonight : suspicious {
+rule cryptonight : high {
   meta:
     description = "References CryptoNight, a proof-of-work algorithm"
     hash_2023_Multios_Coinminer_Miner_6f28 = "6f2825856a5ae87face1c68ccb7f56f726073b8639a0897de77da25c8ecbeb19"

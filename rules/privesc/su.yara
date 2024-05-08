@@ -1,5 +1,5 @@
 
-rule su_c : notable {
+rule su_c : medium {
   meta:
     description = "uses su -c to execute command as another user"
     hash_2023_uacert_py_su = "f6d9de8c96e3a9b24287eff608ba6ae59aed653e465112f31e679ae50b8172f3"

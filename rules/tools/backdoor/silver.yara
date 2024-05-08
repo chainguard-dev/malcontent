@@ -28,7 +28,7 @@ rule c2_implant_sliver_functions : critical {
     filesize < 20971520 and 2 of them
 }
 
-rule beaconjitter_xor : suspicious {
+rule beaconjitter_xor : high {
   meta:
     description = "Sliver C2 implant"
     hash_2023_Downloads_78eb = "78eb647f3d2aae5c52fcdc46ac1b27fb5a388ad39abbe614c0cfc902d223ccd6"

@@ -1,5 +1,5 @@
 
-rule yum_installer : notable {
+rule yum_installer : medium {
   meta:
     description = "install software with yum"
     hash_2023_Downloads_6e35 = "6e35b5670953b6ab15e3eb062b8a594d58936dd93ca382bbb3ebdbf076a1f83b"
@@ -11,7 +11,7 @@ rule yum_installer : notable {
     $val
 }
 
-rule dnf_installer : notable {
+rule dnf_installer : medium {
   meta:
     description = "install software with dnf"
   strings:
@@ -20,7 +20,7 @@ rule dnf_installer : notable {
     $val
 }
 
-rule rpm_installer : notable {
+rule rpm_installer : medium {
   meta:
     description = "install software with rpm"
     hash_2023_Unix_Coinminer_Xanthe_7ea1 = "7ea112aadebb46399a05b2f7cc258fea02f55cf2ae5257b331031448f15beb8f"
@@ -30,7 +30,7 @@ rule rpm_installer : notable {
     $val
 }
 
-rule apt_installer : notable {
+rule apt_installer : medium {
   meta:
     description = "install software with apt"
     hash_2023_Unix_Downloader_Rocke_6107 = "61075056b46d001e2e08f7e5de3fb9bfa2aabf8fb948c41c62666fd4fab1040f"
@@ -40,7 +40,7 @@ rule apt_installer : notable {
     $val
 }
 
-rule apt_get_installer : notable {
+rule apt_get_installer : medium {
   meta:
     description = "install software with apt-get"
     hash_2019_lib_restclient = "c9b67d3d9ef722facd1abce98bd7d80cec1cc1bb3e3a52c54bba91f19b5a6620"
@@ -53,7 +53,7 @@ rule apt_get_installer : notable {
     $val and not $foo
 }
 
-rule apk_installer : notable {
+rule apk_installer : medium {
   meta:
     description = "install software with APK"
     hash_2023_Qubitstrike_branch_raw_mi = "9a5f6318a395600637bd98e83d2aea787353207ed7792ec9911b775b79443dcd"
@@ -64,7 +64,7 @@ rule apk_installer : notable {
     $val
 }
 
-rule pip_installer_regex : notable {
+rule pip_installer_regex : medium {
   meta:
     description = "Includes 'pip install' command for installing Python modules"
     hash_2023_Downloads_016a = "016a1a4fe3e9d57ab0b2a11e37ad94cc922290d2499b8d96957c3ddbdc516d74"

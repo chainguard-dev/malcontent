@@ -1,5 +1,5 @@
 
-rule kallsyms : suspicious {
+rule kallsyms : high {
   meta:
     description = "access unexported kernel symbols"
     ref = "https://lwn.net/Articles/813350/"

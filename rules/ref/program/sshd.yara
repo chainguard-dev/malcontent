@@ -1,5 +1,5 @@
 
-rule sshd : notable {
+rule sshd : medium {
   meta:
     description = "Mentions SSHD"
     hash_2023_Downloads_311c = "311c93575efd4eeeb9c6674d0ab8de263b72a8fb060d04450daccc78ec095151"
@@ -11,7 +11,7 @@ rule sshd : notable {
     $ref
 }
 
-rule sshd_path_value : suspicious {
+rule sshd_path_value : high {
   meta:
     description = "Mentions the SSH daemon by path"
     hash_2023_Unix_Trojan_WINNTI_3b37 = "3b378846bc429fdf9bec08b9635885267d8d269f6d941ab1d6e526a03304331b"
@@ -23,7 +23,7 @@ rule sshd_path_value : suspicious {
     $ref
 }
 
-rule sshd_net : suspicious {
+rule sshd_net : high {
   meta:
     description = "Mentions SSHD network processes"
   strings:
