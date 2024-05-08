@@ -125,12 +125,12 @@ func recursiveScan(ctx context.Context, c Config) (*bincapz.Report, error) {
 			if isArchive {
 				err = processArchive(ctx, c, yrs, r, p, logger)
 				if err != nil {
-					return nil, err
+					logger.Errorf("unable to process %s: %v", p, err)
 				}
 			} else {
 				err = processFile(ctx, c, yrs, r, p, logger)
 				if err != nil {
-					return nil, err
+					logger.Errorf("unable to process %s: %v", p, err)
 				}
 			}
 		}
@@ -144,32 +144,27 @@ func recursiveScan(ctx context.Context, c Config) (*bincapz.Report, error) {
 	return r, nil
 }
 
-func processArchive(
-	ctx context.Context,
-	c Config,
-	yrs *yara.Rules,
-	r *bincapz.Report,
-	p string,
-	logger *clog.Logger,
-) error {
+func processArchive(ctx context.Context, c Config, yrs *yara.Rules, r *bincapz.Report, path string, logger *clog.Logger) error {
 	var err error
-	p, err = archive(ctx, p)
+
+	extractedRoot, err := extractArchiveToTempDir(ctx, path)
 	if err != nil {
-		return fmt.Errorf("failed to prepare archive for scanning: %w", err)
+		return fmt.Errorf("extract to temp: %w", err)
 	}
-	var ap []string
-	ap, err = findFilesRecursively(ctx, p, c)
+
+	aps, err := findFilesRecursively(ctx, extractedRoot, c)
 	if err != nil {
 		return fmt.Errorf("find files: %w", err)
 	}
-	for _, a := range ap {
-		err = processFile(ctx, c, yrs, r, a, logger)
+
+	for _, ap := range aps {
+		err = processFile(ctx, c, yrs, r, ap, logger)
 		if err != nil {
 			return err
 		}
 	}
-	if err := os.RemoveAll(p); err != nil {
-		logger.Errorf("remove %s: %v", p, err)
+	if err := os.RemoveAll(extractedRoot); err != nil {
+		logger.Errorf("remove %s: %v", extractedRoot, err)
 	}
 	return nil
 }
@@ -178,10 +173,10 @@ func processFile(
 	ctx context.Context,
 	c Config, yrs *yara.Rules,
 	r *bincapz.Report,
-	p string,
+	path string,
 	logger *clog.Logger,
 ) error {
-	fr, err := scanSinglePath(ctx, c, yrs, p)
+	fr, err := scanSinglePath(ctx, c, yrs, path)
 	if err != nil {
 		logger.Errorf("scan path: %v", err)
 		return nil
@@ -203,7 +198,7 @@ func processFile(
 			return fmt.Errorf("render: %w", err)
 		}
 	}
-	r.Files[p] = *fr
+	r.Files[path] = *fr
 	return nil
 }
 
