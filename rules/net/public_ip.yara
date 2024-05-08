@@ -1,19 +1,21 @@
+
 rule iplookup_website_value : suspicious {
   meta:
-    hash_2023_stealer_hashbreaker = "016a1a4fe3e9d57ab0b2a11e37ad94cc922290d2499b8d96957c3ddbdc516d74"
-    hash_2022_CloudMensis_WindowServer_2 = "b8a61adccefb13b7058e47edcd10a127c483403cf38f7ece126954e95e86f2bd"
-	description = "public service to discover external IP address"
+    description = "public service to discover external IP address"
+    hash_2023_Unix_Coinminer_Xanthe_7ea1 = "7ea112aadebb46399a05b2f7cc258fea02f55cf2ae5257b331031448f15beb8f"
+    hash_2023_Unix_Trojan_Ipstorm_1996 = "1996927b41960a2af8e49cf745ed6668bc5b8d7855c2bb116f98104163e29000"
+    hash_2023_Unix_Trojan_Ipstorm_2f6f = "2f6f44e3e2baf701ae1ee3826986f89df4e5314c8ba50615fb6580f1ef54c830"
   strings:
     $ipify = "ipify.org"
     $wtfismyip = "wtfismyip"
     $iplogger = "iplogger.org"
     $getjsonip = "getjsonip"
-	$ipconfig_me = "ifconfig.me"
-	$icanhazip = "icanhazip"
-	$ident_me = "ident.me" fullword
-	$showip_net = "showip.net" fullword
-	$ifconfig_io = "ifconfig.io" fullword
-	$ifconfig_co = "ifconfig.co" fullword
+    $ipconfig_me = "ifconfig.me"
+    $icanhazip = "icanhazip"
+    $ident_me = "ident.me" fullword
+    $showip_net = "showip.net" fullword
+    $ifconfig_io = "ifconfig.io" fullword
+    $ifconfig_co = "ifconfig.co" fullword
     $ipinfo = "ipinfo.io"
     $ipify_b = "ipify.org" base64
     $wtfismyip_b = "wtfismyip" base64
@@ -31,9 +33,7 @@ rule iplookup_website_value : suspicious {
 
 rule iplookup_website_base64 : critical {
   meta:
-    hash_2023_stealer_hashbreaker = "016a1a4fe3e9d57ab0b2a11e37ad94cc922290d2499b8d96957c3ddbdc516d74"
-    hash_2022_CloudMensis_WindowServer_2 = "b8a61adccefb13b7058e47edcd10a127c483403cf38f7ece126954e95e86f2bd"
-	description = "public service to discover external IP address"
+    description = "public service to discover external IP address"
   strings:
     $ipify_b = "ipify.org" base64
     $wtfismyip_b = "wtfismyip" base64
@@ -46,9 +46,7 @@ rule iplookup_website_base64 : critical {
 
 rule iplookup_website_xor : critical {
   meta:
-    hash_2023_stealer_hashbreaker = "016a1a4fe3e9d57ab0b2a11e37ad94cc922290d2499b8d96957c3ddbdc516d74"
-    hash_2022_CloudMensis_WindowServer_2 = "b8a61adccefb13b7058e47edcd10a127c483403cf38f7ece126954e95e86f2bd"
-	description = "public service to discover external IP address"
+    description = "public service to discover external IP address"
   strings:
     $ipify_x = "ipify.org" xor(1-255)
     $wtfismyip_x = "wtfismyip" xor(1-255)
@@ -60,10 +58,10 @@ rule iplookup_website_xor : critical {
 }
 
 rule python_list_comprehension : suspicious {
-	meta:
-		description = "discover IP address via socket connection"
-	strings:
-		$ref = "[socket.socket(socket.AF_INET, socket.SOCK_DGRAM"
-	condition:
-		any of them
+  meta:
+    description = "discover IP address via socket connection"
+  strings:
+    $ref = "[socket.socket(socket.AF_INET, socket.SOCK_DGRAM"
+  condition:
+    any of them
 }

@@ -1,11 +1,5 @@
+
 rule multiple_browser_credentials : suspicious {
-  meta:
-    hash_2023_stealer_hashbreaker = "016a1a4fe3e9d57ab0b2a11e37ad94cc922290d2499b8d96957c3ddbdc516d74"
-    hash_2023_amos_stealer_e = "589dbb3f678511825c310447b6aece312a4471394b3bc40dde6c75623fc108c0"
-    hash_2023_amos_stealer_a = "e6b6cf40d605fc7a5e8ba168a8a5d8699b0879e965d2b803e29b87926cba861f"
-    hash_2018_CookieMiner_uploadminer = "6236f77899cea6c32baf0032319353bddfecaf088d20a4b45b855a320ba41e93"
-    hash_2023_brawl_earth = "fe3ac61c701945f833f218c98b18dca704e83df2cf1a8994603d929f25d1cce2"
-    hash_2023_Downloads_Chrome_Update = "eed1859b90b8832281786b74dc428a01dbf226ad24b182d09650c6e7895007ea"
   strings:
     $c_library_keychains = "/Library/Keychains"
     $c_cookies_sqlite = "cookies.sqlite"
@@ -24,15 +18,6 @@ rule multiple_browser_credentials : suspicious {
 }
 
 rule multiple_browser_credentials_2 {
-  meta:
-    hash_2023_brawl_earth = "fe3ac61c701945f833f218c98b18dca704e83df2cf1a8994603d929f25d1cce2"
-    hash_2023_stealer_hashbreaker = "016a1a4fe3e9d57ab0b2a11e37ad94cc922290d2499b8d96957c3ddbdc516d74"
-    hash_2023_amos_stealer_e = "589dbb3f678511825c310447b6aece312a4471394b3bc40dde6c75623fc108c0"
-    hash_2023_amos_stealer_a = "e6b6cf40d605fc7a5e8ba168a8a5d8699b0879e965d2b803e29b87926cba861f"
-    hash_2016_Calisto = "81c127c3cceaf44df10bb3ceb20ce1774f6a9ead0db4bd991abf39db828661cc"
-    hash_2018_CookieMiner_uploadminer = "6236f77899cea6c32baf0032319353bddfecaf088d20a4b45b855a320ba41e93"
-    hash_2017_GoPhoto = "a4d8367dc2df3a8539b9baf8ee48d09f5a8e9f9d2d58431909de0bb0816464a0"
-    hash_2023_Downloads_Chrome_Update = "eed1859b90b8832281786b74dc428a01dbf226ad24b182d09650c6e7895007ea"
   strings:
     $a_google_chrome = "Google/Chrome"
     $a_app_support = "Application Support"
@@ -53,27 +38,23 @@ rule multiple_browser_credentials_2 {
     3 of ($a_*) and none of ($not_*)
 }
 
-
 rule multiple_browser_refs : notable {
   meta:
-	description = "Uses HTTP, archives, and references multiple browsers"
+    description = "Uses HTTP, archives, and references multiple browsers"
   strings:
-	$d_config = ".config" fullword
-	$d_app_support = "Application Support" fullword
-
-	$h_http = "http" fullword
-	$h_POST = "POST" fullword
-
-	$z_zip = "zip" fullword
-	$z_ZIP = "ZIP" fullword
-	$z_ditto = "ditto" fullword
-	$z_tar = "tar" fullword
-
-	$b_Yandex = "Yandex"
-	$b_Brave = "Brave"
-	$b_Firefox = "Firefox"
-	$b_Safari = "Safari"
-	$b_Chrome = "Chrome"
+    $d_config = ".config" fullword
+    $d_app_support = "Application Support" fullword
+    $h_http = "http" fullword
+    $h_POST = "POST" fullword
+    $z_zip = "zip" fullword
+    $z_ZIP = "ZIP" fullword
+    $z_ditto = "ditto" fullword
+    $z_tar = "tar" fullword
+    $b_Yandex = "Yandex"
+    $b_Brave = "Brave"
+    $b_Firefox = "Firefox"
+    $b_Safari = "Safari"
+    $b_Chrome = "Chrome"
   condition:
     any of ($d*) and any of ($h*) and any of ($z*) and 2 of ($b*)
 }

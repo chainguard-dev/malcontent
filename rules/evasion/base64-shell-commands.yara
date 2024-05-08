@@ -1,7 +1,10 @@
 
 rule base64_commands : suspicious {
   meta:
-	description = "commands in base64 form"
+    description = "commands in base64 form"
+    hash_2023_OrBit_f161 = "f1612924814ac73339f777b48b0de28b716d606e142d4d3f4308ec648e3f56c8"
+    hash_2023_Sysrv_Hello_sys_x86_64 = "cd784dc1f7bd95cac84dc696d63d8c807129ef47b3ce08cd08afb7b7456a8cd3"
+    hash_2023_Unix_Downloader_Rocke_228e = "228ec858509a928b21e88d582cb5cfaabc03f72d30f2179ef6fb232b6abdce97"
   strings:
     $b_chmod = "chmod" base64
     $b_curl = "curl -" base64
@@ -17,12 +20,12 @@ rule base64_commands : suspicious {
     $b_zmodload = "zmodload" base64
     $b_dev_tcp = "/dev/tcp" base64
     $b_bash_i = "bash -i" base64
-	$b_tar_c = "tar -c" base64
-	$b_tar_x = "tar -x" base64
+    $b_tar_c = "tar -c" base64
+    $b_tar_x = "tar -x" base64
     $b_bash_c = "bash -c" base64
     $not_kandji = "kandji-parameter-agent"
     $not_mdmprofile = "mdmprofile"
-	$not_example = "commands are encoded"
+    $not_example = "commands are encoded"
   condition:
     any of ($b_*) and none of ($not_*)
 }
