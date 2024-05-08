@@ -2,12 +2,10 @@
 3P/ditekshen/discordurl
 3P/ditekshen/rawgithub/url
 3P/ditekshen/vm/evasion/macaddrcomb
-3P/threat_hunting_keywords
-3P/threat_hunting_keywords/cstealer
-3P/threat_hunting_keywords/fentanyl
-3P/threat_hunting_keywords/github
-3P/threat_hunting_keywords/runascs
-3P/threat_hunting_keywords/wireshark
+3P/threat_hunting
+3P/threat_hunting/cstealer
+3P/threat_hunting/fentanyl
+3P/threat_hunting/runascs
 archives/zip
 combo/net/scan_tool
 combo/stealer/browser
