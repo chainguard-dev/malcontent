@@ -1,0 +1,65 @@
+{
+    "Files": {
+        "macOS/clean/ls": {
+            "Path": "macOS/clean/ls",
+            "SHA256": "461b7ef5288c9c4b0d10aefc9ca42f7ddab9954a3f3d032e3a783e3da0c970b6",
+            "Meta": {
+                "format": "macho",
+                "meta": "program_name"
+            },
+            "Syscalls": [
+                "getdents",
+                "openat",
+                "readlink"
+            ],
+            "Pledge": [
+                "rpath"
+            ],
+            "Behaviors": {
+                "env/TERM": {
+                    "Description": "Look up or override terminal settings",
+                    "MatchStrings": [
+                        "TERM"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/env/TERM.yara#TERM",
+                    "ReferenceURL": "https://www.gnu.org/software/gettext/manual/html_node/The-TERM-variable.html"
+                },
+                "fs/directory/traverse": {
+                    "Description": "traverse filesystem hierarchy",
+                    "MatchStrings": [
+                        "_fts_children",
+                        "_fts_close",
+                        "_fts_open",
+                        "_fts_read",
+                        "_fts_set"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/fs/directory-traverse.yara#fts"
+                },
+                "fs/link/read": {
+                    "Description": "read value of a symbolic link",
+                    "MatchStrings": [
+                        "readlink"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/fs/link-read.yara#readlink",
+                    "ReferenceURL": "https://man7.org/linux/man-pages/man2/readlink.2.html"
+                }
+            },
+            "RiskScore": 1,
+            "RiskLevel": "LOW",
+            "PackageRisk": [
+                "env/TERM",
+                "fs/directory/traverse",
+                "fs/link/read",
+                "meta/format/macho",
+                "meta/program_name"
+            ]
+        }
+    },
+    "Diff": {}
+}
