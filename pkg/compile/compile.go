@@ -115,5 +115,5 @@ func Recursive(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {
 		r.Disable()
 	}
 
-	return yc.GetRules()
+	return rs, nil
 }
