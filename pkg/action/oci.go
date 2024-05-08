@@ -48,7 +48,7 @@ func oci(ctx context.Context, path string) (string, error) {
 
 	err = extractTar(ctx, tmpDir, tmpFile.Name())
 	if err != nil {
-		return "", fmt.Errorf("failed to extract image: %w", err)
+		return "", fmt.Errorf("extract tar: %w", err)
 	}
 
 	return tmpDir, nil

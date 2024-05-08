@@ -19,7 +19,28 @@ var FS = rules.FS
 
 // badRules are noisy 3rd party rules to silently disable.
 var badRules = map[string]bool{
+	// YARAForge
 	"GODMODERULES_IDDQD_God_Mode_Rule": true,
+	// ThreatHunting Keywords (some duplicates)
+	"scp_greyware_tool_keyword":                  true,
+	"Antivirus_Signature_signature_keyword":      true,
+	"Dinjector_offensive_tool_keyword":           true,
+	"viperc2_offensive_tool_keyword":             true,
+	"github_greyware_tool_keyword":               true,
+	"wfuzz_offensive_tool_keyword":               true,
+	"nmap_greyware_tool_keyword":                 true,
+	"netcat_greyware_tool_keyword":               true,
+	"whoami_greyware_tool_keyword":               true,
+	"sftp_greyware_tool_keyword":                 true,
+	"empire_offensive_tool_keyword":              true,
+	"ssh_greyware_tool_keyword":                  true,
+	"wireshark_greyware_tool_keyword":            true,
+	"portscan_offensive_tool_keyword":            true,
+	"usbpcap_offensive_tool_keyword":             true,
+	"koadic_offensive_tool_keyword":              true,
+	"vsftpd_greyware_tool_keyword":               true,
+	"blackcat_ransomware_offensive_tool_keyword": true,
+	"mythic_offensive_tool_keyword":              true,
 }
 
 // rulesWithWarnings determines what to do with rules that have known warnings: true=keep, false=disable.
