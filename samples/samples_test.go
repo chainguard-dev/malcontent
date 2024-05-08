@@ -6,7 +6,6 @@ package samples
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"io/fs"
 	"log/slog"
 	"os"
@@ -15,9 +14,10 @@ import (
 	"testing"
 
 	"github.com/chainguard-dev/bincapz/pkg/action"
-	"github.com/chainguard-dev/bincapz/pkg/bincapz"
+	"github.com/chainguard-dev/bincapz/pkg/compile"
 	"github.com/chainguard-dev/bincapz/pkg/render"
-	"github.com/chainguard-dev/bincapz/pkg/rules"
+	"github.com/chainguard-dev/bincapz/rules"
+	thirdparty "github.com/chainguard-dev/bincapz/third_party"
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/clog/slogtest"
 	"github.com/google/go-cmp/cmp"
@@ -29,7 +29,7 @@ func TestJSON(t *testing.T) {
 	ctx := slogtest.TestContextWithLogger(t)
 	clog.FromContext(ctx).With("test", "TestJSON")
 
-	yrs, err := rules.Compile(ctx, rules.FS, false)
+	yrs, err := compile.Recursive(ctx, []fs.FS{rules.FS, thirdparty.FS})
 	if err != nil {
 		t.Fatalf("compile: %v", err)
 	}
@@ -53,11 +53,7 @@ func TestJSON(t *testing.T) {
 			if err != nil {
 				t.Fatalf("testdata read failed: %v", err)
 			}
-
-			var want bincapz.Report
-			if err := json.Unmarshal(td, &want); err != nil {
-				t.Fatalf("testdata unmarshal: %v", err)
-			}
+			want := string(td)
 
 			var out bytes.Buffer
 			render, err := render.New("json", &out)
@@ -65,22 +61,27 @@ func TestJSON(t *testing.T) {
 				t.Fatalf("render: %v", err)
 			}
 			bc := action.Config{
-				IgnoreSelf: false,
-				IgnoreTags: []string{"harmless"},
-				Renderer:   render,
-				Rules:      yrs,
-				ScanPaths:  []string{binPath},
+				IgnoreSelf:     false,
+				Renderer:       render,
+				Rules:          yrs,
+				MinResultScore: 1,
+				ScanPaths:      []string{binPath},
 			}
 
 			tcLogger := clog.FromContext(ctx).With("test", name)
 			ctx := clog.WithLogger(ctx, tcLogger)
-			got, err := action.Scan(ctx, bc)
+			res, err := action.Scan(ctx, bc)
 			if err != nil {
 				t.Fatalf("scan failed: %v", err)
 			}
 
+			if err := render.Full(ctx, *res); err != nil {
+				t.Fatalf("full: %v", err)
+			}
+
+			got := out.String()
 			if diff := cmp.Diff(want, got); diff != "" {
-				t.Errorf("JSON output mismatch: (-want +got):\n%s", diff)
+				t.Errorf("markdown output mismatch: (-want +got):\n%s", diff)
 			}
 		})
 		return nil
@@ -91,7 +92,7 @@ func TestSimple(t *testing.T) {
 	ctx := slogtest.TestContextWithLogger(t)
 	clog.FromContext(ctx).With("test", "simple")
 
-	yrs, err := rules.Compile(ctx, rules.FS, true)
+	yrs, err := compile.Recursive(ctx, []fs.FS{rules.FS, thirdparty.FS})
 	if err != nil {
 		t.Fatalf("compile: %v", err)
 	}
@@ -152,7 +153,10 @@ func TestSimple(t *testing.T) {
 }
 
 func TestDiff(t *testing.T) {
-	yrs, err := rules.Compile(context.TODO(), rules.FS, true)
+	ctx := slogtest.TestContextWithLogger(t)
+	clog.FromContext(ctx).With("test", "diff")
+
+	yrs, err := compile.Recursive(ctx, []fs.FS{rules.FS, thirdparty.FS})
 	if err != nil {
 		t.Fatalf("compile: %v", err)
 	}
@@ -223,7 +227,8 @@ func TestDiff(t *testing.T) {
 func TestMarkdown(t *testing.T) {
 	ctx := slogtest.TestContextWithLogger(t)
 	clog.FromContext(ctx).With("test", "TestMarkDown")
-	yrs, err := rules.Compile(ctx, rules.FS, true)
+
+	yrs, err := compile.Recursive(ctx, []fs.FS{rules.FS, thirdparty.FS})
 	if err != nil {
 		t.Fatalf("compile: %v", err)
 	}
