@@ -225,7 +225,7 @@ func TestDiff(t *testing.T) {
 	}
 }
 
-// reduceMarkdown reduces markdown output to make diffs more legible
+// reduceMarkdown reduces markdown output to simply diff output.
 func reduceMarkdown(s string) string {
 	spaceRe := regexp.MustCompile(` +`)
 	dashRe := regexp.MustCompile(` -`)
