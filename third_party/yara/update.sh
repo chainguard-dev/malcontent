@@ -44,7 +44,7 @@ function update_dep() {
 		popd || exit 1
 		find "${tmpdir}" \( -name "*.yar*" -o -name "*LICENSE*" \) -print -exec cp {} "${kind}" \;
 		;;
-	threat_hunting_keywords)
+	threat_hunting)
 		rel=$(latest_github_release mthcht/ThreatHunting-Keywords-yara-rules)
 		curl -L -o "${tmpdir}/keywords.zip" "https://github.com/mthcht/ThreatHunting-Keywords-yara-rules/archive/refs/tags/${rel}.zip"
 		unzip -o -j "${tmpdir}/keywords.zip" ThreatHunting-Keywords-yara-rules-1.0.1/yara_rules/all.yara -d "${kind}"

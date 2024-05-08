@@ -139,15 +139,16 @@ func ignoreMatch(tags []string, ignoreTags map[string]bool) bool {
 	return false
 }
 
-func behaviorRisk(ns string, tags []string) int {
+func behaviorRisk(ns string, rule string, tags []string) int {
 	risk := 1
 
 	// default to critical
 	if thirdParty(ns) {
 		risk = 4
-		if strings.Contains(ns, "keyword") {
-			risk = 2
-		}
+	}
+
+	if strings.Contains(ns, "keyword") || strings.Contains(rule, "keyword") {
+		risk = 2
 	}
 
 	levels := map[string]int{
@@ -266,7 +267,7 @@ func mungeDescription(s string) string {
 	// out: references 'Nsight RMM'
 	m := threatHuntingKeywordRe.FindStringSubmatch(s)
 	if len(m) > 0 {
-		return fmt.Sprintf("references '%s'", m[1])
+		return fmt.Sprintf("references '%s' tool", m[1])
 	}
 	return s
 }
@@ -297,7 +298,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 	packageRisks := []string{}
 
 	for _, m := range mrs {
-		risk := behaviorRisk(m.Namespace, m.Tags)
+		risk := behaviorRisk(m.Namespace, m.Rule, m.Tags)
 		if risk > overallRiskScore {
 			overallRiskScore = risk
 		}
