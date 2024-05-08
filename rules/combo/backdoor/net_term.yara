@@ -2,6 +2,7 @@
 rule readdir_openpty_socket : suspicious {
   meta:
     description = "Lists directories, opens pseudoterminals, resolves IPs"
+    hash_2024_Downloads_8cad = "8cad755bcf420135c0f406fb92138dcb0c1602bf72c15ed725bd3b76062dafe5"
   strings:
     $dlsym = "readdir" fullword
     $openpty = "openpty" fullword
@@ -49,6 +50,7 @@ rule python_pty_spawner : suspicious {
 rule spectralblur_alike : suspicious {
   meta:
     description = "uploads, provides a terminal, runs program"
+    hash_2024_SpectralBlur_macshare = "6f3e849ee0fe7a6453bd0408f0537fa894b17fc55bc9d1729ae035596f5c9220"
   strings:
     $upload = "upload"
     $shell = "shell"
@@ -64,6 +66,9 @@ rule spectralblur_alike : suspicious {
 rule miner_kvryr_stak_alike : suspicious {
   meta:
     description = "uploads, provides a terminal, runs program"
+    hash_2023_Linux_Malware_Samples_1b1a = "1b1a56aec5b02355b90f911cdd27a35d099690fcbeb0e0622eaea831d64014d3"
+    hash_2023_Linux_Malware_Samples_240f = "240fe01d9fcce5aae311e906b8311a1975f8c1431b83618f3d11aeaff10aede3"
+    hash_2023_Linux_Malware_Samples_39c3 = "39c33c261899f2cb91f686aa6da234175237cd72cfcd9291a6e51cbdc86d4def"
   strings:
     $upload = "upload"
     $shell = "shell"
@@ -75,6 +80,10 @@ rule miner_kvryr_stak_alike : suspicious {
 }
 
 rule proxy_http_aes_terminal_combo : notable {
+  meta:
+    hash_2023_Linux_Malware_Samples_00ae = "00ae07c9fe63b080181b8a6d59c6b3b6f9913938858829e5a42ab90fb72edf7a"
+    hash_2023_Linux_Malware_Samples_0ad6 = "0ad6c635d583de499148b1ec46d8b39ae2785303e8b81996d3e9e47934644e73"
+    hash_2023_Linux_Malware_Samples_19f7 = "19f76bf2be3ea11732f2c5c562afbd6f363b062c25fba3a143c3c6ef4712774b"
   strings:
     $isatty = "isatty"
     $socks_proxy = "socks proxy"
@@ -107,6 +116,7 @@ rule bpfdoor_alike : suspicious {
 rule dlsym_openpty_system : suspicious {
   meta:
     description = "Resolves library, opens terminal, calls shell"
+    hash_2024_Downloads_8cad = "8cad755bcf420135c0f406fb92138dcb0c1602bf72c15ed725bd3b76062dafe5"
   strings:
     $dlsym = "dlsym" fullword
     $openpty = "openpty" fullword

@@ -14,6 +14,9 @@ rule sysctl_machdep {
 rule macos_hardware_profiler : notable {
   meta:
     description = "Gathers hardware information"
+    hash_2023_Downloads_016a = "016a1a4fe3e9d57ab0b2a11e37ad94cc922290d2499b8d96957c3ddbdc516d74"
+    hash_2024_Downloads_0f66 = "0f66a4daba647486d2c9d838592cba298df2dbf38f2008b6571af8a562bc306c"
+    hash_2023_Downloads_21ca = "21ca44d382102e0ae33d02f499a5aa2a01e0749be956cbd417aae64085f28368"
   strings:
     $p_system_profiler = "system_profiler SPHardwareDataType"
     $p_uuid = "IOPlatformUUID"

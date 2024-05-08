@@ -1,5 +1,9 @@
 
 rule sigkill_multiple : notable {
+  meta:
+    hash_2023_Downloads_9929 = "99296550ab836f29ab7b45f18f1a1cb17a102bb81cad83561f615f3a707887d7"
+    hash_2024_Downloads_e241 = "e241a3808e1f8c4811759e1761e2fb31ce46ad1e412d65bb1ad9e697432bd4bd"
+    hash_2023_Downloads_f864 = "f864922f947a6bb7d894245b53795b54b9378c0f7633c521240488e86f60c2c5"
   strings:
     $s_xargs_kill_9 = "xargs kill -9"
     $s_kill_9_backtick = "kill -9 `"

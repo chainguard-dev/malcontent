@@ -1,6 +1,9 @@
+
 rule c2_implant_sliver_proto : critical {
   meta:
-	description = "Sliver C2 implant"
+    description = "Sliver C2 implant"
+    hash_2023_Downloads_78eb = "78eb647f3d2aae5c52fcdc46ac1b27fb5a388ad39abbe614c0cfc902d223ccd6"
+    hash_2023_Covid_softwareupdated = "d9bba1cfca6b1d20355ce08eda37d6d0bca8cb8141073b699000d05025510dcc"
   strings:
     $sliverpb = "sliverpb"
     $bishopfox = "bishopfox"
@@ -13,7 +16,9 @@ rule c2_implant_sliver_proto : critical {
 
 rule c2_implant_sliver_functions : critical {
   meta:
-	description = "Sliver C2 implant"
+    description = "Sliver C2 implant"
+    hash_2023_Downloads_78eb = "78eb647f3d2aae5c52fcdc46ac1b27fb5a388ad39abbe614c0cfc902d223ccd6"
+    hash_2023_Covid_softwareupdated = "d9bba1cfca6b1d20355ce08eda37d6d0bca8cb8141073b699000d05025510dcc"
   strings:
     $sliverpb = "GetImplantBuilds"
     $bishopfox = "GetBeaconJitter"
@@ -25,10 +30,11 @@ rule c2_implant_sliver_functions : critical {
 
 rule beaconjitter_xor : suspicious {
   meta:
-	description = "Sliver C2 implant"
+    description = "Sliver C2 implant"
+    hash_2023_Downloads_78eb = "78eb647f3d2aae5c52fcdc46ac1b27fb5a388ad39abbe614c0cfc902d223ccd6"
+    hash_2023_Covid_softwareupdated = "d9bba1cfca6b1d20355ce08eda37d6d0bca8cb8141073b699000d05025510dcc"
   strings:
-	// extracted from https://github.com/Neo23x0/god-mode-rules/blob/master/godmode.yar
-	$ref = "BeaconJitter" xor
+    $ref = "BeaconJitter" xor
   condition:
-     any of them
+    any of them
 }

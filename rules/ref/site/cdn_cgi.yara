@@ -2,6 +2,9 @@
 rule cdn_cgi : notable {
   meta:
     description = "Mentions Cloudflare cdn-cgi endpoint"
+    hash_2023_Downloads_5f73 = "5f73f54865a1be276d39f5426f497c21e44a309e165e5e2d02f5201e8c1f05e0"
+    hash_2024_Downloads_fd0b = "fd0b5348bbfd013359f9651268ee67a265bce4e3a1cacf61956e3246bac482e8"
+    hash_2023_Linux_Malware_Samples_1776 = "17769e5eb8cf401135e55b6c7258d613365baa6e69fb1c17c06806dad76bcc58"
   strings:
     $cdn_cgi = "cdn-cgi" fullword
     $not_ct = "https://report-uri.cloudflare.com/cdn-cgi/"

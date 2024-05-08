@@ -2,6 +2,7 @@
 rule systemd_not_in_dependency_tree : suspicious {
   meta:
     description = "Relies on nothing, nothing relies on it"
+    hash_2023_Downloads_kinsing = "05d02411668f4ebd576a24ac61cc84e617bdb66aa819581daa670c65f1a876f0"
   strings:
     $execstart = "ExecStart="
     $expect_after = /After=\w/

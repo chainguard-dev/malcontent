@@ -2,6 +2,7 @@
 rule c2_geacon_cobalt_strike : critical {
   meta:
     description = "Geacon is a Cobalt Strike beacon"
+    hash_2023_Downloads_21b3 = "21b3e304db526e2c80df1f2da2f69ab130bdad053cb6df1e05eb487a86a19b7c"
   strings:
     $geacon_coded = "geacon coded"
     $geacon = "geacon/"

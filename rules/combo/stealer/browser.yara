@@ -1,5 +1,9 @@
 
 rule multiple_browser_credentials : suspicious {
+  meta:
+    hash_2023_Downloads_016a = "016a1a4fe3e9d57ab0b2a11e37ad94cc922290d2499b8d96957c3ddbdc516d74"
+    hash_2023_Downloads_589d = "589dbb3f678511825c310447b6aece312a4471394b3bc40dde6c75623fc108c0"
+    hash_2023_Downloads_Brawl_Earth = "fe3ac61c701945f833f218c98b18dca704e83df2cf1a8994603d929f25d1cce2"
   strings:
     $c_library_keychains = "/Library/Keychains"
     $c_cookies_sqlite = "cookies.sqlite"
@@ -41,6 +45,9 @@ rule multiple_browser_credentials_2 {
 rule multiple_browser_refs : notable {
   meta:
     description = "Uses HTTP, archives, and references multiple browsers"
+    hash_2023_Downloads_016a = "016a1a4fe3e9d57ab0b2a11e37ad94cc922290d2499b8d96957c3ddbdc516d74"
+    hash_2024_Downloads_3105 = "31054fb826b57c362cc0f0dbc8af15b22c029c6b9abeeee9ba8d752f3ee17d7d"
+    hash_2023_Downloads_589d = "589dbb3f678511825c310447b6aece312a4471394b3bc40dde6c75623fc108c0"
   strings:
     $d_config = ".config" fullword
     $d_app_support = "Application Support" fullword

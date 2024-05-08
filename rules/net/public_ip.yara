@@ -34,6 +34,7 @@ rule iplookup_website_value : suspicious {
 rule iplookup_website_base64 : critical {
   meta:
     description = "public service to discover external IP address"
+    hash_2017_MacOS_AppStore = "4131d4737fe8dfe66d407bfd0a0df18a4a77b89347471cc012da8efc93c661a5"
   strings:
     $ipify_b = "ipify.org" base64
     $wtfismyip_b = "wtfismyip" base64
@@ -60,6 +61,9 @@ rule iplookup_website_xor : critical {
 rule python_list_comprehension : suspicious {
   meta:
     description = "discover IP address via socket connection"
+    hash_2023_libcurl_setup = "5deef153a6095cd263d5abb2739a7b18aa9acb7fb0d542a2b7ff75b3506877ac"
+    hash_2024_aaa_bbb_ccc_setup = "5deef153a6095cd263d5abb2739a7b18aa9acb7fb0d542a2b7ff75b3506877ac"
+    hash_2024_aaa_bbb_ccc_setup = "5deef153a6095cd263d5abb2739a7b18aa9acb7fb0d542a2b7ff75b3506877ac"
   strings:
     $ref = "[socket.socket(socket.AF_INET, socket.SOCK_DGRAM"
   condition:

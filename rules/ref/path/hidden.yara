@@ -3,6 +3,9 @@ rule dynamic_hidden_path : notable {
   meta:
     description = "hidden path generated dynamically"
     ref = "https://objective-see.org/blog/blog_0x73.html"
+    hash_2023_Linux_Malware_Samples_3292 = "329255e33f43e6e9ae5d5efd6f5c5745c35a30d42fb5099beb51a6e40fe9bd76"
+    hash_2023_Linux_Malware_Samples_d2ff = "d2fff992e40ce18ff81b9a92fa1cb93a56fb5a82c1cc428204552d8dfa1bc04f"
+    hash_2023_Linux_Malware_Samples_efa8 = "efa875506296d77178884ba8ac68a8b6d6aef24e79025359cf5259669396e8dd"
   strings:
     $ref = /%s\/\.[a-z][\w-]{0,32}/
     $config = "%s/.config"
@@ -40,6 +43,9 @@ rule hidden_path {
 rule hidden_library : suspicious {
   meta:
     description = "hidden path in a Library directory"
+    hash_2018_Calisto = "81c127c3cceaf44df10bb3ceb20ce1774f6a9ead0db4bd991abf39db828661cc"
+    hash_2022_CloudMensis_WindowServer = "317ce26cae14dc9a5e4d4667f00fee771b4543e91c944580bbb136e7fe339427"
+    hash_2020_MacOS_TinkaOTP = "90fbc26c65e4aa285a3f7ee6ff8a3a4318a8961ebca71d47f51ef0b4b7829fd0"
   strings:
     $hidden_library = /\/Library\/\.\w{1,128}/
     $not_dotdot = "/Library/../"

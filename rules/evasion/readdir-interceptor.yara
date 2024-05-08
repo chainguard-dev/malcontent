@@ -29,6 +29,7 @@ rule readdir_intercept_source : suspicious {
 rule lkm_dirent : suspicious {
   meta:
     description = "kernel rootkit designed to hide files"
+    hash_2023_LQvKibDTq4_diamorphine = "e93e524797907d57cb37effc8ebe14e6968f6bca899600561971e39dfd49831d"
   strings:
     $dirent = "linux_dirent"
     $Linux = "Linux"

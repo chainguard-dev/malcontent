@@ -14,6 +14,9 @@ rule fetch_chmod_run_oneliner_value : critical {
 rule curl_chmod_relative_run : notable {
   meta:
     description = "may fetch file, make it executable, and run it"
+    hash_2024_Downloads_4ba700b0e86da21d3dcd6b450893901c252bf817bd8792548fc8f389ee5aec78 = "fd3e21b8e2d8acf196cb63a23fc336d7078e72c2c3e168ee7851ea2bef713588"
+    hash_2023_Downloads_6e35 = "6e35b5670953b6ab15e3eb062b8a594d58936dd93ca382bbb3ebdbf076a1f83b"
+    hash_2023_Linux_Malware_Samples_df3b = "df3b41b28d5e7679cddb68f92ec98bce090af0b24484b4636d7d84f579658c52"
   strings:
     $chmcurlod = /curl [\-\w \$\@\{\w\/\.\:]{0,96}/
     $chmod = /chmod [\-\w \$\@\{\w\/\.]{0,64}/
@@ -25,6 +28,9 @@ rule curl_chmod_relative_run : notable {
 rule wget_chmod_relative_run : notable {
   meta:
     description = "may fetch file, make it executable, and run it"
+    hash_2024_Downloads_4ba700b0e86da21d3dcd6b450893901c252bf817bd8792548fc8f389ee5aec78 = "fd3e21b8e2d8acf196cb63a23fc336d7078e72c2c3e168ee7851ea2bef713588"
+    hash_2023_Downloads_6e35 = "6e35b5670953b6ab15e3eb062b8a594d58936dd93ca382bbb3ebdbf076a1f83b"
+    hash_2023_Linux_Malware_Samples_3059 = "305901aa920493695729132cfd20cbddc9db2cf861071450a646c6a07b4a50f3"
   strings:
     $chmcurlod = /wget [\-\w \$\@\{\w\/\.\:]{0,96}/
     $chmod = /chmod [\-\w \$\@\{\w\/\.]{0,64}/

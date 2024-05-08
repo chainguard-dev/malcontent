@@ -1,10 +1,13 @@
 
 rule shutdown_val : notable {
   meta:
-	description = "calls shutdown command"
+    description = "calls shutdown command"
+    hash_2023_init_d_netfs = "d8e9068316cfb0573fd86b4dbb60abb250ccf1bc9fbdc84b88b6452b01cbd8fa"
+    hash_2023_rc0_d_K75netfs = "d8e9068316cfb0573fd86b4dbb60abb250ccf1bc9fbdc84b88b6452b01cbd8fa"
+    hash_2023_rc1_d_K75netfs = "d8e9068316cfb0573fd86b4dbb60abb250ccf1bc9fbdc84b88b6452b01cbd8fa"
   strings:
-	$ref = /shutdown -[\w ]{0,16}/
-	$ref2 = "shutdown now"
+    $ref = /shutdown -[\w ]{0,16}/
+    $ref2 = "shutdown now"
   condition:
-	any of them
+    any of them
 }
