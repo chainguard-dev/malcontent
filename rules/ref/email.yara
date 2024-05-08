@@ -1,12 +1,3 @@
-rule email_addr : harmless {
-  meta:
-	description = "Contains an email address"
-  strings:
-    $e_re = /[\w\.]{1,32}[a-z]@[a-z][\w\.\-]{1,64}\.[a-z]{2,5}/ fullword
-  condition:
-    any of ($e*)
-}
-
 rule exotic_email_addr : notable {
   meta:
 	description = "Contains an exotic email address"

@@ -60,12 +60,6 @@ var yaraForgeJunkWords = map[string]bool{
 	"greyware":          true,
 }
 
-// dropRules are noisy 3rd party rules to silently ignore.
-var dropRules = map[string]bool{
-	"3P/godmoderules/iddqd/god/mode":         true,
-	"3P/threat_hunting_keywords/rdpassspray": true,
-}
-
 // authorWithURLRe matcehs "Arnim Rupp (https://github.com/ruppde)"
 var authorWithURLRe = regexp.MustCompile(`(.*?) \((http.*)\)`)
 
@@ -312,10 +306,6 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 			continue
 		}
 		key := generateKey(m.Namespace, m.Rule)
-		if dropRules[key] {
-			continue
-		}
-
 		ruleURL := generateRuleURL(m.Namespace, m.Rule)
 		packageRisks = append(packageRisks, key)
 
