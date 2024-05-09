@@ -80,7 +80,6 @@ func extractTar(ctx context.Context, d string, f string) error {
 		if err != nil {
 			return fmt.Errorf("failed to create file: %w", err)
 		}
-		defer f.Close()
 
 		if _, err := io.Copy(f, io.LimitReader(tr, maxBytes)); err != nil {
 			return fmt.Errorf("failed to copy file: %w", err)
@@ -97,6 +96,10 @@ func extractTar(ctx context.Context, d string, f string) error {
 			if err := extract(ctx, d, target); err != nil {
 				return fmt.Errorf("failed to extract nested archive: %w", err)
 			}
+		}
+
+		if err := f.Close(); err != nil {
+			return fmt.Errorf("failed to close file: %w", err)
 		}
 	}
 	return nil
@@ -172,9 +175,6 @@ func extractZip(ctx context.Context, d string, f string) error {
 	defer read.Close()
 
 	for _, file := range read.File {
-		if err != nil {
-			return fmt.Errorf("failed to open file in zip: %w", err)
-		}
 		name := filepath.Join(d, filepath.Clean(filepath.ToSlash(file.Name)))
 
 		// Check if a directory with the same name exists
@@ -196,7 +196,6 @@ func extractZip(ctx context.Context, d string, f string) error {
 			open.Close()
 			return fmt.Errorf("failed to open file in zip: %w", err)
 		}
-		defer open.Close()
 
 		err = os.MkdirAll(filepath.Dir(name), 0o755)
 		if err != nil {
@@ -209,7 +208,6 @@ func extractZip(ctx context.Context, d string, f string) error {
 			create.Close()
 			return fmt.Errorf("failed to create file: %w", err)
 		}
-		defer create.Close()
 
 		if _, err = io.Copy(create, io.LimitReader(open, maxBytes)); err != nil {
 			return fmt.Errorf("failed to copy file: %w", err)
@@ -227,6 +225,8 @@ func extractZip(ctx context.Context, d string, f string) error {
 				return fmt.Errorf("failed to extract nested archive: %w", err)
 			}
 		}
+		open.Close()
+		create.Close()
 	}
 	return nil
 }
@@ -248,12 +248,14 @@ func extractNestedArchive(
 		if _, err := os.Stat(fullPath); os.IsNotExist(err) {
 			return fmt.Errorf("file does not exist: %w", err)
 		}
-		if extract := extractionMethod(ext); extract == nil {
+		extract := extractionMethod(ext)
+		if extract == nil {
 			return fmt.Errorf("unsupported archive type: %s", ext)
-		} else {
-			if err := extract(ctx, d, fullPath); err != nil {
-				return fmt.Errorf("extract nested archive: %w", err)
-			}
+		}
+
+		err := extract(ctx, d, fullPath)
+		if err != nil {
+			return fmt.Errorf("extract nested archive: %w", err)
 		}
 		// Mark the file as extracted
 		extracted[f] = true
@@ -277,12 +279,13 @@ func extractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 		return "", fmt.Errorf("failed to create temp dir: %w", err)
 	}
 
-	if extract := extractionMethod(filepath.Ext(path)); extract == nil {
+	extract := extractionMethod(filepath.Ext(path))
+	if extract == nil {
 		return "", fmt.Errorf("unsupported archive type: %s", path)
-	} else {
-		if err := extract(ctx, tmpDir, path); err != nil {
-			return "", fmt.Errorf("extract: %w", err)
-		}
+	}
+	err = extract(ctx, tmpDir, path)
+	if err != nil {
+		return "", fmt.Errorf("extract: %w", err)
 	}
 
 	extractedFiles := make(map[string]bool)
