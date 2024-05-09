@@ -1,4 +1,4 @@
-rule freeport : notable {
+rule freeport : medium {
 	meta:
 		description = "find open TCP port to listen at"
 	strings:

@@ -1,16 +1,5 @@
+
 rule ransom_detection {
-  meta:
-    hash_2020_gonnacry = "f5de75a6db591fe6bb6b656aa1dcfc8f7fe0686869c34192bfa4ec092554a4ac"
-    hash_2023_RedAlert_redniev = "039e1765de1cdec65ad5e49266ab794f8e5642adb0bdeb78d8c0b77e8b34ae09"
-    hash_2023_HelloKitty_A = "556e5cb5e4e77678110961c8d9260a726a363e00bf8d278e5302cb4bfccc3eed"
-    hash_2022_babuk_conti = "8b57e96e90cd95fc2ba421204b482005fe41c28f506730b6148bcef8316a3201"
-    hash_2023_Sodinokibi = "f864922f947a6bb7d894245b53795b54b9378c0f7633c521240488e86f60c2c5"
-    hash_2023_LockBit_locker_Apple_M1_64 = "3e4bbd21756ae30c24ff7d6942656be024139f8180b7bddd4e5c62a9dfbd8c79"
-    hash_2021_TsunamiCNC = "450a7e35f13b57e15c8f4ce1fa23025a7c313931a394c40bd9f3325b981eb8a8"
-    hash_2021_trojan_Mirai_adconn = "458e3e66eff090bc5768779d5388336c8619a744f486962f5dfbf436a524ee04"
-    hash_2021_Merlin_ispoh = "683e1eb35561da89db96c94f400daf41390bd350698c739c38024a1f621653b3"
-    hash_2021_miner_TQ = "7955542df199c6ce4ca0bb3966dcf9cc71199c592fec38508dad58301a3298d0"
-    hash_2021_miner_whnqj = "9f20d2cf098609450792723a4410c6887fdaa00e53f207671fcf1eb22d9fb008"
   strings:
     $s_data_recovery = "data recovery"
     $s_to_my_address = "to my address"

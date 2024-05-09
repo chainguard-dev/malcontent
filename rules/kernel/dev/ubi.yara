@@ -1,4 +1,4 @@
-rule ubi : suspicious {
+rule ubi : high {
 	meta:
 		capability = "CAP_SYS_RAWIO"
 		description = "access raw unsorted block images (UBI)"

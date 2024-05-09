@@ -1,4 +1,4 @@
-rule fake_var_run : notable {
+rule fake_var_run : medium {
   meta:
     description = "References a likely fake name in /var/run"
   strings:

@@ -1,5 +1,5 @@
 
-rule systemd_no_comments_or_documentation : suspicious {
+rule systemd_no_comments_or_documentation : high {
   meta:
     ref = "https://sandflysecurity.com/blog/log4j-kinsing-linux-malware-in-the-wild/"
 	description = "systemd unit is undocumented"

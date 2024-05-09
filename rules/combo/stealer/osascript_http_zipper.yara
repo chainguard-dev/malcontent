@@ -1,5 +1,5 @@
 
-rule osascript_http_zipper : suspicious {
+rule osascript_http_zipper : high {
   meta:
 	description = "runs AppleScript, makes HTTP requests, zips files"
   strings:

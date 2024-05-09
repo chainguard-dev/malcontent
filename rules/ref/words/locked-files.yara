@@ -1,4 +1,4 @@
-rule lockedFiles : notable {
+rule lockedFiles : medium {
 	meta:
 		description = "References 'locked files'"
 	strings:
@@ -7,7 +7,7 @@ rule lockedFiles : notable {
 		any of them
 }
 
-rule lockedFileNames : notable {
+rule lockedFileNames : medium {
 	meta:
 		description = "References 'locked file names'"
 	strings:

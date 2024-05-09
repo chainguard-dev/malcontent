@@ -1,5 +1,5 @@
 
-rule php_copy_url {
+rule php_copy_url : high {
   meta:
     ref = "kinsing"
   strings:

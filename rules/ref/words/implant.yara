@@ -1,4 +1,4 @@
-rule implant : suspicious {
+rule implant : high {
 	meta:
 		description = "References an Implant"
 	strings:

@@ -1,4 +1,4 @@
-rule ssh_password_trace : suspicious {
+rule ssh_password_trace : high {
   meta:
     ref = "https://github.com/blendin/3snake"
 	description = "May access the memory map for sshd"

@@ -1,4 +1,4 @@
-rule zsh_persist : notable {
+rule zsh_persist : medium {
   meta:
 	description = "access zsh startup files"
   strings:
@@ -11,7 +11,7 @@ rule zsh_persist : notable {
     filesize < 2097152 and any of ($ref*) and none of ($not*)
 }
 
-rule zsh_logout_persist : suspicious {
+rule zsh_logout_persist : high {
   meta:
 	description = "Writes to zsh configuration files to persist"
   strings:

@@ -1,4 +1,4 @@
-rule crypto_fernet : notable {
+rule crypto_fernet : medium {
 	meta:
 		description = "Supports Fernet (symmetric encryption)"
 	strings:

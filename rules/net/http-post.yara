@@ -1,23 +1,25 @@
-rule http_post : notable {
-	meta:
-		pledge = "inet"
-		description = "submit content to websites"
-	strings:
-		$POST = "POST"
-		$h_HTTP = "HTTP"
-		$http = "http"
-	condition:
-		$POST and any of ($h*)
+
+rule http_post : medium {
+  meta:
+    pledge = "inet"
+    description = "submit content to websites"
+    hash_2023_0xShell_0xShellori = "506e12e4ce1359ffab46038c4bf83d3ab443b7c5db0d5c8f3ad05340cb09c38e"
+    hash_2023_0xShell_adminer = "2fd7e6d8f987b243ab1839249551f62adce19704c47d3d0c8dd9e57ea5b9c6b3"
+    hash_2023_0xShell_root = "3baa3bfaa6ed78e853828f147c3747d818590faee5eecef67748209dd3d92afb"
+  strings:
+    $POST = "POST"
+    $h_HTTP = "HTTP"
+    $http = "http"
+  condition:
+    $POST and any of ($h*)
 }
 
-rule form_data_reference : notable {
+rule form_data_reference : medium {
   meta:
-	description = "submit form content to websites"
-    hash_2019_trojan_NukeSped_Lazarus_AppleJeus = "e352d6ea4da596abfdf51f617584611fc9321d5a6d1c22aff243aecdef8e7e55"
-    hash_2014_trojan_Lamberts_greenlambert = "af7c395426649c57e44eac0bb6c6a109ac649763065ff5b2b23db71839bac655"
-    hash_2023_trojan_JokerSpy_Python = "aa951c053baf011d08f3a60a10c1d09bbac32f332413db5b38b8737558a08dc1"
-    hash_2021_CoinMiner_Sysrv = "5f80945354ea8e28fa8191a37d37235ce5c5448bffb336e8db5b01719a69128f"
-    hash_2023_UPX_0c25a05bdddc144fbf1ffa29372481b50ec6464592fdfb7dec95d9e1c6101d0d_elf_x86_64 = "818b80a08418f3bb4628edd4d766e4de138a58f409a89a5fdba527bab8808dd2"
+    description = "submit form content to websites"
+    hash_2019_restclient_payload = "97b4859cd7ff37977e76079c1b2dbe80adcbe80893afc6fb9876cac8d2373d10"
+    hash_2019_spec_payload_spec = "fe743cdfe68aa357cf60fc55704e20d49fd713038878dca427a47285b4bfa493"
+    hash_2023_Downloads_016a = "016a1a4fe3e9d57ab0b2a11e37ad94cc922290d2499b8d96957c3ddbdc516d74"
   strings:
     $f_content_dispo_name = "Content-Disposition: form-data; name="
     $f_multipart = "multipart/form-data; boundary="
