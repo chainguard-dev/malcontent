@@ -1,35 +1,38 @@
 
-rule macos_LaunchAgents : notable {
-	meta:
-		description = "persist via LaunchAgents"
-		platforms = "darwin"
-	strings:
-		$val = /[\~\/\.\w]{0,32}LaunchAgents[\/\w\%\$]{0,32}/ fullword
-	condition:
-		any of them
-}
-
-
-rule launchctl : notable {
-	meta:
-		description = "sets up a LaunchAgent and launches it"
-		platforms = "darwin"
-	strings:
-		$upper_val = /[\~\/\.\w]{0,32}LaunchAgents[\/\w\%\$]{0,32}/ fullword
-		$lower_val = /[\~\/\.\w]{0,32}launchagents[\/\w\%\$]{0,32}/ fullword
-		$launch= "launchctl"
-	condition:
-		$launch and ($upper_val or $lower_val)
-}
-
-rule macos_personal_launch_agent : notable {
+rule macos_LaunchAgents : medium {
   meta:
-	description = "sets up a personal launch agent"
-    hash_2011_bin_p_start = "490f96b3ce11827fe681e0e2bd71d622399f16c688e5fedef4f79089c7cf2856"
-    hash_2017_Dockster = "8da09fec9262d8bbeb07c4e403d1da88c04393c8fc5db408e1a3a3d86dddc552"
-    hash_2016_Eleanor_eleanr_script = "2c752b64069e9b078103adf8f5114281b7ce03f1ca7a995228f180140871999e"
-    hash_2021_Gmera_Licatrade = "ad27ae075010795c04a6c5f1303531f3f2884962be4d741bf38ced0180710d06"
-    hash_2018_CookieMiner_uploadminer = "6236f77899cea6c32baf0032319353bddfecaf088d20a4b45b855a320ba41e93"
+    description = "persist via LaunchAgents"
+    platforms = "darwin"
+    hash_2024_2019_02_Shlayer_Malware_a2ec = "a2ec5d9c80794c26a7eaac8586521f7b0eb24aba9ad393c194c86cfd150e5189"
+    hash_2024_2019_02_Shlayer_Malware_fd93 = "fd93c08678392eae99a1281577a54875a0e1920c49cdea6d56b53dabc4597803"
+    hash_2021_CDDS_UserAgent_v2019 = "9b71fad3280cf36501fe110e022845b29c1fb1343d5250769eada7c36bc45f70"
+  strings:
+    $val = /[\~\/\.\w]{0,32}LaunchAgents[\/\w\%\$]{0,32}/ fullword
+  condition:
+    any of them
+}
+
+rule launchctl : medium {
+  meta:
+    description = "sets up a LaunchAgent and launches it"
+    platforms = "darwin"
+    hash_2024_2019_02_Shlayer_Malware_a2ec = "a2ec5d9c80794c26a7eaac8586521f7b0eb24aba9ad393c194c86cfd150e5189"
+    hash_2024_2019_02_Shlayer_Malware_fd93 = "fd93c08678392eae99a1281577a54875a0e1920c49cdea6d56b53dabc4597803"
+    hash_2021_CDDS_client = "623f99cbe20af8b79cbfea7f485d47d3462d927153d24cac4745d7043c15619a"
+  strings:
+    $upper_val = /[\~\/\.\w]{0,32}LaunchAgents[\/\w\%\$]{0,32}/ fullword
+    $lower_val = /[\~\/\.\w]{0,32}launchagents[\/\w\%\$]{0,32}/ fullword
+    $launch = "launchctl"
+  condition:
+    $launch and ($upper_val or $lower_val)
+}
+
+rule macos_personal_launch_agent : medium {
+  meta:
+    description = "sets up a personal launch agent"
+    hash_2024_2019_02_Shlayer_Malware_a2ec = "a2ec5d9c80794c26a7eaac8586521f7b0eb24aba9ad393c194c86cfd150e5189"
+    hash_2024_2019_02_Shlayer_Malware_fd93 = "fd93c08678392eae99a1281577a54875a0e1920c49cdea6d56b53dabc4597803"
+    hash_2017_CallMe = "c4b6845e50fd4dce0fa69b25c7e9f7d25e6a04bbca23c279cc13f8b274d865c7"
   strings:
     $home_val = /\$HOME\/Library\/LaunchAgents[\.\/\w ]{0,32}/
     $tilde_val = /\~\/Library\/LaunchAgents[\.\/\w ]{0,32}/

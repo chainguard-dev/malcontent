@@ -1,4 +1,4 @@
-rule php_hidden_eval : suspicious {
+rule php_hidden_eval : high {
 	meta:
 		description = "Appears to hide and evaluate a function"
 	strings:

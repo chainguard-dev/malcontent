@@ -1,5 +1,5 @@
 
-rule bash_dev_udp : suspicious exfil {
+rule bash_dev_udp : high exfil {
   meta:
 	description = "uses /dev/udp for network access (bash)"
   strings:

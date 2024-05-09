@@ -1,4 +1,4 @@
-rule dev_mmc : suspicious {
+rule dev_mmc : high {
 	meta:
 		capability = "CAP_SYS_RAWIO"
 		description = "access raw SD/MMC devices"

@@ -1,4 +1,4 @@
-rule ssh_signature {
+rule ssh_signature : medium {
 	meta:
 		description = "Contains embedded SSH signature"
 	strings:

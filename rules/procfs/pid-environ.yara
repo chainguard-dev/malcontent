@@ -1,4 +1,4 @@
-rule proc_environ : suspicious {
+rule proc_environ : high {
 	meta:
 		description = "accesses environment variables of other processes"
 	strings:
