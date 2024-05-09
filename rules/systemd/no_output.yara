@@ -1,4 +1,4 @@
-rule systemd_no_output : suspicious {
+rule systemd_no_output : high {
   meta:
 	description = "Discards all logging output"
   strings:

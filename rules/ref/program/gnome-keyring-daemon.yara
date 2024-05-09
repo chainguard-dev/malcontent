@@ -1,4 +1,4 @@
-rule gnome_keyring_daemon : notable {
+rule gnome_keyring_daemon : medium {
   strings:
 	$ref = "gnome-keyring-da"
   condition:

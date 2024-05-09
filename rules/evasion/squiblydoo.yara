@@ -1,4 +1,4 @@
-rule squiblydoo : suspicious windows {
+rule squiblydoo : high windows {
   meta:
 	description = "uses regsrv32 to load a remote COM scriptlet"
 	ref = "https://socprime.com/blog/squiblydoo-attack-analysis-detection-and-mitigation/"

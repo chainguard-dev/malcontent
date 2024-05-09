@@ -1,4 +1,4 @@
-rule obfuscated_bypass_amsi : windows suspicious {
+rule obfuscated_bypass_amsi : windows high {
   meta:
 	description = "bypass AMSI (Anti-Malware Scan Interface)"
 	author = "Florian Roth"

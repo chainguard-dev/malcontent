@@ -1,4 +1,4 @@
-rule execstop_elsewhere : notable {
+rule execstop_elsewhere : medium {
   meta:
     ref = "https://www.trendmicro.com/en_us/research/23/c/iron-tiger-sysupdate-adds-linux-targeting.html"
 	description = "Runs program from unexpected directory at stop"

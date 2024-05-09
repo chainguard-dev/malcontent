@@ -1,4 +1,4 @@
-rule tail_byte_offsets : notable {
+rule tail_byte_offsets : medium {
   meta:
 	description = "uses the tail command with exotic offset values"
   strings:
@@ -7,7 +7,7 @@ rule tail_byte_offsets : notable {
     any of them
 }
 
-rule head_byte_offsets : notable {
+rule head_byte_offsets : medium {
   meta:
 	description = "uses the head command with exotic offset values"
   strings:

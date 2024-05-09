@@ -1,4 +1,4 @@
-rule merlin_c2 : suspicious {
+rule merlin_c2 : high {
   meta:
 	description = "XOR'ed shellcode from Brute Ratel"
 	author = "Florian Roth"

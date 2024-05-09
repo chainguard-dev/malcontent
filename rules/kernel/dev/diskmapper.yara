@@ -1,4 +1,4 @@
-rule dev_dm : notable {
+rule dev_dm : medium {
 	meta:
 		capability = "CAP_SYS_RAWIO"
 		description = "access raw LVM disk mapper devices"

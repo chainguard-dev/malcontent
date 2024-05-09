@@ -1,4 +1,4 @@
-rule dev_mqueue : notable {
+rule dev_mqueue : medium {
 	meta:
 		description = "path reference within /dev/mqueue (world writeable)"
 	strings:
@@ -7,7 +7,7 @@ rule dev_mqueue : notable {
 		any of them
 }
 
-rule dev_mqueue_hidden : suspicious {
+rule dev_mqueue_hidden : high {
 	meta:
 		description = "path reference within /dev/mqueue (world writeable)"
 	strings:

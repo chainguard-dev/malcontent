@@ -1,5 +1,5 @@
 
-rule interface_testing_service_user : notable {
+rule interface_testing_service_user : medium {
   strings:
     $mockbin_org = "mockbin.org"
     $run_mocky_io = "run.mocky.io"

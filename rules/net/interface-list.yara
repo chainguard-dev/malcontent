@@ -1,12 +1,15 @@
-rule bsd_ifaddrs : notable {
-	meta:
-		description = "list network interfaces"
-	strings:
-		$getifaddrs = "getifaddrs" fullword
-		$freeifaddrs = "freeifaddrs" fullword
-		$ifconfig = "ifconfig" fullword
-		$proc = "/proc/net/dev"
-	condition:
-		any of them
-}
 
+rule bsd_ifaddrs : medium {
+  meta:
+    description = "list network interfaces"
+    hash_2024_Downloads_036a = "036a2f04ab56b5e7098c7d866eb21307011b812f126793159be1c853a6a54796"
+    hash_2024_Downloads_0f66 = "0f66a4daba647486d2c9d838592cba298df2dbf38f2008b6571af8a562bc306c"
+    hash_2023_Downloads_2f13 = "2f1321c6cf0bc3cf955e86692bfc4ba836f5580c8b1469ce35aa250c97f0076e"
+  strings:
+    $getifaddrs = "getifaddrs" fullword
+    $freeifaddrs = "freeifaddrs" fullword
+    $ifconfig = "ifconfig" fullword
+    $proc = "/proc/net/dev"
+  condition:
+    any of them
+}

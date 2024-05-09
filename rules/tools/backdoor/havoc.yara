@@ -1,4 +1,4 @@
-rule havoc_c2_xor : suspicious {
+rule havoc_c2_xor : high {
   meta:
 	description = "Havoc C2 implant"
 	author = "Florian Roth"

@@ -1,4 +1,4 @@
-rule process_capabilities_val : notable {
+rule process_capabilities_val : medium {
   meta:
 	description = "enumerates Linux capabilities for process"
   strings:

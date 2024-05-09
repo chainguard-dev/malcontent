@@ -1,4 +1,4 @@
-rule dev_mtd : notable {
+rule dev_mtd : medium {
 	meta:
 		capability = "CAP_SYS_RAWIO"
 		description = "access raw flash memory devices"

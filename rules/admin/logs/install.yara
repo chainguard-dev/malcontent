@@ -1,4 +1,4 @@
-rule var_log_install : suspicious {
+rule var_log_install : high {
 	meta:
 		description = "accesses software installation logs"
 	strings:

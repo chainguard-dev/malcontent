@@ -1,25 +1,27 @@
 
 rule rm_force {
   meta:
-	description = "Forcibly deletes files using rm"
+    description = "Forcibly deletes files using rm"
   strings:
-	$ref = /rm [\-\w ]{0,4}-f[ \$\w\/\.]{0,32}/
+    $ref = /rm [\-\w ]{0,4}-f[ \$\w\/\.]{0,32}/
   condition:
-	$ref
+    $ref
 }
-
 
 rule rm_recursive_force : medium {
   meta:
-	description = "Forcibly recursively deletes files using rm -R"
+    description = "Forcibly recursively deletes files using rm -R"
+    hash_2023_anarchy = "1a6f8d758c6e569109a021c01cc4a5e787a9c876866c0ce5a15f07f266ec8059"
+    hash_2019_test_compass_test = "6647a368750892a379bb483096910fc3729312e6b2eb6bb964da8062013e300a"
+    hash_2019_test_sass_test = "fdcb3a53bb071031a5c44d0a7d554a085dceb9ed393a5e3940fda4471698c186"
   strings:
-	$ref = /rm -[Rr]f [ \$\w\/\.]{0,32}/
-	$ref2 = /rm -f[Rr] [ \$\w\/\.]{0,32}/
+    $ref = /rm -[Rr]f [ \$\w\/\.]{0,32}/
+    $ref2 = /rm -f[Rr] [ \$\w\/\.]{0,32}/
   condition:
-	any of them
+    any of them
 }
 
-rule background_rm_rf : suspicious {
+rule background_rm_rf : high {
   meta:
     ref = "https://cert.gov.ua/article/6123309"
     hash_2023_uacert_destructor = "50aea94a6e503d0d3f7c5aa0284746262a3d1afe092b369992070af94a4c1997"

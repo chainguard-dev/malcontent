@@ -1,5 +1,5 @@
 
-rule kmem : suspicious {
+rule kmem : high {
 	meta:
 		capability = "CAP_SYS_RAWIO"
 		description = "access raw kernel memory"
