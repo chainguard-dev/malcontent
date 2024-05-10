@@ -9,6 +9,7 @@ import (
 	"flag"
 	"fmt"
 	"io/fs"
+	"log"
 	"log/slog"
 	"os"
 	"strings"
@@ -16,6 +17,7 @@ import (
 	"github.com/chainguard-dev/bincapz/pkg/action"
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
 	"github.com/chainguard-dev/bincapz/pkg/compile"
+	"github.com/chainguard-dev/bincapz/pkg/profile"
 	"github.com/chainguard-dev/bincapz/pkg/render"
 	"github.com/chainguard-dev/bincapz/rules"
 	thirdparty "github.com/chainguard-dev/bincapz/third_party"
@@ -33,12 +35,17 @@ func main() {
 	minLevelFlag := flag.Int("min-level", 1, "minimum risk level to show results for (1=low, 2=medium, 3=high, 4=critical)")
 	ociFlag := flag.Bool("oci", false, "scan an OCI image")
 	omitEmptyFlag := flag.Bool("omit-empty", false, "omit files that contain no matches")
+	profileFlag := flag.Bool("profile", false, "generate profile and trace files")
 	statsFlag := flag.Bool("stats", false, "show statistics about the scan")
 	thirdPartyFlag := flag.Bool("third-party", true, "include third-party rules, which may have licensing restrictions")
 	verboseFlag := flag.Bool("verbose", false, "emit verbose logging messages to stderr")
 
 	flag.Parse()
 	args := flag.Args()
+
+	if err := profile.HandleProfileFlag(profileFlag); err != nil {
+		log.Fatal("profiling failed", slog.Any("error", err))
+	}
 
 	if len(args) == 0 {
 		fmt.Printf("usage: bincapz [flags] <directories>")
@@ -54,8 +61,8 @@ func main() {
 		logLevel.Set(slog.LevelDebug)
 	}
 
-	log := clog.New(slog.NewTextHandler(os.Stderr, logOpts))
-	ctx := clog.WithLogger(context.Background(), log)
+	logger := clog.New(slog.NewTextHandler(os.Stderr, logOpts))
+	ctx := clog.WithLogger(context.Background(), logger)
 	clog.FromContext(ctx).Info("bincapz starting")
 
 	ignoreTags := strings.Split(*ignoreTagsFlag, ",")
