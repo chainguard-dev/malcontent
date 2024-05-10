@@ -287,7 +287,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 		Path:      path,
 		SHA256:    ptCheck,
 		Meta:      map[string]string{},
-		Behaviors: map[string]bincapz.Behavior{},
+		Behaviors: map[string]*bincapz.Behavior{},
 	}
 
 	pledges := []string{}
@@ -295,10 +295,11 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 	syscalls := []string{}
 	overallRiskScore := 0
 	riskCounts := map[int]int{}
-	packageRisks := []string{}
+	risk := 0
+	key := ""
 
 	for _, m := range mrs {
-		risk := behaviorRisk(m.Namespace, m.Rule, m.Tags)
+		risk = behaviorRisk(m.Namespace, m.Rule, m.Tags)
 		if risk > overallRiskScore {
 			overallRiskScore = risk
 		}
@@ -306,20 +307,22 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 		if risk < minScore {
 			continue
 		}
-		key := generateKey(m.Namespace, m.Rule)
+		key = generateKey(m.Namespace, m.Rule)
 		ruleURL := generateRuleURL(m.Namespace, m.Rule)
-		packageRisks = append(packageRisks, key)
 
-		b := bincapz.Behavior{
+		b := &bincapz.Behavior{
 			RiskScore:    risk,
 			RiskLevel:    RiskLevels[risk],
 			MatchStrings: matchStrings(m.Rule, m.Strings),
 			RuleURL:      ruleURL,
 		}
 
+		k := ""
+		v := ""
+
 		for _, meta := range m.Metas {
-			k := meta.Identifier
-			v := fmt.Sprintf("%s", meta.Value)
+			k = meta.Identifier
+			v = fmt.Sprintf("%s", meta.Value)
 			// Empty data is unusual, so just ignore it.
 			if k == "" || v == "" {
 				continue
@@ -399,8 +402,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 
 		// If the existing description is longer,
 		if len(existing.Description) < len(b.Description) {
-			existing.Description = b.Description
-			fr.Behaviors[key] = existing
+			fr.Behaviors[key].Description = b.Description
 		}
 
 		// TODO: If we match multiple rules within a single namespace, merge matchstrings
@@ -418,7 +420,6 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 	fr.Capabilities = slices.Compact(caps)
 	fr.RiskScore = overallRiskScore
 	fr.RiskLevel = RiskLevels[fr.RiskScore]
-	fr.PackageRisk = packageRisks
 
 	return fr, nil
 }

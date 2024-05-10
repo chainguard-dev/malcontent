@@ -51,15 +51,7 @@
                 }
             },
             "RiskScore": 1,
-            "RiskLevel": "LOW",
-            "PackageRisk": [
-                "env/TERM",
-                "fs/directory/traverse",
-                "fs/link/read",
-                "meta/format/macho",
-                "meta/program_name"
-            ]
+            "RiskLevel": "LOW"
         }
-    },
-    "Diff": {}
+    }
 }
