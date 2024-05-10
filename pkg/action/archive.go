@@ -279,7 +279,8 @@ func extractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 		return "", fmt.Errorf("failed to create temp dir: %w", err)
 	}
 
-	extract := extractionMethod(filepath.Ext(path))
+	ext := getExt(path)
+	extract := extractionMethod(ext)
 	if extract == nil {
 		return "", fmt.Errorf("unsupported archive type: %s", path)
 	}
