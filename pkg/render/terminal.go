@@ -23,7 +23,7 @@ var maxExampleCount = 8
 
 type KeyedBehavior struct {
 	Key      string
-	Behavior bincapz.Behavior
+	Behavior *bincapz.Behavior
 }
 
 type tableConfig struct {
@@ -91,8 +91,8 @@ func ShortRisk(s string) string {
 	return short
 }
 
-func (r Terminal) File(ctx context.Context, fr bincapz.FileReport) error {
-	renderTable(ctx, &fr, r.w,
+func (r Terminal) File(ctx context.Context, fr *bincapz.FileReport) error {
+	renderTable(ctx, fr, r.w,
 		tableConfig{
 			Title: fmt.Sprintf("%s %s", fr.Path, darkBrackets(decorativeRisk(fr.RiskScore, fr.RiskLevel))),
 		},
@@ -100,10 +100,15 @@ func (r Terminal) File(ctx context.Context, fr bincapz.FileReport) error {
 	return nil
 }
 
-func (r Terminal) Full(ctx context.Context, rep bincapz.Report) error {
+func (r Terminal) Full(ctx context.Context, rep *bincapz.Report) error {
+	// Non-diff files are handled on the fly by File()
+	if rep.Diff == nil {
+		return nil
+	}
+
 	for f, fr := range rep.Diff.Removed {
 		fr := fr
-		renderTable(ctx, &fr, r.w, tableConfig{
+		renderTable(ctx, fr, r.w, tableConfig{
 			Title:       fmt.Sprintf("Deleted: %s %s", f, darkBrackets(decorativeRisk(fr.RiskScore, fr.RiskLevel))),
 			DiffRemoved: true,
 		})
@@ -111,7 +116,7 @@ func (r Terminal) Full(ctx context.Context, rep bincapz.Report) error {
 
 	for f, fr := range rep.Diff.Added {
 		fr := fr
-		renderTable(ctx, &fr, r.w, tableConfig{
+		renderTable(ctx, fr, r.w, tableConfig{
 			Title:     fmt.Sprintf("Added: %s %s", f, darkBrackets(decorativeRisk(fr.RiskScore, fr.RiskLevel))),
 			DiffAdded: true,
 		})
@@ -144,14 +149,14 @@ func (r Terminal) Full(ctx context.Context, rep bincapz.Report) error {
 		}
 
 		if added > 0 {
-			renderTable(ctx, &fr, r.w, tableConfig{
+			renderTable(ctx, fr, r.w, tableConfig{
 				Title:       color.HiWhiteString("+++ ADDED: %d behavior(s) +++", added),
 				SkipRemoved: true,
 			})
 		}
 
 		if removed > 0 {
-			renderTable(ctx, &fr, r.w, tableConfig{
+			renderTable(ctx, fr, r.w, tableConfig{
 				Title:     color.HiWhiteString("--- REMOVED: %d behavior(s) ---", removed),
 				SkipAdded: true,
 			})

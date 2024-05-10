@@ -131,7 +131,7 @@ func main() {
 		log.Fatal("failed", slog.Any("error", err))
 	}
 
-	err = renderer.Full(ctx, *res)
+	err = renderer.Full(ctx, res)
 	if err != nil {
 		log.Fatal("render failed", slog.Any("error", err))
 	}

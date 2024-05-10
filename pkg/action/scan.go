@@ -89,7 +89,7 @@ func recursiveScan(ctx context.Context, c Config) (*bincapz.Report, error) {
 	logger := clog.FromContext(ctx)
 	logger.Debug("scan", slog.Any("config", c))
 	r := &bincapz.Report{
-		Files: map[string]bincapz.FileReport{},
+		Files: map[string]*bincapz.FileReport{},
 	}
 	if len(c.IgnoreTags) > 0 {
 		r.Filter = strings.Join(c.IgnoreTags, ",")
@@ -194,11 +194,11 @@ func processFile(
 		if fr.RiskScore < c.MinFileScore {
 			return nil
 		}
-		if err := c.Renderer.File(ctx, *fr); err != nil {
+		if err := c.Renderer.File(ctx, fr); err != nil {
 			return fmt.Errorf("render: %w", err)
 		}
 	}
-	r.Files[path] = *fr
+	r.Files[path] = fr
 	return nil
 }
 

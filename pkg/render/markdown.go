@@ -41,20 +41,24 @@ func matchFragmentLink(s string) string {
 	return fmt.Sprintf("[%s](https://github.com/search?q=%s&type=code)", s, url.QueryEscape(s))
 }
 
-func (r Markdown) File(ctx context.Context, fr bincapz.FileReport) error {
-	markdownTable(ctx, &fr, r.w, tableConfig{Title: fmt.Sprintf("## %s [%s]", fr.Path, mdRisk(fr.RiskScore, fr.RiskLevel))})
+func (r Markdown) File(ctx context.Context, fr *bincapz.FileReport) error {
+	markdownTable(ctx, fr, r.w, tableConfig{Title: fmt.Sprintf("## %s [%s]", fr.Path, mdRisk(fr.RiskScore, fr.RiskLevel))})
 	return nil
 }
 
-func (r Markdown) Full(ctx context.Context, rep bincapz.Report) error {
+func (r Markdown) Full(ctx context.Context, rep *bincapz.Report) error {
+	if rep.Diff == nil {
+		return nil
+	}
+
 	for f, fr := range rep.Diff.Removed {
 		fr := fr
-		markdownTable(ctx, &fr, r.w, tableConfig{Title: fmt.Sprintf("## Deleted: %s [%s]", f, mdRisk(fr.RiskScore, fr.RiskLevel)), DiffRemoved: true})
+		markdownTable(ctx, fr, r.w, tableConfig{Title: fmt.Sprintf("## Deleted: %s [%s]", f, mdRisk(fr.RiskScore, fr.RiskLevel)), DiffRemoved: true})
 	}
 
 	for f, fr := range rep.Diff.Added {
 		fr := fr
-		markdownTable(ctx, &fr, r.w, tableConfig{Title: fmt.Sprintf("## Added: %s [%s]", f, mdRisk(fr.RiskScore, fr.RiskLevel)), DiffAdded: true})
+		markdownTable(ctx, fr, r.w, tableConfig{Title: fmt.Sprintf("## Added: %s [%s]", f, mdRisk(fr.RiskScore, fr.RiskLevel)), DiffAdded: true})
 	}
 
 	for f, fr := range rep.Diff.Modified {
@@ -85,14 +89,14 @@ func (r Markdown) Full(ctx context.Context, rep bincapz.Report) error {
 		}
 
 		if added > 0 {
-			markdownTable(ctx, &fr, r.w, tableConfig{
+			markdownTable(ctx, fr, r.w, tableConfig{
 				Title:       fmt.Sprintf("### %d new behaviors", added),
 				SkipRemoved: true,
 			})
 		}
 
 		if removed > 0 {
-			markdownTable(ctx, &fr, r.w, tableConfig{
+			markdownTable(ctx, fr, r.w, tableConfig{
 				Title:     fmt.Sprintf("### %d removed behaviors", removed),
 				SkipAdded: true,
 			})
