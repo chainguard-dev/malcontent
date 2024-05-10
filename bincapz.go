@@ -17,6 +17,7 @@ import (
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
 	"github.com/chainguard-dev/bincapz/pkg/compile"
 	"github.com/chainguard-dev/bincapz/pkg/render"
+	"github.com/chainguard-dev/bincapz/pkg/version"
 	"github.com/chainguard-dev/bincapz/rules"
 	thirdparty "github.com/chainguard-dev/bincapz/third_party"
 	"github.com/chainguard-dev/clog"
@@ -36,11 +37,12 @@ func main() {
 	statsFlag := flag.Bool("stats", false, "show statistics about the scan")
 	thirdPartyFlag := flag.Bool("third-party", true, "include third-party rules, which may have licensing restrictions")
 	verboseFlag := flag.Bool("verbose", false, "emit verbose logging messages to stderr")
+	versionFlag := flag.Bool("version", false, "show version information")
 
 	flag.Parse()
 	args := flag.Args()
 
-	if len(args) == 0 {
+	if len(args) == 0 && !*versionFlag {
 		fmt.Printf("usage: bincapz [flags] <directories>")
 		os.Exit(1)
 	}
@@ -52,6 +54,15 @@ func main() {
 	if *verboseFlag {
 		logOpts.AddSource = true
 		logLevel.Set(slog.LevelDebug)
+	}
+
+	if *versionFlag {
+		version, err := version.Version()
+		if err != nil {
+			fmt.Printf("bincapz unknown version\n")
+		}
+		fmt.Printf("%s\n", version)
+		os.Exit(0)
 	}
 
 	log := clog.New(slog.NewTextHandler(os.Stderr, logOpts))
