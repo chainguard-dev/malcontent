@@ -20,3 +20,6 @@ out/
 
 # macOS
 *.DS_Store
+
+# Profiling data
+profiles/

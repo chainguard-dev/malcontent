@@ -16,6 +16,7 @@ import (
 	"github.com/chainguard-dev/bincapz/pkg/action"
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
 	"github.com/chainguard-dev/bincapz/pkg/compile"
+	"github.com/chainguard-dev/bincapz/pkg/profile"
 	"github.com/chainguard-dev/bincapz/pkg/render"
 	"github.com/chainguard-dev/bincapz/pkg/version"
 	"github.com/chainguard-dev/bincapz/rules"
@@ -34,6 +35,7 @@ func main() {
 	minLevelFlag := flag.Int("min-level", 1, "minimum risk level to show results for (1=low, 2=medium, 3=high, 4=critical)")
 	ociFlag := flag.Bool("oci", false, "scan an OCI image")
 	omitEmptyFlag := flag.Bool("omit-empty", false, "omit files that contain no matches")
+	profileFlag := flag.Bool("profile", false, "generate profile and trace files")
 	statsFlag := flag.Bool("stats", false, "show statistics about the scan")
 	thirdPartyFlag := flag.Bool("third-party", true, "include third-party rules, which may have licensing restrictions")
 	verboseFlag := flag.Bool("verbose", false, "emit verbose logging messages to stderr")
@@ -42,21 +44,31 @@ func main() {
 	flag.Parse()
 	args := flag.Args()
 
+	logLevel := new(slog.LevelVar)
+	logLevel.Set(slog.LevelError)
+	logOpts := &slog.HandlerOptions{Level: logLevel}
+	log := clog.New(slog.NewTextHandler(os.Stderr, logOpts))
+
+	var stop func()
+	if *profileFlag {
+		var err error
+		stop, err = profile.Profile()
+		if err != nil {
+			log.Fatal("profiling failed", slog.Any("error", err))
+		}
+	}
+
 	if len(args) == 0 && !*versionFlag {
 		fmt.Printf("usage: bincapz [flags] <directories>")
 		os.Exit(1)
 	}
 
-	logLevel := new(slog.LevelVar)
-	logLevel.Set(slog.LevelError)
-	logOpts := &slog.HandlerOptions{Level: logLevel}
-
 	if *verboseFlag {
 		logOpts.AddSource = true
 		logLevel.Set(slog.LevelDebug)
 	}
-
-	if *versionFlag {
+  
+  if *versionFlag {
 		ver, err := version.Version()
 		if err != nil {
 			fmt.Printf("bincapz unknown version\n")
@@ -65,7 +77,6 @@ func main() {
 		os.Exit(0)
 	}
 
-	log := clog.New(slog.NewTextHandler(os.Stderr, logOpts))
 	ctx := clog.WithLogger(context.Background(), log)
 	clog.FromContext(ctx).Info("bincapz starting")
 
@@ -122,6 +133,10 @@ func main() {
 
 	err = renderer.Full(ctx, *res)
 	if err != nil {
-		clog.Fatal("render failed", slog.Any("error", err))
+		log.Fatal("render failed", slog.Any("error", err))
+	}
+
+	if *profileFlag {
+		stop()
 	}
 }
