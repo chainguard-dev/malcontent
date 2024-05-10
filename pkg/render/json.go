@@ -20,11 +20,11 @@ func NewJSON(w io.Writer) JSON {
 	return JSON{w: w}
 }
 
-func (r JSON) File(_ context.Context, _ bincapz.FileReport) error {
+func (r JSON) File(_ context.Context, _ *bincapz.FileReport) error {
 	return nil
 }
 
-func (r JSON) Full(_ context.Context, rep bincapz.Report) error {
+func (r JSON) Full(_ context.Context, rep *bincapz.Report) error {
 	j, err := json.MarshalIndent(rep, "", "    ")
 	if err != nil {
 		return err

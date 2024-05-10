@@ -14,7 +14,7 @@ import (
 	"github.com/chainguard-dev/clog"
 )
 
-func relFileReport(ctx context.Context, c Config, path string) (map[string]bincapz.FileReport, error) {
+func relFileReport(ctx context.Context, c Config, path string) (map[string]*bincapz.FileReport, error) {
 	fromPath := path
 	fromConfig := c
 	fromConfig.Renderer = nil
@@ -23,7 +23,7 @@ func relFileReport(ctx context.Context, c Config, path string) (map[string]binca
 	if err != nil {
 		return nil, err
 	}
-	fromRelPath := map[string]bincapz.FileReport{}
+	fromRelPath := map[string]*bincapz.FileReport{}
 	for _, f := range fromReport.Files {
 		if f.Skipped != "" || f.Error != "" {
 			continue
@@ -54,10 +54,10 @@ func Diff(ctx context.Context, c Config) (*bincapz.Report, error) {
 		return nil, err
 	}
 
-	d := bincapz.DiffReport{
-		Added:    map[string]bincapz.FileReport{},
-		Removed:  map[string]bincapz.FileReport{},
-		Modified: map[string]bincapz.FileReport{},
+	d := &bincapz.DiffReport{
+		Added:    map[string]*bincapz.FileReport{},
+		Removed:  map[string]*bincapz.FileReport{},
+		Modified: map[string]*bincapz.FileReport{},
 	}
 
 	// things that appear in the source
@@ -73,9 +73,9 @@ func Diff(ctx context.Context, c Config) (*bincapz.Report, error) {
 			continue
 		}
 
-		rbs := bincapz.FileReport{
+		rbs := &bincapz.FileReport{
 			Path:              tr.Path,
-			Behaviors:         map[string]bincapz.Behavior{},
+			Behaviors:         map[string]*bincapz.Behavior{},
 			PreviousRiskScore: fr.RiskScore,
 			PreviousRiskLevel: fr.RiskLevel,
 			RiskLevel:         tr.RiskLevel,
@@ -107,9 +107,9 @@ func Diff(ctx context.Context, c Config) (*bincapz.Report, error) {
 			continue
 		}
 
-		abs := bincapz.FileReport{
+		abs := &bincapz.FileReport{
 			Path:              tr.Path,
-			Behaviors:         map[string]bincapz.Behavior{},
+			Behaviors:         map[string]*bincapz.Behavior{},
 			PreviousRiskScore: fr.RiskScore,
 			PreviousRiskLevel: fr.RiskLevel,
 
@@ -151,12 +151,12 @@ func Diff(ctx context.Context, c Config) (*bincapz.Report, error) {
 			}
 
 			// We think that this file moved from rpath to apath.
-			abs := bincapz.FileReport{
+			abs := &bincapz.FileReport{
 				Path:                 tr.Path,
 				PreviousRelPath:      rpath,
 				PreviousRelPathScore: score,
 
-				Behaviors:         map[string]bincapz.Behavior{},
+				Behaviors:         map[string]*bincapz.Behavior{},
 				PreviousRiskScore: fr.RiskScore,
 				PreviousRiskLevel: fr.RiskLevel,
 
