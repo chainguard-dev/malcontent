@@ -57,11 +57,11 @@ func main() {
 	}
 
 	if *versionFlag {
-		version, err := version.Version()
+		ver, err := version.Version()
 		if err != nil {
 			fmt.Printf("bincapz unknown version\n")
 		}
-		fmt.Printf("%s\n", version)
+		fmt.Printf("%s\n", ver)
 		os.Exit(0)
 	}
 
