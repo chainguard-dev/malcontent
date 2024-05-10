@@ -169,6 +169,23 @@ If you find malware that `bincapz` doesn't surface suspicious behaviors for, sen
 
 ### Troubleshooting
 
+#### Profiling
+
+`bincapz` can be profiled by running `--profile=true`. This will generate timestamped profiles in an untracked `profiles` directory:
+```
+bash-5.2$ ls -l profiles/ | grep -v "total" | awk '{ print $9 }'
+cpu_329605000.pprof
+mem_329605000.pprof
+trace_329605000.out
+```
+
+The traces can be inspected via `go tool pprof` and `go tool trace`.
+
+For example, the memory profile can be inspected by running:
+```
+go tool pprof -http=:8080 profiles/mem_<timestamp>.pprof
+```
+
 #### Error: ld: library 'yara' not found
 
 If you get this error at installation:
