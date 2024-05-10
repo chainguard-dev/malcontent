@@ -35,6 +35,10 @@ func (r Simple) File(_ context.Context, fr *bincapz.FileReport) error {
 }
 
 func (r Simple) Full(_ context.Context, rep *bincapz.Report) error {
+	if rep.Diff == nil {
+		return nil
+	}
+
 	for f, fr := range rep.Diff.Removed {
 		fmt.Fprintf(r.w, "--- missing: %s\n", f)
 

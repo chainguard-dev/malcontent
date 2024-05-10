@@ -47,6 +47,10 @@ func (r Markdown) File(ctx context.Context, fr *bincapz.FileReport) error {
 }
 
 func (r Markdown) Full(ctx context.Context, rep *bincapz.Report) error {
+	if rep.Diff == nil {
+		return nil
+	}
+
 	for f, fr := range rep.Diff.Removed {
 		fr := fr
 		markdownTable(ctx, fr, r.w, tableConfig{Title: fmt.Sprintf("## Deleted: %s [%s]", f, mdRisk(fr.RiskScore, fr.RiskLevel)), DiffRemoved: true})
