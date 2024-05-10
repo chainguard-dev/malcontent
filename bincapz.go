@@ -67,8 +67,8 @@ func main() {
 		logOpts.AddSource = true
 		logLevel.Set(slog.LevelDebug)
 	}
-  
-  if *versionFlag {
+
+	if *versionFlag {
 		ver, err := version.Version()
 		if err != nil {
 			fmt.Printf("bincapz unknown version\n")
