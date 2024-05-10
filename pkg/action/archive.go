@@ -29,6 +29,7 @@ func extractTar(ctx context.Context, d string, f string) error {
 		return fmt.Errorf("failed to stat file: %w", err)
 	}
 
+	filename := filepath.Base(f)
 	tf, err := os.Open(f)
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
@@ -36,7 +37,6 @@ func extractTar(ctx context.Context, d string, f string) error {
 	defer tf.Close()
 
 	tr := tar.NewReader(tf)
-
 	if strings.Contains(f, ".apk") || strings.Contains(f, ".tar.gz") || strings.Contains(f, ".tgz") {
 		gzStream, err := gzip.NewReader(tf)
 		if err != nil {
@@ -44,8 +44,7 @@ func extractTar(ctx context.Context, d string, f string) error {
 		}
 		defer gzStream.Close()
 		tr = tar.NewReader(gzStream)
-	}
-	if strings.Contains(f, ".tar.xz") {
+	} else if strings.Contains(filename, ".tar.xz") {
 		xzStream, err := xz.NewReader(tf)
 		if err != nil {
 			return fmt.Errorf("failed to create xz reader: %w", err)
@@ -86,10 +85,75 @@ func extractTar(ctx context.Context, d string, f string) error {
 			return fmt.Errorf("failed to copy file: %w", err)
 		}
 
+		// If the file is an archive, recursively extract it
+		ext := getExt(target)
+		if _, ok := archiveMap[ext]; ok {
+			// determine the file type to choose the right extraction method
+			extract := extractionMethod(ext)
+			if extract == nil {
+				return fmt.Errorf("unsupported archive type: %s", ext)
+			}
+			if err := extract(ctx, d, target); err != nil {
+				return fmt.Errorf("failed to extract nested archive: %w", err)
+			}
+		}
+
 		if err := f.Close(); err != nil {
 			return fmt.Errorf("failed to close file: %w", err)
 		}
 	}
+	return nil
+}
+
+// extractGzip extracts .gz archives.
+func extractGzip(ctx context.Context, d string, f string) error {
+	logger := clog.FromContext(ctx).With("dir", d, "file", f)
+	logger.Info("extracting gzip")
+
+	// Check if the file is valid
+	_, err := os.Stat(f)
+	if err != nil {
+		return fmt.Errorf("failed to stat file: %w", err)
+	}
+
+	gf, err := os.Open(f)
+	if err != nil {
+		return fmt.Errorf("failed to open file: %w", err)
+	}
+	defer gf.Close()
+
+	gr, err := gzip.NewReader(gf)
+	if err != nil {
+		return fmt.Errorf("failed to create gzip reader: %w", err)
+	}
+	defer gr.Close()
+
+	base := filepath.Base(f)
+	target := filepath.Join(d, base[:len(base)-len(filepath.Ext(base))])
+
+	ef, err := os.Create(target)
+	if err != nil {
+		return fmt.Errorf("failed to create extracted file: %w", err)
+	}
+	defer ef.Close()
+
+	if _, err := io.Copy(ef, io.LimitReader(gr, maxBytes)); err != nil {
+		return fmt.Errorf("failed to copy file: %w", err)
+	}
+
+	// If the file is an archive, recursively extract it
+	ext := getExt(target)
+	if _, ok := archiveMap[ext]; ok {
+		// determine the file type to choose the right extraction method
+		extract := extractionMethod(ext)
+		if extract == nil {
+			return fmt.Errorf("unsupported archive type: %s", ext)
+		}
+		if err := extract(ctx, d, target); err != nil {
+			return fmt.Errorf("failed to extract nested archive: %w", err)
+		}
+	}
+
 	return nil
 }
 
@@ -149,28 +213,58 @@ func extractZip(ctx context.Context, d string, f string) error {
 			return fmt.Errorf("failed to copy file: %w", err)
 		}
 
+		// If the file is an archive, recursively extract it
+		ext := getExt(name)
+		if _, ok := archiveMap[ext]; ok {
+			// determine the file type to choose the right extraction method
+			extract := extractionMethod(ext)
+			if extract == nil {
+				return fmt.Errorf("unsupported archive type: %s", ext)
+			}
+			if err := extract(ctx, d, name); err != nil {
+				return fmt.Errorf("failed to extract nested archive: %w", err)
+			}
+		}
 		open.Close()
 		create.Close()
 	}
 	return nil
 }
 
-// extractArchive specifies which extraction method to use based on the archive type.
-func extractArchive(ctx context.Context, d string, f string) error {
-	switch {
-	// .jar and .zip files can be extracted using the same method
-	case strings.Contains(f, ".jar") || strings.Contains(f, ".zip"):
-		if err := extractZip(ctx, d, f); err != nil {
-			return fmt.Errorf("extract zip: %w", err)
+func extractNestedArchive(
+	ctx context.Context,
+	d string,
+	f string,
+	extracted map[string]bool,
+) error {
+	isArchive := false
+	ext := getExt(f)
+	if _, ok := archiveMap[ext]; ok {
+		isArchive = true
+	}
+	if isArchive {
+		// Ensure the file was extracted and exists
+		fullPath := filepath.Join(d, f)
+		if _, err := os.Stat(fullPath); os.IsNotExist(err) {
+			return fmt.Errorf("file does not exist: %w", err)
 		}
-	// .apk and .tar* files can be extracted using the same method
-	case strings.Contains(f, ".apk") || strings.Contains(f, ".tar") || strings.Contains(f, ".tgz"):
-		if err := extractTar(ctx, d, f); err != nil {
-			return fmt.Errorf("extract tar: %w", err)
+		extract := extractionMethod(ext)
+		if extract == nil {
+			return fmt.Errorf("unsupported archive type: %s", ext)
 		}
-	// Unsupported archive type
-	default:
-		return fmt.Errorf("unsupported archive type: %s", f)
+
+		err := extract(ctx, d, fullPath)
+		if err != nil {
+			return fmt.Errorf("extract nested archive: %w", err)
+		}
+		// Mark the file as extracted
+		extracted[f] = true
+
+		// Remove the nested archive file
+		// This is done to prevent the file from being scanned
+		if err := os.Remove(fullPath); err != nil {
+			return fmt.Errorf("failed to remove file: %w", err)
+		}
 	}
 	return nil
 }
@@ -185,9 +279,43 @@ func extractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 		return "", fmt.Errorf("failed to create temp dir: %w", err)
 	}
 
-	if err := extractArchive(ctx, tmpDir, path); err != nil {
+	extract := extractionMethod(filepath.Ext(path))
+	if extract == nil {
+		return "", fmt.Errorf("unsupported archive type: %s", path)
+	}
+	err = extract(ctx, tmpDir, path)
+	if err != nil {
 		return "", fmt.Errorf("extract: %w", err)
 	}
 
+	extractedFiles := make(map[string]bool)
+	files, err := os.ReadDir(tmpDir)
+	if err != nil {
+		return "", fmt.Errorf("failed to read directory: %w", err)
+	}
+
+	for _, file := range files {
+		extractedFiles[filepath.Base(file.Name())] = false
+	}
+
+	for file := range extractedFiles {
+		if err := extractNestedArchive(ctx, tmpDir, file, extractedFiles); err != nil {
+			return "", fmt.Errorf("extract nested archive: %w", err)
+		}
+	}
+
 	return tmpDir, nil
+}
+
+func extractionMethod(ext string) func(context.Context, string, string) error {
+	switch ext {
+	case ".jar", ".zip":
+		return extractZip
+	case ".gz":
+		return extractGzip
+	case ".apk", ".gem", ".tar", ".tar.gz", ".tgz":
+		return extractTar
+	default:
+		return nil
+	}
 }
