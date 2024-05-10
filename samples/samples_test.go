@@ -76,7 +76,7 @@ func TestJSON(t *testing.T) {
 				t.Fatalf("scan failed: %v", err)
 			}
 
-			if err := render.Full(ctx, *res); err != nil {
+			if err := render.Full(ctx, res); err != nil {
 				t.Fatalf("full: %v", err)
 			}
 
@@ -140,7 +140,7 @@ func TestSimple(t *testing.T) {
 				t.Fatalf("scan failed: %v", err)
 			}
 
-			if err := simple.Full(ctx, *res); err != nil {
+			if err := simple.Full(ctx, res); err != nil {
 				t.Fatalf("full: %v", err)
 			}
 
@@ -213,7 +213,7 @@ func TestDiff(t *testing.T) {
 				t.Fatalf("diff failed: %v", err)
 			}
 
-			if err := simple.Full(ctx, *res); err != nil {
+			if err := simple.Full(ctx, res); err != nil {
 				t.Fatalf("full: %v", err)
 			}
 
@@ -287,7 +287,7 @@ func TestMarkdown(t *testing.T) {
 				t.Fatalf("scan failed: %v", err)
 			}
 
-			if err := simple.Full(ctx, *res); err != nil {
+			if err := simple.Full(ctx, res); err != nil {
 				t.Fatalf("full: %v", err)
 			}
 
