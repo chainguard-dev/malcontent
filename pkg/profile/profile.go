@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func profile() (func(), error) {
+func Profile() (func(), error) {
 	timestamp := time.Now().Nanosecond()
 
 	// Create the profiles directory if it does not already exist
@@ -72,16 +72,4 @@ func profile() (func(), error) {
 	}
 
 	return stop, nil
-}
-
-func HandleProfileFlag(pf *bool) error {
-	if *pf {
-		stop, err := profile()
-		if err != nil {
-			return err
-		}
-		defer stop()
-	}
-
-	return nil
 }

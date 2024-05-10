@@ -9,7 +9,6 @@ import (
 	"flag"
 	"fmt"
 	"io/fs"
-	"log"
 	"log/slog"
 	"os"
 	"strings"
@@ -43,8 +42,18 @@ func main() {
 	flag.Parse()
 	args := flag.Args()
 
-	if err := profile.HandleProfileFlag(profileFlag); err != nil {
-		log.Fatal("profiling failed", slog.Any("error", err))
+	logLevel := new(slog.LevelVar)
+	logLevel.Set(slog.LevelError)
+	logOpts := &slog.HandlerOptions{Level: logLevel}
+	log := clog.New(slog.NewTextHandler(os.Stderr, logOpts))
+
+	var stop func()
+	if *profileFlag {
+		var err error
+		stop, err = profile.Profile()
+		if err != nil {
+			log.Fatal("profiling failed", slog.Any("error", err))
+		}
 	}
 
 	if len(args) == 0 {
@@ -52,17 +61,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	logLevel := new(slog.LevelVar)
-	logLevel.Set(slog.LevelError)
-	logOpts := &slog.HandlerOptions{Level: logLevel}
-
 	if *verboseFlag {
 		logOpts.AddSource = true
 		logLevel.Set(slog.LevelDebug)
 	}
 
-	logger := clog.New(slog.NewTextHandler(os.Stderr, logOpts))
-	ctx := clog.WithLogger(context.Background(), logger)
+	ctx := clog.WithLogger(context.Background(), log)
 	clog.FromContext(ctx).Info("bincapz starting")
 
 	ignoreTags := strings.Split(*ignoreTagsFlag, ",")
@@ -118,6 +122,10 @@ func main() {
 
 	err = renderer.Full(ctx, *res)
 	if err != nil {
-		clog.Fatal("render failed", slog.Any("error", err))
+		log.Fatal("render failed", slog.Any("error", err))
+	}
+
+	if *profileFlag {
+		stop()
 	}
 }
