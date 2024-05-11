@@ -259,7 +259,6 @@ func TestScanArchive(t *testing.T) {
 	sortedBytes := sorted(outBytes)
 	got := string(sortedBytes)
 
-	// load the contents of testdata/scan_archive
 	td, err := os.ReadFile("testdata/scan_archive")
 	if err != nil {
 		t.Fatalf("testdata read failed: %v", err)
