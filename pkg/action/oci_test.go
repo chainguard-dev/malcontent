@@ -41,6 +41,9 @@ func TestOCI(t *testing.T) {
 	}
 
 	sp, err := oci(ctx, "cgr.dev/chainguard/static")
+	if err != nil {
+		t.Fatalf("oci: %v", err)
+	}
 
 	bc := Config{
 		IgnoreSelf: false,
