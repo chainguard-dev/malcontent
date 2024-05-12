@@ -63,6 +63,38 @@ func findFilesRecursively(ctx context.Context, root string, c Config) ([]string,
 	return files, err
 }
 
+// cleanPath removes the temporary directory prefix from the path.
+func cleanPath(path string) string {
+	if linuxPattern.MatchString(path) {
+		path = linuxPattern.ReplaceAllString(path, "")
+	}
+	if macOSPattern.MatchString(path) {
+		path = macOSPattern.ReplaceAllString(path, "")
+	}
+	if windowsPattern.MatchString(path) {
+		path = windowsPattern.ReplaceAllString(path, "")
+	}
+	return path
+}
+
+// formatPath formats the path for display.
+func formatPath(path string) string {
+	if strings.Contains(path, "\\") {
+		path = strings.ReplaceAll(path, "\\", "/")
+	}
+	p := strings.TrimPrefix(path, "/")
+	fmt.Println(p)
+
+	ps := strings.Split(p, "/")
+	fp := make([]string, 0, len(ps))
+	for _, s := range ps {
+		if s != "" {
+			fp = append(fp, s)
+		}
+	}
+	return strings.Join(fp, " ∴ ")
+}
+
 func scanSinglePath(ctx context.Context, c Config, yrs *yara.Rules, path string, absPath string) (*bincapz.FileReport, error) {
 	logger := clog.FromContext(ctx)
 	var mrs yara.MatchRules
@@ -88,28 +120,7 @@ func scanSinglePath(ctx context.Context, c Config, yrs *yara.Rules, path string,
 	// If absPath is provided, use it instead of the path if they are different.
 	// This is useful when scanning images and archives.
 	if absPath != "" && absPath != path {
-		cleanPath := func(p string) string {
-			if linuxPattern.MatchString(p) {
-				p = linuxPattern.ReplaceAllString(p, "")
-			}
-			if macOSPattern.MatchString(p) {
-				p = macOSPattern.ReplaceAllString(p, "")
-			}
-			if windowsPattern.MatchString(p) {
-				p = windowsPattern.ReplaceAllString(p, "")
-			}
-			p = strings.TrimPrefix(p, "/")
-			ps := strings.Split(p, "/")
-			fp := make([]string, 0, len(ps))
-			for _, s := range ps {
-				if s != "" {
-					fp = append(fp, s)
-				}
-			}
-			return strings.Join(fp, " ∴ ")
-		}(path)
-
-		fr.Path = fmt.Sprintf("%s ∴ %s", absPath, cleanPath)
+		fr.Path = fmt.Sprintf("%s ∴ %s", absPath, formatPath(cleanPath(path)))
 	}
 
 	if len(fr.Behaviors) == 0 && c.OmitEmpty {
