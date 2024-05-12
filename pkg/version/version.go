@@ -27,7 +27,7 @@ func getBinaryVersion() (string, error) {
 	}
 
 	for _, setting := range buildInfo.Settings {
-		if setting.Key == "main.version" {
+		if setting.Key == "main.BuildVersion" {
 			return setting.Value, nil
 		}
 	}
