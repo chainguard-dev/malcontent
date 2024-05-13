@@ -33,6 +33,7 @@ func main() {
 	minFileLevelFlag := flag.Int("min-file-level", 0, "only show results for files that meet this risk level (1=low, 2=medium, 3=high, 4=critical)")
 	minLevelFlag := flag.Int("min-level", 1, "minimum risk level to show results for (1=low, 2=medium, 3=high, 4=critical)")
 	ociFlag := flag.Bool("oci", false, "scan an OCI image")
+	outputFlag := flag.String("o", "", "write output to this path instead of stdout")
 	omitEmptyFlag := flag.Bool("omit-empty", false, "omit files that contain no matches")
 	profileFlag := flag.Bool("profile", false, "generate profile and trace files")
 	statsFlag := flag.Bool("stats", false, "show statistics about the scan")
@@ -80,7 +81,19 @@ func main() {
 		*ignoreSelfFlag = false
 	}
 
-	renderer, err := render.New(*formatFlag, os.Stdout)
+	outFile := os.Stdout
+	var err error
+	if *outputFlag != "" {
+		outFile, err = os.OpenFile(*outputFlag, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600)
+		if err != nil {
+			log.Fatal("open file", slog.Any("error", err), slog.String("path", *outputFlag))
+		}
+	}
+	defer func() {
+		outFile.Close()
+	}()
+
+	renderer, err := render.New(*formatFlag, outFile)
 	if err != nil {
 		log.Fatal("invalid format", slog.Any("error", err), slog.String("format", *formatFlag))
 	}
