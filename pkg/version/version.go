@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	ID string = "0.11.0"
+	ID string = "v0.12.0"
 )
 
 // Check if the build info contains a version.
