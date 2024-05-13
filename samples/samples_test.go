@@ -10,6 +10,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -75,7 +76,7 @@ func TestJSON(t *testing.T) {
 				t.Fatalf("scan failed: %v", err)
 			}
 
-			if err := render.Full(ctx, *res); err != nil {
+			if err := render.Full(ctx, res); err != nil {
 				t.Fatalf("full: %v", err)
 			}
 
@@ -139,7 +140,7 @@ func TestSimple(t *testing.T) {
 				t.Fatalf("scan failed: %v", err)
 			}
 
-			if err := simple.Full(ctx, *res); err != nil {
+			if err := simple.Full(ctx, res); err != nil {
 				t.Fatalf("full: %v", err)
 			}
 
@@ -212,7 +213,7 @@ func TestDiff(t *testing.T) {
 				t.Fatalf("diff failed: %v", err)
 			}
 
-			if err := simple.Full(ctx, *res); err != nil {
+			if err := simple.Full(ctx, res); err != nil {
 				t.Fatalf("full: %v", err)
 			}
 
@@ -222,6 +223,16 @@ func TestDiff(t *testing.T) {
 			}
 		})
 	}
+}
+
+// reduceMarkdown reduces markdown output to simply diff output.
+func reduceMarkdown(s string) string {
+	spaceRe := regexp.MustCompile(` +`)
+	dashRe := regexp.MustCompile(` -`)
+
+	s = spaceRe.ReplaceAllString(s, " ")
+	s = dashRe.ReplaceAllString(s, " ")
+	return s
 }
 
 func TestMarkdown(t *testing.T) {
@@ -253,7 +264,7 @@ func TestMarkdown(t *testing.T) {
 				t.Fatalf("testdata read failed: %v", err)
 			}
 
-			want := string(td)
+			want := reduceMarkdown(string(td))
 			var out bytes.Buffer
 			simple, err := render.New("markdown", &out)
 			if err != nil {
@@ -276,11 +287,11 @@ func TestMarkdown(t *testing.T) {
 				t.Fatalf("scan failed: %v", err)
 			}
 
-			if err := simple.Full(ctx, *res); err != nil {
+			if err := simple.Full(ctx, res); err != nil {
 				t.Fatalf("full: %v", err)
 			}
 
-			got := out.String()
+			got := reduceMarkdown(out.String())
 			if diff := cmp.Diff(want, got); diff != "" {
 				t.Errorf("markdown output mismatch: (-want +got):\n%s", diff)
 			}

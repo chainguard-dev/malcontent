@@ -8,14 +8,18 @@ Enumerates program capabilities and malicious behaviors using fragment analysis.
 
 ## Features
 
-- Analyzes binaries from any architecture - arm64, amd64, riscv, ppc64, sparc64
-- Supports scripting languages such as bash, PHP, Perl, Ruby, NodeJS, and Python
-- Supports OCI images and archives
-- Integrates [YARA forge](https://yarahq.github.io/) for rules by Avast, Elastic, FireEye, Google, Nextron, and others.
-- 12,000+ rules that detect everything from ioctl's to malware
+- 14,500+ rules that detect everything from `ioctl`s to malware
+- Analyzes binaries from any architecture
+  - `arm64`, `amd64`, `riscv`, `ppc64`, `sparc64`
+- CI/CD-friendly
+- Diff-friendly output via Markdown, JSON, or YAML
+- Integrates [YARA forge](https://yarahq.github.io/) for rules by Avast, Elastic, FireEye, Google, Nextron, and others
+  - Other [third-party](third_party/README.md) rules are also included
+- Support for archives
+  - `.apk`, `.gem`, `.gz`, `.jar`, `.tar.gz`, `.tar.xz`, `.tar`, `.tgz`, and `.zip`
+- Support for OCI images
+- Support for scripting languages such as bash, PHP, Perl, Ruby, NodeJS, and Python
 - Tuned for especially excellent performance with Linux programs
-- Diff-friendly output in Markdown, JSON, YAML outputs
-- CI/CD friendly
 
 ## Shortcomings
 
@@ -27,6 +31,7 @@ Enumerates program capabilities and malicious behaviors using fragment analysis.
 A container runtime environment such as Podman or Docker, or local developer tools:
 
 - [go](https://go.dev/) 1.21+
+  - Install via the official installer, `goenv`, Homebrew, or a preferred package manager
 - [pkg-config](https://www.freedesktop.org/wiki/Software/pkg-config/) - included in many UNIX distributions
 - [yara](https://virustotal.github.io/yara/)
 
@@ -128,18 +133,21 @@ bincapz --format=json <file> | jq  '.Files.[].Behaviors | keys'
 - `--data-files`: include files that are detected to as non-program (binary or source) files
 - `--diff`: show capability drift between two files
 - `--format` string: Output type. Valid values are: json, markdown, simple, terminal, yaml (default "terminal")
+- `--ignore-self`: ignore the `bincapz` binary
 - `--ignore-tags` string: Rule tags to ignore
 - `--min-level`: minimum suspicion level to report (1=low, 2=medium, 3=high, 4=critical) (default 1)
 - `--oci`: scan OCI images
 - `--omit-empty`: omit files that contain no matches
+- `--profile`: capture profiling/tracing information for `bincapz`
 - `--stats`: display statistics for risk level and `programkind`
 - `--third-party`: include third-party rules, which may have licensing restrictions (default true)
+- `--verbose`: turn on verbose output for diagnostic/troubleshooting purposes
 
 ## FAQ
 
 ### How does it work?
 
-bincapz behaves similarly to the initial triage step most security analysts use when faced with an unknown binary: a cursory `strings` inspection. bincapz has several advantages over human analysis: the ability to match raw byte sequences, decrypt data, and a library of 12,000+ YARA rules that combines the experience of security engineers worldwide.
+bincapz behaves similarly to the initial triage step most security analysts use when faced with an unknown binary: a cursory `strings` inspection. bincapz has several advantages over human analysis: the ability to match raw byte sequences, decrypt data, and a library of 14,500+ YARA rules that combines the experience of security engineers worldwide.
 
 This strategy works, as every program leaves traces of its capabilities in its contents, particularly on UNIX platforms. These fragments are typically `libc` or `syscall` references or error codes. Scripting languages are easier to analyze due to their cleartext nature and are also supported.
 
@@ -169,6 +177,23 @@ If you find malware that `bincapz` doesn't surface suspicious behaviors for, sen
 
 ### Troubleshooting
 
+#### Profiling
+
+`bincapz` can be profiled by running `--profile=true`. This will generate timestamped profiles in an untracked `profiles` directory:
+```
+bash-5.2$ ls -l profiles/ | grep -v "total" | awk '{ print $9 }'
+cpu_329605000.pprof
+mem_329605000.pprof
+trace_329605000.out
+```
+
+The traces can be inspected via `go tool pprof` and `go tool trace`.
+
+For example, the memory profile can be inspected by running:
+```
+go tool pprof -http=:8080 profiles/mem_<timestamp>.pprof
+```
+
 #### Error: ld: library 'yara' not found
 
 If you get this error at installation:
@@ -177,7 +202,7 @@ If you get this error at installation:
 ld: library 'yara' not found
 ```
 
-You'll need to install the `yara` C library:
+The `yara` C library is required:
 
 ```
 brew install yara || sudo apt install libyara-devel || sudo dnf install yara-devel || sudo pacman -S yara
@@ -188,13 +213,3 @@ Additionally, ensure that Yara's version is `4.3.2`.
 If this version is not available via package managers, manually download the release from [here](https://github.com/VirusTotal/yara/releases) and build it from source by following [these](https://yara.readthedocs.io/en/latest/gettingstarted.html#compiling-and-installing-yara) steps.
 
 Once Yara is installed, run `sudo ldconfig -v` to ensure that the library is loaded.
-
-#### MacOS: `bincapz` will damage your computer
-
-The Rules from https://github.com/mthcht/ThreatHunting-Keywords-yara-rules will set off macOS' malware protections.
-
-In order to compile the rules from this project there are a couple of options:
-1. Run `bincapz` by pulling the official image `docker pull cgr.dev/chainguard/bincapz:latest`
-2. Run a Linux container or VM of choice and install `bincapz` and its dependencies
-
-Disabling macOS' System Integrity Protection via `csrutil` to run `bincapz` with `--third-party` is *not* recommended.

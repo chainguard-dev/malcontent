@@ -7,7 +7,7 @@ private rule pySetup {
 		$i_setuptools = "setuptools"
 		$setup = "setup("
 	condition:
-		filesize < 32768 and $setup and any of ($i*)
+		filesize < 2MB and $setup and any of ($i*)
 }
 
 rule py_marshal : notable {

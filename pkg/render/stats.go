@@ -8,13 +8,26 @@ import (
 	"github.com/chainguard-dev/bincapz/pkg/report"
 )
 
-func riskStatistics(files map[string]bincapz.FileReport) ([]bincapz.IntMetric, int) {
+func riskStatistics(files map[string]*bincapz.FileReport) ([]bincapz.IntMetric, int, int) {
 	riskMap := make(map[int][]string)
 	riskStats := make(map[int]float64)
+
+	// as opposed to skipped files
+	processedFiles := 0
+	for _, rf := range files {
+		if rf.Skipped != "" {
+			continue
+		}
+		processedFiles++
+	}
+
 	for path, rf := range files {
+		if rf.Skipped != "" {
+			continue
+		}
 		riskMap[rf.RiskScore] = append(riskMap[rf.RiskScore], path)
 		for riskLevel := range riskMap {
-			riskStats[riskLevel] = (float64(len(riskMap[riskLevel])) / float64(len(files))) * 100
+			riskStats[riskLevel] = (float64(len(riskMap[riskLevel])) / float64(processedFiles)) * 100
 		}
 	}
 
@@ -33,15 +46,15 @@ func riskStatistics(files map[string]bincapz.FileReport) ([]bincapz.IntMetric, i
 		return stats[i].Value > stats[j].Value
 	})
 
-	return stats, total()
+	return stats, total(), processedFiles
 }
 
-func pkgStatistics(files map[string]bincapz.FileReport) ([]bincapz.StrMetric, int, int) {
+func pkgStatistics(files map[string]*bincapz.FileReport) ([]bincapz.StrMetric, int, int) {
 	numNamespaces := 0
 	pkgMap := make(map[string]int)
 	pkg := make(map[string]float64)
 	for _, rf := range files {
-		for _, namespace := range rf.PackageRisk {
+		for namespace := range rf.Behaviors {
 			numNamespaces++
 			pkgMap[namespace]++
 		}
@@ -70,7 +83,7 @@ func pkgStatistics(files map[string]bincapz.FileReport) ([]bincapz.StrMetric, in
 }
 
 func Statistics(r *bincapz.Report) error {
-	riskStats, totalRisks := riskStatistics(r.Files)
+	riskStats, totalRisks, totalFilesProcessed := riskStatistics(r.Files)
 	pkgStats, width, totalPkgs := pkgStatistics(r.Files)
 
 	statsSymbol := "📊"
@@ -78,7 +91,8 @@ func Statistics(r *bincapz.Report) error {
 	pkgSymbol := "📦"
 	fmt.Printf("%s Statistics\n", statsSymbol)
 	fmt.Println("---")
-	fmt.Printf("\033[1;37m%-12s \033[1;37m%10s\033[0m\n", "Total Risks", fmt.Sprintf("%d", totalRisks))
+	fmt.Printf("\033[1;37m%-15s \033[1;37m%s\033[0m\n", "Files Scanned", fmt.Sprintf("%d (%d skipped)", totalFilesProcessed, len(r.Files)-totalFilesProcessed))
+	fmt.Printf("\033[1;37m%-15s \033[1;37m%s\033[0m\n", "Total Risks", fmt.Sprintf("%d", totalRisks))
 	fmt.Println("---")
 	fmt.Printf("%s Risk Level Percentage\n", riskSymbol)
 	fmt.Println("---")

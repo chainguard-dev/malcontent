@@ -1,4 +1,4 @@
-rule slack_storage : suspicious {
+rule slack_storage : high {
   meta:
     ref = "https://www.sentinelone.com/blog/macos-malware-2023-a-deep-dive-into-emerging-trends-and-evolving-techniques/"
 	description = "access Slack Storage files"
@@ -8,7 +8,7 @@ rule slack_storage : suspicious {
     all of them
 }
 
-rule slack_leveldb : suspicious {
+rule slack_leveldb : high {
   meta:
     ref = "https://www.sentinelone.com/blog/macos-malware-2023-a-deep-dive-into-emerging-trends-and-evolving-techniques/"
 	description = "accesses Slack data"

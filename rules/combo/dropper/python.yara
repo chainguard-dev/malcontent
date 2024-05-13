@@ -37,7 +37,7 @@ private rule pythonSetup {
 		$i_setuptools = "setuptools"
 		$setup = "setup("
 	condition:
-		filesize < 32768 and $setup and any of ($i*)
+		filesize < 2MB and $setup and any of ($i*)
 }
 
 rule setuptools_fetcher : suspicious {

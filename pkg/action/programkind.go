@@ -20,6 +20,8 @@ import (
 
 var archiveMap = map[string]bool{
 	".apk":    true,
+	".gem":    true,
+	".gz":     true,
 	".jar":    true,
 	".tar.gz": true,
 	".tar.xz": true,
@@ -36,6 +38,8 @@ var extMap = map[string]string{
 	".cron":    "crontab",
 	".crontab": "crontab",
 	".expect":  "Expect script",
+	".gem":     "Ruby gem",
+	".gz":      "Gzip compressed",
 	".html":    "",
 	".jar":     "Java program",
 	".java":    "Java source",

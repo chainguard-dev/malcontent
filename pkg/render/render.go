@@ -13,8 +13,8 @@ import (
 
 // Renderer is a common interface for Renderers.
 type Renderer interface {
-	File(context.Context, bincapz.FileReport) error
-	Full(context.Context, bincapz.Report) error
+	File(context.Context, *bincapz.FileReport) error
+	Full(context.Context, *bincapz.Report) error
 }
 
 // New returns a new Renderer.

@@ -1,0 +1,12 @@
+branches:
+  accept:
+  - "**"
+files:
+  accept:
+  - "**.yar"
+  - "**.yara"
+  ignore:
+  - "third_party/**"
+
+false_positives:
+  disabled: true

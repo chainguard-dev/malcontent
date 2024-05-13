@@ -7,15 +7,16 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"path"
 	"path/filepath"
+	"strings"
 
 	"github.com/agext/levenshtein"
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
 	"github.com/chainguard-dev/clog"
 )
 
-func relFileReport(ctx context.Context, c Config, path string) (map[string]bincapz.FileReport, error) {
-	fromPath := path
+func relFileReport(ctx context.Context, c Config, fromPath string) (map[string]*bincapz.FileReport, error) {
 	fromConfig := c
 	fromConfig.Renderer = nil
 	fromConfig.ScanPaths = []string{fromPath}
@@ -23,7 +24,7 @@ func relFileReport(ctx context.Context, c Config, path string) (map[string]binca
 	if err != nil {
 		return nil, err
 	}
-	fromRelPath := map[string]bincapz.FileReport{}
+	fromRelPath := map[string]*bincapz.FileReport{}
 	for _, f := range fromReport.Files {
 		if f.Skipped != "" || f.Error != "" {
 			continue
@@ -54,10 +55,10 @@ func Diff(ctx context.Context, c Config) (*bincapz.Report, error) {
 		return nil, err
 	}
 
-	d := bincapz.DiffReport{
-		Added:    map[string]bincapz.FileReport{},
-		Removed:  map[string]bincapz.FileReport{},
-		Modified: map[string]bincapz.FileReport{},
+	d := &bincapz.DiffReport{
+		Added:    map[string]*bincapz.FileReport{},
+		Removed:  map[string]*bincapz.FileReport{},
+		Modified: map[string]*bincapz.FileReport{},
 	}
 
 	// things that appear in the source
@@ -73,9 +74,9 @@ func Diff(ctx context.Context, c Config) (*bincapz.Report, error) {
 			continue
 		}
 
-		rbs := bincapz.FileReport{
+		rbs := &bincapz.FileReport{
 			Path:              tr.Path,
-			Behaviors:         map[string]bincapz.Behavior{},
+			Behaviors:         map[string]*bincapz.Behavior{},
 			PreviousRiskScore: fr.RiskScore,
 			PreviousRiskLevel: fr.RiskLevel,
 			RiskLevel:         tr.RiskLevel,
@@ -107,9 +108,9 @@ func Diff(ctx context.Context, c Config) (*bincapz.Report, error) {
 			continue
 		}
 
-		abs := bincapz.FileReport{
+		abs := &bincapz.FileReport{
 			Path:              tr.Path,
-			Behaviors:         map[string]bincapz.Behavior{},
+			Behaviors:         map[string]*bincapz.Behavior{},
 			PreviousRiskScore: fr.RiskScore,
 			PreviousRiskLevel: fr.RiskLevel,
 
@@ -139,24 +140,34 @@ func Diff(ctx context.Context, c Config) (*bincapz.Report, error) {
 	// levenshtein distance of the file names.  If the distance is a 90+% match,
 	// then treat it as a move.
 	for rpath, fr := range d.Removed {
+		// We only want to consider files that look like shared objects because Match() is slow and this is ~quadratic.
+		if !strings.Contains(path.Base(rpath), ".so.") {
+			continue
+		}
+
 		for apath, tr := range d.Added {
+			// See above.
+			if !strings.Contains(path.Base(apath), ".so.") {
+				continue
+			}
+
 			score := levenshtein.Match(rpath, apath, levenshtein.NewParams())
 			if score < 0.9 {
 				continue
 			}
 
 			if fr.RiskScore < c.MinFileScore && tr.RiskScore < c.MinFileScore {
-				clog.FromContext(ctx).Info("diff doe not meet min trigger level", slog.Any("path", tr.Path))
+				clog.FromContext(ctx).Info("diff does not meet min trigger level", slog.Any("path", tr.Path))
 				continue
 			}
 
 			// We think that this file moved from rpath to apath.
-			abs := bincapz.FileReport{
+			abs := &bincapz.FileReport{
 				Path:                 tr.Path,
 				PreviousRelPath:      rpath,
 				PreviousRelPathScore: score,
 
-				Behaviors:         map[string]bincapz.Behavior{},
+				Behaviors:         map[string]*bincapz.Behavior{},
 				PreviousRiskScore: fr.RiskScore,
 				PreviousRiskLevel: fr.RiskLevel,
 

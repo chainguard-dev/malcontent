@@ -1,4 +1,4 @@
-rule gcloud_config_value : notable {
+rule gcloud_config_value : medium {
 	meta:
 		description = "Access gcloud configuration files"
 	strings:

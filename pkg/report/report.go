@@ -139,15 +139,16 @@ func ignoreMatch(tags []string, ignoreTags map[string]bool) bool {
 	return false
 }
 
-func behaviorRisk(ns string, tags []string) int {
+func behaviorRisk(ns string, rule string, tags []string) int {
 	risk := 1
 
 	// default to critical
 	if thirdParty(ns) {
 		risk = 4
-		if strings.Contains(ns, "keyword") {
-			risk = 2
-		}
+	}
+
+	if strings.Contains(ns, "keyword") || strings.Contains(rule, "keyword") {
+		risk = 2
 	}
 
 	levels := map[string]int{
@@ -266,7 +267,7 @@ func mungeDescription(s string) string {
 	// out: references 'Nsight RMM'
 	m := threatHuntingKeywordRe.FindStringSubmatch(s)
 	if len(m) > 0 {
-		return fmt.Sprintf("references '%s'", m[1])
+		return fmt.Sprintf("references '%s' tool", m[1])
 	}
 	return s
 }
@@ -286,7 +287,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 		Path:      path,
 		SHA256:    ptCheck,
 		Meta:      map[string]string{},
-		Behaviors: map[string]bincapz.Behavior{},
+		Behaviors: map[string]*bincapz.Behavior{},
 	}
 
 	pledges := []string{}
@@ -294,10 +295,11 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 	syscalls := []string{}
 	overallRiskScore := 0
 	riskCounts := map[int]int{}
-	packageRisks := []string{}
+	risk := 0
+	key := ""
 
 	for _, m := range mrs {
-		risk := behaviorRisk(m.Namespace, m.Tags)
+		risk = behaviorRisk(m.Namespace, m.Rule, m.Tags)
 		if risk > overallRiskScore {
 			overallRiskScore = risk
 		}
@@ -305,20 +307,22 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 		if risk < minScore {
 			continue
 		}
-		key := generateKey(m.Namespace, m.Rule)
+		key = generateKey(m.Namespace, m.Rule)
 		ruleURL := generateRuleURL(m.Namespace, m.Rule)
-		packageRisks = append(packageRisks, key)
 
-		b := bincapz.Behavior{
+		b := &bincapz.Behavior{
 			RiskScore:    risk,
 			RiskLevel:    RiskLevels[risk],
 			MatchStrings: matchStrings(m.Rule, m.Strings),
 			RuleURL:      ruleURL,
 		}
 
+		k := ""
+		v := ""
+
 		for _, meta := range m.Metas {
-			k := meta.Identifier
-			v := fmt.Sprintf("%s", meta.Value)
+			k = meta.Identifier
+			v = fmt.Sprintf("%s", meta.Value)
 			// Empty data is unusual, so just ignore it.
 			if k == "" || v == "" {
 				continue
@@ -396,10 +400,9 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 			continue
 		}
 
-		// If the existing description is longer,
-		if len(existing.Description) < len(b.Description) {
-			existing.Description = b.Description
-			fr.Behaviors[key] = existing
+		// If the existing description is longer and the priority is the same or lower
+		if len(existing.Description) < len(b.Description) && existing.RiskScore <= b.RiskScore {
+			fr.Behaviors[key].Description = b.Description
 		}
 
 		// TODO: If we match multiple rules within a single namespace, merge matchstrings
@@ -417,7 +420,6 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 	fr.Capabilities = slices.Compact(caps)
 	fr.RiskScore = overallRiskScore
 	fr.RiskLevel = RiskLevels[fr.RiskScore]
-	fr.PackageRisk = packageRisks
 
 	return fr, nil
 }

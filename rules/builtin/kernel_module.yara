@@ -1,4 +1,4 @@
-rule kmod : suspicious {
+rule kmod : high {
 	meta:
 		description = "includes Linux kernel module source code"
 	strings:

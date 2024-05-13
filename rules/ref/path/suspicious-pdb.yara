@@ -1,6 +1,6 @@
-rule suspicious_pdb : suspicious windows {
+rule high_pdb : high windows {
   meta:
-	description = "suspicious PDB (Windows Program Database) reference"
+	description = "high PDB (Windows Program Database) reference"
   strings:
 	// extracted from https://github.com/Neo23x0/god-mode-rules/blob/master/godmode.yar
 	$ref = /[a-zA-Z]{0,16}(Dropper|Bypass|Injection|Potato)\.pdb/ nocase

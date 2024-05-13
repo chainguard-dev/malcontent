@@ -1,4 +1,4 @@
-rule socat_backdoor : suspicious {
+rule socat_backdoor : high {
   strings:
 	$socat = "socat" fullword
 	$bin_bash = "/bin/bash"

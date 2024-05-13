@@ -1,4 +1,4 @@
-rule etc_gshadow : notable {
+rule etc_gshadow : medium {
   meta:
 	description = "accesses /etc/gshadow (group passwords)" 
   strings:
