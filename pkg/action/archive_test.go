@@ -229,6 +229,7 @@ func TestScanArchive(t *testing.T) {
 	}
 	bc := Config{
 		IgnoreSelf: false,
+		IgnoreTags: []string{"harmless"},
 		Renderer:   simple,
 		Rules:      yrs,
 		ScanPaths:  []string{"testdata/apko_nested.tar.gz"},
@@ -243,10 +244,8 @@ func TestScanArchive(t *testing.T) {
 
 	// Remove the header since it is not deterministic
 	// due to the usage of temporary directories
-	for range []int{0, 1} {
-		idx := bytes.IndexByte(out.Bytes(), '\n')
-		out.Next(idx + 1)
-	}
+	idx := bytes.IndexByte(out.Bytes(), '\n')
+	out.Next(idx + 1)
 
 	outBytes := out.Bytes()
 

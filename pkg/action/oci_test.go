@@ -35,7 +35,7 @@ func TestOCI(t *testing.T) {
 	}
 
 	var out bytes.Buffer
-	md, err := render.New("markdown", &out)
+	simple, err := render.New("simple", &out)
 	if err != nil {
 		t.Fatalf("render: %v", err)
 	}
@@ -48,7 +48,7 @@ func TestOCI(t *testing.T) {
 	bc := Config{
 		IgnoreSelf: false,
 		IgnoreTags: []string{"harmless"},
-		Renderer:   md,
+		Renderer:   simple,
 		Rules:      yrs,
 		ScanPaths:  []string{sp},
 	}
@@ -56,16 +56,14 @@ func TestOCI(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := md.Full(ctx, res); err != nil {
+	if err := simple.Full(ctx, res); err != nil {
 		t.Fatalf("full: %v", err)
 	}
 
 	// Remove the header since it is not deterministic
 	// due to the usage of temporary directories
-	for range []int{0, 1} {
-		idx := bytes.IndexByte(out.Bytes(), '\n')
-		out.Next(idx + 1)
-	}
+	idx := bytes.IndexByte(out.Bytes(), '\n')
+	out.Next(idx + 1)
 
 	got := reduceMarkdown(out.String())
 
