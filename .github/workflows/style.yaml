@@ -68,7 +68,7 @@ jobs:
           sudo apt update && sudo apt install libyara-dev -y
 
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@38e1018663fa5173f3968ea0777460d3de38f256 # v3.7.1
+        uses: golangci/golangci-lint-action@a4f60bb28d35aeee14e6880718e0c85ff1882e64 # v3.7.1
         with:
           version: v1.58
           args: --timeout=5m
