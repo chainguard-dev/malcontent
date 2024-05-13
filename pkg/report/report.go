@@ -400,8 +400,8 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 			continue
 		}
 
-		// If the existing description is longer,
-		if len(existing.Description) < len(b.Description) {
+		// If the existing description is longer and the priority is the same or lower
+		if len(existing.Description) < len(b.Description) && existing.RiskScore <= b.RiskScore {
 			fr.Behaviors[key].Description = b.Description
 		}
 
