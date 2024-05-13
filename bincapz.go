@@ -92,7 +92,7 @@ func main() {
 			fmt.Printf("bincapz unknown version\n")
 		}
 		fmt.Printf("%s\n", ver)
-		os.Exit(0)
+		return
 	}
 
 	ctx := clog.WithLogger(context.Background(), log)
