@@ -51,7 +51,7 @@ func main() {
 	statsFlag := flag.Bool("stats", false, "Show statistics about the scan")
 	thirdPartyFlag := flag.Bool("third-party", true, "Include third-party rules, which may have licensing restrictions")
 	verboseFlag := flag.Bool("verbose", false, "Emit verbose logging messages to stderr")
-	versionFlag := flag.Bool("version", false, "show version information")
+	versionFlag := flag.Bool("version", false, "Show version information")
 
 	flag.Parse()
 	args := flag.Args()
