@@ -42,10 +42,6 @@ func (r Simple) Full(_ context.Context, rep *bincapz.Report) error {
 	}
 
 	for f, fr := range rep.Diff.Removed {
-		if len(fr.Behaviors) == 0 {
-			continue
-		}
-
 		fmt.Fprintf(r.w, "--- missing: %s\n", f)
 
 		bs := []string{}
@@ -60,9 +56,6 @@ func (r Simple) Full(_ context.Context, rep *bincapz.Report) error {
 	}
 
 	for f, fr := range rep.Diff.Removed {
-		if len(fr.Behaviors) == 0 {
-			continue
-		}
 		fmt.Fprintf(r.w, "++++ added: %s\n", f)
 		bs := []string{}
 		for k := range fr.Behaviors {
@@ -76,9 +69,6 @@ func (r Simple) Full(_ context.Context, rep *bincapz.Report) error {
 	}
 
 	for f, fr := range rep.Diff.Modified {
-		if len(fr.Behaviors) == 0 {
-			continue
-		}
 		if fr.PreviousRelPath != "" {
 			fmt.Fprintf(r.w, ">>> moved: %s -> %s (score: %f)\n", fr.PreviousRelPath, f, fr.PreviousRelPathScore)
 		} else {
