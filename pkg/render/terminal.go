@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
-	"os"
 	"sort"
 	"strings"
 
@@ -304,7 +303,7 @@ func renderTable(ctx context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 	}
 	fmt.Fprintf(w, "\n")
 
-	table := tablewriter.NewWriter(os.Stdout)
+	table := tablewriter.NewWriter(w)
 	table.SetHeader([]string{"risk", "key", "description", "evidence"})
 
 	table.SetAutoWrapText(false)
