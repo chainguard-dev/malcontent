@@ -23,6 +23,17 @@ import (
 	"github.com/chainguard-dev/clog"
 )
 
+var (
+	// Exit codes based on diff(1) and https://man.freebsd.org/cgi/man.cgi?errno(2)
+	ExitOK              = 0
+	ExitActionFailed    = 2
+	ExitProfilerError   = 3
+	ExitInputOutput     = 5
+	ExitRenderFailed    = 11
+	ExitInvalidRules    = 14
+	ExitInvalidArgument = 22
+)
+
 func main() {
 	allFlag := flag.Bool("all", false, "Ignore nothing, show all")
 	diffFlag := flag.Bool("diff", false, "Show capability drift between two files")
@@ -42,6 +53,9 @@ func main() {
 	flag.Parse()
 	args := flag.Args()
 
+	returnCode := ExitOK
+	defer func() { os.Exit(returnCode) }()
+
 	logLevel := new(slog.LevelVar)
 	logLevel.Set(slog.LevelError)
 	logOpts := &slog.HandlerOptions{Level: logLevel}
@@ -52,13 +66,16 @@ func main() {
 		var err error
 		stop, err = profile.Profile()
 		if err != nil {
-			log.Fatal("profiling failed", slog.Any("error", err))
+			log.Error("profiling failed", slog.Any("error", err))
+			returnCode = ExitProfilerError
+			return
 		}
 	}
 
 	if len(args) == 0 {
 		fmt.Printf("usage: bincapz [flags] <directories>")
-		os.Exit(1)
+		returnCode = ExitInvalidArgument
+		return
 	}
 
 	if *verboseFlag {
@@ -85,7 +102,9 @@ func main() {
 	if *outputFlag != "" {
 		outFile, err = os.OpenFile(*outputFlag, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600)
 		if err != nil {
-			log.Fatal("open file", slog.Any("error", err), slog.String("path", *outputFlag))
+			log.Error("open file", slog.Any("error", err), slog.String("path", *outputFlag))
+			returnCode = ExitInputOutput
+			return
 		}
 	}
 	defer func() {
@@ -94,7 +113,9 @@ func main() {
 
 	renderer, err := render.New(*formatFlag, outFile)
 	if err != nil {
-		log.Fatal("invalid format", slog.Any("error", err), slog.String("format", *formatFlag))
+		log.Error("invalid format", slog.Any("error", err), slog.String("format", *formatFlag))
+		returnCode = ExitInvalidArgument
+		return
 	}
 
 	rfs := []fs.FS{rules.FS}
@@ -104,7 +125,9 @@ func main() {
 
 	yrs, err := compile.Recursive(ctx, rfs)
 	if err != nil {
-		log.Fatal("YARA rule compilation", slog.Any("error", err))
+		log.Error("YARA rule compilation", slog.Any("error", err))
+		returnCode = ExitInvalidRules
+		return
 	}
 
 	bc := action.Config{
@@ -129,12 +152,16 @@ func main() {
 		res, err = action.Scan(ctx, bc)
 	}
 	if err != nil {
-		log.Fatal("failed", slog.Any("error", err))
+		returnCode = ExitActionFailed
+		log.Error("action failed", slog.Any("error", err))
+		return
 	}
 
 	err = renderer.Full(ctx, res)
 	if err != nil {
-		log.Fatal("render failed", slog.Any("error", err))
+		returnCode = ExitRenderFailed
+		log.Error("render failed", slog.Any("error", err))
+		return
 	}
 
 	if *profileFlag {
