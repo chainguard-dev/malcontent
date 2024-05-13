@@ -50,18 +50,33 @@ rule exec_cmd_run : medium {
     any of them
 }
 
-rule perl_system : medium {
+rule perl_system : notable {
   meta:
     syscall = "execve"
     pledge = "exec"
     description = "executes external programs"
-    hash_2023_0xShell_0xShellori = "506e12e4ce1359ffab46038c4bf83d3ab443b7c5db0d5c8f3ad05340cb09c38e"
-    hash_2023_0xShell_root = "3baa3bfaa6ed78e853828f147c3747d818590faee5eecef67748209dd3d92afb"
-    hash_2023_0xShell_untitled = "39b2fd6b4b2c11a9cbfc8efbb09fc14d502cde1344f52e1269228fc95b938621"
   strings:
-    $ref = "system("
+    $system = /system\([\"\'\w\ \-\)\/]{0,64}/
+    $perl = "perl" fullword
   condition:
-    all of them
+    filesize < 65535 and $perl and $system
+}
+
+rule py_subprocess : notable {
+  meta:
+    syscall = "execve"
+    pledge = "exec"
+    description = "execute external program"
+    ref = "https://man7.org/linux/man-pages/man2/execve.2.html"
+    hash_2022_2022_requests_3_0_0_setup = "15507092967fbd28ccb833d98c2ee49da09e7c79fd41759cd6f783672fe1c5cc"
+    hash_2023_grandmask_3_13_setup = "8835778f9e75e6493693fc6163477ec94aba723c091393a30d7e7b9eed4f5a54"
+    hash_2023_libgrandrandomintel_3_58_setup = "cd211e0f8d84100b1b4c1655e913f40a76beaacc482e751e3a7c7ed126fe1a90"
+  strings:
+    $naked = "subprocess"
+    $val = /subprocess\.\w{1,16}[\(\"\/\w\'\.\- \,\[\]]{0,64}/
+    $os_system = /os.system\([\"\'\w\ \-\)\/]{0,64}/
+  condition:
+    any of them
 }
 
 rule subprocess : medium {
