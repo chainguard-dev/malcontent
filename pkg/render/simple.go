@@ -20,13 +20,9 @@ func NewSimple(w io.Writer) Simple {
 	return Simple{w: w}
 }
 
-func (r Simple) File(_ context.Context, fr bincapz.FileReport) error {
+func (r Simple) File(_ context.Context, fr *bincapz.FileReport) error {
 	if fr.Skipped != "" {
 		return nil
-	}
-
-	if fr.Path == "" {
-		return fmt.Errorf("file report contains no path: %+v", fr)
 	}
 
 	fmt.Fprintf(r.w, "# %s\n", fr.Path)
@@ -43,7 +39,11 @@ func (r Simple) File(_ context.Context, fr bincapz.FileReport) error {
 	return nil
 }
 
-func (r Simple) Full(_ context.Context, rep bincapz.Report) error {
+func (r Simple) Full(_ context.Context, rep *bincapz.Report) error {
+	if rep.Diff == nil {
+		return nil
+	}
+
 	for f, fr := range rep.Diff.Removed {
 		fmt.Fprintf(r.w, "--- missing: %s\n", f)
 

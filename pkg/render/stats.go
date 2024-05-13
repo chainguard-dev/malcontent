@@ -8,7 +8,7 @@ import (
 	"github.com/chainguard-dev/bincapz/pkg/report"
 )
 
-func riskStatistics(files map[string]bincapz.FileReport) ([]bincapz.IntMetric, int, int) {
+func riskStatistics(files map[string]*bincapz.FileReport) ([]bincapz.IntMetric, int, int) {
 	riskMap := make(map[int][]string)
 	riskStats := make(map[int]float64)
 
@@ -49,12 +49,12 @@ func riskStatistics(files map[string]bincapz.FileReport) ([]bincapz.IntMetric, i
 	return stats, total(), processedFiles
 }
 
-func pkgStatistics(files map[string]bincapz.FileReport) ([]bincapz.StrMetric, int, int) {
+func pkgStatistics(files map[string]*bincapz.FileReport) ([]bincapz.StrMetric, int, int) {
 	numNamespaces := 0
 	pkgMap := make(map[string]int)
 	pkg := make(map[string]float64)
 	for _, rf := range files {
-		for _, namespace := range rf.PackageRisk {
+		for namespace := range rf.Behaviors {
 			numNamespaces++
 			pkgMap[namespace]++
 		}
