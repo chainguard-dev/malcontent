@@ -21,7 +21,16 @@ func NewSimple(w io.Writer) Simple {
 }
 
 func (r Simple) File(_ context.Context, fr bincapz.FileReport) error {
+	if fr.Skipped != "" {
+		return nil
+	}
+
+	if fr.Path == "" {
+		return fmt.Errorf("file report contains no path: %+v", fr)
+	}
+
 	fmt.Fprintf(r.w, "# %s\n", fr.Path)
+
 	bs := []string{}
 
 	for k := range fr.Behaviors {
