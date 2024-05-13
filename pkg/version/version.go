@@ -2,22 +2,12 @@ package version
 
 import (
 	"fmt"
-	"os"
 	"runtime/debug"
 )
 
 const (
-	versionFile = "VERSION"
+	ID string = "0.11.0"
 )
-
-// Load the static version file.
-func loadVersionFile() (*os.File, error) {
-	f, err := os.Open(versionFile)
-	if err != nil {
-		return nil, err
-	}
-	return f, nil
-}
 
 // Check if the build info contains a version.
 func getBinaryVersion() (string, error) {
@@ -43,20 +33,9 @@ func Version() (string, error) {
 		return "bincapz unknown version", err
 	}
 	// If present, return that value
-	// Otherwise, fall back to the contents of the VERSION file
+	// Otherwise, fall back to the contents of the VERSION const
 	if v != "" {
 		return fmt.Sprintf("bincapz %s", v), nil
 	}
-	f, err := loadVersionFile()
-	if err != nil {
-		return "", err
-	}
-	defer f.Close()
-	buf := make([]byte, 32)
-	n, err := f.Read(buf)
-	if err != nil {
-		return "bincapz unknown version", err
-	}
-	v = string(buf[:n])
-	return fmt.Sprintf("bincapz %s", v), nil
+	return fmt.Sprintf("bincapz %s", ID), nil
 }
