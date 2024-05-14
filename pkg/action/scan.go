@@ -83,7 +83,6 @@ func formatPath(path string) string {
 		path = strings.ReplaceAll(path, "\\", "/")
 	}
 	p := strings.TrimPrefix(path, "/")
-	fmt.Println(p)
 
 	ps := strings.Split(p, "/")
 	fp := make([]string, 0, len(ps))
