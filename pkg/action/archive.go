@@ -265,7 +265,6 @@ func extractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 	for file := range extractedFiles {
 		ext := getExt(file)
 		if _, ok := archiveMap[ext]; ok {
-			fmt.Printf("found a nested archive %s", file)
 			if err := extractNestedArchive(ctx, tmpDir, file, extractedFiles); err != nil {
 				return "", fmt.Errorf("extract nested archive: %w", err)
 			}

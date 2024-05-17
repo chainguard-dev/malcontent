@@ -1,0 +1,4 @@
+persist/bash
+persist/shell/init_files
+ref/path/etc
+ref/path/usr/local
