@@ -76,7 +76,7 @@ func Diff(ctx context.Context, c Config) (*bincapz.Report, error) {
 
 		rbs := &bincapz.FileReport{
 			Path:              tr.Path,
-			Behaviors:         map[string]*bincapz.Behavior{},
+			Behaviors:         []*bincapz.Behavior{},
 			PreviousRiskScore: fr.RiskScore,
 			PreviousRiskLevel: fr.RiskLevel,
 			RiskLevel:         tr.RiskLevel,
@@ -84,10 +84,17 @@ func Diff(ctx context.Context, c Config) (*bincapz.Report, error) {
 		}
 
 		// if source behavior is not in the destination
-		for key, b := range fr.Behaviors {
-			if _, exists := tr.Behaviors[key]; !exists {
-				b.DiffRemoved = true
-				rbs.Behaviors[key] = b
+		for _, fb := range fr.Behaviors {
+			found := false
+			for _, tb := range tr.Behaviors {
+				if tb.Evidence == fb.Evidence {
+					found = true
+					break
+				}
+			}
+			if !found {
+				fb.DiffRemoved = true
+				rbs.Behaviors = append(rbs.Behaviors, fb)
 			}
 		}
 
@@ -110,7 +117,7 @@ func Diff(ctx context.Context, c Config) (*bincapz.Report, error) {
 
 		abs := &bincapz.FileReport{
 			Path:              tr.Path,
-			Behaviors:         map[string]*bincapz.Behavior{},
+			Behaviors:         []*bincapz.Behavior{},
 			PreviousRiskScore: fr.RiskScore,
 			PreviousRiskLevel: fr.RiskLevel,
 
@@ -119,10 +126,17 @@ func Diff(ctx context.Context, c Config) (*bincapz.Report, error) {
 		}
 
 		// if destination behavior is not in the source
-		for key, b := range tr.Behaviors {
-			if _, exists := fr.Behaviors[key]; !exists {
-				b.DiffAdded = true
-				abs.Behaviors[key] = b
+		for _, tb := range tr.Behaviors {
+			found := false
+			for _, fb := range fr.Behaviors {
+				if len(fr.Behaviors) > 0 && tb.Evidence == fb.Evidence {
+					found = true
+					break
+				}
+			}
+			if !found {
+				tb.DiffAdded = true
+				abs.Behaviors = append(abs.Behaviors, tb)
 			}
 		}
 
@@ -130,8 +144,8 @@ func Diff(ctx context.Context, c Config) (*bincapz.Report, error) {
 		if _, exists := d.Modified[relPath]; !exists {
 			d.Modified[relPath] = abs
 		} else {
-			for key, b := range abs.Behaviors {
-				d.Modified[relPath].Behaviors[key] = b
+			for _, b := range abs.Behaviors {
+				d.Modified[relPath].Behaviors = append(d.Modified[relPath].Behaviors, b)
 			}
 		}
 	}
@@ -167,7 +181,7 @@ func Diff(ctx context.Context, c Config) (*bincapz.Report, error) {
 				PreviousRelPath:      rpath,
 				PreviousRelPathScore: score,
 
-				Behaviors:         map[string]*bincapz.Behavior{},
+				Behaviors:         []*bincapz.Behavior{},
 				PreviousRiskScore: fr.RiskScore,
 				PreviousRiskLevel: fr.RiskLevel,
 
@@ -176,18 +190,32 @@ func Diff(ctx context.Context, c Config) (*bincapz.Report, error) {
 			}
 
 			// if destination behavior is not in the source
-			for key, b := range tr.Behaviors {
-				if _, exists := fr.Behaviors[key]; !exists {
-					b.DiffAdded = true
-					abs.Behaviors[key] = b
+			for _, tb := range tr.Behaviors {
+				found := false
+				for _, fb := range fr.Behaviors {
+					if len(fr.Behaviors) > 0 && fb.Evidence == tb.Evidence {
+						found = true
+						break
+					}
+				}
+				if !found {
+					tb.DiffAdded = true
+					abs.Behaviors = append(abs.Behaviors, tb)
 				}
 			}
 
 			// if source behavior is not in the destination
-			for key, b := range fr.Behaviors {
-				if _, exists := tr.Behaviors[key]; !exists {
-					b.DiffRemoved = true
-					abs.Behaviors[key] = b
+			for _, fb := range fr.Behaviors {
+				found := false
+				for _, tb := range tr.Behaviors {
+					if len(fr.Behaviors) > 0 && tb.Evidence == fb.Evidence {
+						found = true
+						break
+					}
+				}
+				if !found {
+					fb.DiffRemoved = true
+					abs.Behaviors = append(abs.Behaviors, fb)
 				}
 			}
 

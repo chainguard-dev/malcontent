@@ -21,20 +21,24 @@ type Behavior struct {
 
 	DiffAdded   bool `json:",omitempty" yaml:",omitempty"`
 	DiffRemoved bool `json:",omitempty" yaml:",omitempty"`
+
+	// Fields for more compliant JSON output
+	// Evidence is the original map key from map[string]*Behavior
+	Evidence string `json:",omitempty" yaml:",omitempty"`
 }
 
 type FileReport struct {
 	Path   string
 	SHA256 string
 	// compiler -> x
-	Error             string               `json:",omitempty" yaml:",omitempty"`
-	Skipped           string               `json:",omitempty" yaml:",omitempty"`
-	Meta              map[string]string    `json:",omitempty" yaml:",omitempty"`
-	Syscalls          []string             `json:",omitempty" yaml:",omitempty"`
-	Pledge            []string             `json:",omitempty" yaml:",omitempty"`
-	Capabilities      []string             `json:",omitempty" yaml:",omitempty"`
-	Behaviors         map[string]*Behavior `json:",omitempty" yaml:",omitempty"`
-	FilteredBehaviors int                  `json:",omitempty" yaml:",omitempty"`
+	Error             string            `json:",omitempty" yaml:",omitempty"`
+	Skipped           string            `json:",omitempty" yaml:",omitempty"`
+	Meta              map[string]string `json:",omitempty" yaml:",omitempty"`
+	Syscalls          []string          `json:",omitempty" yaml:",omitempty"`
+	Pledge            []string          `json:",omitempty" yaml:",omitempty"`
+	Capabilities      []string          `json:",omitempty" yaml:",omitempty"`
+	Behaviors         []*Behavior       `json:",omitempty" yaml:",omitempty"`
+	FilteredBehaviors int               `json:",omitempty" yaml:",omitempty"`
 
 	// The relative path we think this moved from.
 	PreviousRelPath string `json:",omitempty" yaml:",omitempty"`
