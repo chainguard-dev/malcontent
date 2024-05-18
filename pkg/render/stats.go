@@ -56,7 +56,7 @@ func pkgStatistics(files map[string]*bincapz.FileReport) ([]bincapz.StrMetric, i
 	for _, rf := range files {
 		for _, namespace := range rf.Behaviors {
 			numNamespaces++
-			pkgMap[namespace.Evidence]++
+			pkgMap[namespace.Key]++
 		}
 	}
 	for namespace, count := range pkgMap {

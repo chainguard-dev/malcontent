@@ -129,7 +129,7 @@ func behaviorExists(
 	behaviors []*bincapz.Behavior,
 ) bool {
 	for _, tb := range behaviors {
-		if tb.Evidence == b.Evidence {
+		if tb.Key == b.Key {
 			return true
 		}
 	}

@@ -311,7 +311,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 		ruleURL := generateRuleURL(m.Namespace, m.Rule)
 
 		b := &bincapz.Behavior{
-			Evidence:     key,
+			Key:          key,
 			MatchStrings: matchStrings(m.Rule, m.Strings),
 			RiskLevel:    RiskLevels[risk],
 			RiskScore:    risk,
@@ -396,7 +396,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 
 		existingIndex := -1
 		for i, existing := range fr.Behaviors {
-			if existing.Evidence == key {
+			if existing.Key == key {
 				existingIndex = i
 				break
 			}

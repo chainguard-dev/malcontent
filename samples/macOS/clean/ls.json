@@ -25,7 +25,7 @@
                     "RiskLevel": "LOW",
                     "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/env/TERM.yara#TERM",
                     "ReferenceURL": "https://www.gnu.org/software/gettext/manual/html_node/The-TERM-variable.html",
-                    "Evidence": "env/TERM"
+                    "Key": "env/TERM"
                 },
                 {
                     "Description": "traverse filesystem hierarchy",
@@ -39,7 +39,7 @@
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
                     "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/fs/directory-traverse.yara#fts",
-                    "Evidence": "fs/directory/traverse"
+                    "Key": "fs/directory/traverse"
                 },
                 {
                     "Description": "read value of a symbolic link",
@@ -50,7 +50,7 @@
                     "RiskLevel": "LOW",
                     "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/fs/link-read.yara#readlink",
                     "ReferenceURL": "https://man7.org/linux/man-pages/man2/readlink.2.html",
-                    "Evidence": "fs/link/read"
+                    "Key": "fs/link/read"
                 }
             ],
             "RiskScore": 1,

@@ -199,7 +199,7 @@ func renderTable(ctx context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 
 	kbs := []KeyedBehavior{}
 	for _, b := range fr.Behaviors {
-		kbs = append(kbs, KeyedBehavior{Key: b.Evidence, Behavior: b})
+		kbs = append(kbs, KeyedBehavior{Key: b.Key, Behavior: b})
 	}
 
 	if len(kbs) == 0 {

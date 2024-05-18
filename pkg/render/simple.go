@@ -32,11 +32,11 @@ func (r Simple) File(_ context.Context, fr *bincapz.FileReport) error {
 	bs = append(bs, fr.Behaviors...)
 
 	sort.Slice(bs, func(i, j int) bool {
-		return bs[i].Evidence < bs[j].Evidence
+		return bs[i].Key < bs[j].Key
 	})
 
-	for _, k := range bs {
-		fmt.Fprintf(r.w, "%s\n", k.Evidence)
+	for _, b := range bs {
+		fmt.Fprintf(r.w, "%s\n", b.Key)
 	}
 	return nil
 }
@@ -53,11 +53,11 @@ func (r Simple) Full(_ context.Context, rep *bincapz.Report) error {
 		bs = append(bs, fr.Behaviors...)
 
 		sort.Slice(bs, func(i, j int) bool {
-			return bs[i].Evidence < bs[j].Evidence
+			return bs[i].Key < bs[j].Key
 		})
 
-		for _, k := range bs {
-			fmt.Fprintf(r.w, "-%s\n", k.Evidence)
+		for _, b := range bs {
+			fmt.Fprintf(r.w, "-%s\n", b.Key)
 		}
 	}
 
@@ -68,11 +68,11 @@ func (r Simple) Full(_ context.Context, rep *bincapz.Report) error {
 		bs = append(bs, fr.Behaviors...)
 
 		sort.Slice(bs, func(i, j int) bool {
-			return bs[i].Evidence < bs[j].Evidence
+			return bs[i].Key < bs[j].Key
 		})
 
-		for _, k := range bs {
-			fmt.Fprintf(r.w, "+%s\n", k.Evidence)
+		for _, b := range bs {
+			fmt.Fprintf(r.w, "+%s\n", b.Key)
 		}
 	}
 
@@ -87,17 +87,17 @@ func (r Simple) Full(_ context.Context, rep *bincapz.Report) error {
 		bs = append(bs, fr.Behaviors...)
 
 		sort.Slice(bs, func(i, j int) bool {
-			return bs[i].Evidence < bs[j].Evidence
+			return bs[i].Key < bs[j].Key
 		})
 
 		for i := range bs {
 			b := bs[i]
 			if b.DiffRemoved {
-				fmt.Fprintf(r.w, "-%s\n", b.Evidence)
+				fmt.Fprintf(r.w, "-%s\n", b.Key)
 				continue
 			}
 			if b.DiffAdded {
-				fmt.Fprintf(r.w, "+%s\n", b.Evidence)
+				fmt.Fprintf(r.w, "+%s\n", b.Key)
 			}
 		}
 	}

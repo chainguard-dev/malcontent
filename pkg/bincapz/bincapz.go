@@ -22,9 +22,8 @@ type Behavior struct {
 	DiffAdded   bool `json:",omitempty" yaml:",omitempty"`
 	DiffRemoved bool `json:",omitempty" yaml:",omitempty"`
 
-	// Fields for more compliant JSON output
-	// Evidence is the original map key from map[string]*Behavior
-	Evidence string `json:",omitempty" yaml:",omitempty"`
+	// Key is the original map key from map[string]*Behavior
+	Key string `json:",omitempty" yaml:",omitempty"`
 }
 
 type FileReport struct {
