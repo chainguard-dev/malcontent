@@ -5,7 +5,7 @@ go 1.21.6
 require (
 	github.com/agext/levenshtein v1.2.3
 	github.com/chainguard-dev/clog v1.3.1
-	github.com/fatih/color v1.16.0
+	github.com/fatih/color v1.17.0
 	github.com/google/go-cmp v0.6.0
 	github.com/google/go-containerregistry v0.19.1
 	github.com/hillu/go-yara/v4 v4.3.2
