@@ -43,8 +43,8 @@ func main() {
 	ignoreTagsFlag := flag.String("ignore-tags", "", "Rule tags to ignore")
 	outputFlag := flag.String("o", "", "write output to this path instead of stdout")
 	includeDataFilesFlag := flag.Bool("data-files", false, "Include files that are detected as non-program (binary or source) files")
-	minFileLevelFlag := flag.Int("min-file-level", 0, "Only show results for files that meet this risk level (1=low, 2=medium, 3=high, 4=critical)")
-	minLevelFlag := flag.Int("min-level", 1, "Minimum risk level to show results for (1=low, 2=medium, 3=high, 4=critical)")
+	minFileRiskFlag := flag.Int("min-file-risk", 0, "Only show results for files that meet this risk level (1=low, 2=medium, 3=high, 4=critical)")
+	minRiskFlag := flag.Int("min-risk", 1, "Minimum risk level to show results for (1=low, 2=medium, 3=high, 4=critical)")
 	ociFlag := flag.Bool("oci", false, "Scan an OCI image")
 	omitEmptyFlag := flag.Bool("omit-empty", false, "Omit files that contain no matches")
 	profileFlag := flag.Bool("profile", false, "Generate profile and trace files")
@@ -100,11 +100,11 @@ func main() {
 
 	ignoreTags := strings.Split(*ignoreTagsFlag, ",")
 	includeDataFiles := *includeDataFilesFlag
-	minLevel := *minLevelFlag
+	minRisk := *minRiskFlag
 	stats := *statsFlag
 	if *allFlag {
 		ignoreTags = []string{}
-		minLevel = -1
+		minRisk = -1
 		includeDataFiles = true
 		*ignoreSelfFlag = false
 	}
@@ -146,8 +146,8 @@ func main() {
 		IgnoreSelf:       *ignoreSelfFlag,
 		IgnoreTags:       ignoreTags,
 		IncludeDataFiles: includeDataFiles,
-		MinFileScore:     *minFileLevelFlag,
-		MinResultScore:   minLevel,
+		MinFileRisk:      *minFileRiskFlag,
+		MinRisk:          minRisk,
 		OCI:              *ociFlag,
 		OmitEmpty:        *omitEmptyFlag,
 		Renderer:         renderer,

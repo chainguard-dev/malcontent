@@ -73,7 +73,7 @@ func scanSinglePath(ctx context.Context, c Config, yrs *yara.Rules, path string)
 		return &bincapz.FileReport{Path: path, Error: fmt.Sprintf("scanfile: %v", err)}, nil
 	}
 
-	fr, err := report.Generate(ctx, path, mrs, c.IgnoreTags, c.MinResultScore)
+	fr, err := report.Generate(ctx, path, mrs, c.IgnoreTags, c.MinRisk)
 	if err != nil {
 		return nil, err
 	}
@@ -191,7 +191,7 @@ func processFile(
 	}
 
 	if c.Renderer != nil {
-		if fr.RiskScore < c.MinFileScore {
+		if fr.RiskScore < c.MinFileRisk {
 			return nil
 		}
 		if err := c.Renderer.File(ctx, fr); err != nil {
@@ -208,7 +208,7 @@ func Scan(ctx context.Context, c Config) (*bincapz.Report, error) {
 		return r, err
 	}
 	for path, rf := range r.Files {
-		if rf.RiskScore < c.MinFileScore {
+		if rf.RiskScore < c.MinFileRisk {
 			delete(r.Files, path)
 		}
 	}
