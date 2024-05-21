@@ -45,12 +45,12 @@ func Diff(ctx context.Context, c Config) (*bincapz.Report, error) {
 		return nil, fmt.Errorf("diff mode requires 2 paths, you passed in %d path(s)", len(c.ScanPaths))
 	}
 
-	from, err := relFileReport(ctx, c, c.ScanPaths[0])
+	src, err := relFileReport(ctx, c, c.ScanPaths[0])
 	if err != nil {
 		return nil, err
 	}
 
-	to, err := relFileReport(ctx, c, c.ScanPaths[1])
+	dest, err := relFileReport(ctx, c, c.ScanPaths[1])
 	if err != nil {
 		return nil, err
 	}
@@ -61,39 +61,66 @@ func Diff(ctx context.Context, c Config) (*bincapz.Report, error) {
 		Modified: map[string]*bincapz.FileReport{},
 	}
 
+	processSrc(ctx, c, src, dest, d)
+	processDest(ctx, c, src, dest, d)
+	inferMoves(ctx, c, d)
+
+	return &bincapz.Report{Diff: d}, err
+}
+
+func processSrc(ctx context.Context, c Config, src, dest map[string]*bincapz.FileReport, d *bincapz.DiffReport) {
 	// things that appear in the source
-	for relPath, fr := range from {
-		tr, exists := to[relPath]
+	for relPath, fr := range src {
+		tr, exists := dest[relPath]
 		if !exists {
 			d.Removed[relPath] = fr
 			continue
 		}
-		// We've now established that file exists in both source & destination
-		if fr.RiskScore < c.MinFileScore && tr.RiskScore < c.MinFileScore {
-			clog.FromContext(ctx).Info("diff does not meet min trigger level", slog.Any("path", tr.Path))
-			continue
-		}
+		handleFile(ctx, c, fr, tr, relPath, d)
+	}
+}
 
-		rbs := &bincapz.FileReport{
-			Path:              tr.Path,
-			Behaviors:         map[string]*bincapz.Behavior{},
-			PreviousRiskScore: fr.RiskScore,
-			PreviousRiskLevel: fr.RiskLevel,
-			RiskLevel:         tr.RiskLevel,
-			RiskScore:         tr.RiskScore,
-		}
-
-		// if source behavior is not in the destination
-		for key, b := range fr.Behaviors {
-			if _, exists := tr.Behaviors[key]; !exists {
-				b.DiffRemoved = true
-				rbs.Behaviors[key] = b
-			}
-		}
-
-		d.Modified[relPath] = rbs
+func handleFile(ctx context.Context, c Config, fr, tr *bincapz.FileReport, relPath string, d *bincapz.DiffReport) {
+	// We've now established that file exists in both source & destination
+	if fr.RiskScore < c.MinFileScore && tr.RiskScore < c.MinFileScore {
+		clog.FromContext(ctx).Info("diff does not meet min trigger level", slog.Any("path", tr.Path))
+		return
 	}
 
+	rbs := createFileReport(tr, fr)
+
+	// if source behavior is not in the destination
+	for _, fb := range fr.Behaviors {
+		if !behaviorExists(fb, tr.Behaviors) {
+			fb.DiffRemoved = true
+			rbs.Behaviors = append(rbs.Behaviors, fb)
+		}
+	}
+
+	d.Modified[relPath] = rbs
+}
+
+func createFileReport(tr, fr *bincapz.FileReport) *bincapz.FileReport {
+	return &bincapz.FileReport{
+		Path:              tr.Path,
+		Behaviors:         []*bincapz.Behavior{},
+		PreviousRiskScore: fr.RiskScore,
+		PreviousRiskLevel: fr.RiskLevel,
+		RiskLevel:         tr.RiskLevel,
+		RiskScore:         tr.RiskScore,
+	}
+}
+
+func behaviorExists(b *bincapz.Behavior, behaviors []*bincapz.Behavior) bool {
+	for _, tb := range behaviors {
+		if tb.ID == b.ID {
+			return true
+		}
+	}
+	return false
+}
+
+func processDest(ctx context.Context, c Config, from, to map[string]*bincapz.FileReport, d *bincapz.DiffReport) {
 	// things that exist in the destination
 	for relPath, tr := range to {
 		fr, exists := from[relPath]
@@ -102,40 +129,36 @@ func Diff(ctx context.Context, c Config) (*bincapz.Report, error) {
 			continue
 		}
 
-		// We've now established that this file exists in both source and destination
-		if fr.RiskScore < c.MinFileScore && tr.RiskScore < c.MinFileScore {
-			clog.FromContext(ctx).Info("diff does not meet min trigger level", slog.Any("path", tr.Path))
-			continue
-		}
+		fileDestination(ctx, c, fr, tr, relPath, d)
+	}
+}
 
-		abs := &bincapz.FileReport{
-			Path:              tr.Path,
-			Behaviors:         map[string]*bincapz.Behavior{},
-			PreviousRiskScore: fr.RiskScore,
-			PreviousRiskLevel: fr.RiskLevel,
+func fileDestination(ctx context.Context, c Config, fr, tr *bincapz.FileReport, relPath string, d *bincapz.DiffReport) {
+	// We've now established that this file exists in both source and destination
+	if fr.RiskScore < c.MinFileScore && tr.RiskScore < c.MinFileScore {
+		clog.FromContext(ctx).Info("diff does not meet min trigger level", slog.Any("path", tr.Path))
+		return
+	}
 
-			RiskScore: tr.RiskScore,
-			RiskLevel: tr.RiskLevel,
-		}
+	abs := createFileReport(tr, fr)
 
-		// if destination behavior is not in the source
-		for key, b := range tr.Behaviors {
-			if _, exists := fr.Behaviors[key]; !exists {
-				b.DiffAdded = true
-				abs.Behaviors[key] = b
-			}
-		}
-
-		// are there already modified behaviors for this file?
-		if _, exists := d.Modified[relPath]; !exists {
-			d.Modified[relPath] = abs
-		} else {
-			for key, b := range abs.Behaviors {
-				d.Modified[relPath].Behaviors[key] = b
-			}
+	// if destination behavior is not in the source
+	for _, tb := range tr.Behaviors {
+		if !behaviorExists(tb, fr.Behaviors) {
+			tb.DiffAdded = true
+			abs.Behaviors = append(abs.Behaviors, tb)
 		}
 	}
 
+	// are there already modified behaviors for this file?
+	if _, exists := d.Modified[relPath]; !exists {
+		d.Modified[relPath] = abs
+	} else {
+		d.Modified[relPath].Behaviors = append(d.Modified[relPath].Behaviors, abs.Behaviors...)
+	}
+}
+
+func inferMoves(ctx context.Context, c Config, d *bincapz.DiffReport) {
 	// Walk over the added/removed paths and infer moves based on the
 	// levenshtein distance of the file names.  If the distance is a 90+% match,
 	// then treat it as a move.
@@ -156,47 +179,49 @@ func Diff(ctx context.Context, c Config) (*bincapz.Report, error) {
 				continue
 			}
 
-			if fr.RiskScore < c.MinFileScore && tr.RiskScore < c.MinFileScore {
-				clog.FromContext(ctx).Info("diff does not meet min trigger level", slog.Any("path", tr.Path))
-				continue
-			}
+			fileMove(ctx, c, fr, tr, rpath, apath, score, d)
+		}
+	}
+}
 
-			// We think that this file moved from rpath to apath.
-			abs := &bincapz.FileReport{
-				Path:                 tr.Path,
-				PreviousRelPath:      rpath,
-				PreviousRelPathScore: score,
+func fileMove(ctx context.Context, c Config, fr, tr *bincapz.FileReport, rpath, apath string, score float64, d *bincapz.DiffReport) {
+	if fr.RiskScore < c.MinFileScore && tr.RiskScore < c.MinFileScore {
+		clog.FromContext(ctx).Info("diff does not meet min trigger level", slog.Any("path", tr.Path))
+		return
+	}
 
-				Behaviors:         map[string]*bincapz.Behavior{},
-				PreviousRiskScore: fr.RiskScore,
-				PreviousRiskLevel: fr.RiskLevel,
+	// We think that this file moved from rpath to apath.
+	abs := &bincapz.FileReport{
+		Path:                 tr.Path,
+		PreviousRelPath:      rpath,
+		PreviousRelPathScore: score,
 
-				RiskScore: tr.RiskScore,
-				RiskLevel: tr.RiskLevel,
-			}
+		Behaviors:         []*bincapz.Behavior{},
+		PreviousRiskScore: fr.RiskScore,
+		PreviousRiskLevel: fr.RiskLevel,
 
-			// if destination behavior is not in the source
-			for key, b := range tr.Behaviors {
-				if _, exists := fr.Behaviors[key]; !exists {
-					b.DiffAdded = true
-					abs.Behaviors[key] = b
-				}
-			}
+		RiskScore: tr.RiskScore,
+		RiskLevel: tr.RiskLevel,
+	}
 
-			// if source behavior is not in the destination
-			for key, b := range fr.Behaviors {
-				if _, exists := tr.Behaviors[key]; !exists {
-					b.DiffRemoved = true
-					abs.Behaviors[key] = b
-				}
-			}
-
-			// Move these into the modified list.
-			d.Modified[apath] = abs
-			delete(d.Removed, rpath)
-			delete(d.Added, apath)
+	// if destination behavior is not in the source
+	for _, tb := range tr.Behaviors {
+		if !behaviorExists(tb, fr.Behaviors) {
+			tb.DiffAdded = true
+			abs.Behaviors = append(abs.Behaviors, tb)
 		}
 	}
 
-	return &bincapz.Report{Diff: d}, err
+	// if source behavior is not in the destination
+	for _, fb := range fr.Behaviors {
+		if !behaviorExists(fb, tr.Behaviors) {
+			fb.DiffRemoved = true
+			abs.Behaviors = append(abs.Behaviors, fb)
+		}
+	}
+
+	// Move these into the modified list.
+	d.Modified[apath] = abs
+	delete(d.Removed, rpath)
+	delete(d.Added, apath)
 }

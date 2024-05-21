@@ -82,7 +82,7 @@ func TestJSON(t *testing.T) {
 
 			got := out.String()
 			if diff := cmp.Diff(want, got); diff != "" {
-				t.Errorf("markdown output mismatch: (-want +got):\n%s", diff)
+				t.Errorf("json output mismatch: (-want +got):\n%s", diff)
 			}
 		})
 		return nil

@@ -27,14 +27,16 @@ func (r Simple) File(_ context.Context, fr *bincapz.FileReport) error {
 
 	fmt.Fprintf(r.w, "# %s\n", fr.Path)
 
-	bs := []string{}
+	bs := []*bincapz.Behavior{}
 
-	for k := range fr.Behaviors {
-		bs = append(bs, k)
-	}
-	sort.Strings(bs)
-	for _, k := range bs {
-		fmt.Fprintf(r.w, "%s\n", k)
+	bs = append(bs, fr.Behaviors...)
+
+	sort.Slice(bs, func(i, j int) bool {
+		return bs[i].ID < bs[j].ID
+	})
+
+	for _, b := range bs {
+		fmt.Fprintf(r.w, "%s\n", b.ID)
 	}
 	return nil
 }
@@ -47,27 +49,30 @@ func (r Simple) Full(_ context.Context, rep *bincapz.Report) error {
 	for f, fr := range rep.Diff.Removed {
 		fmt.Fprintf(r.w, "--- missing: %s\n", f)
 
-		bs := []string{}
-		for k := range fr.Behaviors {
-			bs = append(bs, k)
-		}
-		sort.Strings(bs)
+		bs := []*bincapz.Behavior{}
+		bs = append(bs, fr.Behaviors...)
 
-		for _, k := range bs {
-			fmt.Fprintf(r.w, "-%s\n", k)
+		sort.Slice(bs, func(i, j int) bool {
+			return bs[i].ID < bs[j].ID
+		})
+
+		for _, b := range bs {
+			fmt.Fprintf(r.w, "-%s\n", b.ID)
 		}
 	}
 
 	for f, fr := range rep.Diff.Removed {
 		fmt.Fprintf(r.w, "++++ added: %s\n", f)
-		bs := []string{}
-		for k := range fr.Behaviors {
-			bs = append(bs, k)
-		}
-		sort.Strings(bs)
 
-		for _, k := range bs {
-			fmt.Fprintf(r.w, "+%s\n", k)
+		bs := []*bincapz.Behavior{}
+		bs = append(bs, fr.Behaviors...)
+
+		sort.Slice(bs, func(i, j int) bool {
+			return bs[i].ID < bs[j].ID
+		})
+
+		for _, b := range bs {
+			fmt.Fprintf(r.w, "+%s\n", b.ID)
 		}
 	}
 
@@ -77,20 +82,22 @@ func (r Simple) Full(_ context.Context, rep *bincapz.Report) error {
 		} else {
 			fmt.Fprintf(r.w, "*** changed: %s\n", fr.Path)
 		}
-		bs := []string{}
-		for k := range fr.Behaviors {
-			bs = append(bs, k)
-		}
-		sort.Strings(bs)
 
-		for _, k := range bs {
-			b := fr.Behaviors[k]
+		bs := []*bincapz.Behavior{}
+		bs = append(bs, fr.Behaviors...)
+
+		sort.Slice(bs, func(i, j int) bool {
+			return bs[i].ID < bs[j].ID
+		})
+
+		for i := range bs {
+			b := bs[i]
 			if b.DiffRemoved {
-				fmt.Fprintf(r.w, "-%s\n", k)
+				fmt.Fprintf(r.w, "-%s\n", b.ID)
 				continue
 			}
 			if b.DiffAdded {
-				fmt.Fprintf(r.w, "+%s\n", k)
+				fmt.Fprintf(r.w, "+%s\n", b.ID)
 			}
 		}
 	}
