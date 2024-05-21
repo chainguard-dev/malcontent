@@ -22,8 +22,8 @@ type Behavior struct {
 	DiffAdded   bool `json:",omitempty" yaml:",omitempty"`
 	DiffRemoved bool `json:",omitempty" yaml:",omitempty"`
 
-	// Key is the original map key from map[string]*Behavior
-	Key string `json:",omitempty" yaml:",omitempty"`
+	// ID is the original map key from map[string]*Behavior
+	ID string `json:",omitempty" yaml:",omitempty"`
 }
 
 type FileReport struct {
