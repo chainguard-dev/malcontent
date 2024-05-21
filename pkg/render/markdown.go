@@ -118,8 +118,8 @@ func markdownTable(_ context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 	}
 
 	kbs := []KeyedBehavior{}
-	for k, b := range fr.Behaviors {
-		kbs = append(kbs, KeyedBehavior{Key: k, Behavior: b})
+	for _, b := range fr.Behaviors {
+		kbs = append(kbs, KeyedBehavior{Key: b.ID, Behavior: b})
 	}
 
 	if len(kbs) == 0 {

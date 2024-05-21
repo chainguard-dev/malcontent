@@ -287,7 +287,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 		Path:      path,
 		SHA256:    ptCheck,
 		Meta:      map[string]string{},
-		Behaviors: map[string]*bincapz.Behavior{},
+		Behaviors: []*bincapz.Behavior{},
 	}
 
 	pledges := []string{}
@@ -311,9 +311,10 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 		ruleURL := generateRuleURL(m.Namespace, m.Rule)
 
 		b := &bincapz.Behavior{
-			RiskScore:    risk,
-			RiskLevel:    RiskLevels[risk],
+			ID:           key,
 			MatchStrings: matchStrings(m.Rule, m.Strings),
+			RiskLevel:    RiskLevels[risk],
+			RiskScore:    risk,
 			RuleURL:      ruleURL,
 		}
 
@@ -393,16 +394,24 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 			b.Description = strings.ReplaceAll(m.Rule, "_", " ")
 		}
 
-		existing, exists := fr.Behaviors[key]
-		// If we have matched a lower priority rule in the same namespace, replace it
-		if !exists || existing.RiskScore < b.RiskScore {
-			fr.Behaviors[key] = b
-			continue
+		existingIndex := -1
+		for i, existing := range fr.Behaviors {
+			if existing.ID == key {
+				existingIndex = i
+				break
+			}
 		}
 
 		// If the existing description is longer and the priority is the same or lower
-		if len(existing.Description) < len(b.Description) && existing.RiskScore <= b.RiskScore {
-			fr.Behaviors[key].Description = b.Description
+		if existingIndex != -1 {
+			if fr.Behaviors[existingIndex].RiskScore < b.RiskScore {
+				fr.Behaviors = append(fr.Behaviors[:existingIndex], append([]*bincapz.Behavior{b}, fr.Behaviors[existingIndex+1:]...)...)
+			}
+			if len(fr.Behaviors[existingIndex].Description) < len(b.Description) && fr.Behaviors[existingIndex].RiskScore <= b.RiskScore {
+				fr.Behaviors[existingIndex].Description = b.Description
+			}
+		} else {
+			fr.Behaviors = append(fr.Behaviors, b)
 		}
 
 		// TODO: If we match multiple rules within a single namespace, merge matchstrings
