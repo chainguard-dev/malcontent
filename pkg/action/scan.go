@@ -66,16 +66,7 @@ func formatPath(path string) string {
 	if strings.Contains(path, "\\") {
 		path = strings.ReplaceAll(path, "\\", "/")
 	}
-	p := strings.TrimPrefix(path, "/")
-
-	ps := strings.Split(p, "/")
-	fp := make([]string, 0, len(ps))
-	for _, s := range ps {
-		if s != "" {
-			fp = append(fp, s)
-		}
-	}
-	return strings.Join(fp, " ∴ ")
+	return strings.TrimPrefix(path, "/")
 }
 
 func scanSinglePath(ctx context.Context, c Config, yrs *yara.Rules, path string, absPath string, root string) (*bincapz.FileReport, error) {

@@ -244,8 +244,8 @@ func TestScanArchive(t *testing.T) {
 
 	// Remove the header since it is not deterministic
 	// due to the usage of temporary directories
-	idx := bytes.IndexByte(out.Bytes(), '\n')
-	out.Next(idx + 1)
+	// idx := bytes.IndexByte(out.Bytes(), '\n')
+	// out.Next(idx + 1)
 
 	outBytes := out.Bytes()
 
