@@ -93,7 +93,7 @@ func scanSinglePath(ctx context.Context, c Config, yrs *yara.Rules, path string,
 
 	// If absPath is provided, use it instead of the path if they are different.
 	// This is useful when scanning images and archives.
-	if absPath != "" && absPath != path {
+	if absPath != "" && absPath != path && root != "" {
 		fr.Path = fmt.Sprintf("%s ∴ %s", absPath, formatPath(cleanPath(path, root)))
 	}
 
