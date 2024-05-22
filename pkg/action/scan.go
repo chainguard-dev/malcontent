@@ -9,7 +9,6 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
@@ -17,12 +16,6 @@ import (
 	"github.com/chainguard-dev/bincapz/pkg/report"
 	"github.com/chainguard-dev/clog"
 	"github.com/hillu/go-yara/v4"
-)
-
-var (
-	linuxPattern   = regexp.MustCompile(`/tmp/[a-z0-9_]+`)
-	macOSPattern   = regexp.MustCompile(`/var/folders/[a-z0-9_]+/[a-z0-9_]+/T/[^/]+`)
-	windowsPattern = regexp.MustCompile(`C:\\Users\\[^\\]+\\AppData\\Local\\Temp\\[^\\]+`)
 )
 
 // return a list of files within a path.
@@ -64,17 +57,8 @@ func findFilesRecursively(ctx context.Context, root string, c Config) ([]string,
 }
 
 // cleanPath removes the temporary directory prefix from the path.
-func cleanPath(path string) string {
-	if linuxPattern.MatchString(path) {
-		path = linuxPattern.ReplaceAllString(path, "")
-	}
-	if macOSPattern.MatchString(path) {
-		path = macOSPattern.ReplaceAllString(path, "")
-	}
-	if windowsPattern.MatchString(path) {
-		path = windowsPattern.ReplaceAllString(path, "")
-	}
-	return path
+func cleanPath(path string, prefix string) string {
+	return strings.TrimPrefix(path, prefix)
 }
 
 // formatPath formats the path for display.
@@ -94,7 +78,7 @@ func formatPath(path string) string {
 	return strings.Join(fp, " ∴ ")
 }
 
-func scanSinglePath(ctx context.Context, c Config, yrs *yara.Rules, path string, absPath string) (*bincapz.FileReport, error) {
+func scanSinglePath(ctx context.Context, c Config, yrs *yara.Rules, path string, absPath string, root string) (*bincapz.FileReport, error) {
 	logger := clog.FromContext(ctx)
 	var mrs yara.MatchRules
 	logger = logger.With("path", path)
@@ -119,7 +103,7 @@ func scanSinglePath(ctx context.Context, c Config, yrs *yara.Rules, path string,
 	// If absPath is provided, use it instead of the path if they are different.
 	// This is useful when scanning images and archives.
 	if absPath != "" && absPath != path {
-		fr.Path = fmt.Sprintf("%s ∴ %s", absPath, formatPath(cleanPath(path)))
+		fr.Path = fmt.Sprintf("%s ∴ %s", absPath, formatPath(cleanPath(path, root)))
 	}
 
 	if len(fr.Behaviors) == 0 && c.OmitEmpty {
@@ -178,7 +162,7 @@ func recursiveScan(ctx context.Context, c Config) (*bincapz.Report, error) {
 				if c.OCI {
 					sp = ip
 				}
-				err = processFile(ctx, c, yrs, r, p, sp, logger)
+				err = processFile(ctx, c, yrs, r, p, sp, "", logger)
 				if err != nil {
 					logger.Errorf("unable to process %s: %v", p, err)
 				}
@@ -197,24 +181,24 @@ func recursiveScan(ctx context.Context, c Config) (*bincapz.Report, error) {
 func processArchive(ctx context.Context, c Config, yrs *yara.Rules, r *bincapz.Report, path string, logger *clog.Logger) error {
 	var err error
 
-	extractedRoot, err := extractArchiveToTempDir(ctx, path)
+	er, err := extractArchiveToTempDir(ctx, path)
 	if err != nil {
 		return fmt.Errorf("extract to temp: %w", err)
 	}
 
-	aps, err := findFilesRecursively(ctx, extractedRoot, c)
+	aps, err := findFilesRecursively(ctx, er, c)
 	if err != nil {
 		return fmt.Errorf("find files: %w", err)
 	}
 
 	for _, ap := range aps {
-		err = processFile(ctx, c, yrs, r, ap, path, logger)
+		err = processFile(ctx, c, yrs, r, ap, path, er, logger)
 		if err != nil {
 			return err
 		}
 	}
-	if err := os.RemoveAll(extractedRoot); err != nil {
-		logger.Errorf("remove %s: %v", extractedRoot, err)
+	if err := os.RemoveAll(er); err != nil {
+		logger.Errorf("remove %s: %v", er, err)
 	}
 	return nil
 }
@@ -225,9 +209,10 @@ func processFile(
 	r *bincapz.Report,
 	path string,
 	absPath string,
+	ar string,
 	logger *clog.Logger,
 ) error {
-	fr, err := scanSinglePath(ctx, c, yrs, path, absPath)
+	fr, err := scanSinglePath(ctx, c, yrs, path, absPath, ar)
 	if err != nil {
 		logger.Errorf("scan path: %v", err)
 		return nil
