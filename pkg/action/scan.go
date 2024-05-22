@@ -56,7 +56,20 @@ func findFilesRecursively(ctx context.Context, root string, c Config) ([]string,
 	return files, err
 }
 
-func scanSinglePath(ctx context.Context, c Config, yrs *yara.Rules, path string) (*bincapz.FileReport, error) {
+// cleanPath removes the temporary directory prefix from the path.
+func cleanPath(path string, prefix string) string {
+	return strings.TrimPrefix(path, prefix)
+}
+
+// formatPath formats the path for display.
+func formatPath(path string) string {
+	if strings.Contains(path, "\\") {
+		path = strings.ReplaceAll(path, "\\", "/")
+	}
+	return strings.TrimPrefix(path, "/")
+}
+
+func scanSinglePath(ctx context.Context, c Config, yrs *yara.Rules, path string, absPath string, root string) (*bincapz.FileReport, error) {
 	logger := clog.FromContext(ctx)
 	var mrs yara.MatchRules
 	logger = logger.With("path", path)
@@ -76,6 +89,12 @@ func scanSinglePath(ctx context.Context, c Config, yrs *yara.Rules, path string)
 	fr, err := report.Generate(ctx, path, mrs, c.IgnoreTags, c.MinResultScore)
 	if err != nil {
 		return nil, err
+	}
+
+	// If absPath is provided, use it instead of the path if they are different.
+	// This is useful when scanning images and archives.
+	if absPath != "" && absPath != path {
+		fr.Path = fmt.Sprintf("%s ∴ %s", absPath, formatPath(cleanPath(path, root)))
 	}
 
 	if len(fr.Behaviors) == 0 && c.OmitEmpty {
@@ -103,8 +122,11 @@ func recursiveScan(ctx context.Context, c Config) (*bincapz.Report, error) {
 	logger.Infof("%d rules loaded", len(yrs.GetRules()))
 
 	for _, sp := range c.ScanPaths {
+		var ip string
 		if c.OCI {
 			var err error
+			// store the image URI for later use
+			ip = sp
 			sp, err = oci(ctx, sp)
 			if err != nil {
 				return nil, fmt.Errorf("failed to prepare OCI image for scanning: %w", err)
@@ -128,7 +150,10 @@ func recursiveScan(ctx context.Context, c Config) (*bincapz.Report, error) {
 					logger.Errorf("unable to process %s: %v", p, err)
 				}
 			} else {
-				err = processFile(ctx, c, yrs, r, p, logger)
+				if c.OCI {
+					sp = ip
+				}
+				err = processFile(ctx, c, yrs, r, p, sp, "", logger)
 				if err != nil {
 					logger.Errorf("unable to process %s: %v", p, err)
 				}
@@ -147,24 +172,24 @@ func recursiveScan(ctx context.Context, c Config) (*bincapz.Report, error) {
 func processArchive(ctx context.Context, c Config, yrs *yara.Rules, r *bincapz.Report, path string, logger *clog.Logger) error {
 	var err error
 
-	extractedRoot, err := extractArchiveToTempDir(ctx, path)
+	er, err := extractArchiveToTempDir(ctx, path)
 	if err != nil {
 		return fmt.Errorf("extract to temp: %w", err)
 	}
 
-	aps, err := findFilesRecursively(ctx, extractedRoot, c)
+	aps, err := findFilesRecursively(ctx, er, c)
 	if err != nil {
 		return fmt.Errorf("find files: %w", err)
 	}
 
 	for _, ap := range aps {
-		err = processFile(ctx, c, yrs, r, ap, logger)
+		err = processFile(ctx, c, yrs, r, ap, path, er, logger)
 		if err != nil {
 			return err
 		}
 	}
-	if err := os.RemoveAll(extractedRoot); err != nil {
-		logger.Errorf("remove %s: %v", extractedRoot, err)
+	if err := os.RemoveAll(er); err != nil {
+		logger.Errorf("remove %s: %v", er, err)
 	}
 	return nil
 }
@@ -174,9 +199,11 @@ func processFile(
 	c Config, yrs *yara.Rules,
 	r *bincapz.Report,
 	path string,
+	absPath string,
+	ar string,
 	logger *clog.Logger,
 ) error {
-	fr, err := scanSinglePath(ctx, c, yrs, path)
+	fr, err := scanSinglePath(ctx, c, yrs, path, absPath, ar)
 	if err != nil {
 		logger.Errorf("scan path: %v", err)
 		return nil

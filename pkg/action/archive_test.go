@@ -242,11 +242,6 @@ func TestScanArchive(t *testing.T) {
 		t.Fatalf("full: %v", err)
 	}
 
-	// Remove the header since it is not deterministic
-	// due to the usage of temporary directories
-	idx := bytes.IndexByte(out.Bytes(), '\n')
-	out.Next(idx + 1)
-
 	outBytes := out.Bytes()
 
 	// Sort the output to ensure consistent ordering
