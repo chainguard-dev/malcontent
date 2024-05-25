@@ -117,7 +117,7 @@ func markdownTable(_ context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 		return
 	}
 
-	kbs := []KeyedBehavior{}
+	var kbs []KeyedBehavior
 	for _, b := range fr.Behaviors {
 		kbs = append(kbs, KeyedBehavior{Key: b.ID, Behavior: b})
 	}
@@ -140,7 +140,7 @@ func markdownTable(_ context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 		return kbs[i].Behavior.RiskScore > kbs[j].Behavior.RiskScore
 	})
 
-	data := [][]string{}
+	var data [][]string
 
 	for _, k := range kbs {
 		desc := k.Behavior.Description
@@ -185,7 +185,7 @@ func markdownTable(_ context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 			key = fmt.Sprintf("**%s**", key)
 		}
 
-		matchLinks := []string{}
+		var matchLinks []string
 		for _, m := range k.Behavior.MatchStrings {
 			matchLinks = append(matchLinks, matchFragmentLink(m))
 		}

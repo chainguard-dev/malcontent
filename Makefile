@@ -49,7 +49,11 @@ fix: $(FIXERS)
 
 .PHONY: test
 test:
-	go test ./... -v
+	go test ./...
+
+.PHONY: bench
+bench:
+	go test -run=^\$$ -bench=. ./... -benchmem
 
 .PHONY: update-third-party
 update-third-party:
