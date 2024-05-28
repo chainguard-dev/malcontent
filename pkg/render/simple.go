@@ -27,7 +27,7 @@ func (r Simple) File(_ context.Context, fr *bincapz.FileReport) error {
 
 	fmt.Fprintf(r.w, "# %s\n", fr.Path)
 
-	bs := []*bincapz.Behavior{}
+	var bs []*bincapz.Behavior
 
 	bs = append(bs, fr.Behaviors...)
 
@@ -49,7 +49,7 @@ func (r Simple) Full(_ context.Context, rep *bincapz.Report) error {
 	for f, fr := range rep.Diff.Removed {
 		fmt.Fprintf(r.w, "--- missing: %s\n", f)
 
-		bs := []*bincapz.Behavior{}
+		var bs []*bincapz.Behavior
 		bs = append(bs, fr.Behaviors...)
 
 		sort.Slice(bs, func(i, j int) bool {
@@ -64,7 +64,7 @@ func (r Simple) Full(_ context.Context, rep *bincapz.Report) error {
 	for f, fr := range rep.Diff.Removed {
 		fmt.Fprintf(r.w, "++++ added: %s\n", f)
 
-		bs := []*bincapz.Behavior{}
+		var bs []*bincapz.Behavior
 		bs = append(bs, fr.Behaviors...)
 
 		sort.Slice(bs, func(i, j int) bool {
@@ -83,7 +83,7 @@ func (r Simple) Full(_ context.Context, rep *bincapz.Report) error {
 			fmt.Fprintf(r.w, "*** changed: %s\n", fr.Path)
 		}
 
-		bs := []*bincapz.Behavior{}
+		var bs []*bincapz.Behavior
 		bs = append(bs, fr.Behaviors...)
 
 		sort.Slice(bs, func(i, j int) bool {

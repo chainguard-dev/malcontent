@@ -68,7 +68,7 @@ func Recursive(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {
 			}
 
 			logger := clog.FromContext(ctx).With("path", path)
-			if !d.IsDir() && filepath.Ext(path) == ".yara" || filepath.Ext(path) == ".yar" {
+			if !d.IsDir() && (filepath.Ext(path) == ".yara" || filepath.Ext(path) == ".yar") {
 				bs, err := fs.ReadFile(root, path)
 				if err != nil {
 					return fmt.Errorf("readfile: %w", err)
