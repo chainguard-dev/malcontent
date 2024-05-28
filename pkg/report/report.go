@@ -337,6 +337,10 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 					b.RuleAuthor = m[1]
 					b.RuleAuthorURL = m[2]
 				}
+				// If author is in @username format, strip @ to avoid constantly pinging them on GitHub
+				if strings.HasPrefix(b.RuleAuthor, "@") {
+					b.RuleAuthor = strings.Replace(b.RuleAuthor, "@", "", 1)
+				}
 			case "author_url":
 				b.RuleAuthorURL = v
 			case "__bincapz__":
