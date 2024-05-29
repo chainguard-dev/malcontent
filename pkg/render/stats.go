@@ -14,14 +14,11 @@ func riskStatistics(files map[string]*bincapz.FileReport) ([]bincapz.IntMetric, 
 
 	// as opposed to skipped files
 	processedFiles := 0
-	for _, rf := range files {
+	for path, rf := range files {
 		if rf.Skipped != "" {
 			continue
 		}
 		processedFiles++
-	}
-
-	for path, rf := range files {
 		if rf.Skipped != "" {
 			continue
 		}
