@@ -177,7 +177,7 @@ func wrapKey(s string, i int) string {
 }
 
 func darkenText(s string) string {
-	cw := []string{}
+	var cw []string
 	for _, w := range strings.Split(s, "\n") {
 		cw = append(cw, color.HiBlackString(w))
 	}
@@ -197,7 +197,7 @@ func renderTable(ctx context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 		return
 	}
 
-	kbs := []KeyedBehavior{}
+	var kbs []KeyedBehavior
 	for _, b := range fr.Behaviors {
 		kbs = append(kbs, KeyedBehavior{Key: b.ID, Behavior: b})
 	}
@@ -216,7 +216,7 @@ func renderTable(ctx context.Context, fr *bincapz.FileReport, w io.Writer, rc ta
 		return kbs[i].Behavior.RiskScore < kbs[j].Behavior.RiskScore
 	})
 
-	data := [][]string{}
+	var data [][]string
 
 	tWidth := terminalWidth(ctx)
 	keyWidth := 24

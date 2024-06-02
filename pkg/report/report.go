@@ -83,7 +83,7 @@ func thirdPartyKey(path string, rule string) string {
 	if err == nil {
 		words = words[0 : len(words)-1]
 	}
-	keepWords := []string{}
+	var keepWords []string
 	for x, w := range words {
 		// ends with a date
 		if x == len(words)-1 && dateRe.MatchString(w) {
@@ -185,7 +185,7 @@ func unprintableString(s string) bool {
 }
 
 func longestUnique(raw []string) []string {
-	longest := []string{}
+	var longest []string
 
 	// inefficiently remove substring matches
 	for _, s := range slices.Compact(raw) {
@@ -207,30 +207,25 @@ func longestUnique(raw []string) []string {
 	return longest
 }
 
-// convert MatchString to a usable string.
 func matchToString(ruleName string, m yara.MatchString) string {
 	s := string(m.Data)
-	if strings.Contains(ruleName, "base64") && !strings.Contains(s, "base64") {
+	switch {
+	case strings.Contains(ruleName, "base64") && !strings.Contains(s, "base64"):
 		s = fmt.Sprintf("%s::%s", s, m.Name)
-	}
-	if strings.Contains(ruleName, "xor") && !strings.Contains(s, "xor") {
+	case strings.Contains(ruleName, "xor") && !strings.Contains(s, "xor"):
 		s = fmt.Sprintf("%s::%s", s, m.Name)
-	}
-
-	if unprintableString(s) {
+	case unprintableString(s):
 		s = m.Name
-	}
 	// bad hack, can we do this in YARA?
-	if strings.Contains(m.Name, "xml_key_val") {
-		s = strings.ReplaceAll(s, "<key>", "")
-		s = strings.ReplaceAll(s, "</key>", "")
+	case strings.Contains(m.Name, "xml_key_val"):
+		s = strings.ReplaceAll(strings.ReplaceAll(s, "<key>", ""), "</key>", "")
 	}
 	return strings.TrimSpace(s)
 }
 
 // extract match strings.
 func matchStrings(ruleName string, ms []yara.MatchString) []string {
-	raw := []string{}
+	var raw []string
 
 	for _, m := range ms {
 		raw = append(raw, matchToString(ruleName, m))
@@ -290,9 +285,10 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 		Behaviors: []*bincapz.Behavior{},
 	}
 
-	pledges := []string{}
-	caps := []string{}
-	syscalls := []string{}
+	var pledges []string
+	var caps []string
+	var syscalls []string
+
 	overallRiskScore := 0
 	riskCounts := map[int]int{}
 	risk := 0
@@ -337,6 +333,10 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 					b.RuleAuthor = m[1]
 					b.RuleAuthorURL = m[2]
 				}
+				// If author is in @username format, strip @ to avoid constantly pinging them on GitHub
+				if strings.HasPrefix(b.RuleAuthor, "@") {
+					b.RuleAuthor = strings.Replace(b.RuleAuthor, "@", "", 1)
+				}
 			case "author_url":
 				b.RuleAuthorURL = v
 			case "__bincapz__":
@@ -374,7 +374,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 			b.ReferenceURL = ""
 		}
 
-		// Meta names are weird and unfortunate, depending if they hold a value
+		// Meta names are weird and unfortunate, depending on whether they hold a value
 		if strings.HasPrefix(key, "meta/") {
 			k := strings.ReplaceAll(filepath.Dir(key), "meta/", "")
 			v := filepath.Base(key)

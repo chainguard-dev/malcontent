@@ -38,8 +38,11 @@ var extMap = map[string]string{
 	".cron":    "crontab",
 	".crontab": "crontab",
 	".expect":  "Expect script",
+	".fish":    "Fish script",
 	".gem":     "Ruby gem",
+	".go":      "Go source",
 	".gz":      "Gzip compressed",
+	".h":       "C header",
 	".html":    "",
 	".jar":     "Java program",
 	".java":    "Java source",
@@ -49,6 +52,7 @@ var extMap = map[string]string{
 	".pl":      "PERL script",
 	".py":      "Python script",
 	".rb":      "Ruby script",
+	".rs":      "Rust source",
 	".scpt":    "compiled AppleScript",
 	".scptd":   "compiled AppleScript",
 	".service": "systemd",
@@ -57,6 +61,7 @@ var extMap = map[string]string{
 	".yaml":    "",
 	".yara":    "",
 	".yml":     "",
+	".zsh":     "Zshell script",
 }
 
 // programKind tries to identify if a path is a program.
@@ -71,66 +76,61 @@ func programKind(ctx context.Context, path string) string {
 	defer f.Close()
 
 	desc := ""
-	var headerString string
+	headerString := ""
 	n, err := io.ReadFull(f, header[:])
-	switch {
-	case err == nil || errors.Is(err, io.ErrUnexpectedEOF):
-		// Read the full buffer, or some bytes, all good
+	if err == nil || errors.Is(err, io.ErrUnexpectedEOF) {
 		kind, err := magic.Lookup(header[:n])
 		if err == nil {
 			desc = kind.Description
-		} else {
-			desc = ""
 		}
 		headerString = string(header[:n])
-	case errors.Is(err, io.EOF):
-		// Nothing was read, so set the buffer so.
-		desc = ""
-		headerString = ""
 	}
 
 	// TODO: Is it safe to log unsanitized file stuff?
 	logger.Debug("magic", slog.String("desc", desc), slog.String("header", headerString), slog.Any("err", err))
 
-	// the magic library gets these wrong
-	if strings.HasSuffix(path, ".json") {
-		return ""
-	}
-
-	// By Magic
-	d := strings.ToLower(desc)
-	if strings.Contains(d, "executable") || strings.Contains(d, "mach-o") || strings.Contains(d, "script") {
-		return desc
-	}
-
-	// By Filename
-	switch {
-	case strings.Contains(path, "systemd"):
-		return "systemd"
-	case strings.Contains(path, ".elf"):
-		return "Linux ELF binary"
-	case strings.Contains(path, ".xcoff"):
-		return "XCOFF progam"
-	case strings.Contains(path, ".dylib"):
-		return "macOS dynamic library"
-	case strings.HasSuffix(path, "profile"):
-		return "Shell script"
-	}
-
 	if found, kind := byExtension(path); found {
 		return kind
 	}
 
-	// By string match
+	d := strings.ToLower(desc)
 	switch {
+	// By magic
+	case strings.Contains(d, "executable") ||
+		strings.Contains(d, "mach-o") ||
+		strings.Contains(d, "script"):
+		return desc
+	// By header string
 	case strings.Contains(headerString, "import "):
 		return "Python script"
-	case strings.HasPrefix(headerString, "#!/bin/sh") || strings.HasPrefix(headerString, "#!/bin/bash") || strings.Contains(headerString, `echo "`) || strings.Contains(headerString, `if [`) || strings.Contains(headerString, `grep `) || strings.Contains(headerString, "if !"):
+	case strings.HasPrefix(headerString, "#!/bin/ash") ||
+		strings.HasPrefix(headerString, "#!/bin/bash") ||
+		strings.HasPrefix(headerString, "#!/bin/fish") ||
+		strings.HasPrefix(headerString, "#!/bin/sh") ||
+		strings.HasPrefix(headerString, "#!/bin/zsh") ||
+		strings.Contains(headerString, `echo "`) ||
+		strings.Contains(headerString, `if [`) ||
+		strings.Contains(headerString, `grep `) ||
+		strings.Contains(headerString, "if !"):
 		return "Shell script"
 	case strings.HasPrefix(headerString, "#!"):
 		return "script"
 	case strings.Contains(headerString, "#include <"):
 		return "C Program"
+	// By filename or extension
+	case strings.Contains(path, "systemd"):
+		return "systemd"
+	case strings.Contains(path, ".elf"):
+		return "Linux ELF binary"
+	case strings.Contains(path, ".xcoff"):
+		return "XCOFF program"
+	case strings.Contains(path, ".dylib"):
+		return "macOS dynamic library"
+	case strings.HasSuffix(path, "profile"):
+		return "Shell script"
+	// the magic library gets these wrong
+	case strings.HasSuffix(path, ".json"):
+		return ""
 	}
 	return ""
 }
