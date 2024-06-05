@@ -31,6 +31,8 @@ function update_dep() {
 	local tmpdir=$(mktemp -d)
 	local rel="unknown"
 
+	mkdir -p "${kind}" || true
+
 	case $kind in
 	YARAForge)
 		rel=$(latest_github_release YARAHQ/yara-forge)
@@ -43,6 +45,23 @@ function update_dep() {
 		rel="$(git rev-parse HEAD)"
 		popd || exit 1
 		find "${tmpdir}" \( -name "*.yar*" -o -name "*LICENSE*" \) -print -exec cp {} "${kind}" \;
+		;;
+	php-malware)
+		git clone https://github.com/jvoisin/php-malware-finder.git "${tmpdir}"
+		pushd "${tmpdir}" || exit 1
+		rel="$(git rev-parse HEAD)"
+		popd || exit 1
+		cp "${tmpdir}/LICENSE" "${kind}"
+		echo '/* bincapz HACK: whitelist non-PHP programs */
+private rule IsWhitelisted {
+  strings:
+	$php = "<?"
+  condition:
+	not $php in (0..4)
+}
+' > "${tmpdir}/whitelist.yar"
+
+		grep -hv 'include "whitelist.yar"' "${tmpdir}/whitelist.yar" "${tmpdir}/data/php.yar" > "${kind}/php.yar"
 		;;
 	threat_hunting)
 		rel=$(latest_github_release mthcht/ThreatHunting-Keywords-yara-rules)

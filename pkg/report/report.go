@@ -147,6 +147,10 @@ func behaviorRisk(ns string, rule string, tags []string) int {
 		risk = 4
 	}
 
+	if strings.Contains(ns, "php-malware-finder") {
+		risk = 3
+	}
+
 	if strings.Contains(ns, "keyword") || strings.Contains(rule, "keyword") {
 		risk = 2
 	}
