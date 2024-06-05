@@ -28,20 +28,41 @@ rule remote_eval_close : critical {
 
 rule python_exec_near_requests : critical {
   meta:
-    description = "Evaluates code from encrypted content"
+    description = "Executes code from encrypted remote content"
   strings:
     $exec = "exec("
-    $requests = "equests.get("
+    $requests = "requests.get"
   condition:
     all of them and math.abs(@requests - @exec) <= 256
 }
 
 rule python_eval_near_requests : critical {
   meta:
-    description = "Evaluates code from encrypted content"
+    description = "Evaluates code from encrypted remote content"
   strings:
     $eval = "eval("
-    $requests = "equests.get("
+    $requests = "requests.get"
   condition:
     all of them and math.abs(@requests - @eval) <= 256
+}
+
+
+rule python_exec_near_get : critical {
+  meta:
+    description = "Executes code from encrypted content"
+  strings:
+    $exec = "exec("
+    $requests = /[a-z]{1,4}.get\(/ fullword
+  condition:
+    all of them and math.abs(@requests - @exec) <= 32
+}
+
+rule python_eval_near_get : critical {
+  meta:
+    description = "Executes code from encrypted content"
+  strings:
+    $eval = "eval("
+    $requests = /[a-z]{1,4}.get\(/ fullword
+  condition:
+    all of them and math.abs(@requests - @eval) <= 32
 }
