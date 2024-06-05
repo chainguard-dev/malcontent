@@ -1,3 +1,4 @@
+import "math"
 
 rule large_bitwise_math : medium {
   meta:
@@ -18,7 +19,63 @@ rule excessive_bitwise_math : high {
     hash_2023_yvper_0_1_setup = "b765244c1f8a11ee73d1e74927b8ad61718a65949e0b8d8cbc04e5d84dccaf96"
     hash_2023_aiohttpp_0_1_setup = "cfa4137756f7e8243e7c7edc7cb0b431a2f4c9fa401f2570f1b960dbc86ca7c6"
   strings:
-    $x = /\-{0,1}\d{1,8} \<\< \-{0,1}\d{1,8}/
+    $x = /\-{0,1}[\da-z]{1,8} \<\< \-{0,1}\d{1,8}/
   condition:
     filesize < 128000 and #x > 20
+}
+
+rule bitwise_math : low {
+  meta:
+    description = "uses bitwise math"
+  strings:
+    $x = /\-{0,1}[\da-z]{1,8} \<\< \-{0,1}\d{1,8}/
+    $y = /\-{0,1}[\da-z]{1,8} \>\> \-{0,1}\d{1,8}/
+  condition:
+    filesize < 65535 and any of them
+}
+
+rule bidirectional_bitwise_math : medium {
+  meta:
+    description = "uses bitwise math in both directions"
+	ref = "https://www.reversinglabs.com/blog/python-downloader-highlights-noise-problem-in-open-source-threat-detection"
+  strings:
+    $x = /\-{0,1}[\da-z]{1,8} \<\< \-{0,1}\d{1,8}/
+    $y = /\-{0,1}[\da-z]{1,8} \>\> \-{0,1}\d{1,8}/
+  condition:
+    filesize < 65535 and all of them
+}
+
+rule bitwise_python_string : medium {
+	meta:
+		description = "creates string using bitwise math"
+		ref = "https://www.reversinglabs.com/blog/python-downloader-highlights-noise-problem-in-open-source-threat-detection"
+	strings:
+		$ref = /"".join\(chr\(\w{1,4} >> \w{1,3}\) for \w{1,16} in \w{1,16}/
+	condition:
+		filesize < 65535 and $ref
+}
+
+rule bitwise_python_string_exec_eval : high {
+	meta:
+		description = "creates and evaluates string using bitwise math"
+		ref = "https://www.reversinglabs.com/blog/python-downloader-highlights-noise-problem-in-open-source-threat-detection"
+	strings:
+		$ref = /"".join\(chr\(\w{1,4} >> \w{1,3}\) for \w{1,16} in \w{1,16}/
+		$exec = "exec("
+		$eval = "eval("
+	condition:
+		filesize < 65535 and $ref and any of ($e*)
+}
+
+
+rule bitwise_python_string_exec_eval_nearby : critical {
+	meta:
+		description = "creates and executes string using bitwise math"
+		ref = "https://www.reversinglabs.com/blog/python-downloader-highlights-noise-problem-in-open-source-threat-detection"
+	strings:
+		$ref = /"".join\(chr\(\w{1,4} >> \w{1,3}\) for \w{1,16} in \w{1,16}/
+		$exec = "exec("
+		$eval = "eval("
+	condition:
+		filesize < 65535 and $ref and any of ($e*) and (math.abs(@ref - @exec) <= 64 or (math.abs(@ref - @eval) <= 64))
 }
