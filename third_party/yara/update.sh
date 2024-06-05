@@ -40,14 +40,15 @@ function update_dep() {
 	huntress)
 		git clone https://github.com/huntresslabs/threat-intel.git "${tmpdir}"
 		pushd "${tmpdir}" || exit 1
-		rel="$(git rev-parse head)"
+		rel="$(git rev-parse HEAD)"
 		popd || exit 1
 		find "${tmpdir}" \( -name "*.yar*" -o -name "*LICENSE*" \) -print -exec cp {} "${kind}" \;
 		;;
 	threat_hunting)
 		rel=$(latest_github_release mthcht/ThreatHunting-Keywords-yara-rules)
 		curl -L -o "${tmpdir}/keywords.zip" "https://github.com/mthcht/ThreatHunting-Keywords-yara-rules/archive/refs/tags/${rel}.zip"
-		unzip -o -j "${tmpdir}/keywords.zip" ThreatHunting-Keywords-yara-rules-1.0.1/yara_rules/all.yara -d "${kind}"
+		vrel="$(echo $rel | tr -d v)"
+		unzip -o -j "${tmpdir}/keywords.zip" "ThreatHunting-Keywords-yara-rules-${vrel}/yara_rules/all.yara" -d "${kind}"
 		;;
 	*)
 		echo "unknown kind: ${kind}"
