@@ -12,7 +12,7 @@ require (
 	github.com/liamg/magic v0.0.1
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/ulikunitz/xz v0.5.12
-	golang.org/x/term v0.20.0
+	golang.org/x/term v0.21.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -35,5 +35,5 @@ require (
 	github.com/sirupsen/logrus v1.9.1 // indirect
 	github.com/vbatts/tar-split v0.11.3 // indirect
 	golang.org/x/sync v0.2.0 // indirect
-	golang.org/x/sys v0.20.0 // indirect
+	golang.org/x/sys v0.21.0 // indirect
 )
