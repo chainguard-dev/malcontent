@@ -9,6 +9,9 @@ permissions:
   id-token: write
   contents: write
 
+env:
+  VERSION_FILE: pkg/version/version.go
+
 jobs:
   tag:
     runs-on: ubuntu-latest
@@ -21,7 +24,7 @@ jobs:
     - name: Get Version
       id: get-version
       run: |
-        CURRENT_VERSION=$(awk -F'"' '/ID string =/ {print $2}' pkg/version/version.go)
+        CURRENT_VERSION=$(awk -F'"' '/ID string =/ {print $2}' ${{ env.VERSION_FILE }})
         echo "VERSION=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
     - name: Create Tag
       if: ${{ steps.get-version.outputs.VERSION != '' }}
