@@ -62,11 +62,11 @@ func TestJSON(t *testing.T) {
 				t.Fatalf("render: %v", err)
 			}
 			bc := action.Config{
-				IgnoreSelf:     false,
-				Renderer:       render,
-				Rules:          yrs,
-				MinResultScore: 1,
-				ScanPaths:      []string{binPath},
+				IgnoreSelf: false,
+				Renderer:   render,
+				Rules:      yrs,
+				MinRisk:    1,
+				ScanPaths:  []string{binPath},
 			}
 
 			tcLogger := clog.FromContext(ctx).With("test", name)
@@ -197,13 +197,13 @@ func TestDiff(t *testing.T) {
 			}
 
 			bc := action.Config{
-				IgnoreSelf:     false,
-				IgnoreTags:     []string{"harmless"},
-				MinFileScore:   tc.minFileScore,
-				MinResultScore: tc.minResultScore,
-				Renderer:       simple,
-				Rules:          yrs,
-				ScanPaths:      []string{tc.src, tc.dest},
+				IgnoreSelf:  false,
+				IgnoreTags:  []string{"harmless"},
+				MinFileRisk: tc.minFileScore,
+				MinRisk:     tc.minResultScore,
+				Renderer:    simple,
+				Rules:       yrs,
+				ScanPaths:   []string{tc.src, tc.dest},
 			}
 
 			logger := clog.New(slog.Default().Handler()).With("src", tc.src)
