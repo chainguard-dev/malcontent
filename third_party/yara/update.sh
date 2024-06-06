@@ -52,7 +52,7 @@ function update_dep() {
 		vrel="$(echo $rel | tr -d v)"
 		unzip -o -j "${tmpdir}/keywords.zip" "ThreatHunting-Keywords-yara-rules-${vrel}/yara_rules/all.yara" -d "${kind}"
 		;;
-	inquest)
+	InQuest-VT)
 		git clone https://github.com/InQuest/yara-rules-vt.git "${tmpdir}"
 		pushd "${tmpdir}" || exit 1
 		rel="$(git rev-parse HEAD)"

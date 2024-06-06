@@ -147,7 +147,7 @@ func behaviorRisk(ns string, rule string, tags []string) int {
 		risk = 4
 
 		// third party rules that are a bit looser
-		if strings.Contains(ns, "inquest") {
+		if strings.Contains(ns, "InQuest-VT") {
 			risk = 3
 		}
 	}
