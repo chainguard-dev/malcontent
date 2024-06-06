@@ -35,6 +35,24 @@ var (
 	ExitInvalidArgument = 22
 )
 
+// parse risk levels
+func parseRisk(s string) int {
+	levels := map[string]int{
+		"0":        0,
+		"any":      0,
+		"all":      0,
+		"1":        1,
+		"low":      1,
+		"2":        2,
+		"medium":   2,
+		"3":        3,
+		"high":     3,
+		"4":        4,
+		"critical": 4,
+	}
+	return levels[strings.ToLower(s)]
+}
+
 func main() {
 	allFlag := flag.Bool("all", false, "Ignore nothing, show all")
 	diffFlag := flag.Bool("diff", false, "Show capability drift between two files")
@@ -43,8 +61,10 @@ func main() {
 	ignoreTagsFlag := flag.String("ignore-tags", "", "Rule tags to ignore")
 	outputFlag := flag.String("o", "", "write output to this path instead of stdout")
 	includeDataFilesFlag := flag.Bool("data-files", false, "Include files that are detected as non-program (binary or source) files")
-	minFileLevelFlag := flag.Int("min-file-level", 0, "Only show results for files that meet this risk level (1=low, 2=medium, 3=high, 4=critical)")
-	minLevelFlag := flag.Int("min-level", 1, "Minimum risk level to show results for (1=low, 2=medium, 3=high, 4=critical)")
+	minFileLevelFlag := flag.Int("min-file-level", -0, "Obsoleted by --min-file-risk")
+	minLevelFlag := flag.Int("min-level", -1, "Obsoleted by --min-risk")
+	minFileRiskFlag := flag.String("min-file-risk", "low", "Only show results for files that meet this risk level (any,low,medium,high,critical")
+	minRiskFlag := flag.String("min-risk", "low", "Minimum risk level to show results for (any,low,medium,high,critical)")
 	ociFlag := flag.Bool("oci", false, "Scan an OCI image")
 	omitEmptyFlag := flag.Bool("omit-empty", false, "Omit files that contain no matches")
 	profileFlag := flag.Bool("profile", false, "Generate profile and trace files")
@@ -100,11 +120,24 @@ func main() {
 
 	ignoreTags := strings.Split(*ignoreTagsFlag, ",")
 	includeDataFiles := *includeDataFilesFlag
-	minLevel := *minLevelFlag
+	minRisk := parseRisk(*minRiskFlag)
+
+	// Backwards compatibility
+	if *minLevelFlag != -1 {
+		minRisk = *minLevelFlag
+	}
+
+	minFileRisk := parseRisk(*minFileRiskFlag)
+
+	// Backwards compatibility
+	if *minFileLevelFlag != -1 {
+		minFileRisk = *minFileLevelFlag
+	}
+
 	stats := *statsFlag
 	if *allFlag {
 		ignoreTags = []string{}
-		minLevel = -1
+		minRisk = -1
 		includeDataFiles = true
 		*ignoreSelfFlag = false
 	}
@@ -146,8 +179,8 @@ func main() {
 		IgnoreSelf:       *ignoreSelfFlag,
 		IgnoreTags:       ignoreTags,
 		IncludeDataFiles: includeDataFiles,
-		MinFileScore:     *minFileLevelFlag,
-		MinResultScore:   minLevel,
+		MinFileRisk:      minFileRisk,
+		MinRisk:          minRisk,
 		OCI:              *ociFlag,
 		OmitEmpty:        *omitEmptyFlag,
 		Renderer:         renderer,

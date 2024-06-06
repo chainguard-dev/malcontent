@@ -65,7 +65,7 @@ func TestJSON(t *testing.T) {
 				IgnoreSelf:     false,
 				Renderer:       render,
 				Rules:          yrs,
-				MinResultScore: 1,
+				MinRisk: 1,
 				ScanPaths:      []string{binPath},
 			}
 
@@ -199,8 +199,8 @@ func TestDiff(t *testing.T) {
 			bc := action.Config{
 				IgnoreSelf:     false,
 				IgnoreTags:     []string{"harmless"},
-				MinFileScore:   tc.minFileScore,
-				MinResultScore: tc.minResultScore,
+				MinFileRisk:   tc.minFileScore,
+				MinRisk: tc.minResultScore,
 				Renderer:       simple,
 				Rules:          yrs,
 				ScanPaths:      []string{tc.src, tc.dest},

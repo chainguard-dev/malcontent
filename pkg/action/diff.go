@@ -82,7 +82,7 @@ func processSrc(ctx context.Context, c Config, src, dest map[string]*bincapz.Fil
 
 func handleFile(ctx context.Context, c Config, fr, tr *bincapz.FileReport, relPath string, d *bincapz.DiffReport) {
 	// We've now established that file exists in both source & destination
-	if fr.RiskScore < c.MinFileScore && tr.RiskScore < c.MinFileScore {
+	if fr.RiskScore < c.MinFileRisk && tr.RiskScore < c.MinFileRisk {
 		clog.FromContext(ctx).Info("diff does not meet min trigger level", slog.Any("path", tr.Path))
 		return
 	}
@@ -135,7 +135,7 @@ func processDest(ctx context.Context, c Config, from, to map[string]*bincapz.Fil
 
 func fileDestination(ctx context.Context, c Config, fr, tr *bincapz.FileReport, relPath string, d *bincapz.DiffReport) {
 	// We've now established that this file exists in both source and destination
-	if fr.RiskScore < c.MinFileScore && tr.RiskScore < c.MinFileScore {
+	if fr.RiskScore < c.MinFileRisk && tr.RiskScore < c.MinFileRisk {
 		clog.FromContext(ctx).Info("diff does not meet min trigger level", slog.Any("path", tr.Path))
 		return
 	}
@@ -185,7 +185,7 @@ func inferMoves(ctx context.Context, c Config, d *bincapz.DiffReport) {
 }
 
 func fileMove(ctx context.Context, c Config, fr, tr *bincapz.FileReport, rpath, apath string, score float64, d *bincapz.DiffReport) {
-	if fr.RiskScore < c.MinFileScore && tr.RiskScore < c.MinFileScore {
+	if fr.RiskScore < c.MinFileRisk && tr.RiskScore < c.MinFileRisk {
 		clog.FromContext(ctx).Info("diff does not meet min trigger level", slog.Any("path", tr.Path))
 		return
 	}
