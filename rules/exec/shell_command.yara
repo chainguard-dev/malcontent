@@ -1,4 +1,3 @@
-
 rule system : medium {
   meta:
     description = "execute a shell command"
@@ -11,4 +10,14 @@ rule system : medium {
     $system = "system" fullword
   condition:
     all of them in (1200..3000)
+}
+
+rule php_shell_exec : high {
+  meta:
+    description = "execute a shell command"
+    syscalls = "fork,execl"
+  strings:
+    $ref = /shell_exec[\(\$\w\)]{0,16}/
+  condition:
+	$ref
 }

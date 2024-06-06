@@ -49,7 +49,10 @@ var badRules = map[string]bool{
 var rulesWithWarnings = map[string]bool{
 	"opaque_binary":                         true,
 	"hardcoded_ip":                          true,
+	"str_replace_obfuscation":               true,
+	"php_str_replace_obfuscation":           true,
 	"hardcoded_ip_port":                     true,
+	"base64_str_replace":                    true,
 	"systemd_no_comments_or_documentation":  true,
 	"sleep_and_background":                  true,
 	"Microsoft_Excel_with_Macrosheet":       true,

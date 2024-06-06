@@ -248,3 +248,23 @@ rule php_base64_encoded : critical {
   condition:
     any of them
 }
+
+rule php_str_replace_obfuscation : critical {
+	meta:
+		description = "accepts input and runs obfuscated code"
+	strings:
+		$f_str_replace = "str_replace"
+		$f_display_errors = "display_errors"
+		$f_output_buffering = "output_buffering"
+
+		$i_get = "$_GET["
+		$i_post = "$_POST["
+		$i_cookie = "$_COOKIE["
+
+		$o_dynamic_single = /\$\w {0,2}= \$\w\(/
+		$o_single_concat = /\$\w . \$\w . \$\w ./
+		$o_single_set = /\$\w = \w\(\)\;/
+		$o_recursive_single = /\$\w\( {0,2}\$\w\(/
+	condition:
+		filesize < 65535 and 2 of ($f*) and any of ($i*) and 2 of ($o*)
+}

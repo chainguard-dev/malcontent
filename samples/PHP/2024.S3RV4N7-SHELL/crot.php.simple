@@ -1,0 +1,10 @@
+# PHP/2024.S3RV4N7-SHELL/crot.php
+3P/php-malware/nonprintablechars
+3P/php-malware/obfuscatedphp
+3P/php-malware/websites
+3P/signature_base/webshell/php
+combo/backdoor/php
+encoding/base64
+evasion/base64/decode
+ref/site/url
+techniques/code_eval

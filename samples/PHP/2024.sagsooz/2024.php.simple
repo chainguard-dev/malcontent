@@ -1,0 +1,22 @@
+# PHP/2024.sagsooz/2024.php
+3P/InQuest-VT/base64/url
+3P/php-malware/dangerousphp
+3P/php-malware/dodgyphp
+3P/php-malware/dodgystrings
+3P/signature_base/webshell/php
+combo/backdoor/php
+data/embedded/base64/url
+data/embedded/html
+encoding/base64
+evasion/base64/decode
+evasion/php_no_time_limit
+exec/shell_command
+fs/directory/remove
+fs/file/delete
+fs/permission/modify
+net/http/form/upload
+net/http/post
+net/upload
+net/url/encode
+ref/site/url
+ref/words/password

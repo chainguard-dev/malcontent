@@ -37,3 +37,13 @@ rule shell_eval : medium {
   condition:
     $val and none of ($not*)
 }
+
+rule php_create_function_no_args : high {
+  meta:
+    description = "dynamically creates PHP functions without arguments"
+  strings:
+	$val = /create_function\([\'\"]{2},\$/
+  condition:
+	any of them
+}
+

@@ -12,6 +12,17 @@ rule base64_decode : medium python {
     any of them
 }
 
+
+rule py_base64_decode : medium php {
+  meta:
+    description = "decode base64 strings"
+  strings:
+    $b64decode = "base64_decode"
+  condition:
+    any of them
+}
+
+
 rule urlsafe_decode64 : medium ruby {
   meta:
     description = "decode base64 strings"
