@@ -41,6 +41,8 @@ var badRules = map[string]bool{
 	"vsftpd_greyware_tool_keyword":               true,
 	"blackcat_ransomware_offensive_tool_keyword": true,
 	"mythic_offensive_tool_keyword":              true,
+	// YARA VT
+	"Windows_API_Function": true,
 }
 
 // rulesWithWarnings determines what to do with rules that have known warnings: true=keep, false=disable.
@@ -53,6 +55,9 @@ var rulesWithWarnings = map[string]bool{
 	"base64_str_replace":                    true,
 	"systemd_no_comments_or_documentation":  true,
 	"sleep_and_background":                  true,
+	"Microsoft_Excel_with_Macrosheet":       true,
+	"PDF_with_Embedded_RTF_OLE_Newlines":    true,
+	"Powershell_Case":                       true,
 	"RDPassSpray_offensive_tool_keyword":    false,
 	"nmap_offensive_tool_keyword":           false,
 	"DynastyPersist_offensive_tool_keyword": false,
