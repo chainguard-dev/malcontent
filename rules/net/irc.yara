@@ -14,3 +14,25 @@ rule irc : high {
   condition:
     any of them
 }
+
+
+
+rule irc_lower : high {
+  meta:
+    pledge = "inet"
+    description = "Uses IRC (Internet Relay Chat"
+	credit = "Initially ported from https://github.com/jvoisin/php-malware-finder"
+  strings:
+	$ = "JOIN" fullword
+	$ = "MODE" fullword
+	$ = "NICK" fullword
+	$ = "NOTICE" fullword
+	$ = "PART" fullword
+	$ = "PASS" fullword
+	$ = "PING" fullword
+	$ = "PONG" fullword
+	$ = "PRIVMSG" fullword
+	$ = "USER" fullword
+  condition:
+    4 of them
+}
