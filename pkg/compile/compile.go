@@ -67,27 +67,22 @@ func Recursive(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {
 				return err
 			}
 
-			logger := clog.FromContext(ctx).With("path", path)
 			if !d.IsDir() && (filepath.Ext(path) == ".yara" || filepath.Ext(path) == ".yar") {
 				bs, err := fs.ReadFile(root, path)
 				if err != nil {
 					return fmt.Errorf("readfile: %w", err)
 				}
 
-				// Our Yara library panics a lot
-				defer func() {
-					if err := recover(); err != nil {
-						logger.Error("recovered from panic", slog.Any("error", err))
-					}
-				}()
-
 				if err := yc.AddString(string(bs), path); err != nil {
-					return fmt.Errorf("yara addfile %s: %w", path, err)
+					return fmt.Errorf("failed to parse %s: %v", path, err)
 				}
 			}
 
 			return nil
 		})
+		if err != nil {
+			break
+		}
 	}
 
 	if err != nil {
