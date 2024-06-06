@@ -14,6 +14,7 @@
 +fs/file/times/set
 +fs/permission/modify
 +persist/crontab
++persist/echo_crontab
 +ref/path/tmp
 +ref/path/var
 +ref/path/var/tmp
