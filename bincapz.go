@@ -35,7 +35,7 @@ var (
 	ExitInvalidArgument = 22
 )
 
-// parse risk levels
+// parse risk levels.
 func parseRisk(s string) int {
 	levels := map[string]int{
 		"0":        0,
