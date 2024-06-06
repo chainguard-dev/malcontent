@@ -145,6 +145,11 @@ func behaviorRisk(ns string, rule string, tags []string) int {
 	// default to critical
 	if thirdParty(ns) {
 		risk = 4
+
+		// third party rules that are a bit looser
+		if strings.Contains(ns, "inquest") {
+			risk = 3
+		}
 	}
 
 	if strings.Contains(ns, "keyword") || strings.Contains(rule, "keyword") {

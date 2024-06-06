@@ -23,6 +23,8 @@ function fixup_rules() {
 	perl -p -i -e 's#\/([a-z]{31})([a-z])\/#\/$1\[$2\]\/#;' "$@"
 	# trailing spaces
 	perl -p -i -e 's/ +$//;' "$@"
+	# VirusTotal-specific YARA
+	perl -p -i -e 's#and file_type contains \"\w+\"##;' "$@"
 }
 
 # update_dep updates a dependency to the latest release
@@ -49,6 +51,13 @@ function update_dep() {
 		curl -L -o "${tmpdir}/keywords.zip" "https://github.com/mthcht/ThreatHunting-Keywords-yara-rules/archive/refs/tags/${rel}.zip"
 		vrel="$(echo $rel | tr -d v)"
 		unzip -o -j "${tmpdir}/keywords.zip" "ThreatHunting-Keywords-yara-rules-${vrel}/yara_rules/all.yara" -d "${kind}"
+		;;
+	inquest)
+		git clone https://github.com/InQuest/yara-rules-vt.git "${tmpdir}"
+		pushd "${tmpdir}" || exit 1
+		rel="$(git rev-parse HEAD)"
+		popd || exit 1
+		find "${tmpdir}" \( -name "*.yar*" -o -name "*LICENSE*" -o -name "README*" \) -print -exec cp {} "${kind}" \;
 		;;
 	*)
 		echo "unknown kind: ${kind}"
