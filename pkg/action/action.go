@@ -14,8 +14,8 @@ type Config struct {
 	IgnoreSelf       bool
 	IgnoreTags       []string
 	IncludeDataFiles bool
-	MinFileScore     int
-	MinResultScore   int
+	MinFileRisk      int
+	MinRisk          int
 	OCI              bool
 	OmitEmpty        bool
 	Output           io.Writer
