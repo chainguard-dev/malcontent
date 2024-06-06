@@ -2,6 +2,7 @@
 combo/backdoor/py_setuptools
 databases/leveldb
 encoding/base64
+evasion/python_rename_imports
 exec/program
 fs/directory/create
 net/url/request

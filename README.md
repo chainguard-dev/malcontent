@@ -82,7 +82,7 @@ There are flags for controlling output (see the Usage section) and filtering out
 | LOW | [net/socket/send](https://github.com/chainguard-dev/bincapz/blob/main/rules/net/socket-send.yara#sendmsg) | [send a message to a socket](https://linux.die.net/man/2/sendmsg) | [\_send](https://github.com/search?q=_send&type=code)<br>[sendmsg](https://github.com/search?q=sendmsg&type=code)<br>[sendto](https://github.com/search?q=sendto&type=code) |
 | LOW | [process/userid/set](https://github.com/chainguard-dev/bincapz/blob/main/rules/process/userid-set.yara#setuid) | [set real and effective user ID of current process](https://man7.org/linux/man-pages/man2/setuid.2.html) | [setuid](https://github.com/search?q=setuid&type=code) |
 
-To only show output for the most suspicious behaviors, use `--min-level=3`, which shows only "HIGH" or "CRITICAL" behaviors.
+To only show output for the most suspicious behaviors, use `--min-risk=high`, which shows only "HIGH" or "CRITICAL" behaviors.
 
 ## Diff mode to detect supply-chain attacks
 
@@ -135,7 +135,8 @@ bincapz --format=json <file> | jq  '.Files.[].Behaviors | keys'
 - `--format` string: Output type. Valid values are: json, markdown, simple, terminal, yaml (default "terminal")
 - `--ignore-self`: ignore the `bincapz` binary
 - `--ignore-tags` string: Rule tags to ignore
-- `--min-level`: minimum suspicion level to report (1=low, 2=medium, 3=high, 4=critical) (default 1)
+- `--min-file-risk` - Only show results for files that meet this risk level (any,low,medium,high,critical)
+- `--min-risk`: minimum suspicion level to report (any,low,medium,high,critical)
 - `--oci`: scan OCI images
 - `--omit-empty`: omit files that contain no matches
 - `--profile`: capture profiling/tracing information for `bincapz`
@@ -208,7 +209,7 @@ The `yara` C library is required:
 brew install yara || sudo apt install libyara-devel || sudo dnf install yara-devel || sudo pacman -S yara
 ```
 
-Additionally, ensure that Yara's version is `4.3.2`. 
+Additionally, ensure that Yara's version is `4.3.2`.
 
 If this version is not available via package managers, manually download the release from [here](https://github.com/VirusTotal/yara/releases) and build it from source by following [these](https://yara.readthedocs.io/en/latest/gettingstarted.html#compiling-and-installing-yara) steps.
 
