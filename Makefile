@@ -55,7 +55,7 @@ test:
 bench:
 	go test -run=^\$$ -bench=. ./... -benchmem
 
-bincapz:
+out/bincapz:
 	mkdir -p out
 	go build -o out/bincapz .
 
@@ -63,6 +63,6 @@ bincapz:
 update-third-party:
 	./third_party/yara/update.sh
 
-.PHONY: refresh-sample-testdata bincapz
-refresh-sample-testdata:
+.PHONY: refresh-sample-testdata out/bincapz
+refresh-sample-testdata: out/bincapz
 	./samples/refresh-testdata.sh ./out/bincapz
