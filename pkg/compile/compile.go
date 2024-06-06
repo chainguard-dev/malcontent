@@ -61,6 +61,7 @@ func Recursive(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {
 		return nil, fmt.Errorf("yara compiler: %w", err)
 	}
 
+	addErrs := []error{}
 	for _, root := range fss {
 		err = fs.WalkDir(root, ".", func(path string, d fs.DirEntry, err error) error {
 			if err != nil {
@@ -82,12 +83,19 @@ func Recursive(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {
 				}()
 
 				if err := yc.AddString(string(bs), path); err != nil {
-					return fmt.Errorf("yara addfile %s: %w", path, err)
+					err = fmt.Errorf("yara addfile %s: %w", path, err)
+					addErrs = append(addErrs, err)
+					return err
 				}
 			}
 
 			return nil
 		})
+	}
+
+	if len(addErrs) > 0 {
+		// Normally I would use errors.Join, but only the first error is useful in go-yara
+		return nil, addErrs[0]
 	}
 
 	if err != nil {
