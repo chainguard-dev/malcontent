@@ -1,5 +1,4 @@
-
-rule crontab_writer : high {
+rule crontab_writer : medium {
   meta:
     description = "May use crontab to persist"
     hash_2023_usr_adxintrin_b = "a51a4ddcd092b102af94139252c898d7c1c48f322bae181bd99499a79c12c500"
@@ -9,12 +8,23 @@ rule crontab_writer : high {
     $c_etc_crontab = /\/etc\/cron[\/\w\.]{0,32}/
     $c_crontab_e = "crontab -"
     $c_var_spool_cron = "/var/spool/cron"
-    $c_root_cron_entry = "* * * * root"
-    $c_reboot = "@reboot"
-    $c_daily = "@daily"
     $not_usage = "usage: cron"
   condition:
-    filesize < 2097152 and any of ($c*) and none of ($not*)
+    filesize < 50MB and any of ($c*) and none of ($not*)
+}
+
+rule crontab_entry : high {
+  meta:
+    description = "Uses crontab to persist"
+  strings:
+		$crontab = "crontab"
+		$repeat_every_minutes = /\*\/\d \* \* \* \*/
+		$repeat_every_minute = "* * * * *"
+		$repeat_hourly = /\d \* \* \* \*/
+		$repeat_root = "* * * * root"
+		$repeat_daily = "@daily"
+  condition:
+		filesize < 50MB and $crontab and any of ($repeat*)
 }
 
 rule crontab_danger_path : high {
