@@ -61,7 +61,7 @@ func main() {
 	ignoreTagsFlag := flag.String("ignore-tags", "", "Rule tags to ignore")
 	outputFlag := flag.String("o", "", "write output to this path instead of stdout")
 	includeDataFilesFlag := flag.Bool("data-files", false, "Include files that are detected as non-program (binary or source) files")
-	minFileLevelFlag := flag.Int("min-file-level", -0, "Obsoleted by --min-file-risk")
+	minFileLevelFlag := flag.Int("min-file-level", -1, "Obsoleted by --min-file-risk")
 	minLevelFlag := flag.Int("min-level", -1, "Obsoleted by --min-risk")
 	minFileRiskFlag := flag.String("min-file-risk", "low", "Only show results for files that meet this risk level (any,low,medium,high,critical")
 	minRiskFlag := flag.String("min-risk", "low", "Minimum risk level to show results for (any,low,medium,high,critical)")
