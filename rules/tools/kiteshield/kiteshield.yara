@@ -44,5 +44,9 @@ rule kiteshield : high {
     $em_aarch64 = {b7 00}
 
   condition:
-    $loader_jmp and all of ($loader_s*) and $elf_magic and $et_exec and any of ($em_*)
+    $loader_jmp 
+    and all of ($loader_s*) 
+    and $elf_magic at 0
+    and $et_exec at 16 
+    and any of ($em_*) at 18
 }
