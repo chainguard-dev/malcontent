@@ -34,19 +34,17 @@ rule kiteshield : high {
     $loader_s6 = {cf c0 da c2 c2 ca dc cd}
     // "0123456789abcdef"
     $loader_s7 = {b3 b5 b7 b5 b3 bd bf bd b3 b5 ec ec ec f4 f4 f4}
-    // Elf Magic
-    $elf_magic = {7f 45 4c 46}
-    // ET_EXEC
-    $et_exec = {02 00}
-    // EM_X86_64
-    $em_x86_64 = {3e 00}
-    // EM_AARCH64
-    $em_aarch64 = {b7 00}
 
   condition:
-    $loader_jmp 
-    and all of ($loader_s*) 
-    and $elf_magic at 0
-    and $et_exec at 16 
-    and any of ($em_*) at 18
+    $loader_jmp and all of ($loader_s*) and
+    // ELF Magic at offset 0
+    uint32(0) == 0x464c457f and
+    // ET_EXEC at offset 16
+    uint16(16) == 0x0002 and
+    (
+        // x86_64 at offset 18
+        uint16(18) == 0x003e or
+        // aarch64 at offset 18
+        uint16(18) == 0x00b7
+    )
 }
