@@ -1,5 +1,4 @@
-
-rule irc : high {
+rule irc_c_format : high {
   meta:
     pledge = "inet"
     description = "Uses IRC (Internet Relay Chat"
@@ -15,9 +14,7 @@ rule irc : high {
     any of them
 }
 
-
-
-rule irc_lower : high {
+rule irc_protocol : high {
   meta:
     pledge = "inet"
     description = "Uses IRC (Internet Relay Chat"
