@@ -60,6 +60,12 @@ var yaraForgeJunkWords = map[string]bool{
 	"greyware":          true,
 }
 
+// thirdPartyCriticalSources are 3P sources that default to critical
+var thirdPartyCriticalSources = map[string]bool{
+	"YARAForge": true,
+	"huntress":  true,
+}
+
 // authorWithURLRe matcehs "Arnim Rupp (https://github.com/ruppde)"
 var authorWithURLRe = regexp.MustCompile(`(.*?) \((http.*)\)`)
 
@@ -142,21 +148,19 @@ func ignoreMatch(tags []string, ignoreTags map[string]bool) bool {
 func behaviorRisk(ns string, rule string, tags []string) int {
 	risk := 1
 
-	// default to critical
 	if thirdParty(ns) {
-		risk = 4
+		risk = 3
+		src := strings.Split(ns, "/")[1]
+		if strings.Contains(ns, "keyword") || strings.Contains(rule, "keyword") {
+			risk = 2
+		}
 
-		// third party rules that are a bit looser
-		if strings.Contains(ns, "InQuest-VT") {
-			risk = 3
+		if thirdPartyCriticalSources[src] {
+			risk = 4
 		}
 	}
 
-	if strings.Contains(ns, "php-malware-finder") {
-		risk = 3
-	}
-
-	if strings.Contains(ns, "keyword") || strings.Contains(rule, "keyword") {
+	if strings.Contains(ns, "combo/") {
 		risk = 2
 	}
 
@@ -170,11 +174,6 @@ func behaviorRisk(ns string, rule string, tags []string) int {
 		"crit":       4,
 		"critical":   4,
 	}
-
-	if strings.Contains(ns, "combo/") {
-		risk = 2
-	}
-
 	for _, tag := range tags {
 		if r, ok := levels[tag]; ok {
 			risk = r
