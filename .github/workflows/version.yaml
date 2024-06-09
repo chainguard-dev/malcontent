@@ -1,0 +1,63 @@
+name: Bump Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      update:
+        description: 'Semver update type (patch, minor, major)'
+        required: true
+        default: 'minor'
+
+permissions:
+  id-token: write
+  contents: write
+
+env:
+  VERSION_FILE: pkg/version/version.go
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: step-security/harden-runner@f086349bfa2bd1361f7909c78558e816508cdc10
+      with:
+        egress-policy: audit 
+    - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
+    - uses: chainguard-dev/actions/setup-gitsign@e82b4e5ae10182af72972addcb3fedf7454621c8
+    - name: Update Version
+      run: |
+        UPDATE_TYPE=${{ github.event.inputs.update }}
+
+        CURRENT_VERSION=$(awk -F'"' '/ID string =/ {print $2}' pkg/version/version.go)
+        
+        IFS='.' read -ra VERSION_PARTS <<< "${CURRENT_VERSION:1}"
+        
+        case "$UPDATE_TYPE" in
+          major)
+            VERSION=$(printf "%d.0.0" $((${VERSION_PARTS[0]}+1)))
+            ;;
+          minor)
+            VERSION=$(printf "%s.%d.0" ${VERSION_PARTS[0]} $((${VERSION_PARTS[1]}+1)))
+            ;;
+          patch)
+            VERSION=$(printf "%s.%s.%d" ${VERSION_PARTS[0]} ${VERSION_PARTS[1]} $((${VERSION_PARTS[2]}+1)))
+            ;;
+          *)
+            echo "Error: Invalid update type"
+            exit 1
+            ;;
+        esac
+        
+        sed -i'' -e "s/ID string = \"v[0-9]*\.[0-9]*\.[0-9]*\"/ID string = \"v$VERSION\"/" ${{ env.VERSION_FILE }}
+    - name: Commit Version Update
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git checkout -b bincapz-version-bump-$VERSION
+        git add ${{ env.VERSION_FILE }}
+        git commit -m "Bump bincapz version to v$VERSION"
+        git push origin bincapz-bump-version-$VERSION
+        gitsign verify $(git rev-parse HEAD) --certificate-identity-regexp="https://github.com/${{ github.repository }}" --certificate-oidc-issuer="https://token.actions.githubusercontent.com"
+    - name: Create Pull Request
+      run: |
+        gh pr create -t "Update bincapz to $VERSION" -b "PR to update the version in ${{ env.VERSION_FILE }} to $VERSION" -B main
