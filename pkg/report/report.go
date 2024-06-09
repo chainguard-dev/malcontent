@@ -60,10 +60,11 @@ var yaraForgeJunkWords = map[string]bool{
 	"greyware":          true,
 }
 
-// thirdPartyCriticalSources are 3P sources that default to critical
+// thirdPartyCriticalSources are 3P sources that default to critical.
 var thirdPartyCriticalSources = map[string]bool{
 	"YARAForge": true,
 	"huntress":  true,
+	"bartblaze": true,
 }
 
 // authorWithURLRe matcehs "Arnim Rupp (https://github.com/ruppde)"
@@ -151,13 +152,18 @@ func behaviorRisk(ns string, rule string, tags []string) int {
 	if thirdParty(ns) {
 		risk = 3
 		src := strings.Split(ns, "/")[1]
-		if strings.Contains(ns, "keyword") || strings.Contains(rule, "keyword") {
-			risk = 2
-		}
 
 		if thirdPartyCriticalSources[src] {
 			risk = 4
+			if strings.Contains(strings.ToLower(ns), "generic") || strings.Contains(strings.ToLower(rule), "generic") {
+				risk = 3
+			}
 		}
+
+		if strings.Contains(strings.ToLower(ns), "keyword") || strings.Contains(strings.ToLower(rule), "keyword") {
+			risk = 2
+		}
+
 	}
 
 	if strings.Contains(ns, "combo/") {
