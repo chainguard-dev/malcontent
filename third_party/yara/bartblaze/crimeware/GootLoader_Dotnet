@@ -1,0 +1,31 @@
+rule GootLoader_Dotnet
+{
+    meta:
+        id = "3b73JCHd13eRtWf0DUe0ko"
+        fingerprint = "2cba1239f67959e2601296cfcdcb8afa29db2c36f4c449424aa17f882f5e949a"
+        version = "1.0"
+	creation_date = "2022-07-20"
+        first_imported = "2022-07-20"
+        last_modified = "2022-07-20"
+        status = "RELEASED"
+        sharing = "TLP:WHITE"
+        source = "BARTBLAZE"
+        author = "@bartblaze"
+        description = "Identifies GootLoader, Dotnet variant."
+        category = "MALWARE"
+        malware = "GOOTLOADER"
+        reference = "https://blog.nviso.eu/2022/07/20/analysis-of-a-trojanized-jquery-script-gootloader-unleashed/"
+
+strings:
+
+	$ = { 15 00 00 0a 6f 16 00 00 0a 0d ?? ?? ?? ?? 00 00 de 00 00 09 6f 09 00 00 0a 16 fe 01 16 fe 01 13 09 11 09 2d 03 00 2b 
+	1d 00 07 09 28 12 00 00 0a 0b 00 00 08 17 58 0c 08 20 9f 86 01 00 fe 04 13 09 11 09 2d ?? ?? ?? ?? 00 00 0a 00 07 72 ?? 00 00 70 ?? 3b 00 00 70 6f  }
+	
+	$ = {73 1D 00 00 06 0A 06 02 7D 6A 00 00 04 00 16 06 7B 6A 00 00 04 6F 09 00 00 0A 28 0A 00 00 0A 7E 01 00 00 04 2D 
+	13 14 FE 06 03 00 00 06 73 0B 00 00 0A 80 01 00 00 04 2B 00 7E 01 00 00 04 28 01 00 00 2B 06 FE 06 1E 00 00 06 73 0D 
+	00 00 0A 28 02 00 00 2B 28 03 00 00 2B 0B 2B 00 07 2A }
+
+
+condition:
+	any of them
+}
