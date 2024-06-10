@@ -187,7 +187,7 @@ func recursiveScan(ctx context.Context, c Config) (*bincapz.Report, error) {
 		}
 		logger.Debug("files found", slog.Any("path count", len(paths)), slog.Any("scanPath", scanPath))
 
-		// path refersll to a real local path, not a virtual scan path
+		// path refers to a real local path, not the requested scanPath
 		for _, path := range paths {
 			if isSupportedArchive(path) {
 				logger.Debug("found archive path", slog.Any("path", path))
@@ -322,7 +322,7 @@ func processFile(ctx context.Context, c Config, yrs *yara.Rules, path string, sc
 	return fr, nil
 }
 
-// Scan is the public API forYARA scanning a data source, applying filters if necessary.
+// Scan YARA scans a data source, applying output filters if necessary.
 func Scan(ctx context.Context, c Config) (*bincapz.Report, error) {
 	r, err := recursiveScan(ctx, c)
 	if err != nil {
