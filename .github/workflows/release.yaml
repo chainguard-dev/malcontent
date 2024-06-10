@@ -12,6 +12,7 @@ env:
 
 jobs:
   tag:
+    if: ${{ github.repository }} == 'chainguard-dev/bincapz'
     runs-on: ubuntu-latest
     steps:
     - uses: step-security/harden-runner@17d0e2bd7d51742c71671bd19fa12bdc9d40a3d6
@@ -23,6 +24,10 @@ jobs:
       id: get-version
       run: |
         VERSION=$(awk -F'"' '/ID string =/ {print $2}' ${{ env.VERSION_FILE }})
+        if [[ ! "${VERSION}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo "Error: VERSION is not a valid semver"
+          exit 1
+        fi
         echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
     - name: Create Release
       env:
@@ -30,6 +35,10 @@ jobs:
       if: ${{ steps.get-version.outputs.VERSION != '' }}
       run: |
         VERSION=${{ steps.get-version.outputs.VERSION }}
+        if [[ ! "${VERSION}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo "Error: VERSION is not a valid semver"
+          exit 1
+        fi
         git config --global tag.gpgsign true
         git config user.name "github-actions[bot]"
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
