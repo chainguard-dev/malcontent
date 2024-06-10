@@ -9,6 +9,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
@@ -26,6 +27,12 @@ func findFilesRecursively(ctx context.Context, root string, c Config) ([]string,
 	self, err := os.Executable()
 	if err != nil {
 		return nil, fmt.Errorf("abs: %w", err)
+	}
+
+	// Follow symlink if provided at the root
+	root, err = filepath.EvalSymlinks(root)
+	if err != nil {
+		return nil, err
 	}
 
 	err = filepath.WalkDir(root,
@@ -62,7 +69,7 @@ func formatPath(path string) string {
 	return strings.TrimPrefix(path, "/")
 }
 
-func scanSinglePath(ctx context.Context, c Config, yrs *yara.Rules, path string, absPath string, root string) (*bincapz.FileReport, error) {
+func scanSinglePath(ctx context.Context, c Config, yrs *yara.Rules, path string, absPath string, archiveRoot string) (*bincapz.FileReport, error) {
 	logger := clog.FromContext(ctx)
 	var mrs yara.MatchRules
 	logger = logger.With("path", path)
@@ -70,10 +77,11 @@ func scanSinglePath(ctx context.Context, c Config, yrs *yara.Rules, path string,
 	logger = logger.With("kind", kind)
 	logger.Info("scanning")
 	if !c.IncludeDataFiles && kind == "" {
-		logger.Info("not a program")
-		return &bincapz.FileReport{Skipped: "data file"}, nil
+		//		logger.Info("not a program")
+		return &bincapz.FileReport{Skipped: "data file", Path: path}, nil
 	}
 
+	logger.Debug("calling YARA ScanFile")
 	if err := yrs.ScanFile(path, 0, 0, &mrs); err != nil {
 		logger.Info("skipping", slog.Any("error", err))
 		return &bincapz.FileReport{Path: path, Error: fmt.Sprintf("scanfile: %v", err)}, nil
@@ -86,8 +94,8 @@ func scanSinglePath(ctx context.Context, c Config, yrs *yara.Rules, path string,
 
 	// If absPath is provided, use it instead of the path if they are different.
 	// This is useful when scanning images and archives.
-	if absPath != "" && absPath != path && root != "" {
-		fr.Path = fmt.Sprintf("%s ∴ %s", absPath, formatPath(cleanPath(path, root)))
+	if absPath != "" && absPath != path && archiveRoot != "" {
+		fr.Path = fmt.Sprintf("%s ∴ %s", absPath, formatPath(cleanPath(path, archiveRoot)))
 	}
 
 	if len(fr.Behaviors) == 0 && c.OmitEmpty {
@@ -97,9 +105,47 @@ func scanSinglePath(ctx context.Context, c Config, yrs *yara.Rules, path string,
 	return &fr, nil
 }
 
+// isSupportedArchive returns whether a path can be processed by our archive extractor
+func isSupportedArchive(path string) bool {
+	return archiveMap[getExt(path)]
+}
+
+// errIfMatch generates the right error if a match is encountered
+func errIfHitOrMiss(frs map[string]*bincapz.FileReport, kind string, scanPath string, errIfHit bool, errIfMiss bool) error {
+	bMap := map[string]bool{}
+	count := 0
+	for _, fr := range frs {
+		for _, b := range fr.Behaviors {
+			count++
+			bMap[b.ID] = true
+		}
+	}
+
+	bList := []string{}
+	for b := range bMap {
+		bList = append(bList, b)
+	}
+	sort.Strings(bList)
+
+	suffix := ""
+	if len(bList) > 0 {
+		suffix = fmt.Sprintf(": %s", strings.Join(bList, " "))
+	}
+
+	// Behavioral note: this logic is per-archive or per-file, depending on context
+	if errIfHit && count != 0 {
+		return fmt.Errorf("%d matching capabilities in %s %s%s", count, scanPath, kind, suffix)
+	}
+
+	if errIfMiss && count == 0 {
+		return fmt.Errorf("no matching capabilities in %s %s%s", scanPath, kind, suffix)
+	}
+	return nil
+}
+
 func recursiveScan(ctx context.Context, c Config) (*bincapz.Report, error) {
 	logger := clog.FromContext(ctx)
-	logger.Debug("scan", slog.Any("config", c))
+	logger.Debug("recursive scan", slog.Any("config", c))
 	r := &bincapz.Report{
 		Files: map[string]*bincapz.FileReport{},
 	}
@@ -114,112 +160,162 @@ func recursiveScan(ctx context.Context, c Config) (*bincapz.Report, error) {
 	yrs := c.Rules
 	logger.Infof("%d rules loaded", len(yrs.GetRules()))
 
-	for _, sp := range c.ScanPaths {
-		var ip string
+	scanPathFindings := map[string]*bincapz.FileReport{}
+
+	for _, scanPath := range c.ScanPaths {
+		logger.Debug("recursive scan", slog.Any("scanPath", scanPath))
+		imageURI := ""
+		var err error
+
 		if c.OCI {
-			var err error
 			// store the image URI for later use
-			ip = sp
-			sp, err = oci(ctx, sp)
+			imageURI = scanPath
+			ociExtractPath, err := oci(ctx, imageURI)
+			logger.Debug("oci image", slog.Any("scanPath", scanPath), slog.Any("ociExtractPath", ociExtractPath))
 			if err != nil {
 				return nil, fmt.Errorf("failed to prepare OCI image for scanning: %w", err)
 			}
+			scanPath = ociExtractPath
+			defer func() {
+				if err := os.RemoveAll(ociExtractPath); err != nil {
+					logger.Errorf("remove %s: %v", scanPath, err)
+				}
+			}()
 		}
 
-		rp, err := findFilesRecursively(ctx, sp, c)
+		paths, err := findFilesRecursively(ctx, scanPath, c)
 		if err != nil {
 			return nil, fmt.Errorf("find files: %w", err)
 		}
+		logger.Debug("files found", slog.Any("path count", len(paths)), slog.Any("scanPath", scanPath))
 
-		for _, p := range rp {
-			isArchive := false
-			ext := getExt(p)
-			if _, ok := archiveMap[ext]; ok {
-				isArchive = true
+		// path refersll to a real local path, not a virtual scan path
+		for _, path := range paths {
+			if isSupportedArchive(path) {
+				logger.Debug("found archive path", slog.Any("path", path))
+				frs, err := processArchive(ctx, c, yrs, path, logger)
+				if err != nil {
+					logger.Errorf("unable to process %s: %v", path, err)
+				}
+
+				// If we're handling an archive within an OCI archive, wait to for other files to declare a miss
+				if !c.OCI {
+					if err := errIfHitOrMiss(frs, "archive", path, c.ErrFirstHit, c.ErrFirstMiss); err != nil {
+						logger.Debugf("match short circuit: %v", err)
+						return r, err
+					}
+				}
+
+				for extractedPath, fr := range frs {
+					scanPathFindings[extractedPath] = fr
+				}
+				continue
 			}
-			if isArchive {
-				err = processArchive(ctx, c, yrs, r, p, logger)
-				if err != nil {
-					logger.Errorf("unable to process %s: %v", p, err)
-				}
-			} else {
-				if c.OCI {
-					sp = ip
-				}
-				err = processFile(ctx, c, yrs, r, p, sp, "", logger)
-				if err != nil {
-					logger.Errorf("unable to process %s: %v", p, err)
+
+			if c.OCI {
+				scanPath = imageURI
+			}
+
+			logger.Debug("processing path path", slog.Any("path", path))
+			fr, err := processFile(ctx, c, yrs, path, scanPath, "", logger)
+			if err != nil {
+				return r, err
+			}
+			if fr == nil {
+				continue
+			}
+			scanPathFindings[path] = fr
+			if !c.OCI {
+				if err := errIfHitOrMiss(map[string]*bincapz.FileReport{path: fr}, "file", path, c.ErrFirstHit, c.ErrFirstMiss); err != nil {
+					logger.Debugf("match short circuit: %s", err)
+					return r, err
 				}
 			}
 		}
+
+		// OCI images hadle their match his/miss logic per scanPath
 		if c.OCI {
-			if err := os.RemoveAll(sp); err != nil {
-				logger.Errorf("remove %s: %v", sp, err)
+			if err := errIfHitOrMiss(scanPathFindings, "image", imageURI, c.ErrFirstHit, c.ErrFirstMiss); err != nil {
+				return r, err
 			}
+		}
+
+		for path, fr := range scanPathFindings {
+			r.Files[path] = fr
 		}
 	}
 
+	logger.Debugf("recursive scan complete: %d files", len(r.Files))
 	return r, nil
 }
 
-func processArchive(ctx context.Context, c Config, yrs *yara.Rules, r *bincapz.Report, path string, logger *clog.Logger) error {
+func processArchive(ctx context.Context, c Config, yrs *yara.Rules, archivePath string, logger *clog.Logger) (map[string]*bincapz.FileReport, error) {
+	logger = logger.With("archivePath", archivePath)
+
 	var err error
+	frs := map[string]*bincapz.FileReport{}
 
-	er, err := extractArchiveToTempDir(ctx, path)
+	tmpRoot, err := extractArchiveToTempDir(ctx, archivePath)
 	if err != nil {
-		return fmt.Errorf("extract to temp: %w", err)
+		return nil, fmt.Errorf("extract to temp: %w", err)
 	}
 
-	aps, err := findFilesRecursively(ctx, er, c)
+	extractedPaths, err := findFilesRecursively(ctx, tmpRoot, c)
 	if err != nil {
-		return fmt.Errorf("find files: %w", err)
+		return nil, fmt.Errorf("find files: %w", err)
 	}
 
-	for _, ap := range aps {
-		err = processFile(ctx, c, yrs, r, ap, path, er, logger)
+	for _, extractedFilePath := range extractedPaths {
+		fr, err := processFile(ctx, c, yrs, extractedFilePath, archivePath, tmpRoot, logger)
 		if err != nil {
-			return err
+			return nil, err
+		}
+		if fr != nil {
+			frs[extractedFilePath] = fr
 		}
 	}
-	if err := os.RemoveAll(er); err != nil {
-		logger.Errorf("remove %s: %v", er, err)
+	if err := os.RemoveAll(tmpRoot); err != nil {
+		logger.Errorf("remove %s: %v", tmpRoot, err)
 	}
-	return nil
+
+	return frs, nil
 }
 
-func processFile(
-	ctx context.Context,
-	c Config, yrs *yara.Rules,
-	r *bincapz.Report,
-	path string,
-	absPath string,
-	ar string,
-	logger *clog.Logger,
-) error {
-	fr, err := scanSinglePath(ctx, c, yrs, path, absPath, ar)
+func processFile(ctx context.Context, c Config, yrs *yara.Rules, path string, scanPath string, archiveRoot string, logger *clog.Logger) (*bincapz.FileReport, error) {
+	logger = logger.With("path", path)
+
+	fr, err := scanSinglePath(ctx, c, yrs, path, scanPath, archiveRoot)
 	if err != nil {
 		logger.Errorf("scan path: %v", err)
-		return nil
+		return nil, nil
 	}
+	if fr.Error != "" {
+		logger.Debugf("scan error: %s", fr.Error)
+		return nil, nil
+	}
+
 	if fr == nil {
-		return nil
+		logger.Infof("%s returned nil result", path)
+		return nil, nil
 	}
 
 	if c.IgnoreSelf && fr.IsBincapz {
 		clog.FromContext(ctx).Infof("dropping results for %s (it's bincapz)...", fr.Path)
-		return nil
+		return nil, nil
 	}
 
 	if c.Renderer != nil {
 		if fr.RiskScore < c.MinFileRisk {
-			return nil
+			// logger.Infof("%s [%d] does not meet min file risk [%d]", path, fr.RiskScore, c.MinFileRisk)
+			return nil, nil
 		}
+
 		if err := c.Renderer.File(ctx, fr); err != nil {
-			return fmt.Errorf("render: %w", err)
+			return nil, fmt.Errorf("render: %w", err)
 		}
 	}
-	r.Files[path] = fr
-	return nil
+
+	return fr, nil
 }
 
 func Scan(ctx context.Context, c Config) (*bincapz.Report, error) {
