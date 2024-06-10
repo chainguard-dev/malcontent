@@ -16,8 +16,8 @@ latest_github_release() {
 	basename "$(curl -Ls -o /dev/null -w "%{url_effective}" "https://github.com/${org_repo}/releases/latest")"
 }
 
-# latest_github_release returns the most recent release tag for a GitHub project
-clone() {
+# clone clones a git URL and returns the most recent commit
+git_clone() {
 	local repo=$1
 	local dir="${tmpdir}"
 	git clone "${repo}" "${dir}"
@@ -51,11 +51,11 @@ function update_dep() {
 		unzip -o -j "${tmpdir}/yaraforge.zip" packages/full/yara-rules-full.yar -d "${kind}"
 		;;
 	huntress)
-		rel=$(clone https://github.com/huntresslabs/threat-intel.git "${tmpdir}")
+		rel=$(git_clone https://github.com/huntresslabs/threat-intel.git "${tmpdir}")
 		find "${tmpdir}" \( -name "*.yar*" -o -name "*LICENSE*" \) -print -exec cp {} "${kind}" \;
 		;;
 	php-malware)
-		rel=$(clone https://github.com/jvoisin/php-malware-finder.git "${tmpdir}")
+		rel=$(git_clone https://github.com/jvoisin/php-malware-finder.git "${tmpdir}")
 		cp "${tmpdir}/LICENSE" "${kind}"
 		echo '/* bincapz HACK: whitelist non-PHP programs */
 private rule IsWhitelisted {
@@ -75,11 +75,11 @@ private rule IsWhitelisted {
 		unzip -o -j "${tmpdir}/keywords.zip" "ThreatHunting-Keywords-yara-rules-${vrel}/yara_rules/all.yara" -d "${kind}"
 		;;
 	InQuest-VT)
-		rel=$(clone https://github.com/InQuest/yara-rules-vt.git "${tmpdir}")
+		rel=$(git_clone https://github.com/InQuest/yara-rules-vt.git "${tmpdir}")
 		find "${tmpdir}" \( -name "*.yar*" -o -name "*LICENSE*" -o -name "README*" \) -print -exec cp {} "${kind}" \;
 		;;
 	bartblaze)
-		rel=$(clone https://github.com/bartblaze/Yara-rules.git "${tmpdir}")
+		rel=$(git_clone https://github.com/bartblaze/Yara-rules.git "${tmpdir}")
 		cp -Rp ${tmpdir}/LICENSE ${tmpdir}/README.md ${tmpdir}/rules/* "${kind}/"
 		;;
 	*)

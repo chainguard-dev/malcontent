@@ -163,7 +163,6 @@ func behaviorRisk(ns string, rule string, tags []string) int {
 		if strings.Contains(strings.ToLower(ns), "keyword") || strings.Contains(strings.ToLower(rule), "keyword") {
 			risk = 2
 		}
-
 	}
 
 	if strings.Contains(ns, "combo/") {
