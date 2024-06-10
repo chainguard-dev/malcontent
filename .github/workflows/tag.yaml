@@ -24,18 +24,20 @@ jobs:
     - name: Get Version
       id: get-version
       run: |
-        CURRENT_VERSION=$(awk -F'"' '/ID string =/ {print $2}' ${{ env.VERSION_FILE }})
-        echo "VERSION=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
+        VERSION=$(awk -F'"' '/ID string =/ {print $2}' ${{ env.VERSION_FILE }})
+        echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
     - name: Create Tag
       if: ${{ steps.get-version.outputs.VERSION != '' }}
       run: |
-        if [ $(git tag -l "${{ steps.get-version.outputs.VERSION }}") ]; then
-            echo "Tag already exists for version $CURRENT_VERSION"
+        VERSION=${{ steps.get-version.outputs.VERSION }}
+        if [ $(git tag -l "$VERSION") ]; then
+            echo "Tag already exists for version $VERSION"
             exit 0
         else
+          git config --global tag.gpgsign true
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git tag $CURRENT_VERSION
-          git push --tags
+          git tag $VERSION
+          git push origin tag $VERSION
           gitsign verify $(git rev-list --tags --max-count=1) --certificate-identity-regexp="https://github.com/${{ github.repository }}" --certificate-oidc-issuer="https://token.actions.githubusercontent.com"
         fi

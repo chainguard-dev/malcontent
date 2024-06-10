@@ -47,16 +47,20 @@ jobs:
             exit 1
             ;;
         esac
+
+        echo "Current bincapz version: $CURRENT_VERSION"
+        echo "New bincapz version: $VERSION"
         
-        sed -i'' -e "s/ID string = \"v[0-9]*\.[0-9]*\.[0-9]*\"/ID string = \"v$VERSION\"/" ${{ env.VERSION_FILE }}
+        sed -i -e "s/ID string = \"v[0-9]*\.[0-9]*\.[0-9]*\"/ID string = \"v$VERSION\"/" ${{ env.VERSION_FILE }}
     - name: Commit Version Update
       run: |
         git config user.name "github-actions[bot]"
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-        git checkout -b bincapz-version-bump-$VERSION
+        BRANCH="bincapz-version-bump-$VERSION"
+        git checkout -b $BRANCH
         git add ${{ env.VERSION_FILE }}
         git commit -m "Bump bincapz version to v$VERSION"
-        git push origin bincapz-bump-version-$VERSION
+        git push origin $BRANCH
         gitsign verify $(git rev-parse HEAD) --certificate-identity-regexp="https://github.com/${{ github.repository }}" --certificate-oidc-issuer="https://token.actions.githubusercontent.com"
     - name: Create Pull Request
       run: |

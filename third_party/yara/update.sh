@@ -14,7 +14,16 @@ set -ex -o pipefail
 latest_github_release() {
 	local org_repo=$1
 	basename "$(curl -Ls -o /dev/null -w "%{url_effective}" "https://github.com/${org_repo}/releases/latest")"
+}
 
+# clone clones a git URL and returns the most recent commit
+git_clone() {
+	local repo=$1
+	local dir="${tmpdir}"
+	git clone "${repo}" "${dir}"
+	pushd "${dir}" || exit 1
+	git rev-parse HEAD
+	popd || exit 1
 }
 
 # fixup_rules fixes rules up, including lightly obfuscating them to avoid XProtect from matching bincapz
@@ -42,10 +51,7 @@ function update_dep() {
 		unzip -o -j "${tmpdir}/yaraforge.zip" packages/full/yara-rules-full.yar -d "${kind}"
 		;;
 	huntress)
-		git clone https://github.com/huntresslabs/threat-intel.git "${tmpdir}"
-		pushd "${tmpdir}" || exit 1
-		rel="$(git rev-parse HEAD)"
-		popd || exit 1
+		rel=$(git_clone https://github.com/huntresslabs/threat-intel.git "${tmpdir}")
 		find "${tmpdir}" \( -name "*.yar*" -o -name "*LICENSE*" \) -print -exec cp {} "${kind}" \;
 		;;
 	threat_hunting)
@@ -55,11 +61,12 @@ function update_dep() {
 		unzip -o -j "${tmpdir}/keywords.zip" "ThreatHunting-Keywords-yara-rules-${vrel}/yara_rules/all.yara" -d "${kind}"
 		;;
 	InQuest-VT)
-		git clone https://github.com/InQuest/yara-rules-vt.git "${tmpdir}"
-		pushd "${tmpdir}" || exit 1
-		rel="$(git rev-parse HEAD)"
-		popd || exit 1
+		rel=$(git_clone https://github.com/InQuest/yara-rules-vt.git "${tmpdir}")
 		find "${tmpdir}" \( -name "*.yar*" -o -name "*LICENSE*" -o -name "README*" \) -print -exec cp {} "${kind}" \;
+		;;
+	bartblaze)
+		rel=$(git_clone https://github.com/bartblaze/Yara-rules.git "${tmpdir}")
+		cp -Rp ${tmpdir}/LICENSE ${tmpdir}/README.md ${tmpdir}/rules/* "${kind}/"
 		;;
 	*)
 		echo "unknown kind: ${kind}"
