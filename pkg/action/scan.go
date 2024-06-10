@@ -19,7 +19,7 @@ import (
 	"github.com/hillu/go-yara/v4"
 )
 
-// return a list of files within a path.
+// findFilesRecurslively returns a list of files found recursively within a path.
 func findFilesRecursively(ctx context.Context, root string, c Config) ([]string, error) {
 	clog.FromContext(ctx).Infof("finding files in %s ...", root)
 	var files []string
@@ -69,6 +69,7 @@ func formatPath(path string) string {
 	return strings.TrimPrefix(path, "/")
 }
 
+// scanSinglePath YARA scans a single path and converts it to a fileReport.
 func scanSinglePath(ctx context.Context, c Config, yrs *yara.Rules, path string, absPath string, archiveRoot string) (*bincapz.FileReport, error) {
 	logger := clog.FromContext(ctx)
 	var mrs yara.MatchRules
@@ -105,12 +106,12 @@ func scanSinglePath(ctx context.Context, c Config, yrs *yara.Rules, path string,
 	return &fr, nil
 }
 
-// isSupportedArchive returns whether a path can be processed by our archive extractor
+// isSupportedArchive returns whether a path can be processed by our archive extractor.
 func isSupportedArchive(path string) bool {
 	return archiveMap[getExt(path)]
 }
 
-// errIfMatch generates the right error if a match is encountered
+// errIfMatch generates the right error if a match is encountered.
 func errIfHitOrMiss(frs map[string]*bincapz.FileReport, kind string, scanPath string, errIfHit bool, errIfMiss bool) error {
 	bMap := map[string]bool{}
 	count := 0
@@ -143,6 +144,7 @@ func errIfHitOrMiss(frs map[string]*bincapz.FileReport, kind string, scanPath st
 	return nil
 }
 
+// recursiveScan recursively YARA scans the configured paths - handling archives and OCI images.
 func recursiveScan(ctx context.Context, c Config) (*bincapz.Report, error) {
 	logger := clog.FromContext(ctx)
 	logger.Debug("recursive scan", slog.Any("config", c))
@@ -165,22 +167,18 @@ func recursiveScan(ctx context.Context, c Config) (*bincapz.Report, error) {
 	for _, scanPath := range c.ScanPaths {
 		logger.Debug("recursive scan", slog.Any("scanPath", scanPath))
 		imageURI := ""
+		ociExtractPath := ""
 		var err error
 
 		if c.OCI {
 			// store the image URI for later use
 			imageURI = scanPath
-			ociExtractPath, err := oci(ctx, imageURI)
+			ociExtractPath, err = oci(ctx, imageURI)
 			logger.Debug("oci image", slog.Any("scanPath", scanPath), slog.Any("ociExtractPath", ociExtractPath))
 			if err != nil {
 				return nil, fmt.Errorf("failed to prepare OCI image for scanning: %w", err)
 			}
 			scanPath = ociExtractPath
-			defer func() {
-				if err := os.RemoveAll(ociExtractPath); err != nil {
-					logger.Errorf("remove %s: %v", scanPath, err)
-				}
-			}()
 		}
 
 		paths, err := findFilesRecursively(ctx, scanPath, c)
@@ -238,17 +236,22 @@ func recursiveScan(ctx context.Context, c Config) (*bincapz.Report, error) {
 			if err := errIfHitOrMiss(scanPathFindings, "image", imageURI, c.ErrFirstHit, c.ErrFirstMiss); err != nil {
 				return r, err
 			}
+
+			if err := os.RemoveAll(ociExtractPath); err != nil {
+				logger.Errorf("remove %s: %v", scanPath, err)
+			}
 		}
 
 		for path, fr := range scanPathFindings {
 			r.Files[path] = fr
 		}
-	}
+	} // loop: next scan path
 
 	logger.Debugf("recursive scan complete: %d files", len(r.Files))
 	return r, nil
 }
 
+// processArchive extracts and scans a single archive file.
 func processArchive(ctx context.Context, c Config, yrs *yara.Rules, archivePath string, logger *clog.Logger) (map[string]*bincapz.FileReport, error) {
 	logger = logger.With("archivePath", archivePath)
 
@@ -281,6 +284,7 @@ func processArchive(ctx context.Context, c Config, yrs *yara.Rules, archivePath 
 	return frs, nil
 }
 
+// processFile scans a single output file, rendering live output if available.
 func processFile(ctx context.Context, c Config, yrs *yara.Rules, path string, scanPath string, archiveRoot string, logger *clog.Logger) (*bincapz.FileReport, error) {
 	logger = logger.With("path", path)
 
@@ -318,6 +322,7 @@ func processFile(ctx context.Context, c Config, yrs *yara.Rules, path string, sc
 	return fr, nil
 }
 
+// Scan is the public API forYARA scanning a data source, applying filters if necessary.
 func Scan(ctx context.Context, c Config) (*bincapz.Report, error) {
 	r, err := recursiveScan(ctx, c)
 	if err != nil {
