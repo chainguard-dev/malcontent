@@ -20,8 +20,9 @@ rule excessive_bitwise_math : high {
     hash_2023_aiohttpp_0_1_setup = "cfa4137756f7e8243e7c7edc7cb0b431a2f4c9fa401f2570f1b960dbc86ca7c6"
   strings:
     $x = /\-{0,1}[\da-z]{1,8} \<\< \-{0,1}\d{1,8}/
+	$not_Sodium = "Sodium_Core"
   condition:
-    filesize < 128000 and #x > 20
+    filesize < 128000 and #x > 20 and none of ($not*)
 }
 
 rule bitwise_math : low {
@@ -66,7 +67,6 @@ rule bitwise_python_string_exec_eval : high {
 	condition:
 		filesize < 65535 and $ref and any of ($e*)
 }
-
 
 rule bitwise_python_string_exec_eval_nearby : critical {
 	meta:

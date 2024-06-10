@@ -91,3 +91,4 @@ security_controls/linux/selinux
 security_controls/linux/selinux_disable
 service/systemd
 shell/exec
+shell/reverse
