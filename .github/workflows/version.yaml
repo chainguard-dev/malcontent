@@ -18,6 +18,7 @@ env:
 
 jobs:
   version:
+    if: ${{ github.repository }} == 'chainguard-dev/bincapz'
     runs-on: ubuntu-latest
     steps:
     - uses: step-security/harden-runner@17d0e2bd7d51742c71671bd19fa12bdc9d40a3d6
@@ -30,7 +31,12 @@ jobs:
       run: |
         UPDATE_TYPE=${{ github.event.inputs.update }}
 
-        CURRENT_VERSION=$(awk -F'"' '/ID string =/ {print $2}' pkg/version/version.go)
+        CURRENT_VERSION=$(awk -F'"' '/ID string =/ {print $2}' ${{ env.VERSION_FILE }})
+
+        if [[ ! "${CURRENT_VERSION}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo "Error: CURRENT_VERSION is not a valid semver"
+          exit 1
+        fi
         
         IFS='.' read -ra VERSION_PARTS <<< "${CURRENT_VERSION:1}"
         
@@ -50,10 +56,15 @@ jobs:
             ;;
         esac
 
+        if [[ ! "${VERSION}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo "Error: VERSION is not a valid semver"
+          exit 1
+        fi
+
         echo "Current bincapz version: $CURRENT_VERSION"
         echo "New bincapz version: $VERSION"
         
-        sed -i -e "s/ID string = \"v[0-9]*\.[0-9]*\.[0-9]*\"/ID string = \"v$VERSION\"/" ${{ env.VERSION_FILE }}
+        sed -i -e "s/ID string = \"v[0-9]+\.[0-9]+\.[0-9]+\"/ID string = \"v$VERSION\"/" ${{ env.VERSION_FILE }}
         
         echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
     - name: Commit Version Update
