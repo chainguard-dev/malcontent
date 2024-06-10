@@ -9,8 +9,9 @@ on:
         default: 'minor'
 
 permissions:
-  id-token: write
   contents: write
+  id-token: write
+  pull-requests: write
 
 env:
   VERSION_FILE: pkg/version/version.go
