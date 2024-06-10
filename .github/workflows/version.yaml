@@ -25,6 +25,7 @@ jobs:
     - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
     - uses: chainguard-dev/actions/setup-gitsign@e82b4e5ae10182af72972addcb3fedf7454621c8
     - name: Update Version
+      id: update
       run: |
         UPDATE_TYPE=${{ github.event.inputs.update }}
 
@@ -52,10 +53,12 @@ jobs:
         echo "New bincapz version: $VERSION"
         
         sed -i -e "s/ID string = \"v[0-9]*\.[0-9]*\.[0-9]*\"/ID string = \"v$VERSION\"/" ${{ env.VERSION_FILE }}
+        echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
     - name: Commit Version Update
       run: |
         git config user.name "github-actions[bot]"
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        VERSION=${{ steps.update.outputs.VERSION }}
         BRANCH="bincapz-version-bump-$VERSION"
         git checkout -b $BRANCH
         git add ${{ env.VERSION_FILE }}
