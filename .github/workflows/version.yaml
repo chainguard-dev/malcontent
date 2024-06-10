@@ -9,8 +9,9 @@ on:
         default: 'minor'
 
 permissions:
-  id-token: write
   contents: write
+  id-token: write
+  pull-requests: write
 
 env:
   VERSION_FILE: pkg/version/version.go
@@ -19,12 +20,13 @@ jobs:
   version:
     runs-on: ubuntu-latest
     steps:
-    - uses: step-security/harden-runner@f086349bfa2bd1361f7909c78558e816508cdc10
+    - uses: step-security/harden-runner@17d0e2bd7d51742c71671bd19fa12bdc9d40a3d6
       with:
         egress-policy: audit 
     - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
     - uses: chainguard-dev/actions/setup-gitsign@e82b4e5ae10182af72972addcb3fedf7454621c8
     - name: Update Version
+      id: update
       run: |
         UPDATE_TYPE=${{ github.event.inputs.update }}
 
@@ -52,16 +54,21 @@ jobs:
         echo "New bincapz version: $VERSION"
         
         sed -i -e "s/ID string = \"v[0-9]*\.[0-9]*\.[0-9]*\"/ID string = \"v$VERSION\"/" ${{ env.VERSION_FILE }}
+        
+        echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
     - name: Commit Version Update
       run: |
         git config user.name "github-actions[bot]"
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        VERSION=${{ steps.update.outputs.VERSION }}
         BRANCH="bincapz-version-bump-$VERSION"
         git checkout -b $BRANCH
         git add ${{ env.VERSION_FILE }}
         git commit -m "Bump bincapz version to v$VERSION"
         git push origin $BRANCH
-        gitsign verify $(git rev-parse HEAD) --certificate-identity-regexp="https://github.com/${{ github.repository }}" --certificate-oidc-issuer="https://token.actions.githubusercontent.com"
+        gitsign verify $(git rev-parse HEAD) --certificate-identity-regexp="https://github.com/${{ github.repository }}/*" --certificate-oidc-issuer="https://token.actions.githubusercontent.com"
     - name: Create Pull Request
+      env:
+        GH_TOKEN: ${{ github.token }}
       run: |
         gh pr create -t "Update bincapz to $VERSION" -b "PR to update the version in ${{ env.VERSION_FILE }} to $VERSION" -B main

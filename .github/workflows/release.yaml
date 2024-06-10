@@ -1,0 +1,37 @@
+name: Cut Release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: write
+
+env:
+  VERSION_FILE: pkg/version/version.go
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: step-security/harden-runner@17d0e2bd7d51742c71671bd19fa12bdc9d40a3d6
+      with:
+        egress-policy: audit
+    - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
+    - uses: chainguard-dev/actions/setup-gitsign@e82b4e5ae10182af72972addcb3fedf7454621c8
+    - name: Get Version
+      id: get-version
+      run: |
+        VERSION=$(awk -F'"' '/ID string =/ {print $2}' ${{ env.VERSION_FILE }})
+        echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
+    - name: Create Release
+      env:
+        GH_TOKEN: ${{ github.token }}
+      if: ${{ steps.get-version.outputs.VERSION != '' }}
+      run: |
+        VERSION=${{ steps.get-version.outputs.VERSION }}
+        git config --global tag.gpgsign true
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        gh release create "$VERSION" --title "$VERSION" --notes "Release $VERSION" --draft --generate-notes
+        gitsign verify $(git rev-list --tags --max-count=1) --certificate-identity-regexp="https://github.com/${{ github.repository }}/*" --certificate-oidc-issuer="https://token.actions.githubusercontent.com"
