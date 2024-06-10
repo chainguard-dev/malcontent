@@ -38,3 +38,12 @@ rule perl_reverse_shell : critical {
   condition:
     $socket and $open and any of ($redir*) and $sh_i
 }
+
+rule reverse_shell_ref : high {
+	meta:
+		description = "references a reverse shell"
+	strings:
+	    $ = /(r[e3]v[e3]rs[e3]|w[3e]b|cmd)\s*sh[e3]ll/ nocase
+	condition:
+		any of them
+}

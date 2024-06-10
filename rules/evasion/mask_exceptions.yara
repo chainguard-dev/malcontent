@@ -28,3 +28,17 @@ rule setuptools_no_fail : suspicious {
   condition:
     pythonSetup and py_no_fail
 }
+
+rule php_disable_errors : medium {
+    meta:
+        description = "PHP code that disables error reporting"
+    strings:
+        $err_rep = "error_reporting(0)"
+        $log_errs = /ini_set\(\Wlog_errors\W{0,4}0/
+        $display_0 = /ini_set\(\Wdisplay_errors\W{0,4}0/
+        $error_log = /ini_set\(\Werror_log\W{0,4}NULL/
+        $display_off = /ini_set\(\Wdisplay_errors\W{0,4}Off/
+        $display_false = /ini_set\(\Wdisplay_errors\W{0,4}FALSE/
+    condition:
+        1 of them
+}

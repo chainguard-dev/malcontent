@@ -20,16 +20,16 @@ rule irc_protocol : high {
     description = "Uses IRC (Internet Relay Chat"
 	credit = "Initially ported from https://github.com/jvoisin/php-malware-finder"
   strings:
-	$ = "JOIN" fullword
-	$ = "MODE" fullword
-	$ = "NICK" fullword
-	$ = "NOTICE" fullword
-	$ = "PART" fullword
-	$ = "PASS" fullword
-	$ = "PING" fullword
-	$ = "PONG" fullword
-	$ = "PRIVMSG" fullword
-	$ = "USER" fullword
+	$join = "JOIN" fullword
+	$mode = "MODE" fullword
+	$nick = "NICK" fullword
+	$notice = "NOTICE" fullword
+	$part = "PART" fullword
+	$pass = "PASS" fullword
+	$ping = "PING" fullword
+	$pong = "PONG" fullword
+	$privmsg = "PRIVMSG" fullword
+	$user = "USER" fullword
   condition:
-    4 of them
+    $nick and $user and 2 of them
 }

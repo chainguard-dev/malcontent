@@ -6,6 +6,8 @@ rule wordpress_xmlrpc : high {
     hash_2024_Downloads_8907 = "89073097e72070cc7cc73c178447b70e07b603ccecfe406fe92fe9eafaae830f"
   strings:
     $php_url = /[\w\/\.]{0,64}xmlrpc.php/
+	$not_commenvt_WordPress = "* WordPress"
+	$not_pkg_WordPress = "@package WordPress"
   condition:
-    any of them
+    $php_url and none of ($not*)
 }

@@ -68,27 +68,87 @@ rule php_str_replace_obfuscation : high {
 		filesize < 65535 and $str_replace and 2 of ($o*)
 }
 
+rule php_oneliner : medium {
+	meta:
+		description = "sets up PHP and jumps directly into risky function"
+		credit = "Ported from https://github.com/jvoisin/php-malware-finder"
+    strings:
+	    $php = /<\?[^x]/
+        $o_oneliner = /(<\?php|[;{}])[ \t]*@?(eval|preg_replace|system|assert|passthru|(pcntl_)?exec|shell_exec|call_user_func(_array)?)\s*\(/ // ;eval(
+	condition:
+		filesize < 5MB and $php and any of ($o*)
+}
+
 rule php_obfuscation : high {
 	meta:
-		description = "obfuscation techniques seen in PHP malware"
+		description = "obfuscated PHP code"
 		credit = "Ported from https://github.com/jvoisin/php-malware-finder"
     strings:
 	    $php = /<\?[^x]/
 
-        $o_eval = /(<\?php|[;{}])[ \t]*@?(eval|preg_replace|system|assert|passthru|(pcntl_)?exec|shell_exec|call_user_func(_array)?)\s*\(/ nocase  // ;eval( <- this is dodgy
-        $O_eval_comment = /(eval|preg_replace|system|assert|passthru|(pcntl_)?exec|shell_exec|call_user_func(_array)?)\/\*[^\*]*\*\/\(/ nocase  // eval/*lol*/( <- this is dodgy
+        $o_crit_func_comment = /(eval|preg_replace|system|assert|passthru|(pcntl_)?exec|shell_exec|call_user_func(_array)?)\/\*[^\*]*\*\/\(/ // eval/*lol*
         $o_b374k = "'ev'.'al'"
         $o_align = /(\$\w+=[^;]*)*;\$\w+=@?\$\w+\(/  //b374k
         $o_weevely3 = /\$\w=\$[a-zA-Z]\('',\$\w\);\$\w\(\);/  // weevely3 launcher
         $o_c99_launcher = /;\$\w+\(\$\w+(,\s?\$\w+)+\);/  // http://bartblaze.blogspot.fr/2015/03/c99shell-not-dead.html
-        $o_nano = /\$[a-z0-9-_]+\[[^]]+\]\(/ //https://github.com/UltimateHackers/nano
         $o_ninja = /base64_decode[^;]+getallheaders/ //https://github.com/UltimateHackers/nano
         $o_variable_variable = /\${\$[0-9a-zA-z]+}/
         $o_too_many_chr = /(chr\([\d]+\)\.){8}/  // concatenation of more than eight `chr()`
-        $o_concat = /(\$[^\n\r]+\.){5}/  // concatenation of more than 5 words
-        $o_concat_with_spaces = /(\$[^\n\r]+\. ){5}/  // concatenation of more than 5 words, with spaces
         $o_var_as_func = /\$_(GET|POST|COOKIE|REQUEST|SERVER)\s*\[[^\]]+\]\s*\(/
-        $o_comment = /\/\*([^*]|\*[^\/])*\*\/\s*\(/  // eval /* comment */ (php_code)
 	condition:
 		filesize < 5MB and $php and any of ($o*)
+}
+
+rule php_obfuscated_concat : high {
+	meta:
+		description = "obfuscated PHP concatenation"
+		credit = "Ported from https://github.com/jvoisin/php-malware-finder"
+    strings:
+	    $php = /<\?[^x]/
+		$o_concat2 = /\.\$[A-Za-z0-9]{0,6}\[[0-9]+\]\.\$[A-Za-z0-9]{0,6}\[[0-9]+\]\.\$[A-Za-z0-9]{0,6}\[[0-9]+\]\.\$[A-Za-z0-9]{0,6}\[[0-9]+\]\./
+	condition:
+		filesize < 5MB and $php and any of ($o*)
+}
+
+rule php_obfuscated_concat_multiple : critical {
+	meta:
+		description = "obfuscated PHP concatenation (multiple)"
+    strings:
+	    $php = /<\?[^x]/
+		$o_concat2 = /\.\$[A-Za-z0-9]{0,6}\[[0-9]+\]\.\$[A-Za-z0-9]{0,6}\[[0-9]+\]\.\$[A-Za-z0-9]{0,6}\[[0-9]+\]\.\$[A-Za-z0-9]{0,6}\[[0-9]+\]\./
+	condition:
+		filesize < 5MB and $php and any of ($o*)
+}
+
+rule base64_str_replace : critical {
+	meta:
+	   description = "creatively hidden forms of the term 'base64'"
+	strings:
+		$a = /ba.s.e64/
+		$b = /b.a.s.6.4/
+		$c = /b.a.se.6.4/
+	condition:
+		any of them
+}
+
+rule rot13_str_replace : critical {
+	meta:
+	   description = "creatively hidden forms of the term 'rot13'"
+	strings:
+		$a = /r.o.t13/
+		$b = /r.o.t.1.3/
+		$c = /r.o.t1.3/
+	condition:
+		any of them
+}
+
+rule gzinflate_str_replace : critical {
+	meta:
+	   description = "creatively hidden forms of the term 'gzinflate'"
+	strings:
+		$a = /g.z.inf.l.a/
+		$b = /g.z.i.n.f.l/
+		$c = /g.z.in.f.l/
+	condition:
+		any of them
 }

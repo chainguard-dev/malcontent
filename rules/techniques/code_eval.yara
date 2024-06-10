@@ -47,3 +47,13 @@ rule php_create_function_no_args : high {
 	any of them
 }
 
+rule php_at_eval : critical {
+  meta:
+    description = "evaluates code in a way that suppresses errors"
+  strings:
+	$at_eval = /@eval\s{0,8}\(.{0,32}/
+  condition:
+	any of them
+}
+
+

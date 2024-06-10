@@ -42,3 +42,14 @@ rule py_connect : medium {
   condition:
     all of them
 }
+
+rule php_connect : medium {
+	meta:
+		description = "initiate a connection on a socket"
+		syscall = "connect"
+		ref = "https://www.php.net/manual/en/function.fsockopen.php"
+	strings:
+		$ref = "fsockopen"
+	condition:
+		any of them
+}
