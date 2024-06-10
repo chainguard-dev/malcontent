@@ -30,7 +30,8 @@ jobs:
       if: ${{ steps.get-version.outputs.VERSION != '' }}
       run: |
         VERSION=${{ steps.get-version.outputs.VERSION }}
-        if [ $(git tag -l "$VERSION") ]; then
+
+        if git rev-parse "refs/tags/$VERSION" >/dev/null 2>&1; then
             echo "Tag already exists for version $VERSION"
             exit 0
         else
