@@ -75,19 +75,19 @@ ${bincapz} --format=simple \
 wait
 
 for f in $(find * -name "*.simple"); do
-    prog=$(echo ${f} | sed s/\.simple//g)
+    prog=$(echo ${f} | sed s/\.simple$//g)
     ${bincapz} --format=simple -o "${f}" "${prog}" &
 done
 wait
 
 for f in $(find * -name "*.md"); do
-    prog=$(echo ${f} | sed s/\.md//g)
+    prog=$(echo ${f} | sed s/\.md$//g)
     ${bincapz} --format=markdown -o "${f}" "${prog}" &
 done
 wait
 
 for f in $(find * -name "*.json"); do
-    prog=$(echo ${f} | sed s/\.json//g)
+    prog=$(echo ${f} | sed s/\.json$//g)
     ${bincapz} --format=json -o "${f}" "${prog}" &
 done
 wait
