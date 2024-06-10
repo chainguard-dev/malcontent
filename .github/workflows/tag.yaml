@@ -37,7 +37,7 @@ jobs:
           git config --global tag.gpgsign true
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git tag $VERSION
+          git tag -a $VERSION -m "Tagging version $VERSION"
           git push origin tag $VERSION
           gitsign verify $(git rev-list --tags --max-count=1) --certificate-identity-regexp="https://github.com/${{ github.repository }}" --certificate-oidc-issuer="https://token.actions.githubusercontent.com"
         fi
