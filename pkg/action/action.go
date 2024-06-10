@@ -23,4 +23,6 @@ type Config struct {
 	Rules            *yara.Rules
 	ScanPaths        []string
 	Stats            bool
+	ErrFirstMiss     bool
+	ErrFirstHit      bool
 }

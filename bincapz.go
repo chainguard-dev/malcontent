@@ -65,6 +65,8 @@ func main() {
 	minLevelFlag := flag.Int("min-level", -1, "Obsoleted by --min-risk")
 	minFileRiskFlag := flag.String("min-file-risk", "low", "Only show results for files that meet this risk level (any,low,medium,high,critical")
 	minRiskFlag := flag.String("min-risk", "low", "Minimum risk level to show results for (any,low,medium,high,critical)")
+	errFirstMissFlag := flag.Bool("err-first-miss", false, "exit with error if scan source has no matching capabilities")
+	errFirstHitFlag := flag.Bool("err-first-hit", false, "exit with error if scan source has matching capabilities")
 	ociFlag := flag.Bool("oci", false, "Scan an OCI image")
 	omitEmptyFlag := flag.Bool("omit-empty", false, "Omit files that contain no matches")
 	profileFlag := flag.Bool("profile", false, "Generate profile and trace files")
@@ -81,7 +83,7 @@ func main() {
 
 	logLevel := new(slog.LevelVar)
 	logLevel.Set(slog.LevelError)
-	logOpts := &slog.HandlerOptions{Level: logLevel}
+	logOpts := &slog.HandlerOptions{Level: logLevel, AddSource: true}
 	log := clog.New(slog.NewTextHandler(os.Stderr, logOpts))
 
 	var stop func()
@@ -187,6 +189,8 @@ func main() {
 		Rules:            yrs,
 		ScanPaths:        args,
 		Stats:            stats,
+		ErrFirstHit:      *errFirstHitFlag,
+		ErrFirstMiss:     *errFirstMissFlag,
 	}
 
 	var res *bincapz.Report
@@ -198,7 +202,7 @@ func main() {
 	}
 	if err != nil {
 		returnCode = ExitActionFailed
-		log.Error("action failed", slog.Any("error", err))
+		fmt.Fprintf(os.Stderr, "%s\n", err)
 		return
 	}
 
