@@ -6,17 +6,16 @@ rule unusual_cd_val : high {
     hash_2023_usr_adxintrin_b = "a51a4ddcd092b102af94139252c898d7c1c48f322bae181bd99499a79c12c500"
     hash_2023_spirit = "26ba215bcd5d8a9003a904b0eac7dc10054dba7bea9a708668a5f6106fd73ced"
   strings:
-    $d_dev_mqueue = "cd /dev/mqueue"
-    $d_dev_shm = "cd /dev/shm"
     $d_mnt = "cd /mnt"
     $d_root = "cd /root"
     $d_tmp = "cd /tmp"
-    $d_usr = "cd /usr"
+    $d_usr = /cd \/usr[\/\w\.]{0,16}/
     $d_var_log = "cd /var/log"
     $d_var_run = "cd /var/run"
     $d_var_tmp = "cd /var/tmp"
+	$not_usr_src = "cd /usr/src"
   condition:
-    any of them
+    any of ($d*) and none of ($not*)
 }
 
 rule unusual_cd_dev_val : high {

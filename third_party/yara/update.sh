@@ -54,20 +54,6 @@ function update_dep() {
 		rel=$(git_clone https://github.com/huntresslabs/threat-intel.git "${tmpdir}")
 		find "${tmpdir}" \( -name "*.yar*" -o -name "*LICENSE*" \) -print -exec cp {} "${kind}" \;
 		;;
-	php-malware)
-		rel=$(git_clone https://github.com/jvoisin/php-malware-finder.git "${tmpdir}")
-		cp "${tmpdir}/LICENSE" "${kind}"
-		echo '/* bincapz HACK: whitelist non-PHP programs */
-private rule IsWhitelisted {
-  strings:
-	$php = "<?"
-  condition:
-	not $php in (0..4)
-}
-' >"${tmpdir}/whitelist.yar"
-
-		grep -hv 'include "whitelist.yar"' "${tmpdir}/whitelist.yar" "${tmpdir}/data/php.yar" >"${kind}/php.yar"
-		;;
 	threat_hunting)
 		rel=$(latest_github_release mthcht/ThreatHunting-Keywords-yara-rules)
 		curl -L -o "${tmpdir}/keywords.zip" "https://github.com/mthcht/ThreatHunting-Keywords-yara-rules/archive/refs/tags/${rel}.zip"

@@ -1,5 +1,4 @@
-
-rule irc : high {
+rule irc_c_format : high {
   meta:
     pledge = "inet"
     description = "Uses IRC (Internet Relay Chat"
@@ -13,4 +12,24 @@ rule irc : high {
     $ref4 = "JOIN %s :%s"
   condition:
     any of them
+}
+
+rule irc_protocol : high {
+  meta:
+    pledge = "inet"
+    description = "Uses IRC (Internet Relay Chat"
+	credit = "Initially ported from https://github.com/jvoisin/php-malware-finder"
+  strings:
+	$join = "JOIN" fullword
+	$mode = "MODE" fullword
+	$nick = "NICK" fullword
+	$notice = "NOTICE" fullword
+	$part = "PART" fullword
+	$pass = "PASS" fullword
+	$ping = "PING" fullword
+	$pong = "PONG" fullword
+	$privmsg = "PRIVMSG" fullword
+	$user = "USER" fullword
+  condition:
+    $nick and $user and 2 of them
 }
