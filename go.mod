@@ -7,7 +7,7 @@ require (
 	github.com/chainguard-dev/clog v1.3.1
 	github.com/fatih/color v1.17.0
 	github.com/google/go-cmp v0.6.0
-	github.com/google/go-containerregistry v0.19.1
+	github.com/google/go-containerregistry v0.19.2
 	github.com/hillu/go-yara/v4 v4.3.2
 	github.com/liamg/magic v0.0.1
 	github.com/olekukonko/tablewriter v0.0.5
