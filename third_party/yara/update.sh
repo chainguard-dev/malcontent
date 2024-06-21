@@ -21,9 +21,9 @@ git_clone() {
 	local repo=$1
 	local dir="${tmpdir}"
 	git clone "${repo}" "${dir}"
-	pushd "${dir}" || exit 1
+	pushd "${dir}" >/dev/null || exit 1
 	git rev-parse HEAD
-	popd || exit 1
+	popd >/dev/null || exit 1
 }
 
 # fixup_rules fixes rules up, including lightly obfuscating them to avoid XProtect from matching bincapz
