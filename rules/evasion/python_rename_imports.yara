@@ -16,13 +16,15 @@ rule rename_requests_2char : high {
 	filesize < 65535 and all of them
 }
 
-rule rename_os : critical {
+rule rename_os : high {
   meta:
     description = "imports 'os' library and gives it another name"
   strings:
 	$ref = /import os as \w{0,64}/
+	$not_underscore = "import os as _os"
+	$not_gos = "import os as gos"
   condition:
-	filesize < 65535 and all of them
+	filesize < 65535 and $ref and none of ($not*)
 }
 
 rule rename_marshal : critical {
