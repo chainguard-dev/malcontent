@@ -97,19 +97,31 @@ func Recursive(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {
 	}
 
 	if err != nil {
-		return nil, fmt.Errorf("walk: %w", err)
+		return nil, err
 	}
 
 	warnings := map[string]string{}
 	for _, ycw := range yc.Warnings {
-		clog.WarnContext(ctx, "warning", slog.String("namespace", ycw.Rule.Namespace()), slog.String("warning", ycw.Text), slog.String("id", ycw.Rule.Identifier()))
+		clog.WarnContext(ctx, "warning", slog.String("filename", ycw.Filename), slog.Int("line", ycw.Line), slog.String("text", ycw.Text))
+		if ycw.Rule == nil {
+			continue
+		}
+
 		id := fmt.Sprintf("%s:%s", ycw.Rule.Namespace(), ycw.Rule.Identifier())
+		clog.WarnContext(ctx, "rule has warning", "id", id)
 		warnings[id] = ycw.Text
 	}
 
+	errors := []string{}
 	for _, yce := range yc.Errors {
-		clog.ErrorContext(ctx, "errors", slog.String("namespace", yce.Rule.Namespace()), slog.String("error", yce.Text), slog.String("id", yce.Rule.Identifier()))
-		return nil, fmt.Errorf("rule error: %v", yce.Text)
+		clog.ErrorContext(ctx, "error", slog.String("filename", yce.Filename), slog.Int("line", yce.Line), slog.String("text", yce.Text))
+		if yce.Rule != nil {
+			clog.ErrorContext(ctx, "defective rule", slog.String("namespace", yce.Rule.Namespace()), slog.String("id", yce.Rule.Identifier()))
+		}
+		errors = append(errors, yce.Text)
+	}
+	if len(errors) > 0 {
+		return nil, fmt.Errorf("compile errors encountered: %v", errors)
 	}
 
 	rs, err := yc.GetRules()
