@@ -32,12 +32,18 @@ rule py_dropper : suspicious {
 }
 
 private rule pythonSetup {
-	strings:
-		$i_distutils = "from distutils.core import setup"
-		$i_setuptools = "setuptools"
-		$setup = "setup("
-	condition:
-		filesize < 2MB and $setup and any of ($i*)
+  strings:
+    $i_distutils = "from distutils.core import setup"
+    $i_setuptools = "from setuptools import setup"
+	$setup = "setup("
+
+	$not_setup_example = ">>> setup("
+	$not_setup_todict = "setup(**config.todict()"
+	$not_import_quoted = "\"from setuptools import setup"
+	$not_setup_quoted = "\"setup(name="
+	$not_distutils = "from distutils.errors import"
+  condition:
+    filesize < 128KB and $setup and any of ($i*) and none of ($not*)
 }
 
 rule setuptools_fetcher : suspicious {
