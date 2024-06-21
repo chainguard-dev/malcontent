@@ -176,6 +176,10 @@ bincapz was initially inspired by [mandiant/capa](https://github.com/mandiant/ca
 
 If you find malware that `bincapz` doesn't surface suspicious behaviors for, send us a patch! All of the rules are defined in YARA format, and can be found in the `rules/` folder.
 
+### Verifying commits and tags
+
+In addition to contributed code, automated PRs and commits can be verified by following [these](https://github.com/sigstore/gitsign?tab=readme-ov-file#verifying-commits) steps.
+
 ### Troubleshooting
 
 #### Profiling

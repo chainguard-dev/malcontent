@@ -1,0 +1,14 @@
+# Python/clean/setuptools/easy_install.py
+env/HOME
+env/USER
+env/get
+evasion/lib_alias
+exec/program
+fd/write
+fs/directory/traverse
+fs/file/delete
+fs/permission/modify
+fs/tempdir/create
+kernel/platform
+net/download
+ref/site/url
