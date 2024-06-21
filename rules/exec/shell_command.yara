@@ -12,7 +12,7 @@ rule system : medium {
     all of them in (1200..3000)
 }
 
-rule php_shell_exec : high {
+rule php_shell_exec : medium {
   meta:
     description = "execute a shell command"
     syscalls = "fork,execl"
@@ -20,4 +20,16 @@ rule php_shell_exec : high {
     $ref = /shell_exec[\(\$\w\)]{0,16}/
   condition:
 	$ref
+}
+
+rule php_shell_exec_hmm : high {
+  meta:
+    description = "execute a shell command"
+    syscalls = "fork,execl"
+  strings:
+    $ref = /shell_exec[\(\$\w\)]{0,16}/
+	$not_this = "shell_exec($this->"
+	$not_diff = "diff" fullword
+  condition:
+	$ref and none of ($not*)
 }

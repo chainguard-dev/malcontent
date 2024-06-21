@@ -1,5 +1,3 @@
-import "elf"
-
 rule kiteshield : high {
   meta:
     author = "Alex.Turing, Wang Hao"
@@ -38,5 +36,15 @@ rule kiteshield : high {
     $loader_s7 = {b3 b5 b7 b5 b3 bd bf bd b3 b5 ec ec ec f4 f4 f4}
 
   condition:
-    $loader_jmp and all of ($loader_s*) and elf.type==elf.ET_EXEC and elf.machine == elf.EM_X86_64
+    $loader_jmp and all of ($loader_s*) and
+    // ELF Magic at offset 0
+    uint32(0) == 0x464c457f and
+    // ET_EXEC at offset 16
+    uint16(16) == 0x0002 and
+    (
+        // x86_64 at offset 18
+        uint16(18) == 0x003e or
+        // aarch64 at offset 18
+        uint16(18) == 0x00b7
+    )
 }

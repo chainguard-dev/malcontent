@@ -43,6 +43,7 @@ var badRules = map[string]bool{
 	"mythic_offensive_tool_keyword":              true,
 	// YARA VT
 	"Windows_API_Function": true,
+	"Base64_Encoded_URL":   true,
 }
 
 // rulesWithWarnings determines what to do with rules that have known warnings: true=keep, false=disable.
@@ -50,6 +51,8 @@ var rulesWithWarnings = map[string]bool{
 	"opaque_binary":                         true,
 	"hardcoded_ip":                          true,
 	"str_replace_obfuscation":               true,
+	"rot13_str_replace":                     true,
+	"gzinflate_str_replace":                 true,
 	"php_str_replace_obfuscation":           true,
 	"hardcoded_ip_port":                     true,
 	"base64_str_replace":                    true,
