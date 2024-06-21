@@ -97,7 +97,7 @@ func Recursive(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {
 	}
 
 	if err != nil {
-		return nil, fmt.Errorf("walk: %w", err)
+		return nil, err
 	}
 
 	warnings := map[string]string{}
@@ -112,12 +112,16 @@ func Recursive(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {
 		warnings[id] = ycw.Text
 	}
 
+	errors := []string{}
 	for _, yce := range yc.Errors {
 		clog.ErrorContext(ctx, "error", slog.String("filename", yce.Filename), slog.Int("line", yce.Line), slog.String("text", yce.Text))
 		if yce.Rule != nil {
 			clog.ErrorContext(ctx, "defective rule", slog.String("namespace", yce.Rule.Namespace()), slog.String("id", yce.Rule.Identifier()))
 		}
-		return nil, fmt.Errorf("rule error: %v", yce.Text)
+		errors = append(errors, yce.Text)
+	}
+	if len(errors) > 0 {
+		return nil, fmt.Errorf("compile errors encountered: %v", errors)
 	}
 
 	rs, err := yc.GetRules()
