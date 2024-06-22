@@ -77,7 +77,6 @@ jobs:
         git add ${{ env.VERSION_FILE }}
         git commit -m "Bump bincapz version to $VERSION"
         git push origin $BRANCH
-        gitsign verify $(git rev-parse HEAD) --certificate-identity-regexp="https://github.com/${{ github.repository }}/*" --certificate-oidc-issuer="https://token.actions.githubusercontent.com"
     - name: Create Pull Request
       env:
         GH_TOKEN: ${{ github.token }}
