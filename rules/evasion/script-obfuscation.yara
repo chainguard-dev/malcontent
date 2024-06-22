@@ -120,24 +120,13 @@ rule php_obfuscated_concat_multiple : critical {
 		filesize < 5MB and $php and any of ($o*)
 }
 
-rule base64_str_replace : critical {
+rule base64_str_replace : medium {
 	meta:
 	   description = "creatively hidden forms of the term 'base64'"
 	strings:
 		$a = /ba.s.e64/
 		$b = /b.a.s.6.4/
 		$c = /b.a.se.6.4/
-	condition:
-		any of them
-}
-
-rule rot13_str_replace : critical {
-	meta:
-	   description = "creatively hidden forms of the term 'rot13'"
-	strings:
-		$a = /r.o.t13/
-		$b = /r.o.t.1.3/
-		$c = /r.o.t1.3/
 	condition:
 		any of them
 }
