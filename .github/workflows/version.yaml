@@ -42,13 +42,13 @@ jobs:
         
         case "$UPDATE_TYPE" in
           major)
-            VERSION=$(printf "%d.0.0" $((${VERSION_PARTS[0]}+1)))
+            VERSION=$(printf "v%d.0.0" $((${VERSION_PARTS[0]}+1)))
             ;;
           minor)
-            VERSION=$(printf "%s.%d.0" ${VERSION_PARTS[0]} $((${VERSION_PARTS[1]}+1)))
+            VERSION=$(printf "v%s.%d.0" ${VERSION_PARTS[0]} $((${VERSION_PARTS[1]}+1)))
             ;;
           patch)
-            VERSION=$(printf "%s.%s.%d" ${VERSION_PARTS[0]} ${VERSION_PARTS[1]} $((${VERSION_PARTS[2]}+1)))
+            VERSION=$(printf "v%s.%s.%d" ${VERSION_PARTS[0]} ${VERSION_PARTS[1]} $((${VERSION_PARTS[2]}+1)))
             ;;
           *)
             echo "Error: Invalid update type"
@@ -64,7 +64,7 @@ jobs:
         echo "Current bincapz version: $CURRENT_VERSION"
         echo "New bincapz version: $VERSION"
         
-        sed -i -e "s/ID string = \"v[0-9]+\.[0-9]+\.[0-9]+\"/ID string = \"v$VERSION\"/" ${{ env.VERSION_FILE }}
+        sed -i -e "s/ID string = \"v[0-9]+\.[0-9]+\.[0-9]+\"/ID string = \"$VERSION\"/" ${{ env.VERSION_FILE }}
         
         echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
     - name: Commit Version Update
@@ -75,9 +75,8 @@ jobs:
         BRANCH="bincapz-version-bump-$VERSION"
         git checkout -b $BRANCH
         git add ${{ env.VERSION_FILE }}
-        git commit -m "Bump bincapz version to v$VERSION"
+        git commit -m "Bump bincapz version to $VERSION"
         git push origin $BRANCH
-        gitsign verify $(git rev-parse HEAD) --certificate-identity-regexp="https://github.com/${{ github.repository }}/*" --certificate-oidc-issuer="https://token.actions.githubusercontent.com"
     - name: Create Pull Request
       env:
         GH_TOKEN: ${{ github.token }}
