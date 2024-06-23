@@ -64,21 +64,20 @@ jobs:
         echo "Current bincapz version: $CURRENT_VERSION"
         echo "New bincapz version: $VERSION"
         
-        sed -i -e "s/ID string = \"v[0-9]+\.[0-9]+\.[0-9]+\"/ID string = \"$VERSION\"/" ${{ env.VERSION_FILE }}
+        sed -i "s/ID string = \"v[0-9]*\.[0-9]*\.[0-9]*\"/ID string = \"${VERSION}\"/" ${{ env.VERSION_FILE }}
         
-        echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
-    - name: Commit Version Update
-      run: |
         git config user.name "github-actions[bot]"
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-        VERSION=${{ steps.update.outputs.VERSION }}
         BRANCH="bincapz-version-bump-$VERSION"
         git checkout -b $BRANCH
         git add ${{ env.VERSION_FILE }}
         git commit -m "Bump bincapz version to $VERSION"
         git push origin $BRANCH
+
+        echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
     - name: Create Pull Request
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
+        VERSION=${{ steps.update.outputs.VERSION }}
         gh pr create -t "Update bincapz to $VERSION" -b "PR to update the version in ${{ env.VERSION_FILE }} to $VERSION" -B main
