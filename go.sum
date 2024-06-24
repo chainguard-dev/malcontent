@@ -1,8 +1,8 @@
 github.com/BurntSushi/toml v1.2.1/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/agext/levenshtein v1.2.3 h1:YB2fHEn0UJagG8T1rrWknE3ZQzWM06O8AMAatNn7lmo=
 github.com/agext/levenshtein v1.2.3/go.mod h1:JEDfjyjHDjOF/1e4FlBE/PkbqA9OfWu2ki2W0IB5558=
-github.com/chainguard-dev/clog v1.3.1 h1:CDNCty5WKQhJzoOPubk0GdXt+bPQyargmfClqebrpaQ=
-github.com/chainguard-dev/clog v1.3.1/go.mod h1:cV516KZWqYc/phZsCNwF36u/KMGS+Gj5Uqeb8Hlp95Y=
+github.com/chainguard-dev/clog v1.4.0 h1:x0YyEppnUX+dxQAnfGNYdQEKNDSRCAwC08f/1eIxJ9E=
+github.com/chainguard-dev/clog v1.4.0/go.mod h1:cV516KZWqYc/phZsCNwF36u/KMGS+Gj5Uqeb8Hlp95Y=
 github.com/containerd/stargz-snapshotter/estargz v0.14.3 h1:OqlDCK3ZVUO6C3B/5FSkDwbkEETK84kQgEeFwDC+62k=
 github.com/containerd/stargz-snapshotter/estargz v0.14.3/go.mod h1:KY//uOCIkSuNAHhJogcZtrNHdKrA99/FCCRjE3HD36o=
 github.com/cpuguy83/go-md2man/v2 v2.0.2/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
