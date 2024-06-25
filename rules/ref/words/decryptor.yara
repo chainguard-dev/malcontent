@@ -1,4 +1,3 @@
-
 rule decryptor : medium {
   meta:
     description = "References 'decryptor'"
