@@ -2,6 +2,7 @@
 rule vaguely_mirai_like_router_backdoor : critical {
   meta:
     description = "Resembles Mirai"
+    hash_2024_downloaded_0a2a = "0a2a3b880826470de78131f845c90a3facb8dbf2cc5e7bde7262d8e834141e6d"
   strings:
     $ref1 = "/dev/null" fullword
     $ref2 = "/proc" fullword
