@@ -4,15 +4,14 @@ private rule pythonSetup {
   strings:
     $i_distutils = "from distutils.core import setup"
     $i_setuptools = "from setuptools import setup"
-	$setup = "setup("
-
-	$not_setup_example = ">>> setup("
-	$not_setup_todict = "setup(**config.todict()"
-	$not_import_quoted = "\"from setuptools import setup"
-	$not_setup_quoted = "\"setup(name="
-	$not_distutils = "from distutils.errors import"
+    $setup = "setup("
+    $not_setup_example = ">>> setup("
+    $not_setup_todict = "setup(**config.todict()"
+    $not_import_quoted = "\"from setuptools import setup"
+    $not_setup_quoted = "\"setup(name="
+    $not_distutils = "from distutils.errors import"
   condition:
-    filesize < 128KB and $setup and any of ($i*) and none of ($not*)
+    filesize < 131072 and $setup and any of ($i*) and none of ($not*)
 }
 
 rule py_no_fail : notable {
@@ -36,15 +35,18 @@ rule setuptools_no_fail : suspicious {
 }
 
 rule php_disable_errors : medium {
-    meta:
-        description = "PHP code that disables error reporting"
-    strings:
-        $err_rep = "error_reporting(0)"
-        $log_errs = /ini_set\(\Wlog_errors\W{0,4}0/
-        $display_0 = /ini_set\(\Wdisplay_errors\W{0,4}0/
-        $error_log = /ini_set\(\Werror_log\W{0,4}NULL/
-        $display_off = /ini_set\(\Wdisplay_errors\W{0,4}Off/
-        $display_false = /ini_set\(\Wdisplay_errors\W{0,4}FALSE/
-    condition:
-        1 of them
+  meta:
+    description = "PHP code that disables error reporting"
+    hash_2023_0xShell_0xShellori = "506e12e4ce1359ffab46038c4bf83d3ab443b7c5db0d5c8f3ad05340cb09c38e"
+    hash_2023_0xShell_untitled = "39b2fd6b4b2c11a9cbfc8efbb09fc14d502cde1344f52e1269228fc95b938621"
+    hash_2023_0xShell_wesoori = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"
+  strings:
+    $err_rep = "error_reporting(0)"
+    $log_errs = /ini_set\(\Wlog_errors\W{0,4}0/
+    $display_0 = /ini_set\(\Wdisplay_errors\W{0,4}0/
+    $error_log = /ini_set\(\Werror_log\W{0,4}NULL/
+    $display_off = /ini_set\(\Wdisplay_errors\W{0,4}Off/
+    $display_false = /ini_set\(\Wdisplay_errors\W{0,4}FALSE/
+  condition:
+    1 of them
 }

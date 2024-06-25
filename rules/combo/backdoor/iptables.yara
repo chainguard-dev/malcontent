@@ -4,6 +4,7 @@ rule iptables_upload_http : medium {
     description = "uploads, uses iptables and HTTP"
     hash_2023_0xShell_wesoori = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"
     hash_2024_Downloads_8907 = "89073097e72070cc7cc73c178447b70e07b603ccecfe406fe92fe9eafaae830f"
+    hash_2024_enumeration_linpeas = "210cbe49df69a83462a7451ee46e591c755cfbbef320174dc0ff3f633597b092"
   strings:
     $ref1 = /upload[a-zA-Z]{0,16}/
     $ref2 = "HTTP" fullword

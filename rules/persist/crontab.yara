@@ -1,3 +1,4 @@
+
 rule crontab_writer : medium {
   meta:
     description = "May use crontab to persist"
@@ -10,21 +11,24 @@ rule crontab_writer : medium {
     $c_var_spool_cron = "/var/spool/cron"
     $not_usage = "usage: cron"
   condition:
-    filesize < 50MB and any of ($c*) and none of ($not*)
+    filesize < 52428800 and any of ($c*) and none of ($not*)
 }
 
 rule crontab_entry : high {
   meta:
     description = "Uses crontab to persist"
+    hash_2024_D3m0n1z3dShell_demonizedshell = "d7c34b9d711260c1cd001ca761f5df37cbe40b492f198b228916b6647b660119"
+    hash_2024_static_demonizedshell_static = "b4e65c01ab90442cb5deda26660a3f81bd400c205e12605536483f979023aa15"
+    hash_2018_org_logind_ctp_archive_helper2 = "af4ad3b8bf81a877a47ded430ac27fdcb3ddd33d3ace52395f76cbdde46dbfe0"
   strings:
-		$crontab = "crontab"
-		$repeat_every_minutes = /\*\/\d \* \* \* \*/
-		$repeat_every_minute = "* * * * *"
-		$repeat_hourly = /\d \* \* \* \*/
-		$repeat_root = "* * * * root"
-		$repeat_daily = "@daily"
+    $crontab = "crontab"
+    $repeat_every_minutes = /\*\/\d \* \* \* \*/
+    $repeat_every_minute = "* * * * *"
+    $repeat_hourly = /\d \* \* \* \*/
+    $repeat_root = "* * * * root"
+    $repeat_daily = "@daily"
   condition:
-		filesize < 50MB and $crontab and any of ($repeat*)
+    filesize < 52428800 and $crontab and any of ($repeat*)
 }
 
 rule crontab_danger_path : high {

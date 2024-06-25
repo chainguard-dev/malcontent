@@ -35,6 +35,8 @@ rule iplookup_website_base64 : critical {
   meta:
     description = "public service to discover external IP address"
     hash_2017_MacOS_AppStore = "4131d4737fe8dfe66d407bfd0a0df18a4a77b89347471cc012da8efc93c661a5"
+    hash_2022_discordcmd_init = "8f635c4864ed8810ebcb3b33251c46b007cfcf42b0570657461b4ae5b8f17fef"
+    hash_2022_discordcmd_index = "8f635c4864ed8810ebcb3b33251c46b007cfcf42b0570657461b4ae5b8f17fef"
   strings:
     $ipify_b = "ipify.org" base64
     $wtfismyip_b = "wtfismyip" base64

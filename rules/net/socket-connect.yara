@@ -44,12 +44,15 @@ rule py_connect : medium {
 }
 
 rule php_connect : medium {
-	meta:
-		description = "initiate a connection on a socket"
-		syscall = "connect"
-		ref = "https://www.php.net/manual/en/function.fsockopen.php"
-	strings:
-		$ref = "fsockopen"
-	condition:
-		any of them
+  meta:
+    description = "initiate a connection on a socket"
+    syscall = "connect"
+    ref = "https://www.php.net/manual/en/function.fsockopen.php"
+    hash_2023_0xShell_0xShellori = "506e12e4ce1359ffab46038c4bf83d3ab443b7c5db0d5c8f3ad05340cb09c38e"
+    hash_2024_systembc_password = "236cff4506f94c8c1059c8545631fa2dcd15b086c1ade4660b947b59bdf2afbd"
+    hash_2024_ciscotools_4247 = "42473f2ab26a5a118bd99885b5de331a60a14297219bf1dc1408d1ede7d9a7a6"
+  strings:
+    $ref = "fsockopen"
+  condition:
+    any of them
 }
