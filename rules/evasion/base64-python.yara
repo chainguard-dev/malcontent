@@ -2,6 +2,9 @@
 rule base64_python_functions : critical {
   meta:
     description = "contains base64 Python code"
+    hash_2023_0xShell_0xencbase = "50057362c139184abb74a6c4ec10700477dcefc8530cf356607737539845ca54"
+    hash_2023_0xShell_wesobase = "17a1219bf38d953ed22bbddd5aaf1811b9380ad0535089e6721d755a00bddbd0"
+    hash_2024_static_demonizedshell_static = "b4e65c01ab90442cb5deda26660a3f81bd400c205e12605536483f979023aa15"
   strings:
     $exec = "exec(" base64
     $eval = "eval(" base64

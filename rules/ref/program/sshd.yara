@@ -26,6 +26,9 @@ rule sshd_path_value : high {
 rule sshd_net : high {
   meta:
     description = "Mentions SSHD network processes"
+    hash_2024_dumpcreds_3snake = "6f2ec2921dd8da2a9bbc4ca51060b2c5f623b0e8dc904e23e27b9574f991848b"
+    hash_2024_src_ssh_tracer = "8243cab8a268a8489387d12bde031e9476118eb8eb7923208ab18e802b1f1ace"
+    hash_2024_src_tracers = "5e774902d99c93cf4e7441a8a7d5674966ee6ca72760779639bbf3a9a9a3e065"
   strings:
     $ref = "sshd: [net]"
     $ref2 = "sshd: [accepted]"

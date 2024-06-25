@@ -2,6 +2,8 @@
 rule ssh_snake_worm : high {
   meta:
     description = "possible SSH worm like SSH-Snake"
+    hash_2024_SSH_Snake_Snake_nocomments = "9491fa95f40a69f27ce99229be636030fdc49f315cb9c897db3b602c34a8ceda"
+    hash_2024_SSH_Snake = "b0a2bf48e29c6dfac64f112ac1cb181d184093f582615e54d5fad4c9403408be"
   strings:
     $s_dot_ssh = ".ssh"
     $s_authorized_keys = "authorized_keys"

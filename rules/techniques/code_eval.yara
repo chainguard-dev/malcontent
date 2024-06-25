@@ -42,18 +42,19 @@ rule php_create_function_no_args : high {
   meta:
     description = "dynamically creates PHP functions without arguments"
   strings:
-	$val = /create_function\([\'\"]{2},\$/
+    $val = /create_function\([\'\"]{2},\$/
   condition:
-	any of them
+    any of them
 }
 
 rule php_at_eval : critical {
   meta:
     description = "evaluates code in a way that suppresses errors"
+    hash_2017_mybiubiubiu_0_1_0_setup = "a8a4a9a8eed6498e1f3c35282b50074fd57c7802058aac4895346d684a6881a3"
+    hash_2017_tests = "f1a947148c092a58e354e46082b0187bce0eea38fab2a7638eb268da0752657b"
+    hash_2017_mybiubiubiu_0_1_1_setup = "afd6712c7c190465c459ab1049cd559e4a2f00a5e1a4e1fe063cfefc19a330ef"
   strings:
-	$at_eval = /@eval\s{0,8}\(.{0,32}/
+    $at_eval = /@eval\s{0,8}\(.{0,32}/
   condition:
-	any of them
+    any of them
 }
-
-

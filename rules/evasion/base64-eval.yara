@@ -38,6 +38,7 @@ rule ruby_eval_near_enough : critical {
 rule ruby_eval2_near_enough : critical {
   meta:
     description = "Evaluates base64 content"
+    hash_2023_siamttview = "7a19eb7e34f500af708eeccbf990ce623f58293e693a86bc1a99cc3bf18d1529"
   strings:
     $eval = "eval("
     $base64 = "b64decode"

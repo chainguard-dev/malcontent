@@ -34,6 +34,8 @@ rule apt_installer : medium {
   meta:
     description = "install software with apt"
     hash_2023_Unix_Downloader_Rocke_6107 = "61075056b46d001e2e08f7e5de3fb9bfa2aabf8fb948c41c62666fd4fab1040f"
+    hash_2024_scripts_install_locutus = "1a80591019dea60785fff842da5f7347248e8ddf6a8a121d077210a06ba45e42"
+    hash_2024_static_demonizedshell_static = "b4e65c01ab90442cb5deda26660a3f81bd400c205e12605536483f979023aa15"
   strings:
     $val = /apt install[ \w\-\_%]{0,32}/
   condition:
@@ -58,6 +60,7 @@ rule apk_installer : medium {
     description = "install software with APK"
     hash_2023_Qubitstrike_branch_raw_mi = "9a5f6318a395600637bd98e83d2aea787353207ed7792ec9911b775b79443dcd"
     hash_2023_Qubitstrike_branch_raw_mi = "9a5f6318a395600637bd98e83d2aea787353207ed7792ec9911b775b79443dcd"
+    hash_2024_enumeration_deepce = "76b0bcdf0ea0b62cee1c42537ff00d2100c54e40223bbcb8a4135a71582dfa5d"
   strings:
     $val = /apk add[ \w\-\_%]{0,32}/
   condition:
