@@ -3,6 +3,7 @@ rule multiple_cloud_credentials : high {
   meta:
     hash_2023_Qubitstrike_branch_raw_mi = "9a5f6318a395600637bd98e83d2aea787353207ed7792ec9911b775b79443dcd"
     hash_2023_Qubitstrike_mi = "9a5f6318a395600637bd98e83d2aea787353207ed7792ec9911b775b79443dcd"
+    hash_2024_enumeration_linpeas = "210cbe49df69a83462a7451ee46e591c755cfbbef320174dc0ff3f633597b092"
   strings:
     $s_access_tokens_db = "access_tokens.db"
     $s_config_gcloud = ".config/gcloud"

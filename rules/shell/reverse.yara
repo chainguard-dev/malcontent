@@ -29,6 +29,7 @@ rule perl_reverse_shell : critical {
   meta:
     hash_2023_Win_Trojan_Perl_9aed = "9aed7ab8806a90aa9fac070fbf788466c6da3d87deba92a25ac4dd1d63ce4c44"
     hash_2023_uacert_socket = "912dc3aee7d5c397225f77e3ddbe3f0f4cf080de53ccdb09c537749148c1cc08"
+    hash_2024_raas_raas_test = "58829e93da60b0934d7739d1a6aba92d665ac72bab9efc0571c0fc9751d40f3e"
   strings:
     $socket = "socket("
     $open = "open("
@@ -40,10 +41,13 @@ rule perl_reverse_shell : critical {
 }
 
 rule reverse_shell_ref : high {
-	meta:
-		description = "references a reverse shell"
-	strings:
-	    $ = /(r[e3]v[e3]rs[e3]|w[3e]b|cmd)\s*sh[e3]ll/ nocase
-	condition:
-		any of them
+  meta:
+    description = "references a reverse shell"
+    hash_2023_0xShell_wesoori = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"
+    hash_2024_D3m0n1z3dShell_demonizedshell = "d7c34b9d711260c1cd001ca761f5df37cbe40b492f198b228916b6647b660119"
+    hash_2024_locutus_borg_transwarp = "4573af129e3e1a197050e2fd066f846c92de64d8d14a81a13d975a2cbc6d391e"
+  strings:
+    $ = /(r[e3]v[e3]rs[e3]|w[3e]b|cmd)\s*sh[e3]ll/ nocase
+  condition:
+    any of them
 }

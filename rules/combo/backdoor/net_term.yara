@@ -15,6 +15,8 @@ rule pseudoterminal_tunnel : high {
   meta:
     description = "pseudoterminal and tunnel support"
     hash_2023_OK_ad69 = "ad69e198905a8d4a4e5c31ca8a3298a0a5d761740a5392d2abb5d6d2e966822f"
+    hash_2024_termite_termite_linux_amd64 = "fa8d2c01cf81a052ea46650418afa358252ce6f9ce2eb65df3b3e3c7165f8d92"
+    hash_2024_termite_termite_linux_arm = "d36b8cfef77149c64cb203e139657d5219527c7cf4fee45ca302d89b7ef851e6"
   strings:
     $pty = "creack/pty" fullword
     $ptsname = "ptsname" fullword
@@ -41,6 +43,9 @@ rule python_pty_spawner : high {
   meta:
     ref1 = "https://juggernaut-sec.com/docker-breakout-lpe/"
     ref2 = "https://www.mandiant.com/resources/blog/barracuda-esg-exploited-globally"
+    hash_2021_10Cent10_999_0_4_setup = "957129c09d47807d62369cc538041a31c48402df45433b8c4c506459c0bf2e2c"
+    hash_2021_10Cent11_999_0_4_setup = "7b8ff20eda43223a4d7d2380093a5fd8cd996542644b7c41a8bf9b686b966c89"
+    hash_2024_class_py_1_0_0_setup = "ebcd4d091dad0cbd946df2f0fe79d67ccd2aa7c315994b2a1e92c8de08e7a9b9"
   strings:
     $pty_spawn_bash = /pty.spawn\(\"\/bin\/[\w\" -\)]{,16}/
   condition:

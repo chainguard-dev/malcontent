@@ -12,16 +12,17 @@ rule base64_decode : medium python {
     any of them
 }
 
-
 rule py_base64_decode : medium php {
   meta:
     description = "decode base64 strings"
+    hash_2023_0xShell = "acf556b26bb0eb193e68a3863662d9707cbf827d84c34fbc8c19d09b8ea811a1"
+    hash_2023_0xShell_0xObs = "6391e05c8afc30de1e7980dda872547620754ce55c36da15d4aefae2648a36e5"
+    hash_2023_0xShell = "a6f1f9c9180cb77952398e719e4ef083ccac1e54c5242ea2bc6fe63e6ab4bb29"
   strings:
     $b64decode = "base64_decode"
   condition:
     any of them
 }
-
 
 rule urlsafe_decode64 : medium ruby {
   meta:

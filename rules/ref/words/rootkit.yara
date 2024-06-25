@@ -3,6 +3,8 @@ rule rootkit_up : high {
   meta:
     description = "references a 'rootkit'"
     hash_2023_articles_https_pberba_github_io_security_2022_02_07_linux_threat_hunting_for_persistence_systemd_generators = "8c227f67a16162ffd5b453a478ced2950eba4cbe3b004c5cc935fb9551dc2289"
+    hash_2024_D3m0n1z3dShell_demonizedshell = "d7c34b9d711260c1cd001ca761f5df37cbe40b492f198b228916b6647b660119"
+    hash_2024_scripts_implant_rootkit = "c7ffb802c0e2813e2b0edba2efe8fa660740806b902cd1f1aea01c998812206d"
   strings:
     $s_Rootkit = "Rootkit"
     $s_r00tkit = "r00tkit"

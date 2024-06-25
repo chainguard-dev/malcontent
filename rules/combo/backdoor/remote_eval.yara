@@ -4,6 +4,7 @@ rule remote_eval : critical {
   meta:
     description = "Evaluates remotely sourced code"
     hash_2019_restclient_request = "ba46608e52a24b7583774ba259cf997c6f654a398686028aad56855a2b9d6757"
+    hash_2024_analyze_me_1_0_0_setup = "ca9c74630ed814053220129ee6c43668e66898983d9be5e34b406bbd3ad95b1e"
   strings:
     $http = "http"
     $eval_open_ruby = /eval\(open[\(\)\"\'\-\w:\/\.]{0,32}/
@@ -29,6 +30,9 @@ rule remote_eval_close : critical {
 rule python_exec_near_requests : critical {
   meta:
     description = "Executes code from encrypted remote content"
+    hash_2023_EoerbIsjxqyV_init = "76e641b1de6630dc61e875a874c74bb4f2ba7d42dc97caaa5a6926682313cd31"
+    hash_2022_colorsapi = "da4a034f20cb7d642e9b61daa9cfa7a63538a8323ce862c87ac1904c89c9acdf"
+    hash_2022_colorsapi_6_6_7_setup = "9622c5166933c01121a5c06974c6159abe1e25f3d19637a00bc77f1d832559a5"
   strings:
     $exec = "exec("
     $requests = "requests.get"
@@ -39,6 +43,7 @@ rule python_exec_near_requests : critical {
 rule python_eval_near_requests : critical {
   meta:
     description = "Evaluates code from encrypted remote content"
+    hash_2024_analyze_me_1_0_0_setup = "ca9c74630ed814053220129ee6c43668e66898983d9be5e34b406bbd3ad95b1e"
   strings:
     $eval = "eval("
     $requests = "requests.get"
@@ -46,10 +51,10 @@ rule python_eval_near_requests : critical {
     all of them and math.abs(@requests - @eval) <= 256
 }
 
-
 rule python_exec_near_get : critical {
   meta:
     description = "Executes code from encrypted content"
+    hash_2024_xFileSyncerx_xfilesyncerx = "c68e907642a8462c6b82a50bf4fde82bbf71245ab4edace246dd341dc72e5867"
   strings:
     $exec = "exec("
     $requests = /[a-z]{1,4}.get\(/ fullword
@@ -68,15 +73,18 @@ rule python_eval_near_get : critical {
 }
 
 rule php_remote_exec : critical {
-	meta:
-		description = "Executes code from a remote source"
-		credit = "Inspired by DodgyPHP rule in php-malware-finder"
-	strings:
-		$php = "<?php"
-        $f_execution = /\b(popen|eval|assert|passthru|exec|include|system|pcntl_exec|shell_exec|base64_decode|`|array_map|ob_start|call_user_func(_array)?)\s*\(\s*(base64_decode|php:\/\/input|str_rot13|gz(inflate|uncompress)|getenv|pack|\\?\$_(GET|REQUEST|POST|COOKIE|SERVER))/ nocase  // function that takes a callback as 1st parameter
-        $f_execution2 = /\b(array_filter|array_reduce|array_walk(_recursive)?|array_walk|assert_options|uasort|uksort|usort|preg_replace_callback|iterator_apply)\s*\(\s*[^,]+,\s*(base64_decode|php:\/\/input|str_rot13|gz(inflate|uncompress)|getenv|pack|\\?\$_(GET|REQUEST|POST|COOKIE|SERVER))/ nocase  // functions that takes a callback as 2nd parameter
-        $f_execution3 = /\b(array_(diff|intersect)_u(key|assoc)|array_udiff)\s*\(\s*([^,]+\s*,?)+\s*(base64_decode|php:\/\/input|str_rot13|gz(inflate|uncompress)|getenv|pack|\\?\$_(GET|REQUEST|POST|COOKIE|SERVER))\s*\[[^]]+\]\s*\)+\s*;/ nocase  // functions that takes a callback as 2nd parameter
-        $f_register_function = /register_[a-z]+_function\s*\(\s*['"]\s*(eval|assert|passthru|exec|include|system|shell_exec|`)/  // https://github.com/nbs-system/php-malware-finder/issues/41
-	condition:
-		filesize < 1MB and $php and any of ($f*)
+  meta:
+    description = "Executes code from a remote source"
+    credit = "Inspired by DodgyPHP rule in php-malware-finder"
+    hash_2023_0xShell = "acf556b26bb0eb193e68a3863662d9707cbf827d84c34fbc8c19d09b8ea811a1"
+    hash_2023_0xShell_0xObs = "6391e05c8afc30de1e7980dda872547620754ce55c36da15d4aefae2648a36e5"
+    hash_2023_0xShell = "a6f1f9c9180cb77952398e719e4ef083ccac1e54c5242ea2bc6fe63e6ab4bb29"
+  strings:
+    $php = "<?php"
+    $f_execution = /\b(popen|eval|assert|passthru|exec|include|system|pcntl_exec|shell_exec|base64_decode|`|array_map|ob_start|call_user_func(_array)?)\s*\(\s*(base64_decode|php:\/\/input|str_rot13|gz(inflate|uncompress)|getenv|pack|\\?\$_(GET|REQUEST|POST|COOKIE|SERVER))/ nocase
+    $f_execution2 = /\b(array_filter|array_reduce|array_walk(_recursive)?|array_walk|assert_options|uasort|uksort|usort|preg_replace_callback|iterator_apply)\s*\(\s*[^,]+,\s*(base64_decode|php:\/\/input|str_rot13|gz(inflate|uncompress)|getenv|pack|\\?\$_(GET|REQUEST|POST|COOKIE|SERVER))/ nocase
+    $f_execution3 = /\b(array_(diff|intersect)_u(key|assoc)|array_udiff)\s*\(\s*([^,]+\s*,?)+\s*(base64_decode|php:\/\/input|str_rot13|gz(inflate|uncompress)|getenv|pack|\\?\$_(GET|REQUEST|POST|COOKIE|SERVER))\s*\[[^]]+\]\s*\)+\s*;/ nocase
+    $f_register_function = /register_[a-z]+_function\s*\(\s*['"]\s*(eval|assert|passthru|exec|include|system|shell_exec|`)/
+  condition:
+    filesize < 1048576 and $php and any of ($f*)
 }
