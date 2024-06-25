@@ -38,6 +38,7 @@ rule lutimes : medium {
     ref = "https://linux.die.net/man/3/futimes"
     hash_2018_MonoBundle_libMonoPosixHelper = "fb5b95f9bdb10fe39b5ae9e709099809e26a3359292436f4b329b372754743f3"
     hash_2018_MonoBundle_libMonoPosixHelper = "fb5b95f9bdb10fe39b5ae9e709099809e26a3359292436f4b329b372754743f3"
+    hash_2022_3_11_Python = "e33f5a8eb70e430501b31fdaa7641e349b48b1fcd45afbc2b45958a04401bd14"
   strings:
     $ref = "lutimes" fullword
   condition:
