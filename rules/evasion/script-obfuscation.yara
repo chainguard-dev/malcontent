@@ -109,6 +109,8 @@ rule php_obfuscated_concat : high {
     description = "obfuscated PHP concatenation"
     credit = "Ported from https://github.com/jvoisin/php-malware-finder"
     hash_2024_systembc_password = "236cff4506f94c8c1059c8545631fa2dcd15b086c1ade4660b947b59bdf2afbd"
+    hash_2024_PHP_dclzougj = "3eb6ea176cee1e92ab3c684d16a5f820131a518478016643b454a53eaf123e63"
+    hash_2024_PHP_wlstncyj = "1a1c97594340ede77bc814670eaf35eaba861f1f9519038582416c704796da0a"
   strings:
     $php = /<\?[^x]/
     $o_concat2 = /\.\$[A-Za-z0-9]{0,6}\[[0-9]+\]\.\$[A-Za-z0-9]{0,6}\[[0-9]+\]\.\$[A-Za-z0-9]{0,6}\[[0-9]+\]\.\$[A-Za-z0-9]{0,6}\[[0-9]+\]\./
@@ -120,6 +122,8 @@ rule php_obfuscated_concat_multiple : critical {
   meta:
     description = "obfuscated PHP concatenation (multiple)"
     hash_2024_systembc_password = "236cff4506f94c8c1059c8545631fa2dcd15b086c1ade4660b947b59bdf2afbd"
+    hash_2024_PHP_dclzougj = "3eb6ea176cee1e92ab3c684d16a5f820131a518478016643b454a53eaf123e63"
+    hash_2024_PHP_wlstncyj = "1a1c97594340ede77bc814670eaf35eaba861f1f9519038582416c704796da0a"
   strings:
     $php = /<\?[^x]/
     $o_concat2 = /\.\$[A-Za-z0-9]{0,6}\[[0-9]+\]\.\$[A-Za-z0-9]{0,6}\[[0-9]+\]\.\$[A-Za-z0-9]{0,6}\[[0-9]+\]\.\$[A-Za-z0-9]{0,6}\[[0-9]+\]\./
