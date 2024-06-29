@@ -1,4 +1,3 @@
-
 rule fake_kworker_val : critical {
   meta:
     description = "Pretends to be a kworker kernel thread"
@@ -7,10 +6,12 @@ rule fake_kworker_val : critical {
     hash_2023_Unix_Downloader_Rocke_6107 = "61075056b46d001e2e08f7e5de3fb9bfa2aabf8fb948c41c62666fd4fab1040f"
   strings:
     $kworker = /\[{0,1}kworker\/[\d:\]]{1,5}/
-    $kworker2 = "kworker" fullword
+    $kworker2 = /\b[Kk]worker\b/
     $kworker3 = "[kworker"
+    $ignore_ref = "is_kworker"
+    $ignore_ref2 = "checkworker"
   condition:
-    any of them
+    any of ($kworker*) and none of ($ignore_ref*)
 }
 
 rule fake_syslogd : critical {
