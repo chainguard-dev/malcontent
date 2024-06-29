@@ -68,7 +68,7 @@ function update_dep() {
 		rel=$(git_clone https://github.com/bartblaze/Yara-rules.git "${tmpdir}")
 		cp -Rp ${tmpdir}/LICENSE ${tmpdir}/README.md ${tmpdir}/rules/* "${kind}/"
 		;;
-	signature_base)
+	Neo23x0)
 		rel=$(git_clone https://github.com/Neo23x0/signature-base.git "${tmpdir}")
 		cp -Rp ${tmpdir}/LICENSE ${tmpdir}/README.md "${kind}/"
 		rsync -av --exclude-from='exclude.txt' ${tmpdir}/yara/ "${kind}/"
