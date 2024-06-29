@@ -146,7 +146,7 @@ func ignoreMatch(tags []string, ignoreTags map[string]bool) bool {
 	return false
 }
 
-func behaviorRisk(ns string, rule string, tags []string) int {
+func behaviorRisk(ns string, rule string, tags []string, ms []yara.MatchString) int {
 	risk := 1
 
 	if thirdParty(ns) {
@@ -182,6 +182,18 @@ func behaviorRisk(ns string, rule string, tags []string) int {
 	for _, tag := range tags {
 		if r, ok := levels[tag]; ok {
 			risk = r
+			break
+		}
+	}
+
+	// https://github.com/dustinkirkland/byobu/blob/cd253f0229b68d3c2cffa8d862309c6ea7019d94/usr/bin/vigpg#L25
+	if rule == "dev_shm_hidden" {
+		pattern := regexp.MustCompile(`/dev/shm/\.[^/]+X{2,}`)
+		for _, m := range ms {
+			if pattern.Match(m.Data) {
+				risk = 3
+				break
+			}
 		}
 	}
 
@@ -308,7 +320,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 	key := ""
 
 	for _, m := range mrs {
-		risk = behaviorRisk(m.Namespace, m.Rule, m.Tags)
+		risk = behaviorRisk(m.Namespace, m.Rule, m.Tags, m.Strings)
 		if risk > overallRiskScore {
 			overallRiskScore = risk
 		}
