@@ -55,7 +55,8 @@ rule php_at_eval : critical {
     hash_2017_tests = "f1a947148c092a58e354e46082b0187bce0eea38fab2a7638eb268da0752657b"
     hash_2017_mybiubiubiu_0_1_1_setup = "afd6712c7c190465c459ab1049cd559e4a2f00a5e1a4e1fe063cfefc19a330ef"
   strings:
-    $at_eval = /@eval\s{0,8}\(.{0,32}/
+    $at_eval = /@eval\s{0,8}\([a-z\"\'\(\,\)]{1,32}/
+    $not_empty = "eval()"
   condition:
-    any of them
+    $at_eval and none of ($not*)
 }
