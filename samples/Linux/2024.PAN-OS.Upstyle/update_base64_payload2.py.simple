@@ -1,7 +1,6 @@
 # Linux/2024.PAN-OS.Upstyle/update_base64_payload2.py
 3P/Neo23x0/uta028/forensicartefacts/paloalto
 3P/signature_base/uta028/forensicartefacts
-3P/signature_base/uta028/forensicartefacts/paloalto
 3P/volexity/py/upstyle
 encoding/base64
 env/SHELL

@@ -2,7 +2,6 @@
 3P/Neo23x0/webshell/php
 3P/Neo23x0/webshell/php/obfusc
 3P/signature_base/webshell/php
-3P/signature_base/webshell/php/obfusc
 combo/backdoor/remote_eval
 encoding/base64
 evasion/base64/decode
