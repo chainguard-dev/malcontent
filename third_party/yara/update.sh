@@ -70,7 +70,10 @@ function update_dep() {
 		;;
 	signature_base)
 		rel=$(git_clone https://github.com/Neo23x0/signature-base.git "${tmpdir}")
-		cp -Rp ${tmpdir}/LICENSE ${tmpdir}/README.md ${tmpdir}/yara/* "${kind}/"
+		cp -Rp ${tmpdir}/LICENSE ${tmpdir}/README.md "${kind}/"
+		rsync -av \
+		--exclude={'configured_vulns_ext_vars.yar','expl_citrix_netscaler_adc_exploitation_cve_2023_3519.yar','expl_connectwise_screenconnect_vuln_feb24.yar','gen_fake_amsi_dll.yar','gen_mal_3cx_compromise_mar23.yar','gen_vcruntime140_dll_sideloading.yar','gen_webshells_ext_vars.yar','general_cloaking.yar','generic_anomalies.yar','thor_inverse_matches.yar','yara_mixed_ext_vars.yar','yara-rules_vuln_drivers_strict_renamed.yar'} \
+		${tmpdir}/yara/ "${kind}/"
 		;;
 	*)
 		echo "unknown kind: ${kind}"

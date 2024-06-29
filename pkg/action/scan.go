@@ -58,6 +58,8 @@ func findFilesRecursively(ctx context.Context, root string, c Config) ([]string,
 
 // cleanPath removes the temporary directory prefix from the path.
 func cleanPath(path string, prefix string) string {
+	// if the path has "private" prefix, remove it
+	path = strings.ReplaceAll(path, "/private", "")
 	return strings.TrimPrefix(path, prefix)
 }
 
