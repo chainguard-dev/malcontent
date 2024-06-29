@@ -1,4 +1,3 @@
-
 rule password_finder_mimipenguin : critical {
   meta:
     description = "Password finder/dumper, such as MimiPenguin"
@@ -8,7 +7,6 @@ rule password_finder_mimipenguin : critical {
   strings:
     $base_apache_temp = "strings /tmp/apache* | grep -E '^Authorization: Basic.+=$" fullword
     $base_apache2 = "apache2.conf" fullword
-    $base_finder = /\bFinder\b/
     $base_gnome_function = "GnomeKeyringPasswordFinder()"
     $base_gnome_keyring = "gnome-keyring"
     $base_gnome_keyring_sed = "sed -rn '/gnome\\-keyring\\-daemon/p'"
@@ -18,6 +16,7 @@ rule password_finder_mimipenguin : critical {
     $base_shadow = "/etc/shadow"
     $base_sshd_config = "sshd_config" fullword
     $base_vsftpd = "vsftpd" fullword
+    $extra_finder = /\bFinder\b/
     $extra_password = /\b[Pp]assword\b/
     $ignore_basic_auth_example = /\w+\:[Pp]assword/
   condition:
