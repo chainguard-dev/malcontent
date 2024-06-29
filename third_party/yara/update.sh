@@ -68,6 +68,10 @@ function update_dep() {
 		rel=$(git_clone https://github.com/bartblaze/Yara-rules.git "${tmpdir}")
 		cp -Rp ${tmpdir}/LICENSE ${tmpdir}/README.md ${tmpdir}/rules/* "${kind}/"
 		;;
+	signature_base)
+		rel=$(git_clone https://github.com/Neo23x0/signature-base.git "${tmpdir}")
+		cp -Rp ${tmpdir}/LICENSE ${tmpdir}/README.md ${tmpdir}/yara/* "${kind}/"
+		;;
 	*)
 		echo "unknown kind: ${kind}"
 		exit 2
