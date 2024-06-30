@@ -8,10 +8,9 @@ rule fake_kworker_val : critical {
     $kworker = /\[{0,1}kworker\/[\d:\]]{1,5}/
     $kworker2 = /\b[Kk]worker\b/
     $kworker3 = "[kworker"
-    $ignore_ref = "is_kworker"
-    $ignore_ref2 = "checkworker"
+    $ignore_ref = /\w+\_kworker/
   condition:
-    any of ($kworker*) and none of ($ignore_ref*)
+    any of ($kworker*) and not $ignore_ref
 }
 
 rule fake_syslogd : critical {
