@@ -40,16 +40,16 @@ rule dev_shm_hidden : critical {
     hash_2023_Unix_Downloader_Rocke_228e = "228ec858509a928b21e88d582cb5cfaabc03f72d30f2179ef6fb232b6abdce97"
   strings:
     $dev_shm = /\/dev\/shm\/\.[\%\w\.\-\/]{0,64}/
-    $ignore_mkstemp = /\/dev\/shm\/\.[%\w\.\-\/]{0,64}X{6}/
+    $ignore_mkstemp = /\/dev\/shm\/[%\w\.\-\/]{0,64}X{6}/
   condition:
     $dev_shm and not $ignore_mkstemp
 }
 
-rule dev_shm_hidden_mkstemp : high {
+rule dev_shm_mkstemp : medium {
   meta:
     description = "mkstemp path reference within /dev/shm (world writeable)"
   strings:
-    $ignore_mkstemp = /\/dev\/shm\/\.[\%\w\.\-\/]{0,64}X{6}/
+    $ignore_mkstemp = /\/dev\/shm\/[\%\w\.\-\/]{0,64}X{6}/
   condition:
     any of them
 }
