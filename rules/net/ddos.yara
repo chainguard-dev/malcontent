@@ -1,4 +1,3 @@
-
 rule ddos_refs : critical {
   meta:
     description = "Performs DDoS (distributed denial of service) attacks"
@@ -9,6 +8,8 @@ rule ddos_refs : critical {
     $ref = "TSource Engine Query"
     $ref2 = "ackflood" fullword
     $ref3 = "synflood" fullword
+    // datadog-agent tracer-fentry-debug.o
+    $ignore_ref = "defer_accept.synflood_warned.you"
   condition:
-    any of them
+    any of ($ref*) and not $ignore_ref
 }
