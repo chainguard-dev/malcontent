@@ -9,10 +9,9 @@ rule fake_kworker_val : critical {
     $kworker2 = /\bkworker\b/
     $kworker3 = "[kworker"
     // datadog process-agent
-    $ignore_ref = /[!\*\.]?is_kworker(\.\w{0,32})?/
-    $ignore_ref2 = "data->is_kworker"
-    $ignore_ref3 = /is_current_kworker_dying(\(\)|\.\w{0,32}|\.\w{0,32}\.\w{0,32})/
-    $ignore_ref4 = /\(\!is_kworker\)/
+    $ignore_ref = /(data->|[!\*\.])?is_kworker(\.\w{0,32})?/
+    $ignore_ref2 = /is_current_kworker_dying(\(\)|\.\w{0,32}|\.\w{0,32}\.\w{0,32})/
+    $ignore_ref3 = /\(\!is_kworker\)/
   condition:
     any of ($kworker*) and none of ($ignore_ref*)
 }
