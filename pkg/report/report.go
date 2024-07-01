@@ -182,6 +182,7 @@ func behaviorRisk(ns string, rule string, tags []string) int {
 	for _, tag := range tags {
 		if r, ok := levels[tag]; ok {
 			risk = r
+			break
 		}
 	}
 
