@@ -1,4 +1,3 @@
-
 rule fake_kworker_val : critical {
   meta:
     description = "Pretends to be a kworker kernel thread"
@@ -9,8 +8,10 @@ rule fake_kworker_val : critical {
     $kworker = /\[{0,1}kworker\/[\d:\]]{1,5}/
     $kworker2 = "kworker" fullword
     $kworker3 = "[kworker"
+    // datadog process-agent
+    $ignore_datadog = /[Dd]ata[Dd]og/
   condition:
-    any of them
+    any of ($kworker*) and not $ignore_datadog
 }
 
 rule fake_syslogd : critical {
