@@ -6,14 +6,13 @@ rule fake_kworker_val : critical {
     hash_2023_Unix_Downloader_Rocke_6107 = "61075056b46d001e2e08f7e5de3fb9bfa2aabf8fb948c41c62666fd4fab1040f"
   strings:
     $kworker = /\[{0,1}kworker\/[\d:\]]{1,5}/
-    $kworker2 = /\bkworker\b/
+    $kworker2 = "kworker" fullword
     $kworker3 = "[kworker"
     // datadog process-agent
-    $ignore_ref = /(data->|[!\*\.])?is_kworker(\.\w{0,32})?/
-    $ignore_ref2 = /is_current_kworker_dying(\(\)|\.\w{0,32}|\.\w{0,32}\.\w{0,32})/
-    $ignore_ref3 = /\(\!is_kworker\)/
+    $ignore_datadog1 = "datadog"
+    $ignore_datadog2 = "DataDog"
   condition:
-    any of ($kworker*) and none of ($ignore_ref*)
+    any of ($kworker*) and none of ($ignore_datadog*)
 }
 
 rule fake_syslogd : critical {
