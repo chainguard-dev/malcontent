@@ -6,7 +6,7 @@ rule fake_kworker_val : critical {
     hash_2023_Unix_Downloader_Rocke_6107 = "61075056b46d001e2e08f7e5de3fb9bfa2aabf8fb948c41c62666fd4fab1040f"
   strings:
     $kworker = /\[{0,1}kworker\/[\d:\]]{1,5}/
-    $kworker2 = /\b[Kk]worker\b/
+    $kworker2 = /\bkworker\b/
     $kworker3 = "[kworker"
     $ignore_ref = /\w{0,32}\_kworker/
   condition:
