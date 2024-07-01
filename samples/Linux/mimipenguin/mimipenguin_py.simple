@@ -1,6 +1,5 @@
 # Linux/mimipenguin/mimipenguin.py
 3P/signature_base/mimipenguin
-3P/threat_hunting/mimipenguin
 combo/stealer/password
 encoding/base64
 evasion/base64/decode

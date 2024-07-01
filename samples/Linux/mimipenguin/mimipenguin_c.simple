@@ -1,6 +1,7 @@
 # Linux/mimipenguin/mimipenguin
 3P/threat_hunting/crossc2
 3P/threat_hunting/mimipenguin
+combo/stealer/password
 procfs/arbitrary/pid
 procfs/pid/cmdline
 procfs/pid/maps
