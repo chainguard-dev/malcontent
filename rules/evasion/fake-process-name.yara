@@ -8,9 +8,11 @@ rule fake_kworker_val : critical {
     $kworker = /\[{0,1}kworker\/[\d:\]]{1,5}/
     $kworker2 = /\bkworker\b/
     $kworker3 = "[kworker"
-    $ignore_ref = /\w{0,32}\_kworker/
+    // datadog process-agent
+    $ignore_ref = /[!\*]?is_kworker/
+    $ignore_ref2 = "is_current_kworker_dying"
   condition:
-    any of ($kworker*) and not $ignore_ref
+    any of ($kworker*) and none of ($ignore_ref*)
 }
 
 rule fake_syslogd : critical {
