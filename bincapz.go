@@ -48,6 +48,7 @@ func parseRisk(s string) int {
 		"3":        3,
 		"high":     3,
 		"4":        4,
+		"crit":     4,
 		"critical": 4,
 	}
 	return levels[strings.ToLower(s)]

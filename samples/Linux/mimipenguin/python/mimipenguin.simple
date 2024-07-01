@@ -1,0 +1,22 @@
+# Linux/mimipenguin/python/mimipenguin
+3P/signature_base/mimipenguin
+combo/stealer/password
+encoding/base64
+evasion/base64/decode
+fd/read
+kernel/platform
+process/list
+process/name/get
+procfs/arbitrary/pid
+procfs/pid/cmdline
+procfs/pid/maps
+ref/daemon
+ref/path/etc
+ref/path/usr/bin
+ref/program/gnome/keyring/daemon
+ref/program/sshd
+ref/program/sudo
+ref/site/url
+ref/words/password
+ref/words/password_finder
+secrets/shadow
