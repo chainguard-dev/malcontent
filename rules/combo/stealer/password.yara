@@ -14,7 +14,7 @@ rule password_finder_mimipenguin : critical {
 
     $extra_finder = /\bFinder\b/
     $extra_password = /\b[Pp]assword\b/
-    $ignore_basic_auth_example = /\w+\:[Pp]assword/
+    $ignore_basic_auth_example = /\w{0,32}\:[Pp]assword/
   condition:
     5 of ($base_*) and (1 of ($extra_*) and none of ($ignore_*))
 }
