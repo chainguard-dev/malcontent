@@ -8,7 +8,7 @@ rule fake_kworker_val : critical {
     $kworker = /\[{0,1}kworker\/[\d:\]]{1,5}/
     $kworker2 = /\b[Kk]worker\b/
     $kworker3 = "[kworker"
-    $ignore_ref = /\w+\_kworker/
+    $ignore_ref = /\w{0,32}\_kworker/
   condition:
     any of ($kworker*) and not $ignore_ref
 }
