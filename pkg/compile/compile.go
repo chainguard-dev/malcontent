@@ -20,7 +20,8 @@ var FS = rules.FS
 // badRules are noisy 3rd party rules to silently disable.
 var badRules = map[string]bool{
 	// YARAForge
-	"GODMODERULES_IDDQD_God_Mode_Rule": true,
+	"GODMODERULES_IDDQD_God_Mode_Rule":   true,
+	"MALPEDIA_Win_Unidentified_107_Auto": true,
 	// ThreatHunting Keywords (some duplicates)
 	"scp_greyware_tool_keyword":                  true,
 	"Antivirus_Signature_signature_keyword":      true,
