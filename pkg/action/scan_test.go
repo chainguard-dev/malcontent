@@ -18,7 +18,7 @@ func TestCleanPath(t *testing.T) {
 	// create and symlink a nested directory
 	// create a file within the nested directory
 	nestedDir := filepath.Join(tempDir, "nested")
-	if err := os.Mkdir(nestedDir, 0755); err != nil {
+	if err := os.Mkdir(nestedDir, 0o755); err != nil {
 		t.Fatalf("failed to create nested directory: %v", err)
 	}
 	symlinkPath := filepath.Join(tempDir, "symlink")
@@ -34,10 +34,10 @@ func TestCleanPath(t *testing.T) {
 	defer file.Close()
 
 	tests := []struct {
-		name      string
-		path      string
-		prefix    string
-		want      string
+		name    string
+		path    string
+		prefix  string
+		want    string
 		wantErr bool
 	}{
 		{
