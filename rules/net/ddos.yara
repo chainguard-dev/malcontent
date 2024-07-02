@@ -22,5 +22,5 @@ rule tcp_flood_refs : high {
     $syn3 = "SYN flood" fullword
     $syn = "synflood" fullword
   condition:
-    (any of ($ack*) and any of ($syn*))
+    any of ($ack*) and any of ($syn*)
 }
