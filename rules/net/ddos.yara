@@ -12,7 +12,7 @@ rule tsource_engine_query : critical {
 
 rule tcp_flood_refs : high {
   meta:
-    description = "May performs DDoS (distributed denial of service) attacks"
+    description = "May perform DDoS (distributed denial of service) attacks"
   strings:
     $ack2 = "ack flood" fullword
     $ack3 = "ACK flood" fullword
