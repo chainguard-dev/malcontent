@@ -57,8 +57,16 @@ func findFilesRecursively(ctx context.Context, root string, c Config) ([]string,
 }
 
 // cleanPath removes the temporary directory prefix from the path.
-func cleanPath(path string, prefix string) string {
-	return strings.TrimPrefix(path, prefix)
+func cleanPath(path string, prefix string) (string, error) {
+	pathEval, err := filepath.EvalSymlinks(path)
+	if err != nil {
+		return "", err
+	}
+	prefixEval, err := filepath.EvalSymlinks(prefix)
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimPrefix(pathEval, prefixEval), nil
 }
 
 // formatPath formats the path for display.
@@ -96,7 +104,11 @@ func scanSinglePath(ctx context.Context, c Config, yrs *yara.Rules, path string,
 	// If absPath is provided, use it instead of the path if they are different.
 	// This is useful when scanning images and archives.
 	if absPath != "" && absPath != path && archiveRoot != "" {
-		fr.Path = fmt.Sprintf("%s ∴ %s", absPath, formatPath(cleanPath(path, archiveRoot)))
+		cleanPath, err := cleanPath(path, archiveRoot)
+		if err != nil {
+			return nil, err
+		}
+		fr.Path = fmt.Sprintf("%s ∴ %s", absPath, formatPath(cleanPath))
 	}
 
 	if len(fr.Behaviors) == 0 && c.OmitEmpty {
