@@ -9,7 +9,7 @@ rule ddos_refs : critical {
     $ref2 = "ackflood" fullword
     $ref3 = "synflood" fullword
     // datadog-agent tracer-fentry-debug.o
-    $ignore_ref = "defer_accept.synflood_warned.you"
+    $ignore_ref = "synflood_warned"
   condition:
     any of ($ref*) and not $ignore_ref
 }
