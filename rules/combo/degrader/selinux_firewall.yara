@@ -11,6 +11,7 @@ rule selinux_firewall : high {
     $not_ip6tables = "NFTNL_RULE_TABLE"
     $not_iptables = "iptables-restore"
     $not_iptables_nft = "iptables-nft"
+	$not_selinux_init = "SELINUX_INIT"
   condition:
     $selinux and any of ($f*) and none of ($not*)
 }

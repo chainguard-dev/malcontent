@@ -5,6 +5,7 @@ rule conti_phrases : critical {
     hash_2023_Conti_bb64 = "bb64b27bff106d30a7b74b3589cc081c345a2b485a831d7e8c8837af3f238e1e"
     hash_2023_Multios_Ransomware_DarkSide_da3b = "da3bb9669fb983ad8d2ffc01aab9d56198bd9cedf2cc4387f19f4604a070a9b5"
     hash_2023_Downloads_8b57 = "8b57e96e90cd95fc2ba421204b482005fe41c28f506730b6148bcef8316a3201"
+	ref = "https://www.zscaler.com/blogs/security-research/conti-ransomware-attacks-persist-updated-version-despite-leaks"
   strings:
     $a = "All of your files are currently"
     $b = "currently encrypted by"
@@ -47,7 +48,7 @@ rule conti_phrases : critical {
     $ak = "serious harm to"
     $al = "Inform your supervisors"
     $am = "and stay calm"
-    $an = "CONTI" fullword
+    $conti = "CONTI" fullword
   condition:
-    2 of them
+    filesize < 1MB and (($conti and 2 of them) or (4 of them))
 }

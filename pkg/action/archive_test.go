@@ -16,6 +16,7 @@ import (
 	thirdparty "github.com/chainguard-dev/bincapz/third_party"
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/clog/slogtest"
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestExtractionMethod(t *testing.T) {
@@ -258,7 +259,7 @@ func TestScanArchive(t *testing.T) {
 		t.Fatalf("testdata read failed: %v", err)
 	}
 	want := string(td)
-	if got != want {
-		t.Fatalf("got %q, want %q", got, want)
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("json output mismatch: (-want +got):\n%s", diff)
 	}
 }
