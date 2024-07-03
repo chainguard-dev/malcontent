@@ -59,7 +59,7 @@ rule base64_php_functions : medium {
     $f_wp_nonce_field = "wp_nonce_field" base64
     $f_wp_verify_nonce = "wp_verify_nonce" base64
   condition:
-    $php and $base64_decode and any of them
+    $php and $base64_decode and any of ($f_*)
 }
 
 rule base64_php_functions_multiple : critical {
