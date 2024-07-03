@@ -5,6 +5,7 @@ data/embedded/base64/url
 data/embedded/html
 encoding/base64
 evasion/base64/decode
+evasion/base64/php_functions
 evasion/mask_exceptions
 evasion/php_no_time_limit
 exec/shell_command
