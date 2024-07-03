@@ -1,6 +1,7 @@
 
 rule generic_obfuscated_perl : high {
   meta:
+	description = "Obfuscated PERL code"
     hash_1980_FruitFly_A_205f = "205f5052dc900fc4010392a96574aed5638acf51b7ec792033998e4043efdf6c"
     hash_1980_FruitFly_A_9968 = "9968407d4851c2033090163ac1d5870965232bebcfe5f87274f1d6a509706a14"
     hash_1980_FruitFly_A_bbbf = "bbbf73741078d1e74ab7281189b13f13b50308cf03d3df34bc9f6a90065a4a55"
@@ -76,7 +77,7 @@ rule php_oneliner : medium {
     hash_2023_0xShell_0xShellObs = "64771788a20856c7b2a29067f41be9cb7138c11a2cf2a8d17ab4afe73516f1ed"
     hash_2023_0xShell_1337 = "657bd1f3e53993cb7d600bfcd1a616c12ed3e69fa71a451061b562e5b9316649"
   strings:
-    $php = /<\?[^x]/
+    $php = "<?php"
     $o_oneliner = /(<\?php|[;{}])[ \t]*@?(eval|preg_replace|system|assert|passthru|(pcntl_)?exec|shell_exec|call_user_func(_array)?)\s*\(/
   condition:
     filesize < 5242880 and $php and any of ($o*)
@@ -90,7 +91,7 @@ rule php_obfuscation : high {
     hash_2023_0xShell_index = "f39b16ebb3809944722d4d7674dedf627210f1fa13ca0969337b1c0dcb388603"
     hash_2023_0xShell_crot = "900c0453212babd82baa5151bba3d8e6fa56694aff33053de8171a38ff1bef09"
   strings:
-    $php = /<\?[^x]/
+    $php = "<?php"
     $o_crit_func_comment = /(eval|preg_replace|system|assert|passthru|(pcntl_)?exec|shell_exec|call_user_func(_array)?)\/\*[^\*]*\*\/\(/
     $o_b374k = "'ev'.'al'"
     $o_align = /(\$\w+=[^;]*)*;\$\w+=@?\$\w+\(/
@@ -104,7 +105,7 @@ rule php_obfuscation : high {
     filesize < 5242880 and $php and any of ($o*)
 }
 
-rule php_obfuscated_concat : high {
+rule php_obfuscated_concat : medium {
   meta:
     description = "obfuscated PHP concatenation"
     credit = "Ported from https://github.com/jvoisin/php-malware-finder"
@@ -112,10 +113,24 @@ rule php_obfuscated_concat : high {
     hash_2024_PHP_dclzougj = "3eb6ea176cee1e92ab3c684d16a5f820131a518478016643b454a53eaf123e63"
     hash_2024_PHP_wlstncyj = "1a1c97594340ede77bc814670eaf35eaba861f1f9519038582416c704796da0a"
   strings:
-    $php = /<\?[^x]/
-    $o_concat2 = /\.\$[A-Za-z0-9]{0,6}\[[0-9]+\]\.\$[A-Za-z0-9]{0,6}\[[0-9]+\]\.\$[A-Za-z0-9]{0,6}\[[0-9]+\]\.\$[A-Za-z0-9]{0,6}\[[0-9]+\]\./
+    $php = "<?php"
+    $concat = /\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\./
   condition:
-    filesize < 5242880 and $php and any of ($o*)
+    filesize < 5242880 and $php and $concat
+}
+
+rule php_obfuscated_concat_long : high {
+  meta:
+    description = "obfuscated PHP concatenation (long)"
+    credit = "Ported from https://github.com/jvoisin/php-malware-finder"
+    hash_2024_systembc_password = "236cff4506f94c8c1059c8545631fa2dcd15b086c1ade4660b947b59bdf2afbd"
+    hash_2024_PHP_dclzougj = "3eb6ea176cee1e92ab3c684d16a5f820131a518478016643b454a53eaf123e63"
+    hash_2024_PHP_wlstncyj = "1a1c97594340ede77bc814670eaf35eaba861f1f9519038582416c704796da0a"
+  strings:
+    $php = "<?php"
+    $concat = /\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\./
+  condition:
+    filesize < 5242880 and $php and $concat
 }
 
 rule php_obfuscated_concat_multiple : critical {
@@ -125,10 +140,10 @@ rule php_obfuscated_concat_multiple : critical {
     hash_2024_PHP_dclzougj = "3eb6ea176cee1e92ab3c684d16a5f820131a518478016643b454a53eaf123e63"
     hash_2024_PHP_wlstncyj = "1a1c97594340ede77bc814670eaf35eaba861f1f9519038582416c704796da0a"
   strings:
-    $php = /<\?[^x]/
-    $o_concat2 = /\.\$[A-Za-z0-9]{0,6}\[[0-9]+\]\.\$[A-Za-z0-9]{0,6}\[[0-9]+\]\.\$[A-Za-z0-9]{0,6}\[[0-9]+\]\.\$[A-Za-z0-9]{0,6}\[[0-9]+\]\./
+    $php = "<?php"
+    $concat = /\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\./
   condition:
-    filesize < 5242880 and $php and any of ($o*)
+    filesize < 5242880 and $php and #concat > 2
 }
 
 rule base64_str_replace : medium {
