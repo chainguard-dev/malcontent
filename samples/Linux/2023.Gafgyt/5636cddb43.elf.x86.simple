@@ -1,0 +1,27 @@
+# Linux/2023.Gafgyt/5636cddb43.elf.x86
+3P/elastic/gafgyt
+combo/net/raw_flooder
+combo/recon/upload_netinfo
+evasion/fake/user/agent
+exec/program/background
+net/ddos
+net/hostname/resolve
+net/ip/parse
+net/ip/string
+net/mac/address
+net/raw_sockets
+net/socket/local/address
+net/socket/receive
+net/socket/send
+procfs/net_route
+random/insecure
+ref/ip
+ref/ip/dns_resolver
+ref/ip_port
+ref/path/etc
+ref/path/etc/hosts
+ref/path/etc/resolv.conf
+ref/path/usr/bin
+ref/path/usr/sbin
+ref/path/usr/sbin/telnetd
+ref/program/ancient_gcc
