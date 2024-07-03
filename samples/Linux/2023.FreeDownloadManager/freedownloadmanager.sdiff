@@ -6,7 +6,6 @@
 +evasion/base64/eval
 +evasion/base64/external/decoder
 +evasion/base64/http
-+evasion/base64/php_functions
 +evasion/base64/shell/commands
 +fs/directory/create
 +fs/file/delete/forcibly
