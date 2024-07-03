@@ -1,5 +1,5 @@
 
-rule ransom_detection {
+rule ransom_detection : high {
   strings:
     $s_data_recovery = "data recovery"
     $s_to_my_address = "to my address"
