@@ -3,6 +3,5 @@
 combo/backdoor/remote_eval
 encoding/base64
 evasion/base64/decode
-evasion/base64/php_functions
 ref/site/url
 techniques/code_eval
