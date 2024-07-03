@@ -7,7 +7,9 @@ rule ssh_folder : medium {
     hash_2023_Downloads_6e35 = "6e35b5670953b6ab15e3eb062b8a594d58936dd93ca382bbb3ebdbf076a1f83b"
     hash_2024_Downloads_e100 = "e100be934f676c64528b5e8a609c3fb5122b2db43b9aee3b2cf30052799a82da"
   strings:
-    $ref = /[\$\%\{\}\w\/]{0,16}\.ssh[\w\/]{0,16}/ fullword
+	$slash = "/.ssh"
+    $re = /[\$\%\{\}\w\/]{0,16}\.ssh[\w\/]{0,16}/ fullword
+	$pkg = /[a-z]{2,16}\.ssh/
   condition:
-    all of them
+	$slash or ($re and not $pkg)
 }

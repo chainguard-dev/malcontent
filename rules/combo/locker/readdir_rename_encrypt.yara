@@ -1,5 +1,5 @@
 
-rule conti_alike : medium {
+rule conti_alike : high {
   meta:
     description = "Reads directories, renames files, encrypts files"
     hash_2023_Downloads_06ab = "06abc46d5dbd012b170c97d142c6b679183159197e9d3f6a76ba5e5abf999725"
@@ -14,5 +14,5 @@ rule conti_alike : medium {
     $enc4 = "files_encrypted"
     $enc5 = "encrypts files"
   condition:
-    $readdir and $rename and any of ($enc*)
+    filesize < 1MB and $readdir and $rename and any of ($enc*)
 }

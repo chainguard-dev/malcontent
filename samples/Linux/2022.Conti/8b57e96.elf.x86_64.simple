@@ -1,0 +1,16 @@
+# Linux/2022.Conti/8b57e96.elf.x86_64
+3P/elastic/ransomware/conti
+3P/threat_hunting/torproject
+combo/locker/readdir_rename_encrypt
+crypto/file/encrypter
+fs/link/read
+net/download
+net/tor
+process/create
+ref/path/relative
+ref/path/root
+ref/path/tmp
+ref/path/usr/bin
+ref/site/url
+ref/words/ransomware
+ref/words/ransomware/conti

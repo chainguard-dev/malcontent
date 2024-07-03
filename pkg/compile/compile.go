@@ -42,6 +42,7 @@ var badRules = map[string]bool{
 	"vsftpd_greyware_tool_keyword":               true,
 	"blackcat_ransomware_offensive_tool_keyword": true,
 	"mythic_offensive_tool_keyword":              true,
+	"Adobe_XMP_Identifier":                       true,
 	// YARA VT
 	"Windows_API_Function": true,
 	"Base64_Encoded_URL":   true,
