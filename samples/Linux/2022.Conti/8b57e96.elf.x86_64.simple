@@ -4,7 +4,9 @@
 combo/locker/readdir_rename_encrypt
 crypto/file/encrypter
 fs/link/read
+malware/family/conti
 net/download
+net/ssh
 net/tor
 process/create
 ref/path/relative
@@ -13,4 +15,3 @@ ref/path/tmp
 ref/path/usr/bin
 ref/site/url
 ref/words/ransomware
-ref/words/ransomware/conti

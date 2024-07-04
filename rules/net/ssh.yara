@@ -1,4 +1,15 @@
 
+rule ssh : medium {
+  meta:
+    description = "Uses SSH (secure shell) service"
+  strings:
+    $ = "SSH" fullword
+  condition:
+    any of them
+}
+
+
+
 rule crypto_ssh : medium {
   meta:
     description = "Uses crypto/ssh to connect to the SSH (secure shell) service"

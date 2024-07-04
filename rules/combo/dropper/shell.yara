@@ -74,3 +74,13 @@ rule fetch_pipe_shell_value : high {
   condition:
     any of them
 }
+
+rule fetch_chmod_execute : high {
+	meta:
+		description = "single line fetch, chmod, execute"
+	strings:
+		$wget = /wget .{8,64} \&\&.{0,64} chmod .{3,16} \&\& \.\/[\.\w]{1,16}/
+		$curl = /curl .{8,64} \&\&.{0,64} chmod .{3,16} \&\& \.\/[\.\w]{1,16}/
+	condition:
+		any of them
+}

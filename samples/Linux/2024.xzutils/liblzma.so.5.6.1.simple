@@ -1,0 +1,11 @@
+# Linux/2024.xzutils/liblzma.so.5.6.1
+3P/craiu/unk/liblzma/backdoor
+3P/craiu/unk/liblzma/encstrings
+3P/elastic/xzbackdoor
+3P/signature_base/bkdr/xzutil
+env/SHELL
+env/TERM
+hash/sha256
+process/multithreaded
+process/thread_local_storage
+ref/path/tmp
