@@ -19,6 +19,10 @@ import (
 	"github.com/hillu/go-yara/v4"
 )
 
+const (
+	BINARY string = "bincapz"
+)
+
 // findFilesRecurslively returns a list of files found recursively within a path.
 func findFilesRecursively(ctx context.Context, root string, c Config) ([]string, error) {
 	clog.FromContext(ctx).Infof("finding files in %s ...", root)
@@ -40,7 +44,7 @@ func findFilesRecursively(ctx context.Context, root string, c Config) ([]string,
 				return nil
 			}
 
-			if c.IgnoreSelf && strings.Contains(path, "bincapz") {
+			if c.IgnoreSelf && strings.Contains(path, BINARY) {
 				clog.FromContext(ctx).Infof("skipping %s (self)", path)
 				return nil
 			}
