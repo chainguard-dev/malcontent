@@ -315,7 +315,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 	key := ""
 
 	for _, m := range mrs {
-		if m.Rule == BINARY && ignoreSelf {
+		if all(m.Rule == BINARY, ignoreSelf) {
 			ignoreBincapz = true
 		}
 		risk = behaviorRisk(m.Namespace, m.Rule, m.Tags)
@@ -444,7 +444,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 		// TODO: If we match multiple rules within a single namespace, merge matchstrings
 	}
 
-	if ignoreSelf && fr.IsBincapz && ignoreBincapz && filepath.Base(path) == BINARY {
+	if all(ignoreSelf, fr.IsBincapz, ignoreBincapz, filepath.Base(path) == BINARY) {
 		return bincapz.FileReport{}, nil
 	}
 
@@ -463,4 +463,14 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 	fr.RiskLevel = RiskLevels[fr.RiskScore]
 
 	return fr, nil
+}
+
+// all returns a single boolean based on a slice of booleans
+func all(conditions ...bool) bool {
+	for _, condition := range conditions {
+		if !condition {
+			return false
+		}
+	}
+	return true
 }
