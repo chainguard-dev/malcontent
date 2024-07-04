@@ -22,6 +22,10 @@ import (
 	"github.com/hillu/go-yara/v4"
 )
 
+const (
+	BINARY string = "bincapz"
+)
+
 var RiskLevels = map[int]string{
 	0: "NONE",     // harmless: common to all executables, no system impact
 	1: "LOW",      // undefined: low impact, common to good and bad executables
@@ -281,7 +285,7 @@ func mungeDescription(s string) string {
 	return s
 }
 
-func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags []string, minScore int) (bincapz.FileReport, error) {
+func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags []string, minScore int, ignoreSelf bool) (bincapz.FileReport, error) {
 	ignore := map[string]bool{}
 	for _, t := range ignoreTags {
 		ignore[t] = true
@@ -303,18 +307,24 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 	var caps []string
 	var syscalls []string
 
+	ignoreBincapz := false
 	overallRiskScore := 0
 	riskCounts := map[int]int{}
 	risk := 0
 	key := ""
 
 	for _, m := range mrs {
+		if m.Rule == BINARY && ignoreSelf {
+			ignoreBincapz = true
+		}
 		risk = behaviorRisk(m.Namespace, m.Rule, m.Tags)
 		if risk > overallRiskScore {
 			overallRiskScore = risk
 		}
 		riskCounts[risk]++
-		if risk < minScore {
+		// The bincapz rule is classified as harmless
+		// This will prevent the rule from being filtered
+		if risk < minScore && !ignoreBincapz {
 			continue
 		}
 		key = generateKey(m.Namespace, m.Rule)
@@ -353,8 +363,10 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 				}
 			case "author_url":
 				b.RuleAuthorURL = v
-			case "__bincapz__":
-				fr.IsBincapz = true
+			case fmt.Sprintf("__%s__", BINARY):
+				if v == "true" {
+					fr.IsBincapz = true
+				}
 			case "license":
 				b.RuleLicense = v
 			case "license_url":
@@ -430,6 +442,11 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 
 		// TODO: If we match multiple rules within a single namespace, merge matchstrings
 	}
+
+	if ignoreSelf && fr.IsBincapz && ignoreBincapz && filepath.Base(path) == BINARY {
+		return bincapz.FileReport{}, nil
+	}
+
 	// If something has a lot of high, it's probably critical
 	if riskCounts[3] >= 4 {
 		overallRiskScore = 4

@@ -19,10 +19,6 @@ import (
 	"github.com/hillu/go-yara/v4"
 )
 
-const (
-	BINARY string = "bincapz"
-)
-
 // findFilesRecurslively returns a list of files found recursively within a path.
 func findFilesRecursively(ctx context.Context, root string, c Config) ([]string, error) {
 	clog.FromContext(ctx).Infof("finding files in %s ...", root)
@@ -44,10 +40,6 @@ func findFilesRecursively(ctx context.Context, root string, c Config) ([]string,
 				return nil
 			}
 
-			if c.IgnoreSelf && strings.Contains(path, BINARY) {
-				clog.FromContext(ctx).Infof("skipping %s (self)", path)
-				return nil
-			}
 			files = append(files, path)
 
 			return nil
@@ -95,7 +87,7 @@ func scanSinglePath(ctx context.Context, c Config, yrs *yara.Rules, path string,
 		return &bincapz.FileReport{Path: path, Error: fmt.Sprintf("scanfile: %v", err)}, nil
 	}
 
-	fr, err := report.Generate(ctx, path, mrs, c.IgnoreTags, c.MinRisk)
+	fr, err := report.Generate(ctx, path, mrs, c.IgnoreTags, c.MinRisk, c.IgnoreSelf)
 	if err != nil {
 		return nil, err
 	}
@@ -311,11 +303,6 @@ func processFile(ctx context.Context, c Config, yrs *yara.Rules, path string, sc
 
 	if fr == nil {
 		logger.Infof("%s returned nil result", path)
-		return nil, nil
-	}
-
-	if c.IgnoreSelf && fr.IsBincapz {
-		clog.FromContext(ctx).Infof("dropping results for %s (it's bincapz)...", fr.Path)
 		return nil, nil
 	}
 
