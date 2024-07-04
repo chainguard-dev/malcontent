@@ -24,13 +24,8 @@ func findFilesRecursively(ctx context.Context, root string, c Config) ([]string,
 	clog.FromContext(ctx).Infof("finding files in %s ...", root)
 	var files []string
 
-	self, err := os.Executable()
-	if err != nil {
-		return nil, fmt.Errorf("abs: %w", err)
-	}
-
 	// Follow symlink if provided at the root
-	root, err = filepath.EvalSymlinks(root)
+	root, err := filepath.EvalSymlinks(root)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +40,7 @@ func findFilesRecursively(ctx context.Context, root string, c Config) ([]string,
 				return nil
 			}
 
-			if c.IgnoreSelf && path == self {
+			if c.IgnoreSelf && strings.Contains(path, "bincapz") {
 				clog.FromContext(ctx).Infof("skipping %s (self)", path)
 				return nil
 			}
