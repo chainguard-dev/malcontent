@@ -465,7 +465,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 	return fr, nil
 }
 
-// all returns a single boolean based on a slice of booleans
+// all returns a single boolean based on a slice of booleans.
 func all(conditions ...bool) bool {
 	for _, condition := range conditions {
 		if !condition {
