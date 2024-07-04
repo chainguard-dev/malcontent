@@ -285,6 +285,7 @@ func mungeDescription(s string) string {
 	return s
 }
 
+//nolint:cyclop // ignore complexity of 44
 func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags []string, minScore int, ignoreSelf bool) (bincapz.FileReport, error) {
 	ignore := map[string]bool{}
 	for _, t := range ignoreTags {

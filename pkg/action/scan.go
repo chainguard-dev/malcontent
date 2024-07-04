@@ -20,7 +20,7 @@ import (
 )
 
 // findFilesRecurslively returns a list of files found recursively within a path.
-func findFilesRecursively(ctx context.Context, root string, c Config) ([]string, error) {
+func findFilesRecursively(ctx context.Context, root string) ([]string, error) {
 	clog.FromContext(ctx).Infof("finding files in %s ...", root)
 	var files []string
 
@@ -184,7 +184,7 @@ func recursiveScan(ctx context.Context, c Config) (*bincapz.Report, error) {
 			scanPath = ociExtractPath
 		}
 
-		paths, err := findFilesRecursively(ctx, scanPath, c)
+		paths, err := findFilesRecursively(ctx, scanPath)
 		if err != nil {
 			return nil, fmt.Errorf("find files: %w", err)
 		}
@@ -266,7 +266,7 @@ func processArchive(ctx context.Context, c Config, yrs *yara.Rules, archivePath 
 		return nil, fmt.Errorf("extract to temp: %w", err)
 	}
 
-	extractedPaths, err := findFilesRecursively(ctx, tmpRoot, c)
+	extractedPaths, err := findFilesRecursively(ctx, tmpRoot)
 	if err != nil {
 		return nil, fmt.Errorf("find files: %w", err)
 	}
