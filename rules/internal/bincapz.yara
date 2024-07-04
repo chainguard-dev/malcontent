@@ -12,5 +12,5 @@ rule bincapz : harmless {
         $f_report = "bincapz/pkg/report"
         $f_version = "bincapz/pkg/version"
     condition:
-        $b_behavior and 2 of ($f_*)
+        $b_behavior and all of ($f_*)
 }
