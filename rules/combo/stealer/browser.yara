@@ -21,26 +21,39 @@ rule multiple_browser_credentials : high {
     3 of ($c_*) and none of ($not_*)
 }
 
-rule multiple_browser_credentials_2 {
+rule multiple_browser_refs : critical {
+  meta:
+	description = "Makes references to multiple browser credentials"
   strings:
-    $a_google_chrome = "Google/Chrome"
-    $a_app_support = "Application Support"
-    $a_app_support_slash = "Application\\ Support"
-    $a_cookies_sqlite = "cookies.sqlite"
-    $a_cookies = "Cookies"
-    $a_places_sqlite = "places.sqlite"
-    $a_moz_cookies = "moz_cookies"
-    $a_firefox_profiles = "Firefox/Profiles"
-    $a_opera_gx = "OperaGX"
-    $a_form_history = "formhistory.sqlite"
-    $a_chrome_local_state = "Chrome/Local State"
-    $a_brave_software = "BraveSoftware"
-    $a_opera = "Opera Software"
+    $fs_config = ".config" fullword
+    $fs_app_support = "Application Support"
+    $fs_app_support_slash = "Application\\ Support"
+    $fs_chrome = "Google/Chrome"
+    $fs_chrome_local_state = "Chrome/Local State"
+    $fs_chrome_userdata = "Chrome/User Data"
+    $fs_cookies = "Cookies"
+    $fs_cookies_sqlite = "cookies.sqlite"
+	$fs_firefox = "Mozilla/Firefox"
+    $fs_firefox_profiles = "Firefox/Profiles"
+    $fs_form_history = "formhistory.sqlite"
+    $fs_moz_cookies = "moz_cookies"
+    $fs_places_sqlite = "places.sqlite"
+	$fs_roaming = "Roaming/"
+	$fs_user_data = "User Data"
+
+	$name_brave = "Brave-Browser"
+    $name_brave_software = "BraveSoftware"
+    $name_chrome = "Google Chrome"
+    $name_opera_gx = "OperaGX"
+	$name_firefox = "Firefox"
+	$name_opera_gx_dir = "Opera GX"
+    $name_opera = "Opera Software"
+	$name_yandex = "YandexBrowser"
   condition:
-    4 of ($a_*)
+	2 of ($name*) and 3 of ($fs*)
 }
 
-rule multiple_browser_refs : medium {
+rule userdata_browser_archiver : medium {
   meta:
     description = "Uses HTTP, archives, and references multiple browsers"
     hash_2023_Downloads_016a = "016a1a4fe3e9d57ab0b2a11e37ad94cc922290d2499b8d96957c3ddbdc516d74"
@@ -49,12 +62,16 @@ rule multiple_browser_refs : medium {
   strings:
     $d_config = ".config" fullword
     $d_app_support = "Application Support" fullword
+	$d_state = "User Data" fullword
     $h_http = "http" fullword
+	$h_https = "https" fullword
     $h_POST = "POST" fullword
+	$h_discord = "Discord" fullword
     $z_zip = "zip" fullword
     $z_ZIP = "ZIP" fullword
     $z_ditto = "ditto" fullword
     $z_tar = "tar" fullword
+	$z_store = "assasans/storage" fullword
     $b_Yandex = "Yandex"
     $b_Brave = "Brave"
     $b_Firefox = "Firefox"

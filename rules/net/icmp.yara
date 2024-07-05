@@ -19,3 +19,12 @@ rule phrases {
 	condition:
 		2 of them
 }
+
+rule ping : medium {
+	meta:
+		description = "Uses the ping tool to generate ICMP packets"
+	strings:
+		$ref = /ping [\-\w \.:]{0,32}/ fullword
+	condition:
+		$ref
+}

