@@ -62,3 +62,40 @@ func BenchmarkLongestUnique(b *testing.B) {
 		longestUnique(raw)
 	}
 }
+
+func TestAll(t *testing.T) {
+	tests := []struct {
+		name       string
+		conditions []bool
+		want       bool
+	}{
+		{
+			name:       "All True",
+			conditions: []bool{true, true, true, true},
+			want:       true,
+		},
+		{
+			name:       "All False",
+			conditions: []bool{false, false, false, false},
+			want:       false,
+		},
+		{
+			name:       "One True; Many False",
+			conditions: []bool{true, false, false, false},
+			want:       false,
+		},
+		{
+			name:       "Many True; One False",
+			conditions: []bool{true, true, true, false},
+			want:       false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := all(tt.conditions...); got != tt.want {
+				t.Errorf("all() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

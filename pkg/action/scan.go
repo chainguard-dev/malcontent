@@ -20,17 +20,12 @@ import (
 )
 
 // findFilesRecurslively returns a list of files found recursively within a path.
-func findFilesRecursively(ctx context.Context, root string, c Config) ([]string, error) {
+func findFilesRecursively(ctx context.Context, root string) ([]string, error) {
 	clog.FromContext(ctx).Infof("finding files in %s ...", root)
 	var files []string
 
-	self, err := os.Executable()
-	if err != nil {
-		return nil, fmt.Errorf("abs: %w", err)
-	}
-
 	// Follow symlink if provided at the root
-	root, err = filepath.EvalSymlinks(root)
+	root, err := filepath.EvalSymlinks(root)
 	if err != nil {
 		return nil, err
 	}
@@ -45,10 +40,6 @@ func findFilesRecursively(ctx context.Context, root string, c Config) ([]string,
 				return nil
 			}
 
-			if c.IgnoreSelf && path == self {
-				clog.FromContext(ctx).Infof("skipping %s (self)", path)
-				return nil
-			}
 			files = append(files, path)
 
 			return nil
@@ -96,7 +87,7 @@ func scanSinglePath(ctx context.Context, c Config, yrs *yara.Rules, path string,
 		return &bincapz.FileReport{Path: path, Error: fmt.Sprintf("scanfile: %v", err)}, nil
 	}
 
-	fr, err := report.Generate(ctx, path, mrs, c.IgnoreTags, c.MinRisk)
+	fr, err := report.Generate(ctx, path, mrs, c.IgnoreTags, c.MinRisk, c.IgnoreSelf)
 	if err != nil {
 		return nil, err
 	}
@@ -193,7 +184,7 @@ func recursiveScan(ctx context.Context, c Config) (*bincapz.Report, error) {
 			scanPath = ociExtractPath
 		}
 
-		paths, err := findFilesRecursively(ctx, scanPath, c)
+		paths, err := findFilesRecursively(ctx, scanPath)
 		if err != nil {
 			return nil, fmt.Errorf("find files: %w", err)
 		}
@@ -275,7 +266,7 @@ func processArchive(ctx context.Context, c Config, yrs *yara.Rules, archivePath 
 		return nil, fmt.Errorf("extract to temp: %w", err)
 	}
 
-	extractedPaths, err := findFilesRecursively(ctx, tmpRoot, c)
+	extractedPaths, err := findFilesRecursively(ctx, tmpRoot)
 	if err != nil {
 		return nil, fmt.Errorf("find files: %w", err)
 	}
@@ -312,11 +303,6 @@ func processFile(ctx context.Context, c Config, yrs *yara.Rules, path string, sc
 
 	if fr == nil {
 		logger.Infof("%s returned nil result", path)
-		return nil, nil
-	}
-
-	if c.IgnoreSelf && fr.IsBincapz {
-		clog.FromContext(ctx).Infof("dropping results for %s (it's bincapz)...", fr.Path)
 		return nil, nil
 	}
 
