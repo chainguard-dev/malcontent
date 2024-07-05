@@ -49,6 +49,7 @@ net/ip/parse
 net/oauth2
 net/socket/listen
 net/socket/send
+net/ssh
 net/url/encode
 process/chdir
 ref/ip/dns_resolver

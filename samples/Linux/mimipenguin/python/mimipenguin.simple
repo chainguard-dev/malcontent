@@ -5,6 +5,7 @@ encoding/base64
 evasion/base64/decode
 fd/read
 kernel/platform
+net/ssh
 process/list
 process/name/get
 procfs/arbitrary/pid

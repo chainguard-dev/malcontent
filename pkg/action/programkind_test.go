@@ -93,7 +93,7 @@ func TestProgramKindExtensions(t *testing.T) {
 		want:     "",
 	}, {
 		filename: "json.json",
-		want:     "",
+		want:     "Javascript",
 	}, {
 		filename: "yaml.yml",
 		want:     "",
@@ -129,10 +129,10 @@ func TestProgramKindExtensions(t *testing.T) {
 		t.Run(tt.filename, func(t *testing.T) {
 			exists, kind := byExtension(tt.filename)
 			if exists != !tt.notFound {
-				t.Errorf("byExtension() exists = %v, want %v", exists, !tt.notFound)
+				t.Errorf("byExtension(%s) exists = %v, want %v", tt.filename, exists, !tt.notFound)
 			}
 			if kind != tt.want {
-				t.Errorf("byExtension() kind = %v, want %v", kind, tt.want)
+				t.Errorf("byExtension(%s) kind = %v, want %v", tt.filename, kind, tt.want)
 			}
 		})
 	}

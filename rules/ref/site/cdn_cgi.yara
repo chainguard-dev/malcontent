@@ -1,4 +1,3 @@
-
 rule cdn_cgi : medium {
   meta:
     description = "Mentions Cloudflare cdn-cgi endpoint"
@@ -23,4 +22,15 @@ rule cdn_cgi_xor : high {
     $cdn_cgi2 = "cdn-cgi" xor(33-255)
   condition:
     any of them
+}
+
+
+rule cdn_cgi_captcha : high {
+  meta:
+    description = "Mentions Cloudflare cdn-cgi Captcha endpoint"
+  strings:
+    $cdn_cgi = "cdn-cgi" fullword
+    $chk_captcha = "chk_captcha" fullword
+  condition:
+    all of them
 }

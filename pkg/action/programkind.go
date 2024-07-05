@@ -47,7 +47,7 @@ var extMap = map[string]string{
 	".jar":     "Java program",
 	".java":    "Java source",
 	".js":      "Javascript",
-	".json":    "",
+	".json":    "Javascript",
 	".md":      "",
 	".php":     "PHP file",
 	".pl":      "PERL script",

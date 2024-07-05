@@ -6,12 +6,16 @@ rule flooder : high {
     hash_2024_Downloads_a031 = "a031da66c6f6cd07343d5bc99cc283528a5b7f04f97b2c33c2226a388411ec61"
     hash_2023_Linux_Malware_Samples_0afd = "0afd9f52ddada582d5f907e0a8620cbdbe74ea31cf775987a5675226c1b228c2"
   strings:
-    $ref = "flooder" fullword
-    $ref2 = "FLOODER" fullword
-    $ref3 = "Flood operation"
-    $ref4 = "Starting Flood"
-    $ref5 = "stresser" fullword
-    $ref6 = "dosia" fullword
+    $ = "flooder" fullword
+    $ = "FLOODER" fullword
+    $ = "Flood operation"
+    $ = "Starting Flood"
+    $ = "stresser" fullword
+    $ = "dosia" fullword
+	$ = "ICMPFLOOD" fullword
+	$ = "BLACKNURSE" fullword
+	$ = "HYDRASYN" fullword
+	$ = "KAFFER-SLAP" fullword
   condition:
     any of them
 }
