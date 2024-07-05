@@ -8,3 +8,12 @@ rule killed_all : medium {
   condition:
     any of them
 }
+
+rule killed_format : medium {
+  meta:
+    description = "References 'killed %d'"
+  strings:
+    $ref = /[Kk]illed %d/
+  condition:
+    any of them
+}

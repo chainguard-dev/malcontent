@@ -74,3 +74,14 @@ rule fetch_pipe_shell_value : high {
   condition:
     any of them
 }
+
+rule fetch_chmod_execute : high {
+  meta:
+    description = "single line fetch, chmod, execute"
+    hash_2024_2024_legacyreact_aws_s3_typescript_package = "a7f45d75612e95b091e35550c0bde2ba50a2a867d68eb43296b2fc4622198f74"
+  strings:
+    $wget = /wget .{8,64} \&\&.{0,64} chmod .{3,16} \&\& \.\/[\.\w]{1,16}/
+    $curl = /curl .{8,64} \&\&.{0,64} chmod .{3,16} \&\& \.\/[\.\w]{1,16}/
+  condition:
+    any of them
+}

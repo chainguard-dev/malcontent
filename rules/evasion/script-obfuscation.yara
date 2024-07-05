@@ -1,7 +1,7 @@
 
 rule generic_obfuscated_perl : high {
   meta:
-	description = "Obfuscated PERL code"
+    description = "Obfuscated PERL code"
     hash_1980_FruitFly_A_205f = "205f5052dc900fc4010392a96574aed5638acf51b7ec792033998e4043efdf6c"
     hash_1980_FruitFly_A_9968 = "9968407d4851c2033090163ac1d5870965232bebcfe5f87274f1d6a509706a14"
     hash_1980_FruitFly_A_bbbf = "bbbf73741078d1e74ab7281189b13f13b50308cf03d3df34bc9f6a90065a4a55"
@@ -59,6 +59,8 @@ rule powershell_encoded : high windows {
 rule php_str_replace_obfuscation : high {
   meta:
     description = "calls str_replace and uses obfuscated functions"
+    hash_2024_2024_Inull_Studio_err = "5dbab6891fefb2ba4e3983ddb0d95989cf5611ab85ae643afbcc5ca47c304a4a"
+    hash_2024_2024_Inull_Studio_err = "5dbab6891fefb2ba4e3983ddb0d95989cf5611ab85ae643afbcc5ca47c304a4a"
   strings:
     $str_replace = "str_replace"
     $o_dynamic_single = /\$\w {0,2}= \$\w\(/
@@ -149,6 +151,9 @@ rule php_obfuscated_concat_multiple : critical {
 rule base64_str_replace : medium {
   meta:
     description = "creatively hidden forms of the term 'base64'"
+    hash_2024_2024_Inull_Studio_err = "5dbab6891fefb2ba4e3983ddb0d95989cf5611ab85ae643afbcc5ca47c304a4a"
+    hash_2024_2024_Inull_Studio_err = "5dbab6891fefb2ba4e3983ddb0d95989cf5611ab85ae643afbcc5ca47c304a4a"
+    hash_2024_2024_Inull_Studio_godzilla_xor_base64 = "699c7bbf08d2ee86594242f487860221def3f898d893071426eb05bec430968e"
   strings:
     $a = /ba.s.e64/
     $b = /b.a.s.6.4/

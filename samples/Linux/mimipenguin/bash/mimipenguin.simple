@@ -9,6 +9,7 @@ exec/shell_command
 fs/file/delete
 fs/file/delete/forcibly
 kernel/platform
+net/ssh
 ref/daemon
 ref/path/etc
 ref/path/tmp

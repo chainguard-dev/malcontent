@@ -2,6 +2,7 @@
 3P/threat_hunting/crossc2
 3P/threat_hunting/mimipenguin
 combo/stealer/password
+net/ssh
 procfs/arbitrary/pid
 procfs/pid/cmdline
 procfs/pid/maps

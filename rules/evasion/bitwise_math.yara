@@ -54,6 +54,7 @@ rule bitwise_python_string : medium {
     description = "creates string using bitwise math"
     ref = "https://www.reversinglabs.com/blog/python-downloader-highlights-noise-problem-in-open-source-threat-detection"
     hash_2024_xFileSyncerx_xfilesyncerx = "c68e907642a8462c6b82a50bf4fde82bbf71245ab4edace246dd341dc72e5867"
+    hash_2024_2024_d3duct1v_xfilesyncerx = "b87023e546bcbde77dae065ad3634e7a6bd4cc6056167a6ed348eee6f2a168ae"
   strings:
     $ref = /"".join\(chr\(\w{1,4} >> \w{1,3}\) for \w{1,16} in \w{1,16}/
   condition:
@@ -65,6 +66,7 @@ rule bitwise_python_string_exec_eval : high {
     description = "creates and evaluates string using bitwise math"
     ref = "https://www.reversinglabs.com/blog/python-downloader-highlights-noise-problem-in-open-source-threat-detection"
     hash_2024_xFileSyncerx_xfilesyncerx = "c68e907642a8462c6b82a50bf4fde82bbf71245ab4edace246dd341dc72e5867"
+    hash_2024_2024_d3duct1v_xfilesyncerx = "b87023e546bcbde77dae065ad3634e7a6bd4cc6056167a6ed348eee6f2a168ae"
   strings:
     $ref = /"".join\(chr\(\w{1,4} >> \w{1,3}\) for \w{1,16} in \w{1,16}/
     $exec = "exec("
@@ -78,6 +80,7 @@ rule bitwise_python_string_exec_eval_nearby : critical {
     description = "creates and executes string using bitwise math"
     ref = "https://www.reversinglabs.com/blog/python-downloader-highlights-noise-problem-in-open-source-threat-detection"
     hash_2024_xFileSyncerx_xfilesyncerx = "c68e907642a8462c6b82a50bf4fde82bbf71245ab4edace246dd341dc72e5867"
+    hash_2024_2024_d3duct1v_xfilesyncerx = "b87023e546bcbde77dae065ad3634e7a6bd4cc6056167a6ed348eee6f2a168ae"
   strings:
     $ref = /"".join\(chr\(\w{1,4} >> \w{1,3}\) for \w{1,16} in \w{1,16}/
     $exec = "exec("
