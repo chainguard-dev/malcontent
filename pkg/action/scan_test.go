@@ -1,10 +1,20 @@
 package action
 
 import (
+	"bytes"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/chainguard-dev/bincapz/pkg/compile"
+	"github.com/chainguard-dev/bincapz/pkg/render"
+	"github.com/chainguard-dev/bincapz/rules"
+	thirdparty "github.com/chainguard-dev/bincapz/third_party"
+	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/clog/slogtest"
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestCleanPath(t *testing.T) {
@@ -126,5 +136,44 @@ func TestFormatPath(t *testing.T) {
 				t.Errorf("FormatPath() = %v, want %v", got, tt.want)
 			}
 		})
+	}
+}
+
+func TestBincapzIgnored(t *testing.T) {
+	t.Parallel()
+	ctx := slogtest.TestContextWithLogger(t)
+	clog.FromContext(ctx).With("test", "scan_bincapz")
+
+	yrs, err := compile.Recursive(ctx, []fs.FS{rules.FS, thirdparty.FS})
+	if err != nil {
+		t.Fatalf("compile: %v", err)
+	}
+
+	var out bytes.Buffer
+	simple, err := render.New("simple", &out)
+	if err != nil {
+		t.Fatalf("render: %v", err)
+	}
+	bc := Config{
+		IgnoreSelf: true,
+		IgnoreTags: []string{"harmless"},
+		Renderer:   simple,
+		Rules:      yrs,
+		ScanPaths:  []string{"../../samples/macOS/clean/bincapz"},
+	}
+	res, err := Scan(ctx, bc)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := simple.Full(ctx, res); err != nil {
+		t.Fatalf("full: %v", err)
+	}
+
+	outBytes := out.Bytes()
+	got := string(outBytes)
+
+	want := ""
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("json output mismatch: (-want +got):\n%s", diff)
 	}
 }
