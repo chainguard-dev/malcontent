@@ -299,3 +299,42 @@ func TestMarkdown(t *testing.T) {
 		return nil
 	})
 }
+
+func TestBincapzIgnored(t *testing.T) {
+	t.Parallel()
+	ctx := slogtest.TestContextWithLogger(t)
+	clog.FromContext(ctx).With("test", "scan_bincapz")
+
+	yrs, err := compile.Recursive(ctx, []fs.FS{rules.FS, thirdparty.FS})
+	if err != nil {
+		t.Fatalf("compile: %v", err)
+	}
+
+	var out bytes.Buffer
+	simple, err := render.New("simple", &out)
+	if err != nil {
+		t.Fatalf("render: %v", err)
+	}
+	bc := action.Config{
+		IgnoreSelf: true,
+		IgnoreTags: []string{"harmless"},
+		Renderer:   simple,
+		Rules:      yrs,
+		ScanPaths:  []string{"macOS/clean/bincapz"},
+	}
+	res, err := action.Scan(ctx, bc)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := simple.Full(ctx, res); err != nil {
+		t.Fatalf("full: %v", err)
+	}
+
+	outBytes := out.Bytes()
+	got := string(outBytes)
+
+	want := ""
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("json output mismatch: (-want +got):\n%s", diff)
+	}
+}
