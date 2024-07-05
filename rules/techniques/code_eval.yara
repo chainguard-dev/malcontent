@@ -42,6 +42,7 @@ rule php_create_function_no_args : high {
   meta:
     description = "dynamically creates PHP functions without arguments"
     hash_2024_Obfuscated_Webshell_75f2c462f011da26a97e28fcb3afb4740826f960 = "a3f1518a22d47a5b24280171a050b774b3ec0822702f7e6b2ec70a0b97a55927"
+    hash_2024_2024_malcure_simple = "b52dd01d1f1416820108af0be32067e8990e076bf8f917a40a61c919e89e5551"
   strings:
     $val = /create_function\([\'\"]{2},\$/
   condition:

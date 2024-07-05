@@ -130,7 +130,7 @@ rule php_obfuscated_with_hex_characters : high {
 
 rule php_base64_eval_uname : critical {
   meta:
-	description = "PHP code that calls eval, uname, and base64_decode"
+    description = "PHP code that calls eval, uname, and base64_decode"
     hash_2023_0xShell_root = "3baa3bfaa6ed78e853828f147c3747d818590faee5eecef67748209dd3d92afb"
     hash_2023_0xShell_wesoori = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"
     hash_2024_Deobfuscated_1n73ctionShell_abc00305dcfabe889507832e7385af937b94350d = "de1ef827bcd3100a259f29730cb06f7878220a7c02cee0ebfc9090753d2237a8"
@@ -200,7 +200,7 @@ rule php_system_hex : critical {
 
 rule php_insecure_curl_uploader : critical {
   meta:
-	description = "PHP code that evaluates remote content and disables SSL verification"
+    description = "PHP code that evaluates remote content and disables SSL verification"
     hash_2023_0xShell_0xShellori = "506e12e4ce1359ffab46038c4bf83d3ab443b7c5db0d5c8f3ad05340cb09c38e"
     hash_2023_0xShell_f = "9ce3da0322ee42e9119abb140b829efc3c94ea802df7a6f3968829645e1a5330"
   strings:
@@ -216,7 +216,7 @@ rule php_insecure_curl_uploader : critical {
 
 rule php_eval_get_contents : high {
   meta:
-	description = "PHP code that may evaluate remote file contents"
+    description = "PHP code that may evaluate remote file contents"
     hash_2023_0xShell_f = "9ce3da0322ee42e9119abb140b829efc3c94ea802df7a6f3968829645e1a5330"
     hash_2024_Deobfuscated_WebShell_d311f7e742226d6915711ab309baaafdf7156934 = "43411e7e750ebfe589cc4004da7b67e907c6f2cfe868a00962ff6b08b515e4c2"
   strings:
@@ -226,7 +226,7 @@ rule php_eval_get_contents : high {
     $f_stream_get_contents = "stream_get_contents("
     $not_reference = "stream_register_wrapper("
   condition:
-    filesize < 64KB and $php and all of ($f*) and none of ($not*)
+    filesize < 65536 and $php and all of ($f*) and none of ($not*)
 }
 
 rule php_is_jpeg : critical {
@@ -269,6 +269,8 @@ rule php_base64_encoded : critical {
 rule php_str_replace_obfuscation : critical {
   meta:
     description = "accepts input and runs obfuscated code"
+    hash_2024_2024_Inull_Studio_err = "5dbab6891fefb2ba4e3983ddb0d95989cf5611ab85ae643afbcc5ca47c304a4a"
+    hash_2024_2024_Inull_Studio_err = "5dbab6891fefb2ba4e3983ddb0d95989cf5611ab85ae643afbcc5ca47c304a4a"
   strings:
     $f_str_replace = "str_replace"
     $f_display_errors = "display_errors"
