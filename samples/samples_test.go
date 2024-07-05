@@ -49,6 +49,11 @@ func TestJSON(t *testing.T) {
 		jsonPath := path
 		binPath := filepath.Join(testDataRoot, name)
 
+		// must be a non-test JSON
+		if _, err := os.Stat(binPath); err != nil {
+			return nil
+		}
+
 		t.Run(name, func(t *testing.T) {
 			td, err := fs.ReadFile(fileSystem, jsonPath)
 			if err != nil {

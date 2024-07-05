@@ -1,0 +1,14 @@
+# Javascript/2022.an-instance.99.10.9/index.js
+combo/recon/nodejs
+encoding/json/encode
+fd/write
+fs/directory/list
+kernel/hostname/get
+net/http/form/upload
+net/http/post
+net/interface/list
+net/url/encode
+process/userinfo
+ref/path/home
+ref/path/relative
+ref/path/root
