@@ -6,6 +6,7 @@ package samples
 import (
 	"bytes"
 	"context"
+	"errors"
 	"io/fs"
 	"log/slog"
 	"os"
@@ -51,7 +52,10 @@ func TestJSON(t *testing.T) {
 
 		// must be a non-test JSON
 		if _, err := os.Stat(binPath); err != nil {
-			return nil
+			if errors.Is(err, os.ErrNotExist) {
+				return nil
+			}
+			return err
 		}
 
 		t.Run(name, func(t *testing.T) {
