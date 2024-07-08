@@ -76,5 +76,3 @@ rule npm_uname : medium {
   condition:
     any of them
 }
-
-

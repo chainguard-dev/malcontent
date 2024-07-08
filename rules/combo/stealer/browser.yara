@@ -23,7 +23,10 @@ rule multiple_browser_credentials : high {
 
 rule multiple_browser_refs : critical {
   meta:
-	description = "Makes references to multiple browser credentials"
+    description = "Makes references to multiple browser credentials"
+    hash_1985_actions_UserGet = "e3a457ec75e3a042fb34fa6d49e0e833265d21d26c4e0119aaa1b6ec8a9460ec"
+    hash_1985_build_stealer = "d49043306ff8d6b394c6f39d70bd208ad740a6030d3cc5b5427d03cc7e494e7f"
+    hash_1985_src_stealer = "9af37b5973ee1e683d9708591cbe31b8a1044aab88b92b5883bdd74bcf8d807b"
   strings:
     $fs_config = ".config" fullword
     $fs_app_support = "Application Support"
@@ -33,24 +36,23 @@ rule multiple_browser_refs : critical {
     $fs_chrome_userdata = "Chrome/User Data"
     $fs_cookies = "Cookies"
     $fs_cookies_sqlite = "cookies.sqlite"
-	$fs_firefox = "Mozilla/Firefox"
+    $fs_firefox = "Mozilla/Firefox"
     $fs_firefox_profiles = "Firefox/Profiles"
     $fs_form_history = "formhistory.sqlite"
     $fs_moz_cookies = "moz_cookies"
     $fs_places_sqlite = "places.sqlite"
-	$fs_roaming = "Roaming/"
-	$fs_user_data = "User Data"
-
-	$name_brave = "Brave-Browser"
+    $fs_roaming = "Roaming/"
+    $fs_user_data = "User Data"
+    $name_brave = "Brave-Browser"
     $name_brave_software = "BraveSoftware"
     $name_chrome = "Google Chrome"
     $name_opera_gx = "OperaGX"
-	$name_firefox = "Firefox"
-	$name_opera_gx_dir = "Opera GX"
+    $name_firefox = "Firefox"
+    $name_opera_gx_dir = "Opera GX"
     $name_opera = "Opera Software"
-	$name_yandex = "YandexBrowser"
+    $name_yandex = "YandexBrowser"
   condition:
-	2 of ($name*) and 3 of ($fs*)
+    2 of ($name*) and 3 of ($fs*)
 }
 
 rule userdata_browser_archiver : medium {
@@ -62,16 +64,16 @@ rule userdata_browser_archiver : medium {
   strings:
     $d_config = ".config" fullword
     $d_app_support = "Application Support" fullword
-	$d_state = "User Data" fullword
+    $d_state = "User Data" fullword
     $h_http = "http" fullword
-	$h_https = "https" fullword
+    $h_https = "https" fullword
     $h_POST = "POST" fullword
-	$h_discord = "Discord" fullword
+    $h_discord = "Discord" fullword
     $z_zip = "zip" fullword
     $z_ZIP = "ZIP" fullword
     $z_ditto = "ditto" fullword
     $z_tar = "tar" fullword
-	$z_store = "assasans/storage" fullword
+    $z_store = "assasans/storage" fullword
     $b_Yandex = "Yandex"
     $b_Brave = "Brave"
     $b_Firefox = "Firefox"

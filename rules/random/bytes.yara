@@ -1,4 +1,3 @@
-
 rule rand {
 	meta:
 		description = "generates random bytes"
@@ -7,4 +6,3 @@ rule rand {
 	condition:
 		$ref
 }
-
