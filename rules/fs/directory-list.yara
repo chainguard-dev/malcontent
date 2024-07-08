@@ -14,7 +14,7 @@ rule opendir_readdir : harmless {
 		any of them
 }
 
-rule OpenReadDir {
+rule GoReadDir {
 	meta:
 		description = "Uses Go functions to list a directory"
 		pledge = "rpath"
@@ -31,6 +31,16 @@ rule bin_ls {
 		pledge = "rpath"
 	strings:
 		$ref = "/bin/ls"
+	condition:
+		any of them
+}
+
+rule NodeReadDir {
+	meta:
+		description = "Uses Go functions to list a directory"
+		pledge = "rpath"
+	strings:
+		$ref = ".readdirSync("
 	condition:
 		any of them
 }

@@ -7,7 +7,8 @@ rule discord_bot : high {
     hash_2023_pan_chan_73ed = "73ed0b692fda696efd5f8e33dc05210e54b17e4e4a39183c8462bcc5a3ba06cc"
     hash_2023_pan_chan_99ed = "99ed2445553e490c912ee8493073cc4340e7c6310b0b7fc425ffe8340c551473"
   strings:
-    $s1 = "discord.com/api/webhooks"
+	$ = /discordapp.com\/api\/webhooks[\/\d]{0,32}/
+	$ = /discord.com\/api\/webhooks[\/\d]{0,32}/
   condition:
     any of them
 }
