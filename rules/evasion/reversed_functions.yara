@@ -8,6 +8,16 @@ rule reversed_function_names : critical {
 		$r_passthru = "urhtssap"
 		$r_include = "edulcni"
 		$r_shell_execute = "etucexe_llehs"
+		$r_base64_decode = "edoced_46esab"
 	condition:
 		$create_function and any of ($r*)
+}
+
+rule strrev_short : medium {
+	meta:
+		description = "calls strrev on a short string"
+	strings:
+		$strrev = /strrev\(['"][\w\=]{0,5}]'"]\)/
+	condition:
+		$strrev
 }

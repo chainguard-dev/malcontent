@@ -13,6 +13,7 @@ data/emdedded/app/manifest
 databases/mysql
 databases/sqlite
 encoding/base64
+encoding/reverse
 env/DYLD_LIBRARY_PATH
 env/HOME
 env/SHELL
