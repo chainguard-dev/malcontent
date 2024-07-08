@@ -107,47 +107,6 @@ rule php_obfuscation : high {
     filesize < 5242880 and $php and any of ($o*)
 }
 
-rule php_obfuscated_concat : medium {
-  meta:
-    description = "obfuscated PHP concatenation"
-    credit = "Ported from https://github.com/jvoisin/php-malware-finder"
-    hash_2024_systembc_password = "236cff4506f94c8c1059c8545631fa2dcd15b086c1ade4660b947b59bdf2afbd"
-    hash_2024_PHP_dclzougj = "3eb6ea176cee1e92ab3c684d16a5f820131a518478016643b454a53eaf123e63"
-    hash_2024_PHP_wlstncyj = "1a1c97594340ede77bc814670eaf35eaba861f1f9519038582416c704796da0a"
-  strings:
-    $php = "<?php"
-    $concat = /\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\./
-  condition:
-    filesize < 5242880 and $php and $concat
-}
-
-rule php_obfuscated_concat_long : high {
-  meta:
-    description = "obfuscated PHP concatenation (long)"
-    credit = "Ported from https://github.com/jvoisin/php-malware-finder"
-    hash_2024_systembc_password = "236cff4506f94c8c1059c8545631fa2dcd15b086c1ade4660b947b59bdf2afbd"
-    hash_2024_PHP_dclzougj = "3eb6ea176cee1e92ab3c684d16a5f820131a518478016643b454a53eaf123e63"
-    hash_2024_PHP_wlstncyj = "1a1c97594340ede77bc814670eaf35eaba861f1f9519038582416c704796da0a"
-  strings:
-    $php = "<?php"
-    $concat = /\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\./
-  condition:
-    filesize < 5242880 and $php and $concat
-}
-
-rule php_obfuscated_concat_multiple : critical {
-  meta:
-    description = "obfuscated PHP concatenation (multiple)"
-    hash_2024_systembc_password = "236cff4506f94c8c1059c8545631fa2dcd15b086c1ade4660b947b59bdf2afbd"
-    hash_2024_PHP_dclzougj = "3eb6ea176cee1e92ab3c684d16a5f820131a518478016643b454a53eaf123e63"
-    hash_2024_PHP_wlstncyj = "1a1c97594340ede77bc814670eaf35eaba861f1f9519038582416c704796da0a"
-  strings:
-    $php = "<?php"
-    $concat = /\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\./
-  condition:
-    filesize < 5242880 and $php and #concat > 2
-}
-
 rule base64_str_replace : medium {
   meta:
     description = "creatively hidden forms of the term 'base64'"
@@ -202,4 +161,32 @@ rule exec_console_log : critical {
     $ref = ".exec(console.log("
   condition:
     any of them
+}
+
+rule strrev_multiple : medium {
+	meta:
+		description = "reverses strings an excessive number of times"
+	strings:
+		$ref = "strrev("
+		$ref2 = /strrev\(['"].{0,256}['"]\)/
+	condition:
+		filesize < 64KB and (#ref > 5) or (#ref2 > 5)
+}
+
+rule strrev_short : medium {
+	meta:
+		description = "reverses a short string"
+	strings:
+		$ref = /strrev\(['"][\w\=]{0,4}['"]\)/
+	condition:
+		filesize < 64KB and $ref
+}
+
+rule strrev_short_multiple : high {
+	meta:
+		description = "reverses multiple short strings"
+	strings:
+		$ref = /strrev\(['"][\w\=]{0,4}['"]\)/
+	condition:
+		filesize < 64KB and #ref > 3
 }
