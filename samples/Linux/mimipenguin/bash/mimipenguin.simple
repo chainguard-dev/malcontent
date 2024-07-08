@@ -5,6 +5,7 @@ combo/stealer/password
 encoding/base64
 evasion/base64/eval
 evasion/base64/external/decoder
+evasion/single_line_imports
 exec/shell_command
 fs/file/delete
 fs/file/delete/forcibly
