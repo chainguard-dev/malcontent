@@ -63,6 +63,8 @@ var rulesWithWarnings = map[string]bool{
 	"Microsoft_Excel_with_Macrosheet":       true,
 	"PDF_with_Embedded_RTF_OLE_Newlines":    true,
 	"Powershell_Case":                       true,
+	"php_short_concat":                      true,
+	"php_short_concat_multiple":             true,
 	"RDPassSpray_offensive_tool_keyword":    false,
 	"nmap_offensive_tool_keyword":           false,
 	"DynastyPersist_offensive_tool_keyword": false,
