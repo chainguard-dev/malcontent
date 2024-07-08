@@ -136,6 +136,7 @@ rule npm_exec : medium {
     ref = "https://nodejs.org/api/child_process.html"
     hash_2023_misc_mr_robot = "630bbcf0643d9fc9840f2f54ea4ae1ea34dc94b91ee011779c8e8c91f733c9f5"
     hash_2024_2021_ua_parser_js_preinstall = "62e08e4967da57e037255d2e533b7c5d7d1f1773af2a06113470c29058b5fcd0"
+    hash_2015_scripts_preinstall = "b5fa20b9c699995990ca3af5bd4a5d76da12c125c541f33ac2b61990b16d353c"
   strings:
     $child = "child_process"
     $ref_val = /exec\([\'\"][\w \/\'\)]{0,64}/

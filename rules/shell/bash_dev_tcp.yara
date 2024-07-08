@@ -11,3 +11,13 @@ rule bash_dev_tcp : high exfil {
   condition:
     $ref and not $posixly_correct
 }
+
+
+rule bash_dev_tcp_hardcoded_ip : critical {
+  meta:
+    description = "hardcoded /dev/tcp host:port"
+  strings:
+	$dev_tcp = /\/dev\/tcp\/[\w\.]{8,16}\/\d{1,6}/
+  condition:
+	$dev_tcp
+}
