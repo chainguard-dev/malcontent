@@ -8,6 +8,7 @@ admin/logs/syslog
 admin/package/install
 combo/backdoor/iptables
 combo/backdoor/kill_rm
+combo/critical_paths
 combo/degrader/selinux_firewall
 combo/degrader/ufw_disable
 combo/dropper/shell
