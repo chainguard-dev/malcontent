@@ -13,5 +13,5 @@ rule uname_hostname_encrypt_wipe_kill : high {
     $uname = "uname" fullword
     $hostname = "hostname" fullword
   condition:
-    filesize < 67108864 and all of them
+    filesize < 20MB and all of them
 }
