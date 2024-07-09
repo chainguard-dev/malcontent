@@ -1,3 +1,11 @@
+rule crontab_support : medium {
+  meta:
+      description = "supports crontab manipulation"
+  strings:
+    $crontab = "crontab" fullword
+  condition:
+    any of them
+}
 
 rule crontab_writer : medium {
   meta:
@@ -27,8 +35,15 @@ rule crontab_entry : high {
     $repeat_hourly = /\d \* \* \* \*/
     $repeat_root = "* * * * root"
     $repeat_daily = "@daily"
+
+    $not_cron_date = "CronDate"
+    $not_minute = "Minute"
+    $not_minutes = "minutes"
+    $not_days = "Days in month"
+    $not_day_of_week = "dayOfWeek"
+    $not_day_of_month = "dayOfMonth"
   condition:
-    filesize < 52428800 and $crontab and any of ($repeat*)
+    filesize < 52428800 and $crontab and any of ($repeat*) and none of ($not*)
 }
 
 rule crontab_danger_path : high {

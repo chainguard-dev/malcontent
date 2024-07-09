@@ -10,8 +10,10 @@ rule nodejs_sysinfoexfil : high {
     $proc3 = "process.versions"
     $request_http = /require\([\"\']https{0,1}[\"\']\)/
     $post = "POST"
+
+	$not_filename = "${process.arch}-${process.versions.modules}"
   condition:
-    filesize < 16384 and $request_http and $post and any of ($proc*)
+    filesize < 16384 and $request_http and $post and 2 of ($proc*) and none of ($not*)
 }
 
 rule nodejs_phone_home : high {
