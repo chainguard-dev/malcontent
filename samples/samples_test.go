@@ -282,12 +282,12 @@ func TestMarkdown(t *testing.T) {
 			}
 
 			bc := bincapz.Config{
-				IgnoreSelf:       false,
-				IgnoreTags:       []string{"harmless"},
-				Renderer:         simple,
-				Rules:            yrs,
-				FrequencyUpgrade: true,
-				ScanPaths:        []string{binPath},
+				IgnoreSelf:            false,
+				IgnoreTags:            []string{"harmless"},
+				Renderer:              simple,
+				Rules:                 yrs,
+				QuantityIncreasesFisk: true,
+				ScanPaths:             []string{binPath},
 			}
 
 			tcLogger := clog.FromContext(ctx).With("test", name)

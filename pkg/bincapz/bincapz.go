@@ -17,21 +17,21 @@ type Renderer interface {
 }
 
 type Config struct {
-	IgnoreSelf       bool
-	IgnoreTags       []string
-	IncludeDataFiles bool
-	FrequencyUpgrade bool
-	MinFileRisk      int
-	MinRisk          int
-	OCI              bool
-	OmitEmpty        bool
-	Output           io.Writer
-	Renderer         Renderer
-	Rules            *yara.Rules
-	ScanPaths        []string
-	Stats            bool
-	ErrFirstMiss     bool
-	ErrFirstHit      bool
+	IgnoreSelf            bool
+	IgnoreTags            []string
+	IncludeDataFiles      bool
+	QuantityIncreasesFisk bool
+	MinFileRisk           int
+	MinRisk               int
+	OCI                   bool
+	OmitEmpty             bool
+	Output                io.Writer
+	Renderer              Renderer
+	Rules                 *yara.Rules
+	ScanPaths             []string
+	Stats                 bool
+	ErrFirstMiss          bool
+	ErrFirstHit           bool
 }
 
 type Behavior struct {

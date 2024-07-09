@@ -70,7 +70,7 @@ func main() {
 	errFirstHitFlag := flag.Bool("err-first-hit", false, "exit with error if scan source has matching capabilities")
 	ociFlag := flag.Bool("oci", false, "Scan an OCI image")
 	omitEmptyFlag := flag.Bool("omit-empty", false, "Omit files that contain no matches")
-	frequencyUpgradeFlag := flag.Bool("frequency-upgrade", true, "increase file risk score based on frequency heuristics")
+	quantityIncreasesRiskFlag := flag.Bool("quantity-increases-risk", true, "increase file risk score based on behavior quantity")
 	profileFlag := flag.Bool("profile", false, "Generate profile and trace files")
 	statsFlag := flag.Bool("stats", false, "Show statistics about the scan")
 	thirdPartyFlag := flag.Bool("third-party", true, "Include third-party rules, which may have licensing restrictions")
@@ -180,20 +180,20 @@ func main() {
 	}
 
 	bc := bincapz.Config{
-		IgnoreSelf:       *ignoreSelfFlag,
-		IgnoreTags:       ignoreTags,
-		IncludeDataFiles: includeDataFiles,
-		MinFileRisk:      minFileRisk,
-		MinRisk:          minRisk,
-		FrequencyUpgrade: *frequencyUpgradeFlag,
-		OCI:              *ociFlag,
-		OmitEmpty:        *omitEmptyFlag,
-		Renderer:         renderer,
-		Rules:            yrs,
-		ScanPaths:        args,
-		Stats:            stats,
-		ErrFirstHit:      *errFirstHitFlag,
-		ErrFirstMiss:     *errFirstMissFlag,
+		IgnoreSelf:            *ignoreSelfFlag,
+		IgnoreTags:            ignoreTags,
+		IncludeDataFiles:      includeDataFiles,
+		MinFileRisk:           minFileRisk,
+		MinRisk:               minRisk,
+		QuantityIncreasesFisk: *quantityIncreasesRiskFlag,
+		OCI:                   *ociFlag,
+		OmitEmpty:             *omitEmptyFlag,
+		Renderer:              renderer,
+		Rules:                 yrs,
+		ScanPaths:             args,
+		Stats:                 stats,
+		ErrFirstHit:           *errFirstHitFlag,
+		ErrFirstMiss:          *errFirstMissFlag,
 	}
 
 	var res *bincapz.Report
