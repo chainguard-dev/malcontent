@@ -16,6 +16,7 @@ rule exotic_tld {
     $not_electron = "ELECTRON_RUN_AS_NODE"
     $not_nips = "nips.cc"
     $not_gov_bd = ".gov.bd"
+    $not_eol = "endoflife.date"
   condition:
     any of ($http*) and none of ($not_*)
 }
