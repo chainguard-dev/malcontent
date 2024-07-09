@@ -22,6 +22,7 @@ var badRules = map[string]bool{
 	// YARAForge
 	"GODMODERULES_IDDQD_God_Mode_Rule":   true,
 	"MALPEDIA_Win_Unidentified_107_Auto": true,
+	"GCTI_Sliver_Implant_32Bit":          true,
 	// ThreatHunting Keywords (some duplicates)
 	"scp_greyware_tool_keyword":                  true,
 	"Antivirus_Signature_signature_keyword":      true,
