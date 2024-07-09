@@ -69,7 +69,7 @@ func formatPath(path string) string {
 }
 
 // scanSinglePath YARA scans a single path and converts it to a fileReport.
-func scanSinglePath(ctx context.Context, c Config, yrs *yara.Rules, path string, absPath string, archiveRoot string) (*bincapz.FileReport, error) {
+func scanSinglePath(ctx context.Context, c bincapz.Config, yrs *yara.Rules, path string, absPath string, archiveRoot string) (*bincapz.FileReport, error) {
 	logger := clog.FromContext(ctx)
 	var mrs yara.MatchRules
 	logger = logger.With("path", path)
@@ -87,7 +87,7 @@ func scanSinglePath(ctx context.Context, c Config, yrs *yara.Rules, path string,
 		return &bincapz.FileReport{Path: path, Error: fmt.Sprintf("scanfile: %v", err)}, nil
 	}
 
-	fr, err := report.Generate(ctx, path, mrs, c.IgnoreTags, c.MinRisk, c.IgnoreSelf)
+	fr, err := report.Generate(ctx, path, mrs, c)
 	if err != nil {
 		return nil, err
 	}
@@ -148,7 +148,7 @@ func errIfHitOrMiss(frs map[string]*bincapz.FileReport, kind string, scanPath st
 }
 
 // recursiveScan recursively YARA scans the configured paths - handling archives and OCI images.
-func recursiveScan(ctx context.Context, c Config) (*bincapz.Report, error) {
+func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, error) {
 	logger := clog.FromContext(ctx)
 	logger.Debug("recursive scan", slog.Any("config", c))
 	r := &bincapz.Report{
@@ -255,7 +255,7 @@ func recursiveScan(ctx context.Context, c Config) (*bincapz.Report, error) {
 }
 
 // processArchive extracts and scans a single archive file.
-func processArchive(ctx context.Context, c Config, yrs *yara.Rules, archivePath string, logger *clog.Logger) (map[string]*bincapz.FileReport, error) {
+func processArchive(ctx context.Context, c bincapz.Config, yrs *yara.Rules, archivePath string, logger *clog.Logger) (map[string]*bincapz.FileReport, error) {
 	logger = logger.With("archivePath", archivePath)
 
 	var err error
@@ -288,7 +288,7 @@ func processArchive(ctx context.Context, c Config, yrs *yara.Rules, archivePath 
 }
 
 // processFile scans a single output file, rendering live output if available.
-func processFile(ctx context.Context, c Config, yrs *yara.Rules, path string, scanPath string, archiveRoot string, logger *clog.Logger) (*bincapz.FileReport, error) {
+func processFile(ctx context.Context, c bincapz.Config, yrs *yara.Rules, path string, scanPath string, archiveRoot string, logger *clog.Logger) (*bincapz.FileReport, error) {
 	logger = logger.With("path", path)
 
 	fr, err := scanSinglePath(ctx, c, yrs, path, scanPath, archiveRoot)
@@ -321,7 +321,7 @@ func processFile(ctx context.Context, c Config, yrs *yara.Rules, path string, sc
 }
 
 // Scan YARA scans a data source, applying output filters if necessary.
-func Scan(ctx context.Context, c Config) (*bincapz.Report, error) {
+func Scan(ctx context.Context, c bincapz.Config) (*bincapz.Report, error) {
 	r, err := recursiveScan(ctx, c)
 	if err != nil {
 		return r, err

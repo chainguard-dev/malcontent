@@ -10,6 +10,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/chainguard-dev/bincapz/pkg/bincapz"
 	"github.com/chainguard-dev/bincapz/pkg/compile"
 	"github.com/chainguard-dev/bincapz/pkg/render"
 	"github.com/chainguard-dev/bincapz/rules"
@@ -228,7 +229,7 @@ func TestScanArchive(t *testing.T) {
 	if err != nil {
 		t.Fatalf("render: %v", err)
 	}
-	bc := Config{
+	bc := bincapz.Config{
 		IgnoreSelf: false,
 		IgnoreTags: []string{"harmless"},
 		Renderer:   simple,
