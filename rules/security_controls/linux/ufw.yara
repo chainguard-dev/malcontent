@@ -1,4 +1,3 @@
-
 rule ufw : medium {
   meta:
     description = "interacts with the ufw firewall"
@@ -7,6 +6,11 @@ rule ufw : medium {
     hash_2023_Linux_Malware_Samples_03bb = "03bb1cfd9e45844701aabc549f530d56f162150494b629ca19d83c1c696710d7"
   strings:
     $ref = "ufw" fullword
+
+    $arg_disable = "disable" fullword
+	$arg_allow = "allow" fullword
+	$arg_deny = "deny" fullword
+	$arg_enable = "enable" fullword
   condition:
-    any of them
+    $ref and any of ($arg*)
 }
