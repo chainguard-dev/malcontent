@@ -260,6 +260,6 @@ func TestScanArchive(t *testing.T) {
 	}
 	want := string(td)
 	if diff := cmp.Diff(want, got); diff != "" {
-		t.Errorf("json output mismatch: (-want +got):\n%s", diff)
+		t.Errorf("output mismatch: (-want +got):\n%s", diff)
 	}
 }

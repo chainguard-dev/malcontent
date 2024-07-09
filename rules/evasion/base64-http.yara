@@ -7,9 +7,10 @@ rule base64_http_val : high {
     hash_2023_pan_chan_73ed = "73ed0b692fda696efd5f8e33dc05210e54b17e4e4a39183c8462bcc5a3ba06cc"
   strings:
     $user_agent = "User-Agent" base64
-    $mozilla_slash = "Mozilla/" base64
+    $mozilla_5_0 = "Mozilla/5.0" base64
     $referer = "Referer" base64
-    $http_1x = "HTTP/1." base64
+    $http_1_0 = "HTTP/1.0" base64
+    $http_1_1 = "HTTP/1.1" base64
   condition:
     any of them
 }
