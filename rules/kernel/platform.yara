@@ -67,9 +67,12 @@ rule npm_uname : medium {
     hash_2018_OSX_Dummy_script = "ced05b1f429ade707691b04f59d7929961661963311b768d438317f4d3d82953"
     hash_2024_2021_ua_parser_js_preinstall = "62e08e4967da57e037255d2e533b7c5d7d1f1773af2a06113470c29058b5fcd0"
   strings:
-    $ref = "process.platform"
-    $ref2 = "process.arch"
-    $ref3 = "process.versions"
+    $ = "process.platform"
+    $ = "process.arch"
+    $ = "process.versions"
+    $ = "os.platform()"
+    $ = "os.arch()"
+    $ = "os.release()"
   condition:
     any of them
 }
