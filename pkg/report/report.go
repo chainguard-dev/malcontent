@@ -505,7 +505,11 @@ func upgradeRisk(ctx context.Context, riskScore int, riskCounts map[int]int, siz
 		upgrade = true
 	}
 
-	if highCount > 5 {
+	if sizeMB < 20 && highCount > 5 {
+		upgrade = true
+	}
+
+	if highCount > 6 {
 		upgrade = true
 	}
 
