@@ -1,12 +1,14 @@
 
-rule impossibly_small_elf_program {
+rule impossibly_small_elf_program : high {
+  meta:
+    description = "ELF binary is unusually small"
   condition:
     filesize < 8192 and uint32(0) == 1179403647
 }
 
-rule impossibly_small_macho_program {
+rule impossibly_small_macho_program : medium {
   meta:
-    warning = "Many false positives if Java bytecode is included"
+    description = "machO binary is unusually small"
   strings:
     $not_jar = "META-INF/"
     $not_dwarf = "_DWARF"
