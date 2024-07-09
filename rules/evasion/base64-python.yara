@@ -19,7 +19,11 @@ rule base64_python_functions : critical {
     $decode = "decode()" base64
     $b64decode = "base64.b64decode" base64
     $exc = "except Exception as" base64
+	$os_system = "os.system" base64
+	$os_popen = "os.popen" base64
     $thread = "threading.Thread" base64
+	$os_environ = "os.environ" base64
+	$with_open = "with open(" base64
   condition:
     2 of them
 }
