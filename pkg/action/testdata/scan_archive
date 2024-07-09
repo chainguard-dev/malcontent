@@ -82,6 +82,7 @@ net/upload
 net/url
 net/url/encode
 net/url/request
+persist/crontab
 process/chdir
 process/chroot
 process/find
