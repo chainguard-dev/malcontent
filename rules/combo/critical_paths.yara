@@ -7,13 +7,11 @@ rule linux_critical_system_paths_medium : medium {
     $p_tmp = /\/tmp\/[\w\/\.\-]{0,32}/
     $p_usr_bin = /\/usr\/bin[\w\/\.\-]{0,32}/
     $p_boot = /\/boot\/[\w\/\.\-]{0,32}/
-    $p_etc = /\/etc\/[\w\/\.\-]{0,32}/
     $p_proc = /\/proc\/[\w\/\.\-]{0,32}/
-    $p_sys_devices = /\/sys\/devices[\w\/\.\-]{0,32}/
-    $p_sys_class = /\/sys\/class[\w\/\.\-]{0,32}/
+    $p_sys = /\/sys\/(devices|class)[\w\/\.\-]{0,32}/
     $p_sysctl = /sysctl[ -a-z]{0,32}/
   condition:
-    75% of ($p*)
+    5 of ($p*)
 }
 
 rule linux_critical_system_paths_high : high {
@@ -24,10 +22,8 @@ rule linux_critical_system_paths_high : high {
     $p_tmp = /\/tmp\/[\w\/\.\-]{0,32}/
     $p_usr_bin = /\/usr\/bin[\w\/\.\-]{0,32}/
     $p_boot = /\/boot\/[\w\/\.\-]{0,32}/
-    $p_etc = /\/etc\/[\w\/\.\-]{0,32}/
     $p_proc = /\/proc\/[\w\/\.\-]{0,32}/
-    $p_sys_devices = /\/sys\/devices[\w\/\.\-]{0,32}/
-    $p_sys_class = /\/sys\/class[\w\/\.\-]{0,32}/
+    $p_sys = /\/sys\/(devices|class)[\w\/\.\-]{0,32}/
     $p_sysctl = /sysctl[ -a-z]{0,32}/
     $not_dirty = "/proc/sys/vm/dirty_bytes"
     $not_swappy = "/proc/sys/vm/swappiness"
@@ -39,5 +35,5 @@ rule linux_critical_system_paths_high : high {
     $not_docker = "/var/run/docker"
     $not_bpf = "/proc/sys/kernel/bpf_stats_enabled"
   condition:
-    85% of ($p*) and none of ($not*)
+    6 of ($p*) and none of ($not*)
 }
