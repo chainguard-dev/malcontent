@@ -497,16 +497,15 @@ func upgradeRisk(ctx context.Context, riskScore int, riskCounts map[int]int, siz
 		upgrade = true
 	}
 
-	if sizeMB < 10 && highCount > 3 {
+	if sizeMB < 4 && highCount > 3 {
 		upgrade = true
 	}
 
-	// bloated go binaries
-	if sizeMB < 20 && highCount > 4 {
+	if sizeMB < 10 && highCount > 4 {
 		upgrade = true
 	}
 
-	if highCount > 6 {
+	if highCount > 5 {
 		upgrade = true
 	}
 
