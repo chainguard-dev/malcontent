@@ -1,7 +1,6 @@
 rule tar_script : medium {
   meta:
-    description = "command shells out to tar"
-    hash_2023_0xShell_wesoori = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"
+    description = "script shells out to tar"
   strings:
     $a_tar_rX = /tar -r -X[\|\-\\\"\$\w\; ]{0,64}/
     $a_tar_T = /tar -T[\|\-\\\"\$\w\; ]{0,64}/
@@ -12,7 +11,7 @@ rule tar_script : medium {
 
 rule local_tar : medium {
   meta:
-    description = "command shells out to tar"
+    description = "command archives current directory"
     hash_2023_0xShell_wesoori = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"
   strings:
     $a_tar_c = /tar -c\w{0,8} \. [\|\-\\\"\$\w\; ]{0,64}/
