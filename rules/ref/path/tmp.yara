@@ -4,7 +4,7 @@ rule tmp_path : medium {
     description = "path reference within /tmp"
     hash_2023_0xShell_wesoori = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"
     hash_2019_test_sprockets_rails_test = "6c50a21a69f2bcb27a55e909f9fecd4a7bd7fc0898730d1c76e65b2a7172710b"
-    hash_2019_support_dummy_rails_integration = "b21b9b7fb250558c3340d9d8f11aab5f1c448628a703f14a21db5dbe4ec78520"
+    hash_2019_support_sample_rails_integration = "b21b9b7fb250558c3340d9d8f11aab5f1c448628a703f14a21db5dbe4ec78520"
   strings:
     $resolv = /\/tmp\/[%\w\.\-\/]{0,64}/
   condition:
