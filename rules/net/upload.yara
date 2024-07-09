@@ -13,17 +13,18 @@ rule upload : medium {
     any of them
 }
 
-rule curl_upload_command : high {
+rule curl_upload_command : medium {
   meta:
     description = "Uses curl to upload data"
     hash_2023_Qubitstrike_branch_raw_mi = "9a5f6318a395600637bd98e83d2aea787353207ed7792ec9911b775b79443dcd"
     hash_2023_Qubitstrike_mi = "9a5f6318a395600637bd98e83d2aea787353207ed7792ec9911b775b79443dcd"
     hash_2018_CookieMiner_uploadminer = "6236f77899cea6c32baf0032319353bddfecaf088d20a4b45b855a320ba41e93"
   strings:
-    $curl_upload = "url --upload-file"
-    $kinda_curl_inesecure_data = "--insecure --data"
-    $kinda_curl_k_data = "-k --data"
-    $kinda_curl_k_d = "-k -d"
+    $long_upload_file = /\w{0,1}--upload-file[ \w\$\-\=\@:\/\.\"\-]{0,128}/
+    $long_inesecure_data = /[ \w\$\-\=\@:\/\.\"\-]{0,128}--insecure --data[ \w\$\-\=\@:\/\.\"\-]{0,128}/
+	$curl = "curl" fullword
+    $mixed = /[ \w\$\-\=\@:\/\.\"\-]{0,128}-k --data[ \w\$\-\=\@:\/\.\"\-]{0,128}/
+    $short = /[ \w\$\-\=\@:\/\.\"\-]{0,128}-k -d[ \w\$\-\=\@:\/\.\"\-]{0,128}/
   condition:
-    any of them
+	any of ($long*) or $mixed or ($curl and $short)
 }
