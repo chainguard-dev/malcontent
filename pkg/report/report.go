@@ -478,7 +478,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c bincapz.C
 	return fr, nil
 }
 
-// upgradeRisk determines whether to upgrade risk based on finding density
+// upgradeRisk determines whether to upgrade risk based on finding density.
 func upgradeRisk(ctx context.Context, riskScore int, riskCounts map[int]int, size int64) bool {
 	if riskScore != 3 {
 		return false
