@@ -4,7 +4,7 @@ rule python_exec_eval_one_line : critical {
   meta:
     description = "Evaluates code from encrypted content on a single line via exec or eval"
   strings:
-    $eval_decrypt_one_line = /evan\s{0,32}\(.{0,32}decrypt/ ascii wide
+    $eval_decrypt_one_line = /eval\s{0,32}\(.{0,32}decrypt/ ascii wide
     $exec_decrypt_one_line = /exec\s{0,32}\(.{0,32}decrypt/ ascii wide
   condition:
     any of them
