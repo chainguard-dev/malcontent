@@ -7,6 +7,7 @@ rule activity_monitor_checker : high {
     $ps = "ps" fullword
     $pgrep = "pgrep" fullword
     $am = "Activity Monitor" fullword
+    $not_macos_text = "macOS Activity Monitor"
   condition:
-    $am and any of ($p*)
+    $am and any of ($p*) and none of ($not*)
 }

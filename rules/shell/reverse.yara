@@ -47,7 +47,7 @@ rule reverse_shell_ref : high {
     hash_2024_D3m0n1z3dShell_demonizedshell = "d7c34b9d711260c1cd001ca761f5df37cbe40b492f198b228916b6647b660119"
     hash_2024_locutus_borg_transwarp = "4573af129e3e1a197050e2fd066f846c92de64d8d14a81a13d975a2cbc6d391e"
   strings:
-    $ = /(r[e3]v[e3]rs[e3]|w[3e]b|cmd)\s*sh[e3]ll/ nocase
+    $ref = /(r[e3]v[e3]rs[e3]|w[3e]b)\s*sh[e3]ll/ nocase
   condition:
-    any of them
+    $ref
 }
