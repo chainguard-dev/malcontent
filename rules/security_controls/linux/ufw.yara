@@ -8,9 +8,9 @@ rule ufw : medium {
     $ref = "ufw" fullword
 
     $arg_disable = "disable" fullword
-	$arg_allow = "allow" fullword
-	$arg_deny = "deny" fullword
-	$arg_enable = "enable" fullword
+    $arg_allow = "allow" fullword
+    $arg_deny = "deny" fullword
+    $arg_enable = "enable" fullword
   condition:
     $ref and any of ($arg*)
 }
