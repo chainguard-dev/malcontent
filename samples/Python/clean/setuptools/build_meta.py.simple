@@ -2,6 +2,7 @@
 3P/threat_hunting/monkey
 admin/package/install
 data/embedded/html
+evasion/single_line_imports
 exec/program
 fd/read
 fs/directory/traverse
