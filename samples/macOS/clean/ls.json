@@ -3,6 +3,7 @@
         "macOS/clean/ls": {
             "Path": "macOS/clean/ls",
             "SHA256": "461b7ef5288c9c4b0d10aefc9ca42f7ddab9954a3f3d032e3a783e3da0c970b6",
+            "Size": 154352,
             "Meta": {
                 "format": "macho",
                 "meta": "program_name"

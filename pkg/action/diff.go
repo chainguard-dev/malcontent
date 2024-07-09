@@ -16,7 +16,7 @@ import (
 	"github.com/chainguard-dev/clog"
 )
 
-func relFileReport(ctx context.Context, c Config, fromPath string) (map[string]*bincapz.FileReport, error) {
+func relFileReport(ctx context.Context, c bincapz.Config, fromPath string) (map[string]*bincapz.FileReport, error) {
 	fromConfig := c
 	fromConfig.Renderer = nil
 	fromConfig.ScanPaths = []string{fromPath}
@@ -40,7 +40,7 @@ func relFileReport(ctx context.Context, c Config, fromPath string) (map[string]*
 	return fromRelPath, nil
 }
 
-func Diff(ctx context.Context, c Config) (*bincapz.Report, error) {
+func Diff(ctx context.Context, c bincapz.Config) (*bincapz.Report, error) {
 	if len(c.ScanPaths) != 2 {
 		return nil, fmt.Errorf("diff mode requires 2 paths, you passed in %d path(s)", len(c.ScanPaths))
 	}
@@ -68,7 +68,7 @@ func Diff(ctx context.Context, c Config) (*bincapz.Report, error) {
 	return &bincapz.Report{Diff: d}, err
 }
 
-func processSrc(ctx context.Context, c Config, src, dest map[string]*bincapz.FileReport, d *bincapz.DiffReport) {
+func processSrc(ctx context.Context, c bincapz.Config, src, dest map[string]*bincapz.FileReport, d *bincapz.DiffReport) {
 	// things that appear in the source
 	for relPath, fr := range src {
 		tr, exists := dest[relPath]
@@ -80,7 +80,7 @@ func processSrc(ctx context.Context, c Config, src, dest map[string]*bincapz.Fil
 	}
 }
 
-func handleFile(ctx context.Context, c Config, fr, tr *bincapz.FileReport, relPath string, d *bincapz.DiffReport) {
+func handleFile(ctx context.Context, c bincapz.Config, fr, tr *bincapz.FileReport, relPath string, d *bincapz.DiffReport) {
 	// We've now established that file exists in both source & destination
 	if fr.RiskScore < c.MinFileRisk && tr.RiskScore < c.MinFileRisk {
 		clog.FromContext(ctx).Info("diff does not meet min trigger level", slog.Any("path", tr.Path))
@@ -120,7 +120,7 @@ func behaviorExists(b *bincapz.Behavior, behaviors []*bincapz.Behavior) bool {
 	return false
 }
 
-func processDest(ctx context.Context, c Config, from, to map[string]*bincapz.FileReport, d *bincapz.DiffReport) {
+func processDest(ctx context.Context, c bincapz.Config, from, to map[string]*bincapz.FileReport, d *bincapz.DiffReport) {
 	// things that exist in the destination
 	for relPath, tr := range to {
 		fr, exists := from[relPath]
@@ -133,7 +133,7 @@ func processDest(ctx context.Context, c Config, from, to map[string]*bincapz.Fil
 	}
 }
 
-func fileDestination(ctx context.Context, c Config, fr, tr *bincapz.FileReport, relPath string, d *bincapz.DiffReport) {
+func fileDestination(ctx context.Context, c bincapz.Config, fr, tr *bincapz.FileReport, relPath string, d *bincapz.DiffReport) {
 	// We've now established that this file exists in both source and destination
 	if fr.RiskScore < c.MinFileRisk && tr.RiskScore < c.MinFileRisk {
 		clog.FromContext(ctx).Info("diff does not meet min trigger level", slog.Any("path", tr.Path))
@@ -158,7 +158,7 @@ func fileDestination(ctx context.Context, c Config, fr, tr *bincapz.FileReport, 
 	}
 }
 
-func inferMoves(ctx context.Context, c Config, d *bincapz.DiffReport) {
+func inferMoves(ctx context.Context, c bincapz.Config, d *bincapz.DiffReport) {
 	// Walk over the added/removed paths and infer moves based on the
 	// levenshtein distance of the file names.  If the distance is a 90+% match,
 	// then treat it as a move.
@@ -184,7 +184,7 @@ func inferMoves(ctx context.Context, c Config, d *bincapz.DiffReport) {
 	}
 }
 
-func fileMove(ctx context.Context, c Config, fr, tr *bincapz.FileReport, rpath, apath string, score float64, d *bincapz.DiffReport) {
+func fileMove(ctx context.Context, c bincapz.Config, fr, tr *bincapz.FileReport, rpath, apath string, score float64, d *bincapz.DiffReport) {
 	if fr.RiskScore < c.MinFileRisk && tr.RiskScore < c.MinFileRisk {
 		clog.FromContext(ctx).Info("diff does not meet min trigger level", slog.Any("path", tr.Path))
 		return
