@@ -6,6 +6,9 @@ private rule py_fetcher {
 		$http_requests_post = "requests.post" fullword
 		$http_urrlib = "urllib.request" fullword
 		$http_urlopen = "urlopen" fullword
+
+		$http_curl = "curl" fullword
+		$http_wget = "wget" fullword
 	condition:
 		any of ($http*)
 }
@@ -21,7 +24,7 @@ private rule py_runner {
 		any of them
 }
 
-rule py_dropper : suspicious {
+rule py_dropper : high {
   meta:
   	description = "fetch, stores, and execute programs"
   strings:
@@ -29,6 +32,18 @@ rule py_dropper : suspicious {
 	$write = "write("
   condition:
     filesize < 16384 and $open and $write and py_fetcher and py_runner
+}
+
+rule py_dropper_chmod : critical {
+  meta:
+  	description = "fetch, stores, chmods, and execute programs"
+  strings:
+	$chmod = "chmod"
+	$val_x = "+x"
+	$val_exec = "755"
+	$val_rwx = "777"
+  condition:
+    filesize < 16384 and py_fetcher and py_runner and $chmod and any of ($val*)
 }
 
 private rule pythonSetup {
