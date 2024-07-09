@@ -1,5 +1,6 @@
 # Python/2021.DiscordSafety/setup.py
 combo/backdoor/py_setuptools
+combo/stealer/browser
 databases/leveldb
 encoding/base64
 evasion/python_rename_imports

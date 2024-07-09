@@ -64,10 +64,11 @@ rule pcap_shell_exec : high {
     $y_exec = "exec" fullword
     $y_execve = "execve" fullword
     $y_execvp = "execvp" fullword
-    $y_system = "system"
+    $y_system = "system" fullword
     $not_airportd = "airportd"
+	$not_license = "Alternate form in libpcap, which also omits the IN NO EVENT paragraph"
   condition:
-    $libpcap and any of ($sh*) and any of ($y*) and none of ($not*)
+    filesize < 100MB and $libpcap and any of ($sh*) and any of ($y*) and none of ($not*)
 }
 
 rule go_pty_daemonize_net : critical {

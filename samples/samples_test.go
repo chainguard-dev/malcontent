@@ -6,6 +6,7 @@ package samples
 import (
 	"bytes"
 	"context"
+	"errors"
 	"io/fs"
 	"log/slog"
 	"os"
@@ -48,6 +49,14 @@ func TestJSON(t *testing.T) {
 		name := strings.ReplaceAll(path, ".json", "")
 		jsonPath := path
 		binPath := filepath.Join(testDataRoot, name)
+
+		// must be a non-test JSON
+		if _, err := os.Stat(binPath); err != nil {
+			if errors.Is(err, os.ErrNotExist) {
+				return nil
+			}
+			return err
+		}
 
 		t.Run(name, func(t *testing.T) {
 			td, err := fs.ReadFile(fileSystem, jsonPath)

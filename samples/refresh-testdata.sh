@@ -76,18 +76,24 @@ wait
 
 for f in $(find * -name "*.simple"); do
     prog=$(echo ${f} | sed s/\.simple$//g)
-    ${bincapz} --format=simple -o "${f}" "${prog}" &
+    if [[ -f "${prog}" ]]; then
+        ${bincapz} --format=simple -o "${f}" "${prog}" &
+    fi
 done
 wait
 
 for f in $(find * -name "*.md"); do
     prog=$(echo ${f} | sed s/\.md$//g)
-    ${bincapz} --format=markdown -o "${f}" "${prog}" &
+    if [[ -f "${prog}" ]]; then
+        ${bincapz} --format=markdown -o "${f}" "${prog}" &
+    fi
 done
 wait
 
 for f in $(find * -name "*.json"); do
     prog=$(echo ${f} | sed s/\.json$//g)
-    ${bincapz} --format=json -o "${f}" "${prog}" &
+    if [[ -f "${prog}" ]]; then
+        ${bincapz} --format=json -o "${f}" "${prog}" &
+    fi
 done
 wait

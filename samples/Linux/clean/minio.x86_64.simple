@@ -90,6 +90,7 @@ net/http/post
 net/http/request
 net/http2
 net/http_proxy
+net/icmp
 net/interface/list
 net/ip
 net/ip/multicast/send
