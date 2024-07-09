@@ -64,7 +64,7 @@ rule npm_uname : medium {
     description = "get system identification"
     ref = "https://nodejs.org/api/process.html"
     hash_2023_botbait = "1b92cb3d4b562d0eb05c3b2f998e334273ce9b491bc534d73bcd0b4952ce58d2"
-    hash_2018_OSX_Dummy_script = "ced05b1f429ade707691b04f59d7929961661963311b768d438317f4d3d82953"
+    hash_2018_OSX_sample_script = "ced05b1f429ade707691b04f59d7929961661963311b768d438317f4d3d82953"
     hash_2024_2021_ua_parser_js_preinstall = "62e08e4967da57e037255d2e533b7c5d7d1f1773af2a06113470c29058b5fcd0"
   strings:
     $ = "process.platform"
