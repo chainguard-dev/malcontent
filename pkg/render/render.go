@@ -4,21 +4,14 @@
 package render
 
 import (
-	"context"
 	"fmt"
 	"io"
 
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
 )
 
-// Renderer is a common interface for Renderers.
-type Renderer interface {
-	File(context.Context, *bincapz.FileReport) error
-	Full(context.Context, *bincapz.Report) error
-}
-
 // New returns a new Renderer.
-func New(kind string, w io.Writer) (Renderer, error) {
+func New(kind string, w io.Writer) (bincapz.Renderer, error) {
 	switch kind {
 	case "", "auto", "terminal":
 		return NewTerminal(w), nil

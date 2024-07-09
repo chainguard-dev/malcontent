@@ -1,6 +1,7 @@
 package report
 
 import (
+	"context"
 	"reflect"
 	"testing"
 )
@@ -63,38 +64,26 @@ func BenchmarkLongestUnique(b *testing.B) {
 	}
 }
 
-func TestAll(t *testing.T) {
+func TestUpgradeRisk(t *testing.T) {
 	tests := []struct {
-		name       string
-		conditions []bool
-		want       bool
+		name         string
+		currentScore int
+		riskCounts   map[int]int
+		size         int64
+		want         bool
 	}{
-		{
-			name:       "All True",
-			conditions: []bool{true, true, true, true},
-			want:       true,
-		},
-		{
-			name:       "All False",
-			conditions: []bool{false, false, false, false},
-			want:       false,
-		},
-		{
-			name:       "One True; Many False",
-			conditions: []bool{true, false, false, false},
-			want:       false,
-		},
-		{
-			name:       "Many True; One False",
-			conditions: []bool{true, true, true, false},
-			want:       false,
-		},
+		{"no risk", 0, map[int]int{}, 1024, false},
+		{"tiny-risky", 3, map[int]int{3: 2}, 310, true},
+		{"small-not", 3, map[int]int{3: 2}, 8192, false},
+		{"small-risky", 3, map[int]int{3: 3}, 8192, true},
+		{"large-not", 3, map[int]int{3: 3}, 1024 * 1024 * 1024, false},
+		{"large-yes", 3, map[int]int{3: 10}, 1024 * 1024 * 1024, true},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := all(tt.conditions...); got != tt.want {
-				t.Errorf("all() = %v, want %v", got, tt.want)
+			if got := upgradeRisk(context.Background(), tt.currentScore, tt.riskCounts, tt.size); got != tt.want {
+				t.Errorf("upgradeRisk(%d, %v, %v) = %v, want %v", tt.currentScore, tt.riskCounts, tt.size, got, tt.want)
 			}
 		})
 	}

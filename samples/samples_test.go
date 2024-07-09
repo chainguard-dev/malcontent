@@ -16,6 +16,7 @@ import (
 	"testing"
 
 	"github.com/chainguard-dev/bincapz/pkg/action"
+	"github.com/chainguard-dev/bincapz/pkg/bincapz"
 	"github.com/chainguard-dev/bincapz/pkg/compile"
 	"github.com/chainguard-dev/bincapz/pkg/render"
 	"github.com/chainguard-dev/bincapz/rules"
@@ -70,7 +71,7 @@ func TestJSON(t *testing.T) {
 			if err != nil {
 				t.Fatalf("render: %v", err)
 			}
-			bc := action.Config{
+			bc := bincapz.Config{
 				IgnoreSelf: false,
 				Renderer:   render,
 				Rules:      yrs,
@@ -134,7 +135,7 @@ func TestSimple(t *testing.T) {
 				t.Fatalf("render: %v", err)
 			}
 
-			bc := action.Config{
+			bc := bincapz.Config{
 				IgnoreSelf: false,
 				IgnoreTags: []string{"harmless"},
 				Renderer:   simple,
@@ -205,7 +206,7 @@ func TestDiff(t *testing.T) {
 				t.Fatalf("render: %v", err)
 			}
 
-			bc := action.Config{
+			bc := bincapz.Config{
 				IgnoreSelf:  false,
 				IgnoreTags:  []string{"harmless"},
 				MinFileRisk: tc.minFileScore,
@@ -280,12 +281,13 @@ func TestMarkdown(t *testing.T) {
 				t.Fatalf("render: %v", err)
 			}
 
-			bc := action.Config{
-				IgnoreSelf: false,
-				IgnoreTags: []string{"harmless"},
-				Renderer:   simple,
-				Rules:      yrs,
-				ScanPaths:  []string{binPath},
+			bc := bincapz.Config{
+				IgnoreSelf:       false,
+				IgnoreTags:       []string{"harmless"},
+				Renderer:         simple,
+				Rules:            yrs,
+				FrequencyUpgrade: true,
+				ScanPaths:        []string{binPath},
 			}
 
 			tcLogger := clog.FromContext(ctx).With("test", name)
@@ -324,7 +326,7 @@ func TestBincapzIgnored(t *testing.T) {
 	if err != nil {
 		t.Fatalf("render: %v", err)
 	}
-	bc := action.Config{
+	bc := bincapz.Config{
 		IgnoreSelf: true,
 		IgnoreTags: []string{"harmless"},
 		Renderer:   simple,

@@ -3,6 +3,37 @@
 
 package bincapz
 
+import (
+	"context"
+	"io"
+
+	"github.com/hillu/go-yara/v4"
+)
+
+// Renderer is a common interface for Renderers.
+type Renderer interface {
+	File(context.Context, *FileReport) error
+	Full(context.Context, *Report) error
+}
+
+type Config struct {
+	IgnoreSelf       bool
+	IgnoreTags       []string
+	IncludeDataFiles bool
+	FrequencyUpgrade bool
+	MinFileRisk      int
+	MinRisk          int
+	OCI              bool
+	OmitEmpty        bool
+	Output           io.Writer
+	Renderer         Renderer
+	Rules            *yara.Rules
+	ScanPaths        []string
+	Stats            bool
+	ErrFirstMiss     bool
+	ErrFirstHit      bool
+}
+
 type Behavior struct {
 	Description string `json:",omitempty" yaml:",omitempty"`
 	// MatchStrings are all strings found relating to this behavior
@@ -29,6 +60,7 @@ type Behavior struct {
 type FileReport struct {
 	Path   string
 	SHA256 string
+	Size   int64
 	// compiler -> x
 	Error             string            `json:",omitempty" yaml:",omitempty"`
 	Skipped           string            `json:",omitempty" yaml:",omitempty"`

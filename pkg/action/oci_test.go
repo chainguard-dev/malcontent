@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/chainguard-dev/bincapz/pkg/bincapz"
 	"github.com/chainguard-dev/bincapz/pkg/compile"
 	"github.com/chainguard-dev/bincapz/pkg/render"
 	"github.com/chainguard-dev/bincapz/rules"
@@ -45,7 +46,7 @@ func TestOCI(t *testing.T) {
 		t.Fatalf("oci: %v", err)
 	}
 
-	bc := Config{
+	bc := bincapz.Config{
 		IgnoreSelf: false,
 		IgnoreTags: []string{"harmless"},
 		Renderer:   simple,

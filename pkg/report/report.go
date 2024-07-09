@@ -253,19 +253,27 @@ func matchStrings(ruleName string, ms []yara.MatchString) []string {
 	return longestUnique(raw)
 }
 
-func pathChecksum(path string) (string, error) {
+func sizeAndChecksum(path string) (int64, string, error) {
+	s, err := os.Stat(path)
+	if err != nil {
+		return -1, "", err
+	}
+
+	size := s.Size()
+
 	f, err := os.Open(path)
 	if err != nil {
-		return fmt.Sprintf("err-%v", err), nil
+		return size, "", err
 	}
+
 	defer f.Close()
 
 	h := sha256.New()
 	if _, err := io.Copy(h, f); err != nil {
-		return "", err
+		return size, "", err
 	}
 
-	return fmt.Sprintf("%x", h.Sum(nil)), nil
+	return size, fmt.Sprintf("%x", h.Sum(nil)), nil
 }
 
 // fixURL fixes badly formed URLs.
@@ -286,20 +294,25 @@ func mungeDescription(s string) string {
 }
 
 //nolint:cyclop // ignore complexity of 44
-func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags []string, minScore int, ignoreSelf bool) (bincapz.FileReport, error) {
+func Generate(ctx context.Context, path string, mrs yara.MatchRules, c bincapz.Config) (bincapz.FileReport, error) {
+	ignoreTags := c.IgnoreTags
+	minScore := c.MinRisk
+	ignoreSelf := c.IgnoreSelf
+
 	ignore := map[string]bool{}
 	for _, t := range ignoreTags {
 		ignore[t] = true
 	}
 
-	ptCheck, err := pathChecksum(path)
+	size, checksum, err := sizeAndChecksum(path)
 	if err != nil {
 		return bincapz.FileReport{}, err
 	}
 
 	fr := bincapz.FileReport{
 		Path:      path,
-		SHA256:    ptCheck,
+		SHA256:    checksum,
+		Size:      size,
 		Meta:      map[string]string{},
 		Behaviors: []*bincapz.Behavior{},
 	}
@@ -449,7 +462,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 	}
 
 	// If something has a lot of high, it's probably critical
-	if riskCounts[3] >= 4 {
+	if c.FrequencyUpgrade && upgradeRisk(ctx, overallRiskScore, riskCounts, size) {
 		overallRiskScore = 4
 	}
 
@@ -463,6 +476,47 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, ignoreTags 
 	fr.RiskLevel = RiskLevels[fr.RiskScore]
 
 	return fr, nil
+}
+
+// upgradeRisk determines whether to upgrade risk based on finding density
+func upgradeRisk(ctx context.Context, riskScore int, riskCounts map[int]int, size int64) bool {
+	if riskScore != 3 {
+		return false
+	}
+	highCount := riskCounts[3]
+	sizeMB := size / 1024 / 1024
+	upgrade := false
+
+	// small scripts, tiny ELF binaries
+	if size < 1024 && highCount > 1 {
+		upgrade = true
+	}
+
+	// include most UPX binaries
+	if sizeMB < 2 && highCount > 2 {
+		upgrade = true
+	}
+
+	if sizeMB < 10 && highCount > 3 {
+		upgrade = true
+	}
+
+	// bloated go binaries
+	if sizeMB < 20 && highCount > 4 {
+		upgrade = true
+	}
+
+	if highCount > 6 {
+		upgrade = true
+	}
+
+	if !upgrade {
+		return false
+	}
+
+	clog.DebugContextf(ctx, "upgrading risk: high=%d, size=%d", highCount, size)
+
+	return upgrade
 }
 
 // all returns a single boolean based on a slice of booleans.
