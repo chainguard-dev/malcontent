@@ -24,7 +24,6 @@ type Config struct {
 	MinFileRisk           int
 	MinRisk               int
 	OCI                   bool
-	OmitEmpty             bool
 	Output                io.Writer
 	Renderer              Renderer
 	Rules                 *yara.Rules

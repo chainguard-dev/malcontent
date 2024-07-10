@@ -69,7 +69,6 @@ func main() {
 	errFirstMissFlag := flag.Bool("err-first-miss", false, "exit with error if scan source has no matching capabilities")
 	errFirstHitFlag := flag.Bool("err-first-hit", false, "exit with error if scan source has matching capabilities")
 	ociFlag := flag.Bool("oci", false, "Scan an OCI image")
-	omitEmptyFlag := flag.Bool("omit-empty", false, "Omit files that contain no matches")
 	quantityIncreasesRiskFlag := flag.Bool("quantity-increases-risk", true, "increase file risk score based on behavior quantity")
 	profileFlag := flag.Bool("profile", false, "Generate profile and trace files")
 	statsFlag := flag.Bool("stats", false, "Show statistics about the scan")
@@ -187,7 +186,6 @@ func main() {
 		MinRisk:               minRisk,
 		QuantityIncreasesFisk: *quantityIncreasesRiskFlag,
 		OCI:                   *ociFlag,
-		OmitEmpty:             *omitEmptyFlag,
 		Renderer:              renderer,
 		Rules:                 yrs,
 		ScanPaths:             args,
