@@ -1,7 +1,7 @@
 
 rule proc_self_cmdline : medium {
   meta:
-    description = "Gets the command-line associated to this process"
+    description = "gets process command-line"
     pledge = "stdio"
     hash_2024_Downloads_8cad = "8cad755bcf420135c0f406fb92138dcb0c1602bf72c15ed725bd3b76062dafe5"
     hash_2023_Linux_Malware_Samples_139b = "139b09543494ead859b857961d230a39b9f4fc730f81cf8445b6d83bacf67f3d"
