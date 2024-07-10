@@ -1,0 +1,9 @@
+# Linux/clean/libpam.so.0
+dylib/symbol/address
+kernel/acct
+process/groups/set
+process/userid/set
+process/username/get
+ref/path/etc
+ref/words/password
+tty/pathname

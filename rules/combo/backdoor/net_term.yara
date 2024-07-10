@@ -65,7 +65,7 @@ rule spectralblur_alike : high {
     $unlink = "_unlink"
     $uname = "_uname"
   condition:
-    all of them
+    filesize < 200KB and all of them
 }
 
 rule miner_kvryr_stak_alike : high {
@@ -76,12 +76,14 @@ rule miner_kvryr_stak_alike : high {
     hash_2023_Linux_Malware_Samples_39c3 = "39c33c261899f2cb91f686aa6da234175237cd72cfcd9291a6e51cbdc86d4def"
   strings:
     $upload = "upload"
-    $shell = "shell"
+    $shell = "shell" fullword
+	$bin_sh = "/bin/"
     $tcsetattr = "tcsetattr"
+	$termios = "termios" fullword
     $execve = "execve"
     $numa = "NUMA"
   condition:
-    filesize < 67108864 and all of them
+    filesize < 12MB and all of them
 }
 
 rule proxy_http_aes_terminal_combo : medium {

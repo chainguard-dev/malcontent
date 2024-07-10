@@ -1,17 +1,31 @@
 
 rule iptables : medium {
   meta:
-    description = "interacts with the iptables/nftables firewall"
+    description = "interacts with the iptables firewall"
     ref = "https://www.netfilter.org/projects/iptables/"
     hash_2023_0xShell_wesoori = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"
     hash_2023_Downloads_6e35 = "6e35b5670953b6ab15e3eb062b8a594d58936dd93ca382bbb3ebdbf076a1f83b"
     hash_2024_Downloads_8907 = "89073097e72070cc7cc73c178447b70e07b603ccecfe406fe92fe9eafaae830f"
   strings:
     $ref = "iptables" fullword
+  condition:
+    any of them
+}
+
+
+rule nftables : medium {
+  meta:
+    description = "interacts with the nftables firewall"
+    ref = "https://www.netfilter.org/projects/iptables/"
+    hash_2023_0xShell_wesoori = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"
+    hash_2023_Downloads_6e35 = "6e35b5670953b6ab15e3eb062b8a594d58936dd93ca382bbb3ebdbf076a1f83b"
+    hash_2024_Downloads_8907 = "89073097e72070cc7cc73c178447b70e07b603ccecfe406fe92fe9eafaae830f"
+  strings:
     $ref2 = "nftables" fullword
   condition:
     any of them
 }
+
 
 rule iptables_disable : critical {
   meta:

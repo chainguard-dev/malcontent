@@ -1,0 +1,4 @@
+# Linux/clean/pam_lastlog.so
+kernel/acct
+ref/path/var
+ref/path/var/log
