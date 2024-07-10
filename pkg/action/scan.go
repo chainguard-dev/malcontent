@@ -103,7 +103,7 @@ func scanSinglePath(ctx context.Context, c bincapz.Config, yrs *yara.Rules, path
 	}
 
 	if len(fr.Behaviors) == 0 {
-		return nil, nil
+		return &bincapz.FileReport{Path: path}, nil
 	}
 
 	return &fr, nil
