@@ -8,10 +8,16 @@ rule pam_passwords : high {
   strings:
     $auth = "pam_authenticate"
     $pass = "password"
-    $f_open = "open"
-    $f_fopen = "fopen"
     $f_socket = "socket"
     $f_exfil = "exfil"
+	$f_orig_item = "orig_pam_set_item"
+	$f_orig_auth = "orig_pam_authenticate"
+	$f_fchmod = "fchmod" fullword
+	$f_getifaddrs = "getifaddrs" fullword
+	$f_keylogger = "keylogger"
+	$f_tmp = "/tmp/"
+	$f_ssh = "/bin/ssh"
+	$f_sendto = "sendto" fullword
   condition:
     $auth and $pass and any of ($f*)
 }
