@@ -91,11 +91,13 @@ func ShortRisk(s string) string {
 }
 
 func (r Terminal) File(ctx context.Context, fr *bincapz.FileReport) error {
-	renderTable(ctx, fr, r.w,
-		tableConfig{
-			Title: fmt.Sprintf("%s %s", fr.Path, darkBrackets(decorativeRisk(fr.RiskScore, fr.RiskLevel))),
-		},
-	)
+	if len(fr.Behaviors) != 0 {
+		renderTable(ctx, fr, r.w,
+			tableConfig{
+				Title: fmt.Sprintf("%s %s", fr.Path, darkBrackets(decorativeRisk(fr.RiskScore, fr.RiskLevel))),
+			},
+		)
+	}
 	return nil
 }
 

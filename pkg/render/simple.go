@@ -25,7 +25,7 @@ func (r Simple) File(_ context.Context, fr *bincapz.FileReport) error {
 		return nil
 	}
 
-	if fr.Behaviors != nil {
+	if len(fr.Behaviors) != 0 {
 		fmt.Fprintf(r.w, "# %s\n", fr.Path)
 	}
 
@@ -63,7 +63,7 @@ func (r Simple) Full(_ context.Context, rep *bincapz.Report) error {
 		}
 	}
 
-	for f, fr := range rep.Diff.Removed {
+	for f, fr := range rep.Diff.Added {
 		fmt.Fprintf(r.w, "++++ added: %s\n", f)
 
 		var bs []*bincapz.Behavior
