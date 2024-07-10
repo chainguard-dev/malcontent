@@ -1,0 +1,23 @@
+# Linux/2022.Symbiote/kerneldev.so.bkp
+3P/threat_hunting/keylogger
+combo/stealer/pam
+dylib/symbol/address
+evasion/process/hide
+fs/link/read
+fs/permission/modify
+kernel/platform
+net/interface/list
+net/ip/byte/order
+net/ip/parse
+net/socket/receive
+net/socket/send
+procfs/arbitrary/pid
+procfs/pid/status
+procfs/self/cmdline
+procfs/self/exe
+ref/ip/dns_resolver
+ref/path/tmp
+ref/path/usr/bin
+ref/program/ancient_gcc
+ref/words/password
+security_controls/linux/pam
