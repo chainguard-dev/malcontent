@@ -1,5 +1,5 @@
 
-rule reverse_shell : critical {
+rule reverse_shell : high {
   meta:
     hash_2023_UPX_0c25a05bdddc144fbf1ffa29372481b50ec6464592fdfb7dec95d9e1c6101d0d_elf_x86_64 = "818b80a08418f3bb4628edd4d766e4de138a58f409a89a5fdba527bab8808dd2"
     hash_2023_OK_ad69 = "ad69e198905a8d4a4e5c31ca8a3298a0a5d761740a5392d2abb5d6d2e966822f"
@@ -8,7 +8,7 @@ rule reverse_shell : critical {
     $bash_dev_tcp = "bash -i >& /dev/tcp/"
     $stdin_redir = "0>&1" fullword
     $reverse_shell = "reverse_shell"
-    $reverse_space_shell = "reverse shell" nocase
+    $reverse_space_shell = "reverse shell" nocase fullword
     $revshell = "revshell"
   condition:
     any of them
@@ -48,6 +48,8 @@ rule reverse_shell_ref : high {
     hash_2024_locutus_borg_transwarp = "4573af129e3e1a197050e2fd066f846c92de64d8d14a81a13d975a2cbc6d391e"
   strings:
     $ref = /(r[e3]v[e3]rs[e3]|w[3e]b)\s*sh[e3]ll/ nocase
+    $not_ref_1 = "reverse shellConf"
+    $not_ref_2 = "reverse shellshare"
   condition:
-    $ref
+    $ref and none of ($not_*)
 }
