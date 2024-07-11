@@ -102,8 +102,8 @@ func scanSinglePath(ctx context.Context, c bincapz.Config, yrs *yara.Rules, path
 		fr.Path = fmt.Sprintf("%s ∴ %s", absPath, formatPath(cleanPath))
 	}
 
-	if len(fr.Behaviors) == 0 && c.OmitEmpty {
-		return nil, nil
+	if len(fr.Behaviors) == 0 {
+		return &bincapz.FileReport{Path: path}, nil
 	}
 
 	return &fr, nil
@@ -296,13 +296,14 @@ func processFile(ctx context.Context, c bincapz.Config, yrs *yara.Rules, path st
 		logger.Errorf("scan path: %v", err)
 		return nil, nil
 	}
-	if fr.Error != "" {
-		logger.Debugf("scan error: %s", fr.Error)
-		return nil, nil
-	}
 
 	if fr == nil {
 		logger.Infof("%s returned nil result", path)
+		return nil, nil
+	}
+
+	if fr.Error != "" {
+		logger.Errorf("scan error: %s", fr.Error)
 		return nil, nil
 	}
 
