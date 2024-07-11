@@ -12,7 +12,6 @@ combo/backdoor/iptables
 combo/critical_paths
 combo/dropper/shell
 combo/net/host_port
-combo/stealer/browser
 compression/bzip2
 compression/gzip
 compression/zstd
