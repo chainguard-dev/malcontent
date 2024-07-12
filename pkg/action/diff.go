@@ -162,7 +162,7 @@ type diffReports struct {
 	RemovedFR *bincapz.FileReport
 }
 
-// combineReports builds a map of added and removed paths and their respective file reports.
+// combineReports builds a flattened slice of added and removed paths and their respective file reports.
 func combineReports(d *bincapz.DiffReport) []diffReports {
 	diffs := make(chan diffReports)
 	var wg sync.WaitGroup
