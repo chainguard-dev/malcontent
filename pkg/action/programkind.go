@@ -4,6 +4,7 @@
 package action
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -88,13 +89,21 @@ func programKind(ctx context.Context, path string) string {
 		headerString = string(header[:n])
 	}
 
-	// Handle invalid files
-	// e.g., invalid .gz/.tar files that are actually data files with corrupt headers
-	if kind == nil {
-		return ""
-	}
-
 	if found, kind := byExtension(path); found {
+		// if we get a map hit, check if we're looking at an archive and that it has a common archive header
+		if _, ok := archiveMap[getExt(path)]; ok {
+			h := header[:n]
+			switch {
+			case bytes.HasPrefix(h, []byte("PK\x03\x04")) ||
+				bytes.HasPrefix(h, []byte("\x1F\x8B\x08")) ||
+				bytes.HasPrefix(h, []byte{0x75, 0x73, 0x74, 0x61, 0x72}) ||
+				bytes.HasPrefix(h, []byte("\xFD7zXZ\x00")) ||
+				bytes.HasPrefix(h, []byte("ustar")):
+				return kind
+			default:
+				return ""
+			}
+		}
 		return kind
 	}
 
