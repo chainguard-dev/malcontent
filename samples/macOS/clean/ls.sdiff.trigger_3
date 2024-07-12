@@ -1,5 +1,0 @@
-*** changed: macOS/clean/ls
-+fs/directory/traverse
--kernel/hostname/get
--process/name/set
--ref/site/url

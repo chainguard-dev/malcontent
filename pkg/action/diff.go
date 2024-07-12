@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log/slog"
 	"math"
+	"path/filepath"
 	"sync"
 
 	"github.com/agext/levenshtein"
@@ -28,7 +29,11 @@ func relFileReport(ctx context.Context, c bincapz.Config, fromPath string) (map[
 		if f.Skipped != "" || f.Error != "" {
 			continue
 		}
-		fromRelPath[fromPath] = f
+		rel, err := filepath.Rel(fromPath, f.Path)
+		if err != nil {
+			return nil, fmt.Errorf("rel(%q,%q): %w", fromPath, f.Path, err)
+		}
+		fromRelPath[rel] = f
 	}
 
 	return fromRelPath, nil

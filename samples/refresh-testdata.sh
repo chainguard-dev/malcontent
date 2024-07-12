@@ -74,9 +74,9 @@ ${bincapz} --format=simple \
 
 ${bincapz} --format=simple \
     --diff \
-    -o Linux/aws-c-io/aws-c-io.sdiff \
-    Linux/aws-c-io/src/aws-c-io-0.14.10-r0.spdx.json \
-    Linux/aws-c-io/dest/aws-c-io-0.14.11-r0.spdx.json &
+    -o Linux/clean/aws-c-io/aws-c-io.sdiff \
+    Linux/clean/aws-c-io/aws-c-io-0.14.10-r0.spdx.json \
+    Linux/clean/aws-c-io/aws-c-io-0.14.11-r0.spdx.json &
 wait
 
 for f in $(find * -name "*.simple"); do

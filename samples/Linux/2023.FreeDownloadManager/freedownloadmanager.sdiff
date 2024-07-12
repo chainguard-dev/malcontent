@@ -1,4 +1,4 @@
->>> moved: Linux/2023.FreeDownloadManager/freedownloadmanager_clear_postinst -> Linux/2023.FreeDownloadManager/freedownloadmanager_infected_postinst (score: 0.938235)
+*** changed: Linux/2023.FreeDownloadManager/freedownloadmanager_infected_postinst
 +3P/threat_hunting/touch
 +data/embedded/base64/terms
 +data/embedded/base64/url
