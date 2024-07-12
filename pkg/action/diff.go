@@ -15,11 +15,6 @@ import (
 	"github.com/chainguard-dev/clog"
 )
 
-var moveExts = map[string]bool{
-	".json": true,
-	".so":   true,
-}
-
 func relFileReport(ctx context.Context, c bincapz.Config, fromPath string) (map[string]*bincapz.FileReport, error) {
 	fromConfig := c
 	fromConfig.Renderer = nil
@@ -167,9 +162,9 @@ type diffReports struct {
 	RemovedFR *bincapz.FileReport
 }
 
-// combineReports builds a map of added and removed paths and their respective file reports
+// combineReports builds a map of added and removed paths and their respective file reports.
 func combineReports(d *bincapz.DiffReport) []diffReports {
-	var diffs = make(chan diffReports)
+	diffs := make(chan diffReports)
 	var wg sync.WaitGroup
 
 	for rpath, rfr := range d.Removed {
@@ -180,8 +175,8 @@ func combineReports(d *bincapz.DiffReport) []diffReports {
 				diffs <- diffReports{
 					Added:     apath,
 					AddedFR:   afr,
-					Removed:   rpath,
-					RemovedFR: rfr,
+					Removed:   path,
+					RemovedFR: fr,
 				}
 			}
 		}(rpath, rfr)
