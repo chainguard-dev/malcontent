@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -140,12 +141,12 @@ func extractZip(ctx context.Context, d string, f string) error {
 	// Check if the file is valid
 	_, err := os.Stat(f)
 	if err != nil {
-		return fmt.Errorf("failed to stat file: %w", err)
+		return fmt.Errorf("failed to stat file %s: %w", f, err)
 	}
 
 	read, err := zip.OpenReader(f)
 	if err != nil {
-		return fmt.Errorf("failed to open zip file: %w", err)
+		return fmt.Errorf("failed to open zip file %s: %w", f, err)
 	}
 	defer read.Close()
 
@@ -257,17 +258,46 @@ func extractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to read directory: %w", err)
 	}
-
 	for _, file := range files {
-		extractedFiles[filepath.Base(file.Name())] = false
+		extractedFiles[filepath.Join(tmpDir, file.Name())] = false
 	}
 
 	for file := range extractedFiles {
 		ext := getExt(file)
-		if _, ok := archiveMap[ext]; ok {
-			if err := extractNestedArchive(ctx, tmpDir, file, extractedFiles); err != nil {
-				return "", fmt.Errorf("extract nested archive: %w", err)
+		info, err := os.Stat(file)
+		if err != nil {
+			return "", fmt.Errorf("failed to stat file: %w", err)
+		}
+		switch mode := info.Mode(); {
+		case mode.IsDir():
+			err = filepath.WalkDir(file, func(path string, d fs.DirEntry, err error) error {
+				if err != nil {
+					return err
+				}
+				rel, err := filepath.Rel(tmpDir, path)
+				if err != nil {
+					return fmt.Errorf("filepath.Rel: %w", err)
+				}
+				if !d.IsDir() {
+					if err := extractNestedArchive(ctx, tmpDir, rel, extractedFiles); err != nil {
+						return fmt.Errorf("extract nested archive: %w", err)
+					}
+				}
+
+				return nil
+			})
+			return tmpDir, err
+		case mode.IsRegular():
+			if _, ok := archiveMap[ext]; ok {
+				rel, err := filepath.Rel(tmpDir, file)
+				if err != nil {
+					return "", fmt.Errorf("filepath.Rel: %w", err)
+				}
+				if err := extractNestedArchive(ctx, tmpDir, rel, extractedFiles); err != nil {
+					return "", fmt.Errorf("extract nested archive: %w", err)
+				}
 			}
+			return tmpDir, nil
 		}
 	}
 
