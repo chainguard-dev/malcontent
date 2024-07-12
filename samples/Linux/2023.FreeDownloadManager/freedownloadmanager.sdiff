@@ -1,7 +1,17 @@
-*** changed: Linux/2023.FreeDownloadManager/freedownloadmanager_infected_postinst
+--- missing: Linux/2023.FreeDownloadManager/freedownloadmanager_clear_postinst
+-admin/add_apt_key
+-data/embedded/pgp/key
+-net/download
+-ref/path/etc
+-ref/path/usr/bin
+-ref/site/url
+-shell/ignore_output
+++++ added: Linux/2023.FreeDownloadManager/freedownloadmanager_infected_postinst
 +3P/threat_hunting/touch
++admin/add_apt_key
 +data/embedded/base64/terms
 +data/embedded/base64/url
++data/embedded/pgp/key
 +encoding/base64
 +evasion/base64/eval
 +evasion/base64/external/decoder
@@ -12,9 +22,14 @@
 +fs/file/make_executable
 +fs/file/times/set
 +fs/permission/modify
++net/download
 +persist/crontab
 +persist/echo_crontab
++ref/path/etc
 +ref/path/tmp
++ref/path/usr/bin
 +ref/path/var
 +ref/path/var/tmp
++ref/site/url
 +shell/exec
++shell/ignore_output

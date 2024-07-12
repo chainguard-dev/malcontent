@@ -7,14 +7,18 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"path"
 	"path/filepath"
-	"strings"
+	"regexp"
 
 	"github.com/agext/levenshtein"
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
 	"github.com/chainguard-dev/clog"
 )
+
+var moveExts = map[string]bool{
+	".json": true,
+	".so":   true,
+}
 
 func relFileReport(ctx context.Context, c bincapz.Config, fromPath string) (map[string]*bincapz.FileReport, error) {
 	fromConfig := c
@@ -30,11 +34,15 @@ func relFileReport(ctx context.Context, c bincapz.Config, fromPath string) (map[
 			continue
 		}
 
-		rel, err := filepath.Rel(fromPath, f.Path)
-		if err != nil {
-			return nil, fmt.Errorf("rel(%q,%q): %w", fromPath, f.Path, err)
+		path := fromPath
+		if fromPath != f.Path {
+			path, err = filepath.Rel(fromPath, f.Path)
+			if err != nil {
+				return nil, fmt.Errorf("rel(%q,%q): %w", fromPath, f.Path, err)
+			}
 		}
-		fromRelPath[rel] = f
+
+		fromRelPath[path] = f
 	}
 
 	return fromRelPath, nil
@@ -162,15 +170,22 @@ func inferMoves(ctx context.Context, c bincapz.Config, d *bincapz.DiffReport) {
 	// Walk over the added/removed paths and infer moves based on the
 	// levenshtein distance of the file names.  If the distance is a 90+% match,
 	// then treat it as a move.
+
 	for rpath, fr := range d.Removed {
-		// We only want to consider files that look like shared objects because Match() is slow and this is ~quadratic.
-		if !strings.Contains(path.Base(rpath), ".so.") {
+		rext := getExt(rpath)
+		_, validExt := moveExts[rext]
+
+		if !validExt || !regexp.MustCompile(`\d`).MatchString(filepath.Base(rpath)) {
 			continue
 		}
 
+		// check if the filename contains numbers (versions)
+
 		for apath, tr := range d.Added {
-			// See above.
-			if !strings.Contains(path.Base(apath), ".so.") {
+			aext := getExt(apath)
+			_, validExt := moveExts[aext]
+
+			if !validExt || !regexp.MustCompile(`\d`).MatchString(filepath.Base(apath)) {
 				continue
 			}
 

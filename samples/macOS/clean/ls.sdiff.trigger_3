@@ -1,0 +1,10 @@
+--- missing: Linux/clean/ls.x86_64
+-env/TERM
+-fs/link/read
+-kernel/hostname/get
+-process/name/set
+-ref/site/url
+++++ added: macOS/clean/ls
++env/TERM
++fs/directory/traverse
++fs/link/read
