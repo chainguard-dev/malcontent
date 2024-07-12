@@ -179,8 +179,6 @@ func inferMoves(ctx context.Context, c bincapz.Config, d *bincapz.DiffReport) {
 			continue
 		}
 
-		// check if the filename contains numbers (versions)
-
 		for apath, tr := range d.Added {
 			aext := getExt(apath)
 			_, validExt := moveExts[aext]
