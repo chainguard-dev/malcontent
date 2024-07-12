@@ -72,6 +72,12 @@ ${bincapz} --format=simple \
     Linux/2023.FreeDownloadManager/freedownloadmanager_clear_postinst \
     Linux/2023.FreeDownloadManager/freedownloadmanager_infected_postinst &
 
+${bincapz} --format=simple \
+    --diff \
+    -o Linux/clean/aws-c-io/aws-c-io.sdiff \
+    Linux/clean/aws-c-io/aws-c-io-0.14.10-r0.spdx.json \
+    Linux/clean/aws-c-io/aws-c-io-0.14.11-r0.spdx.json &
+
 wait
 
 for f in $(find * -name "*.simple"); do
