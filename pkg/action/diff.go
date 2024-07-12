@@ -7,8 +7,8 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"path/filepath"
-	"regexp"
+	"math"
+	"sync"
 
 	"github.com/agext/levenshtein"
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
@@ -33,13 +33,7 @@ func relFileReport(ctx context.Context, c bincapz.Config, fromPath string) (map[
 		if f.Skipped != "" || f.Error != "" {
 			continue
 		}
-
-		rel, err := filepath.Rel(fromPath, f.Path)
-		if err != nil {
-			return nil, fmt.Errorf("rel(%q,%q): %w", fromPath, f.Path, err)
-		}
-
-		fromRelPath[rel] = f
+		fromRelPath[fromPath] = f
 	}
 
 	return fromRelPath, nil
@@ -68,8 +62,10 @@ func Diff(ctx context.Context, c bincapz.Config) (*bincapz.Report, error) {
 
 	processSrc(ctx, c, src, dest, d)
 	processDest(ctx, c, src, dest, d)
-	inferMoves(ctx, c, d)
-
+	// skip inferring moves if added and removed are empty
+	if d.Added != nil && d.Removed != nil {
+		inferMoves(ctx, c, d)
+	}
 	return &bincapz.Report{Diff: d}, err
 }
 
@@ -108,6 +104,7 @@ func handleFile(ctx context.Context, c bincapz.Config, fr, tr *bincapz.FileRepor
 func createFileReport(tr, fr *bincapz.FileReport) *bincapz.FileReport {
 	return &bincapz.FileReport{
 		Path:              tr.Path,
+		PreviousRelPath:   fr.Path,
 		Behaviors:         []*bincapz.Behavior{},
 		PreviousRiskScore: fr.RiskScore,
 		PreviousRiskLevel: fr.RiskLevel,
@@ -163,39 +160,56 @@ func fileDestination(ctx context.Context, c bincapz.Config, fr, tr *bincapz.File
 	}
 }
 
+type diffReports struct {
+	Removed   string
+	Added     string
+	RemovedFR *bincapz.FileReport
+	AddedFR   *bincapz.FileReport
+}
+
+// removedAdded builds a map of added and removed paths
+func combineReports(d *bincapz.DiffReport) []diffReports {
+	var diffs = make(chan diffReports)
+	var wg sync.WaitGroup
+
+	for rpath, rfr := range d.Removed {
+		wg.Add(1)
+		go func(path string, fr *bincapz.FileReport) {
+			defer wg.Done()
+			for apath, afr := range d.Added {
+				diffs <- diffReports{
+					Added:     apath,
+					AddedFR:   afr,
+					Removed:   rpath,
+					RemovedFR: rfr,
+				}
+			}
+		}(rpath, rfr)
+	}
+	go func() {
+		wg.Wait()
+		close(diffs)
+	}()
+
+	var reports []diffReports
+	for diff := range diffs {
+		reports = append(reports, diff)
+	}
+	return reports
+}
+
 func inferMoves(ctx context.Context, c bincapz.Config, d *bincapz.DiffReport) {
-	// Walk over the added/removed paths and infer moves based on the
-	// levenshtein distance of the file names.  If the distance is a 90+% match,
-	// then treat it as a move.
+	flattenedDiffs := combineReports(d)
 
-	for rpath, fr := range d.Removed {
-		rext := getExt(rpath)
-		_, validExt := moveExts[rext]
-
-		if !validExt || !regexp.MustCompile(`\d`).MatchString(filepath.Base(rpath)) {
-			continue
-		}
-
-		for apath, tr := range d.Added {
-			aext := getExt(apath)
-			_, validExt := moveExts[aext]
-
-			if !validExt || !regexp.MustCompile(`\d`).MatchString(filepath.Base(apath)) {
-				continue
-			}
-
-			score := levenshtein.Match(rpath, apath, levenshtein.NewParams())
-			if score < 0.9 {
-				continue
-			}
-
-			fileMove(ctx, c, fr, tr, rpath, apath, score, d)
-		}
+	for _, fd := range flattenedDiffs {
+		score := levenshtein.Match(fd.Removed, fd.Added, levenshtein.NewParams())
+		fileMove(ctx, c, fd.RemovedFR, fd.AddedFR, fd.Removed, fd.Added, score, d)
 	}
 }
 
 func fileMove(ctx context.Context, c bincapz.Config, fr, tr *bincapz.FileReport, rpath, apath string, score float64, d *bincapz.DiffReport) {
-	if fr.RiskScore < c.MinFileRisk && tr.RiskScore < c.MinFileRisk {
+	minRisk := int(math.Min(float64(c.MinRisk), float64(c.MinFileRisk)))
+	if fr.RiskScore < minRisk && tr.RiskScore < minRisk {
 		clog.FromContext(ctx).Info("diff does not meet min trigger level", slog.Any("path", tr.Path))
 		return
 	}
@@ -230,8 +244,10 @@ func fileMove(ctx context.Context, c bincapz.Config, fr, tr *bincapz.FileReport,
 		}
 	}
 
-	// Move these into the modified list.
-	d.Modified[apath] = abs
-	delete(d.Removed, rpath)
-	delete(d.Added, apath)
+	// Move these into the modified list if the files are not completely different (something like ~0.3)
+	if score > 0.3 {
+		d.Modified[apath] = abs
+		delete(d.Removed, rpath)
+		delete(d.Added, apath)
+	}
 }

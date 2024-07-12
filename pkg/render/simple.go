@@ -79,7 +79,7 @@ func (r Simple) Full(_ context.Context, rep *bincapz.Report) error {
 	}
 
 	for _, fr := range rep.Diff.Modified {
-		if fr.PreviousRelPath != "" {
+		if fr.PreviousRelPath != "" && fr.PreviousRelPathScore >= 0.9 {
 			fmt.Fprintf(r.w, ">>> moved: %s -> %s (score: %f)\n", fr.PreviousRelPath, fr.Path, fr.PreviousRelPathScore)
 		} else {
 			fmt.Fprintf(r.w, "*** changed: %s\n", fr.Path)

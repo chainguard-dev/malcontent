@@ -1,4 +1,4 @@
-*** changed: Linux/2024.sbcl.market/sbcl.dirty
+>>> moved: Linux/2024.sbcl.market/sbcl.clean -> Linux/2024.sbcl.market/sbcl.dirty (score: 0.909091)
 +data/embedded/zstd
 +evasion/packer/high_entropy
 +net/dns/txt
