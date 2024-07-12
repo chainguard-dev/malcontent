@@ -161,10 +161,10 @@ func fileDestination(ctx context.Context, c bincapz.Config, fr, tr *bincapz.File
 }
 
 type diffReports struct {
-	Removed   string
 	Added     string
-	RemovedFR *bincapz.FileReport
 	AddedFR   *bincapz.FileReport
+	Removed   string
+	RemovedFR *bincapz.FileReport
 }
 
 // combineReports builds a map of added and removed paths and their respective file reports
