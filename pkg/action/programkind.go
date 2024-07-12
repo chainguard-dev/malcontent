@@ -67,7 +67,7 @@ var extMap = map[string]string{
 
 // programKind tries to identify if a path is a program.
 func programKind(ctx context.Context, path string) string {
-	var header [263]byte
+	var header [1024]byte
 	logger := clog.FromContext(ctx).With("path", path)
 	f, err := os.Open(path)
 	if err != nil {
@@ -78,21 +78,28 @@ func programKind(ctx context.Context, path string) string {
 
 	desc := ""
 	headerString := ""
+	var kind *magic.FileType
 	n, err := io.ReadFull(f, header[:])
 	if err == nil || errors.Is(err, io.ErrUnexpectedEOF) {
-		kind, err := magic.Lookup(header[:n])
-		if err == nil {
+		kind, err = magic.Lookup(header[:n])
+		if kind != nil && err == nil {
 			desc = kind.Description
 		}
 		headerString = string(header[:n])
 	}
 
-	// TODO: Is it safe to log unsanitized file stuff?
-	logger.Debug("magic", slog.String("desc", desc), slog.String("header", headerString), slog.Any("err", err))
+	// Handle invalid files
+	// e.g., invalid .gz/.tar files that are actually data files with corrupt headers
+	if kind == nil {
+		return ""
+	}
 
 	if found, kind := byExtension(path); found {
 		return kind
 	}
+
+	// TODO: Is it safe to log unsanitized file stuff?
+	logger.Debug("magic", slog.String("desc", desc), slog.String("header", headerString), slog.Any("err", err))
 
 	d := strings.ToLower(desc)
 	switch {

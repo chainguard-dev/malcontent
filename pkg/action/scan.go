@@ -192,7 +192,8 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 
 		// path refers to a real local path, not the requested scanPath
 		for _, path := range paths {
-			if isSupportedArchive(path) {
+			// check if the path has an archive extension and is actually an archive (i.e., not a data file)
+			if isSupportedArchive(path) && programKind(ctx, path) != "" {
 				logger.Debug("found archive path", slog.Any("path", path))
 				frs, err := processArchive(ctx, c, yrs, path, logger)
 				if err != nil {
