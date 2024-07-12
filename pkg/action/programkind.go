@@ -68,7 +68,7 @@ var extMap = map[string]string{
 
 // programKind tries to identify if a path is a program.
 func programKind(ctx context.Context, path string) string {
-	var header [1024]byte
+	var header [263]byte
 	logger := clog.FromContext(ctx).With("path", path)
 	f, err := os.Open(path)
 	if err != nil {
