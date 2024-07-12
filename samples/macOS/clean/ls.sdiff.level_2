@@ -1,3 +1,2 @@
---- missing: Linux/clean/ls.x86_64
+*** changed: macOS/clean/ls
 -process/name/set
-++++ added: macOS/clean/ls

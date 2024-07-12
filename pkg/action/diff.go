@@ -34,15 +34,12 @@ func relFileReport(ctx context.Context, c bincapz.Config, fromPath string) (map[
 			continue
 		}
 
-		path := fromPath
-		if fromPath != f.Path {
-			path, err = filepath.Rel(fromPath, f.Path)
-			if err != nil {
-				return nil, fmt.Errorf("rel(%q,%q): %w", fromPath, f.Path, err)
-			}
+		rel, err := filepath.Rel(fromPath, f.Path)
+		if err != nil {
+			return nil, fmt.Errorf("rel(%q,%q): %w", fromPath, f.Path, err)
 		}
 
-		fromRelPath[path] = f
+		fromRelPath[rel] = f
 	}
 
 	return fromRelPath, nil

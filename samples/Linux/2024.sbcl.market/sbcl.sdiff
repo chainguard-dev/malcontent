@@ -1,43 +1,4 @@
---- missing: Linux/2024.sbcl.market/sbcl.clean
--compression/zstd
--dylib/address/check
--dylib/symbol/address
--env/HOME
--env/USER
--exec/program
--exec/program/background
--exec/shell_echo
--fs/file/delete
--fs/file/truncate
--fs/link/read
--fs/permission/modify
--fs/symlink/resolve
--procfs/self/exe
--ref/path/dev
--ref/path/tmp
--ref/path/var
--ref/path/var/tmp
--ref/site/url
-++++ added: Linux/2024.sbcl.market/sbcl.dirty
-+compression/zstd
+*** changed: Linux/2024.sbcl.market/sbcl.dirty
 +data/embedded/zstd
-+dylib/address/check
-+dylib/symbol/address
-+env/HOME
-+env/USER
 +evasion/packer/high_entropy
-+exec/program
-+exec/program/background
-+exec/shell_echo
-+fs/file/delete
-+fs/file/truncate
-+fs/link/read
-+fs/permission/modify
-+fs/symlink/resolve
 +net/dns/txt
-+procfs/self/exe
-+ref/path/dev
-+ref/path/tmp
-+ref/path/var
-+ref/path/var/tmp
-+ref/site/url
