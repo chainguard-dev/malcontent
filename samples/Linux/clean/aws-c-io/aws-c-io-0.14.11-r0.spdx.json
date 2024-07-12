@@ -1,0 +1,55 @@
+{
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "apk-aws-c-io-0.14.11-r0",
+  "spdxVersion": "SPDX-2.3",
+  "creationInfo": {
+    "created": "1970-01-01T00:00:00Z",
+    "creators": [
+      "Tool: melange (v0.10.4-8-gad395d6)",
+      "Organization: Chainguard, Inc"
+    ],
+    "licenseListVersion": "3.22"
+  },
+  "dataLicense": "CC0-1.0",
+  "documentNamespace": "https://spdx.org/spdxdocs/chainguard/melange/07691057f87b3b0e303145c07af4281103d5b91e",
+  "documentDescribes": [
+    "SPDXRef-Package-aws-c-io-0.14.11-r0"
+  ],
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-Package-aws-c-io-0.14.11-r0",
+      "name": "aws-c-io",
+      "versionInfo": "0.14.11-r0",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "Apache-2.0",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: Wolfi",
+      "supplier": "Organization: Wolfi",
+      "copyrightText": "\n",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE_MANAGER",
+          "referenceLocator": "pkg:apk/wolfi/aws-c-io@0.14.11-r0?arch=x86_64",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "PACKAGE_MANAGER",
+          "referenceLocator": "pkg:github/awslabs/aws-c-io@v0.14.11",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "PACKAGE_MANAGER",
+          "referenceLocator": "pkg:github/awslabs/aws-c-io@d04508d113851f1bc15630d93490b2aa09676137",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "PACKAGE_MANAGER",
+          "referenceLocator": "pkg:github/wolfi-dev/os@d5a1590aa230376450bcee3bd73692af6382ddb1#aws-c-io.yaml",
+          "referenceType": "purl"
+        }
+      ]
+    }
+  ],
+  "relationships": []
+}

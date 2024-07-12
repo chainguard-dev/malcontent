@@ -63,13 +63,13 @@ func (r Markdown) Full(ctx context.Context, rep *bincapz.Report) error {
 		markdownTable(ctx, fr, r.w, tableConfig{Title: fmt.Sprintf("## Added: %s [%s]", f, mdRisk(fr.RiskScore, fr.RiskLevel)), DiffAdded: true})
 	}
 
-	for f, fr := range rep.Diff.Modified {
+	for _, fr := range rep.Diff.Modified {
 		fr := fr
 		var title string
-		if fr.PreviousRelPath != "" {
-			title = fmt.Sprintf("## Moved: %s -> %s (similarity: %0.2f)", fr.PreviousRelPath, f, fr.PreviousRelPathScore)
+		if fr.PreviousRelPath != "" && fr.PreviousRelPathScore >= 0.9 {
+			title = fmt.Sprintf("## Moved: %s -> %s (similarity: %0.2f)", fr.PreviousRelPath, fr.Path, fr.PreviousRelPathScore)
 		} else {
-			title = fmt.Sprintf("## Changed: %s", f)
+			title = fmt.Sprintf("## Changed: %s", fr.Path)
 		}
 		if fr.RiskScore != fr.PreviousRiskScore {
 			title = fmt.Sprintf("%s [%s → %s]",
