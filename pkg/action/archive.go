@@ -250,13 +250,13 @@ func extractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 	}
 	err = extract(ctx, tmpDir, path)
 	if err != nil {
-		return "", fmt.Errorf("extract: %w", err)
+		return "", fmt.Errorf("failed to extract %s: %w", path, err)
 	}
 
 	extractedFiles := make(map[string]bool)
 	files, err := os.ReadDir(tmpDir)
 	if err != nil {
-		return "", fmt.Errorf("failed to read directory: %w", err)
+		return "", fmt.Errorf("failed to read files in directory %s: %w", tmpDir, err)
 	}
 	for _, file := range files {
 		extractedFiles[filepath.Join(tmpDir, file.Name())] = false
@@ -266,7 +266,7 @@ func extractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 		ext := getExt(file)
 		info, err := os.Stat(file)
 		if err != nil {
-			return "", fmt.Errorf("failed to stat file: %w", err)
+			return "", fmt.Errorf("failed to stat file %s: %w", file, err)
 		}
 		switch mode := info.Mode(); {
 		case mode.IsDir():
@@ -280,7 +280,7 @@ func extractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 				}
 				if !d.IsDir() {
 					if err := extractNestedArchive(ctx, tmpDir, rel, extractedFiles); err != nil {
-						return fmt.Errorf("extract nested archive: %w", err)
+						return fmt.Errorf("failed to extract nested archive %s: %w", rel, err)
 					}
 				}
 
@@ -294,7 +294,7 @@ func extractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 					return "", fmt.Errorf("filepath.Rel: %w", err)
 				}
 				if err := extractNestedArchive(ctx, tmpDir, rel, extractedFiles); err != nil {
-					return "", fmt.Errorf("extract nested archive: %w", err)
+					return "", fmt.Errorf("extract nested archive %s: %w", rel, err)
 				}
 			}
 			return tmpDir, nil
