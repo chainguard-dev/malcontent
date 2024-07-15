@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -e
+
+# Check that both our processes are running on their tcp port
+printf "GET / HTTP/1.1\n\n" > /dev/tcp/127.0.0.1/8080
