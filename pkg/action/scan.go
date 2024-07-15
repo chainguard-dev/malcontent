@@ -87,7 +87,7 @@ func scanSinglePath(ctx context.Context, c bincapz.Config, yrs *yara.Rules, path
 		return &bincapz.FileReport{Path: path, Error: fmt.Sprintf("scanfile: %v", err)}, nil
 	}
 
-	fr, err := report.Generate(ctx, path, mrs, c)
+	fr, err := report.Generate(ctx, path, mrs, c, archiveRoot)
 	if err != nil {
 		return nil, err
 	}
@@ -213,12 +213,14 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 				continue
 			}
 
+			trimPath := ""
 			if c.OCI {
 				scanPath = imageURI
+				trimPath = ociExtractPath
 			}
 
-			logger.Debug("processing path path", slog.Any("path", path))
-			fr, err := processFile(ctx, c, yrs, path, scanPath, "", logger)
+			logger.Debug("processing path", slog.Any("path", path))
+			fr, err := processFile(ctx, c, yrs, path, scanPath, trimPath, logger)
 			if err != nil {
 				return r, err
 			}

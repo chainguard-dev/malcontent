@@ -294,7 +294,7 @@ func mungeDescription(s string) string {
 }
 
 //nolint:cyclop // ignore complexity of 44
-func Generate(ctx context.Context, path string, mrs yara.MatchRules, c bincapz.Config) (bincapz.FileReport, error) {
+func Generate(ctx context.Context, path string, mrs yara.MatchRules, c bincapz.Config, expath string) (bincapz.FileReport, error) {
 	ignoreTags := c.IgnoreTags
 	minScore := c.MinRisk
 	ignoreSelf := c.IgnoreSelf
@@ -307,6 +307,10 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c bincapz.C
 	size, checksum, err := sizeAndChecksum(path)
 	if err != nil {
 		return bincapz.FileReport{}, err
+	}
+
+	if c.OCI {
+		path = strings.TrimPrefix(path, expath)
 	}
 
 	fr := bincapz.FileReport{
