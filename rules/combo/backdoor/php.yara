@@ -82,7 +82,9 @@ rule php_urlvar_recon_exec : critical {
     $f_phpinfo = "phpinfo("
     $x_GET = "_GET"
     $x_POST = "_POST"
+
     $not_php = "PHP_VERSION_ID"
+    $not_mongosh_php = { 3C 3F 70 68 70 00 00 00 01 0C 51 61 03 00 00 00 02 00 00 00 3F 3E }
   condition:
     any of ($p*) and any of ($e*) and any of ($f*) and any of ($x*) and none of ($not*)
 }
@@ -107,7 +109,9 @@ rule php_eval_gzinflate_base64_backdoor : critical {
     $f_html_special = "htmlspecialchars_decode"
     $f_gzinflate = "gzinflate("
     $f_base64_decode = "base64_decode"
+
     $not_php = "PHP_FLOAT_DIG" fullword
+    $not_mongosh_php = { 3C 3F 70 68 70 00 00 00 01 0C 51 61 03 00 00 00 02 00 00 00 3F 3E }
   condition:
     all of ($f*) and none of ($not*)
 }
@@ -122,8 +126,10 @@ rule php_obfuscated_with_hex_characters : high {
     $php = "<?php"
     $hex = /\\x\w{2}\w\\x/
     $hex_not_mix = /\\x\w{2}\w\\\d/
+
     $not_char_refs = "character_references"
     $not_auto = "AUTOMATICALLY GENERATED"
+    $not_mongosh_php = { 3C 3F 70 68 70 00 00 00 01 0C 51 61 03 00 00 00 02 00 00 00 3F 3E }
   condition:
     $php and (#hex > 5 or #hex_not_mix > 5) and none of ($not*)
 }
@@ -154,8 +160,10 @@ rule php_post_system : medium {
     $method_post = "_POST"
     $method_get = "_GET"
     $system = "system("
+
+    $not_mongosh_php = { 3C 3F 70 68 70 00 00 00 01 0C 51 61 03 00 00 00 02 00 00 00 3F 3E }
   condition:
-    $php and any of ($method*) and $system
+    $php and any of ($method*) and $system and none of ($not*)
 }
 
 rule php_error_reporting_disable : high {

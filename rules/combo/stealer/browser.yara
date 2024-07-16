@@ -52,10 +52,12 @@ rule multiple_browser_refs : critical {
     $name_opera = "Opera Software"
     $name_yandex = "YandexBrowser"
 
-	$not_google = "developed by Google"
-	$not_google_chrome_software = "The Google Chrome software"
-	$not_bugzilla = "https://bugzilla.mozilla.org"
-	$not_ff_js = "Firefox can even throw an error"
+    $not_google = "developed by Google"
+    $not_google_chrome_software = "The Google Chrome software"
+    $not_bugzilla = "https://bugzilla.mozilla.org"
+    $not_ff_js = "Firefox can even throw an error"
+    $not_generated_comment = "// This file is generated"
+    $not_generated_file = "/utils/generate_types/index.js"
   condition:
     2 of ($name*) and 3 of ($fs*) and none of ($not*)
 }
@@ -85,11 +87,12 @@ rule userdata_browser_archiver : medium {
     $b_Safari = "Safari"
     $b_Chrome = "Chrome"
 
-	$not_google = "developed by Google"
-	$not_google_chrome_software = "The Google Chrome software"
-	$not_bugzilla = "https://bugzilla.mozilla.org"
-	$not_ff_js = "Firefox can even throw an error"
-
+    $not_google = "developed by Google"
+    $not_google_chrome_software = "The Google Chrome software"
+    $not_bugzilla = "https://bugzilla.mozilla.org"
+    $not_ff_js = "Firefox can even throw an error"
+    $not_generated_comment = "// This file is generated"
+    $not_generated_file = "/utils/generate_types/index.js"
   condition:
     any of ($d*) and any of ($h*) and any of ($z*) and 2 of ($b*) and none of ($not*)
 }
