@@ -65,7 +65,7 @@ func formatPath(path string) string {
 	if strings.Contains(path, "\\") {
 		path = strings.ReplaceAll(path, "\\", "/")
 	}
-	return strings.TrimPrefix(path, "/")
+	return path
 }
 
 // scanSinglePath YARA scans a single path and converts it to a fileReport.
