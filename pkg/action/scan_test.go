@@ -107,17 +107,17 @@ func TestFormatPath(t *testing.T) {
 		{
 			name: "single separator",
 			path: "/apko_0.13.2_linux_arm64/apko",
-			want: "apko_0.13.2_linux_arm64/apko",
+			want: "/apko_0.13.2_linux_arm64/apko",
 		},
 		{
 			name: "multiple separators",
 			path: "/usr/share/zoneinfo/zone1970",
-			want: "usr/share/zoneinfo/zone1970",
+			want: "/usr/share/zoneinfo/zone1970",
 		},
 		{
 			name: "multiple windows separators",
 			path: "\\usr\\share\\zoneinfo\\zone1970",
-			want: "usr/share/zoneinfo/zone1970",
+			want: "/usr/share/zoneinfo/zone1970",
 		},
 	}
 	for _, tt := range tests {
