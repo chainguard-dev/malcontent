@@ -24,6 +24,7 @@ var badRules = map[string]bool{
 	"GODMODERULES_IDDQD_God_Mode_Rule":            true,
 	"MALPEDIA_Win_Unidentified_107_Auto":          true,
 	"SIGNATURE_BASE_SUSP_PS1_JAB_Pattern_Jun22_1": true,
+	"ELCEEF_HTML_Smuggling_A":                     true,
 	// ThreatHunting Keywords (some duplicates)
 	"Adobe_XMP_Identifier":                       true,
 	"Antivirus_Signature_signature_keyword":      true,

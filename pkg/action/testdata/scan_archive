@@ -1,5 +1,5 @@
 
-# testdata/apko_nested.tar.gz ∴ apko_0.13.2_linux_arm64/apko
+# testdata/apko_nested.tar.gz ∴ /apko_0.13.2_linux_arm64/apko
 archives/zip
 combo/dropper/shell
 compression/bzip2

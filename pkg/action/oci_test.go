@@ -41,17 +41,13 @@ func TestOCI(t *testing.T) {
 		t.Fatalf("render: %v", err)
 	}
 
-	sp, err := oci(ctx, "cgr.dev/chainguard/static")
-	if err != nil {
-		t.Fatalf("oci: %v", err)
-	}
-
 	bc := bincapz.Config{
 		IgnoreSelf: false,
 		IgnoreTags: []string{"harmless"},
 		Renderer:   simple,
 		Rules:      yrs,
-		ScanPaths:  []string{sp},
+		ScanPaths:  []string{"cgr.dev/chainguard/static"},
+		OCI:        true,
 	}
 	res, err := Scan(ctx, bc)
 	if err != nil {
@@ -60,11 +56,6 @@ func TestOCI(t *testing.T) {
 	if err := simple.Full(ctx, res); err != nil {
 		t.Fatalf("full: %v", err)
 	}
-
-	// Remove the header since it is not deterministic
-	// due to the usage of temporary directories
-	idx := bytes.IndexByte(out.Bytes(), '\n')
-	out.Next(idx + 1)
 
 	got := reduceMarkdown(out.String())
 
