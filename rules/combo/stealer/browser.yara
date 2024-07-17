@@ -52,7 +52,9 @@ rule multiple_browser_refs : critical {
     $name_opera = "Opera Software"
     $name_yandex = "YandexBrowser"
 
-    $not_chromium = "When this is enabled, Chromium can use"
+    $not_chromium = "ChromiumBrowser"
+    $not_chromium_comment = "When this is enabled, Chromium can use"
+    $not_chromium_issues = "https://issues.chromium.org/"
     $not_google = "developed by Google"
     $not_google_chrome_software = "The Google Chrome software"
     $not_bugzilla = "https://bugzilla.mozilla.org"
