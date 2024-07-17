@@ -24,6 +24,13 @@ rule crypto_stealer : critical {
     $w_trezor = "Trezor"
     $w_exodus = "Exodus"
     $w_coinomi = "Coinomi"
+    $not_cats = /\"cats\": \[[^]]{0,64}/
+    $not_description = /\"description\": "([^"]{0,64})"/
+    $not_dom = /\"dom\": "([^"]{0,64})"/
+    $not_icon = /\"icon\": "([^"]{0,64})"/
+    $not_js  = /\"js\": \{[^}]{0,64}/
+    $not_scriptsrc = /\"scriptSrc\": "([^"]{0,64})"/
+    $not_website = /\"website\": "([^"]{0,64})"/
   condition:
-    $http and 2 of ($w*)
+    $http and 2 of ($w*) and none of ($not*)
 }

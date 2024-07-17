@@ -59,6 +59,7 @@ rule base64_php_functions : medium {
     $f_wp_nonce_field = "wp_nonce_field" base64
     $f_wp_verify_nonce = "wp_verify_nonce" base64
 
+    $not_comment = "// processing instruction, e.g. <?php ?>"
     $not_mongosh_php = { 3C 3F 70 68 70 00 00 00 01 0C 51 61 03 00 00 00 02 00 00 00 3F 3E }
   condition:
     $php and $base64_decode and any of ($f_*) and none of ($not*)
@@ -124,6 +125,7 @@ rule base64_php_functions_multiple : critical {
     $f_wp_nonce_field = "wp_nonce_field" base64
     $f_wp_verify_nonce = "wp_verify_nonce" base64
 
+    $not_comment = "// processing instruction, e.g. <?php ?>"
     $not_mongosh_php = { 3C 3F 70 68 70 00 00 00 01 0C 51 61 03 00 00 00 02 00 00 00 3F 3E }
   condition:
     $php and $base64_decode and 2 of ($f_*) and none of ($not*)
