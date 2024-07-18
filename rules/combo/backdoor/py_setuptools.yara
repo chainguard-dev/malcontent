@@ -22,8 +22,8 @@ rule setuptools_cmd_exec : suspicious {
     $f_os_system = /os.system\([\"\'\w\ \-\)\/]{0,64}/
     $f_os_popen = /os.spopen\([\"\'\w\ \-\)\/]{0,64}/
     $f_subprocess = /subprocess.\w{0,32}\([\"\'\/\w\ \-\)]{0,64}/
+    $not_comment = "Editable install to a prefix should be discoverable."
     $not_egg_info_requires = "os.path.join(egg_info_dir, 'requires.txt')"
-    $not_sample = "# now run 'sample' with the prefix on the PYTHONPATH"
   condition:
     pythonSetup and any of ($f*) and none of ($not*)
 }
