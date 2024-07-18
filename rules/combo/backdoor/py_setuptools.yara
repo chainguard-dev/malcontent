@@ -34,7 +34,7 @@ rule setuptools_eval : critical {
   strings:
     $f_sys_val = /eval\([\"\'\w\ \-\)\/]{0,64}/ fullword
     $f_subprocess_val = /exec\([\"\'\/\w\ \-\)]{0,64}/ fullword
-    $not_comment = "This test focus in getting a particular implementation detail right."
+    $not_comment = "Editable install to a prefix should be discoverable."
     $not_test_egg_class = "class TestEggInfo"
   condition:
     pythonSetup and any of ($f*) and none of ($not*)
