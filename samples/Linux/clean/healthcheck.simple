@@ -1,5 +1,4 @@
 # Linux/clean/healthcheck
 net/http/request
 ref/path/dev
-shell/bash_dev_tcp
 shell/exec
