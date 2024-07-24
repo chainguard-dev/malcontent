@@ -4,10 +4,12 @@ rule python_exec_eval_one_line : critical {
   meta:
     description = "Evaluates code from encrypted content on a single line via exec or eval"
   strings:
-    $eval_decrypt_one_line = /eval\s{0,32}\(.{0,32}decrypt/ ascii wide
-    $exec_decrypt_one_line = /exec\s{0,32}\(.{0,32}decrypt/ ascii wide
+    $f_eval_decrypt_one_line = /eval\s{0,32}\(.{0,32}decrypt/ ascii wide
+    $f_exec_decrypt_one_line = /exec\s{0,32}\(.{0,32}decrypt/ ascii wide
+    $not_opa = "constraintsdk_decision_eval"
+    $not_opa2 = " (DEPRECATED: %s)decryption"
   condition:
-    any of them
+    any of ($f*) and none of ($not*)
 }
 
 rule python_exec_near_enough_decrypt : high {
