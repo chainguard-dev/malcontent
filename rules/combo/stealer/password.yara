@@ -15,7 +15,9 @@ rule password_finder_mimipenguin : critical {
     $extra_finder = /\bFinder\b/
     $extra_password = /\b[Pp]assword\b/
     $extra_password2 = /.[^\s]{0,32}-password/
-    $ignore_basic_auth_example = /\w{0,32}\:[Pp]assword/
+    $not_basic_auth_example = /\w{0,32}\:[Pp]assword/
+    $not_caddy = "//starting caddy process"
+    $not_datadog = /[Dd]ata[Dd]og/
   condition:
-    2 of ($base_*) and (any of ($extra_*) and none of ($ignore_*))
+    2 of ($base*) and (any of ($extra*) and none of ($not*))
 }
