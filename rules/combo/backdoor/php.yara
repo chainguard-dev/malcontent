@@ -19,9 +19,12 @@ rule php_possible_backdoor : critical {
     $f_exec = "exec("
     $eval = "eval"
     $not_aprutil = "APR-UTIL"
-    $not_syntax = "syntax file"
-    $not_reference = "stream_register_wrapper"
+    $not_highlight = "Please see https://github.com/highlightjs/highlight.js/pull/"
     $not_javadoc = "@param int"
+    $not_php_group = "Copyright (c) The PHP Group"
+    $not_reference = "stream_register_wrapper"
+    $not_syntax = "syntax file"
+    $not_workaround = "/* workaround for chrome bug "
   condition:
     filesize < 1048576 and $eval and 1 of ($php*) and 4 of ($f_*) and none of ($not*)
 }
@@ -85,6 +88,8 @@ rule php_urlvar_recon_exec : critical {
 
     $not_php = "PHP_VERSION_ID"
     $not_mongosh_php = { 3C 3F 70 68 70 00 00 00 01 0C 51 61 03 00 00 00 02 00 00 00 3F 3E }
+    $not_php_group = "Copyright (c) The PHP Group"
+    $not_workaround = "/* workaround for chrome bug "
   condition:
     any of ($p*) and any of ($e*) and any of ($f*) and any of ($x*) and none of ($not*)
 }
@@ -112,6 +117,7 @@ rule php_eval_gzinflate_base64_backdoor : critical {
 
     $not_php = "PHP_FLOAT_DIG" fullword
     $not_mongosh_php = { 3C 3F 70 68 70 00 00 00 01 0C 51 61 03 00 00 00 02 00 00 00 3F 3E }
+    $not_workaround = "/* workaround for chrome bug "
   condition:
     all of ($f*) and none of ($not*)
 }
@@ -141,12 +147,15 @@ rule php_base64_eval_uname : critical {
     hash_2023_0xShell_wesoori = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"
     hash_2024_Deobfuscated_1n73ctionShell_abc00305dcfabe889507832e7385af937b94350d = "de1ef827bcd3100a259f29730cb06f7878220a7c02cee0ebfc9090753d2237a8"
   strings:
-    $php = "<?php"
-    $eval = "eval("
-    $uname = "_uname()"
-    $base64_decode = "base64_decode"
+    $f_php = "<?php"
+    $f_eval = "eval("
+    $f_uname = "_uname()"
+    $f_base64_decode = "base64_decode"
+
+    $not_php_group = "Copyright (c) The PHP Group"
+    $not_workaround = "/* workaround for chrome bug "
   condition:
-    all of them
+    all of ($f*) and none of ($not*)
 }
 
 rule php_post_system : medium {
@@ -162,6 +171,8 @@ rule php_post_system : medium {
     $system = "system("
 
     $not_mongosh_php = { 3C 3F 70 68 70 00 00 00 01 0C 51 61 03 00 00 00 02 00 00 00 3F 3E }
+    $not_php_group = "Copyright (c) The PHP Group"
+    $not_workaround = "/* workaround for chrome bug "
   condition:
     $php and any of ($method*) and $system and none of ($not*)
 }
@@ -192,8 +203,10 @@ rule php_system_manipulation : high {
     $fwrite = "fwrite("
     $posix_getpwuid = "posix_getpwuid("
     $symlink = "symlink("
+
+    $not_workaround = "/* workaround for chrome bug "
   condition:
-    $php and 80% of them
+    $php and 80% of them and none of ($not*)
 }
 
 rule php_system_hex : critical {
