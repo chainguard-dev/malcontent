@@ -20,12 +20,13 @@ var FS = rules.FS
 // badRules are noisy 3rd party rules to silently disable.
 var badRules = map[string]bool{
 	// YARAForge
-	"GCTI_Sliver_Implant_32Bit":                   true,
-	"GODMODERULES_IDDQD_God_Mode_Rule":            true,
-	"MALPEDIA_Win_Unidentified_107_Auto":          true,
-	"SIGNATURE_BASE_SUSP_PS1_JAB_Pattern_Jun22_1": true,
-	"ELCEEF_HTML_Smuggling_A":                     true,
-	"DELIVRTO_SUSP_HTML_WASM_Smuggling":           true,
+	"GCTI_Sliver_Implant_32Bit":                           true,
+	"GODMODERULES_IDDQD_God_Mode_Rule":                    true,
+	"MALPEDIA_Win_Unidentified_107_Auto":                  true,
+	"SIGNATURE_BASE_SUSP_PS1_JAB_Pattern_Jun22_1":         true,
+	"ELCEEF_HTML_Smuggling_A":                             true,
+	"DELIVRTO_SUSP_HTML_WASM_Smuggling":                   true,
+	"SIGNATURE_BASE_FVEY_Shadowbroker_Auct_Dez16_Strings": true,
 	// ThreatHunting Keywords (some duplicates)
 	"Adobe_XMP_Identifier":                       true,
 	"Antivirus_Signature_signature_keyword":      true,

@@ -48,6 +48,10 @@ rule lvt : critical {
     $bf = "WE WILL NOT BE ABLE"
     $bg = "ABLE TO RESTORE"
     $bh = "TO RESTORE THEM"
+
+    $not_sonar = "Copyright (C) 2008-2013 SonarSource"
+    $not_sonar2 = "mailto:contact AT sonarsource DOT com"
+    $not_sonar3 = "SonarQube is free software; you can redistribute it and/or"
   condition:
-    2 of them
+    2 of them and none of ($not*)
 }
