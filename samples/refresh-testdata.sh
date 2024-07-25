@@ -23,6 +23,13 @@ if [[ ! -x "${bincapz}" ]]; then
     exit 1
 fi
 
+# OCI edge case
+${bincapz} --format=simple \
+    --ignore-tags harmless \
+    --oci \
+    -o ../pkg/action/testdata/scan_oci \
+    cgr.dev/chainguard/static &
+
 # diffs don't follow an easy rule
 ${bincapz} --format=markdown \
     --diff \

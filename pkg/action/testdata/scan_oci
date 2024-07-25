@@ -10,6 +10,6 @@ ref/site/url
 net/download
 ref/site/url
 time/tzinfo
-# cgr.dev/chainguard/static ∴ /var/lib/db/sbom/wolfi-baselayout-20230201-r13.spdx.json
+# cgr.dev/chainguard/static ∴ /var/lib/db/sbom/wolfi-baselayout-20230201-r15.spdx.json
 net/download
 ref/site/url

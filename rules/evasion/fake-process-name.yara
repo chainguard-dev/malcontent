@@ -9,9 +9,11 @@ rule fake_kworker_val : critical {
     $kworker2 = "kworker" fullword
     $kworker3 = "[kworker"
     // datadog process-agent
-    $ignore_datadog = /[Dd]ata[Dd]og/
+    $not_datadog = /[Dd]ata[Dd]og/
+    $not_datadog2 = /\*{0,1}is_kworker/
+    $not_datadog3 = /is_current_kworker_dying\({0,1}\){0,1}/
   condition:
-    any of ($kworker*) and not $ignore_datadog
+    any of ($kworker*) and none of ($not*)
 }
 
 rule fake_syslogd : critical {
