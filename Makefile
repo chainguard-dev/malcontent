@@ -55,6 +55,51 @@ test:
 bench:
 	go test -run=^\$$ -bench=. ./... -benchmem
 
+.PHONY: bench-bincapz
+bench-bincapz:
+	go test -benchmem -run=^\$$ -bench ^BenchmarkRun\$$ github.com/chainguard-dev/bincapz/samples -args -path="macOS/clean/bincapz"
+
+.PHONY: bench-all-samples
+bench-all-samples:
+	go test -benchmem -run=^\$$ -bench ^BenchmarkRun\$$ github.com/chainguard-dev/bincapz/samples -args -path=""
+
+.PHONY: bench-does-nothing
+bench-does-nothing:
+	go test -benchmem -run=^\$$ -bench ^BenchmarkRun\$$ github.com/chainguard-dev/bincapz/samples -args -path="does-nothing"
+
+.PHONY: bench-javascript
+bench-javascript:
+	go test -benchmem -run=^\$$ -bench ^BenchmarkRun\$$ github.com/chainguard-dev/bincapz/samples -args -path="Javascript"
+
+.PHONY: bench-linux
+bench-linux:
+	go test -benchmem -run=^\$$ -bench ^BenchmarkRun\$$ github.com/chainguard-dev/bincapz/samples -args -path="Linux"
+
+.PHONY: bench-macos
+bench-macos:
+	go test -benchmem -run=^\$$ -bench ^BenchmarkRun\$$ github.com/chainguard-dev/bincapz/samples -args -path="macOS"
+
+.PHONY: bench-npm
+bench-npm:
+	go test -benchmem -run=^\$$ -bench ^BenchmarkRun\$$ github.com/chainguard-dev/bincapz/samples -args -path="NPM"
+
+.PHONY: bench-php
+bench-php:
+	go test -benchmem -run=^\$$ -bench ^BenchmarkRun\$$ github.com/chainguard-dev/bincapz/samples -args -path="PHP"
+
+.PHONY: bench-python
+bench-python:
+	go test -benchmem -run=^\$$ -bench ^BenchmarkRun\$$ github.com/chainguard-dev/bincapz/samples -args -path="Python"
+
+.PHONY: bench-typescript
+bench-typescript:
+	go test -benchmem -run=^\$$ -bench ^BenchmarkRun\$$ github.com/chainguard-dev/bincapz/samples -args -path="TypeScript"
+
+.PHONY: bench-windows
+bench-windows:
+	go test -benchmem -run=^\$$ -bench ^BenchmarkRun\$$ github.com/chainguard-dev/bincapz/samples -args -path="Windows"
+
+.PHONY: out/bincapz
 out/bincapz:
 	mkdir -p out
 	go build -o out/bincapz .

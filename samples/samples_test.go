@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"flag"
 	"io/fs"
 	"log/slog"
 	"os"
@@ -349,4 +350,72 @@ func TestBincapzIgnored(t *testing.T) {
 	if diff := cmp.Diff(want, got); diff != "" {
 		t.Errorf("json output mismatch: (-want +got):\n%s", diff)
 	}
+}
+
+// Allow for programmatic overrides of paths for benchmarks (defaults to all paths)
+var overridePath string
+func init() {
+	flag.StringVar(&overridePath, "path", "", "override path for benchmarks")
+}
+
+// BenchmarkRun is the entrypoint for each benchmark run.
+func BenchmarkRun(b *testing.B) {
+	Benchmarks(b, overridePath)
+}
+
+// Benchmarks runs the appropriate benchmarks given the value of p (overridePath).
+func Benchmarks(b *testing.B, p string) {
+	// Default to all paths ("")
+	paths := []string{
+		"does-nothing",
+		"Javascript",
+		"Linux",
+		"macOS",
+		"NPM",
+		"PHP",
+		"Python",
+		"TypeScript",
+		"Windows",
+	}
+	if p != "" {
+		paths = strings.Split(p, ",")
+	}
+	for i := 0; i < b.N; i++ {
+		bench := Template(b, paths)
+		bench()
+	}
+}
+
+// Template returns a benchmark function for use in Benchmarks.
+func Template(b *testing.B, paths []string) func() {
+	bench := func() {
+		ctx := context.TODO()
+		clog.FromContext(ctx).With("benchmark", "samples")
+
+		yrs, err := compile.Recursive(ctx, []fs.FS{rules.FS, thirdparty.FS})
+		if err != nil {
+			b.Fatalf("compile: %v", err)
+		}
+
+		var out bytes.Buffer
+		simple, err := render.New("simple", &out)
+		if err != nil {
+			b.Fatalf("render: %v", err)
+		}
+		bc := bincapz.Config{
+			IgnoreSelf: true,
+			IgnoreTags: []string{"harmless"},
+			Renderer:   simple,
+			Rules:      yrs,
+			ScanPaths:  paths,
+		}
+		res, err := action.Scan(ctx, bc)
+		if err != nil {
+			b.Fatal(err)
+		}
+		if err := simple.Full(ctx, res); err != nil {
+			b.Fatalf("full: %v", err)
+		}
+	}
+	return bench
 }
