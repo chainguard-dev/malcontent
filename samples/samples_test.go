@@ -352,8 +352,9 @@ func TestBincapzIgnored(t *testing.T) {
 	}
 }
 
-// Allow for programmatic overrides of paths for benchmarks (defaults to all paths)
+// Allow for programmatic overrides of paths for benchmarks (defaults to all paths).
 var overridePath string
+
 func init() {
 	flag.StringVar(&overridePath, "path", "", "override path for benchmarks")
 }
@@ -387,6 +388,8 @@ func Benchmarks(b *testing.B, p string) {
 }
 
 // Template returns a benchmark function for use in Benchmarks.
+//
+//nolint:thelper // ignore template function for benchmarks
 func Template(b *testing.B, paths []string) func() {
 	bench := func() {
 		ctx := context.TODO()

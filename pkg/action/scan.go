@@ -36,12 +36,12 @@ func findFilesRecursively(ctx context.Context, root string) ([]string, error) {
 				clog.FromContext(ctx).Errorf("walk %s: %v", path, err)
 				return err
 			}
-			if info.IsDir() || 
-			// Ignore the source tree and other bincapz scan artifacts
-			strings.Contains(path, "/.git/") || 
-			strings.Contains(path, ".mdiff") ||
-			strings.Contains(path, ".sdiff") ||
-			strings.Contains(path, ".simple") {
+			if info.IsDir() ||
+				// Ignore the source tree and other bincapz scan artifacts
+				strings.Contains(path, "/.git/") ||
+				strings.Contains(path, ".mdiff") ||
+				strings.Contains(path, ".sdiff") ||
+				strings.Contains(path, ".simple") {
 				return nil
 			}
 
