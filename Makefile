@@ -55,49 +55,51 @@ test:
 bench:
 	go test -run=^\$$ -bench=. ./... -benchmem
 
+BENCH_CMD := go test -benchmem -run=^\$$ -bench ^BenchmarkRun\$$ github.com/chainguard-dev/bincapz/samples -args
+
 .PHONY: bench-bincapz
 bench-bincapz:
-	go test -benchmem -run=^\$$ -bench ^BenchmarkRun\$$ github.com/chainguard-dev/bincapz/samples -args -path="macOS/clean/bincapz"
+	$(BENCH_CMD) -path="macOS/clean/bincapz"
 
 .PHONY: bench-all-samples
 bench-all-samples:
-	go test -benchmem -run=^\$$ -bench ^BenchmarkRun\$$ github.com/chainguard-dev/bincapz/samples -args -path=""
+	$(BENCH_CMD) -path=""
 
 .PHONY: bench-does-nothing
 bench-does-nothing:
-	go test -benchmem -run=^\$$ -bench ^BenchmarkRun\$$ github.com/chainguard-dev/bincapz/samples -args -path="does-nothing"
+	$(BENCH_CMD) -path="does-nothing"
 
 .PHONY: bench-javascript
 bench-javascript:
-	go test -benchmem -run=^\$$ -bench ^BenchmarkRun\$$ github.com/chainguard-dev/bincapz/samples -args -path="Javascript"
+	$(BENCH_CMD) -path="Javascript"
 
 .PHONY: bench-linux
 bench-linux:
-	go test -benchmem -run=^\$$ -bench ^BenchmarkRun\$$ github.com/chainguard-dev/bincapz/samples -args -path="Linux"
+	$(BENCH_CMD) -path="Linux"
 
 .PHONY: bench-macos
 bench-macos:
-	go test -benchmem -run=^\$$ -bench ^BenchmarkRun\$$ github.com/chainguard-dev/bincapz/samples -args -path="macOS"
+	$(BENCH_CMD) -path="macOS"
 
 .PHONY: bench-npm
 bench-npm:
-	go test -benchmem -run=^\$$ -bench ^BenchmarkRun\$$ github.com/chainguard-dev/bincapz/samples -args -path="NPM"
+	$(BENCH_CMD) -path="NPM"
 
 .PHONY: bench-php
 bench-php:
-	go test -benchmem -run=^\$$ -bench ^BenchmarkRun\$$ github.com/chainguard-dev/bincapz/samples -args -path="PHP"
+	$(BENCH_CMD) -path="PHP"
 
 .PHONY: bench-python
 bench-python:
-	go test -benchmem -run=^\$$ -bench ^BenchmarkRun\$$ github.com/chainguard-dev/bincapz/samples -args -path="Python"
+	$(BENCH_CMD) -path="Python"
 
 .PHONY: bench-typescript
 bench-typescript:
-	go test -benchmem -run=^\$$ -bench ^BenchmarkRun\$$ github.com/chainguard-dev/bincapz/samples -args -path="TypeScript"
+	$(BENCH_CMD) -path="TypeScript"
 
 .PHONY: bench-windows
 bench-windows:
-	go test -benchmem -run=^\$$ -bench ^BenchmarkRun\$$ github.com/chainguard-dev/bincapz/samples -args -path="Windows"
+	$(BENCH_CMD) -path="Windows"
 
 .PHONY: out/bincapz
 out/bincapz:
