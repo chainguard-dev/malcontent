@@ -28,6 +28,7 @@ var badRules = map[string]bool{
 	"ELCEEF_HTML_Smuggling_A":                             true,
 	"DELIVRTO_SUSP_HTML_WASM_Smuggling":                   true,
 	"SIGNATURE_BASE_FVEY_Shadowbroker_Auct_Dez16_Strings": true,
+	"ELASTIC_Macos_Creddump_Keychainaccess_535C1511":      true,
 	// ThreatHunting Keywords (some duplicates)
 	"Adobe_XMP_Identifier":                       true,
 	"Antivirus_Signature_signature_keyword":      true,
