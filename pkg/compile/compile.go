@@ -9,6 +9,7 @@ import (
 	"io/fs"
 	"log/slog"
 	"path/filepath"
+	"strings"
 
 	"github.com/chainguard-dev/bincapz/rules"
 	"github.com/chainguard-dev/clog"
@@ -112,20 +113,20 @@ func Recursive(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {
 	warnings := map[string]string{}
 	for _, ycw := range yc.Warnings {
 		clog.WarnContext(ctx, "warning", slog.String("filename", ycw.Filename), slog.Int("line", ycw.Line), slog.String("text", ycw.Text))
-		if ycw.Rule == nil {
+		if ycw.Rule == "" {
 			continue
 		}
-
-		id := fmt.Sprintf("%s:%s", ycw.Rule.Namespace(), ycw.Rule.Identifier())
-		clog.WarnContext(ctx, "rule has warning", "id", id)
+		parts := strings.Split(ycw.Rule, ".")
+		id := parts[len(parts)-1]
 		warnings[id] = ycw.Text
+		clog.WarnContext(ctx, "rule has warning", id)
 	}
 
 	errors := []string{}
 	for _, yce := range yc.Errors {
 		clog.ErrorContext(ctx, "error", slog.String("filename", yce.Filename), slog.Int("line", yce.Line), slog.String("text", yce.Text))
-		if yce.Rule != nil {
-			clog.ErrorContext(ctx, "defective rule", slog.String("namespace", yce.Rule.Namespace()), slog.String("id", yce.Rule.Identifier()))
+		if yce.Rule != "" {
+			clog.ErrorContext(ctx, "defective rule", slog.String("rule", yce.Rule))
 		}
 		errors = append(errors, yce.Text)
 	}
@@ -137,28 +138,27 @@ func Recursive(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	for _, r := range rs.GetRules() {
-		if badRules[r.Identifier()] {
-			clog.InfoContext(ctx, "info", slog.String("namespace", r.Namespace()), slog.String("id", r.Identifier()), slog.String("reason", "disabled (known bad rule)"))
+		id := r.Identifier()
+		if badRules[id] {
+			clog.InfoContext(ctx, "info", slog.String("namespace", r.Namespace()), slog.String("id", id), slog.String("reason", "disabled (known bad rule)"))
 			r.Disable()
 		}
 
-		id := fmt.Sprintf("%s:%s", r.Namespace(), r.Identifier())
 		warning := warnings[id]
 		if warning == "" {
 			continue
 		}
 
 		// use rule name instead of filename to lower maintenance in the face of renames
-		keep, known := rulesWithWarnings[r.Identifier()]
+		keep, known := rulesWithWarnings[id]
 		if keep {
 			continue
 		}
 		if !known {
-			clog.ErrorContext(ctx, "error", slog.String("namespace", r.Namespace()), slog.String("id", r.Identifier()), slog.String("disabled due to unexpected warning", warnings[id]))
+			clog.ErrorContext(ctx, "error", slog.String("namespace", r.Namespace()), slog.String("id", id), slog.String("disabled due to unexpected warning", warnings[id]))
 		} else {
-			clog.InfoContext(ctx, "info", slog.String("namespace", r.Namespace()), slog.String("id", r.Identifier()), slog.String("disabled due to expected warning", warnings[id]))
+			clog.InfoContext(ctx, "info", slog.String("namespace", r.Namespace()), slog.String("id", id), slog.String("disabled due to expected warning", warnings[id]))
 		}
 		r.Disable()
 	}
