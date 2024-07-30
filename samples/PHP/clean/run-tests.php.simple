@@ -1,5 +1,4 @@
 # PHP/clean/run-tests.php
-combo/backdoor/remote_eval
 compression/gzip
 encoding/base64
 env/TEMP
