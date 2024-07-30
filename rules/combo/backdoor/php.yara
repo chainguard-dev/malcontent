@@ -116,8 +116,13 @@ rule php_eval_gzinflate_base64_backdoor : critical {
     $f_gzinflate = "gzinflate("
     $f_base64_decode = "base64_decode"
 
-    $not_php = "PHP_FLOAT_DIG" fullword
+    $not_js = " ?? "
+    $not_js2 = " === "
+    $not_js3 = "const"
+    $not_js4 = "this."
+    $not_js5 = "throw"
     $not_mongosh_php = { 3C 3F 70 68 70 00 00 00 01 0C 51 61 03 00 00 00 02 00 00 00 3F 3E }
+    $not_php = "PHP_FLOAT_DIG" fullword
     $not_workaround = "/* workaround for chrome bug "
   condition:
     all of ($f*) and none of ($not*)
