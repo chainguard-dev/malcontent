@@ -87,6 +87,7 @@ rule php_urlvar_recon_exec : critical {
     $x_POST = "_POST"
 
     $not_php = "PHP_VERSION_ID"
+    $not_mongosh = "$ mongosh [options] [db address] [file names (ending in .js or .mongodb)]"
     $not_mongosh_php = { 3C 3F 70 68 70 00 00 00 01 0C 51 61 03 00 00 00 02 00 00 00 3F 3E }
     $not_php_group = "Copyright (c) The PHP Group"
     $not_workaround = "/* workaround for chrome bug "
@@ -170,6 +171,7 @@ rule php_post_system : medium {
     $method_get = "_GET"
     $system = "system("
 
+    $not_mongosh = "$ mongosh [options] [db address] [file names (ending in .js or .mongodb)]"
     $not_mongosh_php = { 3C 3F 70 68 70 00 00 00 01 0C 51 61 03 00 00 00 02 00 00 00 3F 3E }
     $not_php_group = "Copyright (c) The PHP Group"
     $not_workaround = "/* workaround for chrome bug "
