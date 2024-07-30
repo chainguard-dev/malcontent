@@ -24,6 +24,7 @@ rule setuptools_cmd_exec : suspicious {
     $f_subprocess = /subprocess.\w{0,32}\([\"\'\/\w\ \-\)]{0,64}/
     $not_comment = "Editable install to a prefix should be discoverable."
     $not_egg_info_requires = "os.path.join(egg_info_dir, 'requires.txt')"
+    $not_requests = "'Documentation': 'https://requests.readthedocs.io'"
   condition:
     pythonSetup and any of ($f*) and none of ($not*)
 }
@@ -34,7 +35,12 @@ rule setuptools_eval : critical {
   strings:
     $f_sys_val = /eval\([\"\'\w\ \-\)\/]{0,64}/ fullword
     $f_subprocess_val = /exec\([\"\'\/\w\ \-\)]{0,64}/ fullword
+    $not_apache = "# Licensed under the Apache License, Version 2.0 (the \"License\")"
     $not_comment = "Editable install to a prefix should be discoverable."
+    $not_google = /# Copyright [1-2][0-9]{3} Google Inc/
+    $not_idna = "A library to support the Internationalised Domain Names in Applications"
+    $not_idna2 = "(IDNA) protocol as specified in RFC 5890 et.al."
+    $not_requests = "'Documentation': 'https://requests.readthedocs.io'"
     $not_test_egg_class = "class TestEggInfo"
   condition:
     pythonSetup and any of ($f*) and none of ($not*)
