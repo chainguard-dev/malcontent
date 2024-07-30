@@ -89,6 +89,10 @@ rule php_remote_exec : critical {
     $f_execution2 = /\b(array_filter|array_reduce|array_walk(_recursive)?|array_walk|assert_options|uasort|uksort|usort|preg_replace_callback|iterator_apply)\s*\(\s*[^,]+,\s*(base64_decode|php:\/\/input|str_rot13|gz(inflate|uncompress)|getenv|pack|\\?\$_(GET|REQUEST|POST|COOKIE|SERVER))/ nocase
     $f_execution3 = /\b(array_(diff|intersect)_u(key|assoc)|array_udiff)\s*\(\s*([^,]+\s*,?)+\s*(base64_decode|php:\/\/input|str_rot13|gz(inflate|uncompress)|getenv|pack|\\?\$_(GET|REQUEST|POST|COOKIE|SERVER))\s*\[[^]]+\]\s*\)+\s*;/ nocase
     $f_register_function = /register_[a-z]+_function\s*\(\s*['"]\s*(eval|assert|passthru|exec|include|system|shell_exec|`)/
+    $not_php = "Copyright (c) The PHP Group"
+    $not_php2 = "This source file is subject to version 3.01 of the PHP license"
+    $not_php_domain = "@php.net"
+    $not_php_id = "/* $Id: bb422e41c0fe4303a4efb3f3657568b74c20cf96 $ */"
   condition:
-    filesize < 1048576 and $php and any of ($f*)
+    filesize < 1048576 and $php and any of ($f*) and none of ($not*)
 }
