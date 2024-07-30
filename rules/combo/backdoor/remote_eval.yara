@@ -57,10 +57,13 @@ rule python_exec_near_get : critical {
     hash_2024_xFileSyncerx_xfilesyncerx = "c68e907642a8462c6b82a50bf4fde82bbf71245ab4edace246dd341dc72e5867"
     hash_2024_2024_d3duct1v_xfilesyncerx = "b87023e546bcbde77dae065ad3634e7a6bd4cc6056167a6ed348eee6f2a168ae"
   strings:
-    $exec = "exec("
-    $requests = /[a-z]{1,4}.get\(/ fullword
+    $f_exec = "exec("
+    $f_requests = /[a-z]{1,4}.get\(/ fullword
+    $not_pyparser = "All of the heavy"
+    $not_pyparser2 = "lifting is handled by pyparsing (http://pyparsing.sf.net)."
+    $not_sparser = "sparser.py [options] filename"
   condition:
-    all of them and math.abs(@requests - @exec) <= 32
+    all of ($f*) and math.abs(@f_requests - @f_exec) <= 32 and none of ($not*)
 }
 
 rule python_eval_near_get : critical {
