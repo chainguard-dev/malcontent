@@ -11,6 +11,9 @@ on:
     branches:
       - "main"
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -31,7 +34,7 @@ jobs:
           go-version-file: go.mod
           check-latest: true
 
-      - uses: chainguard-dev/actions/goimports@main
+      - uses: chainguard-dev/actions/goimports@9d943fc9889a0c0795e3c2bd4b949a9b610ac02e # main
 
       - name: install libyara-dev
         run: |
