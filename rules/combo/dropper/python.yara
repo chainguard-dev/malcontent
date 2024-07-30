@@ -42,8 +42,11 @@ rule py_dropper_chmod : critical {
 	$val_x = "+x"
 	$val_exec = "755"
 	$val_rwx = "777"
+	$not_magic_trace = "print(f\"Downloading magic_trace to: {magic_trace_cache}\")"
+	$not_magic_trace_chmod = "subprocess.run([\"chmod\", \"+x\", magic_trace_cache])"
+	$not_facebook = "# Copyright (c) Facebook, Inc. and its affiliates."
   condition:
-    filesize < 16384 and py_fetcher and py_runner and $chmod and any of ($val*)
+    filesize < 16384 and py_fetcher and py_runner and $chmod and any of ($val*) and none of ($not*)
 }
 
 private rule pythonSetup {
