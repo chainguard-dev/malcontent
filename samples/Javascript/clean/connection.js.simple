@@ -1,8 +1,0 @@
-# Javascript/clean/connection.js
-data/embedded/base64/terms
-data/embedded/base64/url
-encoding/base64
-fd/write
-net/socket/send
-ref/site/url
-ref/words/password

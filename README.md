@@ -148,14 +148,6 @@ bincapz --format=json <file> | jq  '.Files.[].Behaviors | keys'
 
 All of the samples used by bincapz to test rules and functionality are stored in the `samples.tar.gz` archive. Makefile targets are provided to extract the contents of the archive as well as re-create the archive when samples are added/updated.
 
-The `samples.tar.gz` object is tracked via Git LFS due to its size (~110MB).
-
-To interact with this file, ensure that Git LFS is installed locally (step 1): <https://docs.github.com/en/repositories/working-with-files/managing-large-files/installing-git-large-file-storage>
-
-Otherwise, only the pointer to the file will be visible: <https://docs.github.com/en/repositories/working-with-files/managing-large-files/collaboration-with-git-large-file-storage>
-
-> If collaborators on your repository don't have Git LFS installed, they won't have access to the original large file. If they attempt to clone your repository, they will only fetch the pointer files, and won't have access to any of the actual data.
-
 ## FAQ
 
 ### How does it work?

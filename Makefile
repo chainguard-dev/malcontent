@@ -116,8 +116,12 @@ refresh-sample-testdata: out/bincapz
 
 .PHONY: archive-samples
 archive-samples:
-	tar -c --lzma -f samples.tar.gz samples
+ifeq ($(LINT_OS),Darwin)
+	tar cvzf - samples | split -b 50m - samples.tar.gz.
+else
+	tar cvzf - samples | split --bytes=50MB - samples.tar.gz.
+endif
 
 .PHONY: extract-samples
 extract-samples:
-	tar -xvf samples.tar.gz samples
+	cat samples.tar.gz.* | tar xzvf -

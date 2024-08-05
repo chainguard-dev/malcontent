@@ -44,12 +44,6 @@ jobs:
           sudo add-apt-repository -n -y "deb http://security.ubuntu.com/ubuntu mantic-security main restricted universe multiverse"
 
           sudo apt update && sudo apt install libyara-dev -y
-
-      - name: Install git-lfs
-        run: |
-          curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash
-          sudo apt-get -y install git-lfs
-          git lfs install
         
       - name: Extract Samples
         run : |
