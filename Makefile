@@ -48,7 +48,7 @@ fix: $(FIXERS)
 # END: lint-install ../bincapz
 
 .PHONY: test
-test:
+test: extract-samples
 	go test ./...
 
 .PHONY: bench
