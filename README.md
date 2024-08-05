@@ -8,7 +8,7 @@ Enumerates program capabilities and malicious behaviors using fragment analysis.
 
 ## Features
 
-- 14,500+ rules that detect everything from `ioctl`s to malware
+- 15,300+ rules that detect everything from `ioctl`s to malware
 - Analyzes binaries from any architecture
   - `arm64`, `amd64`, `riscv`, `ppc64`, `sparc64`
 - CI/CD-friendly

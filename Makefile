@@ -55,6 +55,53 @@ test:
 bench:
 	go test -run=^\$$ -bench=. ./... -benchmem
 
+BENCH_CMD := go test -benchmem -run=^\$$ -bench ^BenchmarkRun\$$ github.com/chainguard-dev/bincapz/samples -args
+
+.PHONY: bench-bincapz
+bench-bincapz:
+	$(BENCH_CMD) -path="macOS/clean/bincapz"
+
+.PHONY: bench-all-samples
+bench-all-samples:
+	$(BENCH_CMD) -path=""
+
+.PHONY: bench-does-nothing
+bench-does-nothing:
+	$(BENCH_CMD) -path="does-nothing"
+
+.PHONY: bench-javascript
+bench-javascript:
+	$(BENCH_CMD) -path="Javascript"
+
+.PHONY: bench-linux
+bench-linux:
+	$(BENCH_CMD) -path="Linux"
+
+.PHONY: bench-macos
+bench-macos:
+	$(BENCH_CMD) -path="macOS"
+
+.PHONY: bench-npm
+bench-npm:
+	$(BENCH_CMD) -path="NPM"
+
+.PHONY: bench-php
+bench-php:
+	$(BENCH_CMD) -path="PHP"
+
+.PHONY: bench-python
+bench-python:
+	$(BENCH_CMD) -path="Python"
+
+.PHONY: bench-typescript
+bench-typescript:
+	$(BENCH_CMD) -path="TypeScript"
+
+.PHONY: bench-windows
+bench-windows:
+	$(BENCH_CMD) -path="Windows"
+
+.PHONY: out/bincapz
 out/bincapz:
 	mkdir -p out
 	go build -o out/bincapz .
