@@ -113,3 +113,11 @@ update-third-party:
 .PHONY: refresh-sample-testdata out/bincapz
 refresh-sample-testdata: out/bincapz
 	./samples/refresh-testdata.sh ./out/bincapz
+
+.PHONY: archive-samples
+archive-samples:
+	tar -c --lzma -f samples.tar.gz samples
+
+.PHONY: extract-samples
+extract-samples:
+	tar -xvf samples.tar.gz samples
