@@ -117,11 +117,11 @@ refresh-sample-testdata: out/bincapz
 .PHONY: archive-samples
 archive-samples:
 ifeq ($(LINT_OS),Darwin)
-	tar -czv --no-xattrs --exclude=".*" - samples | split -b 50m - samples.tar.gz.
+	tar czvf - --no-xattrs --exclude="._*" --disable-copyfile samples | split -b 50m - samples.tar.gz.
 else
-	tar cvzf - samples | split --bytes=50MB - samples.tar.gz.
+	tar czvf - --exclude="._*" samples | split -b 50m - samples.tar.gz.
 endif
 
 .PHONY: extract-samples
 extract-samples:
-	cat samples.tar.gz.* | tar xzvf -
+	cat samples.tar.gz.* | tar -xzvf -
