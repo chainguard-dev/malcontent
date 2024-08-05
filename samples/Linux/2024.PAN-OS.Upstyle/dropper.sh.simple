@@ -1,5 +1,0 @@
-# Linux/2024.PAN-OS.Upstyle/dropper.sh
-combo/dropper/shell
-net/fetch
-ref/ip
-shell/pipe_sh

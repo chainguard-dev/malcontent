@@ -48,7 +48,7 @@ fix: $(FIXERS)
 # END: lint-install ../bincapz
 
 .PHONY: test
-test:
+test: extract-samples
 	go test ./...
 
 .PHONY: bench
@@ -113,3 +113,15 @@ update-third-party:
 .PHONY: refresh-sample-testdata out/bincapz
 refresh-sample-testdata: out/bincapz
 	./samples/refresh-testdata.sh ./out/bincapz
+
+.PHONY: archive-samples
+archive-samples:
+ifeq ($(LINT_OS),Darwin)
+	tar czvf - --no-xattrs --exclude="._*" --disable-copyfile samples | split -b 50m - samples.tar.gz.
+else
+	tar czvf - --exclude="._*" samples | split -b 50m - samples.tar.gz.
+endif
+
+.PHONY: extract-samples
+extract-samples:
+	cat samples.tar.gz.* | tar xzvf -

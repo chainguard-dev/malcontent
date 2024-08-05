@@ -44,6 +44,10 @@ jobs:
           sudo add-apt-repository -n -y "deb http://security.ubuntu.com/ubuntu mantic-security main restricted universe multiverse"
 
           sudo apt update && sudo apt install libyara-dev -y
+        
+      - name: Extract Samples
+        run : |
+          make extract-samples
 
       - name: Test
         run: |

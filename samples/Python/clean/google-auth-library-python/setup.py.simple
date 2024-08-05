@@ -1,5 +1,0 @@
-# Python/clean/google-auth-library-python/setup.py
-exec/shell_command
-fd/read
-ref/site/url
-techniques/code_eval
