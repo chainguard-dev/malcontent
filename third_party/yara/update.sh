@@ -53,12 +53,13 @@ function update_dep() {
 	huntress)
 		rel=$(git_clone https://github.com/huntresslabs/threat-intel.git "${tmpdir}")
 		find "${tmpdir}" \( -name "*.yar*" -o -name "*LICENSE*" \) -print -exec cp {} "${kind}" \;
+		# error: rule "BOINC" in boinc.yar(1): syntax error, unexpected identifier, expecting '{'
+		rm "${kind}/boinc.yar"
 		;;
 	threat_hunting)
 		rel=$(latest_github_release mthcht/ThreatHunting-Keywords-yara-rules)
 		curl -L -o "${tmpdir}/keywords.zip" "https://github.com/mthcht/ThreatHunting-Keywords-yara-rules/archive/refs/tags/${rel}.zip"
-		vrel="$(echo $rel | tr -d v)"
-		unzip -o -j "${tmpdir}/keywords.zip" "ThreatHunting-Keywords-yara-rules-${vrel}/yara_rules/all.yara" -d "${kind}"
+		unzip -o -j "${tmpdir}/keywords.zip" "ThreatHunting-Keywords-yara-rules-${rel}/yara_rules/all.yara" -d "${kind}"
 		;;
 	InQuest-VT)
 		rel=$(git_clone https://github.com/InQuest/yara-rules-vt.git "${tmpdir}")
