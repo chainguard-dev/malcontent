@@ -103,7 +103,7 @@ Here is a result using the 3CX compromise as a test case. Each of the lines that
 | +CRITICAL | **[3P/signature_base/3cxdesktopapp/backdoor](https://github.com/Neo23x0/signature-base/blob/1b9069ac3d8d5b6dd2b61d3c934bf19b70323011/yara/gen_mal_3cx_compromise_mar23.yar#L251-L275)** | [Detects 3CXDesktopApp MacOS Backdoor component](https://www.volexity.com/blog/2023/03/30/3cx-supply-chain-compromise-leads-to-iconic-incident/), by X\_\_Junior (Nextron Systems)                                      | $op1<br>$op2<br>[%s/.main_storage](https://github.com/search?q=%25s%2F.main_storage&type=code)<br>[%s/UpdateAgent](https://github.com/search?q=%25s%2FUpdateAgent&type=code)                                                                                         |
 | +CRITICAL | **[3P/signature_base/nk/3cx](https://github.com/Neo23x0/signature-base/blob/1b9069ac3d8d5b6dd2b61d3c934bf19b70323011/yara/gen_mal_3cx_compromise_mar23.yar#L188-L214)**                 | [Detects malicious DYLIB files related to 3CX compromise](https://www.sentinelone.com/blog/smoothoperator-ongoing-campaign-trojanizes-3cx-software-in-software-supply-chain-attack/), by Florian Roth (Nextron Systems) | $xc1<br>$xc2<br>$xc3                                                                                                                                                                                                                                                 |
 | +CRITICAL | **[3P/signature_base/susp/xored](https://github.com/Neo23x0/signature-base/blob/1b9069ac3d8d5b6dd2b61d3c934bf19b70323011/yara/gen_xor_hunting.yar#L2-L20)**                             | [Detects suspicious single byte XORed keyword 'Mozilla/5.0' - it uses yara's XOR modifier and therefore cannot print the XOR key](<https://gchq.github.io/CyberChef/#recipe=XOR_Brute_Force()>), by Florian Roth        | $xo1                                                                                                                                                                                                                                                                 |
-| +CRITICAL | **[3P/volexity/iconic](https://github.com/volexity/threat-intel/blob/62e031ea574efde68dac7d38dc23438466a5302b/2023/2023-03-30%203CX/indicators/rules.yar#L32-L50)**                     | [Detects the MACOS version of the ICONIC loader.](https://www.reddit.com/r/crowdstrike/comments/125r3uu/20230329_situational_awareness_crowdstrike/), by threatintel@volexity.com                                       | $str1<br>$str2<br>$str3                                                                                                                                                                                                                                              |
+| +CRITICAL | **[3P/volexity/iconic](https://github.com/volexity/threat-intel/blob/62e031ea574efde68dac7d38dc23438466a5302b/2023/2023-03-30%203CX/indicators/rules.yar#L32-L50)**                     | [Detects the MACOS version of the ICONIC loader.](https://www.reddit.com/r/crowdstrike/comments/125r3uu/20230329_situational_awareness_crowdstrike/), by <threatintel@volexity.com>                                       | $str1<br>$str2<br>$str3                                                                                                                                                                                                                                              |
 | +CRITICAL | **[evasion/xor/user_agent](https://github.com/chainguard-dev/bincapz/blob/main/rules/evasion/xor-user_agent.yara#xor_mozilla)**                                                         | XOR'ed user agent, often found in backdoors, by Florian Roth                                                                                                                                                            | $Mozilla_5_0                                                                                                                                                                                                                                                         |
 | +MEDIUM   | **[exec/pipe](https://github.com/chainguard-dev/bincapz/blob/main/rules/exec/pipe.yara#popen)**                                                                                         | [launches program and reads its output](https://linux.die.net/man/3/popen)                                                                                                                                              | [\_pclose](https://github.com/search?q=_pclose&type=code)<br>[\_popen](https://github.com/search?q=_popen&type=code)                                                                                                                                                 |
 | +MEDIUM   | **[fs/permission/modify](https://github.com/chainguard-dev/bincapz/blob/main/rules/fs/permission-modify.yara#chmod)**                                                                   | [modifies file permissions](https://linux.die.net/man/1/chmod)                                                                                                                                                          | [chmod](https://github.com/search?q=chmod&type=code)                                                                                                                                                                                                                 |
@@ -143,6 +143,12 @@ bincapz --format=json <file> | jq  '.Files.[].Behaviors | keys'
 - `--stats`: display statistics for risk level and `programkind`
 - `--third-party`: include third-party rules, which may have licensing restrictions (default true)
 - `--verbose`: turn on verbose output for diagnostic/troubleshooting purposes
+
+## Samples
+
+All of the samples used by bincapz to test rules and functionality are stored in the `samples.tar.gz` archive. Makefile targets are provided to extract the contents of the archive as well as re-create the archive when samples are added/updated.
+
+The `samples.tar.gz` object is tracked via Git LFS due to its size (~110MB).
 
 ## FAQ
 
@@ -185,6 +191,7 @@ In addition to contributed code, automated PRs and commits can be verified by fo
 #### Profiling
 
 `bincapz` can be profiled by running `--profile=true`. This will generate timestamped profiles in an untracked `profiles` directory:
+
 ```
 bash-5.2$ ls -l profiles/ | grep -v "total" | awk '{ print $9 }'
 cpu_329605000.pprof
@@ -195,6 +202,7 @@ trace_329605000.out
 The traces can be inspected via `go tool pprof` and `go tool trace`.
 
 For example, the memory profile can be inspected by running:
+
 ```
 go tool pprof -http=:8080 profiles/mem_<timestamp>.pprof
 ```
