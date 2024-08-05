@@ -124,4 +124,4 @@ endif
 
 .PHONY: extract-samples
 extract-samples:
-	cat samples.tar.gz.* | tar -xzvf -
+	cat samples.tar.gz.* | tar xzvf -
