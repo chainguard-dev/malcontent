@@ -26,3 +26,6 @@ profiles/
 
 # Jetbrains
 .idea/
+
+# Uncompressed samples
+samples/
