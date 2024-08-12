@@ -1,10 +1,11 @@
 module github.com/chainguard-dev/bincapz
 
 go 1.21.6
+toolchain go1.22.5
 
 require (
 	github.com/agext/levenshtein v1.2.3
-	github.com/chainguard-dev/clog v1.4.0
+	github.com/chainguard-dev/clog v1.5.0
 	github.com/fatih/color v1.17.0
 	github.com/google/go-cmp v0.6.0
 	github.com/google/go-containerregistry v0.20.1
