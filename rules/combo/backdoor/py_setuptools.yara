@@ -40,6 +40,8 @@ rule setuptools_eval : critical {
     $not_google = /# Copyright [1-2][0-9]{3} Google Inc/
     $not_idna = "A library to support the Internationalised Domain Names in Applications"
     $not_idna2 = "(IDNA) protocol as specified in RFC 5890 et.al."
+    $not_pyspark_exec = "exec(open(\"pyspark/version.py\").read())"
+    $not_pyspark_ioerror = "\"Failed to load PySpark version file for packaging. You must be in Spark's python dir.\""
     $not_requests = "'Documentation': 'https://requests.readthedocs.io'"
     $not_test_egg_class = "class TestEggInfo"
   condition:
@@ -72,6 +74,8 @@ rule setuptools_os_path_exists : notable {
   strings:
     $ref = /[\w\.]{0,8}path.exists\([\"\'\w\ \-\)\/]{0,32}/
     $not_egg_info_requires = "os.path.join(egg_info_dir, 'requires.txt')"
+    $not_pyspark_exec = "exec(open(\"pyspark/version.py\").read())"
+    $not_pyspark_ioerror = "\"Failed to load PySpark version file for packaging. You must be in Spark's python dir.\""
   condition:
     pythonSetup and $ref and none of ($not*)
 }
