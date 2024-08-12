@@ -7,7 +7,7 @@ require (
 	github.com/chainguard-dev/clog v1.4.0
 	github.com/fatih/color v1.17.0
 	github.com/google/go-cmp v0.6.0
-	github.com/google/go-containerregistry v0.20.1
+	github.com/google/go-containerregistry v0.20.2
 	github.com/hillu/go-yara/v4 v4.3.3
 	github.com/liamg/magic v0.0.1
 	github.com/olekukonko/tablewriter v0.0.5
@@ -18,7 +18,7 @@ require (
 
 require (
 	github.com/containerd/stargz-snapshotter/estargz v0.15.1 // indirect
-	github.com/docker/cli v27.0.3+incompatible // indirect
+	github.com/docker/cli v27.1.1+incompatible // indirect
 	github.com/docker/distribution v2.8.3+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.8.2 // indirect
 	github.com/klauspost/compress v1.17.9 // indirect
