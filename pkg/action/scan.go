@@ -169,7 +169,6 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 	scanPathFindings := map[string]*bincapz.FileReport{}
 
 	var wg sync.WaitGroup
-	rc := make(chan *bincapz.Report)
 	re := make(chan error)
 
 	for _, scanPath := range c.ScanPaths {
@@ -211,7 +210,6 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 					if !c.OCI {
 						if err := errIfHitOrMiss(frs, "archive", path, c.ErrFirstHit, c.ErrFirstMiss); err != nil {
 							logger.Debugf("match short circuit: %v", err)
-							rc <- r
 							re <- err
 						}
 					}
@@ -230,7 +228,6 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 				logger.Debug("processing path", slog.Any("path", path))
 				fr, err := processFile(ctx, c, yrs, path, scanPath, trimPath, logger)
 				if err != nil {
-					rc <- r
 					re <- err
 				}
 				if fr == nil {
@@ -240,7 +237,6 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 				if !c.OCI {
 					if err := errIfHitOrMiss(map[string]*bincapz.FileReport{path: fr}, "file", path, c.ErrFirstHit, c.ErrFirstMiss); err != nil {
 						logger.Debugf("match short circuit: %s", err)
-						rc <- r
 						re <- err
 					}
 				}
@@ -249,7 +245,6 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 			// OCI images handle their match his/miss logic per scanPath
 			if c.OCI {
 				if err := errIfHitOrMiss(scanPathFindings, "image", imageURI, c.ErrFirstHit, c.ErrFirstMiss); err != nil {
-					rc <- r
 					re <- err
 				}
 
@@ -265,7 +260,6 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 	} // loop: next scan path
 	go func() {
 		wg.Wait()
-		close(rc)
 		close(re)
 	}()
 
@@ -273,11 +267,6 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 		if err != nil {
 			return nil, err
 		}
-	}
-
-	for pr := range rc {
-		fmt.Printf("%+v\n", pr)
-		r = pr
 	}
 	logger.Debugf("recursive scan complete: %d files", len(r.Files))
 	return r, nil
