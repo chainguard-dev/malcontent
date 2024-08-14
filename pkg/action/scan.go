@@ -69,7 +69,7 @@ func formatPath(path string) string {
 }
 
 // scanSinglePath YARA scans a single path and converts it to a fileReport.
-func scanSinglePath(ctx context.Context, c bincapz.Config, yrs *yara.Rules, path string, absPath string, archiveRoot string) (*bincapz.FileReport, error) {
+func scanSinglePath(ctx context.Context, c bincapz.Config, yrs *yara.Rules, path string, absPath string, archiveRoot string, fd uintptr) (*bincapz.FileReport, error) {
 	logger := clog.FromContext(ctx)
 	var mrs yara.MatchRules
 	logger = logger.With("path", path)
@@ -82,7 +82,7 @@ func scanSinglePath(ctx context.Context, c bincapz.Config, yrs *yara.Rules, path
 	}
 
 	logger.Debug("calling YARA ScanFile")
-	if err := yrs.ScanFile(path, 0, 0, &mrs); err != nil {
+	if err := yrs.ScanFileDescriptor(fd, 0, 0, &mrs); err != nil {
 		logger.Info("skipping", slog.Any("error", err))
 		return &bincapz.FileReport{Path: path, Error: fmt.Sprintf("scanfile: %v", err)}, nil
 	}
@@ -192,9 +192,14 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 
 		// path refers to a real local path, not the requested scanPath
 		for _, path := range paths {
+			f, err := os.Open(path)
+			if err != nil {
+				return nil, err
+			}
+			fd := f.Fd()
 			if isSupportedArchive(path) {
 				logger.Debug("found archive path", slog.Any("path", path))
-				frs, err := processArchive(ctx, c, yrs, path, logger)
+				frs, err := processArchive(ctx, c, yrs, path, logger, fd)
 				if err != nil {
 					logger.Errorf("unable to process %s: %v", path, err)
 				}
@@ -220,7 +225,7 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 			}
 
 			logger.Debug("processing path", slog.Any("path", path))
-			fr, err := processFile(ctx, c, yrs, path, scanPath, trimPath, logger)
+			fr, err := processFile(ctx, c, yrs, path, scanPath, trimPath, logger, fd)
 			if err != nil {
 				return r, err
 			}
@@ -257,7 +262,7 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 }
 
 // processArchive extracts and scans a single archive file.
-func processArchive(ctx context.Context, c bincapz.Config, yrs *yara.Rules, archivePath string, logger *clog.Logger) (map[string]*bincapz.FileReport, error) {
+func processArchive(ctx context.Context, c bincapz.Config, yrs *yara.Rules, archivePath string, logger *clog.Logger, fd uintptr) (map[string]*bincapz.FileReport, error) {
 	logger = logger.With("archivePath", archivePath)
 
 	var err error
@@ -274,7 +279,7 @@ func processArchive(ctx context.Context, c bincapz.Config, yrs *yara.Rules, arch
 	}
 
 	for _, extractedFilePath := range extractedPaths {
-		fr, err := processFile(ctx, c, yrs, extractedFilePath, archivePath, tmpRoot, logger)
+		fr, err := processFile(ctx, c, yrs, extractedFilePath, archivePath, tmpRoot, logger, fd)
 		if err != nil {
 			return nil, err
 		}
@@ -290,10 +295,10 @@ func processArchive(ctx context.Context, c bincapz.Config, yrs *yara.Rules, arch
 }
 
 // processFile scans a single output file, rendering live output if available.
-func processFile(ctx context.Context, c bincapz.Config, yrs *yara.Rules, path string, scanPath string, archiveRoot string, logger *clog.Logger) (*bincapz.FileReport, error) {
+func processFile(ctx context.Context, c bincapz.Config, yrs *yara.Rules, path string, scanPath string, archiveRoot string, logger *clog.Logger, fd uintptr) (*bincapz.FileReport, error) {
 	logger = logger.With("path", path)
 
-	fr, err := scanSinglePath(ctx, c, yrs, path, scanPath, archiveRoot)
+	fr, err := scanSinglePath(ctx, c, yrs, path, scanPath, archiveRoot, fd)
 	if err != nil {
 		logger.Errorf("scan path: %v", err)
 		return nil, nil
