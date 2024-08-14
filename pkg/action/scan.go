@@ -187,16 +187,14 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 				ociExtractPath, err = oci(ctx, imageURI)
 				logger.Debug("oci image", slog.Any("scanPath", scanPath), slog.Any("ociExtractPath", ociExtractPath))
 				if err != nil {
-					re <- err
-					// return nil, fmt.Errorf("failed to prepare OCI image for scanning: %w", err)
+					re <- fmt.Errorf("failed to prepare OCI image for scanning: %w", err)
 				}
 				scanPath = ociExtractPath
 			}
 
 			paths, err := findFilesRecursively(ctx, scanPath)
 			if err != nil {
-				re <- err
-				// return nil, fmt.Errorf("find files: %w", err)
+				re <- fmt.Errorf("find files: %w", err)
 			}
 			logger.Debug("files found", slog.Any("path count", len(paths)), slog.Any("scanPath", scanPath))
 
@@ -215,7 +213,6 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 							logger.Debugf("match short circuit: %v", err)
 							rc <- r
 							re <- err
-							// return r, err
 						}
 					}
 
@@ -235,7 +232,6 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 					if err != nil {
 						rc <- r
 						re <- err
-						// return r, err
 					}
 					if fr == nil {
 						continue
@@ -246,7 +242,6 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 							logger.Debugf("match short circuit: %s", err)
 							rc <- r
 							re <- err
-							// return r, err
 						}
 					}
 
@@ -258,7 +253,6 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 				if err := errIfHitOrMiss(scanPathFindings, "image", imageURI, c.ErrFirstHit, c.ErrFirstMiss); err != nil {
 					rc <- r
 					re <- err
-					// return r, err
 				}
 
 				if err := os.RemoveAll(ociExtractPath); err != nil {
@@ -277,6 +271,12 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 		close(rc)
 		close(re)
 	}()
+
+	for err := range re {
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	for report := range rc {
 		fmt.Printf("%+v\n", report)
