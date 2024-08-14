@@ -220,31 +220,29 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 						scanPathFindings[extractedPath] = fr
 					}
 					continue
-				} else {
-					trimPath := ""
-					if c.OCI {
-						scanPath = imageURI
-						trimPath = ociExtractPath
-					}
+				}
+				trimPath := ""
+				if c.OCI {
+					scanPath = imageURI
+					trimPath = ociExtractPath
+				}
 
-					logger.Debug("processing path", slog.Any("path", path))
-					fr, err := processFile(ctx, c, yrs, path, scanPath, trimPath, logger)
-					if err != nil {
+				logger.Debug("processing path", slog.Any("path", path))
+				fr, err := processFile(ctx, c, yrs, path, scanPath, trimPath, logger)
+				if err != nil {
+					rc <- r
+					re <- err
+				}
+				if fr == nil {
+					continue
+				}
+				scanPathFindings[path] = fr
+				if !c.OCI {
+					if err := errIfHitOrMiss(map[string]*bincapz.FileReport{path: fr}, "file", path, c.ErrFirstHit, c.ErrFirstMiss); err != nil {
+						logger.Debugf("match short circuit: %s", err)
 						rc <- r
 						re <- err
 					}
-					if fr == nil {
-						continue
-					}
-					scanPathFindings[path] = fr
-					if !c.OCI {
-						if err := errIfHitOrMiss(map[string]*bincapz.FileReport{path: fr}, "file", path, c.ErrFirstHit, c.ErrFirstMiss); err != nil {
-							logger.Debugf("match short circuit: %s", err)
-							rc <- r
-							re <- err
-						}
-					}
-
 				}
 			}
 
@@ -263,7 +261,6 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 			for path, fr := range scanPathFindings {
 				r.Files[path] = fr
 			}
-
 		}(scanPath)
 	} // loop: next scan path
 	go func() {
@@ -278,9 +275,9 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 		}
 	}
 
-	for report := range rc {
-		fmt.Printf("%+v\n", report)
-		r = report
+	for pr := range rc {
+		fmt.Printf("%+v\n", pr)
+		r = pr
 	}
 	logger.Debugf("recursive scan complete: %d files", len(r.Files))
 	return r, nil

@@ -27,7 +27,7 @@ func reduceMarkdown(s string) string {
 
 func TestOCI(t *testing.T) {
 	t.Parallel()
-	ctx := slogtest.TestContextWithLogger(t)
+	ctx := slogtest.Context(t)
 	clog.FromContext(ctx).With("test", "scan_archive")
 
 	yrs, err := compile.Recursive(ctx, []fs.FS{rules.FS, thirdparty.FS})
