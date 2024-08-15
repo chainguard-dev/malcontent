@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"io/fs"
 	"os"
-	"regexp"
 	"testing"
 
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
@@ -16,15 +15,6 @@ import (
 	"github.com/chainguard-dev/clog/slogtest"
 	"github.com/google/go-cmp/cmp"
 )
-
-func reduceMarkdown(s string) string {
-	spaceRe := regexp.MustCompile(` +`)
-	dashRe := regexp.MustCompile(` -`)
-
-	s = spaceRe.ReplaceAllString(s, " ")
-	s = dashRe.ReplaceAllString(s, " ")
-	return s
-}
 
 func TestOCI(t *testing.T) {
 	t.Parallel()

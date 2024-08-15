@@ -343,7 +343,7 @@ func processFile(ctx context.Context, c bincapz.Config, yrs *yara.Rules, path st
 	fr, err := scanSinglePath(ctx, c, yrs, path, scanPath, archiveRoot)
 	if err != nil {
 		logger.Errorf("scan path: %v", err)
-		return nil, nil
+		return nil, err
 	}
 
 	if fr == nil {
@@ -353,7 +353,7 @@ func processFile(ctx context.Context, c bincapz.Config, yrs *yara.Rules, path st
 
 	if fr.Error != "" {
 		logger.Errorf("scan error: %s", fr.Error)
-		return nil, nil
+		return nil, fmt.Errorf("report error: %v", fr.Error)
 	}
 
 	return fr, nil

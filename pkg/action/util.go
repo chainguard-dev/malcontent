@@ -14,9 +14,11 @@ type byKey []KV
 func (a byKey) Len() int {
 	return len(a)
 }
+
 func (a byKey) Swap(i, j int) {
 	a[i], a[j] = a[j], a[i]
 }
+
 func (a byKey) Less(i, j int) bool {
 	return a[i].key < a[j].key
 }
