@@ -15,15 +15,15 @@ func riskStatistics(files *orderedmap.OrderedMap[string, *bincapz.FileReport]) (
 
 	// as opposed to skipped files
 	processedFiles := 0
-	for kv := files.Oldest(); kv != nil; kv = kv.Next() {
-		if kv.Value.Skipped != "" {
+	for files := files.Oldest(); files != nil; files = files.Next() {
+		if files.Value.Skipped != "" {
 			continue
 		}
 		processedFiles++
-		if kv.Value.Skipped != "" {
+		if files.Value.Skipped != "" {
 			continue
 		}
-		riskMap[kv.Value.RiskScore] = append(riskMap[kv.Value.RiskScore], kv.Value.Path)
+		riskMap[files.Value.RiskScore] = append(riskMap[files.Value.RiskScore], files.Value.Path)
 		for riskLevel := range riskMap {
 			riskStats[riskLevel] = (float64(len(riskMap[riskLevel])) / float64(processedFiles)) * 100
 		}
@@ -51,8 +51,8 @@ func pkgStatistics(files *orderedmap.OrderedMap[string, *bincapz.FileReport]) ([
 	numNamespaces := 0
 	pkgMap := make(map[string]int)
 	pkg := make(map[string]float64)
-	for kv := files.Oldest(); kv != nil; kv = kv.Next() {
-		for _, namespace := range kv.Value.Behaviors {
+	for files := files.Oldest(); files != nil; files = files.Next() {
+		for _, namespace := range files.Value.Behaviors {
 			numNamespaces++
 			pkgMap[namespace.ID]++
 		}

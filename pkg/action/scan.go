@@ -365,19 +365,19 @@ func Scan(ctx context.Context, c bincapz.Config) (*bincapz.Report, error) {
 	if err != nil {
 		return r, err
 	}
-	for kv := r.Files.Oldest(); kv != nil; kv = kv.Next() {
-		if kv.Value.RiskScore < c.MinFileRisk {
-			r.Files.Delete(kv.Key)
+	for files := r.Files.Oldest(); files != nil; files = files.Next() {
+		if files.Value.RiskScore < c.MinFileRisk {
+			r.Files.Delete(files.Key)
 		}
 	}
 	if c.Renderer != nil && r.Diff == nil {
-		for kv := r.Files.Oldest(); kv != nil; kv = kv.Next() {
-			if kv.Value.RiskScore < c.MinFileRisk {
+		for files := r.Files.Oldest(); files != nil; files = files.Next() {
+			if files.Value.RiskScore < c.MinFileRisk {
 				// logger.Infof("%s [%d] does not meet min file risk [%d]", path, fr.RiskScore, c.MinFileRisk)
 				return nil, nil
 			}
 
-			if err := c.Renderer.File(ctx, kv.Value); err != nil {
+			if err := c.Renderer.File(ctx, files.Value); err != nil {
 				return nil, fmt.Errorf("render: %w", err)
 			}
 		}

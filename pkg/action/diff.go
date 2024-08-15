@@ -26,15 +26,15 @@ func relFileReport(ctx context.Context, c bincapz.Config, fromPath string) (map[
 		return nil, err
 	}
 	fromRelPath := map[string]*bincapz.FileReport{}
-	for kv := fromReport.Files.Oldest(); kv != nil; kv = kv.Next() {
-		if kv.Value.Skipped != "" || kv.Value.Error != "" {
+	for files := fromReport.Files.Oldest(); files != nil; files = files.Next() {
+		if files.Value.Skipped != "" || files.Value.Error != "" {
 			continue
 		}
-		rel, err := filepath.Rel(fromPath, kv.Value.Path)
+		rel, err := filepath.Rel(fromPath, files.Value.Path)
 		if err != nil {
-			return nil, fmt.Errorf("rel(%q,%q): %w", fromPath, kv.Value.Path, err)
+			return nil, fmt.Errorf("rel(%q,%q): %w", fromPath, files.Value.Path, err)
 		}
-		fromRelPath[rel] = kv.Value
+		fromRelPath[rel] = files.Value
 	}
 
 	return fromRelPath, nil
