@@ -158,9 +158,8 @@ func errIfHitOrMiss(frs map[string]*bincapz.FileReport, kind string, scanPath st
 func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, error) {
 	logger := clog.FromContext(ctx)
 	logger.Debug("recursive scan", slog.Any("config", c))
-	om := orderedmap.New[string, *bincapz.FileReport]()
 	r := &bincapz.Report{
-		Files: om,
+		Files: orderedmap.New[string, *bincapz.FileReport](),
 	}
 	if len(c.IgnoreTags) > 0 {
 		r.Filter = strings.Join(c.IgnoreTags, ",")
