@@ -11,7 +11,6 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
-	"sync"
 
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
 	"github.com/chainguard-dev/bincapz/pkg/render"
@@ -19,6 +18,7 @@ import (
 	"github.com/chainguard-dev/clog"
 	"github.com/hillu/go-yara/v4"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
+	"golang.org/x/sync/errgroup"
 )
 
 // findFilesRecurslively returns a list of files found recursively within a path.
@@ -198,73 +198,85 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 		}
 		logger.Debug("files found", slog.Any("path count", len(paths)), slog.Any("scanPath", scanPath))
 
-		// path refers to a real local path, not the requested scanPath
-		var wg sync.WaitGroup
-		re := make(chan error)
-		type findings struct {
-			path string
-			fr   *bincapz.FileReport
-		}
-		rc := make(chan findings)
 		maxConcurrency := c.Concurrency
 		if maxConcurrency < 1 {
 			maxConcurrency = 1
 		} else if maxConcurrency > len(paths) {
 			maxConcurrency = len(paths)
 		}
-		semaphore := make(chan struct{}, maxConcurrency)
+
+		var g errgroup.Group
+		// path refers to a real local path, not the requested scanPath
+		pc := make(chan string, len(paths))
 		for _, path := range paths {
-			wg.Add(1)
-			go func(path string) {
-				semaphore <- struct{}{}
-				defer wg.Done()
-				defer func() { <-semaphore }()
-				if isSupportedArchive(path) {
-					logger.Debug("found archive path", slog.Any("path", path))
-					frs, err := processArchive(ctx, c, yrs, path, logger)
-					if err != nil {
-						logger.Errorf("unable to process %s: %v", path, err)
-					}
+			pc <- path
+		}
+		close(pc)
 
-					// If we're handling an archive within an OCI archive, wait to for other files to declare a miss
-					if !c.OCI {
-						if err := errIfHitOrMiss(frs, "archive", path, c.ErrFirstHit, c.ErrFirstMiss); err != nil {
-							re <- err
+		type findings struct {
+			path string
+			fr   *bincapz.FileReport
+		}
+		rc := make(chan findings)
+		process := func() error {
+			for {
+				select {
+				case path, ok := <-pc:
+					if !ok {
+						return nil
+					}
+					if isSupportedArchive(path) {
+						logger.Debug("found archive path", slog.Any("path", path))
+						frs, err := processArchive(ctx, c, yrs, path, logger)
+						if err != nil {
+							logger.Errorf("unable to process %s: %v", path, err)
+						}
+
+						// If we're handling an archive within an OCI archive, wait to for other files to declare a miss
+						if !c.OCI {
+							if err := errIfHitOrMiss(frs, "archive", path, c.ErrFirstHit, c.ErrFirstMiss); err != nil {
+								rc <- findings{path: path, fr: &bincapz.FileReport{}}
+								return err
+							}
+						}
+
+						for extractedPath, fr := range frs {
+							rc <- findings{path: extractedPath, fr: fr}
+						}
+					} else {
+						trimPath := ""
+						if c.OCI {
+							scanPath = imageURI
+							trimPath = ociExtractPath
+						}
+
+						logger.Debug("processing path", slog.Any("path", path))
+						fr, err := processFile(ctx, c, yrs, path, scanPath, trimPath, logger)
+						if err != nil {
 							rc <- findings{path: path, fr: &bincapz.FileReport{}}
+							return err
+						}
+						if fr != nil {
+							rc <- findings{path: path, fr: fr}
+							if !c.OCI {
+								if err := errIfHitOrMiss(map[string]*bincapz.FileReport{path: fr}, "file", path, c.ErrFirstHit, c.ErrFirstMiss); err != nil {
+									logger.Debugf("match short circuit: %s", err)
+									rc <- findings{path: path, fr: &bincapz.FileReport{}}
+								}
+							}
 						}
 					}
+				}
+			}
+		}
 
-					for extractedPath, fr := range frs {
-						rc <- findings{path: extractedPath, fr: fr}
-					}
-				}
-
-				trimPath := ""
-				if c.OCI {
-					scanPath = imageURI
-					trimPath = ociExtractPath
-				}
-
-				logger.Debug("processing path", slog.Any("path", path))
-				fr, err := processFile(ctx, c, yrs, path, scanPath, trimPath, logger)
-				if err != nil {
-					re <- err
-					rc <- findings{path: path, fr: &bincapz.FileReport{}}
-				}
-				if fr != nil {
-					rc <- findings{path: path, fr: fr}
-					if !c.OCI {
-						if err := errIfHitOrMiss(map[string]*bincapz.FileReport{path: fr}, "file", path, c.ErrFirstHit, c.ErrFirstMiss); err != nil {
-							logger.Debugf("match short circuit: %s", err)
-							rc <- findings{path: path, fr: &bincapz.FileReport{}}
-						}
-					}
-				}
-			}(path)
+		for i := 0; i < maxConcurrency; i++ {
+			g.Go(process)
 		}
 		go func() {
-			wg.Wait()
-			close(re)
+			if err := g.Wait(); err != nil {
+				fmt.Errorf("error with processing %v\n", err)
+			}
 			close(rc)
 		}()
 
@@ -272,11 +284,6 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 			scanPathFindings[f.path] = f.fr
 		}
 
-		for err := range re {
-			if err != nil {
-				return nil, err
-			}
-		}
 		// OCI images hadle their match his/miss logic per scanPath
 		if c.OCI {
 			if err := errIfHitOrMiss(scanPathFindings, "image", imageURI, c.ErrFirstHit, c.ErrFirstMiss); err != nil {

@@ -20,9 +20,6 @@ func riskStatistics(files *orderedmap.OrderedMap[string, *bincapz.FileReport]) (
 			continue
 		}
 		processedFiles++
-		if files.Value.Skipped != "" {
-			continue
-		}
 		riskMap[files.Value.RiskScore] = append(riskMap[files.Value.RiskScore], files.Value.Path)
 		for riskLevel := range riskMap {
 			riskStats[riskLevel] = (float64(len(riskMap[riskLevel])) / float64(processedFiles)) * 100
