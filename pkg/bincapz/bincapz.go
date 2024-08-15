@@ -32,6 +32,7 @@ type Config struct {
 	Stats                 bool
 	ErrFirstMiss          bool
 	ErrFirstHit           bool
+	Concurrency           int
 }
 
 type Behavior struct {

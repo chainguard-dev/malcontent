@@ -80,7 +80,7 @@ func programKind(ctx context.Context, path string) string {
 	headerString := ""
 	n, err := io.ReadFull(f, header[:])
 	if err == nil || errors.Is(err, io.ErrUnexpectedEOF) {
-		kind, err := magic.Lookup(header[:n])
+		kind, err := magic.LookupSync(header[:n])
 		if err == nil {
 			desc = kind.Description
 		}

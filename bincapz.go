@@ -11,6 +11,7 @@ import (
 	"io/fs"
 	"log/slog"
 	"os"
+	"runtime"
 	"strings"
 
 	"github.com/chainguard-dev/bincapz/pkg/action"
@@ -56,6 +57,7 @@ func parseRisk(s string) int {
 
 func main() {
 	allFlag := flag.Bool("all", false, "Ignore nothing, show all")
+	concurrencyFlag := flag.Int("c", runtime.NumCPU(), "Concurrently scan files within target directories")
 	diffFlag := flag.Bool("diff", false, "Show capability drift between two files")
 	formatFlag := flag.String("format", "terminal", "Output type -- valid values are: json, markdown, simple, terminal, yaml")
 	ignoreSelfFlag := flag.Bool("ignore-self", true, "Ignore the bincapz binary")
@@ -192,6 +194,7 @@ func main() {
 		Stats:                 stats,
 		ErrFirstHit:           *errFirstHitFlag,
 		ErrFirstMiss:          *errFirstMissFlag,
+		Concurrency:           *concurrencyFlag,
 	}
 
 	var res *bincapz.Report

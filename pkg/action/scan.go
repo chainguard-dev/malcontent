@@ -9,7 +9,6 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
-	"runtime"
 	"sort"
 	"strings"
 	"sync"
@@ -208,7 +207,12 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 			fr   *bincapz.FileReport
 		}
 		rc := make(chan findings)
-		maxConcurrency := runtime.NumCPU()
+		maxConcurrency := c.Concurrency
+		if maxConcurrency < 1 {
+			maxConcurrency = 1
+		} else if maxConcurrency > len(paths) {
+			maxConcurrency = len(paths)
+		}
 		semaphore := make(chan struct{}, maxConcurrency)
 		for _, path := range paths {
 			wg.Add(1)
