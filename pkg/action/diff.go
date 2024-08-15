@@ -55,13 +55,10 @@ func Diff(ctx context.Context, c bincapz.Config) (*bincapz.Report, error) {
 		return nil, err
 	}
 
-	oma := orderedmap.New[string, *bincapz.FileReport]()
-	omr := orderedmap.New[string, *bincapz.FileReport]()
-	omm := orderedmap.New[string, *bincapz.FileReport]()
 	d := &bincapz.DiffReport{
-		Added:    oma,
-		Removed:  omr,
-		Modified: omm,
+		Added:    orderedmap.New[string, *bincapz.FileReport](),
+		Removed:  orderedmap.New[string, *bincapz.FileReport](),
+		Modified: orderedmap.New[string, *bincapz.FileReport](),
 	}
 
 	processSrc(ctx, c, src, dest, d)
