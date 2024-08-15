@@ -9,6 +9,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"runtime"
 	"sort"
 	"strings"
 	"sync"
@@ -207,10 +208,14 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 			fr   *bincapz.FileReport
 		}
 		rc := make(chan findings)
+		maxConcurrency := runtime.NumCPU()
+		semaphore := make(chan struct{}, maxConcurrency)
 		for _, path := range paths {
 			wg.Add(1)
 			go func(path string) {
+				semaphore <- struct{}{}
 				defer wg.Done()
+				defer func() { <-semaphore }()
 				if isSupportedArchive(path) {
 					logger.Debug("found archive path", slog.Any("path", path))
 					frs, err := processArchive(ctx, c, yrs, path, logger)

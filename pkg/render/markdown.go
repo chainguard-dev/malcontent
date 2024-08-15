@@ -42,7 +42,7 @@ func matchFragmentLink(s string) string {
 }
 
 func (r Markdown) File(ctx context.Context, fr *bincapz.FileReport) error {
-	if len(fr.Behaviors) != 0 {
+	if len(fr.Behaviors) > 0 {
 		markdownTable(ctx, fr, r.w, tableConfig{Title: fmt.Sprintf("## %s [%s]", fr.Path, mdRisk(fr.RiskScore, fr.RiskLevel))})
 	}
 	return nil

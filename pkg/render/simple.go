@@ -25,7 +25,7 @@ func (r Simple) File(_ context.Context, fr *bincapz.FileReport) error {
 		return nil
 	}
 
-	if len(fr.Behaviors) != 0 {
+	if len(fr.Behaviors) > 0 {
 		fmt.Fprintf(r.w, "# %s\n", fr.Path)
 	}
 
