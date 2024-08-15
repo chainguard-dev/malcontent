@@ -5,6 +5,8 @@ import (
 	"io/fs"
 	"os"
 	"regexp"
+	"sort"
+	"strings"
 	"testing"
 
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
@@ -14,6 +16,7 @@ import (
 	thirdparty "github.com/chainguard-dev/bincapz/third_party"
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/clog/slogtest"
+	"github.com/google/go-cmp/cmp"
 )
 
 func reduceMarkdown(s string) string {
@@ -28,7 +31,7 @@ func reduceMarkdown(s string) string {
 func TestOCI(t *testing.T) {
 	t.Parallel()
 	ctx := slogtest.Context(t)
-	clog.FromContext(ctx).With("test", "scan_archive")
+	clog.FromContext(ctx).With("test", "scan_oci")
 
 	yrs, err := compile.Recursive(ctx, []fs.FS{rules.FS, thirdparty.FS})
 	if err != nil {
@@ -57,14 +60,24 @@ func TestOCI(t *testing.T) {
 		t.Fatalf("full: %v", err)
 	}
 
-	got := reduceMarkdown(out.String())
+	// Sort the output to ensure consistent ordering
+	// This is non-deterministic due to multiple files being scanned
+	sorted := func(input []byte) []byte {
+		lines := strings.Split(string(input), "\n")
+		sort.Strings(lines)
+		return []byte(strings.Join(lines, "\n"))
+	}
+	sortedOut := sorted(out.Bytes())
+	got := string(sortedOut)
 
 	td, err := os.ReadFile("testdata/scan_oci")
 	if err != nil {
 		t.Fatalf("testdata read failed: %v", err)
 	}
-	want := reduceMarkdown(string(td))
-	if got != want {
-		t.Fatalf("got %q, want %q", got, want)
+	// Sort the loaded contents to ensure consistent ordering
+	sortedWant := sorted(td)
+	want := string(sortedWant)
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("Simple output mismatch: (-want +got):\n%s", diff)
 	}
 }

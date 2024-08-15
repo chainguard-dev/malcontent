@@ -1,4 +1,3 @@
-
 # testdata/apko_nested.tar.gz ∴ /apko_0.13.2_linux_arm64/apko
 archives/zip
 combo/dropper/shell
@@ -117,3 +116,6 @@ security_controls/linux/selinux
 shell/background/sleep
 shell/exec
 time/clock/set
+# testdata/apko_nested.tar.gz
+process/chdir
+ref/path/relative

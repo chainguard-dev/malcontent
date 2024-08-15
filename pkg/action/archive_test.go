@@ -6,8 +6,6 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
-	"sort"
-	"strings"
 	"testing"
 
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
@@ -246,14 +244,7 @@ func TestScanArchive(t *testing.T) {
 
 	outBytes := out.Bytes()
 
-	// Sort the output to ensure consistent ordering
-	sorted := func(input []byte) []byte {
-		lines := strings.Split(string(input), "\n")
-		sort.Strings(lines)
-		return []byte(strings.Join(lines, "\n"))
-	}
-	sortedBytes := sorted(outBytes)
-	got := string(sortedBytes)
+	got := string(outBytes)
 
 	td, err := os.ReadFile("testdata/scan_archive")
 	if err != nil {
