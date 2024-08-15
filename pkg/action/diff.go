@@ -157,9 +157,10 @@ func fileDestination(ctx context.Context, c bincapz.Config, fr, tr *bincapz.File
 	if _, exists := d.Modified.Get(relPath); !exists {
 		d.Modified.Set(relPath, abs)
 	} else {
-		rel, _ := d.Modified.Get(relPath)
-		rel.Behaviors = append(rel.Behaviors, abs.Behaviors...)
-		d.Modified.Set(relPath, rel)
+		if rel, exists := d.Modified.Get(relPath); exists {
+			rel.Behaviors = append(rel.Behaviors, abs.Behaviors...)
+			d.Modified.Set(relPath, rel)
+		}
 	}
 }
 
