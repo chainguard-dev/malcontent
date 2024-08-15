@@ -5,8 +5,6 @@ import (
 	"io/fs"
 	"os"
 	"regexp"
-	"sort"
-	"strings"
 	"testing"
 
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
@@ -60,23 +58,14 @@ func TestOCI(t *testing.T) {
 		t.Fatalf("full: %v", err)
 	}
 
-	// Sort the output to ensure consistent ordering
-	// This is non-deterministic due to multiple files being scanned
-	sorted := func(input []byte) []byte {
-		lines := strings.Split(string(input), "\n")
-		sort.Strings(lines)
-		return []byte(strings.Join(lines, "\n"))
-	}
-	sortedOut := sorted(out.Bytes())
-	got := string(sortedOut)
+	got := out.String()
 
 	td, err := os.ReadFile("testdata/scan_oci")
 	if err != nil {
 		t.Fatalf("testdata read failed: %v", err)
 	}
 	// Sort the loaded contents to ensure consistent ordering
-	sortedWant := sorted(td)
-	want := string(sortedWant)
+	want := string(td)
 	if diff := cmp.Diff(want, got); diff != "" {
 		t.Errorf("Simple output mismatch: (-want +got):\n%s", diff)
 	}

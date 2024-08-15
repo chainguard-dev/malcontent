@@ -8,6 +8,7 @@ import (
 	"io"
 
 	"github.com/hillu/go-yara/v4"
+	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
 // Renderer is a common interface for Renderers.
@@ -84,15 +85,15 @@ type FileReport struct {
 }
 
 type DiffReport struct {
-	Added    map[string]*FileReport `json:",omitempty" yaml:",omitempty"`
-	Removed  map[string]*FileReport `json:",omitempty" yaml:",omitempty"`
-	Modified map[string]*FileReport `json:",omitempty" yaml:",omitempty"`
+	Added    *orderedmap.OrderedMap[string, *FileReport] `json:",omitempty" yaml:",omitempty"`
+	Removed  *orderedmap.OrderedMap[string, *FileReport] `json:",omitempty" yaml:",omitempty"`
+	Modified *orderedmap.OrderedMap[string, *FileReport] `json:",omitempty" yaml:",omitempty"`
 }
 
 type Report struct {
-	Files  map[string]*FileReport `json:",omitempty" yaml:",omitempty"`
-	Diff   *DiffReport            `json:",omitempty" yaml:",omitempty"`
-	Filter string                 `json:",omitempty" yaml:",omitempty"`
+	Files  *orderedmap.OrderedMap[string, *FileReport] `json:",omitempty" yaml:",omitempty"`
+	Diff   *DiffReport                                 `json:",omitempty" yaml:",omitempty"`
+	Filter string                                      `json:",omitempty" yaml:",omitempty"`
 }
 
 type IntMetric struct {

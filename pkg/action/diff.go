@@ -14,6 +14,7 @@ import (
 	"github.com/agext/levenshtein"
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
 	"github.com/chainguard-dev/clog"
+	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
 func relFileReport(ctx context.Context, c bincapz.Config, fromPath string) (map[string]*bincapz.FileReport, error) {
@@ -25,15 +26,15 @@ func relFileReport(ctx context.Context, c bincapz.Config, fromPath string) (map[
 		return nil, err
 	}
 	fromRelPath := map[string]*bincapz.FileReport{}
-	for _, f := range fromReport.Files {
-		if f.Skipped != "" || f.Error != "" {
+	for kv := fromReport.Files.Oldest(); kv != nil; kv = kv.Next() {
+		if kv.Value.Skipped != "" || kv.Value.Error != "" {
 			continue
 		}
-		rel, err := filepath.Rel(fromPath, f.Path)
+		rel, err := filepath.Rel(fromPath, kv.Value.Path)
 		if err != nil {
-			return nil, fmt.Errorf("rel(%q,%q): %w", fromPath, f.Path, err)
+			return nil, fmt.Errorf("rel(%q,%q): %w", fromPath, kv.Value.Path, err)
 		}
-		fromRelPath[rel] = f
+		fromRelPath[rel] = kv.Value
 	}
 
 	return fromRelPath, nil
@@ -54,10 +55,13 @@ func Diff(ctx context.Context, c bincapz.Config) (*bincapz.Report, error) {
 		return nil, err
 	}
 
+	oma := orderedmap.New[string, *bincapz.FileReport]()
+	omr := orderedmap.New[string, *bincapz.FileReport]()
+	omm := orderedmap.New[string, *bincapz.FileReport]()
 	d := &bincapz.DiffReport{
-		Added:    map[string]*bincapz.FileReport{},
-		Removed:  map[string]*bincapz.FileReport{},
-		Modified: map[string]*bincapz.FileReport{},
+		Added:    oma,
+		Removed:  omr,
+		Modified: omm,
 	}
 
 	processSrc(ctx, c, src, dest, d)
@@ -74,7 +78,7 @@ func processSrc(ctx context.Context, c bincapz.Config, src, dest map[string]*bin
 	for relPath, fr := range src {
 		tr, exists := dest[relPath]
 		if !exists {
-			d.Removed[relPath] = fr
+			d.Removed.Set(relPath, fr)
 			continue
 		}
 		handleFile(ctx, c, fr, tr, relPath, d)
@@ -98,7 +102,7 @@ func handleFile(ctx context.Context, c bincapz.Config, fr, tr *bincapz.FileRepor
 		}
 	}
 
-	d.Modified[relPath] = rbs
+	d.Modified.Set(relPath, rbs)
 }
 
 func createFileReport(tr, fr *bincapz.FileReport) *bincapz.FileReport {
@@ -127,7 +131,7 @@ func processDest(ctx context.Context, c bincapz.Config, from, to map[string]*bin
 	for relPath, tr := range to {
 		fr, exists := from[relPath]
 		if !exists {
-			d.Added[relPath] = tr
+			d.Added.Set(relPath, tr)
 			continue
 		}
 
@@ -153,10 +157,12 @@ func fileDestination(ctx context.Context, c bincapz.Config, fr, tr *bincapz.File
 	}
 
 	// are there already modified behaviors for this file?
-	if _, exists := d.Modified[relPath]; !exists {
-		d.Modified[relPath] = abs
+	if _, exists := d.Modified.Get(relPath); !exists {
+		d.Modified.Set(relPath, abs)
 	} else {
-		d.Modified[relPath].Behaviors = append(d.Modified[relPath].Behaviors, abs.Behaviors...)
+		rel, _ := d.Modified.Get(relPath)
+		rel.Behaviors = append(rel.Behaviors, abs.Behaviors...)
+		d.Modified.Set(relPath, rel)
 	}
 }
 
@@ -172,20 +178,21 @@ func combineReports(d *bincapz.DiffReport) []diffReports {
 	diffs := make(chan diffReports)
 	var wg sync.WaitGroup
 
-	for rpath, rfr := range d.Removed {
+	for removed := d.Removed.Oldest(); removed != nil; removed = removed.Next() {
 		wg.Add(1)
 		go func(path string, fr *bincapz.FileReport) {
 			defer wg.Done()
-			for apath, afr := range d.Added {
+			for added := d.Added.Oldest(); added != nil; added = added.Next() {
 				diffs <- diffReports{
-					Added:     apath,
-					AddedFR:   afr,
+					Added:     added.Key,
+					AddedFR:   added.Value,
 					Removed:   path,
 					RemovedFR: fr,
 				}
 			}
-		}(rpath, rfr)
+		}(removed.Key, removed.Value)
 	}
+
 	go func() {
 		wg.Wait()
 		close(diffs)
@@ -246,8 +253,8 @@ func fileMove(ctx context.Context, c bincapz.Config, fr, tr *bincapz.FileReport,
 
 	// Move these into the modified list if the files are not completely different (something like ~0.3)
 	if score > 0.3 {
-		d.Modified[apath] = abs
-		delete(d.Removed, rpath)
-		delete(d.Added, apath)
+		d.Modified.Set(apath, abs)
+		d.Modified.Delete(rpath)
+		d.Modified.Delete(apath)
 	}
 }

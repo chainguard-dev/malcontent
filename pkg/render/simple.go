@@ -48,11 +48,11 @@ func (r Simple) Full(_ context.Context, rep *bincapz.Report) error {
 		return nil
 	}
 
-	for f, fr := range rep.Diff.Removed {
-		fmt.Fprintf(r.w, "--- missing: %s\n", f)
+	for removed := rep.Diff.Removed.Oldest(); removed != nil; removed = removed.Next() {
+		fmt.Fprintf(r.w, "--- missing: %s\n", removed.Key)
 
 		var bs []*bincapz.Behavior
-		bs = append(bs, fr.Behaviors...)
+		bs = append(bs, removed.Value.Behaviors...)
 
 		sort.Slice(bs, func(i, j int) bool {
 			return bs[i].ID < bs[j].ID
@@ -63,11 +63,11 @@ func (r Simple) Full(_ context.Context, rep *bincapz.Report) error {
 		}
 	}
 
-	for f, fr := range rep.Diff.Added {
-		fmt.Fprintf(r.w, "++++ added: %s\n", f)
+	for added := rep.Diff.Added.Oldest(); added != nil; added = added.Next() {
+		fmt.Fprintf(r.w, "++++ added: %s\n", added.Key)
 
 		var bs []*bincapz.Behavior
-		bs = append(bs, fr.Behaviors...)
+		bs = append(bs, added.Value.Behaviors...)
 
 		sort.Slice(bs, func(i, j int) bool {
 			return bs[i].ID < bs[j].ID
@@ -78,15 +78,15 @@ func (r Simple) Full(_ context.Context, rep *bincapz.Report) error {
 		}
 	}
 
-	for _, fr := range rep.Diff.Modified {
-		if fr.PreviousRelPath != "" && fr.PreviousRelPathScore >= 0.9 {
-			fmt.Fprintf(r.w, ">>> moved: %s -> %s (score: %f)\n", fr.PreviousRelPath, fr.Path, fr.PreviousRelPathScore)
+	for modified := rep.Diff.Modified.Oldest(); modified != nil; modified = modified.Next() {
+		if modified.Value.PreviousRelPath != "" && modified.Value.PreviousRelPathScore >= 0.9 {
+			fmt.Fprintf(r.w, ">>> moved: %s -> %s (score: %f)\n", modified.Value.PreviousRelPath, modified.Value.Path, modified.Value.PreviousRelPathScore)
 		} else {
-			fmt.Fprintf(r.w, "*** changed: %s\n", fr.Path)
+			fmt.Fprintf(r.w, "*** changed: %s\n", modified.Value.Path)
 		}
 
 		var bs []*bincapz.Behavior
-		bs = append(bs, fr.Behaviors...)
+		bs = append(bs, modified.Value.Behaviors...)
 
 		sort.Slice(bs, func(i, j int) bool {
 			return bs[i].ID < bs[j].ID
@@ -103,5 +103,6 @@ func (r Simple) Full(_ context.Context, rep *bincapz.Report) error {
 			}
 		}
 	}
+
 	return nil
 }

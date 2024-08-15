@@ -12,17 +12,21 @@ require (
 	github.com/liamg/magic v0.0.1
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/ulikunitz/xz v0.5.12
+	github.com/wk8/go-ordered-map/v2 v2.1.8
 	golang.org/x/term v0.23.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
+	github.com/bahlo/generic-list-go v0.2.0 // indirect
+	github.com/buger/jsonparser v1.1.1 // indirect
 	github.com/containerd/stargz-snapshotter/estargz v0.15.1 // indirect
 	github.com/docker/cli v27.1.2+incompatible // indirect
 	github.com/docker/distribution v2.8.3+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.8.2 // indirect
 	github.com/klauspost/compress v1.17.9 // indirect
 	github.com/kr/pretty v0.2.1 // indirect
+	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect

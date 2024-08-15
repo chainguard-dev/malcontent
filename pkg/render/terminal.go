@@ -107,40 +107,37 @@ func (r Terminal) Full(ctx context.Context, rep *bincapz.Report) error {
 		return nil
 	}
 
-	for f, fr := range rep.Diff.Removed {
-		fr := fr
-		renderTable(ctx, fr, r.w, tableConfig{
-			Title:       fmt.Sprintf("Deleted: %s %s", f, darkBrackets(decorativeRisk(fr.RiskScore, fr.RiskLevel))),
+	for removed := rep.Diff.Removed.Oldest(); removed != nil; removed = removed.Next() {
+		renderTable(ctx, removed.Value, r.w, tableConfig{
+			Title:       fmt.Sprintf("Deleted: %s %s", removed.Key, darkBrackets(decorativeRisk(removed.Value.RiskScore, removed.Value.RiskLevel))),
 			DiffRemoved: true,
 		})
 	}
 
-	for f, fr := range rep.Diff.Added {
-		fr := fr
-		renderTable(ctx, fr, r.w, tableConfig{
-			Title:     fmt.Sprintf("Added: %s %s", f, darkBrackets(decorativeRisk(fr.RiskScore, fr.RiskLevel))),
+	for added := rep.Diff.Added.Oldest(); added != nil; added = added.Next() {
+		renderTable(ctx, added.Value, r.w, tableConfig{
+			Title:     fmt.Sprintf("Added: %s %s", added.Key, darkBrackets(decorativeRisk(added.Value.RiskScore, added.Value.RiskLevel))),
 			DiffAdded: true,
 		})
 	}
 
-	for _, fr := range rep.Diff.Modified {
-		fr := fr
+	for modified := rep.Diff.Modified.Oldest(); modified != nil; modified = modified.Next() {
 		var title string
-		if fr.PreviousRelPath != "" && fr.PreviousRelPathScore >= 0.9 {
-			title = fmt.Sprintf("Moved: %s -> %s (score: %f)", fr.PreviousRelPath, fr.Path, fr.PreviousRelPathScore)
+		if modified.Value.PreviousRelPath != "" && modified.Value.PreviousRelPathScore >= 0.9 {
+			title = fmt.Sprintf("Moved: %s -> %s (score: %f)", modified.Value.PreviousRelPath, modified.Value.Path, modified.Value.PreviousRelPathScore)
 		} else {
-			title = fmt.Sprintf("Changed: %s", fr.Path)
+			title = fmt.Sprintf("Changed: %s", modified.Value.Path)
 		}
 
-		if fr.RiskScore != fr.PreviousRiskScore {
+		if modified.Value.RiskScore != modified.Value.PreviousRiskScore {
 			title = fmt.Sprintf("%s %s\n\n", title,
-				darkBrackets(fmt.Sprintf("%s %s %s", decorativeRisk(fr.PreviousRiskScore, fr.PreviousRiskLevel), color.HiWhiteString("→"), decorativeRisk(fr.RiskScore, fr.RiskLevel))))
+				darkBrackets(fmt.Sprintf("%s %s %s", decorativeRisk(modified.Value.PreviousRiskScore, modified.Value.PreviousRiskLevel), color.HiWhiteString("→"), decorativeRisk(modified.Value.RiskScore, modified.Value.RiskLevel))))
 		}
 
 		fmt.Fprint(r.w, title)
 		added := 0
 		removed := 0
-		for _, b := range fr.Behaviors {
+		for _, b := range modified.Value.Behaviors {
 			if b.DiffAdded {
 				added++
 			}
@@ -150,14 +147,14 @@ func (r Terminal) Full(ctx context.Context, rep *bincapz.Report) error {
 		}
 
 		if added > 0 {
-			renderTable(ctx, fr, r.w, tableConfig{
+			renderTable(ctx, modified.Value, r.w, tableConfig{
 				Title:       color.HiWhiteString("+++ ADDED: %d behavior(s) +++", added),
 				SkipRemoved: true,
 			})
 		}
 
 		if removed > 0 {
-			renderTable(ctx, fr, r.w, tableConfig{
+			renderTable(ctx, modified.Value, r.w, tableConfig{
 				Title:     color.HiWhiteString("--- REMOVED: %d behavior(s) ---", removed),
 				SkipAdded: true,
 			})
