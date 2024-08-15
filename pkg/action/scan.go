@@ -82,7 +82,13 @@ func scanSinglePath(ctx context.Context, c bincapz.Config, yrs *yara.Rules, path
 	}
 
 	logger.Debug("calling YARA ScanFile")
-	if err := yrs.ScanFile(path, 0, 0, &mrs); err != nil {
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	fd := f.Fd()
+	if err := yrs.ScanFileDescriptor(fd, 0, 0, &mrs); err != nil {
 		logger.Info("skipping", slog.Any("error", err))
 		return &bincapz.FileReport{Path: path, Error: fmt.Sprintf("scanfile: %v", err)}, nil
 	}
