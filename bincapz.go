@@ -57,7 +57,7 @@ func parseRisk(s string) int {
 
 func main() {
 	allFlag := flag.Bool("all", false, "Ignore nothing, show all")
-	concurrencyFlag := flag.Int("c", runtime.NumCPU(), "Concurrently scan files within target directories")
+	concurrencyFlag := flag.Int("j", runtime.NumCPU(), "Concurrently scan files within target directories")
 	diffFlag := flag.Bool("diff", false, "Show capability drift between two files")
 	formatFlag := flag.String("format", "terminal", "Output type -- valid values are: json, markdown, simple, terminal, yaml")
 	ignoreSelfFlag := flag.Bool("ignore-self", true, "Ignore the bincapz binary")
