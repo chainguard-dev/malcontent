@@ -276,10 +276,14 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 		results.Range(func(key, value interface{}) bool {
 			if k, ok := key.(string); ok {
 				func(key string) {
-					pathKeys = append(pathKeys, k)
+					pathKeys = append(pathKeys, key)
 					slices.Sort(pathKeys)
 				}(k)
-				scanPathFindings[k] = value.(*bincapz.FileReport)
+				value, ok := value.(*bincapz.FileReport)
+				if !ok {
+					return false
+				}
+				scanPathFindings[k] = value
 			}
 			return true
 		})
