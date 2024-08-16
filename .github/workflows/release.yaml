@@ -20,6 +20,12 @@ jobs:
         egress-policy: audit
     - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
     - uses: chainguard-dev/actions/setup-gitsign@e82b4e5ae10182af72972addcb3fedf7454621c8
+    - name: Set up Octo-STS
+      uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # v1.0.0
+      id: octo-sts
+      with:
+        scope: chainguard-dev/bincapz
+        identity: release
     - name: Get Version
       id: get-version
       run: |
@@ -31,7 +37,7 @@ jobs:
         echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
     - name: Create Release
       env:
-        GH_TOKEN: ${{ github.token }}
+        GH_TOKEN: ${{ steps.octo-sts.outputs.token }}
       if: ${{ steps.get-version.outputs.VERSION != '' }}
       run: |
         VERSION=${{ steps.get-version.outputs.VERSION }}
