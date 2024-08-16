@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"io/fs"
 	"os"
-	"regexp"
+	"runtime"
 	"testing"
 
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
@@ -14,21 +14,13 @@ import (
 	thirdparty "github.com/chainguard-dev/bincapz/third_party"
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/clog/slogtest"
+	"github.com/google/go-cmp/cmp"
 )
-
-func reduceMarkdown(s string) string {
-	spaceRe := regexp.MustCompile(` +`)
-	dashRe := regexp.MustCompile(` -`)
-
-	s = spaceRe.ReplaceAllString(s, " ")
-	s = dashRe.ReplaceAllString(s, " ")
-	return s
-}
 
 func TestOCI(t *testing.T) {
 	t.Parallel()
 	ctx := slogtest.Context(t)
-	clog.FromContext(ctx).With("test", "scan_archive")
+	clog.FromContext(ctx).With("test", "scan_oci")
 
 	yrs, err := compile.Recursive(ctx, []fs.FS{rules.FS, thirdparty.FS})
 	if err != nil {
@@ -42,12 +34,13 @@ func TestOCI(t *testing.T) {
 	}
 
 	bc := bincapz.Config{
-		IgnoreSelf: false,
-		IgnoreTags: []string{"harmless"},
-		Renderer:   simple,
-		Rules:      yrs,
-		ScanPaths:  []string{"cgr.dev/chainguard/static"},
-		OCI:        true,
+		IgnoreSelf:  false,
+		IgnoreTags:  []string{"harmless"},
+		Renderer:    simple,
+		Rules:       yrs,
+		ScanPaths:   []string{"cgr.dev/chainguard/static"},
+		OCI:         true,
+		Concurrency: runtime.NumCPU(),
 	}
 	res, err := Scan(ctx, bc)
 	if err != nil {
@@ -57,14 +50,15 @@ func TestOCI(t *testing.T) {
 		t.Fatalf("full: %v", err)
 	}
 
-	got := reduceMarkdown(out.String())
+	got := out.String()
 
 	td, err := os.ReadFile("testdata/scan_oci")
 	if err != nil {
 		t.Fatalf("testdata read failed: %v", err)
 	}
-	want := reduceMarkdown(string(td))
-	if got != want {
-		t.Fatalf("got %q, want %q", got, want)
+	// Sort the loaded contents to ensure consistent ordering
+	want := string(td)
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("Simple output mismatch: (-want +got):\n%s", diff)
 	}
 }

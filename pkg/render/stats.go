@@ -6,23 +6,21 @@ import (
 
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
 	"github.com/chainguard-dev/bincapz/pkg/report"
+	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
-func riskStatistics(files map[string]*bincapz.FileReport) ([]bincapz.IntMetric, int, int) {
+func riskStatistics(files *orderedmap.OrderedMap[string, *bincapz.FileReport]) ([]bincapz.IntMetric, int, int) {
 	riskMap := make(map[int][]string)
 	riskStats := make(map[int]float64)
 
 	// as opposed to skipped files
 	processedFiles := 0
-	for path, rf := range files {
-		if rf.Skipped != "" {
+	for files := files.Oldest(); files != nil; files = files.Next() {
+		if files.Value.Skipped != "" {
 			continue
 		}
 		processedFiles++
-		if rf.Skipped != "" {
-			continue
-		}
-		riskMap[rf.RiskScore] = append(riskMap[rf.RiskScore], path)
+		riskMap[files.Value.RiskScore] = append(riskMap[files.Value.RiskScore], files.Value.Path)
 		for riskLevel := range riskMap {
 			riskStats[riskLevel] = (float64(len(riskMap[riskLevel])) / float64(processedFiles)) * 100
 		}
@@ -46,12 +44,12 @@ func riskStatistics(files map[string]*bincapz.FileReport) ([]bincapz.IntMetric, 
 	return stats, total(), processedFiles
 }
 
-func pkgStatistics(files map[string]*bincapz.FileReport) ([]bincapz.StrMetric, int, int) {
+func pkgStatistics(files *orderedmap.OrderedMap[string, *bincapz.FileReport]) ([]bincapz.StrMetric, int, int) {
 	numNamespaces := 0
 	pkgMap := make(map[string]int)
 	pkg := make(map[string]float64)
-	for _, rf := range files {
-		for _, namespace := range rf.Behaviors {
+	for files := files.Oldest(); files != nil; files = files.Next() {
+		for _, namespace := range files.Value.Behaviors {
 			numNamespaces++
 			pkgMap[namespace.ID]++
 		}
@@ -88,7 +86,7 @@ func Statistics(r *bincapz.Report) error {
 	pkgSymbol := "📦"
 	fmt.Printf("%s Statistics\n", statsSymbol)
 	fmt.Println("---")
-	fmt.Printf("\033[1;37m%-15s \033[1;37m%s\033[0m\n", "Files Scanned", fmt.Sprintf("%d (%d skipped)", totalFilesProcessed, len(r.Files)-totalFilesProcessed))
+	fmt.Printf("\033[1;37m%-15s \033[1;37m%s\033[0m\n", "Files Scanned", fmt.Sprintf("%d (%d skipped)", totalFilesProcessed, r.Files.Len()-totalFilesProcessed))
 	fmt.Printf("\033[1;37m%-15s \033[1;37m%s\033[0m\n", "Total Risks", fmt.Sprintf("%d", totalRisks))
 	fmt.Println("---")
 	fmt.Printf("%s Risk Level Percentage\n", riskSymbol)
