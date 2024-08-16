@@ -157,25 +157,25 @@ func errIfHitOrMiss(frs map[string]*bincapz.FileReport, kind string, scanPath st
 
 // structs and types for sorting reports alphabetically by path
 // kv stores the keys and values of a map.
-type kv struct {
+type finding struct {
 	key   string
 	value *bincapz.FileReport
 }
 
 // reports is a slice of paths and their respective file reports.
-type reports []kv
+type findings []finding
 
 // Implement interfaces required for Sorting.
-func (r reports) Len() int {
-	return len(r)
+func (f findings) Len() int {
+	return len(f)
 }
 
-func (r reports) Swap(i, j int) {
-	r[i], r[j] = r[j], r[i]
+func (f findings) Swap(i, j int) {
+	f[i], f[j] = f[j], f[i]
 }
 
-func (r reports) Less(i, j int) bool {
-	return r[i].key < r[j].key
+func (f findings) Less(i, j int) bool {
+	return f[i].key < f[j].key
 }
 
 // recursiveScan recursively YARA scans the configured paths - handling archives and OCI images.
@@ -198,7 +198,7 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 
 	scanPathFindings := map[string]*bincapz.FileReport{}
 
-	var pairs reports
+	var results findings
 	for _, scanPath := range c.ScanPaths {
 		logger.Debug("recursive scan", slog.Any("scanPath", scanPath))
 		imageURI := ""
@@ -225,8 +225,6 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 		maxConcurrency := c.Concurrency
 		if maxConcurrency < 1 {
 			maxConcurrency = 1
-		} else if maxConcurrency > len(paths) {
-			maxConcurrency = len(paths)
 		}
 
 		// path refers to a real local path, not the requested scanPath
@@ -236,11 +234,6 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 		}
 		close(pc)
 
-		type findings struct {
-			path string
-			fr   *bincapz.FileReport
-		}
-		var result []findings
 		var mu sync.Mutex
 		process := func(path string) error {
 			//nolint:nestif // ignore complexity of 13
@@ -255,7 +248,7 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 				if !c.OCI {
 					if err := errIfHitOrMiss(frs, "archive", path, c.ErrFirstHit, c.ErrFirstMiss); err != nil {
 						mu.Lock()
-						result = append(result, findings{path: path, fr: &bincapz.FileReport{}})
+						results = append(results, finding{key: path, value: &bincapz.FileReport{}})
 						mu.Unlock()
 						return err
 					}
@@ -263,7 +256,7 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 
 				for extractedPath, fr := range frs {
 					mu.Lock()
-					result = append(result, findings{path: extractedPath, fr: fr})
+					results = append(results, finding{key: extractedPath, value: fr})
 					mu.Unlock()
 				}
 			} else {
@@ -277,19 +270,19 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 				fr, err := processFile(ctx, c, yrs, path, scanPath, trimPath, logger)
 				if err != nil {
 					mu.Lock()
-					result = append(result, findings{path: path, fr: &bincapz.FileReport{}})
+					results = append(results, finding{key: path, value: &bincapz.FileReport{}})
 					mu.Unlock()
 					return err
 				}
 				if fr != nil {
 					mu.Lock()
-					result = append(result, findings{path: path, fr: fr})
+					results = append(results, finding{key: path, value: fr})
 					mu.Unlock()
 					if !c.OCI {
 						if err := errIfHitOrMiss(map[string]*bincapz.FileReport{path: fr}, "file", path, c.ErrFirstHit, c.ErrFirstMiss); err != nil {
 							logger.Debugf("match short circuit: %s", err)
 							mu.Lock()
-							result = append(result, findings{path: path, fr: &bincapz.FileReport{}})
+							results = append(results, finding{key: path, value: &bincapz.FileReport{}})
 							mu.Unlock()
 						}
 					}
@@ -311,8 +304,13 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 			logger.Errorf("error with processing %v\n", err)
 		}
 
-		for _, r := range result {
-			scanPathFindings[r.path] = r.fr
+		var sorted findings
+		for _, r := range results {
+			func(key string, value *bincapz.FileReport) {
+				sorted = append(sorted, finding{key: key, value: value})
+				sort.Sort(sorted)
+			}(r.key, r.value)
+			scanPathFindings[r.key] = r.value
 		}
 
 		// OCI images hadle their match his/miss logic per scanPath
@@ -326,17 +324,8 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 			}
 		}
 
-		// Ensure that the report files are always sorted by path alphabetically
-		insertSorted := func(key string, value *bincapz.FileReport) {
-			pairs = append(pairs, kv{key: key, value: value})
-			sort.Sort(pairs)
-		}
-		for path, fr := range scanPathFindings {
-			insertSorted(path, fr)
-		}
-
 		// Add the sorted paths and file reports to the parent report and render the results
-		for _, e := range pairs {
+		for _, e := range sorted {
 			r.Files.Set(e.key, e.value)
 			if c.Renderer != nil && r.Diff == nil {
 				if e.value.RiskScore < c.MinFileRisk {
