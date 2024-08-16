@@ -46,6 +46,4 @@ jobs:
           exit 1
         fi
         git config --global tag.gpgsign true
-        git config user.name "github-actions[bot]"
-        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
         gh release create "$VERSION" --title "$VERSION" --notes "Release $VERSION" --draft
