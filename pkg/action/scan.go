@@ -9,6 +9,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strings"
 	"sync"
@@ -156,29 +157,6 @@ func errIfHitOrMiss(frs map[string]*bincapz.FileReport, kind string, scanPath st
 	return nil
 }
 
-// structs and types for sorting reports alphabetically by path
-// kv stores the keys and values of a map.
-type finding struct {
-	key   string
-	value *bincapz.FileReport
-}
-
-// reports is a slice of paths and their respective file reports.
-type findings []finding
-
-// Implement interfaces required for Sorting.
-func (f findings) Len() int {
-	return len(f)
-}
-
-func (f findings) Swap(i, j int) {
-	f[i], f[j] = f[j], f[i]
-}
-
-func (f findings) Less(i, j int) bool {
-	return f[i].key < f[j].key
-}
-
 // recursiveScan recursively YARA scans the configured paths - handling archives and OCI images.
 func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, error) {
 	logger := clog.FromContext(ctx)
@@ -294,13 +272,13 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 			logger.Errorf("error with processing %v\n", err)
 		}
 
-		var sorted findings
+		var pathKeys []string
 		results.Range(func(key, value interface{}) bool {
 			if k, ok := key.(string); ok {
-				func(key string, value *bincapz.FileReport) {
-					sorted = append(sorted, finding{key: key, value: value})
-					sort.Sort(sorted)
-				}(k, value.(*bincapz.FileReport))
+				func(key string) {
+					pathKeys = append(pathKeys, k)
+					slices.Sort(pathKeys)
+				}(k)
 				scanPathFindings[k] = value.(*bincapz.FileReport)
 			}
 			return true
@@ -318,14 +296,14 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 		}
 
 		// Add the sorted paths and file reports to the parent report and render the results
-		for _, e := range sorted {
-			r.Files.Set(e.key, e.value)
+		for _, k := range pathKeys {
+			r.Files.Set(k, scanPathFindings[k])
 			if c.Renderer != nil && r.Diff == nil {
-				if e.value.RiskScore < c.MinFileRisk {
+				if scanPathFindings[k].RiskScore < c.MinFileRisk {
 					return nil, nil
 				}
 
-				if err := c.Renderer.File(ctx, e.value); err != nil {
+				if err := c.Renderer.File(ctx, scanPathFindings[k]); err != nil {
 					return nil, fmt.Errorf("render: %w", err)
 				}
 			}
