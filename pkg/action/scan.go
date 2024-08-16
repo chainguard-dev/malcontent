@@ -9,14 +9,18 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strings"
+	"sync"
 
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
 	"github.com/chainguard-dev/bincapz/pkg/render"
 	"github.com/chainguard-dev/bincapz/pkg/report"
 	"github.com/chainguard-dev/clog"
 	"github.com/hillu/go-yara/v4"
+	orderedmap "github.com/wk8/go-ordered-map/v2"
+	"golang.org/x/sync/errgroup"
 )
 
 // findFilesRecurslively returns a list of files found recursively within a path.
@@ -158,7 +162,7 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 	logger := clog.FromContext(ctx)
 	logger.Debug("recursive scan", slog.Any("config", c))
 	r := &bincapz.Report{
-		Files: map[string]*bincapz.FileReport{},
+		Files: orderedmap.New[string, *bincapz.FileReport](),
 	}
 	if len(c.IgnoreTags) > 0 {
 		r.Filter = strings.Join(c.IgnoreTags, ",")
@@ -173,6 +177,7 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 
 	scanPathFindings := map[string]*bincapz.FileReport{}
 
+	var results sync.Map
 	for _, scanPath := range c.ScanPaths {
 		logger.Debug("recursive scan", slog.Any("scanPath", scanPath))
 		imageURI := ""
@@ -196,8 +201,20 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 		}
 		logger.Debug("files found", slog.Any("path count", len(paths)), slog.Any("scanPath", scanPath))
 
+		maxConcurrency := c.Concurrency
+		if maxConcurrency < 1 {
+			maxConcurrency = 1
+		}
+
 		// path refers to a real local path, not the requested scanPath
+		pc := make(chan string, len(paths))
 		for _, path := range paths {
+			pc <- path
+		}
+		close(pc)
+
+		process := func(path string) error {
+			//nolint:nestif // ignore complexity of 13
 			if isSupportedArchive(path) {
 				logger.Debug("found archive path", slog.Any("path", path))
 				frs, err := processArchive(ctx, c, yrs, path, logger)
@@ -208,39 +225,68 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 				// If we're handling an archive within an OCI archive, wait to for other files to declare a miss
 				if !c.OCI {
 					if err := errIfHitOrMiss(frs, "archive", path, c.ErrFirstHit, c.ErrFirstMiss); err != nil {
-						logger.Debugf("match short circuit: %v", err)
-						return r, err
+						results.Store(path, &bincapz.FileReport{})
+						return err
 					}
 				}
 
 				for extractedPath, fr := range frs {
-					scanPathFindings[extractedPath] = fr
+					results.Store(extractedPath, fr)
 				}
-				continue
-			}
+			} else {
+				trimPath := ""
+				if c.OCI {
+					scanPath = imageURI
+					trimPath = ociExtractPath
+				}
 
-			trimPath := ""
-			if c.OCI {
-				scanPath = imageURI
-				trimPath = ociExtractPath
-			}
-
-			logger.Debug("processing path", slog.Any("path", path))
-			fr, err := processFile(ctx, c, yrs, path, scanPath, trimPath, logger)
-			if err != nil {
-				return r, err
-			}
-			if fr == nil {
-				continue
-			}
-			scanPathFindings[path] = fr
-			if !c.OCI {
-				if err := errIfHitOrMiss(map[string]*bincapz.FileReport{path: fr}, "file", path, c.ErrFirstHit, c.ErrFirstMiss); err != nil {
-					logger.Debugf("match short circuit: %s", err)
-					return r, err
+				logger.Debug("processing path", slog.Any("path", path))
+				fr, err := processFile(ctx, c, yrs, path, scanPath, trimPath, logger)
+				if err != nil {
+					results.Store(path, &bincapz.FileReport{})
+					return err
+				}
+				if fr != nil {
+					results.Store(path, fr)
+					if !c.OCI {
+						if err := errIfHitOrMiss(map[string]*bincapz.FileReport{path: fr}, "file", path, c.ErrFirstHit, c.ErrFirstMiss); err != nil {
+							logger.Debugf("match short circuit: %s", err)
+							results.Store(path, &bincapz.FileReport{})
+						}
+					}
 				}
 			}
+			return nil
 		}
+
+		var g errgroup.Group
+		g.SetLimit(maxConcurrency)
+		for path := range pc {
+			path := path
+			g.Go(func() error {
+				return process(path)
+			})
+		}
+
+		if err := g.Wait(); err != nil {
+			logger.Errorf("error with processing %v\n", err)
+		}
+
+		var pathKeys []string
+		results.Range(func(key, value interface{}) bool {
+			if k, ok := key.(string); ok {
+				func(key string) {
+					pathKeys = append(pathKeys, key)
+					slices.Sort(pathKeys)
+				}(k)
+				value, ok := value.(*bincapz.FileReport)
+				if !ok {
+					return false
+				}
+				scanPathFindings[k] = value
+			}
+			return true
+		})
 
 		// OCI images hadle their match his/miss logic per scanPath
 		if c.OCI {
@@ -253,12 +299,21 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 			}
 		}
 
-		for path, fr := range scanPathFindings {
-			r.Files[path] = fr
+		// Add the sorted paths and file reports to the parent report and render the results
+		for _, k := range pathKeys {
+			r.Files.Set(k, scanPathFindings[k])
+			if c.Renderer != nil && r.Diff == nil {
+				if scanPathFindings[k].RiskScore < c.MinFileRisk {
+					return nil, nil
+				}
+
+				if err := c.Renderer.File(ctx, scanPathFindings[k]); err != nil {
+					return nil, fmt.Errorf("render: %w", err)
+				}
+			}
 		}
 	} // loop: next scan path
-
-	logger.Debugf("recursive scan complete: %d files", len(r.Files))
+	logger.Debugf("recursive scan complete: %d files", r.Files.Len())
 	return r, nil
 }
 
@@ -302,7 +357,7 @@ func processFile(ctx context.Context, c bincapz.Config, yrs *yara.Rules, path st
 	fr, err := scanSinglePath(ctx, c, yrs, path, scanPath, archiveRoot)
 	if err != nil {
 		logger.Errorf("scan path: %v", err)
-		return nil, nil
+		return nil, err
 	}
 
 	if fr == nil {
@@ -312,18 +367,7 @@ func processFile(ctx context.Context, c bincapz.Config, yrs *yara.Rules, path st
 
 	if fr.Error != "" {
 		logger.Errorf("scan error: %s", fr.Error)
-		return nil, nil
-	}
-
-	if c.Renderer != nil {
-		if fr.RiskScore < c.MinFileRisk {
-			// logger.Infof("%s [%d] does not meet min file risk [%d]", path, fr.RiskScore, c.MinFileRisk)
-			return nil, nil
-		}
-
-		if err := c.Renderer.File(ctx, fr); err != nil {
-			return nil, fmt.Errorf("render: %w", err)
-		}
+		return nil, fmt.Errorf("report error: %v", fr.Error)
 	}
 
 	return fr, nil
@@ -335,12 +379,11 @@ func Scan(ctx context.Context, c bincapz.Config) (*bincapz.Report, error) {
 	if err != nil {
 		return r, err
 	}
-	for path, rf := range r.Files {
-		if rf.RiskScore < c.MinFileRisk {
-			delete(r.Files, path)
+	for files := r.Files.Oldest(); files != nil; files = files.Next() {
+		if files.Value.RiskScore < c.MinFileRisk {
+			r.Files.Delete(files.Key)
 		}
 	}
-
 	if c.Stats {
 		err = render.Statistics(r)
 		if err != nil {

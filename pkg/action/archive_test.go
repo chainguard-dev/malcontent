@@ -6,8 +6,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
-	"sort"
-	"strings"
+	"runtime"
 	"testing"
 
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
@@ -230,11 +229,12 @@ func TestScanArchive(t *testing.T) {
 		t.Fatalf("render: %v", err)
 	}
 	bc := bincapz.Config{
-		IgnoreSelf: false,
-		IgnoreTags: []string{"harmless"},
-		Renderer:   simple,
-		Rules:      yrs,
-		ScanPaths:  []string{"testdata/apko_nested.tar.gz"},
+		IgnoreSelf:  false,
+		IgnoreTags:  []string{"harmless"},
+		Renderer:    simple,
+		Rules:       yrs,
+		ScanPaths:   []string{"testdata/apko_nested.tar.gz"},
+		Concurrency: runtime.NumCPU(),
 	}
 	res, err := Scan(ctx, bc)
 	if err != nil {
@@ -246,14 +246,7 @@ func TestScanArchive(t *testing.T) {
 
 	outBytes := out.Bytes()
 
-	// Sort the output to ensure consistent ordering
-	sorted := func(input []byte) []byte {
-		lines := strings.Split(string(input), "\n")
-		sort.Strings(lines)
-		return []byte(strings.Join(lines, "\n"))
-	}
-	sortedBytes := sorted(outBytes)
-	got := string(sortedBytes)
+	got := string(outBytes)
 
 	td, err := os.ReadFile("testdata/scan_archive")
 	if err != nil {
