@@ -155,6 +155,29 @@ func errIfHitOrMiss(frs map[string]*bincapz.FileReport, kind string, scanPath st
 	return nil
 }
 
+// structs and types for sorting reports alphabetically by path
+// kv stores the keys and values of a map.
+type kv struct {
+	key   string
+	value *bincapz.FileReport
+}
+
+// reports is a slice of paths and their respective file reports.
+type reports []kv
+
+// Implement interfaces required for Sorting.
+func (r reports) Len() int {
+	return len(r)
+}
+
+func (r reports) Swap(i, j int) {
+	r[i], r[j] = r[j], r[i]
+}
+
+func (r reports) Less(i, j int) bool {
+	return r[i].key < r[j].key
+}
+
 // recursiveScan recursively YARA scans the configured paths - handling archives and OCI images.
 func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, error) {
 	logger := clog.FromContext(ctx)
@@ -175,7 +198,7 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 
 	scanPathFindings := map[string]*bincapz.FileReport{}
 
-	var kvPairs byKey
+	var pairs reports
 	for _, scanPath := range c.ScanPaths {
 		logger.Debug("recursive scan", slog.Any("scanPath", scanPath))
 		imageURI := ""
@@ -305,18 +328,27 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 
 		// Ensure that the report files are always sorted by path alphabetically
 		insertSorted := func(key string, value *bincapz.FileReport) {
-			kvPairs = append(kvPairs, KV{key: key, value: value})
-			sort.Sort(kvPairs)
+			pairs = append(pairs, kv{key: key, value: value})
+			sort.Sort(pairs)
 		}
 		for path, fr := range scanPathFindings {
 			insertSorted(path, fr)
 		}
-	} // loop: next scan path
 
-	// Add the sorted paths and file reports to the parent report
-	for _, kv := range kvPairs {
-		r.Files.Set(kv.key, kv.value)
-	}
+		// Add the sorted paths and file reports to the parent report and render the results
+		for _, e := range pairs {
+			r.Files.Set(e.key, e.value)
+			if c.Renderer != nil && r.Diff == nil {
+				if e.value.RiskScore < c.MinFileRisk {
+					return nil, nil
+				}
+
+				if err := c.Renderer.File(ctx, e.value); err != nil {
+					return nil, fmt.Errorf("render: %w", err)
+				}
+			}
+		}
+	} // loop: next scan path
 	logger.Debugf("recursive scan complete: %d files", r.Files.Len())
 	return r, nil
 }
@@ -386,18 +418,6 @@ func Scan(ctx context.Context, c bincapz.Config) (*bincapz.Report, error) {
 	for files := r.Files.Oldest(); files != nil; files = files.Next() {
 		if files.Value.RiskScore < c.MinFileRisk {
 			r.Files.Delete(files.Key)
-		}
-	}
-	if c.Renderer != nil && r.Diff == nil {
-		for files := r.Files.Oldest(); files != nil; files = files.Next() {
-			if files.Value.RiskScore < c.MinFileRisk {
-				// logger.Infof("%s [%d] does not meet min file risk [%d]", path, fr.RiskScore, c.MinFileRisk)
-				return nil, nil
-			}
-
-			if err := c.Renderer.File(ctx, files.Value); err != nil {
-				return nil, fmt.Errorf("render: %w", err)
-			}
 		}
 	}
 	if c.Stats {
