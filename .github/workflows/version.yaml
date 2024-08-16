@@ -71,9 +71,7 @@ jobs:
         echo "New bincapz version: $VERSION"
         
         sed -i "s/ID string = \"v[0-9]*\.[0-9]*\.[0-9]*\"/ID string = \"${VERSION}\"/" ${{ env.VERSION_FILE }}
-        
-        git config user.name "github-actions[bot]"
-        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
         BRANCH="bincapz-version-bump-$VERSION"
         git checkout -b $BRANCH
         git add ${{ env.VERSION_FILE }}
