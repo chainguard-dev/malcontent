@@ -116,6 +116,3 @@ security_controls/linux/selinux
 shell/background/sleep
 shell/exec
 time/clock/set
-# testdata/apko_nested.tar.gz
-process/chdir
-ref/path/relative

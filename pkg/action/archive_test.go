@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
@@ -228,11 +229,12 @@ func TestScanArchive(t *testing.T) {
 		t.Fatalf("render: %v", err)
 	}
 	bc := bincapz.Config{
-		IgnoreSelf: false,
-		IgnoreTags: []string{"harmless"},
-		Renderer:   simple,
-		Rules:      yrs,
-		ScanPaths:  []string{"testdata/apko_nested.tar.gz"},
+		IgnoreSelf:  false,
+		IgnoreTags:  []string{"harmless"},
+		Renderer:    simple,
+		Rules:       yrs,
+		ScanPaths:   []string{"testdata/apko_nested.tar.gz"},
+		Concurrency: runtime.NumCPU(),
 	}
 	res, err := Scan(ctx, bc)
 	if err != nil {

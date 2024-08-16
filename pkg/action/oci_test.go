@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io/fs"
 	"os"
+	"runtime"
 	"testing"
 
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
@@ -33,12 +34,13 @@ func TestOCI(t *testing.T) {
 	}
 
 	bc := bincapz.Config{
-		IgnoreSelf: false,
-		IgnoreTags: []string{"harmless"},
-		Renderer:   simple,
-		Rules:      yrs,
-		ScanPaths:  []string{"cgr.dev/chainguard/static"},
-		OCI:        true,
+		IgnoreSelf:  false,
+		IgnoreTags:  []string{"harmless"},
+		Renderer:    simple,
+		Rules:       yrs,
+		ScanPaths:   []string{"cgr.dev/chainguard/static"},
+		OCI:         true,
+		Concurrency: runtime.NumCPU(),
 	}
 	res, err := Scan(ctx, bc)
 	if err != nil {
