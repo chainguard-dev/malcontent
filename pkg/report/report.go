@@ -216,8 +216,7 @@ func behaviorRisk(ns string, rule string, tags []string) int {
 			}
 		}
 
-		if _, ok := thirdPartySeverityRemap[rule]; ok {
-			severity := thirdPartySeverityRemap[rule]
+		if severity, ok := thirdPartySeverityRemap[rule]; ok {
 			risk = levels[severity]
 		}
 
