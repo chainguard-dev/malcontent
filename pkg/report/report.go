@@ -195,6 +195,7 @@ func behaviorRisk(ns string, rule string, tags []string) int {
 
 	levels := map[string]int{
 		"harmless":   0,
+		"low":        1,
 		"notable":    2,
 		"medium":     2,
 		"suspicious": 3,
