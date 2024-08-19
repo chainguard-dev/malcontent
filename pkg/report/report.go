@@ -71,6 +71,46 @@ var thirdPartyCriticalSources = map[string]bool{
 	"bartblaze": true,
 }
 
+// thirdPartySeverityRemap are 3P rules which need their severity tweaked.
+var thirdPartySeverityRemap = map[string]string{
+	// YARAForge
+	"GCTI_Sliver_Implant_32Bit":                           "high",
+	"GODMODERULES_IDDQD_God_Mode_Rule":                    "high",
+	"MALPEDIA_Win_Unidentified_107_Auto":                  "high",
+	"SIGNATURE_BASE_SUSP_PS1_JAB_Pattern_Jun22_1":         "high",
+	"ELCEEF_HTML_Smuggling_A":                             "high",
+	"DELIVRTO_SUSP_HTML_WASM_Smuggling":                   "high",
+	"SIGNATURE_BASE_FVEY_Shadowbroker_Auct_Dez16_Strings": "high",
+	"ELASTIC_Macos_Creddump_Keychainaccess_535C1511":      "high",
+	"SIGNATURE_BASE_Reconcommands_In_File":                "high",
+	"SIGNATURE_BASE_Apt_CN_Tetrisplugins_JS":              "high",
+	"ELASTIC_Linux_Proxy_Frp_4213778F":                    "high",
+	// ThreatHunting Keywords (some duplicates)
+	"Adobe_XMP_Identifier":                       "high",
+	"Antivirus_Signature_signature_keyword":      "high",
+	"blackcat_ransomware_offensive_tool_keyword": "high",
+	"Dinjector_offensive_tool_keyword":           "high",
+	"empire_offensive_tool_keyword":              "high",
+	"github_greyware_tool_keyword":               "high",
+	"koadic_offensive_tool_keyword":              "high",
+	"mythic_offensive_tool_keyword":              "high",
+	"netcat_greyware_tool_keyword":               "high",
+	"nmap_greyware_tool_keyword":                 "high",
+	"portscan_offensive_tool_keyword":            "high",
+	"scp_greyware_tool_keyword":                  "high",
+	"sftp_greyware_tool_keyword":                 "high",
+	"ssh_greyware_tool_keyword":                  "high",
+	"usbpcap_offensive_tool_keyword":             "high",
+	"viperc2_offensive_tool_keyword":             "high",
+	"vsftpd_greyware_tool_keyword":               "high",
+	"wfuzz_offensive_tool_keyword":               "high",
+	"whoami_greyware_tool_keyword":               "high",
+	"wireshark_greyware_tool_keyword":            "high",
+	// YARA VT
+	"Base64_Encoded_URL":   "high",
+	"Windows_API_Function": "high",
+}
+
 // authorWithURLRe matcehs "Arnim Rupp (https://github.com/ruppde)"
 var authorWithURLRe = regexp.MustCompile(`(.*?) \((http.*)\)`)
 
@@ -153,6 +193,17 @@ func ignoreMatch(tags []string, ignoreTags map[string]bool) bool {
 func behaviorRisk(ns string, rule string, tags []string) int {
 	risk := 1
 
+	levels := map[string]int{
+		"harmless":   0,
+		"notable":    2,
+		"medium":     2,
+		"suspicious": 3,
+		"weird":      3,
+		"high":       3,
+		"crit":       4,
+		"critical":   4,
+	}
+
 	if thirdParty(ns) {
 		risk = 3
 		src := strings.Split(ns, "/")[1]
@@ -164,6 +215,11 @@ func behaviorRisk(ns string, rule string, tags []string) int {
 			}
 		}
 
+		if _, ok := thirdPartySeverityRemap[rule]; ok {
+			severity := thirdPartySeverityRemap[rule]
+			risk = levels[severity]
+		}
+
 		if strings.Contains(strings.ToLower(ns), "keyword") || strings.Contains(strings.ToLower(rule), "keyword") {
 			risk = 2
 		}
@@ -173,16 +229,6 @@ func behaviorRisk(ns string, rule string, tags []string) int {
 		risk = 2
 	}
 
-	levels := map[string]int{
-		"harmless":   0,
-		"notable":    2,
-		"medium":     2,
-		"suspicious": 3,
-		"weird":      3,
-		"high":       3,
-		"crit":       4,
-		"critical":   4,
-	}
 	for _, tag := range tags {
 		if r, ok := levels[tag]; ok {
 			risk = r

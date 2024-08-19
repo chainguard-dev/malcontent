@@ -18,46 +18,6 @@ import (
 
 var FS = rules.FS
 
-// badRules are noisy 3rd party rules to silently disable.
-var badRules = map[string]bool{
-	// YARAForge
-	"GCTI_Sliver_Implant_32Bit":                           true,
-	"GODMODERULES_IDDQD_God_Mode_Rule":                    true,
-	"MALPEDIA_Win_Unidentified_107_Auto":                  true,
-	"SIGNATURE_BASE_SUSP_PS1_JAB_Pattern_Jun22_1":         true,
-	"ELCEEF_HTML_Smuggling_A":                             true,
-	"DELIVRTO_SUSP_HTML_WASM_Smuggling":                   true,
-	"SIGNATURE_BASE_FVEY_Shadowbroker_Auct_Dez16_Strings": true,
-	"ELASTIC_Macos_Creddump_Keychainaccess_535C1511":      true,
-	"SIGNATURE_BASE_Reconcommands_In_File":                true,
-	"SIGNATURE_BASE_Apt_CN_Tetrisplugins_JS":              true,
-	"ELASTIC_Linux_Proxy_Frp_4213778F":                    true,
-	// ThreatHunting Keywords (some duplicates)
-	"Adobe_XMP_Identifier":                       true,
-	"Antivirus_Signature_signature_keyword":      true,
-	"blackcat_ransomware_offensive_tool_keyword": true,
-	"Dinjector_offensive_tool_keyword":           true,
-	"empire_offensive_tool_keyword":              true,
-	"github_greyware_tool_keyword":               true,
-	"koadic_offensive_tool_keyword":              true,
-	"mythic_offensive_tool_keyword":              true,
-	"netcat_greyware_tool_keyword":               true,
-	"nmap_greyware_tool_keyword":                 true,
-	"portscan_offensive_tool_keyword":            true,
-	"scp_greyware_tool_keyword":                  true,
-	"sftp_greyware_tool_keyword":                 true,
-	"ssh_greyware_tool_keyword":                  true,
-	"usbpcap_offensive_tool_keyword":             true,
-	"viperc2_offensive_tool_keyword":             true,
-	"vsftpd_greyware_tool_keyword":               true,
-	"wfuzz_offensive_tool_keyword":               true,
-	"whoami_greyware_tool_keyword":               true,
-	"wireshark_greyware_tool_keyword":            true,
-	// YARA VT
-	"Base64_Encoded_URL":   true,
-	"Windows_API_Function": true,
-}
-
 // rulesWithWarnings determines what to do with rules that have known warnings: true=keep, false=disable.
 var rulesWithWarnings = map[string]bool{
 	"base64_str_replace":                    true,
@@ -144,10 +104,6 @@ func Recursive(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {
 	}
 	for _, r := range rs.GetRules() {
 		id := r.Identifier()
-		if badRules[id] {
-			clog.InfoContext(ctx, "info", slog.String("namespace", r.Namespace()), slog.String("id", id), slog.String("reason", "disabled (known bad rule)"))
-			r.Disable()
-		}
 
 		warning := warnings[id]
 		if warning == "" {
