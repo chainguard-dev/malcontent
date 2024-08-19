@@ -36,55 +36,55 @@ var RiskLevels = map[int]string{
 
 // yaraForge has some very very long rule names.
 var yaraForgeJunkWords = map[string]bool{
-	"controller":        true,
-	"generic":           true,
 	"apt":               true,
-	"malware":           true,
-	"YARAForge":         true,
-	"exe":               true,
-	"mal":               true,
-	"trojan":            true,
-	"m":                 true,
-	"hunting":           true,
-	"dynamic":           true,
 	"big":               true,
-	"small":             true,
+	"controller":        true,
+	"dynamic":           true,
 	"encoded":           true,
+	"exe":               true,
 	"forensicartifacts": true,
-	"lnx":               true,
-	"linux":             true,
-	"macos":             true,
-	"osx":               true,
-	"mac":               true,
-	"tool":              true,
-	"keyword":           true,
-	"indicator":         true,
-	"suspicious":        true,
-	"offensive":         true,
+	"generic":           true,
 	"greyware":          true,
+	"hunting":           true,
+	"indicator":         true,
+	"keyword":           true,
+	"linux":             true,
+	"lnx":               true,
+	"m":                 true,
+	"mac":               true,
+	"macos":             true,
+	"mal":               true,
+	"malware":           true,
+	"offensive":         true,
+	"osx":               true,
+	"small":             true,
+	"suspicious":        true,
+	"tool":              true,
+	"trojan":            true,
+	"YARAForge":         true,
 }
 
 // thirdPartyCriticalSources are 3P sources that default to critical.
 var thirdPartyCriticalSources = map[string]bool{
-	"YARAForge": true,
-	"huntress":  true,
 	"bartblaze": true,
+	"huntress":  true,
+	"YARAForge": true,
 }
 
 // thirdPartySeverityRemap are 3P rules which need their severity tweaked.
 var thirdPartySeverityRemap = map[string]string{
 	// YARAForge
+	"DELIVRTO_SUSP_HTML_WASM_Smuggling":                   "high",
+	"ELASTIC_Linux_Proxy_Frp_4213778F":                    "high",
+	"ELASTIC_Macos_Creddump_Keychainaccess_535C1511":      "high",
+	"ELCEEF_HTML_Smuggling_A":                             "high",
 	"GCTI_Sliver_Implant_32Bit":                           "high",
 	"GODMODERULES_IDDQD_God_Mode_Rule":                    "high",
 	"MALPEDIA_Win_Unidentified_107_Auto":                  "high",
-	"SIGNATURE_BASE_SUSP_PS1_JAB_Pattern_Jun22_1":         "high",
-	"ELCEEF_HTML_Smuggling_A":                             "high",
-	"DELIVRTO_SUSP_HTML_WASM_Smuggling":                   "high",
-	"SIGNATURE_BASE_FVEY_Shadowbroker_Auct_Dez16_Strings": "high",
-	"ELASTIC_Macos_Creddump_Keychainaccess_535C1511":      "high",
-	"SIGNATURE_BASE_Reconcommands_In_File":                "high",
 	"SIGNATURE_BASE_Apt_CN_Tetrisplugins_JS":              "high",
-	"ELASTIC_Linux_Proxy_Frp_4213778F":                    "high",
+	"SIGNATURE_BASE_FVEY_Shadowbroker_Auct_Dez16_Strings": "high",
+	"SIGNATURE_BASE_Reconcommands_In_File":                "high",
+	"SIGNATURE_BASE_SUSP_PS1_JAB_Pattern_Jun22_1":         "high",
 	// ThreatHunting Keywords (some duplicates)
 	"Adobe_XMP_Identifier":                       "high",
 	"Antivirus_Signature_signature_keyword":      "high",
@@ -111,7 +111,7 @@ var thirdPartySeverityRemap = map[string]string{
 	"Windows_API_Function": "high",
 }
 
-// authorWithURLRe matcehs "Arnim Rupp (https://github.com/ruppde)"
+// authorWithURLRe matches "Arnim Rupp (https://github.com/ruppde)"
 var authorWithURLRe = regexp.MustCompile(`(.*?) \((http.*)\)`)
 
 var threatHuntingKeywordRe = regexp.MustCompile(`Detection patterns for the tool '(.*)' taken from the ThreatHunting-Keywords github project`)
