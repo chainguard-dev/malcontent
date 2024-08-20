@@ -31,7 +31,6 @@ var badRules = map[string]bool{
 	"ELASTIC_Macos_Creddump_Keychainaccess_535C1511":      true,
 	"SIGNATURE_BASE_Reconcommands_In_File":                true,
 	"SIGNATURE_BASE_Apt_CN_Tetrisplugins_JS":              true,
-	"ELASTIC_Linux_Proxy_Frp_4213778F":                    true,
 	// ThreatHunting Keywords (some duplicates)
 	"Adobe_XMP_Identifier":                       true,
 	"Antivirus_Signature_signature_keyword":      true,
