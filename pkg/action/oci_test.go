@@ -34,13 +34,13 @@ func TestOCI(t *testing.T) {
 	}
 
 	bc := bincapz.Config{
+		Concurrency: runtime.NumCPU(),
 		IgnoreSelf:  false,
 		IgnoreTags:  []string{"harmless"},
+		OCI:         true,
 		Renderer:    simple,
 		Rules:       yrs,
 		ScanPaths:   []string{"cgr.dev/chainguard/static"},
-		OCI:         true,
-		Concurrency: runtime.NumCPU(),
 	}
 	res, err := Scan(ctx, bc)
 	if err != nil {
