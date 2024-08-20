@@ -181,20 +181,20 @@ func main() {
 	}
 
 	bc := bincapz.Config{
+		Concurrency:           *concurrencyFlag,
+		ErrFirstHit:           *errFirstHitFlag,
+		ErrFirstMiss:          *errFirstMissFlag,
 		IgnoreSelf:            *ignoreSelfFlag,
 		IgnoreTags:            ignoreTags,
 		IncludeDataFiles:      includeDataFiles,
 		MinFileRisk:           minFileRisk,
 		MinRisk:               minRisk,
-		QuantityIncreasesFisk: *quantityIncreasesRiskFlag,
 		OCI:                   *ociFlag,
+		QuantityIncreasesRisk: *quantityIncreasesRiskFlag,
 		Renderer:              renderer,
 		Rules:                 yrs,
 		ScanPaths:             args,
 		Stats:                 stats,
-		ErrFirstHit:           *errFirstHitFlag,
-		ErrFirstMiss:          *errFirstMissFlag,
-		Concurrency:           *concurrencyFlag,
 	}
 
 	var res *bincapz.Report

@@ -466,7 +466,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c bincapz.C
 	}
 
 	// If something has a lot of high, it's probably critical
-	if c.QuantityIncreasesFisk && upgradeRisk(ctx, overallRiskScore, riskCounts, size) {
+	if c.QuantityIncreasesRisk && upgradeRisk(ctx, overallRiskScore, riskCounts, size) {
 		overallRiskScore = 4
 	}
 

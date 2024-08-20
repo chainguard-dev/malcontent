@@ -229,12 +229,12 @@ func TestScanArchive(t *testing.T) {
 		t.Fatalf("render: %v", err)
 	}
 	bc := bincapz.Config{
+		Concurrency: runtime.NumCPU(),
 		IgnoreSelf:  false,
 		IgnoreTags:  []string{"harmless"},
 		Renderer:    simple,
 		Rules:       yrs,
 		ScanPaths:   []string{"testdata/apko_nested.tar.gz"},
-		Concurrency: runtime.NumCPU(),
 	}
 	res, err := Scan(ctx, bc)
 	if err != nil {

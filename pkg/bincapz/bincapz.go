@@ -18,21 +18,21 @@ type Renderer interface {
 }
 
 type Config struct {
+	Concurrency           int
+	ErrFirstHit           bool
+	ErrFirstMiss          bool
 	IgnoreSelf            bool
 	IgnoreTags            []string
 	IncludeDataFiles      bool
-	QuantityIncreasesFisk bool
 	MinFileRisk           int
 	MinRisk               int
 	OCI                   bool
 	Output                io.Writer
+	QuantityIncreasesRisk bool
 	Renderer              Renderer
 	Rules                 *yara.Rules
 	ScanPaths             []string
 	Stats                 bool
-	ErrFirstMiss          bool
-	ErrFirstHit           bool
-	Concurrency           int
 }
 
 type Behavior struct {
