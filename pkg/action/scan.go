@@ -275,10 +275,7 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 		var pathKeys []string
 		results.Range(func(key, value interface{}) bool {
 			if k, ok := key.(string); ok {
-				func(key string) {
-					pathKeys = append(pathKeys, key)
-					slices.Sort(pathKeys)
-				}(k)
+				pathKeys = append(pathKeys, k)
 				value, ok := value.(*bincapz.FileReport)
 				if !ok {
 					return false
@@ -287,6 +284,7 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 			}
 			return true
 		})
+		slices.Sort(pathKeys)
 
 		// OCI images hadle their match his/miss logic per scanPath
 		if c.OCI {
