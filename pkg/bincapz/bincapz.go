@@ -33,6 +33,7 @@ type Config struct {
 	Rules                 *yara.Rules
 	ScanPaths             []string
 	Stats                 bool
+	UpgradedRiskOnly      bool
 }
 
 type Behavior struct {

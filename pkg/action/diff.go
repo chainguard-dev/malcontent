@@ -89,7 +89,12 @@ func handleFile(ctx context.Context, c bincapz.Config, fr, tr *bincapz.FileRepor
 		return
 	}
 
-	rbs := createFileReport(tr, fr)
+	var rbs *bincapz.FileReport
+	// Create the file report if not focusing on upgraded risks or
+	// if focusing on upgraded risks and the new risk score is higher than the old risk score
+	if !c.UpgradedRiskOnly || (c.UpgradedRiskOnly && tr.RiskScore > fr.RiskScore) {
+		rbs = createFileReport(tr, fr)
+	}
 
 	// if source behavior is not in the destination
 	for _, fb := range fr.Behaviors {
@@ -143,7 +148,12 @@ func fileDestination(ctx context.Context, c bincapz.Config, fr, tr *bincapz.File
 		return
 	}
 
-	abs := createFileReport(tr, fr)
+	var abs *bincapz.FileReport
+	// Create the file report if not focusing on upgraded risks or
+	// if focusing on upgraded risks and the new risk score is higher than the old risk score
+	if !c.UpgradedRiskOnly || (c.UpgradedRiskOnly && tr.RiskScore > fr.RiskScore) {
+		abs = createFileReport(tr, fr)
+	}
 
 	// if destination behavior is not in the source
 	for _, tb := range tr.Behaviors {

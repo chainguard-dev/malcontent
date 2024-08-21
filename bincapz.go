@@ -73,6 +73,7 @@ func main() {
 	ociFlag := flag.Bool("oci", false, "Scan an OCI image")
 	quantityIncreasesRiskFlag := flag.Bool("quantity-increases-risk", true, "increase file risk score based on behavior quantity")
 	profileFlag := flag.Bool("profile", false, "Generate profile and trace files")
+	showUpgradedRiskOnlyFlag := flag.Bool("show-upgraded-risks", false, "Only show file diffs with upgraded risks (e.g., HIGH -> CRITICAL)")
 	statsFlag := flag.Bool("stats", false, "Show statistics about the scan")
 	thirdPartyFlag := flag.Bool("third-party", true, "Include third-party rules, which may have licensing restrictions")
 	verboseFlag := flag.Bool("verbose", false, "Emit verbose logging messages to stderr")
@@ -195,6 +196,7 @@ func main() {
 		Rules:                 yrs,
 		ScanPaths:             args,
 		Stats:                 stats,
+		UpgradedRiskOnly:      *showUpgradedRiskOnlyFlag,
 	}
 
 	var res *bincapz.Report
