@@ -165,7 +165,7 @@ func errIfHitOrMiss(frs *sync.Map, kind string, scanPath string, errIfHit bool, 
 
 // recursiveScan recursively YARA scans the configured paths - handling archives and OCI images.
 //
-//nolint:gocognit // ignoring complexity of 102 > 98
+
 func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, error) {
 	logger := clog.FromContext(ctx)
 	logger.Debug("recursive scan", slog.Any("config", c))
@@ -277,9 +277,8 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 			g.Go(func() error {
 				if isSupportedArchive(path) {
 					return handleArchive(path)
-				} else {
-					return handleFile(path)
 				}
+				return handleFile(path)
 			})
 		}
 
@@ -288,7 +287,7 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 		}
 
 		var pathKeys []string
-		scanPathFindings.Range(func(key, value interface{}) bool {
+		scanPathFindings.Range(func(key, _ interface{}) bool {
 			if k, ok := key.(string); ok {
 				pathKeys = append(pathKeys, k)
 			}

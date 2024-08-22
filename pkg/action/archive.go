@@ -40,22 +40,29 @@ func extractTar(ctx context.Context, d string, f string) error {
 
 	var tr *tar.Reader
 
-	if strings.Contains(f, ".apk") || strings.Contains(f, ".tar.gz") || strings.Contains(f, ".tgz") {
+	switch {
+	case strings.Contains(f, ".apk") || strings.Contains(f, ".tar.gz") || strings.Contains(f, ".tgz"):
 		gzStream, err := gzip.NewReader(tf)
 		if err != nil {
 			return fmt.Errorf("failed to create gzip reader: %w", err)
 		}
 		defer gzStream.Close()
 		tr = tar.NewReader(gzStream)
-	} else if strings.Contains(filename, ".tar.xz") {
-		tf.Seek(0, io.SeekStart) // Seek to start for xz reading
+	case strings.Contains(filename, ".tar.xz"):
+		_, err := tf.Seek(0, io.SeekStart) // Seek to start for xz reading
+		if err != nil {
+			return fmt.Errorf("failed to seek to start: %w", err)
+		}
 		xzStream, err := xz.NewReader(tf)
 		if err != nil {
 			return fmt.Errorf("failed to create xz reader: %w", err)
 		}
 		tr = tar.NewReader(xzStream)
-	} else {
-		tf.Seek(0, io.SeekStart) // Seek to start for tar reading
+	default:
+		_, err := tf.Seek(0, io.SeekStart) // Seek to start for tar reading
+		if err != nil {
+			return fmt.Errorf("failed to seek to start: %w", err)
+		}
 		tr = tar.NewReader(tf)
 	}
 
@@ -214,6 +221,7 @@ func extractNestedArchive(
 	if _, ok := archiveMap[ext]; ok {
 		isArchive = true
 	}
+	//nolint:nestif // ignore complexity of 8
 	if isArchive {
 		// Ensure the file was extracted and exists
 		fullPath := filepath.Join(d, f)
