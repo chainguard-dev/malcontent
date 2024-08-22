@@ -38,7 +38,8 @@ func extractTar(ctx context.Context, d string, f string) error {
 	}
 	defer tf.Close()
 
-	tr := tar.NewReader(tf)
+	var tr *tar.Reader
+
 	if strings.Contains(f, ".apk") || strings.Contains(f, ".tar.gz") || strings.Contains(f, ".tgz") {
 		gzStream, err := gzip.NewReader(tf)
 		if err != nil {
@@ -46,13 +47,16 @@ func extractTar(ctx context.Context, d string, f string) error {
 		}
 		defer gzStream.Close()
 		tr = tar.NewReader(gzStream)
-	}
-	if strings.Contains(filename, ".tar.xz") {
+	} else if strings.Contains(filename, ".tar.xz") {
+		tf.Seek(0, io.SeekStart) // Seek to start for xz reading
 		xzStream, err := xz.NewReader(tf)
 		if err != nil {
 			return fmt.Errorf("failed to create xz reader: %w", err)
 		}
 		tr = tar.NewReader(xzStream)
+	} else {
+		tf.Seek(0, io.SeekStart) // Seek to start for tar reading
+		tr = tar.NewReader(tf)
 	}
 
 	for {
@@ -85,6 +89,7 @@ func extractTar(ctx context.Context, d string, f string) error {
 		}
 
 		if _, err := io.Copy(f, io.LimitReader(tr, maxBytes)); err != nil {
+			f.Close()
 			return fmt.Errorf("failed to copy file: %w", err)
 		}
 
@@ -170,23 +175,25 @@ func extractZip(ctx context.Context, d string, f string) error {
 
 		open, err := file.Open()
 		if err != nil {
-			open.Close()
 			return fmt.Errorf("failed to open file in zip: %w", err)
 		}
 
 		err = os.MkdirAll(filepath.Dir(name), 0o755)
 		if err != nil {
+			open.Close()
 			return fmt.Errorf("failed to create directory: %w", err)
 		}
 
 		mode := file.Mode() | 0o200
 		create, err := os.OpenFile(name, os.O_RDWR|os.O_CREATE|os.O_TRUNC, mode)
 		if err != nil {
-			create.Close()
+			open.Close()
 			return fmt.Errorf("failed to create file: %w", err)
 		}
 
 		if _, err = io.Copy(create, io.LimitReader(open, maxBytes)); err != nil {
+			open.Close()
+			create.Close()
 			return fmt.Errorf("failed to copy file: %w", err)
 		}
 
@@ -229,6 +236,20 @@ func extractNestedArchive(
 		// This is done to prevent the file from being scanned
 		if err := os.Remove(fullPath); err != nil {
 			return fmt.Errorf("failed to remove file: %w", err)
+		}
+
+		// Check if there are any newly extracted files that are also archives
+		files, err := os.ReadDir(d)
+		if err != nil {
+			return fmt.Errorf("failed to read directory after extraction: %w", err)
+		}
+		for _, file := range files {
+			relPath := filepath.Join(d, file.Name())
+			if _, isExtracted := extracted.Load(relPath); !isExtracted {
+				if err := extractNestedArchive(ctx, d, file.Name(), extracted); err != nil {
+					return fmt.Errorf("failed to extract nested archive %s: %w", file.Name(), err)
+				}
+			}
 		}
 	}
 	return nil

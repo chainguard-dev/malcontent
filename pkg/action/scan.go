@@ -185,7 +185,6 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 
 	var scanPathFindings sync.Map
 
-	var results sync.Map
 	for _, scanPath := range c.ScanPaths {
 		logger.Debug("recursive scan", slog.Any("scanPath", scanPath))
 		imageURI := ""
@@ -221,62 +220,66 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 		}
 		close(pc)
 
-		process := func(path string) error {
-			//nolint:nestif // ignore complexity of 13
-			if isSupportedArchive(path) {
-				logger.Debug("found archive path", slog.Any("path", path))
-				frs, err := processArchive(ctx, c, yrs, path, logger)
-				if err != nil {
-					logger.Errorf("unable to process %s: %v", path, err)
-				}
-				// If we're handling an archive within an OCI archive, wait to for other files to declare a miss
-				if !c.OCI {
-					if err := errIfHitOrMiss(frs, "archive", path, c.ErrFirstHit, c.ErrFirstMiss); err != nil {
-						results.Store(path, &bincapz.FileReport{})
-						return err
-					}
-				}
-
-				frs.Range(func(key, value any) bool {
-					if k, ok := key.(string); ok {
-						if fr, ok := value.(*bincapz.FileReport); ok {
-							results.Store(k, fr)
-						}
-					}
-					return true
-				})
-			} else {
-				trimPath := ""
-				if c.OCI {
-					scanPath = imageURI
-					trimPath = ociExtractPath
-				}
-
-				logger.Debug("processing path", slog.Any("path", path))
-				fr, err := processFile(ctx, c, yrs, path, scanPath, trimPath, logger)
-				if err != nil {
-					results.Store(path, &bincapz.FileReport{})
+		handleArchive := func(path string) error {
+			logger.Debug("found archive path", slog.Any("path", path))
+			frs, err := processArchive(ctx, c, yrs, path, logger)
+			if err != nil {
+				logger.Errorf("unable to process %s: %v", path, err)
+			}
+			// If we're handling an archive within an OCI archive, wait to for other files to declare a miss
+			if !c.OCI {
+				if err := errIfHitOrMiss(frs, "archive", path, c.ErrFirstHit, c.ErrFirstMiss); err != nil {
 					return err
 				}
-				if fr != nil {
-					results.Store(path, fr)
-					if !c.OCI {
-						if err := errIfHitOrMiss(&results, "file", path, c.ErrFirstHit, c.ErrFirstMiss); err != nil {
-							logger.Debugf("match short circuit: %s", err)
-							results.Store(path, &bincapz.FileReport{})
-						}
+			}
+
+			frs.Range(func(key, value any) bool {
+				if k, ok := key.(string); ok {
+					if fr, ok := value.(*bincapz.FileReport); ok {
+						scanPathFindings.Store(k, fr)
+					}
+				}
+				return true
+			})
+			return nil
+		}
+
+		handleFile := func(path string) error {
+			trimPath := ""
+			if c.OCI {
+				scanPath = imageURI
+				trimPath = ociExtractPath
+			}
+
+			logger.Debug("processing path", slog.Any("path", path))
+			fr, err := processFile(ctx, c, yrs, path, scanPath, trimPath, logger)
+			if err != nil {
+				scanPathFindings.Store(path, &bincapz.FileReport{})
+				return err
+			}
+			if fr != nil {
+				scanPathFindings.Store(path, fr)
+				if !c.OCI {
+					var frMap sync.Map
+					frMap.Store(path, fr)
+					if err := errIfHitOrMiss(&frMap, "file", path, c.ErrFirstHit, c.ErrFirstMiss); err != nil {
+						logger.Debugf("match short circuit: %s", err)
+						scanPathFindings.Store(path, &bincapz.FileReport{})
 					}
 				}
 			}
 			return nil
 		}
-
 		var g errgroup.Group
 		g.SetLimit(maxConcurrency)
 		for path := range pc {
 			path := path
 			g.Go(func() error {
-				return process(path)
+				if isSupportedArchive(path) {
+					return handleArchive(path)
+				} else {
+					return handleFile(path)
+				}
 			})
 		}
 
@@ -285,12 +288,9 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 		}
 
 		var pathKeys []string
-		results.Range(func(key, value interface{}) bool {
+		scanPathFindings.Range(func(key, value interface{}) bool {
 			if k, ok := key.(string); ok {
 				pathKeys = append(pathKeys, k)
-				if value, ok := value.(*bincapz.FileReport); ok {
-					scanPathFindings.Store(k, value)
-				}
 			}
 			return true
 		})
