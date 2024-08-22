@@ -12,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/ulikunitz/xz"
@@ -199,7 +200,7 @@ func extractNestedArchive(
 	ctx context.Context,
 	d string,
 	f string,
-	extracted map[string]bool,
+	extracted *sync.Map,
 ) error {
 	isArchive := false
 	ext := getExt(f)
@@ -222,7 +223,7 @@ func extractNestedArchive(
 			return fmt.Errorf("extract nested archive: %w", err)
 		}
 		// Mark the file as extracted
-		extracted[f] = true
+		extracted.Store(f, true)
 
 		// Remove the nested archive file
 		// This is done to prevent the file from being scanned
@@ -253,53 +254,60 @@ func extractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 		return "", fmt.Errorf("failed to extract %s: %w", path, err)
 	}
 
-	extractedFiles := make(map[string]bool)
+	var extractedFiles sync.Map
 	files, err := os.ReadDir(tmpDir)
 	if err != nil {
 		return "", fmt.Errorf("failed to read files in directory %s: %w", tmpDir, err)
 	}
 	for _, file := range files {
-		extractedFiles[filepath.Join(tmpDir, file.Name())] = false
+		extractedFiles.Store(filepath.Join(tmpDir, file.Name()), false)
 	}
 
-	for file := range extractedFiles {
-		ext := getExt(file)
-		info, err := os.Stat(file)
-		if err != nil {
-			return "", fmt.Errorf("failed to stat file %s: %w", file, err)
-		}
-		switch mode := info.Mode(); {
-		case mode.IsDir():
-			err = filepath.WalkDir(file, func(path string, d fs.DirEntry, err error) error {
+	extractedFiles.Range(func(key, _ any) bool {
+		//nolint: nestif // ignoring complexity of 11
+		if file, ok := key.(string); ok {
+			ext := getExt(file)
+			info, err := os.Stat(file)
+			if err != nil {
+				return false
+			}
+			switch mode := info.Mode(); {
+			case mode.IsDir():
+				err = filepath.WalkDir(file, func(path string, d fs.DirEntry, err error) error {
+					if err != nil {
+						return err
+					}
+					rel, err := filepath.Rel(tmpDir, path)
+					if err != nil {
+						return fmt.Errorf("filepath.Rel: %w", err)
+					}
+					if !d.IsDir() {
+						if err := extractNestedArchive(ctx, tmpDir, rel, &extractedFiles); err != nil {
+							return fmt.Errorf("failed to extract nested archive %s: %w", rel, err)
+						}
+					}
+
+					return nil
+				})
 				if err != nil {
-					return err
+					return false
 				}
-				rel, err := filepath.Rel(tmpDir, path)
-				if err != nil {
-					return fmt.Errorf("filepath.Rel: %w", err)
-				}
-				if !d.IsDir() {
-					if err := extractNestedArchive(ctx, tmpDir, rel, extractedFiles); err != nil {
-						return fmt.Errorf("failed to extract nested archive %s: %w", rel, err)
+				return true
+			case mode.IsRegular():
+				if _, ok := archiveMap[ext]; ok {
+					rel, err := filepath.Rel(tmpDir, file)
+					if err != nil {
+						return false
+					}
+					if err := extractNestedArchive(ctx, tmpDir, rel, &extractedFiles); err != nil {
+						return false
 					}
 				}
-
-				return nil
-			})
-			return tmpDir, err
-		case mode.IsRegular():
-			if _, ok := archiveMap[ext]; ok {
-				rel, err := filepath.Rel(tmpDir, file)
-				if err != nil {
-					return "", fmt.Errorf("filepath.Rel: %w", err)
-				}
-				if err := extractNestedArchive(ctx, tmpDir, rel, extractedFiles); err != nil {
-					return "", fmt.Errorf("extract nested archive %s: %w", rel, err)
-				}
+				return true
 			}
-			return tmpDir, nil
 		}
-	}
+		return true
+	})
 
 	return tmpDir, nil
 }

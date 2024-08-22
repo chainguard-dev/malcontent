@@ -125,20 +125,26 @@ func isSupportedArchive(path string) bool {
 }
 
 // errIfMatch generates the right error if a match is encountered.
-func errIfHitOrMiss(frs map[string]*bincapz.FileReport, kind string, scanPath string, errIfHit bool, errIfMiss bool) error {
-	bMap := map[string]bool{}
+func errIfHitOrMiss(frs *sync.Map, kind string, scanPath string, errIfHit bool, errIfMiss bool) error {
+	var bMap sync.Map
 	count := 0
-	for _, fr := range frs {
-		for _, b := range fr.Behaviors {
-			count++
-			bMap[b.ID] = true
+	frs.Range(func(_, value any) bool {
+		if fr, ok := value.(*bincapz.FileReport); ok {
+			for _, b := range fr.Behaviors {
+				count++
+				bMap.Store(b.ID, true)
+			}
 		}
-	}
+		return true
+	})
 
 	bList := []string{}
-	for b := range bMap {
-		bList = append(bList, b)
-	}
+	bMap.Range(func(key, _ any) bool {
+		if k, ok := key.(string); ok {
+			bList = append(bList, k)
+		}
+		return true
+	})
 	sort.Strings(bList)
 
 	suffix := ""
@@ -158,6 +164,8 @@ func errIfHitOrMiss(frs map[string]*bincapz.FileReport, kind string, scanPath st
 }
 
 // recursiveScan recursively YARA scans the configured paths - handling archives and OCI images.
+//
+//nolint:gocognit // ignoring complexity of 102 > 98
 func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, error) {
 	logger := clog.FromContext(ctx)
 	logger.Debug("recursive scan", slog.Any("config", c))
@@ -175,7 +183,7 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 	yrs := c.Rules
 	logger.Infof("%d rules loaded", len(yrs.GetRules()))
 
-	scanPathFindings := map[string]*bincapz.FileReport{}
+	var scanPathFindings sync.Map
 
 	var results sync.Map
 	for _, scanPath := range c.ScanPaths {
@@ -221,7 +229,6 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 				if err != nil {
 					logger.Errorf("unable to process %s: %v", path, err)
 				}
-
 				// If we're handling an archive within an OCI archive, wait to for other files to declare a miss
 				if !c.OCI {
 					if err := errIfHitOrMiss(frs, "archive", path, c.ErrFirstHit, c.ErrFirstMiss); err != nil {
@@ -230,9 +237,14 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 					}
 				}
 
-				for extractedPath, fr := range frs {
-					results.Store(extractedPath, fr)
-				}
+				frs.Range(func(key, value any) bool {
+					if k, ok := key.(string); ok {
+						if fr, ok := value.(*bincapz.FileReport); ok {
+							results.Store(k, fr)
+						}
+					}
+					return true
+				})
 			} else {
 				trimPath := ""
 				if c.OCI {
@@ -249,7 +261,7 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 				if fr != nil {
 					results.Store(path, fr)
 					if !c.OCI {
-						if err := errIfHitOrMiss(map[string]*bincapz.FileReport{path: fr}, "file", path, c.ErrFirstHit, c.ErrFirstMiss); err != nil {
+						if err := errIfHitOrMiss(&results, "file", path, c.ErrFirstHit, c.ErrFirstMiss); err != nil {
 							logger.Debugf("match short circuit: %s", err)
 							results.Store(path, &bincapz.FileReport{})
 						}
@@ -276,11 +288,9 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 		results.Range(func(key, value interface{}) bool {
 			if k, ok := key.(string); ok {
 				pathKeys = append(pathKeys, k)
-				value, ok := value.(*bincapz.FileReport)
-				if !ok {
-					return false
+				if value, ok := value.(*bincapz.FileReport); ok {
+					scanPathFindings.Store(k, value)
 				}
-				scanPathFindings[k] = value
 			}
 			return true
 		})
@@ -288,7 +298,7 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 
 		// OCI images hadle their match his/miss logic per scanPath
 		if c.OCI {
-			if err := errIfHitOrMiss(scanPathFindings, "image", imageURI, c.ErrFirstHit, c.ErrFirstMiss); err != nil {
+			if err := errIfHitOrMiss(&scanPathFindings, "image", imageURI, c.ErrFirstHit, c.ErrFirstMiss); err != nil {
 				return r, err
 			}
 
@@ -299,14 +309,19 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 
 		// Add the sorted paths and file reports to the parent report and render the results
 		for _, k := range pathKeys {
-			r.Files.Set(k, scanPathFindings[k])
-			if c.Renderer != nil && r.Diff == nil {
-				if scanPathFindings[k].RiskScore < c.MinFileRisk {
-					return nil, nil
-				}
-
-				if err := c.Renderer.File(ctx, scanPathFindings[k]); err != nil {
-					return nil, fmt.Errorf("render: %w", err)
+			finding, ok := scanPathFindings.Load(k)
+			if !ok {
+				return nil, fmt.Errorf("could not load finding from sync map")
+			}
+			if fr, ok := finding.(*bincapz.FileReport); ok {
+				r.Files.Set(k, fr)
+				if c.Renderer != nil && r.Diff == nil {
+					if fr.RiskScore < c.MinFileRisk {
+						return nil, nil
+					}
+					if err := c.Renderer.File(ctx, fr); err != nil {
+						return nil, fmt.Errorf("render: %w", err)
+					}
 				}
 			}
 		}
@@ -316,11 +331,11 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 }
 
 // processArchive extracts and scans a single archive file.
-func processArchive(ctx context.Context, c bincapz.Config, yrs *yara.Rules, archivePath string, logger *clog.Logger) (map[string]*bincapz.FileReport, error) {
+func processArchive(ctx context.Context, c bincapz.Config, yrs *yara.Rules, archivePath string, logger *clog.Logger) (*sync.Map, error) {
 	logger = logger.With("archivePath", archivePath)
 
 	var err error
-	frs := map[string]*bincapz.FileReport{}
+	var frs sync.Map
 
 	tmpRoot, err := extractArchiveToTempDir(ctx, archivePath)
 	if err != nil {
@@ -338,14 +353,14 @@ func processArchive(ctx context.Context, c bincapz.Config, yrs *yara.Rules, arch
 			return nil, err
 		}
 		if fr != nil {
-			frs[extractedFilePath] = fr
+			frs.Store(extractedFilePath, fr)
 		}
 	}
 	if err := os.RemoveAll(tmpRoot); err != nil {
 		logger.Errorf("remove %s: %v", tmpRoot, err)
 	}
 
-	return frs, nil
+	return &frs, nil
 }
 
 // processFile scans a single output file, rendering live output if available.
