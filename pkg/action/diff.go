@@ -239,14 +239,14 @@ func combineReports(c bincapz.Config, d *bincapz.DiffReport, combined chan<- bin
 	removed := make(chan *orderedmap.Pair[string, *bincapz.FileReport], d.Removed.Len())
 	added := make(chan *orderedmap.Pair[string, *bincapz.FileReport], d.Added.Len())
 
+	wg.Add(1)
 	go func() {
-		wg.Add(1)
 		filterMap(d.Removed, ps, removed, &wg)
 		close(removed)
 	}()
 
+	wg.Add(1)
 	go func() {
-		wg.Add(1)
 		filterMap(d.Added, ps, added, &wg)
 		close(added)
 	}()
