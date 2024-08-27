@@ -29,6 +29,17 @@ rule setuptools_cmd_exec : suspicious {
     pythonSetup and any of ($f*) and none of ($not*)
 }
 
+rule setuptools_cmd_exec_start : critical {
+  meta:
+    description = "Python library installer that executes the Windows 'start' command"
+  strings:
+    $f_os_system = /os.system\([f\"\']{0,2}start .{0,64}/
+    $f_os_popen = /os.spopen\([f\"\']{0,2}start .{0,64}/
+    $f_subprocess = /subprocess.\w{0,32}\([f\"\']{0,2}start[,'" ]{1,3}.{0,64}/
+  condition:
+    pythonSetup and any of ($f*)
+}
+
 rule setuptools_eval : critical {
   meta:
     description = "Python library installer that evaluates arbitrary code"
@@ -88,3 +99,4 @@ rule setuptools_excessive_bitwise_math : critical {
   condition:
     pythonSetup and #x > 20
 }
+
