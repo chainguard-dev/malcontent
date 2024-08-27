@@ -82,10 +82,7 @@ func Diff(ctx context.Context, c bincapz.Config) (*bincapz.Report, error) {
 	processDest(ctx, c, src, dest, d)
 	// skip inferring moves if added and removed are empty
 	if d.Added != nil && d.Removed != nil {
-		err := inferMoves(ctx, c, d)
-		if err != nil {
-			return &bincapz.Report{}, err
-		}
+		inferMoves(ctx, c, d)
 	}
 	return &bincapz.Report{Diff: d}, err
 }
