@@ -186,6 +186,7 @@ func fileDestination(ctx context.Context, c bincapz.Config, fr, tr *bincapz.File
 // filterMap filters orderedmap pairs by checking for matches against a slice of compiled regular expression patterns.
 func filterMap(om *orderedmap.OrderedMap[string, *bincapz.FileReport], ps []*regexp.Regexp, c chan<- *orderedmap.Pair[string, *bincapz.FileReport], g *errgroup.Group) {
 	for pair := om.Oldest(); pair != nil; pair = pair.Next() {
+		pair := pair
 		g.Go(func() error {
 			for _, pattern := range ps {
 				if match := pattern.FindString(filepath.Base(pair.Key)); match != "" {
@@ -201,6 +202,8 @@ func filterMap(om *orderedmap.OrderedMap[string, *bincapz.FileReport], ps []*reg
 func combine(removed, added <-chan *orderedmap.Pair[string, *bincapz.FileReport], combined chan<- bincapz.CombinedReport, g *errgroup.Group) {
 	for r := range removed {
 		for a := range added {
+			a := a
+			r := r
 			g.Go(func() error {
 				score := levenshtein.Match(r.Key, a.Key, levenshtein.NewParams())
 				if score < 0.9 {
