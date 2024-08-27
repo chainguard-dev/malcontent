@@ -194,8 +194,7 @@ func filterMap(om *orderedmap.OrderedMap[string, *bincapz.FileReport], ps []*reg
 }
 
 // combine iterates over the removed and added channels to create a diff report to store in the combined channel.
-func combine(removed, added <-chan *orderedmap.Pair[string, *bincapz.FileReport], combined chan<- bincapz.CombinedReport, wg *sync.WaitGroup) {
-	defer wg.Done()
+func combine(removed, added <-chan *orderedmap.Pair[string, *bincapz.FileReport], combined chan<- bincapz.CombinedReport) {
 	for r := range removed {
 		for a := range added {
 			score := levenshtein.Match(r.Key, a.Key, levenshtein.NewParams())
@@ -214,13 +213,8 @@ func combine(removed, added <-chan *orderedmap.Pair[string, *bincapz.FileReport]
 }
 
 // combineReports orchestrates the population of the diffs channel with relevant diffReports.
-func combineReports(c bincapz.Config, d *bincapz.DiffReport, combined chan<- bincapz.CombinedReport) {
+func combineReports(d *bincapz.DiffReport, combined chan<- bincapz.CombinedReport) {
 	defer close(combined)
-
-	maxConcurrency := c.Concurrency
-	if maxConcurrency < 1 {
-		maxConcurrency = 1
-	}
 
 	var wg sync.WaitGroup
 
@@ -251,10 +245,7 @@ func combineReports(c bincapz.Config, d *bincapz.DiffReport, combined chan<- bin
 		close(added)
 	}()
 
-	for i := 0; i < maxConcurrency; i++ {
-		wg.Add(1)
-		combine(removed, added, combined, &wg)
-	}
+	combine(removed, added, combined)
 
 	wg.Wait()
 }
@@ -264,7 +255,7 @@ func inferMoves(ctx context.Context, c bincapz.Config, d *bincapz.DiffReport) {
 	// This is the worst case since we will always filter out irrelevant filepaths
 	combined := make(chan bincapz.CombinedReport, d.Removed.Len()+d.Added.Len())
 
-	combineReports(c, d, combined)
+	combineReports(d, combined)
 
 	for dr := range combined {
 		fileMove(ctx, c, dr.RemovedFR, dr.AddedFR, dr.Removed, dr.Added, d, dr.Score)
