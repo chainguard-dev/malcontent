@@ -110,3 +110,11 @@ type StrMetric struct {
 	Total int
 	Value float64
 }
+
+type CombinedReport struct {
+	Added     string
+	AddedFR   *FileReport
+	Removed   string
+	RemovedFR *FileReport
+	Score     float64
+}
