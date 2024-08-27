@@ -18,11 +18,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-const (
-	CHUNK_SIZE int = 1000
-)
-
-func relFileReport(ctx context.Context, c bincapz.Config, fromPath string, diff bool) (map[string]*bincapz.FileReport, error) {
+func relFileReport(ctx context.Context, c bincapz.Config, fromPath string) (map[string]*bincapz.FileReport, error) {
 	fromConfig := c
 	fromConfig.Renderer = nil
 	fromConfig.ScanPaths = []string{fromPath}
@@ -56,7 +52,7 @@ func Diff(ctx context.Context, c bincapz.Config) (*bincapz.Report, error) {
 	var src, dest map[string]*bincapz.FileReport
 	var err error
 	g.Go(func() error {
-		src, err = relFileReport(ctx, c, c.ScanPaths[0], true)
+		src, err = relFileReport(ctx, c, c.ScanPaths[0])
 		if err != nil {
 			return err
 		}
@@ -64,7 +60,7 @@ func Diff(ctx context.Context, c bincapz.Config) (*bincapz.Report, error) {
 	})
 
 	g.Go(func() error {
-		dest, err = relFileReport(ctx, c, c.ScanPaths[1], true)
+		dest, err = relFileReport(ctx, c, c.ScanPaths[1])
 		if err != nil {
 			return err
 		}
@@ -241,14 +237,14 @@ func combineReports(c bincapz.Config, d *bincapz.DiffReport, combined chan<- bin
 		`^.+-.*-r\d+\.spdx\.json$`,
 	}
 
-	var ps = make([]*regexp.Regexp, len(patterns))
+	ps := make([]*regexp.Regexp, len(patterns))
 	for i, pattern := range patterns {
 		ps[i] = regexp.MustCompile(pattern)
 	}
 
 	// Build two channels with filtered paths to iterate through in the worker pool
-	removed := make(chan *orderedmap.Pair[string, *bincapz.FileReport], CHUNK_SIZE)
-	added := make(chan *orderedmap.Pair[string, *bincapz.FileReport], CHUNK_SIZE)
+	removed := make(chan *orderedmap.Pair[string, *bincapz.FileReport], d.Removed.Len())
+	added := make(chan *orderedmap.Pair[string, *bincapz.FileReport], d.Added.Len())
 
 	filterMap(d.Removed, ps, removed, &g)
 	close(removed)
@@ -258,11 +254,8 @@ func combineReports(c bincapz.Config, d *bincapz.DiffReport, combined chan<- bin
 
 	combine(removed, added, combined, &g)
 
-	if err := g.Wait(); err != nil {
-		return err
-	}
-
-	return nil
+	err := g.Wait()
+	return err
 }
 
 func inferMoves(ctx context.Context, c bincapz.Config, d *bincapz.DiffReport) error {
