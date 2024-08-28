@@ -2,7 +2,7 @@
 3P/threat_hunting/hijacker
 3P/threat_hunting/reverst
 3P/threat_hunting/tailscale
-admin/package/install
+admin/pip_install
 archives/zip
 cloud/aws/metadata
 cloud/google/metadata

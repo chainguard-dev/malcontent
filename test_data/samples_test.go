@@ -190,7 +190,7 @@ func TestDiff(t *testing.T) {
 	}{
 		{diff: "macOS/clean/ls.mdiff", format: "markdown", src: "linux/clean/ls.x86_64", dest: "macOS/clean/ls"},
 		{diff: "macOS/2023.3CX/libffmpeg.dirty.mdiff", format: "markdown", src: "macOS/2023.3CX/libffmpeg.dylib", dest: "macOS/2023.3CX/libffmpeg.dirty.dylib"},
-		{diff: "linux/2023.FreeDownloadManager/freedownloadmanager.sdiff", format: "simple", src: "Linux/2023.FreeDownloadManager/freedownloadmanager_clear_postinst", dest: "linux/2023.FreeDownloadManager/freedownloadmanager_infected_postinst", minResultScore: 1, minFileScore: 0},
+		{diff: "linux/2023.FreeDownloadManager/freedownloadmanager.sdiff", format: "simple", src: "linux/2023.FreeDownloadManager/freedownloadmanager_clear_postinst", dest: "linux/2023.FreeDownloadManager/freedownloadmanager_infected_postinst", minResultScore: 1, minFileScore: 0},
 		{diff: "macOS/clean/ls.sdiff.level_2", format: "simple", src: "linux/clean/ls.x86_64", dest: "macOS/clean/ls", minResultScore: 2, minFileScore: 2},
 		{diff: "macOS/clean/ls.sdiff.trigger_2", format: "simple", src: "linux/clean/ls.x86_64", dest: "macOS/clean/ls", minResultScore: 1, minFileScore: 2},
 		// Important: minFileScore should apply to source or destination

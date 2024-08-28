@@ -1,0 +1,104 @@
+{
+    "Files": {
+        "Python/2024.yocolor/setup.py": {
+            "Path": "Python/2024.yocolor/setup.py",
+            "SHA256": "6049dd7f956c12151ec5dd3007b306192e95629fa27edb48a1d3ac2b7d77a7ba",
+            "Size": 2294,
+            "Syscalls": [
+                "close",
+                "execve",
+                "open"
+            ],
+            "Pledge": [
+                "exec"
+            ],
+            "Behaviors": [
+                {
+                    "Description": "Installs fernet crypto package using pip",
+                    "MatchStrings": [
+                        "pip install fernet"
+                    ],
+                    "RiskScore": 4,
+                    "RiskLevel": "CRITICAL",
+                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/admin/pip_install.yara#pip_installer_fernet",
+                    "ReferenceURL": "https://checkmarx.com/blog/over-170k-users-affected-by-attack-using-fake-python-infrastructure/",
+                    "ID": "admin/pip_install"
+                },
+                {
+                    "Description": "Python library installer that executes the Windows 'start' command",
+                    "MatchStrings": [
+                        "os.system(f'start {sys.executable} -m pip install fernet')"
+                    ],
+                    "RiskScore": 4,
+                    "RiskLevel": "CRITICAL",
+                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/combo/backdoor/py_setuptools.yara#setuptools_cmd_exec_start",
+                    "ID": "combo/backdoor/py_setuptools"
+                },
+                {
+                    "Description": "Supports Fernet (symmetric encryption)",
+                    "MatchStrings": [
+                        "fernet"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/crypto/fernet.yara#crypto_fernet",
+                    "ID": "crypto/fernet"
+                },
+                {
+                    "Description": "execute external program",
+                    "MatchStrings": [
+                        "os.system(f'start {sys.executable} -m pip install fernet')"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/exec/program.yara#py_subprocess",
+                    "ReferenceURL": "https://man7.org/linux/man-pages/man2/execve.2.html",
+                    "ID": "exec/program"
+                },
+                {
+                    "Description": "reads from a file handle",
+                    "MatchStrings": [
+                        "fp.read()"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/fd/read.yara#py_fd_read",
+                    "ID": "fd/read"
+                },
+                {
+                    "Description": "gets executable associated to this process",
+                    "MatchStrings": [
+                        "sys.executable"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/process/executable_path.yara#python_sys_executable",
+                    "ID": "process/executable_path"
+                },
+                {
+                    "Description": "path reference within /usr/bin",
+                    "MatchStrings": [
+                        "/usr/bin/env"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/ref/path/usr-bin.yara#usr_bin_path",
+                    "ID": "ref/path/usr/bin"
+                },
+                {
+                    "Description": "contains embedded HTTPS URLs",
+                    "MatchStrings": [
+                        "https://github.com/tartley/yocolor",
+                        "https://pypi.org/pypi?"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/ref/site/url.yara#https_url",
+                    "ID": "ref/site/url"
+                }
+            ],
+            "RiskScore": 4,
+            "RiskLevel": "CRITICAL"
+        }
+    }
+}

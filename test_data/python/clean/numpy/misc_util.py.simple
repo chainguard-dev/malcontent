@@ -1,5 +1,5 @@
 # python/clean/numpy/misc_util.py
-admin/package/install
+admin/pip_install
 env/get
 evasion/lib_alias
 exec/program

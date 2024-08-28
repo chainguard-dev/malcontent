@@ -5,7 +5,7 @@
 3P/threat_hunting/shell
 3P/threat_hunting/xmrig
 admin/logs/syslog
-admin/package/install
+admin/pip_install
 combo/backdoor/iptables
 combo/backdoor/kill_rm
 combo/critical_paths
