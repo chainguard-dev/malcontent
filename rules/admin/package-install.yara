@@ -67,14 +67,4 @@ rule apk_installer : medium {
     $val
 }
 
-rule pip_installer_regex : medium {
-  meta:
-    description = "Includes 'pip install' command for installing Python modules"
-    hash_2023_Downloads_016a = "016a1a4fe3e9d57ab0b2a11e37ad94cc922290d2499b8d96957c3ddbdc516d74"
-    hash_2023_Downloads_Brawl_Earth = "fe3ac61c701945f833f218c98b18dca704e83df2cf1a8994603d929f25d1cce2"
-    hash_2022_2022_requests_3_0_0_README = "150fd62db4024e240040be44b32d7ce98df80ab86dfd564a173cd231f2254abc"
-  strings:
-    $regex = /pip[3 \'\"]{0,5}install[ \'\"\w\-\_%]{0,32}/
-  condition:
-    any of them
-}
+
