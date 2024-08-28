@@ -9,12 +9,14 @@ import (
 	"log/slog"
 	"math"
 	"path/filepath"
+	"regexp"
 	"sync"
 
 	"github.com/agext/levenshtein"
 	"github.com/chainguard-dev/bincapz/pkg/bincapz"
 	"github.com/chainguard-dev/clog"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
+	"golang.org/x/sync/errgroup"
 )
 
 func relFileReport(ctx context.Context, c bincapz.Config, fromPath string) (map[string]*bincapz.FileReport, error) {
@@ -45,13 +47,28 @@ func Diff(ctx context.Context, c bincapz.Config) (*bincapz.Report, error) {
 		return nil, fmt.Errorf("diff mode requires 2 paths, you passed in %d path(s)", len(c.ScanPaths))
 	}
 
-	src, err := relFileReport(ctx, c, c.ScanPaths[0])
-	if err != nil {
-		return nil, err
-	}
+	var g errgroup.Group
+	g.SetLimit(2) // create src and dest relFileReports concurrently
 
-	dest, err := relFileReport(ctx, c, c.ScanPaths[1])
-	if err != nil {
+	var src, dest map[string]*bincapz.FileReport
+	var err error
+	g.Go(func() error {
+		src, err = relFileReport(ctx, c, c.ScanPaths[0])
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+
+	g.Go(func() error {
+		dest, err = relFileReport(ctx, c, c.ScanPaths[1])
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+
+	if err := g.Wait(); err != nil {
 		return nil, err
 	}
 
@@ -164,55 +181,82 @@ func fileDestination(ctx context.Context, c bincapz.Config, fr, tr *bincapz.File
 	}
 }
 
-type diffReports struct {
-	Added     string
-	AddedFR   *bincapz.FileReport
-	Removed   string
-	RemovedFR *bincapz.FileReport
+// filterMap filters orderedmap pairs by checking for matches against a slice of compiled regular expression patterns.
+func filterMap(om *orderedmap.OrderedMap[string, *bincapz.FileReport], ps []*regexp.Regexp, c chan<- *orderedmap.Pair[string, *bincapz.FileReport], wg *sync.WaitGroup) {
+	defer wg.Done()
+	for pair := om.Oldest(); pair != nil; pair = pair.Next() {
+		for _, pattern := range ps {
+			if match := pattern.FindString(filepath.Base(pair.Key)); match != "" {
+				c <- pair
+			}
+		}
+	}
 }
 
-// combineReports builds a flattened slice of added and removed paths and their respective file reports.
-func combineReports(d *bincapz.DiffReport) []diffReports {
-	diffs := make(chan diffReports)
+// combine iterates over the removed and added channels to create a diff report to store in the combined channel.
+func combine(removed, added <-chan *orderedmap.Pair[string, *bincapz.FileReport]) []bincapz.CombinedReport {
+	combined := make([]bincapz.CombinedReport, 0, len(removed)*len(added))
+	for r := range removed {
+		for a := range added {
+			score := levenshtein.Match(r.Key, a.Key, levenshtein.NewParams())
+			if score < 0.9 {
+				continue
+			}
+			combined = append(combined, bincapz.CombinedReport{
+				Added:     a.Key,
+				AddedFR:   a.Value,
+				Removed:   r.Key,
+				RemovedFR: r.Value,
+				Score:     score,
+			})
+		}
+	}
+	return combined
+}
+
+// combineReports orchestrates the population of the diffs channel with relevant diffReports.
+func combineReports(d *bincapz.DiffReport) []bincapz.CombinedReport {
 	var wg sync.WaitGroup
 
-	for removed := d.Removed.Oldest(); removed != nil; removed = removed.Next() {
-		wg.Add(1)
-		go func(path string, fr *bincapz.FileReport) {
-			defer wg.Done()
-			for added := d.Added.Oldest(); added != nil; added = added.Next() {
-				diffs <- diffReports{
-					Added:     added.Key,
-					AddedFR:   added.Value,
-					Removed:   path,
-					RemovedFR: fr,
-				}
-			}
-		}(removed.Key, removed.Value)
+	// Patterns we care about when handling diffs
+	patterns := []string{
+		`^[\w.-]+\.so$`,
+		`^.+-.*-r\d+\.spdx\.json$`,
 	}
 
+	ps := make([]*regexp.Regexp, len(patterns))
+	for i, pattern := range patterns {
+		ps[i] = regexp.MustCompile(pattern)
+	}
+
+	// Build two channels with filtered paths to iterate through in the worker pool
+	removed := make(chan *orderedmap.Pair[string, *bincapz.FileReport], d.Removed.Len())
+	added := make(chan *orderedmap.Pair[string, *bincapz.FileReport], d.Added.Len())
+
+	wg.Add(1)
 	go func() {
-		wg.Wait()
-		close(diffs)
+		filterMap(d.Removed, ps, removed, &wg)
+		close(removed)
 	}()
 
-	var reports []diffReports
-	for diff := range diffs {
-		reports = append(reports, diff)
-	}
-	return reports
+	wg.Add(1)
+	go func() {
+		filterMap(d.Added, ps, added, &wg)
+		close(added)
+	}()
+
+	wg.Wait()
+
+	return combine(removed, added)
 }
 
 func inferMoves(ctx context.Context, c bincapz.Config, d *bincapz.DiffReport) {
-	flattenedDiffs := combineReports(d)
-
-	for _, fd := range flattenedDiffs {
-		score := levenshtein.Match(fd.Removed, fd.Added, levenshtein.NewParams())
-		fileMove(ctx, c, fd.RemovedFR, fd.AddedFR, fd.Removed, fd.Added, score, d)
+	for _, cr := range combineReports(d) {
+		fileMove(ctx, c, cr.RemovedFR, cr.AddedFR, cr.Removed, cr.Added, d, cr.Score)
 	}
 }
 
-func fileMove(ctx context.Context, c bincapz.Config, fr, tr *bincapz.FileReport, rpath, apath string, score float64, d *bincapz.DiffReport) {
+func fileMove(ctx context.Context, c bincapz.Config, fr, tr *bincapz.FileReport, rpath, apath string, d *bincapz.DiffReport, score float64) {
 	minRisk := int(math.Min(float64(c.MinRisk), float64(c.MinFileRisk)))
 	if fr.RiskScore < minRisk && tr.RiskScore < minRisk {
 		clog.FromContext(ctx).Info("diff does not meet min trigger level", slog.Any("path", tr.Path))
@@ -249,10 +293,7 @@ func fileMove(ctx context.Context, c bincapz.Config, fr, tr *bincapz.FileReport,
 		}
 	}
 
-	// Move these into the modified list if the files are not completely different (something like ~0.3)
-	if score > 0.3 {
-		d.Modified.Set(apath, abs)
-		d.Modified.Delete(rpath)
-		d.Modified.Delete(apath)
-	}
+	d.Modified.Set(apath, abs)
+	d.Removed.Delete(rpath)
+	d.Added.Delete(apath)
 }
