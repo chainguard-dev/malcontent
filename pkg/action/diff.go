@@ -194,28 +194,28 @@ func filterMap(om *orderedmap.OrderedMap[string, *bincapz.FileReport], ps []*reg
 }
 
 // combine iterates over the removed and added channels to create a diff report to store in the combined channel.
-func combine(removed, added <-chan *orderedmap.Pair[string, *bincapz.FileReport], combined chan<- bincapz.CombinedReport) {
+func combine(removed, added <-chan *orderedmap.Pair[string, *bincapz.FileReport]) []bincapz.CombinedReport {
+	combined := make([]bincapz.CombinedReport, 0, len(removed)*len(added))
 	for r := range removed {
 		for a := range added {
 			score := levenshtein.Match(r.Key, a.Key, levenshtein.NewParams())
 			if score < 0.9 {
 				continue
 			}
-			combined <- bincapz.CombinedReport{
+			combined = append(combined, bincapz.CombinedReport{
 				Added:     a.Key,
 				AddedFR:   a.Value,
 				Removed:   r.Key,
 				RemovedFR: r.Value,
 				Score:     score,
-			}
+			})
 		}
 	}
+	return combined
 }
 
 // combineReports orchestrates the population of the diffs channel with relevant diffReports.
-func combineReports(d *bincapz.DiffReport, combined chan<- bincapz.CombinedReport) {
-	defer close(combined)
-
+func combineReports(d *bincapz.DiffReport) []bincapz.CombinedReport {
 	var wg sync.WaitGroup
 
 	// Patterns we care about when handling diffs
@@ -245,20 +245,14 @@ func combineReports(d *bincapz.DiffReport, combined chan<- bincapz.CombinedRepor
 		close(added)
 	}()
 
-	combine(removed, added, combined)
-
 	wg.Wait()
+
+	return combine(removed, added)
 }
 
 func inferMoves(ctx context.Context, c bincapz.Config, d *bincapz.DiffReport) {
-	// Create a channel with enough capacity to hold the entirety of the two maps
-	// This is the worst case since we will always filter out irrelevant filepaths
-	combined := make(chan bincapz.CombinedReport, d.Removed.Len()+d.Added.Len())
-
-	combineReports(d, combined)
-
-	for dr := range combined {
-		fileMove(ctx, c, dr.RemovedFR, dr.AddedFR, dr.Removed, dr.Added, d, dr.Score)
+	for _, cr := range combineReports(d) {
+		fileMove(ctx, c, cr.RemovedFR, cr.AddedFR, cr.Removed, cr.Added, d, cr.Score)
 	}
 }
 
