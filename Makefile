@@ -48,8 +48,8 @@ fix: $(FIXERS)
 # END: lint-install ../bincapz
 
 .PHONY: test
-test: extract-samples
-	go test ./...
+test: clone-samples
+	go test $(shell go list ./... | grep -v test_data)
 
 .PHONY: bench
 bench:
@@ -111,17 +111,15 @@ update-third-party:
 	./third_party/yara/update.sh
 
 .PHONY: refresh-sample-testdata out/bincapz
-refresh-sample-testdata: out/bincapz
+refresh-sample-testdata: clone-samples out/bincapz
+	cp ./test_data/refresh-testdata.sh samples/
 	./samples/refresh-testdata.sh ./out/bincapz
 
-.PHONY: archive-samples
-archive-samples:
-ifeq ($(LINT_OS),Darwin)
-	tar czvf - --no-xattrs --exclude="._*" --disable-copyfile samples | split -b 50m - samples.tar.gz.
-else
-	tar czvf - --exclude="._*" samples | split -b 50m - samples.tar.gz.
-endif
-
-.PHONY: extract-samples
-extract-samples:
-	cat samples.tar.gz.* | tar xzvf -
+.PHONY: clone-samples
+clone-samples:
+	rm -rf samples; git clone git@github.com:chainguard-dev/bincapz-samples.git samples
+	cp -a test_data/. samples/
+	for file in caddy.xz chezmoi.xz minio_x86_64.xz mongosh.xz neuvector_agent_aarch64.xz opa.xz ; do \
+		tar -xJvf samples/linux/clean/$$file -C samples/linux/clean; \
+	done
+	tar -xJvf samples/macOS/clean/bincapz.xz -C samples/macOS/clean

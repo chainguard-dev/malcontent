@@ -1,0 +1,14 @@
+# linux/mimipenguin/c/mimipenguin
+3P/threat_hunting/crossc2
+3P/threat_hunting/mimipenguin
+combo/stealer/password
+net/ssh
+procfs/arbitrary/pid
+procfs/pid/cmdline
+procfs/pid/maps
+ref/path/etc
+ref/program/gnome/keyring/daemon
+ref/program/sshd
+ref/program/sudo
+ref/words/password
+secrets/shadow

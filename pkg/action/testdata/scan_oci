@@ -1,7 +1,9 @@
 # cgr.dev/chainguard/static ∴ /etc/profile
+fs/file/permission/mask/set
 persist/bash
 persist/shell/init_files
 ref/path/etc
+ref/path/usr
 ref/path/usr/local
 # cgr.dev/chainguard/static ∴ /var/lib/db/sbom/ca-certificates-bundle-20240705-r0.spdx.json
 net/download

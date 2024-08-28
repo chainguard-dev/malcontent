@@ -1,0 +1,10 @@
+# typescript/2021.CursedGrabber.an0n-chat-lib/src/stealer.ts
+combo/stealer/browser
+databases/leveldb
+encoding/json/decode
+exfil/discord
+fs/file/read
+fs/file/write
+persist/windows_start
+ref/path/relative
+ref/site/url

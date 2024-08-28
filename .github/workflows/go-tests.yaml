@@ -47,7 +47,7 @@ jobs:
         
       - name: Extract Samples
         run : |
-          make extract-samples
+          make clone-samples
 
       - name: Test
         run: |

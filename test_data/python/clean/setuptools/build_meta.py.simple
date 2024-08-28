@@ -1,0 +1,15 @@
+# python/clean/setuptools/build_meta.py
+3P/threat_hunting/monkey
+admin/package/install
+data/embedded/html
+evasion/single_line_imports
+exec/program
+fd/read
+fs/directory/traverse
+net/download
+ref/ip
+ref/site/download
+ref/site/github_raw
+ref/site/url
+ref/words/agent
+techniques/code_eval

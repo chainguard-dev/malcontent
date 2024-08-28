@@ -36,7 +36,6 @@ func TestOCI(t *testing.T) {
 	bc := bincapz.Config{
 		Concurrency: runtime.NumCPU(),
 		IgnoreSelf:  false,
-		IgnoreTags:  []string{"harmless"},
 		OCI:         true,
 		Renderer:    simple,
 		Rules:       yrs,
