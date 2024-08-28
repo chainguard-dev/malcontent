@@ -1,3 +1,4 @@
+import "math"
 
 rule pip_installer : high {
   meta:
@@ -6,12 +7,27 @@ rule pip_installer : high {
     hash_2022_BeautifulSoup_new_3_0_0_setup = "975cd3986ba59ffab8df71227293dbf2534ffb572e028e3bd492d8d08ec1f090"
     hash_2022_SimpleCalc_2022_4_2_21_setup = "5b0f7b30b411d7e404786ab2266426db471a2c9d0d9cae593eb187a58a28bc4f"
   strings:
-    $pip_install = "os.system('pip install"
-    $pip_install_spaces = "'pip', 'install'"
-    $pip_install_args = "'pip','install'"
-    $pip3_install = "os.system('pip3 install"
-    $pip3_install_spaces = "'pip3', 'install'"
-    $pip3_install_args = "'pip3','install'"
+    $ref = /pip[3 \'\"]{0,5}install[ \'\"\w\-\_%]{0,32}/
   condition:
-    any of them
+    $ref
+}
+
+rule pip_installer_fernet : critical {
+  meta:
+    description = "Installs fernet crypto package using pip"
+	ref = "https://checkmarx.com/blog/over-170k-users-affected-by-attack-using-fake-python-infrastructure/"
+  strings:
+	$ref = /pip.{1,5}install.{1,4}fernet/
+  condition:
+	$ref
+}
+
+rule pip_installer_url : critical {
+  meta:
+    description = "Installs Python package from hardcoded URL"
+	ref = "https://checkmarx.com/blog/over-170k-users-affected-by-attack-using-fake-python-infrastructure/"
+  strings:
+	$ref = /pip.{1,5}install.{1,4}https{0,1}:\/\/.{0,64}/
+  condition:
+	filesize < 8192 and $ref
 }
