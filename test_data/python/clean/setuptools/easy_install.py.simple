@@ -11,4 +11,5 @@ fs/permission/modify
 fs/tempdir/create
 kernel/platform
 net/download
+process/executable_path
 ref/site/url
