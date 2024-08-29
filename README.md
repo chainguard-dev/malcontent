@@ -146,7 +146,9 @@ bincapz --format=json <file> | jq  '.Files.[].Behaviors | keys'
 
 ## Samples
 
-All of the samples used by bincapz to test rules and functionality are stored in the `samples.tar.gz` archive. Makefile targets are provided to extract the contents of the archive as well as re-create the archive when samples are added/updated.
+Bincapz samples are stored in the `bincapz-samples` repository [here](https://github.com/chainguard-dev/bincapz-samples) due to the size of the samples. While the samples were originally stored in this repository, size became a concern and polluted the Git history making the repository difficult to pull.
+
+The new repository is cloned when running `make test` and the contents of `test_data` are copied into the resulting `samples` directory. This allows for the tests to run as usual. To update sample test data, `make refresh-sample-testdata` will now write updated test data content to the files in `test_data` which can be committed.
 
 ## FAQ
 

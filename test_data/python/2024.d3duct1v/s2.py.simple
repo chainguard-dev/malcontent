@@ -1,0 +1,6 @@
+# python/2024.d3duct1v/s2.py
+combo/locker/fernet_listdir
+crypto/fernet
+fd/read
+fd/write
+fs/directory/traverse

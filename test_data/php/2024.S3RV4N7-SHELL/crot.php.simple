@@ -1,0 +1,11 @@
+# php/2024.S3RV4N7-SHELL/crot.php
+3P/signature_base/webshell/php
+combo/backdoor/php
+encoding/base64
+evasion/base64/decode
+evasion/base64/php_functions
+evasion/mask_exceptions
+evasion/non_printable_chars
+evasion/script/obfuscation
+ref/site/url
+techniques/code_eval

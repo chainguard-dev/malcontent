@@ -1,0 +1,15 @@
+# linux/2024.PAN-OS.Upstyle/update_base64_payload1.py
+3P/volexity/py/upstyle
+encoding/base64
+evasion/base64/decode
+evasion/base64/eval
+evasion/base64/python
+exec/program
+fd/read
+fd/write
+fs/file/delete
+fs/file/read
+fs/file/write
+procfs/self/cmdline
+ref/path/usr/lib/python
+ref/path/usr/local

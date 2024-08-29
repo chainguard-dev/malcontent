@@ -1,0 +1,16 @@
+# python/clean/setuptools/package_index.py
+data/embedded/html
+encoding/base64
+exec/program
+fd/read
+fd/write
+fs/file/delete
+fs/symlink/resolve
+fs/tempdir/create
+net/download
+net/http/request
+net/url
+net/url/request
+ref/site/url
+ref/words/agent
+ref/words/password

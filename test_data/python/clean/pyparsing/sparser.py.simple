@@ -1,0 +1,11 @@
+# python/clean/pyparsing/sparser.py
+compression/bzip2
+compression/gzip
+exec/pipe
+fd/read
+fd/write
+net/url
+net/url/request
+ref/path/usr/bin
+ref/site/url
+techniques/code_eval
