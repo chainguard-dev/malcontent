@@ -25,7 +25,7 @@ jobs:
 
       - name: Checkout code
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-      
+
       - name: Checkout code
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
@@ -47,9 +47,9 @@ jobs:
           sudo add-apt-repository -n -y "deb http://security.ubuntu.com/ubuntu mantic-security main restricted universe multiverse"
 
           sudo apt update && sudo apt install libyara-dev -y
-        
+
       - name: Prepare samples
-        run : |
+        run: |
           cp -a ${{ github.workspace }}/test_data/. ${{ github.workspace }}/samples/
           for file in caddy.xz chezmoi.xz minio_x86_64.xz mongosh.xz neuvector_agent_aarch64.xz opa.xz ; do \
             tar -xJvf ${{ github.workspace }}/samples/linux/clean/${file} -C ${{ github.workspace }}/samples/linux/clean; \
