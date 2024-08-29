@@ -1,7 +1,7 @@
 {
     "Files": {
         "python/2024.yocolor/setup.py": {
-            "Path": "Python/2024.yocolor/setup.py",
+            "Path": "python/2024.yocolor/setup.py",
             "SHA256": "6049dd7f956c12151ec5dd3007b306192e95629fa27edb48a1d3ac2b7d77a7ba",
             "Size": 2294,
             "Syscalls": [

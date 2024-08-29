@@ -1,17 +1,17 @@
-# cgr.dev/chainguard/static ∴ /etc/profile
+# cgr.dev/chainguard/static@sha256:791657dd88dea8c1f9d3779815429f9c681a9a2778fc66dac3fbf550e1f1d9c8 ∴ /etc/profile
 fs/file/permission/mask/set
 persist/bash
 persist/shell/init_files
 ref/path/etc
 ref/path/usr
 ref/path/usr/local
-# cgr.dev/chainguard/static ∴ /var/lib/db/sbom/ca-certificates-bundle-20240705-r0.spdx.json
+# cgr.dev/chainguard/static@sha256:791657dd88dea8c1f9d3779815429f9c681a9a2778fc66dac3fbf550e1f1d9c8 ∴ /var/lib/db/sbom/ca-certificates-bundle-20240705-r0.spdx.json
 net/download
 ref/site/url
-# cgr.dev/chainguard/static ∴ /var/lib/db/sbom/tzdata-2024a-r3.spdx.json
+# cgr.dev/chainguard/static@sha256:791657dd88dea8c1f9d3779815429f9c681a9a2778fc66dac3fbf550e1f1d9c8 ∴ /var/lib/db/sbom/tzdata-2024a-r3.spdx.json
 net/download
 ref/site/url
 time/tzinfo
-# cgr.dev/chainguard/static ∴ /var/lib/db/sbom/wolfi-baselayout-20230201-r15.spdx.json
+# cgr.dev/chainguard/static@sha256:791657dd88dea8c1f9d3779815429f9c681a9a2778fc66dac3fbf550e1f1d9c8 ∴ /var/lib/db/sbom/wolfi-baselayout-20230201-r15.spdx.json
 net/download
 ref/site/url
