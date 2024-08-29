@@ -48,7 +48,7 @@ func extractTar(ctx context.Context, d string, f string) error {
 		}
 		defer gzStream.Close()
 		tr = tar.NewReader(gzStream)
-	case strings.Contains(filename, ".tar.xz"):
+	case strings.Contains(filename, ".xz"):
 		_, err := tf.Seek(0, io.SeekStart) // Seek to start for xz reading
 		if err != nil {
 			return fmt.Errorf("failed to seek to start: %w", err)
@@ -347,7 +347,7 @@ func extractionMethod(ext string) func(context.Context, string, string) error {
 		return extractZip
 	case ".gz":
 		return extractGzip
-	case ".apk", ".gem", ".tar", ".tar.gz", ".tgz", ".tar.xz":
+	case ".apk", ".gem", ".tar", ".tar.gz", ".tgz", ".tar.xz", ".xz":
 		return extractTar
 	default:
 		return nil
