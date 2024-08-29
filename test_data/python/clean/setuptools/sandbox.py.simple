@@ -1,0 +1,16 @@
+# python/clean/setuptools/sandbox.py
+fd/read
+fs/directory/create
+fs/directory/remove
+fs/fifo/create
+fs/file/delete
+fs/file/times/set
+fs/link/read
+fs/node/create
+fs/permission/modify
+fs/symlink/resolve
+kernel/platform
+process/chroot
+ref/site/url
+ref/words/plugin
+techniques/code_eval

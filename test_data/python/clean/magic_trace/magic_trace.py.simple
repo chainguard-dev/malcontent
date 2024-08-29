@@ -1,0 +1,7 @@
+# python/clean/magic_trace/magic_trace.py
+exec/program
+fd/read
+fs/permission/modify
+net/download
+ref/path/tmp
+ref/site/url

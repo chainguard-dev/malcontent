@@ -1,0 +1,14 @@
+# python/2021.DiscordSafety/setup.py
+combo/backdoor/py_setuptools
+combo/stealer/browser
+databases/leveldb
+encoding/base64
+evasion/python_rename_imports
+exec/program
+fs/directory/create
+net/url/request
+ref/path/users
+ref/site/php
+ref/site/url
+techniques/code_eval
+techniques/marshal

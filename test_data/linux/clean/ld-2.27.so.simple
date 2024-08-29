@@ -1,0 +1,13 @@
+# linux/clean/ld-2.27.so
+env/LD_DEBUG
+env/LD_LIBRARY_PATH
+env/LD_PROFILE
+fs/tempdir
+persist/bash
+process/thread_local_storage
+procfs/self/exe
+ref/path/etc
+ref/path/etc/ld.so.preload
+ref/path/var
+ref/site/url
+ref/words/exclamation

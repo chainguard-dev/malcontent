@@ -1,0 +1,21 @@
+# javascript/clean/napi_rs_runtime.js
+data/embedded/base64/terms
+data/embedded/base64/url
+encoding/base64
+encoding/json/decode
+encoding/json/encode
+fd/write
+fs/directory/create
+fs/directory/list
+fs/directory/remove
+fs/file/delete
+fs/file/stat
+fs/file/times/set
+fs/link/read
+fs/symlink/resolve
+kernel/sysinfo
+net/socket/listen
+net/socket/receive
+net/socket/send
+ref/site/url
+ref/words/exclamation
