@@ -27,6 +27,7 @@ var archiveMap = map[string]bool{
 	".tar.xz": true,
 	".tar":    true,
 	".tgz":    true,
+	".xz":     true,
 	".zip":    true,
 }
 
