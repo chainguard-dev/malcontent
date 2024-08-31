@@ -10,6 +10,7 @@ import (
 	"log/slog"
 	"os"
 	"runtime"
+	"slices"
 	"strings"
 	"time"
 
@@ -197,6 +198,12 @@ func main() {
 				return nil
 			}
 
+			// when scanning, increment the slice index by one to account for flags
+			scanPaths := c.Args().Slice()[1:]
+			if slices.Contains(c.Args().Slice(), "scan") {
+				scanPaths = c.Args().Slice()[2:]
+			}
+
 			bc = bincapz.Config{
 				Concurrency:           concurrencyFlag,
 				ErrFirstHit:           errFirstHitFlag,
@@ -210,7 +217,7 @@ func main() {
 				QuantityIncreasesRisk: quantityIncreasesRiskFlag,
 				Renderer:              renderer,
 				Rules:                 yrs,
-				ScanPaths:             c.Args().Slice()[1:],
+				ScanPaths:             scanPaths,
 				Stats:                 stats,
 			}
 
@@ -290,12 +297,6 @@ func main() {
 				Usage:       "Minimum risk level to show results for (any,low,medium,high,critical)",
 				Destination: &minRiskFlag,
 			},
-			&cli.BoolFlag{
-				Name:        "oci",
-				Value:       false,
-				Usage:       "Scan an OCI image",
-				Destination: &ociFlag,
-			},
 			&cli.StringFlag{
 				Name:        "output",
 				Aliases:     []string{"o"},
@@ -359,8 +360,25 @@ func main() {
 			},
 			{
 				Name:  "scan",
-				Usage: "scan a single path",
+				Usage: "scan an image or path",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:    "image",
+						Aliases: []string{"i"},
+						Value:   "",
+						Usage:   "Scan an image",
+					},
+					&cli.StringFlag{
+						Name:    "path",
+						Aliases: []string{"p"},
+						Value:   "",
+						Usage:   "Scan a file path",
+					},
+				},
 				Action: func(c *cli.Context) error {
+					if c.String("image") != "" {
+						bc.OCI = true
+					}
 					res, err = action.Scan(ctx, bc)
 					if err != nil {
 						log.Error("scan failed", slog.Any("error", err))
