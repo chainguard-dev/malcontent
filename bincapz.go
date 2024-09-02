@@ -59,12 +59,11 @@ var (
 	statsFlag                 bool
 	thirdPartyFlag            bool
 	verboseFlag               bool
-	versionFlag               bool
 )
 
 // parse risk levels.
 func parseRisk(s string) int {
-	levels := map[string]int{
+	return map[string]int{
 		"0":        0,
 		"any":      0,
 		"all":      0,
@@ -77,8 +76,7 @@ func parseRisk(s string) int {
 		"4":        4,
 		"crit":     4,
 		"critical": 4,
-	}
-	return levels[strings.ToLower(s)]
+	}[strings.ToLower(s)]
 }
 
 func main() {
@@ -95,7 +93,7 @@ func main() {
 		bc       bincapz.Config
 		ctx      context.Context
 		err      error
-		outFile  *os.File = os.Stdout
+		outFile  = os.Stdout
 		renderer bincapz.Renderer
 		res      *bincapz.Report
 		stop     func()
@@ -114,7 +112,8 @@ func main() {
 		Usage:     "Detect malicious program behaviors",
 		UsageText: "bincapz <flags> [diff, scan] <path>",
 		Compiled:  time.Now(),
-		After: func(c *cli.Context) error {
+		// Close the output file and stop profiling if appropriate
+		After: func(_ *cli.Context) error {
 			// Close our output file (or stdout) after commands have run
 			defer func() {
 				outFile.Close()
@@ -126,8 +125,11 @@ func main() {
 			}
 			return nil
 		},
-		// Handled shared initialization (flag parsing, rule compilation, configuration)
+		// Handle shared initialization (flag parsing, rule compilation, configuration)
 		Before: func(c *cli.Context) error {
+			ctx = clog.WithLogger(c.Context, log)
+			clog.FromContext(ctx).Info("bincapz starting")
+
 			if profileFlag {
 				var err error
 				stop, err = profile.Profile()
@@ -143,31 +145,27 @@ func main() {
 				logLevel.Set(slog.LevelDebug)
 			}
 
-			ctx = clog.WithLogger(c.Context, log)
-			clog.FromContext(ctx).Info("bincapz starting")
-
 			ignoreTags := strings.Split(ignoreTagsFlag, ",")
 			includeDataFiles := includeDataFilesFlag
-			minRisk := parseRisk(minRiskFlag)
 
+			minRisk := parseRisk(minRiskFlag)
 			// Backwards compatibility
 			if minLevelFlag != -1 {
 				minRisk = minLevelFlag
 			}
 
 			minFileRisk := parseRisk(minFileRiskFlag)
-
 			// Backwards compatibility
 			if minFileLevelFlag != -1 {
 				minFileRisk = minFileLevelFlag
 			}
 
-			stats := statsFlag
 			if allFlag {
-				ignoreTags = []string{}
-				minRisk = -1
-				includeDataFiles = true
 				ignoreSelfFlag = false
+				ignoreTags = []string{}
+				includeDataFiles = true
+				minFileRisk = -1
+				minRisk = -1
 			}
 
 			if outputFlag != "" {
@@ -175,7 +173,7 @@ func main() {
 				if err != nil {
 					log.Error("open file", slog.Any("error", err), slog.String("path", outputFlag))
 					returnCode = ExitInputOutput
-					return nil
+					return err
 				}
 			}
 
@@ -183,7 +181,7 @@ func main() {
 			if err != nil {
 				log.Error("invalid format", slog.Any("error", err), slog.String("format", formatFlag))
 				returnCode = ExitInvalidArgument
-				return nil
+				return err
 			}
 
 			rfs := []fs.FS{rules.FS}
@@ -195,7 +193,7 @@ func main() {
 			if err != nil {
 				log.Error("YARA rule compilation", slog.Any("error", err))
 				returnCode = ExitInvalidRules
-				return nil
+				return err
 			}
 
 			// when scanning, increment the slice index by one to account for flags
@@ -218,7 +216,7 @@ func main() {
 				Renderer:              renderer,
 				Rules:                 yrs,
 				ScanPaths:             scanPaths,
-				Stats:                 stats,
+				Stats:                 statsFlag,
 			}
 
 			return nil
@@ -228,7 +226,7 @@ func main() {
 			&cli.BoolFlag{
 				Name:        "all",
 				Value:       false,
-				Usage:       "Ignore nothing, show all",
+				Usage:       "Ignore nothing within a provided scan path",
 				Destination: &allFlag,
 			},
 			&cli.BoolFlag{
@@ -246,7 +244,7 @@ func main() {
 			&cli.StringFlag{
 				Name:        "format",
 				Value:       "terminal",
-				Usage:       "Output type -- valid values are: json, markdown, simple, terminal, yaml",
+				Usage:       "Output format (json, markdown, simple, terminal, yaml)",
 				Destination: &formatFlag,
 			},
 			&cli.BoolFlag{
@@ -268,7 +266,8 @@ func main() {
 				Destination: &includeDataFilesFlag,
 			},
 			&cli.IntFlag{
-				Name:        "j",
+				Name:        "jobs",
+				Aliases:     []string{"j"},
 				Value:       runtime.NumCPU(),
 				Usage:       "Concurrently scan files within target directories",
 				Destination: &concurrencyFlag,
@@ -282,7 +281,7 @@ func main() {
 			&cli.StringFlag{
 				Name:        "min-file-risk",
 				Value:       "low",
-				Usage:       "Only show results for files that meet this risk level (any,low,medium,high,critical)",
+				Usage:       "Only show results for files that meet this risk level (any, low, medium, high, critical)",
 				Destination: &minFileRiskFlag,
 			},
 			&cli.IntFlag{
@@ -341,7 +340,7 @@ func main() {
 			{
 				Name:  "diff",
 				Usage: "scan and diff two paths",
-				Action: func(c *cli.Context) error {
+				Action: func(_ *cli.Context) error {
 					res, err = action.Diff(ctx, bc)
 					if err != nil {
 						log.Error("diff failed", slog.Any("error", err))
