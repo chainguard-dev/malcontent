@@ -266,7 +266,7 @@ func main() {
 				Name:        "jobs",
 				Aliases:     []string{"j"},
 				Value:       runtime.NumCPU(),
-				Usage:       "Concurrently scan files within target directories",
+				Usage:       "Concurrently scan files within target scan paths",
 				Destination: &concurrencyFlag,
 			},
 			&cli.IntFlag{
@@ -278,7 +278,7 @@ func main() {
 			&cli.StringFlag{
 				Name:        "min-file-risk",
 				Value:       "low",
-				Usage:       "Only show results for files that meet this risk level (any, low, medium, high, critical)",
+				Usage:       "Only show results for files which meet the given risk level (any, low, medium, high, critical)",
 				Destination: &minFileRiskFlag,
 			},
 			&cli.IntFlag{
@@ -290,7 +290,7 @@ func main() {
 			&cli.StringFlag{
 				Name:        "min-risk",
 				Value:       "low",
-				Usage:       "Minimum risk level to show results for (any,low,medium,high,critical)",
+				Usage:       "Only show results which meet the given risk level (any, low, medium, high, critical)",
 				Destination: &minRiskFlag,
 			},
 			&cli.StringFlag{
