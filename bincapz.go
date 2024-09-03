@@ -375,9 +375,16 @@ func main() {
 					},
 				},
 				Action: func(c *cli.Context) error {
-					if c.String("image") != "" {
+					// Handle edge cases
+					// Set bc.OCI if the image flag is used
+					// Default to path scanning if neither flag is passed (images must be scanned via --image or -i)
+					switch {
+					case c.String("image") != "":
 						bc.OCI = true
+					case c.String("image") == "" || c.String("path") == "":
+						bc.ScanPaths = []string{c.Args().Slice()[0]}
 					}
+
 					res, err = action.Scan(ctx, bc)
 					if err != nil {
 						log.Error("scan failed", slog.Any("error", err))
