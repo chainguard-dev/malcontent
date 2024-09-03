@@ -61,22 +61,19 @@ var (
 	verboseFlag               bool
 )
 
-// parse risk levels.
-func parseRisk(s string) int {
-	return map[string]int{
-		"0":        0,
-		"any":      0,
-		"all":      0,
-		"1":        1,
-		"low":      1,
-		"2":        2,
-		"medium":   2,
-		"3":        3,
-		"high":     3,
-		"4":        4,
-		"crit":     4,
-		"critical": 4,
-	}[strings.ToLower(s)]
+var riskMap = map[string]int{
+	"0":        0,
+	"any":      0,
+	"all":      0,
+	"1":        1,
+	"low":      1,
+	"2":        2,
+	"medium":   2,
+	"3":        3,
+	"high":     3,
+	"4":        4,
+	"crit":     4,
+	"critical": 4,
 }
 
 func main() {
@@ -148,13 +145,13 @@ func main() {
 			ignoreTags := strings.Split(ignoreTagsFlag, ",")
 			includeDataFiles := includeDataFilesFlag
 
-			minRisk := parseRisk(minRiskFlag)
+			minRisk := riskMap[minRiskFlag]
 			// Backwards compatibility
 			if minLevelFlag != -1 {
 				minRisk = minLevelFlag
 			}
 
-			minFileRisk := parseRisk(minFileRiskFlag)
+			minFileRisk := riskMap[minFileRiskFlag]
 			// Backwards compatibility
 			if minFileLevelFlag != -1 {
 				minFileRisk = minFileLevelFlag
