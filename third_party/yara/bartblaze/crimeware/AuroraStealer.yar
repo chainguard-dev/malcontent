@@ -5,7 +5,7 @@ meta:
 	fingerprint = "06f893451d74f7cc924b9988443338ed9d86d8afb3b1facdfee040bce0c45289"
 	version = "1.0"
 	first_imported = "2023-05-26"
-	last_modified = "2023-05-26"
+	last_modified = "2024-08-14"
 	status = "RELEASED"
 	sharing = "TLP:WHITE"
 	source = "BARTBLAZE"
@@ -16,7 +16,6 @@ meta:
 	reference = " https://malpedia.caad.fkie.fraunhofer.de/details/win.aurora_stealer"
   
 strings:
-	$ = "main.(*DATA_BLOB).ToByteArray" ascii wide
 	$ = "main.base64Decode" ascii wide
 	$ = "main.base64Encode" ascii wide
 	$ = "main.Capture" ascii wide
@@ -38,15 +37,11 @@ strings:
 	$ = "main.GetOS" ascii wide
 	$ = "main.Grab" ascii wide
 	$ = "main.MachineID" ascii wide
-	$ = "main.NewBlob" ascii wide
 	$ = "main.NumActiveDisplays" ascii wide
-	$ = "main.PathTrans" ascii wide
-	$ = "main.RandStringBytes" ascii wide
 	$ = "main.SendToServer_NEW" ascii wide
 	$ = "main.SetUsermame" ascii wide
 	$ = "main.sysTotalMemory" ascii wide
 	$ = "main.xDecrypt" ascii wide
-	$ = "main.Zip" ascii wide
 	$ = "type..eq.main.Browser_G" ascii wide
 	$ = "type..eq.main.Crypto_G" ascii wide
 	$ = "type..eq.main.DATA_BLOB" ascii wide
