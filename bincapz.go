@@ -194,9 +194,10 @@ func main() {
 			}
 
 			// when scanning, increment the slice index by one to account for flags
-			scanPaths := c.Args().Slice()[1:]
-			if slices.Contains(c.Args().Slice(), "scan") {
-				scanPaths = c.Args().Slice()[2:]
+			args := c.Args().Slice()
+			scanPaths := args[1:]
+			if slices.Contains(args, "scan") {
+				scanPaths = args[2:]
 			}
 
 			bc = bincapz.Config{
@@ -379,7 +380,8 @@ func main() {
 					case c.String("image") != "":
 						bc.OCI = true
 					case c.String("image") == "" || c.String("path") == "":
-						bc.ScanPaths = []string{c.Args().Slice()[0]}
+						cmdArgs := c.Args().Slice()
+						bc.ScanPaths = []string{cmdArgs[0]}
 					}
 
 					res, err = action.Scan(ctx, bc)
