@@ -40,7 +40,7 @@ func TestOCI(t *testing.T) {
 		MinRisk:     0,
 		Renderer:    simple,
 		Rules:       yrs,
-		ScanPaths:   []string{"testdata/static.tar"},
+		ScanPaths:   []string{"testdata/static.tar.xz"},
 	}
 	res, err := Scan(ctx, bc)
 	if err != nil {

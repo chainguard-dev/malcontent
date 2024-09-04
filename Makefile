@@ -123,3 +123,11 @@ clone-samples:
 		tar -xJvf samples/linux/clean/$$file -C samples/linux/clean; \
 	done
 	tar -xJvf samples/macOS/clean/bincapz.xz -C samples/macOS/clean
+
+.PHONY: install-crane
+install-crane:
+	go install github.com/google/go-containerregistry/cmd/crane@latest
+
+.PHONY: extract-image
+extract-image: install-crane
+	crane export cgr.dev/chainguard/static:latest - | xz > pkg/action/testdata/static.tar.xz

@@ -1,17 +1,17 @@
-# testdata/static.tar ∴ /etc/profile
+# testdata/static.tar.xz ∴ /etc/profile
 fs/file/permission/mask/set
 persist/bash
 persist/shell/init_files
 ref/path/etc
 ref/path/usr
 ref/path/usr/local
-# testdata/static.tar ∴ /var/lib/db/sbom/ca-certificates-bundle-20240705-r0.spdx.json
+# testdata/static.tar.xz ∴ /var/lib/db/sbom/ca-certificates-bundle-20240705-r0.spdx.json
 net/download
 ref/site/url
-# testdata/static.tar ∴ /var/lib/db/sbom/tzdata-2024a-r3.spdx.json
+# testdata/static.tar.xz ∴ /var/lib/db/sbom/tzdata-2024a-r3.spdx.json
 net/download
 ref/site/url
 time/tzinfo
-# testdata/static.tar ∴ /var/lib/db/sbom/wolfi-baselayout-20230201-r15.spdx.json
+# testdata/static.tar.xz ∴ /var/lib/db/sbom/wolfi-baselayout-20230201-r15.spdx.json
 net/download
 ref/site/url
