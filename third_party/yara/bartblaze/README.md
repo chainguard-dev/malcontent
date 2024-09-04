@@ -13,7 +13,9 @@ You can use them in your detection systems. For example, [CAPE sandbox](https://
 All rules are TLP:White, so you can use and distribute them freely. Please retain the meta. 
 
 ## Help! A generic rule is hitting my software!
-If one of the rules in the [generic](https://github.com/bartblaze/Yara-rules/tree/master/rules/generic) rules section hits on your software: this is not a false positive. It is simply an objective fact that, for example, your software has been compiled or wrapped using AutoIT. It equally does **not** mean your software is malicious. The Yara rules presented here do **not** influence antivirus detection results in any manner. If your software is detected by an antivirus or antimalware company, you need to contact them directly.
+If one of the rules in the [generic](https://github.com/bartblaze/Yara-rules/tree/master/rules/generic) rules section hits on your software: this is not a false positive. It is simply an objective fact that, for example, your software has been compiled or wrapped using AutoIT. It equally does **not** mean your software is malicious. 
+
+The Yara rules presented here do **not** influence antivirus detection results in any manner. If your software is detected by an antivirus or antimalware company, **you need to contact them directly**.
 
 Note the `meta` section also mentions `category = "INFO"`, in which case it is a purely generic or informational rule.
 
@@ -21,17 +23,18 @@ Note the `meta` section also mentions `category = "INFO"`, in which case it is a
 There's two workflows running on this Github repository:
 
 * [YARA-CI](https://yara-ci.cloud.virustotal.com/): runs automatically to detect signature errors, as well as false positives and false negatives.
-* [Package Yara rules](https://github.com/bartblaze/Yara-rules/blob/master/.github/workflows/yara.yml): allows download of a complete rules file (all Yara rules from this repo in one file) for convenience from the Actions tab > Choose the last workflow run > Artifacts (see image below).
+* [Package Yara rules](https://github.com/bartblaze/Yara-rules/blob/master/.github/workflows/yara.yml): allows download of a complete rules file (all Yara rules from this repo in one file) for convenience from the Actions tab > Choose the last workflow run > Artifacts. Scroll down and you will be able to download, but you must be logged in to Github:
 
-![image](https://user-images.githubusercontent.com/3075118/113322817-731feb00-9315-11eb-86ab-94f133f07038.png)
+![image](https://github.com/user-attachments/assets/904aa2af-8b91-4c01-97b4-db24f9659005)
+
 
 [![Package Yara Rules](https://github.com/bartblaze/Yara-rules/actions/workflows/yara.yml/badge.svg)](https://github.com/bartblaze/Yara-rules/actions/workflows/yara.yml)
 
 ## Minimum Yara version needed?
-v3.3.0 is minimally needed, as some rules may require a specific module. Note that it's recommended to always use the latest Yara version as found [here](https://github.com/VirusTotal/yara/releases).
+**v3.3.0** is minimally needed, as some rules may require a specific module. Note that it's recommended to always use the latest Yara version as found [here](https://github.com/VirusTotal/yara/releases). Yara 4.5.1, likely the last release to be available, works without issue.
 
 ## Do the rules work with Yara-X?
-[Yara-X](https://github.com/VirusTotal/yara-x), a rewrite of Yara in Rust, should have no difficulty running the rules in this repo. At time of writing, Yara-X v0.4.0 works fine with the rules presented here.
+[Yara-X](https://github.com/VirusTotal/yara-x), a rewrite of Yara in Rust, should have no difficulty running the rules in this repo. At time of writing, Yara-X v0.6.0 works fine with the rules presented here.
 
 ## Feedback?
 If you spot an issue or improvement with one of the rules, feel free to submit a PR or open an Issue.
