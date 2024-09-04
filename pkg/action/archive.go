@@ -293,6 +293,9 @@ func extractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 	}
 
 	extractedFiles.Range(func(key, _ any) bool {
+		if key == nil {
+			return true
+		}
 		//nolint: nestif // ignoring complexity of 11
 		if file, ok := key.(string); ok {
 			ext := getExt(file)
