@@ -35,7 +35,10 @@ var archiveMap = map[string]bool{
 var extMap = map[string]string{
 	".7z":      "",
 	".asm":     "",
+	".bat":     "Batch file",
 	".c":       "C source",
+	".cpp":     "C++ source",
+	".dll":     "Windows Dynamic Library",
 	".cron":    "crontab",
 	".crontab": "crontab",
 	".expect":  "Expect script",
@@ -53,6 +56,7 @@ var extMap = map[string]string{
 	".php":     "PHP file",
 	".pl":      "PERL script",
 	".py":      "Python script",
+	".pyc":     "Python script (compiled)",
 	".rb":      "Ruby script",
 	".rs":      "Rust source",
 	".scpt":    "compiled AppleScript",
