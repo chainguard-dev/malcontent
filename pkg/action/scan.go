@@ -129,6 +129,9 @@ func errIfHitOrMiss(frs *sync.Map, kind string, scanPath string, errIfHit bool, 
 	var bMap sync.Map
 	count := 0
 	frs.Range(func(_, value any) bool {
+		if value == nil {
+			return true
+		}
 		if fr, ok := value.(*bincapz.FileReport); ok {
 			for _, b := range fr.Behaviors {
 				count++
@@ -140,6 +143,9 @@ func errIfHitOrMiss(frs *sync.Map, kind string, scanPath string, errIfHit bool, 
 
 	bList := []string{}
 	bMap.Range(func(key, _ any) bool {
+		if key == nil {
+			return true
+		}
 		if k, ok := key.(string); ok {
 			bList = append(bList, k)
 		}
@@ -165,7 +171,7 @@ func errIfHitOrMiss(frs *sync.Map, kind string, scanPath string, errIfHit bool, 
 
 // recursiveScan recursively YARA scans the configured paths - handling archives and OCI images.
 //
-
+//nolint:gocognit // ignoring complexity of 101 > 98
 func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, error) {
 	logger := clog.FromContext(ctx)
 	logger.Debug("recursive scan", slog.Any("config", c))
@@ -234,6 +240,9 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 			}
 
 			frs.Range(func(key, value any) bool {
+				if key == nil || value == nil {
+					return true
+				}
 				if k, ok := key.(string); ok {
 					if fr, ok := value.(*bincapz.FileReport); ok {
 						scanPathFindings.Store(k, fr)
@@ -288,6 +297,9 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 
 		var pathKeys []string
 		scanPathFindings.Range(func(key, _ interface{}) bool {
+			if key == nil {
+				return true
+			}
 			if k, ok := key.(string); ok {
 				pathKeys = append(pathKeys, k)
 			}
