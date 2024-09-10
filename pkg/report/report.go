@@ -331,7 +331,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c bincapz.C
 	risk := 0
 	key := ""
 
-	// If we're running a scan, only diplay findings of the highest severity
+	// If we're running a scan, only diplay findings of the highest risk
 	// Return an empty file report if the highest risk is medium or lower
 	var highestRisk int
 	if c.Scan {
@@ -353,7 +353,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c bincapz.C
 		// The bincapz rule is classified as harmless
 		// This will prevent the rule from being filtered
 		// If running a scan as opposed to an analyze,
-		// drop any matches that fall below the highest severity
+		// drop any matches that fall below the highest risk
 		switch {
 		case risk < minScore && !ignoreBincapz:
 			continue
