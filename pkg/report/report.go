@@ -547,7 +547,7 @@ func all(conditions ...bool) bool {
 	return true
 }
 
-// highestMatchRisk returns the highest risk score from a slice of MatchRules
+// highestMatchRisk returns the highest risk score from a slice of MatchRules.
 func highestMatchRisk(mrs yara.MatchRules) int {
 	if len(mrs) == 0 {
 		return 0
