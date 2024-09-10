@@ -56,6 +56,7 @@ var (
 	outputFlag                string
 	profileFlag               bool
 	quantityIncreasesRiskFlag bool
+	scanFlag                  bool
 	statsFlag                 bool
 	thirdPartyFlag            bool
 	verboseFlag               bool
@@ -315,6 +316,12 @@ func main() {
 				Destination: &quantityIncreasesRiskFlag,
 			},
 			&cli.BoolFlag{
+				Name:        "scan",
+				Value:       false,
+				Usage:       "Only return findings matching the highest severity",
+				Destination: &scanFlag,
+			},
+			&cli.BoolFlag{
 				Name:        "stats",
 				Aliases:     []string{"s"},
 				Value:       false,
@@ -335,6 +342,52 @@ func main() {
 			},
 		},
 		Commands: []*cli.Command{
+			{
+				Name:  "analyze",
+				Usage: "fully interrogate a path",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:    "image",
+						Aliases: []string{"i"},
+						Value:   "",
+						Usage:   "Scan an image",
+					},
+					&cli.StringFlag{
+						Name:    "path",
+						Aliases: []string{"p"},
+						Value:   "",
+						Usage:   "Scan a file path",
+					},
+				},
+				Action: func(c *cli.Context) error {
+					// Handle edge cases
+					// Set bc.OCI if the image flag is used
+					// Default to path scanning if neither flag is passed (images must be scanned via --image or -i)
+					switch {
+					case c.String("image") != "":
+						bc.OCI = true
+					case c.String("image") == "" || c.String("path") == "":
+						cmdArgs := c.Args().Slice()
+						bc.ScanPaths = []string{cmdArgs[0]}
+					}
+
+					res, err = action.Scan(ctx, bc)
+					if err != nil {
+						log.Error("scan failed", slog.Any("error", err))
+						returnCode = ExitActionFailed
+						return err
+					}
+
+					err = renderer.Full(ctx, res)
+					if err != nil {
+						log.Error("render failed", slog.Any("error", err))
+						returnCode = ExitRenderFailed
+						return err
+					}
+
+					return nil
+				},
+			},
 			{
 				Name:  "diff",
 				Usage: "scan and diff two paths",
@@ -357,7 +410,7 @@ func main() {
 			},
 			{
 				Name:  "scan",
-				Usage: "scan an image or path",
+				Usage: "tersely scan a path and return findings of the highest severity",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:    "image",
@@ -373,6 +426,7 @@ func main() {
 					},
 				},
 				Action: func(c *cli.Context) error {
+					bc.Scan = true
 					// Handle edge cases
 					// Set bc.OCI if the image flag is used
 					// Default to path scanning if neither flag is passed (images must be scanned via --image or -i)

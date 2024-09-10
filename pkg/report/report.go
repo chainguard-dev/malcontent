@@ -331,6 +331,12 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c bincapz.C
 	risk := 0
 	key := ""
 
+	// If we're running a scan, only diplay findings of the highest severity
+	var highestRisk int
+	if c.Scan {
+		highestRisk = highestMatchRisk(mrs)
+	}
+
 	for _, m := range mrs {
 		if all(m.Rule == BINARY, ignoreSelf) {
 			ignoreBincapz = true
@@ -342,7 +348,12 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c bincapz.C
 		riskCounts[risk]++
 		// The bincapz rule is classified as harmless
 		// This will prevent the rule from being filtered
-		if risk < minScore && !ignoreBincapz {
+		// If running a scan as opposed to an analyze,
+		// drop any matches that fall below the highest severity
+		switch {
+		case risk < minScore && !ignoreBincapz:
+			continue
+		case c.Scan && risk < highestRisk:
 			continue
 		}
 		key = generateKey(m.Namespace, m.Rule)
@@ -534,4 +545,20 @@ func all(conditions ...bool) bool {
 		}
 	}
 	return true
+}
+
+// highestMatchRisk returns the highest risk score from a slice of MatchRules
+func highestMatchRisk(mrs yara.MatchRules) int {
+	if len(mrs) == 0 {
+		return 0
+	}
+
+	highestRisk := 0
+	for _, m := range mrs {
+		risk := behaviorRisk(m.Namespace, m.Rule, m.Tags)
+		if risk > highestRisk {
+			highestRisk = risk
+		}
+	}
+	return highestRisk
 }
