@@ -332,9 +332,13 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c bincapz.C
 	key := ""
 
 	// If we're running a scan, only diplay findings of the highest severity
+	// Return an empty file report if the highest risk is medium or lower
 	var highestRisk int
 	if c.Scan {
 		highestRisk = highestMatchRisk(mrs)
+		if highestRisk < 3 {
+			return bincapz.FileReport{}, nil
+		}
 	}
 
 	for _, m := range mrs {
