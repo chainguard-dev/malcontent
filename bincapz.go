@@ -56,7 +56,6 @@ var (
 	outputFlag                string
 	profileFlag               bool
 	quantityIncreasesRiskFlag bool
-	scanFlag                  bool
 	statsFlag                 bool
 	thirdPartyFlag            bool
 	verboseFlag               bool
@@ -314,12 +313,6 @@ func main() {
 				Value:       true,
 				Usage:       "Increase file risk score based on behavior quantity",
 				Destination: &quantityIncreasesRiskFlag,
-			},
-			&cli.BoolFlag{
-				Name:        "scan",
-				Value:       false,
-				Usage:       "Only return findings matching the highest severity",
-				Destination: &scanFlag,
 			},
 			&cli.BoolFlag{
 				Name:        "stats",
