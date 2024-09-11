@@ -45,5 +45,5 @@ rule common_hostname_blocklist : critical {
 	$ = "XC64ZB" fullword
 	$ = "d1bnJkfVlH" fullword
   condition:
-   2 of them
+   4 of them
 }
