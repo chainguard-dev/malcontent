@@ -10,3 +10,4 @@ rule var_tmp_path : medium {
   condition:
     any of them
 }
+

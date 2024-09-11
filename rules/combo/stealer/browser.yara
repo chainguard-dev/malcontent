@@ -102,3 +102,12 @@ rule userdata_browser_archiver : medium {
   condition:
     any of ($d*) and any of ($h*) and any of ($z*) and 2 of ($b*) and none of ($not*)
 }
+
+rule chrome_encrypted_cookies : critical {
+	meta:
+		description = "Reads encrypted values from Chrome cookie store"
+	strings:
+		$select = /SELECT.{0,64}encrypted_value{0,64}cookies/
+	condition:
+		$select
+}

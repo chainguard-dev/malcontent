@@ -190,3 +190,26 @@ rule strrev_short_multiple : high {
 	condition:
 		filesize < 64KB and #ref > 3
 }
+
+
+rule js_hex_obfuscation : critical {
+	meta:
+		description = "javascript function obfuscation (hex)"
+	strings:
+		$return = /return _{0,4}0x[\w]{0,32}\(_0x[\w]{0,32}/
+		$const = /const _{0,4}0x[\w]{0,32}=[\w]{0,32}/
+	condition:
+		filesize < 128KB and any of them
+}
+
+
+rule js_const_func_obfuscation : critical {
+	meta:
+		description = "javascript function obfuscation (excessive const)"
+	strings:
+		$const = "const "
+		$function = "function("
+		$return = "{return"
+	condition:
+		filesize < 128KB and #const > 32 and #function > 64 and #return > 64
+}

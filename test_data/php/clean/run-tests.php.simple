@@ -19,6 +19,7 @@ net/socket/send
 net/ssh
 net/url/encode
 ref/path/usr/bin
+ref/path/windows_root
 ref/site/url
 ref/words/intercept
 shell/exec

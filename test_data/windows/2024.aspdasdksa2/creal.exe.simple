@@ -1,0 +1,22 @@
+# windows/2024.aspdasdksa2/creal.exe
+3P/bartblaze/pyinstaller
+combo/stealer/python
+compression/gzip
+crypto/aes
+crypto/ed25519
+data/emdedded/app/manifest
+databases/sqlite
+encoding/base64
+evasion/anti/debugger
+exec/program
+kernel/sysinfo
+net/bpf
+net/dns/txt
+net/upload
+net/url
+net/url/request
+process/chdir
+process/multiprocess
+ref/path/relative
+ref/site/url
+tty/getpass

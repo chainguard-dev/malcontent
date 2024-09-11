@@ -22,7 +22,7 @@ rule static_hidden_path {
     $ref
 }
 
-rule hidden_path {
+rule hidden_path : medium {
   meta:
     description = "hidden path in a system directory"
   strings:
@@ -39,6 +39,27 @@ rule hidden_path {
   condition:
     $crit and none of ($not*)
 }
+
+rule hidden_short_path : high {
+  meta:
+    description = "hidden path in a system directory"
+  strings:
+    $crit = /[\w\/\.]{0,32}\/(tmp|usr\/\w{0,8}|bin|lib|LaunchAgents|lib64|var|etc|shm|mqueue|spool|log|Users|Movies|Music|WebServer|Applications|Shared|Library|System)\/\.\w[\w\-\.]{0,2}/
+    $not_network_manager = "org.freedesktop.NetworkManager"
+    $not_private = "/System/Library/PrivateFrameworks/"
+  condition:
+    $crit and none of ($not*)
+}
+
+rule hidden_danger_path : critical {
+  meta:
+    description = "hidden dangerous-looking path in a system directory"
+  strings:
+    $ref = /[\w\/\.]{0,32}\/(tmp|usr\/\w{0,8}|bin|lib|LaunchAgents|lib64|var|etc|shm|mqueue|spool|log|Users|Movies|Music|WebServer|Applications|Shared|Library|System)\/\.shm/ fullword
+  condition:
+	$ref
+}
+
 
 rule hidden_library : high {
   meta:

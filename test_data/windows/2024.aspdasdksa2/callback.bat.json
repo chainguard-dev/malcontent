@@ -1,0 +1,131 @@
+{
+    "Files": {
+        "windows/2024.aspdasdksa2/callback.bat": {
+            "Path": "windows/2024.aspdasdksa2/callback.bat",
+            "SHA256": "8f790156ca7e0663280d11acd63c3c71879b18499fe6635dd6aa4dc73e1005c7",
+            "Size": 1105,
+            "Behaviors": [
+                {
+                    "Description": "Stops EDR/Antivirus services",
+                    "MatchStrings": [
+                        "alwarebytes",
+                        "stopservice"
+                    ],
+                    "RiskScore": 4,
+                    "RiskLevel": "CRITICAL",
+                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/combo/degrader/edr_killer.yara#edr_stopper",
+                    "ID": "combo/degrader/edr_killer"
+                },
+                {
+                    "Description": "Uses powershell to define Windows Defender exclusions",
+                    "MatchStrings": [
+                        "powershell -Command \"Add-MpPreference -ExclusionPath 'C:\\'\""
+                    ],
+                    "RiskScore": 4,
+                    "RiskLevel": "CRITICAL",
+                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/combo/degrader/win_defender.yara#win_defender_exclusion",
+                    "ID": "combo/degrader/win_defender"
+                },
+                {
+                    "Description": "download files",
+                    "MatchStrings": [
+                        "DownloadFile"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/net/download.yara#download",
+                    "ID": "net/download"
+                },
+                {
+                    "Description": "Uses RunAs to execute code as another user",
+                    "MatchStrings": [
+                        "powershell -Command \"Start-Process -Verb RunAs -FilePath '%0' -ArgumentList 'a"
+                    ],
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH",
+                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/privesc/runas.yara#runas_admin",
+                    "ID": "privesc/runas"
+                },
+                {
+                    "Description": "kills tasks and/or processes",
+                    "MatchStrings": [
+                        "taskkill"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/process/taskkill.yara#taskkill",
+                    "ID": "process/taskkill"
+                },
+                {
+                    "Description": "path reference for C:\\Windows (may be partial)",
+                    "MatchStrings": [
+                        "C:\\Windows"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/ref/path/windows_root.yara#windows_path",
+                    "ID": "ref/path/windows_root"
+                },
+                {
+                    "Description": "powershell",
+                    "MatchStrings": [
+                        "powershell -Command"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/ref/program/powershell.yara#powershell",
+                    "ID": "ref/program/powershell"
+                },
+                {
+                    "Description": "github raw user",
+                    "MatchStrings": [
+                        "github.com",
+                        "raw/main"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/ref/site/github_raw.yara#github_raw_user",
+                    "ID": "ref/site/github_raw"
+                },
+                {
+                    "Description": "contains embedded HTTPS URLs",
+                    "MatchStrings": [
+                        "https://github.com/aspdasdksa2/callback/raw/main/Client-built.exe"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/ref/site/url.yara#https_url",
+                    "ID": "ref/site/url"
+                },
+                {
+                    "Description": "Detects suspicious PowerShell code that downloads from web sites",
+                    "MatchStrings": [
+                        "System.Net.WebClient).DownloadFile('http"
+                    ],
+                    "RiskScore": 4,
+                    "RiskLevel": "CRITICAL",
+                    "RuleURL": "https://github.com/Neo23x0/signature-base/blob/c3fb6b179826dfb6bd146f4fa64fa9d7f84bc358/yara/gen_powershell_susp.yar#L52-L91",
+                    "ReferenceURL": "Internal%20Research",
+                    "RuleAuthor": "Florian Roth (Nextron Systems)",
+                    "RuleLicense": "Detection Rule License 1.1 https://github.com/Neo23x0/signature-base/blob/master/LICENSE",
+                    "RuleLicenseURL": "https://github.com/Neo23x0/signature-base/blob/c3fb6b179826dfb6bd146f4fa64fa9d7f84bc358/LICENSE",
+                    "ID": "3P/signature_base/powershell/webdownload"
+                },
+                {
+                    "Description": "references 'powershell' tool",
+                    "MatchStrings": [
+                        "Add-MpPreference -ExclusionPath"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/yara/threat_hunting/all.yara#powershell_offensive_tool_keyword",
+                    "ReferenceURL": "https://github.com/mthcht/ThreatHunting-Keywords",
+                    "RuleAuthor": "mthcht",
+                    "ID": "3P/threat_hunting/powershell"
+                }
+            ],
+            "RiskScore": 4,
+            "RiskLevel": "CRITICAL"
+        }
+    }
+}
