@@ -11,9 +11,9 @@ crypto/aes
 databases/leveldb
 encoding/base64
 evasion/base64/decode
-evasion/blacklist/hostname
-evasion/blacklist/mac_addr
-evasion/blacklist/user
+evasion/blocklist/hostname
+evasion/blocklist/mac_addr
+evasion/blocklist/user
 evasion/fake/user/agent
 exec/program
 exfil/discord
