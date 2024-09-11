@@ -91,7 +91,7 @@ wait
 for f in $(find * -name "*.simple"); do
     prog=$(echo ${f} | sed s/\.simple$//g)
     if [[ -f "${prog}" ]]; then
-        ${bincapz} --format=simple -o "../test_data/${f}" scan -p "${prog}" &
+        ${bincapz} --format=simple -o "../test_data/${f}" scan "${prog}" &
     fi
 done
 wait
@@ -99,7 +99,7 @@ wait
 for f in $(find * -name "*.md"); do
     prog=$(echo ${f} | sed s/\.md$//g)
     if [[ -f "${prog}" ]]; then
-        ${bincapz} --format=markdown -o "../test_data/${f}" scan -p "${prog}" &
+        ${bincapz} --format=markdown -o "../test_data/${f}" scan "${prog}" &
     fi
 done
 wait
@@ -107,7 +107,7 @@ wait
 for f in $(find * -name "*.json"); do
     prog=$(echo ${f} | sed s/\.json$//g)
     if [[ -f "${prog}" ]]; then
-        ${bincapz} --format=json -o "../test_data/${f}" scan -p "${prog}" &
+        ${bincapz} --format=json -o "../test_data/${f}" scan "${prog}" &
     fi
 done
 wait

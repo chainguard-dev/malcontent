@@ -196,7 +196,7 @@ func main() {
 			// when scanning, increment the slice index by one to account for flags
 			args := c.Args().Slice()
 			scanPaths := args[1:]
-			if slices.Contains(args, "scan") {
+			if slices.Contains(args, "analyze") || slices.Contains(args, "scan") {
 				scanPaths = args[2:]
 			}
 
@@ -345,12 +345,6 @@ func main() {
 						Value:   "",
 						Usage:   "Scan an image",
 					},
-					&cli.StringFlag{
-						Name:    "path",
-						Aliases: []string{"p"},
-						Value:   "",
-						Usage:   "Scan a file path",
-					},
 				},
 				Action: func(c *cli.Context) error {
 					// Handle edge cases
@@ -359,7 +353,7 @@ func main() {
 					switch {
 					case c.String("image") != "":
 						bc.OCI = true
-					case c.String("image") == "" || c.String("path") == "":
+					case c.String("image") == "":
 						cmdArgs := c.Args().Slice()
 						bc.ScanPaths = []string{cmdArgs[0]}
 					}
@@ -411,12 +405,6 @@ func main() {
 						Value:   "",
 						Usage:   "Scan an image",
 					},
-					&cli.StringFlag{
-						Name:    "path",
-						Aliases: []string{"p"},
-						Value:   "",
-						Usage:   "Scan a file path",
-					},
 				},
 				Action: func(c *cli.Context) error {
 					bc.Scan = true
@@ -426,7 +414,7 @@ func main() {
 					switch {
 					case c.String("image") != "":
 						bc.OCI = true
-					case c.String("image") == "" || c.String("path") == "":
+					case c.String("image") == "":
 						cmdArgs := c.Args().Slice()
 						bc.ScanPaths = []string{cmdArgs[0]}
 					}
