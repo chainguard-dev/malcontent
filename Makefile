@@ -126,10 +126,12 @@ clone-samples:
 
 ARCH ?= $(shell uname -m)
 CRANE_VERSION=v0.20.2
-install-crane-$(ARCH)-$(CRANE_VERSION):
+out/crane-$(ARCH)-$(CRANE_VERSION):
 	mkdir -p out
 	GOBIN=$(CURDIR)/out go install github.com/google/go-containerregistry/cmd/crane@$(CRANE_VERSION)
+	mv out/crane out/crane-$(ARCH)-$(CRANE_VERSION)
 
-.PHONY: extract-image
-extract-image: install-crane-$(ARCH)-$(CRANE_VERSION)
-	crane export cgr.dev/chainguard/static:latest@sha256:bde549df44d5158013856a778b34d8972cf52bb2038ec886475d857ec7c365ed - | xz > pkg/action/testdata/static.tar.xz
+export-image: out/crane-$(ARCH)-$(CRANE_VERSION)
+	./out/crane-$(ARCH)-$(CRANE_VERSION) \
+	export \
+	cgr.dev/chainguard/static:latest@sha256:bde549df44d5158013856a778b34d8972cf52bb2038ec886475d857ec7c365ed - | xz > pkg/action/testdata/static.tar.xz
