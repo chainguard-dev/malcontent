@@ -1,5 +1,5 @@
 
-rule muser_blacklist : critical {
+rule common_username_block_list : critical {
   meta:
     description = "avoids execution if user has a particular name"
 	ref = "https://www.zscaler.com/blogs/security-research/technical-analysis-bandit-stealer"

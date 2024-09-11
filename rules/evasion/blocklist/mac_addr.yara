@@ -1,5 +1,5 @@
 
-rule mac_addr_blacklist : critical {
+rule common_mac_addr_blocklist : critical {
   meta:
     description = "avoids execution if host has a particular MAC address"
 	ref = "https://www.zscaler.com/blogs/security-research/technical-analysis-bandit-stealer"

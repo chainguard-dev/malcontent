@@ -1,5 +1,5 @@
 
-rule mac_addr_blacklist : critical {
+rule common_hostname_blocklist : critical {
   meta:
     description = "avoids execution if host has a particular hostname"
 	ref = "https://www.zscaler.com/blogs/security-research/technical-analysis-bandit-stealer"
