@@ -69,6 +69,7 @@ var thirdPartyCriticalSources = map[string]bool{
 	"YARAForge": true,
 	"huntress":  true,
 	"bartblaze": true,
+	"JPCERT":    true,
 }
 
 // authorWithURLRe matcehs "Arnim Rupp (https://github.com/ruppde)"

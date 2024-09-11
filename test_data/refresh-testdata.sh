@@ -28,9 +28,7 @@ ${bincapz} --format=simple \
     --min-risk any \
     --min-file-risk any \
     -o ../pkg/action/testdata/scan_oci \
-    scan \
-    -i \
-    cgr.dev/chainguard/static@sha256:791657dd88dea8c1f9d3779815429f9c681a9a2778fc66dac3fbf550e1f1d9c8 &
+    ../pkg/action/testdata/static.tar.xz; sed -i.bak 's|\.\.\/pkg\/action\/||g' ../pkg/action/testdata/scan_oci && rm ../pkg/action/testdata/scan_oci.bak &
 
 # diffs don't follow an easy rule
 ${bincapz} --format=markdown \

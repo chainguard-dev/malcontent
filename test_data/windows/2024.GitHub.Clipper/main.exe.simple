@@ -1,4 +1,5 @@
 # windows/2024.GitHub.Clipper/main.exe
+3P/JPCERT/apt10/chches/lnk
 3P/ditekshen/discordurl
 3P/ditekshen/vm/evasion/macaddrcomb
 3P/elastic/multi/threat
@@ -8,6 +9,7 @@
 3P/threat_hunting/gofile/io
 3P/threat_hunting/runascs
 archives/zip
+combo/degrader/win_defender
 combo/net/scan_tool
 combo/stealer/browser
 combo/stealer/creds
