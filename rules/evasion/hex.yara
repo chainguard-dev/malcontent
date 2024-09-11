@@ -30,3 +30,12 @@ rule php_hex_functons : high {
   condition:
     any of ($h*) and none of ($not*)
 }
+
+rule excessive_hex_refs : high {
+  meta:
+    description = "excessive references to hexadecimal values"
+  strings:
+    $x = /0x[\dabcdefABCDEF]{2,8}/
+  condition:
+    filesize < 128000 and #x > 64
+}

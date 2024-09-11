@@ -8,6 +8,7 @@
 3P/threat_hunting/gofile/io
 3P/threat_hunting/runascs
 archives/zip
+combo/degrader/win_defender
 combo/net/scan_tool
 combo/stealer/browser
 combo/stealer/creds
