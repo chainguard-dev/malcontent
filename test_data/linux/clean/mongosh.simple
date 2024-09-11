@@ -123,6 +123,7 @@ process/multithreaded
 process/name/get
 process/namespace/set
 process/parent_pid/get
+process/taskkill
 process/userid/set
 process/username/get
 procfs/cpuinfo

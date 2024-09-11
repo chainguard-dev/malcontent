@@ -126,6 +126,7 @@ ref/path/tmp
 ref/path/users
 ref/path/var
 ref/path/var/run
+ref/path/windows_root
 ref/program/osascript
 ref/program/sshd
 ref/program/sudo

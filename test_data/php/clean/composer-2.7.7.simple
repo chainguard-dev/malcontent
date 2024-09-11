@@ -1,7 +1,6 @@
 # php/clean/composer-2.7.7
 3P/threat_hunting/mimikatz
 archives/zip
-combo/backdoor/php
 combo/dropper/shell
 combo/net/scan_tool
 compression/bzip2
@@ -20,6 +19,7 @@ env/HOME
 env/SHELL
 env/TERM
 env/USER
+evasion/anti/debugger
 evasion/base64/decode
 evasion/base64/php_functions
 evasion/non_printable_chars
@@ -54,6 +54,7 @@ net/socket/send
 net/ssh
 net/url/encode
 process/chdir
+process/taskkill
 ref/ip/dns_resolver
 ref/ip_port
 ref/path/etc

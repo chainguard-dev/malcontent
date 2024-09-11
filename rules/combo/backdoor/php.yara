@@ -26,7 +26,7 @@ rule php_possible_backdoor : critical {
     $not_syntax = "syntax file"
     $not_workaround = "/* workaround for chrome bug "
   condition:
-    filesize < 1048576 and $eval and 1 of ($php*) and 4 of ($f_*) and none of ($not*)
+    filesize < 64KB and $eval and 1 of ($php*) and 4 of ($f_*) and none of ($not*)
 }
 
 rule php_eval_base64_decode : critical {
@@ -67,7 +67,7 @@ rule php_bin_hashbang : critical {
     $get = "$_GET" fullword
     $not_php = "PHP_VERSION_ID"
   condition:
-    $php and $script and ($post or $get) and none of ($not*)
+    filesize < 64KB and $php and $script and ($post or $get) and none of ($not*)
 }
 
 rule php_urlvar_recon_exec : critical {
@@ -92,17 +92,18 @@ rule php_urlvar_recon_exec : critical {
     $not_php_group = "Copyright (c) The PHP Group"
     $not_workaround = "/* workaround for chrome bug "
   condition:
-    any of ($p*) and any of ($e*) and any of ($f*) and any of ($x*) and none of ($not*)
+    filesize < 64KB and any of ($p*) and any of ($e*) and any of ($f*) and any of ($x*) and none of ($not*)
 }
 
 rule php_system_to_perl {
   meta:
     ref = "kinsing"
+	description = "Launches Perl from PHP"
   strings:
     $php = "<?php"
     $system_perl = /system\([\'\"]perl/
   condition:
-    all of them
+    filesize < 64KB and all of them
 }
 
 rule php_eval_gzinflate_base64_backdoor : critical {
@@ -125,7 +126,7 @@ rule php_eval_gzinflate_base64_backdoor : critical {
     $not_php = "PHP_FLOAT_DIG" fullword
     $not_workaround = "/* workaround for chrome bug "
   condition:
-    all of ($f*) and none of ($not*)
+    filesize < 64KB and all of ($f*) and none of ($not*)
 }
 
 rule php_obfuscated_with_hex_characters : high {
@@ -143,7 +144,7 @@ rule php_obfuscated_with_hex_characters : high {
     $not_auto = "AUTOMATICALLY GENERATED"
     $not_mongosh_php = { 3C 3F 70 68 70 00 00 00 01 0C 51 61 03 00 00 00 02 00 00 00 3F 3E }
   condition:
-    $php and (#hex > 5 or #hex_not_mix > 5) and none of ($not*)
+    filesize < 64KB and $php and (#hex > 5 or #hex_not_mix > 5) and none of ($not*)
 }
 
 rule php_base64_eval_uname : critical {
@@ -161,7 +162,7 @@ rule php_base64_eval_uname : critical {
     $not_php_group = "Copyright (c) The PHP Group"
     $not_workaround = "/* workaround for chrome bug "
   condition:
-    all of ($f*) and none of ($not*)
+    filesize < 64KB and all of ($f*) and none of ($not*)
 }
 
 rule php_post_system : medium {
@@ -181,7 +182,7 @@ rule php_post_system : medium {
     $not_php_group = "Copyright (c) The PHP Group"
     $not_workaround = "/* workaround for chrome bug "
   condition:
-    $php and any of ($method*) and $system and none of ($not*)
+    filesize < 64KB and $php and any of ($method*) and $system and none of ($not*)
 }
 
 rule php_error_reporting_disable : high {
@@ -213,7 +214,7 @@ rule php_system_manipulation : high {
 
     $not_workaround = "/* workaround for chrome bug "
   condition:
-    $php and 80% of them and none of ($not*)
+    filesize < 64KB and $php and 80% of them and none of ($not*)
 }
 
 rule php_system_hex : critical {
@@ -223,7 +224,7 @@ rule php_system_hex : critical {
   strings:
     $system_hex = "system(\"\\x"
   condition:
-    any of them
+    filesize < 64KB and any of them
 }
 
 rule php_insecure_curl_uploader : critical {
@@ -265,7 +266,7 @@ rule php_is_jpeg : critical {
     $icc_profile = "ICC_PROFILE"
     $php = "<?php"
   condition:
-    all of them
+    filesize < 2MB and all of them
 }
 
 rule php_copy_files : high {
@@ -276,7 +277,7 @@ rule php_copy_files : high {
   strings:
     $copy_files = "@copy($_FILES"
   condition:
-    all of them
+    filesize < 64KB and all of them
 }
 
 rule php_base64_encoded : critical {
@@ -291,7 +292,7 @@ rule php_base64_encoded : critical {
     $base64_decode = "base64_decode" base64
     $base64_encode = "base64_decode" base64
   condition:
-    any of them
+    filesize < 64KB and any of them
 }
 
 rule php_str_replace_obfuscation : critical {
