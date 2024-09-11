@@ -46,6 +46,7 @@ net/wireless
 process/chdir
 process/chroot
 process/namespace/set
+process/taskkill
 process/username/get
 random/insecure
 ref/ip_port

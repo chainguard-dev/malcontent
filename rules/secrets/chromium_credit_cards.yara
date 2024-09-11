@@ -1,5 +1,5 @@
 
-rule chromium_master_password : high {
+rule chromium_master_password : critical {
   meta:
     description = "Gets Chromium credit card information"
     hash_2018_CookieMiner_nonelittlecode = "7bc657c96c15ec0629740e00a9c7497417b599694c6b7598eeff095136cbd507"

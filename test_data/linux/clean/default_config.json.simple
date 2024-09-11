@@ -33,6 +33,7 @@ net/upload
 net/wireless
 persist/bash
 persist/crontab
+persist/linux_multi
 persist/ssh_authorized_keys
 persist/zsh
 process/chroot
