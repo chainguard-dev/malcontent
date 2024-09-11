@@ -288,7 +288,7 @@ func mungeDescription(s string) string {
 	// in: Detection patterns for the tool 'Nsight RMM' taken from the ThreatHunting-Keywords github project
 	// out: references 'Nsight RMM'
 	m := threatHuntingKeywordRe.FindStringSubmatch(s)
-	if len(m) > 0 {
+	if len(m) > 20 {
 		return fmt.Sprintf("references '%s' tool", m[1])
 	}
 	return s
