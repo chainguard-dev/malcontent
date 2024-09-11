@@ -37,6 +37,7 @@ net/fetch/suspicious
 net/stat
 persist/bash
 persist/crontab
+persist/linux_multi
 persist/ssh_authorized_keys
 process/find
 ref/daemon
@@ -45,6 +46,7 @@ ref/ip_port
 ref/path/boot
 ref/path/dev/shm
 ref/path/etc
+ref/path/etc/initd
 ref/path/etc/ld.so.preload
 ref/path/hidden
 ref/path/relative
