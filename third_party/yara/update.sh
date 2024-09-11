@@ -70,6 +70,14 @@ function update_dep() {
 		rel=$(git_clone https://github.com/bartblaze/Yara-rules.git "${tmpdir}")
 		cp -Rp ${tmpdir}/LICENSE ${tmpdir}/README.md ${tmpdir}/rules/* "${kind}/"
 		;;
+	JPCERT)
+		rel=$(git_clone https://github.com/JPCERTCC/jpcert-yara.git "${tmpdir}")
+		find "${tmpdir}" \( -name "*.yar*" -o -name "*LICENSE*" -o -name "README*" \) -print -exec cp {} "${kind}" \;
+		;;
+	TTC-CERT)
+		rel=$(git_clone https://github.com/ttc-cert/TTC-CERT-YARA-Rules.git "${tmpdir}")
+		cp -Rp ${tmpdir}/* "${kind}/"
+		;;
 	*)
 		echo "unknown kind: ${kind}"
 		exit 2
