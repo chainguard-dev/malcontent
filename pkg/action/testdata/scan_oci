@@ -8,7 +8,7 @@ ref/path/usr/local
 # testdata/static.tar.xz ∴ /var/lib/db/sbom/ca-certificates-bundle-20240705-r0.spdx.json
 net/download
 ref/site/url
-# testdata/static.tar.xz ∴ /var/lib/db/sbom/tzdata-2024a-r3.spdx.json
+# testdata/static.tar.xz ∴ /var/lib/db/sbom/tzdata-2024b-r0.spdx.json
 net/download
 ref/site/url
 time/tzinfo
