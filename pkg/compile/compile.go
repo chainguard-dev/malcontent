@@ -55,6 +55,8 @@ var badRules = map[string]bool{
 	// YARA VT
 	"Base64_Encoded_URL":   true,
 	"Windows_API_Function": true,
+	// TTC-CERT
+	"cve_202230190_html_payload": true,
 }
 
 // rulesWithWarnings determines what to do with rules that have known warnings: true=keep, false=disable.
@@ -77,6 +79,8 @@ var rulesWithWarnings = map[string]bool{
 	"sleep_and_background":                  true,
 	"str_replace_obfuscation":               true,
 	"systemd_no_comments_or_documentation":  true,
+	"Agenda_golang":                         false,
+	"bookworm_dll_UUID":                     false,
 }
 
 func Recursive(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {
