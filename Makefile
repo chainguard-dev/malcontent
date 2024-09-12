@@ -47,19 +47,18 @@ fix: $(FIXERS)
 
 # END: lint-install ../bincapz
 
+SAMPLES_REPO=https://github.com/chainguard-dev/bincapz-samples.git
 SAMPLES_HASH=bdcb8c2e9bf557a0abe3e2b0144f437d456299b7
+OUT_DIR=out/samples-$(SAMPLES_HASH).tmp
 out/samples-$(SAMPLES_HASH):
 	mkdir -p out
-	git clone https://github.com/chainguard-dev/bincapz-samples.git out/samples-$(SAMPLES_HASH).tmp
-	git -C out/samples-$(SAMPLES_HASH).tmp checkout $(SAMPLES_HASH)
-	for file in caddy.xz chezmoi.xz minio_x86_64.xz mongosh.xz neuvector_agent_aarch64.xz opa.xz ; do \
-		tar -xJvf out/samples-$(SAMPLES_HASH).tmp/linux/clean/$$file -C out/samples-$(SAMPLES_HASH).tmp/linux/clean; \
-	done
-	tar -xJvf out/samples-$(SAMPLES_HASH).tmp/macOS/clean/bincapz.xz -C out/samples-$(SAMPLES_HASH).tmp/macOS/clean
-	mv out/samples-$(SAMPLES_HASH).tmp out/samples-$(SAMPLES_HASH)
+	git clone $(SAMPLES_REPO) $(OUT_DIR)
+	git -C $(OUT_DIR) checkout $(SAMPLES_HASH)
+	find $(OUT_DIR) -name "*.xz" -execdir tar xJvf "{}" \;
+	mv $(OUT_DIR) $(basename $(OUT_DIR))
 
 prepare-samples: out/samples-$(SAMPLES_HASH)
-	cp -a test_data/. out/samples-$(SAMPLES_HASH)
+	cp -a test_data/. $(basename $(OUT_DIR))
 
 .PHONY: test
 test: prepare-samples
