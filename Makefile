@@ -53,7 +53,7 @@ out/samples-$(SAMPLES_HASH):
 	git clone git@github.com:chainguard-dev/bincapz-samples.git out/samples-$(SAMPLES_HASH)
 	pushd out/samples-$(SAMPLES_HASH); git checkout $(SAMPLES_HASH); popd
 
-update-samples: out/samples-$(SAMPLES_HASH)
+prepare-samples: out/samples-$(SAMPLES_HASH)
 	rm -rf samples; cp -a out/samples-$(SAMPLES_HASH) samples/
 	cp -a test_data/. samples/
 	for file in caddy.xz chezmoi.xz minio_x86_64.xz mongosh.xz neuvector_agent_aarch64.xz opa.xz ; do \
@@ -62,7 +62,7 @@ update-samples: out/samples-$(SAMPLES_HASH)
 	tar -xJvf samples/macOS/clean/bincapz.xz -C samples/macOS/clean
 
 .PHONY: test
-test: update-samples
+test: prepare-samples
 	go test $(shell go list ./... | grep -v test_data)
 
 .PHONY: bench
