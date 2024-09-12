@@ -59,6 +59,7 @@ function update_dep() {
 	threat_hunting)
 		rel=$(latest_github_release mthcht/ThreatHunting-Keywords-yara-rules)
 		curl -L -o "${tmpdir}/keywords.zip" "https://github.com/mthcht/ThreatHunting-Keywords-yara-rules/archive/refs/tags/${rel}.zip"
+		rel=$(echo $rel | sed s/v//g)
 		unzip -o -j "${tmpdir}/keywords.zip" "ThreatHunting-Keywords-yara-rules-${rel}/yara_rules/all.yara" -d "${kind}"
 		;;
 	InQuest-VT)
