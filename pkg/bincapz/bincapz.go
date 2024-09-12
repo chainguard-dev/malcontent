@@ -31,6 +31,7 @@ type Config struct {
 	QuantityIncreasesRisk bool
 	Renderer              Renderer
 	Rules                 *yara.Rules
+	Scan                  bool
 	ScanPaths             []string
 	Stats                 bool
 }
