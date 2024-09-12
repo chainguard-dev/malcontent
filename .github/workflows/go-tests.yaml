@@ -30,7 +30,7 @@ jobs:
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           repository: chainguard-dev/bincapz-samples
-          path: ${{ github.workspace }}/samples
+          path: ${{ github.workspace }}/out/samples
 
       - uses: actions/setup-go@0a12ed9d6a96ab950c8f026ed9f722fe0da7ef32 # v5.0.2
         with:
@@ -50,11 +50,11 @@ jobs:
 
       - name: Prepare samples
         run: |
-          cp -a ${{ github.workspace }}/test_data/. ${{ github.workspace }}/samples/
+          cp -a ${{ github.workspace }}/test_data/. ${{ github.workspace }}/out/samples/
           for file in caddy.xz chezmoi.xz minio_x86_64.xz mongosh.xz neuvector_agent_aarch64.xz opa.xz ; do \
-            tar -xJvf ${{ github.workspace }}/samples/linux/clean/${file} -C ${{ github.workspace }}/samples/linux/clean; \
+            tar -xJvf ${{ github.workspace }}/out/samples/linux/clean/${file} -C ${{ github.workspace }}/out/samples/linux/clean; \
           done
-          tar -xJvf ${{ github.workspace }}/samples/macOS/clean/bincapz.xz -C ${{ github.workspace }}/samples/macOS/clean
+          tar -xJvf ${{ github.workspace }}/out/samples/macOS/clean/bincapz.xz -C ${{ github.workspace }}/out/samples/macOS/clean
 
       - name: Test
         run: |

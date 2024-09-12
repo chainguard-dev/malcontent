@@ -222,7 +222,7 @@ func TestDiff(t *testing.T) {
 				MinRisk:     tc.minResultScore,
 				Renderer:    simple,
 				Rules:       yrs,
-				ScanPaths:   []string{strings.TrimPrefix(tc.src, "../samples/"), strings.TrimPrefix(tc.dest, "../samples/")},
+				ScanPaths:   []string{strings.TrimPrefix(tc.src, "../out/samples/"), strings.TrimPrefix(tc.dest, "../out/samples/")},
 			}
 
 			logger := clog.New(slog.Default().Handler()).With("src", tc.src)

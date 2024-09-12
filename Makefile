@@ -50,16 +50,16 @@ fix: $(FIXERS)
 SAMPLES_HASH=bdcb8c2e9bf557a0abe3e2b0144f437d456299b7
 out/samples-$(SAMPLES_HASH):
 	mkdir -p out
-	git clone git@github.com:chainguard-dev/bincapz-samples.git out/samples-$(SAMPLES_HASH)
-	pushd out/samples-$(SAMPLES_HASH); git checkout $(SAMPLES_HASH); popd
+	git clone https://github.com/chainguard-dev/bincapz-samples.git out/samples-$(SAMPLES_HASH).tmp
+	git -C out/samples-$(SAMPLES_HASH).tmp checkout $(SAMPLES_HASH)
+	for file in caddy.xz chezmoi.xz minio_x86_64.xz mongosh.xz neuvector_agent_aarch64.xz opa.xz ; do \
+		tar -xJvf out/samples-$(SAMPLES_HASH).tmp/linux/clean/$$file -C out/samples-$(SAMPLES_HASH).tmp/linux/clean; \
+	done
+	tar -xJvf out/samples-$(SAMPLES_HASH).tmp/macOS/clean/bincapz.xz -C out/samples-$(SAMPLES_HASH).tmp/macOS/clean
+	mv out/samples-$(SAMPLES_HASH).tmp out/samples-$(SAMPLES_HASH)
 
 prepare-samples: out/samples-$(SAMPLES_HASH)
-	rm -rf samples; cp -a out/samples-$(SAMPLES_HASH) samples/
-	cp -a test_data/. samples/
-	for file in caddy.xz chezmoi.xz minio_x86_64.xz mongosh.xz neuvector_agent_aarch64.xz opa.xz ; do \
-		tar -xJvf samples/linux/clean/$$file -C samples/linux/clean; \
-	done
-	tar -xJvf samples/macOS/clean/bincapz.xz -C samples/macOS/clean
+	cp -a test_data/. out/samples-$(SAMPLES_HASH)
 
 .PHONY: test
 test: prepare-samples
@@ -127,7 +127,7 @@ update-third-party:
 .PHONY: refresh-sample-testdata out/bincapz
 refresh-sample-testdata: clone-samples out/bincapz
 	cp ./test_data/refresh-testdata.sh samples/
-	./samples/refresh-testdata.sh ./out/bincapz
+	./out/samples/refresh-testdata.sh ./out/bincapz
 
 ARCH ?= $(shell uname -m)
 CRANE_VERSION=v0.20.2
