@@ -12,6 +12,7 @@ require (
 	github.com/liamg/magic v0.0.1
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/ulikunitz/xz v0.5.12
+	github.com/urfave/cli/v2 v2.27.4
 	github.com/wk8/go-ordered-map/v2 v2.1.8
 	golang.org/x/sync v0.8.0
 	golang.org/x/term v0.24.0
@@ -22,6 +23,7 @@ require (
 	github.com/bahlo/generic-list-go v0.2.0 // indirect
 	github.com/buger/jsonparser v1.1.1 // indirect
 	github.com/containerd/stargz-snapshotter/estargz v0.15.1 // indirect
+	github.com/cpuguy83/go-md2man/v2 v2.0.4 // indirect
 	github.com/docker/cli v27.1.2+incompatible // indirect
 	github.com/docker/distribution v2.8.3+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.8.2 // indirect
@@ -36,7 +38,9 @@ require (
 	github.com/opencontainers/image-spec v1.1.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
+	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/vbatts/tar-split v0.11.5 // indirect
+	github.com/xrash/smetrics v0.0.0-20240521201337-686a1a2994c1 // indirect
 	golang.org/x/sys v0.25.0 // indirect
 )

@@ -35,7 +35,7 @@ func Version() (string, error) {
 	// If present, return that value
 	// Otherwise, fall back to the contents of the VERSION const
 	if v != "" {
-		return fmt.Sprintf("bincapz %s", v), nil
+		return v, nil
 	}
-	return fmt.Sprintf("bincapz %s", ID), nil
+	return ID, nil
 }
