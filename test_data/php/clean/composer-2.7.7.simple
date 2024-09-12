@@ -20,7 +20,6 @@ env/TERM
 env/USER
 evasion/anti/debugger
 evasion/base64/decode
-evasion/base64/php_functions
 evasion/non_printable_chars
 exec/cmd
 exec/shell_command

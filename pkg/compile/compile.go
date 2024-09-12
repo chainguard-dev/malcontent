@@ -52,6 +52,7 @@ var badRules = map[string]bool{
 	"wfuzz_offensive_tool_keyword":               true,
 	"whoami_greyware_tool_keyword":               true,
 	"wireshark_greyware_tool_keyword":            true,
+	"mimikatz_offensive_tool_keyword":            true,
 	// YARA VT
 	"Base64_Encoded_URL":   true,
 	"Windows_API_Function": true,
@@ -66,7 +67,7 @@ var rulesWithWarnings = map[string]bool{
 	"gzinflate_str_replace":                 true,
 	"hardcoded_ip_port":                     true,
 	"hardcoded_ip":                          true,
-	"Microsoft_Excel_with_Macrosheet":       true,
+	"Microsoft_Excel_with_Macrosheet":       false,
 	"nmap_offensive_tool_keyword":           false,
 	"opaque_binary":                         true,
 	"PDF_with_Embedded_RTF_OLE_Newlines":    true,
@@ -81,6 +82,7 @@ var rulesWithWarnings = map[string]bool{
 	"systemd_no_comments_or_documentation":  true,
 	"Agenda_golang":                         false,
 	"bookworm_dll_UUID":                     false,
+	"cobaltstrike_offensive_tool_keyword":   false,
 }
 
 func Recursive(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {
