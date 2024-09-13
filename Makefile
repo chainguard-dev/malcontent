@@ -47,8 +47,21 @@ fix: $(FIXERS)
 
 # END: lint-install ../bincapz
 
+SAMPLES_REPO=https://github.com/chainguard-dev/bincapz-samples.git
+SAMPLES_HASH=bdcb8c2e9bf557a0abe3e2b0144f437d456299b7
+OUT_DIR=out/samples-$(SAMPLES_HASH).tmp
+out/samples-$(SAMPLES_HASH):
+	mkdir -p out
+	git clone $(SAMPLES_REPO) $(OUT_DIR)
+	git -C $(OUT_DIR) checkout $(SAMPLES_HASH)
+	find $(OUT_DIR) -name "*.xz" -execdir tar xJvf "{}" \;
+	mv $(OUT_DIR) $(basename $(OUT_DIR))
+
+prepare-samples: out/samples-$(SAMPLES_HASH)
+	cp -a test_data/. $(basename $(OUT_DIR))
+
 .PHONY: test
-test: clone-samples
+test: prepare-samples
 	go test $(shell go list ./... | grep -v test_data)
 
 .PHONY: bench
@@ -113,16 +126,7 @@ update-third-party:
 .PHONY: refresh-sample-testdata out/bincapz
 refresh-sample-testdata: clone-samples out/bincapz
 	cp ./test_data/refresh-testdata.sh samples/
-	./samples/refresh-testdata.sh ./out/bincapz
-
-.PHONY: clone-samples
-clone-samples:
-	rm -rf samples; git clone git@github.com:chainguard-dev/bincapz-samples.git samples
-	cp -a test_data/. samples/
-	for file in caddy.xz chezmoi.xz minio_x86_64.xz mongosh.xz neuvector_agent_aarch64.xz opa.xz ; do \
-		tar -xJvf samples/linux/clean/$$file -C samples/linux/clean; \
-	done
-	tar -xJvf samples/macOS/clean/bincapz.xz -C samples/macOS/clean
+	./out/samples/refresh-testdata.sh ./out/bincapz
 
 ARCH ?= $(shell uname -m)
 CRANE_VERSION=v0.20.2
