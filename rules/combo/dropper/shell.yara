@@ -102,3 +102,22 @@ rule fetch_chmod_execute : high {
   condition:
     any of them
 }
+
+rule obsessive_downloader : critical {
+	meta:
+		description = "invokes multiple tools to download and execute a program"
+	strings:
+		$http = "http://"
+		$https = "https://"
+		$tool_curl_s = "curl -"
+		$tool_wget_q = "wget -"
+		$tool_lwp = "lwp-download"
+		$cmd_bash = "bash" fullword
+		$cmd_dot_slash = /\.\/[\.\w]{1,16}/ fullword
+		$cmd_rm = "rm" fullword
+		$cmd_sleep = "sleep" fullword
+		$cmd_echo = "echo" fullword
+		$cmd_chmod = "chmod" fullword
+	condition:
+		filesize < 768 and any of ($http*) and any of ($tool*) and any of ($cmd*)
+}

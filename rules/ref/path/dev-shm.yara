@@ -1,7 +1,7 @@
 
 rule dev_shm : medium {
   meta:
-    description = "references /dev/shm (world writeable)"
+    description = "references path within /dev/shm (world writeable)"
   strings:
     $ref = /\/dev\/shm\/[\%\w\-\/\.]{0,64}/
   condition:

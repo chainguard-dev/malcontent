@@ -10,5 +10,5 @@ rule linux_server_stealer : high {
     $root_ssh = "/root/.ssh"
     $id_rsa = ".ssh/id_rsa"
   condition:
-    $bash_history and ($root_ssh or $id_rsa)
+    filesize < 8KB and $bash_history and ($root_ssh or $id_rsa)
 }

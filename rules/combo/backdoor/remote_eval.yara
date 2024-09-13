@@ -7,9 +7,11 @@ rule remote_eval : critical {
     hash_2024_analyze_me_1_0_0_setup = "ca9c74630ed814053220129ee6c43668e66898983d9be5e34b406bbd3ad95b1e"
   strings:
     $http = "http"
-    $eval_open_ruby = /eval\(open[\(\)\"\'\-\w:\/\.]{0,32}/
-    $exec_requests = /exec\(requests\.get[\(\)\"\'\-\w:\/\.]{0,32}/
-    $eval_requests = /eval\(requests\.get[\(\)\"\'\-\w:\/\.]{0,32}/
+    $eval_open_ruby = /eval\(open[\(\)\"\'\-\w:\/\.]{0,64}/
+    $exec_requests = /exec\(requests\.get[\(\)\"\'\-\w:\/\.]{0,64}/
+    $eval_requests = /eval\(requests\.get[\(\)\"\'\-\w:\/\.]{0,64}/
+	$eval_urllib = /exec\(urllib\.request\.urlopen\([\(\)\"\'\-\w:\/\.]{0,64}\).read\(\)/
+	$exec_urllib = /exec\(urllib\.request\.urlopen\([\(\)\"\'\-\w:\/\.]{0,64}\).read\(\)/
   condition:
     filesize < 65535 and $http and any of ($e*)
 }
