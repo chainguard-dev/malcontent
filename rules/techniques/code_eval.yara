@@ -61,3 +61,12 @@ rule php_at_eval : critical {
   condition:
     $at_eval and none of ($not*)
 }
+
+rule npm_preinstall_eval : critical {
+  meta:
+    description = "NPM preinstall evaluates arbitrary code"
+  strings:
+	$ref = /\s{2,8}"preinstall": ".{12,256}eval\([\w\.]{1,32}\).{0,256}"/
+  condition:
+    filesize < 1KB and $ref
+}
