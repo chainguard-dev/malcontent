@@ -31,3 +31,13 @@ rule pip_installer_url : critical {
   condition:
 	filesize < 8192 and $ref
 }
+
+
+rule pip_installer_socket : critical {
+  meta:
+    description = "Installs socket library using pip"
+  strings:
+	$ref = /pip.{1,5}install.{1,4}socket/
+  condition:
+	$ref
+}

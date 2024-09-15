@@ -24,3 +24,15 @@ rule rm_f_hardcoded_tmp_path : high {
   condition:
     $ref and none of ($not*)
 }
+
+
+rule del : medium {
+  meta:
+    description = "deletes files"
+  strings:
+	$del = "del" fullword
+	$cmd_echo = "echo off"
+	$cmd_powershell = "powershell"
+  condition:
+	filesize < 16KB and $del and any of ($cmd*)
+}

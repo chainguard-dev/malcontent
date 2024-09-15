@@ -23,7 +23,11 @@ rule crypto_stealer : critical {
     $w_wallet = /[\w\/]{0,32}\/\.walle[\w\/]{0,16}/
     $w_trezor = "Trezor"
     $w_exodus = "Exodus"
+	$w_exodus_2 = "aholpfdial"
     $w_coinomi = "Coinomi"
+	$w_crypto = "cfgodnhcel"
+	$w_kaia = "jblndlipeo"
+	$w_solana = "solana_id"
     $not_cats = /\"cats\": \[[^]]{0,64}/
     $not_description = /\"description\": "([^"]{0,64})"/
     $not_dom = /\"dom\": "([^"]{0,64})"/

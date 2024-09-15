@@ -10,7 +10,7 @@ rule bsd_ifaddrs : medium {
     $freeifaddrs = "freeifaddrs" fullword
     $ifconfig = "ifconfig" fullword
     $proc = "/proc/net/dev"
-	$npm = ".networkInterfaces()"
+	$npm = "networkInterfaces" fullword
   condition:
     any of them
 }

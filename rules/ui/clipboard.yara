@@ -13,3 +13,17 @@ rule nspasteboard : medium macos {
   condition:
     all of ($pb*) or any of ($lib*)
 }
+
+
+
+rule py_pasteboard : high {
+  meta:
+    description = "access clipboard contents"
+  strings:
+    $clip = "pyperclip.copy("
+	$pandas = "pandas.read_clipboard("
+  condition:
+	any of them
+}
+
+

@@ -6,7 +6,7 @@ rule iplookup_website_value : high {
     hash_2023_Unix_Trojan_Ipstorm_1996 = "1996927b41960a2af8e49cf745ed6668bc5b8d7855c2bb116f98104163e29000"
     hash_2023_Unix_Trojan_Ipstorm_2f6f = "2f6f44e3e2baf701ae1ee3826986f89df4e5314c8ba50615fb6580f1ef54c830"
   strings:
-    $ipify = "ipify.org"
+    $ipify = "ipify.or"
     $wtfismyip = "wtfismyip"
     $iplogger = "iplogger.org"
     $getjsonip = "getjsonip"
@@ -17,7 +17,7 @@ rule iplookup_website_value : high {
     $ifconfig_io = "ifconfig.io" fullword
     $ifconfig_co = "ifconfig.co" fullword
     $ipinfo = "ipinfo.io"
-    $ipify_b = "ipify.org" base64
+    $ipify_b = "ipify.or" base64
     $wtfismyip_b = "wtfismyip" base64
     $iplogger_b = "iplogger.org" base64
     $getjsonip_b = "getjsonip" base64

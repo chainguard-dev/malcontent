@@ -8,6 +8,7 @@ rule userinfo : medium {
     hash_1985_package_index = "19dc05db0219df84f303bde62d37dbf7ece4e2825daa98e27ba087cc3594431d"
   strings:
     $ref = "os.userInfo()"
+	$ref2 = "os.homedir"
   condition:
     any of them
 }
