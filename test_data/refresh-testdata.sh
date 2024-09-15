@@ -30,7 +30,7 @@ fi
 
 readonly qscript=$(mktemp)
 function addq() {
-    echo "$*" >> "${qscript}"
+	echo "$*" >>"${qscript}"
 }
 
 # OCI edge case
@@ -40,7 +40,7 @@ ${bincapz} --format=simple \
 	--min-risk any \
 	--min-file-risk any \
 	-o testdata/scan_oci \
-    analyze testdata/static.tar.xz
+	analyze testdata/static.tar.xz
 
 cd "${samples}"
 
@@ -121,5 +121,5 @@ for f in $(find "${test_data}" -name "*.json"); do
 done
 
 echo "processing queue with length: $(wc -l ${qscript})"
-tr '\n' '\0' < "${qscript}" | xargs -0 -n1 -P"${MAX_PROCS}" -J% sh -c '%'
+tr '\n' '\0' <"${qscript}" | xargs -0 -n1 -P"${MAX_PROCS}" -J% sh -c '%'
 echo "test data regeneration complete!!"
