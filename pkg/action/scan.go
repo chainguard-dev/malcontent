@@ -328,7 +328,7 @@ func recursiveScan(ctx context.Context, c bincapz.Config) (*bincapz.Report, erro
 				r.Files.Set(k, fr)
 				if c.Renderer != nil && r.Diff == nil {
 					if fr.RiskScore < c.MinFileRisk {
-						return nil, nil
+						continue
 					}
 					if err := c.Renderer.File(ctx, fr); err != nil {
 						return nil, fmt.Errorf("render: %w", err)
