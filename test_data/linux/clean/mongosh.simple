@@ -38,7 +38,9 @@ env/USER
 env/get
 evasion/base64/decode
 evasion/base64/php_functions
+evasion/char_to_int
 evasion/hex
+evasion/int_to_char
 exec/cmd
 exec/program
 exec/program/background
@@ -52,6 +54,7 @@ fs/file/capabilities/set
 fs/file/copy
 fs/file/delete
 fs/file/delete/forcibly
+fs/file/open
 fs/file/read
 fs/file/stat
 fs/file/times/set
@@ -74,6 +77,7 @@ kernel/platform
 kernel/sysinfo
 mem/anonymous/file
 net/bpf
+net/dns
 net/dns/over/https
 net/dns/reverse
 net/dns/txt
@@ -125,6 +129,7 @@ process/namespace/set
 process/parent_pid/get
 process/taskkill
 process/userid/set
+process/userinfo
 process/username/get
 procfs/cpuinfo
 procfs/meminfo
@@ -145,6 +150,7 @@ ref/program/ancient_gcc
 ref/program/nmap
 ref/program/osascript
 ref/program/powershell
+ref/site/exe
 ref/site/http/dynamic
 ref/site/url
 ref/words/exclamation

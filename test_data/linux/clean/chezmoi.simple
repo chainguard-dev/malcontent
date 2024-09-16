@@ -40,7 +40,9 @@ env/TERM
 env/TMPDIR
 env/USER
 env/get
+evasion/char_to_int
 evasion/content/length/0
+evasion/int_to_char
 evasion/xor/commands
 exec/cmd
 exec/program
@@ -51,6 +53,7 @@ fs/directory/remove
 fs/fifo/create
 fs/file/delete
 fs/file/delete/forcibly
+fs/file/open
 fs/file/read
 fs/file/stat
 fs/file/times/set
@@ -79,6 +82,7 @@ kernel/sysinfo
 net/bpf
 net/dns
 net/dns/reverse
+net/dns/servers
 net/dns/txt
 net/download
 net/fetch

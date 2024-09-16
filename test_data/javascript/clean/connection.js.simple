@@ -2,7 +2,10 @@
 data/embedded/base64/terms
 data/embedded/base64/url
 encoding/base64
+evasion/hex
 fd/write
+net/dns
 net/socket/send
+obfuscation/js/high_entropy
 ref/site/url
 ref/words/password

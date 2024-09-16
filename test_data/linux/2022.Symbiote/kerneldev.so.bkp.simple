@@ -6,6 +6,7 @@ evasion/process/hide
 fs/link/read
 fs/permission/modify
 kernel/platform
+net/dns/servers
 net/interface/list
 net/ip/byte/order
 net/ip/parse

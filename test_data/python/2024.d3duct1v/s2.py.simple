@@ -4,3 +4,4 @@ crypto/fernet
 fd/read
 fd/write
 fs/directory/traverse
+fs/file/open

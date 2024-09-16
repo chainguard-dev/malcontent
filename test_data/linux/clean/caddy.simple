@@ -43,6 +43,7 @@ fs/fifo/create
 fs/file/capabilities/set
 fs/file/delete
 fs/file/delete/forcibly
+fs/file/open
 fs/file/read
 fs/file/times/set
 fs/file/write
@@ -67,6 +68,7 @@ net/bpf
 net/dns
 net/dns/over/https
 net/dns/reverse
+net/dns/servers
 net/dns/txt
 net/download
 net/grpc

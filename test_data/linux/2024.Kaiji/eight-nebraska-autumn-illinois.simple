@@ -34,6 +34,7 @@ kernel/netlink
 kernel/platform
 malware/family/kaiji
 net/dns
+net/dns/servers
 net/dns/txt
 net/download
 net/fetch

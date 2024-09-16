@@ -66,6 +66,16 @@
                     "ID": "fd/read"
                 },
                 {
+                    "Description": "opens files",
+                    "MatchStrings": [
+                        "open("
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/fs/file-open.yara#py_open",
+                    "ID": "fs/file/open"
+                },
+                {
                     "Description": "gets executable associated to this process",
                     "MatchStrings": [
                         "sys.executable"

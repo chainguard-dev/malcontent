@@ -20,7 +20,8 @@ env/LANG
 env/TEMP
 env/USER
 evasion/base64/decode
-evasion/script/obfuscation
+evasion/char_to_int
+evasion/int_to_char
 evasion/single_line_imports
 evasion/unusual_include
 exec/cmd
@@ -71,6 +72,7 @@ net/upload
 net/url
 net/url/encode
 net/url/request
+obfuscation/php/generic
 process/chdir
 process/chroot
 process/effective/groupid/get
