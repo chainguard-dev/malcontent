@@ -100,7 +100,6 @@ net/ip/send/unicast
 net/mac/address
 net/ntlm
 net/oauth2
-net/reverse_proxy
 net/sendfile
 net/socket/listen
 net/socket/local/address

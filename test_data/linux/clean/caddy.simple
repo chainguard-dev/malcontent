@@ -87,7 +87,6 @@ net/ip/resolve
 net/mac/address
 net/oauth2
 net/reuseport
-net/reverse_proxy
 net/sendfile
 net/socket/listen
 net/socket/local/address
