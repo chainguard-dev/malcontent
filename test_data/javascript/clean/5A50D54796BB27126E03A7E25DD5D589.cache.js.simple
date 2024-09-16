@@ -32,6 +32,7 @@ fs/directory/create
 fs/directory/remove
 fs/fifo/create
 fs/file/delete
+fs/file/delete/forcibly
 fs/file/times/set
 fs/file/truncate
 fs/file/write

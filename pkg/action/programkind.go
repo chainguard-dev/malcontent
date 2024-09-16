@@ -55,6 +55,7 @@ var extMap = map[string]string{
 	".md":      "",
 	".php":     "PHP file",
 	".pl":      "PERL script",
+	".ps1":     "Powershell",
 	".py":      "Python script",
 	".pyc":     "Python script (compiled)",
 	".rb":      "Ruby script",

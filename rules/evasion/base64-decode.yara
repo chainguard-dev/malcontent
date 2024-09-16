@@ -42,7 +42,7 @@ rule powershell_decode : medium {
     description = "decode base64 strings"
     ref = "https://learn.microsoft.com/en-us/dotnet/api/system.convert.frombase64string?view=net-8.0"
   strings:
-    $ref = "[System.Convert]::FromBase64String" ascii
+    $ref = /System\.Convert[\]: ]+FromBase64String/ ascii
   condition:
     any of them
 }

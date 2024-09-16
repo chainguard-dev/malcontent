@@ -10,6 +10,7 @@ fs/directory/create
 fs/file/delete
 fs/permission/modify
 fs/symlink/resolve
+fs/tempdir
 kernel/platform
 net/http/cookies
 net/http/form/upload

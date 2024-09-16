@@ -15,6 +15,8 @@ func New(kind string, w io.Writer) (bincapz.Renderer, error) {
 	switch kind {
 	case "", "auto", "terminal":
 		return NewTerminal(w), nil
+	case "terminal_brief":
+		return NewTerminalBrief(w), nil
 	case "markdown":
 		return NewMarkdown(w), nil
 	case "yaml":
