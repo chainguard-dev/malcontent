@@ -130,7 +130,7 @@ func errIfHitOrMiss(frs *sync.Map, kind string, scanPath string, errIfHit bool, 
 		bList  []string
 		bMap   sync.Map
 		count  int
-		suffix string = ""
+		suffix string
 	)
 	if frs != nil {
 		frs.Range(func(_, value any) bool {
