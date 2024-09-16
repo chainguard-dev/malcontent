@@ -36,6 +36,7 @@ fs/file/read
 fs/file/write
 fs/permission/chown
 fs/permission/modify
+fs/tempdir
 hash/md5
 kernel/cpu/info
 malware/family/skuld

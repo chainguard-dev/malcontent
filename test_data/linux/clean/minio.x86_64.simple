@@ -46,7 +46,9 @@ fs/directory/list
 fs/directory/remove
 fs/fifo/create
 fs/file/capabilities/set
+fs/file/copy
 fs/file/delete
+fs/file/delete/forcibly
 fs/file/make_executable
 fs/file/read
 fs/file/times/set
@@ -98,6 +100,7 @@ net/ip/send/unicast
 net/mac/address
 net/ntlm
 net/oauth2
+net/reverse_proxy
 net/sendfile
 net/socket/listen
 net/socket/local/address

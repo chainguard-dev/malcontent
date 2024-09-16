@@ -10,6 +10,8 @@ encoding/json/encode
 env/get
 fd/read
 fd/write
+fs/file/copy
+fs/file/delete/forcibly
 fs/file/read
 fs/file/write
 fs/permission/modify
