@@ -4,6 +4,7 @@
 3P/threat_hunting/sqlninja
 combo/backdoor/iptables
 combo/recon/system_network
+combo/stealer/linux_server
 combo/stealer/ssh
 compression/bzip2
 compression/gzip
