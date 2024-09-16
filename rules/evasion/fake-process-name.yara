@@ -24,3 +24,12 @@ rule fake_syslogd : critical {
   condition:
     any of them
 }
+
+rule fake_systemd : critical {
+	meta:
+		description = "Pretends to be a systemd worker"
+	strings:
+		$ref = "systemd-worker" fullword
+	condition:
+		any of them
+}
