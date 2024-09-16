@@ -126,36 +126,40 @@ func isSupportedArchive(path string) bool {
 
 // errIfMatch generates the right error if a match is encountered.
 func errIfHitOrMiss(frs *sync.Map, kind string, scanPath string, errIfHit bool, errIfMiss bool) error {
-	var bMap sync.Map
-	count := 0
-	frs.Range(func(_, value any) bool {
-		if value == nil {
-			return true
-		}
-		if fr, ok := value.(*bincapz.FileReport); ok {
-			for _, b := range fr.Behaviors {
-				count++
-				bMap.Store(b.ID, true)
+	var (
+		bList  []string
+		bMap   sync.Map
+		count  int
+		suffix string = ""
+	)
+	if frs != nil {
+		frs.Range(func(_, value any) bool {
+			if value == nil {
+				return true
 			}
-		}
-		return true
-	})
-
-	bList := []string{}
-	bMap.Range(func(key, _ any) bool {
-		if key == nil {
+			if fr, ok := value.(*bincapz.FileReport); ok {
+				for _, b := range fr.Behaviors {
+					count++
+					bMap.Store(b.ID, true)
+				}
+			}
 			return true
-		}
-		if k, ok := key.(string); ok {
-			bList = append(bList, k)
-		}
-		return true
-	})
-	sort.Strings(bList)
+		})
 
-	suffix := ""
-	if len(bList) > 0 {
-		suffix = fmt.Sprintf(": %s", strings.Join(bList, " "))
+		bMap.Range(func(key, _ any) bool {
+			if key == nil {
+				return true
+			}
+			if k, ok := key.(string); ok {
+				bList = append(bList, k)
+			}
+			return true
+		})
+		sort.Strings(bList)
+
+		if len(bList) > 0 {
+			suffix = fmt.Sprintf(": %s", strings.Join(bList, " "))
+		}
 	}
 
 	// Behavioral note: this logic is per-archive or per-file, depending on context
