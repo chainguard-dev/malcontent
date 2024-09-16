@@ -103,7 +103,35 @@ rule fetch_chmod_execute : high {
     any of them
 }
 
-rule obsessive_downloader : critical {
+rule possible_dropper : high {
+	meta:
+		description = "downloads and execute a program"
+	strings:
+		$http = "http://"
+		$https = "https://"
+	    $tool_curl_o = /curl [\w\.\- :\"\/]{0,64}-\w{0,2}[oO][\w\- :\"\/]{0,64}/
+		$tool_wget_q = "wget -"
+		$tool_lwp = "lwp-download"
+		$cmd_bash = "bash" fullword
+		$cmd_dot_slash = /\.\/[\.\w]{1,16}/ fullword
+		$cmd_rm = "rm" fullword
+		$cmd_sleep = "sleep" fullword
+		$cmd_echo = "echo" fullword
+		$cmd_chmod = "chmod" fullword
+	condition:
+		filesize < 768 and any of ($http*) and any of ($tool*) and any of ($cmd*)
+}
+
+rule nohup_dropper : critical {
+	meta:
+		description = "downloads and executes a program with nohup"
+	strings:
+		$nohup = "nohup" fullword
+	condition:
+		possible_dropper and $nohup
+}
+
+rule obsessive_dropper : critical {
 	meta:
 		description = "invokes multiple tools to download and execute a program"
 	strings:
@@ -119,5 +147,5 @@ rule obsessive_downloader : critical {
 		$cmd_echo = "echo" fullword
 		$cmd_chmod = "chmod" fullword
 	condition:
-		filesize < 768 and any of ($http*) and any of ($tool*) and any of ($cmd*)
+		filesize < 768 and any of ($http*) and 2 of ($tool*) and any of ($cmd*)
 }
