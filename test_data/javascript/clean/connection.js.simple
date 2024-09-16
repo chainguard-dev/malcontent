@@ -6,6 +6,5 @@ evasion/hex
 fd/write
 net/dns
 net/socket/send
-obfuscation/js/high_entropy
 ref/site/url
 ref/words/password

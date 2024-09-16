@@ -38,7 +38,6 @@ env/USER
 env/get
 evasion/base64/decode
 evasion/base64/php_functions
-evasion/char_to_int
 evasion/hex
 evasion/int_to_char
 exec/cmd

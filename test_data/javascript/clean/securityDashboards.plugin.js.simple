@@ -10,7 +10,6 @@ databases/mysql
 encoding/base64
 encoding/json/decode
 encoding/json/encode
-evasion/char_to_int
 evasion/int_to_char
 evasion/xor/commands
 fs/link/create

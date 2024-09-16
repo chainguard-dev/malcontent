@@ -13,7 +13,6 @@ env/SHELL
 env/TEMP
 env/USER
 evasion/base64/decode
-evasion/char_to_int
 exec/cmd
 exec/program/background
 fs/directory/create
@@ -45,8 +44,6 @@ net/socket/send
 net/upload
 net/url/encode
 net/wireless
-obfuscation/js/function_spam
-obfuscation/js/high_entropy
 process/chdir
 process/chroot
 process/namespace/set

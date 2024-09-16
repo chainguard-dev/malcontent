@@ -40,7 +40,6 @@ env/TERM
 env/TMPDIR
 env/USER
 env/get
-evasion/char_to_int
 evasion/content/length/0
 evasion/int_to_char
 evasion/xor/commands

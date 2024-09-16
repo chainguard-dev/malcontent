@@ -6,5 +6,5 @@ rule js_const_func_obfuscation : critical {
 		$function = "function("
 		$return = "{return"
 	condition:
-		filesize < 1MB and #const > 32 and #function > 48 and #return > 64
+		filesize < 256KB and #const > 32 and #function > 48 and #return > 64
 }

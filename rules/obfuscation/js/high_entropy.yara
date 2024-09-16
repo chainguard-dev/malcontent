@@ -2,26 +2,19 @@ import "math"
 
 private rule probably_js {
 	strings:
+		$f_function = /function\(\w{0,8}\)/
 		$f_const = "const" fullword
 		$f_return = "return" fullword
 		$f_var = "var" fullword
     condition:
-		filesize < 1MB and all of ($f*)
-}
-
-
-rule mid_entropy : medium {
-    meta:
-        description = "high entropy javascript (>5)"
-    condition:
-		probably_js and math.entropy(1,filesize) >= 5.2
+		filesize < 512KB and all of ($f*)
 }
 
 rule high_entropy : high {
     meta:
-        description = "high entropy javascript (>6)"
+        description = "high entropy javascript (>5.37)"
     condition:
-		probably_js and math.entropy(1,filesize) >= 6
+		probably_js and math.entropy(1,filesize) >= 5.37
 }
 
 rule very_high_entropy : critical {

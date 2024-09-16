@@ -11,7 +11,6 @@ net/http/form/upload
 net/http/post
 net/interface/list
 net/url/encode
-obfuscation/js/high_entropy
 process/userinfo
 ref/path/home
 ref/path/relative

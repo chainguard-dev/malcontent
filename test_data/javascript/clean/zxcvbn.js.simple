@@ -5,7 +5,6 @@
 3P/threat_hunting/sharpshooter
 combo/net/tunnel_proxy
 databases/mysql
-evasion/char_to_int
 evasion/xor/commands
 fs/lock/update
 fs/mount

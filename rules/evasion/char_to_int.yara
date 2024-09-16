@@ -1,11 +1,10 @@
-
-rule js_char_code_at : high {
+rule js_char_code_at_substitution : high {
   meta:
-    description = "converts strings into integers"
+    description = "converts strings into integers and contains a substitution map"
 	filetypes = "javascript"
   strings:
     $charCodeAt = "charCodeAt" fullword
-	$index = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/="
+	$index = "fghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ012345"
   condition:
-    any of them
+    filesize < 256KB and all of them
 }
