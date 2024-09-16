@@ -1,20 +1,34 @@
 
-rule ssh_snake_worm : high {
+rule ssh_shell_worm : critical {
   meta:
-    description = "possible SSH worm like SSH-Snake"
-    hash_2024_SSH_Snake_Snake_nocomments = "9491fa95f40a69f27ce99229be636030fdc49f315cb9c897db3b602c34a8ceda"
+    description = "SSH worm implemented in shell"
+	hash_2024_SSH_Snake_Snake_nocomments = "9491fa95f40a69f27ce99229be636030fdc49f315cb9c897db3b602c34a8ceda"
     hash_2024_SSH_Snake = "b0a2bf48e29c6dfac64f112ac1cb181d184093f582615e54d5fad4c9403408be"
   strings:
-    $s_dot_ssh = ".ssh"
-    $s_authorized_keys = "authorized_keys"
-    $h_etc_hosts = "/etc/hosts"
-    $h_getent = "getent ahostsv4"
-    $u_base64 = "base64"
-    $u_uname = "uname"
-    $strict_host = "StrictHostKeyChecking"
-    $user_known_hosts = "UserKnownHostsFile"
+    $dot_ssh = ".ssh" fullword
+
+	$key_pem = ".pem" fullword
+	$key_rsa = "id_rsa" fullword
+	$key_identity_file = "IdentityFile" fullword
+
+    $hosts_authorized_keys = "authorized_keys"
+    $hosts_etc_hosts = "/etc/hosts"
+    $hosts_getent = "getent ahostsv4"
+	$hosts_ssh_config = /grep.{1,8}HostName.{1,8}\/\.ssh\/config/
+	$hosts_bash_history = /(scp|ssh).{2,64}bash_history/
+	$hosts_known_hosts = "known_hosts"
+
+    $remote_base64 = "base64"
+    $remote_uname = "uname"
+	$remote_curl = "curl -"
+	$remote_wget = "wget"
+	$remote_lwp = "lwp-download"
+
+    $ssh_strict_host = "StrictHostKeyChecking"
+    $ssh_known_hosts = "UserKnownHostsFile"
+	$ssh_connect_timeout = "ConnectTimeout"
   condition:
-    filesize < 67108864 and $strict_host and $user_known_hosts and all of ($s*) and any of ($h*) and any of ($u*)
+    filesize < 32KB and $dot_ssh and 2 of ($ssh*) and 1 of ($remote*) and 3 of ($hosts*) and any of ($key*)
 }
 
 rule ssh_worm_router : high {
@@ -34,3 +48,5 @@ rule ssh_worm_router : high {
   condition:
     all of ($s*) and any of ($h*) and any of ($p*)
 }
+
+

@@ -42,6 +42,7 @@ fs/directory/remove
 fs/fifo/create
 fs/file/capabilities/set
 fs/file/delete
+fs/file/delete/forcibly
 fs/file/read
 fs/file/times/set
 fs/file/write

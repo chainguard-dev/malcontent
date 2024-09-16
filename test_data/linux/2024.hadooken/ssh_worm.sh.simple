@@ -1,0 +1,26 @@
+# linux/2024.hadooken/ssh_worm.sh
+3P/threat_hunting/base64
+combo/dropper/shell
+combo/stealer/linux_server
+combo/worm/ssh
+data/embedded/base64/url
+encoding/base64
+evasion/base64/eval
+evasion/base64/external/decoder
+evasion/base64/python
+fs/file/delete
+fs/file/delete/forcibly
+fs/file/times/set
+fs/permission/modify
+net/download
+net/fetch
+ref/path/hidden
+ref/path/home
+ref/path/root
+ref/path/tmp
+ref/site/http/ip
+ref/site/url
+secrets/bash_history
+secrets/ssh
+shell/pipe_sh
+shell/tmp_semicolon

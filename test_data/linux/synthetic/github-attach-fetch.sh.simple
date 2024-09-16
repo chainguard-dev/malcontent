@@ -1,8 +1,10 @@
 # linux/synthetic/github-attach-fetch.sh
+combo/dropper/shell
 fs/permission/modify
 net/fetch
-ref/site/github_comment_attachment
+ref/site/github_attachment
 ref/site/url
 ref/words/backdoor
 shell/background_launcher
 shell/exec
+shell/nohup
