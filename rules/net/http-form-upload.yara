@@ -7,8 +7,9 @@ rule http_form_upload : medium {
     hash_2017_package_package_setup = "79be89b218ac2160d6047c22a1161a2be048044f24e920872715e130496aec8c"
     hash_2019_lib_restclient = "c9b67d3d9ef722facd1abce98bd7d80cec1cc1bb3e3a52c54bba91f19b5a6620"
   strings:
-    $header = "application/x-www-form-urlencoded"
+    $content_form = "application/x-www-form-urlencoded"
+	$content_json = "application/json"
     $POST = "POST" fullword
   condition:
-    all of them
+    $POST and any of ($content*)
 }

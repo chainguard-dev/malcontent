@@ -10,6 +10,7 @@ rule http_post : medium {
     $POST = "POST"
     $h_HTTP = "HTTP"
     $http = "http"
+	$http_content = "Content-Type"
   condition:
     $POST and any of ($h*)
 }

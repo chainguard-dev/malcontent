@@ -11,6 +11,7 @@ rule http_request {
 		$http1 = "HTTP/1."
 		$http2 = "Referer" fullword
 		$uri = "open-uri" fullword
+		$http_get = "http.get" fullword
 	condition:
 		any of them
 }

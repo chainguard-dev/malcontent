@@ -9,6 +9,9 @@ evasion/codecs_decode
 exec/program
 fd/read
 fd/write
+fs/file/open
+fs/file/read
+fs/file/write
 fs/tempdir
 kernel/platform
 net/interface/list

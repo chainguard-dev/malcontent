@@ -5,6 +5,7 @@ data/embedded/html
 evasion/single_line_imports
 exec/program
 fd/read
+fs/directory/list
 fs/directory/traverse
 net/download
 ref/ip

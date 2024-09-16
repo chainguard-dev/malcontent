@@ -28,3 +28,21 @@ rule python_read {
 	condition:
 		any of them
 }
+
+rule python_file_read {
+	meta:
+		description = "opens a file for read"
+	strings:
+		$val = /open\([\"\w\.]{1,32}\, {0,2}["']r["']\)/
+	condition:
+		any of them
+}
+
+rule python_file_read_binary : medium {
+	meta:
+		description = "opens a binary file for read"
+	strings:
+		$val = /open\([\"\w\.]{1,32}\, {0,2}["']rb["']\)/
+	condition:
+		any of them
+}

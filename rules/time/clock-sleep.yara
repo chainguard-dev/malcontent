@@ -9,3 +9,12 @@ rule bsd_sleep : harmless {
 		any of them
 }
 
+
+rule setInterval : medium {
+	meta:
+		description = "uses setInterval to wait"
+	strings:
+		$setInterval = "setInterval("
+	condition:
+		filesize < 1MB and any of them
+}

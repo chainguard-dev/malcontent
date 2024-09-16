@@ -5,6 +5,7 @@ combo/recon/upload_netinfo
 evasion/fake/user/agent
 exec/program/background
 net/ddos
+net/dns/servers
 net/hostname/resolve
 net/ip/parse
 net/ip/string

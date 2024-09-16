@@ -77,6 +77,16 @@
                     "ID": "ref/program/powershell"
                 },
                 {
+                    "Description": "accesses hardcoded executable endpoint",
+                    "MatchStrings": [
+                        "https://github.com/aspdasdksa2/callback/raw/main/Client-built.exe"
+                    ],
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH",
+                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/ref/site/exe.yara#http_url_with_exe",
+                    "ID": "ref/site/exe"
+                },
+                {
                     "Description": "github raw user",
                     "MatchStrings": [
                         "github.com",

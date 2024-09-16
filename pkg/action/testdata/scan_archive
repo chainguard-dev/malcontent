@@ -51,6 +51,7 @@ kernel/pivot_root
 kernel/platform
 net/dns
 net/dns/reverse
+net/dns/servers
 net/dns/txt
 net/download
 net/fetch
