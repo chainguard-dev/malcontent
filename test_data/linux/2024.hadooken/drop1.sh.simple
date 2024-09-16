@@ -1,0 +1,18 @@
+# linux/2024.hadooken/drop1.sh
+3P/threat_hunting/base64
+combo/dropper/shell
+data/embedded/base64/url
+encoding/base64
+evasion/base64/eval
+evasion/base64/external/decoder
+evasion/base64/python
+fs/file/delete
+fs/file/delete/forcibly
+net/download
+net/fetch
+ref/ip
+ref/path/tmp
+ref/site/http/ip
+ref/site/url
+shell/pipe_sh
+shell/tmp_semicolon

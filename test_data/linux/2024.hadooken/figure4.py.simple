@@ -1,0 +1,14 @@
+# linux/2024.hadooken/figure4.py
+combo/dropper/python
+exec/program
+fd/read
+fd/write
+fs/permission/modify
+net/download
+net/url
+net/url/request
+ref/ip
+ref/path/dev
+ref/path/var
+ref/site/http/ip
+ref/site/url
