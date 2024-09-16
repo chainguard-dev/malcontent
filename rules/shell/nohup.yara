@@ -12,10 +12,8 @@ rule nohup_reference_value : medium {
     $not_usage = "usage: nohup"
     $not_nohup_out = "nohup.out"
     $not_pushd = "pushd"
-    $bin_sh = "#!/bin/sh"
-    $bin_bash = "#!/bin/bash"
   condition:
-    filesize < 52428800 and any of ($nohup*) and none of ($not*) and not $bin_sh in (0..2) and not $bin_bash in (0..2)
+    filesize < 52428800 and any of ($nohup*) and none of ($not*)
 }
 
 rule elf_nohup : high {

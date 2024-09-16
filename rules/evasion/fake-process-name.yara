@@ -24,3 +24,12 @@ rule fake_syslogd : critical {
   condition:
     any of them
 }
+
+rule fake_bash_val : high {
+  meta:
+    description = "Pretends to be a bash process"
+  strings:
+    $bash = "-bash" fullword
+  condition:
+	filesize < 8KB and $bash
+}

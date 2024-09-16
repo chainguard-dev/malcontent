@@ -48,7 +48,7 @@ fix: $(FIXERS)
 # END: lint-install ../bincapz
 
 SAMPLES_REPO ?= chainguard-dev/bincapz-samples
-SAMPLES_COMMIT ?= bdcb8c2e9bf557a0abe3e2b0144f437d456299b7
+SAMPLES_COMMIT ?= b112eaf9bc547b2d219dfa775e0eff2874b30b9f
 OUT_DIR=out/samples-$(SAMPLES_COMMIT).tmp
 out/samples-$(SAMPLES_COMMIT):
 	mkdir -p out

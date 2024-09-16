@@ -22,6 +22,7 @@ exec/cmd
 exec/program
 fs/directory/list
 fs/directory/remove
+fs/file/copy
 fs/file/delete
 fs/file/read
 fs/file/stat

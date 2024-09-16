@@ -1,0 +1,12 @@
+# linux/2024.hadooken/crondr_as_bash.sh
+crypto/mining/tls_dp_port
+evasion/copy_run_delete
+evasion/fake/process/name
+fs/file/copy
+fs/file/delete/forcibly
+process/chdir
+process/chdir/unusual
+ref/path/relative
+shell/exec
+shell/ignore_output
+shell/unusual_redirect

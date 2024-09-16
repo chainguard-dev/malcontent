@@ -8,6 +8,7 @@ rule unusual_cd_val : high {
   strings:
     $d_mnt = "cd /mnt"
     $d_root = "cd /root"
+	$d_bin = "cd /bin"
     $d_tmp = "cd /tmp"
     $d_usr = /cd \/usr[\/\w\.]{0,16}/
     $d_var_log = "cd /var/log"

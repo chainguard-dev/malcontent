@@ -49,6 +49,7 @@ fs/directory/create
 fs/directory/list
 fs/directory/remove
 fs/file/capabilities/set
+fs/file/copy
 fs/file/delete
 fs/file/delete/forcibly
 fs/file/read

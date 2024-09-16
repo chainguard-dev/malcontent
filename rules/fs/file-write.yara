@@ -16,3 +16,14 @@ rule python_file_write {
 	condition:
 		any of them
 }
+
+
+rule powershell_fs_write {
+	meta:
+		description = "writes content to disk"
+		syscall = "pwrite"
+	strings:
+		$write_val = "System.IO.File]::WriteAllBytes"
+	condition:
+		any of them
+}

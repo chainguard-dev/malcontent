@@ -17,6 +17,27 @@ rule system_log_references : high {
     $btmp = "/var/log/btmp"
     $lastlog = "/var/log/lastlog"
     $run_log = "/run/log/"
+	$mail_log = "/var/spool/mail/root"
   condition:
     filesize < 67108864 and 3 of them
+}
+
+rule echo_log_wiper : critical {
+	meta:
+		description = "overwrites critical system logs"
+	strings:
+		$var_spool = /echo.{0,4}\> {0,2}\/var\/spool\/mail\/root/
+		$var_log = /echo.{0,4}\> {0,2}\/var\/log\/\w{0,8}/
+	condition:
+		filesize < 16KB and system_log_references and any of them
+}
+
+rule log_remover : critical {
+	meta:
+		description = "overwrites critical system logs"
+	strings:
+		$var_spool = /rm {1,2}-{0,4}\/var\/spool\/mail\/root/
+		$var_log = /rm {1,2}-{0,4}\/var\/log\/\w{0,8}/
+	condition:
+		filesize < 16KB and system_log_references and any of them
 }

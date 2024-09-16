@@ -3,6 +3,7 @@ env/TERM
 env/USER
 exec/program
 fd/epoll
+fs/file/copy
 fs/file/delete
 fs/file/truncate
 fs/link/read
