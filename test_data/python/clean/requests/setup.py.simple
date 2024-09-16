@@ -1,6 +1,7 @@
 # python/clean/requests/setup.py
 exec/program
 fd/read
+fs/file/open
 net/ip/parse
 net/upload
 net/url

@@ -14,6 +14,7 @@ fs/directory/traverse
 fs/fifo/create
 fs/file/delete
 fs/file/flags/change
+fs/file/open
 fs/file/times/set
 fs/link/read
 fs/node/create

@@ -41,6 +41,7 @@ hash/md5
 kernel/cpu/info
 malware/family/skuld
 net/dns
+net/dns/servers
 net/dns/txt
 net/download
 net/geoip

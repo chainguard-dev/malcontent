@@ -12,7 +12,7 @@ rule file_open : harmless {
 }
 
 
-rule py_open : harmless {
+rule py_open : low {
 	meta:
 		description = "opens files"
 		syscall = "open,close"

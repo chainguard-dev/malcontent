@@ -4,6 +4,8 @@ combo/stealer/password
 encoding/base64
 evasion/base64/decode
 fd/read
+fs/directory/list
+fs/file/open
 kernel/platform
 net/ssh
 process/list

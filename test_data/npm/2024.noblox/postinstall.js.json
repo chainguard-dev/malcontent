@@ -10,6 +10,29 @@
             ],
             "Behaviors": [
                 {
+                    "Description": "creates directories",
+                    "MatchStrings": [
+                        "mkdir"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/fs/directory-create.yara#mkdir",
+                    "ReferenceURL": "https://man7.org/linux/man-pages/man2/mkdir.2.html",
+                    "ID": "fs/directory/create"
+                },
+                {
+                    "Description": "submit content to websites",
+                    "MatchStrings": [
+                        "Content-Type",
+                        "POST",
+                        "http"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/net/http-post.yara#http_post",
+                    "ID": "net/http/post"
+                },
+                {
                     "Description": "excessive references to hexadecimal values",
                     "MatchStrings": [
                         "0x10037b",
@@ -1800,11 +1823,23 @@
                     ],
                     "RiskScore": 3,
                     "RiskLevel": "HIGH",
-                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/evasion/hex.yara#excessive_hex_refs",
-                    "ID": "evasion/hex"
+                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/obfuscation/generic/hex.yara#excessive_hex_refs",
+                    "ID": "obfuscation/generic/hex"
                 },
                 {
-                    "Description": "javascript function obfuscation (excessive const)",
+                    "Description": "javascript obfuscation (excessive const functions)",
+                    "MatchStrings": [
+                        "const",
+                        "function(",
+                        "{return"
+                    ],
+                    "RiskScore": 4,
+                    "RiskLevel": "CRITICAL",
+                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/obfuscation/js/function_spam.yara#js_const_func_obfuscation",
+                    "ID": "obfuscation/js/function_spam"
+                },
+                {
+                    "Description": "javascript function obfuscation (hex)",
                     "MatchStrings": [
                         "const _0x104ea0=",
                         "const _0x1669ef=",
@@ -1949,30 +1984,21 @@
                     ],
                     "RiskScore": 4,
                     "RiskLevel": "CRITICAL",
-                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/evasion/script-obfuscation.yara#js_hex_obfuscation",
-                    "ID": "evasion/script/obfuscation"
+                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/obfuscation/js/hex_functions.yara#js_hex_obfuscation",
+                    "ID": "obfuscation/js/hex_functions"
                 },
                 {
-                    "Description": "creates directories",
+                    "Description": "javascript obfuscation (integer parsing)",
                     "MatchStrings": [
-                        "mkdir"
+                        "const",
+                        "function(",
+                        "parseInt",
+                        "{return"
                     ],
-                    "RiskScore": 1,
-                    "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/fs/directory-create.yara#mkdir",
-                    "ReferenceURL": "https://man7.org/linux/man-pages/man2/mkdir.2.html",
-                    "ID": "fs/directory/create"
-                },
-                {
-                    "Description": "submit content to websites",
-                    "MatchStrings": [
-                        "POST",
-                        "http"
-                    ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/net/http-post.yara#http_post",
-                    "ID": "net/http/post"
+                    "RiskScore": 4,
+                    "RiskLevel": "CRITICAL",
+                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/obfuscation/js/parseInt.yara#js_const_func_obfuscation",
+                    "ID": "obfuscation/js/parseInt"
                 },
                 {
                     "Description": "path reference for C:\\Windows (may be partial)",

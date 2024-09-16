@@ -1,0 +1,16 @@
+# npm/2024.testerrrrrrrrrr/init.js
+combo/recon/nodejs
+evasion/char_to_int
+evasion/dynamic_import
+evasion/int_to_char
+net/hostname/resolve
+net/http/form/upload
+net/http/post
+net/interface/list
+net/url
+obfuscation/generic/hex
+obfuscation/js/char_codes
+obfuscation/js/hex_functions
+obfuscation/js/high_entropy
+ref/words/server_address
+shell/exec

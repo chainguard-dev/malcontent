@@ -9,3 +9,16 @@ rule rename : harmless {
 	condition:
 		any of them
 }
+
+
+
+rule ren : medium {
+  meta:
+    description = "deletes files"
+  strings:
+	$del = "rename" fullword
+	$cmd_echo = "echo off"
+	$cmd_powershell = "powershell"
+  condition:
+	filesize < 16KB and $del and any of ($cmd*)
+}
