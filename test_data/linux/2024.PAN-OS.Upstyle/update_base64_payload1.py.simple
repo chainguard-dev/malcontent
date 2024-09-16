@@ -8,6 +8,7 @@ exec/program
 fd/read
 fd/write
 fs/file/delete
+fs/file/open
 fs/file/read
 fs/file/write
 procfs/self/cmdline

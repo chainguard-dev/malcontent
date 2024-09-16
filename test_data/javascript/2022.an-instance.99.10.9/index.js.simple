@@ -1,9 +1,12 @@
 # javascript/2022.an-instance.99.10.9/index.js
 combo/recon/nodejs
 encoding/json/encode
+evasion/hex
 fd/write
 fs/directory/list
 kernel/hostname/get
+net/dns
+net/dns/servers
 net/http/form/upload
 net/http/post
 net/interface/list

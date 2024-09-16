@@ -37,10 +37,12 @@ kernel/platform
 kernel/sysctl/vm.nr_hugepages
 kernel/sysinfo
 net/dns/reverse
+net/dns/servers
 net/hostname/resolve
 net/hostport/parse
 net/http/auth
 net/http/cookies
+net/http/form/upload
 net/http/post
 net/http/request
 net/icmp

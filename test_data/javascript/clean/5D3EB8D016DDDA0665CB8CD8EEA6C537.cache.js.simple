@@ -19,7 +19,7 @@ env/HOME
 env/TEMP
 env/USER
 evasion/base64/decode
-evasion/script/obfuscation
+evasion/int_to_char
 evasion/single_line_imports
 evasion/unusual_include
 exec/cmd

@@ -66,6 +66,7 @@ kernel/sysinfo
 net/bpf
 net/dns
 net/dns/reverse
+net/dns/servers
 net/dns/txt
 net/download
 net/grpc

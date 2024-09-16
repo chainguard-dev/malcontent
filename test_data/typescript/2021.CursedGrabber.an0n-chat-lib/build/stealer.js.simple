@@ -6,5 +6,6 @@ exfil/discord
 fs/file/read
 fs/file/write
 persist/windows_start
+process/userinfo
 ref/path/relative
 ref/site/url
