@@ -40,7 +40,13 @@ ${bincapz} --format=simple \
 	--min-risk any \
 	--min-file-risk any \
 	-o testdata/scan_oci \
-	analyze testdata/static.tar.xz
+	analyze testdata/static.tar.xz &
+
+${bincapz} --format simple \
+    -o testdata/scan_archive \
+    analyze testdata/apko_nested.tar.gz &
+
+wait
 
 cd "${samples}"
 
