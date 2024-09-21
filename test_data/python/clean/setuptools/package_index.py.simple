@@ -4,7 +4,9 @@ encoding/base64
 exec/program
 fd/read
 fd/write
+fs/directory/list
 fs/file/delete
+fs/file/open
 fs/symlink/resolve
 fs/tempdir/create
 net/download

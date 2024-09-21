@@ -5,6 +5,7 @@ rule private_key_val {
 	$ref = "private_key"
 	$ref2 = "PRIVATE_KEY"
 	$ref3 = "privateKey"
+	$ref4 = "privatekey"
   condition:
     any of them
 }

@@ -8,6 +8,7 @@ evasion/base64/decode
 exec/pipe
 fd/read
 fd/write
+fs/file/open
 fs/file/read
 fs/file/stat
 fs/file/times/set

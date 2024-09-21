@@ -1,0 +1,9 @@
+# npm/2024.persona-tool/preinstall.js
+combo/recon/nodejs
+encoding/json/encode
+evasion/hex
+kernel/hostname/get
+net/dns
+net/hostname/resolve
+ref/ip/dns_resolver
+ref/site/oob

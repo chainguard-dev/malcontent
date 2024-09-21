@@ -5,7 +5,10 @@ evasion/lib_alias
 exec/program
 exec/shell_command
 fd/read
+fs/directory/list
 fs/directory/traverse
+fs/file/open
+fs/file/write
 fs/symlink/resolve
 fs/tempdir/create
 kernel/platform

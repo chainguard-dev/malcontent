@@ -34,6 +34,14 @@ rule syscall_vfork {
 		any of them
 }
 
+rule js_child_process : medium {
+	meta:
+		description = "create child process"
+	strings:
+		$child_process = /require\(['"]child_process['"]\)/
+	condition:
+		filesize < 1MB and any of them
+}
 
 rule syscall_clone : harmless {
 	meta:

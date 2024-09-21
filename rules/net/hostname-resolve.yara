@@ -26,6 +26,8 @@ rule cannot_resolve {
 		description = "resolve network host name to IP address"
 	strings:
 		$cannot_resolve = "cannot resolve"
+		$resolveDNS = "resolveDNS"
+		$resolveDns = "resolveDns"
 	condition:
 		any of them
 }
@@ -38,4 +40,13 @@ rule net_hostlookup {
 		$hostip = "LookupHostIP"
 	condition:
 		any of them
+}
+
+rule nodejs : medium {
+	meta:
+		description = "resolve network host name to IP address"
+	strings:
+		$resolve = "resolve4" fullword
+	condition:
+		filesize < 512KB and any of them
 }

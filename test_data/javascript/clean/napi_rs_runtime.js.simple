@@ -4,6 +4,7 @@ data/embedded/base64/url
 encoding/base64
 encoding/json/decode
 encoding/json/encode
+evasion/int_to_char
 fd/write
 fs/directory/create
 fs/directory/list

@@ -4,4 +4,5 @@ evasion/bitwise_math
 evasion/py_builtins
 evasion/py_setuptools/random
 fs/directory/traverse
+fs/file/open
 kernel/platform

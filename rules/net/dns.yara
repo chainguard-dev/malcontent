@@ -5,6 +5,7 @@ rule go_dns_refs {
 		$dnsmessage = "dnsmessage"
 		$edns = "SetEDNS0"
 		$cname = "CNAMEResource"
+		$nodejs = /require\(['"]dns['"]\)/
 	condition:
 		any of them
 }
