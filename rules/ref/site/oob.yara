@@ -11,11 +11,33 @@ rule interact_sh : high {
     $ref
 }
 
-rule burb_collab : high {
+rule burp_collab : high {
   meta:
-    description = "uses burpcollaborator for OOB interaction gathering"
+    description = "uploads content to security collaboration site"
   strings:
-    $ref = /[\w]{8,32}\.burpcollaborator\.net/
+    $bc = /[\w]{8,32}\.burpcollaborator\.net/
+    $oastify = /[\w]{8,32}\.oastify\.com/
+    $oastfun = /[\w]{8,32}\.oast\.fun/
   condition:
-    $ref
+    any of them
+}
+
+rule burp_collab_preinstall : critical {
+  meta:
+    description = "uploads content to security collaboration site from preinstall"
+  strings:
+	$preinstall = /\s{2,8}"preinstall": ".{12,256}/
+  
+  condition:
+    filesize < 2KB and $preinstall and burp_collab
+}
+
+
+rule burp_collab_crypto : critical {
+  meta:
+    description = "uploads encrypted content to security collaboration site"
+  strings:
+	$crypto = /require\(['"]crypto['"]\);/
+  condition:
+    filesize < 24KB and $crypto and burp_collab
 }

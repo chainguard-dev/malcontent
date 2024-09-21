@@ -22,6 +22,7 @@ exec/cmd
 exec/program
 fs/directory/list
 fs/directory/remove
+fs/file/copy
 fs/file/delete
 fs/file/read
 fs/file/stat
@@ -41,6 +42,7 @@ kernel/platform
 kernel/sysinfo
 net/dns
 net/dns/reverse
+net/dns/servers
 net/dns/txt
 net/download
 net/grpc

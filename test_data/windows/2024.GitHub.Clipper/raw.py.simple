@@ -1,7 +1,9 @@
 # windows/2024.GitHub.Clipper/raw.py
 combo/dropper/python
 exec/program
+fs/file/open
 fs/tempdir
 net/url/request
 ref/site/download
+ref/site/exe
 ref/site/url

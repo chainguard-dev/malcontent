@@ -4,6 +4,7 @@ compression/gzip
 exec/pipe
 fd/read
 fd/write
+fs/file/open
 net/url
 net/url/request
 ref/path/usr/bin

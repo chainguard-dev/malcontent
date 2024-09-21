@@ -1,5 +1,14 @@
 import "math"
 
+rule pip_installer_known_good : low {
+  meta:
+    description = "Installs software using pip from python"
+  strings:
+	$distro = /pip3{0,1} install distro/ fullword
+  condition:
+	any of them
+}
+
 rule pip_installer : high {
   meta:
     description = "Installs software using pip from python"
@@ -9,7 +18,7 @@ rule pip_installer : high {
   strings:
     $ref = /pip[3 \'\"]{0,5}install[ \'\"\w\-\_%]{0,32}/
   condition:
-    $ref
+    $ref and not pip_installer_known_good
 }
 
 rule pip_installer_fernet : critical {
@@ -28,6 +37,17 @@ rule pip_installer_url : critical {
 	ref = "https://checkmarx.com/blog/over-170k-users-affected-by-attack-using-fake-python-infrastructure/"
   strings:
 	$ref = /pip.{1,5}install.{1,4}https{0,1}:\/\/.{0,64}/
+
   condition:
 	filesize < 8192 and $ref
+}
+
+
+rule pip_installer_socket : critical {
+  meta:
+    description = "Installs socket library using pip"
+  strings:
+	$ref = /pip.{1,5}install.{1,4}socket/
+  condition:
+	$ref
 }

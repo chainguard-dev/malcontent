@@ -26,6 +26,7 @@ fs/directory/list
 fs/directory/remove
 fs/fifo/create
 fs/file/delete
+fs/file/delete/forcibly
 fs/file/read
 fs/file/stat
 fs/file/write
@@ -50,6 +51,7 @@ kernel/pivot_root
 kernel/platform
 net/dns
 net/dns/reverse
+net/dns/servers
 net/dns/txt
 net/download
 net/fetch

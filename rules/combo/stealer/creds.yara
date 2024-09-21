@@ -18,6 +18,8 @@ rule suspected_data_stealer : high {
     $s_electrum = "Electrum"
     $s_electrum2 = "/.elect"
     $s_exodus = "Exodus"
+	$s_exodus_ext = "aholpfdial"
+	$s_crypto = "cfgodnhcel"
     $s_obs = "obs-studio"
     $s_pidgin = "Pidgin"
     $s_snowflake = "Snowflake"

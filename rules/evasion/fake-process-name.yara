@@ -25,11 +25,11 @@ rule fake_syslogd : critical {
     any of them
 }
 
-rule fake_systemd : critical {
-	meta:
-		description = "Pretends to be a systemd worker"
-	strings:
-		$ref = "systemd-worker" fullword
-	condition:
-		any of them
+rule fake_bash_val : high {
+  meta:
+    description = "Pretends to be a bash process"
+  strings:
+    $bash = "-bash" fullword
+  condition:
+	filesize < 8KB and $bash
 }

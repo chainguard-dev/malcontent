@@ -8,5 +8,6 @@ rule sleep_rm_sh_pipe : high {
     $s_pipe_sh = "| /bin/sh"
     $s_rm_rf = "rm -rf"
   condition:
-    all of them
+    filesize < 16KB and all of them
 }
+

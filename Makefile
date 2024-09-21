@@ -47,17 +47,17 @@ fix: $(FIXERS)
 
 # END: lint-install ../bincapz
 
-SAMPLES_REPO=https://github.com/chainguard-dev/bincapz-samples.git
-SAMPLES_HASH=bdcb8c2e9bf557a0abe3e2b0144f437d456299b7
-OUT_DIR=out/samples-$(SAMPLES_HASH).tmp
-out/samples-$(SAMPLES_HASH):
+SAMPLES_REPO ?= chainguard-dev/bincapz-samples
+SAMPLES_COMMIT ?= b112eaf9bc547b2d219dfa775e0eff2874b30b9f
+OUT_DIR=out/samples-$(SAMPLES_COMMIT).tmp
+out/samples-$(SAMPLES_COMMIT):
 	mkdir -p out
-	git clone $(SAMPLES_REPO) $(OUT_DIR)
-	git -C $(OUT_DIR) checkout $(SAMPLES_HASH)
+	git clone https://github.com/$(SAMPLES_REPO).git $(OUT_DIR)
+	git -C $(OUT_DIR) checkout $(SAMPLES_COMMIT)
 	find $(OUT_DIR) -name "*.xz" -execdir tar xJvf "{}" \;
 	mv $(OUT_DIR) $(basename $(OUT_DIR))
 
-prepare-samples: out/samples-$(SAMPLES_HASH)
+prepare-samples: out/samples-$(SAMPLES_COMMIT)
 	cp -a test_data/. $(basename $(OUT_DIR))
 
 .PHONY: test
@@ -124,9 +124,8 @@ update-third-party:
 	./third_party/yara/update.sh
 
 .PHONY: refresh-sample-testdata out/bincapz
-refresh-sample-testdata: clone-samples out/bincapz
-	cp ./test_data/refresh-testdata.sh samples/
-	./out/samples/refresh-testdata.sh ./out/bincapz
+refresh-sample-testdata: out/samples-$(SAMPLES_COMMIT) out/bincapz
+	./test_data/refresh-testdata.sh ./out/bincapz out/samples-$(SAMPLES_COMMIT)
 
 ARCH ?= $(shell uname -m)
 CRANE_VERSION=v0.20.2

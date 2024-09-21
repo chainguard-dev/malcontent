@@ -11,8 +11,18 @@ rule python_file_write {
 	meta:
 		description = "writes to a file"
 	strings:
-		$w_val = /open\(\w+\, {0,2}"w"\)/
-		$a_val = /open\(\w+\, {0,2}"a"\)/
+		$val = /open\([\"\w\.]{1,32}\, {0,2}["'][wa]["']\)/
+	condition:
+		filesize < 1MB and any of them
+}
+
+
+rule powershell_fs_write {
+	meta:
+		description = "writes content to disk"
+		syscall = "pwrite"
+	strings:
+		$write_val = "System.IO.File]::WriteAllBytes"
 	condition:
 		any of them
 }

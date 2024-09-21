@@ -6,6 +6,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"io/fs"
 	"log/slog"
 	"os"
@@ -174,13 +175,6 @@ func main() {
 				}
 			}
 
-			renderer, err = render.New(formatFlag, outFile)
-			if err != nil {
-				log.Error("invalid format", slog.Any("error", err), slog.String("format", formatFlag))
-				returnCode = ExitInvalidArgument
-				return err
-			}
-
 			rfs := []fs.FS{rules.FS}
 			if thirdPartyFlag {
 				rfs = append(rfs, thirdparty.FS)
@@ -198,6 +192,21 @@ func main() {
 			scanPaths := args[1:]
 			if slices.Contains(args, "analyze") || slices.Contains(args, "scan") {
 				scanPaths = args[2:]
+			}
+
+			chosenFormat := formatFlag
+			if chosenFormat == "auto" {
+				chosenFormat = "terminal"
+				if slices.Contains(args, "scan") {
+					chosenFormat = "terminal_brief"
+				}
+			}
+
+			renderer, err = render.New(chosenFormat, outFile)
+			if err != nil {
+				log.Error("invalid format", slog.Any("error", err), slog.String("format", formatFlag))
+				returnCode = ExitInvalidArgument
+				return err
 			}
 
 			bc = bincapz.Config{
@@ -241,7 +250,7 @@ func main() {
 			},
 			&cli.StringFlag{
 				Name:        "format",
-				Value:       "terminal",
+				Value:       "auto",
 				Usage:       "Output format (json, markdown, simple, terminal, yaml)",
 				Destination: &formatFlag,
 			},
@@ -431,6 +440,10 @@ func main() {
 						log.Error("render failed", slog.Any("error", err))
 						returnCode = ExitRenderFailed
 						return err
+					}
+
+					if res.Files.Len() > 0 {
+						fmt.Fprintf(os.Stderr, "\n\ntip: For detailed analysis, run: bincapz analyze <path>\n")
 					}
 
 					return nil

@@ -37,10 +37,24 @@ rule bin_ls {
 
 rule NodeReadDir {
 	meta:
-		description = "Uses Go functions to list a directory"
+		description = "Uses NodeJS functions to list a directory"
 		pledge = "rpath"
+		filetypes = "javascript"
 	strings:
 		$ref = ".readdirSync("
+	condition:
+		any of them
+}
+
+
+
+rule PythonListDir {
+	meta:
+		description = "lists contents of a directory"
+		pledge = "rpath"
+		filetypes = "python"
+	strings:
+		$ref = ".listdir("
 	condition:
 		any of them
 }

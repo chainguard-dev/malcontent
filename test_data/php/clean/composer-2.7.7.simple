@@ -25,8 +25,10 @@ exec/cmd
 exec/shell_command
 fs/directory/create
 fs/directory/remove
+fs/file/copy
 fs/file/delete
 fs/file/delete/forcibly
+fs/file/read
 fs/file/times/set
 fs/file/truncate
 fs/file/write

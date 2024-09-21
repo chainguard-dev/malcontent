@@ -15,6 +15,7 @@ databases/sqlite
 device/hardware/enumeration
 encoding/base64
 evasion/base64/decode
+evasion/int_to_char
 exec/shell_command
 fs/fifo/create
 fs/file/times/set
@@ -25,6 +26,7 @@ fs/permission/modify
 kernel/acct
 kernel/apparmor
 kernel/platform
+net/dns/servers
 net/download
 net/http/cookies
 net/socket/connect

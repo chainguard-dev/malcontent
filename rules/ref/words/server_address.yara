@@ -8,6 +8,8 @@ rule server_address : medium {
   strings:
     $underscores = /\w{0,32}server_addr\w{0,32}/
     $mixed = /\w{0,32}serverAddr\w{0,32}/
+	$url = "serverURL" fullword
+	$url2 = "serverUrl" fullword
   condition:
     any of them
 }

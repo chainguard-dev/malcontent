@@ -34,3 +34,4 @@ rule py_fd_write {
 	condition:
 		any of them
 }
+

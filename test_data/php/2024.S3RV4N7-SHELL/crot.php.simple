@@ -6,6 +6,6 @@ evasion/base64/decode
 evasion/base64/php_functions
 evasion/mask_exceptions
 evasion/non_printable_chars
-evasion/script/obfuscation
+obfuscation/php/one_liner
 ref/site/url
 techniques/code_eval

@@ -35,6 +35,7 @@ env/USER
 env/get
 evasion/content/length/0
 evasion/hide_shell_history
+evasion/int_to_char
 evasion/vm/check
 exec/cmd
 exec/program
@@ -46,8 +47,11 @@ fs/directory/list
 fs/directory/remove
 fs/fifo/create
 fs/file/capabilities/set
+fs/file/copy
 fs/file/delete
+fs/file/delete/forcibly
 fs/file/make_executable
+fs/file/open
 fs/file/read
 fs/file/times/set
 fs/file/write
@@ -77,6 +81,7 @@ kernel/platform
 kernel/sysinfo
 net/dns
 net/dns/reverse
+net/dns/servers
 net/dns/txt
 net/fetch
 net/grpc

@@ -5,8 +5,11 @@ env/get
 evasion/lib_alias
 exec/program
 fd/write
+fs/directory/list
 fs/directory/traverse
 fs/file/delete
+fs/file/open
+fs/file/read
 fs/permission/modify
 fs/tempdir/create
 kernel/platform

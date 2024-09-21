@@ -23,21 +23,54 @@ rule nodejs_phone_home : high {
     hash_1985_package_index = "19dc05db0219df84f303bde62d37dbf7ece4e2825daa98e27ba087cc3594431d"
     hash_1985_package_index = "19dc05db0219df84f303bde62d37dbf7ece4e2825daa98e27ba087cc3594431d"
   strings:
-    $f_homedir = "os.homedir("
-    $f_userinfo = "userInfo()"
+    $f_homedir = "os.homedir"
+    $f_userinfo = "userInfo"
     $f_dns = "dns.getServers"
-    $f_readdir = ".readdirSync("
-    $f_netinfo = "os.networkInterfaces("
-    $f_totalmem = "os.totalmem()"
-    $f_uptime = ".uptime()"
+    $f_readdir = "readdirSync"
+    $f_netinfo = "networkInterfaces"
+    $f_totalmem = "os.totalmem"
+    $f_uptime = ".uptime"
     $f_dirname = "__dirname"
+	$f_cwd = ".cwd()"
+	$f_hostname = ".hostname()"
+	$f_resolve = "resolve('~')"
     $serial_json = "JSON.stringify"
     $serial_hex = ".toString('hex')"
     $require_http = /require\([\"\']https{0,1}[\"\']\)/
     $require_dns = /require\([\"\']dns[\"\']\)/
   condition:
-    filesize < 32768 and any of ($require*) and any of ($serial*) and 4 of ($f*)
+    filesize < 8KB and any of ($require*) and any of ($serial*) and 3 of ($f*)
 }
+
+rule nodejs_phone_hom_obscure : critical {
+  meta:
+    description = "accesses system information and uploads it"
+    hash_1985_package_index = "19dc05db0219df84f303bde62d37dbf7ece4e2825daa98e27ba087cc3594431d"
+    hash_1985_package_index = "19dc05db0219df84f303bde62d37dbf7ece4e2825daa98e27ba087cc3594431d"
+    hash_1985_package_index = "19dc05db0219df84f303bde62d37dbf7ece4e2825daa98e27ba087cc3594431d"
+  strings:
+    $f_homedir = "homedir"
+    $f_userinfo = "userInfo"
+    $f_dns = "getServers"
+    $f_readdir = "readdirSync"
+    $f_netinfo = "networkInterfaces"
+    $f_totalmem = "totalmem" fullword
+    $f_uptime = "uptime" fullword
+    $f_dirname = "dirname" fullword
+	$f_cwd = "cwd" fullword
+	$f_hostname = "hostname" fullword
+	$f_resolve = "resolve('~')"
+
+	$http_hostname = "'hostname':"
+	$http_post = "POST"
+	$http_content = "Content-Type"
+
+	$ob_return = /return _{0,4}0x[\w]{0,32}/
+	$ob_const = /const _{0,4}0x[\w]{0,32}=[\w]{0,32}/	
+  condition:
+    filesize < 128KB and all of ($http*) and any of ($f*) and any of ($ob*)
+}
+
 
 rule nodejs_phone_home_interact_sh : critical {
   meta:
@@ -48,6 +81,9 @@ rule nodejs_phone_home_interact_sh : critical {
   strings:
     $ref = /[\w]{8,32}\.interactsh\.com/
     $ref2 = /[\w]{8,32}\.burpcollaborator.net/
+    $bc = /[\w]{8,32}\.burpcollaborator\.net/
+    $oastify = /[\w]{8,32}\.oastify\.com/
+    $oastfun = /[\w]{8,32}\.oast\.fun/
   condition:
     nodejs_phone_home and any of them
 }
@@ -63,3 +99,4 @@ rule nodejs_phone_home_hardcoded_host : critical {
   condition:
     nodejs_phone_home and $ref
 }
+
