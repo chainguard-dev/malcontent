@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/chainguard-dev/bincapz/pkg/bincapz"
+	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"gopkg.in/yaml.v3"
 )
 
@@ -20,11 +20,11 @@ func NewYAML(w io.Writer) YAML {
 	return YAML{w: w}
 }
 
-func (r YAML) File(_ context.Context, _ *bincapz.FileReport) error {
+func (r YAML) File(_ context.Context, _ *malcontent.FileReport) error {
 	return nil
 }
 
-func (r YAML) Full(_ context.Context, rep *bincapz.Report) error {
+func (r YAML) Full(_ context.Context, rep *malcontent.Report) error {
 	yaml, err := yaml.Marshal(rep)
 	if err != nil {
 		return err

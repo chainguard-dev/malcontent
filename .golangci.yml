@@ -1,7 +1,7 @@
 run:
   # The default runtime timeout is 1m, which doesn't work well on Github Actions.
   timeout: 10m
-  go: "1.22"
+  go: "1.23"
 
 # NOTE: This file is populated by the lint-install tool. Local adjustments may be overwritten.
 linters-settings:

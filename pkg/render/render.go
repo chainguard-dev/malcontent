@@ -7,11 +7,11 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/chainguard-dev/bincapz/pkg/bincapz"
+	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 )
 
 // New returns a new Renderer.
-func New(kind string, w io.Writer) (bincapz.Renderer, error) {
+func New(kind string, w io.Writer) (malcontent.Renderer, error) {
 	switch kind {
 	case "", "auto", "terminal":
 		return NewTerminal(w), nil

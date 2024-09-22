@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/chainguard-dev/bincapz/pkg/bincapz"
-	"github.com/chainguard-dev/bincapz/pkg/report"
+	"github.com/chainguard-dev/malcontent/pkg/malcontent"
+	"github.com/chainguard-dev/malcontent/pkg/report"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
-func riskStatistics(files *orderedmap.OrderedMap[string, *bincapz.FileReport]) ([]bincapz.IntMetric, int, int) {
+func riskStatistics(files *orderedmap.OrderedMap[string, *malcontent.FileReport]) ([]malcontent.IntMetric, int, int) {
 	riskMap := make(map[int][]string)
 	riskStats := make(map[int]float64)
 
@@ -26,7 +26,7 @@ func riskStatistics(files *orderedmap.OrderedMap[string, *bincapz.FileReport]) (
 		}
 	}
 
-	var stats []bincapz.IntMetric
+	var stats []malcontent.IntMetric
 	total := func() int {
 		var t int
 		for _, v := range riskMap {
@@ -35,7 +35,7 @@ func riskStatistics(files *orderedmap.OrderedMap[string, *bincapz.FileReport]) (
 		return t
 	}
 	for k, v := range riskStats {
-		stats = append(stats, bincapz.IntMetric{Key: k, Value: v, Count: len(riskMap[k]), Total: total()})
+		stats = append(stats, malcontent.IntMetric{Key: k, Value: v, Count: len(riskMap[k]), Total: total()})
 	}
 	sort.Slice(stats, func(i, j int) bool {
 		return stats[i].Value > stats[j].Value
@@ -44,7 +44,7 @@ func riskStatistics(files *orderedmap.OrderedMap[string, *bincapz.FileReport]) (
 	return stats, total(), processedFiles
 }
 
-func pkgStatistics(files *orderedmap.OrderedMap[string, *bincapz.FileReport]) ([]bincapz.StrMetric, int, int) {
+func pkgStatistics(files *orderedmap.OrderedMap[string, *malcontent.FileReport]) ([]malcontent.StrMetric, int, int) {
 	numNamespaces := 0
 	pkgMap := make(map[string]int)
 	pkg := make(map[string]float64)
@@ -67,9 +67,9 @@ func pkgStatistics(files *orderedmap.OrderedMap[string, *bincapz.FileReport]) ([
 			return w
 		}(len(k), width)
 	}
-	var stats []bincapz.StrMetric
+	var stats []malcontent.StrMetric
 	for k, v := range pkg {
-		stats = append(stats, bincapz.StrMetric{Key: k, Value: v, Count: pkgMap[k], Total: numNamespaces})
+		stats = append(stats, malcontent.StrMetric{Key: k, Value: v, Count: pkgMap[k], Total: numNamespaces})
 	}
 	sort.Slice(stats, func(i, j int) bool {
 		return stats[i].Value > stats[j].Value
@@ -77,7 +77,7 @@ func pkgStatistics(files *orderedmap.OrderedMap[string, *bincapz.FileReport]) ([
 	return stats, width, numNamespaces
 }
 
-func Statistics(r *bincapz.Report) error {
+func Statistics(r *malcontent.Report) error {
 	riskStats, totalRisks, totalFilesProcessed := riskStatistics(r.Files)
 	pkgStats, width, totalPkgs := pkgStatistics(r.Files)
 

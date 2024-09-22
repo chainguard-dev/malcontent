@@ -1,7 +1,7 @@
 # Copyright 2024 Chainguard, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
-# BEGIN: lint-install ../bincapz
+# BEGIN: lint-install ../malcontent
 # http://github.com/tinkerbell/lint-install
 
 .PHONY: lint
@@ -45,7 +45,7 @@ _lint: $(LINTERS)
 .PHONY: fix $(FIXERS)
 fix: $(FIXERS)
 
-# END: lint-install ../bincapz
+# END: lint-install ../malcontent
 
 SAMPLES_REPO ?= chainguard-dev/bincapz-samples
 SAMPLES_COMMIT ?= b112eaf9bc547b2d219dfa775e0eff2874b30b9f
@@ -62,17 +62,17 @@ prepare-samples: out/samples-$(SAMPLES_COMMIT)
 
 .PHONY: test
 test: prepare-samples
-	go test $(shell go list ./... | grep -v test_data)
+	go test $(shell go list ./... | grep -Ev "samples|test_data")
 
 .PHONY: bench
 bench:
 	go test -run=^\$$ -bench=. ./... -benchmem
 
-BENCH_CMD := go test -benchmem -run=^\$$ -bench ^BenchmarkRun\$$ github.com/chainguard-dev/bincapz/samples -args
+BENCH_CMD := go test -benchmem -run=^\$$ -bench ^BenchmarkRun\$$ github.com/chainguard-dev/malcontent/samples -args
 
-.PHONY: bench-bincapz
-bench-bincapz:
-	$(BENCH_CMD) -path="macOS/clean/bincapz"
+.PHONY: bench-malcontent
+bench-malcontent:
+	$(BENCH_CMD) -path="macOS/clean/malcontent"
 
 .PHONY: bench-all-samples
 bench-all-samples:
@@ -114,18 +114,18 @@ bench-typescript:
 bench-windows:
 	$(BENCH_CMD) -path="Windows"
 
-.PHONY: out/bincapz
-out/bincapz:
+.PHONY: out/mal
+out/mal:
 	mkdir -p out
-	go build -o out/bincapz .
+	go build -o out/mal .
 
 .PHONY: update-third-party
 update-third-party:
 	./third_party/yara/update.sh
 
-.PHONY: refresh-sample-testdata out/bincapz
-refresh-sample-testdata: out/samples-$(SAMPLES_COMMIT) out/bincapz
-	./test_data/refresh-testdata.sh ./out/bincapz out/samples-$(SAMPLES_COMMIT)
+.PHONY: refresh-sample-testdata out/mal
+refresh-sample-testdata: out/samples-$(SAMPLES_COMMIT) out/mal
+	./test_data/refresh-testdata.sh ./out/mal out/samples-$(SAMPLES_COMMIT)
 
 ARCH ?= $(shell uname -m)
 CRANE_VERSION=v0.20.2
