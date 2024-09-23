@@ -1,12 +1,12 @@
-project_name: bincapz
+project_name: malcontent
 
 before:
   hooks:
     - go mod tidy
 
 builds:
-  - id: bincapz-build
-    binary: bincapz
+  - id: malcontent-build
+    binary: malcontent
     main: ./
     goos:
       - darwin

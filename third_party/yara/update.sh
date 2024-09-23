@@ -26,7 +26,7 @@ git_clone() {
 	popd >/dev/null || exit 1
 }
 
-# fixup_rules fixes rules up, including lightly obfuscating them to avoid XProtect from matching bincapz
+# fixup_rules fixes rules up, including lightly obfuscating them to avoid XProtect from matching malcontent
 function fixup_rules() {
 	perl -p -i -e 's#"/Library/Application Support\/Google/Chrome/Default/History"#/\\/Library\\/Application Support\\/Google\\/Chrome\\/Default\\/History\/#' "$@"
 	perl -p -i -e 's#\/([a-z]{31})([a-z])\/#\/$1\[$2\]\/#;' "$@"
