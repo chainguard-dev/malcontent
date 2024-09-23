@@ -17,13 +17,13 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/chainguard-dev/bincapz/pkg/bincapz"
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/hillu/go-yara/v4"
 )
 
 const (
-	BINARY string = "bincapz"
+	NAME string = "malcontent"
 )
 
 var RiskLevels = map[int]string{
@@ -34,7 +34,7 @@ var RiskLevels = map[int]string{
 	4: "CRITICAL", // critical: certainly malware
 }
 
-// yaraForge has some very very long rule names.
+// yaraForge has some very, very long rule names.
 var yaraForgeJunkWords = map[string]bool{
 	"controller":        true,
 	"generic":           true,
@@ -139,7 +139,7 @@ func generateKey(src string, rule string) string {
 func generateRuleURL(src string, rule string) string {
 	// Linking to exact commit and line number would be ideal, but
 	// we aren't parsing that information out of our YARA files yet
-	return fmt.Sprintf("https://github.com/chainguard-dev/bincapz/blob/main/rules/%s#%s", src, rule)
+	return fmt.Sprintf("https://github.com/chainguard-dev/malcontent/blob/main/rules/%s#%s", src, rule)
 }
 
 func ignoreMatch(tags []string, ignoreTags map[string]bool) bool {
@@ -295,7 +295,7 @@ func mungeDescription(s string) string {
 }
 
 //nolint:cyclop // ignore complexity of 44
-func Generate(ctx context.Context, path string, mrs yara.MatchRules, c bincapz.Config, expath string) (bincapz.FileReport, error) {
+func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malcontent.Config, expath string) (malcontent.FileReport, error) {
 	ignoreTags := c.IgnoreTags
 	minScore := c.MinRisk
 	ignoreSelf := c.IgnoreSelf
@@ -307,26 +307,26 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c bincapz.C
 
 	size, checksum, err := sizeAndChecksum(path)
 	if err != nil {
-		return bincapz.FileReport{}, err
+		return malcontent.FileReport{}, err
 	}
 
 	if c.OCI {
 		path = strings.TrimPrefix(path, expath)
 	}
 
-	fr := bincapz.FileReport{
+	fr := malcontent.FileReport{
 		Path:      path,
 		SHA256:    checksum,
 		Size:      size,
 		Meta:      map[string]string{},
-		Behaviors: []*bincapz.Behavior{},
+		Behaviors: []*malcontent.Behavior{},
 	}
 
 	var pledges []string
 	var caps []string
 	var syscalls []string
 
-	ignoreBincapz := false
+	ignoreMalcontent := false
 	overallRiskScore := 0
 	riskCounts := map[int]int{}
 	risk := 0
@@ -338,25 +338,25 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c bincapz.C
 	if c.Scan {
 		highestRisk = highestMatchRisk(mrs)
 		if highestRisk < 3 {
-			return bincapz.FileReport{}, nil
+			return malcontent.FileReport{}, nil
 		}
 	}
 
 	for _, m := range mrs {
-		if all(m.Rule == BINARY, ignoreSelf) {
-			ignoreBincapz = true
+		if all(m.Rule == NAME, ignoreSelf) {
+			ignoreMalcontent = true
 		}
 		risk = behaviorRisk(m.Namespace, m.Rule, m.Tags)
 		if risk > overallRiskScore {
 			overallRiskScore = risk
 		}
 		riskCounts[risk]++
-		// The bincapz rule is classified as harmless
+		// The malcontent rule is classified as harmless
 		// This will prevent the rule from being filtered
 		// If running a scan as opposed to an analyze,
 		// drop any matches that fall below the highest risk
 		switch {
-		case risk < minScore && !ignoreBincapz:
+		case risk < minScore && !ignoreMalcontent:
 			continue
 		case c.Scan && risk < highestRisk:
 			continue
@@ -364,7 +364,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c bincapz.C
 		key = generateKey(m.Namespace, m.Rule)
 		ruleURL := generateRuleURL(m.Namespace, m.Rule)
 
-		b := &bincapz.Behavior{
+		b := &malcontent.Behavior{
 			ID:           key,
 			MatchStrings: matchStrings(m.Rule, m.Strings),
 			RiskLevel:    RiskLevels[risk],
@@ -397,9 +397,9 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c bincapz.C
 				}
 			case "author_url":
 				b.RuleAuthorURL = v
-			case fmt.Sprintf("__%s__", BINARY):
+			case fmt.Sprintf("__%s__", NAME):
 				if v == "true" {
-					fr.IsBincapz = true
+					fr.IsMalcontent = true
 				}
 			case "license":
 				b.RuleLicense = v
@@ -465,7 +465,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c bincapz.C
 		// If the existing description is longer and the priority is the same or lower
 		if existingIndex != -1 {
 			if fr.Behaviors[existingIndex].RiskScore < b.RiskScore {
-				fr.Behaviors = append(fr.Behaviors[:existingIndex], append([]*bincapz.Behavior{b}, fr.Behaviors[existingIndex+1:]...)...)
+				fr.Behaviors = append(fr.Behaviors[:existingIndex], append([]*malcontent.Behavior{b}, fr.Behaviors[existingIndex+1:]...)...)
 			}
 			if len(fr.Behaviors[existingIndex].Description) < len(b.Description) && fr.Behaviors[existingIndex].RiskScore <= b.RiskScore {
 				fr.Behaviors[existingIndex].Description = b.Description
@@ -477,8 +477,8 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c bincapz.C
 		// TODO: If we match multiple rules within a single namespace, merge matchstrings
 	}
 
-	if all(ignoreSelf, fr.IsBincapz, ignoreBincapz, filepath.Base(path) == BINARY) {
-		return bincapz.FileReport{}, nil
+	if all(ignoreSelf, fr.IsMalcontent, ignoreMalcontent, filepath.Base(path) == NAME) {
+		return malcontent.FileReport{}, nil
 	}
 
 	// If something has a lot of high, it's probably critical

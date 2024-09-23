@@ -7,13 +7,13 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/chainguard-dev/bincapz/pkg/bincapz"
-	"github.com/chainguard-dev/bincapz/pkg/compile"
-	"github.com/chainguard-dev/bincapz/pkg/render"
-	"github.com/chainguard-dev/bincapz/rules"
-	thirdparty "github.com/chainguard-dev/bincapz/third_party"
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/clog/slogtest"
+	"github.com/chainguard-dev/malcontent/pkg/compile"
+	"github.com/chainguard-dev/malcontent/pkg/malcontent"
+	"github.com/chainguard-dev/malcontent/pkg/render"
+	"github.com/chainguard-dev/malcontent/rules"
+	thirdparty "github.com/chainguard-dev/malcontent/third_party"
 	"github.com/google/go-cmp/cmp"
 )
 
@@ -33,7 +33,7 @@ func TestOCI(t *testing.T) {
 		t.Fatalf("render: %v", err)
 	}
 
-	bc := bincapz.Config{
+	bc := malcontent.Config{
 		Concurrency: runtime.NumCPU(),
 		IgnoreSelf:  false,
 		MinFileRisk: 0,

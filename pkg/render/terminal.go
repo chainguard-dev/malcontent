@@ -11,8 +11,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/chainguard-dev/bincapz/pkg/bincapz"
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/fatih/color"
 	"github.com/olekukonko/tablewriter"
 	"golang.org/x/term"
@@ -22,7 +22,7 @@ var maxExampleCount = 8
 
 type KeyedBehavior struct {
 	Key      string
-	Behavior *bincapz.Behavior
+	Behavior *malcontent.Behavior
 }
 
 type tableConfig struct {
@@ -90,7 +90,7 @@ func ShortRisk(s string) string {
 	return short
 }
 
-func (r Terminal) File(ctx context.Context, fr *bincapz.FileReport) error {
+func (r Terminal) File(ctx context.Context, fr *malcontent.FileReport) error {
 	if len(fr.Behaviors) > 0 {
 		renderTable(ctx, fr, r.w,
 			tableConfig{
@@ -101,7 +101,7 @@ func (r Terminal) File(ctx context.Context, fr *bincapz.FileReport) error {
 	return nil
 }
 
-func (r Terminal) Full(ctx context.Context, rep *bincapz.Report) error {
+func (r Terminal) Full(ctx context.Context, rep *malcontent.Report) error {
 	// Non-diff files are handled on the fly by File()
 	if rep.Diff == nil {
 		return nil
@@ -183,7 +183,7 @@ func darkenText(s string) string {
 	return strings.Join(cw, "\n")
 }
 
-func renderTable(ctx context.Context, fr *bincapz.FileReport, w io.Writer, rc tableConfig) {
+func renderTable(ctx context.Context, fr *malcontent.FileReport, w io.Writer, rc tableConfig) {
 	title := rc.Title
 
 	path := fr.Path

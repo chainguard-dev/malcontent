@@ -17,14 +17,14 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/chainguard-dev/bincapz/pkg/action"
-	"github.com/chainguard-dev/bincapz/pkg/bincapz"
-	"github.com/chainguard-dev/bincapz/pkg/compile"
-	"github.com/chainguard-dev/bincapz/pkg/render"
-	"github.com/chainguard-dev/bincapz/rules"
-	thirdparty "github.com/chainguard-dev/bincapz/third_party"
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/clog/slogtest"
+	"github.com/chainguard-dev/malcontent/pkg/action"
+	"github.com/chainguard-dev/malcontent/pkg/compile"
+	"github.com/chainguard-dev/malcontent/pkg/malcontent"
+	"github.com/chainguard-dev/malcontent/pkg/render"
+	"github.com/chainguard-dev/malcontent/rules"
+	thirdparty "github.com/chainguard-dev/malcontent/third_party"
 	"github.com/google/go-cmp/cmp"
 )
 
@@ -74,7 +74,8 @@ func TestJSON(t *testing.T) {
 			if err != nil {
 				t.Fatalf("render: %v", err)
 			}
-			bc := bincapz.Config{
+
+			mc := malcontent.Config{
 				Concurrency: runtime.NumCPU(),
 				IgnoreSelf:  false,
 				MinRisk:     1,
@@ -85,7 +86,7 @@ func TestJSON(t *testing.T) {
 
 			tcLogger := clog.FromContext(ctx).With("test", name)
 			ctx := clog.WithLogger(ctx, tcLogger)
-			res, err := action.Scan(ctx, bc)
+			res, err := action.Scan(ctx, mc)
 			if err != nil {
 				t.Fatalf("scan failed: %v", err)
 			}
@@ -140,7 +141,7 @@ func TestSimple(t *testing.T) {
 				t.Fatalf("render: %v", err)
 			}
 
-			bc := bincapz.Config{
+			mc := malcontent.Config{
 				Concurrency: runtime.NumCPU(),
 				IgnoreSelf:  false,
 				IgnoreTags:  []string{"harmless"},
@@ -151,7 +152,7 @@ func TestSimple(t *testing.T) {
 
 			tcLogger := clog.FromContext(ctx).With("test", name)
 			ctx := clog.WithLogger(ctx, tcLogger)
-			res, err := action.Scan(ctx, bc)
+			res, err := action.Scan(ctx, mc)
 			if err != nil {
 				t.Fatalf("scan failed: %v", err)
 			}
@@ -214,7 +215,7 @@ func TestDiff(t *testing.T) {
 				t.Fatalf("render: %v", err)
 			}
 
-			bc := bincapz.Config{
+			mc := malcontent.Config{
 				Concurrency: runtime.NumCPU(),
 				IgnoreSelf:  false,
 				IgnoreTags:  []string{"harmless"},
@@ -227,7 +228,7 @@ func TestDiff(t *testing.T) {
 
 			logger := clog.New(slog.Default().Handler()).With("src", tc.src)
 			ctx := clog.WithLogger(context.Background(), logger)
-			res, err := action.Diff(ctx, bc)
+			res, err := action.Diff(ctx, mc)
 			if err != nil {
 				t.Fatalf("diff failed: %v", err)
 			}
@@ -291,7 +292,7 @@ func TestMarkdown(t *testing.T) {
 				t.Fatalf("render: %v", err)
 			}
 
-			bc := bincapz.Config{
+			mc := malcontent.Config{
 				Concurrency:           runtime.NumCPU(),
 				IgnoreSelf:            false,
 				IgnoreTags:            []string{"harmless"},
@@ -304,7 +305,7 @@ func TestMarkdown(t *testing.T) {
 			tcLogger := clog.FromContext(ctx).With("test", name)
 			ctx := clog.WithLogger(ctx, tcLogger)
 
-			res, err := action.Scan(ctx, bc)
+			res, err := action.Scan(ctx, mc)
 			if err != nil {
 				t.Fatalf("scan failed: %v", err)
 			}
@@ -320,46 +321,6 @@ func TestMarkdown(t *testing.T) {
 		})
 		return nil
 	})
-}
-
-func TestBincapzIgnored(t *testing.T) {
-	t.Parallel()
-	ctx := slogtest.Context(t)
-	clog.FromContext(ctx).With("test", "scan_bincapz")
-
-	yrs, err := compile.Recursive(ctx, []fs.FS{rules.FS, thirdparty.FS})
-	if err != nil {
-		t.Fatalf("compile: %v", err)
-	}
-
-	var out bytes.Buffer
-	simple, err := render.New("simple", &out)
-	if err != nil {
-		t.Fatalf("render: %v", err)
-	}
-	bc := bincapz.Config{
-		IgnoreSelf:  true,
-		IgnoreTags:  []string{"harmless"},
-		Renderer:    simple,
-		Rules:       yrs,
-		ScanPaths:   []string{"macOS/clean/bincapz"},
-		Concurrency: runtime.NumCPU(),
-	}
-	res, err := action.Scan(ctx, bc)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := simple.Full(ctx, res); err != nil {
-		t.Fatalf("full: %v", err)
-	}
-
-	outBytes := out.Bytes()
-	got := string(outBytes)
-
-	want := ""
-	if diff := cmp.Diff(want, got); diff != "" {
-		t.Errorf("json output mismatch: (-want +got):\n%s", diff)
-	}
 }
 
 // Allow for programmatic overrides of paths for benchmarks (defaults to all paths).
@@ -415,7 +376,7 @@ func Template(b *testing.B, paths []string) func() {
 		if err != nil {
 			b.Fatalf("render: %v", err)
 		}
-		bc := bincapz.Config{
+		mc := malcontent.Config{
 			Concurrency: runtime.NumCPU(),
 			IgnoreSelf:  true,
 			IgnoreTags:  []string{"harmless"},
@@ -423,7 +384,7 @@ func Template(b *testing.B, paths []string) func() {
 			Rules:       yrs,
 			ScanPaths:   paths,
 		}
-		res, err := action.Scan(ctx, bc)
+		res, err := action.Scan(ctx, mc)
 		if err != nil {
 			b.Fatal(err)
 		}

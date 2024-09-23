@@ -11,8 +11,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/chainguard-dev/bincapz/rules"
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/rules"
 	"github.com/hillu/go-yara/v4"
 )
 
