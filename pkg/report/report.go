@@ -477,7 +477,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 		// TODO: If we match multiple rules within a single namespace, merge matchstrings
 	}
 
-	if all(ignoreSelf, fr.IsMalcontent, ignoreMalcontent, filepath.Base(path) == NAME) {
+	if all(ignoreSelf, fr.IsMalcontent, ignoreMalcontent, filepath.Base(path) == "mal") {
 		return malcontent.FileReport{}, nil
 	}
 
