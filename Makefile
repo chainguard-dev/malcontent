@@ -47,7 +47,7 @@ fix: $(FIXERS)
 
 # END: lint-install ../malcontent
 
-SAMPLES_REPO ?= chainguard-dev/bincapz-samples
+SAMPLES_REPO ?= chainguard-dev/malcontent-samples
 SAMPLES_COMMIT ?= b112eaf9bc547b2d219dfa775e0eff2874b30b9f
 OUT_DIR=out/samples-$(SAMPLES_COMMIT).tmp
 out/samples-$(SAMPLES_COMMIT):
