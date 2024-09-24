@@ -28,6 +28,7 @@ type Config struct {
 	MinRisk               int
 	OCI                   bool
 	Output                io.Writer
+	Processes             bool
 	QuantityIncreasesRisk bool
 	Renderer              Renderer
 	Rules                 *yara.Rules
