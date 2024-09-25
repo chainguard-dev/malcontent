@@ -28,7 +28,13 @@ func GetAllProcessPaths() ([]Process, error) {
 
 // getUnixProcessPaths is a UNIX-focused function to retrieve PIDs and their respective commands.
 func getUnixProcessPaths() ([]Process, error) {
-	cmd := exec.Command("ps", "-e", "-o", "pid=,comm=")
+	var cmd *exec.Cmd
+	switch runtime.GOOS {
+	case "darwin":
+		cmd = exec.Command("ps", "-e", "-o", "pid=,comm=")
+	case "linux":
+		cmd = exec.Command("ps", "-e", "-o", "pid=,cmd=")
+	}
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, err
