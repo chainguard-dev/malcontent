@@ -324,7 +324,7 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 
 		// Add the sorted paths and file reports to the parent report and render the results
 		for _, k := range pathKeys {
-			finding, ok := scanPathFindings.Load(k)
+			finding, ok := scanPathFindings.LoadAndDelete(k)
 			if !ok {
 				return nil, fmt.Errorf("could not load finding from sync map")
 			}
