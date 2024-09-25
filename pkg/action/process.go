@@ -12,7 +12,7 @@ type Process struct {
 	Path string
 }
 
-// GetAllProcessPaths is an exported function that returns a slice of Process PIDs and commands (path)
+// GetAllProcessPaths is an exported function that returns a slice of Process PIDs and commands (path).
 func GetAllProcessPaths(ctx context.Context) ([]Process, error) {
 	// Retrieve all of the active PIDs
 	procs, err := process.ProcessesWithContext(ctx)
