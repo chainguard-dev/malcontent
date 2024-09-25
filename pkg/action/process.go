@@ -52,7 +52,14 @@ func getUnixProcessPaths() ([]Process, error) {
 			if err != nil {
 				return nil, err
 			}
+
 			path := strings.TrimSpace(strings.Join(fields[1:], " "))
+
+			// If the path
+			// - is not empty
+			// - is not in the map
+			// - is valid
+			// add it to the map
 			if _, exists := pidMap[path]; !exists && path != "" && isValidPath(path) {
 				pidMap[path] = Process{PID: pid, Path: path}
 			}
@@ -81,7 +88,14 @@ func getWindowsProcessPaths() ([]Process, error) {
 			if err != nil {
 				return nil, err
 			}
+
 			path := strings.TrimSpace(strings.Join(fields[:len(fields)-1], " "))
+
+			// If the path
+			// - is not empty
+			// - is not in the map
+			// - is valid
+			// add it to the map
 			if _, exists := pidMap[path]; !exists && path != "" && isValidPath(path) {
 				pidMap[path] = Process{PID: pid, Path: path}
 			}

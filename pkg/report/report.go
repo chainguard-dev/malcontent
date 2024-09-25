@@ -352,13 +352,13 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 		}
 		riskCounts[risk]++
 		// The malcontent rule is classified as harmless
-		// This will prevent the rule from being filtered
+		// A !ignoreMalcontent condition will prevent the rule from being filtered
 		// If running a scan as opposed to an analyze,
 		// drop any matches that fall below the highest risk
 		switch {
 		case risk < minScore && !ignoreMalcontent:
 			continue
-		case c.Scan && risk < highestRisk:
+		case c.Scan && risk < highestRisk && !ignoreMalcontent:
 			continue
 		}
 		key = generateKey(m.Namespace, m.Rule)
@@ -477,7 +477,10 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 		// TODO: If we match multiple rules within a single namespace, merge matchstrings
 	}
 
-	if all(ignoreSelf, fr.IsMalcontent, ignoreMalcontent, filepath.Base(path) == "mal") {
+	// Check for both the full and shortened variants of malcontent
+	isMalBinary := (filepath.Base(path) == NAME || filepath.Base(path) == "mal")
+
+	if all(ignoreSelf, fr.IsMalcontent, ignoreMalcontent, isMalBinary) {
 		return malcontent.FileReport{}, nil
 	}
 
