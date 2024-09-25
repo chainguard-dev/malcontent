@@ -381,7 +381,7 @@ func main() {
 					// When scanning processes, load all of the valid commands (paths)
 					// and store them as the ScanPaths
 					if mc.Processes {
-						processPaths, err := action.GetAllProcessPaths()
+						processPaths, err := action.GetAllProcessPaths(ctx)
 						if err != nil {
 							returnCode = ExitActionFailed
 							return err
@@ -462,7 +462,7 @@ func main() {
 					// When scanning processes, load all of the valid commands (paths)
 					// and store them as the ScanPaths
 					if mc.Processes {
-						processPaths, err := action.GetAllProcessPaths()
+						processPaths, err := action.GetAllProcessPaths(ctx)
 						if err != nil {
 							returnCode = ExitActionFailed
 							return err
