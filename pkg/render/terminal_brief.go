@@ -51,11 +51,11 @@ func (r TerminalBrief) File(_ context.Context, fr *malcontent.FileReport) error 
 
 	reasons := []string{}
 	for _, b := range fr.Behaviors {
-		reasons = append(reasons, fmt.Sprintf("%s %s%s%s", color.HiYellowString(b.ID), color.HiBlackString("("), b.Description, color.HiBlackString(")")))
+		reasons = append(reasons, fmt.Sprintf("%s %s%s%s\n", color.HiYellowString(b.ID), color.HiBlackString("("), b.Description, color.HiBlackString(")")))
 	}
 
-	fmt.Fprintf(r.w, "%s%s%s %s: %s", color.HiBlackString("["), briefRiskColor(fr.RiskLevel), color.HiBlackString("]"), color.HiGreenString(fr.Path),
-		strings.Join(reasons, color.HiBlackString(", ")))
+	fmt.Fprintf(r.w, "%s%s%s %s: \n%s%s\n", color.HiBlackString("["), briefRiskColor(fr.RiskLevel), color.HiBlackString("]"), color.HiGreenString(fr.Path),
+		color.HiBlackString("- "), strings.Join(reasons, color.HiBlackString("- ")))
 	return nil
 }
 

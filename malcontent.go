@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // malcontent returns information about a file's capabilities
+//
+//nolint:cyclop // ignore complexity of 40
 package main
 
 import (
@@ -78,6 +80,7 @@ var riskMap = map[string]int{
 	"critical": 4,
 }
 
+//nolint:cyclop // ignore complexity of 40
 func main() {
 	returnCode := ExitOK
 	defer func() { os.Exit(returnCode) }()
@@ -355,6 +358,11 @@ func main() {
 						Value:   "",
 						Usage:   "Scan an image",
 					},
+					&cli.BoolFlag{
+						Name:  "processes",
+						Value: false,
+						Usage: "Scan the commands (paths) of running processes",
+					},
 				},
 				Action: func(c *cli.Context) error {
 					// Handle edge cases
@@ -363,9 +371,24 @@ func main() {
 					switch {
 					case c.String("image") != "":
 						mc.OCI = true
-					case c.String("image") == "":
+					case c.String("image") == "" && !c.Bool("processes"):
 						cmdArgs := c.Args().Slice()
 						mc.ScanPaths = []string{cmdArgs[0]}
+					case c.Bool("processes"):
+						mc.Processes = true
+					}
+
+					// When scanning processes, load all of the valid commands (paths)
+					// and store them as the ScanPaths
+					if mc.Processes {
+						processPaths, err := action.GetAllProcessPaths(ctx)
+						if err != nil {
+							returnCode = ExitActionFailed
+							return err
+						}
+						for _, p := range processPaths {
+							mc.ScanPaths = append(mc.ScanPaths, p.Path)
+						}
 					}
 
 					res, err = action.Scan(ctx, mc)
@@ -415,6 +438,11 @@ func main() {
 						Value:   "",
 						Usage:   "Scan an image",
 					},
+					&cli.BoolFlag{
+						Name:  "processes",
+						Value: false,
+						Usage: "Scan the commands (paths) of running processes",
+					},
 				},
 				Action: func(c *cli.Context) error {
 					mc.Scan = true
@@ -424,9 +452,24 @@ func main() {
 					switch {
 					case c.String("image") != "":
 						mc.OCI = true
-					case c.String("image") == "":
+					case c.String("image") == "" && !c.Bool("processes"):
 						cmdArgs := c.Args().Slice()
 						mc.ScanPaths = []string{cmdArgs[0]}
+					case c.Bool("processes"):
+						mc.Processes = true
+					}
+
+					// When scanning processes, load all of the valid commands (paths)
+					// and store them as the ScanPaths
+					if mc.Processes {
+						processPaths, err := action.GetAllProcessPaths(ctx)
+						if err != nil {
+							returnCode = ExitActionFailed
+							return err
+						}
+						for _, p := range processPaths {
+							mc.ScanPaths = append(mc.ScanPaths, p.Path)
+						}
 					}
 
 					res, err = action.Scan(ctx, mc)
@@ -444,7 +487,7 @@ func main() {
 					}
 
 					if res.Files.Len() > 0 {
-						fmt.Fprintf(os.Stderr, "\n\ntip: For detailed analysis, run: mal analyze <path>\n")
+						fmt.Fprintf(os.Stderr, "\ntip: For detailed analysis, run: mal analyze <path>\n")
 					}
 
 					return nil
