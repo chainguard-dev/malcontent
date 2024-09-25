@@ -20,22 +20,31 @@ func GetAllProcessPaths(ctx context.Context) ([]Process, error) {
 		return nil, err
 	}
 
-	// Store PIDs and their respective commands (paths) in a slice of Processes
-	processPaths := []Process{}
+	// Store PIDs and their respective commands (paths) in a map of paths and their Process structs
+	processMap := make(map[string]Process)
 	for _, p := range procs {
 		path, err := p.Exe()
 		if err != nil {
 			return nil, err
 		}
-		if isValidPath(path) {
-			processPaths = append(processPaths, Process{
+		if _, exists := processMap[path]; !exists && path != "" && isValidPath(path) {
+			processMap[path] = Process{
 				PID:  p.Pid,
 				Path: path,
-			})
+			}
 		}
 	}
 
-	return processPaths, nil
+	return procMapSlice(processMap), nil
+}
+
+// procMapSlice converts a map of paths and their Process structs to a slice of Processes.
+func procMapSlice(m map[string]Process) []Process {
+	result := make([]Process, 0, len(m))
+	for _, v := range m {
+		result = append(result, v)
+	}
+	return result
 }
 
 // isValidPath checks if the given path is valid.
