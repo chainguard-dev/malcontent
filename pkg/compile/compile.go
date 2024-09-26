@@ -83,6 +83,7 @@ var rulesWithWarnings = map[string]bool{
 	"Agenda_golang":                         false,
 	"bookworm_dll_UUID":                     false,
 	"cobaltstrike_offensive_tool_keyword":   false,
+	"amos":                                  true,
 }
 
 func Recursive(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {
