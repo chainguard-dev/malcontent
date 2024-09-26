@@ -11,7 +11,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/chainguard-dev/bincapz/pkg/bincapz"
+	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/olekukonko/tablewriter"
 )
 
@@ -41,14 +41,14 @@ func matchFragmentLink(s string) string {
 	return fmt.Sprintf("[%s](https://github.com/search?q=%s&type=code)", s, url.QueryEscape(s))
 }
 
-func (r Markdown) File(ctx context.Context, fr *bincapz.FileReport) error {
+func (r Markdown) File(ctx context.Context, fr *malcontent.FileReport) error {
 	if len(fr.Behaviors) > 0 {
 		markdownTable(ctx, fr, r.w, tableConfig{Title: fmt.Sprintf("## %s [%s]", fr.Path, mdRisk(fr.RiskScore, fr.RiskLevel))})
 	}
 	return nil
 }
 
-func (r Markdown) Full(ctx context.Context, rep *bincapz.Report) error {
+func (r Markdown) Full(ctx context.Context, rep *malcontent.Report) error {
 	if rep.Diff == nil {
 		return nil
 	}
@@ -104,7 +104,7 @@ func (r Markdown) Full(ctx context.Context, rep *bincapz.Report) error {
 	return nil
 }
 
-func markdownTable(_ context.Context, fr *bincapz.FileReport, w io.Writer, rc tableConfig) {
+func markdownTable(_ context.Context, fr *malcontent.FileReport, w io.Writer, rc tableConfig) {
 	path := fr.Path
 	if fr.Error != "" {
 		fmt.Printf("⚠️ %s - error: %s\n", path, fr.Error)

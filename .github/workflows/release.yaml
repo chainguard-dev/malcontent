@@ -12,7 +12,7 @@ env:
 
 jobs:
   tag:
-    if: ${{ github.repository }} == 'chainguard-dev/bincapz'
+    if: ${{ github.repository }} == 'chainguard-dev/malcontent'
     runs-on: ubuntu-latest
     steps:
     - uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7
@@ -24,7 +24,7 @@ jobs:
       uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # v1.0.0
       id: octo-sts
       with:
-        scope: chainguard-dev/bincapz
+        scope: chainguard-dev/malcontent
         identity: release
     - name: Get Version
       id: get-version

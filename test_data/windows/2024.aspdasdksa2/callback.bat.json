@@ -13,7 +13,7 @@
                     ],
                     "RiskScore": 4,
                     "RiskLevel": "CRITICAL",
-                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/combo/degrader/edr_killer.yara#edr_stopper",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/combo/degrader/edr_killer.yara#edr_stopper",
                     "ID": "combo/degrader/edr_killer"
                 },
                 {
@@ -23,7 +23,7 @@
                     ],
                     "RiskScore": 4,
                     "RiskLevel": "CRITICAL",
-                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/combo/degrader/win_defender.yara#win_defender_exclusion",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/combo/degrader/win_defender.yara#win_defender_exclusion",
                     "ID": "combo/degrader/win_defender"
                 },
                 {
@@ -33,7 +33,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/net/download.yara#download",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/download.yara#download",
                     "ID": "net/download"
                 },
                 {
@@ -43,7 +43,7 @@
                     ],
                     "RiskScore": 3,
                     "RiskLevel": "HIGH",
-                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/privesc/runas.yara#runas_admin",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/privesc/runas.yara#runas_admin",
                     "ID": "privesc/runas"
                 },
                 {
@@ -53,7 +53,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/process/taskkill.yara#taskkill",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/process/taskkill.yara#taskkill",
                     "ID": "process/taskkill"
                 },
                 {
@@ -63,7 +63,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/ref/path/windows_root.yara#windows_path",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/path/windows_root.yara#windows_path",
                     "ID": "ref/path/windows_root"
                 },
                 {
@@ -73,7 +73,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/ref/program/powershell.yara#powershell",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/program/powershell.yara#powershell",
                     "ID": "ref/program/powershell"
                 },
                 {
@@ -83,7 +83,7 @@
                     ],
                     "RiskScore": 3,
                     "RiskLevel": "HIGH",
-                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/ref/site/exe.yara#http_url_with_exe",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/site/exe.yara#http_url_with_exe",
                     "ID": "ref/site/exe"
                 },
                 {
@@ -94,7 +94,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/ref/site/github_raw.yara#github_raw_user",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/site/github_raw.yara#github_raw_user",
                     "ID": "ref/site/github_raw"
                 },
                 {
@@ -104,7 +104,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/ref/site/url.yara#https_url",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/site/url.yara#https_url",
                     "ID": "ref/site/url"
                 },
                 {
@@ -128,7 +128,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/bincapz/blob/main/rules/yara/threat_hunting/all.yara#powershell_offensive_tool_keyword",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/yara/threat_hunting/all.yara#powershell_offensive_tool_keyword",
                     "ReferenceURL": "https://github.com/mthcht/ThreatHunting-Keywords",
                     "RuleAuthor": "mthcht",
                     "ID": "3P/threat_hunting/powershell"

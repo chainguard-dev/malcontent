@@ -1,7 +1,7 @@
 // Copyright 2024 Chainguard, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-package bincapz
+package malcontent
 
 import (
 	"context"
@@ -28,6 +28,7 @@ type Config struct {
 	MinRisk               int
 	OCI                   bool
 	Output                io.Writer
+	Processes             bool
 	QuantityIncreasesRisk bool
 	Renderer              Renderer
 	Rules                 *yara.Rules
@@ -83,7 +84,7 @@ type FileReport struct {
 	RiskScore int
 	RiskLevel string `json:",omitempty" yaml:",omitempty"`
 
-	IsBincapz bool `json:",omitempty" yaml:",omitempty"`
+	IsMalcontent bool `json:",omitempty" yaml:",omitempty"`
 }
 
 type DiffReport struct {

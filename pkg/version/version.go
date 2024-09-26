@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	ID string = "v0.19.0"
+	ID string = "v1.0.1"
 )
 
 // Check if the build info contains a version.
@@ -30,7 +30,7 @@ func Version() (string, error) {
 	var err error
 	// Check for the version in the binary first
 	if v, err = getBinaryVersion(); err != nil {
-		return "bincapz unknown version", err
+		return "malcontent unknown version", err
 	}
 	// If present, return that value
 	// Otherwise, fall back to the contents of the VERSION const
