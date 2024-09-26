@@ -17,3 +17,25 @@ rule calls_shell : medium {
   condition:
     filesize < 104857600 and any of them
 }
+
+rule system_call: medium {
+  meta:
+    description = "executes a shell command"
+	filetypes = "elf"
+  strings:
+    $ref = "system" fullword
+  condition:
+    uint32(0) == 1179403647 and $ref in (1024..3000)
+}
+
+
+rule macho_system: medium {
+  meta:
+    description = "executes a shell command"
+	filetypes = "macho"
+  strings:
+    $ref = "@_system" fullword
+  condition:
+    (uint32(0) == 4277009102 or uint32(0) == 3472551422 or uint32(0) == 4277009103 or uint32(0) == 3489328638 or uint32(0) == 3405691582 or uint32(0) == 3199925962 or uint32(0) == 3405691583 or uint32(0) == 3216703178) and $ref
+
+}

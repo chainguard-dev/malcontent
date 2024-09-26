@@ -84,3 +84,20 @@ rule setuptools_dropper : critical {
 	condition:
 		pythonSetup and py_dropper
 }
+
+rule dropper_imports : high {
+	meta:
+		description = "imports modules known to be used by Python droppers"
+		filetypes = "python"
+	strings:
+		$http = "http"
+		$import = "import" fullword
+		$l_base64 = "base64" fullword
+		$l_platform = "platform" fullword
+		$l_os = "os" fullword
+		$l_subprocess = "subprocess" fullword
+		$l_sys = "sys" fullword
+		$l_requests = "requests" fullword
+	condition:
+		filesize < 4000 and $http and $import and 5 of ($l*)
+}

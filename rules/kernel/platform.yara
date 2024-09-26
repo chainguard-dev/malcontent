@@ -55,6 +55,7 @@ rule python_platform : medium {
     $ref = "platform.dist()"
     $ref2 = "platform.platform()"
     $ref3 = "sys.platform"
+	$ref4 = "platform.system()"
   condition:
     any of them
 }

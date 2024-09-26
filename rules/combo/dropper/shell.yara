@@ -109,7 +109,7 @@ rule possible_dropper : high {
 	strings:
 		$http = "http://"
 		$https = "https://"
-	    $tool_curl_o = /curl [\w\.\- :\"\/]{0,64}-\w{0,2}[oO][\w\- :\"\/]{0,64}/
+	    $tool_curl_o = /curl [\w\.\- :\"\/]{0,64}-\w{0,2}[oO][\w\.\- :\"\/]{0,64}/
 		$tool_wget_q = "wget -"
 		$tool_lwp = "lwp-download"
 		$cmd_bash = "bash" fullword

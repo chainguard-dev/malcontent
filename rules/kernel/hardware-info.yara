@@ -8,7 +8,7 @@ rule sysctl_machdep {
     $ref3 = "machdep.cpu.brand_string"
     $ref4 = "hw.cpufrequency"
   condition:
-    2 of them
+    any of them
 }
 
 rule macos_hardware_profiler : medium {

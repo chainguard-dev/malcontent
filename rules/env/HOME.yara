@@ -19,3 +19,12 @@ rule node_HOME {
   condition:
 	all of them
 }
+
+rule py_HOME {
+  meta:
+    description = "Looks up the HOME directory for the current user"
+  strings:
+	$ref = "os.path.expanduser(\"~\")" fullword
+  condition:
+	all of them
+}
