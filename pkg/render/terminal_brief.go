@@ -17,7 +17,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/chainguard-dev/bincapz/pkg/bincapz"
+	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/fatih/color"
 )
 
@@ -44,22 +44,22 @@ func briefRiskColor(level string) string {
 	}
 }
 
-func (r TerminalBrief) File(_ context.Context, fr *bincapz.FileReport) error {
+func (r TerminalBrief) File(_ context.Context, fr *malcontent.FileReport) error {
 	if len(fr.Behaviors) == 0 {
 		return nil
 	}
 
 	reasons := []string{}
 	for _, b := range fr.Behaviors {
-		reasons = append(reasons, fmt.Sprintf("%s %s%s%s", color.HiYellowString(b.ID), color.HiBlackString("("), b.Description, color.HiBlackString(")")))
+		reasons = append(reasons, fmt.Sprintf("%s %s%s%s\n", color.HiYellowString(b.ID), color.HiBlackString("("), b.Description, color.HiBlackString(")")))
 	}
 
-	fmt.Fprintf(r.w, "%s%s%s %s: %s", color.HiBlackString("["), briefRiskColor(fr.RiskLevel), color.HiBlackString("]"), color.HiGreenString(fr.Path),
-		strings.Join(reasons, color.HiBlackString(", ")))
+	fmt.Fprintf(r.w, "%s%s%s %s: \n%s%s\n", color.HiBlackString("["), briefRiskColor(fr.RiskLevel), color.HiBlackString("]"), color.HiGreenString(fr.Path),
+		color.HiBlackString("- "), strings.Join(reasons, color.HiBlackString("- ")))
 	return nil
 }
 
-func (r TerminalBrief) Full(_ context.Context, rep *bincapz.Report) error {
+func (r TerminalBrief) Full(_ context.Context, rep *malcontent.Report) error {
 	// Non-diff files are handled on the fly by File()
 	if rep.Diff == nil {
 		return nil

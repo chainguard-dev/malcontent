@@ -13,13 +13,13 @@ import (
 	"sync"
 
 	"github.com/agext/levenshtein"
-	"github.com/chainguard-dev/bincapz/pkg/bincapz"
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 	"golang.org/x/sync/errgroup"
 )
 
-func relFileReport(ctx context.Context, c bincapz.Config, fromPath string) (map[string]*bincapz.FileReport, error) {
+func relFileReport(ctx context.Context, c malcontent.Config, fromPath string) (map[string]*malcontent.FileReport, error) {
 	fromConfig := c
 	fromConfig.Renderer = nil
 	fromConfig.ScanPaths = []string{fromPath}
@@ -27,7 +27,7 @@ func relFileReport(ctx context.Context, c bincapz.Config, fromPath string) (map[
 	if err != nil {
 		return nil, err
 	}
-	fromRelPath := map[string]*bincapz.FileReport{}
+	fromRelPath := map[string]*malcontent.FileReport{}
 	for files := fromReport.Files.Oldest(); files != nil; files = files.Next() {
 		if files.Value.Skipped != "" || files.Value.Error != "" {
 			continue
@@ -42,7 +42,7 @@ func relFileReport(ctx context.Context, c bincapz.Config, fromPath string) (map[
 	return fromRelPath, nil
 }
 
-func Diff(ctx context.Context, c bincapz.Config) (*bincapz.Report, error) {
+func Diff(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) {
 	if len(c.ScanPaths) != 2 {
 		return nil, fmt.Errorf("diff mode requires 2 paths, you passed in %d path(s)", len(c.ScanPaths))
 	}
@@ -50,7 +50,7 @@ func Diff(ctx context.Context, c bincapz.Config) (*bincapz.Report, error) {
 	var g errgroup.Group
 	g.SetLimit(2) // create src and dest relFileReports concurrently
 
-	var src, dest map[string]*bincapz.FileReport
+	var src, dest map[string]*malcontent.FileReport
 	var err error
 	g.Go(func() error {
 		src, err = relFileReport(ctx, c, c.ScanPaths[0])
@@ -72,10 +72,10 @@ func Diff(ctx context.Context, c bincapz.Config) (*bincapz.Report, error) {
 		return nil, err
 	}
 
-	d := &bincapz.DiffReport{
-		Added:    orderedmap.New[string, *bincapz.FileReport](),
-		Removed:  orderedmap.New[string, *bincapz.FileReport](),
-		Modified: orderedmap.New[string, *bincapz.FileReport](),
+	d := &malcontent.DiffReport{
+		Added:    orderedmap.New[string, *malcontent.FileReport](),
+		Removed:  orderedmap.New[string, *malcontent.FileReport](),
+		Modified: orderedmap.New[string, *malcontent.FileReport](),
 	}
 
 	processSrc(ctx, c, src, dest, d)
@@ -84,10 +84,10 @@ func Diff(ctx context.Context, c bincapz.Config) (*bincapz.Report, error) {
 	if d.Added != nil && d.Removed != nil {
 		inferMoves(ctx, c, d)
 	}
-	return &bincapz.Report{Diff: d}, err
+	return &malcontent.Report{Diff: d}, err
 }
 
-func processSrc(ctx context.Context, c bincapz.Config, src, dest map[string]*bincapz.FileReport, d *bincapz.DiffReport) {
+func processSrc(ctx context.Context, c malcontent.Config, src, dest map[string]*malcontent.FileReport, d *malcontent.DiffReport) {
 	// things that appear in the source
 	for relPath, fr := range src {
 		tr, exists := dest[relPath]
@@ -99,7 +99,7 @@ func processSrc(ctx context.Context, c bincapz.Config, src, dest map[string]*bin
 	}
 }
 
-func handleFile(ctx context.Context, c bincapz.Config, fr, tr *bincapz.FileReport, relPath string, d *bincapz.DiffReport) {
+func handleFile(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileReport, relPath string, d *malcontent.DiffReport) {
 	// We've now established that file exists in both source & destination
 	if fr.RiskScore < c.MinFileRisk && tr.RiskScore < c.MinFileRisk {
 		clog.FromContext(ctx).Info("diff does not meet min trigger level", slog.Any("path", tr.Path))
@@ -119,11 +119,11 @@ func handleFile(ctx context.Context, c bincapz.Config, fr, tr *bincapz.FileRepor
 	d.Modified.Set(relPath, rbs)
 }
 
-func createFileReport(tr, fr *bincapz.FileReport) *bincapz.FileReport {
-	return &bincapz.FileReport{
+func createFileReport(tr, fr *malcontent.FileReport) *malcontent.FileReport {
+	return &malcontent.FileReport{
 		Path:              tr.Path,
 		PreviousRelPath:   fr.Path,
-		Behaviors:         []*bincapz.Behavior{},
+		Behaviors:         []*malcontent.Behavior{},
 		PreviousRiskScore: fr.RiskScore,
 		PreviousRiskLevel: fr.RiskLevel,
 		RiskLevel:         tr.RiskLevel,
@@ -131,7 +131,7 @@ func createFileReport(tr, fr *bincapz.FileReport) *bincapz.FileReport {
 	}
 }
 
-func behaviorExists(b *bincapz.Behavior, behaviors []*bincapz.Behavior) bool {
+func behaviorExists(b *malcontent.Behavior, behaviors []*malcontent.Behavior) bool {
 	for _, tb := range behaviors {
 		if tb.ID == b.ID {
 			return true
@@ -140,7 +140,7 @@ func behaviorExists(b *bincapz.Behavior, behaviors []*bincapz.Behavior) bool {
 	return false
 }
 
-func processDest(ctx context.Context, c bincapz.Config, from, to map[string]*bincapz.FileReport, d *bincapz.DiffReport) {
+func processDest(ctx context.Context, c malcontent.Config, from, to map[string]*malcontent.FileReport, d *malcontent.DiffReport) {
 	// things that exist in the destination
 	for relPath, tr := range to {
 		fr, exists := from[relPath]
@@ -153,7 +153,7 @@ func processDest(ctx context.Context, c bincapz.Config, from, to map[string]*bin
 	}
 }
 
-func fileDestination(ctx context.Context, c bincapz.Config, fr, tr *bincapz.FileReport, relPath string, d *bincapz.DiffReport) {
+func fileDestination(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileReport, relPath string, d *malcontent.DiffReport) {
 	// We've now established that this file exists in both source and destination
 	if fr.RiskScore < c.MinFileRisk && tr.RiskScore < c.MinFileRisk {
 		clog.FromContext(ctx).Info("diff does not meet min trigger level", slog.Any("path", tr.Path))
@@ -182,7 +182,7 @@ func fileDestination(ctx context.Context, c bincapz.Config, fr, tr *bincapz.File
 }
 
 // filterMap filters orderedmap pairs by checking for matches against a slice of compiled regular expression patterns.
-func filterMap(om *orderedmap.OrderedMap[string, *bincapz.FileReport], ps []*regexp.Regexp, c chan<- *orderedmap.Pair[string, *bincapz.FileReport], wg *sync.WaitGroup) {
+func filterMap(om *orderedmap.OrderedMap[string, *malcontent.FileReport], ps []*regexp.Regexp, c chan<- *orderedmap.Pair[string, *malcontent.FileReport], wg *sync.WaitGroup) {
 	defer wg.Done()
 	for pair := om.Oldest(); pair != nil; pair = pair.Next() {
 		for _, pattern := range ps {
@@ -194,15 +194,15 @@ func filterMap(om *orderedmap.OrderedMap[string, *bincapz.FileReport], ps []*reg
 }
 
 // combine iterates over the removed and added channels to create a diff report to store in the combined channel.
-func combine(removed, added <-chan *orderedmap.Pair[string, *bincapz.FileReport]) []bincapz.CombinedReport {
-	combined := make([]bincapz.CombinedReport, 0, len(removed)*len(added))
+func combine(removed, added <-chan *orderedmap.Pair[string, *malcontent.FileReport]) []malcontent.CombinedReport {
+	combined := make([]malcontent.CombinedReport, 0, len(removed)*len(added))
 	for r := range removed {
 		for a := range added {
 			score := levenshtein.Match(r.Key, a.Key, levenshtein.NewParams())
 			if score < 0.9 {
 				continue
 			}
-			combined = append(combined, bincapz.CombinedReport{
+			combined = append(combined, malcontent.CombinedReport{
 				Added:     a.Key,
 				AddedFR:   a.Value,
 				Removed:   r.Key,
@@ -215,7 +215,7 @@ func combine(removed, added <-chan *orderedmap.Pair[string, *bincapz.FileReport]
 }
 
 // combineReports orchestrates the population of the diffs channel with relevant diffReports.
-func combineReports(d *bincapz.DiffReport) []bincapz.CombinedReport {
+func combineReports(d *malcontent.DiffReport) []malcontent.CombinedReport {
 	var wg sync.WaitGroup
 
 	// Patterns we care about when handling diffs
@@ -230,8 +230,8 @@ func combineReports(d *bincapz.DiffReport) []bincapz.CombinedReport {
 	}
 
 	// Build two channels with filtered paths to iterate through in the worker pool
-	removed := make(chan *orderedmap.Pair[string, *bincapz.FileReport], d.Removed.Len())
-	added := make(chan *orderedmap.Pair[string, *bincapz.FileReport], d.Added.Len())
+	removed := make(chan *orderedmap.Pair[string, *malcontent.FileReport], d.Removed.Len())
+	added := make(chan *orderedmap.Pair[string, *malcontent.FileReport], d.Added.Len())
 
 	wg.Add(1)
 	go func() {
@@ -250,13 +250,13 @@ func combineReports(d *bincapz.DiffReport) []bincapz.CombinedReport {
 	return combine(removed, added)
 }
 
-func inferMoves(ctx context.Context, c bincapz.Config, d *bincapz.DiffReport) {
+func inferMoves(ctx context.Context, c malcontent.Config, d *malcontent.DiffReport) {
 	for _, cr := range combineReports(d) {
 		fileMove(ctx, c, cr.RemovedFR, cr.AddedFR, cr.Removed, cr.Added, d, cr.Score)
 	}
 }
 
-func fileMove(ctx context.Context, c bincapz.Config, fr, tr *bincapz.FileReport, rpath, apath string, d *bincapz.DiffReport, score float64) {
+func fileMove(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileReport, rpath, apath string, d *malcontent.DiffReport, score float64) {
 	minRisk := int(math.Min(float64(c.MinRisk), float64(c.MinFileRisk)))
 	if fr.RiskScore < minRisk && tr.RiskScore < minRisk {
 		clog.FromContext(ctx).Info("diff does not meet min trigger level", slog.Any("path", tr.Path))
@@ -264,12 +264,12 @@ func fileMove(ctx context.Context, c bincapz.Config, fr, tr *bincapz.FileReport,
 	}
 
 	// We think that this file moved from rpath to apath.
-	abs := &bincapz.FileReport{
+	abs := &malcontent.FileReport{
 		Path:                 tr.Path,
 		PreviousRelPath:      rpath,
 		PreviousRelPathScore: score,
 
-		Behaviors:         []*bincapz.Behavior{},
+		Behaviors:         []*malcontent.Behavior{},
 		PreviousRiskScore: fr.RiskScore,
 		PreviousRiskLevel: fr.RiskLevel,
 

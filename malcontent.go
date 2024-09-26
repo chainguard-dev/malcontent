@@ -1,7 +1,9 @@
 // Copyright 2024 Chainguard, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-// bincapz returns information about a binaries capabilities
+// malcontent returns information about a file's capabilities
+//
+//nolint:cyclop // ignore complexity of 40
 package main
 
 import (
@@ -15,22 +17,23 @@ import (
 	"strings"
 	"time"
 
-	"github.com/chainguard-dev/bincapz/pkg/action"
-	"github.com/chainguard-dev/bincapz/pkg/bincapz"
-	"github.com/chainguard-dev/bincapz/pkg/compile"
-	"github.com/chainguard-dev/bincapz/pkg/profile"
-	"github.com/chainguard-dev/bincapz/pkg/render"
-	"github.com/chainguard-dev/bincapz/pkg/version"
-	"github.com/chainguard-dev/bincapz/rules"
-	thirdparty "github.com/chainguard-dev/bincapz/third_party"
+	"github.com/chainguard-dev/malcontent/pkg/malcontent"
+
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/action"
+	"github.com/chainguard-dev/malcontent/pkg/compile"
+	"github.com/chainguard-dev/malcontent/pkg/profile"
+	"github.com/chainguard-dev/malcontent/pkg/render"
+	"github.com/chainguard-dev/malcontent/pkg/version"
+	"github.com/chainguard-dev/malcontent/rules"
+	thirdparty "github.com/chainguard-dev/malcontent/third_party"
 	"github.com/hillu/go-yara/v4"
 
 	"github.com/urfave/cli/v2"
 )
 
+// Exit codes based on diff(1) and https://man.freebsd.org/cgi/man.cgi?errno(2)
 var (
-	// Exit codes based on diff(1) and https://man.freebsd.org/cgi/man.cgi?errno(2)
 	ExitOK              = 0
 	ExitActionFailed    = 2
 	ExitProfilerError   = 3
@@ -77,6 +80,7 @@ var riskMap = map[string]int{
 	"critical": 4,
 }
 
+//nolint:cyclop // ignore complexity of 40
 func main() {
 	returnCode := ExitOK
 	defer func() { os.Exit(returnCode) }()
@@ -88,12 +92,12 @@ func main() {
 
 	// variables to share between stages
 	var (
-		bc       bincapz.Config
+		mc       malcontent.Config
 		ctx      context.Context
 		err      error
 		outFile  = os.Stdout
-		renderer bincapz.Renderer
-		res      *bincapz.Report
+		renderer malcontent.Renderer
+		res      *malcontent.Report
 		stop     func()
 		ver      string
 		yrs      *yara.Rules
@@ -105,10 +109,10 @@ func main() {
 	}
 
 	app := &cli.App{
-		Name:      "bincapz",
+		Name:      "malcontent",
 		Version:   ver,
 		Usage:     "Detect malicious program behaviors",
-		UsageText: "bincapz <flags> [diff, scan] <path>",
+		UsageText: "mal <flags> [diff, scan] <path>",
 		Compiled:  time.Now(),
 		// Close the output file and stop profiling if appropriate
 		After: func(_ *cli.Context) error {
@@ -126,7 +130,7 @@ func main() {
 		// Handle shared initialization (flag parsing, rule compilation, configuration)
 		Before: func(c *cli.Context) error {
 			ctx = clog.WithLogger(c.Context, log)
-			clog.FromContext(ctx).Info("bincapz starting")
+			clog.FromContext(ctx).Info("malcontent starting")
 
 			if profileFlag {
 				var err error
@@ -209,7 +213,7 @@ func main() {
 				return err
 			}
 
-			bc = bincapz.Config{
+			mc = malcontent.Config{
 				Concurrency:           concurrencyFlag,
 				ErrFirstHit:           errFirstHitFlag,
 				ErrFirstMiss:          errFirstMissFlag,
@@ -257,7 +261,7 @@ func main() {
 			&cli.BoolFlag{
 				Name:        "ignore-self",
 				Value:       true,
-				Usage:       "Ignore the bincapz binary",
+				Usage:       "Ignore the malcontent binary",
 				Destination: &ignoreSelfFlag,
 			},
 			&cli.StringFlag{
@@ -354,6 +358,11 @@ func main() {
 						Value:   "",
 						Usage:   "Scan an image",
 					},
+					&cli.BoolFlag{
+						Name:  "processes",
+						Value: false,
+						Usage: "Scan the commands (paths) of running processes",
+					},
 				},
 				Action: func(c *cli.Context) error {
 					// Handle edge cases
@@ -361,13 +370,28 @@ func main() {
 					// Default to path scanning if neither flag is passed (images must be scanned via --image or -i)
 					switch {
 					case c.String("image") != "":
-						bc.OCI = true
-					case c.String("image") == "":
+						mc.OCI = true
+					case c.String("image") == "" && !c.Bool("processes"):
 						cmdArgs := c.Args().Slice()
-						bc.ScanPaths = []string{cmdArgs[0]}
+						mc.ScanPaths = []string{cmdArgs[0]}
+					case c.Bool("processes"):
+						mc.Processes = true
 					}
 
-					res, err = action.Scan(ctx, bc)
+					// When scanning processes, load all of the valid commands (paths)
+					// and store them as the ScanPaths
+					if mc.Processes {
+						processPaths, err := action.GetAllProcessPaths(ctx)
+						if err != nil {
+							returnCode = ExitActionFailed
+							return err
+						}
+						for _, p := range processPaths {
+							mc.ScanPaths = append(mc.ScanPaths, p.Path)
+						}
+					}
+
+					res, err = action.Scan(ctx, mc)
 					if err != nil {
 						log.Error("scan failed", slog.Any("error", err))
 						returnCode = ExitActionFailed
@@ -388,7 +412,7 @@ func main() {
 				Name:  "diff",
 				Usage: "scan and diff two paths",
 				Action: func(_ *cli.Context) error {
-					res, err = action.Diff(ctx, bc)
+					res, err = action.Diff(ctx, mc)
 					if err != nil {
 						log.Error("diff failed", slog.Any("error", err))
 						returnCode = ExitActionFailed
@@ -414,21 +438,41 @@ func main() {
 						Value:   "",
 						Usage:   "Scan an image",
 					},
+					&cli.BoolFlag{
+						Name:  "processes",
+						Value: false,
+						Usage: "Scan the commands (paths) of running processes",
+					},
 				},
 				Action: func(c *cli.Context) error {
-					bc.Scan = true
+					mc.Scan = true
 					// Handle edge cases
 					// Set bc.OCI if the image flag is used
 					// Default to path scanning if neither flag is passed (images must be scanned via --image or -i)
 					switch {
 					case c.String("image") != "":
-						bc.OCI = true
-					case c.String("image") == "":
+						mc.OCI = true
+					case c.String("image") == "" && !c.Bool("processes"):
 						cmdArgs := c.Args().Slice()
-						bc.ScanPaths = []string{cmdArgs[0]}
+						mc.ScanPaths = []string{cmdArgs[0]}
+					case c.Bool("processes"):
+						mc.Processes = true
 					}
 
-					res, err = action.Scan(ctx, bc)
+					// When scanning processes, load all of the valid commands (paths)
+					// and store them as the ScanPaths
+					if mc.Processes {
+						processPaths, err := action.GetAllProcessPaths(ctx)
+						if err != nil {
+							returnCode = ExitActionFailed
+							return err
+						}
+						for _, p := range processPaths {
+							mc.ScanPaths = append(mc.ScanPaths, p.Path)
+						}
+					}
+
+					res, err = action.Scan(ctx, mc)
 					if err != nil {
 						log.Error("scan failed", slog.Any("error", err))
 						returnCode = ExitActionFailed
@@ -443,7 +487,7 @@ func main() {
 					}
 
 					if res.Files.Len() > 0 {
-						fmt.Fprintf(os.Stderr, "\n\ntip: For detailed analysis, run: bincapz analyze <path>\n")
+						fmt.Fprintf(os.Stderr, "\ntip: For detailed analysis, run: mal analyze <path>\n")
 					}
 
 					return nil
@@ -453,7 +497,7 @@ func main() {
 	}
 
 	if err := app.Run(os.Args); err != nil {
-		log.Error("error running bincapz: %w", slog.Any("error", err))
+		log.Error("error running malcontent: %w", slog.Any("error", err))
 		returnCode = ExitActionFailed
 	}
 }

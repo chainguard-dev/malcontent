@@ -18,7 +18,7 @@ env:
 
 jobs:
   version:
-    if: ${{ github.repository }} == 'chainguard-dev/bincapz'
+    if: ${{ github.repository }} == 'chainguard-dev/malcontent'
     runs-on: ubuntu-latest
     steps:
     - uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7
@@ -30,7 +30,7 @@ jobs:
       uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # v1.0.0
       id: octo-sts
       with:
-        scope: chainguard-dev/bincapz
+        scope: chainguard-dev/malcontent
         identity: release
     - name: Update Version
       id: update
@@ -67,15 +67,15 @@ jobs:
           exit 1
         fi
 
-        echo "Current bincapz version: $CURRENT_VERSION"
-        echo "New bincapz version: $VERSION"
+        echo "Current malcontent version: $CURRENT_VERSION"
+        echo "New malcontent version: $VERSION"
         
         sed -i "s/ID string = \"v[0-9]*\.[0-9]*\.[0-9]*\"/ID string = \"${VERSION}\"/" ${{ env.VERSION_FILE }}
 
-        BRANCH="bincapz-version-bump-$VERSION"
+        BRANCH="malcontent-version-bump-$VERSION"
         git checkout -b $BRANCH
         git add ${{ env.VERSION_FILE }}
-        git commit -m "Bump bincapz version to $VERSION"
+        git commit -m "Bump malcontent version to $VERSION"
         git push origin $BRANCH
 
         echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
@@ -84,4 +84,4 @@ jobs:
         GH_TOKEN: ${{ steps.octo-sts.outputs.token }}
       run: |
         VERSION=${{ steps.update.outputs.VERSION }}
-        gh pr create -t "Update bincapz to $VERSION" -b "PR to update the version in ${{ env.VERSION_FILE }} to $VERSION" -B main
+        gh pr create -t "Update malcontent to $VERSION" -b "PR to update the version in ${{ env.VERSION_FILE }} to $VERSION" -B main
