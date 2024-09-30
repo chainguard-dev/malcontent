@@ -266,8 +266,8 @@ func main() {
 			},
 			&cli.StringFlag{
 				Name:        "ignore-tags",
-				Value:       "False-positive,None",
-				Usage:       "Rule tags to ignore (by default, rules tagged with \"False-positive\" or \"None\" will be ignored)",
+				Value:       "false_positive,ignore",
+				Usage:       "Rule tags to ignore (by default, rules tagged with \"false_positive\" or \"ignore\" will be ignored)",
 				Destination: &ignoreTagsFlag,
 			},
 			&cli.BoolFlag{
