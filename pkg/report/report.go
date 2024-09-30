@@ -34,6 +34,17 @@ var RiskLevels = map[int]string{
 	4: "CRITICAL", // critical: certainly malware
 }
 
+var Levels = map[string]int{
+	"harmless":   0,
+	"notable":    2,
+	"medium":     2,
+	"suspicious": 3,
+	"weird":      3,
+	"high":       3,
+	"crit":       4,
+	"critical":   4,
+}
+
 // yaraForge has some very, very long rule names.
 var yaraForgeJunkWords = map[string]bool{
 	"controller":        true,
@@ -174,18 +185,8 @@ func behaviorRisk(ns string, rule string, tags []string) int {
 		risk = 2
 	}
 
-	levels := map[string]int{
-		"harmless":   0,
-		"notable":    2,
-		"medium":     2,
-		"suspicious": 3,
-		"weird":      3,
-		"high":       3,
-		"crit":       4,
-		"critical":   4,
-	}
 	for _, tag := range tags {
-		if r, ok := levels[tag]; ok {
+		if r, ok := Levels[tag]; ok {
 			risk = r
 			break
 		}
@@ -294,7 +295,7 @@ func mungeDescription(s string) string {
 	return s
 }
 
-//nolint:cyclop // ignore complexity of 44
+//nolint:cyclop,gocognit // ignore complexity of 44; 102
 func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malcontent.Config, expath string) (malcontent.FileReport, error) {
 	ignoreTags := c.IgnoreTags
 	minScore := c.MinRisk
@@ -331,8 +332,10 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 	riskCounts := map[int]int{}
 	risk := 0
 	key := ""
+	overrideRule := yara.MatchRule{}
+	overrideExists := false
 
-	// If we're running a scan, only diplay findings of the highest risk
+	// If we're running a scan, only display findings of the highest risk
 	// Return an empty file report if the highest risk is medium or lower
 	var highestRisk int
 	if c.Scan {
@@ -342,18 +345,40 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 		}
 	}
 
+	// store matched rules in a map so we can do override lookups
+	mrsMap := make(map[string]yara.MatchRule)
+	for _, m := range mrs {
+		mrsMap[m.Rule] = m
+	}
+
+	// map to store rule override names with their combined descriptions (original + override)
+	overrides := make(map[string]string)
 	for _, m := range mrs {
 		if all(m.Rule == NAME, ignoreSelf) {
 			ignoreMalcontent = true
 		}
 		risk = behaviorRisk(m.Namespace, m.Rule, m.Tags)
+
+		// override expects the rule name to be 1:1 with the original rule name with an _override suffix
+		// e.g., pip_installer -> pip_installer_override
+		overrideName := fmt.Sprintf("%s_override", m.Rule)
+		overrideRule, overrideExists = mrsMap[overrideName]
+		if _, exists := overrides[m.Rule]; exists {
+			// Use the override's severity if it exists in the Levels map
+			for _, t := range overrideRule.Tags {
+				if _, valid := Levels[t]; valid {
+					risk = Levels[t]
+				}
+			}
+		}
+
 		if risk > overallRiskScore {
 			overallRiskScore = risk
 		}
 		riskCounts[risk]++
 		// The malcontent rule is classified as harmless
 		// A !ignoreMalcontent condition will prevent the rule from being filtered
-		// If running a scan as opposed to an analyze,
+		// If running a scan as opposed to an `analyze`,
 		// drop any matches that fall below the highest risk
 		switch {
 		case risk < minScore && !ignoreMalcontent:
@@ -407,7 +432,22 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 				b.RuleLicenseURL = v
 			case "description", "threat_name", "name":
 				desc := mungeDescription(v)
-				if len(desc) > len(b.Description) {
+				// If an override for this rule exists,
+				// iterate through its metadata and combine its description with the original's description
+				if overrideExists {
+					for _, oMeta := range overrideRule.Metas {
+						overrideK := oMeta.Identifier
+						overrideV := fmt.Sprintf("%s", oMeta.Value)
+						switch overrideK {
+						case "description", "threat_name", "name":
+							overrideDesc := mungeDescription(overrideV)
+							overrides[overrideName] = fmt.Sprintf("%s, %s", overrideDesc, desc)
+						}
+					}
+				}
+
+				// For rules without an override, set the behavior description directly
+				if len(desc) > len(b.Description) && !overrideExists {
 					b.Description = desc
 				}
 			case "ref", "reference":
@@ -443,7 +483,8 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 			continue
 		}
 
-		if ignoreMatch(m.Tags, ignore) {
+		// If ignored tags are present or an override exists for the rule, filter the behavior and continue
+		if ignoreMatch(m.Tags, ignore) || overrideExists {
 			fr.FilteredBehaviors++
 			clog.DebugContextf(ctx, "dropping %s (tags match ignore list)", m.Namespace)
 			continue
@@ -452,6 +493,11 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 		// If the rule does not have a description, make one up based on the rule name
 		if b.Description == "" {
 			b.Description = strings.ReplaceAll(m.Rule, "_", " ")
+		}
+
+		// If the rule is an override, set the description to the combined rule + override rule descriptions
+		if _, exists := overrides[m.Rule]; exists {
+			b.Description = overrides[m.Rule]
 		}
 
 		existingIndex := -1
@@ -473,12 +519,11 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 		} else {
 			fr.Behaviors = append(fr.Behaviors, b)
 		}
-
 		// TODO: If we match multiple rules within a single namespace, merge matchstrings
 	}
 
 	// Check for both the full and shortened variants of malcontent
-	isMalBinary := (filepath.Base(path) == NAME || filepath.Base(path) == "mal")
+	isMalBinary := filepath.Base(path) == NAME || filepath.Base(path) == "mal"
 
 	if all(ignoreSelf, fr.IsMalcontent, ignoreMalcontent, isMalBinary) {
 		return malcontent.FileReport{}, nil
