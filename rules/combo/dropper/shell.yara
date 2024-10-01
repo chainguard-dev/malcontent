@@ -25,7 +25,6 @@ rule curl_chmod_relative_run : medium {
     all of them
 }
 
-
 rule curl_chmod_relative_run_tiny : critical {
   meta:
     description = "change dir, fetch file, make it executable, and run it"
@@ -33,13 +32,33 @@ rule curl_chmod_relative_run_tiny : critical {
     hash_2023_Downloads_6e35 = "6e35b5670953b6ab15e3eb062b8a594d58936dd93ca382bbb3ebdbf076a1f83b"
     hash_2023_Linux_Malware_Samples_df3b = "df3b41b28d5e7679cddb68f92ec98bce090af0b24484b4636d7d84f579658c52"
   strings:
-	$cd = /cd {1,2}\/[\w\/]{0,16}/
+	$cd = /cd {1,2}[\/\$][\w\/]{0,16}/
     $curl = /curl [\-\w \$\@\{\w\/\.\:]{0,96}/
-    $chmod = /chmod [\-\w \$\@\{\w\/\.]{0,64}/
+    $chmod = /chmod [\+\-\w \$\@\{\w\/\.]{0,64}/
     $dot_slash = /\.\/[a-z]{1,2}[a-z\.\/\- ]{0,32}/ fullword
   condition:
     filesize < 6KB and all of them
 }
+
+rule curl_tor_chmod_relative_run : critical {
+  meta:
+    description = "change dir, fetch file via tor, make it executable, and run it"
+    hash_2024_Downloads_4ba700b0e86da21d3dcd6b450893901c252bf817bd8792548fc8f389ee5aec78 = "fd3e21b8e2d8acf196cb63a23fc336d7078e72c2c3e168ee7851ea2bef713588"
+    hash_2023_Downloads_6e35 = "6e35b5670953b6ab15e3eb062b8a594d58936dd93ca382bbb3ebdbf076a1f83b"
+    hash_2023_Linux_Malware_Samples_df3b = "df3b41b28d5e7679cddb68f92ec98bce090af0b24484b4636d7d84f579658c52"
+  strings:
+	$tor2web = "tor2web"
+	$tor2socks = "tor2socks"
+	$tor_onion = ".onion"
+
+	$cd = /cd {1,2}[\/\$][\w\/]{0,16}/
+    $curl = /curl [\-\w \$\@\{\w\/\.\:]{0,96}/
+    $chmod = /chmod [\+\-\w \$\@\{\w\/\.]{0,64}/
+    $dot_slash = /\.\/[a-z]{1,2}[a-z\.\/\- ]{0,32}/ fullword
+  condition:
+     any of ($tor*) and $cd and $curl and $chmod and $dot_slash
+}
+
 
 
 rule wget_chmod_relative_run : medium {

@@ -1,5 +1,5 @@
 
-rule unusual_redir {
+rule unusual_redir : medium {
   strings:
     $s_redir_stdin = " 0>&1"
     $s_redir_bash = "bash 2>/dev/null"
@@ -12,4 +12,14 @@ rule unusual_redir {
     $not_shell_local = "local -a"
   condition:
     any of ($s*) and none of ($not*)
+}
+
+rule redirect_everything : high {
+	meta:
+		description = "redirects all shell output to /dev/null"
+	strings:
+		$exec_dev_null = "exec &>/dev/null" fullword
+		$exec_dev_null2 = "exec >/dev/null 2>/dev/null" fullword
+	condition:
+		any of them
 }
