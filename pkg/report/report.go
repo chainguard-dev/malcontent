@@ -334,6 +334,8 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 	key := ""
 	overrideRule := yara.MatchRule{}
 	overrideExists := false
+	// map to store rule override names with combined rule descriptions (original + override)
+	overrides := make(map[string]string)
 
 	// If we're running a scan, only display findings of the highest risk
 	// Return an empty file report if the highest risk is medium or lower
@@ -351,8 +353,6 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 		mrsMap[m.Rule] = m
 	}
 
-	// map to store rule override names with their combined descriptions (original + override)
-	overrides := make(map[string]string)
 	for _, m := range mrs {
 		if all(m.Rule == NAME, ignoreSelf) {
 			ignoreMalcontent = true
@@ -435,12 +435,12 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 				// If an override for this rule exists,
 				// iterate through its metadata and combine its description with the original's description
 				if overrideExists {
-					for _, oMeta := range overrideRule.Metas {
-						overrideK := oMeta.Identifier
-						overrideV := fmt.Sprintf("%s", oMeta.Value)
-						switch overrideK {
+					for _, o := range overrideRule.Metas {
+						k := o.Identifier
+						v := fmt.Sprintf("%s", o.Value)
+						switch k {
 						case "description", "threat_name", "name":
-							overrideDesc := mungeDescription(overrideV)
+							overrideDesc := mungeDescription(v)
 							overrides[overrideName] = fmt.Sprintf("%s, %s", overrideDesc, desc)
 						}
 					}
