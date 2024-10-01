@@ -11,6 +11,8 @@ rule js_crypto_stealer : critical {
     $url = /https{0,1}:\/\/[\w][\w\.\/\-_\?=\@]{8,64}/
 
 	$POST = "POST"
+
+	$not_grafana = "self.webpackChunkgrafana=self.webpackChunkgrafana"
   condition:
-	filesize < 50KB and $url and $POST and any of ($pk*)
+	filesize < 50KB and $url and $POST and any of ($pk*) and none of ($not_*)
 }
