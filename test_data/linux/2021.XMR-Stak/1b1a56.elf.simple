@@ -2,7 +2,6 @@
 3P/TTC-CERT/kittipongk/cryptominer/unix
 3P/elastic/cryptominer/stak
 combo/backdoor/net_term
-combo/dropper/binary
 combo/miner/hugepages_nmi_crypto
 combo/net/scan_tool
 combo/net/tunnel_proxy

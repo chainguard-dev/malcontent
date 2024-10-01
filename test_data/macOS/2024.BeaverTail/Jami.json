@@ -10,16 +10,6 @@
             },
             "Behaviors": [
                 {
-                    "Description": "executable makes another file executable",
-                    "MatchStrings": [
-                        "http:"
-                    ],
-                    "RiskScore": 3,
-                    "RiskLevel": "HIGH",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/combo/dropper/binary.yara#chmod_executable_shell_binary",
-                    "ID": "combo/dropper/binary"
-                },
-                {
                     "Description": "Makes references to multiple browser credentials",
                     "MatchStrings": [
                         ".config",

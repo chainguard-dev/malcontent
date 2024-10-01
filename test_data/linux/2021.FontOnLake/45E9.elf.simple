@@ -4,7 +4,6 @@
 admin/logs/failed_logins
 admin/logs/historical_logins
 combo/backdoor/ssh
-combo/dropper/binary
 combo/recon/system_network
 combo/stealer/pam
 crypto/aes
