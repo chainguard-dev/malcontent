@@ -1,6 +1,6 @@
 import "math"
 
-rule child_process : critical {
+rule child_process : high {
 	meta:
 		description = "obfuscated javascript that relies on character manipulation"
 		filetypes = "javascript"
@@ -16,6 +16,7 @@ rule child_process : critical {
 		$const = "const "
 		$function = "function("
 		$return = "{return"
+
 	condition:
 		filesize < 128KB and all of them
 }
