@@ -4,6 +4,7 @@
 admin/logs/failed_logins
 admin/logs/historical_logins
 combo/backdoor/ssh
+combo/dropper/binary
 combo/recon/system_network
 combo/stealer/pam
 crypto/aes
@@ -14,6 +15,7 @@ env/TERM
 env/USER
 evasion/packer/upx
 evasion/process/hide
+evasion/rootkit
 exec/program
 exec/program/background
 fs/directory/create
@@ -50,6 +52,7 @@ net/socks5
 net/ssh
 persist/pid_file
 process/chroot
+process/executable_path
 process/groupid/set
 process/groups/set
 process/name/set
@@ -73,6 +76,7 @@ ref/program/sshd
 ref/site/url
 ref/words/agent
 ref/words/backdoor
+ref/words/malicious
 ref/words/password
 ref/words/rootkit
 ref/words/spoof

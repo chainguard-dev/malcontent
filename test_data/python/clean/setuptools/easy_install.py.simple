@@ -5,6 +5,7 @@ env/get
 evasion/lib_alias
 exec/program
 fd/write
+fs/directory/create
 fs/directory/list
 fs/directory/traverse
 fs/file/delete
@@ -16,3 +17,4 @@ kernel/platform
 net/download
 process/executable_path
 ref/site/url
+ref/words/malicious

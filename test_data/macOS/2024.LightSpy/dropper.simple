@@ -1,6 +1,7 @@
 # macOS/2024.LightSpy/dropper
 3P/huntress/lightspy/loader
-combo/dropper/cocoa_bundle
+combo/dropper/binary
+combo/dropper/macos
 combo/recon/system_network
 crypto/aes
 crypto/xor

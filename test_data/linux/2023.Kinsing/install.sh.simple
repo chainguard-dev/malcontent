@@ -20,7 +20,7 @@ crypto/mining/generic
 crypto/mining/monero/pool
 crypto/mining/xmrig
 data/embedded/base64/url
-evasion/base64/shell/commands
+evasion/base64/commands
 evasion/fake/process/name
 fs/attributes/chattr
 fs/directory/create
@@ -40,6 +40,7 @@ persist/crontab
 persist/linux_multi
 persist/ssh_authorized_keys
 process/find
+process/kill/multiple
 ref/daemon
 ref/ip
 ref/ip_port

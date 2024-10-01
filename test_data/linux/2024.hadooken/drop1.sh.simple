@@ -4,7 +4,7 @@ combo/dropper/shell
 data/embedded/base64/url
 encoding/base64
 evasion/base64/eval
-evasion/base64/external/decoder
+evasion/base64/external
 evasion/base64/python
 fs/file/delete
 fs/file/delete/forcibly

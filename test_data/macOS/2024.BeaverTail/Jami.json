@@ -1,0 +1,225 @@
+{
+    "Files": {
+        "macOS/2024.BeaverTail/Jami": {
+            "Path": "macOS/2024.BeaverTail/Jami",
+            "SHA256": "0f5f0a3ac843df675168f82021c24180ea22f764f87f82f9f77fe8f0ba0b7132",
+            "Size": 770832,
+            "Meta": {
+                "format": "macho",
+                "lang": "c++"
+            },
+            "Behaviors": [
+                {
+                    "Description": "executable makes another file executable",
+                    "MatchStrings": [
+                        "http:"
+                    ],
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/combo/dropper/binary.yara#chmod_executable_shell_binary",
+                    "ID": "combo/dropper/binary"
+                },
+                {
+                    "Description": "Makes references to multiple browser credentials",
+                    "MatchStrings": [
+                        ".config",
+                        "Application Support",
+                        "Brave-Browser",
+                        "BraveSoftw",
+                        "Chrome/User Data",
+                        "Google/Chrome",
+                        "Opera Software",
+                        "Roaming/"
+                    ],
+                    "RiskScore": 4,
+                    "RiskLevel": "CRITICAL",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/combo/stealer/browser.yara#multiple_browser_refs",
+                    "ID": "combo/stealer/browser"
+                },
+                {
+                    "Description": "makes HTTPS connections and references multiple Chrome crypto wallet extensions",
+                    "MatchStrings": [
+                        "aeachknmefph",
+                        "bfnaelmomeimh",
+                        "ebolmdjonilk",
+                        "ejbalbakoplch",
+                        "fhbohimaelbohp",
+                        "gpafnldhgmapag",
+                        "hnfanknocfeof",
+                        "http",
+                        "ibnejdfjmmkpc",
+                        "mccdpekplomjjkc",
+                        "mihkjbmgjidlc",
+                        "nkbihfbeogae",
+                        "ohmabehhmhfoo"
+                    ],
+                    "RiskScore": 4,
+                    "RiskLevel": "CRITICAL",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/combo/stealer/wallet.yara#crypto_extension_stealer",
+                    "ID": "combo/stealer/wallet"
+                },
+                {
+                    "Description": "binary contains little text content",
+                    "MatchStrings": [
+                        "ft hg"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/evasion/binary-opaque.yara#opaque_binary",
+                    "ID": "evasion/binary/opaque"
+                },
+                {
+                    "Description": "Beaver Tail Infostealer",
+                    "MatchStrings": [
+                        "%1_%2_%3_%4_%5",
+                        "*.ldb",
+                        "/.pyp/python.exe",
+                        "/client/99",
+                        "/pdown",
+                        "/uploads",
+                        "Download Python Success!",
+                        "Upload LDB Finshed",
+                        "clientDownFinished",
+                        "logkc_db",
+                        "name=\"multi_file\"",
+                        "pDownFinished",
+                        "upLDBFinished"
+                    ],
+                    "RiskScore": 4,
+                    "RiskLevel": "CRITICAL",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/malware/family/beaver_tail.yara#beaver_tail",
+                    "ReferenceURL": "https://objective-see.org/blog/blog_0x7A.html",
+                    "ID": "malware/family/beaver_tail"
+                },
+                {
+                    "Description": "download files",
+                    "MatchStrings": [
+                        "Download Client Success",
+                        "Download Python Success"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/download.yara#download",
+                    "ID": "net/download"
+                },
+                {
+                    "Description": "submits form content to websites",
+                    "MatchStrings": [
+                        "multipart/form-data; boundary="
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http-post.yara#form_data_reference",
+                    "ID": "net/http/post"
+                },
+                {
+                    "Description": "uploads files",
+                    "MatchStrings": [
+                        "UploadEv",
+                        "uploads"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/upload.yara#upload",
+                    "ID": "net/upload"
+                },
+                {
+                    "Description": "hardcoded IP address",
+                    "MatchStrings": [
+                        "95.164.17.24"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/ip.yara#hardcoded_ip",
+                    "ID": "ref/ip"
+                },
+                {
+                    "Description": "hardcoded IP:port destination",
+                    "MatchStrings": [
+                        "95.164.17.24:1224"
+                    ],
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/ip_port.yara#hardcoded_ip_port",
+                    "ID": "ref/ip_port"
+                },
+                {
+                    "Description": "path reference within ~/.config",
+                    "MatchStrings": [
+                        "/.config/BraveSoftware/Brave",
+                        "/.config/google",
+                        "/.config/opera"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/path/home-config.yara#home_config_path",
+                    "ID": "ref/path/home/config"
+                },
+                {
+                    "Description": "hardcoded IP address within a URL",
+                    "MatchStrings": [
+                        "http://95.164.17.24:1224"
+                    ],
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/site/http-ip.yara#http_hardcoded_ip",
+                    "ID": "ref/site/http/ip"
+                },
+                {
+                    "Description": "contains embedded HTTP URLs",
+                    "MatchStrings": [
+                        "http://95.164.17.24"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/site/url.yara#http_url",
+                    "ID": "ref/site/url"
+                },
+                {
+                    "Description": "gets very excited",
+                    "MatchStrings": [
+                        "Upload LDB Finshed!!!"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/words/exclamation.yara#exclamations",
+                    "ID": "ref/words/exclamation"
+                },
+                {
+                    "Description": "steals login keychain",
+                    "MatchStrings": [
+                        "Keychains",
+                        "logkc_db"
+                    ],
+                    "RiskScore": 4,
+                    "RiskLevel": "CRITICAL",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/secrets/keychain.yara#login_keychain_eager_beaver",
+                    "ReferenceURL": "https://www.group-ib.com/blog/apt-lazarus-python-scripts/",
+                    "ID": "secrets/keychain"
+                },
+                {
+                    "Description": "references 'cstealer' tool",
+                    "MatchStrings": [
+                        "aeachknmefphepccionboohckonoeemg",
+                        "aholpfdialjgjfhomihkjbmgjidlcdno",
+                        "bfnaelmomeimhlpmgjnjophhpkkoljpa",
+                        "ejbalbakoplchlghecdalmeeeajnimhm",
+                        "fhbohimaelbohpjbbldcngcnapndodjp",
+                        "hnfanknocfeofbddgcijnmhnfnkdnaad",
+                        "ibnejdfjmmkpcnlpebklmnkoeoihofec",
+                        "jblndlipeogpafnldhgmapagcccfchpi",
+                        "nkbihfbeogaeaoehlefnkodbefgpgknn"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/yara/threat_hunting/all.yara#cstealer_offensive_tool_keyword",
+                    "ReferenceURL": "https://github.com/mthcht/ThreatHunting-Keywords",
+                    "RuleAuthor": "mthcht",
+                    "ID": "3P/threat_hunting/cstealer"
+                }
+            ],
+            "RiskScore": 4,
+            "RiskLevel": "CRITICAL"
+        }
+    }
+}

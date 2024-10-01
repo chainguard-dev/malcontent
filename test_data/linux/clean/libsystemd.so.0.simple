@@ -1,4 +1,5 @@
 # linux/clean/libsystemd.so.0
+combo/dropper/binary
 env/TERM
 env/USER
 exec/program

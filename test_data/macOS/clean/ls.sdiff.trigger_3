@@ -1,0 +1,6 @@
+*** changed: macOS/clean/ls
++combo/dropper/binary
++fs/directory/traverse
+-kernel/hostname/get
+-process/name/set
+-ref/site/url
