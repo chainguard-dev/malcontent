@@ -3,10 +3,10 @@
 +data/embedded/base64/terms
 +data/embedded/base64/url
 +encoding/base64
++evasion/base64/commands
 +evasion/base64/eval
-+evasion/base64/external/decoder
++evasion/base64/external
 +evasion/base64/http
-+evasion/base64/shell/commands
 +fs/directory/create
 +fs/file/delete/forcibly
 +fs/file/make_executable

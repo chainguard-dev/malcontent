@@ -2,6 +2,7 @@
 3P/elastic/threat
 combo/backdoor/kill_rm
 combo/botnet/systemctl
+combo/dropper/binary
 combo/dropper/shell
 combo/stealer/linux_server
 combo/stealer/ssh

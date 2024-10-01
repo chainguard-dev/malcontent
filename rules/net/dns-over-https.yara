@@ -10,6 +10,7 @@ rule doh_refs : medium {
     $DnsOverHttps = "DnsOverHttps"
     $contentType = "application/dns-message"
     $dnspod = "dnspod"
+	$doh_url = "doh-url" fullword	
   condition:
     any of them
 }

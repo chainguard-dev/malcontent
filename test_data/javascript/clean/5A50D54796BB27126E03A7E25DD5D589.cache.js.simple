@@ -21,7 +21,6 @@ env/TEMP
 env/USER
 evasion/base64/decode
 evasion/int_to_char
-evasion/single_line_imports
 evasion/unusual_include
 exec/cmd
 exec/program
@@ -33,6 +32,7 @@ fs/directory/remove
 fs/fifo/create
 fs/file/delete
 fs/file/delete/forcibly
+fs/file/read
 fs/file/times/set
 fs/file/truncate
 fs/file/write

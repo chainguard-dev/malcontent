@@ -13,6 +13,7 @@ net/socket/connect
 net/socket_filter
 persist/pid_file
 process/create
+process/executable_path
 ref/path/usr/bin
 ref/path/usr/local
 ref/path/var

@@ -33,3 +33,12 @@ rule fake_bash_val : high {
   condition:
 	filesize < 8KB and $bash
 }
+
+rule fake_systemd : critical {
+  meta:
+    description = "Pretends to be a systemd worker"
+  strings:
+    $ref = "systemd-worker" fullword
+  condition:
+	filesize < 100MB and $ref
+}

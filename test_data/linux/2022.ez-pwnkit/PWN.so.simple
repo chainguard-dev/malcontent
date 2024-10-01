@@ -1,0 +1,19 @@
+# linux/2022.ez-pwnkit/PWN.so
+combo/backdoor/net_exec
+combo/exploit/pwnkit
+exec/program
+exec/shell_command
+fs/file/delete/forcibly
+net/ip/byte/order
+net/ip/parse
+net/raw_sockets
+net/socket/connect
+process/executable_path
+process/groupid/set
+process/userid/set
+ref/path/home
+ref/path/usr/bin
+ref/path/usr/local
+ref/words/malicious
+shell/exec
+shell/reverse

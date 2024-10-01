@@ -12,3 +12,15 @@ rule osascript_shell_as_admin : medium {
   condition:
     $do_shell and $with_admin and none of ($not*)
 }
+
+rule osascript_fake_password : critical {
+	meta:
+		description = "uses osascript to prompt for a sudo password"
+	strings:
+		$osascript = "osascript"
+		$hidden = "hidden answer"
+		$assword = "assword"
+		$sudo = "sudo"
+	condition:
+		filesize < 10MB and all of them
+}

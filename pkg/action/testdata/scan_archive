@@ -86,6 +86,7 @@ net/url/request
 persist/crontab
 process/chdir
 process/chroot
+process/executable_path
 process/find
 process/groups/set
 process/unshare

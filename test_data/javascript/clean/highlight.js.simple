@@ -20,6 +20,7 @@ fs/directory/remove
 fs/file/capabilities/set
 fs/file/copy
 fs/file/delete
+fs/file/read
 fs/file/times/set
 fs/link/read
 fs/lock/update
