@@ -61,7 +61,7 @@ rule multiple_browser_refs : critical {
     $not_generated_comment = "// This file is generated"
     $not_generated_file = "/utils/generate_types/index.js"
     $not_microsoft = "Copyright (c) Microsoft Corporation."
-    $not_microsoft_playright = "Microsoft.Playwright"
+    $not_microsoft_playwright = "Microsoft.Playwright"
   condition:
     2 of ($name*) and 3 of ($fs*) and none of ($not*)
 }
