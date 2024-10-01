@@ -1,4 +1,5 @@
 # linux/clean/ld-2.27.so
+env/GCONV_PATH
 env/LD_DEBUG
 env/LD_LIBRARY_PATH
 env/LD_PROFILE

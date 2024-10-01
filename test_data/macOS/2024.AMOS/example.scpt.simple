@@ -1,0 +1,4 @@
+# macOS/2024.AMOS/example.scpt
+net/fetch
+net/http/post
+ref/path/tmp

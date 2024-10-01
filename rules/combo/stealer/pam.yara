@@ -21,3 +21,12 @@ rule pam_passwords : high {
   condition:
     $auth and $pass and any of ($f*)
 }
+
+rule pam_passwords_rootkit : critical {
+	meta:
+		description = "records passwords and installs a rootkit"
+	strings:
+		$rootkit = "rootkit"
+	condition:
+		any of them and pam_passwords
+}

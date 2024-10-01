@@ -12,7 +12,7 @@ rule single_load_rwe : high {
     elf.number_of_segments == 1 and elf.segments[0].type == elf.PT_LOAD and elf.segments[0].flags == elf.PF_R | elf.PF_W | elf.PF_X
 }
 
-rule fake_section_headers_conflicting_entry_point_address : high {
+rule fake_section_headers_conflicting_entry_point_address : critical {
   meta:
     description = "A fake sections header has been added to the binary."
     family = "Obfuscation"
@@ -24,7 +24,7 @@ rule fake_section_headers_conflicting_entry_point_address : high {
     elf.type == elf.ET_EXEC and elf.entry_point < filesize and elf.number_of_segments > 0 and elf.number_of_sections > 0 and not (for any i in (0..elf.number_of_segments) : ((elf.segments[i].offset <= elf.entry_point) and ((elf.segments[i].offset + elf.segments[i].file_size) >= elf.entry_point) and for any j in (0..elf.number_of_sections) : (elf.sections[j].offset <= elf.entry_point and ((elf.sections[j].offset + elf.sections[j].size) >= elf.entry_point) and (elf.segments[i].virtual_address + (elf.entry_point - elf.segments[i].offset)) == (elf.sections[j].address + (elf.entry_point - elf.sections[j].offset)))))
 }
 
-rule fake_dynamic_symbols : high {
+rule fake_dynamic_symbols : critical {
   meta:
     description = "A fake dynamic symbol table has been added to the binary"
     family = "Obfuscation"

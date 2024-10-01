@@ -29,3 +29,19 @@ rule base64_commands : high {
   condition:
     any of ($b_*) and none of ($not_*)
 }
+
+rule base64_suspicious_commands : critical {
+  meta:
+    description = "suspicious commands in base64 form"
+  strings:
+	$exec_redirect_all = "exec &>/dev/null" base64
+	$date_checksum = "date|md5sum|head -c20" base64
+	$tmp_ICE_unix = "tmp/.ICE-unix" base64
+	$curl = "curl -m60 -fksLA-" base64
+	$bash_tcp = "exec 3<>/dev/tcp/" base64
+	$chmod_x = "chmod +x" base64
+	$rm_f = "&& rm -f " base64
+	$sock5h_url = "socks5h://" base64
+  condition:
+	filesize < 64KB and any of them
+}

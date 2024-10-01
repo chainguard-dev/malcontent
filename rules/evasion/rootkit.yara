@@ -25,3 +25,19 @@ rule funky_high_signal_killer : high {
   condition:
     any of them
 }
+
+rule linux_rootkit_terms : critical {
+  meta:
+    description = "appears to be a Linux rootkit"
+  strings:
+    $s_Rootkit = "Rootkit"
+    $s_r00tkit = "r00tkit"
+    $s_r00tk1t = "r00tk1t"
+    $s_rootkit = "rootkit" fullword
+
+	$o_systemctl = "systemctl" fullword
+	$o_sshd = "sshd" fullword
+	$o_miner = "miner" fullword
+  condition:
+    any of ($s*) and any of ($o*)
+}

@@ -8,9 +8,10 @@ rule dynamic_hidden_path : medium {
     hash_2023_Linux_Malware_Samples_efa8 = "efa875506296d77178884ba8ac68a8b6d6aef24e79025359cf5259669396e8dd"
   strings:
     $ref = /%s\/\.[a-z][\w-]{0,32}/
+	$ref_py = /os.path.join\(\w{1,8}, \"\.\w{1,16}"\)/
     $config = "%s/.config"
   condition:
-    $ref and not $config
+    any of ($ref*) and not $config
 }
 
 rule static_hidden_path {
