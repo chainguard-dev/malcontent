@@ -18,7 +18,7 @@ jobs:
     - uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7
       with:
         egress-policy: audit
-    - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+    - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938
     - uses: chainguard-dev/actions/setup-gitsign@e82b4e5ae10182af72972addcb3fedf7454621c8
     - name: Set up Octo-STS
       uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # v1.0.0
