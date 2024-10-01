@@ -1,0 +1,17 @@
+# macOS/2024.Ezuri/libdpt1.so
+combo/backdoor/net_exec
+crypto/aes
+encoding/json/encode
+evasion/packer/aes
+evasion/packer/ezuri
+exec/program
+fs/file/read
+fs/permission/chown
+fs/permission/modify
+kernel/cpu/info
+net/socket/receive
+net/socket/send
+process/multithreaded
+ref/path/etc
+ref/path/users
+ref/words/plugin

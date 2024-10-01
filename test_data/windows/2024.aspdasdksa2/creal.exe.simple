@@ -9,6 +9,7 @@ databases/sqlite
 encoding/base64
 evasion/anti/debugger
 exec/program
+fs/file/read
 kernel/sysinfo
 net/bpf
 net/dns/txt

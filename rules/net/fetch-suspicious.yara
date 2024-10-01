@@ -25,8 +25,8 @@ rule high_fetch_command_val : high {
     hash_2023_Chaos_1fc4 = "1fc412b47b736f8405992e3744690b58ec4d611c550a1b4f92f08dfdad5f7a30"
     hash_2023_Chaos_27cd = "27cdb8d8f64ce395795fdbde10cf3a08e7b217c92b7af89cde22abbf951b9e99"
   strings:
-    $c_curl_d = /curl [\- \w]{0,16}-[dOok][\/\- \w\%\(\{\}\'\"\)\$\:]{0,128}/
-    $c_curl_insecure = /curl [\- \w]{0,128}--insecure[\/\- \w\%\(\{\}\'\"\)\$\:]{0,128}/
+    $c_curl_d = /curl [\- \w]{0,16}-[dOok][\/\- \w\%\(\{\}\'\"\)\$\:\.]{0,128}/
+    $c_curl_insecure = /curl [\- \w]{0,128}--insecure[\/\- \w\%\(\{\}\'\"\)\$\:\.]{0,128}/
     $c_kinda_curl_silent_insecure = "--silent --insecure"
     $c_kinda_curl_silent_k = "-k --insecure"
     $c_kinda_curl_k_q = "-k -q"

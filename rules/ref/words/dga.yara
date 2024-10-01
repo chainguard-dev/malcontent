@@ -1,4 +1,4 @@
-rule dga_url : higb {
+rule dga_url : high {
   meta:
     description = "References Domain Generation Algorithm for C2 discovery"
   strings:

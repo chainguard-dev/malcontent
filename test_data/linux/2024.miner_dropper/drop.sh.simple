@@ -1,0 +1,18 @@
+# linux/2024.miner_dropper/drop.sh
+combo/dropper/shell
+fs/permission/modify
+fs/permission/modify/dangerous
+net/fetch
+net/fetch/suspicious
+process/chdir
+process/chdir/unusual
+process/executable_path
+ref/ip
+ref/path/root
+ref/path/usr/local
+ref/path/var
+ref/site/http/ip
+ref/site/url
+shell/busybox/exec
+shell/exec
+shell/relative/semicolon

@@ -12,6 +12,8 @@ rule tor_user : high {
     $t_hidden_service_port = "HiddenServicePort" nocase
     $t_go = "go-libtor"
     $t_rust = "libtor" fullword
+	$t_relay = "relay.tor2socks."
+	$t_tor2web = ".tor2web"
     $not_drop = "[.onion] drop policy"
     $not_bug = "Tor Browser bug"
   condition:

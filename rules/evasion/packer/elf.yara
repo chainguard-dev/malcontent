@@ -24,7 +24,7 @@ rule obfuscated_elf : high {
 
 rule high_entropy_header : high {
   meta:
-    description = "Obfuscated ELF binary (high entropy content)"
+    description = "high entropy ELF header (>7)"
     hash_2023_UPX_0c25 = "0c25a05bdddc144fbf1ffa29372481b50ec6464592fdfb7dec95d9e1c6101d0d"
     hash_2023_UPX_5a59 = "5a5960ccd31bba5d47d46599e4f10e455b74f45dad6bc291ae448cef8d1b0a59"
     hash_2023_FontOnLake_38B09D690FAFE81E964CBD45EC7CF20DCB296B4D_elf = "f155fafa36d1094433045633741df98bbbc1153997b3577c3fa337cc525713c0"

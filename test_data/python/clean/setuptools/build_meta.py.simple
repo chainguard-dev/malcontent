@@ -2,11 +2,12 @@
 3P/threat_hunting/monkey
 admin/pip_install
 data/embedded/html
-evasion/single_line_imports
 exec/program
 fd/read
+fs/directory/create
 fs/directory/list
 fs/directory/traverse
+fs/file/delete
 net/download
 ref/ip
 ref/site/download

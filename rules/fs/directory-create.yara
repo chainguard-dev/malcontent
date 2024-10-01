@@ -6,6 +6,7 @@ rule mkdir {
 	strings:
 		$mkdir = "mkdir" fullword
 		$createFolder = "createFolder" fullword
+		$py = "os.makedirs" fullword
 	condition:
 		any of them
 }
