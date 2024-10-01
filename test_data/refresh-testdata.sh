@@ -127,5 +127,5 @@ for f in $(find "${test_data}" -name "*.json"); do
 done
 
 echo "processing queue with length: $(wc -l ${qscript})"
-tr '\n' '\0' <"${qscript}" | xargs -0 -n1 -P"${MAX_PROCS}" -I% sh -c '%'
+tr '\n' '\0' <"${qscript}" | xargs -0 -n1 -P"${MAX_PROCS}" -J% sh -c '%'
 echo "test data regeneration complete!!"

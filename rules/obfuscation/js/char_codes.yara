@@ -13,9 +13,12 @@ rule child_process : critical {
 		$a_shift = "shift"
 		$a_push = "push"
 
-		$const = "const "
-		$function = "function("
-		$return = "{return"
+		$a_const = "const "
+		$a_function = "function("
+		$a_return = "{return"
+
+		$not_sw_bundle = "Recorded click position in absolute coordinates did not match the center of the clicked element."
+		$not_sw_bundle2 = "This is likely due to a difference between the test runner and the trace viewer operating systems."
 	condition:
-		filesize < 128KB and all of them
+		filesize < 128KB and all of ($a_*) and none of ($not_*)
 }
