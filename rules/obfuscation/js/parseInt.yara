@@ -1,4 +1,4 @@
-rule js_const_func_obfuscation : critical {
+rule js_const_func_obfuscation : high {
 	meta:
 		description = "javascript obfuscation (integer parsing)"
 		filetypes = "javascript"
@@ -8,7 +8,6 @@ rule js_const_func_obfuscation : critical {
 		$return = "{return"
 		$parseInt = "parseInt"
 
-		$not_grafana = "self.webpackChunkgrafana=self.webpackChunkgrafana"
 	condition:
-		filesize < 256KB and #const > 16 and #function > 32 and #parseInt > 8 and #return > 32 and none of ($not_*)
+		filesize < 256KB and #const > 16 and #function > 32 and #parseInt > 8 and #return > 32
 }

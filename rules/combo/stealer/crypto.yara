@@ -1,4 +1,4 @@
-rule js_crypto_stealer : critical {
+rule js_crypto_stealer : high {
   meta:
     description = "steals private cryptographic data"
   strings:
@@ -12,7 +12,6 @@ rule js_crypto_stealer : critical {
 
 	$POST = "POST"
 
-	$not_grafana = "self.webpackChunkgrafana=self.webpackChunkgrafana"
   condition:
-	filesize < 50KB and $url and $POST and any of ($pk*) and none of ($not_*)
+	filesize < 50KB and $url and $POST and any of ($pk*)
 }

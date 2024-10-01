@@ -21,7 +21,7 @@ rule multiple_browser_credentials : high {
     3 of ($c_*) and none of ($not_*)
 }
 
-rule multiple_browser_refs : critical {
+rule multiple_browser_refs : high {
   meta:
     description = "Makes references to multiple browser credentials"
     hash_1985_actions_UserGet = "e3a457ec75e3a042fb34fa6d49e0e833265d21d26c4e0119aaa1b6ec8a9460ec"
@@ -60,8 +60,6 @@ rule multiple_browser_refs : critical {
     $not_ff_js = "Firefox can even throw an error"
     $not_generated_comment = "// This file is generated"
     $not_generated_file = "/utils/generate_types/index.js"
-    $not_microsoft = "Copyright (c) Microsoft Corporation."
-    $not_microsoft_playwright = "Microsoft.Playwright"
   condition:
     2 of ($name*) and 3 of ($fs*) and none of ($not*)
 }
