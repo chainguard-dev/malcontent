@@ -117,7 +117,7 @@ bench-windows:
 .PHONY: out/mal
 out/mal:
 	mkdir -p out
-	go build -o out/mal .
+	go build -o out/mal ./cmd/mal
 
 .PHONY: update-third-party
 update-third-party:
