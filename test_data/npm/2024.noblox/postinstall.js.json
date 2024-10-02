@@ -21,7 +21,7 @@
                     "ID": "fs/directory/create"
                 },
                 {
-                    "Description": "submit content to websites",
+                    "Description": "submits content to websites",
                     "MatchStrings": [
                         "Content-Type",
                         "POST",

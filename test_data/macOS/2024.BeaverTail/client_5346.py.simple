@@ -1,0 +1,17 @@
+# macOS/2024.BeaverTail/client_5346.py
+admin/pip_install
+combo/dropper/python
+encoding/base64
+env/HOME
+evasion/mask_exceptions
+evasion/single_line_imports
+exec/program
+fs/directory/create
+fs/file/delete
+fs/file/open
+kernel/platform
+net/download
+net/url/request
+process/executable_path
+ref/ip
+ref/path/hidden

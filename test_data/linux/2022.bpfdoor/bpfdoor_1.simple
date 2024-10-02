@@ -22,4 +22,5 @@ ref/daemon
 ref/path/dev
 ref/path/usr/sbin
 ref/program/ancient_gcc
+shell/exec
 tty/vhangup

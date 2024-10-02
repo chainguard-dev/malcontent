@@ -11,11 +11,12 @@ rule win_kill_proc_likely : high {
 	$debug_uhf = "UnhandledExceptionFilter"
 	$kill_gmh = "GetModuleHandle"
 	$kill_tp = "TerminateProcess"
+
   condition:
-	filesize < 1MB and 1 of ($kill*) and 2 of ($debug*) and 1 of ($f*) 
+	filesize < 1MB and 1 of ($kill*) and 2 of ($debug*) and 1 of ($f*)
 }
 
-rule win_kill_proc : critical {
+rule win_kill_proc : high {
   meta:
     description = "Windows EDR/Antivirus bypass"
   strings:
@@ -28,8 +29,9 @@ rule win_kill_proc : critical {
 	$debug_uhf = "UnhandledExceptionFilter"
 	$kill_gmh = "GetModuleHandle"
 	$kill_tp = "TerminateProcess"
+
   condition:
-	filesize < 1MB and all of ($kill*) and 3 of ($debug*) and 1 of ($f*) 
+	filesize < 1MB and all of ($kill*) and 3 of ($debug*) and 1 of ($f*)
 }
 
 rule edr_stopper : critical {

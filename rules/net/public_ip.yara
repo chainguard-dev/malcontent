@@ -17,11 +17,7 @@ rule iplookup_website_value : high {
     $ifconfig_io = "ifconfig.io" fullword
     $ifconfig_co = "ifconfig.co" fullword
     $ipinfo = "ipinfo.io"
-    $ipify_b = "ipify.or" base64
-    $wtfismyip_b = "wtfismyip" base64
-    $iplogger_b = "iplogger.org" base64
-    $getjsonip_b = "getjsonip" base64
-    $ipinfo_b = "ipinfo.io" base64
+	$check_ip = "checkip.amazonaws.com"
     $ipify_x = "ipify.org" xor(1-255)
     $wtfismyip_x = "wtfismyip" xor(1-255)
     $iplogger_x = "iplogger.org" xor(1-255)
@@ -38,11 +34,12 @@ rule iplookup_website_base64 : critical {
     hash_2022_discordcmd_init = "8f635c4864ed8810ebcb3b33251c46b007cfcf42b0570657461b4ae5b8f17fef"
     hash_2022_discordcmd_index = "8f635c4864ed8810ebcb3b33251c46b007cfcf42b0570657461b4ae5b8f17fef"
   strings:
-    $ipify_b = "ipify.org" base64
-    $wtfismyip_b = "wtfismyip" base64
-    $iplogger_b = "iplogger.org" base64
+	$check_ip = "checkip.amazonaws.com" base64
     $getjsonip_b = "getjsonip" base64
+    $ipify_b = "ipify.or" base64
     $ipinfo_b = "ipinfo.io" base64
+    $iplogger_b = "iplogger.org" base64
+    $wtfismyip_b = "wtfismyip" base64
   condition:
     any of them
 }

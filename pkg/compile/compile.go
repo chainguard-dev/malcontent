@@ -31,6 +31,7 @@ var badRules = map[string]bool{
 	"ELASTIC_Macos_Creddump_Keychainaccess_535C1511":      true,
 	"SIGNATURE_BASE_Reconcommands_In_File":                true,
 	"SIGNATURE_BASE_Apt_CN_Tetrisplugins_JS":              true,
+	"CAPE_Sparkrat":                                       true,
 	// ThreatHunting Keywords (some duplicates)
 	"Adobe_XMP_Identifier":                       true,
 	"Antivirus_Signature_signature_keyword":      true,
@@ -83,6 +84,8 @@ var rulesWithWarnings = map[string]bool{
 	"Agenda_golang":                         false,
 	"bookworm_dll_UUID":                     false,
 	"cobaltstrike_offensive_tool_keyword":   false,
+	"amos":                                  true,
+	"echo_decode_bash":                      true,
 }
 
 func Recursive(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {

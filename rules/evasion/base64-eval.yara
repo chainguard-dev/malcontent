@@ -59,8 +59,9 @@ rule python_exec_near_enough : critical {
     all of them and math.abs(@base64 - @exec) < 128
 }
 
-rule echo_decode_bash : high {
+rule echo_decode_bash_probable : high {
   meta:
+    description = "likely pipes base64 into a shell"
     hash_2023_OrBit_f161 = "f1612924814ac73339f777b48b0de28b716d606e142d4d3f4308ec648e3f56c8"
     hash_2023_Unix_Coinminer_Xanthe_7ea1 = "7ea112aadebb46399a05b2f7cc258fea02f55cf2ae5257b331031448f15beb8f"
     hash_2023_Unix_Trojan_Coinminer_3a6b = "3a6b3552ffac13aa70e24fef72b69f683ac221105415efb294fb9a2fc81c260a"
@@ -76,4 +77,14 @@ rule echo_decode_bash : high {
     $not_syntax = "syntax file"
   condition:
     filesize < 1048576 and $echo and ($bash or $sh) and ($base64_decode or $base64_d) and none of ($not*)
+}
+
+rule echo_decode_bash : critical { 
+	meta:
+		description = "executes base64 encoded shell commands"
+	strings:
+		$bash = /[\w=\$]{0,8} ?\| ?base64 -d[ecod]{0,5} ?\| ?bash/
+		$sh = /[\w=\$]{0,8} ?\| ?base64 -d[ecod]{0,5} ?\| ?z?sh/
+	condition:
+		filesize < 64KB and any of them
 }

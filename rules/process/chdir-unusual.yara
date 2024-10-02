@@ -19,6 +19,19 @@ rule unusual_cd_val : high {
     any of ($d*) and none of ($not*)
 }
 
+rule unusual_cd_val_obsessive : critical {
+  meta:
+    description = "changes directory to multiple unusual locations"
+  strings:
+    $d_mnt = "cd /mnt"
+    $d_root = "cd /root"
+	$d_bin = "cd /bin"
+    $d_tmp = "cd /tmp"
+	$d_slash = /cd \/[\; \|\&]/ fullword
+  condition:
+    3 of them
+}
+
 rule unusual_cd_dev_val : high {
   meta:
     description = "changes to an unusual system directory"

@@ -51,3 +51,23 @@ rule find_internet_password : high {
   condition:
     $ref and none of ($not*)
 }
+
+rule login_keychain : high {
+	meta:
+		description = "may steal login keychain"
+	strings:
+		$ref = "/Library/Keychains/login.keychain-db"
+	condition:
+		filesize < 200MB and $ref
+}
+
+rule login_keychain_eager_beaver : critical {
+	meta:
+		description = "steals login keychain"
+		ref = "https://www.group-ib.com/blog/apt-lazarus-python-scripts/"
+	strings:
+		$ref = "logkc_db" fullword
+		$ref2 = "Keychains" fullword
+	condition:
+		filesize < 200MB and all of them
+}

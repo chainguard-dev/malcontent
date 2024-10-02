@@ -1,7 +1,8 @@
 
 rule opaque_binary : medium {
   meta:
-    hash_2024_Downloads_309f = "309f399788b63f66cfa7b37ae1db5dced55a9e73b768a7f05ea4de553192eeb1"
+    description = "binary contains little text content"
+	hash_2024_Downloads_309f = "309f399788b63f66cfa7b37ae1db5dced55a9e73b768a7f05ea4de553192eeb1"
     hash_2024_Downloads_52d3 = "52d3f9458cfc31b2b8b6a5abd2ad743e7a2bb2999442ee2a3de5e17805cfbacc"
     hash_2024_Downloads_690f = "690f29dd425f7415ecb50986aa26750960c39a0ca8a02ddfd37ec4196993bd9e"
   strings:

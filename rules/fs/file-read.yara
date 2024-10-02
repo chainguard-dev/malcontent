@@ -4,7 +4,7 @@ rule go_file_read {
 		syscall = "open,close"
 	strings:
 		$read = "os.(*File).Read"
-		$ioutil = "ioutil.ReadFile"
+		$other = "ReadFile"
 	condition:
 		any of them
 }

@@ -1,4 +1,4 @@
-rule js_crypto_stealer : critical {
+rule js_crypto_stealer : high {
   meta:
     description = "steals private cryptographic data"
   strings:
@@ -11,6 +11,7 @@ rule js_crypto_stealer : critical {
     $url = /https{0,1}:\/\/[\w][\w\.\/\-_\?=\@]{8,64}/
 
 	$POST = "POST"
+
   condition:
 	filesize < 50KB and $url and $POST and any of ($pk*)
 }

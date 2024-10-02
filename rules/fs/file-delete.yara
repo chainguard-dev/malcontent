@@ -8,6 +8,7 @@ rule unlink {
   strings:
     $unlink = "unlink" fullword
     $unlinkat = "unlinkat" fullword
+	$py = "os.remove("
   condition:
     any of them
 }
