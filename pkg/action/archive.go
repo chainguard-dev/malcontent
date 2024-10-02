@@ -3,6 +3,7 @@ package action
 import (
 	"archive/tar"
 	"archive/zip"
+	"compress/bzip2"
 	"compress/gzip"
 	"context"
 	"errors"
@@ -37,6 +38,11 @@ func extractTar(ctx context.Context, d string, f string) error {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
 	defer tf.Close()
+	// Set offset to the file origin regardless of type
+	_, err = tf.Seek(0, io.SeekStart)
+	if err != nil {
+		return fmt.Errorf("failed to seek to start: %w", err)
+	}
 
 	var tr *tar.Reader
 
@@ -49,17 +55,15 @@ func extractTar(ctx context.Context, d string, f string) error {
 		defer gzStream.Close()
 		tr = tar.NewReader(gzStream)
 	case strings.Contains(filename, ".xz"):
-		_, err := tf.Seek(0, io.SeekStart) // Seek to start for xz reading
-		if err != nil {
-			return fmt.Errorf("failed to seek to start: %w", err)
-		}
 		xzStream, err := xz.NewReader(tf)
 		if err != nil {
 			return fmt.Errorf("failed to create xz reader: %w", err)
 		}
 		tr = tar.NewReader(xzStream)
+	case strings.Contains(filename, ".bz2") || strings.Contains(filename, ".bzip2"):
+		br := bzip2.NewReader(tf)
+		tr = tar.NewReader(br)
 	default:
-		_, err := tf.Seek(0, io.SeekStart) // Seek to start for tar reading
 		if err != nil {
 			return fmt.Errorf("failed to seek to start: %w", err)
 		}
@@ -68,7 +72,7 @@ func extractTar(ctx context.Context, d string, f string) error {
 
 	for {
 		header, err := tr.Next()
-		if errors.Is(err, io.EOF) {
+		if errors.Is(err, io.ErrUnexpectedEOF) || errors.Is(err, io.EOF) {
 			break
 		}
 		if err != nil {
@@ -350,7 +354,7 @@ func extractionMethod(ext string) func(context.Context, string, string) error {
 		return extractZip
 	case ".gz":
 		return extractGzip
-	case ".apk", ".gem", ".tar", ".tar.gz", ".tgz", ".tar.xz", ".xz":
+	case ".apk", ".bz2", ".bzip2", ".gem", ".tar", ".tar.gz", ".tgz", ".tar.xz", ".xz":
 		return extractTar
 	default:
 		return nil
