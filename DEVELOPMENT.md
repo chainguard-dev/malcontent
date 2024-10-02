@@ -23,7 +23,7 @@ yara -s -w rules/combo/dropper/shell.yara <path>
 
 ## Writing rule tests
 
-Not every rule needs a test, but tests do unsure that a rules behavior stays consistent:
+Not every rule needs a test, but tests do ensure that a rules behavior stays consistent:
 
 1. Add a sample to https://github.com/chainguard-dev/malcontent-samples
 2. Create a directory within `test_data` using the same directory name as your sample:
