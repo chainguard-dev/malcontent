@@ -295,7 +295,7 @@ func mungeDescription(s string) string {
 	return s
 }
 
-//nolint:cyclop // ignore complexity of 44
+//nolint:cyclop,gocognit // ignore complexity of 44, 101
 func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malcontent.Config, expath string) (malcontent.FileReport, error) {
 	ignoreTags := c.IgnoreTags
 	minScore := c.MinRisk
@@ -373,8 +373,8 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 			MatchStrings: matchStrings(m.Rule, m.Strings),
 			RiskLevel:    RiskLevels[risk],
 			RiskScore:    risk,
-			RuleURL:      ruleURL,
 			RuleName:     m.Rule,
+			RuleURL:      ruleURL,
 		}
 
 		k := ""
