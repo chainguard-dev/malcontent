@@ -442,17 +442,32 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 				syscalls = append(syscalls, sy...)
 			case "cap":
 				caps = append(caps, v)
-			// Reduce the severity by one level if the path contains `v`
+			// Reduce the severity if the path contains the desired binary
 			case "decrease_if":
-				if strings.Contains(path, v) {
-					newSev := b.RiskScore - 1
-					b.RiskScore = newSev
-					b.RiskLevel = RiskLevels[newSev]
+				// Split `decrease_if`` into the target binary and its severity (e.g., decrease_if = "bash,low")
+				parts := strings.SplitN(v, ",", 2)
+				target, newSev := parts[0], parts[1]
+				if strings.Contains(path, target) {
+					var newScore int
+					if _, ok := Levels[newSev]; ok {
+						newScore = Levels[newSev]
+						if newScore < b.RiskScore {
+							b.RiskScore = newScore
+							b.RiskLevel = RiskLevels[b.RiskScore]
+						}
+					}
 				}
-			// Ignore this rule if `drop_if` is populated and the path contains `v`
+			// Ignore this rule if `drop_if` is populated and the path contains one of the provided binaries
 			case "drop_if":
-				if v != "" && strings.Contains(path, v) {
-					skipMatch = true
+				// Support comma-delimited targets (e.g., drop_if = "bash,fish,sh")
+				parts := strings.Split(v, ",")
+				if len(parts) > 0 {
+					for _, p := range parts {
+						if strings.Contains(path, p) {
+							skipMatch = true
+							break
+						}
+					}
 				}
 			// If we find a rule to override, set that rule's risk score and level
 			case overrideRule:
