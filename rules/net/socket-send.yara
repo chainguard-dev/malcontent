@@ -25,3 +25,14 @@ rule send {
 	condition:
 		all of them
 }
+
+rule send_variant {
+	meta:
+		send = "critical"
+		sendmsg = "high"
+	strings:
+		$send = "send" fullword
+		$socket = "socket" fullword
+	condition:
+		all of them
+}
