@@ -373,7 +373,7 @@ func main() {
 						mc.OCI = true
 					case c.String("image") == "" && !c.Bool("processes"):
 						cmdArgs := c.Args().Slice()
-						mc.ScanPaths = []string{cmdArgs[0]}
+						mc.ScanPaths = cmdArgs
 					case c.Bool("processes"):
 						mc.Processes = true
 					}
@@ -454,7 +454,7 @@ func main() {
 						mc.OCI = true
 					case c.String("image") == "" && !c.Bool("processes"):
 						cmdArgs := c.Args().Slice()
-						mc.ScanPaths = []string{cmdArgs[0]}
+						mc.ScanPaths = cmdArgs
 					case c.Bool("processes"):
 						mc.Processes = true
 					}
