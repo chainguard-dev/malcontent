@@ -243,17 +243,19 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 				}
 			}
 
-			frs.Range(func(key, value any) bool {
-				if key == nil || value == nil {
-					return true
-				}
-				if k, ok := key.(string); ok {
-					if fr, ok := value.(*malcontent.FileReport); ok {
-						scanPathFindings.Store(k, fr)
+			if frs != nil {
+				frs.Range(func(key, value any) bool {
+					if key == nil || value == nil {
+						return true
 					}
-				}
-				return true
-			})
+					if k, ok := key.(string); ok {
+						if fr, ok := value.(*malcontent.FileReport); ok {
+							scanPathFindings.Store(k, fr)
+						}
+					}
+					return true
+				})
+			}
 			return nil
 		}
 
