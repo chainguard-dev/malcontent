@@ -61,7 +61,7 @@ Useful flags:
 
 ## Installation
 
-### Containerized
+### Container
 
 `docker pull cgr.dev/chainguard/malcontent:latest`
 
@@ -73,14 +73,14 @@ Requirements:
 - [pkg-config](https://www.freedesktop.org/wiki/Software/pkg-config/) - for dependency handling, included in many UNIX distributions
 - [yara](https://virustotal.github.io/yara/) - the rule language
 
-On Linux and macOS, you can run this to install YARA:
+For example, to install the YARA library on Linux or macOS:
 
 ```shell
 brew install yara || sudo apt install libyara-dev \
   || sudo dnf install yara-devel || sudo pacman -S yara
 ```
 
-then:
+Install malcontent:
 
 ```shell
 go install github.com/chainguard-dev/malcontent/cmd/mal@latest
