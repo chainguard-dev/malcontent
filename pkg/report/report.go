@@ -444,22 +444,32 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 				caps = append(caps, v)
 			// Reduce the severity if the path contains the desired binary
 			case "decrease_if":
-				// Split `decrease_if`` into the target binary and its severity (e.g., decrease_if = "bash,low")
-				parts := strings.SplitN(v, ",", 2)
-				target, newSev := parts[0], parts[1]
-				if strings.Contains(path, target) {
-					var newScore int
-					if _, ok := Levels[newSev]; ok {
-						newScore = Levels[newSev]
-						if newScore < b.RiskScore {
-							b.RiskScore = newScore
-							b.RiskLevel = RiskLevels[b.RiskScore]
+				// Split `decrease_if` into target binaries and the desired severity
+				// e.g., decrease_if = "bash,fish,sh,low"
+				last := strings.LastIndex(v, ",")
+				var newSev string
+				var targets []string
+				if last != -1 {
+					targets = strings.Split(v[:last], ",")
+					newSev = v[last+1:]
+				}
+				for _, t := range targets {
+					if strings.Contains(path, t) {
+						var newScore int
+						if _, ok := Levels[newSev]; ok {
+							newScore = Levels[newSev]
+							if newScore < b.RiskScore {
+								b.RiskScore = newScore
+								b.RiskLevel = RiskLevels[b.RiskScore]
+							}
 						}
+						break
 					}
 				}
 			// Ignore this rule if `drop_if` is populated and the path contains one of the provided binaries
 			case "drop_if":
-				// Support comma-delimited targets (e.g., drop_if = "bash,fish,sh")
+				// Support comma-delimited targets
+				// e.g., drop_if = "bash,fish,sh"
 				parts := strings.Split(v, ",")
 				if len(parts) > 0 {
 					for _, p := range parts {
