@@ -213,12 +213,12 @@ func main() {
 				return err
 			}
 
+			// Add the default tags to ignore regardless of whether they're passed in or not
 			defaultIgnore := []string{
 				"false_positive",
 				"ignore",
 			}
 
-			// Add the default tags to ignore regardless of whether they're passed in or not
 			for _, t := range defaultIgnore {
 				if !slices.Contains(ignoreTags, t) {
 					ignoreTags = append(ignoreTags, t)
