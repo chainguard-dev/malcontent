@@ -459,11 +459,9 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 				// Store its behavior in the current behavior and remove the original behavior
 				for i, ob := range fr.Behaviors {
 					if ob.RuleName == overrideRule {
-						if b.Description != "" {
-							b.Description = fmt.Sprintf("%s, %s", b.Description, ob.Description)
-						} else {
-							b.Description = ob.Description
-						}
+						b = ob
+						b.RuleName = m.Rule
+						b.Description = fmt.Sprintf("%s, overridden by %s", b.Description, m.Rule)
 						b.RiskScore = overrideSev
 						b.RiskLevel = RiskLevels[overrideSev]
 
