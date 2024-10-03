@@ -1,0 +1,8 @@
+# python/2024.RookeryCapital_PythonTest/obfuscated.py
+encoding/base64
+evasion/base64/decode
+evasion/base64/eval
+evasion/codecs_decode
+kernel/platform
+net/url/request
+techniques/code_eval
