@@ -72,7 +72,7 @@ var thirdPartyCriticalSources = map[string]bool{
 	"JPCERT":    true,
 }
 
-// authorWithURLRe matcehs "Arnim Rupp (https://github.com/ruppde)"
+// authorWithURLRe matches "Arnim Rupp (https://github.com/ruppde)"
 var authorWithURLRe = regexp.MustCompile(`(.*?) \((http.*)\)`)
 
 var threatHuntingKeywordRe = regexp.MustCompile(`Detection patterns for the tool '(.*)' taken from the ThreatHunting-Keywords github project`)
@@ -295,7 +295,7 @@ func mungeDescription(s string) string {
 	return s
 }
 
-//nolint:cyclop,gocognit // ignore complexity of 44, 101
+//nolint:cyclop // ignore complexity of 44
 func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malcontent.Config, expath string) (malcontent.FileReport, error) {
 	ignoreTags := c.IgnoreTags
 	minScore := c.MinRisk
