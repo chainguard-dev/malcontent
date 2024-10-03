@@ -72,12 +72,23 @@ var thirdPartyCriticalSources = map[string]bool{
 	"JPCERT":    true,
 }
 
-// authorWithURLRe matcehs "Arnim Rupp (https://github.com/ruppde)"
+// authorWithURLRe matches "Arnim Rupp (https://github.com/ruppde)"
 var authorWithURLRe = regexp.MustCompile(`(.*?) \((http.*)\)`)
 
 var threatHuntingKeywordRe = regexp.MustCompile(`Detection patterns for the tool '(.*)' taken from the ThreatHunting-Keywords github project`)
 
 var dateRe = regexp.MustCompile(`[a-z]{3}\d{1,2}`)
+
+var Levels = map[string]int{
+	"harmless":   0,
+	"notable":    2,
+	"medium":     2,
+	"suspicious": 3,
+	"weird":      3,
+	"high":       3,
+	"crit":       4,
+	"critical":   4,
+}
 
 func thirdPartyKey(path string, rule string) string {
 	// include the directory
@@ -174,18 +185,8 @@ func behaviorRisk(ns string, rule string, tags []string) int {
 		risk = 2
 	}
 
-	levels := map[string]int{
-		"harmless":   0,
-		"notable":    2,
-		"medium":     2,
-		"suspicious": 3,
-		"weird":      3,
-		"high":       3,
-		"crit":       4,
-		"critical":   4,
-	}
 	for _, tag := range tags {
-		if r, ok := levels[tag]; ok {
+		if r, ok := Levels[tag]; ok {
 			risk = r
 			break
 		}
@@ -327,10 +328,10 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 	var syscalls []string
 
 	ignoreMalcontent := false
-	overallRiskScore := 0
-	riskCounts := map[int]int{}
-	risk := 0
 	key := ""
+	overallRiskScore := 0
+	risk := 0
+	riskCounts := map[int]int{}
 
 	// If we're running a scan, only diplay findings of the highest risk
 	// Return an empty file report if the highest risk is medium or lower
@@ -343,9 +344,18 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 	}
 
 	for _, m := range mrs {
+		override := false
 		if all(m.Rule == NAME, ignoreSelf) {
 			ignoreMalcontent = true
 		}
+
+		for _, t := range m.Tags {
+			if t == "override" {
+				override = true
+				break
+			}
+		}
+
 		risk = behaviorRisk(m.Namespace, m.Rule, m.Tags)
 		if risk > overallRiskScore {
 			overallRiskScore = risk
@@ -369,11 +379,18 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 			MatchStrings: matchStrings(m.Rule, m.Strings),
 			RiskLevel:    RiskLevels[risk],
 			RiskScore:    risk,
+			RuleName:     m.Rule,
 			RuleURL:      ruleURL,
 		}
 
 		k := ""
 		v := ""
+
+		// Store match rules in a map for future override operations
+		mrsMap := make(map[string]yara.MatchRule)
+		for _, m := range mrs {
+			mrsMap[m.Rule] = m
+		}
 
 		for _, meta := range m.Metas {
 			k = meta.Identifier
@@ -381,6 +398,13 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 			// Empty data is unusual, so just ignore it.
 			if k == "" || v == "" {
 				continue
+			}
+
+			// If we find a match in the map for the metadata key, that's the rule to override
+			// Ensure that the override tag is present on the override rule
+			var overrideRule string
+			if match, exists := mrsMap[k]; exists && override {
+				overrideRule = match.Rule
 			}
 
 			switch k {
@@ -425,6 +449,26 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 				syscalls = append(syscalls, sy...)
 			case "cap":
 				caps = append(caps, v)
+			// If we find a rule to override, pull in that rule's configuration and update the severity
+			case overrideRule:
+				var overrideSev int
+				if sev, ok := Levels[v]; ok {
+					overrideSev = sev
+				}
+				// Find the behavior for the overridden (original) rule
+				// Store its behavior in the current behavior and remove the original behavior
+				for i, ob := range fr.Behaviors {
+					if ob.RuleName == overrideRule {
+						b = ob
+						b.RuleName = m.Rule
+						b.Description = fmt.Sprintf("%s, [%s]", b.Description, m.Rule)
+						b.RiskScore = overrideSev
+						b.RiskLevel = RiskLevels[overrideSev]
+
+						// Remove the original rule from the behaviors slice
+						fr.Behaviors = slices.Delete(fr.Behaviors, i, i+1)
+					}
+				}
 			}
 		}
 

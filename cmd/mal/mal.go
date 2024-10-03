@@ -170,6 +170,18 @@ func main() {
 				minRisk = -1
 			}
 
+			// Add the default tags to ignore regardless of whether they're passed in or not
+			defaultIgnore := []string{
+				"false_positive",
+				"ignore",
+			}
+
+			for _, t := range defaultIgnore {
+				if !slices.Contains(ignoreTags, t) {
+					ignoreTags = append(ignoreTags, t)
+				}
+			}
+
 			if outputFlag != "" {
 				outFile, err = os.OpenFile(outputFlag, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600)
 				if err != nil {
@@ -266,7 +278,7 @@ func main() {
 			},
 			&cli.StringFlag{
 				Name:        "ignore-tags",
-				Value:       "",
+				Value:       "false_positive,ignore",
 				Usage:       "Rule tags to ignore",
 				Destination: &ignoreTagsFlag,
 			},
