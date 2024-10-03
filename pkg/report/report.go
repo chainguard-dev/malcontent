@@ -344,9 +344,6 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 	}
 
 	for _, m := range mrs {
-		// Default state for the skipMatch condition
-		skipMatch := false
-
 		if all(m.Rule == NAME, ignoreSelf) {
 			ignoreMalcontent = true
 		}
@@ -442,48 +439,11 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 				syscalls = append(syscalls, sy...)
 			case "cap":
 				caps = append(caps, v)
-			// Reduce the severity if the path contains the desired binary
-			case "decrease_if":
-				// Split `decrease_if` into target binaries and the desired severity
-				// e.g., decrease_if = "bash,fish,sh,low"
-				last := strings.LastIndex(v, ",")
-				var newSev string
-				var targets []string
-				if last != -1 {
-					targets = strings.Split(v[:last], ",")
-					newSev = v[last+1:]
-				}
-				for _, t := range targets {
-					if strings.Contains(path, t) {
-						var newScore int
-						if _, ok := Levels[newSev]; ok {
-							newScore = Levels[newSev]
-							if newScore < b.RiskScore {
-								b.RiskScore = newScore
-								b.RiskLevel = RiskLevels[b.RiskScore]
-							}
-						}
-						break
-					}
-				}
-			// Ignore this rule if `drop_if` is populated and the path contains one of the provided binaries
-			case "drop_if":
-				// Support comma-delimited targets
-				// e.g., drop_if = "bash,fish,sh"
-				parts := strings.Split(v, ",")
-				if len(parts) > 0 {
-					for _, p := range parts {
-						if strings.Contains(path, p) {
-							skipMatch = true
-							break
-						}
-					}
-				}
 			// If we find a rule to override, set that rule's risk score and level
 			case overrideRule:
 				var overrideSev int
-				if _, ok := Levels[v]; ok {
-					overrideSev = Levels[v]
+				if sev, ok := Levels[v]; ok {
+					overrideSev = sev
 				}
 				// Find the behavior for the overridden rule
 				for _, b := range fr.Behaviors {
@@ -493,12 +453,6 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 					}
 				}
 			}
-		}
-
-		if skipMatch {
-			fr.FilteredBehaviors++
-			clog.DebugContextf(ctx, "dropping %s (skipped due to drop_if metadata)", m.Namespace)
-			continue
 		}
 
 		// Fix YARA Forge rules that record their author URL as reference URLs
