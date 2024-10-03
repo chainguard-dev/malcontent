@@ -34,17 +34,6 @@ var RiskLevels = map[int]string{
 	4: "CRITICAL", // critical: certainly malware
 }
 
-var Levels = map[string]int{
-	"harmless":   0,
-	"notable":    2,
-	"medium":     2,
-	"suspicious": 3,
-	"weird":      3,
-	"high":       3,
-	"crit":       4,
-	"critical":   4,
-}
-
 // yaraForge has some very, very long rule names.
 var yaraForgeJunkWords = map[string]bool{
 	"controller":        true,
@@ -306,11 +295,7 @@ func mungeDescription(s string) string {
 	return s
 }
 
-<<<<<<< HEAD
 //nolint:cyclop,gocognit // ignore complexity of 44, 101
-=======
-//nolint:cyclop,gocognit // ignore complexity of 44; 102
->>>>>>> 5f48982 (Add support for rule overrides; ignore False-positive and None tags by default)
 func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malcontent.Config, expath string) (malcontent.FileReport, error) {
 	ignoreTags := c.IgnoreTags
 	minScore := c.MinRisk
@@ -344,14 +329,9 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 
 	ignoreMalcontent := false
 	key := ""
-<<<<<<< HEAD
 	overallRiskScore := 0
 	risk := 0
 	riskCounts := map[int]int{}
-=======
-	overrideRule := yara.MatchRule{}
-	overrideExists := false
->>>>>>> 5f48982 (Add support for rule overrides; ignore False-positive and None tags by default)
 
 	// If we're running a scan, only display findings of the highest risk
 	// Return an empty file report if the highest risk is medium or lower
@@ -376,19 +356,6 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 			ignoreMalcontent = true
 		}
 		risk = behaviorRisk(m.Namespace, m.Rule, m.Tags)
-
-		// override expects the rule name to be 1:1 with the original rule name with an _override suffix
-		// e.g., pip_installer -> pip_installer_override
-		overrideName := fmt.Sprintf("%s_override", m.Rule)
-		overrideRule, overrideExists = mrsMap[overrideName]
-		if _, exists := overrides[m.Rule]; exists {
-			// Use the override's severity if it exists in the Levels map
-			for _, t := range overrideRule.Tags {
-				if _, valid := Levels[t]; valid {
-					risk = Levels[t]
-				}
-			}
-		}
 
 		if risk > overallRiskScore {
 			overallRiskScore = risk
@@ -463,22 +430,8 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 				b.RuleLicenseURL = v
 			case "description", "threat_name", "name":
 				desc := mungeDescription(v)
-				// If an override for this rule exists,
-				// iterate through its metadata and combine its description with the original's description
-				if overrideExists {
-					for _, oMeta := range overrideRule.Metas {
-						overrideK := oMeta.Identifier
-						overrideV := fmt.Sprintf("%s", oMeta.Value)
-						switch overrideK {
-						case "description", "threat_name", "name":
-							overrideDesc := mungeDescription(overrideV)
-							overrides[overrideName] = fmt.Sprintf("%s, %s", overrideDesc, desc)
-						}
-					}
-				}
 
-				// For rules without an override, set the behavior description directly
-				if len(desc) > len(b.Description) && !overrideExists {
+				if len(desc) > len(b.Description) {
 					b.Description = desc
 				}
 			case "ref", "reference":
@@ -528,7 +481,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 		}
 
 		// If ignored tags are present or an override exists for the rule, filter the behavior and continue
-		if ignoreMatch(m.Tags, ignore) || overrideExists {
+		if ignoreMatch(m.Tags, ignore) {
 			fr.FilteredBehaviors++
 			clog.DebugContextf(ctx, "dropping %s (tags match ignore list)", m.Namespace)
 			continue
