@@ -344,9 +344,18 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 	}
 
 	for _, m := range mrs {
+		override := false
 		if all(m.Rule == NAME, ignoreSelf) {
 			ignoreMalcontent = true
 		}
+
+		for _, t := range m.Tags {
+			if t == "override" {
+				override = true
+				break
+			}
+		}
+
 		risk = behaviorRisk(m.Namespace, m.Rule, m.Tags)
 		if risk > overallRiskScore {
 			overallRiskScore = risk
@@ -392,8 +401,9 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 			}
 
 			// If we find a match in the map for the metadata key, that's the rule to override
+			// Ensure that the override tag is present on the override rule
 			var overrideRule string
-			if match, exists := mrsMap[k]; exists {
+			if match, exists := mrsMap[k]; exists && override {
 				overrideRule = match.Rule
 			}
 
@@ -439,17 +449,26 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 				syscalls = append(syscalls, sy...)
 			case "cap":
 				caps = append(caps, v)
-			// If we find a rule to override, set that rule's risk score and level
+			// If we find a rule to override, pull in that rule's configuration and update the severity
 			case overrideRule:
 				var overrideSev int
 				if sev, ok := Levels[v]; ok {
 					overrideSev = sev
 				}
-				// Find the behavior for the overridden rule
-				for _, b := range fr.Behaviors {
-					if b.RuleName == overrideRule {
+				// Find the behavior for the overridden (original) rule
+				// Store its behavior in the current behavior and remove the original behavior
+				for i, ob := range fr.Behaviors {
+					if ob.RuleName == overrideRule {
+						if b.Description != "" {
+							b.Description = fmt.Sprintf("%s, %s", b.Description, ob.Description)
+						} else {
+							b.Description = ob.Description
+						}
 						b.RiskScore = overrideSev
 						b.RiskLevel = RiskLevels[overrideSev]
+
+						// Remove the original rule from the behaviors slice
+						fr.Behaviors = slices.Delete(fr.Behaviors, i, i+1)
 					}
 				}
 			}
