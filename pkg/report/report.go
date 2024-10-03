@@ -295,7 +295,7 @@ func mungeDescription(s string) string {
 	return s
 }
 
-//nolint:cyclop,gocognit // ignore complexity of 44, 103
+//nolint:cyclop // ignore complexity of 44
 func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malcontent.Config, expath string) (malcontent.FileReport, error) {
 	ignoreTags := c.IgnoreTags
 	minScore := c.MinRisk
@@ -461,7 +461,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 					if ob.RuleName == overrideRule {
 						b = ob
 						b.RuleName = m.Rule
-						b.Description = fmt.Sprintf("%s, overridden by %s", b.Description, m.Rule)
+						b.Description = fmt.Sprintf("%s, [%s]", b.Description, m.Rule)
 						b.RiskScore = overrideSev
 						b.RiskLevel = RiskLevels[overrideSev]
 
