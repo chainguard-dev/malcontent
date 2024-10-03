@@ -58,6 +58,9 @@ type Behavior struct {
 
 	// ID is the original map key from map[string]*Behavior
 	ID string `json:",omitempty" yaml:",omitempty"`
+
+	// Name is the value of m.Rule
+	RuleName string `json:",omitempty" yaml:",omitempty"`
 }
 
 type FileReport struct {

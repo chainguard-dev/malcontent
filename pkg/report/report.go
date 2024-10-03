@@ -79,6 +79,17 @@ var threatHuntingKeywordRe = regexp.MustCompile(`Detection patterns for the tool
 
 var dateRe = regexp.MustCompile(`[a-z]{3}\d{1,2}`)
 
+var Levels = map[string]int{
+	"harmless":   0,
+	"notable":    2,
+	"medium":     2,
+	"suspicious": 3,
+	"weird":      3,
+	"high":       3,
+	"crit":       4,
+	"critical":   4,
+}
+
 func thirdPartyKey(path string, rule string) string {
 	// include the directory
 	pathParts := strings.Split(path, "/")
@@ -174,18 +185,8 @@ func behaviorRisk(ns string, rule string, tags []string) int {
 		risk = 2
 	}
 
-	levels := map[string]int{
-		"harmless":   0,
-		"notable":    2,
-		"medium":     2,
-		"suspicious": 3,
-		"weird":      3,
-		"high":       3,
-		"crit":       4,
-		"critical":   4,
-	}
 	for _, tag := range tags {
-		if r, ok := levels[tag]; ok {
+		if r, ok := Levels[tag]; ok {
 			risk = r
 			break
 		}
@@ -294,7 +295,7 @@ func mungeDescription(s string) string {
 	return s
 }
 
-//nolint:cyclop // ignore complexity of 44
+//nolint:cyclop,gocognit // ignore complexity of 44, 101
 func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malcontent.Config, expath string) (malcontent.FileReport, error) {
 	ignoreTags := c.IgnoreTags
 	minScore := c.MinRisk
@@ -327,10 +328,10 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 	var syscalls []string
 
 	ignoreMalcontent := false
-	overallRiskScore := 0
-	riskCounts := map[int]int{}
-	risk := 0
 	key := ""
+	overallRiskScore := 0
+	risk := 0
+	riskCounts := map[int]int{}
 
 	// If we're running a scan, only diplay findings of the highest risk
 	// Return an empty file report if the highest risk is medium or lower
@@ -369,11 +370,18 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 			MatchStrings: matchStrings(m.Rule, m.Strings),
 			RiskLevel:    RiskLevels[risk],
 			RiskScore:    risk,
+			RuleName:     m.Rule,
 			RuleURL:      ruleURL,
 		}
 
 		k := ""
 		v := ""
+
+		// Store match rules in a map for future override operations
+		mrsMap := make(map[string]yara.MatchRule)
+		for _, m := range mrs {
+			mrsMap[m.Rule] = m
+		}
 
 		for _, meta := range m.Metas {
 			k = meta.Identifier
@@ -381,6 +389,12 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 			// Empty data is unusual, so just ignore it.
 			if k == "" || v == "" {
 				continue
+			}
+
+			// If we find a match in the map for the metadata key, that's the rule to override
+			var overrideRule string
+			if match, exists := mrsMap[k]; exists {
+				overrideRule = match.Rule
 			}
 
 			switch k {
@@ -425,6 +439,19 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 				syscalls = append(syscalls, sy...)
 			case "cap":
 				caps = append(caps, v)
+			// If we find a rule to override, set that rule's risk score and level
+			case overrideRule:
+				var overrideSev int
+				if sev, ok := Levels[v]; ok {
+					overrideSev = sev
+				}
+				// Find the behavior for the overridden rule
+				for _, b := range fr.Behaviors {
+					if b.RuleName == overrideRule {
+						b.RiskScore = overrideSev
+						b.RiskLevel = RiskLevels[overrideSev]
+					}
+				}
 			}
 		}
 
