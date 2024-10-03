@@ -10,7 +10,7 @@
             },
             "Behaviors": [
                 {
-                    "Description": "Makes references to multiple browser credentials",
+                    "Description": "Uses HTTP, archives, and references multiple browsers",
                     "MatchStrings": [
                         ".config",
                         "Application Support",
@@ -21,10 +21,11 @@
                         "Opera Software",
                         "Roaming/"
                     ],
-                    "RiskScore": 4,
-                    "RiskLevel": "CRITICAL",
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/combo/stealer/browser.yara#multiple_browser_refs",
-                    "ID": "combo/stealer/browser"
+                    "ID": "combo/stealer/browser",
+                    "RuleName": "multiple_browser_refs"
                 },
                 {
                     "Description": "makes HTTPS connections and references multiple Chrome crypto wallet extensions",
@@ -46,7 +47,8 @@
                     "RiskScore": 4,
                     "RiskLevel": "CRITICAL",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/combo/stealer/wallet.yara#crypto_extension_stealer",
-                    "ID": "combo/stealer/wallet"
+                    "ID": "combo/stealer/wallet",
+                    "RuleName": "crypto_extension_stealer"
                 },
                 {
                     "Description": "binary contains little text content",
@@ -56,7 +58,8 @@
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/evasion/binary-opaque.yara#opaque_binary",
-                    "ID": "evasion/binary/opaque"
+                    "ID": "evasion/binary/opaque",
+                    "RuleName": "opaque_binary"
                 },
                 {
                     "Description": "Beaver Tail Infostealer",
@@ -79,7 +82,8 @@
                     "RiskLevel": "CRITICAL",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/malware/family/beaver_tail.yara#beaver_tail",
                     "ReferenceURL": "https://objective-see.org/blog/blog_0x7A.html",
-                    "ID": "malware/family/beaver_tail"
+                    "ID": "malware/family/beaver_tail",
+                    "RuleName": "beaver_tail"
                 },
                 {
                     "Description": "download files",
@@ -90,7 +94,8 @@
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/download.yara#download",
-                    "ID": "net/download"
+                    "ID": "net/download",
+                    "RuleName": "download"
                 },
                 {
                     "Description": "submits form content to websites",
@@ -100,7 +105,8 @@
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http-post.yara#form_data_reference",
-                    "ID": "net/http/post"
+                    "ID": "net/http/post",
+                    "RuleName": "form_data_reference"
                 },
                 {
                     "Description": "uploads files",
@@ -111,7 +117,8 @@
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/upload.yara#upload",
-                    "ID": "net/upload"
+                    "ID": "net/upload",
+                    "RuleName": "upload"
                 },
                 {
                     "Description": "hardcoded IP address",
@@ -121,7 +128,8 @@
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/ip.yara#hardcoded_ip",
-                    "ID": "ref/ip"
+                    "ID": "ref/ip",
+                    "RuleName": "hardcoded_ip"
                 },
                 {
                     "Description": "hardcoded IP:port destination",
@@ -131,7 +139,8 @@
                     "RiskScore": 3,
                     "RiskLevel": "HIGH",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/ip_port.yara#hardcoded_ip_port",
-                    "ID": "ref/ip_port"
+                    "ID": "ref/ip_port",
+                    "RuleName": "hardcoded_ip_port"
                 },
                 {
                     "Description": "path reference within ~/.config",
@@ -143,7 +152,8 @@
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/path/home-config.yara#home_config_path",
-                    "ID": "ref/path/home/config"
+                    "ID": "ref/path/home/config",
+                    "RuleName": "home_config_path"
                 },
                 {
                     "Description": "hardcoded IP address within a URL",
@@ -153,7 +163,8 @@
                     "RiskScore": 3,
                     "RiskLevel": "HIGH",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/site/http-ip.yara#http_hardcoded_ip",
-                    "ID": "ref/site/http/ip"
+                    "ID": "ref/site/http/ip",
+                    "RuleName": "http_hardcoded_ip"
                 },
                 {
                     "Description": "contains embedded HTTP URLs",
@@ -163,7 +174,8 @@
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/site/url.yara#http_url",
-                    "ID": "ref/site/url"
+                    "ID": "ref/site/url",
+                    "RuleName": "http_url"
                 },
                 {
                     "Description": "gets very excited",
@@ -173,7 +185,8 @@
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/words/exclamation.yara#exclamations",
-                    "ID": "ref/words/exclamation"
+                    "ID": "ref/words/exclamation",
+                    "RuleName": "exclamations"
                 },
                 {
                     "Description": "steals login keychain",
@@ -185,7 +198,8 @@
                     "RiskLevel": "CRITICAL",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/secrets/keychain.yara#login_keychain_eager_beaver",
                     "ReferenceURL": "https://www.group-ib.com/blog/apt-lazarus-python-scripts/",
-                    "ID": "secrets/keychain"
+                    "ID": "secrets/keychain",
+                    "RuleName": "login_keychain_eager_beaver"
                 },
                 {
                     "Description": "references 'cstealer' tool",
@@ -205,11 +219,13 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/yara/threat_hunting/all.yara#cstealer_offensive_tool_keyword",
                     "ReferenceURL": "https://github.com/mthcht/ThreatHunting-Keywords",
                     "RuleAuthor": "mthcht",
-                    "ID": "3P/threat_hunting/cstealer"
+                    "ID": "3P/threat_hunting/cstealer",
+                    "RuleName": "cstealer_offensive_tool_keyword"
                 }
             ],
             "RiskScore": 4,
             "RiskLevel": "CRITICAL"
         }
-    }
+    },
+    "Filter": "false_positive,ignore"
 }

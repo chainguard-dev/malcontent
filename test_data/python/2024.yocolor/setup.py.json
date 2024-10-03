@@ -22,7 +22,8 @@
                     "RiskLevel": "CRITICAL",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/admin/pip_install.yara#pip_installer_fernet",
                     "ReferenceURL": "https://checkmarx.com/blog/over-170k-users-affected-by-attack-using-fake-python-infrastructure/",
-                    "ID": "admin/pip_install"
+                    "ID": "admin/pip_install",
+                    "RuleName": "pip_installer_fernet"
                 },
                 {
                     "Description": "Python library installer that executes the Windows 'start' command",
@@ -32,7 +33,8 @@
                     "RiskScore": 4,
                     "RiskLevel": "CRITICAL",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/combo/backdoor/py_setuptools.yara#setuptools_cmd_exec_start",
-                    "ID": "combo/backdoor/py_setuptools"
+                    "ID": "combo/backdoor/py_setuptools",
+                    "RuleName": "setuptools_cmd_exec_start"
                 },
                 {
                     "Description": "Supports Fernet (symmetric encryption)",
@@ -42,7 +44,8 @@
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/crypto/fernet.yara#crypto_fernet",
-                    "ID": "crypto/fernet"
+                    "ID": "crypto/fernet",
+                    "RuleName": "crypto_fernet"
                 },
                 {
                     "Description": "execute external program",
@@ -53,7 +56,8 @@
                     "RiskLevel": "MEDIUM",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/exec/program.yara#py_subprocess",
                     "ReferenceURL": "https://man7.org/linux/man-pages/man2/execve.2.html",
-                    "ID": "exec/program"
+                    "ID": "exec/program",
+                    "RuleName": "py_subprocess"
                 },
                 {
                     "Description": "reads from a file handle",
@@ -63,7 +67,8 @@
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fd/read.yara#py_fd_read",
-                    "ID": "fd/read"
+                    "ID": "fd/read",
+                    "RuleName": "py_fd_read"
                 },
                 {
                     "Description": "opens files",
@@ -73,7 +78,8 @@
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file-open.yara#py_open",
-                    "ID": "fs/file/open"
+                    "ID": "fs/file/open",
+                    "RuleName": "py_open"
                 },
                 {
                     "Description": "gets executable associated to this process",
@@ -83,7 +89,8 @@
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/process/executable_path.yara#python_sys_executable",
-                    "ID": "process/executable_path"
+                    "ID": "process/executable_path",
+                    "RuleName": "python_sys_executable"
                 },
                 {
                     "Description": "path reference within /usr/bin",
@@ -93,7 +100,8 @@
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/path/usr-bin.yara#usr_bin_path",
-                    "ID": "ref/path/usr/bin"
+                    "ID": "ref/path/usr/bin",
+                    "RuleName": "usr_bin_path"
                 },
                 {
                     "Description": "contains embedded HTTPS URLs",
@@ -104,11 +112,13 @@
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/site/url.yara#https_url",
-                    "ID": "ref/site/url"
+                    "ID": "ref/site/url",
+                    "RuleName": "https_url"
                 }
             ],
             "RiskScore": 4,
             "RiskLevel": "CRITICAL"
         }
-    }
+    },
+    "Filter": "false_positive,ignore"
 }

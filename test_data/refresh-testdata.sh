@@ -127,6 +127,14 @@ for f in $(find "${test_data}" -name "*.json"); do
 done
 
 echo "processing queue with length: $(wc -l ${qscript})"
-# use -J because -I is limited to 128 arguments for compatibility
-tr '\n' '\0' <"${qscript}" | xargs -0 -n1 -P"${MAX_PROCS}" -J% sh -c '%'
+
+# use -J on BSD platforms, as -I is limited to 128 arguments for compatibility
+xargs_flag="-J"
+
+if [[ "$(uname)" == "Linux" ]]; then
+	xargs_flag="-I"
+fi
+
+
+tr '\n' '\0' <"${qscript}" | xargs -0 -P"${MAX_PROCS}" "${xargs_flag}%" sh -c '%'
 echo "test data regeneration complete!!"
