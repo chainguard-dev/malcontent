@@ -572,14 +572,20 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 		}
 	}
 
-	// If running a scan, adjust the overall risk score if we downgraded from Critical -> High via an override
-	if c.Scan {
-		newRisk := highestBehaviorRisk(fr)
+	// Regardless of running an `analyze` or `scan`, adjust the overall risk if we downgraded the highest severity
+	// Scans will still need to drop medium or lower results
+	newRisk := highestBehaviorRisk(fr)
+	switch c.Scan {
+	case true:
 		switch {
-		case newRisk < highestRisk && newRisk >= 3:
+		case newRisk < overallRiskScore && newRisk >= 3:
 			overallRiskScore = newRisk
 		case newRisk < 3:
 			return malcontent.FileReport{}, nil
+		}
+	default:
+		if newRisk < overallRiskScore {
+			overallRiskScore = newRisk
 		}
 	}
 
