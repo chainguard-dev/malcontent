@@ -522,12 +522,13 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 	originalMap := make(map[string]*malcontent.Behavior)
 	overrideMap := make(map[string]*malcontent.Behavior)
 
-	// Remove the original rule from the behavior slice
-	// Add the remaining rules to the override map for verification
+	// Store the override rule's details in its map and remove it from the slice of behaviors
+	// Add the remaining rules to the original map for verification
 	for i := 0; i < len(fr.Behaviors); {
 		b := fr.Behaviors[i]
 
-		// Check if this behavior is an original that needs to be removed
+		// Check if this behavior is an override that needs to be removed
+		// If it is, store its behavior in the override map and mark it for deletion
 		isOverride := false
 		for _, vo := range validOverrides {
 			if b.RuleName == vo.Override {
@@ -553,7 +554,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 		_, overrideExists := overrideMap[vo.Override]
 
 		// If the original and override rules exist,
-		// update the override rule with the correct severity and description from the original
+		// update the original rule with the correct risk level and score
 		if originalExists && overrideExists {
 			for _, b := range fr.Behaviors {
 				if b.RuleName == original.RuleName {
