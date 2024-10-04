@@ -301,7 +301,7 @@ func mungeDescription(s string) string {
 	return s
 }
 
-//nolint:cyclop // ignore complexity of 44
+//nolint:cyclop,gocognit // ignore complexity of 44, 106
 func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malcontent.Config, expath string) (malcontent.FileReport, error) {
 	ignoreTags := c.IgnoreTags
 	minScore := c.MinRisk
@@ -552,7 +552,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 		original, originalExists := originalMap[vo.Original]
 		override, overrideExists := overrideMap[vo.Override]
 
-		// If the original and override rules exist, 
+		// If the original and override rules exist,
 		// update the override rule with the correct severity and description from the original
 		if originalExists && overrideExists {
 			for _, b := range fr.Behaviors {
