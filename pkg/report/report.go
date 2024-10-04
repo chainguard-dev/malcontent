@@ -383,7 +383,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 		switch {
 		case risk < minScore && !ignoreMalcontent:
 			continue
-		case c.Scan && risk < highestRisk && !ignoreMalcontent:
+		case c.Scan && risk < highestRisk && !ignoreMalcontent && !override:
 			continue
 		}
 		key = generateKey(m.Namespace, m.Rule)
@@ -557,6 +557,8 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 		if originalExists && overrideExists {
 			for _, b := range fr.Behaviors {
 				if b.RuleName == override.RuleName {
+					b.RuleName = original.RuleName
+					b.ID = original.ID
 					b.RuleAuthor = original.RuleAuthor
 					b.RuleAuthorURL = original.RuleAuthorURL
 					b.RuleLicense = original.RuleLicense
@@ -567,6 +569,17 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 					break
 				}
 			}
+		}
+	}
+
+	// If running a scan, adjust the overall risk score if we downgraded from Critical -> High via an override
+	if c.Scan {
+		newRisk := highestBehaviorRisk(fr)
+		switch {
+		case newRisk < highestRisk && newRisk >= 3:
+			overallRiskScore = newRisk
+		case newRisk < 3:
+			return malcontent.FileReport{}, nil
 		}
 	}
 
@@ -661,5 +674,20 @@ func highestMatchRisk(mrs yara.MatchRules) int {
 			highestRisk = risk
 		}
 	}
+	return highestRisk
+}
+
+func highestBehaviorRisk(fr malcontent.FileReport) int {
+	if len(fr.Behaviors) == 0 {
+		return 0
+	}
+
+	highestRisk := 0
+	for _, b := range fr.Behaviors {
+		if b.RiskScore > highestRisk {
+			highestRisk = b.RiskScore
+		}
+	}
+
 	return highestRisk
 }
