@@ -1,4 +1,4 @@
-rule go_dns_refs {
+rule go_dns_refs_local {
 	meta:
 		description = "Examines local DNS servers"
 	strings:
