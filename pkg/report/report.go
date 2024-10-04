@@ -528,21 +528,21 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 		b := fr.Behaviors[i]
 
 		// Check if this behavior is an original that needs to be removed
-		isOriginal := false
+		isOverride := false
 		for _, vo := range validOverrides {
-			if b.RuleName == vo.Original {
-				originalMap[vo.Original] = b
-				isOriginal = true
+			if b.RuleName == vo.Override {
+				overrideMap[vo.Override] = b
+				isOverride = true
 				break
 			}
 		}
 
-		// If this is the original rule, delete it from the behavior slice
-		// Otherwise, treat the rule as a possible override (vo.Override makes this an O(1) lookup)
-		if isOriginal {
+		// If this is the override rule, delete it from the behavior slice
+		// Otherwise, treat the rule as a possible original (vo.Original makes this an O(1) lookup)
+		if isOverride {
 			fr.Behaviors = slices.Delete(fr.Behaviors, i, i+1)
 		} else {
-			overrideMap[b.RuleName] = b
+			originalMap[b.RuleName] = b
 			i++
 		}
 	}
@@ -550,20 +550,13 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 	// Apply all valid overrides using populated maps for easy lookups
 	for _, vo := range validOverrides {
 		original, originalExists := originalMap[vo.Original]
-		override, overrideExists := overrideMap[vo.Override]
+		_, overrideExists := overrideMap[vo.Override]
 
 		// If the original and override rules exist,
 		// update the override rule with the correct severity and description from the original
 		if originalExists && overrideExists {
 			for _, b := range fr.Behaviors {
-				if b.RuleName == override.RuleName {
-					b.RuleName = original.RuleName
-					b.ID = original.ID
-					b.RuleAuthor = original.RuleAuthor
-					b.RuleAuthorURL = original.RuleAuthorURL
-					b.RuleLicense = original.RuleLicense
-					b.RuleLicenseURL = original.RuleLicense
-					b.Description = fmt.Sprintf("%s, [%s]", original.Description, original.RuleName)
+				if b.RuleName == original.RuleName {
 					b.RiskLevel = RiskLevels[vo.Severity]
 					b.RiskScore = vo.Severity
 					break
