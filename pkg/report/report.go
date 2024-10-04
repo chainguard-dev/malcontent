@@ -90,6 +90,12 @@ var Levels = map[string]int{
 	"critical":   4,
 }
 
+type RuleOverride struct {
+	Original string
+	Override string
+	Severity int
+}
+
 func thirdPartyKey(path string, rule string) string {
 	// include the directory
 	pathParts := strings.Split(path, "/")
@@ -343,6 +349,15 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 		}
 	}
 
+	// Store match rules in a map for future override operations
+	mrsMap := make(map[string]yara.MatchRule)
+	for _, m := range mrs {
+		mrsMap[m.Rule] = m
+	}
+
+	// Store valid overrides to iterate over after match rules have been processed
+	validOverrides := []RuleOverride{}
+
 	for _, m := range mrs {
 		override := false
 		if all(m.Rule == NAME, ignoreSelf) {
@@ -386,12 +401,6 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 		k := ""
 		v := ""
 
-		// Store match rules in a map for future override operations
-		mrsMap := make(map[string]yara.MatchRule)
-		for _, m := range mrs {
-			mrsMap[m.Rule] = m
-		}
-
 		for _, meta := range m.Metas {
 			k = meta.Identifier
 			v = fmt.Sprintf("%s", meta.Value)
@@ -402,9 +411,16 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 
 			// If we find a match in the map for the metadata key, that's the rule to override
 			// Ensure that the override tag is present on the override rule
-			var overrideRule string
 			if match, exists := mrsMap[k]; exists && override {
-				overrideRule = match.Rule
+				var overrideSev int
+				if sev, ok := Levels[v]; ok {
+					overrideSev = sev
+				}
+				validOverrides = append(validOverrides, RuleOverride{
+					Original: match.Rule,
+					Override: m.Rule,
+					Severity: overrideSev,
+				})
 			}
 
 			switch k {
@@ -449,26 +465,6 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 				syscalls = append(syscalls, sy...)
 			case "cap":
 				caps = append(caps, v)
-			// If we find a rule to override, pull in that rule's configuration and update the severity
-			case overrideRule:
-				var overrideSev int
-				if sev, ok := Levels[v]; ok {
-					overrideSev = sev
-				}
-				// Find the behavior for the overridden (original) rule
-				// Store its behavior in the current behavior and remove the original behavior
-				for i, ob := range fr.Behaviors {
-					if ob.RuleName == overrideRule {
-						b = ob
-						b.RuleName = m.Rule
-						b.Description = fmt.Sprintf("%s, [%s]", b.Description, m.Rule)
-						b.RiskScore = overrideSev
-						b.RiskLevel = RiskLevels[overrideSev]
-
-						// Remove the original rule from the behaviors slice
-						fr.Behaviors = slices.Delete(fr.Behaviors, i, i+1)
-					}
-				}
 			}
 		}
 
@@ -519,6 +515,59 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 		}
 
 		// TODO: If we match multiple rules within a single namespace, merge matchstrings
+	}
+
+	// Handle overrides
+	// Create maps to store the original rule's behavior and rule behaviors that aren't the original
+	originalMap := make(map[string]*malcontent.Behavior)
+	overrideMap := make(map[string]*malcontent.Behavior)
+
+	// Remove the original rule from the behavior slice
+	// Add the remaining rules to the override map for verification
+	for i := 0; i < len(fr.Behaviors); {
+		b := fr.Behaviors[i]
+
+		// Check if this behavior is an original that needs to be removed
+		isOriginal := false
+		for _, vo := range validOverrides {
+			if b.RuleName == vo.Original {
+				originalMap[vo.Original] = b
+				isOriginal = true
+				break
+			}
+		}
+
+		// If this is the original rule, delete it from the behavior slice
+		// Otherwise, treat the rule as a possible override (vo.Override makes this an O(1) lookup)
+		if isOriginal {
+			fr.Behaviors = slices.Delete(fr.Behaviors, i, i+1)
+		} else {
+			overrideMap[b.RuleName] = b
+			i++
+		}
+	}
+
+	// Apply all valid overrides using populated maps for easy lookups
+	for _, vo := range validOverrides {
+		original, originalExists := originalMap[vo.Original]
+		override, overrideExists := overrideMap[vo.Override]
+
+		// If the original and override rules exist, 
+		// update the override rule with the correct severity and description from the original
+		if originalExists && overrideExists {
+			for _, b := range fr.Behaviors {
+				if b.RuleName == override.RuleName {
+					b.RuleAuthor = original.RuleAuthor
+					b.RuleAuthorURL = original.RuleAuthorURL
+					b.RuleLicense = original.RuleLicense
+					b.RuleLicenseURL = original.RuleLicense
+					b.Description = fmt.Sprintf("%s, [%s]", original.Description, original.RuleName)
+					b.RiskLevel = RiskLevels[vo.Severity]
+					b.RiskScore = vo.Severity
+					break
+				}
+			}
+		}
 	}
 
 	// Check for both the full and shortened variants of malcontent
