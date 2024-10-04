@@ -517,8 +517,8 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 		// TODO: If we match multiple rules within a single namespace, merge matchstrings
 	}
 
-	// Update the file's report to account
-	fr.Behaviors = handleOverrides(fr)
+	// Update the behaviors to account for overrides
+	fr.Behaviors = handleOverrides(fr.Behaviors, fr.Overrides)
 
 	// Adjust the overall risk if we deviated from overallRiskScore
 	// Scans will still need to drop <= medium results
@@ -642,13 +642,13 @@ func highestBehaviorRisk(fr malcontent.FileReport) int {
 }
 
 // handleOverrides modifies the behavior slice based on the contents of the override slice.
-func handleOverrides(fr malcontent.FileReport) []*malcontent.Behavior {
-	behaviorMap := make(map[string]*malcontent.Behavior, len(fr.Behaviors))
-	for _, b := range fr.Behaviors {
+func handleOverrides(original, override []*malcontent.Behavior) []*malcontent.Behavior {
+	behaviorMap := make(map[string]*malcontent.Behavior, len(original))
+	for _, b := range original {
 		behaviorMap[b.RuleName] = b
 	}
 
-	for _, o := range fr.Overrides {
+	for _, o := range override {
 		if b, exists := behaviorMap[o.Override]; exists {
 			b.RiskLevel = o.RiskLevel
 			b.RiskScore = o.RiskScore
