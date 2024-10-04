@@ -32,7 +32,7 @@ const (
 	CRITICAL
 )
 
-// Map to handle RiskScore -> RiskLevel conversions
+// Map to handle RiskScore -> RiskLevel conversions.
 var RiskLevels = map[int]string{
 	0: "NONE",     // harmless: common to all executables, no system impact
 	1: "LOW",      // undefined: low impact, common to good and bad executables
@@ -86,7 +86,7 @@ var threatHuntingKeywordRe = regexp.MustCompile(`Detection patterns for the tool
 
 var dateRe = regexp.MustCompile(`[a-z]{3}\d{1,2}`)
 
-// Map to handle RiskLevel -> RiskScore conversions
+// Map to handle RiskLevel -> RiskScore conversions.
 var Levels = map[string]int{
 	"harmless":   0,
 	"low":        1,
@@ -310,7 +310,7 @@ func mungeDescription(s string) string {
 	return s
 }
 
-//nolint:cyclop,gocognit // ignore complexity of 44, 106
+//nolint:cyclop // ignore complexity of 44
 func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malcontent.Config, expath string) (malcontent.FileReport, error) {
 	ignoreTags := c.IgnoreTags
 	minScore := c.MinRisk
