@@ -99,12 +99,6 @@ var Levels = map[string]int{
 	"critical":   4,
 }
 
-type RuleOverride struct {
-	Original string
-	Override string
-	Severity int
-}
-
 func thirdPartyKey(path string, rule string) string {
 	// include the directory
 	pathParts := strings.Split(path, "/")
