@@ -80,9 +80,9 @@ func (r StringMatches) File(_ context.Context, fr *malcontent.FileReport) error 
 		}
 	}
 
-	prefix := "Displaying matches for"
-	fmt.Fprintf(r.w, "%s %s %s%s%s\n", prefix, color.HiGreenString(fr.Path), color.HiBlackString("["), briefRiskColor(fr.RiskLevel), color.HiBlackString("]"))
-	fmt.Fprintf(r.w, "%s\n", strings.Repeat("-", len(prefix+fr.Path+fr.RiskLevel)+1))
+	prefix := "String matches for"
+	header := fmt.Sprintf("%s %s %s%s%s:\n", prefix, color.HiGreenString(fr.Path), color.HiBlackString("["), briefRiskColor(fr.RiskLevel), color.HiBlackString("]"))
+	fmt.Fprintf(r.w, header)
 	for _, m := range matches {
 		fmt.Fprintf(r.w, "%s %s%s%s: \n%s%s\n", color.HiGreenString(m.Rule), color.HiBlackString("["), briefRiskColor(riskLevels[m.Risk]), color.HiBlackString("]"), color.HiBlackString("- "), strings.Join(m.Matches, color.HiBlackString("\n- ")))
 	}
