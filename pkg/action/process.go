@@ -21,7 +21,7 @@ func GetAllProcessPaths(ctx context.Context) ([]Process, error) {
 	}
 
 	// Store PIDs and their respective commands (paths) in a map of paths and their Process structs
-	processMap := make(map[string]Process)
+	processMap := make(map[string]Process, len(procs))
 	for _, p := range procs {
 		path, err := p.Exe()
 		if err != nil {

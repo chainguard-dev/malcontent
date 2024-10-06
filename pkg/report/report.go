@@ -354,7 +354,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 	}
 
 	// Store match rules in a map for future override operations
-	mrsMap := make(map[string]yara.MatchRule)
+	mrsMap := make(map[string]yara.MatchRule, len(mrs))
 	for _, m := range mrs {
 		mrsMap[m.Rule] = m
 	}

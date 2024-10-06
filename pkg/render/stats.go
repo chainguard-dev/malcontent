@@ -10,8 +10,8 @@ import (
 )
 
 func riskStatistics(files *orderedmap.OrderedMap[string, *malcontent.FileReport]) ([]malcontent.IntMetric, int, int) {
-	riskMap := make(map[int][]string)
-	riskStats := make(map[int]float64)
+	riskMap := make(map[int][]string, files.Len())
+	riskStats := make(map[int]float64, files.Len())
 
 	// as opposed to skipped files
 	processedFiles := 0
@@ -46,8 +46,8 @@ func riskStatistics(files *orderedmap.OrderedMap[string, *malcontent.FileReport]
 
 func pkgStatistics(files *orderedmap.OrderedMap[string, *malcontent.FileReport]) ([]malcontent.StrMetric, int, int) {
 	numNamespaces := 0
-	pkgMap := make(map[string]int)
-	pkg := make(map[string]float64)
+	pkgMap := make(map[string]int, files.Len())
+	pkg := make(map[string]float64, files.Len())
 	for files := files.Oldest(); files != nil; files = files.Next() {
 		for _, namespace := range files.Value.Behaviors {
 			numNamespaces++
