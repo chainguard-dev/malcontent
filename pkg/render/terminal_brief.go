@@ -32,9 +32,9 @@ func NewTerminalBrief(w io.Writer) TerminalBrief {
 func briefRiskColor(level string) string {
 	switch level {
 	case "LOW":
-		return color.HiGreenString("LOW ")
+		return color.HiGreenString("LOW")
 	case "MEDIUM", "MED":
-		return color.HiYellowString("MED ")
+		return color.HiYellowString("MED")
 	case "HIGH":
 		return color.HiRedString("HIGH")
 	case "CRITICAL", "CRIT":
