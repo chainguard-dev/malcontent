@@ -20,6 +20,8 @@ import (
 
 var archiveMap = map[string]bool{
 	".apk":    true,
+	".bz2":    true,
+	".bzip2":  true,
 	".gem":    true,
 	".gz":     true,
 	".jar":    true,

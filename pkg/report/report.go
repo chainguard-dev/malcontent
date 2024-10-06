@@ -22,10 +22,17 @@ import (
 	"github.com/hillu/go-yara/v4"
 )
 
+const NAME string = "malcontent"
+
 const (
-	NAME string = "malcontent"
+	HARMLESS int = iota
+	LOW
+	MEDIUM
+	HIGH
+	CRITICAL
 )
 
+// Map to handle RiskScore -> RiskLevel conversions.
 var RiskLevels = map[int]string{
 	0: "NONE",     // harmless: common to all executables, no system impact
 	1: "LOW",      // undefined: low impact, common to good and bad executables
@@ -72,12 +79,25 @@ var thirdPartyCriticalSources = map[string]bool{
 	"JPCERT":    true,
 }
 
-// authorWithURLRe matcehs "Arnim Rupp (https://github.com/ruppde)"
+// authorWithURLRe matches "Arnim Rupp (https://github.com/ruppde)"
 var authorWithURLRe = regexp.MustCompile(`(.*?) \((http.*)\)`)
 
 var threatHuntingKeywordRe = regexp.MustCompile(`Detection patterns for the tool '(.*)' taken from the ThreatHunting-Keywords github project`)
 
 var dateRe = regexp.MustCompile(`[a-z]{3}\d{1,2}`)
+
+// Map to handle RiskLevel -> RiskScore conversions.
+var Levels = map[string]int{
+	"harmless":   0,
+	"low":        1,
+	"notable":    2,
+	"medium":     2,
+	"suspicious": 3,
+	"weird":      3,
+	"high":       3,
+	"crit":       4,
+	"critical":   4,
+}
 
 func thirdPartyKey(path string, rule string) string {
 	// include the directory
@@ -174,18 +194,8 @@ func behaviorRisk(ns string, rule string, tags []string) int {
 		risk = 2
 	}
 
-	levels := map[string]int{
-		"harmless":   0,
-		"notable":    2,
-		"medium":     2,
-		"suspicious": 3,
-		"weird":      3,
-		"high":       3,
-		"crit":       4,
-		"critical":   4,
-	}
 	for _, tag := range tags {
-		if r, ok := levels[tag]; ok {
+		if r, ok := Levels[tag]; ok {
 			risk = r
 			break
 		}
@@ -320,6 +330,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 		Size:      size,
 		Meta:      map[string]string{},
 		Behaviors: []*malcontent.Behavior{},
+		Overrides: []*malcontent.Behavior{},
 	}
 
 	var pledges []string
@@ -327,10 +338,10 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 	var syscalls []string
 
 	ignoreMalcontent := false
-	overallRiskScore := 0
-	riskCounts := map[int]int{}
-	risk := 0
 	key := ""
+	overallRiskScore := 0
+	risk := 0
+	riskCounts := map[int]int{}
 
 	// If we're running a scan, only diplay findings of the highest risk
 	// Return an empty file report if the highest risk is medium or lower
@@ -342,10 +353,25 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 		}
 	}
 
+	// Store match rules in a map for future override operations
+	mrsMap := make(map[string]yara.MatchRule)
 	for _, m := range mrs {
+		mrsMap[m.Rule] = m
+	}
+
+	for _, m := range mrs {
+		override := false
 		if all(m.Rule == NAME, ignoreSelf) {
 			ignoreMalcontent = true
 		}
+
+		for _, t := range m.Tags {
+			if t == "override" {
+				override = true
+				break
+			}
+		}
+
 		risk = behaviorRisk(m.Namespace, m.Rule, m.Tags)
 		if risk > overallRiskScore {
 			overallRiskScore = risk
@@ -358,7 +384,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 		switch {
 		case risk < minScore && !ignoreMalcontent:
 			continue
-		case c.Scan && risk < highestRisk && !ignoreMalcontent:
+		case c.Scan && risk < highestRisk && !ignoreMalcontent && !override:
 			continue
 		}
 		key = generateKey(m.Namespace, m.Rule)
@@ -369,6 +395,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 			MatchStrings: matchStrings(m.Rule, m.Strings),
 			RiskLevel:    RiskLevels[risk],
 			RiskScore:    risk,
+			RuleName:     m.Rule,
 			RuleURL:      ruleURL,
 		}
 
@@ -381,6 +408,19 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 			// Empty data is unusual, so just ignore it.
 			if k == "" || v == "" {
 				continue
+			}
+
+			// If we find a match in the map for the metadata key, that's the rule to override
+			// Store this rule (the override) in the fr.Overrides behavior slice
+			if _, exists := mrsMap[k]; exists && override {
+				var overrideSev int
+				if sev, ok := Levels[v]; ok {
+					overrideSev = sev
+				}
+				b.RiskLevel = RiskLevels[overrideSev]
+				b.RiskScore = overrideSev
+				b.Override = k
+				fr.Overrides = append(fr.Overrides, b)
 			}
 
 			switch k {
@@ -477,6 +517,20 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 		// TODO: If we match multiple rules within a single namespace, merge matchstrings
 	}
 
+	// Update the behaviors to account for overrides
+	fr.Behaviors = handleOverrides(fr.Behaviors, fr.Overrides)
+
+	// Adjust the overall risk if we deviated from overallRiskScore
+	// Scans will still need to drop <= medium results
+	newRisk := highestBehaviorRisk(fr)
+	if overallRiskScore != newRisk {
+		overallRiskScore = newRisk
+	}
+
+	if c.Scan && overallRiskScore < HIGH {
+		return malcontent.FileReport{}, nil
+	}
+
 	// Check for both the full and shortened variants of malcontent
 	isMalBinary := (filepath.Base(path) == NAME || filepath.Base(path) == "mal")
 
@@ -569,4 +623,42 @@ func highestMatchRisk(mrs yara.MatchRules) int {
 		}
 	}
 	return highestRisk
+}
+
+// highestBehaviorRisk returns the highest risk score from a slice of FileReport Behaviors.
+func highestBehaviorRisk(fr malcontent.FileReport) int {
+	if len(fr.Behaviors) == 0 {
+		return 0
+	}
+
+	highestRisk := 0
+	for _, b := range fr.Behaviors {
+		if b.RiskScore > highestRisk {
+			highestRisk = b.RiskScore
+		}
+	}
+
+	return highestRisk
+}
+
+// handleOverrides modifies the behavior slice based on the contents of the override slice.
+func handleOverrides(original, override []*malcontent.Behavior) []*malcontent.Behavior {
+	behaviorMap := make(map[string]*malcontent.Behavior, len(original))
+	for _, b := range original {
+		behaviorMap[b.RuleName] = b
+	}
+
+	for _, o := range override {
+		if b, exists := behaviorMap[o.Override]; exists {
+			b.RiskLevel = o.RiskLevel
+			b.RiskScore = o.RiskScore
+		}
+	}
+
+	modified := make([]*malcontent.Behavior, 0, len(behaviorMap))
+	for _, b := range behaviorMap {
+		modified = append(modified, b)
+	}
+
+	return modified
 }

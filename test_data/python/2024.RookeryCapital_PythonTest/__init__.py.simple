@@ -1,0 +1,10 @@
+# python/2024.RookeryCapital_PythonTest/__init__.py
+encoding/base64
+evasion/base64/decode
+evasion/codecs_decode
+exec/program
+fs/file/open
+fs/file/write
+fs/tempdir
+kernel/platform
+net/url/request

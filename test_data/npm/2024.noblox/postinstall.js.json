@@ -18,7 +18,8 @@
                     "RiskLevel": "LOW",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/directory-create.yara#mkdir",
                     "ReferenceURL": "https://man7.org/linux/man-pages/man2/mkdir.2.html",
-                    "ID": "fs/directory/create"
+                    "ID": "fs/directory/create",
+                    "RuleName": "mkdir"
                 },
                 {
                     "Description": "submits content to websites",
@@ -30,7 +31,8 @@
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http-post.yara#http_post",
-                    "ID": "net/http/post"
+                    "ID": "net/http/post",
+                    "RuleName": "http_post"
                 },
                 {
                     "Description": "excessive references to hexadecimal values",
@@ -1824,7 +1826,8 @@
                     "RiskScore": 3,
                     "RiskLevel": "HIGH",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/obfuscation/generic/hex.yara#excessive_hex_refs",
-                    "ID": "obfuscation/generic/hex"
+                    "ID": "obfuscation/generic/hex",
+                    "RuleName": "excessive_hex_refs"
                 },
                 {
                     "Description": "javascript obfuscation (excessive const functions)",
@@ -1833,10 +1836,11 @@
                         "function(",
                         "{return"
                     ],
-                    "RiskScore": 4,
-                    "RiskLevel": "CRITICAL",
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/obfuscation/js/function_spam.yara#js_const_func_obfuscation",
-                    "ID": "obfuscation/js/function_spam"
+                    "ID": "obfuscation/js/function_spam",
+                    "RuleName": "js_const_func_obfuscation"
                 },
                 {
                     "Description": "javascript function obfuscation (hex)",
@@ -1985,7 +1989,8 @@
                     "RiskScore": 4,
                     "RiskLevel": "CRITICAL",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/obfuscation/js/hex_functions.yara#js_hex_obfuscation",
-                    "ID": "obfuscation/js/hex_functions"
+                    "ID": "obfuscation/js/hex_functions",
+                    "RuleName": "js_hex_obfuscation"
                 },
                 {
                     "Description": "javascript obfuscation (integer parsing)",
@@ -1995,10 +2000,11 @@
                         "parseInt",
                         "{return"
                     ],
-                    "RiskScore": 4,
-                    "RiskLevel": "CRITICAL",
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/obfuscation/js/parseInt.yara#js_const_func_obfuscation",
-                    "ID": "obfuscation/js/parseInt"
+                    "ID": "obfuscation/js/parseInt",
+                    "RuleName": "js_const_func_obfuscation"
                 },
                 {
                     "Description": "path reference for C:\\Windows (may be partial)",
@@ -2008,7 +2014,8 @@
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/path/windows_root.yara#windows_path",
-                    "ID": "ref/path/windows_root"
+                    "ID": "ref/path/windows_root",
+                    "RuleName": "windows_path"
                 },
                 {
                     "Description": "gets very excited",
@@ -2018,11 +2025,13 @@
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/words/exclamation.yara#exclamations",
-                    "ID": "ref/words/exclamation"
+                    "ID": "ref/words/exclamation",
+                    "RuleName": "exclamations"
                 }
             ],
             "RiskScore": 4,
             "RiskLevel": "CRITICAL"
         }
-    }
+    },
+    "Filter": "false_positive,ignore"
 }

@@ -58,6 +58,12 @@ type Behavior struct {
 
 	// ID is the original map key from map[string]*Behavior
 	ID string `json:",omitempty" yaml:",omitempty"`
+
+	// Name is the value of m.Rule
+	RuleName string `json:",omitempty" yaml:",omitempty"`
+
+	// The name of the rule this behavior overrides
+	Override string `json:",omitempty" yaml:",omitempty"`
 }
 
 type FileReport struct {
@@ -85,6 +91,8 @@ type FileReport struct {
 	RiskLevel string `json:",omitempty" yaml:",omitempty"`
 
 	IsMalcontent bool `json:",omitempty" yaml:",omitempty"`
+
+	Overrides []*Behavior `json:",omitempty" yaml:",omitempty"`
 }
 
 type DiffReport struct {
