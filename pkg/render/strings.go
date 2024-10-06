@@ -5,23 +5,20 @@
 //
 // Example:
 //
-// Displaying matches for /sbin/ping [MED]
-// ---------------------------------------
-// _connect [MED]:
+// Matches for /sbin/ping [MED] (15 rules):
+// _connect [MED] (1 string):
 // - _connect
-// bsd_if [LOW]:
+// bsd_if [LOW] (1 string):
 // - if_nametoindex
-// bsd_ifaddrs [MED]:
+// bsd_ifaddrs [MED] (2 strings):
 // - freeifaddrs
 // - getifaddrs
-// generic_scan_tool [MED]:
+// generic_scan_tool [MED] (5 strings):
 // - connect
 // - gethostbyname
 // - port
 // - scan
 // - socket
-// gethostbyaddr [LOW]:
-// - gethostbyaddr
 // ...
 
 package render
