@@ -6,6 +6,7 @@ package action
 import (
 	"context"
 	"fmt"
+	"io/fs"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -15,12 +16,21 @@ import (
 	"sync"
 
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/compile"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/render"
 	"github.com/chainguard-dev/malcontent/pkg/report"
+
 	"github.com/hillu/go-yara/v4"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 	"golang.org/x/sync/errgroup"
+)
+
+var (
+	// compiledRuleCache are a cache of previously compiled rules.
+	compiledRuleCache *yara.Rules
+	// compileOnce ensures that we compile rules only once even across threads.
+	compileOnce sync.Once
 )
 
 // findFilesRecursively returns a list of files found recursively within a path.
@@ -73,7 +83,7 @@ func formatPath(path string) string {
 }
 
 // scanSinglePath YARA scans a single path and converts it to a fileReport.
-func scanSinglePath(ctx context.Context, c malcontent.Config, yrs *yara.Rules, path string, absPath string, archiveRoot string) (*malcontent.FileReport, error) {
+func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleFS []fs.FS, absPath string, archiveRoot string) (*malcontent.FileReport, error) {
 	logger := clog.FromContext(ctx)
 	var mrs yara.MatchRules
 	logger = logger.With("path", path)
@@ -92,9 +102,14 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, yrs *yara.Rules, p
 	}
 	defer f.Close()
 	fd := f.Fd()
+
+	yrs, err := cachedRules(ctx, ruleFS)
+	if err != nil {
+		return nil, fmt.Errorf("rules: %w", err)
+	}
 	if err := yrs.ScanFileDescriptor(fd, 0, 0, &mrs); err != nil {
 		logger.Info("skipping", slog.Any("error", err))
-		return &malcontent.FileReport{Path: path, Error: fmt.Sprintf("scanfile: %v", err)}, nil
+		return &malcontent.FileReport{Path: path, Error: fmt.Sprintf("scan: %v", err)}, nil
 	}
 
 	fr, err := report.Generate(ctx, path, mrs, c, archiveRoot)
@@ -173,6 +188,24 @@ func errIfHitOrMiss(frs *sync.Map, kind string, scanPath string, errIfHit bool, 
 	return nil
 }
 
+func cachedRules(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {
+	if compiledRuleCache != nil {
+		return compiledRuleCache, nil
+	}
+
+	var yrs *yara.Rules
+	var err error
+	compileOnce.Do(func() {
+		yrs, err = compile.Recursive(ctx, fss)
+		if err != nil {
+			err = fmt.Errorf("compile: %w", err)
+		}
+
+		compiledRuleCache = yrs
+	})
+	return compiledRuleCache, err
+}
+
 // recursiveScan recursively YARA scans the configured paths - handling archives and OCI images.
 //
 //nolint:gocognit // ignoring complexity of 101 > 98
@@ -185,13 +218,6 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 	if len(c.IgnoreTags) > 0 {
 		r.Filter = strings.Join(c.IgnoreTags, ",")
 	}
-
-	if c.Rules == nil {
-		return nil, fmt.Errorf("rules have not been loaded")
-	}
-
-	yrs := c.Rules
-	logger.Infof("%d rules loaded", len(yrs.GetRules()))
 
 	var scanPathFindings sync.Map
 
@@ -214,7 +240,7 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 
 		paths, err := findFilesRecursively(ctx, scanPath)
 		if err != nil {
-			return nil, fmt.Errorf("find files: %w", err)
+			return nil, fmt.Errorf("find: %w", err)
 		}
 		logger.Debug("files found", slog.Any("path count", len(paths)), slog.Any("scanPath", scanPath))
 
@@ -232,7 +258,7 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 
 		handleArchive := func(path string) error {
 			logger.Debug("found archive path", slog.Any("path", path))
-			frs, err := processArchive(ctx, c, yrs, path, logger)
+			frs, err := processArchive(ctx, c, c.RuleFS, path, logger)
 			if err != nil {
 				logger.Errorf("unable to process %s: %v", path, err)
 			}
@@ -267,7 +293,7 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 			}
 
 			logger.Debug("processing path", slog.Any("path", path))
-			fr, err := processFile(ctx, c, yrs, path, scanPath, trimPath, logger)
+			fr, err := processFile(ctx, c, c.RuleFS, path, scanPath, trimPath, logger)
 			if err != nil {
 				scanPathFindings.Store(path, &malcontent.FileReport{})
 				return err
@@ -348,7 +374,7 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 }
 
 // processArchive extracts and scans a single archive file.
-func processArchive(ctx context.Context, c malcontent.Config, yrs *yara.Rules, archivePath string, logger *clog.Logger) (*sync.Map, error) {
+func processArchive(ctx context.Context, c malcontent.Config, rfs []fs.FS, archivePath string, logger *clog.Logger) (*sync.Map, error) {
 	logger = logger.With("archivePath", archivePath)
 
 	var err error
@@ -361,11 +387,11 @@ func processArchive(ctx context.Context, c malcontent.Config, yrs *yara.Rules, a
 
 	extractedPaths, err := findFilesRecursively(ctx, tmpRoot)
 	if err != nil {
-		return nil, fmt.Errorf("find files: %w", err)
+		return nil, fmt.Errorf("find: %w", err)
 	}
 
 	for _, extractedFilePath := range extractedPaths {
-		fr, err := processFile(ctx, c, yrs, extractedFilePath, archivePath, tmpRoot, logger)
+		fr, err := processFile(ctx, c, rfs, extractedFilePath, archivePath, tmpRoot, logger)
 		if err != nil {
 			return nil, err
 		}
@@ -381,10 +407,10 @@ func processArchive(ctx context.Context, c malcontent.Config, yrs *yara.Rules, a
 }
 
 // processFile scans a single output file, rendering live output if available.
-func processFile(ctx context.Context, c malcontent.Config, yrs *yara.Rules, path string, scanPath string, archiveRoot string, logger *clog.Logger) (*malcontent.FileReport, error) {
+func processFile(ctx context.Context, c malcontent.Config, ruleFS []fs.FS, path string, scanPath string, archiveRoot string, logger *clog.Logger) (*malcontent.FileReport, error) {
 	logger = logger.With("path", path)
 
-	fr, err := scanSinglePath(ctx, c, yrs, path, scanPath, archiveRoot)
+	fr, err := scanSinglePath(ctx, c, path, ruleFS, scanPath, archiveRoot)
 	if err != nil {
 		logger.Errorf("scan path: %v", err)
 		return nil, err
