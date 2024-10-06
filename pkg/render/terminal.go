@@ -176,8 +176,9 @@ func wrapKey(s string, i int) string {
 }
 
 func darkenText(s string) string {
-	var cw []string
-	for _, w := range strings.Split(s, "\n") {
+	split := strings.Split(s, "\n")
+	cw := make([]string, 0, len(split))
+	for _, w := range split {
 		cw = append(cw, color.HiBlackString(w))
 	}
 	return strings.Join(cw, "\n")
@@ -196,7 +197,7 @@ func renderTable(ctx context.Context, fr *malcontent.FileReport, w io.Writer, rc
 		return
 	}
 
-	var kbs []KeyedBehavior
+	kbs := make([]KeyedBehavior, 0, len(fr.Behaviors))
 	for _, b := range fr.Behaviors {
 		kbs = append(kbs, KeyedBehavior{Key: b.ID, Behavior: b})
 	}
@@ -215,7 +216,10 @@ func renderTable(ctx context.Context, fr *malcontent.FileReport, w io.Writer, rc
 		return kbs[i].Behavior.RiskScore < kbs[j].Behavior.RiskScore
 	})
 
-	var data [][]string
+	data := make([][]string, 0, len(kbs))
+	for _, k := range kbs {
+		data = append(data, make([]string, 0, len(k.Behavior.MatchStrings)))
+	}
 
 	tWidth := terminalWidth(ctx)
 	keyWidth := 24

@@ -26,7 +26,7 @@ func riskStatistics(files *orderedmap.OrderedMap[string, *malcontent.FileReport]
 		}
 	}
 
-	var stats []malcontent.IntMetric
+	stats := make([]malcontent.IntMetric, 0, len(riskStats))
 	total := func() int {
 		var t int
 		for _, v := range riskMap {
@@ -67,7 +67,7 @@ func pkgStatistics(files *orderedmap.OrderedMap[string, *malcontent.FileReport])
 			return w
 		}(len(k), width)
 	}
-	var stats []malcontent.StrMetric
+	stats := make([]malcontent.StrMetric, 0, len(pkg))
 	for k, v := range pkg {
 		stats = append(stats, malcontent.StrMetric{Key: k, Value: v, Count: pkgMap[k], Total: numNamespaces})
 	}

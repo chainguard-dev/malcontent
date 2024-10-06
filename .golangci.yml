@@ -131,6 +131,7 @@ linters:
     - nilerr
     - noctx
     - nolintlint
+    - prealloc
     - predeclared
     # disabling for the initial iteration of the linting tool
     # - promlinter

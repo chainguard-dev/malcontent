@@ -118,7 +118,7 @@ func TestExtractTar(t *testing.T) {
 	if len(dirFiles) != len(want) {
 		t.Fatalf("unexpected number of files in dir: %d", len(dirFiles))
 	}
-	var got []string
+	got := make([]string, 0, len(dirFiles))
 	for _, f := range dirFiles {
 		got = append(got, f.Name())
 	}
@@ -146,7 +146,7 @@ func TestExtractGzip(t *testing.T) {
 	if len(dirFiles) != len(want) {
 		t.Fatalf("unexpected number of files in dir: %d", len(dirFiles))
 	}
-	var got []string
+	got := make([]string, 0, len(dirFiles))
 	for _, f := range dirFiles {
 		got = append(got, f.Name())
 	}
@@ -174,7 +174,7 @@ func TestExtractZip(t *testing.T) {
 	if len(dirFiles) != len(want) {
 		t.Fatalf("unexpected number of files in dir: %d", len(dirFiles))
 	}
-	var got []string
+	got := make([]string, 0, len(dirFiles))
 	for _, f := range dirFiles {
 		got = append(got, f.Name())
 	}
@@ -202,7 +202,7 @@ func TestExtractNestedArchive(t *testing.T) {
 	if len(dirFiles) != len(want) {
 		t.Fatalf("unexpected number of files in dir: %d", len(dirFiles))
 	}
-	var got []string
+	got := make([]string, 0, len(dirFiles))
 	for _, f := range dirFiles {
 		got = append(got, f.Name())
 	}

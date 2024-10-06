@@ -116,7 +116,7 @@ func markdownTable(_ context.Context, fr *malcontent.FileReport, w io.Writer, rc
 		return
 	}
 
-	var kbs []KeyedBehavior
+	kbs := make([]KeyedBehavior, 0, len(fr.Behaviors))
 	for _, b := range fr.Behaviors {
 		kbs = append(kbs, KeyedBehavior{Key: b.ID, Behavior: b})
 	}
@@ -139,7 +139,10 @@ func markdownTable(_ context.Context, fr *malcontent.FileReport, w io.Writer, rc
 		return kbs[i].Behavior.RiskScore > kbs[j].Behavior.RiskScore
 	})
 
-	var data [][]string
+	data := make([][]string, 0, len(kbs))
+	for _, k := range kbs {
+		data = append(data, make([]string, 0, len(k.Behavior.MatchStrings)))
+	}
 
 	for _, k := range kbs {
 		desc := k.Behavior.Description
@@ -184,7 +187,7 @@ func markdownTable(_ context.Context, fr *malcontent.FileReport, w io.Writer, rc
 			key = fmt.Sprintf("**%s**", key)
 		}
 
-		var matchLinks []string
+		matchLinks := make([]string, 0, len(k.Behavior.MatchStrings))
 		for _, m := range k.Behavior.MatchStrings {
 			matchLinks = append(matchLinks, matchFragmentLink(m))
 		}
