@@ -6,8 +6,8 @@ package malcontent
 import (
 	"context"
 	"io"
+	"io/fs"
 
-	"github.com/hillu/go-yara/v4"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
@@ -31,7 +31,7 @@ type Config struct {
 	Processes             bool
 	QuantityIncreasesRisk bool
 	Renderer              Renderer
-	Rules                 *yara.Rules
+	RuleFS                []fs.FS
 	Scan                  bool
 	ScanPaths             []string
 	Stats                 bool

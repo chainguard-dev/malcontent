@@ -11,7 +11,6 @@ import (
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/clog/slogtest"
-	"github.com/chainguard-dev/malcontent/pkg/compile"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/render"
 	"github.com/chainguard-dev/malcontent/rules"
@@ -218,11 +217,6 @@ func TestScanArchive(t *testing.T) {
 	ctx := slogtest.Context(t)
 	clog.FromContext(ctx).With("test", "scan_archive")
 
-	yrs, err := compile.Recursive(ctx, []fs.FS{rules.FS, thirdparty.FS})
-	if err != nil {
-		t.Fatalf("compile: %v", err)
-	}
-
 	var out bytes.Buffer
 	simple, err := render.New("simple", &out)
 	if err != nil {
@@ -233,7 +227,7 @@ func TestScanArchive(t *testing.T) {
 		IgnoreSelf:  false,
 		IgnoreTags:  []string{"harmless"},
 		Renderer:    simple,
-		Rules:       yrs,
+		RuleFS:      []fs.FS{rules.FS, thirdparty.FS},
 		ScanPaths:   []string{"testdata/apko_nested.tar.gz"},
 	}
 	res, err := Scan(ctx, bc)

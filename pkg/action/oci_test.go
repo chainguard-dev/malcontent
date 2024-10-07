@@ -9,7 +9,6 @@ import (
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/clog/slogtest"
-	"github.com/chainguard-dev/malcontent/pkg/compile"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/render"
 	"github.com/chainguard-dev/malcontent/rules"
@@ -21,11 +20,6 @@ func TestOCI(t *testing.T) {
 	t.Parallel()
 	ctx := slogtest.Context(t)
 	clog.FromContext(ctx).With("test", "scan_oci")
-
-	yrs, err := compile.Recursive(ctx, []fs.FS{rules.FS, thirdparty.FS})
-	if err != nil {
-		t.Fatalf("compile: %v", err)
-	}
 
 	var out bytes.Buffer
 	simple, err := render.New("simple", &out)
@@ -39,7 +33,7 @@ func TestOCI(t *testing.T) {
 		MinFileRisk: 0,
 		MinRisk:     0,
 		Renderer:    simple,
-		Rules:       yrs,
+		RuleFS:      []fs.FS{rules.FS, thirdparty.FS},
 		ScanPaths:   []string{"testdata/static.tar.xz"},
 	}
 	res, err := Scan(ctx, bc)
