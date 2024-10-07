@@ -15,7 +15,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"strings"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/fatih/color"
@@ -29,19 +28,8 @@ func NewTerminalBrief(w io.Writer) TerminalBrief {
 	return TerminalBrief{w: w}
 }
 
-func briefRiskColor(level string) string {
-	switch level {
-	case "LOW":
-		return color.HiGreenString("LOW ")
-	case "MEDIUM", "MED":
-		return color.HiYellowString("MED ")
-	case "HIGH":
-		return color.HiRedString("HIGH")
-	case "CRITICAL", "CRIT":
-		return color.HiMagentaString("CRIT")
-	default:
-		return color.WhiteString(level)
-	}
+func (r TerminalBrief) Scanning(_ context.Context, path string) {
+	fmt.Fprintf(r.w, "🔎 Scanning %q\n", path)
 }
 
 func (r TerminalBrief) File(_ context.Context, fr *malcontent.FileReport) error {
@@ -49,13 +37,12 @@ func (r TerminalBrief) File(_ context.Context, fr *malcontent.FileReport) error 
 		return nil
 	}
 
-	reasons := []string{}
+	fmt.Fprintf(r.w, "├── 📄 %s %s%s%s\n", fr.Path, color.HiBlackString("["), riskInColor(fr.RiskLevel), color.HiBlackString("]"))
+
 	for _, b := range fr.Behaviors {
-		reasons = append(reasons, fmt.Sprintf("%s %s%s%s\n", color.HiYellowString(b.ID), color.HiBlackString("("), b.Description, color.HiBlackString(")")))
+		fmt.Fprintf(r.w, "│      %s %s: %s\n", riskEmoji(fr.RiskScore), riskColor(fr.RiskLevel, b.ID), b.Description)
 	}
 
-	fmt.Fprintf(r.w, "%s%s%s %s: \n%s%s\n", color.HiBlackString("["), briefRiskColor(fr.RiskLevel), color.HiBlackString("]"), color.HiGreenString(fr.Path),
-		color.HiBlackString("- "), strings.Join(reasons, color.HiBlackString("- ")))
 	return nil
 }
 

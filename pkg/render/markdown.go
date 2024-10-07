@@ -41,6 +41,10 @@ func matchFragmentLink(s string) string {
 	return fmt.Sprintf("[%s](https://github.com/search?q=%s&type=code)", s, url.QueryEscape(s))
 }
 
+func (r Markdown) Scanning(_ context.Context, _ string) {
+	return
+}
+
 func (r Markdown) File(ctx context.Context, fr *malcontent.FileReport) error {
 	if len(fr.Behaviors) > 0 {
 		markdownTable(ctx, fr, r.w, tableConfig{Title: fmt.Sprintf("## %s [%s]", fr.Path, mdRisk(fr.RiskScore, fr.RiskLevel))})

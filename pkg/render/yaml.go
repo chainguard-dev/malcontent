@@ -20,6 +20,10 @@ func NewYAML(w io.Writer) YAML {
 	return YAML{w: w}
 }
 
+func (r YAML) Scanning(_ context.Context, _ string) {
+	return
+}
+
 func (r YAML) File(_ context.Context, _ *malcontent.FileReport) error {
 	return nil
 }

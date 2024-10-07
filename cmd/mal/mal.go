@@ -499,7 +499,7 @@ func main() {
 					}
 
 					if res.Files.Len() > 0 {
-						fmt.Fprintf(os.Stderr, "\ntip: For detailed analysis, run: mal analyze <path>\n")
+						fmt.Fprintf(os.Stderr, "\n💡 For detailed analysis, try \"mal analyze <path>\"\n")
 					}
 
 					return nil
