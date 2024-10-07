@@ -60,7 +60,7 @@ var badRules = map[string]bool{
 	// TTC-CERT
 	"cve_202230190_html_payload": true,
 	// JPCERT
-	"malware_PlugX_config": true,
+	"malware_PlugX_config":   true,
 	"malware_shellcode_hash": true,
 }
 
