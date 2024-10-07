@@ -25,6 +25,8 @@ func New(kind string, w io.Writer) (malcontent.Renderer, error) {
 		return NewJSON(w), nil
 	case "simple":
 		return NewSimple(w), nil
+	case "strings":
+		return NewStringMatches(w), nil
 	default:
 		return nil, fmt.Errorf("unknown renderer: %q", kind)
 	}

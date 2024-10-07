@@ -20,7 +20,6 @@ import (
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/clog/slogtest"
 	"github.com/chainguard-dev/malcontent/pkg/action"
-	"github.com/chainguard-dev/malcontent/pkg/compile"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/render"
 	"github.com/chainguard-dev/malcontent/rules"
@@ -34,11 +33,6 @@ func TestJSON(t *testing.T) {
 	t.Parallel()
 	ctx := slogtest.Context(t)
 	clog.FromContext(ctx).With("test", "TestJSON")
-
-	yrs, err := compile.Recursive(ctx, []fs.FS{rules.FS, thirdparty.FS})
-	if err != nil {
-		t.Fatalf("compile: %v", err)
-	}
 
 	fileSystem := os.DirFS(testDataRoot)
 
@@ -80,7 +74,7 @@ func TestJSON(t *testing.T) {
 				IgnoreSelf:  false,
 				MinRisk:     1,
 				Renderer:    render,
-				Rules:       yrs,
+				RuleFS:      []fs.FS{rules.FS, thirdparty.FS},
 				ScanPaths:   []string{binPath},
 			}
 
@@ -108,12 +102,6 @@ func TestSimple(t *testing.T) {
 	t.Parallel()
 	ctx := slogtest.Context(t)
 	clog.FromContext(ctx).With("test", "simple")
-
-	yrs, err := compile.Recursive(ctx, []fs.FS{rules.FS, thirdparty.FS})
-	if err != nil {
-		t.Fatalf("compile: %v", err)
-	}
-
 	fileSystem := os.DirFS(testDataRoot)
 
 	fs.WalkDir(fileSystem, ".", func(path string, _ fs.DirEntry, err error) error {
@@ -146,7 +134,7 @@ func TestSimple(t *testing.T) {
 				IgnoreSelf:  false,
 				IgnoreTags:  []string{"harmless"},
 				Renderer:    simple,
-				Rules:       yrs,
+				RuleFS:      []fs.FS{rules.FS, thirdparty.FS},
 				ScanPaths:   []string{binPath},
 			}
 
@@ -173,11 +161,6 @@ func TestSimple(t *testing.T) {
 func TestDiff(t *testing.T) {
 	ctx := slogtest.Context(t)
 	clog.FromContext(ctx).With("test", "diff")
-
-	yrs, err := compile.Recursive(ctx, []fs.FS{rules.FS, thirdparty.FS})
-	if err != nil {
-		t.Fatalf("compile: %v", err)
-	}
 
 	fileSystem := os.DirFS(testDataRoot)
 
@@ -222,7 +205,7 @@ func TestDiff(t *testing.T) {
 				MinFileRisk: tc.minFileScore,
 				MinRisk:     tc.minResultScore,
 				Renderer:    simple,
-				Rules:       yrs,
+				RuleFS:      []fs.FS{rules.FS, thirdparty.FS},
 				ScanPaths:   []string{strings.TrimPrefix(tc.src, "../out/samples/"), strings.TrimPrefix(tc.dest, "../out/samples/")},
 			}
 
@@ -259,12 +242,6 @@ func TestMarkdown(t *testing.T) {
 	t.Parallel()
 	ctx := slogtest.Context(t)
 	clog.FromContext(ctx).With("test", "TestMarkDown")
-
-	yrs, err := compile.Recursive(ctx, []fs.FS{rules.FS, thirdparty.FS})
-	if err != nil {
-		t.Fatalf("compile: %v", err)
-	}
-
 	fileSystem := os.DirFS(testDataRoot)
 
 	fs.WalkDir(fileSystem, ".", func(path string, _ fs.DirEntry, err error) error {
@@ -298,7 +275,7 @@ func TestMarkdown(t *testing.T) {
 				IgnoreTags:            []string{"harmless"},
 				QuantityIncreasesRisk: true,
 				Renderer:              simple,
-				Rules:                 yrs,
+				RuleFS:                []fs.FS{rules.FS, thirdparty.FS},
 				ScanPaths:             []string{binPath},
 			}
 
@@ -366,11 +343,6 @@ func Template(b *testing.B, paths []string) func() {
 		ctx := context.TODO()
 		clog.FromContext(ctx).With("benchmark", "samples")
 
-		yrs, err := compile.Recursive(ctx, []fs.FS{rules.FS, thirdparty.FS})
-		if err != nil {
-			b.Fatalf("compile: %v", err)
-		}
-
 		var out bytes.Buffer
 		simple, err := render.New("simple", &out)
 		if err != nil {
@@ -381,7 +353,7 @@ func Template(b *testing.B, paths []string) func() {
 			IgnoreSelf:  true,
 			IgnoreTags:  []string{"harmless"},
 			Renderer:    simple,
-			Rules:       yrs,
+			RuleFS:      []fs.FS{rules.FS, thirdparty.FS},
 			ScanPaths:   paths,
 		}
 		res, err := action.Scan(ctx, mc)
