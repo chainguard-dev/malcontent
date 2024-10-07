@@ -21,13 +21,11 @@ import (
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/action"
-	"github.com/chainguard-dev/malcontent/pkg/compile"
 	"github.com/chainguard-dev/malcontent/pkg/profile"
 	"github.com/chainguard-dev/malcontent/pkg/render"
 	"github.com/chainguard-dev/malcontent/pkg/version"
 	"github.com/chainguard-dev/malcontent/rules"
 	thirdparty "github.com/chainguard-dev/malcontent/third_party"
-	"github.com/hillu/go-yara/v4"
 
 	"github.com/urfave/cli/v2"
 )
@@ -100,7 +98,6 @@ func main() {
 		res      *malcontent.Report
 		stop     func()
 		ver      string
-		yrs      *yara.Rules
 	)
 
 	ver, err = version.Version()
@@ -185,22 +182,9 @@ func main() {
 			if outputFlag != "" {
 				outFile, err = os.OpenFile(outputFlag, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600)
 				if err != nil {
-					log.Error("open file", slog.Any("error", err), slog.String("path", outputFlag))
 					returnCode = ExitInputOutput
 					return err
 				}
-			}
-
-			rfs := []fs.FS{rules.FS}
-			if thirdPartyFlag {
-				rfs = append(rfs, thirdparty.FS)
-			}
-
-			yrs, err = compile.Recursive(ctx, rfs)
-			if err != nil {
-				log.Error("YARA rule compilation", slog.Any("error", err))
-				returnCode = ExitInvalidRules
-				return err
 			}
 
 			// when scanning, increment the slice index by one to account for flags
@@ -220,9 +204,13 @@ func main() {
 
 			renderer, err = render.New(chosenFormat, outFile)
 			if err != nil {
-				log.Error("invalid format", slog.Any("error", err), slog.String("format", formatFlag))
 				returnCode = ExitInvalidArgument
 				return err
+			}
+
+			rfs := []fs.FS{rules.FS}
+			if thirdPartyFlag {
+				rfs = append(rfs, thirdparty.FS)
 			}
 
 			mc = malcontent.Config{
@@ -237,7 +225,7 @@ func main() {
 				OCI:                   ociFlag,
 				QuantityIncreasesRisk: quantityIncreasesRiskFlag,
 				Renderer:              renderer,
-				Rules:                 yrs,
+				RuleFS:                rfs,
 				ScanPaths:             scanPaths,
 				Stats:                 statsFlag,
 			}
@@ -267,7 +255,7 @@ func main() {
 			&cli.StringFlag{
 				Name:        "format",
 				Value:       "auto",
-				Usage:       "Output format (json, markdown, simple, terminal, yaml)",
+				Usage:       "Output format (json, markdown, simple, strings, terminal, yaml)",
 				Destination: &formatFlag,
 			},
 			&cli.BoolFlag{
@@ -405,14 +393,12 @@ func main() {
 
 					res, err = action.Scan(ctx, mc)
 					if err != nil {
-						log.Error("scan failed", slog.Any("error", err))
 						returnCode = ExitActionFailed
 						return err
 					}
 
 					err = renderer.Full(ctx, res)
 					if err != nil {
-						log.Error("render failed", slog.Any("error", err))
 						returnCode = ExitRenderFailed
 						return err
 					}
@@ -426,14 +412,12 @@ func main() {
 				Action: func(_ *cli.Context) error {
 					res, err = action.Diff(ctx, mc)
 					if err != nil {
-						log.Error("diff failed", slog.Any("error", err))
 						returnCode = ExitActionFailed
 						return err
 					}
 
 					err = renderer.Full(ctx, res)
 					if err != nil {
-						log.Error("render failed", slog.Any("error", err))
 						returnCode = ExitRenderFailed
 						return err
 					}
@@ -486,14 +470,12 @@ func main() {
 
 					res, err = action.Scan(ctx, mc)
 					if err != nil {
-						log.Error("scan failed", slog.Any("error", err))
 						returnCode = ExitActionFailed
 						return err
 					}
 
 					err = renderer.Full(ctx, res)
 					if err != nil {
-						log.Error("render failed", slog.Any("error", err))
 						returnCode = ExitRenderFailed
 						return err
 					}
@@ -509,7 +491,7 @@ func main() {
 	}
 
 	if err := app.Run(os.Args); err != nil {
-		log.Error("error running malcontent: %w", slog.Any("error", err))
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		returnCode = ExitActionFailed
 	}
 }
