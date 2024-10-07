@@ -72,9 +72,11 @@ func extractTar(ctx context.Context, d string, f string) error {
 
 	for {
 		header, err := tr.Next()
+
 		if errors.Is(err, io.ErrUnexpectedEOF) || errors.Is(err, io.EOF) {
 			break
 		}
+
 		if err != nil {
 			return fmt.Errorf("failed to read tar header: %w", err)
 		}
@@ -84,6 +86,7 @@ func extractTar(ctx context.Context, d string, f string) error {
 		}
 		target := filepath.Join(d, clean)
 		if header.FileInfo().IsDir() {
+			// #nosec G115
 			if err := os.MkdirAll(target, os.FileMode(header.Mode)); err != nil {
 				return fmt.Errorf("failed to create directory: %w", err)
 			}
@@ -94,6 +97,7 @@ func extractTar(ctx context.Context, d string, f string) error {
 			return fmt.Errorf("failed to create directory for file: %w", err)
 		}
 
+		// #nosec G115
 		f, err := os.OpenFile(target, os.O_RDWR|os.O_CREATE|os.O_TRUNC, os.FileMode(header.Mode))
 		if err != nil {
 			return fmt.Errorf("failed to create file: %w", err)
