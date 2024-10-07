@@ -43,6 +43,21 @@ var riskLevels = map[int]string{
 	4: "CRITICAL", // critical: certainly malware
 }
 
+func briefRiskColor(level string) string {
+	switch level {
+	case "LOW":
+		return color.HiGreenString("LOW")
+	case "MEDIUM", "MED":
+		return color.HiYellowString("MED")
+	case "HIGH":
+		return color.HiRedString("HIGH")
+	case "CRITICAL", "CRIT":
+		return color.HiMagentaString("CRIT")
+	default:
+		return color.WhiteString(level)
+	}
+}
+
 type StringMatches struct {
 	w io.Writer
 }
@@ -56,6 +71,10 @@ type Match struct {
 	Risk        int
 	Rule        string
 	Strings     []string
+}
+
+func (r StringMatches) Scanning(_ context.Context, path string) {
+	fmt.Fprintf(r.w, "🔎 Scanning %q\n", path)
 }
 
 func (r StringMatches) File(_ context.Context, fr *malcontent.FileReport) error {
