@@ -211,7 +211,7 @@ func cachedRules(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {
 
 // recursiveScan recursively YARA scans the configured paths - handling archives and OCI images.
 //
-//nolint:gocognit // ignoring complexity of 101 > 98
+//nolint:gocognit,cyclop // ignoring complexity of 101,38
 func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) {
 	logger := clog.FromContext(ctx)
 	logger.Debug("recursive scan", slog.Any("config", c))
