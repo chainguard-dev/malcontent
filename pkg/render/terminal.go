@@ -57,25 +57,29 @@ func NewTerminal(w io.Writer) Terminal {
 }
 
 func decorativeRisk(score int, level string) string {
-	return fmt.Sprintf("%s %s", riskEmoji(score), riskColor(level))
+	return fmt.Sprintf("%s %s", riskEmoji(score), riskColor(level, level))
 }
 
 func darkBrackets(s string) string {
 	return fmt.Sprintf("%s%s%s", color.HiBlackString("["), s, color.HiBlackString("]"))
 }
 
-func riskColor(level string) string {
+func riskInColor(level string) string {
+	return riskColor(level, level)
+}
+
+func riskColor(level string, text string) string {
 	switch level {
 	case "LOW":
-		return color.HiGreenString(level)
+		return color.HiGreenString(text)
 	case "MEDIUM", "MED":
-		return color.HiYellowString(level)
+		return color.HiYellowString(text)
 	case "HIGH":
-		return color.HiRedString(level)
+		return color.HiRedString(text)
 	case "CRITICAL", "CRIT":
-		return color.HiMagentaString(level)
+		return color.HiMagentaString(text)
 	default:
-		return color.WhiteString(level)
+		return color.WhiteString(text)
 	}
 }
 
@@ -88,6 +92,10 @@ func ShortRisk(s string) string {
 		return "MED"
 	}
 	return short
+}
+
+func (r Terminal) Scanning(_ context.Context, path string) {
+	fmt.Fprintf(r.w, "🔎 Scanning %q\n", path)
 }
 
 func (r Terminal) File(ctx context.Context, fr *malcontent.FileReport) error {
@@ -279,12 +287,12 @@ func renderTable(ctx context.Context, fr *malcontent.FileReport, w io.Writer, rc
 		}
 		evidence := strings.Join(abbreviatedEv, "\n")
 
-		risk := riskColor(ShortRisk(k.Behavior.RiskLevel))
+		risk := riskInColor(ShortRisk(k.Behavior.RiskLevel))
 		if k.Behavior.DiffAdded || rc.DiffAdded {
 			if rc.SkipAdded {
 				continue
 			}
-			risk = fmt.Sprintf("%s%s", color.HiWhiteString("+"), riskColor(ShortRisk(k.Behavior.RiskLevel)))
+			risk = fmt.Sprintf("%s%s", color.HiWhiteString("+"), riskInColor(ShortRisk(k.Behavior.RiskLevel)))
 		}
 
 		wKey := wrapKey(k.Key, keyWidth)
@@ -294,7 +302,7 @@ func renderTable(ctx context.Context, fr *malcontent.FileReport, w io.Writer, rc
 			if rc.SkipRemoved {
 				continue
 			}
-			risk = fmt.Sprintf("%s%s", color.WhiteString("-"), riskColor(ShortRisk(k.Behavior.RiskLevel)))
+			risk = fmt.Sprintf("%s%s", color.WhiteString("-"), riskInColor(ShortRisk(k.Behavior.RiskLevel)))
 			evidence = darkenText(evidence)
 		}
 

@@ -384,7 +384,7 @@ func main() {
 						processPaths, err := action.GetAllProcessPaths(ctx)
 						if err != nil {
 							returnCode = ExitActionFailed
-							return err
+							return fmt.Errorf("process paths: %w", err)
 						}
 						for _, p := range processPaths {
 							mc.ScanPaths = append(mc.ScanPaths, p.Path)
@@ -394,7 +394,7 @@ func main() {
 					res, err = action.Scan(ctx, mc)
 					if err != nil {
 						returnCode = ExitActionFailed
-						return err
+						return fmt.Errorf("scan: %w", err)
 					}
 
 					err = renderer.Full(ctx, res)
@@ -461,7 +461,7 @@ func main() {
 						processPaths, err := action.GetAllProcessPaths(ctx)
 						if err != nil {
 							returnCode = ExitActionFailed
-							return err
+							return fmt.Errorf("process paths: %w", err)
 						}
 						for _, p := range processPaths {
 							mc.ScanPaths = append(mc.ScanPaths, p.Path)
@@ -471,7 +471,7 @@ func main() {
 					res, err = action.Scan(ctx, mc)
 					if err != nil {
 						returnCode = ExitActionFailed
-						return err
+						return fmt.Errorf("scan: %w", err)
 					}
 
 					err = renderer.Full(ctx, res)
@@ -481,7 +481,7 @@ func main() {
 					}
 
 					if res.Files.Len() > 0 {
-						fmt.Fprintf(os.Stderr, "\ntip: For detailed analysis, run: mal analyze <path>\n")
+						fmt.Fprintf(os.Stderr, "\n💡 For detailed analysis, try \"mal analyze <path>\"\n")
 					}
 
 					return nil
