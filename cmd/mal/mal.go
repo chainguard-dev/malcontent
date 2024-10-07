@@ -381,13 +381,14 @@ func main() {
 					// When scanning processes, load all of the valid commands (paths)
 					// and store them as the ScanPaths
 					if mc.Processes {
-						processPaths, err := action.GetAllProcessPaths(ctx)
+						ps, err := action.ActiveProcesses(ctx)
 						if err != nil {
 							returnCode = ExitActionFailed
 							return fmt.Errorf("process paths: %w", err)
 						}
-						for _, p := range processPaths {
-							mc.ScanPaths = append(mc.ScanPaths, p.Path)
+						for _, p := range ps {
+							// in the future, we'll also want to attach process info directly
+							mc.ScanPaths = append(mc.ScanPaths, p.ScanPath)
 						}
 					}
 
@@ -458,13 +459,13 @@ func main() {
 					// When scanning processes, load all of the valid commands (paths)
 					// and store them as the ScanPaths
 					if mc.Processes {
-						processPaths, err := action.GetAllProcessPaths(ctx)
+						ps, err := action.ActiveProcesses(ctx)
 						if err != nil {
 							returnCode = ExitActionFailed
 							return fmt.Errorf("process paths: %w", err)
 						}
-						for _, p := range processPaths {
-							mc.ScanPaths = append(mc.ScanPaths, p.Path)
+						for _, p := range ps {
+							mc.ScanPaths = append(mc.ScanPaths, p.ScanPath)
 						}
 					}
 

@@ -22,11 +22,13 @@ rule remote_eval_close : critical {
     hash_2019_active_controller_middleware = "9a85e7aee672b1258b3d4606f700497d351dd1e1117ceb0e818bfea7922b9a96"
     hash_2023_1_1_6_payload = "cbe882505708c72bc468264af4ef5ae5de1b75de1f83bba4073f91568d9d20a1"
     hash_2023_0_0_7_payload = "bb6ca6bfd157c39f4ec27589499d3baaa9d1b570e622722cb9bddfff25127ac9"
+	filetypes = "php"
   strings:
+	$php = "<?php"
     $eval = "eval("
     $header = /(GET|POST|COOKIE|cookie)/
   condition:
-    math.max(@header, @eval) - math.min(@header, @eval) < 96
+    filesize < 16KB and $php and math.max(@header, @eval) - math.min(@header, @eval) < 96
 }
 
 rule python_exec_near_requests : critical {
