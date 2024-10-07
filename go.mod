@@ -11,7 +11,7 @@ require (
 	github.com/hillu/go-yara/v4 v4.3.3
 	github.com/liamg/magic v0.0.1
 	github.com/olekukonko/tablewriter v0.0.5
-	github.com/shirou/gopsutil/v4 v4.24.8
+	github.com/shirou/gopsutil/v4 v4.24.9
 	github.com/ulikunitz/xz v0.5.12
 	github.com/urfave/cli/v2 v2.27.4
 	github.com/wk8/go-ordered-map/v2 v2.1.8
@@ -28,6 +28,7 @@ require (
 	github.com/docker/cli v27.1.2+incompatible // indirect
 	github.com/docker/distribution v2.8.3+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.8.2 // indirect
+	github.com/ebitengine/purego v0.8.0 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/klauspost/compress v1.17.9 // indirect
 	github.com/kr/pretty v0.2.1 // indirect
@@ -43,7 +44,6 @@ require (
 	github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
-	github.com/shoenig/go-m1cpu v0.1.6 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/tklauser/go-sysconf v0.3.12 // indirect
 	github.com/tklauser/numcpus v0.6.1 // indirect
