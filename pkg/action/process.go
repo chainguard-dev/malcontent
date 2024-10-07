@@ -61,7 +61,7 @@ func canStat(path string) bool {
 	return err == nil
 }
 
-// processInfo returns the best path to a process executable
+// processInfo returns information about a process tuned for scanning.
 func processInfo(ctx context.Context, p *process.Process) (*ProcessInfo, error) {
 	pi := &ProcessInfo{
 		PID: p.Pid,
