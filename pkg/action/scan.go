@@ -222,6 +222,7 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 	var scanPathFindings sync.Map
 
 	for _, scanPath := range c.ScanPaths {
+		c.Renderer.Scanning(ctx, scanPath)
 		logger.Debug("recursive scan", slog.Any("scanPath", scanPath))
 		imageURI := ""
 		ociExtractPath := ""
