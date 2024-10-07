@@ -254,7 +254,7 @@ func matchToString(ruleName string, m yara.MatchString) string {
 
 // extract match strings.
 func matchStrings(ruleName string, ms []yara.MatchString) []string {
-	var raw []string
+	raw := make([]string, 0, len(ms))
 
 	for _, m := range ms {
 		raw = append(raw, matchToString(ruleName, m))
@@ -354,7 +354,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 	}
 
 	// Store match rules in a map for future override operations
-	mrsMap := make(map[string]yara.MatchRule)
+	mrsMap := make(map[string]yara.MatchRule, len(mrs))
 	for _, m := range mrs {
 		mrsMap[m.Rule] = m
 	}

@@ -10,8 +10,8 @@ import (
 )
 
 func riskStatistics(files *orderedmap.OrderedMap[string, *malcontent.FileReport]) ([]malcontent.IntMetric, int, int) {
-	riskMap := make(map[int][]string)
-	riskStats := make(map[int]float64)
+	riskMap := make(map[int][]string, files.Len())
+	riskStats := make(map[int]float64, files.Len())
 
 	// as opposed to skipped files
 	processedFiles := 0
@@ -26,7 +26,7 @@ func riskStatistics(files *orderedmap.OrderedMap[string, *malcontent.FileReport]
 		}
 	}
 
-	var stats []malcontent.IntMetric
+	stats := make([]malcontent.IntMetric, 0, len(riskStats))
 	total := func() int {
 		var t int
 		for _, v := range riskMap {
@@ -46,8 +46,8 @@ func riskStatistics(files *orderedmap.OrderedMap[string, *malcontent.FileReport]
 
 func pkgStatistics(files *orderedmap.OrderedMap[string, *malcontent.FileReport]) ([]malcontent.StrMetric, int, int) {
 	numNamespaces := 0
-	pkgMap := make(map[string]int)
-	pkg := make(map[string]float64)
+	pkgMap := make(map[string]int, files.Len())
+	pkg := make(map[string]float64, files.Len())
 	for files := files.Oldest(); files != nil; files = files.Next() {
 		for _, namespace := range files.Value.Behaviors {
 			numNamespaces++
@@ -67,7 +67,7 @@ func pkgStatistics(files *orderedmap.OrderedMap[string, *malcontent.FileReport])
 			return w
 		}(len(k), width)
 	}
-	var stats []malcontent.StrMetric
+	stats := make([]malcontent.StrMetric, 0, len(pkg))
 	for k, v := range pkg {
 		stats = append(stats, malcontent.StrMetric{Key: k, Value: v, Count: pkgMap[k], Total: numNamespaces})
 	}
