@@ -21,7 +21,7 @@ type ProcessInfo struct {
 	CmdLine        []string
 }
 
-// ActiveProcesses is an exported function that a list of active processes
+// ActiveProcesses is an exported function that a list of active processes.
 func ActiveProcesses(ctx context.Context) ([]*ProcessInfo, error) {
 	// Retrieve all of the active PIDs
 	procs, err := process.ProcessesWithContext(ctx)
@@ -55,7 +55,7 @@ func ActiveProcesses(ctx context.Context) ([]*ProcessInfo, error) {
 	return ps, nil
 }
 
-// canStat checks if stat() works on a given path
+// canStat checks if stat() works on a given path.
 func canStat(path string) bool {
 	_, err := os.Stat(path)
 	return err == nil
@@ -120,5 +120,4 @@ func processInfo(ctx context.Context, p *process.Process) (*ProcessInfo, error) 
 	}
 
 	return nil, fmt.Errorf("%s: unable to stat %q", pi.Name, pi.ScanPath)
-
 }
