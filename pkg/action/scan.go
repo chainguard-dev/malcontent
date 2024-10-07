@@ -315,7 +315,6 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 		var g errgroup.Group
 		g.SetLimit(maxConcurrency)
 		for path := range pc {
-			path := path
 			g.Go(func() error {
 				if isSupportedArchive(path) {
 					return handleArchive(path)
