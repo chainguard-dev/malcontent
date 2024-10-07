@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"runtime"
 	"sort"
+	"strings"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/shirou/gopsutil/v4/process"
@@ -25,12 +27,15 @@ func ActiveProcessPaths(ctx context.Context) ([]Process, error) {
 
 	found := map[string]Process{}
 	for _, p := range procs {
-		path, err := p.Exe()
-		// Executable resolution is non-fatal
-		if err != nil {
-			name, _ := p.Name()
-			clog.Errorf("%s[%d]: %v", name, p.Pid, err)
-			continue
+		// Skip Linux kernel threads
+		if runtime.GOOS == "linux" {
+			if p.Pid == 2 {
+				continue
+			}
+			parent, _ := p.PpidWithContext(ctx)
+			if parent == 2 {
+				continue
+			}
 		}
 
 		path, err := processPath(ctx, p)
@@ -54,6 +59,10 @@ func ActiveProcessPaths(ctx context.Context) ([]Process, error) {
 	sort.Slice(ps, func(i, j int) bool {
 		return ps[i].Path < ps[j].Path
 	})
+
+	for _, p := range ps {
+		clog.Infof("%d=%d", p.Path, p.PID)
+	}
 
 	return ps, nil
 }
@@ -81,21 +90,16 @@ func processPath(ctx context.Context, p *process.Process) (string, error) {
 		}
 	}
 
-	return procMapSlice(processMap), nil
-}
-
-// procMapSlice converts a map of paths and their Process structs to a slice of Processes.
-func procMapSlice(m map[string]Process) []Process {
-	ps := make([]Process, 0, len(m))
-	for _, v := range m {
-		ps = append(ps, v)
+	// on Linux, p.Exe() isn't available for other users processes unless you are root, try an alternate route.
+	cmd, err := p.CmdlineSliceWithContext(ctx)
+	if err == nil {
+		if len(cmd) > 0 && strings.HasPrefix(cmd[0], "/") {
+			if canStat(cmd[0]) {
+				return cmd[0], nil
+			}
+			return "", fmt.Errorf("%q is inacessible", cmd[0])
+		}
 	}
-
-	sort.Slice(ps, func(i, j int) bool {
-		return ps[i].Path < ps[j].Path
-	})
-	return ps
-}
 
 	name, err := p.Name()
 	if err != nil {
