@@ -10,6 +10,17 @@
             ],
             "Behaviors": [
                 {
+                    "Description": "gets very excited",
+                    "MatchStrings": [
+                        "else return!!"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/words/exclamation.yara#exclamations",
+                    "ID": "ref/words/exclamation",
+                    "RuleName": "exclamations"
+                },
+                {
                     "Description": "creates directories",
                     "MatchStrings": [
                         "mkdir"
@@ -1830,16 +1841,17 @@
                     "RuleName": "excessive_hex_refs"
                 },
                 {
-                    "Description": "javascript obfuscation (excessive const functions)",
+                    "Description": "javascript obfuscation (integer parsing)",
                     "MatchStrings": [
                         "const",
                         "function(",
+                        "parseInt",
                         "{return"
                     ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/obfuscation/js/function_spam.yara#js_const_func_obfuscation",
-                    "ID": "obfuscation/js/function_spam",
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/obfuscation/js/parseInt.yara#js_const_func_obfuscation",
+                    "ID": "obfuscation/js/parseInt",
                     "RuleName": "js_const_func_obfuscation"
                 },
                 {
@@ -1993,20 +2005,6 @@
                     "RuleName": "js_hex_obfuscation"
                 },
                 {
-                    "Description": "javascript obfuscation (integer parsing)",
-                    "MatchStrings": [
-                        "const",
-                        "function(",
-                        "parseInt",
-                        "{return"
-                    ],
-                    "RiskScore": 3,
-                    "RiskLevel": "HIGH",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/obfuscation/js/parseInt.yara#js_const_func_obfuscation",
-                    "ID": "obfuscation/js/parseInt",
-                    "RuleName": "js_const_func_obfuscation"
-                },
-                {
                     "Description": "path reference for C:\\Windows (may be partial)",
                     "MatchStrings": [
                         "C:/Wi"
@@ -2016,17 +2014,6 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/path/windows_root.yara#windows_path",
                     "ID": "ref/path/windows_root",
                     "RuleName": "windows_path"
-                },
-                {
-                    "Description": "gets very excited",
-                    "MatchStrings": [
-                        "else return!!"
-                    ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/words/exclamation.yara#exclamations",
-                    "ID": "ref/words/exclamation",
-                    "RuleName": "exclamations"
                 }
             ],
             "RiskScore": 4,

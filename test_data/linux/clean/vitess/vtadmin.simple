@@ -1,5 +1,6 @@
-# linux/clean/rulesctl
+# linux/clean/vitess/vtadmin
 3P/threat_hunting/gobuster
+3P/threat_hunting/hijacker
 3P/threat_hunting/openvas
 3P/threat_hunting/rapid7
 3P/threat_hunting/sqlninja
@@ -29,13 +30,15 @@ encoding/json/encode
 env/HOME
 env/SHELL
 env/TEMP
+env/TERM
 env/USER
 env/get
 evasion/base64/decode
 evasion/content/length/0
-evasion/int_to_char
+exec/cmd
 exec/program
 exec/shell_command
+fs/directory/create
 fs/directory/list
 fs/directory/remove
 fs/fifo/create
@@ -64,6 +67,7 @@ net/dns/reverse
 net/dns/servers
 net/dns/txt
 net/download
+net/fetch
 net/grpc
 net/hostname/resolve
 net/http/accept/encoding
@@ -84,6 +88,7 @@ net/socket/local/address
 net/socket/peer/address
 net/socket/receive
 net/socket/send
+net/ssh
 net/udp/receive
 net/udp/send
 net/upload
@@ -146,4 +151,5 @@ security_controls/linux/ufw
 shell/background/sleep
 shell/bash_dev_tcp
 shell/bash_dev_udp
+shell/exec
 tty/pathname

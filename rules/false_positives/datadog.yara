@@ -1,8 +1,7 @@
 rule ddtrace_rules_json : override {
   meta:
     description = "appsec/rules.json"
-    linux_multi_persist = "high"
-    original_severity = "critical"
+    linux_multi_persist = "medium"
   strings:
     $datadog = /[Dd]atadog/
     $datadog_generic = /[Dd]atadog \w{0,32}/

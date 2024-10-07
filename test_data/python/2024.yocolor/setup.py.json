@@ -14,29 +14,6 @@
             ],
             "Behaviors": [
                 {
-                    "Description": "Installs fernet crypto package using pip",
-                    "MatchStrings": [
-                        "pip install fernet"
-                    ],
-                    "RiskScore": 4,
-                    "RiskLevel": "CRITICAL",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/admin/pip_install.yara#pip_installer_fernet",
-                    "ReferenceURL": "https://checkmarx.com/blog/over-170k-users-affected-by-attack-using-fake-python-infrastructure/",
-                    "ID": "admin/pip_install",
-                    "RuleName": "pip_installer_fernet"
-                },
-                {
-                    "Description": "Python library installer that executes the Windows 'start' command",
-                    "MatchStrings": [
-                        "os.system(f'start {sys.executable} -m pip install fernet')"
-                    ],
-                    "RiskScore": 4,
-                    "RiskLevel": "CRITICAL",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/combo/backdoor/py_setuptools.yara#setuptools_cmd_exec_start",
-                    "ID": "combo/backdoor/py_setuptools",
-                    "RuleName": "setuptools_cmd_exec_start"
-                },
-                {
                     "Description": "Supports Fernet (symmetric encryption)",
                     "MatchStrings": [
                         "fernet"
@@ -58,17 +35,6 @@
                     "ReferenceURL": "https://man7.org/linux/man-pages/man2/execve.2.html",
                     "ID": "exec/program",
                     "RuleName": "py_subprocess"
-                },
-                {
-                    "Description": "reads from a file handle",
-                    "MatchStrings": [
-                        "fp.read()"
-                    ],
-                    "RiskScore": 1,
-                    "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fd/read.yara#py_fd_read",
-                    "ID": "fd/read",
-                    "RuleName": "py_fd_read"
                 },
                 {
                     "Description": "opens files",
@@ -93,6 +59,28 @@
                     "RuleName": "python_sys_executable"
                 },
                 {
+                    "Description": "Python library installer that executes the Windows 'start' command",
+                    "MatchStrings": [
+                        "os.system(f'start {sys.executable} -m pip install fernet')"
+                    ],
+                    "RiskScore": 4,
+                    "RiskLevel": "CRITICAL",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/combo/backdoor/py_setuptools.yara#setuptools_cmd_exec_start",
+                    "ID": "combo/backdoor/py_setuptools",
+                    "RuleName": "setuptools_cmd_exec_start"
+                },
+                {
+                    "Description": "reads from a file handle",
+                    "MatchStrings": [
+                        "fp.read()"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fd/read.yara#py_fd_read",
+                    "ID": "fd/read",
+                    "RuleName": "py_fd_read"
+                },
+                {
                     "Description": "path reference within /usr/bin",
                     "MatchStrings": [
                         "/usr/bin/env"
@@ -114,6 +102,18 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/site/url.yara#https_url",
                     "ID": "ref/site/url",
                     "RuleName": "https_url"
+                },
+                {
+                    "Description": "Installs fernet crypto package using pip",
+                    "MatchStrings": [
+                        "pip install fernet"
+                    ],
+                    "RiskScore": 4,
+                    "RiskLevel": "CRITICAL",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/admin/pip_install.yara#pip_installer_fernet",
+                    "ReferenceURL": "https://checkmarx.com/blog/over-170k-users-affected-by-attack-using-fake-python-infrastructure/",
+                    "ID": "admin/pip_install",
+                    "RuleName": "pip_installer_fernet"
                 }
             ],
             "RiskScore": 4,

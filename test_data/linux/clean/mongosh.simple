@@ -39,7 +39,6 @@ env/get
 evasion/base64/decode
 evasion/base64/php_functions
 evasion/hex
-evasion/int_to_char
 exec/cmd
 exec/program
 exec/program/background

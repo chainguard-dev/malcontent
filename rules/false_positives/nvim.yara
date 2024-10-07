@@ -1,8 +1,7 @@
 rule nvim_binary : override {
   meta:
     description = "nvim"
-    linux_multi_persist = "high"
-    original_severity = "critical"
+    linux_multi_persist = "medium"
   strings:
     $nvim_generic = /nvim_\w{0,32}/
     $nvim_path = "/home/build/src/nvim"

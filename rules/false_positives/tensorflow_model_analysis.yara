@@ -1,8 +1,7 @@
 rule tfjs_predict_extractor_util : override {
   meta:
     description = "tfjs_predict_extractor_util.py"
-    original_severity = "critical"
-    py_dropper_chmod = "high"
+    py_dropper_chmod = "medium"
   strings:
     $copyright_google = "# Copyright 2019 Google LLC"
     $subprocess_chmod = "subprocess.check_call(['chmod', '+x', path])"

@@ -53,6 +53,7 @@ evasion/base64/decode
 evasion/content/length/0
 exec/cmd
 exec/program
+false_positives/trivy
 fs/attributes/set
 fs/directory/create
 fs/directory/list

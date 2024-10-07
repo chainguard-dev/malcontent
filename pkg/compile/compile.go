@@ -59,6 +59,9 @@ var badRules = map[string]bool{
 	"Windows_API_Function": true,
 	// TTC-CERT
 	"cve_202230190_html_payload": true,
+	// JPCERT
+	"malware_PlugX_config": true,
+	"malware_shellcode_hash": true,
 }
 
 // rulesWithWarnings determines what to do with rules that have known warnings: true=keep, false=disable.

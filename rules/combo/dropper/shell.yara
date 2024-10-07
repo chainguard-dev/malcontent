@@ -40,7 +40,7 @@ rule curl_chmod_relative_run_tiny : critical {
     filesize < 6KB and all of them
 }
 
-rule curl_tor_chmod_relative_run : critical {
+rule curl_tor_chmod_relative_run : high {
   meta:
     description = "change dir, fetch file via tor, make it executable, and run it"
     hash_2024_Downloads_4ba700b0e86da21d3dcd6b450893901c252bf817bd8792548fc8f389ee5aec78 = "fd3e21b8e2d8acf196cb63a23fc336d7078e72c2c3e168ee7851ea2bef713588"
@@ -55,8 +55,10 @@ rule curl_tor_chmod_relative_run : critical {
     $curl = /curl [\-\w \$\@\{\w\/\.\:]{0,96}/
     $chmod = /chmod [\+\-\w \$\@\{\w\/\.]{0,64}/
     $dot_slash = /\.\/[a-z]{1,2}[a-z\.\/\- ]{0,32}/ fullword
+
+  $not_go = "listen.onionndots"
   condition:
-     any of ($tor*) and $cd and $curl and $chmod and $dot_slash
+     any of ($tor*) and $cd and $curl and $chmod and $dot_slash and filesize < 1MB and none of ($not*)
 }
 
 

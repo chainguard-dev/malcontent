@@ -1,4 +1,4 @@
-# linux/clean/docgen
+# linux/clean/vitess/vtclient
 3P/threat_hunting/gobuster
 3P/threat_hunting/openvas
 3P/threat_hunting/rapid7
@@ -7,8 +7,6 @@ archives/zip
 cloud/google/metadata
 combo/backdoor/iptables
 combo/backdoor/payload
-combo/backdoor/socat
-combo/critical_paths
 combo/net/host_port
 compression/bzip2
 compression/gzip
@@ -28,17 +26,12 @@ encoding/json
 encoding/json/decode
 encoding/json/encode
 env/HOME
-env/SHELL
-env/TEMP
 env/USER
 env/get
 evasion/base64/decode
 evasion/content/length/0
-evasion/int_to_char
-exec/cmd
 exec/program
 exec/shell_command
-fs/directory/create
 fs/directory/list
 fs/directory/remove
 fs/fifo/create
@@ -53,8 +46,6 @@ fs/mount
 fs/node/create
 fs/permission/chown
 fs/permission/modify
-fs/tempdir/create
-fs/tempfile/create
 fs/watch
 hash/md5
 kernel/acct
@@ -68,7 +59,6 @@ net/dns/reverse
 net/dns/servers
 net/dns/txt
 net/download
-net/fetch
 net/grpc
 net/hostname/resolve
 net/http/accept/encoding
@@ -82,7 +72,6 @@ net/http2
 net/http_proxy
 net/icmp
 net/ip/parse
-net/ip/send/unicast
 net/sendfile
 net/socket/connect
 net/socket/listen
@@ -90,7 +79,6 @@ net/socket/local/address
 net/socket/peer/address
 net/socket/receive
 net/socket/send
-net/ssh
 net/udp/receive
 net/udp/send
 net/upload
@@ -102,14 +90,11 @@ persist/crontab
 persist/linux_multi
 persist/pid_file
 persist/ssh_authorized_keys
-process/chdir
 process/chroot
 process/groups/set
 process/unshare
 process/username/get
-procfs/arbitrary/pid
 procfs/self/cgroup
-procfs/self/exe
 procfs/self/mountinfo
 ref/daemon
 ref/ip_port
@@ -120,10 +105,7 @@ ref/path/hidden
 ref/path/home
 ref/path/home/config
 ref/path/relative
-ref/path/relative/hidden
 ref/path/tmp
-ref/path/usr/bin
-ref/path/usr/sbin
 ref/path/var
 ref/path/var/run
 ref/program/masscan
@@ -137,7 +119,6 @@ ref/words/exfil
 ref/words/exploit
 ref/words/heartbeat
 ref/words/intercept
-ref/words/leetspeak
 ref/words/obfuscate
 ref/words/password
 ref/words/plugin
@@ -155,5 +136,4 @@ security_controls/linux/ufw
 shell/background/sleep
 shell/bash_dev_tcp
 shell/bash_dev_udp
-shell/exec
 tty/pathname

@@ -43,12 +43,10 @@ env/TERM
 env/TMPDIR
 env/USER
 evasion/base64/decode
-evasion/int_to_char
 exec/cmd
 exec/program
 exec/program/background
 exec/shell_echo
-false_positives/clickhouse
 fd/epoll
 fd/read
 fs/directory/create

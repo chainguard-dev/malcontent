@@ -1,5 +1,4 @@
 # linux/clean/kuma-cp
-3P/JPCERT/shellcode/hash
 3P/threat_hunting/hijacker
 3P/threat_hunting/privilegeescalation
 archives/zip
@@ -31,7 +30,6 @@ env/TERM
 env/USER
 evasion/base64/external
 evasion/content/length/0
-evasion/int_to_char
 exec/cmd
 exec/program
 fs/directory/create

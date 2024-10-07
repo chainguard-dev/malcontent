@@ -1,8 +1,7 @@
-rule pull_script : override {
+rule pull_scripts : override {
   meta:
-    curl_chmod_relative_run_tiny = "high"
-    description = "pull-script"
-    original_severity = "critical"
+    curl_chmod_relative_run_tiny = "medium"
+    description = "pull-scripts"
   strings:
     $binary = "BINARY_NAME=\"charts-build-scripts_${OS}_${ARCH}.exe\""
     $chmod = "chmod +x ./bin/charts-build-scripts"

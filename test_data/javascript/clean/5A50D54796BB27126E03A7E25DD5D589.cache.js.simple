@@ -20,7 +20,6 @@ env/LANG
 env/TEMP
 env/USER
 evasion/base64/decode
-evasion/int_to_char
 evasion/unusual_include
 exec/cmd
 exec/program
