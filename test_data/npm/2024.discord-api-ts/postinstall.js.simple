@@ -1,7 +1,6 @@
 # npm/2024.discord-api-ts/postinstall.js
 fs/directory/create
 obfuscation/generic/hex
-obfuscation/js/function_spam
 obfuscation/js/hex_functions
 obfuscation/js/parseInt
 ref/words/exclamation

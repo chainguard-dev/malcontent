@@ -84,7 +84,6 @@ ref/site/http/dynamic
 ref/site/url
 ref/words/password
 ref/words/plugin
-secrets/chromium_credit_cards
 secrets/chromium_master_password
 secrets/firefox/cookies
 secrets/firefox/master_password
