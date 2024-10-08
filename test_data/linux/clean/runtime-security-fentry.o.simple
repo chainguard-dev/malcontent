@@ -2,7 +2,6 @@
 combo/backdoor/net_exec
 combo/recon/system_network
 exec/program
-fs/attributes/remove
 fs/attributes/set
 fs/directory/create
 fs/directory/remove

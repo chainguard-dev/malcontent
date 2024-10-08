@@ -1,6 +1,7 @@
-# linux/clean/appsec-rules.json
+# linux/clean/rules.json
 3P/threat_hunting/gobuster
 3P/threat_hunting/openvas
+3P/threat_hunting/rapid7
 3P/threat_hunting/sqlninja
 combo/backdoor/iptables
 combo/recon/system_network
@@ -48,6 +49,8 @@ ref/path/home
 ref/path/home/config
 ref/path/tmp
 ref/path/var
+ref/path/var/run
+ref/program/masscan
 ref/program/nmap
 ref/program/readelf
 ref/program/sshd

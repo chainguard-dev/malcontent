@@ -1,6 +1,4 @@
 # php/2024.Inull-Studio/err.php
-combo/backdoor/php
-evasion/base64/hidden
 evasion/mask_exceptions
 obfuscation/php/filler
 obfuscation/php/str_replace
