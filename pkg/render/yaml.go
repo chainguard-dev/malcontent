@@ -27,6 +27,8 @@ func (r YAML) File(_ context.Context, _ *malcontent.FileReport) error {
 }
 
 func (r YAML) Full(_ context.Context, rep *malcontent.Report) error {
+	// Drop the applied filters
+	rep.Filter = ""
 	yaml, err := yaml.Marshal(rep)
 	if err != nil {
 		return err

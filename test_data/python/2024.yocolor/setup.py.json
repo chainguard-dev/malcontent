@@ -26,29 +26,6 @@
                     "RuleName": "pip_installer_fernet"
                 },
                 {
-                    "Description": "contains embedded HTTPS URLs",
-                    "MatchStrings": [
-                        "https://github.com/tartley/yocolor",
-                        "https://pypi.org/pypi?"
-                    ],
-                    "RiskScore": 1,
-                    "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/site/url.yara#https_url",
-                    "ID": "ref/site/url",
-                    "RuleName": "https_url"
-                },
-                {
-                    "Description": "path reference within /usr/bin",
-                    "MatchStrings": [
-                        "/usr/bin/env"
-                    ],
-                    "RiskScore": 1,
-                    "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/path/usr-bin.yara#usr_bin_path",
-                    "ID": "ref/path/usr/bin",
-                    "RuleName": "usr_bin_path"
-                },
-                {
                     "Description": "Python library installer that executes the Windows 'start' command",
                     "MatchStrings": [
                         "os.system(f'start {sys.executable} -m pip install fernet')"
@@ -114,11 +91,33 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/process/executable_path.yara#python_sys_executable",
                     "ID": "process/executable_path",
                     "RuleName": "python_sys_executable"
+                },
+                {
+                    "Description": "path reference within /usr/bin",
+                    "MatchStrings": [
+                        "/usr/bin/env"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/path/usr-bin.yara#usr_bin_path",
+                    "ID": "ref/path/usr/bin",
+                    "RuleName": "usr_bin_path"
+                },
+                {
+                    "Description": "contains embedded HTTPS URLs",
+                    "MatchStrings": [
+                        "https://github.com/tartley/yocolor",
+                        "https://pypi.org/pypi?"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/site/url.yara#https_url",
+                    "ID": "ref/site/url",
+                    "RuleName": "https_url"
                 }
             ],
             "RiskScore": 4,
             "RiskLevel": "CRITICAL"
         }
-    },
-    "Filter": "false_positive,ignore"
+    }
 }

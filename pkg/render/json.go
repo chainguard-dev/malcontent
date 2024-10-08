@@ -27,6 +27,8 @@ func (r JSON) File(_ context.Context, _ *malcontent.FileReport) error {
 }
 
 func (r JSON) Full(_ context.Context, rep *malcontent.Report) error {
+	// Drop the applied filters
+	rep.Filter = ""
 	j, err := json.MarshalIndent(rep, "", "    ")
 	if err != nil {
 		return err
