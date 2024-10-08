@@ -48,13 +48,25 @@ fix: $(FIXERS)
 # END: lint-install ../malcontent
 
 SAMPLES_REPO ?= chainguard-dev/malcontent-samples
-SAMPLES_COMMIT ?= 75ee4b4f3e5c29484811e77ffa9d5d02eb75218f
+SAMPLES_COMMIT ?= e5cff8245697b2242d3fc060a0b755022a12aeb2
 OUT_DIR=out/samples-$(SAMPLES_COMMIT).tmp
 out/samples-$(SAMPLES_COMMIT):
 	mkdir -p out
 	git clone https://github.com/$(SAMPLES_REPO).git $(OUT_DIR)
 	git -C $(OUT_DIR) checkout $(SAMPLES_COMMIT)
-	find $(OUT_DIR) -name "*.xz" -execdir tar xJvf "{}" \;
+	@for file in $$(find $(OUT_DIR) -name "*.xz" -print0 | xargs -0 echo); do \
+    dir=$$(dirname "$$file"); \
+    base=$$(basename "$$file" .xz); \
+    fullpath="$$dir/$$base"; \
+    temp_path="$$fullpath".temp; \
+    xz -dkc "$$file" > "$$temp_path"; \
+    if file "$$temp_path" | grep -q "POSIX tar archive"; then \
+        tar xJvf "$$temp_path" -C $$(dirname "$$temp_path"); \
+        rm "$$temp_path"; \
+    else \
+      mv "$$temp_path" "$$fullpath"; \
+    fi; \
+    done
 	mv $(OUT_DIR) $(basename $(OUT_DIR))
 
 prepare-samples: out/samples-$(SAMPLES_COMMIT)
@@ -62,7 +74,8 @@ prepare-samples: out/samples-$(SAMPLES_COMMIT)
 
 .PHONY: test
 test: prepare-samples
-	go test $(shell go list ./... | grep -Ev "samples|test_data")
+	go test ./out/samples-$(SAMPLES_COMMIT)
+	go test ./pkg/...
 
 .PHONY: bench
 bench:

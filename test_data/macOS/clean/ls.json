@@ -18,6 +18,18 @@
             ],
             "Behaviors": [
                 {
+                    "Description": "read value of a symbolic link",
+                    "MatchStrings": [
+                        "readlink"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/link-read.yara#readlink",
+                    "ReferenceURL": "https://man7.org/linux/man-pages/man2/readlink.2.html",
+                    "ID": "fs/link/read",
+                    "RuleName": "readlink"
+                },
+                {
                     "Description": "Look up or override terminal settings",
                     "MatchStrings": [
                         "TERM"
@@ -43,18 +55,6 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/directory-traverse.yara#fts",
                     "ID": "fs/directory/traverse",
                     "RuleName": "fts"
-                },
-                {
-                    "Description": "read value of a symbolic link",
-                    "MatchStrings": [
-                        "readlink"
-                    ],
-                    "RiskScore": 1,
-                    "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/link-read.yara#readlink",
-                    "ReferenceURL": "https://man7.org/linux/man-pages/man2/readlink.2.html",
-                    "ID": "fs/link/read",
-                    "RuleName": "readlink"
                 }
             ],
             "RiskScore": 1,
