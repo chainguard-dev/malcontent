@@ -106,8 +106,8 @@ func File(path string) (*FileType, error) {
 		return mtype, nil
 	}
 
-	// read hdr s for future strategies
-	var hdr [32]byte
+	// read file header
+	var hdr [48]byte
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("open: %w", err)
