@@ -47,7 +47,7 @@ To detect unexpected capability changes, we have a `diff` mode. Using the [3CX C
 
 Each of the lines that beginsl with a "+" represent a newly added capability. For use in CI/CD pipelines, you may find the following flags useful:
 
-It's worth noting that none of the "CRITICAL" findings, except for the `evasnion/xor/user_agent`, would have been found pre-3CX compromise. The diff mode is designed to surface subtle unexpected changes that you might not have an explatanion for, such as "why does `libffmpeg.dylib` need access to `chown`?
+It's worth noting that none of the "CRITICAL" findings, except for the `evasion/xor/user_agent`, would have been found pre-3CX compromise. The diff mode is designed to surface subtle unexpected changes that you might not have an explatanion for, such as "why does `libffmpeg.dylib` need access to `chown`?
 
 Useful flags:
 
