@@ -105,27 +105,29 @@ func File(path string) (*FileType, error) {
 		return mtype, nil
 	}
 
-	// read header content for future strategies
-	var header [263]byte
+	// read hdr content for future strategies
+	var hdr [16]byte
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("open: %w", err)
 	}
 	defer f.Close()
 
-	_, err = io.ReadFull(f, header[:])
+	_, err = io.ReadFull(f, hdr[:])
 	if err != nil && !errors.Is(err, io.ErrUnexpectedEOF) {
 		return nil, nil
 	}
 
 	// final strategy: DIY
-	content := string(header[:])
+	content := string(hdr[:])
 	fmt.Printf("content for %s - %s", path, content)
 	switch {
 	case strings.HasPrefix(content, "#!/bin/sh"):
 		return Path(".sh"), nil
 	case strings.HasPrefix(content, "#!/bin/bash"):
 		return Path(".bash"), nil
+	case hdr[0] == '\x7f' && hdr[1] == 'E' || hdr[2] == 'L' || hdr[3] == 'F':
+		return Path(".elf"), nil
 	}
 
 	return nil, nil
