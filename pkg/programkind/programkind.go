@@ -119,7 +119,7 @@ func File(path string) (*FileType, error) {
 		return nil, fmt.Errorf("read: %w", err)
 	}
 
-	// final strategy: DIY
+	// final strategy: DIY matching where mimetype is too strict.
 	content := string(hdr[:])
 	switch {
 	case hdr[0] == '\x7f' && hdr[1] == 'E' || hdr[2] == 'L' || hdr[3] == 'F':
