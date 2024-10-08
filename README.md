@@ -4,7 +4,7 @@
  _ _    _.  .    _   _    _  .  ___   _.   _  .  ___
 ( | )  (_|  |_  (_  (_)  ( \_)   |   (/_  ( \_)   |
   
- the paranoid open-source malware scanner
+      the paranoid open-source malware scanner
 ```
 
 malcontent is a malware scanner and analysis tool for high-risk environments such as CI/CD pipelines. Its goal is to reveal novel undiscovered malware,
