@@ -6,6 +6,34 @@
             "Size": 1105,
             "Behaviors": [
                 {
+                    "Description": "Detects suspicious PowerShell code that downloads from web sites",
+                    "MatchStrings": [
+                        "System.Net.WebClient).DownloadFile('http"
+                    ],
+                    "RiskScore": 4,
+                    "RiskLevel": "CRITICAL",
+                    "RuleURL": "https://github.com/Neo23x0/signature-base/blob/f448cbc9db16ac30559ce5a5c848317478569207/yara/gen_powershell_susp.yar#L52-L91",
+                    "ReferenceURL": "Internal%20Research",
+                    "RuleAuthor": "Florian Roth (Nextron Systems)",
+                    "RuleLicense": "Detection Rule License 1.1 https://github.com/Neo23x0/signature-base/blob/master/LICENSE",
+                    "RuleLicenseURL": "https://github.com/Neo23x0/signature-base/blob/f448cbc9db16ac30559ce5a5c848317478569207/LICENSE",
+                    "ID": "3P/signature_base/powershell/webdownload",
+                    "RuleName": "SIGNATURE_BASE_Suspicious_Powershell_Webdownload_1"
+                },
+                {
+                    "Description": "references 'powershell' tool",
+                    "MatchStrings": [
+                        "Add-MpPreference -ExclusionPath"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/yara/threat_hunting/all.yara#powershell_offensive_tool_keyword",
+                    "ReferenceURL": "https://github.com/mthcht/ThreatHunting-Keywords",
+                    "RuleAuthor": "mthcht",
+                    "ID": "3P/threat_hunting/powershell",
+                    "RuleName": "powershell_offensive_tool_keyword"
+                },
+                {
                     "Description": "Stops EDR/Antivirus services",
                     "MatchStrings": [
                         "alwarebytes",
@@ -18,6 +46,17 @@
                     "RuleName": "edr_stopper"
                 },
                 {
+                    "Description": "Uses powershell to define Windows Defender exclusions",
+                    "MatchStrings": [
+                        "powershell -Command \"Add-MpPreference -ExclusionPath 'C:\\'\""
+                    ],
+                    "RiskScore": 4,
+                    "RiskLevel": "CRITICAL",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/combo/degrader/win_defender.yara#win_defender_exclusion",
+                    "ID": "combo/degrader/win_defender",
+                    "RuleName": "win_defender_exclusion"
+                },
+                {
                     "Description": "download files",
                     "MatchStrings": [
                         "DownloadFile"
@@ -27,6 +66,17 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/download.yara#download",
                     "ID": "net/download",
                     "RuleName": "download"
+                },
+                {
+                    "Description": "Uses RunAs to execute code as another user",
+                    "MatchStrings": [
+                        "powershell -Command \"Start-Process -Verb RunAs -FilePath '%0' -ArgumentList 'a"
+                    ],
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/privesc/runas.yara#runas_admin",
+                    "ID": "privesc/runas",
+                    "RuleName": "runas_admin"
                 },
                 {
                     "Description": "kills tasks and/or processes",
@@ -51,52 +101,6 @@
                     "RuleName": "windows_path"
                 },
                 {
-                    "Description": "accesses hardcoded executable endpoint",
-                    "MatchStrings": [
-                        "https://github.com/aspdasdksa2/callback/raw/main/Client-built.exe"
-                    ],
-                    "RiskScore": 3,
-                    "RiskLevel": "HIGH",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/site/exe.yara#http_url_with_exe",
-                    "ID": "ref/site/exe",
-                    "RuleName": "http_url_with_exe"
-                },
-                {
-                    "Description": "references 'powershell' tool",
-                    "MatchStrings": [
-                        "Add-MpPreference -ExclusionPath"
-                    ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/yara/threat_hunting/all.yara#powershell_offensive_tool_keyword",
-                    "ReferenceURL": "https://github.com/mthcht/ThreatHunting-Keywords",
-                    "RuleAuthor": "mthcht",
-                    "ID": "3P/threat_hunting/powershell",
-                    "RuleName": "powershell_offensive_tool_keyword"
-                },
-                {
-                    "Description": "Uses powershell to define Windows Defender exclusions",
-                    "MatchStrings": [
-                        "powershell -Command \"Add-MpPreference -ExclusionPath 'C:\\'\""
-                    ],
-                    "RiskScore": 4,
-                    "RiskLevel": "CRITICAL",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/combo/degrader/win_defender.yara#win_defender_exclusion",
-                    "ID": "combo/degrader/win_defender",
-                    "RuleName": "win_defender_exclusion"
-                },
-                {
-                    "Description": "Uses RunAs to execute code as another user",
-                    "MatchStrings": [
-                        "powershell -Command \"Start-Process -Verb RunAs -FilePath '%0' -ArgumentList 'a"
-                    ],
-                    "RiskScore": 3,
-                    "RiskLevel": "HIGH",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/privesc/runas.yara#runas_admin",
-                    "ID": "privesc/runas",
-                    "RuleName": "runas_admin"
-                },
-                {
                     "Description": "powershell",
                     "MatchStrings": [
                         "powershell -Command"
@@ -106,6 +110,17 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/program/powershell.yara#powershell",
                     "ID": "ref/program/powershell",
                     "RuleName": "powershell"
+                },
+                {
+                    "Description": "accesses hardcoded executable endpoint",
+                    "MatchStrings": [
+                        "https://github.com/aspdasdksa2/callback/raw/main/Client-built.exe"
+                    ],
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/site/exe.yara#http_url_with_exe",
+                    "ID": "ref/site/exe",
+                    "RuleName": "http_url_with_exe"
                 },
                 {
                     "Description": "github raw user",
@@ -129,26 +144,10 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/site/url.yara#https_url",
                     "ID": "ref/site/url",
                     "RuleName": "https_url"
-                },
-                {
-                    "Description": "Detects suspicious PowerShell code that downloads from web sites",
-                    "MatchStrings": [
-                        "System.Net.WebClient).DownloadFile('http"
-                    ],
-                    "RiskScore": 4,
-                    "RiskLevel": "CRITICAL",
-                    "RuleURL": "https://github.com/Neo23x0/signature-base/blob/f448cbc9db16ac30559ce5a5c848317478569207/yara/gen_powershell_susp.yar#L52-L91",
-                    "ReferenceURL": "Internal%20Research",
-                    "RuleAuthor": "Florian Roth (Nextron Systems)",
-                    "RuleLicense": "Detection Rule License 1.1 https://github.com/Neo23x0/signature-base/blob/master/LICENSE",
-                    "RuleLicenseURL": "https://github.com/Neo23x0/signature-base/blob/f448cbc9db16ac30559ce5a5c848317478569207/LICENSE",
-                    "ID": "3P/signature_base/powershell/webdownload",
-                    "RuleName": "SIGNATURE_BASE_Suspicious_Powershell_Webdownload_1"
                 }
             ],
             "RiskScore": 4,
             "RiskLevel": "CRITICAL"
         }
-    },
-    "Filter": "false_positive,ignore"
+    }
 }
