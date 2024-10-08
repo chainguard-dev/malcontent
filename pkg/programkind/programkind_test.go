@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/chainguard-dev/clog/slogtest"
 	"github.com/google/go-cmp/cmp"
 )
 
@@ -26,8 +25,7 @@ func TestFile(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.in, func(t *testing.T) {
-			ctx := slogtest.Context(t)
-			got, err := File(ctx, filepath.Join("testdata/", tt.in))
+			got, err := File(filepath.Join("testdata/", tt.in))
 			if err != nil {
 				t.Errorf("File(%s) returned error: %v", tt.in, err)
 			}

@@ -91,7 +91,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	logger := clog.FromContext(ctx)
 	var mrs yara.MatchRules
 	logger = logger.With("path", path)
-	kind, err := programkind.File(ctx, path)
+	kind, err := programkind.File(path)
 	mime := "<unknown>"
 	if err == nil && kind != nil {
 		mime = kind.MIME

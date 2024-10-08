@@ -4,7 +4,6 @@
 package programkind
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -12,11 +11,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/chainguard-dev/clog"
 	"github.com/gabriel-vasile/mimetype"
 )
 
-// file extension to MIME type, if it's a good scanning target
+// file extension to MIME type, if it's a good scanning target.
 var supportedKind = map[string]string{
 	"7z":      "",
 	"asm":     "",
@@ -75,7 +73,6 @@ type FileType struct {
 }
 
 func makeFileType(path string, ext string, mime string) *FileType {
-	clog.Infof("makeFileType: path=%s ext=%s mime=%s", path, ext, mime)
 	ext = strings.TrimPrefix(ext, ".")
 	if supportedKind[ext] == "" {
 		return nil
@@ -87,21 +84,17 @@ func makeFileType(path string, ext string, mime string) *FileType {
 	}
 
 	if strings.Contains(mime, "application") || strings.Contains(mime, "text/x-") || strings.Contains(mime, "text/x-") || strings.Contains(mime, "executable") {
-		clog.Infof("supported: %s / %s", mime, ext)
 		return &FileType{MIME: mime, Ext: ext}
 	}
 
 	return nil
 }
 
-// File detects what kind of program this file might be
-func File(ctx context.Context, path string) (*FileType, error) {
-	clog.Infof("path: %s", path)
-
+// File detects what kind of program this file might be.
+func File(path string) (*FileType, error) {
 	// first strategy: mimetype
 	mtype, err := mimetype.DetectFile(path)
 	if err == nil {
-		clog.Infof("mimetype: %+v", mtype)
 		if ft := makeFileType(path, mtype.Extension(), mtype.String()); ft != nil {
 			return ft, nil
 		}
@@ -138,11 +131,10 @@ func File(ctx context.Context, path string) (*FileType, error) {
 	return nil, nil
 }
 
-// Path returns a filetype based strictly on file path
+// Path returns a filetype based strictly on file path.
 func Path(path string) *FileType {
 	ext := strings.ReplaceAll(filepath.Ext(path), ".", "")
 	mime := supportedKind[ext]
-	clog.Infof("by path: %v / %v", ext, mime)
 	if mime != "" {
 		return &FileType{MIME: mime, Ext: ext}
 	}
