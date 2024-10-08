@@ -42,8 +42,9 @@ jobs:
 
           sudo apt update && sudo apt install libyara-dev -y
 
-      - name: Prepare samples
+      - name: Install xz-utils and prepare samples
         run: |
+          sudo apt -y install xz-utils
           make prepare-samples
 
       - name: Test

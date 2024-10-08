@@ -61,8 +61,12 @@ out/samples-$(SAMPLES_COMMIT):
     temp_path="$$fullpath".temp; \
     xz -dkc "$$file" > "$$temp_path"; \
     if file "$$temp_path" | grep -q "POSIX tar archive"; then \
+      if [ $(shell uname) = "Darwin" ]; then \
         tar xJvf "$$temp_path" -C $$(dirname "$$temp_path"); \
-        rm "$$temp_path"; \
+      elif [ $(shell uname) = "Linux" ]; then \
+        tar xvf "$$temp_path" -C $$(dirname "$$temp_path"); \
+      fi; \
+      rm "$$temp_path"; \
     else \
       mv "$$temp_path" "$$fullpath"; \
     fi; \
