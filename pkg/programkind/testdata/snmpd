@@ -1,0 +1,11 @@
+#!/bin/sh
+
+if [ ! -e "/etc/snmp/snmpd.conf" ]; then
+	echo "copying default from /etc/snmp/snmpd.conf.default"
+	cp "/etc/snmp/snmpd.conf.default" "/etc/snmp/snmpd.conf"
+	chmod 644 "/etc/snmp/snmpd.conf"
+fi
+
+echo "waiting for the network"
+/usr/sbin/ipconfig waitall
+exec /usr/libexec/snmpd $@

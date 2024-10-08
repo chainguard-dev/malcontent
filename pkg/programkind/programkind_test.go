@@ -1,7 +1,7 @@
 // Copyright 2024 Chainguard, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-package action
+package programkind
 
 import (
 	"fmt"
@@ -9,10 +9,6 @@ import (
 
 	"github.com/chainguard-dev/clog/slogtest"
 )
-
-func TestProgramKindMagic(_ *testing.T) {
-	// nop for now
-}
 
 func TestProgramStringMatch(t *testing.T) {
 	tests := []struct {
@@ -39,15 +35,18 @@ func TestProgramStringMatch(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.filename, func(t *testing.T) {
 			ctx := slogtest.Context(t)
-			got := programKind(ctx, fmt.Sprintf("testdata/%s", tt.filename))
-			if got != tt.want {
+			got, err := File(ctx, fmt.Sprintf("testdata/%s", tt.filename))
+			if err != nil {
+				t.Errorf("unexpected error: %v", err)
+			}
+			if got.MIME != tt.want {
 				t.Errorf("programKind() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestProgramKindExtensions(t *testing.T) {
+func TestByPath(t *testing.T) {
 	tests := []struct {
 		filename string
 		want     string
@@ -127,7 +126,7 @@ func TestProgramKindExtensions(t *testing.T) {
 	}}
 	for _, tt := range tests {
 		t.Run(tt.filename, func(t *testing.T) {
-			exists, kind := byExtension(tt.filename)
+			kind, err := Path(tt.filename)
 			if exists != !tt.notFound {
 				t.Errorf("byExtension(%s) exists = %v, want %v", tt.filename, exists, !tt.notFound)
 			}
@@ -204,8 +203,8 @@ func TestGetExt(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.path, func(t *testing.T) {
-			if got := getExt(tt.path); got != tt.want {
-				t.Errorf("getExt() = %v, want %v", got, tt.want)
+			if got := Ext(tt.path); got != tt.want {
+				t.Errorf("Ext() = %v, want %v", got, tt.want)
 			}
 		})
 	}
