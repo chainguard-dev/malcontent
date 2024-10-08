@@ -140,7 +140,7 @@ func File(path string) (*FileType, error) {
 		strings.Contains(s, "; then") ||
 		strings.Contains(s, "export "):
 		return Path(".sh"), nil
-	case strings.HasPrefix(s, "#!/"):
+	case strings.HasPrefix(s, "#!"):
 		return Path(".script"), nil
 	}
 	return nil, nil
