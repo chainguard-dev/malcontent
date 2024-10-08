@@ -134,8 +134,11 @@ func File(path string) (*FileType, error) {
 		return Path(".py"), nil
 	case strings.HasPrefix(content, "#!/"):
 		return Path(".script"), nil
+	case strings.Contains(content, "if ! /"):
+		return Path(".sh"), nil
+	case strings.Contains(content, "; then"):
+		return Path(".sh"), nil
 	}
-
 	return nil, nil
 }
 
