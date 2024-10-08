@@ -108,21 +108,21 @@ addq ${malcontent} --format=simple \
 for f in $(find "${test_data}" -name "*.simple"); do
 	prog=$(echo $f | sed -e s#"${test_data}/"## -e s#\.simple\$##)
 	if [[ -f "${prog}" ]]; then
-		addq ${malcontent} --format=simple -o "${f}" analyze "${prog}"
+		addq ${malcontent} --format=simple --ignore-tags=harmless -o "${f}" analyze "${prog}"
 	fi
 done
 
 for f in $(find "${test_data}" -name "*.md"); do
 	prog=$(echo $f | sed -e s#"${test_data}/"## -e s#\.md\$##)
 	if [[ -f "${prog}" ]]; then
-		addq ${malcontent} --format=markdown -o "${f}" analyze "${prog}"
+		addq ${malcontent} --format=markdown --ignore-tags=harmless -o "${f}" analyze "${prog}"
 	fi
 done
 
 for f in $(find "${test_data}" -name "*.json"); do
 	prog=$(echo $f | sed -e s#"${test_data}/"## -e s#\.json\$##)
 	if [[ -f "${prog}" ]]; then
-		addq ${malcontent} --format=json -o "${f}" analyze "${prog}"
+		addq ${malcontent} --format=json --min-risk=1 -o "${f}" analyze "${prog}"
 	fi
 done
 
@@ -136,5 +136,5 @@ if [[ "$(uname)" == "Linux" ]]; then
 fi
 
 
-tr '\n' '\0' <"${qscript}" | xargs -0 -P"${MAX_PROCS}" "${xargs_flag}%" sh -c '%'
+tr '\n' '\0' <"${qscript}" | xargs -0 -n1 -P"${MAX_PROCS}" "${xargs_flag}%" sh -c '%'
 echo "test data regeneration complete!!"

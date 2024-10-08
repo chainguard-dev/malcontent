@@ -159,14 +159,6 @@ func main() {
 				minFileRisk = minFileLevelFlag
 			}
 
-			if allFlag {
-				ignoreSelfFlag = false
-				ignoreTags = []string{}
-				includeDataFiles = true
-				minFileRisk = -1
-				minRisk = -1
-			}
-
 			// Add the default tags to ignore regardless of whether they're passed in or not
 			defaultIgnore := []string{
 				"false_positive",
@@ -177,6 +169,14 @@ func main() {
 				if !slices.Contains(ignoreTags, t) {
 					ignoreTags = append(ignoreTags, t)
 				}
+			}
+
+			if allFlag {
+				ignoreSelfFlag = false
+				ignoreTags = []string{}
+				includeDataFiles = true
+				minFileRisk = -1
+				minRisk = -1
 			}
 
 			if outputFlag != "" {

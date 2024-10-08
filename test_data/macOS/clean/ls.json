@@ -60,6 +60,5 @@
             "RiskScore": 1,
             "RiskLevel": "LOW"
         }
-    },
-    "Filter": "false_positive,ignore"
+    }
 }

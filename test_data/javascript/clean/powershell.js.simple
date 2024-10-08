@@ -1,0 +1,8 @@
+# javascript/clean/powershell.js
+fs/directory/remove
+fs/file/copy
+fs/file/delete
+net/fetch
+obfuscation/powershell/bxor
+ref/program/powershell
+ref/site/url
