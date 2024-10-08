@@ -48,7 +48,7 @@ fix: $(FIXERS)
 # END: lint-install ../malcontent
 
 SAMPLES_REPO ?= chainguard-dev/malcontent-samples
-SAMPLES_COMMIT ?= e5cff8245697b2242d3fc060a0b755022a12aeb2
+SAMPLES_COMMIT ?= f56db86f52ef9b647943d9e3b6652a85ccb68266
 OUT_DIR=out/samples-$(SAMPLES_COMMIT).tmp
 out/samples-$(SAMPLES_COMMIT):
 	mkdir -p out
@@ -61,9 +61,9 @@ out/samples-$(SAMPLES_COMMIT):
     temp_path="$$fullpath".temp; \
     xz -dkc "$$file" > "$$temp_path"; \
     if file "$$temp_path" | grep -q "POSIX tar archive"; then \
-      if [ $(shell uname) = "Darwin" ]; then \
+      if [ "$(shell uname)" = "Darwin" ]; then \
         tar xJvf "$$temp_path" -C $$(dirname "$$temp_path"); \
-      elif [ $(shell uname) = "Linux" ]; then \
+      elif [ "$(shell uname)" = "Linux" ]; then \
         tar xvf "$$temp_path" -C $$(dirname "$$temp_path"); \
       fi; \
       rm "$$temp_path"; \
