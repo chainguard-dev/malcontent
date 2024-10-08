@@ -34,28 +34,31 @@ var (
 )
 
 // findFilesRecursively returns a list of files found recursively within a path.
-func findFilesRecursively(ctx context.Context, root string) ([]string, error) {
-	clog.FromContext(ctx).Infof("finding files in %s ...", root)
+func findFilesRecursively(ctx context.Context, rootPath string) ([]string, error) {
+	clog.FromContext(ctx).Infof("finding files in %s ...", rootPath)
 	var files []string
 
 	// Follow symlink if provided at the root
-	root, err := filepath.EvalSymlinks(root)
+	root, err := filepath.EvalSymlinks(rootPath)
 	if err != nil {
-		return nil, err
+		// Allow /proc/XXX/exe to be scanned even if symlink is not resolveable
+		if strings.HasPrefix(rootPath, "/proc/") {
+			root = rootPath
+		} else {
+			return nil, fmt.Errorf("eval %q: %w", rootPath, err)
+		}
 	}
 
 	err = filepath.WalkDir(root,
 		func(path string, info os.DirEntry, err error) error {
 			if err != nil {
-				clog.FromContext(ctx).Errorf("walk %s: %v", path, err)
-				return err
+				return fmt.Errorf("walk: %w", err)
 			}
 			if info.IsDir() || strings.Contains(path, "/.git/") {
 				return nil
 			}
 
 			files = append(files, path)
-
 			return nil
 		})
 	return files, err
@@ -208,7 +211,7 @@ func cachedRules(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {
 
 // recursiveScan recursively YARA scans the configured paths - handling archives and OCI images.
 //
-//nolint:gocognit // ignoring complexity of 101 > 98
+//nolint:gocognit,cyclop // ignoring complexity of 101,38
 func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) {
 	logger := clog.FromContext(ctx)
 	logger.Debug("recursive scan", slog.Any("config", c))
@@ -222,6 +225,9 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 	var scanPathFindings sync.Map
 
 	for _, scanPath := range c.ScanPaths {
+		if c.Renderer != nil {
+			c.Renderer.Scanning(ctx, scanPath)
+		}
 		logger.Debug("recursive scan", slog.Any("scanPath", scanPath))
 		imageURI := ""
 		ociExtractPath := ""
@@ -240,8 +246,14 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 
 		paths, err := findFilesRecursively(ctx, scanPath)
 		if err != nil {
-			return nil, fmt.Errorf("find: %w", err)
+			if len(c.ScanPaths) == 1 {
+				return nil, fmt.Errorf("find: %w", err)
+			}
+			// try to scan remaining scan paths
+			logger.Errorf("find failed: %v", err)
+			continue
 		}
+
 		logger.Debug("files found", slog.Any("path count", len(paths)), slog.Any("scanPath", scanPath))
 
 		maxConcurrency := c.Concurrency
@@ -314,7 +326,6 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 		var g errgroup.Group
 		g.SetLimit(maxConcurrency)
 		for path := range pc {
-			path := path
 			g.Go(func() error {
 				if isSupportedArchive(path) {
 					return handleArchive(path)

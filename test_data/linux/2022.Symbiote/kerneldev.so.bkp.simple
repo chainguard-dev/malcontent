@@ -1,6 +1,5 @@
 # linux/2022.Symbiote/kerneldev.so.bkp
 3P/threat_hunting/keylogger
-combo/stealer/pam
 dylib/symbol/address
 evasion/process/hide
 fs/link/read

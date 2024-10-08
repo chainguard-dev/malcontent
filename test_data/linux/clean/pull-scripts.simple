@@ -1,0 +1,11 @@
+# linux/clean/pull-scripts
+combo/dropper/shell
+fs/directory/create
+fs/file/delete/forcibly
+fs/file/make_executable
+fs/permission/modify
+net/download
+net/fetch
+process/chdir
+shell/exec
+shell/ignore_output

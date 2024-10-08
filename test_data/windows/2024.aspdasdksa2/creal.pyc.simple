@@ -32,6 +32,5 @@ ref/site/download
 ref/site/url
 ref/words/password
 secrets/chrome_cookies
-secrets/chromium_credit_cards
 secrets/chromium_master_password
 tty/getpass

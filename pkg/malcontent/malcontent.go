@@ -13,6 +13,7 @@ import (
 
 // Renderer is a common interface for Renderers.
 type Renderer interface {
+	Scanning(context.Context, string)
 	File(context.Context, *FileReport) error
 	Full(context.Context, *Report) error
 }

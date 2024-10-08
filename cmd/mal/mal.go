@@ -381,20 +381,21 @@ func main() {
 					// When scanning processes, load all of the valid commands (paths)
 					// and store them as the ScanPaths
 					if mc.Processes {
-						processPaths, err := action.GetAllProcessPaths(ctx)
+						ps, err := action.ActiveProcesses(ctx)
 						if err != nil {
 							returnCode = ExitActionFailed
-							return err
+							return fmt.Errorf("process paths: %w", err)
 						}
-						for _, p := range processPaths {
-							mc.ScanPaths = append(mc.ScanPaths, p.Path)
+						for _, p := range ps {
+							// in the future, we'll also want to attach process info directly
+							mc.ScanPaths = append(mc.ScanPaths, p.ScanPath)
 						}
 					}
 
 					res, err = action.Scan(ctx, mc)
 					if err != nil {
 						returnCode = ExitActionFailed
-						return err
+						return fmt.Errorf("scan: %w", err)
 					}
 
 					err = renderer.Full(ctx, res)
@@ -458,20 +459,20 @@ func main() {
 					// When scanning processes, load all of the valid commands (paths)
 					// and store them as the ScanPaths
 					if mc.Processes {
-						processPaths, err := action.GetAllProcessPaths(ctx)
+						ps, err := action.ActiveProcesses(ctx)
 						if err != nil {
 							returnCode = ExitActionFailed
-							return err
+							return fmt.Errorf("process paths: %w", err)
 						}
-						for _, p := range processPaths {
-							mc.ScanPaths = append(mc.ScanPaths, p.Path)
+						for _, p := range ps {
+							mc.ScanPaths = append(mc.ScanPaths, p.ScanPath)
 						}
 					}
 
 					res, err = action.Scan(ctx, mc)
 					if err != nil {
 						returnCode = ExitActionFailed
-						return err
+						return fmt.Errorf("scan: %w", err)
 					}
 
 					err = renderer.Full(ctx, res)
@@ -481,7 +482,7 @@ func main() {
 					}
 
 					if res.Files.Len() > 0 {
-						fmt.Fprintf(os.Stderr, "\ntip: For detailed analysis, run: mal analyze <path>\n")
+						fmt.Fprintf(os.Stderr, "\n💡 For detailed analysis, try \"mal analyze <path>\"\n")
 					}
 
 					return nil

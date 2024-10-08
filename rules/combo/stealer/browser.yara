@@ -89,7 +89,7 @@ rule userdata_browser_archiver : high {
     $b_Safari = "Safari"
     $b_Chrome = "Chrome"
 	$b_moz = "Roaming/Moz"
-	$b_Opera = "Opera"
+	$b_Opera = "Opera" fullword
 
     $not_chromium = "ChromiumBrowser"
     $not_chromium_comment = "When this is enabled, Chromium can use"
@@ -100,8 +100,9 @@ rule userdata_browser_archiver : high {
     $not_ff_js = "Firefox can even throw an error"
     $not_generated_comment = "// This file is generated"
     $not_generated_file = "/utils/generate_types/index.js"
+	$not_no_user_data = "No User Data"
   condition:
-    any of ($d*) and any of ($h*) and any of ($z*) and 3 of ($b*) and none of ($not*)
+    filesize < 10MB and any of ($d*) and any of ($h*) and any of ($z*) and 3 of ($b*) and none of ($not*)
 }
 
 rule smaller_userdata_browser_archiver : high {

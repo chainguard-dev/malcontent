@@ -38,7 +38,6 @@ func TestExtractionMethod(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			got := extractionMethod(tt.ext)
 			if (got == nil) != (tt.want == nil) {
@@ -72,7 +71,6 @@ func TestExtractionMultiple(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.path, func(t *testing.T) {
 			t.Parallel()
 			ctx := context.Background()

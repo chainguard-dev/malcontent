@@ -652,6 +652,9 @@ func handleOverrides(original, override []*malcontent.Behavior) []*malcontent.Be
 		if b, exists := behaviorMap[o.Override]; exists {
 			b.RiskLevel = o.RiskLevel
 			b.RiskScore = o.RiskScore
+
+			// Delete the override rule from the behavior map
+			delete(behaviorMap, o.RuleName)
 		}
 	}
 

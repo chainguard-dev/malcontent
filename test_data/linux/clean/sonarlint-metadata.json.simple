@@ -36,7 +36,6 @@ ref/path/dev/mqueue
 ref/path/etc
 ref/path/etc/hosts
 ref/path/hidden
-ref/path/home
 ref/path/relative
 ref/path/tmp
 ref/path/users

@@ -35,7 +35,6 @@ env/USER
 env/get
 evasion/content/length/0
 evasion/hide_shell_history
-evasion/int_to_char
 evasion/vm/check
 exec/cmd
 exec/program

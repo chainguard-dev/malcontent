@@ -2,7 +2,6 @@
 combo/recon/nodejs
 evasion/char_to_int
 evasion/dynamic_import
-evasion/int_to_char
 net/hostname/resolve
 net/http/form/upload
 net/http/post
