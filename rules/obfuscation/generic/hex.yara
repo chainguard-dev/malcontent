@@ -1,7 +1,7 @@
 
-rule excessive_hex_refs : medium {
+rule excessive_hex_refs : high {
   meta:
-    description = "many references to hexadecimal values"
+    description = "excessive references to hexadecimal values"
   strings:
     $x = /0x[\dabcdefABCDEF]{2,8}/
   condition:

@@ -74,14 +74,14 @@ type FileType struct {
 	MIME string
 }
 
-func supportedType(path string, ext string, mime string) *FileType {
-	clog.Infof("supportedType: path=%s ext=%s mime=%s", path, ext, mime)
+func makeFileType(path string, ext string, mime string) *FileType {
+	clog.Infof("makeFileType: path=%s ext=%s mime=%s", path, ext, mime)
 	ext = strings.TrimPrefix(ext, ".")
 	if supportedKind[ext] == "" {
 		return nil
 	}
 
-	// fix mimetype buf that defaults elf binaries to x-sharedlib
+	// fix mimetype bug that defaults elf binaries to x-sharedlib
 	if mime == "application/x-sharedlib" && !strings.Contains(path, ".so") {
 		return Path(".elf")
 	}
@@ -94,7 +94,7 @@ func supportedType(path string, ext string, mime string) *FileType {
 	return nil
 }
 
-// ByFile detects what kind of program this file might be
+// File detects what kind of program this file might be
 func File(ctx context.Context, path string) (*FileType, error) {
 	clog.Infof("path: %s", path)
 
@@ -102,7 +102,7 @@ func File(ctx context.Context, path string) (*FileType, error) {
 	mtype, err := mimetype.DetectFile(path)
 	if err == nil {
 		clog.Infof("mimetype: %+v", mtype)
-		if ft := supportedType(path, mtype.Extension(), mtype.String()); ft != nil {
+		if ft := makeFileType(path, mtype.Extension(), mtype.String()); ft != nil {
 			return ft, nil
 		}
 	}
@@ -138,7 +138,7 @@ func File(ctx context.Context, path string) (*FileType, error) {
 	return nil, nil
 }
 
-// ByPath returns a filetype based strictly on file path
+// Path returns a filetype based strictly on file path
 func Path(path string) *FileType {
 	ext := strings.ReplaceAll(filepath.Ext(path), ".", "")
 	mime := supportedKind[ext]

@@ -316,7 +316,7 @@ func TestGetExt(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.path, func(t *testing.T) {
-			if got := Ext(tt.path); got != tt.want {
+			if got := getExt(tt.path); got != tt.want {
 				t.Errorf("Ext() = %v, want %v", got, tt.want)
 			}
 		})

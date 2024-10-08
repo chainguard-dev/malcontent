@@ -4,7 +4,7 @@ rule pip_installer_known_good : low {
   meta:
     description = "Installs software using pip from python"
   strings:
-	$distro = /pip3{0,1} install (distro|mock)/ fullword
+	$distro = /pip3{0,1} install distro/ fullword
   condition:
 	any of them
 }
