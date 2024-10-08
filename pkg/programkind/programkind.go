@@ -55,7 +55,7 @@ var supportedKind = map[string]string{
 	"pyc":     "application/x-python-code",
 	"rb":      "text/x-ruby",
 	"rs":      "text/x-rust",
-	"script":  "text/x-script",
+	"script":  "text/x-generic-script",
 	"scpt":    "application/x-applescript",
 	"scptd":   "application/x-applescript",
 	"service": "text/x-systemd",
@@ -106,7 +106,7 @@ func File(path string) (*FileType, error) {
 		return mtype, nil
 	}
 
-	// read hdr content for future strategies
+	// read hdr s for future strategies
 	var hdr [32]byte
 	f, err := os.Open(path)
 	if err != nil {
@@ -120,24 +120,27 @@ func File(path string) (*FileType, error) {
 	}
 
 	// final strategy: DIY matching where mimetype is too strict.
-	content := string(hdr[:])
+	s := string(hdr[:])
 	switch {
 	case hdr[0] == '\x7f' && hdr[1] == 'E' || hdr[2] == 'L' || hdr[3] == 'F':
 		return Path(".elf"), nil
-	case strings.HasPrefix(content, "#!/bin/sh"):
-		return Path(".sh"), nil
-	case strings.HasPrefix(content, "#!/bin/bash"):
-		return Path(".bash"), nil
-	case strings.Contains(content, "<?php"):
+	case strings.Contains(s, "<?php"):
 		return Path(".php"), nil
-	case strings.HasPrefix(content, "import "):
+	case strings.HasPrefix(s, "import "):
 		return Path(".py"), nil
-	case strings.HasPrefix(content, "#!/"):
+	case strings.HasPrefix(s, "#!/bin/ash") ||
+		strings.HasPrefix(s, "#!/bin/bash") ||
+		strings.HasPrefix(s, "#!/bin/fish") ||
+		strings.HasPrefix(s, "#!/bin/sh") ||
+		strings.HasPrefix(s, "#!/bin/zsh") ||
+		strings.Contains(s, `if [`) ||
+		strings.Contains(s, "if !") ||
+		strings.Contains(s, `echo "`) ||
+		strings.Contains(s, `grep `) ||
+		strings.Contains(s, "; then"):
+		return Path(".sh"), nil
+	case strings.HasPrefix(s, "#!/"):
 		return Path(".script"), nil
-	case strings.Contains(content, "if ! /"):
-		return Path(".sh"), nil
-	case strings.Contains(content, "; then"):
-		return Path(".sh"), nil
 	}
 	return nil, nil
 }
