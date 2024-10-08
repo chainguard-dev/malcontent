@@ -143,7 +143,6 @@ func File(path string) (*FileType, error) {
 		return Path(".sh"), nil
 	case strings.HasPrefix(s, "#!"):
 		return Path(".script"), nil
-
 	}
 	return nil, nil
 }
