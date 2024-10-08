@@ -59,7 +59,7 @@ out/samples-$(SAMPLES_COMMIT):
     base=$$(basename "$$file" .xz); \
     fullpath="$$dir/$$base"; \
     temp_path="$$fullpath".temp; \
-    xz -dkc "$$file" > "$$temp_path"; \
+    xz -dc "$$file" > "$$temp_path"; \
     if file "$$temp_path" | grep -q "POSIX tar archive"; then \
       if [ "$(shell uname)" = "Darwin" ]; then \
         tar xJvf "$$temp_path" -C $$(dirname "$$temp_path"); \
