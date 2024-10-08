@@ -107,7 +107,7 @@ func File(path string) (*FileType, error) {
 	}
 
 	// read file header
-	var hdr [48]byte
+	var hdr [256]byte
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("open: %w", err)
@@ -138,6 +138,7 @@ func File(path string) (*FileType, error) {
 		strings.Contains(s, `echo "`) ||
 		strings.Contains(s, `grep `) ||
 		strings.Contains(s, "; then"):
+		strings.Contains(s, "export "):
 		return Path(".sh"), nil
 	case strings.HasPrefix(s, "#!/"):
 		return Path(".script"), nil
