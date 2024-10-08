@@ -18,6 +18,7 @@ import (
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/compile"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
+	"github.com/chainguard-dev/malcontent/pkg/programkind"
 	"github.com/chainguard-dev/malcontent/pkg/render"
 	"github.com/chainguard-dev/malcontent/pkg/report"
 
@@ -90,15 +91,21 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	logger := clog.FromContext(ctx)
 	var mrs yara.MatchRules
 	logger = logger.With("path", path)
-	kind := programKind(ctx, path)
-	logger = logger.With("kind", kind)
-	logger.Info("scanning")
-	if !c.IncludeDataFiles && kind == "" {
-		//		logger.Info("not a program")
-		return &malcontent.FileReport{Skipped: "data file", Path: path}, nil
-	}
 
-	logger.Debug("calling YARA ScanFile")
+	mime := "<unknown>"
+	kind, err := programkind.File(path)
+	if err != nil {
+		logger.Errorf("file type failure: %s: %s", path, err)
+	}
+	if kind != nil {
+		mime = kind.MIME
+	}
+	if !c.IncludeDataFiles && kind == nil {
+		logger.Infof("skipping %s [%s]: data file or empty", path, mime)
+		return &malcontent.FileReport{Skipped: "data file or empty", Path: path}, nil
+	}
+	logger = logger.With("mime", mime)
+
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -135,11 +142,6 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	}
 
 	return &fr, nil
-}
-
-// isSupportedArchive returns whether a path can be processed by our archive extractor.
-func isSupportedArchive(path string) bool {
-	return archiveMap[getExt(path)]
 }
 
 // errIfMatch generates the right error if a match is encountered.
