@@ -91,18 +91,21 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	logger := clog.FromContext(ctx)
 	var mrs yara.MatchRules
 	logger = logger.With("path", path)
-	kind, err := programkind.File(path)
+
 	mime := "<unknown>"
-	if err == nil && kind != nil {
+	kind, err := programkind.File(path)
+	if err != nil {
+		logger.Errorf("file type failure: %s: %s", path, err)
+	}
+	if kind != nil {
 		mime = kind.MIME
 	}
-	logger = logger.With("mime", mime)
-	logger.Info("scanning")
 	if !c.IncludeDataFiles && kind == nil {
+		logger.Infof("skipping %s [%s]: probably a data file", path, mime)
 		return &malcontent.FileReport{Skipped: "data file", Path: path}, nil
 	}
+	logger = logger.With("mime", mime)
 
-	logger.Debug("calling YARA ScanFile")
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, err

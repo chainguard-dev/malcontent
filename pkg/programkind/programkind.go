@@ -51,10 +51,11 @@ var supportedKind = map[string]string{
 	"pl":      "text/x-perl",
 	"pm":      "text/x-script.perl-module",
 	"ps1":     "text/x-powershell",
-	"py":      "text/x-script.phyton",
-	"pyc":     "application/x-bytecode.python",
+	"py":      "text/x-python",
+	"pyc":     "application/x-python-code",
 	"rb":      "text/x-ruby",
 	"rs":      "text/x-rust",
+	"script":  "text/x-script",
 	"scpt":    "application/x-applescript",
 	"scptd":   "application/x-applescript",
 	"service": "text/x-systemd",
@@ -106,7 +107,7 @@ func File(path string) (*FileType, error) {
 	}
 
 	// read hdr content for future strategies
-	var hdr [16]byte
+	var hdr [32]byte
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("open: %w", err)
@@ -120,14 +121,19 @@ func File(path string) (*FileType, error) {
 
 	// final strategy: DIY
 	content := string(hdr[:])
-	fmt.Printf("content for %s - %s", path, content)
 	switch {
+	case hdr[0] == '\x7f' && hdr[1] == 'E' || hdr[2] == 'L' || hdr[3] == 'F':
+		return Path(".elf"), nil
 	case strings.HasPrefix(content, "#!/bin/sh"):
 		return Path(".sh"), nil
 	case strings.HasPrefix(content, "#!/bin/bash"):
 		return Path(".bash"), nil
-	case hdr[0] == '\x7f' && hdr[1] == 'E' || hdr[2] == 'L' || hdr[3] == 'F':
-		return Path(".elf"), nil
+	case strings.Contains(content, "<?php"):
+		return Path(".php"), nil
+	case strings.HasPrefix(content, "import "):
+		return Path(".py"), nil
+	case strings.HasPrefix(content, "#!/"):
+		return Path(".script"), nil
 	}
 
 	return nil, nil
