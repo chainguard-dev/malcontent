@@ -1,6 +1,6 @@
-rule win_kill_proc_likely : high {
+rule win_kill_proc_likely : medium {
   meta:
-    description = "Likely Windows EDR/Antivirus bypass"
+    description = "Possible Windows EDR/Antivirus bypass"
   strings:
 	$f_gcp = "GetCurrentProcess"
 	$f_gct = "GetCurrentThread"

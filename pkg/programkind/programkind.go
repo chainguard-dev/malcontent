@@ -100,7 +100,7 @@ func File(ctx context.Context, path string) (*FileType, error) {
 	if err == nil {
 		clog.Infof("mimetype: %+v", mtype)
 		if likelyProgram(mtype.Extension(), mtype.String()) {
-			return &FileType{MIME: mtype.String(), Ext: mtype.Extension()}, nil
+			return &FileType{MIME: mtype.String(), Ext: strings.TrimPrefix(mtype.Extension(), ".")}, nil
 		}
 	}
 

@@ -9,7 +9,7 @@ rule win_debugger_present : medium {
 	filesize < 25MB and $debug_idp and any of ($debug*)
 }
 
-rule win_debugger_or_cpu : high {
+rule win_debugger_or_cpu : medium {
   meta:
     description = "Detects if process is being executed within a debugger or VM"
   strings:
