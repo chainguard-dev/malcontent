@@ -45,30 +45,30 @@ Useful flags:
 
 ### Analyze
 
-To analyze a program, pass the path as an argument to `mal analyze`. For example:
+To analyze the capabilities of a program, use `mal analyze`. For example:
 
 ![analyze screenshot](./images/analyze.png)
 
-The analyze mode emits a list of capabilities often seen in malware, categorized by risk level. In general, `CRITICAL` findings should be considered malicious. Useful flags include:
+The analyze mode emits a list of capabilities often seen in malware, categorized by risk level. It works with programs in a wide variety of file formats and scripting languages.
+
+`CRITICAL` findings should be considered malicious. Useful flags include:
 
 * `--format=json`: output to JSON for data parsing
 * `--min-risk=high`: only show high or critical risk findings
 
 ### Diff
 
-To detect unexpected capability changes, we have a `diff` mode. Using the [3CX Compromise](https://www.fortinet.com/blog/threat-research/3cx-desktop-app-compromised) as an example:
+To detect unexpected capability changes, try `diff` mode. Using the [3CX Compromise](https://www.fortinet.com/blog/threat-research/3cx-desktop-app-compromised) as an example, we're able to use malcontent to detect malicious code inserted in an otherwise harmless library:
 
 ![diff screenshot](./images/diff.png)
 
-Each of the lines that begins with a "+" represents a newly added capability. For use in CI/CD pipelines, you may find the following flags helpful:
+Each line that begins with a "+" represents a newly added capability.You can use it to diff entire directories recursively, even if they contain programs written in a variety of languages.
 
-Notably, none of the "CRITICAL" findings, except for the `evasion/xor/user_agent`, would have been found pre-3CX compromise. The diff mode is designed to surface subtle, unexpected changes that you might not have an explanation for, such as "Why does `libffmpeg.dylib` need access to `chown`? "
-
-Useful flags:
+For use in CI/CD pipelines, you may find the following flags helpful:
 
 * `--format=markdown`: output in markdown for use in GitHub Actions
 * `--min-file-risk=critical`: only show diffs for critical-level changes
-* `--quantity-increases-risk=false`: disable the heuristics that increase file criticality due to result frequency
+* `--quantity-increases-risk=false`: disable heuristics that increase file criticality due to result frequency
 
 ## Installation
 
