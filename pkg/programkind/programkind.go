@@ -16,8 +16,8 @@ import (
 	"github.com/gabriel-vasile/mimetype"
 )
 
-// file extension to mime type
-var knownProgramFormats = map[string]string{
+// file extension to MIME type, if it's a good scanning target
+var supportedKind = map[string]string{
 	"7z":      "",
 	"asm":     "",
 	"bash":    "application/x-bsh",
@@ -74,16 +74,46 @@ type FileType struct {
 	MIME string
 }
 
-func likelyProgram(ext string, mime string) bool {
-	if knownProgramFormats[ext] != "" {
-		return true
+func supportedType(path string, ext string, mime string) *FileType {
+	clog.Infof("supportedType: path=%s ext=%s mime=%s", path, ext, mime)
+	ext = strings.TrimPrefix(ext, ".")
+	if supportedKind[ext] == "" {
+		return nil
 	}
-	return strings.Contains(mime, "application") || strings.Contains(mime, "text/x-") || strings.Contains(mime, "text/x-") || strings.Contains(mime, "executable")
+
+	// fix mimetype buf that defaults elf binaries to x-sharedlib
+	if mime == "application/x-sharedlib" && !strings.Contains(path, ".so") {
+		return Path(".elf")
+	}
+
+	if strings.Contains(mime, "application") || strings.Contains(mime, "text/x-") || strings.Contains(mime, "text/x-") || strings.Contains(mime, "executable") {
+		clog.Infof("supported: %s / %s", mime, ext)
+		return &FileType{MIME: mime, Ext: ext}
+	}
+
+	return nil
 }
 
 // ByFile detects what kind of program this file might be
 func File(ctx context.Context, path string) (*FileType, error) {
-	var header [384]byte
+	clog.Infof("path: %s", path)
+
+	// first strategy: mimetype
+	mtype, err := mimetype.DetectFile(path)
+	if err == nil {
+		clog.Infof("mimetype: %+v", mtype)
+		if ft := supportedType(path, mtype.Extension(), mtype.String()); ft != nil {
+			return ft, nil
+		}
+	}
+
+	// second strategy: path (extension, mostly)
+	if mtype := Path(path); mtype != nil {
+		return mtype, nil
+	}
+
+	// read header content for future strategies
+	var header [263]byte
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("open: %w", err)
@@ -92,26 +122,26 @@ func File(ctx context.Context, path string) (*FileType, error) {
 
 	_, err = io.ReadFull(f, header[:])
 	if err != nil && !errors.Is(err, io.ErrUnexpectedEOF) {
-		return nil, fmt.Errorf("read: %w", err)
+		return nil, nil
 	}
 
-	// first strategy: detect via MIME magic
-	mtype, err := mimetype.DetectFile(path)
-	if err == nil {
-		clog.Infof("mimetype: %+v", mtype)
-		if likelyProgram(mtype.Extension(), mtype.String()) {
-			return &FileType{MIME: mtype.String(), Ext: strings.TrimPrefix(mtype.Extension(), ".")}, nil
-		}
+	// final strategy: DIY
+	content := string(header[:])
+	fmt.Printf("content for %s - %s", path, content)
+	switch {
+	case strings.HasPrefix(content, "#!/bin/sh"):
+		return Path(".sh"), nil
+	case strings.HasPrefix(content, "#!/bin/bash"):
+		return Path(".bash"), nil
 	}
 
-	// second strategy: detect via path
-	return Path(path), nil
+	return nil, nil
 }
 
 // ByPath returns a filetype based strictly on file path
 func Path(path string) *FileType {
 	ext := strings.ReplaceAll(filepath.Ext(path), ".", "")
-	mime := knownProgramFormats[ext]
+	mime := supportedKind[ext]
 	clog.Infof("by path: %v / %v", ext, mime)
 	if mime != "" {
 		return &FileType{MIME: mime, Ext: ext}

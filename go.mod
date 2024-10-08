@@ -6,10 +6,10 @@ require (
 	github.com/agext/levenshtein v1.2.3
 	github.com/chainguard-dev/clog v1.5.0
 	github.com/fatih/color v1.17.0
+	github.com/gabriel-vasile/mimetype v1.4.5
 	github.com/google/go-cmp v0.6.0
 	github.com/google/go-containerregistry v0.20.2
 	github.com/hillu/go-yara/v4 v4.3.3
-	github.com/liamg/magic v0.0.1
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/shirou/gopsutil/v4 v4.24.9
 	github.com/ulikunitz/xz v0.5.12
@@ -29,7 +29,6 @@ require (
 	github.com/docker/distribution v2.8.3+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.8.2 // indirect
 	github.com/ebitengine/purego v0.8.0 // indirect
-	github.com/gabriel-vasile/mimetype v1.4.5 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/klauspost/compress v1.17.9 // indirect
 	github.com/kr/pretty v0.2.1 // indirect

@@ -19,8 +19,10 @@ func TestFile(t *testing.T) {
 		{"expr", &FileType{MIME: "application/x-mach-binary", Ext: "macho"}},
 		{"snmpd", &FileType{MIME: "application/x-sh", Ext: "sh"}},
 		{"test.pl", &FileType{MIME: "text/x-perl", Ext: "pl"}},
+		{"peclcmd", &FileType{MIME: "text/x-php", Ext: "php"}},
 		{"test.sh", &FileType{MIME: "application/x-sh", Ext: "sh"}},
 		{"libpam.so.0", &FileType{MIME: "application/x-sharedlib", Ext: "so"}},
+		{"ls", &FileType{MIME: "application/x-elf", Ext: "elf"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.in, func(t *testing.T) {
