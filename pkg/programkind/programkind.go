@@ -137,7 +137,7 @@ func File(path string) (*FileType, error) {
 		strings.Contains(s, "if !") ||
 		strings.Contains(s, `echo "`) ||
 		strings.Contains(s, `grep `) ||
-		strings.Contains(s, "; then"):
+		strings.Contains(s, "; then") ||
 		strings.Contains(s, "export "):
 		return Path(".sh"), nil
 	case strings.HasPrefix(s, "#!/"):
