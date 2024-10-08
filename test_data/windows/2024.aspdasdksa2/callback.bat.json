@@ -21,6 +21,31 @@
                     "RuleName": "SIGNATURE_BASE_Suspicious_Powershell_Webdownload_1"
                 },
                 {
+                    "Description": "references 'powershell' tool",
+                    "MatchStrings": [
+                        "Add-MpPreference -ExclusionPath"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/yara/threat_hunting/all.yara#powershell_offensive_tool_keyword",
+                    "ReferenceURL": "https://github.com/mthcht/ThreatHunting-Keywords",
+                    "RuleAuthor": "mthcht",
+                    "ID": "3P/threat_hunting/powershell",
+                    "RuleName": "powershell_offensive_tool_keyword"
+                },
+                {
+                    "Description": "Stops EDR/Antivirus services",
+                    "MatchStrings": [
+                        "alwarebytes",
+                        "stopservice"
+                    ],
+                    "RiskScore": 4,
+                    "RiskLevel": "CRITICAL",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/combo/degrader/edr_killer.yara#edr_stopper",
+                    "ID": "combo/degrader/edr_killer",
+                    "RuleName": "edr_stopper"
+                },
+                {
                     "Description": "Uses powershell to define Windows Defender exclusions",
                     "MatchStrings": [
                         "powershell -Command \"Add-MpPreference -ExclusionPath 'C:\\'\""
@@ -30,6 +55,17 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/combo/degrader/win_defender.yara#win_defender_exclusion",
                     "ID": "combo/degrader/win_defender",
                     "RuleName": "win_defender_exclusion"
+                },
+                {
+                    "Description": "download files",
+                    "MatchStrings": [
+                        "DownloadFile"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/download.yara#download",
+                    "ID": "net/download",
+                    "RuleName": "download"
                 },
                 {
                     "Description": "Uses RunAs to execute code as another user",
@@ -43,15 +79,15 @@
                     "RuleName": "runas_admin"
                 },
                 {
-                    "Description": "powershell",
+                    "Description": "kills tasks and/or processes",
                     "MatchStrings": [
-                        "powershell -Command"
+                        "taskkill"
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/program/powershell.yara#powershell",
-                    "ID": "ref/program/powershell",
-                    "RuleName": "powershell"
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/process/taskkill.yara#taskkill",
+                    "ID": "process/taskkill",
+                    "RuleName": "taskkill"
                 },
                 {
                     "Description": "path reference for C:\\Windows (may be partial)",
@@ -63,6 +99,17 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/path/windows_root.yara#windows_path",
                     "ID": "ref/path/windows_root",
                     "RuleName": "windows_path"
+                },
+                {
+                    "Description": "powershell",
+                    "MatchStrings": [
+                        "powershell -Command"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/program/powershell.yara#powershell",
+                    "ID": "ref/program/powershell",
+                    "RuleName": "powershell"
                 },
                 {
                     "Description": "accesses hardcoded executable endpoint",
@@ -97,58 +144,10 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/site/url.yara#https_url",
                     "ID": "ref/site/url",
                     "RuleName": "https_url"
-                },
-                {
-                    "Description": "references 'powershell' tool",
-                    "MatchStrings": [
-                        "Add-MpPreference -ExclusionPath"
-                    ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/yara/threat_hunting/all.yara#powershell_offensive_tool_keyword",
-                    "ReferenceURL": "https://github.com/mthcht/ThreatHunting-Keywords",
-                    "RuleAuthor": "mthcht",
-                    "ID": "3P/threat_hunting/powershell",
-                    "RuleName": "powershell_offensive_tool_keyword"
-                },
-                {
-                    "Description": "Stops EDR/Antivirus services",
-                    "MatchStrings": [
-                        "alwarebytes",
-                        "stopservice"
-                    ],
-                    "RiskScore": 4,
-                    "RiskLevel": "CRITICAL",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/combo/degrader/edr_killer.yara#edr_stopper",
-                    "ID": "combo/degrader/edr_killer",
-                    "RuleName": "edr_stopper"
-                },
-                {
-                    "Description": "download files",
-                    "MatchStrings": [
-                        "DownloadFile"
-                    ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/download.yara#download",
-                    "ID": "net/download",
-                    "RuleName": "download"
-                },
-                {
-                    "Description": "kills tasks and/or processes",
-                    "MatchStrings": [
-                        "taskkill"
-                    ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/process/taskkill.yara#taskkill",
-                    "ID": "process/taskkill",
-                    "RuleName": "taskkill"
                 }
             ],
             "RiskScore": 4,
             "RiskLevel": "CRITICAL"
         }
-    },
-    "Filter": "false_positive,ignore"
+    }
 }

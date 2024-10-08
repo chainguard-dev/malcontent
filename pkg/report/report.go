@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"slices"
+	"sort"
 	"strconv"
 	"strings"
 	"unicode"
@@ -551,6 +552,11 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 	fr.Capabilities = slices.Compact(caps)
 	fr.RiskScore = overallRiskScore
 	fr.RiskLevel = RiskLevels[fr.RiskScore]
+
+	// Ensure that the behaviors are consistently sorted by ID
+	sort.Slice(fr.Behaviors, func(i, j int) bool {
+		return fr.Behaviors[i].ID < fr.Behaviors[j].ID
+	})
 
 	return fr, nil
 }
