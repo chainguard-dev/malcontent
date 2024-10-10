@@ -12,12 +12,61 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/ulikunitz/xz"
 )
+
+var archiveMap = map[string]bool{
+	".apk":    true,
+	".bz2":    true,
+	".bzip2":  true,
+	".gem":    true,
+	".gz":     true,
+	".jar":    true,
+	".tar.gz": true,
+	".tar.xz": true,
+	".tar":    true,
+	".tgz":    true,
+	".xz":     true,
+	".zip":    true,
+}
+
+// isSupportedArchive returns whether a path can be processed by our archive extractor.
+func isSupportedArchive(path string) bool {
+	return archiveMap[getExt(path)]
+}
+
+// getExt returns the extension of a file path
+// and attempts to avoid including fragments of filenames with other dots before the extension.
+func getExt(path string) string {
+	base := filepath.Base(path)
+
+	// Handle files with version numbers in the name
+	// e.g. file1.2.3.tar.gz -> .tar.gz
+	re := regexp.MustCompile(`\d+\.\d+\.\d+$`)
+	base = re.ReplaceAllString(base, "")
+
+	ext := filepath.Ext(base)
+
+	if ext != "" && strings.Contains(base, ".") {
+		parts := strings.Split(base, ".")
+		if len(parts) > 2 {
+			subExt := fmt.Sprintf(".%s%s", parts[len(parts)-2], ext)
+			if isValidExt := func(ext string) bool {
+				_, ok := archiveMap[ext]
+				return ok
+			}(subExt); isValidExt {
+				return subExt
+			}
+		}
+	}
+
+	return ext
+}
 
 const maxBytes = 1 << 29 // 512MB
 
