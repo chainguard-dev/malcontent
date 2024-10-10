@@ -52,6 +52,7 @@ SAMPLES_COMMIT ?= 0ff28cbe99bc4610c58016faeb1a806a6e5cebbb
 OUT_DIR=out/samples-$(SAMPLES_COMMIT).tmp
 out/samples-$(SAMPLES_COMMIT):
 	mkdir -p out
+	xz --version
 	git clone https://github.com/$(SAMPLES_REPO).git $(OUT_DIR)
 	git -C $(OUT_DIR) checkout $(SAMPLES_COMMIT)
 	@for file in $$(find $(OUT_DIR) -name "*.xz" -print0 | xargs -0 echo); do \
