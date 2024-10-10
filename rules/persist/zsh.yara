@@ -21,7 +21,16 @@ rule zsh_logout_persist : high {
   strings:
     $ref = ".zlogout"
     $ref2 = "/etc/zlogout"
-    $not_bash = "POSIXLY_CORRECT"
   condition:
-    filesize < 2097152 and any of ($ref*) and none of ($not*)
+    filesize < 2097152 and any of ($ref*)
+}
+
+rule zsh : override {
+	meta:
+	  description = "zsh"
+	  zsh_logout_persist = "medium"
+	strings:
+		$debug = "ZSH_DEBUG_CMD"
+	condition:
+		filesize > 100KB and filesize < 2MB and all of them
 }

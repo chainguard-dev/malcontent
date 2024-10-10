@@ -26,6 +26,7 @@ rule excessive_bitwise_math : high {
     $not_MD4 = "MD4"
     $not_algbase = "algbase" fullword
     $not_jslint = "jslint bitwise"
+	$not_includde = "#define "
   condition:
     filesize < 128000 and #x > 64 and none of ($not*)
 }

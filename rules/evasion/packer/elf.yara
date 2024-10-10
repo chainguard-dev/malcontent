@@ -18,6 +18,7 @@ rule obfuscated_elf : high {
     $dereg = "__deregister_frame_info"
     $symtab = ".symtab" fullword
     $__libc_start_main = "__libc_start_main"
+	$go_export = ".go_export"
   condition:
     uint32(0) == 1179403647 and none of them
 }

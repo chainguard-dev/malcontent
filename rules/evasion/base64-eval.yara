@@ -79,6 +79,17 @@ rule echo_decode_bash_probable : high {
     filesize < 1048576 and $echo and ($bash or $sh) and ($base64_decode or $base64_d) and none of ($not*)
 }
 
+rule acme_sh : override {
+	meta:
+		description = "acme.sh"
+		echo_decode_bash_probable = "medium"
+		iplookup_website = "medium"
+	strings:
+		$ref = "https://github.com/acmesh-official"
+	condition:
+		$ref
+}
+
 rule echo_decode_bash : critical { 
 	meta:
 		description = "executes base64 encoded shell commands"

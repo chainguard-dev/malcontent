@@ -5,7 +5,6 @@ combo/dropper/shell
 combo/stealer/browser
 combo/stealer/notes
 combo/stealer/office
-combo/stealer/ssh
 compression/gzip
 compression/zstd
 crypto/aes

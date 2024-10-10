@@ -54,6 +54,8 @@ var badRules = map[string]bool{
 	"whoami_greyware_tool_keyword":               true,
 	"wireshark_greyware_tool_keyword":            true,
 	"mimikatz_offensive_tool_keyword":            true,
+	// Inquest
+	"Microsoft_Excel_Hidden_Macrosheet": true,
 	// YARA VT
 	"Base64_Encoded_URL":   true,
 	"Windows_API_Function": true,

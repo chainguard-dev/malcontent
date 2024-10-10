@@ -35,7 +35,7 @@
                     "RuleName": "http_post"
                 },
                 {
-                    "Description": "excessive references to hexadecimal values",
+                    "Description": "many references to hexadecimal values",
                     "MatchStrings": [
                         "0x10037b",
                         "0x1013c2",
@@ -1823,8 +1823,8 @@
                         "0xfed3e6",
                         "0xfff445"
                     ],
-                    "RiskScore": 3,
-                    "RiskLevel": "HIGH",
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/obfuscation/generic/hex.yara#excessive_hex_refs",
                     "ID": "obfuscation/generic/hex",
                     "RuleName": "excessive_hex_refs"

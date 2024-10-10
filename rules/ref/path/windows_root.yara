@@ -1,4 +1,4 @@
-rule windows_path {
+rule windows_path : windows {
 	meta:
 		description = "path reference for C:\\Windows (may be partial)"
 	strings:

@@ -4,7 +4,6 @@ combo/backdoor/kill_rm
 combo/botnet/systemctl
 combo/dropper/shell
 combo/stealer/linux_server
-combo/stealer/ssh
 compression/gzip
 crypto/aes
 crypto/ecdsa
