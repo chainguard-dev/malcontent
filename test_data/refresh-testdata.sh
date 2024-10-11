@@ -73,7 +73,7 @@ addq ${malcontent} --format=markdown \
 	macOS/2023.3CX/libffmpeg.dylib
 
 addq ${malcontent} --format=markdown \
-	-o "${test_data}/macOS/2023.3CX/libffmpeg.no_change.mdiff" \
+	-o "${test_data}/macOS/2023.3CX/libffmpeg.change_no_change.mdiff" \
 	diff \
 	--file-risk-change \
 	macOS/2023.3CX/libffmpeg.dylib \
@@ -95,7 +95,7 @@ addq ${malcontent} --format=markdown \
 	macOS/2023.3CX/libffmpeg.dirty.dylib
 
 addq ${malcontent} --format=markdown \
-	-o "${test_data}/macOS/2023.3CX/libffmpeg.equal.mdiff" \
+	-o "${test_data}/macOS/2023.3CX/libffmpeg.no_change.mdiff" \
 	diff \
 	--file-risk-increase \
 	macOS/2023.3CX/libffmpeg.dylib \

@@ -244,7 +244,7 @@ func TestDiffFileChange(t *testing.T) {
 	}{
 		{diff: "macOS/2023.3CX/libffmpeg.change_increase.mdiff", format: "markdown", src: "macOS/2023.3CX/libffmpeg.dylib", dest: "macOS/2023.3CX/libffmpeg.dirty.dylib"},
 		{diff: "macOS/2023.3CX/libffmpeg.change_decrease.mdiff", format: "markdown", src: "macOS/2023.3CX/libffmpeg.dirty.dylib", dest: "macOS/2023.3CX/libffmpeg.dylib"},
-		{diff: "macOS/2023.3CX/libffmpeg.no_change.mdiff", format: "markdown", src: "macOS/2023.3CX/libffmpeg.dylib", dest: "macOS/2023.3CX/libffmpeg.dylib"},
+		{diff: "macOS/2023.3CX/libffmpeg.change_no_change.mdiff", format: "markdown", src: "macOS/2023.3CX/libffmpeg.dylib", dest: "macOS/2023.3CX/libffmpeg.dylib"},
 		{diff: "macOS/2023.3CX/libffmpeg.change_unrelated.mdiff", format: "markdown", src: "macOS/2023.3CX/libffmpeg.dylib", dest: "macOS/clean/ls"},
 	}
 
@@ -310,7 +310,7 @@ func TestDiffFileIncrease(t *testing.T) {
 	}{
 		{diff: "macOS/2023.3CX/libffmpeg.increase.mdiff", format: "markdown", src: "macOS/2023.3CX/libffmpeg.dylib", dest: "macOS/2023.3CX/libffmpeg.dirty.dylib"},
 		{diff: "macOS/2023.3CX/libffmpeg.decrease.mdiff", format: "markdown", src: "macOS/2023.3CX/libffmpeg.dirty.dylib", dest: "macOS/2023.3CX/libffmpeg.dylib"},
-		{diff: "macOS/2023.3CX/libffmpeg.equal.mdiff", format: "markdown", src: "macOS/2023.3CX/libffmpeg.dylib", dest: "macOS/2023.3CX/libffmpeg.dylib"},
+		{diff: "macOS/2023.3CX/libffmpeg.no_change.mdiff", format: "markdown", src: "macOS/2023.3CX/libffmpeg.dylib", dest: "macOS/2023.3CX/libffmpeg.dylib"},
 		{diff: "macOS/2023.3CX/libffmpeg.increase_unrelated.mdiff", format: "markdown", src: "macOS/clean/ls", dest: "macOS/2023.3CX/libffmpeg.dylib"},
 	}
 
