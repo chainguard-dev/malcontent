@@ -57,59 +57,61 @@ addq ${malcontent} --format=markdown \
 	macOS/2023.3CX/libffmpeg.dylib \
 	macOS/2023.3CX/libffmpeg.dirty.dylib
 
+# --file-risk-change test cases
 addq ${malcontent} --format=markdown \
 	-o "${test_data}/macOS/2023.3CX/libffmpeg.change_increase.mdiff" \
-	--file-risk-change \
 	diff \
+	--file-risk-change \
 	macOS/2023.3CX/libffmpeg.dylib \
 	macOS/2023.3CX/libffmpeg.dirty.dylib
 
 addq ${malcontent} --format=markdown \
 	-o "${test_data}/macOS/2023.3CX/libffmpeg.change_decrease.mdiff" \
-	--file-risk-change \
 	diff \
+	--file-risk-change \
 	macOS/2023.3CX/libffmpeg.dirty.dylib \
 	macOS/2023.3CX/libffmpeg.dylib
 
 addq ${malcontent} --format=markdown \
 	-o "${test_data}/macOS/2023.3CX/libffmpeg.no_change.mdiff" \
-	--file-risk-change \
 	diff \
+	--file-risk-change \
 	macOS/2023.3CX/libffmpeg.dylib \
 	macOS/2023.3CX/libffmpeg.dylib
 
 addq ${malcontent} --format=markdown \
 	-o "${test_data}/macOS/2023.3CX/libffmpeg.change_unrelated.mdiff" \
-	--file-risk-change \
 	diff \
+	--file-risk-change \
 	macOS/2023.3CX/libffmpeg.dylib \
 	macOS/clean/ls \
 
+# --file-risk-increase test cases
 addq ${malcontent} --format=markdown \
 	-o "${test_data}/macOS/2023.3CX/libffmpeg.increase.mdiff" \
-	--file-risk-increase \
 	diff \
+	--file-risk-increase \
 	macOS/2023.3CX/libffmpeg.dylib \
 	macOS/2023.3CX/libffmpeg.dirty.dylib
 
 addq ${malcontent} --format=markdown \
 	-o "${test_data}/macOS/2023.3CX/libffmpeg.equal.mdiff" \
-	--file-risk-increase \
 	diff \
+	--file-risk-increase \
 	macOS/2023.3CX/libffmpeg.dylib \
 	macOS/2023.3CX/libffmpeg.dylib
 
 addq ${malcontent} --format=markdown \
 	-o "${test_data}/macOS/2023.3CX/libffmpeg.decrease.mdiff" \
-	--file-risk-increase \
 	diff \
+	--file-risk-increase \
 	macOS/2023.3CX/libffmpeg.dirty.dylib \
 	macOS/2023.3CX/libffmpeg.dylib
 
 addq ${malcontent} --format=markdown \
 	-o "${test_data}/macOS/2023.3CX/libffmpeg.increase_unrelated.mdiff" \
-	--file-risk-increase \
 	diff \
+	--file-risk-increase \
 	macOS/clean/ls \
 	macOS/2023.3CX/libffmpeg.dylib
 
