@@ -46,6 +46,8 @@ var (
 	concurrencyFlag           int
 	errFirstHitFlag           bool
 	errFirstMissFlag          bool
+	fileRiskChangeFlag        bool
+	fileRiskIncreaseFlag      bool
 	formatFlag                string
 	ignoreSelfFlag            bool
 	ignoreTagsFlag            string
@@ -217,6 +219,8 @@ func main() {
 				Concurrency:           concurrencyFlag,
 				ErrFirstHit:           errFirstHitFlag,
 				ErrFirstMiss:          errFirstMissFlag,
+				FileRiskChange:        fileRiskChangeFlag,
+				FileRiskIncrease:      fileRiskIncreaseFlag,
 				IgnoreSelf:            ignoreSelfFlag,
 				IgnoreTags:            ignoreTags,
 				IncludeDataFiles:      includeDataFiles,
@@ -251,6 +255,18 @@ func main() {
 				Value:       false,
 				Usage:       "Exit with error if scan source has matching capabilities",
 				Destination: &errFirstHitFlag,
+			},
+			&cli.BoolFlag{
+				Name:        "file-risk-change",
+				Value:       false,
+				Usage:       "Only show diffs when file risk changes",
+				Destination: &fileRiskChangeFlag,
+			},
+			&cli.BoolFlag{
+				Name:        "file-risk-increase",
+				Value:       false,
+				Usage:       "Only show diffs when file risk increases",
+				Destination: &fileRiskIncreaseFlag,
 			},
 			&cli.StringFlag{
 				Name:        "format",

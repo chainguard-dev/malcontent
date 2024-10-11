@@ -77,7 +77,9 @@ func (r Markdown) Full(ctx context.Context, rep *malcontent.Report) error {
 				mdRisk(modified.Value.RiskScore, modified.Value.RiskLevel))
 		}
 
-		fmt.Fprint(r.w, title+"\n\n")
+		if len(modified.Value.Behaviors) > 0 {
+			fmt.Fprint(r.w, title+"\n\n")
+		}
 		added := 0
 		removed := 0
 		for _, b := range modified.Value.Behaviors {
