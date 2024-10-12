@@ -37,7 +37,6 @@ evasion/base64/decode
 evasion/content/length/0
 exec/cmd
 exec/program
-exec/shell_command
 fs/directory/create
 fs/directory/list
 fs/directory/remove

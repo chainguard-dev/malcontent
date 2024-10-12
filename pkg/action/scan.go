@@ -35,8 +35,7 @@ var (
 )
 
 // findFilesRecursively returns a list of files found recursively within a path.
-func findFilesRecursively(ctx context.Context, rootPath string) ([]string, error) {
-	clog.FromContext(ctx).Infof("finding files in %s ...", rootPath)
+func findFilesRecursively(_ context.Context, rootPath string) ([]string, error) {
 	var files []string
 
 	// Follow symlink if provided at the root
@@ -256,8 +255,6 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 			continue
 		}
 
-		logger.Debug("files found", slog.Any("path count", len(paths)), slog.Any("scanPath", scanPath))
-
 		maxConcurrency := c.Concurrency
 		if maxConcurrency < 1 {
 			maxConcurrency = 1
@@ -271,7 +268,6 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 		close(pc)
 
 		handleArchive := func(path string) error {
-			logger.Debug("found archive path", slog.Any("path", path))
 			frs, err := processArchive(ctx, c, c.RuleFS, path, logger)
 			if err != nil {
 				logger.Errorf("unable to process %s: %v", path, err)
@@ -306,7 +302,6 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 				trimPath = ociExtractPath
 			}
 
-			logger.Debug("processing path", slog.Any("path", path))
 			fr, err := processFile(ctx, c, c.RuleFS, path, scanPath, trimPath, logger)
 			if err != nil {
 				scanPathFindings.Store(path, &malcontent.FileReport{})
@@ -382,7 +377,6 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 			}
 		}
 	} // loop: next scan path
-	logger.Debugf("recursive scan complete: %d files", r.Files.Len())
 	return r, nil
 }
 

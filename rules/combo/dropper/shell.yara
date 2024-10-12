@@ -40,6 +40,16 @@ rule curl_chmod_relative_run_tiny : critical {
     filesize < 6KB and all of them
 }
 
+rule helm_test_env : override {
+	meta:
+		description = "helm_test_env"
+		curl_chmod_relative_run_tiny = "medium"
+	strings:
+		$helm_curl = "curl -L https://get.helm.sh"
+	condition:
+		$helm_curl
+}
+
 rule curl_tor_chmod_relative_run : high {
   meta:
     description = "change dir, fetch file via tor, make it executable, and run it"

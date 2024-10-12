@@ -64,7 +64,7 @@ rule multiple_browser_refs : high {
     2 of ($name*) and 3 of ($fs*) and none of ($not*)
 }
 
-rule userdata_browser_archiver : high {
+rule userdata_browser_archiver : medium {
   meta:
     description = "Uses HTTP, archives, and references multiple browsers"
     hash_2023_Downloads_016a = "016a1a4fe3e9d57ab0b2a11e37ad94cc922290d2499b8d96957c3ddbdc516d74"

@@ -1,5 +1,5 @@
 
-rule implant : high {
+rule implant : medium {
   meta:
     description = "References an Implant"
     hash_2024_D3m0n1z3dShell_demonizedshell = "d7c34b9d711260c1cd001ca761f5df37cbe40b492f198b228916b6647b660119"

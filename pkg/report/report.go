@@ -486,7 +486,6 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 
 		if ignoreMatch(m.Tags, ignore) {
 			fr.FilteredBehaviors++
-			clog.DebugContextf(ctx, "dropping %s (tags match ignore list)", m.Namespace)
 			continue
 		}
 
