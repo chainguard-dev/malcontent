@@ -16,7 +16,6 @@ databases/sqlite
 device/hardware/enumeration
 encoding/base64
 evasion/base64/decode
-exec/shell_command
 fs/fifo/create
 fs/file/times/set
 fs/lock/update

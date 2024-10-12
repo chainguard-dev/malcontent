@@ -1,4 +1,5 @@
 # python/clean/magic_trace/magic_trace.py
+combo/dropper/python
 exec/program
 fd/read
 fs/permission/modify

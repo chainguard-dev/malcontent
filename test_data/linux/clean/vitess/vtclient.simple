@@ -31,7 +31,6 @@ env/get
 evasion/base64/decode
 evasion/content/length/0
 exec/program
-exec/shell_command
 fs/directory/list
 fs/directory/remove
 fs/fifo/create

@@ -113,9 +113,6 @@ func extractTar(ctx context.Context, d string, f string) error {
 		br := bzip2.NewReader(tf)
 		tr = tar.NewReader(br)
 	default:
-		if err != nil {
-			return fmt.Errorf("failed to seek to start: %w", err)
-		}
 		tr = tar.NewReader(tf)
 	}
 

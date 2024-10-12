@@ -106,9 +106,14 @@ func handleFile(ctx context.Context, c malcontent.Config, fr, tr *malcontent.Fil
 		return
 	}
 
+	// Filter files that are marked for removal
+	if filterDiff(ctx, c, fr, tr) {
+		return
+	}
+
 	rbs := createFileReport(tr, fr)
 
-	// if source behavior is not in the destination
+	// findings that exist only in the source
 	for _, fb := range fr.Behaviors {
 		if !behaviorExists(fb, tr.Behaviors) {
 			fb.DiffRemoved = true
@@ -141,7 +146,7 @@ func behaviorExists(b *malcontent.Behavior, behaviors []*malcontent.Behavior) bo
 }
 
 func processDest(ctx context.Context, c malcontent.Config, from, to map[string]*malcontent.FileReport, d *malcontent.DiffReport) {
-	// things that exist in the destination
+	// findings that exist only in the destination
 	for relPath, tr := range to {
 		fr, exists := from[relPath]
 		if !exists {
@@ -157,6 +162,11 @@ func fileDestination(ctx context.Context, c malcontent.Config, fr, tr *malconten
 	// We've now established that this file exists in both source and destination
 	if fr.RiskScore < c.MinFileRisk && tr.RiskScore < c.MinFileRisk {
 		clog.FromContext(ctx).Info("diff does not meet min trigger level", slog.Any("path", tr.Path))
+		return
+	}
+
+	// Filter files that are marked as added
+	if filterDiff(ctx, c, fr, tr) {
 		return
 	}
 
@@ -263,6 +273,12 @@ func fileMove(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileR
 		return
 	}
 
+	// Filter diffs for files that make it through the combineReports pattern matching
+	// i.e., `.so` and `.spdx.json` files
+	if filterDiff(ctx, c, fr, tr) {
+		return
+	}
+
 	// We think that this file moved from rpath to apath.
 	abs := &malcontent.FileReport{
 		Path:                 tr.Path,
@@ -296,4 +312,21 @@ func fileMove(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileR
 	d.Modified.Set(apath, abs)
 	d.Removed.Delete(rpath)
 	d.Added.Delete(apath)
+}
+
+// filterDiff returns a boolean dictating whether a diff report should be ignored depending on the following conditions:
+// `true` when passing `--file-risk-change` and the source risk score matches the destination risk score
+// `true` when passing `--file-risk-increase` and the source risk score is equal to or greater than the destination risk score
+// `false` otherwise.
+func filterDiff(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileReport) bool {
+	if c.FileRiskChange && fr.RiskScore == tr.RiskScore {
+		clog.FromContext(ctx).Info("dropping result because diff scores were the same", slog.Any("paths", fmt.Sprintf("%s (%d) %s (%d)", fr.Path, fr.RiskScore, tr.Path, tr.RiskScore)))
+		return true
+	}
+	if c.FileRiskIncrease && fr.RiskScore >= tr.RiskScore {
+		clog.FromContext(ctx).Info("dropping result because old score was the same or higher than the new score", slog.Any("paths ", fmt.Sprintf("%s (%d) %s (%d)", fr.Path, fr.RiskScore, tr.Path, tr.RiskScore)))
+		return true
+	}
+
+	return false
 }
