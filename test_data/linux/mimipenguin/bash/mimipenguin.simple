@@ -1,25 +1,25 @@
-# linux/mimipenguin/bash/mimipenguin
-3P/signature_base/mimipenguin
-3P/signature_base/mimipenguin/sh
-combo/stealer/password
-encoding/base64
-evasion/base64/eval
-evasion/base64/external
-evasion/single_line_imports
-exec/shell_command
-fs/file/delete
-fs/file/delete/forcibly
-kernel/platform
-net/ssh
-ref/daemon
-ref/path/etc
-ref/path/tmp
-ref/path/usr/bin
-ref/path/usr/sbin
-ref/program/gnome/keyring/daemon
-ref/program/sshd
-ref/program/sudo
-ref/words/password
-secrets/shadow
-shell/exec
-shell/ignore_output
+# linux/mimipenguin/bash/mimipenguin: critical
+3P/signature_base/mimipenguin:    critical
+3P/signature_base/mimipenguin/sh: critical
+combo/stealer/password:           critical
+encoding/base64:                  low
+evasion/base64/eval:              high
+evasion/base64/external:          medium
+evasion/single_line_imports:      medium
+exec/shell_command:               medium
+fs/file/delete:                   high
+fs/file/delete/forcibly:          medium
+kernel/platform:                  low
+net/ssh:                          medium
+ref/daemon:                       medium
+ref/path/etc:                     low
+ref/path/tmp:                     medium
+ref/path/usr/bin:                 low
+ref/path/usr/sbin:                low
+ref/program/gnome/keyring/daemon: medium
+ref/program/sshd:                 medium
+ref/program/sudo:                 medium
+ref/words/password:               low
+secrets/shadow:                   medium
+shell/exec:                       medium
+shell/ignore_output:              medium

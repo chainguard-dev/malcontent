@@ -1,17 +1,17 @@
-# macOS/2024.BeaverTail/client_5346.py
-admin/pip_install
-combo/dropper/python
-encoding/base64
-env/HOME
-evasion/mask_exceptions
-evasion/single_line_imports
-exec/program
-fs/directory/create
-fs/file/delete
-fs/file/open
-kernel/platform
-net/download
-net/url/request
-process/executable_path
-ref/ip
-ref/path/hidden
+# macOS/2024.BeaverTail/client_5346.py: critical
+admin/pip_install:           high
+combo/dropper/python:        high
+encoding/base64:             low
+env/HOME:                    low
+evasion/mask_exceptions:     medium
+evasion/single_line_imports: medium
+exec/program:                medium
+fs/directory/create:         low
+fs/file/delete:              low
+fs/file/open:                low
+kernel/platform:             medium
+net/download:                medium
+net/url/request:             medium
+process/executable_path:     medium
+ref/ip:                      medium
+ref/path/hidden:             medium

@@ -1,10 +1,10 @@
-# npm/2024.distube-fast/postinstall.js
-combo/dropper/js
-env/get
-fs/file/delete
-fs/tempfile/create
-net/download
-net/http/request
-process/create
-ref/site/exe
-ref/site/url
+# npm/2024.distube-fast/postinstall.js: critical
+combo/dropper/js:   critical
+env/get:            low
+fs/file/delete:     low
+fs/tempfile/create: low
+net/download:       medium
+net/http/request:   low
+process/create:     medium
+ref/site/exe:       critical
+ref/site/url:       low

@@ -1,23 +1,23 @@
-# windows/2024.aspdasdksa2/creal.exe
-3P/bartblaze/pyinstaller
-combo/stealer/python
-compression/gzip
-crypto/aes
-crypto/ed25519
-data/emdedded/app/manifest
-databases/sqlite
-encoding/base64
-evasion/anti/debugger
-exec/program
-fs/file/read
-kernel/sysinfo
-net/bpf
-net/dns/txt
-net/upload
-net/url
-net/url/request
-process/chdir
-process/multiprocess
-ref/path/relative
-ref/site/url
-tty/getpass
+# windows/2024.aspdasdksa2/creal.exe: critical
+3P/bartblaze/pyinstaller:   high
+combo/stealer/python:       critical
+compression/gzip:           low
+crypto/aes:                 low
+crypto/ed25519:             low
+data/emdedded/app/manifest: medium
+databases/sqlite:           medium
+encoding/base64:            low
+evasion/anti/debugger:      medium
+exec/program:               medium
+fs/file/read:               low
+kernel/sysinfo:             medium
+net/bpf:                    medium
+net/dns/txt:                low
+net/upload:                 medium
+net/url:                    low
+net/url/request:            medium
+process/chdir:              low
+process/multiprocess:       medium
+ref/path/relative:          medium
+ref/site/url:               low
+tty/getpass:                low

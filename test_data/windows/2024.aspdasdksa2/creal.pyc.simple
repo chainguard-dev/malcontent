@@ -1,36 +1,36 @@
-# windows/2024.aspdasdksa2/creal.pyc
-3P/threat_hunting/cstealer
-3P/threat_hunting/fentanyl
-3P/threat_hunting/gofile/io
-admin/pip_install
-combo/stealer/browser
-combo/stealer/creds
-combo/stealer/discord
-combo/stealer/wallet
-crypto/aes
-databases/leveldb
-encoding/base64
-evasion/base64/decode
-evasion/blocklist/hostname
-evasion/blocklist/mac_addr
-evasion/blocklist/user
-evasion/fake/user/agent
-exec/program
-exfil/discord
-kernel/hostname/get
-net/download
-net/fetch
-net/http/request
-net/public_ip
-net/socket/connect
-net/upload
-net/url
-net/url/request
-process/taskkill
-ref/program/minecraft
-ref/site/download
-ref/site/url
-ref/words/password
-secrets/chrome_cookies
-secrets/chromium_master_password
-tty/getpass
+# windows/2024.aspdasdksa2/creal.pyc: critical
+3P/threat_hunting/cstealer:       medium
+3P/threat_hunting/fentanyl:       medium
+3P/threat_hunting/gofile/io:      medium
+admin/pip_install:                high
+combo/stealer/browser:            high
+combo/stealer/creds:              high
+combo/stealer/discord:            high
+combo/stealer/wallet:             critical
+crypto/aes:                       low
+databases/leveldb:                medium
+encoding/base64:                  low
+evasion/base64/decode:            medium
+evasion/blocklist/hostname:       critical
+evasion/blocklist/mac_addr:       critical
+evasion/blocklist/user:           critical
+evasion/fake/user/agent:          medium
+exec/program:                     medium
+exfil/discord:                    critical
+kernel/hostname/get:              low
+net/download:                     medium
+net/fetch:                        medium
+net/http/request:                 low
+net/public_ip:                    high
+net/socket/connect:               medium
+net/upload:                       medium
+net/url:                          low
+net/url/request:                  medium
+process/taskkill:                 medium
+ref/program/minecraft:            medium
+ref/site/download:                high
+ref/site/url:                     low
+ref/words/password:               low
+secrets/chrome_cookies:           high
+secrets/chromium_master_password: high
+tty/getpass:                      low

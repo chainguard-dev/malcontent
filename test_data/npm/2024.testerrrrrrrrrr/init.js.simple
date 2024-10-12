@@ -1,15 +1,15 @@
-# npm/2024.testerrrrrrrrrr/init.js
-combo/recon/nodejs
-evasion/char_to_int
-evasion/dynamic_import
-net/hostname/resolve
-net/http/form/upload
-net/http/post
-net/interface/list
-net/url
-obfuscation/generic/hex
-obfuscation/js/char_codes
-obfuscation/js/hex_functions
-obfuscation/js/high_entropy
-ref/words/server_address
-shell/exec
+# npm/2024.testerrrrrrrrrr/init.js: critical
+combo/recon/nodejs:           critical
+evasion/char_to_int:          high
+evasion/dynamic_import:       critical
+net/hostname/resolve:         medium
+net/http/form/upload:         medium
+net/http/post:                medium
+net/interface/list:           medium
+net/url:                      low
+obfuscation/generic/hex:      medium
+obfuscation/js/char_codes:    high
+obfuscation/js/hex_functions: critical
+obfuscation/js/high_entropy:  high
+ref/words/server_address:     medium
+shell/exec:                   medium

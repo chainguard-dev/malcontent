@@ -1,69 +1,69 @@
-# linux/clean/nvim
-3P/threat_hunting/hrshell
-databases/mysql
-databases/sqlite
-dylib/symbol/address
-encoding/base64
-env/HOME
-env/LANG
-env/SHELL
-env/TEMP
-env/TERM
-env/TMPDIR
-env/USER
-evasion/base64/decode
-exec/program
-exec/program/background
-exec/shell_echo
-fs/attributes/set
-fs/blkid
-fs/directory/create
-fs/directory/remove
-fs/file/delete
-fs/file/delete/forcibly
-fs/file/times/set
-fs/link/read
-fs/lock/update
-fs/mount
-fs/permission/chown
-fs/permission/modify
-fs/symlink/resolve
-fs/tempdir
-fs/tempdir/create
-fs/tempfile/create
-kernel/platform
-net/dns/servers
-net/fetch
-net/hostport/parse
-net/http/post
-net/sniffer
-net/socket/listen
-net/socket/local/address
-net/socket/receive
-net/socket/send
-persist/crontab
-persist/linux_multi
-persist/shell/init_files
-process/chdir
-process/find
-procfs/arbitrary/pid
-random/insecure
-ref/daemon
-ref/path/boot
-ref/path/etc
-ref/path/etc/hosts
-ref/path/hidden
-ref/path/home
-ref/path/home/config
-ref/path/relative
-ref/path/tmp
-ref/path/var
-ref/program/powershell
-ref/program/sshd
-ref/site/url
-ref/words/exclamation
-ref/words/plugin
-ref/words/server_address
-secrets/aws
-secrets/gshadow
-secrets/ssh
+# linux/clean/nvim: critical
+3P/threat_hunting/hrshell: medium
+databases/mysql:           medium
+databases/sqlite:          medium
+dylib/symbol/address:      medium
+encoding/base64:           low
+env/HOME:                  low
+env/LANG:                  low
+env/SHELL:                 low
+env/TEMP:                  low
+env/TERM:                  low
+env/TMPDIR:                low
+env/USER:                  low
+evasion/base64/decode:     medium
+exec/program:              medium
+exec/program/background:   low
+exec/shell_echo:           medium
+fs/attributes/set:         medium
+fs/blkid:                  low
+fs/directory/create:       low
+fs/directory/remove:       low
+fs/file/delete:            low
+fs/file/delete/forcibly:   low
+fs/file/times/set:         medium
+fs/link/read:              low
+fs/lock/update:            low
+fs/mount:                  low
+fs/permission/chown:       low
+fs/permission/modify:      medium
+fs/symlink/resolve:        low
+fs/tempdir:                low
+fs/tempdir/create:         low
+fs/tempfile/create:        low
+kernel/platform:           low
+net/dns/servers:           low
+net/fetch:                 medium
+net/hostport/parse:        low
+net/http/post:             medium
+net/sniffer:               medium
+net/socket/listen:         low
+net/socket/local/address:  low
+net/socket/receive:        low
+net/socket/send:           low
+persist/crontab:           medium
+persist/linux_multi:       critical
+persist/shell/init_files:  low
+process/chdir:             low
+process/find:              medium
+procfs/arbitrary/pid:      medium
+random/insecure:           low
+ref/daemon:                medium
+ref/path/boot:             medium
+ref/path/etc:              low
+ref/path/etc/hosts:        medium
+ref/path/hidden:           low
+ref/path/home:             medium
+ref/path/home/config:      low
+ref/path/relative:         medium
+ref/path/tmp:              medium
+ref/path/var:              low
+ref/program/powershell:    medium
+ref/program/sshd:          medium
+ref/site/url:              low
+ref/words/exclamation:     medium
+ref/words/plugin:          low
+ref/words/server_address:  medium
+secrets/aws:               medium
+secrets/gshadow:           medium
+secrets/ssh:               medium

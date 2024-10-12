@@ -1,23 +1,23 @@
-# linux/2022.Symbiote/kerneldev.so.bkp
-3P/threat_hunting/keylogger
-dylib/symbol/address
-evasion/process/hide
-fs/link/read
-fs/permission/modify
-kernel/platform
-net/dns/servers
-net/interface/list
-net/ip/byte/order
-net/ip/parse
-net/socket/receive
-net/socket/send
-procfs/arbitrary/pid
-procfs/pid/status
-procfs/self/cmdline
-procfs/self/exe
-ref/ip/dns_resolver
-ref/path/tmp
-ref/path/usr/bin
-ref/program/ancient_gcc
-ref/words/password
-security_controls/linux/pam
+# linux/2022.Symbiote/kerneldev.so.bkp: high
+3P/threat_hunting/keylogger: medium
+dylib/symbol/address:        medium
+evasion/process/hide:        high
+fs/link/read:                low
+fs/permission/modify:        low
+kernel/platform:             low
+net/dns/servers:             low
+net/interface/list:          medium
+net/ip/byte/order:           medium
+net/ip/parse:                medium
+net/socket/receive:          low
+net/socket/send:             low
+procfs/arbitrary/pid:        medium
+procfs/pid/status:           medium
+procfs/self/cmdline:         medium
+procfs/self/exe:             medium
+ref/ip/dns_resolver:         medium
+ref/path/tmp:                medium
+ref/path/usr/bin:            low
+ref/program/ancient_gcc:     medium
+ref/words/password:          low
+security_controls/linux/pam: medium

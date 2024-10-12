@@ -1,19 +1,19 @@
-# does-nothing/does-nothing
-encoding/base64
-encoding/json
-encoding/json/encode
-exec/program
-fs/directory/remove
-fs/file/delete
-fs/file/read
-fs/permission/chown
-fs/permission/modify
-kernel/cpu/info
-kernel/hostname/get
-kernel/platform
-net/socket/receive
-net/socket/send
-process/multithreaded
-ref/path/etc
-ref/path/home
-ref/words/plugin
+# does-nothing/does-nothing: medium
+encoding/base64:       low
+encoding/json:         low
+encoding/json/encode:  low
+exec/program:          medium
+fs/directory/remove:   low
+fs/file/delete:        low
+fs/file/read:          low
+fs/permission/chown:   medium
+fs/permission/modify:  medium
+kernel/cpu/info:       low
+kernel/hostname/get:   low
+kernel/platform:       low
+net/socket/receive:    low
+net/socket/send:       low
+process/multithreaded: low
+ref/path/etc:          low
+ref/path/home:         medium
+ref/words/plugin:      low

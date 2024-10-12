@@ -1,11 +1,11 @@
-# npm/2024.legacyreact-aws-s3-typescript/package.json
-combo/dropper/npm
-combo/dropper/shell
-combo/recon/npm
-fs/file/make_executable
-fs/permission/modify
-net/fetch
-net/upload
-ref/path/relative/hidden
-ref/site/url
-shell/background_launcher
+# npm/2024.legacyreact-aws-s3-typescript/package.json: critical
+combo/dropper/npm:         critical
+combo/dropper/shell:       high
+combo/recon/npm:           high
+fs/file/make_executable:   medium
+fs/permission/modify:      medium
+net/fetch:                 medium
+net/upload:                medium
+ref/path/relative/hidden:  low
+ref/site/url:              low
+shell/background_launcher: high

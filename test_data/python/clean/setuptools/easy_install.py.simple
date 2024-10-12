@@ -1,20 +1,20 @@
-# python/clean/setuptools/easy_install.py
-env/HOME
-env/USER
-env/get
-evasion/lib_alias
-exec/program
-fd/write
-fs/directory/create
-fs/directory/list
-fs/directory/traverse
-fs/file/delete
-fs/file/open
-fs/file/read
-fs/permission/modify
-fs/tempdir/create
-kernel/platform
-net/download
-process/executable_path
-ref/site/url
-ref/words/malicious
+# python/clean/setuptools/easy_install.py: medium
+env/HOME:                low
+env/USER:                low
+env/get:                 low
+evasion/lib_alias:       medium
+exec/program:            medium
+fd/write:                low
+fs/directory/create:     low
+fs/directory/list:       low
+fs/directory/traverse:   medium
+fs/file/delete:          low
+fs/file/open:            low
+fs/file/read:            medium
+fs/permission/modify:    medium
+fs/tempdir/create:       low
+kernel/platform:         medium
+net/download:            medium
+process/executable_path: medium
+ref/site/url:            low
+ref/words/malicious:     medium

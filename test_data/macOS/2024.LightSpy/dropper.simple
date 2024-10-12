@@ -1,32 +1,32 @@
-# macOS/2024.LightSpy/dropper
-3P/huntress/lightspy/loader
-combo/dropper/macos
-combo/recon/system_network
-crypto/aes
-crypto/xor
-dylib/symbol/address
-dylib/user
-env/TERM
-evasion/odd_pidfile
-fs/attributes/set
-fs/directory/create
-fs/file/stat
-fs/file/write
-fs/lock/update
-fs/mounts/read
-fs/permission/modify
-fs/tempdir
-hash/md5
-kernel/cpu/info
-kernel/dispatch/semaphore
-kernel/platform
-net/download
-net/url
-persist/pid_file
-process/name/get
-ref/daemon
-ref/ip_port
-ref/path/users
-ref/site/url
-ref/words/plugin
-sync/semaphore/user
+# macOS/2024.LightSpy/dropper: critical
+3P/huntress/lightspy/loader: critical
+combo/dropper/macos:         critical
+combo/recon/system_network:  medium
+crypto/aes:                  low
+crypto/xor:                  high
+dylib/symbol/address:        medium
+dylib/user:                  high
+env/TERM:                    low
+evasion/odd_pidfile:         high
+fs/attributes/set:           medium
+fs/directory/create:         low
+fs/file/stat:                low
+fs/file/write:               low
+fs/lock/update:              low
+fs/mounts/read:              medium
+fs/permission/modify:        medium
+fs/tempdir:                  low
+hash/md5:                    medium
+kernel/cpu/info:             low
+kernel/dispatch/semaphore:   low
+kernel/platform:             medium
+net/download:                medium
+net/url:                     low
+persist/pid_file:            medium
+process/name/get:            medium
+ref/daemon:                  medium
+ref/ip_port:                 medium
+ref/path/users:              medium
+ref/site/url:                low
+ref/words/plugin:            low
+sync/semaphore/user:         low

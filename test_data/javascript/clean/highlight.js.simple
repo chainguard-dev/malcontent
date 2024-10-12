@@ -1,67 +1,67 @@
-# javascript/clean/highlight.js
-archives/unarchive
-combo/net/scan_tool
-combo/recon/system_network
-compression/bzip2
-crypto/file/encrypter
-databases/mysql
-databases/postgresql
-encoding/base64
-encoding/json/encode
-env/HOME
-env/SHELL
-env/TEMP
-env/USER
-evasion/base64/decode
-exec/cmd
-exec/program/background
-fs/directory/create
-fs/directory/remove
-fs/file/capabilities/set
-fs/file/copy
-fs/file/delete
-fs/file/read
-fs/file/times/set
-fs/link/read
-fs/lock/update
-fs/permission/modify
-fs/symlink/resolve
-group/lookup
-kernel/sysinfo
-net/dns/txt
-net/download
-net/fetch
-net/hostname/resolve
-net/http/cookies
-net/http/post
-net/ip/resolve
-net/ip/string
-net/mac/address
-net/socket/listen
-net/socket/local/address
-net/socket/peer/address
-net/socket/receive
-net/socket/send
-net/upload
-net/url/encode
-net/wireless
-process/chdir
-process/chroot
-process/namespace/set
-process/taskkill
-process/username/get
-random/insecure
-ref/ip_port
-ref/path/dev
-ref/path/relative/hidden
-ref/path/usr/bin
-ref/program/nmap
-ref/program/osascript
-ref/program/powershell
-ref/site/url
-ref/words/agent
-ref/words/intercept
-ref/words/password
-ref/words/plugin
-ref/words/spoof
-techniques/code_eval
+# javascript/clean/highlight.js: medium
+archives/unarchive:         medium
+combo/net/scan_tool:        medium
+combo/recon/system_network: medium
+compression/bzip2:          low
+crypto/file/encrypter:      medium
+databases/mysql:            medium
+databases/postgresql:       medium
+encoding/base64:            low
+encoding/json/encode:       low
+env/HOME:                   low
+env/SHELL:                  low
+env/TEMP:                   low
+env/USER:                   low
+evasion/base64/decode:      medium
+exec/cmd:                   medium
+exec/program/background:    low
+fs/directory/create:        low
+fs/directory/remove:        low
+fs/file/capabilities/set:   low
+fs/file/copy:               medium
+fs/file/delete:             low
+fs/file/read:               low
+fs/file/times/set:          medium
+fs/link/read:               low
+fs/lock/update:             low
+fs/permission/modify:       medium
+fs/symlink/resolve:         low
+group/lookup:               medium
+kernel/sysinfo:             medium
+net/dns/txt:                low
+net/download:               medium
+net/fetch:                  medium
+net/hostname/resolve:       low
+net/http/cookies:           medium
+net/http/post:              medium
+net/ip/resolve:             low
+net/ip/string:              medium
+net/mac/address:            medium
+net/socket/listen:          low
+net/socket/local/address:   low
+net/socket/peer/address:    low
+net/socket/receive:         low
+net/socket/send:            low
+net/upload:                 medium
+net/url/encode:             medium
+net/wireless:               low
+process/chdir:              low
+process/chroot:             low
+process/namespace/set:      low
+process/taskkill:           medium
+process/username/get:       low
+random/insecure:            low
+ref/ip_port:                medium
+ref/path/dev:               medium
+ref/path/relative/hidden:   low
+ref/path/usr/bin:           low
+ref/program/nmap:           medium
+ref/program/osascript:      medium
+ref/program/powershell:     medium
+ref/site/url:               low
+ref/words/agent:            medium
+ref/words/intercept:        medium
+ref/words/password:         low
+ref/words/plugin:           low
+ref/words/spoof:            medium
+techniques/code_eval:       medium

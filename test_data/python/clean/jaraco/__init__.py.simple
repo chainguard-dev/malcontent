@@ -1,14 +1,14 @@
-# python/clean/jaraco/__init__.py
-combo/dropper/python
-exec/program
-fs/directory/create
-fs/directory/list
-fs/directory/remove
-fs/file/delete
-fs/permission/modify
-fs/tempdir/create
-kernel/platform
-net/download
-net/url
-net/url/request
-ref/site/url
+# python/clean/jaraco/__init__.py: medium
+combo/dropper/python: medium
+exec/program:         medium
+fs/directory/create:  low
+fs/directory/list:    low
+fs/directory/remove:  low
+fs/file/delete:       low
+fs/permission/modify: medium
+fs/tempdir/create:    low
+kernel/platform:      medium
+net/download:         medium
+net/url:              low
+net/url/request:      medium
+ref/site/url:         low

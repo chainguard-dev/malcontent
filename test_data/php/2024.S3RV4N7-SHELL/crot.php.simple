@@ -1,11 +1,11 @@
-# php/2024.S3RV4N7-SHELL/crot.php
-3P/signature_base/webshell/php
-combo/backdoor/php
-encoding/base64
-evasion/base64/decode
-evasion/base64/php_functions
-evasion/mask_exceptions
-evasion/non_printable_chars
-obfuscation/php/one_liner
-ref/site/url
-techniques/code_eval
+# php/2024.S3RV4N7-SHELL/crot.php: critical
+3P/signature_base/webshell/php: critical
+combo/backdoor/php:             high
+encoding/base64:                low
+evasion/base64/decode:          medium
+evasion/base64/php_functions:   medium
+evasion/mask_exceptions:        medium
+evasion/non_printable_chars:    medium
+obfuscation/php/one_liner:      medium
+ref/site/url:                   low
+techniques/code_eval:           medium

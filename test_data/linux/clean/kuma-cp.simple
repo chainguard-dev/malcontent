@@ -1,130 +1,130 @@
-# linux/clean/kuma-cp
-3P/threat_hunting/hijacker
-3P/threat_hunting/privilegeescalation
-archives/zip
-combo/backdoor/iptables
-combo/critical_paths
-combo/dropper/shell
-combo/net/host_port
-combo/net/tunnel_proxy
-compression/bzip2
-compression/gzip
-compression/zstd
-crypto/aes
-crypto/ecdsa
-crypto/ed25519
-crypto/tls
-data/embedded/base64/url
-data/embedded/html
-data/embedded/pem/test_key
-databases/mysql
-databases/postgresql
-encoding/base64
-encoding/json
-encoding/json/decode
-encoding/json/encode
-env/HOME
-env/LANG
-env/SHELL
-env/TERM
-env/USER
-evasion/base64/external
-evasion/content/length/0
-exec/cmd
-exec/program
-fs/directory/create
-fs/directory/list
-fs/directory/remove
-fs/fifo/create
-fs/file/copy
-fs/file/delete
-fs/file/delete/forcibly
-fs/file/read
-fs/file/stat
-fs/link/read
-fs/mount
-fs/node/create
-fs/permission/chown
-fs/permission/modify
-fs/quota/manipulate
-fs/swap/on
-fs/unmount
-fs/watch
-hash/md5
-kernel/cpu/info
-kernel/dev/block/device
-kernel/hostname/get
-kernel/netlink
-kernel/platform
-kernel/seccomp
-net/bpf
-net/dns
-net/dns/reverse
-net/dns/servers
-net/dns/txt
-net/download
-net/fetch
-net/grpc
-net/hostname/resolve
-net/hostport/parse
-net/http/accept/encoding
-net/http/auth
-net/http/cookies
-net/http/form/upload
-net/http/post
-net/http/request
-net/http2
-net/http_proxy
-net/icmp
-net/interface/list
-net/ip/multicast/send
-net/ip/parse
-net/mac/address
-net/oauth2
-net/sendfile
-net/socket/listen
-net/socket/local/address
-net/socket/peer/address
-net/socket/receive
-net/socket/send
-net/ssh
-net/stat
-net/udp/receive
-net/udp/send
-net/upload
-net/url
-net/url/encode
-net/url/request
-net/websocket
-persist/crontab
-process/chroot
-process/groupid/set
-process/username/get
-ref/daemon
-ref/ip_port
-ref/path/etc
-ref/path/etc/hosts
-ref/path/etc/resolv.conf
-ref/path/hidden
-ref/path/home/config
-ref/path/tmp
-ref/path/usr/bin
-ref/path/var
-ref/path/var/run
-ref/program/sudo
-ref/site/download
-ref/site/http/dynamic
-ref/site/url
-ref/words/collection
-ref/words/exclamation
-ref/words/heartbeat
-ref/words/intercept
-ref/words/password
-ref/words/plugin
-ref/words/server_address
-secrets/htpasswd
-secrets/private_key
-security_controls/linux/iptables
-security_controls/linux/selinux
-shell/background/sleep
-techniques/code_eval
+# linux/clean/kuma-cp: high
+3P/threat_hunting/hijacker:            medium
+3P/threat_hunting/privilegeescalation: medium
+archives/zip:                          medium
+combo/backdoor/iptables:               medium
+combo/critical_paths:                  medium
+combo/dropper/shell:                   medium
+combo/net/host_port:                   medium
+combo/net/tunnel_proxy:                medium
+compression/bzip2:                     low
+compression/gzip:                      low
+compression/zstd:                      low
+crypto/aes:                            low
+crypto/ecdsa:                          low
+crypto/ed25519:                        low
+crypto/tls:                            low
+data/embedded/base64/url:              medium
+data/embedded/html:                    medium
+data/embedded/pem/test_key:            low
+databases/mysql:                       medium
+databases/postgresql:                  medium
+encoding/base64:                       low
+encoding/json:                         low
+encoding/json/decode:                  low
+encoding/json/encode:                  low
+env/HOME:                              low
+env/LANG:                              low
+env/SHELL:                             low
+env/TERM:                              low
+env/USER:                              low
+evasion/base64/external:               medium
+evasion/content/length/0:              medium
+exec/cmd:                              medium
+exec/program:                          medium
+fs/directory/create:                   low
+fs/directory/list:                     low
+fs/directory/remove:                   low
+fs/fifo/create:                        low
+fs/file/copy:                          medium
+fs/file/delete:                        low
+fs/file/delete/forcibly:               low
+fs/file/read:                          low
+fs/file/stat:                          low
+fs/link/read:                          low
+fs/mount:                              low
+fs/node/create:                        low
+fs/permission/chown:                   medium
+fs/permission/modify:                  medium
+fs/quota/manipulate:                   low
+fs/swap/on:                            low
+fs/unmount:                            low
+fs/watch:                              low
+hash/md5:                              low
+kernel/cpu/info:                       low
+kernel/dev/block/device:               medium
+kernel/hostname/get:                   low
+kernel/netlink:                        low
+kernel/platform:                       medium
+kernel/seccomp:                        low
+net/bpf:                               medium
+net/dns:                               low
+net/dns/reverse:                       medium
+net/dns/servers:                       low
+net/dns/txt:                           low
+net/download:                          medium
+net/fetch:                             medium
+net/grpc:                              low
+net/hostname/resolve:                  low
+net/hostport/parse:                    low
+net/http/accept/encoding:              low
+net/http/auth:                         low
+net/http/cookies:                      medium
+net/http/form/upload:                  medium
+net/http/post:                         medium
+net/http/request:                      low
+net/http2:                             low
+net/http_proxy:                        low
+net/icmp:                              medium
+net/interface/list:                    medium
+net/ip/multicast/send:                 low
+net/ip/parse:                          medium
+net/mac/address:                       medium
+net/oauth2:                            low
+net/sendfile:                          low
+net/socket/listen:                     low
+net/socket/local/address:              low
+net/socket/peer/address:               low
+net/socket/receive:                    low
+net/socket/send:                       low
+net/ssh:                               medium
+net/stat:                              medium
+net/udp/receive:                       low
+net/udp/send:                          low
+net/upload:                            medium
+net/url:                               low
+net/url/encode:                        medium
+net/url/request:                       medium
+net/websocket:                         medium
+persist/crontab:                       medium
+process/chroot:                        low
+process/groupid/set:                   low
+process/username/get:                  medium
+ref/daemon:                            medium
+ref/ip_port:                           medium
+ref/path/etc:                          low
+ref/path/etc/hosts:                    medium
+ref/path/etc/resolv.conf:              low
+ref/path/hidden:                       high
+ref/path/home/config:                  low
+ref/path/tmp:                          medium
+ref/path/usr/bin:                      low
+ref/path/var:                          low
+ref/path/var/run:                      medium
+ref/program/sudo:                      medium
+ref/site/download:                     medium
+ref/site/http/dynamic:                 medium
+ref/site/url:                          low
+ref/words/collection:                  medium
+ref/words/exclamation:                 medium
+ref/words/heartbeat:                   medium
+ref/words/intercept:                   medium
+ref/words/password:                    low
+ref/words/plugin:                      low
+ref/words/server_address:              medium
+secrets/htpasswd:                      medium
+secrets/private_key:                   low
+security_controls/linux/iptables:      medium
+security_controls/linux/selinux:       medium
+shell/background/sleep:                medium
+techniques/code_eval:                  medium

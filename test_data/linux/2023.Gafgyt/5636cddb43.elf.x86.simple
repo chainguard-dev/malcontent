@@ -1,28 +1,28 @@
-# linux/2023.Gafgyt/5636cddb43.elf.x86
-3P/elastic/gafgyt
-combo/net/raw_flooder
-combo/recon/upload_netinfo
-evasion/fake/user/agent
-exec/program/background
-net/ddos
-net/dns/servers
-net/hostname/resolve
-net/ip/parse
-net/ip/string
-net/mac/address
-net/raw_sockets
-net/socket/local/address
-net/socket/receive
-net/socket/send
-procfs/net_route
-random/insecure
-ref/ip
-ref/ip/dns_resolver
-ref/ip_port
-ref/path/etc
-ref/path/etc/hosts
-ref/path/etc/resolv.conf
-ref/path/usr/bin
-ref/path/usr/sbin
-ref/path/usr/sbin/telnetd
-ref/program/ancient_gcc
+# linux/2023.Gafgyt/5636cddb43.elf.x86: critical
+3P/elastic/gafgyt:          critical
+combo/net/raw_flooder:      medium
+combo/recon/upload_netinfo: high
+evasion/fake/user/agent:    medium
+exec/program/background:    low
+net/ddos:                   critical
+net/dns/servers:            low
+net/hostname/resolve:       low
+net/ip/parse:               medium
+net/ip/string:              medium
+net/mac/address:            medium
+net/raw_sockets:            medium
+net/socket/local/address:   low
+net/socket/receive:         low
+net/socket/send:            low
+procfs/net_route:           high
+random/insecure:            low
+ref/ip:                     medium
+ref/ip/dns_resolver:        medium
+ref/ip_port:                high
+ref/path/etc:               low
+ref/path/etc/hosts:         medium
+ref/path/etc/resolv.conf:   low
+ref/path/usr/bin:           low
+ref/path/usr/sbin:          low
+ref/path/usr/sbin/telnetd:  high
+ref/program/ancient_gcc:    medium

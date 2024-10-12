@@ -1,11 +1,11 @@
-# linux/clean/pull-scripts
-combo/dropper/shell
-fs/directory/create
-fs/file/delete/forcibly
-fs/file/make_executable
-fs/permission/modify
-net/download
-net/fetch
-process/chdir
-shell/exec
-shell/ignore_output
+# linux/clean/pull-scripts: medium
+combo/dropper/shell:     medium
+fs/directory/create:     low
+fs/file/delete/forcibly: medium
+fs/file/make_executable: medium
+fs/permission/modify:    medium
+net/download:            medium
+net/fetch:               medium
+process/chdir:           low
+shell/exec:              medium
+shell/ignore_output:     medium

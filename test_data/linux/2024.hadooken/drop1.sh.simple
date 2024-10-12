@@ -1,18 +1,18 @@
-# linux/2024.hadooken/drop1.sh
-3P/threat_hunting/base64
-combo/dropper/shell
-data/embedded/base64/url
-encoding/base64
-evasion/base64/eval
-evasion/base64/external
-evasion/base64/python
-fs/file/delete
-fs/file/delete/forcibly
-net/download
-net/fetch
-ref/ip
-ref/path/tmp
-ref/site/http/ip
-ref/site/url
-shell/pipe_sh
-shell/tmp_semicolon
+# linux/2024.hadooken/drop1.sh: critical
+3P/threat_hunting/base64: medium
+combo/dropper/shell:      critical
+data/embedded/base64/url: medium
+encoding/base64:          low
+evasion/base64/eval:      critical
+evasion/base64/external:  medium
+evasion/base64/python:    critical
+fs/file/delete:           high
+fs/file/delete/forcibly:  medium
+net/download:             medium
+net/fetch:                medium
+ref/ip:                   medium
+ref/path/tmp:             medium
+ref/site/http/ip:         high
+ref/site/url:             low
+shell/pipe_sh:            medium
+shell/tmp_semicolon:      high

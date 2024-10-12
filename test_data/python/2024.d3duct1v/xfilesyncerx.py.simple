@@ -1,6 +1,6 @@
-# python/2024.d3duct1v/xfilesyncerx.py
-combo/backdoor/remote_eval
-evasion/bitwise_math
-evasion/python_rename_imports
-net/url/request
-techniques/code_eval
+# python/2024.d3duct1v/xfilesyncerx.py: critical
+combo/backdoor/remote_eval:    critical
+evasion/bitwise_math:          critical
+evasion/python_rename_imports: high
+net/url/request:               medium
+techniques/code_eval:          medium

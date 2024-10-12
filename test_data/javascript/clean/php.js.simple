@@ -1,59 +1,59 @@
-# javascript/clean/php.js
-combo/net/tunnel_proxy
-compression/gzip
-databases/mysql
-databases/sqlite
-encoding/base64
-encoding/reverse
-env/USER
-evasion/base64/decode
-exec/program
-exec/program/background
-fs/directory/create
-fs/directory/remove
-fs/fifo/create
-fs/file/delete
-fs/file/delete/forcibly
-fs/file/truncate
-fs/link/read
-fs/lock/update
-fs/node/create
-fs/permission/modify
-fs/symlink/resolve
-fs/watch
-kernel/acct
-kernel/hostname/get
-kernel/platform
-net/hostname/resolve
-net/http/cookies
-net/http/form/upload
-net/http/post
-net/ip/parse
-net/ip/resolve
-net/ip/string
-net/socket/connect
-net/socket/listen
-net/socket/local/address
-net/socket/peer/address
-net/socket/receive
-net/socket/send
-net/upload
-net/url/encode
-process/chroot
-process/effective/groupid/get
-process/groupid/set
-process/parent_pid/get
-process/userid/set
-process/username/get
-random/insecure
-ref/ip_port
-ref/path/etc
-ref/path/hidden
-ref/site/url
-ref/words/agent
-ref/words/password
-ref/words/plugin
-ref/words/spoof
-secrets/private_key
-techniques/code_eval
-tty/pathname
+# javascript/clean/php.js: medium
+combo/net/tunnel_proxy:        medium
+compression/gzip:              low
+databases/mysql:               medium
+databases/sqlite:              medium
+encoding/base64:               low
+encoding/reverse:              low
+env/USER:                      low
+evasion/base64/decode:         medium
+exec/program:                  medium
+exec/program/background:       low
+fs/directory/create:           low
+fs/directory/remove:           low
+fs/fifo/create:                low
+fs/file/delete:                low
+fs/file/delete/forcibly:       low
+fs/file/truncate:              low
+fs/link/read:                  low
+fs/lock/update:                low
+fs/node/create:                low
+fs/permission/modify:          medium
+fs/symlink/resolve:            low
+fs/watch:                      low
+kernel/acct:                   low
+kernel/hostname/get:           low
+kernel/platform:               low
+net/hostname/resolve:          low
+net/http/cookies:              medium
+net/http/form/upload:          medium
+net/http/post:                 medium
+net/ip/parse:                  medium
+net/ip/resolve:                low
+net/ip/string:                 medium
+net/socket/connect:            medium
+net/socket/listen:             low
+net/socket/local/address:      low
+net/socket/peer/address:       low
+net/socket/receive:            low
+net/socket/send:               low
+net/upload:                    medium
+net/url/encode:                medium
+process/chroot:                low
+process/effective/groupid/get: medium
+process/groupid/set:           low
+process/parent_pid/get:        low
+process/userid/set:            low
+process/username/get:          low
+random/insecure:               low
+ref/ip_port:                   medium
+ref/path/etc:                  low
+ref/path/hidden:               low
+ref/site/url:                  low
+ref/words/agent:               medium
+ref/words/password:            low
+ref/words/plugin:              low
+ref/words/spoof:               medium
+secrets/private_key:           low
+techniques/code_eval:          medium
+tty/pathname:                  medium

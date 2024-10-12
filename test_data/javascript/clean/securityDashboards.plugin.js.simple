@@ -1,46 +1,46 @@
-# javascript/clean/securityDashboards.plugin.js
-3P/threat_hunting/crowbar
-3P/threat_hunting/hijacker
-3P/threat_hunting/johntheripper
-3P/threat_hunting/sharpshooter
-combo/net/tunnel_proxy
-combo/recon/system_network
-combo/stealer/browser
-databases/mysql
-encoding/base64
-encoding/json/decode
-encoding/json/encode
-evasion/xor/commands
-fs/link/create
-fs/lock/update
-fs/mount
-kernel/platform
-net/download
-net/http/form/upload
-net/http/post
-net/http/request
-net/ip/multicast/send
-net/socket/listen
-net/socket/send
-net/upload
-net/url
-process/username/get
-ref/daemon
-ref/program/minecraft
-ref/site/url
-ref/words/agent
-ref/words/backdoor
-ref/words/dropper
-ref/words/exploit
-ref/words/heartbeat
-ref/words/implant
-ref/words/infected
-ref/words/intercept
-ref/words/leetspeak
-ref/words/malicious
-ref/words/password
-ref/words/plugin
-ref/words/spoof
-ref/words/trojan
-techniques/brute_force
-techniques/code_eval
+# javascript/clean/securityDashboards.plugin.js: high
+3P/threat_hunting/crowbar:       medium
+3P/threat_hunting/hijacker:      medium
+3P/threat_hunting/johntheripper: medium
+3P/threat_hunting/sharpshooter:  medium
+combo/net/tunnel_proxy:          medium
+combo/recon/system_network:      medium
+combo/stealer/browser:           medium
+databases/mysql:                 medium
+encoding/base64:                 low
+encoding/json/decode:            low
+encoding/json/encode:            low
+evasion/xor/commands:            high
+fs/link/create:                  low
+fs/lock/update:                  low
+fs/mount:                        low
+kernel/platform:                 medium
+net/download:                    medium
+net/http/form/upload:            medium
+net/http/post:                   medium
+net/http/request:                low
+net/ip/multicast/send:           low
+net/socket/listen:               low
+net/socket/send:                 low
+net/upload:                      medium
+net/url:                         low
+process/username/get:            medium
+ref/daemon:                      medium
+ref/program/minecraft:           medium
+ref/site/url:                    low
+ref/words/agent:                 medium
+ref/words/backdoor:              high
+ref/words/dropper:               medium
+ref/words/exploit:               medium
+ref/words/heartbeat:             medium
+ref/words/implant:               medium
+ref/words/infected:              medium
+ref/words/intercept:             medium
+ref/words/leetspeak:             medium
+ref/words/malicious:             medium
+ref/words/password:              low
+ref/words/plugin:                low
+ref/words/spoof:                 medium
+ref/words/trojan:                medium
+techniques/brute_force:          low
+techniques/code_eval:            medium

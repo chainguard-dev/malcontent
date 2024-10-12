@@ -1,89 +1,89 @@
-# linux/2021.XMR-Stak/1b1a56.elf
-3P/TTC-CERT/kittipongk/cryptominer/unix
-3P/elastic/cryptominer/stak
-combo/backdoor/net_term
-combo/miner/hugepages_nmi_crypto
-combo/net/scan_tool
-combo/net/tunnel_proxy
-crypto/aes
-crypto/ed25519
-crypto/gost89
-crypto/mining/cryptonight
-crypto/mining/generic
-crypto/mining/monero/pool
-crypto/mining/nicehash_pool
-data/embedded/html
-dylib/address/check
-dylib/iterate
-dylib/symbol/address
-encoding/base64
-env/HOME
-env/LANG
-evasion/base64/decode
-exec/program
-exec/program/background
-fd/epoll
-fs/file/delete
-fs/file/times/set
-fs/file/truncate
-fs/link/read
-fs/mount
-fs/mounts/read
-hash/blake2b
-hash/sha1
-kernel/cpu/info
-kernel/hardware/locality
-kernel/platform
-kernel/sysctl/vm.nr_hugepages
-kernel/sysinfo
-net/dns/reverse
-net/dns/servers
-net/hostname/resolve
-net/hostport/parse
-net/http/auth
-net/http/cookies
-net/http/form/upload
-net/http/post
-net/http/request
-net/icmp
-net/interface/get
-net/ip/parse
-net/ip/string
-net/sendfile
-net/socket/listen
-net/socket/local/address
-net/socket/receive
-net/socket/send
-net/ssh
-net/upload
-process/create
-process/multithreaded
-process/name/set
-process/thread_local_storage
-procfs/arbitrary/pid
-procfs/cpuinfo
-procfs/meminfo
-procfs/mounts
-procfs/nvidia_gpu
-procfs/self/cgroup
-procfs/self/exe
-random/insecure
-ref/daemon
-ref/ip_port
-ref/path/etc
-ref/path/etc/hosts
-ref/path/etc/resolv.conf
-ref/path/usr/local
-ref/path/var
-ref/path/var/run
-ref/program/sudo
-ref/site/http/dynamic
-ref/site/url
-ref/words/agent
-ref/words/collection
-ref/words/heartbeat
-ref/words/password
-ref/words/plugin
-secrets/private_key
-shell/exec
-shell/ignore_output
+# linux/2021.XMR-Stak/1b1a56.elf: critical
+3P/TTC-CERT/kittipongk/cryptominer/unix: high
+3P/elastic/cryptominer/stak:             critical
+combo/backdoor/net_term:                 high
+combo/miner/hugepages_nmi_crypto:        high
+combo/net/scan_tool:                     medium
+combo/net/tunnel_proxy:                  medium
+crypto/aes:                              low
+crypto/ed25519:                          low
+crypto/gost89:                           low
+crypto/mining/cryptonight:               high
+crypto/mining/generic:                   high
+crypto/mining/monero/pool:               medium
+crypto/mining/nicehash_pool:             high
+data/embedded/html:                      medium
+dylib/address/check:                     low
+dylib/iterate:                           low
+dylib/symbol/address:                    medium
+encoding/base64:                         low
+env/HOME:                                low
+env/LANG:                                low
+evasion/base64/decode:                   medium
+exec/program:                            medium
+exec/program/background:                 low
+fd/epoll:                                low
+fs/file/delete:                          low
+fs/file/times/set:                       medium
+fs/file/truncate:                        low
+fs/link/read:                            low
+fs/mount:                                low
+fs/mounts/read:                          medium
+hash/blake2b:                            low
+hash/sha1:                               low
+kernel/cpu/info:                         low
+kernel/hardware/locality:                low
+kernel/platform:                         low
+kernel/sysctl/vm.nr_hugepages:           medium
+kernel/sysinfo:                          medium
+net/dns/reverse:                         medium
+net/dns/servers:                         low
+net/hostname/resolve:                    low
+net/hostport/parse:                      low
+net/http/auth:                           low
+net/http/cookies:                        medium
+net/http/form/upload:                    medium
+net/http/post:                           medium
+net/http/request:                        low
+net/icmp:                                medium
+net/interface/get:                       low
+net/ip/parse:                            medium
+net/ip/string:                           medium
+net/sendfile:                            low
+net/socket/listen:                       low
+net/socket/local/address:                low
+net/socket/receive:                      low
+net/socket/send:                         low
+net/ssh:                                 medium
+net/upload:                              medium
+process/create:                          low
+process/multithreaded:                   low
+process/name/set:                        medium
+process/thread_local_storage:            low
+procfs/arbitrary/pid:                    medium
+procfs/cpuinfo:                          medium
+procfs/meminfo:                          medium
+procfs/mounts:                           medium
+procfs/nvidia_gpu:                       medium
+procfs/self/cgroup:                      medium
+procfs/self/exe:                         medium
+random/insecure:                         low
+ref/daemon:                              medium
+ref/ip_port:                             medium
+ref/path/etc:                            low
+ref/path/etc/hosts:                      medium
+ref/path/etc/resolv.conf:                low
+ref/path/usr/local:                      medium
+ref/path/var:                            low
+ref/path/var/run:                        medium
+ref/program/sudo:                        medium
+ref/site/http/dynamic:                   medium
+ref/site/url:                            low
+ref/words/agent:                         medium
+ref/words/collection:                    medium
+ref/words/heartbeat:                     medium
+ref/words/password:                      low
+ref/words/plugin:                        low
+secrets/private_key:                     low
+shell/exec:                              medium
+shell/ignore_output:                     medium

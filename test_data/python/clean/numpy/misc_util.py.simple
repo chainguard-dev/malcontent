@@ -1,25 +1,25 @@
-# python/clean/numpy/misc_util.py
-admin/pip_install
-env/get
-evasion/lib_alias
-exec/program
-exec/shell_command
-fd/read
-fs/directory/list
-fs/directory/traverse
-fs/file/delete
-fs/file/open
-fs/file/write
-fs/symlink/resolve
-fs/tempdir/create
-kernel/platform
-process/multiprocess
-ref/path/hidden
-ref/path/home
-ref/path/tmp
-ref/path/usr/bin
-ref/path/usr/lib/python
-ref/path/usr/local
-ref/site/url
-ref/words/spoof
-techniques/code_eval
+# python/clean/numpy/misc_util.py: high
+admin/pip_install:       high
+env/get:                 low
+evasion/lib_alias:       medium
+exec/program:            medium
+exec/shell_command:      medium
+fd/read:                 low
+fs/directory/list:       low
+fs/directory/traverse:   medium
+fs/file/delete:          low
+fs/file/open:            low
+fs/file/write:           low
+fs/symlink/resolve:      low
+fs/tempdir/create:       low
+kernel/platform:         medium
+process/multiprocess:    medium
+ref/path/hidden:         low
+ref/path/home:           medium
+ref/path/tmp:            medium
+ref/path/usr/bin:        low
+ref/path/usr/lib/python: medium
+ref/path/usr/local:      medium
+ref/site/url:            low
+ref/words/spoof:         medium
+techniques/code_eval:    medium

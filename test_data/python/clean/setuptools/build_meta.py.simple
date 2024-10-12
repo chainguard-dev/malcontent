@@ -1,17 +1,17 @@
-# python/clean/setuptools/build_meta.py
-3P/threat_hunting/monkey
-admin/pip_install
-data/embedded/html
-exec/program
-fd/read
-fs/directory/create
-fs/directory/list
-fs/directory/traverse
-fs/file/delete
-net/download
-ref/ip
-ref/site/download
-ref/site/github_raw
-ref/site/url
-ref/words/agent
-techniques/code_eval
+# python/clean/setuptools/build_meta.py: high
+3P/threat_hunting/monkey: medium
+admin/pip_install:        high
+data/embedded/html:       medium
+exec/program:             medium
+fd/read:                  low
+fs/directory/create:      low
+fs/directory/list:        low
+fs/directory/traverse:    medium
+fs/file/delete:           low
+net/download:             medium
+ref/ip:                   medium
+ref/site/download:        medium
+ref/site/github_raw:      medium
+ref/site/url:             low
+ref/words/agent:          medium
+techniques/code_eval:     medium

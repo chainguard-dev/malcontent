@@ -1,4 +1,4 @@
-# linux/clean/pam_lastlog.so
-kernel/acct
-ref/path/var
-ref/path/var/log
+# linux/clean/pam_lastlog.so: medium
+kernel/acct:      low
+ref/path/var:     low
+ref/path/var/log: medium

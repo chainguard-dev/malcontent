@@ -1,149 +1,149 @@
-# linux/clean/melange
-3P/threat_hunting/github/username
-3P/threat_hunting/hijacker
-admin/pip_install
-admin/system_directories
-archives/tar/command
-archives/zip
-cloud/aws/metadata
-cloud/google/metadata
-cloud/google/storage
-combo/backdoor/kill_rm
-combo/critical_paths
-combo/dropper/shell
-combo/net/tunnel_proxy
-compression/bzip2
-compression/gzip
-compression/zstd
-crypto/aes
-crypto/ecdsa
-crypto/ed25519
-crypto/tls
-data/embedded/html
-data/embedded/pem/certificate
-data/embedded/ssh/signature
-data/embedded/zstd
-encoding/base64
-encoding/json
-encoding/json/decode
-encoding/json/encode
-env/HOME
-env/TERM
-env/USER
-env/get
-evasion/base64/external
-evasion/content/length/0
-exec/cmd
-exec/program
-fs/blkid
-fs/directory/create
-fs/directory/list
-fs/directory/remove
-fs/fifo/create
-fs/file/copy
-fs/file/delete
-fs/file/delete/forcibly
-fs/file/read
-fs/file/write
-fs/link/create
-fs/link/read
-fs/lock/update
-fs/mount
-fs/node/create
-fs/permission/chown
-fs/permission/modify
-fs/swap/off
-fs/swap/on
-fs/symlink/resolve
-fs/tempdir/create
-fs/tempfile/create
-fs/unmount
-fs/watch
-hash/blake2b
-hash/md5
-kernel/cpu/info
-kernel/hostname/get
-kernel/netlink
-kernel/pivot_root
-kernel/platform
-kernel/sysinfo
-net/bpf
-net/dns
-net/dns/reverse
-net/dns/servers
-net/dns/txt
-net/download
-net/fetch
-net/grpc
-net/hostname/resolve
-net/hostport/parse
-net/http/accept/encoding
-net/http/auth
-net/http/cookies
-net/http/form/upload
-net/http/post
-net/http/request
-net/http2
-net/http_proxy
-net/icmp
-net/interface/list
-net/ip
-net/ip/parse
-net/mac/address
-net/oauth2
-net/sendfile
-net/socket/listen
-net/socket/local/address
-net/socket/peer/address
-net/socket/receive
-net/socket/send
-net/socks5
-net/ssh
-net/stat
-net/udp/receive
-net/udp/send
-net/upload
-net/url
-net/url/encode
-net/url/request
-persist/crontab
-process/chdir
-process/chroot
-process/executable_path
-process/find
-process/groupid/set
-process/multithreaded
-process/unshare
-process/userid/set
-process/username/get
-ref/daemon
-ref/ip_port
-ref/path/bin/su
-ref/path/etc
-ref/path/etc/hosts
-ref/path/etc/resolv.conf
-ref/path/hidden
-ref/path/home/config
-ref/path/relative
-ref/path/root
-ref/path/usr/bin
-ref/path/usr/local
-ref/path/usr/sbin
-ref/path/var
-ref/site/github_api
-ref/site/http/dynamic
-ref/site/url
-ref/words/exclamation
-ref/words/heartbeat
-ref/words/intercept
-ref/words/password
-ref/words/plugin
-secrets/gcloud
-secrets/keychain
-secrets/private_key
-secrets/ssh
-security_controls/linux/selinux
-shell/background/sleep
-shell/exec
-shell/pipe_sh
-time/clock/set
+# linux/clean/melange: high
+3P/threat_hunting/github/username: medium
+3P/threat_hunting/hijacker:        medium
+admin/pip_install:                 high
+admin/system_directories:          medium
+archives/tar/command:              medium
+archives/zip:                      medium
+cloud/aws/metadata:                low
+cloud/google/metadata:             low
+cloud/google/storage:              low
+combo/backdoor/kill_rm:            medium
+combo/critical_paths:              medium
+combo/dropper/shell:               medium
+combo/net/tunnel_proxy:            medium
+compression/bzip2:                 low
+compression/gzip:                  low
+compression/zstd:                  low
+crypto/aes:                        low
+crypto/ecdsa:                      low
+crypto/ed25519:                    low
+crypto/tls:                        low
+data/embedded/html:                medium
+data/embedded/pem/certificate:     low
+data/embedded/ssh/signature:       medium
+data/embedded/zstd:                medium
+encoding/base64:                   low
+encoding/json:                     low
+encoding/json/decode:              low
+encoding/json/encode:              low
+env/HOME:                          low
+env/TERM:                          low
+env/USER:                          low
+env/get:                           low
+evasion/base64/external:           medium
+evasion/content/length/0:          medium
+exec/cmd:                          medium
+exec/program:                      medium
+fs/blkid:                          low
+fs/directory/create:               low
+fs/directory/list:                 low
+fs/directory/remove:               low
+fs/fifo/create:                    low
+fs/file/copy:                      medium
+fs/file/delete:                    low
+fs/file/delete/forcibly:           medium
+fs/file/read:                      low
+fs/file/write:                     low
+fs/link/create:                    low
+fs/link/read:                      low
+fs/lock/update:                    low
+fs/mount:                          low
+fs/node/create:                    low
+fs/permission/chown:               medium
+fs/permission/modify:              medium
+fs/swap/off:                       low
+fs/swap/on:                        low
+fs/symlink/resolve:                low
+fs/tempdir/create:                 low
+fs/tempfile/create:                low
+fs/unmount:                        low
+fs/watch:                          low
+hash/blake2b:                      low
+hash/md5:                          low
+kernel/cpu/info:                   low
+kernel/hostname/get:               low
+kernel/netlink:                    low
+kernel/pivot_root:                 low
+kernel/platform:                   medium
+kernel/sysinfo:                    medium
+net/bpf:                           medium
+net/dns:                           low
+net/dns/reverse:                   medium
+net/dns/servers:                   low
+net/dns/txt:                       low
+net/download:                      medium
+net/fetch:                         medium
+net/grpc:                          low
+net/hostname/resolve:              low
+net/hostport/parse:                low
+net/http/accept/encoding:          low
+net/http/auth:                     low
+net/http/cookies:                  medium
+net/http/form/upload:              medium
+net/http/post:                     medium
+net/http/request:                  low
+net/http2:                         low
+net/http_proxy:                    low
+net/icmp:                          medium
+net/interface/list:                medium
+net/ip:                            low
+net/ip/parse:                      medium
+net/mac/address:                   medium
+net/oauth2:                        low
+net/sendfile:                      low
+net/socket/listen:                 low
+net/socket/local/address:          low
+net/socket/peer/address:           low
+net/socket/receive:                low
+net/socket/send:                   low
+net/socks5:                        medium
+net/ssh:                           medium
+net/stat:                          medium
+net/udp/receive:                   low
+net/udp/send:                      low
+net/upload:                        medium
+net/url:                           low
+net/url/encode:                    medium
+net/url/request:                   medium
+persist/crontab:                   medium
+process/chdir:                     low
+process/chroot:                    low
+process/executable_path:           low
+process/find:                      medium
+process/groupid/set:               low
+process/multithreaded:             low
+process/unshare:                   low
+process/userid/set:                low
+process/username/get:              medium
+ref/daemon:                        medium
+ref/ip_port:                       medium
+ref/path/bin/su:                   low
+ref/path/etc:                      low
+ref/path/etc/hosts:                medium
+ref/path/etc/resolv.conf:          low
+ref/path/hidden:                   high
+ref/path/home/config:              low
+ref/path/relative:                 medium
+ref/path/root:                     medium
+ref/path/usr/bin:                  low
+ref/path/usr/local:                medium
+ref/path/usr/sbin:                 low
+ref/path/var:                      low
+ref/site/github_api:               low
+ref/site/http/dynamic:             medium
+ref/site/url:                      low
+ref/words/exclamation:             medium
+ref/words/heartbeat:               medium
+ref/words/intercept:               medium
+ref/words/password:                low
+ref/words/plugin:                  low
+secrets/gcloud:                    medium
+secrets/keychain:                  medium
+secrets/private_key:               low
+secrets/ssh:                       medium
+security_controls/linux/selinux:   medium
+shell/background/sleep:            medium
+shell/exec:                        medium
+shell/pipe_sh:                     medium
+time/clock/set:                    low

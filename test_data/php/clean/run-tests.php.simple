@@ -1,28 +1,28 @@
-# php/clean/run-tests.php
-compression/gzip
-encoding/base64
-env/TEMP
-env/USER
-evasion/base64/decode
-evasion/php_no_time_limit
-exec/shell_command
-fs/directory/create
-fs/file/delete
-fs/permission/modify
-fs/symlink/resolve
-fs/tempdir
-kernel/platform
-net/http/cookies
-net/http/form/upload
-net/http/post
-net/socket/listen
-net/socket/send
-net/ssh
-net/url/encode
-ref/path/usr/bin
-ref/path/windows_root
-ref/site/url
-ref/words/intercept
-shell/exec
-shell/ignore_output
-techniques/code_eval
+# php/clean/run-tests.php: medium
+compression/gzip:          low
+encoding/base64:           low
+env/TEMP:                  low
+env/USER:                  low
+evasion/base64/decode:     medium
+evasion/php_no_time_limit: medium
+exec/shell_command:        medium
+fs/directory/create:       low
+fs/file/delete:            low
+fs/permission/modify:      medium
+fs/symlink/resolve:        low
+fs/tempdir:                low
+kernel/platform:           low
+net/http/cookies:          medium
+net/http/form/upload:      medium
+net/http/post:             medium
+net/socket/listen:         low
+net/socket/send:           low
+net/ssh:                   medium
+net/url/encode:            medium
+ref/path/usr/bin:          low
+ref/path/windows_root:     low
+ref/site/url:              low
+ref/words/intercept:       medium
+shell/exec:                medium
+shell/ignore_output:       medium
+techniques/code_eval:      medium

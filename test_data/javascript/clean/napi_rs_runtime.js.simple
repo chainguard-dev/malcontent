@@ -1,21 +1,21 @@
-# javascript/clean/napi_rs_runtime.js
-data/embedded/base64/terms
-data/embedded/base64/url
-encoding/base64
-encoding/json/decode
-encoding/json/encode
-fd/write
-fs/directory/create
-fs/directory/list
-fs/directory/remove
-fs/file/delete
-fs/file/stat
-fs/file/times/set
-fs/link/read
-fs/symlink/resolve
-kernel/sysinfo
-net/socket/listen
-net/socket/receive
-net/socket/send
-ref/site/url
-ref/words/exclamation
+# javascript/clean/napi_rs_runtime.js: medium
+data/embedded/base64/terms: medium
+data/embedded/base64/url:   medium
+encoding/base64:            low
+encoding/json/decode:       low
+encoding/json/encode:       low
+fd/write:                   low
+fs/directory/create:        low
+fs/directory/list:          low
+fs/directory/remove:        low
+fs/file/delete:             low
+fs/file/stat:               low
+fs/file/times/set:          medium
+fs/link/read:               low
+fs/symlink/resolve:         low
+kernel/sysinfo:             medium
+net/socket/listen:          low
+net/socket/receive:         low
+net/socket/send:            low
+ref/site/url:               low
+ref/words/exclamation:      medium

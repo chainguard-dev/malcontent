@@ -1,5 +1,5 @@
-# python/clean/idna/setup.py
-fd/read
-fs/file/open
-ref/site/url
-techniques/code_eval
+# python/clean/idna/setup.py: medium
+fd/read:              low
+fs/file/open:         low
+ref/site/url:         low
+techniques/code_eval: medium

@@ -1,18 +1,18 @@
-# python/clean/setuptools/package_index.py
-data/embedded/html
-encoding/base64
-exec/program
-fd/read
-fd/write
-fs/directory/list
-fs/file/delete
-fs/file/open
-fs/symlink/resolve
-fs/tempdir/create
-net/download
-net/http/request
-net/url
-net/url/request
-ref/site/url
-ref/words/agent
-ref/words/password
+# python/clean/setuptools/package_index.py: medium
+data/embedded/html: medium
+encoding/base64:    low
+exec/program:       medium
+fd/read:            low
+fd/write:           low
+fs/directory/list:  low
+fs/file/delete:     low
+fs/file/open:       low
+fs/symlink/resolve: low
+fs/tempdir/create:  low
+net/download:       medium
+net/http/request:   low
+net/url:            low
+net/url/request:    medium
+ref/site/url:       low
+ref/words/agent:    medium
+ref/words/password: low

@@ -1,19 +1,19 @@
-# python/2022.PyPI.valyrian_debug/valyrian_debug_setup.py
-combo/backdoor/py_setuptools
-combo/dropper/python
-combo/recon/system_network
-exec/pipe
-exec/program
-exec/shell_command
-fd/read
-fs/file/times/set
-kernel/platform
-net/fetch
-net/http/form/upload
-net/http/post
-net/interface/list
-net/public_ip
-process/username/get
-ref/path/hidden
-ref/path/tmp
-ref/site/url
+# python/2022.PyPI.valyrian_debug/valyrian_debug_setup.py: critical
+combo/backdoor/py_setuptools: high
+combo/dropper/python:         critical
+combo/recon/system_network:   medium
+exec/pipe:                    medium
+exec/program:                 medium
+exec/shell_command:           medium
+fd/read:                      low
+fs/file/times/set:            medium
+kernel/platform:              medium
+net/fetch:                    medium
+net/http/form/upload:         medium
+net/http/post:                medium
+net/interface/list:           medium
+net/public_ip:                high
+process/username/get:         medium
+ref/path/hidden:              high
+ref/path/tmp:                 medium
+ref/site/url:                 low

@@ -1,9 +1,9 @@
-# python/clean/tensorflow_model_analysis/tfjs_predict_extractor_util.py
-combo/dropper/python
-exec/program
-fs/permission/modify
-fs/tempdir/create
-kernel/platform
-net/url
-net/url/request
-ref/site/url
+# python/clean/tensorflow_model_analysis/tfjs_predict_extractor_util.py: medium
+combo/dropper/python: medium
+exec/program:         medium
+fs/permission/modify: medium
+fs/tempdir/create:    low
+kernel/platform:      medium
+net/url:              low
+net/url/request:      medium
+ref/site/url:         low

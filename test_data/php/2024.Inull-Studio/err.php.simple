@@ -1,4 +1,4 @@
-# php/2024.Inull-Studio/err.php
-evasion/mask_exceptions
-obfuscation/php/filler
-obfuscation/php/str_replace
+# php/2024.Inull-Studio/err.php: high
+evasion/mask_exceptions:     medium
+obfuscation/php/filler:      medium
+obfuscation/php/str_replace: high
