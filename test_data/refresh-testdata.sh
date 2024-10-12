@@ -57,6 +57,64 @@ addq ${malcontent} --format=markdown \
 	macOS/2023.3CX/libffmpeg.dylib \
 	macOS/2023.3CX/libffmpeg.dirty.dylib
 
+# --file-risk-change test cases
+addq ${malcontent} --format=markdown \
+	-o "${test_data}/macOS/2023.3CX/libffmpeg.change_increase.mdiff" \
+	diff \
+	--file-risk-change \
+	macOS/2023.3CX/libffmpeg.dylib \
+	macOS/2023.3CX/libffmpeg.dirty.dylib
+
+addq ${malcontent} --format=markdown \
+	-o "${test_data}/macOS/2023.3CX/libffmpeg.change_decrease.mdiff" \
+	diff \
+	--file-risk-change \
+	macOS/2023.3CX/libffmpeg.dirty.dylib \
+	macOS/2023.3CX/libffmpeg.dylib
+
+addq ${malcontent} --format=markdown \
+	-o "${test_data}/macOS/2023.3CX/libffmpeg.change_no_change.mdiff" \
+	diff \
+	--file-risk-change \
+	macOS/2023.3CX/libffmpeg.dylib \
+	macOS/2023.3CX/libffmpeg.dylib
+
+addq ${malcontent} --format=markdown \
+	-o "${test_data}/macOS/2023.3CX/libffmpeg.change_unrelated.mdiff" \
+	diff \
+	--file-risk-change \
+	macOS/2023.3CX/libffmpeg.dylib \
+	macOS/clean/ls \
+
+# --file-risk-increase test cases
+addq ${malcontent} --format=markdown \
+	-o "${test_data}/macOS/2023.3CX/libffmpeg.increase.mdiff" \
+	diff \
+	--file-risk-increase \
+	macOS/2023.3CX/libffmpeg.dylib \
+	macOS/2023.3CX/libffmpeg.dirty.dylib
+
+addq ${malcontent} --format=markdown \
+	-o "${test_data}/macOS/2023.3CX/libffmpeg.no_change.mdiff" \
+	diff \
+	--file-risk-increase \
+	macOS/2023.3CX/libffmpeg.dylib \
+	macOS/2023.3CX/libffmpeg.dylib
+
+addq ${malcontent} --format=markdown \
+	-o "${test_data}/macOS/2023.3CX/libffmpeg.decrease.mdiff" \
+	diff \
+	--file-risk-increase \
+	macOS/2023.3CX/libffmpeg.dirty.dylib \
+	macOS/2023.3CX/libffmpeg.dylib
+
+addq ${malcontent} --format=markdown \
+	-o "${test_data}/macOS/2023.3CX/libffmpeg.increase_unrelated.mdiff" \
+	diff \
+	--file-risk-increase \
+	macOS/clean/ls \
+	macOS/2023.3CX/libffmpeg.dylib
+
 addq ${malcontent} --format=markdown \
 	-o "${test_data}/macOS/clean/ls.mdiff" \
 	diff \

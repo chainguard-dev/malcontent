@@ -69,6 +69,8 @@ For use in CI/CD pipelines, you may find the following flags helpful:
 * `--format=markdown`: output in markdown for use in GitHub Actions
 * `--min-file-risk=critical`: only show diffs for critical-level changes
 * `--quantity-increases-risk=false`: disable heuristics that increase file criticality due to result frequency
+* `--file-risk-change`: only show diffs for modified files when the source and destination files are of different risks
+* `--file-risk-increase`: only show diffs for modified files when the destination file is of a higher risk than the source file
 
 ## Installation
 
