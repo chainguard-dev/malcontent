@@ -25,6 +25,7 @@ rule proc_fd_high : high {
     $not_dev_fd = "/dev/fd"
 	$not_num_fd = "num_fd" fullword
 	$not_libproc = "ps_list_register"
+	$not_usage = "usage: "
   condition:
     $ref and none of ($not*)
 }

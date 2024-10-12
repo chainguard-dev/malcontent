@@ -6,9 +6,10 @@ rule exotic_pid_file : high {
     hash_2023_UPX_0a07c056fec72668d3f05863f103987cc1aaec92e72148bf16db6cfd58308617_elf_x86_64 = "94f4de1bd8c85b8f820bab936ec16cdb7f7bc19fa60d46ea8106cada4acc79a2"
     hash_2024_Downloads_4b97 = "4b973335755bd8d48f34081b6d1bea9ed18ac1f68879d4b0a9211bbab8fa5ff4"
   strings:
-    $users = /\/Users\/[%\w\.\-\/]{0,64}\.pid/
-    $tmp = /\/tmp\/[%\w\.\-\/]{0,64}\.pid/
-    $hidden = /[\w\/]{0,32}\/\.[\%\w\.\-\/]{0.16}\.pid/
+    $p_users = /\/Users\/[%\w\.\-\/]{0,64}\.pid/
+    $p_tmp = /\/tmp\/[%\w\.\-\/]{0,64}\.pid/
+    $p_hidden = /[\w\/]{0,32}\/\.[\%\w\.\-\/]{0.16}\.pid/
+	$not_nginx = "/tmp/nginx/nginx.pid"
   condition:
-    any of them
+    any of ($p*) and none of ($not*)
 }

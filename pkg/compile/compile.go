@@ -54,6 +54,8 @@ var badRules = map[string]bool{
 	"whoami_greyware_tool_keyword":               true,
 	"wireshark_greyware_tool_keyword":            true,
 	"mimikatz_offensive_tool_keyword":            true,
+	// Inquest
+	"Microsoft_Excel_Hidden_Macrosheet": true,
 	// YARA VT
 	"Base64_Encoded_URL":   true,
 	"Windows_API_Function": true,
@@ -134,7 +136,6 @@ func Recursive(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {
 		parts := strings.Split(ycw.Rule, ".")
 		id := parts[len(parts)-1]
 		warnings[id] = ycw.Text
-		clog.WarnContext(ctx, "rule has warning", id)
 	}
 
 	errors := []string{}
@@ -156,7 +157,6 @@ func Recursive(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {
 	for _, r := range rs.GetRules() {
 		id := r.Identifier()
 		if badRules[id] {
-			clog.InfoContext(ctx, "info", slog.String("namespace", r.Namespace()), slog.String("id", id), slog.String("reason", "disabled (known bad rule)"))
 			r.Disable()
 		}
 

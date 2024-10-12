@@ -37,6 +37,7 @@ rule hidden_path : medium {
     $not_kandji = "/tmp/.io.kandji.passport-did-boot"
     $not_cargo = "/.cargo"
     $not_sandbox_profile = "andbox profile"
+	$not_rpc = "rpc/etc/"
   condition:
     $crit and none of ($not*)
 }

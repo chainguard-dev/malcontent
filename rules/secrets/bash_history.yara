@@ -10,3 +10,14 @@ rule bash_history : high {
   condition:
     all of them
 }
+
+rule bash : override {
+	meta:
+	  description = "bash"
+	  bash_history = "medium"
+	strings:
+		$posix = "POSIXLY_CORRECT"
+		$source = "BASH_SOURCE"
+	condition:
+		filesize > 100KB and filesize < 2MB and all of them
+}

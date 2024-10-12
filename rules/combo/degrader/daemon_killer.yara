@@ -1,4 +1,4 @@
-rule win_kill_proc_likely : high {
+rule win_kill_proc_likely : high linux {
   meta:
     description = "httpd killer, may block future attackers from entry"
   strings:

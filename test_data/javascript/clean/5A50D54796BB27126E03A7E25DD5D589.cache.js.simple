@@ -24,7 +24,6 @@ evasion/unusual_include
 exec/cmd
 exec/program
 exec/program/background
-exec/shell_command
 false_positives/k8s_dashboard
 fd/read
 fs/directory/create
