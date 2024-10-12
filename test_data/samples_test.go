@@ -114,9 +114,14 @@ func TestSimple(t *testing.T) {
 
 		name := strings.ReplaceAll(path, ".simple", "")
 		testPath := path
-		binPath := filepath.Join(testDataRoot, name)
 
 		t.Run(name, func(t *testing.T) {
+			binPath := filepath.Join(testDataRoot, name)
+			binDir := filepath.Dir(binPath)
+			if _, err := os.Stat(binPath); err != nil {
+				t.Fatalf("test program missing: %s\ncontents of %s: %v", binPath, binDir, testInputs(binDir))
+			}
+
 			td, err := fs.ReadFile(fileSystem, testPath)
 			if err != nil {
 				t.Fatalf("testdata read failed: %v", err)
@@ -238,6 +243,27 @@ func reduceMarkdown(s string) string {
 	return s
 }
 
+// test error helper to list files
+func testInputs(path string) string {
+	fs, err := os.ReadDir(path)
+	if err != nil {
+		return err.Error()
+	}
+	names := []string{}
+
+	for _, f := range fs {
+		if strings.HasSuffix(f.Name(), ".simple") || strings.HasSuffix(f.Name(), ".md") {
+			continue
+		}
+		if f.IsDir() {
+			names = append(names, f.Name()+"/")
+			continue
+		}
+		names = append(names, f.Name())
+	}
+	return strings.Join(names, " ")
+}
+
 func TestMarkdown(t *testing.T) {
 	t.Parallel()
 	ctx := slogtest.Context(t)
@@ -253,10 +279,14 @@ func TestMarkdown(t *testing.T) {
 		}
 
 		name := strings.ReplaceAll(path, ".md", "")
-		testPath := path
-		binPath := filepath.Join(testDataRoot, name)
-
 		t.Run(name, func(t *testing.T) {
+			binPath := filepath.Join(testDataRoot, name)
+			binDir := filepath.Dir(binPath)
+			if _, err := os.Stat(binPath); err != nil {
+				t.Fatalf("test program missing: %s\ncontents of %s: %v", binPath, binDir, testInputs(binDir))
+			}
+
+			testPath := path
 			td, err := fs.ReadFile(fileSystem, testPath)
 			if err != nil {
 				t.Fatalf("testdata read failed: %v", err)
