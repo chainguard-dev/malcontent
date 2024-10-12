@@ -243,15 +243,15 @@ func reduceMarkdown(s string) string {
 	return s
 }
 
-// test error helper to list files
+// test error helper to list files.
 func testInputs(path string) string {
-	fs, err := os.ReadDir(path)
+	fss, err := os.ReadDir(path)
 	if err != nil {
 		return err.Error()
 	}
 	names := []string{}
 
-	for _, f := range fs {
+	for _, f := range fss {
 		if strings.HasSuffix(f.Name(), ".simple") || strings.HasSuffix(f.Name(), ".md") {
 			continue
 		}
