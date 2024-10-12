@@ -14,5 +14,5 @@ rule linux_multi_persist : critical {
     $bash_ref6 = "/etc/bashrc"
     $bash_ref7 = "/etc/bash"
   condition:
-    ($initd or $udev) and $crontab and any of ($bash*)
+    filesize < 20MB and ($initd or $udev) and $crontab and any of ($bash*)
 }
