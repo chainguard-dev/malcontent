@@ -8,12 +8,13 @@ rule fake_kworker_val : critical {
     $kworker = /\[{0,1}kworker\/[\d:\]]{1,5}/
     $kworker2 = "kworker" fullword
     $kworker3 = "[kworker"
+
     // datadog process-agent
     $not_datadog = /[Dd]ata[Dd]og/
     $not_datadog2 = /\*{0,1}is_kworker/
     $not_datadog3 = /is_current_kworker_dying\({0,1}\){0,1}/
   condition:
-    any of ($kworker*) and none of ($not*)
+    any of ($k*) and none of ($not*)
 }
 
 rule fake_syslogd : critical {
@@ -41,4 +42,18 @@ rule fake_systemd : critical {
     $ref = "systemd-worker" fullword
   condition:
 	filesize < 100MB and $ref
+}
+
+rule fake_process_names : high {
+	meta:
+		description = "mentions known fake process names"
+	strings:
+		$kdevchecker = "kdevchecker" fullword
+		$kworkerr = "kworkerr" fullword
+		$ksoftriqd = "ksoftriqd" fullword
+		$kdevtmpfsi = "kdevtmpfsi" fullword
+		$kthreaddk = "kthreaddk" fullword
+		$deamon = "deamon" fullword
+	condition:
+		filesize < 10MB and any of them
 }

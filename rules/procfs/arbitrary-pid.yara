@@ -10,3 +10,13 @@ rule proc_arbitrary : medium {
   condition:
     any of them
 }
+
+
+rule pid_match : medium {
+  meta:
+    description = "scan /proc for matching pids"
+  strings:
+    $string_val = /\/proc\/\\d[\/\$\w\}]{0,12}/
+  condition:
+    any of them
+}

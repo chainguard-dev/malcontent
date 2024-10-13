@@ -10,3 +10,13 @@ rule base64_gz : medium {
   condition:
     $header
 }
+
+
+rule base64_gz_small : high {
+  meta:
+    description = "Contains base64 gzip content"
+  strings:
+    $header = "H4sIA"
+  condition:
+    filesize < 32KB and $header
+}

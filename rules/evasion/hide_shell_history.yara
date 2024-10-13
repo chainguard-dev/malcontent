@@ -1,4 +1,3 @@
-
 rule hide_shell_history : high {
   meta:
     description = "Hides shell command history"
