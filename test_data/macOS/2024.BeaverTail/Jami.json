@@ -31,7 +31,7 @@
                     "RuleName": "cstealer_offensive_tool_keyword"
                 },
                 {
-                    "Description": "Uses HTTP, archives, and references multiple browsers",
+                    "Description": "Makes references to multiple browser credentials",
                     "MatchStrings": [
                         ".config",
                         "Application Support",

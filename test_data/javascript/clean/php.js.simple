@@ -9,7 +9,6 @@ env/USER
 evasion/base64/decode
 exec/program
 exec/program/background
-exec/shell_command
 fs/directory/create
 fs/directory/remove
 fs/fifo/create

@@ -22,6 +22,8 @@ type Config struct {
 	Concurrency           int
 	ErrFirstHit           bool
 	ErrFirstMiss          bool
+	FileRiskChange        bool
+	FileRiskIncrease      bool
 	IgnoreSelf            bool
 	IgnoreTags            []string
 	IncludeDataFiles      bool

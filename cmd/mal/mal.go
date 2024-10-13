@@ -46,6 +46,8 @@ var (
 	concurrencyFlag           int
 	errFirstHitFlag           bool
 	errFirstMissFlag          bool
+	fileRiskChangeFlag        bool
+	fileRiskIncreaseFlag      bool
 	formatFlag                string
 	ignoreSelfFlag            bool
 	ignoreTagsFlag            string
@@ -410,7 +412,31 @@ func main() {
 			{
 				Name:  "diff",
 				Usage: "scan and diff two paths",
-				Action: func(_ *cli.Context) error {
+				Flags: []cli.Flag{
+					&cli.BoolFlag{
+						Name:        "file-risk-change",
+						Value:       false,
+						Usage:       "Only show diffs when file risk changes",
+						Destination: &fileRiskChangeFlag,
+					},
+					&cli.BoolFlag{
+						Name:        "file-risk-increase",
+						Value:       false,
+						Usage:       "Only show diffs when file risk increases",
+						Destination: &fileRiskIncreaseFlag,
+					},
+				},
+				Action: func(c *cli.Context) error {
+					switch {
+					case c.Bool("file-risk-change"):
+						mc.FileRiskChange = true
+						cmdArgs := c.Args().Slice()
+						mc.ScanPaths = cmdArgs
+					case c.Bool("file-risk-increase"):
+						mc.FileRiskIncrease = true
+						cmdArgs := c.Args().Slice()
+						mc.ScanPaths = cmdArgs
+					}
 					res, err = action.Diff(ctx, mc)
 					if err != nil {
 						returnCode = ExitActionFailed

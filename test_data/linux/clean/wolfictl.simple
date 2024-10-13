@@ -14,7 +14,6 @@ cloud/google/storage
 combo/backdoor/kill_rm
 combo/critical_paths
 combo/dropper/shell
-combo/exploit/breakout
 combo/net/raw_flooder
 combo/net/scan_tool
 combo/net/tunnel_proxy

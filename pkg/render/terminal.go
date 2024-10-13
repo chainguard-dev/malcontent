@@ -142,7 +142,9 @@ func (r Terminal) Full(ctx context.Context, rep *malcontent.Report) error {
 				darkBrackets(fmt.Sprintf("%s %s %s", decorativeRisk(modified.Value.PreviousRiskScore, modified.Value.PreviousRiskLevel), color.HiWhiteString("→"), decorativeRisk(modified.Value.RiskScore, modified.Value.RiskLevel))))
 		}
 
-		fmt.Fprint(r.w, title)
+		if len(modified.Value.Behaviors) > 0 {
+			fmt.Fprint(r.w, title)
+		}
 		added := 0
 		removed := 0
 		for _, b := range modified.Value.Behaviors {

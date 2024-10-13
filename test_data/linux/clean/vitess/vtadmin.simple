@@ -37,7 +37,6 @@ evasion/base64/decode
 evasion/content/length/0
 exec/cmd
 exec/program
-exec/shell_command
 fs/directory/create
 fs/directory/list
 fs/directory/remove
@@ -97,7 +96,6 @@ net/url/encode
 net/url/request
 net/wireless
 persist/crontab
-persist/linux_multi
 persist/pid_file
 persist/ssh_authorized_keys
 process/chdir

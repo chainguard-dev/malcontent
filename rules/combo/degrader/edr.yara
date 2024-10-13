@@ -1,6 +1,6 @@
-rule win_kill_proc_likely : high {
+rule win_kill_proc_likely : medium windows {
   meta:
-    description = "Likely Windows EDR/Antivirus bypass"
+    description = "Possible Windows EDR/Antivirus bypass"
   strings:
 	$f_gcp = "GetCurrentProcess"
 	$f_gct = "GetCurrentThread"
@@ -16,7 +16,7 @@ rule win_kill_proc_likely : high {
 	filesize < 1MB and 1 of ($kill*) and 2 of ($debug*) and 1 of ($f*)
 }
 
-rule win_kill_proc : high {
+rule win_kill_proc : high windows {
   meta:
     description = "Windows EDR/Antivirus bypass"
   strings:
@@ -34,7 +34,7 @@ rule win_kill_proc : high {
 	filesize < 1MB and all of ($kill*) and 3 of ($debug*) and 1 of ($f*)
 }
 
-rule edr_stopper : critical {
+rule edr_stopper : critical windows {
   meta:
     description = "Stops EDR/Antivirus services"
   strings:

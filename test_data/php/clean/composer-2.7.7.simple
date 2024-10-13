@@ -22,7 +22,6 @@ evasion/anti/debugger
 evasion/base64/decode
 evasion/non_printable_chars
 exec/cmd
-exec/shell_command
 fs/directory/create
 fs/directory/remove
 fs/file/copy

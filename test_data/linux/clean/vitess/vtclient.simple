@@ -31,7 +31,6 @@ env/get
 evasion/base64/decode
 evasion/content/length/0
 exec/program
-exec/shell_command
 fs/directory/list
 fs/directory/remove
 fs/fifo/create
@@ -87,7 +86,6 @@ net/url/encode
 net/url/request
 net/wireless
 persist/crontab
-persist/linux_multi
 persist/pid_file
 persist/ssh_authorized_keys
 process/chroot
