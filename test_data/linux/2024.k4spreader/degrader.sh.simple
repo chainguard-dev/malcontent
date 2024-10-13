@@ -1,0 +1,8 @@
+# linux/2024.k4spreader/degrader.sh
+combo/degrader/iptables
+combo/degrader/ufw
+fs/attributes/chattr
+ref/path/etc
+ref/path/etc/ld.so.preload
+security_controls/linux/iptables
+security_controls/linux/ufw

@@ -1,0 +1,5 @@
+# linux/2024.k4spreader/install.sh
+evasion/copy_run_delete
+fs/file/copy
+fs/file/delete/forcibly
+shell/ignore_output

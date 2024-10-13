@@ -17,8 +17,8 @@ encoding/json/encode
 env/HOME
 evasion/base64/commands
 evasion/base64/http
-evasion/elf/funky/tenable
-evasion/fake/process/name
+evasion/elf/sus_header
+evasion/fake/process
 exfil/discord
 fs/file/delete
 fs/file/make_executable
@@ -75,6 +75,7 @@ ref/program/sshd
 ref/site/url
 ref/words/password
 ref/words/plugin
+ref/words/ransomware
 secrets/private_key
 security_controls/linux/pam
 service/systemd

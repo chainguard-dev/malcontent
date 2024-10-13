@@ -3,8 +3,10 @@
 3P/threat_hunting/hijacker
 3P/threat_hunting/johntheripper
 3P/threat_hunting/sharpshooter
+combo/degrader/infection
 combo/net/tunnel_proxy
 databases/mysql
+evasion/fake/process
 evasion/xor/commands
 fs/lock/update
 net/download

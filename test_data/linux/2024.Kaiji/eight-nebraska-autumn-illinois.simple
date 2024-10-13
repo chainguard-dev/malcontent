@@ -84,6 +84,7 @@ ref/site/url
 ref/words/cve_list
 ref/words/password
 ref/words/plugin
+ref/words/ransomware
 ref/words/spoof
 ref/words/ssh_attack
 secrets/bash_history

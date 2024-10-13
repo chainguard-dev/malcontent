@@ -9,8 +9,10 @@ admin/package/install
 combo/backdoor/iptables
 combo/backdoor/kill_rm
 combo/critical_paths
+combo/degrader/infection
 combo/degrader/selinux_firewall
-combo/degrader/ufw_disable
+combo/degrader/ufw
+combo/dropper/http_ip_temp
 combo/dropper/shell
 combo/recon/docker
 combo/recon/system_network
@@ -21,7 +23,7 @@ crypto/mining/monero/pool
 crypto/mining/xmrig
 data/embedded/base64/url
 evasion/base64/commands
-evasion/fake/process/name
+evasion/fake/process
 fs/attributes/chattr
 fs/directory/create
 fs/file/delete
@@ -39,6 +41,7 @@ persist/bash
 persist/crontab
 persist/linux_multi
 persist/ssh_authorized_keys
+persist/writeable_dir
 process/find
 process/kill/multiple
 ref/daemon

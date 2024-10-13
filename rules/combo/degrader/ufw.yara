@@ -7,5 +7,14 @@ rule ufw_disable : high {
     $ufw = "ufw" fullword
     $disable = "disable" fullword
   condition:
-    all of them and math.abs(@ufw - @disable) >= 8
+    filesize < 256KB and all of them and math.abs(@ufw - @disable) >= 8
+}
+
+rule ufw_disable_word : high {
+  meta:
+    description = "disables ufw firewall"
+  strings:
+	$ref = "ufw disable" fullword
+  condition:
+	filesize < 256KB and $ref
 }

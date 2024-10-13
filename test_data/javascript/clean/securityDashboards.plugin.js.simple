@@ -10,6 +10,7 @@ databases/mysql
 encoding/base64
 encoding/json/decode
 encoding/json/encode
+evasion/fake/process
 evasion/xor/commands
 fs/link/create
 fs/lock/update

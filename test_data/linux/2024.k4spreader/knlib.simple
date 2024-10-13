@@ -1,0 +1,8 @@
+# linux/2024.k4spreader/knlib
+evasion/copy_run_delete
+fs/file/delete/forcibly
+process/chdir
+process/chdir/unusual
+shell/exec
+shell/ignore_output
+shell/nohup

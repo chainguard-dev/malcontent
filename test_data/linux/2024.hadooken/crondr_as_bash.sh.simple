@@ -1,7 +1,7 @@
 # linux/2024.hadooken/crondr_as_bash.sh
 crypto/mining/tls_dp_port
 evasion/copy_run_delete
-evasion/fake/process/name
+evasion/fake/process
 fs/file/copy
 fs/file/delete/forcibly
 process/chdir

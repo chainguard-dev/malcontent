@@ -7,5 +7,5 @@ rule world_writeable_dirs : high {
 	$tmp_dev_mqueue = /\/dev\/mqueue[\w\.\/]{0,32}/
 	$tmp_var_tmp = /\/var\/tmp[\w\.\/]{0,32}/
   condition:
-	3 of them
+	filesize < 20MB and 3 of them
 }

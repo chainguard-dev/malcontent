@@ -30,6 +30,7 @@ net/ssh
 net/upload
 net/url/encode
 net/websocket
+persist/writeable_dir
 ref/ip_port
 ref/path/dev
 ref/path/dev/mqueue

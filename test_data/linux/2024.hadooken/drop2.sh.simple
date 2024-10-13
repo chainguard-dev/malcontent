@@ -1,5 +1,4 @@
 # linux/2024.hadooken/drop2.sh
-combo/backdoor/remote_eval
 fd/read
 net/url
 net/url/request
