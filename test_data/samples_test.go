@@ -135,12 +135,13 @@ func TestSimple(t *testing.T) {
 			}
 
 			mc := malcontent.Config{
-				Concurrency: runtime.NumCPU(),
-				IgnoreSelf:  false,
-				IgnoreTags:  []string{"harmless"},
-				Renderer:    simple,
-				RuleFS:      []fs.FS{rules.FS, thirdparty.FS},
-				ScanPaths:   []string{binPath},
+				Concurrency:           runtime.NumCPU(),
+				IgnoreSelf:            false,
+				IgnoreTags:            []string{"harmless"},
+				QuantityIncreasesRisk: true,
+				Renderer:              simple,
+				RuleFS:                []fs.FS{rules.FS, thirdparty.FS},
+				ScanPaths:             []string{binPath},
 			}
 
 			tcLogger := clog.FromContext(ctx).With("test", name)

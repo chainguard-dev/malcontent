@@ -111,12 +111,12 @@ func (r Simple) Full(_ context.Context, rep *malcontent.Report) error {
 }
 
 func maxLength(bs []*malcontent.Behavior) int {
-	max := 0
+	m := 0
 	for _, b := range bs {
-		if len(b.ID) > max {
-			max = len(b.ID)
+		if len(b.ID) > m {
+			m = len(b.ID)
 		}
 	}
 
-	return max
+	return m
 }
