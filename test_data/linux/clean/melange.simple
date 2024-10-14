@@ -122,7 +122,7 @@ ref/path/bin/su: low
 ref/path/etc: low
 ref/path/etc/hosts: medium
 ref/path/etc/resolv.conf: low
-ref/path/hidden: high
+ref/path/hidden: medium
 ref/path/home/config: low
 ref/path/relative: medium
 ref/path/root: medium

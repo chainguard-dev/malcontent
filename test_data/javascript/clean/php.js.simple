@@ -48,7 +48,7 @@ process/username/get: low
 random/insecure: low
 ref/ip_port: medium
 ref/path/etc: low
-ref/path/hidden: low
+ref/path/hidden: medium
 ref/site/url: low
 ref/words/agent: medium
 ref/words/password: low
