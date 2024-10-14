@@ -1,2 +1,2 @@
-# windows/2024.black_basta/dropper.lnk
-process/chdir
+# windows/2024.black_basta/dropper.lnk: low
+process/chdir: low

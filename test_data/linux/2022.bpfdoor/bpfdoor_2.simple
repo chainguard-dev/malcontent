@@ -1,21 +1,21 @@
-# linux/2022.bpfdoor/bpfdoor_2
-3P/elastic/bpfdoor
-combo/backdoor/net_shell
-combo/backdoor/socket_filter_exec
-device/pseudo_terminal
-evasion/hide_shell_history
-exec/program
-exec/program/background
-fs/file/delete
-fs/file/times/set
-net/sniffer
-net/socket/connect
-net/socket_filter
-persist/pid_file
-process/create
-process/executable_path
-ref/path/usr/bin
-ref/path/usr/local
-ref/path/var
-shell/exec
-tty/vhangup
+# linux/2022.bpfdoor/bpfdoor_2: critical
+3P/elastic/bpfdoor: critical
+combo/backdoor/net_shell: high
+combo/backdoor/socket_filter_exec: high
+device/pseudo_terminal: medium
+evasion/hide_shell_history: high
+exec/program: medium
+exec/program/background: low
+fs/file/delete: low
+fs/file/times/set: medium
+net/sniffer: medium
+net/socket/connect: medium
+net/socket_filter: medium
+persist/pid_file: medium
+process/create: low
+process/executable_path: low
+ref/path/usr/bin: low
+ref/path/usr/local: medium
+ref/path/var: low
+shell/exec: medium
+tty/vhangup: low

@@ -1,5 +1,5 @@
-# python/2024.coloredtxt/unhex.py
-encoding/base64
-evasion/hex
-evasion/single_line_imports
-techniques/code_eval
+# python/2024.coloredtxt/unhex.py: critical
+encoding/base64: low
+evasion/hex: high
+evasion/single_line_imports: high
+techniques/code_eval: medium
