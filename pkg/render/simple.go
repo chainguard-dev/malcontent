@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"sort"
+	"strings"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 )
@@ -28,7 +29,7 @@ func (r Simple) File(_ context.Context, fr *malcontent.FileReport) error {
 	}
 
 	if len(fr.Behaviors) > 0 {
-		fmt.Fprintf(r.w, "# %s\n", fr.Path)
+		fmt.Fprintf(r.w, "# %s: %s\n", fr.Path, strings.ToLower(fr.RiskLevel))
 	}
 
 	var bs []*malcontent.Behavior
@@ -40,7 +41,7 @@ func (r Simple) File(_ context.Context, fr *malcontent.FileReport) error {
 	})
 
 	for _, b := range bs {
-		fmt.Fprintf(r.w, "%s\n", b.ID)
+		fmt.Fprintf(r.w, "%s: %s\n", b.ID, strings.ToLower(b.RiskLevel))
 	}
 	return nil
 }

@@ -1,12 +1,12 @@
-# python/clean/pyparsing/sparser.py
-compression/bzip2
-compression/gzip
-exec/pipe
-fd/read
-fd/write
-fs/file/open
-net/url
-net/url/request
-ref/path/usr/bin
-ref/site/url
-techniques/code_eval
+# python/clean/pyparsing/sparser.py: medium
+compression/bzip2: low
+compression/gzip: low
+exec/pipe: medium
+fd/read: low
+fd/write: low
+fs/file/open: low
+net/url: low
+net/url/request: medium
+ref/path/usr/bin: low
+ref/site/url: low
+techniques/code_eval: medium

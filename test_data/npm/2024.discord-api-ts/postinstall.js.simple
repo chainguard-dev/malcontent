@@ -1,6 +1,6 @@
-# npm/2024.discord-api-ts/postinstall.js
-fs/directory/create
-obfuscation/generic/hex
-obfuscation/js/hex_functions
-obfuscation/js/parseInt
-ref/words/exclamation
+# npm/2024.discord-api-ts/postinstall.js: critical
+fs/directory/create: low
+obfuscation/generic/hex: medium
+obfuscation/js/hex_functions: critical
+obfuscation/js/parseInt: high
+ref/words/exclamation: medium

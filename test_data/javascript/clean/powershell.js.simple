@@ -1,8 +1,8 @@
-# javascript/clean/powershell.js
-fs/directory/remove
-fs/file/copy
-fs/file/delete
-net/fetch
-obfuscation/powershell/bxor
-ref/program/powershell
-ref/site/url
+# javascript/clean/powershell.js: medium
+fs/directory/remove: low
+fs/file/copy: medium
+fs/file/delete: medium
+net/fetch: medium
+obfuscation/powershell/bxor: medium
+ref/program/powershell: medium
+ref/site/url: low
