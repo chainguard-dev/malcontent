@@ -149,7 +149,7 @@ ref/path/dev/shm: medium
 ref/path/etc: low
 ref/path/etc/hosts: medium
 ref/path/etc/resolv.conf: low
-ref/path/hidden: high
+ref/path/hidden: medium
 ref/path/home/config: low
 ref/path/root: medium
 ref/path/users: medium

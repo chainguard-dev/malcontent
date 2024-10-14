@@ -74,7 +74,7 @@ ref/ip_port: medium
 ref/path/etc: low
 ref/path/etc/hosts: medium
 ref/path/etc/resolv.conf: low
-ref/path/hidden: low
+ref/path/hidden: medium
 ref/path/relative: medium
 ref/path/root: medium
 ref/path/tmp: medium
