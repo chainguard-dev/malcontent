@@ -1,97 +1,96 @@
-# linux/2024.Kaiji/eight-nebraska-autumn-illinois
-3P/elastic/threat
-combo/backdoor/kill_rm
-combo/botnet/systemctl
-combo/dropper/shell
-combo/stealer/linux_server
-combo/stealer/ssh
-compression/gzip
-crypto/aes
-crypto/ecdsa
-crypto/ed25519
-crypto/tls
-encoding/base64
-encoding/json/encode
-evasion/fake/user/agent
-evasion/hidden_crontab
-exec/program
-fs/directory/list
-fs/directory/remove
-fs/file/delete
-fs/file/delete/forcibly
-fs/file/make_executable
-fs/file/read
-fs/file/times/set
-fs/link/read
-fs/lock/update
-fs/permission/chown
-fs/permission/get
-fs/permission/modify
-hash/md5
-kernel/cpu/info
-kernel/hostname/get
-kernel/netlink
-kernel/platform
-malware/family/kaiji
-net/dns
-net/dns/servers
-net/dns/txt
-net/download
-net/fetch
-net/fetch/suspicious
-net/hostname/resolve
-net/http/accept/encoding
-net/http/auth
-net/http/cookies
-net/http/post
-net/http/request
-net/http2
-net/http_proxy
-net/ip
-net/ip/multicast/send
-net/ip/parse
-net/ip/spoof
-net/sendfile
-net/socket/listen
-net/socket/local/address
-net/socket/peer/address
-net/socket/receive
-net/socket/send
-net/ssh
-net/stat
-net/udp/receive
-net/udp/send
-net/url
-net/url/encode
-net/url/request
-persist/crontab
-persist/echo_crontab
-process/groups/set
-procfs/stat
-ref/daemon
-ref/ip/dns_resolver
-ref/ip_port
-ref/path/etc
-ref/path/etc/hosts
-ref/path/etc/resolv.conf
-ref/path/hidden
-ref/path/relative
-ref/path/root
-ref/path/tmp
-ref/path/usr/bin
-ref/site/php
-ref/site/url
-ref/words/cve_list
-ref/words/password
-ref/words/plugin
-ref/words/ransomware
-ref/words/spoof
-ref/words/ssh_attack
-secrets/bash_history
-secrets/private_key
-secrets/ssh
-security_controls/linux/selinux
-security_controls/linux/selinux_disable
-service/systemd
-shell/exec
-shell/reverse
+# linux/2024.Kaiji/eight-nebraska-autumn-illinois: critical
+3P/elastic/threat: high
+combo/backdoor/kill_rm: medium
+combo/botnet/systemctl: critical
+combo/dropper/shell: medium
+combo/stealer/linux_server: high
+combo/stealer/ssh: high
+compression/gzip: low
+crypto/aes: low
+crypto/ecdsa: low
+crypto/ed25519: low
+crypto/tls: low
+encoding/base64: low
+encoding/json/encode: low
+evasion/fake/user/agent: high
+evasion/hidden_crontab: critical
+exec/program: medium
+fs/directory/list: low
+fs/directory/remove: low
+fs/file/delete: low
+fs/file/delete/forcibly: low
+fs/file/make_executable: high
+fs/file/read: low
+fs/file/times/set: low
+fs/link/read: low
+fs/lock/update: low
+fs/permission/chown: medium
+fs/permission/get: low
+fs/permission/modify: medium
+hash/md5: low
+kernel/cpu/info: low
+kernel/hostname/get: low
+kernel/netlink: low
+kernel/platform: low
+malware/family/kaiji: critical
+net/dns: low
+net/dns/servers: low
+net/dns/txt: low
+net/download: medium
+net/fetch: medium
+net/fetch/suspicious: high
+net/hostname/resolve: low
+net/http/accept/encoding: low
+net/http/auth: low
+net/http/cookies: medium
+net/http/post: medium
+net/http/request: low
+net/http2: low
+net/http_proxy: low
+net/ip: low
+net/ip/multicast/send: low
+net/ip/parse: medium
+net/ip/spoof: high
+net/sendfile: low
+net/socket/listen: low
+net/socket/local/address: low
+net/socket/peer/address: low
+net/socket/receive: low
+net/socket/send: low
+net/ssh: medium
+net/stat: medium
+net/udp/receive: low
+net/udp/send: low
+net/url: low
+net/url/encode: medium
+net/url/request: medium
+persist/crontab: medium
+persist/echo_crontab: high
+process/groups/set: low
+procfs/stat: medium
+ref/daemon: medium
+ref/ip/dns_resolver: medium
+ref/ip_port: medium
+ref/path/etc: low
+ref/path/etc/hosts: medium
+ref/path/etc/resolv.conf: low
+ref/path/hidden: low
+ref/path/relative: medium
+ref/path/root: medium
+ref/path/tmp: medium
+ref/path/usr/bin: low
+ref/site/php: medium
+ref/site/url: low
+ref/words/cve_list: medium
+ref/words/password: low
+ref/words/plugin: low
+ref/words/spoof: medium
+ref/words/ssh_attack: high
+secrets/bash_history: high
+secrets/private_key: low
+secrets/ssh: medium
+security_controls/linux/selinux: medium
+security_controls/linux/selinux_disable: high
+service/systemd: medium
+shell/exec: medium
+shell/reverse: high

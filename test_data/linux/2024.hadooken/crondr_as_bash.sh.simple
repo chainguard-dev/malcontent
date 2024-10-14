@@ -1,12 +1,12 @@
-# linux/2024.hadooken/crondr_as_bash.sh
-crypto/mining/tls_dp_port
-evasion/copy_run_delete
-evasion/fake/process
-fs/file/copy
-fs/file/delete/forcibly
-process/chdir
-process/chdir/unusual
-ref/path/relative
-shell/exec
-shell/ignore_output
-shell/unusual_redirect
+# linux/2024.hadooken/crondr_as_bash.sh: critical
+crypto/mining/tls_dp_port: critical
+evasion/copy_run_delete: critical
+evasion/fake/process/name: high
+fs/file/copy: medium
+fs/file/delete/forcibly: medium
+process/chdir: low
+process/chdir/unusual: high
+ref/path/relative: medium
+shell/exec: medium
+shell/ignore_output: medium
+shell/unusual_redirect: medium

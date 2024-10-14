@@ -1,26 +1,26 @@
-# linux/2022.bpfdoor/bpfdoor_1
-3P/elastic/bpfdoor
-3P/signature_base/redmenshen/bpfdoor
-combo/backdoor/net_term
-device/pseudo_terminal
-exec/program
-exec/program/background
-exec/shell_command
-fd/multiplex
-fs/file/delete
-fs/file/times/set
-net/ip/byte/order
-net/ip/string
-net/socket/connect
-net/socket/listen
-net/socket/receive
-net/socket/send
-process/chroot
-process/create
-random/insecure
-ref/daemon
-ref/path/dev
-ref/path/usr/sbin
-ref/program/ancient_gcc
-shell/exec
-tty/vhangup
+# linux/2022.bpfdoor/bpfdoor_1: critical
+3P/elastic/bpfdoor: critical
+3P/signature_base/redmenshen/bpfdoor: critical
+combo/backdoor/net_term: high
+device/pseudo_terminal: medium
+exec/program: medium
+exec/program/background: low
+exec/shell_command: medium
+fd/multiplex: low
+fs/file/delete: low
+fs/file/times/set: medium
+net/ip/byte/order: medium
+net/ip/string: medium
+net/socket/connect: medium
+net/socket/listen: low
+net/socket/receive: low
+net/socket/send: low
+process/chroot: low
+process/create: low
+random/insecure: low
+ref/daemon: medium
+ref/path/dev: medium
+ref/path/usr/sbin: low
+ref/program/ancient_gcc: medium
+shell/exec: medium
+tty/vhangup: low

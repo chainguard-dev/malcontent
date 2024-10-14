@@ -1,6 +1,6 @@
-# npm/2024.bugsnagmw/index.js
-evasion/dynamic_import
-net/public_ip
-obfuscation/generic/hex
-obfuscation/js/hex_eval
-obfuscation/js/hex_functions
+# npm/2024.bugsnagmw/index.js: critical
+evasion/dynamic_import: critical
+net/public_ip: high
+obfuscation/generic/hex: medium
+obfuscation/js/hex_eval: critical
+obfuscation/js/hex_functions: critical

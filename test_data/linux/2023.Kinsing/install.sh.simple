@@ -1,80 +1,77 @@
-# linux/2023.Kinsing/install.sh
-3P/elastic/kinsing
-3P/signature_base/payload/f5
-3P/threat_hunting/netstat
-3P/threat_hunting/shell
-3P/threat_hunting/xmrig
-admin/logs/syslog
-admin/package/install
-combo/backdoor/iptables
-combo/backdoor/kill_rm
-combo/critical_paths
-combo/degrader/infection
-combo/degrader/selinux_firewall
-combo/degrader/ufw
-combo/dropper/http_ip_temp
-combo/dropper/shell
-combo/recon/docker
-combo/recon/system_network
-combo/stealer/ssh
-crypto/mining/cryptonight
-crypto/mining/generic
-crypto/mining/monero/pool
-crypto/mining/xmrig
-data/embedded/base64/url
-evasion/base64/commands
-evasion/fake/process
-fs/attributes/chattr
-fs/directory/create
-fs/file/delete
-fs/file/delete/forcibly
-fs/file/make_executable
-fs/permission/modify
-fs/tempfile/create
-kernel/apparmor
-kernel/sysctl/nmi_watchdog
-net/download
-net/fetch
-net/fetch/suspicious
-net/stat
-persist/bash
-persist/crontab
-persist/linux_multi
-persist/ssh_authorized_keys
-persist/writeable_dir
-process/find
-process/kill/multiple
-ref/daemon
-ref/ip
-ref/ip_port
-ref/path/boot
-ref/path/dev/shm
-ref/path/etc
-ref/path/etc/initd
-ref/path/etc/ld.so.preload
-ref/path/hidden
-ref/path/relative
-ref/path/root
-ref/path/tmp
-ref/path/usr/bin
-ref/path/usr/local
-ref/path/usr/sbin
-ref/path/var
-ref/path/var/log
-ref/path/var/tmp
-ref/program/sudo
-ref/site/download
-ref/site/http/ip
-ref/site/url
-ref/words/agent
-secrets/ssh
-secrets/ssh_authorized_hosts
-security_controls/linux/iptables
-security_controls/linux/selinux
-security_controls/linux/selinux_disable
-security_controls/linux/ufw
-service/stop
-service/systemd
-shell/exec
-shell/ignore_output
-shell/pipe_sh
+# linux/2023.Kinsing/install.sh: critical
+3P/elastic/kinsing: critical
+3P/signature_base/payload/f5: critical
+3P/threat_hunting/netstat: medium
+3P/threat_hunting/shell: medium
+3P/threat_hunting/xmrig: medium
+admin/logs/syslog: high
+admin/package/install: medium
+combo/backdoor/iptables: medium
+combo/backdoor/kill_rm: medium
+combo/critical_paths: medium
+combo/degrader/selinux_firewall: high
+combo/degrader/ufw_disable: high
+combo/dropper/shell: high
+combo/recon/docker: medium
+combo/recon/system_network: medium
+combo/stealer/ssh: high
+crypto/mining/cryptonight: high
+crypto/mining/generic: high
+crypto/mining/monero/pool: medium
+crypto/mining/xmrig: high
+data/embedded/base64/url: medium
+evasion/base64/commands: high
+evasion/fake/process/name: critical
+fs/attributes/chattr: high
+fs/directory/create: low
+fs/file/delete: high
+fs/file/delete/forcibly: medium
+fs/file/make_executable: medium
+fs/permission/modify: medium
+fs/tempfile/create: low
+kernel/apparmor: high
+kernel/sysctl/nmi_watchdog: high
+net/download: medium
+net/fetch: medium
+net/fetch/suspicious: high
+net/stat: medium
+persist/bash: medium
+persist/crontab: high
+persist/linux_multi: critical
+persist/ssh_authorized_keys: medium
+process/find: medium
+process/kill/multiple: medium
+ref/daemon: medium
+ref/ip: medium
+ref/ip_port: high
+ref/path/boot: medium
+ref/path/dev/shm: critical
+ref/path/etc: low
+ref/path/etc/initd: medium
+ref/path/etc/ld.so.preload: high
+ref/path/hidden: high
+ref/path/relative: medium
+ref/path/root: medium
+ref/path/tmp: medium
+ref/path/usr/bin: low
+ref/path/usr/local: medium
+ref/path/usr/sbin: low
+ref/path/var: low
+ref/path/var/log: medium
+ref/path/var/tmp: medium
+ref/program/sudo: medium
+ref/site/download: medium
+ref/site/http/ip: high
+ref/site/url: low
+ref/words/agent: medium
+secrets/ssh: medium
+secrets/ssh_authorized_hosts: medium
+security_controls/linux/iptables: medium
+security_controls/linux/selinux: medium
+security_controls/linux/selinux_disable: high
+security_controls/linux/ufw: medium
+service/stop: low
+service/systemd: medium
+shell/exec: medium
+shell/ignore_output: medium
+shell/pipe_sh: medium
