@@ -75,7 +75,6 @@ ref/program/sshd: medium
 ref/site/url: low
 ref/words/password: low
 ref/words/plugin: low
-ref/words/ransomware: high
 secrets/private_key: low
 security_controls/linux/pam: medium
 service/systemd: medium
