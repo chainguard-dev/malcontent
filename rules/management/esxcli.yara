@@ -13,7 +13,7 @@ rule esxcli_caller : high {
 
 rule esxcli_onion_ransom : critical {
   meta:
-    description = "ransomware targetting VMware ESXi"
+    description = "ransomware targeting VMware ESXi"
   strings:
     $esxcli = "esxcli"
 	$onion = ".onion"
