@@ -1,151 +1,151 @@
-# linux/clean/caddy
-3P/threat_hunting/hijacker
-3P/threat_hunting/reverst
-3P/threat_hunting/tailscale
-admin/package/install
-archives/zip
-cloud/aws/metadata
-cloud/google/metadata
-compression/gzip
-compression/zstd
-crypto/aes
-crypto/ecdsa
-crypto/ed25519
-crypto/tls
-data/embedded/base64/terms
-data/embedded/base64/url
-data/embedded/html
-data/embedded/pem/certificate
-data/embedded/pem/private_key
-databases/mysql
-databases/postgresql
-databases/sqlite
-encoding/base64
-encoding/json
-encoding/json/decode
-encoding/json/encode
-env/HOME
-env/LANG
-env/SHELL
-env/TEMP
-env/TERM
-env/TMPDIR
-env/USER
-env/get
-evasion/content/length/0
-exec/cmd
-exec/program
-exec/program/background
-fs/directory/create
-fs/directory/list
-fs/directory/remove
-fs/fifo/create
-fs/file/capabilities/set
-fs/file/delete
-fs/file/delete/forcibly
-fs/file/open
-fs/file/read
-fs/file/times/set
-fs/file/write
-fs/link/read
-fs/lock/update
-fs/mount
-fs/permission/chown
-fs/permission/modify
-fs/swap/off
-fs/symlink/resolve
-fs/tempdir
-fs/watch
-group/lookup
-hash/blake2b
-hash/md5
-kernel/cpu/info
-kernel/hostname/get
-kernel/module
-kernel/netlink
-kernel/platform
-net/bpf
-net/dns
-net/dns/over/https
-net/dns/reverse
-net/dns/servers
-net/dns/txt
-net/download
-net/grpc
-net/hostname/resolve
-net/http/accept/encoding
-net/http/auth
-net/http/cookies
-net/http/form/upload
-net/http/post
-net/http/request
-net/http2
-net/http_proxy
-net/icmp
-net/ip
-net/ip/multicast/send
-net/ip/parse
-net/ip/resolve
-net/mac/address
-net/oauth2
-net/reuseport
-net/reverse_proxy
-net/sendfile
-net/socket/listen
-net/socket/local/address
-net/socket/peer/address
-net/socket/receive
-net/socket/send
-net/ssh
-net/udp/receive
-net/udp/send
-net/upload
-net/url
-net/url/encode
-net/url/request
-net/websocket
-net/wireless
-persist/pid_file
-process/chroot
-process/groups/set
-process/parent_pid/get
-process/username/get
-procfs/arbitrary/pid
-procfs/pid/statistics
-procfs/self/cgroup
-procfs/self/exe
-procfs/self/mountinfo
-random/insecure
-ref/daemon
-ref/extensions/office
-ref/ip/dns_resolver
-ref/ip_port
-ref/path/etc
-ref/path/etc/hosts
-ref/path/etc/resolv.conf
-ref/path/hidden
-ref/path/home/config
-ref/path/relative
-ref/path/tmp
-ref/path/users
-ref/path/var
-ref/path/var/run
-ref/path/windows_root
-ref/program/osascript
-ref/program/sshd
-ref/program/sudo
-ref/site/download
-ref/site/http/dynamic
-ref/site/url
-ref/words/c2
-ref/words/decryptor
-ref/words/exclamation
-ref/words/intercept
-ref/words/password
-ref/words/plugin
-ref/words/spoof
-secrets/htpasswd
-secrets/private_key
-secrets/ssh
-service/stop
-shell/background/sleep
+# linux/clean/caddy: medium
+3P/threat_hunting/hijacker: medium
+3P/threat_hunting/reverst: medium
+3P/threat_hunting/tailscale: medium
+admin/package/install: medium
+archives/zip: medium
+cloud/aws/metadata: low
+cloud/google/metadata: low
+compression/gzip: low
+compression/zstd: low
+crypto/aes: low
+crypto/ecdsa: low
+crypto/ed25519: low
+crypto/tls: low
+data/embedded/base64/terms: medium
+data/embedded/base64/url: medium
+data/embedded/html: medium
+data/embedded/pem/certificate: low
+data/embedded/pem/private_key: medium
+databases/mysql: medium
+databases/postgresql: medium
+databases/sqlite: medium
+encoding/base64: low
+encoding/json: low
+encoding/json/decode: low
+encoding/json/encode: low
+env/HOME: low
+env/LANG: low
+env/SHELL: low
+env/TEMP: low
+env/TERM: low
+env/TMPDIR: low
+env/USER: low
+env/get: low
+evasion/content/length/0: medium
+exec/cmd: medium
+exec/program: medium
+exec/program/background: low
+fs/directory/create: low
+fs/directory/list: low
+fs/directory/remove: low
+fs/fifo/create: low
+fs/file/capabilities/set: low
+fs/file/delete: low
+fs/file/delete/forcibly: low
+fs/file/open: low
+fs/file/read: low
+fs/file/times/set: medium
+fs/file/write: low
+fs/link/read: low
+fs/lock/update: low
+fs/mount: low
+fs/permission/chown: medium
+fs/permission/modify: medium
+fs/swap/off: low
+fs/symlink/resolve: low
+fs/tempdir: low
+fs/watch: low
+group/lookup: medium
+hash/blake2b: low
+hash/md5: low
+kernel/cpu/info: low
+kernel/hostname/get: low
+kernel/module: medium
+kernel/netlink: low
+kernel/platform: medium
+net/bpf: medium
+net/dns: low
+net/dns/over/https: medium
+net/dns/reverse: medium
+net/dns/servers: low
+net/dns/txt: low
+net/download: medium
+net/grpc: low
+net/hostname/resolve: low
+net/http/accept/encoding: low
+net/http/auth: low
+net/http/cookies: medium
+net/http/form/upload: medium
+net/http/post: medium
+net/http/request: low
+net/http2: low
+net/http_proxy: low
+net/icmp: medium
+net/ip: low
+net/ip/multicast/send: low
+net/ip/parse: medium
+net/ip/resolve: low
+net/mac/address: medium
+net/oauth2: low
+net/reuseport: medium
+net/reverse_proxy: medium
+net/sendfile: low
+net/socket/listen: low
+net/socket/local/address: low
+net/socket/peer/address: low
+net/socket/receive: low
+net/socket/send: low
+net/ssh: medium
+net/udp/receive: low
+net/udp/send: low
+net/upload: medium
+net/url: low
+net/url/encode: medium
+net/url/request: medium
+net/websocket: medium
+net/wireless: low
+persist/pid_file: medium
+process/chroot: low
+process/groups/set: low
+process/parent_pid/get: low
+process/username/get: low
+procfs/arbitrary/pid: medium
+procfs/pid/statistics: low
+procfs/self/cgroup: medium
+procfs/self/exe: medium
+procfs/self/mountinfo: medium
+random/insecure: low
+ref/daemon: medium
+ref/extensions/office: medium
+ref/ip/dns_resolver: medium
+ref/ip_port: medium
+ref/path/etc: low
+ref/path/etc/hosts: medium
+ref/path/etc/resolv.conf: low
+ref/path/hidden: medium
+ref/path/home/config: low
+ref/path/relative: medium
+ref/path/tmp: medium
+ref/path/users: medium
+ref/path/var: low
+ref/path/var/run: medium
+ref/path/windows_root: low
+ref/program/osascript: medium
+ref/program/sshd: medium
+ref/program/sudo: medium
+ref/site/download: medium
+ref/site/http/dynamic: medium
+ref/site/url: low
+ref/words/c2: medium
+ref/words/decryptor: medium
+ref/words/exclamation: medium
+ref/words/intercept: medium
+ref/words/password: low
+ref/words/plugin: low
+ref/words/spoof: medium
+secrets/htpasswd: medium
+secrets/private_key: low
+secrets/ssh: medium
+service/stop: low
+shell/background/sleep: medium

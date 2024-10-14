@@ -1,9 +1,9 @@
-# linux/2024.hadooken/drop2.sh
-combo/backdoor/remote_eval
-fd/read
-net/url
-net/url/request
-ref/ip
-ref/site/http/ip
-ref/site/url
-techniques/code_eval
+# linux/2024.hadooken/drop2.sh: critical
+combo/backdoor/remote_eval: critical
+fd/read: low
+net/url: low
+net/url/request: medium
+ref/ip: medium
+ref/site/http/ip: high
+ref/site/url: low
+techniques/code_eval: medium

@@ -1,91 +1,91 @@
-# windows/2024.GitHub.Clipper/main.exe
-3P/JPCERT/apt10/chches/lnk
-3P/ditekshen/discordurl
-3P/ditekshen/vm/evasion/macaddrcomb
-3P/elastic/multi/threat
-3P/threat_hunting
-3P/threat_hunting/cstealer
-3P/threat_hunting/fentanyl
-3P/threat_hunting/gofile/io
-3P/threat_hunting/runascs
-archives/zip
-combo/degrader/win_defender
-combo/net/scan_tool
-combo/stealer/browser
-combo/stealer/creds
-combo/stealer/discord
-combo/stealer/office
-combo/stealer/wallet
-compression/gzip
-crypto/aes
-crypto/ecdsa
-crypto/ed25519
-crypto/tls
-databases/leveldb
-databases/sqlite
-encoding/base64
-encoding/json
-encoding/json/decode
-encoding/json/encode
-env/TEMP
-env/TERM
-exec/program
-exfil/discord
-fs/directory/list
-fs/file/read
-fs/file/write
-fs/permission/chown
-fs/permission/modify
-fs/tempdir
-hash/md5
-kernel/cpu/info
-malware/family/skuld
-net/dns
-net/dns/servers
-net/dns/txt
-net/download
-net/geoip
-net/hostname/resolve
-net/http/accept/encoding
-net/http/auth
-net/http/cookies
-net/http/post
-net/http/request
-net/http2
-net/http_proxy
-net/ip/parse
-net/mac/address
-net/public_ip
-net/sendfile
-net/socket/listen
-net/socket/local/address
-net/socket/peer/address
-net/socket/receive
-net/socket/send
-net/udp/receive
-net/udp/send
-net/upload
-net/url
-net/url/request
-net/vnc
-persist/pid_file
-privesc/uac_bypass
-process/list
-ref/extensions/office
-ref/ip_port
-ref/path/dev
-ref/path/etc
-ref/path/etc/hosts
-ref/path/etc/resolv.conf
-ref/path/users
-ref/site/download
-ref/site/github_raw
-ref/site/http/dynamic
-ref/site/url
-ref/words/password
-ref/words/plugin
-secrets/chromium_master_password
-secrets/firefox/cookies
-secrets/firefox/master_password
-secrets/private_key
-ui/clipboard
+# windows/2024.GitHub.Clipper/main.exe: critical
+3P/JPCERT/apt10/chches/lnk: critical
+3P/ditekshen/discordurl: critical
+3P/ditekshen/vm/evasion/macaddrcomb: critical
+3P/elastic/multi/threat: high
+3P/threat_hunting: medium
+3P/threat_hunting/cstealer: medium
+3P/threat_hunting/fentanyl: medium
+3P/threat_hunting/gofile/io: medium
+3P/threat_hunting/runascs: medium
+archives/zip: medium
+combo/degrader/win_defender: high
+combo/net/scan_tool: medium
+combo/stealer/browser: high
+combo/stealer/creds: high
+combo/stealer/discord: high
+combo/stealer/office: high
+combo/stealer/wallet: critical
+compression/gzip: low
+crypto/aes: low
+crypto/ecdsa: low
+crypto/ed25519: low
+crypto/tls: low
+databases/leveldb: medium
+databases/sqlite: medium
+encoding/base64: low
+encoding/json: low
+encoding/json/decode: low
+encoding/json/encode: low
+env/TEMP: low
+env/TERM: low
+exec/program: medium
+exfil/discord: critical
+fs/directory/list: low
+fs/file/read: low
+fs/file/write: low
+fs/permission/chown: medium
+fs/permission/modify: medium
+fs/tempdir: low
+hash/md5: low
+kernel/cpu/info: low
+malware/family/skuld: critical
+net/dns: low
+net/dns/servers: low
+net/dns/txt: low
+net/download: medium
+net/geoip: high
+net/hostname/resolve: low
+net/http/accept/encoding: low
+net/http/auth: low
+net/http/cookies: medium
+net/http/post: medium
+net/http/request: low
+net/http2: low
+net/http_proxy: low
+net/ip/parse: medium
+net/mac/address: medium
+net/public_ip: high
+net/sendfile: low
+net/socket/listen: low
+net/socket/local/address: low
+net/socket/peer/address: low
+net/socket/receive: low
+net/socket/send: low
+net/udp/receive: low
+net/udp/send: low
+net/upload: medium
+net/url: low
+net/url/request: medium
+net/vnc: medium
+persist/pid_file: medium
+privesc/uac_bypass: high
+process/list: medium
+ref/extensions/office: medium
+ref/ip_port: medium
+ref/path/dev: medium
+ref/path/etc: low
+ref/path/etc/hosts: medium
+ref/path/etc/resolv.conf: low
+ref/path/users: medium
+ref/site/download: high
+ref/site/github_raw: medium
+ref/site/http/dynamic: medium
+ref/site/url: low
+ref/words/password: low
+ref/words/plugin: low
+secrets/chromium_master_password: high
+secrets/firefox/cookies: high
+secrets/firefox/master_password: high
+secrets/private_key: low
+ui/clipboard: medium
