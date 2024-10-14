@@ -1,7 +1,7 @@
 # linux/2024.hadooken/crondr_as_bash.sh: critical
 crypto/mining/tls_dp_port: critical
 evasion/copy_run_delete: critical
-evasion/fake/process/name: high
+evasion/fake/process: high
 fs/file/copy: medium
 fs/file/delete/forcibly: medium
 process/chdir: low

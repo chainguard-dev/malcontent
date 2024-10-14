@@ -1,4 +1,4 @@
-# javascript/clean/securityDashboards.plugin.js: high
+# javascript/clean/securityDashboards.plugin.js: critical
 3P/threat_hunting/crowbar: medium
 3P/threat_hunting/hijacker: medium
 3P/threat_hunting/johntheripper: medium
@@ -10,6 +10,7 @@ databases/mysql: medium
 encoding/base64: low
 encoding/json/decode: low
 encoding/json/encode: low
+evasion/fake/process: high
 evasion/xor/commands: high
 fs/link/create: low
 fs/lock/update: low

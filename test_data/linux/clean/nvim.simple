@@ -1,4 +1,4 @@
-# linux/clean/nvim: critical
+# linux/clean/nvim: high
 3P/threat_hunting/hrshell: medium
 databases/mysql: medium
 databases/sqlite: medium
@@ -42,7 +42,7 @@ net/socket/local/address: low
 net/socket/receive: low
 net/socket/send: low
 persist/crontab: medium
-persist/linux_multi: critical
+persist/linux_multi: high
 persist/shell/init_files: low
 process/chdir: low
 process/find: medium

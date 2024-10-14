@@ -32,7 +32,7 @@ net/upload: medium
 net/wireless: low
 persist/bash: high
 persist/crontab: medium
-persist/linux_multi: critical
+persist/linux_multi: high
 persist/ssh_authorized_keys: medium
 persist/zsh: medium
 process/chroot: low

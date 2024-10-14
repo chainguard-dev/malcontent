@@ -9,8 +9,10 @@ admin/package/install: medium
 combo/backdoor/iptables: medium
 combo/backdoor/kill_rm: medium
 combo/critical_paths: medium
+combo/degrader/infection: critical
 combo/degrader/selinux_firewall: high
-combo/degrader/ufw_disable: high
+combo/degrader/ufw: high
+combo/dropper/http_ip_temp: critical
 combo/dropper/shell: high
 combo/recon/docker: medium
 combo/recon/system_network: medium
@@ -21,7 +23,7 @@ crypto/mining/monero/pool: medium
 crypto/mining/xmrig: high
 data/embedded/base64/url: medium
 evasion/base64/commands: high
-evasion/fake/process/name: critical
+evasion/fake/process: critical
 fs/attributes/chattr: high
 fs/directory/create: low
 fs/file/delete: high
@@ -37,8 +39,9 @@ net/fetch/suspicious: high
 net/stat: medium
 persist/bash: medium
 persist/crontab: high
-persist/linux_multi: critical
+persist/linux_multi: high
 persist/ssh_authorized_keys: medium
+persist/writeable_dir: high
 process/find: medium
 process/kill/multiple: medium
 ref/daemon: medium
@@ -60,7 +63,7 @@ ref/path/var: low
 ref/path/var/log: medium
 ref/path/var/tmp: medium
 ref/program/sudo: medium
-ref/site/download: medium
+ref/site/download: high
 ref/site/http/ip: high
 ref/site/url: low
 ref/words/agent: medium

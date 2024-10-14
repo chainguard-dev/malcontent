@@ -1,15 +1,15 @@
-# linux/2024.fog/5a99a15406c218fd6862f90ed3534fb8f0a888bb0c5a09192eae01d595f05bc5.elf
-3P/signature_base/ransom/lockbit
-3P/threat_hunting/esxcli
-fs/lock/update
-fs/symlink/resolve
-kernel/sysinfo
-management/esxcli
-net/tor
-process/multithreaded
-ref/daemon
-ref/path/tmp
-ref/program/ancient_gcc
-ref/site/tor_onion
-ref/words/password
-ref/words/ransomware
+# linux/2024.fog/5a99a15406c218fd6862f90ed3534fb8f0a888bb0c5a09192eae01d595f05bc5.elf: critical
+3P/signature_base/ransom/lockbit: critical
+3P/threat_hunting/esxcli: medium
+fs/lock/update: low
+fs/symlink/resolve: low
+kernel/sysinfo: medium
+management/esxcli: critical
+net/tor: high
+process/multithreaded: low
+ref/daemon: medium
+ref/path/tmp: medium
+ref/program/ancient_gcc: medium
+ref/site/tor_onion: critical
+ref/words/password: low
+ref/words/ransomware: high

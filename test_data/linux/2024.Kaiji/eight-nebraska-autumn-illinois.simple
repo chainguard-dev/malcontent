@@ -84,6 +84,7 @@ ref/site/url: low
 ref/words/cve_list: medium
 ref/words/password: low
 ref/words/plugin: low
+ref/words/ransomware: high
 ref/words/spoof: medium
 ref/words/ssh_attack: high
 secrets/bash_history: high

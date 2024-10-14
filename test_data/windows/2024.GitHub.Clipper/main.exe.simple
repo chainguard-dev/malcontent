@@ -84,6 +84,7 @@ ref/site/http/dynamic: medium
 ref/site/url: low
 ref/words/password: low
 ref/words/plugin: low
+ref/words/ransomware: high
 secrets/chromium_master_password: high
 secrets/firefox/cookies: high
 secrets/firefox/master_password: high

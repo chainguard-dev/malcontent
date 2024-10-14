@@ -1,168 +1,168 @@
-# linux/clean/chrome
-3P/threat_hunting/metasploit
-3P/threat_hunting/proxmark
-archives/zip
-combo/critical_paths
-combo/net/tunnel_proxy
-compression/bzip2
-compression/gzip
-compression/zstd
-crypto/aes
-crypto/ecdsa
-crypto/ed25519
-crypto/rc4/constants
-crypto/tls
-data/embedded/base64/url
-data/embedded/html
-data/embedded/pem/certificate
-databases/leveldb
-databases/sqlite
-dylib/address/check
-dylib/symbol/address
-encoding/base64
-encoding/json/decode
-encoding/json/encode
-env/GCONV_PATH
-env/HOME
-env/LANG
-env/LD_DEBUG
-env/LD_LIBRARY_PATH
-env/LD_PROFILE
-env/TEMP
-env/TERM
-env/TMPDIR
-env/USER
-evasion/fake/user/agent
-exec/cmd
-exec/program
-exec/program/background
-exec/shell_echo
-fd/epoll
-fs/directory/create
-fs/directory/remove
-fs/file/delete
-fs/file/delete/forcibly
-fs/file/open
-fs/file/read
-fs/file/stat
-fs/file/times/set
-fs/file/truncate
-fs/file/write
-fs/link/read
-fs/lock/update
-fs/mount
-fs/mounts/read
-fs/permission/chown
-fs/permission/modify
-fs/symlink/resolve
-fs/tempdir
-fs/tempdir/create
-fs/tempfile/create
-fs/unmount
-fs/watch
-hash/sha1
-kernel/apparmor
-kernel/dev/block/device
-kernel/hostname/get
-kernel/netlink
-kernel/opencl
-kernel/platform
-kernel/ptrace
-kernel/seccomp
-kernel/sysinfo
-mem/anonymous/file
-net/bpf
-net/dns/over/https
-net/dns/servers
-net/dns/txt
-net/hostname/resolve
-net/hostport/parse
-net/http/accept/encoding
-net/http/auth
-net/http/cookies
-net/http/form/upload
-net/http/post
-net/http/request
-net/http2
-net/http_proxy
-net/icmp
-net/interface/list
-net/ip
-net/ip/multicast/send
-net/ip/parse
-net/ip/string
-net/ipp/request
-net/mac/address
-net/oauth2
-net/reuseport
-net/socket/listen
-net/socket/local/address
-net/socket/peer/address
-net/socket/receive
-net/socket/send
-net/socks5
-net/ssh
-net/upload
-net/upnp
-net/url
-net/url/encode
-net/url/request
-net/websocket
-net/wireless
-process/chdir
-process/chroot
-process/groups/set
-process/multithreaded
-process/name/get
-process/parent_pid/get
-process/thread_local_storage
-process/userid/set
-procfs/arbitrary/pid
-procfs/cpuinfo
-procfs/meminfo
-procfs/self/cmdline
-procfs/self/exe
-procfs/self/status
-procfs/stat
-random/insecure
-ref/daemon
-ref/extensions/office
-ref/ip/dns_resolver
-ref/ip_port
-ref/path/dev/shm
-ref/path/etc
-ref/path/etc/hosts
-ref/path/etc/resolv.conf
-ref/path/home
-ref/path/home/config
-ref/path/root
-ref/path/tmp
-ref/path/usr/bin
-ref/path/usr/local
-ref/path/var
-ref/program/gnome/keyring/daemon
-ref/program/sudo
-ref/site/http/dynamic
-ref/site/upload
-ref/site/url
-ref/words/c2
-ref/words/collection
-ref/words/dropper
-ref/words/exclamation
-ref/words/heartbeat
-ref/words/infected
-ref/words/intercept
-ref/words/malicious
-ref/words/obfuscate
-ref/words/password
-ref/words/plugin
-ref/words/server_address
-ref/words/target_ip
-secrets/keychain
-secrets/private_key
-secrets/ssh
-security_controls/linux/ufw
-service/start
-service/stop
-shell/pipe_sh
-techniques/code_eval
+# linux/clean/chrome: medium
+3P/threat_hunting/metasploit: medium
+3P/threat_hunting/proxmark: medium
+archives/zip: medium
+combo/critical_paths: medium
+combo/net/tunnel_proxy: medium
+compression/bzip2: low
+compression/gzip: low
+compression/zstd: low
+crypto/aes: low
+crypto/ecdsa: low
+crypto/ed25519: low
+crypto/rc4/constants: medium
+crypto/tls: low
+data/embedded/base64/url: medium
+data/embedded/html: medium
+data/embedded/pem/certificate: low
+databases/leveldb: medium
+databases/sqlite: medium
+dylib/address/check: low
+dylib/symbol/address: medium
+encoding/base64: low
+encoding/json/decode: low
+encoding/json/encode: low
+env/GCONV_PATH: low
+env/HOME: low
+env/LANG: low
+env/LD_DEBUG: medium
+env/LD_LIBRARY_PATH: low
+env/LD_PROFILE: medium
+env/TEMP: low
+env/TERM: low
+env/TMPDIR: low
+env/USER: low
+evasion/fake/user/agent: medium
+exec/cmd: medium
+exec/program: medium
+exec/program/background: low
+exec/shell_echo: medium
+fd/epoll: low
+fs/directory/create: low
+fs/directory/remove: low
+fs/file/delete: low
+fs/file/delete/forcibly: low
+fs/file/open: low
+fs/file/read: low
+fs/file/stat: low
+fs/file/times/set: medium
+fs/file/truncate: low
+fs/file/write: low
+fs/link/read: low
+fs/lock/update: low
+fs/mount: low
+fs/mounts/read: medium
+fs/permission/chown: low
+fs/permission/modify: medium
+fs/symlink/resolve: low
+fs/tempdir: low
+fs/tempdir/create: low
+fs/tempfile/create: low
+fs/unmount: low
+fs/watch: low
+hash/sha1: low
+kernel/apparmor: medium
+kernel/dev/block/device: medium
+kernel/hostname/get: low
+kernel/netlink: low
+kernel/opencl: medium
+kernel/platform: low
+kernel/ptrace: medium
+kernel/seccomp: low
+kernel/sysinfo: medium
+mem/anonymous/file: medium
+net/bpf: medium
+net/dns/over/https: medium
+net/dns/servers: low
+net/dns/txt: low
+net/hostname/resolve: low
+net/hostport/parse: low
+net/http/accept/encoding: low
+net/http/auth: low
+net/http/cookies: medium
+net/http/form/upload: medium
+net/http/post: medium
+net/http/request: low
+net/http2: low
+net/http_proxy: low
+net/icmp: medium
+net/interface/list: medium
+net/ip: low
+net/ip/multicast/send: low
+net/ip/parse: medium
+net/ip/string: medium
+net/ipp/request: low
+net/mac/address: medium
+net/oauth2: low
+net/reuseport: medium
+net/socket/listen: low
+net/socket/local/address: low
+net/socket/peer/address: low
+net/socket/receive: low
+net/socket/send: low
+net/socks5: medium
+net/ssh: medium
+net/upload: medium
+net/upnp: medium
+net/url: low
+net/url/encode: medium
+net/url/request: medium
+net/websocket: medium
+net/wireless: low
+process/chdir: low
+process/chroot: low
+process/groups/set: low
+process/multithreaded: low
+process/name/get: medium
+process/parent_pid/get: low
+process/thread_local_storage: low
+process/userid/set: low
+procfs/arbitrary/pid: medium
+procfs/cpuinfo: medium
+procfs/meminfo: medium
+procfs/self/cmdline: medium
+procfs/self/exe: medium
+procfs/self/status: medium
+procfs/stat: medium
+random/insecure: low
+ref/daemon: medium
+ref/extensions/office: medium
+ref/ip/dns_resolver: medium
+ref/ip_port: medium
+ref/path/dev/shm: medium
+ref/path/etc: low
+ref/path/etc/hosts: medium
+ref/path/etc/resolv.conf: low
+ref/path/home: medium
+ref/path/home/config: low
+ref/path/root: medium
+ref/path/tmp: medium
+ref/path/usr/bin: low
+ref/path/usr/local: medium
+ref/path/var: low
+ref/program/gnome/keyring/daemon: medium
+ref/program/sudo: medium
+ref/site/http/dynamic: medium
+ref/site/upload: medium
+ref/site/url: low
+ref/words/c2: medium
+ref/words/collection: medium
+ref/words/dropper: medium
+ref/words/exclamation: medium
+ref/words/heartbeat: medium
+ref/words/infected: medium
+ref/words/intercept: medium
+ref/words/malicious: medium
+ref/words/obfuscate: low
+ref/words/password: low
+ref/words/plugin: low
+ref/words/server_address: medium
+ref/words/target_ip: medium
+secrets/keychain: medium
+secrets/private_key: low
+secrets/ssh: medium
+security_controls/linux/ufw: medium
+service/start: low
+service/stop: low
+shell/pipe_sh: medium
+techniques/code_eval: medium
