@@ -1,14 +1,14 @@
-# linux/clean/ld-2.27.so
-env/GCONV_PATH
-env/LD_DEBUG
-env/LD_LIBRARY_PATH
-env/LD_PROFILE
-fs/tempdir
-persist/bash
-process/thread_local_storage
-procfs/self/exe
-ref/path/etc
-ref/path/etc/ld.so.preload
-ref/path/var
-ref/site/url
-ref/words/exclamation
+# linux/clean/ld-2.27.so: medium
+env/GCONV_PATH: low
+env/LD_DEBUG: medium
+env/LD_LIBRARY_PATH: low
+env/LD_PROFILE: medium
+fs/tempdir: low
+persist/bash: medium
+process/thread_local_storage: low
+procfs/self/exe: medium
+ref/path/etc: low
+ref/path/etc/ld.so.preload: medium
+ref/path/var: low
+ref/site/url: low
+ref/words/exclamation: medium

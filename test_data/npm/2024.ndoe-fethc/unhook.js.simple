@@ -1,12 +1,12 @@
-# npm/2024.ndoe-fethc/unhook.js
-combo/stealer/crypto
-encoding/json/encode
-fs/file/read
-fs/lock/update
-net/http/form/upload
-net/http/post
-process/userinfo
-ref/site/url
-ref/words/agent
-secrets/key
-secrets/private_key
+# npm/2024.ndoe-fethc/unhook.js: high
+combo/stealer/crypto: high
+encoding/json/encode: low
+fs/file/read: low
+fs/lock/update: low
+net/http/form/upload: medium
+net/http/post: medium
+process/userinfo: medium
+ref/site/url: low
+ref/words/agent: medium
+secrets/key: high
+secrets/private_key: low

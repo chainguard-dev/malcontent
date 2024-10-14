@@ -1,17 +1,17 @@
-# javascript/2022.an-instance.99.10.9/index.js
-combo/recon/nodejs
-encoding/json/encode
-evasion/hex
-fd/write
-fs/directory/list
-kernel/hostname/get
-net/dns
-net/dns/servers
-net/http/form/upload
-net/http/post
-net/interface/list
-net/url/encode
-process/userinfo
-ref/path/home
-ref/path/relative
-ref/path/root
+# javascript/2022.an-instance.99.10.9/index.js: critical
+combo/recon/nodejs: critical
+encoding/json/encode: low
+evasion/hex: medium
+fd/write: low
+fs/directory/list: low
+kernel/hostname/get: low
+net/dns: low
+net/dns/servers: low
+net/http/form/upload: medium
+net/http/post: medium
+net/interface/list: medium
+net/url/encode: medium
+process/userinfo: medium
+ref/path/home: medium
+ref/path/relative: medium
+ref/path/root: medium
