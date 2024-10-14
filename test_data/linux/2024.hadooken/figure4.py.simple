@@ -1,16 +1,16 @@
-# linux/2024.hadooken/figure4.py
-combo/dropper/python
-exec/program
-fd/read
-fd/write
-fs/file/delete
-fs/file/open
-fs/permission/modify
-net/download
-net/url
-net/url/request
-ref/ip
-ref/path/dev
-ref/path/var
-ref/site/http/ip
-ref/site/url
+# linux/2024.hadooken/figure4.py: critical
+combo/dropper/python: high
+exec/program: medium
+fd/read: low
+fd/write: low
+fs/file/delete: low
+fs/file/open: low
+fs/permission/modify: medium
+net/download: medium
+net/url: low
+net/url/request: medium
+ref/ip: medium
+ref/path/dev: medium
+ref/path/var: low
+ref/site/http/ip: high
+ref/site/url: low

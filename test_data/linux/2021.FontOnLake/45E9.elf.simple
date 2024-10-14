@@ -1,94 +1,94 @@
-# linux/2021.FontOnLake/45E9.elf
-3P/elastic/rootkit/fontonlake
-3P/signature_base/susp/elf
-admin/logs/failed_logins
-admin/logs/historical_logins
-combo/backdoor/ssh
-combo/recon/system_network
-combo/stealer/pam
-crypto/aes
-encoding/base64
-env/HOME
-env/SHELL
-env/TERM
-env/USER
-evasion/packer/upx
-evasion/process/hide
-evasion/rootkit
-exec/program
-exec/program/background
-fs/directory/create
-fs/directory/remove
-fs/file/delete
-fs/file/delete/forcibly
-fs/file/open
-fs/file/times/set
-fs/file/truncate
-fs/link/read
-fs/permission/chown
-fs/permission/modify
-fs/symlink/resolve
-fs/tempdir/create
-fs/tempfile/create
-group/lookup
-hash/md5
-kernel/acct
-kernel/hostname/get
-kernel/kprobe
-kernel/module
-kernel/module/load
-kernel/symbol/lookup
-net/download
-net/hostport/parse
-net/ip/string
-net/reuseport
-net/socket/listen
-net/socket/local/address
-net/socket/peer/address
-net/socket/receive
-net/socket/send
-net/socks5
-net/ssh
-persist/pid_file
-process/chroot
-process/executable_path
-process/groupid/set
-process/groups/set
-process/name/set
-process/userid/set
-process/username/set
-procfs/arbitrary/pid
-procfs/pid/fd
-procfs/self/exe
-ref/daemon
-ref/ip_port
-ref/path/etc
-ref/path/etc/hosts
-ref/path/hidden
-ref/path/tmp
-ref/path/usr/bin
-ref/path/usr/local
-ref/path/var
-ref/path/var/log
-ref/program/ancient_gcc
-ref/program/sshd
-ref/site/url
-ref/words/agent
-ref/words/backdoor
-ref/words/malicious
-ref/words/password
-ref/words/rootkit
-ref/words/spoof
-secrets/private_key
-secrets/ssh
-secrets/ssh_authorized_hosts
-security_controls/linux/pam
-security_controls/linux/selinux
-shell/arbitrary_command/dev_null
-shell/exec
-shell/ignore_output
-tty/open
-tty/parameters/get
-tty/pathname
-tty/vhangup
-ui/x11/auth
+# linux/2021.FontOnLake/45E9.elf: critical
+3P/elastic/rootkit/fontonlake: critical
+3P/signature_base/susp/elf: critical
+admin/logs/failed_logins: high
+admin/logs/historical_logins: high
+combo/backdoor/ssh: high
+combo/recon/system_network: medium
+combo/stealer/pam: critical
+crypto/aes: low
+encoding/base64: low
+env/HOME: low
+env/SHELL: low
+env/TERM: low
+env/USER: low
+evasion/packer/upx: high
+evasion/process/hide: low
+evasion/rootkit: critical
+exec/program: medium
+exec/program/background: low
+fs/directory/create: low
+fs/directory/remove: low
+fs/file/delete: low
+fs/file/delete/forcibly: low
+fs/file/open: low
+fs/file/times/set: medium
+fs/file/truncate: low
+fs/link/read: low
+fs/permission/chown: low
+fs/permission/modify: medium
+fs/symlink/resolve: low
+fs/tempdir/create: low
+fs/tempfile/create: low
+group/lookup: medium
+hash/md5: low
+kernel/acct: low
+kernel/hostname/get: low
+kernel/kprobe: medium
+kernel/module: medium
+kernel/module/load: medium
+kernel/symbol/lookup: high
+net/download: medium
+net/hostport/parse: low
+net/ip/string: medium
+net/reuseport: medium
+net/socket/listen: low
+net/socket/local/address: low
+net/socket/peer/address: low
+net/socket/receive: low
+net/socket/send: low
+net/socks5: medium
+net/ssh: medium
+persist/pid_file: medium
+process/chroot: low
+process/executable_path: low
+process/groupid/set: low
+process/groups/set: low
+process/name/set: medium
+process/userid/set: low
+process/username/set: medium
+procfs/arbitrary/pid: medium
+procfs/pid/fd: medium
+procfs/self/exe: medium
+ref/daemon: medium
+ref/ip_port: medium
+ref/path/etc: low
+ref/path/etc/hosts: medium
+ref/path/hidden: high
+ref/path/tmp: medium
+ref/path/usr/bin: low
+ref/path/usr/local: medium
+ref/path/var: low
+ref/path/var/log: medium
+ref/program/ancient_gcc: medium
+ref/program/sshd: medium
+ref/site/url: low
+ref/words/agent: medium
+ref/words/backdoor: high
+ref/words/malicious: medium
+ref/words/password: low
+ref/words/rootkit: medium
+ref/words/spoof: medium
+secrets/private_key: low
+secrets/ssh: medium
+secrets/ssh_authorized_hosts: medium
+security_controls/linux/pam: medium
+security_controls/linux/selinux: medium
+shell/arbitrary_command/dev_null: medium
+shell/exec: medium
+shell/ignore_output: medium
+tty/open: medium
+tty/parameters/get: medium
+tty/pathname: medium
+tty/vhangup: low
+ui/x11/auth: medium

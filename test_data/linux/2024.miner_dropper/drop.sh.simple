@@ -1,18 +1,18 @@
-# linux/2024.miner_dropper/drop.sh
-combo/dropper/shell
-fs/permission/modify
-fs/permission/modify/dangerous
-net/fetch
-net/fetch/suspicious
-process/chdir
-process/chdir/unusual
-process/executable_path
-ref/ip
-ref/path/root
-ref/path/usr/local
-ref/path/var
-ref/site/http/ip
-ref/site/url
-shell/busybox/exec
-shell/exec
-shell/relative/semicolon
+# linux/2024.miner_dropper/drop.sh: critical
+combo/dropper/shell: critical
+fs/permission/modify: medium
+fs/permission/modify/dangerous: high
+net/fetch: critical
+net/fetch/suspicious: high
+process/chdir: low
+process/chdir/unusual: critical
+process/executable_path: low
+ref/ip: medium
+ref/path/root: medium
+ref/path/usr/local: medium
+ref/path/var: low
+ref/site/http/ip: high
+ref/site/url: low
+shell/busybox/exec: high
+shell/exec: medium
+shell/relative/semicolon: high
