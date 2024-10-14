@@ -1,6 +1,7 @@
 rule win_kill_proc_likely : medium windows {
   meta:
     description = "Possible Windows EDR/Antivirus bypass"
+	filetypes = "exe,dll"
   strings:
 	$f_gcp = "GetCurrentProcess"
 	$f_gct = "GetCurrentThread"
@@ -19,6 +20,7 @@ rule win_kill_proc_likely : medium windows {
 rule win_kill_proc : high windows {
   meta:
     description = "Windows EDR/Antivirus bypass"
+	filetypes = "exe,dll"
   strings:
 	$f_gcp = "GetCurrentProcess"
 	$f_gct = "GetCurrentThread"
@@ -37,6 +39,7 @@ rule win_kill_proc : high windows {
 rule edr_stopper : critical windows {
   meta:
     description = "Stops EDR/Antivirus services"
+	filetypes = "exe,dll"
   strings:
 	$kind_malwarebytes = "alwarebytes"
 	$stop = "stopservice"
