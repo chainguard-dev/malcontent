@@ -1,12 +1,12 @@
 # python/clean/requests/setup.py: medium
-exec/program:         medium
-fd/read:              low
-fs/file/open:         low
-net/ip/parse:         medium
-net/upload:           medium
-net/url:              low
+exec/program: medium
+fd/read: low
+fs/file/open: low
+net/ip/parse: medium
+net/upload: medium
+net/url: low
 process/multiprocess: medium
-ref/path/usr/bin:     low
-ref/site/download:    medium
-ref/site/url:         low
+ref/path/usr/bin: low
+ref/site/download: medium
+ref/site/url: low
 techniques/code_eval: medium

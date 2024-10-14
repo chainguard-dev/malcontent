@@ -1,5 +1,5 @@
 # npm/2024.hlwgirl/index.js: high
 encoding/base64: low
-evasion/hex:     high
-fs/file/write:   low
-process/create:  medium
+evasion/hex: high
+fs/file/write: low
+process/create: medium

@@ -1,5 +1,5 @@
 # python/clean/ml_sdk/setup.py: medium
-fd/read:              low
-fs/file/open:         low
-ref/site/url:         low
+fd/read: low
+fs/file/open: low
+ref/site/url: low
 techniques/code_eval: medium

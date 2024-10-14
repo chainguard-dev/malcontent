@@ -1,5 +1,5 @@
 # linux/2024.hadooken/wipe_logs.sh: critical
-admin/logs/current_logins:  medium
+admin/logs/current_logins: medium
 combo/wiper/sensitive_logs: critical
-ref/path/var:               low
-ref/path/var/log:           medium
+ref/path/var: low
+ref/path/var/log: medium

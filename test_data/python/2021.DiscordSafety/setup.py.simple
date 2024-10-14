@@ -1,14 +1,14 @@
 # python/2021.DiscordSafety/setup.py: critical
-combo/backdoor/py_setuptools:  critical
-combo/stealer/browser:         high
-databases/leveldb:             medium
-encoding/base64:               low
+combo/backdoor/py_setuptools: critical
+combo/stealer/browser: high
+databases/leveldb: medium
+encoding/base64: low
 evasion/python_rename_imports: critical
-exec/program:                  medium
-fs/directory/create:           low
-net/url/request:               medium
-ref/path/users:                medium
-ref/site/php:                  medium
-ref/site/url:                  low
-techniques/code_eval:          medium
-techniques/marshal:            high
+exec/program: medium
+fs/directory/create: low
+net/url/request: medium
+ref/path/users: medium
+ref/site/php: medium
+ref/site/url: low
+techniques/code_eval: medium
+techniques/marshal: high

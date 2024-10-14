@@ -1,6 +1,6 @@
 # linux/2024.hadooken/drop3.sh: critical
 evasion/run_sleep_delete: critical
-fs/file/delete/forcibly:  low
-ref/ip:                   medium
-ref/site/http/ip:         high
-ref/site/url:             low
+fs/file/delete/forcibly: low
+ref/ip: medium
+ref/site/http/ip: high
+ref/site/url: low

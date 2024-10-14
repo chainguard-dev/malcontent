@@ -1,9 +1,9 @@
 # python/2023.aiohttp/setup.py: critical
 combo/backdoor/py_setuptools: critical
-evasion/bitwise_math:         high
-evasion/py_builtins:          high
+evasion/bitwise_math: high
+evasion/py_builtins: high
 evasion/py_setuptools/random: critical
-fs/directory/create:          low
-fs/directory/traverse:        medium
-fs/file/open:                 low
-kernel/platform:              medium
+fs/directory/create: low
+fs/directory/traverse: medium
+fs/file/open: low
+kernel/platform: medium

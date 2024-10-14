@@ -1,5 +1,5 @@
 # php/2024.WordFence.evasion/wp-engine-fast-action.php: critical
-encoding/reverse:             low
-evasion/dynamic_import:       critical
+encoding/reverse: low
+evasion/dynamic_import: critical
 evasion/string_concatenation: high
-obfuscation/php/strrev:       high
+obfuscation/php/strrev: high

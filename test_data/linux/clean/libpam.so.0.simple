@@ -1,9 +1,9 @@
 # linux/clean/libpam.so.0: medium
 dylib/symbol/address: medium
-kernel/acct:          low
-process/groups/set:   low
-process/userid/set:   low
+kernel/acct: low
+process/groups/set: low
+process/userid/set: low
 process/username/get: low
-ref/path/etc:         low
-ref/words/password:   low
-tty/pathname:         medium
+ref/path/etc: low
+ref/words/password: low
+tty/pathname: medium

@@ -1,10 +1,10 @@
 # linux/synthetic/github-attach-fetch.sh: critical
-combo/dropper/shell:        critical
-fs/permission/modify:       medium
-net/fetch:                  medium
+combo/dropper/shell: critical
+fs/permission/modify: medium
+net/fetch: medium
 ref/site/github_attachment: high
-ref/site/url:               low
-ref/words/backdoor:         high
-shell/background_launcher:  high
-shell/exec:                 medium
-shell/nohup:                medium
+ref/site/url: low
+ref/words/backdoor: high
+shell/background_launcher: high
+shell/exec: medium
+shell/nohup: medium

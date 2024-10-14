@@ -1,10 +1,10 @@
 # javascript/clean/connection.js: medium
 data/embedded/base64/terms: medium
-data/embedded/base64/url:   medium
-encoding/base64:            low
-evasion/hex:                medium
-fd/write:                   low
-net/dns:                    low
-net/socket/send:            low
-ref/site/url:               low
-ref/words/password:         low
+data/embedded/base64/url: medium
+encoding/base64: low
+evasion/hex: medium
+fd/write: low
+net/dns: low
+net/socket/send: low
+ref/site/url: low
+ref/words/password: low

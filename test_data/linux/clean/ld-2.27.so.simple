@@ -1,14 +1,14 @@
 # linux/clean/ld-2.27.so: medium
-env/GCONV_PATH:               low
-env/LD_DEBUG:                 medium
-env/LD_LIBRARY_PATH:          low
-env/LD_PROFILE:               medium
-fs/tempdir:                   low
-persist/bash:                 medium
+env/GCONV_PATH: low
+env/LD_DEBUG: medium
+env/LD_LIBRARY_PATH: low
+env/LD_PROFILE: medium
+fs/tempdir: low
+persist/bash: medium
 process/thread_local_storage: low
-procfs/self/exe:              medium
-ref/path/etc:                 low
-ref/path/etc/ld.so.preload:   medium
-ref/path/var:                 low
-ref/site/url:                 low
-ref/words/exclamation:        medium
+procfs/self/exe: medium
+ref/path/etc: low
+ref/path/etc/ld.so.preload: medium
+ref/path/var: low
+ref/site/url: low
+ref/words/exclamation: medium

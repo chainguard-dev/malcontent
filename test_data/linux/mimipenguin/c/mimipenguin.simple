@@ -1,14 +1,14 @@
 # linux/mimipenguin/c/mimipenguin: critical
-3P/threat_hunting/crossc2:        medium
-3P/threat_hunting/mimipenguin:    medium
-combo/stealer/password:           critical
-net/ssh:                          medium
-procfs/arbitrary/pid:             medium
-procfs/pid/cmdline:               medium
-procfs/pid/maps:                  medium
-ref/path/etc:                     low
+3P/threat_hunting/crossc2: medium
+3P/threat_hunting/mimipenguin: medium
+combo/stealer/password: critical
+net/ssh: medium
+procfs/arbitrary/pid: medium
+procfs/pid/cmdline: medium
+procfs/pid/maps: medium
+ref/path/etc: low
 ref/program/gnome/keyring/daemon: medium
-ref/program/sshd:                 medium
-ref/program/sudo:                 medium
-ref/words/password:               low
-secrets/shadow:                   medium
+ref/program/sshd: medium
+ref/program/sudo: medium
+ref/words/password: low
+secrets/shadow: medium

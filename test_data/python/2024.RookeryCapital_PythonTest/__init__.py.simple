@@ -1,10 +1,10 @@
 # python/2024.RookeryCapital_PythonTest/__init__.py: high
-encoding/base64:       low
+encoding/base64: low
 evasion/base64/decode: medium
 evasion/codecs_decode: high
-exec/program:          medium
-fs/file/open:          low
-fs/file/write:         low
-fs/tempdir:            low
-kernel/platform:       medium
-net/url/request:       medium
+exec/program: medium
+fs/file/open: low
+fs/file/write: low
+fs/tempdir: low
+kernel/platform: medium
+net/url/request: medium

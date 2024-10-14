@@ -1,7 +1,7 @@
 # python/2024.d3duct1v/s2.py: critical
 combo/locker/fernet_listdir: critical
-crypto/fernet:               medium
-fd/read:                     low
-fd/write:                    low
-fs/directory/traverse:       medium
-fs/file/open:                low
+crypto/fernet: medium
+fd/read: low
+fd/write: low
+fs/directory/traverse: medium
+fs/file/open: low
