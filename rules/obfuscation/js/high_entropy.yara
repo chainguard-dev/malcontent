@@ -10,7 +10,7 @@ private rule probably_js {
 		filesize < 512KB and all of ($f*)
 }
 
-rule high_entropy : high {
+rule high_entropy : medium {
     meta:
         description = "high entropy javascript (>5.37)"
     condition:

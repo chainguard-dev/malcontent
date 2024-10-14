@@ -56,6 +56,7 @@ rule pcap_shell_exec : high {
     hash_2023_BPFDoor_dc83 = "dc8346bf443b7b453f062740d8ae8d8d7ce879672810f4296158f90359dcae3a"
     hash_2024_enumeration_nmap = "353fd20c9efcd0328cea494f32d3650b9346fcdb45bfe20d8dbee2dd7b62ca62"
     hash_2024_static_binaries_ncat = "328a7313830e97685b372ff4de89ee0161abe88c50a2250a0b34de7ff4fc6587"
+	filetypes = "elf,macho"
   strings:
     $libpcap = "libpcap"
     $shell = "shell" fullword
@@ -68,7 +69,7 @@ rule pcap_shell_exec : high {
     $not_airportd = "airportd"
 	$not_license = "Alternate form in libpcap, which also omits the IN NO EVENT paragraph"
   condition:
-    filesize < 100MB and $libpcap and any of ($sh*) and any of ($y*) and none of ($not*)
+    filesize < 10MB and filesize > 20KB and $libpcap and any of ($sh*) and any of ($y*) and none of ($not*)
 }
 
 rule go_pty_daemonize_net : critical {

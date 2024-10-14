@@ -4,6 +4,7 @@ rule fake_chrome_update : high {
 	description = "May fake being a Chrome update"
   strings:
 	$ref = "GoogleChromeUpdate"
+	$updater = "com.google.Chrome.UpdaterPrivilegedHelper"
   condition:
-	$ref
+	$ref and not $updater
 }

@@ -15,6 +15,7 @@ rule unusual_cd_val : high {
     $d_var_run = "cd /var/run"
     $d_var_tmp = "cd /var/tmp"
 	$not_usr_src = "cd /usr/src"
+	$not_usr_include = "cd /usr/include"
   condition:
     any of ($d*) and none of ($not*)
 }
