@@ -14,7 +14,7 @@ fs/file/times/set: medium
 fs/permission/modify: medium
 net/download: medium
 net/fetch: medium
-ref/path/hidden: medium
+ref/path/hidden: low
 ref/path/home: medium
 ref/path/root: medium
 ref/path/tmp: medium

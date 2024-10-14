@@ -140,7 +140,7 @@ ref/ip/dns_resolver: medium
 ref/ip_port: medium
 ref/path/etc: low
 ref/path/file/url: low
-ref/path/hidden: medium
+ref/path/hidden: low
 ref/path/home_library: low
 ref/path/tmp: medium
 ref/path/usr/bin: low

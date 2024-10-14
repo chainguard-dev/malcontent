@@ -5,6 +5,7 @@ admin/logs/failed_logins: high
 admin/logs/historical_logins: high
 combo/backdoor/ssh: high
 combo/recon/system_network: medium
+combo/stealer/pam: critical
 crypto/aes: low
 encoding/base64: low
 env/HOME: low
@@ -63,7 +64,7 @@ ref/daemon: medium
 ref/ip_port: medium
 ref/path/etc: low
 ref/path/etc/hosts: medium
-ref/path/hidden: medium
+ref/path/hidden: high
 ref/path/tmp: medium
 ref/path/usr/bin: low
 ref/path/usr/local: medium
@@ -76,7 +77,7 @@ ref/words/agent: medium
 ref/words/backdoor: high
 ref/words/malicious: medium
 ref/words/password: low
-ref/words/rootkit: high
+ref/words/rootkit: medium
 ref/words/spoof: medium
 secrets/private_key: low
 secrets/ssh: medium

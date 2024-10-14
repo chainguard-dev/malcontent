@@ -18,7 +18,7 @@ kernel/platform: medium
 net/interface/list: medium
 net/url/request: medium
 process/username/get: low
-ref/path/hidden: medium
+ref/path/hidden: low
 ref/site/url: low
 techniques/code_eval: medium
 tty/getpass: low

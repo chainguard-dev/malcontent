@@ -119,7 +119,7 @@ ref/ip_port: medium
 ref/path/etc: low
 ref/path/etc/hosts: medium
 ref/path/etc/resolv.conf: low
-ref/path/hidden: medium
+ref/path/hidden: low
 ref/path/home/config: low
 ref/path/root: medium
 ref/path/usr/bin: low

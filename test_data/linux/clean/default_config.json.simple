@@ -43,7 +43,7 @@ ref/cve: medium
 ref/daemon: medium
 ref/path/etc: low
 ref/path/etc/hosts: medium
-ref/path/hidden: medium
+ref/path/hidden: low
 ref/path/home: medium
 ref/path/home/config: low
 ref/path/tmp: medium

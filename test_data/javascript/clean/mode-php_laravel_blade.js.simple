@@ -54,7 +54,7 @@ random/insecure: low
 ref/daemon: medium
 ref/ip_port: medium
 ref/path/etc: low
-ref/path/hidden: medium
+ref/path/hidden: low
 ref/site/url: low
 ref/words/agent: medium
 ref/words/password: low

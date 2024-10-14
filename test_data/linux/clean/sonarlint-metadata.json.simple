@@ -35,7 +35,7 @@ ref/path/dev: medium
 ref/path/dev/mqueue: medium
 ref/path/etc: low
 ref/path/etc/hosts: medium
-ref/path/hidden: medium
+ref/path/hidden: low
 ref/path/relative: medium
 ref/path/tmp: medium
 ref/path/users: medium
