@@ -1,19 +1,10 @@
-🔎 Scanning "linux/2024.sliver/de33b8d9694b6b4c44e3459b2151571af5d0e2031551f9f1a70b6db475ba71b2.elf"
-linux/2024.sliver/de33b8d9694b6b4c44e3459b2151571af5d0e2031551f9f1a70b6db475ba71b2.elf [90m[[0m🔥 [91mHIGH[0m[90m][0m
-----------------------------------------------------------------------------------------------------
-RISK  KEY                          DESCRIPTION                                 EVIDENCE             
-----------------------------------------------------------------------------------------------------
-[92mLOW[0m   net/dns/txt                  Uses DNS TXT (text) records                 TXT                  
-                                                                               dns                  
-[92mLOW[0m   ref/site/url                 contains embedded HTTP URLs                 http://upx.sf.net    
-[93mMED[0m   evasion/packer/high_entropy  higher entropy binary (>7.5)                                     
-[93mMED[0m   net/bpf                      BPF (Berkeley Packet Filter)                bpf                  
-[93mMED[0m   net/ssh                      Uses SSH (secure shell) service             SSH                  
-[93mMED[0m   procfs/self/exe              gets executable associated to this process  /proc/self/exe       
-[93mMED[0m   ref/path/dev                 path reference within /dev                  /dev/urandom         
-[91mHIGH[0m  evasion/packer/elf           Obfuscated ELF binary (missing content)                          
-[91mHIGH[0m  evasion/packer/upx           Linux ELF binary packed with UPX            This file is packed  
-                                                                               UPX!                 
-                                                                               executable packer    
-----------------------------------------------------------------------------------------------------
-
+# linux/2024.sliver/de33b8d9694b6b4c44e3459b2151571af5d0e2031551f9f1a70b6db475ba71b2.elf: high
+evasion/packer/elf: high
+evasion/packer/high_entropy: medium
+evasion/packer/upx: high
+net/bpf: medium
+net/dns/txt: low
+net/ssh: medium
+procfs/self/exe: medium
+ref/path/dev: medium
+ref/site/url: low
