@@ -57,7 +57,6 @@ rule ransom_detection : high {
     $s_our_decryption = "our decryption"
     $s_our_security = "our security"
     $s_permanently = "permanently destroyed"
-    $s_process_of = "already in progress"
     $s_ransom = "ransom" fullword
     $s_recoverfiles = "recoverfiles"
     $s_recover = "recover "
@@ -92,7 +91,7 @@ rule ransom_detection : high {
     $s_your_security = "your security"
 	$s_your = "your data"
     $tor_download = "torproject.org/download"
-    $tor_onion = /\w\.onion\W/
+    $tor_onion = /\w{56}o\.onion\W/
   condition:
     filesize < 20971520 and 6 of ($s_*) and any of ($tor*) and none of ($not*)
 }
