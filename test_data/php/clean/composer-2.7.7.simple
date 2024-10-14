@@ -1,73 +1,73 @@
-# php/clean/composer-2.7.7
-archives/zip
-combo/dropper/shell
-combo/net/scan_tool
-compression/bzip2
-compression/gzip
-crypto/aes
-data/embedded/base64/terms
-data/embedded/base64/url
-data/embedded/pem/certificate
-data/emdedded/app/manifest
-databases/mysql
-databases/sqlite
-encoding/base64
-encoding/reverse
-env/DYLD_LIBRARY_PATH
-env/HOME
-env/SHELL
-env/TERM
-env/USER
-evasion/anti/debugger
-evasion/base64/decode
-evasion/non_printable_chars
-exec/cmd
-fs/directory/create
-fs/directory/remove
-fs/file/copy
-fs/file/delete
-fs/file/delete/forcibly
-fs/file/read
-fs/file/times/set
-fs/file/truncate
-fs/file/write
-fs/link/read
-fs/lock/update
-fs/permission/modify
-fs/symlink/resolve
-fs/tempdir/create
-fs/tempfile/create
-kernel/hostname/get
-kernel/platform
-net/fetch
-net/hostname/resolve
-net/http/accept/encoding
-net/http/form/upload
-net/http/post
-net/http/request
-net/http_proxy
-net/ip/parse
-net/oauth2
-net/socket/listen
-net/socket/send
-net/ssh
-net/url/encode
-process/chdir
-process/taskkill
-ref/ip/dns_resolver
-ref/ip_port
-ref/path/etc
-ref/path/hidden
-ref/path/home
-ref/path/home/config
-ref/path/usr/bin
-ref/path/var
-ref/program/sudo
-ref/site/http/dynamic
-ref/site/php
-ref/site/url
-ref/words/password
-ref/words/plugin
-ref/words/target_ip
-shell/ignore_output
-techniques/code_eval
+# php/clean/composer-2.7.7: medium
+archives/zip: medium
+combo/dropper/shell: medium
+combo/net/scan_tool: medium
+compression/bzip2: low
+compression/gzip: low
+crypto/aes: low
+data/embedded/base64/terms: medium
+data/embedded/base64/url: medium
+data/embedded/pem/certificate: low
+data/emdedded/app/manifest: medium
+databases/mysql: medium
+databases/sqlite: medium
+encoding/base64: low
+encoding/reverse: low
+env/DYLD_LIBRARY_PATH: medium
+env/HOME: low
+env/SHELL: low
+env/TERM: low
+env/USER: low
+evasion/anti/debugger: medium
+evasion/base64/decode: medium
+evasion/non_printable_chars: medium
+exec/cmd: medium
+fs/directory/create: low
+fs/directory/remove: low
+fs/file/copy: medium
+fs/file/delete: low
+fs/file/delete/forcibly: medium
+fs/file/read: low
+fs/file/times/set: medium
+fs/file/truncate: low
+fs/file/write: low
+fs/link/read: low
+fs/lock/update: low
+fs/permission/modify: medium
+fs/symlink/resolve: low
+fs/tempdir/create: low
+fs/tempfile/create: low
+kernel/hostname/get: low
+kernel/platform: low
+net/fetch: medium
+net/hostname/resolve: low
+net/http/accept/encoding: low
+net/http/form/upload: medium
+net/http/post: medium
+net/http/request: low
+net/http_proxy: low
+net/ip/parse: medium
+net/oauth2: low
+net/socket/listen: low
+net/socket/send: low
+net/ssh: medium
+net/url/encode: medium
+process/chdir: low
+process/taskkill: medium
+ref/ip/dns_resolver: medium
+ref/ip_port: medium
+ref/path/etc: low
+ref/path/hidden: medium
+ref/path/home: medium
+ref/path/home/config: low
+ref/path/usr/bin: low
+ref/path/var: low
+ref/program/sudo: medium
+ref/site/http/dynamic: medium
+ref/site/php: medium
+ref/site/url: low
+ref/words/password: low
+ref/words/plugin: low
+ref/words/target_ip: medium
+shell/ignore_output: medium
+techniques/code_eval: medium

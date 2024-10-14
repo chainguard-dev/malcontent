@@ -1,16 +1,16 @@
-# linux/2024.PAN-OS.Upstyle/update_base64_payload1.py
-3P/volexity/py/upstyle
-encoding/base64
-evasion/base64/decode
-evasion/base64/eval
-evasion/base64/python
-exec/program
-fd/read
-fd/write
-fs/file/delete
-fs/file/open
-fs/file/read
-fs/file/write
-procfs/self/cmdline
-ref/path/usr/lib/python
-ref/path/usr/local
+# linux/2024.PAN-OS.Upstyle/update_base64_payload1.py: critical
+3P/volexity/py/upstyle: critical
+encoding/base64: low
+evasion/base64/decode: medium
+evasion/base64/eval: critical
+evasion/base64/python: critical
+exec/program: medium
+fd/read: low
+fd/write: low
+fs/file/delete: low
+fs/file/open: low
+fs/file/read: low
+fs/file/write: low
+procfs/self/cmdline: medium
+ref/path/usr/lib/python: medium
+ref/path/usr/local: medium
