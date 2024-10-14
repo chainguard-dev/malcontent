@@ -383,7 +383,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 		// If running a scan as opposed to an analyze,
 		// drop any matches that fall below the highest risk
 		switch {
-		case risk < minScore && !ignoreMalcontent:
+		case risk < minScore && !ignoreMalcontent && !override:
 			continue
 		case c.Scan && risk < highestRisk && !ignoreMalcontent && !override:
 			continue
