@@ -1,0 +1,5 @@
+# macOS/2024.AMOS/WeChat: critical
+malware/family/amos: critical
+net/http/post: medium
+ref/site/url: low
+shell/exec: medium

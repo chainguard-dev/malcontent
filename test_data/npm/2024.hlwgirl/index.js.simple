@@ -1,4 +1,5 @@
-# npm/2024.hlwgirl/index.js: high
+# npm/2024.hlwgirl/index.js: critical
+combo/backdoor/base64_exec: critical
 encoding/base64: low
 evasion/hex: high
 fs/file/write: low

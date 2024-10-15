@@ -10,6 +10,6 @@ net/url: low
 obfuscation/generic/hex: medium
 obfuscation/js/char_codes: high
 obfuscation/js/hex_functions: critical
-obfuscation/js/high_entropy: high
+obfuscation/js/high_entropy: medium
 ref/words/server_address: medium
 shell/exec: medium

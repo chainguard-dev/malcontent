@@ -89,8 +89,10 @@ var rulesWithWarnings = map[string]bool{
 	"Agenda_golang":                         false,
 	"bookworm_dll_UUID":                     false,
 	"cobaltstrike_offensive_tool_keyword":   false,
-	"amos":                                  true,
+	"amos_magic_var":                        true,
 	"echo_decode_bash":                      true,
+	"osascript_window_closer":               true,
+	"osascript_quitter":                     true,
 }
 
 func Recursive(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {

@@ -1,5 +1,5 @@
 
-rule macos_cookies_val : high {
+rule macos_cookies : high macos {
   meta:
     ref = "https://www.sentinelone.com/blog/macos-malware-2023-a-deep-dive-into-emerging-trends-and-evolving-techniques/"
     description = "access macOS Cookie files"

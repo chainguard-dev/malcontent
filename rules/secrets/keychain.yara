@@ -14,7 +14,7 @@ rule keychain : medium macos {
     any of ($ref*) and none of ($not*)
 }
 
-rule macos_library_keychains : medium {
+rule macos_library_keychains : medium macos {
   meta:
     description = "access system keychain via files"
     hash_2023_Downloads_016a = "016a1a4fe3e9d57ab0b2a11e37ad94cc922290d2499b8d96957c3ddbdc516d74"
@@ -28,7 +28,7 @@ rule macos_library_keychains : medium {
     $ref and none of ($not*)
 }
 
-rule find_generic_password : high {
+rule find_generic_password : high macos {
   meta:
     description = "Looks up a password from the Keychain"
   strings:
@@ -40,7 +40,7 @@ rule find_generic_password : high {
     $ref and none of ($not*)
 }
 
-rule find_internet_password : high {
+rule find_internet_password : high macos {
   meta:
     description = "Looks up an internet password from the Keychain"
   strings:
@@ -52,7 +52,7 @@ rule find_internet_password : high {
     $ref and none of ($not*)
 }
 
-rule login_keychain : high {
+rule login_keychain : high macos {
 	meta:
 		description = "may steal login keychain"
 	strings:
@@ -61,7 +61,17 @@ rule login_keychain : high {
 		filesize < 200MB and $ref
 }
 
-rule login_keychain_eager_beaver : critical {
+rule adobe_sam_login_keychain : override macos {
+	meta:
+		description = "Adobe SAM"
+		login_keychain = "medium"
+	strings:
+		$ref = "com.adobe.acc.sam-v2.dylib"
+	condition:
+		filesize > 50MB and filesize < 100MB and $ref
+}
+
+rule login_keychain_eager_beaver : critical macos {
 	meta:
 		description = "steals login keychain"
 		ref = "https://www.group-ib.com/blog/apt-lazarus-python-scripts/"

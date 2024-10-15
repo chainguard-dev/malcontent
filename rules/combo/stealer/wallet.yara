@@ -34,7 +34,7 @@ rule crypto_stealer_names : critical {
     $not_scriptsrc = /\"scriptSrc\": "([^"]{0,64})"/
     $not_website = /\"website\": "([^"]{0,64})"/
   condition:
-    $http and 2 of ($w*) and none of ($not*)
+    filesize < 100MB and $http and 2 of ($w*) and none of ($not*)
 }
 
 
@@ -65,5 +65,5 @@ rule crypto_extension_stealer : critical {
     $not_scriptsrc = /\"scriptSrc\": "([^"]{0,64})"/
     $not_website = /\"website\": "([^"]{0,64})"/
   condition:
-    $http and 3 of ($w*) and none of ($not*)
+    filesize < 100MB and $http and 3 of ($w*) and none of ($not*)
 }
