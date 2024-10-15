@@ -115,7 +115,7 @@ func File(path string) (*FileType, error) {
 	defer f.Close()
 
 	_, err = io.ReadFull(f, hdr[:])
-	if err != nil && !errors.Is(err, io.ErrUnexpectedEOF) {
+	if err != nil && !errors.Is(err, io.ErrUnexpectedEOF) && !errors.Is(err, io.EOF) {
 		return nil, fmt.Errorf("read: %w", err)
 	}
 
