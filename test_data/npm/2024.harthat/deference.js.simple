@@ -1,11 +1,11 @@
-# npm/2024.harthat/deference.js
-combo/backdoor/dll_injection
-evasion/echo_off
-fs/file/delete
-fs/file/write
-net/fetch
-net/fetch/suspicious
-process/create
-ref/ip
-ref/site/http/ip
-ref/site/url
+# npm/2024.harthat/deference.js: critical
+combo/backdoor/dll_injection: critical
+evasion/echo_off: high
+fs/file/delete: low
+fs/file/write: low
+net/fetch: critical
+net/fetch/suspicious: high
+process/create: medium
+ref/ip: medium
+ref/site/http/ip: high
+ref/site/url: low

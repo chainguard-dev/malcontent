@@ -12,14 +12,15 @@ rule pam_passwords : high {
     $f_exfil = "exfil"
 	$f_orig_item = "orig_pam_set_item"
 	$f_orig_auth = "orig_pam_authenticate"
-	$f_fchmod = "fchmod" fullword
 	$f_getifaddrs = "getifaddrs" fullword
 	$f_keylogger = "keylogger"
 	$f_tmp = "/tmp/"
 	$f_ssh = "/bin/ssh"
 	$f_sendto = "sendto" fullword
+	$not_pam_service = "--pam-service"
+	$not_pam_acct = "pam_acct_mgmt"
   condition:
-    $auth and $pass and any of ($f*)
+    $auth and $pass and any of ($f*) and none of ($not*)
 }
 
 rule pam_passwords_rootkit : critical {

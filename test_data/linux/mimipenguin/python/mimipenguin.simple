@@ -1,25 +1,25 @@
-# linux/mimipenguin/python/mimipenguin
-3P/signature_base/mimipenguin
-combo/stealer/password
-encoding/base64
-evasion/base64/decode
-fd/read
-fs/directory/list
-fs/file/open
-kernel/platform
-net/ssh
-process/list
-process/name/get
-procfs/arbitrary/pid
-procfs/pid/cmdline
-procfs/pid/maps
-ref/daemon
-ref/path/etc
-ref/path/usr/bin
-ref/program/gnome/keyring/daemon
-ref/program/sshd
-ref/program/sudo
-ref/site/url
-ref/words/password
-ref/words/password_finder
-secrets/shadow
+# linux/mimipenguin/python/mimipenguin: critical
+3P/signature_base/mimipenguin: critical
+combo/stealer/password: critical
+encoding/base64: low
+evasion/base64/decode: medium
+fd/read: low
+fs/directory/list: low
+fs/file/open: low
+kernel/platform: medium
+net/ssh: medium
+process/list: medium
+process/name/get: medium
+procfs/arbitrary/pid: medium
+procfs/pid/cmdline: medium
+procfs/pid/maps: medium
+ref/daemon: medium
+ref/path/etc: low
+ref/path/usr/bin: low
+ref/program/gnome/keyring/daemon: medium
+ref/program/sshd: medium
+ref/program/sudo: medium
+ref/site/url: low
+ref/words/password: low
+ref/words/password_finder: high
+secrets/shadow: medium

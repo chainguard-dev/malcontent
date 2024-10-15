@@ -1,97 +1,97 @@
-# javascript/clean/5D3EB8D016DDDA0665CB8CD8EEA6C537.cache.js
-3P/threat_hunting/powershell
-archives/unarchive
-combo/backdoor/crypto_geoip_exec
-combo/net/tunnel_proxy
-combo/wiper/crypto
-compression/bzip2
-compression/gzip
-data/embedded/base64/url
-data/embedded/html
-databases/mysql
-databases/postgresql
-databases/sqlite
-encoding/base64
-encoding/json/decode
-encoding/json/encode
-encoding/reverse
-env/HOME
-env/TEMP
-env/USER
-evasion/base64/decode
-evasion/unusual_include
-exec/cmd
-exec/program
-exec/program/background
-fd/read
-fs/directory/create
-fs/directory/remove
-fs/fifo/create
-fs/file/delete
-fs/file/delete/forcibly
-fs/file/read
-fs/file/times/set
-fs/file/truncate
-fs/file/write
-fs/link/read
-fs/lock/update
-fs/mount
-fs/node/create
-fs/permission/chown
-fs/permission/modify
-fs/symlink/resolve
-fs/tempdir
-fs/watch
-group/lookup
-hash/md5
-kernel/acct
-kernel/hostname/get
-kernel/platform
-net/download
-net/fetch
-net/hostname/resolve
-net/hostport/parse
-net/http/cookies
-net/http/form/upload
-net/http/post
-net/http/request
-net/ip/parse
-net/ip/resolve
-net/ip/string
-net/socket/connect
-net/socket/listen
-net/socket/local/address
-net/socket/peer/address
-net/socket/receive
-net/socket/send
-net/tunnel
-net/upload
-net/url
-net/url/encode
-net/url/request
-process/chdir
-process/chroot
-process/effective/groupid/get
-process/groupid/set
-process/parent_pid/get
-process/userid/set
-process/username/get
-random/insecure
-ref/daemon
-ref/ip_port
-ref/path/etc
-ref/path/hidden
-ref/path/usr/bin
-ref/program/powershell
-ref/site/url
-ref/words/agent
-ref/words/exclamation
-ref/words/heartbeat
-ref/words/intercept
-ref/words/password
-ref/words/plugin
-ref/words/server_address
-ref/words/spoof
-secrets/private_key
-techniques/code_eval
-tty/pathname
+# javascript/clean/5D3EB8D016DDDA0665CB8CD8EEA6C537.cache.js: high
+3P/threat_hunting/powershell: medium
+archives/unarchive: medium
+combo/backdoor/crypto_geoip_exec: medium
+combo/net/tunnel_proxy: medium
+combo/wiper/crypto: high
+compression/bzip2: low
+compression/gzip: low
+data/embedded/base64/url: medium
+data/embedded/html: medium
+databases/mysql: medium
+databases/postgresql: medium
+databases/sqlite: medium
+encoding/base64: low
+encoding/json/decode: low
+encoding/json/encode: low
+encoding/reverse: low
+env/HOME: low
+env/TEMP: low
+env/USER: low
+evasion/base64/decode: medium
+evasion/unusual_include: high
+exec/cmd: medium
+exec/program: medium
+exec/program/background: low
+fd/read: low
+fs/directory/create: low
+fs/directory/remove: low
+fs/fifo/create: low
+fs/file/delete: low
+fs/file/delete/forcibly: low
+fs/file/read: low
+fs/file/times/set: medium
+fs/file/truncate: low
+fs/file/write: low
+fs/link/read: low
+fs/lock/update: low
+fs/mount: low
+fs/node/create: low
+fs/permission/chown: low
+fs/permission/modify: medium
+fs/symlink/resolve: low
+fs/tempdir: low
+fs/watch: low
+group/lookup: medium
+hash/md5: low
+kernel/acct: low
+kernel/hostname/get: low
+kernel/platform: low
+net/download: medium
+net/fetch: medium
+net/hostname/resolve: low
+net/hostport/parse: low
+net/http/cookies: medium
+net/http/form/upload: medium
+net/http/post: medium
+net/http/request: low
+net/ip/parse: medium
+net/ip/resolve: low
+net/ip/string: medium
+net/socket/connect: medium
+net/socket/listen: low
+net/socket/local/address: low
+net/socket/peer/address: low
+net/socket/receive: low
+net/socket/send: low
+net/tunnel: medium
+net/upload: medium
+net/url: low
+net/url/encode: medium
+net/url/request: medium
+process/chdir: low
+process/chroot: low
+process/effective/groupid/get: medium
+process/groupid/set: low
+process/parent_pid/get: low
+process/userid/set: low
+process/username/get: low
+random/insecure: low
+ref/daemon: medium
+ref/ip_port: medium
+ref/path/etc: low
+ref/path/hidden: medium
+ref/path/usr/bin: low
+ref/program/powershell: medium
+ref/site/url: low
+ref/words/agent: medium
+ref/words/exclamation: medium
+ref/words/heartbeat: medium
+ref/words/intercept: medium
+ref/words/password: low
+ref/words/plugin: low
+ref/words/server_address: medium
+ref/words/spoof: medium
+secrets/private_key: low
+techniques/code_eval: medium
+tty/pathname: medium

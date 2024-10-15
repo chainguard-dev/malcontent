@@ -19,6 +19,7 @@ rule dev_shm_file : high {
 	$not_c = "/dev/shm/%s"
 	$not_shmem = "shmem" fullword
 	$not_shm_pages = "shm_pages"
+	$not_wasm = "FS.mkdir(\"/dev/shm/tmp\")"
   condition:
     $ref and none of ($not*)
 }

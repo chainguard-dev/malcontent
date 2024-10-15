@@ -1,18 +1,18 @@
-# python/2024.coloredtxt/base64_payload3.py
-combo/dropper/python
-encoding/base64
-env/get
-evasion/base64/decode
-exec/program
-fd/read
-fd/write
-fs/file/make_executable
-fs/file/open
-fs/file/read
-fs/permission/modify
-kernel/platform
-net/fetch
-ref/site/php
-ref/site/url
-ref/site/url/unusual
-shell/ignore_output
+# python/2024.coloredtxt/base64_payload3.py: critical
+combo/dropper/python: high
+encoding/base64: low
+env/get: low
+evasion/base64/decode: medium
+exec/program: medium
+fd/read: low
+fd/write: low
+fs/file/make_executable: medium
+fs/file/open: low
+fs/file/read: low
+fs/permission/modify: medium
+kernel/platform: medium
+net/fetch: medium
+ref/site/php: medium
+ref/site/url: low
+ref/site/url/unusual: low
+shell/ignore_output: medium

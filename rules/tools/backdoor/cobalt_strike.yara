@@ -1,3 +1,4 @@
+import "math"
 
 rule cobalt_strike_indicator : high {
   meta:
@@ -8,4 +9,53 @@ rule cobalt_strike_indicator : high {
     $ref = "%s as %s\\%s: %d" ascii xor
   condition:
     any of them
+}
+
+rule macho_cobaltstrike_beacon_syscalls : high darwin {
+	meta:
+		ref = "https://www.virustotal.com/gui/file/5ab6f81898fb32e74bf9e6538713fc838f0c127f2bedb581f60623e8404ae4b1/community"
+		sha256 = "5ab6f81898fb32e74bf9e6538713fc838f0c127f2bedb581f60623e8404ae4b1"
+		description = "possible CobaltStrike beacon"
+		filetypes = "macho"
+	strings:
+		$_atol = "@_atol" fullword
+		$_daemon_1050 = "@_daemon$1050" fullword
+		$_execvp = "@_execvp" fullword
+		$_getcontext = "@_getcontext" fullword
+		$_getgid = "@_getgid" fullword
+		$_gethostbyname = "@_gethostbyname" fullword
+		$_inet_addr = "@_inet_addr" fullword
+		$_inet_aton = "@_inet_aton" fullword
+		$_inet_ntoa = "@_inet_ntoa" fullword
+		$_inet_ntop = "@_inet_ntop" fullword
+		$_inet_pton = "@_inet_pton" fullword
+		$_localtime = "@_localtime" fullword
+		$_makecontext = "@_makecontext" fullword
+		$_mlock = "@_mlock" fullword
+		$_pclose = "@_pclose" fullword
+		$_popen = "@_popen" fullword
+		$_pthread_atfork = "@_pthread_atfork" fullword
+		$_pthread_equal = "@_pthread_equal" fullword
+		$_pthread_rwlock_destroy = "@_pthread_rwlock_destroy" fullword
+		$_pthread_rwlock_init = "@_pthread_rwlock_init" fullword
+		$_pthread_rwlock_rdlock = "@_pthread_rwlock_rdlock" fullword
+		$_pthread_rwlock_unlock = "@_pthread_rwlock_unlock" fullword
+		$_pthread_rwlock_wrlock = "@_pthread_rwlock_wrlock" fullword
+		$_select_1050 = "@_select$1050" fullword
+		$_setcontext = "@_setcontext" fullword
+		$_setenv = "@_setenv" fullword
+		$_shm_open = "@_shm_open" fullword
+		$_shm_unlink = "@_shm_unlink" fullword
+		$_sleep = "@_sleep" fullword
+		$_sprintf = "@_sprintf" fullword
+		$_srand = "@_srand" fullword
+		$_strcspn = "@_strcspn" fullword
+		$_strspn = "@_strspn" fullword
+		$_strtok = "@_strtok" fullword
+		$_strtol = "@_strtol" fullword
+		$_unsetenv = "@_unsetenv" fullword
+		$_wait = "@_wait" fullword
+		$OpenSSL = "OpenSSL" fullword
+	condition:
+		filesize > 3MB and filesize < 6MB and 95% of them and math.entropy(1,filesize) > 6
 }
