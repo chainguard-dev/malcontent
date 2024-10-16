@@ -101,7 +101,7 @@ net/http/auth: low
 net/http/cookies: medium
 net/http/form/upload: medium
 net/http/post: medium
-net/http/request: low
+net/http/request: medium
 net/http2: low
 net/http_proxy: low
 net/icmp: medium

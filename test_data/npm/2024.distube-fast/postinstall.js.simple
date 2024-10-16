@@ -4,7 +4,7 @@ env/get: low
 fs/file/delete: low
 fs/tempfile/create: low
 net/download: medium
-net/http/request: low
+net/http/request: medium
 process/create: medium
 ref/site/exe: critical
 ref/site/url: low

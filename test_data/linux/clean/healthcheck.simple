@@ -1,4 +1,4 @@
 # linux/clean/healthcheck: medium
-net/http/request: low
+net/http/request: medium
 ref/path/dev: medium
 shell/exec: medium
