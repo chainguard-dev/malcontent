@@ -2,5 +2,5 @@
 evasion/int_to_char: medium
 obfuscation/generic/hex: medium
 obfuscation/js/child_process: critical
-obfuscation/js/high_entropy: high
+obfuscation/js/high_entropy: medium
 process/create: medium

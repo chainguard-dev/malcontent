@@ -5,7 +5,7 @@ combo/recon/system_network: medium
 crypto/aes: low
 crypto/xor: high
 dylib/symbol/address: medium
-dylib/user: high
+dylib/user: medium
 env/TERM: low
 evasion/odd_pidfile: high
 fs/attributes/set: medium

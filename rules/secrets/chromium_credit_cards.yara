@@ -12,5 +12,5 @@ rule chromium_master_password : critical {
     $c2 = "Chromium"
     $not_chromium = "CHROMIUM_TIMESTAMP"
   condition:
-    any of ($c*) and $web_data and $encrypted_key and none of ($not*)
+    filesize < 25MB and any of ($c*) and $web_data and $encrypted_key and none of ($not*)
 }

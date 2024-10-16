@@ -10,5 +10,5 @@ rule firefox_cookies : high {
     $fcookie = "cookies.sqlite"
     $not_chromium = "CHROMIUM_TIMESTAMP"
   condition:
-    all of ($f*) and none of ($not*)
+    filesize < 100MB and all of ($f*) and none of ($not*)
 }

@@ -14,7 +14,7 @@ fs/symlink/resolve: low
 fs/tempdir/create: low
 kernel/platform: medium
 process/multiprocess: medium
-ref/path/hidden: low
+ref/path/hidden: medium
 ref/path/home: medium
 ref/path/tmp: medium
 ref/path/usr/bin: low

@@ -1,0 +1,4 @@
+# macOS/2024.Poseidon/co.novemberfive.xib2storyboard: high
+malware/family/poseidon_stealer: high
+net/url: low
+shell/exec: medium
