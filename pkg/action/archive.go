@@ -126,11 +126,17 @@ func extractTar(ctx context.Context, d string, f string) error {
 		if err != nil {
 			return fmt.Errorf("failed to read tar header: %w", err)
 		}
+
 		clean := filepath.Clean(header.Name)
-		if filepath.IsAbs(clean) || strings.HasPrefix(clean, "..") {
+		if filepath.IsAbs(clean) || strings.Contains(clean, "..") {
 			return fmt.Errorf("invalid file path: %s", header.Name)
 		}
+
 		target := filepath.Join(d, clean)
+		if !strings.HasPrefix(target, filepath.Clean(d)+string(os.PathSeparator)) {
+			return fmt.Errorf("invalid file path: %s", header.Name)
+		}
+
 		if header.FileInfo().IsDir() {
 			// #nosec G115
 			if err := os.MkdirAll(target, os.FileMode(header.Mode)); err != nil {
@@ -218,7 +224,17 @@ func extractZip(ctx context.Context, d string, f string) error {
 	defer read.Close()
 
 	for _, file := range read.File {
-		name := filepath.Join(d, filepath.Clean(filepath.ToSlash(file.Name)))
+		clean := filepath.Clean(filepath.ToSlash(file.Name))
+		if strings.Contains(clean, "..") {
+			logger.Warnf("skipping potentially unsafe file path: %s", file.Name)
+			continue
+		}
+
+		name := filepath.Join(d, clean)
+		if !strings.HasPrefix(name, filepath.Clean(d)+string(os.PathSeparator)) {
+			logger.Warnf("skipping file path outside extraction directory: %s", file.Name)
+			continue
+		}
 
 		// Check if a directory with the same name exists
 		if info, err := os.Stat(name); err == nil && info.IsDir() {

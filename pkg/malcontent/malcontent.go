@@ -65,8 +65,8 @@ type Behavior struct {
 	// Name is the value of m.Rule
 	RuleName string `json:",omitempty" yaml:",omitempty"`
 
-	// The name of the rule this behavior overrides
-	Override string `json:",omitempty" yaml:",omitempty"`
+	// The name of the rule(s) this behavior overrides
+	Override []string `json:",omitempty" yaml:",omitempty"`
 }
 
 type FileReport struct {
