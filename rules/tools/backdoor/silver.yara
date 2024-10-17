@@ -14,6 +14,24 @@ rule c2_implant_sliver_proto : critical {
     filesize < 20971520 and 2 of them
 }
 
+
+rule c2_implant_sliver_obfuscated : high {
+  meta:
+    description = "Possible Sliver Linux implant"
+	filetypes = "elf"
+  strings:
+	$coredump = ".CoreDump"
+	$gvisor = "HasGvisorGSOCapability"
+	$proxy_func = "ProxyFunc"
+	$new_private = "NewPrivateKey"
+	$optional_asn = "SkipOptionalASN1"
+	$spoofing = "SetSpoofing"
+	$append = "AppendCertsFromPEM"
+	$decrypt = ".Decrypt"
+  condition:
+    filesize < 15MB and filesize > 10MB and uint32(0) == 1179403647 and all of them
+}
+
 rule c2_implant_sliver_functions : critical {
   meta:
     description = "Sliver C2 implant"

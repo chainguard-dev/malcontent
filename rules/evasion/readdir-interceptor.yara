@@ -1,4 +1,3 @@
-
 rule readdir_intercept : high {
   meta:
     description = "userland rootkit designed to hide files"
@@ -13,7 +12,21 @@ rule readdir_intercept : high {
     $not_ld_debug = "LD_DEBUG"
     $not_libc = "getusershell"
   condition:
-    uint32(0) == 1179403647 and all of ($r*) and none of ($not*)
+    filesize < 2MB and uint32(0) == 1179403647 and all of ($r*) and none of ($not*)
+}
+
+rule readdir_tcp_wrapper_intercept : high {
+  meta:
+    description = "userland rootkit designed to hide files and bypass tcp-wrappers"
+	ref = "https://github.com/ldpreload/Medusa"
+  strings:
+    $r_new65 = "readdir64" fullword
+    $r_old64 = "_readdir64"
+    $r_new32 = "readdir" fullword
+    $r_old32 = "_readdir"
+	$r_hosts_access = "hosts_access"
+  condition:
+    filesize < 2MB and uint32(0) == 1179403647 and all of ($r*)
 }
 
 rule readdir_intercept_source : high {

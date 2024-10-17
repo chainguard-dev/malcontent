@@ -1,4 +1,3 @@
-
 rule proc_maps : medium {
   meta:
     description = "access process memory maps"

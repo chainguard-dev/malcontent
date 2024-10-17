@@ -1,0 +1,8 @@
+# linux/2024.k4spreader/knlib: critical
+evasion/copy_run_delete: critical
+fs/file/delete/forcibly: medium
+process/chdir: low
+process/chdir/unusual: high
+shell/exec: medium
+shell/ignore_output: medium
+shell/nohup: medium

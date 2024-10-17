@@ -1,0 +1,12 @@
+# linux/2024.k4spreader/d.py: critical
+combo/dropper/binary: high
+combo/dropper/http_ip_temp: critical
+evasion/http_443: high
+net/download: medium
+persist/writeable_dir: high
+ref/ip: medium
+ref/ip_port: high
+ref/path/dev: medium
+ref/path/var: low
+ref/site/http/ip: high
+ref/site/url: low

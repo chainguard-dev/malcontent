@@ -1,4 +1,6 @@
 # linux/2024.hadooken/figure4.py: critical
+combo/dropper/binary: high
+combo/dropper/http_ip_temp: critical
 combo/dropper/python: high
 exec/program: medium
 fd/read: low
@@ -9,6 +11,7 @@ fs/permission/modify: medium
 net/download: medium
 net/url: low
 net/url/request: medium
+persist/writeable_dir: high
 ref/ip: medium
 ref/path/dev: medium
 ref/path/var: low

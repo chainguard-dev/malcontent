@@ -1,6 +1,7 @@
 
 rule ransom_detection : high {
   meta:
+    description = "ransomware note"
     hash_2024_2022_Conti_8b57e96_elf = "8b57e96e90cd95fc2ba421204b482005fe41c28f506730b6148bcef8316a3201"
     hash_2024_2022_Conti_bb64b27 = "bb64b27bff106d30a7b74b3589cc081c345a2b485a831d7e8c8837af3f238e1e"
   strings:
@@ -12,6 +13,7 @@ rule ransom_detection : high {
     $s_audit = "audit of"
     $s_be_decrypted = "be decrypted"
     $s_blake2b = "blake2b"
+	$s_company = "company" fullword
     $s_corporate_data = "corporate data"
     $s_data_recovery = "data recovery"
     $s_decrypt = "DECRYPTDIR"
@@ -34,6 +36,7 @@ rule ransom_detection : high {
     $s_hi_friends = "Hi friends"
     $s_iles_txt = "iles.txt"
     $s_immediate_sale = "immediate sale"
+	$s_incident = "incident"
     $s_install_tor = "install TOR"
     $s_insurance = "insurance"
     $s_is_encrypted = "s encrypted by"
@@ -41,8 +44,8 @@ rule ransom_detection : high {
     $s_lck = "%s.lck"
     $s_LEAKAGE = "LEAKAGE"
     $s_leaks = "leaks" nocase fullword
-    $s_live_chat = "live chat"
     $s_live_chat2 = "live-chat"
+    $s_live_chat = "live chat"
     $s_locker = "locker" nocase fullword
     $s_lose_access = "lose access"
     $s_negotiable = "negotiable"
@@ -53,10 +56,9 @@ rule ransom_detection : high {
     $s_our_decryption = "our decryption"
     $s_our_security = "our security"
     $s_permanently = "permanently destroyed"
-    $s_process_of = "already in progress"
     $s_ransom = "ransom" fullword
-    $s_recover = "recover "
     $s_recoverfiles = "recoverfiles"
+    $s_recover = "recover "
     $s_refuse_to_pay = "refuse to pay"
     $s_remain_silent = "remain silent"
     $s_restore_docs = "restore documents" nocase
@@ -68,6 +70,7 @@ rule ransom_detection : high {
     $s_to_my_address = "to my address"
     $s_unfortunately_your = "unfortunately your" nocase
     $s_urandom = "/dev/urandom"
+	$s_victim = "victim"
     $s_vulnerabilities = "vulnerabilities"
     $s_was_encrypted = "was encrypted"
     $s_we_stole = "we stole"

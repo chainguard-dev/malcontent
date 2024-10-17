@@ -1,10 +1,12 @@
-# javascript/clean/frequency_lists.js: high
+# javascript/clean/frequency_lists.js: critical
 3P/threat_hunting/crowbar: medium
 3P/threat_hunting/hijacker: medium
 3P/threat_hunting/johntheripper: medium
 3P/threat_hunting/sharpshooter: medium
+combo/degrader/infection: critical
 combo/net/tunnel_proxy: medium
 databases/mysql: medium
+evasion/fake/process: high
 evasion/xor/commands: high
 fs/lock/update: low
 net/download: medium

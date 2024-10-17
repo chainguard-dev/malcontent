@@ -1,0 +1,5 @@
+# linux/2024.k4spreader/install.sh: critical
+evasion/copy_run_delete: critical
+fs/file/copy: medium
+fs/file/delete/forcibly: medium
+shell/ignore_output: medium

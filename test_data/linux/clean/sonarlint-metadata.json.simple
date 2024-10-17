@@ -1,4 +1,4 @@
-# linux/clean/sonarlint-metadata.json: medium
+# linux/clean/sonarlint-metadata.json: high
 3P/threat_hunting/bruteratel: medium
 3P/threat_hunting/github/username: medium
 3P/threat_hunting/owasp: medium
@@ -30,6 +30,7 @@ net/ssh: medium
 net/upload: medium
 net/url/encode: medium
 net/websocket: medium
+persist/writeable_dir: high
 ref/ip_port: medium
 ref/path/dev: medium
 ref/path/dev/mqueue: medium

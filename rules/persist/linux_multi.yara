@@ -1,6 +1,6 @@
-rule linux_multi_persist : critical {
+rule linux_multi_persist : high {
   meta:
-    description = "references multiple methods of persistence in Linux"
+    description = "references multiple Linux persistence methods"
   strings:
     $initd = /etc\/init\.d\/[\w\/\.]{0,32}/ fullword
 	$udev = "etc/udev"
