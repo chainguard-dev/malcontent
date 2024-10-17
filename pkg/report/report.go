@@ -420,7 +420,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 				}
 				b.RiskLevel = RiskLevels[overrideSev]
 				b.RiskScore = overrideSev
-				b.Override = k
+				b.Override = append(b.Override, k)
 				fr.Overrides = append(fr.Overrides, b)
 			}
 
@@ -654,13 +654,14 @@ func handleOverrides(original, override []*malcontent.Behavior) []*malcontent.Be
 	}
 
 	for _, o := range override {
-		if b, exists := behaviorMap[o.Override]; exists {
-			b.RiskLevel = o.RiskLevel
-			b.RiskScore = o.RiskScore
-
-			// Delete the override rule from the behavior map
-			delete(behaviorMap, o.RuleName)
+		for _, ob := range o.Override {
+			if b, exists := behaviorMap[ob]; exists {
+				b.RiskLevel = o.RiskLevel
+				b.RiskScore = o.RiskScore
+			}
 		}
+		// Delete the override rule from the behavior map
+		delete(behaviorMap, o.RuleName)
 	}
 
 	modified := make([]*malcontent.Behavior, 0, len(behaviorMap))
