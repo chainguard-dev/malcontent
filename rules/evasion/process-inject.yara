@@ -13,3 +13,16 @@ rule ptrace_injector : high {
   condition:
     filesize < 67108864 and $maps and $ptrace and $proc and none of ($not*)
 }
+
+rule library_injector : high {
+  meta:
+    description = "may inject code into other processes"
+  strings:
+    $proc = "/proc"
+	$maps = "maps"
+	$inject_lib = "to-inject"
+	$inject_thread= "to inject"
+	$inject_succ = "successfully injected"
+  condition:
+    filesize < 100KB and $proc and $maps and any of ($inject*)
+}

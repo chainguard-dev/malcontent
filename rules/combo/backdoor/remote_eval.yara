@@ -10,8 +10,10 @@ rule remote_eval : critical {
     $eval_open_ruby = /eval\(open[\(\)\"\'\-\w:\/\.]{0,64}/
     $exec_requests = /exec\(requests\.get[\(\)\"\'\-\w:\/\.]{0,64}/
     $eval_requests = /eval\(requests\.get[\(\)\"\'\-\w:\/\.]{0,64}/
-	$eval_urllib = /exec\(urllib\.request\.urlopen\([\(\)\"\'\-\w:\/\.]{0,64}\).read\(\)/
-	$exec_urllib = /exec\(urllib\.request\.urlopen\([\(\)\"\'\-\w:\/\.]{0,64}\).read\(\)/
+	$eval_request_urllib = /exec\(urllib\.request\.urlopen\([\(\)\"\'\-\w:\/\.]{0,64}\).read\(\)/
+	$exec_request_urllib = /exec\(urllib\.request\.urlopen\([\(\)\"\'\-\w:\/\.]{0,64}\).read\(\)/
+	$eval_urllib = /eval\(urllib\.urlopen\([\(\)\"\'\-\w:\/\.]{0,64}\).read\(\)/
+	$exec_urllib = /exec\(urllib\.urlopen\([\(\)\"\'\-\w:\/\.]{0,64}\).read\(\)/
   condition:
     filesize < 65535 and $http and any of ($e*)
 }

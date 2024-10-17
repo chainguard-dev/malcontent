@@ -41,8 +41,8 @@
                     ],
                     "RiskScore": 4,
                     "RiskLevel": "CRITICAL",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/combo/degrader/edr_killer.yara#edr_stopper",
-                    "ID": "combo/degrader/edr_killer",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/combo/degrader/edr.yara#edr_stopper",
+                    "ID": "combo/degrader/edr",
                     "RuleName": "edr_stopper"
                 },
                 {

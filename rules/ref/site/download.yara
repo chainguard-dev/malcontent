@@ -13,6 +13,7 @@ rule download_sites : high {
     $d_pastebinger = "paste.bingner.com"
     $d_transfer_sh = "transfer.sh"
     $d_rentry = "rentry.co" fullword
+	$d_pastebin = "pastebin"
     $d_penyacom = "penyacom"
     $d_controlc = "controlc.com"
     $d_anotepad = "anotepad.com"
@@ -40,8 +41,9 @@ rule pastebin : medium {
     any of ($d_*)
 }
 
-rule http_dropper_url : medium {
+rule program_dropper_url : medium {
   meta:
+    description = "downloads program from a hardcoded URL"
     ref = "https://unfinished.bike/qubitstrike-and-diamorphine-linux-kernel-rootkits-go-mainstream"
     hash_2023_Downloads_6e35 = "6e35b5670953b6ab15e3eb062b8a594d58936dd93ca382bbb3ebdbf076a1f83b"
     hash_2023_Downloads_9929 = "99296550ab836f29ab7b45f18f1a1cb17a102bb81cad83561f615f3a707887d7"

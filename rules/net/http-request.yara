@@ -1,4 +1,4 @@
-rule http_request {
+rule http_request : low {
 	meta:
 		pledge = "inet"
 		description = "makes HTTP requests"
@@ -12,6 +12,8 @@ rule http_request {
 		$http2 = "Referer" fullword
 		$uri = "open-uri" fullword
 		$http_get = "http.get" fullword
+		$http_connect = "HTTPConnection" fullword
+		$https_connect = "HTTPSConnection" fullword
 	condition:
 		any of them
 }

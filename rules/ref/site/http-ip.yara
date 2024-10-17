@@ -1,4 +1,3 @@
-
 rule http_hardcoded_ip : high exfil {
   meta:
     description = "hardcoded IP address within a URL"

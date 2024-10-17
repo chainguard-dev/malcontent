@@ -1,0 +1,10 @@
+# linux/2024.sliver/de33b8d9694b6b4c44e3459b2151571af5d0e2031551f9f1a70b6db475ba71b2.elf: high
+evasion/packer/elf: high
+evasion/packer/high_entropy: medium
+evasion/packer/upx: high
+net/bpf: medium
+net/dns/txt: low
+net/ssh: medium
+procfs/self/exe: medium
+ref/path/dev: medium
+ref/site/url: low
