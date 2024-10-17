@@ -22,7 +22,7 @@ kernel/platform: low
 net/hostname/resolve: low
 net/hostport/parse: low
 net/http/post: medium
-net/http/request: medium
+net/http/request: low
 net/interface/list: medium
 net/ip/parse: medium
 net/ip/string: medium

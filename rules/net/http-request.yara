@@ -1,4 +1,4 @@
-rule http_request : medium {
+rule http_request : low {
 	meta:
 		pledge = "inet"
 		description = "makes HTTP requests"

@@ -55,7 +55,7 @@ net/hostport/parse: low
 net/http/cookies: medium
 net/http/form/upload: medium
 net/http/post: medium
-net/http/request: medium
+net/http/request: low
 net/ip/parse: medium
 net/ip/resolve: low
 net/ip/string: medium

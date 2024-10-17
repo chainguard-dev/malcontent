@@ -44,7 +44,7 @@ net/hostname/resolve: low
 net/http/accept/encoding: low
 net/http/form/upload: medium
 net/http/post: medium
-net/http/request: medium
+net/http/request: low
 net/http_proxy: low
 net/ip/parse: medium
 net/oauth2: low

@@ -18,7 +18,7 @@ kernel/platform: medium
 net/download: medium
 net/http/form/upload: medium
 net/http/post: medium
-net/http/request: medium
+net/http/request: low
 net/ip/multicast/send: low
 net/socket/listen: low
 net/socket/send: low

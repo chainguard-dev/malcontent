@@ -10,7 +10,7 @@ fs/file/open: low
 fs/symlink/resolve: low
 fs/tempdir/create: low
 net/download: medium
-net/http/request: medium
+net/http/request: low
 net/url: low
 net/url/request: medium
 ref/site/url: low
