@@ -1,5 +1,5 @@
-# python/clean/numpy/misc_util.py: high
-admin/pip_install: high
+# python/clean/numpy/misc_util.py: medium
+admin/pip_install: medium
 env/get: low
 evasion/lib_alias: medium
 exec/program: medium

@@ -1,4 +1,4 @@
-rule bsd_streams : harmless {
+rule bsd_streams : harmless bsd {
 	meta:
 		description = "Access file descriptors"
 		pledge = "stdio"

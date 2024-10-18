@@ -1,7 +1,10 @@
+
 rule js_crypto_stealer : high {
   meta:
-    description = "possibly steals private cryptographic data"
+    description = "may exfiltrate private cryptographic data"
   strings:
+	$fs = "fs.readFile"
+
 	$pk = "private_key"
 	$pk2 = "PRIVATE_KEY"
 	$pk3 = "privateKey"
@@ -15,5 +18,5 @@ rule js_crypto_stealer : high {
 	$not_letsencrypt = "Letsencrypt"
 	$not_letsencrypt2 = "letsencrypt"
   condition:
-	filesize < 50KB and $url and $POST and any of ($pk*) and none of ($not*)
+	filesize < 50KB and $url and $fs and $POST and any of ($pk*) and none of ($not*)
 }

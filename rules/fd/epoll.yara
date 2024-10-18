@@ -1,4 +1,4 @@
-rule epoll {
+rule epoll : linux {
 	meta:
 		description = "I/O event notification facility"
 		pledge = "stdio"

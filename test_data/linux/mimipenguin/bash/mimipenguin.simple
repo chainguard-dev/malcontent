@@ -7,7 +7,7 @@ evasion/base64/eval: high
 evasion/base64/external: medium
 evasion/single_line_imports: medium
 exec/shell_command: medium
-fs/file/delete: high
+fs/file/delete: medium
 fs/file/delete/forcibly: medium
 kernel/platform: low
 net/ssh: medium

@@ -1,4 +1,4 @@
-rule dev_dm : medium {
+rule dev_dm : medium linux {
 	meta:
 		capability = "CAP_SYS_RAWIO"
 		description = "access raw LVM disk mapper devices"

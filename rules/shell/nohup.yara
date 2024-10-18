@@ -30,7 +30,7 @@ rule elf_nohup : high {
     $not_nohup_out = "nohup.out"
     $not_pushd = "pushd"
   condition:
-    uint32(0) == 1179403647 and any of ($nohup*) and none of ($not*)
+    uint32(0) == 1179403647 and filesize < 1MB and any of ($nohup*) and none of ($not*)
 }
 
 rule trap_1 : high {

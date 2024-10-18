@@ -10,6 +10,7 @@ rule http_hardcoded_ip : high exfil {
     $not_100 = "http://100.100.100"
     $not_11 = "http://11.11.11"
     $not_192 = "http://192.168"
+	$not_169 = "http://169.254"
   condition:
     $ipv4 and none of ($not*)
 }

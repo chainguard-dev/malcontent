@@ -4,7 +4,7 @@
 3P/threat_hunting/rapid7: medium
 3P/threat_hunting/sqlninja: medium
 combo/backdoor/iptables: medium
-combo/recon/system_network: medium
+combo/recon/system_network: high
 combo/stealer/linux_server: high
 combo/stealer/ssh: high
 compression/bzip2: low
@@ -13,7 +13,7 @@ compression/zstd: low
 databases/mysql: medium
 databases/postgresql: medium
 databases/sqlite: medium
-device/hardware/enumeration: high
+device/hardware/enumeration: medium
 encoding/base64: low
 evasion/base64/decode: medium
 fs/fifo/create: low
@@ -28,6 +28,7 @@ kernel/platform: low
 net/dns/servers: low
 net/download: medium
 net/http/cookies: medium
+net/sftp: medium
 net/socket/connect: medium
 net/upload: medium
 net/wireless: low
@@ -66,6 +67,6 @@ secrets/ssh_authorized_hosts: medium
 security_controls/linux/iptables: medium
 security_controls/linux/ufw: medium
 shell/bash_dev_tcp: high
-shell/bash_dev_udp: high
+shell/bash_dev_udp: medium
 shell/nohup: medium
 tty/pathname: medium

@@ -45,6 +45,7 @@ evasion/xor/commands: high
 exec/cmd: medium
 exec/program: medium
 exec/program/background: low
+fs/attributes/chattr: medium
 fs/directory/create: low
 fs/directory/list: low
 fs/directory/remove: low

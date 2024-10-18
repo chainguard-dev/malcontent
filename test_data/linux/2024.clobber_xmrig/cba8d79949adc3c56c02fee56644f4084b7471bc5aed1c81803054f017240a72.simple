@@ -46,6 +46,7 @@ net/ip: low
 net/ip/multicast/send: low
 net/ip/parse: medium
 net/public_ip: high
+net/sftp: medium
 net/socket/listen: low
 net/socket/receive: low
 net/socket/send: low

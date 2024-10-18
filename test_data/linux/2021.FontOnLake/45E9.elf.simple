@@ -1,10 +1,9 @@
 # linux/2021.FontOnLake/45E9.elf: critical
 3P/elastic/rootkit/fontonlake: critical
 3P/signature_base/susp/elf: critical
-admin/logs/failed_logins: high
+admin/logs/failed_logins: medium
 admin/logs/historical_logins: high
 combo/backdoor/ssh: high
-combo/recon/system_network: medium
 crypto/aes: low
 encoding/base64: low
 env/HOME: low
@@ -41,6 +40,7 @@ net/download: medium
 net/hostport/parse: low
 net/ip/string: medium
 net/reuseport: medium
+net/sftp: medium
 net/socket/listen: low
 net/socket/local/address: low
 net/socket/peer/address: low

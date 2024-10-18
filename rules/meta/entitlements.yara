@@ -1,4 +1,4 @@
-rule macOS_entitlements {
+rule macOS_entitlements : macos {
   meta:
   	description = "macOS entitlements"
   strings:

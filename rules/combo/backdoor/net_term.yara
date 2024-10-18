@@ -26,7 +26,7 @@ rule pseudoterminal_tunnel : high {
     $not_unbounded = "UNBOUNDED"
     $not_iot = "iotsecuredtunnel"
   condition:
-    any of ($p*) and any of ($t*) and none of ($not*)
+    filesize < 100KB and any of ($p*) and any of ($t*) and none of ($not*)
 }
 
 rule tty_shell : high {

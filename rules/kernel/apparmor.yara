@@ -19,8 +19,9 @@ rule apparmor_stop : high {
     hash_2023_Unix_Downloader_Rocke_6107 = "61075056b46d001e2e08f7e5de3fb9bfa2aabf8fb948c41c62666fd4fab1040f"
   strings:
     $val = "apparmor stop"
+	$not_DistUpgradeQuirks = "DistUpgradeQuirks" fullword
   condition:
-    any of them
+    $val and none of them
 }
 
 rule disable_apparmor : high {

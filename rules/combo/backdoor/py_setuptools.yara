@@ -68,7 +68,7 @@ rule setuptools_b64decode : suspicious {
     pythonSetup and any of them
 }
 
-rule setuptools_exec_powershell : critical {
+rule setuptools_exec_powershell : critical windows {
   meta:
     description = "Python library installer that runs powershell"
   strings:

@@ -1,4 +1,4 @@
-rule dev_mtd : medium {
+rule dev_mtd : medium linux {
 	meta:
 		capability = "CAP_SYS_RAWIO"
 		description = "access raw flash memory devices"

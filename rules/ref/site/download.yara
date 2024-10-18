@@ -13,7 +13,7 @@ rule download_sites : high {
     $d_pastebinger = "paste.bingner.com"
     $d_transfer_sh = "transfer.sh"
     $d_rentry = "rentry.co" fullword
-	$d_pastebin = "pastebin"
+	$d_pastebin = /pastebin.[\w]{2,3}/ fullword
     $d_penyacom = "penyacom"
     $d_controlc = "controlc.com"
     $d_anotepad = "anotepad.com"

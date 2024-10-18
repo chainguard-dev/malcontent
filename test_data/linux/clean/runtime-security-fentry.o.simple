@@ -1,6 +1,5 @@
 # linux/clean/runtime-security-fentry.o: medium
 combo/backdoor/net_exec: medium
-combo/recon/system_network: medium
 exec/program: medium
 fs/attributes/set: medium
 fs/directory/create: low

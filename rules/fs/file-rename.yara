@@ -1,4 +1,4 @@
-rule rename : harmless {
+rule rename : harmless posix {
 	meta:
 		syscall = "rename"
 		pledge = "cpath"
@@ -12,7 +12,7 @@ rule rename : harmless {
 
 
 
-rule ren : medium {
+rule ren : medium windows {
   meta:
     description = "deletes files"
   strings:

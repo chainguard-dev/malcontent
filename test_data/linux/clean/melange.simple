@@ -1,7 +1,7 @@
-# linux/clean/melange: high
+# linux/clean/melange: medium
 3P/threat_hunting/github/username: medium
 3P/threat_hunting/hijacker: medium
-admin/pip_install: high
+admin/pip_install: medium
 admin/system_directories: medium
 archives/tar/command: medium
 archives/zip: medium

@@ -25,5 +25,5 @@ rule bash_dev_tcp_hardcoded_ip : critical {
     $not_get = /GET \/ HTTP\/1.1\n{1,2} >/
     $not_localhost_8080 = "/dev/tcp/127.0.0.1/8080"
   condition:
-	  $dev_tcp and none of ($not*)
+	  filesize < 1KB and $dev_tcp and none of ($not*)
 }

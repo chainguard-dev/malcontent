@@ -1,5 +1,5 @@
 
-rule nmi_watchdog : high {
+rule nmi_watchdog : medium {
   meta:
     description = "accesses kern.nmi_watchdog control"
     hash_2023_Txt_Malware_Sustes_0e77 = "0e77291955664d2c25d5bfe617cec12a388e5389f82dee5ae4fd5c5d1f1bdefe"
@@ -8,7 +8,7 @@ rule nmi_watchdog : high {
   strings:
     $ref = "nmi_watchdog"
   condition:
-    any of them
+    $ref
 }
 
 rule nmi_watchdog_disable : high {

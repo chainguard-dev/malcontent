@@ -93,6 +93,7 @@ var rulesWithWarnings = map[string]bool{
 	"echo_decode_bash":                      true,
 	"osascript_window_closer":               true,
 	"osascript_quitter":                     true,
+	"exfil_libcurl_elf":                     true,
 }
 
 func Recursive(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {

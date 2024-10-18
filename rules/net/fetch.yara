@@ -37,27 +37,40 @@ rule curl_download_ip : critical {
     any of them
 }
 
-rule executable_calls_fetch_tool : medium {
+private rule macho {
+  condition:
+    uint32(0) == 4277009102 or uint32(0) == 3472551422 or uint32(0) == 4277009103 or uint32(0) == 3489328638 or uint32(0) == 3405691582 or uint32(0) == 3199925962 or uint32(0) == 3405691583 or uint32(0) == 3216703178
+}
+
+private rule elf {
+  condition:
+    uint32(0) == 1179403647
+}
+
+rule fetch_tool : medium {
+  meta:
+	description = "calls a URL fetch tool"
   strings:
-    $t_curl = "curl -"
+    $t_curl_O = "curl -O"
+    $t_curl_o = "curl -o"
     $t_wget = "wget -"
     $t_wget_http = "wget http"
     $t_quiet_output = "-q -O "
     $t_kinda_curl_o = "url -o "
     $t_kinda_curl_O = "url -O "
     $t_kinda_curl_silent_insecure = "silent --insecure"
-    $t_kinda_curl_qk = "-k -q"
+    $t_kinda_curl_qk = /url.{0,4}-k -q/
     $t_ftp = "ftp -"
     $t_tftp = "tftp "
     $t_ftpget = "ftpget " fullword
-    $not_compdef = "#compdef"
-    $not_gnu = "GNU Wget"
-    $not_wget_ = "wget_"
-    $not_syntax = "syntax file"
-    $not_syntax_menu = "Syntax menu"
-    $not_c_string = "%wget"
-    $not_curlopt = "CURLOPT"
-    $not_program = "@(#)PROGRAM:"
   condition:
-    any of ($t_*) and none of ($not*)
+    filesize < 5MB and any of ($t_*)
+}
+
+rule executable_calls_fetch_tool : high {
+  meta:
+	description = "executable that calls a fetch tool"
+	filetypes = "macho,elf"
+  condition:
+    filesize < 5MB and (elf or macho) and fetch_tool
 }
