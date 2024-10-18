@@ -95,6 +95,10 @@ func makeFileType(path string, ext string, mime string) *FileType {
 // File detects what kind of program this file might be.
 func File(path string) (*FileType, error) {
 	st, err := os.Stat(path)
+	if err != nil {
+		return nil, fmt.Errorf("stat: %w", err)
+	}
+
 	if st.IsDir() {
 		return nil, nil
 	}
