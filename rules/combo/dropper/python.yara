@@ -31,7 +31,17 @@ rule py_dropper : medium {
 	$open = "open("
 	$write = "write("
   condition:
-    filesize < 16384 and $open and $write and py_fetcher and py_runner
+    filesize < 4000 and $open and $write and py_fetcher and py_runner
+}
+
+rule py_dropper_tiny : high {
+  meta:
+  	description = "may fetch, stores, and execute programs"
+  strings:
+	$open = "open("
+	$write = "write("
+  condition:
+    filesize < 900 and $open and $write and py_fetcher and py_runner
 }
 
 rule py_dropper_chmod : high {

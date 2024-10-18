@@ -15,5 +15,5 @@ rule systemd : override linux {
 	$cgroup = "SYSTEMD_CGROUP"
 	$sysv_path = "SYSTEMD_SYSVRCND_PATH"
   condition:
-    any of them
+    filesize < 3MB and any of them
 }

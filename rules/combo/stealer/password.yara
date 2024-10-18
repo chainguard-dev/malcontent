@@ -1,4 +1,4 @@
-rule password_finder_mimipenguin : high {
+rule password_finder_mimipenguin : critical {
   meta:
     description = "Password finder/dumper, such as MimiPenguin"
     hash_2024_dumpcreds_mimipenguin = "79b478d9453cb18d2baf4387b65dc01b6a4f66a620fa6348fa8dbb8549a04a20"
@@ -20,5 +20,5 @@ rule password_finder_mimipenguin : high {
     $not_caddy = "//starting caddy process"
     $not_datadog = /[Dd]ata[Dd]og/
   condition:
-    3 of ($base*) and any of ($extra*) and none of ($not*)
+    filesize < 2MB and 3 of ($base*) and any of ($extra*) and none of ($not*)
 }
