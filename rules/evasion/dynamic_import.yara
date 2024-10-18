@@ -1,10 +1,13 @@
 rule dynamic_require : high {
   meta:
     description = "imports a library dynamically"
+	filetypes = "py"
  strings:
-    $ref = /require\(\w{0,16}\(.{0,64}\)/
+	$import = "import" fullword
+    $ref = /require\(\w{2,16}\(.{0,64}\)/
+	$not_str = "require(str("
   condition:
-    $ref
+    $import and $ref and none of ($not*)
 }
 
 rule dynamic_require_decoded : critical {

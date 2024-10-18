@@ -1,4 +1,4 @@
-rule ubi : high {
+rule ubi : high linux {
 	meta:
 		capability = "CAP_SYS_RAWIO"
 		description = "access raw unsorted block images (UBI)"

@@ -1,4 +1,4 @@
-# macOS/2024.BeaverTail/client_5346.py: critical
+# macOS/2024.BeaverTail/client_5346.py: high
 admin/pip_install: high
 combo/dropper/python: high
 encoding/base64: low

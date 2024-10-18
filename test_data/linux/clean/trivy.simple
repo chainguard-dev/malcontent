@@ -5,7 +5,7 @@
 3P/threat_hunting/linkedint: medium
 3P/threat_hunting/privilegeescalation: medium
 admin/package/install: medium
-admin/pip_install: high
+admin/pip_install: medium
 archives/unarchive: medium
 archives/zip: medium
 builtin/openssl: medium

@@ -24,14 +24,36 @@ private rule py_runner {
 		any of them
 }
 
-rule py_dropper : high {
+rule py_dropper : medium {
   meta:
-  	description = "fetch, stores, and execute programs"
+  	description = "may fetch, stores, and execute programs"
   strings:
 	$open = "open("
 	$write = "write("
   condition:
-    filesize < 16384 and $open and $write and py_fetcher and py_runner
+    filesize < 4000 and $open and $write and py_fetcher and py_runner
+}
+
+rule py_dropper_obfuscated : high {
+  meta:
+  	description = "may fetch, obfuscate, store, and execute programs"
+  strings:
+	$open = "open("
+	$write = "write("
+	$ob_base64 = "b64decode"
+	$ob_codecs = "codecs.decode"
+  condition:
+    filesize < 16000 and $open and $write and any of ($ob_*) and py_fetcher and py_runner
+}
+
+rule py_dropper_tiny : high {
+  meta:
+  	description = "may fetch, stores, and execute programs"
+  strings:
+	$open = "open("
+	$write = "write("
+  condition:
+    filesize < 900 and $open and $write and py_fetcher and py_runner
 }
 
 rule py_dropper_chmod : high {
@@ -57,6 +79,8 @@ private rule pythonSetup {
 	$not_import_quoted = "\"from setuptools import setup"
 	$not_setup_quoted = "\"setup(name="
 	$not_distutils = "from distutils.errors import"
+	$not_dir = "dist-packages/setuptools"
+	$not_fetch = "fetch_distribution"
   condition:
     filesize < 128KB and $setup and any of ($i*) and none of ($not*)
 }

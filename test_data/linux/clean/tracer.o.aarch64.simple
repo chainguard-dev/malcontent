@@ -1,5 +1,4 @@
 # linux/clean/tracer.o.aarch64: medium
-combo/recon/system_network: medium
 databases/mysql: medium
 kernel/acct: low
 net/bpf: medium

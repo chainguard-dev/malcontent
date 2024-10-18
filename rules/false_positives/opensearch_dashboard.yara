@@ -1,4 +1,4 @@
-rule powershell_js : override {
+rule powershell_js : override windows {
   meta:
     casing_obfuscation = "medium"
     description = "powershell.js"

@@ -1,7 +1,7 @@
 # linux/clean/pulumi: high
 3P/threat_hunting/iodine: medium
 3P/threat_hunting/sharppack: medium
-admin/pip_install: high
+admin/pip_install: medium
 archives/zip: medium
 cloud/aws/metadata: low
 cloud/google/metadata: low

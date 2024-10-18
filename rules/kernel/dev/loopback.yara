@@ -1,5 +1,5 @@
 
-rule dev_loopback : medium {
+rule dev_loopback : medium linux {
   meta:
     capability = "CAP_SYS_RAWIO"
     description = "access virtual block devices (loopback)"

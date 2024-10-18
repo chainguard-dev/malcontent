@@ -48,7 +48,7 @@ fix: $(FIXERS)
 # END: lint-install ../malcontent
 
 SAMPLES_REPO ?= chainguard-dev/malcontent-samples
-SAMPLES_COMMIT ?= c1cffe73e774a41a8509c6cf7baef003519bec1e
+SAMPLES_COMMIT ?= 83f0693557b748ab4c395bdd749b85876fa53e92
 OUT_DIR=out/samples-$(SAMPLES_COMMIT).tmp
 out/samples-$(SAMPLES_COMMIT):
 	mkdir -p out

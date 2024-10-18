@@ -10,7 +10,7 @@ rule user_agent_ifconfig : high {
     $net_ifconfig = "ifconfig"
     $net_ifconfig_a = "-a"
   condition:
-    any of ($ua*) and math.abs(@net_ifconfig - @net_ifconfig_a) <= 8
+    filesize < 5MB and any of ($ua*) and math.abs(@net_ifconfig - @net_ifconfig_a) <= 8
 }
 
 rule user_agent_proc_net_route : high {
@@ -25,5 +25,5 @@ rule user_agent_proc_net_route : high {
     $ua_msie = "compatible; MSIE"
     $net_route = "/proc/net/route"
   condition:
-    any of ($ua*) and any of ($net*)
+    filesize < 5MB and any of ($ua*) and any of ($net*)
 }

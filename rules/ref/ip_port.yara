@@ -12,6 +12,7 @@ rule hardcoded_ip_port : high {
     $not_meta = "169.254.169.254:80"
     $not_vnc = "10.10.10.10:5900"
     $not_azure_pgsql = "20.66.25.58:5432"
+	$not_test = "def test_" fullword
   condition:
     any of ($ip*) and none of ($not*)
 }

@@ -72,6 +72,7 @@ net/http_proxy: low
 net/icmp: medium
 net/ip/parse: medium
 net/sendfile: low
+net/sftp: medium
 net/socket/connect: medium
 net/socket/listen: low
 net/socket/local/address: low
@@ -133,5 +134,5 @@ security_controls/linux/iptables: medium
 security_controls/linux/ufw: medium
 shell/background/sleep: medium
 shell/bash_dev_tcp: high
-shell/bash_dev_udp: high
+shell/bash_dev_udp: medium
 tty/pathname: medium

@@ -1,6 +1,4 @@
-
-
-rule syscall_fanotify_init {
+rule syscall_fanotify_init : linux {
 	meta:
 		syscall = "fanotify_init"
 		description = "filesystem event monitoring"

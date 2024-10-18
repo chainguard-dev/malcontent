@@ -10,7 +10,6 @@ rule proc_net_route : medium {
     any of them
 }
 
-
 rule proc_net_route_high : high {
   meta:
     description = "gets network route information"
@@ -23,5 +22,5 @@ rule proc_net_route_high : high {
 	$not_host_route = "host route"
 	$not_route_addr = "route address"
   condition:
-    filesize < 1MB and $ref and none of ($not*)
+    filesize < 1MB and uint32(0) == 1179403647 and $ref and none of ($not*)
 }

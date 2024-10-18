@@ -1,5 +1,5 @@
 
-rule failed_logins : high {
+rule failed_logins : medium {
   meta:
     description = "accesses failed logins"
     hash_2023_FontOnLake_1829B0E34807765F2B254EA5514D7BB587AECA3F_elf = "5e9d356cdfc85a66f8fbab29bf43e95f19489c66d2a970e33d031f267298b482"

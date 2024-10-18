@@ -75,7 +75,6 @@ combo/backdoor/iptables: medium
 combo/backdoor/net_shell: high
 combo/exploit/overflow/shellcode: high
 combo/net/tunnel_proxy: medium
-combo/recon/system_network: medium
 combo/stealer/usbmon_webproxy_zipper: high
 combo/wiper/crypto: high
 compression/bzip2: low
@@ -95,7 +94,7 @@ databases/leveldb: medium
 databases/mysql: medium
 databases/postgresql: medium
 databases/sqlite: medium
-device/hardware/enumeration: high
+device/hardware/enumeration: medium
 dylib/symbol/address: medium
 encoding/base64: low
 evasion/rootkit: low
@@ -130,6 +129,8 @@ net/ip/multicast/send: low
 net/oauth2: low
 net/public_ip: high
 net/sendfile: low
+net/sftp: medium
+net/shadowsocks: high
 net/socket/listen: low
 net/socket/receive: low
 net/socket/send: low
@@ -156,7 +157,7 @@ ref/daemon: medium
 ref/extensions/office: medium
 ref/program/hashcat: medium
 ref/program/masscan: medium
-ref/program/metasploit: high
+ref/program/metasploit: medium
 ref/program/minecraft: medium
 ref/program/nmap: medium
 ref/program/osascript: medium

@@ -2,7 +2,7 @@
 3P/JPCERT/crypthunter/jsdownloader: critical
 3P/JPCERT/crypthunter/pythonsimplerat: critical
 combo/dropper/python: high
-combo/recon/system_network: medium
+combo/recon/system_network: high
 encoding/base64: low
 evasion/base64/decode: medium
 evasion/codecs_decode: high

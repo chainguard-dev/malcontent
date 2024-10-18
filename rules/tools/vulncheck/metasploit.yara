@@ -12,7 +12,7 @@ rule metasploit_payload : critical {
     2 of them
 }
 
-rule meterpreter : scritical windows {
+rule meterpreter : high windows {
   meta:
     description = "extensible payload for DLL injection and remote access"
     ref = "https://www.offsec.com/metasploit-unleashed/about-meterpreter/"

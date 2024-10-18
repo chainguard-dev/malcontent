@@ -1,5 +1,5 @@
 
-rule unlink {
+rule unlink : posix {
   meta:
     pledge = "wpath"
     syscall = "unlink"
@@ -13,7 +13,7 @@ rule unlink {
     any of them
 }
 
-rule rm_f_hardcoded_tmp_path : high {
+rule rm_f_hardcoded_tmp_path : medium posix {
   meta:
     ref = "https://attack.mitre.org/techniques/T1485/"
     hash_2023_BPFDoor_8b84 = "8b84336e73c6a6d154e685d3729dfa4e08e4a3f136f0b2e7c6e5970df9145e95"
@@ -26,8 +26,7 @@ rule rm_f_hardcoded_tmp_path : high {
     $ref and none of ($not*)
 }
 
-
-rule del : medium {
+rule del : medium windows {
   meta:
     description = "deletes files"
   strings:

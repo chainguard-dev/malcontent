@@ -4,7 +4,6 @@
 3P/threat_hunting/johntheripper: medium
 3P/threat_hunting/sharpshooter: medium
 combo/net/tunnel_proxy: medium
-combo/recon/system_network: medium
 combo/stealer/browser: medium
 databases/mysql: medium
 encoding/base64: low
