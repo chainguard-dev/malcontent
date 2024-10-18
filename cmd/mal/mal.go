@@ -149,13 +149,25 @@ func main() {
 			ignoreTags := strings.Split(ignoreTagsFlag, ",")
 			includeDataFiles := includeDataFilesFlag
 
-			minRisk := riskMap[minRiskFlag]
+			minRisk, exists := riskMap[minRiskFlag]
+			if !exists {
+				log.Errorf("unknown risk: %q", minRiskFlag)
+				returnCode = ExitInvalidArgument
+				return nil
+			}
+
 			// Backwards compatibility
 			if minLevelFlag != -1 {
 				minRisk = minLevelFlag
 			}
 
-			minFileRisk := riskMap[minFileRiskFlag]
+			minFileRisk, exists := riskMap[minFileRiskFlag]
+			if !exists {
+				log.Errorf("unknown risk: %q", minFileRiskFlag)
+				returnCode = ExitInvalidArgument
+				return nil
+			}
+
 			// Backwards compatibility
 			if minFileLevelFlag != -1 {
 				minFileRisk = minFileLevelFlag
