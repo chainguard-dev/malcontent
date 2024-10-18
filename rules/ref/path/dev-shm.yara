@@ -1,5 +1,5 @@
 
-rule dev_shm : medium {
+rule dev_shm : medium linux {
   meta:
     description = "references path within /dev/shm (world writeable)"
   strings:
@@ -8,7 +8,7 @@ rule dev_shm : medium {
     any of them
 }
 
-rule dev_shm_mkstemp : medium {
+rule dev_shm_mkstemp : medium linux {
   meta:
     description = "mkstemp path reference within /dev/shm (world writeable)"
   strings:
@@ -17,7 +17,7 @@ rule dev_shm_mkstemp : medium {
     any of them
 }
 
-rule dev_shm_file : high {
+rule dev_shm_file : high linux {
   meta:
     description = "reference file within /dev/shm (world writeable)"
     hash_2023_BPFDoor_8b84 = "8b84336e73c6a6d154e685d3729dfa4e08e4a3f136f0b2e7c6e5970df9145e95"
@@ -33,7 +33,7 @@ rule dev_shm_file : high {
     $ref and none of ($not*) and not dev_shm_mkstemp
 }
 
-rule dev_shm_sh : critical {
+rule dev_shm_sh : critical linux {
   meta:
     description = "References shell script within /dev/shm (world writeable)"
     hash_2023_Unix_Downloader_Rocke_228e = "228ec858509a928b21e88d582cb5cfaabc03f72d30f2179ef6fb232b6abdce97"
@@ -45,7 +45,7 @@ rule dev_shm_sh : critical {
     any of them
 }
 
-rule dev_shm_hidden : critical {
+rule dev_shm_hidden : critical linux {
   meta:
     description = "path reference within /dev/shm (world writeable)"
     hash_2023_OK_ad69 = "ad69e198905a8d4a4e5c31ca8a3298a0a5d761740a5392d2abb5d6d2e966822f"

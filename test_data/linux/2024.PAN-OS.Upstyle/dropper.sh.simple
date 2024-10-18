@@ -1,4 +1,5 @@
 # linux/2024.PAN-OS.Upstyle/dropper.sh: high
 combo/dropper/shell: high
+net/fetch: medium
 ref/ip: medium
 shell/pipe_sh: medium

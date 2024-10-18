@@ -4,6 +4,7 @@ combo/dropper/shell: high
 combo/recon/npm: high
 fs/file/make_executable: medium
 fs/permission/modify: medium
+net/fetch: medium
 net/upload: medium
 ref/path/relative/hidden: low
 ref/site/url: low

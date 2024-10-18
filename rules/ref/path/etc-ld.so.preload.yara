@@ -1,4 +1,4 @@
-rule etc_ld_preload : medium {
+rule etc_ld_preload : medium linux {
   meta:
     description = "References /etc/ld.so.preload"
     hash_2023_Lightning_fd28 = "fd285c2fb4d42dde23590118dba016bf5b846625da3abdbe48773530a07bcd1e"
@@ -10,7 +10,7 @@ rule etc_ld_preload : medium {
     any of them
 }
 
-rule etc_ld_preload_not_ld : high {
+rule etc_ld_preload_not_ld : high linux {
   meta:
     description = "unexpected reference to /etc/ld.so.preload"
     hash_2023_Lightning_fd28 = "fd285c2fb4d42dde23590118dba016bf5b846625da3abdbe48773530a07bcd1e"

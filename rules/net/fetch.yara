@@ -47,9 +47,9 @@ private rule elf {
     uint32(0) == 1179403647
 }
 
-rule executable_calls_fetch_tool : high {
+rule fetch_tool : medium {
   meta:
-	description = "executable that calls a fetch tool"
+	description = "calls a URL fetch tool"
   strings:
     $t_curl_O = "curl -O"
     $t_curl_o = "curl -o"
@@ -64,5 +64,13 @@ rule executable_calls_fetch_tool : high {
     $t_tftp = "tftp "
     $t_ftpget = "ftpget " fullword
   condition:
-    filesize < 5MB and (elf or macho) and any of ($t_*)
+    filesize < 5MB and any of ($t_*)
+}
+
+rule executable_calls_fetch_tool : high {
+  meta:
+	description = "executable that calls a fetch tool"
+	filetypes = "macho,elf"
+  condition:
+    filesize < 5MB and (elf or macho) and fetch_tool
 }
