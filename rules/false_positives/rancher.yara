@@ -3,7 +3,7 @@ rule pull_scripts : override {
     curl_chmod_relative_run_tiny = "medium"
     description = "pull-scripts"
   strings:
-    $binary_name = "BINARY_NAME=charts-build-scripts" fullword
+    $binary_name = "BINARY_NAME=charts-build-scripts"
   condition:
     all of them
 }
