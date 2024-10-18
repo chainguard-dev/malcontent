@@ -33,7 +33,6 @@ kernel/hostname/get: low
 malware/family/rustdoor: critical
 net/download: medium
 net/fetch: medium
-net/fetch/suspicious: high
 net/hostport/parse: low
 net/http/auth: low
 net/http/cookies: medium

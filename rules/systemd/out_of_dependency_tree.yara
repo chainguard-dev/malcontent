@@ -1,8 +1,8 @@
-
 rule systemd_not_in_dependency_tree : medium {
   meta:
     description = "Relies on nothing, nothing relies on it"
     hash_2023_Downloads_kinsing = "05d02411668f4ebd576a24ac61cc84e617bdb66aa819581daa670c65f1a876f0"
+	filetypes = "service"
   strings:
     $execstart = "ExecStart="
     $expect_after = /After=\w/
@@ -29,5 +29,5 @@ rule type_forking_not_in_dep_tree : high {
     $expect_after = /After=\w/
     $expect_before = /Before=\w{1,128}/
   condition:
-    $forking and none of ($expect*)
+    filesize < 4096 and $forking and none of ($expect*)
 }

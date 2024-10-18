@@ -38,7 +38,6 @@ net/dns/servers: low
 net/dns/txt: low
 net/download: medium
 net/fetch: medium
-net/fetch/suspicious: high
 net/hostname/resolve: low
 net/http/accept/encoding: low
 net/http/auth: low

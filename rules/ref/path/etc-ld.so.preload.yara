@@ -18,9 +18,10 @@ rule etc_ld_preload_not_ld : high {
     hash_2023_OrBit_f161 = "f1612924814ac73339f777b48b0de28b716d606e142d4d3f4308ec648e3f56c8"
   strings:
     $ref = "/etc/ld.so.preload"
-	$env_aux = "LD_SHOW_AUXV"
-	$env_hwcap = "LD_HWCAP_MASK"
-	$env_audit = "LD_AUDIT"
+	$not_env_aux = "LD_SHOW_AUXV"
+	$not_env_hwcap = "LD_HWCAP_MASK"
+	$not_env_audit = "LD_AUDIT"
+	$not_cache = "ld.so.cache"
   condition:
-	$ref and none of ($env*)
+	$ref and none of ($not*)
 }

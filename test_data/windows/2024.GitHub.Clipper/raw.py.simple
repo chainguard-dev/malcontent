@@ -1,5 +1,5 @@
 # windows/2024.GitHub.Clipper/raw.py: critical
-combo/dropper/python: high
+combo/dropper/python: medium
 exec/program: medium
 fs/file/open: low
 fs/tempdir: low

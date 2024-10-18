@@ -148,7 +148,6 @@ ref/program/ancient_gcc: medium
 ref/program/nmap: medium
 ref/program/osascript: medium
 ref/program/powershell: medium
-ref/site/exe: high
 ref/site/http/dynamic: medium
 ref/site/url: low
 ref/words/exclamation: medium

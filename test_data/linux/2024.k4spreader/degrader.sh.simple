@@ -1,7 +1,7 @@
 # linux/2024.k4spreader/degrader.sh: critical
 combo/degrader/iptables: high
 combo/degrader/ufw: high
-fs/attributes/chattr: high
+fs/attributes/chattr: medium
 ref/path/etc: low
 ref/path/etc/ld.so.preload: high
 security_controls/linux/iptables: medium

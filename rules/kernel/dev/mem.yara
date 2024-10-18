@@ -1,5 +1,5 @@
 
-rule mem : high {
+rule dev_mem : high linux {
   meta:
     capability = "CAP_SYS_RAWIO"
     description = "access raw system memory"
@@ -15,7 +15,7 @@ rule mem : high {
      uint32(0) == 1179403647 and $val and none of ($not*)
 }
 
-rule comsvcs_minidump : high {
+rule comsvcs_minidump : high windows {
   meta:
     description = "dump process memory using comsvcs.ddl"
     author = "Florian Roth"

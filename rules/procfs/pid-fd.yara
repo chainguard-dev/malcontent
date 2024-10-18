@@ -13,7 +13,7 @@ rule proc_fd : medium {
     $ref and none of ($not*)
 }
 
-rule proc_fd_high : high {
+rule proc_fd_high : medium {
   meta:
     description = "accesses file descriptors of other processes"
     ref = "https://s.tencent.com/research/report/1219.html"

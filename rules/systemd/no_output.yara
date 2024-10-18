@@ -2,10 +2,11 @@ rule systemd_no_output : high {
   meta:
 	description = "Discards all logging output"
   strings:
-    $output_null = "StandardOutput=null"
-    $error_null = "StandardError=null"
-    $input_null = "StandardInput=null"
-    $syslog = "syslog"
+    $discard_stdout = "StandardOutput=null"
+    $discard_stderr = "StandardError=null"
+    $not_input_null = "StandardInput=null"
+    $not_syslog = "syslog"
+	$not_fwmgr = "ExecStart=/usr/bin/fwupdmgr"
   condition:
-    filesize < 4KB and ($output_null or $error_null) and not ($input_null or $syslog)
+    filesize < 4KB and all of ($discard*) and none of ($not*)
 }

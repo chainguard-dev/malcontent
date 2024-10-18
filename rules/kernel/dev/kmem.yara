@@ -1,5 +1,5 @@
 
-rule kmem : high {
+rule kmem : high bsd {
 	meta:
 		capability = "CAP_SYS_RAWIO"
 		description = "access raw kernel memory"

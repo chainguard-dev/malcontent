@@ -8,9 +8,8 @@ rule var_log_syslog : medium {
 	$not_syslog_conf = "/etc/syslog.conf"
 	$not_rsyslog_conf = "/etc/rsyslog.conf"
   condition:
-    any of them
+    filesize < 10MB and any of them
 }
-
 
 rule var_log_syslog_elf : high {
   meta:
@@ -20,6 +19,7 @@ rule var_log_syslog_elf : high {
     $ref2 = "/var/log/syslog" fullword
 	$not_syslog_conf = "/etc/syslog.conf"
 	$not_rsyslog_conf = "/etc/rsyslog.conf"
+	$not_rsyslog = "RSYSLOG" fullword
   condition:
-    uint32(0) == 1179403647 and any of them
+    filesize < 1MB and uint32(0) == 1179403647 and any of ($ref*) and none of ($not*)
 }

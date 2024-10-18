@@ -1,6 +1,6 @@
 # linux/mimipenguin/python/mimipenguin: critical
 3P/signature_base/mimipenguin: critical
-combo/stealer/password: critical
+combo/stealer/password: high
 encoding/base64: low
 evasion/base64/decode: medium
 fd/read: low

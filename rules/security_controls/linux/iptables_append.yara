@@ -1,5 +1,4 @@
-
-rule iptables_append : high {
+rule iptables_append : medium {
   meta:
     syscall = "posix_spawn"
     pledge = "exec"

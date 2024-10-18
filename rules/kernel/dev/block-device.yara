@@ -1,5 +1,5 @@
 
-rule block_devices : medium {
+rule block_devices : medium linux {
   meta:
     description = "works with block devices"
     hash_2023_Linux_Malware_Samples_1020 = "1020ce1f18a2721b873152fd9f76503dcba5af7b0dd26d80fdb11efaf4878b1a"
@@ -12,7 +12,7 @@ rule block_devices : medium {
     any of them
 }
 
-rule dev_sd : medium {
+rule dev_sd : medium linux {
   meta:
     capability = "CAP_SYS_RAWIO"
     description = "access raw generic block devices"

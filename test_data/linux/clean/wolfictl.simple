@@ -3,7 +3,7 @@
 3P/threat_hunting/gost: medium
 3P/threat_hunting/hijacker: medium
 3P/threat_hunting/runascs: medium
-admin/pip_install: high
+admin/pip_install: medium
 admin/system_directories: medium
 archives/tar/command: medium
 archives/unarchive: medium

@@ -8,6 +8,15 @@ rule dev_shm : medium {
     any of them
 }
 
+rule dev_shm_mkstemp : medium {
+  meta:
+    description = "mkstemp path reference within /dev/shm (world writeable)"
+  strings:
+    $ignore_mkstemp = /\/dev\/shm\/[\%\w\.\-\/]{0,64}X{6}/
+  condition:
+    any of them
+}
+
 rule dev_shm_file : high {
   meta:
     description = "reference file within /dev/shm (world writeable)"
@@ -21,7 +30,7 @@ rule dev_shm_file : high {
 	$not_shm_pages = "shm_pages"
 	$not_wasm = "FS.mkdir(\"/dev/shm/tmp\")"
   condition:
-    $ref and none of ($not*)
+    $ref and none of ($not*) and not dev_shm_mkstemp
 }
 
 rule dev_shm_sh : critical {
@@ -47,13 +56,4 @@ rule dev_shm_hidden : critical {
     $ignore_mkstemp = /\/dev\/shm\/[%\w\.\-\/]{0,64}X{6}/
   condition:
     $dev_shm and not $ignore_mkstemp
-}
-
-rule dev_shm_mkstemp : medium {
-  meta:
-    description = "mkstemp path reference within /dev/shm (world writeable)"
-  strings:
-    $ignore_mkstemp = /\/dev\/shm\/[\%\w\.\-\/]{0,64}X{6}/
-  condition:
-    any of them
 }

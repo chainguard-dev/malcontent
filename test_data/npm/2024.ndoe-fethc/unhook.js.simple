@@ -1,5 +1,5 @@
 # npm/2024.ndoe-fethc/unhook.js: high
-combo/stealer/crypto: high
+combo/stealer/crypto: medium
 encoding/json/encode: low
 fs/file/read: low
 fs/lock/update: low

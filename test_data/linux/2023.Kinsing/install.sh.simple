@@ -4,7 +4,7 @@
 3P/threat_hunting/netstat: medium
 3P/threat_hunting/shell: medium
 3P/threat_hunting/xmrig: medium
-admin/logs/syslog: high
+admin/logs/syslog: medium
 admin/package/install: medium
 combo/backdoor/iptables: medium
 combo/backdoor/kill_rm: medium
@@ -26,7 +26,7 @@ evasion/base64/commands: high
 evasion/fake/process: critical
 fs/attributes/chattr: high
 fs/directory/create: low
-fs/file/delete: high
+fs/file/delete: medium
 fs/file/delete/forcibly: medium
 fs/file/make_executable: medium
 fs/permission/modify: medium
@@ -38,7 +38,7 @@ net/fetch: medium
 net/fetch/suspicious: high
 net/stat: medium
 persist/bash: medium
-persist/crontab: high
+persist/crontab: medium
 persist/linux_multi: high
 persist/ssh_authorized_keys: medium
 persist/writeable_dir: high
@@ -63,7 +63,7 @@ ref/path/var: low
 ref/path/var/log: medium
 ref/path/var/tmp: medium
 ref/program/sudo: medium
-ref/site/download: high
+ref/site/download: medium
 ref/site/http/ip: high
 ref/site/url: low
 ref/words/agent: medium

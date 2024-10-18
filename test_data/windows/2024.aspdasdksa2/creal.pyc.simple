@@ -2,7 +2,7 @@
 3P/threat_hunting/cstealer: medium
 3P/threat_hunting/fentanyl: medium
 3P/threat_hunting/gofile/io: medium
-admin/pip_install: high
+admin/pip_install: medium
 combo/stealer/browser: high
 combo/stealer/creds: high
 combo/stealer/discord: high

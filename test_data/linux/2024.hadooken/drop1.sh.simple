@@ -6,7 +6,7 @@ encoding/base64: low
 evasion/base64/eval: critical
 evasion/base64/external: medium
 evasion/base64/python: critical
-fs/file/delete: high
+fs/file/delete: medium
 fs/file/delete/forcibly: medium
 net/download: medium
 net/fetch: medium

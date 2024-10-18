@@ -33,12 +33,13 @@ rule high_fetch_command_val : high {
     $c_wget_insecure = /wget --no-check-certificate[\/\- \w\%\(\{\}\'\"\)\$\:]{0,128}/
     $not_curl_response_code = "%{response_code}"
     $not_oh_my_zsh = "oh-my-zsh-master"
-    $not_localhost = "curl -k https://localhost"
-    $not_127_0_0_1 = "curl -k https://127.0.0.1"
+    $not_localhost = "https://localhost"
+    $not_127_0_0_1 = "https://127.0.0.1"
 	$not_dump_header = "curl --silent --dump-header"
 	$not_silent_key = "curl --silent --key"
 	$not_s_key = "curl -s --key"
 	$not_local = "curl -ks https://localhost"
+	$not_continue = "--continue-at"
   condition:
-    any of ($c*) and none of ($not*)
+    filesize < 1MB and any of ($c*) and none of ($not*)
 }

@@ -1,7 +1,6 @@
-# linux/mimipenguin/c/mimipenguin: critical
+# linux/mimipenguin/c/mimipenguin: medium
 3P/threat_hunting/crossc2: medium
 3P/threat_hunting/mimipenguin: medium
-combo/stealer/password: critical
 net/ssh: medium
 procfs/arbitrary/pid: medium
 procfs/pid/cmdline: medium
