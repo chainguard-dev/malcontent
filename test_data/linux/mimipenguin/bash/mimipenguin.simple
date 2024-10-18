@@ -1,7 +1,7 @@
 # linux/mimipenguin/bash/mimipenguin: critical
 3P/signature_base/mimipenguin: critical
 3P/signature_base/mimipenguin/sh: critical
-combo/stealer/password: high
+combo/stealer/password: critical
 encoding/base64: low
 evasion/base64/eval: high
 evasion/base64/external: medium

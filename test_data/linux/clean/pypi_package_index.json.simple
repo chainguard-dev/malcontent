@@ -68,7 +68,7 @@
 3P/threat_hunting/winscppasswdextractor: medium
 3P/threat_hunting/witnessme: medium
 3P/threat_hunting/xsstrike: medium
-admin/pip_install: medium
+admin/pip_install: high
 archives/unarchive: medium
 combo/backdoor/crypto_listen_socks: medium
 combo/backdoor/iptables: medium

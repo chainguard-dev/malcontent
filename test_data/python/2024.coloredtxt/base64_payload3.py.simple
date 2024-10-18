@@ -1,4 +1,4 @@
-# python/2024.coloredtxt/base64_payload3.py: high
+# python/2024.coloredtxt/base64_payload3.py: critical
 combo/dropper/python: high
 encoding/base64: low
 env/get: low
