@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -93,6 +94,14 @@ func makeFileType(path string, ext string, mime string) *FileType {
 
 // File detects what kind of program this file might be.
 func File(path string) (*FileType, error) {
+	st, err := os.Stat(path)
+	if st.IsDir() {
+		return nil, nil
+	}
+	if st.Mode().Type() == fs.ModeIrregular {
+		return nil, nil
+	}
+
 	// first strategy: mimetype
 	mtype, err := mimetype.DetectFile(path)
 	if err == nil {
