@@ -75,7 +75,6 @@ combo/backdoor/iptables: medium
 combo/backdoor/net_shell: high
 combo/exploit/overflow/shellcode: high
 combo/net/tunnel_proxy: medium
-combo/recon/system_network: medium
 combo/stealer/usbmon_webproxy_zipper: high
 combo/wiper/crypto: high
 compression/bzip2: low

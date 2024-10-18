@@ -34,6 +34,18 @@ rule py_dropper : medium {
     filesize < 4000 and $open and $write and py_fetcher and py_runner
 }
 
+rule py_dropper_obfuscated : high {
+  meta:
+  	description = "may fetch, obfuscate, store, and execute programs"
+  strings:
+	$open = "open("
+	$write = "write("
+	$ob_base64 = "b64decode"
+	$ob_codecs = "codecs.decode"
+  condition:
+    filesize < 16000 and $open and $write and any of ($ob_*) and py_fetcher and py_runner
+}
+
 rule py_dropper_tiny : high {
   meta:
   	description = "may fetch, stores, and execute programs"

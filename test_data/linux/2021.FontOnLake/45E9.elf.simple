@@ -4,7 +4,6 @@
 admin/logs/failed_logins: medium
 admin/logs/historical_logins: high
 combo/backdoor/ssh: high
-combo/recon/system_network: medium
 crypto/aes: low
 encoding/base64: low
 env/HOME: low

@@ -3,7 +3,6 @@
 3P/threat_hunting/openvas: medium
 3P/threat_hunting/sqlninja: medium
 combo/backdoor/iptables: medium
-combo/recon/system_network: medium
 combo/stealer/linux_server: high
 combo/stealer/ssh: high
 compression/bzip2: low

@@ -15,7 +15,6 @@ combo/degrader/ufw: high
 combo/dropper/http_ip_temp: critical
 combo/dropper/shell: high
 combo/recon/docker: medium
-combo/recon/system_network: medium
 combo/stealer/ssh: high
 crypto/mining/cryptonight: high
 crypto/mining/generic: high

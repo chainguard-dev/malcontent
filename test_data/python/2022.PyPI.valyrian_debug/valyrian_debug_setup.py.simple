@@ -1,7 +1,6 @@
 # python/2022.PyPI.valyrian_debug/valyrian_debug_setup.py: critical
 combo/backdoor/py_setuptools: high
 combo/dropper/python: critical
-combo/recon/system_network: medium
 exec/pipe: medium
 exec/program: medium
 exec/shell_command: medium

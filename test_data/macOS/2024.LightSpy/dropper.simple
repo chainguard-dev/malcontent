@@ -1,7 +1,6 @@
 # macOS/2024.LightSpy/dropper: critical
 3P/huntress/lightspy/loader: critical
 combo/dropper/macos: critical
-combo/recon/system_network: medium
 crypto/aes: low
 crypto/xor: high
 dylib/symbol/address: medium
