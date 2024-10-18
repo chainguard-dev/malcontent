@@ -4,7 +4,7 @@ rule pip_installer_known_good : low {
   meta:
     description = "Installs software using pip from python"
   strings:
-	$distro = /pip3{0,1} install (distro|mock|pyopenssl|colorama)/ fullword
+	$distro = /pip3{0,1} install (distro|mock|pyopenssl|colorama|twisted)/ fullword
   condition:
 	any of them
 }
@@ -22,7 +22,7 @@ rule pip_installer_variable : medium {
     $ref and not pip_installer_known_good
 }
 
-rule pip_installer : high {
+rule pip_installer : medium {
   meta:
     description = "Installs software using pip from python"
     hash_2022_2022_requests_3_0_0_setup = "15507092967fbd28ccb833d98c2ee49da09e7c79fd41759cd6f783672fe1c5cc"

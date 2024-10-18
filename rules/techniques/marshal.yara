@@ -5,11 +5,12 @@ private rule pySetup {
     $i_distutils = "from distutils.core import setup"
     $i_setuptools = "setuptools"
     $setup = "setup("
+	$not_setuptools = "setuptools.command"
   condition:
-    filesize < 2097152 and $setup and any of ($i*)
+    filesize < 2097152 and $setup and any of ($i*) and none of ($not*)
 }
 
-rule py_marshal : notable {
+rule py_marshal : medium {
   meta:
     description = "reads python values from binary content"
     hash_2021_DiscordSafety_init = "05c23917c682326179708a1d185ea88632d61522513f08d443bfd5c065612903"
@@ -18,7 +19,7 @@ rule py_marshal : notable {
   strings:
     $ref = "import marshal"
   condition:
-    any of them
+    filesize < 128KB and any of them
 }
 
 rule setuptools_py_marshal : suspicious {

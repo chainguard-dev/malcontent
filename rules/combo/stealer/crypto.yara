@@ -1,6 +1,7 @@
-rule js_crypto_stealer : high {
+
+rule js_crypto_stealer : medium {
   meta:
-    description = "possibly steals private cryptographic data"
+    description = "may exfiltrate private cryptographic data"
   strings:
 	$pk = "private_key"
 	$pk2 = "PRIVATE_KEY"

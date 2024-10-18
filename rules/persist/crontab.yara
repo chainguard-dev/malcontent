@@ -43,7 +43,7 @@ rule crontab_entry : high {
     $not_day_of_week = "dayOfWeek"
     $not_day_of_month = "dayOfMonth"
   condition:
-    filesize < 52428800 and $crontab and any of ($repeat*) and none of ($not*)
+    filesize < 6KB and $crontab and any of ($repeat*) and none of ($not*)
 }
 
 rule crontab_danger_path : high {

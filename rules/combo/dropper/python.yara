@@ -24,9 +24,9 @@ private rule py_runner {
 		any of them
 }
 
-rule py_dropper : high {
+rule py_dropper : medium {
   meta:
-  	description = "fetch, stores, and execute programs"
+  	description = "may fetch, stores, and execute programs"
   strings:
 	$open = "open("
 	$write = "write("
@@ -57,6 +57,8 @@ private rule pythonSetup {
 	$not_import_quoted = "\"from setuptools import setup"
 	$not_setup_quoted = "\"setup(name="
 	$not_distutils = "from distutils.errors import"
+	$not_dir = "dist-packages/setuptools"
+	$not_fetch = "fetch_distribution"
   condition:
     filesize < 128KB and $setup and any of ($i*) and none of ($not*)
 }

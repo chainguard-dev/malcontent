@@ -1,7 +1,7 @@
-rule irc_protocol : high {
+rule irc_protocol : medium {
   meta:
     pledge = "inet"
-    description = "Uses IRC (Internet Relay Chat"
+    description = "Uses IRC (Internet Relay Chat)"
     credit = "Initially ported from https://github.com/jvoisin/php-malware-finder"
     hash_2024_ReverseShell_0_1_0 = "351e6ed52c0634e6ac534db5a0935e7beee7e50312c77cabb8494139fe4c3459"
     hash_2024_clients_shellclientsocketirc = "486149b6cb6a547791d55ae5860e80d23c56c14a8ea2e8984a9f72bd549c3093"
@@ -19,4 +19,11 @@ rule irc_protocol : high {
     $user = "USER" fullword
   condition:
     $nick and $user and 2 of them
+}
+
+rule small_elf_irc : high {
+	meta:
+		description = "Uses IRC (Internet Relay Chat)"
+	condition:
+		uint32(0) == 1179403647 and filesize < 10MB and irc_protocol
 }

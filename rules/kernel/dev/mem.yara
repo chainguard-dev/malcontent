@@ -10,8 +10,9 @@ rule mem : high {
     $val = "/dev/mem"
     $not_cshell = "_PATH_CSHELL" fullword
     $not_rwho = "_PATH_RWHODIR" fullword
+	$not_no = "no /dev/mem" fullword
   condition:
-    $val and none of ($not*)
+     uint32(0) == 1179403647 and $val and none of ($not*)
 }
 
 rule comsvcs_minidump : high {

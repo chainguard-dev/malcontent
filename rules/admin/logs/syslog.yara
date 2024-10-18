@@ -1,13 +1,25 @@
 
-rule var_log_syslog : high {
+rule var_log_syslog : medium {
   meta:
     description = "accesses system logs"
-    hash_2023_init_d_abrt_oops = "192b763638d0be61c4ba45e08f86df22318ab741297d6841d1009cca9bddad30"
-    hash_2023_usr_adxintrin_b = "a51a4ddcd092b102af94139252c898d7c1c48f322bae181bd99499a79c12c500"
-    hash_2023_Unix_Downloader_Rocke_228e = "228ec858509a928b21e88d582cb5cfaabc03f72d30f2179ef6fb232b6abdce97"
   strings:
     $ref = "/var/log/messages" fullword
     $ref2 = "/var/log/syslog" fullword
+	$not_syslog_conf = "/etc/syslog.conf"
+	$not_rsyslog_conf = "/etc/rsyslog.conf"
   condition:
     any of them
+}
+
+
+rule var_log_syslog_elf : high {
+  meta:
+    description = "ELF binary that accesses system logs"
+  strings:
+    $ref = "/var/log/messages" fullword
+    $ref2 = "/var/log/syslog" fullword
+	$not_syslog_conf = "/etc/syslog.conf"
+	$not_rsyslog_conf = "/etc/rsyslog.conf"
+  condition:
+    uint32(0) == 1179403647 and any of them
 }

@@ -19,7 +19,7 @@ rule system_log_references : high {
     $run_log = "/run/log/"
 	$mail_log = "/var/spool/mail/root"
   condition:
-    filesize < 67108864 and 3 of them
+    filesize < 67108864 and uint32(0) == 1179403647 and 3 of them
 }
 
 rule echo_log_wiper : critical {

@@ -36,6 +36,9 @@ rule high_fetch_command_val : high {
     $not_localhost = "curl -k https://localhost"
     $not_127_0_0_1 = "curl -k https://127.0.0.1"
 	$not_dump_header = "curl --silent --dump-header"
+	$not_silent_key = "curl --silent --key"
+	$not_s_key = "curl -s --key"
+	$not_local = "curl -ks https://localhost"
   condition:
     any of ($c*) and none of ($not*)
 }

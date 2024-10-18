@@ -26,6 +26,7 @@ rule proc_fd_high : high {
 	$not_num_fd = "num_fd" fullword
 	$not_libproc = "ps_list_register"
 	$not_usage = "usage: "
+	$not_impstats = "impstats:"
   condition:
     $ref and none of ($not*)
 }

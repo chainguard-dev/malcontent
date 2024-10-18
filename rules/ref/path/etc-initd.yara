@@ -12,6 +12,8 @@ rule etc_initd_short_file : high {
     description = "references short filename within /etc/init.d"
   strings:
     $ref = /etc\/init\.d\/[\w\.]{2,4}/ fullword
+	$not_sshd = "/etc/init.d/sshd"
+	$not_rcd = "/etc/init.d/rc.d"
   condition:
-    any of them
+    any of them and none of ($not*)
 }

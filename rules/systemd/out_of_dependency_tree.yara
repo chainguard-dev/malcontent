@@ -1,5 +1,5 @@
 
-rule systemd_not_in_dependency_tree : high {
+rule systemd_not_in_dependency_tree : medium {
   meta:
     description = "Relies on nothing, nothing relies on it"
     hash_2023_Downloads_kinsing = "05d02411668f4ebd576a24ac61cc84e617bdb66aa819581daa670c65f1a876f0"
