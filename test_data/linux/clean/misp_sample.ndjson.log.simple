@@ -1,0 +1,12 @@
+# linux/clean/misp_sample.ndjson.log: critical
+3P/threat_hunting/pastebin: medium
+crypto/aes: low
+fd/multiplex: low
+ref/ip: medium
+ref/site/download: high
+ref/site/php: medium
+ref/site/url: low
+ref/words/backdoor: high
+ref/words/decryptor: medium
+ref/words/ransomware/lvt: medium
+ref/words/rootkit: high
