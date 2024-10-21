@@ -6,7 +6,7 @@ require (
 	github.com/agext/levenshtein v1.2.3
 	github.com/chainguard-dev/clog v1.5.0
 	github.com/fatih/color v1.17.0
-	github.com/gabriel-vasile/mimetype v1.4.5
+	github.com/gabriel-vasile/mimetype v1.4.6
 	github.com/google/go-cmp v0.6.0
 	github.com/google/go-containerregistry v0.20.2
 	github.com/hillu/go-yara/v4 v4.3.3
@@ -50,6 +50,6 @@ require (
 	github.com/vbatts/tar-split v0.11.5 // indirect
 	github.com/xrash/smetrics v0.0.0-20240521201337-686a1a2994c1 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
-	golang.org/x/net v0.27.0 // indirect
+	golang.org/x/net v0.30.0 // indirect
 	golang.org/x/sys v0.26.0 // indirect
 )
