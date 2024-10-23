@@ -167,7 +167,6 @@ ref/program/sshd: medium
 ref/program/sudo: medium
 ref/site/download: high
 ref/site/dyndns: medium
-ref/words/backdoor: high
 ref/words/ddos: high
 ref/words/dropper: medium
 ref/words/exploit: high

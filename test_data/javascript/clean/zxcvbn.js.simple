@@ -20,7 +20,6 @@ ref/daemon: medium
 ref/path/relative: medium
 ref/program/minecraft: medium
 ref/words/agent: medium
-ref/words/backdoor: high
 ref/words/dropper: medium
 ref/words/exploit: medium
 ref/words/heartbeat: medium
