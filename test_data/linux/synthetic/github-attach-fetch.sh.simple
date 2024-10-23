@@ -4,7 +4,7 @@ fs/permission/modify: medium
 net/fetch: medium
 ref/site/github_attachment: high
 ref/site/url: low
-ref/words/backdoor: high
+ref/words/backdoor: critical
 shell/background_launcher: high
 shell/exec: medium
 shell/nohup: medium

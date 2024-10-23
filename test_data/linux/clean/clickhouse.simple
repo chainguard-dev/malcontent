@@ -82,7 +82,6 @@ kernel/acct: low
 kernel/cpu/info: low
 kernel/dev/block/device: medium
 kernel/hostname/get: low
-kernel/module/load: medium
 kernel/netlink: low
 kernel/opencl: medium
 kernel/platform: low

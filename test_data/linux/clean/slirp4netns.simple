@@ -41,7 +41,6 @@ kernel/acct: low
 kernel/hostname/set: low
 kernel/key/management: low
 kernel/module: medium
-kernel/module/load: medium
 kernel/netlink: low
 kernel/perfmon: low
 kernel/pivot_root: low

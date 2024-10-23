@@ -107,7 +107,7 @@ net/websocket: medium
 persist/crontab: medium
 persist/pid_file: medium
 process/chdir: low
-process/chdir/unusual: high
+process/chdir/unusual: medium
 process/chroot: low
 process/groupid/set: low
 process/groups/set: low
