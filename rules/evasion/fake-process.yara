@@ -1,4 +1,4 @@
-rule fake_kworker_val : critical {
+rule fake_kworker_val : critical linux {
   meta:
     description = "Pretends to be a kworker kernel thread"
     hash_2023_Unix_Downloader_Rocke_228e = "228ec858509a928b21e88d582cb5cfaabc03f72d30f2179ef6fb232b6abdce97"
@@ -6,12 +6,19 @@ rule fake_kworker_val : critical {
     hash_2023_Unix_Downloader_Rocke_6107 = "61075056b46d001e2e08f7e5de3fb9bfa2aabf8fb948c41c62666fd4fab1040f"
   strings:
     $kworker = /\[{0,1}kworker\/[\d:\]]{1,5}/
-    $kworker2 = "kworker" fullword
     $kworker3 = "[kworker"
+  condition:
+    filesize < 1MB and any of ($k*)
+}
 
+rule kworker : medium linux {
+  meta:
+    description = "Mentions kworker"
+  strings:
+    $kworker2 = "kworker" fullword
 	$not_under_kworker = "_kworker"
   condition:
-    any of ($k*) and none of ($not*)
+    filesize < 1MB and any of ($k*) and none of ($not*)
 }
 
 rule fake_syslogd : critical {
@@ -20,10 +27,10 @@ rule fake_syslogd : critical {
   strings:
     $ref = "[syslogd]"
   condition:
-    any of them
+    filesize < 1MB and any of them
 }
 
-rule fake_bash_val : high {
+rule fake_bash : high {
   meta:
     description = "Pretends to be a bash process"
   strings:
@@ -32,18 +39,18 @@ rule fake_bash_val : high {
 	filesize < 8KB and $bash
 }
 
-rule fake_systemd : critical {
+rule fake_systemd : critical linux {
   meta:
     description = "Pretends to be a systemd worker"
   strings:
     $ref = "systemd-worker" fullword
   condition:
-	filesize < 100MB and $ref
+	filesize < 10MB and $ref
 }
 
 rule fake_process_names : high {
 	meta:
-		description = "mentions known fake process names"
+		description = "mentions known fake process name"
 	strings:
 		$kdevchecker = "kdevchecker" fullword
 		$kworkerr = "kworkerr" fullword

@@ -11,5 +11,16 @@ rule backdoor : high {
     $ref3 = /[a-zA-Z\-_ ]{0,16}Backdoor[a-zA-Z\-_ ]{0,16}/
     $ref4 = /[a-zA-Z\-_ ]{0,16}backd00r[a-zA-Z\-_ ]{0,16}/
   condition:
-    any of them
+    filesize < 20MB and any of them
+}
+
+rule include_header : override linux {
+	meta:
+		description = "include header"
+		backdoor = "medium"
+		filetypes = "h"
+	strings:
+		$re = /\#define [A-Z0-9_]+_H/ fullword
+	condition:
+		filesize < 100KB and any of them
 }
