@@ -8,5 +8,5 @@ rule misp_mdjson : override {
     $galaxy = "Galaxy"
     $shadow = "ShadowAttribute"
   condition:
-    all of them
+    filesize < 128KB and all of them
 }
