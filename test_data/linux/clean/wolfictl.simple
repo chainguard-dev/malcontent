@@ -12,7 +12,6 @@ cloud/aws/metadata: low
 cloud/google/metadata: low
 cloud/google/storage: low
 combo/backdoor/kill_rm: medium
-combo/critical_paths: medium
 combo/dropper/shell: medium
 combo/net/raw_flooder: medium
 combo/net/scan_tool: medium

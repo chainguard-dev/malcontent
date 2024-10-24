@@ -18,7 +18,6 @@ env/HOME: low
 evasion/base64/commands: high
 evasion/base64/http: high
 evasion/elf/sus_header: critical
-evasion/fake/process: critical
 exfil/discord: critical
 fs/file/delete: low
 fs/file/make_executable: high

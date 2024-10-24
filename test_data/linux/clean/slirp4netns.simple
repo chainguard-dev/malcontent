@@ -1,5 +1,4 @@
 # linux/clean/slirp4netns: high
-combo/critical_paths: medium
 combo/net/scan_tool: medium
 env/GCONV_PATH: low
 env/HOME: low
@@ -12,6 +11,7 @@ env/TMPDIR: low
 env/USER: low
 exec/program: medium
 exec/program/background: low
+false_positives/slirp: low
 fd/epoll: low
 fs/attributes/set: medium
 fs/directory/create: low
@@ -41,7 +41,6 @@ kernel/acct: low
 kernel/hostname/set: low
 kernel/key/management: low
 kernel/module: medium
-kernel/module/load: medium
 kernel/netlink: low
 kernel/perfmon: low
 kernel/pivot_root: low

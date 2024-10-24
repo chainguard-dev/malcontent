@@ -18,7 +18,6 @@ process/username/get: medium
 ref/daemon: medium
 ref/program/minecraft: medium
 ref/words/agent: medium
-ref/words/backdoor: high
 ref/words/dropper: medium
 ref/words/exploit: medium
 ref/words/heartbeat: medium

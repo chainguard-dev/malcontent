@@ -8,7 +8,6 @@ archives/zip: medium
 cloud/google/metadata: low
 combo/backdoor/iptables: medium
 combo/backdoor/payload: high
-combo/critical_paths: medium
 combo/net/host_port: medium
 compression/bzip2: low
 compression/gzip: low

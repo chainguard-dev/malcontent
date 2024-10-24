@@ -14,7 +14,6 @@ cloud/google/metadata: low
 cloud/google/storage: low
 combo/backdoor/iptables: medium
 combo/backdoor/kill_rm: medium
-combo/critical_paths: medium
 combo/dropper/shell: high
 combo/net/host_port: medium
 combo/net/tunnel_proxy: medium
@@ -134,7 +133,7 @@ net/url/request: medium
 net/websocket: medium
 net/wireless: low
 process/chdir: low
-process/chdir/unusual: high
+process/chdir/unusual: medium
 process/chroot: low
 process/executable_path: low
 process/groupid/set: low
@@ -170,7 +169,6 @@ ref/site/github_api: low
 ref/site/github_raw: medium
 ref/site/http/dynamic: medium
 ref/site/url: low
-ref/words/backdoor: high
 ref/words/collection: medium
 ref/words/exclamation: medium
 ref/words/heartbeat: medium

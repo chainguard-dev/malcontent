@@ -1,5 +1,6 @@
 # linux/clean/nvim: high
 3P/threat_hunting/hrshell: medium
+combo/degrader/linux_paths: medium
 databases/mysql: medium
 databases/sqlite: medium
 dylib/symbol/address: medium

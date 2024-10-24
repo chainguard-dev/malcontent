@@ -1,6 +1,7 @@
 # linux/2024.medusa/rkload: critical
 3P/elastic/orbit: critical
 admin/system_directories: medium
+combo/degrader/linux_paths: high
 dylib/address/check: low
 dylib/symbol/address: medium
 env/GCONV_PATH: low

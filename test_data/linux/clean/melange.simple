@@ -9,7 +9,6 @@ cloud/aws/metadata: low
 cloud/google/metadata: low
 cloud/google/storage: low
 combo/backdoor/kill_rm: medium
-combo/critical_paths: medium
 combo/dropper/shell: medium
 combo/net/tunnel_proxy: medium
 compression/bzip2: low

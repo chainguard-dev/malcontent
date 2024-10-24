@@ -8,7 +8,6 @@ archives/unarchive: medium
 archives/zip: medium
 combo/backdoor/kill_rm: medium
 combo/backdoor/net_exec: medium
-combo/critical_paths: medium
 combo/exploit/overflow/shellcode: high
 combo/exploit/pwnkit: critical
 combo/net/host_port: medium
@@ -107,7 +106,7 @@ net/websocket: medium
 persist/crontab: medium
 persist/pid_file: medium
 process/chdir: low
-process/chdir/unusual: high
+process/chdir/unusual: medium
 process/chroot: low
 process/groupid/set: low
 process/groups/set: low
