@@ -1,0 +1,9 @@
+# python/clean/versioneer/versioneer.py: medium
+data/embedded/base64/terms: medium
+data/embedded/base64/url: medium
+encoding/base64: low
+evasion/base64/decode: medium
+evasion/base64/eval: medium
+fd/write: low
+fs/file/open: low
+ref/path/usr/bin: low

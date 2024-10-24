@@ -1,0 +1,7 @@
+# linux/clean/linux-sparc64.sh: medium
+combo/dropper/shell: medium
+fs/directory/create: low
+fs/permission/modify: medium
+net/fetch: medium
+process/chdir: low
+ref/site/url: low

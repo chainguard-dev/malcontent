@@ -1,0 +1,7 @@
+# windows/clean/make-win.ps1: high
+3P/InQuest-VT/base64/powershell/directives: high
+3P/secuinfra/susp/powershell/base64: medium
+data/embedded/base64/terms: medium
+evasion/base64/decode: medium
+ref/site/url: low
+shell/pipe_sh: medium
