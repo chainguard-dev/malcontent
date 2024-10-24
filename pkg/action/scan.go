@@ -35,7 +35,7 @@ var (
 )
 
 // findFilesRecursively returns a list of files found recursively within a path.
-func findFilesRecursively(_ context.Context, rootPath string) ([]string, error) {
+func findFilesRecursively(ctx context.Context, rootPath string) ([]string, error) {
 	var files []string
 
 	// Follow symlink if provided at the root
@@ -49,10 +49,13 @@ func findFilesRecursively(_ context.Context, rootPath string) ([]string, error) 
 		}
 	}
 
+	logger := clog.FromContext(ctx)
+
 	err = filepath.WalkDir(root,
 		func(path string, info os.DirEntry, err error) error {
 			if err != nil {
-				return fmt.Errorf("walk: %w", err)
+				logger.Errorf("error: %s: %s", path, err)
+				return nil
 			}
 			if info.IsDir() || strings.Contains(path, "/.git/") {
 				return nil
