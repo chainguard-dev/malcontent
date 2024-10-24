@@ -30,7 +30,7 @@ net/ssh: medium
 net/upload: medium
 persist/crontab: medium
 process/chdir: low
-process/chdir/unusual: high
+process/chdir/unusual: medium
 process/chroot: low
 process/executable_path: low
 random/insecure: low

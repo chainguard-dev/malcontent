@@ -1,7 +1,7 @@
 # linux/clean/busybox: high
 admin/logs/current_logins: medium
-combo/critical_paths: high
 combo/degrader/infection: medium
+combo/degrader/linux_paths: high
 combo/net/raw_flooder: medium
 combo/net/scan_tool: medium
 compression/bzip2: low
