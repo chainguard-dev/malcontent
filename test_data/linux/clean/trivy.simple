@@ -14,7 +14,6 @@ cloud/google/metadata: low
 cloud/google/storage: low
 combo/backdoor/iptables: medium
 combo/backdoor/kill_rm: medium
-combo/critical_paths: medium
 combo/dropper/shell: high
 combo/net/host_port: medium
 combo/net/tunnel_proxy: medium
