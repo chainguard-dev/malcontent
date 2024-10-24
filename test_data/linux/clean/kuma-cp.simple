@@ -3,7 +3,6 @@
 3P/threat_hunting/privilegeescalation: medium
 archives/zip: medium
 combo/backdoor/iptables: medium
-combo/critical_paths: medium
 combo/dropper/shell: medium
 combo/net/host_port: medium
 combo/net/tunnel_proxy: medium

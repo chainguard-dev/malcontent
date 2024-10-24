@@ -2,7 +2,6 @@
 3P/threat_hunting/metasploit: medium
 3P/threat_hunting/proxmark: medium
 archives/zip: medium
-combo/critical_paths: medium
 combo/net/tunnel_proxy: medium
 compression/bzip2: low
 compression/gzip: low

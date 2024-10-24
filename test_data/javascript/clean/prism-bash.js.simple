@@ -1,0 +1,26 @@
+# javascript/clean/prism-bash.js: medium
+combo/degrader/infection: medium
+combo/recon/system_network: medium
+compression/bzip2: low
+compression/gzip: low
+env/SHELL: low
+env/TERM: low
+fs/directory/create: low
+fs/directory/remove: low
+fs/fifo/create: low
+fs/node/create: low
+fs/permission/modify: medium
+fs/quota/manipulate: low
+fs/swap/on: low
+fs/unmount: low
+kernel/platform: low
+net/interface/list: medium
+net/sftp: medium
+net/ssh: medium
+net/stat: medium
+persist/crontab: medium
+process/chroot: low
+process/username/get: medium
+ref/program/sudo: medium
+ref/site/url: low
+security_controls/linux/selinux: medium

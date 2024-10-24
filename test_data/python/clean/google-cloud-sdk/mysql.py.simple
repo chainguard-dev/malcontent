@@ -1,0 +1,13 @@
+# python/clean/google-cloud-sdk/mysql.py: high
+combo/degrader/infection: medium
+databases/mysql: medium
+evasion/fake/process: high
+fs/directory/create: low
+fs/file/copy: medium
+fs/file/open: low
+process/kill/multiple: medium
+ref/path/etc: low
+ref/path/etc/initd: medium
+ref/path/var: low
+ref/site/url: low
+ref/words/password: low

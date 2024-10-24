@@ -13,7 +13,6 @@ fs/permission/modify: medium
 fs/unmount: low
 kernel/acct: low
 kernel/module: medium
-kernel/module/load: medium
 kernel/ptrace: medium
 kernel/seccomp: low
 net/bpf: medium

@@ -55,10 +55,11 @@ private rule exfil {
 		filesize < 512KB and any of them
 }
 
-
 rule sys_net_recon_exfil : high {
-  meta:
-    description = "may exfiltrate collected system and network information"
-   condition:
-     sys_net_recon and (obfuscate or exfil)
+  	meta:
+    	description = "may exfiltrate collected system and network information"
+	strings:
+		$not_curl = "CURLAUTH_ONLY"
+	condition:
+		sys_net_recon and (obfuscate or exfil) and none of ($not*)
 }

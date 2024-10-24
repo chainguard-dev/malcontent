@@ -139,7 +139,6 @@ ref/site/download: medium
 ref/site/github_api: low
 ref/site/http/dynamic: medium
 ref/site/url: low
-ref/words/backdoor: high
 ref/words/dropper: medium
 ref/words/exclamation: medium
 ref/words/exploit: medium

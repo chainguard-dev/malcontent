@@ -1,4 +1,4 @@
-# javascript/clean/securityDashboards.plugin.js: critical
+# javascript/clean/securityDashboards.plugin.js: high
 3P/threat_hunting/crowbar: medium
 3P/threat_hunting/hijacker: medium
 3P/threat_hunting/johntheripper: medium
@@ -29,7 +29,6 @@ ref/daemon: medium
 ref/program/minecraft: medium
 ref/site/url: low
 ref/words/agent: medium
-ref/words/backdoor: high
 ref/words/dropper: medium
 ref/words/exploit: medium
 ref/words/heartbeat: medium

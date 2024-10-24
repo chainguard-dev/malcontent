@@ -8,8 +8,8 @@ admin/logs/syslog: medium
 admin/package/install: medium
 combo/backdoor/iptables: medium
 combo/backdoor/kill_rm: medium
-combo/critical_paths: medium
 combo/degrader/infection: critical
+combo/degrader/linux_paths: high
 combo/degrader/selinux_firewall: high
 combo/degrader/ufw: high
 combo/dropper/http_ip_temp: critical

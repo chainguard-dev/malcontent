@@ -1,0 +1,8 @@
+# linux/clean/linux-s390x.sh: medium
+combo/dropper/shell: medium
+fs/directory/create: low
+fs/permission/modify: medium
+net/fetch: medium
+process/chdir: low
+ref/site/github_raw: medium
+ref/site/url: low
