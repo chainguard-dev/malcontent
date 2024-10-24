@@ -1,4 +1,4 @@
-rule pypi_packages : override {
+rule mlflow_pypi_packages : override {
   meta:
     description = "pypi_package_index.json"
     killer_miner_panchansminingisland = "low"
@@ -16,4 +16,15 @@ rule pypi_packages : override {
     $s_windmill = "windmill" fullword
   condition:
     $index_date and $package_names and 5 of ($s*)
+}
+
+rule mlflow_webpack : override {
+  meta:
+    description = "203.b7219352.chunk.js"
+    infection_killer = "medium"
+  strings:
+    $mlflow = "mlflow"
+    $webpack = "webpack"
+  condition:
+    filesize < 1MB and $webpack and #mlflow > 0
 }
