@@ -7,7 +7,6 @@ admin/package/install: medium
 admin/shutdown: medium
 builtin/openssl: medium
 cloud/google/metadata: low
-combo/critical_paths: medium
 combo/dropper/shell: medium
 combo/miner/argon2d_numa_self: high
 combo/net/tunnel_proxy: medium
@@ -68,7 +67,6 @@ fs/mounts/read: medium
 fs/node/create: low
 fs/permission/chown: low
 fs/permission/modify: medium
-fs/permission/modify/dangerous: medium
 fs/symlink/resolve: low
 fs/tempdir: low
 fs/tempdir/create: low

@@ -1,7 +1,7 @@
 # linux/2024.kworker_pretenders/gafgyt: critical
 3P/elastic/mirai: critical
 3P/threat_hunting/base64: medium
-combo/critical_paths: medium
+combo/degrader/linux_paths: high
 encoding/base64: low
 evasion/base64/eval: high
 evasion/base64/external: medium

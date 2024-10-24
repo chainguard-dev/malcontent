@@ -1,19 +1,20 @@
-rule etc_initd : medium {
+rule etc_initd : medium linux {
   meta:
     description = "references /etc/init.d"
   strings:
     $ref = /etc\/init\.d\/[\w\/\.]{0,32}/ fullword
   condition:
-    any of them
+    filesize < 50MB and any of them
 }
 
-rule etc_initd_short_file : high {
+rule etc_initd_short_file : high linux {
   meta:
     description = "references short filename within /etc/init.d"
   strings:
-    $ref = /etc\/init\.d\/[\w\.]{2,4}/ fullword
-	$not_sshd = "/etc/init.d/sshd"
+    $ref = /etc\/init\.d\/[\w\.]{1,3}/ fullword
 	$not_rcd = "/etc/init.d/rc.d"
+	$not_init = "SCRIPTNAME=/etc/init.d/"
+	$header = "### BEGIN INIT INFO"
   condition:
-    any of them and none of ($not*)
+     filesize < 50MB and $ref and none of ($not*) and not $header in (1..128)
 }

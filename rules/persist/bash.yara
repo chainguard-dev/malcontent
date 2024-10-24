@@ -24,6 +24,8 @@ rule bash_logout_persist : high {
   strings:
     $ref = ".bash_logout"
     $not_bash = "POSIXLY_CORRECT"
+	$not_comment = "# ~/.bash_logout"
+	$not_clear = "/usr/bin/clear_console"
   condition:
     filesize < 2097152 and any of ($ref*) and none of ($not*)
 }

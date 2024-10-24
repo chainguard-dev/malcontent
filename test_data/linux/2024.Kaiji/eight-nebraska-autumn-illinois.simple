@@ -2,6 +2,7 @@
 3P/elastic/threat: high
 combo/backdoor/kill_rm: medium
 combo/botnet/systemctl: critical
+combo/degrader/linux_paths: high
 combo/dropper/shell: medium
 combo/stealer/linux_server: high
 combo/stealer/ssh: high

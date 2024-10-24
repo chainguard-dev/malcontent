@@ -3,7 +3,6 @@ archives/unarchive: medium
 cloud/aws/metadata: low
 cloud/google/metadata: low
 combo/backdoor/kill_rm: medium
-combo/critical_paths: medium
 combo/dropper/shell: medium
 combo/net/scan_tool: medium
 combo/net/tunnel_proxy: medium

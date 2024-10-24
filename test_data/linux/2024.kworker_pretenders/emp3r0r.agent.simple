@@ -8,7 +8,6 @@ archives/unarchive: medium
 archives/zip: medium
 combo/backdoor/kill_rm: medium
 combo/backdoor/net_exec: medium
-combo/critical_paths: medium
 combo/exploit/overflow/shellcode: high
 combo/exploit/pwnkit: critical
 combo/net/host_port: medium
