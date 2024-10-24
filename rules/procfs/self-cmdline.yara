@@ -1,5 +1,5 @@
 
-rule proc_self_cmdline : medium {
+rule proc_self_cmdline : medium linux {
   meta:
     description = "gets process command-line"
     pledge = "stdio"

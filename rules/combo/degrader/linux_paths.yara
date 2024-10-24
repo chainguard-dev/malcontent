@@ -9,36 +9,44 @@ rule linux_critical_system_paths : medium {
 	$p_etc_cron_d = /\/etc\/cron.d[\w\/\.\-]{0,32}/
 	$p_etc_selinux = /\/etc\/selinux[\w\/\.\-]{0,32}/
 	$p_etc_systemd = /\/etc\/systemd[\w\/\.\-]{0,32}/
+	$p_etc_preload = "/etc/ld.so.preload"
+	$p_ld_so_cache = "/etc/ld.so.cache"
     $p_var_run = /\/var\/run[\w\/\.\-]{0,32}/
     $p_var_log = /\/var\/log[\w\/\.\-]{0,32}/
     $p_usr_libexec = /\/usr\/libexec[\w\/\.\-]{0,32}/
     $p_tmp = /\/tmp\/[\w\/\.\-]{0,32}/
-    $p_usr_bin = /\/usr\/bin[\w\/\.\-]{0,32}/
     $p_sbin = /\/sbin\/[\w\/\.\-]{0,32}/
     $p_lib_systemd = /\/lib\/systemd[\w\/\.\-]{0,32}/
     $p_boot = /\/boot\/[\w\/\.\-]{0,32}/
-    $p_proc = /\/proc\/[\w\/\.\-]{0,32}/
+	$proc_self_cmdline = "/proc/self/cmdline"
+	$proc_self_cgroup = "/proc/self/cgroup"
+	$p_lib = "/usr/lib/x86_64-linux-gnu/"
+	$p_lib_ld = "/lib64/ld-linux-x86-64.so.2"
     $p_sys = /\/sys\/(devices|class)[\w\/\.\-]{0,32}/
     $p_sysctl = /sysctl[ -a-z]{0,32}/
 	$p_dev_watchdog = "/dev/watchdog"
 	$p_ps = "/usr/bin/ps"
 	$p_ss = "/usr/bin/lsof"
+	$p_ssh = "/usr/bin/ssh"
+	$p_dev_shm = "/dev/shm"
   condition:
-    5 of ($p*)
+    filesize < 120MB and any of ($p_etc*) and 5 of ($p*)
 }
 
 rule linux_critical_system_paths_small_elf : high {
   meta:
-    description = "accesses multiple critical Linux paths"
+    description = "ELF accesses multiple critical Linux paths"
+  strings:
+	$not_vim = "VIMRUNTIME" fullword
   condition:
-    filesize < 8MB and uint32(0) == 1179403647 and linux_critical_system_paths
+    filesize < 10MB and uint32(0) == 1179403647 and linux_critical_system_paths and none of ($not*)
 }
 
 rule linux_critical_system_paths_small_shell : high {
   meta:
-    description = "accesses multiple critical Linux paths"
+    description = "script accesses multiple critical Linux paths"
   strings:
     $hash_bang = "#!"
   condition:
-    filesize < 32KB and $hash_bang in (0..2) and linux_critical_system_paths
+    filesize < 64KB and $hash_bang in (0..2) and linux_critical_system_paths
 }
