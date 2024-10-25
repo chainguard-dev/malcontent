@@ -75,7 +75,7 @@ net/sendfile: low
 net/sftp: medium
 net/socket/connect: medium
 net/socket/listen: low
-net/socket/local/address: low
+net/socket/name: medium
 net/socket/peer/address: low
 net/socket/receive: low
 net/socket/send: low
@@ -107,7 +107,7 @@ ref/path/relative: medium
 ref/path/tmp: medium
 ref/path/var: low
 ref/path/var/run: medium
-ref/program/masscan: medium
+ref/program/masscan: high
 ref/program/nmap: medium
 ref/program/readelf: medium
 ref/program/sshd: medium

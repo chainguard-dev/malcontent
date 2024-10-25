@@ -19,5 +19,6 @@ ref/ip/dns_resolver: medium
 ref/path/tmp: medium
 ref/path/usr/bin: low
 ref/program/ancient_gcc: medium
+ref/words/keylogger: medium
 ref/words/password: low
 security_controls/linux/pam: medium

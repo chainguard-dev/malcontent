@@ -15,3 +15,14 @@ rule kallsyms : high linux {
   condition:
     filesize < 1MB and $ref and none of ($not*)
 }
+
+rule bpftrace : override linux {
+  meta:
+    description = "bpftrace"
+	filetypes = "so,elf"
+	kallsyms = "medium"
+  strings:
+	$ref2 = "BPFTRACE" fullword
+  condition:
+    filesize < 2MB and any of them
+}

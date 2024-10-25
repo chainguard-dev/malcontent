@@ -58,7 +58,7 @@ net/mac/address: medium
 net/public_ip: high
 net/sendfile: low
 net/socket/listen: low
-net/socket/local/address: low
+net/socket/name: medium
 net/socket/peer/address: low
 net/socket/receive: low
 net/socket/send: low
@@ -69,6 +69,7 @@ net/url: low
 net/url/request: medium
 net/vnc: medium
 persist/pid_file: medium
+privesc/is_admin: medium
 privesc/uac_bypass: high
 process/list: medium
 ref/extensions/office: medium

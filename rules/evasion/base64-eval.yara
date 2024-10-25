@@ -76,7 +76,7 @@ rule echo_decode_bash_probable : high {
     $not_copyright = "Copyright (c)"
     $not_syntax = "syntax file"
   condition:
-    filesize < 1048576 and $echo and ($bash or $sh) and ($base64_decode or $base64_d) and none of ($not*)
+    filesize < 15KB and $echo and ($bash or $sh) and ($base64_decode or $base64_d) and none of ($not*)
 }
 
 rule acme_sh : override {

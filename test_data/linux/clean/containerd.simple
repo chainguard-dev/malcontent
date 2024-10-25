@@ -82,7 +82,7 @@ net/oauth2: low
 net/sendfile: low
 net/sniffer: medium
 net/socket/listen: low
-net/socket/local/address: low
+net/socket/name: medium
 net/socket/peer/address: low
 net/socket/receive: low
 net/socket/send: low

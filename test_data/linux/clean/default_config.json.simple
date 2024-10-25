@@ -49,7 +49,7 @@ ref/path/home: medium
 ref/path/home/config: low
 ref/path/tmp: medium
 ref/path/var: low
-ref/program/masscan: medium
+ref/program/masscan: high
 ref/program/nmap: medium
 ref/program/readelf: medium
 ref/program/sshd: medium

@@ -51,6 +51,7 @@ ref/words/backdoor: high
 ref/words/dropper: medium
 ref/words/exploit: high
 ref/words/infected: medium
+ref/words/keylogger: medium
 ref/words/malicious: medium
 ref/words/obfuscate: low
 ref/words/password: low
