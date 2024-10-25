@@ -1,6 +1,7 @@
-# linux/2022.Symbiote/kerneldev.so.bkp: medium
+# linux/2022.Symbiote/kerneldev.so.bkp: critical
 3P/threat_hunting/keylogger: medium
 dylib/symbol/address: medium
+evasion/process/hide: critical
 fs/link/read: low
 fs/permission/modify: low
 kernel/platform: low

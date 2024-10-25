@@ -11,7 +11,6 @@ env/SHELL: low
 env/TERM: low
 env/USER: low
 evasion/packer/upx: high
-evasion/process/hide: low
 evasion/rootkit: critical
 exec/program: medium
 exec/program/background: low
