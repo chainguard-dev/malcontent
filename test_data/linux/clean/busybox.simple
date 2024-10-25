@@ -1,7 +1,7 @@
-# linux/clean/busybox: high
+# linux/clean/busybox: medium
 admin/logs/current_logins: medium
-combo/degrader/infection: medium
-combo/degrader/linux_paths: high
+combo/degrader/infection: low
+combo/degrader/linux_paths: low
 combo/net/raw_flooder: medium
 combo/net/scan_tool: medium
 compression/bzip2: low
@@ -50,7 +50,7 @@ net/ip/multicast/send: low
 net/ip/parse: medium
 net/ip/string: medium
 net/raw_sockets: medium
-net/socket/name: medium
+net/socket/local_addr: low
 net/socket/receive: low
 net/socket/send: low
 net/stat: medium

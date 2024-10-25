@@ -9,7 +9,6 @@ private rule wordlist {
 		filesize < 100MB and 3 of them
 }
 
-
 rule backdoor : high {
   meta:
     description = "References a 'backdoor'"

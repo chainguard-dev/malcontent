@@ -13,6 +13,8 @@ rule linux_multi_persist : high {
     $bash_ref5 = "/etc/profile"
     $bash_ref6 = "/etc/bashrc"
     $bash_ref7 = "/etc/bash"
+
+	$not_shell = "POSIXLY_CORRECT" fullword
   condition:
-    filesize < 20MB and ($initd or $udev) and $crontab and any of ($bash*)
+    filesize < 20MB and ($initd or $udev) and $crontab and any of ($bash*) and none of ($not*)
 }

@@ -12,19 +12,25 @@ rule elf_processhide : high {
     all of them
 }
 
-rule elf_possible_prochid : high {
+rule elf_possible_prochid : medium linux {
   meta:
-    description = "userland rootkit designed to hide processes"
+    description = "possible userland rootkit designed to hide processes"
     ref = "prochid.c"
     hash_2023_OK_c38c = "c38c21120d8c17688f9aeb2af5bdafb6b75e1d2673b025b720e50232f888808a"
     hash_2023_lib_pkit = "8faa04955eeb6f45043003e23af39b86f1dbfaa12695e0e1a1f0bc7a15d0d116"
     hash_2023_lib_pkitarm = "67de6ba64ee94f2a686e3162f2563c77a7d78b7e0404e338a891dc38ced5bd71"
   strings:
-    $proc_self_fd = "/proc/self/fd/%d"
-    $proc_stat = "/proc/%s/stat"
-    $readdir = "readdir"
+    $f_proc_self_fd = "/proc/self/fd/%d"
+    $f_proc_stat = "/proc/%s/stat"
+    $f_readdir = "readdir"
+	$f_dlsym = "dlsym"
+	$f_readlink = "readlink"
+	$f_sscanf = "sscanf"
+	$not_bpf = "/sys/fs/bpf"
+	$not_net = "/proc/net"
+	$not_sys = "/proc/sys"
   condition:
-    all of them
+    filesize < 200KB and all of ($f*) and none of ($not*)
 }
 
 rule process_hider {

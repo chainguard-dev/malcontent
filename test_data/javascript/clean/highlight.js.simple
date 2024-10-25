@@ -37,7 +37,7 @@ net/ip/resolve: low
 net/ip/string: medium
 net/mac/address: medium
 net/socket/listen: low
-net/socket/name: medium
+net/socket/local_addr: low
 net/socket/peer/address: low
 net/socket/receive: low
 net/socket/send: low
