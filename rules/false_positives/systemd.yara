@@ -1,11 +1,11 @@
-rule systemd : override linux {
+rule systemd : override {
   meta:
     description = "systemd"
 	world_writeable_dirs_chmod = "low"
 	hidden_short_path = "low"
 	dev_shm_file = "low"
 	selinux_firewall = "medium"
-	linux_critical_system_paths_high = "medium"
+	linux_critical_system_paths_small_elf = "medium"
 	pseudoterminal_tunnel = "low"
 	systemd_not_in_dependency_tree = "ignore"
 	filetypes = "elf,so"
