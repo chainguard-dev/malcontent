@@ -13,7 +13,6 @@ rule base64_str_replace : medium {
     any of them
 }
 
-
 rule gzinflate_str_replace : critical {
   meta:
     description = "creatively hidden forms of the term 'gzinflate'"
@@ -21,6 +20,19 @@ rule gzinflate_str_replace : critical {
     $a = /g.z.inf.l.a/
     $b = /g.z.i.n.f.l/
     $c = /g.z.in.f.l/
+  condition:
+    any of them
+}
+
+rule funky_function : critical {
+  meta:
+    description = "creatively hidden forms of the term 'function'"
+	filetypes = "php"
+  strings:
+    $a = "'fu'.'nct'.'ion'"
+    $b = "'f'.'unc'.'tion'"
+    $c = "'fun'.'nc'.'tion'"
+    $d = "'fun'.'ncti'.'on'"
   condition:
     any of them
 }

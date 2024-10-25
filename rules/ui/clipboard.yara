@@ -10,11 +10,10 @@ rule nspasteboard : medium macos {
     $pb2 = "pbpaste" fullword
     $lib = "golang.design/x/clipboard"
     $lib2 = "atotto/clipboard"
+	$lib_user32 = "user32.GetClipboardData"
   condition:
     all of ($pb*) or any of ($lib*)
 }
-
-
 
 rule py_pasteboard : high {
   meta:

@@ -154,3 +154,19 @@ rule chrome_encrypted_cookies : critical {
 	condition:
 		$select
 }
+
+rule leveldb_exfil : high {
+	meta:
+		description = "Reads values from browser leveldb files"
+	strings:
+		$h_urlopen = "urlopen"
+		$h_https = "https://"
+		$leveldb = "leveldb" fullword
+		$b_Yandox = "Yandex"
+		$b_Discord = "Discord"
+		$b_Chrome = "Google Chrome"
+		$b_Opera = "Opera"
+		$b_Brave = "Brave"
+	condition:
+		filesize < 3MB and $leveldb and any of ($h*) and 3 of ($b*)
+}

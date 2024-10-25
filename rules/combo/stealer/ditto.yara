@@ -1,4 +1,3 @@
-
 rule ditto_crypto_stealer : high {
   meta:
     description = "makes HTTP connections and creates archives using ditto"

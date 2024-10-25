@@ -8,6 +8,7 @@ rule geoip_website_value : high {
   strings:
     $ipify = "ip-api.com"
     $wtfismyip = "freegeoip"
+	$geo = "geolocation-db.com"
   condition:
     any of them
 }
