@@ -1,5 +1,4 @@
-
-rule getsockname {
+rule getsockname : posix low {
 	meta:
 		description = "get local address of connected socket"
 		syscall = "getsockname"

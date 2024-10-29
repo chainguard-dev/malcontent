@@ -65,7 +65,7 @@ net/ip/string: medium
 net/mac/address: medium
 net/sendfile: low
 net/socket/listen: low
-net/socket/local/address: low
+net/socket/local_addr: low
 net/socket/peer/address: low
 net/socket/receive: low
 net/socket/send: low
@@ -84,6 +84,7 @@ procfs/arbitrary/pid: medium
 procfs/meminfo: medium
 procfs/self/exe: medium
 procfs/stat: medium
+procfs/sys/kernel/osrelease: medium
 ref/ip_port: medium
 ref/path/dev/shm: medium
 ref/path/etc: low
@@ -91,6 +92,7 @@ ref/path/etc/hosts: medium
 ref/path/etc/resolv.conf: low
 ref/path/tmp: medium
 ref/path/var: low
+ref/path/var/profile: medium
 ref/path/var/run: medium
 ref/site/url: low
 ref/words/exclamation: medium

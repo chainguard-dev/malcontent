@@ -20,7 +20,7 @@ rule pam_passwords : high {
 	$not_pam_service = "--pam-service"
 	$not_pam_acct = "pam_acct_mgmt"
   condition:
-    $auth and $pass and any of ($f*) and none of ($not*)
+    $auth and $pass and 2 of ($f*) and none of ($not*)
 }
 
 rule pam_passwords_rootkit : critical {

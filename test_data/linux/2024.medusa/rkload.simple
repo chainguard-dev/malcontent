@@ -25,7 +25,7 @@ fs/tempdir: low
 kernel/cpu/info: low
 kernel/sysinfo: medium
 malware/family/medusa: critical
-net/socket/local/address: low
+net/socket/local_addr: low
 net/socket/send: low
 process/create: low
 process/executable_path: low

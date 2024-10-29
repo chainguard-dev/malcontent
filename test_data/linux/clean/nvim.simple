@@ -39,7 +39,7 @@ net/hostport/parse: low
 net/http/post: medium
 net/sniffer: medium
 net/socket/listen: low
-net/socket/local/address: low
+net/socket/local_addr: low
 net/socket/receive: low
 net/socket/send: low
 persist/crontab: medium

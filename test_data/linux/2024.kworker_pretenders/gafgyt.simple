@@ -3,7 +3,6 @@
 3P/threat_hunting/base64: medium
 combo/degrader/linux_paths: high
 encoding/base64: low
-evasion/base64/eval: high
 evasion/base64/external: medium
 evasion/fake/process: critical
 evasion/packer/elf: high

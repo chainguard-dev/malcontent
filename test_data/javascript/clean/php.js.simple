@@ -33,7 +33,7 @@ net/ip/resolve: low
 net/ip/string: medium
 net/socket/connect: medium
 net/socket/listen: low
-net/socket/local/address: low
+net/socket/local_addr: low
 net/socket/peer/address: low
 net/socket/receive: low
 net/socket/send: low

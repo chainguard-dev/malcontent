@@ -20,6 +20,7 @@ exfil/discord: critical
 kernel/hostname/get: low
 net/download: medium
 net/fetch: medium
+net/geoip: high
 net/http/request: low
 net/public_ip: high
 net/socket/connect: medium

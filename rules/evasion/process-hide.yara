@@ -12,7 +12,7 @@ rule elf_processhide : high {
     all of them
 }
 
-rule elf_possible_prochid : high {
+rule linux_process_hider : critical linux {
   meta:
     description = "userland rootkit designed to hide processes"
     ref = "prochid.c"
@@ -20,21 +20,41 @@ rule elf_possible_prochid : high {
     hash_2023_lib_pkit = "8faa04955eeb6f45043003e23af39b86f1dbfaa12695e0e1a1f0bc7a15d0d116"
     hash_2023_lib_pkitarm = "67de6ba64ee94f2a686e3162f2563c77a7d78b7e0404e338a891dc38ced5bd71"
   strings:
-    $proc_self_fd = "/proc/self/fd/%d"
-    $proc_stat = "/proc/%s/stat"
-    $readdir = "readdir"
+    $f_proc_self_fd = "/proc/self/fd/%d"
+    $f_proc_stat = "/proc/%s/stat"
+    $f_readdir = "readdir"
+	$f_dlsym = "dlsym"
+	$f_readlink = "readlink"
+    $x_hide_process = "hide_proc" fullword
+    $x_proc_hide = "proc_hide" fullword
+    $x_process_hide = "process_hide" fullword
+    $x_process_hiding = "process_hiding" fullword
+	$x_hidden_proc = "hidden_proc" fullword
+    $x_prochide = "processhide"
+    $x_process_to_filter = "process_to_filter"
+	$x_old_readdir = "old_readdir"
+	$x_orig_readdir = "orig_readdir"
+	$x_original_readdir = "original_readdir"
+	$x_readdirOriginal = "readdirOriginal"
+	$x_backdoor = "backdoor" fullword
+	$x_is_hidden = "is_hidden" fullword
+	$x_hidden_gid = "HIDDEN_GID" fullword
+	$x_revshell = "revshell" fullword
+	$x_cmdline = "/proc/self/cmdline"
+	$not_bpf = "/sys/fs/bpf"
   condition:
-    all of them
+    filesize < 250KB and all of ($f*) and any of ($x*) and none of ($not*)
 }
 
-rule process_hider {
+rule process_hider : high {
   meta:
-    description = "userland rootkit designed to hide processes"
+    description = "possible userland rootkit designed to hide processes"
   strings:
-    $hide_process = "hide_proc"
-    $proc_hide = "proc_hide"
-    $process_hide = "process_hide"
-    $process_hiding = "process_hiding"
+    $hide_process = "hide_proc" fullword
+    $proc_hide = "proc_hide" fullword
+    $process_hide = "process_hide" fullword
+    $process_hiding = "process_hiding" fullword
+	$hidden_proc = "hidden_proc" fullword
   condition:
-    any of them
+    filesize < 250KB and any of them
 }

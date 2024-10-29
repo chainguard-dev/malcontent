@@ -9,6 +9,7 @@ rule discord_bot : high {
   strings:
 	$ = /discordapp.com\/api\/webhooks[\/\d]{0,32}/
 	$ = /discord.com\/api\/webhooks[\/\d]{0,32}/
+	$ = "import discord"
   condition:
     any of them
 }

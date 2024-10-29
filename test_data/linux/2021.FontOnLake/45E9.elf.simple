@@ -11,7 +11,6 @@ env/SHELL: low
 env/TERM: low
 env/USER: low
 evasion/packer/upx: high
-evasion/process/hide: low
 evasion/rootkit: critical
 exec/program: medium
 exec/program/background: low
@@ -42,7 +41,7 @@ net/ip/string: medium
 net/reuseport: medium
 net/sftp: medium
 net/socket/listen: low
-net/socket/local/address: low
+net/socket/local_addr: low
 net/socket/peer/address: low
 net/socket/receive: low
 net/socket/send: low

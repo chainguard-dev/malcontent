@@ -9,7 +9,7 @@ rule large_bitwise_math : medium {
   strings:
     $x = /\-{0,1}\d{1,8} \<\< \-{0,1}\d{1,8}/
   condition:
-    filesize < 128000 and #x > 16
+    filesize < 256KB and #x > 16
 }
 
 rule excessive_bitwise_math : high {
@@ -28,7 +28,7 @@ rule excessive_bitwise_math : high {
     $not_jslint = "jslint bitwise"
 	$not_include = "#define "
   condition:
-    filesize < 128000 and #x > 64 and none of ($not*)
+    filesize < 192KB and #x > 64 and none of ($not*)
 }
 
 rule bitwise_math : low {
@@ -38,7 +38,7 @@ rule bitwise_math : low {
     $x = /\-{0,1}[\da-z]{1,8} \<\< \-{0,1}\d{1,8}/
     $y = /\-{0,1}[\da-z]{1,8} \>\> \-{0,1}\d{1,8}/
   condition:
-    filesize < 65535 and any of them
+    filesize < 192KB and any of them
 }
 
 rule bidirectional_bitwise_math : medium {
@@ -52,7 +52,7 @@ rule bidirectional_bitwise_math : medium {
     $x = /\-{0,1}[\da-z]{1,8} \<\< \-{0,1}\d{1,8}/
     $y = /\-{0,1}[\da-z]{1,8} \>\> \-{0,1}\d{1,8}/
   condition:
-    filesize < 65535 and all of them
+    filesize < 192KB and all of them
 }
 
 rule bitwise_python_string : medium {

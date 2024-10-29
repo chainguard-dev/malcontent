@@ -7,8 +7,10 @@ fs/tempdir: low
 persist/bash: medium
 process/thread_local_storage: low
 procfs/self/exe: medium
+procfs/sys/kernel/osrelease: medium
 ref/path/etc: low
 ref/path/etc/ld.so.preload: medium
 ref/path/var: low
+ref/path/var/profile: medium
 ref/site/url: low
 ref/words/exclamation: medium

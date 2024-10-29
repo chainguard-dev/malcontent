@@ -28,7 +28,7 @@ net/ip/parse: medium
 net/ip/string: medium
 net/socket/connect: medium
 net/socket/listen: low
-net/socket/local/address: low
+net/socket/local_addr: low
 net/ssh: medium
 net/tunnel: medium
 process/create: low

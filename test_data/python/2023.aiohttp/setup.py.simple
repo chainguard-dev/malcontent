@@ -7,3 +7,4 @@ fs/directory/create: low
 fs/directory/traverse: medium
 fs/file/open: low
 kernel/platform: medium
+privesc/is_admin: medium

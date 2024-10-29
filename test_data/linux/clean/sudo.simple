@@ -17,7 +17,7 @@ kernel/seccomp: low
 net/interface/list: medium
 net/ip/string: medium
 net/socket/listen: low
-net/socket/local/address: low
+net/socket/local_addr: low
 net/socket/receive: low
 net/socket/send: low
 process/chroot: low

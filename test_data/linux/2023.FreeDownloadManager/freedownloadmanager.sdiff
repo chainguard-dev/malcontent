@@ -4,7 +4,6 @@
 +data/embedded/base64/url
 +encoding/base64
 +evasion/base64/commands
-+evasion/base64/eval
 +evasion/base64/external
 +evasion/base64/http
 +fs/directory/create
