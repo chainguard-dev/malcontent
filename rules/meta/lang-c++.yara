@@ -1,7 +1,8 @@
 rule Z {
   strings:
-	$zprefix = "_Z"
+    $zprefix = "_Z"
+
   condition:
-	#zprefix > 5
+    #zprefix > 5
 }
 

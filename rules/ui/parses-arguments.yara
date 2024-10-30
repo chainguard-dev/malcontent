@@ -1,11 +1,13 @@
-rule argparse : harmless {
+rule argparse: harmless {
   meta:
-	description = "parse command-line arguments"
+    description = "parse command-line arguments"
+
   strings:
-	$ref = "argparse" fullword
-	$ref2 = "optarg" fullword
-	$ref3 = "getopt" fullword
-	$ref4 = "getopts" fullword
+    $ref  = "argparse" fullword
+    $ref2 = "optarg" fullword
+    $ref3 = "getopt" fullword
+    $ref4 = "getopts" fullword
+
   condition:
-	any of them
+    any of them
 }

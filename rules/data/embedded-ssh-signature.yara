@@ -1,10 +1,11 @@
-rule ssh_signature : medium {
-	meta:
-		description = "Contains embedded SSH signature"
-	strings:
-		$sig = "--BEGIN SSH SIGNATURE--"
-	condition:
-		any of them
-}
+rule ssh_signature: medium {
+  meta:
+    description = "Contains embedded SSH signature"
 
+  strings:
+    $sig = "--BEGIN SSH SIGNATURE--"
+
+  condition:
+    any of them
+}
 

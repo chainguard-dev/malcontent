@@ -1,16 +1,17 @@
-
-rule killer_miner_panchansminingisland : critical {
+rule killer_miner_panchansminingisland: critical {
   meta:
     description = "crypto miner virus"
-	filetypes = "elf"
+    filetypes   = "elf"
+
   strings:
     $ = "killer"
-	$ = "miner"
-	$ = "p2p"
-	$ = "protector"
-	$ = "rootkit"
-	$ = "spreader"
-	$ = "updater"
+    $ = "miner"
+    $ = "p2p"
+    $ = "protector"
+    $ = "rootkit"
+    $ = "spreader"
+    $ = "updater"
+
   condition:
-	filesize < 120MB and 6 of them
+    filesize < 120MB and 6 of them
 }

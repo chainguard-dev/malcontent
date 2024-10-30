@@ -1,8 +1,10 @@
-rule SHA512 : harmless {
+rule SHA512: harmless {
   meta:
-	description = "Uses the SHA512 signature format"
+    description = "Uses the SHA512 signature format"
+
   strings:
-	$ref = "SHA512"
+    $ref = "SHA512"
+
   condition:
-	any of them
+    any of them
 }

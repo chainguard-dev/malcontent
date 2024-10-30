@@ -1,8 +1,10 @@
-rule is_user_an_admin : medium windows {
+rule is_user_an_admin: medium windows {
   meta:
     description = "checks if user is an admin"
+
   strings:
-    $ref = "IsUserAnAdmin" 
+    $ref = "IsUserAnAdmin"
+
   condition:
     any of them
 }

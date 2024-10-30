@@ -1,6 +1,7 @@
-rule glibc_tunables : harmless {
+rule glibc_tunables: harmless {
   strings:
-	$ref = "GLIBC_TUNABLES"
+    $ref = "GLIBC_TUNABLES"
+
   condition:
-	any of them
+    any of them
 }

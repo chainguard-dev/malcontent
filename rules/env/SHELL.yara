@@ -1,9 +1,11 @@
 rule SHELL {
   meta:
-	description = "path to active shell"
-	ref = "https://man.openbsd.org/login.1#ENVIRONMENT"
+    description = "path to active shell"
+    ref         = "https://man.openbsd.org/login.1#ENVIRONMENT"
+
   strings:
-	$ref = "SHELL" fullword
+    $ref = "SHELL" fullword
+
   condition:
-	all of them
+    all of them
 }

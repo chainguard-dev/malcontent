@@ -1,7 +1,7 @@
+rule vorbisdsp: harmless {
+  strings:
+    $vorbisdsp = "vorbisdsp"
 
-rule vorbisdsp : harmless {
-	strings:
-		$vorbisdsp = "vorbisdsp"
-	condition:
-		any of them
+  condition:
+    any of them
 }

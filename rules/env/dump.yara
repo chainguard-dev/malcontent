@@ -1,8 +1,10 @@
-rule os_environ : harmless {
+rule os_environ: harmless {
   meta:
-	description = "Dump values from the environment"
+    description = "Dump values from the environment"
+
   strings:
-	$ref = "os.environ" fullword
+    $ref = "os.environ" fullword
+
   condition:
-	any of them
+    any of them
 }

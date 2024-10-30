@@ -1,29 +1,29 @@
-
-rule lvt : critical {
+rule lvt: critical {
   meta:
-    description = "Ransomware phrases used by LVT Locker"
-    hash_2023_Multios_Ransomware_DarkSide_da3b = "da3bb9669fb983ad8d2ffc01aab9d56198bd9cedf2cc4387f19f4604a070a9b5"
+    description                                                                               = "Ransomware phrases used by LVT Locker"
+    hash_2023_Multios_Ransomware_DarkSide_da3b                                                = "da3bb9669fb983ad8d2ffc01aab9d56198bd9cedf2cc4387f19f4604a070a9b5"
     hash_2023_UPX_0a07c056fec72668d3f05863f103987cc1aaec92e72148bf16db6cfd58308617_elf_x86_64 = "94f4de1bd8c85b8f820bab936ec16cdb7f7bc19fa60d46ea8106cada4acc79a2"
+
   strings:
-    $a = "By LVT LOCKER"
-    $b = "Your computers and servers"
-    $c = "servers are encrypted"
-    $d = "backups are deleted"
-    $e = "strong encryption algorithms"
-    $f = "no one has yet"
-    $g = "been able to decrypt"
-    $h = "decrypt their files"
-    $i = "without our participation"
-    $j = "only way to decrypt"
-    $k = "decrypt your files is"
-    $l = "is to purchase a"
-    $m = "universal decoder from"
-    $n = "will restore all"
-    $o = "the encrypted data"
-    $p = "and your network"
-    $q = "Follow our instructions"
-    $r = "you will recover"
-    $s = "all yourl data"
+    $a  = "By LVT LOCKER"
+    $b  = "Your computers and servers"
+    $c  = "servers are encrypted"
+    $d  = "backups are deleted"
+    $e  = "strong encryption algorithms"
+    $f  = "no one has yet"
+    $g  = "been able to decrypt"
+    $h  = "decrypt their files"
+    $i  = "without our participation"
+    $j  = "only way to decrypt"
+    $k  = "decrypt your files is"
+    $l  = "is to purchase a"
+    $m  = "universal decoder from"
+    $n  = "will restore all"
+    $o  = "the encrypted data"
+    $p  = "and your network"
+    $q  = "Follow our instructions"
+    $r  = "you will recover"
+    $s  = "all yourl data"
     $aa = "1) Pay 0.0"
     $ab = "bitcoin to"
     $ac = "Send us message"
@@ -49,9 +49,10 @@ rule lvt : critical {
     $bg = "ABLE TO RESTORE"
     $bh = "TO RESTORE THEM"
 
-    $not_sonar = "Copyright (C) 2008-2013 SonarSource"
+    $not_sonar  = "Copyright (C) 2008-2013 SonarSource"
     $not_sonar2 = "mailto:contact AT sonarsource DOT com"
     $not_sonar3 = "SonarQube is free software; you can redistribute it and/or"
+
   condition:
     2 of them and none of ($not*)
 }

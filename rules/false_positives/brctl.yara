@@ -1,9 +1,11 @@
-rule brctl : override macos {
+rule brctl: override macos {
   meta:
-    description = "brctl"
+    description          = "brctl"
     chmod_dangerous_exec = "medium"
+
   strings:
-	$brctl = "@(#)PROGRAM:brctl"
+    $brctl = "@(#)PROGRAM:brctl"
+
   condition:
     all of them
 }

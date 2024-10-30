@@ -1,9 +1,10 @@
-
-rule from_secret_key : high {
+rule from_secret_key: high {
   meta:
-	description = "extracts data from a secret key"
+    description = "extracts data from a secret key"
+
   strings:
-	$key = "fromSecretKey"
+    $key = "fromSecretKey"
+
   condition:
-	$key
+    $key
 }

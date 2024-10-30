@@ -1,9 +1,11 @@
-rule sudo : override linux {
+rule sudo: override linux {
   meta:
     description = "sudo"
-	proc_exe = "medium"
+    proc_exe    = "medium"
+
   strings:
-	$ref = "SUDO_INTERCEPT_FD"
+    $ref = "SUDO_INTERCEPT_FD"
+
   condition:
     any of them
 }

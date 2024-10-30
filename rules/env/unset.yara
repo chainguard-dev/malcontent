@@ -1,6 +1,7 @@
-rule unsetenv : harmless {
+rule unsetenv: harmless {
   strings:
-	$ref = "unsetenv" fullword
+    $ref = "unsetenv" fullword
+
   condition:
-	any of them
+    any of them
 }

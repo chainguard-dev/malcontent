@@ -1,9 +1,11 @@
-rule sigaction_SIGQUIT : harmless {
+rule sigaction_SIGQUIT: harmless {
   meta:
-	description = "Listen for SIGQUIT (kill) events"
+    description = "Listen for SIGQUIT (kill) events"
+
   strings:
-	$sigaction="sigaction" fullword
-	$sigalrm="QUIT"
+    $sigaction = "sigaction" fullword
+    $sigalrm   = "QUIT"
+
   condition:
-	all of them
+    all of them
 }

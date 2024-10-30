@@ -1,9 +1,11 @@
-rule pull_scripts : override {
+rule pull_scripts: override {
   meta:
     curl_chmod_relative_run_tiny = "medium"
-    description = "pull-scripts"
+    description                  = "pull-scripts"
+
   strings:
     $binary_name = "BINARY_NAME=charts-build-scripts"
+
   condition:
     all of them
 }
