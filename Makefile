@@ -19,6 +19,14 @@ ifeq ($(LINT_OS),Darwin)
 	endif
 endif
 
+# yara-x adds an additional string for the platform (apple, unknown)
+LINT_PLATFORM :=
+ifeq ($(LINT_OS),Darwin)
+	LINT_PLATFORM=apple
+else
+	LINT_PLATFORM=unknown
+endif
+
 LINTERS :=
 FIXERS :=
 
@@ -31,6 +39,15 @@ $(GOLANGCI_LINT_BIN):
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(LINT_ROOT)/out/linters $(GOLANGCI_LINT_VERSION)
 	mv $(LINT_ROOT)/out/linters/golangci-lint $@
 
+YARA_X_VERSION ?= v0.10.0
+YARA_X_BIN := $(LINT_ROOT)/out/linters/yr
+$(YARA_X_BIN):
+	mkdir -p $(LINT_ROOT)/out/linters
+	rm -rf $(LINT_ROOT)/out/linters/yr
+	curl -sSfL https://github.com/VirusTotal/yara-x/releases/download/$(YARA_X_VERSION)/yara-x-$(YARA_X_VERSION)-$(LINT_ARCH)-$(LINT_PLATFORM)-$(LINT_OS_LOWER).gzip -o yara-x.gzip
+	tar -xzvf yara-x.gzip && mv yr $(LINT_ROOT)/out/linters && rm yara-x.gzip
+	mv $(LINT_ROOT)/out/linters/yr $@
+
 LINTERS += golangci-lint-lint
 golangci-lint-lint: $(GOLANGCI_LINT_BIN)
 	find . -name go.mod -execdir "$(GOLANGCI_LINT_BIN)" run -c "$(GOLANGCI_LINT_CONFIG)" \;
@@ -38,6 +55,10 @@ golangci-lint-lint: $(GOLANGCI_LINT_BIN)
 FIXERS += golangci-lint-fix
 golangci-lint-fix: $(GOLANGCI_LINT_BIN)
 	find . -name go.mod -execdir "$(GOLANGCI_LINT_BIN)" run -c "$(GOLANGCI_LINT_CONFIG)" --fix \;
+
+LINTERS += yara-x-fmt
+yara-x-fmt: $(YARA_X_BIN)
+	find rules -type f -name "*.yara" -execdir "$(YARA_X_BIN)" fmt {} \;
 
 .PHONY: _lint $(LINTERS)
 _lint: $(LINTERS)
