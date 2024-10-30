@@ -1,6 +1,7 @@
 rule sethostname {
-	strings:
-		$sethostname = "sethostname"
-	condition:
-		any of them
+  strings:
+    $sethostname = "sethostname"
+
+  condition:
+    any of them
 }

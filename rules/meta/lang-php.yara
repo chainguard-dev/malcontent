@@ -1,6 +1,7 @@
 rule php {
   strings:
-	$ref = "<?php"
+    $ref = "<?php"
+
   condition:
-	all of them
+    all of them
 }

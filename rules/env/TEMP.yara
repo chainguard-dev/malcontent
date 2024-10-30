@@ -1,8 +1,8 @@
 rule tmpdir {
   strings:
-	$ref = "TEMP" fullword
-	$getenv = "getenv"
+    $ref    = "TEMP" fullword
+    $getenv = "getenv"
 
   condition:
-	all of them
+    all of them
 }

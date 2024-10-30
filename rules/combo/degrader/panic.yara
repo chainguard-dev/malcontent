@@ -1,10 +1,11 @@
-
-rule raise_hard_error : medium windows {
+rule raise_hard_error: medium windows {
   meta:
     description = "crashes (bluescreens) the machine"
-	filetypes = "py,exe"
+    filetypes   = "py,exe"
+
   strings:
-	$crash = "NtRaiseHardError" fullword
+    $crash = "NtRaiseHardError" fullword
+
   condition:
     filesize < 1MB and any of them
 }

@@ -1,7 +1,7 @@
+rule sigprocmask: harmless {
+  strings:
+    $sigprocmask = "sigprocmask"
 
-rule sigprocmask : harmless {
-	strings:
-		$sigprocmask = "sigprocmask"
-	condition:
-		any of them
+  condition:
+    any of them
 }

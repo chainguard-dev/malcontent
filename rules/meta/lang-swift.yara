@@ -1,6 +1,7 @@
 rule _swift_ {
   strings:
-	$zprefix = "_swift_"
+    $zprefix = "_swift_"
+
   condition:
-	#zprefix > 3
+    #zprefix > 3
 }

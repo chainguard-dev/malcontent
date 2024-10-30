@@ -1,9 +1,10 @@
-rule libc : harmless {
+rule libc: harmless {
   strings:
-	$signal = "_signal" fullword
-	$sigaction = "sigaction" fullword
-	$sigismember = "sigismember" fullword
+    $signal      = "_signal" fullword
+    $sigaction   = "sigaction" fullword
+    $sigismember = "sigismember" fullword
+
   condition:
-	any of them
+    any of them
 }
 

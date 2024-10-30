@@ -1,8 +1,10 @@
 rule SHA256 {
   meta:
-	description = "Uses the SHA256 signature format"
+    description = "Uses the SHA256 signature format"
+
   strings:
-	$ref = "SHA256_"
+    $ref = "SHA256_"
+
   condition:
-	any of them
+    any of them
 }
