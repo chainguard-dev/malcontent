@@ -7,7 +7,7 @@
       the paranoid open-source malware scanner
 ```
 
-malcontent is a malware scanner and analysis tool focused on detecting supply-chain compromises and threats against POSIX-based operating systems, such as Linux and macOS. It's designed to uncover novel, undiscovered malware in high-risk environments such as CI/CD pipelines and air-gapped networks. malcontent is admittedly a bit paranoid and prone to false positives.
+malcontent is a malware scanner and analysis tool focused on detecting supply-chain compromises and threats against UNIX-like operating systems, such as Linux and macOS. It's designed to uncover novel, undiscovered malware in high-risk environments such as CI/CD pipelines and air-gapped networks. malcontent is admittedly a bit paranoid and prone to false positives.
 
 malcontent offers 3 modes of operation depending on your use case:
 
