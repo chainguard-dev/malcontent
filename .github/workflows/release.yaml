@@ -4,8 +4,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  id-token: write
-  contents: write
+  contents: read
 
 env:
   VERSION_FILE: pkg/version/version.go
@@ -14,6 +13,9 @@ jobs:
   tag:
     if: ${{ github.repository }} == 'chainguard-dev/malcontent'
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
     steps:
     - uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7
       with:

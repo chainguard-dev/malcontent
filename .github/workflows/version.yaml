@@ -9,9 +9,7 @@ on:
         default: 'minor'
 
 permissions:
-  contents: write
-  id-token: write
-  pull-requests: write
+  contents: read
 
 env:
   VERSION_FILE: pkg/version/version.go
@@ -20,6 +18,10 @@ jobs:
   version:
     if: ${{ github.repository }} == 'chainguard-dev/malcontent'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      pull-requests: write
     steps:
     - uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7
       with:
