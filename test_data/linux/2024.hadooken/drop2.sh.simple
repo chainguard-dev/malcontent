@@ -1,9 +1,9 @@
 # linux/2024.hadooken/drop2.sh: critical
-combo/backdoor/remote_eval: critical
-fd/read: low
-net/url: low
+c2/addr/http/ip: high
+c2/addr/ip: medium
+exec/remote_commands/code_eval: medium
+impact/remote_access/remote_eval: critical
+net/url/embedded: low
+net/url/parse: low
 net/url/request: medium
-ref/ip: medium
-ref/site/http/ip: high
-ref/site/url: low
-techniques/code_eval: medium
+os/fd/read: low

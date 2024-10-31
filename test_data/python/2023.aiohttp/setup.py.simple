@@ -1,10 +1,10 @@
 # python/2023.aiohttp/setup.py: critical
-combo/backdoor/py_setuptools: critical
-evasion/bitwise_math: high
-evasion/py_builtins: high
-evasion/py_setuptools/random: critical
+anti/static/obfuscation/generic/bitwise_math: high
+anti/static/obfuscation/python/builtins: high
+anti/static/obfuscation/python/py_setuptools/random: critical
+discover/system/platform: medium
+exec/conditional/is_admin: medium
 fs/directory/create: low
 fs/directory/traverse: medium
 fs/file/open: low
-kernel/platform: medium
-privesc/is_admin: medium
+impact/remote_access/py_setuptools: critical

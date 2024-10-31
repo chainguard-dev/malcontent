@@ -34,6 +34,62 @@
                     "RuleName": "powershell_offensive_tool_keyword"
                 },
                 {
+                    "Description": "accesses hardcoded executable endpoint",
+                    "MatchStrings": [
+                        "https://github.com/aspdasdksa2/callback/raw/main/Client-built.exe"
+                    ],
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/exe.yara#http_url_with_exe",
+                    "ID": "c2/tool_transfer/exe",
+                    "RuleName": "http_url_with_exe"
+                },
+                {
+                    "Description": "github raw user",
+                    "MatchStrings": [
+                        "github.com",
+                        "raw/main"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/github_raw.yara#github_raw_user",
+                    "ID": "c2/tool_transfer/github_raw",
+                    "RuleName": "github_raw_user"
+                },
+                {
+                    "Description": "powershell",
+                    "MatchStrings": [
+                        "powershell -Command"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/exec/shell/powershell.yara#powershell",
+                    "ID": "exec/shell/powershell",
+                    "RuleName": "powershell"
+                },
+                {
+                    "Description": "kills tasks and/or processes",
+                    "MatchStrings": [
+                        "taskkill"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/exec/taskkill.yara#taskkill",
+                    "ID": "exec/taskkill",
+                    "RuleName": "taskkill"
+                },
+                {
+                    "Description": "path reference for C:\\Windows (may be partial)",
+                    "MatchStrings": [
+                        "C:\\Windows"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/windows_root.yara#windows_path",
+                    "ID": "fs/path/windows_root",
+                    "RuleName": "windows_path"
+                },
+                {
                     "Description": "Stops EDR/Antivirus services",
                     "MatchStrings": [
                         "alwarebytes",
@@ -41,8 +97,8 @@
                     ],
                     "RiskScore": 4,
                     "RiskLevel": "CRITICAL",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/combo/degrader/edr.yara#edr_stopper",
-                    "ID": "combo/degrader/edr",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/impact/degrade/edr.yara#edr_stopper",
+                    "ID": "impact/degrade/edr",
                     "RuleName": "edr_stopper"
                 },
                 {
@@ -52,8 +108,8 @@
                     ],
                     "RiskScore": 4,
                     "RiskLevel": "CRITICAL",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/combo/degrader/win_defender.yara#win_defender_exclusion",
-                    "ID": "combo/degrader/win_defender",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/impact/degrade/win_defender.yara#win_defender_exclusion",
+                    "ID": "impact/degrade/win_defender",
                     "RuleName": "win_defender_exclusion"
                 },
                 {
@@ -63,9 +119,20 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/download.yara#download",
-                    "ID": "net/download",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/download/download.yara#download",
+                    "ID": "net/download/download",
                     "RuleName": "download"
+                },
+                {
+                    "Description": "contains embedded HTTPS URLs",
+                    "MatchStrings": [
+                        "https://github.com/aspdasdksa2/callback/raw/main/Client-built.exe"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/url/embedded.yara#https_url",
+                    "ID": "net/url/embedded",
+                    "RuleName": "https_url"
                 },
                 {
                     "Description": "Uses RunAs to execute code as another user",
@@ -77,73 +144,6 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/privesc/runas.yara#runas_admin",
                     "ID": "privesc/runas",
                     "RuleName": "runas_admin"
-                },
-                {
-                    "Description": "kills tasks and/or processes",
-                    "MatchStrings": [
-                        "taskkill"
-                    ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/process/taskkill.yara#taskkill",
-                    "ID": "process/taskkill",
-                    "RuleName": "taskkill"
-                },
-                {
-                    "Description": "path reference for C:\\Windows (may be partial)",
-                    "MatchStrings": [
-                        "C:\\Windows"
-                    ],
-                    "RiskScore": 1,
-                    "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/path/windows_root.yara#windows_path",
-                    "ID": "ref/path/windows_root",
-                    "RuleName": "windows_path"
-                },
-                {
-                    "Description": "powershell",
-                    "MatchStrings": [
-                        "powershell -Command"
-                    ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/program/powershell.yara#powershell",
-                    "ID": "ref/program/powershell",
-                    "RuleName": "powershell"
-                },
-                {
-                    "Description": "accesses hardcoded executable endpoint",
-                    "MatchStrings": [
-                        "https://github.com/aspdasdksa2/callback/raw/main/Client-built.exe"
-                    ],
-                    "RiskScore": 3,
-                    "RiskLevel": "HIGH",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/site/exe.yara#http_url_with_exe",
-                    "ID": "ref/site/exe",
-                    "RuleName": "http_url_with_exe"
-                },
-                {
-                    "Description": "github raw user",
-                    "MatchStrings": [
-                        "github.com",
-                        "raw/main"
-                    ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/site/github_raw.yara#github_raw_user",
-                    "ID": "ref/site/github_raw",
-                    "RuleName": "github_raw_user"
-                },
-                {
-                    "Description": "contains embedded HTTPS URLs",
-                    "MatchStrings": [
-                        "https://github.com/aspdasdksa2/callback/raw/main/Client-built.exe"
-                    ],
-                    "RiskScore": 1,
-                    "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/site/url.yara#https_url",
-                    "ID": "ref/site/url",
-                    "RuleName": "https_url"
                 }
             ],
             "RiskScore": 4,

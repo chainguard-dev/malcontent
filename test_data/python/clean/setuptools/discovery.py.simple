@@ -1,4 +1,4 @@
 # python/clean/setuptools/discovery.py: medium
 fs/directory/traverse: medium
-ref/path/relative: medium
-ref/path/root: medium
+fs/path/relative: medium
+fs/path/root: medium

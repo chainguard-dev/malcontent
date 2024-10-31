@@ -1,6 +1,6 @@
 # macOS/2024.Poseidon/Launcher: critical
-evasion/binary/opaque: medium
+anti/static/binary/opaque: medium
+exec/shell/exec: medium
 malware/family/amos: critical
 malware/family/poseidon_stealer: high
 process/create: low
-shell/exec: medium

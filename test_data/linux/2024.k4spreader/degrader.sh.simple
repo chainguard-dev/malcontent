@@ -1,8 +1,8 @@
 # linux/2024.k4spreader/degrader.sh: critical
-combo/degrader/iptables: high
-combo/degrader/ufw: high
+evasion/bypass_security/linux/iptables: medium
+evasion/bypass_security/linux/ufw: medium
+evasion/hidden_files/etc/ld.so.preload: high
 fs/attributes/chattr: medium
-ref/path/etc: low
-ref/path/etc/ld.so.preload: high
-security_controls/linux/iptables: medium
-security_controls/linux/ufw: medium
+fs/path/etc: low
+impact/degrade/iptables: high
+impact/degrade/ufw: high
