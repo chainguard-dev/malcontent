@@ -1,10 +1,9 @@
 # python/clean/setuptools/easy_install.py: medium
-env/HOME: low
-env/USER: low
-env/get: low
-evasion/lib_alias: medium
+anti/static/obfuscation/python/lib_alias: medium
+discover/system/platform: medium
+discover/user/HOME: low
+discover/user/USER: low
 exec/program: medium
-fd/write: low
 fs/directory/create: low
 fs/directory/list: low
 fs/directory/traverse: medium
@@ -13,8 +12,9 @@ fs/file/open: low
 fs/file/read: medium
 fs/permission/modify: medium
 fs/tempdir/create: low
-kernel/platform: medium
-net/download: medium
+impact/words/malicious: medium
+net/download/download: medium
+net/url/embedded: low
+os/env/get: low
+os/fd/write: low
 process/executable_path: medium
-ref/site/url: low
-ref/words/malicious: medium

@@ -1,11 +1,11 @@
 # python/clean/hatch/migrate.py: medium
-combo/backdoor/py_setuptools: medium
 exec/program: medium
-fd/read: low
-fd/write: low
+exec/remote_commands/code_eval: medium
 fs/directory/list: low
 fs/file/open: low
 fs/symlink/resolve: low
-net/download: medium
+impact/remote_access/py_setuptools: medium
+net/download/download: medium
+os/fd/read: low
+os/fd/write: low
 process/executable_path: medium
-techniques/code_eval: medium

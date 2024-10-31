@@ -4,10 +4,6 @@
             "Path": "macOS/clean/ls",
             "SHA256": "461b7ef5288c9c4b0d10aefc9ca42f7ddab9954a3f3d032e3a783e3da0c970b6",
             "Size": 154352,
-            "Meta": {
-                "format": "macho",
-                "meta": "program_name"
-            },
             "Syscalls": [
                 "getdents",
                 "openat",
@@ -24,9 +20,9 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/env/TERM.yara#TERM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/exec/shell/TERM.yara#TERM",
                     "ReferenceURL": "https://www.gnu.org/software/gettext/manual/html_node/The-TERM-variable.html",
-                    "ID": "env/TERM",
+                    "ID": "exec/shell/TERM",
                     "RuleName": "TERM"
                 },
                 {

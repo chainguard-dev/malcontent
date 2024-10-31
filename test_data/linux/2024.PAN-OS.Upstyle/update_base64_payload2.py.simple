@@ -1,18 +1,17 @@
 # linux/2024.PAN-OS.Upstyle/update_base64_payload2.py: critical
 3P/signature_base/uta028/forensicartefacts: critical
 3P/volexity/py/upstyle: critical
-encoding/base64: low
-env/SHELL: low
-evasion/base64/command: critical
-evasion/base64/decode: medium
+data/base64/base64/decode: medium
+data/encoding/base64: low
 exec/pipe: medium
-fd/read: low
-fd/write: low
+exec/shell/SHELL: low
 fs/file/open: low
 fs/file/read: low
 fs/file/stat: low
 fs/file/times/set: medium
 fs/file/write: low
+fs/path/var: low
+fs/path/var/log: medium
+os/fd/read: low
+os/fd/write: low
 process/multithreaded: medium
-ref/path/var: low
-ref/path/var/log: medium

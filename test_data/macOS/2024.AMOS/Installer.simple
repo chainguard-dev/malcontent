@@ -1,4 +1,4 @@
 # macOS/2024.AMOS/Installer: critical
+exec/shell/exec: medium
 malware/family/amos: critical
-ref/site/url: low
-shell/exec: medium
+net/url/embedded: low

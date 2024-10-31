@@ -1,17 +1,17 @@
 # macOS/2024.Ezuri/libdpt1.so: critical
-combo/backdoor/net_exec: medium
+anti/static/packer/aes: high
+anti/static/packer/ezuri: critical
 crypto/aes: low
-encoding/json/encode: low
-evasion/packer/aes: high
-evasion/packer/ezuri: critical
+data/encoding/json/encode: low
+discover/system/cpu/info: low
 exec/program: medium
 fs/file/read: low
+fs/path/etc: low
+fs/path/users: medium
 fs/permission/chown: medium
 fs/permission/modify: medium
-kernel/cpu/info: low
-net/socket/receive: low
-net/socket/send: low
+impact/remote_access/net_exec: medium
+impact/words/plugin: low
+net/socket/socket/receive: low
+net/socket/socket/send: low
 process/multithreaded: low
-ref/path/etc: low
-ref/path/users: medium
-ref/words/plugin: low

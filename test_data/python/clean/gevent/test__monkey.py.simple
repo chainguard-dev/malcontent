@@ -1,4 +1,4 @@
 # python/clean/gevent/test__monkey.py: medium
-evasion/lib_alias: medium
+anti/static/obfuscation/python/lib_alias: medium
 exec/program: medium
 process/create: low

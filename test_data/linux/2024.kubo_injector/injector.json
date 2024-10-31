@@ -13,31 +13,6 @@
             ],
             "Behaviors": [
                 {
-                    "Description": "Buffer overflow exploit",
-                    "MatchStrings": [
-                        "address",
-                        "offset",
-                        "shellcode"
-                    ],
-                    "RiskScore": 3,
-                    "RiskLevel": "HIGH",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/combo/exploit/overflow-shellcode.yara#exploit",
-                    "ID": "combo/exploit/overflow/shellcode",
-                    "RuleName": "exploit"
-                },
-                {
-                    "Description": "get the address of a symbol",
-                    "MatchStrings": [
-                        "dlsym"
-                    ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/dylib/symbol-address.yara#dlsym",
-                    "ReferenceURL": "https://man7.org/linux/man-pages/man3/dlsym.3.html",
-                    "ID": "dylib/symbol/address",
-                    "RuleName": "dlsym"
-                },
-                {
                     "Description": "may inject code into other processes",
                     "MatchStrings": [
                         "/proc/%d/maps",
@@ -46,9 +21,32 @@
                     ],
                     "RiskScore": 3,
                     "RiskLevel": "HIGH",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/evasion/process-inject.yara#ptrace_injector",
-                    "ID": "evasion/process/inject",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/evasion/process_injection/process-inject.yara#ptrace_injector",
+                    "ID": "evasion/process_injection/process/inject",
                     "RuleName": "ptrace_injector"
+                },
+                {
+                    "Description": "trace or modify system calls",
+                    "MatchStrings": [
+                        "ptrace"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/evasion/process_injection/ptrace.yara#ptrace",
+                    "ID": "evasion/process_injection/ptrace",
+                    "RuleName": "ptrace"
+                },
+                {
+                    "Description": "get the address of a symbol",
+                    "MatchStrings": [
+                        "dlsym"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/exec/dylib/symbol-address.yara#dlsym",
+                    "ReferenceURL": "https://man7.org/linux/man-pages/man3/dlsym.3.html",
+                    "ID": "exec/dylib/symbol/address",
+                    "RuleName": "dlsym"
                 },
                 {
                     "Description": "wait for process to exit",
@@ -75,6 +73,41 @@
                     "RuleName": "readlink"
                 },
                 {
+                    "Description": "access /proc for arbitrary pids",
+                    "MatchStrings": [
+                        "/proc/%d/maps",
+                        "/proc/%d/root",
+                        "/proc/%s/exe"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/proc/arbitrary-pid.yara#proc_arbitrary",
+                    "ID": "fs/proc/arbitrary/pid",
+                    "RuleName": "proc_arbitrary"
+                },
+                {
+                    "Description": "accesses underlying executable of other processes",
+                    "MatchStrings": [
+                        "/proc/%s/exe"
+                    ],
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/proc/pid-exe.yara#proc_exe",
+                    "ID": "fs/proc/pid/exe",
+                    "RuleName": "proc_exe"
+                },
+                {
+                    "Description": "access process memory maps",
+                    "MatchStrings": [
+                        "/proc/%d/maps"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/proc/pid-maps.yara#proc_maps",
+                    "ID": "fs/proc/pid/maps",
+                    "RuleName": "proc_maps"
+                },
+                {
                     "Description": "resolves symbolic links",
                     "MatchStrings": [
                         "realpath"
@@ -87,27 +120,17 @@
                     "RuleName": "realpath"
                 },
                 {
-                    "Description": "trace or modify system calls",
+                    "Description": "Buffer overflow exploit",
                     "MatchStrings": [
-                        "ptrace"
+                        "address",
+                        "offset",
+                        "shellcode"
                     ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/kernel/ptrace.yara#ptrace",
-                    "ID": "kernel/ptrace",
-                    "RuleName": "ptrace"
-                },
-                {
-                    "Description": "operate on Secure Computing state of the process",
-                    "MatchStrings": [
-                        "seccomp"
-                    ],
-                    "RiskScore": 1,
-                    "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/kernel/seccomp.yara#seccomp",
-                    "ReferenceURL": "https://man7.org/linux/man-pages/man2/seccomp.2.html",
-                    "ID": "kernel/seccomp",
-                    "RuleName": "seccomp"
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/impact/exploit/overflow-shellcode.yara#exploit",
+                    "ID": "impact/exploit/overflow/shellcode",
+                    "RuleName": "exploit"
                 },
                 {
                     "Description": "Kubo Injector",
@@ -126,50 +149,27 @@
                     "RuleName": "kubo"
                 },
                 {
-                    "Description": "access /proc for arbitrary pids",
-                    "MatchStrings": [
-                        "/proc/%d/maps",
-                        "/proc/%d/root",
-                        "/proc/%s/exe"
-                    ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/procfs/arbitrary-pid.yara#proc_arbitrary",
-                    "ID": "procfs/arbitrary/pid",
-                    "RuleName": "proc_arbitrary"
-                },
-                {
-                    "Description": "accesses underlying executable of other processes",
-                    "MatchStrings": [
-                        "/proc/%s/exe"
-                    ],
-                    "RiskScore": 3,
-                    "RiskLevel": "HIGH",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/procfs/pid-exe.yara#proc_exe",
-                    "ID": "procfs/pid/exe",
-                    "RuleName": "proc_exe"
-                },
-                {
-                    "Description": "access process memory maps",
-                    "MatchStrings": [
-                        "/proc/%d/maps"
-                    ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/procfs/pid-maps.yara#proc_maps",
-                    "ID": "procfs/pid/maps",
-                    "RuleName": "proc_maps"
-                },
-                {
                     "Description": "contains embedded HTTPS URLs",
                     "MatchStrings": [
                         "https://wiki.musl-libc.org/functional-differences-from-glibc.html"
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/ref/site/url.yara#https_url",
-                    "ID": "ref/site/url",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/url/embedded.yara#https_url",
+                    "ID": "net/url/embedded",
                     "RuleName": "https_url"
+                },
+                {
+                    "Description": "operate on Secure Computing state of the process",
+                    "MatchStrings": [
+                        "seccomp"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/os/kernel/seccomp.yara#seccomp",
+                    "ReferenceURL": "https://man7.org/linux/man-pages/man2/seccomp.2.html",
+                    "ID": "os/kernel/seccomp",
+                    "RuleName": "seccomp"
                 }
             ],
             "RiskScore": 4,

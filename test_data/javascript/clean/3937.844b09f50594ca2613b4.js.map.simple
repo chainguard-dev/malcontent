@@ -1,8 +1,8 @@
 # javascript/clean/3937.844b09f50594ca2613b4.js.map: medium
+anti/static/obfuscation/powershell/bxor: medium
+exec/shell/powershell: medium
 fs/directory/remove: low
 fs/file/copy: medium
 fs/file/delete: medium
-net/fetch: medium
-obfuscation/powershell/bxor: medium
-ref/program/powershell: medium
-ref/site/url: low
+net/download/fetch: medium
+net/url/embedded: low
