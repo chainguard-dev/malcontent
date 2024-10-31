@@ -1,5 +1,11 @@
 # malcontent
 
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/gojp/goreportcard/blob/master/LICENSE)
+[![Latest Release](https://img.shields.io/github/v/release/chainguard-dev/malcontent?include_prereleases)](https://github.com/chainguard-dev/malcontent/releases/latest)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9633/badge)](https://www.bestpractices.dev/projects/9633)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/chainguard-dev/malcontent/badge)](https://scorecard.dev/viewer/?uri=github.com/chainguard-dev/malcontent)
+[![Go Report Card](https://goreportcard.com/badge/chainguard-dev/malcontent)](https://goreportcard.com/report/chainguard-dev/malcontent)
+
 ```text
  _ _    _.  .    _   _    _  .  ___   _.   _  .  ___
 ( | )  (_|  |_  (_  (_)  ( \_)   |   (/_  ( \_)   |
