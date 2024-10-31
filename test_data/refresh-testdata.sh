@@ -163,6 +163,13 @@ addq ${malcontent} --format=simple \
 	linux/clean/aws-c-io/aws-c-io-0.14.10-r0.spdx.json \
 	linux/clean/aws-c-io/aws-c-io-0.14.11-r0.spdx.json
 
+addq ${malcontent} --format=markdown \
+	-o "${test_data}/javascript/2024.lottie-player/lottie-player.min.js.mdiff" \
+	diff \
+	--file-risk-increase \
+	javascript/clean/lottie-player.min.js \
+	javascript/2024.lottie-player/lottie-player.min.js
+
 for f in $(find "${test_data}" -name "*.simple"); do
 	prog=$(echo $f | sed -e s#"${test_data}/"## -e s#\.simple\$##)
 	if [[ -f "${prog}" ]]; then
