@@ -1,4 +1,4 @@
-The catalog of capabilities `malcontent` reports are loosely based on the [Malware Behavior Catalog v3.1](https://github.com/MBCProject/mbc-markdown), but also includes micro-behaviors that may not be associated to malware.
+The catalog of capabilities `malcontent` reports are loosely based on the [Malware Behavior Catalog v3.1](https://github.com/MBCProject/mbc-markdown), but also includes micro-behaviors that may not be associated to malware. The MBC is very focused on Windows malware, so some liberties were taken in classifying rules.
 
 | **Namespace** | **MBR Behavior ID** |**Description**|
 |---|---|--|
@@ -34,6 +34,6 @@ There are some internal namespaces we use:
 |---|---|
 | 3P | third party queries (unorganized) |
 | false-positives | rules to match known software |
-| security-tool | known security tools (possibly dangerous) |
+| sec-tool | known security tools (possibly dangerous) |
 | malware | known malware |
 | internal | other internal rules |

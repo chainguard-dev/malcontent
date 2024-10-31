@@ -1,12 +1,13 @@
-rule hacktool_nmap: medium {
+rule nmap: medium {
   meta:
-    hash_2023_Linux_Malware_Samples_1d28 = "1d2800352e15175ae5fa916b48a96b26f0199d9f8a9036648b3e44aa60ed2897"
-    hash_2023_Linux_Malware_Samples_5a62 = "5a628dc26dae0309941d70021cfbb4281189f85b074bf3e696058d73c4609101"
-    hash_2024_enumeration_nmap           = "353fd20c9efcd0328cea494f32d3650b9346fcdb45bfe20d8dbee2dd7b62ca62"
+    hash_2024_Downloads_036a = "036a2f04ab56b5e7098c7d866eb21307011b812f126793159be1c853a6a54796"
+    hash_2024_Downloads_0ca7 = "0ca7e0eddd11dfaefe0a0721673427dd441e29cf98064dd0f7b295eae416fe1b"
+    hash_2023_Downloads_d920 = "d920dec25946a86aeaffd5a53ce8c3f05c9a7bac44d5c71481f497de430cb67e"
 
   strings:
-    $nmap_payload = "nmap-payload"
+    $ref        = "nmap" fullword
+    $not_please = "please install the nmap package"
 
   condition:
-    any of them
+    $ref and none of ($not*)
 }
