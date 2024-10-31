@@ -1,13 +1,13 @@
 # linux/clean/emscripten.sh: medium
-combo/dropper/shell: medium
+c2/tool_transfer/shell: medium
+evasion/hidden_files/hidden: medium
 fs/file/delete: medium
 fs/file/delete/forcibly: low
 fs/file/make_executable: medium
+fs/path/relative: medium
+fs/path/root: medium
+fs/path/tmp: medium
 fs/permission/modify: medium
-net/fetch: medium
+net/download/fetch: medium
+net/url/embedded: low
 process/chdir: low
-ref/path/hidden: medium
-ref/path/relative: medium
-ref/path/root: medium
-ref/path/tmp: medium
-ref/site/url: low

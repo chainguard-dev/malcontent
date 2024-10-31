@@ -1,5 +1,6 @@
 # python/clean/setuptools/sandbox.py: medium
-fd/read: low
+discover/system/platform: medium
+exec/remote_commands/code_eval: medium
 fs/directory/create: low
 fs/directory/remove: low
 fs/fifo/create: low
@@ -10,8 +11,7 @@ fs/link/read: low
 fs/node/create: low
 fs/permission/modify: medium
 fs/symlink/resolve: low
-kernel/platform: medium
+impact/words/plugin: low
+net/url/embedded: low
+os/fd/read: low
 process/chroot: low
-ref/site/url: low
-ref/words/plugin: low
-techniques/code_eval: medium

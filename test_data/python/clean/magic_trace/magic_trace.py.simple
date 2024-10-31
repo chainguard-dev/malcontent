@@ -1,8 +1,8 @@
 # python/clean/magic_trace/magic_trace.py: medium
-combo/dropper/python: medium
+c2/tool_transfer/python: medium
 exec/program: medium
-fd/read: low
+fs/path/tmp: medium
 fs/permission/modify: medium
-net/download: medium
-ref/path/tmp: medium
-ref/site/url: low
+net/download/download: medium
+net/url/embedded: low
+os/fd/read: low

@@ -1,3 +1,3 @@
 # linux/clean/ModemManager.service: low
-kernel/netlink: low
-ref/path/usr/sbin: low
+fs/path/usr/sbin: low
+os/kernel/netlink: low

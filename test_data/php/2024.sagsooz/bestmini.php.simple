@@ -1,7 +1,7 @@
 # php/2024.sagsooz/bestmini.php: critical
 3P/signature_base/webshell/php: critical
-obfuscation/php/one_liner: medium
-ref/site/php: medium
-ref/site/url: low
-shell/reverse: high
-techniques/code_eval: medium
+anti/static/obfuscation/php/one_liner: medium
+c2/addr/php: medium
+exec/remote_commands/code_eval: medium
+exec/shell/reverse: high
+net/url/embedded: low

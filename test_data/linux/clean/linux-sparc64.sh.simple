@@ -1,7 +1,7 @@
 # linux/clean/linux-sparc64.sh: medium
-combo/dropper/shell: medium
+c2/tool_transfer/shell: medium
 fs/directory/create: low
 fs/permission/modify: medium
-net/fetch: medium
+net/download/fetch: medium
+net/url/embedded: low
 process/chdir: low
-ref/site/url: low

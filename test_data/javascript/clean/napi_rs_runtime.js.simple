@@ -1,10 +1,10 @@
 # javascript/clean/napi_rs_runtime.js: medium
-data/embedded/base64/terms: medium
-data/embedded/base64/url: medium
-encoding/base64: low
-encoding/json/decode: low
-encoding/json/encode: low
-fd/write: low
+data/embedded/embedded/base64/terms: medium
+data/embedded/embedded/base64/url: medium
+data/encoding/base64: low
+data/encoding/json/decode: low
+data/encoding/json/encode: low
+discover/system/sysinfo: medium
 fs/directory/create: low
 fs/directory/list: low
 fs/directory/remove: low
@@ -13,9 +13,9 @@ fs/file/stat: low
 fs/file/times/set: medium
 fs/link/read: low
 fs/symlink/resolve: low
-kernel/sysinfo: medium
-net/socket/listen: low
-net/socket/receive: low
-net/socket/send: low
-ref/site/url: low
-ref/words/exclamation: medium
+impact/words/exclamation: medium
+net/socket/socket/listen: low
+net/socket/socket/receive: low
+net/socket/socket/send: low
+net/url/embedded: low
+os/fd/write: low

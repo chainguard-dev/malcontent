@@ -1,5 +1,5 @@
 # python/2024.yocolor/__init__.py: critical
-admin/pip_install: critical
+exec/install_additional/pip_install: critical
 exec/program: medium
+net/url/embedded: low
 process/executable_path: medium
-ref/site/url: low

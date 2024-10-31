@@ -1,5 +1,5 @@
 *** changed: macOS/clean/ls
+-discover/system/hostname/get
 +fs/directory/traverse
--kernel/hostname/get
+-net/url/embedded
 -process/name/set
--ref/site/url

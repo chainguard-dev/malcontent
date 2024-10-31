@@ -1,7 +1,7 @@
 # python/clean/google-auth-library-python/setup.py: medium
-exec/shell_command: medium
-fd/read: low
+exec/remote_commands/code_eval: medium
+exec/shell/command: medium
 fs/file/open: low
 fs/file/read: low
-ref/site/url: low
-techniques/code_eval: medium
+net/url/embedded: low
+os/fd/read: low

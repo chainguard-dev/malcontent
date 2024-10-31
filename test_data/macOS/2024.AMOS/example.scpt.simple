@@ -1,4 +1,4 @@
 # macOS/2024.AMOS/example.scpt: medium
-net/fetch: medium
-net/http/post: medium
-ref/path/tmp: medium
+fs/path/tmp: medium
+net/download/fetch: medium
+net/http/http/post: medium

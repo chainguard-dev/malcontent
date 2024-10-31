@@ -1,9 +1,9 @@
 # npm/2024.persona-tool/preinstall.js: critical
-combo/recon/nodejs: critical
-encoding/json/encode: low
-evasion/hex: medium
-kernel/hostname/get: low
-net/dns: low
-net/hostname/resolve: medium
-ref/ip/dns_resolver: medium
-ref/site/oob: critical
+anti/static/obfuscation/generic/hex_conversion: medium
+c2/discovery/ip/dns_resolver: medium
+data/encoding/json/encode: low
+discover/system/hostname/get: low
+exfil/nodejs: critical
+exfil/oob: critical
+net/dns/dns: low
+net/resolve/hostname/resolve: medium
