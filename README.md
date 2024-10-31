@@ -1,5 +1,11 @@
 # malcontent
 
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/gojp/goreportcard/blob/master/LICENSE)
+[![Latest Release](https://img.shields.io/github/v/release/chainguard-dev/malcontent?include_prereleases)](https://github.com/chainguard-dev/malcontent/releases/latest)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9633/badge)](https://www.bestpractices.dev/projects/9633)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/chainguard-dev/malcontent/badge)](https://scorecard.dev/viewer/?uri=github.com/chainguard-dev/malcontent)
+[![Go Report Card](https://goreportcard.com/badge/chainguard-dev/malcontent)](https://goreportcard.com/report/chainguard-dev/malcontent)
+
 ```text
  _ _    _.  .    _   _    _  .  ___   _.   _  .  ___
 ( | )  (_|  |_  (_  (_)  ( \_)   |   (/_  ( \_)   |
@@ -7,16 +13,15 @@
       the paranoid open-source malware scanner
 ```
 
-malcontent is a malware scanner and analysis tool for high-risk environments such as CI/CD pipelines. Its goal is to reveal novel undiscovered malware,
-and is overtly paranoid and highly prone to false positives.
+malcontent is a malware scanner and analysis tool focused on detecting supply-chain compromises and threats against UNIX-like operating systems, such as Linux and macOS. It's designed to uncover novel, undiscovered malware in high-risk environments such as CI/CD pipelines and air-gapped networks. malcontent is admittedly a bit paranoid and prone to false positives.
 
 malcontent offers 3 modes of operation depending on your use case:
 
 * `scan`: find malicious content across a variety of file formats
 * `analyze`: deep analysis of a program's capabilities
-* `diff`: show the capability differences between two versions of a program
+* `diff`: show the capability differences between two versions of a program (supply-chain compromise)
 
-*NOTE: malcontent is a work in progress and has a higher false-positive rate than we would like; we're working on it!*
+malcontent is an open-source labor of love, not a product. We hope you enjoy it!
 
 ## Features
 
