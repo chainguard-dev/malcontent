@@ -3,12 +3,13 @@ The catalog of capabilities `malcontent` reports are loosely based on the [Malwa
 | **Namespace** | **MBR Behavior ID** |**Description**|
 |---|---|--|
 | anti-behavior | **Anti-Behavioral Analysis** | makes behavioral analysis more difficult |
+| anti-static | **Anti-Static Analysis** | makes static analysis more difficult |
 | c2 | **Command and Control** | communicates with other compromised systems |
 | collect | **Collection** | collects information from a machine or network |
 | credential | **Credential Access** | accesses credentials. |
 | crypto | **Cryptography** | uses elements of cryptography |
 | data | **Data** | manipulates data |
-| discovery | **Discovery** | aims to gain knowledge about the environment.|
+| discover | **Discovery** | aims to gain knowledge about the environment.|
 | evasion | **Defense Evasion** | aims to evade detection.|
 | exec |  **Execution** | aims to execute code on a system |
 | exfil | **Exfiltration** | aims to steal data. |
@@ -18,7 +19,6 @@ The catalog of capabilities `malcontent` reports are loosely based on the [Malwa
 | lateral | **Lateral Movement** | aims to propagate or otherwise move through an environment. |
 | mem | **Memory** | manipulates memory |
 | net | **Communication** | communicates with other systems |
-| obfuscation | **Anti-Static Analysis** | makes static analysis more difficult |
 | os | **Operating System** | makes changes to the operating system |
 | persist | **Persistence** | aims to remain on a system  |
 | privesc | **Privilege Escalation**| obtain higher level permissions.|
