@@ -105,7 +105,7 @@ func thirdPartyKey(path string, rule string) string {
 	pathParts := strings.Split(path, "/")
 	subDir := pathParts[slices.Index(pathParts, "yara")+1]
 
-	words := []string{subDir}
+	words := []string{}
 
 	// ELASTIC_Linux_Trojan_Gafgyt_E4A1982B
 	words = append(words, strings.Split(strings.ToLower(rule), "_")...)
@@ -134,7 +134,7 @@ func thirdPartyKey(path string, rule string) string {
 		keepWords = keepWords[0:4]
 	}
 
-	key := fmt.Sprintf("3P/%s", strings.Join(keepWords, "/"))
+	key := fmt.Sprintf("3P/%s/%s", subDir, strings.Join(keepWords, "_"))
 	return strings.ReplaceAll(key, "signature/base", "signature_base")
 }
 
@@ -153,8 +153,23 @@ func generateKey(src string, rule string) string {
 		return thirdPartyKey(src, rule)
 	}
 
-	key := strings.ReplaceAll(src, "-", "/")
-	return strings.ReplaceAll(key, ".yara", "")
+	key := strings.ReplaceAll(src, "-", "_")
+	key = strings.ReplaceAll(key, ".yara", "")
+
+	// Reduce stutter: if the rule is prefixed with the directory name, remove the prefix
+
+	dirParts := strings.Split(key, "/")
+	// ID's generally follow: `<namespace>/<resource>/<technique>`
+	rsrc := dirParts[len(dirParts)-2]
+	tech := dirParts[len(dirParts)-1]
+
+	tech = strings.ReplaceAll(tech, fmt.Sprintf("%s_", rsrc), "")
+	tech = strings.ReplaceAll(tech, fmt.Sprintf("_%s", rsrc), "")
+	tech = strings.ReplaceAll(tech, fmt.Sprintf("%s", rsrc), "")
+
+	dirParts[len(dirParts)-1] = tech
+
+	return strings.TrimSuffix(strings.Join(dirParts, "/"), "/")
 }
 
 func generateRuleURL(src string, rule string) string {
