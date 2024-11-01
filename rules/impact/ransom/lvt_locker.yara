@@ -1,4 +1,4 @@
-rule lvt: critical {
+rule lvt_locker: critical {
   meta:
     description                                                                               = "Ransomware phrases used by LVT Locker"
     hash_2023_Multios_Ransomware_DarkSide_da3b                                                = "da3bb9669fb983ad8d2ffc01aab9d56198bd9cedf2cc4387f19f4604a070a9b5"
