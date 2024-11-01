@@ -54,10 +54,10 @@ rule flooder: high {
 
 rule ddos: medium {
   meta:
-    description                                                                               = "References DDoS"
-    hash_2023_Downloads_039e                                                                  = "039e1765de1cdec65ad5e49266ab794f8e5642adb0bdeb78d8c0b77e8b34ae09"
-    hash_2023_UPX_11e5                                                                        = "11e557e139b44494dd243510b398bb2ac1037055c565d25ef86f04773f9b0389"
-    hash_2023_UPX_11e557e139																  = "4bcb87c9cd36f49d91a795b510ac1d38ea78b538b59f88cc161cdb54390d2bce"
+    description              = "References DDoS"
+    hash_2023_Downloads_039e = "039e1765de1cdec65ad5e49266ab794f8e5642adb0bdeb78d8c0b77e8b34ae09"
+    hash_2023_UPX_11e5       = "11e557e139b44494dd243510b398bb2ac1037055c565d25ef86f04773f9b0389"
+    hash_2023_UPX_11e557e139 = "4bcb87c9cd36f49d91a795b510ac1d38ea78b538b59f88cc161cdb54390d2bce"
 
   strings:
     $ref  = "DDoS" fullword
