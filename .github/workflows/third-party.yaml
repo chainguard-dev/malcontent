@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 jobs:
-  version:
+  update:
     if: ${{ github.repository }} == 'chainguard-dev/malcontent'
     runs-on: ubuntu-latest
     permissions:
@@ -28,6 +28,14 @@ jobs:
         with:
           scope: chainguard-dev/malcontent
           identity: third-party
+      - name: Install yara and libyara-dev
+        run: |
+          sudo add-apt-repository -n -y "deb http://archive.ubuntu.com/ubuntu/ mantic main restricted universe multiverse"
+          sudo add-apt-repository -n -y "deb http://archive.ubuntu.com/ubuntu/ mantic-updates main restricted universe multiverse"
+          sudo add-apt-repository -n -y "deb http://archive.ubuntu.com/ubuntu/ mantic-backports main restricted universe multiverse"
+          sudo add-apt-repository -n -y "deb http://security.ubuntu.com/ubuntu mantic-security main restricted universe multiverse"
+
+          sudo apt update && sudo apt install yara libyara-dev -y
       - name: Run make update-third-party
         run: |
           make update-third-party
