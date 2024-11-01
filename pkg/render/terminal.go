@@ -38,10 +38,6 @@ func NewTerminal(w io.Writer) Terminal {
 	return Terminal{w: w}
 }
 
-func decorativeRisk(score int, level string) string {
-	return fmt.Sprintf("%s %s", riskEmoji(score), riskColor(level, level))
-}
-
 func darkBrackets(s string) string {
 	return fmt.Sprintf("%s%s%s", color.HiBlackString("["), s, color.HiBlackString("]"))
 }
@@ -84,7 +80,7 @@ func (r Terminal) File(ctx context.Context, fr *malcontent.FileReport) error {
 	if len(fr.Behaviors) > 0 {
 		renderFileSummary(ctx, fr, r.w,
 			tableConfig{
-				Title: fmt.Sprintf("%s %s", fr.Path, darkBrackets(decorativeRisk(fr.RiskScore, fr.RiskLevel))),
+				Title: fmt.Sprintf("%s %s", fr.Path, darkBrackets(riskInColor(fr.RiskLevel))),
 			},
 		)
 	}
@@ -99,14 +95,14 @@ func (r Terminal) Full(ctx context.Context, rep *malcontent.Report) error {
 
 	for removed := rep.Diff.Removed.Oldest(); removed != nil; removed = removed.Next() {
 		renderFileSummary(ctx, removed.Value, r.w, tableConfig{
-			Title:       fmt.Sprintf("Deleted: %s %s", removed.Key, darkBrackets(decorativeRisk(removed.Value.RiskScore, removed.Value.RiskLevel))),
+			Title:       fmt.Sprintf("Deleted: %s %s", removed.Key, darkBrackets(riskInColor(removed.Value.RiskLevel))),
 			DiffRemoved: true,
 		})
 	}
 
 	for added := rep.Diff.Added.Oldest(); added != nil; added = added.Next() {
 		renderFileSummary(ctx, added.Value, r.w, tableConfig{
-			Title:     fmt.Sprintf("Added: %s %s", added.Key, darkBrackets(decorativeRisk(added.Value.RiskScore, added.Value.RiskLevel))),
+			Title:     fmt.Sprintf("Added: %s %s", added.Key, darkBrackets(riskInColor(added.Value.RiskLevel))),
 			DiffAdded: true,
 		})
 	}
@@ -121,7 +117,7 @@ func (r Terminal) Full(ctx context.Context, rep *malcontent.Report) error {
 
 		if modified.Value.RiskScore != modified.Value.PreviousRiskScore {
 			title = fmt.Sprintf("%s %s", title,
-				darkBrackets(fmt.Sprintf("%s %s %s", decorativeRisk(modified.Value.PreviousRiskScore, modified.Value.PreviousRiskLevel), color.HiWhiteString("→"), decorativeRisk(modified.Value.RiskScore, modified.Value.RiskLevel))))
+				darkBrackets(fmt.Sprintf("%s %s %s", riskInColor(modified.Value.PreviousRiskLevel), color.HiWhiteString("→"), riskInColor(modified.Value.RiskLevel))))
 		}
 
 		renderFileSummary(ctx, modified.Value, r.w, tableConfig{Title: title})
@@ -289,7 +285,7 @@ func renderFileSummary(_ context.Context, fr *malcontent.FileReport, w io.Writer
 
 			prefix := fmt.Sprintf("│    %s %s — %s", riskColor(b.RiskLevel, bullet), riskColor(b.RiskLevel, rest), desc)
 
-			if ansiLineLength(prefix+e) > width && len(e) > 4 {
+			if ansiLineLength(prefix+e)+1 > width && len(e) > 4 {
 				fmt.Fprintf(w, "%s:\n", prefix)
 				eline := fmt.Sprintf("│        %s", strings.TrimPrefix(e, ": "))
 				fmt.Fprintf(w, "%s\n", truncate(eline, width))
