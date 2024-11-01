@@ -1,14 +1,14 @@
 # linux/2024.Mirai/ppc: critical
 data/random/insecure: low
-fs/proc/arbitrary/pid: medium
+fs/proc/arbitrary_pid: medium
 fs/proc/cpuinfo: medium
 fs/proc/stat: medium
-impact/infection/ancient_gcc: medium
 impact/remote_access/router: high
 malware/family/mirai: critical
-net/ip/ip/parse: medium
-net/socket/socket/local_addr: low
-net/socket/socket/receive: low
-net/socket/socket/send: low
+net/ip/parse: medium
+net/socket/local_addr: low
+net/socket/receive: low
+net/socket/send: low
 process/create: low
-process/name/set: medium
+process/name_set: medium
+sus/ancient_gcc: medium

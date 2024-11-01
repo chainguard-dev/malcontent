@@ -1,6 +1,8 @@
 # php/2024.sagsooz/bestmini.php: critical
-3P/signature_base/webshell/php: critical
-anti/static/obfuscation/php/one_liner: medium
+3P/sig_base/webshell_php: critical
+3P/sig_base/webshell_php_by: critical
+3P/sig_base/webshell_php_strings: critical
+anti-static/obfuscation/php/one_liner: medium
 c2/addr/php: medium
 exec/remote_commands/code_eval: medium
 exec/shell/reverse: high

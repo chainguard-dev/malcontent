@@ -1,14 +1,14 @@
 # python/2023.JokerSpy/shared.dat: critical
-3P/JPCERT/crypthunter/jsdownloader: critical
-3P/JPCERT/crypthunter/pythonsimplerat: critical
-anti/static/obfuscation/python/codecs_decode: high
+3P/JPCERT/crypthunter_jsdownloader: critical
+3P/JPCERT/crypthunter_pythonsimplerat: critical
+anti-static/obfuscation/python/codecs_decode: high
 c2/tool_transfer/python: high
-data/base64/base64/decode: medium
+data/base64/decode: medium
 data/encoding/base64: low
-discover/network/interface/list: medium
+discover/network/interface_list: medium
+discover/system/network: high
 discover/system/platform: medium
-discover/system/system_network: high
-discover/user/username/get: low
+discover/user/name_get: low
 evasion/hidden_files/hidden: medium
 exec/program: medium
 exec/remote_commands/code_eval: medium

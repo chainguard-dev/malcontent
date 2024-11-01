@@ -1,16 +1,16 @@
 # linux/clean/ld-2.27.so: medium
-anti/behavior/LD_DEBUG: medium
-anti/behavior/LD_PROFILE: medium
-evasion/hidden_files/etc/ld.so.preload: medium
+anti-behavior/LD_DEBUG: medium
+anti-behavior/LD_PROFILE: medium
+evasion/hidden_files/etc_ld.so.preload: medium
 evasion/hijack_execution/LD_LIBRARY_PATH: low
 fs/path/etc: low
 fs/path/var: low
-fs/path/var/profile: medium
-fs/proc/self/exe: medium
-fs/proc/sys/kernel/osrelease: medium
+fs/path/var_profile: medium
+fs/proc/self_exe: medium
+fs/proc/sys_kernel_osrelease: medium
 fs/tempdir: low
 impact/exploit/GCONV_PATH: low
-impact/words/exclamation: medium
 net/url/embedded: low
 persist/shell/bash: medium
 process/thread_local_storage: low
+sus/exclamation: medium

@@ -1,16 +1,16 @@
 # python/clean/setuptools/package_index.py: medium
-data/embedded/embedded/html: medium
+credential/password: low
+data/embedded/html: medium
 data/encoding/base64: low
 exec/program: medium
 fs/directory/list: low
 fs/file/delete: low
 fs/file/open: low
-fs/symlink/resolve: low
+fs/symlink_resolve: low
 fs/tempdir/create: low
-impact/words/agent: medium
-impact/words/password: low
-net/download/download: medium
-net/http/http/request: low
+impact/remote_access/agent: medium
+net/download: medium
+net/http/request: low
 net/url/embedded: low
 net/url/parse: low
 net/url/request: medium

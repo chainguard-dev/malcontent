@@ -34,6 +34,7 @@ There are some internal namespaces we use:
 |---|---|
 | 3P | third party queries (unorganized) |
 | false-positives | rules to match known software |
-| sec-tool | known security tools (possibly dangerous) |
-| malware | known malware |
 | internal | other internal rules |
+| malware | known malware |
+| sec-tool | known security tools (possibly dangerous) |
+| sus | suspicious content that can't be otherwise categorized |

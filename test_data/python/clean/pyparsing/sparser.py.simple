@@ -1,10 +1,10 @@
 # python/clean/pyparsing/sparser.py: medium
 data/compression/bzip2: low
 data/compression/gzip: low
-exec/pipe: medium
+exec/cmd/pipe: medium
 exec/remote_commands/code_eval: medium
 fs/file/open: low
-fs/path/usr/bin: low
+fs/path/usr_bin: low
 net/url/embedded: low
 net/url/parse: low
 net/url/request: medium
