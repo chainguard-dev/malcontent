@@ -105,7 +105,7 @@ func thirdPartyKey(path string, rule string) string {
 	pathParts := strings.Split(path, "/")
 	subDir := pathParts[slices.Index(pathParts, "yara")+1]
 
-	words := []string{}
+	words := []string{subDir}
 
 	// ELASTIC_Linux_Trojan_Gafgyt_E4A1982B
 	words = append(words, strings.Split(strings.ToLower(rule), "_")...)
@@ -134,7 +134,7 @@ func thirdPartyKey(path string, rule string) string {
 		keepWords = keepWords[0:4]
 	}
 
-	key := fmt.Sprintf("3P/%s/%s", subDir, strings.Join(keepWords, "_"))
+	key := fmt.Sprintf("3P/%s/%s", keepWords[0], strings.Join(keepWords[1:len(keepWords)-1], "_"))
 	return strings.ReplaceAll(key, "signature/base", "signature_base")
 }
 
