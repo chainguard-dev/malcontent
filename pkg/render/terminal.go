@@ -126,7 +126,7 @@ func (r Terminal) Full(ctx context.Context, rep *malcontent.Report) error {
 	return nil
 }
 
-// generate a good looking evidence string
+// generate a good looking evidence string.
 func evidenceString(ms []string, desc string) string {
 	evidence := []string{}
 	for _, m := range ms {
@@ -142,7 +142,7 @@ func evidenceString(ms []string, desc string) string {
 	return e
 }
 
-// convert namespace to a long name
+// convert namespace to a long name.
 func nsLongName(s string) string {
 	switch s {
 	case "discover":
@@ -166,14 +166,14 @@ func nsLongName(s string) string {
 	}
 }
 
-// split rule into namespace + resource/technique
+// split rule into namespace + resource/technique.
 func splitRuleID(s string) (string, string) {
 	parts := strings.Split(s, "/")
 	rest := strings.Join(parts[1:], "/")
 	return parts[0], rest
 }
 
-// suggestedWidth calculates a maximum terminal width to render againts
+// suggestedWidth calculates a maximum terminal width to render against.
 func suggestedWidth() int {
 	if !term.IsTerminal(0) {
 		return 160
@@ -191,7 +191,7 @@ func suggestedWidth() int {
 	return width
 }
 
-// truncate truncates a string with ellipsis
+// truncate truncates a string with ellipsis.
 func truncate(s string, i int) string {
 	if len(s) > i {
 		return s[0:i-1] + "…"
@@ -199,7 +199,7 @@ func truncate(s string, i int) string {
 	return s
 }
 
-// ansiLineLength determines the length of a line, even if it has ANSI codes
+// ansiLineLength determines the length of a line, even if it has ANSI codes.
 func ansiLineLength(s string) int {
 	re := regexp.MustCompile(`\x1b\[[0-9;]*[mG]`)
 	clean := re.ReplaceAllString(s, "")
@@ -252,8 +252,8 @@ func renderFileSummary(_ context.Context, fr *malcontent.FileReport, w io.Writer
 		} else {
 			fmt.Fprintf(w, "│  ≡ %s %s\n", nsLongName(ns), darkBrackets(riskInColor(riskLevel)))
 		}
-		for _, b := range bs {
 
+		for _, b := range bs {
 			_, rest := splitRuleID(b.ID)
 
 			e := evidenceString(b.MatchStrings, b.Description)
