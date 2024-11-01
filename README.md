@@ -10,7 +10,7 @@
  _ _    _.  .    _   _    _  .  ___   _.   _  .  ___
 ( | )  (_|  |_  (_  (_)  ( \_)   |   (/_  ( \_)   |
 
-      the subtle open-source malware scanner
+             the subtle malware scanner
 ```
 
 malcontent detects undiscovered supply-chain compromises and threats against UNIX-like operating systems such as Linux and macOS. It's built to operate in high-risk environments such as CI/CD pipelines and air-gapped networks. malcontent is admittedly a bit paranoid and prone to false positives.
@@ -32,6 +32,7 @@ malcontent is an open-source labor of love, not a product. We hope you enjoy it!
 * Analyzes container images
 * Transparent archive support (apk, tar, zip, etc.)
 * Multiple output formats (JSON, YAML, Markdown, Terminal)
+* Open source 🎉
 
 ## Modes
 
