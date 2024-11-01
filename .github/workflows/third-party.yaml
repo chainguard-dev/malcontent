@@ -42,26 +42,15 @@ jobs:
       - name: Run make refresh-test-data
         run: |
           make refresh-sample-testdata
-      - name: Retrieve changes
-        id: check
+      - name: Commit changes and create PR
         run: |
-          echo "CHANGES=$(git status -s | wc -l)" >> $GITHUB_OUTPUT
-      - name: Add and commit changes
-        if: ${{ steps.check.outputs.CHANGES }} > 0
-        id: commit
-        run: |
-          DATE=$(date +%F)
-          BRANCH="third-party-rule-update-${DATE}"
-          git checkout -b $BRANCH
-          git add .
-          git commit -m "Update third-party rules as of ${DATE}"
-          git push origin $BRANCH
+          if [[ -n $(git status -s) ]]; then
+            DATE=$(date +%F)
+            BRANCH="third-party-rule-update-${DATE}"
+            git checkout -b $BRANCH
+            git add .
+            git commit -m "Update third-party rules as of ${DATE}"
+            git push origin $BRANCH
 
-          echo "DATE=${DATE}" >> $GITHUB_OUTPUT
-      - name: Create Pull Request
-        if: ${{ steps.check.outputs.CHANGES }} > 0
-        env:
-          GH_TOKEN: ${{ steps.octo-sts.outputs.token }}
-        run: |
-          DATE=${{ steps.commit.outputs.DATE }}
-          gh pr create -t "Update third-party rules as of ${DATE}" -b "${DATE} third-party rule update for malcontent." -B main
+            gh pr create -t "Update third-party rules as of ${DATE}" -b "${DATE} third-party rule update for malcontent." -B main
+          fi
