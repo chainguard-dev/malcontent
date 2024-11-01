@@ -9,17 +9,17 @@
 ```text
  _ _    _.  .    _   _    _  .  ___   _.   _  .  ___
 ( | )  (_|  |_  (_  (_)  ( \_)   |   (/_  ( \_)   |
-  
-      the paranoid open-source malware scanner
+
+             the subtle malware scanner
 ```
 
-malcontent is a malware scanner and analysis tool focused on detecting supply-chain compromises and threats against UNIX-like operating systems, such as Linux and macOS. It's designed to uncover novel, undiscovered malware in high-risk environments such as CI/CD pipelines and air-gapped networks. malcontent is admittedly a bit paranoid and prone to false positives.
+malcontent detects undiscovered supply-chain compromises and threats against UNIX-like operating systems such as Linux and macOS. It's built to operate in high-risk environments such as CI/CD pipelines and air-gapped networks. malcontent is admittedly a bit paranoid and prone to false positives.
 
 malcontent offers 3 modes of operation depending on your use case:
 
 * `scan`: find malicious content across a variety of file formats
 * `analyze`: deep analysis of a program's capabilities
-* `diff`: show the capability differences between two versions of a program (supply-chain compromise)
+* `diff`: show the capability drift between two versions of a program (supply-chain compromise detection)
 
 malcontent is an open-source labor of love, not a product. We hope you enjoy it!
 
@@ -32,6 +32,7 @@ malcontent is an open-source labor of love, not a product. We hope you enjoy it!
 * Analyzes container images
 * Transparent archive support (apk, tar, zip, etc.)
 * Multiple output formats (JSON, YAML, Markdown, Terminal)
+* Open source 🎉
 
 ## Modes
 
