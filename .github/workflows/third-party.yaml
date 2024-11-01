@@ -1,0 +1,53 @@
+name: Update third-party rules
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 */12 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  version:
+    if: ${{ github.repository }} == 'chainguard-dev/malcontent'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      pull-requests: write
+    steps:
+      - uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7
+        with:
+          egress-policy: audit
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: chainguard-dev/actions/setup-gitsign@e82b4e5ae10182af72972addcb3fedf7454621c8
+      - name: Set up Octo-STS
+        uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # v1.0.0
+        id: octo-sts
+        with:
+          scope: chainguard-dev/malcontent
+          identity: third-party
+      - name: Run make update-third-party
+        run: |
+          make update-third-party
+      - name: Run make refresh-test-data
+        run: |
+          make refresh-sample-testdata
+      - name: Add and commit changes
+        id: commit
+        run: |
+          DATE=$(date +%F)
+          BRANCH="third-party-rule-update-${DATE}"
+          git checkout -b $BRANCH
+          git add .
+          git commit -m "Update third-party rules as of ${DATE}"
+          git push origin $BRANCH
+
+          echo "DATE=${DATE}" >> $GITHUB_OUTPUT
+      - name: Create Pull Request
+        env:
+          GH_TOKEN: ${{ steps.octo-sts.outputs.token }}
+        run: |
+          DATE=${{ steps.commit.outputs.DATE }}
+          gh pr create -t "Update third-party rules as of ${DATE}" -b "${DATE} third-party rule update for malcontent." -B main
