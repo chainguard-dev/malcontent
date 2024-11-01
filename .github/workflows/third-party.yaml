@@ -42,7 +42,12 @@ jobs:
       - name: Run make refresh-test-data
         run: |
           make refresh-sample-testdata
+      - name: Retrieve changes
+        id: check
+        run: |
+          echo "CHANGES=$(git status -s | wc -l)" >> $GITHUB_OUTPUT
       - name: Add and commit changes
+        if: ${{ steps.check.outputs.CHANGES }} > 0
         id: commit
         run: |
           DATE=$(date +%F)
@@ -54,6 +59,7 @@ jobs:
 
           echo "DATE=${DATE}" >> $GITHUB_OUTPUT
       - name: Create Pull Request
+        if: ${{ steps.check.outputs.CHANGES }} > 0
         env:
           GH_TOKEN: ${{ steps.octo-sts.outputs.token }}
         run: |
