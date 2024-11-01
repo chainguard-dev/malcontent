@@ -68,7 +68,7 @@
 3Pthreat_hunting/winscppasswdextractor: medium
 3Pthreat_hunting/witnessme: medium
 3Pthreat_hunting/xsstrike: medium
-anti_static/obfuscation/obfuscate: low
+anti-static/obfuscation/obfuscate: low
 c2/discovery/dyndns: medium
 c2/tool_transfer/download: high
 collect/archives/unarchive: medium
@@ -187,9 +187,9 @@ process/chroot: low
 process/multi: medium
 process/terminate/taskkill: medium
 process/unshare: low
-sec_tool/net/masscan: high
-sec_tool/net/nmap: medium
-sec_tool/pentest/metasploit_ref: medium
+sec-tool/net/masscan: high
+sec-tool/net/nmap: medium
+sec-tool/pentest/metasploit_ref: medium
 sus/intercept: medium
 sus/leetspeak: medium
 sus/malicious: medium

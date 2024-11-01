@@ -3,7 +3,7 @@
 3Pthreat_hunting/pypykatz: medium
 3Pthreat_hunting/shodan_io: medium
 3Pthreat_hunting/torproject: medium
-anti_static/obfuscation/obfuscate: low
+anti-static/obfuscation/obfuscate: low
 c2/addr/http_dynamic: medium
 c2/addr/ip_port: medium
 c2/discovery/dyndns: medium

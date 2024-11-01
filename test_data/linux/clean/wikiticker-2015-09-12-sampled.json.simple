@@ -1,5 +1,5 @@
 # linux/clean/wikiticker-2015-09-12-sampled.json: high
-anti_behavior/blocklist/user: medium
+anti-behavior/blocklist/user: medium
 c2/addr/ip: medium
 c2/addr/ip_port: medium
 c2/addr/php: medium

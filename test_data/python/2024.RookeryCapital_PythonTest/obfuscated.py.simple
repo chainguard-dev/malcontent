@@ -1,6 +1,6 @@
 # python/2024.RookeryCapital_PythonTest/obfuscated.py: critical
-anti_static/base64/eval: critical
-anti_static/obfuscation/python/codecs_decode: high
+anti-static/base64/eval: critical
+anti-static/obfuscation/python/codecs_decode: high
 data/base64/decode: medium
 data/encoding/base64: low
 discover/system/platform: medium

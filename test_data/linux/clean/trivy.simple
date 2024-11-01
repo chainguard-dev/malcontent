@@ -81,7 +81,7 @@ exec/shell/pipe_sh: medium
 exec/system_controls/apparmor: medium
 exfil/collection: medium
 exfil/stealer/cloud: high
-false_positives/trivy: low
+false-positives/trivy: low
 fs/attributes/set: medium
 fs/directory/create: low
 fs/directory/list: low

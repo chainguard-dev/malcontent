@@ -1,6 +1,6 @@
 # linux/clean/ld-2.27.so: medium
-anti_behavior/LD_DEBUG: medium
-anti_behavior/LD_PROFILE: medium
+anti-behavior/LD_DEBUG: medium
+anti-behavior/LD_PROFILE: medium
 evasion/hidden_files/etc_ld.so.preload: medium
 evasion/hijack_execution/LD_LIBRARY_PATH: low
 fs/path/etc: low

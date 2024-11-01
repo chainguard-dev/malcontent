@@ -1,8 +1,8 @@
 # python/2024.coloredtxt/os.py: critical
-anti_static/base64/eval: critical
-anti_static/base64/function_names: critical
-anti_static/obfuscation/generic/bitwise_math: low
-anti_static/obfuscation/python/single_line_imports: high
+anti-static/base64/eval: critical
+anti-static/base64/function_names: critical
+anti-static/obfuscation/generic/bitwise_math: low
+anti-static/obfuscation/python/single_line_imports: high
 data/base64/decode: medium
 data/encoding/base64: low
 exec/cmd/pipe: medium

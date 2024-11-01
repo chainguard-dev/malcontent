@@ -4,7 +4,7 @@
 3Pthreat_hunting/netstat: medium
 3Pthreat_hunting/shell: medium
 3Pthreat_hunting/xmrig: medium
-anti_static/base64/exec: high
+anti-static/base64/exec: high
 c2/addr/http_ip: high
 c2/addr/ip: medium
 c2/addr/ip_port: high

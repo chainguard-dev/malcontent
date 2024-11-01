@@ -3,7 +3,7 @@
 3Pthreat_hunting/openvas: medium
 3Pthreat_hunting/rapid7: medium
 3Pthreat_hunting/sqlninja: medium
-anti_static/obfuscation/obfuscate: low
+anti-static/obfuscation/obfuscate: low
 c2/addr/http_dynamic: medium
 c2/addr/ip_port: medium
 c2/server_address: medium
@@ -130,8 +130,8 @@ persist/ssh_authorized_keys: medium
 process/chroot: low
 process/groups_set: low
 process/unshare: low
-sec_tool/net/masscan: high
-sec_tool/net/nmap: medium
+sec-tool/net/masscan: high
+sec-tool/net/nmap: medium
 sus/exclamation: medium
 sus/intercept: medium
 sus/plugin: low

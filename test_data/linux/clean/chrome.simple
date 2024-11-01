@@ -1,9 +1,9 @@
 # linux/clean/chrome: medium
 3Pthreat_hunting/metasploit: medium
 3Pthreat_hunting/proxmark: medium
-anti_behavior/LD_DEBUG: medium
-anti_behavior/LD_PROFILE: medium
-anti_static/obfuscation/obfuscate: low
+anti-behavior/LD_DEBUG: medium
+anti-behavior/LD_PROFILE: medium
+anti-static/obfuscation/obfuscate: low
 c2/addr/http_dynamic: medium
 c2/addr/ip_port: medium
 c2/discovery/ip_dns_resolver: medium

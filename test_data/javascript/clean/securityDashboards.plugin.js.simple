@@ -3,7 +3,7 @@
 3Pthreat_hunting/hijacker: medium
 3Pthreat_hunting/johntheripper: medium
 3Pthreat_hunting/sharpshooter: medium
-anti_static/xor/commands: high
+anti-static/xor/commands: high
 c2/tool_transfer/dropper: medium
 collect/databases/mysql: medium
 credential/gaming/minecraft: medium

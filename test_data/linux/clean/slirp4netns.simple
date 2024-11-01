@@ -1,6 +1,6 @@
 # linux/clean/slirp4netns: high
-anti_behavior/LD_DEBUG: medium
-anti_behavior/LD_PROFILE: medium
+anti-behavior/LD_DEBUG: medium
+anti-behavior/LD_PROFILE: medium
 c2/addr/ip_port: medium
 credential/os/gshadow: medium
 credential/os/shadow: medium
@@ -26,7 +26,7 @@ exec/reconfigure/hostname_set: low
 exec/shell/TERM: low
 exec/shell/exec: medium
 exec/tty/vhangup: low
-false_positives/slirp: low
+false-positives/slirp: low
 fs/attributes/set: medium
 fs/directory/create: low
 fs/directory/remove: low

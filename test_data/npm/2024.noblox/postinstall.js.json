@@ -1801,7 +1801,7 @@
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/obfuscation/generic/hex_values.yara#excessive_hex_refs",
-                    "ID": "anti_static/obfuscation/generic/hex_values",
+                    "ID": "anti-static/obfuscation/generic/hex_values",
                     "RuleName": "excessive_hex_refs"
                 },
                 {
@@ -1951,7 +1951,7 @@
                     "RiskScore": 4,
                     "RiskLevel": "CRITICAL",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/obfuscation/js/hex_functions.yara#js_hex_obfuscation",
-                    "ID": "anti_static/obfuscation/js/hex_functions",
+                    "ID": "anti-static/obfuscation/js/hex_functions",
                     "RuleName": "js_hex_obfuscation"
                 },
                 {
@@ -1965,7 +1965,7 @@
                     "RiskScore": 3,
                     "RiskLevel": "HIGH",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/obfuscation/js/parseInt.yara#js_const_func_obfuscation",
-                    "ID": "anti_static/obfuscation/js/parseInt",
+                    "ID": "anti-static/obfuscation/js/parseInt",
                     "RuleName": "js_const_func_obfuscation"
                 },
                 {

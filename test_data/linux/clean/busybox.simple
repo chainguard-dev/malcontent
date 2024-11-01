@@ -30,7 +30,7 @@ exec/shell/TERM: low
 exec/shell/exec: medium
 exec/tty/parameters_get: medium
 exec/tty/pathname: medium
-false_positives/busybox: low
+false-positives/busybox: low
 fs/directory/create: low
 fs/directory/remove: low
 fs/fifo_create: low

@@ -3,7 +3,7 @@
 3Pthreat_hunting/hrshell: medium
 3Pthreat_hunting/maccaronic2: medium
 3Pthreat_hunting/tor: medium
-anti_behavior/vm_check: medium
+anti-behavior/vm_check: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip_port: medium
 c2/discovery/ip_dns_resolver: medium

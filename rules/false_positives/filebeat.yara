@@ -1,7 +1,7 @@
 rule misp_mdjson: override {
   meta:
     description = "misp_sample.mdjson.log"
-    lvt_locker         = "medium"
+    lvt_locker  = "medium"
 
   strings:
     $attribute = "Attribute"

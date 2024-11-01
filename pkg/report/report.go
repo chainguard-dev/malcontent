@@ -176,6 +176,9 @@ func generateKey(src string, rule string) string {
 
 	dirParts := strings.Split(key, "/")
 	// ID's generally follow: `<namespace>/<resource>/<technique>`
+	ns := dirParts[0]
+	// namespaces can have dashes, like 'anti-static'
+	ns = strings.ReplaceAll(ns, "_", "-")
 	rsrc := dirParts[len(dirParts)-2]
 	tech := dirParts[len(dirParts)-1]
 
@@ -183,6 +186,7 @@ func generateKey(src string, rule string) string {
 	tech = strings.ReplaceAll(tech, "__", "_")
 	tech = strings.Trim(tech, "_")
 
+	dirParts[0] = ns
 	dirParts[len(dirParts)-1] = tech
 	return strings.TrimSuffix(strings.Join(dirParts, "/"), "/")
 }

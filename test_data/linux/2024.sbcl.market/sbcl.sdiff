@@ -1,4 +1,4 @@
 *** changed: linux/2024.sbcl.market/sbcl.dirty
-+anti_static/packer/high_entropy
++anti-static/packer/high_entropy
 +data/embedded/zstd
 +net/dns/txt

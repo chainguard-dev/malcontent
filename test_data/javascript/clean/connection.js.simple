@@ -1,5 +1,5 @@
 # javascript/clean/connection.js: medium
-anti_static/obfuscation/generic/hex_conversion: medium
+anti-static/obfuscation/generic/hex_conversion: medium
 credential/password: low
 data/embedded/base64_terms: medium
 data/embedded/base64_url: medium

@@ -1,5 +1,5 @@
 # npm/2024.harthat/deference.js: critical
-anti_static/obfuscation/batch/echo_off: high
+anti-static/obfuscation/batch/echo_off: high
 c2/addr/http_ip: high
 c2/addr/ip: medium
 fs/file/delete: low

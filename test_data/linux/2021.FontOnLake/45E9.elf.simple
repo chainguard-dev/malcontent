@@ -1,7 +1,7 @@
 # linux/2021.FontOnLake/45E9.elf: critical
 3Pelastic/rootkit_fontonlake: critical
 3Psig_base/susp_elf_upx: critical
-anti_static/packer/upx: high
+anti-static/packer/upx: high
 c2/addr/ip_port: medium
 credential/password: low
 credential/ssh: medium

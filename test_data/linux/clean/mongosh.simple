@@ -1,7 +1,7 @@
 # linux/clean/mongosh: critical
-anti_static/base64/function_names: critical
-anti_static/obfuscation/generic/hex_conversion: medium
-anti_static/obfuscation/obfuscate: low
+anti-static/base64/function_names: critical
+anti-static/obfuscation/generic/hex_conversion: medium
+anti-static/obfuscation/obfuscate: low
 c2/addr/http_dynamic: medium
 c2/addr/ip_port: medium
 c2/discovery/ip_dns_resolver: medium
@@ -156,7 +156,7 @@ process/namespace_set: low
 process/parent_pid_get: low
 process/terminate/taskkill: medium
 process/userid_set: low
-sec_tool/net/nmap: medium
+sec-tool/net/nmap: medium
 sus/ancient_gcc: medium
 sus/exclamation: medium
 sus/intercept: medium

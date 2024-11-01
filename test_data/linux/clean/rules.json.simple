@@ -67,6 +67,6 @@ persist/shell/zsh: medium
 persist/ssh_authorized_keys: medium
 process/chroot: low
 process/unshare: low
-sec_tool/net/masscan: high
-sec_tool/net/nmap: medium
+sec-tool/net/masscan: high
+sec-tool/net/nmap: medium
 sus/plugin: low

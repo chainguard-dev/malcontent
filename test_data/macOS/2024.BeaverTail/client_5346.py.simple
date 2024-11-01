@@ -1,5 +1,5 @@
 # macOS/2024.BeaverTail/client_5346.py: high
-anti_static/obfuscation/python/single_line_imports: medium
+anti-static/obfuscation/python/single_line_imports: medium
 c2/addr/ip: medium
 c2/tool_transfer/python: high
 data/encoding/base64: low

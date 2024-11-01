@@ -1,8 +1,8 @@
 # php/2024.S3RV4N7-SHELL/crot.php: critical
 3Psig_base/webshell_php: critical
-anti_static/base64/function_names: medium
-anti_static/obfuscation/php/non_printable_chars: medium
-anti_static/obfuscation/php/one_liner: medium
+anti-static/base64/function_names: medium
+anti-static/obfuscation/php/non_printable_chars: medium
+anti-static/obfuscation/php/one_liner: medium
 data/base64/decode: medium
 data/encoding/base64: low
 evasion/indicator_blocking/mask_exceptions: medium

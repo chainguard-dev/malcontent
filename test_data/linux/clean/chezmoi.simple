@@ -5,7 +5,7 @@
 3Pthreat_hunting/johntheripper: medium
 3Pthreat_hunting/sharpshooter: medium
 3Pthreat_hunting/tailscale: medium
-anti_static/xor/commands: high
+anti-static/xor/commands: high
 c2/addr/http_dynamic: medium
 c2/addr/ip_port: medium
 c2/tool_transfer/download: medium

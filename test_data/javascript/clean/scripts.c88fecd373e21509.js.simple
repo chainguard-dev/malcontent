@@ -1,5 +1,5 @@
 # javascript/clean/scripts.c88fecd373e21509.js: medium
-anti_static/obfuscation/js/high_entropy: medium
+anti-static/obfuscation/js/high_entropy: medium
 data/compression/bzip2: low
 data/compression/gzip: low
 data/encoding/json_decode: low

@@ -2,9 +2,9 @@
 3Pthreat_hunting/cstealer: medium
 3Pthreat_hunting/fentanyl: medium
 3Pthreat_hunting/gofile_io: medium
-anti_behavior/blocklist/hostname: critical
-anti_behavior/blocklist/mac_addr: critical
-anti_behavior/blocklist/user: critical
+anti-behavior/blocklist/hostname: critical
+anti-behavior/blocklist/mac_addr: critical
+anti-behavior/blocklist/user: critical
 c2/tool_transfer/download: high
 collect/databases/leveldb: medium
 credential/browser/chrome_cookies: high

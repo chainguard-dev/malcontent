@@ -1,6 +1,6 @@
 # javascript/clean/5A50D54796BB27126E03A7E25DD5D589.cache.js: high
 3Pthreat_hunting/powershell: medium
-anti_static/obfuscation/php/unusual_include: high
+anti-static/obfuscation/php/unusual_include: high
 c2/addr/ip_port: medium
 c2/server_address: medium
 collect/archives/unarchive: medium
@@ -34,7 +34,7 @@ exec/program/background: low
 exec/remote_commands/code_eval: medium
 exec/shell/power: medium
 exec/tty/pathname: medium
-false_positives/k8s_dashboard: low
+false-positives/k8s_dashboard: low
 fs/directory/create: low
 fs/directory/remove: low
 fs/fifo_create: low
