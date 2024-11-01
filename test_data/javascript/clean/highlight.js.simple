@@ -18,6 +18,7 @@ discover/user/USER: low
 discover/user/name_get: low
 evasion/hidden_files/relative_hidden: low
 exec/cmd: medium
+exec/plugin: low
 exec/program/background: low
 exec/remote_commands/code_eval: medium
 exec/script/osa: medium
@@ -62,4 +63,3 @@ process/namespace_set: low
 process/terminate/taskkill: medium
 sec-tool/net/nmap: medium
 sus/intercept: medium
-sus/plugin: low

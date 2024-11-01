@@ -37,6 +37,7 @@ discover/user/name_get: medium
 evasion/bypass_security/linux/se: medium
 evasion/hidden_files/hidden: medium
 evasion/hide_artifacts/pivot_root: high
+exec/plugin: low
 exec/program: medium
 exec/shell/background_sleep: medium
 exec/shell/exec: medium
@@ -117,4 +118,3 @@ process/executable_path: low
 process/groups_set: low
 process/unshare: low
 sus/exclamation: medium
-sus/plugin: low

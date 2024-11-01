@@ -1,7 +1,7 @@
 # linux/clean/sonarlint-metadata.json: medium
-3Pthreat_hunting/bruteratel: medium
-3Pthreat_hunting/github_username: medium
-3Pthreat_hunting/owasp: medium
+3P/threat_hunting/bruteratel: medium
+3P/threat_hunting/github_username: medium
+3P/threat_hunting/owasp: medium
 c2/addr/ip_port: medium
 c2/addr/php: medium
 collect/databases/mysql: medium
@@ -14,6 +14,7 @@ data/encoding/json_encode: low
 discover/network/interface_list: medium
 evasion/hidden_files/dev_mqueue: medium
 evasion/hidden_files/hidden: medium
+exec/plugin: low
 fs/file/copy: medium
 fs/file/delete_forcibly: low
 fs/file/open: low
@@ -54,4 +55,3 @@ os/fd/write: low
 persist/writeable_dir: medium
 sus/intercept: medium
 sus/malicious: medium
-sus/plugin: low

@@ -1,5 +1,5 @@
 # php/2024.alfa/alfa-obfuscated.php: critical
-3Psig_base/webshell_php: critical
+3P/sig_base/webshell_php: critical
 anti-static/base64/obfuscated_caller: critical
 anti-static/obfuscation/generic/bitwise_math: medium
 anti-static/obfuscation/php/bitwise: critical

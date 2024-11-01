@@ -150,7 +150,7 @@ func thirdPartyKey(path string, rule string) string {
 	}
 	rulename := keepWords[1:]
 
-	key := fmt.Sprintf("3P%s/%s", src, strings.Join(rulename, "_"))
+	key := fmt.Sprintf("3P/%s/%s", src, strings.Join(rulename, "_"))
 	return key
 }
 

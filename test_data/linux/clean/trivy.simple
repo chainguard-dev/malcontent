@@ -1,9 +1,9 @@
 # linux/clean/trivy: high
-3Pthreat_hunting/bruteratel: medium
-3Pthreat_hunting/github_username: medium
-3Pthreat_hunting/hijacker: medium
-3Pthreat_hunting/linkedint: medium
-3Pthreat_hunting/privilegeescalation: medium
+3P/threat_hunting/bruteratel: medium
+3P/threat_hunting/github_username: medium
+3P/threat_hunting/hijacker: medium
+3P/threat_hunting/linkedint: medium
+3P/threat_hunting/privilegeescalation: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip_port: medium
 c2/discovery/ip_dns_resolver: medium
@@ -71,6 +71,7 @@ exec/conditional/LANG: low
 exec/dylib/symbol_address: medium
 exec/install_additional/package_install: medium
 exec/install_additional/pip_install: medium
+exec/plugin: low
 exec/program: medium
 exec/remote_commands/code_eval: medium
 exec/script/osa: medium
@@ -189,4 +190,3 @@ sus/exclamation: medium
 sus/intercept: medium
 sus/leetspeak: medium
 sus/malicious: medium
-sus/plugin: low

@@ -4,6 +4,7 @@ anti-static/packer/ezuri: critical
 crypto/aes: low
 data/encoding/json_encode: low
 discover/system/cpu_info: low
+exec/plugin: low
 exec/program: medium
 fs/file/read: low
 fs/path/etc: low
@@ -14,4 +15,3 @@ impact/remote_access/net_exec: medium
 net/socket/receive: low
 net/socket/send: low
 process/multithreaded: low
-sus/plugin: low

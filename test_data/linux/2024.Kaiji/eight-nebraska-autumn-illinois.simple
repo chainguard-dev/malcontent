@@ -1,5 +1,5 @@
 # linux/2024.Kaiji/eight-nebraska-autumn-illinois: critical
-3Pelastic/threat: high
+3P/elastic/threat: high
 c2/addr/ip_port: medium
 c2/addr/php: medium
 c2/discovery/ip_dns_resolver: medium
@@ -23,6 +23,7 @@ discover/system/platform: low
 evasion/bypass_security/linux/se: medium
 evasion/bypass_security/linux/se_disable: high
 evasion/hidden_files/hidden: medium
+exec/plugin: low
 exec/program: medium
 exec/shell/exec: medium
 exec/shell/reverse: high
@@ -92,4 +93,3 @@ persist/cron/hidden_tab: critical
 persist/cron/tab: medium
 persist/daemon: medium
 process/groups_set: low
-sus/plugin: low

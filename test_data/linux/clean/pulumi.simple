@@ -1,6 +1,6 @@
 # linux/clean/pulumi: high
-3Pthreat_hunting/iodine: medium
-3Pthreat_hunting/sharppack: medium
+3P/threat_hunting/iodine: medium
+3P/threat_hunting/sharppack: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip_port: medium
 c2/server_address: medium
@@ -51,6 +51,7 @@ evasion/hidden_files/hidden: medium
 exec/cmd: medium
 exec/conditional/LANG: low
 exec/install_additional/pip_install: medium
+exec/plugin: low
 exec/program: medium
 exec/program/background: low
 exec/remote_commands/code_eval: medium
@@ -143,4 +144,3 @@ process/parent_pid_get: low
 sus/exclamation: medium
 sus/intercept: medium
 sus/leetspeak: medium
-sus/plugin: low

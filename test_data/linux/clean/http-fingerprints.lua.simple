@@ -1,14 +1,15 @@
 # linux/clean/http-fingerprints.lua: high
-3Psig_base/hacktool_strings_p0wnedshell: medium
-3Pthreat_hunting/metasploit: medium
-3Pthreat_hunting/nikto: medium
-3Pthreat_hunting/rapid7: medium
-3Pthreat_hunting/seclists: medium
+3P/sig_base/hacktool_strings_p0wnedshell: medium
+3P/threat_hunting/metasploit: medium
+3P/threat_hunting/nikto: medium
+3P/threat_hunting/rapid7: medium
+3P/threat_hunting/seclists: medium
 c2/addr/php: medium
 c2/tool_transfer/grayware: high
 collect/databases/mysql: medium
 credential/password: low
 credential/server/htpasswd: medium
+exec/plugin: low
 fs/file/read: low
 fs/path/etc: low
 fs/path/home: medium
@@ -24,4 +25,3 @@ net/tcp/ssh: medium
 net/url/embedded: low
 sec-tool/net/nmap: medium
 sec-tool/vulncheck/metasploit: high
-sus/plugin: low

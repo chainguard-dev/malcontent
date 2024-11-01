@@ -5,6 +5,7 @@ data/encoding/json_encode: low
 discover/system/cpu_info: low
 discover/system/hostname_get: low
 discover/system/platform: low
+exec/plugin: low
 exec/program: medium
 fs/directory/remove: low
 fs/file/delete: low
@@ -16,4 +17,3 @@ fs/permission/modify: medium
 net/socket/receive: low
 net/socket/send: low
 process/multithreaded: low
-sus/plugin: low

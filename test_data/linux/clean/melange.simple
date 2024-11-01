@@ -1,6 +1,6 @@
 # linux/clean/melange: high
-3Pthreat_hunting/github_username: medium
-3Pthreat_hunting/hijacker: medium
+3P/threat_hunting/github_username: medium
+3P/threat_hunting/hijacker: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip_port: medium
 c2/tool_transfer/shell: medium
@@ -51,6 +51,7 @@ evasion/hide_artifacts/pivot_root: high
 evasion/hide_artifacts/system_directories: medium
 exec/cmd: medium
 exec/install_additional/pip_install: medium
+exec/plugin: low
 exec/program: medium
 exec/shell/TERM: low
 exec/shell/background_sleep: medium
@@ -144,4 +145,3 @@ process/unshare: low
 process/userid_set: low
 sus/exclamation: medium
 sus/intercept: medium
-sus/plugin: low

@@ -7,6 +7,7 @@ discover/user/HOME: low
 evasion/hidden_files/hidden: medium
 evasion/hidden_files/var_tmp: medium
 evasion/process_injection/ptrace: medium
+exec/plugin: low
 exec/program: medium
 exec/program/background: low
 exec/shell/SHELL: low
@@ -39,4 +40,3 @@ process/groups_set: low
 process/parent_pid_get: low
 process/userid_set: low
 sus/intercept: medium
-sus/plugin: low

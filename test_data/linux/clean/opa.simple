@@ -1,6 +1,6 @@
 # linux/clean/opa: medium
-3Pthreat_hunting/hijacker: medium
-3Pthreat_hunting/http_server: medium
+3P/threat_hunting/hijacker: medium
+3P/threat_hunting/http_server: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip_port: medium
 c2/tool_transfer/download: medium
@@ -28,6 +28,7 @@ discover/system/platform: medium
 discover/system/sysinfo: medium
 discover/user/USER: low
 exec/cmd: medium
+exec/plugin: low
 exec/program: medium
 fs/directory/list: low
 fs/directory/remove: low
@@ -90,4 +91,3 @@ persist/pid_file: medium
 process/chdir: low
 process/groups_set: low
 sus/exclamation: medium
-sus/plugin: low

@@ -14,6 +14,7 @@ discover/user/name_get: medium
 evasion/bypass_security/linux/se: medium
 exec/cmd: medium
 exec/conditional/LANG: low
+exec/plugin: low
 exec/remote_commands/code_eval: medium
 exec/shell/SHELL: low
 exec/shell/TERM: low
@@ -51,4 +52,3 @@ persist/pid_file: medium
 privesc/sudo: medium
 process/chroot: low
 sus/intercept: medium
-sus/plugin: low

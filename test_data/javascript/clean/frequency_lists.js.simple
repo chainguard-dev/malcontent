@@ -1,8 +1,8 @@
 # javascript/clean/frequency_lists.js: critical
-3Pthreat_hunting/crowbar: medium
-3Pthreat_hunting/hijacker: medium
-3Pthreat_hunting/johntheripper: medium
-3Pthreat_hunting/sharpshooter: medium
+3P/threat_hunting/crowbar: medium
+3P/threat_hunting/hijacker: medium
+3P/threat_hunting/johntheripper: medium
+3P/threat_hunting/sharpshooter: medium
 anti-static/xor/commands: high
 c2/tool_transfer/dropper: medium
 collect/databases/mysql: medium
@@ -10,6 +10,7 @@ credential/gaming/minecraft: medium
 credential/password: low
 discover/user/name_get: medium
 evasion/mimicry/fake_process: high
+exec/plugin: low
 fs/lock_update: low
 impact/degrade/infection: critical
 impact/exploit: medium
@@ -27,4 +28,3 @@ net/socket/send: low
 persist/daemon: medium
 sus/intercept: medium
 sus/malicious: medium
-sus/plugin: low

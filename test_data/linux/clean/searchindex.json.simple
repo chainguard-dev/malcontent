@@ -1,6 +1,6 @@
 # linux/clean/searchindex.json: high
-3Pthreat_hunting/dd: medium
-3Pthreat_hunting/keylogger: medium
+3P/threat_hunting/dd: medium
+3P/threat_hunting/keylogger: medium
 anti-static/obfuscation/obfuscate: low
 c2/tool_transfer/dropper: medium
 c2/tool_transfer/shell: medium
@@ -17,6 +17,7 @@ evasion/hidden_files/chdir_unusual: medium
 evasion/hide_artifacts/system_directories: medium
 exec/install_additional/package_install: medium
 exec/install_additional/pip_install: medium
+exec/plugin: low
 exec/program: medium
 exec/shell/command: medium
 exec/shell/exec: medium
@@ -59,4 +60,3 @@ process/chdir: low
 process/chroot: low
 process/executable_path: low
 sus/malicious: medium
-sus/plugin: low

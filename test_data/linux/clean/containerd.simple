@@ -1,6 +1,6 @@
 # linux/clean/containerd: medium
-3Pthreat_hunting/hijacker: medium
-3Pthreat_hunting/privilegeescalation: medium
+3P/threat_hunting/hijacker: medium
+3P/threat_hunting/privilegeescalation: medium
 c2/addr/ip_port: medium
 c2/server_address: medium
 collect/archives/zip: medium
@@ -32,6 +32,7 @@ evasion/hidden_files/dev_mqueue: medium
 evasion/hidden_files/dev_shm: medium
 evasion/hidden_files/var_run: medium
 evasion/process_injection/ptrace: medium
+exec/plugin: low
 exec/program: medium
 exec/reconfigure/hostname_set: low
 exec/shell/TERM: low
@@ -120,4 +121,3 @@ process/groups_set: low
 process/terminate/kill_multiple: medium
 sus/exclamation: medium
 sus/intercept: medium
-sus/plugin: low

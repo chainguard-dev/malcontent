@@ -1,13 +1,13 @@
 # windows/2024.GitHub.Clipper/main.exe: critical
-3PJPCERT/apt10_chches_lnk: critical
-3Pditekshen/discordurl: critical
-3Pditekshen/vm_evasion_macaddrcomb: critical
-3Pelastic/multi_threat: high
-3Pthreat_hunting/: medium
-3Pthreat_hunting/cstealer: medium
-3Pthreat_hunting/fentanyl: medium
-3Pthreat_hunting/gofile_io: medium
-3Pthreat_hunting/runascs: medium
+3P/JPCERT/apt10_chches_lnk: critical
+3P/ditekshen/discordurl: critical
+3P/ditekshen/vm_evasion_macaddrcomb: critical
+3P/elastic/multi_threat: high
+3P/threat_hunting/: medium
+3P/threat_hunting/cstealer: medium
+3P/threat_hunting/fentanyl: medium
+3P/threat_hunting/gofile_io: medium
+3P/threat_hunting/runascs: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip_port: medium
 c2/tool_transfer/download: high
@@ -37,6 +37,7 @@ discover/network/mac_address: medium
 discover/processes/list: medium
 discover/system/cpu_info: low
 exec/conditional/is_admin: medium
+exec/plugin: low
 exec/program: medium
 exec/shell/TERM: low
 exfil/discord: critical
@@ -88,4 +89,3 @@ net/url/request: medium
 os/fd/sendfile: low
 persist/pid_file: medium
 privesc/uac_bypass: high
-sus/plugin: low

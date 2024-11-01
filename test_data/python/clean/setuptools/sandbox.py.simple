@@ -1,5 +1,6 @@
 # python/clean/setuptools/sandbox.py: medium
 discover/system/platform: medium
+exec/plugin: low
 exec/remote_commands/code_eval: medium
 fs/directory/create: low
 fs/directory/remove: low
@@ -14,4 +15,3 @@ fs/symlink_resolve: low
 net/url/embedded: low
 os/fd/read: low
 process/chroot: low
-sus/plugin: low

@@ -1,5 +1,5 @@
 # javascript/clean/5D3EB8D016DDDA0665CB8CD8EEA6C537.cache.js: high
-3Pthreat_hunting/powershell: medium
+3P/threat_hunting/powershell: medium
 anti-static/obfuscation/php/unusual_include: high
 c2/addr/ip_port: medium
 c2/server_address: medium
@@ -29,6 +29,7 @@ discover/user/name_get: low
 evasion/hidden_files/hidden: medium
 evasion/logging/acct: low
 exec/cmd: medium
+exec/plugin: low
 exec/program: medium
 exec/program/background: low
 exec/remote_commands/code_eval: medium
@@ -92,4 +93,3 @@ process/parent_pid_get: low
 process/userid_set: low
 sus/exclamation: medium
 sus/intercept: medium
-sus/plugin: low

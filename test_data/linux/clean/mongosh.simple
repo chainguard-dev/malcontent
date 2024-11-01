@@ -53,6 +53,7 @@ exec/conditional/LANG: low
 exec/dylib/address_check: low
 exec/dylib/iterate: low
 exec/dylib/symbol_address: medium
+exec/plugin: low
 exec/program: medium
 exec/program/background: low
 exec/script/osa: medium
@@ -162,4 +163,3 @@ sus/exclamation: medium
 sus/intercept: medium
 sus/leetspeak: medium
 sus/malicious: medium
-sus/plugin: low

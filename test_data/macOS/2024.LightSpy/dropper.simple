@@ -1,5 +1,5 @@
 # macOS/2024.LightSpy/dropper: critical
-3Phuntress/lightspy_loader: critical
+3P/huntress/lightspy_loader: critical
 c2/addr/ip_port: medium
 c2/tool_transfer/macos: critical
 crypto/aes: low
@@ -11,6 +11,7 @@ discover/system/platform: medium
 evasion/hidden_files/odd_pidfile: high
 exec/dylib/symbol_address: medium
 exec/dylib/user: medium
+exec/plugin: low
 exec/shell/TERM: low
 fs/attributes/set: medium
 fs/directory/create: low
@@ -29,4 +30,3 @@ os/sync/semaphore_user: low
 persist/daemon: medium
 persist/pid_file: medium
 process/name_get: medium
-sus/plugin: low

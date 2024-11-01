@@ -1,6 +1,6 @@
 # linux/clean/kuma-cp: medium
-3Pthreat_hunting/hijacker: medium
-3Pthreat_hunting/privilegeescalation: medium
+3P/threat_hunting/hijacker: medium
+3P/threat_hunting/privilegeescalation: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip_port: medium
 c2/server_address: medium
@@ -44,6 +44,7 @@ evasion/hidden_files/hidden: medium
 evasion/hidden_files/var_run: medium
 exec/cmd: medium
 exec/conditional/LANG: low
+exec/plugin: low
 exec/program: medium
 exec/remote_commands/code_eval: medium
 exec/shell/SHELL: low
@@ -125,4 +126,3 @@ process/chroot: low
 process/groupid_set: low
 sus/exclamation: medium
 sus/intercept: medium
-sus/plugin: low

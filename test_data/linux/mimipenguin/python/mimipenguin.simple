@@ -1,5 +1,5 @@
 # linux/mimipenguin/python/mimipenguin: critical
-3Psig_base/mimipenguin: critical
+3P/sig_base/mimipenguin: critical
 credential/keychain/gnome_keyring_daemon: medium
 credential/os/shadow: medium
 credential/password: low

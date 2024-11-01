@@ -1,8 +1,8 @@
 # linux/clean/vitess/vtclient: high
-3Pthreat_hunting/gobuster: medium
-3Pthreat_hunting/openvas: medium
-3Pthreat_hunting/rapid7: medium
-3Pthreat_hunting/sqlninja: medium
+3P/threat_hunting/gobuster: medium
+3P/threat_hunting/openvas: medium
+3P/threat_hunting/rapid7: medium
+3P/threat_hunting/sqlninja: medium
 anti-static/obfuscation/obfuscate: low
 c2/addr/http_dynamic: medium
 c2/addr/ip_port: medium
@@ -49,6 +49,7 @@ evasion/hidden_files/hidden: medium
 evasion/hidden_files/var_run: medium
 evasion/logging/acct: low
 evasion/process_injection/readelf: medium
+exec/plugin: low
 exec/program: medium
 exec/shell/background_sleep: medium
 exec/shell/bash_dev_tcp: high
@@ -134,4 +135,3 @@ sec-tool/net/masscan: high
 sec-tool/net/nmap: medium
 sus/exclamation: medium
 sus/intercept: medium
-sus/plugin: low

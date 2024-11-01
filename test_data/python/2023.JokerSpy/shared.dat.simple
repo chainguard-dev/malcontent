@@ -1,6 +1,6 @@
 # python/2023.JokerSpy/shared.dat: critical
-3PJPCERT/crypthunter_jsdownloader: critical
-3PJPCERT/crypthunter_pythonsimplerat: critical
+3P/JPCERT/crypthunter_jsdownloader: critical
+3P/JPCERT/crypthunter_pythonsimplerat: critical
 anti-static/obfuscation/python/codecs_decode: high
 c2/tool_transfer/python: high
 data/base64/decode: medium

@@ -1,7 +1,7 @@
 # windows/2024.aspdasdksa2/creal.pyc: critical
-3Pthreat_hunting/cstealer: medium
-3Pthreat_hunting/fentanyl: medium
-3Pthreat_hunting/gofile_io: medium
+3P/threat_hunting/cstealer: medium
+3P/threat_hunting/fentanyl: medium
+3P/threat_hunting/gofile_io: medium
 anti-behavior/blocklist/hostname: critical
 anti-behavior/blocklist/mac_addr: critical
 anti-behavior/blocklist/user: critical

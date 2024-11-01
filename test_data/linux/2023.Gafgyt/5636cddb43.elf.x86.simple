@@ -1,5 +1,5 @@
 # linux/2023.Gafgyt/5636cddb43.elf.x86: critical
-3Pelastic/gafgyt: critical
+3P/elastic/gafgyt: critical
 c2/addr/ip: medium
 c2/addr/ip_port: high
 c2/discovery/ip_dns_resolver: medium

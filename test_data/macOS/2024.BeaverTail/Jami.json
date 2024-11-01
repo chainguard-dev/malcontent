@@ -23,7 +23,7 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/yara/threat_hunting/all.yara#cstealer_offensive_tool_keyword",
                     "ReferenceURL": "https://github.com/mthcht/ThreatHunting-Keywords",
                     "RuleAuthor": "mthcht",
-                    "ID": "3Pthreat_hunting/cstealer",
+                    "ID": "3P/threat_hunting/cstealer",
                     "RuleName": "cstealer_offensive_tool_keyword"
                 },
                 {

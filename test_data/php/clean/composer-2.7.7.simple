@@ -27,6 +27,7 @@ discover/user/USER: low
 evasion/hidden_files/hidden: medium
 evasion/hijack_execution/DYLD_LIBRARY_PATH: medium
 exec/cmd: medium
+exec/plugin: low
 exec/remote_commands/code_eval: medium
 exec/shell/SHELL: low
 exec/shell/TERM: low
@@ -70,4 +71,3 @@ net/url/encode: medium
 privesc/sudo: medium
 process/chdir: low
 process/terminate/taskkill: medium
-sus/plugin: low

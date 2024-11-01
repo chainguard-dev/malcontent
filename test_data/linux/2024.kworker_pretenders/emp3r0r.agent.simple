@@ -1,8 +1,8 @@
 # linux/2024.kworker_pretenders/emp3r0r.agent: critical
-3Pelastic/exploit_cve_2021: critical
-3Pthreat_hunting/hrshell: medium
-3Pthreat_hunting/maccaronic2: medium
-3Pthreat_hunting/tor: medium
+3P/elastic/exploit_cve_2021: critical
+3P/threat_hunting/hrshell: medium
+3P/threat_hunting/maccaronic2: medium
+3P/threat_hunting/tor: medium
 anti-behavior/vm_check: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip_port: medium
@@ -51,6 +51,7 @@ evasion/mimicry/fake_process: critical
 exec/cmd: medium
 exec/conditional/LANG: low
 exec/dylib/symbol_address: medium
+exec/plugin: low
 exec/program: medium
 exec/remote_commands/code_eval: medium
 exec/shell/SHELL: low
@@ -155,4 +156,3 @@ process/multithreaded: low
 process/terminate/killed_all: medium
 process/userid_set: low
 sus/exclamation: medium
-sus/plugin: low

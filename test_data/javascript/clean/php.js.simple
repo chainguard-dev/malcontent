@@ -15,6 +15,7 @@ discover/user/USER: low
 discover/user/name_get: low
 evasion/hidden_files/hidden: medium
 evasion/logging/acct: low
+exec/plugin: low
 exec/program: medium
 exec/program/background: low
 exec/remote_commands/code_eval: medium
@@ -55,4 +56,3 @@ process/effective_groupid_get: medium
 process/groupid_set: low
 process/parent_pid_get: low
 process/userid_set: low
-sus/plugin: low

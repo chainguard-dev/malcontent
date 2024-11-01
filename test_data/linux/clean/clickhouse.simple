@@ -1,8 +1,8 @@
 # linux/clean/clickhouse: high
-3Pthreat_hunting/keylogger: medium
-3Pthreat_hunting/pypykatz: medium
-3Pthreat_hunting/shodan_io: medium
-3Pthreat_hunting/torproject: medium
+3P/threat_hunting/keylogger: medium
+3P/threat_hunting/pypykatz: medium
+3P/threat_hunting/shodan_io: medium
+3P/threat_hunting/torproject: medium
 anti-static/obfuscation/obfuscate: low
 c2/addr/http_dynamic: medium
 c2/addr/ip_port: medium
@@ -66,6 +66,7 @@ exec/dylib/address_check: low
 exec/dylib/iterate: low
 exec/dylib/symbol_address: medium
 exec/install_additional/package_install: medium
+exec/plugin: low
 exec/program: medium
 exec/program/background: low
 exec/shell/SHELL: low
@@ -187,4 +188,3 @@ sus/exclamation: medium
 sus/intercept: medium
 sus/leetspeak: medium
 sus/malicious: medium
-sus/plugin: low

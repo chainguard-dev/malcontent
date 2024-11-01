@@ -1,10 +1,10 @@
 # python/2024.Custom.RAT/output.py: critical
-3Pthreat_hunting/discord_rat: medium
-3Pthreat_hunting/file_io: medium
-3Pthreat_hunting/keylogger: medium
-3Pthreat_hunting/netsh: medium
-3Pthreat_hunting/powershell: medium
-3Pthreat_hunting/pupy: medium
+3P/threat_hunting/discord_rat: medium
+3P/threat_hunting/file_io: medium
+3P/threat_hunting/keylogger: medium
+3P/threat_hunting/netsh: medium
+3P/threat_hunting/powershell: medium
+3P/threat_hunting/pupy: medium
 collect/databases/leveldb: medium
 credential/clipboard: medium
 credential/keylogger: high

@@ -1,7 +1,7 @@
 # linux/clean/caddy: medium
-3Pthreat_hunting/hijacker: medium
-3Pthreat_hunting/reverst: medium
-3Pthreat_hunting/tailscale: medium
+3P/threat_hunting/hijacker: medium
+3P/threat_hunting/reverst: medium
+3P/threat_hunting/tailscale: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip_port: medium
 c2/discovery/ip_dns_resolver: medium
@@ -50,6 +50,7 @@ evasion/hidden_files/var_run: medium
 exec/cmd: medium
 exec/conditional/LANG: low
 exec/install_additional/package_install: medium
+exec/plugin: low
 exec/program: medium
 exec/program/background: low
 exec/script/osa: medium
@@ -147,4 +148,3 @@ process/groups_set: low
 process/parent_pid_get: low
 sus/exclamation: medium
 sus/intercept: medium
-sus/plugin: low

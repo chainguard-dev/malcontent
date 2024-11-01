@@ -1,5 +1,5 @@
 # linux/2024.hadooken/drop1.sh: critical
-3Pthreat_hunting/base64: medium
+3P/threat_hunting/base64: medium
 anti-static/base64/eval: critical
 anti-static/base64/function_names: critical
 c2/addr/http_ip: high

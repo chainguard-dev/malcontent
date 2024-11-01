@@ -1,5 +1,5 @@
 # linux/2022.Symbiote/kerneldev.so.bkp: critical
-3Pthreat_hunting/keylogger: medium
+3P/threat_hunting/keylogger: medium
 c2/discovery/ip_dns_resolver: medium
 credential/keylogger: medium
 credential/password: low
