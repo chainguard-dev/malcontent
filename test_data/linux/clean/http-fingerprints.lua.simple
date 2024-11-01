@@ -1,5 +1,5 @@
 # linux/clean/http-fingerprints.lua: high
-3P/signature_base/hacktool/strings: medium
+3P/YARAForge/signature_base_hacktool_strings: medium
 3P/threat_hunting/metasploit: medium
 3P/threat_hunting/nikto: medium
 3P/threat_hunting/rapid7: medium
@@ -7,6 +7,7 @@
 c2/addr/php: medium
 c2/tool_transfer/grayware: high
 collect/databases/mysql: medium
+credential/password: low
 credential/server/htpasswd: medium
 fs/file/read: low
 fs/path/etc: low
@@ -15,13 +16,12 @@ fs/path/root: medium
 fs/path/tmp: medium
 fs/path/var: low
 impact/exploit/cve: medium
-impact/words/agent: medium
-impact/words/password: low
-impact/words/plugin: low
-net/download/download: medium
-net/http/http/post: medium
-net/http/http/request: low
+impact/remote_access/agent: medium
+net/download: medium
+net/http/post: medium
+net/http/request: low
 net/tcp/ssh: medium
 net/url/embedded: low
-sec/tool/net/nmap: medium
-sec/tool/vulncheck/metasploit: high
+sec_tool/net/nmap: medium
+sec_tool/vulncheck/metasploit: high
+sus/plugin: low

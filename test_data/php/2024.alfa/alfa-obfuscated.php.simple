@@ -1,9 +1,9 @@
 # php/2024.alfa/alfa-obfuscated.php: critical
-3P/signature_base/webshell/php: critical
-anti/static/base64/obfuscated_caller: critical
-anti/static/obfuscation/generic/bitwise_math: medium
-anti/static/obfuscation/php/bitwise: critical
-anti/static/obfuscation/php/filler: critical
+3P/YARAForge/signature_base_webshell_php: critical
+anti_static/base64/obfuscated_caller: critical
+anti_static/obfuscation/generic/bitwise_math: medium
+anti_static/obfuscation/php/bitwise: critical
+anti_static/obfuscation/php/filler: critical
+credential/password: low
 credential/sniffer/bpf: medium
-impact/words/password: low
-net/http/http/post: medium
+net/http/post: medium

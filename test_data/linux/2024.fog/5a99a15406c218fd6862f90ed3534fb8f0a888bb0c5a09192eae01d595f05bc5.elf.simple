@@ -1,15 +1,15 @@
 # linux/2024.fog/5a99a15406c218fd6862f90ed3534fb8f0a888bb0c5a09192eae01d595f05bc5.elf: critical
-3P/signature_base/ransom/lockbit: critical
+3P/YARAForge/signature_base_ransom_lockbit: critical
 3P/threat_hunting/esxcli: medium
 c2/addr/tor_onion: critical
+credential/password: low
 discover/system/sysinfo: medium
-fs/lock/update: low
+fs/lock_update: low
 fs/path/tmp: medium
-fs/symlink/resolve: low
-impact/infection/ancient_gcc: medium
+fs/symlink_resolve: low
+impact/ransom/ware: high
 impact/services/esxcli: critical
-impact/words/password: low
-impact/words/ransomware: high
 net/p2p/tor: high
-persist/daemon/daemon: medium
+persist/daemon: medium
 process/multithreaded: low
+sus/ancient_gcc: medium

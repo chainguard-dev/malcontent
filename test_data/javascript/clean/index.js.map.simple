@@ -1,11 +1,11 @@
 # javascript/clean/index.js.map: medium
 crypto/aes: low
 data/encoding/base64: low
-data/encoding/json/decode: low
-data/encoding/json/encode: low
-impact/words/ransomware/lvt: medium
-net/http/http/auth: low
-net/http/http/form/upload: medium
-net/http/http/post: medium
+data/encoding/json_decode: low
+data/encoding/json_encode: low
+impact/ransom/ware_lvt: medium
+net/http/auth: low
+net/http/form_upload: medium
+net/http/post: medium
 net/url/embedded: low
 net/url/parse: low

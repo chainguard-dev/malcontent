@@ -1,9 +1,9 @@
 # does-nothing/does-nothing: medium
 data/encoding/base64: low
 data/encoding/json: low
-data/encoding/json/encode: low
-discover/system/cpu/info: low
-discover/system/hostname/get: low
+data/encoding/json_encode: low
+discover/system/cpu_info: low
+discover/system/hostname_get: low
 discover/system/platform: low
 exec/program: medium
 fs/directory/remove: low
@@ -13,7 +13,7 @@ fs/path/etc: low
 fs/path/home: medium
 fs/permission/chown: medium
 fs/permission/modify: medium
-impact/words/plugin: low
-net/socket/socket/receive: low
-net/socket/socket/send: low
+net/socket/receive: low
+net/socket/send: low
 process/multithreaded: low
+sus/plugin: low

@@ -4,9 +4,9 @@ c2/addr/ip: medium
 c2/addr/php: medium
 c2/tool_transfer/download: high
 crypto/aes: low
-impact/words/backdoor: high
-impact/words/decryptor: medium
-impact/words/ransomware/lvt: medium
-impact/words/rootkit: high
+impact/ransom/decryptor: medium
+impact/ransom/ware_lvt: medium
+impact/remote_access/backdoor: high
+impact/rootkit/refs: high
 net/url/embedded: low
 os/fd/multiplex: low

@@ -1,6 +1,6 @@
 # python/2021.DiscordSafety/setup.py: critical
-anti/static/obfuscation/python/python_rename_imports: critical
-anti/static/unmarshal/marshal: high
+anti_static/obfuscation/python/rename_imports: critical
+anti_static/unmarshal/marshal: high
 c2/addr/php: medium
 collect/databases/leveldb: medium
 data/encoding/base64: low

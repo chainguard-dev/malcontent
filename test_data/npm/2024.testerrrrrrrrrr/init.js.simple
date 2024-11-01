@@ -1,15 +1,15 @@
 # npm/2024.testerrrrrrrrrr/init.js: critical
-anti/static/obfuscation/generic/hex_values: medium
-anti/static/obfuscation/js/char_codes: high
-anti/static/obfuscation/js/char_to_int: high
-anti/static/obfuscation/js/hex_functions: critical
-anti/static/obfuscation/js/high_entropy: medium
-anti/static/obfuscation/python/dynamic_import: critical
-discover/network/interface/list: medium
+anti_static/obfuscation/generic/hex_values: medium
+anti_static/obfuscation/js/char_codes: high
+anti_static/obfuscation/js/char_to_int: high
+anti_static/obfuscation/js/hex_functions: critical
+anti_static/obfuscation/js/high_entropy: medium
+anti_static/obfuscation/python/dynamic_import: critical
+c2/server_address: medium
+discover/network/interface_list: medium
 exec/shell/exec: medium
 exfil/nodejs: critical
-impact/words/server_address: medium
-net/http/http/form/upload: medium
-net/http/http/post: medium
-net/resolve/hostname/resolve: medium
+net/http/form_upload: medium
+net/http/post: medium
+net/resolve/hostname: medium
 net/url/parse: low

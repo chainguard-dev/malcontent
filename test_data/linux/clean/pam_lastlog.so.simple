@@ -1,4 +1,4 @@
 # linux/clean/pam_lastlog.so: medium
 evasion/logging/acct: low
 fs/path/var: low
-fs/path/var/log: medium
+fs/path/var_log: medium

@@ -1,9 +1,11 @@
 # linux/mimipenguin/python/mimipenguin: critical
-3P/signature_base/mimipenguin: critical
-credential/keychain/gnome/keyring/daemon: medium
+3P/YARAForge/signature_base_mimipenguin: critical
+credential/keychain/gnome_keyring_daemon: medium
 credential/os/shadow: medium
-credential/ssh/sshd: medium
-data/base64/base64/decode: medium
+credential/password: low
+credential/password/finder: high
+credential/ssh/d: medium
+data/base64/decode: medium
 data/encoding/base64: low
 discover/processes/list: medium
 discover/system/platform: medium
@@ -11,15 +13,13 @@ exfil/stealer/password: critical
 fs/directory/list: low
 fs/file/open: low
 fs/path/etc: low
-fs/path/usr/bin: low
-fs/proc/arbitrary/pid: medium
-fs/proc/pid/cmdline: medium
-fs/proc/pid/maps: medium
-impact/words/password: low
-impact/words/password_finder: high
+fs/path/usr_bin: low
+fs/proc/arbitrary_pid: medium
+fs/proc/pid_cmdline: medium
+fs/proc/pid_maps: medium
 net/tcp/ssh: medium
 net/url/embedded: low
 os/fd/read: low
-persist/daemon/daemon: medium
+persist/daemon: medium
 privesc/sudo: medium
-process/name/get: medium
+process/name_get: medium

@@ -1,17 +1,17 @@
 # testdata/static.tar.xz ∴ /etc/profile: medium
-fs/file/permission/mask/set: none
+fs/file/permission_mask_set: none
 fs/path/etc: low
 fs/path/usr: none
-fs/path/usr/local: medium
+fs/path/usr_local: medium
 persist/shell/bash: medium
 persist/shell/init_files: low
 # testdata/static.tar.xz ∴ /var/lib/db/sbom/ca-certificates-bundle-20240705-r0.spdx.json: medium
-net/download/download: medium
+net/download: medium
 net/url/embedded: low
 # testdata/static.tar.xz ∴ /var/lib/db/sbom/tzdata-2024b-r0.spdx.json: medium
-net/download/download: medium
+net/download: medium
 net/url/embedded: low
 os/time/tzinfo: low
 # testdata/static.tar.xz ∴ /var/lib/db/sbom/wolfi-baselayout-20230201-r15.spdx.json: medium
-net/download/download: medium
+net/download: medium
 net/url/embedded: low

@@ -1,5 +1,5 @@
 # linux/2024.hadooken/drop2.sh: critical
-c2/addr/http/ip: high
+c2/addr/http_ip: high
 c2/addr/ip: medium
 exec/remote_commands/code_eval: medium
 impact/remote_access/remote_eval: critical

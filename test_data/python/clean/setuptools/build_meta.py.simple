@@ -3,7 +3,7 @@
 c2/addr/ip: medium
 c2/tool_transfer/download: medium
 c2/tool_transfer/github_raw: medium
-data/embedded/embedded/html: medium
+data/embedded/html: medium
 exec/install_additional/pip_install: medium
 exec/program: medium
 exec/remote_commands/code_eval: medium
@@ -11,7 +11,7 @@ fs/directory/create: low
 fs/directory/list: low
 fs/directory/traverse: medium
 fs/file/delete: low
-impact/words/agent: medium
-net/download/download: medium
+impact/remote_access/agent: medium
+net/download: medium
 net/url/embedded: low
 os/fd/read: low

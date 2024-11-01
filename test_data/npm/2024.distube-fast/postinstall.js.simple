@@ -2,9 +2,9 @@
 c2/tool_transfer/exe: critical
 c2/tool_transfer/js: critical
 fs/file/delete: low
-fs/tempfile/create: low
-net/download/download: medium
-net/http/http/request: low
+fs/tempdir/tempfile_create: low
+net/download: medium
+net/http/request: low
 net/url/embedded: low
 os/env/get: low
 process/create: medium

@@ -43,7 +43,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/exec/program.yara#py_subprocess",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/exec/program/program.yara#py_subprocess",
                     "ReferenceURL": "https://man7.org/linux/man-pages/man2/execve.2.html",
                     "ID": "exec/program",
                     "RuleName": "py_subprocess"
@@ -55,7 +55,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file-open.yara#py_open",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-open.yara#py_open",
                     "ID": "fs/file/open",
                     "RuleName": "py_open"
                 },
@@ -67,7 +67,7 @@
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/usr-bin.yara#usr_bin_path",
-                    "ID": "fs/path/usr/bin",
+                    "ID": "fs/path/usr_bin",
                     "RuleName": "usr_bin_path"
                 },
                 {

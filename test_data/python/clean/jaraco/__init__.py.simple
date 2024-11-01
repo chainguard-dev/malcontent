@@ -8,7 +8,7 @@ fs/directory/remove: low
 fs/file/delete: low
 fs/permission/modify: medium
 fs/tempdir/create: low
-net/download/download: medium
+net/download: medium
 net/url/embedded: low
 net/url/parse: low
 net/url/request: medium
