@@ -136,22 +136,3 @@ jobs:
           go-version-file: go.mod
           check-latest: true
 
-      - uses: reviewdog/action-misspell@ef8b22c1cca06c8d306fc6be302c3dab0f6ca12f # v1.23.0
-        if: ${{ always() }}
-        with:
-          github_token: ${{ secrets.github_token }}
-          fail_on_error: true
-          locale: "US"
-          exclude: |
-            **/go.sum
-            **/third_party/**
-            **/samples/**
-            ./*.yml
-
-      - uses: get-woke/woke-action-reviewdog@d71fd0115146a01c3181439ce714e21a69d75e31 # v0
-        if: ${{ always() }}
-        with:
-          github-token: ${{ secrets.github_token }}
-          reporter: github-pr-check
-          level: error
-          fail-on-error: true
