@@ -3,6 +3,6 @@ c2/tool_transfer/python: medium
 exec/program: medium
 fs/path/tmp: medium
 fs/permission/modify: medium
-net/download/download: medium
+net/download: medium
 net/url/embedded: low
 os/fd/read: low

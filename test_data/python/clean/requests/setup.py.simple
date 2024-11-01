@@ -3,9 +3,9 @@ c2/tool_transfer/download: medium
 exec/program: medium
 exec/remote_commands/code_eval: medium
 fs/file/open: low
-fs/path/usr/bin: low
-net/ip/ip/parse: medium
+fs/path/usr_bin: low
+net/ip/parse: medium
 net/url/embedded: low
 net/url/parse: low
 os/fd/read: low
-process/multiprocess: medium
+process/multi: medium

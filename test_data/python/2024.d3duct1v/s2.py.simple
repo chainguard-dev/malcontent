@@ -2,6 +2,6 @@
 crypto/fernet: medium
 fs/directory/traverse: medium
 fs/file/open: low
-impact/locker/fernet_listdir: critical
+impact/ransom/fernet_listdir: critical
 os/fd/read: low
 os/fd/write: low

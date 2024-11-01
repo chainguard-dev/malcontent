@@ -1,12 +1,12 @@
 # windows/2024.aspdasdksa2/creal.exe: critical
 3P/bartblaze/pyinstaller: high
-anti/behavior/anti/debugger: medium
+anti-behavior/anti_debugger: medium
 collect/databases/sqlite: medium
 credential/sniffer/bpf: medium
 crypto/aes: low
 crypto/ed25519: low
 data/compression/gzip: low
-data/embedded/emdedded/app/manifest: medium
+data/embedded/app_manifest: medium
 data/encoding/base64: low
 discover/system/sysinfo: medium
 exec/program: medium
@@ -14,9 +14,9 @@ exec/tty/getpass: low
 exfil/stealer/python: critical
 fs/file/read: low
 fs/path/relative: medium
-net/dns/dns/txt: low
+net/dns/txt: low
 net/url/embedded: low
 net/url/parse: low
 net/url/request: medium
 process/chdir: low
-process/multiprocess: medium
+process/multi: medium

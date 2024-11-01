@@ -1,5 +1,5 @@
 # python/clean/numpy/misc_util.py: medium
-anti/static/obfuscation/python/lib_alias: medium
+anti-static/obfuscation/python/lib_alias: medium
 discover/system/platform: medium
 evasion/hidden_files/hidden: medium
 exec/install_additional/pip_install: medium
@@ -13,13 +13,13 @@ fs/file/open: low
 fs/file/write: low
 fs/path/home: medium
 fs/path/tmp: medium
-fs/path/usr/bin: low
-fs/path/usr/lib/python: medium
-fs/path/usr/local: medium
-fs/symlink/resolve: low
+fs/path/usr_bin: low
+fs/path/usr_lib_python: medium
+fs/path/usr_local: medium
+fs/symlink_resolve: low
 fs/tempdir/create: low
-impact/words/spoof: medium
+net/ip/spoof: medium
 net/url/embedded: low
 os/env/get: low
 os/fd/read: low
-process/multiprocess: medium
+process/multi: medium

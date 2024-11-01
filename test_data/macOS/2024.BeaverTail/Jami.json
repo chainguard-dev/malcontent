@@ -34,7 +34,7 @@
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/binary/opaque.yara#opaque_binary",
-                    "ID": "anti/static/binary/opaque",
+                    "ID": "anti-static/binary/opaque",
                     "RuleName": "opaque_binary"
                 },
                 {
@@ -45,7 +45,7 @@
                     "RiskScore": 3,
                     "RiskLevel": "HIGH",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/http-ip.yara#http_hardcoded_ip",
-                    "ID": "c2/addr/http/ip",
+                    "ID": "c2/addr/http_ip",
                     "RuleName": "http_hardcoded_ip"
                 },
                 {
@@ -80,7 +80,7 @@
                     "RiskLevel": "CRITICAL",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/credential/keychain/keychain.yara#login_keychain_eager_beaver",
                     "ReferenceURL": "https://www.group-ib.com/blog/apt-lazarus-python-scripts/",
-                    "ID": "credential/keychain/keychain",
+                    "ID": "credential/keychain",
                     "RuleName": "login_keychain_eager_beaver"
                 },
                 {
@@ -134,19 +134,8 @@
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/home-config.yara#home_config_path",
-                    "ID": "fs/path/home/config",
+                    "ID": "fs/path/home_config",
                     "RuleName": "home_config_path"
-                },
-                {
-                    "Description": "gets very excited",
-                    "MatchStrings": [
-                        "Upload LDB Finshed!!!"
-                    ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/impact/words/exclamation.yara#exclamations",
-                    "ID": "impact/words/exclamation",
-                    "RuleName": "exclamations"
                 },
                 {
                     "Description": "Beaver Tail Infostealer",
@@ -181,7 +170,7 @@
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/download/download.yara#download",
-                    "ID": "net/download/download",
+                    "ID": "net/download",
                     "RuleName": "download"
                 },
                 {
@@ -191,8 +180,8 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/http-post.yara#form_data_reference",
-                    "ID": "net/http/http/post",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/post.yara#form_data_reference",
+                    "ID": "net/http/post",
                     "RuleName": "form_data_reference"
                 },
                 {
@@ -205,6 +194,17 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/url/embedded.yara#http_url",
                     "ID": "net/url/embedded",
                     "RuleName": "http_url"
+                },
+                {
+                    "Description": "gets very excited",
+                    "MatchStrings": [
+                        "Upload LDB Finshed!!!"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/sus/exclamation.yara#exclamations",
+                    "ID": "sus/exclamation",
+                    "RuleName": "exclamations"
                 }
             ],
             "RiskScore": 4,

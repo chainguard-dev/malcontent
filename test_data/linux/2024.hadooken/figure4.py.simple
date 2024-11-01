@@ -1,5 +1,5 @@
 # linux/2024.hadooken/figure4.py: critical
-c2/addr/http/ip: high
+c2/addr/http_ip: high
 c2/addr/ip: medium
 c2/tool_transfer/binary: high
 c2/tool_transfer/http_ip_temp: critical
@@ -10,7 +10,7 @@ fs/file/open: low
 fs/path/dev: medium
 fs/path/var: low
 fs/permission/modify: medium
-net/download/download: medium
+net/download: medium
 net/url/embedded: low
 net/url/parse: low
 net/url/request: medium

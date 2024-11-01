@@ -44,32 +44,40 @@ var RiskLevels = map[int]string{
 
 // yaraForge has some very, very long rule names.
 var yaraForgeJunkWords = map[string]bool{
-	"controller":        true,
-	"generic":           true,
+	"0":                 true,
+	"1":                 true,
+	"2":                 true,
 	"apt":               true,
-	"malware":           true,
-	"YARAForge":         true,
-	"exe":               true,
-	"mal":               true,
-	"trojan":            true,
-	"m":                 true,
-	"hunting":           true,
-	"dynamic":           true,
+	"artefacts":         true,
+	"artifacts":         true,
+	"base":              true,
 	"big":               true,
-	"small":             true,
+	"controller":        true,
+	"dynamic":           true,
 	"encoded":           true,
+	"exe":               true,
+	"forensic":          true,
 	"forensicartifacts": true,
-	"lnx":               true,
-	"linux":             true,
-	"macos":             true,
-	"osx":               true,
-	"mac":               true,
-	"tool":              true,
-	"keyword":           true,
-	"indicator":         true,
-	"suspicious":        true,
-	"offensive":         true,
+	"generic":           true,
 	"greyware":          true,
+	"hunting":           true,
+	"indicator":         true,
+	"keyword":           true,
+	"linux":             true,
+	"lnx":               true,
+	"m":                 true,
+	"mac":               true,
+	"macos":             true,
+	"mal":               true,
+	"malware":           true,
+	"offensive":         true,
+	"osx":               true,
+	"small":             true,
+	"suspicious":        true,
+	"tool":              true,
+	"trojan":            true,
+	"unix":              true,
+	"YARAForge":         true,
 }
 
 // thirdPartyCriticalSources are 3P sources that default to critical.
@@ -104,18 +112,18 @@ func thirdPartyKey(path string, rule string) string {
 	// include the directory
 	pathParts := strings.Split(path, "/")
 	subDir := pathParts[slices.Index(pathParts, "yara")+1]
-
 	words := []string{subDir}
 
 	// ELASTIC_Linux_Trojan_Gafgyt_E4A1982B
 	words = append(words, strings.Split(strings.ToLower(rule), "_")...)
 
-	// strip off the last wold if it's a hex key
+	// strip off the last word if it's a hex key
 	lastWord := words[len(words)-1]
 	_, err := strconv.ParseUint(lastWord, 16, 64)
 	if err == nil {
 		words = words[0 : len(words)-1]
 	}
+
 	var keepWords []string
 	for x, w := range words {
 		// ends with a date
@@ -134,8 +142,16 @@ func thirdPartyKey(path string, rule string) string {
 		keepWords = keepWords[0:4]
 	}
 
-	key := fmt.Sprintf("3P/%s", strings.Join(keepWords, "/"))
-	return strings.ReplaceAll(key, "signature/base", "signature_base")
+	src := keepWords[0]
+
+	// Fix name for https://github.com/Neo23x0/signature-base within YARAForge
+	if src == "signature" {
+		src = "sig_base"
+	}
+	rulename := keepWords[1:]
+
+	key := fmt.Sprintf("3P/%s/%s", src, strings.Join(rulename, "_"))
+	return key
 }
 
 // thirdParty returns whether the rule is sourced from a 3rd party.
@@ -153,8 +169,26 @@ func generateKey(src string, rule string) string {
 		return thirdPartyKey(src, rule)
 	}
 
-	key := strings.ReplaceAll(src, "-", "/")
-	return strings.ReplaceAll(key, ".yara", "")
+	key := strings.ReplaceAll(src, "-", "_")
+	key = strings.ReplaceAll(key, ".yara", "")
+
+	// Reduce stutter: if the rule is prefixed with the directory name, remove the prefix
+
+	dirParts := strings.Split(key, "/")
+	// ID's generally follow: `<namespace>/<resource>/<technique>`
+	ns := dirParts[0]
+	// namespaces can have dashes, like 'anti-static'
+	ns = strings.ReplaceAll(ns, "_", "-")
+	rsrc := dirParts[len(dirParts)-2]
+	tech := dirParts[len(dirParts)-1]
+
+	tech = strings.ReplaceAll(tech, rsrc, "")
+	tech = strings.ReplaceAll(tech, "__", "_")
+	tech = strings.Trim(tech, "_")
+
+	dirParts[0] = ns
+	dirParts[len(dirParts)-1] = tech
+	return strings.TrimSuffix(strings.Join(dirParts, "/"), "/")
 }
 
 func generateRuleURL(src string, rule string) string {

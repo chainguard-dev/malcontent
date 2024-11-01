@@ -1,7 +1,7 @@
 # typescript/2021.CursedGrabber.an0n-chat-lib/build/stealer.js: critical
 collect/databases/leveldb: medium
-data/encoding/json/decode: low
-discover/user/userinfo: medium
+data/encoding/json_decode: low
+discover/user/info: medium
 exfil/discord: high
 exfil/stealer/browser: high
 fs/file/read: low
