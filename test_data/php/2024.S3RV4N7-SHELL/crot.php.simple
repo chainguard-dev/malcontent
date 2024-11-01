@@ -1,5 +1,5 @@
 # php/2024.S3RV4N7-SHELL/crot.php: critical
-3P/YARAForge/signature_base_webshell_php: critical
+3Psig_base/webshell_php: critical
 anti_static/base64/function_names: medium
 anti_static/obfuscation/php/non_printable_chars: medium
 anti_static/obfuscation/php/one_liner: medium

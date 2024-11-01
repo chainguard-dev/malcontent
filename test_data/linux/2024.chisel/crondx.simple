@@ -1,6 +1,6 @@
 # linux/2024.chisel/crondx: critical
-3P/threat_hunting/ad_exploitation_cheat_sheet: medium
-3P/threat_hunting/chisel: medium
+3Pthreat_hunting/ad_exploitation_cheat: medium
+3Pthreat_hunting/chisel: medium
 c2/addr/http_ip: high
 c2/addr/ip_port: medium
 collect/archives/zip: medium

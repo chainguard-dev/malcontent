@@ -1,5 +1,5 @@
 # linux/2023.Gafgyt/5636cddb43.elf.x86: critical
-3P/YARAForge/elastic_gafgyt: critical
+3Pelastic/gafgyt: critical
 c2/addr/ip: medium
 c2/addr/ip_port: high
 c2/discovery/ip_dns_resolver: medium
@@ -22,7 +22,7 @@ net/ip/parse: medium
 net/ip/string: medium
 net/resolve/hostname: low
 net/socket/local_addr: low
-net/socket/raws: medium
+net/socket/raw_s: medium
 net/socket/receive: low
 net/socket/send: low
 sus/ancient_gcc: medium

@@ -1,6 +1,6 @@
 # linux/mimipenguin/bash/mimipenguin: critical
-3P/YARAForge/signature_base_mimipenguin: critical
-3P/YARAForge/signature_base_mimipenguin_sh: critical
+3Psig_base/mimipenguin: critical
+3Psig_base/mimipenguin_sh: critical
 anti_static/base64/eval: high
 anti_static/obfuscation/python/single_line_imports: medium
 credential/keychain/gnome_keyring_daemon: medium

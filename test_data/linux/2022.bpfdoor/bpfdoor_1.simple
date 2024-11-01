@@ -1,6 +1,6 @@
 # linux/2022.bpfdoor/bpfdoor_1: critical
-3P/YARAForge/elastic_bpfdoor: critical
-3P/YARAForge/signature_base_redmenshen_bpfdoor: critical
+3Pelastic/bpfdoor: critical
+3Psig_base/redmenshen_bpfdoor: critical
 data/random/insecure: low
 exec/program: medium
 exec/program/background: low

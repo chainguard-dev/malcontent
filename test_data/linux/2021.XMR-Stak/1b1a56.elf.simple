@@ -1,6 +1,6 @@
 # linux/2021.XMR-Stak/1b1a56.elf: critical
-3P/TTC-CERT/kittipongk_cryptominer_unix_xmr: high
-3P/YARAForge/elastic_cryptominer_stak: critical
+3PTTC-CERT/kittipongk_cryptominer_xmr: high
+3Pelastic/cryptominer_stak: critical
 c2/addr/http_dynamic: medium
 c2/addr/ip_port: medium
 credential/password: low

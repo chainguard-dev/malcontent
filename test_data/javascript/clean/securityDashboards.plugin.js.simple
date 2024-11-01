@@ -1,8 +1,8 @@
 # javascript/clean/securityDashboards.plugin.js: high
-3P/threat_hunting/crowbar: medium
-3P/threat_hunting/hijacker: medium
-3P/threat_hunting/johntheripper: medium
-3P/threat_hunting/sharpshooter: medium
+3Pthreat_hunting/crowbar: medium
+3Pthreat_hunting/hijacker: medium
+3Pthreat_hunting/johntheripper: medium
+3Pthreat_hunting/sharpshooter: medium
 anti_static/xor/commands: high
 c2/tool_transfer/dropper: medium
 collect/databases/mysql: medium

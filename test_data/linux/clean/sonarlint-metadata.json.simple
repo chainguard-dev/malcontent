@@ -1,7 +1,7 @@
 # linux/clean/sonarlint-metadata.json: medium
-3P/threat_hunting/bruteratel: medium
-3P/threat_hunting/github_username: medium
-3P/threat_hunting/owasp: medium
+3Pthreat_hunting/bruteratel: medium
+3Pthreat_hunting/github_username: medium
+3Pthreat_hunting/owasp: medium
 c2/addr/ip_port: medium
 c2/addr/php: medium
 collect/databases/mysql: medium

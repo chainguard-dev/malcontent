@@ -1,8 +1,8 @@
 # linux/clean/rules.json: critical
-3P/threat_hunting/gobuster: medium
-3P/threat_hunting/openvas: medium
-3P/threat_hunting/rapid7: medium
-3P/threat_hunting/sqlninja: medium
+3Pthreat_hunting/gobuster: medium
+3Pthreat_hunting/openvas: medium
+3Pthreat_hunting/rapid7: medium
+3Pthreat_hunting/sqlninja: medium
 collect/databases/mysql: medium
 collect/databases/postgresql: medium
 collect/databases/sqlite: medium

@@ -1,8 +1,8 @@
 # linux/clean/clickhouse: high
-3P/threat_hunting/keylogger: medium
-3P/threat_hunting/pypykatz: medium
-3P/threat_hunting/shodan_io: medium
-3P/threat_hunting/torproject: medium
+3Pthreat_hunting/keylogger: medium
+3Pthreat_hunting/pypykatz: medium
+3Pthreat_hunting/shodan_io: medium
+3Pthreat_hunting/torproject: medium
 anti_static/obfuscation/obfuscate: low
 c2/addr/http_dynamic: medium
 c2/addr/ip_port: medium
@@ -121,7 +121,7 @@ fs/tempdir/TEMP: low
 fs/tempdir/TMPDIR: low
 fs/tempdir/create: low
 fs/watch: low
-hw/dev/blockice: medium
+hw/dev/block_ice: medium
 impact/cryptojacking/argon2d_numa_self: high
 impact/infection/infected: medium
 impact/ransom/decryptor: medium

@@ -17,7 +17,7 @@
                     "RuleAuthor": "Florian Roth (Nextron Systems)",
                     "RuleLicense": "Detection Rule License 1.1 https://github.com/Neo23x0/signature-base/blob/master/LICENSE",
                     "RuleLicenseURL": "https://github.com/Neo23x0/signature-base/blob/2c85e594d803f8014394cd0f9f86bd9d58e608ff/LICENSE",
-                    "ID": "3P/YARAForge/signature_base_powershell_webdownload",
+                    "ID": "3Psig_base/powershell_webdownload",
                     "RuleName": "SIGNATURE_BASE_Suspicious_Powershell_Webdownload_1"
                 },
                 {
@@ -30,7 +30,7 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/yara/threat_hunting/all.yara#powershell_offensive_tool_keyword",
                     "ReferenceURL": "https://github.com/mthcht/ThreatHunting-Keywords",
                     "RuleAuthor": "mthcht",
-                    "ID": "3P/threat_hunting/powershell",
+                    "ID": "3Pthreat_hunting/powershell",
                     "RuleName": "powershell_offensive_tool_keyword"
                 },
                 {
@@ -40,8 +40,8 @@
                     ],
                     "RiskScore": 3,
                     "RiskLevel": "HIGH",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/exe.yara#http_url_with_exe",
-                    "ID": "c2/tool_transfer/exe",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/exe_url.yara#http_url_with_exe",
+                    "ID": "c2/tool_transfer/exe_url",
                     "RuleName": "http_url_with_exe"
                 },
                 {

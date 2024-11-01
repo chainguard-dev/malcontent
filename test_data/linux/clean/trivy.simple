@@ -1,9 +1,9 @@
 # linux/clean/trivy: high
-3P/threat_hunting/bruteratel: medium
-3P/threat_hunting/github_username: medium
-3P/threat_hunting/hijacker: medium
-3P/threat_hunting/linkedint: medium
-3P/threat_hunting/privilegeescalation: medium
+3Pthreat_hunting/bruteratel: medium
+3Pthreat_hunting/github_username: medium
+3Pthreat_hunting/hijacker: medium
+3Pthreat_hunting/linkedint: medium
+3Pthreat_hunting/privilegeescalation: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip_port: medium
 c2/discovery/ip_dns_resolver: medium
@@ -124,7 +124,7 @@ fs/tempdir/TMPDIR: low
 fs/tempdir/create: low
 fs/tempdir/tempfile_create: low
 fs/watch: low
-hw/dev/blockice: medium
+hw/dev/block_ice: medium
 hw/wireless: low
 impact/ransom/locked_files: medium
 impact/remote_access/heartbeat: medium

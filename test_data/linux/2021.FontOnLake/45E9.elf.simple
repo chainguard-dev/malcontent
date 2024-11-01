@@ -1,6 +1,6 @@
 # linux/2021.FontOnLake/45E9.elf: critical
-3P/YARAForge/elastic_rootkit_fontonlake: critical
-3P/YARAForge/signature_base_susp_elf: critical
+3Pelastic/rootkit_fontonlake: critical
+3Psig_base/susp_elf_upx: critical
 anti_static/packer/upx: high
 c2/addr/ip_port: medium
 credential/password: low

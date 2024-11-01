@@ -1,5 +1,5 @@
 # php/2024.sagsooz/2024.php: critical
-3P/YARAForge/signature_base_webshell_php: critical
+3Psig_base/webshell_php: critical
 credential/password: low
 data/base64/decode: medium
 data/embedded/base64_url: medium

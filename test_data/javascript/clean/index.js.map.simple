@@ -3,7 +3,7 @@ crypto/aes: low
 data/encoding/base64: low
 data/encoding/json_decode: low
 data/encoding/json_encode: low
-impact/ransom/ware_lvt: medium
+false_positives/sqlpad: low
 net/http/auth: low
 net/http/form_upload: medium
 net/http/post: medium

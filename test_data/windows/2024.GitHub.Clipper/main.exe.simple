@@ -1,13 +1,13 @@
 # windows/2024.GitHub.Clipper/main.exe: critical
-3P/JPCERT/apt10_chches_lnk: critical
-3P/YARAForge/ditekshen_discordurl: critical
-3P/YARAForge/ditekshen_vm_evasion_macaddrcomb: critical
-3P/YARAForge/elastic_multi_threat: high
-3P/threat_hunting/: medium
-3P/threat_hunting/cstealer: medium
-3P/threat_hunting/fentanyl: medium
-3P/threat_hunting/gofile_io: medium
-3P/threat_hunting/runascs: medium
+3PJPCERT/apt10_chches_lnk: critical
+3Pditekshen/discordurl: critical
+3Pditekshen/vm_evasion_macaddrcomb: critical
+3Pelastic/multi_threat: high
+3Pthreat_hunting/: medium
+3Pthreat_hunting/cstealer: medium
+3Pthreat_hunting/fentanyl: medium
+3Pthreat_hunting/gofile_io: medium
+3Pthreat_hunting/runascs: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip_port: medium
 c2/tool_transfer/download: high

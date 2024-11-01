@@ -1,6 +1,6 @@
 # linux/clean/chrome: medium
-3P/threat_hunting/metasploit: medium
-3P/threat_hunting/proxmark: medium
+3Pthreat_hunting/metasploit: medium
+3Pthreat_hunting/proxmark: medium
 anti_behavior/LD_DEBUG: medium
 anti_behavior/LD_PROFILE: medium
 anti_static/obfuscation/obfuscate: low
@@ -101,7 +101,7 @@ fs/tempdir/create: low
 fs/tempdir/tempfile_create: low
 fs/unmount: low
 fs/watch: low
-hw/dev/blockice: medium
+hw/dev/block_ice: medium
 hw/wireless: low
 impact/exploit/GCONV_PATH: low
 impact/infection/infected: medium

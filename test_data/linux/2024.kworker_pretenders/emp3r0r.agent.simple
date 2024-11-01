@@ -1,8 +1,8 @@
 # linux/2024.kworker_pretenders/emp3r0r.agent: critical
-3P/YARAForge/elastic_exploit_cve_2021: critical
-3P/threat_hunting/hrshell: medium
-3P/threat_hunting/maccaronic2: medium
-3P/threat_hunting/tor: medium
+3Pelastic/exploit_cve_2021: critical
+3Pthreat_hunting/hrshell: medium
+3Pthreat_hunting/maccaronic2: medium
+3Pthreat_hunting/tor: medium
 anti_behavior/vm_check: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip_port: medium

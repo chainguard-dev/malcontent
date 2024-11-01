@@ -1,5 +1,5 @@
 # javascript/clean/5A50D54796BB27126E03A7E25DD5D589.cache.js: high
-3P/threat_hunting/powershell: medium
+3Pthreat_hunting/powershell: medium
 anti_static/obfuscation/php/unusual_include: high
 c2/addr/ip_port: medium
 c2/server_address: medium

@@ -1,5 +1,5 @@
 # linux/2024.Kaiji/eight-nebraska-autumn-illinois: critical
-3P/YARAForge/elastic_threat: high
+3Pelastic/threat: high
 c2/addr/ip_port: medium
 c2/addr/php: medium
 c2/discovery/ip_dns_resolver: medium
@@ -21,7 +21,7 @@ discover/system/cpu_info: low
 discover/system/hostname_get: low
 discover/system/platform: low
 evasion/bypass_security/linux/se: medium
-evasion/bypass_security/linux/sedisable: high
+evasion/bypass_security/linux/se_disable: high
 evasion/hidden_files/hidden: medium
 exec/program: medium
 exec/shell/exec: medium
@@ -87,8 +87,8 @@ net/url/parse: low
 net/url/request: medium
 os/fd/sendfile: low
 os/kernel/netlink: low
-persist/cron/echotab: high
-persist/cron/hiddentab: critical
+persist/cron/echo_tab: high
+persist/cron/hidden_tab: critical
 persist/cron/tab: medium
 persist/daemon: medium
 process/groups_set: low

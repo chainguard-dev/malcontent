@@ -1,6 +1,6 @@
 # windows/clean/make-win.ps1: high
-3P/InQuest-VT/base64_powershell_directives: high
-3P/YARAForge/secuinfra_susp_powershell_base64: medium
+3PInQuest-VT/base64_powershell_directives: high
+3Psecuinfra/susp_powershell_base64: medium
 data/base64/decode: medium
 data/embedded/base64_terms: medium
 exec/shell/pipe_sh: medium

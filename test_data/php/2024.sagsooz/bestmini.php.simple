@@ -1,5 +1,7 @@
 # php/2024.sagsooz/bestmini.php: critical
-3P/YARAForge/signature_base_webshell_php: critical
+3Psig_base/webshell_php: critical
+3Psig_base/webshell_php_by: critical
+3Psig_base/webshell_php_strings: critical
 anti_static/obfuscation/php/one_liner: medium
 c2/addr/php: medium
 exec/remote_commands/code_eval: medium

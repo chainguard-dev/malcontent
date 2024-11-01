@@ -1,6 +1,6 @@
 # linux/clean/kuma-cp: medium
-3P/threat_hunting/hijacker: medium
-3P/threat_hunting/privilegeescalation: medium
+3Pthreat_hunting/hijacker: medium
+3Pthreat_hunting/privilegeescalation: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip_port: medium
 c2/server_address: medium
@@ -75,7 +75,7 @@ fs/quota_manipulate: low
 fs/swap/on: low
 fs/unmount: low
 fs/watch: low
-hw/dev/blockice: medium
+hw/dev/block_ice: medium
 impact/remote_access/heartbeat: medium
 impact/remote_access/iptables: medium
 net/dns: low

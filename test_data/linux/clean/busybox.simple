@@ -74,7 +74,7 @@ net/ip/tcp_state_tracker: medium
 net/resolve/hostname: low
 net/resolve/hostport_parse: low
 net/socket/local_addr: low
-net/socket/raws: medium
+net/socket/raw_s: medium
 net/socket/receive: low
 net/socket/send: low
 net/url/embedded: low

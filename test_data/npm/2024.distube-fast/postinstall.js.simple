@@ -1,5 +1,5 @@
 # npm/2024.distube-fast/postinstall.js: critical
-c2/tool_transfer/exe: critical
+c2/tool_transfer/exe_url: critical
 c2/tool_transfer/js: critical
 fs/file/delete: low
 fs/tempdir/tempfile_create: low

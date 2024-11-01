@@ -1,6 +1,6 @@
 # linux/2024.clobber_xmrig/cba8d79949adc3c56c02fee56644f4084b7471bc5aed1c81803054f017240a72: critical
-3P/YARAForge/elastic_threat: high
-3P/threat_hunting/xmrig: medium
+3Pelastic/threat: high
+3Pthreat_hunting/xmrig: medium
 anti_static/base64/exec: high
 anti_static/base64/http_agent: high
 anti_static/elf/header: critical

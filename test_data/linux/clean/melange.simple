@@ -1,6 +1,6 @@
 # linux/clean/melange: high
-3P/threat_hunting/github_username: medium
-3P/threat_hunting/hijacker: medium
+3Pthreat_hunting/github_username: medium
+3Pthreat_hunting/hijacker: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip_port: medium
 c2/tool_transfer/shell: medium
