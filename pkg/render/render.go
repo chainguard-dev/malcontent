@@ -33,14 +33,14 @@ func New(kind string, w io.Writer) (malcontent.Renderer, error) {
 }
 
 func riskEmoji(score int) string {
-	symbol := "😊"
+	symbol := "🟢"
 	switch score {
 	case 2:
-		symbol = "⚠️"
+		symbol = "🟡"
 	case 3:
-		symbol = "🔥"
+		symbol = "🟠"
 	case 4:
-		symbol = "🚨"
+		symbol = "🛑"
 	}
 
 	return symbol

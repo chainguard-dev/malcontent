@@ -135,16 +135,18 @@ func evidenceString(ms []string, desc string) string {
 		}
 	}
 
-	e := strings.Join(evidence, ", ")
-	if len(e) > 0 {
-		e = ": " + e
-	}
-	return e
+	return strings.Join(evidence, ", ")
 }
 
 // convert namespace to a long name.
 func nsLongName(s string) string {
 	switch s {
+	case "c2":
+		return "command & control"
+	case "collect":
+		return "collection"
+	case "crypto":
+		return "cryptography"
 	case "discover":
 		return "discovery"
 	case "exfil":
@@ -161,6 +163,12 @@ func nsLongName(s string) string {
 		return "operating-system"
 	case "3P":
 		return "third-party"
+	case "sus":
+		return "suspicious text"
+	case "persist":
+		return "persistence"
+	case "malware":
+		return "MALWARE FAMILY"
 	default:
 		return s
 	}
@@ -251,29 +259,31 @@ func renderFileSummary(_ context.Context, fr *malcontent.FileReport, w io.Writer
 
 	for _, ns := range nss {
 		bs := byNamespace[ns]
-		riskLevel := riskLevels[nsRiskScore[ns]]
-		icon := "≡"
-		if diffMode {
-			icon = " "
-		}
+		riskScore := nsRiskScore[ns]
+		riskLevel := riskLevels[riskScore]
+		nsIcon := "≡"
+		indent := "     "
 
-		if len(previousNsRiskScore) > 0 && nsRiskScore[ns] != previousNsRiskScore[ns] {
+		// namespace readout
+		if len(previousNsRiskScore) > 0 && riskScore != previousNsRiskScore[ns] {
 			previousRiskLevel := riskLevels[previousNsRiskScore[ns]]
 			if riskLevel < previousRiskLevel {
-				icon = "▲"
+				nsIcon = color.HiYellowString("▲")
 			}
 			if riskLevel > previousRiskLevel {
-				icon = "▼"
+				nsIcon = color.HiGreenString("▼")
 			}
 			if riskLevel == "NONE" {
-				icon = "X"
+				nsIcon = color.RedString("X")
 			}
 
-			fmt.Fprintf(w, "│     %s %s %s\n", icon, nsLongName(ns), darkBrackets(fmt.Sprintf("%s → %s", riskInColor(previousRiskLevel), riskInColor(riskLevel))))
+			fmt.Fprintf(w, "│%s%s %s %s\n", indent, nsIcon, nsLongName(ns), darkBrackets(fmt.Sprintf("%s → %s", riskInColor(previousRiskLevel), riskInColor(riskLevel))))
 		} else {
-			fmt.Fprintf(w, "│     %s %s %s\n", icon, nsLongName(ns), darkBrackets(riskInColor(riskLevel)))
+			fmt.Fprintf(w, "│%s%s %s %s\n", indent, nsIcon, nsLongName(ns), darkBrackets(riskInColor(riskLevel)))
 		}
 
+		// behavior readout per namespace
+		indent += " "
 		for _, b := range bs {
 			_, rest := splitRuleID(b.ID)
 
@@ -289,30 +299,45 @@ func renderFileSummary(_ context.Context, fr *malcontent.FileReport, w io.Writer
 				}
 			}
 
-			bullet := "•"
+			prefix := "│"
+			bullet := riskEmoji(b.RiskScore)
+			content := fmt.Sprintf("%s%s %s %s", prefix, indent, riskColor(b.RiskLevel, bullet+" "+rest), desc)
+			pc := color.New()
+
 			if diffMode {
-				bullet = "  "
+				content = fmt.Sprintf("%s%s %s %s %s", prefix, indent, bullet, rest, desc)
+
 				if b.DiffAdded {
-					bullet = "++"
+					pc = color.New(color.FgHiGreen)
+					prefix = "++"
+					content = fmt.Sprintf("%s%s %s %s %s", prefix, indent, bullet, rest, desc)
 				}
 
 				if b.DiffRemoved {
-					bullet = "--"
-					desc = color.HiBlackString(desc)
+					prefix = "--"
+					pc = color.New(color.FgHiRed)
+					content = fmt.Sprintf("%s%s %s %s %s", prefix, indent, bullet, rest, desc)
 					e = ""
 				}
 			}
 
-			prefix := fmt.Sprintf("│       %s %s %s", riskColor(b.RiskLevel, bullet), riskColor(b.RiskLevel, rest), desc)
-
-			if ansiLineLength(prefix+e)+1 > width && len(e) > 4 {
-				fmt.Fprintf(w, "%s:\n", prefix)
-				eline := fmt.Sprintf("│           %s", strings.TrimPrefix(e, ": "))
-				fmt.Fprintf(w, "%s\n", truncate(eline, width))
+			// no evidence to give
+			if e == "" {
+				pc.Fprintln(w, content+e)
 				continue
 			}
 
-			fmt.Fprintf(w, "%s%s\n", prefix, e)
+			pc.Fprint(w, content)
+			color.New(color.FgHiBlack).Fprint(w, ":")
+			e = color.RGB(255, 255, 255).Sprint(e)
+
+			// Two-line output for long evidence strings
+			if ansiLineLength(content+e)+1 > width && len(e) > 4 {
+				pc.Fprintln(w, "\n"+truncate(fmt.Sprintf("%s           %s", prefix, e), width))
+				continue
+			}
+			// Single-line output for short evidence
+			pc.Fprintln(w, " "+e)
 		}
 	}
 	fmt.Fprintf(w, "│\n")
