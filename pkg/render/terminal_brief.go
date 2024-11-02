@@ -17,6 +17,7 @@ import (
 	"io"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
+	"github.com/fatih/color"
 )
 
 type TerminalBrief struct {
@@ -40,7 +41,13 @@ func (r TerminalBrief) File(_ context.Context, fr *malcontent.FileReport) error 
 
 	for _, b := range fr.Behaviors {
 		e := evidenceString(b.MatchStrings, b.Description)
-		fmt.Fprintf(r.w, "│  %s %s — %s%s\n", riskColor(fr.RiskLevel, "•"), riskColor(fr.RiskLevel, b.ID), b.Description, e)
+		if e != "" {
+			e = color.RGB(255, 255, 255).Sprint(e)
+			fmt.Fprintf(r.w, "│     %s %s — %s%s %s\n", riskColor(fr.RiskLevel, "•"), riskColor(fr.RiskLevel, b.ID), b.Description, color.HiBlackString(":"), e)
+		} else {
+
+			fmt.Fprintf(r.w, "│     %s %s — %s%s\n", riskColor(fr.RiskLevel, "•"), riskColor(fr.RiskLevel, b.ID), b.Description, e)
+		}
 	}
 
 	return nil
