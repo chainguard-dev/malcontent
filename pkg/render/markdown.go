@@ -91,17 +91,22 @@ func (r Markdown) Full(ctx context.Context, rep *malcontent.Report) error {
 			}
 		}
 
+		// We split the added/removed up in Markdown to address readability feedback. Unfortunately,
+		// this means we hide "existing" behaviors, which causes context to suffer. We should evaluate an
+		// improved rendering, similar to the "terminal" refresh, that includes everything.
 		if added > 0 {
 			markdownTable(ctx, modified.Value, r.w, tableConfig{
-				Title:       fmt.Sprintf("### %d new behaviors", added),
-				SkipRemoved: true,
+				Title:        fmt.Sprintf("### %d new behaviors", added),
+				SkipRemoved:  true,
+				SkipExisting: true,
 			})
 		}
 
 		if removed > 0 {
 			markdownTable(ctx, modified.Value, r.w, tableConfig{
-				Title:     fmt.Sprintf("### %d removed behaviors", removed),
-				SkipAdded: true,
+				Title:        fmt.Sprintf("### %d removed behaviors", removed),
+				SkipAdded:    true,
+				SkipExisting: true,
 			})
 		}
 	}
@@ -173,6 +178,11 @@ func markdownTable(_ context.Context, fr *malcontent.FileReport, w io.Writer, rc
 		}
 
 		risk := k.Behavior.RiskLevel
+
+		if rc.SkipExisting && !(k.Behavior.DiffAdded || k.Behavior.DiffRemoved) {
+			continue
+		}
+
 		if k.Behavior.DiffAdded || rc.DiffAdded {
 			if rc.SkipAdded {
 				continue

@@ -22,12 +22,13 @@ type KeyedBehavior struct {
 }
 
 type tableConfig struct {
-	Title       string
-	ShowTitle   bool
-	DiffRemoved bool
-	DiffAdded   bool
-	SkipAdded   bool
-	SkipRemoved bool
+	Title        string
+	ShowTitle    bool
+	DiffRemoved  bool
+	DiffAdded    bool
+	SkipAdded    bool
+	SkipRemoved  bool
+	SkipExisting bool
 }
 
 type Terminal struct {
