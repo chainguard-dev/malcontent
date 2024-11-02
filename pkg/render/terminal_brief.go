@@ -15,7 +15,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"strings"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 )
@@ -40,21 +39,7 @@ func (r TerminalBrief) File(_ context.Context, fr *malcontent.FileReport) error 
 	fmt.Fprintf(r.w, "├─ %s %s\n", riskEmoji(fr.RiskScore), fr.Path)
 
 	for _, b := range fr.Behaviors {
-		evidence := []string{}
-		for _, m := range b.MatchStrings {
-			if len(m) > 2 && !strings.Contains(b.Description, m) {
-				evidence = append(evidence, m)
-			}
-		}
-
-		e := strings.Join(evidence, ", ")
-		if len(e) > 32 {
-			e = e[0:31] + "…"
-		}
-		if len(e) > 0 {
-			e = ": " + e
-		}
-
+		e := evidenceString(b.MatchStrings, b.Description)
 		fmt.Fprintf(r.w, "│  %s %s — %s%s\n", riskColor(fr.RiskLevel, "•"), riskColor(fr.RiskLevel, b.ID), b.Description, e)
 	}
 

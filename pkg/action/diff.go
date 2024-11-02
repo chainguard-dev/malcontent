@@ -113,12 +113,15 @@ func handleFile(ctx context.Context, c malcontent.Config, fr, tr *malcontent.Fil
 
 	rbs := createFileReport(tr, fr)
 
-	// findings that exist only in the source
 	for _, fb := range fr.Behaviors {
+		// findings that exist only in the source
 		if !behaviorExists(fb, tr.Behaviors) {
 			fb.DiffRemoved = true
 			rbs.Behaviors = append(rbs.Behaviors, fb)
+			continue
 		}
+		// findings that exist in both, for reference
+		rbs.Behaviors = append(rbs.Behaviors, fb)
 	}
 
 	d.Modified.Set(relPath, rbs)

@@ -7,18 +7,14 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"log/slog"
+	"regexp"
 	"sort"
 	"strings"
 
-	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/fatih/color"
-	"github.com/olekukonko/tablewriter"
 	"golang.org/x/term"
 )
-
-var maxExampleCount = 8
 
 type KeyedBehavior struct {
 	Key      string
@@ -26,26 +22,13 @@ type KeyedBehavior struct {
 }
 
 type tableConfig struct {
-	Title       string
-	ShowTitle   bool
-	DiffRemoved bool
-	DiffAdded   bool
-	SkipAdded   bool
-	SkipRemoved bool
-}
-
-func terminalWidth(ctx context.Context) int {
-	if !term.IsTerminal(0) {
-		return 120
-	}
-
-	width, _, err := term.GetSize(0)
-	if err != nil {
-		clog.ErrorContext(ctx, "term.getsize", slog.Any("error", err))
-		return 80
-	}
-
-	return width
+	Title        string
+	ShowTitle    bool
+	DiffRemoved  bool
+	DiffAdded    bool
+	SkipAdded    bool
+	SkipRemoved  bool
+	SkipExisting bool
 }
 
 type Terminal struct {
@@ -54,10 +37,6 @@ type Terminal struct {
 
 func NewTerminal(w io.Writer) Terminal {
 	return Terminal{w: w}
-}
-
-func decorativeRisk(score int, level string) string {
-	return fmt.Sprintf("%s %s", riskEmoji(score), riskColor(level, level))
 }
 
 func darkBrackets(s string) string {
@@ -100,9 +79,9 @@ func (r Terminal) Scanning(_ context.Context, path string) {
 
 func (r Terminal) File(ctx context.Context, fr *malcontent.FileReport) error {
 	if len(fr.Behaviors) > 0 {
-		renderTable(ctx, fr, r.w,
+		renderFileSummary(ctx, fr, r.w,
 			tableConfig{
-				Title: fmt.Sprintf("%s %s", fr.Path, darkBrackets(decorativeRisk(fr.RiskScore, fr.RiskLevel))),
+				Title: fmt.Sprintf("%s %s", fr.Path, darkBrackets(riskInColor(fr.RiskLevel))),
 			},
 		)
 	}
@@ -116,15 +95,15 @@ func (r Terminal) Full(ctx context.Context, rep *malcontent.Report) error {
 	}
 
 	for removed := rep.Diff.Removed.Oldest(); removed != nil; removed = removed.Next() {
-		renderTable(ctx, removed.Value, r.w, tableConfig{
-			Title:       fmt.Sprintf("Deleted: %s %s", removed.Key, darkBrackets(decorativeRisk(removed.Value.RiskScore, removed.Value.RiskLevel))),
+		renderFileSummary(ctx, removed.Value, r.w, tableConfig{
+			Title:       fmt.Sprintf("Deleted: %s %s", removed.Key, darkBrackets(riskInColor(removed.Value.RiskLevel))),
 			DiffRemoved: true,
 		})
 	}
 
 	for added := rep.Diff.Added.Oldest(); added != nil; added = added.Next() {
-		renderTable(ctx, added.Value, r.w, tableConfig{
-			Title:     fmt.Sprintf("Added: %s %s", added.Key, darkBrackets(decorativeRisk(added.Value.RiskScore, added.Value.RiskLevel))),
+		renderFileSummary(ctx, added.Value, r.w, tableConfig{
+			Title:     fmt.Sprintf("Added: %s %s", added.Key, darkBrackets(riskInColor(added.Value.RiskLevel))),
 			DiffAdded: true,
 		})
 	}
@@ -138,199 +117,229 @@ func (r Terminal) Full(ctx context.Context, rep *malcontent.Report) error {
 		}
 
 		if modified.Value.RiskScore != modified.Value.PreviousRiskScore {
-			title = fmt.Sprintf("%s %s\n\n", title,
-				darkBrackets(fmt.Sprintf("%s %s %s", decorativeRisk(modified.Value.PreviousRiskScore, modified.Value.PreviousRiskLevel), color.HiWhiteString("→"), decorativeRisk(modified.Value.RiskScore, modified.Value.RiskLevel))))
+			title = fmt.Sprintf("%s %s", title,
+				darkBrackets(fmt.Sprintf("%s %s %s", riskInColor(modified.Value.PreviousRiskLevel), color.HiWhiteString("→"), riskInColor(modified.Value.RiskLevel))))
 		}
 
-		if len(modified.Value.Behaviors) > 0 {
-			fmt.Fprint(r.w, title)
-		}
-		added := 0
-		removed := 0
-		for _, b := range modified.Value.Behaviors {
-			if b.DiffAdded {
-				added++
-			}
-			if b.DiffRemoved {
-				removed++
-			}
-		}
-
-		if added > 0 {
-			renderTable(ctx, modified.Value, r.w, tableConfig{
-				Title:       color.HiWhiteString("+++ ADDED: %d behavior(s) +++", added),
-				SkipRemoved: true,
-			})
-		}
-
-		if removed > 0 {
-			renderTable(ctx, modified.Value, r.w, tableConfig{
-				Title:     color.HiWhiteString("--- REMOVED: %d behavior(s) ---", removed),
-				SkipAdded: true,
-			})
-		}
+		renderFileSummary(ctx, modified.Value, r.w, tableConfig{Title: title})
 	}
 
 	return nil
 }
 
-func wrap(s string, i int) string {
-	w, _ := tablewriter.WrapString(s, i)
-	return strings.Join(w, "\n")
-}
-
-func wrapKey(s string, i int) string {
-	w := wrap(strings.ReplaceAll(s, "/", " "), i)
-	w = strings.ReplaceAll(w, " ", "/")
-	return strings.ReplaceAll(w, "\n", "/\n")
-}
-
-func darkenText(s string) string {
-	split := strings.Split(s, "\n")
-	cw := make([]string, 0, len(split))
-	for _, w := range split {
-		cw = append(cw, color.HiBlackString(w))
-	}
-	return strings.Join(cw, "\n")
-}
-
-func renderTable(ctx context.Context, fr *malcontent.FileReport, w io.Writer, rc tableConfig) {
-	title := rc.Title
-
-	path := fr.Path
-	if fr.Error != "" {
-		fmt.Printf("⚠️ %s - error: %s\n", path, fr.Error)
-		return
+// generate a good looking evidence string.
+func evidenceString(ms []string, desc string) string {
+	evidence := []string{}
+	for _, m := range ms {
+		if len(m) > 2 && !strings.Contains(desc, m) {
+			evidence = append(evidence, m)
+		}
 	}
 
-	if fr.Skipped != "" {
-		return
+	return strings.Join(evidence, ", ")
+}
+
+// convert namespace to a long name.
+func nsLongName(s string) string {
+	switch s {
+	case "c2":
+		return "command & control"
+	case "collect":
+		return "collection"
+	case "crypto":
+		return "cryptography"
+	case "discover":
+		return "discovery"
+	case "exfil":
+		return "exfiltration"
+	case "exec":
+		return "execution"
+	case "fs":
+		return "filesystem"
+	case "hw":
+		return "hardware"
+	case "net":
+		return "networking"
+	case "os":
+		return "operating-system"
+	case "3P":
+		return "third-party"
+	case "sus":
+		return "suspicious text"
+	case "persist":
+		return "persistence"
+	case "malware":
+		return "MALWARE FAMILY"
+	default:
+		return s
+	}
+}
+
+// split rule into namespace + resource/technique.
+func splitRuleID(s string) (string, string) {
+	parts := strings.Split(s, "/")
+	rest := strings.Join(parts[1:], "/")
+	return parts[0], rest
+}
+
+// suggestedWidth calculates a maximum terminal width to render against.
+func suggestedWidth() int {
+	if !term.IsTerminal(0) {
+		return 160
 	}
 
-	kbs := make([]KeyedBehavior, 0, len(fr.Behaviors))
+	width, _, err := term.GetSize(0)
+	if err != nil {
+		return 160
+	}
+
+	if width < 75 {
+		width = 75
+	}
+
+	return width
+}
+
+// truncate truncates a string with ellipsis.
+func truncate(s string, i int) string {
+	if len(s) > i {
+		return s[0:i-1] + "…"
+	}
+	return s
+}
+
+// ansiLineLength determines the length of a line, even if it has ANSI codes.
+func ansiLineLength(s string) int {
+	re := regexp.MustCompile(`\x1b\[[0-9;]*[mG]`)
+	clean := re.ReplaceAllString(s, "")
+	return len(clean)
+}
+
+func renderFileSummary(_ context.Context, fr *malcontent.FileReport, w io.Writer, rc tableConfig) {
+	fmt.Fprintf(w, "├─ %s %s\n", riskEmoji(fr.RiskScore), rc.Title)
+	width := suggestedWidth()
+
+	byNamespace := map[string][]*malcontent.Behavior{}
+	nsRiskScore := map[string]int{}
+	previousNsRiskScore := map[string]int{}
+	diffMode := false
+
 	for _, b := range fr.Behaviors {
-		kbs = append(kbs, KeyedBehavior{Key: b.ID, Behavior: b})
+		ns, _ := splitRuleID(b.ID)
+
+		if b.DiffAdded || b.DiffRemoved {
+			diffMode = true
+		}
+
+		if !b.DiffAdded {
+			if b.RiskScore > previousNsRiskScore[ns] {
+				previousNsRiskScore[ns] = b.RiskScore
+			}
+		}
+
+		byNamespace[ns] = append(byNamespace[ns], b)
+
+		if b.DiffRemoved {
+			continue
+		}
+
+		if b.RiskScore > nsRiskScore[ns] {
+			nsRiskScore[ns] = b.RiskScore
+		}
 	}
 
-	if len(kbs) == 0 {
-		if fr.PreviousRelPath != "" && title != "" {
-			fmt.Fprintf(w, "%s\n", title)
-		}
-		return
+	nss := []string{}
+	for ns := range byNamespace {
+		nss = append(nss, ns)
 	}
 
-	sort.Slice(kbs, func(i, j int) bool {
-		if kbs[i].Behavior.RiskScore == kbs[j].Behavior.RiskScore {
-			return kbs[i].Key < kbs[j].Key
-		}
-		return kbs[i].Behavior.RiskScore < kbs[j].Behavior.RiskScore
+	// sort by the long names as that's how they'll be displayed later
+	sort.Slice(nss, func(i, j int) bool {
+		return nsLongName(nss[i]) < nsLongName(nss[j])
 	})
 
-	data := make([][]string, 0, len(kbs))
-	for _, k := range kbs {
-		data = append(data, make([]string, 0, len(k.Behavior.MatchStrings)))
-	}
+	for _, ns := range nss {
+		bs := byNamespace[ns]
+		riskScore := nsRiskScore[ns]
+		riskLevel := riskLevels[riskScore]
+		nsIcon := "≡"
+		indent := "     "
 
-	tWidth := terminalWidth(ctx)
-	keyWidth := 24
-	descWidth := 30
-	extraWidth := 12
-
-	if tWidth >= 100 {
-		keyWidth = 30
-		descWidth = 45
-	}
-
-	if tWidth >= 120 {
-		keyWidth = 32
-		descWidth = 54
-	}
-
-	maxEvidenceWidth := tWidth - keyWidth - extraWidth - descWidth
-	longestEvidence := 0
-
-	for _, k := range kbs {
-		for _, e := range k.Behavior.MatchStrings {
-			if len(e) > maxEvidenceWidth {
-				longestEvidence = maxEvidenceWidth
-				break
+		// namespace readout
+		if len(previousNsRiskScore) > 0 && riskScore != previousNsRiskScore[ns] {
+			previousRiskLevel := riskLevels[previousNsRiskScore[ns]]
+			if riskLevel < previousRiskLevel {
+				nsIcon = color.HiYellowString("▲")
+			}
+			if riskLevel > previousRiskLevel {
+				nsIcon = color.HiGreenString("▼")
+			}
+			if riskLevel == "NONE" {
+				nsIcon = color.RedString("X")
 			}
 
-			if len(e) > longestEvidence {
-				longestEvidence = len(e)
-			}
-		}
-	}
-
-	for _, k := range kbs {
-		desc := k.Behavior.Description
-		before, _, found := strings.Cut(desc, ". ")
-		if found {
-			desc = before
-		}
-		if k.Behavior.RuleAuthor != "" {
-			if desc != "" {
-				desc = fmt.Sprintf("%s, by %s", desc, k.Behavior.RuleAuthor)
-			} else {
-				desc = fmt.Sprintf("by %s", k.Behavior.RuleAuthor)
-			}
+			fmt.Fprintf(w, "│%s%s %s %s\n", indent, nsIcon, nsLongName(ns), darkBrackets(fmt.Sprintf("%s → %s", riskInColor(previousRiskLevel), riskInColor(riskLevel))))
+		} else {
+			fmt.Fprintf(w, "│%s%s %s %s\n", indent, nsIcon, nsLongName(ns), darkBrackets(riskInColor(riskLevel)))
 		}
 
-		abbreviatedEv := []string{}
-		for _, e := range k.Behavior.MatchStrings {
-			if len(e) > maxEvidenceWidth {
-				e = e[0:maxEvidenceWidth-1] + "…"
-			}
-			abbreviatedEv = append(abbreviatedEv, e)
-			if len(abbreviatedEv) >= maxExampleCount {
-				abbreviatedEv = append(abbreviatedEv, "…")
-				break
-			}
-		}
-		evidence := strings.Join(abbreviatedEv, "\n")
+		// behavior readout per namespace
+		indent += " "
+		for _, b := range bs {
+			_, rest := splitRuleID(b.ID)
 
-		risk := riskInColor(ShortRisk(k.Behavior.RiskLevel))
-		if k.Behavior.DiffAdded || rc.DiffAdded {
-			if rc.SkipAdded {
+			e := evidenceString(b.MatchStrings, b.Description)
+			desc, _, _ := strings.Cut(b.Description, " - ")
+			desc = "— " + desc
+
+			if b.RuleAuthor != "" {
+				if desc != "" {
+					desc = fmt.Sprintf("%s, by %s", desc, b.RuleAuthor)
+				} else {
+					desc = fmt.Sprintf("by %s", b.RuleAuthor)
+				}
+			}
+
+			prefix := "│"
+			bullet := riskEmoji(b.RiskScore)
+			content := fmt.Sprintf("%s%s %s %s", prefix, indent, riskColor(b.RiskLevel, bullet+" "+rest), desc)
+			pc := color.New()
+
+			if diffMode {
+				content = fmt.Sprintf("%s%s %s %s %s", prefix, indent, bullet, rest, desc)
+
+				if b.DiffAdded {
+					pc = color.New(color.FgHiGreen)
+					prefix = "++"
+					content = fmt.Sprintf("%s%s %s %s %s", prefix, indent, bullet, rest, desc)
+				}
+
+				if b.DiffRemoved {
+					prefix = "--"
+					pc = color.New(color.FgHiRed)
+					content = fmt.Sprintf("%s%s %s %s %s", prefix, indent, bullet, rest, desc)
+					e = ""
+				}
+			}
+
+			// no evidence to give
+			if e == "" {
+				pc.Fprintln(w, content+e)
 				continue
 			}
-			risk = fmt.Sprintf("%s%s", color.HiWhiteString("+"), riskInColor(ShortRisk(k.Behavior.RiskLevel)))
-		}
 
-		wKey := wrapKey(k.Key, keyWidth)
-		wDesc := wrap(desc, descWidth)
+			pc.Fprint(w, content)
+			color.New(color.FgHiBlack).Fprint(w, ":")
+			e = color.RGB(255, 255, 255).Sprint(e)
 
-		if k.Behavior.DiffRemoved || rc.DiffRemoved {
-			if rc.SkipRemoved {
+			// Two-line output for long evidence strings
+			if ansiLineLength(content+e)+1 > width && len(e) > 4 {
+				pc.Fprintln(w, "\n"+truncate(fmt.Sprintf("%s           %s", prefix, e), width))
 				continue
 			}
-			risk = fmt.Sprintf("%s%s", color.WhiteString("-"), riskInColor(ShortRisk(k.Behavior.RiskLevel)))
-			evidence = darkenText(evidence)
+			// Single-line output for short evidence
+			pc.Fprintln(w, " "+e)
 		}
-
-		data = append(data, []string{risk, wKey, wDesc, evidence})
 	}
-
-	if title != "" {
-		fmt.Fprintf(w, "%s", title)
-	}
-	fmt.Fprintf(w, "\n")
-
-	table := tablewriter.NewWriter(w)
-	table.SetHeader([]string{"risk", "key", "description", "evidence"})
-
-	table.SetAutoWrapText(false)
-	table.SetAutoFormatHeaders(true)
-	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
-	table.SetAlignment(tablewriter.ALIGN_LEFT)
-	table.SetCenterSeparator("")
-	table.SetColumnSeparator("")
-	table.SetRowSeparator("-")
-	table.SetHeaderLine(true)
-	table.SetBorder(true)
-	table.SetTablePadding("  ")
-	table.SetNoWhiteSpace(true)
-	table.AppendBulk(data)
-	table.Render()
-	fmt.Fprintf(w, "\n")
+	fmt.Fprintf(w, "│\n")
 }
