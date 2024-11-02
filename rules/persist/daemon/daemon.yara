@@ -6,9 +6,9 @@ rule daemon: medium {
     hash_2023_Downloads_311c = "311c93575efd4eeeb9c6674d0ab8de263b72a8fb060d04450daccc78ec095151"
 
   strings:
-    $ref  = /[\w\-]{0,8}daemon/ fullword
+    $ref  = /[\w\-]{0,8}daemon/
     $ref2 = "daemonize" fullword
 
   condition:
-    any of them
+    filesize < 10MB and any of them
 }

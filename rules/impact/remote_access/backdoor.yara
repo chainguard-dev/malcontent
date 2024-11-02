@@ -18,7 +18,7 @@ rule backdoor: high {
     hash_2023_FontOnLake_45E94ABEDAD8C0044A43FF6D72A5C44C6ABD9378_elf                         = "f60c1214b5091e6e4e5e7db0c16bf18a062d096c6d69fe1eb3cbd4c50c3a3ed6"
 
   strings:
-    $ref = /[a-zA-Z\-_ ]{0,16}[bB]ackdoor[a-zA-Z\-_ ]{0,16}/ fullword
+    $ref = /[a-zA-Z\-_ \']{0,16}[bB]ackdoor[a-zA-Z\-_ ]{0,16}/ fullword
 
   condition:
     filesize < 40MB and any of them and not wordlist
@@ -32,7 +32,7 @@ rule backdoor_caps: high {
     hash_2023_FontOnLake_45E94ABEDAD8C0044A43FF6D72A5C44C6ABD9378_elf                         = "f60c1214b5091e6e4e5e7db0c16bf18a062d096c6d69fe1eb3cbd4c50c3a3ed6"
 
   strings:
-    $ref2 = /[a-zA-Z\-_ ]{0,16}BACKDOOR[a-zA-Z\-_ ]{0,16}/ fullword
+    $ref2 = /[a-zA-Z\-_ \']{0,16}BACKDOOR[a-zA-Z\-_ ]{0,16}/ fullword
 
   condition:
     filesize < 40MB and any of them and not wordlist
@@ -46,7 +46,7 @@ rule backdoor_leet: critical {
     hash_2023_FontOnLake_45E94ABEDAD8C0044A43FF6D72A5C44C6ABD9378_elf                         = "f60c1214b5091e6e4e5e7db0c16bf18a062d096c6d69fe1eb3cbd4c50c3a3ed6"
 
   strings:
-    $ref4 = /[a-zA-Z\-_ ]{0,16}[bB][a4]ckd00r[a-zA-Z\-_ ]{0,16}/
+    $ref4 = /[a-zA-Z\-_ \']{0,16}[bB][a4]ckd00r[a-zA-Z\-_ ]{0,16}/
 
   condition:
     filesize < 100MB and any of them and not wordlist

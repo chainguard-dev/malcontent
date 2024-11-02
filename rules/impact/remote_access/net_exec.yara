@@ -100,23 +100,3 @@ rule exec_chdir_and_socket: medium {
   condition:
     filesize < 52428800 and (uint32(0) == 1179403647 or uint32(0) == 4277009102 or uint32(0) == 3472551422 or uint32(0) == 4277009103 or uint32(0) == 3489328638 or uint32(0) == 3405691582 or uint32(0) == 3199925962) and $chdir and $socket and 1 of ($exec*) and none of ($not*)
 }
-
-rule listens_and_executes: medium {
-  meta:
-    description                          = "Listens, provides a terminal, runs program"
-    hash_2024_Downloads_8cad             = "8cad755bcf420135c0f406fb92138dcb0c1602bf72c15ed725bd3b76062dafe5"
-    hash_2023_Linux_Malware_Samples_0afd = "0afd9f52ddada582d5f907e0a8620cbdbe74ea31cf775987a5675226c1b228c2"
-    hash_2023_Linux_Malware_Samples_3668 = "3668b167f5c9083a9738cfc4bd863a07379a5b02ee14f48a10fb1240f3e421a6"
-
-  strings:
-    $f_socket      = "socket" fullword
-    $f_execl       = "execl" fullword
-    $f_inet_addr   = "inet_addr" fullword
-    $f_listen      = "listen" fullword
-    $not_setlocale = "setlocale" fullword
-    $not_ptrace    = "ptrace" fullword
-    $not_usage     = "Usage:"
-
-  condition:
-    all of ($f*) and none of ($not*)
-}

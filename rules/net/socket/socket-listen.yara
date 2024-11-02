@@ -1,4 +1,4 @@
-rule listen {
+rule listen: medium {
   meta:
     description = "listen on a socket"
     pledge      = "inet"
@@ -14,7 +14,7 @@ rule listen {
     2 of them
 }
 
-rule go_listen {
+rule go_listen: medium {
   meta:
     description = "listen on a socket"
     pledge      = "inet"
@@ -27,7 +27,15 @@ rule go_listen {
     any of them
 }
 
-rule netcat_listener {
+rule generic_listen_string: medium {
+  strings:
+    $listen = /[Ll]istening on/
+
+  condition:
+    any of them
+}
+
+rule netcat_listener: medium {
   meta:
     ref_nc_nvlp = "https://juggernaut-sec.com/docker-breakout-lpe/"
 

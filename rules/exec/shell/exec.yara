@@ -19,6 +19,24 @@ rule calls_shell: medium {
     filesize < 104857600 and any of them
 }
 
+rule ExecShell: medium {
+  meta:
+    description = "executes a shell"
+
+  strings:
+    $ExecShell    = "ExecShell" fullword
+    $ExecuteShell = "ExecuteShell" fullword
+    $exec_shell   = "exec_shell" fullword
+    $execShell    = "execShell" fullword
+    $executeShell = "executeShell" fullword
+    $RunShell     = "RunShell" fullword
+    $runShell     = "runShell" fullword
+    $run_shell    = "run_shell" fullword
+
+  condition:
+    any of them
+}
+
 rule system_call: medium {
   meta:
     description = "executes a shell command"
