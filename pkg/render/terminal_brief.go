@@ -45,7 +45,6 @@ func (r TerminalBrief) File(_ context.Context, fr *malcontent.FileReport) error 
 			e = color.RGB(255, 255, 255).Sprint(e)
 			fmt.Fprintf(r.w, "│     %s %s — %s%s %s\n", riskColor(fr.RiskLevel, "•"), riskColor(fr.RiskLevel, b.ID), b.Description, color.HiBlackString(":"), e)
 		} else {
-
 			fmt.Fprintf(r.w, "│     %s %s — %s%s\n", riskColor(fr.RiskLevel, "•"), riskColor(fr.RiskLevel, b.ID), b.Description, e)
 		}
 	}
