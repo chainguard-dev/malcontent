@@ -217,16 +217,23 @@ func renderFileSummary(_ context.Context, fr *malcontent.FileReport, w io.Writer
 
 	for _, b := range fr.Behaviors {
 		ns, _ := splitRuleID(b.ID)
+
+		if b.DiffAdded || b.DiffRemoved {
+			diffMode = true
+		}
+
 		if !b.DiffAdded {
 			if b.RiskScore > previousNsRiskScore[ns] {
 				previousNsRiskScore[ns] = b.RiskScore
 			}
 		}
-		if b.DiffAdded || b.DiffRemoved {
-			diffMode = true
-		}
 
 		byNamespace[ns] = append(byNamespace[ns], b)
+
+		if b.DiffRemoved {
+			continue
+		}
+
 		if b.RiskScore > nsRiskScore[ns] {
 			nsRiskScore[ns] = b.RiskScore
 		}
@@ -245,12 +252,26 @@ func renderFileSummary(_ context.Context, fr *malcontent.FileReport, w io.Writer
 	for _, ns := range nss {
 		bs := byNamespace[ns]
 		riskLevel := riskLevels[nsRiskScore[ns]]
+		icon := "≡"
+		if diffMode {
+			icon = " "
+		}
 
 		if len(previousNsRiskScore) > 0 && nsRiskScore[ns] != previousNsRiskScore[ns] {
 			previousRiskLevel := riskLevels[previousNsRiskScore[ns]]
-			fmt.Fprintf(w, "│  ≡ %s %s\n", nsLongName(ns), darkBrackets(fmt.Sprintf("%s->%s", riskInColor(previousRiskLevel), riskInColor(riskLevel))))
+			if riskLevel < previousRiskLevel {
+				icon = "▲"
+			}
+			if riskLevel > previousRiskLevel {
+				icon = "▼"
+			}
+			if riskLevel == "NONE" {
+				icon = "X"
+			}
+
+			fmt.Fprintf(w, "│     %s %s %s\n", icon, nsLongName(ns), darkBrackets(fmt.Sprintf("%s → %s", riskInColor(previousRiskLevel), riskInColor(riskLevel))))
 		} else {
-			fmt.Fprintf(w, "│  ≡ %s %s\n", nsLongName(ns), darkBrackets(riskInColor(riskLevel)))
+			fmt.Fprintf(w, "│     %s %s %s\n", icon, nsLongName(ns), darkBrackets(riskInColor(riskLevel)))
 		}
 
 		for _, b := range bs {
@@ -258,6 +279,7 @@ func renderFileSummary(_ context.Context, fr *malcontent.FileReport, w io.Writer
 
 			e := evidenceString(b.MatchStrings, b.Description)
 			desc, _, _ := strings.Cut(b.Description, " - ")
+			desc = "— " + desc
 
 			if b.RuleAuthor != "" {
 				if desc != "" {
@@ -267,27 +289,25 @@ func renderFileSummary(_ context.Context, fr *malcontent.FileReport, w io.Writer
 				}
 			}
 
-			bullet := "  •"
-			if b.DiffAdded {
-				bullet = "+++"
+			bullet := "•"
+			if diffMode {
+				bullet = "  "
+				if b.DiffAdded {
+					bullet = "++"
+				}
+
+				if b.DiffRemoved {
+					bullet = "--"
+					desc = color.HiBlackString(desc)
+					e = ""
+				}
 			}
 
-			if b.DiffRemoved {
-				bullet = "---"
-				desc = color.HiBlackString(desc)
-				e = ""
-			}
-
-			// we don't need the extra leading spaces
-			if !diffMode {
-				bullet = strings.TrimSpace(bullet)
-			}
-
-			prefix := fmt.Sprintf("│    %s %s — %s", riskColor(b.RiskLevel, bullet), riskColor(b.RiskLevel, rest), desc)
+			prefix := fmt.Sprintf("│       %s %s %s", riskColor(b.RiskLevel, bullet), riskColor(b.RiskLevel, rest), desc)
 
 			if ansiLineLength(prefix+e)+1 > width && len(e) > 4 {
 				fmt.Fprintf(w, "%s:\n", prefix)
-				eline := fmt.Sprintf("│        %s", strings.TrimPrefix(e, ": "))
+				eline := fmt.Sprintf("│           %s", strings.TrimPrefix(e, ": "))
 				fmt.Fprintf(w, "%s\n", truncate(eline, width))
 				continue
 			}
