@@ -2,13 +2,13 @@
 exec/program: medium
 exec/shell/command: medium
 exec/shell/exec: medium
-exec/shell/reverse: high
 fs/file/delete_forcibly: low
 fs/path/home: medium
 fs/path/usr_bin: low
 fs/path/usr_local: medium
 impact/exploit/pwnkit: critical
 impact/remote_access/net_exec: medium
+impact/remote_access/reverse_shell: high
 net/ip/byte_order: medium
 net/ip/parse: medium
 net/socket/connect: medium

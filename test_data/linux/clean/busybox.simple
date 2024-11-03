@@ -65,6 +65,7 @@ fs/watch: low
 impact/ddos/raw_flooder: medium
 impact/degrade/infection: low
 impact/degrade/linux_paths: low
+impact/remote_access/reverse_shell: medium
 lateral/scan/tool: medium
 net/ip/icmp: medium
 net/ip/multicast_send: low

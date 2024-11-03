@@ -64,6 +64,7 @@ fs/unmount: low
 fs/watch: low
 impact/exploit/GCONV_PATH: low
 impact/reboot: low
+impact/remote_access/reverse_shell: medium
 lateral/scan/tool: medium
 mem/anonymous_file: medium
 net/dns/reverse: medium
@@ -76,7 +77,7 @@ net/ip/multicast_send: low
 net/ip/resolve: low
 net/ip/string: medium
 net/resolve/hostname: low
-net/socket/listen: low
+net/socket/listen: medium
 net/socket/local_addr: low
 net/socket/peer_address: low
 net/socket/receive: low

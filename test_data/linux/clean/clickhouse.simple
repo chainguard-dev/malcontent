@@ -155,7 +155,7 @@ net/resolve/hostname: low
 net/resolve/hostport_parse: low
 net/rpc/ntlm: medium
 net/socket/connect: medium
-net/socket/listen: low
+net/socket/listen: medium
 net/socket/local_addr: low
 net/socket/peer_address: low
 net/socket/receive: low
@@ -172,7 +172,6 @@ os/fd/sendfile: low
 os/kernel/netlink: low
 os/kernel/opencl: medium
 os/time/tzinfo: low
-persist/daemon: medium
 persist/pid_file: medium
 privesc/sudo: medium
 process/chdir: low

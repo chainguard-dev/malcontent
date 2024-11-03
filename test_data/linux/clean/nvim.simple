@@ -1,5 +1,6 @@
 # linux/clean/nvim: high
 3P/threat_hunting/hrshell: medium
+c2/addr/server: high
 c2/server_address: medium
 collect/databases/mysql: medium
 collect/databases/sqlite: medium
@@ -57,7 +58,7 @@ net/dns/servers: low
 net/download/fetch: medium
 net/http/post: medium
 net/resolve/hostport_parse: low
-net/socket/listen: low
+net/socket/listen: medium
 net/socket/local_addr: low
 net/socket/receive: low
 net/socket/send: low

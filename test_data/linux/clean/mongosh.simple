@@ -133,7 +133,7 @@ net/proxy/tunnel: medium
 net/resolve/hostname: low
 net/resolve/hostport_parse: low
 net/socket/connect: medium
-net/socket/listen: low
+net/socket/listen: medium
 net/socket/local_addr: low
 net/socket/peer_address: low
 net/socket/receive: low
@@ -147,6 +147,7 @@ os/env/get: low
 os/fd/read: low
 os/fd/sendfile: low
 os/fd/write: low
+persist/daemon/detach: medium
 process/chdir: low
 process/chroot: low
 process/groupid_set: low

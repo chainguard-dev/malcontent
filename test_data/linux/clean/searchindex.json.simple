@@ -40,6 +40,7 @@ impact/exploit: high
 impact/infection/infected: medium
 impact/remote_access/agent: medium
 impact/remote_access/backdoor: high
+impact/remote_access/reverse_shell: medium
 impact/remote_access/trojan: medium
 impact/rootkit: medium
 impact/rootkit/refs: medium
@@ -48,7 +49,7 @@ net/dns/txt: low
 net/download/fetch: medium
 net/ip/icmp: medium
 net/ip/spoof: medium
-net/socket/listen: low
+net/socket/listen: medium
 net/socket/send: low
 net/tcp/ssh: medium
 net/url/embedded: low
