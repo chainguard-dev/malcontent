@@ -16,6 +16,32 @@ rule http_post: medium {
     $POST and any of ($h*)
 }
 
+rule axios_post: medium {
+  meta:
+    description = "posts content to websites"
+    filetype    = "js,ts"
+
+  strings:
+    $axios = "axios" fullword
+    $post  = ".post("
+
+  condition:
+    filesize < 4MB and all of them
+}
+
+rule axios_post_hardcoded: high {
+  meta:
+    description = "posts content to hardcoded HTTP site"
+    filetype    = "js,ts"
+
+  strings:
+    $axios = "axios" fullword
+    $post  = /\w{1,12}.post\(\'https{0,1}:\/\/[\w][\w\.\/\-_\?=\@]{8,64}/
+
+  condition:
+    filesize < 6MB and all of them
+}
+
 rule form_data_reference: medium {
   meta:
     description                  = "submits form content to websites"

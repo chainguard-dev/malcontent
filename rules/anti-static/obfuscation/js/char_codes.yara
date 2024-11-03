@@ -19,5 +19,5 @@ rule child_process: high {
     $return   = "{return"
 
   condition:
-    filesize < 128KB and all of them
+    filesize < 4MB and all of them
 }

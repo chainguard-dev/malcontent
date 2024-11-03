@@ -141,6 +141,8 @@ func File(path string) (*FileType, error) {
 		return Path(".php"), nil
 	case strings.HasPrefix(s, "import "):
 		return Path(".py"), nil
+	case strings.Contains(s, " = require("):
+		return Path(".js"), nil
 	case strings.HasPrefix(s, "#!/bin/ash") ||
 		strings.HasPrefix(s, "#!/bin/bash") ||
 		strings.HasPrefix(s, "#!/bin/fish") ||

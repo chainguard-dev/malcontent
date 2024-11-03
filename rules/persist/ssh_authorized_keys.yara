@@ -15,3 +15,15 @@ rule ssh_authorized_key_val: medium {
   condition:
     all of ($ssh*) and none of ($not*)
 }
+
+rule root_authorized_keys: high {
+  meta:
+    description = "adds RSA keys to the root users authorized_keys file"
+
+  strings:
+    $root    = "root/.ssh/authorized_keys"
+    $ssh_rsa = "ssh-rsa"
+
+  condition:
+    any of them
+}
