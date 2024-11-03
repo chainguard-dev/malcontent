@@ -34,7 +34,7 @@ net/http/request: low
 net/ip/multicast_send: low
 net/ip/spoof: medium
 net/proxy/tunnel: medium
-net/socket/listen: low
+net/socket/listen: medium
 net/socket/send: low
 net/url/embedded: low
 net/url/parse: low

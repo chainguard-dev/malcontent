@@ -2,6 +2,7 @@
 3P/threat_hunting/powershell: medium
 anti-static/obfuscation/php/unusual_include: high
 c2/addr/ip_port: medium
+c2/addr/server: high
 c2/server_address: medium
 collect/archives/unarchive: medium
 collect/databases/mysql: medium
@@ -75,7 +76,7 @@ net/proxy/tunnel: medium
 net/resolve/hostname: low
 net/resolve/hostport_parse: low
 net/socket/connect: medium
-net/socket/listen: low
+net/socket/listen: medium
 net/socket/local_addr: low
 net/socket/peer_address: low
 net/socket/receive: low

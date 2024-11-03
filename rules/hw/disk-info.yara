@@ -10,6 +10,7 @@ rule DADisk: medium {
   strings:
     $ref  = "DADiskCopyDescription" fullword
     $ref2 = "DADiskCreateFromBSDNAme" fullword
+    $ref3 = "gopsutil/v3/disk"
 
   condition:
     any of them

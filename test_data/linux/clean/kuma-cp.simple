@@ -103,11 +103,12 @@ net/ip/parse: medium
 net/proxy/tunnel: medium
 net/resolve/hostname: low
 net/resolve/hostport_parse: low
-net/socket/listen: low
+net/socket/listen: medium
 net/socket/local_addr: low
 net/socket/peer_address: low
 net/socket/receive: low
 net/socket/send: low
+net/tcp/connect: medium
 net/tcp/grpc: low
 net/tcp/ssh: medium
 net/udp/receive: low
@@ -120,7 +121,6 @@ os/fd/sendfile: low
 os/kernel/netlink: low
 os/kernel/seccomp: low
 persist/cron/tab: medium
-persist/daemon: medium
 privesc/sudo: medium
 process/chroot: low
 process/groupid_set: low

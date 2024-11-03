@@ -35,6 +35,7 @@ fs/tempdir: low
 fs/tempdir/TMPDIR: low
 impact/degrade/linux_paths: high
 impact/exploit/GCONV_PATH: low
+impact/remote_access/reverse_shell: medium
 impact/rootkit/readdir_interceptor: high
 malware/family/medusa: critical
 net/socket/local_addr: low

@@ -94,6 +94,7 @@ var rulesWithWarnings = map[string]bool{
 	"osascript_window_closer":               true,
 	"osascript_quitter":                     true,
 	"exfil_libcurl_elf":                     true,
+	"small_opaque_archaic_gcc":              true,
 }
 
 func Recursive(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {

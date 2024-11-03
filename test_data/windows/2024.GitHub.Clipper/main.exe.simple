@@ -29,7 +29,6 @@ data/compression/gzip: low
 data/encoding/base64: low
 data/encoding/json: low
 data/encoding/json_decode: low
-data/encoding/json_encode: low
 data/hash/md5: low
 discover/ip/geo: high
 discover/ip/public: high
@@ -59,6 +58,7 @@ fs/permission/chown: medium
 fs/permission/modify: medium
 fs/tempdir: low
 fs/tempdir/TEMP: low
+hw/disk_info: medium
 impact/degrade/win_defender: high
 lateral/scan/tool: medium
 malware/family/skuld: critical
@@ -76,11 +76,12 @@ net/http/request: low
 net/ip/parse: medium
 net/remote_control/vnc: medium
 net/resolve/hostname: low
-net/socket/listen: low
+net/socket/listen: medium
 net/socket/local_addr: low
 net/socket/peer_address: low
 net/socket/receive: low
 net/socket/send: low
+net/tcp/connect: medium
 net/udp/receive: low
 net/udp/send: low
 net/url/embedded: low

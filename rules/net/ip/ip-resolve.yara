@@ -6,6 +6,8 @@ rule gethostbyaddr {
 
   strings:
     $gethostbyname2 = "gethostbyaddr" fullword
+    $ResolvHost     = "ResolvHost"
+    $resolv_host    = "resolv_host"
 
   condition:
     any of them

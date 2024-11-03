@@ -190,8 +190,9 @@ rule obsessive_dropper: critical {
     $http          = "http://"
     $https         = "https://"
     $tool_curl_s   = "curl -"
-    $tool_wget_q   = "wget -"
-    $tool_lwp      = "lwp-download"
+    $tool_wget_q   = "wget" fullword
+    $tool_lwp      = "lwp-download" fullword
+    $tool_tftp     = "tftp" fullword
     $cmd_bash      = "bash" fullword
     $cmd_dot_slash = /\.\/[\.\w]{1,16}/ fullword
     $cmd_rm        = "rm" fullword
@@ -200,5 +201,5 @@ rule obsessive_dropper: critical {
     $cmd_chmod     = "chmod" fullword
 
   condition:
-    filesize < 768 and any of ($http*) and 2 of ($tool*) and any of ($cmd*)
+    filesize < 1500 and any of ($http*) and 2 of ($tool*) and any of ($cmd*)
 }

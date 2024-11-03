@@ -33,3 +33,14 @@ rule fetch_run_sleep_delete: critical {
     filesize < 1KB and $url and $sleep and $rm and any of ($path*) and any of ($run*)
 }
 
+rule self_delete: high {
+  meta:
+    description = "may delete itself to avoid detection"
+
+  strings:
+    $self    = "RemoveSelfExecutable"
+    $syscall = "syscall.Unlink"
+
+  condition:
+    filesize < 20MB and all of them
+}

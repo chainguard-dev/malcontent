@@ -34,7 +34,6 @@ data/embedded/html: medium
 data/encoding/base64: low
 data/encoding/json: low
 data/encoding/json_decode: low
-data/encoding/json_encode: low
 data/hash/md5: low
 discover/cloud/google_metadata: low
 discover/system/cpu_info: low
@@ -102,17 +101,17 @@ net/http/form_upload: medium
 net/http/post: medium
 net/http/proxy: low
 net/http/request: low
-net/http/server: medium
 net/ip/host_port: medium
 net/ip/icmp: medium
 net/ip/parse: medium
 net/resolve/hostname: low
 net/socket/connect: medium
-net/socket/listen: low
+net/socket/listen: medium
 net/socket/local_addr: low
 net/socket/peer_address: low
 net/socket/receive: low
 net/socket/send: low
+net/tcp/connect: medium
 net/tcp/grpc: low
 net/tcp/sftp: medium
 net/udp/receive: low
@@ -125,7 +124,6 @@ os/env/get: low
 os/fd/sendfile: low
 os/kernel/netlink: low
 persist/cron/tab: medium
-persist/daemon: medium
 persist/pid_file: medium
 persist/ssh_authorized_keys: medium
 process/chroot: low

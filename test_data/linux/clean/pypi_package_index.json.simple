@@ -116,7 +116,6 @@ exec/plugin: low
 exec/program: medium
 exec/script/osa: medium
 exec/shell/power: medium
-exec/shell/reverse: high
 exec/system_controls/apparmor: medium
 exec/tty/getpass: low
 exfil/office_file_ext: medium
@@ -149,6 +148,7 @@ impact/remote_access/crypto_listen_socks: medium
 impact/remote_access/heartbeat: medium
 impact/remote_access/iptables: medium
 impact/remote_access/net_shell: high
+impact/remote_access/reverse_shell: high
 impact/remote_access/trojan: medium
 impact/rootkit: low
 impact/rootkit/refs: medium
@@ -166,7 +166,7 @@ net/proxy/reverse: medium
 net/proxy/shadowsocks: high
 net/proxy/socks5: medium
 net/proxy/tunnel: medium
-net/socket/listen: low
+net/socket/listen: medium
 net/socket/receive: low
 net/socket/send: low
 net/tcp/sftp: medium

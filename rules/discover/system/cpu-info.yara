@@ -40,3 +40,15 @@ rule processor_count {
   condition:
     any of them
 }
+
+rule nproc: harmless {
+  meta:
+    description = "gets number of processors"
+    ref         = "https://man7.org/linux/man-pages/man3/get_nprocs.3.html"
+
+  strings:
+    $ref2 = "nproc" fullword
+
+  condition:
+    any of them
+}

@@ -12,7 +12,7 @@ rule system: medium {
     $system = "system" fullword
 
   condition:
-    all of them in (1200..3000)
+    all of them in (1000..3000)
 }
 
 rule php_shell_exec: medium php {
