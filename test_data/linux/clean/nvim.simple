@@ -1,6 +1,6 @@
-# linux/clean/nvim: high
+# linux/clean/nvim: medium
 3P/threat_hunting/hrshell: medium
-c2/addr/server: high
+c2/addr/server: medium
 c2/server_address: medium
 collect/databases/mysql: medium
 collect/databases/sqlite: medium
@@ -65,7 +65,6 @@ net/socket/send: low
 net/url/embedded: low
 persist/cron/tab: medium
 persist/daemon: medium
-persist/linux_multi: high
 persist/shell/init_files: low
 process/chdir: low
 sus/exclamation: medium

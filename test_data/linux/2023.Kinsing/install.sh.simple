@@ -10,7 +10,7 @@ c2/addr/ip: medium
 c2/addr/ip_port: high
 c2/tool_transfer/download: medium
 c2/tool_transfer/http_ip_temp: critical
-c2/tool_transfer/shell: high
+c2/tool_transfer/shell: medium
 credential/ssh: medium
 credential/ssh/authorized_hosts: medium
 data/embedded/base64_url: medium
@@ -73,7 +73,7 @@ persist/cron/tab: medium
 persist/daemon: medium
 persist/linux_multi: high
 persist/shell/bash: medium
-persist/ssh_authorized_keys: high
+persist/ssh_authorized_keys: medium
 persist/writeable_dir: high
 privesc/sudo: medium
 process/terminate/kill_multiple: medium

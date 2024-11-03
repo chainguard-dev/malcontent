@@ -1,7 +1,6 @@
-# testdata/apko_nested.tar.gz ∴ /apko_0.13.2_linux_arm64/apko: high
+# testdata/apko_nested.tar.gz ∴ /apko_0.13.2_linux_arm64/apko: medium
 c2/addr/ip_port: medium
 c2/server_address: medium
-c2/tool_transfer/shell: medium
 collect/archives/zip: medium
 credential/keychain: medium
 credential/password: low
@@ -35,7 +34,7 @@ discover/user/USER: low
 discover/user/name_get: medium
 evasion/bypass_security/linux/se: medium
 evasion/hidden_files/hidden: medium
-evasion/hide_artifacts/pivot_root: high
+evasion/hide_artifacts/pivot_root: medium
 exec/plugin: low
 exec/program: medium
 exec/shell/background_sleep: medium
@@ -111,7 +110,6 @@ os/fd/sendfile: low
 os/kernel/netlink: low
 os/time/clock_set: low
 persist/cron/tab: medium
-persist/ssh_authorized_keys: high
 process/chdir: low
 process/chroot: low
 process/executable_path: low

@@ -1,4 +1,4 @@
-# linux/clean/wolfictl: high
+# linux/clean/wolfictl: medium
 3P/threat_hunting/github_username: medium
 3P/threat_hunting/gost: medium
 3P/threat_hunting/hijacker: medium
@@ -6,7 +6,6 @@
 c2/addr/http_dynamic: medium
 c2/addr/ip_port: medium
 c2/tool_transfer/dropper: medium
-c2/tool_transfer/shell: medium
 collect/archives/tar_command: medium
 collect/archives/unarchive: medium
 collect/archives/zip: medium
@@ -68,7 +67,6 @@ exec/shell/TERM: low
 exec/shell/background_sleep: medium
 exec/shell/pipe_sh: medium
 exfil/office_file_ext: medium
-exfil/stealer/browser: high
 fs/attributes/set: medium
 fs/blkid: low
 fs/directory/create: low
@@ -167,7 +165,6 @@ os/kernel/seccomp: low
 os/time/clock_set: low
 persist/cron/tab: medium
 persist/pid_file: medium
-persist/ssh_authorized_keys: high
 process/chdir: low
 process/chroot: low
 process/create: low

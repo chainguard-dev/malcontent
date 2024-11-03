@@ -1,11 +1,10 @@
-# linux/clean/chezmoi: high
+# linux/clean/chezmoi: medium
 3P/threat_hunting/crowbar: medium
 3P/threat_hunting/gitleaks: medium
 3P/threat_hunting/hijacker: medium
 3P/threat_hunting/johntheripper: medium
 3P/threat_hunting/sharpshooter: medium
 3P/threat_hunting/tailscale: medium
-anti-static/xor/commands: high
 c2/addr/http_dynamic: medium
 c2/addr/ip_port: medium
 c2/tool_transfer/download: medium
@@ -105,7 +104,6 @@ impact/remote_access/heartbeat: medium
 impact/remote_access/implant: medium
 impact/remote_access/pseudo_terminal: medium
 impact/remote_access/trojan: medium
-lateral/ssh/worm: high
 net/dns: low
 net/dns/reverse: medium
 net/dns/servers: low
@@ -150,7 +148,6 @@ os/fd/sendfile: low
 os/kernel/netlink: low
 persist/kernel_module/module: medium
 persist/pid_file: medium
-persist/ssh_authorized_keys: high
 privesc/sudo: medium
 process/chdir: low
 process/chroot: low

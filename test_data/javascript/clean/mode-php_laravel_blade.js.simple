@@ -1,4 +1,4 @@
-# javascript/clean/mode-php_laravel_blade.js: high
+# javascript/clean/mode-php_laravel_blade.js: medium
 c2/addr/ip_port: medium
 collect/databases/mysql: medium
 collect/databases/sqlite: medium
@@ -35,7 +35,6 @@ fs/permission/modify: medium
 fs/symlink_resolve: low
 fs/watch: low
 impact/remote_access/agent: medium
-impact/remote_access/php: high
 net/download/fetch: medium
 net/http/cookies: medium
 net/http/form_upload: medium

@@ -1,11 +1,10 @@
-# linux/clean/pulumi: high
+# linux/clean/pulumi: medium
 3P/threat_hunting/iodine: medium
 3P/threat_hunting/sharppack: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip_port: medium
 c2/server_address: medium
 c2/tool_transfer/download: medium
-c2/tool_transfer/shell: high
 collect/archives/zip: medium
 collect/databases/mysql: medium
 collect/databases/postgresql: medium
@@ -140,7 +139,6 @@ os/fd/sendfile: low
 os/kernel/netlink: low
 persist/kernel_module/module: medium
 persist/pid_file: medium
-persist/ssh_authorized_keys: high
 privesc/sudo: medium
 process/chroot: low
 process/parent_pid_get: low

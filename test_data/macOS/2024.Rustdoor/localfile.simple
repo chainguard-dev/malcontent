@@ -24,7 +24,6 @@ exec/program: medium
 exec/program/background: low
 exec/script/osa: medium
 exec/shell/exec: medium
-exfil/stealer/browser: medium
 exfil/stealer/notes: critical
 exfil/stealer/office: high
 exfil/stealer/ssh: high

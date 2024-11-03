@@ -155,7 +155,6 @@ impact/rootkit: low
 impact/rootkit/refs: medium
 impact/ui/screen_capture: high
 impact/ui/x11_auth: medium
-impact/wipe/crypto: high
 lateral/scan/brute_force: low
 net/dns/over_https: medium
 net/download: medium

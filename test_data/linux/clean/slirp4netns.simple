@@ -15,7 +15,7 @@ discover/user/HOME: low
 discover/user/USER: low
 evasion/hidden_files/dev_shm: medium
 evasion/hidden_files/var_run: medium
-evasion/hide_artifacts/pivot_root: high
+evasion/hide_artifacts/pivot_root: medium
 evasion/hijack_execution/LD_LIBRARY_PATH: low
 evasion/logging/acct: low
 evasion/process_injection/ptrace: medium

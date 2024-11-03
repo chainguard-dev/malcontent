@@ -138,7 +138,7 @@ os/fd/sendfile: low
 os/kernel/netlink: low
 persist/cron/tab: medium
 persist/pid_file: medium
-persist/ssh_authorized_keys: high
+persist/ssh_authorized_keys: medium
 process/chdir: low
 process/chroot: low
 process/groups_set: low

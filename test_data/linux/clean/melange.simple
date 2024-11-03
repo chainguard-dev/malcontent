@@ -1,9 +1,8 @@
-# linux/clean/melange: high
+# linux/clean/melange: medium
 3P/threat_hunting/github_username: medium
 3P/threat_hunting/hijacker: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip_port: medium
-c2/tool_transfer/shell: medium
 collect/archives/tar_command: medium
 collect/archives/zip: medium
 collect/code/github_api: low
@@ -47,7 +46,7 @@ discover/user/USER: low
 discover/user/name_get: medium
 evasion/bypass_security/linux/se: medium
 evasion/hidden_files/hidden: medium
-evasion/hide_artifacts/pivot_root: high
+evasion/hide_artifacts/pivot_root: medium
 evasion/hide_artifacts/system_directories: medium
 exec/cmd: medium
 exec/install_additional/pip_install: medium
@@ -136,7 +135,6 @@ os/fd/sendfile: low
 os/kernel/netlink: low
 os/time/clock_set: low
 persist/cron/tab: medium
-persist/ssh_authorized_keys: high
 process/chdir: low
 process/chroot: low
 process/executable_path: low

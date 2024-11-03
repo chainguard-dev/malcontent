@@ -10,7 +10,6 @@ c2/discovery/dyndns: medium
 c2/server_address: medium
 c2/tool_transfer/download: medium
 c2/tool_transfer/grayware: high
-c2/tool_transfer/shell: medium
 collect/databases/leveldb: medium
 collect/databases/mysql: medium
 collect/databases/postgresql: medium
@@ -123,7 +122,6 @@ fs/tempdir/TMPDIR: low
 fs/tempdir/create: low
 fs/watch: low
 hw/dev/block_ice: medium
-impact/cryptojacking/argon2d_numa_self: high
 impact/infection/infected: medium
 impact/ransom/decryptor: medium
 impact/remote_access/heartbeat: medium
@@ -173,7 +171,6 @@ os/kernel/netlink: low
 os/kernel/opencl: medium
 os/time/tzinfo: low
 persist/pid_file: medium
-persist/ssh_authorized_keys: high
 privesc/sudo: medium
 process/chdir: low
 process/chroot: low

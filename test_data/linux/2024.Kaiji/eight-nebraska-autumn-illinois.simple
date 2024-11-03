@@ -3,7 +3,6 @@
 c2/addr/ip_port: medium
 c2/addr/php: medium
 c2/discovery/ip_dns_resolver: medium
-c2/tool_transfer/shell: medium
 credential/password: low
 credential/shell/bash_history: high
 credential/ssh: medium
@@ -92,5 +91,4 @@ persist/cron/echo_tab: high
 persist/cron/hidden_tab: critical
 persist/cron/tab: medium
 persist/daemon: medium
-persist/ssh_authorized_keys: high
 process/groups_set: low

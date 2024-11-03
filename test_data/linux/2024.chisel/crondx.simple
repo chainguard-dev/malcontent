@@ -59,6 +59,5 @@ net/url/parse: low
 net/url/request: medium
 os/fd/sendfile: low
 os/kernel/netlink: low
-persist/ssh_authorized_keys: high
 process/multithreaded: low
 sec-tool/net/chisel: critical

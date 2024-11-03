@@ -1,9 +1,7 @@
-# javascript/clean/5D3EB8D016DDDA0665CB8CD8EEA6C537.cache.js: critical
+# javascript/clean/5D3EB8D016DDDA0665CB8CD8EEA6C537.cache.js: medium
 3P/threat_hunting/powershell: medium
-anti-static/obfuscation/js/char_codes: high
-anti-static/obfuscation/php/unusual_include: high
+anti-static/obfuscation/js/char_codes: medium
 c2/addr/ip_port: medium
-c2/addr/server: high
 c2/server_address: medium
 collect/archives/unarchive: medium
 collect/databases/mysql: medium
@@ -61,7 +59,6 @@ fs/watch: low
 impact/remote_access/agent: medium
 impact/remote_access/crypto_geoip_exec: medium
 impact/remote_access/heartbeat: medium
-impact/wipe/crypto: high
 net/download: medium
 net/download/fetch: medium
 net/http/cookies: medium
