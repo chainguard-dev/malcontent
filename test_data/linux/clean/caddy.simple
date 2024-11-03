@@ -137,6 +137,7 @@ net/url/embedded: low
 net/url/encode: medium
 net/url/parse: low
 net/url/request: medium
+net/webrtc: medium
 os/env/get: low
 os/fd/sendfile: low
 os/kernel/netlink: low

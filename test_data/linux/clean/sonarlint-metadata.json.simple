@@ -9,12 +9,14 @@ credential/password: low
 credential/ssl/private_key: low
 crypto/aes: low
 crypto/ed25519: low
+crypto/uuid: medium
 data/encoding/json_decode: low
 data/encoding/json_encode: low
 discover/network/interface_list: medium
 evasion/hidden_files/dev_mqueue: medium
 evasion/hidden_files/hidden: medium
 exec/plugin: low
+exfil/stealer/credit_card: medium
 fs/file/copy: medium
 fs/file/delete_forcibly: low
 fs/file/open: low
@@ -42,6 +44,7 @@ net/http/form_upload: medium
 net/http/post: medium
 net/http/request: low
 net/http/websocket: medium
+net/ip/addr: medium
 net/ip/spoof: medium
 net/socket/listen: medium
 net/socket/send: low

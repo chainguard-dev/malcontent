@@ -1,6 +1,6 @@
 import "math"
 
-rule child_process: high {
+rule character_obfuscation: medium {
   meta:
     description = "obfuscated javascript that relies on character manipulation"
     filetypes   = "javascript"
@@ -19,5 +19,5 @@ rule child_process: high {
     $return   = "{return"
 
   condition:
-    filesize < 128KB and all of them
+    filesize < 4MB and all of them
 }

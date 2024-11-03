@@ -20,6 +20,7 @@ fs/proc/self_exe: medium
 fs/proc/self_status: medium
 fs/watch: low
 mem/anonymous_file: medium
+net/ip/addr: medium
 net/resolve/hostport_parse: low
 net/socket/listen: medium
 net/socket/local_addr: low

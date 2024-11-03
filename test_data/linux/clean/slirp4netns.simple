@@ -15,7 +15,7 @@ discover/user/HOME: low
 discover/user/USER: low
 evasion/hidden_files/dev_shm: medium
 evasion/hidden_files/var_run: medium
-evasion/hide_artifacts/pivot_root: high
+evasion/hide_artifacts/pivot_root: medium
 evasion/hijack_execution/LD_LIBRARY_PATH: low
 evasion/logging/acct: low
 evasion/process_injection/ptrace: medium
@@ -72,6 +72,7 @@ net/dns/servers: low
 net/dns/txt: low
 net/download: medium
 net/download/fetch: high
+net/ip/addr: medium
 net/ip/icmp: low
 net/ip/multicast_send: low
 net/ip/resolve: low

@@ -5,7 +5,6 @@ c2/addr/http_dynamic: medium
 c2/addr/ip_port: medium
 c2/addr/php: medium
 c2/discovery/ip_dns_resolver: medium
-c2/tool_transfer/shell: medium
 collect/archives/zip: medium
 collect/databases/mysql: medium
 collect/databases/sqlite: medium
@@ -61,6 +60,7 @@ net/http/oauth2: low
 net/http/post: medium
 net/http/proxy: low
 net/http/request: low
+net/ip/addr: medium
 net/ip/parse: medium
 net/resolve/hostname: low
 net/socket/listen: medium

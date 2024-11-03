@@ -1,4 +1,4 @@
-# linux/clean/trivy: high
+# linux/clean/trivy: medium
 3P/threat_hunting/bruteratel: medium
 3P/threat_hunting/github_username: medium
 3P/threat_hunting/hijacker: medium
@@ -10,7 +10,6 @@ c2/discovery/ip_dns_resolver: medium
 c2/server_address: medium
 c2/tool_transfer/download: medium
 c2/tool_transfer/github_raw: medium
-c2/tool_transfer/shell: high
 collect/archives/unarchive: medium
 collect/archives/zip: medium
 collect/code/github_api: low
@@ -27,6 +26,7 @@ credential/sniffer/bpf: medium
 credential/ssh: medium
 credential/ssl/private_key: low
 crypto/aes: low
+crypto/blockchain: medium
 crypto/ecdsa: low
 crypto/ed25519: low
 crypto/tls: low
@@ -81,8 +81,6 @@ exec/shell/background_sleep: medium
 exec/shell/pipe_sh: medium
 exec/system_controls/apparmor: medium
 exfil/collection: medium
-exfil/stealer/cloud: high
-false-positives/trivy: low
 fs/attributes/set: medium
 fs/directory/create: low
 fs/directory/list: low

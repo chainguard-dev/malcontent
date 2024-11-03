@@ -7,9 +7,11 @@ rule php_suppressed_include: high {
     hash_2024_Deobfuscated_r57Shell_0fa5df7bbf035cb307867a5b5e783abfb0158976    = "f1e1d38c1f0461d2c1eea27eb1d6dcee966826bc1a2d3e34850cb0acc17e72ac"
 
   strings:
-    $php     = "<?php"
-    $include = /@\s*include\s*/
+    $php           = "<?php"
+    $include       = /@\s*include\s*/
+    $not_snippet   = "snippet" fullword
+    $not_copyright = "copyright" fullword
 
   condition:
-    filesize < 5242880 and all of them
+    filesize < 5242880 and $php and $include and none of ($not*)
 }

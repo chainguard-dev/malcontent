@@ -1,4 +1,4 @@
-rule unusual_nodename {
+rule unusual_nodename: medium {
   meta:
     description = "Contains HTTP hostname with a long node name"
 
@@ -6,10 +6,10 @@ rule unusual_nodename {
     $ref = /https*:\/\/\w{16,}\//
 
   condition:
-    $ref
+    filesize < 5MB and $ref
 }
 
-rule exotic_tld {
+rule exotic_tld: high {
   meta:
     description = "Contains HTTP hostname with unusual top-level domain"
 
@@ -21,5 +21,5 @@ rule exotic_tld {
     $not_eol         = "endoflife.date"
 
   condition:
-    any of ($http*) and none of ($not_*)
+    filesize < 10MB and any of ($http*) and none of ($not_*)
 }

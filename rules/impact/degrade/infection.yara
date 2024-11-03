@@ -26,6 +26,8 @@ rule infection_killer: critical {
     $c_skid_x86       = "skid.x86" fullword
     $c_getpty         = "getpy.sh" fullword
 
+    $not_passwordlist = "qwer1234"
+
   condition:
-    filesize < 1MB and any of ($k*) and 2 of ($c*)
+    filesize < 1MB and any of ($k*) and 2 of ($c*) and none of ($not*)
 }

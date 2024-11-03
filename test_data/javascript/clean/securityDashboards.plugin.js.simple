@@ -1,9 +1,10 @@
-# javascript/clean/securityDashboards.plugin.js: high
+# javascript/clean/securityDashboards.plugin.js: medium
 3P/threat_hunting/crowbar: medium
 3P/threat_hunting/hijacker: medium
 3P/threat_hunting/johntheripper: medium
 3P/threat_hunting/sharpshooter: medium
-anti-static/xor/commands: high
+anti-static/obfuscation/js/bitwise: medium
+anti-static/obfuscation/js/char_codes: medium
 c2/tool_transfer/dropper: medium
 collect/databases/mysql: medium
 credential/gaming/minecraft: medium
@@ -13,10 +14,8 @@ data/encoding/json_decode: low
 data/encoding/json_encode: low
 discover/system/platform: medium
 discover/user/name_get: medium
-evasion/mimicry/fake_process: high
 exec/plugin: low
 exec/remote_commands/code_eval: medium
-exfil/stealer/browser: medium
 fs/link_create: low
 fs/lock_update: low
 fs/mount: low

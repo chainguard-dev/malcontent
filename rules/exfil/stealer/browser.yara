@@ -48,7 +48,7 @@ rule multiple_browser_refs: high {
     $name_brave            = "Brave-Browser"
     $name_brave_software   = "BraveSoftw"
     $name_chrome           = "Google Chrome"
-    $name_opera_gx         = "Opera"
+    $name_opera_gx         = "Opera" fullword
     $name_firefox          = "Firefox"
     $name_opera            = "Opera Software"
     $name_yandex           = "YandexBrowser"
@@ -64,7 +64,7 @@ rule multiple_browser_refs: high {
     $not_generated_file         = "/utils/generate_types/index.js"
 
   condition:
-    2 of ($name*) and 3 of ($fs*) and none of ($not*)
+    filesize < 20MB and 3 of ($name*) and 3 of ($fs*) and none of ($not*)
 }
 
 rule userdata_browser_archiver: medium {
@@ -107,7 +107,7 @@ rule userdata_browser_archiver: medium {
     $not_no_user_data           = "No User Data"
 
   condition:
-    filesize < 10MB and any of ($d*) and any of ($h*) and any of ($z*) and 3 of ($b*) and none of ($not*)
+    filesize < 20MB and any of ($d*) and any of ($h*) and any of ($z*) and 4 of ($b*) and none of ($not*)
 }
 
 rule smaller_userdata_browser_archiver: high {

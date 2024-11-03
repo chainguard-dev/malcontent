@@ -10,5 +10,5 @@ rule probably_a_miner: high {
     $numa      = "NUMA"
 
   condition:
-    all of them
+    filesize < 10MB and all of them
 }

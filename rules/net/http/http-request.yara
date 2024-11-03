@@ -15,6 +15,7 @@ rule http_request: low {
     $http_get      = "http.get" fullword
     $http_connect  = "HTTPConnection" fullword
     $https_connect = "HTTPSConnection" fullword
+    $axios         = "axios" fullword
 
   condition:
     any of them

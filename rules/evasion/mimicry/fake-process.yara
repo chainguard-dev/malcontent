@@ -70,8 +70,10 @@ rule known_fake_process_names: high {
     $kthreaddk   = "kthreaddk" fullword
     $deamon      = "deamon" fullword
 
+    $not_password_list = "qwer1234"
+
   condition:
-    filesize < 10MB and any of them
+    filesize < 10MB and any of them and not ($deamon and $not_password_list)
 }
 
 rule multiple_known_fake_process_names: critical {

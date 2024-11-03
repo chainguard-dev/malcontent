@@ -1,4 +1,4 @@
-# linux/clean/busybox: high
+# linux/clean/busybox: medium
 c2/addr/ip_port: medium
 credential/os/gshadow: medium
 credential/os/shadow: medium
@@ -17,7 +17,7 @@ discover/system/sysinfo: medium
 discover/user/HOME: low
 discover/user/USER: low
 discover/user/name_get: medium
-evasion/hide_artifacts/pivot_root: high
+evasion/hide_artifacts/pivot_root: medium
 evasion/hijack_execution/LD_LIBRARY_PATH: low
 evasion/logging/current_logins: medium
 evasion/process_injection/ptrace: medium
@@ -67,6 +67,7 @@ impact/degrade/infection: none
 impact/degrade/linux_paths: none
 impact/remote_access/reverse_shell: none
 lateral/scan/tool: medium
+net/ip/addr: medium
 net/ip/icmp: medium
 net/ip/multicast_send: low
 net/ip/parse: medium

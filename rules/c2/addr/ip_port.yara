@@ -13,6 +13,7 @@ rule hardcoded_ip_port: high {
     $not_vnc         = "10.10.10.10:5900"
     $not_azure_pgsql = "20.66.25.58:5432"
     $not_wireguard   = "127.212.121.99:999"
+    $not_minio       = "172.16.34.31:9000"
     $not_test        = "def test_" fullword
 
   condition:

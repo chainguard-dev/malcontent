@@ -1,11 +1,10 @@
-# linux/clean/pulumi: high
+# linux/clean/pulumi: medium
 3P/threat_hunting/iodine: medium
 3P/threat_hunting/sharppack: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip_port: medium
 c2/server_address: medium
 c2/tool_transfer/download: medium
-c2/tool_transfer/shell: high
 collect/archives/zip: medium
 collect/databases/mysql: medium
 collect/databases/postgresql: medium
@@ -16,6 +15,7 @@ credential/password: low
 credential/ssh: medium
 credential/ssl/private_key: low
 crypto/aes: low
+crypto/blockchain: medium
 crypto/ecdsa: low
 crypto/ed25519: low
 crypto/tls: low
@@ -133,6 +133,7 @@ net/url/embedded: low
 net/url/encode: medium
 net/url/parse: low
 net/url/request: medium
+net/webrtc: medium
 os/env/get: low
 os/fd/sendfile: low
 os/kernel/netlink: low

@@ -19,7 +19,7 @@ rule crypto_stealer_names: critical {
     $w_ir       = "Iridium"
     $w_tl       = "TronLink"
     $w_hycon    = "Hycon L"
-    $w_coin     = "Coinbas"
+    $w_coin     = /Coinbas\w{0,32}/
     $w_wallet   = /[\w\/]{0,32}\/\.walle[\w\/]{0,16}/
     $w_trezor   = "Trezor"
     $w_exodus   = "Exodus"

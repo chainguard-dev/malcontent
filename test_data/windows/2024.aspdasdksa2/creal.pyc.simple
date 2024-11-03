@@ -22,6 +22,7 @@ exec/program: medium
 exec/tty/getpass: low
 exfil/discord: critical
 exfil/stealer/browser: high
+exfil/stealer/credit_card: medium
 exfil/stealer/creds: high
 exfil/stealer/discord: high
 exfil/stealer/wallet: critical

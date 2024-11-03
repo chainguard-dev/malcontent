@@ -37,6 +37,7 @@ impact/remote_access/agent: medium
 net/http/cookies: medium
 net/http/form_upload: medium
 net/http/post: medium
+net/ip/addr: medium
 net/ip/parse: medium
 net/ip/resolve: low
 net/ip/spoof: medium
