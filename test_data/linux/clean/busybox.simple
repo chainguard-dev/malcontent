@@ -67,6 +67,7 @@ impact/degrade/infection: none
 impact/degrade/linux_paths: none
 impact/remote_access/reverse_shell: none
 lateral/scan/tool: medium
+net/ip/addr: medium
 net/ip/icmp: medium
 net/ip/multicast_send: low
 net/ip/parse: medium

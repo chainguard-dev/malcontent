@@ -16,6 +16,7 @@ credential/password: low
 credential/ssh: medium
 credential/ssl/private_key: low
 crypto/aes: low
+crypto/blockchain: medium
 crypto/ecdsa: low
 crypto/ed25519: low
 crypto/tls: low
@@ -133,11 +134,13 @@ net/url/embedded: low
 net/url/encode: medium
 net/url/parse: low
 net/url/request: medium
+net/webrtc: medium
 os/env/get: low
 os/fd/sendfile: low
 os/kernel/netlink: low
 persist/kernel_module/module: medium
 persist/pid_file: medium
+persist/ssh_authorized_keys: high
 privesc/sudo: medium
 process/chroot: low
 process/parent_pid_get: low

@@ -92,4 +92,5 @@ persist/cron/echo_tab: high
 persist/cron/hidden_tab: critical
 persist/cron/tab: medium
 persist/daemon: medium
+persist/ssh_authorized_keys: high
 process/groups_set: low

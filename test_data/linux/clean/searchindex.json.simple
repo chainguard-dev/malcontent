@@ -21,6 +21,7 @@ exec/plugin: low
 exec/program: medium
 exec/shell/command: medium
 exec/shell/exec: medium
+exfil/stealer/credit_card: medium
 fs/directory/create: low
 fs/file/delete: low
 fs/file/delete_forcibly: medium
@@ -47,6 +48,7 @@ impact/rootkit/refs: medium
 net/dns/servers: low
 net/dns/txt: low
 net/download/fetch: medium
+net/ip/addr: medium
 net/ip/icmp: medium
 net/ip/spoof: medium
 net/socket/listen: medium

@@ -61,6 +61,7 @@ net/http/oauth2: low
 net/http/post: medium
 net/http/proxy: low
 net/http/request: low
+net/ip/addr: medium
 net/ip/parse: medium
 net/resolve/hostname: low
 net/socket/listen: medium

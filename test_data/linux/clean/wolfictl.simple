@@ -22,6 +22,7 @@ credential/server/htpasswd: medium
 credential/ssh: medium
 credential/ssl/private_key: low
 crypto/aes: low
+crypto/blockchain: medium
 crypto/ecdsa: low
 crypto/ed25519: low
 crypto/tls: low
@@ -166,6 +167,7 @@ os/kernel/seccomp: low
 os/time/clock_set: low
 persist/cron/tab: medium
 persist/pid_file: medium
+persist/ssh_authorized_keys: high
 process/chdir: low
 process/chroot: low
 process/create: low

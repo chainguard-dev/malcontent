@@ -1,4 +1,4 @@
-# linux/clean/caddy: medium
+# linux/clean/caddy: high
 3P/threat_hunting/hijacker: medium
 3P/threat_hunting/reverst: medium
 3P/threat_hunting/tailscale: medium
@@ -137,11 +137,13 @@ net/url/embedded: low
 net/url/encode: medium
 net/url/parse: low
 net/url/request: medium
+net/webrtc: medium
 os/env/get: low
 os/fd/sendfile: low
 os/kernel/netlink: low
 persist/kernel_module/module: medium
 persist/pid_file: medium
+persist/ssh_authorized_keys: high
 privesc/sudo: medium
 process/chroot: low
 process/groups_set: low

@@ -85,6 +85,7 @@ credential/sniffer/bpf: medium
 credential/ssh/d: medium
 credential/ssh/d_memory_map: high
 credential/ssl/private_key: low
+crypto/blockchain: medium
 crypto/ed25519: low
 crypto/fernet: medium
 crypto/file_encrypter: medium
@@ -160,6 +161,7 @@ net/dns/over_https: medium
 net/download: medium
 net/http/auth: low
 net/http/oauth2: low
+net/http/request: low
 net/ip/multicast_send: low
 net/ip/spoof: medium
 net/proxy/reverse: medium

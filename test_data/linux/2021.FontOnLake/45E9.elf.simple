@@ -82,6 +82,7 @@ persist/kernel_module/module: medium
 persist/kernel_module/module_load: medium
 persist/kernel_module/symbol_lookup: high
 persist/pid_file: medium
+persist/ssh_authorized_keys: high
 process/chroot: low
 process/executable_path: low
 process/groupid_set: low

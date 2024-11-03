@@ -173,6 +173,7 @@ os/kernel/netlink: low
 os/kernel/opencl: medium
 os/time/tzinfo: low
 persist/pid_file: medium
+persist/ssh_authorized_keys: high
 privesc/sudo: medium
 process/chdir: low
 process/chroot: low

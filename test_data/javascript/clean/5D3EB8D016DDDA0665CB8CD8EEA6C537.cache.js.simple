@@ -1,5 +1,6 @@
 # javascript/clean/5D3EB8D016DDDA0665CB8CD8EEA6C537.cache.js: critical
 3P/threat_hunting/powershell: medium
+anti-static/obfuscation/js/char_codes: high
 anti-static/obfuscation/php/unusual_include: high
 c2/addr/ip_port: medium
 c2/addr/server: high
@@ -67,6 +68,7 @@ net/http/cookies: medium
 net/http/form_upload: medium
 net/http/post: medium
 net/http/request: low
+net/ip/addr: medium
 net/ip/parse: medium
 net/ip/resolve: low
 net/ip/spoof: medium

@@ -73,6 +73,7 @@ net/udp/send: low
 net/url/embedded: low
 net/url/parse: low
 net/url/request: medium
+persist/ssh_authorized_keys: high
 process/groupid_set: low
 process/groups_set: low
 process/multithreaded: low

@@ -111,6 +111,7 @@ os/fd/sendfile: low
 os/kernel/netlink: low
 os/time/clock_set: low
 persist/cron/tab: medium
+persist/ssh_authorized_keys: high
 process/chdir: low
 process/chroot: low
 process/executable_path: low

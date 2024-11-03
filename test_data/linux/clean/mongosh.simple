@@ -18,6 +18,7 @@ crypto/aes: low
 crypto/ed25519: low
 crypto/file_encrypter: medium
 crypto/tls: low
+crypto/uuid: medium
 data/base64/decode: medium
 data/compression/bzip2: low
 data/compression/gzip: low
@@ -65,6 +66,7 @@ exec/shell/pipe_sh: medium
 exec/shell/power: medium
 exec/tty/pathname: medium
 exfil/office_file_ext: medium
+exfil/stealer/credit_card: medium
 fs/directory/create: low
 fs/directory/list: low
 fs/directory/remove: low
@@ -143,6 +145,7 @@ net/url/embedded: low
 net/url/encode: medium
 net/url/parse: low
 net/url/request: medium
+net/webrtc: medium
 os/env/get: low
 os/fd/read: low
 os/fd/sendfile: low
