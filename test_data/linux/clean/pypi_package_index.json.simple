@@ -60,7 +60,6 @@
 3P/threat_hunting/sslstrip: medium
 3P/threat_hunting/ssrfmap: medium
 3P/threat_hunting/subfinder: medium
-3P/threat_hunting/sublist3r: medium
 3P/threat_hunting/theharvester: medium
 3P/threat_hunting/torproject: medium
 3P/threat_hunting/wafw00f: medium
