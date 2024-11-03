@@ -16,6 +16,7 @@ rule linux_multi_persist: high {
     $bash_ref7 = "/etc/bash"
 
     $not_shell = "POSIXLY_CORRECT" fullword
+    $not_vim   = "VIMRUNTIME" fullword
 
   condition:
     filesize < 20MB and ($initd or $udev) and $crontab and any of ($bash*) and none of ($not*)

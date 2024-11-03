@@ -1,6 +1,6 @@
 import "math"
 
-rule child_process: high {
+rule character_obfuscation: medium {
   meta:
     description = "obfuscated javascript that relies on character manipulation"
     filetypes   = "javascript"

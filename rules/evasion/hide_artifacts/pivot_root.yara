@@ -1,4 +1,4 @@
-rule pivot_root: high {
+rule pivot_root: medium {
   meta:
     capability  = "CAP_SYS_SYSADMIN"
     description = "change the root mount location"

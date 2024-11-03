@@ -1,9 +1,11 @@
-rule uname_hostname_encrypt_wipe_kill: high {
+private rule elf_or_macho {
+  condition:
+    uint32(0) == 1179403647 or (uint32(0) == 4277009102 or uint32(0) == 3472551422 or uint32(0) == 4277009103 or uint32(0) == 3489328638 or uint32(0) == 3405691582 or uint32(0) == 3199925962 or uint32(0) == 3405691583 or uint32(0) == 3216703178)
+}
+
+rule uname_hostname_encrypt_wipe_kill_small: high {
   meta:
-    description                      = "May encrypt, wipe files, and kill processes"
-    hash_2023_ZIP_locker_Apple_M1_64 = "3e4bbd21756ae30c24ff7d6942656be024139f8180b7bddd4e5c62a9dfbd8c79"
-    hash_2023_ZIP_locker_FreeBSD_64  = "41cbb7d79388eaa4d6e704bd4a8bf8f34d486d27277001c343ea3ce112f4fb0d"
-    hash_2023_ZIP_locker_MIPS64N_32  = "2f31962c5e89917f6df87babd836840042b7ea7ea01763cff1bf645878a2ab47"
+    description = "May encrypt, wipe files, and kill processes"
 
   strings:
     $encrypt   = "encrypt" fullword
@@ -14,5 +16,21 @@ rule uname_hostname_encrypt_wipe_kill: high {
     $hostname  = "hostname" fullword
 
   condition:
-    filesize < 20MB and all of them
+    filesize < 2MB and elf_or_macho and all of them
+}
+
+rule uname_hostname_encrypt_wipe_kill: medium {
+  meta:
+    description = "May encrypt, wipe files, and kill processes"
+
+  strings:
+    $encrypt   = "encrypt" fullword
+    $wipe      = "wipe" fullword
+    $processes = "processes" fullword
+    $kill      = "kill" fullword
+    $uname     = "uname" fullword
+    $hostname  = "hostname" fullword
+
+  condition:
+    filesize < 20MB and elf_or_macho and all of them
 }

@@ -33,5 +33,5 @@ rule multiple_cloud_credentials: high {
     $s_adc               = "application_default_credentials.json"
 
   condition:
-    5 of them
+    filesize < 20MB and 5 of them
 }

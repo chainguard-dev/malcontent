@@ -52,7 +52,7 @@ rule php_executor: critical {
     hash_2015_Resources_agent    = "5a61246c9fe8e52347e35664e0c86ab2897d807792008680e04306e6c2104941"
 
   strings:
-    $php          = "<?"
+    $php          = "<?php"
     $f_shell_exec = "shell_exec("
     $f_user       = "get_current_user("
 

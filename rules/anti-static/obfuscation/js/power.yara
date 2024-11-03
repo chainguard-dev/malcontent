@@ -5,8 +5,9 @@ rule over_powered_arrays: high {
 
   strings:
     $function    = /function\(\w,/
+    $charAt      = /charAt\([a-zA-Z]/
     $power_array = /\w\[\d{1,4}\]\^\w\[\d{1,4}\]/
 
   condition:
-    filesize < 5MB and $function and #power_array > 25
+    filesize < 5MB and $function and $charAt and #power_array > 25
 }

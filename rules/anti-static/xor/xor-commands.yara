@@ -41,6 +41,8 @@ rule xor_commands: high {
     $b_base642    = "base64" xor(33-255)
     $b_eval2      = "eval(" xor(33-255)
 
+    $not_password_list = "qwer1234"
+
   condition:
-    any of ($b_*)
+    any of ($b_*) and not ($b_eval and $not_password_list)
 }

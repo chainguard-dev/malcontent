@@ -34,10 +34,7 @@ rule ssh_shell_worm: critical {
 
 rule ssh_worm_router: high {
   meta:
-    description                                                                               = "ssh worm targeting routers"
-    hash_2023_UPX_0c25a05bdddc144fbf1ffa29372481b50ec6464592fdfb7dec95d9e1c6101d0d_elf_x86_64 = "818b80a08418f3bb4628edd4d766e4de138a58f409a89a5fdba527bab8808dd2"
-    hash_2023_Sysrv_Hello_sys_x86_64                                                          = "cd784dc1f7bd95cac84dc696d63d8c807129ef47b3ce08cd08afb7b7456a8cd3"
-    hash_2024_Downloads_4ba700b0e86da21d3dcd6b450893901c252bf817bd8792548fc8f389ee5aec78      = "fd3e21b8e2d8acf196cb63a23fc336d7078e72c2c3e168ee7851ea2bef713588"
+    description = "ssh worm targeting routers"
 
   strings:
     $s_dot_ssh   = ".ssh"
@@ -49,6 +46,6 @@ rule ssh_worm_router: high {
     $p_qwerty123 = "qwerty123"
 
   condition:
-    all of ($s*) and any of ($h*) and any of ($p*)
+    filesize < 1MB and all of ($s*) and any of ($h*) and 2 of ($p*)
 }
 

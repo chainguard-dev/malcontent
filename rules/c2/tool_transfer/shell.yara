@@ -20,12 +20,14 @@ rule curl_chmod_relative_run: medium {
     hash_2023_Linux_Malware_Samples_df3b                                                 = "df3b41b28d5e7679cddb68f92ec98bce090af0b24484b4636d7d84f579658c52"
 
   strings:
-    $curl      = /curl [\-\w \$\@\{\w\/\.\:]{0,96}/
-    $chmod     = /chmod [\+\-\w \$\@\{\w\/\.]{0,64}/
-    $dot_slash = /\.\/[a-z]{1,2}[a-z\.\/\- ]{0,32}/ fullword
+    $f_curl      = /curl [\-\w \$\@\{\w\/\.\:]{0,96}/
+    $f_chmod     = /chmod [\+\-\w \$\@\{\w\/\.]{0,64}/
+    $f_dot_slash = /\.\/[a-z]{1,2}[a-z\.\/\- ]{0,32}/ fullword
+
+    $not_comment_curl = "# curl "
 
   condition:
-    all of them
+    filesize < 1MB and all of ($f*) and none of ($not*)
 }
 
 rule curl_chmod_relative_run_tiny: critical {
@@ -77,7 +79,7 @@ rule curl_tor_chmod_relative_run: high {
     $not_go = "listen.onionndots"
 
   condition:
-    any of ($tor*) and $cd and $curl and $chmod and $dot_slash and filesize < 1MB and none of ($not*)
+    filesize < 10MB and any of ($tor*) and $cd and $curl and $chmod and $dot_slash and filesize < 1MB and none of ($not*)
 }
 
 rule wget_chmod_relative_run: medium {
@@ -88,12 +90,14 @@ rule wget_chmod_relative_run: medium {
     hash_2023_Linux_Malware_Samples_3059                                                 = "305901aa920493695729132cfd20cbddc9db2cf861071450a646c6a07b4a50f3"
 
   strings:
-    $chmcurlod = /wget [\-\w \$\@\{\w\/\.\:]{0,96}/
-    $chmod     = /chmod [\-\w \$\@\{\w\/\.]{0,64}/
-    $dot_slah  = /\.\/[a-z]{1,2}[a-z\.\/\- ]{0,32}/ fullword
+    $f_wget      = /wget http[\-\w \$\@\{\w\/\.\:]{0,96}/
+    $f_chmod     = /chmod [\-\w \$\@\{\w\/\.]{0,64}/
+    $f_dot_slash = /\.\/[a-z]{1,2}[a-z\.\/\- ]{0,32}/ fullword
+
+    $not_chmod_error = "chmod error"
 
   condition:
-    all of them
+    filesize < 1MB and all of them
 }
 
 rule dev_null_rm: medium {
@@ -101,7 +105,7 @@ rule dev_null_rm: medium {
     $dev_null_rm = /[ \w\.\/\&\-%]{0,32}\/dev\/null\;rm[ \w\/\&\.\-\%]{0,32}/
 
   condition:
-    any of them
+    filesize < 20MB and any of them
 }
 
 rule sleep_rm: medium {
@@ -109,7 +113,7 @@ rule sleep_rm: medium {
     $dev_null_rm = /sleep;rm[ \w\/\&\.\-\%]{0,32}/
 
   condition:
-    any of them
+    filesize < 1MB and any of them
 }
 
 rule nohup_bash_background: high {
@@ -117,10 +121,10 @@ rule nohup_bash_background: high {
     $ref = /nohup bash [\%\w\/\>]{0,64} &/
 
   condition:
-    any of them
+    filesize < 1MB and any of them
 }
 
-rule fetch_pipe_shell_value: high {
+rule fetch_pipe_shell_value: medium {
   meta:
     description                          = "fetches content and pipes it to a shell"
     hash_2023_OK_29c2                    = "29c2f559a9494bce3d879aff8731a5d70a3789028055fd170c90965ce9cf0ea4"
@@ -134,7 +138,7 @@ rule fetch_pipe_shell_value: high {
     $curl_sh   = /curl .{8,128}\| {0,2}sh/
 
   condition:
-    any of them
+    filesize < 1MB and any of them
 }
 
 rule fetch_chmod_execute: high {
@@ -147,7 +151,7 @@ rule fetch_chmod_execute: high {
     $curl = /curl .{8,64} \&\&.{0,64} chmod .{3,16} \&\& \.\/[\.\w]{1,16}/
 
   condition:
-    any of them
+    filesize < 20MB and any of them
 }
 
 rule possible_dropper: high {
@@ -168,7 +172,7 @@ rule possible_dropper: high {
     $cmd_chmod     = "chmod" fullword
 
   condition:
-    filesize < 768 and any of ($http*) and any of ($tool*) and any of ($cmd*)
+    filesize < 1KB and any of ($http*) and any of ($tool*) and any of ($cmd*)
 }
 
 rule nohup_dropper: critical {

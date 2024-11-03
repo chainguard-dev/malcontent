@@ -25,5 +25,5 @@ rule root_authorized_keys: high {
     $ssh_rsa = "ssh-rsa"
 
   condition:
-    any of them
+    all of them
 }
