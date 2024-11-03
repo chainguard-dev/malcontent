@@ -17,6 +17,7 @@ import (
 	"io"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
+	"github.com/fatih/color"
 )
 
 type TerminalBrief struct {
@@ -36,11 +37,29 @@ func (r TerminalBrief) File(_ context.Context, fr *malcontent.FileReport) error 
 		return nil
 	}
 
+	width := suggestedWidth()
 	fmt.Fprintf(r.w, "├─ %s %s\n", riskEmoji(fr.RiskScore), fr.Path)
 
 	for _, b := range fr.Behaviors {
+		content := fmt.Sprintf("│     %s %s — %s", riskColor(fr.RiskLevel, "•"), riskColor(fr.RiskLevel, b.ID), b.Description)
 		e := evidenceString(b.MatchStrings, b.Description)
-		fmt.Fprintf(r.w, "│  %s %s — %s%s\n", riskColor(fr.RiskLevel, "•"), riskColor(fr.RiskLevel, b.ID), b.Description, e)
+
+		// no evidence to give
+		if e == "" {
+			continue
+		}
+
+		fmt.Fprint(r.w, content)
+		color.New(color.FgHiBlack).Fprint(r.w, ":")
+		e = color.RGB(255, 255, 255).Sprint(e)
+
+		// Two-line output for long evidence strings
+		if ansiLineLength(content+e)+1 > width && len(e) > 4 {
+			fmt.Fprintln(r.w, "\n"+truncate(fmt.Sprintf("│     %s", e), width))
+			continue
+		}
+		// Single-line output for short evidence
+		fmt.Fprintln(r.w, " "+e)
 	}
 
 	return nil
