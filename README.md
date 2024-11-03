@@ -10,35 +10,35 @@
  _ _    _.  .    _   _    _  .  ___   _.   _  .  ___
 ( | )  (_|  |_  (_  (_)  ( \_)   |   (/_  ( \_)   |
 
-             the subtle malware scanner
+            subtle malware discovery tool
 ```
 
-malcontent detects undiscovered supply-chain compromises and threats against UNIX-like operating systems such as Linux and macOS. It's built to operate in high-risk environments such as CI/CD pipelines and air-gapped networks. malcontent is admittedly a bit paranoid and prone to false positives.
+malcontent detects supply-chain compromises and other malicious software. It has 3 modes of operation:
 
-malcontent offers 3 modes of operation depending on your use case:
+* ✨`diff`: show the risk-weighted capability drift between two versions of a program
+  * ☝️ **Our bread & butter: malcontent does this better than anyone else**
+* 🕵️‍♀️ `analyze`: deep analysis of a program's capabilities
+* 🔍 `scan`: find malicious content across a broad set of file formats
 
-* `scan`: find malicious content across a variety of file formats
-* `analyze`: deep analysis of a program's capabilities
-* `diff`: show the capability drift between two versions of a program (supply-chain compromise detection)
-
-malcontent is an open-source labor of love, not a product. We hope you enjoy it!
+malcontent is a bit paranoid and prone to false positives. It is currently focused on finding threats that impact Linux and macOS platforms, but malcontent can also detect threats that impact other platforms.
 
 ## Features
 
-* 16,000+ [YARA](YARA) detection rules!
-  * Including third-party rules from esteemed organizations such as Avast, Elastic, FireEye, Mandiant, Nextron, ReversingLabs, and more!
-* Analyzes binaries for nearly any environment (Linux, macOS, Windows, etc.)
-* Analyzes scripts (Python, shell, Javascript, Typescript, PHP, Perl)
+* 16,000+ [YARA](YARA) detection rules
+  * Including third-party rules from companies such as Avast, Elastic, FireEye, Mandiant, Nextron, ReversingLabs, and more!
+* Analyzes binaries from nearly any operating system (Linux, macOS, FreeBSD, Windows, etc.)
+* Analyzes scripts (Python, shell, Javascript, Typescript, PHP, Perl, AppleScript)
 * Analyzes container images
 * Transparent archive support (apk, tar, zip, etc.)
 * Multiple output formats (JSON, YAML, Markdown, Terminal)
-* Open source 🎉
+* Designed to work as part of a CI/CD pipeline
+* Supports air-gapped networks
 
 ## Modes
 
 ### Scan
 
-Scan directories for possible malware:
+Scan directories for possible malware. This is our simplest feature, but not particularly novel either. malcontent is pretty paranoid in this mode, so expect some false positives:
 
 ![scan screenshot](./images/scan.png)
 
@@ -64,11 +64,13 @@ The analyze mode emits a list of capabilities often seen in malware, categorized
 
 ### Diff
 
-To detect unexpected capability changes, try `diff` mode. Using the [3CX Compromise](https://www.fortinet.com/blog/threat-research/3cx-desktop-app-compromised) as an example, we're able to use malcontent to detect malicious code inserted in an otherwise harmless library:
+To detect unexpected capability changes, try `diff` mode. This allows you to find far more subtle attacks than a general scan, as you generally have both a baseline "known good" version and the context to understand what capabilities a program needs to operate.
+
+Using the [3CX Compromise](https://www.fortinet.com/blog/threat-research/3cx-desktop-app-compromised) as an example, we're able to use malcontent to detect malicious code inserted in an otherwise harmless library:
 
 ![diff screenshot](./images/diff.png)
 
-Each line that begins with a "+" represents a newly added capability.You can use it to diff entire directories recursively, even if they contain programs written in a variety of languages.
+Each line that begins with a "++" represents a newly added capability. You can use it to diff entire directories recursively, even if they contain programs written in a variety of languages.
 
 For use in CI/CD pipelines, you may find the following flags helpful:
 
@@ -96,7 +98,7 @@ For example, to install the YARA library on Linux or macOS:
 
 ```shell
 brew install yara || sudo apt install libyara-dev \
-  || sudo dnf install yara-devel || sudo pacman -S yara
+ || sudo dnf install yara-devel || sudo pacman -S yara
 ```
 
 Install malcontent:
@@ -107,6 +109,4 @@ go install github.com/chainguard-dev/malcontent/cmd/mal@latest
 
 ## Help Wanted
 
-![help wanted sign](./images/wanted.png)
-
-malcontent is an honest-to-goodness open-source project: if you are interested in contributing, check out [DEVELOPMENT.md](DEVELOPMENT.md)
+malcontent is an honest-to-goodness open-source project. If you are interested in contributing, check out [DEVELOPMENT.md](DEVELOPMENT.md). Send us a pull request, and we'll help you with the rest!
