@@ -48,7 +48,7 @@ rule progname_socket_waitpid: high {
     $system  = "waitpid" fullword
 
   condition:
-    all of them in (1200..3000)
+    all of them in (1000..3000)
 }
 
 rule POST_command_executer: high {
@@ -99,4 +99,46 @@ rule exec_chdir_and_socket: medium {
 
   condition:
     filesize < 52428800 and (uint32(0) == 1179403647 or uint32(0) == 4277009102 or uint32(0) == 3472551422 or uint32(0) == 4277009103 or uint32(0) == 3489328638 or uint32(0) == 3405691582 or uint32(0) == 3199925962) and $chdir and $socket and 1 of ($exec*) and none of ($not*)
+}
+
+rule lazarus_darwin: high {
+  meta:
+    description = "executes programs, sets permissions, sleeps, resolves hostnames"
+
+  strings:
+    $pclose      = "pclose" fullword
+    $popen       = "popen" fullword
+    $sleep       = "sleep" fullword
+    $rand        = "rand" fullword
+    $strncpy     = "strncpy" fullword
+    $gethostname = "gethostname" fullword
+    $localtime   = "localtime" fullword
+    $sprintf     = "sprintf" fullword
+    $chmod       = "chmod" fullword
+    $flock       = "flock" fullword
+    $NSURL       = "NSMutableURLRequest" fullword
+
+  condition:
+    filesize < 6MB and (uint32(0) == 1179403647 or uint32(0) == 4277009102 or uint32(0) == 3472551422 or uint32(0) == 4277009103 or uint32(0) == 3489328638 or uint32(0) == 3405691582 or uint32(0) == 3199925962) and 90 % of them
+}
+
+rule lazarus_darwin_nsurl: critical {
+  meta:
+    description = "executes programs, sets permissions, sleeps, makes HTTP requests"
+
+  strings:
+    $pclose      = "pclose" fullword
+    $popen       = "popen" fullword
+    $sleep       = "sleep" fullword
+    $rand        = "rand" fullword
+    $strncpy     = "strncpy" fullword
+    $gethostname = "gethostname" fullword
+    $localtime   = "localtime" fullword
+    $sprintf     = "sprintf" fullword
+    $chmod       = "chmod" fullword
+    $flock       = "flock" fullword
+    $NSURL       = "NSMutableURLRequest" fullword
+
+  condition:
+    filesize < 6MB and (uint32(0) == 1179403647 or uint32(0) == 4277009102 or uint32(0) == 3472551422 or uint32(0) == 4277009103 or uint32(0) == 3489328638 or uint32(0) == 3405691582 or uint32(0) == 3199925962) and all of them
 }

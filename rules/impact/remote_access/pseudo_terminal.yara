@@ -29,32 +29,30 @@ rule linux_pty: high {
 
 rule go_pty: medium {
   meta:
-    description                           = "pseudo-terminal access from Go"
-    ref                                   = "https://github.com/creack/pty"
-    hash_2023_UPX_5a5960c                 = "56ca5d07fa2e8004a008222a999a97a6c27054b510e8dd6bd22048b084079e37"
-    hash_2023_OK_ad69                     = "ad69e198905a8d4a4e5c31ca8a3298a0a5d761740a5392d2abb5d6d2e966822f"
-    hash_2024_termite_termite_linux_amd64 = "fa8d2c01cf81a052ea46650418afa358252ce6f9ce2eb65df3b3e3c7165f8d92"
+    description = "pseudo-terminal access from Go"
+    ref         = "https://github.com/creack/pty"
 
   strings:
     $ref = "creack/pty"
 
   condition:
-    any of them
+    filesize < 10MB and any of them
 }
 
 rule go_pty_socket: high {
   meta:
-    description                           = "pseudo-terminal access from Go"
-    ref                                   = "https://github.com/creack/pty"
-    hash_2023_UPX_5a5960ccd314            = "56ca5d07fa2e8004a008222a999a97a6c27054b510e8dd6bd22048b084079e37"
-    hash_2023_OK_ad69                     = "ad69e198905a8d4a4e5c31ca8a3298a0a5d761740a5392d2abb5d6d2e966822f"
-    hash_2024_termite_termite_linux_amd64 = "fa8d2c01cf81a052ea46650418afa358252ce6f9ce2eb65df3b3e3c7165f8d92"
+    description = "pseudo-terminal access from Go"
+    ref         = "https://github.com/creack/pty"
 
   strings:
     $ref = "creack/pty"
     $o2  = "socket" fullword
     $o3  = "secret" fullword
 
+    $bin_sh   = "/bin/sh"
+    $bin_bash = "/bin/bash"
+    $bin_zsh  = "/bin/zsh"
+
   condition:
-    $ref and any of ($o*)
+    filesize < 10MB and $ref and any of ($o*) and any of ($bin*)
 }

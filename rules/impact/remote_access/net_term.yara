@@ -9,7 +9,7 @@ rule readdir_openpty_socket: high {
     $system  = "inet_addr" fullword
 
   condition:
-    all of them in (1200..3000)
+    all of them in (1000..3000)
 }
 
 rule pseudoterminal_tunnel: high {
@@ -145,5 +145,5 @@ rule dlsym_openpty_system: high {
     $system  = "system"
 
   condition:
-    all of them in (1200..3000)
+    all of them in (1000..3000)
 }

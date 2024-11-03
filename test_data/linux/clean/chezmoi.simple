@@ -102,7 +102,7 @@ impact/exploit: medium
 impact/infection/infected: medium
 impact/remote_access/heartbeat: medium
 impact/remote_access/implant: medium
-impact/remote_access/pseudo_terminal: high
+impact/remote_access/pseudo_terminal: medium
 impact/remote_access/trojan: medium
 lateral/ssh/worm: high
 net/dns: low

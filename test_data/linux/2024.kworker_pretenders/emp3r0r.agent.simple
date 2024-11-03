@@ -99,7 +99,7 @@ impact/infection/infected: medium
 impact/remote_access/heartbeat: medium
 impact/remote_access/kill_rm: medium
 impact/remote_access/net_exec: medium
-impact/remote_access/pseudo_terminal: high
+impact/remote_access/pseudo_terminal: medium
 impact/remote_access/reverse_shell: high
 malware/family/emp3r0r: critical
 net/dns: low

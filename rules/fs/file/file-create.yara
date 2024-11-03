@@ -11,5 +11,5 @@ rule creat: medium {
     $system = "creat" fullword
 
   condition:
-    all of them in (1200..3000)
+    all of them in (1000..3000)
 }

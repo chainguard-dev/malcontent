@@ -9,15 +9,15 @@ rule vaguely_mirai_like_router_backdoor: critical {
     $ref3       = "socket" fullword
     $ref4       = "(null)" fullword
     $ref5       = "localhost"
-    $ref6       = "<=>"
     $ref7       = "No XENIX semaphores available"
     $ref8       = "Unknown error"
     $ref9       = "Success"
+    $ref10      = "/sys/devices/system/cpu"
     $not_strcmp = "strcmp"
     $not_libc   = "libc" fullword
 
   condition:
-    filesize < 122880 and 90 % of ($ref*) and none of ($not*)
+    filesize > 50000 and filesize < 122880 and 88 % of ($ref*) and none of ($not*)
 }
 
 rule vaguely_gafygt: critical {

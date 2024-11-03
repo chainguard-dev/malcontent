@@ -10,5 +10,5 @@ rule fexecve_gethostbyname_realpath_tmp: critical {
     $tmp = "/tmp/"
 
   condition:
-    $tmp and all of ($f*) in (1200..3000)
+    $tmp and all of ($f*) in (1000..3000)
 }
