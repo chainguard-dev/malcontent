@@ -48,7 +48,7 @@ net/proxy/tunnel: medium
 net/resolve/hostname: low
 net/resolve/hostport_parse: low
 net/socket/connect: medium
-net/socket/listen: low
+net/socket/listen: medium
 net/socket/local_addr: low
 net/socket/peer_address: low
 net/socket/receive: low

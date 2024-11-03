@@ -21,7 +21,6 @@ data/embedded/zstd: medium
 data/encoding/base64: low
 data/encoding/json: low
 data/encoding/json_decode: low
-data/encoding/json_encode: low
 data/hash/md5: low
 discover/network/mac_address: medium
 discover/system/cpu_info: low
@@ -96,11 +95,12 @@ net/ip/parse: medium
 net/ip/send_unicast: low
 net/ip/spoof: medium
 net/resolve/hostname: low
-net/socket/listen: low
+net/socket/listen: medium
 net/socket/local_addr: low
 net/socket/peer_address: low
 net/socket/receive: low
 net/socket/send: low
+net/tcp/connect: medium
 net/tcp/grpc: low
 net/udp/receive: low
 net/udp/send: low
@@ -112,7 +112,6 @@ os/fd/sendfile: low
 os/kernel/kcore: low
 os/kernel/netlink: low
 os/kernel/seccomp: low
-persist/daemon: medium
 persist/pid_file: medium
 process/chdir: low
 process/executable_path: low

@@ -43,6 +43,7 @@ fs/permission/modify: medium
 fs/tempdir: low
 fs/tempdir/TMPDIR: low
 hw/disk_info: medium
+impact/remote_access/reverse_shell: medium
 malware/family/rustdoor: critical
 net/download: medium
 net/download/fetch: high
@@ -54,7 +55,7 @@ net/http/proxy: low
 net/http/request: low
 net/resolve/hostport_parse: low
 net/socket/connect: medium
-net/socket/listen: low
+net/socket/listen: medium
 net/socket/local_addr: low
 net/socket/peer_address: low
 net/socket/receive: low

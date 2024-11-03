@@ -8,7 +8,7 @@ rule hide_shell_history: high {
   strings:
     $hide_this       = "HIDE_THIS"
     $histfile        = "HISTFILE=" fullword
-    $histfile_dev    = "HISTFILE=/dev"
+    $histfile_dev    = /HISTFILE=\/(dev|tmp)[\/\w]{0,16}/
     $histcontrol     = /HISTCONTROL=\"*ignorespace/
     $h_shopt_history = "shopt -ou history"
     $h_set_o_history = "set +o history"

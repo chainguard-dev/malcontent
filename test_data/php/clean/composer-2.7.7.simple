@@ -63,7 +63,7 @@ net/http/proxy: low
 net/http/request: low
 net/ip/parse: medium
 net/resolve/hostname: low
-net/socket/listen: low
+net/socket/listen: medium
 net/socket/send: low
 net/tcp/ssh: medium
 net/url/embedded: low

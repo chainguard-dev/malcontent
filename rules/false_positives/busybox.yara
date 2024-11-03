@@ -18,6 +18,7 @@ rule busybox: override {
     ubi                                   = "low"
     dev_mem                               = "low"
     linux_critical_system_paths_small_elf = "low"
+    possible_reverse_shell                = "ignore"
 
   condition:
     is_busybox

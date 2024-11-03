@@ -3,9 +3,19 @@ rule JSONEncode {
     description = "encodes JSON"
 
   strings:
-    $jsone   = "JSONEncode"
-    $marshal = "MarshalJSON" fullword
-    $npm     = "JSON.stringify"
+    $jsone = "JSONEncode"
+    $npm   = "JSON.stringify"
+
+  condition:
+    any of them
+}
+
+rule MarshalJSON: harmless {
+  meta:
+    description = "encodes JSON"
+
+  strings:
+    $json = "MarshalJSON"
 
   condition:
     any of them

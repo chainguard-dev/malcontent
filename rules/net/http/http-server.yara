@@ -9,7 +9,9 @@ rule http_server: medium {
   strings:
     $gin         = "gin-gonic/"
     $gin_handler = "gin.HandlerFunc"
+    $listen      = "httpListen"
+    $http_listen = "http.Listen"
 
   condition:
-    any of them
+    filesize < 10MB and any of them
 }

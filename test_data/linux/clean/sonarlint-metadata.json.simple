@@ -43,7 +43,7 @@ net/http/post: medium
 net/http/request: low
 net/http/websocket: medium
 net/ip/spoof: medium
-net/socket/listen: low
+net/socket/listen: medium
 net/socket/send: low
 net/tcp/sftp: medium
 net/tcp/ssh: medium

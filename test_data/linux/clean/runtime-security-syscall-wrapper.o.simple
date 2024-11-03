@@ -22,7 +22,7 @@ net/http/post: medium
 net/ip/multicast_send: low
 net/ip/parse: medium
 net/ip/syncookie: medium
-net/socket/listen: low
+net/socket/listen: medium
 net/socket/send: low
 net/url/embedded: low
 os/kernel/seccomp: low
