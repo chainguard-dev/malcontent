@@ -122,12 +122,13 @@ net/ip/resolve: low
 net/ip/spoof: medium
 net/proxy/reverse: medium
 net/resolve/hostname: low
-net/socket/listen: low
+net/socket/listen: medium
 net/socket/local_addr: low
 net/socket/peer_address: low
 net/socket/receive: low
 net/socket/reuseport: medium
 net/socket/send: low
+net/tcp/connect: medium
 net/tcp/grpc: low
 net/tcp/ssh: medium
 net/udp/receive: low
@@ -139,7 +140,6 @@ net/url/request: medium
 os/env/get: low
 os/fd/sendfile: low
 os/kernel/netlink: low
-persist/daemon: medium
 persist/kernel_module/module: medium
 persist/pid_file: medium
 privesc/sudo: medium

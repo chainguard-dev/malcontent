@@ -5,5 +5,5 @@
 anti-static/obfuscation/php/one_liner: medium
 c2/addr/php: medium
 exec/remote_commands/code_eval: medium
-exec/shell/reverse: high
+impact/remote_access/reverse_shell: high
 net/url/embedded: low

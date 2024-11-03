@@ -1,7 +1,6 @@
 # does-nothing/does-nothing: medium
 data/encoding/base64: low
 data/encoding/json: low
-data/encoding/json_encode: low
 discover/system/cpu_info: low
 discover/system/hostname_get: low
 discover/system/platform: low
@@ -16,4 +15,5 @@ fs/permission/chown: medium
 fs/permission/modify: medium
 net/socket/receive: low
 net/socket/send: low
+persist/daemon: medium
 process/multithreaded: low

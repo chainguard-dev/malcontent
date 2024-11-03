@@ -23,7 +23,7 @@ rule fork {
     $fork = "fork" fullword
 
   condition:
-    any of them in (1200..3000)
+    any of them in (1000..3000)
 }
 
 rule syscall_vfork {

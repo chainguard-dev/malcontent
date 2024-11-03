@@ -11,8 +11,8 @@ fs/file/times_set: medium
 fs/path/usr_bin: low
 fs/path/usr_local: medium
 fs/path/var: low
-hw/pseudo_terminal: medium
 impact/remote_access/net_shell: high
+impact/remote_access/pseudo_terminal: medium
 impact/remote_access/socket_filter_exec: high
 net/socket/connect: medium
 net/socket/filter: medium

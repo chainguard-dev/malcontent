@@ -284,7 +284,6 @@ func renderFileSummary(_ context.Context, fr *malcontent.FileReport, w io.Writer
 		}
 
 		// behavior readout per namespace
-		indent += " "
 		for _, b := range bs {
 			_, rest := splitRuleID(b.ID)
 
@@ -300,7 +299,7 @@ func renderFileSummary(_ context.Context, fr *malcontent.FileReport, w io.Writer
 				}
 			}
 
-			prefix := "│"
+			prefix := "│ "
 			bullet := riskEmoji(b.RiskScore)
 			content := fmt.Sprintf("%s%s %s %s", prefix, indent, riskColor(b.RiskLevel, bullet+" "+rest), desc)
 			pc := color.New()

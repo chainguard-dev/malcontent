@@ -22,6 +22,20 @@ rule reverse_shell: high {
     any of ($r_*) and none of ($not_*)
 }
 
+rule possible_reverse_shell: medium {
+  meta:
+    description = "references a reverse shell"
+
+  strings:
+    $f_reverse = "reverse"
+    $f_socket  = "socket" fullword
+    $sh_bash   = "/bin/bash"
+    $sh        = "/bin/sh"
+
+  condition:
+    filesize < 4MB and any of ($sh*) and all of ($f*)
+}
+
 rule mkfifo_netcat: critical {
   meta:
     description = "creates a reverse shell using mkfifo and netcat"
@@ -50,4 +64,20 @@ rule perl_reverse_shell: critical {
 
   condition:
     $socket and $open and any of ($redir*) and $sh_i
+}
+
+rule go_reverse_shell: high {
+  meta:
+    description = "possible reverse shell written in Go"
+
+  strings:
+    $sh_bash    = "/bin/bash"
+    $sh         = "/bin/sh"
+    $f_cmd_run  = "os/exec.(*Cmd).Run"
+    $f_net_conn = "net.(*conn).Write"
+    $f_stdin    = "os/exec.(*Cmd).childStdin"
+    $f_tcp      = "dialTCP"
+
+  condition:
+    filesize < 4MB and any of ($sh*) and all of ($f*)
 }

@@ -8,11 +8,11 @@ data/encoding/base64: low
 evasion/indicator_blocking/mask_exceptions: medium
 evasion/time/php_no_limit: medium
 exec/shell/command: medium
-exec/shell/reverse: high
 fs/directory/remove: low
 fs/file/delete: low
 fs/permission/modify: medium
 impact/remote_access/php: critical
+impact/remote_access/reverse_shell: high
 net/http/form_upload: medium
 net/http/post: medium
 net/url/embedded: low
