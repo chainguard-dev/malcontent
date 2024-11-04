@@ -86,6 +86,7 @@ rule py_subprocess: notable {
     $naked     = "subprocess"
     $val       = /subprocess\.\w{1,16}[\(\"\/\w\'\.\- \,\[\]\/\{\}]{0,64}/
     $os_system = /os.system\([\"\'\w\. \-\)\/\{\}]{0,64}/
+    $os_startfile = /os.startfile\(.{0,64}/
 
   condition:
     any of them

@@ -7,12 +7,12 @@ private rule py_fetcher {
     $http_requests_post = "requests.post" fullword
     $http_urrlib        = "urllib.request" fullword
     $http_urlopen       = "urlopen" fullword
-
+	$git_git = /git.Git\(.{0,64}/
     $http_curl = "curl" fullword
     $http_wget = "wget" fullword
 
   condition:
-    any of ($http*)
+    any of them
 }
 
 private rule py_runner {
@@ -21,6 +21,7 @@ private rule py_runner {
 
   strings:
     $os_system  = /os.system\([\"\'\w\ \-\)\/]{0,64}/
+    $os_startfile  = /os.startfile\([\"\'\w\ \-\)\/]{0,64}/
     $os_popen   = /os.spopen\([\"\'\w\ \-\)\/]{0,64}/
     $subprocess = /subprocess.\w{0,32}\([\"\'\/\w\ \-\)]{0,64}/
 
@@ -82,9 +83,11 @@ rule py_dropper_chmod: high {
 
 private rule pythonSetup {
   strings:
-    $i_distutils  = "from distutils.core import setup"
-    $i_setuptools = "from setuptools import setup"
+    $if_distutils  = /from distutils.core import .{0,32}setup/
+    $if_setuptools = /from setuptools import .{0,32}setup/
+	$i_setuptools = "import setuptools"
     $setup        = "setup("
+
 
     $not_setup_example = ">>> setup("
     $not_setup_todict  = "setup(**config.todict()"
@@ -116,7 +119,7 @@ rule setuptools_fetch_run: critical {
 
 rule setuptools_dropper: critical {
   meta:
-    description = "setuptools script that fetches, stores, and executes"
+    description = "setuptools script that fetches, stores, and executes programs"
 
   condition:
     pythonSetup and py_dropper

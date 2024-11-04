@@ -6,7 +6,8 @@ rule autorun: high {
 
   strings:
     $ref = "AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup"
+	$ref2 = "\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
 
   condition:
-    $ref
+    any of them
 }

@@ -23,6 +23,7 @@ rule base64_commands: high {
     $b_tar_c        = "tar -c" base64
     $b_tar_x        = "tar -x" base64
     $b_bash_c       = "bash -c" base64
+	$b_type_nul = "type nul" base64
     $not_kandji     = "kandji-parameter-agent"
     $not_mdmprofile = "mdmprofile"
     $not_example    = "commands are encoded"
