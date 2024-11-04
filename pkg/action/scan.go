@@ -317,7 +317,7 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 					frMap.Store(path, fr)
 					if err := errIfHitOrMiss(&frMap, "file", path, c.ErrFirstHit, c.ErrFirstMiss); err != nil {
 						logger.Debugf("match short circuit: %s", err)
-						scanPathFindings.Store(path, &malcontent.FileReport{})
+						scanPathFindings.Store(path, fr)
 					}
 				}
 			}
