@@ -337,9 +337,7 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 
 		if err := g.Wait(); err != nil {
 			logger.Errorf("error with processing %v\n", err)
-			if strings.Contains(err.Error(), "no matching capabilities") {
-				return nil, err
-			}
+			return nil, err
 		}
 
 		var pathKeys []string
@@ -447,6 +445,9 @@ func processFile(ctx context.Context, c malcontent.Config, ruleFS []fs.FS, path 
 func Scan(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) {
 	r, err := recursiveScan(ctx, c)
 	if err != nil {
+		if strings.Contains(err.Error(), "no matching capabilities") {
+			return r, nil
+		}
 		return r, err
 	}
 	for files := r.Files.Oldest(); files != nil; files = files.Next() {
