@@ -318,6 +318,7 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 					if err := errIfHitOrMiss(&frMap, "file", path, c.ErrFirstHit, c.ErrFirstMiss); err != nil {
 						logger.Debugf("match short circuit: %s", err)
 						scanPathFindings.Store(path, fr)
+						return err
 					}
 				}
 			}
@@ -336,6 +337,9 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 
 		if err := g.Wait(); err != nil {
 			logger.Errorf("error with processing %v\n", err)
+			if strings.Contains(err.Error(), "no matching capabilities") {
+				return nil, err
+			}
 		}
 
 		var pathKeys []string
