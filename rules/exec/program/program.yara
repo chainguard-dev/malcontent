@@ -72,6 +72,18 @@ rule perl_system: notable {
     filesize < 65535 and $perl and $system
 }
 
+rule ruby_system: medium {
+  meta:
+    description = "executes external program"
+
+  strings:
+    $system  = /system\(.{1,32}\)/
+    $require = "require" fullword
+
+  condition:
+    filesize < 65535 and $require and $system
+}
+
 rule py_subprocess: notable {
   meta:
     syscall                                  = "execve"

@@ -38,3 +38,14 @@ rule chmod_executable_ruby: high {
   condition:
     any of them
 }
+
+rule rename_executable_ruby: high windows {
+  meta:
+    description = "renames a file to become executable"
+
+  strings:
+    $rename = /File\.rename\(.{0,24}\w{0,8}\.exe\"\)/
+
+  condition:
+    any of them
+}

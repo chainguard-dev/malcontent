@@ -5,6 +5,7 @@ rule setenv_putenv: harmless {
   strings:
     $setenv = "setenv" fullword
     $putenv = "putenv" fullword
+    $set    = /SetEnvironmentVariable\w{0,4}/
 
   condition:
     any of them

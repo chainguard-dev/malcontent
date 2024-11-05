@@ -8,3 +8,13 @@ rule libc: harmless {
     any of them
 }
 
+rule win_cntrl: low windows {
+  meta:
+    description = "Adds or removes handler function for the calling process"
+
+  strings:
+    $ref = "SetConsoleCtrlHandler"
+
+  condition:
+    any of them
+}

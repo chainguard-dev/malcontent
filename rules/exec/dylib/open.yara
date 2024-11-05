@@ -5,7 +5,9 @@ rule dylib: harmless {
   strings:
     $dlopen  = "dlopen" fullword
     $dlclose = "dlclose" fullword
+    $win     = "LoadLibrary"
 
   condition:
     any of them
 }
+

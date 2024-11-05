@@ -10,7 +10,7 @@ rule eval: medium {
     $not_empty = "eval()"
 
   condition:
-    $val and none of ($not*)
+    filesize < 1MB and $val and none of ($not*)
 }
 
 rule python_exec: medium {
@@ -21,11 +21,12 @@ rule python_exec: medium {
     hash_2023_misc_mr_robot      = "630bbcf0643d9fc9840f2f54ea4ae1ea34dc94b91ee011779c8e8c91f733c9f5"
 
   strings:
-    $val   = /exec\([a-z\"\'\(\,\)]{1,32}/ fullword
-    $empty = "exec()"
+    $import = "import" fullword
+    $val    = /exec\([a-z\"\'\(\,\)]{1,32}/ fullword
+    $empty  = "exec()"
 
   condition:
-    $val and not $empty
+    filesize < 1MB and $import and $val and not $empty
 }
 
 rule shell_eval: medium {

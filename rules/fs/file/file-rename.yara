@@ -7,6 +7,8 @@ rule rename: harmless posix {
     $rename      = "rename" fullword
     $renameat    = "renameat" fullword
     $rename_file = "renameFile" fullword
+    $move_file   = "MoveFile"
+    $ruby        = "File.rename"
 
   condition:
     any of them

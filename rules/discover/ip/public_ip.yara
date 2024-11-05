@@ -12,20 +12,34 @@ rule iplookup_website: high {
     $getjsonip   = "getjsonip"
     $ipconfig_me = "ifconfig.me"
     $icanhazip   = "icanhazip"
+    $grabify     = "grabify.link"
     $ident_me    = "ident.me" fullword
     $showip_net  = "showip.net" fullword
     $ifconfig_io = "ifconfig.io" fullword
     $ifconfig_co = "ifconfig.co" fullword
     $ipinfo      = "ipinfo.io"
     $check_ip    = "checkip.amazonaws.com"
-    $ipify_x     = "ipify.org" xor(1-255)
-    $wtfismyip_x = "wtfismyip" xor(1-255)
-    $iplogger_x  = "iplogger.org" xor(1-255)
-    $getjsonip_x = "getjsonip" xor(1-255)
-    $ipinfo_x    = "ipinfo.io" xor(1-255)
 
   condition:
     any of them
+}
+
+rule iplookup_obfuscated: critical {
+  meta:
+    description = "obfuscated public service to discover external IP address"
+
+  strings:
+    $ipify_x     = "ipify.org" xor(1-255)
+    $wtfismyip_x = "wtfismyip" xor(1-255)
+    $iplogger_x  = "iplogger.org" xor(1-255)
+    $grabify_x   = "grabify.link" xor(1-255)
+    $getjsonip_x = "getjsonip" xor(1-255)
+    $ipinfo_x    = "ipinfo.io" xor(1-255)
+    $iplog_ugh   = /iplogger\".{0,8}org/
+
+  condition:
+    any of them
+
 }
 
 rule iplookup_website_base64: critical {
