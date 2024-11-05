@@ -97,6 +97,8 @@ var rulesWithWarnings = map[string]bool{
 	"small_opaque_archaic_gcc":              true,
 	"elf_hardcoded_ip":                      true,
 	"python_hex_decimal":                    true,
+	"python_long_hex":                       true,
+	"python_long_hex_multiple":              true,
 }
 
 func Recursive(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {

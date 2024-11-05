@@ -63,6 +63,7 @@ var supportedKind = map[string]string{
 	"sh":      "application/x-sh",
 	"so":      "application/x-sharedlib",
 	"ts":      "application/typescript",
+	"whl":     "application/x-wheel+zip",
 	"yaml":    "",
 	"yara":    "",
 	"yml":     "",
