@@ -1,4 +1,5 @@
-# javascript/clean/connection.js: medium
+# javascript/clean/connection.js: high
+anti-static/base64/exec: high
 anti-static/obfuscation/generic/hex_conversion: medium
 credential/password: low
 data/embedded/base64_terms: medium

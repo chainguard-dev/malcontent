@@ -20,7 +20,7 @@ crypto/tls: low
 crypto/uuid: medium
 data/base64/decode: medium
 data/compression/bzip2: low
-data/compression/gzip: low
+data/compression/lzma: low
 data/compression/zstd: low
 data/embedded/base64_gzip: medium
 data/embedded/base64_terms: medium

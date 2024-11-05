@@ -1,4 +1,5 @@
 # linux/clean/libsystemd.so.0: medium
+data/compression/lzma: low
 data/random/insecure: low
 discover/user/USER: low
 evasion/hidden_files/var_run: medium

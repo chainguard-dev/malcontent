@@ -25,7 +25,7 @@ crypto/rc4_constants: medium
 crypto/tls: low
 crypto/uuid: medium
 data/compression/bzip2: low
-data/compression/gzip: low
+data/compression/lzma: low
 data/compression/zstd: low
 data/embedded/base64_url: medium
 data/embedded/html: medium

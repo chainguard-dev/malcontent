@@ -11,6 +11,7 @@ fs/directory/create: low
 fs/directory/list: low
 fs/directory/traverse: medium
 fs/file/delete: low
+fs/file/rename: low
 impact/remote_access/agent: medium
 net/download: medium
 net/url/embedded: low

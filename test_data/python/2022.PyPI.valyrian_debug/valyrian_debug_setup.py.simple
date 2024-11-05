@@ -4,11 +4,13 @@ discover/ip/public: high
 discover/network/interface_list: medium
 discover/system/network: high
 discover/system/platform: medium
-discover/user/name_get: medium
+discover/user/name_get: high
 evasion/hidden_files/hidden: high
 exec/cmd/pipe: medium
 exec/program: medium
 exec/shell/command: medium
+exfil/curl_post: medium
+exfil/whoami_hostname: high
 fs/file/times_set: medium
 fs/path/tmp: medium
 impact/remote_access/py_setuptools: high

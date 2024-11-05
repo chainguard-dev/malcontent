@@ -31,6 +31,7 @@ var archiveMap = map[string]bool{
 	".tar.xz": true,
 	".tar":    true,
 	".tgz":    true,
+	".whl":    true,
 	".xz":     true,
 	".zip":    true,
 }
@@ -416,7 +417,7 @@ func extractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 
 func extractionMethod(ext string) func(context.Context, string, string) error {
 	switch ext {
-	case ".jar", ".zip":
+	case ".jar", ".zip", ".whl":
 		return extractZip
 	case ".gz":
 		return extractGzip

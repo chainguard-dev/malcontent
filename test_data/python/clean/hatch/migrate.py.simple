@@ -1,4 +1,5 @@
 # python/clean/hatch/migrate.py: medium
+discover/system/environment: medium
 exec/program: medium
 exec/remote_commands/code_eval: medium
 fs/directory/list: low

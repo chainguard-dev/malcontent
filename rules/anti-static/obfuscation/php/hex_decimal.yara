@@ -1,4 +1,4 @@
-rule php_hex_functons: high {
+rule php_hex_functions: high {
   meta:
     description              = "contains function references encoded in hex"
     hash_2023_0xShell_crot   = "900c0453212babd82baa5151bba3d8e6fa56694aff33053de8171a38ff1bef09"

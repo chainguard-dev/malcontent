@@ -2,9 +2,10 @@ import "math"
 
 private rule pythonSetup {
   strings:
-    $i_distutils  = "from distutils.core import setup"
-    $i_setuptools = "from setuptools import setup"
-    $setup        = "setup("
+    $if_distutils  = /from distutils.core import .{0,32}setup/
+    $if_setuptools = /from setuptools import .{0,32}setup/
+    $i_setuptools  = "import setuptools"
+    $setup         = "setup("
 
     $not_setup_example = ">>> setup("
     $not_setup_todict  = "setup(**config.todict()"
@@ -16,14 +17,37 @@ private rule pythonSetup {
     filesize < 128KB and $setup and any of ($i*) and none of ($not*)
 }
 
+rule setuptools_oslogin: medium {
+  meta:
+    description = "Python library installer that accesses user information"
+
+  strings:
+    $oslogin = "os.login()"
+
+  condition:
+    pythonSetup and any of them
+}
+
+rule setuptools_homedir: high {
+  meta:
+    description = "Python library installer that users home directory"
+
+  strings:
+    $oslogin = "C:\\Users\\.{0,64}os.login()"
+
+  condition:
+    pythonSetup and any of them
+}
+
 rule setuptools_cmd_exec: suspicious {
   meta:
     description = "Python library installer that executes external commands"
 
   strings:
-    $f_os_system           = /os.system\([\"\'\w\ \-\)\/]{0,64}/
-    $f_os_popen            = /os.spopen\([\"\'\w\ \-\)\/]{0,64}/
-    $f_subprocess          = /subprocess.\w{0,32}\([\"\'\/\w\ \-\)]{0,64}/
+    $f_os_system           = /os.system\([\"\'\.:\\\{\w\ \-\)\/]{0,64}/
+    $f_os_popen            = /os.spopen\([\"\'\.:\{\w\\\ \-\)\/]{0,64}/
+    $f_os_pstartfile       = /os.startfile\([\"\'\.:\\\{\w\ \-\)\/]{0,64}/
+    $f_subprocess          = /subprocess.\w{0,32}\([\"\'\/\.:\\\{\w\ \-\)]{0,64}/
     $not_comment           = "Editable install to a prefix should be discoverable."
     $not_egg_info_requires = "os.path.join(egg_info_dir, 'requires.txt')"
     $not_requests          = "'Documentation': 'https://requests.readthedocs.io'"
@@ -37,9 +61,10 @@ rule setuptools_cmd_exec_start: critical {
     description = "Python library installer that executes the Windows 'start' command"
 
   strings:
-    $f_os_system  = /os.system\([f\"\']{0,2}start .{0,64}/
-    $f_os_popen   = /os.spopen\([f\"\']{0,2}start .{0,64}/
-    $f_subprocess = /subprocess.\w{0,32}\([f\"\']{0,2}start[,'" ]{1,3}.{0,64}/
+    $f_os_system    = /os.system\([f\"\']{0,2}start .{0,64}/
+    $f_os_startfile = /os.startfile\([f\"\']{0,2}start .{0,64}/
+    $f_os_popen     = /os.spopen\([f\"\']{0,2}start .{0,64}/
+    $f_subprocess   = /subprocess.\w{0,32}\([f\"\']{0,2}start[,'" ]{1,3}.{0,64}/
 
   condition:
     pythonSetup and any of ($f*)
@@ -72,6 +97,31 @@ rule setuptools_b64decode: suspicious {
 
   strings:
     $base64 = "b64decode"
+
+  condition:
+    pythonSetup and any of them
+}
+
+rule setuptools_preinstall: suspicious {
+  meta:
+    description = "Python library installer that imports a pre_install script"
+
+  strings:
+    $preinstall    = "import preinstall"
+    $pre_install   = "import pre_install"
+    $f_preinstall  = "from preinstall"
+    $f_pre_install = "from pre_install"
+
+  condition:
+    pythonSetup and any of them
+}
+
+rule setuptools_b64encode: suspicious {
+  meta:
+    description = "Python library installer that does base64 encoding"
+
+  strings:
+    $base64 = "b64encode"
 
   condition:
     pythonSetup and any of them

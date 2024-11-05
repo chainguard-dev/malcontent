@@ -16,6 +16,19 @@ rule macos_screencapture_caller: high {
     $screencap and none of ($not_*)
 }
 
+rule py_screen_capture: high {
+  meta:
+    description = "takes screenshots from Python"
+
+  strings:
+    $PIL       = "PIL" fullword
+    $ImageGrab = "ImageGrab" fullword
+    $import    = "import" fullword
+
+  condition:
+    filesize < 1MB and all of them
+}
+
 rule macos_screen_capture {
   strings:
     $capture_screen = "captureScreen"

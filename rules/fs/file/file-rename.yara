@@ -12,9 +12,21 @@ rule rename: harmless posix {
     any of them
 }
 
+rule os_rename: low {
+  meta:
+    description = "renames files"
+    filetypes   = "py"
+
+  strings:
+    $rename = "os.rename" fullword
+
+  condition:
+    any of them
+}
+
 rule ren: medium windows {
   meta:
-    description = "deletes files"
+    description = "renames files"
 
   strings:
     $del            = "rename" fullword
