@@ -1,4 +1,5 @@
 *** changed: macOS/clean/ls
+-data/compression/lzma
 -discover/system/hostname_get
 +fs/directory/traverse
 -net/url/embedded

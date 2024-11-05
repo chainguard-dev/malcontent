@@ -1796,7 +1796,11 @@
                         "0xfe8daa",
                         "0xfed356",
                         "0xfed3e6",
-                        "0xfff445"
+                        "0xfff445",
+                        "\\x20D",
+                        "\\x20b",
+                        "\\x22",
+                        "\\x5c"
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",

@@ -29,7 +29,7 @@ crypto/ed25519: low
 crypto/tls: low
 data/base64/decode: medium
 data/compression/bzip2: low
-data/compression/gzip: low
+data/compression/lzma: low
 data/compression/zstd: low
 data/embedded/html: medium
 data/encoding/base64: low
@@ -69,6 +69,7 @@ fs/fifo_create: low
 fs/file/copy: medium
 fs/file/delete: low
 fs/file/read: low
+fs/file/rename: low
 fs/file/stat: low
 fs/file/times_set: medium
 fs/link_read: low

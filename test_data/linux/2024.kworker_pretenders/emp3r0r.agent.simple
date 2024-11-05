@@ -20,7 +20,7 @@ crypto/ecdsa: low
 crypto/ed25519: low
 crypto/tls: low
 data/compression/bzip2: low
-data/compression/gzip: low
+data/compression/lzma: low
 data/compression/xz: medium
 data/compression/zstd: low
 data/embedded/html: medium
@@ -68,6 +68,7 @@ fs/file/copy: medium
 fs/file/delete: medium
 fs/file/delete_forcibly: medium
 fs/file/read: low
+fs/file/rename: low
 fs/file/times_set: low
 fs/file/write: low
 fs/link_create: low
