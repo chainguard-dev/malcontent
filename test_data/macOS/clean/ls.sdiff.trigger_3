@@ -1,4 +1,5 @@
 --- missing: ls.x86_64
+-data/compression/lzma
 -discover/system/hostname_get
 -exec/shell/TERM
 -fs/link_read
