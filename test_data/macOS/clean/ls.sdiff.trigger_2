@@ -1,6 +1,10 @@
-*** changed: macOS/clean/ls
--data/compression/lzma
+--- missing: ls.x86_64
 -discover/system/hostname_get
-+fs/directory/traverse
+-exec/shell/TERM
+-fs/link_read
 -net/url/embedded
 -process/name_set
+++++ added: ls
++exec/shell/TERM
++fs/directory/traverse
++fs/link_read

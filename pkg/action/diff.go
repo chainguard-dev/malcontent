@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log/slog"
 	"math"
+	"os"
 	"path/filepath"
 	"regexp"
 	"sync"
@@ -32,7 +33,27 @@ func relFileReport(ctx context.Context, c malcontent.Config, fromPath string) (m
 		if files.Value.Skipped != "" || files.Value.Error != "" {
 			continue
 		}
-		rel, err := filepath.Rel(fromPath, files.Value.Path)
+		// Evaluate symlinks to cover edge cases like macOS' /private/tmp -> /tmp symlink
+		// Also, remove any filenames to correctly determine the relative path
+		// Using "." and "." will show as modifications for completely unrelated files and paths
+		info, err := os.Stat(fromPath)
+		if err != nil {
+			return nil, fmt.Errorf("failed to stat file %s: %w", fromPath, err)
+		}
+		dir := filepath.Dir(fromPath)
+		var fromRoot string
+		if info.IsDir() {
+			fromRoot, err = filepath.EvalSymlinks(fromPath)
+		} else {
+			fromRoot, err = filepath.EvalSymlinks(dir)
+		}
+		if err != nil {
+			return nil, fmt.Errorf("failed to evaluate symlink for %s: %w", fromPath, err)
+		}
+		if fromRoot == "." {
+			fromRoot = fromPath
+		}
+		rel, err := filepath.Rel(fromRoot, files.Value.Path)
 		if err != nil {
 			return nil, fmt.Errorf("rel(%q,%q): %w", fromPath, files.Value.Path, err)
 		}
@@ -99,6 +120,52 @@ func processSrc(ctx context.Context, c malcontent.Config, src, dest map[string]*
 	}
 }
 
+func processDest(ctx context.Context, c malcontent.Config, from, to map[string]*malcontent.FileReport, d *malcontent.DiffReport) {
+	// findings that exist only in the destination
+	for relPath, tr := range to {
+		fr, exists := from[relPath]
+		if !exists {
+			d.Added.Set(relPath, tr)
+			continue
+		}
+
+		fileDestination(ctx, c, fr, tr, relPath, d)
+	}
+}
+
+func fileDestination(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileReport, relPath string, d *malcontent.DiffReport) {
+	// We've now established that this file exists in both source and destination
+	if fr.RiskScore < c.MinFileRisk && tr.RiskScore < c.MinFileRisk {
+		clog.FromContext(ctx).Info("diff does not meet min trigger level", slog.Any("path", tr.Path))
+		return
+	}
+
+	// Filter files that are marked as added
+	if filterDiff(ctx, c, fr, tr) {
+		return
+	}
+
+	abs := createFileReport(tr, fr)
+
+	// if destination behavior is not in the source
+	for _, tb := range tr.Behaviors {
+		if !behaviorExists(tb, fr.Behaviors) {
+			tb.DiffAdded = true
+			abs.Behaviors = append(abs.Behaviors, tb)
+			continue
+		}
+	}
+
+	// are there already modified behaviors for this file?
+	rel, exists := d.Modified.Get(relPath)
+	if !exists {
+		d.Modified.Set(relPath, abs)
+	} else {
+		rel.Behaviors = append(rel.Behaviors, abs.Behaviors...)
+		d.Modified.Set(relPath, rel)
+	}
+}
+
 func handleFile(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileReport, relPath string, d *malcontent.DiffReport) {
 	// We've now established that file exists in both source & destination
 	if fr.RiskScore < c.MinFileRisk && tr.RiskScore < c.MinFileRisk {
@@ -146,52 +213,6 @@ func behaviorExists(b *malcontent.Behavior, behaviors []*malcontent.Behavior) bo
 		}
 	}
 	return false
-}
-
-func processDest(ctx context.Context, c malcontent.Config, from, to map[string]*malcontent.FileReport, d *malcontent.DiffReport) {
-	// findings that exist only in the destination
-	for relPath, tr := range to {
-		fr, exists := from[relPath]
-		if !exists {
-			d.Added.Set(relPath, tr)
-			continue
-		}
-
-		fileDestination(ctx, c, fr, tr, relPath, d)
-	}
-}
-
-func fileDestination(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileReport, relPath string, d *malcontent.DiffReport) {
-	// We've now established that this file exists in both source and destination
-	if fr.RiskScore < c.MinFileRisk && tr.RiskScore < c.MinFileRisk {
-		clog.FromContext(ctx).Info("diff does not meet min trigger level", slog.Any("path", tr.Path))
-		return
-	}
-
-	// Filter files that are marked as added
-	if filterDiff(ctx, c, fr, tr) {
-		return
-	}
-
-	abs := createFileReport(tr, fr)
-
-	// if destination behavior is not in the source
-	for _, tb := range tr.Behaviors {
-		if !behaviorExists(tb, fr.Behaviors) {
-			tb.DiffAdded = true
-			abs.Behaviors = append(abs.Behaviors, tb)
-		}
-	}
-
-	// are there already modified behaviors for this file?
-	if _, exists := d.Modified.Get(relPath); !exists {
-		d.Modified.Set(relPath, abs)
-	} else {
-		if rel, exists := d.Modified.Get(relPath); exists {
-			rel.Behaviors = append(rel.Behaviors, abs.Behaviors...)
-			d.Modified.Set(relPath, rel)
-		}
-	}
 }
 
 // filterMap filters orderedmap pairs by checking for matches against a slice of compiled regular expression patterns.
