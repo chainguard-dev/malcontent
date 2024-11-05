@@ -2,6 +2,7 @@
 3P/JPCERT/crypthunter_jsdownloader: critical
 3P/JPCERT/crypthunter_pythonsimplerat: critical
 anti-static/obfuscation/python/codecs_decode: high
+anti-static/obfuscation/python/multi_decode: medium
 c2/tool_transfer/python: high
 data/base64/decode: medium
 data/encoding/base64: low

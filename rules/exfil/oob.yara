@@ -17,9 +17,10 @@ rule burp_collab: high {
     description = "uploads content to security collaboration site"
 
   strings:
-    $bc      = /[\w]{8,32}\.burpcollaborator\.net/
-    $oastify = /[\w]{8,32}\.oastify\.com/
-    $oastfun = /[\w]{8,32}\.oast\.fun/
+    $bc        = /[\w]{8,32}\.burpcollaborator\.net/
+    $oastify   = /[\w]{8,32}\.oastify\.com/
+    $oastfun   = /[\w]{8,32}\.oast\.fun/
+    $pipedream = /[\w]{8,32}\.m\.pipedream\.net/
 
   condition:
     any of them

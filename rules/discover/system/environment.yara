@@ -1,9 +1,9 @@
-rule os_environ: harmless {
+rule os_environ: medium {
   meta:
     description = "Dump values from the environment"
 
   strings:
-    $ref = "os.environ" fullword
+    $ref = "os.environ.items()" fullword
 
   condition:
     any of them

@@ -5,7 +5,7 @@ anti-static/base64/function_names: critical
 c2/addr/http_ip: high
 c2/tool_transfer/shell: medium
 credential/shell/bash_history: high
-credential/ssh: medium
+credential/ssh: high
 data/base64/external: medium
 data/embedded/base64_url: medium
 data/encoding/base64: low
@@ -13,6 +13,7 @@ evasion/hidden_files/hidden: medium
 exec/shell/pipe_sh: medium
 exec/shell/tmp_semicolon: high
 exfil/stealer/linux_server: high
+exfil/stealer/ssh: high
 fs/file/delete: medium
 fs/file/delete_forcibly: medium
 fs/file/times_set: medium

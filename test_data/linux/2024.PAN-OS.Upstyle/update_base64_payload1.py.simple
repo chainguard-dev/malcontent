@@ -1,6 +1,6 @@
 # linux/2024.PAN-OS.Upstyle/update_base64_payload1.py: critical
 3P/volexity/py_upstyle: critical
-anti-static/base64/eval: critical
+anti-static/base64/eval: high
 anti-static/base64/function_names: critical
 data/base64/decode: medium
 data/encoding/base64: low

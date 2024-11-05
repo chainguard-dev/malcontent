@@ -4,14 +4,13 @@ c2/server_address: medium
 collect/archives/zip: medium
 credential/keychain: medium
 credential/password: low
-credential/ssh: medium
 credential/ssl/private_key: low
 crypto/aes: low
 crypto/ecdsa: low
 crypto/ed25519: low
 crypto/tls: low
 data/compression/bzip2: low
-data/compression/gzip: low
+data/compression/lzma: low
 data/compression/zstd: low
 data/embedded/pem_certificate: low
 data/embedded/pem_test_key: low
@@ -47,6 +46,7 @@ fs/fifo_create: low
 fs/file/delete: low
 fs/file/delete_forcibly: low
 fs/file/read: low
+fs/file/rename: low
 fs/file/stat: low
 fs/file/write: low
 fs/link_create: low

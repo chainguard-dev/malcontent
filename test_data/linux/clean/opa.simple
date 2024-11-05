@@ -35,6 +35,7 @@ fs/directory/remove: low
 fs/file/copy: medium
 fs/file/delete: low
 fs/file/read: low
+fs/file/rename: low
 fs/file/stat: low
 fs/file/times_set: low
 fs/file/write: low

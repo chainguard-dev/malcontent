@@ -1,0 +1,11 @@
+# javascript/clean/connection.js: high
+anti-static/base64/exec: high
+anti-static/obfuscation/generic/hex_conversion: medium
+credential/password: low
+data/embedded/base64_terms: medium
+data/embedded/base64_url: medium
+data/encoding/base64: low
+net/dns: low
+net/socket/send: low
+net/url/embedded: low
+os/fd/write: low

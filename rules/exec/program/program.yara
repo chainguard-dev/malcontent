@@ -95,9 +95,10 @@ rule py_subprocess: notable {
     hash_2023_libgrandrandomintel_3_58_setup = "cd211e0f8d84100b1b4c1655e913f40a76beaacc482e751e3a7c7ed126fe1a90"
 
   strings:
-    $naked     = "subprocess"
-    $val       = /subprocess\.\w{1,16}[\(\"\/\w\'\.\- \,\[\]\/\{\}]{0,64}/
-    $os_system = /os.system\([\"\'\w\. \-\)\/\{\}]{0,64}/
+    $naked        = "subprocess"
+    $val          = /subprocess\.\w{1,16}[\(\"\/\w\'\.\- \,\[\]\/\{\}]{0,64}/
+    $os_system    = /os.system\([\"\'\w\. \-\)\/\{\}]{0,64}/
+    $os_startfile = /os.startfile\(.{0,64}/
 
   condition:
     any of them

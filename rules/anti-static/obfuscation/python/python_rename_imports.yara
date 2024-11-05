@@ -9,7 +9,7 @@ rule rename_requests: medium {
     $ref = /import requests as \w{0,64}/
 
   condition:
-    filesize < 65535 and all of them
+    filesize < 512KB and all of them
 }
 
 rule rename_requests_2char: high {
@@ -49,7 +49,7 @@ rule rename_marshal: critical {
     $ref = /import marshal as \w{0,64}/
 
   condition:
-    filesize < 65535 and all of them
+    filesize < 512KB and all of them
 }
 
 rule rename_base64: critical {
@@ -63,5 +63,19 @@ rule rename_base64: critical {
     $ref = /import base64 as \w{0,64}/
 
   condition:
-    filesize < 65535 and all of them
+    filesize < 1MB and all of them
+}
+
+rule rename_zlib: high {
+  meta:
+    description                          = "imports 'base64' library and gives it another name"
+    hash_2022_very_hackerman_0_0_1_setup = "66a4a39a3c79a24bdf150cb87106920442a3db20a59810eb3e06149b028c7bff"
+    hash_2022_example_package_init       = "5c0db191458fe648d6799d1461d20e79e65986ba6db522db3737ebbf99c577cb"
+    hash_2022_xoloaghvurilnh_init        = "87a23edfa8fbcc13d1a25b9ac808dbc36c417fda508f98186455a7991a52b6c0"
+
+  strings:
+    $ref = /import zlib as \w{0,64}/
+
+  condition:
+    filesize < 512KB and all of them
 }
