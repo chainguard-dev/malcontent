@@ -97,6 +97,8 @@ var dateRe = regexp.MustCompile(`[a-z]{3}\d{1,2}`)
 
 // Map to handle RiskLevel -> RiskScore conversions.
 var Levels = map[string]int{
+	"ignore":     -1,
+	"none":       -1,
 	"harmless":   0,
 	"low":        1,
 	"notable":    2,
@@ -417,6 +419,8 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 		// If running a scan as opposed to an analyze,
 		// drop any matches that fall below the highest risk
 		switch {
+		case risk == -1:
+			continue
 		case risk < minScore && !ignoreMalcontent && !override:
 			continue
 		case c.Scan && risk < highestRisk && !ignoreMalcontent && !override:
