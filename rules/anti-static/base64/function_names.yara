@@ -157,7 +157,7 @@ rule base64_python_functions: critical {
     $f_b64decode     = "base64.b64decode" base64
     $f_exc           = "except Exception as" base64
     $f_os_system     = "os.system" base64
-    $f_os_startfile     = "os.startfile" base64
+    $f_os_startfile  = "os.startfile" base64
     $f_os_popen      = "os.popen" base64
     $f_thread        = "threading.Thread" base64
     $f_os_environ    = "os.environ" base64

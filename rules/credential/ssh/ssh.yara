@@ -15,12 +15,13 @@ rule ssh_folder: medium {
     filesize < 20MB and $slash or ($re and not $pkg)
 }
 
-
-rule id_rsa:high {
+rule id_rsa: high {
   meta:
-    description                                                                          = "accesses SSH private keys"
+    description = "accesses SSH private keys"
+
   strings:
-	$id_rsa = "id_rsa" fullword
+    $id_rsa = "id_rsa" fullword
+
   condition:
-	filesize < 10MB and ssh_folder and $id_rsa
+    filesize < 10MB and ssh_folder and $id_rsa
 }

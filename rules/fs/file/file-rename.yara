@@ -15,9 +15,10 @@ rule rename: harmless posix {
 rule os_rename: low {
   meta:
     description = "renames files"
-	filetypes = "py"
+    filetypes   = "py"
+
   strings:
-    $rename      = "os.rename" fullword
+    $rename = "os.rename" fullword
 
   condition:
     any of them

@@ -27,8 +27,8 @@ private rule pythonSetup {
   strings:
     $if_distutils  = /from distutils.core import .{0,32}setup/
     $if_setuptools = /from setuptools import .{0,32}setup/
-	$i_setuptools = "import setuptools"
-    $setup        = "setup("
+    $i_setuptools  = "import setuptools"
+    $setup         = "setup("
 
     $not_setup_example = ">>> setup("
     $not_setup_todict  = "setup(**config.todict()"
