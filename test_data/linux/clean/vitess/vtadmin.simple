@@ -72,6 +72,7 @@ fs/file/read: low
 fs/file/rename: low
 fs/file/stat: low
 fs/file/times_set: medium
+fs/file/write: low
 fs/link_read: low
 fs/lock_update: low
 fs/mount: low

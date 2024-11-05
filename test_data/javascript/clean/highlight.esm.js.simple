@@ -30,9 +30,11 @@ fs/directory/create: low
 fs/directory/remove: low
 fs/file/capabilities_set: low
 fs/file/copy: medium
-fs/file/delete: low
+fs/file/create: medium
+fs/file/delete: medium
 fs/file/read: low
 fs/file/times_set: medium
+fs/file/write: low
 fs/link_read: low
 fs/lock_update: low
 fs/path/dev: medium
@@ -63,6 +65,7 @@ net/url/encode: medium
 process/chdir: low
 process/chroot: low
 process/namespace_set: low
+process/terminate: medium
 process/terminate/taskkill: medium
 sec-tool/net/nmap: medium
 sus/intercept: medium

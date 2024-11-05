@@ -53,4 +53,4 @@ persist/daemon: medium
 privesc/uac_bypass: high
 process/multithreaded: medium
 process/name_get: medium
-process/terminate/taskkill: medium
+process/terminate/taskkill: high

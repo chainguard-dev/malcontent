@@ -80,7 +80,8 @@ fs/directory/create: low
 fs/directory/remove: low
 fs/file/capabilities_set: low
 fs/file/copy: medium
-fs/file/delete: low
+fs/file/create: medium
+fs/file/delete: medium
 fs/file/delete_forcibly: medium
 fs/file/open: low
 fs/file/read: low
