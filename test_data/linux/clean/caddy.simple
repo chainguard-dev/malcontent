@@ -14,7 +14,6 @@ collect/databases/sqlite: medium
 credential/password: low
 credential/server/htpasswd: medium
 credential/sniffer/bpf: medium
-credential/ssh: medium
 credential/ssh/d: medium
 credential/ssl/private_key: low
 crypto/aes: low
@@ -68,6 +67,7 @@ fs/file/delete: low
 fs/file/delete_forcibly: low
 fs/file/open: low
 fs/file/read: low
+fs/file/rename: low
 fs/file/times_set: medium
 fs/file/write: low
 fs/link_read: low

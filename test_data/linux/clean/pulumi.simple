@@ -12,7 +12,6 @@ credential/clipboard: medium
 credential/cloud/g: medium
 credential/keychain: medium
 credential/password: low
-credential/ssh: medium
 credential/ssl/private_key: low
 crypto/aes: low
 crypto/blockchain: medium
@@ -70,6 +69,7 @@ fs/file/delete: low
 fs/file/delete_forcibly: low
 fs/file/open: low
 fs/file/read: low
+fs/file/rename: low
 fs/file/times_set: medium
 fs/file/write: low
 fs/link_read: low

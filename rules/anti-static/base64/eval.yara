@@ -7,7 +7,7 @@ rule eval_base64: high {
     hash_2023_0xShell       = "a6f1f9c9180cb77952398e719e4ef083ccac1e54c5242ea2bc6fe63e6ab4bb29"
 
   strings:
-    $eval = /eval\(.{0,64}base64/
+    $eval = /eval\(.{0,256}base64/
 
   condition:
     any of them
@@ -51,10 +51,10 @@ rule ruby_eval2_near_enough: critical {
     $base64 = "b64decode"
 
   condition:
-    all of them and math.abs(@base64 - @eval) <= 64
+    all of them and math.abs(@base64 - @eval) <= 200
 }
 
-rule python_exec_near_enough: critical {
+rule python_exec_near_enough: high {
   meta:
     description                                                                               = "Evaluates base64 content"
     hash_2023_UPX_7f5fd8c7cad4873993468c0c0a4cabdd8540fd6c2679351f58580524c1bfd0af_elf_x86_64 = "3b9f8c159df5d342213ed7bd5bc6e07bb103a055f4ac90ddb4b981957cd0ab53"
@@ -66,7 +66,7 @@ rule python_exec_near_enough: critical {
     $base64 = "b64decode"
 
   condition:
-    all of them and math.abs(@base64 - @exec) < 128
+    all of them and math.abs(@base64 - @exec) < 200
 }
 
 rule echo_decode_bash_probable: high {

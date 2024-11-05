@@ -7,6 +7,7 @@ credential/password: low
 crypto/file_encrypter: medium
 data/base64/decode: medium
 data/compression/bzip2: low
+data/compression/lzma: low
 data/encoding/base64: low
 data/encoding/json_encode: low
 data/random/insecure: low

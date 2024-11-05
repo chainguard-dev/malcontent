@@ -1,0 +1,9 @@
+# python/2024.business-kpi-manager-5.9.1/pre_install.py: critical
+discover/user/name_get: medium
+exec/program: medium
+exfil/curl_post: medium
+exfil/oob: high
+exfil/whoami_hostname: high
+net/download/fetch: medium
+net/http/post: medium
+net/url/embedded: low

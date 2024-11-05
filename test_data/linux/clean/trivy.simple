@@ -23,7 +23,6 @@ credential/keychain: medium
 credential/password: low
 credential/server/htpasswd: medium
 credential/sniffer/bpf: medium
-credential/ssh: medium
 credential/ssl/private_key: low
 crypto/aes: low
 crypto/blockchain: medium
@@ -33,7 +32,7 @@ crypto/tls: low
 data/base64/decode: medium
 data/builtin/openssl: medium
 data/compression/bzip2: low
-data/compression/gzip: low
+data/compression/lzma: low
 data/compression/xz: medium
 data/compression/zstd: low
 data/embedded/html: medium
@@ -90,6 +89,7 @@ fs/file/delete: low
 fs/file/delete_forcibly: medium
 fs/file/open: low
 fs/file/read: low
+fs/file/rename: low
 fs/file/stat: low
 fs/file/times_set: medium
 fs/file/truncate: low
