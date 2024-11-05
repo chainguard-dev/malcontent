@@ -63,9 +63,6 @@ fs/tempdir/create: low
 fs/tempdir/tempfile_create: low
 fs/watch: low
 impact/ddos/raw_flooder: medium
-impact/degrade/infection: none
-impact/degrade/linux_paths: none
-impact/remote_access/reverse_shell: none
 lateral/scan/tool: medium
 net/ip/addr: medium
 net/ip/icmp: medium
