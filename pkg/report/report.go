@@ -98,6 +98,8 @@ var dateRe = regexp.MustCompile(`[a-z]{3}\d{1,2}`)
 // Map to handle RiskLevel -> RiskScore conversions.
 var Levels = map[string]int{
 	"harmless":   0,
+	"ignore":     0,
+	"none":       0,
 	"low":        1,
 	"notable":    2,
 	"medium":     2,
