@@ -173,21 +173,21 @@ addq ${malcontent} --format=markdown \
 for f in $(find "${test_data}" -name "*.simple"); do
 	prog=$(echo $f | sed -e s#"${test_data}/"## -e s#\.simple\$##)
 	if [[ -f "${prog}" ]]; then
-		addq ${malcontent} --format=simple --ignore-tags=harmless -o "${f}" analyze "${prog}"
+		addq ${malcontent} --format=simple --min-file-risk=1 --min-risk=1 --ignore-tags=harmless -o "${f}" analyze "${prog}"
 	fi
 done
 
 for f in $(find "${test_data}" -name "*.md"); do
 	prog=$(echo $f | sed -e s#"${test_data}/"## -e s#\.md\$##)
 	if [[ -f "${prog}" ]]; then
-		addq ${malcontent} --format=markdown --ignore-tags=harmless -o "${f}" analyze "${prog}"
+		addq ${malcontent} --format=markdown --min-file-risk=1 --min-risk=1 --ignore-tags=harmless -o "${f}" analyze "${prog}"
 	fi
 done
 
 for f in $(find "${test_data}" -name "*.json"); do
 	prog=$(echo $f | sed -e s#"${test_data}/"## -e s#\.json\$##)
 	if [[ -f "${prog}" ]]; then
-		addq ${malcontent} --format=json --min-risk=1 -o "${f}" analyze "${prog}"
+		addq ${malcontent} --format=json --min-file-risk=1 --min-risk=1 -o "${f}" analyze "${prog}"
 	fi
 done
 
