@@ -7,7 +7,7 @@
 # NOTE: This is slow to run, so for small changes you are better
 # off manually updating a single test file.
 
-set -eu -o pipefail
+set -eu -o pipefail -x
 
 MAX_PROCS=${MAX_PROCS:=8}
 readonly malcontent=$(realpath $1)
@@ -18,13 +18,19 @@ cd ..
 readonly root_dir=$(pwd)
 readonly test_data="${root_dir}/tests"
 
-if [[ -z "${malcontent}" ]]; then
-	echo "must pass location of malcontent"
+if [[ -z "${malcontent}" || -z "${samples}" ]]; then
+	echo "usage: ./refresh-testdata.sh /path/to/mal/binary /path/to/samples"
 	exit 1
 fi
 
 if [[ ! -x "${malcontent}" ]]; then
 	echo "malcontent at ${malcontent} is not executable"
+	exit 1
+fi
+
+
+if [[ ! -d "${samples}" ]]; then
+	echo "sample directory ${samples} does not exist"
 	exit 1
 fi
 
@@ -175,7 +181,8 @@ for f in $(find "${test_data}" -name "*.simple"); do
 	if [[ -s "${prog}" ]]; then
 		addq ${malcontent} --format=simple --min-file-risk=1 --min-risk=1 --ignore-tags=harmless -o "${f}" analyze "${prog}"
 	else
-		"*** ${prog} is empty or does not exist"
+		"*** ${prog} sample is empty or does not exist"
+		exit 1
 	fi
 done
 
@@ -184,7 +191,8 @@ for f in $(find "${test_data}" -name "*.md"); do
 	if [[ -s "${prog}" ]]; then
 		addq ${malcontent} --format=markdown --min-file-risk=1 --min-risk=1 --ignore-tags=harmless -o "${f}" analyze "${prog}"
 	else
-		"*** ${prog} is empty or does not exist"
+		"*** ${prog} sample is empty or does not exist"
+		exit 1
 	fi
 done
 
@@ -193,7 +201,8 @@ for f in $(find "${test_data}" -name "*.json"); do
 	if [[ -s "${prog}" ]]; then
 		addq ${malcontent} --format=json --min-file-risk=1 --min-risk=1 -o "${f}" analyze "${prog}"
 	else
-		"*** ${prog} is empty or does not exist"
+		"*** ${prog} sample is empty or does not exist"
+		exit 1
 	fi
 done
 
