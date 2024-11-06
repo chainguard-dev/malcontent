@@ -40,6 +40,11 @@ func init() {
 	testDataDir = filepath.Dir(me)
 	fmt.Printf(">>> test data dir: %s\n", testDataDir)
 	fmt.Printf(">>> sample data dir: %s\n", sampleDir)
+
+	if _, err := os.Stat(sampleDir); err != nil {
+		fmt.Printf("samples directory %q does not exist - please use 'make integration' or git clone https://github.com/chainguard-dev/malcontent-samples appropriately. This path may be overridden by --sample_dir", sampleDir)
+		os.Exit(1)
+	}
 }
 
 func TestJSON(t *testing.T) {
@@ -233,7 +238,6 @@ func TestDiff(t *testing.T) {
 				Renderer:    simple,
 				RuleFS:      []fs.FS{rules.FS, thirdparty.FS},
 				ScanPaths:   []string{tc.src, tc.dest},
-				//, "../out/samples/")},
 			}
 
 			logger := clog.New(slog.Default().Handler()).With("src", tc.src)

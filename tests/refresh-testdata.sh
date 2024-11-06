@@ -172,22 +172,28 @@ addq ${malcontent} --format=markdown \
 
 for f in $(find "${test_data}" -name "*.simple"); do
 	prog=$(echo $f | sed -e s#"${test_data}/"## -e s#\.simple\$##)
-	if [[ -f "${prog}" ]]; then
+	if [[ -s "${prog}" ]]; then
 		addq ${malcontent} --format=simple --min-file-risk=1 --min-risk=1 --ignore-tags=harmless -o "${f}" analyze "${prog}"
+	else
+		"*** ${prog} is empty or does not exist"
 	fi
 done
 
 for f in $(find "${test_data}" -name "*.md"); do
 	prog=$(echo $f | sed -e s#"${test_data}/"## -e s#\.md\$##)
-	if [[ -f "${prog}" ]]; then
+	if [[ -s "${prog}" ]]; then
 		addq ${malcontent} --format=markdown --min-file-risk=1 --min-risk=1 --ignore-tags=harmless -o "${f}" analyze "${prog}"
+	else
+		"*** ${prog} is empty or does not exist"
 	fi
 done
 
 for f in $(find "${test_data}" -name "*.json"); do
 	prog=$(echo $f | sed -e s#"${test_data}/"## -e s#\.json\$##)
-	if [[ -f "${prog}" ]]; then
+	if [[ -s "${prog}" ]]; then
 		addq ${malcontent} --format=json --min-file-risk=1 --min-risk=1 -o "${f}" analyze "${prog}"
+	else
+		"*** ${prog} is empty or does not exist"
 	fi
 done
 
