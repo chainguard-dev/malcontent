@@ -53,7 +53,6 @@ exec/install_additional/pip_install: medium
 exec/plugin: low
 exec/program: medium
 exec/program/background: low
-exec/remote_commands/code_eval: medium
 exec/script/osa: medium
 exec/shell/SHELL: low
 exec/shell/TERM: low
@@ -65,7 +64,8 @@ fs/directory/list: low
 fs/directory/remove: low
 fs/fifo_create: low
 fs/file/copy: medium
-fs/file/delete: low
+fs/file/create: medium
+fs/file/delete: medium
 fs/file/delete_forcibly: low
 fs/file/open: low
 fs/file/read: low

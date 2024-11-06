@@ -41,3 +41,14 @@ rule del: medium windows {
   condition:
     filesize < 16KB and $del and any of ($cmd*)
 }
+
+rule DeleteFile: medium {
+  meta:
+    description = "delete a file"
+
+  strings:
+    $create = /DeleteFile\w{0,8}/
+
+  condition:
+    any of them
+}

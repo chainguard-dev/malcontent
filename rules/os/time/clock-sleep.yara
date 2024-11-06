@@ -21,3 +21,14 @@ rule setInterval: medium {
   condition:
     filesize < 1MB and any of them
 }
+
+rule sleepRandom: medium {
+  meta:
+    description = "sleeps a random amount of time"
+
+  strings:
+    $sleep = /sleep rand\*\d{1,8}/
+
+  condition:
+    filesize < 1MB and any of them
+}

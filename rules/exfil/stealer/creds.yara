@@ -34,3 +34,18 @@ rule suspected_data_stealer: high {
   condition:
     (8 of them and none of ($not*)) or 5 of ($s*)
 }
+
+rule steal_creds: high {
+  meta:
+    description = "may steal credentials"
+
+  strings:
+    $StealCreds        = "StealCreds"
+    $StealCredentials  = "StealCredentials"
+    $steal_credentials = "steal_credentials"
+    $steal_creds       = "steal_creds" fullword
+
+  condition:
+    any of them
+}
+
