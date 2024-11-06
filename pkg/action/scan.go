@@ -154,34 +154,49 @@ func errIfHitOrMiss(frs *sync.Map, kind string, scanPath string, errIfHit bool, 
 		count  int
 		suffix string
 	)
-	if frs != nil {
-		frs.Range(func(_, value any) bool {
-			if value == nil {
-				return true
-			}
-			if fr, ok := value.(*malcontent.FileReport); ok {
-				for _, b := range fr.Behaviors {
-					count++
-					bMap.Store(b.ID, true)
-				}
-			}
-			return true
-		})
+	if frs == nil {
+		return nil
+	}
 
-		bMap.Range(func(key, _ any) bool {
-			if key == nil {
-				return true
-			}
-			if k, ok := key.(string); ok {
-				bList = append(bList, k)
-			}
-			return true
-		})
-		sort.Strings(bList)
+	filesScanned := 0
 
-		if len(bList) > 0 {
-			suffix = fmt.Sprintf(": %s", strings.Join(bList, " "))
+	frs.Range(func(_, value any) bool {
+		if value == nil {
+			return true
 		}
+		if fr, ok := value.(*malcontent.FileReport); ok {
+			if fr.Skipped != "" {
+				return true
+			}
+			if fr.Error != "" {
+				return true
+			}
+			filesScanned++
+			for _, b := range fr.Behaviors {
+				count++
+				bMap.Store(b.ID, true)
+			}
+		}
+		return true
+	})
+
+	bMap.Range(func(key, _ any) bool {
+		if key == nil {
+			return true
+		}
+		if k, ok := key.(string); ok {
+			bList = append(bList, k)
+		}
+		return true
+	})
+	sort.Strings(bList)
+
+	if len(bList) > 0 {
+		suffix = fmt.Sprintf(": %s", strings.Join(bList, " "))
+	}
+
+	if filesScanned == 0 {
+		return nil
 	}
 
 	// Behavioral note: this logic is per-archive or per-file, depending on context
@@ -190,7 +205,7 @@ func errIfHitOrMiss(frs *sync.Map, kind string, scanPath string, errIfHit bool, 
 	}
 
 	if errIfMiss && count == 0 {
-		return fmt.Errorf("no matching capabilities in %s %s%s", scanPath, kind, suffix)
+		return fmt.Errorf("no matching capabilities in %q kind=%s suffix=%s", scanPath, kind, suffix)
 	}
 	return nil
 }
