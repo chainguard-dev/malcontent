@@ -8,6 +8,7 @@ import (
 	"context"
 	"errors"
 	"flag"
+	"fmt"
 	"io/fs"
 	"log/slog"
 	"os"
@@ -27,10 +28,18 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-var testDataRoot = ""
+var sampleDir = ""
+var testDataDir = ""
 
 func init() {
-	flag.StringVar(&testDataRoot, "test_data", "../out/chainguard-dev/malcontent-samples", "root directory of sample data")
+	flag.StringVar(&sampleDir, "sample_dir",
+		"../out/chainguard-dev/malcontent-samples",
+		"root directory of sample data, typically checked out from https://github.com/chainguard-dev/malcontent-samples via 'make integration'")
+
+	_, me, _, _ := runtime.Caller(0)
+	testDataDir = filepath.Dir(me)
+	fmt.Printf(">>> test data dir: %s\n", testDataDir)
+	fmt.Printf(">>> sample data dir: %s\n", sampleDir)
 }
 
 func TestJSON(t *testing.T) {
@@ -38,7 +47,8 @@ func TestJSON(t *testing.T) {
 	ctx := slogtest.Context(t)
 	clog.FromContext(ctx).With("test", "TestJSON")
 
-	fileSystem := os.DirFS(testDataRoot)
+	fileSystem := os.DirFS(testDataDir)
+	os.Chdir(sampleDir)
 
 	fs.WalkDir(fileSystem, ".", func(path string, _ fs.DirEntry, err error) error {
 		if err != nil {
@@ -50,7 +60,7 @@ func TestJSON(t *testing.T) {
 
 		name := strings.ReplaceAll(path, ".json", "")
 		jsonPath := path
-		binPath := filepath.Join(testDataRoot, name)
+		binPath := name
 
 		// must be a non-test JSON
 		if _, err := os.Stat(binPath); err != nil {
@@ -107,7 +117,9 @@ func TestSimple(t *testing.T) {
 	t.Parallel()
 	ctx := slogtest.Context(t)
 	clog.FromContext(ctx).With("test", "simple")
-	fileSystem := os.DirFS(testDataRoot)
+
+	fileSystem := os.DirFS(testDataDir)
+	os.Chdir(sampleDir)
 
 	fs.WalkDir(fileSystem, ".", func(path string, _ fs.DirEntry, err error) error {
 		if err != nil {
@@ -121,7 +133,7 @@ func TestSimple(t *testing.T) {
 		testPath := path
 
 		t.Run(name, func(t *testing.T) {
-			binPath := filepath.Join(testDataRoot, name)
+			binPath := name
 			binDir := filepath.Dir(binPath)
 			if _, err := os.Stat(binPath); err != nil {
 				t.Fatalf("test program missing: %s\ncontents of %s: %v", binPath, binDir, testInputs(binDir))
@@ -175,7 +187,8 @@ func TestDiff(t *testing.T) {
 	ctx := slogtest.Context(t)
 	clog.FromContext(ctx).With("test", "diff")
 
-	fileSystem := os.DirFS(testDataRoot)
+	fileSystem := os.DirFS(testDataDir)
+	os.Chdir(sampleDir)
 
 	tests := []struct {
 		diff           string
@@ -219,7 +232,8 @@ func TestDiff(t *testing.T) {
 				MinRisk:     tc.minResultScore,
 				Renderer:    simple,
 				RuleFS:      []fs.FS{rules.FS, thirdparty.FS},
-				ScanPaths:   []string{strings.TrimPrefix(tc.src, "../out/samples/"), strings.TrimPrefix(tc.dest, "../out/samples/")},
+				ScanPaths:   []string{tc.src, tc.dest},
+				//, "../out/samples/")},
 			}
 
 			logger := clog.New(slog.Default().Handler()).With("src", tc.src)
@@ -245,7 +259,8 @@ func TestDiffFileChange(t *testing.T) {
 	ctx := slogtest.Context(t)
 	clog.FromContext(ctx).With("test", "diff")
 
-	fileSystem := os.DirFS(testDataRoot)
+	fileSystem := os.DirFS(testDataDir)
+	os.Chdir(sampleDir)
 
 	tests := []struct {
 		diff           string
@@ -311,7 +326,8 @@ func TestDiffFileIncrease(t *testing.T) {
 	ctx := slogtest.Context(t)
 	clog.FromContext(ctx).With("test", "diff")
 
-	fileSystem := os.DirFS(testDataRoot)
+	fileSystem := os.DirFS(testDataDir)
+	os.Chdir(sampleDir)
 
 	tests := []struct {
 		diff           string
@@ -408,7 +424,9 @@ func TestMarkdown(t *testing.T) {
 	t.Parallel()
 	ctx := slogtest.Context(t)
 	clog.FromContext(ctx).With("test", "TestMarkDown")
-	fileSystem := os.DirFS(testDataRoot)
+
+	fileSystem := os.DirFS(testDataDir)
+	os.Chdir(sampleDir)
 
 	fs.WalkDir(fileSystem, ".", func(path string, _ fs.DirEntry, err error) error {
 		if err != nil {
@@ -420,7 +438,7 @@ func TestMarkdown(t *testing.T) {
 
 		name := strings.ReplaceAll(path, ".md", "")
 		t.Run(name, func(t *testing.T) {
-			binPath := filepath.Join(testDataRoot, name)
+			binPath := name
 			binDir := filepath.Dir(binPath)
 			if _, err := os.Stat(binPath); err != nil {
 				t.Fatalf("test program missing: %s\ncontents of %s: %v", binPath, binDir, testInputs(binDir))
