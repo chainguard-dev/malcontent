@@ -1,0 +1,6 @@
+# linux/clean/defense_evasion_defender_exclusion_via_powershell.json: medium
+exec/shell/power: medium
+impact/degrade/win_defender: low
+impact/exploit: medium
+net/url/embedded: low
+sus/malicious: medium
