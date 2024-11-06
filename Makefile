@@ -1,6 +1,10 @@
 # Copyright 2024 Chainguard, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
+
+SAMPLES_REPO ?= chainguard-dev/malcontent-samples
+SAMPLES_COMMIT ?= e58368a24b930f7dcf555678a8bc63f9d45aef24
+
 # BEGIN: lint-install ../malcontent
 # http://github.com/tinkerbell/lint-install
 
@@ -75,40 +79,31 @@ fix: $(FIXERS)
 
 # END: lint-install ../malcontent
 
-SAMPLES_REPO ?= chainguard-dev/malcontent-samples
-SAMPLES_COMMIT ?= e58368a24b930f7dcf555678a8bc63f9d45aef24
-OUT_DIR=out/samples-$(SAMPLES_COMMIT).tmp
-out/samples-$(SAMPLES_COMMIT):
-	mkdir -p out
-	xz --version
-	git clone https://github.com/$(SAMPLES_REPO).git $(OUT_DIR)
-	git -C $(OUT_DIR) checkout $(SAMPLES_COMMIT)
-	@for file in $$(find $(OUT_DIR) -name "*.xz" -print0 | xargs -0 echo); do \
-    dir=$$(dirname "$$file"); \
-    base=$$(basename "$$file" .xz); \
-    fullpath="$$dir/$$base"; \
-    temp_path="$$fullpath".temp; \
-    xz -dc "$$file" > "$$temp_path"; \
-    if file "$$temp_path" | grep -q "POSIX tar archive"; then \
-      if [ "$(shell uname)" = "Darwin" ]; then \
-        tar xJvf "$$temp_path" -C $$(dirname "$$temp_path"); \
-      elif [ "$(shell uname)" = "Linux" ]; then \
-        tar xvf "$$temp_path" -C $$(dirname "$$temp_path"); \
-      fi; \
-      rm "$$temp_path"; \
-    else \
-      mv "$$temp_path" "$$fullpath"; \
-    fi; \
-    done
-	mv $(OUT_DIR) $(basename $(OUT_DIR))
+# sample checkouts have 3 stages:
+# out/samples/.git - I'm a blank git repo
+# out/samples/.git/commit-<hash> - I'm checked out to this particular commit
+# out/samples/.decompressed-<hash> - I've decompressed to this particular commit
 
-prepare-samples: out/samples-$(SAMPLES_COMMIT)
-	cp -a test_data/. $(basename $(OUT_DIR))
+out/${SAMPLES_REPO}/.git/commit-$(SAMPLES_COMMIT):
+	mkdir -p out/$(SAMPLES_REPO)
+	test -d out/$(SAMPLES_REPO)/.git || git clone --depth 10 https://github.com/$(SAMPLES_REPO).git out/$(SAMPLES_REPO)
+	rm out/$(SAMPLES_REPO)/.git/commit-* 2>/dev/null || true
+	git -C out/$(SAMPLES_REPO) checkout $(SAMPLES_COMMIT)
+	touch out/$(SAMPLES_REPO)/.git/commit-$(SAMPLES_COMMIT)
 
+out/$(SAMPLES_REPO)/.decompressed-$(SAMPLES_COMMIT): out/${SAMPLES_REPO}/.git/commit-$(SAMPLES_COMMIT)
+	find out/$(SAMPLES_REPO)/ -name "*.xz" -type f -exec xz -dk {} \;
+	touch out/$(SAMPLES_REPO)/.decompressed-$(SAMPLES_COMMIT)
+
+# unit tests only
 .PHONY: test
-test: prepare-samples
-	go test ./out/samples-$(SAMPLES_COMMIT)
+test:
 	go test ./pkg/...
+
+# integration tests only
+.PHONY: integration
+integration: out/$(SAMPLES_REPO)/.decompressed-$(SAMPLES_COMMIT)
+	go test ./tests/...
 
 .PHONY: bench
 bench:
@@ -169,9 +164,9 @@ out/mal:
 update-third-party:
 	./third_party/yara/update.sh
 
-.PHONY: refresh-sample-testdata out/mal
-refresh-sample-testdata: out/samples-$(SAMPLES_COMMIT) out/mal
-	./test_data/refresh-testdata.sh ./out/mal out/samples-$(SAMPLES_COMMIT)
+.PHONY: refresh-sample-testdata
+refresh-sample-testdata: out/$(SAMPLES_REPO)/.decompressed-$(SAMPLES_COMMIT) out/mal
+	./test_data/refresh-testdata.sh ./out/mal out/$(SAMPLES_REPO)
 
 ARCH ?= $(shell uname -m)
 CRANE_VERSION=v0.20.2

@@ -27,7 +27,11 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-var testDataRoot = "."
+var testDataRoot = ""
+
+func init() {
+	flag.StringVar(&testDataRoot, "test_data", "../out/chainguard-dev/malcontent-samples", "root directory of sample data")
+}
 
 func TestJSON(t *testing.T) {
 	t.Parallel()
