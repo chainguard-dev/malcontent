@@ -1,8 +1,0 @@
-# linux/2024.k4spreader/knlib: critical
-evasion/hidden_paths/chdir_unusual: high
-evasion/self_deletion/copy_run_delete: critical
-exec/shell/exec: medium
-exec/shell/ignore_output: medium
-exec/shell/nohup: medium
-fs/file/delete_forcibly: medium
-process/chdir: low

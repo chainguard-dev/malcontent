@@ -1,0 +1,4 @@
+# linux/2024.PAN-OS.Upstyle/dropper2.sh: medium
+c2/addr/ip: medium
+c2/tool_transfer/shell: medium
+net/download/fetch: medium

@@ -1,0 +1,26 @@
+# javascript/clean/bash.js: medium
+data/compression/bzip2: low
+data/compression/gzip: low
+discover/network/interface_list: medium
+discover/network/netstat: medium
+discover/system/network: medium
+discover/system/platform: low
+discover/user/name_get: medium
+evasion/bypass_security/linux/se: medium
+exec/shell/SHELL: low
+exec/shell/TERM: low
+fs/directory/create: low
+fs/directory/remove: low
+fs/fifo_create: low
+fs/node_create: low
+fs/permission/modify: medium
+fs/quota_manipulate: low
+fs/swap/on: low
+fs/unmount: low
+impact/degrade/infection: medium
+net/tcp/sftp: medium
+net/tcp/ssh: medium
+net/url/embedded: low
+persist/cron/tab: medium
+privesc/sudo: medium
+process/chroot: low

@@ -1,0 +1,20 @@
+# python/clean/setuptools/easy_install.py: medium
+anti-static/obfuscation/python/lib_alias: medium
+discover/system/platform: medium
+discover/user/HOME: low
+discover/user/USER: low
+exec/program: medium
+fs/directory/create: low
+fs/directory/list: low
+fs/directory/traverse: medium
+fs/file/delete: low
+fs/file/open: low
+fs/file/read: medium
+fs/permission/modify: medium
+fs/tempdir/create: low
+net/download: medium
+net/url/embedded: low
+os/env/get: low
+os/fd/write: low
+process/executable_path: medium
+sus/malicious: medium

@@ -1,0 +1,9 @@
+# windows/2024.GitHub.Clipper/raw.py: critical
+c2/tool_transfer/download: high
+c2/tool_transfer/exe_url: high
+c2/tool_transfer/python: high
+exec/program: medium
+fs/file/open: low
+fs/tempdir: low
+net/url/embedded: low
+net/url/request: medium

@@ -1,0 +1,17 @@
+# python/clean/setuptools/sandbox.py: medium
+discover/system/platform: medium
+exec/plugin: low
+exec/remote_commands/code_eval: medium
+fs/directory/create: low
+fs/directory/remove: low
+fs/fifo_create: low
+fs/file/delete: low
+fs/file/open: low
+fs/file/times_set: medium
+fs/link_read: low
+fs/node_create: low
+fs/permission/modify: medium
+fs/symlink_resolve: low
+net/url/embedded: low
+os/fd/read: low
+process/chroot: low

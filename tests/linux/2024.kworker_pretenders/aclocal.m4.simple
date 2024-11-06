@@ -1,0 +1,12 @@
+# linux/2024.kworker_pretenders/aclocal.m4: high
+discover/user/HOME: low
+exec/shell/command: medium
+exec/shell/exec: medium
+exfil/curl_elf: high
+fs/file/times_set: medium
+fs/file/truncate: low
+fs/link_read: low
+fs/lock_update: low
+fs/permission/modify: medium
+fs/proc/self_exe: medium
+process/create: low

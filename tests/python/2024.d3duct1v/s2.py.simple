@@ -1,0 +1,7 @@
+# python/2024.d3duct1v/s2.py: critical
+crypto/fernet: medium
+fs/directory/traverse: medium
+fs/file/open: low
+impact/ransom/fernet_listdir: critical
+os/fd/read: low
+os/fd/write: low

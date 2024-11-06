@@ -1,0 +1,12 @@
+# npm/2024.ndoe-fethc/unhook.js: high
+credential/ssl/key: high
+credential/ssl/private_key: low
+data/encoding/json_encode: low
+discover/user/info: medium
+exfil/stealer/crypto: high
+fs/file/read: low
+fs/lock_update: low
+impact/remote_access/agent: medium
+net/http/form_upload: medium
+net/http/post: medium
+net/url/embedded: low

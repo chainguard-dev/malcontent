@@ -1,0 +1,22 @@
+# linux/clean/wikiticker-2015-09-12-sampled.json: high
+anti-behavior/blocklist/user: medium
+c2/addr/ip: medium
+c2/addr/ip_port: medium
+c2/addr/php: medium
+credential/gaming/minecraft: medium
+crypto/aes: low
+crypto/fernet: medium
+exfil/stealer/wallet: medium
+fs/file/delete_forcibly: low
+fs/path/relative: medium
+impact/infection/infected: medium
+impact/remote_access/agent: medium
+impact/remote_access/botnet: high
+impact/remote_access/implant: medium
+impact/remote_access/trojan: medium
+net/download: medium
+net/http/cookies: medium
+net/http/post: medium
+net/url/embedded: low
+persist/daemon: medium
+sus/exclamation: medium

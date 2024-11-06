@@ -1,0 +1,4 @@
+# npm/2024.helmet-validate.axios/config.js: medium
+exec/remote_commands/code_eval: medium
+net/http/request: low
+net/url/embedded: low

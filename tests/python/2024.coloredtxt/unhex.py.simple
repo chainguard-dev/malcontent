@@ -1,0 +1,5 @@
+# python/2024.coloredtxt/unhex.py: critical
+anti-static/obfuscation/generic/hex_conversion: high
+anti-static/obfuscation/python/single_line_imports: high
+data/encoding/base64: low
+exec/remote_commands/code_eval: medium

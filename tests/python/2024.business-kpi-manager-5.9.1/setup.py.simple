@@ -1,0 +1,4 @@
+# python/2024.business-kpi-manager-5.9.1/setup.py: high
+impact/remote_access/py_setuptools: high
+net/download: medium
+net/url/embedded: low

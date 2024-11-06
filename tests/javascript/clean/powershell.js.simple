@@ -1,0 +1,8 @@
+# javascript/clean/powershell.js: medium
+anti-static/obfuscation/powershell/bxor: medium
+exec/shell/power: medium
+fs/directory/remove: low
+fs/file/copy: medium
+fs/file/delete: medium
+net/download/fetch: medium
+net/url/embedded: low

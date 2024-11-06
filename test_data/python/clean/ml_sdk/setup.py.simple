@@ -1,5 +1,0 @@
-# python/clean/ml_sdk/setup.py: medium
-exec/remote_commands/code_eval: medium
-fs/file/open: low
-net/url/embedded: low
-os/fd/read: low

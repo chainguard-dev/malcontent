@@ -1,0 +1,11 @@
+# linux/clean/pull-scripts: medium
+c2/tool_transfer/shell: medium
+exec/shell/exec: medium
+exec/shell/ignore_output: medium
+fs/directory/create: low
+fs/file/delete_forcibly: medium
+fs/file/make_executable: medium
+fs/permission/modify: medium
+net/download: medium
+net/download/fetch: medium
+process/chdir: low

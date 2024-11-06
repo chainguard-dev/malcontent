@@ -1,0 +1,4 @@
+# macOS/2024.AMOS/Cosmical_setup: critical
+exec/shell/exec: medium
+malware/family/amos: critical
+net/url/embedded: low

@@ -1,0 +1,5 @@
+# linux/2024.hadooken/wipe_logs.sh: critical
+evasion/logging/current_logins: medium
+evasion/logging/wipe: critical
+fs/path/var: low
+fs/path/var_log: medium

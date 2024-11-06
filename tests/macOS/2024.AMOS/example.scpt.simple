@@ -1,0 +1,5 @@
+# macOS/2024.AMOS/example.scpt: medium
+exfil/curl_post: medium
+fs/path/tmp: medium
+net/download/fetch: medium
+net/http/post: medium

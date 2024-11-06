@@ -1,6 +1,0 @@
-# npm/2024.nvmfix/config.js: critical
-anti-static/obfuscation/generic/hex_values: medium
-anti-static/obfuscation/js/child_process: critical
-anti-static/obfuscation/js/high_entropy: medium
-anti-static/obfuscation/js/int_to_char: medium
-process/create: medium

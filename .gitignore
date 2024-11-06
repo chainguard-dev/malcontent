@@ -27,5 +27,5 @@ profiles/
 # Jetbrains
 .idea/
 
-# Malcontent samples
+# Malcontent samples (obsolete)
 samples/

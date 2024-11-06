@@ -1,0 +1,6 @@
+# python/2024.d3duct1v/xfilesyncerx.py: critical
+anti-static/obfuscation/generic/bitwise_math: critical
+anti-static/obfuscation/python/rename_imports: high
+exec/remote_commands/code_eval: medium
+impact/remote_access/remote_eval: critical
+net/url/request: medium

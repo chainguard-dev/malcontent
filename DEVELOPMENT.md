@@ -19,7 +19,14 @@ yara -s -w rules/combo/dropper/shell.yara <path>
 
 ## Running tests
 
+unit tests:
+
 ```make test```
+
+integration tests:
+
+```make integration```
+
 
 ## Writing rule tests
 

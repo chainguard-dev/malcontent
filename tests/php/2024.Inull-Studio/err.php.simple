@@ -1,0 +1,4 @@
+# php/2024.Inull-Studio/err.php: critical
+anti-static/obfuscation/php/filler: medium
+evasion/indicator_blocking/mask_exceptions: medium
+impact/remote_access/php: critical

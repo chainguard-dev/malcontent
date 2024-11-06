@@ -1,0 +1,11 @@
+--- missing: ls.x86_64
+-data/compression/lzma
+-discover/system/hostname_get
+-exec/shell/TERM
+-fs/link_read
+-net/url/embedded
+-process/name_set
+++++ added: ls
++exec/shell/TERM
++fs/directory/traverse
++fs/link_read
