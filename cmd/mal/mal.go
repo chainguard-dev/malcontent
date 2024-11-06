@@ -8,6 +8,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io/fs"
 	"log/slog"
@@ -78,6 +79,16 @@ var riskMap = map[string]int{
 	"4":        4,
 	"crit":     4,
 	"critical": 4,
+}
+
+func showError(err error) {
+	emoji := "💣"
+	if errors.Is(err, action.ErrMatchedCondition) {
+		emoji = "👋"
+		err = errors.Unwrap(err)
+	}
+
+	fmt.Fprintf(os.Stderr, "%s %s\n", emoji, err.Error())
 }
 
 //nolint:cyclop // ignore complexity of 40
@@ -409,7 +420,8 @@ func main() {
 					res, err = action.Scan(ctx, mc)
 					if err != nil {
 						returnCode = ExitActionFailed
-						return fmt.Errorf("scan: %w", err)
+						showError(err)
+						return nil
 					}
 
 					err = renderer.Full(ctx, res)

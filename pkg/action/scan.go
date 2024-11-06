@@ -5,6 +5,7 @@ package action
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io/fs"
 	"log/slog"
@@ -31,7 +32,8 @@ var (
 	// compiledRuleCache are a cache of previously compiled rules.
 	compiledRuleCache *yara.Rules
 	// compileOnce ensures that we compile rules only once even across threads.
-	compileOnce sync.Once
+	compileOnce         sync.Once
+	ErrMatchedCondition = errors.New("matched requested condition")
 )
 
 // findFilesRecursively returns a list of files found recursively within a path.
@@ -233,7 +235,6 @@ func cachedRules(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {
 //nolint:gocognit,cyclop // ignoring complexity of 101,38
 func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) {
 	logger := clog.FromContext(ctx)
-	logger.Debug("recursive scan", slog.Any("config", c))
 	r := &malcontent.Report{
 		Files: orderedmap.New[string, *malcontent.FileReport](),
 	}
@@ -243,11 +244,12 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 
 	var scanPathFindings sync.Map
 
+	var waitErr error
+
 	for _, scanPath := range c.ScanPaths {
 		if c.Renderer != nil {
 			c.Renderer.Scanning(ctx, scanPath)
 		}
-		logger.Debug("recursive scan", slog.Any("scanPath", scanPath))
 		imageURI := ""
 		ociExtractPath := ""
 		var err error
@@ -323,18 +325,19 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 			fr, err := processFile(ctx, c, c.RuleFS, path, scanPath, trimPath, logger)
 			if err != nil {
 				scanPathFindings.Store(path, &malcontent.FileReport{})
-				return err
+				return fmt.Errorf("process: %w", err)
 			}
-			if fr != nil {
-				scanPathFindings.Store(path, fr)
-				if !c.OCI {
-					var frMap sync.Map
-					frMap.Store(path, fr)
-					if err := errIfHitOrMiss(&frMap, "file", path, c.ErrFirstHit, c.ErrFirstMiss); err != nil {
-						logger.Debugf("match short circuit: %s", err)
-						scanPathFindings.Store(path, fr)
-						return err
-					}
+			if fr == nil {
+				return nil
+			}
+
+			scanPathFindings.Store(path, fr)
+			if !c.OCI {
+				var frMap sync.Map
+				frMap.Store(path, fr)
+				if err := errIfHitOrMiss(&frMap, "file", path, c.ErrFirstHit, c.ErrFirstMiss); err != nil {
+					scanPathFindings.Store(path, fr)
+					return fmt.Errorf("%q: %w", path, ErrMatchedCondition)
 				}
 			}
 			return nil
@@ -351,8 +354,7 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 		}
 
 		if err := g.Wait(); err != nil {
-			logger.Errorf("error with processing %v\n", err)
-			return nil, err
+			waitErr = err
 		}
 
 		var pathKeys []string
@@ -396,6 +398,12 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 				}
 			}
 		}
+
+		// short-circuit out
+		if waitErr != nil {
+			return r, waitErr
+		}
+
 	} // loop: next scan path
 	return r, nil
 }
@@ -460,10 +468,7 @@ func processFile(ctx context.Context, c malcontent.Config, ruleFS []fs.FS, path 
 func Scan(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) {
 	r, err := recursiveScan(ctx, c)
 	if err != nil {
-		if strings.Contains(err.Error(), "no matching capabilities") {
-			return r, nil
-		}
-		return r, err
+		return r, fmt.Errorf("recursive: %w", err)
 	}
 	for files := r.Files.Oldest(); files != nil; files = files.Next() {
 		if files.Value.RiskScore < c.MinFileRisk {
@@ -473,7 +478,7 @@ func Scan(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) 
 	if c.Stats {
 		err = render.Statistics(r)
 		if err != nil {
-			return r, err
+			return r, fmt.Errorf("stats: %w", err)
 		}
 	}
 	return r, nil
