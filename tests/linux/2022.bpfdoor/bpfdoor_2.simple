@@ -1,0 +1,21 @@
+# linux/2022.bpfdoor/bpfdoor_2: critical
+3P/elastic/bpfdoor: critical
+credential/sniffer/pcap: high
+evasion/logging/hide_shell_history: high
+exec/program: medium
+exec/program/background: low
+exec/shell/exec: medium
+exec/tty/vhangup: low
+fs/file/delete: low
+fs/file/times_set: medium
+fs/path/usr_bin: low
+fs/path/usr_local: medium
+fs/path/var: low
+impact/remote_access/net_shell: high
+impact/remote_access/pseudo_terminal: medium
+impact/remote_access/socket_filter_exec: high
+net/socket/connect: medium
+net/socket/filter: medium
+persist/pid_file: medium
+process/create: low
+process/executable_path: low
