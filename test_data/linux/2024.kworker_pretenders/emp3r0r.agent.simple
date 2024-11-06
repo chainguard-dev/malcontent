@@ -40,9 +40,9 @@ discover/system/sysinfo: medium
 discover/user/HOME: low
 discover/user/USER: low
 discover/user/name_get: medium
-evasion/hidden_files/chdir_unusual: medium
-evasion/hidden_files/dev_shm: critical
-evasion/hidden_files/hidden: high
+evasion/hidden_paths/chdir_unusual: medium
+evasion/hidden_paths/dev_shm: critical
+evasion/hidden_paths/hidden: high
 evasion/hijack_execution/LD_LIBRARY_PATH: low
 evasion/logging/current_logins: medium
 evasion/logging/hide_shell_history: high
@@ -92,6 +92,7 @@ fs/proc/1_cgroup: medium
 fs/proc/arbitrary_pid: medium
 fs/proc/cpuinfo: medium
 fs/symlink_resolve: low
+hw/cpu: medium
 impact/exploit: high
 impact/exploit/GCONV_PATH: high
 impact/exploit/overflow_shellcode: high
@@ -132,6 +133,7 @@ net/resolve/hostport_parse: low
 net/socket/listen: medium
 net/socket/local_addr: low
 net/socket/peer_address: low
+net/socket/raw: medium
 net/socket/receive: low
 net/socket/send: low
 net/tcp/connect: medium

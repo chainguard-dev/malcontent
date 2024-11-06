@@ -147,3 +147,28 @@ rule dlsym_openpty_system: high {
   condition:
     all of them in (1000..3000)
 }
+
+rule ssl_backdoor: high {
+  meta:
+    description = "SSL backdoor with hardcoded certificate (Rekoobe-like)"
+
+  strings:
+    $f_ssl_read  = "SSL_read" fullword
+    $f_openpty   = "openpty" fullword
+    $f_inet_ntoa = "inet_ntoa" fullword
+    $f_fork      = "fork" fullword
+    $f_exec      = /exec(l|ve)/ fullword
+    $f_socket    = "socket" fullword
+    $f_listen    = "listen" fullword
+    $f_select    = "select" fullword
+    $f_ttyname   = "ttyname" fullword
+    $sh          = "/bin/sh"
+    $sh_bash     = "bash" fullword
+    $sh_bin_bash = "/bin/bash"
+
+    $cert = "-----BEGIN CERTIFICATE-----"
+    $key  = /MII[DE][\w\+]{0,64}/
+
+  condition:
+    filesize < 100KB and 90 % of ($f*) and any of ($sh*) and $cert and $key
+}

@@ -18,7 +18,7 @@ discover/system/cpu_info: medium
 discover/system/hardware_info: low
 discover/system/hostname_get: low
 discover/user/USER: low
-evasion/hidden_files/relative_hidden: low
+evasion/hidden_paths/relative_hidden: low
 exec/dylib/symbol_address: medium
 exec/program: medium
 exec/program/background: low

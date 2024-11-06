@@ -12,7 +12,7 @@ data/random/insecure: low
 discover/components/docker: medium
 discover/system/platform: low
 discover/system/sysinfo: medium
-evasion/hidden_files/chdir_unusual: medium
+evasion/hidden_paths/chdir_unusual: medium
 evasion/hide_artifacts/system_directories: medium
 exec/install_additional/package_install: medium
 exec/install_additional/pip_install: medium

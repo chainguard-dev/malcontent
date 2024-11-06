@@ -20,3 +20,15 @@ rule pcap_user: medium {
   condition:
     any of ($p*) and none of ($not*)
 }
+
+rule pcap_live: high {
+  meta:
+    description = "small opaque packet sniffer"
+
+  strings:
+    $pcap_live = "pcap_open_live"
+    $not_usage = /[uU]sage:/
+
+  condition:
+    filesize < 200KB and $pcap_live and none of ($not*)
+}

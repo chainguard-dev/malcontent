@@ -86,9 +86,9 @@
                     ],
                     "RiskScore": 4,
                     "RiskLevel": "CRITICAL",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/impact/degrade/edr.yara#edr_stopper",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/impact/degrade/edr.yara#win_edr_stopper",
                     "ID": "impact/degrade/edr",
-                    "RuleName": "edr_stopper"
+                    "RuleName": "win_edr_stopper"
                 },
                 {
                     "Description": "Uses powershell to define Windows Defender exclusions",

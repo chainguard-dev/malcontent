@@ -2,7 +2,7 @@
 c2/addr/http_ip: high
 c2/addr/ip: medium
 c2/tool_transfer/shell: critical
-evasion/hidden_files/chdir_unusual: critical
+evasion/hidden_paths/chdir_unusual: critical
 exec/shell/busybox_exec: high
 exec/shell/exec: medium
 exec/shell/relative_semicolon: high

@@ -25,7 +25,7 @@ discover/system/platform: low
 discover/user/name_get: medium
 evasion/bypass_security/linux/iptables: medium
 evasion/bypass_security/linux/ufw: medium
-evasion/hidden_files/hidden: medium
+evasion/hidden_paths/hidden: medium
 evasion/logging/acct: low
 evasion/process_injection/readelf: medium
 exec/plugin: low

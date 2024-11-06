@@ -2,7 +2,7 @@
 data/compression/lzma: low
 data/random/insecure: low
 discover/user/USER: low
-evasion/hidden_files/var_run: medium
+evasion/hidden_paths/var_run: medium
 exec/program: medium
 exec/shell/TERM: low
 fs/file/copy: medium

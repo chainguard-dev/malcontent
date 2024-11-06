@@ -26,6 +26,7 @@ net/ip/spoof: medium
 net/proxy/tunnel: medium
 net/socket/listen: medium
 net/socket/send: low
+net/telephony/tcap: medium
 persist/daemon: medium
 sus/intercept: medium
 sus/leetspeak: medium

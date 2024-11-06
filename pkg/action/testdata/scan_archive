@@ -32,7 +32,7 @@ discover/user/HOME: low
 discover/user/USER: low
 discover/user/name_get: medium
 evasion/bypass_security/linux/se: medium
-evasion/hidden_files/hidden: medium
+evasion/hidden_paths/hidden: medium
 evasion/hide_artifacts/pivot_root: medium
 exec/plugin: low
 exec/program: medium
