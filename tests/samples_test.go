@@ -28,15 +28,17 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-var sampleDir = ""
-var testDataDir = ""
+var (
+	sampleDir   = ""
+	testDataDir = ""
+)
 
 func init() {
 	flag.StringVar(&sampleDir, "sample_dir",
 		"../out/chainguard-dev/malcontent-samples",
 		"root directory of sample data, typically checked out from https://github.com/chainguard-dev/malcontent-samples via 'make integration'")
 
-	_, me, _, _ := runtime.Caller(0)
+	_, me, _, _ := runtime.Caller(0) //nolint:dogsled // don't need the rest
 	testDataDir = filepath.Dir(me)
 	fmt.Printf(">>> test data dir: %s\n", testDataDir)
 	fmt.Printf(">>> sample data dir: %s\n", sampleDir)
