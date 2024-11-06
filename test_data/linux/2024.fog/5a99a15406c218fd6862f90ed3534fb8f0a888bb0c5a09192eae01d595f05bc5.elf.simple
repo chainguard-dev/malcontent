@@ -9,6 +9,7 @@ fs/path/tmp: medium
 fs/symlink_resolve: low
 impact/ransom/note: high
 impact/services/esxcli: critical
+lateral/vmware/vms: medium
 net/p2p/tor: high
 persist/daemon: medium
 process/multithreaded: low
