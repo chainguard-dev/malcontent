@@ -9,6 +9,7 @@ rule remote_eval: critical {
   strings:
     $http                = "http"
     $eval_open_ruby      = /eval\(open[\(\)\"\'\-\w:\/\.]{0,64}/
+    $eval_http_ruby      = /eval\(Net::HTTP.get.{0,4}[\(\)\"\'\-\w:\/\.]{0,64}/
     $exec_requests       = /exec\(requests\.get[\(\)\"\'\-\w:\/\.]{0,64}/
     $eval_requests       = /eval\(requests\.get[\(\)\"\'\-\w:\/\.]{0,64}/
     $eval_request_urllib = /exec\(urllib\.request\.urlopen\([\(\)\"\'\-\w:\/\.]{0,64}\).read\(\)/

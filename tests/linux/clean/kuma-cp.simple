@@ -46,7 +46,6 @@ exec/cmd: medium
 exec/conditional/LANG: low
 exec/plugin: low
 exec/program: medium
-exec/remote_commands/code_eval: medium
 exec/shell/SHELL: low
 exec/shell/TERM: low
 exec/shell/background_sleep: medium
@@ -61,6 +60,7 @@ fs/file/delete_forcibly: low
 fs/file/read: low
 fs/file/rename: low
 fs/file/stat: low
+fs/file/write: low
 fs/link_read: low
 fs/mount: low
 fs/node_create: low

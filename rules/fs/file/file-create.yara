@@ -13,3 +13,14 @@ rule creat: medium {
   condition:
     all of them in (1000..3000)
 }
+
+rule CreateFile: medium {
+  meta:
+    description = "create a new file"
+
+  strings:
+    $create = /CreateFile\w{0,8}/
+
+  condition:
+    any of them
+}

@@ -67,3 +67,13 @@ rule syscall_clone: harmless {
     any of them
 }
 
+rule CreateProcess: low {
+  meta:
+    description = "create a new process"
+
+  strings:
+    $create = /CreateProcess\w{0,8}/
+
+  condition:
+    any of them
+}

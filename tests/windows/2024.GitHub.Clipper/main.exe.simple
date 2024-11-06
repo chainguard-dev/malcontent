@@ -8,6 +8,7 @@
 3P/threat_hunting/fentanyl: medium
 3P/threat_hunting/gofile_io: medium
 3P/threat_hunting/runascs: medium
+anti-behavior/anti_debugger: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip_port: medium
 c2/tool_transfer/download: high
@@ -46,7 +47,10 @@ exfil/stealer/creds: high
 exfil/stealer/discord: high
 exfil/stealer/office: high
 exfil/stealer/wallet: critical
+fs/directory/create: low
 fs/directory/list: low
+fs/file/create: medium
+fs/file/delete: medium
 fs/file/read: low
 fs/file/write: low
 fs/path/dev: medium
@@ -88,5 +92,8 @@ net/url/embedded: low
 net/url/parse: low
 net/url/request: medium
 os/fd/sendfile: low
+os/signal/handle: low
 persist/pid_file: medium
 privesc/uac_bypass: high
+process/create: low
+process/terminate: medium

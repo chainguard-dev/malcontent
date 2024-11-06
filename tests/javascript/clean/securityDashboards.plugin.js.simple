@@ -15,7 +15,6 @@ data/encoding/json_encode: low
 discover/system/platform: medium
 discover/user/name_get: medium
 exec/plugin: low
-exec/remote_commands/code_eval: medium
 fs/link_create: low
 fs/lock_update: low
 fs/mount: low

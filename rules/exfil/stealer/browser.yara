@@ -180,3 +180,70 @@ rule leveldb_exfil: high {
   condition:
     filesize < 3MB and $leveldb and any of ($h*) and 3 of ($b*)
 }
+
+rule select_chrome_obviously: high {
+  meta:
+    description = "Steals data from the Chrome Browser"
+
+  strings:
+    $chrome  = "steal_chrome"
+    $cookie  = "cookie"
+    $cookie2 = "Cookie"
+
+  condition:
+    filesize < 1MB and $chrome and any of ($cook*)
+}
+
+rule sqlite3_chrome_cookies: high {
+  meta:
+    description = "Reads Chrome Browser cookies"
+
+  strings:
+    $Chrome       = "Chrome"
+    $Google       = "Google"
+    $Cookies      = "Cookies"
+    $sqlite3_up   = "SQLite3"
+    $sqlite3_down = "sqlite3"
+
+  condition:
+    filesize < 128KB and all of them
+}
+
+rule select_chrome_cookies: high {
+  meta:
+    description = "Reads Chrome Browser cookies"
+
+  strings:
+    $Chrome = "Chrome"
+    $select = /SELECT \* FROM .{0,1}cookies/
+
+  condition:
+    filesize < 128KB and all of them
+}
+
+rule sqlite3_chrome_logins: high {
+  meta:
+    description = "Reads Chrome Browser logins"
+
+  strings:
+    $Chrome       = "Chrome"
+    $Google       = "Google"
+    $login_data   = "Login Data"
+    $sqlite3_up   = "SQLite3"
+    $sqlite3_down = "sqlite3"
+
+  condition:
+    filesize < 128KB and all of them
+}
+
+rule select_chrome_logins: high {
+  meta:
+    description = "Reads Chrome Browser logins"
+
+  strings:
+    $Chrome = "Chrome"
+    $select = /SELECT \* FROM .{0,1}logins/
+
+  condition:
+    filesize < 128KB and all of them
+}
