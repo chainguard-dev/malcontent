@@ -419,7 +419,6 @@ func main() {
 
 					res, err = action.Scan(ctx, mc)
 					if err != nil {
-
 						returnCode = ExitActionFailed
 						return err
 					}

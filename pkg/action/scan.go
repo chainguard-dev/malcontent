@@ -403,7 +403,6 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 		if waitErr != nil {
 			return r, waitErr
 		}
-
 	} // loop: next scan path
 	return r, nil
 }
