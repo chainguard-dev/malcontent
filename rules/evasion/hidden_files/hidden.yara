@@ -52,6 +52,17 @@ rule hidden_short_path: high {
     $crit and none of ($not*)
 }
 
+rule hidden_shell_script: high {
+  meta:
+    description = "hidden shell script"
+
+  strings:
+    $crit = /[\w\/\.]{0,32}\/(tmp|usr\/\w{0,8}|bin|lib|LaunchAgents|lib64|var|etc|shm|mqueue|spool|log|Users|Movies|Music|WebServer|Applications|Shared|Library|System)\/\.\w.{0,32}\.sh/ fullword
+
+  condition:
+    $crit
+}
+
 rule hidden_danger_path: critical {
   meta:
     description = "hidden dangerous-looking path in a system directory"

@@ -14,3 +14,29 @@ rule exec: medium {
   condition:
     any of them
 }
+
+rule ruby_exec: medium {
+  meta:
+    description = "executes a command"
+    filetypes   = "rb"
+
+  strings:
+    $require = "require" fullword
+    $val     = /exec\(".{2,64}"\)/
+
+  condition:
+    filesize < 1MB and $require and $val
+}
+
+rule ruby_run_exe: high {
+  meta:
+    description = "runs an executable program"
+    filetypes   = "rb"
+
+  strings:
+    $require = "require" fullword
+    $val     = /exec\(".{0,64}\.exe"\)/
+
+  condition:
+    filesize < 1MB and $require and $val
+}

@@ -38,6 +38,7 @@ exec/tty/pathname: medium
 fs/directory/create: low
 fs/directory/remove: low
 fs/fifo_create: low
+fs/file/create: medium
 fs/file/delete: low
 fs/file/delete_forcibly: low
 fs/file/read: low
@@ -87,6 +88,7 @@ os/fd/read: low
 persist/daemon: medium
 process/chdir: low
 process/chroot: low
+process/create: low
 process/effective_groupid_get: medium
 process/groupid_set: low
 process/parent_pid_get: low

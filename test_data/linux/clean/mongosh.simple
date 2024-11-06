@@ -71,7 +71,8 @@ fs/directory/list: low
 fs/directory/remove: low
 fs/file/capabilities_set: low
 fs/file/copy: medium
-fs/file/delete: low
+fs/file/create: medium
+fs/file/delete: medium
 fs/file/delete_forcibly: low
 fs/file/open: low
 fs/file/read: low
@@ -152,12 +153,14 @@ os/fd/write: low
 persist/daemon/detach: medium
 process/chdir: low
 process/chroot: low
+process/create: low
 process/groupid_set: low
 process/groups_set: low
 process/multithreaded: low
 process/name_get: medium
 process/namespace_set: low
 process/parent_pid_get: low
+process/terminate: medium
 process/terminate/taskkill: medium
 process/userid_set: low
 sec-tool/net/nmap: medium

@@ -63,17 +63,17 @@ rule known_fake_process_names: high {
     description = "mentions known fake process name"
 
   strings:
-    $kdevchecker = "kdevchecker" fullword
-    $kworkerr    = "kworkerr" fullword
-    $ksoftriqd   = "ksoftriqd" fullword
-    $kdevtmpfsi  = "kdevtmpfsi" fullword
-    $kthreaddk   = "kthreaddk" fullword
-    $deamon      = "deamon" fullword
+    $e_kdevchecker = "kdevchecker" fullword
+    $e_kworkerr    = "kworkerr" fullword
+    $e_ksoftriqd   = "ksoftriqd" fullword
+    $e_kdevtmpfsi  = "kdevtmpfsi" fullword
+    $e_kthreaddk   = "kthreaddk" fullword
+    $e_deamon      = "deamon" fullword
 
     $not_password_list = "qwer1234"
 
   condition:
-    filesize < 10MB and any of them and not ($deamon and $not_password_list)
+    filesize < 10MB and any of ($e*) and not ($e_deamon and $not_password_list)
 }
 
 rule multiple_known_fake_process_names: critical {

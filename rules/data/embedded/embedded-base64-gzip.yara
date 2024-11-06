@@ -21,6 +21,7 @@ rule base64_gz_small: high {
     $not_assertEquals   = "assertEquals" fullword
     $not_test_case      = "test_case" fullword
     $not_gzipped_binary = "gzipped binary" fullword
+    $not_example        = "H4sIAAAAAAAAAOlongstringtoken"
 
   condition:
     filesize < 32KB and $header and none of ($not*)

@@ -3,7 +3,8 @@ rule file_write {
     description = "writes to file"
 
   strings:
-    $ref = /[\w\:]{0,16}write[\w\:]{0,8}File[\w\:]{0,32}/
+    $ref  = /[\w\:]{0,16}write[\w\:]{0,8}File[\w\:]{0,32}/
+    $ref2 = "WriteFile"
 
   condition:
     any of them
@@ -15,6 +16,17 @@ rule python_file_write {
 
   strings:
     $val = /open\([\"\w\.]{1,32}\, {0,2}["'][wa]["']\)/
+
+  condition:
+    filesize < 1MB and any of them
+}
+
+rule ruby_file_write: medium {
+  meta:
+    description = "writes to a file"
+
+  strings:
+    $val = /File\.open\(.{1,64}, {0,2}["'][wa]["']\)/
 
   condition:
     filesize < 1MB and any of them

@@ -69,7 +69,8 @@ fs/directory/create: low
 fs/directory/list: low
 fs/directory/remove: low
 fs/fifo_create: low
-fs/file/delete: low
+fs/file/create: medium
+fs/file/delete: medium
 fs/file/delete_forcibly: low
 fs/file/open: low
 fs/file/read: low
