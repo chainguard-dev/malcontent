@@ -1,4 +1,4 @@
-rule kallsyms: high linux {
+rule kallsyms_lookup: high linux {
   meta:
     description                                                       = "access unexported kernel symbols"
     ref                                                               = "https://lwn.net/Articles/813350/"
@@ -15,6 +15,17 @@ rule kallsyms: high linux {
 
   condition:
     filesize < 1MB and $ref and none of ($not*)
+}
+
+rule kallsyms: medium linux {
+  meta:
+    description = "access kernel symbols"
+
+  strings:
+    $kallsyms = "/proc/kallsyms"
+
+  condition:
+    any of them
 }
 
 rule bpftrace: override linux {

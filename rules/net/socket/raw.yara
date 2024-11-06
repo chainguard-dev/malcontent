@@ -15,6 +15,7 @@ rule raw_sockets: medium {
     $proc_net_raw = "/proc/net/raw"
     $make_ip      = "makeIPPacket"
     $impacket     = "impacket."
+    $makePackets  = "makePacket" fullword
 
   condition:
     any of them

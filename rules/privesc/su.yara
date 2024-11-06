@@ -9,3 +9,14 @@ rule su_c: medium {
   condition:
     $su_c
 }
+
+rule su_stderr_dev_null: high {
+  meta:
+    description = "uses su, redirects error output"
+
+  strings:
+    $su = /su -.{0,2}2> {0,2}\/dev\/null/
+
+  condition:
+    $su
+}

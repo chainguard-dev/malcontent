@@ -6,7 +6,8 @@ rule heartbeat: medium {
     hash_2024_Downloads_384e = "384ec732200ab95c94c202f42b51e870f51735768888aaabc4e370de74e825e3"
 
   strings:
-    $ref = /[\w \:]{0,32}[hH]eart[bB]eat[\w\: ]{0,8}/
+    $ref  = /[\w \:]{0,32}[hH]eart[bB]eat[\w\: ]{0,8}/
+    $ref2 = /[\w \:]{0,32}[bB]eat[hH]eart[\w\: ]{0,8}/
 
   condition:
     any of ($ref*)
