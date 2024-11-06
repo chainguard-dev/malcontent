@@ -3,7 +3,7 @@
 
 
 SAMPLES_REPO ?= chainguard-dev/malcontent-samples
-SAMPLES_COMMIT ?= e58368a24b930f7dcf555678a8bc63f9d45aef24
+SAMPLES_COMMIT ?= c1444cfe7941f0db6ef8ae3f75605fd5dc0c411e
 
 # BEGIN: lint-install ../malcontent
 # http://github.com/tinkerbell/lint-install
@@ -86,7 +86,7 @@ fix: $(FIXERS)
 
 out/${SAMPLES_REPO}/.git/commit-$(SAMPLES_COMMIT):
 	mkdir -p out/$(SAMPLES_REPO)
-	test -d out/$(SAMPLES_REPO)/.git || git clone --depth 8 https://github.com/$(SAMPLES_REPO).git out/$(SAMPLES_REPO)
+	test -d out/$(SAMPLES_REPO)/.git || git clone --depth 4 https://github.com/$(SAMPLES_REPO).git out/$(SAMPLES_REPO)
 	rm out/$(SAMPLES_REPO)/.git/commit-* 2>/dev/null || true
 	git -C out/$(SAMPLES_REPO) switch - || true
 	git -C out/$(SAMPLES_REPO) pull
