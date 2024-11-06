@@ -409,7 +409,7 @@ func main() {
 						ps, err := action.ActiveProcesses(ctx)
 						if err != nil {
 							returnCode = ExitActionFailed
-							return fmt.Errorf("process paths: %w", err)
+							return err
 						}
 						for _, p := range ps {
 							// in the future, we'll also want to attach process info directly
@@ -419,9 +419,9 @@ func main() {
 
 					res, err = action.Scan(ctx, mc)
 					if err != nil {
+
 						returnCode = ExitActionFailed
-						showError(err)
-						return nil
+						return err
 					}
 
 					err = renderer.Full(ctx, res)
@@ -542,7 +542,13 @@ func main() {
 	}
 
 	if err := app.Run(os.Args); err != nil {
-		fmt.Fprintf(os.Stderr, "error: %v\n", err)
-		returnCode = ExitActionFailed
+		if returnCode != 0 {
+			returnCode = ExitActionFailed
+		}
+		if errors.Is(err, action.ErrMatchedCondition) {
+			returnCode = ExitOK
+		}
+
+		showError(err)
 	}
 }
