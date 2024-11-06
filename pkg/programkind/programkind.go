@@ -159,6 +159,8 @@ func File(path string) (*FileType, error) {
 		return Path(".sh"), nil
 	case strings.HasPrefix(s, "#!"):
 		return Path(".script"), nil
+	case strings.Contains(s, "#include <"):
+		return Path(".c"), nil
 	}
 	return nil, nil
 }

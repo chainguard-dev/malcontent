@@ -7,6 +7,7 @@ rule ssh: medium {
 
   strings:
     $ = "SSH" fullword
+    $ = "ssh_packet" fullword
 
   condition:
     any of them

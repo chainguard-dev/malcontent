@@ -21,10 +21,10 @@ evasion/bypass_security/linux/iptables: medium
 evasion/bypass_security/linux/se: medium
 evasion/bypass_security/linux/se_disable: high
 evasion/bypass_security/linux/ufw: medium
-evasion/hidden_files/dev_shm: critical
-evasion/hidden_files/etc_ld.so.preload: high
-evasion/hidden_files/hidden: high
-evasion/hidden_files/var_tmp: medium
+evasion/hidden_paths/dev_shm: critical
+evasion/hidden_paths/etc_ld.so.preload: high
+evasion/hidden_paths/hidden: high
+evasion/hidden_paths/var_tmp: medium
 evasion/logging/syslog: medium
 evasion/mimicry/fake_process: critical
 exec/install_additional/package_install: medium

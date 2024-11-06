@@ -3,6 +3,7 @@ data/random/insecure: low
 fs/proc/arbitrary_pid: medium
 fs/proc/cpuinfo: medium
 fs/proc/stat: medium
+hw/cpu: medium
 impact/remote_access/router: high
 malware/family/mirai: critical
 net/ip/parse: medium

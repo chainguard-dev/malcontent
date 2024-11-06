@@ -23,6 +23,7 @@ rule too_l33t_for_me: high {
     $ = "HaxErS" fullword
     $ = "FuCkInG" fullword
     $ = "0n Ur" fullword
+    $ = "$UICIDEBOY$"
 
   condition:
     any of them

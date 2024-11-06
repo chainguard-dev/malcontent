@@ -12,7 +12,7 @@ rule tsource_engine_query: critical {
     $tsource
 }
 
-rule tcp_flood_refs: high {
+rule tcp_syn_ack_flood_refs: high {
   meta:
     description = "May perform DDoS (distributed denial of service) attacks"
 
@@ -27,6 +27,19 @@ rule tcp_flood_refs: high {
 
   condition:
     any of ($ack*) and any of ($syn*)
+}
+
+rule ip_flood_refs: high {
+  meta:
+    description = "May perform DDoS (distributed denial of service) attacks"
+
+  strings:
+    $udp_flood    = "udp_flood"
+    $tcp_flood    = "tcp_flood"
+    $tcpraw_flood = "tcpraw_flood"
+
+  condition:
+    filesize < 1MB and any of them
 }
 
 rule flooder: high {

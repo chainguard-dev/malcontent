@@ -9,6 +9,7 @@ rule random_target: medium {
     $ref  = "random target"
     $ref2 = "RandomTarget"
     $ref3 = "randomIP"
+    $ref4 = "getrandip" fullword
 
   condition:
     any of them

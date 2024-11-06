@@ -8,6 +8,7 @@ rule block_devices: medium linux {
   strings:
     $sys_val     = /\/sys\/block[\$%\w\{\}]{0,16}/
     $sys_dev_val = /\/sys\/dev\/block[\$%\w\{\}]{0,16}/
+    $dev_block   = /\/dev\/block\/[\$%\w\{\}]{0,16}/
 
   condition:
     any of them

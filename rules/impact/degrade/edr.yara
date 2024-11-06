@@ -17,7 +17,7 @@ rule win_kill_proc: medium windows {
     filesize < 1MB and all of ($kill*) and 3 of ($debug*) and 1 of ($f*)
 }
 
-rule edr_stopper: critical windows {
+rule win_edr_stopper: critical windows {
   meta:
     description = "Stops EDR/Antivirus services"
     filetypes   = "exe,dll"
@@ -28,4 +28,53 @@ rule edr_stopper: critical windows {
 
   condition:
     filesize < 1MB and $stop and any of ($kind*)
+}
+
+rule linux_edr_killlall: critical linux {
+  meta:
+    description = "Kills EDR/Antivirus services"
+
+  strings:
+    $kind_aliyun = /killall.{0,4}AliYunDun.{0,16}/
+    $kind_aegis  = /killall.{0,4}aegis_cli/
+
+  condition:
+    filesize < 1MB and any of ($kind*)
+}
+
+rule linux_edr_stop: critical linux {
+  meta:
+    description = "Stops EDR/Antivirus services"
+
+  strings:
+    $aegis_stop = "/etc/init.d/aegis stop"
+
+  condition:
+    filesize < 1MB and any of them
+}
+
+rule linux_edr_unistall: critical linux {
+  meta:
+    description = "Stops EDR/Antivirus services"
+
+  strings:
+    $aegis = /\/etc\/init\.d\/aegis {0,3}uninstall/
+
+  condition:
+    filesize < 1MB and any of them
+}
+
+rule linux_edr_kill: high linux {
+  meta:
+    description = "Kills EDR/Antivirus services"
+    filetypes   = "exe,dll"
+
+  strings:
+    $kill           = "kill"
+    $kind_aliyundun = "AliYunDun" fullword
+    $kind_aegis_cli = "aegis_cli" fullword
+    $kind_quartz    = "aegis_quartz" fullword
+
+  condition:
+    filesize < 1MB and $kill and any of ($kind*)
 }

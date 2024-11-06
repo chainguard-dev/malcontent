@@ -2,7 +2,7 @@
 -data/compression/zstd
 -discover/user/HOME
 -discover/user/USER
--evasion/hidden_files/var_tmp
+-evasion/hidden_paths/var_tmp
 -exec/dylib/address_check
 -exec/dylib/symbol_address
 -exec/program
@@ -24,7 +24,7 @@
 +data/embedded/zstd
 +discover/user/HOME
 +discover/user/USER
-+evasion/hidden_files/var_tmp
++evasion/hidden_paths/var_tmp
 +exec/dylib/address_check
 +exec/dylib/symbol_address
 +exec/program

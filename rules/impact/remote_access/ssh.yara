@@ -13,3 +13,18 @@ rule ssh_backdoor: high {
   condition:
     $backdoor and any of ($ssh*)
 }
+
+rule sshd_backdoor_private_key: critical {
+  meta:
+    ref         = "https://web-assets.esetstatic.com/wls/2021/10/eset_fontonlake.pdf"
+    description = "sshd contains hardcoded private key"
+
+  strings:
+    $begin = "-----BEGIN RSA PRIVATE KEY-----"
+    $key   = /MIIE[\w\+]{0,64}/
+    $sshd  = "usage: sshd"
+
+  condition:
+    filesize < 5MB and all of them
+}
+

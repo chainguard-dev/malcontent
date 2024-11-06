@@ -24,6 +24,7 @@ fs/proc/stat: medium
 fs/proc/sys_kernel_osrelease: medium
 fs/tempdir: low
 fs/tempdir/TMPDIR: low
+hw/cpu: medium
 impact/exploit/GCONV_PATH: low
 impact/remote_access/dl_iterate: high
 impact/remote_access/reverse_shell: medium
