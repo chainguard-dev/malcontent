@@ -16,7 +16,7 @@ readonly samples=$(realpath $2)
 cd "$(dirname $0)"
 cd ..
 readonly root_dir=$(pwd)
-readonly test_data="${root_dir}/test_data"
+readonly test_data="${root_dir}/tests"
 
 if [[ -z "${malcontent}" ]]; then
 	echo "must pass location of malcontent"

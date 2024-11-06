@@ -88,7 +88,7 @@ out/${SAMPLES_REPO}/.git/commit-$(SAMPLES_COMMIT):
 	mkdir -p out/$(SAMPLES_REPO)
 	test -d out/$(SAMPLES_REPO)/.git || git clone --depth 10 https://github.com/$(SAMPLES_REPO).git out/$(SAMPLES_REPO)
 	rm out/$(SAMPLES_REPO)/.git/commit-* 2>/dev/null || true
-	git fetch
+	git -C out/$(SAMPLES_REPO) pull
 	git -C out/$(SAMPLES_REPO) checkout $(SAMPLES_COMMIT)
 	touch out/$(SAMPLES_REPO)/.git/commit-$(SAMPLES_COMMIT)
 
@@ -167,7 +167,7 @@ update-third-party:
 
 .PHONY: refresh-sample-testdata
 refresh-sample-testdata: out/$(SAMPLES_REPO)/.decompressed-$(SAMPLES_COMMIT) out/mal
-	./test_data/refresh-testdata.sh ./out/mal out/$(SAMPLES_REPO)
+	./tests/refresh-testdata.sh ./out/mal out/$(SAMPLES_REPO)
 
 ARCH ?= $(shell uname -m)
 CRANE_VERSION=v0.20.2
