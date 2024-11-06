@@ -35,6 +35,7 @@ net/ip/spoof: medium
 net/proxy/tunnel: medium
 net/socket/listen: medium
 net/socket/send: low
+net/telephony/tcap: medium
 net/url/embedded: low
 net/url/parse: low
 persist/daemon: medium

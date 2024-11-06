@@ -52,9 +52,9 @@ discover/user/HOME: low
 discover/user/USER: low
 discover/user/name_get: low
 evasion/bypass_security/linux/ufw: medium
-evasion/hidden_files/dev_shm: medium
-evasion/hidden_files/hidden: medium
-evasion/hidden_files/relative_hidden: low
+evasion/hidden_paths/dev_shm: medium
+evasion/hidden_paths/hidden: medium
+evasion/hidden_paths/relative_hidden: low
 evasion/hijack_execution/DYLD_LIBRARY_PATH: medium
 evasion/hijack_execution/LD_LIBRARY_PATH: low
 evasion/logging/acct: low
@@ -121,6 +121,7 @@ fs/tempdir/TEMP: low
 fs/tempdir/TMPDIR: low
 fs/tempdir/create: low
 fs/watch: low
+hw/cpu: medium
 hw/dev/block_ice: medium
 impact/infection/infected: medium
 impact/ransom/decryptor: medium

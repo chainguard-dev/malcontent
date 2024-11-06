@@ -46,7 +46,7 @@ discover/user/HOME: low
 discover/user/USER: low
 discover/user/info: medium
 discover/user/name_get: low
-evasion/hidden_files/hidden: medium
+evasion/hidden_paths/hidden: medium
 evasion/logging/acct: low
 exec/cmd: medium
 exec/conditional/LANG: low
@@ -100,6 +100,7 @@ fs/tempdir/TEMP: low
 fs/tempdir/TMPDIR: low
 fs/tempdir/create: low
 fs/watch: low
+hw/cpu: medium
 hw/wireless: low
 impact/remote_access/heartbeat: medium
 impact/remote_access/kill_rm: medium

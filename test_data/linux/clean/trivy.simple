@@ -61,10 +61,10 @@ discover/system/sysinfo: medium
 discover/user/HOME: low
 discover/user/USER: low
 evasion/bypass_security/linux/iptables: medium
-evasion/hidden_files/chdir_unusual: medium
-evasion/hidden_files/dev_shm: medium
-evasion/hidden_files/hidden: medium
-evasion/hidden_files/var_run: medium
+evasion/hidden_paths/chdir_unusual: medium
+evasion/hidden_paths/dev_shm: medium
+evasion/hidden_paths/hidden: medium
+evasion/hidden_paths/var_run: medium
 exec/cmd: medium
 exec/conditional/LANG: low
 exec/dylib/symbol_address: medium

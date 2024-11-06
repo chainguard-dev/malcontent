@@ -10,7 +10,7 @@ discover/network/interface_list: medium
 discover/system/network: high
 discover/system/platform: medium
 discover/user/name_get: low
-evasion/hidden_files/hidden: medium
+evasion/hidden_paths/hidden: medium
 exec/program: medium
 exec/remote_commands/code_eval: medium
 exec/tty/getpass: low

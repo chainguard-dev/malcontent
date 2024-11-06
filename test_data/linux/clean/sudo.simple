@@ -4,8 +4,8 @@ discover/network/interface_list: medium
 discover/system/cpu_info: low
 discover/system/hostname_get: low
 discover/user/HOME: low
-evasion/hidden_files/hidden: medium
-evasion/hidden_files/var_tmp: medium
+evasion/hidden_paths/hidden: medium
+evasion/hidden_paths/var_tmp: medium
 evasion/process_injection/ptrace: medium
 exec/plugin: low
 exec/program: medium

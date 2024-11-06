@@ -17,7 +17,9 @@ discover/user/HOME: low
 discover/user/USER: low
 evasion/bypass_security/linux/pam: medium
 evasion/bypass_security/linux/se: medium
-evasion/hidden_files/hidden: medium
+evasion/hidden_paths/hidden: medium
+evasion/hidden_paths/proc: high
+evasion/hidden_paths/x11: high
 evasion/logging/acct: low
 evasion/logging/failed_logins: medium
 evasion/logging/historical_logins: high
@@ -62,6 +64,7 @@ impact/remote_access/ssh: high
 impact/rootkit: critical
 impact/rootkit/refs: high
 impact/ui/x11_auth: medium
+malware/family/fontonlake: critical
 net/download: medium
 net/ip/spoof: medium
 net/ip/string: medium
@@ -75,6 +78,7 @@ net/socket/reuseport: medium
 net/socket/send: low
 net/tcp/sftp: medium
 net/tcp/ssh: medium
+net/tun_tap: medium
 net/url/embedded: low
 persist/daemon: medium
 persist/kernel_module/kprobe: medium

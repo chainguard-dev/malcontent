@@ -16,7 +16,7 @@ discover/processes/pgrep: medium
 discover/system/platform: low
 discover/user/HOME: low
 discover/user/USER: low
-evasion/hidden_files/hidden: medium
+evasion/hidden_paths/hidden: medium
 exec/conditional/LANG: low
 exec/dylib/symbol_address: medium
 exec/plugin: low

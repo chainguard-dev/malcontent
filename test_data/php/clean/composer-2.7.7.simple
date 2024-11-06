@@ -23,7 +23,7 @@ discover/system/hostname_get: low
 discover/system/platform: low
 discover/user/HOME: low
 discover/user/USER: low
-evasion/hidden_files/hidden: medium
+evasion/hidden_paths/hidden: medium
 evasion/hijack_execution/DYLD_LIBRARY_PATH: medium
 exec/cmd: medium
 exec/plugin: low

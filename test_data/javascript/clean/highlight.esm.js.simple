@@ -1,5 +1,6 @@
 # javascript/clean/highlight.esm.js: medium
 c2/addr/ip_port: medium
+c2/connect/ping_pong: medium
 collect/archives/unarchive: medium
 collect/databases/mysql: medium
 collect/databases/postgresql: medium
@@ -17,7 +18,7 @@ discover/system/sysinfo: medium
 discover/user/HOME: low
 discover/user/USER: low
 discover/user/name_get: low
-evasion/hidden_files/relative_hidden: low
+evasion/hidden_paths/relative_hidden: low
 exec/cmd: medium
 exec/plugin: low
 exec/program/background: low

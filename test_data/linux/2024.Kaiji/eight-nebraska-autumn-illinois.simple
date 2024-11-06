@@ -20,7 +20,7 @@ discover/system/hostname_get: low
 discover/system/platform: low
 evasion/bypass_security/linux/se: medium
 evasion/bypass_security/linux/se_disable: high
-evasion/hidden_files/hidden: medium
+evasion/hidden_paths/hidden: medium
 exec/plugin: low
 exec/program: medium
 exec/shell/exec: medium
