@@ -88,6 +88,7 @@ out/${SAMPLES_REPO}/.git/commit-$(SAMPLES_COMMIT):
 	mkdir -p out/$(SAMPLES_REPO)
 	test -d out/$(SAMPLES_REPO)/.git || git clone --depth 10 https://github.com/$(SAMPLES_REPO).git out/$(SAMPLES_REPO)
 	rm out/$(SAMPLES_REPO)/.git/commit-* 2>/dev/null || true
+	git -C out/$(SAMPLES_REPO) switch - || true
 	git -C out/$(SAMPLES_REPO) pull
 	git -C out/$(SAMPLES_REPO) checkout $(SAMPLES_COMMIT)
 	touch out/$(SAMPLES_REPO)/.git/commit-$(SAMPLES_COMMIT)
