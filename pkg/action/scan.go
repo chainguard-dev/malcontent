@@ -468,7 +468,7 @@ func processFile(ctx context.Context, c malcontent.Config, ruleFS []fs.FS, path 
 func Scan(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) {
 	r, err := recursiveScan(ctx, c)
 	if err != nil {
-		return r, fmt.Errorf("recursive: %w", err)
+		return r, err
 	}
 	for files := r.Files.Oldest(); files != nil; files = files.Next() {
 		if files.Value.RiskScore < c.MinFileRisk {
