@@ -342,7 +342,7 @@ func mungeDescription(s string) string {
 }
 
 //nolint:cyclop // ignore complexity of 44
-func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malcontent.Config, expath string, logger *clog.Logger) (malcontent.FileReport, error) {
+func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malcontent.Config, expath string, _ *clog.Logger) (malcontent.FileReport, error) {
 	ignoreTags := c.IgnoreTags
 	minScore := c.MinRisk
 	ignoreSelf := c.IgnoreSelf
@@ -464,7 +464,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 				b.Override = append(b.Override, k)
 				fr.Overrides = append(fr.Overrides, b)
 			case !exists && override:
-				logger.Errorf("Override %s matched with no overridden rule\n", m.Rule)
+				// TODO: return error if override references an unknown rule name
 				continue
 			}
 
