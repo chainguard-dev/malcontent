@@ -2,6 +2,7 @@
 anti-behavior/anti_debugger: medium
 anti-static/obfuscation/php/non_printable_chars: medium
 c2/addr/http_dynamic: medium
+c2/addr/ip: medium
 c2/addr/ip_port: medium
 c2/addr/php: medium
 c2/discovery/ip_dns_resolver: medium

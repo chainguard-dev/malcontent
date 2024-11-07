@@ -27,7 +27,6 @@ rule danger_crypto_miner: high {
     $miner_url       = "miner_url"
     $cryptonight     = "Cryptonight"
     $minergate       = "minergate"
-    $_miner_         = "_miner_"
 
   condition:
     filesize < 10485760 and 1 of them

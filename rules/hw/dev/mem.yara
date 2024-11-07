@@ -1,4 +1,4 @@
-rule dev_mem: high linux {
+rule dev_mem: medium linux {
   meta:
     capability                           = "CAP_SYS_RAWIO"
     description                          = "access raw system memory"
@@ -13,7 +13,7 @@ rule dev_mem: high linux {
     $not_no     = "no /dev/mem" fullword
 
   condition:
-    uint32(0) == 1179403647 and $val and none of ($not*)
+    filesize < 10MB and uint32(0) == 1179403647 and $val and none of ($not*)
 }
 
 rule comsvcs_minidump: high windows {
