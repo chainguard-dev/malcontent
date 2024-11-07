@@ -13,7 +13,20 @@ rule dev_mem: high linux {
     $not_no     = "no /dev/mem" fullword
 
   condition:
-    uint32(0) == 1179403647 and $val and none of ($not*)
+    filesize < 10MB and uint32(0) == 1179403647 and $val and none of ($not*)
+}
+
+rule dev_mem_legit: override {
+  meta:
+    dev_mem = "medium"
+
+  strings:
+    $sys_cpu   = "/sys/devices/system/cpu/"
+    $lscup     = "lscpu_read"
+    $fastfetch = "Fastfetch"
+
+  condition:
+    any of them
 }
 
 rule comsvcs_minidump: high windows {

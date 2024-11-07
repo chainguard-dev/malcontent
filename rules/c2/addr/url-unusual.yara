@@ -19,6 +19,7 @@ rule exotic_tld: high {
     $not_nips        = "nips.cc"
     $not_gov_bd      = ".gov.bd"
     $not_eol         = "endoflife.date"
+    $not_whois       = "bdia.btcl.com.bd"
 
   condition:
     filesize < 10MB and any of ($http*) and none of ($not_*)

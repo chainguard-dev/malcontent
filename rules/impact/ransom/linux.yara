@@ -34,7 +34,6 @@ rule linux_syscalls: high {
 
   strings:
     $e_Encrypt     = "ENCRYPT"
-    $e_crypto      = "crypto"
     $e_encrypt     = "encrypt"
     $e_chacha      = "chacha20"
     $e_Processed   = "Processed:"
@@ -56,8 +55,16 @@ rule linux_syscalls: high {
     $f_rename   = "rename" fullword
     $f_atoi     = "atoi" fullword
 
+    $not_getgid     = "getgid" fullword
+    $not_strtol     = "strtol" fullword
+    $not_dlopen     = "dlopen" fullword
+    $not_setenv     = "setenv" fullword
+    $not_asctime    = "asctime" fullword
+    $not_inet_ntop  = "inet_ntop" fullword
+    $not_getifaddrs = "getifaddrs" fullword
+
   condition:
-    filesize < 1MB and uint32(0) == 1179403647 and $f_readdir and 85 % of ($f*) and any of ($e*)
+    filesize < 1MB and uint32(0) == 1179403647 and $f_readdir and 85 % of ($f*) and any of ($e*) and none of ($not*)
 }
 
 rule conti_alike: high posix {

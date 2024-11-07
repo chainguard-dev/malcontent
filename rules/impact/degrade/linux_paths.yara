@@ -22,7 +22,7 @@ rule linux_critical_system_paths: medium {
     $proc_self_cgroup  = "/proc/self/cgroup"
     $p_lib             = "/usr/lib/x86_64-linux-gnu/"
     $p_lib_ld          = "/lib64/ld-linux-x86-64.so.2"
-    $p_sys             = /\/sys\/(devices|class)[\w\/\.\-]{0,32}/
+    $p_dev_sys         = /\/sys\/devices\/system\/(cpu|node)\/[\w\/\.\-]{0,32}/
     $p_sysctl          = /sysctl[ -a-z]{0,32}/
     $p_dev_watchdog    = "/dev/watchdog"
     $p_ps              = "/usr/bin/ps"
@@ -31,7 +31,7 @@ rule linux_critical_system_paths: medium {
     $p_dev_shm         = "/dev/shm"
 
   condition:
-    filesize < 120MB and any of ($p_etc*) and 5 of ($p*)
+    filesize < 120MB and any of ($p_etc*) and 40 % of ($p*)
 }
 
 rule linux_critical_system_paths_small_elf: high {
@@ -49,7 +49,7 @@ rule linux_critical_system_paths_small_elf: high {
     $p_etc_selinux     = /\/etc\/selinux[\w\/\.\-]{0,32}/
     $p_etc_systemd     = /\/etc\/systemd[\w\/\.\-]{0,32}/
     $p_etc_preload     = "/etc/ld.so.preload"
-    $p_ld_so_cache     = "/etc/ld.so.cache"
+    $p_etc_ld_so_cache = "/etc/ld.so.cache"
     $p_var_run         = /\/var\/run[\w\/\.\-]{0,32}/
     $p_var_log         = /\/var\/log[\w\/\.\-]{0,32}/
     $p_usr_libexec     = /\/usr\/libexec[\w\/\.\-]{0,32}/
@@ -61,7 +61,7 @@ rule linux_critical_system_paths_small_elf: high {
     $proc_self_cgroup  = "/proc/self/cgroup"
     $p_lib             = "/usr/lib/x86_64-linux-gnu/"
     $p_lib_ld          = "/lib64/ld-linux-x86-64.so.2"
-    $p_sys             = /\/sys\/(devices|class)[\w\/\.\-]{0,32}/
+    $p_dev_sys         = /\/sys\/devices\/system\/(cpu|node)\/[\w\/\.\-]{0,32}/
     $p_sysctl          = /sysctl[ -a-z]{0,32}/
     $p_dev_watchdog    = "/dev/watchdog"
     $p_ps              = "/usr/bin/ps"
@@ -71,9 +71,10 @@ rule linux_critical_system_paths_small_elf: high {
 
     $not_vim     = "VIMRUNTIME" fullword
     $not_systemd = "SYSTEMD_OS_RELEASE"
+    $not_vio     = "/sys/devices/vio"
 
   condition:
-    filesize < 10MB and uint32(0) == 1179403647 and any of ($p_etc*) and 5 of ($p*) and none of ($not*)
+    filesize < 2MB and uint32(0) == 1179403647 and any of ($p_etc*) and 40 % of ($p*) and none of ($not*)
 }
 
 rule linux_critical_system_paths_small_shell: high {
@@ -112,5 +113,5 @@ rule linux_critical_system_paths_small_shell: high {
     $p_dev_shm         = "/dev/shm"
 
   condition:
-    filesize < 64KB and $hash_bang in (0..2) and any of ($p_etc*) and 5 of ($p*)
+    filesize < 64KB and $hash_bang in (0..2) and any of ($p_etc*) and 40 % of ($p*)
 }
