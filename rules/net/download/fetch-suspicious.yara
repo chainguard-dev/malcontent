@@ -45,6 +45,9 @@ rule high_fetch_command_val: high {
     $not_local                    = "curl -ks https://localhost"
     $not_continue                 = "--continue-at"
 
+	$x_chmod = "chmod" fullword
+	$x_Chmod = "Chmod" fullword
+	$x_exe = ".exe"
   condition:
-    filesize < 1MB and any of ($c*) and none of ($not*)
+    filesize < 1MB and any of ($c*) and any of ($x*) and none of ($not*)
 }

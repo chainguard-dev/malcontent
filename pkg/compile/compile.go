@@ -64,6 +64,8 @@ var badRules = map[string]bool{
 	// JPCERT
 	"malware_PlugX_config":   true,
 	"malware_shellcode_hash": true,
+	// bartblaze
+	"Rclone": true,
 }
 
 // rulesWithWarnings determines what to do with rules that have known warnings: true=keep, false=disable.

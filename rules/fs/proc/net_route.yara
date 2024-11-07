@@ -21,7 +21,8 @@ rule proc_net_route_high: high {
 
   strings:
     $ref            = "/proc/net/route"
-    $not_usage      = "Usage: route"
+    $not_usage_route      = "Usage: route"
+    $not_usage_var      = "Usage: %s"
     $not_host_route = "host route"
     $not_route_addr = "route address"
 
