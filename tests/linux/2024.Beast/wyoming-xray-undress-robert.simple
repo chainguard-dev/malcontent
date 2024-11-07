@@ -1,0 +1,10 @@
+# linux/2024.Beast/wyoming-xray-undress-robert: critical
+fs/path/dev: medium
+fs/path/tmp: medium
+impact/ransom/linux: high
+impact/shutdown: medium
+lateral/vmware/vms: medium
+malware/family/beast: critical
+persist/daemon: medium
+process/create: low
+process/multithreaded: low

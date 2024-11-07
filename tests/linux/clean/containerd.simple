@@ -27,8 +27,8 @@ discover/system/cpu_info: low
 discover/system/hostname_get: low
 discover/system/platform: medium
 discover/user/USER: low
-evasion/hidden_paths/dev_mqueue: medium
-evasion/hidden_paths/dev_shm: medium
+evasion/covert_location/dev_mqueue: medium
+evasion/covert_location/dev_shm: medium
 evasion/hidden_paths/var_run: medium
 evasion/process_injection/ptrace: medium
 exec/plugin: low
@@ -72,7 +72,7 @@ fs/unmount: low
 fs/watch: low
 hw/dev/block_ice: medium
 hw/dev/mapper: medium
-impact/degrade/linux_paths: medium
+hw/dev/mem: low
 impact/remote_access/heartbeat: medium
 net/dns: low
 net/dns/reverse: medium

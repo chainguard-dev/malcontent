@@ -4,6 +4,7 @@
 3P/threat_hunting/nikto: medium
 3P/threat_hunting/rapid7: medium
 3P/threat_hunting/seclists: medium
+c2/addr/ip: medium
 c2/addr/php: medium
 c2/tool_transfer/grayware: high
 collect/databases/mysql: medium

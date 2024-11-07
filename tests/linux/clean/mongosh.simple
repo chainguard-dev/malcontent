@@ -102,6 +102,7 @@ fs/tempdir/TMPDIR: low
 fs/tempdir/create: low
 fs/watch: low
 hw/cpu: medium
+hw/dev/mem: low
 hw/wireless: low
 impact/remote_access/heartbeat: medium
 impact/remote_access/kill_rm: medium

@@ -43,7 +43,7 @@ discover/system/sysinfo: medium
 discover/user/HOME: low
 discover/user/USER: low
 evasion/bypass_security/linux/ufw: medium
-evasion/hidden_paths/dev_shm: medium
+evasion/covert_location/dev_shm: medium
 evasion/hijack_execution/LD_LIBRARY_PATH: low
 evasion/process_injection/ptrace: medium
 exec/cmd: medium
@@ -106,6 +106,7 @@ fs/unmount: low
 fs/watch: low
 hw/cpu: medium
 hw/dev/block_ice: medium
+hw/dev/mem: low
 hw/wireless: low
 impact/exploit/GCONV_PATH: low
 impact/infection/infected: medium

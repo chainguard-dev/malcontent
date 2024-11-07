@@ -1,5 +1,6 @@
 # linux/clean/nvim: medium
 3P/threat_hunting/hrshell: medium
+c2/addr/ip: medium
 c2/addr/server: medium
 c2/server_address: medium
 collect/databases/mysql: medium
@@ -17,6 +18,7 @@ discover/system/platform: low
 discover/user/HOME: low
 discover/user/USER: low
 evasion/hidden_paths/hidden: medium
+evasion/hidden_paths/x11: low
 exec/conditional/LANG: low
 exec/dylib/symbol_address: medium
 exec/plugin: low
@@ -53,7 +55,6 @@ fs/tempdir/TEMP: low
 fs/tempdir/TMPDIR: low
 fs/tempdir/create: low
 fs/tempdir/tempfile_create: low
-impact/degrade/linux_paths: medium
 net/dns/servers: low
 net/download/fetch: medium
 net/http/post: medium

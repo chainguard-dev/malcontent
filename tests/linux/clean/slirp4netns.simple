@@ -13,7 +13,7 @@ discover/system/platform: low
 discover/system/sysinfo: medium
 discover/user/HOME: low
 discover/user/USER: low
-evasion/hidden_paths/dev_shm: medium
+evasion/covert_location/dev_shm: medium
 evasion/hidden_paths/var_run: medium
 evasion/hide_artifacts/pivot_root: medium
 evasion/hijack_execution/LD_LIBRARY_PATH: low
@@ -63,6 +63,7 @@ fs/tempdir/TMPDIR: low
 fs/unmount: low
 fs/watch: low
 hw/cpu: medium
+hw/dev/mem: low
 impact/exploit/GCONV_PATH: low
 impact/reboot: low
 impact/remote_access/reverse_shell: medium

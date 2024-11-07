@@ -13,7 +13,7 @@ crypto/uuid: medium
 data/encoding/json_decode: low
 data/encoding/json_encode: low
 discover/network/interface_list: medium
-evasion/hidden_paths/dev_mqueue: medium
+evasion/covert_location/dev_mqueue: medium
 evasion/hidden_paths/hidden: medium
 exec/plugin: low
 exfil/stealer/credit_card: medium

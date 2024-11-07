@@ -6,11 +6,11 @@ anti-static/xor/commands: high
 credential/ssh/d: medium
 discover/system/cpu_info: low
 discover/system/sysinfo: medium
-evasion/hidden_paths/dev_shm: critical
-evasion/hidden_paths/etc_ld.so.preload: medium
+evasion/covert_location/dev_shm: critical
 evasion/hidden_paths/hidden: high
 evasion/hide_artifacts/system_directories: medium
 evasion/hijack_execution/LD_LIBRARY_PATH: low
+evasion/hijack_execution/etc_ld.so.preload: medium
 exec/conditional/LANG: low
 exec/dylib/address_check: low
 exec/dylib/symbol_address: medium
@@ -34,7 +34,7 @@ fs/proc/stat: medium
 fs/tempdir: low
 fs/tempdir/TMPDIR: low
 hw/cpu: medium
-impact/degrade/linux_paths: high
+hw/dev/mem: low
 impact/exploit/GCONV_PATH: low
 impact/remote_access/reverse_shell: medium
 impact/rootkit/readdir_interceptor: high

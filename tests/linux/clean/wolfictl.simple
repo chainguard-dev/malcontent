@@ -53,7 +53,7 @@ discover/user/USER: low
 discover/user/name_get: medium
 evasion/bypass_security/linux/se: medium
 evasion/bypass_security/macos/xprotect: medium
-evasion/hidden_paths/dev_shm: medium
+evasion/covert_location/dev_shm: medium
 evasion/hidden_paths/hidden: medium
 evasion/hide_artifacts/system_directories: medium
 exec/cmd: medium
