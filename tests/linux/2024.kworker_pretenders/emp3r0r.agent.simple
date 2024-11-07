@@ -40,7 +40,8 @@ discover/system/sysinfo: medium
 discover/user/HOME: low
 discover/user/USER: low
 discover/user/name_get: medium
-evasion/hidden_paths/chdir_unusual: medium
+evasion/covert_location/chdir_unusual: medium
+evasion/covert_location/dev_shm: medium
 evasion/hidden_paths/dev_shm: critical
 evasion/hidden_paths/hidden: high
 evasion/hijack_execution/LD_LIBRARY_PATH: low

@@ -9,3 +9,16 @@ rule hidden_x11: high linux {
   condition:
     filesize < 10MB and all of them
 }
+
+rule X11: override {
+  meta:
+    hidden_x11 = "low"
+
+  strings:
+    $usr_share = "/usr/share/X11"
+    $X11Gray   = "X11Gray"
+    $X11_space = "/etc/X11/"
+
+  condition:
+    filesize < 10MB and any of them
+}

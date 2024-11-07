@@ -35,7 +35,6 @@
 3P/threat_hunting/traitor: medium
 3P/threat_hunting/wpscan: medium
 anti-static/obfuscation/js/char_codes: medium
-c2/addr/ip: medium
 c2/addr/ip_port: medium
 c2/addr/php: medium
 c2/addr/url_unusual: high

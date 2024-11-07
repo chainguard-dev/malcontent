@@ -13,7 +13,7 @@ discover/system/platform: low
 discover/system/sysinfo: medium
 discover/user/HOME: low
 discover/user/USER: low
-evasion/hidden_paths/dev_shm: medium
+evasion/covert_location/dev_shm: medium
 evasion/hidden_paths/var_run: medium
 evasion/hide_artifacts/pivot_root: medium
 evasion/hijack_execution/LD_LIBRARY_PATH: low

@@ -22,3 +22,14 @@ rule small_elf_sudoer: high {
   condition:
     uint32(0) == 1179403647 and filesize < 10MB and sudo_editor
 }
+
+rule sudo_parser: override {
+  meta:
+    small_elf_sudoer = "medium"
+
+  strings:
+    $parse = "sudo_parse"
+
+  condition:
+    uint32(0) == 1179403647 and filesize < 10MB and all of them
+}
