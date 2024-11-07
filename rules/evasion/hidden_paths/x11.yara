@@ -17,7 +17,7 @@ rule X11: override {
   strings:
     $usr_share = "/usr/share/X11"
     $X11Gray   = "X11Gray"
-    $X11_space = "X11 "
+    $X11_space = "/etc/X11/"
 
   condition:
     filesize < 10MB and any of them

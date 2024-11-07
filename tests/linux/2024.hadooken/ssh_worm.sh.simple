@@ -3,6 +3,7 @@
 anti-static/base64/eval: critical
 anti-static/base64/function_names: critical
 c2/addr/http_ip: high
+c2/addr/ip: medium
 c2/tool_transfer/shell: medium
 credential/shell/bash_history: high
 credential/ssh: high

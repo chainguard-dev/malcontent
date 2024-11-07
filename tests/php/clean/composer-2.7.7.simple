@@ -25,7 +25,6 @@ discover/system/platform: low
 discover/user/HOME: low
 discover/user/USER: low
 evasion/hidden_paths/hidden: medium
-evasion/hidden_paths/x11: low
 evasion/hijack_execution/DYLD_LIBRARY_PATH: medium
 exec/cmd: medium
 exec/plugin: low

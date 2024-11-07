@@ -124,7 +124,6 @@ fs/tempdir/create: low
 fs/watch: low
 hw/cpu: medium
 hw/dev/block_ice: medium
-hw/dev/mem: low
 impact/infection/infected: medium
 impact/ransom/decryptor: medium
 impact/remote_access/heartbeat: medium

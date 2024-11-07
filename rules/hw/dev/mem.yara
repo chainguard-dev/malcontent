@@ -1,4 +1,4 @@
-rule dev_mem: high linux {
+rule dev_mem: medium linux {
   meta:
     capability                           = "CAP_SYS_RAWIO"
     description                          = "access raw system memory"
@@ -14,19 +14,6 @@ rule dev_mem: high linux {
 
   condition:
     filesize < 10MB and uint32(0) == 1179403647 and $val and none of ($not*)
-}
-
-rule dev_mem_legit: override {
-  meta:
-    dev_mem = "medium"
-
-  strings:
-    $sys_cpu   = "/sys/devices/system/cpu/"
-    $lscup     = "lscpu_read"
-    $fastfetch = "Fastfetch"
-
-  condition:
-    any of them
 }
 
 rule comsvcs_minidump: high windows {

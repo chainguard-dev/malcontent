@@ -6,7 +6,6 @@
 3P/threat_hunting/xmrig: medium
 anti-static/base64/exec: high
 c2/addr/http_ip: high
-c2/addr/ip: medium
 c2/addr/ip_port: high
 c2/tool_transfer/download: medium
 c2/tool_transfer/http_ip_temp: critical
@@ -22,6 +21,7 @@ evasion/bypass_security/linux/se: medium
 evasion/bypass_security/linux/se_disable: high
 evasion/bypass_security/linux/ufw: medium
 evasion/covert_location/dev_shm: critical
+evasion/hidden_paths/dev_shm: critical
 evasion/hidden_paths/hidden: high
 evasion/hidden_paths/var_tmp: medium
 evasion/hijack_execution/etc_ld.so.preload: high

@@ -106,7 +106,6 @@ fs/unmount: low
 fs/watch: low
 hw/cpu: medium
 hw/dev/block_ice: medium
-hw/dev/mem: low
 hw/wireless: low
 impact/exploit/GCONV_PATH: low
 impact/infection/infected: medium

@@ -72,7 +72,6 @@ fs/unmount: low
 fs/watch: low
 hw/dev/block_ice: medium
 hw/dev/mapper: medium
-hw/dev/mem: low
 impact/remote_access/heartbeat: medium
 net/dns: low
 net/dns/reverse: medium

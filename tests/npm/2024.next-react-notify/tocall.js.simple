@@ -2,6 +2,7 @@
 anti-static/obfuscation/batch/echo_off: high
 anti-static/obfuscation/powershell/bxor: critical
 c2/addr/http_ip: high
+c2/addr/ip: medium
 evasion/bypass_security/executionpolicy_bypass: high
 exec/shell/power: medium
 fs/file/delete: low

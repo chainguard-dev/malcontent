@@ -6,19 +6,19 @@ rule hardcoded_ip: medium {
     hash_2023_Downloads_311c = "311c93575efd4eeeb9c6674d0ab8de263b72a8fb060d04450daccc78ec095151"
 
   strings:
-    $ipv4          = /((25[0-5]|(2[0-4]|1\d|[1-9]|)[\d])\.){3}(25[0-5]|(2[0-4]|1\d|[1-9]|)\d)/ fullword
-    $not_localhost = "127.0.0.1"
-    $not_broadcast = "255.255.255.255"
-    $not_upnp      = "239.255.255.250"
-    $not_incr      = "10.11.12.13"
-    $not_169       = "169.254.169.254"
-    $not_spyder    = "/search/spider"
-    $not_ruby      = "210.251.121.214"
-    $not_image     = "7.1.1.38"
-    $not_224       = "224.0.0.251"
+    // strict: excludes 255.* and *.0.* *.1.*
+    $sus_ipv4           = /((25[0-4]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[2-9])\.){3}(25[0-4]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[2-9])/ fullword
+    $not_version        = /((25[0-4]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[2-9])\.){3}(25[0-4]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[2-9])[\.\-]/
+    $not_incr           = "10.11.12.13"
+    $not_169            = "169.254.169.254"
+    $not_spyder         = "/search/spider"
+    $not_ruby           = "210.251.121.214"
+    $not_1_2_3_4        = "1.2.3.4"
+    $not_root_servers_h = "128.63.2.53"
+    $not_root_servers_i = "192.36.148.17"
 
   condition:
-    filesize < 200MB and 1 of ($ip*) and none of ($not*)
+    filesize < 200MB and 1 of ($sus_ip*) and none of ($not*)
 }
 
 rule elf_hardcoded_ip: high {

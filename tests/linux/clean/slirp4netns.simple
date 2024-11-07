@@ -63,7 +63,6 @@ fs/tempdir/TMPDIR: low
 fs/unmount: low
 fs/watch: low
 hw/cpu: medium
-hw/dev/mem: low
 impact/exploit/GCONV_PATH: low
 impact/reboot: low
 impact/remote_access/reverse_shell: medium

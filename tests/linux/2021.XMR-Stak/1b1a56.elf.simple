@@ -50,7 +50,6 @@ fs/proc/nvidia_gpu: medium
 fs/proc/self_cgroup: medium
 fs/proc/self_exe: medium
 hw/cpu: medium
-hw/dev/mem: low
 impact/cryptojacking/cryptonight: high
 impact/cryptojacking/generic: high
 impact/cryptojacking/hugepages_nmi_crypto: high
