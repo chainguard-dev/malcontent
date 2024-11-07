@@ -42,14 +42,16 @@ func (r TerminalBrief) File(_ context.Context, fr *malcontent.FileReport) error 
 
 	for _, b := range fr.Behaviors {
 		content := fmt.Sprintf("│     %s %s — %s", riskColor(fr.RiskLevel, "•"), riskColor(fr.RiskLevel, b.ID), b.Description)
+		fmt.Fprint(r.w, content)
+
 		e := evidenceString(b.MatchStrings, b.Description)
 
 		// no evidence to give
 		if e == "" {
+			fmt.Println(r.w, "")
 			continue
 		}
 
-		fmt.Fprint(r.w, content)
 		color.New(color.FgHiBlack).Fprint(r.w, ":")
 		e = color.RGB(255, 255, 255).Sprint(e)
 
