@@ -20,11 +20,11 @@ rule proc_net_route_high: high {
     hash_2023_Unix_Dropper_Mirai_1ba6 = "1ba6b973e571bf63bca52c366c3ddb0046511831c533acff280d2047474cd739"
 
   strings:
-    $ref            = "/proc/net/route"
-    $not_usage_route      = "Usage: route"
-    $not_usage_var      = "Usage: %s"
-    $not_host_route = "host route"
-    $not_route_addr = "route address"
+    $ref             = "/proc/net/route"
+    $not_usage_route = "Usage: route"
+    $not_usage_var   = "Usage: %s"
+    $not_host_route  = "host route"
+    $not_route_addr  = "route address"
 
   condition:
     filesize < 1MB and uint32(0) == 1179403647 and $ref and none of ($not*)

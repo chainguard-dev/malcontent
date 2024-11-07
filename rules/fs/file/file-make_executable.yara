@@ -27,13 +27,15 @@ rule chmod_executable_binary: high {
     filesize < 20MB and (uint32(0) == 1179403647 or uint32(0) == 4277009102 or uint32(0) == 3472551422 or uint32(0) == 4277009103 or uint32(0) == 3489328638 or uint32(0) == 3405691582 or uint32(0) == 3199925962) and any of ($val*) and none of ($not*)
 }
 
-rule less_serious_chmod : override {
-	meta:
-		chmod_executable_binary = "medium"
-	strings:
-		$make_like = "chmod a+x $@"
-	condition:
-		any of them
+rule less_serious_chmod: override {
+  meta:
+    chmod_executable_binary = "medium"
+
+  strings:
+    $make_like = "chmod a+x $@"
+
+  condition:
+    any of them
 }
 
 rule chmod_executable_ruby: high {

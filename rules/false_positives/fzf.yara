@@ -1,8 +1,7 @@
-
 rule fzf: override {
   meta:
-    description = "fzf"
-    listens_and_executes_shell  = "medium"
+    description                = "fzf"
+    listens_and_executes_shell = "medium"
 
   strings:
     $fzf = "FZF_DEFAULT" fullword

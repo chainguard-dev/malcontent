@@ -1,8 +1,10 @@
 rule qemu: override {
   meta:
-    description      = "QEMU"
+    description = "QEMU"
+
   strings:
-	$module = "QEMU_MODULE"
+    $module = "QEMU_MODULE"
+
   condition:
     filesize < 5MB and all of them
 }
