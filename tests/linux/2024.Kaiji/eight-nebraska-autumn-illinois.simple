@@ -3,6 +3,7 @@
 c2/addr/ip_port: medium
 c2/addr/php: medium
 c2/discovery/ip_dns_resolver: medium
+c2/tool_transfer/binary: high
 credential/password: low
 credential/shell/bash_history: high
 credential/ssh: medium

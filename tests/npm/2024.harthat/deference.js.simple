@@ -6,6 +6,5 @@ fs/file/delete: low
 fs/file/write: low
 impact/remote_access/dll_injection: critical
 net/download/fetch: critical
-net/download/fetch_suspicious: high
 net/url/embedded: low
 process/create: medium
