@@ -464,7 +464,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 				b.Override = append(b.Override, k)
 				fr.Overrides = append(fr.Overrides, b)
 			case !exists && override:
-				logger.Errorf("Override %s matched with no overridden rule\n", m.Rule)
+				// TODO: error if override references an unknown rule names
 				continue
 			}
 
