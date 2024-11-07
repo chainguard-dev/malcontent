@@ -50,7 +50,7 @@ func riskInColor(level string) string {
 func riskColor(level string, text string) string {
 	switch level {
 	case "LOW":
-		return color.HiGreenString(text)
+		return color.HiCyanString(text)
 	case "MEDIUM", "MED":
 		return color.HiYellowString(text)
 	case "HIGH":
@@ -299,24 +299,24 @@ func renderFileSummary(_ context.Context, fr *malcontent.FileReport, w io.Writer
 				}
 			}
 
-			prefix := "│ "
+			prefix := "│  "
 			bullet := riskEmoji(b.RiskScore)
-			content := fmt.Sprintf("%s%s %s %s", prefix, indent, riskColor(b.RiskLevel, bullet+" "+rest), desc)
+			content := fmt.Sprintf("%s%s%s %s", prefix, indent, riskColor(b.RiskLevel, bullet+" "+rest), desc)
 			pc := color.New()
 
 			if diffMode {
-				content = fmt.Sprintf("%s%s %s %s %s", prefix, indent, bullet, rest, desc)
+				content = fmt.Sprintf("%s%s%s %s %s", prefix, indent, bullet, rest, desc)
 
 				if b.DiffAdded {
 					pc = color.New(color.FgHiGreen)
-					prefix = "++"
-					content = fmt.Sprintf("%s%s %s %s %s", prefix, indent, bullet, rest, desc)
+					prefix = "+++"
+					content = fmt.Sprintf("%s%s%s %s %s", prefix, indent, bullet, rest, desc)
 				}
 
 				if b.DiffRemoved {
-					prefix = "--"
+					prefix = "---"
 					pc = color.New(color.FgHiRed)
-					content = fmt.Sprintf("%s%s %s %s %s", prefix, indent, bullet, rest, desc)
+					content = fmt.Sprintf("%s%s%s %s %s", prefix, indent, bullet, rest, desc)
 					e = ""
 				}
 			}
