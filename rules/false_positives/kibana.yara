@@ -26,3 +26,30 @@ rule security_solution_plugin: override {
   condition:
     filesize < 5MB and all of them
 }
+
+rule security_detection_engine: override {
+  meta:
+    casing_obfuscation                          = "low"
+    dev_shm_hidden                              = "low"
+    hacktool_mimikatz                           = "low"
+    linux_rootkit_terms                         = "low"
+    polkit_pkexec_exploit                       = "low"
+    SIGNATURE_BASE_Hacktool_Strings_P0Wnedshell = "low"
+    SIGNATURE_BASE_HKTL_Domainpasswordspray     = "low"
+    SIGNATURE_BASE_P0Wnedpotato                 = "low"
+    SIGNATURE_BASE_Wmimplant                    = "low"
+    win_defender_exclusion                      = "low"
+
+  strings:
+    $attr1   = "rule_id"
+    $attr2   = "query"
+    $attr3   = "required_fields"
+    $attr4   = "risk_score"
+    $attr5   = "severity"
+    $attr6   = "type"
+    $elastic = "Elastic"
+    $rule    = "security-rule"
+
+  condition:
+    filesize < 32KB and 68 % of ($attr*) and $elastic and $rule
+}

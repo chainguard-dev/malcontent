@@ -1,0 +1,8 @@
+# linux/clean/kibana/83bf249e-4348-47ba-9741-1202a09556ad_101.json: medium
+3P/threat_hunting/powershell: medium
+anti-static/obfuscation/powershell/bxor: low
+exec/shell/command: medium
+exec/shell/power: medium
+net/download: medium
+net/download/fetch: medium
+net/url/embedded: low
