@@ -126,7 +126,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		return &malcontent.FileReport{Path: path, Error: fmt.Sprintf("scan: %v", err)}, nil
 	}
 
-	fr, err := report.Generate(ctx, path, mrs, c, archiveRoot)
+	fr, err := report.Generate(ctx, path, mrs, c, archiveRoot, logger)
 	if err != nil {
 		return nil, err
 	}
