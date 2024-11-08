@@ -31,7 +31,7 @@ rule ren: medium windows {
     description = "renames files"
 
   strings:
-    $rename            = "rename"
+    $rename         = "rename"
     $cmd_echo       = "echo off"
     $cmd_powershell = "powershell"
 
