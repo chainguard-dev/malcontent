@@ -1,4 +1,4 @@
-rule pua_backtrack_keylogger: malware trojan {
+rule pua_backtrack_keylogger: macos high {
   meta:
     description = "Backtrack Keylogger"
 

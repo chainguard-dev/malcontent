@@ -78,3 +78,11 @@ rule apk_installer: medium {
     $val
 }
 
+rule sudo_installer_pkg: high macos {
+  meta:
+    description                         = "install software with installer"
+  strings:
+    $val = /sudo installer -pkg [\w\/\.\"\-]{0,32} -target [\w\/\.\"\-]{0,32}/
+  condition:
+    $val
+}

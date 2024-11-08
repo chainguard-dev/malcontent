@@ -24,7 +24,7 @@ rule whoami: medium {
 
   strings:
     $ref = "whoami" fullword
-
+	$ref2 = "NSUserName" fullword
   condition:
     any of them
 }
