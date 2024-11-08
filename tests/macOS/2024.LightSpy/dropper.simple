@@ -1,6 +1,6 @@
 # macOS/2024.LightSpy/dropper: critical
 3P/huntress/lightspy_loader: critical
-c2/addr/ip_port: medium
+c2/addr/ip: medium
 c2/tool_transfer/macos: critical
 crypto/aes: low
 crypto/xor: high

@@ -1,5 +1,5 @@
 # linux/clean/tracer.o.aarch64: medium
-c2/addr/ip_port: medium
+c2/addr/ip: medium
 collect/databases/mysql: medium
 credential/sniffer/bpf: medium
 discover/network/netstat: medium

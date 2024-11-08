@@ -44,31 +44,9 @@
                     ],
                     "RiskScore": 3,
                     "RiskLevel": "HIGH",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/http-ip.yara#http_hardcoded_ip",
-                    "ID": "c2/addr/http_ip",
-                    "RuleName": "http_hardcoded_ip"
-                },
-                {
-                    "Description": "hardcoded IP address",
-                    "MatchStrings": [
-                        "95.164.17.24"
-                    ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/ip.yara#hardcoded_ip",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/ip.yara#http_hardcoded_ip",
                     "ID": "c2/addr/ip",
-                    "RuleName": "hardcoded_ip"
-                },
-                {
-                    "Description": "hardcoded IP:port destination",
-                    "MatchStrings": [
-                        "95.164.17.24:1224"
-                    ],
-                    "RiskScore": 3,
-                    "RiskLevel": "HIGH",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/ip_port.yara#hardcoded_ip_port",
-                    "ID": "c2/addr/ip_port",
-                    "RuleName": "hardcoded_ip_port"
+                    "RuleName": "http_hardcoded_ip"
                 },
                 {
                     "Description": "steals login keychain",

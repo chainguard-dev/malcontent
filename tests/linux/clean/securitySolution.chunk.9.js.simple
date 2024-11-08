@@ -35,9 +35,8 @@
 3P/threat_hunting/traitor: medium
 3P/threat_hunting/wpscan: medium
 anti-static/obfuscation/js/char_codes: medium
-c2/addr/ip_port: medium
-c2/addr/php: medium
-c2/addr/url_unusual: high
+c2/addr/ip: medium
+c2/addr/url: high
 c2/discovery/dyndns: medium
 c2/tool_transfer/download: high
 c2/tool_transfer/dropper: medium
@@ -85,7 +84,7 @@ net/ip/addr: medium
 net/socket/listen: medium
 net/socket/send: low
 net/tcp/sftp: medium
-net/url/embedded: low
+net/url/embedded: medium
 net/url/parse: low
 net/url/request: medium
 os/kernel/seccomp: low

@@ -5,7 +5,7 @@ anti-behavior/LD_DEBUG: medium
 anti-behavior/LD_PROFILE: medium
 anti-static/obfuscation/obfuscate: low
 c2/addr/http_dynamic: medium
-c2/addr/ip_port: medium
+c2/addr/ip: medium
 c2/discovery/ip_dns_resolver: medium
 c2/refs: medium
 c2/server_address: medium
@@ -145,7 +145,7 @@ net/socket/reuseport: medium
 net/socket/send: low
 net/tcp/ssh: medium
 net/udp/upnp: medium
-net/url/embedded: low
+net/url/embedded: medium
 net/url/encode: medium
 net/url/parse: low
 net/url/request: medium

@@ -1,6 +1,5 @@
 # python/2024.coloredtxt/base64_payload3.py: critical
-c2/addr/php: medium
-c2/addr/url_unusual: high
+c2/addr/url: high
 c2/tool_transfer/python: high
 data/base64/decode: medium
 data/encoding/base64: low
@@ -12,7 +11,7 @@ fs/file/open: low
 fs/file/read: low
 fs/permission/modify: medium
 net/download/fetch: medium
-net/url/embedded: low
+net/url/embedded: medium
 os/env/get: low
 os/fd/read: low
 os/fd/write: low

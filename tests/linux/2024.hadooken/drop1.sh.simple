@@ -2,8 +2,7 @@
 3P/threat_hunting/base64: medium
 anti-static/base64/eval: critical
 anti-static/base64/function_names: critical
-c2/addr/http_ip: high
-c2/addr/ip: medium
+c2/addr/ip: high
 c2/tool_transfer/shell: critical
 data/base64/external: medium
 data/embedded/base64_url: medium

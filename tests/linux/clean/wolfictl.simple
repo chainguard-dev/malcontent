@@ -1,10 +1,11 @@
-# linux/clean/wolfictl: medium
+# linux/clean/wolfictl: high
 3P/threat_hunting/github_username: medium
 3P/threat_hunting/gost: medium
 3P/threat_hunting/hijacker: medium
 3P/threat_hunting/runascs: medium
 c2/addr/http_dynamic: medium
-c2/addr/ip_port: medium
+c2/addr/ip: medium
+c2/addr/url: high
 c2/tool_transfer/dropper: medium
 collect/archives/tar_command: medium
 collect/archives/unarchive: medium
@@ -155,7 +156,7 @@ net/tcp/grpc: low
 net/tcp/ssh: medium
 net/udp/receive: low
 net/udp/send: low
-net/url/embedded: low
+net/url/embedded: medium
 net/url/encode: medium
 net/url/parse: low
 net/url/request: medium
