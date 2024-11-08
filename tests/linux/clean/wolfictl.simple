@@ -116,7 +116,6 @@ fs/unmount: low
 fs/watch: low
 hw/wireless: low
 impact/ddos/raw_flooder: medium
-impact/infection/infected: medium
 impact/ransom/locked_files: medium
 impact/remote_access/heartbeat: medium
 impact/remote_access/kill_rm: medium

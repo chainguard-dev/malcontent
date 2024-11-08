@@ -1,4 +1,4 @@
-rule hidden_x11: high linux {
+rule hidden_x11: high {
   meta:
     description = "may store content in /tmp/.X11-unix"
     ref         = "https://www.welivesecurity.com/2021/10/07/fontonlake-previously-unknown-malware-family-targeting-linux/"
@@ -15,9 +15,11 @@ rule X11: override {
     hidden_x11 = "low"
 
   strings:
-    $usr_share = "/usr/share/X11"
-    $X11Gray   = "X11Gray"
-    $X11_space = "/etc/X11/"
+    $usr_share   = "/usr/share/X11"
+    $X11Gray     = "X11Gray"
+    $X11_space   = "/etc/X11/"
+    $X11R6       = "X11R6"
+    $XForwarding = "X11 forwarding"
 
   condition:
     filesize < 10MB and any of them

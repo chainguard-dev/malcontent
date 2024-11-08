@@ -50,9 +50,20 @@ rule form_data_reference: medium {
     hash_2023_Downloads_016a     = "016a1a4fe3e9d57ab0b2a11e37ad94cc922290d2499b8d96957c3ddbdc516d74"
 
   strings:
-    $f_content_dispo_name = "Content-Disposition: form-data; name="
+    $f_content_dispo_name = "Content-Disposition: form-data; name=.{0,32}\""
     $f_multipart          = "multipart/form-data; boundary="
 
   condition:
     any of ($f_*)
+}
+
+rule form_upload_hardcoded_name: high {
+  meta:
+    description = "submits form content to websites as a hardcoded filename"
+
+  strings:
+    $ref = /Content-Disposition: form-data; name="upload"; filename="[\w\.]{1,12}"/
+
+  condition:
+    any of them
 }

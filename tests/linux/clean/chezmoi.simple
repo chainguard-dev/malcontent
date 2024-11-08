@@ -100,7 +100,7 @@ fs/watch: low
 hw/dev/block_ice: medium
 hw/wireless: low
 impact/exploit: medium
-impact/infection/infected: medium
+impact/infection/worm: medium
 impact/remote_access/heartbeat: medium
 impact/remote_access/implant: medium
 impact/remote_access/pseudo_terminal: medium

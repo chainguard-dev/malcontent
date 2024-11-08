@@ -99,7 +99,6 @@ impact/exploit: high
 impact/exploit/GCONV_PATH: high
 impact/exploit/overflow_shellcode: high
 impact/exploit/pwnkit: critical
-impact/infection/infected: medium
 impact/remote_access/heartbeat: medium
 impact/remote_access/kill_rm: medium
 impact/remote_access/net_exec: medium

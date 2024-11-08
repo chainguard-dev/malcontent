@@ -15,7 +15,7 @@ rule one_three_three_seven: medium {
 
 rule too_l33t_for_me: high {
   meta:
-    description = "References 1337 terminology'"
+    description = "References 1337 terminology"
 
   strings:
     $ = "hax0r" fullword

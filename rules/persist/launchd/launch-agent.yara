@@ -7,7 +7,7 @@ rule macos_LaunchAgents: medium {
     hash_2021_CDDS_UserAgent_v2019         = "9b71fad3280cf36501fe110e022845b29c1fb1343d5250769eada7c36bc45f70"
 
   strings:
-    $val = /[\~\/\.\w]{0,32}LaunchAgents[\/\w\%\$]{0,32}/ fullword
+    $val = /[\~\/\.\w]{0,32}LaunchAgents[\/\w\%\$\.]{0,32}/ fullword
 
   condition:
     any of them
@@ -22,12 +22,38 @@ rule launchctl: medium {
     hash_2021_CDDS_client                  = "623f99cbe20af8b79cbfea7f485d47d3462d927153d24cac4745d7043c15619a"
 
   strings:
-    $upper_val = /[\~\/\.\w]{0,32}LaunchAgents[\/\w\%\$]{0,32}/ fullword
-    $lower_val = /[\~\/\.\w]{0,32}launchagents[\/\w\%\$]{0,32}/ fullword
+    $upper_val = /[\~\/\.\w]{0,32}LaunchAgents[\/\w\%\$\.]{0,32}/ fullword
+    $lower_val = /[\~\/\.\w]{0,32}launchagents[\/\w\%\$\.]{0,32}/ fullword
     $launch    = "launchctl"
 
   condition:
     $launch and ($upper_val or $lower_val)
+}
+
+rule launchctl_embedded: high {
+  meta:
+    description = "sets up an embedded LaunchAgent and launches it"
+
+  strings:
+    $upper_val        = /[\~\/\.\w]{0,32}[Ll]aunch[aA]gents[\/\w\%\$\.]{0,32}/ fullword
+    $launch           = "launchctl load"
+    $programArguments = "<key>ProgramArguments</key>"
+
+  condition:
+    all of them
+}
+
+rule fake_launchd: critical {
+  meta:
+    description = "interacts with deceptively named LaunchAgent"
+
+  strings:
+    $f_launch  = /\/Library\/LaunchAgents\/launched.{0,16}.plist/
+    $f_apple   = /[\/\w \.]{0,64}\/apple.plist/
+    $launchctl = "launchctl"
+
+  condition:
+    $launchctl and any of ($f*)
 }
 
 rule macos_personal_launch_agent: medium {

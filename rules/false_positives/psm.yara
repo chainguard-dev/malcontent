@@ -7,5 +7,5 @@ rule psm: override macos {
     $ref = "com.apple.psm" fullword
 
   condition:
-    filesize < 200KB and filesize > 40KB and any of them
+    filesize < 400KB and filesize > 40KB and any of them
 }

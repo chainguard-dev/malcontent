@@ -20,6 +20,7 @@ fs/lock_update: low
 fs/mount: low
 impact/exploit: medium
 impact/infection/infected: medium
+impact/infection/worm: medium
 impact/remote_access/agent: medium
 impact/remote_access/heartbeat: medium
 impact/remote_access/implant: medium

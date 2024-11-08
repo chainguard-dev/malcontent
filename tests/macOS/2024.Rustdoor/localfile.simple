@@ -1,4 +1,5 @@
 # macOS/2024.Rustdoor/localfile: critical
+anti-static/macho/footer: high
 c2/tool_transfer/binary: high
 c2/tool_transfer/macos: critical
 c2/tool_transfer/shell: critical
