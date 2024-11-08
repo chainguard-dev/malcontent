@@ -1,5 +1,5 @@
 # linux/clean/runtime-security-fentry.o: medium
-c2/addr/ip_port: medium
+c2/addr/ip: medium
 credential/sniffer/bpf: medium
 evasion/bypass_security/linux/iptables: medium
 evasion/bypass_security/linux/se: medium

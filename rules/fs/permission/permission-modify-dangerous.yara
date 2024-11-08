@@ -21,6 +21,7 @@ rule chmod_dangerous_exec: high exfil {
     $not_chmod_1777  = "chmod 1777"
     $not_chmod_01777 = "chmod 01777"
     $not_chromium    = "CHROMIUM_TIMESTAMP"
+    $not_var_tmp     = "chmod 0777 /var/tmp" fullword
 
   condition:
     filesize < 50MB and $ref and none of ($not*)

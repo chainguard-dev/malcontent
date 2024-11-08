@@ -13,3 +13,14 @@ rule proc_exe: high {
   condition:
     any of them
 }
+
+rule legit_proc_exec: override {
+  meta:
+    proc_exe = "medium"
+
+  strings:
+    $string = "Fastfetch" fullword
+
+  condition:
+    filesize < 3MB and any of them
+}

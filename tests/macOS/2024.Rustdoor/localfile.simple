@@ -1,4 +1,6 @@
 # macOS/2024.Rustdoor/localfile: critical
+anti-static/macho/footer: high
+c2/tool_transfer/binary: high
 c2/tool_transfer/macos: critical
 c2/tool_transfer/shell: critical
 collect/archives/zip: medium
@@ -26,7 +28,7 @@ exec/script/osa: medium
 exec/shell/exec: medium
 exfil/stealer/notes: critical
 exfil/stealer/office: high
-exfil/stealer/ssh: high
+exfil/stealer/ssh: medium
 fs/directory/create: low
 fs/directory/remove: low
 fs/file/delete: low

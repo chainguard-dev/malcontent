@@ -5,7 +5,8 @@
 3P/threat_hunting/tor: medium
 anti-behavior/vm_check: medium
 c2/addr/http_dynamic: medium
-c2/addr/ip_port: medium
+c2/addr/ip: medium
+c2/addr/url: high
 c2/discovery/ip_dns_resolver: medium
 c2/tool_transfer/download: medium
 collect/archives/unarchive: medium
@@ -40,7 +41,8 @@ discover/system/sysinfo: medium
 discover/user/HOME: low
 discover/user/USER: low
 discover/user/name_get: medium
-evasion/hidden_paths/chdir_unusual: medium
+evasion/covert_location/chdir_unusual: medium
+evasion/covert_location/dev_shm: medium
 evasion/hidden_paths/dev_shm: critical
 evasion/hidden_paths/hidden: high
 evasion/hijack_execution/LD_LIBRARY_PATH: low
@@ -97,7 +99,6 @@ impact/exploit: high
 impact/exploit/GCONV_PATH: high
 impact/exploit/overflow_shellcode: high
 impact/exploit/pwnkit: critical
-impact/infection/infected: medium
 impact/remote_access/heartbeat: medium
 impact/remote_access/kill_rm: medium
 impact/remote_access/net_exec: medium
@@ -141,7 +142,7 @@ net/tcp/sftp: medium
 net/tcp/ssh: medium
 net/udp/receive: low
 net/udp/send: medium
-net/url/embedded: low
+net/url/embedded: medium
 net/url/encode: medium
 net/url/parse: low
 net/url/request: medium

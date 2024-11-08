@@ -1,5 +1,5 @@
 # linux/clean/busybox: medium
-c2/addr/ip_port: medium
+c2/addr/ip: medium
 credential/os/gshadow: medium
 credential/os/shadow: medium
 credential/password: low

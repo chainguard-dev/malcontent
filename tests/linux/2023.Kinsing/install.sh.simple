@@ -5,9 +5,7 @@
 3P/threat_hunting/shell: medium
 3P/threat_hunting/xmrig: medium
 anti-static/base64/exec: high
-c2/addr/http_ip: high
-c2/addr/ip: medium
-c2/addr/ip_port: high
+c2/addr/ip: high
 c2/tool_transfer/download: medium
 c2/tool_transfer/http_ip_temp: critical
 c2/tool_transfer/shell: medium
@@ -21,10 +19,11 @@ evasion/bypass_security/linux/iptables: medium
 evasion/bypass_security/linux/se: medium
 evasion/bypass_security/linux/se_disable: high
 evasion/bypass_security/linux/ufw: medium
+evasion/covert_location/dev_shm: critical
 evasion/hidden_paths/dev_shm: critical
-evasion/hidden_paths/etc_ld.so.preload: high
 evasion/hidden_paths/hidden: high
 evasion/hidden_paths/var_tmp: medium
+evasion/hijack_execution/etc_ld.so.preload: high
 evasion/logging/syslog: medium
 evasion/mimicry/fake_process: critical
 exec/install_additional/package_install: medium
@@ -35,7 +34,6 @@ exec/shell/pipe_sh: medium
 exec/system_controls/apparmor: high
 exec/system_controls/stop: low
 exec/system_controls/systemd: medium
-exfil/stealer/ssh: high
 fs/attributes/chattr: high
 fs/directory/create: low
 fs/file/delete: medium
@@ -66,8 +64,7 @@ impact/remote_access/agent: medium
 impact/remote_access/iptables: medium
 impact/remote_access/kill_rm: medium
 net/download: medium
-net/download/fetch: medium
-net/download/fetch_suspicious: high
+net/download/fetch: high
 net/url/embedded: low
 persist/cron/tab: medium
 persist/daemon: medium

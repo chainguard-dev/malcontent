@@ -342,7 +342,7 @@ func mungeDescription(s string) string {
 }
 
 //nolint:cyclop // ignore complexity of 44
-func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malcontent.Config, expath string) (malcontent.FileReport, error) {
+func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malcontent.Config, expath string, _ *clog.Logger) (malcontent.FileReport, error) {
 	ignoreTags := c.IgnoreTags
 	minScore := c.MinRisk
 	ignoreSelf := c.IgnoreSelf
@@ -451,7 +451,10 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 
 			// If we find a match in the map for the metadata key, that's the rule to override
 			// Store this rule (the override) in the fr.Overrides behavior slice
-			if _, exists := mrsMap[k]; exists && override {
+			// If an override rule is not overriding a valid rule, log an error
+			_, exists := mrsMap[k]
+			switch {
+			case exists && override:
 				var overrideSev int
 				if sev, ok := Levels[v]; ok {
 					overrideSev = sev
@@ -460,6 +463,9 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 				b.RiskScore = overrideSev
 				b.Override = append(b.Override, k)
 				fr.Overrides = append(fr.Overrides, b)
+			case !exists && override:
+				// TODO: return error if override references an unknown rule name
+				continue
 			}
 
 			switch k {

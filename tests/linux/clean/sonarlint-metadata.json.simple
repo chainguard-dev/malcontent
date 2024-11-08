@@ -1,9 +1,9 @@
-# linux/clean/sonarlint-metadata.json: medium
+# linux/clean/sonarlint-metadata.json: high
 3P/threat_hunting/bruteratel: medium
 3P/threat_hunting/github_username: medium
 3P/threat_hunting/owasp: medium
-c2/addr/ip_port: medium
-c2/addr/php: medium
+c2/addr/ip: medium
+c2/tool_transfer/dropper: high
 collect/databases/mysql: medium
 credential/password: low
 credential/ssl/private_key: low
@@ -13,7 +13,7 @@ crypto/uuid: medium
 data/encoding/json_decode: low
 data/encoding/json_encode: low
 discover/network/interface_list: medium
-evasion/hidden_paths/dev_mqueue: medium
+evasion/covert_location/dev_mqueue: medium
 evasion/hidden_paths/hidden: medium
 exec/plugin: low
 exfil/stealer/credit_card: medium
@@ -50,7 +50,7 @@ net/socket/listen: medium
 net/socket/send: low
 net/tcp/sftp: medium
 net/tcp/ssh: medium
-net/url/embedded: low
+net/url/embedded: medium
 net/url/encode: medium
 os/env/get: low
 os/fd/read: low

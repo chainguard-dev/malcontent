@@ -2,7 +2,7 @@
 3P/threat_hunting/github_username: medium
 3P/threat_hunting/hijacker: medium
 c2/addr/http_dynamic: medium
-c2/addr/ip_port: medium
+c2/addr/ip: medium
 collect/archives/tar_command: medium
 collect/archives/zip: medium
 collect/code/github_api: low

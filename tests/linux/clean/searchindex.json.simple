@@ -12,7 +12,7 @@ data/random/insecure: low
 discover/components/docker: medium
 discover/system/platform: low
 discover/system/sysinfo: medium
-evasion/hidden_paths/chdir_unusual: medium
+evasion/covert_location/chdir_unusual: medium
 evasion/hide_artifacts/system_directories: medium
 exec/install_additional/package_install: medium
 exec/install_additional/pip_install: medium
@@ -53,7 +53,7 @@ net/ip/spoof: medium
 net/socket/listen: medium
 net/socket/send: low
 net/tcp/ssh: medium
-net/url/embedded: low
+net/url/embedded: medium
 persist/cron/tab: medium
 persist/daemon: medium
 persist/service/start: low

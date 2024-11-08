@@ -5,10 +5,11 @@ anti-behavior/LD_DEBUG: medium
 anti-behavior/LD_PROFILE: medium
 anti-static/obfuscation/obfuscate: low
 c2/addr/http_dynamic: medium
-c2/addr/ip_port: medium
+c2/addr/ip: medium
 c2/discovery/ip_dns_resolver: medium
 c2/refs: medium
 c2/server_address: medium
+c2/tool_transfer/dropper: medium
 collect/archives/zip: medium
 collect/databases/leveldb: medium
 collect/databases/sqlite: medium
@@ -37,13 +38,14 @@ data/hash/sha1: low
 data/random/insecure: low
 discover/network/interface_list: medium
 discover/network/mac_address: medium
+discover/processes/list: medium
 discover/system/hostname_get: low
 discover/system/platform: low
 discover/system/sysinfo: medium
 discover/user/HOME: low
 discover/user/USER: low
 evasion/bypass_security/linux/ufw: medium
-evasion/hidden_paths/dev_shm: medium
+evasion/covert_location/dev_shm: medium
 evasion/hijack_execution/LD_LIBRARY_PATH: low
 evasion/process_injection/ptrace: medium
 exec/cmd: medium
@@ -108,7 +110,6 @@ hw/cpu: medium
 hw/dev/block_ice: medium
 hw/wireless: low
 impact/exploit/GCONV_PATH: low
-impact/infection/infected: medium
 impact/ransom/decryptor: medium
 impact/remote_access/heartbeat: medium
 lateral/scan/target_ip: medium
@@ -145,7 +146,7 @@ net/socket/reuseport: medium
 net/socket/send: low
 net/tcp/ssh: medium
 net/udp/upnp: medium
-net/url/embedded: low
+net/url/embedded: medium
 net/url/encode: medium
 net/url/parse: low
 net/url/request: medium

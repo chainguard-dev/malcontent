@@ -6,7 +6,7 @@
 3P/threat_hunting/sharpshooter: medium
 3P/threat_hunting/tailscale: medium
 c2/addr/http_dynamic: medium
-c2/addr/ip_port: medium
+c2/addr/ip: medium
 c2/tool_transfer/download: medium
 c2/tool_transfer/dropper: medium
 collect/archives/zip: medium
@@ -100,7 +100,7 @@ fs/watch: low
 hw/dev/block_ice: medium
 hw/wireless: low
 impact/exploit: medium
-impact/infection/infected: medium
+impact/infection/worm: medium
 impact/remote_access/heartbeat: medium
 impact/remote_access/implant: medium
 impact/remote_access/pseudo_terminal: medium

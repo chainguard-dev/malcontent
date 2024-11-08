@@ -1,6 +1,6 @@
 # javascript/clean/5A50D54796BB27126E03A7E25DD5D589.cache.js: medium
 3P/threat_hunting/powershell: medium
-c2/addr/ip_port: medium
+c2/addr/ip: medium
 c2/addr/server: medium
 c2/server_address: medium
 collect/archives/unarchive: medium
@@ -9,6 +9,7 @@ collect/databases/postgresql: medium
 collect/databases/sqlite: medium
 credential/password: low
 credential/ssl/private_key: low
+crypto/aes: low
 data/base64/decode: medium
 data/compression/bzip2: low
 data/compression/gzip: low
@@ -20,11 +21,12 @@ data/encoding/json_encode: low
 data/encoding/reverse: low
 data/random/insecure: low
 discover/group/lookup: medium
+discover/processes/list: medium
 discover/system/hostname_get: low
 discover/system/platform: low
 discover/user/HOME: low
 discover/user/USER: low
-discover/user/name_get: low
+discover/user/name_get: medium
 evasion/hidden_paths/hidden: medium
 evasion/logging/acct: low
 exec/cmd: medium
@@ -80,7 +82,7 @@ net/socket/local_addr: low
 net/socket/peer_address: low
 net/socket/receive: low
 net/socket/send: low
-net/url/embedded: low
+net/url/embedded: medium
 net/url/encode: medium
 net/url/parse: low
 net/url/request: medium

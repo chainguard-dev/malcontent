@@ -1,0 +1,18 @@
+# python/clean/numba/support.py: medium
+discover/system/platform: medium
+exec/program: medium
+exec/remote_commands/code_eval: medium
+fs/directory/create: low
+fs/directory/list: low
+fs/file/open: low
+fs/file/read: low
+fs/file/write: low
+fs/tempdir: low
+fs/tempdir/create: low
+impact/remote_access/py_setuptools: low
+net/url/embedded: low
+os/fd/read: low
+os/fd/write: low
+process/executable_path: medium
+process/multi: medium
+process/multithreaded: medium

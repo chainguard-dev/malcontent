@@ -2,11 +2,10 @@
 3P/elastic/rootkit_fontonlake: critical
 3P/sig_base/susp_elf_upx: critical
 anti-static/packer/upx: high
-c2/addr/ip_port: medium
+c2/addr/ip: high
 credential/password: low
 credential/ssh: medium
 credential/ssh/authorized_hosts: medium
-credential/ssh/d: medium
 credential/ssl/private_key: low
 crypto/aes: low
 data/encoding/base64: low
@@ -19,10 +18,10 @@ evasion/bypass_security/linux/pam: medium
 evasion/bypass_security/linux/se: medium
 evasion/hidden_paths/hidden: medium
 evasion/hidden_paths/proc: high
-evasion/hidden_paths/x11: high
+evasion/hidden_paths/x11: low
 evasion/logging/acct: low
 evasion/logging/failed_logins: medium
-evasion/logging/historical_logins: high
+evasion/logging/historical_logins: medium
 exec/program: medium
 exec/program/background: low
 exec/shell/SHELL: low

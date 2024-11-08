@@ -5,7 +5,7 @@
 3P/threat_hunting/torproject: medium
 anti-static/obfuscation/obfuscate: low
 c2/addr/http_dynamic: medium
-c2/addr/ip_port: medium
+c2/addr/ip: medium
 c2/discovery/dyndns: medium
 c2/server_address: medium
 c2/tool_transfer/download: medium
@@ -45,6 +45,7 @@ discover/cloud/google_metadata: low
 discover/network/interface_get: low
 discover/network/interface_list: medium
 discover/permissions/capabilities: medium
+discover/processes/list: medium
 discover/system/cpu_info: low
 discover/system/hostname_get: low
 discover/system/platform: low
@@ -52,7 +53,7 @@ discover/user/HOME: low
 discover/user/USER: low
 discover/user/name_get: low
 evasion/bypass_security/linux/ufw: medium
-evasion/hidden_paths/dev_shm: medium
+evasion/covert_location/dev_shm: medium
 evasion/hidden_paths/hidden: medium
 evasion/hidden_paths/relative_hidden: low
 evasion/hijack_execution/DYLD_LIBRARY_PATH: medium
@@ -124,7 +125,7 @@ fs/tempdir/create: low
 fs/watch: low
 hw/cpu: medium
 hw/dev/block_ice: medium
-impact/infection/infected: medium
+impact/infection/worm: medium
 impact/ransom/decryptor: medium
 impact/remote_access/heartbeat: medium
 impact/shutdown: medium
@@ -163,7 +164,7 @@ net/socket/reuseport: medium
 net/socket/send: low
 net/tcp/grpc: low
 net/tcp/ssh: medium
-net/url/embedded: low
+net/url/embedded: medium
 net/url/encode: medium
 net/url/parse: low
 os/fd/epoll: low

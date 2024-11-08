@@ -1,6 +1,6 @@
-rule tar_ssh_net: high {
+rule tar_ssh_net: medium {
   meta:
-    description                         = "possible SSH stealer"
+    description                         = "possible tar-based SSH stealer"
     hash_2023_Downloads_6e35            = "6e35b5670953b6ab15e3eb062b8a594d58936dd93ca382bbb3ebdbf076a1f83b"
     hash_2023_Qubitstrike_branch_raw_mi = "9a5f6318a395600637bd98e83d2aea787353207ed7792ec9911b775b79443dcd"
     hash_2023_Qubitstrike_mi            = "9a5f6318a395600637bd98e83d2aea787353207ed7792ec9911b775b79443dcd"
@@ -14,13 +14,15 @@ rule tar_ssh_net: high {
     $z_tar    = "tar" fullword
     $z_xargs  = "xargs cat"
 
+    $not_auth_keys = ".ssh/authorized_keys"
+
   condition:
-    filesize < 10MB and $h and any of ($s*) and any of ($z*)
+    filesize < 10MB and $h and any of ($s*) and any of ($z*) and none of ($not*)
 }
 
 rule curl_https_ssh: high {
   meta:
-    description = "possible SSH stealer"
+    description = "possible curl-based SSH stealer"
 
   strings:
     $curl   = "curl" fullword

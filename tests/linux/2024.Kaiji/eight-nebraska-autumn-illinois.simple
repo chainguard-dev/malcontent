@@ -1,8 +1,9 @@
 # linux/2024.Kaiji/eight-nebraska-autumn-illinois: critical
 3P/elastic/threat: high
-c2/addr/ip_port: medium
-c2/addr/php: medium
+c2/addr/ip: medium
+c2/addr/url: high
 c2/discovery/ip_dns_resolver: medium
+c2/tool_transfer/binary: high
 credential/password: low
 credential/shell/bash_history: high
 credential/ssh: medium
@@ -26,7 +27,7 @@ exec/program: medium
 exec/shell/exec: medium
 exec/system_controls/systemd: medium
 exfil/stealer/linux_server: high
-exfil/stealer/ssh: high
+exfil/stealer/ssh: medium
 fs/directory/list: low
 fs/directory/remove: low
 fs/file/delete: low
@@ -48,7 +49,6 @@ fs/permission/chown: medium
 fs/permission/get: low
 fs/permission/modify: medium
 fs/proc/stat: medium
-impact/degrade/linux_paths: high
 impact/exploit/cve_list: medium
 impact/remote_access/kill_rm: medium
 impact/remote_access/reverse_shell: high
@@ -82,7 +82,7 @@ net/tcp/connect: medium
 net/tcp/ssh: medium
 net/udp/receive: low
 net/udp/send: low
-net/url/embedded: low
+net/url/embedded: medium
 net/url/encode: medium
 net/url/parse: low
 net/url/request: medium

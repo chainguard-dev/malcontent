@@ -1,0 +1,4 @@
+# linux/clean/yarn-package.json: medium
+exec/cmd/npm_preinstall: medium
+exec/shell/ignore_output: medium
+fs/path/relative: medium

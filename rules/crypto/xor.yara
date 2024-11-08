@@ -11,6 +11,7 @@ rule xor_decode_encode: high {
     $decode_ = /\w{0,16}xor_decode[\w]{0,32}/
     $encode_ = /\w{0,16}xor_encode[\w]{0,32}/
     $file_   = /\w{0,16}xor_file[\w]{0,32}/
+    $crypt   = /\w{0,16}XorCrypt[\w]{0,32}/
 
   condition:
     any of them

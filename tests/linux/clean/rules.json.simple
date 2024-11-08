@@ -38,7 +38,6 @@ exec/system_controls/apparmor: medium
 exec/tty/pathname: medium
 exfil: medium
 exfil/stealer/linux_server: high
-exfil/stealer/ssh: high
 fs/fifo_create: low
 fs/file/times_set: medium
 fs/lock_update: low

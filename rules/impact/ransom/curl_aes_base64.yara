@@ -7,7 +7,8 @@ rule curl_base64_aes: medium {
     $curl_easy = "curl_easy_"
     $aes_key   = "aes_key"
     $base64    = "base64"
+    $unlink    = "unlink" fullword
 
   condition:
-    filesize < 52428800 and all of them
+    filesize < 100KB and all of them
 }

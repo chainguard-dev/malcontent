@@ -1,12 +1,14 @@
 # npm/2024.next-react-notify/tocall.js: critical
 anti-static/obfuscation/batch/echo_off: high
 anti-static/obfuscation/powershell/bxor: critical
-c2/addr/http_ip: high
+c2/addr/ip: high
+c2/addr/url: high
+discover/system/platform: medium
 evasion/bypass_security/executionpolicy_bypass: high
 exec/shell/power: medium
-fs/file/delete: low
+fs/file/delete: medium
+fs/file/rename: medium
 fs/file/write: low
 net/download/fetch: critical
-net/download/fetch_suspicious: high
-net/url/embedded: low
+net/url/embedded: medium
 process/create: medium

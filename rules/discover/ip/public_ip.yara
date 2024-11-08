@@ -21,6 +21,17 @@ rule iplookup_website: high {
     $check_ip    = "checkip.amazonaws.com"
 
   condition:
+    filesize < 250MB and any of them
+}
+
+rule v6_ipinfo_website: override {
+  meta:
+    iplookup_website = "medium"
+
+  strings:
+    $v6 = "v6.ipinfo.io"
+
+  condition:
     any of them
 }
 

@@ -32,6 +32,7 @@ rule ExecShell: medium {
     $RunShell     = "RunShell" fullword
     $runShell     = "runShell" fullword
     $run_shell    = "run_shell" fullword
+    $runshell     = "runshell" fullword
 
   condition:
     any of them

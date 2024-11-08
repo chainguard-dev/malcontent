@@ -2,7 +2,7 @@
 3P/threat_hunting/hijacker: medium
 3P/threat_hunting/privilegeescalation: medium
 c2/addr/http_dynamic: medium
-c2/addr/ip_port: medium
+c2/addr/ip: medium
 c2/server_address: medium
 c2/tool_transfer/download: medium
 collect/archives/zip: medium
@@ -32,6 +32,7 @@ data/hash/md5: low
 discover/network/interface_list: medium
 discover/network/mac_address: medium
 discover/network/netstat: medium
+discover/processes/list: medium
 discover/system/cpu_info: low
 discover/system/hostname_get: low
 discover/system/platform: medium

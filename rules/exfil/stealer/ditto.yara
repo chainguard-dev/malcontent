@@ -6,10 +6,9 @@ rule ditto_crypto_stealer: high {
     hash_2023_Downloads_Chrome_Update    = "eed1859b90b8832281786b74dc428a01dbf226ad24b182d09650c6e7895007ea"
 
   strings:
-    $http      = "http"
     $http_POST = /POST[ \/\w]{0,32}/
     $w_ditto   = /ditto -[\w\-\/ ]{0,32}/
-    $w_zip     = /[\w\-\/ ]{0,32}\.zip/
+    $w_zip     = /[\%\@\w\-\/ ]{1,32}\.zip/
 
   condition:
     any of ($http*) and 2 of ($w*)
