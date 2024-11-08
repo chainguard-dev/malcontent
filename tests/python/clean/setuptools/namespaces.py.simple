@@ -1,0 +1,6 @@
+# python/clean/setuptools/namespaces.py: medium
+data/encoding/json_encode: low
+exec/remote_commands/code_eval: medium
+exec/shell/command: medium
+fs/directory/create: low
+impact/remote_access/py_setuptools: low
