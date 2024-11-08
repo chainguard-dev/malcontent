@@ -1,0 +1,20 @@
+# linux/clean/kibana/ac96ceb8-4399-4191-af1d-4feeac1f1f46_108.json: medium
+3P/sig_base/hacktool_strings_p0wnedshell: low
+3P/threat_hunting/arsenal: medium
+3P/threat_hunting/autordpwn: medium
+3P/threat_hunting/bruteratel: medium
+3P/threat_hunting/dbc2: medium
+3P/threat_hunting/dumpcreds: medium
+3P/threat_hunting/fruityc2: medium
+3P/threat_hunting/merlin: medium
+3P/threat_hunting/nishang: medium
+3P/threat_hunting/powersploit: medium
+3P/threat_hunting/psattack: medium
+3P/threat_hunting/redpill: medium
+3P/threat_hunting/sharpyshell: medium
+credential/password: low
+exec/shell/power: medium
+impact/infection/infected: medium
+net/url/embedded: low
+sec-tool/credentials/mimikatz: low
+sus/malicious: medium

@@ -1,4 +1,4 @@
-# linux/clean/securitySolution.chunk.9.js: critical
+# linux/clean/kibana/securitySolution.chunk.9.js: critical
 3P/threat_hunting/: medium
 3P/threat_hunting/arsenal: medium
 3P/threat_hunting/backdoor: medium
