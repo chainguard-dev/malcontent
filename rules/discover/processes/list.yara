@@ -57,7 +57,7 @@ rule proclist: medium {
     $proclist = "proclist" fullword
     $gops     = "shirou/gopsutil"
     $running  = "RunningProcesses"
-
+	$GetProcessList = /\w{0,5}ProcessList/
   condition:
     any of them
 }

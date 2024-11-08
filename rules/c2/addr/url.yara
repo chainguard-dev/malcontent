@@ -41,6 +41,18 @@ rule binary_http_url_with_question: high {
     filesize < 150MB and elf_or_macho and any of them
 }
 
+
+rule small_binary_url_unusual_extension: high {
+  meta:
+    description = "hardcoded URL with unusual extension in small binary"
+
+  strings:
+    $ref = /https*:\/\/[\w\.\/]{8,160}\.(php|jpg|gif|docx|asp)[\?\w\=\&]{0,32}/
+
+  condition:
+    filesize < 1MB and elf_or_macho and any of them
+}
+
 rule script_with_binary_http_url_with_question: high {
   meta:
     description = "contains hardcoded endpoint with a question mark"
