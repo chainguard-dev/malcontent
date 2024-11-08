@@ -40,6 +40,7 @@ discover/group/lookup: medium
 discover/network/interface_get: low
 discover/network/interface_list: medium
 discover/network/mac_address: medium
+discover/processes/list: medium
 discover/system/hostname_get: low
 discover/system/platform: medium
 discover/system/sysinfo: medium

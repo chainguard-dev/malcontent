@@ -19,8 +19,8 @@ rule keychain_unlock_high: high macos {
     $ref          = "KeychainUnlock"
     $not_remember = "Remember this password in my keychain"
     $not_fde      = "FileVaultMaster.keychain"
+    $not_entitled = "com.apple.private.accounts.allaccounts"
 
   condition:
     filesize < 100MB and any of them and none of ($not*)
 }
-

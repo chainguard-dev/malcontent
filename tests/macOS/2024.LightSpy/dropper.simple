@@ -1,5 +1,6 @@
 # macOS/2024.LightSpy/dropper: critical
 3P/huntress/lightspy_loader: critical
+anti-static/macho/footer: high
 c2/addr/ip: medium
 c2/tool_transfer/macos: critical
 crypto/aes: low
@@ -30,3 +31,4 @@ os/sync/semaphore_user: low
 persist/daemon: medium
 persist/pid_file: medium
 process/name_get: medium
+sus/entitlement: medium

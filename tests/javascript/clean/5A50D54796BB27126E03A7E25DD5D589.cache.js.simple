@@ -9,6 +9,7 @@ collect/databases/postgresql: medium
 collect/databases/sqlite: medium
 credential/password: low
 credential/ssl/private_key: low
+crypto/aes: low
 data/base64/decode: medium
 data/compression/bzip2: low
 data/compression/gzip: low
@@ -20,11 +21,12 @@ data/encoding/json_encode: low
 data/encoding/reverse: low
 data/random/insecure: low
 discover/group/lookup: medium
+discover/processes/list: medium
 discover/system/hostname_get: low
 discover/system/platform: low
 discover/user/HOME: low
 discover/user/USER: low
-discover/user/name_get: low
+discover/user/name_get: medium
 evasion/hidden_paths/hidden: medium
 evasion/logging/acct: low
 exec/cmd: medium

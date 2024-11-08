@@ -5,11 +5,12 @@ rule macos_cookies: high macos {
     hash_2022_DazzleSpy_softwareupdate = "f9ad42a9bd9ade188e997845cae1b0587bf496a35c3bffacd20fefe07860a348"
 
   strings:
-    $ref  = "/Library/Cookies"
-    $ref2 = ".binarycookies"
+    $ref         = "/Library/Cookies"
+    $ref2        = ".binarycookies"
+    $not_private = "com.apple.private."
 
   condition:
-    any of them
+    any of ($ref*) and none of ($not*)
 }
 
 rule browser_cookies: high {

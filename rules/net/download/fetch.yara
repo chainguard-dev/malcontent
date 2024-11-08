@@ -69,8 +69,11 @@ rule executable_calls_fetch_tool: high {
     description = "executable that calls a fetch tool"
     filetypes   = "macho,elf"
 
+  strings:
+    $not_tftp = "Illegal TFTP operation"
+
   condition:
-    filesize < 5MB and (elf or macho) and fetch_tool
+    filesize < 5MB and (elf or macho) and fetch_tool and none of ($not*)
 }
 
 rule curl_agent_val: high {

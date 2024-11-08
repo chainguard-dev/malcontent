@@ -7,7 +7,7 @@ crypto/fernet: medium
 exfil/stealer/wallet: medium
 fs/file/delete_forcibly: low
 fs/path/relative: medium
-impact/infection/infected: medium
+impact/infection/worm: medium
 impact/remote_access/agent: medium
 impact/remote_access/botnet: high
 impact/remote_access/implant: medium

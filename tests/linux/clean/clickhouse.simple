@@ -45,6 +45,7 @@ discover/cloud/google_metadata: low
 discover/network/interface_get: low
 discover/network/interface_list: medium
 discover/permissions/capabilities: medium
+discover/processes/list: medium
 discover/system/cpu_info: low
 discover/system/hostname_get: low
 discover/system/platform: low
@@ -124,7 +125,7 @@ fs/tempdir/create: low
 fs/watch: low
 hw/cpu: medium
 hw/dev/block_ice: medium
-impact/infection/infected: medium
+impact/infection/worm: medium
 impact/ransom/decryptor: medium
 impact/remote_access/heartbeat: medium
 impact/shutdown: medium

@@ -1,7 +1,6 @@
-# python/clean/google-cloud-sdk/mysql.py: high
+# python/clean/google-cloud-sdk/mysql.py: medium
 collect/databases/mysql: medium
 credential/password: low
-evasion/mimicry/fake_process: high
 fs/directory/create: low
 fs/file/copy: medium
 fs/file/open: low
