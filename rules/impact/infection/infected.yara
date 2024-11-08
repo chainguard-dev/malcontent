@@ -29,13 +29,14 @@ rule infection: medium {
 
 rule infected_with: high {
   meta:
-    description                          = "References 'infected with'"
+    description = "References 'infected with'"
 
   strings:
-    $ref = /.{0,16} infected with .{0,16}/
-	$infected = "infected"
-	$o_worm= "Worm"
-	$o_virus = "virus"
+    $ref      = /.{0,16} infected with .{0,16}/
+    $infected = "infected"
+    $o_worm   = "Worm"
+    $o_virus  = "virus"
+
   condition:
     $ref or ($infected and any of ($o*))
 }

@@ -30,26 +30,30 @@ rule launchctl: medium {
     $launch and ($upper_val or $lower_val)
 }
 
-
 rule launchctl_embedded: high {
   meta:
-    description                            = "sets up an embedded LaunchAgent and launches it"
+    description = "sets up an embedded LaunchAgent and launches it"
+
   strings:
-    $upper_val = /[\~\/\.\w]{0,32}[Ll]aunch[aA]gents[\/\w\%\$\.]{0,32}/ fullword
-    $launch    = "launchctl load -w"
-	$programArguments = "<key>ProgramArguments</key>"
+    $upper_val        = /[\~\/\.\w]{0,32}[Ll]aunch[aA]gents[\/\w\%\$\.]{0,32}/ fullword
+    $launch           = "launchctl load"
+    $programArguments = "<key>ProgramArguments</key>"
+
   condition:
     all of them
 }
 
-rule fake_launchd : critical {
-	meta:
-		description = "interacts with deceptively named LaunchAgent"
-	strings:
-		$f_launch = /\/Library\/LaunchAgents\/launched.{0,16}.plist/
-		$launchctl = "launchctl"
-	condition:
-		$launchctl and any of ($f*)
+rule fake_launchd: critical {
+  meta:
+    description = "interacts with deceptively named LaunchAgent"
+
+  strings:
+    $f_launch  = /\/Library\/LaunchAgents\/launched.{0,16}.plist/
+    $f_apple   = /[\/\w \.]{0,64}\/apple.plist/
+    $launchctl = "launchctl"
+
+  condition:
+    $launchctl and any of ($f*)
 }
 
 rule macos_personal_launch_agent: medium {

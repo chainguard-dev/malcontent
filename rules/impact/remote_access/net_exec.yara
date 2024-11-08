@@ -142,3 +142,71 @@ rule lazarus_darwin_nsurl: critical {
   condition:
     filesize < 6MB and (uint32(0) == 1179403647 or uint32(0) == 4277009102 or uint32(0) == 3472551422 or uint32(0) == 4277009103 or uint32(0) == 3489328638 or uint32(0) == 3405691582 or uint32(0) == 3199925962) and all of them
 }
+
+rule lazarus_darwin_applejeus: critical {
+  meta:
+    description = "executes programs, sets permissions, sleeps, makes HTTP requests"
+
+  strings:
+    $pclose      = "time" fullword
+    $popen       = "popen" fullword
+    $sleep       = "sleep" fullword
+    $rand        = "rand" fullword
+    $strncpy     = "strncpy" fullword
+    $gethostname = "gethostname" fullword
+    $localtime   = "localtime" fullword
+    $sprintf     = "sprintf" fullword
+    $chmod       = "chmod" fullword
+    $flock       = "flock" fullword
+    $NSURL       = "NSMutableURLRequest" fullword
+
+  condition:
+    filesize < 6MB and (uint32(0) == 1179403647 or uint32(0) == 4277009102 or uint32(0) == 3472551422 or uint32(0) == 4277009103 or uint32(0) == 3489328638 or uint32(0) == 3405691582 or uint32(0) == 3199925962) and all of them
+}
+
+rule tinyshell_callme_like: high {
+  meta:
+    description = "executes programs, sleeps, makes outgoing connections"
+
+  strings:
+    $pclose      = "time" fullword
+    $popen       = "popen" fullword
+    $sleep       = "sleep" fullword
+    $strncpy     = "strncpy" fullword
+    $sprintf     = "sprintf" fullword
+    $sh          = "/bin/bash"
+    $socket      = "socket" fullword
+    $gethostname = "gethostbyname" fullword
+    $system      = "system" fullword
+    $wait        = "wait" fullword
+
+    $getlogin = "getlogin" fullword
+    $fwrite   = "fwrite" fullword
+
+  condition:
+    filesize < 200KB and all of them
+}
+
+rule aes_tinyshell_callme_like: critical {
+  meta:
+    description = "executes programs, sleeps, makes AES encrypted connections"
+
+  strings:
+    $pclose      = "time" fullword
+    $popen       = "popen" fullword
+    $sleep       = "sleep" fullword
+    $strncpy     = "strncpy" fullword
+    $sprintf     = "sprintf" fullword
+    $sh          = "/bin/bash"
+    $socket      = "socket" fullword
+    $gethostname = "gethostbyname" fullword
+    $system      = "system" fullword
+    $wait        = "wait" fullword
+
+    $getlogin    = "getlogin" fullword
+    $fwrite      = "fwrite" fullword
+    $aes_encrypt = "aes_encrypt" fullword
+
+  condition:
+    filesize < 250KB and all of them
+}

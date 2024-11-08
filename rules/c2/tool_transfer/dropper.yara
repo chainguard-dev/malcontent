@@ -21,8 +21,8 @@ rule dropper_for: high {
     hash_2017_BadBunny       = "3ca31b2adb859da61747f8c60c10afddde43b739482aeb104d992ef5764cac7c"
 
   strings:
-    $ref  = /[dD]ropper for [\w ]{0,32}/
-	
+    $ref = /[dD]ropper for [\w ]{0,32}/
+
   condition:
     any of them
 }

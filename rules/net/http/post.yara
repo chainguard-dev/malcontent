@@ -57,13 +57,13 @@ rule form_data_reference: medium {
     any of ($f_*)
 }
 
-
 rule form_upload_hardcoded_name: high {
   meta:
-    description                  = "submits form content to websites as a hardcoded filename"
+    description = "submits form content to websites as a hardcoded filename"
 
   strings:
-	$ref = /Content-Disposition: form-data; name="upload"; filename="[\w\.]{1,12}"/
+    $ref = /Content-Disposition: form-data; name="upload"; filename="[\w\.]{1,12}"/
+
   condition:
     any of them
 }

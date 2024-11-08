@@ -54,10 +54,11 @@ rule proclist: medium {
     hash_2023_Linux_Malware_Samples_4c38 = "4c38654e08bd8d4c2211c5f0be417a77759bf945b0de45eb3581a2beb9226a29"
 
   strings:
-    $proclist = "proclist" fullword
-    $gops     = "shirou/gopsutil"
-    $running  = "RunningProcesses"
-	$GetProcessList = /\w{0,5}ProcessList/
+    $proclist       = "proclist" fullword
+    $gops           = "shirou/gopsutil"
+    $running        = "RunningProcesses"
+    $GetProcessList = /\w{0,5}ProcessList/
+
   condition:
     any of them
 }
