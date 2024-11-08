@@ -5,6 +5,7 @@ collect/archives/unarchive: medium
 collect/databases/mysql: medium
 collect/databases/postgresql: medium
 credential/password: low
+crypto/aes: low
 crypto/file_encrypter: medium
 data/base64/decode: medium
 data/compression/bzip2: low
@@ -14,6 +15,7 @@ data/encoding/json_encode: low
 data/random/insecure: low
 discover/group/lookup: medium
 discover/network/mac_address: medium
+discover/processes/list: medium
 discover/system/sysinfo: medium
 discover/user/HOME: low
 discover/user/USER: low

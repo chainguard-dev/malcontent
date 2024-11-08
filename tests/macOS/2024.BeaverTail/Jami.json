@@ -38,6 +38,18 @@
                     "RuleName": "opaque_binary"
                 },
                 {
+                    "Description": "higher-entropy machO trailer (normally NULL) - possible viral infection",
+                    "MatchStrings": [
+                        "_PAGEZERO"
+                    ],
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/macho/footer.yara#high_entropy_trailer",
+                    "ReferenceURL": "https://www.virusbulletin.com/virusbulletin/2013/06/multiplatform-madness",
+                    "ID": "anti-static/macho/footer",
+                    "RuleName": "high_entropy_trailer"
+                },
+                {
                     "Description": "hardcoded IP address within a URL",
                     "MatchStrings": [
                         "http://95.164.17.24:1224"
