@@ -1,6 +1,7 @@
 rule infected: medium {
   meta:
-    description                          = "References being 'infected'"
+    description = "References being 'infected'"
+
   strings:
     $ref  = "infected"
     $ref2 = "INFECTED"
@@ -11,7 +12,8 @@ rule infected: medium {
 
 rule infection: medium {
   meta:
-    description                          = "References 'infection'"
+    description = "References 'infection'"
+
   strings:
     $ref3 = "infection"
 
@@ -24,7 +26,8 @@ rule infected_with: high {
     description = "References 'infected with'"
 
   strings:
-    $ref      = /.{3,16} infected with .{3,16}/
+    $ref = /.{3,16} infected with .{3,16}/
+
   condition:
     filesize < 5MB and $ref
 }
