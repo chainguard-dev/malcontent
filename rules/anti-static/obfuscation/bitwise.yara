@@ -108,3 +108,85 @@ rule bitwise_python_string_exec_eval_nearby: critical {
   condition:
     filesize < 65535 and $ref and any of ($e*) and (math.abs(@ref - @exec) <= 64 or (math.abs(@ref - @eval) <= 64))
 }
+
+rule unsigned_bitwise_math: medium {
+  meta:
+    description = "uses unsigned bitwise math"
+    ref         = "https://www.reversinglabs.com/blog/python-downloader-highlights-noise-problem-in-open-source-threat-detection"
+    filetypes   = "javascript"
+
+  strings:
+    $function = "function("
+    $charAt   = /charAt\([a-zA-Z]/
+
+    $left  = /[a-z]\>\>\>\d{1,3}/
+    $right = /[a-z]\>\>\>\d{1,3}/
+
+  condition:
+    filesize < 5MB and $function and $charAt and (#left > 5 or #right > 5)
+}
+
+rule unsigned_bitwise_math_excess: high {
+  meta:
+    description = "uses an excessive amount of unsigned bitwise math"
+    ref         = "https://www.reversinglabs.com/blog/python-downloader-highlights-noise-problem-in-open-source-threat-detection"
+    filetypes   = "javascript"
+
+  strings:
+    $function = "function("
+    $charAt   = /charAt\([a-zA-Z]/
+
+    $left  = /[a-z]\>\>\>\d{1,3}/
+    $right = /[a-z]\>\>\>\d{1,3}/
+
+  condition:
+    filesize < 5MB and $function and $charAt and (#left > 50 or #right > 50)
+}
+
+rule charAtBitwise: high {
+  meta:
+    description = "converts manipulated numbers into characters"
+    filetypes   = "javascript"
+
+  strings:
+    $function    = "function("
+    $c_left      = /charAt\([a-z]\>\>\>\d.{0,8}/
+    $c_remainder = /charAt\(\w%\w.{0,8}/
+
+  condition:
+    filesize < 5MB and $function and any of ($c*)
+}
+
+rule bidirectional_bitwise_math_php: high {
+  meta:
+    description = "uses bitwise math in both directions"
+    ref         = "https://www.reversinglabs.com/blog/python-downloader-highlights-noise-problem-in-open-source-threat-detection"
+    filetypes   = "php"
+
+  strings:
+    $php = "<?php"
+    $x   = /\-{0,1}[\da-z]{1,8} \<\< \-{0,1}\d{1,8}/
+    $y   = /\-{0,1}[\da-z]{1,8} \>\> \-{0,1}\d{1,8}/
+
+  condition:
+    filesize < 192KB and all of them
+}
+
+rule bitwise_obfuscation: critical {
+  meta:
+    description = "uses bitwise math to obfuscate code"
+    ref         = "https://www.reversinglabs.com/blog/python-downloader-highlights-noise-problem-in-open-source-threat-detection"
+    filetypes   = "php"
+
+  strings:
+    $php       = "<?php"
+    $bit1      = /\-{0,1}[\da-z]{1,8} \<\< \-{0,1}\d{1,8}/
+    $bit2      = /\-{0,1}[\da-z]{1,8} \>\> \-{0,1}\d{1,8}/
+    $f_implode = "implode("
+    $f_charAt  = "charAt("
+    $f_substr  = "substr("
+    $f_ord     = "ord("
+
+  condition:
+    filesize < 192KB and $php and any of ($bit*) and 3 of ($f*)
+}

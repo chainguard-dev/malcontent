@@ -55,7 +55,7 @@ rule exec_cmd_run: medium {
     any of them
 }
 
-rule perl_system: notable {
+rule perl_system: medium {
   meta:
     syscall                        = "execve"
     pledge                         = "exec"
@@ -84,7 +84,7 @@ rule ruby_system: medium {
     filesize < 65535 and $require and $system
 }
 
-rule py_subprocess: notable {
+rule py_subprocess: medium {
   meta:
     syscall                                  = "execve"
     pledge                                   = "exec"

@@ -17,6 +17,15 @@ private rule pythonSetup {
     filesize < 128KB and $setup and any of ($i*) and none of ($not*)
 }
 
+rule setuptools_builtins: medium {
+  meta:
+    description = "Python library installer that references builtins"
+  strings:
+    $ref = "__builtins__" fullword
+  condition:
+    pythonSetup and $ref
+}
+
 rule setuptools_random: critical {
   meta:
     description = "Python library installer that exhibits random behavior"

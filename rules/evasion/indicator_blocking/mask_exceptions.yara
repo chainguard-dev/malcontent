@@ -16,7 +16,7 @@ private rule pythonSetup {
     filesize < 131072 and $setup and any of ($i*) and none of ($not*)
 }
 
-rule py_no_fail: notable {
+rule py_no_fail: medium {
   meta:
     description                              = "Python code that hides exceptions"
     hash_2023_grandmask_3_13_setup           = "8835778f9e75e6493693fc6163477ec94aba723c091393a30d7e7b9eed4f5a54"
