@@ -31,10 +31,10 @@ rule ren: medium windows {
     description = "renames files"
 
   strings:
-    $del            = "rename" fullword
+    $rename         = "rename"
     $cmd_echo       = "echo off"
     $cmd_powershell = "powershell"
 
   condition:
-    filesize < 16KB and $del and any of ($cmd*)
+    filesize < 16KB and $rename and any of ($cmd*)
 }

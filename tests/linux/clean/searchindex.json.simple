@@ -53,7 +53,7 @@ net/ip/spoof: medium
 net/socket/listen: medium
 net/socket/send: low
 net/tcp/ssh: medium
-net/url/embedded: low
+net/url/embedded: medium
 persist/cron/tab: medium
 persist/daemon: medium
 persist/service/start: low

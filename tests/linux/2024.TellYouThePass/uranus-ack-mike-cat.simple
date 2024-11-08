@@ -1,7 +1,7 @@
 # linux/2024.TellYouThePass/uranus-ack-mike-cat: critical
 3P/arkbird/solg_ran_elf: critical
 3P/threat_hunting/torat: medium
-c2/addr/ip_port: high
+c2/addr/ip: high
 collect/databases/mysql: medium
 collect/databases/postgresql: medium
 collect/databases/sqlite: medium

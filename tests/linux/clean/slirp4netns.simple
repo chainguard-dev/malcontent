@@ -1,7 +1,7 @@
 # linux/clean/slirp4netns: high
 anti-behavior/LD_DEBUG: medium
 anti-behavior/LD_PROFILE: medium
-c2/addr/ip_port: medium
+c2/addr/ip: medium
 credential/os/gshadow: medium
 credential/os/shadow: medium
 credential/password: low

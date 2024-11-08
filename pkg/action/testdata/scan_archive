@@ -1,5 +1,5 @@
 # testdata/apko_nested.tar.gz ∴ /apko_0.13.2_linux_arm64/apko: medium
-c2/addr/ip_port: medium
+c2/addr/ip: medium
 c2/server_address: medium
 collect/archives/zip: medium
 credential/keychain: medium

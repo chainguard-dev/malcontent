@@ -34,7 +34,7 @@ rule del: medium windows {
     description = "deletes files"
 
   strings:
-    $del            = "del" fullword
+    $del            = "del "
     $cmd_echo       = "echo off"
     $cmd_powershell = "powershell"
 

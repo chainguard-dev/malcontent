@@ -5,8 +5,7 @@
 3P/threat_hunting/shell: medium
 3P/threat_hunting/xmrig: medium
 anti-static/base64/exec: high
-c2/addr/http_ip: high
-c2/addr/ip_port: high
+c2/addr/ip: high
 c2/tool_transfer/download: medium
 c2/tool_transfer/http_ip_temp: critical
 c2/tool_transfer/shell: medium
@@ -65,8 +64,7 @@ impact/remote_access/agent: medium
 impact/remote_access/iptables: medium
 impact/remote_access/kill_rm: medium
 net/download: medium
-net/download/fetch: medium
-net/download/fetch_suspicious: high
+net/download/fetch: high
 net/url/embedded: low
 persist/cron/tab: medium
 persist/daemon: medium

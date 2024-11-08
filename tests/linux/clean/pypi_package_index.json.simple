@@ -69,7 +69,7 @@
 3P/threat_hunting/xsstrike: medium
 anti-static/obfuscation/obfuscate: low
 c2/discovery/dyndns: medium
-c2/tool_transfer/download: high
+c2/tool_transfer/download: medium
 collect/archives/unarchive: medium
 collect/databases/leveldb: medium
 collect/databases/mysql: medium

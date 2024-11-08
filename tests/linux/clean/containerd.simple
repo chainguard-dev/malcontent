@@ -1,7 +1,7 @@
 # linux/clean/containerd: medium
 3P/threat_hunting/hijacker: medium
 3P/threat_hunting/privilegeescalation: medium
-c2/addr/ip_port: medium
+c2/addr/ip: medium
 c2/server_address: medium
 collect/archives/zip: medium
 collect/databases/mysql: medium

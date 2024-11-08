@@ -3,7 +3,6 @@
 3P/sig_base/susp_elf_upx: critical
 anti-static/packer/upx: high
 c2/addr/ip: high
-c2/addr/ip_port: medium
 credential/password: low
 credential/ssh: medium
 credential/ssh/authorized_hosts: medium

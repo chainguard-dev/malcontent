@@ -3,7 +3,7 @@
 3P/threat_hunting/reverst: medium
 3P/threat_hunting/tailscale: medium
 c2/addr/http_dynamic: medium
-c2/addr/ip_port: medium
+c2/addr/ip: medium
 c2/discovery/ip_dns_resolver: medium
 c2/refs: medium
 c2/tool_transfer/download: medium
