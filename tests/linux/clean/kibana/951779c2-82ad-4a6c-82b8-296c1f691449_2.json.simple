@@ -1,0 +1,16 @@
+# linux/clean/kibana/951779c2-82ad-4a6c-82b8-296c1f691449_2.json: medium
+3P/sig_base/p0wnedpotato: low
+3P/threat_hunting/adape_script: medium
+3P/threat_hunting/autordpwn: medium
+3P/threat_hunting/github_username: medium
+3P/threat_hunting/inveigh: medium
+3P/threat_hunting/invoke_thehash: medium
+3P/threat_hunting/merlin: medium
+3P/threat_hunting/ninja: medium
+3P/threat_hunting/poshc2: medium
+3P/threat_hunting/precompiled_binaries: medium
+3P/threat_hunting/winpwn: medium
+exec/shell/power: medium
+net/download: medium
+net/url/embedded: low
+sus/intercept: medium
