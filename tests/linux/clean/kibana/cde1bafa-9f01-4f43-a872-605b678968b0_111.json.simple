@@ -44,7 +44,7 @@
 3P/threat_hunting/winpwn: medium
 3P/threat_hunting/wmimplant: medium
 3P/threat_hunting/wmisploit: medium
-c2/addr/ip_port: medium
+c2/addr/ip: medium
 credential/password: low
 exec/cmd: medium
 exec/plugin: low
