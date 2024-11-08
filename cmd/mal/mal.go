@@ -85,7 +85,6 @@ func showError(err error) {
 	emoji := "💣"
 	if errors.Is(err, action.ErrMatchedCondition) {
 		emoji = "👋"
-		err = errors.Unwrap(err)
 	}
 
 	fmt.Fprintf(os.Stderr, "%s %s\n", emoji, err.Error())
