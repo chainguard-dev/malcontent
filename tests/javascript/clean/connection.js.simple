@@ -8,5 +8,5 @@ data/embedded/base64_url: medium
 data/encoding/base64: low
 net/dns: low
 net/socket/send: low
-net/url/embedded: low
+net/url/embedded: medium
 os/fd/write: low

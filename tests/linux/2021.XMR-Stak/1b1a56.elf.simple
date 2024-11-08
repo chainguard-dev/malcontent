@@ -2,7 +2,7 @@
 3P/TTC-CERT/kittipongk_cryptominer_xmr: high
 3P/elastic/cryptominer_stak: critical
 c2/addr/http_dynamic: medium
-c2/addr/ip_port: medium
+c2/addr/ip: medium
 credential/password: low
 credential/ssl/private_key: low
 crypto/aes: low

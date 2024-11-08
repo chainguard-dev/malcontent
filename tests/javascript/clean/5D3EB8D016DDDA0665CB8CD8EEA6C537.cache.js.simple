@@ -1,7 +1,7 @@
 # javascript/clean/5D3EB8D016DDDA0665CB8CD8EEA6C537.cache.js: medium
 3P/threat_hunting/powershell: medium
 anti-static/obfuscation/js/char_codes: medium
-c2/addr/ip_port: medium
+c2/addr/ip: medium
 c2/server_address: medium
 collect/archives/unarchive: medium
 collect/databases/mysql: medium
@@ -80,7 +80,7 @@ net/socket/local_addr: low
 net/socket/peer_address: low
 net/socket/receive: low
 net/socket/send: low
-net/url/embedded: low
+net/url/embedded: medium
 net/url/encode: medium
 net/url/parse: low
 net/url/request: medium

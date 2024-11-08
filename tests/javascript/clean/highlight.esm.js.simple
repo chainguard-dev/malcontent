@@ -1,5 +1,5 @@
 # javascript/clean/highlight.esm.js: medium
-c2/addr/ip_port: medium
+c2/addr/ip: medium
 c2/connect/ping_pong: medium
 collect/archives/unarchive: medium
 collect/databases/mysql: medium

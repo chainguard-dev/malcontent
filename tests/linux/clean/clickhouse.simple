@@ -5,7 +5,7 @@
 3P/threat_hunting/torproject: medium
 anti-static/obfuscation/obfuscate: low
 c2/addr/http_dynamic: medium
-c2/addr/ip_port: medium
+c2/addr/ip: medium
 c2/discovery/dyndns: medium
 c2/server_address: medium
 c2/tool_transfer/download: medium
@@ -163,7 +163,7 @@ net/socket/reuseport: medium
 net/socket/send: low
 net/tcp/grpc: low
 net/tcp/ssh: medium
-net/url/embedded: low
+net/url/embedded: medium
 net/url/encode: medium
 net/url/parse: low
 os/fd/epoll: low

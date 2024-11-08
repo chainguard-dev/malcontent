@@ -82,6 +82,7 @@ rule npm_uname: medium {
     $ = "os.platform()"
     $ = "os.arch()"
     $ = "os.release()"
+	$ = "os.type()"
 
   condition:
     any of them

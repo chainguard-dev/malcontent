@@ -3,7 +3,7 @@ anti-static/obfuscation/generic/hex_values: medium
 anti-static/obfuscation/python/hex_decimal: high
 anti-static/obfuscation/python/rename_imports: critical
 anti-static/unmarshal/marshal: high
-c2/addr/php: medium
+c2/addr/url: high
 collect/databases/leveldb: medium
 data/encoding/base64: low
 data/encoding/marshal: medium
@@ -13,5 +13,5 @@ exfil/stealer/browser: high
 fs/directory/create: low
 fs/path/users: medium
 impact/remote_access/py_setuptools: critical
-net/url/embedded: low
+net/url/embedded: medium
 net/url/request: medium

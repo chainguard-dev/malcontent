@@ -3,7 +3,8 @@ anti-static/base64/function_names: critical
 anti-static/obfuscation/generic/hex_conversion: medium
 anti-static/obfuscation/obfuscate: low
 c2/addr/http_dynamic: medium
-c2/addr/ip_port: medium
+c2/addr/ip: medium
+c2/addr/url: high
 c2/discovery/ip_dns_resolver: medium
 c2/server_address: medium
 collect/archives/unarchive: medium
