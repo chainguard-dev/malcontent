@@ -20,8 +20,10 @@ private rule pythonSetup {
 rule setuptools_builtins: medium {
   meta:
     description = "Python library installer that references builtins"
+
   strings:
     $ref = "__builtins__" fullword
+
   condition:
     pythonSetup and $ref
 }
