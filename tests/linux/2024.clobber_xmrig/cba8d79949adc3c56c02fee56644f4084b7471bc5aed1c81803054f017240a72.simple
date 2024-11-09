@@ -44,7 +44,6 @@ fs/permission/chown: medium
 fs/permission/modify: medium
 impact/cryptojacking/nicehash_pool: high
 impact/cryptojacking/xmrig: high
-lateral/scan/tool: medium
 net/dns: low
 net/dns/reverse: medium
 net/dns/servers: low

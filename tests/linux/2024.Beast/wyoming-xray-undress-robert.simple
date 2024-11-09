@@ -1,6 +1,7 @@
 # linux/2024.Beast/wyoming-xray-undress-robert: critical
 fs/path/dev: medium
 fs/path/tmp: medium
+hw/dev/ubi: low
 impact/ransom/linux: high
 impact/shutdown: medium
 lateral/vmware/vms: medium

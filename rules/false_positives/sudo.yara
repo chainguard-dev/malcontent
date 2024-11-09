@@ -1,7 +1,7 @@
 rule sudo: override linux {
   meta:
     description = "sudo"
-    proc_exe    = "medium"
+    proc_c_exe  = "medium"
 
   strings:
     $ref = "SUDO_INTERCEPT_FD"

@@ -26,7 +26,6 @@ impact/remote_access/heartbeat: medium
 impact/remote_access/implant: medium
 impact/remote_access/trojan: medium
 lateral/scan/brute_force: low
-lateral/scan/tool: medium
 net/download: medium
 net/http/form_upload: medium
 net/http/post: medium

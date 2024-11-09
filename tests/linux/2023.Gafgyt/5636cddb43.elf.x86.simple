@@ -15,6 +15,7 @@ fs/path/usr_sbin_telnetd: high
 fs/proc/net_route: high
 impact/ddos: critical
 impact/ddos/raw_flooder: medium
+lateral/scan/tool: medium
 net/dns/servers: low
 net/http/fake_user_agent: medium
 net/ip/parse: medium

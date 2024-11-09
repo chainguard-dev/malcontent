@@ -39,7 +39,8 @@ rule elf_hardcoded_ip: high {
     $not_1_2_3_4        = "1.2.3.4"
     $not_root_servers_h = "128.63.2.53"
     $not_root_servers_i = "192.36.148.17"
-
+	$not_123456789 = "123.45.67.89"
+	$not_libebt_among_init = "libebt_among_init"
   condition:
     filesize < 12MB and uint32(0) == 1179403647 and 1 of ($sus_ip*) and none of ($not*)
 }
@@ -73,15 +74,17 @@ rule hardcoded_ip_port: high {
 
   strings:
     $ipv4            = /([1-9][0-9]{1,2}\.){3}[1-9][0-9]{1,2}:\d{2,5}/ fullword
-    $not_ssdp        = "239.255.255.250:1900"
+    $not_ssdp        = "239.255.255.250:"
     $not_2181        = "10.101.203.230:2181"
-    $not_meta        = "169.254.169.254:80"
-    $not_vnc         = "10.10.10.10:5900"
+    $not_meta        = "169.254.169.254:"
+    $not_vnc         = "10.10.10.10:"
     $not_azure_pgsql = "20.66.25.58:5432"
     $not_wireguard   = "127.212.121.99:999"
     $not_minio       = "172.16.34.31:9000"
     $not_test        = "def test_" fullword
-
+	$not_12 = "12.12.12.12:"
+	$not_21 = "21.21.21.21:"
+	$not_255 = "255.255.255.255:"
   condition:
     any of ($ip*) and none of ($not*)
 }

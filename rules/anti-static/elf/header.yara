@@ -1,4 +1,5 @@
 import "elf"
+import "math"
 
 rule single_load_rwe: critical {
   meta:
@@ -37,4 +38,22 @@ rule fake_dynamic_symbols: critical {
 
   condition:
     elf.type == elf.ET_EXEC and elf.entry_point < filesize and elf.number_of_sections > 0 and elf.dynamic_section_entries > 0 and for any i in (0..elf.dynamic_section_entries): (elf.dynamic[i].type == elf.DT_SYMTAB and not (for any j in (0..elf.number_of_sections): (elf.sections[j].type == elf.SHT_DYNSYM and for any k in (0..elf.number_of_segments): ((elf.segments[k].virtual_address <= elf.dynamic[i].val) and ((elf.segments[k].virtual_address + elf.segments[k].file_size) >= elf.dynamic[i].val) and (elf.segments[k].offset + (elf.dynamic[i].val - elf.segments[k].virtual_address)) == elf.sections[j].offset))))
+}
+
+
+rule high_entropy_header: high {
+  meta:
+    description                                                       = "high entropy ELF header (>7)"
+    hash_2023_UPX_0c25                                                = "0c25a05bdddc144fbf1ffa29372481b50ec6464592fdfb7dec95d9e1c6101d0d"
+    hash_2023_UPX_5a59                                                = "5a5960ccd31bba5d47d46599e4f10e455b74f45dad6bc291ae448cef8d1b0a59"
+    hash_2023_FontOnLake_38B09D690FAFE81E964CBD45EC7CF20DCB296B4D_elf = "f155fafa36d1094433045633741df98bbbc1153997b3577c3fa337cc525713c0"
+
+  strings:
+    $not_pyinst = "pyi-bootloader-ignore-signals"
+    $not_go     = "syscall_linux.go"
+    $not_go2    = "vdso_linux.go"
+	$not_module = ".module_license" fullword
+
+  condition:
+    uint32(0) == 1179403647 and elf.type == elf.ET_EXEC and math.entropy(1200, 4096) > 7 and none of ($not*)
 }

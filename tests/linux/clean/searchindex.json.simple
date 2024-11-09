@@ -13,7 +13,7 @@ discover/components/docker: medium
 discover/system/platform: low
 discover/system/sysinfo: medium
 evasion/file/location/chdir_unusual: medium
-evasion/file/location/system_directories: medium
+evasion/file/location/system_directory: medium
 evasion/rootkit/refs: medium
 exec/install_additional/package_install: medium
 exec/install_additional/pip_install: medium
@@ -37,7 +37,7 @@ fs/path/usr_local: medium
 fs/path/var: low
 fs/path/var_log: medium
 fs/watch: low
-impact/exploit: high
+impact/exploit: medium
 impact/infection/infected: medium
 impact/remote_access/agent: medium
 impact/remote_access/backdoor: high

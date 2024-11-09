@@ -12,7 +12,6 @@ fs/path/users: medium
 fs/permission/chown: medium
 fs/permission/modify: medium
 impact/remote_access/net_exec: medium
-lateral/scan/tool: medium
 net/socket/receive: low
 net/socket/send: low
 process/multithreaded: low

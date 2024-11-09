@@ -6,10 +6,11 @@ c2/tool_transfer/macos: critical
 crypto/aes: low
 crypto/xor: high
 data/hash/md5: medium
+discover/process/name_get: medium
 discover/system/cpu_info: low
 discover/system/network: high
 discover/system/platform: medium
-evasion/file/location/odd_pidfile: high
+evasion/file/location/pidfile: high
 exec/dylib/symbol_address: medium
 exec/dylib/user: medium
 exec/plugin: low
@@ -30,5 +31,4 @@ os/kernel/dispatch_semaphore: low
 os/sync/semaphore_user: low
 persist/daemon: medium
 persist/pid_file: medium
-process/name_get: medium
 sus/entitlement: medium

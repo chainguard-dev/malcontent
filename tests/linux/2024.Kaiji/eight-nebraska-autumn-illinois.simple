@@ -53,7 +53,6 @@ impact/exploit/cve_list: medium
 impact/remote_access/kill_rm: medium
 impact/remote_access/reverse_shell: high
 impact/remote_access/systemctl: critical
-lateral/scan/tool: medium
 lateral/ssh/attack: high
 malware/family/kaiji: critical
 net/dns: low

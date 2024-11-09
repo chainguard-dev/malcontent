@@ -1,4 +1,3 @@
 --- missing: ls.x86_64
--lateral/scan/tool
 -process/name_set
 ++++ added: ls

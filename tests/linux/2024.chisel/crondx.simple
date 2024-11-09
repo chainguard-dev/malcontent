@@ -27,7 +27,6 @@ fs/path/etc_hosts: medium
 fs/path/etc_resolv.conf: low
 fs/permission/chown: medium
 fs/permission/modify: medium
-lateral/scan/tool: medium
 net/dns: low
 net/dns/servers: low
 net/dns/txt: low

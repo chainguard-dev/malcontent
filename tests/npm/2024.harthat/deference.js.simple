@@ -1,6 +1,6 @@
 # npm/2024.harthat/deference.js: critical
 c2/addr/ip: high
-c2/addr/url: high
+c2/addr/url: medium
 discover/system/platform: medium
 evasion/indicator_blocking/echo_off: high
 fs/file/delete: medium

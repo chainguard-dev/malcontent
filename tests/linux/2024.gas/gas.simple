@@ -28,7 +28,6 @@ hw/cpu: medium
 impact/exploit/GCONV_PATH: low
 impact/remote_access/dl_iterate: high
 impact/remote_access/reverse_shell: medium
-lateral/scan/tool: medium
 net/socket/send: low
 net/url/embedded: low
 process/create: low

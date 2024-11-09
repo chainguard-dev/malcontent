@@ -76,8 +76,9 @@ rule cd_var_subdir: high {
     $d_var_run = "cd /var/run"
     $d_var_tmp = "cd /var/tmp"
 
+	$not_var_log_packages = "cd /var/log/packages"
   condition:
-    any of ($d*)
+    any of ($d*) and none of ($not*)
 }
 
 rule cd_val_obsessive: critical {

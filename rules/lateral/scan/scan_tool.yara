@@ -6,22 +6,24 @@ rule generic_scan_tool: medium {
     hash_2023_Linux_Malware_Samples_00ae = "00ae07c9fe63b080181b8a6d59c6b3b6f9913938858829e5a42ab90fb72edf7a"
 
   strings:
-    //  $f_gethostbyname   = "gethostbyname"
-    $f_socket          = "socket"
-    $f_connect         = "connect"
+    $f_gethostbyname   = "gethostbyname"
+    $f_ip              = "%d.%d.%d.%d" fullword
+    $f_socket          = "socket" fullword
+    $f_connect         = "connect" fullword
     $o_banner          = "banner"
     $o_Probe           = "Probe"
     $o_probe           = "probe"
     $o_scan            = "scan"
     $o_port            = "port"
     $o_target          = "target"
-    $o_ip              = "%d.%d.%d.%d"
+    $o_Port            = "Port"
+    $o_Target          = "Target"
     $not_nss           = "NSS_USE_SHEXP_IN_CERT_NAME"
     $not_microsoft     = "Microsoft Corporation"
     $not_php_reference = "ftp_nb_put"
 
   condition:
-    all of ($f*) and 2 of ($o*) and none of ($not*)
+    3 of ($f*) and 2 of ($o*) and none of ($not*)
 }
 
 rule root_scan_tool: high {

@@ -138,6 +138,7 @@ rule high_fetch_command_val: high {
     $not_s_key                    = "curl -s --key"
     $not_local                    = "curl -ks https://localhost"
     $not_continue                 = "--continue-at"
+	$not_pciid = "https://pci-ids.ucw.cz"
 
     $x_chmod    = "chmod" fullword
     $x_Chmod    = "Chmod" fullword

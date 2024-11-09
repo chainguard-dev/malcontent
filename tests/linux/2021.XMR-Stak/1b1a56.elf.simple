@@ -15,6 +15,7 @@ data/hash/blake2b: low
 data/hash/sha1: low
 data/random/insecure: low
 discover/network/interface_get: low
+discover/process/runtime_deps: medium
 discover/system/cpu_info: low
 discover/system/platform: low
 discover/system/sysinfo: medium
@@ -86,4 +87,3 @@ privesc/sudo: medium
 process/create: low
 process/multithreaded: low
 process/name_set: medium
-process/thread_local_storage: medium

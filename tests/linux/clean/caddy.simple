@@ -38,6 +38,7 @@ discover/cloud/aws_metadata: low
 discover/cloud/google_metadata: low
 discover/group/lookup: medium
 discover/network/mac_address: medium
+discover/process/parent_pid_get: low
 discover/system/cpu_info: low
 discover/system/hostname_get: low
 discover/system/platform: medium
@@ -147,6 +148,5 @@ persist/pid_file: medium
 privesc/sudo: medium
 process/chroot: low
 process/groups_set: low
-process/parent_pid_get: low
 sus/exclamation: medium
 sus/intercept: medium

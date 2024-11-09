@@ -52,6 +52,8 @@ data/encoding/json_decode: low
 data/encoding/json_encode: low
 data/hash/md5: low
 discover/network/mac_address: medium
+discover/process/name_get: medium
+discover/process/parent_pid_get: low
 evasion/file/prefix: medium
 evasion/rootkit/refs: medium
 exec/cmd: medium
@@ -77,7 +79,6 @@ impact/remote_access/reverse_shell: high
 impact/remote_access/trojan: medium
 impact/rootkit: low
 lateral/scan/brute_force: low
-lateral/scan/tool: high
 net/dns/txt: low
 net/download: medium
 net/http/post: medium
@@ -92,8 +93,6 @@ net/url/request: medium
 os/kernel/seccomp: low
 persist/daemon: medium
 process/chroot: low
-process/name_get: medium
-process/parent_pid_get: low
 sec-tool/net/masscan: high
 sec-tool/net/nmap: medium
 sec-tool/pentest/metasploit_ref: medium

@@ -45,7 +45,6 @@ fs/tempdir: low
 fs/tempdir/TMPDIR: low
 hw/disk_info: medium
 impact/remote_access/reverse_shell: medium
-lateral/scan/tool: medium
 malware/family/rustdoor: critical
 net/download: medium
 net/download/fetch: high

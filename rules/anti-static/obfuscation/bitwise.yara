@@ -30,7 +30,9 @@ rule excessive_bitwise_math: high {
     $not_algbase = "algbase" fullword
     $not_jslint  = "jslint bitwise"
     $not_include = "#define "
-
+	$not_bitwise = "bitwise" fullword
+	$not_bitmasks = "bitmasks" fullword
+	$not_ckbcomp = "ckbcomp" fullword
   condition:
     filesize < 192KB and #x > 64 and none of ($not*)
 }

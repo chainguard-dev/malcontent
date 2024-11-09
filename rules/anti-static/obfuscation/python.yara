@@ -261,8 +261,9 @@ rule python_hex_decimal: high {
 
     $trash = /\\x{0,1}\d{1,3}\\/
 
+	$not_testing_t = "*testing.T" fullword
   condition:
-    filesize < 1MB and any of ($f*) and #trash in (filesize - 1024..filesize) > 100
+    filesize < 1MB and any of ($f*) and #trash in (filesize - 1024..filesize) > 100 and none of ($not*)
 }
 
 rule dumb_int_compares: high {

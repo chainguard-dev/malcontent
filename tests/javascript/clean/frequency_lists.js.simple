@@ -17,7 +17,6 @@ impact/remote_access/agent: medium
 impact/remote_access/heartbeat: medium
 impact/remote_access/implant: medium
 impact/remote_access/trojan: medium
-lateral/scan/tool: medium
 net/download: medium
 net/ip/multicast_send: low
 net/ip/spoof: medium

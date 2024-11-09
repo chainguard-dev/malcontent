@@ -96,9 +96,9 @@
                     ],
                     "RiskScore": 3,
                     "RiskLevel": "HIGH",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/proc/pid-exe.yara#proc_exe",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/proc/pid-exe.yara#proc_s_exe",
                     "ID": "fs/proc/pid_exe",
-                    "RuleName": "proc_exe"
+                    "RuleName": "proc_s_exe"
                 },
                 {
                     "Description": "access process memory maps",
@@ -122,6 +122,17 @@
                     "ReferenceURL": "https://man7.org/linux/man-pages/man3/realpath.3.html",
                     "ID": "fs/symlink_resolve",
                     "RuleName": "realpath"
+                },
+                {
+                    "Description": "expected ubi users",
+                    "MatchStrings": [
+                        "Usage:"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/hw/dev/ubi.yara#expected_ubi_users",
+                    "ID": "hw/dev/ubi",
+                    "RuleName": "expected_ubi_users"
                 },
                 {
                     "Description": "Buffer overflow exploit",

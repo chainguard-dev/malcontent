@@ -44,7 +44,7 @@ discover/user/HOME: low
 discover/user/USER: low
 discover/user/name_get: medium
 evasion/bypass_security/linux/se: medium
-evasion/file/location/system_directories: medium
+evasion/file/location/system_directory: medium
 evasion/file/prefix: medium
 evasion/hide_artifacts/pivot_root: medium
 exec/cmd: medium
@@ -94,7 +94,6 @@ fs/unmount: low
 fs/watch: low
 impact/remote_access/heartbeat: medium
 impact/remote_access/kill_rm: medium
-lateral/scan/tool: medium
 net/dns: low
 net/dns/reverse: medium
 net/dns/servers: low

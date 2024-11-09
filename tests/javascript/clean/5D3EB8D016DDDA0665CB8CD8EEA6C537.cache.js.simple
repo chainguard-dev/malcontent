@@ -22,6 +22,8 @@ data/encoding/reverse: low
 data/hash/md5: low
 data/random/insecure: low
 discover/group/lookup: medium
+discover/process/effective_groupid_get: medium
+discover/process/parent_pid_get: low
 discover/processes/list: medium
 discover/system/hostname_get: low
 discover/system/platform: low
@@ -91,9 +93,7 @@ persist/daemon: medium
 process/chdir: low
 process/chroot: low
 process/create: low
-process/effective_groupid_get: medium
 process/groupid_set: low
-process/parent_pid_get: low
 process/userid_set: low
 sus/exclamation: medium
 sus/intercept: medium

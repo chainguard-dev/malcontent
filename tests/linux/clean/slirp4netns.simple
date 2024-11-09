@@ -9,6 +9,7 @@ credential/sniffer/bpf: medium
 discover/group/lookup: medium
 discover/network/interface_list: medium
 discover/network/mac_address: medium
+discover/process/parent_pid_get: low
 discover/system/platform: low
 discover/system/sysinfo: medium
 discover/user/HOME: low
@@ -102,7 +103,6 @@ process/groupid_set: low
 process/groups_set: low
 process/multithreaded: low
 process/namespace_set: low
-process/parent_pid_get: low
 process/unshare: low
 process/userid_set: low
 sus/exclamation: medium

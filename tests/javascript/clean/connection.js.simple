@@ -6,7 +6,6 @@ credential/password: low
 data/embedded/base64_terms: medium
 data/embedded/base64_url: medium
 data/encoding/base64: low
-lateral/scan/tool: medium
 net/dns: low
 net/socket/send: low
 net/url/embedded: medium

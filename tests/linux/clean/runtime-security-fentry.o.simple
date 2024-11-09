@@ -17,7 +17,6 @@ fs/permission/chown: low
 fs/permission/modify: medium
 fs/unmount: low
 impact/remote_access/net_exec: medium
-lateral/scan/tool: medium
 net/http/post: medium
 net/ip/multicast_send: low
 net/ip/parse: medium

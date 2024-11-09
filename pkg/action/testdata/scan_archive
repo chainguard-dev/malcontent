@@ -74,7 +74,6 @@ fs/symlink_resolve: low
 fs/tempdir/tempfile_create: low
 fs/unmount: low
 impact/remote_access/heartbeat: medium
-lateral/scan/tool: medium
 net/dns: low
 net/dns/reverse: medium
 net/dns/servers: low

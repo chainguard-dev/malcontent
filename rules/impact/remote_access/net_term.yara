@@ -84,16 +84,17 @@ rule miner_kvryr_stak_alike: high {
     hash_2023_Linux_Malware_Samples_39c3 = "39c33c261899f2cb91f686aa6da234175237cd72cfcd9291a6e51cbdc86d4def"
 
   strings:
-    $upload    = "upload"
-    $shell     = "shell" fullword
-    $bin_sh    = "/bin/"
-    $tcsetattr = "tcsetattr"
-    $termios   = "termios" fullword
-    $execve    = "execve"
-    $numa      = "NUMA"
+    $f_upload    = "upload"
+    $f_shell     = "shell" fullword
+    $f_bin_sh    = "/bin/"
+    $f_tcsetattr = "tcsetattr"
+    $f_termios   = "termios" fullword
+    $f_execve    = "execve"
+    $f_numa      = "NUMA"
 
+	$not_perf = "PERF_RECORD"
   condition:
-    filesize < 12MB and all of them
+    filesize < 12MB and all of ($f*) and none of ($not*)
 }
 
 rule proxy_http_aes_terminal_combo: medium {

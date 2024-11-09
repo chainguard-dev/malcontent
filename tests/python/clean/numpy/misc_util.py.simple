@@ -18,6 +18,7 @@ fs/path/usr_lib_python: medium
 fs/path/usr_local: medium
 fs/symlink_resolve: low
 fs/tempdir/create: low
+hw/dev/ubi: low
 net/ip/spoof: medium
 net/url/embedded: low
 os/env/get: low

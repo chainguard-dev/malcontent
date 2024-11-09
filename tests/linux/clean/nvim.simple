@@ -16,7 +16,7 @@ discover/processes/pgrep: medium
 discover/system/platform: low
 discover/user/HOME: low
 discover/user/USER: low
-evasion/file/location/tmp_x11_unix: low
+evasion/file/location/x11_unix: low
 evasion/file/prefix: medium
 exec/conditional/LANG: low
 exec/dylib/symbol_address: medium
@@ -54,7 +54,6 @@ fs/tempdir/TEMP: low
 fs/tempdir/TMPDIR: low
 fs/tempdir/create: low
 fs/tempdir/tempfile_create: low
-lateral/scan/tool: medium
 net/dns/servers: low
 net/download/fetch: medium
 net/http/post: medium

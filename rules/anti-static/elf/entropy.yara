@@ -12,16 +12,16 @@ private rule small_elf {
 
 rule normal_elf_high_entropy_7: medium {
   meta:
-    description = "higher entropy ELF binary (>7)"
+    description = "higher entropy ELF binary (>7.1)"
 
   condition:
-    normal_elf and math.entropy(1, filesize) >= 7
+    normal_elf and math.entropy(1, filesize) >= 7.1
 }
 
 rule normal_elf_high_entropy_7_2: high {
   meta:
-    description = "high entropy ELF binary (>7.2)"
+    description = "high entropy ELF binary (>7.4)"
 
   condition:
-    normal_elf and math.entropy(1, filesize) >= 7.2
+    normal_elf and math.entropy(1, filesize) >= 7.4
 }

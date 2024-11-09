@@ -6,4 +6,5 @@ data/embedded/base64_url: medium
 data/encoding/base64: low
 fs/file/open: low
 fs/path/usr_bin: low
+hw/dev/ubi: low
 os/fd/write: low

@@ -3,7 +3,7 @@ rule lib_subdir: high linux {
     description = "hides paths within a /lib subdirectory"
 
   strings:
-    $ref = /\/lib\/[\w\.]{0,16}\/\.[\.\w\-\%\@]{0,16}/ fullword
+    $ref = /\/lib\/[\w\.]{1,16}\/\.[\w\-\%\@]{1,16}/ fullword
 
   condition:
     any of them

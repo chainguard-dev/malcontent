@@ -1,4 +1,4 @@
-rule login_records: high {
+rule login_records: medium {
   meta:
     description                                                       = "accesses historical login records"
     hash_2023_FontOnLake_45E94ABEDAD8C0044A43FF6D72A5C44C6ABD9378_elf = "f60c1214b5091e6e4e5e7db0c16bf18a062d096c6d69fe1eb3cbd4c50c3a3ed6"

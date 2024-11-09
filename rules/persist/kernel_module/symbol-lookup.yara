@@ -40,3 +40,17 @@ rule bpftrace: override linux {
   condition:
     filesize < 2MB and any of them
 }
+
+rule bpf: override linux {
+  meta:
+    description     = "libbpf"
+    filetypes       = "so,elf"
+    kallsyms_lookup = "medium"
+
+  strings:
+	$ref = "BPF" fullword
+    $ref2 = "LIBBPF" fullword
+
+  condition:
+    filesize < 2MB and any of them
+}

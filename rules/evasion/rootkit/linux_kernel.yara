@@ -41,7 +41,7 @@ rule lkm_dirent: high {
     $linux        = "Linux"
     $not_syscalls = "#define _LINUX_SYSCALLS_H"
     $not_itimer   = "__kernel_old_itimerval"
-
+	$not_internal = "internal_getdents"
   condition:
     filesize < 2MB and all of ($l*) and none of ($not*)
 }

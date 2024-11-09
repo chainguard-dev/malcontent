@@ -25,25 +25,16 @@ rule exotic_tld: high {
     $not_gov_bd      = ".gov.bd"
     $not_eol         = "endoflife.date"
     $not_whois       = "bdia.btcl.com.bd"
+	$not_arduino = "arduino.cc"
 
   condition:
     filesize < 10MB and any of ($http*) and none of ($not_*)
 }
 
-rule binary_http_url_with_question: high {
-  meta:
-    description = "contains hardcoded endpoint with a question mark"
 
-  strings:
-    $ref                 = /https*:\/\/[\w\.\/]{8,160}\.[a-zA-Z]{2,3}\?[\w\=\&]{0,32}/
-    $not_cvs_sourceforge = /cvs.sourceforge.net.{0,64}\?rev=/
-    $not_rev_head        = "?rev=HEAD"
 
-  condition:
-    filesize < 150MB and elf_or_macho and $ref and none of ($not*)
-}
 
-rule script_with_binary_http_url_with_question: high {
+rule http_url_with_question: medium {
   meta:
     description = "contains hardcoded endpoint with a question mark"
 
@@ -59,7 +50,36 @@ rule script_with_binary_http_url_with_question: high {
     $ref                 = /https*:\/\/[\w\.\/]{8,160}\.[a-zA-Z]{2,3}\?[\w\=\&]{0,32}/
     $not_cvs_sourceforge = /cvs.sourceforge.net.{0,64}\?rev=/
     $not_rev_head        = "?rev=HEAD"
+    $not_cgi = ".cgi?"
 
   condition:
     filesize < 256KB and any of ($f*) and $ref and none of ($not*)
+}
+
+rule binary_php_url_with_question: high {
+  meta:
+    description = "contains hardcoded endpoint with a question mark"
+
+  strings:
+    $ref                 = /https*:\/\/[\w\.\/]{8,160}\.php\?[\w\=\&]{0,32}/
+  condition:
+    filesize < 150MB and elf_or_macho and $ref
+}
+
+rule script_php_url_with_question: medium {
+  meta:
+    description = "contains hardcoded endpoint with a question mark"
+
+  strings:
+    $f_import            = "import" fullword
+    $f_require           = "require" fullword
+    $f_curl              = "curl" fullword
+    $f_wget              = "wget" fullword
+    $f_requests          = "requests.get" fullword
+    $f_requests_post     = "requests.post" fullword
+    $f_urllib            = "urllib.request" fullword
+    $f_urlopen           = "urlopen" fullword
+    $ref                 = /https*:\/\/[\w\.\/]{8,160}\.php\?[\w\=\&]{0,32}/
+  condition:
+    filesize < 256KB and any of ($f*) and $ref
 }

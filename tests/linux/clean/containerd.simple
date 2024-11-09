@@ -73,7 +73,6 @@ fs/watch: low
 hw/dev/block_ice: medium
 hw/dev/mapper: medium
 impact/remote_access/heartbeat: medium
-lateral/scan/tool: medium
 net/dns: low
 net/dns/reverse: medium
 net/dns/servers: low

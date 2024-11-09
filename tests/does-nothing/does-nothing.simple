@@ -13,7 +13,6 @@ fs/path/etc: low
 fs/path/home: medium
 fs/permission/chown: medium
 fs/permission/modify: medium
-lateral/scan/tool: medium
 net/socket/receive: low
 net/socket/send: low
 persist/daemon: medium

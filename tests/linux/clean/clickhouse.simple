@@ -45,6 +45,8 @@ discover/cloud/google_metadata: low
 discover/network/interface_get: low
 discover/network/interface_list: medium
 discover/permissions/capabilities: medium
+discover/process/name_get: medium
+discover/process/runtime_deps: medium
 discover/processes/list: medium
 discover/system/cpu_info: low
 discover/system/hostname_get: low
@@ -181,8 +183,6 @@ process/create: low
 process/executable_path: low
 process/groupid_set: low
 process/multithreaded: low
-process/name_get: medium
-process/thread_local_storage: medium
 process/userid_set: low
 sus/exclamation: medium
 sus/intercept: medium

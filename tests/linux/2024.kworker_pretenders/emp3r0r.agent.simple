@@ -6,7 +6,6 @@
 anti-behavior/vm_check: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
-c2/addr/url: high
 c2/discovery/ip_dns_resolver: medium
 c2/tool_transfer/download: medium
 collect/archives/unarchive: medium
@@ -104,7 +103,6 @@ impact/remote_access/kill_rm: medium
 impact/remote_access/net_exec: medium
 impact/remote_access/pseudo_terminal: medium
 impact/remote_access/reverse_shell: high
-lateral/scan/tool: medium
 malware/family/emp3r0r: critical
 net/dns: low
 net/dns/over_https: medium

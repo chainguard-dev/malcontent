@@ -38,6 +38,9 @@ data/hash/sha1: low
 data/random/insecure: low
 discover/network/interface_list: medium
 discover/network/mac_address: medium
+discover/process/name_get: medium
+discover/process/parent_pid_get: low
+discover/process/runtime_deps: medium
 discover/processes/list: medium
 discover/system/hostname_get: low
 discover/system/platform: low
@@ -162,9 +165,6 @@ process/chroot: low
 process/create: low
 process/groups_set: low
 process/multithreaded: low
-process/name_get: medium
-process/parent_pid_get: low
-process/thread_local_storage: medium
 process/userid_set: low
 sus/exclamation: medium
 sus/intercept: medium

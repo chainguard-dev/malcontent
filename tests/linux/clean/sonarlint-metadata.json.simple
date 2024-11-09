@@ -37,7 +37,6 @@ impact/exploit: medium
 impact/infection/infected: medium
 impact/remote_access/agent: medium
 lateral/scan/brute_force: low
-lateral/scan/tool: medium
 net/download: medium
 net/http/2: low
 net/http/cookies: medium

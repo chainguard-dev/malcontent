@@ -11,6 +11,8 @@ data/encoding/base64: low
 data/encoding/reverse: low
 data/hash/md5: low
 data/random/insecure: low
+discover/process/effective_groupid_get: medium
+discover/process/parent_pid_get: low
 discover/system/hostname_get: low
 discover/system/platform: low
 discover/user/USER: low
@@ -57,7 +59,5 @@ net/url/embedded: low
 net/url/encode: medium
 persist/daemon: medium
 process/chroot: low
-process/effective_groupid_get: medium
 process/groupid_set: low
-process/parent_pid_get: low
 process/userid_set: low

@@ -23,7 +23,6 @@ fs/path/usr_sbin: low
 fs/path/var: low
 fs/proc/arbitrary_pid: medium
 fs/proc/self_exe: medium
-lateral/scan/tool: medium
 net/dns/servers: low
 net/http/request: low
 net/socket/send: low

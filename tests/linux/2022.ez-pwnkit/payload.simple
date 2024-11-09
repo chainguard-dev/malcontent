@@ -20,7 +20,6 @@ impact/exploit/GCONV_PATH: high
 impact/exploit/cve: high
 impact/exploit/pwnkit: critical
 impact/remote_access/reverse_shell: medium
-lateral/scan/tool: medium
 net/dns: low
 net/dns/servers: low
 net/dns/txt: low

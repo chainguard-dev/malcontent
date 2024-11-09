@@ -53,7 +53,6 @@ hw/wireless: low
 impact/exploit: medium
 impact/exploit/cve: medium
 impact/remote_access/iptables: medium
-lateral/scan/tool: medium
 net/dns/servers: low
 net/download: medium
 net/http/cookies: medium

@@ -16,7 +16,7 @@ discover/user/HOME: low
 discover/user/USER: low
 evasion/bypass_security/linux/pam: medium
 evasion/bypass_security/linux/se: medium
-evasion/file/location/tmp_x11_unix: low
+evasion/file/location/x11_unix: low
 evasion/file/prefix: medium
 evasion/file/prefix/proc: high
 evasion/logging/acct: low
@@ -63,7 +63,6 @@ impact/remote_access/reverse_shell: medium
 impact/remote_access/ssh: high
 impact/rootkit: critical
 impact/ui/x11_auth: medium
-lateral/scan/tool: medium
 malware/family/fontonlake: critical
 net/download: medium
 net/ip/spoof: medium

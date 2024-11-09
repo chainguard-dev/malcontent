@@ -1,12 +1,10 @@
 # linux/clean/tracer.o.aarch64: medium
 c2/addr/ip: medium
 collect/databases/mysql: medium
-credential/sniffer/bpf: medium
 discover/network/netstat: medium
 evasion/bypass_security/linux/iptables: medium
 evasion/logging/acct: low
 impact/remote_access/heartbeat: medium
-lateral/scan/tool: medium
 net/http/post: medium
 net/ip/multicast_send: low
 net/ip/syncookie: medium
@@ -14,3 +12,4 @@ net/socket/listen: medium
 net/socket/receive: low
 net/socket/send: low
 net/tcp/synflood: medium
+persist/kernel_module/symbol_lookup: low

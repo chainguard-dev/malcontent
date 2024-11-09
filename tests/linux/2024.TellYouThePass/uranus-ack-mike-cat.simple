@@ -46,7 +46,6 @@ fs/permission/chown: medium
 fs/permission/modify: medium
 impact/ransom/note: high
 impact/remote_access/reverse_shell: medium
-lateral/scan/tool: medium
 net/dns: low
 net/dns/servers: low
 net/dns/txt: low

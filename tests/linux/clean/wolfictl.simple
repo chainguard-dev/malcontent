@@ -55,7 +55,7 @@ discover/user/name_get: medium
 evasion/bypass_security/linux/se: medium
 evasion/bypass_security/macos/xprotect: medium
 evasion/file/location/dev_shm: medium
-evasion/file/location/system_directories: medium
+evasion/file/location/system_directory: medium
 evasion/file/prefix: medium
 exec/cmd: medium
 exec/conditional/LANG: low

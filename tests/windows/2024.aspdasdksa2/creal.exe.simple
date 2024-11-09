@@ -18,7 +18,6 @@ fs/file/delete: medium
 fs/file/read: low
 fs/file/write: low
 fs/path/relative: medium
-lateral/scan/tool: medium
 net/dns/txt: low
 net/url/embedded: low
 net/url/parse: low

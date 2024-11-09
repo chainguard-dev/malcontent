@@ -81,7 +81,6 @@ fs/watch: low
 hw/dev/block_ice: medium
 impact/remote_access/heartbeat: medium
 impact/remote_access/iptables: medium
-lateral/scan/tool: medium
 net/dns: low
 net/dns/reverse: medium
 net/dns/servers: low

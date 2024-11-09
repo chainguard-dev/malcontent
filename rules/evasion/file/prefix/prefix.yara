@@ -46,7 +46,9 @@ rule hidden_short_path: high {
     $not_network_manager = "org.freedesktop.NetworkManager"
     $not_private         = "/System/Library/PrivateFrameworks/"
     $not_X11             = "/tmp/.X11-unix"
+    $not_XIM             = "/tmp/.XIM-unix"
     $not_cpp             = "/tmp/.cpp.err"
+    $not_pwd             = "/etc/.pwd.lock"
 
   condition:
     $crit and none of ($not*)
