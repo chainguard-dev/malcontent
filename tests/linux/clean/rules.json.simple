@@ -3,7 +3,7 @@
 3P/threat_hunting/openvas: medium
 3P/threat_hunting/rapid7: medium
 3P/threat_hunting/sqlninja: medium
-anti-static/obfuscation/generic/hex_values: medium
+anti-static/obfuscation/hex: medium
 collect/databases/mysql: medium
 collect/databases/postgresql: medium
 collect/databases/sqlite: medium

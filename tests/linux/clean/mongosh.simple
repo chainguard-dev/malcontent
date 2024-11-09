@@ -1,6 +1,6 @@
 # linux/clean/mongosh: critical
 anti-static/base64/function_names: critical
-anti-static/obfuscation/generic/hex_conversion: medium
+anti-static/obfuscation/hex: medium
 anti-static/obfuscation/obfuscate: low
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium

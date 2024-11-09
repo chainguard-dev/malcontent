@@ -17,11 +17,14 @@ private rule pythonSetup {
     filesize < 128KB and $setup and any of ($i*) and none of ($not*)
 }
 
-rule setuptools_builtins: medium {
+rule setuptools_random: critical {
   meta:
-    description = "Python library installer that references builtins"
+    description = "Python library installer that exhibits random behavior"
+
   strings:
-    $ref = "__builtins__" fullword
+    $ref              = "import random"
+    $not_easy_install = "pid = random.randint(0, sys.maxsize)"
+
   condition:
-    pythonSetup and $ref
+    pythonSetup and $ref and none of ($not*)
 }

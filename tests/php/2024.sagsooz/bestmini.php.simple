@@ -2,7 +2,7 @@
 3P/sig_base/webshell_php: critical
 3P/sig_base/webshell_php_by: critical
 3P/sig_base/webshell_php_strings: critical
-anti-static/obfuscation/php/one_liner: medium
+anti-static/obfuscation/php: medium
 exec/remote_commands/code_eval: medium
 impact/remote_access/reverse_shell: high
 net/url/embedded: medium

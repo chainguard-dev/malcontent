@@ -1,6 +1,6 @@
 # php/clean/composer-2.7.7: medium
 anti-behavior/anti_debugger: medium
-anti-static/obfuscation/php/non_printable_chars: medium
+anti-static/obfuscation/php: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/discovery/ip_dns_resolver: medium

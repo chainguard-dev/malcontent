@@ -1,7 +1,6 @@
 # python/2021.DiscordSafety/setup.py: critical
-anti-static/obfuscation/generic/hex_values: medium
-anti-static/obfuscation/python/hex_decimal: high
-anti-static/obfuscation/python/rename_imports: critical
+anti-static/obfuscation/hex: medium
+anti-static/obfuscation/python: critical
 anti-static/unmarshal/marshal: high
 c2/addr/url: high
 collect/databases/leveldb: medium

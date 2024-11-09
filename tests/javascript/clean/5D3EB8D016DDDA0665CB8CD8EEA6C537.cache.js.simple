@@ -1,6 +1,6 @@
 # javascript/clean/5D3EB8D016DDDA0665CB8CD8EEA6C537.cache.js: medium
 3P/threat_hunting/powershell: medium
-anti-static/obfuscation/js/char_codes: medium
+anti-static/obfuscation/js: medium
 c2/addr/ip: medium
 c2/server_address: medium
 collect/archives/unarchive: medium
