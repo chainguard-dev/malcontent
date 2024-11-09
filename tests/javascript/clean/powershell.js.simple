@@ -1,6 +1,7 @@
-# javascript/clean/powershell.js: medium
-anti-static/obfuscation/powershell/bxor: medium
+# javascript/clean/powershell.js: critical
+anti-static/obfuscation/powershell: critical
 exec/shell/power: medium
+false-positives/opensearch_dashboard: low
 fs/directory/remove: low
 fs/file/copy: medium
 fs/file/delete: medium

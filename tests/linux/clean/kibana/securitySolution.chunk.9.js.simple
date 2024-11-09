@@ -34,7 +34,7 @@
 3P/threat_hunting/torproject: medium
 3P/threat_hunting/traitor: medium
 3P/threat_hunting/wpscan: medium
-anti-static/obfuscation/js/char_codes: medium
+anti-static/obfuscation/js: medium
 c2/addr/ip: medium
 c2/addr/url: high
 c2/discovery/dyndns: medium

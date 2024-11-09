@@ -1,9 +1,7 @@
 # python/2022.aowdjpawojd-0.0.0/aowdjpawojd/__init__.py: critical
 3P/threat_hunting/blankobf: medium
-anti-static/obfuscation/generic/hex_values: medium
-anti-static/obfuscation/python/eval: high
-anti-static/obfuscation/python/hex_decimal: high
-anti-static/obfuscation/python/multi_decode: high
+anti-static/obfuscation/hex: medium
+anti-static/obfuscation/python: high
 anti-static/packer/blankobf: critical
 data/base64/decode: medium
 exec/remote_commands/code_eval: medium

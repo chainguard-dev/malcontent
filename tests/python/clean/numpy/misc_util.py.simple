@@ -1,5 +1,5 @@
 # python/clean/numpy/misc_util.py: medium
-anti-static/obfuscation/python/lib_alias: medium
+anti-static/obfuscation/python: medium
 discover/system/platform: medium
 evasion/hidden_paths/hidden: medium
 exec/install_additional/pip_install: medium

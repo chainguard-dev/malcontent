@@ -1,5 +1,4 @@
 # macOS/2024.BeaverTail/client_5346.py: high
-anti-static/obfuscation/python/single_line_imports: medium
 c2/addr/ip: medium
 c2/tool_transfer/python: high
 data/encoding/base64: low
@@ -7,6 +6,7 @@ discover/system/platform: medium
 discover/user/HOME: low
 evasion/hidden_paths/hidden: medium
 evasion/indicator_blocking/mask_exceptions: medium
+exec/imports/python: medium
 exec/install_additional/pip_install: high
 exec/program: medium
 fs/directory/create: low

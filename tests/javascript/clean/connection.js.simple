@@ -1,6 +1,6 @@
 # javascript/clean/connection.js: high
 anti-static/base64/exec: high
-anti-static/obfuscation/generic/hex_conversion: medium
+anti-static/obfuscation/hex: medium
 c2/addr/ip: medium
 credential/password: low
 data/embedded/base64_terms: medium

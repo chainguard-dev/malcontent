@@ -1,4 +1,4 @@
-rule x11_refs: notable {
+rule x11_refs: medium {
   meta:
     description                          = "X Window System client authentication"
     ref                                  = "https://en.wikipedia.org/wiki/X_Window_authorization"

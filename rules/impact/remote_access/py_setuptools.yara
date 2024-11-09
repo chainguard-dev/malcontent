@@ -140,7 +140,7 @@ rule setuptools_exec_powershell: critical windows {
     setuptools_cmd_exec and any of them
 }
 
-rule setuptools_os_path_exists: notable {
+rule setuptools_os_path_exists: medium {
   meta:
     description = "Python library installer that checks for file existence"
 

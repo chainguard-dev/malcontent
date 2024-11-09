@@ -1,0 +1,60 @@
+rule powershell_byte_xor: critical windows {
+  meta:
+    description = "powershell byte XOR"
+
+  strings:
+    $ps_powershell = "powershell"
+    $ps_bytes      = "[System.IO.File]"
+    $xor           = "-bxor" fullword
+
+  condition:
+    filesize < 16KB and $xor and any of ($ps*)
+}
+
+rule casing_obfuscation: medium windows {
+  meta:
+    description = "unusual casing obfuscation"
+    author      = "Florian Roth"
+
+  strings:
+    $ref = /  (sEt|SEt|SeT|sET|seT)  / ascii wide
+
+  condition:
+    filesize < 16777216 and any of them
+}
+
+rule powershell_compact: medium windows {
+  meta:
+    description = "unusually compact PowerShell representation"
+    author      = "Florian Roth"
+
+  strings:
+    $InokeExpression = ");iex" ascii wide nocase
+
+  condition:
+    filesize < 16777216 and any of them
+}
+
+rule powershell_encoded: high windows {
+  meta:
+    description = "Encoded Powershell"
+    author      = "Florian Roth"
+
+  strings:
+    $ref = / -[eE][decoman]{0,41} ['"]?(JAB|SUVYI|aWV4I|SQBFAFgA|aQBlAHgA|cgBlAG)/ ascii wide
+
+  condition:
+    filesize < 16777216 and any of them
+}
+
+rule powershell_format: high {
+  meta:
+    description = "obfuscated Powershell format string"
+    author      = "Florian Roth"
+
+  strings:
+    $ref = "}{0}\"-f " ascii wide
+
+  condition:
+    filesize < 16777216 and any of them
+}
