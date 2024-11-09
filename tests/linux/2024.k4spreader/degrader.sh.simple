@@ -4,5 +4,4 @@ evasion/bypass_security/linux/ufw: medium
 evasion/hijack_execution/etc_ld.so.preload: high
 fs/attributes/chattr: medium
 fs/path/etc: low
-impact/degrade/iptables: high
-impact/degrade/ufw: high
+impact/degrade/firewall: high

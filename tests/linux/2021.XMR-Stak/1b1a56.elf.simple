@@ -19,7 +19,7 @@ discover/system/cpu_info: low
 discover/system/platform: low
 discover/system/sysinfo: medium
 discover/user/HOME: low
-evasion/hidden_paths/var_run: medium
+evasion/file/location/var_run: medium
 exec/conditional/LANG: low
 exec/dylib/address_check: low
 exec/dylib/iterate: low
@@ -86,4 +86,4 @@ privesc/sudo: medium
 process/create: low
 process/multithreaded: low
 process/name_set: medium
-process/thread_local_storage: low
+process/thread_local_storage: medium

@@ -27,7 +27,7 @@ discover/system/platform: low
 discover/user/HOME: low
 discover/user/USER: low
 discover/user/name_get: medium
-evasion/hidden_paths/hidden: medium
+evasion/file/prefix: medium
 evasion/logging/acct: low
 exec/cmd: medium
 exec/conditional/LANG: low

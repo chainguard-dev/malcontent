@@ -5,9 +5,9 @@ anti-static/packer/elf: high
 credential/ssh/d: medium
 data/base64/external: medium
 data/encoding/base64: low
-evasion/covert_location/dev_shm: medium
-evasion/hidden_paths/var_run: medium
-evasion/hidden_paths/var_tmp: medium
+evasion/file/location/dev_shm: medium
+evasion/file/location/var_run: medium
+evasion/file/location/var_tmp: medium
 evasion/mimicry/fake_process: critical
 exec/shell/echo: medium
 exec/shell/exec: medium
@@ -23,6 +23,7 @@ fs/path/usr_sbin: low
 fs/path/var: low
 fs/proc/arbitrary_pid: medium
 fs/proc/self_exe: medium
+lateral/scan/tool: medium
 net/dns/servers: low
 net/http/request: low
 net/socket/send: low

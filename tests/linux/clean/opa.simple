@@ -53,6 +53,7 @@ fs/proc/self_cgroup: medium
 fs/proc/self_mountinfo: medium
 fs/tempdir/tempfile_create: low
 fs/watch: low
+lateral/scan/tool: medium
 net/dns: low
 net/dns/reverse: medium
 net/dns/servers: low

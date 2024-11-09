@@ -5,6 +5,7 @@ fs/proc/cpuinfo: medium
 fs/proc/stat: medium
 hw/cpu: medium
 impact/remote_access/router: high
+lateral/scan/tool: medium
 malware/family/mirai: critical
 net/ip/parse: medium
 net/socket/local_addr: low

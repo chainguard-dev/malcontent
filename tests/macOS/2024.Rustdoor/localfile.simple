@@ -20,10 +20,10 @@ discover/system/cpu_info: medium
 discover/system/hardware_info: low
 discover/system/hostname_get: low
 discover/user/USER: low
-evasion/hidden_paths/relative_hidden: low
 exec/dylib/symbol_address: medium
 exec/program: medium
 exec/program/background: low
+exec/program/hidden: low
 exec/script/osa: medium
 exec/shell/exec: medium
 exfil/stealer/notes: critical
@@ -45,6 +45,7 @@ fs/tempdir: low
 fs/tempdir/TMPDIR: low
 hw/disk_info: medium
 impact/remote_access/reverse_shell: medium
+lateral/scan/tool: medium
 malware/family/rustdoor: critical
 net/download: medium
 net/download/fetch: high

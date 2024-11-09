@@ -32,7 +32,7 @@ discover/user/HOME: low
 discover/user/USER: low
 discover/user/name_get: medium
 evasion/bypass_security/linux/se: medium
-evasion/hidden_paths/hidden: medium
+evasion/file/prefix: medium
 evasion/hide_artifacts/pivot_root: medium
 exec/plugin: low
 exec/program: medium
@@ -74,6 +74,7 @@ fs/symlink_resolve: low
 fs/tempdir/tempfile_create: low
 fs/unmount: low
 impact/remote_access/heartbeat: medium
+lateral/scan/tool: medium
 net/dns: low
 net/dns/reverse: medium
 net/dns/servers: low

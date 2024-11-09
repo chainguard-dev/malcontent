@@ -25,7 +25,7 @@ discover/system/cpu_info: low
 discover/system/hostname_get: low
 discover/user/HOME: low
 evasion/bypass_security/linux/pam: medium
-evasion/hidden_paths/hidden: medium
+evasion/file/prefix: medium
 evasion/logging/acct: low
 exec/plugin: low
 exec/system_controls/systemd: medium
@@ -44,6 +44,7 @@ fs/permission/chown: medium
 fs/permission/modify: medium
 impact/cryptojacking/nicehash_pool: high
 impact/cryptojacking/xmrig: high
+lateral/scan/tool: medium
 net/dns: low
 net/dns/reverse: medium
 net/dns/servers: low

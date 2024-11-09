@@ -19,7 +19,7 @@ discover/system/hostname_get: low
 discover/system/platform: low
 discover/user/HOME: low
 discover/user/USER: low
-evasion/hidden_paths/hidden: medium
+evasion/file/prefix: medium
 exec/cmd: medium
 exec/plugin: low
 exec/program: medium
@@ -46,6 +46,7 @@ fs/permission/chown: medium
 fs/permission/modify: medium
 impact/ransom/note: high
 impact/remote_access/reverse_shell: medium
+lateral/scan/tool: medium
 net/dns: low
 net/dns/servers: low
 net/dns/txt: low

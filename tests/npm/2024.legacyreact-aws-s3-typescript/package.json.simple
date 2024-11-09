@@ -1,7 +1,7 @@
 # npm/2024.legacyreact-aws-s3-typescript/package.json: critical
 c2/tool_transfer/npm: critical
 c2/tool_transfer/shell: high
-evasion/hidden_paths/relative_hidden: low
+exec/program/hidden: low
 exec/shell/background_launcher: high
 exfil/npm: high
 fs/file/make_executable: medium

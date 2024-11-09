@@ -53,9 +53,8 @@ discover/user/HOME: low
 discover/user/USER: low
 discover/user/name_get: low
 evasion/bypass_security/linux/ufw: medium
-evasion/covert_location/dev_shm: medium
-evasion/hidden_paths/hidden: medium
-evasion/hidden_paths/relative_hidden: low
+evasion/file/location/dev_shm: medium
+evasion/file/prefix: medium
 evasion/hijack_execution/DYLD_LIBRARY_PATH: medium
 evasion/hijack_execution/LD_LIBRARY_PATH: low
 evasion/logging/acct: low
@@ -69,6 +68,7 @@ exec/install_additional/package_install: medium
 exec/plugin: low
 exec/program: medium
 exec/program/background: low
+exec/program/hidden: low
 exec/shell/SHELL: low
 exec/shell/TERM: low
 exec/shell/background_sleep: medium
@@ -182,7 +182,7 @@ process/executable_path: low
 process/groupid_set: low
 process/multithreaded: low
 process/name_get: medium
-process/thread_local_storage: low
+process/thread_local_storage: medium
 process/userid_set: low
 sus/exclamation: medium
 sus/intercept: medium

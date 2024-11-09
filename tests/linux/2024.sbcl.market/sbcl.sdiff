@@ -2,7 +2,7 @@
 -data/compression/zstd
 -discover/user/HOME
 -discover/user/USER
--evasion/hidden_paths/var_tmp
+-evasion/file/location/var_tmp
 -exec/dylib/address_check
 -exec/dylib/symbol_address
 -exec/program
@@ -19,12 +19,13 @@
 -fs/symlink_resolve
 -net/url/embedded
 ++++ added: sbcl.dirty
++anti-static/elf/entropy
 +anti-static/packer/high_entropy
 +data/compression/zstd
 +data/embedded/zstd
 +discover/user/HOME
 +discover/user/USER
-+evasion/hidden_paths/var_tmp
++evasion/file/location/var_tmp
 +exec/dylib/address_check
 +exec/dylib/symbol_address
 +exec/program

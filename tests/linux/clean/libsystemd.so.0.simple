@@ -2,7 +2,7 @@
 data/compression/lzma: low
 data/random/insecure: low
 discover/user/USER: low
-evasion/hidden_paths/var_run: medium
+evasion/file/location/var_run: medium
 exec/program: medium
 exec/shell/TERM: low
 fs/file/copy: medium
@@ -20,6 +20,7 @@ fs/proc/self_cmdline: medium
 fs/proc/self_exe: medium
 fs/proc/self_status: medium
 fs/watch: low
+lateral/scan/tool: medium
 mem/anonymous_file: medium
 net/ip/addr: medium
 net/resolve/hostport_parse: low
@@ -37,5 +38,5 @@ process/multithreaded: low
 process/name_set: medium
 process/namespace_set: low
 process/parent_pid_get: low
-process/thread_local_storage: low
+process/thread_local_storage: medium
 process/userid_set: low

@@ -21,7 +21,7 @@ discover/system/hostname_get: low
 discover/system/platform: low
 evasion/bypass_security/linux/se: medium
 evasion/bypass_security/linux/se_disable: high
-evasion/hidden_paths/hidden: medium
+evasion/file/prefix: medium
 exec/plugin: low
 exec/program: medium
 exec/shell/exec: medium
@@ -53,6 +53,7 @@ impact/exploit/cve_list: medium
 impact/remote_access/kill_rm: medium
 impact/remote_access/reverse_shell: high
 impact/remote_access/systemctl: critical
+lateral/scan/tool: medium
 lateral/ssh/attack: high
 malware/family/kaiji: critical
 net/dns: low

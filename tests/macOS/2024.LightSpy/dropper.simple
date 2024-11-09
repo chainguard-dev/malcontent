@@ -9,7 +9,7 @@ data/hash/md5: medium
 discover/system/cpu_info: low
 discover/system/network: high
 discover/system/platform: medium
-evasion/hidden_paths/odd_pidfile: high
+evasion/file/location/odd_pidfile: high
 exec/dylib/symbol_address: medium
 exec/dylib/user: medium
 exec/plugin: low

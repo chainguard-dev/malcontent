@@ -38,3 +38,4 @@ rule libc_fake_number_val: high {
   condition:
     any of them
 }
+

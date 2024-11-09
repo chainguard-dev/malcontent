@@ -45,7 +45,7 @@ discover/system/sysinfo: medium
 discover/user/HOME: low
 discover/user/USER: low
 evasion/bypass_security/linux/ufw: medium
-evasion/covert_location/dev_shm: medium
+evasion/file/location/dev_shm: medium
 evasion/hijack_execution/LD_LIBRARY_PATH: low
 evasion/process_injection/ptrace: medium
 exec/cmd: medium
@@ -164,7 +164,7 @@ process/groups_set: low
 process/multithreaded: low
 process/name_get: medium
 process/parent_pid_get: low
-process/thread_local_storage: low
+process/thread_local_storage: medium
 process/userid_set: low
 sus/exclamation: medium
 sus/intercept: medium

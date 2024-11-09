@@ -1,6 +1,6 @@
-rule tls_get_addr {
+rule tls_get_addr: medium {
   meta:
-    description = "Uses glibc thread local storage"
+    description = "looks up memory addresses for thread local storage or linked libraries"
     ref         = "https://chao-tic.github.io/blog/2018/12/25/tls"
 
   strings:

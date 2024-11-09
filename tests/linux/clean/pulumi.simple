@@ -46,7 +46,7 @@ discover/system/sysinfo: medium
 discover/user/HOME: low
 discover/user/USER: low
 discover/user/name_get: medium
-evasion/hidden_paths/hidden: medium
+evasion/file/prefix: medium
 exec/cmd: medium
 exec/conditional/LANG: low
 exec/install_additional/pip_install: medium

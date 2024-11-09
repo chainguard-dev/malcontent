@@ -19,10 +19,10 @@ evasion/bypass_security/linux/iptables: medium
 evasion/bypass_security/linux/se: medium
 evasion/bypass_security/linux/se_disable: high
 evasion/bypass_security/linux/ufw: medium
-evasion/covert_location/dev_shm: critical
-evasion/hidden_paths/dev_shm: critical
-evasion/hidden_paths/hidden: high
-evasion/hidden_paths/var_tmp: medium
+evasion/file/location/dev_shm: critical
+evasion/file/location/var_tmp: medium
+evasion/file/prefix: high
+evasion/file/prefix/dev: critical
 evasion/hijack_execution/etc_ld.so.preload: high
 evasion/logging/syslog: medium
 evasion/mimicry/fake_process: critical
@@ -56,10 +56,9 @@ impact/cryptojacking/cryptonight: high
 impact/cryptojacking/generic: high
 impact/cryptojacking/monero_pool: medium
 impact/cryptojacking/xmrig: high
+impact/degrade/firewall: high
 impact/degrade/infection: critical
 impact/degrade/linux_paths: high
-impact/degrade/selinux_firewall: high
-impact/degrade/ufw: high
 impact/remote_access/agent: medium
 impact/remote_access/iptables: medium
 impact/remote_access/kill_rm: medium

@@ -12,5 +12,5 @@ fs/tempdir: low
 impact/exploit/GCONV_PATH: low
 net/url/embedded: low
 persist/shell/bash: medium
-process/thread_local_storage: low
+process/thread_local_storage: medium
 sus/exclamation: medium

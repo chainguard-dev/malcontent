@@ -4,8 +4,8 @@ discover/network/interface_list: medium
 discover/system/cpu_info: low
 discover/system/hostname_get: low
 discover/user/HOME: low
-evasion/hidden_paths/hidden: medium
-evasion/hidden_paths/var_tmp: medium
+evasion/file/location/var_tmp: medium
+evasion/file/prefix: medium
 evasion/process_injection/ptrace: medium
 exec/plugin: low
 exec/program: medium
@@ -28,6 +28,7 @@ fs/permission/chown: low
 fs/proc/arbitrary_pid: medium
 fs/proc/pid_exe: medium
 fs/tempdir/tempfile_create: low
+lateral/scan/tool: medium
 net/ip/string: medium
 net/socket/listen: medium
 net/socket/local_addr: low

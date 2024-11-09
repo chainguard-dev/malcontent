@@ -20,10 +20,10 @@ discover/system/sysinfo: medium
 discover/user/HOME: low
 discover/user/USER: low
 discover/user/name_get: low
-evasion/hidden_paths/relative_hidden: low
 exec/cmd: medium
 exec/plugin: low
 exec/program/background: low
+exec/program/hidden: low
 exec/remote_commands/code_eval: medium
 exec/script/osa: medium
 exec/shell/SHELL: low

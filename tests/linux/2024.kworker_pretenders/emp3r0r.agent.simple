@@ -41,10 +41,10 @@ discover/system/sysinfo: medium
 discover/user/HOME: low
 discover/user/USER: low
 discover/user/name_get: medium
-evasion/covert_location/chdir_unusual: medium
-evasion/covert_location/dev_shm: medium
-evasion/hidden_paths/dev_shm: critical
-evasion/hidden_paths/hidden: high
+evasion/file/location/chdir_unusual: medium
+evasion/file/location/dev_shm: medium
+evasion/file/prefix: high
+evasion/file/prefix/dev: critical
 evasion/hijack_execution/LD_LIBRARY_PATH: low
 evasion/logging/current_logins: medium
 evasion/logging/hide_shell_history: high
@@ -104,6 +104,7 @@ impact/remote_access/kill_rm: medium
 impact/remote_access/net_exec: medium
 impact/remote_access/pseudo_terminal: medium
 impact/remote_access/reverse_shell: high
+lateral/scan/tool: medium
 malware/family/emp3r0r: critical
 net/dns: low
 net/dns/over_https: medium

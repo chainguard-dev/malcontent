@@ -36,6 +36,7 @@ hw/wireless: low
 impact/degrade/infection: medium
 impact/remote_access/agent: medium
 impact/remote_access/heartbeat: medium
+lateral/scan/tool: medium
 net/dns/txt: low
 net/download: medium
 net/http/cookies: medium

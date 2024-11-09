@@ -12,8 +12,9 @@ data/random/insecure: low
 discover/components/docker: medium
 discover/system/platform: low
 discover/system/sysinfo: medium
-evasion/covert_location/chdir_unusual: medium
-evasion/hide_artifacts/system_directories: medium
+evasion/file/location/chdir_unusual: medium
+evasion/file/location/system_directories: medium
+evasion/rootkit/refs: medium
 exec/install_additional/package_install: medium
 exec/install_additional/pip_install: medium
 exec/plugin: low
@@ -43,7 +44,6 @@ impact/remote_access/backdoor: high
 impact/remote_access/reverse_shell: medium
 impact/remote_access/trojan: medium
 impact/rootkit: medium
-impact/rootkit/refs: medium
 net/dns/servers: low
 net/dns/txt: low
 net/download/fetch: medium

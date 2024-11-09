@@ -54,9 +54,9 @@ discover/user/USER: low
 discover/user/name_get: medium
 evasion/bypass_security/linux/se: medium
 evasion/bypass_security/macos/xprotect: medium
-evasion/covert_location/dev_shm: medium
-evasion/hidden_paths/hidden: medium
-evasion/hide_artifacts/system_directories: medium
+evasion/file/location/dev_shm: medium
+evasion/file/location/system_directories: medium
+evasion/file/prefix: medium
 exec/cmd: medium
 exec/conditional/LANG: low
 exec/dylib/symbol_address: medium

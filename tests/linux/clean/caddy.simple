@@ -44,8 +44,8 @@ discover/system/platform: medium
 discover/user/HOME: low
 discover/user/USER: low
 discover/user/name_get: low
-evasion/hidden_paths/hidden: medium
-evasion/hidden_paths/var_run: medium
+evasion/file/location/var_run: medium
+evasion/file/prefix: medium
 exec/cmd: medium
 exec/conditional/LANG: low
 exec/install_additional/package_install: medium

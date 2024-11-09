@@ -1,7 +1,7 @@
 # linux/2022.bpfdoor/bpfdoor_2: critical
 3P/elastic/bpfdoor: critical
 credential/sniffer/pcap: high
-evasion/hidden_paths/x11: low
+evasion/file/location/tmp_x11_unix: low
 evasion/logging/hide_shell_history: high
 exec/program: medium
 exec/program/background: low

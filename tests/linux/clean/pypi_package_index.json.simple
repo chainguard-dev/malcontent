@@ -111,6 +111,7 @@ evasion/bypass_security/linux/ufw: medium
 evasion/logging/acct: low
 evasion/process_injection/ptrace: medium
 evasion/process_injection/readelf: medium
+evasion/rootkit/refs: medium
 exec/dylib/symbol_address: medium
 exec/install_additional/pip_install: high
 exec/plugin: low
@@ -152,10 +153,10 @@ impact/remote_access/net_shell: high
 impact/remote_access/reverse_shell: high
 impact/remote_access/trojan: medium
 impact/rootkit: low
-impact/rootkit/refs: medium
 impact/ui/screen_capture: high
 impact/ui/x11_auth: medium
 lateral/scan/brute_force: low
+lateral/scan/tool: high
 net/dns/over_https: medium
 net/download: medium
 net/http/auth: low

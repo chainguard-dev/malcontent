@@ -15,7 +15,7 @@
 +data/embedded/base64_url
 +data/embedded/pgp_key
 +data/encoding/base64
-+evasion/hidden_paths/var_tmp
++evasion/file/location/var_tmp
 +exec/install_additional/add_apt_key
 +exec/shell/exec
 +exec/shell/ignore_output

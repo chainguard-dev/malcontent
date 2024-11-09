@@ -1,3 +1,80 @@
+rule readdir_intercept: high {
+  meta:
+    description           = "userland rootkit designed to hide files (readdir64)"
+    hash_2023_lib_pkit    = "8faa04955eeb6f45043003e23af39b86f1dbfaa12695e0e1a1f0bc7a15d0d116"
+    hash_2023_lib_pkitarm = "67de6ba64ee94f2a686e3162f2563c77a7d78b7e0404e338a891dc38ced5bd71"
+    hash_2023_lib_skit    = "427b1d16f16736cf8cee43a7c54cd448ca46ac9b573614def400d2d8d998e586"
+    filetypes             = "so,c"
+
+  strings:
+    $r_new65      = "readdir64" fullword
+    $r_old64      = "_readdir64"
+    $r_new32      = "readdir" fullword
+    $r_old32      = "_readdir"
+    $not_ld_debug = "LD_DEBUG"
+    $not_libc     = "getusershell"
+
+  condition:
+    filesize < 2MB and uint32(0) == 1179403647 and all of ($r*) and none of ($not*)
+}
+
+rule readdir_tcp_wrapper_intercept: high {
+  meta:
+    description = "userland rootkit designed to hide files and bypass tcp-wrappers"
+    ref         = "https://github.com/ldpreload/Medusa"
+    filetypes   = "so,c"
+
+  strings:
+    $r_new65        = "readdir64" fullword
+    $r_old64        = "_readdir64"
+    $r_new32        = "readdir" fullword
+    $r_old32        = "_readdir"
+    $r_hosts_access = "hosts_access"
+
+  condition:
+    filesize < 2MB and uint32(0) == 1179403647 and all of ($r*)
+}
+
+rule medusa_like_ld_preload: critical linux {
+  meta:
+    description = "LD_PRELOAD rootkit"
+    ref         = "https://github.com/ldpreload/Medusa"
+
+  strings:
+    $cloned_thread   = "DYNAMIC LINKER BUG!"
+    $__execve        = "__execve" fullword
+    $lxstat64        = "__lxstat64" fullword
+    $syslog          = "syslog" fullword
+    $LD_PRELOAD      = "LD_PRELOAD" fullword
+    $LD_LIBRARY_PATH = "LD_LIBRARY_PATH" fullword
+    $archloaded      = "archloaded" fullword
+    $rkload          = "rkload" fullword
+    $wcs             = "wcsmbsload" fullword
+    $readdir64       = "readdir64" fullword
+
+  condition:
+    filesize < 2MB and 85 % of them
+}
+
+rule linux_rootkit_terms: critical linux {
+  meta:
+    description = "appears to be a Linux rootkit"
+    filetypes   = "elf,so"
+
+  strings:
+    $s_Rootkit = "Rootkit"
+    $s_r00tkit = "r00tkit"
+    $s_r00tk1t = "r00tk1t"
+    $s_rootkit = "rootkit" fullword
+
+    $o_systemctl = "systemctl" fullword
+    $o_sshd      = "sshd" fullword
+    $o_miner     = "miner" fullword
+
+  condition:
+    filesize < 10MB and any of ($s*) and any of ($o*)
+}
+
 rule elf_processhide: high {
   meta:
     description                          = "userland rootkit designed to hide processes"

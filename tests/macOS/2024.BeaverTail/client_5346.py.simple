@@ -4,7 +4,7 @@ c2/tool_transfer/python: high
 data/encoding/base64: low
 discover/system/platform: medium
 discover/user/HOME: low
-evasion/hidden_paths/hidden: medium
+evasion/file/prefix: medium
 evasion/indicator_blocking/mask_exceptions: medium
 exec/imports/python: medium
 exec/install_additional/pip_install: high

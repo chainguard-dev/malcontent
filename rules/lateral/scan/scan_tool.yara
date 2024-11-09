@@ -6,7 +6,7 @@ rule generic_scan_tool: medium {
     hash_2023_Linux_Malware_Samples_00ae = "00ae07c9fe63b080181b8a6d59c6b3b6f9913938858829e5a42ab90fb72edf7a"
 
   strings:
-    $f_gethostbyname   = "gethostbyname"
+    //  $f_gethostbyname   = "gethostbyname"
     $f_socket          = "socket"
     $f_connect         = "connect"
     $o_banner          = "banner"
@@ -15,10 +15,23 @@ rule generic_scan_tool: medium {
     $o_scan            = "scan"
     $o_port            = "port"
     $o_target          = "target"
+    $o_ip              = "%d.%d.%d.%d"
     $not_nss           = "NSS_USE_SHEXP_IN_CERT_NAME"
     $not_microsoft     = "Microsoft Corporation"
     $not_php_reference = "ftp_nb_put"
 
   condition:
     all of ($f*) and 2 of ($o*) and none of ($not*)
+}
+
+rule root_scan_tool: high {
+  meta:
+    description = "may try to get root on other systems"
+
+  strings:
+    $root_the = /[\w \.]{0,32}root the [\w \.\%]{0,32}/
+    $r00t     = /[\w \.]{0,32}r00t[\w \.]{0,32}/
+
+  condition:
+    filesize < 20MB and generic_scan_tool and any of them
 }

@@ -26,6 +26,7 @@ exfil/stealer/credit_card: medium
 exfil/stealer/creds: high
 exfil/stealer/discord: high
 exfil/stealer/wallet: critical
+lateral/scan/tool: medium
 net/download: medium
 net/download/fetch: medium
 net/http/fake_user_agent: medium

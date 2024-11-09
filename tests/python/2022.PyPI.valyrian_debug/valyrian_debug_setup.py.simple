@@ -5,7 +5,7 @@ discover/network/interface_list: medium
 discover/system/network: high
 discover/system/platform: medium
 discover/user/name_get: high
-evasion/hidden_paths/hidden: high
+evasion/file/prefix: high
 exec/cmd/pipe: medium
 exec/program: medium
 exec/shell/command: medium

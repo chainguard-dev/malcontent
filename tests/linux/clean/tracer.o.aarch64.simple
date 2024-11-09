@@ -6,6 +6,7 @@ discover/network/netstat: medium
 evasion/bypass_security/linux/iptables: medium
 evasion/logging/acct: low
 impact/remote_access/heartbeat: medium
+lateral/scan/tool: medium
 net/http/post: medium
 net/ip/multicast_send: low
 net/ip/syncookie: medium

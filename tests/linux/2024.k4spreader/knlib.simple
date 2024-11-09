@@ -1,5 +1,5 @@
 # linux/2024.k4spreader/knlib: critical
-evasion/covert_location/chdir_unusual: high
+evasion/file/location/chdir_unusual: high
 evasion/self_deletion/copy_run_delete: critical
 exec/shell/exec: medium
 exec/shell/ignore_output: medium
