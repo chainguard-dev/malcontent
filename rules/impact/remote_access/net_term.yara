@@ -92,7 +92,8 @@ rule miner_kvryr_stak_alike: high {
     $f_execve    = "execve"
     $f_numa      = "NUMA"
 
-	$not_perf = "PERF_RECORD"
+    $not_perf = "PERF_RECORD"
+
   condition:
     filesize < 12MB and all of ($f*) and none of ($not*)
 }

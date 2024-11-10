@@ -2,10 +2,10 @@
 discover/system/environment: medium
 exec/program: medium
 exec/remote_commands/code_eval: medium
+false-positives/py_hatch: low
 fs/directory/list: low
 fs/file/open: low
 fs/symlink_resolve: low
-impact/remote_access/py_setuptools: medium
 net/download: medium
 os/fd/read: low
 os/fd/write: low

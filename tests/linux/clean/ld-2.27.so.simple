@@ -2,6 +2,7 @@
 anti-behavior/LD_DEBUG: medium
 anti-behavior/LD_PROFILE: medium
 discover/process/runtime_deps: medium
+discover/system/dev_full: medium
 evasion/hijack_execution/LD_LIBRARY_PATH: low
 evasion/hijack_execution/etc_ld.so.preload: medium
 fs/path/etc: low
@@ -10,7 +11,7 @@ fs/path/var_profile: medium
 fs/proc/self_exe: medium
 fs/proc/sys_kernel_osrelease: medium
 fs/tempdir: low
-impact/exploit/GCONV_PATH: low
+hw/dev/ubi: low
 net/url/embedded: low
 persist/shell/bash: medium
 sus/exclamation: medium

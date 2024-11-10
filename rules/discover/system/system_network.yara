@@ -49,13 +49,15 @@ private rule obfuscate {
 
 private rule exfil {
   strings:
-    $f_b64decode = "application/json"
-    $f_post      = "requests.post"
-    $f_nsurl     = "NSURLRequest"
-    $f_curl      = /curl.{0,32}-X POST/
+    $f_app_json = "application/json"
+    $f_post     = "requests.post"
+    $f_nsurl    = "NSURLRequest"
+    $f_curl     = /curl.{0,32}-X POST/
+
+    $not_requests_utils = "requests.utils"
 
   condition:
-    filesize < 512KB and any of them
+    filesize < 512KB and any of ($f*) and none of ($not*)
 }
 
 rule sys_net_recon_exfil: high {
@@ -63,8 +65,9 @@ rule sys_net_recon_exfil: high {
     description = "may exfiltrate collected system and network information"
 
   strings:
-    $not_curl = "CURLAUTH_ONLY"
+    $not_curl      = "CURLAUTH_ONLY"
+    $not_cloudinit = "cloudinit" fullword
 
   condition:
-    sys_net_recon and (obfuscate or exfil) and none of ($not*)
+    sys_net_recon and obfuscate and exfil and none of ($not*)
 }

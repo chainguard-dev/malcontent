@@ -2,6 +2,7 @@
 discover/system/platform: medium
 exec/program: medium
 exec/remote_commands/code_eval: medium
+false-positives/setuptools: low
 fs/directory/create: low
 fs/directory/list: low
 fs/file/open: low
@@ -9,7 +10,6 @@ fs/file/read: low
 fs/file/write: low
 fs/tempdir: low
 fs/tempdir/create: low
-impact/remote_access/py_setuptools: low
 net/url/embedded: low
 os/fd/read: low
 os/fd/write: low

@@ -21,8 +21,8 @@ evasion/bypass_security/linux/se_disable: high
 evasion/bypass_security/linux/ufw: medium
 evasion/file/location/dev_shm: critical
 evasion/file/location/var_tmp: medium
-evasion/file/prefix: high
 evasion/file/prefix/dev: critical
+evasion/file/prefix/tmp: high
 evasion/hijack_execution/etc_ld.so.preload: high
 evasion/logging/syslog: medium
 evasion/mimicry/fake_process: critical

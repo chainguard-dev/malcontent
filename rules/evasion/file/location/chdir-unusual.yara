@@ -76,7 +76,8 @@ rule cd_var_subdir: high {
     $d_var_run = "cd /var/run"
     $d_var_tmp = "cd /var/tmp"
 
-	$not_var_log_packages = "cd /var/log/packages"
+    $not_var_log_packages = "cd /var/log/packages"
+
   condition:
     any of ($d*) and none of ($not*)
 }
@@ -105,7 +106,7 @@ rule unusual_cd_dev: high {
     hash_2023_rc1_d_K70vm_agent = "663b75b098890a9b8b02ee4ec568636eeb7f53414a71e2dbfbb9af477a4c7c3d"
 
   strings:
-    $d_dev   = /cd \/dev[\w\/\.]{0,64}/
+    $d_dev   = /cd \/dev\/[\w\/\.]{1,64}/
     $makedev = "MAKEDEV"
 
   condition:

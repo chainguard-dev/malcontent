@@ -4,8 +4,8 @@ anti-static/obfuscation/hex: medium
 anti-static/obfuscation/obfuscate: low
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
+c2/addr/server: medium
 c2/discovery/ip_dns_resolver: medium
-c2/server_address: medium
 collect/archives/unarchive: medium
 collect/databases/postgresql: medium
 collect/databases/sqlite: medium
@@ -39,8 +39,8 @@ discover/group/lookup: medium
 discover/network/interface_get: low
 discover/network/interface_list: medium
 discover/network/mac_address: medium
-discover/process/name_get: medium
-discover/process/parent_pid_get: low
+discover/process/name: medium
+discover/process/parent: low
 discover/processes/list: medium
 discover/system/hostname_get: low
 discover/system/platform: medium

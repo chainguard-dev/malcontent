@@ -10,13 +10,16 @@ rule ubi: high linux {
     any of them
 }
 
-rule expected_ubi_users : override {
-	meta:
-		ubi = "medium"
-	strings:
-		$libuboot = "libuboot"
-		$usage = "Usage:"
-		$ubi = "ubifs" fullword
-	condition:
-		filesize < 120KB and any of them
+rule expected_ubi_users: override {
+  meta:
+    ubi = "medium"
+
+  strings:
+    $libuboot = "libuboot"
+    $usage    = "Usage:"
+    $ubi      = "ubifs" fullword
+    $UBI      = "UBI version"
+
+  condition:
+    filesize < 512KB and any of them
 }

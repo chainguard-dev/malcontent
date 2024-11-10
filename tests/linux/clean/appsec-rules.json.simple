@@ -19,7 +19,7 @@ data/compression/bzip2: low
 data/compression/lzma: low
 data/compression/zstd: low
 data/encoding/base64: low
-discover/system/network: high
+discover/system/network: medium
 discover/system/platform: low
 discover/user/name_get: medium
 evasion/bypass_security/linux/iptables: medium
@@ -28,7 +28,6 @@ evasion/file/prefix: medium
 evasion/logging/acct: low
 evasion/process_injection/readelf: medium
 exec/plugin: low
-exec/shell/bash_dev_tcp: high
 exec/shell/bash_dev_udp: medium
 exec/shell/nohup: medium
 exec/system_controls/apparmor: medium
@@ -54,6 +53,7 @@ impact/exploit/cve: medium
 impact/remote_access/iptables: medium
 net/dns/servers: low
 net/download: medium
+net/ftp/t: low
 net/http/cookies: medium
 net/socket/connect: medium
 net/tcp/sftp: medium

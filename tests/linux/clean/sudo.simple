@@ -1,7 +1,7 @@
 # linux/clean/sudo: medium
 credential/password: low
 discover/network/interface_list: medium
-discover/process/parent_pid_get: low
+discover/process/parent: low
 discover/system/cpu_info: low
 discover/system/hostname_get: low
 discover/user/HOME: low
@@ -27,6 +27,7 @@ fs/path/usr_sbin: low
 fs/path/var: low
 fs/permission/chown: low
 fs/proc/arbitrary_pid: medium
+fs/proc/pid_exe: medium
 fs/tempdir/tempfile_create: low
 net/ip/string: medium
 net/socket/listen: medium
@@ -34,7 +35,6 @@ net/socket/local_addr: low
 net/socket/receive: low
 net/socket/send: low
 os/kernel/seccomp: low
-privesc/sudo: medium
 privesc/sudoers: low
 process/chroot: low
 process/groupid_set: low

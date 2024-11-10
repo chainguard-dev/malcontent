@@ -18,7 +18,8 @@ rule dev_mmc_ok: override {
   strings:
     $not_fwupd = "fu_firmware_set_id"
     $not_ipmi  = "/dev/ipmi"
-	$not_grub = "GRUB" fullword
+    $not_grub  = "GRUB" fullword
+
   condition:
     dev_mmc and any of them
 }

@@ -18,7 +18,8 @@ rule selinux_firewall: high linux {
     $not_selinux_init = "SELINUX_INIT"
     $not_define       = "#define" fullword
     $not_netlink      = "NETLINK" fullword
-	$not_containerd = "containerd" fullword
+    $not_containerd   = "containerd" fullword
+
   condition:
     filesize < 1MB and $selinux and any of ($f*) and none of ($not*)
 }

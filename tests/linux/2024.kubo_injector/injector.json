@@ -90,17 +90,6 @@
                     "RuleName": "proc_arbitrary"
                 },
                 {
-                    "Description": "accesses underlying executable of other processes",
-                    "MatchStrings": [
-                        "/proc/%s/exe"
-                    ],
-                    "RiskScore": 3,
-                    "RiskLevel": "HIGH",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/proc/pid-exe.yara#proc_s_exe",
-                    "ID": "fs/proc/pid_exe",
-                    "RuleName": "proc_s_exe"
-                },
-                {
                     "Description": "access process memory maps",
                     "MatchStrings": [
                         "/proc/%d/maps"

@@ -1,7 +1,8 @@
 rule libdw_override: override {
   meta:
-    description               = "libdw.so"
-	ptrace_injector = "medium"
+    description     = "libdw.so"
+    ptrace_injector = "medium"
+
   strings:
     $dward = "invalid DWARF"
 

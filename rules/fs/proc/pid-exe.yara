@@ -3,8 +3,9 @@ rule proc_s_exe: high {
     description = "accesses underlying executable of other processes"
 
   strings:
-    $string = "/proc/%s/exe" fullword
-	$not_tool = /[Uu]sage:/ fullword
+    $string   = "/proc/%s/exe" fullword
+    $not_tool = /[Uu]sage:/ fullword
+
   condition:
     $string and none of ($not*)
 }
@@ -16,9 +17,28 @@ rule proc_d_exe: medium {
   strings:
     $digit      = "/proc/%d/exe" fullword
     $not_cgroup = "cgroup" fullword
-	$not_tool = /[Uu]sage:/ fullword
+    $not_tool   = /[Uu]sage:/ fullword
+
   condition:
     $digit and none of ($not*)
+}
+
+rule proc_d_exe_high: high {
+  meta:
+    description = "accesses underlying executable of other processes"
+
+  strings:
+    $ref = "/proc/%d/exe" fullword
+
+    $o_sign      = "/etc/init.d"
+    $o_net_dev   = "/proc/net/dev"
+    $o_bash      = "/bin/bash"
+    $o_tty       = "/dev/tty"
+    $o_var_tmp   = "/var/tmp"
+    $o_osrelease = "/proc/sys/kernel/osrelease"
+
+  condition:
+    filesize < 5MB and $ref and any of ($o*)
 }
 
 rule proc_py_exe: high {

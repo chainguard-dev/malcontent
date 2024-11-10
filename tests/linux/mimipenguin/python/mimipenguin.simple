@@ -7,7 +7,7 @@ credential/password/finder: high
 credential/ssh/d: medium
 data/base64/decode: medium
 data/encoding/base64: low
-discover/process/name_get: medium
+discover/process/name: medium
 discover/processes/list: medium
 discover/system/platform: medium
 exfil/stealer/password: critical

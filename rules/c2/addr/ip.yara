@@ -30,17 +30,18 @@ rule elf_hardcoded_ip: high {
 
   strings:
     // stricter version of what's above: excludes 255.* and *.0.* *.1.*, and 8.* (likely Google)
-    $sus_ipv4           = /((25[0-4]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[2345679])\.){3}(25[0-4]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[2-9])/ fullword
-    $not_version        = /((25[0-4]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[2-9])\.){3}(25[0-4]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[2-9])[\.\-]/
-    $not_incr           = "10.11.12.13"
-    $not_169            = "169.254.169.254"
-    $not_spyder         = "/search/spider"
-    $not_ruby           = "210.251.121.214"
-    $not_1_2_3_4        = "1.2.3.4"
-    $not_root_servers_h = "128.63.2.53"
-    $not_root_servers_i = "192.36.148.17"
-	$not_123456789 = "123.45.67.89"
-	$not_libebt_among_init = "libebt_among_init"
+    $sus_ipv4              = /((25[0-4]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[2345679])\.){3}(25[0-4]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[2-9])/ fullword
+    $not_version           = /((25[0-4]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[2-9])\.){3}(25[0-4]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[2-9])[\.\-]/
+    $not_incr              = "10.11.12.13"
+    $not_169               = "169.254.169.254"
+    $not_spyder            = "/search/spider"
+    $not_ruby              = "210.251.121.214"
+    $not_1_2_3_4           = "1.2.3.4"
+    $not_root_servers_h    = "128.63.2.53"
+    $not_root_servers_i    = "192.36.148.17"
+    $not_123456789         = "123.45.67.89"
+    $not_libebt_among_init = "libebt_among_init"
+
   condition:
     filesize < 12MB and uint32(0) == 1179403647 and 1 of ($sus_ip*) and none of ($not*)
 }
@@ -82,9 +83,10 @@ rule hardcoded_ip_port: high {
     $not_wireguard   = "127.212.121.99:999"
     $not_minio       = "172.16.34.31:9000"
     $not_test        = "def test_" fullword
-	$not_12 = "12.12.12.12:"
-	$not_21 = "21.21.21.21:"
-	$not_255 = "255.255.255.255:"
+    $not_12          = "12.12.12.12:"
+    $not_21          = "21.21.21.21:"
+    $not_255         = "255.255.255.255:"
+
   condition:
     any of ($ip*) and none of ($not*)
 }

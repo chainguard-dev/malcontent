@@ -2,7 +2,7 @@
 3P/threat_hunting/powershell: medium
 anti-static/obfuscation/js: medium
 c2/addr/ip: medium
-c2/server_address: medium
+c2/addr/server: medium
 collect/archives/unarchive: medium
 collect/databases/mysql: medium
 collect/databases/postgresql: medium
@@ -23,7 +23,7 @@ data/hash/md5: low
 data/random/insecure: low
 discover/group/lookup: medium
 discover/process/effective_groupid_get: medium
-discover/process/parent_pid_get: low
+discover/process/parent: low
 discover/processes/list: medium
 discover/system/hostname_get: low
 discover/system/platform: low

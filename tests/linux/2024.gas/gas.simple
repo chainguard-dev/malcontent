@@ -2,6 +2,7 @@
 anti-behavior/LD_DEBUG: medium
 anti-behavior/LD_PROFILE: medium
 discover/system/cpu_info: low
+discover/system/dev_full: medium
 discover/system/platform: low
 discover/system/sysinfo: medium
 evasion/hijack_execution/LD_LIBRARY_PATH: low
@@ -25,9 +26,7 @@ fs/proc/sys_kernel_osrelease: medium
 fs/tempdir: low
 fs/tempdir/TMPDIR: low
 hw/cpu: medium
-impact/exploit/GCONV_PATH: low
 impact/remote_access/dl_iterate: high
-impact/remote_access/reverse_shell: medium
 net/socket/send: low
 net/url/embedded: low
 process/create: low

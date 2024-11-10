@@ -20,8 +20,10 @@ rule backdoor: high {
   strings:
     $ref = /[a-zA-Z\-_ \']{0,16}[bB]ackdoor[a-zA-Z\-_ ]{0,16}/ fullword
 
-    $not_vcpu = "VCPUInfoBackdoor"
-	$not_vmware = "gGuestBackdoorOps"
+    $not_vcpu    = "VCPUInfoBackdoor"
+    $not_vmware  = "gGuestBackdoorOps"
+    $not_comment = "# backdoor:"
+
   condition:
     filesize < 40MB and any of them and not wordlist and none of ($not*)
 }

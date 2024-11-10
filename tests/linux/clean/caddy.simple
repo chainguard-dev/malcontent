@@ -38,7 +38,7 @@ discover/cloud/aws_metadata: low
 discover/cloud/google_metadata: low
 discover/group/lookup: medium
 discover/network/mac_address: medium
-discover/process/parent_pid_get: low
+discover/process/parent: low
 discover/system/cpu_info: low
 discover/system/hostname_get: low
 discover/system/platform: medium

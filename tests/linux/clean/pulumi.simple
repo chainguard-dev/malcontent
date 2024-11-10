@@ -3,7 +3,7 @@
 3P/threat_hunting/sharppack: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
-c2/server_address: medium
+c2/addr/server: medium
 c2/tool_transfer/download: medium
 collect/archives/zip: medium
 collect/databases/mysql: medium
@@ -38,7 +38,7 @@ discover/cloud/google_metadata: low
 discover/cloud/google_storage: low
 discover/group/lookup: medium
 discover/network/mac_address: medium
-discover/process/parent_pid_get: low
+discover/process/parent: low
 discover/processes/list: medium
 discover/system/cpu_info: low
 discover/system/hostname_get: low

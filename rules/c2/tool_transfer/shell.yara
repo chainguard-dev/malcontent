@@ -168,7 +168,7 @@ rule possible_dropper: high {
     $cmd_rm        = "rm" fullword
     $cmd_sleep     = "sleep" fullword
     $cmd_echo      = "echo" fullword
-    $chmod     = "chmod" fullword
+    $chmod         = "chmod" fullword
 
   condition:
     filesize < 1KB and any of ($http*) and $chmod and any of ($tool*) and any of ($cmd*)

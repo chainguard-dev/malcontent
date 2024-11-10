@@ -26,19 +26,19 @@ rule id_rsa: medium {
     filesize < 10MB and ssh_folder and $id_rsa
 }
 
-
 rule id_rsa_not_ssh: high {
   meta:
     description = "non-SSH client accessing SSH private keys"
 
   strings:
-    $id_rsa = "id_rsa" fullword
-	$not_ssh_newkeys = "SSH_MSG"
-	$not_ssh_userauth = "SSH_USERAUTH"
-	$not_ssh_20 = "SSH-2.0"
-	$not_openssh = "OpenSSH"
-	$not_ssh2 = "SSH2" fullword
-	$not_SSH_AUTH_SOCK = "SSH_AUTH_SOCK"
+    $id_rsa            = "id_rsa" fullword
+    $not_ssh_newkeys   = "SSH_MSG"
+    $not_ssh_userauth  = "SSH_USERAUTH"
+    $not_ssh_20        = "SSH-2.0"
+    $not_openssh       = "OpenSSH"
+    $not_ssh2          = "SSH2" fullword
+    $not_SSH_AUTH_SOCK = "SSH_AUTH_SOCK"
+
   condition:
     filesize < 10MB and ssh_folder and $id_rsa and none of ($not*)
 }

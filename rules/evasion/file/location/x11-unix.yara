@@ -20,7 +20,8 @@ rule X11: override {
     $X11_space   = "/etc/X11/"
     $X11R6       = "X11R6/share"
     $XForwarding = "X11 forwarding"
-	$X = "/tmp/.X11-unix/X" fullword
+    $X           = "/tmp/.X11-unix/X" fullword
+
   condition:
     filesize < 10MB and any of them
 }

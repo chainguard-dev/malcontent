@@ -6,9 +6,9 @@ anti-behavior/LD_PROFILE: medium
 anti-static/obfuscation/obfuscate: low
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
+c2/addr/server: medium
 c2/discovery/ip_dns_resolver: medium
 c2/refs: medium
-c2/server_address: medium
 c2/tool_transfer/dropper: medium
 collect/archives/zip: medium
 collect/databases/leveldb: medium
@@ -38,8 +38,8 @@ data/hash/sha1: low
 data/random/insecure: low
 discover/network/interface_list: medium
 discover/network/mac_address: medium
-discover/process/name_get: medium
-discover/process/parent_pid_get: low
+discover/process/name: medium
+discover/process/parent: low
 discover/process/runtime_deps: medium
 discover/processes/list: medium
 discover/system/hostname_get: low
@@ -112,7 +112,6 @@ fs/watch: low
 hw/cpu: medium
 hw/dev/block_ice: medium
 hw/wireless: low
-impact/exploit/GCONV_PATH: low
 impact/ransom/decryptor: medium
 impact/remote_access/heartbeat: medium
 lateral/scan/target_ip: medium

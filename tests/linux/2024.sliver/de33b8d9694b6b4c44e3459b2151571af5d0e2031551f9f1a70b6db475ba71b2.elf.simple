@@ -1,7 +1,7 @@
 # linux/2024.sliver/de33b8d9694b6b4c44e3459b2151571af5d0e2031551f9f1a70b6db475ba71b2.elf: critical
+anti-static/elf/content: high
 anti-static/elf/entropy: high
-anti-static/packer/elf: high
-anti-static/packer/high_entropy: medium
+anti-static/elf/header: high
 anti-static/packer/upx: high
 c2/addr/ip: high
 credential/sniffer/bpf: medium

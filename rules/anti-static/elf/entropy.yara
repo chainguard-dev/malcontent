@@ -18,10 +18,13 @@ rule normal_elf_high_entropy_7: medium {
     normal_elf and math.entropy(1, filesize) >= 7.1
 }
 
-rule normal_elf_high_entropy_7_2: high {
+rule normal_elf_high_entropy_7_4: high {
   meta:
     description = "high entropy ELF binary (>7.4)"
 
+  strings:
+    $not_whirlpool = "libgcrypt-grub/cipher/whirlpool.c"
+
   condition:
-    normal_elf and math.entropy(1, filesize) >= 7.4
+    normal_elf and math.entropy(1, filesize) >= 7.4 and none of ($not*)
 }

@@ -14,7 +14,7 @@ private rule pythonSetup {
     $not_distutils     = "from distutils.errors import"
 
   condition:
-    filesize < 128KB and $setup and any of ($i*) and none of ($not*)
+    filesize < 128KB and $setup and any of ($i*) in (0..1024) and none of ($not*)
 }
 
 rule setuptools_oslogin: medium {

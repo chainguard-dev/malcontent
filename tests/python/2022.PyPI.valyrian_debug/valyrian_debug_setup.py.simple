@@ -2,10 +2,11 @@
 c2/tool_transfer/python: critical
 discover/ip/public: high
 discover/network/interface_list: medium
-discover/system/network: high
+discover/system/network: medium
 discover/system/platform: medium
 discover/user/name_get: high
-evasion/file/prefix: high
+evasion/file/prefix: medium
+evasion/file/prefix/tmp: high
 exec/cmd/pipe: medium
 exec/program: medium
 exec/shell/command: medium

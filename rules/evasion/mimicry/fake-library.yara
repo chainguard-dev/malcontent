@@ -33,8 +33,9 @@ rule libc_fake_number_val: high {
     hash_2023_uacert_refs           = "106eef08f3bfcced3e221ee6f789792650386d7794d30c80eae19e42ef893682"
 
   strings:
-    $ref = /libc.so.[2345789]/
-	$not_go_example = "libc.so.96.1"
+    $ref            = /libc.so.[2345789]/
+    $not_go_example = "libc.so.96.1"
+
   condition:
     $ref and none of ($not*)
 }

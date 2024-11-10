@@ -1,7 +1,6 @@
 # linux/clean/nvim: medium
 3P/threat_hunting/hrshell: medium
 c2/addr/server: medium
-c2/server_address: medium
 collect/databases/mysql: medium
 collect/databases/sqlite: medium
 credential/cloud/aws: medium

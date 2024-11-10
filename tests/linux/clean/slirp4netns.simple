@@ -1,4 +1,4 @@
-# linux/clean/slirp4netns: high
+# linux/clean/slirp4netns: medium
 anti-behavior/LD_DEBUG: medium
 anti-behavior/LD_PROFILE: medium
 c2/addr/ip: medium
@@ -9,7 +9,8 @@ credential/sniffer/bpf: medium
 discover/group/lookup: medium
 discover/network/interface_list: medium
 discover/network/mac_address: medium
-discover/process/parent_pid_get: low
+discover/process/parent: low
+discover/system/dev_full: medium
 discover/system/platform: low
 discover/system/sysinfo: medium
 discover/user/HOME: low
@@ -64,16 +65,13 @@ fs/tempdir/TMPDIR: low
 fs/unmount: low
 fs/watch: low
 hw/cpu: medium
-impact/exploit/GCONV_PATH: low
 impact/reboot: low
-impact/remote_access/reverse_shell: medium
 lateral/scan/tool: medium
 mem/anonymous_file: medium
 net/dns/reverse: medium
 net/dns/servers: low
 net/dns/txt: low
 net/download: medium
-net/download/fetch: high
 net/ip/addr: medium
 net/ip/icmp: low
 net/ip/multicast_send: low

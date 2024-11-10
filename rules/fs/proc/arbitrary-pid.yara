@@ -6,10 +6,10 @@ rule proc_arbitrary: medium {
     hash_2023_Downloads_98e7 = "98e7808bd5bfd72c08429ffe0ffb52ae54bce7e6389f17ae523e8ae0099489ab"
 
   strings:
-    $string_val = /\/proc\/[%{$][\/\$\w\}]{0,12}/
+    $ref = /\/proc\/[%{$][\/\$\w\}]{0,12}/
 
   condition:
-    any of them
+    $ref
 }
 
 rule pid_match: medium {

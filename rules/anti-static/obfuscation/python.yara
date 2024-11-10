@@ -220,8 +220,11 @@ rule fernet_base64: high {
     $o6         = "exec("
     $o7         = "eval("
 
+    $not_utils         = "from cryptography import utils"
+    $not_fernet_itself = "class Fernet"
+
   condition:
-    filesize < 2MB and any of ($fernet*) and any of ($bdecode*) and any of ($o*)
+    filesize < 2MB and any of ($fernet*) and any of ($bdecode*) and any of ($o*) and none of ($not*)
 }
 
 rule python_long_hex: medium {
@@ -261,7 +264,8 @@ rule python_hex_decimal: high {
 
     $trash = /\\x{0,1}\d{1,3}\\/
 
-	$not_testing_t = "*testing.T" fullword
+    $not_testing_t = "*testing.T" fullword
+
   condition:
     filesize < 1MB and any of ($f*) and #trash in (filesize - 1024..filesize) > 100 and none of ($not*)
 }

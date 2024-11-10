@@ -12,7 +12,7 @@ data/encoding/reverse: low
 data/hash/md5: low
 data/random/insecure: low
 discover/process/effective_groupid_get: medium
-discover/process/parent_pid_get: low
+discover/process/parent: low
 discover/system/hostname_get: low
 discover/system/platform: low
 discover/user/USER: low

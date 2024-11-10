@@ -42,7 +42,7 @@ rule hidden_short_path: high {
     description = "hidden short path in a system directory"
 
   strings:
-    $crit                = /[\w\/\.]{0,32}\/(tmp|usr\/\w{0,8}|bin|lib|LaunchAgents|lib64|var|etc|shm|mqueue|spool|log|Users|Movies|Music|WebServer|Applications|Shared|Library|System)\/\.\w[\w\-\.]{0,2}/ fullword
+    $crit                = /[\w\/\.]{0,32}\/(usr\/\w{0,8}|bin|lib|LaunchAgents|lib64|var|etc|shm|mqueue|spool|log|Users|Movies|Music|WebServer|Applications|Shared|Library|System)\/\.\w[\w\-\.]{0,2}/ fullword
     $not_network_manager = "org.freedesktop.NetworkManager"
     $not_private         = "/System/Library/PrivateFrameworks/"
     $not_X11             = "/tmp/.X11-unix"

@@ -1,7 +1,7 @@
 # linux/clean/libsystemd.so.0: medium
 data/compression/lzma: low
 data/random/insecure: low
-discover/process/parent_pid_get: low
+discover/process/parent: low
 discover/process/runtime_deps: medium
 discover/user/USER: low
 evasion/file/location/var_run: medium
