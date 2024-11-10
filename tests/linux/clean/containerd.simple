@@ -23,8 +23,8 @@ data/encoding/json: low
 data/encoding/json_decode: low
 data/hash/md5: low
 discover/network/mac_address: medium
-discover/system/cpu_info: low
-discover/system/hostname_get: low
+discover/system/cpu: low
+discover/system/hostname: low
 discover/system/platform: medium
 discover/user/USER: low
 evasion/file/location/dev_mqueue: medium
@@ -94,7 +94,6 @@ net/ip/icmp: medium
 net/ip/multicast_send: low
 net/ip/parse: medium
 net/ip/send_unicast: low
-net/ip/spoof: medium
 net/resolve/hostname: low
 net/socket/listen: medium
 net/socket/local_addr: low

@@ -1,7 +1,7 @@
 # npm/2024.next-react-notify/tocall.js: critical
 anti-static/obfuscation/powershell: critical
 c2/addr/ip: high
-c2/addr/url: medium
+c2/addr/url: high
 discover/system/platform: medium
 evasion/bypass_security/executionpolicy_bypass: high
 evasion/indicator_blocking/echo_off: high

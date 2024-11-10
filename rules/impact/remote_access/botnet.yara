@@ -1,14 +1,15 @@
 rule bot: medium {
   meta:
-    description = "References a 'botnet'"
+    description = "References a 'bot'"
 
   strings:
-    $bot_deployed = "bot deployed"
-    $botnet       = "Botnet"
+    $BOTDIR = "BOTDIR"
+    $botdir       = "botdir"
 
   condition:
-    filesize < 20MB and any of them
+    filesize < 1MB and any of them
 }
+
 
 rule botnet_high: high {
   meta:

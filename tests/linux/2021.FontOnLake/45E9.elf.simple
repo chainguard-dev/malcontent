@@ -11,7 +11,8 @@ crypto/aes: low
 data/encoding/base64: low
 data/hash/md5: low
 discover/group/lookup: medium
-discover/system/hostname_get: low
+discover/system/dmesg: low
+discover/system/hostname: low
 discover/user/HOME: low
 discover/user/USER: low
 evasion/bypass_security/linux/pam: medium
@@ -20,6 +21,7 @@ evasion/file/location/x11_unix: low
 evasion/file/prefix: medium
 evasion/file/prefix/proc: high
 evasion/logging/acct: low
+evasion/logging/dmesg: critical
 evasion/logging/failed_logins: medium
 evasion/logging/historical_logins: medium
 evasion/rootkit/refs: high
@@ -58,7 +60,7 @@ fs/symlink_resolve: low
 fs/tempdir/create: low
 fs/tempdir/tempfile_create: low
 impact/remote_access/agent: medium
-impact/remote_access/backdoor: high
+impact/remote_access/backdoor: medium
 impact/remote_access/reverse_shell: medium
 impact/remote_access/ssh: high
 impact/rootkit: critical
@@ -80,9 +82,9 @@ net/tcp/ssh: medium
 net/tun_tap: medium
 net/url/embedded: low
 persist/daemon: medium
+persist/kernel_module/insert: high
 persist/kernel_module/kprobe: medium
 persist/kernel_module/module: medium
-persist/kernel_module/module_load: medium
 persist/kernel_module/symbol_lookup: high
 persist/pid_file: medium
 process/chroot: low
@@ -93,4 +95,3 @@ process/name_set: medium
 process/userid_set: low
 process/username_set: medium
 sus/ancient_gcc: medium
-sus/malicious: medium

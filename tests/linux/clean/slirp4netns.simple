@@ -10,7 +10,7 @@ discover/group/lookup: medium
 discover/network/interface_list: medium
 discover/network/mac_address: medium
 discover/process/parent: low
-discover/system/dev_full: medium
+discover/system/dev_full: low
 discover/system/platform: low
 discover/system/sysinfo: medium
 discover/user/HOME: low

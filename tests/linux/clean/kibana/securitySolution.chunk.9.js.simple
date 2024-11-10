@@ -72,8 +72,7 @@ impact/exploit/known_s: medium
 impact/exploit/overflow_shellcode: high
 impact/infection/infected: medium
 impact/infection/worm: medium
-impact/remote_access/backdoor: high
-impact/remote_access/botnet: medium
+impact/remote_access/backdoor: medium
 impact/remote_access/iptables: medium
 impact/remote_access/reverse_shell: high
 impact/remote_access/trojan: medium

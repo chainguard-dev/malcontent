@@ -12,7 +12,7 @@ data/hash/blake2b: low
 data/hash/sha1: low
 data/random/insecure: low
 discover/network/interface_list: medium
-discover/system/hostname_get: low
+discover/system/hostname: low
 discover/system/platform: low
 exec/cmd/pipe: medium
 exec/dylib/address_check: low

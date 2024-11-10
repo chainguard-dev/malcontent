@@ -1,8 +1,8 @@
 # python/2022.PyPI.valyrian_debug/valyrian_debug_setup.py: critical
 c2/tool_transfer/python: critical
 discover/ip/public: high
+discover/multiple: medium
 discover/network/interface_list: medium
-discover/system/network: medium
 discover/system/platform: medium
 discover/user/name_get: high
 evasion/file/prefix: medium

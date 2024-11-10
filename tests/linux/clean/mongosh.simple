@@ -36,13 +36,13 @@ data/random/insecure: low
 discover/cloud/aws_metadata: low
 discover/cloud/google_metadata: low
 discover/group/lookup: medium
-discover/network/interface_get: low
+discover/network/interface: low
 discover/network/interface_list: medium
 discover/network/mac_address: medium
 discover/process/name: medium
 discover/process/parent: low
 discover/processes/list: medium
-discover/system/hostname_get: low
+discover/system/hostname: low
 discover/system/platform: medium
 discover/system/sysinfo: medium
 discover/user/HOME: low

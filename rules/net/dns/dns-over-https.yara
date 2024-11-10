@@ -11,6 +11,7 @@ rule doh_refs: medium {
     $contentType  = "application/dns-message"
     $dnspod       = "dnspod"
     $doh_url      = "doh-url" fullword
+	$cloudflare = "https://9.9.9.9/dns-query"
 
   condition:
     any of them

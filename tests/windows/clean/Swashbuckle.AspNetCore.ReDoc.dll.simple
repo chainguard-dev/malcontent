@@ -10,6 +10,7 @@ data/encoding/json_decode: low
 data/encoding/json_encode: low
 discover/network/interface_list: medium
 discover/network/netstat: medium
+discover/system/dmesg: low
 discover/system/platform: low
 discover/user/HOME: low
 discover/user/USER: low

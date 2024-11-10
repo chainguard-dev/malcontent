@@ -6,6 +6,7 @@ credential/ssh/d: medium
 data/base64/external: medium
 data/encoding/base64: low
 evasion/file/location/dev_shm: medium
+evasion/file/location/multiple: high
 evasion/file/location/var_run: medium
 evasion/file/location/var_tmp: medium
 evasion/mimicry/fake_process: critical
@@ -26,6 +27,7 @@ fs/proc/self_exe: medium
 net/dns/servers: low
 net/http/request: low
 net/socket/send: low
+persist/cron/etc_d: high
 persist/cron/tab: medium
 persist/daemon: medium
 process/executable_path: low

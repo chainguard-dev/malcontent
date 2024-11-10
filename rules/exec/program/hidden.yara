@@ -1,4 +1,4 @@
-rule relative_hidden_launcher {
+rule relative_hidden_launcher : medium {
   strings:
     $relative_hidden = /\.\/\.[\w][\w\/\.\_\-]{3,16}/ fullword
     $x_exec          = "exec"

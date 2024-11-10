@@ -4,8 +4,8 @@ anti-behavior/LD_DEBUG: medium
 anti-behavior/LD_PROFILE: medium
 anti-static/xor/commands: high
 credential/ssh/d: medium
-discover/system/cpu_info: low
-discover/system/dev_full: medium
+discover/system/cpu: low
+discover/system/dev_full: low
 discover/system/sysinfo: medium
 evasion/file/location/dev_shm: high
 evasion/file/location/lib: high
@@ -15,7 +15,7 @@ evasion/file/prefix/dev: critical
 evasion/file/prefix/lib: high
 evasion/hijack_execution/LD_LIBRARY_PATH: low
 evasion/hijack_execution/etc_ld.so.preload: medium
-evasion/rootkit/linux_userspace: critical
+evasion/rootkit/userspace: critical
 exec/conditional/LANG: low
 exec/dylib/address_check: low
 exec/dylib/symbol_address: medium

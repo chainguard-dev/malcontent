@@ -1,8 +1,8 @@
 # linux/2024.gas/gas: high
 anti-behavior/LD_DEBUG: medium
 anti-behavior/LD_PROFILE: medium
-discover/system/cpu_info: low
-discover/system/dev_full: medium
+discover/system/cpu: low
+discover/system/dev_full: low
 discover/system/platform: low
 discover/system/sysinfo: medium
 evasion/hijack_execution/LD_LIBRARY_PATH: low

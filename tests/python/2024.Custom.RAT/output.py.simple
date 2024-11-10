@@ -14,9 +14,9 @@ data/encoding/base64: low
 data/encoding/json_decode: low
 discover/ip/geo: high
 discover/ip/public: high
+discover/multiple: high
 discover/network/interface_list: medium
 discover/process/name: medium
-discover/system/network: high
 discover/system/platform: medium
 discover/system/sysinfo: medium
 discover/user/USER: low

@@ -53,20 +53,20 @@ rule http_url_with_question: medium {
     filesize < 256KB and any of ($f*) and $ref and none of ($not*)
 }
 
-rule binary_php_url_with_question: high {
+rule binary_url_with_question: high {
   meta:
-    description = "contains hardcoded endpoint with a question mark"
+    description = "binary contains hardcoded URL with question mark"
 
   strings:
-    $ref = /https*:\/\/[\w\.\/]{8,160}\.php\?[\w\=\&]{0,32}/
+    $ref = /https*:\/\/[\w\.\/]{8,160}\.(asp|php|exe|dll)\?[\w\=\&]{0,32}/
 
   condition:
     filesize < 150MB and elf_or_macho and $ref
 }
 
-rule script_php_url_with_question: high {
+rule script_url_with_question: high {
   meta:
-    description = "contains hardcoded endpoint with a question mark"
+    description = "script contains hardcoded URL with question mark"
 
   strings:
     $f_import        = "import" fullword
@@ -77,7 +77,7 @@ rule script_php_url_with_question: high {
     $f_requests_post = "requests.post" fullword
     $f_urllib        = "urllib.request" fullword
     $f_urlopen       = "urlopen" fullword
-    $ref             = /https*:\/\/[\w\.\/]{8,160}\.php\?[\w\=\&]{0,32}/
+    $ref             = /https*:\/\/[\w\.\/]{8,160}\.(asp|php|exe|dll)\?[\w\=\&]{0,32}/
 
   condition:
     filesize < 256KB and any of ($f*) and $ref

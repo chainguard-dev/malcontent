@@ -42,7 +42,7 @@ discover/process/name: medium
 discover/process/parent: low
 discover/process/runtime_deps: medium
 discover/processes/list: medium
-discover/system/hostname_get: low
+discover/system/hostname: low
 discover/system/platform: low
 discover/system/sysinfo: medium
 discover/user/HOME: low

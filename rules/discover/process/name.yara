@@ -1,4 +1,4 @@
-rule progname: medium {
+rule progname: low {
   meta:
     description                                                       = "get the current process name"
     ref                                                               = "https://linux.die.net/man/3/program_invocation_short_name"

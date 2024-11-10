@@ -11,7 +11,7 @@ data/encoding/reverse: low
 data/random/insecure: low
 discover/process/egid: medium
 discover/process/parent: low
-discover/system/hostname_get: low
+discover/system/hostname: low
 discover/system/platform: low
 discover/user/USER: low
 discover/user/name_get: low

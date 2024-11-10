@@ -23,7 +23,7 @@ discover/user/name_get: low
 exec/cmd: medium
 exec/plugin: low
 exec/program/background: low
-exec/program/hidden: low
+exec/program/hidden: medium
 exec/remote_commands/code_eval: medium
 exec/script/osa: medium
 exec/shell/SHELL: low

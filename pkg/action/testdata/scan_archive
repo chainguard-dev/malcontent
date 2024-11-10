@@ -25,8 +25,9 @@ discover/network/interface_list: medium
 discover/network/mac_address: medium
 discover/network/netstat: medium
 discover/processes/pgrep: medium
-discover/system/cpu_info: low
-discover/system/hostname_get: low
+discover/system/cpu: low
+discover/system/dmesg: low
+discover/system/hostname: low
 discover/system/platform: low
 discover/user/HOME: low
 discover/user/USER: low

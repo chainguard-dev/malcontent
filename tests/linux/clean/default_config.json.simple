@@ -20,7 +20,8 @@ data/compression/bzip2: low
 data/compression/lzma: low
 data/compression/zstd: low
 data/encoding/base64: low
-discover/system/network: medium
+discover/multiple: medium
+discover/system/dmesg: low
 discover/system/platform: low
 discover/user/name_get: medium
 evasion/bypass_security/linux/iptables: medium

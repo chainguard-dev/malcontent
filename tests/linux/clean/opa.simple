@@ -22,8 +22,8 @@ data/encoding/json_encode: low
 data/hash/md5: low
 discover/cloud/aws_metadata: low
 discover/cloud/google_metadata: low
-discover/system/cpu_info: low
-discover/system/hostname_get: low
+discover/system/cpu: low
+discover/system/hostname: low
 discover/system/platform: medium
 discover/system/sysinfo: medium
 discover/user/USER: low

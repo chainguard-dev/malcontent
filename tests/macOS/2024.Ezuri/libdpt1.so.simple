@@ -3,7 +3,7 @@ anti-static/macho/footer: high
 anti-static/packer/aes: high
 anti-static/packer/ezuri: critical
 crypto/aes: low
-discover/system/cpu_info: low
+discover/system/cpu: low
 exec/plugin: low
 exec/program: medium
 fs/file/read: low

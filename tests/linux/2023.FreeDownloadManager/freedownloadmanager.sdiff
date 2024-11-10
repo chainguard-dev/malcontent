@@ -11,6 +11,7 @@
 +anti-static/base64/exec
 +anti-static/base64/http_agent
 +data/base64/external
++data/embedded/base64_elf
 +data/embedded/base64_terms
 +data/embedded/base64_url
 +data/embedded/pgp_key
@@ -28,7 +29,9 @@
 +fs/path/usr_bin
 +fs/path/var
 +fs/permission/modify
++impact/remote_access/botnet
 +net/download
 +net/url/embedded
-+persist/cron/echo_tab
++persist/cron/etc_d
 +persist/cron/tab
++sus/geopolitics

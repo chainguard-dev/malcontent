@@ -16,7 +16,7 @@ data/base64/decode: medium
 data/encoding/base64: low
 discover/ip/geo: high
 discover/ip/public: high
-discover/system/hostname_get: low
+discover/system/hostname: low
 exec/install_additional/pip_install: high
 exec/program: medium
 exec/tty/getpass: low
