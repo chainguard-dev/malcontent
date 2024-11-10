@@ -47,33 +47,33 @@ rule fetch_tool: medium {
     description = "calls a URL fetch tool"
 
   strings:
-    $t_curl_O                     = "curl -O"
-    $t_curl_o                     = "curl -o"
-    $t_wget                       = "wget -"
-    $t_wget_http                  = "wget http"
-    $t_quiet_output               = "-q -O "
-    $t_kinda_curl_o               = "url -o "
-    $t_kinda_curl_O               = "url -O "
-    $t_kinda_curl_silent_insecure = "silent --insecure"
-    $t_kinda_curl_qk              = /url.{0,4}-k -q/
-    $t_ftp                        = "ftp -"
-    $t_tftp                       = "tftp "
-    $t_ftpget                     = "ftpget " fullword
+    $t_curl_O  = /[a-z]url [-\w ]{0,8}-[oOk] [ \w\:\/\-\.]{0,32}/
+    $t_wget    = /wget [ \w\:\/\-\.]{4,32}/
+    $t_curl_qk = /[a-z]url [-\w ]{0,16} -(-silent|q) -(-insecure|k) [ \w\:\/\-\.]{0,32}/
+    $t_curl_kq = /[a-z]url [-\w ]{0,16} -(-insecure|k) -(-silent|q) [ \w\:\/\-\.]{0,32}/
+    $t_tftp    = /tftp [ \w\:\/\-\.]{0,32}/
 
   condition:
-    filesize < 5MB and any of ($t_*)
+    filesize < 1MB and any of ($t_*)
 }
 
-rule executable_calls_fetch_tool: high {
+rule binary_calls_fetch_tool: high {
   meta:
-    description = "executable that calls a fetch tool"
+    description = "binary calls fetch tool"
     filetypes   = "macho,elf"
 
   strings:
-    $not_tftp = "Illegal TFTP operation"
+    $t_curl_O  = /[a-z]url [-\w ]{0,8}-[oOk] [ \w\:\/\-\.\"]{0,32}/
+    $t_wget    = /wget [ \w\:\/\-\.\"]{4,32}/
+    $t_curl_qk = /[a-z]url [-\w ]{0,16} -(-silent|q) -(-insecure|k) [ \w\:\/\-\.\"]{0,32}/
+    $t_curl_kq = /[a-z]url [-\w ]{0,16} -(-insecure|k) -(-silent|q) [ \w\:\/\-\.]{0,32}/
+    $t_tftp    = /tftp [ \w\:\/\-\.\"]{0,32}/
+
+    $not_tftp     = "Illegal TFTP operation"
+    $not_tftp_err = "tftp error"
 
   condition:
-    filesize < 5MB and (elf or macho) and fetch_tool and none of ($not*)
+    filesize < 10MB and (elf or macho) and any of ($t*) and none of ($not*)
 }
 
 rule curl_agent_val: high {
@@ -138,6 +138,7 @@ rule high_fetch_command_val: high {
     $not_s_key                    = "curl -s --key"
     $not_local                    = "curl -ks https://localhost"
     $not_continue                 = "--continue-at"
+    $not_pciid                    = "https://pci-ids.ucw.cz"
 
     $x_chmod    = "chmod" fullword
     $x_Chmod    = "Chmod" fullword

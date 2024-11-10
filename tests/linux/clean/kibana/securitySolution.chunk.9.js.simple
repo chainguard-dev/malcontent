@@ -52,7 +52,10 @@ data/encoding/json_decode: low
 data/encoding/json_encode: low
 data/hash/md5: low
 discover/network/mac_address: medium
-evasion/hidden_paths/hidden: medium
+discover/process/name: medium
+discover/process/parent: low
+evasion/file/prefix: medium
+evasion/rootkit/refs: medium
 exec/cmd: medium
 exec/plugin: low
 exec/shell/power: medium
@@ -69,13 +72,11 @@ impact/exploit/known_s: medium
 impact/exploit/overflow_shellcode: high
 impact/infection/infected: medium
 impact/infection/worm: medium
-impact/remote_access/backdoor: high
-impact/remote_access/botnet: medium
+impact/remote_access/backdoor: medium
 impact/remote_access/iptables: medium
 impact/remote_access/reverse_shell: high
 impact/remote_access/trojan: medium
 impact/rootkit: low
-impact/rootkit/refs: medium
 lateral/scan/brute_force: low
 net/dns/txt: low
 net/download: medium
@@ -91,8 +92,6 @@ net/url/request: medium
 os/kernel/seccomp: low
 persist/daemon: medium
 process/chroot: low
-process/name_get: medium
-process/parent_pid_get: low
 sec-tool/net/masscan: high
 sec-tool/net/nmap: medium
 sec-tool/pentest/metasploit_ref: medium

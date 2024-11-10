@@ -22,6 +22,7 @@ rule var_log_syslog_elf: high {
     $not_syslog_conf  = "/etc/syslog.conf"
     $not_rsyslog_conf = "/etc/rsyslog.conf"
     $not_rsyslog      = "RSYSLOG" fullword
+    $not_top          = "~/.toprc"
 
   condition:
     filesize < 1MB and uint32(0) == 1179403647 and any of ($ref*) and none of ($not*)

@@ -7,6 +7,7 @@ rule http_port_443: high {
     $not_test      = "assertEqual"
     $not_example   = "http://example.com:443"
     $not_localhost = "http://localhost:443"
+    $not_foo       = "http://foo.com:443/"
 
   condition:
     $http_443 and none of ($not*)

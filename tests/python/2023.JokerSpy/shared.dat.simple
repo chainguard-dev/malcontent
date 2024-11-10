@@ -5,11 +5,11 @@ anti-static/obfuscation/python: high
 c2/tool_transfer/python: high
 data/base64/decode: medium
 data/encoding/base64: low
+discover/multiple: high
 discover/network/interface_list: medium
-discover/system/network: high
 discover/system/platform: medium
 discover/user/name_get: low
-evasion/hidden_paths/hidden: medium
+evasion/file/prefix: medium
 exec/program: medium
 exec/remote_commands/code_eval: medium
 exec/tty/getpass: low

@@ -13,7 +13,6 @@ rule hide_shell_history: high {
     $h_shopt_history = "shopt -ou history"
     $h_set_o_history = "set +o history"
     $histsize_0      = "HISTSIZE=0"
-    $h_gotcha        = "GOTCHA"
     $not_increment   = "HISTSIZE++"
 
   condition:

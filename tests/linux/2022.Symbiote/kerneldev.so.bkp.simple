@@ -6,7 +6,7 @@ credential/keylogger: medium
 credential/password: low
 discover/network/interface_list: medium
 discover/system/platform: low
-evasion/hijack_execution/process_hide: critical
+evasion/rootkit/userspace: critical
 exec/dylib/symbol_address: medium
 exfil/stealer/pam: high
 fs/link_read: low

@@ -1,8 +1,10 @@
 # linux/clean/libsystemd.so.0: medium
 data/compression/lzma: low
 data/random/insecure: low
+discover/process/parent: low
+discover/process/runtime_deps: medium
 discover/user/USER: low
-evasion/hidden_paths/var_run: medium
+evasion/file/location/var_run: medium
 exec/program: medium
 exec/shell/TERM: low
 fs/file/copy: medium
@@ -36,6 +38,4 @@ process/groups_set: low
 process/multithreaded: low
 process/name_set: medium
 process/namespace_set: low
-process/parent_pid_get: low
-process/thread_local_storage: low
 process/userid_set: low

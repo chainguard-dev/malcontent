@@ -38,14 +38,15 @@ discover/cloud/aws_metadata: low
 discover/cloud/google_metadata: low
 discover/group/lookup: medium
 discover/network/mac_address: medium
-discover/system/cpu_info: low
-discover/system/hostname_get: low
+discover/process/parent: low
+discover/system/cpu: low
+discover/system/hostname: low
 discover/system/platform: medium
 discover/user/HOME: low
 discover/user/USER: low
 discover/user/name_get: low
-evasion/hidden_paths/hidden: medium
-evasion/hidden_paths/var_run: medium
+evasion/file/location/var_run: medium
+evasion/file/prefix: medium
 exec/cmd: medium
 exec/conditional/LANG: low
 exec/install_additional/package_install: medium
@@ -147,6 +148,5 @@ persist/pid_file: medium
 privesc/sudo: medium
 process/chroot: low
 process/groups_set: low
-process/parent_pid_get: low
 sus/exclamation: medium
 sus/intercept: medium

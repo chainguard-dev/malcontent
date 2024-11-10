@@ -1,4 +1,4 @@
-# linux/clean/libgcj.so.17: high
+# linux/clean/libgcj.so.17: medium
 3P/JPCERT/cobaltstrike_v3v4: medium
 c2/addr/ip: medium
 credential/password: low
@@ -18,8 +18,9 @@ data/hash/sha1: low
 data/hash/sha256: low
 data/hash/whirlpool: medium
 discover/network/interface_list: medium
-discover/system/cpu_info: low
-discover/system/hostname_get: low
+discover/process/name: medium
+discover/system/cpu: low
+discover/system/hostname: low
 discover/system/platform: low
 discover/user/HOME: low
 discover/user/USER: low
@@ -50,7 +51,6 @@ fs/path/var: low
 fs/permission/modify: medium
 fs/proc/arbitrary_pid: medium
 fs/proc/mounts: medium
-fs/proc/pid_exe: high
 fs/proc/stat: medium
 fs/tempdir: low
 fs/tempdir/TEMP: low
@@ -82,7 +82,6 @@ net/url/embedded: low
 net/url/encode: medium
 net/url/parse: low
 process/multithreaded: low
-process/name_get: medium
 sus/exclamation: medium
 sus/intercept: medium
 sus/leetspeak: medium

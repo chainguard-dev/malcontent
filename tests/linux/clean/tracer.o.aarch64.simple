@@ -1,7 +1,6 @@
 # linux/clean/tracer.o.aarch64: medium
 c2/addr/ip: medium
 collect/databases/mysql: medium
-credential/sniffer/bpf: medium
 discover/network/netstat: medium
 evasion/bypass_security/linux/iptables: medium
 evasion/logging/acct: low
@@ -13,3 +12,4 @@ net/socket/listen: medium
 net/socket/receive: low
 net/socket/send: low
 net/tcp/synflood: medium
+persist/kernel_module/symbol_lookup: low

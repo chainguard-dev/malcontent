@@ -18,11 +18,11 @@ data/embedded/base64_url: medium
 data/embedded/pem_certificate: low
 data/encoding/base64: low
 data/encoding/reverse: low
-discover/system/hostname_get: low
+discover/system/hostname: low
 discover/system/platform: low
 discover/user/HOME: low
 discover/user/USER: low
-evasion/hidden_paths/hidden: medium
+evasion/file/prefix: medium
 evasion/hijack_execution/DYLD_LIBRARY_PATH: medium
 exec/cmd: medium
 exec/plugin: low

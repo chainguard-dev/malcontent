@@ -1,6 +1,6 @@
 # testdata/apko_nested.tar.gz ∴ /apko_0.13.2_linux_arm64/apko: medium
 c2/addr/ip: medium
-c2/server_address: medium
+c2/addr/server: medium
 collect/archives/zip: medium
 credential/keychain: medium
 credential/password: low
@@ -25,14 +25,15 @@ discover/network/interface_list: medium
 discover/network/mac_address: medium
 discover/network/netstat: medium
 discover/processes/pgrep: medium
-discover/system/cpu_info: low
-discover/system/hostname_get: low
+discover/system/cpu: low
+discover/system/dmesg: low
+discover/system/hostname: low
 discover/system/platform: low
 discover/user/HOME: low
 discover/user/USER: low
 discover/user/name_get: medium
 evasion/bypass_security/linux/se: medium
-evasion/hidden_paths/hidden: medium
+evasion/file/prefix: medium
 evasion/hide_artifacts/pivot_root: medium
 exec/plugin: low
 exec/program: medium

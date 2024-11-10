@@ -48,3 +48,25 @@ rule stealssh: critical {
   condition:
     filesize < 10MB and $folder and any of ($steal*)
 }
+
+rule sshd_tmp_policy: high {
+  meta:
+    description = "adjusts sshd tmp policy, possibly to dump credentials"
+
+  strings:
+    $unconfined = "unconfined_u:object_r:sshd_tmp_t:s0"
+
+  condition:
+    any of them
+}
+
+rule ssh_pass_file: high {
+  meta:
+    description = "may store SSH passwords"
+
+  strings:
+    $unconfined = /sshpass\w\.txt/
+
+  condition:
+    any of them
+}

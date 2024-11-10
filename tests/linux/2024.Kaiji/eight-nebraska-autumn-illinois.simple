@@ -16,12 +16,12 @@ data/compression/gzip: low
 data/encoding/base64: low
 data/hash/md5: low
 discover/network/netstat: medium
-discover/system/cpu_info: low
-discover/system/hostname_get: low
+discover/system/cpu: low
+discover/system/hostname: low
 discover/system/platform: low
 evasion/bypass_security/linux/se: medium
 evasion/bypass_security/linux/se_disable: high
-evasion/hidden_paths/hidden: medium
+evasion/file/prefix: medium
 exec/plugin: low
 exec/program: medium
 exec/shell/exec: medium
@@ -59,7 +59,7 @@ net/dns: low
 net/dns/servers: low
 net/dns/txt: low
 net/download: medium
-net/download/fetch: medium
+net/download/fetch: high
 net/http/2: low
 net/http/accept_encoding: low
 net/http/auth: low
@@ -88,8 +88,6 @@ net/url/parse: low
 net/url/request: medium
 os/fd/sendfile: low
 os/kernel/netlink: low
-persist/cron/echo_tab: high
-persist/cron/hidden_tab: critical
-persist/cron/tab: medium
+persist/cron/tab: critical
 persist/daemon: medium
 process/groups_set: low

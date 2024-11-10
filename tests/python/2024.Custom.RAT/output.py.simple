@@ -14,8 +14,9 @@ data/encoding/base64: low
 data/encoding/json_decode: low
 discover/ip/geo: high
 discover/ip/public: high
+discover/multiple: high
 discover/network/interface_list: medium
-discover/system/network: high
+discover/process/name: medium
 discover/system/platform: medium
 discover/system/sysinfo: medium
 discover/user/USER: low
@@ -52,5 +53,4 @@ os/fd/write: low
 persist/daemon: medium
 privesc/uac_bypass: high
 process/multithreaded: medium
-process/name_get: medium
 process/terminate/taskkill: high

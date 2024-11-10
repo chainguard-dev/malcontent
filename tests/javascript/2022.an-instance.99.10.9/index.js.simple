@@ -2,7 +2,7 @@
 anti-static/obfuscation/hex: medium
 data/encoding/json_encode: low
 discover/network/interface_list: medium
-discover/system/hostname_get: low
+discover/system/hostname: low
 discover/user/info: medium
 exfil/nodejs: critical
 fs/directory/list: low

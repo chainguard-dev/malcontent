@@ -9,6 +9,7 @@ rule kmem: high bsd {
     // entries from include/paths.h
     $not_cshell = "_PATH_CSHELL" fullword
     $not_rwho   = "_PATH_RWHODIR" fullword
+    $not_lsof   = "lsof" fullword
 
   condition:
     $val and none of ($not*)

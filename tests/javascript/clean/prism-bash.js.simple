@@ -1,9 +1,10 @@
 # javascript/clean/prism-bash.js: medium
 data/compression/bzip2: low
 data/compression/gzip: low
+discover/multiple: medium
 discover/network/interface_list: medium
 discover/network/netstat: medium
-discover/system/network: medium
+discover/system/dmesg: low
 discover/system/platform: low
 discover/user/name_get: medium
 evasion/bypass_security/linux/se: medium

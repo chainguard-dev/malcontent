@@ -25,6 +25,7 @@ rule etc_ld_preload_not_ld: high linux {
     $not_env_hwcap = "LD_HWCAP_MASK"
     $not_env_audit = "LD_AUDIT"
     $not_cache     = "ld.so.cache"
+    $not_man       = "MAN_DISABLE_SECCOMP"
 
   condition:
     $ref and none of ($not*)

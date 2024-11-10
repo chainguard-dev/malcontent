@@ -22,14 +22,22 @@ rule excessive_bitwise_math: high {
     hash_2023_aiohttpp_0_1_setup  = "cfa4137756f7e8243e7c7edc7cb0b431a2f4c9fa401f2570f1b960dbc86ca7c6"
 
   strings:
-    $x           = /\-{0,1}[\da-z]{1,8} \<\< \-{0,1}\d{1,8}/
-    $not_Sodium  = "Sodium_Core"
-    $not_SHA512  = "SHA512"
-    $not_SHA256  = "SHA256"
-    $not_MD4     = "MD4"
-    $not_algbase = "algbase" fullword
-    $not_jslint  = "jslint bitwise"
-    $not_include = "#define "
+    $x                  = /\-{0,1}[\da-z]{1,8} \<\< \-{0,1}\d{1,8}/
+    $not_Sodium         = "Sodium_Core"
+    $not_SHA512         = "SHA512"
+    $not_SHA256         = "SHA256"
+    $not_MD4            = "MD4"
+    $not_algbase        = "algbase" fullword
+    $not_jslint         = "jslint bitwise"
+    $not_include        = "#define "
+    $not_bitwise        = "bitwise" fullword
+    $not_bitmasks       = "bitmasks" fullword
+    $not_ckbcomp        = "ckbcomp" fullword
+    $not_bit_test       = "bits_test" fullword
+    $not_testing        = "*testing.T"
+    $not_effective_bits = "effective bits"
+    $not_bit_offsets    = "bit offsets"
+    $not_uuid           = "uuid" fullword
 
   condition:
     filesize < 192KB and #x > 64 and none of ($not*)

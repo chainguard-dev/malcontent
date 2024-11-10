@@ -6,9 +6,11 @@ rule spoof: medium {
     hash_2022_devicespoofer_2_2_setup = "195d69dc251a045b01fdd6854327c545283b36ebae7c54e06599b14b50ec39e6"
 
   strings:
-    $spoof = /[a-zA-Z\-_ ]{0,16}spoof[a-zA-Z\-_ ]{0,16}/ fullword
-    $Spoof = /[a-zA-Z\-_ ]{0,16}Spoof[a-zA-Z\-_ ]{0,16}/ fullword
+    $spoof  = /[a-zA-Z\-_ ]{0,16}spoof[a-zA-Z\-_ ]{0,16}/ fullword
+    $spoof2 = /[a-zA-Z\-_ ]{0,16}Spoof[a-zA-Z\-_ ]{0,16}/ fullword
+
+    $not_chk = "Spoofchk"
 
   condition:
-    any of them
+    any of ($s*) and none of ($not*)
 }

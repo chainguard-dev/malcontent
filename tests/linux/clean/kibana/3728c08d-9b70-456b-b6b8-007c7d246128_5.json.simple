@@ -1,7 +1,7 @@
 # linux/clean/kibana/3728c08d-9b70-456b-b6b8-007c7d246128_5.json: high
-evasion/covert_location/dev_shm: medium
-evasion/hidden_paths/dev_shm: low
-evasion/hidden_paths/hidden: high
+evasion/file/location/dev_shm: medium
+evasion/file/prefix: high
+evasion/file/prefix/dev: low
 exec/shell/command: medium
 fs/path/etc: low
 fs/path/etc_initd: medium

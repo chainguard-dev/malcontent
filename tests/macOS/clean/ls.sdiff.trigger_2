@@ -1,6 +1,6 @@
 --- missing: ls.x86_64
 -data/compression/lzma
--discover/system/hostname_get
+-discover/system/hostname
 -exec/shell/TERM
 -fs/link_read
 -net/url/embedded

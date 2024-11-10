@@ -3,7 +3,7 @@ anti-static/obfuscation/hex: medium
 c2/addr/ip: medium
 c2/discovery/ip_dns_resolver: medium
 data/encoding/json_encode: low
-discover/system/hostname_get: low
+discover/system/hostname: low
 exfil/nodejs: critical
 exfil/oob: critical
 net/dns: low

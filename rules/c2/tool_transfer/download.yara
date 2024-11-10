@@ -7,18 +7,19 @@ rule download_sites: high {
     hash_2024_2024_GitHub_Clipper_raw  = "e9f89885876c1958bc6eede3373e4f3c4d76a5bc35a247fb7531b757798cb032"
 
   strings:
-    $d_privatebin    = /[\w\.]+privatebin[\w\.]+/
-    $d_pastecode_dot = /pastecode\.[\w\.]+/
+    $d_privatebin    = /[\w\.]+privatebin[\w\.]{1,4}\//
+    $d_pastecode_dot = /pastecode\.[\w\.]{2,16}/
+    $d_paste_dot     = /\/paste\.[\w\.]{2,3}\//
     $d_discord       = "cdn.discordapp.com"
     $d_pastebinger   = "paste.bingner.com"
     $d_transfer_sh   = "transfer.sh"
     $d_rentry        = "rentry.co" fullword
-    $d_pastebin      = /pastebin\.[\w]{2,3}/ fullword
+    $d_pastebin      = /pastebin\.[\w]{2,3}[\w\/]{0,16}/ fullword
     $d_penyacom      = "penyacom"
     $d_controlc      = "controlc.com"
     $d_anotepad      = "anotepad.com"
     $d_privnote      = "privnote.com"
-    $d_hushnote      = "hushnote"
+    $d_hushnote      = /hushnote[\.\w\/]{3,16}/
     $not_mozilla     = "download.mozilla.org"
     $not_google      = "dl.google.com"
     $not_manual      = "manually upload"

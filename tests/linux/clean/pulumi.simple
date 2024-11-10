@@ -3,7 +3,7 @@
 3P/threat_hunting/sharppack: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
-c2/server_address: medium
+c2/addr/server: medium
 c2/tool_transfer/download: medium
 collect/archives/zip: medium
 collect/databases/mysql: medium
@@ -38,15 +38,16 @@ discover/cloud/google_metadata: low
 discover/cloud/google_storage: low
 discover/group/lookup: medium
 discover/network/mac_address: medium
+discover/process/parent: low
 discover/processes/list: medium
-discover/system/cpu_info: low
-discover/system/hostname_get: low
+discover/system/cpu: low
+discover/system/hostname: low
 discover/system/platform: medium
 discover/system/sysinfo: medium
 discover/user/HOME: low
 discover/user/USER: low
 discover/user/name_get: medium
-evasion/hidden_paths/hidden: medium
+evasion/file/prefix: medium
 exec/cmd: medium
 exec/conditional/LANG: low
 exec/install_additional/pip_install: medium
@@ -141,7 +142,6 @@ persist/kernel_module/module: medium
 persist/pid_file: medium
 privesc/sudo: medium
 process/chroot: low
-process/parent_pid_get: low
 sus/exclamation: medium
 sus/intercept: medium
 sus/leetspeak: medium

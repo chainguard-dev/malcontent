@@ -52,7 +52,7 @@ exec/shell/command: medium
 exec/shell/power: medium
 exfil/collection: medium
 impact/infection/infected: medium
-impact/remote_access/backdoor: high
+impact/remote_access/backdoor: medium
 impact/remote_access/implant: medium
 impact/remote_access/reverse_shell: high
 net/dns/txt: low

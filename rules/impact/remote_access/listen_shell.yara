@@ -1,4 +1,4 @@
-rule listens_and_executes_shell: high {
+rule listens_and_executes_shell: medium {
   meta:
     description                          = "Listens at a port and executes shells"
     hash_2024_Downloads_8cad             = "8cad755bcf420135c0f406fb92138dcb0c1602bf72c15ed725bd3b76062dafe5"
@@ -22,9 +22,12 @@ rule listens_and_executes_shell: high {
     $sh_cmd          = "cmd.exe"
     $not_setlocale   = "setlocale" fullword
     $not_ptrace      = "ptrace" fullword
+    $not_image_jpeg  = "image/jpeg"
+    $not_openpgp     = "openpgp"
+    $not_dbus        = "dbus" fullword
 
   condition:
-    filesize < 10MB and any of ($f_sock*) and any of ($f_exec*) and any of ($f_inet*) and any of ($f_listen*) and any of ($sh*) and none of ($not*)
+    filesize < 3MB and any of ($f_sock*) and any of ($f_exec*) and any of ($f_inet*) and any of ($f_listen*) and any of ($sh*) and none of ($not*)
 }
 
 rule go_tcp_listen_and_exec_shell: high {

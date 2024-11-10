@@ -35,7 +35,7 @@ discover/ip/geo: high
 discover/ip/public: high
 discover/network/mac_address: medium
 discover/processes/list: medium
-discover/system/cpu_info: low
+discover/system/cpu: low
 exec/conditional/is_admin: medium
 exec/plugin: low
 exec/program: medium

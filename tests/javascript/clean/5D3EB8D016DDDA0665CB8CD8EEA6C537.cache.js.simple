@@ -2,7 +2,7 @@
 3P/threat_hunting/powershell: medium
 anti-static/obfuscation/js: medium
 c2/addr/ip: medium
-c2/server_address: medium
+c2/addr/server: medium
 collect/archives/unarchive: medium
 collect/databases/mysql: medium
 collect/databases/postgresql: medium
@@ -22,13 +22,15 @@ data/encoding/reverse: low
 data/hash/md5: low
 data/random/insecure: low
 discover/group/lookup: medium
+discover/process/egid: medium
+discover/process/parent: low
 discover/processes/list: medium
-discover/system/hostname_get: low
+discover/system/hostname: low
 discover/system/platform: low
 discover/user/HOME: low
 discover/user/USER: low
 discover/user/name_get: medium
-evasion/hidden_paths/hidden: medium
+evasion/file/prefix: medium
 evasion/logging/acct: low
 exec/cmd: medium
 exec/plugin: low
@@ -91,9 +93,7 @@ persist/daemon: medium
 process/chdir: low
 process/chroot: low
 process/create: low
-process/effective_groupid_get: medium
 process/groupid_set: low
-process/parent_pid_get: low
 process/userid_set: low
 sus/exclamation: medium
 sus/intercept: medium

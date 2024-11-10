@@ -15,26 +15,30 @@
                 {
                     "Description": "may inject code into other processes",
                     "MatchStrings": [
+                        "/proc",
+                        "maps",
+                        "successfully injected",
+                        "to inject",
+                        "to-inject"
+                    ],
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/evasion/process_injection/process-inject.yara#library_injector",
+                    "ID": "evasion/process_injection/process_inject",
+                    "RuleName": "library_injector"
+                },
+                {
+                    "Description": "may inject code into other processes",
+                    "MatchStrings": [
                         "/proc/%d/maps",
                         "process",
                         "ptrace"
                     ],
                     "RiskScore": 3,
                     "RiskLevel": "HIGH",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/evasion/process_injection/process-inject.yara#ptrace_injector",
-                    "ID": "evasion/process_injection/process_inject",
-                    "RuleName": "ptrace_injector"
-                },
-                {
-                    "Description": "trace or modify system calls",
-                    "MatchStrings": [
-                        "ptrace"
-                    ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/evasion/process_injection/ptrace.yara#ptrace",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/evasion/process_injection/ptrace.yara#ptrace_injector",
                     "ID": "evasion/process_injection/ptrace",
-                    "RuleName": "ptrace"
+                    "RuleName": "ptrace_injector"
                 },
                 {
                     "Description": "get the address of a symbol",
@@ -84,17 +88,6 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/proc/arbitrary-pid.yara#proc_arbitrary",
                     "ID": "fs/proc/arbitrary_pid",
                     "RuleName": "proc_arbitrary"
-                },
-                {
-                    "Description": "accesses underlying executable of other processes",
-                    "MatchStrings": [
-                        "/proc/%s/exe"
-                    ],
-                    "RiskScore": 3,
-                    "RiskLevel": "HIGH",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/proc/pid-exe.yara#proc_exe",
-                    "ID": "fs/proc/pid_exe",
-                    "RuleName": "proc_exe"
                 },
                 {
                     "Description": "access process memory maps",

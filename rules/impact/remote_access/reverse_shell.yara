@@ -32,8 +32,10 @@ rule possible_reverse_shell: medium {
     $sh_bash   = "/bin/bash"
     $sh        = "/bin/sh"
 
+    $not_uc2 = "ucs2reverse"
+
   condition:
-    filesize < 4MB and any of ($sh*) and all of ($f*)
+    filesize < 4MB and any of ($sh*) and all of ($f*) and none of ($not*)
 }
 
 rule mkfifo_netcat: critical {
