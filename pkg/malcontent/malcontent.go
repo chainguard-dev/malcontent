@@ -32,6 +32,7 @@ type Config struct {
 	OCI                   bool
 	Output                io.Writer
 	Processes             bool
+	ProgressBar           bool
 	QuantityIncreasesRisk bool
 	Renderer              Renderer
 	RuleFS                []fs.FS

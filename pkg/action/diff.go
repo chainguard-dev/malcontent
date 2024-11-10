@@ -16,15 +16,18 @@ import (
 	"github.com/agext/levenshtein"
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
+	"github.com/schollz/progressbar/v3"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 	"golang.org/x/sync/errgroup"
 )
 
 func relFileReport(ctx context.Context, c malcontent.Config, fromPath string) (map[string]*malcontent.FileReport, error) {
+	var bar progressbar.ProgressBar
+
 	fromConfig := c
 	fromConfig.Renderer = nil
 	fromConfig.ScanPaths = []string{fromPath}
-	fromReport, err := recursiveScan(ctx, fromConfig)
+	fromReport, err := recursiveScan(ctx, fromConfig, &bar)
 	if err != nil {
 		return nil, err
 	}

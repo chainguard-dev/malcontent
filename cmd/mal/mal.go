@@ -60,6 +60,7 @@ var (
 	ociFlag                   bool
 	outputFlag                string
 	profileFlag               bool
+	progressBarFlag           bool
 	quantityIncreasesRiskFlag bool
 	statsFlag                 bool
 	thirdPartyFlag            bool
@@ -247,6 +248,7 @@ func main() {
 				MinFileRisk:           minFileRisk,
 				MinRisk:               minRisk,
 				OCI:                   ociFlag,
+				ProgressBar:           progressBarFlag,
 				QuantityIncreasesRisk: quantityIncreasesRiskFlag,
 				Renderer:              renderer,
 				RuleFS:                rfs,
@@ -344,6 +346,12 @@ func main() {
 				Value:       false,
 				Usage:       "Generate profile and trace files",
 				Destination: &profileFlag,
+			},
+			&cli.BoolFlag{
+				Name:        "progress-bar",
+				Value:       true,
+				Usage:       "Display a progress bar when running an analyze or scan\n\tTurn off in CI or in terminals that don't support escape codes",
+				Destination: &progressBarFlag,
 			},
 			&cli.BoolFlag{
 				Name:        "quantity-increases-risk",

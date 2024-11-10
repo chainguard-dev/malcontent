@@ -22,6 +22,8 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 	"github.com/chainguard-dev/malcontent/pkg/render"
 	"github.com/chainguard-dev/malcontent/pkg/report"
+	"github.com/k0kubun/go-ansi"
+	"github.com/schollz/progressbar/v3"
 
 	"github.com/hillu/go-yara/v4"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
@@ -56,7 +58,7 @@ func findFilesRecursively(ctx context.Context, rootPath string) ([]string, error
 	err = filepath.WalkDir(root,
 		func(path string, info os.DirEntry, err error) error {
 			if err != nil {
-				logger.Errorf("error: %s: %s", path, err)
+				logger.Warnf("error: %s: %s", path, err)
 				return nil
 			}
 			if info.IsDir() || strings.Contains(path, "/.git/") {
@@ -99,7 +101,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	mime := "<unknown>"
 	kind, err := programkind.File(path)
 	if err != nil {
-		logger.Errorf("file type failure: %s: %s", path, err)
+		logger.Warnf("file type failure: %s: %s", path, err)
 	}
 	if kind != nil {
 		mime = kind.MIME
@@ -233,7 +235,7 @@ func cachedRules(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {
 // recursiveScan recursively YARA scans the configured paths - handling archives and OCI images.
 //
 //nolint:gocognit,cyclop // ignoring complexity of 101,38
-func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) {
+func recursiveScan(ctx context.Context, c malcontent.Config, bar *progressbar.ProgressBar) (*malcontent.Report, error) {
 	logger := clog.FromContext(ctx)
 	r := &malcontent.Report{
 		Files: orderedmap.New[string, *malcontent.FileReport](),
@@ -271,7 +273,7 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 				return nil, fmt.Errorf("find: %w", err)
 			}
 			// try to scan remaining scan paths
-			logger.Errorf("find failed: %v", err)
+			logger.Warnf("find failed: %v", err)
 			continue
 		}
 
@@ -290,7 +292,7 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 		handleArchive := func(path string) error {
 			frs, err := processArchive(ctx, c, c.RuleFS, path, logger)
 			if err != nil {
-				logger.Errorf("unable to process %s: %v", path, err)
+				logger.Warnf("unable to process %s: %v", path, err)
 			}
 			// If we're handling an archive within an OCI archive, wait to for other files to declare a miss
 			if !c.OCI {
@@ -342,10 +344,19 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 			}
 			return nil
 		}
+
+		if bar.State().Description != "" {
+			bar.ChangeMax(len(pc))
+		}
 		var g errgroup.Group
 		g.SetLimit(maxConcurrency)
 		for path := range pc {
 			g.Go(func() error {
+				defer func() {
+					if bar.State().Description != "" {
+						err = bar.Add(1)
+					}
+				}()
 				if isSupportedArchive(path) {
 					return handleArchive(path)
 				}
@@ -376,7 +387,7 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 			}
 
 			if err := os.RemoveAll(ociExtractPath); err != nil {
-				logger.Errorf("remove %s: %v", scanPath, err)
+				logger.Warnf("remove %s: %v", scanPath, err)
 			}
 		}
 
@@ -434,7 +445,7 @@ func processArchive(ctx context.Context, c malcontent.Config, rfs []fs.FS, archi
 		}
 	}
 	if err := os.RemoveAll(tmpRoot); err != nil {
-		logger.Errorf("remove %s: %v", tmpRoot, err)
+		logger.Warnf("remove %s: %v", tmpRoot, err)
 	}
 
 	return &frs, nil
@@ -446,7 +457,7 @@ func processFile(ctx context.Context, c malcontent.Config, ruleFS []fs.FS, path 
 
 	fr, err := scanSinglePath(ctx, c, path, ruleFS, scanPath, archiveRoot)
 	if err != nil {
-		logger.Errorf("scan path: %v", err)
+		logger.Warnf("scan path: %v", err)
 		return nil, err
 	}
 
@@ -456,7 +467,7 @@ func processFile(ctx context.Context, c malcontent.Config, ruleFS []fs.FS, path 
 	}
 
 	if fr.Error != "" {
-		logger.Errorf("scan error: %s", fr.Error)
+		logger.Warnf("scan error: %s", fr.Error)
 		return nil, fmt.Errorf("report error: %v", fr.Error)
 	}
 
@@ -465,7 +476,18 @@ func processFile(ctx context.Context, c malcontent.Config, ruleFS []fs.FS, path 
 
 // Scan YARA scans a data source, applying output filters if necessary.
 func Scan(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) {
-	r, err := recursiveScan(ctx, c)
+	var bar progressbar.ProgressBar
+	if c.ProgressBar {
+		bar = newBar()
+	}
+
+	defer func() {
+		if bar.State().Description != "" {
+			bar.Close()
+		}
+	}()
+
+	r, err := recursiveScan(ctx, c, &bar)
 	if err != nil {
 		return r, err
 	}
@@ -481,4 +503,23 @@ func Scan(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) 
 		}
 	}
 	return r, nil
+}
+
+// newBar returns a configured progress bar for use in `analyze` and `scan` contexts.
+func newBar() progressbar.ProgressBar {
+	return *progressbar.NewOptions(
+		0,
+		progressbar.OptionClearOnFinish(),
+		progressbar.OptionEnableColorCodes(true),
+		progressbar.OptionSetDescription("Processing discovered file(s)..."),
+		progressbar.OptionSetTheme(progressbar.Theme{
+			Saucer:        "[green]▒[reset]",
+			SaucerPadding: " ",
+			BarStart:      "▐",
+			BarEnd:        "▐",
+		}),
+		progressbar.OptionSetWidth(60),
+		progressbar.OptionSetWriter(ansi.NewAnsiStdout()),
+		progressbar.OptionShowCount(),
+	)
 }
