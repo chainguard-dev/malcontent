@@ -3,7 +3,7 @@ rule dmesg {
     description = "accesses the kernel log ring buffer"
 
   strings:
-    $dmesg  = "dmesg" fullword
+    $dmesg = "dmesg" fullword
 
   condition:
     any of them

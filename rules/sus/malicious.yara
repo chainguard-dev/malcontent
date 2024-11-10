@@ -5,7 +5,8 @@ rule malicious: medium {
   strings:
     $ref = /[a-zA-Z\-_ ]{0,16}malicious[a-zA-Z\-_ ]{0,16}/ fullword
 
-	$not_sshd = "attempt by a malicious server"
+    $not_sshd = "attempt by a malicious server"
+
   condition:
     $ref and none of ($not*)
 }

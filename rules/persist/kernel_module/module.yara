@@ -29,7 +29,7 @@ rule lkm_embedded_in_elf: high {
     $srcversion = "srcversion="
 
   condition:
-	 elf.type == elf.ET_EXEC  and all of them
+    elf.type == elf.ET_EXEC and all of them
 }
 
 rule delete_module: medium {

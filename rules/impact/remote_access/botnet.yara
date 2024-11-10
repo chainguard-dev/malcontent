@@ -4,12 +4,11 @@ rule bot: medium {
 
   strings:
     $BOTDIR = "BOTDIR"
-    $botdir       = "botdir"
+    $botdir = "botdir"
 
   condition:
     filesize < 1MB and any of them
 }
-
 
 rule botnet_high: high {
   meta:

@@ -15,5 +15,5 @@ rule multiple_elf: high linux {
     $ = /\/var\/spool\/[\%\w\-\/\.]{0,64}/
 
   condition:
-    filesize < 1MB and uint32(0) == 1179403647 and 80% of them
+    filesize < 1MB and uint32(0) == 1179403647 and 80 % of them
 }

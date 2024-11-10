@@ -14,11 +14,11 @@ rule kernel_module_loader: high linux {
 
 rule kernel_module_loader_sus: high linux {
   meta:
-    description                 = "suspiciously loads Linux kernel module via insload"
+    description = "suspiciously loads Linux kernel module via insload"
 
   strings:
     $insmod = /insmod [ \$\%\w\.\/_-]{1,32} .{0,16}\/dev\/null 2\>\&1/
-	
+
   condition:
     filesize < 10MB and all of them
 }

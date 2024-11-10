@@ -1,5 +1,4 @@
-
-rule network_connectivity : low {
+rule network_connectivity: low {
   meta:
     description = "checks Internet connectivity"
 
