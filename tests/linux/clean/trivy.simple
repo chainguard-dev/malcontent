@@ -66,7 +66,6 @@ evasion/file/location/chdir_unusual: medium
 evasion/file/location/dev_shm: medium
 evasion/file/location/var_run: medium
 evasion/file/prefix: medium
-evasion/process_injection/ptrace: low
 exec/cmd: medium
 exec/conditional/LANG: low
 exec/dylib/symbol_address: medium

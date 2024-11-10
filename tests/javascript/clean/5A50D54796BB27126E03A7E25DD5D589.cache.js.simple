@@ -20,7 +20,7 @@ data/encoding/json_encode: low
 data/encoding/reverse: low
 data/random/insecure: low
 discover/group/lookup: medium
-discover/process/effective_groupid_get: medium
+discover/process/egid: medium
 discover/process/parent: low
 discover/processes/list: medium
 discover/system/hostname_get: low

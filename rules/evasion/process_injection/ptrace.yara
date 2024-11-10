@@ -42,5 +42,5 @@ rule known_ptrace_injectors: override {
     $not_bpf      = "BPF" fullword
 
   condition:
-    any of them
+    ptrace and any of them
 }

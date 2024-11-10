@@ -11,7 +11,7 @@ data/encoding/base64: low
 data/encoding/reverse: low
 data/hash/md5: low
 data/random/insecure: low
-discover/process/effective_groupid_get: medium
+discover/process/egid: medium
 discover/process/parent: low
 discover/system/hostname_get: low
 discover/system/platform: low

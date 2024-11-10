@@ -21,5 +21,5 @@ rule expected_ubi_users: override {
     $UBI      = "UBI version"
 
   condition:
-    filesize < 512KB and any of them
+    filesize < 512KB and ubi and any of them
 }

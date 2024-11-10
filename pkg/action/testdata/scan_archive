@@ -34,7 +34,6 @@ discover/user/name_get: medium
 evasion/bypass_security/linux/se: medium
 evasion/file/prefix: medium
 evasion/hide_artifacts/pivot_root: medium
-evasion/process_injection/ptrace: low
 exec/plugin: low
 exec/program: medium
 exec/shell/background_sleep: medium

@@ -64,7 +64,7 @@ rule binary_php_url_with_question: high {
     filesize < 150MB and elf_or_macho and $ref
 }
 
-rule script_php_url_with_question: medium {
+rule script_php_url_with_question: high {
   meta:
     description = "contains hardcoded endpoint with a question mark"
 

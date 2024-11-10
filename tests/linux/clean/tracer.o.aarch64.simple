@@ -4,7 +4,6 @@ collect/databases/mysql: medium
 discover/network/netstat: medium
 evasion/bypass_security/linux/iptables: medium
 evasion/logging/acct: low
-evasion/process_injection/ptrace: low
 impact/remote_access/heartbeat: medium
 net/http/post: medium
 net/ip/multicast_send: low

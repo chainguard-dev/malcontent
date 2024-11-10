@@ -9,7 +9,6 @@ data/compression/lzma: low
 data/embedded/app_manifest: medium
 data/encoding/base64: low
 discover/system/sysinfo: medium
-evasion/process_injection/ptrace: low
 exec/program: medium
 exec/tty/getpass: low
 exfil/stealer/python: critical

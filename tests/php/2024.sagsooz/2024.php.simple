@@ -5,7 +5,7 @@ data/base64/decode: medium
 data/embedded/base64_url: medium
 data/embedded/html: medium
 data/encoding/base64: low
-discover/process/effective_groupid_get: medium
+discover/process/egid: medium
 evasion/indicator_blocking/mask_exceptions: medium
 evasion/time/php_no_limit: medium
 exec/shell/command: medium
