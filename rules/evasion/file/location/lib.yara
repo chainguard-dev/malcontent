@@ -33,3 +33,15 @@ rule install_to_lib: high linux {
   condition:
     any of them
 }
+
+rule multiple_lib_so_high: medium linux {
+  meta:
+    description = "hardcodes multiple .so library paths in /lib"
+
+  strings:
+    $lib = /(\/usr|)\/lib\/[\w\.\/]{4,32}\.so/ fullword
+
+  condition:
+    filesize < 10MB and uint32(0) == 1179403647 and #lib > 1
+}
+

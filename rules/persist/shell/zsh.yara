@@ -16,6 +16,18 @@ rule zsh_persist: medium {
     filesize < 2097152 and any of ($ref*) and none of ($not*)
 }
 
+rule hardcoded_bash_persist_file: high {
+  meta:
+    description = "hardcodes a shell startup file"
+
+  strings:
+    $zshenv = /\/[\w\.\/]{0,32}\/\.zshenv/ fullword
+    $zshrc  = /\/[\w\.\/]{0,32}\/\.zshrc/ fullword
+
+  condition:
+    filesize < 100MB and uint32(0) == 1179403647 and any of them
+}
+
 rule zsh_logout_persist: high {
   meta:
     description = "Writes to zsh configuration files to persist"

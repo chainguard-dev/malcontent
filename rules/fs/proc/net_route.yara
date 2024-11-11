@@ -25,6 +25,7 @@ rule proc_net_route_high: high {
     $not_usage_var   = "Usage: %s"
     $not_host_route  = "host route"
     $not_route_addr  = "route address"
+    $not_vmtools     = "VMTools" fullword
 
   condition:
     filesize < 1MB and uint32(0) == 1179403647 and $ref and none of ($not*)

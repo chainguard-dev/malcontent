@@ -30,5 +30,5 @@ rule pcap_live: high {
     $not_usage = /[uU]sage:/
 
   condition:
-    filesize < 200KB and $pcap_live and none of ($not*)
+    filesize < 200KB and uint32(0) == 1179403647 and $pcap_live and none of ($not*)
 }

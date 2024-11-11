@@ -8,7 +8,7 @@ credential/ssh/d: medium
 exfil/stealer/password: critical
 fs/path/etc: low
 fs/proc/arbitrary_pid: medium
-fs/proc/pid_cmdline: medium
+fs/proc/pid_cmdline: high
 fs/proc/pid_maps: medium
 net/tcp/ssh: medium
 privesc/sudo: medium

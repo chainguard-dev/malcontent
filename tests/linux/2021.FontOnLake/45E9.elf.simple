@@ -21,7 +21,7 @@ evasion/file/location/x11_unix: low
 evasion/file/prefix: medium
 evasion/file/prefix/proc: high
 evasion/logging/acct: low
-evasion/logging/dmesg: critical
+evasion/logging/dmesg: high
 evasion/logging/failed_logins: medium
 evasion/logging/historical_logins: medium
 evasion/rootkit/refs: high
@@ -60,7 +60,7 @@ fs/symlink_resolve: low
 fs/tempdir/create: low
 fs/tempdir/tempfile_create: low
 impact/remote_access/agent: medium
-impact/remote_access/backdoor: medium
+impact/remote_access/backdoor: high
 impact/remote_access/reverse_shell: medium
 impact/remote_access/ssh: high
 impact/rootkit: critical
