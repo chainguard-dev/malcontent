@@ -20,7 +20,7 @@ fs/path/etc: low
 fs/path/tmp: medium
 fs/path/usr_bin: low
 fs/path/usr_sbin: low
-impact/degrade/sshd: medium
+impact/degrade/sshd: low
 net/tcp/ssh: medium
 persist/daemon: medium
 privesc/sudo: medium

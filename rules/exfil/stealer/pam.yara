@@ -10,8 +10,8 @@ rule pam_passwords: high {
     $pass3 = "verify_pass"
     $pass4 = "sshpass"
 
-    $w_fwrite = "fwrite"
-    $w_path   = /\/(var|tmp|etc|lib|bin|opt|usr|root|Users|Library|dev)\/[\.\w\-]{2,}/
+    $w_write = "write"
+    $w_path  = /\/(var|tmp|etc|lib|bin|opt|usr|root|Users|Library|dev)\/[\.\w\-]{2,}/
 
     $f_socket        = "socket"
     $f_exfil         = "exfil"
@@ -22,6 +22,7 @@ rule pam_passwords: high {
     $f_ssh           = "/bin/ssh"
     $f_sendto        = "sendto" fullword
     $f_readdir64     = "readdir64" fullword
+    $f_hidden        = "hidden"
     $not_pam_service = "--pam-service"
 
   condition:

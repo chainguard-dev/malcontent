@@ -6,11 +6,11 @@ credential/keylogger: medium
 credential/password: low
 discover/network/interface_list: medium
 discover/system/platform: low
-evasion/bypass_security/linux/pam: medium
 evasion/indicator_blocking/process: high
 evasion/net/hide_ports: high
 evasion/rootkit/userspace: critical
 exec/dylib/symbol_address: medium
+exfil/stealer/pam: high
 fs/link_read: low
 fs/path/tmp: medium
 fs/path/usr_bin: low

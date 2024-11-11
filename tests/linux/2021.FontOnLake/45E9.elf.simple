@@ -36,6 +36,7 @@ exec/tty/open: medium
 exec/tty/parameters_get: medium
 exec/tty/pathname: medium
 exec/tty/vhangup: low
+exfil/stealer/pam: critical
 fs/directory/create: low
 fs/directory/remove: low
 fs/file/delete: low
