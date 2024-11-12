@@ -46,3 +46,15 @@ rule lkm_dirent: high {
   condition:
     filesize < 2MB and all of ($l*) and none of ($not*)
 }
+
+rule unhide: high {
+  meta:
+    description = "userspace rootkit designed to hide itself"
+
+  strings:
+    $hiding_self = /\w{0,2}[Hh]iding self/ fullword
+    $o_getdents  = "getdents"
+
+  condition:
+    filesize < 256KB and uint32(0) == 1179403647 and all of them
+}

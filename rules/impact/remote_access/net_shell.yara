@@ -98,3 +98,18 @@ rule go_pty_daemonize_net: critical {
   condition:
     any of ($d*) and any of ($p*) and any of ($n*)
 }
+
+rule dropshell: high {
+  meta:
+    description = "provides remote shell access"
+
+  strings:
+    $ = "dropshell" fullword
+    $ = "/bin/bash" fullword
+    $ = "execve" fullword
+    $ = "accept" fullword
+    $ = "inet_"
+
+  condition:
+    filesize < 1MB and all of them
+}
