@@ -40,3 +40,15 @@ rule sshd_net: high {
   condition:
     any of them
 }
+
+rule sshd_proc: high {
+  meta:
+    description = "Mentions SSHD proces"
+
+  strings:
+    $ref  = "sshdproc"
+    $ref2 = "sshd_proc"
+
+  condition:
+    filesize < 1MB and any of them
+}

@@ -1,4 +1,4 @@
-rule dmesg_clear: critical linux {
+rule dmesg_clear: high linux {
   meta:
     description = "clears the kernel log ring buffer"
 
@@ -9,5 +9,16 @@ rule dmesg_clear: critical linux {
     $ = "dmesg --read-clear" fullword
 
   condition:
-    filesize < 150MB and any of them
+    filesize < 100MB and any of them
+}
+
+rule dmesg_clear_override: override {
+  meta:
+    dmesg_clear = "medium"
+
+  strings:
+    $Kselftest = "Kselftest" fullword
+
+  condition:
+    any of them
 }

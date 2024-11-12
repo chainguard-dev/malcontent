@@ -11,6 +11,23 @@ rule readdir_intercept_source: high {
     filesize < 200KB and all of them
 }
 
+rule hide_dir_contents: high {
+  meta:
+    description = "userland rootkit source designed to hide files"
+    filetypes   = "so,c"
+
+  strings:
+    $readdir64 = "readdir64"
+
+    $ref1 = "hidedircontents"
+    $ref2 = "unhide_self"
+    $ref3 = "unhide_path"
+    $ref4 = "hidemyass"
+
+  condition:
+    filesize < 300KB and $readdir64 and any of ($ref*)
+}
+
 rule readdir_intercept: high {
   meta:
     description           = "userland rootkit designed to hide files (readdir64)"
@@ -88,21 +105,6 @@ rule linux_rootkit_terms: critical linux {
     filesize < 10MB and any of ($s*) and any of ($o*)
 }
 
-rule elf_processhide: high {
-  meta:
-    description                          = "userland rootkit designed to hide processes"
-    hash_2023_Unix_Coinminer_Xanthe_0e6d = "0e6d37099dd89c7eed44063420bd05a2d7b0865a0f690e12457fbec68f9b67a8"
-    hash_2023_Unix_Malware_Agent_7337    = "73376cbb9666d7a9528b9397d4341d0817540448f62b22b51de8f6a3fb537a3d"
-    hash_2023_Unix_Trojan_Prochider_234c = "234c0dd014a958cf5958a9be058140e29f46fca99eb26f5755f5ae935af92787"
-
-  strings:
-    $prochide          = "processhide"
-    $process_to_filter = "process_to_filter"
-
-  condition:
-    all of them
-}
-
 rule linux_process_hider: critical linux {
   meta:
     description           = "userland rootkit designed to hide processes"
@@ -139,17 +141,14 @@ rule linux_process_hider: critical linux {
     filesize < 250KB and all of ($f*) and any of ($x*) and none of ($not*)
 }
 
-rule process_hider: high {
+rule unhide_myself: high {
   meta:
-    description = "possible userland rootkit designed to hide processes"
+    description = "userspace rootkit designed to hide itself"
 
   strings:
-    $hide_process   = "hide_proc" fullword
-    $proc_hide      = "proc_hide" fullword
-    $process_hide   = "process_hide" fullword
-    $process_hiding = "process_hiding" fullword
-    $hidden_proc    = "hidden_proc" fullword
+    $hiding_self = /\w{0,2}[Hh]iding self/ fullword
+    $o_readdir64 = "readdir64"
 
   condition:
-    filesize < 250KB and any of them
+    filesize < 1MB and uint32(0) == 1179403647 and all of them
 }
