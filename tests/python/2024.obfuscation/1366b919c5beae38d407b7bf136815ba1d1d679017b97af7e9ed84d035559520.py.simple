@@ -1,0 +1,6 @@
+# python/2024.obfuscation/1366b919c5beae38d407b7bf136815ba1d1d679017b97af7e9ed84d035559520.py: high
+anti-static/obfuscation/python: high
+data/base64/decode: medium
+data/encoding/base64: low
+mem/protect: high
+net/dns/txt: low

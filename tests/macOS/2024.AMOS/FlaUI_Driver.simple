@@ -1,3 +1,4 @@
 # macOS/2024.AMOS/FlaUI_Driver: medium
+crypto/rc4: low
 exec/shell/exec: medium
 net/url/embedded: low

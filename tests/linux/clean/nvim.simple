@@ -8,6 +8,7 @@ credential/os/gshadow: medium
 credential/sniffer/pcap: medium
 credential/ssh: medium
 credential/ssh/d: medium
+crypto/rc4: low
 data/base64/decode: medium
 data/encoding/base64: low
 data/random/insecure: low

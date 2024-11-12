@@ -404,3 +404,90 @@ rule rename_zlib: high {
   condition:
     filesize < 512KB and all of them
 }
+
+rule too_many_lambdas_small: high {
+  meta:
+    description = "lambda based obfuscation"
+
+  strings:
+    $ref = /lambda \W: \W [\+\-\*]/
+
+  condition:
+    filesize < 8KB and #ref > 30
+}
+
+rule too_many_lambdas_large: high {
+  meta:
+    description = "lambda based obfuscation"
+
+  strings:
+    $ref = /lambda \W: \W [\+\-\*]/
+
+  condition:
+    filesize < 512KB and #ref > 100
+}
+
+rule lambda_funk: high {
+  meta:
+    description = "likely obfuscated"
+
+  strings:
+    $ = "__builtins__.__dict__"
+    $ = "(lambda"
+    $ = ".decode(bytes("
+    $ = "b64decode("
+    $ = ".decompress("
+    $ = ".decode('utf-8'))"
+
+  condition:
+    filesize < 512KB and 80 % of them
+}
+
+rule lambda_funk_high: high {
+  meta:
+    description = "obfuscated with lambda expressions"
+
+  strings:
+    $ = "__builtins__.__dict__"
+    $ = "(lambda"
+    $ = ".decode(bytes("
+    $ = "b64decode("
+    $ = ".decompress("
+    $ = ".decode('utf-8'))"
+
+  condition:
+    filesize < 512KB and all of them
+}
+
+rule confusing_function_name: high {
+  meta:
+    description = "obfuscated with confusing function names"
+
+  strings:
+    $def = /def [Il]{4,64}/ fullword
+    $eq  = /[Il]{4,64} = / fullword
+
+  condition:
+    filesize < 512KB and (#def > 1 or #eq > 1)
+}
+
+rule decompress_base64_entropy: high {
+  meta:
+    description = "hidden base64-encoded compressed content"
+
+  strings:
+    $k_lzma       = "lzma"
+    $k_gzip       = "gzip"
+    $k_zlib       = "zlib"
+    $b64decode    = "b64decode("
+    $f_bytes      = "bytes("
+    $f_decode     = "decode("
+    $f_decompress = "decompress("
+    $f_eval       = "eval("
+    $f_exec       = "exec("
+    $long_str     = /[\'\"][\+\w\/]{96}/
+
+  condition:
+    filesize < 1MB and any of ($k*) and $b64decode and $long_str and any of ($f*)
+}
+

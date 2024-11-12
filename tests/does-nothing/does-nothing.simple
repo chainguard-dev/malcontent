@@ -1,4 +1,5 @@
 # does-nothing/does-nothing: medium
+crypto/rc4: low
 data/encoding/base64: low
 data/encoding/json: low
 discover/system/cpu: low

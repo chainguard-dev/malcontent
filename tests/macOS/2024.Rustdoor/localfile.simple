@@ -12,6 +12,7 @@ credential/password: low
 credential/shell/bash_history: high
 credential/ssh: medium
 crypto/aes: low
+crypto/rc4: low
 data/compression/gzip: low
 data/compression/zstd: low
 data/embedded/zstd: medium

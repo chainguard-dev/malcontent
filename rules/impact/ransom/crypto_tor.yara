@@ -22,5 +22,5 @@ rule crypto_locker {
     $not_xul       = "XUL_APP_FILE"
 
   condition:
-    5 of ($c*) and 2 of ($x*) and none of ($not*)
+    filesize < 25MB and 5 of ($c*) and 2 of ($x*) and none of ($not*)
 }
