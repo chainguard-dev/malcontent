@@ -8,6 +8,7 @@ credential/ssh: medium
 credential/ssh/authorized_hosts: medium
 credential/ssl/private_key: low
 crypto/aes: low
+crypto/rc4: low
 data/encoding/base64: low
 data/hash/md5: low
 discover/group/lookup: medium
@@ -15,13 +16,12 @@ discover/system/dmesg: low
 discover/system/hostname: low
 discover/user/HOME: low
 discover/user/USER: low
-evasion/bypass_security/linux/pam: medium
 evasion/bypass_security/linux/se: medium
 evasion/file/location/x11_unix: low
 evasion/file/prefix: medium
 evasion/file/prefix/proc: high
 evasion/logging/acct: low
-evasion/logging/dmesg: critical
+evasion/logging/dmesg: high
 evasion/logging/failed_logins: medium
 evasion/logging/historical_logins: medium
 evasion/rootkit/refs: high
@@ -36,6 +36,7 @@ exec/tty/open: medium
 exec/tty/parameters_get: medium
 exec/tty/pathname: medium
 exec/tty/vhangup: low
+exfil/stealer/pam: critical
 fs/directory/create: low
 fs/directory/remove: low
 fs/file/delete: low
@@ -60,7 +61,7 @@ fs/symlink_resolve: low
 fs/tempdir/create: low
 fs/tempdir/tempfile_create: low
 impact/remote_access/agent: medium
-impact/remote_access/backdoor: medium
+impact/remote_access/backdoor: high
 impact/remote_access/reverse_shell: medium
 impact/remote_access/ssh: high
 impact/rootkit: critical

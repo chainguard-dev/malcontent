@@ -7,6 +7,7 @@ rule linux_test_script: override linux {
     hidden_short_path            = "medium"
     kernel_module_loader         = "medium"
     cd_root                      = "medium"
+    dmesg_clear                  = "medium"
     description                  = "Linux test script"
 
   strings:

@@ -47,6 +47,7 @@ rule bpf: override linux {
     filetypes       = "so,elf"
     kallsyms_lookup = "medium"
     proc_d_exe_high = "medium"
+    proc_d_cmdline  = "medium"
 
   strings:
     $ref  = "BPF" fullword

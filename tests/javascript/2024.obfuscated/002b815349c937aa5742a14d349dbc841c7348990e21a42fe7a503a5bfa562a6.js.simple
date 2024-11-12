@@ -1,0 +1,5 @@
+# javascript/2024.obfuscated/002b815349c937aa5742a14d349dbc841c7348990e21a42fe7a503a5bfa562a6.js: high
+anti-static/obfuscation/js: high
+data/embedded/base64_terms: medium
+exec/remote_commands/code_eval: medium
+process/chdir: low

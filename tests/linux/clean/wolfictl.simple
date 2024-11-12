@@ -1,11 +1,10 @@
-# linux/clean/wolfictl: high
+# linux/clean/wolfictl: medium
 3P/threat_hunting/github_username: medium
 3P/threat_hunting/gost: medium
 3P/threat_hunting/hijacker: medium
 3P/threat_hunting/runascs: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
-c2/addr/url: high
 c2/tool_transfer/dropper: medium
 collect/archives/tar_command: medium
 collect/archives/unarchive: medium
@@ -117,7 +116,6 @@ fs/unmount: low
 fs/watch: low
 hw/wireless: low
 impact/ddos/raw_flooder: medium
-impact/ransom/locked_files: medium
 impact/remote_access/heartbeat: medium
 impact/remote_access/kill_rm: medium
 lateral/scan/brute_force: low

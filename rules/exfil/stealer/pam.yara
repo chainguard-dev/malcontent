@@ -1,28 +1,43 @@
-rule pam_passwords: high {
+rule pam_password_overwrite: critical {
   meta:
-    description                                                       = "password authentication module may record passwords"
-    hash_2023_FontOnLake_45E94ABEDAD8C0044A43FF6D72A5C44C6ABD9378_elf = "f60c1214b5091e6e4e5e7db0c16bf18a062d096c6d69fe1eb3cbd4c50c3a3ed6"
-    hash_2023_OrBit_f161                                              = "f1612924814ac73339f777b48b0de28b716d606e142d4d3f4308ec648e3f56c8"
-    hash_2023_Symbiote_1211                                           = "121157e0fcb728eb8a23b55457e89d45d76aa3b7d01d3d49105890a00662c924"
+    description = "password authentication module may record passwords"
 
   strings:
-    $auth            = "pam_authenticate"
-    $pass            = "password"
-    $f_socket        = "socket"
-    $f_exfil         = "exfil"
-    $f_orig_item     = "orig_pam_set_item"
-    $f_orig_auth     = "orig_pam_authenticate"
-    $f_getifaddrs    = "getifaddrs" fullword
-    $f_keylogger     = "keylogger"
-    $f_tmp           = /\/tmp\/[\.\w\-]{2,}/
-    $f_ssh           = "/bin/ssh"
-    $f_sshpass       = "sshpass"
-    $f_sendto        = "sendto" fullword
-    $not_pam_service = "--pam-service"
-    $not_pam_acct    = "pam_acct_mgmt"
+    $auth        = "pam_authenticate"
+    $f_orig_item = "orig_pam_set_item"
+    $f_orig_auth = "orig_pam_authenticate"
 
   condition:
-    $auth and $pass and 3 of ($f*) and none of ($not*)
+    filesize < 1MB and uint32(0) == 1179403647 and all of them
+}
+
+rule pam_password_exfil_file: high {
+  meta:
+    description = "password authentication module may record passwords"
+
+  strings:
+    $req_auth = "pam_authenticate"
+
+    $o_ssh_sshd        = "sshd" fullword
+    $o_ssh_usr_bin_ssh = "/usr/bin/ssh"
+    $o_pampassword     = "pampassword"
+    $o_LD_DEBUG        = "LD_DEBUG"
+    $o_LD_AUDIT        = "LD_AUDIT"
+    $o_LD_PRELOAD      = "LD_PRELOAD"
+
+    $path_dot_path         = /\/(var|tmp|etc|lib|bin|root|Users|Library|dev|proc)[\w\/]{0,32}\/\.[\.a-z0-9\-]{1,32}/ fullword
+    $path_dot_tmp_stricter = /\/tmp\/\.[a-z]\.\w\-]{1,32}/ fullword
+    $path_tmp_stricter     = /\/tmp\/[a-z]{4}[a-z\/\.]{1,32}/ fullword
+    $path_ext              = /\/(var|tmp|etc|lib|bin|opt|usr|root|Users|Library|dev)\/[\.\w\-]{1,32}\.(dmp|txt|out|log)/ fullword
+    $path_pass             = /\/(var|tmp|etc|lib|bin|opt|usr|root|Users|Library|dev)[\w\/]{0,32}\/[\.\w\-]{0,8}pass\..{0,8}/
+    $path_pass2            = /\/(var|tmp|etc|lib|bin|opt|usr|root|Users|Library|dev)[\w\/]{0,32}\/[\.\w\-]{0,8}password.{0,8}/
+    $path_pass3            = /\/(var|tmp|etc|lib|bin|opt|usr|root|Users|Library|dev)[\w\/]{0,32}\/login[\.\w\-]{0,8}/
+    $path_pass4            = /\/(var|tmp|etc|lib|opt|root|Users|Library|dev)[\w\/]{0,32}\/pass[\.\w\-]{0,8}/
+    $path_pass5            = /\/(var|tmp|etc|lib|bin|opt|usr|root|Users|Library|dev)[\w\/]{0,32}\/sshpass[\.\w\-]{0,8}/
+    $path_pass6            = /\/(var|tmp|etc|lib|bin|opt|usr|root|Users|Library|dev)[\w\/]{0,32}\/login[\.\w\-]{0,8}/
+
+  condition:
+    filesize < 1MB and uint32(0) == 1179403647 and all of ($req*) and any of ($o*) and any of ($path*)
 }
 
 rule pam_passwords_rootkit: critical {
@@ -30,8 +45,23 @@ rule pam_passwords_rootkit: critical {
     description = "records passwords and installs a rootkit"
 
   strings:
-    $rootkit = "rootkit"
+    $req_auth = "pam_authenticate"
+    $rootkit  = "rootkit"
 
   condition:
-    any of them and pam_passwords
+    filesize < 1MB and all of them
+}
+
+rule pam_get_item: high {
+  meta:
+    description = "gets PAM (pluggable authentication module) configuration for sshd"
+
+  strings:
+    $ref                  = "pam_get_item" fullword
+    $sshd                 = "sshd" fullword
+    $not_sshd             = "OpenSSH"
+    $not_SSH2_MSG_KEXINIT = "SSH2_MSG_KEXINIT"
+
+  condition:
+    $ref and $sshd and none of ($not*)
 }

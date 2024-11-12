@@ -1,6 +1,7 @@
 # linux/2024.gas/gas: high
 anti-behavior/LD_DEBUG: medium
 anti-behavior/LD_PROFILE: medium
+crypto/rc4: low
 discover/system/cpu: low
 discover/system/dev_full: low
 discover/system/platform: low

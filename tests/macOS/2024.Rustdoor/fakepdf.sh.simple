@@ -1,0 +1,12 @@
+# macOS/2024.Rustdoor/fakepdf.sh: critical
+c2/tool_transfer/fake_doc: critical
+c2/tool_transfer/shell: high
+discover/user/name_get: medium
+evasion/file/location/chdir_unusual: medium
+exec/shell/exec: medium
+fs/file/make_executable: medium
+fs/path/users: medium
+fs/permission/modify: medium
+net/download/fetch: high
+net/url/embedded: low
+process/chdir: low

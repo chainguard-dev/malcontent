@@ -1,5 +1,5 @@
-# windows/clean/Swashbuckle.AspNetCore.ReDoc.dll: high
-anti-static/obfuscation/js: high
+# windows/clean/Swashbuckle.AspNetCore.ReDoc.dll: medium
+anti-static/obfuscation/js: medium
 credential/password: low
 data/compression/bzip2: low
 data/compression/gzip: low

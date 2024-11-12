@@ -27,9 +27,32 @@ func (r YAML) File(_ context.Context, _ *malcontent.FileReport) error {
 }
 
 func (r YAML) Full(_ context.Context, rep *malcontent.Report) error {
-	// Drop the applied filters
-	rep.Filter = ""
-	yaml, err := yaml.Marshal(rep)
+	// Make the sync.Map YAML-friendly
+	type yamlReport struct {
+		Diff   *malcontent.DiffReport            `json:",omitempty" yaml:",omitempty"`
+		Files  map[string]*malcontent.FileReport `json:",omitempty" yaml:",omitempty"`
+		Filter string                            `json:",omitempty" yaml:",omitempty"`
+	}
+
+	yr := yamlReport{
+		Diff:   rep.Diff,
+		Files:  make(map[string]*malcontent.FileReport),
+		Filter: "",
+	}
+
+	rep.Files.Range(func(key, value any) bool {
+		if key == nil || value == nil {
+			return true
+		}
+		if path, ok := key.(string); ok {
+			if r, ok := value.(*malcontent.FileReport); ok {
+				yr.Files[path] = r
+			}
+		}
+		return true
+	})
+
+	yaml, err := yaml.Marshal(yr)
 	if err != nil {
 		return err
 	}

@@ -129,7 +129,6 @@ fs/watch: low
 hw/cpu: medium
 hw/dev/block_ice: medium
 impact/infection/worm: medium
-impact/ransom/decryptor: medium
 impact/remote_access/heartbeat: medium
 impact/shutdown: medium
 net/dns/over_https: medium

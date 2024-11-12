@@ -12,6 +12,7 @@ rule fake_user_agent_msie: high {
     $not_access_log = "\"GET http://"
     $not_pixel      = "Pixel 5"
     $not_ipad       = "iPad Mini"
+    $not_firefox    = "Firefox"
 
   condition:
     any of ($u_*) and none of ($not_*)

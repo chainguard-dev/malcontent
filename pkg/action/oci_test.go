@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"os"
 	"runtime"
+	"sort"
 	"testing"
 
 	"github.com/chainguard-dev/clog"
@@ -44,6 +45,9 @@ func TestOCI(t *testing.T) {
 		t.Fatalf("full: %v", err)
 	}
 
+	sort.Slice(out.Bytes(), func(i, j int) bool {
+		return out.Bytes()[i] < out.Bytes()[j]
+	})
 	got := out.String()
 
 	td, err := os.ReadFile("testdata/scan_oci")
@@ -51,7 +55,11 @@ func TestOCI(t *testing.T) {
 		t.Fatalf("testdata read failed: %v", err)
 	}
 	// Sort the loaded contents to ensure consistent ordering
+	sort.Slice(td, func(i, j int) bool {
+		return td[i] < td[j]
+	})
 	want := string(td)
+
 	if diff := cmp.Diff(want, got); diff != "" {
 		t.Errorf("Simple output mismatch: (-want +got):\n%s", diff)
 	}

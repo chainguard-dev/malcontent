@@ -98,7 +98,6 @@ fs/tempdir/TEMP: low
 fs/tempdir/TMPDIR: low
 fs/watch: low
 hw/wireless: low
-impact/ransom/decryptor: medium
 net/dns: low
 net/dns/over_https: medium
 net/dns/reverse: medium

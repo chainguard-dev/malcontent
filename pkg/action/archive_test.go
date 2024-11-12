@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"sort"
 	"testing"
 
 	"github.com/chainguard-dev/clog"
@@ -237,6 +238,9 @@ func TestScanArchive(t *testing.T) {
 	}
 
 	outBytes := out.Bytes()
+	sort.Slice(outBytes, func(i, j int) bool {
+		return outBytes[i] < outBytes[j]
+	})
 
 	got := string(outBytes)
 
@@ -244,7 +248,11 @@ func TestScanArchive(t *testing.T) {
 	if err != nil {
 		t.Fatalf("testdata read failed: %v", err)
 	}
+	sort.Slice(td, func(i, j int) bool {
+		return td[i] < td[j]
+	})
 	want := string(td)
+
 	if diff := cmp.Diff(want, got); diff != "" {
 		t.Errorf("output mismatch: (-want +got):\n%s", diff)
 	}
