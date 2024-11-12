@@ -6,11 +6,12 @@ rule eval: medium {
     hash_2023_0xShell_wesoori = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"
 
   strings:
-    $val       = /eval\([a-z\"\'\(\,\)]{1,32}/ fullword
+    $val       = /eval\([a-zA-Z\"\'\(\,\)]{1,32}/ fullword
+    $val2      = "eval(this.toString());"
     $not_empty = "eval()"
 
   condition:
-    filesize < 1MB and $val and none of ($not*)
+    filesize < 1MB and any of ($val*) and none of ($not*)
 }
 
 rule python_exec: medium {

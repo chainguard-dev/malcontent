@@ -1,5 +1,4 @@
-# javascript/clean/3937.844b09f50594ca2613b4.js.map: critical
-anti-static/obfuscation/powershell: critical
+# javascript/clean/3937.844b09f50594ca2613b4.js.map: medium
 exec/shell/power: medium
 false-positives/mattermost: low
 fs/directory/remove: low

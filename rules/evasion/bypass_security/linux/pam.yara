@@ -6,6 +6,7 @@ rule pam_passwords: medium {
     $auth       = "pam_authenticate"
     $pass       = "password"
     $not_libpam = "Linux-PAM" fullword
+    $not_sshd   = "OpenSSH" fullword
 
   condition:
     $auth and $pass and none of ($not*)

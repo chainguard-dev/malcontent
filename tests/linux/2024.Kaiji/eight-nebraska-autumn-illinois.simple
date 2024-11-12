@@ -64,7 +64,7 @@ net/http/2: low
 net/http/accept_encoding: low
 net/http/auth: low
 net/http/cookies: medium
-net/http/fake_user_agent: high
+net/http/fake_user_agent: medium
 net/http/post: medium
 net/http/proxy: low
 net/http/request: low

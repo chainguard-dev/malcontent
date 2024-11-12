@@ -127,7 +127,6 @@ fs/tempdir/tempfile_create: low
 fs/watch: low
 hw/dev/block_ice: medium
 hw/wireless: low
-impact/ransom/locked_files: medium
 impact/remote_access/heartbeat: medium
 impact/remote_access/iptables: medium
 impact/remote_access/kill_rm: medium

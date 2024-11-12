@@ -3,6 +3,7 @@
 3P/threat_hunting/esxcli: medium
 c2/addr/tor_onion: critical
 credential/password: low
+crypto/rc4: low
 discover/system/sysinfo: medium
 fs/lock_update: low
 fs/path/tmp: medium

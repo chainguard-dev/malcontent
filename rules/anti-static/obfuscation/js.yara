@@ -6,9 +6,10 @@ private rule probably_js {
     $f_const    = "const" fullword
     $f_return   = "return" fullword
     $f_var      = "var" fullword
+    $f_Array    = "Array.prototype" fullword
 
   condition:
-    filesize < 512KB and all of ($f*)
+    filesize < 1MB and 3 of ($f*)
 }
 
 rule character_obfuscation: medium {
@@ -172,7 +173,7 @@ rule js_char_code_at: medium {
     filesize < 16KB and any of them
 }
 
-rule charCodeAtIncrement: high {
+rule charCodeAtIncrement: medium {
   meta:
     description = "converts incremented numbers into characters"
     filetypes   = "javascript"
@@ -212,4 +213,54 @@ rule over_powered_arrays: high {
 
   condition:
     filesize < 5MB and $function and $charAt and #power_array > 25
+}
+
+rule string_prototype_function: high {
+  meta:
+    description = "obfuscates function calls via string prototypes"
+
+  strings:
+    $ref  = /String\["prototype"\].{1,32} = function\(\) { eval\(this\.toString\(\)\)\;/
+    $ref2 = /String\["prototype"\]\[".{4,64}"\] = function\(\w{1,2}, \w{1,2}\) {/
+
+  condition:
+    any of them
+}
+
+rule var_filler: high {
+  meta:
+    description = "header is filled with excessive variable declarations"
+
+  strings:
+    $ref = /[a-z]{2,8}\d{1,5} = "[a-z]{2,8}\d{1,5}"/ fullword
+
+  condition:
+    #ref > 25
+}
+
+rule large_obfuscated_array: high {
+  meta:
+    description = "contains large obfuscated arrays"
+
+  strings:
+    $ref  = /[a-z]{32,256}=\[\]/ fullword
+    $ref2 = /[a-z]{1,256}\[\'\w{32,2048}\'\]/ fullword
+
+  condition:
+    probably_js and all of them
+}
+
+rule high_entropy_charAt: medium {
+  meta:
+    description = "high entropy javascript (>5.37) that uses charAt/substr/join loops"
+
+  strings:
+    $ = "charAt("
+    $ = "substr("
+    $ = "join("
+    $ = "function("
+    $ = "for("
+
+  condition:
+    probably_js and math.entropy(1, filesize) >= 5.37 and all of them
 }

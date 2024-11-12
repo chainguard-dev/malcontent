@@ -26,7 +26,7 @@ fs/path/var: low
 impact/infection/worm: medium
 impact/remote_access/trojan: medium
 net/download: medium
-net/http/fake_user_agent: high
+net/http/fake_user_agent: medium
 net/http/form_upload: medium
 net/http/post: medium
 net/remote_control/vnc: medium

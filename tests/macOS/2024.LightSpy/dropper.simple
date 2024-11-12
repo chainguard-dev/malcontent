@@ -4,6 +4,7 @@ anti-static/macho/footer: high
 c2/addr/ip: medium
 c2/tool_transfer/macos: critical
 crypto/aes: low
+crypto/rc4: low
 crypto/xor: high
 data/hash/md5: medium
 discover/multiple: high

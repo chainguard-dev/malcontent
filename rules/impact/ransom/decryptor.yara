@@ -9,5 +9,5 @@ rule decryptor: medium {
     $ref = "decryptor"
 
   condition:
-    any of them
+    filesize < 20MB and any of them
 }

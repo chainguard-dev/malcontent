@@ -1,0 +1,6 @@
+# linux/2024.Mirai/f3b4c5d865f143dc8b9edc58a3d427d804a3c2a3988020a60dbac8a242d344f1.elf: critical
+anti-static/elf/content: high
+malware/family/mirai: critical
+net/socket/listen: medium
+net/socket/raw: medium
+net/socket/send: low

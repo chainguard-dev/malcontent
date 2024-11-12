@@ -1,0 +1,8 @@
+# linux/2024.xzutils/liblzma_la-crc64-fast.o: critical
+3P/craiu/unk_liblzma_backdoor: critical
+3P/craiu/unk_liblzma_encstrings: critical
+3P/elastic/xzbackdoor: critical
+3P/sig_base/bkdr_xzutil_binary: critical
+anti-static/binary/opaque: medium
+data/compression/lzma: low
+discover/process/runtime_deps: medium
