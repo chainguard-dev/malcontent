@@ -101,6 +101,7 @@ var rulesWithWarnings = map[string]bool{
 	"python_hex_decimal":                    true,
 	"python_long_hex":                       true,
 	"python_long_hex_multiple":              true,
+	"decompress_base64_entropy":             true,
 }
 
 func Recursive(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {

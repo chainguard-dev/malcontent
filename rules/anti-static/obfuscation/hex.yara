@@ -20,7 +20,7 @@ rule hex_parse: medium {
   strings:
     $node   = /Buffer\.from\(\w{0,16}, {0,2}'hex'\)/
     $node2  = /toString\(['"]hex['"]\);/
-    $python = /\.unhexlify\(/
+    $python = /unhexlify/
 
   condition:
     any of them
