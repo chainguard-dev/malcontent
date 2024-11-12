@@ -22,7 +22,7 @@ credential/ssl/private_key: low
 crypto/aes: low
 crypto/ecdsa: low
 crypto/ed25519: low
-crypto/rc4_constants: medium
+crypto/rc4: medium
 crypto/tls: low
 crypto/uuid: medium
 data/compression/bzip2: low

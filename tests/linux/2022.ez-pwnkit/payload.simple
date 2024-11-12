@@ -1,5 +1,6 @@
 # linux/2022.ez-pwnkit/payload: critical
 c2/addr/ip: medium
+crypto/rc4: low
 discover/system/cpu: low
 discover/system/hostname: low
 discover/system/platform: low

@@ -1,4 +1,4 @@
-# linux/clean/sshd: high
+# linux/clean/sshd: medium
 c2/addr/ip: medium
 credential/password: low
 credential/ssh: medium
@@ -26,7 +26,6 @@ exec/shell/TERM: low
 exec/shell/exec: medium
 exec/tty/open: medium
 exec/tty/pathname: medium
-exfil/stealer/pam: high
 fs/directory/create: low
 fs/directory/remove: low
 fs/file/delete: low

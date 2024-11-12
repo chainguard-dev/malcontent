@@ -3,6 +3,7 @@ anti-behavior/LD_DEBUG: medium
 anti-behavior/LD_PROFILE: medium
 anti-static/obfuscation/js: medium
 c2/addr/server: medium
+crypto/rc4: low
 discover/network/interface_list: medium
 discover/system/dev_full: low
 discover/system/proc: high

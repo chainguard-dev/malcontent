@@ -1,5 +1,6 @@
 # linux/clean/libsystemd.so.0: medium
 anti-static/obfuscation/js: medium
+crypto/rc4: low
 data/compression/lzma: low
 data/random/insecure: low
 discover/process/parent: low

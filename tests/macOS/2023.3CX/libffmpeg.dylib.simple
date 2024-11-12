@@ -1,5 +1,6 @@
 # macOS/2023.3CX/libffmpeg.dylib: medium
 crypto/aes: low
+crypto/rc4: low
 data/base64/decode: medium
 data/encoding/base64: low
 exec/shell/TERM: low

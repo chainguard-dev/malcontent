@@ -6,6 +6,7 @@ collect/archives/zip: medium
 credential/keychain: medium
 credential/password: low
 crypto/aes: low
+crypto/rc4: low
 data/compression/bzip2: low
 data/compression/zstd: low
 data/embedded/zstd: medium
