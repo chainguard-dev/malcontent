@@ -6,6 +6,7 @@ rule vmtools: override {
     proc_net_route_high              = "medium"
     proc_s_exe                       = "medium"
     sys_net_recon_exfil              = "medium"
+    proc_s_cmdline                   = "medium"
 
   strings:
     $vmtools   = "VMTools" fullword

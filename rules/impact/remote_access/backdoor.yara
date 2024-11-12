@@ -28,6 +28,36 @@ rule backdoor: medium {
     filesize < 40MB and any of them and not wordlist and none of ($not*)
 }
 
+rule backdoor_likely: high {
+  meta:
+    description                                                                               = "References a 'backdoor'"
+    hash_2023_UPX_0c25a05bdddc144fbf1ffa29372481b50ec6464592fdfb7dec95d9e1c6101d0d_elf_x86_64 = "818b80a08418f3bb4628edd4d766e4de138a58f409a89a5fdba527bab8808dd2"
+
+  strings:
+    $backdoor                     = "backdoor" fullword
+    $f_ld_preload                 = "LD_PRELOAD" fullword
+    $f_icmp                       = "ICMP" fullword
+    $f_preload                    = "/etc/ld.so.preload"
+    $f_sshd                       = "sshd" fullword
+    $f_readdir64                  = "readdir64" fullword
+    $not_BackdoorChannel_Fallback = "BackdoorChannel_Fallback"
+
+  condition:
+    filesize < 10MB and $backdoor and any of ($f*) and none of ($not*)
+}
+
+rule backdoor_high: high {
+  meta:
+    description = "references a backdoor"
+
+  strings:
+    $lower_prefix = /(hidden|hide|icmp|pam|ssh|sshd)[ _]backdoor/
+    $lower_sufifx = /backdoor[_ ](task|process|up|method|user|shell|login|pass)/
+
+  condition:
+    filesize < 10MB and any of them
+}
+
 rule backdoor_caps: high {
   meta:
     description                                                                               = "References a 'BACKDOOR'"
@@ -54,17 +84,4 @@ rule backdoor_leet: critical {
 
   condition:
     filesize < 100MB and any of them and not wordlist
-}
-
-rule include_header: override linux {
-  meta:
-    description = "include header"
-    backdoor    = "medium"
-    filetypes   = "h"
-
-  strings:
-    $re = /\#define [A-Z0-9_]+_H/ fullword
-
-  condition:
-    filesize < 100KB and any of them
 }

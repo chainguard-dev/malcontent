@@ -1,6 +1,6 @@
-rule kernel_module_loader: high linux {
+rule kernel_module_loader: medium linux {
   meta:
-    description                 = "loads Linux kernel module via insload"
+    description                 = "loads Linux kernel module via insmod"
     hash_2023_init_d_vm_agent   = "663b75b098890a9b8b02ee4ec568636eeb7f53414a71e2dbfbb9af477a4c7c3d"
     hash_2023_rc0_d_K70vm_agent = "663b75b098890a9b8b02ee4ec568636eeb7f53414a71e2dbfbb9af477a4c7c3d"
     hash_2023_rc1_d_K70vm_agent = "663b75b098890a9b8b02ee4ec568636eeb7f53414a71e2dbfbb9af477a4c7c3d"
@@ -12,9 +12,23 @@ rule kernel_module_loader: high linux {
     filesize < 10MB and all of them
 }
 
-rule kernel_module_loader_sus: high linux {
+rule kernel_module_loader_ko: high linux {
   meta:
-    description = "suspiciously loads Linux kernel module via insload"
+    description                 = "loads Linux kernel module .ko via insmod"
+    hash_2023_init_d_vm_agent   = "663b75b098890a9b8b02ee4ec568636eeb7f53414a71e2dbfbb9af477a4c7c3d"
+    hash_2023_rc0_d_K70vm_agent = "663b75b098890a9b8b02ee4ec568636eeb7f53414a71e2dbfbb9af477a4c7c3d"
+    hash_2023_rc1_d_K70vm_agent = "663b75b098890a9b8b02ee4ec568636eeb7f53414a71e2dbfbb9af477a4c7c3d"
+
+  strings:
+    $insmod = /insmod [ \$\%\w\.\/_-]{1,32}\.ko/
+
+  condition:
+    filesize < 10MB and all of them
+}
+
+rule kernel_module_loader_sus_redir: high linux {
+  meta:
+    description = "suspiciously loads Linux kernel module via insmod"
 
   strings:
     $insmod = /insmod [ \$\%\w\.\/_-]{1,32} .{0,16}\/dev\/null 2\>\&1/
@@ -25,9 +39,9 @@ rule kernel_module_loader_sus: high linux {
 
 rule cha_cha_tests: override linux {
   meta:
-    description          = "test_cipher.ko"
-    filetypes            = "sh"
-    kernel_module_loader = "medium"
+    description             = "test_cipher.ko"
+    filetypes               = "sh"
+    kernel_module_loader_ko = "medium"
 
   strings:
     $test = "insmod test_cipher.ko size"

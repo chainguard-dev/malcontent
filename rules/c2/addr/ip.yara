@@ -40,6 +40,7 @@ rule elf_hardcoded_ip: high {
     $not_root_servers_h    = "128.63.2.53"
     $not_root_servers_i    = "192.36.148.17"
     $not_123456789         = "123.45.67.89"
+    $not_10_11_12_13       = "10.11.12.13"
     $not_libebt_among_init = "libebt_among_init"
 
   condition:
@@ -86,6 +87,7 @@ rule hardcoded_ip_port: high {
     $not_12          = "12.12.12.12:"
     $not_21          = "21.21.21.21:"
     $not_255         = "255.255.255.255:"
+    $not_10_11_12_13 = "10.11.12.13:"
 
   condition:
     any of ($ip*) and none of ($not*)
