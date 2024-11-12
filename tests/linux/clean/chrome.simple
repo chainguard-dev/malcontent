@@ -112,7 +112,6 @@ fs/watch: low
 hw/cpu: medium
 hw/dev/block_ice: medium
 hw/wireless: low
-impact/ransom/decryptor: medium
 impact/remote_access/heartbeat: medium
 lateral/scan/target_ip: medium
 mem/anonymous_file: medium

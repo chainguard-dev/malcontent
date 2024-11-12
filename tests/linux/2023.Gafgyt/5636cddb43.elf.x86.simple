@@ -16,6 +16,7 @@ fs/proc/net_route: high
 impact/ddos: critical
 impact/ddos/raw_flooder: medium
 lateral/scan/tool: medium
+malware/family/mirai: critical
 net/dns/servers: low
 net/http/fake_user_agent: medium
 net/ip/parse: medium

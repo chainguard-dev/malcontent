@@ -5,8 +5,10 @@ rule lockedFiles: medium {
   strings:
     $ref = /[\w\/\.]{0,24}lockedFiles/
 
+    $not = "libc.lockedFiles"
+
   condition:
-    any of them
+    filesize < 10MB and $ref and none of ($not*)
 }
 
 rule lockedFileNames: medium {
@@ -17,7 +19,7 @@ rule lockedFileNames: medium {
     $ref2 = /[\w\/\.]{0,24}lockedFileNames/
 
   condition:
-    any of them
+    filesize < 10MB and any of them
 }
 
 rule locked: high {
@@ -31,5 +33,5 @@ rule locked: high {
     $ = /YOUR \w{2-12} IS LOCKED/
 
   condition:
-    any of them
+    filesize < 10MB and any of them
 }

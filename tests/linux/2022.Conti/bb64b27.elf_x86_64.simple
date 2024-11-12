@@ -1,0 +1,17 @@
+# linux/2022.Conti/bb64b27.elf_x86_64: critical
+3P/elastic/ransomware_conti: critical
+3P/threat_hunting/torproject: medium
+crypto/file_encrypter: medium
+fs/link_read: low
+fs/path/relative: medium
+fs/path/root: medium
+fs/path/tmp: medium
+fs/path/usr_bin: low
+impact/ransom/linux: high
+impact/ransom/note: high
+malware/family/conti: critical
+net/download: medium
+net/p2p/tor: high
+net/tcp/ssh: medium
+net/url/embedded: low
+process/create: low

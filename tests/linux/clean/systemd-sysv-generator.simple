@@ -1,0 +1,8 @@
+# linux/clean/systemd-sysv-generator: medium
+credential/password: low
+evasion/file/prefix: medium
+false-positives/systemd: low
+fs/file/delete: low
+fs/path/etc: low
+impact/remote_access/agent: medium
+net/url/embedded: low

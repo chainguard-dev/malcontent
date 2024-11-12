@@ -173,7 +173,7 @@ rule js_char_code_at: medium {
     filesize < 16KB and any of them
 }
 
-rule charCodeAtIncrement: high {
+rule charCodeAtIncrement: medium {
   meta:
     description = "converts incremented numbers into characters"
     filetypes   = "javascript"
@@ -250,7 +250,7 @@ rule large_obfuscated_array: high {
     probably_js and all of them
 }
 
-rule high_entropy_charAt: high {
+rule high_entropy_charAt: medium {
   meta:
     description = "high entropy javascript (>5.37) that uses charAt/substr/join loops"
 

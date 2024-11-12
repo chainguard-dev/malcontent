@@ -1,0 +1,3 @@
+# linux/2023.ConnectBack/tiny2: critical
+anti-static/binary/opaque: medium
+anti-static/elf/header: critical
