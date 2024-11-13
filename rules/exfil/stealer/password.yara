@@ -47,7 +47,7 @@ rule password_prompt_high: high {
     filesize < 25MB and any of them
 }
 
-rule verify_password: high {
+rule verify_password: medium {
   meta:
     description = "verifies a password via unknown means"
 

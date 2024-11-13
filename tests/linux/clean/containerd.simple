@@ -41,6 +41,7 @@ fs/directory/create: low
 fs/directory/list: low
 fs/directory/remove: low
 fs/event_monitoring: low
+fs/file/copy: medium
 fs/file/create: medium
 fs/file/delete: low
 fs/file/delete_forcibly: low

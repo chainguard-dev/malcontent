@@ -1,7 +1,8 @@
-# linux/clean/pull-scripts: medium
-c2/tool_transfer/shell: medium
+# linux/clean/pull-scripts: critical
+c2/tool_transfer/shell: critical
 exec/shell/exec: medium
 exec/shell/ignore_output: medium
+false-positives/rancher: low
 fs/directory/create: low
 fs/file/delete_forcibly: medium
 fs/file/make_executable: medium

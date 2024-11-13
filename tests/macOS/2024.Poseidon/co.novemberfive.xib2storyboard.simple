@@ -1,4 +1,5 @@
 # macOS/2024.Poseidon/co.novemberfive.xib2storyboard: high
 exec/shell/exec: medium
+impact/ui/dock_hide: high
 malware/family/poseidon_stealer: high
 net/url/parse: low

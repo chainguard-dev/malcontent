@@ -1,4 +1,5 @@
 # python/clean/setuptools/package_index.py: medium
+c2/refs: medium
 credential/password: low
 data/embedded/html: medium
 data/encoding/base64: low

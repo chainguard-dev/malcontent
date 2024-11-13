@@ -14,30 +14,16 @@ rule base64_gz: medium {
     $header
 }
 
-rule base64_gz_small: high {
-  meta:
-    description = "Contains base64 gzip content"
-
-  strings:
-    $header             = "H4sIA"
-    $not_assertEquals   = "assertEquals" fullword
-    $not_test_case      = "test_case" fullword
-    $not_gzipped_binary = "gzipped binary" fullword
-    $not_example        = "H4sIAAAAAAAAAOlongstringtoken"
-
-  condition:
-    filesize < 32KB and $header and none of ($not*)
-}
-
 rule base64_gz_high_entropy: high {
   meta:
-    description = "Contains base64 gzip content"
+    description = "high entropy (>6.5), contains base64 gzip content"
 
   strings:
-    $header = "H4sIA"
+    $header        = "H4sIA"
+    $not_cloudinit = "cloudinit" fullword
 
   condition:
-    filesize < 2MB and math.entropy(1, filesize) >= 5.0 and all of them
+    filesize < 2MB and math.entropy(1, filesize) >= 6.5 and $header and none of ($not*)
 }
 
 rule base64_obfuscated_js: critical {

@@ -76,13 +76,33 @@ rule executable_url: high {
     any of ($xec*) and none of ($not*)
 }
 
-rule http_url_with_zip: high {
+rule http_archive_url: medium {
   meta:
     description = "accesses hardcoded archive file endpoint"
 
   strings:
-    $exe_url = /https*:\/\/[\w\.]{0,160}[:\/\w\_\-\?\@=]{6,160}\.(zip|tar|tgz|gz|xz)/ fullword
+    $ref         = /https*:\/\/[\w\.]{0,160}[:\/\w\_\-\?\@=]{6,160}\.(zip|tar|tgz|gz|xz)/ fullword
+    $not_foo_bar = "http://foo/bar.tar"
 
   condition:
-    any of ($exe*)
+    any of ($ref*) and none of ($not*)
 }
+
+private rule smallerBinary {
+  condition:
+    // matches ELF or machO binary
+    filesize < 10MB and (uint32(0) == 1179403647 or uint32(0) == 4277009102 or uint32(0) == 3472551422 or uint32(0) == 4277009103 or uint32(0) == 3489328638 or uint32(0) == 3405691582 or uint32(0) == 3199925962)
+}
+
+rule http_archive_url_higher: high {
+  meta:
+    description = "accesses hardcoded archive file endpoint"
+
+  strings:
+    $ref         = /https*:\/\/[\w\.]{0,160}[:\/\w\_\-\?\@=]{6,160}\.(zip|tar|tgz|gz|xz)/ fullword
+    $not_foo_bar = "http://foo/bar.tar"
+
+  condition:
+    smallerBinary and any of ($ref*) and none of ($not*)
+}
+

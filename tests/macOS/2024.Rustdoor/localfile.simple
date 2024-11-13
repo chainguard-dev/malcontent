@@ -33,6 +33,7 @@ exfil/stealer/office: high
 exfil/stealer/ssh: medium
 fs/directory/create: low
 fs/directory/remove: low
+fs/file/copy: medium
 fs/file/delete: low
 fs/file/flags_change: low
 fs/file/make_executable: high

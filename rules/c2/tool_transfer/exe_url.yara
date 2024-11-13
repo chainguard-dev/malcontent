@@ -31,17 +31,6 @@ rule http_url_with_msi: high {
     any of ($exe*)
 }
 
-rule http_url_with_zip: high {
-  meta:
-    description = "accesses hardcoded archive file endpoint"
-
-  strings:
-    $exe_url = /https*:\/\/[\w\.]{0,160}[:\/\w\_\-\?\@=]{6,160}\.(zip|tar|tgz|gz|xz)/ fullword
-
-  condition:
-    any of ($exe*)
-}
-
 rule http_ip_url_with_msi: critical {
   meta:
     description = "accesses hardcoded install file endpoint via IP"

@@ -4,6 +4,7 @@ anti-static/obfuscation/php: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/discovery/ip_dns_resolver: medium
+c2/refs: medium
 collect/archives/zip: medium
 collect/databases/mysql: medium
 collect/databases/sqlite: medium
