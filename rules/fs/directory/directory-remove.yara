@@ -4,8 +4,9 @@ rule rmdir {
     pledge      = "wpath"
 
   strings:
-    $rmdir = "rmdir" fullword
-    $Rmdir = "Rmdir" fullword
+    $rmdir           = "rmdir" fullword
+    $Rmdir           = "Rmdir" fullword
+    $removeDirectory = "removeDirectory" fullword
 
   condition:
     any of them

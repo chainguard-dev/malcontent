@@ -3,6 +3,7 @@
 3P/threat_hunting/hijacker: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
+c2/refs: medium
 collect/archives/tar_command: medium
 collect/archives/zip: medium
 collect/code/github_api: low

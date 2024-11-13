@@ -16,12 +16,13 @@ rule pty: medium {
     2 of them
 }
 
-rule linux_pty: high {
+rule linux_pty: medium {
   meta:
     description = "pseudo-terminal access functions"
 
   strings:
     $linuxpty = "LinuxPty"
+    $forkpty  = "forkpty" fullword
 
   condition:
     any of them

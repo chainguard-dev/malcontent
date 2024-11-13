@@ -69,3 +69,25 @@ rule google_docs_uploader: high {
   condition:
     any of them
 }
+
+rule transfer_file: low {
+  meta:
+    description = "transfers files"
+
+  strings:
+    $transfer = "transfer file"
+
+  condition:
+    any of them
+}
+
+rule upload_file: medium {
+  meta:
+    description = "uploads files"
+
+  strings:
+    $transfer = "upload file"
+
+  condition:
+    any of them
+}

@@ -1,4 +1,5 @@
 # python/clean/gevent/test__monkey.py: medium
 anti-static/obfuscation/python: medium
 exec/program: medium
+impact/remote_access/pseudo_terminal: medium
 process/create: low

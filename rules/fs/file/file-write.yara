@@ -5,6 +5,7 @@ rule file_write {
   strings:
     $ref  = /[\w\:]{0,16}write[\w\:]{0,8}File[\w\:]{0,32}/
     $ref2 = "WriteFile"
+    $ref3 = "writeFile"
 
   condition:
     any of them
