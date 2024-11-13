@@ -11,6 +11,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"runtime"
 	"sort"
 	"strings"
 	"sync"
@@ -94,6 +95,8 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	var mrs yara.MatchRules
 	logger = logger.With("path", path)
 
+	isArchive := archiveRoot != ""
+
 	mime := "<unknown>"
 	kind, err := programkind.File(path)
 	if err != nil {
@@ -129,17 +132,27 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		return nil, err
 	}
 
-	// If absPath is provided, use it instead of the path if they are different.
-	// This is useful when scanning images and archives.
-	if absPath != "" && absPath != path && archiveRoot != "" {
-		cleanPath, err := cleanPath(path, archiveRoot)
+	// Clean up the path if scanning an archive
+	var clean string
+	if isArchive {
+		clean, err = cleanPath(path, archiveRoot)
 		if err != nil {
 			return nil, err
 		}
-		fr.Path = fmt.Sprintf("%s ∴ %s", absPath, formatPath(cleanPath))
+		clean = formatPath(strings.TrimPrefix(clean, archiveRoot))
+	}
+
+	// If absPath is provided, use it instead of the path if they are different.
+	// This is useful when scanning images and archives.
+	if absPath != "" && absPath != path && isArchive {
+		fr.Path = fmt.Sprintf("%s ∴ %s", absPath, clean)
 	}
 
 	if len(fr.Behaviors) == 0 {
+		// Ensure that files within archives with no behaviors are formatted consistently
+		if isArchive {
+			return &malcontent.FileReport{Path: fmt.Sprintf("%s ∴ %s", absPath, clean)}, nil
+		}
 		return &malcontent.FileReport{Path: path}, nil
 	}
 
@@ -293,7 +306,6 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 				}
 			}
 
-			// Only render after checking for hits/misses
 			if frs != nil {
 				frs.Range(func(key, value any) bool {
 					if key == nil || value == nil {
@@ -412,6 +424,11 @@ func processArchive(ctx context.Context, c malcontent.Config, rfs []fs.FS, archi
 	if err != nil {
 		return nil, fmt.Errorf("extract to temp: %w", err)
 	}
+	// macOS will prefix temporary directories with `/private`
+	// update tmpRoot with this prefix to allow strings.TrimPrefix to work
+	if runtime.GOOS == "darwin" {
+		tmpRoot = fmt.Sprintf("/private%s/", tmpRoot)
+	}
 
 	extractedPaths, err := findFilesRecursively(ctx, tmpRoot)
 	if err != nil {
@@ -424,6 +441,8 @@ func processArchive(ctx context.Context, c malcontent.Config, rfs []fs.FS, archi
 			return nil, err
 		}
 		if fr != nil {
+			// Store a clean reprepsentation of the archive's scanned file to match single file scanning behavior
+			extractedFilePath = strings.TrimPrefix(extractedFilePath, tmpRoot)
 			frs.Store(extractedFilePath, fr)
 		}
 	}

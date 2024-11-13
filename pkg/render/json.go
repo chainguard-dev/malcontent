@@ -27,14 +27,7 @@ func (r JSON) File(_ context.Context, _ *malcontent.FileReport) error {
 }
 
 func (r JSON) Full(_ context.Context, rep *malcontent.Report) error {
-	// Make the sync.Map JSON-friendly
-	type jsonReport struct {
-		Diff   *malcontent.DiffReport            `json:",omitempty" yaml:",omitempty"`
-		Files  map[string]*malcontent.FileReport `json:",omitempty" yaml:",omitempty"`
-		Filter string                            `json:",omitempty" yaml:",omitempty"`
-	}
-
-	jr := jsonReport{
+	jr := RenderReport{
 		Diff:   rep.Diff,
 		Files:  make(map[string]*malcontent.FileReport),
 		Filter: "",
@@ -46,7 +39,9 @@ func (r JSON) Full(_ context.Context, rep *malcontent.Report) error {
 		}
 		if path, ok := key.(string); ok {
 			if r, ok := value.(*malcontent.FileReport); ok {
-				jr.Files[path] = r
+				if r.Skipped == "" {
+					jr.Files[path] = r
+				}
 			}
 		}
 		return true

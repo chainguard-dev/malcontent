@@ -5,7 +5,6 @@ import (
 	"io/fs"
 	"os"
 	"runtime"
-	"sort"
 	"testing"
 
 	"github.com/chainguard-dev/clog"
@@ -23,7 +22,7 @@ func TestOCI(t *testing.T) {
 	clog.FromContext(ctx).With("test", "scan_oci")
 
 	var out bytes.Buffer
-	simple, err := render.New("simple", &out)
+	render, err := render.New("json", &out)
 	if err != nil {
 		t.Fatalf("render: %v", err)
 	}
@@ -33,7 +32,7 @@ func TestOCI(t *testing.T) {
 		IgnoreSelf:  false,
 		MinFileRisk: 0,
 		MinRisk:     0,
-		Renderer:    simple,
+		Renderer:    render,
 		RuleFS:      []fs.FS{rules.FS, thirdparty.FS},
 		ScanPaths:   []string{"testdata/static.tar.xz"},
 	}
@@ -41,23 +40,16 @@ func TestOCI(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := simple.Full(ctx, res); err != nil {
+	if err := render.Full(ctx, res); err != nil {
 		t.Fatalf("full: %v", err)
 	}
 
-	sort.Slice(out.Bytes(), func(i, j int) bool {
-		return out.Bytes()[i] < out.Bytes()[j]
-	})
 	got := out.String()
 
 	td, err := os.ReadFile("testdata/scan_oci")
 	if err != nil {
 		t.Fatalf("testdata read failed: %v", err)
 	}
-	// Sort the loaded contents to ensure consistent ordering
-	sort.Slice(td, func(i, j int) bool {
-		return td[i] < td[j]
-	})
 	want := string(td)
 
 	if diff := cmp.Diff(want, got); diff != "" {

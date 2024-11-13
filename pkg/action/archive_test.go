@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"sort"
 	"testing"
 
 	"github.com/chainguard-dev/clog"
@@ -217,15 +216,17 @@ func TestScanArchive(t *testing.T) {
 	clog.FromContext(ctx).With("test", "scan_archive")
 
 	var out bytes.Buffer
-	simple, err := render.New("simple", &out)
+	render, err := render.New("json", &out)
 	if err != nil {
 		t.Fatalf("render: %v", err)
 	}
+
 	bc := malcontent.Config{
 		Concurrency: runtime.NumCPU(),
 		IgnoreSelf:  false,
-		IgnoreTags:  []string{"harmless"},
-		Renderer:    simple,
+		MinFileRisk: 0,
+		MinRisk:     0,
+		Renderer:    render,
 		RuleFS:      []fs.FS{rules.FS, thirdparty.FS},
 		ScanPaths:   []string{"testdata/apko_nested.tar.gz"},
 	}
@@ -233,24 +234,16 @@ func TestScanArchive(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := simple.Full(ctx, res); err != nil {
+	if err := render.Full(ctx, res); err != nil {
 		t.Fatalf("full: %v", err)
 	}
 
-	outBytes := out.Bytes()
-	sort.Slice(outBytes, func(i, j int) bool {
-		return outBytes[i] < outBytes[j]
-	})
-
-	got := string(outBytes)
+	got := out.String()
 
 	td, err := os.ReadFile("testdata/scan_archive")
 	if err != nil {
 		t.Fatalf("testdata read failed: %v", err)
 	}
-	sort.Slice(td, func(i, j int) bool {
-		return td[i] < td[j]
-	})
 	want := string(td)
 
 	if diff := cmp.Diff(want, got); diff != "" {
