@@ -1,5 +1,16 @@
 rule file_copy: medium {
   meta:
+    description = "copy files"
+
+  strings:
+    $ref = /copyFile/ fullword
+
+  condition:
+    any of them
+}
+
+rule file_copy_cp: medium {
+  meta:
     description = "copy files using cp"
 
   strings:

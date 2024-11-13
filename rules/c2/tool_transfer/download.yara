@@ -20,6 +20,7 @@ rule download_sites: high {
     $d_anotepad      = "anotepad.com"
     $d_privnote      = "privnote.com"
     $d_hushnote      = /hushnote[\.\w\/]{3,16}/
+    $d_000webhostapp = "000webhostapp"
     $not_mozilla     = "download.mozilla.org"
     $not_google      = "dl.google.com"
     $not_manual      = "manually upload"
@@ -74,3 +75,34 @@ rule executable_url: high {
   condition:
     any of ($xec*) and none of ($not*)
 }
+
+rule http_archive_url: medium {
+  meta:
+    description = "accesses hardcoded archive file endpoint"
+
+  strings:
+    $ref         = /https*:\/\/[\w\.]{0,160}[:\/\w\_\-\?\@=]{6,160}\.(zip|tar|tgz|gz|xz)/ fullword
+    $not_foo_bar = "http://foo/bar.tar"
+
+  condition:
+    any of ($ref*) and none of ($not*)
+}
+
+private rule smallerBinary {
+  condition:
+    // matches ELF or machO binary
+    filesize < 10MB and (uint32(0) == 1179403647 or uint32(0) == 4277009102 or uint32(0) == 3472551422 or uint32(0) == 4277009103 or uint32(0) == 3489328638 or uint32(0) == 3405691582 or uint32(0) == 3199925962)
+}
+
+rule http_archive_url_higher: high {
+  meta:
+    description = "accesses hardcoded archive file endpoint"
+
+  strings:
+    $ref         = /https*:\/\/[\w\.]{0,160}[:\/\w\_\-\?\@=]{6,160}\.(zip|tar|tgz|gz|xz)/ fullword
+    $not_foo_bar = "http://foo/bar.tar"
+
+  condition:
+    smallerBinary and any of ($ref*) and none of ($not*)
+}
+

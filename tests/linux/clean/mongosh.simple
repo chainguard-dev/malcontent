@@ -59,6 +59,7 @@ exec/dylib/symbol_address: medium
 exec/plugin: low
 exec/program: medium
 exec/program/background: low
+exec/script/activex: medium
 exec/script/osa: medium
 exec/shell/SHELL: low
 exec/shell/TERM: low

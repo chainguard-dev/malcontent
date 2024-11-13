@@ -14,9 +14,11 @@ rule var_tmp_path_hidden: high {
     description = "path reference to hidden file within /var/tmp"
 
   strings:
-    $resolv = /var\/tmp\/\.[%\w\.\-\/]{0,64}/
+    $ref = /\/{0,1}var\/tmp\/\.[%\w\.\-\/]{0,64}/
+
+    $not_xfs = "var/tmp/.fsrlast_xfs"
 
   condition:
-    any of them
+    $ref and none of ($not*)
 }
 

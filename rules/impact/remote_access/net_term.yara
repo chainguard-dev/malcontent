@@ -174,3 +174,17 @@ rule ssl_backdoor: high {
   condition:
     filesize < 100KB and 90 % of ($f*) and any of ($sh*) and $cert and $key
 }
+
+rule libev_webshell: high {
+  meta:
+    description = "libev powered network shell"
+
+  strings:
+    $getaddrinfo = "getaddrinfo" fullword
+    $forkpty     = "forkpty" fullword
+    $exec        = /exec[vl]e{0,1}/ fullword
+    $ev_start    = "ev_start" fullword
+
+  condition:
+    filesize < 500KB and all of them
+}
