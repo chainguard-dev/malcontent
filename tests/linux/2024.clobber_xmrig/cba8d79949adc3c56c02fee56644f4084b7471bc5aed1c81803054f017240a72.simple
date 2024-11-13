@@ -24,7 +24,6 @@ discover/processes/list: medium
 discover/system/cpu: low
 discover/system/hostname: low
 discover/user/HOME: low
-evasion/bypass_security/linux/pam: medium
 evasion/file/prefix: medium
 evasion/logging/acct: low
 exec/plugin: low

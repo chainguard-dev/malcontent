@@ -1,4 +1,5 @@
 # javascript/clean/highlight.esm.js: medium
+anti-static/obfuscation/js: medium
 c2/addr/ip: medium
 c2/connect/ping_pong: medium
 collect/archives/unarchive: medium
@@ -25,6 +26,7 @@ exec/plugin: low
 exec/program/background: low
 exec/program/hidden: medium
 exec/remote_commands/code_eval: medium
+exec/script/activex: medium
 exec/script/osa: medium
 exec/shell/SHELL: low
 exec/shell/exec: medium

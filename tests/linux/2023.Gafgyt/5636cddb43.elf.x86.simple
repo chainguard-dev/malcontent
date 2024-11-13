@@ -2,6 +2,7 @@
 3P/elastic/gafgyt: critical
 c2/addr/ip: high
 c2/discovery/ip_dns_resolver: medium
+crypto/rc4: low
 data/random/insecure: low
 discover/network/mac_address: medium
 exec/program/background: low
@@ -16,6 +17,7 @@ fs/proc/net_route: high
 impact/ddos: critical
 impact/ddos/raw_flooder: medium
 lateral/scan/tool: medium
+malware/family/mirai: critical
 net/dns/servers: low
 net/http/fake_user_agent: medium
 net/ip/parse: medium

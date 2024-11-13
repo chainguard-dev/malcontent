@@ -6,9 +6,11 @@ rule powershell_byte_xor: critical windows {
     $ps_powershell = "powershell"
     $ps_bytes      = "[System.IO.File]"
     $xor           = "-bxor" fullword
+    $not_docs      = " https://docs.microsoft.com"
+    $not_verbs     = "-cnotcontains"
 
   condition:
-    filesize < 16KB and $xor and any of ($ps*)
+    filesize < 16KB and $xor and any of ($ps*) and none of ($not*)
 }
 
 rule casing_obfuscation: medium windows {

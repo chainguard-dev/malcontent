@@ -1,4 +1,5 @@
 --- missing: sbcl.clean
+-crypto/rc4
 -data/compression/zstd
 -discover/user/HOME
 -discover/user/USER

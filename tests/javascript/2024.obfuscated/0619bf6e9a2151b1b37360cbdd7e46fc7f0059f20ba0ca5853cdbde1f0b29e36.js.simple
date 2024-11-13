@@ -1,0 +1,5 @@
+# javascript/2024.obfuscated/0619bf6e9a2151b1b37360cbdd7e46fc7f0059f20ba0ca5853cdbde1f0b29e36.js: high
+anti-static/obfuscation/js: high
+data/encoding/json_decode: low
+exec/plugin: low
+net/url/encode: medium

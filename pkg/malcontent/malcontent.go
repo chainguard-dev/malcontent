@@ -7,6 +7,7 @@ import (
 	"context"
 	"io"
 	"io/fs"
+	"sync"
 
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
@@ -106,9 +107,9 @@ type DiffReport struct {
 }
 
 type Report struct {
-	Files  *orderedmap.OrderedMap[string, *FileReport] `json:",omitempty" yaml:",omitempty"`
-	Diff   *DiffReport                                 `json:",omitempty" yaml:",omitempty"`
-	Filter string                                      `json:",omitempty" yaml:",omitempty"`
+	Files  sync.Map    `json:",omitempty" yaml:",omitempty"`
+	Diff   *DiffReport `json:",omitempty" yaml:",omitempty"`
+	Filter string      `json:",omitempty" yaml:",omitempty"`
 }
 
 type IntMetric struct {

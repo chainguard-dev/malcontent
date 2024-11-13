@@ -25,6 +25,7 @@ credential/ssl/private_key: low
 crypto/aes: low
 crypto/ecdsa: low
 crypto/ed25519: low
+crypto/rc4: low
 crypto/tls: low
 data/compression/gzip: low
 data/encoding/base64: low

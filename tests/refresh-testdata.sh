@@ -42,13 +42,19 @@ function addq() {
 # OCI edge case
 cd "${root_dir}/pkg/action"
 echo "regenerating test data, max_procs=${MAX_PROCS} ..."
-${malcontent} --format=simple \
-	--min-risk any \
-	--min-file-risk any \
+${malcontent} \
+	--min-risk 0 \
+	--min-file-risk 0 \
+	--ignore-self=false \
+	--format json \
 	-o testdata/scan_oci \
 	analyze testdata/static.tar.xz &
 
-${malcontent} --format=simple \
+${malcontent} \
+    --min-risk 0 \
+    --min-file-risk 0 \
+    --ignore-self=false \
+    --format json \
     -o testdata/scan_archive \
     analyze testdata/apko_nested.tar.gz &
 

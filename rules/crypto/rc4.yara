@@ -1,3 +1,18 @@
+rule rc4_ksa: low {
+  meta:
+    author      = "Thomas Barabosch"
+    description = "RC4 key scheduling algorithm"
+
+  strings:
+    // false-positive: $cmp_eax_256 = { 3d 00 01 00 00 }  // cmp eax, 256
+    $cmp_e_x_256 = { 81 f? 00 01 00 00 }  // cmp {ebx, ecx, edx}, 256
+    // false-positive: $cmp_rax_256 = { 48 3d 00 01 00 00 }  // cmp rax, 256
+    $cmp_r_x_256 = { 48 81 f? 00 01 00 00 }  // cmp {rbx, rcx, …}, 256
+
+  condition:
+    filesize < 10MB and any of them
+}
+
 rule rc4_constants: medium {
   meta:
     descrption                           = "Identify constants used by the ARC4 cryptographic algorithm."
@@ -78,5 +93,5 @@ rule rc4_constants: medium {
     $opt63 = { 63 62 61 60 }
 
   condition:
-    80 % of ($opt*)
+    75 % of ($opt*)
 }

@@ -1,0 +1,6 @@
+# javascript/2024.obfuscated/04363d3c6d6f3badf15f8e99d3739612a7eec439cdcb4457150bbb330a829e7a.js: critical
+anti-static/obfuscation/js: high
+exec/script/activex: medium
+exec/script/wsh: high
+exfil/stealer/vmware: high
+fs/path/app_data: medium

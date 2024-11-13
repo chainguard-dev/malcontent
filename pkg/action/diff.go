@@ -32,36 +32,42 @@ func relFileReport(ctx context.Context, c malcontent.Config, fromPath string) (m
 		return nil, err
 	}
 	fromRelPath := map[string]*malcontent.FileReport{}
-	for files := fromReport.Files.Oldest(); files != nil; files = files.Next() {
-		if files.Value.Skipped != "" || files.Value.Error != "" {
-			continue
+	fromReport.Files.Range(func(key, value any) bool {
+		if key == nil || value == nil {
+			return true
 		}
-		// Evaluate symlinks to cover edge cases like macOS' /private/tmp -> /tmp symlink
-		// Also, remove any filenames to correctly determine the relative path
-		// Using "." and "." will show as modifications for completely unrelated files and paths
-		info, err := os.Stat(fromPath)
-		if err != nil {
-			return nil, fmt.Errorf("failed to stat file %s: %w", fromPath, err)
+		if fr, ok := value.(*malcontent.FileReport); ok {
+			if fr.Skipped != "" || fr.Error != "" {
+				return true
+			}
+			// Evaluate symlinks to cover edge cases like macOS' /private/tmp -> /tmp symlink
+			// Also, remove any filenames to correctly determine the relative path
+			// Using "." and "." will show as modifications for completely unrelated files and paths
+			info, err := os.Stat(fromPath)
+			if err != nil {
+				return false
+			}
+			dir := filepath.Dir(fromPath)
+			var fromRoot string
+			if info.IsDir() {
+				fromRoot, err = filepath.EvalSymlinks(fromPath)
+			} else {
+				fromRoot, err = filepath.EvalSymlinks(dir)
+			}
+			if err != nil {
+				return false
+			}
+			if fromRoot == "." {
+				fromRoot = fromPath
+			}
+			rel, err := filepath.Rel(fromRoot, fr.Path)
+			if err != nil {
+				return false
+			}
+			fromRelPath[rel] = fr
 		}
-		dir := filepath.Dir(fromPath)
-		var fromRoot string
-		if info.IsDir() {
-			fromRoot, err = filepath.EvalSymlinks(fromPath)
-		} else {
-			fromRoot, err = filepath.EvalSymlinks(dir)
-		}
-		if err != nil {
-			return nil, fmt.Errorf("failed to evaluate symlink for %s: %w", fromPath, err)
-		}
-		if fromRoot == "." {
-			fromRoot = fromPath
-		}
-		rel, err := filepath.Rel(fromRoot, files.Value.Path)
-		if err != nil {
-			return nil, fmt.Errorf("rel(%q,%q): %w", fromPath, files.Value.Path, err)
-		}
-		fromRelPath[rel] = files.Value
-	}
+		return true
+	})
 
 	return fromRelPath, nil
 }
@@ -72,29 +78,37 @@ func Diff(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) 
 	}
 
 	var g errgroup.Group
-	g.SetLimit(2) // create src and dest relFileReports concurrently
-
 	var src, dest map[string]*malcontent.FileReport
-	var err error
+	srcCh := make(chan map[string]*malcontent.FileReport, 1)
+	destCh := make(chan map[string]*malcontent.FileReport, 1)
+
 	g.Go(func() error {
-		src, err = relFileReport(ctx, c, c.ScanPaths[0])
+		src, err := relFileReport(ctx, c, c.ScanPaths[0])
 		if err != nil {
 			return err
 		}
+		srcCh <- src
 		return nil
 	})
 
 	g.Go(func() error {
-		dest, err = relFileReport(ctx, c, c.ScanPaths[1])
+		dest, err := relFileReport(ctx, c, c.ScanPaths[1])
 		if err != nil {
 			return err
 		}
+		destCh <- dest
 		return nil
 	})
 
 	if err := g.Wait(); err != nil {
 		return nil, err
 	}
+
+	src = <-srcCh
+	dest = <-destCh
+
+	close(srcCh)
+	close(destCh)
 
 	d := &malcontent.DiffReport{
 		Added:    orderedmap.New[string, *malcontent.FileReport](),
@@ -108,7 +122,7 @@ func Diff(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) 
 	if d.Added != nil && d.Removed != nil {
 		inferMoves(ctx, c, d)
 	}
-	return &malcontent.Report{Diff: d}, err
+	return &malcontent.Report{Diff: d}, nil
 }
 
 func processSrc(ctx context.Context, c malcontent.Config, src, dest map[string]*malcontent.FileReport, d *malcontent.DiffReport) {

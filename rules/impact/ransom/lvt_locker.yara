@@ -54,5 +54,5 @@ rule lvt_locker: critical {
     $not_sonar3 = "SonarQube is free software; you can redistribute it and/or"
 
   condition:
-    5 of them and none of ($not*)
+    filesize < 2MB and 5 of them and none of ($not*)
 }

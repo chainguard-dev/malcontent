@@ -58,10 +58,13 @@ rule binary_url_with_question: high {
     description = "binary contains hardcoded URL with question mark"
 
   strings:
-    $ref = /https*:\/\/[\w\.\/]{8,160}\.(asp|php|exe|dll)\?[\w\=\&]{0,32}/
+    $ref             = /https*:\/\/[\w\.\/]{8,160}\.(asp|php|exe|dll)\?[\w\=\&]{0,32}/
+    $not_wikipedia   = "wikipedia.org/"
+    $not_msdn        = "msdn.microsoft.com/"
+    $not_codeproject = "www.codeproject.com/"
 
   condition:
-    filesize < 150MB and elf_or_macho and $ref
+    filesize < 150MB and elf_or_macho and $ref and none of ($not*)
 }
 
 rule script_url_with_question: high {
@@ -79,6 +82,10 @@ rule script_url_with_question: high {
     $f_urlopen       = "urlopen" fullword
     $ref             = /https*:\/\/[\w\.\/]{8,160}\.(asp|php|exe|dll)\?[\w\=\&]{0,32}/
 
+    $not_wikipedia   = "wikipedia.org/"
+    $not_msdn        = "msdn.microsoft.com/"
+    $not_codeproject = "www.codeproject.com/"
+
   condition:
-    filesize < 256KB and any of ($f*) and $ref
+    filesize < 256KB and any of ($f*) and $ref and none of ($not*)
 }

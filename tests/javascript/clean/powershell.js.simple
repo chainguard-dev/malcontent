@@ -1,5 +1,4 @@
-# javascript/clean/powershell.js: critical
-anti-static/obfuscation/powershell: critical
+# javascript/clean/powershell.js: medium
 exec/shell/power: medium
 false-positives/opensearch_dashboard: low
 fs/directory/remove: low

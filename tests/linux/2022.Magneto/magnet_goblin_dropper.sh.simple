@@ -1,0 +1,8 @@
+# linux/2022.Magneto/magnet_goblin_dropper.sh: critical
+c2/tool_transfer/shell: critical
+fs/file/make_executable: medium
+fs/path/relative: medium
+fs/permission/modify: medium
+net/download/fetch: medium
+net/url/embedded: low
+process/chdir: low
