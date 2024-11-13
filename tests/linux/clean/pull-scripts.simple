@@ -1,5 +1,5 @@
-# linux/clean/pull-scripts: critical
-c2/tool_transfer/shell: critical
+# linux/clean/pull-scripts: medium
+c2/tool_transfer/shell: medium
 exec/shell/exec: medium
 exec/shell/ignore_output: medium
 false-positives/rancher: low

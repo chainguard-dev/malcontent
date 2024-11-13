@@ -44,14 +44,18 @@ rule tool_chmod_relative_run_tiny: critical {
     $o_chmod     = /chmod [\+\-\w \$\@\{\w\/\.]{0,64}/
     $o_dot_slash = /\.\/[\$a-z]{1,2}[a-z\.\/\- ]{0,32}/ fullword
 
+    $not_copyright_comment = "# Copyright"
+    $not_source            = "source ./"
+    $not_apache_license    = "Apache License"
+
   condition:
-    filesize < 6KB and any of ($must*) and all of ($o*)
+    filesize < 6KB and any of ($must*) and all of ($o*) and none of ($not*)
 }
 
 rule helm_test_env: override {
   meta:
     description                  = "helm_test_env"
-    curl_chmod_relative_run_tiny = "medium"
+    tool_chmod_relative_run_tiny = "medium"
 
   strings:
     $helm_curl = "curl -L https://get.helm.sh"
