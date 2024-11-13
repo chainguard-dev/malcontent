@@ -9,6 +9,7 @@ rule rename: harmless posix {
     $rename_file = "renameFile" fullword
     $move_file   = "MoveFile"
     $ruby        = "File.rename"
+    $objc        = "renameFile" fullword
 
   condition:
     any of them

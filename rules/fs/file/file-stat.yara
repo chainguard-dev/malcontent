@@ -31,7 +31,8 @@ rule lstat: harmless {
     syscall = "lstat"
 
   strings:
-    $ref = "lstat" fullword
+    $ref  = "lstat" fullword
+    $ref2 = "fxstat" fullword
 
   condition:
     any of them

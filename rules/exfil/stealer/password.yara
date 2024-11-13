@@ -24,3 +24,37 @@ rule password_finder_mimipenguin: critical {
   condition:
     filesize < 2MB and 3 of ($base*) and any of ($extra*) and none of ($not*)
 }
+
+rule password_prompt: medium {
+  meta:
+    description = "prompts for a password"
+
+  strings:
+    $isPasswordVisible = "isPasswordVisible"
+
+  condition:
+    filesize < 25MB and any of them
+}
+
+rule password_prompt_high: high {
+  meta:
+    description = "demands a password to be entered"
+
+  strings:
+    $must = "password must be entered"
+
+  condition:
+    filesize < 25MB and any of them
+}
+
+rule verify_password: high {
+  meta:
+    description = "verifies a password via unknown means"
+
+  strings:
+    $verify = "verifyPassword"
+
+  condition:
+    filesize < 10MB and any of them
+
+}

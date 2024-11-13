@@ -20,6 +20,7 @@ rule download_sites: high {
     $d_anotepad      = "anotepad.com"
     $d_privnote      = "privnote.com"
     $d_hushnote      = /hushnote[\.\w\/]{3,16}/
+    $d_000webhostapp = "000webhostapp"
     $not_mozilla     = "download.mozilla.org"
     $not_google      = "dl.google.com"
     $not_manual      = "manually upload"
@@ -73,4 +74,15 @@ rule executable_url: high {
 
   condition:
     any of ($xec*) and none of ($not*)
+}
+
+rule http_url_with_zip: high {
+  meta:
+    description = "accesses hardcoded archive file endpoint"
+
+  strings:
+    $exe_url = /https*:\/\/[\w\.]{0,160}[:\/\w\_\-\?\@=]{6,160}\.(zip|tar|tgz|gz|xz)/ fullword
+
+  condition:
+    any of ($exe*)
 }

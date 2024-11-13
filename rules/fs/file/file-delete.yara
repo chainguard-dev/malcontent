@@ -9,6 +9,7 @@ rule unlink: posix {
     $unlink   = "unlink" fullword
     $unlinkat = "unlinkat" fullword
     $py       = "os.remove("
+    $objc     = "deleteFile" fullword
 
   condition:
     any of them

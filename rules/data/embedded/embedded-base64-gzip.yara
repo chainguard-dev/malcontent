@@ -1,3 +1,5 @@
+import "math"
+
 rule base64_gz: medium {
   meta:
     description                                                                = "Contains base64 gzip content"
@@ -25,4 +27,30 @@ rule base64_gz_small: high {
 
   condition:
     filesize < 32KB and $header and none of ($not*)
+}
+
+rule base64_gz_high_entropy: high {
+  meta:
+    description = "Contains base64 gzip content"
+
+  strings:
+    $header = "H4sIA"
+
+  condition:
+    filesize < 2MB and math.entropy(1, filesize) >= 5.0 and all of them
+}
+
+rule base64_obfuscated_js: critical {
+  meta:
+    description = "Contains base64 gzip content within high-entropy javascript"
+
+  strings:
+    $header = "H4sIA"
+    $       = "charAt("
+    $       = "substr("
+    $       = "join("
+    $       = "function("
+
+  condition:
+    filesize < 2MB and all of them and math.entropy(1, filesize) >= 5.0
 }
