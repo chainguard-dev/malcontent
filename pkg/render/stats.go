@@ -3,28 +3,45 @@ package render
 import (
 	"fmt"
 	"sort"
+	"sync"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/report"
-	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
-func riskStatistics(files *orderedmap.OrderedMap[string, *malcontent.FileReport]) ([]malcontent.IntMetric, int, int) {
-	riskMap := make(map[int][]string, files.Len())
-	riskStats := make(map[int]float64, files.Len())
+// smLength returns the length of a sync.Map.
+func smLength(m *sync.Map) int {
+	length := 0
+	m.Range(func(_, _ any) bool {
+		length++
+		return true
+	})
+	return length
+}
+
+func riskStatistics(files *sync.Map) ([]malcontent.IntMetric, int, int) {
+	length := smLength(files)
+
+	riskMap := make(map[int][]string, length)
+	riskStats := make(map[int]float64, length)
 
 	// as opposed to skipped files
 	processedFiles := 0
-	for files := files.Oldest(); files != nil; files = files.Next() {
-		if files.Value.Skipped != "" {
-			continue
+	files.Range(func(key, value any) bool {
+		if key == nil || value == nil {
+			return true
 		}
 		processedFiles++
-		riskMap[files.Value.RiskScore] = append(riskMap[files.Value.RiskScore], files.Value.Path)
+		if fr, ok := value.(*malcontent.FileReport); ok {
+			if fr.Skipped == "" {
+				riskMap[fr.RiskScore] = append(riskMap[fr.RiskScore], fr.Path)
+			}
+		}
 		for riskLevel := range riskMap {
 			riskStats[riskLevel] = (float64(len(riskMap[riskLevel])) / float64(processedFiles)) * 100
 		}
-	}
+		return true
+	})
 
 	stats := make([]malcontent.IntMetric, 0, len(riskStats))
 	total := func() int {
@@ -44,18 +61,26 @@ func riskStatistics(files *orderedmap.OrderedMap[string, *malcontent.FileReport]
 	return stats, total(), processedFiles
 }
 
-func pkgStatistics(files *orderedmap.OrderedMap[string, *malcontent.FileReport]) ([]malcontent.StrMetric, int, int) {
-	numNamespaces := 0
-	pkgMap := make(map[string]int, files.Len())
-	pkg := make(map[string]float64, files.Len())
-	for files := files.Oldest(); files != nil; files = files.Next() {
-		for _, namespace := range files.Value.Behaviors {
-			numNamespaces++
-			pkgMap[namespace.ID]++
+func pkgStatistics(files *sync.Map) ([]malcontent.StrMetric, int, int) {
+	length := smLength(files)
+	numBehaviors := 0
+	pkgMap := make(map[string]int, length)
+	pkg := make(map[string]float64, length)
+	files.Range(func(key, value any) bool {
+		if key == nil || value == nil {
+			return true
 		}
-	}
+		if fr, ok := value.(*malcontent.FileReport); ok {
+			for _, b := range fr.Behaviors {
+				numBehaviors++
+				pkgMap[b.ID]++
+			}
+		}
+		return true
+	})
+
 	for namespace, count := range pkgMap {
-		pkg[namespace] = (float64(count) / float64(numNamespaces)) * 100
+		pkg[namespace] = (float64(count) / float64(numBehaviors)) * 100
 	}
 
 	width := 10
@@ -69,24 +94,26 @@ func pkgStatistics(files *orderedmap.OrderedMap[string, *malcontent.FileReport])
 	}
 	stats := make([]malcontent.StrMetric, 0, len(pkg))
 	for k, v := range pkg {
-		stats = append(stats, malcontent.StrMetric{Key: k, Value: v, Count: pkgMap[k], Total: numNamespaces})
+		stats = append(stats, malcontent.StrMetric{Key: k, Value: v, Count: pkgMap[k], Total: numBehaviors})
 	}
 	sort.Slice(stats, func(i, j int) bool {
 		return stats[i].Value > stats[j].Value
 	})
-	return stats, width, numNamespaces
+	return stats, width, numBehaviors
 }
 
 func Statistics(r *malcontent.Report) error {
-	riskStats, totalRisks, totalFilesProcessed := riskStatistics(r.Files)
-	pkgStats, width, totalPkgs := pkgStatistics(r.Files)
+	riskStats, totalRisks, totalFilesProcessed := riskStatistics(&r.Files)
+	pkgStats, width, totalBehaviors := pkgStatistics(&r.Files)
+
+	length := smLength(&r.Files)
 
 	statsSymbol := "📊"
 	riskSymbol := "⚠️ "
 	pkgSymbol := "📦"
 	fmt.Printf("%s Statistics\n", statsSymbol)
 	fmt.Println("---")
-	fmt.Printf("\033[1;37m%-15s \033[1;37m%s\033[0m\n", "Files Scanned", fmt.Sprintf("%d (%d skipped)", totalFilesProcessed, r.Files.Len()-totalFilesProcessed))
+	fmt.Printf("\033[1;37m%-15s \033[1;37m%s\033[0m\n", "Files Scanned", fmt.Sprintf("%d (%d skipped)", totalFilesProcessed, length-totalFilesProcessed))
 	fmt.Printf("\033[1;37m%-15s \033[1;37m%s\033[0m\n", "Total Risks", fmt.Sprintf("%d", totalRisks))
 	fmt.Println("---")
 	fmt.Printf("%s Risk Level Percentage\n", riskSymbol)
@@ -111,11 +138,11 @@ func Statistics(r *malcontent.Report) error {
 	}
 
 	fmt.Println("---")
-	fmt.Printf("\033[1;37m%-12s \033[1;37m%10s\033[0m\n", "Total Packages", fmt.Sprintf("%d", totalPkgs))
+	fmt.Printf("\033[1;37m%-12s \033[1;37m%10s\033[0m\n", "Number of behaviors", fmt.Sprintf("%d", totalBehaviors))
 	fmt.Println("---")
-	fmt.Printf("%s Package Risk Percentage\n", pkgSymbol)
+	fmt.Printf("%s Package Behaviors\n", pkgSymbol)
 	fmt.Println("---")
-	fmt.Printf("\033[1;37m%-*s  \033[1;37m%10s %s\033[0m\n", width, "Package", "Percentage", "Count/Total")
+	fmt.Printf("\033[1;37m%-*s  \033[1;37m%10s %s\033[0m\n", width, "Namespace", "Percentage", "Count/Total")
 	for _, pkg := range pkgStats {
 		fmt.Printf("%-*s %10.2f%s %d/%d\n", width, pkg.Key, pkg.Value, "%", pkg.Count, pkg.Total)
 	}
