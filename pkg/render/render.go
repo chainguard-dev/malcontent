@@ -10,8 +10,8 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 )
 
-// Report stores a JSON- or YAML-friendly representation of File Reports
-type RenderReport struct {
+// Report stores a JSON- or YAML-friendly representation of File Reports.
+type Report struct {
 	Diff   *malcontent.DiffReport            `json:",omitempty" yaml:",omitempty"`
 	Files  map[string]*malcontent.FileReport `json:",omitempty" yaml:",omitempty"`
 	Filter string                            `json:",omitempty" yaml:",omitempty"`

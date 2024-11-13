@@ -22,7 +22,7 @@ func TestOCI(t *testing.T) {
 	clog.FromContext(ctx).With("test", "scan_oci")
 
 	var out bytes.Buffer
-	render, err := render.New("json", &out)
+	r, err := render.New("json", &out)
 	if err != nil {
 		t.Fatalf("render: %v", err)
 	}
@@ -32,7 +32,7 @@ func TestOCI(t *testing.T) {
 		IgnoreSelf:  false,
 		MinFileRisk: 0,
 		MinRisk:     0,
-		Renderer:    render,
+		Renderer:    r,
 		RuleFS:      []fs.FS{rules.FS, thirdparty.FS},
 		ScanPaths:   []string{"testdata/static.tar.xz"},
 	}
@@ -40,7 +40,7 @@ func TestOCI(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := render.Full(ctx, res); err != nil {
+	if err := r.Full(ctx, res); err != nil {
 		t.Fatalf("full: %v", err)
 	}
 

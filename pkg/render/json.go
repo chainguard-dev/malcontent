@@ -27,7 +27,7 @@ func (r JSON) File(_ context.Context, _ *malcontent.FileReport) error {
 }
 
 func (r JSON) Full(_ context.Context, rep *malcontent.Report) error {
-	jr := RenderReport{
+	jr := Report{
 		Diff:   rep.Diff,
 		Files:  make(map[string]*malcontent.FileReport),
 		Filter: "",

@@ -28,7 +28,7 @@ func (r YAML) File(_ context.Context, _ *malcontent.FileReport) error {
 
 func (r YAML) Full(_ context.Context, rep *malcontent.Report) error {
 	// Make the sync.Map YAML-friendly
-	yr := RenderReport{
+	yr := Report{
 		Diff:   rep.Diff,
 		Files:  make(map[string]*malcontent.FileReport),
 		Filter: "",
