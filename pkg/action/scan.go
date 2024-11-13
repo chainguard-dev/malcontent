@@ -427,7 +427,7 @@ func processArchive(ctx context.Context, c malcontent.Config, rfs []fs.FS, archi
 	// macOS will prefix temporary directories with `/private`
 	// update tmpRoot with this prefix to allow strings.TrimPrefix to work
 	if runtime.GOOS == "darwin" {
-		tmpRoot = fmt.Sprintf("/private%s/", tmpRoot)
+		tmpRoot = fmt.Sprintf("/private%s", tmpRoot)
 	}
 
 	extractedPaths, err := findFilesRecursively(ctx, tmpRoot)
