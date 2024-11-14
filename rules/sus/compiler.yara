@@ -40,9 +40,10 @@ rule multiple_gcc: high {
     description = "built with multiple versions of GCC"
 
   strings:
-    $gcc = /GCC: \([\w \.\-\~\(\)]{8,64}/ fullword
-	$not_go_testdata_ranges_elf = "/home/iant/foo4.c"
+    $gcc                        = /GCC: \([\w \.\-\~\(\)]{8,64}/ fullword
+    $not_go_testdata_ranges_elf = "/home/iant/foo4.c"
+    $not_go_testdata            = "dwarf/testdata"
 
   condition:
-    binary and #gcc > 1 and @gcc[1] != @gcc[2] and none of ($not*)
+    binary and #gcc > 1 and !gcc[1] != !gcc[2] and none of ($not*)
 }
