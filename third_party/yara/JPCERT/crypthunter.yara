@@ -17,7 +17,7 @@ rule CryptHunter_lnk_bitly {
         description = "detect suspicious lnk file"
         author = "JPCERT/CC Incident Response Group"
         reference = "internal research"
-
+        hash1 = "01b5cd525d18e28177924d8a7805c2010de6842b8ef430f29ed32b3e5d7d99a0"
 
       strings:
         $a1 = "cmd.exe" wide ascii
@@ -34,7 +34,7 @@ rule CryptHunter_httpbotjs_str {
     meta:
         description = "HTTP bot js in CryptHunter"
         author = "JPCERT/CC Incident Response Group"
-
+        hash1 = "b316b81bc0b0deb81da5e218b85ca83d7260cc40dae97766bc94a6931707dc1b"
 
      strings:
         $base64 = "W0NtZGxldEJpbmRpbmcoKV1QYXJhbShbUGFyYW1ldGVyKFBvc2l0aW9uPTApXVtTdHJpbmddJFVSTCxbUGFyYW1ldGVyKFBvc2l0aW9uPTEpXVtTdHJpbmddJFVJRCkNCmZ1bmN0aW9uIEh0dHBSZXEyew" ascii
@@ -230,7 +230,7 @@ rule CryptHunter_pythonDownloader {
     meta:
         description = "1st stage python downloader in Dangerouspassword"
         author = "JPCERT/CC Incident Response Group"
-
+        hash1 = "e0891a1bfa5980171599dc5fe31d15be0a6c79cc08ab8dc9f09ceec7a029cbdf"
 
     strings:
         $str01 = "auto_interrupt_handle" ascii wide fullword
@@ -256,8 +256,8 @@ rule CryptHunter_pythonSimpleRAT {
     meta:
         description = "2nd stage python simple rat in Dangerouspassword"
         author = "JPCERT/CC Incident Response Group"
-
-
+        hash1 = "39bbc16028fd46bf4ddad49c21439504d3f6f42cccbd30945a2d2fdb4ce393a4"
+        hash2 = "5fe1790667ee5085e73b054566d548eb4473c20cf962368dd53ba776e9642272"
 
     strings:
         $domain01 = "www.git-hub.me" ascii wide fullword
@@ -305,7 +305,7 @@ rule CryptHunter_jsDownloader {
     meta:
         description = "1st stage js downloader in Dangerouspassword"
         author = "JPCERT/CC Incident Response Group"
-
+        hash1 = "67a0f25a20954a353021bbdfdd531f7cc99c305c25fb03079f7abbc60e8a8081"
 
     strings:
         $code01 = "UID + AgentType + SessionType + OS;" ascii wide fullword

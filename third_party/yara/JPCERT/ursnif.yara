@@ -4,9 +4,9 @@ rule malware_Ursnif_strings {
             author = "JPCERT/CC Incident Response Group"
             rule_usage = "memory scan"
             reference = "internal research"
-
-
-
+            hash1 = "0207c06879fb4a2ddaffecc3a6713f2605cbdd90fc238da9845e88ff6aef3f85"
+            hash2 = "ff2aa9bd3b9b3525bae0832d1e2b7c6dfb988dc7add310088609872ad9a7e714"
+            hash3 = "1eca399763808be89d2e58e1b5e242324d60e16c0f3b5012b0070499ab482510"
 
           strings:
             $a1 = "soft=%u&version=%u&user=%08x%08x%08x%08x&server=%u&id=%u&crc=%x"

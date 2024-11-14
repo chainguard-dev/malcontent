@@ -2,10 +2,10 @@ rule malware_WinDealer {
     meta:
       description = "detect WinDealer LuoYu"
       author = "JPCERT/CC Incident Response Group"
-
-
-
-
+      hash2 = "1e9fc7f32bd5522dd0222932eb9f1d8bd0a2e132c7b46cfcc622ad97831e6128"
+      hash3 = "b9f526eea625eec1ddab25a0fc9bd847f37c9189750499c446471b7a52204d5a"
+      hash4 = "0c365d9730a10f1a3680d24214682f79f88aa2a2a602d3d80ef4c1712210ab07"
+      hash5 = "2eef273af0c768b514db6159d7772054d27a6fa8bc3d862df74de75741dbfb9c"
 
     strings:
       /* monitoring files */

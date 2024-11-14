@@ -2,7 +2,7 @@ rule Lazarus_BILDINGCAN_RC4 {
     meta:
         description = "BILDINGCAN_RC4 in Lazarus"
         author = "JPCERT/CC Incident Response Group"
-
+        hash1 = "8db272ea1100996a8a0ed0da304610964dc8ca576aa114391d1be9d4c5dab02e"
 
     strings:
         $customrc4 = { 75 C0 41 8B D2 41 BB 00 0C 00 00 0F 1F 80 00 00 00 00 }
@@ -23,7 +23,7 @@ rule Lazarus_BILDINGCAN_AES {
     meta:
         description = "BILDINGCAN_AES in Lazarus"
         author = "JPCERT/CC Incident Response Group"
-
+        hash1 = "925922ef243fa2adbd138942a9ecb4616ab69580a1864429a1405c13702fe773 "
 
     strings:
         $AES = { 48 83 C3 04 30 43 FC 0F B6 44 1F FC 30 43 FD 0F B6 44 1F FD 30 43 FE 0F B6 44 1F FE 30 43 FF 48 FF C9 }
@@ -57,7 +57,7 @@ rule Lazarus_Torisma_strvest {
     meta:
         description = "Torisma in Lazarus"
         author = "JPCERT/CC Incident Response Group"
-
+        hash1 = "7762ba7ae989d47446da21cd04fd6fb92484dd07d078c7385ded459dedc726f9"
 
     strings:
          $post1 = "ACTION=NEXTPAGE" ascii
@@ -77,7 +77,7 @@ rule Lazarus_LCPDot_strings {
     meta:
         description = "LCPDot in Lazarus"
         author = "JPCERT/CC Incident Response Group"
-
+        hash1 = "0c69fd9be0cc9fadacff2c0bacf59dab6d935b02b5b8d2c9cb049e9545bb55ce"
 
     strings:
          $ua = "Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko" wide
@@ -92,7 +92,7 @@ rule Lazarus_Torisma_config {
     meta:
         description = "Torisma config header"
         author = "JPCERT/CC Incident Response Group"
-
+        hash1 = "b78efeac54fa410e9e3e57e4f3d5ecc1b47fd4f7bf0d7266b3cb64cefa48f0ec"
 
      strings:
         $header = { 98 11 1A 45 90 78 BA F9 4E D6 8F EE }
@@ -105,7 +105,7 @@ rule Lazarus_loader_thumbsdb {
     meta:
         description = "Loader Thumbs.db malware in Lazarus"
         author = "JPCERT/CC Incident Response Group"
-
+        hash1 = "44e4e14f8c8d299ccf5194719ab34a21ad6cc7847e49c0a7de05bf2371046f02"
 
      strings:
         $switchcase = { E8 ?? ?? ?? ?? 83 F8 64 74 ?? 3D C8 00 00 00 74 ?? 3D 2C 01 00 00 75 ?? E8 ?? ?? ?? ?? B9 D0 07 00 00 E8 }
@@ -118,7 +118,7 @@ rule Lazarus_Comebacker_strings {
     meta:
         description = "Comebacker malware in Lazarus"
         author = "JPCERT/CC Incident Response Group"
-
+        hash1 = "1ff4421a99793acda5dd7412cb9a62301b14ed0a455edbb776f56471bef08f8f"
 
      strings:
         $postdata1 = "%s=%s&%s=%s&%s=%s&%s=%d&%s=%d&%s=%s" ascii
@@ -139,8 +139,8 @@ rule Lazarus_VSingle_strings {
      meta:
         description = "VSingle malware in Lazarus"
         author = "JPCERT/CC Incident Response Group"
-
-
+        hash1 = "b114b1a6aecfe6746b674f1fdd38a45d9a6bb1b4eb0b0ca2fdb270343f7c7332"
+        hash2 = "63fa8ce7bf7c8324ed16c297092e1b1c5c0a0f8ab7f583ab16aa86a7992193e6"
 
      strings:
         $encstr1 = "Valefor was uninstalled successfully." ascii wide
@@ -168,7 +168,7 @@ rule Lazarus_ValeforBeta_strings {
     meta:
         description = "ValeforBeta malware in Lazarus"
         author = "JPCERT/CC Incident Response Group"
-
+        hash1 = "5f3353063153a29c8c3075ffb1424b861444a091d9007e6f3b448ceae5a3f02e"
 
      strings:
         $str0 = "cmd interval: %d->%d" ascii wide
@@ -204,8 +204,8 @@ rule Lazarus_packer_code {
     meta:
         description = "Lazarus using packer"
         author = "JPCERT/CC Incident Response Group"
-
-
+        hash1 = "b114b1a6aecfe6746b674f1fdd38a45d9a6bb1b4eb0b0ca2fdb270343f7c7332"
+        hash2 = "5f3353063153a29c8c3075ffb1424b861444a091d9007e6f3b448ceae5a3f02e"
 
      strings:
         $code = { 55 8B EC A1 ?? ?? ?? 00 83 C0 01 A3 ?? ?? ?? 00 83 3D ?? ?? ?? 00 ( 01 | 02 | 03 | 04 | 05 ) 76 16 8B 0D ?? ?? ?? 00 83 E9 01 89 0D ?? ?? ?? 00 B8 ?? ?? ?? ?? EB  }
@@ -217,8 +217,8 @@ rule Lazarus_Kaos_golang {
     meta:
         description = "Kaos malware in Lazarus"
         author = "JPCERT/CC Incident Response Group"
-
-
+        hash1 = "6db57bbc2d07343dd6ceba0f53c73756af78f09fe1cb5ce8e8008e5e7242eae1"
+        hash2 = "2d6a590b86e7e1e9fa055ec5648cd92e2d5e5b3210045d4c1658fe92ecf1944c"
 
      strings:
         $gofunc1 = "processMarketPrice" ascii wide
@@ -236,7 +236,7 @@ rule Lazarus_VSingle_elf {
     meta:
         description = "ELF_VSingle malware in Lazarus"
         author = "JPCERT/CC Incident Response Group"
-
+        hash1 = "f789e1895ce24da8d7b7acef8d0302ae9f90dab0c55c22b03e452aeba55e1d21"
 
      strings:
         $code1 = { C6 85 ?? ?? FF FF 26 C6 85 ?? ?? FF FF 75 C6 85 ?? ?? FF FF 69 C6 85 ?? ?? FF FF 73 } // &uis
@@ -252,7 +252,7 @@ rule Lazarus_packer_upxmems {
     meta:
         description = "ELF malware packer based UPX in Lazarus"
         author = "JPCERT/CC Incident Response Group"
-
+        hash1 = "f789e1895ce24da8d7b7acef8d0302ae9f90dab0c55c22b03e452aeba55e1d21"
 
      strings:
         $code1 = { 47 2C E8 3C 01 77 [10-14] 86 C4 C1 C0 10 86 C4 }
@@ -272,7 +272,7 @@ rule Lazarus_httpbot_jsessid {
     meta:
         description = "Unknown HTTP bot in Lazarus"
         author = "JPCERT/CC Incident Response Group"
-
+        hash1 = "451ad26a41a8b8ae82ccfc850d67b12289693b227a7114121888b444d72d4727"
 
      strings:
         $jsessid = "jsessid=%08x%08x%08x" ascii
@@ -288,8 +288,8 @@ rule Lazarus_tool_smbscan {
     meta:
         description = "SMB scan tool in Lazarus"
         author = "JPCERT/CC Incident Response Group"
-
-
+        hash1 = "d16163526242508d6961f061aaffe3ae5321bd64d8ceb6b2788f1570757595fc"
+        hash2 = "11b29200f0696041dd607d0664f1ebf5dba2e2538666db663b3077d77f883195"
 
      strings:
         $toolstr1 = "Scan.exe StartIP EndIP ThreadCount logfilePath [Username Password Deep]" ascii
@@ -307,7 +307,7 @@ rule Lazarus_simplecurl_strings {
     meta:
         description = "Tool of simple curl in Lazarus"
         author = "JPCERT/CC Incident Response Group"
-
+        hash1 = "05ffcbda6d2e38da325ebb91928ee65d1305bcc5a6a78e99ccbcc05801bba962"
      strings:
         $str1 = "Usage: [application name].exe url filename" ascii
         $str2 = "completely succeed!" ascii
@@ -376,9 +376,9 @@ rule Lazarus_DreamJob_doc2021 {
      meta:
         description = "Malicious doc used in Lazarus operation Dream Job"
         author = "JPCERT/CC Incident Response Group"
-
-
-
+        hash1 = "ffec6e6d4e314f64f5d31c62024252abde7f77acdd63991cb16923ff17828885"
+        hash2 = "8e1746829851d28c555c143ce62283bc011bbd2acfa60909566339118c9c5c97"
+        hash3 = "294acafed42c6a4f546486636b4859c074e53d74be049df99932804be048f42c"
 
      strings:
         $peheadb64 = "dCBiZSBydW4gaW4gRE9TIG1vZGU"

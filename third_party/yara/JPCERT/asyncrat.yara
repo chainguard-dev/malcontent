@@ -4,8 +4,8 @@ rule malware_asyncrat {
         author = "JPCERT/CC Incident Response Group"
         rule_usage = "memory scan"
         reference = "internal research"
-
-
+        hash1 = "1167207bfa1fed44e120dc2c298bd25b7137563fdc9853e8403027b645e52c19"
+        hash2 = "588c77a3907163c3c6de0e59f4805df41001098a428c226f102ed3b74b14b3cc"
 
     strings:
         $salt = {BF EB 1E 56 FB CD 97 3B B2 19 02 24 30 A5 78 43 00 3D 56 44 D2 1E 62 B9 D4 F1 80 E7 E6 C3 39 41}

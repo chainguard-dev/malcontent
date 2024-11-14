@@ -79,7 +79,7 @@ rule APT10_Himawari_strings {
         author = "JPCERT/CC Incident Response Group"
         rule_usage = "memory scan"
         reference = "https://www.jpcert.or.jp/present/2018/JSAC2018_01_nakatsuru.pdf"
-
+        hash1 = "3938436ab73dcd10c495354546265d5498013a6d17d9c4f842507be26ea8fafb"
 
       strings:
         $h1 = "himawariA"
@@ -95,7 +95,7 @@ rule APT10_Lavender_strings {
         author = "JPCERT/CC Incident Response Group"
         rule_usage = "memory scan"
         reference = "internal research"
-
+        hash1 = "db7c1534dede15be08e651784d3a5d2ae41963d192b0f8776701b4b72240c38d"
 
       strings:
         $a1 = { C7 ?? ?? 4C 41 56 45 }
@@ -124,7 +124,7 @@ rule APT10_zark20rk_strings {
         author = "JPCERT/CC Incident Response Group"
         rule_usage = "memory scan"
         reference = "internal research"
-
+        hash1 = "d95ad7bbc15fdd112594584d92f0bff2c348f48c748c07930a2c4cc6502cd4b0"
 
       strings:
         $a1 = { C7 ?? ?? 7A 61 72 6B }

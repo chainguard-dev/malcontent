@@ -14,8 +14,8 @@ rule MACOS_LIGHTSPY_LOADER_20240422 {
         modified = "2024-04-22"
 
         reference = "https://huntress.com/blog/lightspy-malware-variant-targeting-macos"
-
-
+        hash1 = "4b973335755bd8d48f34081b6d1bea9ed18ac1f68879d4b0a9211bbab8fa5ff4"
+        hash2 = "77e983dcde7752278c0fbfc29d92b237c3961de7517d7bcf0877ce83e9b58278"
 
     strings:
         $a0 = "FrameworkLoader"
@@ -35,7 +35,7 @@ rule MACOS_LIGHTSPY_IMPLANT_20240422 {
         modified = "2024-04-22"
 
         reference = "https://huntress.com/blog/lightspy-malware-variant-targeting-macos"
-
+        hash1 = "0f66a4daba647486d2c9d838592cba298df2dbf38f2008b6571af8a562bc306c"
 
     strings:
         $a0 = { 52 65 61 6c 54 69 6d 65 43 6d 64 }
@@ -56,7 +56,7 @@ rule MACOS_LIGHTSPY_AUDIODYLIB_20240422 {
         modified = "2024-04-22"
 
         reference = "https://huntress.com/blog/lightspy-malware-variant-targeting-macos"
-
+        hash1 = "0f662991dbd0568fc073b592f46e60b081eedf0c18313f2c3789e8e3f7cb8144"
 
     strings:
         $path = "/usr/local/lib/libAudioRecorder.dylib"
@@ -76,7 +76,7 @@ rule MACOS_LIGHTSPY_BROWSERHISTORYDYLIB_20240422 {
         modified = "2024-04-22"
 
         reference = "https://huntress.com/blog/lightspy-malware-variant-targeting-macos"
-
+        hash1 = "3d6ef4d88d3d132b1e479cf211c9f8422997bfcaa72e55e9cc5d985fd2939e6d"
 
     strings:
         $path = "/usr/local/lib/libBrowserHistory.dylib"
@@ -98,7 +98,7 @@ rule MACOS_LIGHTSPY_CAMERADYLIB_20240422 {
         modified = "2024-04-22"
 
         reference = "https://huntress.com/blog/lightspy-malware-variant-targeting-macos"
-
+        hash1 = "18bad57109ac9be968280ea27ae3112858e8bc18c3aec02565f4c199a7295f3a"
 
     strings:
         $path = "/usr/local/lib/libCameraShot.dylib"
@@ -119,7 +119,7 @@ rule MACOS_LIGHTSPY_FILEMANAGEDYLIB_20240422 {
         modified = "2024-04-22"
 
         reference = "https://huntress.com/blog/lightspy-malware-variant-targeting-macos"
-
+        hash1 = "5fb67d42575151dd2a04d7dda7bd9331651c270d0f4426acd422b26a711156b5"
 
     strings:
         $path = "/usr/local/lib/libFileManage.dylib"
@@ -139,7 +139,7 @@ rule MACOS_LIGHTSPY_KEYCHAINDYLIB_20240422 {
         modified = "2024-04-22"
 
         reference = "https://huntress.com/blog/lightspy-malware-variant-targeting-macos"
-
+        hash1 = "65aa91d8ae68e64607652cad89dab3273cf5cd3551c2c1fda2a7b90aed2b3883"
 
     strings:
         $path = "/usr/local/lib/libKeyChains.dylib"
@@ -161,7 +161,7 @@ rule MACOS_LIGHTSPY_LANDYLIB_20240422 {
         modified = "2024-04-22"
 
         reference = "https://huntress.com/blog/lightspy-malware-variant-targeting-macos"
-
+        hash1 = "4511567b33915a4c8972ef16e5d7de89de5c6dffe18231528a1d93bfc9acc59f"
 
     strings:
         $path = "/usr/local/lib/libLanDevices.dylib"
@@ -182,7 +182,7 @@ rule MACOS_LIGHTSPY_PROCESSANDAPPDYLIB_20240422 {
         modified = "2024-04-22"
 
         reference = "https://huntress.com/blog/lightspy-malware-variant-targeting-macos"
-
+        hash1 = "d2ccbf41552299b24f186f905c846fb20b9f76ed94773677703f75189b838f63"
 
     strings:
         $path = "/usr/local/lib/libProcessAndApp.dylib"
@@ -201,7 +201,7 @@ rule MACOS_LIGHTSPY_SCREENRECORDERDYLIB_20240422 {
         modified = "2024-04-22"
 
         reference = "https://huntress.com/blog/lightspy-malware-variant-targeting-macos"
-
+        hash1 = "7ed786a259982cce0fad8a704547c72690970145b9587d84ee6205b7c578b663"
 
     strings:
         $path = "/usr/local/lib/libScreenRecorder.dylib"
@@ -221,7 +221,7 @@ rule MACOS_LIGHTSPY_SHELLDYLIB_20240422 {
         modified = "2024-04-22"
 
         reference = "https://huntress.com/blog/lightspy-malware-variant-targeting-macos"
-
+        hash1 = "ac6d34f09fcac49c203e860da00bbbe97290d5466295ab0650265be242d692a6"
 
     strings:
         $path = "/usr/local/lib/libShellCommand.dylib"
@@ -242,7 +242,7 @@ rule MACOS_LIGHTSPY_WIFIDYLIB_20240422 {
         modified = "2024-04-22"
 
         reference = "https://huntress.com/blog/lightspy-malware-variant-targeting-macos"
-
+        hash1 = "fc7e77a56772d5ff644da143718ee7dbaf7a1da37cceb446580cd5efb96a9835"
 
     strings:
         $path = "/usr/local/lib/libWifiList.dylib"

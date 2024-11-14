@@ -4,7 +4,7 @@ rule malware_webview2loader {
     meta:
       description = "Hunt webview2loader"
       author = "JPCERT/CC Incident Response Group"
-
+      hash1 = "D093890F60805A7A84ED218AA5246B8FAA9976A4F8379C61949985D3A254AAFF"
 
     strings:
       /* xor function

@@ -2,7 +2,7 @@ rule malware_NimFilecoder {
     meta:
       description = "NimCopycatLoader malware in human-operated ransomware attack"
       author = "JPCERT/CC Incident Response Group"
-
+      hash1 = "9a10ead4b8971b830daf1d0b7151462fb6cc379087b65b3013c756db3ce87118"
 
     strings:
       $str1 = ":wtfbbq" ascii wide
@@ -17,8 +17,8 @@ rule malware_NimFilecoder02 {
       description = "detect NimFilecoder"
       author = "JPCERT/CC Incident Response Group"
       rule_usage = "scan, hunt"
-
-
+      hash1 = "9a10ead4b8971b830daf1d0b7151462fb6cc379087b65b3013c756db3ce87118"
+      hash2 = "b6dc9052b9b1c23f90eb214336815e0df1bed8456f8aa5781dd0ec46bff42610"
 
     strings:
       /*  and    [reg], 55555555h    */
