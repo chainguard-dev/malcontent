@@ -216,13 +216,12 @@ func errIfHitOrMiss(frs *sync.Map, kind string, scanPath string, errIfHit bool, 
 		return nil, nil
 	}
 
-	// Behavioral note: this logic is per-archive or per-file, depending on context
 	if errIfHit && count != 0 {
-		return match, fmt.Errorf("%d matching capabilities in %s %s%s", count, scanPath, kind, suffix)
+		return match, fmt.Errorf("%d matching capabilities in %s %s%s: %w", count, scanPath, kind, suffix, ErrMatchedCondition)
 	}
 
 	if errIfMiss && count == 0 {
-		return nil, fmt.Errorf("no matching capabilities in %q kind=%s suffix=%s", scanPath, kind, suffix)
+		return nil, fmt.Errorf("no matching capabilities in %q kind=%s suffix=%s: %w", scanPath, kind, suffix, ErrMatchedCondition)
 	}
 	return nil, nil
 }
@@ -365,7 +364,7 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 				match, err := errIfHitOrMiss(&frMap, "file", path, c.ErrFirstHit, c.ErrFirstMiss)
 				if err != nil {
 					matchOnce.Do(func() {
-						matchChan <- matchResult{fr: match, err: fmt.Errorf("%q: %w", path, ErrMatchedCondition)}
+						matchChan <- matchResult{fr: match, err: err}
 					})
 					return err
 				}
