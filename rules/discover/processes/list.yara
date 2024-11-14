@@ -11,6 +11,17 @@ rule proc_listallpids: medium {
     any of them
 }
 
+rule ps_exec_pipe: critical {
+  meta:
+    description = "gets list of processes, isolating username, pid, ppid, cmdline"
+
+  strings:
+    $ps_ef = /ps -ef {0,2}\| {0,2}awk.{1,16}\$1.{1,5}\$2.{1,4}\$3.{1,4}\$8/
+
+  condition:
+    filesize < 25MB and any of them
+}
+
 rule ps_exec: medium {
   meta:
     pledge                           = "exec"
@@ -18,9 +29,10 @@ rule ps_exec: medium {
     hash_2018_org_logind_ctp_archive = "02e4d0e23391bbbb75c47f5db44d119176803da74b1c170250e848de51632ae9"
     hash_2022_Gimmick_CorelDRAW      = "2a9296ac999e78f6c0bee8aca8bfa4d4638aa30d9c8ccc65124b1cbfc9caab5f"
     hash_2023_Sysrv_Hello_sys_x86_64 = "cd784dc1f7bd95cac84dc696d63d8c807129ef47b3ce08cd08afb7b7456a8cd3"
+    description                      = "executes ps(1) for a list of processes"
 
   strings:
-    $ps_ef     = "ps -ef |"
+    $ps_ef     = "ps -ef"
     $ps__ax    = "ps -ax"
     $ps_ax     = "ps ax"
     $hash_bang = "#!"

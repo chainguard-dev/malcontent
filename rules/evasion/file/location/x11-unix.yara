@@ -4,7 +4,7 @@ rule hidden_x11: high {
     ref         = "https://www.welivesecurity.com/2021/10/07/fontonlake-previously-unknown-malware-family-targeting-linux/"
 
   strings:
-    $x11 = /\/tmp\/\.X11-unix.{1,16}/
+    $x11 = /\/tmp\/\.X11-unix\/[\.\w\%\$\{\}\/\-]{1,16}/
 
   condition:
     filesize < 10MB and all of them

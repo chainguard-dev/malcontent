@@ -5,7 +5,6 @@ anti-static/obfuscation/js: medium
 c2/addr/server: medium
 crypto/rc4: low
 discover/network/interface_list: medium
-discover/system/dev_full: low
 discover/system/proc: high
 evasion/hijack_execution/LD_LIBRARY_PATH: low
 evasion/logging/dev_log: medium
@@ -32,5 +31,4 @@ net/socket/receive: low
 net/socket/send: low
 net/url/embedded: low
 persist/sysv: high
-sus/ancient_gcc: medium
-sus/exclamation: medium
+sus/compiler: medium

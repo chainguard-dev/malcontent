@@ -167,7 +167,7 @@ process/terminate: medium
 process/terminate/taskkill: medium
 process/userid_set: low
 sec-tool/net/nmap: medium
-sus/ancient_gcc: medium
+sus/compiler: medium
 sus/exclamation: medium
 sus/intercept: medium
 sus/leetspeak: medium

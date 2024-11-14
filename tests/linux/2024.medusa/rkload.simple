@@ -5,8 +5,8 @@ anti-behavior/LD_PROFILE: medium
 anti-static/xor/commands: high
 credential/ssh/d: medium
 crypto/rc4: low
+data/builtin/glibc: medium
 discover/system/cpu: low
-discover/system/dev_full: low
 discover/system/sysinfo: medium
 evasion/file/location/dev_shm: high
 evasion/file/location/lib: high
@@ -50,4 +50,3 @@ process/executable_path: low
 process/groupid_set: low
 process/name_set: medium
 process/userid_set: low
-sus/exclamation: medium

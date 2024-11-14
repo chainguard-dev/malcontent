@@ -8,6 +8,8 @@ rule exclamations: medium {
   strings:
     $exclaim = /[\w ]{2,32} [\w ]{2,32}\!{2,16}/
 
+    $not_bug = "DYNAMIC LINKER BUG!!!"
+
   condition:
-    any of them
+    $exclaim and none of ($not*)
 }

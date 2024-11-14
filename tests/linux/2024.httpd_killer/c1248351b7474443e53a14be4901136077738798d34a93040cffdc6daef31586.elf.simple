@@ -4,4 +4,4 @@ exec/shell/command: medium
 exec/shell/exec: medium
 impact/degrade/httpd: high
 process/terminate/kill_multiple: medium
-sus/ancient_gcc: medium
+sus/compiler: medium
