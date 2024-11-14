@@ -40,3 +40,14 @@ rule remote_control: medium {
   condition:
     any of them
 }
+
+rule download_ref: medium {
+  meta:
+    description = "downloads files"
+
+  strings:
+    $download_file = "download file"
+
+  condition:
+    any of them
+}

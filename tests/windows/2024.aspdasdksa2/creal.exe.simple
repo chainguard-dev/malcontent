@@ -1,6 +1,7 @@
 # windows/2024.aspdasdksa2/creal.exe: critical
 3P/bartblaze/pyinstaller: high
 anti-behavior/anti_debugger: medium
+anti-static/packer/pe: high
 collect/databases/sqlite: medium
 credential/sniffer/bpf: medium
 crypto/aes: low

@@ -37,6 +37,7 @@ exec/shell/SHELL: low
 exfil/office_file_ext: medium
 fs/directory/create: low
 fs/directory/remove: low
+fs/file/copy: medium
 fs/file/delete: medium
 fs/file/times_set: medium
 fs/file/truncate: low

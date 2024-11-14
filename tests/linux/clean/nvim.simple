@@ -54,6 +54,7 @@ fs/tempdir/TEMP: low
 fs/tempdir/TMPDIR: low
 fs/tempdir/create: low
 fs/tempdir/tempfile_create: low
+impact/remote_access/pseudo_terminal: medium
 net/dns/servers: low
 net/download/fetch: medium
 net/http/post: medium

@@ -7,6 +7,8 @@ private rule probably_js {
     $f_return   = "return" fullword
     $f_var      = "var" fullword
     $f_Array    = "Array.prototype" fullword
+    $f_true     = "true);"
+    $f_run      = ".run("
 
   condition:
     filesize < 1MB and 3 of ($f*)
@@ -236,6 +238,17 @@ rule var_filler: high {
 
   condition:
     #ref > 25
+}
+
+rule large_random_variables: high {
+  meta:
+    description = "contains large random variable names"
+
+  strings:
+    $ref = /var [a-zA-Z_]{32,256} = '.{4}/ fullword
+
+  condition:
+    probably_js and #ref > 1
 }
 
 rule large_obfuscated_array: high {

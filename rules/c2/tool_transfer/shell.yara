@@ -12,7 +12,7 @@ rule fetch_chmod_run_oneliner_value: critical {
     any of them
 }
 
-rule curl_chmod_relative_run: medium {
+rule tool_chmod_relative_run: medium {
   meta:
     description                                                                          = "may fetch file, make it executable, and run it"
     hash_2024_Downloads_4ba700b0e86da21d3dcd6b450893901c252bf817bd8792548fc8f389ee5aec78 = "fd3e21b8e2d8acf196cb63a23fc336d7078e72c2c3e168ee7851ea2bef713588"
@@ -20,9 +20,9 @@ rule curl_chmod_relative_run: medium {
     hash_2023_Linux_Malware_Samples_df3b                                                 = "df3b41b28d5e7679cddb68f92ec98bce090af0b24484b4636d7d84f579658c52"
 
   strings:
-    $f_curl      = /curl [\-\w \$\@\{\w\/\.\:]{0,96}/
+    $f_curl      = /(curl|wget) [\-\w \$\@\{\w\/\.\:]{0,96}/
     $f_chmod     = /chmod [\+\-\w \$\@\{\w\/\.]{0,64}/
-    $f_dot_slash = /\.\/[a-z]{1,2}[a-z\.\/\- ]{0,32}/ fullword
+    $f_dot_slash = /\.\/[a-z\$]{1,2}[a-z\.\/\- ]{0,32}/ fullword
 
     $not_comment_curl = "# curl "
 
@@ -30,27 +30,32 @@ rule curl_chmod_relative_run: medium {
     filesize < 1MB and all of ($f*) and none of ($not*)
 }
 
-rule curl_chmod_relative_run_tiny: critical {
+rule tool_chmod_relative_run_tiny: critical {
   meta:
-    description                                                                          = "change dir, fetch file, make it executable, and run it"
+    description                                                                          = "fetch file, make it executable, and run it"
     hash_2024_Downloads_4ba700b0e86da21d3dcd6b450893901c252bf817bd8792548fc8f389ee5aec78 = "fd3e21b8e2d8acf196cb63a23fc336d7078e72c2c3e168ee7851ea2bef713588"
     hash_2023_Downloads_6e35                                                             = "6e35b5670953b6ab15e3eb062b8a594d58936dd93ca382bbb3ebdbf076a1f83b"
     hash_2023_Linux_Malware_Samples_df3b                                                 = "df3b41b28d5e7679cddb68f92ec98bce090af0b24484b4636d7d84f579658c52"
 
   strings:
-    $cd        = /cd {1,2}[\/\$][\w\/]{0,16}/
-    $curl      = /curl [\-\w \$\@\{\w\/\.\:]{0,96}/
-    $chmod     = /chmod [\+\-\w \$\@\{\w\/\.]{0,64}/
-    $dot_slash = /\.\/[a-z]{1,2}[a-z\.\/\- ]{0,32}/ fullword
+    $must_cd     = /cd {1,2}[\/\$][\w\/]{0,16}/
+    $must_rm     = /rm -[rR]{0,1}f  {1,2}[\/\$][\w\/]{0,16}/
+    $o_curl      = /(curl|wget) [\-\w \$\@\{\w\/\.\:]{0,96}/
+    $o_chmod     = /chmod [\+\-\w \$\@\{\w\/\.]{0,64}/
+    $o_dot_slash = /\.\/[\$a-z]{1,2}[a-z\.\/\- ]{0,32}/ fullword
+
+    $not_copyright_comment = "# Copyright"
+    $not_source            = "source ./"
+    $not_apache_license    = "Apache License"
 
   condition:
-    filesize < 6KB and all of them
+    filesize < 6KB and any of ($must*) and all of ($o*) and none of ($not*)
 }
 
 rule helm_test_env: override {
   meta:
     description                  = "helm_test_env"
-    curl_chmod_relative_run_tiny = "medium"
+    tool_chmod_relative_run_tiny = "medium"
 
   strings:
     $helm_curl = "curl -L https://get.helm.sh"
@@ -59,7 +64,7 @@ rule helm_test_env: override {
     $helm_curl
 }
 
-rule curl_tor_chmod_relative_run: high {
+rule tool_tor_chmod_relative_run: high {
   meta:
     description                                                                          = "change dir, fetch file via tor, make it executable, and run it"
     hash_2024_Downloads_4ba700b0e86da21d3dcd6b450893901c252bf817bd8792548fc8f389ee5aec78 = "fd3e21b8e2d8acf196cb63a23fc336d7078e72c2c3e168ee7851ea2bef713588"
@@ -72,7 +77,7 @@ rule curl_tor_chmod_relative_run: high {
     $tor_onion = ".onion"
 
     $cd        = /cd {1,2}[\/\$][\w\/]{0,16}/
-    $curl      = /curl [\-\w \$\@\{\w\/\.\:]{0,96}/
+    $curl      = /(curl|wget) [\-\w \$\@\{\w\/\.\:]{0,96}/
     $chmod     = /chmod [\+\-\w \$\@\{\w\/\.]{0,64}/
     $dot_slash = /\.\/[a-z]{1,2}[a-z\.\/\- ]{0,32}/ fullword
 
@@ -80,24 +85,6 @@ rule curl_tor_chmod_relative_run: high {
 
   condition:
     filesize < 10MB and any of ($tor*) and $cd and $curl and $chmod and $dot_slash and filesize < 1MB and none of ($not*)
-}
-
-rule wget_chmod_relative_run: medium {
-  meta:
-    description                                                                          = "may fetch file, make it executable, and run it"
-    hash_2024_Downloads_4ba700b0e86da21d3dcd6b450893901c252bf817bd8792548fc8f389ee5aec78 = "fd3e21b8e2d8acf196cb63a23fc336d7078e72c2c3e168ee7851ea2bef713588"
-    hash_2023_Downloads_6e35                                                             = "6e35b5670953b6ab15e3eb062b8a594d58936dd93ca382bbb3ebdbf076a1f83b"
-    hash_2023_Linux_Malware_Samples_3059                                                 = "305901aa920493695729132cfd20cbddc9db2cf861071450a646c6a07b4a50f3"
-
-  strings:
-    $f_wget      = /wget http[\-\w \$\@\{\w\/\.\:]{0,96}/
-    $f_chmod     = /chmod [\-\w \$\@\{\w\/\.]{0,64}/
-    $f_dot_slash = /\.\/[a-z]{1,2}[a-z\.\/\- ]{0,32}/ fullword
-
-    $not_chmod_error = "chmod error"
-
-  condition:
-    filesize < 1MB and all of them
 }
 
 rule dev_null_rm: medium {
@@ -160,8 +147,7 @@ rule possible_dropper: high {
 
   strings:
     $http          = /https{0,1}:\/\/[\.\w\/\?\=\-]{1,64}/
-    $tool_curl_o   = /curl [\w\.\- :\"\/]{0,64}-\w{0,2}[oO][\w\.\- :\"\/]{0,64}/
-    $tool_wget_q   = "wget -"
+    $tool_curl_o   = /(curl|wget) [\w\.\- :\"\/]{0,64}-\w{0,2}[oO][\w\.\- :\"\/]{0,64}/
     $tool_lwp      = "lwp-download"
     $cmd_bash      = "bash" fullword
     $cmd_dot_slash = /\.\/[\.\w]{1,16}/ fullword

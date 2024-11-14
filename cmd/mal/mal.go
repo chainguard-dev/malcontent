@@ -16,6 +16,7 @@ import (
 	"runtime"
 	"slices"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
@@ -529,7 +530,14 @@ func main() {
 						return err
 					}
 
-					if res.Files.Len() > 0 {
+					if length := func(m *sync.Map) int {
+						length := 0
+						m.Range(func(_, _ any) bool {
+							length++
+							return true
+						})
+						return length
+					}(&res.Files); length > 0 {
 						fmt.Fprintf(os.Stderr, "\n💡 For detailed analysis, try \"mal analyze <path>\"\n")
 					}
 
