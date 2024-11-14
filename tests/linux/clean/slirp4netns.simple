@@ -1,4 +1,4 @@
-# linux/clean/slirp4netns: high
+# linux/clean/slirp4netns: medium
 anti-behavior/LD_DEBUG: medium
 anti-behavior/LD_PROFILE: medium
 c2/addr/ip: medium
@@ -6,11 +6,11 @@ credential/os/gshadow: medium
 credential/os/shadow: medium
 credential/password: low
 credential/sniffer/bpf: medium
+data/builtin/glibc: medium
 discover/group/lookup: medium
-discover/network/interface_list: high
+discover/network/interface_list: medium
 discover/network/mac_address: medium
 discover/process/parent: low
-discover/system/dev_full: low
 discover/system/platform: low
 discover/system/sysinfo: medium
 discover/user/HOME: low

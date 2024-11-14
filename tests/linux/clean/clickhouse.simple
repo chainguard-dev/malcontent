@@ -25,7 +25,6 @@ crypto/file_encrypter: medium
 crypto/gost89: low
 crypto/tls: low
 data/base64/decode: medium
-data/builtin/openssl: medium
 data/compression/bzip2: low
 data/compression/lzma: low
 data/compression/zstd: low

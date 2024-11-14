@@ -40,7 +40,8 @@ rule multiple_linux_methods: high linux {
     $not_rtld    = "RTLD_NEXT"
     $not_rtld2   = "HRTIMER_SOFTIRQ"
     $not_snapd   = "SNAPD" fullword
-
+	$not_ld_origin = "LD_ORIGIN_PATH"
+	$not_ld_mask = "LD_HWCAP_MASK"
   condition:
     filesize < 8MB and all of ($ld*) and any of ($proc*) and any of ($sys*) and none of ($not*)
 }

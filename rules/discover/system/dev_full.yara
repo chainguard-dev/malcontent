@@ -1,4 +1,4 @@
-rule dev_full: low linux {
+rule dev_full: harmless linux {
   meta:
     description = "tests full disk behavior"
 
