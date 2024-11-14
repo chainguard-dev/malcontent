@@ -1,5 +1,6 @@
 rule dynamic_dns_user: medium {
   meta:
+	description = "uses dynamic DNS service"
   strings:
     $d_dyndns        = "dyndns"
     $d_no_ip         = "no-ip."

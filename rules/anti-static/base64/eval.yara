@@ -2,6 +2,7 @@ import "math"
 
 rule eval_base64: high {
   meta:
+    description = "Evaluates base64 content"
 
   strings:
     $eval = /eval\(.{0,256}base64/

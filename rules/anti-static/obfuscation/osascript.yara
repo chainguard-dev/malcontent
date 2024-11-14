@@ -1,5 +1,6 @@
-rule danger_compiled_osascript: medium {
+rule compiled_osascript: medium {
   meta:
+	description = "compiled osascript"
   strings:
     $s_sysoexec        = "sysoexecTEXT"
     $s_aevtoapp        = "aevtoappnull"

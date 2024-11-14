@@ -1,5 +1,7 @@
 rule osascript_shell_as_admin: medium {
   meta:
+    description = "uses osascript with admin privileges"
+
   strings:
     $do_shell                   = "do shell script"
     $with_admin                 = "with administrator privileges"

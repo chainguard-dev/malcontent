@@ -1,6 +1,6 @@
 rule macos_library_mail_ref: medium {
   meta:
-
+	description = "Accesses Apple Mail content"
   strings:
     $mail                = "Library/Mail"
     $not_private         = "/System/Library/PrivateFrameworks/"

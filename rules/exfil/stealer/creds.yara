@@ -1,5 +1,6 @@
 rule suspected_data_stealer: high {
   meta:
+	description = "suspected data stealer"
   strings:
     $e_atomic        = "Atomic" fullword
     $e_bitcoin       = "Bitcoin" fullword

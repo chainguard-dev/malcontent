@@ -1,6 +1,6 @@
 rule pcloud_storage_user: medium {
   meta:
-
+	description = "uses PCloud for cloud storage"
   strings:
     $pcloud = "api.pcloud.com"
 
@@ -22,7 +22,7 @@ rule google_drive: medium {
 
 rule yandex_disk_user: high {
   meta:
-
+	description = "uses Yandex for cloud storage"
   strings:
     $yandex = "cloud-api.yandex.net/v1/disk"
 
@@ -32,7 +32,7 @@ rule yandex_disk_user: high {
 
 rule dropbox_disk_user: medium {
   meta:
-
+	description = "uses DropBox for cloud storage"
   strings:
     $dropbox = "dropboxapi.com"
 
