@@ -1,7 +1,6 @@
 rule linux_network_filter_exec: high {
   meta:
-    description            = "listens for packets without a socket, executes programs"
-    hash_2023_BPFDoor_dc83 = "dc8346bf443b7b453f062740d8ae8d8d7ce879672810f4296158f90359dcae3a"
+    description = "listens for packets without a socket, executes programs"
 
   strings:
     $0x              = "=0x"

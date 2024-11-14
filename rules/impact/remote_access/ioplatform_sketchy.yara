@@ -1,7 +1,6 @@
 rule ioplatform_expert_with_sketchy_calls: high {
   meta:
-    hash_2022_DazzleSpy_softwareupdate = "f9ad42a9bd9ade188e997845cae1b0587bf496a35c3bffacd20fefe07860a348"
-    hash_2017_FileCoder                = "c9c7c7f1afa1d0760f63d895b8c9d5ab49821b2e4fe596b0c5ae94c308009e89"
+    hash_2017_FileCoder = "c9c7c7f1afa1d0760f63d895b8c9d5ab49821b2e4fe596b0c5ae94c308009e89"
 
   strings:
     $ioplatform       = "IOPlatformExpertDevice" fullword

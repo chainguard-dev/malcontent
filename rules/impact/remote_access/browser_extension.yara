@@ -1,7 +1,5 @@
 rule chrome_extension_abuser: high {
   meta:
-    hash_2017_CoinThief = "7f32fdcaefee42f93590f9490ab735ac9dfeb22a951ff06d721145baf563d53b"
-
   strings:
     $s_all_urls        = "<all_urls>"
     $s_from_webstore   = "from_webstore"

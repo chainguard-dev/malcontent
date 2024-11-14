@@ -100,10 +100,8 @@ rule cd_val_obsessive: critical {
 
 rule unusual_cd_dev: high {
   meta:
-    description                 = "changes the current working directory to /dev"
-    hash_2023_init_d_vm_agent   = "663b75b098890a9b8b02ee4ec568636eeb7f53414a71e2dbfbb9af477a4c7c3d"
-    hash_2023_rc0_d_K70vm_agent = "663b75b098890a9b8b02ee4ec568636eeb7f53414a71e2dbfbb9af477a4c7c3d"
-    hash_2023_rc1_d_K70vm_agent = "663b75b098890a9b8b02ee4ec568636eeb7f53414a71e2dbfbb9af477a4c7c3d"
+    description               = "changes the current working directory to /dev"
+    hash_2023_init_d_vm_agent = "663b75b098890a9b8b02ee4ec568636eeb7f53414a71e2dbfbb9af477a4c7c3d"
 
   strings:
     $d_dev   = /cd \/dev\/[\w\/\.]{1,64}/

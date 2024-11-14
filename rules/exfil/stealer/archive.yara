@@ -1,7 +1,6 @@
 rule open_and_archive: medium macos {
   meta:
-    hash_2017_CoinThief = "7f32fdcaefee42f93590f9490ab735ac9dfeb22a951ff06d721145baf563d53b"
-    description         = "can call /usr/bin/open and archiving tools"
+    description = "can call /usr/bin/open and archiving tools"
 
   strings:
     $open         = "/usr/bin/open" fullword

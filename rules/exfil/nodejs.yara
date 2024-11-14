@@ -1,8 +1,7 @@
 rule nodejs_sysinfoexfil: high {
   meta:
-    description             = "may gather and exfiltrate system information"
-    hash_2023_botbait       = "1b92cb3d4b562d0eb05c3b2f998e334273ce9b491bc534d73bcd0b4952ce58d2"
-    hash_2015_package_index = "ca4a74ebf4a5eb00d7d5b668b5e702161ed30160d88cfed2d249aa5523b30d86"
+    description       = "may gather and exfiltrate system information"
+    hash_2023_botbait = "1b92cb3d4b562d0eb05c3b2f998e334273ce9b491bc534d73bcd0b4952ce58d2"
 
   strings:
     $proc1        = "process.platform"
@@ -19,10 +18,7 @@ rule nodejs_sysinfoexfil: high {
 
 rule nodejs_phone_home: high {
   meta:
-    description             = "accesses system information and reports back"
-    hash_1985_package_index = "19dc05db0219df84f303bde62d37dbf7ece4e2825daa98e27ba087cc3594431d"
-    hash_1985_package_index = "19dc05db0219df84f303bde62d37dbf7ece4e2825daa98e27ba087cc3594431d"
-    hash_1985_package_index = "19dc05db0219df84f303bde62d37dbf7ece4e2825daa98e27ba087cc3594431d"
+    description = "accesses system information and reports back"
 
   strings:
     $f_homedir    = "os.homedir"
@@ -47,10 +43,7 @@ rule nodejs_phone_home: high {
 
 rule nodejs_phone_hom_obscure: critical {
   meta:
-    description             = "accesses system information and uploads it"
-    hash_1985_package_index = "19dc05db0219df84f303bde62d37dbf7ece4e2825daa98e27ba087cc3594431d"
-    hash_1985_package_index = "19dc05db0219df84f303bde62d37dbf7ece4e2825daa98e27ba087cc3594431d"
-    hash_1985_package_index = "19dc05db0219df84f303bde62d37dbf7ece4e2825daa98e27ba087cc3594431d"
+    description = "accesses system information and uploads it"
 
   strings:
     $f_homedir  = "homedir"
@@ -78,10 +71,7 @@ rule nodejs_phone_hom_obscure: critical {
 
 rule nodejs_phone_home_interact_sh: critical {
   meta:
-    description             = "accesses system information and uploads it to a known site"
-    hash_1985_package_index = "19dc05db0219df84f303bde62d37dbf7ece4e2825daa98e27ba087cc3594431d"
-    hash_1985_package_index = "19dc05db0219df84f303bde62d37dbf7ece4e2825daa98e27ba087cc3594431d"
-    hash_1985_package_index = "19dc05db0219df84f303bde62d37dbf7ece4e2825daa98e27ba087cc3594431d"
+    description = "accesses system information and uploads it to a known site"
 
   strings:
     $ref     = /[\w]{8,32}\.interactsh\.com/
@@ -96,10 +86,7 @@ rule nodejs_phone_home_interact_sh: critical {
 
 rule nodejs_phone_home_hardcoded_host: critical {
   meta:
-    description             = "accesses system information and uploads it to hardcoded host"
-    hash_1985_package_index = "19dc05db0219df84f303bde62d37dbf7ece4e2825daa98e27ba087cc3594431d"
-    hash_1985_package_index = "19dc05db0219df84f303bde62d37dbf7ece4e2825daa98e27ba087cc3594431d"
-    hash_1985_package_index = "19dc05db0219df84f303bde62d37dbf7ece4e2825daa98e27ba087cc3594431d"
+    description = "accesses system information and uploads it to hardcoded host"
 
   strings:
     $ref = /hostname: "[\w\.]{5,63}",/

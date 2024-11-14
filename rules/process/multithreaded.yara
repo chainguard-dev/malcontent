@@ -13,12 +13,10 @@ rule pthread_create {
 
 rule py_thread_create: medium {
   meta:
-    syscall                       = "pthread_create"
-    description                   = "uses python threading"
-    ref                           = "https://docs.python.org/3/library/threading.html"
-    hash_2020_Enigma              = "6b2ff7ae79caf306c381a55409c6b969c04b20c8fda25e6d590e0dadfcf452de"
-    hash_2014_config_libpython2_7 = "6b0388aa64f1e31d86603309609fe295f650e66d518242375c483e1cf402d0b2"
-    hash_2014_config_libpython2_7 = "6b0388aa64f1e31d86603309609fe295f650e66d518242375c483e1cf402d0b2"
+    syscall          = "pthread_create"
+    description      = "uses python threading"
+    ref              = "https://docs.python.org/3/library/threading.html"
+    hash_2020_Enigma = "6b2ff7ae79caf306c381a55409c6b969c04b20c8fda25e6d590e0dadfcf452de"
 
   strings:
     $ref = "threading.Thread"

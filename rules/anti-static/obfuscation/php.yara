@@ -1,9 +1,8 @@
 rule base64_str_replace: medium {
   meta:
-    description                                     = "creatively hidden forms of the term 'base64'"
-    hash_2024_2024_Inull_Studio_err                 = "5dbab6891fefb2ba4e3983ddb0d95989cf5611ab85ae643afbcc5ca47c304a4a"
-    hash_2024_2024_Inull_Studio_err                 = "5dbab6891fefb2ba4e3983ddb0d95989cf5611ab85ae643afbcc5ca47c304a4a"
-    hash_2024_2024_Inull_Studio_godzilla_xor_base64 = "699c7bbf08d2ee86594242f487860221def3f898d893071426eb05bec430968e"
+    description                     = "creatively hidden forms of the term 'base64'"
+    hash_2024_2024_Inull_Studio_err = "5dbab6891fefb2ba4e3983ddb0d95989cf5611ab85ae643afbcc5ca47c304a4a"
+    hash_2024_2024_Inull_Studio_err = "5dbab6891fefb2ba4e3983ddb0d95989cf5611ab85ae643afbcc5ca47c304a4a"
 
   strings:
     $a = /ba.s.e64/
@@ -44,12 +43,12 @@ rule funky_function: critical {
 
 rule php_obfuscation: high {
   meta:
-    description             = "obfuscated PHP code"
-    credit                  = "Ported from https://github.com/jvoisin/php-malware-finder"
-    hash_2023_0xShell_1337  = "657bd1f3e53993cb7d600bfcd1a616c12ed3e69fa71a451061b562e5b9316649"
-    hash_2023_0xShell_index = "f39b16ebb3809944722d4d7674dedf627210f1fa13ca0969337b1c0dcb388603"
-    hash_2023_0xShell_crot  = "900c0453212babd82baa5151bba3d8e6fa56694aff33053de8171a38ff1bef09"
-    filetypes               = "php"
+    description            = "obfuscated PHP code"
+    credit                 = "Ported from https://github.com/jvoisin/php-malware-finder"
+    hash_2023_0xShell_1337 = "657bd1f3e53993cb7d600bfcd1a616c12ed3e69fa71a451061b562e5b9316649"
+
+    hash_2023_0xShell_crot = "900c0453212babd82baa5151bba3d8e6fa56694aff33053de8171a38ff1bef09"
+    filetypes              = "php"
 
   strings:
     $php                 = "<?php"
@@ -72,10 +71,9 @@ rule php_obfuscation: high {
 
 rule php_hex_functions: high {
   meta:
-    description              = "contains function references encoded in hex"
-    hash_2023_0xShell_crot   = "900c0453212babd82baa5151bba3d8e6fa56694aff33053de8171a38ff1bef09"
-    hash_2023_0xShell_login  = "7c8d783c489337251125204c4b7f9222d83058ed6872f55db1319a0be7337f05"
-    hash_2023_0xShell_logout = "f8feafb93e55e75e9e52c5db3835e646e182b7910afa9152b112ff9d5a29a197"
+    description             = "contains function references encoded in hex"
+    hash_2023_0xShell_crot  = "900c0453212babd82baa5151bba3d8e6fa56694aff33053de8171a38ff1bef09"
+    hash_2023_0xShell_login = "7c8d783c489337251125204c4b7f9222d83058ed6872f55db1319a0be7337f05"
 
   strings:
     $h_globals         = "\\x47\\x4c\\x4f\\x42\\x41\\x4c\\x53" nocase
@@ -93,11 +91,10 @@ rule php_hex_functions: high {
 
 rule php_non_printable: medium {
   meta:
-    description                                                                               = "non-printable values unexpectedly passed to a function"
-    credit                                                                                    = "Ported from https://github.com/jvoisin/php-malware-finder"
-    hash_2023_0xShell_adminer                                                                 = "2fd7e6d8f987b243ab1839249551f62adce19704c47d3d0c8dd9e57ea5b9c6b3"
-    hash_2023_0xShell_wesoori                                                                 = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"
-    hash_2024_UPX_0a07c056fec72668d3f05863f103987cc1aaec92e72148bf16db6cfd58308617_elf_x86_64 = "94f4de1bd8c85b8f820bab936ec16cdb7f7bc19fa60d46ea8106cada4acc79a2"
+    description               = "non-printable values unexpectedly passed to a function"
+    credit                    = "Ported from https://github.com/jvoisin/php-malware-finder"
+    hash_2023_0xShell_adminer = "2fd7e6d8f987b243ab1839249551f62adce19704c47d3d0c8dd9e57ea5b9c6b3"
+    hash_2023_0xShell_wesoori = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"
 
   strings:
     $ref = /(function|return|base64_decode).{,64}[^\x09-\x0d\x20-\x7E]{3}/
@@ -109,11 +106,11 @@ rule php_non_printable: medium {
 
 rule php_oneliner: medium {
   meta:
-    description                  = "sets up PHP and jumps directly into risky function"
-    credit                       = "Ported from https://github.com/jvoisin/php-malware-finder"
-    hash_2023_0xShell_0xObs      = "6391e05c8afc30de1e7980dda872547620754ce55c36da15d4aefae2648a36e5"
-    hash_2023_0xShell_0xShellObs = "64771788a20856c7b2a29067f41be9cb7138c11a2cf2a8d17ab4afe73516f1ed"
-    hash_2023_0xShell_1337       = "657bd1f3e53993cb7d600bfcd1a616c12ed3e69fa71a451061b562e5b9316649"
+    description             = "sets up PHP and jumps directly into risky function"
+    credit                  = "Ported from https://github.com/jvoisin/php-malware-finder"
+    hash_2023_0xShell_0xObs = "6391e05c8afc30de1e7980dda872547620754ce55c36da15d4aefae2648a36e5"
+
+    hash_2023_0xShell_1337 = "657bd1f3e53993cb7d600bfcd1a616c12ed3e69fa71a451061b562e5b9316649"
 
   strings:
     $php        = "<?php"
@@ -144,9 +141,7 @@ rule small_reversed_function_names: critical {
 
 rule php_str_replace_obfuscation: high {
   meta:
-    description                     = "calls str_replace and uses obfuscated functions"
-    hash_2024_2024_Inull_Studio_err = "5dbab6891fefb2ba4e3983ddb0d95989cf5611ab85ae643afbcc5ca47c304a4a"
-    hash_2024_2024_Inull_Studio_err = "5dbab6891fefb2ba4e3983ddb0d95989cf5611ab85ae643afbcc5ca47c304a4a"
+    description = "calls str_replace and uses obfuscated functions"
 
   strings:
     $str_replace        = "str_replace"
@@ -161,11 +156,11 @@ rule php_str_replace_obfuscation: high {
 
 rule php_obfuscated_concat: medium {
   meta:
-    description                 = "obfuscated PHP concatenation"
-    credit                      = "Ported from https://github.com/jvoisin/php-malware-finder"
-    hash_2024_systembc_password = "236cff4506f94c8c1059c8545631fa2dcd15b086c1ade4660b947b59bdf2afbd"
-    hash_2024_PHP_dclzougj      = "3eb6ea176cee1e92ab3c684d16a5f820131a518478016643b454a53eaf123e63"
-    hash_2024_PHP_wlstncyj      = "1a1c97594340ede77bc814670eaf35eaba861f1f9519038582416c704796da0a"
+    description = "obfuscated PHP concatenation"
+    credit      = "Ported from https://github.com/jvoisin/php-malware-finder"
+
+    hash_2024_PHP_dclzougj = "3eb6ea176cee1e92ab3c684d16a5f820131a518478016643b454a53eaf123e63"
+    hash_2024_PHP_wlstncyj = "1a1c97594340ede77bc814670eaf35eaba861f1f9519038582416c704796da0a"
 
   strings:
     $php    = "<?php"
@@ -177,11 +172,11 @@ rule php_obfuscated_concat: medium {
 
 rule php_obfuscated_concat_long: high {
   meta:
-    description                 = "obfuscated PHP concatenation (long)"
-    credit                      = "Ported from https://github.com/jvoisin/php-malware-finder"
-    hash_2024_systembc_password = "236cff4506f94c8c1059c8545631fa2dcd15b086c1ade4660b947b59bdf2afbd"
-    hash_2024_PHP_dclzougj      = "3eb6ea176cee1e92ab3c684d16a5f820131a518478016643b454a53eaf123e63"
-    hash_2024_PHP_wlstncyj      = "1a1c97594340ede77bc814670eaf35eaba861f1f9519038582416c704796da0a"
+    description = "obfuscated PHP concatenation (long)"
+    credit      = "Ported from https://github.com/jvoisin/php-malware-finder"
+
+    hash_2024_PHP_dclzougj = "3eb6ea176cee1e92ab3c684d16a5f820131a518478016643b454a53eaf123e63"
+    hash_2024_PHP_wlstncyj = "1a1c97594340ede77bc814670eaf35eaba861f1f9519038582416c704796da0a"
 
   strings:
     $php    = "<?php"
@@ -193,10 +188,10 @@ rule php_obfuscated_concat_long: high {
 
 rule obfuscated_concat_multiple: critical {
   meta:
-    description                 = "obfuscated string concatenation (multiple)"
-    hash_2024_systembc_password = "236cff4506f94c8c1059c8545631fa2dcd15b086c1ade4660b947b59bdf2afbd"
-    hash_2024_PHP_dclzougj      = "3eb6ea176cee1e92ab3c684d16a5f820131a518478016643b454a53eaf123e63"
-    hash_2024_PHP_wlstncyj      = "1a1c97594340ede77bc814670eaf35eaba861f1f9519038582416c704796da0a"
+    description = "obfuscated string concatenation (multiple)"
+
+    hash_2024_PHP_dclzougj = "3eb6ea176cee1e92ab3c684d16a5f820131a518478016643b454a53eaf123e63"
+    hash_2024_PHP_wlstncyj = "1a1c97594340ede77bc814670eaf35eaba861f1f9519038582416c704796da0a"
 
   strings:
     $php    = "<?php"
