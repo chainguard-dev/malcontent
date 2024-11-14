@@ -84,6 +84,8 @@ type FileReport struct {
 	Behaviors         []*Behavior       `json:",omitempty" yaml:",omitempty"`
 	FilteredBehaviors int               `json:",omitempty" yaml:",omitempty"`
 
+	// The absolute path we think this moved fron
+	PreviousPath string `json:",omitempty" yaml:",omitempty"`
 	// The relative path we think this moved from.
 	PreviousRelPath string `json:",omitempty" yaml:",omitempty"`
 	// The levenshtein distance between the previous path and the current path
@@ -97,6 +99,11 @@ type FileReport struct {
 	IsMalcontent bool `json:",omitempty" yaml:",omitempty"`
 
 	Overrides []*Behavior `json:",omitempty" yaml:",omitempty"`
+
+	// Diffing archives is less straightforward than single files
+	// Store additional paths to help with relative pathing
+	ArchiveRoot string `json:",omitempty" yaml:",omitempty"`
+	FullPath    string `json:",omitempty" yaml:",omitempty"`
 }
 
 type DiffReport struct {

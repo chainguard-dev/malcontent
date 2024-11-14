@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 	"sync"
 
 	"github.com/agext/levenshtein"
@@ -19,6 +20,48 @@ import (
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 	"golang.org/x/sync/errgroup"
 )
+
+func relPath(from string, fr *malcontent.FileReport, isArchive bool) (string, error) {
+	var err error
+	var rel string
+	switch {
+	case isArchive:
+		fromRoot := fr.ArchiveRoot
+
+		// trim archiveRoot from fullPath
+		archiveFile := strings.TrimPrefix(fr.FullPath, fr.ArchiveRoot)
+		rel, err = filepath.Rel(fromRoot, archiveFile)
+		if err != nil {
+			return "", err
+		}
+	default:
+		info, err := os.Stat(from)
+		if err != nil {
+			return "", err
+		}
+		dir := filepath.Dir(from)
+		// Evaluate symlinks to cover edge cases like macOS' /private/tmp -> /tmp symlink
+		// Also, remove any filenames to correctly determine the relative path
+		// Using "." and "." will show as modifications for completely unrelated files and paths
+		var fromRoot string
+		if info.IsDir() {
+			fromRoot, err = filepath.EvalSymlinks(from)
+		} else {
+			fromRoot, err = filepath.EvalSymlinks(dir)
+		}
+		if err != nil {
+			return "", err
+		}
+		if fromRoot == "." {
+			fromRoot = from
+		}
+		rel, err = filepath.Rel(fromRoot, fr.Path)
+		if err != nil {
+			return "", err
+		}
+	}
+	return rel, nil
+}
 
 func relFileReport(ctx context.Context, c malcontent.Config, fromPath string) (map[string]*malcontent.FileReport, error) {
 	fromConfig := c
@@ -34,30 +77,11 @@ func relFileReport(ctx context.Context, c malcontent.Config, fromPath string) (m
 			return true
 		}
 		if fr, ok := value.(*malcontent.FileReport); ok {
+			isArchive := fr.ArchiveRoot != ""
 			if fr.Skipped != "" || fr.Error != "" {
 				return true
 			}
-			// Evaluate symlinks to cover edge cases like macOS' /private/tmp -> /tmp symlink
-			// Also, remove any filenames to correctly determine the relative path
-			// Using "." and "." will show as modifications for completely unrelated files and paths
-			info, err := os.Stat(fromPath)
-			if err != nil {
-				return false
-			}
-			dir := filepath.Dir(fromPath)
-			var fromRoot string
-			if info.IsDir() {
-				fromRoot, err = filepath.EvalSymlinks(fromPath)
-			} else {
-				fromRoot, err = filepath.EvalSymlinks(dir)
-			}
-			if err != nil {
-				return false
-			}
-			if fromRoot == "." {
-				fromRoot = fromPath
-			}
-			rel, err := filepath.Rel(fromRoot, fr.Path)
+			rel, err := relPath(fromPath, fr, isArchive)
 			if err != nil {
 				return false
 			}
@@ -211,7 +235,8 @@ func handleFile(ctx context.Context, c malcontent.Config, fr, tr *malcontent.Fil
 func createFileReport(tr, fr *malcontent.FileReport) *malcontent.FileReport {
 	return &malcontent.FileReport{
 		Path:              tr.Path,
-		PreviousRelPath:   fr.Path,
+		PreviousPath:      fr.Path,
+		PreviousRelPath:   fr.PreviousRelPath,
 		Behaviors:         []*malcontent.Behavior{},
 		PreviousRiskScore: fr.RiskScore,
 		PreviousRiskLevel: fr.RiskLevel,
@@ -320,6 +345,7 @@ func fileMove(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileR
 	// We think that this file moved from rpath to apath.
 	abs := &malcontent.FileReport{
 		Path:                 tr.Path,
+		PreviousPath:         fr.Path,
 		PreviousRelPath:      rpath,
 		PreviousRelPathScore: score,
 

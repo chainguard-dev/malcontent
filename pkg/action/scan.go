@@ -135,6 +135,8 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	// Clean up the path if scanning an archive
 	var clean string
 	if isArchive {
+		fr.ArchiveRoot = archiveRoot
+		fr.FullPath = path
 		clean, err = cleanPath(path, archiveRoot)
 		if err != nil {
 			return nil, err

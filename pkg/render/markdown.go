@@ -66,7 +66,7 @@ func (r Markdown) Full(ctx context.Context, rep *malcontent.Report) error {
 	for modified := rep.Diff.Modified.Oldest(); modified != nil; modified = modified.Next() {
 		var title string
 		if modified.Value.PreviousRelPath != "" && modified.Value.PreviousRelPathScore >= 0.9 {
-			title = fmt.Sprintf("## Moved: %s -> %s (similarity: %0.2f)", modified.Value.PreviousRelPath, modified.Value.Path, modified.Value.PreviousRelPathScore)
+			title = fmt.Sprintf("## Moved: %s -> %s (similarity: %0.2f)", modified.Value.PreviousPath, modified.Value.Path, modified.Value.PreviousRelPathScore)
 		} else {
 			title = fmt.Sprintf("## Changed: %s", modified.Value.Path)
 		}
