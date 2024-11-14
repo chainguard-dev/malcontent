@@ -1,5 +1,6 @@
 rule dial_shared_screen_discovery: high {
   meta:
+
   strings:
     $urn_multiscreen = "urn:dial-multiscreen-org:service:dial:1"
     $not_chromium    = "RasterCHROMIUM"

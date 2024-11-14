@@ -16,8 +16,6 @@ rule php_in_image: critical {
     description = "Image file contains PHP code"
     credit      = "Inspired by DodgyPHP rule in php-malware-finder"
 
-    hash_2023_0xShell_up = "c72f0194a61dcf25779370a6c8dd0257848789ef59d0108a21f08301569d4441"
-
   strings:
     $gif  = { 47 49 46 38 ?? 61 }
     $png  = { 89 50 4E 47 0D 0A 1A 0A }

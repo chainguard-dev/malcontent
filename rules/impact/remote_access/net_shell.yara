@@ -26,6 +26,7 @@ rule generic_perl_socket_exec {
 
 rule ipinfo_and_bash: high {
   meta:
+
   strings:
     $ipinfo = "ipinfo.io"
     $bash   = "/bin/bash"
@@ -49,8 +50,7 @@ rule readdir_inet_system: high {
 
 rule pcap_shell_exec: high {
   meta:
-    description            = "sniffs network traffic, executes shell"
-    hash_2023_BPFDoor_dc83 = "dc8346bf443b7b453f062740d8ae8d8d7ce879672810f4296158f90359dcae3a"
+    description = "sniffs network traffic, executes shell"
 
     filetypes = "elf,macho"
 
@@ -73,8 +73,6 @@ rule pcap_shell_exec: high {
 rule go_pty_daemonize_net: critical {
   meta:
     description = "daemonizes and exposes a terminal to the internet"
-
-    hash_2024_termite_main = "d9c819b4e14a64033d0188a83dab05771a1914f00a14e8cc12f96e5d0c4f924a"
 
   strings:
     $d1      = "go-daemon" fullword

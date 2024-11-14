@@ -2,8 +2,6 @@ rule ssh: medium {
   meta:
     description = "Supports SSH (secure shell)"
 
-    hash_1985_deploy = "8729e61daf18a196f7571fa097be32dd7b4dbcc3e3794be1102aa2ad91f4cbe0"
-
   strings:
     $ = "SSH" fullword
     $ = "ssh_packet" fullword

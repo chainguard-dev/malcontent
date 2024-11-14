@@ -1,6 +1,5 @@
 rule systemsetup_no_sleep: medium {
   meta:
-
   strings:
     $no_sleep = "systemsetup -setcomputersleep Never"
 

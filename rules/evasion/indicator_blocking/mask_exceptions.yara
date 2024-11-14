@@ -40,8 +40,6 @@ rule php_disable_errors: medium {
   meta:
     description = "PHP code that disables error reporting"
 
-    hash_2023_0xShell_wesoori = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"
-
   strings:
     $err_rep       = "error_reporting(0)"
     $log_errs      = /ini_set\(\Wlog_errors\W{0,4}0/

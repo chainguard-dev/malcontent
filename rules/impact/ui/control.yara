@@ -1,5 +1,6 @@
 rule tell_app_system_events: medium {
   meta:
+
   strings:
     $system_events           = "tell application \"System Events\""
     $not_front               = "set frontmost"

@@ -89,7 +89,6 @@ rule miner_kvryr_stak_alike: high {
 
 rule proxy_http_aes_terminal_combo: medium {
   meta:
-
   strings:
     $isatty      = "isatty"
     $socks_proxy = "socks proxy"

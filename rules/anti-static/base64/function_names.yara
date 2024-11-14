@@ -68,8 +68,6 @@ rule base64_php_functions_multiple: critical {
   meta:
     description = "References multiple PHP functions in base64 form"
 
-    hash_2023_0xShell_wesobase = "17a1219bf38d953ed22bbddd5aaf1811b9380ad0535089e6721d755a00bddbd0"
-
   strings:
     $php           = "<?php"
     $base64_decode = "base64_decode"
@@ -134,8 +132,6 @@ rule base64_php_functions_multiple: critical {
 rule base64_python_functions: critical {
   meta:
     description = "contains base64 Python code"
-
-    hash_2023_0xShell_wesobase = "17a1219bf38d953ed22bbddd5aaf1811b9380ad0535089e6721d755a00bddbd0"
 
   strings:
     $f_exec          = "exec(" base64

@@ -24,8 +24,6 @@ rule sshd_net: high {
   meta:
     description = "Mentions SSHD network processes"
 
-    hash_2024_src_tracers = "5e774902d99c93cf4e7441a8a7d5674966ee6ca72760779639bbf3a9a9a3e065"
-
   strings:
     $ref  = "sshd: [net]"
     $ref2 = "sshd: [accepted]"

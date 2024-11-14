@@ -16,8 +16,6 @@ rule php_getmygid: medium {
     syscall     = "getegid"
     description = "returns the effective group id of the current process"
 
-    hash_2023_0xShell_root = "3baa3bfaa6ed78e853828f147c3747d818590faee5eecef67748209dd3d92afb"
-
   strings:
     $getmygid = "getmygid"
 

@@ -1,6 +1,5 @@
 rule dirbuster: high {
   meta:
-
   strings:
     $ref = "dirbuster" fullword
 

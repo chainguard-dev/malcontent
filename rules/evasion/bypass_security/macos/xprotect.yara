@@ -1,5 +1,6 @@
 rule XProtectMention: medium {
   meta:
+
   strings:
     $xprotect    = "XProtect"
     $not_apple   = "com.apple.private"

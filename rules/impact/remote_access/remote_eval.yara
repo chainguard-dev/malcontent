@@ -38,8 +38,6 @@ rule python_exec_near_requests: critical {
   meta:
     description = "Executes code from encrypted remote content"
 
-    hash_2022_colorsapi = "da4a034f20cb7d642e9b61daa9cfa7a63538a8323ce862c87ac1904c89c9acdf"
-
   strings:
     $exec     = "exec("
     $requests = "requests.get"

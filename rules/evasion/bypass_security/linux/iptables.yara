@@ -24,9 +24,8 @@ rule nftables: medium {
 
 rule iptables_disable: critical {
   meta:
-    description                       = "stops or disables the iptables firewall"
-    ref                               = "https://www.netfilter.org/projects/iptables/"
-    hash_2023_Unix_Malware_Agent_b79a = "b79af4e394cbc8c19fc9b5410fa69b10325fd23f58bec330954caae135239a1f"
+    description = "stops or disables the iptables firewall"
+    ref         = "https://www.netfilter.org/projects/iptables/"
 
   strings:
     $systemctl = /systemctl[\w\- ]{0,16} (stop|disable) iptables/

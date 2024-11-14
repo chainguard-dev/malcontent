@@ -15,8 +15,6 @@ rule py_indirect_builtins: suspicious {
   meta:
     description = "Indirectly refers to Python builtins"
 
-    hash_2023_yvper_0_1_setup = "b765244c1f8a11ee73d1e74927b8ad61718a65949e0b8d8cbc04e5d84dccaf96"
-
   strings:
     $val = /getattr\(__builtins__,[ \w\.\)\)]{0,64}/
 
@@ -65,8 +63,7 @@ rule python_exec_eval_one_line: critical {
 
 rule python_exec_near_enough_decrypt: high {
   meta:
-    description                = "Evaluates code from encrypted content"
-    hash_2024_3web_1_0_0_setup = "7a4e6a21ac07f3d42091e3ff3345747ff68d06657d8fbd7fc783f89da99db20c"
+    description = "Evaluates code from encrypted content"
 
   strings:
     $exec    = "exec(" fullword
@@ -78,8 +75,7 @@ rule python_exec_near_enough_decrypt: high {
 
 rule python_exec_near_enough_fernet: critical {
   meta:
-    description                = "Evaluates code from encrypted content"
-    hash_2024_3web_1_0_0_setup = "7a4e6a21ac07f3d42091e3ff3345747ff68d06657d8fbd7fc783f89da99db20c"
+    description = "Evaluates code from encrypted content"
 
   strings:
     $exec   = "exec(" fullword
@@ -315,8 +311,7 @@ rule multi_decode: medium {
 
 rule rename_requests: medium {
   meta:
-    description                  = "imports 'requests' library and gives it another name"
-    hash_2021_DiscordSafety_init = "05c23917c682326179708a1d185ea88632d61522513f08d443bfd5c065612903"
+    description = "imports 'requests' library and gives it another name"
 
   strings:
     $ref = /import requests as \w{0,64}/
@@ -327,8 +322,7 @@ rule rename_requests: medium {
 
 rule rename_requests_2char: high {
   meta:
-    description                  = "imports 'requests' library and gives it a two-letter name"
-    hash_2021_DiscordSafety_init = "05c23917c682326179708a1d185ea88632d61522513f08d443bfd5c065612903"
+    description = "imports 'requests' library and gives it a two-letter name"
 
   strings:
     $ref = /import requests as \w{2}/
@@ -365,8 +359,6 @@ rule rename_base64: critical {
   meta:
     description = "imports 'base64' library and gives it another name"
 
-    hash_2022_xoloaghvurilnh_init = "87a23edfa8fbcc13d1a25b9ac808dbc36c417fda508f98186455a7991a52b6c0"
-
   strings:
     $ref = /import base64 as \w{0,64}/
 
@@ -377,8 +369,6 @@ rule rename_base64: critical {
 rule rename_zlib: high {
   meta:
     description = "imports 'base64' library and gives it another name"
-
-    hash_2022_xoloaghvurilnh_init = "87a23edfa8fbcc13d1a25b9ac808dbc36c417fda508f98186455a7991a52b6c0"
 
   strings:
     $ref = /import zlib as \w{0,64}/

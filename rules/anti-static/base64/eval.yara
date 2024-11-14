@@ -2,6 +2,7 @@ import "math"
 
 rule eval_base64: high {
   meta:
+
   strings:
     $eval = /eval\(.{0,256}base64/
 
@@ -47,8 +48,6 @@ rule ruby_eval2_near_enough: critical {
 rule python_exec_near_enough: high {
   meta:
     description = "Evaluates base64 content"
-
-    hash_2018_EvilOSX_89e5 = "89e5b8208daf85f549d9b7df8e2a062e47f15a5b08462a4224f73c0a6223972a"
 
   strings:
     $exec   = "exec("

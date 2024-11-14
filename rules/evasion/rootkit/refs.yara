@@ -2,8 +2,6 @@ rule rootkit_l33t: high {
   meta:
     description = "references a 'rootkit'"
 
-    hash_2024_scripts_implant_rootkit = "c7ffb802c0e2813e2b0edba2efe8fa660740806b902cd1f1aea01c998812206d"
-
   strings:
     $s_r00tkit = "r00tkit"
     $s_r00tk1t = "r00tk1t"

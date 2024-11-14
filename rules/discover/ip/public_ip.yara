@@ -52,8 +52,7 @@ rule iplookup_obfuscated: critical {
 
 rule iplookup_website_base64: critical {
   meta:
-    description              = "public service to discover external IP address"
-    hash_2017_MacOS_AppStore = "4131d4737fe8dfe66d407bfd0a0df18a4a77b89347471cc012da8efc93c661a5"
+    description = "public service to discover external IP address"
 
   strings:
     $check_ip    = "checkip.amazonaws.com" base64

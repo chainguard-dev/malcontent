@@ -19,8 +19,6 @@ rule py_walk: medium {
   meta:
     description = "traverse filesystem hierarchy"
 
-    hash_2021_A_g = "ffb0a802fdf054d4988d68762d9922820bdc3728f0378fcd6c4ed28c06da5cf0"
-
   strings:
     $walk = "os.walk"
 

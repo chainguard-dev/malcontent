@@ -1,6 +1,5 @@
 rule macos_kitchen_sink_binary: medium {
   meta:
-
   strings:
     $f_sysctl        = "sysctl"
     $f_mkdtemp       = "mkdtemp"
@@ -22,8 +21,7 @@ rule macos_kitchen_sink_binary: medium {
 
 rule ssh_socks5_exec: medium {
   meta:
-    description              = "supports SOCKS5, SSH, and executing programs"
-    hash_2024_Downloads_e100 = "e100be934f676c64528b5e8a609c3fb5122b2db43b9aee3b2cf30052799a82da"
+    description = "supports SOCKS5, SSH, and executing programs"
 
   strings:
     $socks5 = "Socks5"
@@ -49,6 +47,7 @@ rule progname_socket_waitpid: high {
 
 rule POST_command_executer: high {
   meta:
+
   strings:
     $post             = "POST"
     $command_executed = "Command executed"
@@ -59,7 +58,6 @@ rule POST_command_executer: high {
 
 rule exec_getprog_socket_waitpid_combo: high {
   meta:
-
   strings:
     $execle          = "_execl"
     $execve          = "_execve"
@@ -78,7 +76,6 @@ rule exec_getprog_socket_waitpid_combo: high {
 
 rule exec_chdir_and_socket: medium {
   meta:
-
   strings:
     $socket      = "socket" fullword
     $chdir       = "chdir" fullword

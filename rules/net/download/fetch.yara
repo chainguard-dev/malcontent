@@ -89,6 +89,7 @@ rule curl_agent_val: high {
 
 rule urllib_oneliner: high {
   meta:
+
   strings:
     $urllib_req = "import urllib.request; urllib.request.urlretrieve"
 

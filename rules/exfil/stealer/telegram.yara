@@ -2,8 +2,6 @@ rule telegram_passwords: high {
   meta:
     description = "gets passwords, makes HTTP requests, and uses Telegram"
 
-    hash_2023_Qubitstrike_mi = "9a5f6318a395600637bd98e83d2aea787353207ed7792ec9911b775b79443dcd"
-
   strings:
     $c3                   = "api.telegram.org"
     $h1                   = "get("
@@ -26,8 +24,6 @@ rule telegram_passwords: high {
 rule telegram_content: critical {
   meta:
     description = "finds files, uploads documents to Telegram"
-
-    hash_2023_Qubitstrike_mi = "9a5f6318a395600637bd98e83d2aea787353207ed7792ec9911b775b79443dcd"
 
   strings:
     $hostname     = "api.telegram.org"

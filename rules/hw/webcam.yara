@@ -1,6 +1,5 @@
 rule macos_webcam_user: medium {
   meta:
-
   strings:
     $device_list = "SGGetChannelDeviceList"
     $set_channel = "SGSetChannelDevice"

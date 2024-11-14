@@ -3,8 +3,6 @@ rule base64_decode: medium python {
     description = "decode base64 strings"
     ref         = "https://docs.python.org/3/library/base64.html"
 
-    hash_2020_Enigma = "6b2ff7ae79caf306c381a55409c6b969c04b20c8fda25e6d590e0dadfcf452de"
-
   strings:
     $b64decode = "b64decode"
 

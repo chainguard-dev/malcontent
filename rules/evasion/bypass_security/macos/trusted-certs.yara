@@ -1,5 +1,6 @@
 rule trusted_cert_manipulator: high {
   meta:
+
   strings:
     $security         = "security"
     $add_trusted_cert = "add-trusted-cert"

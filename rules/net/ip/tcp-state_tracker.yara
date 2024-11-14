@@ -1,5 +1,6 @@
 rule network_state_strings: medium {
   meta:
+
   strings:
     $s_ip_frag        = "IP_FRAG"
     $s_icmp           = "ICMP"

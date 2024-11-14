@@ -79,8 +79,6 @@ rule py_subprocess: medium {
     description = "execute external program"
     ref         = "https://man7.org/linux/man-pages/man2/execve.2.html"
 
-    hash_2023_grandmask_3_13_setup = "8835778f9e75e6493693fc6163477ec94aba723c091393a30d7e7b9eed4f5a54"
-
   strings:
     $naked        = "subprocess"
     $val          = /subprocess\.\w{1,16}[\(\"\/\w\'\.\- \,\[\]\/\{\}]{0,64}/

@@ -4,8 +4,6 @@ rule kiteshield: high {
     date        = "2024-05-28"
     description = "Rule to identify files packed by Kiteshield"
 
-    hash_gafgyt     = "4afedf6fbf4ba95bbecc865d45479eaf"
-    hash_winnti     = "f5623e4753f4742d388276eaee72dea6"
     reference       = "https://blog.xlab.qianxin.com/kiteshield_packer_is_being_abused_by_linux_cyber_threat_actors"
     tool            = "Kiteshield"
     tool_repository = "https://github.com/GunshipPenguin/kiteshield"

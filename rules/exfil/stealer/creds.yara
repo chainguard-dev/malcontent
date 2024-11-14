@@ -1,7 +1,5 @@
 rule suspected_data_stealer: high {
   meta:
-    hash_2023_Downloads_589d = "589dbb3f678511825c310447b6aece312a4471394b3bc40dde6c75623fc108c0"
-
   strings:
     $e_atomic        = "Atomic" fullword
     $e_bitcoin       = "Bitcoin" fullword

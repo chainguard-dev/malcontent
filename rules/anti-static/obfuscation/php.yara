@@ -67,8 +67,7 @@ rule php_obfuscation: high {
 
 rule php_hex_functions: high {
   meta:
-    description            = "contains function references encoded in hex"
-    hash_2023_0xShell_crot = "900c0453212babd82baa5151bba3d8e6fa56694aff33053de8171a38ff1bef09"
+    description = "contains function references encoded in hex"
 
   strings:
     $h_globals         = "\\x47\\x4c\\x4f\\x42\\x41\\x4c\\x53" nocase

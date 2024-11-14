@@ -1,7 +1,5 @@
 rule php_uploader: medium {
   meta:
-    hash_2023_0xShell_up = "c72f0194a61dcf25779370a6c8dd0257848789ef59d0108a21f08301569d4441"
-
   strings:
     $php           = "<?php"
     $upload        = "Upload"

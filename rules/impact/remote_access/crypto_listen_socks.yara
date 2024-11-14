@@ -1,6 +1,5 @@
 rule socks_crypto_listener: medium {
   meta:
-
   strings:
     $s_socks      = "SOCKS" fullword
     $s_SOCKS5     = "SOCKS5" fullword

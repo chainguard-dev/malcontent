@@ -1,5 +1,6 @@
 rule load_agent_with_payload: high {
   meta:
+
   strings:
     $loadAgent   = "loadAgent"
     $payload     = "payload"

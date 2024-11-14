@@ -1,6 +1,5 @@
 rule security_dump_keychain: critical {
   meta:
-
   strings:
     $dump                = "dump-keychain"
     $not_ctkcard         = "/System/Library/Frameworks/CryptoTokenKit.framework/ctkcard"

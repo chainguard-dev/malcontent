@@ -23,7 +23,6 @@ rule systemd_not_in_dependency_tree: medium {
 
 rule type_forking_not_in_dep_tree: high {
   meta:
-
   strings:
     $forking       = "Type=forking"
     $expect_after  = /After=\w/

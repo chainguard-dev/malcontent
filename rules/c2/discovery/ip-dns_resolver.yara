@@ -38,8 +38,6 @@ rule quad9_ip: medium {
   meta:
     description = "contains Quad9 DNS resolver IP"
 
-    hash_2023_OK_ad69 = "ad69e198905a8d4a4e5c31ca8a3298a0a5d761740a5392d2abb5d6d2e966822f"
-
   strings:
     $primary   = "9.9.9.9"
     $secondary = "149.112.112.112"

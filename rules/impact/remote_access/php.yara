@@ -2,8 +2,6 @@ rule php_possible_backdoor: critical {
   meta:
     description = "Decodes and evaluates code"
 
-    hash_2023_0xShell_wesoori = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"
-
   strings:
     $php             = "<?php"
     $php_or          = "<? "
@@ -72,8 +70,6 @@ rule php_urlvar_recon_exec: critical {
   meta:
     description = "Runs programs, gets URL data, and looks up system info"
     ref         = "Backdoor.PHP.Llama"
-
-    hash_2023_0xShell_wesoori = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"
 
   strings:
     $php       = "<?php"
@@ -149,8 +145,7 @@ rule php_obfuscated_with_hex_characters: high {
 
 rule php_base64_eval_uname: critical {
   meta:
-    description            = "PHP code that calls eval, uname, and base64_decode"
-    hash_2023_0xShell_root = "3baa3bfaa6ed78e853828f147c3747d818590faee5eecef67748209dd3d92afb"
+    description = "PHP code that calls eval, uname, and base64_decode"
 
   strings:
     $f_php           = "<?php"
@@ -186,6 +181,7 @@ rule php_post_system: medium {
 
 rule php_error_reporting_disable: high {
   meta:
+
   strings:
     $error_reporting = "error_reporting(0)"
     $ini_set         = "ini_set("
@@ -196,8 +192,6 @@ rule php_error_reporting_disable: high {
 
 rule php_system_manipulation: high {
   meta:
-    hash_2023_0xShell_wesoori = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"
-
   strings:
     $php            = "<?php"
     $chdir          = "chdir("
@@ -216,6 +210,7 @@ rule php_system_manipulation: high {
 
 rule php_system_hex: critical {
   meta:
+
   strings:
     $system_hex = "system(\"\\x"
 
@@ -256,7 +251,6 @@ rule php_eval_get_contents: high {
 
 rule php_is_jpeg: critical {
   meta:
-
   strings:
     $jfif        = "JFIF"
     $icc_profile = "ICC_PROFILE"
@@ -268,8 +262,6 @@ rule php_is_jpeg: critical {
 
 rule php_copy_files: high {
   meta:
-    hash_2023_0xShell_up = "c72f0194a61dcf25779370a6c8dd0257848789ef59d0108a21f08301569d4441"
-
   strings:
     $copy_files = "@copy($_FILES"
 
@@ -279,7 +271,6 @@ rule php_copy_files: high {
 
 rule php_base64_encoded: critical {
   meta:
-
   strings:
     $php           = "<?php " base64
     $_POST         = "$_POST" base64

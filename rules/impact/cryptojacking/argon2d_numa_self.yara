@@ -1,7 +1,5 @@
 rule probably_a_miner: high {
   meta:
-    hash_2023_gcclib_xfitaarch = "163f78541c2fbdad128997534ecc2ad31b112f779347c526dd4e071a608de85c"
-
   strings:
     $argon     = "argon2d"
     $proc_self = "/proc/self"

@@ -1,6 +1,5 @@
 rule danger_compiled_osascript: medium {
   meta:
-
   strings:
     $s_sysoexec        = "sysoexecTEXT"
     $s_aevtoapp        = "aevtoappnull"

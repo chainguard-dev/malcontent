@@ -2,8 +2,6 @@ rule iptables_upload_http: medium {
   meta:
     description = "uploads, uses iptables and HTTP"
 
-    hash_2024_Downloads_8907 = "89073097e72070cc7cc73c178447b70e07b603ccecfe406fe92fe9eafaae830f"
-
   strings:
     $ref1 = /upload[a-zA-Z]{0,16}/
     $ref2 = "HTTP" fullword
