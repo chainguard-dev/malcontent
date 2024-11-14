@@ -32,7 +32,7 @@ var (
 	compiledRuleCache *yara.Rules
 	// compileOnce ensures that we compile rules only once even across threads.
 	compileOnce         sync.Once
-	ErrMatchedCondition = errors.New("matched requested condition")
+	ErrMatchedCondition = errors.New("matched exit criteria")
 )
 
 // findFilesRecursively returns a list of files found recursively within a path.
@@ -162,11 +162,10 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 // errIfMatch generates the right error if a match is encountered.
 func errIfHitOrMiss(frs *sync.Map, kind string, scanPath string, errIfHit bool, errIfMiss bool) (*malcontent.FileReport, error) {
 	var (
-		bList  []string
-		bMap   sync.Map
-		count  int
-		match  *malcontent.FileReport
-		suffix string
+		bList []string
+		bMap  sync.Map
+		count int
+		match *malcontent.FileReport
 	)
 	if frs == nil {
 		return nil, nil
@@ -208,20 +207,16 @@ func errIfHitOrMiss(frs *sync.Map, kind string, scanPath string, errIfHit bool, 
 	})
 	sort.Strings(bList)
 
-	if len(bList) > 0 {
-		suffix = fmt.Sprintf(": %s", strings.Join(bList, " "))
-	}
-
 	if filesScanned == 0 {
 		return nil, nil
 	}
 
 	if errIfHit && count != 0 {
-		return match, fmt.Errorf("%d matching capabilities in %s %s%s: %w", count, scanPath, kind, suffix, ErrMatchedCondition)
+		return match, fmt.Errorf("%s %w", scanPath, ErrMatchedCondition)
 	}
 
 	if errIfMiss && count == 0 {
-		return nil, fmt.Errorf("no matching capabilities in %q kind=%s suffix=%s: %w", scanPath, kind, suffix, ErrMatchedCondition)
+		return nil, fmt.Errorf("%s %w", scanPath, ErrMatchedCondition)
 	}
 	return nil, nil
 }
@@ -311,8 +306,8 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 				logger.Errorf("unable to process %s: %v", path, err)
 			}
 
-			if !c.OCI && (c.ErrFirstHit || c.ErrFirstMiss) {
-				match, err := errIfHitOrMiss(frs, "archive", path, c.ErrFirstHit, c.ErrFirstMiss)
+			if !c.OCI && (c.ExitFirstHit || c.ExitFirstMiss) {
+				match, err := errIfHitOrMiss(frs, "archive", path, c.ExitFirstHit, c.ExitFirstMiss)
 				if err != nil {
 					matchOnce.Do(func() {
 						matchChan <- matchResult{fr: match, err: err}
@@ -358,10 +353,10 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 				return nil
 			}
 
-			if !c.OCI && (c.ErrFirstHit || c.ErrFirstMiss) {
+			if !c.OCI && (c.ExitFirstHit || c.ExitFirstMiss) {
 				var frMap sync.Map
 				frMap.Store(path, fr)
-				match, err := errIfHitOrMiss(&frMap, "file", path, c.ErrFirstHit, c.ErrFirstMiss)
+				match, err := errIfHitOrMiss(&frMap, "file", path, c.ExitFirstHit, c.ExitFirstMiss)
 				if err != nil {
 					matchOnce.Do(func() {
 						matchChan <- matchResult{fr: match, err: err}
@@ -435,7 +430,7 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 
 		// OCI images hadle their match his/miss logic per scanPath
 		if c.OCI {
-			match, err := errIfHitOrMiss(&r.Files, "image", imageURI, c.ErrFirstHit, c.ErrFirstMiss)
+			match, err := errIfHitOrMiss(&r.Files, "image", imageURI, c.ExitFirstHit, c.ExitFirstMiss)
 			if err != nil && c.Renderer != nil && match.RiskScore >= c.MinFileRisk {
 				if match != nil && c.Renderer != nil && match.RiskScore >= c.MinFileRisk {
 					if renderErr := c.Renderer.File(ctx, match); renderErr != nil {
