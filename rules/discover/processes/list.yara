@@ -27,7 +27,7 @@ rule ps_exec: medium {
     pledge  = "exec"
     syscall = "vfork"
 
-    hash_2022_Gimmick_CorelDRAW = "2a9296ac999e78f6c0bee8aca8bfa4d4638aa30d9c8ccc65124b1cbfc9caab5f"
+
 
     description = "executes ps(1) for a list of processes"
 
@@ -48,7 +48,7 @@ rule procfs_listdir: medium {
     pledge  = "exec"
     syscall = "vfork"
 
-    hash_2024_enumeration_linpeas = "210cbe49df69a83462a7451ee46e591c755cfbbef320174dc0ff3f633597b092"
+
 
   strings:
     $shell  = "ls /proc" fullword
@@ -61,8 +61,8 @@ rule procfs_listdir: medium {
 rule proclist: medium {
   meta:
     description              = "accesses process list"
-    hash_2024_Downloads_0f66 = "0f66a4daba647486d2c9d838592cba298df2dbf38f2008b6571af8a562bc306c"
-    hash_2024_Downloads_e241 = "e241a3808e1f8c4811759e1761e2fb31ce46ad1e412d65bb1ad9e697432bd4bd"
+
+
 
   strings:
     $proclist       = "proclist" fullword

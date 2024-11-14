@@ -5,7 +5,7 @@ rule lkm: medium {
     description = "Linux kernel module"
     capability  = "CAP_SYS_MODULE"
 
-    hash_2023_LQvKibDTq4_diamorphine = "e93e524797907d57cb37effc8ebe14e6968f6bca899600561971e39dfd49831d"
+
 
   strings:
     $vergmagic  = "vermagic="
@@ -20,7 +20,7 @@ rule lkm_embedded_in_elf: high {
     description = "Contains embedded Linux kernel module"
     capability  = "CAP_SYS_MODULE"
 
-    hash_2023_LQvKibDTq4_diamorphine = "e93e524797907d57cb37effc8ebe14e6968f6bca899600561971e39dfd49831d"
+
 
   strings:
     $vergmagic  = "vermagic="

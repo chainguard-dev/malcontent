@@ -44,9 +44,9 @@ rule elf_hardcoded_ip: high {
 rule http_hardcoded_ip: high exfil {
   meta:
     description           = "hardcoded IP address within a URL"
-    hash_2023_Merlin_48a7 = "48a70bd18a23fce3208195f4ad2e92fce78d37eeaa672f83af782656a4b2d07f"
 
-    hash_2023_OK_ad69 = "ad69e198905a8d4a4e5c31ca8a3298a0a5d761740a5392d2abb5d6d2e966822f"
+
+
 
   strings:
     $ipv4         = /https*:\/\/([1-9][0-9]{1,2}\.){3}[1-9][0-9]{1,2}[:\/\w\-\?\.\=]{0,64}/
@@ -65,7 +65,7 @@ rule hardcoded_ip_port: high {
   meta:
     description               = "hardcoded IP:port destination"
     hash_2023_Merlin_48a7     = "48a70bd18a23fce3208195f4ad2e92fce78d37eeaa672f83af782656a4b2d07f"
-    hash_2023_usr_adxintrin_b = "a51a4ddcd092b102af94139252c898d7c1c48f322bae181bd99499a79c12c500"
+
 
   strings:
     $ipv4            = /([1-9][0-9]{1,2}\.){3}[1-9][0-9]{1,2}:\d{2,5}/ fullword
@@ -90,7 +90,7 @@ rule ip_port_mention: medium {
   meta:
     description = "mentions an IP and port"
 
-    hash_2023_0xShell_wesoori = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"
+
     hash_2023_Downloads_016a  = "016a1a4fe3e9d57ab0b2a11e37ad94cc922290d2499b8d96957c3ddbdc516d74"
 
   strings:

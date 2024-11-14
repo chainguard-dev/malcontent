@@ -1,7 +1,7 @@
 rule base64_php_functions: medium {
   meta:
     description             = "References PHP functions in base64 form"
-    hash_2023_0xShell_0xObs = "6391e05c8afc30de1e7980dda872547620754ce55c36da15d4aefae2648a36e5"
+
 
   strings:
     $php           = "<?php"
@@ -69,7 +69,7 @@ rule base64_php_functions_multiple: critical {
   meta:
     description = "References multiple PHP functions in base64 form"
 
-    hash_2023_0xShell_0xencbase = "50057362c139184abb74a6c4ec10700477dcefc8530cf356607737539845ca54"
+
     hash_2023_0xShell_wesobase  = "17a1219bf38d953ed22bbddd5aaf1811b9380ad0535089e6721d755a00bddbd0"
 
   strings:
@@ -136,7 +136,7 @@ rule base64_php_functions_multiple: critical {
 rule base64_python_functions: critical {
   meta:
     description                 = "contains base64 Python code"
-    hash_2023_0xShell_0xencbase = "50057362c139184abb74a6c4ec10700477dcefc8530cf356607737539845ca54"
+
     hash_2023_0xShell_wesobase  = "17a1219bf38d953ed22bbddd5aaf1811b9380ad0535089e6721d755a00bddbd0"
 
   strings:

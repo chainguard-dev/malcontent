@@ -2,7 +2,7 @@ rule ransom_detection: high {
   meta:
     description = "ransomware note"
 
-    hash_2024_2022_Conti_bb64b27 = "bb64b27bff106d30a7b74b3589cc081c345a2b485a831d7e8c8837af3f238e1e"
+
 
   strings:
     $not_your_database     = "in your database"

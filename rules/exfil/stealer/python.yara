@@ -25,7 +25,7 @@ rule py_crypto_urllib_multiprocessing: high {
   meta:
     description              = "calls multiple functions useful for exfiltrating data"
     ref                      = "trojan.python/drop - e8eb4f2a73181711fc5439d0dc90059f54820fe07d9727cf5f2417c5cec6da0e"
-    hash_2023_Downloads_e6b6 = "e6b6cf40d605fc7a5e8ba168a8a5d8699b0879e965d2b803e29b87926cba861f"
+
 
     filetypes = "py"
 

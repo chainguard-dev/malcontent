@@ -4,8 +4,8 @@ rule malware_CobaltStrike_v3v4 {
             author = "JPCERT/CC Incident Response Group"
             rule_usage = "memory scan"
             reference = "https://blogs.jpcert.or.jp/en/2018/08/volatility-plugin-for-detecting-cobalt-strike-beacon.html"
-            hash1 = "154db8746a9d0244146648006cc94f120390587e02677b97f044c25870d512c3"
-            hash2 = "f9b93c92ed50743cd004532ab379e3135197b6fb5341322975f4d7a98a0fcde7"
+
+
 
           strings:
             $v1 = { 73 70 72 6E 67 00 }

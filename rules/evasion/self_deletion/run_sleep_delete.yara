@@ -3,7 +3,7 @@ rule run_sleep_delete: critical {
     description = "run executable, sleep, and delete"
 
     hash_2023_Downloads_6e35             = "6e35b5670953b6ab15e3eb062b8a594d58936dd93ca382bbb3ebdbf076a1f83b"
-    hash_2023_Linux_Malware_Samples_df3b = "df3b41b28d5e7679cddb68f92ec98bce090af0b24484b4636d7d84f579658c52"
+
 
   strings:
     $chmod     = /chmod [\-\+\w \$\@\{\w\/\.]{0,64}/

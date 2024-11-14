@@ -2,7 +2,7 @@ rule executable_calls_zip: medium {
   meta:
     description = "command shells out to zip"
 
-    hash_2021_CDDS_client = "623f99cbe20af8b79cbfea7f485d47d3462d927153d24cac4745d7043c15619a"
+
 
   strings:
     $a_zip_x    = "zip -X"

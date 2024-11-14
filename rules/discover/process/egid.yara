@@ -17,7 +17,7 @@ rule php_getmygid: medium {
     description = "returns the effective group id of the current process"
 
     hash_2023_0xShell_root    = "3baa3bfaa6ed78e853828f147c3747d818590faee5eecef67748209dd3d92afb"
-    hash_2023_0xShell_wesoori = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"
+
 
   strings:
     $getmygid = "getmygid"

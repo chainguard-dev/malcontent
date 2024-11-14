@@ -3,7 +3,7 @@ rule etc_ld_preload: medium linux {
     description = "References /etc/ld.so.preload"
 
     hash_2023_OK_ad69    = "ad69e198905a8d4a4e5c31ca8a3298a0a5d761740a5392d2abb5d6d2e966822f"
-    hash_2023_OrBit_f161 = "f1612924814ac73339f777b48b0de28b716d606e142d4d3f4308ec648e3f56c8"
+
 
   strings:
     $ref = "/etc/ld.so.preload"
@@ -17,7 +17,7 @@ rule etc_ld_preload_not_ld: high linux {
     description = "unexpected reference to /etc/ld.so.preload"
 
     hash_2023_OK_ad69    = "ad69e198905a8d4a4e5c31ca8a3298a0a5d761740a5392d2abb5d6d2e966822f"
-    hash_2023_OrBit_f161 = "f1612924814ac73339f777b48b0de28b716d606e142d4d3f4308ec648e3f56c8"
+
 
   strings:
     $ref           = "/etc/ld.so.preload"

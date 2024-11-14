@@ -19,9 +19,9 @@ rule os_release: medium {
     pledge                   = "sysctl"
     syscall                  = "sysctl"
     ref                      = "https://developer.apple.com/documentation/os/1524245-os_release"
-    hash_2023_Downloads_589d = "589dbb3f678511825c310447b6aece312a4471394b3bc40dde6c75623fc108c0"
 
-    hash_2023_RustBucket_Stage_3 = "9ca914b1cfa8c0ba021b9e00bda71f36cad132f27cf16bda6d937badee66c747"
+
+
 
   strings:
     $ref = "os_release" fullword
@@ -36,8 +36,8 @@ rule macos_platform_check: medium {
     pledge                   = "sysctl"
     syscall                  = "sysctl"
     ref                      = "https://developer.apple.com/documentation/os/1524245-os_release"
-    hash_2024_Downloads_0f66 = "0f66a4daba647486d2c9d838592cba298df2dbf38f2008b6571af8a562bc306c"
-    hash_2024_Downloads_0f66 = "0f66a4daba647486d2c9d838592cba298df2dbf38f2008b6571af8a562bc306c"
+
+
 
   strings:
     $ref  = "isPlatformOrVariantPlatformVersionAtLeast" fullword
@@ -53,7 +53,7 @@ rule python_platform: medium {
     description                 = "system platform identification"
     ref                         = "https://docs.python.org/3/library/platform.html"
     hash_2023_libcurl_setup     = "5deef153a6095cd263d5abb2739a7b18aa9acb7fb0d542a2b7ff75b3506877ac"
-    hash_2024_aaa_bbb_ccc_setup = "5deef153a6095cd263d5abb2739a7b18aa9acb7fb0d542a2b7ff75b3506877ac"
+
 
   strings:
     $ref  = "platform.dist()"
@@ -70,7 +70,7 @@ rule npm_uname: medium {
     description                 = "get system identification"
     ref                         = "https://nodejs.org/api/process.html"
     hash_2023_botbait           = "1b92cb3d4b562d0eb05c3b2f998e334273ce9b491bc534d73bcd0b4952ce58d2"
-    hash_2018_OSX_sample_script = "ced05b1f429ade707691b04f59d7929961661963311b768d438317f4d3d82953"
+
 
   strings:
     $ = "process.platform"

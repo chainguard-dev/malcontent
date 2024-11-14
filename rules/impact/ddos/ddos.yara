@@ -42,8 +42,8 @@ rule ip_flood_refs: high {
 rule flooder: high {
   meta:
     description              = "References an IP flooder"
-    hash_2023_Downloads_21ca = "21ca44d382102e0ae33d02f499a5aa2a01e0749be956cbd417aae64085f28368"
-    hash_2024_Downloads_a031 = "a031da66c6f6cd07343d5bc99cc283528a5b7f04f97b2c33c2226a388411ec61"
+
+
 
   strings:
     $ = "flooder" fullword
@@ -65,7 +65,7 @@ rule ddos: medium {
   meta:
     description = "References DDoS"
 
-    hash_2023_UPX_11e5 = "11e557e139b44494dd243510b398bb2ac1037055c565d25ef86f04773f9b0389"
+
 
   strings:
     $ref  = "DDoS" fullword

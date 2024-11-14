@@ -1,7 +1,7 @@
 rule linux_server_stealer: high {
   meta:
     description         = "may steal sensitive Linux secrets"
-    hash_2024_SSH_Snake = "b0a2bf48e29c6dfac64f112ac1cb181d184093f582615e54d5fad4c9403408be"
+
 
   strings:
     $bash_history = ".bash_history"

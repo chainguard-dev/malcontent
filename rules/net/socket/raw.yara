@@ -5,7 +5,7 @@ rule raw_sockets: medium {
     ref         = "https://man7.org/linux/man-pages/man7/raw.7.html"
 
     hash_2023_Downloads_b56a             = "b56a89db553d4d927f661f6ff268cd94bdcfe341fd75ba4e7c464946416ac309"
-    hash_2023_Linux_Malware_Samples_0638 = "063830221431f8136766f2d740df6419c8cd2f73b10e07fa30067df506592210"
+
 
   strings:
     $ref          = "raw socket" fullword

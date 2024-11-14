@@ -18,7 +18,7 @@ rule whoami: medium {
     syscall                 = "getuid"
     description             = "returns the user name running this process"
     ref                     = "https://man7.org/linux/man-pages/man1/whoami.1.html"
-    hash_2023_misc_mr_robot = "630bbcf0643d9fc9840f2f54ea4ae1ea34dc94b91ee011779c8e8c91f733c9f5"
+
 
   strings:
     $ref  = "whoami" fullword

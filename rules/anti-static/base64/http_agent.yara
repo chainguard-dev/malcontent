@@ -2,8 +2,8 @@ rule base64_http_val: high {
   meta:
     description = "base64 HTTP protocol references"
 
-    hash_2023_pan_chan_6896 = "6896b02503c15ffa68e17404f1c97fd53ea7b53c336a7b8b34e7767f156a9cf2"
-    hash_2023_pan_chan_73ed = "73ed0b692fda696efd5f8e33dc05210e54b17e4e4a39183c8462bcc5a3ba06cc"
+
+
 
   strings:
     $user_agent  = "User-Agent" base64

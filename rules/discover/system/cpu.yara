@@ -3,9 +3,9 @@ rule host_processor_info: medium {
     syscall                  = "host_processor_info"
     description              = "returns hardware processor, count"
     ref                      = "https://developer.apple.com/documentation/kernel/1502854-host_processor_info"
-    hash_2024_Downloads_0f66 = "0f66a4daba647486d2c9d838592cba298df2dbf38f2008b6571af8a562bc306c"
 
-    hash_2023_CoinMiner_lauth = "fe3700a52e86e250a9f38b7a5a48397196e7832fd848a7da3cc02fe52f49cdcf"
+
+
 
   strings:
     $ref = "host_processor_info"

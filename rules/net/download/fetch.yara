@@ -89,7 +89,7 @@ rule curl_agent_val: high {
 
 rule urllib_oneliner: high {
   meta:
-    hash_2023_Qubitstrike_mi = "9a5f6318a395600637bd98e83d2aea787353207ed7792ec9911b775b79443dcd"
+
 
   strings:
     $urllib_req = "import urllib.request; urllib.request.urlretrieve"
@@ -101,9 +101,9 @@ rule urllib_oneliner: high {
 rule curl_insecure_val: medium {
   meta:
     description              = "Invokes curl in insecure mode"
-    hash_2024_Downloads_a031 = "a031da66c6f6cd07343d5bc99cc283528a5b7f04f97b2c33c2226a388411ec61"
 
-    hash_2020_Licatrade_run = "ad27ae075010795c04a6c5f1303531f3f2884962be4d741bf38ced0180710d06"
+
+
 
   strings:
     $ref             = /curl[\w\- ]{0,5}-k[ \-\w:\/]{0,64}/

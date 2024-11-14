@@ -1,6 +1,6 @@
 rule macos_screencapture_caller: high {
   meta:
-    hash_2021_CDDS_client = "623f99cbe20af8b79cbfea7f485d47d3462d927153d24cac4745d7043c15619a"
+
 
   strings:
     $screencap           = "screencapture"

@@ -6,8 +6,8 @@ rule single_load_rwe: critical {
     description              = "Binary with a single LOAD segment marked RWE"
     family                   = "Stager"
     filetype                 = "ELF"
-    hash_2024_Downloads_690f = "690f29dd425f7415ecb50986aa26750960c39a0ca8a02ddfd37ec4196993bd9e"
-    hash_2023_Downloads_cd54 = "cd54a34dbd7d345a7fd7fd8744feb5c956825317e9225edb002c3258683947f1"
+
+
 
     author = "Tenable"
 
@@ -20,7 +20,7 @@ rule fake_section_headers_conflicting_entry_point_address: critical {
     description              = "binary with fake sections header"
     family                   = "Obfuscation"
     filetype                 = "ELF"
-    hash_2024_Downloads_e241 = "e241a3808e1f8c4811759e1761e2fb31ce46ad1e412d65bb1ad9e697432bd4bd"
+
 
     author = "Tenable"
 
@@ -42,8 +42,8 @@ rule fake_dynamic_symbols: critical {
 rule high_entropy_header: high {
   meta:
     description        = "high entropy ELF header (>7)"
-    hash_2023_UPX_0c25 = "0c25a05bdddc144fbf1ffa29372481b50ec6464592fdfb7dec95d9e1c6101d0d"
-    hash_2023_UPX_5a59 = "5a5960ccd31bba5d47d46599e4f10e455b74f45dad6bc291ae448cef8d1b0a59"
+
+
 
   strings:
     $not_pyinst = "pyi-bootloader-ignore-signals"

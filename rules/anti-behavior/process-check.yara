@@ -1,6 +1,6 @@
 rule activity_monitor_checker: high macos {
   meta:
-    hash_2020_BirdMiner_tormina = "4179cdef4de0eef44039e9d03d42b3aeca06df533be74fc65f5235b21c9f0fb1"
+
     description                 = "checks if 'Activity Monitor' is running"
 
   strings:

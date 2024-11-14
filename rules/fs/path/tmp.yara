@@ -2,7 +2,7 @@ rule tmp_path: medium {
   meta:
     description                         = "path reference within /tmp"
     hash_2023_0xShell_wesoori           = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"
-    hash_2019_test_sprockets_rails_test = "6c50a21a69f2bcb27a55e909f9fecd4a7bd7fc0898730d1c76e65b2a7172710b"
+
 
   strings:
     $resolv = /\/tmp\/[%\w\.\-\/]{0,64}/
@@ -15,8 +15,8 @@ rule weird_tmp_path_not_hidden: medium {
   meta:
     description = "references an unusual path within /tmp"
 
-    hash_2024_Downloads_384e = "384ec732200ab95c94c202f42b51e870f51735768888aaabc4e370de74e825e3"
-    hash_2023_Downloads_6e35 = "6e35b5670953b6ab15e3eb062b8a594d58936dd93ca382bbb3ebdbf076a1f83b"
+
+
 
   strings:
     $tmp_digits          = /\/tmp\/[\w]*\d{1,128}/

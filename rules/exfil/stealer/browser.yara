@@ -1,7 +1,7 @@
 rule multiple_browser_credentials: high {
   meta:
-    hash_2023_Downloads_016a = "016a1a4fe3e9d57ab0b2a11e37ad94cc922290d2499b8d96957c3ddbdc516d74"
-    hash_2023_Downloads_589d = "589dbb3f678511825c310447b6aece312a4471394b3bc40dde6c75623fc108c0"
+
+
 
   strings:
     $c_library_keychains     = "/Library/Keychains"
@@ -25,7 +25,7 @@ rule multiple_browser_refs: high {
   meta:
     description = "Makes references to multiple browser credentials"
 
-    hash_1985_build_stealer = "d49043306ff8d6b394c6f39d70bd208ad740a6030d3cc5b5427d03cc7e494e7f"
+
     hash_1985_src_stealer   = "9af37b5973ee1e683d9708591cbe31b8a1044aab88b92b5883bdd74bcf8d807b"
 
   strings:

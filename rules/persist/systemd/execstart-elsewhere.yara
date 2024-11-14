@@ -14,9 +14,9 @@ rule execstart_unexpected_dir_val: medium {
   meta:
     description                 = "Starts from an unusual path"
     ref                         = "https://sandflysecurity.com/blog/log4j-kinsing-linux-malware-in-the-wild/"
-    hash_2023_Downloads_kinsing = "05d02411668f4ebd576a24ac61cc84e617bdb66aa819581daa670c65f1a876f0"
 
-    hash_2024_2024_Spinning_YARN_yarn_fragments = "723326f8551f2a92ccceeec93859f58df380a3212e7510bc64181f2a0743231c"
+
+
 
   strings:
     $execstart           = /ExecStart=\/[\w\/]{1,128}/

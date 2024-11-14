@@ -3,7 +3,7 @@ import "math"
 rule remote_eval: critical {
   meta:
     description                  = "Evaluates remotely sourced code"
-    hash_2019_restclient_request = "ba46608e52a24b7583774ba259cf997c6f654a398686028aad56855a2b9d6757"
+
 
   strings:
     $http                = "http"
@@ -24,8 +24,8 @@ rule remote_eval_close: critical {
   meta:
     description = "Evaluates remotely sourced code"
 
-    hash_2023_1_1_6_payload = "cbe882505708c72bc468264af4ef5ae5de1b75de1f83bba4073f91568d9d20a1"
-    hash_2023_0_0_7_payload = "bb6ca6bfd157c39f4ec27589499d3baaa9d1b570e622722cb9bddfff25127ac9"
+
+
     filetypes               = "php"
 
   strings:
@@ -40,7 +40,7 @@ rule remote_eval_close: critical {
 rule python_exec_near_requests: critical {
   meta:
     description                 = "Executes code from encrypted remote content"
-    hash_2023_EoerbIsjxqyV_init = "76e641b1de6630dc61e875a874c74bb4f2ba7d42dc97caaa5a6926682313cd31"
+
     hash_2022_colorsapi         = "da4a034f20cb7d642e9b61daa9cfa7a63538a8323ce862c87ac1904c89c9acdf"
 
   strings:
@@ -66,7 +66,7 @@ rule python_eval_near_requests: critical {
 rule python_exec_near_get: critical {
   meta:
     description                         = "Executes code from encrypted content"
-    hash_2024_xFileSyncerx_xfilesyncerx = "c68e907642a8462c6b82a50bf4fde82bbf71245ab4edace246dd341dc72e5867"
+
 
   strings:
     $f_exec        = "exec("
@@ -95,9 +95,9 @@ rule php_remote_exec: critical {
   meta:
     description       = "Executes code from a remote source"
     credit            = "Inspired by DodgyPHP rule in php-malware-finder"
-    hash_2023_0xShell = "acf556b26bb0eb193e68a3863662d9707cbf827d84c34fbc8c19d09b8ea811a1"
 
-    hash_2023_0xShell = "a6f1f9c9180cb77952398e719e4ef083ccac1e54c5242ea2bc6fe63e6ab4bb29"
+
+
 
   strings:
     $php                 = "<?php"

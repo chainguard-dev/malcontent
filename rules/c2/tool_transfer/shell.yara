@@ -14,7 +14,7 @@ rule tool_chmod_relative_run: medium {
     description = "may fetch file, make it executable, and run it"
 
     hash_2023_Downloads_6e35             = "6e35b5670953b6ab15e3eb062b8a594d58936dd93ca382bbb3ebdbf076a1f83b"
-    hash_2023_Linux_Malware_Samples_df3b = "df3b41b28d5e7679cddb68f92ec98bce090af0b24484b4636d7d84f579658c52"
+
 
   strings:
     $f_curl      = /(curl|wget) [\-\w \$\@\{\w\/\.\:]{0,96}/
@@ -32,7 +32,7 @@ rule tool_chmod_relative_run_tiny: critical {
     description = "fetch file, make it executable, and run it"
 
     hash_2023_Downloads_6e35             = "6e35b5670953b6ab15e3eb062b8a594d58936dd93ca382bbb3ebdbf076a1f83b"
-    hash_2023_Linux_Malware_Samples_df3b = "df3b41b28d5e7679cddb68f92ec98bce090af0b24484b4636d7d84f579658c52"
+
 
   strings:
     $must_cd     = /cd {1,2}[\/\$][\w\/]{0,16}/
@@ -66,7 +66,7 @@ rule tool_tor_chmod_relative_run: high {
     description = "change dir, fetch file via tor, make it executable, and run it"
 
     hash_2023_Downloads_6e35             = "6e35b5670953b6ab15e3eb062b8a594d58936dd93ca382bbb3ebdbf076a1f83b"
-    hash_2023_Linux_Malware_Samples_df3b = "df3b41b28d5e7679cddb68f92ec98bce090af0b24484b4636d7d84f579658c52"
+
 
   strings:
     $tor2web   = "tor2web"
@@ -112,7 +112,7 @@ rule fetch_pipe_shell_value: medium {
   meta:
     description                      = "fetches content and pipes it to a shell"
     hash_2023_OK_29c2                = "29c2f559a9494bce3d879aff8731a5d70a3789028055fd170c90965ce9cf0ea4"
-    hash_2023_Sysrv_Hello_sys_x86_64 = "cd784dc1f7bd95cac84dc696d63d8c807129ef47b3ce08cd08afb7b7456a8cd3"
+
 
   strings:
     $wget_bash = /wget .{8,128}\| {0,2}bash/

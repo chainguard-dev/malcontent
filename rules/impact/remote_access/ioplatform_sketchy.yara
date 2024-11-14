@@ -1,6 +1,6 @@
 rule ioplatform_expert_with_sketchy_calls: high {
   meta:
-    hash_2017_FileCoder = "c9c7c7f1afa1d0760f63d895b8c9d5ab49821b2e4fe596b0c5ae94c308009e89"
+
 
   strings:
     $ioplatform       = "IOPlatformExpertDevice" fullword

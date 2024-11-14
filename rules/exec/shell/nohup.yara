@@ -2,8 +2,8 @@ rule nohup_reference_value: medium {
   meta:
     description = "Runs command that is protected from termination"
 
-    hash_2023_Linux_Malware_Samples_3059 = "305901aa920493695729132cfd20cbddc9db2cf861071450a646c6a07b4a50f3"
-    hash_2023_Linux_Malware_Samples_553a = "553ac527d6a02a84c787fd529ea59ce1eb301ddfb180d89b9e62108d92894185"
+
+
 
   strings:
     $nohup         = "nohup" fullword
@@ -21,7 +21,7 @@ rule elf_nohup: high {
   meta:
     description                      = "Runs command that is protected from termination"
     hash_2023_Merlin_48a7            = "48a70bd18a23fce3208195f4ad2e92fce78d37eeaa672f83af782656a4b2d07f"
-    hash_2023_Sysrv_Hello_sys_x86_64 = "cd784dc1f7bd95cac84dc696d63d8c807129ef47b3ce08cd08afb7b7456a8cd3"
+
 
   strings:
     $nohup         = "nohup" fullword
@@ -39,7 +39,7 @@ rule nohup_bash: high {
   meta:
     description                       = "Calls bash with nohup"
     hash_2023_Sysrv_Hello_sys_x86_64  = "cd784dc1f7bd95cac84dc696d63d8c807129ef47b3ce08cd08afb7b7456a8cd3"
-    hash_2023_Unix_Malware_Agent_b79a = "b79af4e394cbc8c19fc9b5410fa69b10325fd23f58bec330954caae135239a1f"
+
 
   strings:
     $ref = /nohup bash[ \w\/\&\.\-\%\>]{0,32}/

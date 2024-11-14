@@ -1,6 +1,6 @@
 rule load_agent_with_payload: high {
   meta:
-    hash_2020_FinSpy_installer = "80d6e71c54fb3d4a904637e4d56e108a8255036cbb4760493b142889e47b951f"
+
 
   strings:
     $loadAgent   = "loadAgent"

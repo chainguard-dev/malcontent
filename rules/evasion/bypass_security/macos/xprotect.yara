@@ -1,6 +1,6 @@
 rule XProtectMention: medium {
   meta:
-    hash_2023_JokerSpy_xcc = "d895075057e491b34b0f8c0392b44e43ade425d19eaaacea6ef8c5c9bd3487d8"
+
 
   strings:
     $xprotect    = "XProtect"

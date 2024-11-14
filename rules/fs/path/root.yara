@@ -2,7 +2,7 @@ rule root_path_val: medium {
   meta:
     description = "path reference within /root"
 
-    hash_2023_0xShell_wesoori = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"
+
     hash_2024_Downloads_036a  = "036a2f04ab56b5e7098c7d866eb21307011b812f126793159be1c853a6a54796"
 
   strings:

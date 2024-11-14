@@ -52,7 +52,7 @@ rule BlackTech_TSCookie_UA {
       author = "JPCERT/CC Incident Response Group"
       rule_usage = "memory scan"
       reference = "https://blogs.jpcert.or.jp/en/2018/03/malware-tscooki-7aa0.html"
-      hash1 = "6d2f5675630d0dae65a796ac624fb90f42f35fbe5dec2ec8f4adce5ebfaabf75"
+
 
     strings:
       $v1 = "Mozilla/4.0 (compatible; MSIE 8.0; Win32)" wide
@@ -73,8 +73,8 @@ rule BlackTech_TSCookie_loader
         description = "detect tscookie loader"
         author = "JPCERT/CC Incident Response Group"
         rule_usage = "PE file search"
-        hash1 = "a800df1b8ffb4fbf42bccb4a8af31c7543de3bdba1207e703d6df464ec4398e6"
-        hash2 = "b548a7ad37d241b7a7762bb84a3b0125772c469ef5f8e5e0ea190fa2458a018c"
+
+
 
     strings:
         $rc4key = {C7 [1-6] 92 5A 76 5D}
@@ -92,8 +92,8 @@ rule BlackTech_TSCookie_loader_pdb
         description = "detect tscookie loader pdb"
         author = "JPCERT/CC Incident Response Group"
         rule_usage = "PE file search"
-        hash1 = "cc424006225d4dfcb7a6287bccd9c338d570c733b5ffcbf77be8e23a4cc20f6e"
-        hash2 = "794f942c3298a43712f873cc20882d8138f75105fb151f99c5802f91f884ef04"
+
+
 
      strings:
         $pdb1 = "D:\\[0]MyATS-TEMP-Loading-"
@@ -126,8 +126,8 @@ rule BlackTech_IconDown_pe {
         description = "detect IconDown"
         author = "JPCERT/CC Incident Response Group"
         rule_usage = "PE file search"
-        hash1 = "634839b452e43f28561188a476af462c301b47bddd0468dd8c4f452ae80ea0af"
-        hash2 = "2e789fc5aa1318d0286264d70b2ececa15664689efa4f47c485d84df55231ac4"
+
+
 
     strings:
         $dataheader1 = { 91 00 13 87 33 00 90 06 19 00 }
@@ -145,7 +145,7 @@ rule BlackTech_IconDown_resource {
     meta:
         description = "detect IconDown"
         author = "JPCERT/CC Incident Response Group"
-        hash1 = "f6494698448cdaf6ec0ed7b3555521e75fac5189fa3c89ba7b2ad492188005b4"
+
 
     strings:
         $key = {00 13 87 33 00 90 06 19}
@@ -160,7 +160,7 @@ rule BlackTech_iam_downloader {
     meta:
         description = "iam downloader malware in BlackTech"
         author = "JPCERT/CC Incident Response Group"
-        hash1 = "d8500672e293ef4918ff77708c5b82cf34d40c440d5a4b957a5dbd3f3420fdc4"
+
 
      strings:
         $fs30 = { 64 A1 30 00 00 00 8B 40 0C 8B 40 1C 8B 48 08 }
@@ -184,8 +184,8 @@ rule BlackTech_HIPO_headercheck {
     meta:
         description = "HIPO_loader malware in BlackTech"
         author = "JPCERT/CC Incident Response Group"
-        hash1 = "9cf6825f58f4a4ad261f48f165367040a05af35d2dea27ad8b53b48bf60b09ef"
-        hash2 = "abc4b6be1a799e4690a318fe631f28e5c3458c8c0ea30b3f8c9f43ff6b120e1b"
+
+
 
      strings:
         $code1 = { 3D 48 49 50 4F 74 } // HIPO
@@ -199,8 +199,8 @@ rule BlackTech_PLEAD_dummycode {
      meta:
         description = "PLEAD malware dummy code in BlackTech"
         author = "JPCERT/CC Incident Response Group"
-        hash1 = "d44b38360499cfc6c892b172707e3ea6e72605ad365994ee31cf6a638e288e8d"
-        hash2 = "c825c7e575c97bf7280788147bd00dba732e333266f20eb38bce294d9bff238a"
+
+
 
      strings:
         $dummy1 = "test-%d"

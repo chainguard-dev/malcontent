@@ -2,7 +2,7 @@ rule eval: medium {
   meta:
     description             = "evaluate code dynamically using eval()"
     hash_2023_0xShell_f     = "9ce3da0322ee42e9119abb140b829efc3c94ea802df7a6f3968829645e1a5330"
-    hash_2023_0xShell_lndex = "9b073472cac7f3f8274165a575e96cfb4f4eb38471f6a8e57bb9789f3f307495"
+
 
   strings:
     $val       = /eval\([a-zA-Z\"\'\(\,\)]{1,32}/ fullword
@@ -17,7 +17,7 @@ rule python_exec: medium {
   meta:
     description = "evaluate code dynamically using exec()"
 
-    hash_2023_0xShell_wesoori = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"
+
     hash_2023_misc_mr_robot   = "630bbcf0643d9fc9840f2f54ea4ae1ea34dc94b91ee011779c8e8c91f733c9f5"
 
   strings:
@@ -32,8 +32,8 @@ rule python_exec: medium {
 rule shell_eval: medium {
   meta:
     description               = "evaluate shell code dynamically using eval"
-    hash_1980_FruitFly_A_205f = "205f5052dc900fc4010392a96574aed5638acf51b7ec792033998e4043efdf6c"
-    hash_1980_FruitFly_A_ce07 = "ce07d208a2d89b4e0134f5282d9df580960d5c81412965a6d1a0786b27e7f044"
+
+
 
   strings:
     $val                 = /eval \$\w{0,64}/ fullword
@@ -47,7 +47,7 @@ rule php_create_function_no_args: high {
   meta:
     description = "dynamically creates PHP functions without arguments"
 
-    hash_2024_2024_malcure_simple = "b52dd01d1f1416820108af0be32067e8990e076bf8f917a40a61c919e89e5551"
+
 
   strings:
     $val = /create_function\([\'\"]{2},\$/
@@ -60,7 +60,7 @@ rule php_at_eval: critical {
   meta:
     description = "evaluates code in a way that suppresses errors"
 
-    hash_2017_tests = "f1a947148c092a58e354e46082b0187bce0eea38fab2a7638eb268da0752657b"
+
 
   strings:
     $at_eval   = /@\beval\s{0,32}\(\s{0,32}(\$\w{0,32}|\.\s{0,32}"[^"]{0,32}"|\.\s{0,32}'[^']{0,32}'|\w+\(\s{0,32}\))/

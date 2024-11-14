@@ -2,7 +2,7 @@ rule multiple_sys_commands: high {
   meta:
     description = "mentions multiple unrelated system commands"
 
-    hash_2023_Downloads_311c = "311c93575efd4eeeb9c6674d0ab8de263b72a8fb060d04450daccc78ec095151"
+
 
   strings:
     $cron    = "/usr/sbin/cron"

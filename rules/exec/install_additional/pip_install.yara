@@ -14,9 +14,9 @@ rule pip_installer_known_good: low {
 rule pip_installer_variable: medium {
   meta:
     description                         = "Installs software using pip from python"
-    hash_2022_2022_requests_3_0_0_setup = "15507092967fbd28ccb833d98c2ee49da09e7c79fd41759cd6f783672fe1c5cc"
 
-    hash_2022_SimpleCalc_2022_4_2_21_setup = "5b0f7b30b411d7e404786ab2266426db471a2c9d0d9cae593eb187a58a28bc4f"
+
+
 
   strings:
     $ref = /pip3{0,1}[ \'\"\,]{0,5}install[ \'\"\,]{0,5}[\$\%\{}][\w\-\_\}]{0,32}/
@@ -28,9 +28,9 @@ rule pip_installer_variable: medium {
 rule pip_installer: medium {
   meta:
     description                         = "Installs software using pip from python"
-    hash_2022_2022_requests_3_0_0_setup = "15507092967fbd28ccb833d98c2ee49da09e7c79fd41759cd6f783672fe1c5cc"
 
-    hash_2022_SimpleCalc_2022_4_2_21_setup = "5b0f7b30b411d7e404786ab2266426db471a2c9d0d9cae593eb187a58a28bc4f"
+
+
     filetypes                              = "py,pyc,sh"
 
   strings:

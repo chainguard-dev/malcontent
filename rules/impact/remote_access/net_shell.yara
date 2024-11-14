@@ -26,7 +26,7 @@ rule generic_perl_socket_exec {
 
 rule ipinfo_and_bash: high {
   meta:
-    hash_2022_CloudMensis_WindowServer = "317ce26cae14dc9a5e4d4667f00fee771b4543e91c944580bbb136e7fe339427"
+
 
   strings:
     $ipinfo = "ipinfo.io"
@@ -39,7 +39,7 @@ rule ipinfo_and_bash: high {
 rule readdir_inet_system: high {
   meta:
     description              = "Lists directories, resolves IPs, calls shells"
-    hash_2023_Lightning_48f9 = "48f9471c20316b295704e6f8feb2196dd619799edec5835734fc24051f45c5b7"
+
 
   strings:
     $dlsym   = "readdir" fullword
@@ -54,7 +54,7 @@ rule pcap_shell_exec: high {
   meta:
     description                = "sniffs network traffic, executes shell"
     hash_2023_BPFDoor_dc83     = "dc8346bf443b7b453f062740d8ae8d8d7ce879672810f4296158f90359dcae3a"
-    hash_2024_enumeration_nmap = "353fd20c9efcd0328cea494f32d3650b9346fcdb45bfe20d8dbee2dd7b62ca62"
+
 
     filetypes = "elf,macho"
 
@@ -78,7 +78,7 @@ rule go_pty_daemonize_net: critical {
   meta:
     description = "daemonizes and exposes a terminal to the internet"
 
-    hash_2024_termite_termite_linux_arm = "d36b8cfef77149c64cb203e139657d5219527c7cf4fee45ca302d89b7ef851e6"
+
     hash_2024_termite_main              = "d9c819b4e14a64033d0188a83dab05771a1914f00a14e8cc12f96e5d0c4f924a"
 
   strings:

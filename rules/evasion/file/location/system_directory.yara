@@ -14,7 +14,7 @@ rule system_fs_manipulator: medium {
   meta:
     description = "Modifies files within system directories"
 
-    hash_2023_Qubitstrike_branch_raw_mi = "9a5f6318a395600637bd98e83d2aea787353207ed7792ec9911b775b79443dcd"
+
 
   strings:
     $in_usr  = /(mv|chattr|rm|touch) \/(bin|root|sbin|usr|var|lib|lib64|boot)\/[ \.\w\/]{0,64}/

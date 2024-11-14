@@ -4,8 +4,8 @@ rule malware_PSKiller_sys {
     meta:
       description = "detect PSKiller_sys Rook, Atom Silo"
       author = "JPCERT/CC Incident Response Group"
-      hash1 = "f807699b6c71382c7d0da61d2becf29d1818483597213f2194bc00e63d47235e"
-      hash2 = "c232b3d1ea2273b8ad827724c511d032cda7f2c66567638abf922a5d5287e388"
+
+
 
     strings:
       /* strings */

@@ -18,7 +18,7 @@ rule funky_high_signal_killer: high {
     description = "Uses high signals to communicate to a rootkit"
 
     hash_2023_Qubitstrike_mi         = "9a5f6318a395600637bd98e83d2aea787353207ed7792ec9911b775b79443dcd"
-    hash_2024_locutus_borg_transwarp = "4573af129e3e1a197050e2fd066f846c92de64d8d14a81a13d975a2cbc6d391e"
+
 
   strings:
     $odd_teen_sig = /kill -1[012346789]/ fullword

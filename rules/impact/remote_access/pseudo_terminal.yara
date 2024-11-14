@@ -2,8 +2,8 @@ rule pty: medium {
   meta:
     description              = "pseudo-terminal access functions"
     ref                      = "https://man7.org/linux/man-pages/man3/grantpt.3.html"
-    hash_2024_Downloads_036a = "036a2f04ab56b5e7098c7d866eb21307011b812f126793159be1c853a6a54796"
-    hash_2023_Downloads_2f13 = "2f1321c6cf0bc3cf955e86692bfc4ba836f5580c8b1469ce35aa250c97f0076e"
+
+
 
   strings:
     $grantpt      = "grantpt" fullword

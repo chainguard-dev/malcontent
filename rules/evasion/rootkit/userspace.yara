@@ -31,9 +31,9 @@ rule hide_dir_contents: high {
 rule readdir_intercept: high {
   meta:
     description        = "userland rootkit designed to hide files (readdir64)"
-    hash_2023_lib_pkit = "8faa04955eeb6f45043003e23af39b86f1dbfaa12695e0e1a1f0bc7a15d0d116"
 
-    hash_2023_lib_skit = "427b1d16f16736cf8cee43a7c54cd448ca46ac9b573614def400d2d8d998e586"
+
+
     filetypes          = "so,c"
 
   strings:
@@ -110,7 +110,7 @@ rule linux_process_hider: critical linux {
     description        = "userland rootkit designed to hide processes"
     ref                = "prochid.c"
     hash_2023_OK_c38c  = "c38c21120d8c17688f9aeb2af5bdafb6b75e1d2673b025b720e50232f888808a"
-    hash_2023_lib_pkit = "8faa04955eeb6f45043003e23af39b86f1dbfaa12695e0e1a1f0bc7a15d0d116"
+
 
   strings:
     $f_proc_self_fd      = "/proc/self/fd/%d"

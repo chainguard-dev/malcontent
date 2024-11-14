@@ -3,7 +3,7 @@ rule agent: medium {
     description = "references an 'agent'"
 
     hash_2023_misc_mktmpio   = "f6b7984c76d92390f5530daeacf4f77047b176ffb8eaf5c79c74d6dd4d514b2b"
-    hash_2024_Downloads_384e = "384ec732200ab95c94c202f42b51e870f51735768888aaabc4e370de74e825e3"
+
 
   strings:
     $ref        = /[a-zA-Z_]{0,16}agent/ fullword

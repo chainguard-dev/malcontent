@@ -28,9 +28,9 @@ rule fake_user_agent_khtml_val: high {
 
 rule fake_user_agent_chrome: medium {
   meta:
-    hash_2024_Downloads_036a = "036a2f04ab56b5e7098c7d866eb21307011b812f126793159be1c853a6a54796"
 
-    hash_2023_Downloads_21b3 = "21b3e304db526e2c80df1f2da2f69ab130bdad053cb6df1e05eb487a86a19b7c"
+
+
 
   strings:
     $u_chrome       = "(KHTML, like Gecko) Chrome"
@@ -55,7 +55,7 @@ rule fake_user_agent_wordpress: high {
 
 rule fake_user_agent_firefox: medium {
   meta:
-    hash_2023_0xShell_0xShellori = "506e12e4ce1359ffab46038c4bf83d3ab443b7c5db0d5c8f3ad05340cb09c38e"
+
     hash_2024_Downloads_036a     = "036a2f04ab56b5e7098c7d866eb21307011b812f126793159be1c853a6a54796"
 
   strings:
@@ -89,7 +89,7 @@ rule fake_user_agent_curl {
 rule elf_faker_val: medium {
   meta:
     description              = "Fake user agent"
-    hash_2024_Downloads_fd0b = "fd0b5348bbfd013359f9651268ee67a265bce4e3a1cacf61956e3246bac482e8"
+
 
   strings:
     $val = /Mozilla\/5[\.\w ]{4,64}/

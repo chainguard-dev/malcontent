@@ -3,7 +3,7 @@ import "elf"
 rule obfuscated_elf: high linux {
   meta:
     description          = "Obfuscated ELF binary (missing symbols)"
-    hash_2023_APT31_1d60 = "1d60edb577641ce47dc2a8299f8b7f878e37120b192655aaf80d1cde5ee482d2"
+
     hash_2023_UPX_0c25   = "0c25a05bdddc144fbf1ffa29372481b50ec6464592fdfb7dec95d9e1c6101d0d"
 
   strings:

@@ -1,7 +1,7 @@
 rule sys_net_recon: medium {
   meta:
     description              = "collects system and network information"
-    hash_2023_Downloads_f864 = "f864922f947a6bb7d894245b53795b54b9378c0f7633c521240488e86f60c2c5"
+
 
   strings:
     $net_ipconfig          = "ipconfig" fullword

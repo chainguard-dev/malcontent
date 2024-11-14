@@ -2,7 +2,7 @@ rule base64_commands: high {
   meta:
     description                      = "commands in base64 form"
     hash_2023_OrBit_f161             = "f1612924814ac73339f777b48b0de28b716d606e142d4d3f4308ec648e3f56c8"
-    hash_2023_Sysrv_Hello_sys_x86_64 = "cd784dc1f7bd95cac84dc696d63d8c807129ef47b3ce08cd08afb7b7456a8cd3"
+
 
   strings:
     $b_chmod        = "chmod" base64

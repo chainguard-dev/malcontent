@@ -1,7 +1,7 @@
 rule php_possible_backdoor: critical {
   meta:
     description                  = "Decodes and evaluates code"
-    hash_2023_0xShell_0xShellori = "506e12e4ce1359ffab46038c4bf83d3ab443b7c5db0d5c8f3ad05340cb09c38e"
+
     hash_2023_0xShell_wesoori    = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"
 
   strings:
@@ -32,9 +32,9 @@ rule php_possible_backdoor: critical {
 rule php_eval_base64_decode: critical {
   meta:
     description       = "directly evaluates base64 content"
-    hash_2023_0xShell = "acf556b26bb0eb193e68a3863662d9707cbf827d84c34fbc8c19d09b8ea811a1"
 
-    hash_2023_0xShell = "a6f1f9c9180cb77952398e719e4ef083ccac1e54c5242ea2bc6fe63e6ab4bb29"
+
+
 
   strings:
     $eval_base64_decode = "eval(base64_decode"
@@ -47,8 +47,8 @@ rule php_executor: critical {
   meta:
     description = "calls shell_exec and get_current_user"
 
-    hash_2023_0xShell_wesoori = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"
-    hash_2015_Resources_agent = "5a61246c9fe8e52347e35664e0c86ab2897d807792008680e04306e6c2104941"
+
+
 
   strings:
     $php          = "<?php"
@@ -61,7 +61,7 @@ rule php_executor: critical {
 
 rule php_bin_hashbang: critical {
   meta:
-    hash_2015_Resources_agent = "5a61246c9fe8e52347e35664e0c86ab2897d807792008680e04306e6c2104941"
+
     description               = "PHP code that references hash-bangs and remotely supplied content"
 
   strings:
@@ -80,7 +80,7 @@ rule php_urlvar_recon_exec: critical {
     description = "Runs programs, gets URL data, and looks up system info"
     ref         = "Backdoor.PHP.Llama"
 
-    hash_2023_0xShell_0xShellori = "506e12e4ce1359ffab46038c4bf83d3ab443b7c5db0d5c8f3ad05340cb09c38e"
+
     hash_2023_0xShell_wesoori    = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"
 
   strings:
@@ -119,7 +119,7 @@ rule php_eval_gzinflate_base64_backdoor: critical {
   meta:
     ref = "xoxo"
 
-    hash_2023_0xShell_xoxo = "9b073472cac7f3f8274165a575e96cfb4f4eb38471f6a8e57bb9789f3f307495"
+
 
   strings:
     $f_eval          = "eval("
@@ -143,9 +143,9 @@ rule php_eval_gzinflate_base64_backdoor: critical {
 rule php_obfuscated_with_hex_characters: high {
   meta:
     description            = "PHP obfuscated with multiple hex characters"
-    hash_2023_0xShell_1337 = "657bd1f3e53993cb7d600bfcd1a616c12ed3e69fa71a451061b562e5b9316649"
 
-    hash_2023_0xShell_crot = "900c0453212babd82baa5151bba3d8e6fa56694aff33053de8171a38ff1bef09"
+
+
 
   strings:
     $php         = "<?php"
@@ -164,7 +164,7 @@ rule php_base64_eval_uname: critical {
   meta:
     description               = "PHP code that calls eval, uname, and base64_decode"
     hash_2023_0xShell_root    = "3baa3bfaa6ed78e853828f147c3747d818590faee5eecef67748209dd3d92afb"
-    hash_2023_0xShell_wesoori = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"
+
 
   strings:
     $f_php           = "<?php"
@@ -182,9 +182,9 @@ rule php_base64_eval_uname: critical {
 rule php_post_system: medium {
   meta:
     description                      = "Accepts GET/POST variables, executes code"
-    hash_2023_Sysrv_Hello_sys_x86_64 = "cd784dc1f7bd95cac84dc696d63d8c807129ef47b3ce08cd08afb7b7456a8cd3"
 
-    hash_2023_0xShell_0xShellori = "506e12e4ce1359ffab46038c4bf83d3ab443b7c5db0d5c8f3ad05340cb09c38e"
+
+
 
   strings:
     $php         = "<?php"
@@ -203,9 +203,9 @@ rule php_post_system: medium {
 
 rule php_error_reporting_disable: high {
   meta:
-    hash_2023_systembc_password = "236cff4506f94c8c1059c8545631fa2dcd15b086c1ade4660b947b59bdf2afbd"
 
-    hash_2023_0xShell_untitled = "39b2fd6b4b2c11a9cbfc8efbb09fc14d502cde1344f52e1269228fc95b938621"
+
+
 
   strings:
     $error_reporting = "error_reporting(0)"
@@ -217,7 +217,7 @@ rule php_error_reporting_disable: high {
 
 rule php_system_manipulation: high {
   meta:
-    hash_2023_0xShell_untitled = "39b2fd6b4b2c11a9cbfc8efbb09fc14d502cde1344f52e1269228fc95b938621"
+
     hash_2023_0xShell_wesoori  = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"
 
   strings:
@@ -238,7 +238,7 @@ rule php_system_manipulation: high {
 
 rule php_system_hex: critical {
   meta:
-    hash_2023_0xShell_root = "3baa3bfaa6ed78e853828f147c3747d818590faee5eecef67748209dd3d92afb"
+
 
   strings:
     $system_hex = "system(\"\\x"
@@ -251,7 +251,7 @@ rule php_insecure_curl_uploader: critical {
   meta:
     description = "PHP code that evaluates remote content and disables SSL verification"
 
-    hash_2023_0xShell_f = "9ce3da0322ee42e9119abb140b829efc3c94ea802df7a6f3968829645e1a5330"
+
 
   strings:
     $CURLOPT_SSL_VERIFYPEER = "CURLOPT_SSL_VERIFYPEER"
@@ -268,7 +268,7 @@ rule php_insecure_curl_uploader: critical {
 rule php_eval_get_contents: high {
   meta:
     description         = "PHP code that may evaluate remote file contents"
-    hash_2023_0xShell_f = "9ce3da0322ee42e9119abb140b829efc3c94ea802df7a6f3968829645e1a5330"
+
 
   strings:
     $php                   = "<?php"
@@ -294,7 +294,7 @@ rule php_is_jpeg: critical {
 
 rule php_copy_files: high {
   meta:
-    hash_2023_0xShell_tifa_png = "1a13a6c6bb6815ba352b43971e4e961615367aec714e0a0005c28b3ebbc544c6"
+
     hash_2023_0xShell_up       = "c72f0194a61dcf25779370a6c8dd0257848789ef59d0108a21f08301569d4441"
 
   strings:

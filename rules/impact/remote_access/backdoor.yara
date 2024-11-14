@@ -14,8 +14,8 @@ rule backdoor: medium {
   meta:
     description = "References a 'backdoor'"
 
-    hash_2023_FontOnLake_27E868C0505144F0708170DF701D7C1AE8E1FAEA_elf = "d7ad1bff4c0e6d094af27b4d892b3398b48eab96b64a8f8a2392e26658c63f30"
-    hash_2023_FontOnLake_45E94ABEDAD8C0044A43FF6D72A5C44C6ABD9378_elf = "f60c1214b5091e6e4e5e7db0c16bf18a062d096c6d69fe1eb3cbd4c50c3a3ed6"
+
+
 
   strings:
     $ref = /[a-zA-Z\-_ \']{0,16}[bB]ackdoor[a-zA-Z\-_ ]{0,16}/ fullword
@@ -61,8 +61,8 @@ rule backdoor_caps: high {
   meta:
     description = "References a 'BACKDOOR'"
 
-    hash_2023_FontOnLake_27E868C0505144F0708170DF701D7C1AE8E1FAEA_elf = "d7ad1bff4c0e6d094af27b4d892b3398b48eab96b64a8f8a2392e26658c63f30"
-    hash_2023_FontOnLake_45E94ABEDAD8C0044A43FF6D72A5C44C6ABD9378_elf = "f60c1214b5091e6e4e5e7db0c16bf18a062d096c6d69fe1eb3cbd4c50c3a3ed6"
+
+
 
   strings:
     $ref2 = /[a-zA-Z\-_ \']{0,16}BACKDOOR[a-zA-Z\-_ ]{0,16}/ fullword
@@ -75,8 +75,8 @@ rule backdoor_leet: critical {
   meta:
     description = "References a 'backd00r'"
 
-    hash_2023_FontOnLake_27E868C0505144F0708170DF701D7C1AE8E1FAEA_elf = "d7ad1bff4c0e6d094af27b4d892b3398b48eab96b64a8f8a2392e26658c63f30"
-    hash_2023_FontOnLake_45E94ABEDAD8C0044A43FF6D72A5C44C6ABD9378_elf = "f60c1214b5091e6e4e5e7db0c16bf18a062d096c6d69fe1eb3cbd4c50c3a3ed6"
+
+
 
   strings:
     $ref4 = /[a-zA-Z\-_ \']{0,16}[bB][a4]ckd00r[a-zA-Z\-_ ]{0,16}/

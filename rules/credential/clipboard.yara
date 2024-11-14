@@ -3,7 +3,7 @@ rule nspasteboard: medium macos {
     ref         = "https://www.sentinelone.com/blog/session-cookies-keychains-ssh-keys-and-more-7-kinds-of-data-malware-steals-from-macos-users/"
     description = "access clipboard contents"
 
-    hash_1979_CloudChat_clip = "ef1c7d6651996a3dccee755630add52c3f04a6e474ad15a999e132cafbf83f18"
+
 
   strings:
     $pb1        = "NSPasteboard" fullword

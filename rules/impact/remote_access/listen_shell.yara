@@ -1,7 +1,7 @@
 rule listens_and_executes_shell: medium {
   meta:
     description              = "Listens at a port and executes shells"
-    hash_2024_Downloads_8cad = "8cad755bcf420135c0f406fb92138dcb0c1602bf72c15ed725bd3b76062dafe5"
+
 
   strings:
     $f_socket        = "socket" fullword

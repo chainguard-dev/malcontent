@@ -1,8 +1,8 @@
 rule base64_str_replace: medium {
   meta:
     description                     = "creatively hidden forms of the term 'base64'"
-    hash_2024_2024_Inull_Studio_err = "5dbab6891fefb2ba4e3983ddb0d95989cf5611ab85ae643afbcc5ca47c304a4a"
-    hash_2024_2024_Inull_Studio_err = "5dbab6891fefb2ba4e3983ddb0d95989cf5611ab85ae643afbcc5ca47c304a4a"
+
+
 
   strings:
     $a = /ba.s.e64/
@@ -45,9 +45,9 @@ rule php_obfuscation: high {
   meta:
     description            = "obfuscated PHP code"
     credit                 = "Ported from https://github.com/jvoisin/php-malware-finder"
-    hash_2023_0xShell_1337 = "657bd1f3e53993cb7d600bfcd1a616c12ed3e69fa71a451061b562e5b9316649"
 
-    hash_2023_0xShell_crot = "900c0453212babd82baa5151bba3d8e6fa56694aff33053de8171a38ff1bef09"
+
+
     filetypes              = "php"
 
   strings:
@@ -73,7 +73,7 @@ rule php_hex_functions: high {
   meta:
     description             = "contains function references encoded in hex"
     hash_2023_0xShell_crot  = "900c0453212babd82baa5151bba3d8e6fa56694aff33053de8171a38ff1bef09"
-    hash_2023_0xShell_login = "7c8d783c489337251125204c4b7f9222d83058ed6872f55db1319a0be7337f05"
+
 
   strings:
     $h_globals         = "\\x47\\x4c\\x4f\\x42\\x41\\x4c\\x53" nocase
@@ -93,8 +93,8 @@ rule php_non_printable: medium {
   meta:
     description               = "non-printable values unexpectedly passed to a function"
     credit                    = "Ported from https://github.com/jvoisin/php-malware-finder"
-    hash_2023_0xShell_adminer = "2fd7e6d8f987b243ab1839249551f62adce19704c47d3d0c8dd9e57ea5b9c6b3"
-    hash_2023_0xShell_wesoori = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"
+
+
 
   strings:
     $ref = /(function|return|base64_decode).{,64}[^\x09-\x0d\x20-\x7E]{3}/
@@ -108,9 +108,9 @@ rule php_oneliner: medium {
   meta:
     description             = "sets up PHP and jumps directly into risky function"
     credit                  = "Ported from https://github.com/jvoisin/php-malware-finder"
-    hash_2023_0xShell_0xObs = "6391e05c8afc30de1e7980dda872547620754ce55c36da15d4aefae2648a36e5"
 
-    hash_2023_0xShell_1337 = "657bd1f3e53993cb7d600bfcd1a616c12ed3e69fa71a451061b562e5b9316649"
+
+
 
   strings:
     $php        = "<?php"
@@ -159,8 +159,8 @@ rule php_obfuscated_concat: medium {
     description = "obfuscated PHP concatenation"
     credit      = "Ported from https://github.com/jvoisin/php-malware-finder"
 
-    hash_2024_PHP_dclzougj = "3eb6ea176cee1e92ab3c684d16a5f820131a518478016643b454a53eaf123e63"
-    hash_2024_PHP_wlstncyj = "1a1c97594340ede77bc814670eaf35eaba861f1f9519038582416c704796da0a"
+
+
 
   strings:
     $php    = "<?php"
@@ -175,8 +175,8 @@ rule php_obfuscated_concat_long: high {
     description = "obfuscated PHP concatenation (long)"
     credit      = "Ported from https://github.com/jvoisin/php-malware-finder"
 
-    hash_2024_PHP_dclzougj = "3eb6ea176cee1e92ab3c684d16a5f820131a518478016643b454a53eaf123e63"
-    hash_2024_PHP_wlstncyj = "1a1c97594340ede77bc814670eaf35eaba861f1f9519038582416c704796da0a"
+
+
 
   strings:
     $php    = "<?php"
@@ -190,8 +190,8 @@ rule obfuscated_concat_multiple: critical {
   meta:
     description = "obfuscated string concatenation (multiple)"
 
-    hash_2024_PHP_dclzougj = "3eb6ea176cee1e92ab3c684d16a5f820131a518478016643b454a53eaf123e63"
-    hash_2024_PHP_wlstncyj = "1a1c97594340ede77bc814670eaf35eaba861f1f9519038582416c704796da0a"
+
+
 
   strings:
     $php    = "<?php"

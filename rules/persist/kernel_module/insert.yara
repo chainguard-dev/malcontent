@@ -1,7 +1,7 @@
 rule kernel_module_loader: medium linux {
   meta:
     description               = "loads Linux kernel module via insmod"
-    hash_2023_init_d_vm_agent = "663b75b098890a9b8b02ee4ec568636eeb7f53414a71e2dbfbb9af477a4c7c3d"
+
 
   strings:
     $insmod = /insmod [ \$\%\w\.\/_-]{1,32}/
@@ -13,7 +13,7 @@ rule kernel_module_loader: medium linux {
 rule kernel_module_loader_ko: high linux {
   meta:
     description               = "loads Linux kernel module .ko via insmod"
-    hash_2023_init_d_vm_agent = "663b75b098890a9b8b02ee4ec568636eeb7f53414a71e2dbfbb9af477a4c7c3d"
+
 
   strings:
     $insmod = /insmod [ \$\%\w\.\/_-]{1,32}\.ko/
@@ -52,7 +52,7 @@ rule init_module: medium linux {
     syscall     = "init_module"
     capability  = "CAP_SYS_MODULE"
 
-    hash_2023_LQvKibDTq4_diamorphine = "e93e524797907d57cb37effc8ebe14e6968f6bca899600561971e39dfd49831d"
+
     filetypes                        = "ko,elf,so"
 
   strings:

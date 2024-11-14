@@ -14,9 +14,9 @@ rule readdir_openpty_socket: high {
 rule pseudoterminal_tunnel: high {
   meta:
     description       = "pseudoterminal and tunnel support"
-    hash_2023_OK_ad69 = "ad69e198905a8d4a4e5c31ca8a3298a0a5d761740a5392d2abb5d6d2e966822f"
 
-    hash_2024_termite_termite_linux_arm = "d36b8cfef77149c64cb203e139657d5219527c7cf4fee45ca302d89b7ef851e6"
+
+
 
   strings:
     $pty           = "creack/pty" fullword
@@ -47,7 +47,7 @@ rule python_pty_spawner: high {
     ref1 = "https://juggernaut-sec.com/docker-breakout-lpe/"
     ref2 = "https://www.mandiant.com/resources/blog/barracuda-esg-exploited-globally"
 
-    hash_2024_class_py_1_0_0_setup = "ebcd4d091dad0cbd946df2f0fe79d67ccd2aa7c315994b2a1e92c8de08e7a9b9"
+
 
   strings:
     $pty_spawn_bash = /pty.spawn\(\"\/bin\/[\w\" -\)]{,16}/

@@ -3,7 +3,7 @@ rule http_server: medium {
     pledge      = "inet"
     description = "serves HTTP requests"
 
-    hash_2023_Merlin_48a7 = "48a70bd18a23fce3208195f4ad2e92fce78d37eeaa672f83af782656a4b2d07f"
+
 
   strings:
     $gin         = "gin-gonic/"

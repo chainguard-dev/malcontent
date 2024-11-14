@@ -16,8 +16,8 @@ private rule iplookup_website_value_copy: high {
   meta:
     description = "public service to discover external IP address"
 
-    hash_2023_Unix_Trojan_Ipstorm_1996 = "1996927b41960a2af8e49cf745ed6668bc5b8d7855c2bb116f98104163e29000"
-    hash_2023_Unix_Trojan_Ipstorm_2f6f = "2f6f44e3e2baf701ae1ee3826986f89df4e5314c8ba50615fb6580f1ef54c830"
+
+
 
   strings:
     $ipify       = "ipify.org"

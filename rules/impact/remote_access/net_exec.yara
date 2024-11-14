@@ -23,7 +23,7 @@ rule ssh_socks5_exec: medium {
   meta:
     description                        = "supports SOCKS5, SSH, and executing programs"
     hash_2024_Downloads_e100           = "e100be934f676c64528b5e8a609c3fb5122b2db43b9aee3b2cf30052799a82da"
-    hash_2020_IPStorm_IPStorm_unpacked = "522a5015d4d11833ead6d88d4405c0f4119ff29b1f64b226c464e958f03e1434"
+
 
   strings:
     $socks5 = "Socks5"
@@ -49,7 +49,7 @@ rule progname_socket_waitpid: high {
 
 rule POST_command_executer: high {
   meta:
-    hash_2023_ObjCShellz_ProcessRequest = "8bfa4fe0534c0062393b6a2597c3491f7df3bf2eabfe06544c53bdf1f38db6d4"
+
 
   strings:
     $post             = "POST"

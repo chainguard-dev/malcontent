@@ -16,7 +16,7 @@ rule py_indirect_builtins: suspicious {
     description = "Indirectly refers to Python builtins"
 
     hash_2023_yvper_0_1_setup    = "b765244c1f8a11ee73d1e74927b8ad61718a65949e0b8d8cbc04e5d84dccaf96"
-    hash_2023_aiohttpp_0_1_setup = "cfa4137756f7e8243e7c7edc7cb0b431a2f4c9fa401f2570f1b960dbc86ca7c6"
+
 
   strings:
     $val = /getattr\(__builtins__,[ \w\.\)\)]{0,64}/
@@ -68,7 +68,7 @@ rule python_exec_near_enough_decrypt: high {
   meta:
     description                   = "Evaluates code from encrypted content"
     hash_2024_3web_1_0_0_setup    = "7a4e6a21ac07f3d42091e3ff3345747ff68d06657d8fbd7fc783f89da99db20c"
-    hash_2024_3web_py_1_0_0_setup = "fd74f0eecebb47178ef98ac9a744daaf982a16287c78fd9cb2fe9713f542f8c5"
+
 
   strings:
     $exec    = "exec(" fullword
@@ -82,7 +82,7 @@ rule python_exec_near_enough_fernet: critical {
   meta:
     description                   = "Evaluates code from encrypted content"
     hash_2024_3web_1_0_0_setup    = "7a4e6a21ac07f3d42091e3ff3345747ff68d06657d8fbd7fc783f89da99db20c"
-    hash_2024_3web_py_1_0_0_setup = "fd74f0eecebb47178ef98ac9a744daaf982a16287c78fd9cb2fe9713f542f8c5"
+
 
   strings:
     $exec   = "exec(" fullword
@@ -282,9 +282,9 @@ rule dumb_int_compares: high {
 rule py_lib_alias_val: medium {
   meta:
     description             = "aliases core python library to an alternate name"
-    hash_2022_requests_init = "4b62b48e754fe824ab4f9d5272d172881d177c8f07f4db7b12acc44400f8e208"
 
-    hash_2022_tests_compat = "d58ff5e3167de0140a667cc51427f809c552e485875c95b9dad43ce13ba15083"
+
+
 
   strings:
     $val = /from \w{2,16} import \w{2,16} as \w{1,32}/ fullword
@@ -323,7 +323,7 @@ rule rename_requests: medium {
   meta:
     description                       = "imports 'requests' library and gives it another name"
     hash_2021_DiscordSafety_init      = "05c23917c682326179708a1d185ea88632d61522513f08d443bfd5c065612903"
-    hash_2021_DiscordSafety_0_1_setup = "7dfa21dda6b275952ee8410a19b0f38e1071588be5894cf052329ca106eae6e1"
+
 
   strings:
     $ref = /import requests as \w{0,64}/
@@ -336,7 +336,7 @@ rule rename_requests_2char: high {
   meta:
     description                       = "imports 'requests' library and gives it a two-letter name"
     hash_2021_DiscordSafety_init      = "05c23917c682326179708a1d185ea88632d61522513f08d443bfd5c065612903"
-    hash_2021_DiscordSafety_0_1_setup = "7dfa21dda6b275952ee8410a19b0f38e1071588be5894cf052329ca106eae6e1"
+
 
   strings:
     $ref = /import requests as \w{2}/
@@ -361,7 +361,7 @@ rule rename_os: high {
 rule rename_marshal: critical {
   meta:
     description                  = "imports 'marshal' library and gives it another name"
-    hash_2021_DiscordSafety_init = "05c23917c682326179708a1d185ea88632d61522513f08d443bfd5c065612903"
+
 
   strings:
     $ref = /import marshal as \w{0,64}/
@@ -374,7 +374,7 @@ rule rename_base64: critical {
   meta:
     description = "imports 'base64' library and gives it another name"
 
-    hash_2022_example_package_init = "5c0db191458fe648d6799d1461d20e79e65986ba6db522db3737ebbf99c577cb"
+
     hash_2022_xoloaghvurilnh_init  = "87a23edfa8fbcc13d1a25b9ac808dbc36c417fda508f98186455a7991a52b6c0"
 
   strings:
@@ -388,7 +388,7 @@ rule rename_zlib: high {
   meta:
     description = "imports 'base64' library and gives it another name"
 
-    hash_2022_example_package_init = "5c0db191458fe648d6799d1461d20e79e65986ba6db522db3737ebbf99c577cb"
+
     hash_2022_xoloaghvurilnh_init  = "87a23edfa8fbcc13d1a25b9ac808dbc36c417fda508f98186455a7991a52b6c0"
 
   strings:

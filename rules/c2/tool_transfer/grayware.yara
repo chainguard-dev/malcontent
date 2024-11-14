@@ -3,8 +3,8 @@ rule grayware_sites: high {
     description = "References websites that host code that can be used maliciously"
     credit      = "Initially ported from https://github.com/jvoisin/php-malware-finder"
 
-    hash_2023_0xShell_wesoori = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"
-    hash_2015_Resources_shell = "f257f2f97bf5cf9d7a0021046bb3d2a0b7cd16e38b152f6247c6e1f142864e52"
+
+
 
   strings:
     $ = "1337day.com"
