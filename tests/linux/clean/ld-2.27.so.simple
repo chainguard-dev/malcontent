@@ -13,4 +13,3 @@ fs/proc/sys_kernel_osrelease: medium
 fs/tempdir: low
 net/url/embedded: low
 persist/shell/bash: medium
-sus/exclamation: medium
