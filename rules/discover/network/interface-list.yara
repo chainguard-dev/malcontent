@@ -25,7 +25,10 @@ rule getifaddrs_avoid_debug: high {
     $gethostbyname = "gethostbyname"
     $LD_DEBUG      = "LD_DEBUG"
     $LD_PROFILE    = "LD_PROFILE"
+    $not_busybox   = "BusyBox" fullword
+    $not_snapd     = "SNAPD" fullword
+    $not_rtld      = "RTLD_NEXT"
 
   condition:
-    filesize < 20MB and all of them
+    filesize < 10MB and all of ($get*) and all of ($LD*) and none of ($not*)
 }

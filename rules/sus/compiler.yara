@@ -41,7 +41,8 @@ rule multiple_gcc: high {
 
   strings:
     $gcc = /GCC: \([\w \.\-\~\(\)]{8,64}/ fullword
+	$not_go_testdata_ranges_elf = "/home/iant/foo4.c"
 
   condition:
-    binary and #gcc > 1 and !gcc[1] != !gcc[2]
+    binary and #gcc > 1 and @gcc[1] != @gcc[2] and none of ($not*)
 }
