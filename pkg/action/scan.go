@@ -160,7 +160,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 }
 
 // errIfMatch generates the right error if a match is encountered.
-func errIfHitOrMiss(frs *sync.Map, kind string, scanPath string, errIfHit bool, errIfMiss bool) (*malcontent.FileReport, error) {
+func exitIfHitOrMiss(frs *sync.Map, scanPath string, errIfHit bool, errIfMiss bool) (*malcontent.FileReport, error) {
 	var (
 		bList []string
 		bMap  sync.Map
@@ -307,7 +307,7 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 			}
 
 			if !c.OCI && (c.ExitFirstHit || c.ExitFirstMiss) {
-				match, err := errIfHitOrMiss(frs, "archive", path, c.ExitFirstHit, c.ExitFirstMiss)
+				match, err := exitIfHitOrMiss(frs, path, c.ExitFirstHit, c.ExitFirstMiss)
 				if err != nil {
 					matchOnce.Do(func() {
 						matchChan <- matchResult{fr: match, err: err}
@@ -356,7 +356,7 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 			if !c.OCI && (c.ExitFirstHit || c.ExitFirstMiss) {
 				var frMap sync.Map
 				frMap.Store(path, fr)
-				match, err := errIfHitOrMiss(&frMap, "file", path, c.ExitFirstHit, c.ExitFirstMiss)
+				match, err := exitIfHitOrMiss(&frMap, path, c.ExitFirstHit, c.ExitFirstMiss)
 				if err != nil {
 					matchOnce.Do(func() {
 						matchChan <- matchResult{fr: match, err: err}
@@ -430,7 +430,7 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 
 		// OCI images hadle their match his/miss logic per scanPath
 		if c.OCI {
-			match, err := errIfHitOrMiss(&r.Files, "image", imageURI, c.ExitFirstHit, c.ExitFirstMiss)
+			match, err := exitIfHitOrMiss(&r.Files, imageURI, c.ExitFirstHit, c.ExitFirstMiss)
 			if err != nil && c.Renderer != nil && match.RiskScore >= c.MinFileRisk {
 				if match != nil && c.Renderer != nil && match.RiskScore >= c.MinFileRisk {
 					if renderErr := c.Renderer.File(ctx, match); renderErr != nil {
