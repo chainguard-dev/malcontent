@@ -24,8 +24,6 @@ rule dev_shm_file: high linux {
   meta:
     description = "reference file within /dev/shm (world writeable)"
 
-
-
   strings:
     $ref           = /\/dev\/shm\/[\w\.\-\/]{2,64}/ fullword
     $not_c         = "/dev/shm/%s"

@@ -12,8 +12,7 @@ rule udp_send {
 
 rule go_kcp: medium {
   meta:
-    description              = "Sends UDP packets"
-
+    description = "Sends UDP packets"
 
   strings:
     $ref  = ".ReleaseTX"

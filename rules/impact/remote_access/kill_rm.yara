@@ -1,5 +1,6 @@
 rule kill_and_remove: medium {
   meta:
+
   strings:
     $rm_f           = "rm -f"
     $rm_Rf          = "rm -Rf"

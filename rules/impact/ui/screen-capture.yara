@@ -1,7 +1,5 @@
 rule macos_screencapture_caller: high {
   meta:
-
-
   strings:
     $screencap           = "screencapture"
     $not_program         = "@(#)PROGRAM:"

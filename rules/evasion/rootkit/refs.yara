@@ -2,8 +2,7 @@ rule rootkit_l33t: high {
   meta:
     description = "references a 'rootkit'"
 
-
-    hash_2024_scripts_implant_rootkit       = "c7ffb802c0e2813e2b0edba2efe8fa660740806b902cd1f1aea01c998812206d"
+    hash_2024_scripts_implant_rootkit = "c7ffb802c0e2813e2b0edba2efe8fa660740806b902cd1f1aea01c998812206d"
 
   strings:
     $s_r00tkit = "r00tkit"
@@ -17,9 +16,6 @@ rule rootkit: medium {
   meta:
     description = "references a 'rootkit'"
 
-
-
-
   strings:
     $s_rootkit = "rootkit" fullword
     $s_Rootkit = "Rootkit" fullword
@@ -31,9 +27,6 @@ rule rootkit: medium {
 rule rootkit_high: high {
   meta:
     description = "references a 'rootkit'"
-
-
-
 
   strings:
     $s_rootkit     = "rootkit" fullword

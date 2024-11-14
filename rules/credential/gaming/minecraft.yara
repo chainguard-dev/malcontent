@@ -1,9 +1,6 @@
 rule minecraft: medium {
   meta:
-    description              = "Has references to Minecraft"
-
-
-
+    description = "Has references to Minecraft"
 
   strings:
     $val1 = "minecraft" fullword

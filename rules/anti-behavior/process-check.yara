@@ -1,7 +1,6 @@
 rule activity_monitor_checker: high macos {
   meta:
-
-    description                 = "checks if 'Activity Monitor' is running"
+    description = "checks if 'Activity Monitor' is running"
 
   strings:
     $ps             = "ps" fullword

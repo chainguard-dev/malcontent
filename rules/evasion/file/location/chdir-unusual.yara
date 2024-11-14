@@ -100,8 +100,7 @@ rule cd_val_obsessive: critical {
 
 rule unusual_cd_dev: high {
   meta:
-    description               = "changes the current working directory to /dev"
-
+    description = "changes the current working directory to /dev"
 
   strings:
     $d_dev   = /cd \/dev\/[\w\/\.]{1,64}/

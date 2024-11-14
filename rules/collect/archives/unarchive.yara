@@ -1,7 +1,6 @@
 rule unarchive: medium {
   meta:
-    description              = "unarchives files"
-
+    description = "unarchives files"
 
   strings:
     $ref  = /unarchive[\w \@\%]{0,32}/

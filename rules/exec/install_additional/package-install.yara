@@ -1,9 +1,6 @@
 rule yum_installer: medium {
   meta:
-    description              = "install software with yum"
-
-
-
+    description = "install software with yum"
 
   strings:
     $val = /yum install[ \w\-\_%]{0,32}/
@@ -36,9 +33,9 @@ rule rpm_installer: medium {
 
 rule apt_installer: medium {
   meta:
-    description                          = "install software with apt"
+    description = "install software with apt"
 
-    hash_2024_scripts_install_locutus    = "1a80591019dea60785fff842da5f7347248e8ddf6a8a121d077210a06ba45e42"
+    hash_2024_scripts_install_locutus = "1a80591019dea60785fff842da5f7347248e8ddf6a8a121d077210a06ba45e42"
 
   strings:
     $val = /apt install[ \w\-\_%]{0,32}/
@@ -62,8 +59,6 @@ rule apt_get_installer: medium {
 rule apk_installer: medium {
   meta:
     description = "install software with APK"
-
-
 
   strings:
     $val = /apk add[ \w\-\_%]{0,32}/

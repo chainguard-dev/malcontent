@@ -1,8 +1,6 @@
 rule base64_str_replace: medium {
   meta:
-    description                     = "creatively hidden forms of the term 'base64'"
-
-
+    description = "creatively hidden forms of the term 'base64'"
 
   strings:
     $a = /ba.s.e64/
@@ -43,12 +41,10 @@ rule funky_function: critical {
 
 rule php_obfuscation: high {
   meta:
-    description            = "obfuscated PHP code"
-    credit                 = "Ported from https://github.com/jvoisin/php-malware-finder"
+    description = "obfuscated PHP code"
+    credit      = "Ported from https://github.com/jvoisin/php-malware-finder"
 
-
-
-    filetypes              = "php"
+    filetypes = "php"
 
   strings:
     $php                 = "<?php"
@@ -71,9 +67,8 @@ rule php_obfuscation: high {
 
 rule php_hex_functions: high {
   meta:
-    description             = "contains function references encoded in hex"
-    hash_2023_0xShell_crot  = "900c0453212babd82baa5151bba3d8e6fa56694aff33053de8171a38ff1bef09"
-
+    description            = "contains function references encoded in hex"
+    hash_2023_0xShell_crot = "900c0453212babd82baa5151bba3d8e6fa56694aff33053de8171a38ff1bef09"
 
   strings:
     $h_globals         = "\\x47\\x4c\\x4f\\x42\\x41\\x4c\\x53" nocase
@@ -91,10 +86,8 @@ rule php_hex_functions: high {
 
 rule php_non_printable: medium {
   meta:
-    description               = "non-printable values unexpectedly passed to a function"
-    credit                    = "Ported from https://github.com/jvoisin/php-malware-finder"
-
-
+    description = "non-printable values unexpectedly passed to a function"
+    credit      = "Ported from https://github.com/jvoisin/php-malware-finder"
 
   strings:
     $ref = /(function|return|base64_decode).{,64}[^\x09-\x0d\x20-\x7E]{3}/
@@ -106,11 +99,8 @@ rule php_non_printable: medium {
 
 rule php_oneliner: medium {
   meta:
-    description             = "sets up PHP and jumps directly into risky function"
-    credit                  = "Ported from https://github.com/jvoisin/php-malware-finder"
-
-
-
+    description = "sets up PHP and jumps directly into risky function"
+    credit      = "Ported from https://github.com/jvoisin/php-malware-finder"
 
   strings:
     $php        = "<?php"
@@ -159,9 +149,6 @@ rule php_obfuscated_concat: medium {
     description = "obfuscated PHP concatenation"
     credit      = "Ported from https://github.com/jvoisin/php-malware-finder"
 
-
-
-
   strings:
     $php    = "<?php"
     $concat = /\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\./
@@ -175,9 +162,6 @@ rule php_obfuscated_concat_long: high {
     description = "obfuscated PHP concatenation (long)"
     credit      = "Ported from https://github.com/jvoisin/php-malware-finder"
 
-
-
-
   strings:
     $php    = "<?php"
     $concat = /\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\./
@@ -189,9 +173,6 @@ rule php_obfuscated_concat_long: high {
 rule obfuscated_concat_multiple: critical {
   meta:
     description = "obfuscated string concatenation (multiple)"
-
-
-
 
   strings:
     $php    = "<?php"

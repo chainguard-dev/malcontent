@@ -38,10 +38,7 @@ rule phrases {
 
 rule ping: medium {
   meta:
-    description             = "Uses the ping tool to generate ICMP packets"
-
-
-
+    description = "Uses the ping tool to generate ICMP packets"
 
   strings:
     $ref = /ping [\-\w \.:]{0,32}/ fullword

@@ -2,8 +2,7 @@ rule login_records: medium {
   meta:
     description = "accesses historical login records"
 
-    hash_2023_Lightning_ad16  = "ad16989a3ebf0b416681f8db31af098e02eabd25452f8d781383547ead395237"
-
+    hash_2023_Lightning_ad16 = "ad16989a3ebf0b416681f8db31af098e02eabd25452f8d781383547ead395237"
 
   strings:
     $f_lastlog  = "/var/log/lastlog" fullword

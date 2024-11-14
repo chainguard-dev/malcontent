@@ -1,7 +1,5 @@
 rule ioplatform_expert_with_sketchy_calls: high {
   meta:
-
-
   strings:
     $ioplatform       = "IOPlatformExpertDevice" fullword
     $o_ioreg          = "ioreg -"

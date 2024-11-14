@@ -3,9 +3,6 @@ rule php_suppressed_include: high {
     description = "Includes a file, suppressing errors"
     credit      = "Inspired by DodgyPHP rule in php-malware-finder"
 
-
-
-
   strings:
     $php           = "<?php"
     $include       = /@\s*include\s*/

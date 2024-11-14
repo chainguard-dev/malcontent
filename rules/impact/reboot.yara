@@ -26,9 +26,8 @@ rule kexec_load {
 
 rule reboot_command: medium {
   meta:
-    description             = "Forcibly reboots machine"
-    hash_2023_init_d_halt   = "c8acf18e19c56191e220e5f6d29d7c1e7f861b2be16ab8d5da693b450406fd0f"
-
+    description           = "Forcibly reboots machine"
+    hash_2023_init_d_halt = "c8acf18e19c56191e220e5f6d29d7c1e7f861b2be16ab8d5da693b450406fd0f"
 
   strings:
     $usr_sbin = "/usr/sbin/reboot" fullword

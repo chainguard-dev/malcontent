@@ -1,5 +1,6 @@
 rule usbmon_webproxy_zipper: high {
   meta:
+
   strings:
     $usbmon    = "usbmon" fullword
     $webproxy  = "WebProxy"

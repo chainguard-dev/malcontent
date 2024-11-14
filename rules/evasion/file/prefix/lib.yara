@@ -11,10 +11,7 @@ rule lib_subdir: high linux {
 
 rule hidden_library: high {
   meta:
-    description       = "hidden path in a Library directory"
-
-
-
+    description = "hidden path in a Library directory"
 
   strings:
     $hidden_library = /\/Library\/\.\w{1,128}/

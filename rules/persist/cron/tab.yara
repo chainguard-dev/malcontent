@@ -24,8 +24,7 @@ rule crontab_writer: medium {
   meta:
     description = "May use crontab to persist"
 
-    hash_2023_spirit     = "26ba215bcd5d8a9003a904b0eac7dc10054dba7bea9a708668a5f6106fd73ced"
-
+    hash_2023_spirit = "26ba215bcd5d8a9003a904b0eac7dc10054dba7bea9a708668a5f6106fd73ced"
 
   strings:
     $c_crontab_e      = "crontab -"
@@ -38,9 +37,9 @@ rule crontab_writer: medium {
 
 rule crontab_entry: high {
   meta:
-    description                             = "Uses crontab to persist"
+    description = "Uses crontab to persist"
 
-    hash_2024_static_demonizedshell_static  = "b4e65c01ab90442cb5deda26660a3f81bd400c205e12605536483f979023aa15"
+    hash_2024_static_demonizedshell_static = "b4e65c01ab90442cb5deda26660a3f81bd400c205e12605536483f979023aa15"
 
   strings:
     $crontab              = "crontab"

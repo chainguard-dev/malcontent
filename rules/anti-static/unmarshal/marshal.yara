@@ -13,10 +13,7 @@ private rule pySetup {
 
 rule py_marshal: medium {
   meta:
-    description                  = "reads python values from binary content"
-
-
-
+    description = "reads python values from binary content"
 
   strings:
     $ref = "import marshal"

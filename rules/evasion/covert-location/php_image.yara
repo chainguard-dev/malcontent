@@ -13,10 +13,10 @@ rule php_image_include: critical {
 
 rule php_in_image: critical {
   meta:
-    description                = "Image file contains PHP code"
-    credit                     = "Inspired by DodgyPHP rule in php-malware-finder"
+    description = "Image file contains PHP code"
+    credit      = "Inspired by DodgyPHP rule in php-malware-finder"
 
-    hash_2023_0xShell_up       = "c72f0194a61dcf25779370a6c8dd0257848789ef59d0108a21f08301569d4441"
+    hash_2023_0xShell_up = "c72f0194a61dcf25779370a6c8dd0257848789ef59d0108a21f08301569d4441"
 
   strings:
     $gif  = { 47 49 46 38 ?? 61 }

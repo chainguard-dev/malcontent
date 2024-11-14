@@ -1,9 +1,6 @@
 rule zip: medium {
   meta:
-    description              = "Works with zip files"
-
-
-
+    description = "Works with zip files"
 
   strings:
     $ref  = "ZIP64" fullword

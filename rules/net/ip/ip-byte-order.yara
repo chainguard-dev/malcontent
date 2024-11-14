@@ -3,9 +3,6 @@ rule htonl: medium {
     pledge      = "inet"
     description = "convert values between host and network byte order"
 
-
-
-
   strings:
     $ref  = "htonl" fullword
     $ref2 = "htons" fullword

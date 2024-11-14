@@ -1,7 +1,6 @@
 rule begin_private_key: medium {
   meta:
-    description              = "Contains PRIVATE KEY directive"
-
+    description = "Contains PRIVATE KEY directive"
 
   strings:
     $ref = "PRIVATE KEY-----"
@@ -12,8 +11,7 @@ rule begin_private_key: medium {
 
 rule rsa_private_key: medium {
   meta:
-    description              = "Contains RSA PRIVATE KEY directive"
-
+    description = "Contains RSA PRIVATE KEY directive"
 
   strings:
     $ref = "RSA PRIVATE KEY-----"

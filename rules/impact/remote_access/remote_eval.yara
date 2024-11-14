@@ -2,8 +2,7 @@ import "math"
 
 rule remote_eval: critical {
   meta:
-    description                  = "Evaluates remotely sourced code"
-
+    description = "Evaluates remotely sourced code"
 
   strings:
     $http                = "http"
@@ -24,9 +23,7 @@ rule remote_eval_close: critical {
   meta:
     description = "Evaluates remotely sourced code"
 
-
-
-    filetypes               = "php"
+    filetypes = "php"
 
   strings:
     $php    = "<?php"
@@ -39,9 +36,9 @@ rule remote_eval_close: critical {
 
 rule python_exec_near_requests: critical {
   meta:
-    description                 = "Executes code from encrypted remote content"
+    description = "Executes code from encrypted remote content"
 
-    hash_2022_colorsapi         = "da4a034f20cb7d642e9b61daa9cfa7a63538a8323ce862c87ac1904c89c9acdf"
+    hash_2022_colorsapi = "da4a034f20cb7d642e9b61daa9cfa7a63538a8323ce862c87ac1904c89c9acdf"
 
   strings:
     $exec     = "exec("
@@ -65,8 +62,7 @@ rule python_eval_near_requests: critical {
 
 rule python_exec_near_get: critical {
   meta:
-    description                         = "Executes code from encrypted content"
-
+    description = "Executes code from encrypted content"
 
   strings:
     $f_exec        = "exec("
@@ -93,11 +89,8 @@ rule python_eval_near_get: critical {
 
 rule php_remote_exec: critical {
   meta:
-    description       = "Executes code from a remote source"
-    credit            = "Inspired by DodgyPHP rule in php-malware-finder"
-
-
-
+    description = "Executes code from a remote source"
+    credit      = "Inspired by DodgyPHP rule in php-malware-finder"
 
   strings:
     $php                 = "<?php"

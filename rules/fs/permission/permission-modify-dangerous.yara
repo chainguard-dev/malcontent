@@ -11,9 +11,8 @@ rule chmod_word_writeable: medium {
 
 rule chmod_dangerous_exec: high exfil {
   meta:
-    description           = "Makes path world writeable and executable"
-    hash_2023_APT31_1d60  = "1d60edb577641ce47dc2a8299f8b7f878e37120b192655aaf80d1cde5ee482d2"
-
+    description          = "Makes path world writeable and executable"
+    hash_2023_APT31_1d60 = "1d60edb577641ce47dc2a8299f8b7f878e37120b192655aaf80d1cde5ee482d2"
 
   strings:
     $ref             = /chmod [\-\w ]{0,4}777[ \$\w\/\.]{0,32}/

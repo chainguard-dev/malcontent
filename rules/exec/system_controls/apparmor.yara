@@ -1,7 +1,6 @@
 rule apparmor: medium {
   meta:
-    description              = "Mentions 'apparmor'"
-
+    description = "Mentions 'apparmor'"
 
   strings:
     $ref = "apparmor" fullword

@@ -1,11 +1,8 @@
 rule http_cookie: medium {
   meta:
-    pledge                    = "inet"
-    description               = "access HTTP resources using cookies"
-    ref                       = "https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies"
-
-
-
+    pledge      = "inet"
+    description = "access HTTP resources using cookies"
+    ref         = "https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies"
 
   strings:
     $Cookie       = "Cookie"

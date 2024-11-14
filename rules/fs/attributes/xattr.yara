@@ -1,9 +1,5 @@
 rule xattr_user: medium {
   meta:
-
-
-
-
   strings:
     $xattr_c                  = "xattr -c"
     $xattr_d                  = "xattr -d"

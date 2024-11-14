@@ -4,8 +4,7 @@ rule large_bitwise_math: medium {
   meta:
     description = "large amounts of bitwise math"
 
-    hash_2023_yvper_0_1_setup    = "b765244c1f8a11ee73d1e74927b8ad61718a65949e0b8d8cbc04e5d84dccaf96"
-
+    hash_2023_yvper_0_1_setup = "b765244c1f8a11ee73d1e74927b8ad61718a65949e0b8d8cbc04e5d84dccaf96"
 
   strings:
     $x = /\-{0,1}\d{1,8} \<\< \-{0,1}\d{1,8}/
@@ -18,8 +17,7 @@ rule excessive_bitwise_math: high {
   meta:
     description = "excessive use of bitwise math (>64 ops)"
 
-    hash_2023_yvper_0_1_setup    = "b765244c1f8a11ee73d1e74927b8ad61718a65949e0b8d8cbc04e5d84dccaf96"
-
+    hash_2023_yvper_0_1_setup = "b765244c1f8a11ee73d1e74927b8ad61718a65949e0b8d8cbc04e5d84dccaf96"
 
   strings:
     $x                  = /\-{0,1}[\da-z]{1,8} \<\< \-{0,1}\d{1,8}/
@@ -60,9 +58,6 @@ rule bidirectional_bitwise_math: medium {
     description = "uses bitwise math in both directions"
     ref         = "https://www.reversinglabs.com/blog/python-downloader-highlights-noise-problem-in-open-source-threat-detection"
 
-
-
-
   strings:
     $x = /\-{0,1}[\da-z]{1,8} \<\< \-{0,1}\d{1,8}/
     $y = /\-{0,1}[\da-z]{1,8} \>\> \-{0,1}\d{1,8}/
@@ -73,9 +68,8 @@ rule bidirectional_bitwise_math: medium {
 
 rule bitwise_python_string: medium {
   meta:
-    description                         = "creates string using bitwise math"
-    ref                                 = "https://www.reversinglabs.com/blog/python-downloader-highlights-noise-problem-in-open-source-threat-detection"
-
+    description = "creates string using bitwise math"
+    ref         = "https://www.reversinglabs.com/blog/python-downloader-highlights-noise-problem-in-open-source-threat-detection"
 
   strings:
     $ref = /"".join\(chr\(\w{1,4} >> \w{1,3}\) for \w{1,16} in \w{1,16}/
@@ -86,9 +80,8 @@ rule bitwise_python_string: medium {
 
 rule bitwise_python_string_exec_eval: high {
   meta:
-    description                         = "creates and evaluates string using bitwise math"
-    ref                                 = "https://www.reversinglabs.com/blog/python-downloader-highlights-noise-problem-in-open-source-threat-detection"
-
+    description = "creates and evaluates string using bitwise math"
+    ref         = "https://www.reversinglabs.com/blog/python-downloader-highlights-noise-problem-in-open-source-threat-detection"
 
   strings:
     $ref  = /"".join\(chr\(\w{1,4} >> \w{1,3}\) for \w{1,16} in \w{1,16}/
@@ -101,9 +94,8 @@ rule bitwise_python_string_exec_eval: high {
 
 rule bitwise_python_string_exec_eval_nearby: critical {
   meta:
-    description                         = "creates and executes string using bitwise math"
-    ref                                 = "https://www.reversinglabs.com/blog/python-downloader-highlights-noise-problem-in-open-source-threat-detection"
-
+    description = "creates and executes string using bitwise math"
+    ref         = "https://www.reversinglabs.com/blog/python-downloader-highlights-noise-problem-in-open-source-threat-detection"
 
   strings:
     $ref  = /"".join\(chr\(\w{1,4} >> \w{1,3}\) for \w{1,16} in \w{1,16}/

@@ -2,9 +2,6 @@ rule one_three_three_seven: medium {
   meta:
     description = "References 1337 terminology'"
 
-
-
-
   strings:
     $ = "1337" fullword
     $ = "L33T" fullword

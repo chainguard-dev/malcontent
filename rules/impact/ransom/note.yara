@@ -2,8 +2,6 @@ rule ransom_detection: high {
   meta:
     description = "ransomware note"
 
-
-
   strings:
     $not_your_database     = "in your database"
     $not_node              = "NODE_DEBUG_NATIVE"

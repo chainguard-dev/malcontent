@@ -1,5 +1,6 @@
 rule vnc_user: medium {
   meta:
+
   strings:
     $vnc_password = "vnc_password"
     $vnc_         = "VNC_"
@@ -12,6 +13,7 @@ rule vnc_user: medium {
 
 rule vnc_elf_subtle: medium {
   meta:
+
   strings:
     $vnc_password = "5900"
     $vnc_         = "vnc"

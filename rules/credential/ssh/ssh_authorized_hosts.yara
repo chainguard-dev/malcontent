@@ -1,7 +1,6 @@
 rule ssh_authorized_hosts: medium {
   meta:
-    description              = "accesses SSH authorized_keys files"
-
+    description = "accesses SSH authorized_keys files"
 
   strings:
     $ref              = ".ssh"

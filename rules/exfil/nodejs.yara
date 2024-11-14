@@ -1,7 +1,6 @@
 rule nodejs_sysinfoexfil: high {
   meta:
-    description       = "may gather and exfiltrate system information"
-
+    description = "may gather and exfiltrate system information"
 
   strings:
     $proc1        = "process.platform"

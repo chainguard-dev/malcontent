@@ -1,10 +1,7 @@
 rule tor_user: high {
   meta:
-    ref_eleanor          = "https://www.malwarebytes.com/blog/news/2016/07/new-mac-backdoor-malware-eleanor"
-    description          = "Makes use of the TOR/.onion protocol"
-
-
-
+    ref_eleanor = "https://www.malwarebytes.com/blog/news/2016/07/new-mac-backdoor-malware-eleanor"
+    description = "Makes use of the TOR/.onion protocol"
 
   strings:
     $t_tor_addr            = "_tor_addr"

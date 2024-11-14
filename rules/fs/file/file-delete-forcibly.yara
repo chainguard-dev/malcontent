@@ -11,10 +11,7 @@ rule rm_force {
 
 rule rm_recursive_force: medium {
   meta:
-    description       = "Forcibly deletes files recursively"
-
-
-
+    description = "Forcibly deletes files recursively"
 
   strings:
     $ref  = /rm -[Rr]f [ \$\w\/\.]{0,32}/
@@ -27,8 +24,6 @@ rule rm_recursive_force: medium {
 rule background_rm_rf: high {
   meta:
     ref = "https://cert.gov.ua/article/6123309"
-
-
 
   strings:
     $rm_rf_bg = /rm -[rR]f [\/\w\.\-\"]{0,64} &[^&]/

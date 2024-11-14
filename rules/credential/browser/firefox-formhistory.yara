@@ -1,9 +1,6 @@
 rule firefox_history: high {
   meta:
-    description              = "access Firefox form history, which contains passwords"
-
-
-
+    description = "access Firefox form history, which contains passwords"
 
   strings:
     $firefox      = "Firefox"

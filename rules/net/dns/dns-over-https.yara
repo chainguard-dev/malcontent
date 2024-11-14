@@ -1,7 +1,6 @@
 rule doh_refs: medium {
   meta:
-    description              = "Supports DNS (Domain Name Service) over HTTPS"
-
+    description = "Supports DNS (Domain Name Service) over HTTPS"
 
   strings:
     $doh_Provider = "doh.Provider"

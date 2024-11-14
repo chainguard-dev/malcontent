@@ -3,9 +3,6 @@ rule grayware_sites: high {
     description = "References websites that host code that can be used maliciously"
     credit      = "Initially ported from https://github.com/jvoisin/php-malware-finder"
 
-
-
-
   strings:
     $ = "1337day.com"
     $ = "antichat.ru"

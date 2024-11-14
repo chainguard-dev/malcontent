@@ -1,7 +1,6 @@
 rule chattr_caller: medium {
   meta:
-    hash_2023_usr_adxintrin_b        = "a51a4ddcd092b102af94139252c898d7c1c48f322bae181bd99499a79c12c500"
-
+    hash_2023_usr_adxintrin_b = "a51a4ddcd092b102af94139252c898d7c1c48f322bae181bd99499a79c12c500"
 
     filetypes = "!service"
 
@@ -14,9 +13,8 @@ rule chattr_caller: medium {
 
 rule chattr_immutable_caller_high: high {
   meta:
-    description                      = "modifies immutability of a file"
-    hash_2023_usr_adxintrin_b        = "a51a4ddcd092b102af94139252c898d7c1c48f322bae181bd99499a79c12c500"
-
+    description               = "modifies immutability of a file"
+    hash_2023_usr_adxintrin_b = "a51a4ddcd092b102af94139252c898d7c1c48f322bae181bd99499a79c12c500"
 
     filetypes = "!service"
 

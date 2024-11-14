@@ -1,9 +1,7 @@
 rule dl_user: medium {
   meta:
-    description              = "dynamically executes code bundles"
-    ref                      = "https://developer.apple.com/documentation/foundation/bundle"
-
-
+    description = "dynamically executes code bundles"
+    ref         = "https://developer.apple.com/documentation/foundation/bundle"
 
   strings:
     $nsbundle = "NSBundle" fullword

@@ -2,9 +2,6 @@ rule calls_shell: medium {
   meta:
     description = "executes shell"
 
-
-
-
   strings:
     $bin_sh   = "/bin/sh"
     $bin_bash = "/bin/bash"

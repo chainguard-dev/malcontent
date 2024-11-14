@@ -2,8 +2,6 @@ rule multiple_sys_commands: high {
   meta:
     description = "mentions multiple unrelated system commands"
 
-
-
   strings:
     $cron    = "/usr/sbin/cron"
     $rsyslog = "/usr/sbin/rsyslogd"

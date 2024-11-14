@@ -1,9 +1,6 @@
 rule hex_parse_base64: critical {
   meta:
-    description                 = "converts base64 hex data to ASCII"
-
-
-
+    description = "converts base64 hex data to ASCII"
 
   strings:
     $lang_node   = /Buffer\.from\(\w{0,16}, {0,2}'hex'\)/

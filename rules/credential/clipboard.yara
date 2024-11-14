@@ -3,8 +3,6 @@ rule nspasteboard: medium macos {
     ref         = "https://www.sentinelone.com/blog/session-cookies-keychains-ssh-keys-and-more-7-kinds-of-data-malware-steals-from-macos-users/"
     description = "access clipboard contents"
 
-
-
   strings:
     $pb1        = "NSPasteboard" fullword
     $pb2        = "pbpaste" fullword

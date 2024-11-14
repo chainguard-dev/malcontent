@@ -1,5 +1,6 @@
 rule chrome_extension_abuser: high {
   meta:
+
   strings:
     $s_all_urls        = "<all_urls>"
     $s_from_webstore   = "from_webstore"

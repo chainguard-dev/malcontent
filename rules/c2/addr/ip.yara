@@ -43,10 +43,7 @@ rule elf_hardcoded_ip: high {
 
 rule http_hardcoded_ip: high exfil {
   meta:
-    description           = "hardcoded IP address within a URL"
-
-
-
+    description = "hardcoded IP address within a URL"
 
   strings:
     $ipv4         = /https*:\/\/([1-9][0-9]{1,2}\.){3}[1-9][0-9]{1,2}[:\/\w\-\?\.\=]{0,64}/
@@ -63,9 +60,8 @@ rule http_hardcoded_ip: high exfil {
 
 rule hardcoded_ip_port: high {
   meta:
-    description               = "hardcoded IP:port destination"
-    hash_2023_Merlin_48a7     = "48a70bd18a23fce3208195f4ad2e92fce78d37eeaa672f83af782656a4b2d07f"
-
+    description           = "hardcoded IP:port destination"
+    hash_2023_Merlin_48a7 = "48a70bd18a23fce3208195f4ad2e92fce78d37eeaa672f83af782656a4b2d07f"
 
   strings:
     $ipv4            = /([1-9][0-9]{1,2}\.){3}[1-9][0-9]{1,2}:\d{2,5}/ fullword
@@ -90,8 +86,7 @@ rule ip_port_mention: medium {
   meta:
     description = "mentions an IP and port"
 
-
-    hash_2023_Downloads_016a  = "016a1a4fe3e9d57ab0b2a11e37ad94cc922290d2499b8d96957c3ddbdc516d74"
+    hash_2023_Downloads_016a = "016a1a4fe3e9d57ab0b2a11e37ad94cc922290d2499b8d96957c3ddbdc516d74"
 
   strings:
     $camelPort = /[a-z]{0,8}Port/ fullword

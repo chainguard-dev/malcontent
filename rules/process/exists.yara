@@ -2,8 +2,6 @@ rule proc_probe_with_ps: medium {
   meta:
     description = "Checks if a process ID is running"
 
-
-
   strings:
     $ps_pid    = "ps -p %"
     $hash_bang = "#!"

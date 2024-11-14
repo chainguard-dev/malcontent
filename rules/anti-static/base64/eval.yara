@@ -2,10 +2,6 @@ import "math"
 
 rule eval_base64: high {
   meta:
-
-
-
-
   strings:
     $eval = /eval\(.{0,256}base64/
 
@@ -27,9 +23,6 @@ rule ruby_eval_base64_decode: critical {
 rule ruby_eval_near_enough: critical {
   meta:
     description = "Evaluates base64 content"
-
-
-
 
   strings:
     $eval   = "eval("
@@ -55,8 +48,7 @@ rule python_exec_near_enough: high {
   meta:
     description = "Evaluates base64 content"
 
-
-    hash_2018_EvilOSX_89e5     = "89e5b8208daf85f549d9b7df8e2a062e47f15a5b08462a4224f73c0a6223972a"
+    hash_2018_EvilOSX_89e5 = "89e5b8208daf85f549d9b7df8e2a062e47f15a5b08462a4224f73c0a6223972a"
 
   strings:
     $exec   = "exec("
@@ -68,8 +60,7 @@ rule python_exec_near_enough: high {
 
 rule echo_decode_bash_probable: high {
   meta:
-    description          = "likely pipes base64 into a shell"
-
+    description = "likely pipes base64 into a shell"
 
   strings:
     $echo          = "echo" fullword

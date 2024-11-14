@@ -1,7 +1,6 @@
 rule collect_data: medium {
   meta:
-    description              = "Uses terms that reference data collection"
-
+    description = "Uses terms that reference data collection"
 
   strings:
     $ref  = "collect_data"

@@ -1,5 +1,6 @@
 rule exotic_export_lang: medium {
   meta:
+
   strings:
     $export_lang = "export LANG="
     $hash_bang   = "#!"

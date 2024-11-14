@@ -1,8 +1,6 @@
 rule pipe_to_shell: medium {
   meta:
-    description              = "pipes to shell"
-
-
+    description = "pipes to shell"
 
   strings:
     $val_sh       = "| sh"

@@ -13,10 +13,7 @@ rule readdir_openpty_socket: high {
 
 rule pseudoterminal_tunnel: high {
   meta:
-    description       = "pseudoterminal and tunnel support"
-
-
-
+    description = "pseudoterminal and tunnel support"
 
   strings:
     $pty           = "creack/pty" fullword
@@ -46,8 +43,6 @@ rule python_pty_spawner: high {
   meta:
     ref1 = "https://juggernaut-sec.com/docker-breakout-lpe/"
     ref2 = "https://www.mandiant.com/resources/blog/barracuda-esg-exploited-globally"
-
-
 
   strings:
     $pty_spawn_bash = /pty.spawn\(\"\/bin\/[\w\" -\)]{,16}/
@@ -94,6 +89,7 @@ rule miner_kvryr_stak_alike: high {
 
 rule proxy_http_aes_terminal_combo: medium {
   meta:
+
   strings:
     $isatty      = "isatty"
     $socks_proxy = "socks proxy"

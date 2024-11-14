@@ -12,9 +12,8 @@ rule powershell_hidden_short: high windows {
 
 rule powershell_hidden_long: medium windows {
   meta:
-    description                      = "Runs powershell with a hidden command"
-    hash_2023_grandmask_3_13_setup   = "8835778f9e75e6493693fc6163477ec94aba723c091393a30d7e7b9eed4f5a54"
-
+    description                    = "Runs powershell with a hidden command"
+    hash_2023_grandmask_3_13_setup = "8835778f9e75e6493693fc6163477ec94aba723c091393a30d7e7b9eed4f5a54"
 
   strings:
     $ps     = "powershell" ascii wide nocase

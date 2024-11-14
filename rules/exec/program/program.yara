@@ -19,11 +19,9 @@ rule execall: medium {
 
 rule execve: medium {
   meta:
-    syscall                  = "execve"
-    pledge                   = "exec"
-    description              = "executes external programs"
-
-
+    syscall     = "execve"
+    pledge      = "exec"
+    description = "executes external programs"
 
   strings:
     $execve   = "execve" fullword
@@ -50,12 +48,9 @@ rule exec_cmd_run: medium {
 
 rule perl_system: medium {
   meta:
-    syscall                     = "execve"
-    pledge                      = "exec"
-    description                 = "executes external programs"
-
-
-
+    syscall     = "execve"
+    pledge      = "exec"
+    description = "executes external programs"
 
   strings:
     $system = /system\([\"\'\w\ \-\)\/]{0,64}/
@@ -79,12 +74,12 @@ rule ruby_system: medium {
 
 rule py_subprocess: medium {
   meta:
-    syscall                             = "execve"
-    pledge                              = "exec"
-    description                         = "execute external program"
-    ref                                 = "https://man7.org/linux/man-pages/man2/execve.2.html"
+    syscall     = "execve"
+    pledge      = "exec"
+    description = "execute external program"
+    ref         = "https://man7.org/linux/man-pages/man2/execve.2.html"
 
-    hash_2023_grandmask_3_13_setup      = "8835778f9e75e6493693fc6163477ec94aba723c091393a30d7e7b9eed4f5a54"
+    hash_2023_grandmask_3_13_setup = "8835778f9e75e6493693fc6163477ec94aba723c091393a30d7e7b9eed4f5a54"
 
   strings:
     $naked        = "subprocess"
@@ -98,11 +93,10 @@ rule py_subprocess: medium {
 
 rule subprocess: medium {
   meta:
-    syscall                  = "execve"
-    pledge                   = "exec"
-    description              = "execute external program"
-    ref                      = "https://man7.org/linux/man-pages/man2/execve.2.html"
-
+    syscall     = "execve"
+    pledge      = "exec"
+    description = "execute external program"
+    ref         = "https://man7.org/linux/man-pages/man2/execve.2.html"
 
   strings:
     $naked = "subprocess"
@@ -114,12 +108,10 @@ rule subprocess: medium {
 
 rule posix_spawn: medium {
   meta:
-    syscall                  = "posix_spawn"
-    pledge                   = "exec"
-    description              = "spawn a process"
-    ref                      = "https://man7.org/linux/man-pages/man3/posix_spawn.3.html"
-
-
+    syscall     = "posix_spawn"
+    pledge      = "exec"
+    description = "spawn a process"
+    ref         = "https://man7.org/linux/man-pages/man3/posix_spawn.3.html"
 
   strings:
     $ref = "posix_spawn"
@@ -144,13 +136,10 @@ rule go_exec: medium {
 
 rule npm_exec: medium {
   meta:
-    syscall                 = "posix_spawn"
-    pledge                  = "exec"
-    description             = "spawn a process"
-    ref                     = "https://nodejs.org/api/child_process.html"
-
-
-
+    syscall     = "posix_spawn"
+    pledge      = "exec"
+    description = "spawn a process"
+    ref         = "https://nodejs.org/api/child_process.html"
 
   strings:
     $child   = "child_process"

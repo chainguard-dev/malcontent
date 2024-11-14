@@ -2,9 +2,6 @@ rule xz_command: medium {
   meta:
     description = "command shells out to xz"
 
-
-
-
   strings:
     $ref = "xz -"
 
@@ -14,10 +11,7 @@ rule xz_command: medium {
 
 rule xz_lib: medium {
   meta:
-    description       = "uses xz library"
-
-
-
+    description = "uses xz library"
 
   strings:
     $ref = "ulikunitz/xz"

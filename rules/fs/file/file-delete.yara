@@ -17,9 +17,7 @@ rule unlink: posix {
 
 rule rm_f_hardcoded_tmp_path: medium posix {
   meta:
-    ref                    = "https://attack.mitre.org/techniques/T1485/"
-
-
+    ref = "https://attack.mitre.org/techniques/T1485/"
 
   strings:
     $ref     = /rm +\-[a-zA-Z]{,1}f[a-zA-Z]{,1} \/(tmp|var|dev)\/[\w\/\.\-\%]{0,64}/

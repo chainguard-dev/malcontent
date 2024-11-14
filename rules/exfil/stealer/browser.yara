@@ -1,8 +1,5 @@
 rule multiple_browser_credentials: high {
   meta:
-
-
-
   strings:
     $c_library_keychains     = "/Library/Keychains"
     $c_cookies_sqlite        = "cookies.sqlite"
@@ -25,8 +22,7 @@ rule multiple_browser_refs: high {
   meta:
     description = "Makes references to multiple browser credentials"
 
-
-    hash_1985_src_stealer   = "9af37b5973ee1e683d9708591cbe31b8a1044aab88b92b5883bdd74bcf8d807b"
+    hash_1985_src_stealer = "9af37b5973ee1e683d9708591cbe31b8a1044aab88b92b5883bdd74bcf8d807b"
 
   strings:
     $fs_config             = ".config" fullword

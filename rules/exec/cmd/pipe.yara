@@ -1,11 +1,8 @@
 rule popen: medium {
   meta:
-    description             = "launches program and reads its output"
-    syscall                 = "pipe"
-    ref                     = "https://linux.die.net/man/3/popen"
-
-
-
+    description = "launches program and reads its output"
+    syscall     = "pipe"
+    ref         = "https://linux.die.net/man/3/popen"
 
   strings:
     $_popen       = "_popen" fullword

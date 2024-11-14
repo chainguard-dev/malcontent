@@ -1,10 +1,8 @@
 rule iptables_append: medium linux {
   meta:
-    syscall                = "posix_spawn"
-    pledge                 = "exec"
-    description            = "Appends rules to a iptables chain"
-
-
+    syscall     = "posix_spawn"
+    pledge      = "exec"
+    description = "Appends rules to a iptables chain"
 
   strings:
     $ref = /iptables [\-\w% ]{0,8} -A[\-\w% ]{0,32}/

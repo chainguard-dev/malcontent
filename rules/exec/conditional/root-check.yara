@@ -1,9 +1,6 @@
 rule getuid_root: medium {
   meta:
-    description                         = "checks if uid=0 (root)"
-
-
-
+    description = "checks if uid=0 (root)"
 
   strings:
     $python     = "os.getuid() == 0"

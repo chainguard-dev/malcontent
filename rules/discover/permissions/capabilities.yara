@@ -1,7 +1,6 @@
 rule process_capabilities_val: medium {
   meta:
-    description                  = "enumerates Linux capabilities for process"
-
+    description = "enumerates Linux capabilities for process"
 
   strings:
     $capsh       = "capsh" fullword

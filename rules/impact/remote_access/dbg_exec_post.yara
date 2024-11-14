@@ -2,8 +2,7 @@ rule debug_program_with_high_refs: high {
   meta:
     description = "debug program with unusual references"
 
-
-    hash_2023_CoinMiner_lauth      = "fe3700a52e86e250a9f38b7a5a48397196e7832fd848a7da3cc02fe52f49cdcf"
+    hash_2023_CoinMiner_lauth = "fe3700a52e86e250a9f38b7a5a48397196e7832fd848a7da3cc02fe52f49cdcf"
 
   strings:
     $task_allow = "com.apple.security.get-task-allow"

@@ -89,8 +89,6 @@ rule curl_agent_val: high {
 
 rule urllib_oneliner: high {
   meta:
-
-
   strings:
     $urllib_req = "import urllib.request; urllib.request.urlretrieve"
 
@@ -100,10 +98,7 @@ rule urllib_oneliner: high {
 
 rule curl_insecure_val: medium {
   meta:
-    description              = "Invokes curl in insecure mode"
-
-
-
+    description = "Invokes curl in insecure mode"
 
   strings:
     $ref             = /curl[\w\- ]{0,5}-k[ \-\w:\/]{0,64}/

@@ -1,9 +1,6 @@
 rule tar_ssh_net: medium {
   meta:
-    description              = "possible tar-based SSH stealer"
-
-
-
+    description = "possible tar-based SSH stealer"
 
   strings:
     $s_curl   = "curl" fullword

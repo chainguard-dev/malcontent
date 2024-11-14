@@ -2,8 +2,6 @@ rule ssh_shell_worm: critical {
   meta:
     description = "SSH worm implemented in shell"
 
-
-
   strings:
     $dot_ssh = ".ssh" fullword
 

@@ -2,9 +2,6 @@ rule raw_flooder_val: medium {
   meta:
     description = "raw sockets with multiple targets, possible DoS or security scanning tool"
 
-
-
-
   strings:
     $r_raw     = "raw socket"
     $r_hdr     = "HDRINCL"

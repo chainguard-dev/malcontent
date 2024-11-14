@@ -1,9 +1,6 @@
 rule rootshell: high {
   meta:
-    description            = "references a root shell"
-
-
-
+    description = "references a root shell"
 
   strings:
     $ref  = "rootshell"

@@ -1,7 +1,6 @@
 rule server_address: medium {
   meta:
-    description              = "references a 'server address', possible C2 client"
-
+    description = "references a 'server address', possible C2 client"
 
   strings:
     $s_underscores = /\w{0,32}server_addr\w{0,32}/

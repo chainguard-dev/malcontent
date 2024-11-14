@@ -2,9 +2,6 @@ rule chromium_master_password: critical {
   meta:
     description = "Gets Chromium credit card information"
 
-
-
-
   strings:
     $web_data      = "Web Data"
     $encrypted_key = "credit_cards"

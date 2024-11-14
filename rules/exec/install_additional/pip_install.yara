@@ -13,10 +13,7 @@ rule pip_installer_known_good: low {
 
 rule pip_installer_variable: medium {
   meta:
-    description                         = "Installs software using pip from python"
-
-
-
+    description = "Installs software using pip from python"
 
   strings:
     $ref = /pip3{0,1}[ \'\"\,]{0,5}install[ \'\"\,]{0,5}[\$\%\{}][\w\-\_\}]{0,32}/
@@ -27,11 +24,9 @@ rule pip_installer_variable: medium {
 
 rule pip_installer: medium {
   meta:
-    description                         = "Installs software using pip from python"
+    description = "Installs software using pip from python"
 
-
-
-    filetypes                              = "py,pyc,sh"
+    filetypes = "py,pyc,sh"
 
   strings:
     $ref = /pip3{0,1}[ \'\"\,]{0,5}install[ \'\"\,]{0,5}[\w\-\_\%]{0,32}/

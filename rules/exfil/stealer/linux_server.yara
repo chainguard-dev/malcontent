@@ -1,7 +1,6 @@
 rule linux_server_stealer: high {
   meta:
-    description         = "may steal sensitive Linux secrets"
-
+    description = "may steal sensitive Linux secrets"
 
   strings:
     $bash_history = ".bash_history"

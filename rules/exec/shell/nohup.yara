@@ -2,9 +2,6 @@ rule nohup_reference_value: medium {
   meta:
     description = "Runs command that is protected from termination"
 
-
-
-
   strings:
     $nohup         = "nohup" fullword
     $nohup_re_val  = /nohup[ \%\{\}\$\-\w\"\']{2,64}/
@@ -19,9 +16,8 @@ rule nohup_reference_value: medium {
 
 rule elf_nohup: high {
   meta:
-    description                      = "Runs command that is protected from termination"
-    hash_2023_Merlin_48a7            = "48a70bd18a23fce3208195f4ad2e92fce78d37eeaa672f83af782656a4b2d07f"
-
+    description           = "Runs command that is protected from termination"
+    hash_2023_Merlin_48a7 = "48a70bd18a23fce3208195f4ad2e92fce78d37eeaa672f83af782656a4b2d07f"
 
   strings:
     $nohup         = "nohup" fullword
@@ -37,9 +33,8 @@ rule elf_nohup: high {
 
 rule nohup_bash: high {
   meta:
-    description                       = "Calls bash with nohup"
-    hash_2023_Sysrv_Hello_sys_x86_64  = "cd784dc1f7bd95cac84dc696d63d8c807129ef47b3ce08cd08afb7b7456a8cd3"
-
+    description                      = "Calls bash with nohup"
+    hash_2023_Sysrv_Hello_sys_x86_64 = "cd784dc1f7bd95cac84dc696d63d8c807129ef47b3ce08cd08afb7b7456a8cd3"
 
   strings:
     $ref = /nohup bash[ \w\/\&\.\-\%\>]{0,32}/

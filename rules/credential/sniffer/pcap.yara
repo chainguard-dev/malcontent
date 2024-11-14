@@ -1,5 +1,6 @@
 rule pcap_user: medium {
   meta:
+
   strings:
     $p_pcap_       = "pcap_"
     $p_PCAP_       = "PCAP_"

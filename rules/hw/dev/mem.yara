@@ -1,9 +1,8 @@
 rule dev_mem: medium linux {
   meta:
-    capability                 = "CAP_SYS_RAWIO"
-    description                = "access raw system memory"
-    hash_2023_OK_ad69          = "ad69e198905a8d4a4e5c31ca8a3298a0a5d761740a5392d2abb5d6d2e966822f"
-
+    capability        = "CAP_SYS_RAWIO"
+    description       = "access raw system memory"
+    hash_2023_OK_ad69 = "ad69e198905a8d4a4e5c31ca8a3298a0a5d761740a5392d2abb5d6d2e966822f"
 
   strings:
     $val        = "/dev/mem"

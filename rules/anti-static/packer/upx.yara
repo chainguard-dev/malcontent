@@ -1,8 +1,6 @@
 rule upx: high {
   meta:
-    description        = "Binary is packed with UPX"
-
-
+    description = "Binary is packed with UPX"
 
   strings:
     $u_upx_sig   = "UPX!"
@@ -16,9 +14,7 @@ rule upx: high {
 
 rule upx_elf: high {
   meta:
-    description        = "Linux ELF binary packed with UPX"
-
-
+    description = "Linux ELF binary packed with UPX"
 
   strings:
     $proc_self      = "/proc/self/exe"

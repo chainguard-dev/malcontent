@@ -2,9 +2,9 @@ import "elf"
 
 rule obfuscated_elf: high linux {
   meta:
-    description          = "Obfuscated ELF binary (missing symbols)"
+    description = "Obfuscated ELF binary (missing symbols)"
 
-    hash_2023_UPX_0c25   = "0c25a05bdddc144fbf1ffa29372481b50ec6464592fdfb7dec95d9e1c6101d0d"
+    hash_2023_UPX_0c25 = "0c25a05bdddc144fbf1ffa29372481b50ec6464592fdfb7dec95d9e1c6101d0d"
 
   strings:
     $dlsym             = "dlsym" fullword

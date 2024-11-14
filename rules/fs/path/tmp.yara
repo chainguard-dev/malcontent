@@ -1,8 +1,7 @@
 rule tmp_path: medium {
   meta:
-    description                         = "path reference within /tmp"
-    hash_2023_0xShell_wesoori           = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"
-
+    description               = "path reference within /tmp"
+    hash_2023_0xShell_wesoori = "bab1040a9e569d7bf693ac907948a09323c5f7e7005012f7b75b5c1b2ced10ad"
 
   strings:
     $resolv = /\/tmp\/[%\w\.\-\/]{0,64}/
@@ -14,9 +13,6 @@ rule tmp_path: medium {
 rule weird_tmp_path_not_hidden: medium {
   meta:
     description = "references an unusual path within /tmp"
-
-
-
 
   strings:
     $tmp_digits          = /\/tmp\/[\w]*\d{1,128}/

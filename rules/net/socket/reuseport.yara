@@ -1,7 +1,6 @@
 rule reuseport: medium {
   meta:
-    description              = "reuse TCP/IP ports for listening and connecting"
-
+    description = "reuse TCP/IP ports for listening and connecting"
 
   strings:
     $go        = "go-reuseport"

@@ -1,8 +1,6 @@
 rule firefox_cookies: high {
   meta:
-    description              = "access Firefox cookies"
-
-
+    description = "access Firefox cookies"
 
   strings:
     $firefox      = "Firefox"

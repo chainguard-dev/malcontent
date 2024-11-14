@@ -2,9 +2,6 @@ rule chmod_executable_shell: medium {
   meta:
     description = "makes file executable"
 
-
-
-
   strings:
     $val  = /chmod [\-\w ]{0,4}\+[rw]{0,2}x[ \$\@\w\/\.]{0,64}/
     $val2 = /chmod [\-\w ]{0,4}\+[rw]{0,2}[75][ \$\@\w\/\.]{0,64}/

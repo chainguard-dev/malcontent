@@ -1,8 +1,7 @@
 rule eval: medium {
   meta:
-    description             = "evaluate code dynamically using eval()"
-    hash_2023_0xShell_f     = "9ce3da0322ee42e9119abb140b829efc3c94ea802df7a6f3968829645e1a5330"
-
+    description         = "evaluate code dynamically using eval()"
+    hash_2023_0xShell_f = "9ce3da0322ee42e9119abb140b829efc3c94ea802df7a6f3968829645e1a5330"
 
   strings:
     $val       = /eval\([a-zA-Z\"\'\(\,\)]{1,32}/ fullword
@@ -17,8 +16,7 @@ rule python_exec: medium {
   meta:
     description = "evaluate code dynamically using exec()"
 
-
-    hash_2023_misc_mr_robot   = "630bbcf0643d9fc9840f2f54ea4ae1ea34dc94b91ee011779c8e8c91f733c9f5"
+    hash_2023_misc_mr_robot = "630bbcf0643d9fc9840f2f54ea4ae1ea34dc94b91ee011779c8e8c91f733c9f5"
 
   strings:
     $import = "import" fullword
@@ -31,9 +29,7 @@ rule python_exec: medium {
 
 rule shell_eval: medium {
   meta:
-    description               = "evaluate shell code dynamically using eval"
-
-
+    description = "evaluate shell code dynamically using eval"
 
   strings:
     $val                 = /eval \$\w{0,64}/ fullword
@@ -47,8 +43,6 @@ rule php_create_function_no_args: high {
   meta:
     description = "dynamically creates PHP functions without arguments"
 
-
-
   strings:
     $val = /create_function\([\'\"]{2},\$/
 
@@ -59,8 +53,6 @@ rule php_create_function_no_args: high {
 rule php_at_eval: critical {
   meta:
     description = "evaluates code in a way that suppresses errors"
-
-
 
   strings:
     $at_eval   = /@\beval\s{0,32}\(\s{0,32}(\$\w{0,32}|\.\s{0,32}"[^"]{0,32}"|\.\s{0,32}'[^']{0,32}'|\w+\(\s{0,32}\))/

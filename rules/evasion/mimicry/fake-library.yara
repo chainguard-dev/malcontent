@@ -3,8 +3,6 @@ rule libnetresolv_fake_val: high {
     ref         = "https://cert.gov.ua/article/6123309"
     description = "references fake library - possible dynamic library hijacking"
 
-
-
   strings:
     $libnetresolv = "libnetresolv.so"
 
@@ -28,8 +26,6 @@ rule libc_fake_number_val: high {
   meta:
     ref         = "https://cert.gov.ua/article/6123309"
     description = "references a non-standard libc library (normally libc.so.6)"
-
-
 
   strings:
     $ref            = /libc.so.[2345789]/

@@ -3,8 +3,7 @@ rule embedded_zstd: medium {
     description = "Contains compressed content in ZStandard format"
     ref         = "https://github.com/facebook/zstd"
 
-    hash_2024_Downloads_e70e  = "e70e96983734ee23e52391aa96d30670b2dcebb0cbca46c8eddb014f450c661f"
-
+    hash_2024_Downloads_e70e = "e70e96983734ee23e52391aa96d30670b2dcebb0cbca46c8eddb014f450c661f"
 
   strings:
     $ref = { 28 B5 2F FD }

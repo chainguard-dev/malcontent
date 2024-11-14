@@ -12,10 +12,7 @@ rule excessive_hex_refs: medium {
 
 rule hex_parse: medium {
   meta:
-    description                 = "converts hex data to ASCII"
-
-
-
+    description = "converts hex data to ASCII"
 
   strings:
     $node   = /Buffer\.from\(\w{0,16}, {0,2}'hex'\)/
@@ -28,10 +25,7 @@ rule hex_parse: medium {
 
 rule hex_parse_base64: medium {
   meta:
-    description                 = "converts base64 hex data to ASCII"
-
-
-
+    description = "converts base64 hex data to ASCII"
 
   strings:
     $lang_node   = /Buffer\.from\(\w{0,16}, {0,2}'hex'\)/
@@ -45,10 +39,7 @@ rule hex_parse_base64: medium {
 
 rule hex_parse_base64_high: high {
   meta:
-    description                 = "converts base64 hex data to ASCII"
-
-
-
+    description = "converts base64 hex data to ASCII"
 
   strings:
     $lang_node         = /Buffer\.from\(\w{0,16}, {0,2}'hex'\)/

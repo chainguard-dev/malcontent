@@ -1,7 +1,6 @@
 rule postgresql: medium {
   meta:
-    description               = "accesses PostgreSQL databases"
-
+    description = "accesses PostgreSQL databases"
 
   strings:
     $ref  = "postgresql" fullword

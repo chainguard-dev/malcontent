@@ -1,8 +1,6 @@
 rule base64_str_replace: critical {
   meta:
-    description                     = "creatively hidden forms of the term 'base64'"
-
-
+    description = "creatively hidden forms of the term 'base64'"
 
   strings:
     $a = /\wba\ws\we64/

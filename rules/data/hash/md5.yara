@@ -12,8 +12,7 @@ rule MD5 {
 
 rule md5_verify: medium {
   meta:
-    description              = "Verifies MD5 signatures"
-
+    description = "Verifies MD5 signatures"
 
   strings:
     $ref  = "md5 expect"

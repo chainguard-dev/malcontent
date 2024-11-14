@@ -1,7 +1,6 @@
 rule daemon: medium {
   meta:
-    description             = "Run as a background daemon"
-
+    description = "Run as a background daemon"
 
   strings:
     $ref  = /[\w\-]{0,8}[dD]aemon/

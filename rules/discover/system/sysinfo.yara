@@ -4,9 +4,6 @@ rule sysinfo: medium {
     syscall     = "sysinfo"
     ref         = "https://man7.org/linux/man-pages/man2/sysinfo.2.html"
 
-
-
-
   strings:
     $uname = "sysinfo" fullword
 

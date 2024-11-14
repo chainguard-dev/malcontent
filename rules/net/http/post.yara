@@ -3,8 +3,7 @@ rule http_post: medium {
     pledge      = "inet"
     description = "submits content to websites"
 
-
-    hash_2023_0xShell_root    = "3baa3bfaa6ed78e853828f147c3747d818590faee5eecef67748209dd3d92afb"
+    hash_2023_0xShell_root = "3baa3bfaa6ed78e853828f147c3747d818590faee5eecef67748209dd3d92afb"
 
   strings:
     $POST         = "POST"
@@ -46,8 +45,7 @@ rule form_data_reference: medium {
   meta:
     description = "submits form content to websites"
 
-
-    hash_2023_Downloads_016a    = "016a1a4fe3e9d57ab0b2a11e37ad94cc922290d2499b8d96957c3ddbdc516d74"
+    hash_2023_Downloads_016a = "016a1a4fe3e9d57ab0b2a11e37ad94cc922290d2499b8d96957c3ddbdc516d74"
 
   strings:
     $f_content_dispo_name = "Content-Disposition: form-data; name=.{0,32}\""

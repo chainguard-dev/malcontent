@@ -1,7 +1,6 @@
 rule sys_net_recon: medium {
   meta:
-    description              = "collects system and network information"
-
+    description = "collects system and network information"
 
   strings:
     $net_ipconfig          = "ipconfig" fullword

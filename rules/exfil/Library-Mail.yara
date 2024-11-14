@@ -1,9 +1,5 @@
 rule macos_library_mail_ref: medium {
   meta:
-
-
-
-
   strings:
     $mail                = "Library/Mail"
     $not_private         = "/System/Library/PrivateFrameworks/"

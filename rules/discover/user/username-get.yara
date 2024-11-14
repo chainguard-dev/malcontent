@@ -15,10 +15,9 @@ rule getlogin {
 
 rule whoami: medium {
   meta:
-    syscall                 = "getuid"
-    description             = "returns the user name running this process"
-    ref                     = "https://man7.org/linux/man-pages/man1/whoami.1.html"
-
+    syscall     = "getuid"
+    description = "returns the user name running this process"
+    ref         = "https://man7.org/linux/man-pages/man1/whoami.1.html"
 
   strings:
     $ref  = "whoami" fullword

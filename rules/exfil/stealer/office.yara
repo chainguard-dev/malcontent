@@ -1,8 +1,6 @@
 rule office_crypt_archive: high {
   meta:
-    description              = "Accesses Ofice documents, encrypts and archives"
-
-
+    description = "Accesses Ofice documents, encrypts and archives"
 
   strings:
     $e_csv              = "csv" fullword

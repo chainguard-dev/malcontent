@@ -1,7 +1,6 @@
 rule docker_ps: medium {
   meta:
-    description              = "enumerates Docker containers"
-
+    description = "enumerates Docker containers"
 
   strings:
     $ref = "docker ps" fullword

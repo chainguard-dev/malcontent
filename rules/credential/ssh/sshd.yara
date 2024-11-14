@@ -1,8 +1,6 @@
 rule sshd: medium {
   meta:
-    description              = "Mentions SSHD"
-
-
+    description = "Mentions SSHD"
 
   strings:
     $ref = "sshd" fullword
@@ -13,8 +11,7 @@ rule sshd: medium {
 
 rule sshd_path_value: high {
   meta:
-    description                       = "Mentions the SSH daemon by path"
-
+    description = "Mentions the SSH daemon by path"
 
   strings:
     $ref = "/usr/bin/sshd" fullword
@@ -27,8 +24,7 @@ rule sshd_net: high {
   meta:
     description = "Mentions SSHD network processes"
 
-
-    hash_2024_src_tracers    = "5e774902d99c93cf4e7441a8a7d5674966ee6ca72760779639bbf3a9a9a3e065"
+    hash_2024_src_tracers = "5e774902d99c93cf4e7441a8a7d5674966ee6ca72760779639bbf3a9a9a3e065"
 
   strings:
     $ref  = "sshd: [net]"

@@ -30,11 +30,9 @@ rule hide_dir_contents: high {
 
 rule readdir_intercept: high {
   meta:
-    description        = "userland rootkit designed to hide files (readdir64)"
+    description = "userland rootkit designed to hide files (readdir64)"
 
-
-
-    filetypes          = "so,c"
+    filetypes = "so,c"
 
   strings:
     $r_new65      = "readdir64" fullword
@@ -107,10 +105,9 @@ rule linux_rootkit_terms: critical linux {
 
 rule linux_process_hider: critical linux {
   meta:
-    description        = "userland rootkit designed to hide processes"
-    ref                = "prochid.c"
-    hash_2023_OK_c38c  = "c38c21120d8c17688f9aeb2af5bdafb6b75e1d2673b025b720e50232f888808a"
-
+    description       = "userland rootkit designed to hide processes"
+    ref               = "prochid.c"
+    hash_2023_OK_c38c = "c38c21120d8c17688f9aeb2af5bdafb6b75e1d2673b025b720e50232f888808a"
 
   strings:
     $f_proc_self_fd      = "/proc/self/fd/%d"

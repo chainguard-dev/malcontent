@@ -14,9 +14,7 @@ rule keychain: medium macos {
 
 rule macos_library_keychains: medium macos {
   meta:
-    description              = "access system keychain via files"
-
-
+    description = "access system keychain via files"
 
   strings:
     $ref                 = "/Library/Keychains"

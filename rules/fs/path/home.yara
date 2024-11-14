@@ -1,9 +1,6 @@
 rule home_path: medium {
   meta:
-    description         = "references path within /home"
-
-
-
+    description = "references path within /home"
 
   strings:
     $home       = /\/home\/[%\w\.\-\/]{0,64}/

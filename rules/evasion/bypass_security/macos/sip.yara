@@ -1,9 +1,5 @@
 rule csrutil_user: medium {
   meta:
-
-
-
-
   strings:
     $csrutil     = "csrutil"
     $not_private = "/System/Library/PrivateFrameworks/"

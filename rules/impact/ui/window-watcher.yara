@@ -1,7 +1,5 @@
 rule macos_window_watcher: high {
   meta:
-
-
   strings:
     $w_cglocked    = "CGSSessionScreenIsLocked"
     $w_idle        = "HIDIdleTime"

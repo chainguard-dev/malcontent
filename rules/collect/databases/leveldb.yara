@@ -1,9 +1,6 @@
 rule leveldb: medium {
   meta:
-    description              = "accesses LevelDB databases"
-
-
-
+    description = "accesses LevelDB databases"
 
   strings:
     $ref  = /[\w]{0,16}leveldb[\w]{0,16}/ fullword

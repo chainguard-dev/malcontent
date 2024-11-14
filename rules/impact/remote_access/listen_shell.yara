@@ -1,7 +1,6 @@
 rule listens_and_executes_shell: medium {
   meta:
-    description              = "Listens at a port and executes shells"
-
+    description = "Listens at a port and executes shells"
 
   strings:
     $f_socket        = "socket" fullword

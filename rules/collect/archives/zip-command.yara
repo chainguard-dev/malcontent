@@ -2,8 +2,6 @@ rule executable_calls_zip: medium {
   meta:
     description = "command shells out to zip"
 
-
-
   strings:
     $a_zip_x    = "zip -X"
     $a_zip_r    = "zip -r"

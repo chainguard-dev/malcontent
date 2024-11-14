@@ -1,8 +1,7 @@
 rule tunnel: medium {
   meta:
-    description              = "creates a network tunnel"
-    syscall                  = "setsockopt"
-
+    description = "creates a network tunnel"
+    syscall     = "setsockopt"
 
   strings:
     $tunnel = "tunnel" fullword

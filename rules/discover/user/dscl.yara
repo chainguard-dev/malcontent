@@ -1,7 +1,6 @@
 rule dscl_caller: medium {
   meta:
-    description       = "Calls dscl (Directory Service command line utility)"
-
+    description = "Calls dscl (Directory Service command line utility)"
 
   strings:
     $dscl_local     = /dscl +\. +-\w{1,128}/

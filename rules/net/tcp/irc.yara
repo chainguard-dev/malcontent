@@ -1,11 +1,8 @@
 rule irc_protocol: medium {
   meta:
-    pledge                       = "inet"
-    description                  = "Uses IRC (Internet Relay Chat)"
-    credit                       = "Initially ported from https://github.com/jvoisin/php-malware-finder"
-
-
-
+    pledge      = "inet"
+    description = "Uses IRC (Internet Relay Chat)"
+    credit      = "Initially ported from https://github.com/jvoisin/php-malware-finder"
 
   strings:
     $join    = "JOIN" fullword

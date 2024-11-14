@@ -1,9 +1,7 @@
 rule pty: medium {
   meta:
-    description              = "pseudo-terminal access functions"
-    ref                      = "https://man7.org/linux/man-pages/man3/grantpt.3.html"
-
-
+    description = "pseudo-terminal access functions"
+    ref         = "https://man7.org/linux/man-pages/man3/grantpt.3.html"
 
   strings:
     $grantpt      = "grantpt" fullword

@@ -1,7 +1,6 @@
 rule sleep_and_background: medium {
   meta:
-    description              = "calls sleep and runs shell code in the background"
-
+    description = "calls sleep and runs shell code in the background"
 
   strings:
     $s_sleep_time = /sleep \d{1,128}/

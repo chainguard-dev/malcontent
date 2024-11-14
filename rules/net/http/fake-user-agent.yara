@@ -28,10 +28,6 @@ rule fake_user_agent_khtml_val: high {
 
 rule fake_user_agent_chrome: medium {
   meta:
-
-
-
-
   strings:
     $u_chrome       = "(KHTML, like Gecko) Chrome"
     $not_nuclei     = "NUCLEI_TEMPLATES"
@@ -55,8 +51,7 @@ rule fake_user_agent_wordpress: high {
 
 rule fake_user_agent_firefox: medium {
   meta:
-
-    hash_2024_Downloads_036a     = "036a2f04ab56b5e7098c7d866eb21307011b812f126793159be1c853a6a54796"
+    hash_2024_Downloads_036a = "036a2f04ab56b5e7098c7d866eb21307011b812f126793159be1c853a6a54796"
 
   strings:
     $u_gecko        = "Gecko/20"
@@ -88,8 +83,7 @@ rule fake_user_agent_curl {
 
 rule elf_faker_val: medium {
   meta:
-    description              = "Fake user agent"
-
+    description = "Fake user agent"
 
   strings:
     $val = /Mozilla\/5[\.\w ]{4,64}/

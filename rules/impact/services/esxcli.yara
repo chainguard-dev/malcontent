@@ -1,9 +1,5 @@
 rule esxcli_caller: high linux {
   meta:
-
-
-
-
   strings:
     $esxcli = "esxcli"
 

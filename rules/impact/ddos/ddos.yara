@@ -41,9 +41,7 @@ rule ip_flood_refs: high {
 
 rule flooder: high {
   meta:
-    description              = "References an IP flooder"
-
-
+    description = "References an IP flooder"
 
   strings:
     $ = "flooder" fullword
@@ -64,8 +62,6 @@ rule flooder: high {
 rule ddos: medium {
   meta:
     description = "References DDoS"
-
-
 
   strings:
     $ref  = "DDoS" fullword

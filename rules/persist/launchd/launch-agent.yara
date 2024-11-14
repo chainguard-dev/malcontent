@@ -3,8 +3,6 @@ rule macos_LaunchAgents: medium {
     description = "persist via LaunchAgents"
     platforms   = "darwin"
 
-
-
   strings:
     $val = /[\~\/\.\w]{0,32}LaunchAgents[\/\w\%\$\.]{0,32}/ fullword
 
@@ -16,8 +14,6 @@ rule launchctl: medium {
   meta:
     description = "sets up a LaunchAgent and launches it"
     platforms   = "darwin"
-
-
 
   strings:
     $upper_val = /[\~\/\.\w]{0,32}LaunchAgents[\/\w\%\$\.]{0,32}/ fullword
@@ -57,8 +53,6 @@ rule fake_launchd: critical {
 rule macos_personal_launch_agent: medium {
   meta:
     description = "sets up a personal launch agent"
-
-
 
   strings:
     $home_val          = /\$HOME\/Library\/LaunchAgents[\.\/\w ]{0,32}/

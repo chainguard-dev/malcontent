@@ -3,11 +3,9 @@ import "math"
 
 rule single_load_rwe: critical {
   meta:
-    description              = "Binary with a single LOAD segment marked RWE"
-    family                   = "Stager"
-    filetype                 = "ELF"
-
-
+    description = "Binary with a single LOAD segment marked RWE"
+    family      = "Stager"
+    filetype    = "ELF"
 
     author = "Tenable"
 
@@ -17,10 +15,9 @@ rule single_load_rwe: critical {
 
 rule fake_section_headers_conflicting_entry_point_address: critical {
   meta:
-    description              = "binary with fake sections header"
-    family                   = "Obfuscation"
-    filetype                 = "ELF"
-
+    description = "binary with fake sections header"
+    family      = "Obfuscation"
+    filetype    = "ELF"
 
     author = "Tenable"
 
@@ -41,9 +38,7 @@ rule fake_dynamic_symbols: critical {
 
 rule high_entropy_header: high {
   meta:
-    description        = "high entropy ELF header (>7)"
-
-
+    description = "high entropy ELF header (>7)"
 
   strings:
     $not_pyinst = "pyi-bootloader-ignore-signals"

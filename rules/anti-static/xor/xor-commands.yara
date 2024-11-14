@@ -2,9 +2,6 @@ rule xor_commands: high {
   meta:
     description = "commands obfuscated using xor"
 
-
-
-
   strings:
     $b_chmod      = "chmod " xor(1-31)
     $b_curl       = "curl -" xor(1-31)

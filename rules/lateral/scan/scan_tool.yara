@@ -1,8 +1,6 @@
 rule generic_scan_tool: medium {
   meta:
-    description              = "may scan networks"
-
-
+    description = "may scan networks"
 
   strings:
     $f_gethostbyname   = "gethostbyname"

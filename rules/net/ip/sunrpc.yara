@@ -1,7 +1,6 @@
 rule sunrpc: medium {
   meta:
-    description              = "Uses SunRPC / XDR"
-
+    description = "Uses SunRPC / XDR"
 
   strings:
     $ref  = "xdr_bytes" fullword

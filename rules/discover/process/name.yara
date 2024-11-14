@@ -1,8 +1,7 @@
 rule progname: low {
   meta:
-    description              = "get the current process name"
-    ref                      = "https://linux.die.net/man/3/program_invocation_short_name"
-
+    description = "get the current process name"
+    ref         = "https://linux.die.net/man/3/program_invocation_short_name"
 
   strings:
     $ref = "program_invocation_short_name"
@@ -13,9 +12,7 @@ rule progname: low {
 
 rule process_name: medium {
   meta:
-    description              = "get the current process name"
-
-
+    description = "get the current process name"
 
   strings:
     $ref  = "processName"

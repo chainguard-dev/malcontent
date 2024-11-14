@@ -1,10 +1,7 @@
 rule inet_addr: medium {
   meta:
-    pledge                   = "inet"
-    description              = "parses IP address"
-
-
-
+    pledge      = "inet"
+    description = "parses IP address"
 
   strings:
     $ref = "inet_addr"

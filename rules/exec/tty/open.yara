@@ -1,7 +1,6 @@
 rule openpty: medium {
   meta:
-    description              = "finds and opens an available pseudoterminal"
-
+    description = "finds and opens an available pseudoterminal"
 
   strings:
     $ref  = "openpty" fullword

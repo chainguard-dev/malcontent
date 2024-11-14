@@ -1,9 +1,6 @@
 rule boot_path: medium {
   meta:
-    description              = "path reference within /boot"
-
-
-
+    description = "path reference within /boot"
 
   strings:
     $ref = /\/boot\/[\%\w\.\-\/]{4,32}/ fullword
@@ -14,9 +11,7 @@ rule boot_path: medium {
 
 rule elf_boot_path: medium {
   meta:
-    description                       = "path reference within /boot"
-
-
+    description = "path reference within /boot"
 
   strings:
     $ref              = /\/boot\/[\%\w\.\-\/]{4,32}/ fullword

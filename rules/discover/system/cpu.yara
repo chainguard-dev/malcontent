@@ -1,11 +1,8 @@
 rule host_processor_info: medium {
   meta:
-    syscall                  = "host_processor_info"
-    description              = "returns hardware processor, count"
-    ref                      = "https://developer.apple.com/documentation/kernel/1502854-host_processor_info"
-
-
-
+    syscall     = "host_processor_info"
+    description = "returns hardware processor, count"
+    ref         = "https://developer.apple.com/documentation/kernel/1502854-host_processor_info"
 
   strings:
     $ref = "host_processor_info"

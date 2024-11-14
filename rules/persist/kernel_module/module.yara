@@ -5,8 +5,6 @@ rule lkm: medium {
     description = "Linux kernel module"
     capability  = "CAP_SYS_MODULE"
 
-
-
   strings:
     $vergmagic  = "vermagic="
     $srcversion = "srcversion="
@@ -19,8 +17,6 @@ rule lkm_embedded_in_elf: high {
   meta:
     description = "Contains embedded Linux kernel module"
     capability  = "CAP_SYS_MODULE"
-
-
 
   strings:
     $vergmagic  = "vermagic="

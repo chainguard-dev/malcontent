@@ -1,7 +1,6 @@
 rule hidden_background_launcher: high {
   meta:
-    description    = "Launches background processes from a hidden path"
-
+    description = "Launches background processes from a hidden path"
 
   strings:
     $b_hidden_background = /\/\.[\w\/ \.\%]{1,64} \&[^&]/
@@ -15,10 +14,7 @@ rule hidden_background_launcher: high {
 
 rule relative_background_launcher: high {
   meta:
-    description         = "Launches background processes from a relative path"
-
-
-
+    description = "Launches background processes from a relative path"
 
   strings:
     $b_relative_background = /\.\/\w[\w\/ \.\%]{1,64} \&[^&]/

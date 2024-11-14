@@ -1,8 +1,6 @@
 rule detach: medium {
   meta:
-    description                          = "process detaches and daemonizes"
-
-
+    description = "process detaches and daemonizes"
 
   strings:
     $ref  = /[\w\/]{0,16}xdaemon/

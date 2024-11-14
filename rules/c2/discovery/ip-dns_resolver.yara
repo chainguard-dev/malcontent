@@ -1,9 +1,6 @@
 rule google_dns_ip: medium {
   meta:
-    description             = "contains Google Public DNS resolver IP"
-
-
-
+    description = "contains Google Public DNS resolver IP"
 
   strings:
     $primary   = "8.8.8.8"
@@ -16,8 +13,6 @@ rule google_dns_ip: medium {
 rule opendns_ip: medium {
   meta:
     description = "contains OpenDNS DNS resolver IP"
-
-
 
   strings:
     $primary   = "208.67.222.222"
@@ -41,9 +36,9 @@ rule ctrld_ip: high {
 
 rule quad9_ip: medium {
   meta:
-    description          = "contains Quad9 DNS resolver IP"
+    description = "contains Quad9 DNS resolver IP"
 
-    hash_2023_OK_ad69    = "ad69e198905a8d4a4e5c31ca8a3298a0a5d761740a5392d2abb5d6d2e966822f"
+    hash_2023_OK_ad69 = "ad69e198905a8d4a4e5c31ca8a3298a0a5d761740a5392d2abb5d6d2e966822f"
 
   strings:
     $primary   = "9.9.9.9"
@@ -57,8 +52,6 @@ rule one_one_four_dns_ip: medium {
   meta:
     description = "contains I14DNS DNS resolver IP"
 
-
-
   strings:
     $d_114dns = "114.114.114.114"
 
@@ -69,8 +62,6 @@ rule one_one_four_dns_ip: medium {
 rule ipinfo_dns_ip: high {
   meta:
     description = "contains IPInfo DNS resolver IP"
-
-
 
   strings:
     $ref = "168.95.1.1"

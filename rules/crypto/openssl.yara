@@ -1,7 +1,6 @@
 rule openssl_user: medium {
   meta:
-    description              = "Uses OpenSSL"
-
+    description = "Uses OpenSSL"
 
   strings:
     $ref = "_EXT_FLAG_SENT"

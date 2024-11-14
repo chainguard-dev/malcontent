@@ -12,8 +12,7 @@ rule github_raw_usercontent: medium {
 
 rule github_raw_user: medium {
   meta:
-
-    hash_2023_spirit          = "26ba215bcd5d8a9003a904b0eac7dc10054dba7bea9a708668a5f6106fd73ced"
+    hash_2023_spirit = "26ba215bcd5d8a9003a904b0eac7dc10054dba7bea9a708668a5f6106fd73ced"
 
   strings:
     $github     = "github.com"

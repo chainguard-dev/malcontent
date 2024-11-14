@@ -1,7 +1,6 @@
 rule monero_pool: medium {
   meta:
-    description              = "References Monero mining pools"
-
+    description = "References Monero mining pools"
 
   strings:
     $ref  = "monero"

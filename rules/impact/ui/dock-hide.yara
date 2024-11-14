@@ -1,5 +1,6 @@
 rule dock_hider: high {
   meta:
+
   strings:
     $hideDock            = "hideDock"
     $applicationWillHide = "applicationWillHide"

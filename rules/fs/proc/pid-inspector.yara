@@ -1,9 +1,6 @@
 rule pid_inspector: medium {
   meta:
-    description                      = "accesses information about other pids via /proc"
-
-
-
+    description = "accesses information about other pids via /proc"
 
   strings:
     $proc_exe      = /\/proc\/[\%\@]\w{1,3}\/exe/
@@ -20,10 +17,7 @@ rule pid_inspector: medium {
 
 rule pid_inspector_high: high {
   meta:
-    description                      = "accesses unusual process information"
-
-
-
+    description = "accesses unusual process information"
 
   strings:
     $proc_exe            = /\/proc\/[\%\@]\w{1,3}\/exe/

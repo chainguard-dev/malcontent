@@ -1,9 +1,6 @@
 rule sudo_editor: medium {
   meta:
-    description              = "references /etc/sudoers"
-
-
-
+    description = "references /etc/sudoers"
 
   strings:
     $etc_sudoers = "/etc/sudoers"

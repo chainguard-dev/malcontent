@@ -1,7 +1,6 @@
 rule shutdown_val: medium {
   meta:
-    description            = "calls shutdown command"
-
+    description = "calls shutdown command"
 
   strings:
     $ref  = /shutdown -[\w ]{0,16}/

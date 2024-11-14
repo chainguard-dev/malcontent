@@ -14,9 +14,6 @@ rule backdoor: medium {
   meta:
     description = "References a 'backdoor'"
 
-
-
-
   strings:
     $ref = /[a-zA-Z\-_ \']{0,16}[bB]ackdoor[a-zA-Z\-_ ]{0,16}/ fullword
 
@@ -61,9 +58,6 @@ rule backdoor_caps: high {
   meta:
     description = "References a 'BACKDOOR'"
 
-
-
-
   strings:
     $ref2 = /[a-zA-Z\-_ \']{0,16}BACKDOOR[a-zA-Z\-_ ]{0,16}/ fullword
 
@@ -74,9 +68,6 @@ rule backdoor_caps: high {
 rule backdoor_leet: critical {
   meta:
     description = "References a 'backd00r'"
-
-
-
 
   strings:
     $ref4 = /[a-zA-Z\-_ \']{0,16}[bB][a4]ckd00r[a-zA-Z\-_ ]{0,16}/

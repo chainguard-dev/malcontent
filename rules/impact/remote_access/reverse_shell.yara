@@ -1,12 +1,10 @@
 rule reverse_shell: high {
   meta:
-    description               = "references a reverse shell"
+    description = "references a reverse shell"
 
+    hash_2023_OK_ad69 = "ad69e198905a8d4a4e5c31ca8a3298a0a5d761740a5392d2abb5d6d2e966822f"
 
-    hash_2023_OK_ad69         = "ad69e198905a8d4a4e5c31ca8a3298a0a5d761740a5392d2abb5d6d2e966822f"
-
-
-    hash_2024_locutus_borg_transwarp        = "4573af129e3e1a197050e2fd066f846c92de64d8d14a81a13d975a2cbc6d391e"
+    hash_2024_locutus_borg_transwarp = "4573af129e3e1a197050e2fd066f846c92de64d8d14a81a13d975a2cbc6d391e"
 
   strings:
     $r_bash_dev_tcp         = "bash -i >& /dev/tcp/"
@@ -53,8 +51,7 @@ rule mkfifo_netcat: critical {
 
 rule perl_reverse_shell: critical {
   meta:
-    hash_2023_uacert_socket  = "912dc3aee7d5c397225f77e3ddbe3f0f4cf080de53ccdb09c537749148c1cc08"
-
+    hash_2023_uacert_socket = "912dc3aee7d5c397225f77e3ddbe3f0f4cf080de53ccdb09c537749148c1cc08"
 
   strings:
     $socket       = "socket("

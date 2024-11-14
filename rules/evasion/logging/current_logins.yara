@@ -1,9 +1,6 @@
 rule login_records: medium {
   meta:
-    description               = "accesses current logins"
-
-
-
+    description = "accesses current logins"
 
   strings:
     $f_wtmp     = "/var/log/wtmp"

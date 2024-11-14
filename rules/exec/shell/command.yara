@@ -1,9 +1,8 @@
 rule system: medium {
   meta:
-    description              = "execute a shell command"
-    syscalls                 = "fork,execl"
-    ref                      = "https://man7.org/linux/man-pages/man3/system.3.html"
-
+    description = "execute a shell command"
+    syscalls    = "fork,execl"
+    ref         = "https://man7.org/linux/man-pages/man3/system.3.html"
 
     filetypes = "elf,macho"
 
@@ -19,9 +18,7 @@ rule php_shell_exec: medium php {
     description = "execute a shell command"
     syscalls    = "fork,execl"
 
-
-
-    filetypes                 = "php"
+    filetypes = "php"
 
   strings:
     $php = "<?php"

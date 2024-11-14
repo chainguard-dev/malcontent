@@ -1,7 +1,6 @@
 rule kernel_module_loader: medium linux {
   meta:
-    description               = "loads Linux kernel module via insmod"
-
+    description = "loads Linux kernel module via insmod"
 
   strings:
     $insmod = /insmod [ \$\%\w\.\/_-]{1,32}/
@@ -12,8 +11,7 @@ rule kernel_module_loader: medium linux {
 
 rule kernel_module_loader_ko: high linux {
   meta:
-    description               = "loads Linux kernel module .ko via insmod"
-
+    description = "loads Linux kernel module .ko via insmod"
 
   strings:
     $insmod = /insmod [ \$\%\w\.\/_-]{1,32}\.ko/
@@ -52,8 +50,7 @@ rule init_module: medium linux {
     syscall     = "init_module"
     capability  = "CAP_SYS_MODULE"
 
-
-    filetypes                        = "ko,elf,so"
+    filetypes = "ko,elf,so"
 
   strings:
     $ref = "init_module" fullword

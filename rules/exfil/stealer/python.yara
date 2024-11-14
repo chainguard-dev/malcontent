@@ -23,9 +23,8 @@ rule py_exe_stealer: critical windows {
 
 rule py_crypto_urllib_multiprocessing: high {
   meta:
-    description              = "calls multiple functions useful for exfiltrating data"
-    ref                      = "trojan.python/drop - e8eb4f2a73181711fc5439d0dc90059f54820fe07d9727cf5f2417c5cec6da0e"
-
+    description = "calls multiple functions useful for exfiltrating data"
+    ref         = "trojan.python/drop - e8eb4f2a73181711fc5439d0dc90059f54820fe07d9727cf5f2417c5cec6da0e"
 
     filetypes = "py"
 

@@ -13,8 +13,7 @@ rule tool_chmod_relative_run: medium {
   meta:
     description = "may fetch file, make it executable, and run it"
 
-    hash_2023_Downloads_6e35             = "6e35b5670953b6ab15e3eb062b8a594d58936dd93ca382bbb3ebdbf076a1f83b"
-
+    hash_2023_Downloads_6e35 = "6e35b5670953b6ab15e3eb062b8a594d58936dd93ca382bbb3ebdbf076a1f83b"
 
   strings:
     $f_curl      = /(curl|wget) [\-\w \$\@\{\w\/\.\:]{0,96}/
@@ -31,8 +30,7 @@ rule tool_chmod_relative_run_tiny: critical {
   meta:
     description = "fetch file, make it executable, and run it"
 
-    hash_2023_Downloads_6e35             = "6e35b5670953b6ab15e3eb062b8a594d58936dd93ca382bbb3ebdbf076a1f83b"
-
+    hash_2023_Downloads_6e35 = "6e35b5670953b6ab15e3eb062b8a594d58936dd93ca382bbb3ebdbf076a1f83b"
 
   strings:
     $must_cd     = /cd {1,2}[\/\$][\w\/]{0,16}/
@@ -65,8 +63,7 @@ rule tool_tor_chmod_relative_run: high {
   meta:
     description = "change dir, fetch file via tor, make it executable, and run it"
 
-    hash_2023_Downloads_6e35             = "6e35b5670953b6ab15e3eb062b8a594d58936dd93ca382bbb3ebdbf076a1f83b"
-
+    hash_2023_Downloads_6e35 = "6e35b5670953b6ab15e3eb062b8a594d58936dd93ca382bbb3ebdbf076a1f83b"
 
   strings:
     $tor2web   = "tor2web"
@@ -110,9 +107,8 @@ rule nohup_bash_background: high {
 
 rule fetch_pipe_shell_value: medium {
   meta:
-    description                      = "fetches content and pipes it to a shell"
-    hash_2023_OK_29c2                = "29c2f559a9494bce3d879aff8731a5d70a3789028055fd170c90965ce9cf0ea4"
-
+    description       = "fetches content and pipes it to a shell"
+    hash_2023_OK_29c2 = "29c2f559a9494bce3d879aff8731a5d70a3789028055fd170c90965ce9cf0ea4"
 
   strings:
     $wget_bash = /wget .{8,128}\| {0,2}bash/

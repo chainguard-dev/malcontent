@@ -1,7 +1,6 @@
 rule windows_ntlm: medium {
   meta:
-    description              = "Uses the Windows NTLM authentication scheme"
-
+    description = "Uses the Windows NTLM authentication scheme"
 
   strings:
     $s_ntlmssp   = "ntlmssp"

@@ -12,10 +12,7 @@ rule usr_local_path: harmless {
 
 rule usr_local_bin_path: medium {
   meta:
-    description              = "path reference within /usr/local/bin"
-
-
-
+    description = "path reference within /usr/local/bin"
 
   strings:
     $val = /\/usr\/local\/bin[\w\.\-\/]{0,64}/
@@ -26,9 +23,7 @@ rule usr_local_bin_path: medium {
 
 rule usr_local_lib_path: medium {
   meta:
-    description              = "path reference within /usr/local/lib"
-
-
+    description = "path reference within /usr/local/lib"
 
   strings:
     $val = /\/usr\/local\/lib[\w\.\-\/]{0,64}/

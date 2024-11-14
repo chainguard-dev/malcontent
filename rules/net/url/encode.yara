@@ -1,8 +1,6 @@
 rule url_encode: medium {
   meta:
-    description               = "encodes URL, likely to pass GET variables"
-
-
+    description = "encodes URL, likely to pass GET variables"
 
   strings:
     $ref = "urlencode"

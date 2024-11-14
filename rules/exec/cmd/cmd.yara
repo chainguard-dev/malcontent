@@ -2,9 +2,6 @@ rule exec: medium {
   meta:
     description = "executes a command"
 
-
-
-
   strings:
     $exe_cmd   = /[\w:]{0,32}[Ee]xe[\w]{0,6}C(m|omman)d[\w:]{0,32}/ fullword
     $run_cmd   = /[\w:]{0,32}[rR]un[\w]{0,6}C(m|omman)d[\w:]{0,32}/ fullword

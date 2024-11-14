@@ -13,10 +13,9 @@ rule pthread_create {
 
 rule py_thread_create: medium {
   meta:
-    syscall          = "pthread_create"
-    description      = "uses python threading"
-    ref              = "https://docs.python.org/3/library/threading.html"
-
+    syscall     = "pthread_create"
+    description = "uses python threading"
+    ref         = "https://docs.python.org/3/library/threading.html"
 
   strings:
     $ref = "threading.Thread"

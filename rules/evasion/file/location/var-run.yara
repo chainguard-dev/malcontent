@@ -1,9 +1,6 @@
 rule var_run_subfolder: medium {
   meta:
-    description              = "references subfolder within /var/run"
-
-
-
+    description = "references subfolder within /var/run"
 
   strings:
     $var_run_folder  = /\/var\/run\/[\w\.\-]{0,32}\//

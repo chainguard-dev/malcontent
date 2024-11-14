@@ -1,7 +1,6 @@
 rule lvt_locker: critical {
   meta:
-    description                                = "Ransomware phrases used by LVT Locker"
-
+    description = "Ransomware phrases used by LVT Locker"
 
   strings:
     $a  = "By LVT LOCKER"

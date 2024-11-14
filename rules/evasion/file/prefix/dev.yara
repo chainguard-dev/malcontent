@@ -1,8 +1,7 @@
 rule dev_shm_hidden: critical linux {
   meta:
-    description          = "hidden path reference within /dev/shm (world writeable)"
-    hash_2023_OK_ad69    = "ad69e198905a8d4a4e5c31ca8a3298a0a5d761740a5392d2abb5d6d2e966822f"
-
+    description       = "hidden path reference within /dev/shm (world writeable)"
+    hash_2023_OK_ad69 = "ad69e198905a8d4a4e5c31ca8a3298a0a5d761740a5392d2abb5d6d2e966822f"
 
   strings:
     $dev_shm        = /\/dev\/shm\/\.[\%\w\.\-\/]{0,64}/

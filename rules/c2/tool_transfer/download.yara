@@ -1,10 +1,7 @@
 rule download_sites: high {
   meta:
-    ref                        = "https://github.com/ditekshen/detection/blob/e6579590779f62cbe7f5e14b5be7d77b2280f516/yara/indicator_high.yar#L1001"
-    description                = "References known file hosting site"
-
-
-
+    ref         = "https://github.com/ditekshen/detection/blob/e6579590779f62cbe7f5e14b5be7d77b2280f516/yara/indicator_high.yar#L1001"
+    description = "References known file hosting site"
 
   strings:
     $d_privatebin    = /[\w\.]+privatebin[\w\.]{1,4}\//
@@ -36,8 +33,6 @@ rule pastebin: medium {
     ref         = "https://github.com/ditekshen/detection/blob/e6579590779f62cbe7f5e14b5be7d77b2280f516/yara/indicator_high.yar#L1001"
     description = "References known file hosting site"
 
-
-
   strings:
     $d_pastebin = /[\w\.]{1,128}astebin[\w\.\/]{1,128}/
 
@@ -47,10 +42,8 @@ rule pastebin: medium {
 
 rule program_dropper_url: medium {
   meta:
-    description              = "downloads program from a hardcoded URL"
-    ref                      = "https://unfinished.bike/qubitstrike-and-diamorphine-linux-kernel-rootkits-go-mainstream"
-
-
+    description = "downloads program from a hardcoded URL"
+    ref         = "https://unfinished.bike/qubitstrike-and-diamorphine-linux-kernel-rootkits-go-mainstream"
 
   strings:
     $program_url = /https*:\/\/[\w\.]{1,128}\/[\/\.\w]{1,128}\.(sh|gz|zip|Z|exe|bz2|py|bin|plist)/ fullword

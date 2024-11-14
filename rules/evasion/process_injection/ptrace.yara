@@ -1,9 +1,7 @@
 rule ptrace: medium {
   meta:
-    capability               = "CAP_SYS_PTRACE"
-    description              = "trace or modify system calls"
-
-
+    capability  = "CAP_SYS_PTRACE"
+    description = "trace or modify system calls"
 
   strings:
     $ref = "ptrace" fullword

@@ -1,10 +1,7 @@
 rule http_form_upload: medium {
   meta:
-    pledge                    = "inet"
-    description               = "upload content via HTTP form"
-
-
-
+    pledge      = "inet"
+    description = "upload content via HTTP form"
 
   strings:
     $content_form = "application/x-www-form-urlencoded"

@@ -16,9 +16,6 @@ private rule iplookup_website_value_copy: high {
   meta:
     description = "public service to discover external IP address"
 
-
-
-
   strings:
     $ipify       = "ipify.org"
     $wtfismyip   = "wtfismyip"

@@ -1,8 +1,6 @@
 rule vm_checker: medium {
   meta:
-    description              = "Checks to see if it is running with a VM"
-
-
+    description = "Checks to see if it is running with a VM"
 
   strings:
     $a_vmware         = "VMware"

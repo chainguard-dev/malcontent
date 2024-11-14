@@ -1,9 +1,6 @@
 rule telegram_bot: high {
   meta:
-    ref                         = "https://github.com/bartblaze/community/blob/3f3997f8c79c3605ae6d5324c8578cb12c452512/data/yara/binaries/indicator_high.yar#L676"
-
-
-
+    ref = "https://github.com/bartblaze/community/blob/3f3997f8c79c3605ae6d5324c8578cb12c452512/data/yara/binaries/indicator_high.yar#L676"
 
   strings:
     $s1     = "api.telegram.org"

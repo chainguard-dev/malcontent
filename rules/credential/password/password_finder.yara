@@ -1,8 +1,6 @@
 rule password_finder_generic: high {
   meta:
-    description               = "password finder or dumper"
-
-
+    description = "password finder or dumper"
 
   strings:
     $ref  = "findPassword"

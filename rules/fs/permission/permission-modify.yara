@@ -5,9 +5,6 @@ rule chmod: medium {
     syscall     = "chmod"
     ref         = "https://linux.die.net/man/1/chmod"
 
-
-
-
   strings:
     $chmod    = "chmod" fullword
     $dotChmod = "Chmod" fullword

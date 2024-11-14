@@ -27,8 +27,6 @@ rule ps_exec: medium {
     pledge  = "exec"
     syscall = "vfork"
 
-
-
     description = "executes ps(1) for a list of processes"
 
   strings:
@@ -48,8 +46,6 @@ rule procfs_listdir: medium {
     pledge  = "exec"
     syscall = "vfork"
 
-
-
   strings:
     $shell  = "ls /proc" fullword
     $python = "os.listdir('/proc')"
@@ -60,9 +56,7 @@ rule procfs_listdir: medium {
 
 rule proclist: medium {
   meta:
-    description              = "accesses process list"
-
-
+    description = "accesses process list"
 
   strings:
     $proclist       = "proclist" fullword

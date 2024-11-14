@@ -15,13 +15,10 @@ rule uname {
 
 rule os_release: medium {
   meta:
-    description              = "operating-system identification"
-    pledge                   = "sysctl"
-    syscall                  = "sysctl"
-    ref                      = "https://developer.apple.com/documentation/os/1524245-os_release"
-
-
-
+    description = "operating-system identification"
+    pledge      = "sysctl"
+    syscall     = "sysctl"
+    ref         = "https://developer.apple.com/documentation/os/1524245-os_release"
 
   strings:
     $ref = "os_release" fullword
@@ -32,12 +29,10 @@ rule os_release: medium {
 
 rule macos_platform_check: medium {
   meta:
-    description              = "platform check"
-    pledge                   = "sysctl"
-    syscall                  = "sysctl"
-    ref                      = "https://developer.apple.com/documentation/os/1524245-os_release"
-
-
+    description = "platform check"
+    pledge      = "sysctl"
+    syscall     = "sysctl"
+    ref         = "https://developer.apple.com/documentation/os/1524245-os_release"
 
   strings:
     $ref  = "isPlatformOrVariantPlatformVersionAtLeast" fullword
@@ -50,10 +45,9 @@ rule macos_platform_check: medium {
 
 rule python_platform: medium {
   meta:
-    description                 = "system platform identification"
-    ref                         = "https://docs.python.org/3/library/platform.html"
-    hash_2023_libcurl_setup     = "5deef153a6095cd263d5abb2739a7b18aa9acb7fb0d542a2b7ff75b3506877ac"
-
+    description             = "system platform identification"
+    ref                     = "https://docs.python.org/3/library/platform.html"
+    hash_2023_libcurl_setup = "5deef153a6095cd263d5abb2739a7b18aa9acb7fb0d542a2b7ff75b3506877ac"
 
   strings:
     $ref  = "platform.dist()"
@@ -67,10 +61,9 @@ rule python_platform: medium {
 
 rule npm_uname: medium {
   meta:
-    description                 = "get system identification"
-    ref                         = "https://nodejs.org/api/process.html"
-    hash_2023_botbait           = "1b92cb3d4b562d0eb05c3b2f998e334273ce9b491bc534d73bcd0b4952ce58d2"
-
+    description       = "get system identification"
+    ref               = "https://nodejs.org/api/process.html"
+    hash_2023_botbait = "1b92cb3d4b562d0eb05c3b2f998e334273ce9b491bc534d73bcd0b4952ce58d2"
 
   strings:
     $ = "process.platform"

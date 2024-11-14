@@ -12,11 +12,8 @@ rule execstart_danger_path_val: high {
 
 rule execstart_unexpected_dir_val: medium {
   meta:
-    description                 = "Starts from an unusual path"
-    ref                         = "https://sandflysecurity.com/blog/log4j-kinsing-linux-malware-in-the-wild/"
-
-
-
+    description = "Starts from an unusual path"
+    ref         = "https://sandflysecurity.com/blog/log4j-kinsing-linux-malware-in-the-wild/"
 
   strings:
     $execstart           = /ExecStart=\/[\w\/]{1,128}/

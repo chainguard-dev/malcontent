@@ -1,11 +1,8 @@
 rule DADisk: medium {
   meta:
-    description                        = "Get information about disks"
-    ref                                = "https://developer.apple.com/documentation/diskarbitration"
-    platforms                          = "darwin"
-
-
-
+    description = "Get information about disks"
+    ref         = "https://developer.apple.com/documentation/diskarbitration"
+    platforms   = "darwin"
 
   strings:
     $ref  = "DADiskCopyDescription" fullword

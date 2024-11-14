@@ -1,8 +1,6 @@
 rule go_scan_tool_val: medium {
   meta:
-    description              = "Uses struct with JSON representations for host:port"
-
-
+    description = "Uses struct with JSON representations for host:port"
 
   strings:
     $j_port     = "json:\"port\""

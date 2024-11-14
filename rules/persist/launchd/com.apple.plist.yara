@@ -1,9 +1,6 @@
 rule references_com_apple_preferences_file: medium {
   meta:
-    ref                                = "https://securelist.com/triangulation-validators-modules/110847/"
-
-
-
+    ref = "https://securelist.com/triangulation-validators-modules/110847/"
 
   strings:
     $com_apple_plist     = /com\.apple\.[\w\-\.]{0,32}\.plist/

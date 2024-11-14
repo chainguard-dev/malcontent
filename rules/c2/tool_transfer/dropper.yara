@@ -2,8 +2,6 @@ rule dropper: medium {
   meta:
     description = "References 'dropper'"
 
-
-
   strings:
     $ref  = "dropper" fullword
     $ref2 = "Dropper" fullword
@@ -15,8 +13,6 @@ rule dropper: medium {
 rule dropper_for: high {
   meta:
     description = "References 'dropper for'"
-
-
 
   strings:
     $ref = /[dD]ropper for [\w ]{0,32}/
