@@ -2429,7 +2429,7 @@
                     "RuleName": "linux_adjtimex"
                 },
                 {
-                    "Description": "supports crontab manipulation",
+                    "Description": "lists crontab entries, may also persist",
                     "MatchStrings": [
                         "crontab"
                     ],
@@ -2472,20 +2472,6 @@
                     "ReferenceURL": "https://man7.org/linux/man-pages/man2/clone.2.html",
                     "ID": "process/create",
                     "RuleName": "syscall_clone"
-                },
-                {
-                    "Description": "sets a custom PATH",
-                    "MatchStrings": [
-                        "/bin:/usr/",
-                        "/sbin:/bin",
-                        "/usr/bin:/sbin",
-                        "PATH"
-                    ],
-                    "RiskScore": 1,
-                    "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/process/executable_path.yara#custom_path",
-                    "ID": "process/executable_path",
-                    "RuleName": "custom_path"
                 },
                 {
                     "Description": "creates a session and sets the process group ID",

@@ -169,7 +169,6 @@ persist/pid_file: medium
 process/chdir: low
 process/chroot: low
 process/create: low
-process/executable_path: low
 process/groupid_set: low
 process/groups_set: low
 process/multithreaded: low

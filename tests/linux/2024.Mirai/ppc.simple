@@ -12,4 +12,4 @@ net/socket/receive: low
 net/socket/send: low
 process/create: low
 process/name_set: medium
-sus/ancient_gcc: medium
+sus/compiler: medium

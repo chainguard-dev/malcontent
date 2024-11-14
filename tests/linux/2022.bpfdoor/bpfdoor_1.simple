@@ -23,4 +23,4 @@ os/fd/multiplex: low
 persist/daemon: medium
 process/chroot: low
 process/create: low
-sus/ancient_gcc: high
+sus/compiler: high

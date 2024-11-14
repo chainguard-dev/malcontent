@@ -8,11 +8,45 @@ rule linux_kernel_module_getdents64: critical linux {
     filetypes                        = "elf,so"
 
   strings:
-    $getdents64      = "getdents64"
     $register_kprobe = "register_kprobe"
+    $f_getdents64    = "getdents64"
+    $f_filldir64     = "filldir64"
 
   condition:
-    filesize < 1MB and all of them
+    filesize < 1MB and $register_kprobe and any of ($f*)
+}
+
+rule linux_kernel_module_hider: critical linux {
+  meta:
+    description                      = "kernel module that hides files and open ports"
+    ref                              = "https://github.com/m0nad/Diamorphine"
+    hash_2022_LQvKibDTq4_diamorphine = "aec68cfa75b582616c8fbce22eecf463ddb0c09b692a1b82a8de23fb0203fede"
+    hash_2023_LQvKibDTq4_diamorphine = "e93e524797907d57cb37effc8ebe14e6968f6bca899600561971e39dfd49831d"
+    hash_2023_LQvKibDTq4_diamorphine = "d83f43f47c1438d900143891e7a542d1d24f9adcbd649b7698d8ee7585068039"
+    filetypes                        = "elf,so"
+
+  strings:
+    $register_kprobe = "register_kprobe"
+    $f_getdents64    = "getdents64"
+    $f_filldir64     = "filldir64"
+    $n_tcp4_seq_show = "tcp4_seq_show"
+
+  condition:
+    filesize < 1MB and $register_kprobe and any of ($f*) and any of ($n*)
+}
+
+rule linux_kernel_module_hide_self: critical linux {
+  meta:
+    description = "kernel module that hides itself"
+    filetypes   = "elf,so"
+
+  strings:
+    $register_kprobe = "register_kprobe"
+    $hide_self       = "hide_self"
+    $hide_module     = "hide_module"
+
+  condition:
+    filesize < 1MB and $register_kprobe and any of ($hide*)
 }
 
 rule funky_high_signal_killer: high {

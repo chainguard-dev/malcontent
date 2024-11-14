@@ -95,4 +95,4 @@ process/groups_set: low
 process/name_set: medium
 process/userid_set: low
 process/username_set: medium
-sus/ancient_gcc: medium
+sus/compiler: medium

@@ -9,6 +9,17 @@ rule crontab_support: medium {
     any of them
 }
 
+rule crontab_list: medium {
+  meta:
+    description = "lists crontab entries, may also persist"
+
+  strings:
+    $crontab = "crontab" fullword
+
+  condition:
+    any of them
+}
+
 rule crontab_writer: medium {
   meta:
     description               = "May use crontab to persist"
@@ -86,13 +97,23 @@ rule hidden_crontab: critical {
 
 rule echo_crontab: high {
   meta:
-    hash_2020_Enigma     = "6b2ff7ae79caf306c381a55409c6b969c04b20c8fda25e6d590e0dadfcf452de"
-    hash_2024_Chaos_1d36 = "1d36f4bebd21a01c12fde522defee4c6b4d3d574c825ecc20a2b7a8baa122819"
-    hash_2024_Chaos_1fc4 = "1fc412b47b736f8405992e3744690b58ec4d611c550a1b4f92f08dfdad5f7a30"
+    description = "persists via crontab entry (echo)"
 
   strings:
     $echo = /echo.{0,10}\* \* \* \*.{0,24}cron[\w\/ \-]{0,16}/
 
   condition:
     $echo
+}
+
+rule c_string_crontab: high {
+  meta:
+    description = "persists via crontab entry (C formatted string)"
+
+  strings:
+    $c_string = /\*[\/0-9]{0,3}\s{1,4}\*\s{1,4}\*\s{1,4}\*\s{1,4}\*\s.{0,4}\%s[\"\w\-]{0,8}/
+    $crontab  = "crontab"
+
+  condition:
+    all of them
 }
