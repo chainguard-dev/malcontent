@@ -11,6 +11,17 @@ rule proc_listallpids: medium {
     any of them
 }
 
+rule ps_exec_pipe: critical {
+  meta:
+    description = "gets list of all processes, isolating username, pid, ppid, cmdline"
+
+  strings:
+    $ps_ef = /ps -ef {0,2}| {0,2}awk.{0.8}$1.{0,4}$2.{0,4}$3.{0.4}$/
+
+  condition:
+    filesize < 25MB and any of them
+}
+
 rule ps_exec: medium {
   meta:
     pledge                           = "exec"

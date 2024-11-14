@@ -28,3 +28,20 @@ rule small_opaque_archaic_gcc: high linux {
   condition:
     filesize < 30KB and $gcc_v4 and $fork in (1000..3000) and none of ($not*) and #word_with_spaces < 15
 }
+
+private rule binary {
+  condition:
+    // matches ELF or machO binary
+    filesize < 40MB and (uint32(0) == 1179403647 or uint32(0) == 4277009102 or uint32(0) == 3472551422 or uint32(0) == 4277009103 or uint32(0) == 3489328638 or uint32(0) == 3405691582 or uint32(0) == 3199925962)
+}
+
+rule multiple_gcc: high {
+  meta:
+    description = "built with multiple versions of GCC"
+
+  strings:
+    $gcc = /GCC: \([\w \.\-\~\(\)]{8,64}/ fullword
+
+  condition:
+    binary and #gcc > 1 and !gcc[1] != !gcc[2]
+}

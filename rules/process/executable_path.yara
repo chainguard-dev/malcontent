@@ -15,11 +15,11 @@ rule custom_path: low {
 
   strings:
     $path = "PATH"
-    $ref  = "/sbin:/bin"
-    $ref2 = "/bin:/usr/"
-    $ref3 = "/usr/bin:/sbin"
-    $ref4 = "/bin:/sbin"
+    $ref1 = /[\/\w:]{0,16}\/sbin:\/bin[\/\w:]{0,16}/
+    $ref2 = /[\/\w:]{0,16}\/bin:\/usr[\/\w:]{0,16}/
+    $ref3 = /[\/\w:]{0,16}\/usr\/bin:\/sbin[\/\w:]{0,16}/
+    $ref4 = /[\/\w:]{0,16}\/bin:\/sbin[\/\w:]{0,16}/
 
   condition:
-    $path and any of ($ref*)
+    filesize < 20MB and $path and any of ($ref*)
 }

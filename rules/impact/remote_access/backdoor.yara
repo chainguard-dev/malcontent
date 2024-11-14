@@ -85,3 +85,16 @@ rule backdoor_leet: critical {
   condition:
     filesize < 100MB and any of them and not wordlist
 }
+
+rule commands: high {
+  meta:
+    description = "may accept backdoor commands"
+
+  strings:
+    $hide = "hide ok" fullword
+    $show = "show ok" fullword
+    $kill = "kill ok" fullword
+
+  condition:
+    all of them
+}
