@@ -27,7 +27,7 @@ rule exfil_libcurl_elf: high linux {
     $f_fprintf        = "fprintf" fullword
     $f_utime          = "utime" fullword
     $f_sleep          = "sleep" fullword
-    $word_with_spaces = /[a-z]{2,} [a-z]{2,}/
+    $word_with_spaces = /[a-z]{2,16} [a-uxyz]{2,16}/ fullword
 
   condition:
     filesize < 32KB and all of ($f*) and #word_with_spaces <= 1 and math.entropy(3000, filesize) > 3

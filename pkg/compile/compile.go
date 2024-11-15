@@ -97,12 +97,15 @@ var rulesWithWarnings = map[string]bool{
 	"osascript_quitter":                     true,
 	"exfil_libcurl_elf":                     true,
 	"small_opaque_archaic_gcc":              true,
-	"elf_hardcoded_ip":                      true,
+	"bin_hardcoded_ip":                      true,
 	"python_hex_decimal":                    true,
 	"python_long_hex":                       true,
 	"python_long_hex_multiple":              true,
 	"pam_passwords":                         true,
 	"decompress_base64_entropy":             true,
+	"macho_opaque_binary":                   true,
+	"macho_opaque_binary_long_str":          true,
+	"long_str":                              true,
 }
 
 func Recursive(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {

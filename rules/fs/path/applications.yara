@@ -3,7 +3,7 @@ rule app_path: medium {
     description = "references hardcoded application path"
 
   strings:
-    $ref = /\/Application\/.{0,32}\.app\/Contents\/MacOS\/[\w \.\-]{0,32}/
+    $ref = /\/Applications\/.{0,32}\.app\/Contents\/MacOS\/[\w \.\-]{0,32}/
 
   condition:
     any of them
@@ -24,7 +24,18 @@ rule macho_app_path: high {
     description = "references hardcoded application path"
 
   strings:
-    $ref = /\/Application\/.{0,32}\.app\/Contents\/MacOS\/[\w \.\-]{0,32}/
+    $ref = /\/Applications\/.{0,32}\.app\/Contents\/MacOS\/[\w \.\-]{0,32}/
+
+  condition:
+    macho and any of them
+}
+
+rule mac_applications: medium {
+  meta:
+    description = "references /Applications directly"
+
+  strings:
+    $ref = "/Applications" fullword
 
   condition:
     macho and any of them
