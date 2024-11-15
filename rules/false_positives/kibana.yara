@@ -15,16 +15,17 @@ rule kibana_powershell_evasion_rule: override {
 rule security_solution_plugin: override {
   meta:
     linux_rootkit_terms = "low"
-    description         = "securitySolution.chunk.9.js"
+    description         = "securitySolution.chunk.9.js, securitySolution.chunk.22.js"
 
   strings:
     $license           = "Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V."
     $license2          = "Licensed under the Elastic License 2.0"
+    $jsonp             = "window.securitySolution_bundle_jsonpfunction"
     $security_solution = "securitySolution"
     $xpac              = "xpac"
 
   condition:
-    filesize < 5MB and all of them
+    filesize < 5MB and all of ($license*) and $security_solution and ($jsonp or $xpac)
 }
 
 rule security_detection_engine: override {
