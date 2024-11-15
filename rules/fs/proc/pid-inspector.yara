@@ -1,9 +1,6 @@
 rule pid_inspector: medium {
   meta:
-    description                       = "accesses information about other pids via /proc"
-    hash_2023_Sysrv_Hello_sys_x86_64  = "cd784dc1f7bd95cac84dc696d63d8c807129ef47b3ce08cd08afb7b7456a8cd3"
-    hash_2023_Unix_Dropper_Mirai_58c5 = "58c54ded0af2fffb8cea743d8ec3538cecfe1afe88d5f7818591fb5d4d2bd4e1"
-    hash_2023_Unix_Trojan_Mirai_1233  = "12330634ae5c2ac7da6d8d00f3d680630d596df154f74e03ff37e6942f90639e"
+    description = "accesses information about other pids via /proc"
 
   strings:
     $proc_exe      = /\/proc\/[\%\@]\w{1,3}\/exe/
@@ -20,10 +17,7 @@ rule pid_inspector: medium {
 
 rule pid_inspector_high: high {
   meta:
-    description                       = "accesses unusual process information"
-    hash_2023_Sysrv_Hello_sys_x86_64  = "cd784dc1f7bd95cac84dc696d63d8c807129ef47b3ce08cd08afb7b7456a8cd3"
-    hash_2023_Unix_Dropper_Mirai_58c5 = "58c54ded0af2fffb8cea743d8ec3538cecfe1afe88d5f7818591fb5d4d2bd4e1"
-    hash_2023_Unix_Trojan_Mirai_1233  = "12330634ae5c2ac7da6d8d00f3d680630d596df154f74e03ff37e6942f90639e"
+    description = "accesses unusual process information"
 
   strings:
     $proc_exe            = /\/proc\/[\%\@]\w{1,3}\/exe/

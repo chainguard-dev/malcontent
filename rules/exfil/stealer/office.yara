@@ -1,9 +1,6 @@
 rule office_crypt_archive: high {
   meta:
-    description                   = "Accesses Ofice documents, encrypts and archives"
-    hash_2023_Downloads_24b5      = "24b5cdfc8de10c99929b230f0dcbf7fcefe9de448eeb6c75675cfe6c44633073"
-    hash_2023_Downloads_f5de      = "f5de75a6db591fe6bb6b656aa1dcfc8f7fe0686869c34192bfa4ec092554a4ac"
-    hash_2024_enumeration_linpeas = "210cbe49df69a83462a7451ee46e591c755cfbbef320174dc0ff3f633597b092"
+    description = "Accesses Ofice documents, encrypts and archives"
 
   strings:
     $e_csv              = "csv" fullword

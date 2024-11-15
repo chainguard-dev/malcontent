@@ -1,10 +1,7 @@
 rule dynamic_hidden_path: medium {
   meta:
-    description                          = "hidden path generated dynamically"
-    ref                                  = "https://objective-see.org/blog/blog_0x73.html"
-    hash_2023_Linux_Malware_Samples_3292 = "329255e33f43e6e9ae5d5efd6f5c5745c35a30d42fb5099beb51a6e40fe9bd76"
-    hash_2023_Linux_Malware_Samples_d2ff = "d2fff992e40ce18ff81b9a92fa1cb93a56fb5a82c1cc428204552d8dfa1bc04f"
-    hash_2023_Linux_Malware_Samples_efa8 = "efa875506296d77178884ba8ac68a8b6d6aef24e79025359cf5259669396e8dd"
+    description = "hidden path generated dynamically"
+    ref         = "https://objective-see.org/blog/blog_0x73.html"
 
   strings:
     $ref    = /%s\/\.[a-z][\w-]{0,32}/

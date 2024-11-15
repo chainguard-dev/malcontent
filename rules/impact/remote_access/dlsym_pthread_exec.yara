@@ -1,7 +1,6 @@
 rule dlsym_pthread_exec: high {
   meta:
-    description              = "Resolves library, creates threads, calls programs"
-    hash_2024_Downloads_8cad = "8cad755bcf420135c0f406fb92138dcb0c1602bf72c15ed725bd3b76062dafe5"
+    description = "Resolves library, creates threads, calls programs"
 
   strings:
     $dlsym   = "dlsym" fullword

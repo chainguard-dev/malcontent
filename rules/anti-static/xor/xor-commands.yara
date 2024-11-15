@@ -1,9 +1,6 @@
 rule xor_commands: high {
   meta:
-    description                          = "commands obfuscated using xor"
-    hash_2023_Linux_Trojan_ShellBot_accc = "acccf2fa4e21f2cd1d7305186e4c83d6cde5ee98f1b37022b70170533e399a89"
-    hash_2023_ZIP_locker_AArch_64        = "724eb1c8e51f184495cfe81df7049531d413dd3e434ee3506b6cc6b18c61e96d"
-    hash_2023_ZIP_locker_ARMv5_32        = "0a2bffa0a30ec609d80591eef1d0994d8b37ab1f6a6bad7260d9d435067fb48e"
+    description = "commands obfuscated using xor"
 
   strings:
     $b_chmod      = "chmod " xor(1-31)

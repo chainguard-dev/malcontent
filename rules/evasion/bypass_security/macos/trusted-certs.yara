@@ -1,7 +1,6 @@
 rule trusted_cert_manipulator: high {
   meta:
-    hash_2018_CookieMiner_uploadminer = "6236f77899cea6c32baf0032319353bddfecaf088d20a4b45b855a320ba41e93"
-    hash_2017_MacOS_AppStore          = "4131d4737fe8dfe66d407bfd0a0df18a4a77b89347471cc012da8efc93c661a5"
+    description = "installs a trusted root certificate"
 
   strings:
     $security         = "security"

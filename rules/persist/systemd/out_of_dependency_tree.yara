@@ -1,8 +1,8 @@
 rule systemd_not_in_dependency_tree: medium {
   meta:
-    description                 = "Relies on nothing, nothing relies on it"
-    hash_2023_Downloads_kinsing = "05d02411668f4ebd576a24ac61cc84e617bdb66aa819581daa670c65f1a876f0"
-    filetypes                   = "service"
+    description = "Relies on nothing, nothing relies on it"
+
+    filetypes = "service"
 
   strings:
     $execstart        = "ExecStart="
@@ -23,9 +23,7 @@ rule systemd_not_in_dependency_tree: medium {
 
 rule type_forking_not_in_dep_tree: high {
   meta:
-    hash_2023_Txt_Malware_Sustes_0e77 = "0e77291955664d2c25d5bfe617cec12a388e5389f82dee5ae4fd5c5d1f1bdefe"
-    hash_2023_Unix_Malware_Kaiji_3e68 = "3e68118ad46b9eb64063b259fca5f6682c5c2cb18fd9a4e7d97969226b2e6fb4"
-    hash_2023_Unix_Malware_Kaiji_f4a6 = "f4a64ab3ffc0b4a94fd07a55565f24915b7a1aaec58454df5e47d8f8a2eec22a"
+    description = "forking service that nothing relies on"
 
   strings:
     $forking       = "Type=forking"

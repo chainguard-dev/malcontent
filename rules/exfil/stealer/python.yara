@@ -23,12 +23,10 @@ rule py_exe_stealer: critical windows {
 
 rule py_crypto_urllib_multiprocessing: high {
   meta:
-    description                          = "calls multiple functions useful for exfiltrating data"
-    ref                                  = "trojan.python/drop - e8eb4f2a73181711fc5439d0dc90059f54820fe07d9727cf5f2417c5cec6da0e"
-    hash_2023_Downloads_e6b6             = "e6b6cf40d605fc7a5e8ba168a8a5d8699b0879e965d2b803e29b87926cba861f"
-    hash_2023_Linux_Malware_Samples_4259 = "4259f2da90bf344092abc071f376753adaf077e13aeed684a7a3c2950ec82f69"
-    hash_2023_Linux_Malware_Samples_7c5c = "7c5c84eb86a72395bf75510d5a1a51553a025668d6477dbef86ad12da7bc6b8a"
-    filetypes                            = "py"
+    description = "calls multiple functions useful for exfiltrating data"
+    ref         = "trojan.python/drop - e8eb4f2a73181711fc5439d0dc90059f54820fe07d9727cf5f2417c5cec6da0e"
+
+    filetypes = "py"
 
   strings:
     $pydata = "pydata" fullword

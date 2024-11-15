@@ -1,9 +1,6 @@
 rule base64_php_functions: medium {
   meta:
-    description                  = "References PHP functions in base64 form"
-    hash_2023_0xShell_0xObs      = "6391e05c8afc30de1e7980dda872547620754ce55c36da15d4aefae2648a36e5"
-    hash_2023_0xShell_0xShellObs = "64771788a20856c7b2a29067f41be9cb7138c11a2cf2a8d17ab4afe73516f1ed"
-    hash_2023_0xShell_0xShellori = "506e12e4ce1359ffab46038c4bf83d3ab443b7c5db0d5c8f3ad05340cb09c38e"
+    description = "References PHP functions in base64 form"
 
   strings:
     $php           = "<?php"
@@ -69,10 +66,7 @@ rule base64_php_functions: medium {
 
 rule base64_php_functions_multiple: critical {
   meta:
-    description                  = "References multiple PHP functions in base64 form"
-    hash_2023_0xShell_0xShellori = "506e12e4ce1359ffab46038c4bf83d3ab443b7c5db0d5c8f3ad05340cb09c38e"
-    hash_2023_0xShell_0xencbase  = "50057362c139184abb74a6c4ec10700477dcefc8530cf356607737539845ca54"
-    hash_2023_0xShell_wesobase   = "17a1219bf38d953ed22bbddd5aaf1811b9380ad0535089e6721d755a00bddbd0"
+    description = "References multiple PHP functions in base64 form"
 
   strings:
     $php           = "<?php"
@@ -137,10 +131,7 @@ rule base64_php_functions_multiple: critical {
 
 rule base64_python_functions: critical {
   meta:
-    description                            = "contains base64 Python code"
-    hash_2023_0xShell_0xencbase            = "50057362c139184abb74a6c4ec10700477dcefc8530cf356607737539845ca54"
-    hash_2023_0xShell_wesobase             = "17a1219bf38d953ed22bbddd5aaf1811b9380ad0535089e6721d755a00bddbd0"
-    hash_2024_static_demonizedshell_static = "b4e65c01ab90442cb5deda26660a3f81bd400c205e12605536483f979023aa15"
+    description = "contains base64 Python code"
 
   strings:
     $f_exec          = "exec(" base64

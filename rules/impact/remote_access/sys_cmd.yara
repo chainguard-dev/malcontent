@@ -1,8 +1,6 @@
 rule multiple_sys_commands: high {
   meta:
-    description                        = "mentions multiple unrelated system commands"
-    hash_2023_Unix_Trojan_Xorddos_c9bd = "c9bd6d01eb7258fef88ec5c9276431c1db45f063b316f83943e45b6a40a76783"
-    hash_2023_Downloads_311c           = "311c93575efd4eeeb9c6674d0ab8de263b72a8fb060d04450daccc78ec095151"
+    description = "mentions multiple unrelated system commands"
 
   strings:
     $cron    = "/usr/sbin/cron"

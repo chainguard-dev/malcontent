@@ -1,7 +1,6 @@
 rule sudo_nohup: high {
   meta:
-    description           = "calls nohup sudo"
-    hash_2023_Merlin_48a7 = "48a70bd18a23fce3208195f4ad2e92fce78d37eeaa672f83af782656a4b2d07f"
+    description = "calls nohup sudo"
 
   strings:
     $nohup_sudo = /nohup sudo[ \.\/\w]{0,32}/

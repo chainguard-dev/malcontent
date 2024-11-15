@@ -1,6 +1,6 @@
 rule chrome_extension_abuser: high {
   meta:
-    hash_2017_CoinThief = "7f32fdcaefee42f93590f9490ab735ac9dfeb22a951ff06d721145baf563d53b"
+    description = "Chrome extension that accesses all URLs"
 
   strings:
     $s_all_urls        = "<all_urls>"
@@ -13,6 +13,9 @@ rule chrome_extension_abuser: high {
 }
 
 rule browser_extension_installer: high {
+  meta:
+    description = "forcibly loads a Chrome extension"
+
   strings:
     $a_loadExtensionFlag = "--load-extension"
     $a_chrome            = "Chrome"

@@ -1,13 +1,9 @@
 rule kiteshield: high {
   meta:
-    author          = "Alex.Turing, Wang Hao"
-    date            = "2024-05-28"
-    description     = "Rule to identify files packed by Kiteshield"
-    hash_amdc6766_1 = "2c80808b38140f857dc8b2b106764dd8"
-    hash_amdc6766_2 = "909c015d5602513a770508fa0b87bc6f"
-    hash_amdc6766_3 = "5ea33d0655cb5797183746c6a46df2e9"
-    hash_gafgyt     = "4afedf6fbf4ba95bbecc865d45479eaf"
-    hash_winnti     = "f5623e4753f4742d388276eaee72dea6"
+    author      = "Alex.Turing, Wang Hao"
+    date        = "2024-05-28"
+    description = "Rule to identify files packed by Kiteshield"
+
     reference       = "https://blog.xlab.qianxin.com/kiteshield_packer_is_being_abused_by_linux_cyber_threat_actors"
     tool            = "Kiteshield"
     tool_repository = "https://github.com/GunshipPenguin/kiteshield"
