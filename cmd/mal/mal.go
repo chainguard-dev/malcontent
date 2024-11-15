@@ -46,8 +46,8 @@ var (
 var (
 	allFlag                   bool
 	concurrencyFlag           int
-	errFirstHitFlag           bool
-	errFirstMissFlag          bool
+	exitFirstHitFlag          bool
+	exitFirstMissFlag         bool
 	fileRiskChangeFlag        bool
 	fileRiskIncreaseFlag      bool
 	formatFlag                string
@@ -240,8 +240,8 @@ func main() {
 
 			mc = malcontent.Config{
 				Concurrency:           concurrencyFlag,
-				ErrFirstHit:           errFirstHitFlag,
-				ErrFirstMiss:          errFirstMissFlag,
+				ExitFirstHit:          exitFirstHitFlag,
+				ExitFirstMiss:         exitFirstMissFlag,
 				IgnoreSelf:            ignoreSelfFlag,
 				IgnoreTags:            ignoreTags,
 				IncludeDataFiles:      includeDataFiles,
@@ -266,16 +266,16 @@ func main() {
 				Destination: &allFlag,
 			},
 			&cli.BoolFlag{
-				Name:        "err-first-miss",
+				Name:        "exit-first-miss",
 				Value:       false,
 				Usage:       "Exit with error if scan source has no matching capabilities",
-				Destination: &errFirstMissFlag,
+				Destination: &exitFirstMissFlag,
 			},
 			&cli.BoolFlag{
-				Name:        "err-first-hit",
+				Name:        "exit-first-hit",
 				Value:       false,
 				Usage:       "Exit with error if scan source has matching capabilities",
-				Destination: &errFirstHitFlag,
+				Destination: &exitFirstHitFlag,
 			},
 			&cli.StringFlag{
 				Name:        "format",
