@@ -12,7 +12,6 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
-	"sync"
 
 	"github.com/agext/levenshtein"
 	"github.com/chainguard-dev/clog"
@@ -111,6 +110,34 @@ func relFileReport(ctx context.Context, c malcontent.Config, fromPath string) (m
 	return fromRelPath, base, nil
 }
 
+// scoreFile returns a boolean to determine how individual files are stored in a diff report.
+func scoreFile(fr, tr *malcontent.FileReport) bool {
+	scoreSrc := false
+	scoreDest := false
+
+	patterns := []string{
+		`^[\w.-]+\.so$`,
+		`^.+-.*-r\d+\.spdx\.json$`,
+	}
+
+	for _, pattern := range patterns {
+		re := regexp.MustCompile(pattern)
+		if re.MatchString(fr.Path) {
+			scoreSrc = true
+		}
+		if re.MatchString(tr.Path) {
+			scoreDest = true
+		}
+	}
+
+	// If both files match patterns, reeturn true to indicate that `inferMoves` should be used
+	// Otherwise, indicate that `handleFile` should be used
+	if scoreSrc && scoreDest {
+		return true
+	}
+	return false
+}
+
 func Diff(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) {
 	if len(c.ScanPaths) != 2 {
 		return nil, fmt.Errorf("diff mode requires 2 paths, you passed in %d path(s)", len(c.ScanPaths))
@@ -190,7 +217,13 @@ func Diff(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) 
 		if srcFile != nil && destFile != nil {
 			formatSrc := displayPath(srcBase, srcFile.Path)
 			formatDest := displayPath(destBase, destFile.Path)
-			handleFile(ctx, c, srcFile, destFile, fmt.Sprintf("%s -> %s", formatSrc, formatDest), d)
+			if scoreFile(srcFile, destFile) {
+				d.Removed.Set(srcFile.Path, srcFile)
+				d.Added.Set(destFile.Path, destFile)
+				inferMoves(ctx, c, d)
+			} else {
+				handleFile(ctx, c, srcFile, destFile, fmt.Sprintf("%s -> %s", formatSrc, formatDest), d)
+			}
 		}
 	}
 
@@ -223,7 +256,13 @@ func handleDir(ctx context.Context, c malcontent.Config, src, dest map[string]*m
 			if !filterDiff(ctx, c, srcFr, destFr) {
 				formatSrc := displayPath(name, srcFr.Path)
 				formatDest := displayPath(name, destFr.Path)
-				handleFile(ctx, c, srcFr, destFr, fmt.Sprintf("%s -> %s", formatSrc, formatDest), d)
+				if scoreFile(srcFr, destFr) {
+					d.Removed.Set(srcFr.Path, srcFr)
+					d.Added.Set(destFr.Path, destFr)
+					inferMoves(ctx, c, d)
+				} else {
+					handleFile(ctx, c, srcFr, destFr, fmt.Sprintf("%s -> %s", formatSrc, formatDest), d)
+				}
 			}
 		} else {
 			formatSrc := displayPath(name, srcFr.Path)
@@ -307,23 +346,11 @@ func behaviorExists(b *malcontent.Behavior, behaviors []*malcontent.Behavior) bo
 	return false
 }
 
-// filterMap filters orderedmap pairs by checking for matches against a slice of compiled regular expression patterns.
-func filterMap(om *orderedmap.OrderedMap[string, *malcontent.FileReport], ps []*regexp.Regexp, c chan<- *orderedmap.Pair[string, *malcontent.FileReport], wg *sync.WaitGroup) {
-	defer wg.Done()
-	for pair := om.Oldest(); pair != nil; pair = pair.Next() {
-		for _, pattern := range ps {
-			if match := pattern.FindString(filepath.Base(pair.Key)); match != "" {
-				c <- pair
-			}
-		}
-	}
-}
-
 // combine iterates over the removed and added channels to create a diff report to store in the combined channel.
-func combine(removed, added <-chan *orderedmap.Pair[string, *malcontent.FileReport]) []malcontent.CombinedReport {
-	combined := make([]malcontent.CombinedReport, 0, len(removed)*len(added))
-	for r := range removed {
-		for a := range added {
+func combineReports(removed, added *orderedmap.OrderedMap[string, *malcontent.FileReport]) []malcontent.CombinedReport {
+	combined := make([]malcontent.CombinedReport, 0, removed.Len()*added.Len())
+	for r := removed.Oldest(); r != nil; r = r.Next() {
+		for a := added.Oldest(); a != nil; a = a.Next() {
 			score := levenshtein.Match(r.Key, a.Key, levenshtein.NewParams())
 			if score < 0.9 {
 				continue
@@ -340,44 +367,8 @@ func combine(removed, added <-chan *orderedmap.Pair[string, *malcontent.FileRepo
 	return combined
 }
 
-// combineReports orchestrates the population of the diffs channel with relevant diffReports.
-func combineReports(d *malcontent.DiffReport) []malcontent.CombinedReport {
-	var wg sync.WaitGroup
-
-	// Patterns we care about when handling diffs
-	patterns := []string{
-		`^[\w.-]+\.so$`,
-		`^.+-.*-r\d+\.spdx\.json$`,
-	}
-
-	ps := make([]*regexp.Regexp, len(patterns))
-	for i, pattern := range patterns {
-		ps[i] = regexp.MustCompile(pattern)
-	}
-
-	// Build two channels with filtered paths to iterate through in the worker pool
-	removed := make(chan *orderedmap.Pair[string, *malcontent.FileReport], d.Removed.Len())
-	added := make(chan *orderedmap.Pair[string, *malcontent.FileReport], d.Added.Len())
-
-	wg.Add(1)
-	go func() {
-		filterMap(d.Removed, ps, removed, &wg)
-		close(removed)
-	}()
-
-	wg.Add(1)
-	go func() {
-		filterMap(d.Added, ps, added, &wg)
-		close(added)
-	}()
-
-	wg.Wait()
-
-	return combine(removed, added)
-}
-
 func inferMoves(ctx context.Context, c malcontent.Config, d *malcontent.DiffReport) {
-	for _, cr := range combineReports(d) {
+	for _, cr := range combineReports(d.Removed, d.Added) {
 		fileMove(ctx, c, cr.RemovedFR, cr.AddedFR, cr.Removed, cr.Added, d, cr.Score)
 	}
 }
