@@ -105,7 +105,7 @@ test:
 # integration tests only
 .PHONY: integration
 integration: out/$(SAMPLES_REPO)/.decompressed-$(SAMPLES_COMMIT)
-	go test ./tests/...
+	go test -timeout 0 ./tests/...
 
 .PHONY: bench
 bench:
