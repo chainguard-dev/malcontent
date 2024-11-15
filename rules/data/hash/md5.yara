@@ -12,10 +12,7 @@ rule MD5 {
 
 rule md5_verify: medium {
   meta:
-    description                    = "Verifies MD5 signatures"
-    hash_2024_Downloads_4b97       = "4b973335755bd8d48f34081b6d1bea9ed18ac1f68879d4b0a9211bbab8fa5ff4"
-    hash_2021_CDDS_UserAgent_v2019 = "9b71fad3280cf36501fe110e022845b29c1fb1343d5250769eada7c36bc45f70"
-    hash_2021_CDDS_UserAgent_v2021 = "d599d7814adbab0f1442f5a10074e00f3a776ce183ea924abcd6154f0d068bb4"
+    description = "Verifies MD5 signatures"
 
   strings:
     $ref  = "md5 expect"

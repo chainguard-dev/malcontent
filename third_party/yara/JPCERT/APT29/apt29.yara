@@ -4,8 +4,8 @@ rule APT29_wellmess_pe {
         author = "JPCERT/CC Incident Response Group"
         rule_usage = "memory scan"
         reference = "internal research"
-        hash1 = "0322c4c2d511f73ab55bf3f43b1b0f152188d7146cc67ff497ad275d9dd1c20f"
-        hash2 = "8749c1495af4fd73ccfc84b32f56f5e78549d81feefb0c1d1c3475a74345f6a8 "
+
+
 
       strings:
         $botlib1 = "botlib.wellMess" ascii

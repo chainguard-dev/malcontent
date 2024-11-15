@@ -1,8 +1,7 @@
 rule npm_dropper: critical {
   meta:
-    description                                          = "NPM binary dropper"
-    ref                                                  = "https://www.reversinglabs.com/blog/a-lurking-npm-package-makes-the-case-for-open-source-health-checks"
-    hash_2024_2024_legacyreact_aws_s3_typescript_package = "a7f45d75612e95b091e35550c0bde2ba50a2a867d68eb43296b2fc4622198f74"
+    description = "NPM binary dropper"
+    ref         = "https://www.reversinglabs.com/blog/a-lurking-npm-package-makes-the-case-for-open-source-health-checks"
 
   strings:
     $npm_format      = /"format":/

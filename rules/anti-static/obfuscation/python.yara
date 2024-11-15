@@ -13,10 +13,7 @@ rule Vare_Obfuscator: critical {
 
 rule py_indirect_builtins: suspicious {
   meta:
-    description                   = "Indirectly refers to Python builtins"
-    hash_2023_yfinancce_0_1_setup = "3bde1e9207dd331806bf58926d842e2d0f6a82424abd38a8b708e9f4e3e12049"
-    hash_2023_yvper_0_1_setup     = "b765244c1f8a11ee73d1e74927b8ad61718a65949e0b8d8cbc04e5d84dccaf96"
-    hash_2023_aiohttpp_0_1_setup  = "cfa4137756f7e8243e7c7edc7cb0b431a2f4c9fa401f2570f1b960dbc86ca7c6"
+    description = "Indirectly refers to Python builtins"
 
   strings:
     $val = /getattr\(__builtins__,[ \w\.\)\)]{0,64}/
@@ -40,9 +37,7 @@ rule join_map_chr: high {
 
 rule codecs_decode: high {
   meta:
-    description               = "decodes text with an arbitrary codec"
-    hash_2023_JokerSpy_shared = "5fe1790667ee5085e73b054566d548eb4473c20cf962368dd53ba776e9642272"
-    hash_2023_JokerSpy_shared = "39bbc16028fd46bf4ddad49c21439504d3f6f42cccbd30945a2d2fdb4ce393a4"
+    description = "decodes text with an arbitrary codec"
 
   strings:
     $val = /[\w\= ]{0,16}codecs\.decode\(\'.{0,32}\'/
@@ -68,10 +63,7 @@ rule python_exec_eval_one_line: critical {
 
 rule python_exec_near_enough_decrypt: high {
   meta:
-    description                         = "Evaluates code from encrypted content"
-    hash_2024_3web_1_0_0_setup          = "7a4e6a21ac07f3d42091e3ff3345747ff68d06657d8fbd7fc783f89da99db20c"
-    hash_2024_3web_py_1_0_0_setup       = "fd74f0eecebb47178ef98ac9a744daaf982a16287c78fd9cb2fe9713f542f8c5"
-    hash_2024_BeaitifulSoop_1_0_0_setup = "7b2a27e5d0559625fe7f6a4e0776130880130e414c851901bbfe0cdb892dadfe"
+    description = "Evaluates code from encrypted content"
 
   strings:
     $exec    = "exec(" fullword
@@ -83,10 +75,7 @@ rule python_exec_near_enough_decrypt: high {
 
 rule python_exec_near_enough_fernet: critical {
   meta:
-    description                         = "Evaluates code from encrypted content"
-    hash_2024_3web_1_0_0_setup          = "7a4e6a21ac07f3d42091e3ff3345747ff68d06657d8fbd7fc783f89da99db20c"
-    hash_2024_3web_py_1_0_0_setup       = "fd74f0eecebb47178ef98ac9a744daaf982a16287c78fd9cb2fe9713f542f8c5"
-    hash_2024_BeaitifulSoop_1_0_0_setup = "7b2a27e5d0559625fe7f6a4e0776130880130e414c851901bbfe0cdb892dadfe"
+    description = "Evaluates code from encrypted content"
 
   strings:
     $exec   = "exec(" fullword
@@ -285,10 +274,7 @@ rule dumb_int_compares: high {
 
 rule py_lib_alias_val: medium {
   meta:
-    description               = "aliases core python library to an alternate name"
-    hash_2022_requests_init   = "4b62b48e754fe824ab4f9d5272d172881d177c8f07f4db7b12acc44400f8e208"
-    hash_2022_requests_compat = "cb19ed54e4841c632b9fb14daffdf61046a6d5934074f45d484d77ff2687cd39"
-    hash_2022_tests_compat    = "d58ff5e3167de0140a667cc51427f809c552e485875c95b9dad43ce13ba15083"
+    description = "aliases core python library to an alternate name"
 
   strings:
     $val = /from \w{2,16} import \w{2,16} as \w{1,32}/ fullword
@@ -325,10 +311,7 @@ rule multi_decode: medium {
 
 rule rename_requests: medium {
   meta:
-    description                              = "imports 'requests' library and gives it another name"
-    hash_2021_DiscordSafety_init             = "05c23917c682326179708a1d185ea88632d61522513f08d443bfd5c065612903"
-    hash_2021_DiscordSafety_0_1_setup        = "7dfa21dda6b275952ee8410a19b0f38e1071588be5894cf052329ca106eae6e1"
-    hash_2023_barcodegeneratorqr_1_0_3_setup = "ce066194bbf5c80c2ebe98ad20db41cf35d2fc4faf370a60ff2b129a836443a9"
+    description = "imports 'requests' library and gives it another name"
 
   strings:
     $ref = /import requests as \w{0,64}/
@@ -339,10 +322,7 @@ rule rename_requests: medium {
 
 rule rename_requests_2char: high {
   meta:
-    description                              = "imports 'requests' library and gives it a two-letter name"
-    hash_2021_DiscordSafety_init             = "05c23917c682326179708a1d185ea88632d61522513f08d443bfd5c065612903"
-    hash_2021_DiscordSafety_0_1_setup        = "7dfa21dda6b275952ee8410a19b0f38e1071588be5894cf052329ca106eae6e1"
-    hash_2023_barcodegeneratorqr_1_0_3_setup = "ce066194bbf5c80c2ebe98ad20db41cf35d2fc4faf370a60ff2b129a836443a9"
+    description = "imports 'requests' library and gives it a two-letter name"
 
   strings:
     $ref = /import requests as \w{2}/
@@ -366,9 +346,7 @@ rule rename_os: high {
 
 rule rename_marshal: critical {
   meta:
-    description                       = "imports 'marshal' library and gives it another name"
-    hash_2021_DiscordSafety_init      = "05c23917c682326179708a1d185ea88632d61522513f08d443bfd5c065612903"
-    hash_2021_DiscordSafety_0_1_setup = "7dfa21dda6b275952ee8410a19b0f38e1071588be5894cf052329ca106eae6e1"
+    description = "imports 'marshal' library and gives it another name"
 
   strings:
     $ref = /import marshal as \w{0,64}/
@@ -379,10 +357,7 @@ rule rename_marshal: critical {
 
 rule rename_base64: critical {
   meta:
-    description                          = "imports 'base64' library and gives it another name"
-    hash_2022_very_hackerman_0_0_1_setup = "66a4a39a3c79a24bdf150cb87106920442a3db20a59810eb3e06149b028c7bff"
-    hash_2022_example_package_init       = "5c0db191458fe648d6799d1461d20e79e65986ba6db522db3737ebbf99c577cb"
-    hash_2022_xoloaghvurilnh_init        = "87a23edfa8fbcc13d1a25b9ac808dbc36c417fda508f98186455a7991a52b6c0"
+    description = "imports 'base64' library and gives it another name"
 
   strings:
     $ref = /import base64 as \w{0,64}/
@@ -393,10 +368,7 @@ rule rename_base64: critical {
 
 rule rename_zlib: high {
   meta:
-    description                          = "imports 'base64' library and gives it another name"
-    hash_2022_very_hackerman_0_0_1_setup = "66a4a39a3c79a24bdf150cb87106920442a3db20a59810eb3e06149b028c7bff"
-    hash_2022_example_package_init       = "5c0db191458fe648d6799d1461d20e79e65986ba6db522db3737ebbf99c577cb"
-    hash_2022_xoloaghvurilnh_init        = "87a23edfa8fbcc13d1a25b9ac808dbc36c417fda508f98186455a7991a52b6c0"
+    description = "imports 'base64' library and gives it another name"
 
   strings:
     $ref = /import zlib as \w{0,64}/

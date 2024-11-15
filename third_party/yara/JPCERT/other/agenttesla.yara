@@ -20,7 +20,7 @@ rule malware_Agenttesla_type2 {
             author = "JPCERT/CC Incident Response Group"
             rule_usage = "memory scan"
             reference = "internal research"
-            hash1 = "670a00c65eb6f7c48c1e961068a1cb7fd3653bd29377161cd04bf15c9d010da2 "
+
 
           strings:
             $type2db1 = "1.85 (Hash, version 2, native byte-order)" wide

@@ -89,8 +89,7 @@ rule curl_agent_val: high {
 
 rule urllib_oneliner: high {
   meta:
-    hash_2023_Qubitstrike_branch_raw_mi = "9a5f6318a395600637bd98e83d2aea787353207ed7792ec9911b775b79443dcd"
-    hash_2023_Qubitstrike_mi            = "9a5f6318a395600637bd98e83d2aea787353207ed7792ec9911b775b79443dcd"
+    description = "one-line Python script to download files"
 
   strings:
     $urllib_req = "import urllib.request; urllib.request.urlretrieve"
@@ -101,10 +100,7 @@ rule urllib_oneliner: high {
 
 rule curl_insecure_val: medium {
   meta:
-    description                = "Invokes curl in insecure mode"
-    hash_2024_Downloads_a031   = "a031da66c6f6cd07343d5bc99cc283528a5b7f04f97b2c33c2226a388411ec61"
-    hash_2018_MacOS_CoinTicker = "c344730f41f52a2edabf95730389216a9327d6acc98346e5738b3eb99631634d"
-    hash_2020_Licatrade_run    = "ad27ae075010795c04a6c5f1303531f3f2884962be4d741bf38ced0180710d06"
+    description = "Invokes curl in insecure mode"
 
   strings:
     $ref             = /curl[\w\- ]{0,5}-k[ \-\w:\/]{0,64}/
@@ -117,10 +113,7 @@ rule curl_insecure_val: medium {
 
 rule high_fetch_command_val: high {
   meta:
-    description          = "high-risk fetch command"
-    hash_2023_Chaos_1d36 = "1d36f4bebd21a01c12fde522defee4c6b4d3d574c825ecc20a2b7a8baa122819"
-    hash_2023_Chaos_1fc4 = "1fc412b47b736f8405992e3744690b58ec4d611c550a1b4f92f08dfdad5f7a30"
-    hash_2023_Chaos_27cd = "27cdb8d8f64ce395795fdbde10cf3a08e7b217c92b7af89cde22abbf951b9e99"
+    description = "high-risk fetch command"
 
   strings:
     $c_curl_d                     = /curl [\- \w]{0,16}-[dOok][\/\- \w\%\(\{\}\'\"\)\$\:\.]{0,128}/

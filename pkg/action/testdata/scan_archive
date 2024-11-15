@@ -645,7 +645,7 @@
                     "RuleName": "whoami"
                 },
                 {
-                    "Description": "selinux",
+                    "Description": "alters the SELinux enforcement level",
                     "MatchStrings": [
                         "setenforce"
                     ],

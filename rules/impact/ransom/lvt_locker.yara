@@ -1,8 +1,6 @@
 rule lvt_locker: critical {
   meta:
-    description                                                                               = "Ransomware phrases used by LVT Locker"
-    hash_2023_Multios_Ransomware_DarkSide_da3b                                                = "da3bb9669fb983ad8d2ffc01aab9d56198bd9cedf2cc4387f19f4604a070a9b5"
-    hash_2023_UPX_0a07c056fec72668d3f05863f103987cc1aaec92e72148bf16db6cfd58308617_elf_x86_64 = "94f4de1bd8c85b8f820bab936ec16cdb7f7bc19fa60d46ea8106cada4acc79a2"
+    description = "Ransomware phrases used by LVT Locker"
 
   strings:
     $a  = "By LVT LOCKER"

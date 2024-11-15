@@ -1,8 +1,6 @@
 rule network_state_strings: medium {
   meta:
-    hash_2023_Downloads_2f13             = "2f1321c6cf0bc3cf955e86692bfc4ba836f5580c8b1469ce35aa250c97f0076e"
-    hash_2024_Downloads_e241             = "e241a3808e1f8c4811759e1761e2fb31ce46ad1e412d65bb1ad9e697432bd4bd"
-    hash_2023_Linux_Malware_Samples_1020 = "1020ce1f18a2721b873152fd9f76503dcba5af7b0dd26d80fdb11efaf4878b1a"
+    description = "tracks network connection state"
 
   strings:
     $s_ip_frag        = "IP_FRAG"
