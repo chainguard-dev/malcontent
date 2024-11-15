@@ -44,7 +44,6 @@ func (r JSON) Full(_ context.Context, rep *malcontent.Report) error {
 					r.ArchiveRoot = ""
 					r.FullPath = ""
 					jr.Files[path] = r
-
 				}
 			}
 		}
