@@ -82,6 +82,7 @@ func (r Markdown) Full(ctx context.Context, rep *malcontent.Report) error {
 		}
 		added := 0
 		removed := 0
+		noDiff := 0
 		for _, b := range modified.Value.Behaviors {
 			if b.DiffAdded {
 				added++
@@ -89,24 +90,57 @@ func (r Markdown) Full(ctx context.Context, rep *malcontent.Report) error {
 			if b.DiffRemoved {
 				removed++
 			}
+			if !b.DiffAdded && !b.DiffRemoved {
+				noDiff++
+			}
 		}
 
 		// We split the added/removed up in Markdown to address readability feedback. Unfortunately,
 		// this means we hide "existing" behaviors, which causes context to suffer. We should evaluate an
 		// improved rendering, similar to the "terminal" refresh, that includes everything.
+		var count int
+		var qual string
 		if added > 0 {
+			count = added
+			noun := "behavior"
+			qual = "new"
+			if count > 1 {
+				noun = "behaviors"
+			}
 			markdownTable(ctx, modified.Value, r.w, tableConfig{
-				Title:        fmt.Sprintf("### %d new behaviors", added),
+				Title:        fmt.Sprintf("### %d %s %s", count, qual, noun),
 				SkipRemoved:  true,
 				SkipExisting: true,
+				SkipNoDiff:   true,
 			})
 		}
 
 		if removed > 0 {
+			count = removed
+			noun := "behavior"
+			qual = "removed"
+			if count > 1 {
+				noun = "behaviors"
+			}
 			markdownTable(ctx, modified.Value, r.w, tableConfig{
-				Title:        fmt.Sprintf("### %d removed behaviors", removed),
+				Title:        fmt.Sprintf("### %d %s %s", count, qual, noun),
 				SkipAdded:    true,
 				SkipExisting: true,
+				SkipNoDiff:   true,
+			})
+		}
+
+		if noDiff > 0 {
+			count = noDiff
+			noun := "behavior"
+			qual = "consistent"
+			if count > 1 {
+				noun = "behaviors"
+			}
+			markdownTable(ctx, modified.Value, r.w, tableConfig{
+				Title:       fmt.Sprintf("### %d %s %s", count, qual, noun),
+				SkipAdded:   true,
+				SkipRemoved: true,
 			})
 		}
 	}
@@ -121,7 +155,6 @@ func markdownTable(_ context.Context, fr *malcontent.FileReport, w io.Writer, rc
 	}
 
 	if fr.Skipped != "" {
-		// fmt.Printf("%s - skipped: %s\n", path, fr.Skipped)
 		return
 	}
 
@@ -194,6 +227,11 @@ func markdownTable(_ context.Context, fr *malcontent.FileReport, w io.Writer, rc
 				continue
 			}
 			risk = fmt.Sprintf("-%s", risk)
+		}
+		if (!k.Behavior.DiffRemoved && !k.Behavior.DiffAdded) || rc.NoDiff {
+			if rc.SkipNoDiff {
+				continue
+			}
 		}
 
 		key := fmt.Sprintf("[%s](%s)", k.Key, k.Behavior.RuleURL)

@@ -306,7 +306,7 @@ func TestDiffFileChange(t *testing.T) {
 				MinRisk:        tc.minResultScore,
 				Renderer:       simple,
 				RuleFS:         []fs.FS{rules.FS, thirdparty.FS},
-				ScanPaths:      []string{strings.TrimPrefix(tc.src, "../out/samples/"), strings.TrimPrefix(tc.dest, "../out/samples/")},
+				ScanPaths:      []string{strings.TrimPrefix(tc.src, "../out/chainguard-dev/malcontent-samples/"), strings.TrimPrefix(tc.dest, "../out/chainguard-dev/malcontent-samples/")},
 			}
 
 			logger := clog.New(slog.Default().Handler()).With("src", tc.src)
@@ -373,7 +373,7 @@ func TestDiffFileIncrease(t *testing.T) {
 				MinRisk:          tc.minResultScore,
 				Renderer:         simple,
 				RuleFS:           []fs.FS{rules.FS, thirdparty.FS},
-				ScanPaths:        []string{strings.TrimPrefix(tc.src, "../out/samples/"), strings.TrimPrefix(tc.dest, "../out/samples/")},
+				ScanPaths:        []string{strings.TrimPrefix(tc.src, "../out/chainguard-dev/malcontent-samples/"), strings.TrimPrefix(tc.dest, "../out/chainguard-dev/malcontent-samples/")},
 			}
 
 			logger := clog.New(slog.Default().Handler()).With("src", tc.src)
