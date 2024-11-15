@@ -21,8 +21,8 @@ type Renderer interface {
 
 type Config struct {
 	Concurrency           int
-	ErrFirstHit           bool
-	ErrFirstMiss          bool
+	ExitFirstHit          bool
+	ExitFirstMiss         bool
 	FileRiskChange        bool
 	FileRiskIncrease      bool
 	IgnoreSelf            bool
