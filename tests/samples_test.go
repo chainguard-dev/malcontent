@@ -50,7 +50,6 @@ func init() {
 }
 
 func TestJSON(t *testing.T) {
-	t.Parallel()
 	ctx := slogtest.Context(t)
 	clog.FromContext(ctx).With("test", "TestJSON")
 
@@ -78,6 +77,7 @@ func TestJSON(t *testing.T) {
 		}
 
 		t.Run(name, func(t *testing.T) {
+			t.Parallel()
 			td, err := fs.ReadFile(fileSystem, jsonPath)
 			if err != nil {
 				t.Fatalf("testdata read failed: %v", err)
@@ -121,7 +121,6 @@ func TestJSON(t *testing.T) {
 }
 
 func TestSimple(t *testing.T) {
-	t.Parallel()
 	ctx := slogtest.Context(t)
 	clog.FromContext(ctx).With("test", "simple")
 
@@ -140,6 +139,7 @@ func TestSimple(t *testing.T) {
 		testPath := path
 
 		t.Run(name, func(t *testing.T) {
+			t.Parallel()
 			binPath := name
 			binDir := filepath.Dir(binPath)
 			if _, err := os.Stat(binPath); err != nil {
@@ -427,7 +427,6 @@ func testInputs(path string) string {
 }
 
 func TestMarkdown(t *testing.T) {
-	t.Parallel()
 	ctx := slogtest.Context(t)
 	clog.FromContext(ctx).With("test", "TestMarkDown")
 
@@ -444,6 +443,7 @@ func TestMarkdown(t *testing.T) {
 
 		name := strings.ReplaceAll(path, ".md", "")
 		t.Run(name, func(t *testing.T) {
+			t.Parallel()
 			binPath := name
 			binDir := filepath.Dir(binPath)
 			if _, err := os.Stat(binPath); err != nil {
