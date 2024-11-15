@@ -18,6 +18,7 @@ data/compression/lzma: low
 data/compression/xz: medium
 data/compression/zstd: low
 data/embedded/html: medium
+data/embedded/zstd: medium
 data/encoding/base64: low
 data/encoding/json: low
 data/encoding/json_decode: low
@@ -36,16 +37,17 @@ evasion/file/location/dev_mqueue: medium
 evasion/file/location/dev_shm: medium
 evasion/file/location/var_run: medium
 evasion/file/prefix: medium
+evasion/file/prefix/dev: low
 exec/cmd: medium
 exec/dylib/symbol_address: medium
 exec/plugin: low
 exec/program: medium
 exec/reconfigure/hostname_set: low
 exec/shell/SHELL: low
+exec/shell/TERM: low
 exec/shell/background_sleep: medium
 exec/shell/exec: medium
 exec/system_controls/apparmor: medium
-false-positives/buildah: low
 fs/directory/create: low
 fs/directory/list: low
 fs/directory/remove: low
