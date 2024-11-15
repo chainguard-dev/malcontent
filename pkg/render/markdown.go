@@ -232,7 +232,6 @@ func markdownTable(_ context.Context, fr *malcontent.FileReport, w io.Writer, rc
 			if rc.SkipNoDiff {
 				continue
 			}
-			risk = fmt.Sprintf("%s", risk)
 		}
 
 		key := fmt.Sprintf("[%s](%s)", k.Key, k.Behavior.RuleURL)
