@@ -1,5 +1,7 @@
 rule macos_kitchen_sink_binary: medium {
   meta:
+    description = "likely remote control service"
+
   strings:
     $f_sysctl        = "sysctl"
     $f_mkdtemp       = "mkdtemp"
@@ -47,6 +49,7 @@ rule progname_socket_waitpid: high {
 
 rule POST_command_executer: high {
   meta:
+    description = "executes commands, uploads content"
 
   strings:
     $post             = "POST"
@@ -58,6 +61,8 @@ rule POST_command_executer: high {
 
 rule exec_getprog_socket_waitpid_combo: high {
   meta:
+    description = "executes commands, accesses internet sites"
+
   strings:
     $execle          = "_execl"
     $execve          = "_execve"
@@ -76,6 +81,8 @@ rule exec_getprog_socket_waitpid_combo: high {
 
 rule exec_chdir_and_socket: medium {
   meta:
+    description = "executes commands, changes directories, accesses remote hosts"
+
   strings:
     $socket      = "socket" fullword
     $chdir       = "chdir" fullword

@@ -1,5 +1,6 @@
 rule macos_window_watcher: high {
   meta:
+    description = "watches what graphical applications are in use"
 
   strings:
     $w_cglocked    = "CGSSessionScreenIsLocked"

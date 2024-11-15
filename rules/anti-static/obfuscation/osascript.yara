@@ -1,6 +1,7 @@
 rule compiled_osascript: medium {
   meta:
-	description = "compiled osascript"
+    description = "compiled osascript"
+
   strings:
     $s_sysoexec        = "sysoexecTEXT"
     $s_aevtoapp        = "aevtoappnull"

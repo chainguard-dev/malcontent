@@ -1,5 +1,6 @@
 rule hugepages_probably_miner: high {
   meta:
+    description = "modifies memory configuration, likely miner"
 
   strings:
     $hugepages  = "vm.nr_hugepages"

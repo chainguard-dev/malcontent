@@ -181,6 +181,7 @@ rule php_post_system: medium {
 
 rule php_error_reporting_disable: high {
   meta:
+    description = "sets configuration, turns off error reporting"
 
   strings:
     $error_reporting = "error_reporting(0)"
@@ -192,6 +193,8 @@ rule php_error_reporting_disable: high {
 
 rule php_system_manipulation: high {
   meta:
+    description = "multiple forms of system manipulation"
+
   strings:
     $php            = "<?php"
     $chdir          = "chdir("
@@ -210,6 +213,7 @@ rule php_system_manipulation: high {
 
 rule php_system_hex: critical {
   meta:
+    description = "runs hex-obfuscated command-lines"
 
   strings:
     $system_hex = "system(\"\\x"
@@ -251,6 +255,8 @@ rule php_eval_get_contents: high {
 
 rule php_is_jpeg: critical {
   meta:
+    description = "PHP script embedded within JPEG file"
+
   strings:
     $jfif        = "JFIF"
     $icc_profile = "ICC_PROFILE"
@@ -262,6 +268,8 @@ rule php_is_jpeg: critical {
 
 rule php_copy_files: high {
   meta:
+    description = "copies files uploaded to it"
+
   strings:
     $copy_files = "@copy($_FILES"
 
@@ -271,15 +279,17 @@ rule php_copy_files: high {
 
 rule php_base64_encoded: critical {
   meta:
+    description = "accepts POST/COOKIE input and uses base64"
+
   strings:
     $php           = "<?php " base64
     $_POST         = "$_POST" base64
     $_COOKIE       = "$_COOKIE" base64
     $base64_decode = "base64_decode" base64
-    $base64_encode = "base64_decode" base64
+    $base64_encode = "base64_encode" base64
 
   condition:
-    filesize < 64KB and any of them
+    filesize < 64KB and $php and any of ($_*) and any of ($base*)
 }
 
 rule php_str_replace_obfuscation: critical {

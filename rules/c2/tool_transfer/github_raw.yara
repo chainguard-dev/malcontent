@@ -13,6 +13,7 @@ rule github_raw_usercontent: medium {
 rule github_raw_user: medium {
   meta:
     description = "downloads raw content from GitHub"
+
   strings:
     $github     = "github.com"
     $raw_master = "raw/master"

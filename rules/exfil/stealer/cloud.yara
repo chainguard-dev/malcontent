@@ -1,6 +1,7 @@
 rule multiple_cloud_credentials: high {
   meta:
-	description = "accesses local credentials for multiple Cloud providers"
+    description = "accesses local credentials for multiple Cloud providers"
+
   strings:
     $s_access_tokens_db  = "access_tokens.db"
     $s_config_gcloud     = ".config/gcloud"

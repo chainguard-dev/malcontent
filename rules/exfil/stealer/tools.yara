@@ -1,6 +1,7 @@
 rule executable_calls_archive_tool: medium {
   meta:
-	description = "calls tool to create archive files"
+    description = "calls tool to create archive files"
+
   strings:
     $a_tar_c    = "tar -c"
     $a_tar_xf   = "tar xf"

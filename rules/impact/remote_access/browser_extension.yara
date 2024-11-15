@@ -1,5 +1,7 @@
 rule chrome_extension_abuser: high {
   meta:
+    description = "Chrome extension that accesses all URLs"
+
   strings:
     $s_all_urls        = "<all_urls>"
     $s_from_webstore   = "from_webstore"
@@ -11,6 +13,9 @@ rule chrome_extension_abuser: high {
 }
 
 rule browser_extension_installer: high {
+  meta:
+    description = "forcibly loads a Chrome extension"
+
   strings:
     $a_loadExtensionFlag = "--load-extension"
     $a_chrome            = "Chrome"

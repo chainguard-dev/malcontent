@@ -1,6 +1,7 @@
 rule multiple_browser_credentials: high {
   meta:
-	description = "accesses credentials from multiple browsers"
+    description = "accesses credentials from multiple browsers"
+
   strings:
     $c_library_keychains     = "/Library/Keychains"
     $c_cookies_sqlite        = "cookies.sqlite"

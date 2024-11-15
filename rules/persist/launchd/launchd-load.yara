@@ -1,5 +1,6 @@
 rule generic_launchctl_loader: high {
   meta:
+    description = "loads a launchd service"
 
   strings:
     $load        = /launchctl load [\- \~\w\.\/]{1,128}\.plist/

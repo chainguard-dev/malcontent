@@ -1,5 +1,7 @@
 rule danger_crypto_miner: high {
   meta:
+    description = "crypto miner, like xmrig"
+
   strings:
     $c3pool          = "c3pool"
     $crypto_pool     = "crypto-pool"

@@ -1,6 +1,7 @@
 rule XProtectMention: medium {
   meta:
-	description = "mentions 'XProtect'"
+    description = "mentions 'XProtect'"
+
   strings:
     $xprotect    = "XProtect"
     $not_apple   = "com.apple.private"

@@ -1,6 +1,7 @@
 rule netcat_exec_backdoor: high {
   meta:
-    ref = "https://cert.gov.ua/article/6123309"
+    ref         = "https://cert.gov.ua/article/6123309"
+    description = "netcat backdoor"
 
   strings:
     $nc_e = "nc -e "
@@ -26,6 +27,7 @@ rule generic_perl_socket_exec {
 
 rule ipinfo_and_bash: high {
   meta:
+    description = "runs bash, gets external IP"
 
   strings:
     $ipinfo = "ipinfo.io"

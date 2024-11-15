@@ -1,6 +1,7 @@
 rule xattr_user: medium {
   meta:
-	description = "modifies extended filesystem attributes using xattr"
+    description = "modifies extended filesystem attributes using xattr"
+
   strings:
     $xattr_c                  = "xattr -c"
     $xattr_d                  = "xattr -d"

@@ -1,5 +1,7 @@
 rule kill_and_remove: medium {
   meta:
+    description = "kills and removes programs via the command-line"
+
   strings:
     $rm_f           = "rm -f"
     $rm_Rf          = "rm -Rf"

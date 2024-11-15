@@ -1,6 +1,7 @@
 rule pcap_user: medium {
   meta:
-	description = "uses libpcap, a packet capture library"
+    description = "uses libpcap, a packet capture library"
+
   strings:
     $p_pcap_       = "pcap_"
     $p_PCAP_       = "PCAP_"

@@ -1,6 +1,7 @@
 rule usbmon_webproxy_zipper: high {
   meta:
-	description = "uses usbmon, web proxies, and zip files"
+    description = "uses usbmon, web proxies, and zip files"
+
   strings:
     $usbmon    = "usbmon" fullword
     $webproxy  = "WebProxy"

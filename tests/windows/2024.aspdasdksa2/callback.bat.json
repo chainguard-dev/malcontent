@@ -45,7 +45,7 @@
                     "RuleName": "http_url_with_exe"
                 },
                 {
-                    "Description": "github raw user",
+                    "Description": "downloads raw content from GitHub",
                     "MatchStrings": [
                         "github.com",
                         "raw/main"
@@ -57,7 +57,7 @@
                     "RuleName": "github_raw_user"
                 },
                 {
-                    "Description": "powershell",
+                    "Description": "runs powershell scripts",
                     "MatchStrings": [
                         "powershell -Command"
                     ],

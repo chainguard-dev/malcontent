@@ -28,6 +28,7 @@ rule fake_user_agent_khtml_val: high {
 
 rule fake_user_agent_chrome: medium {
   meta:
+    description = "pretends to be Chrome"
 
   strings:
     $u_chrome       = "(KHTML, like Gecko) Chrome"
@@ -52,6 +53,8 @@ rule fake_user_agent_wordpress: high {
 
 rule fake_user_agent_firefox: medium {
   meta:
+    description = "pretends to be Firefox"
+
   strings:
     $u_gecko        = "Gecko/20"
     $not_nuclei     = "NUCLEI_TEMPLATES"

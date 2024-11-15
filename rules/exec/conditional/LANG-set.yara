@@ -1,6 +1,7 @@
 rule exotic_export_lang: medium {
   meta:
-	description = "overrides the user-set language"
+    description = "overrides the user-set language"
+
   strings:
     $export_lang = "export LANG="
     $hash_bang   = "#!"

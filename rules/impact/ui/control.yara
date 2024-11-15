@@ -1,5 +1,6 @@
 rule tell_app_system_events: medium {
   meta:
+    description = "controls screen via osascript"
 
   strings:
     $system_events           = "tell application \"System Events\""

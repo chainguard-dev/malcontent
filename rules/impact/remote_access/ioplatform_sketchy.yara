@@ -1,5 +1,6 @@
 rule ioplatform_expert_with_sketchy_calls: high {
   meta:
+    description = "gets detailed device information, looks sketchy"
 
   strings:
     $ioplatform       = "IOPlatformExpertDevice" fullword

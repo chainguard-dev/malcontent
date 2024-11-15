@@ -1,5 +1,6 @@
 rule network_state_strings: medium {
   meta:
+    description = "tracks network connection state"
 
   strings:
     $s_ip_frag        = "IP_FRAG"

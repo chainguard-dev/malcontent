@@ -47,6 +47,8 @@ rule mkfifo_netcat: critical {
 
 rule perl_reverse_shell: critical {
   meta:
+    description = "reverse shell in Perl"
+
   strings:
     $socket       = "socket("
     $open         = "open("

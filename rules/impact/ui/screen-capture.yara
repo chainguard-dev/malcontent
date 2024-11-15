@@ -1,5 +1,6 @@
 rule macos_screencapture_caller: high {
   meta:
+    description = "captures screenshots via the 'screencapture' command"
 
   strings:
     $screencap           = "screencapture"

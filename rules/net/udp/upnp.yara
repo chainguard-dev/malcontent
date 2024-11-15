@@ -1,5 +1,7 @@
 rule upnp_client: medium {
   meta:
+    description = "UPnP network client"
+
   strings:
     $upnp_firewall   = "WANIPv6FirewallControl"
     $upnp_schema     = "schemas-upnp-org"

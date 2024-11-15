@@ -1,6 +1,7 @@
 rule osascript_caller: medium {
   meta:
-	description = "runs osascript"
+    description = "runs osascript"
+
   strings:
     $o_osascript          = "osascript" fullword
     $o_osascript_e        = "osascript -e"
