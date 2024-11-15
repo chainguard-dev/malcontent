@@ -116,27 +116,29 @@ func Diff(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) 
 		return nil, fmt.Errorf("diff mode requires 2 paths, you passed in %d path(s)", len(c.ScanPaths))
 	}
 
+	srcPath := c.ScanPaths[0]
+	destPath := c.ScanPaths[1]
+
 	var g errgroup.Group
 	var src, dest map[string]*malcontent.FileReport
 	var srcBase, destBase string
 	srcCh := make(chan map[string]*malcontent.FileReport, 1)
 	destCh := make(chan map[string]*malcontent.FileReport, 1)
+	srcIsArchive := isSupportedArchive(srcPath)
+	destIsArchive := isSupportedArchive(destPath)
 
-	srcInfo, err := os.Stat(c.ScanPaths[0])
+	srcInfo, err := os.Stat(srcPath)
 	if err != nil {
 		return nil, err
 	}
 
-	srcIsArchive := isSupportedArchive(c.ScanPaths[0])
-	destIsArchive := isSupportedArchive(c.ScanPaths[1])
-
-	destInfo, err := os.Stat(c.ScanPaths[1])
+	destInfo, err := os.Stat(destPath)
 	if err != nil {
 		return nil, err
 	}
 
 	g.Go(func() error {
-		src, srcBase, err = relFileReport(ctx, c, c.ScanPaths[0])
+		src, srcBase, err = relFileReport(ctx, c, srcPath)
 		if err != nil {
 			return err
 		}
@@ -145,7 +147,7 @@ func Diff(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) 
 	})
 
 	g.Go(func() error {
-		dest, destBase, err = relFileReport(ctx, c, c.ScanPaths[1])
+		dest, destBase, err = relFileReport(ctx, c, destPath)
 		if err != nil {
 			return err
 		}
