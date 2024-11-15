@@ -1,4 +1,3 @@
-
 rule office_crypt_archive: high {
   meta:
     description = "Accesses Ofice documents, encrypts and archives"
@@ -52,7 +51,6 @@ rule office_crypt_archive: high {
     filesize < 104857600 and ($e_xlsx or $e_docx) and 7 of ($e_*) and any of ($o_*) and none of ($not*)
 }
 
-
 rule sensitive_extensions: high {
   meta:
     description = "looks for files matching sensitive extensions"
@@ -89,3 +87,20 @@ rule sensitive_extensions: high {
     any of ($f*) and 85 % of ($e*) and none of ($not*)
 
 }
+
+rule curl_easy_exfil: high {
+  meta:
+    description = "possible filesystem exfiltration via curl_easy_init"
+
+  strings:
+    $curl    = "curl_easy_init" fullword
+    $opendir = "opendir" fullword
+    $readdir = "readdir" fullword
+    $socket  = "socket" fullword
+    $open    = "open" fullword
+    $read    = "read" fullword
+
+  condition:
+    filesize < 1MB and all of them
+}
+

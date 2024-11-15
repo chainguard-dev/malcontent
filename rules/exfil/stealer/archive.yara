@@ -16,17 +16,15 @@ rule open_and_archive: medium macos {
     ($open or $defaults) and ($tar or $zip) and none of ($not*) and not $hashbang at 0
 }
 
-
-
-rule hardcoded_tmp_archive : high {
- meta:
+rule hardcoded_tmp_archive: high {
+  meta:
     description = "references hard-coded zip file in temp directory"
 
   strings:
-	$tmp_zip = /\/tmp\/[\.\w]{1,4}\.zip/
+    $tmp_zip = /\/tmp\/[\.\w]{1,4}\.zip/
 
   condition:
-	filesize < 25MB and any of them
+    filesize < 25MB and any of them
 }
 
 rule ditto_crypto_stealer: high {
@@ -41,7 +39,6 @@ rule ditto_crypto_stealer: high {
   condition:
     any of ($http*) and 2 of ($w*)
 }
-
 
 rule usbmon_webproxy_zipper: high {
   meta:
