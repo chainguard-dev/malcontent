@@ -26,7 +26,9 @@ type tableConfig struct {
 	ShowTitle    bool
 	DiffRemoved  bool
 	DiffAdded    bool
+	NoDiff       bool
 	SkipAdded    bool
+	SkipNoDiff   bool
 	SkipRemoved  bool
 	SkipExisting bool
 }
@@ -316,6 +318,13 @@ func renderFileSummary(_ context.Context, fr *malcontent.FileReport, w io.Writer
 				if b.DiffRemoved {
 					prefix = "---"
 					pc = color.New(color.FgHiRed)
+					content = fmt.Sprintf("%s%s%s %s %s", prefix, indent, bullet, rest, desc)
+					e = ""
+				}
+
+				if b.NoDiff {
+					prefix = "~~~"
+					pc = color.New(color.FgHiCyan)
 					content = fmt.Sprintf("%s%s%s %s %s", prefix, indent, bullet, rest, desc)
 					e = ""
 				}

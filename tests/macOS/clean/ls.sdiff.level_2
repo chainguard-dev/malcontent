@@ -1,3 +1,2 @@
---- missing: ls.x86_64
+*** changed: macOS/clean/ls
 -process/name_set
-++++ added: ls

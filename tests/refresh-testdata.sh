@@ -116,7 +116,7 @@ addq ${malcontent} --format=markdown \
 addq ${malcontent} --format=markdown \
 	-o "${test_data}/macOS/2023.3CX/libffmpeg.decrease.mdiff" \
 	diff \
-	--file-risk-increase \
+	--file-risk-change \
 	macOS/2023.3CX/libffmpeg.dirty.dylib \
 	macOS/2023.3CX/libffmpeg.dylib
 

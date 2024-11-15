@@ -21,23 +21,40 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-func relPath(from string, fr *malcontent.FileReport, isArchive bool) (string, error) {
+// displayPath mimics diff(1) output for relative paths.
+func displayPath(base, path string) string {
+	if filepath.IsAbs(path) {
+		rel, err := filepath.Rel(base, path)
+		if err == nil {
+			return rel
+		}
+	}
+	return path
+}
+
+// relPath returns the cleanest possible relative path between a source path and files within said path.
+func relPath(from string, fr *malcontent.FileReport, isArchive bool) (string, string, error) {
+	var base string
 	var err error
 	var rel string
 	switch {
 	case isArchive:
 		fromRoot := fr.ArchiveRoot
-
+		base = fr.FullPath
 		// trim archiveRoot from fullPath
 		archiveFile := strings.TrimPrefix(fr.FullPath, fr.ArchiveRoot)
 		rel, err = filepath.Rel(fromRoot, archiveFile)
 		if err != nil {
-			return "", err
+			return "", "", err
 		}
 	default:
+		base, err = filepath.Abs(from)
+		if err != nil {
+			return "", "", err
+		}
 		info, err := os.Stat(from)
 		if err != nil {
-			return "", err
+			return "", "", err
 		}
 		dir := filepath.Dir(from)
 		// Evaluate symlinks to cover edge cases like macOS' /private/tmp -> /tmp symlink
@@ -50,28 +67,29 @@ func relPath(from string, fr *malcontent.FileReport, isArchive bool) (string, er
 			fromRoot, err = filepath.EvalSymlinks(dir)
 		}
 		if err != nil {
-			return "", err
+			return "", "", err
 		}
 		if fromRoot == "." {
 			fromRoot = from
 		}
 		rel, err = filepath.Rel(fromRoot, fr.Path)
 		if err != nil {
-			return "", err
+			return "", "", err
 		}
 	}
-	return rel, nil
+	return rel, base, nil
 }
 
-func relFileReport(ctx context.Context, c malcontent.Config, fromPath string) (map[string]*malcontent.FileReport, error) {
+func relFileReport(ctx context.Context, c malcontent.Config, fromPath string) (map[string]*malcontent.FileReport, string, error) {
 	fromConfig := c
 	fromConfig.Renderer = nil
 	fromConfig.ScanPaths = []string{fromPath}
 	fromReport, err := recursiveScan(ctx, fromConfig)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	fromRelPath := map[string]*malcontent.FileReport{}
+	var base, rel string
 	fromReport.Files.Range(func(key, value any) bool {
 		if key == nil || value == nil {
 			return true
@@ -81,7 +99,7 @@ func relFileReport(ctx context.Context, c malcontent.Config, fromPath string) (m
 			if fr.Skipped != "" || fr.Error != "" {
 				return true
 			}
-			rel, err := relPath(fromPath, fr, isArchive)
+			rel, base, err = relPath(fromPath, fr, isArchive)
 			if err != nil {
 				return false
 			}
@@ -90,7 +108,7 @@ func relFileReport(ctx context.Context, c malcontent.Config, fromPath string) (m
 		return true
 	})
 
-	return fromRelPath, nil
+	return fromRelPath, base, nil
 }
 
 func Diff(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) {
@@ -100,11 +118,22 @@ func Diff(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) 
 
 	var g errgroup.Group
 	var src, dest map[string]*malcontent.FileReport
+	var srcBase, destBase string
 	srcCh := make(chan map[string]*malcontent.FileReport, 1)
 	destCh := make(chan map[string]*malcontent.FileReport, 1)
 
+	srcInfo, err := os.Stat(c.ScanPaths[0])
+	if err != nil {
+		return nil, err
+	}
+
+	destInfo, err := os.Stat(c.ScanPaths[1])
+	if err != nil {
+		return nil, err
+	}
+
 	g.Go(func() error {
-		src, err := relFileReport(ctx, c, c.ScanPaths[0])
+		src, srcBase, err = relFileReport(ctx, c, c.ScanPaths[0])
 		if err != nil {
 			return err
 		}
@@ -113,7 +142,7 @@ func Diff(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) 
 	})
 
 	g.Go(func() error {
-		dest, err := relFileReport(ctx, c, c.ScanPaths[1])
+		dest, destBase, err = relFileReport(ctx, c, c.ScanPaths[1])
 		if err != nil {
 			return err
 		}
@@ -137,8 +166,29 @@ func Diff(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) 
 		Modified: orderedmap.New[string, *malcontent.FileReport](),
 	}
 
-	processSrc(ctx, c, src, dest, d)
-	processDest(ctx, c, src, dest, d)
+	// When scanning two directories, compare the files in each directory
+	// and employ add/delete for files that are not the same
+	// When scanning two files, do a 1:1 comparison and
+	// consider the source -> destination as a change rather than an add/delete
+	if srcInfo.IsDir() && destInfo.IsDir() {
+		handleDir(ctx, c, src, dest, d)
+	} else {
+		var srcFile, destFile *malcontent.FileReport
+		for _, fr := range src {
+			srcFile = fr
+			break
+		}
+		for _, fr := range dest {
+			destFile = fr
+			break
+		}
+		if srcFile != nil && destFile != nil {
+			formatSrc := displayPath(srcBase, srcFile.Path)
+			formatDest := displayPath(destBase, destFile.Path)
+			handleFile(ctx, c, srcFile, destFile, fmt.Sprintf("%s -> %s", formatSrc, formatDest), d)
+		}
+	}
+
 	// skip inferring moves if added and removed are empty
 	if d.Added != nil && d.Removed != nil {
 		inferMoves(ctx, c, d)
@@ -146,61 +196,45 @@ func Diff(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) 
 	return &malcontent.Report{Diff: d}, nil
 }
 
-func processSrc(ctx context.Context, c malcontent.Config, src, dest map[string]*malcontent.FileReport, d *malcontent.DiffReport) {
-	// things that appear in the source
-	for relPath, fr := range src {
-		tr, exists := dest[relPath]
-		if !exists {
-			d.Removed.Set(relPath, fr)
-			continue
-		}
-		handleFile(ctx, c, fr, tr, relPath, d)
+func handleDir(ctx context.Context, c malcontent.Config, src, dest map[string]*malcontent.FileReport, d *malcontent.DiffReport) {
+	srcFiles := make(map[string]*malcontent.FileReport)
+	destFiles := make(map[string]*malcontent.FileReport)
+
+	for path, fr := range src {
+		base := filepath.Base(path)
+		srcFiles[base] = fr
 	}
-}
-
-func processDest(ctx context.Context, c malcontent.Config, from, to map[string]*malcontent.FileReport, d *malcontent.DiffReport) {
-	// findings that exist only in the destination
-	for relPath, tr := range to {
-		fr, exists := from[relPath]
-		if !exists {
-			d.Added.Set(relPath, tr)
-			continue
-		}
-
-		fileDestination(ctx, c, fr, tr, relPath, d)
-	}
-}
-
-func fileDestination(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileReport, relPath string, d *malcontent.DiffReport) {
-	// We've now established that this file exists in both source and destination
-	if fr.RiskScore < c.MinFileRisk && tr.RiskScore < c.MinFileRisk {
-		clog.FromContext(ctx).Info("diff does not meet min trigger level", slog.Any("path", tr.Path))
-		return
+	for path, fr := range dest {
+		base := filepath.Base(path)
+		destFiles[base] = fr
 	}
 
-	// Filter files that are marked as added
-	if filterDiff(ctx, c, fr, tr) {
-		return
-	}
-
-	abs := createFileReport(tr, fr)
-
-	// if destination behavior is not in the source
-	for _, tb := range tr.Behaviors {
-		if !behaviorExists(tb, fr.Behaviors) {
-			tb.DiffAdded = true
-			abs.Behaviors = append(abs.Behaviors, tb)
-			continue
+	// Check for files that exist in both the source and destination
+	// Files that exist in both pass to handleFile which considers files as modifications
+	// Otherwise, treat the source file as existing only in the source directory
+	// These files are considered removals from the destination
+	for name, srcFr := range srcFiles {
+		if destFr, exists := destFiles[name]; exists {
+			if !filterDiff(ctx, c, srcFr, destFr) {
+				formatSrc := displayPath(name, srcFr.Path)
+				formatDest := displayPath(name, destFr.Path)
+				handleFile(ctx, c, srcFr, destFr, fmt.Sprintf("%s -> %s", formatSrc, formatDest), d)
+			}
+		} else {
+			formatSrc := displayPath(name, srcFr.Path)
+			dirPath := filepath.Dir(formatSrc)
+			d.Removed.Set(fmt.Sprintf("%s/%s", dirPath, name), srcFr)
 		}
 	}
 
-	// are there already modified behaviors for this file?
-	rel, exists := d.Modified.Get(relPath)
-	if !exists {
-		d.Modified.Set(relPath, abs)
-	} else {
-		rel.Behaviors = append(rel.Behaviors, abs.Behaviors...)
-		d.Modified.Set(relPath, rel)
+	// Check for files that exist only in the destination directory
+	// These files are considered additions to the destination
+	for name, destFr := range destFiles {
+		if _, exists := srcFiles[name]; !exists {
+			formatDest := displayPath(name, destFr.Path)
+			dirPath := filepath.Dir(formatDest)
+			d.Added.Set(fmt.Sprintf("%s/%s", dirPath, name), destFr)
+		}
 	}
 }
 
@@ -218,15 +252,30 @@ func handleFile(ctx context.Context, c malcontent.Config, fr, tr *malcontent.Fil
 
 	rbs := createFileReport(tr, fr)
 
+	// Findings that exist only in the source
+	// If true, these are considered to be removed from the destination
 	for _, fb := range fr.Behaviors {
-		// findings that exist only in the source
 		if !behaviorExists(fb, tr.Behaviors) {
 			fb.DiffRemoved = true
 			rbs.Behaviors = append(rbs.Behaviors, fb)
 			continue
 		}
-		// findings that exist in both, for reference
-		rbs.Behaviors = append(rbs.Behaviors, fb)
+	}
+
+	// Findings that exist only in the destination
+	// If true, these are considered to be added to the destination
+	// If findings exist in both files, then there is no diff for the given behavior
+	for _, tb := range tr.Behaviors {
+		if !behaviorExists(tb, fr.Behaviors) {
+			tb.DiffAdded = true
+			rbs.Behaviors = append(rbs.Behaviors, tb)
+			continue
+		}
+		if behaviorExists(tb, fr.Behaviors) {
+			tb.NoDiff = true
+			rbs.Behaviors = append(rbs.Behaviors, tb)
+			continue
+		}
 	}
 
 	d.Modified.Set(relPath, rbs)

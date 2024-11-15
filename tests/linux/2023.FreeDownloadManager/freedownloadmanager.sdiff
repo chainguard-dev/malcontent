@@ -1,12 +1,4 @@
---- missing: freedownloadmanager_clear_postinst
--data/embedded/pgp_key
--exec/install_additional/add_apt_key
--exec/shell/ignore_output
--fs/path/etc
--fs/path/usr_bin
--net/download
--net/url/embedded
-++++ added: freedownloadmanager_infected_postinst
+*** changed: linux/2023.FreeDownloadManager/freedownloadmanager_infected_postinst
 +3P/threat_hunting/touch
 +anti-static/base64/exec
 +anti-static/base64/http_agent
@@ -14,24 +6,24 @@
 +data/embedded/base64_elf
 +data/embedded/base64_terms
 +data/embedded/base64_url
-+data/embedded/pgp_key
+~data/embedded/pgp_key
 +data/encoding/base64
 +evasion/file/location/var_tmp
-+exec/install_additional/add_apt_key
+~exec/install_additional/add_apt_key
 +exec/shell/exec
-+exec/shell/ignore_output
+~exec/shell/ignore_output
 +fs/directory/create
 +fs/file/delete_forcibly
 +fs/file/make_executable
 +fs/file/times_set
-+fs/path/etc
+~fs/path/etc
 +fs/path/tmp
-+fs/path/usr_bin
+~fs/path/usr_bin
 +fs/path/var
 +fs/permission/modify
 +impact/remote_access/botnet
-+net/download
-+net/url/embedded
+~net/download
+~net/url/embedded
 +persist/cron/etc_d
 +persist/cron/tab
 +sus/geopolitics
