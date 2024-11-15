@@ -25,4 +25,4 @@ net/ip/byte_order: medium
 net/ip/parse: medium
 net/socket/receive: low
 net/socket/send: low
-sus/ancient_gcc: medium
+sus/compiler: medium

@@ -1,6 +1,6 @@
 rule var_profile: medium {
   meta:
-    description = "references '/var/profile', found on routers or embedded systems"
+    description = "references '/var/profile', the default target of LD_PROFILE_OUTPUT"
 
   strings:
     $ref = "/var/profile" fullword

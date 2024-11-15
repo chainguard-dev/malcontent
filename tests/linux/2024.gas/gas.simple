@@ -2,8 +2,8 @@
 anti-behavior/LD_DEBUG: medium
 anti-behavior/LD_PROFILE: medium
 crypto/rc4: low
+data/builtin/glibc: medium
 discover/system/cpu: low
-discover/system/dev_full: low
 discover/system/platform: low
 discover/system/sysinfo: medium
 evasion/hijack_execution/LD_LIBRARY_PATH: low
@@ -33,4 +33,3 @@ net/url/embedded: low
 process/create: low
 process/executable_path: low
 process/name_set: medium
-sus/exclamation: medium

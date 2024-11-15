@@ -14,4 +14,4 @@ lateral/vmware/vms: medium
 net/p2p/tor: high
 persist/daemon: medium
 process/multithreaded: low
-sus/ancient_gcc: medium
+sus/compiler: medium

@@ -2,7 +2,6 @@
 anti-behavior/LD_DEBUG: medium
 anti-behavior/LD_PROFILE: medium
 discover/process/runtime_deps: medium
-discover/system/dev_full: low
 evasion/hijack_execution/LD_LIBRARY_PATH: low
 evasion/hijack_execution/etc_ld.so.preload: medium
 fs/path/etc: low
@@ -13,4 +12,3 @@ fs/proc/sys_kernel_osrelease: medium
 fs/tempdir: low
 net/url/embedded: low
 persist/shell/bash: medium
-sus/exclamation: medium

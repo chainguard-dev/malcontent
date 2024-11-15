@@ -64,7 +64,7 @@ rule known_fake_process_names: high {
 
   strings:
     $e_kdevchecker = "kdevchecker" fullword
-    $e_kworkerr    = "kworkerr" fullword
+    $e_kworkerr    = /kworker[a-z]/ fullword
     $e_ksoftriqd   = "ksoftriqd" fullword
     $e_kdevtmpfsi  = "kdevtmpfsi" fullword
     $e_kthreaddk   = "kthreaddk" fullword
@@ -79,7 +79,7 @@ rule multiple_known_fake_process_names: critical {
 
   strings:
     $kdevchecker = "kdevchecker" fullword
-    $kworkerr    = "kworkerr" fullword
+    $e_kworkerr  = /kworker[a-z]/ fullword
     $ksoftriqd   = "ksoftriqd" fullword
     $kdevtmpfsi  = "kdevtmpfsi" fullword
     $kthreaddk   = "kthreaddk" fullword

@@ -4,6 +4,7 @@
 3P/threat_hunting/maccaronic2: medium
 3P/threat_hunting/tor: medium
 anti-behavior/vm_check: medium
+anti-static/elf/entropy: high
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/discovery/ip_dns_resolver: medium

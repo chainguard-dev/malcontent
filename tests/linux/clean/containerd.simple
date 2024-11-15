@@ -115,7 +115,6 @@ os/kernel/netlink: low
 os/kernel/seccomp: low
 persist/pid_file: medium
 process/chdir: low
-process/executable_path: low
 process/groupid_set: low
 process/groups_set: low
 process/terminate/kill_multiple: medium
