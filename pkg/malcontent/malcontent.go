@@ -59,7 +59,6 @@ type Behavior struct {
 
 	DiffAdded   bool `json:",omitempty" yaml:",omitempty"`
 	DiffRemoved bool `json:",omitempty" yaml:",omitempty"`
-	NoDiff      bool `json:",omitempty" yaml:",omitempty"`
 
 	// ID is the original map key from map[string]*Behavior
 	ID string `json:",omitempty" yaml:",omitempty"`

@@ -322,8 +322,8 @@ func renderFileSummary(_ context.Context, fr *malcontent.FileReport, w io.Writer
 					e = ""
 				}
 
-				if b.NoDiff {
-					prefix = "~~~"
+				if !b.DiffAdded && !b.DiffRemoved {
+					prefix = ""
 					pc = color.New(color.FgHiCyan)
 					content = fmt.Sprintf("%s%s%s %s %s", prefix, indent, bullet, rest, desc)
 					e = ""

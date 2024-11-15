@@ -1,8 +1,8 @@
 *** changed: macOS/clean/ls
 -data/compression/lzma
 -discover/system/hostname
-~exec/shell/TERM
+exec/shell/TERM
 +fs/directory/traverse
-~fs/link_read
+fs/link_read
 -net/url/embedded
 -process/name_set

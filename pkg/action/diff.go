@@ -272,7 +272,6 @@ func handleFile(ctx context.Context, c malcontent.Config, fr, tr *malcontent.Fil
 			continue
 		}
 		if behaviorExists(tb, fr.Behaviors) {
-			tb.NoDiff = true
 			rbs.Behaviors = append(rbs.Behaviors, tb)
 			continue
 		}

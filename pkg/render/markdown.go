@@ -90,7 +90,7 @@ func (r Markdown) Full(ctx context.Context, rep *malcontent.Report) error {
 			if b.DiffRemoved {
 				removed++
 			}
-			if b.NoDiff {
+			if !b.DiffAdded && !b.DiffRemoved {
 				noDiff++
 			}
 		}
@@ -228,11 +228,11 @@ func markdownTable(_ context.Context, fr *malcontent.FileReport, w io.Writer, rc
 			}
 			risk = fmt.Sprintf("-%s", risk)
 		}
-		if k.Behavior.NoDiff || rc.NoDiff {
+		if (!k.Behavior.DiffRemoved && !k.Behavior.DiffAdded) || rc.NoDiff {
 			if rc.SkipNoDiff {
 				continue
 			}
-			risk = fmt.Sprintf("~%s", risk)
+			risk = fmt.Sprintf("%s", risk)
 		}
 
 		key := fmt.Sprintf("[%s](%s)", k.Key, k.Behavior.RuleURL)

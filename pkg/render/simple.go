@@ -104,8 +104,8 @@ func (r Simple) Full(_ context.Context, rep *malcontent.Report) error {
 			if b.DiffAdded {
 				fmt.Fprintf(r.w, "+%s\n", b.ID)
 			}
-			if b.NoDiff {
-				fmt.Fprintf(r.w, "~%s\n", b.ID)
+			if !b.DiffRemoved && !b.DiffAdded {
+				fmt.Fprintf(r.w, "%s\n", b.ID)
 			}
 		}
 	}
