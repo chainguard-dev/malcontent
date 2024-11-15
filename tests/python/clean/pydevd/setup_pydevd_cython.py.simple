@@ -1,0 +1,11 @@
+# python/clean/pydevd/setup_pydevd_cython.py: medium
+discover/system/platform: medium
+exec/remote_commands/code_eval: medium
+fs/directory/list: low
+fs/file/delete: low
+fs/file/open: low
+fs/file/read: low
+fs/file/write: low
+impact/remote_access/py_setuptools: low
+os/fd/read: low
+os/fd/write: low
