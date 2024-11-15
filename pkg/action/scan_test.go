@@ -8,6 +8,7 @@ import (
 )
 
 func TestCleanPath(t *testing.T) {
+	t.Parallel()
 	// create a temporary directory
 	tempDir, err := os.MkdirTemp("", "TestCleanPath")
 	if err != nil {
@@ -122,6 +123,7 @@ func TestFormatPath(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			if got := formatPath(tt.path); got != tt.want {
 				t.Errorf("FormatPath() = %v, want %v", got, tt.want)
 			}
