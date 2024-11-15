@@ -40,6 +40,9 @@ func (r JSON) Full(_ context.Context, rep *malcontent.Report) error {
 		if path, ok := key.(string); ok {
 			if r, ok := value.(*malcontent.FileReport); ok {
 				if r.Skipped == "" {
+					// Filter out diff-related fields
+					r.ArchiveRoot = ""
+					r.FullPath = ""
 					jr.Files[path] = r
 				}
 			}

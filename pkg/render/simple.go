@@ -83,7 +83,7 @@ func (r Simple) Full(_ context.Context, rep *malcontent.Report) error {
 
 	for modified := rep.Diff.Modified.Oldest(); modified != nil; modified = modified.Next() {
 		if modified.Value.PreviousRelPath != "" && modified.Value.PreviousRelPathScore >= 0.9 {
-			fmt.Fprintf(r.w, ">>> moved: %s -> %s (score: %f)\n", modified.Value.PreviousRelPath, modified.Value.Path, modified.Value.PreviousRelPathScore)
+			fmt.Fprintf(r.w, ">>> moved: %s -> %s (score: %f)\n", modified.Value.PreviousPath, modified.Value.Path, modified.Value.PreviousRelPathScore)
 		} else {
 			fmt.Fprintf(r.w, "*** changed: %s\n", modified.Value.Path)
 		}

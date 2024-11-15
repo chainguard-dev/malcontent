@@ -41,6 +41,8 @@ func (r YAML) Full(_ context.Context, rep *malcontent.Report) error {
 		if path, ok := key.(string); ok {
 			if r, ok := value.(*malcontent.FileReport); ok {
 				if r.Skipped == "" {
+					r.ArchiveRoot = ""
+					r.FullPath = ""
 					yr.Files[path] = r
 				}
 			}
