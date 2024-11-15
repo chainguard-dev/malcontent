@@ -127,6 +127,9 @@ func Diff(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) 
 		return nil, err
 	}
 
+	srcIsArchive := isSupportedArchive(c.ScanPaths[0])
+	destIsArchive := isSupportedArchive(c.ScanPaths[1])
+
 	destInfo, err := os.Stat(c.ScanPaths[1])
 	if err != nil {
 		return nil, err
@@ -170,7 +173,7 @@ func Diff(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) 
 	// and employ add/delete for files that are not the same
 	// When scanning two files, do a 1:1 comparison and
 	// consider the source -> destination as a change rather than an add/delete
-	if srcInfo.IsDir() && destInfo.IsDir() {
+	if (srcInfo.IsDir() && destInfo.IsDir()) || (srcIsArchive && destIsArchive) {
 		handleDir(ctx, c, src, dest, d)
 	} else {
 		var srcFile, destFile *malcontent.FileReport
@@ -417,6 +420,9 @@ func fileMove(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileR
 	for _, fb := range fr.Behaviors {
 		if !behaviorExists(fb, tr.Behaviors) {
 			fb.DiffRemoved = true
+			abs.Behaviors = append(abs.Behaviors, fb)
+		}
+		if behaviorExists(fb, tr.Behaviors) {
 			abs.Behaviors = append(abs.Behaviors, fb)
 		}
 	}
