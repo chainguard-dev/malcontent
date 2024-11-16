@@ -5,6 +5,7 @@ rule chmod_executable_shell: medium {
   strings:
     $val  = /chmod [\-\w ]{0,4}\+[rw]{0,2}x[ \$\@\w\/\.]{0,64}/
     $val2 = /chmod [\-\w ]{0,4}\+[rw]{0,2}[75][ \$\@\w\/\.]{0,64}/
+    $val3 = /chmod {1,4}-R {1,4}[04]{0,1}7[75][075] [ \$\@\w\/\.]{2,64}/
 
   condition:
     any of them
@@ -18,7 +19,7 @@ rule chmod_executable_binary: high {
   strings:
     $val         = /chmod [\-\w ]{0,4}\+[rw]{0,2}x[ \$\@\w\/\.]{0,64}/
     $val2        = /chmod [\-\w ]{0,4}\+[rw]{0,2}[75][ \$\@\w\/\.]{0,64}/
-    // TODO : chmod -R 750
+    $val3        = /chmod {1,4}-R {1,4}[04]{0,1}7[75][075] [ \$\@\w\/\.]{2,64}/
     $not_example = "try 'chmod +x'"
 
   condition:

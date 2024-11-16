@@ -1911,8 +1911,8 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/content-length-0.yara#content_length_0",
-                    "ID": "net/http/content_length_0",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/content-length.yara#content_length_0",
+                    "ID": "net/http/content_length",
                     "RuleName": "content_length_0"
                 },
                 {

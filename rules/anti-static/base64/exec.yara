@@ -45,3 +45,14 @@ rule base64_suspicious_commands: critical {
   condition:
     filesize < 64KB and any of them
 }
+
+rule base64_exec: medium {
+  meta:
+    description = "executes base64 encoded commands"
+
+  strings:
+    $os_system = /os\.system\(b64[\"\'\(\)\w\=]{3,96}/ fullword
+
+  condition:
+    any of them
+}

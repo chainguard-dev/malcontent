@@ -1,6 +1,6 @@
-rule hex_parse_base64: critical {
+rule hex_parse_base64: high {
   meta:
-    description = "converts base64 hex data to ASCII"
+    description = "executes programs, converts base64 hex data to ASCII"
 
   strings:
     $lang_node   = /Buffer\.from\(\w{0,16}, {0,2}'hex'\)/
@@ -12,4 +12,3 @@ rule hex_parse_base64: critical {
   condition:
     filesize < 32KB and any of ($lang*) and any of ($b*) and any of ($exec*)
 }
-
