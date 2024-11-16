@@ -2,7 +2,7 @@
 anti-static/xor/certs: high
 c2/tool_transfer/osascript: high
 evasion/file/location/var_tmp: medium
-exec/script/osa: medium
+exec/script/osa: high
 exec/shell/exec: medium
 fs/file/make_executable: high
 fs/path/tmp: medium

@@ -20,7 +20,7 @@ rule small_opaque_archaic_gcc: high linux {
     $not_nacl         = "NACLVERBOSITY"
     $not_usage        = "usage" fullword
     $not_Usage        = "Usage" fullword
-    $word_with_spaces = /[a-z]{4,} [a-z]{2,} [a-z]{4,}/
+    $word_with_spaces = /[a-z]{4,16} [a-z]{2,16} [a-z]{4,16}/ fullword
 
   condition:
     filesize < 30KB and $gcc_v4 and $fork in (1000..3000) and none of ($not*) and #word_with_spaces < 15

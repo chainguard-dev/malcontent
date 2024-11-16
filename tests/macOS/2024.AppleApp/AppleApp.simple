@@ -1,0 +1,21 @@
+# macOS/2024.AppleApp/AppleApp: critical
+c2/addr/ip: high
+evasion/indicator_blocking/close_window: high
+exec/cmd/pipe: medium
+exec/script/osa: high
+exec/shell/exec: medium
+exfil/stealer/archive: high
+fs/directory/create: low
+fs/file/make_executable: high
+fs/path/tmp: medium
+fs/permission/modify: medium
+impact/remote_access/backdoor: high
+net/http/content_length: high
+net/http/post: high
+net/http/request: low
+net/ip/parse: medium
+net/socket/connect: medium
+net/socket/receive: low
+net/socket/send: low
+process/create: low
+process/multithreaded: low

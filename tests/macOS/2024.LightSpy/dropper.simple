@@ -22,6 +22,7 @@ fs/file/stat: low
 fs/file/write: low
 fs/lock_update: low
 fs/mounts_read: medium
+fs/path/applications: medium
 fs/path/users: medium
 fs/permission/modify: medium
 fs/tempdir: low

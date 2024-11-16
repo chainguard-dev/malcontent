@@ -1,4 +1,5 @@
 # macOS/2024.Ezuri/libdpt1.so: critical
+anti-static/macho/entropy: medium
 anti-static/macho/footer: high
 anti-static/packer/aes: high
 anti-static/packer/ezuri: critical

@@ -1,13 +1,15 @@
-rule windows_ntlm: medium {
+rule windows_ntlm_auth: medium {
   meta:
-    description = "Uses the Windows NTLM authentication scheme"
+    description = "supports Windows NTLM authentication"
 
   strings:
-    $s_ntlmssp   = "ntlmssp"
+    $s_ntlmssp   = "ntlmssp" fullword
     $s_smbhash   = "SMBHASH"
     $s_hash_pass = "HASH PASS"
     $s_ntlm_hash = "LM HASH"
+    $ntlm        = "ntlm" fullword
+    $NTLM        = "NTLM" fullword
 
   condition:
-    any of ($s*)
+    any of them
 }

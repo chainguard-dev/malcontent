@@ -1,4 +1,5 @@
 # javascript/clean/http2wrapper.js: medium
+crypto/tls: low
 data/embedded/base64_terms: medium
 data/embedded/base64_url: medium
 data/encoding/base64: low

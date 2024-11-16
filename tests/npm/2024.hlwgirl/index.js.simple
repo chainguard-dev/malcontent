@@ -1,6 +1,6 @@
-# npm/2024.hlwgirl/index.js: critical
+# npm/2024.hlwgirl/index.js: high
 anti-static/obfuscation/hex: high
 data/encoding/base64: low
 fs/file/write: low
-impact/remote_access/base64_exec: critical
+impact/remote_access/base64_exec: high
 process/create: medium

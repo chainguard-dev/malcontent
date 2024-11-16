@@ -5,7 +5,7 @@ evasion/file/prefix/dev: low
 exec/shell/command: medium
 fs/path/etc: low
 fs/path/etc_initd: medium
-fs/path/home: medium
+fs/path/home: low
 fs/path/home_config: low
 fs/path/root: medium
 fs/path/usr_local: medium

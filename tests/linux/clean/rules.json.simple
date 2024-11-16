@@ -6,6 +6,7 @@
 anti-static/obfuscation/hex: medium
 collect/databases/mysql: medium
 collect/databases/postgresql: medium
+collect/databases/sql: low
 collect/databases/sqlite: medium
 credential/cloud/aws: medium
 credential/os/gshadow: medium
@@ -45,7 +46,7 @@ fs/mount: low
 fs/node_create: low
 fs/path/etc: low
 fs/path/etc_hosts: medium
-fs/path/home: medium
+fs/path/home: low
 fs/path/home_config: low
 fs/path/tmp: medium
 fs/path/var: low

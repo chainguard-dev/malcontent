@@ -1,4 +1,4 @@
-rule home_path: medium {
+rule home_path: low {
   meta:
     description = "references path within /home"
 

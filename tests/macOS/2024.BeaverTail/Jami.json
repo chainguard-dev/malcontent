@@ -38,9 +38,9 @@
                     "RuleName": "opaque_binary"
                 },
                 {
-                    "Description": "higher entropy binary (\u003e7.2)",
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
+                    "Description": "high entropy binary (\u003e7.2)",
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/macho/entropy.yara#high_entropy_7_2",
                     "ID": "anti-static/macho/entropy",
                     "RuleName": "high_entropy_7_2"
@@ -60,13 +60,13 @@
                 {
                     "Description": "hardcoded IP address within a URL",
                     "MatchStrings": [
-                        "http://95.164.17.24:1224"
+                        "95.164.17.24"
                     ],
                     "RiskScore": 3,
                     "RiskLevel": "HIGH",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/ip.yara#http_hardcoded_ip",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/ip.yara#bin_hardcoded_ip",
                     "ID": "c2/addr/ip",
-                    "RuleName": "http_hardcoded_ip"
+                    "RuleName": "bin_hardcoded_ip"
                 },
                 {
                     "Description": "steals login keychain",

@@ -6,6 +6,7 @@ c2/addr/server: medium
 collect/archives/unarchive: medium
 collect/databases/mysql: medium
 collect/databases/postgresql: medium
+collect/databases/sql: low
 collect/databases/sqlite: medium
 credential/password: low
 credential/ssl/private_key: low

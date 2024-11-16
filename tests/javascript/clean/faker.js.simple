@@ -5,6 +5,7 @@ anti-static/base64/exec: high
 anti-static/base64/http_agent: high
 anti-static/obfuscation/obfuscate: low
 c2/addr/ip: medium
+collect/databases/sql: low
 credential/password: low
 crypto/blockchain: medium
 data/compression/bzip2: low
@@ -19,7 +20,7 @@ exfil/office_file_ext: medium
 exfil/stealer/credit_card: medium
 fs/path/boot: medium
 fs/path/etc: low
-fs/path/home: medium
+fs/path/home: low
 fs/path/root: medium
 fs/path/usr_local: medium
 fs/path/var: low

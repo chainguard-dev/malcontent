@@ -46,7 +46,7 @@ fs/mount: low
 fs/mounts_read: medium
 fs/node_create: low
 fs/path/etc: low
-fs/path/home: medium
+fs/path/home: low
 fs/path/tmp: medium
 fs/path/usr_bin: low
 fs/path/usr_sbin: low

@@ -5,6 +5,7 @@ c2/connect/ping_pong: medium
 collect/archives/unarchive: medium
 collect/databases/mysql: medium
 collect/databases/postgresql: medium
+collect/databases/sql: low
 credential/password: low
 crypto/aes: low
 crypto/file_encrypter: medium

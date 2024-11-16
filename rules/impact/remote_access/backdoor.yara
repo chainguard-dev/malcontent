@@ -88,3 +88,51 @@ rule commands: high {
   condition:
     all of them
 }
+
+private rule small_macho {
+  condition:
+    filesize < 1MB and (uint32(0) == 4277009102 or uint32(0) == 3472551422 or uint32(0) == 4277009103 or uint32(0) == 3489328638 or uint32(0) == 3405691582 or uint32(0) == 3199925962)
+}
+
+rule macho_backdoor_libc_signature: high {
+  meta:
+    description = "executes libc functions common to backdoors"
+
+  strings:
+    $word_with_spaces = /[a-z]{2,16} [a-uxyz]{2,16}/ fullword
+    $libc_call        = /@_[a-z]{3,12}/ fullword
+
+    $f_connect      = "@_connect" fullword
+    $f_fork         = "@_fork" fullword
+    $f_fread        = "@_fread" fullword
+    $f_getenv       = "@_getenv" fullword
+    $f_inet_addr    = "@_inet_addr" fullword
+    $f_mkdir        = "@_mkdir" fullword
+    $f_open         = "@_open" fullword
+    $f_opendir      = "@_opendir" fullword
+    $f_popen        = "@_popen" fullword
+    $f_pthread      = "@_pthread_create" fullword
+    $f_read         = "@_read" fullword
+    $f_readdir      = "@_readdir" fullword
+    $f_recv         = "@_recv" fullword
+    $f_send         = "@_send" fullword
+    $f_setsid       = "@_setsid" fullword
+    $f_signal       = "@_signal" fullword
+    $f_socket       = "@_socket" fullword
+    $f_stat         = "@_stat" fullword
+    $f_strchr       = "@_strchr" fullword
+    $f_strcmp       = "@_strcmp" fullword
+    $f_strcpy       = "@_strcpy" fullword
+    $f_strlen       = "@_strlen" fullword
+    $f_strstr       = "@_strstr" fullword
+    $f_strtok       = "@_strtok" fullword
+    $f_write        = "@_write" fullword
+    $not_gmon_start = "__gmon_start__"
+    $not_usage      = "usage:" fullword
+    $not_usage2     = "Usage:" fullword
+    $not_USAGE      = "USAGE:" fullword
+    $not_java       = "java/lang"
+
+  condition:
+    small_macho and #word_with_spaces < 10 and #libc_call < 74 and 95 % of ($f*) and none of ($not*)
+}
