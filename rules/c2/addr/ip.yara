@@ -13,6 +13,7 @@ rule hardcoded_ip: medium {
     $not_1_2_3_4        = "1.2.3.4"
     $not_root_servers_h = "128.63.2.53"
     $not_root_servers_i = "192.36.148.17"
+    $not_send_att       = "3.2.5.7"
 
   condition:
     filesize < 200MB and 1 of ($sus_ip*) and none of ($not*)
@@ -41,6 +42,7 @@ rule bin_hardcoded_ip: high {
     $not_123456789         = "123.45.67.89"
     $not_10_11_12_13       = "10.11.12.13"
     $not_libebt_among_init = "libebt_among_init"
+    $not_send_att          = "3.2.5.7"
 
   condition:
     filesize < 12MB and elf_or_macho and 1 of ($sus_ip*) and none of ($not*)

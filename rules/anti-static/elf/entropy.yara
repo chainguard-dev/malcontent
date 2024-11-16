@@ -10,12 +10,12 @@ private rule small_elf {
     filesize < 400KB and uint32(0) == 1179403647
 }
 
-rule normal_elf_high_entropy_7: medium {
+rule higher_elf_entropy_68: medium {
   meta:
-    description = "higher entropy ELF binary (>6.5)"
+    description = "higher entropy ELF binary (>6.95)"
 
   condition:
-    normal_elf and math.entropy(1, filesize) >= 6.5
+    normal_elf and math.entropy(1, filesize) >= 6.95
 }
 
 rule normal_elf_high_entropy_7_4: high {

@@ -148,10 +148,10 @@ rule js_hex_obfuscation: critical {
 
 rule high_entropy: medium {
   meta:
-    description = "high entropy javascript (>5.37)"
+    description = "high entropy javascript (>6)"
 
   condition:
-    probably_js and math.entropy(1, filesize) >= 5.37
+    probably_js and math.entropy(1, filesize) >= 6
 }
 
 rule very_high_entropy: critical {
