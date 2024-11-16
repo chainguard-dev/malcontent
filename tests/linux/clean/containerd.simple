@@ -58,7 +58,7 @@ fs/node_create: low
 fs/path/etc: low
 fs/path/etc_hosts: medium
 fs/path/etc_resolv.conf: low
-fs/path/home: medium
+fs/path/home: low
 fs/path/usr_local: medium
 fs/path/var: low
 fs/permission/chown: medium

@@ -12,5 +12,6 @@
 3P/threat_hunting/winpwn: medium
 exec/shell/power: medium
 net/download: medium
+net/rpc/ntlm: medium
 net/url/embedded: low
 sus/intercept: medium

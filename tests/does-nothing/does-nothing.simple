@@ -1,5 +1,4 @@
 # does-nothing/does-nothing: medium
-anti-static/elf/entropy: medium
 crypto/rc4: low
 data/encoding/base64: low
 data/encoding/json: low
@@ -12,10 +11,9 @@ fs/directory/remove: low
 fs/file/delete: low
 fs/file/read: low
 fs/path/etc: low
-fs/path/home: medium
+fs/path/home: low
 fs/permission/chown: medium
 fs/permission/modify: medium
 net/socket/receive: low
 net/socket/send: low
-persist/daemon: medium
 process/multithreaded: low

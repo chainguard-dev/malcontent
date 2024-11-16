@@ -40,7 +40,7 @@ fs/mount: low
 fs/path/boot: medium
 fs/path/etc: low
 fs/path/etc_hosts: medium
-fs/path/home: medium
+fs/path/home: low
 fs/path/home_config: low
 fs/path/relative: medium
 fs/path/tmp: medium

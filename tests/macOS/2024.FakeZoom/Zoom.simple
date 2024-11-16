@@ -1,0 +1,5 @@
+# macOS/2024.FakeZoom/Zoom: critical
+anti-static/binary/opaque: medium
+exec/program/opaque: critical
+exec/shell/exec: medium
+net/url/embedded: low

@@ -169,6 +169,7 @@ net/proxy/reverse: medium
 net/proxy/shadowsocks: high
 net/proxy/socks5: medium
 net/proxy/tunnel: medium
+net/rpc/ntlm: medium
 net/socket/listen: medium
 net/socket/receive: low
 net/socket/send: low

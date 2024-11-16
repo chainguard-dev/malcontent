@@ -1,14 +1,14 @@
-# javascript/clean/connection.js: high
-anti-static/base64/exec: high
-anti-static/binary/opaque: medium
+# javascript/clean/connection.js: medium
 anti-static/obfuscation/hex: medium
-anti-static/obfuscation/js: medium
-c2/addr/ip: medium
+collect/databases/sql: low
 credential/password: low
+crypto/tls: low
 data/embedded/base64_terms: medium
 data/embedded/base64_url: medium
 data/encoding/base64: low
+discover/system/hostname: low
 net/dns: low
+net/rpc/ntlm: medium
 net/socket/send: low
 net/url/embedded: medium
 os/fd/write: low

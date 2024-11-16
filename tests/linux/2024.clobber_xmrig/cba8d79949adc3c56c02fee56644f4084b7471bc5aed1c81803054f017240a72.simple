@@ -34,7 +34,7 @@ fs/file/make_executable: high
 fs/path/etc: low
 fs/path/etc_hosts: medium
 fs/path/etc_resolv.conf: low
-fs/path/home: medium
+fs/path/home: low
 fs/path/relative: medium
 fs/path/root: medium
 fs/path/tmp: medium

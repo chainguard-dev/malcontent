@@ -8,6 +8,7 @@ c2/addr/server: medium
 c2/discovery/ip_dns_resolver: medium
 collect/archives/unarchive: medium
 collect/databases/postgresql: medium
+collect/databases/sql: low
 collect/databases/sqlite: medium
 credential/cloud/aws: medium
 credential/password: low

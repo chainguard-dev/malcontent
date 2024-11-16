@@ -8,6 +8,7 @@ c2/tool_transfer/download: medium
 collect/archives/zip: medium
 collect/databases/mysql: medium
 collect/databases/postgresql: medium
+collect/databases/sql: low
 credential/clipboard: medium
 credential/cloud/g: medium
 credential/keychain: medium

@@ -1,0 +1,24 @@
+# macOS/2024.Chrome_Updater/upd: high
+anti-static/binary/opaque: medium
+c2/connect/curl_easy: medium
+crypto/rc4: low
+data/random/insecure: low
+discover/system/hostname: low
+discover/system/uuid: medium
+discover/user/HOME: low
+exec/cmd/pipe: medium
+exfil/stealer/file: high
+fs/directory/create: low
+fs/directory/remove: low
+fs/file/times_set: medium
+fs/lock_update: low
+fs/path/applications: medium
+fs/path/dev: medium
+fs/symlink_resolve: low
+hw/iokit_registry: low
+net/ip/parse: medium
+net/socket/connect: medium
+net/socket/receive: low
+net/socket/send: low
+net/url/embedded: low
+process/multithreaded: low

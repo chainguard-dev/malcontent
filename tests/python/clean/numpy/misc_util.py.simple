@@ -11,7 +11,7 @@ fs/directory/traverse: medium
 fs/file/delete: low
 fs/file/open: low
 fs/file/write: low
-fs/path/home: medium
+fs/path/home: low
 fs/path/tmp: medium
 fs/path/usr_bin: low
 fs/path/usr_lib_python: medium

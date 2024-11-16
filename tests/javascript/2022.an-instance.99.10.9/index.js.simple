@@ -6,7 +6,7 @@ discover/system/hostname: low
 discover/user/info: medium
 exfil/nodejs: critical
 fs/directory/list: low
-fs/path/home: medium
+fs/path/home: low
 fs/path/relative: medium
 fs/path/root: medium
 net/dns: low

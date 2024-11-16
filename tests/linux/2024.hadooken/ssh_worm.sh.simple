@@ -17,7 +17,7 @@ exfil/stealer/ssh: high
 fs/file/delete: medium
 fs/file/delete_forcibly: medium
 fs/file/times_set: medium
-fs/path/home: medium
+fs/path/home: low
 fs/path/root: medium
 fs/path/tmp: medium
 fs/permission/modify: medium

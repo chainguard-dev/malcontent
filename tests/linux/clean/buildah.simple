@@ -4,6 +4,7 @@ c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/discovery/ip_dns_resolver: medium
 collect/archives/zip: medium
+collect/databases/sql: low
 collect/databases/sqlite: medium
 credential/keychain: medium
 credential/password: low
