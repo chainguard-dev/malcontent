@@ -1,2 +1,3 @@
 # linux/clean/gcry_blowfish.mod: medium
 anti-static/binary/opaque: medium
+anti-static/elf/entropy: medium

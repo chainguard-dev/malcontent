@@ -1,5 +1,7 @@
 # macOS/2024.AMOS/Cosmical_setup: critical
+anti-static/binary/opaque: medium
 crypto/rc4: low
+exec/program/opaque: critical
 exec/shell/exec: medium
 malware/family/amos: critical
 net/url/embedded: low

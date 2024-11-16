@@ -30,7 +30,7 @@ exec/shell/nohup: medium
 exec/system_controls/stop: low
 exec/system_controls/systemd: medium
 exfil/office_file_ext: medium
-exfil/stealer/office: high
+exfil/stealer/file: high
 fs/directory/remove: low
 fs/file/delete: low
 fs/file/make_executable: high

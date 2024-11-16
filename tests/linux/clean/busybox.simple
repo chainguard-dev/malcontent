@@ -1,4 +1,5 @@
 # linux/clean/busybox: medium
+anti-static/elf/entropy: medium
 c2/addr/ip: medium
 credential/os/gshadow: medium
 credential/os/shadow: medium

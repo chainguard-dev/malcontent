@@ -46,7 +46,7 @@ exfil/office_file_ext: medium
 exfil/stealer/browser: high
 exfil/stealer/creds: high
 exfil/stealer/discord: high
-exfil/stealer/office: high
+exfil/stealer/file: high
 exfil/stealer/wallet: critical
 fs/directory/create: low
 fs/directory/list: low

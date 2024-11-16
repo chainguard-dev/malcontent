@@ -77,14 +77,6 @@
             ],
             "Behaviors": [
                 {
-                    "Description": "higher entropy ELF binary (\u003e6.5)",
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/elf/entropy.yara#normal_elf_high_entropy_7",
-                    "ID": "anti-static/elf/entropy",
-                    "RuleName": "normal_elf_high_entropy_7"
-                },
-                {
                     "Description": "Contains a table that may be used for XOR decryption",
                     "MatchStrings": [
                         "56789abcdefghijklmnopqrstuvwxyzABCDE::$ref"
@@ -1108,8 +1100,8 @@
                     "MatchStrings": [
                         "/home/sha2561.32.11.33.01.33.11.33.21.34.01.34.11.35.01.36.0ID"
                     ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/home.yara#home_path",
                     "ID": "fs/path/home",
                     "RuleName": "home_path"
