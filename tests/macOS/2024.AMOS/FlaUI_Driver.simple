@@ -1,6 +1,6 @@
-# macOS/2024.AMOS/FlaUI_Driver: critical
+# macOS/2024.AMOS/FlaUI_Driver: high
 anti-static/binary/opaque: medium
 crypto/rc4: low
-exec/program/opaque: critical
+exec/program/opaque: high
 exec/shell/exec: medium
 net/url/embedded: low

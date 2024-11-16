@@ -46,7 +46,7 @@ rule base64_suspicious_commands: critical {
     filesize < 64KB and any of them
 }
 
-rule base64_exec: medium {
+rule base64_exec: critical {
   meta:
     description = "executes base64 encoded commands"
 
@@ -55,4 +55,42 @@ rule base64_exec: medium {
 
   condition:
     any of them
+}
+
+rule echo_decode_bash: critical {
+  meta:
+    description = "executes base64 encoded shell commands"
+
+  strings:
+    $ref = /base64 {0,2}(-d|--decode) {0,2}\| {0,2}(bash|zsh|sh)/ fullword
+
+  condition:
+    filesize < 256KB and any of them
+}
+
+import "math"
+
+rule echo_decode_bash_probable: high {
+  meta:
+    description = "likely pipes base64 into a shell"
+
+  strings:
+    $decode = /base64 {0,2}(-d|--decode)/ fullword
+    $shell  = /(bash|zsh|sh)/ fullword
+
+  condition:
+    filesize < 256KB and any of them and (@shell[#shell] - @decode[#decode]) < 32 and (@shell[#shell] - @decode[#decode]) > 0
+}
+
+rule acme_sh: override {
+  meta:
+    description               = "acme.sh"
+    echo_decode_bash_probable = "medium"
+    iplookup_website          = "medium"
+
+  strings:
+    $ref = "https://github.com/acmesh-official"
+
+  condition:
+    $ref
 }

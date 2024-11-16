@@ -12,3 +12,4 @@ rule hex_parse_base64: high {
   condition:
     filesize < 32KB and any of ($lang*) and any of ($b*) and any of ($exec*)
 }
+

@@ -7,7 +7,7 @@
 # NOTE: This is slow to run, so for small changes you are better
 # off manually updating a single test file.
 
-set -eu -o pipefail -x
+set -eu -o pipefail
 
 MAX_PROCS=${MAX_PROCS:=8}
 readonly malcontent=$(realpath $1)

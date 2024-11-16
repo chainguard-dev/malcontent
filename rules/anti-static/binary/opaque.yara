@@ -16,17 +16,6 @@ rule opaque_binary: medium {
     filesize < 52428800 and (uint32(0) == 1179403647 or uint32(0) == 4277009102 or uint32(0) == 3472551422 or uint32(0) == 4277009103 or uint32(0) == 3489328638 or uint32(0) == 3405691582 or uint32(0) == 3199925962) and #word_with_spaces < 4 and none of ($not*)
 }
 
-rule long_str: medium {
-  meta:
-    description = "contains very long strings"
-
-  strings:
-    $long_str = /\w{4096}/
-
-  condition:
-    filesize < 1MB and (uint32(0) == 1179403647 or uint32(0) == 4277009102 or uint32(0) == 3472551422 or uint32(0) == 4277009103 or uint32(0) == 3489328638 or uint32(0) == 3405691582 or uint32(0) == 3199925962) and $long_str
-}
-
 rule mystery_regex_binary: high {
   meta:
     description = "opaque binary with suspicious libc calls and regex usage"

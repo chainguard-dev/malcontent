@@ -23,9 +23,9 @@ rule macho_opaque_binary: high {
     small_macho and #word_with_spaces < 8 and #libc_call < 6 and all of ($f*) and none of ($not*)
 }
 
-rule macho_opaque_binary_long_str: critical {
+rule macho_opaque_binary_long_str: high {
   meta:
-    description = "opaque binary executes mystery command-lines, contains large strings"
+    description = "opaque binary executes mystery command-lines, contains large alphanumeric string"
 
   strings:
     $word_with_spaces = /[a-z]{2,16} [a-uxyz]{2,16}/ fullword
@@ -37,8 +37,8 @@ rule macho_opaque_binary_long_str: critical {
     $not_USAGE        = "USAGE:" fullword
     $not_java         = "java/lang"
 
-    $long_str = /\w{4096}/
+    $long_low_str = /\x00[a-z0-9]{3000}/
 
   condition:
-    small_macho and #word_with_spaces < 10 and #libc_call < 15 and all of ($f*) and $long_str and none of ($not*)
+    small_macho and #word_with_spaces < 10 and #libc_call < 15 and all of ($f*) and any of ($long*) and none of ($not*)
 }
