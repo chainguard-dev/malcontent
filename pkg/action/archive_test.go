@@ -39,6 +39,7 @@ func TestExtractionMethod(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			got := extractionMethod(tt.ext)
 			if (got == nil) != (tt.want == nil) {
 				t.Errorf("extractionMethod() for extension %v did not return expected result", tt.ext)
@@ -48,7 +49,6 @@ func TestExtractionMethod(t *testing.T) {
 }
 
 func TestExtractionMultiple(t *testing.T) {
-	t.Parallel()
 	tests := []struct {
 		path string
 		want []string
@@ -317,6 +317,7 @@ func TestGetExt(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.path, func(t *testing.T) {
+			t.Parallel()
 			if got := getExt(tt.path); got != tt.want {
 				t.Errorf("Ext() = %v, want %v", got, tt.want)
 			}

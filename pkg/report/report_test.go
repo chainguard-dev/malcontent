@@ -41,6 +41,7 @@ func TestLongestUnique(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			if got := longestUnique(tt.raw); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("longestUnique() = %v, want %v", got, tt.want)
 			}
@@ -82,6 +83,7 @@ func TestUpgradeRisk(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			if got := upgradeRisk(context.Background(), tt.currentScore, tt.riskCounts, tt.size); got != tt.want {
 				t.Errorf("upgradeRisk(%d, %v, %v) = %v, want %v", tt.currentScore, tt.riskCounts, tt.size, got, tt.want)
 			}
