@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   test:
-    runs-on: mal-ubuntu-latest-64-core
+    runs-on: mal-ubuntu-latest-arm-16-core
 
     steps:
       - uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.1
@@ -35,11 +35,6 @@ jobs:
 
       - name: install dependencies
         run: |
-          sudo add-apt-repository -n -y "deb http://archive.ubuntu.com/ubuntu/ mantic main restricted universe multiverse"
-          sudo add-apt-repository -n -y "deb http://archive.ubuntu.com/ubuntu/ mantic-updates main restricted universe multiverse"
-          sudo add-apt-repository -n -y "deb http://archive.ubuntu.com/ubuntu/ mantic-backports main restricted universe multiverse"
-          sudo add-apt-repository -n -y "deb http://security.ubuntu.com/ubuntu mantic-security main restricted universe multiverse"
-
           sudo apt update && sudo apt install libyara-dev xz-utils -y
 
       - name: Unit tests
