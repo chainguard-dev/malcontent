@@ -10,6 +10,7 @@ rule gethostname {
     $proc        = "/proc/sys/kernel/hostname"
     $python      = "socket.gethostname"
     $nodejs      = "os.hostname()"
+    $js          = "os.default.hostname"
 
   condition:
     any of them

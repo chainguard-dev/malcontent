@@ -1,0 +1,6 @@
+# macOS/2024.CryptoNews/CryptoNews-PR-Agreement: high
+anti-static/binary/opaque: high
+data/random/insecure: low
+exec/cmd/pipe: medium
+fs/directory/create: low
+process/create: low

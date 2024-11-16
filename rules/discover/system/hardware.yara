@@ -18,7 +18,6 @@ rule macos_hardware_profiler: medium {
 
   strings:
     $p_system_profiler  = "system_profiler SPHardwareDataType"
-    $p_uuid             = "IOPlatformUUID"
     $p_ioreg            = "ioreg -"
     $p_hw_model         = "hw.model"
     $p_machineid        = "machineid.ID"

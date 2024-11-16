@@ -3,7 +3,7 @@ exec/program: medium
 exec/shell/command: medium
 exec/shell/exec: medium
 fs/file/delete_forcibly: low
-fs/path/home: medium
+fs/path/home: low
 fs/path/usr_bin: low
 fs/path/usr_local: medium
 impact/exploit/pwnkit: critical

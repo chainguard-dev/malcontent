@@ -21,7 +21,7 @@ evasion/file/prefix: medium
 exec/dylib/symbol_address: medium
 exec/program: medium
 exec/program/background: low
-exfil/stealer/upload_keychain_zip: high
+exfil/stealer/creds: high
 fs/directory/create: low
 fs/directory/list: low
 fs/directory/remove: low

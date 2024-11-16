@@ -121,7 +121,7 @@ exec/shell/power: medium
 exec/system_controls/apparmor: medium
 exec/tty/getpass: low
 exfil/office_file_ext: medium
-exfil/stealer/usbmon_webproxy_zipper: high
+exfil/stealer/archive: high
 fs/directory/create: low
 fs/file/delete: low
 fs/file/times_set: medium
@@ -169,6 +169,7 @@ net/proxy/reverse: medium
 net/proxy/shadowsocks: high
 net/proxy/socks5: medium
 net/proxy/tunnel: medium
+net/rpc/ntlm: medium
 net/socket/listen: medium
 net/socket/receive: low
 net/socket/send: low

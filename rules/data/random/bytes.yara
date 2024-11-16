@@ -6,5 +6,5 @@ rule rand {
     $ref = ".randomBytes(" fullword
 
   condition:
-    $ref
+    any of them
 }

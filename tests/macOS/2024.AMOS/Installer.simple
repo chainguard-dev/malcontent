@@ -1,4 +1,5 @@
 # macOS/2024.AMOS/Installer: critical
+anti-static/binary/opaque: medium
 crypto/rc4: low
 exec/shell/exec: medium
 malware/family/amos: critical

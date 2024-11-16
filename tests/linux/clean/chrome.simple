@@ -12,6 +12,7 @@ c2/refs: medium
 c2/tool_transfer/dropper: medium
 collect/archives/zip: medium
 collect/databases/leveldb: medium
+collect/databases/sql: low
 collect/databases/sqlite: medium
 credential/keychain: medium
 credential/keychain/gnome_keyring_daemon: medium
@@ -85,7 +86,7 @@ fs/mounts_read: medium
 fs/path/etc: low
 fs/path/etc_hosts: medium
 fs/path/etc_resolv.conf: low
-fs/path/home: medium
+fs/path/home: low
 fs/path/home_config: low
 fs/path/root: medium
 fs/path/tmp: medium
@@ -139,6 +140,7 @@ net/proxy/socks5: medium
 net/proxy/tunnel: medium
 net/resolve/hostname: low
 net/resolve/hostport_parse: low
+net/rpc/ntlm: medium
 net/socket/listen: medium
 net/socket/local_addr: low
 net/socket/peer_address: low

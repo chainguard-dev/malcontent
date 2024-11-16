@@ -15,6 +15,7 @@ c2/tool_transfer/download: high
 c2/tool_transfer/github_raw: medium
 collect/archives/zip: medium
 collect/databases/leveldb: medium
+collect/databases/sql: low
 collect/databases/sqlite: medium
 credential/browser/chromium_master_password: high
 credential/browser/firefox_cookies: high
@@ -46,7 +47,7 @@ exfil/office_file_ext: medium
 exfil/stealer/browser: high
 exfil/stealer/creds: high
 exfil/stealer/discord: high
-exfil/stealer/office: high
+exfil/stealer/file: high
 exfil/stealer/wallet: critical
 fs/directory/create: low
 fs/directory/list: low

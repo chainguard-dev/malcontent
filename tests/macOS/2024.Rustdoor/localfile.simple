@@ -28,8 +28,8 @@ exec/program/background: low
 exec/program/hidden: medium
 exec/script/osa: medium
 exec/shell/exec: medium
+exfil/stealer/file: high
 exfil/stealer/notes: critical
-exfil/stealer/office: high
 exfil/stealer/ssh: medium
 fs/directory/create: low
 fs/directory/remove: low
@@ -38,6 +38,7 @@ fs/file/delete: low
 fs/file/flags_change: low
 fs/file/make_executable: high
 fs/file/times_set: medium
+fs/path/applications: high
 fs/path/etc: low
 fs/path/relative: medium
 fs/path/tmp: medium

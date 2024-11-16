@@ -3,6 +3,7 @@
 3P/craiu/unk_liblzma_encstrings: critical
 3P/elastic/xzbackdoor: critical
 3P/sig_base/bkdr_xzutil_binary: critical
+collect/databases/sql: low
 data/compression/lzma: low
 discover/process/runtime_deps: high
 process/multithreaded: low

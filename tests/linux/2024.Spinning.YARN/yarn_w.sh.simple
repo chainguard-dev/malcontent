@@ -1,5 +1,5 @@
 # linux/2024.Spinning.YARN/yarn_w.sh: critical
-anti-static/base64/eval: high
+anti-static/obfuscation/sh: high
 c2/connect/bash_tcp: high
 data/base64/external: medium
 data/embedded/base64_url: medium

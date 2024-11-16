@@ -1,0 +1,4 @@
+# macOS/2024.FakeZoom/Zoom: high
+exec/program/opaque: high
+exec/shell/exec: medium
+net/url/embedded: low
