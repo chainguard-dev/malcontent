@@ -24,6 +24,7 @@ import (
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/action"
 	"github.com/chainguard-dev/malcontent/pkg/profile"
+	"github.com/chainguard-dev/malcontent/pkg/refresh"
 	"github.com/chainguard-dev/malcontent/pkg/render"
 	"github.com/chainguard-dev/malcontent/pkg/version"
 	"github.com/chainguard-dev/malcontent/rules"
@@ -469,6 +470,22 @@ func main() {
 					err = renderer.Full(ctx, res)
 					if err != nil {
 						returnCode = ExitRenderFailed
+						return err
+					}
+					return nil
+				},
+			},
+			{
+				Name:  "refresh",
+				Usage: "Refresh test data",
+				Action: func(_ *cli.Context) error {
+					cfg := refresh.Config{
+						Concurrency:  runtime.NumCPU(),
+						SamplesPath:  "./out/chainguard-dev/malcontent-samples",
+						TestDataPath: "./tests",
+					}
+					if err := refresh.Refresh(ctx, cfg); err != nil {
+						returnCode = ExitInputOutput
 						return err
 					}
 					return nil

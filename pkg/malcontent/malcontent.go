@@ -39,6 +39,7 @@ type Config struct {
 	Scan                  bool
 	ScanPaths             []string
 	Stats                 bool
+	TrimPrefixes          []string
 }
 
 type Behavior struct {

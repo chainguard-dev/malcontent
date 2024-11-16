@@ -341,6 +341,22 @@ func mungeDescription(s string) string {
 	return s
 }
 
+// TrimPrefixes removes the specified prefix from a given path for the purposes of sample test data generation.
+// This function will only be used via the refresh package.
+func TrimPrefixes(path string, prefixes []string) string {
+	for _, prefix := range prefixes {
+		if prefix == "" {
+			continue
+		}
+		prefix = strings.TrimPrefix(prefix, "./")
+		if strings.HasPrefix(path, prefix) {
+			trimmed := path[len(prefix):]
+			return strings.TrimPrefix(trimmed, string(filepath.Separator))
+		}
+	}
+	return path
+}
+
 //nolint:cyclop // ignore complexity of 44
 func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malcontent.Config, expath string, _ *clog.Logger) (malcontent.FileReport, error) {
 	ignoreTags := c.IgnoreTags
@@ -357,12 +373,16 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 		return malcontent.FileReport{}, err
 	}
 
+	displayPath := path
 	if c.OCI {
-		path = strings.TrimPrefix(path, expath)
+		displayPath = strings.TrimPrefix(path, expath)
+	}
+	if len(c.TrimPrefixes) > 0 {
+		displayPath = TrimPrefixes(displayPath, c.TrimPrefixes)
 	}
 
 	fr := malcontent.FileReport{
-		Path:      path,
+		Path:      displayPath,
 		SHA256:    checksum,
 		Size:      size,
 		Meta:      map[string]string{},
