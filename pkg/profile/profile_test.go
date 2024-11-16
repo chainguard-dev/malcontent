@@ -7,6 +7,7 @@ import (
 )
 
 func TestProfile(t *testing.T) {
+	t.Parallel()
 	stop, err := Profile()
 	if err != nil {
 		t.Fatalf("failed to start profiling: %v", err)
