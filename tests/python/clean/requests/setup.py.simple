@@ -1,5 +1,4 @@
 # python/clean/requests/setup.py: medium
-anti-static/obfuscation/python: low
 c2/tool_transfer/download: medium
 exec/imports/python: low
 exec/program: medium

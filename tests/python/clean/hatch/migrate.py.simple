@@ -1,5 +1,4 @@
 # python/clean/hatch/migrate.py: medium
-anti-static/obfuscation/python: low
 discover/system/environment: medium
 exec/imports/python: low
 exec/program: medium

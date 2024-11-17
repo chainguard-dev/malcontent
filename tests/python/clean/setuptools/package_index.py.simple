@@ -1,5 +1,4 @@
 # python/clean/setuptools/package_index.py: medium
-anti-static/obfuscation/python: low
 c2/refs: medium
 credential/password: low
 data/embedded/html: medium

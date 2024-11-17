@@ -1,5 +1,4 @@
 # python/clean/setuptools/namespaces.py: medium
-anti-static/obfuscation/python: low
 data/encoding/json_encode: low
 exec/imports/python: low
 exec/remote_commands/code_eval: medium

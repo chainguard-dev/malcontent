@@ -475,10 +475,11 @@ rule decompress_base64_entropy: high {
 
 rule join: low {
   meta:
-    description = "joins strings together"
+    description = "joins array together with an empty delimiter"
 
   strings:
-    $join = ".join("
+    $join = "''.join("
+    $join_double = "\"\".join("
 
   condition:
     probably_python and any of them

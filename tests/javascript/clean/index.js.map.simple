@@ -1,5 +1,4 @@
 # javascript/clean/index.js.map: medium
-anti-static/obfuscation/python: low
 crypto/aes: low
 data/encoding/base64: low
 data/encoding/json_decode: low

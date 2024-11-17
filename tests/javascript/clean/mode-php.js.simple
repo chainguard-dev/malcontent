@@ -1,5 +1,4 @@
 # javascript/clean/mode-php.js: medium
-anti-static/obfuscation/python: low
 c2/addr/ip: medium
 collect/databases/mysql: medium
 collect/databases/sql: low

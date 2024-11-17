@@ -1,5 +1,4 @@
 # python/2022.activedevbadge-0.39/setup.py: critical
-anti-static/obfuscation/python: low
 c2/tool_transfer/python: critical
 discover/user/name_get: high
 exec/imports/python: low

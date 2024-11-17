@@ -3,8 +3,8 @@ rule has_import: low {
     description = "imports python modules"
 
   strings:
-    $ref  = /import [a-z0-9A-Z]{2,8}/
-    $ref2 = /from [a-z0-9A-Z\.]{2,32} import [a-z0-9A-Z]{2,8}/
+    $ref  = /import [a-z0-9A-Z]{2,12}/ fullword
+    $ref2 = /from [a-z0-9A-Z\.]{2,48} import [a-z0-9A-Z]{2,24}/ fullword
 
   condition:
     filesize < 64KB and any of them

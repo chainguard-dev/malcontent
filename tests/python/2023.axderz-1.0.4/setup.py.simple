@@ -1,5 +1,4 @@
 # python/2023.axderz-1.0.4/setup.py: critical
-anti-static/obfuscation/python: low
 c2/tool_transfer/download: high
 c2/tool_transfer/python: critical
 credential/ssh: high

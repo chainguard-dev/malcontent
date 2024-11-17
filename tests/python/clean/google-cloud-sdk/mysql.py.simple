@@ -1,5 +1,4 @@
 # python/clean/google-cloud-sdk/mysql.py: medium
-anti-static/obfuscation/python: low
 collect/databases/mysql: medium
 credential/password: low
 exec/imports/python: low

@@ -5,7 +5,6 @@
 3P/threat_hunting/netsh: medium
 3P/threat_hunting/powershell: medium
 3P/threat_hunting/pupy: medium
-anti-static/obfuscation/python: low
 collect/databases/leveldb: medium
 credential/clipboard: medium
 credential/keylogger: high
