@@ -10,7 +10,7 @@ rule sw_vers_and_libcurl: medium {
     all of them
 }
 
-rule curl_easy_sysinfo: high {
+rule macos_curl_easy_sysinfo: high {
   meta:
     description = "fetches macOS system information and uses curl_easy"
 

@@ -11,7 +11,7 @@ rule bsd_rand {
     any of them
 }
 
-rule rand {
+rule insecure_rand {
   meta:
     description = "generate random numbers insecurely"
     ref         = "https://man7.org/linux/man-pages/man3/srand.3.html"

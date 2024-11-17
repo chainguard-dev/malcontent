@@ -1,4 +1,4 @@
-private rule macho {
+private rule tool_transfer_macho {
   strings:
     $not_jar   = "META-INF/"
     $not_dwarf = "_DWARF"
@@ -37,5 +37,5 @@ rule cocoa_bundle_dropper: critical {
     $platform = "isPlatformOrVariantPlatformVersionAtLeast" fullword
 
   condition:
-    macho and $shared and 5 of them
+    tool_transfer_macho and $shared and 5 of them
 }

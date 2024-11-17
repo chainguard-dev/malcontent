@@ -1,4 +1,4 @@
-rule executable_calls_archive_tool: medium {
+rule stealer_executable_calls_archive_tool: medium {
   meta:
     description = "calls tool to create archive files"
 

@@ -35,7 +35,7 @@ rule nohup_bash: high {
     description = "Calls bash with nohup"
 
   strings:
-    $ref = /nohup bash[ \w\/\&\.\-\%\>]{0,32}/
+    $ref = /nohup bash[ \w\/\&\.\-\%\\>]{0,32}/
 
   condition:
     any of them

@@ -1,4 +1,4 @@
-rule home_path: medium {
+rule home_path_users: medium {
   meta:
     description = "references path within /Users"
 

@@ -25,36 +25,36 @@ rule rc4_constants: medium {
 
   strings:
     $opt0  = { 03 02 01 00 }
-    $opt1  = { 07 06 05 04 }
-    $opt2  = { 0B 0A 09 08 }
-    $opt3  = { 0F 0E 0D 0C }
-    $opt4  = { 13 12 11 10 }
-    $opt5  = { 17 16 15 14 }
-    $opt6  = { 1B 1A 19 18 }
-    $opt7  = { 1F 1E 1D 1C }
-    $opt8  = { 23 22 21 20 }
-    $opt9  = { 27 26 25 24 }
-    $opt10 = { 2B 2A 29 28 }
-    $opt11 = { 2F 2E 2D 2C }
-    $opt12 = { 33 32 31 30 }
-    $opt13 = { 37 36 35 34 }
-    $opt14 = { 3B 3A 39 38 }
-    $opt15 = { 3F 3E 3D 3C }
-    $opt16 = { 43 42 41 40 }
-    $opt17 = { 47 46 45 44 }
-    $opt18 = { 4B 4A 49 48 }
-    $opt19 = { 4F 4E 4D 4C }
-    $opt20 = { 53 52 51 50 }
-    $opt21 = { 57 56 55 54 }
-    $opt22 = { 5B 5A 59 58 }
-    $opt23 = { 5F 5E 5D 5C }
-    $opt24 = { 67 66 65 64 }
-    $opt25 = { 6B 6A 69 68 }
-    $opt26 = { 6F 6E 6D 6C }
-    $opt27 = { 73 72 71 70 }
-    $opt28 = { 77 76 75 74 }
-    $opt29 = { 7B 7A 79 78 }
-    $opt30 = { 7F 7E 7D 7C }
+    $opt1  = "\x07\x06\x05\x04"
+    $opt2  = "\x0B\x0A\x09\x08"
+    $opt3  = "\x0F\x0E\x0D\x0C"
+    $opt4  = "\x13\x12\x11\x10"
+    $opt5  = "\x17\x16\x15\x14"
+    $opt6  = "\x1B\x1A\x19\x18"
+    $opt7  = "\x1F\x1E\x1D\x1C"
+    $opt8  = "#\"! "
+    $opt9  = "'&%$"
+    $opt10 = "+*)("
+    $opt11 = "/.-,"
+    $opt12 = "3210"
+    $opt13 = "7654"
+    $opt14 = ";:98"
+    $opt15 = "?>=<"
+    $opt16 = "CBA@"
+    $opt17 = "GFED"
+    $opt18 = "KJIH"
+    $opt19 = "ONML"
+    $opt20 = "SRQP"
+    $opt21 = "WVUT"
+    $opt22 = "[ZYX"
+    $opt23 = "_^]\\"
+    $opt24 = "gfed"
+    $opt25 = "kjih"
+    $opt26 = "onml"
+    $opt27 = "srqp"
+    $opt28 = "wvut"
+    $opt29 = "{zyx"
+    $opt30 = "\x7F\x7E\x7D\x7C"
     $opt31 = { 83 82 81 80 }
     $opt32 = { 87 86 85 84 }
     $opt33 = { 8B 8A 89 88 }
@@ -87,7 +87,7 @@ rule rc4_constants: medium {
     $opt60 = { F7 F6 F5 F4 }
     $opt61 = { FB FA F9 F8 }
     $opt62 = { FF FE FD FC }
-    $opt63 = { 63 62 61 60 }
+    $opt63 = "cba`"
 
   condition:
     75 % of ($opt*)

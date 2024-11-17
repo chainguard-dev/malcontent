@@ -13,7 +13,7 @@ rule zsh_persist: medium {
     filesize < 2097152 and any of ($ref*) and none of ($not*)
 }
 
-rule hardcoded_bash_persist_file: high {
+rule hardcoded_zsh_persist_file: high {
   meta:
     description = "hardcodes a shell startup file"
 

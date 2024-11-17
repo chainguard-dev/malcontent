@@ -1,4 +1,4 @@
-rule pycloak: critical {
+rule kramer: critical {
   meta:
     description = "packed with kramer"
     ref         = "https://github.com/billythegoat356/Kramer"

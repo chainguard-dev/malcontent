@@ -1,4 +1,4 @@
-rule rand {
+rule generate_rand {
   meta:
     description = "generates random bytes"
 

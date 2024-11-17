@@ -1,4 +1,4 @@
-rule implant: medium {
+rule reverse_proxy: medium {
   meta:
     description = "Implements a reverse proxy"
 

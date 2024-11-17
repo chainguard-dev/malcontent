@@ -3,7 +3,7 @@ rule rm_force {
     description = "Forcibly deletes files"
 
   strings:
-    $ref = /rm [\-\w ]{0,4}-[f[ \$\w\/\.]{0,32}/
+    $ref = /rm [\-\w ]{0,4}-[f \$\w\/\.]{0,32}/
 
   condition:
     $ref

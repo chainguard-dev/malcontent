@@ -7,7 +7,7 @@ rule selinux_firewall: high linux {
 
   strings:
     $selinux          = /SELINUX[=\w]{0,32}/ fullword
-    $f_iptables       = /iptables[ -\w]{0,32}/
+    $f_iptables       = /iptables[ -\\w]{0,32}/
     $f_firewalld      = /[\w ]{0,32}firewalld/
     $not_ip6tables    = "NFTNL_RULE_TABLE"
     $not_iptables     = "iptables-restore"
@@ -20,8 +20,6 @@ rule selinux_firewall: high linux {
   condition:
     filesize < 1MB and $selinux and any of ($f*) and none of ($not*)
 }
-
-import "math"
 
 private rule ufw_tool {
   strings:
@@ -46,7 +44,7 @@ rule ufw_disable_word: high {
     filesize < 256KB and $ref and not ufw_tool
 }
 
-rule iptables_disable: high {
+rule firewall_iptables_disable: high {
   meta:
     description = "disables iptables firewall"
 

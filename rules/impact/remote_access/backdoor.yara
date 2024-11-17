@@ -89,7 +89,7 @@ rule commands: high {
     all of them
 }
 
-private rule small_macho {
+private rule backdoor_small_macho {
   condition:
     filesize < 1MB and (uint32(0) == 4277009102 or uint32(0) == 3472551422 or uint32(0) == 4277009103 or uint32(0) == 3489328638 or uint32(0) == 3405691582 or uint32(0) == 3199925962)
 }
@@ -134,5 +134,5 @@ rule macho_backdoor_libc_signature: high {
     $not_java       = "java/lang"
 
   condition:
-    small_macho and #word_with_spaces < 10 and #libc_call < 74 and 95 % of ($f*) and none of ($not*)
+    backdoor_small_macho and #word_with_spaces < 10 and #libc_call < 74 and 95 % of ($f*) and none of ($not*)
 }

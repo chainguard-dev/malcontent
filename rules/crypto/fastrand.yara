@@ -1,4 +1,4 @@
-rule ethereum: medium {
+rule uses_pseudo_rng: medium {
   meta:
     description = "uses a fast pseudorandom generator"
 

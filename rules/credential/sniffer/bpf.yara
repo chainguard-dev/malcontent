@@ -1,4 +1,4 @@
-rule bpf: medium {
+rule sniffer_bpf: medium {
   meta:
     capability  = "CAP_SYS_BPF"
     description = "BPF (Berkeley Packet Filter)"

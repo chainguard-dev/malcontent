@@ -292,7 +292,7 @@ rule php_base64_encoded: critical {
     filesize < 64KB and $php and any of ($_*) and any of ($base*)
 }
 
-rule php_str_replace_obfuscation: critical {
+rule php_run_obfuscated: critical {
   meta:
     description = "accepts input and runs obfuscated code"
 
@@ -306,7 +306,7 @@ rule php_str_replace_obfuscation: critical {
     $o_dynamic_single   = /\$\w {0,2}= \$\w\(/
     $o_single_concat    = /\$\w . \$\w . \$\w ./
     $o_single_set       = /\$\w = \w\(\)\;/
-    $o_recursive_single = /\$\w\( {0,2}\$\w\(/
+    $o_recursive_single = /\$[a-zA-Z_]\w*\(\$[a-zA-Z_]\w*\(/
 
   condition:
     filesize < 65535 and 2 of ($f*) and any of ($i*) and 2 of ($o*)

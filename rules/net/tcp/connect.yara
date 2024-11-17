@@ -1,4 +1,4 @@
-rule listen_tcp: medium {
+rule connect_tcp: medium {
   meta:
     description = "connects to a TCP port"
 

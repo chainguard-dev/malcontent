@@ -62,6 +62,7 @@ net/resolve/hostport_parse: low
 net/socket/connect: medium
 net/socket/listen: medium
 net/socket/local_addr: low
+net/socket/pair: medium
 net/socket/peer_address: low
 net/socket/receive: low
 net/socket/send: low

@@ -1,4 +1,4 @@
-rule iptables_delete: medium {
+rule iptables_chain_delete: medium {
   meta:
     syscall     = "posix_spawn"
     pledge      = "exec"

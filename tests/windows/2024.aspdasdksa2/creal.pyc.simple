@@ -8,6 +8,7 @@ anti-behavior/blocklist/user: critical
 c2/tool_transfer/download: high
 collect/databases/leveldb: medium
 credential/browser/chrome_cookies: high
+credential/browser/chromium_credit_cards: critical
 credential/browser/chromium_master_password: high
 credential/gaming/minecraft: medium
 credential/password: low

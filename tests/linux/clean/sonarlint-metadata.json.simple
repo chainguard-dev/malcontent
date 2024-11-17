@@ -26,6 +26,7 @@ fs/file/write: low
 fs/path/dev: medium
 fs/path/etc: low
 fs/path/etc_hosts: medium
+fs/path/home: low
 fs/path/relative: medium
 fs/path/tmp: medium
 fs/path/users: medium

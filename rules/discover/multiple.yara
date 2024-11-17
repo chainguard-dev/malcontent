@@ -28,7 +28,7 @@ rule sys_net_recon: medium {
     filesize < 512KB and any of ($sys*) and any of ($net*)
 }
 
-private rule obfuscate {
+private rule discover_obfuscate {
   strings:
     $b64decode = "b64decode"
     $base64    = "base64"
@@ -44,7 +44,7 @@ private rule obfuscate {
     filesize < 512KB and any of them
 }
 
-private rule exfil {
+private rule discover_exfil {
   strings:
     $f_app_json = "application/json"
     $f_post     = "requests.post"
@@ -66,5 +66,5 @@ rule sys_net_recon_exfil: high {
     $not_cloudinit = "cloudinit" fullword
 
   condition:
-    sys_net_recon and obfuscate and exfil and none of ($not*)
+    sys_net_recon and discover_obfuscate and discover_exfil and none of ($not*)
 }

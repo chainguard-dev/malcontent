@@ -1,4 +1,4 @@
-rule chromium_master_password: critical {
+rule chromium_credit_cards: critical {
   meta:
     description = "Gets Chromium credit card information"
 

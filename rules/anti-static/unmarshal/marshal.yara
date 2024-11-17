@@ -11,7 +11,7 @@ private rule pySetup {
     filesize < 2097152 and $setup and any of ($i*) and none of ($not*)
 }
 
-rule py_marshal: medium {
+rule unmarshal_py_marshal: medium {
   meta:
     description = "reads python values from binary content"
 
@@ -27,5 +27,5 @@ rule setuptools_py_marshal: suspicious {
     description = "Python library installer that reads values from binary content"
 
   condition:
-    pySetup and py_marshal
+    pySetup and unmarshal_py_marshal
 }

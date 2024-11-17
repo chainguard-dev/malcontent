@@ -90,6 +90,7 @@ crypto/ed25519: low
 crypto/fernet: medium
 crypto/file_encrypter: medium
 data/compression/bzip2: low
+data/compression/gzip: low
 data/compression/lzma: low
 data/compression/zstd: low
 data/encoding/base64: low
@@ -112,6 +113,7 @@ evasion/logging/acct: low
 evasion/process_injection/ptrace: medium
 evasion/process_injection/readelf: medium
 evasion/rootkit/refs: medium
+evasion/rootkit/userspace: low
 exec/dylib/symbol_address: medium
 exec/install_additional/pip_install: high
 exec/plugin: low
@@ -150,11 +152,11 @@ impact/ransom/decryptor: medium
 impact/remote_access/backdoor: high
 impact/remote_access/crypto_listen_socks: medium
 impact/remote_access/heartbeat: medium
+impact/remote_access/implant: medium
 impact/remote_access/iptables: medium
 impact/remote_access/net_shell: high
 impact/remote_access/reverse_shell: high
 impact/remote_access/trojan: medium
-impact/rootkit: low
 impact/ui/screen_capture: high
 impact/ui/x11_auth: medium
 lateral/scan/brute_force: low
@@ -171,6 +173,7 @@ net/proxy/socks5: medium
 net/proxy/tunnel: medium
 net/rpc/ntlm: medium
 net/socket/listen: medium
+net/socket/pair: medium
 net/socket/receive: low
 net/socket/send: low
 net/tcp/sftp: medium

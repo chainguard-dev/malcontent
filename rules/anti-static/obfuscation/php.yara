@@ -1,11 +1,18 @@
-rule base64_str_replace: medium {
+rule obfuscation_base64_str_replace: medium {
   meta:
     description = "creatively hidden forms of the term 'base64'"
 
   strings:
-    $a = /ba.s.e64/
-    $b = /b.a.s.6.4/
-    $c = /b.a.se.6.4/
+    $a = /\wba\ws\we64/
+    $b = /\wb\wa\wse\w6\w4/
+    $c = /\wba\ws\we\w6\w4/
+    $d = /\wb\was\we\w6\w4/
+    $e = /\wb\wa\ws\we6\w4/
+    $f = /\wb\wa\ws\we\w64/
+    $g = "'bas'.'e'.'6'.'4"
+    $h = "'ba'.'se'.'6'.'4"
+    $i = "'b'.'ase'.'6'.'4"
+    $j = "'bas'.'e'.'6'.'4"
 
   condition:
     any of them
@@ -54,7 +61,7 @@ rule php_obfuscation: high {
     $o_weevely3          = /\$\w=\$[a-zA-Z]\('',\$\w\);\$\w\(\);/
     $o_c99_launcher      = /;\$\w+\(\$\w+(,\s?\$\w+)+\);/
     $o_ninja             = /base64_decode[^;]+getallheaders/
-    $o_variable_variable = /\${\$[0-9a-zA-z]+}/
+    $o_variable_variable = /\$\{\$[0-9a-zA-z]+\}/
     $o_too_many_chr      = /(chr\([\d]+\)\.){8}/
     $o_var_as_func       = /\$_(GET|POST|COOKIE|REQUEST|SERVER)\s*\[[^\]]+\]\s*\(/
 
@@ -137,7 +144,7 @@ rule php_str_replace_obfuscation: high {
     $o_dynamic_single   = /\$\w {0,2}= \$\w\(/
     $o_single_concat    = /\$\w . \$\w . \$\w ./
     $o_single_set       = /\$\w = \w\(\)\;/
-    $o_recursive_single = /\$\w\( {0,2}\$\w\(/
+    $o_recursive_single = /\$[a-zA-Z_]\w*\(\$[a-zA-Z_]\w*\(/
 
   condition:
     filesize < 65535 and $str_replace and 2 of ($o*)
