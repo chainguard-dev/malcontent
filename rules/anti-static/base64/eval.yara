@@ -46,9 +46,9 @@ rule ruby_eval2_near_enough: critical {
     all of them and math.abs(@base64 - @eval) <= 200
 }
 
-rule python_exec_near_enough: high {
+rule python_exec_near_enough_base64: high {
   meta:
-    description = "Evaluates base64 content"
+    description = "Likely executes base64 content"
 
   strings:
     $exec   = "exec("

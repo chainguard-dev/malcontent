@@ -1,4 +1,5 @@
 # typescript/2021.CursedGrabber.an0n-chat-lib/src/stealer.ts: critical
+anti-static/obfuscation/python: low
 collect/databases/leveldb: medium
 data/encoding/json_decode: low
 discover/user/info: medium

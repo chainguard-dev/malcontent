@@ -1,6 +1,8 @@
 # python/clean/tensorflow_model_analysis/tfjs_predict_extractor_util.py: medium
+anti-static/obfuscation/python: low
 c2/tool_transfer/python: medium
 discover/system/platform: medium
+exec/imports/python: low
 exec/program: medium
 fs/permission/modify: medium
 fs/tempdir/create: low

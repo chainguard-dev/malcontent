@@ -5,6 +5,7 @@
 3P/threat_hunting/netsh: medium
 3P/threat_hunting/powershell: medium
 3P/threat_hunting/pupy: medium
+anti-static/obfuscation/python: low
 collect/databases/leveldb: medium
 credential/clipboard: medium
 credential/keylogger: high
@@ -24,6 +25,7 @@ discover/user/name_get: low
 exec/cmd/pipe: medium
 exec/conditional/is_admin: medium
 exec/conditional/root_check: medium
+exec/imports/python: low
 exec/program: medium
 exec/shell/command: medium
 exec/shell/power: medium

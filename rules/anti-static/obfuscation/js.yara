@@ -125,7 +125,7 @@ rule js_const_func_obfuscation: medium {
 
 rule js_hex_eval_obfuscation: critical {
   meta:
-    description = "javascript eval bfuscation (hex)"
+    description = "javascript eval obfuscation (hex)"
 
   strings:
     $return = /\(eval, _{0,4}0x[\w]{0,32}[\(\[]/

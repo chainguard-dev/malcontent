@@ -1,5 +1,7 @@
 # python/clean/hatch/migrate.py: medium
+anti-static/obfuscation/python: low
 discover/system/environment: medium
+exec/imports/python: low
 exec/program: medium
 exec/remote_commands/code_eval: medium
 false-positives/py_hatch: low

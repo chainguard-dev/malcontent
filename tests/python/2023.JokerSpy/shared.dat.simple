@@ -10,6 +10,7 @@ discover/network/interface_list: medium
 discover/system/platform: medium
 discover/user/name_get: low
 evasion/file/prefix: medium
+exec/imports/python: low
 exec/program: medium
 exec/remote_commands/code_eval: medium
 exec/tty/getpass: low

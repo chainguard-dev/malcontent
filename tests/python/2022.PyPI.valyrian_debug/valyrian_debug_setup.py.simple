@@ -8,6 +8,7 @@ discover/user/name_get: high
 evasion/file/prefix: medium
 evasion/file/prefix/tmp: high
 exec/cmd/pipe: medium
+exec/imports/python: low
 exec/program: medium
 exec/shell/command: medium
 exfil/curl_post: medium

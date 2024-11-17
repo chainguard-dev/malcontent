@@ -1,8 +1,10 @@
 # python/clean/setuptools/package_index.py: medium
+anti-static/obfuscation/python: low
 c2/refs: medium
 credential/password: low
 data/embedded/html: medium
 data/encoding/base64: low
+exec/imports/python: low
 exec/program: medium
 fs/directory/list: low
 fs/file/delete: low

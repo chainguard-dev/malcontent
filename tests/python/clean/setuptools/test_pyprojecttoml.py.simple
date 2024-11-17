@@ -1,5 +1,6 @@
 # python/clean/setuptools/test_pyprojecttoml.py: medium
 discover/system/platform: medium
+exec/imports/python: low
 exec/shell/command: medium
 fs/file/open: low
 impact/remote_access/py_setuptools: low

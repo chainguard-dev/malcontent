@@ -4,5 +4,6 @@ anti-static/obfuscation/python: high
 data/base64/decode: medium
 data/encoding/base64: low
 discover/system/platform: medium
+exec/imports/python: low
 exec/remote_commands/code_eval: medium
 net/url/request: medium

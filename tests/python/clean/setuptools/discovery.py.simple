@@ -1,4 +1,6 @@
 # python/clean/setuptools/discovery.py: medium
+anti-static/obfuscation/python: low
+exec/imports/python: low
 fs/directory/traverse: medium
 fs/path/relative: medium
 fs/path/root: medium

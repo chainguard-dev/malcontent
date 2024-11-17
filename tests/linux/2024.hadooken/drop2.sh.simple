@@ -1,5 +1,6 @@
 # linux/2024.hadooken/drop2.sh: critical
 c2/addr/ip: high
+exec/imports/python: low
 exec/remote_commands/code_eval: medium
 impact/remote_access/remote_eval: critical
 net/url/embedded: low

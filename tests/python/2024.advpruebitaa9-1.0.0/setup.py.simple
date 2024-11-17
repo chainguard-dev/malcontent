@@ -2,6 +2,7 @@
 anti-static/base64/exec: high
 data/base64/decode: medium
 data/encoding/base64: low
+exec/imports/python: low
 exec/program: medium
 impact/remote_access/py_setuptools: high
 net/url/embedded: low

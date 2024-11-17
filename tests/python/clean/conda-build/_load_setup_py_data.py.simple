@@ -1,4 +1,6 @@
 # python/clean/conda-build/_load_setup_py_data.py: medium
+anti-static/obfuscation/python: low
+exec/imports/python: low
 exec/remote_commands/code_eval: medium
 fs/file/open: low
 impact/remote_access/py_setuptools: low

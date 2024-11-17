@@ -1,9 +1,11 @@
 # windows/2024.GitHub.Clipper/raw.py: critical
+anti-static/obfuscation/python: low
 c2/addr/url: high
 c2/tool_transfer/download: high
 c2/tool_transfer/exe_url: high
 c2/tool_transfer/python: high
 evasion/indicator_blocking/hidden_window: high
+exec/imports/python: low
 exec/program: medium
 fs/file/open: low
 fs/tempdir: low

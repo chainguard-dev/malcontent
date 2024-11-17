@@ -10,6 +10,7 @@ data/encoding/base64: low
 discover/process/name: medium
 discover/processes/list: medium
 discover/system/platform: medium
+exec/imports/python: low
 exfil/stealer/password: critical
 fs/directory/list: low
 fs/file/open: low
