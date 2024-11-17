@@ -478,7 +478,7 @@ rule join: low {
     description = "joins array together with an empty delimiter"
 
   strings:
-    $join = "''.join("
+    $join        = "''.join("
     $join_double = "\"\".join("
 
   condition:
