@@ -82,15 +82,15 @@ func newConfig(rc Config) *malcontent.Config {
 	}
 }
 
-func prepareRefresh(rc Config) ([]TestData, error) {
+func prepareRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 	var testData []TestData
 
-	actions, err := actionRefresh()
+	actions, err := actionRefresh(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("retrieve action tasks: %w", err)
 	}
 
-	diffs, err := diffRefresh(rc)
+	diffs, err := diffRefresh(ctx, rc)
 	if err != nil {
 		return nil, fmt.Errorf("retrieve risk tasks: %w", err)
 	}
@@ -124,7 +124,15 @@ func prepareRefresh(rc Config) ([]TestData, error) {
 		}
 
 		c := newConfig(rc)
+
+		rfs := []fs.FS{rules.FS, thirdparty.FS}
+		yrs, err := action.CachedRules(ctx, rfs)
+		if err != nil {
+			return nil, err
+		}
+
 		c.Renderer = r
+		c.Rules = yrs
 
 		if strings.HasSuffix(data, ".mdiff") || strings.HasSuffix(data, ".sdiff") {
 			dirPath := filepath.Dir(sample)
@@ -230,7 +238,7 @@ func Refresh(ctx context.Context, rc Config) error {
 		return fmt.Errorf("sample path is not a directory")
 	}
 
-	testData, err := prepareRefresh(rc)
+	testData, err := prepareRefresh(ctx, rc)
 	if err != nil {
 		return fmt.Errorf("failed to prepare sample data refresh: %w", err)
 	}

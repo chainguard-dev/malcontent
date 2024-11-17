@@ -118,9 +118,16 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	defer f.Close()
 	fd := f.Fd()
 
-	yrs, err := cachedRules(ctx, ruleFS)
-	if err != nil {
-		return nil, fmt.Errorf("rules: %w", err)
+	// For non-refresh scans, c.Rules will be nil
+	// For refreshes, the rules _should_ be compiled by the time we get here
+	var yrs *yara.Rules
+	if c.Rules == nil {
+		yrs, err = CachedRules(ctx, ruleFS)
+		if err != nil {
+			return nil, fmt.Errorf("rules: %w", err)
+		}
+	} else {
+		yrs = c.Rules
 	}
 	if err := yrs.ScanFileDescriptor(fd, 0, 0, &mrs); err != nil {
 		logger.Info("skipping", slog.Any("error", err))
@@ -233,7 +240,7 @@ func exitIfHitOrMiss(frs *sync.Map, scanPath string, errIfHit bool, errIfMiss bo
 	return nil, nil
 }
 
-func cachedRules(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {
+func CachedRules(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {
 	if compiledRuleCache != nil {
 		return compiledRuleCache, nil
 	}

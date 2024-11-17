@@ -1,11 +1,13 @@
 package refresh
 
 import (
+	"context"
 	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
 
+	"github.com/chainguard-dev/malcontent/pkg/action"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/render"
 	"github.com/chainguard-dev/malcontent/rules"
@@ -32,7 +34,7 @@ var actionTestData = []actionData{
 	},
 }
 
-func actionRefresh() ([]TestData, error) {
+func actionRefresh(ctx context.Context) ([]TestData, error) {
 	testData := make([]TestData, 0, len(actionTestData))
 
 	for _, td := range actionTestData {
@@ -57,6 +59,12 @@ func actionRefresh() ([]TestData, error) {
 			return nil, fmt.Errorf("create renderer for %s: %w", output, err)
 		}
 
+		rfs := []fs.FS{rules.FS, thirdparty.FS}
+		yrs, err := action.CachedRules(ctx, rfs)
+		if err != nil {
+			return nil, err
+		}
+
 		c := &malcontent.Config{
 			IgnoreSelf:            false,
 			MinFileRisk:           0,
@@ -64,7 +72,8 @@ func actionRefresh() ([]TestData, error) {
 			OCI:                   false,
 			QuantityIncreasesRisk: true,
 			Renderer:              r,
-			RuleFS:                []fs.FS{rules.FS, thirdparty.FS},
+			RuleFS:                rfs,
+			Rules:                 yrs,
 			ScanPaths:             []string{scan},
 			TrimPrefixes:          []string{"pkg/action/"},
 		}

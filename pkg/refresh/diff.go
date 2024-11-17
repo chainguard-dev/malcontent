@@ -1,11 +1,13 @@
 package refresh
 
 import (
+	"context"
 	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
 
+	"github.com/chainguard-dev/malcontent/pkg/action"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/render"
 	"github.com/chainguard-dev/malcontent/rules"
@@ -144,7 +146,7 @@ var diffTestData = []diffData{
 	},
 }
 
-func diffRefresh(rc Config) ([]TestData, error) {
+func diffRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 	testData := make([]TestData, 0, len(diffTestData))
 
 	for _, td := range diffTestData {
@@ -183,6 +185,12 @@ func diffRefresh(rc Config) ([]TestData, error) {
 			minRisk = td.minRisk
 		}
 
+		rfs := []fs.FS{rules.FS, thirdparty.FS}
+		yrs, err := action.CachedRules(ctx, rfs)
+		if err != nil {
+			return nil, err
+		}
+
 		c := &malcontent.Config{
 			FileRiskChange:        td.riskChange,
 			FileRiskIncrease:      td.riskIncrease,
@@ -190,7 +198,8 @@ func diffRefresh(rc Config) ([]TestData, error) {
 			MinRisk:               minRisk,
 			QuantityIncreasesRisk: true,
 			Renderer:              renderer,
-			RuleFS:                []fs.FS{rules.FS, thirdparty.FS},
+			Rules:                 yrs,
+			RuleFS:                rfs,
 			ScanPaths:             []string{src, dest},
 			TrimPrefixes:          []string{rc.SamplesPath},
 		}
