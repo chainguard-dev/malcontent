@@ -4,7 +4,7 @@ private rule probably_python {
     $f_for      = "for x in" fullword
 
   condition:
-    filesize < 512KB and any of ($f*)
+    filesize < 1MB and any of ($f*)
 }
 
 rule Vare_Obfuscator: critical {
@@ -327,7 +327,7 @@ rule rename_requests: medium {
     $ref = /import requests as \w{0,64}/
 
   condition:
-    filesize < 512KB and all of them
+    filesize < 1MB and all of them
 }
 
 rule rename_requests_2char: high {
@@ -362,7 +362,7 @@ rule rename_marshal: critical {
     $ref = /import marshal as \w{0,64}/
 
   condition:
-    filesize < 512KB and all of them
+    filesize < 1MB and all of them
 }
 
 rule rename_base64: critical {
@@ -384,7 +384,7 @@ rule rename_zlib: high {
     $ref = /import zlib as \w{0,64}/
 
   condition:
-    filesize < 512KB and all of them
+    filesize < 1MB and all of them
 }
 
 rule too_many_lambdas_small: high {
@@ -406,7 +406,7 @@ rule too_many_lambdas_large: high {
     $ref = /lambda \W: \W [\+\-\*]/
 
   condition:
-    filesize < 512KB and #ref > 100
+    filesize < 1MB and #ref > 100
 }
 
 rule lambda_funk: high {
@@ -422,7 +422,7 @@ rule lambda_funk: high {
     $ = ".decode('utf-8'))"
 
   condition:
-    filesize < 512KB and 80 % of them
+    filesize < 1MB and 80 % of them
 }
 
 rule lambda_funk_high: high {
@@ -438,7 +438,7 @@ rule lambda_funk_high: high {
     $ = ".decode('utf-8'))"
 
   condition:
-    filesize < 512KB and all of them
+    filesize < 1MB and all of them
 }
 
 rule confusing_function_name: high {
@@ -446,11 +446,14 @@ rule confusing_function_name: high {
     description = "obfuscated with confusing function names"
 
   strings:
-    $def = /def [Il]{4,64}/ fullword
-    $eq  = /[Il]{4,64} = / fullword
+    $def    = /def [Il]{6,64}/
+    $eq     = /[Il]{6,64} = / fullword
+    $return = /return [Il]{6,64}\(/
+    $func   = / \+ [Il]{6,64}\([Il]{6,64}\)/
+    $func2  = /\)\+[Il]{6,64}\([Il]{6,64}\)\+/
 
   condition:
-    filesize < 512KB and (#def > 1 or #eq > 1)
+    filesize < 1MB and any of them
 }
 
 rule decompress_base64_entropy: high {
@@ -495,4 +498,22 @@ rule urllib_as_int_array: critical {
 
   condition:
     filesize < 1MB and any of them
+}
+
+rule import_manipulator: critical {
+  meta:
+    description = "manipulates globals and imports into executing obfuscated code"
+
+  strings:
+    $import  = "__import__("
+    $getattr = "getattr("
+    $setattr = "setattr("
+    $update  = "update("
+    $chr     = /chr\(\w{1,8}\)/
+    $globals = "globals"
+    $dict    = "__dict__"
+    $def     = "def "
+
+  condition:
+    filesize < 1MB and all of them
 }

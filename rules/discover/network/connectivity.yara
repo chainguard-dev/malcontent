@@ -8,3 +8,14 @@ rule network_connectivity: low {
   condition:
     any of them
 }
+
+rule bypass_gfw: medium {
+  meta:
+    description = "GFW bypass (Great Firewall of China)"
+
+  strings:
+    $ref = "bypass GFW"
+
+  condition:
+    any of them
+}
