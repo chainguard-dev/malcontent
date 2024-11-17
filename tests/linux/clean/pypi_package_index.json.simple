@@ -131,6 +131,7 @@ fs/mount: low
 fs/permission/modify: medium
 fs/proc/pid_cmdline: low
 fs/symlink_resolve: low
+fs/tempdir/TEMP: low
 fs/watch: low
 hw/hardware_enumeration: medium
 hw/wireless: low
@@ -163,6 +164,8 @@ net/download: medium
 net/http/auth: low
 net/http/oauth2: low
 net/http/request: low
+net/http/webhook: medium
+net/ip/host_port: medium
 net/ip/multicast_send: low
 net/ip/spoof: medium
 net/proxy/reverse: medium

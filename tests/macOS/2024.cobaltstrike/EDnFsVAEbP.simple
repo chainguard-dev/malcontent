@@ -27,12 +27,14 @@ fs/file/truncate: low
 fs/path/dev: medium
 fs/path/usr_local: medium
 fs/permission/modify: medium
+fs/tempdir/TEMP: low
 impact/remote_access/heartbeat: medium
 lateral/scan/tool: medium
 malware/framework/cobalt_strike: high
 net/http/post: medium
 net/http/request: low
 net/ip/addr: medium
+net/ip/host_port: medium
 net/ip/parse: medium
 net/ip/string: medium
 net/proxy/tunnel: medium

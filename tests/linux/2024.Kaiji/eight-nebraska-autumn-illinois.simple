@@ -69,6 +69,7 @@ net/http/post: medium
 net/http/proxy: low
 net/http/request: low
 net/ip: low
+net/ip/host_port: medium
 net/ip/multicast_send: low
 net/ip/parse: medium
 net/ip/spoof: high

@@ -51,6 +51,7 @@ fs/permission/chown: medium
 fs/permission/modify: medium
 fs/proc/self_cgroup: medium
 fs/proc/self_mountinfo: medium
+fs/tempdir/TEMP: low
 fs/tempdir/tempfile_create: low
 fs/watch: low
 net/dns: low
@@ -68,6 +69,7 @@ net/http/oauth2: low
 net/http/post: medium
 net/http/proxy: low
 net/http/request: low
+net/ip/host_port: medium
 net/ip/icmp: medium
 net/ip/multicast_send: low
 net/ip/parse: medium

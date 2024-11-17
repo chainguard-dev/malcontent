@@ -73,6 +73,7 @@ net/dns/servers: low
 net/dns/txt: low
 net/download: medium
 net/ip/addr: medium
+net/ip/host_port: medium
 net/ip/icmp: low
 net/ip/multicast_send: low
 net/ip/resolve: low

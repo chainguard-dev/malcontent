@@ -1,10 +1,12 @@
-# python/clean/pyparsing/sparser.py: medium
+# python/clean/pyparsing/sparser.py: critical
 data/compression/bzip2: low
 data/compression/gzip: low
 exec/cmd/pipe: medium
 exec/imports/python: low
-exec/remote_commands/code_eval: medium
+exec/remote_commands/code_eval: critical
+fs/file/exists: low
 fs/file/open: low
+fs/file/write: low
 fs/path/usr_bin: low
 net/url/embedded: low
 net/url/parse: low

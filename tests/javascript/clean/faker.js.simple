@@ -30,6 +30,7 @@ net/download: medium
 net/http/fake_user_agent: medium
 net/http/form_upload: medium
 net/http/post: medium
+net/ip/host_port: medium
 net/remote_control/vnc: medium
 net/url/embedded: low
 net/url/encode: medium

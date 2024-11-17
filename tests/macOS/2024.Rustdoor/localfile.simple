@@ -46,6 +46,7 @@ fs/path/users: medium
 fs/path/var: low
 fs/permission/modify: medium
 fs/tempdir: low
+fs/tempdir/TEMP: low
 fs/tempdir/TMPDIR: low
 hw/disk_info: medium
 impact/remote_access/reverse_shell: medium
@@ -58,6 +59,7 @@ net/http/cookies: medium
 net/http/post: medium
 net/http/proxy: low
 net/http/request: low
+net/ip/host_port: medium
 net/resolve/hostport_parse: low
 net/socket/connect: medium
 net/socket/listen: medium

@@ -4,6 +4,7 @@
 3P/threat_hunting/hijacker: medium
 3P/threat_hunting/linkedint: medium
 3P/threat_hunting/privilegeescalation: medium
+c2/addr/discord: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/addr/server: medium
@@ -147,6 +148,7 @@ net/http/oauth2: low
 net/http/post: medium
 net/http/proxy: low
 net/http/request: low
+net/http/webhook: medium
 net/http/websocket: medium
 net/ip: low
 net/ip/host_port: medium

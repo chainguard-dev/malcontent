@@ -30,6 +30,7 @@ net/download: medium
 net/http/form_upload: medium
 net/http/post: medium
 net/http/request: low
+net/ip/host_port: medium
 net/ip/multicast_send: low
 net/ip/spoof: medium
 net/proxy/tunnel: medium

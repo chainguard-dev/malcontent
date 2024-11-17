@@ -28,6 +28,7 @@ fs/directory/remove: low
 fs/file/delete: low
 fs/path/etc: low
 fs/path/users: medium
+fs/tempdir/TEMP: low
 fs/tempdir/tempfile_create: low
 hw/disk_info: medium
 malware/family/rustdoor: critical
@@ -38,6 +39,7 @@ net/http/auth: low
 net/http/post: medium
 net/http/proxy: low
 net/http/request: low
+net/ip/host_port: medium
 net/ip/icmp: medium
 net/proxy/tunnel: medium
 net/resolve/hostport_parse: low

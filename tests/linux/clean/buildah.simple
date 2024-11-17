@@ -112,6 +112,7 @@ net/http/oauth2: low
 net/http/post: medium
 net/http/proxy: low
 net/http/request: low
+net/ip/host_port: medium
 net/ip/icmp: medium
 net/ip/parse: medium
 net/resolve/hostname: low

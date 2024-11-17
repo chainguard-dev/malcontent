@@ -20,5 +20,6 @@ fs/path/var
 fs/permission/modify
 fs/proc/self_exe
 fs/symlink_resolve
+fs/tempdir/TEMP
 +net/dns/txt
 net/url/embedded

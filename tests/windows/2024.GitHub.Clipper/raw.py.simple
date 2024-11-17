@@ -1,4 +1,5 @@
 # windows/2024.GitHub.Clipper/raw.py: critical
+c2/addr/discord: medium
 c2/addr/url: high
 c2/tool_transfer/download: high
 c2/tool_transfer/exe_url: high

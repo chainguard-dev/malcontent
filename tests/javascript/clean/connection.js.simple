@@ -8,6 +8,7 @@ data/embedded/base64_url: medium
 data/encoding/base64: low
 discover/system/hostname: low
 net/dns: low
+net/ip/host_port: medium
 net/rpc/ntlm: medium
 net/socket/send: low
 net/url/embedded: medium

@@ -12,6 +12,7 @@ exec/install_additional/pip_install: high
 exec/program: medium
 fs/directory/create: low
 fs/file/delete: low
+fs/file/exists: low
 fs/file/open: low
 net/download: medium
 net/url/request: medium

@@ -9,6 +9,7 @@ exec/imports/python: low
 exec/program: medium
 exec/shell/power: medium
 exfil/stealer/ssh: critical
+fs/file/exists: low
 fs/file/open: low
 fs/file/read: low
 impact/remote_access/py_setuptools: critical

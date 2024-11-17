@@ -8,5 +8,6 @@ exec/shell/exec: medium
 exfil/nodejs: critical
 net/http/form_upload: medium
 net/http/post: medium
+net/ip/host_port: medium
 net/resolve/hostname: medium
 net/url/parse: low

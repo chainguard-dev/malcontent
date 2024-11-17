@@ -67,6 +67,7 @@ fs/proc/arbitrary_pid: medium
 fs/proc/net_route: medium
 fs/proc/self_cgroup: medium
 fs/proc/self_mountinfo: medium
+fs/tempdir/TEMP: low
 fs/tempdir/create: low
 fs/tempdir/tempfile_create: low
 fs/unmount: low
@@ -89,6 +90,7 @@ net/http/oauth2: low
 net/http/post: medium
 net/http/proxy: low
 net/http/request: low
+net/http/webhook: medium
 net/http/websocket: medium
 net/ip/host_port: medium
 net/ip/icmp: medium

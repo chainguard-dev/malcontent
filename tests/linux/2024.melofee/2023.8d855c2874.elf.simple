@@ -41,12 +41,14 @@ fs/proc/arbitrary_pid: medium
 fs/proc/cpuinfo: medium
 fs/proc/pid_status: medium
 fs/proc/self_exe: medium
+fs/tempdir/TEMP: low
 impact/remote_access/heartbeat: medium
 lateral/scan/tool: medium
 malware/family/melofee: critical
 net/http/post: medium
 net/http/request: low
 net/ip/addr: medium
+net/ip/host_port: medium
 net/ip/parse: medium
 net/ip/string: medium
 net/proxy/tunnel: medium

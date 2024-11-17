@@ -72,6 +72,7 @@ net/http/form_upload: medium
 net/http/post: medium
 net/http/request: low
 net/ip/addr: medium
+net/ip/host_port: medium
 net/ip/parse: medium
 net/ip/resolve: low
 net/ip/spoof: medium

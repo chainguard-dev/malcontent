@@ -9,6 +9,7 @@ exec/shell/command: medium
 fs/directory/list: low
 fs/directory/traverse: medium
 fs/file/delete: low
+fs/file/exists: low
 fs/file/open: low
 fs/file/write: low
 fs/path/home: low
@@ -17,6 +18,7 @@ fs/path/usr_bin: low
 fs/path/usr_lib_python: medium
 fs/path/usr_local: medium
 fs/symlink_resolve: low
+fs/tempdir/TEMP: low
 fs/tempdir/create: low
 net/ip/spoof: medium
 net/url/embedded: low

@@ -39,6 +39,7 @@ net/http/proxy: low
 net/http/request: low
 net/http/websocket: medium
 net/ip: low
+net/ip/host_port: medium
 net/ip/icmp: medium
 net/ip/parse: medium
 net/proxy/socks5: medium

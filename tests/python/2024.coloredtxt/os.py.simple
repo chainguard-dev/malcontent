@@ -13,6 +13,7 @@ fs/directory/remove: low
 fs/directory/traverse: medium
 fs/fifo_create: low
 fs/file/delete: low
+fs/file/exists: low
 fs/file/flags_change: low
 fs/file/open: low
 fs/file/times_set: medium

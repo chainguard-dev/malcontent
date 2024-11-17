@@ -28,7 +28,9 @@ fs/path/var: low
 fs/permission/chown: low
 fs/proc/arbitrary_pid: medium
 fs/proc/pid_exe: medium
+fs/tempdir/TEMP: low
 fs/tempdir/tempfile_create: low
+net/ip/host_port: medium
 net/ip/string: medium
 net/socket/listen: medium
 net/socket/local_addr: low

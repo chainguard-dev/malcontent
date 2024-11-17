@@ -19,6 +19,7 @@ discover/group/lookup: medium
 discover/network/mac_address: medium
 discover/processes/list: medium
 discover/system/sysinfo: medium
+discover/user/APPDATA: low
 discover/user/HOME: low
 discover/user/USER: low
 discover/user/name_get: low
@@ -57,6 +58,7 @@ net/download/fetch: medium
 net/http/cookies: medium
 net/http/post: medium
 net/ip/addr: medium
+net/ip/host_port: medium
 net/ip/resolve: low
 net/ip/spoof: medium
 net/ip/string: medium

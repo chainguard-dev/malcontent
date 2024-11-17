@@ -1729,6 +1729,18 @@
                     "RuleName": "realpath"
                 },
                 {
+                    "Description": "temp",
+                    "MatchStrings": [
+                        "getenv",
+                        "temp"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/tempdir/TEMP.yara#temp",
+                    "ID": "fs/tempdir/TEMP",
+                    "RuleName": "temp"
+                },
+                {
                     "Description": "Uses mktemp to create temporary files",
                     "MatchStrings": [
                         "mktemp",
@@ -1990,6 +2002,17 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/ip/ip.yara#packets",
                     "ID": "net/ip",
                     "RuleName": "packets"
+                },
+                {
+                    "Description": "connects to an arbitrary hostname:port",
+                    "MatchStrings": [
+                        "host to transport"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/ip/host_port.yara#host_port",
+                    "ID": "net/ip/host_port",
+                    "RuleName": "host_port"
                 },
                 {
                     "Description": "parses IP address (IPv4 or IPv6)",

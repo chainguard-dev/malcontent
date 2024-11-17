@@ -5,8 +5,10 @@
 3P/threat_hunting/johntheripper: medium
 3P/threat_hunting/sharpshooter: medium
 3P/threat_hunting/tailscale: medium
+c2/addr/discord: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
+c2/addr/telegram: medium
 c2/tool_transfer/download: medium
 c2/tool_transfer/dropper: medium
 collect/archives/zip: medium
@@ -123,8 +125,10 @@ net/http/oauth2: low
 net/http/post: medium
 net/http/proxy: low
 net/http/request: low
+net/http/webhook: medium
 net/http/websocket: medium
 net/ip: low
+net/ip/host_port: medium
 net/ip/multicast_send: low
 net/ip/parse: medium
 net/ip/resolve: low

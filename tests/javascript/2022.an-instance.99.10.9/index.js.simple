@@ -13,5 +13,6 @@ net/dns: low
 net/dns/servers: low
 net/http/form_upload: medium
 net/http/post: medium
+net/ip/host_port: medium
 net/url/encode: medium
 os/fd/write: low

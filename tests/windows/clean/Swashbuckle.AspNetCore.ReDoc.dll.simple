@@ -42,6 +42,7 @@ net/http/form_upload: medium
 net/http/oauth2: low
 net/http/post: medium
 net/http/request: low
+net/http/webhook: medium
 net/resolve/hostname: low
 net/tcp/sftp: medium
 net/tcp/ssh: medium

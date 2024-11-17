@@ -90,6 +90,7 @@ fs/permission/modify: medium
 fs/swap/off: low
 fs/swap/on: low
 fs/symlink_resolve: low
+fs/tempdir/TEMP: low
 fs/tempdir/create: low
 fs/tempdir/tempfile_create: low
 fs/unmount: low
@@ -113,6 +114,7 @@ net/http/post: medium
 net/http/proxy: low
 net/http/request: low
 net/ip: low
+net/ip/host_port: medium
 net/ip/icmp: medium
 net/ip/parse: medium
 net/proxy/socks5: medium

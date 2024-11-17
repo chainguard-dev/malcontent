@@ -9,6 +9,7 @@
 3P/threat_hunting/gofile_io: medium
 3P/threat_hunting/runascs: medium
 anti-behavior/anti_debugger: medium
+c2/addr/discord: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/tool_transfer/download: high
@@ -79,6 +80,8 @@ net/http/cookies: medium
 net/http/post: medium
 net/http/proxy: low
 net/http/request: low
+net/http/webhook: medium
+net/ip/host_port: medium
 net/ip/parse: medium
 net/remote_control/vnc: medium
 net/resolve/hostname: low

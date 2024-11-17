@@ -8,6 +8,7 @@ exec/imports/python: low
 exec/program: medium
 exec/remote_commands/code_eval: medium
 fs/file/delete: low
+fs/file/exists: low
 fs/file/open: low
 fs/file/read: low
 fs/file/write: low

@@ -1,4 +1,4 @@
-# javascript/clean/mode-php_laravel_blade.js: medium
+# javascript/clean/mode-php_laravel_blade.js: critical
 c2/addr/ip: medium
 collect/databases/mysql: medium
 collect/databases/sql: low
@@ -23,6 +23,7 @@ evasion/logging/acct: low
 exec/plugin: low
 exec/program: medium
 exec/program/background: low
+exec/remote_commands/code_eval: critical
 exec/tty/pathname: medium
 fs/directory/create: low
 fs/directory/remove: low
@@ -36,6 +37,7 @@ fs/node_create: low
 fs/path/etc: low
 fs/permission/modify: medium
 fs/symlink_resolve: low
+fs/tempdir/TEMP: low
 fs/watch: low
 impact/remote_access/agent: medium
 net/download/fetch: medium
@@ -43,6 +45,7 @@ net/http/cookies: medium
 net/http/form_upload: medium
 net/http/post: medium
 net/ip/addr: medium
+net/ip/host_port: medium
 net/ip/parse: medium
 net/ip/resolve: low
 net/ip/spoof: medium

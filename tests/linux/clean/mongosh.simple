@@ -46,8 +46,10 @@ discover/processes/list: medium
 discover/system/hostname: low
 discover/system/platform: medium
 discover/system/sysinfo: medium
+discover/user/APPDATA: low
 discover/user/HOME: low
 discover/user/USER: low
+discover/user/USERPROFILE: medium
 discover/user/info: medium
 discover/user/name_get: low
 evasion/file/prefix: medium
@@ -129,6 +131,7 @@ net/http/post: medium
 net/http/proxy: low
 net/http/request: low
 net/http/websocket: medium
+net/ip/host_port: medium
 net/ip/icmp: medium
 net/ip/multicast_send: low
 net/ip/parse: medium

@@ -48,6 +48,7 @@ fs/tempdir/create: low
 impact/remote_access/agent: medium
 impact/remote_access/reverse_shell: medium
 impact/ui/x11_auth: medium
+net/ip/host_port: medium
 net/ip/string: medium
 net/proxy/socks5: medium
 net/proxy/tunnel: medium
