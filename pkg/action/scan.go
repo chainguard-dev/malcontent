@@ -118,9 +118,16 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	defer f.Close()
 	fd := f.Fd()
 
-	yrs, err := cachedRules(ctx, ruleFS)
-	if err != nil {
-		return nil, fmt.Errorf("rules: %w", err)
+	// For non-refresh scans, c.Rules will be nil
+	// For refreshes, the rules _should_ be compiled by the time we get here
+	var yrs *yara.Rules
+	if c.Rules == nil {
+		yrs, err = CachedRules(ctx, ruleFS)
+		if err != nil {
+			return nil, fmt.Errorf("rules: %w", err)
+		}
+	} else {
+		yrs = c.Rules
 	}
 	if err := yrs.ScanFileDescriptor(fd, 0, 0, &mrs); err != nil {
 		logger.Info("skipping", slog.Any("error", err))
@@ -147,10 +154,20 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	// If absPath is provided, use it instead of the path if they are different.
 	// This is useful when scanning images and archives.
 	if absPath != "" && absPath != path && isArchive {
+		if len(c.TrimPrefixes) > 0 {
+			absPath = report.TrimPrefixes(absPath, c.TrimPrefixes)
+		}
 		fr.Path = fmt.Sprintf("%s ∴ %s", absPath, clean)
 	}
 
 	if len(fr.Behaviors) == 0 {
+		if len(c.TrimPrefixes) > 0 {
+			if isArchive {
+				absPath = report.TrimPrefixes(absPath, c.TrimPrefixes)
+			} else {
+				path = report.TrimPrefixes(absPath, c.TrimPrefixes)
+			}
+		}
 		// Ensure that files within archives with no behaviors are formatted consistently
 		if isArchive {
 			return &malcontent.FileReport{Path: fmt.Sprintf("%s ∴ %s", absPath, clean)}, nil
@@ -223,7 +240,7 @@ func exitIfHitOrMiss(frs *sync.Map, scanPath string, errIfHit bool, errIfMiss bo
 	return nil, nil
 }
 
-func cachedRules(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {
+func CachedRules(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {
 	if compiledRuleCache != nil {
 		return compiledRuleCache, nil
 	}
@@ -325,6 +342,9 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 					}
 					if k, ok := key.(string); ok {
 						if fr, ok := value.(*malcontent.FileReport); ok {
+							if len(c.TrimPrefixes) > 0 {
+								path = report.TrimPrefixes(k, c.TrimPrefixes)
+							}
 							r.Files.Store(k, fr)
 							if c.Renderer != nil && r.Diff == nil && fr.RiskScore >= c.MinFileRisk {
 								if err := c.Renderer.File(ctx, fr); err != nil {
@@ -348,6 +368,9 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 
 			fr, err := processFile(ctx, c, c.RuleFS, path, scanPath, trimPath, logger)
 			if err != nil {
+				if len(c.TrimPrefixes) > 0 {
+					path = report.TrimPrefixes(path, c.TrimPrefixes)
+				}
 				r.Files.Store(path, &malcontent.FileReport{})
 				return fmt.Errorf("process: %w", err)
 			}
@@ -367,6 +390,9 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 				}
 			}
 
+			if len(c.TrimPrefixes) > 0 {
+				path = report.TrimPrefixes(path, c.TrimPrefixes)
+			}
 			r.Files.Store(path, fr)
 			if c.Renderer != nil && r.Diff == nil && fr.RiskScore >= c.MinFileRisk {
 				if err := c.Renderer.File(ctx, fr); err != nil {
@@ -422,6 +448,9 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 					Files: sync.Map{},
 				}
 				if match.fr != nil {
+					if len(c.TrimPrefixes) > 0 {
+						match.fr.Path = report.TrimPrefixes(match.fr.Path, c.TrimPrefixes)
+					}
 					r.Files.Store(match.fr.Path, match.fr)
 				}
 				return r, match.err

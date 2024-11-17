@@ -168,7 +168,7 @@ update-third-party:
 
 .PHONY: refresh-sample-testdata
 refresh-sample-testdata: out/$(SAMPLES_REPO)/.decompressed-$(SAMPLES_COMMIT) out/mal
-	./tests/refresh-testdata.sh ./out/mal out/$(SAMPLES_REPO)
+	./out/mal refresh
 
 ARCH ?= $(shell uname -m)
 CRANE_VERSION=v0.20.2
