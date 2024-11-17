@@ -5,6 +5,7 @@ credential/ssh: high
 data/encoding/base64: low
 discover/system/environment: medium
 evasion/net/http_443: high
+exec/imports/python: low
 exec/program: medium
 exec/shell/power: medium
 exfil/stealer/ssh: critical

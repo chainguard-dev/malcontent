@@ -3,6 +3,7 @@ c2/addr/ip: high
 c2/tool_transfer/binary: high
 c2/tool_transfer/http_ip_temp: critical
 c2/tool_transfer/python: high
+exec/imports/python: low
 exec/program: medium
 fs/file/delete: low
 fs/file/open: low

@@ -8,6 +8,7 @@ data/encoding/base64: low
 discover/process/egid: medium
 evasion/indicator_blocking/mask_exceptions: medium
 evasion/time/php_no_limit: medium
+exec/imports/python: low
 exec/shell/command: medium
 fs/directory/remove: low
 fs/file/delete: low

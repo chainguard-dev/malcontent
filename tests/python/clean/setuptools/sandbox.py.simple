@@ -1,5 +1,6 @@
 # python/clean/setuptools/sandbox.py: medium
 discover/system/platform: medium
+exec/imports/python: low
 exec/plugin: low
 exec/remote_commands/code_eval: medium
 fs/directory/create: low

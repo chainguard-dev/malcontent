@@ -25,6 +25,23 @@
                     "RuleName": "crypto_fernet"
                 },
                 {
+                    "Description": "imports python modules",
+                    "MatchStrings": [
+                        "from distutils.core import setup",
+                        "from setuptools import setup",
+                        "import fernet",
+                        "import os",
+                        "import re",
+                        "import sys",
+                        "import with"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/exec/imports/python.yara#has_import",
+                    "ID": "exec/imports/python",
+                    "RuleName": "has_import"
+                },
+                {
                     "Description": "Installs fernet crypto package using pip",
                     "MatchStrings": [
                         "pip install fernet"

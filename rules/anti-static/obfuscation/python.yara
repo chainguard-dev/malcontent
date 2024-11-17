@@ -1,3 +1,12 @@
+private rule probably_python {
+  strings:
+    $f_function = "import" fullword
+    $f_for      = "for x in" fullword
+
+  condition:
+    filesize < 512KB and any of ($f*)
+}
+
 rule Vare_Obfuscator: critical {
   meta:
     description = "obfuscated with https://github.com/saintdaddy/Vare-Obfuscator"
@@ -29,10 +38,11 @@ rule join_map_chr: high {
     filetypes   = "py"
 
   strings:
-    $ref = /join\(map\(chr,\[\d{1,3},\d{1,3},[\d\,]{1,32}/
+    $ref  = /join\(map\(chr,\[\d{1,3}, {0,2}\d{1,3}, {0,2}[\d\,]{1,32}/
+    $ref2 = /join\(chr\([a-z]{1,5}\) for [a-z]{1,5} in \[\d{1,3}, {0,2}\d{1,3}, {0,2}[\d\,]{1,32}/
 
   condition:
-    filesize < 8KB and $ref
+    filesize < 256KB and any of them
 }
 
 rule codecs_decode: high {
@@ -463,3 +473,26 @@ rule decompress_base64_entropy: high {
     filesize < 1MB and any of ($k*) and $b64decode and $long_str and any of ($f*)
 }
 
+rule join: low {
+  meta:
+    description = "joins array together with an empty delimiter"
+
+  strings:
+    $join        = "''.join("
+    $join_double = "\"\".join("
+
+  condition:
+    probably_python and any of them
+}
+
+rule urllib_as_int_array: critical {
+  meta:
+    description = "hides urllib code as an array of integers"
+
+  strings:
+    $urllib_dot  = "117,114,108,108,105,98,46"
+    $urllib_dot2 = "117, 114, 108, 108, 105, 98, 46"
+
+  condition:
+    filesize < 1MB and any of them
+}

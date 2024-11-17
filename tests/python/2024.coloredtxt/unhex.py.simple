@@ -2,4 +2,3 @@
 anti-static/obfuscation/hex: high
 data/encoding/base64: low
 exec/imports/python: high
-exec/remote_commands/code_eval: medium

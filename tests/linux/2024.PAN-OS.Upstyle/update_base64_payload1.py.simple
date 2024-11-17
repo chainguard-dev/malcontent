@@ -4,7 +4,9 @@ anti-static/base64/eval: high
 anti-static/base64/function_names: critical
 data/base64/decode: medium
 data/encoding/base64: low
+exec/imports/python: low
 exec/program: medium
+exec/remote_commands/code_eval: medium
 fs/file/delete: low
 fs/file/open: low
 fs/file/read: low

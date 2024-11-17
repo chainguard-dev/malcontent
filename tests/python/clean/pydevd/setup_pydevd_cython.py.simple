@@ -1,5 +1,6 @@
 # python/clean/pydevd/setup_pydevd_cython.py: medium
 discover/system/platform: medium
+exec/imports/python: low
 exec/remote_commands/code_eval: medium
 fs/directory/list: low
 fs/file/delete: low

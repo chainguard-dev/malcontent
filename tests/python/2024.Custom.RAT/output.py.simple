@@ -24,6 +24,7 @@ discover/user/name_get: low
 exec/cmd/pipe: medium
 exec/conditional/is_admin: medium
 exec/conditional/root_check: medium
+exec/imports/python: low
 exec/program: medium
 exec/shell/command: medium
 exec/shell/power: medium

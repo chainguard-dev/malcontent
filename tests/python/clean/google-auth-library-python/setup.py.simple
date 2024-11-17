@@ -1,4 +1,5 @@
 # python/clean/google-auth-library-python/setup.py: medium
+exec/imports/python: low
 exec/remote_commands/code_eval: medium
 exec/shell/command: medium
 fs/file/open: low

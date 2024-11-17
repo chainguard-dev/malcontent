@@ -5,6 +5,7 @@ anti-static/obfuscation/python: medium
 data/base64/decode: medium
 data/encoding/base64: low
 exec/cmd/pipe: medium
+exec/imports/python: low
 exec/shell/SHELL: low
 fs/file/open: low
 fs/file/read: low

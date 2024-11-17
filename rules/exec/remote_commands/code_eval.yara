@@ -1,3 +1,5 @@
+import "math"
+
 rule eval: medium {
   meta:
     description = "evaluate code dynamically using eval()"
@@ -17,11 +19,34 @@ rule python_exec: medium {
 
   strings:
     $import = "import" fullword
-    $val    = /exec\([a-z\"\'\(\,\)]{1,32}/ fullword
+    $val    = /exec\([\w\ \"\'\.\(\)\[\]]{1,64}/ fullword
     $empty  = "exec()"
 
   condition:
     filesize < 1MB and $import and $val and not $empty
+}
+
+rule python_exec_near_enough_chr: high {
+  meta:
+    description = "Likely executes encoded character content"
+
+  strings:
+    $exec = "exec("
+    $chr  = "chr("
+
+  condition:
+    all of them and math.abs(@chr - @exec) < 100
+}
+
+rule python_exec_chr: critical {
+  meta:
+    description = "Executes encoded character content"
+
+  strings:
+    $exec = /exec\(.{0,16}chr\(.{0,16}\[\d[\d\, ]{0,64}/
+
+  condition:
+    filesize < 512KB and all of them
 }
 
 rule shell_eval: medium {

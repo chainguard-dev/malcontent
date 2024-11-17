@@ -89,3 +89,17 @@ rule script_url_with_question: high {
   condition:
     filesize < 256KB and any of ($f*) and $ref and none of ($not*)
 }
+
+rule url_code_as_chr_int: high {
+  meta:
+    description = "hides URL within an array of integers"
+
+  strings:
+    $https  = "104,116,116,112,115,58,47,47"
+    $https2 = "104, 116, 116, 112, 115, 58, 47, 47"
+    $http   = "104,116,116,112,58,47,47"
+    $http2  = "104, 116, 116, 112, 58, 47, 47"
+
+  condition:
+    filesize < 1MB and any of them
+}

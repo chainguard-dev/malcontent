@@ -1,3 +1,28 @@
+rule has_import: low {
+  meta:
+    description = "imports python modules"
+
+  strings:
+    $ref  = /import [a-z0-9A-Z]{2,12}/ fullword
+    $ref2 = /from [a-z0-9A-Z\.]{2,48} import [a-z0-9A-Z]{2,24}/ fullword
+
+  condition:
+    filesize < 64KB and any of them
+}
+
+rule python_code_as_chr_int: critical {
+  meta:
+    description = "hides additional import as array of integers"
+
+  strings:
+    $import       = "import" fullword
+    $int_no_space = "105,109,112,111,114,116,32"
+    $int_space    = "105, 109, 112, 111, 114, 116, 32"
+
+  condition:
+    filesize < 1MB and $import and any of ($int*)
+}
+
 rule single_line_import: medium {
   meta:
     description = "imports built-in and executes more code on the same line"

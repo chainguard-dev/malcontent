@@ -1,4 +1,5 @@
 # python/clean/ml_sdk/setup.py: medium
+exec/imports/python: low
 exec/remote_commands/code_eval: medium
 fs/file/open: low
 net/url/embedded: low
