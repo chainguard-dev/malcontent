@@ -29,7 +29,8 @@ rule IcedID_init_loader
         $x6 = "Cookie: __gads=" ascii wide
 
     condition:
-        2 of ($s*) or 3 of ($x*)
+        int16(0) == 0x5a4d
+        and 2 of ($s*) or 3 of ($x*)
 }
 
 rule IcedID_core_loader
