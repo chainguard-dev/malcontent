@@ -196,15 +196,15 @@
                     "RuleName": "crypto_aes"
                 },
                 {
-                    "Description": "Uses crypto/cipher",
+                    "Description": "mentions 'ciphertext'",
                     "MatchStrings": [
-                        "XORKeyStream"
+                        "ciphertext"
                     ],
-                    "RiskScore": 0,
-                    "RiskLevel": "NONE",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/crypto/cipher.yara#go_cipher",
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/crypto/cipher.yara#ciphertext",
                     "ID": "crypto/cipher",
-                    "RuleName": "go_cipher"
+                    "RuleName": "ciphertext"
                 },
                 {
                     "Description": "Uses the Go crypto/ecdsa library",
@@ -1904,7 +1904,7 @@
                     "RuleName": "content_type"
                 },
                 {
-                    "Description": "makes HTTP requests with basic authentication",
+                    "Description": "makes HTTP requests with Bearer authentication",
                     "MatchStrings": [
                         "WWW-Authenticate",
                         "Www-Authenticate",
@@ -1945,7 +1945,8 @@
                     "MatchStrings": [
                         "POST",
                         "application/json",
-                        "application/x-www-form-urlencoded"
+                        "application/x-www-form-urlencoded",
+                        "post"
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",

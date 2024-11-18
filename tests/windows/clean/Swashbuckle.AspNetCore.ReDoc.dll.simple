@@ -38,6 +38,7 @@ fs/tempdir/TEMP: low
 fs/unmount: low
 impact/degrade/infection: medium
 net/download: medium
+net/http/auth: low
 net/http/form_upload: medium
 net/http/oauth2: low
 net/http/post: medium

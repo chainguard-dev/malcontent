@@ -1,0 +1,10 @@
+# python/2024.desktop_nuke/707dc1355c9dfa01d8b47db5d83193170a9a03b9b98b76b6a9e5c0692949e43d.py: critical
+discover/user/USERPROFILE: medium
+exec/dylib/windll: medium
+exec/imports/python: low
+fs/directory/list: low
+fs/file/delete: medium
+impact/degrade/bluescreen: high
+impact/shutdown: high
+impact/wipe/desktop: critical
+os/env/get: low

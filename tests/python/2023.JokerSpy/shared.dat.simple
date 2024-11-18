@@ -19,6 +19,8 @@ fs/file/open: low
 fs/file/read: low
 fs/file/write: low
 fs/tempdir: low
+net/http/form_upload: medium
+net/http/post: medium
 net/url/embedded: low
 net/url/request: medium
 os/fd/read: low

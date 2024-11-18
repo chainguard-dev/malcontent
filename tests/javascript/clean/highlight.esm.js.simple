@@ -1,5 +1,6 @@
-# javascript/clean/highlight.esm.js: medium
+# javascript/clean/highlight.esm.js: high
 anti-static/obfuscation/js: medium
+anti-static/obfuscation/python: high
 c2/addr/ip: medium
 c2/connect/ping_pong: medium
 collect/archives/unarchive: medium

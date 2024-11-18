@@ -1,5 +1,6 @@
 # python/clean/setuptools/easy_install.py: medium
 anti-static/obfuscation/python: medium
+collect/archives/zip: medium
 discover/system/platform: medium
 discover/user/HOME: low
 discover/user/USER: low

@@ -8,6 +8,7 @@ anti-behavior/blocklist/user: critical
 c2/addr/discord: medium
 c2/addr/telegram: medium
 c2/tool_transfer/download: high
+collect/archives/zip: medium
 collect/databases/leveldb: medium
 credential/browser/chrome_cookies: high
 credential/browser/chromium_master_password: high

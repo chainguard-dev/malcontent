@@ -4,6 +4,7 @@ c2/addr/ip: medium
 credential/password: low
 credential/ssl/private_key: low
 crypto/aes: low
+crypto/cipher: medium
 crypto/tls: low
 crypto/uuid: medium
 data/compression/bzip2: low

@@ -6,4 +6,6 @@ data/encoding/base64: low
 discover/system/platform: medium
 exec/imports/python: low
 exec/remote_commands/code_eval: critical
+net/http/form_upload: medium
+net/http/post: medium
 net/url/request: medium

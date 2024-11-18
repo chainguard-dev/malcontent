@@ -13,6 +13,7 @@ fs/file/stat: low
 fs/file/times_set: medium
 fs/link_read: low
 fs/symlink_resolve: low
+net/http/form_upload: medium
 net/socket/listen: medium
 net/socket/receive: low
 net/socket/send: low

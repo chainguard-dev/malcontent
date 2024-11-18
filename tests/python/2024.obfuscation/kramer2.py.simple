@@ -1,0 +1,6 @@
+# python/2024.obfuscation/kramer2.py: critical
+anti-static/obfuscation/hex: high
+anti-static/obfuscation/python: high
+anti-static/packer/py_kramer: critical
+fs/file/open: low
+os/fd/read: low

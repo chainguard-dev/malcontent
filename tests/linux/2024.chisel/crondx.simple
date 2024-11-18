@@ -6,6 +6,7 @@ collect/archives/zip: medium
 credential/password: low
 credential/ssl/private_key: low
 crypto/aes: low
+crypto/cipher: medium
 crypto/ecdsa: low
 crypto/ed25519: low
 crypto/rc4: low

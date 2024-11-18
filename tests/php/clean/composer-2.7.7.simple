@@ -57,6 +57,7 @@ lateral/scan/target_ip: medium
 lateral/scan/tool: medium
 net/download/fetch: medium
 net/http/accept_encoding: low
+net/http/auth: low
 net/http/form_upload: medium
 net/http/oauth2: low
 net/http/post: medium

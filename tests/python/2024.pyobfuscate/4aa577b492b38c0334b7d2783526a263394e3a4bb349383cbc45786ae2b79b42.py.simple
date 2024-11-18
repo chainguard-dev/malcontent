@@ -1,0 +1,5 @@
+# python/2024.pyobfuscate/4aa577b492b38c0334b7d2783526a263394e3a4bb349383cbc45786ae2b79b42.py: critical
+anti-static/obfuscation/obfuscate: low
+anti-static/obfuscation/python: critical
+anti-static/packer/pyobfuscate: high
+net/url/embedded: low
