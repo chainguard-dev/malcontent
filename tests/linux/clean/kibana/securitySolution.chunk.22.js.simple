@@ -48,6 +48,7 @@ crypto/blockchain: medium
 data/encoding/json_decode: low
 evasion/file/prefix: medium
 evasion/rootkit/refs: medium
+evasion/rootkit/userspace: low
 exec/plugin: low
 exec/shell/power: medium
 exfil/upload: medium
@@ -64,7 +65,6 @@ impact/remote_access/backdoor: medium
 impact/remote_access/iptables: medium
 impact/remote_access/reverse_shell: high
 impact/remote_access/trojan: medium
-impact/rootkit: low
 lateral/scan/brute_force: low
 net/dns/txt: low
 net/download: medium

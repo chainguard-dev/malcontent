@@ -17,6 +17,7 @@ collect/archives/zip: medium
 collect/databases/leveldb: medium
 collect/databases/sql: low
 collect/databases/sqlite: medium
+credential/browser/chromium_credit_cards: critical
 credential/browser/chromium_master_password: high
 credential/browser/firefox_cookies: high
 credential/browser/firefox_master_password: high

@@ -82,7 +82,7 @@ rule py_dropper_chmod: high {
     filesize < 16384 and py_fetcher and py_runner and $chmod and any of ($val*)
 }
 
-private rule pythonSetup {
+private rule tool_transfer_pythonSetup {
   strings:
     $if_distutils  = /from distutils.core import .{0,32}setup/
     $if_setuptools = /from setuptools import .{0,32}setup/
@@ -106,7 +106,7 @@ rule setuptools_fetcher: suspicious {
     description = "setuptools script that fetches content"
 
   condition:
-    pythonSetup and py_fetcher
+    tool_transfer_pythonSetup and py_fetcher
 }
 
 rule setuptools_fetch_run: critical {
@@ -122,7 +122,7 @@ rule setuptools_dropper: critical {
     description = "setuptools script that fetches, stores, and executes programs"
 
   condition:
-    pythonSetup and py_dropper
+    tool_transfer_pythonSetup and py_dropper
 }
 
 rule dropper_imports: high {

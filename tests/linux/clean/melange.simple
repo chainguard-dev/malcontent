@@ -18,6 +18,7 @@ crypto/ed25519: low
 crypto/tls: low
 data/base64/external: medium
 data/compression/bzip2: low
+data/compression/gzip: low
 data/compression/lzma: low
 data/compression/zstd: low
 data/embedded/html: medium

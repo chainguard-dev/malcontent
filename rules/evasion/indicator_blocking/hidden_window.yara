@@ -10,7 +10,7 @@ rule subprocess_CREATE_NO_WINDOW: medium {
     filesize < 32KB and all of them
 }
 
-private rule pythonSetup {
+private rule hidden_window_pythonSetup {
   strings:
     $if_distutils  = /from distutils.core import .{0,32}setup/
     $if_setuptools = /from setuptools import .{0,32}setup/
@@ -36,7 +36,7 @@ rule subprocess_CREATE_NO_WINDOW_setuptools: high {
     $no_window = "CREATE_NO_WINDOW"
 
   condition:
-    filesize < 32KB and pythonSetup and all of them
+    filesize < 32KB and hidden_window_pythonSetup and all of them
 }
 
 rule subprocess_CREATE_NO_WINDOW_high: high {

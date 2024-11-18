@@ -1,4 +1,4 @@
-rule sudo: override linux {
+rule ignore_sudo: override linux {
   meta:
     description      = "sudo"
     proc_c_exe       = "medium"

@@ -4,6 +4,7 @@ credential/os/gshadow: medium
 credential/os/shadow: medium
 credential/password: low
 data/compression/bzip2: low
+data/compression/gzip: low
 data/compression/lzma: low
 data/encoding/base64: low
 data/random/insecure: low

@@ -93,7 +93,7 @@ rule sleep_rm: medium {
 
 rule nohup_bash_background: high {
   strings:
-    $ref = /nohup bash [\%\w\/\>]{0,64} &/
+    $ref = /nohup bash [\%\w\/\\>]{0,64} &/
 
   condition:
     filesize < 1MB and any of them

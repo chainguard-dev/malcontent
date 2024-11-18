@@ -96,7 +96,7 @@ rule ebe_generic: high {
     $ref3 = /\>\w{1,3}\(\d{1,3}\)\);\w\[\w{1,3}\(\d{1,3}\)\]\=/
 
   condition:
-    filesize < 5MB and #function and $charCodeAt and (#ref > 5 or #ref2 > 5 or #ref3 > 5)
+    filesize < 5MB and #function > 0 and $charCodeAt and (#ref > 5 or #ref2 > 5 or #ref3 > 5)
 }
 
 rule exec_console_log: critical {
@@ -221,8 +221,8 @@ rule string_prototype_function: high {
     description = "obfuscates function calls via string prototypes"
 
   strings:
-    $ref  = /String\["prototype"\].{1,32} = function\(\) { eval\(this\.toString\(\)\)\;/
-    $ref2 = /String\["prototype"\]\[".{4,64}"\] = function\(\w{1,2}, \w{1,2}\) {/
+    $ref  = /String\["prototype"\].{1,32} = function\(\) \{ eval\(this\.toString\(\)\)\;/
+    $ref2 = /String\["prototype"\]\[".{4,64}"\] = function\(\w{1,2}, \w{1,2}\) \{/
 
   condition:
     any of them

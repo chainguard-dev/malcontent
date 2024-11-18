@@ -1,4 +1,4 @@
-rule login_records: medium {
+rule historical_logins: medium {
   meta:
     description = "accesses historical login records"
 

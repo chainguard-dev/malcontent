@@ -6,7 +6,7 @@ rule elf_calls_shell_echo: medium {
     ref         = "https://linux.die.net/man/1/echo"
 
   strings:
-    $val      = /echo ['"%\w\>\/ \.]{1,64}/
+    $val      = /echo ['"%\w\\>\/ \.]{1,64}/
     $not_echo = "not echo"
 
   condition:

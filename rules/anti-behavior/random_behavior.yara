@@ -1,6 +1,6 @@
 import "math"
 
-private rule pythonSetup {
+private rule random_behavior_pythonSetup {
   strings:
     $if_distutils  = /from distutils.core import .{0,32}setup/
     $if_setuptools = /from setuptools import .{0,32}setup/
@@ -26,5 +26,5 @@ rule setuptools_random: critical {
     $not_easy_install = "pid = random.randint(0, sys.maxsize)"
 
   condition:
-    pythonSetup and $ref and none of ($not*)
+    random_behavior_pythonSetup and $ref and none of ($not*)
 }

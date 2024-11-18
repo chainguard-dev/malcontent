@@ -5,7 +5,7 @@ rule fake_user_agent_msie: high {
   strings:
     $u_MSIE         = /compatible; MSIE[ \;\(\)\w]{0,32}/
     $u_msie         = /compatible; msie[ \;\(\)\w]{0,32}/
-    $u_msie2        = /MSIE 9.0{/
+    $u_msie2        = /MSIE 9.0\{/
     $not_access_log = "\"GET http://"
     $not_pixel      = "Pixel 5"
     $not_ipad       = "iPad Mini"

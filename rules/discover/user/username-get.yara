@@ -27,7 +27,7 @@ rule whoami: medium {
     any of them
 }
 
-private rule pythonSetup {
+private rule user_pythonSetup {
   strings:
     $if_distutils  = /from distutils.core import .{0,32}setup/
     $if_setuptools = /from setuptools import .{0,32}setup/
@@ -54,5 +54,5 @@ rule pysetup_gets_login: high {
     $ref3 = "whoami" fullword
 
   condition:
-    pythonSetup and any of them
+    user_pythonSetup and any of them
 }

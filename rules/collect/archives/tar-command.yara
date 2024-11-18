@@ -22,7 +22,7 @@ rule local_tar: medium {
     any of ($a*)
 }
 
-rule executable_calls_archive_tool: high {
+rule collect_executable_calls_archive_tool: high {
   meta:
     description = "command shells out to tar"
 

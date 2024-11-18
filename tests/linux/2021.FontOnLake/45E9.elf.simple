@@ -6,6 +6,7 @@ c2/addr/ip: high
 credential/password: low
 credential/ssh: medium
 credential/ssh/authorized_hosts: medium
+credential/ssh/d: low
 credential/ssl/private_key: low
 crypto/aes: low
 crypto/rc4: low
@@ -25,6 +26,7 @@ evasion/logging/dmesg: high
 evasion/logging/failed_logins: medium
 evasion/logging/historical_logins: medium
 evasion/rootkit/refs: high
+evasion/rootkit/userspace: critical
 exec/program: medium
 exec/program/background: low
 exec/shell/SHELL: low
@@ -64,7 +66,6 @@ impact/remote_access/agent: medium
 impact/remote_access/backdoor: high
 impact/remote_access/reverse_shell: medium
 impact/remote_access/ssh: high
-impact/rootkit: critical
 impact/ui/x11_auth: medium
 malware/family/fontonlake: critical
 net/download: medium
@@ -74,6 +75,7 @@ net/proxy/socks5: medium
 net/resolve/hostport_parse: low
 net/socket/listen: medium
 net/socket/local_addr: low
+net/socket/pair: medium
 net/socket/peer_address: low
 net/socket/receive: low
 net/socket/reuseport: medium

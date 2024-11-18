@@ -2,6 +2,7 @@
 c2/addr/ip: medium
 collect/databases/mysql: medium
 collect/databases/sql: low
+credential/sniffer/bpf: medium
 discover/network/netstat: medium
 evasion/bypass_security/linux/iptables: medium
 evasion/logging/acct: low

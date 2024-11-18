@@ -1,6 +1,6 @@
 import "math"
 
-private rule pythonSetup {
+private rule indicator_blocking_pythonSetup {
   strings:
     $if_distutils      = /from distutils.core import .{0,32}setup/
     $if_setuptools     = /from setuptools import .{0,32}setup/
@@ -33,7 +33,7 @@ rule setuptools_no_fail: suspicious {
     description = "Python library installer that hides exceptions"
 
   condition:
-    pythonSetup and py_no_fail
+    indicator_blocking_pythonSetup and py_no_fail
 }
 
 rule php_disable_errors: medium {

@@ -1,4 +1,4 @@
-rule login_records: medium {
+rule current_logins: medium {
   meta:
     description = "accesses current logins"
 

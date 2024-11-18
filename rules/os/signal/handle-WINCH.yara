@@ -1,4 +1,4 @@
-rule sigaction_SIGALRM: harmless {
+rule sigaction_WINCH: harmless {
   meta:
     description = "Listen for SIGWINCH (terminal window change) events"
 

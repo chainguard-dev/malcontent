@@ -1,4 +1,4 @@
-rule begin_cert {
+rule begin_pgp_public_key {
   meta:
     description = "Contains embedded PEM certificate"
 
