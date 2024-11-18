@@ -1,4 +1,4 @@
-rule var_root_path: high macos {
+rule var_containers_path: high macos {
   meta:
     description = "path reference within /var/containers"
 

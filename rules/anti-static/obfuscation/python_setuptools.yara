@@ -1,6 +1,6 @@
 import "math"
 
-private rule pythonSetup {
+private rule obfuscation_pythonSetup {
   strings:
     $if_distutils  = /from distutils.core import .{0,32}setup/
     $if_setuptools = /from setuptools import .{0,32}setup/
@@ -25,5 +25,5 @@ rule setuptools_builtins: medium {
     $ref = "__builtins__" fullword
 
   condition:
-    pythonSetup and $ref
+    obfuscation_pythonSetup and $ref
 }

@@ -23,7 +23,7 @@ rule hex_parse: medium {
     any of them
 }
 
-rule hex_parse_base64: medium {
+rule hex_convert_from_base64: medium {
   meta:
     description = "converts base64 hex data to ASCII"
 

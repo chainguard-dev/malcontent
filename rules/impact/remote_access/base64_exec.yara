@@ -1,4 +1,4 @@
-rule hex_parse_base64: high {
+rule hex_convert_base64_ascii: high {
   meta:
     description = "executes programs, converts base64 hex data to ASCII"
 

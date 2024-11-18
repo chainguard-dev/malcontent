@@ -22,7 +22,7 @@ rule nftables: medium {
     any of them
 }
 
-rule iptables_disable: critical {
+rule service_iptables_disable: critical {
   meta:
     description = "stops or disables the iptables firewall"
     ref         = "https://www.netfilter.org/projects/iptables/"

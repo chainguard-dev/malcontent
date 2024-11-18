@@ -9,7 +9,7 @@ rule app_path: medium {
     any of them
 }
 
-private rule macho {
+private rule applicatons_macho {
   strings:
     $not_jar   = "META-INF/"
     $not_dwarf = "_DWARF"
@@ -27,7 +27,7 @@ rule macho_app_path: high {
     $ref = /\/Applications\/.{0,32}\.app\/Contents\/MacOS\/[\w \.\-]{0,32}/
 
   condition:
-    macho and any of them
+    applicatons_macho and any of them
 }
 
 rule mac_applications: medium {
@@ -38,5 +38,5 @@ rule mac_applications: medium {
     $ref = "/Applications" fullword
 
   condition:
-    macho and any of them
+    applicatons_macho and any of them
 }

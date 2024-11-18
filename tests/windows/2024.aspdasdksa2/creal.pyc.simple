@@ -11,6 +11,7 @@ c2/tool_transfer/download: high
 collect/archives/zip: medium
 collect/databases/leveldb: medium
 credential/browser/chrome_cookies: high
+credential/browser/chromium_credit_cards: critical
 credential/browser/chromium_master_password: high
 credential/gaming/minecraft: medium
 credential/password: low

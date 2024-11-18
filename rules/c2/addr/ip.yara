@@ -19,31 +19,7 @@ rule hardcoded_ip: medium {
     filesize < 200MB and 1 of ($sus_ip*) and none of ($not*)
 }
 
-rule hardcoded_c2_ip: high {
-  meta:
-    description = "hardcoded IP address, references C2"
-
-  strings:
-    // from c2/refs.yara
-    $c_and_c    = "command & control"
-    $c2_addr    = "c2_addr"
-    $c2_port    = "c2_port"
-    $c2_event   = "c2_event"
-    $c2host     = "c2host"
-    $C2Host     = "C2Host"
-    $C2Port     = "C2Port"
-    $c2port     = "c2port"
-    $C2_ADDRESS = "C2_ADDRESS"
-    $C2_PORT    = "C2_PORT"
-    $ping       = "PING" fullword
-    $pong       = "PONG" fullword
-    $socks5     = "SOCKS5" fullword
-
-  condition:
-    any of them and hardcoded_ip
-}
-
-private rule elf_or_macho {
+private rule ip_elf_or_macho {
   condition:
     uint32(0) == 1179403647 or (uint32(0) == 4277009102 or uint32(0) == 3472551422 or uint32(0) == 4277009103 or uint32(0) == 3489328638 or uint32(0) == 3405691582 or uint32(0) == 3199925962 or uint32(0) == 3405691583 or uint32(0) == 3216703178)
 }
@@ -69,7 +45,7 @@ rule bin_hardcoded_ip: high {
     $not_send_att          = "3.2.5.7"
 
   condition:
-    filesize < 12MB and elf_or_macho and 1 of ($sus_ip*) and none of ($not*)
+    filesize < 12MB and ip_elf_or_macho and 1 of ($sus_ip*) and none of ($not*)
 }
 
 rule http_hardcoded_ip: high exfil {

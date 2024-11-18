@@ -34,6 +34,7 @@ crypto/ed25519: low
 crypto/tls: low
 data/base64/decode: medium
 data/compression/bzip2: low
+data/compression/gzip: low
 data/compression/lzma: low
 data/compression/xz: medium
 data/compression/zstd: low
@@ -107,6 +108,7 @@ fs/node_create: low
 fs/path/etc: low
 fs/path/etc_hosts: medium
 fs/path/etc_resolv.conf: low
+fs/path/home: low
 fs/path/home_config: low
 fs/path/root: medium
 fs/path/tmp: medium

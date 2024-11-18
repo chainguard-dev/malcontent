@@ -34,9 +34,11 @@ net/ip/host_port: medium
 net/ip/string: medium
 net/socket/listen: medium
 net/socket/local_addr: low
+net/socket/pair: medium
 net/socket/receive: low
 net/socket/send: low
 os/kernel/seccomp: low
+privesc/sudo: medium
 privesc/sudoers: low
 process/chroot: low
 process/groupid_set: low

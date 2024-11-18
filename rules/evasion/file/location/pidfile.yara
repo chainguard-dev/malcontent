@@ -14,7 +14,7 @@ rule hidden_pid_file: high {
     description = "unusual pid (process id) file location"
 
   strings:
-    $p_hidden = /[\w\/]{0,32}\/\.[\%\w\.\-\/]{0.16}\.pid/
+    $p_hidden = /[\w\/]{0,32}\/\.[\%\w\.\-\/]{0,16}\.pid/
 
   condition:
     filesize < 100MB and any of ($p*)

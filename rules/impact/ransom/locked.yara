@@ -30,7 +30,7 @@ rule locked: high {
     $ = "Your system has been locked"
     $ = /Do not try .{0,16} remove this lock/
     $ = "PC IS LOCKED"
-    $ = /YOUR \w{2-12} IS LOCKED/
+    $ = /YOUR \w\{2-12\} IS LOCKED/
 
   condition:
     filesize < 10MB and any of them

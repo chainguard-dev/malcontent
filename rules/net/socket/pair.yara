@@ -1,4 +1,4 @@
-rule listen: medium {
+rule socket_pair: medium {
   meta:
     description = "create a pair of connected sockets"
 

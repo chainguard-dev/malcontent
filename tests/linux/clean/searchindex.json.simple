@@ -16,6 +16,7 @@ discover/system/sysinfo: medium
 evasion/file/location/chdir_unusual: medium
 evasion/file/location/system_directory: medium
 evasion/rootkit/refs: medium
+evasion/rootkit/userspace: medium
 exec/install_additional/package_install: medium
 exec/install_additional/pip_install: medium
 exec/plugin: low
@@ -32,6 +33,7 @@ fs/path/boot: medium
 fs/path/dev: medium
 fs/path/etc: low
 fs/path/etc_resolv.conf: low
+fs/path/home: low
 fs/path/tmp: medium
 fs/path/users: medium
 fs/path/usr_local: medium
@@ -44,7 +46,6 @@ impact/remote_access/agent: medium
 impact/remote_access/backdoor: medium
 impact/remote_access/reverse_shell: medium
 impact/remote_access/trojan: medium
-impact/rootkit: medium
 net/dns/servers: low
 net/dns/txt: low
 net/download/fetch: medium

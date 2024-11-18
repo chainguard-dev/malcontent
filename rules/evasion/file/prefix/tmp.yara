@@ -1,4 +1,4 @@
-rule hidden_short_path: high {
+rule hidden_short_path_temp: high {
   meta:
     description = "hidden short path in a temp directory"
 

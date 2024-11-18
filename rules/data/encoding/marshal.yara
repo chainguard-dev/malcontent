@@ -1,4 +1,4 @@
-rule py_marshal: medium {
+rule encoding_py_marshal: medium {
   meta:
     description = "reads python values from binary content"
 

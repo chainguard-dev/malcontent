@@ -28,6 +28,7 @@ crypto/rc4: medium
 crypto/tls: low
 crypto/uuid: medium
 data/compression/bzip2: low
+data/compression/gzip: low
 data/compression/lzma: low
 data/compression/zstd: low
 data/embedded/base64_url: medium
@@ -145,6 +146,7 @@ net/resolve/hostport_parse: low
 net/rpc/ntlm: medium
 net/socket/listen: medium
 net/socket/local_addr: low
+net/socket/pair: medium
 net/socket/peer_address: low
 net/socket/receive: low
 net/socket/reuseport: medium

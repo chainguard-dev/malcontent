@@ -267,16 +267,28 @@
                     "RuleName": "bzip2"
                 },
                 {
+                    "Description": "works with gzip files",
+                    "MatchStrings": [
+                        "gzip"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/data/compression/gzip.yara#gzip",
+                    "ReferenceURL": "https://www.gnu.org/software/gzip/",
+                    "ID": "data/compression/gzip",
+                    "RuleName": "gzip"
+                },
+                {
                     "Description": "works with lzma files",
                     "MatchStrings": [
                         "lzma"
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/data/compression/lzma.yara#gzip",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/data/compression/lzma.yara#lzma",
                     "ReferenceURL": "https://en.wikipedia.org/wiki/Lempel%E2%80%93Ziv%E2%80%93Markov_chain_algorithm",
                     "ID": "data/compression/lzma",
-                    "RuleName": "gzip"
+                    "RuleName": "lzma"
                 },
                 {
                     "Description": "Zstandard: fast real-time compression algorithm",
@@ -2142,9 +2154,9 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/tcp/connect.yara#listen_tcp",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/tcp/connect.yara#connect_tcp",
                     "ID": "net/tcp/connect",
-                    "RuleName": "listen_tcp"
+                    "RuleName": "connect_tcp"
                 },
                 {
                     "Description": "Uses crypto/ssh to connect to the SSH (secure shell) service",
@@ -2361,6 +2373,18 @@
                     "RuleName": "libc"
                 },
                 {
+                    "Description": "Listen for SIGALRM (timeout) events",
+                    "MatchStrings": [
+                        "ALRM",
+                        "sigaction"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/os/signal/handle-ALRM.yara#sigaction_ALRM",
+                    "ID": "os/signal/handle_ALRM",
+                    "RuleName": "sigaction_ALRM"
+                },
+                {
                     "Description": "Listen for SIGHUP (hangup) events",
                     "MatchStrings": [
                         "HUP",
@@ -2404,9 +2428,9 @@
                     ],
                     "RiskScore": 0,
                     "RiskLevel": "NONE",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/os/signal/handle-WINCH.yara#sigaction_SIGALRM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/os/signal/handle-WINCH.yara#sigaction_WINCH",
                     "ID": "os/signal/handle_WINCH",
-                    "RuleName": "sigaction_SIGALRM"
+                    "RuleName": "sigaction_WINCH"
                 },
                 {
                     "Description": "sigprocmask",

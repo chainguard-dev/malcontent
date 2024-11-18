@@ -1,4 +1,4 @@
-rule py_kramer_packer: critical python {
+rule kramer: critical {
   meta:
     description = "packed with Kramer"
     ref         = "https://github.com/billythegoat356/Kramer"

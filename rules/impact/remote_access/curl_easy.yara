@@ -1,4 +1,4 @@
-rule curl_easy_sysinfo: high {
+rule linux_curl_easy_sysinfo: high {
   meta:
     description = "may use curl_easy to receive remote commands"
 

@@ -1,4 +1,4 @@
-rule linux_kernel_module_getdents64: critical linux {
+rule linux_register_kprobe_getdents64: critical linux {
   meta:
     description = "kernel module that intercepts directory listing"
     ref         = "https://github.com/m0nad/Diamorphine"
@@ -43,35 +43,4 @@ rule linux_kernel_module_hide_self: critical linux {
 
   condition:
     filesize < 1MB and $register_kprobe and any of ($hide*)
-}
-
-rule funky_high_signal_killer: high {
-  meta:
-    description = "Uses high signals to communicate to a rootkit"
-
-  strings:
-    $odd_teen_sig = /kill -1[012346789]/ fullword
-    $high_sig     = /kill -[23456]\d/ fullword
-
-  condition:
-    filesize < 10MB and any of them
-}
-
-rule linux_rootkit_terms: critical linux {
-  meta:
-    description = "appears to be a Linux rootkit"
-    filetypes   = "elf,so"
-
-  strings:
-    $s_Rootkit = "Rootkit"
-    $s_r00tkit = "r00tkit"
-    $s_r00tk1t = "r00tk1t"
-    $s_rootkit = "rootkit" fullword
-
-    $o_systemctl = "systemctl" fullword
-    $o_sshd      = "sshd" fullword
-    $o_miner     = "miner" fullword
-
-  condition:
-    filesize < 10MB and any of ($s*) and any of ($o*)
 }

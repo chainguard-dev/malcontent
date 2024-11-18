@@ -7,6 +7,7 @@ collect/databases/sqlite: medium
 credential/sniffer/bpf: medium
 crypto/aes: low
 crypto/ed25519: low
+data/compression/gzip: low
 data/compression/lzma: low
 data/embedded/app_manifest: medium
 data/encoding/base64: low

@@ -16,6 +16,7 @@ exec/dylib/symbol_address: medium
 exec/dylib/user: medium
 exec/plugin: low
 exec/shell/TERM: low
+fs/attributes/remove: medium
 fs/attributes/set: medium
 fs/directory/create: low
 fs/file/stat: low

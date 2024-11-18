@@ -22,6 +22,7 @@ crypto/ecdsa: low
 crypto/ed25519: low
 crypto/tls: low
 data/compression/bzip2: low
+data/compression/gzip: low
 data/compression/lzma: low
 data/compression/xz: medium
 data/compression/zstd: low
@@ -45,6 +46,7 @@ discover/user/USER: low
 discover/user/name_get: medium
 evasion/file/location/chdir_unusual: medium
 evasion/file/location/dev_shm: medium
+evasion/file/prefix: high
 evasion/file/prefix/dev: critical
 evasion/file/prefix/tmp: high
 evasion/hijack_execution/LD_LIBRARY_PATH: low
@@ -82,6 +84,7 @@ fs/path/bin_su: low
 fs/path/etc: low
 fs/path/etc_hosts: medium
 fs/path/etc_resolv.conf: low
+fs/path/home: low
 fs/path/home_config: low
 fs/path/tmp: medium
 fs/path/users: medium

@@ -1,4 +1,4 @@
-private rule macho {
+private rule entitlement_macho {
   strings:
     $not_jar   = "META-INF/"
     $not_dwarf = "_DWARF"
@@ -17,5 +17,5 @@ rule com_apple_get_task_allow: medium {
     $true           = "<true/>"
 
   condition:
-    macho and all of them
+    entitlement_macho and all of them
 }
