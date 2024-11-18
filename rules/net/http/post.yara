@@ -24,6 +24,19 @@ rule hardcoded_post: high {
     filesize < 20MB and (uint32(0) == 1179403647 or uint32(0) == 4277009102 or uint32(0) == 3472551422 or uint32(0) == 4277009103 or uint32(0) == 3489328638 or uint32(0) == 3405691582 or uint32(0) == 3199925962) and any of them
 }
 
+rule requests_post: medium {
+  meta:
+    description = "posts content to websites"
+    filetype    = "py"
+
+  strings:
+    $requests = "import requests"
+    $post     = ".post("
+
+  condition:
+    filesize < 4MB and all of them
+}
+
 rule axios_post: medium {
   meta:
     description = "posts content to websites"

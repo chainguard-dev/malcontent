@@ -3,10 +3,16 @@ rule command_and_control: medium {
     description = "Uses terms that may reference a command and control server"
 
   strings:
-    $c_and_c  = "command & control"
-    $c2_addr  = "c2_addr"
-    $c2_port  = "c2_port"
-    $c2_event = "c2_event"
+    $c_and_c    = "command & control"
+    $c2_addr    = "c2_addr"
+    $c2_port    = "c2_port"
+    $c2_event   = "c2_event"
+    $c2host     = "c2host"
+    $C2Host     = "C2Host"
+    $C2Port     = "C2Port"
+    $c2port     = "c2port"
+    $C2_ADDRESS = "C2_ADDRESS"
+    $C2_PORT    = "C2_PORT"
 
   condition:
     any of them
@@ -18,6 +24,7 @@ rule send_to_c2: high {
 
   strings:
     $send_to = "SendDataToC2"
+    $c2_send = "c2.send" fullword
 
   condition:
     any of them

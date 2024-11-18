@@ -53,3 +53,26 @@ rule Chown: medium {
   condition:
     any of them
 }
+
+rule takeown: medium windows {
+  meta:
+    description = "takes ownership of files"
+
+  strings:
+    $takeown = /(takeown|TAKEOWN)/
+
+  condition:
+    any of them
+}
+
+rule takeown_force: high windows {
+  meta:
+    description = "forcibly takes ownership of files recursively"
+
+  strings:
+    $takeown_fr = /(takeown|TAKEOWN).{1,8}\/[fF].{1,8}\/[rR] .{0,32}[yY]/
+    $takeown_rf = /(takeown|TAKEOWN).{1,8\/[rR].{1,8}\/[fF] .{0,32}[yY]/
+
+  condition:
+    any of them
+}
