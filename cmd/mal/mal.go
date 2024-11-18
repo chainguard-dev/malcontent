@@ -52,6 +52,7 @@ var (
 	fileRiskChangeFlag        bool
 	fileRiskIncreaseFlag      bool
 	formatFlag                string
+	ignoreExtsFlag            string
 	ignoreSelfFlag            bool
 	ignoreTagsFlag            string
 	includeDataFilesFlag      bool
@@ -243,6 +244,7 @@ func main() {
 				Concurrency:           concurrencyFlag,
 				ExitFirstHit:          exitFirstHitFlag,
 				ExitFirstMiss:         exitFirstMissFlag,
+				IgnoreExts:            ignoreExtsFlag,
 				IgnoreSelf:            ignoreSelfFlag,
 				IgnoreTags:            ignoreTags,
 				IncludeDataFiles:      includeDataFiles,
@@ -283,6 +285,12 @@ func main() {
 				Value:       "auto",
 				Usage:       "Output format (json, markdown, simple, strings, terminal, yaml)",
 				Destination: &formatFlag,
+			},
+			&cli.StringFlag{
+				Name:        "ignore-exts",
+				Value:       "",
+				Usage:       "Ignore specific file extensions when scanning",
+				Destination: &ignoreExtsFlag,
 			},
 			&cli.BoolFlag{
 				Name:        "ignore-self",

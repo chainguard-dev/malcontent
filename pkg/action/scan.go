@@ -97,6 +97,17 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 
 	isArchive := archiveRoot != ""
 
+	var exts []string
+	if c.IgnoreExts != "" {
+		exts = strings.Split(c.IgnoreExts, ",")
+		for _, ext := range exts {
+			if ext == getExt(path) {
+				logger.Infof("skipping %s [%s]: ignored file extension", path, ext)
+				return &malcontent.FileReport{Skipped: "ignored file extension", Path: path}, nil
+			}
+		}
+	}
+
 	mime := "<unknown>"
 	kind, err := programkind.File(path)
 	if err != nil {

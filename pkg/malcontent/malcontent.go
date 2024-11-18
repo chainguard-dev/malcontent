@@ -26,6 +26,7 @@ type Config struct {
 	ExitFirstMiss         bool
 	FileRiskChange        bool
 	FileRiskIncrease      bool
+	IgnoreExts            string
 	IgnoreSelf            bool
 	IgnoreTags            []string
 	IncludeDataFiles      bool
