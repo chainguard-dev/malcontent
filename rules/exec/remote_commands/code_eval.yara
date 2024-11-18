@@ -5,7 +5,7 @@ rule eval: medium {
     description = "evaluate code dynamically using eval()"
 
   strings:
-    $val       = /eval\([a-zA-Z\"\'\(\,\)]{1,32}/ fullword
+    $val       = /eval\([\.\+ _a-zA-Z\"\'\(\,\)]{1,32}/ fullword
     $val2      = "eval(this.toString());"
     $not_empty = "eval()"
 
@@ -84,15 +84,17 @@ rule python_exec_bytes: critical {
     filesize < 512KB and all of them
 }
 
-rule python_exec_complex: critical {
+rule python_exec_complex: high {
   meta:
     description = "Executes code from a complex expression"
 
   strings:
-    $exec = /exec\(.{0,8}\(.{0,8192}\)\)/
+    $exec           = /exec\([\w\. =]{1,32}\(.{0,8192}\)\)/ fullword
+    $not_javascript = "function("
+    $not_pyparser   = "exec(compile(open(self.parsedef).read(), self.parsedef, 'exec'))"
 
   condition:
-    filesize < 512KB and all of them
+    filesize < 512KB and $exec and none of ($not*)
 }
 
 rule python_exec_fernet: critical {

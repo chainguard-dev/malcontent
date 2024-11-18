@@ -1,4 +1,4 @@
-# javascript/clean/mode-php.js: critical
+# javascript/clean/mode-php.js: medium
 c2/addr/ip: medium
 collect/databases/mysql: medium
 collect/databases/sql: low
@@ -23,7 +23,6 @@ evasion/logging/acct: low
 exec/plugin: low
 exec/program: medium
 exec/program/background: low
-exec/remote_commands/code_eval: critical
 exec/tty/pathname: medium
 fs/directory/create: low
 fs/directory/remove: low

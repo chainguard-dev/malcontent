@@ -74,30 +74,6 @@ rule python_exec_eval_one_line: critical {
     any of ($f*) and none of ($not*)
 }
 
-rule python_exec_near_enough_decrypt: high {
-  meta:
-    description = "Evaluates code from encrypted content"
-
-  strings:
-    $exec    = "exec(" fullword
-    $decrypt = "decrypt(" fullword
-
-  condition:
-    all of them and math.abs(@decrypt - @exec) <= 256
-}
-
-rule python_exec_near_enough_fernet: critical {
-  meta:
-    description = "Evaluates code from encrypted content"
-
-  strings:
-    $exec   = "exec(" fullword
-    $fernet = "Fernet"
-
-  condition:
-    all of them and math.abs(@fernet - @exec) <= 256
-}
-
 rule dynamic_require: high {
   meta:
     description = "imports a library dynamically"
@@ -526,18 +502,21 @@ rule bloated_hex_python: high {
     description = "python script bloated with obfuscated content"
 
   strings:
-    $unhexlify = "unhexlify" fullword
-    $join      = "join("
-    $split     = "split" fullword
-    $lambda    = "lambda" fullword
-    $ord       = "ord" fullword
-    $def       = "def" fullword
-    $decode    = "decode" fullword
-    $exec      = "exec" fullword
-    $eval      = "eval"
-    $alphabet  = "abcdefghijkl"
+    $f_unhexlify = "unhexlify" fullword
+    $f_join      = "join("
+    $f_split     = "split" fullword
+    $f_lambda    = "lambda" fullword
+    $f_ord       = "ord" fullword
+    $f_def       = "def" fullword
+    $f_decode    = "decode" fullword
+    $f_exec      = "exec" fullword
+    $f_eval      = "eval"
+    $f_alphabet  = "abcdefghijkl"
+
+    $not_js        = "function("
+    $not_highlight = "highlight"
 
   condition:
-    filesize > 512KB and filesize < 10MB and 90 % of them
+    filesize > 512KB and filesize < 10MB and 90 % of ($f*) and none of ($not*)
 
 }

@@ -8,6 +8,7 @@ exec/cmd/pipe: medium
 exec/imports/python: high
 exec/program: medium
 exec/program/background: low
+exec/remote_commands/code_eval: high
 fs/directory/create: low
 fs/directory/remove: low
 fs/directory/traverse: medium

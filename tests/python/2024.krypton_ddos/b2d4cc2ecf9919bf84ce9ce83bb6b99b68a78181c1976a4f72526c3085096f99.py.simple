@@ -1,6 +1,6 @@
 # python/2024.krypton_ddos/b2d4cc2ecf9919bf84ce9ce83bb6b99b68a78181c1976a4f72526c3085096f99.py: critical
 anti-static/obfuscation/python: medium
-c2/addr/ip: high
+c2/addr/ip: medium
 c2/connect/ping_pong: medium
 c2/refs: high
 credential/password: low

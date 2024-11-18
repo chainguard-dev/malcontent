@@ -5,7 +5,7 @@ data/base64/decode: medium
 data/encoding/base64: low
 discover/system/platform: medium
 exec/imports/python: low
-exec/remote_commands/code_eval: critical
+exec/remote_commands/code_eval: high
 net/http/form_upload: medium
 net/http/post: medium
 net/url/request: medium

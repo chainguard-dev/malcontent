@@ -1,9 +1,9 @@
-# python/clean/pyparsing/sparser.py: critical
+# python/clean/pyparsing/sparser.py: medium
 data/compression/bzip2: low
 data/compression/gzip: low
 exec/cmd/pipe: medium
 exec/imports/python: low
-exec/remote_commands/code_eval: critical
+exec/remote_commands/code_eval: medium
 fs/file/exists: low
 fs/file/open: low
 fs/file/write: low
