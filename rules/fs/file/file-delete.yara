@@ -8,7 +8,7 @@ rule unlink: posix {
   strings:
     $unlink   = "unlink" fullword
     $unlinkat = "unlinkat" fullword
-    $py       = "os.remove("
+    $py       = /os.remove\([\w\.\(\), ]{0,64}/
     $objc     = "deleteFile" fullword
 
   condition:
@@ -49,4 +49,16 @@ rule DeleteFile: medium {
 
   condition:
     any of them
+}
+
+rule delete_files_in_dir: medium {
+  meta:
+    description = "deletes files in a directory"
+
+  strings:
+    $remove  = /os.remove\([\w\.\(\), ]{0,64}/
+    $listdir = /os.listdir\([\w\.\(\), ]{0,64}/
+
+  condition:
+    all of them and @remove > @listdir and (@remove - @listdir) < 32
 }

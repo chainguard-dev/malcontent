@@ -4,6 +4,7 @@ c2/addr/ip: medium
 credential/password: low
 credential/ssl/private_key: low
 crypto/aes: low
+crypto/cipher: medium
 crypto/tls: low
 crypto/uuid: medium
 data/compression/bzip2: low
@@ -68,6 +69,7 @@ net/http/post: medium
 net/http/proxy: low
 net/http/request: low
 net/ip: low
+net/ip/host_port: medium
 net/ip/multicast_send: low
 net/ip/parse: medium
 net/ip/resolve: low

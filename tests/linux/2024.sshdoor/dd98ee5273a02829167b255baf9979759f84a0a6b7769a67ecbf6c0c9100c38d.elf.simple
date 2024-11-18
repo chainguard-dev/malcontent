@@ -59,6 +59,7 @@ impact/ui/x11_auth: medium
 malware/family/sshdoor: critical
 net/ip: low
 net/ip/addr: medium
+net/ip/host_port: medium
 net/ip/spoof: medium
 net/ip/string: medium
 net/proxy/socks5: medium

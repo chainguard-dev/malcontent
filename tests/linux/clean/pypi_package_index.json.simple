@@ -69,9 +69,11 @@
 3P/threat_hunting/xsstrike: medium
 anti-static/obfuscation/obfuscate: low
 c2/discovery/dyndns: medium
+c2/refs: medium
 c2/tool_transfer/download: medium
 c2/tool_transfer/dropper: medium
 collect/archives/unarchive: medium
+collect/archives/zip: medium
 collect/databases/leveldb: medium
 collect/databases/mysql: medium
 collect/databases/postgresql: medium
@@ -85,7 +87,9 @@ credential/sniffer/bpf: medium
 credential/ssh/d: medium
 credential/ssh/d_memory_map: high
 credential/ssl/private_key: low
+crypto/aes: low
 crypto/blockchain: medium
+crypto/cipher: medium
 crypto/ed25519: low
 crypto/fernet: medium
 crypto/file_encrypter: medium
@@ -133,6 +137,7 @@ fs/mount: low
 fs/permission/modify: medium
 fs/proc/pid_cmdline: low
 fs/symlink_resolve: low
+fs/tempdir/TEMP: low
 fs/watch: low
 hw/hardware_enumeration: medium
 hw/wireless: low
@@ -165,6 +170,8 @@ net/download: medium
 net/http/auth: low
 net/http/oauth2: low
 net/http/request: low
+net/http/webhook: medium
+net/ip/host_port: medium
 net/ip/multicast_send: low
 net/ip/spoof: medium
 net/proxy/reverse: medium

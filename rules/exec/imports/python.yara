@@ -59,3 +59,41 @@ rule single_line_import_multiple_comma: medium {
     filesize < 64KB and any of them
 }
 
+rule __import__: medium {
+  meta:
+    description = "directly imports code using built-in __import__"
+
+  strings:
+    $import = /__import__\([\w\(\[]\)\],]{0,64}/
+
+  condition:
+    filesize < 4MB and any of them
+}
+
+rule zipimport: medium {
+  meta:
+    description = "loads external module using zipimporter"
+
+  strings:
+    $zipimporter = "zipimporter"
+    $load_module = "load_module"
+
+  condition:
+    filesize < 4MB and all of them
+}
+
+rule zipimport_obfuscated: high {
+  meta:
+    description = "loads obfuscated enccrypted module using zipimporter"
+
+  strings:
+    $must_import      = "import" fullword
+    $must_zipimporter = "zipimporter"
+    $must_load_module = "load_module"
+    $decompress       = "decompress"
+    $decode           = "decode"
+    $decrypt          = "decrypt"
+
+  condition:
+    filesize < 4MB and all of ($must*) and any of ($de*)
+}

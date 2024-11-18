@@ -80,6 +80,7 @@ mem/anonymous_file: medium
 net/dns/reverse: medium
 net/dns/servers: low
 net/dns/txt: low
+net/ip/host_port: medium
 net/ip/parse: medium
 net/ip/resolve: low
 net/ip/string: medium

@@ -8,6 +8,7 @@ collect/archives/zip: medium
 credential/password: low
 credential/ssl/private_key: low
 crypto/aes: low
+crypto/cipher: medium
 crypto/ecdsa: low
 crypto/ed25519: low
 crypto/tls: low
@@ -51,6 +52,7 @@ fs/permission/chown: medium
 fs/permission/modify: medium
 fs/proc/self_cgroup: medium
 fs/proc/self_mountinfo: medium
+fs/tempdir/TEMP: low
 fs/tempdir/tempfile_create: low
 fs/watch: low
 net/dns: low
@@ -68,6 +70,7 @@ net/http/oauth2: low
 net/http/post: medium
 net/http/proxy: low
 net/http/request: low
+net/ip/host_port: medium
 net/ip/icmp: medium
 net/ip/multicast_send: low
 net/ip/parse: medium

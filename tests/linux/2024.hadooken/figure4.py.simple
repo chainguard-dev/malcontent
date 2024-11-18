@@ -6,6 +6,7 @@ c2/tool_transfer/python: high
 exec/imports/python: low
 exec/program: medium
 fs/file/delete: low
+fs/file/exists: low
 fs/file/open: low
 fs/path/dev: medium
 fs/path/var: low

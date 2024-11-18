@@ -7,7 +7,8 @@ rule http_form_upload: medium {
     $content_form = "application/x-www-form-urlencoded"
     $content_json = "application/json"
     $POST         = "POST" fullword
+    $POST2        = "post" fullword
 
   condition:
-    $POST and any of ($content*)
+    any of ($POST*) and any of ($content*)
 }

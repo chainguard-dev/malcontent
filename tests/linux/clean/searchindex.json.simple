@@ -2,6 +2,7 @@
 3P/threat_hunting/dd: medium
 3P/threat_hunting/keylogger: medium
 anti-static/obfuscation/obfuscate: low
+c2/addr/discord: medium
 c2/tool_transfer/dropper: medium
 credential/keylogger: medium
 credential/password: low
@@ -49,6 +50,7 @@ net/dns/servers: low
 net/dns/txt: low
 net/download/fetch: medium
 net/ip/addr: medium
+net/ip/host_port: medium
 net/ip/icmp: medium
 net/ip/spoof: medium
 net/socket/listen: medium

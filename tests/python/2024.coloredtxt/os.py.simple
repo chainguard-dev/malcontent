@@ -8,11 +8,13 @@ exec/cmd/pipe: medium
 exec/imports/python: high
 exec/program: medium
 exec/program/background: low
+exec/remote_commands/code_eval: high
 fs/directory/create: low
 fs/directory/remove: low
 fs/directory/traverse: medium
 fs/fifo_create: low
 fs/file/delete: low
+fs/file/exists: low
 fs/file/flags_change: low
 fs/file/open: low
 fs/file/times_set: medium

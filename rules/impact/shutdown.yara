@@ -9,3 +9,14 @@ rule shutdown_val: medium {
   condition:
     any of them
 }
+
+rule shutdown_windows: high windows {
+  meta:
+    description = "shuts machine down"
+
+  strings:
+    $powerstate = "SetSystemPowerState(0,"
+
+  condition:
+    any of them
+}

@@ -5,7 +5,7 @@ rule eval: medium {
     description = "evaluate code dynamically using eval()"
 
   strings:
-    $val       = /eval\([a-zA-Z\"\'\(\,\)]{1,32}/ fullword
+    $val       = /eval\([\.\+ _a-zA-Z\"\'\(\,\)]{1,32}/ fullword
     $val2      = "eval(this.toString());"
     $not_empty = "eval()"
 
@@ -38,12 +38,71 @@ rule python_exec_near_enough_chr: high {
     all of them and math.abs(@chr - @exec) < 100
 }
 
+rule python_exec_near_enough_fernet: high {
+  meta:
+    description = "Likely executes Fernet encrypted content"
+
+  strings:
+    $exec   = "exec("
+    $fernet = "Fernet("
+
+  condition:
+    all of them and math.abs(@exec - @fernet) < 100
+}
+
+rule python_exec_near_enough_decrypt: high {
+  meta:
+    description = "Likely executes encrypted content"
+
+  strings:
+    $exec   = "exec("
+    $fernet = "decrypt("
+
+  condition:
+    all of them and math.abs(@exec - @fernet) < 100
+}
+
 rule python_exec_chr: critical {
   meta:
     description = "Executes encoded character content"
 
   strings:
     $exec = /exec\(.{0,16}chr\(.{0,16}\[\d[\d\, ]{0,64}/
+
+  condition:
+    filesize < 512KB and all of them
+}
+
+rule python_exec_bytes: critical {
+  meta:
+    description = "Executes a transformed bytestream"
+
+  strings:
+    $exec = /exec\([\w\.\(]{0,16}\(b['"].{8,16}/
+
+  condition:
+    filesize < 512KB and all of them
+}
+
+rule python_exec_complex: high {
+  meta:
+    description = "Executes code from a complex expression"
+
+  strings:
+    $exec           = /exec\([\w\. =]{1,32}\(.{0,8192}\)\)/ fullword
+    $not_javascript = "function("
+    $not_pyparser   = "exec(compile(open(self.parsedef).read(), self.parsedef, 'exec'))"
+
+  condition:
+    filesize < 512KB and $exec and none of ($not*)
+}
+
+rule python_exec_fernet: critical {
+  meta:
+    description = "Executes Fernet encrypted content"
+
+  strings:
+    $exec = /exec\(.{0,16}Fernet\(.{0,64}/
 
   condition:
     filesize < 512KB and all of them

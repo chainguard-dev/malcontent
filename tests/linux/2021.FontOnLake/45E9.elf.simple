@@ -69,6 +69,7 @@ impact/remote_access/ssh: high
 impact/ui/x11_auth: medium
 malware/family/fontonlake: critical
 net/download: medium
+net/ip/host_port: medium
 net/ip/spoof: medium
 net/ip/string: medium
 net/proxy/socks5: medium

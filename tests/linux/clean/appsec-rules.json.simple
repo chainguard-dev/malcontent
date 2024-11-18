@@ -58,6 +58,8 @@ net/dns/servers: low
 net/download: medium
 net/ftp/t: low
 net/http/cookies: medium
+net/http/webhook: medium
+net/ip/host_port: medium
 net/socket/connect: medium
 net/tcp/sftp: medium
 persist/cron/tab: medium

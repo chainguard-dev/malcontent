@@ -17,6 +17,7 @@ credential/sniffer/bpf: medium
 credential/ssh/d: medium
 credential/ssl/private_key: low
 crypto/aes: low
+crypto/cipher: medium
 crypto/ecdsa: low
 crypto/ed25519: low
 crypto/tls: low
@@ -98,6 +99,7 @@ fs/proc/1_cgroup: medium
 fs/proc/arbitrary_pid: medium
 fs/proc/cpuinfo: medium
 fs/symlink_resolve: low
+fs/tempdir/TEMP: low
 hw/cpu: medium
 impact/exploit: high
 impact/exploit/GCONV_PATH: high

@@ -8,5 +8,6 @@ exec/shell/command: medium
 false-positives/filebeat: low
 impact/ransom/decryptor: medium
 impact/remote_access/backdoor: medium
+net/ip/host_port: medium
 net/url/embedded: medium
 os/fd/multiplex: low

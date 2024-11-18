@@ -25,6 +25,7 @@ net/dns: low
 net/dns/servers: low
 net/dns/txt: low
 net/ip/addr: medium
+net/ip/host_port: medium
 net/ip/multicast_send: low
 net/ip/parse: medium
 net/resolve/hostname: low

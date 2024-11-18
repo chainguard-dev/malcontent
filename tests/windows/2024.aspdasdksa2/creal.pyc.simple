@@ -5,7 +5,10 @@
 anti-behavior/blocklist/hostname: critical
 anti-behavior/blocklist/mac_addr: critical
 anti-behavior/blocklist/user: critical
+c2/addr/discord: medium
+c2/addr/telegram: medium
 c2/tool_transfer/download: high
+collect/archives/zip: medium
 collect/databases/leveldb: medium
 credential/browser/chrome_cookies: high
 credential/browser/chromium_credit_cards: critical
@@ -22,6 +25,7 @@ exec/install_additional/pip_install: high
 exec/program: medium
 exec/tty/getpass: low
 exfil/discord: critical
+exfil/stealer: high
 exfil/stealer/browser: high
 exfil/stealer/credit_card: medium
 exfil/stealer/creds: high
@@ -31,6 +35,7 @@ net/download: medium
 net/download/fetch: medium
 net/http/fake_user_agent: medium
 net/http/request: low
+net/http/webhook: medium
 net/socket/connect: medium
 net/url/embedded: low
 net/url/parse: low

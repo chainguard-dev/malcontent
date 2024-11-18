@@ -2,6 +2,7 @@
 c2/tool_transfer/python: medium
 exec/imports/python: low
 exec/program: medium
+fs/file/exists: low
 fs/path/tmp: medium
 fs/permission/modify: medium
 net/download: medium

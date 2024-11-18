@@ -54,6 +54,7 @@ net/dns/txt: low
 net/http/post: medium
 net/http/request: low
 net/ip/addr: medium
+net/ip/host_port: medium
 net/ip/resolve: low
 net/proxy/tunnel: medium
 net/resolve/hostname: low

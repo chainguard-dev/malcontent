@@ -7,6 +7,7 @@ fs/directory/create: low
 fs/directory/list: low
 fs/directory/remove: low
 fs/file/delete: low
+fs/file/exists: low
 fs/permission/modify: medium
 fs/tempdir/create: low
 net/download: medium

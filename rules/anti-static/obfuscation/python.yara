@@ -2,22 +2,12 @@ private rule probably_python {
   strings:
     $f_function = "import" fullword
     $f_for      = "for x in" fullword
+    $f_return   = "return self."
+    $f_def      = "def _"
+    $f_ord      = " ord("
 
   condition:
-    filesize < 512KB and any of ($f*)
-}
-
-rule Vare_Obfuscator: critical {
-  meta:
-    description = "obfuscated with https://github.com/saintdaddy/Vare-Obfuscator"
-    filetype    = "py"
-
-  strings:
-    $var  = "__VareObfuscator__"
-    $var2 = "Vare Obfuscator"
-
-  condition:
-    any of them
+    filesize < 10MB and any of ($f*)
 }
 
 rule py_indirect_builtins: suspicious {
@@ -42,7 +32,19 @@ rule join_map_chr: high {
     $ref2 = /join\(chr\([a-z]{1,5}\) for [a-z]{1,5} in \[\d{1,3}, {0,2}\d{1,3}, {0,2}[\d\,]{1,32}/
 
   condition:
-    filesize < 256KB and any of them
+    filesize < 10MB and any of them
+}
+
+rule for_join_ord: high {
+  meta:
+    description = "decodes numbers from an obfuscated string"
+    filetypes   = "py"
+
+  strings:
+    $ref = /for [\w]{1,10} in ["']{2}\.join\(chr\(ord\(\w{1,8}\)[-\w\), ]{0,16}/
+
+  condition:
+    filesize < 10MB and any of them
 }
 
 rule codecs_decode: high {
@@ -55,6 +57,7 @@ rule codecs_decode: high {
   condition:
     $val
 }
+
 import "math"
 
 rule python_exec_eval_one_line: critical {
@@ -69,30 +72,6 @@ rule python_exec_eval_one_line: critical {
 
   condition:
     any of ($f*) and none of ($not*)
-}
-
-rule python_exec_near_enough_decrypt: high {
-  meta:
-    description = "Evaluates code from encrypted content"
-
-  strings:
-    $exec    = "exec(" fullword
-    $decrypt = "decrypt(" fullword
-
-  condition:
-    all of them and math.abs(@decrypt - @exec) <= 256
-}
-
-rule python_exec_near_enough_fernet: critical {
-  meta:
-    description = "Evaluates code from encrypted content"
-
-  strings:
-    $exec   = "exec(" fullword
-    $fernet = "Fernet"
-
-  condition:
-    all of them and math.abs(@fernet - @exec) <= 256
 }
 
 rule dynamic_require: high {
@@ -235,7 +214,7 @@ rule python_long_hex: medium {
     $assign = /\w{0,16}=["'][a-z0-9]{1024}/
 
   condition:
-    filesize < 1MB and $assign
+    filesize < 10MB and $assign
 }
 
 rule python_long_hex_multiple: high {
@@ -247,7 +226,7 @@ rule python_long_hex_multiple: high {
     $assign = /\w{0,16}=["'][a-z0-9]{1024}/
 
   condition:
-    filesize < 1MB and #assign > 3
+    filesize < 10MB and #assign > 3
 }
 
 rule python_hex_decimal: high {
@@ -266,7 +245,7 @@ rule python_hex_decimal: high {
     $not_testing_t = "*testing.T" fullword
 
   condition:
-    filesize < 1MB and any of ($f*) and #trash in (filesize - 1024..filesize) > 100 and none of ($not*)
+    filesize < 10MB and any of ($f*) and #trash in (filesize - 1024..filesize) > 100 and none of ($not*)
 }
 
 rule dumb_int_compares: high {
@@ -279,7 +258,7 @@ rule dumb_int_compares: high {
     $decode_or_b64decode = /if \d{2,16} == \d{2,16}/
 
   condition:
-    filesize < 1MB and all of them
+    filesize < 10MB and all of them
 }
 
 rule py_lib_alias_val: medium {
@@ -303,7 +282,7 @@ rule multi_decode_3: high {
     $decode_or_b64decode = /\.[b64]{0,3}decode\(.{0,256}\.[b64]{0,3}decode\(.{0,256}\.[b64]{0,3}decode/
 
   condition:
-    filesize < 1MB and all of them
+    filesize < 10MB and all of them
 }
 
 rule multi_decode: medium {
@@ -316,7 +295,7 @@ rule multi_decode: medium {
     $decode_or_b64decode = /\.[b64]{0,3}decode\(.{0,32}\.[b64]{0,3}decode\(/
 
   condition:
-    filesize < 1MB and all of them
+    filesize < 10MB and all of them
 }
 
 rule rename_requests: medium {
@@ -327,7 +306,7 @@ rule rename_requests: medium {
     $ref = /import requests as \w{0,64}/
 
   condition:
-    filesize < 512KB and all of them
+    filesize < 10MB and all of them
 }
 
 rule rename_requests_2char: high {
@@ -362,7 +341,7 @@ rule rename_marshal: critical {
     $ref = /import marshal as \w{0,64}/
 
   condition:
-    filesize < 512KB and all of them
+    filesize < 10MB and all of them
 }
 
 rule rename_base64: critical {
@@ -373,7 +352,7 @@ rule rename_base64: critical {
     $ref = /import base64 as \w{0,64}/
 
   condition:
-    filesize < 1MB and all of them
+    filesize < 10MB and all of them
 }
 
 rule rename_zlib: high {
@@ -384,7 +363,7 @@ rule rename_zlib: high {
     $ref = /import zlib as \w{0,64}/
 
   condition:
-    filesize < 512KB and all of them
+    filesize < 10MB and all of them
 }
 
 rule too_many_lambdas_small: high {
@@ -406,12 +385,12 @@ rule too_many_lambdas_large: high {
     $ref = /lambda \W: \W [\+\-\*]/
 
   condition:
-    filesize < 512KB and #ref > 100
+    filesize < 10MB and #ref > 100
 }
 
 rule lambda_funk: high {
   meta:
-    description = "likely obfuscated"
+    description = "likely obfuscated with lambda functions"
 
   strings:
     $ = "__builtins__.__dict__"
@@ -422,7 +401,7 @@ rule lambda_funk: high {
     $ = ".decode('utf-8'))"
 
   condition:
-    filesize < 512KB and 80 % of them
+    filesize < 10MB and 80 % of them
 }
 
 rule lambda_funk_high: high {
@@ -438,7 +417,7 @@ rule lambda_funk_high: high {
     $ = ".decode('utf-8'))"
 
   condition:
-    filesize < 512KB and all of them
+    filesize < 10MB and all of them
 }
 
 rule confusing_function_name: high {
@@ -446,11 +425,14 @@ rule confusing_function_name: high {
     description = "obfuscated with confusing function names"
 
   strings:
-    $def = /def [Il]{4,64}/ fullword
-    $eq  = /[Il]{4,64} = / fullword
+    $def    = /def [Il]{6,64}/
+    $eq     = /[Il]{6,64} = / fullword
+    $return = /return [Il]{6,64}\(/
+    $func   = / \+ [Il]{6,64}\([Il]{6,64}\)/
+    $func2  = /\)\+[Il]{6,64}\([Il]{6,64}\)\+/
 
   condition:
-    filesize < 512KB and (#def > 1 or #eq > 1)
+    filesize < 10MB and any of them
 }
 
 rule decompress_base64_entropy: high {
@@ -470,7 +452,7 @@ rule decompress_base64_entropy: high {
     $long_str     = /[\'\"][\+\w\/]{96}/
 
   condition:
-    filesize < 1MB and any of ($k*) and $b64decode and $long_str and any of ($f*)
+    filesize < 10MB and any of ($k*) and $b64decode and $long_str and any of ($f*)
 }
 
 rule join: low {
@@ -494,5 +476,47 @@ rule urllib_as_int_array: critical {
     $urllib_dot2 = "117, 114, 108, 108, 105, 98, 46"
 
   condition:
-    filesize < 1MB and any of them
+    filesize < 10MB and any of them
+}
+
+rule import_manipulator: critical {
+  meta:
+    description = "manipulates globals and imports into executing obfuscated code"
+
+  strings:
+    $import  = "__import__("
+    $getattr = "getattr("
+    $setattr = "setattr("
+    $update  = "update("
+    $chr     = /chr\(\w{1,8}\)/
+    $globals = "globals"
+    $dict    = "__dict__"
+    $def     = "def "
+
+  condition:
+    filesize < 10MB and all of them
+}
+
+rule bloated_hex_python: high {
+  meta:
+    description = "python script bloated with obfuscated content"
+
+  strings:
+    $f_unhexlify = "unhexlify" fullword
+    $f_join      = "join("
+    $f_split     = "split" fullword
+    $f_lambda    = "lambda" fullword
+    $f_ord       = "ord" fullword
+    $f_def       = "def" fullword
+    $f_decode    = "decode" fullword
+    $f_exec      = "exec" fullword
+    $f_eval      = "eval"
+    $f_alphabet  = "abcdefghijkl"
+
+    $not_js        = "function("
+    $not_highlight = "highlight"
+
+  condition:
+    filesize > 512KB and filesize < 10MB and 90 % of ($f*) and none of ($not*)
+
 }

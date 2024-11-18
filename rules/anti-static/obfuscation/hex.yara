@@ -55,3 +55,18 @@ rule hex_parse_base64_high: high {
     filesize < 32KB and any of ($lang*) and any of ($b*) and none of ($not*)
 }
 
+rule mega_string: high {
+  meta:
+    description = "python script decodes large hexadecimal string"
+
+  strings:
+    $unhexlify            = "unhexlify"
+    $hex_multiline_single = /= {0,2}'''[\/\da-fA-F]{1024}/
+    $hex_multiline_double = /= {0,2}"""[\/\da-fA-F]{1024}/
+    $hex_line_single      = /= '[\/\da-fA-F]{1024}/
+    $hex_line_double      = /= "[\/\da-fA-F]{1024}/
+
+  condition:
+    filesize < 5MB and $unhexlify and any of ($hex*)
+
+}

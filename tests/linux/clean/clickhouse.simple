@@ -21,6 +21,7 @@ credential/password: low
 credential/sniffer/bpf: medium
 credential/ssl/private_key: low
 crypto/aes: low
+crypto/cipher: medium
 crypto/ed25519: low
 crypto/file_encrypter: medium
 crypto/gost89: low
@@ -149,6 +150,7 @@ net/http/proxy: low
 net/http/request: low
 net/http/websocket: medium
 net/ip: low
+net/ip/host_port: medium
 net/ip/icmp: medium
 net/ip/parse: medium
 net/ip/resolve: low

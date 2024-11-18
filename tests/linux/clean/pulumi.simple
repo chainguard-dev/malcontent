@@ -16,6 +16,7 @@ credential/password: low
 credential/ssl/private_key: low
 crypto/aes: low
 crypto/blockchain: medium
+crypto/cipher: medium
 crypto/ecdsa: low
 crypto/ed25519: low
 crypto/tls: low

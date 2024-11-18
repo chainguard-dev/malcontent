@@ -9,6 +9,7 @@ credential/password: low
 credential/ssh/d: medium
 credential/ssl/private_key: low
 crypto/aes: low
+crypto/cipher: medium
 crypto/ecdsa: low
 crypto/ed25519: low
 crypto/tls: low
@@ -55,6 +56,7 @@ net/http/cookies: medium
 net/http/post: medium
 net/http/proxy: low
 net/http/request: low
+net/http/webhook: medium
 net/ip: low
 net/ip/multicast_send: low
 net/ip/parse: medium

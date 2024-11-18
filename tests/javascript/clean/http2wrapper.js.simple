@@ -5,5 +5,6 @@ data/embedded/base64_url: medium
 data/encoding/base64: low
 impact/remote_access/agent: medium
 net/http/2: low
+net/ip/host_port: medium
 net/socket/connect: medium
 net/url/embedded: low

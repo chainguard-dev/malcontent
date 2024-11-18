@@ -6,8 +6,9 @@ data/base64/decode: medium
 data/encoding/base64: low
 exec/imports/python: low
 exec/program: medium
-exec/remote_commands/code_eval: medium
+exec/remote_commands/code_eval: high
 fs/file/delete: low
+fs/file/exists: low
 fs/file/open: low
 fs/file/read: low
 fs/file/write: low

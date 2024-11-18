@@ -2,6 +2,7 @@
 anti-static/obfuscation/hex: medium
 anti-static/obfuscation/python: critical
 anti-static/unmarshal/marshal: high
+c2/addr/discord: medium
 c2/addr/url: high
 c2/tool_transfer/download: high
 collect/databases/leveldb: medium
@@ -9,7 +10,7 @@ data/encoding/base64: low
 data/encoding/marshal: medium
 exec/imports/python: low
 exec/program: medium
-exec/remote_commands/code_eval: medium
+exec/remote_commands/code_eval: critical
 exfil/stealer/browser: high
 fs/directory/create: low
 fs/path/users: medium

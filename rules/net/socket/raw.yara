@@ -13,6 +13,7 @@ rule raw_sockets: medium {
     $make_ip      = "makeIPPacket"
     $impacket     = "impacket."
     $makePackets  = "makePacket" fullword
+    $scapy        = /scapy.{0,32}Raw/ fullword
 
   condition:
     any of them

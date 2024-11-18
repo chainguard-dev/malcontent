@@ -2,5 +2,6 @@
 anti-static/obfuscation/python: high
 data/base64/decode: medium
 data/encoding/base64: low
+exec/dylib/windll: medium
 mem/protect: high
 net/dns/txt: low

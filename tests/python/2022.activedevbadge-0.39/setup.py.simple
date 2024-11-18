@@ -5,6 +5,7 @@ exec/imports/python: low
 exec/program: medium
 fs/directory/create: low
 fs/directory/list: low
+fs/file/exists: low
 fs/file/rename: low
 impact/remote_access/py_setuptools: high
 net/url/embedded: low

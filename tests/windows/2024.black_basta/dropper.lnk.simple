@@ -1,2 +1,3 @@
 # windows/2024.black_basta/dropper.lnk: low
+discover/user/APPDATA: low
 process/chdir: low

@@ -61,6 +61,7 @@ fs/proc/mounts: medium
 fs/proc/stat: medium
 fs/symlink_resolve: low
 fs/tempdir: low
+fs/tempdir/TEMP: low
 fs/tempdir/TMPDIR: low
 fs/tempdir/create: low
 fs/tempdir/tempfile_create: low
@@ -69,6 +70,7 @@ hw/cpu: medium
 impact/ddos/raw_flooder: medium
 lateral/scan/tool: medium
 net/ip/addr: medium
+net/ip/host_port: medium
 net/ip/icmp: medium
 net/ip/multicast_send: low
 net/ip/parse: medium

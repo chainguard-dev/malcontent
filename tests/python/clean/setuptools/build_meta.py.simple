@@ -10,8 +10,11 @@ fs/directory/create: low
 fs/directory/list: low
 fs/directory/traverse: medium
 fs/file/delete: low
+fs/file/exists: low
 fs/file/rename: low
+fs/tempdir/TEMP: low
 impact/remote_access/agent: medium
 net/download: medium
+net/http/form_upload: medium
 net/url/embedded: low
 os/fd/read: low

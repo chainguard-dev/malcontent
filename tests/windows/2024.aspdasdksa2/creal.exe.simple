@@ -2,6 +2,7 @@
 3P/bartblaze/pyinstaller: high
 anti-behavior/anti_debugger: medium
 anti-static/packer/pe: high
+collect/archives/zip: medium
 collect/databases/sqlite: medium
 credential/sniffer/bpf: medium
 crypto/aes: low

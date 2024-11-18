@@ -1,8 +1,10 @@
-rule tmpdir {
+rule temp {
   strings:
-    $ref    = "TEMP" fullword
-    $getenv = "getenv"
+    $ref     = "temp" fullword
+    $ref2    = "TEMP" fullword
+    $env_get = "os.environ"
+    $env_os  = "getenv"
 
   condition:
-    all of them
+    any of ($env*) and any of ($ref*)
 }
