@@ -46,7 +46,7 @@ func discoverTestData(rc Config) (map[string]string, error) {
 
 		ext := filepath.Ext(path)
 		switch ext {
-		case ".simple", ".md", ".json", ".mdiff", ".sdiff":
+		case ".simple", ".md", ".json":
 			relPath, err := filepath.Rel(rc.TestDataPath, path)
 			if err != nil {
 				return fmt.Errorf("get relative path: %w", err)
@@ -57,8 +57,6 @@ func discoverTestData(rc Config) (map[string]string, error) {
 
 			if _, err := os.Stat(fullSamplePath); err == nil {
 				testFiles[path] = fullSamplePath
-			} else if !strings.Contains(path, ".mdiff") && !strings.Contains(path, ".sdiff") {
-				fmt.Printf("Warning: No sample file found for test file %s\n", path)
 			}
 		}
 		return nil
