@@ -1,7 +1,4 @@
 # linux/clean/appsec-rules.json: critical
-3P/threat_hunting/gobuster: medium
-3P/threat_hunting/openvas: medium
-3P/threat_hunting/sqlninja: medium
 collect/databases/mysql: medium
 collect/databases/postgresql: medium
 collect/databases/sql: low

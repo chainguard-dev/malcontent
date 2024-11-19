@@ -1,6 +1,5 @@
 # linux/2022.Conti/bb64b27.elf_x86_64: critical
 3P/elastic/ransomware_conti: critical
-3P/threat_hunting/torproject: medium
 crypto/file_encrypter: medium
 fs/link_read: low
 fs/path/relative: medium

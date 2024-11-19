@@ -1,8 +1,4 @@
 # javascript/clean/securityDashboards.plugin.js: medium
-3P/threat_hunting/crowbar: medium
-3P/threat_hunting/hijacker: medium
-3P/threat_hunting/johntheripper: medium
-3P/threat_hunting/sharpshooter: medium
 anti-static/obfuscation/bitwise: medium
 anti-static/obfuscation/js: medium
 c2/tool_transfer/dropper: medium

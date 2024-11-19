@@ -1,9 +1,6 @@
 # linux/2023.Kinsing/install.sh: critical
 3P/elastic/kinsing: critical
 3P/sig_base/payload_f5_ip: critical
-3P/threat_hunting/netstat: medium
-3P/threat_hunting/shell: medium
-3P/threat_hunting/xmrig: medium
 anti-static/base64/exec: high
 c2/addr/ip: high
 c2/tool_transfer/download: medium

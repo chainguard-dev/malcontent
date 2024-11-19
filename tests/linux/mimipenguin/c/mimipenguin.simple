@@ -1,6 +1,4 @@
 # linux/mimipenguin/c/mimipenguin: critical
-3P/threat_hunting/crossc2: medium
-3P/threat_hunting/mimipenguin: medium
 credential/keychain/gnome_keyring_daemon: medium
 credential/os/shadow: medium
 credential/password: low

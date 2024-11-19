@@ -1,7 +1,4 @@
 # linux/clean/sonarlint-metadata.json: high
-3P/threat_hunting/bruteratel: medium
-3P/threat_hunting/github_username: medium
-3P/threat_hunting/owasp: medium
 c2/addr/ip: medium
 c2/tool_transfer/dropper: high
 collect/archives/zip: medium

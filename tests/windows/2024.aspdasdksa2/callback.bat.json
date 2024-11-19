@@ -21,19 +21,6 @@
                     "RuleName": "SIGNATURE_BASE_Suspicious_Powershell_Webdownload_1"
                 },
                 {
-                    "Description": "references 'powershell' tool",
-                    "MatchStrings": [
-                        "Add-MpPreference -ExclusionPath"
-                    ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/yara/threat_hunting/all.yara#powershell_offensive_tool_keyword",
-                    "ReferenceURL": "https://github.com/mthcht/ThreatHunting-Keywords",
-                    "RuleAuthor": "mthcht",
-                    "ID": "3P/threat_hunting/powershell",
-                    "RuleName": "powershell_offensive_tool_keyword"
-                },
-                {
                     "Description": "accesses hardcoded executable endpoint",
                     "MatchStrings": [
                         "https://github.com/aspdasdksa2/callback/raw/main/Client-built.exe"

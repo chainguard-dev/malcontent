@@ -1,5 +1,4 @@
 # linux/clean/buildah: medium
-3P/threat_hunting/metasploit: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/discovery/ip_dns_resolver: medium

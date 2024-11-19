@@ -6,27 +6,6 @@
             "Size": 770832,
             "Behaviors": [
                 {
-                    "Description": "references 'cstealer' tool",
-                    "MatchStrings": [
-                        "aeachknmefphepccionboohckonoeemg",
-                        "aholpfdialjgjfhomihkjbmgjidlcdno",
-                        "bfnaelmomeimhlpmgjnjophhpkkoljpa",
-                        "ejbalbakoplchlghecdalmeeeajnimhm",
-                        "fhbohimaelbohpjbbldcngcnapndodjp",
-                        "hnfanknocfeofbddgcijnmhnfnkdnaad",
-                        "ibnejdfjmmkpcnlpebklmnkoeoihofec",
-                        "jblndlipeogpafnldhgmapagcccfchpi",
-                        "nkbihfbeogaeaoehlefnkodbefgpgknn"
-                    ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/yara/threat_hunting/all.yara#cstealer_offensive_tool_keyword",
-                    "ReferenceURL": "https://github.com/mthcht/ThreatHunting-Keywords",
-                    "RuleAuthor": "mthcht",
-                    "ID": "3P/threat_hunting/cstealer",
-                    "RuleName": "cstealer_offensive_tool_keyword"
-                },
-                {
                     "Description": "binary contains little text content",
                     "MatchStrings": [
                         "ft hg"

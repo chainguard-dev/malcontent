@@ -3,11 +3,6 @@
 3P/ditekshen/discordurl: critical
 3P/ditekshen/vm_evasion_macaddrcomb: critical
 3P/elastic/multi_threat: high
-3P/threat_hunting/: medium
-3P/threat_hunting/cstealer: medium
-3P/threat_hunting/fentanyl: medium
-3P/threat_hunting/gofile_io: medium
-3P/threat_hunting/runascs: medium
 anti-behavior/anti_debugger: medium
 c2/addr/discord: medium
 c2/addr/http_dynamic: medium

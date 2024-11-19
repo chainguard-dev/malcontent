@@ -1,8 +1,4 @@
 # linux/clean/clickhouse: high
-3P/threat_hunting/keylogger: medium
-3P/threat_hunting/pypykatz: medium
-3P/threat_hunting/shodan_io: medium
-3P/threat_hunting/torproject: medium
 anti-static/obfuscation/obfuscate: low
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium

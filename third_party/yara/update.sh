@@ -56,12 +56,6 @@ function update_dep() {
 		# error: rule "BOINC" in boinc.yar(1): syntax error, unexpected identifier, expecting '{'
 		rm "${kind}/boinc.yar"
 		;;
-	threat_hunting)
-		rel=$(latest_github_release mthcht/ThreatHunting-Keywords-yara-rules)
-		curl -L -o "${tmpdir}/keywords.zip" "https://github.com/mthcht/ThreatHunting-Keywords-yara-rules/archive/refs/tags/${rel}.zip"
-		rel=$(echo $rel | sed s/v//g)
-		unzip -o -j "${tmpdir}/keywords.zip" "ThreatHunting-Keywords-yara-rules-${rel}/yara_rules/all.yara" -d "${kind}"
-		;;
 	InQuest-VT)
 		rel=$(git_clone https://github.com/InQuest/yara-rules-vt.git "${tmpdir}")
 		find "${tmpdir}" \( -name "*.yar*" -o -name "*LICENSE*" -o -name "README*" \) -print -exec cp {} "${kind}" \;
