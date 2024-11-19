@@ -80,7 +80,7 @@ func (r Terminal) Scanning(_ context.Context, path string) {
 }
 
 func (r Terminal) File(ctx context.Context, fr *malcontent.FileReport) error {
-	if len(fr.Behaviors) > 0 {
+	if fr.Skipped == "" && len(fr.Behaviors) > 0 {
 		renderFileSummary(ctx, fr, r.w,
 			tableConfig{
 				Title: fmt.Sprintf("%s %s", fr.Path, darkBrackets(riskInColor(fr.RiskLevel))),
@@ -225,6 +225,10 @@ func renderFileSummary(_ context.Context, fr *malcontent.FileReport, w io.Writer
 	nsRiskScore := map[string]int{}
 	previousNsRiskScore := map[string]int{}
 	diffMode := false
+
+	if fr.Skipped != "" {
+		return
+	}
 
 	for _, b := range fr.Behaviors {
 		ns, _ := splitRuleID(b.ID)

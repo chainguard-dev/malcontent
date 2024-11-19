@@ -19,22 +19,34 @@ func smLength(m *sync.Map) int {
 	return length
 }
 
-func riskStatistics(files *sync.Map) ([]malcontent.IntMetric, int, int) {
+func riskStatistics(c *malcontent.Config, files *sync.Map) ([]malcontent.IntMetric, int, int, int) {
 	length := smLength(files)
 
 	riskMap := make(map[int][]string, length)
 	riskStats := make(map[int]float64, length)
 
-	// as opposed to skipped files
 	processedFiles := 0
+	skippedFiles := 0
 	files.Range(func(key, value any) bool {
 		if key == nil || value == nil {
 			return true
 		}
 		processedFiles++
+
 		if fr, ok := value.(*malcontent.FileReport); ok {
-			if fr.Skipped == "" {
-				riskMap[fr.RiskScore] = append(riskMap[fr.RiskScore], fr.Path)
+			switch {
+			case c.Scan:
+				if fr.RiskScore >= 3 {
+					riskMap[fr.RiskScore] = append(riskMap[fr.RiskScore], fr.Path)
+				} else {
+					skippedFiles++
+				}
+			default:
+				if fr.Skipped == "" {
+					riskMap[fr.RiskScore] = append(riskMap[fr.RiskScore], fr.Path)
+				} else {
+					skippedFiles++
+				}
 			}
 		}
 		for riskLevel := range riskMap {
@@ -52,16 +64,16 @@ func riskStatistics(files *sync.Map) ([]malcontent.IntMetric, int, int) {
 		return t
 	}
 	for k, v := range riskStats {
-		stats = append(stats, malcontent.IntMetric{Key: k, Value: v, Count: len(riskMap[k]), Total: total()})
+		stats = append(stats, malcontent.IntMetric{Key: k, Value: v, Count: len(riskMap[k]), Total: processedFiles})
 	}
 	sort.Slice(stats, func(i, j int) bool {
 		return stats[i].Value > stats[j].Value
 	})
 
-	return stats, total(), processedFiles
+	return stats, total(), processedFiles, skippedFiles
 }
 
-func pkgStatistics(files *sync.Map) ([]malcontent.StrMetric, int, int) {
+func pkgStatistics(_ *malcontent.Config, files *sync.Map) ([]malcontent.StrMetric, int, int) {
 	length := smLength(files)
 	numBehaviors := 0
 	pkgMap := make(map[string]int, length)
@@ -71,9 +83,11 @@ func pkgStatistics(files *sync.Map) ([]malcontent.StrMetric, int, int) {
 			return true
 		}
 		if fr, ok := value.(*malcontent.FileReport); ok {
-			for _, b := range fr.Behaviors {
-				numBehaviors++
-				pkgMap[b.ID]++
+			if fr.Skipped == "" {
+				for _, b := range fr.Behaviors {
+					numBehaviors++
+					pkgMap[b.ID]++
+				}
 			}
 		}
 		return true
@@ -102,18 +116,16 @@ func pkgStatistics(files *sync.Map) ([]malcontent.StrMetric, int, int) {
 	return stats, width, numBehaviors
 }
 
-func Statistics(r *malcontent.Report) error {
-	riskStats, totalRisks, totalFilesProcessed := riskStatistics(&r.Files)
-	pkgStats, width, totalBehaviors := pkgStatistics(&r.Files)
-
-	length := smLength(&r.Files)
+func Statistics(c *malcontent.Config, r *malcontent.Report) error {
+	riskStats, totalRisks, processedFiles, skippedFiles := riskStatistics(c, &r.Files)
+	pkgStats, width, totalBehaviors := pkgStatistics(c, &r.Files)
 
 	statsSymbol := "📊"
 	riskSymbol := "⚠️ "
 	pkgSymbol := "📦"
 	fmt.Printf("%s Statistics\n", statsSymbol)
 	fmt.Println("---")
-	fmt.Printf("\033[1;37m%-15s \033[1;37m%s\033[0m\n", "Files Scanned", fmt.Sprintf("%d (%d skipped)", totalFilesProcessed, length-totalFilesProcessed))
+	fmt.Printf("\033[1;37m%-15s \033[1;37m%s\033[0m\n", "Files Scanned", fmt.Sprintf("%d (%d skipped)", processedFiles, skippedFiles))
 	fmt.Printf("\033[1;37m%-15s \033[1;37m%s\033[0m\n", "Total Risks", fmt.Sprintf("%d", totalRisks))
 	fmt.Println("---")
 	fmt.Printf("%s Risk Level Percentage\n", riskSymbol)
