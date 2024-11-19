@@ -221,16 +221,22 @@ func TestScanArchive(t *testing.T) {
 		t.Fatalf("render: %v", err)
 	}
 
-	bc := malcontent.Config{
+	rfs := []fs.FS{rules.FS, thirdparty.FS}
+	yrs, err := CachedRules(ctx, rfs)
+	if err != nil {
+		t.Fatalf("rules: %v", err)
+	}
+
+	mc := malcontent.Config{
 		Concurrency: runtime.NumCPU(),
 		IgnoreSelf:  false,
 		MinFileRisk: 0,
 		MinRisk:     0,
 		Renderer:    r,
-		RuleFS:      []fs.FS{rules.FS, thirdparty.FS},
+		Rules:       yrs,
 		ScanPaths:   []string{"testdata/apko_nested.tar.gz"},
 	}
-	res, err := Scan(ctx, bc)
+	res, err := Scan(ctx, mc)
 	if err != nil {
 		t.Fatal(err)
 	}
