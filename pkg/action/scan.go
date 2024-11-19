@@ -343,7 +343,7 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 					if k, ok := key.(string); ok {
 						if fr, ok := value.(*malcontent.FileReport); ok {
 							if len(c.TrimPrefixes) > 0 {
-								path = report.TrimPrefixes(k, c.TrimPrefixes)
+								k = report.TrimPrefixes(k, c.TrimPrefixes)
 							}
 							r.Files.Store(k, fr)
 							if c.Renderer != nil && r.Diff == nil && fr.RiskScore >= c.MinFileRisk {
@@ -562,7 +562,7 @@ func Scan(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) 
 		return true
 	})
 	if c.Stats {
-		err = render.Statistics(r)
+		err = render.Statistics(&c, r)
 		if err != nil {
 			return r, fmt.Errorf("stats: %w", err)
 		}

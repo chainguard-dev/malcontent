@@ -33,7 +33,7 @@ func (r TerminalBrief) Scanning(_ context.Context, path string) {
 }
 
 func (r TerminalBrief) File(_ context.Context, fr *malcontent.FileReport) error {
-	if len(fr.Behaviors) == 0 {
+	if fr.Skipped != "" || len(fr.Behaviors) == 0 {
 		return nil
 	}
 

@@ -406,7 +406,7 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 	if c.Scan {
 		highestRisk = highestMatchRisk(mrs)
 		if highestRisk < 3 {
-			return malcontent.FileReport{}, nil
+			fr.Skipped = "overall risk too low for scan"
 		}
 	}
 
@@ -592,14 +592,14 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 	}
 
 	if c.Scan && overallRiskScore < HIGH {
-		return malcontent.FileReport{}, nil
+		fr.Skipped = "overall risk too low for scan"
 	}
 
 	// Check for both the full and shortened variants of malcontent
 	isMalBinary := (filepath.Base(path) == NAME || filepath.Base(path) == "mal")
 
 	if all(ignoreSelf, fr.IsMalcontent, ignoreMalcontent, isMalBinary) {
-		return malcontent.FileReport{}, nil
+		fr.Skipped = "ignoring malcontent binary"
 	}
 
 	// If something has a lot of high, it's probably critical
