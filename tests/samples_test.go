@@ -90,13 +90,20 @@ func TestJSON(t *testing.T) {
 				t.Fatalf("render: %v", err)
 			}
 
+			rfs := []fs.FS{rules.FS, thirdparty.FS}
+			yrs, err := action.CachedRules(ctx, rfs)
+			if err != nil {
+				t.Fatalf("rules: %v", err)
+			}
+
 			mc := malcontent.Config{
 				Concurrency: runtime.NumCPU(),
 				IgnoreSelf:  false,
 				MinFileRisk: 1,
 				MinRisk:     1,
 				Renderer:    render,
-				RuleFS:      []fs.FS{rules.FS, thirdparty.FS},
+				RuleFS:      rfs,
+				Rules:       yrs,
 				ScanPaths:   []string{binPath},
 			}
 
@@ -158,6 +165,12 @@ func TestSimple(t *testing.T) {
 				t.Fatalf("render: %v", err)
 			}
 
+			rfs := []fs.FS{rules.FS, thirdparty.FS}
+			yrs, err := action.CachedRules(ctx, rfs)
+			if err != nil {
+				t.Fatalf("rules: %v", err)
+			}
+
 			mc := malcontent.Config{
 				Concurrency:           runtime.NumCPU(),
 				IgnoreSelf:            false,
@@ -166,7 +179,8 @@ func TestSimple(t *testing.T) {
 				MinRisk:               1,
 				QuantityIncreasesRisk: true,
 				Renderer:              simple,
-				RuleFS:                []fs.FS{rules.FS, thirdparty.FS},
+				RuleFS:                rfs,
+				Rules:                 yrs,
 				ScanPaths:             []string{binPath},
 			}
 
@@ -231,6 +245,12 @@ func TestDiff(t *testing.T) {
 				t.Fatalf("render: %v", err)
 			}
 
+			rfs := []fs.FS{rules.FS, thirdparty.FS}
+			yrs, err := action.CachedRules(ctx, rfs)
+			if err != nil {
+				t.Fatalf("rules: %v", err)
+			}
+
 			mc := malcontent.Config{
 				Concurrency: runtime.NumCPU(),
 				IgnoreSelf:  false,
@@ -238,7 +258,8 @@ func TestDiff(t *testing.T) {
 				MinFileRisk: tc.minFileScore,
 				MinRisk:     tc.minResultScore,
 				Renderer:    simple,
-				RuleFS:      []fs.FS{rules.FS, thirdparty.FS},
+				RuleFS:      rfs,
+				Rules:       yrs,
 				ScanPaths:   []string{tc.src, tc.dest},
 			}
 
@@ -297,6 +318,12 @@ func TestDiffFileChange(t *testing.T) {
 				t.Fatalf("render: %v", err)
 			}
 
+			rfs := []fs.FS{rules.FS, thirdparty.FS}
+			yrs, err := action.CachedRules(ctx, rfs)
+			if err != nil {
+				t.Fatalf("rules: %v", err)
+			}
+
 			mc := malcontent.Config{
 				Concurrency:    runtime.NumCPU(),
 				FileRiskChange: true,
@@ -305,7 +332,8 @@ func TestDiffFileChange(t *testing.T) {
 				MinFileRisk:    tc.minFileScore,
 				MinRisk:        tc.minResultScore,
 				Renderer:       simple,
-				RuleFS:         []fs.FS{rules.FS, thirdparty.FS},
+				RuleFS:         rfs,
+				Rules:          yrs,
 				ScanPaths:      []string{strings.TrimPrefix(tc.src, "../out/chainguard-dev/malcontent-samples/"), strings.TrimPrefix(tc.dest, "../out/chainguard-dev/malcontent-samples/")},
 			}
 
@@ -364,6 +392,12 @@ func TestDiffFileIncrease(t *testing.T) {
 				t.Fatalf("render: %v", err)
 			}
 
+			rfs := []fs.FS{rules.FS, thirdparty.FS}
+			yrs, err := action.CachedRules(ctx, rfs)
+			if err != nil {
+				t.Fatalf("rules: %v", err)
+			}
+
 			mc := malcontent.Config{
 				Concurrency:      runtime.NumCPU(),
 				FileRiskIncrease: true,
@@ -372,7 +406,8 @@ func TestDiffFileIncrease(t *testing.T) {
 				MinFileRisk:      tc.minFileScore,
 				MinRisk:          tc.minResultScore,
 				Renderer:         simple,
-				RuleFS:           []fs.FS{rules.FS, thirdparty.FS},
+				RuleFS:           rfs,
+				Rules:            yrs,
 				ScanPaths:        []string{strings.TrimPrefix(tc.src, "../out/chainguard-dev/malcontent-samples/"), strings.TrimPrefix(tc.dest, "../out/chainguard-dev/malcontent-samples/")},
 			}
 
@@ -463,6 +498,12 @@ func TestMarkdown(t *testing.T) {
 				t.Fatalf("render: %v", err)
 			}
 
+			rfs := []fs.FS{rules.FS, thirdparty.FS}
+			yrs, err := action.CachedRules(ctx, rfs)
+			if err != nil {
+				t.Fatalf("rules: %v", err)
+			}
+
 			mc := malcontent.Config{
 				Concurrency:           runtime.NumCPU(),
 				IgnoreSelf:            false,
@@ -471,7 +512,8 @@ func TestMarkdown(t *testing.T) {
 				MinRisk:               1,
 				QuantityIncreasesRisk: true,
 				Renderer:              simple,
-				RuleFS:                []fs.FS{rules.FS, thirdparty.FS},
+				RuleFS:                rfs,
+				Rules:                 yrs,
 				ScanPaths:             []string{binPath},
 			}
 
