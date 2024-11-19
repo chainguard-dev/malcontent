@@ -24,7 +24,7 @@ malcontent is a bit paranoid and prone to false positives. It is currently focus
 
 ## Features
 
-* 16,000+ [YARA](YARA) detection rules
+* 14,500+ [YARA](YARA) detection rules
   * Including third-party rules from companies such as Avast, Elastic, FireEye, Mandiant, Nextron, ReversingLabs, and more!
 * Analyzes binaries from nearly any operating system (Linux, macOS, FreeBSD, Windows, etc.)
 * Analyzes scripts (Python, shell, Javascript, Typescript, PHP, Perl, AppleScript)
