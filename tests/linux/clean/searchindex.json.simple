@@ -1,6 +1,4 @@
 # linux/clean/searchindex.json: medium
-3P/threat_hunting/dd: medium
-3P/threat_hunting/keylogger: medium
 anti-static/obfuscation/obfuscate: low
 c2/addr/discord: medium
 c2/tool_transfer/dropper: medium

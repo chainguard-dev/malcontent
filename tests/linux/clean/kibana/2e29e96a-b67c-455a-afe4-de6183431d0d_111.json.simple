@@ -1,23 +1,5 @@
 # linux/clean/kibana/2e29e96a-b67c-455a-afe4-de6183431d0d_111.json: medium
 3P/sig_base/hacktool_strings_p0wnedshell: low
-3P/threat_hunting/arsenal: medium
-3P/threat_hunting/autordpwn: medium
-3P/threat_hunting/bruteratel: medium
-3P/threat_hunting/dbc2: medium
-3P/threat_hunting/fruityc2: medium
-3P/threat_hunting/github_username: medium
-3P/threat_hunting/kubesploit: medium
-3P/threat_hunting/merlin: medium
-3P/threat_hunting/merlin_agent_dll: medium
-3P/threat_hunting/netexec: medium
-3P/threat_hunting/nishang: medium
-3P/threat_hunting/powerpick: medium
-3P/threat_hunting/powershell_scripts_for: medium
-3P/threat_hunting/powersploit: medium
-3P/threat_hunting/psattack: medium
-3P/threat_hunting/pupy: medium
-3P/threat_hunting/redpill: medium
-3P/threat_hunting/sharpyshell: medium
 exec/shell/power: medium
 impact/infection/infected: medium
 mem/protect: low

@@ -1,5 +1,4 @@
 # linux/clean/misp_sample.ndjson.log: high
-3P/threat_hunting/pastebin: medium
 c2/addr/ip: medium
 c2/tool_transfer/download: high
 crypto/aes: low

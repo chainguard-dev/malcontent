@@ -1,5 +1,4 @@
 # linux/clean/kibana/8da41fc9-7735-4b24-9cc6-c78dfc9fc9c9_108.json: medium
-3P/threat_hunting/seclists: medium
 impact/exploit: medium
 impact/exploit/cve: medium
 impact/exploit/pwnkit: low

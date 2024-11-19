@@ -1,6 +1,5 @@
 # linux/2024.kworker_pretenders/gafgyt: critical
 3P/elastic/mirai: critical
-3P/threat_hunting/base64: medium
 anti-static/base64/exec: critical
 anti-static/elf/content: high
 credential/ssh/d: medium

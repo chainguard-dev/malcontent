@@ -1,6 +1,4 @@
 # linux/clean/pulumi: medium
-3P/threat_hunting/iodine: medium
-3P/threat_hunting/sharppack: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/addr/server: medium

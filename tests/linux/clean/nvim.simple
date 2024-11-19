@@ -1,5 +1,4 @@
 # linux/clean/nvim: medium
-3P/threat_hunting/hrshell: medium
 c2/addr/server: medium
 collect/databases/mysql: medium
 collect/databases/sqlite: medium

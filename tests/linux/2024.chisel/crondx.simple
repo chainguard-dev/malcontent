@@ -1,6 +1,4 @@
 # linux/2024.chisel/crondx: critical
-3P/threat_hunting/ad_exploitation_cheat: medium
-3P/threat_hunting/chisel: medium
 c2/addr/ip: high
 collect/archives/zip: medium
 credential/password: low
