@@ -233,7 +233,6 @@ func TestScanArchive(t *testing.T) {
 		MinFileRisk: 0,
 		MinRisk:     0,
 		Renderer:    r,
-		RuleFS:      rfs,
 		Rules:       yrs,
 		ScanPaths:   []string{"testdata/apko_nested.tar.gz"},
 	}

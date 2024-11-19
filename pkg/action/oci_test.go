@@ -40,7 +40,6 @@ func TestOCI(t *testing.T) {
 		MinRisk:     0,
 		Renderer:    r,
 		Rules:       yrs,
-		RuleFS:      []fs.FS{rules.FS, thirdparty.FS},
 		ScanPaths:   []string{"testdata/static.tar.xz"},
 	}
 	res, err := Scan(ctx, mc)
