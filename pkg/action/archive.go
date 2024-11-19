@@ -115,7 +115,7 @@ func extractTar(ctx context.Context, d string, f string) error {
 		if err != nil {
 			return fmt.Errorf("failed to create xz reader: %w", err)
 		}
-		uncompressed := strings.Trim(filepath.Base(f), getExt(f))
+		uncompressed := strings.Trim(filepath.Base(f), ".xz")
 		target := filepath.Join(d, uncompressed)
 		if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
 			return fmt.Errorf("failed to create directory for file: %w", err)
