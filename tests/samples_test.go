@@ -26,11 +26,15 @@ import (
 	"github.com/chainguard-dev/malcontent/rules"
 	thirdparty "github.com/chainguard-dev/malcontent/third_party"
 	"github.com/google/go-cmp/cmp"
+	"github.com/hillu/go-yara/v4"
 )
 
 var (
+	err         error
+	rfs         = []fs.FS{rules.FS, thirdparty.FS}
 	sampleDir   = ""
 	testDataDir = ""
+	yrs         *yara.Rules
 )
 
 func init() {
@@ -46,6 +50,12 @@ func init() {
 	if _, err := os.Stat(sampleDir); err != nil {
 		fmt.Printf("samples directory %q does not exist - please use 'make integration' or git clone https://github.com/chainguard-dev/malcontent-samples appropriately. This path may be overridden by --sample_dir", sampleDir)
 		os.Exit(1)
+	}
+
+	ctx := context.Background()
+	yrs, err = action.CachedRules(ctx, rfs)
+	if err != nil {
+		fmt.Printf("failed to compile rules")
 	}
 }
 
@@ -88,12 +98,6 @@ func TestJSON(t *testing.T) {
 			render, err := render.New("json", &out)
 			if err != nil {
 				t.Fatalf("render: %v", err)
-			}
-
-			rfs := []fs.FS{rules.FS, thirdparty.FS}
-			yrs, err := action.CachedRules(ctx, rfs)
-			if err != nil {
-				t.Fatalf("rules: %v", err)
 			}
 
 			mc := malcontent.Config{
@@ -163,12 +167,6 @@ func TestSimple(t *testing.T) {
 			simple, err := render.New("simple", &out)
 			if err != nil {
 				t.Fatalf("render: %v", err)
-			}
-
-			rfs := []fs.FS{rules.FS, thirdparty.FS}
-			yrs, err := action.CachedRules(ctx, rfs)
-			if err != nil {
-				t.Fatalf("rules: %v", err)
 			}
 
 			mc := malcontent.Config{
@@ -245,12 +243,6 @@ func TestDiff(t *testing.T) {
 				t.Fatalf("render: %v", err)
 			}
 
-			rfs := []fs.FS{rules.FS, thirdparty.FS}
-			yrs, err := action.CachedRules(ctx, rfs)
-			if err != nil {
-				t.Fatalf("rules: %v", err)
-			}
-
 			mc := malcontent.Config{
 				Concurrency: runtime.NumCPU(),
 				IgnoreSelf:  false,
@@ -316,12 +308,6 @@ func TestDiffFileChange(t *testing.T) {
 			simple, err := render.New(tc.format, &out)
 			if err != nil {
 				t.Fatalf("render: %v", err)
-			}
-
-			rfs := []fs.FS{rules.FS, thirdparty.FS}
-			yrs, err := action.CachedRules(ctx, rfs)
-			if err != nil {
-				t.Fatalf("rules: %v", err)
 			}
 
 			mc := malcontent.Config{
@@ -390,12 +376,6 @@ func TestDiffFileIncrease(t *testing.T) {
 			simple, err := render.New(tc.format, &out)
 			if err != nil {
 				t.Fatalf("render: %v", err)
-			}
-
-			rfs := []fs.FS{rules.FS, thirdparty.FS}
-			yrs, err := action.CachedRules(ctx, rfs)
-			if err != nil {
-				t.Fatalf("rules: %v", err)
 			}
 
 			mc := malcontent.Config{
@@ -498,12 +478,6 @@ func TestMarkdown(t *testing.T) {
 				t.Fatalf("render: %v", err)
 			}
 
-			rfs := []fs.FS{rules.FS, thirdparty.FS}
-			yrs, err := action.CachedRules(ctx, rfs)
-			if err != nil {
-				t.Fatalf("rules: %v", err)
-			}
-
 			mc := malcontent.Config{
 				Concurrency:           runtime.NumCPU(),
 				IgnoreSelf:            false,
@@ -591,7 +565,8 @@ func Template(b *testing.B, paths []string) func() {
 			IgnoreSelf:  true,
 			IgnoreTags:  []string{"harmless"},
 			Renderer:    simple,
-			RuleFS:      []fs.FS{rules.FS, thirdparty.FS},
+			RuleFS:      rfs,
+			Rules:       yrs,
 			ScanPaths:   paths,
 		}
 		res, err := action.Scan(ctx, mc)
