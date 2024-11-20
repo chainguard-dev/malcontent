@@ -75,3 +75,44 @@ rule go_reverse_shell: high {
   condition:
     filesize < 4MB and any of ($sh*) and all of ($f*)
 }
+
+rule ruby_reverse_shell: high {
+  meta:
+    description = "reverse shell written in Ruby"
+
+  strings:
+    $spawn_tcpsocket = /spawn\(["']\/bin\/sh["'],.{0,64}TCPSocket.{0,64}\)/
+    $popen_socket    = /TCPSocket.{0,64}\.gets.{0,64}IO.popen.{0,32}/
+    $tcp_sh_i        = /TCPSocket.{0,64}\/bin\/sh -i/
+
+  condition:
+    filesize < 64KB and any of them
+}
+
+rule ruby_tcpsocket_popen: high {
+  meta:
+    description = "reverse shell written in Ruby"
+
+  strings:
+    $socket      = /TCPSocket\.[\w]{2,8}/
+    $popen       = /\.popen\w{0,2}\(["'\w \.\#\{\}]{0,64}/
+    $gets        = /\w{1,16}\.gets/
+    $copy_stream = "IO.copy_stream"
+
+  condition:
+    filesize < 64KB and all of them
+}
+
+rule ruby_sneaky_socket: high {
+  meta:
+    description = "reverse shell written in Ruby"
+
+  strings:
+    $socket  = /Socket\.new/
+    $connect = /\w{1,8}\.connect/
+    $bin_sh  = "/bin/sh -i"
+    $fd      = "fd" fullword
+
+  condition:
+    filesize < 64KB and all of them
+}

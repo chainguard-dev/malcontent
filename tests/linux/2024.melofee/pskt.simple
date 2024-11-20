@@ -8,8 +8,11 @@ credential/os/shadow: medium
 credential/password: low
 credential/ssl/private_key: low
 crypto/aes: low
+crypto/decrypt: low
 crypto/ed25519: low
 crypto/gost89: low
+crypto/openssl: medium
+crypto/public_key: low
 crypto/rc4: low
 data/base64/decode: medium
 data/builtin/glibc: medium

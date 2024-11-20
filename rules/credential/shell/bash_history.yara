@@ -1,6 +1,6 @@
 rule bash_history: high {
   meta:
-    description = "access .bash_history file"
+    description = "accesses bash shell history"
 
   strings:
     $ref = ".bash_history" fullword

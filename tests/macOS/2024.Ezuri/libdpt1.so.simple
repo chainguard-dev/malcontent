@@ -4,6 +4,8 @@ anti-static/macho/footer: high
 anti-static/packer/aes: high
 anti-static/packer/ezuri: critical
 crypto/aes: low
+crypto/decrypt: low
+crypto/encrypt: medium
 discover/system/cpu: low
 exec/plugin: low
 exec/program: medium

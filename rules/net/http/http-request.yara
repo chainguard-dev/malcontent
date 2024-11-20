@@ -16,6 +16,7 @@ rule http_request: low {
     $http_connect  = "HTTPConnection" fullword
     $https_connect = "HTTPSConnection" fullword
     $axios         = "axios" fullword
+    $ruby_http_get = "HTTP.get" fullword
 
   condition:
     any of them

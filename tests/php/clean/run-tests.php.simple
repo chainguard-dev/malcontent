@@ -10,6 +10,7 @@ exec/shell/command: medium
 exec/shell/exec: medium
 exec/shell/ignore_output: medium
 fs/directory/create: low
+fs/directory/traverse: medium
 fs/file/delete: low
 fs/path/usr_bin: low
 fs/path/windows_root: low

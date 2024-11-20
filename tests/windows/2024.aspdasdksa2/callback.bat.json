@@ -89,6 +89,19 @@
                     "RuleName": "win_defender_exclusion"
                 },
                 {
+                    "Description": "mentions 'malware'",
+                    "MatchStrings": [
+                        "I \"IMAGENAME eq Malwarebytes",
+                        "N \"Malwarebytes",
+                        "malwarebytes_assistant"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/malware/ref.yara#malware",
+                    "ID": "malware/ref",
+                    "RuleName": "malware"
+                },
+                {
                     "Description": "download files",
                     "MatchStrings": [
                         "DownloadFile"

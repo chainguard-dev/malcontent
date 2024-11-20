@@ -86,6 +86,7 @@ net/tun_tap: medium
 net/url/embedded: low
 os/time/clock_set: low
 persist/daemon: medium
+privesc/setuid: low
 process/chdir: low
 process/chroot: low
 process/create: low
@@ -93,4 +94,3 @@ process/executable_path: low
 process/groupid_set: low
 process/groups_set: low
 process/namespace_set: low
-process/userid_set: low

@@ -2,6 +2,8 @@
 anti-static/obfuscation/hex: medium
 collect/databases/sql: low
 credential/password: low
+crypto/encrypt: medium
+crypto/openssl: medium
 crypto/tls: low
 data/embedded/base64_terms: medium
 data/embedded/base64_url: medium

@@ -3,6 +3,7 @@
 credential/password: low
 exec/shell/power: medium
 impact/infection/infected: medium
+malware/ref: medium
 net/url/embedded: low
 sec-tool/credentials/mimikatz: low
 sus/malicious: medium

@@ -21,9 +21,11 @@ credential/sniffer/bpf: medium
 credential/ssl/private_key: low
 crypto/aes: low
 crypto/cipher: medium
+crypto/decrypt: low
 crypto/ecdsa: low
 crypto/ed25519: low
-crypto/file_encrypter: medium
+crypto/encrypt: medium
+crypto/public_key: low
 crypto/tls: low
 crypto/uuid: medium
 data/compression/bzip2: low
@@ -105,6 +107,7 @@ impact/remote_access/heartbeat: medium
 impact/remote_access/implant: medium
 impact/remote_access/pseudo_terminal: medium
 impact/remote_access/trojan: medium
+malware/ref: medium
 net/dns: low
 net/dns/reverse: medium
 net/dns/servers: low

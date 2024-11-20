@@ -25,3 +25,16 @@ rule py_walk: medium {
   condition:
     any of them
 }
+
+rule find_term: medium {
+  meta:
+    description = "traverse filesystem hierarchy"
+
+  strings:
+    $find_files = "find_files"
+    $ruby       = "next if entry == '.' || entry == '..'"
+    $ruby2      = "next if file == __FILE__"
+
+  condition:
+    any of them
+}

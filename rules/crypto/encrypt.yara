@@ -1,3 +1,16 @@
+rule encrypt: medium {
+  meta:
+    description = "encrypts data"
+
+  strings:
+    $encrypt = /[\w ]{0,16}Encrypt[\w ]{0,16}/
+
+    $not_encrypted = "Encrypted"
+
+  condition:
+    $encrypt and none of ($not*)
+}
+
 rule file_crypter: medium {
   meta:
     description = "Encrypts files"

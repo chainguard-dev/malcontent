@@ -8,6 +8,18 @@ rule gethostbyaddr {
     $gethostbyname2 = "gethostbyaddr" fullword
     $ResolvHost     = "ResolvHost"
     $resolv_host    = "resolv_host"
+    $ruby           = "Resolv.getaddress"
+
+  condition:
+    any of them
+}
+
+rule resolve_base64: high {
+  meta:
+    description = "resolves base64-encoded address"
+
+  strings:
+    $ref = /Resolv\.getaddress\(Base64\.decode64\(.{1,64}\)\)/
 
   condition:
     any of them

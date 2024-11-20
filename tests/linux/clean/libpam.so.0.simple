@@ -5,5 +5,5 @@ evasion/logging/acct: low
 exec/dylib/symbol_address: medium
 exec/tty/pathname: medium
 fs/path/etc: low
+privesc/setuid: low
 process/groups_set: low
-process/userid_set: low

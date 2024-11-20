@@ -9,6 +9,9 @@ credential/ssh/authorized_hosts: medium
 credential/ssh/d: low
 credential/ssl/private_key: low
 crypto/aes: low
+crypto/encrypt: medium
+crypto/openssl: medium
+crypto/public_key: low
 crypto/rc4: low
 data/encoding/base64: low
 data/hash/md5: low
@@ -91,11 +94,11 @@ persist/kernel_module/kprobe: medium
 persist/kernel_module/module: medium
 persist/kernel_module/symbol_lookup: high
 persist/pid_file: medium
+privesc/setuid: low
 process/chroot: low
 process/executable_path: low
 process/groupid_set: low
 process/groups_set: low
 process/name_set: medium
-process/userid_set: low
 process/username_set: medium
 sus/compiler: medium

@@ -3,7 +3,7 @@
 
 
 SAMPLES_REPO ?= chainguard-dev/malcontent-samples
-SAMPLES_COMMIT ?= 35fa24a7f08b2363b0f4df9b86d6ecee7a0f6ead
+SAMPLES_COMMIT ?= 8a9a5f73663b23e9a4b97de8324c3e8a1ed50d56
 
 # BEGIN: lint-install ../malcontent
 # http://github.com/tinkerbell/lint-install

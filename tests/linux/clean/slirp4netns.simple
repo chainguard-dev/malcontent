@@ -6,6 +6,7 @@ credential/os/gshadow: medium
 credential/os/shadow: medium
 credential/password: low
 credential/sniffer/bpf: medium
+crypto/public_key: low
 data/builtin/glibc: medium
 discover/group/lookup: medium
 discover/network/interface_list: medium
@@ -97,6 +98,7 @@ os/kernel/seccomp: low
 os/time/clock_set: low
 persist/kernel_module/module: medium
 persist/writeable_dir: medium
+privesc/setuid: low
 process/chroot: low
 process/create: low
 process/executable_path: low
@@ -105,4 +107,3 @@ process/groups_set: low
 process/multithreaded: low
 process/namespace_set: low
 process/unshare: low
-process/userid_set: low

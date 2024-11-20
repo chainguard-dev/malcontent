@@ -20,8 +20,11 @@ credential/ssh: medium
 credential/ssl/private_key: low
 crypto/aes: low
 crypto/cipher: medium
+crypto/decrypt: low
 crypto/ecdsa: low
 crypto/ed25519: low
+crypto/openssl: medium
+crypto/public_key: low
 crypto/rc4: medium
 crypto/tls: low
 crypto/uuid: medium
@@ -75,6 +78,7 @@ fs/file/delete: medium
 fs/file/delete_forcibly: low
 fs/file/open: low
 fs/file/read: low
+fs/file/rename: low
 fs/file/stat: low
 fs/file/times_set: medium
 fs/file/truncate: low
@@ -115,6 +119,7 @@ hw/dev/block_ice: medium
 hw/wireless: low
 impact/remote_access/heartbeat: medium
 lateral/scan/target_ip: medium
+malware/ref: medium
 mem/anonymous_file: medium
 net/dns/over_https: medium
 net/dns/servers: low
@@ -161,13 +166,13 @@ os/kernel/netlink: low
 os/kernel/opencl: medium
 os/kernel/seccomp: low
 persist/service/start: low
+privesc/setuid: low
 privesc/sudo: medium
 process/chdir: low
 process/chroot: low
 process/create: low
 process/groups_set: low
 process/multithreaded: low
-process/userid_set: low
 sus/exclamation: medium
 sus/intercept: medium
 sus/malicious: medium

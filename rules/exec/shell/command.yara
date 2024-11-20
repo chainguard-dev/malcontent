@@ -13,6 +13,17 @@ rule system: medium {
     all of them in (1000..3000)
 }
 
+rule generic_shell_exec: medium {
+  meta:
+    description = "execute a shell command"
+
+  strings:
+    $exec = "shell_exec"
+
+  condition:
+    any of them
+}
+
 rule php_shell_exec: medium php {
   meta:
     description = "execute a shell command"

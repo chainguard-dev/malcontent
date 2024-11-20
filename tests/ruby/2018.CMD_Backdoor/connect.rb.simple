@@ -1,0 +1,8 @@
+# ruby/2018.CMD_Backdoor/connect.rb: high
+discover/process/working_directory: low
+discover/system/platform: medium
+exec/shell/command: medium
+fs/path/usr_bin: low
+impact/remote_access/backdoor: high
+net/http/request: low
+net/url/embedded: medium

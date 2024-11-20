@@ -5,6 +5,7 @@
 3P/volexity/iconic: critical
 anti-static/xor/user_agent: critical
 crypto/aes: low
+crypto/encrypt: medium
 crypto/rc4: low
 data/base64/decode: medium
 data/compression/gzip: low

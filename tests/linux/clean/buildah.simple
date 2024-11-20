@@ -11,8 +11,11 @@ credential/sniffer/bpf: medium
 credential/ssl/private_key: low
 crypto/aes: low
 crypto/cipher: medium
+crypto/decrypt: low
 crypto/ecdsa: low
 crypto/ed25519: low
+crypto/openssl: medium
+crypto/public_key: low
 crypto/tls: low
 data/compression/bzip2: low
 data/compression/gzip: low
@@ -138,11 +141,11 @@ os/kernel/key_management: low
 os/kernel/netlink: low
 os/kernel/seccomp: low
 persist/pid_file: medium
+privesc/setuid: low
 process/chroot: low
 process/groupid_set: low
 process/groups_set: low
 process/multithreaded: low
 process/unshare: low
-process/userid_set: low
 sus/exclamation: medium
 sus/intercept: medium

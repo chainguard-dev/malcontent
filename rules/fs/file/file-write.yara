@@ -28,7 +28,7 @@ rule ruby_file_write: medium {
     description = "writes to a file"
 
   strings:
-    $val = /File\.open\(.{1,64}, {0,2}["'][wa]["']\)/
+    $val = /File\.open\(.{1,64} {0,2}["']w[ab\+]{0,2}["']\)/
 
   condition:
     filesize < 1MB and any of them

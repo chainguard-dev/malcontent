@@ -6,6 +6,7 @@ collect/archives/zip: medium
 credential/keychain: medium
 credential/password: low
 crypto/aes: low
+crypto/public_key: low
 crypto/rc4: low
 data/compression/bzip2: low
 data/compression/zstd: low
@@ -54,9 +55,9 @@ net/url/embedded: low
 os/kernel/dispatch_semaphore: low
 os/sync/semaphore_user: low
 persist/launchd/launch_agent: medium
+privesc/setuid: low
 process/create: low
 process/groupid_set: low
 process/groups_set: low
 process/multithreaded: low
-process/userid_set: low
 sus/intercept: medium
