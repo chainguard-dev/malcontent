@@ -28,7 +28,19 @@ rule python_read {
     description = "reads files"
 
   strings:
-    $ref = /open\(\w+\).read\(\)/
+    $ref = /open\([\w\.'"]{1,64}\).read\(\)/
+
+  condition:
+    any of them
+}
+
+
+rule ruby_read {
+  meta:
+    description = "reads files"
+
+  strings:
+    $ref = /File\.read\([\w\.'"]{1,64}\)/
 
   condition:
     any of them

@@ -13,6 +13,17 @@ rule uname {
     any of them
 }
 
+rule uname_a : medium {
+  meta:
+    description = "gets full system identification"
+
+  strings:
+    $uname_a  = /uname -a\w{0,2}/ fullword
+
+  condition:
+    any of them
+}
+
 rule os_release: medium {
   meta:
     description = "operating-system identification"
@@ -72,6 +83,17 @@ rule npm_uname: medium {
     $ = "os.release()"
     $ = "os.type()"
 
+  condition:
+    any of them
+}
+
+rule ruby_uname: medium ruby {
+  meta:
+    description = "get system identification"
+
+  strings:
+    $ = "CONFIG['host_os']"
+	$ = "RUBY_PLATFORM"
   condition:
     any of them
 }

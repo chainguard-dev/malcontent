@@ -4,6 +4,8 @@ rule openssl_user: medium {
 
   strings:
     $ref = "_EXT_FLAG_SENT"
+	$ref2 = "OpenSSL" fullword
+	$ref3 = "openssl" fullword
 
   condition:
     any of them

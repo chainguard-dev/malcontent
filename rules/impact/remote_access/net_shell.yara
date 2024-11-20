@@ -10,6 +10,8 @@ rule netcat_exec_backdoor: high {
     filesize < 10485760 and all of them
 }
 
+
+
 rule generic_perl_socket_exec {
   strings:
     $perl         = "perl"

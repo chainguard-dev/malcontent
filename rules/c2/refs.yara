@@ -1,18 +1,10 @@
-rule command_and_control: medium {
+rule command_and_control: high {
   meta:
     description = "Uses terms that may reference a command and control server"
 
   strings:
     $c_and_c    = "command & control"
-    $c2_addr    = "c2_addr"
-    $c2_port    = "c2_port"
-    $c2_event   = "c2_event"
-    $c2host     = "c2host"
-    $C2Host     = "C2Host"
-    $C2Port     = "C2Port"
-    $c2port     = "c2port"
-    $C2_ADDRESS = "C2_ADDRESS"
-    $C2_PORT    = "C2_PORT"
+    $c2_addr    = /[\w\( ]{0,12}[Cc]2[_ \(\)]{0,3}(addr|port|event|host|address|Address|Port|HOST|ADDR|ADDRESS|PORT)/
 
   condition:
     any of them

@@ -127,6 +127,7 @@ rule linux_process_hider: critical linux {
     $x_readdirOriginal   = "readdirOriginal"
     $x_backdoor          = "backdoor" fullword
     $x_is_hidden         = "is_hidden" fullword
+    $x_is_invisible         = "is_invisible" fullword
     $x_hidden_gid        = "HIDDEN_GID" fullword
     $x_revshell          = "revshell" fullword
     $x_cmdline           = "/proc/self/cmdline"

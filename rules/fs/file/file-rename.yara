@@ -6,23 +6,21 @@ rule rename: harmless posix {
   strings:
     $rename      = "rename" fullword
     $renameat    = "renameat" fullword
-    $rename_file = "renameFile" fullword
-    $move_file   = "MoveFile"
-    $ruby        = "File.rename"
-    $objc        = "renameFile" fullword
-
   condition:
     any of them
 }
 
-rule os_rename: low {
+rule explicit_rename: low {
   meta:
     description = "renames files"
-    filetypes   = "py"
+    filetypes   = "py,rb"
 
   strings:
     $rename = "os.rename" fullword
-
+    $rename_file = "renameFile" fullword
+    $move_file   = "MoveFile"
+    $ruby        = "File.rename"
+    $objc        = "renameFile" fullword
   condition:
     any of them
 }

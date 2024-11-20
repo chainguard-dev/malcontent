@@ -5,8 +5,9 @@ rule USER {
 
   strings:
     $ref    = "USER" fullword
-    $getenv = "getenv"
-
+    $envget = "getenv"
+	$env = "ENV" fullword
+	$environ = "environ" fullword
   condition:
-    all of them
+    $ref and any of ($e*)
 }

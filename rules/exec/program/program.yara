@@ -65,11 +65,26 @@ rule ruby_system: medium {
     description = "executes external program"
 
   strings:
-    $system  = /system\(.{1,32}\)/
-    $require = "require" fullword
+    $f_system = /system\(.{1,32}\)/ fullword
+    $f_exec   = /exec\(.{1,32}\)/ fullword
+    $require  = "require" fullword
 
   condition:
-    filesize < 65535 and $require and $system
+    filesize < 65535 and $require and any of ($f*)
+}
+
+rule ruby_system_execdir: high {
+  meta:
+    description = "executes external program from unusual directory"
+
+  strings:
+    $tmp          = /system\(['"]\/tmp\/[\w\. -]{1,32}/
+    $var_tmp      = /system\(['"]\/var\/tmp\/[\w\. -]{1,32}/
+    $exec_tmp     = /exec\(['"]\/tmp\/[\w\. -]{1,32}/
+    $exec_var_tmp = /exec\(['"]\/var\/tmp\/[\w\. -]{1,32}/
+
+  condition:
+    filesize < 1MB and any of them
 }
 
 rule py_subprocess: medium {

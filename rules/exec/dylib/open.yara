@@ -11,3 +11,15 @@ rule dylib: harmless {
     any of them
 }
 
+
+rule ruby_dylib: low ruby {
+  meta:
+    description = "makes use of dynamic libraries"
+
+  strings:
+    $dlopen  = /\w{0,16}\.dlopen\("[\w\.\"\)]{1,16}/
+	
+  condition:
+    any of them
+}
+

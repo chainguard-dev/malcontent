@@ -50,14 +50,13 @@ rule axios_post: medium {
     filesize < 4MB and all of them
 }
 
-rule axios_post_hardcoded: high {
+rule post_to_hardcoded_http: high {
   meta:
     description = "posts content to hardcoded HTTP site"
     filetype    = "js,ts"
 
   strings:
-    $axios = "axios" fullword
-    $post  = /\w{1,12}.post\(\'https{0,1}:\/\/[\w][\w\.\/\-_\?=\@]{8,64}/
+    $post  = /\w{1,12}.post\([\'"]https{0,1}:\/\/[\w][\w\.\/\-_\?=\@]{8,64}/
 
   condition:
     filesize < 6MB and all of them

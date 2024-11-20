@@ -6,6 +6,7 @@ rule getpeername {
 
   strings:
     $ref = "getpeername" fullword
+	$client_addr = /client_addr[\w]{0,8}/
 
   condition:
     any of them
