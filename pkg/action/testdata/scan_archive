@@ -79,7 +79,7 @@
                 {
                     "Description": "Contains a table that may be used for XOR decryption",
                     "MatchStrings": [
-                        "56789abcdefghijklmnopqrstuvwxyzABCDE::$ref"
+                        "xor_table::56789abcdefghijklmnopqrstuvwxyzABCDE"
                     ],
                     "RiskScore": 0,
                     "RiskLevel": "NONE",

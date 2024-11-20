@@ -12,6 +12,9 @@ jobs:
   update:
     if: ${{ github.repository }} == 'chainguard-dev/malcontent'
     runs-on: mal-ubuntu-latest-8-core
+    env:
+      PKG_CONFIG_PATH: ${{ github.workspace }}
+      LD_LIBRARY_PATH: ${{ github.workspace }}
     permissions:
       contents: write
       id-token: write
@@ -28,9 +31,23 @@ jobs:
         with:
           scope: chainguard-dev/malcontent
           identity: third-party
-      - name: Install yara and libyara-dev
+      - name: Clone yara-x
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: VirusTotal/yara-x
+          path: yara-x
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@315e265cd78dad1e1dcf3a5074f6d6c47029d5aa # ???
+        with:
+          toolchain: stable
+
+      - name: Install yara-x-capi
         run: |
-          sudo apt update && sudo apt install yara libyara-dev -y
+          cd ${{ github.workspace }}/yara-x
+          cargo install cargo-c
+          cargo cinstall -p yara-x-capi --release --pkgconfigdir=${{ github.workspace }} --includedir=${{ github.workspace }} --libdir=${{ github.workspace }}
+          cd ${{ github.workspace }}
       - name: Run make update-third-party
         run: |
           make update-third-party

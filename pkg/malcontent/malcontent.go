@@ -9,7 +9,7 @@ import (
 	"io/fs"
 	"sync"
 
-	"github.com/hillu/go-yara/v4"
+	yarax "github.com/VirusTotal/yara-x/go"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
@@ -37,7 +37,7 @@ type Config struct {
 	QuantityIncreasesRisk bool
 	Renderer              Renderer
 	RuleFS                []fs.FS
-	Rules                 *yara.Rules
+	Rules                 *yarax.Rules
 	Scan                  bool
 	ScanPaths             []string
 	Stats                 bool

@@ -3,13 +3,13 @@ module github.com/chainguard-dev/malcontent
 go 1.23.3
 
 require (
+	github.com/VirusTotal/yara-x/go v0.10.1-0.20241120200831-c8dbcb8b778b
 	github.com/agext/levenshtein v1.2.3
 	github.com/chainguard-dev/clog v1.5.0
 	github.com/fatih/color v1.18.0
 	github.com/gabriel-vasile/mimetype v1.4.6
 	github.com/google/go-cmp v0.6.0
 	github.com/google/go-containerregistry v0.20.2
-	github.com/hillu/go-yara/v4 v4.3.3
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/shirou/gopsutil/v4 v4.24.10
 	github.com/ulikunitz/xz v0.5.12
@@ -52,4 +52,5 @@ require (
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	golang.org/x/net v0.31.0 // indirect
 	golang.org/x/sys v0.27.0 // indirect
+	google.golang.org/protobuf v1.33.0 // indirect
 )

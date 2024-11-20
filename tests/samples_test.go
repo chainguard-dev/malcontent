@@ -18,6 +18,7 @@ import (
 	"strings"
 	"testing"
 
+	yarax "github.com/VirusTotal/yara-x/go"
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/clog/slogtest"
 	"github.com/chainguard-dev/malcontent/pkg/action"
@@ -26,7 +27,6 @@ import (
 	"github.com/chainguard-dev/malcontent/rules"
 	thirdparty "github.com/chainguard-dev/malcontent/third_party"
 	"github.com/google/go-cmp/cmp"
-	"github.com/hillu/go-yara/v4"
 )
 
 var (
@@ -34,7 +34,7 @@ var (
 	rfs         = []fs.FS{rules.FS, thirdparty.FS}
 	sampleDir   = ""
 	testDataDir = ""
-	yrs         *yara.Rules
+	yrs         *yarax.Rules
 )
 
 func init() {

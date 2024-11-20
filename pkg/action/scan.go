@@ -16,6 +16,7 @@ import (
 	"strings"
 	"sync"
 
+	yarax "github.com/VirusTotal/yara-x/go"
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/compile"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
@@ -23,13 +24,12 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/render"
 	"github.com/chainguard-dev/malcontent/pkg/report"
 
-	"github.com/hillu/go-yara/v4"
 	"golang.org/x/sync/errgroup"
 )
 
 var (
 	// compiledRuleCache are a cache of previously compiled rules.
-	compiledRuleCache *yara.Rules
+	compiledRuleCache *yarax.Rules
 	// compileOnce ensures that we compile rules only once even across threads.
 	compileOnce         sync.Once
 	ErrMatchedCondition = errors.New("matched exit criteria")
@@ -92,7 +92,7 @@ func formatPath(path string) string {
 // scanSinglePath YARA scans a single path and converts it to a fileReport.
 func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleFS []fs.FS, absPath string, archiveRoot string) (*malcontent.FileReport, error) {
 	logger := clog.FromContext(ctx)
-	var mrs yara.MatchRules
+	var mrs *yarax.ScanResults
 	logger = logger.With("path", path)
 
 	isArchive := archiveRoot != ""
@@ -111,16 +111,14 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	}
 	logger = logger.With("mime", mime)
 
-	f, err := os.Open(path)
+	f, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
-	defer f.Close()
-	fd := f.Fd()
 
 	// For non-refresh scans, c.Rules will be nil
 	// For refreshes, the rules _should_ be compiled by the time we get here
-	var yrs *yara.Rules
+	var yrs *yarax.Rules
 	if c.Rules == nil {
 		yrs, err = CachedRules(ctx, ruleFS)
 		if err != nil {
@@ -129,12 +127,13 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	} else {
 		yrs = c.Rules
 	}
-	if err := yrs.ScanFileDescriptor(fd, 0, 0, &mrs); err != nil {
+
+	if mrs, err = yrs.Scan(f); err != nil {
 		logger.Info("skipping", slog.Any("error", err))
 		return &malcontent.FileReport{Path: path, Error: fmt.Sprintf("scan: %v", err)}, nil
 	}
 
-	fr, err := report.Generate(ctx, path, mrs, c, archiveRoot, logger)
+	fr, err := report.Generate(ctx, path, mrs, c, archiveRoot, logger, f)
 	if err != nil {
 		return nil, err
 	}
@@ -240,12 +239,12 @@ func exitIfHitOrMiss(frs *sync.Map, scanPath string, errIfHit bool, errIfMiss bo
 	return nil, nil
 }
 
-func CachedRules(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {
+func CachedRules(ctx context.Context, fss []fs.FS) (*yarax.Rules, error) {
 	if compiledRuleCache != nil {
 		return compiledRuleCache, nil
 	}
 
-	var yrs *yara.Rules
+	var yrs *yarax.Rules
 	var err error
 	compileOnce.Do(func() {
 		yrs, err = compile.Recursive(ctx, fss)

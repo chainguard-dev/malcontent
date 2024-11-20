@@ -18,9 +18,10 @@ import (
 	"strings"
 	"unicode"
 
+	yarax "github.com/VirusTotal/yara-x/go"
+
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
-	"github.com/hillu/go-yara/v4"
 )
 
 const NAME string = "malcontent"
@@ -273,28 +274,27 @@ func longestUnique(raw []string) []string {
 	return longest
 }
 
-func matchToString(ruleName string, m yara.MatchString) string {
-	s := string(m.Data)
+func matchToString(ruleName string, m string) string {
 	switch {
-	case strings.Contains(ruleName, "base64") && !strings.Contains(s, "base64"):
-		s = fmt.Sprintf("%s::%s", s, m.Name)
-	case strings.Contains(ruleName, "xor") && !strings.Contains(s, "xor"):
-		s = fmt.Sprintf("%s::%s", s, m.Name)
-	case unprintableString(s):
-		s = m.Name
+	case strings.Contains(ruleName, "base64"):
+		m = fmt.Sprintf("%s::%s", ruleName, m)
+	case strings.Contains(ruleName, "xor"):
+		m = fmt.Sprintf("%s::%s", ruleName, m)
+	case unprintableString(m):
+		m = ruleName
 	// bad hack, can we do this in YARA?
-	case strings.Contains(m.Name, "xml_key_val"):
-		s = strings.ReplaceAll(strings.ReplaceAll(s, "<key>", ""), "</key>", "")
+	case strings.Contains(ruleName, "xml_key_val"):
+		m = strings.ReplaceAll(strings.ReplaceAll(m, "<key>", ""), "</key>", "")
 	}
-	return strings.TrimSpace(s)
+	return strings.TrimSpace(m)
 }
 
 // extract match strings.
-func matchStrings(ruleName string, ms []yara.MatchString) []string {
+func matchStrings(ruleName string, ms [][]byte) []string {
 	raw := make([]string, 0, len(ms))
 
 	for _, m := range ms {
-		raw = append(raw, matchToString(ruleName, m))
+		raw = append(raw, matchToString(ruleName, string(m)))
 	}
 
 	slices.Sort(raw)
@@ -357,8 +357,8 @@ func TrimPrefixes(path string, prefixes []string) string {
 	return path
 }
 
-//nolint:cyclop // ignore complexity of 44
-func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malcontent.Config, expath string, _ *clog.Logger) (malcontent.FileReport, error) {
+//nolint:gocognit,cyclop // ignore complexity of 98,44
+func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcontent.Config, expath string, _ *clog.Logger, fc []byte) (malcontent.FileReport, error) {
 	ignoreTags := c.IgnoreTags
 	minScore := c.MinRisk
 	ignoreSelf := c.IgnoreSelf
@@ -411,25 +411,25 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 	}
 
 	// Store match rules in a map for future override operations
-	mrsMap := make(map[string]yara.MatchRule, len(mrs))
-	for _, m := range mrs {
-		mrsMap[m.Rule] = m
+	mrsMap := make(map[string]*yarax.Rule, len(mrs.MatchingRules()))
+	for _, m := range mrs.MatchingRules() {
+		mrsMap[m.Identifier()] = m
 	}
 
-	for _, m := range mrs {
+	for _, m := range mrs.MatchingRules() {
 		override := false
-		if all(m.Rule == NAME, ignoreSelf) {
+		if all(m.Identifier() == NAME, ignoreSelf) {
 			ignoreMalcontent = true
 		}
 
-		for _, t := range m.Tags {
+		for _, t := range m.Tags() {
 			if t == "override" {
 				override = true
 				break
 			}
 		}
 
-		risk = behaviorRisk(m.Namespace, m.Rule, m.Tags)
+		risk = behaviorRisk(m.Namespace(), m.Identifier(), m.Tags())
 		if risk > overallRiskScore {
 			overallRiskScore = risk
 		}
@@ -446,24 +446,48 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 		case c.Scan && risk < highestRisk && !ignoreMalcontent && !override:
 			continue
 		}
-		key = generateKey(m.Namespace, m.Rule)
-		ruleURL := generateRuleURL(m.Namespace, m.Rule)
+		key = generateKey(m.Namespace(), m.Identifier())
+		ruleURL := generateRuleURL(m.Namespace(), m.Identifier())
+
+		var matches []yarax.Match
+		var matchedStrings [][]byte
+		for _, p := range m.Patterns() {
+			matches = append(matches, p.Matches()...)
+		}
+
+		// #nosec G115
+		for _, match := range matches {
+			l := int(match.Length())
+			o := int(match.Offset())
+
+			// Check the length and offset against the file contents
+			if o < 0 || o+l > len(fc) {
+				return malcontent.FileReport{}, err
+			}
+
+			// Extract the matching bytes
+			matchString := fc[o : o+l]
+			matchCopy := make([]byte, l)
+			copy(matchCopy, matchString)
+
+			matchedStrings = append(matchedStrings, matchCopy)
+		}
 
 		b := &malcontent.Behavior{
 			ID:           key,
-			MatchStrings: matchStrings(m.Rule, m.Strings),
+			MatchStrings: matchStrings(m.Identifier(), matchedStrings),
 			RiskLevel:    RiskLevels[risk],
 			RiskScore:    risk,
-			RuleName:     m.Rule,
+			RuleName:     m.Identifier(),
 			RuleURL:      ruleURL,
 		}
 
 		k := ""
 		v := ""
 
-		for _, meta := range m.Metas {
-			k = meta.Identifier
-			v = fmt.Sprintf("%s", meta.Value)
+		for _, meta := range m.Metadata() {
+			k = meta.Identifier()
+			v = fmt.Sprintf("%s", meta.Value())
 			// Empty data is unusual, so just ignore it.
 			if k == "" || v == "" {
 				continue
@@ -548,14 +572,14 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 			continue
 		}
 
-		if ignoreMatch(m.Tags, ignore) {
+		if ignoreMatch(m.Tags(), ignore) {
 			fr.FilteredBehaviors++
 			continue
 		}
 
 		// If the rule does not have a description, make one up based on the rule name
 		if b.Description == "" {
-			b.Description = strings.ReplaceAll(m.Rule, "_", " ")
+			b.Description = strings.ReplaceAll(m.Identifier(), "_", " ")
 		}
 
 		existingIndex := -1
@@ -679,14 +703,14 @@ func all(conditions ...bool) bool {
 }
 
 // highestMatchRisk returns the highest risk score from a slice of MatchRules.
-func highestMatchRisk(mrs yara.MatchRules) int {
-	if len(mrs) == 0 {
+func highestMatchRisk(mrs *yarax.ScanResults) int {
+	if len(mrs.MatchingRules()) == 0 {
 		return 0
 	}
 
 	highestRisk := 0
-	for _, m := range mrs {
-		risk := behaviorRisk(m.Namespace, m.Rule, m.Tags)
+	for _, m := range mrs.MatchingRules() {
+		risk := behaviorRisk(m.Namespace(), m.Identifier(), m.Tags())
 		if risk > highestRisk {
 			highestRisk = risk
 		}
