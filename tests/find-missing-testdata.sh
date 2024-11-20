@@ -1,5 +1,5 @@
 #!/bin/bash
-# find missing testdata
+# helper script to find samples with missing testdata
 #
 # usage:
 #   ./missing-testdata.sh </path/to/SAMPLE_DIR>
@@ -8,6 +8,9 @@
 set -e -u -o pipefail
 SAMPLE_DIR=${1:-"$(dirname $0)/../../malcontent-samples"}
 
+# number of days to look back for missing testdata
+AGE_IN_DAYS=30
+
 SAMPLE_DIR=$(realpath ${SAMPLE_DIR})
 
 if [[ ! -d "${SAMPLE_DIR}/does-nothing" ]]; then
@@ -15,7 +18,7 @@ if [[ ! -d "${SAMPLE_DIR}/does-nothing" ]]; then
 	exit 1
 fi
 
-for sample_path in $(find "${SAMPLE_DIR}/" -type f -size +100c); do
+for sample_path in $(find "${SAMPLE_DIR}/" -type f -mtime -"${AGE_IN_DAYS}" -size +100c); do
 	if [[ "${sample_path}" =~ ".git" ]]; then
 		continue
 	fi
