@@ -25,7 +25,6 @@ crypto/decrypt: low
 crypto/ecdsa: low
 crypto/ed25519: low
 crypto/encrypt: medium
-crypto/file_encrypter: medium
 crypto/public_key: low
 crypto/tls: low
 crypto/uuid: medium

@@ -23,8 +23,8 @@ crypto/aes: low
 crypto/blockchain: medium
 crypto/cipher: medium
 crypto/ed25519: low
+crypto/encrypt: medium
 crypto/fernet: medium
-crypto/file_encrypter: medium
 crypto/openssl: medium
 crypto/public_key: low
 data/compression/bzip2: low

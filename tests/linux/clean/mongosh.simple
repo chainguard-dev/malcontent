@@ -19,7 +19,6 @@ crypto/cipher: medium
 crypto/decrypt: low
 crypto/ed25519: low
 crypto/encrypt: medium
-crypto/file_encrypter: medium
 crypto/openssl: medium
 crypto/public_key: low
 crypto/tls: low

@@ -46,11 +46,13 @@ rule netcat_listener: medium {
     any of them
 }
 
-rule ruby_listener : medium {
-	meta:
-		description = "listens at a TCP socket"
-	strings:
-		$socket_tcp = "Socket.tcp_server"
-	condition:
-		any of them
+rule ruby_listener: medium {
+  meta:
+    description = "listens at a TCP socket"
+
+  strings:
+    $socket_tcp = "Socket.tcp_server"
+
+  condition:
+    any of them
 }

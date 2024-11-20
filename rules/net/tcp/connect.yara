@@ -4,8 +4,9 @@ rule connect_tcp: medium {
 
   strings:
     $go_tcp_listen = "dialTCP" fullword
-	$ruby = "TCPSocket.new"
-	$ruby2 = "TCPSocket.open"
+    $ruby          = "TCPSocket.new"
+    $ruby2         = "TCPSocket.open"
+
   condition:
     any of them
 }

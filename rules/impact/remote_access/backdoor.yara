@@ -25,13 +25,15 @@ rule backdoor: medium {
     filesize < 40MB and any of them and not wordlist and none of ($not*)
 }
 
-rule backdoor_shell : high {
-	meta:
-		description = "references a backdoor shell"
-	strings:
-		$ref = /[bB]ackdoor.{0,1}[sS]hell/
-	condition:
-		any of them
+rule backdoor_shell: high {
+  meta:
+    description = "references a backdoor shell"
+
+  strings:
+    $ref = /[bB]ackdoor.{0,1}[sS]hell/
+
+  condition:
+    any of them
 }
 
 rule backdoor_likely: high {

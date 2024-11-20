@@ -20,7 +20,6 @@ rule kernel_module_unloader: medium linux {
     filesize < 10MB and all of them
 }
 
-
 rule kernel_module_loader_ko: high linux {
   meta:
     description = "loads Linux kernel module .ko via insmod"

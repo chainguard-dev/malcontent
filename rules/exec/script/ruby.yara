@@ -1,4 +1,3 @@
-
 rule ruby_calls_itself: medium {
   meta:
     description = "Ruby program executes Ruby subprocess"

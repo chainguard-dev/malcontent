@@ -1,8 +1,8 @@
 rule getcwd: harmless {
   meta:
-    pledge  = "rpath"
-    syscall = "getcwd"
-	description = "gets current working directory"
+    pledge      = "rpath"
+    syscall     = "getcwd"
+    description = "gets current working directory"
 
   strings:
     $getcwd = "getcwd" fullword
@@ -13,10 +13,9 @@ rule getcwd: harmless {
 
 rule getwd: harmless {
   meta:
-    pledge  = "rpath"
-    syscall = "getwd"
-	description = "gets current working directory"
-
+    pledge      = "rpath"
+    syscall     = "getwd"
+    description = "gets current working directory"
 
   strings:
     $getwd    = "getwd" fullword
@@ -28,7 +27,8 @@ rule getwd: harmless {
 
 rule pwd: low {
   meta:
-	description = "gets current working directory"
+    description = "gets current working directory"
+
   strings:
     $pwd = /["']pwd['"]/ fullword
 

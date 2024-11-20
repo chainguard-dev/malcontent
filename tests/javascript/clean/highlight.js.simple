@@ -10,7 +10,6 @@ credential/password: low
 crypto/aes: low
 crypto/decrypt: low
 crypto/encrypt: medium
-crypto/file_encrypter: medium
 crypto/openssl: medium
 crypto/public_key: low
 data/base64/decode: medium

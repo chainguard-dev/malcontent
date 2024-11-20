@@ -18,7 +18,6 @@ crypto/cipher: medium
 crypto/decrypt: low
 crypto/ecdsa: low
 crypto/ed25519: low
-crypto/encrypt: medium
 crypto/public_key: low
 crypto/tls: low
 data/compression/bzip2: low

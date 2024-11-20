@@ -1,8 +1,10 @@
 rule decrypt: low {
   meta:
-	description = "decrypts data"
+    description = "decrypts data"
+
   strings:
-    $encrypt          = /[\w ]{0,16}Decrypt[\w ]{0,16}/
+    $encrypt = /[\w ]{0,16}Decrypt[\w ]{0,16}/
+
   condition:
     any of them
 }

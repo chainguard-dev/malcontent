@@ -21,21 +21,25 @@ rule payload_path: high {
     filesize < 10MB and $payload_path and $other_payload and none of ($not*)
 }
 
-rule obfuscated_payload : high {
-	meta:
-		description = "contains an obfuscated payload"
-	strings:
-		$decode64_payload = "decode64(payload)"
-		$json_payload = "JSON.parse(payload)"
-	condition:
-		any of them
+rule obfuscated_payload: high {
+  meta:
+    description = "contains an obfuscated payload"
+
+  strings:
+    $decode64_payload = "decode64(payload)"
+    $json_payload     = "JSON.parse(payload)"
+
+  condition:
+    any of them
 }
 
-rule eval_payload : high {
-	meta:
-		description = "evaluates code from a remote payload"
-	strings:
-		$eval_payload = /(eval|exec)\(payload[\[\]\"\w\)]{0,16}/
-	condition:
-		any of them
+rule eval_payload: high {
+  meta:
+    description = "evaluates code from a remote payload"
+
+  strings:
+    $eval_payload = /(eval|exec)\(payload[\[\]\"\w\)]{0,16}/
+
+  condition:
+    any of them
 }

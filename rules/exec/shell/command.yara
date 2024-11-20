@@ -19,8 +19,9 @@ rule generic_shell_exec: medium {
 
   strings:
     $exec = "shell_exec"
+
   condition:
-	any of them
+    any of them
 }
 
 rule php_shell_exec: medium php {

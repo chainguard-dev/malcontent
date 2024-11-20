@@ -4,8 +4,9 @@ rule rename: harmless posix {
     pledge  = "cpath"
 
   strings:
-    $rename      = "rename" fullword
-    $renameat    = "renameat" fullword
+    $rename   = "rename" fullword
+    $renameat = "renameat" fullword
+
   condition:
     any of them
 }
@@ -16,11 +17,12 @@ rule explicit_rename: low {
     filetypes   = "py,rb"
 
   strings:
-    $rename = "os.rename" fullword
+    $rename      = "os.rename" fullword
     $rename_file = "renameFile" fullword
     $move_file   = "MoveFile"
     $ruby        = "File.rename"
     $objc        = "renameFile" fullword
+
   condition:
     any of them
 }

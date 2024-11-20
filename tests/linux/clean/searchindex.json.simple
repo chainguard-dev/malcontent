@@ -5,7 +5,6 @@ c2/tool_transfer/dropper: medium
 credential/keylogger: medium
 credential/password: low
 crypto/encrypt: medium
-crypto/file_encrypter: medium
 crypto/openssl: medium
 crypto/public_key: low
 data/compression/bzip2: low

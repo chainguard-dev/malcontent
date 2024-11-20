@@ -34,7 +34,6 @@ rule python_read {
     any of them
 }
 
-
 rule ruby_read {
   meta:
     description = "reads files"

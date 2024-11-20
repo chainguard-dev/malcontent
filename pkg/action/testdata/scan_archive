@@ -272,40 +272,6 @@
                     "RuleName": "elliptic"
                 },
                 {
-                    "Description": "encrypts data",
-                    "MatchStrings": [
-                        "AEADEncrypted",
-                        "AddEncryptionSubkey",
-                        "CanEncrypt",
-                        "EncryptPKCS1v15",
-                        "EncryptPrivateKeys",
-                        "EncryptTicket",
-                        "EncryptWithConfig",
-                        "EncryptionConfig",
-                        "EncryptionKey",
-                        "FlagEncryptCommunications",
-                        "FlagEncryptStorage",
-                        "IsEncryptedPEMBlock",
-                        "NewCBCEncrypter",
-                        "NewCFBEncrypter",
-                        "addEncryptionSubkey",
-                        "cbcEncrypter",
-                        "d PSK binderQUICEncryptionLevel",
-                        "e scalarunknown EncryptedKey version un",
-                        "getEncryptedKeyAeadInstanc",
-                        "getSymmetricallyEncryptedAeadInstance",
-                        "own SymmetricKeyEncrypted versionssh",
-                        "ryption functionEncryptedKey checksum i",
-                        "t32SymmetricallyEncrypted",
-                        "wn SymmetricallyEncrypted versionconsum"
-                    ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/crypto/encrypt.yara#encrypt",
-                    "ID": "crypto/encrypt",
-                    "RuleName": "encrypt"
-                },
-                {
                     "Description": "references a 'public key'",
                     "MatchStrings": [
                         "Public Key",

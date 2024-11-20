@@ -56,7 +56,7 @@ rule post_to_hardcoded_http: high {
     filetype    = "js,ts"
 
   strings:
-    $post  = /\w{1,12}.post\([\'"]https{0,1}:\/\/[\w][\w\.\/\-_\?=\@]{8,64}/
+    $post = /\w{1,12}.post\([\'"]https{0,1}:\/\/[\w][\w\.\/\-_\?=\@]{8,64}/
 
   condition:
     filesize < 6MB and all of them

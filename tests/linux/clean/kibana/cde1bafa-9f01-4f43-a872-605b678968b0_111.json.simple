@@ -6,7 +6,6 @@
 c2/addr/ip: medium
 credential/password: low
 crypto/decrypt: low
-crypto/encrypt: medium
 exec/cmd: medium
 exec/plugin: low
 exec/shell/command: medium

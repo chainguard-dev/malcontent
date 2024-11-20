@@ -4,10 +4,11 @@ rule USER {
     ref         = "https://man.openbsd.org/login.1#ENVIRONMENT"
 
   strings:
-    $ref    = "USER" fullword
-    $envget = "getenv"
-	$env = "ENV" fullword
-	$environ = "environ" fullword
+    $ref     = "USER" fullword
+    $envget  = "getenv"
+    $env     = "ENV" fullword
+    $environ = "environ" fullword
+
   condition:
     $ref and any of ($e*)
 }

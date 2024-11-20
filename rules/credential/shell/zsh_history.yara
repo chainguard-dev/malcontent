@@ -1,6 +1,6 @@
-rule zsh_history: medium {
+rule zsh_history: high {
   meta:
-    description = "access .zsh file"
+    description = "accesses zsh shell history"
 
   strings:
     $ref = ".zsh_history" fullword
@@ -8,3 +8,4 @@ rule zsh_history: medium {
   condition:
     all of them
 }
+

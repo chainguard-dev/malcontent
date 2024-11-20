@@ -6,9 +6,9 @@ rule linux_kernel_module_getdents64: critical linux {
     filetypes = "elf,so"
 
   strings:
-    $getdents64      = "getdents64"
-    $kprobe = "register_kprobe"
-	$kallsyms = "kallsyms_lookup_name"
+    $getdents64 = "getdents64"
+    $kprobe     = "register_kprobe"
+    $kallsyms   = "kallsyms_lookup_name"
 
   condition:
     filesize < 1MB and $getdents64 and any of ($k*)
@@ -17,11 +17,12 @@ rule linux_kernel_module_getdents64: critical linux {
 rule linux_kernel_module_orig: high linux {
   meta:
     description = "kernel module that intercepts directory listing and signals"
-    filetypes = "elf,so"
+    filetypes   = "elf,so"
 
   strings:
-    $getdents64      = "orig_getdents64"
-	$orig_kill = "orig_kill"
+    $getdents64 = "orig_getdents64"
+    $orig_kill  = "orig_kill"
+
   condition:
     filesize < 1MB and all of them
 }

@@ -40,13 +40,13 @@ rule go_tcp_listen_and_exec_shell: high {
     filesize < 10MB and all of them
 }
 
-
-rule ruby_listen_command : high {
+rule ruby_listen_command: high {
   meta:
     description = "Listens at a port and executes commands"
+
   strings:
-	$loop = "tcp_server_loop"
-	$ruby2 = 		/\.popen\w{0,2}\(["'\w \.\#\{\}]{0,64}/
+    $loop  = "tcp_server_loop"
+    $ruby2 = /\.popen\w{0,2}\(["'\w \.\#\{\}]{0,64}/
 
   condition:
     filesize < 4MB and all of them

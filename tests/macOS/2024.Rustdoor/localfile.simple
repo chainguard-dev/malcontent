@@ -10,7 +10,7 @@ credential/browser/cookies: high
 credential/cloud/aws: medium
 credential/password: low
 credential/shell/bash_history: high
-credential/shell/zsh_history: medium
+credential/shell/zsh_history: high
 credential/ssh: medium
 crypto/aes: low
 crypto/public_key: low

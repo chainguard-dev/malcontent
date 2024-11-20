@@ -3,7 +3,6 @@ c2/addr/ip: medium
 credential/os/gshadow: medium
 credential/os/shadow: medium
 credential/password: low
-crypto/encrypt: medium
 data/compression/bzip2: low
 data/compression/gzip: low
 data/compression/lzma: low

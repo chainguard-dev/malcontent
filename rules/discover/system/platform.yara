@@ -13,12 +13,12 @@ rule uname {
     any of them
 }
 
-rule uname_a : medium {
+rule uname_a: medium {
   meta:
     description = "gets full system identification"
 
   strings:
-    $uname_a  = /uname -a\w{0,2}/ fullword
+    $uname_a = /uname -a\w{0,2}/ fullword
 
   condition:
     any of them
@@ -93,7 +93,8 @@ rule ruby_uname: medium ruby {
 
   strings:
     $ = "CONFIG['host_os']"
-	$ = "RUBY_PLATFORM"
+    $ = "RUBY_PLATFORM"
+
   condition:
     any of them
 }

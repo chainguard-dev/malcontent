@@ -12,13 +12,11 @@ rule kill: harmless {
     any of them
 }
 
-
 rule kill_unusual: high {
-
   meta:
-    syscall = "kill"
-    pledge  = "proc"
-	description = "sends unusual kill signal"
+    syscall     = "kill"
+    pledge      = "proc"
+    description = "sends unusual kill signal"
 
   strings:
     $kill = /kill -[245678]{1,3}/

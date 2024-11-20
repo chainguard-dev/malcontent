@@ -9,7 +9,7 @@ credential/os/shadow: medium
 credential/password: low
 credential/server/htpasswd: medium
 credential/shell/bash_history: high
-credential/shell/zsh_history: medium
+credential/shell/zsh_history: high
 credential/ssh: high
 credential/ssh/authorized_hosts: medium
 credential/ssh/d: medium

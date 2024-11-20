@@ -3,8 +3,8 @@ rule command_and_control: high {
     description = "Uses terms that may reference a command and control server"
 
   strings:
-    $c_and_c    = "command & control"
-    $c2_addr    = /[\w\( ]{0,12}[Cc]2[_ \(\)]{0,3}(addr|port|event|host|address|Address|Port|HOST|ADDR|ADDRESS|PORT)/
+    $c_and_c = "command & control"
+    $c2_addr = /[\w\( ]{0,12}[Cc]2[_ \(\)]{0,3}(addr|port|event|host|address|Address|Port|HOST|ADDR|ADDRESS|PORT)/
 
   condition:
     any of them
