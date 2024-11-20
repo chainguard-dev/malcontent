@@ -3,6 +3,7 @@ c2/addr/ip: medium
 credential/os/gshadow: medium
 credential/os/shadow: medium
 credential/password: low
+crypto/public_key: low
 data/random/insecure: low
 discover/group/lookup: medium
 discover/network/interface: low
@@ -101,6 +102,7 @@ os/kernel/netlink: low
 os/time/clock_set: low
 persist/daemon: medium
 persist/kernel_module/module: medium
+privesc/setuid: low
 process/chroot: low
 process/create: low
 process/executable_path: low
@@ -110,5 +112,4 @@ process/multithreaded: low
 process/name_set: medium
 process/namespace_set: low
 process/unshare: low
-process/userid_set: low
 process/username_set: medium

@@ -3,7 +3,18 @@ rule kernel_module_loader: medium linux {
     description = "loads Linux kernel module via insmod"
 
   strings:
-    $insmod = /insmod [ \$\%\w\.\/_-]{1,32}/
+    $insmod = /insmod [ \#\{\}\$\%\w\.\/_-]{1,32}/
+
+  condition:
+    filesize < 10MB and all of them
+}
+
+rule kernel_module_unloader: medium linux {
+  meta:
+    description = "unloads Linux kernel module via rmmod"
+
+  strings:
+    $insmod = /rmmod [ \#\{\}\$\%\w\.\/_-]{1,32}/
 
   condition:
     filesize < 10MB and all of them

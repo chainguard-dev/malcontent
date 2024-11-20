@@ -15,6 +15,7 @@ rule requests_urls: medium {
     $ref10 = "urllib.request"
     $ref11 = "require 'httparty'"
     $ref12 = "HTTParty.get"
+    $re13  = "HTTP.get_response"
 
   condition:
     any of them

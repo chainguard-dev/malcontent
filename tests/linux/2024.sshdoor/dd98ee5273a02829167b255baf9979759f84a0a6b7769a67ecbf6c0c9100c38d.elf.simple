@@ -8,6 +8,8 @@ credential/ssh/d: medium
 credential/ssl/private_key: low
 crypto/aes: low
 crypto/ed25519: low
+crypto/openssl: medium
+crypto/public_key: low
 data/embedded/pem_private_key: medium
 data/encoding/base64: low
 data/random/insecure: low
@@ -79,11 +81,11 @@ net/url/embedded: low
 os/kernel/seccomp: low
 persist/daemon: medium
 persist/pid_file: medium
+privesc/setuid: low
 process/chroot: low
 process/executable_path: low
 process/groupid_set: low
 process/groups_set: low
 process/name_set: medium
-process/userid_set: low
 process/username_set: medium
 sus/exclamation: medium

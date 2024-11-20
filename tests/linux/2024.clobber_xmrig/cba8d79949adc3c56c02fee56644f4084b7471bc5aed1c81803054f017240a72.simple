@@ -9,8 +9,11 @@ credential/ssh/d: medium
 credential/ssl/private_key: low
 crypto/aes: low
 crypto/cipher: medium
+crypto/decrypt: low
 crypto/ecdsa: low
 crypto/ed25519: low
+crypto/encrypt: medium
+crypto/public_key: low
 crypto/tls: low
 data/compression/gzip: low
 data/embedded/base64_terms: medium
@@ -73,8 +76,8 @@ net/udp/send: low
 net/url/embedded: low
 net/url/parse: low
 net/url/request: medium
+privesc/setuid: low
 process/groupid_set: low
 process/groups_set: low
 process/multithreaded: low
 process/terminate/kill_multiple: medium
-process/userid_set: low

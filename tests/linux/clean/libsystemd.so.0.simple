@@ -35,10 +35,10 @@ net/socket/send: low
 net/url/embedded: low
 os/fd/epoll: low
 persist/daemon: medium
+privesc/setuid: low
 process/chroot: low
 process/groupid_set: low
 process/groups_set: low
 process/multithreaded: low
 process/name_set: medium
 process/namespace_set: low
-process/userid_set: low

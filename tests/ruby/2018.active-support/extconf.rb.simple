@@ -1,0 +1,13 @@
+# ruby/2018.active-support/extconf.rb: critical
+anti-static/base64/exec: critical
+data/base64/decode: medium
+data/encoding/base64: low
+exec/program: high
+fs/file/write: medium
+fs/path/tmp: medium
+fs/permission/modify: medium
+fs/permission/modify_dangerous: high
+impact/exploit: high
+net/http/request: low
+net/ip/resolve: high
+net/url/request: medium

@@ -4,8 +4,11 @@ c2/addr/ip: medium
 credential/password: low
 credential/ssl/private_key: low
 crypto/aes: low
+crypto/decrypt: low
 crypto/ed25519: low
 crypto/gost89: low
+crypto/openssl: medium
+crypto/public_key: low
 crypto/rc4: low
 data/base64/decode: medium
 data/encoding/base64: low
@@ -45,6 +48,6 @@ net/socket/listen: medium
 net/socket/local_addr: low
 net/tcp/ssh: medium
 persist/daemon: medium
+privesc/setuid: low
 process/create: low
 process/multithreaded: low
-process/userid_set: low

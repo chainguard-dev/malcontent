@@ -8,6 +8,7 @@ rule bsd_ifaddrs: medium {
     $ifconfig    = "ifconfig" fullword
     $proc        = "/proc/net/dev"
     $npm         = "networkInterfaces" fullword
+    $ruby        = "Socket.ip_address_list" fullword
 
   condition:
     any of them

@@ -94,3 +94,15 @@ rule acme_sh: override {
   condition:
     $ref
 }
+
+rule ruby_system_near_enough: critical {
+  meta:
+    description = "Executes commands from base64 content"
+
+  strings:
+    $system   = /system\(["'\w\)]{0,16}/
+    $decode64 = /decode64\(["'\w\)]{0,16}/
+
+  condition:
+    all of them and math.abs(@decode64 - @system) <= 256
+}

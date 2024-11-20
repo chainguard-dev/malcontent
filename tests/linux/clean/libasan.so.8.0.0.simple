@@ -78,6 +78,7 @@ os/kernel/key_management: low
 os/kernel/perfmon: low
 os/time/clock_set: low
 persist/kernel_module/module: medium
+privesc/setuid: low
 process/chroot: low
 process/create: low
 process/groupid_set: low
@@ -86,5 +87,4 @@ process/multithreaded: low
 process/name_set: medium
 process/namespace_set: low
 process/unshare: low
-process/userid_set: low
 sus/intercept: medium

@@ -1,0 +1,7 @@
+# ruby/2020.bitcoin-ruby/extconf.rb: critical
+anti-static/base64/exec: critical
+data/base64/decode: medium
+discover/system/platform: medium
+exec/program/opaque: high
+fs/file/write: medium
+os/fd/write: low

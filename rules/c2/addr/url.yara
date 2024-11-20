@@ -19,7 +19,7 @@ rule exotic_tld: high {
     description = "Contains HTTP hostname with unusual top-level domain"
 
   strings:
-    $http_exotic_tld = /https*:\/\/[\w\-\.]{1,128}\.(vip|red|cc|wtf|top|pw|ke|space|zw|bd|ke|am|sbs|date|pw|quest|cd|bid|xyz|cm|xxx|casino|online|poker)\//
+    $http_exotic_tld = /https*:\/\/[\w\-\.]{1,128}\.(vip|red|cc|wtf|top|pw|ke|space|zw|bd|ke|am|sbs|date|pw|quest|cd|bid|xyz|cm|xxx|casino|online|poker|ua)\//
     $not_electron    = "ELECTRON_RUN_AS_NODE"
     $not_nips        = "nips.cc"
     $not_gov_bd      = ".gov.bd"
@@ -48,6 +48,7 @@ rule http_url_with_question: medium {
     $not_cvs_sourceforge = /cvs.sourceforge.net.{0,64}\?rev=/
     $not_rev_head        = "?rev=HEAD"
     $not_cgi             = ".cgi?"
+    $not_doku            = "/doku.php?"
 
   condition:
     filesize < 256KB and any of ($f*) and $ref and none of ($not*)

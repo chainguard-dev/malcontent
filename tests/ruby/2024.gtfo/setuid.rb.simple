@@ -1,0 +1,7 @@
+# ruby/2024.gtfo/setuid.rb: high
+exec/shell/exec: medium
+fs/file/capabilities_set: low
+fs/file/copy: medium
+fs/path/relative: medium
+privesc/setuid: high
+privesc/sudo: medium

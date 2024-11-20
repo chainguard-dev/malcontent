@@ -38,10 +38,10 @@ net/socket/pair: medium
 net/socket/receive: low
 net/socket/send: low
 os/kernel/seccomp: low
+privesc/setuid: low
 privesc/sudo: medium
 privesc/sudoers: low
 process/chroot: low
 process/groupid_set: low
 process/groups_set: low
-process/userid_set: low
 sus/intercept: medium

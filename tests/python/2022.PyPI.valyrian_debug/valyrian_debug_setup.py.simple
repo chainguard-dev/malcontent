@@ -13,6 +13,7 @@ exec/program: medium
 exec/shell/command: medium
 exfil/curl_post: medium
 exfil/whoami_hostname: high
+fs/file/read: low
 fs/file/times_set: medium
 fs/path/tmp: medium
 impact/remote_access/py_setuptools: high

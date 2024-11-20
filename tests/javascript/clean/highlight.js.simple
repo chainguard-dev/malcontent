@@ -8,7 +8,10 @@ collect/databases/postgresql: medium
 collect/databases/sql: low
 credential/password: low
 crypto/aes: low
-crypto/file_encrypter: medium
+crypto/decrypt: low
+crypto/encrypt: medium
+crypto/openssl: medium
+crypto/public_key: low
 data/base64/decode: medium
 data/compression/bzip2: low
 data/compression/lzma: low
@@ -40,6 +43,7 @@ fs/file/copy: medium
 fs/file/create: medium
 fs/file/delete: medium
 fs/file/read: low
+fs/file/rename: low
 fs/file/times_set: medium
 fs/file/write: low
 fs/link_read: low

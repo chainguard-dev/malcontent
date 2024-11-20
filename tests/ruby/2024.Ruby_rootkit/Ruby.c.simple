@@ -1,0 +1,6 @@
+# ruby/2024.Ruby_rootkit/Ruby.c: critical
+c2/refs: medium
+evasion/rootkit/kernel: critical
+evasion/rootkit/refs: high
+malware/ref: medium
+persist/kernel_module/symbol_lookup: high

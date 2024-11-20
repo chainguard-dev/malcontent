@@ -10,6 +10,9 @@ collect/databases/mysql: medium
 collect/databases/sqlite: medium
 credential/password: low
 crypto/aes: low
+crypto/encrypt: medium
+crypto/openssl: medium
+crypto/public_key: low
 data/base64/decode: medium
 data/compression/bzip2: low
 data/compression/gzip: low
@@ -31,6 +34,7 @@ exec/cmd: medium
 exec/plugin: low
 exec/shell/SHELL: low
 exec/shell/TERM: low
+exec/shell/command: medium
 exec/shell/ignore_output: medium
 fs/directory/create: low
 fs/directory/remove: low

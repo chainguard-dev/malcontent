@@ -74,3 +74,15 @@ rule setfsuid {
   condition:
     any of them
 }
+
+rule ruby_setuid_0: high {
+  meta:
+    description = "sets uid to 0 (root)"
+
+  strings:
+    $ref = "setuid(0)" fullword
+
+  condition:
+    any of them
+}
+

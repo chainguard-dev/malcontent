@@ -16,8 +16,10 @@ credential/ssh/d: medium
 credential/ssl/private_key: low
 crypto/aes: low
 crypto/cipher: medium
+crypto/decrypt: low
 crypto/ecdsa: low
 crypto/ed25519: low
+crypto/public_key: low
 crypto/tls: low
 data/compression/gzip: low
 data/compression/zstd: low

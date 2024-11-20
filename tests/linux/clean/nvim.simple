@@ -4,9 +4,11 @@ collect/databases/mysql: medium
 collect/databases/sqlite: medium
 credential/cloud/aws: medium
 credential/os/gshadow: medium
+credential/shell/zsh_history: medium
 credential/sniffer/pcap: medium
 credential/ssh: medium
 credential/ssh/d: medium
+crypto/openssl: medium
 crypto/rc4: low
 data/base64/decode: medium
 data/encoding/base64: low

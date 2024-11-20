@@ -3,10 +3,11 @@ rule chmod_word_writeable: medium {
     description = "Makes a world writeable file"
 
   strings:
-    $ref = /chmod [\-\w ]{0,4}666[ \$\w\/\.]{0,32}/
+    $ref  = /chmod [\-\w ]{0,4}666[ \$\w\/\.]{0,32}/
+    $ruby = "chmod(0666)"
 
   condition:
-    filesize < 50MB and $ref
+    filesize < 50MB and any of ($r*)
 }
 
 rule chmod_dangerous_exec: high exfil {
@@ -15,6 +16,7 @@ rule chmod_dangerous_exec: high exfil {
 
   strings:
     $ref             = /chmod [\-\w ]{0,4}777[ \$\w\/\.]{0,32}/
+    $ruby            = "chmod(0777)"
     $not_chmod_1777  = "chmod 1777"
     $not_chmod_01777 = "chmod 01777"
     $not_chromium    = "CHROMIUM_TIMESTAMP"
@@ -22,5 +24,5 @@ rule chmod_dangerous_exec: high exfil {
     $not_extutils    = "chmod 0777, [.foo.bar] doesn't work on VMS"
 
   condition:
-    filesize < 50MB and $ref and none of ($not*)
+    filesize < 50MB and any of ($r*) and none of ($not*)
 }
