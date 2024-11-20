@@ -1,10 +1,10 @@
-# linux/clean/nvim: high
+# linux/clean/nvim: medium
 c2/addr/server: medium
 collect/databases/mysql: medium
 collect/databases/sqlite: medium
 credential/cloud/aws: medium
 credential/os/gshadow: medium
-credential/shell/zsh_history: high
+credential/shell/zsh_history: medium
 credential/sniffer/pcap: medium
 credential/ssh: medium
 credential/ssh/d: medium
