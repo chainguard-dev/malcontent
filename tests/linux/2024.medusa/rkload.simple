@@ -45,8 +45,8 @@ malware/family/medusa: critical
 net/socket/local_addr: low
 net/socket/send: low
 net/url/embedded: low
+privesc/setuid: low
 process/create: low
 process/executable_path: low
 process/groupid_set: low
 process/name_set: medium
-process/userid_set: low

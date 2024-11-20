@@ -5,6 +5,10 @@ collect/databases/sql: low
 collect/databases/sqlite: medium
 credential/password: low
 credential/ssl/private_key: low
+crypto/decrypt: low
+crypto/encrypt: medium
+crypto/openssl: medium
+crypto/public_key: low
 data/base64/decode: medium
 data/compression/bzip2: low
 data/compression/gzip: low
@@ -23,6 +27,7 @@ evasion/logging/acct: low
 exec/plugin: low
 exec/program: medium
 exec/program/background: low
+exec/shell/command: medium
 exec/tty/pathname: medium
 fs/directory/create: low
 fs/directory/remove: low
@@ -61,6 +66,6 @@ net/socket/send: low
 net/url/embedded: low
 net/url/encode: medium
 persist/daemon: medium
+privesc/setuid: low
 process/chroot: low
 process/groupid_set: low
-process/userid_set: low

@@ -2,6 +2,8 @@
 anti-static/obfuscation/js: medium
 collect/databases/sql: low
 credential/password: low
+crypto/encrypt: medium
+crypto/public_key: low
 data/compression/bzip2: low
 data/compression/gzip: low
 data/embedded/base64_url: medium

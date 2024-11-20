@@ -2,6 +2,7 @@
 3P/sig_base/hacktool_strings_p0wnedshell: low
 exec/shell/power: medium
 impact/infection/infected: medium
+malware/ref: medium
 mem/protect: low
 net/download: medium
 net/url/embedded: low

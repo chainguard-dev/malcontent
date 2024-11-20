@@ -16,8 +16,12 @@ credential/sniffer/bpf: medium
 credential/ssl/private_key: low
 crypto/aes: low
 crypto/cipher: medium
+crypto/decrypt: low
 crypto/ed25519: low
+crypto/encrypt: medium
 crypto/file_encrypter: medium
+crypto/openssl: medium
+crypto/public_key: low
 crypto/tls: low
 crypto/uuid: medium
 data/base64/decode: medium
@@ -44,6 +48,7 @@ discover/network/interface_list: medium
 discover/network/mac_address: medium
 discover/process/name: medium
 discover/process/parent: low
+discover/process/working_directory: low
 discover/processes/list: medium
 discover/system/hostname: low
 discover/system/platform: medium
@@ -85,6 +90,7 @@ fs/file/delete: medium
 fs/file/delete_forcibly: low
 fs/file/open: low
 fs/file/read: low
+fs/file/rename: low
 fs/file/stat: low
 fs/file/times_set: medium
 fs/file/truncate: low
@@ -163,6 +169,7 @@ os/fd/read: low
 os/fd/sendfile: low
 os/fd/write: low
 persist/daemon/detach: medium
+privesc/setuid: low
 process/chdir: low
 process/chroot: low
 process/create: low
@@ -172,7 +179,6 @@ process/multithreaded: low
 process/namespace_set: low
 process/terminate: medium
 process/terminate/taskkill: medium
-process/userid_set: low
 sec-tool/net/nmap: medium
 sus/compiler: medium
 sus/exclamation: medium

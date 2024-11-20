@@ -4,7 +4,10 @@ c2/addr/discord: medium
 c2/tool_transfer/dropper: medium
 credential/keylogger: medium
 credential/password: low
+crypto/encrypt: medium
 crypto/file_encrypter: medium
+crypto/openssl: medium
+crypto/public_key: low
 data/compression/bzip2: low
 data/embedded/html: medium
 data/random/insecure: low
@@ -44,6 +47,7 @@ impact/remote_access/agent: medium
 impact/remote_access/backdoor: medium
 impact/remote_access/reverse_shell: medium
 impact/remote_access/trojan: medium
+malware/ref: medium
 net/dns/servers: low
 net/dns/txt: low
 net/download/fetch: medium

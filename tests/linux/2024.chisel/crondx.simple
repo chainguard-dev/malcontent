@@ -5,8 +5,11 @@ credential/password: low
 credential/ssl/private_key: low
 crypto/aes: low
 crypto/cipher: medium
+crypto/decrypt: low
 crypto/ecdsa: low
 crypto/ed25519: low
+crypto/encrypt: medium
+crypto/public_key: low
 crypto/rc4: low
 crypto/tls: low
 data/compression/gzip: low

@@ -3,6 +3,7 @@ anti-static/obfuscation/powershell: critical
 exec/shell/command: medium
 exec/shell/power: medium
 false-positives/kibana: low
+malware/ref: medium
 net/download: medium
 net/download/fetch: medium
 net/url/embedded: low

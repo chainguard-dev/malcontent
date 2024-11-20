@@ -5,6 +5,7 @@ anti-static/elf/entropy: high
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/discovery/ip_dns_resolver: medium
+c2/refs: high
 c2/tool_transfer/download: medium
 collect/archives/unarchive: medium
 collect/archives/zip: medium
@@ -15,8 +16,11 @@ credential/ssh/d: medium
 credential/ssl/private_key: low
 crypto/aes: low
 crypto/cipher: medium
+crypto/decrypt: low
 crypto/ecdsa: low
 crypto/ed25519: low
+crypto/encrypt: medium
+crypto/public_key: low
 crypto/tls: low
 data/compression/bzip2: low
 data/compression/gzip: low
@@ -153,6 +157,7 @@ os/kernel/netlink: low
 persist/cron/tab: medium
 persist/pid_file: medium
 privesc/linpeas: high
+privesc/setuid: low
 privesc/sudo: medium
 process/chdir: low
 process/chroot: low
@@ -160,5 +165,4 @@ process/groupid_set: low
 process/groups_set: low
 process/multithreaded: low
 process/terminate/killed_all: medium
-process/userid_set: low
 sus/exclamation: medium

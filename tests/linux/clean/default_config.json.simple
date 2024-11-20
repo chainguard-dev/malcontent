@@ -13,6 +13,7 @@ credential/shell/zsh_history: medium
 credential/ssh: high
 credential/ssh/authorized_hosts: medium
 credential/ssh/d: medium
+crypto/openssl: medium
 data/base64/decode: medium
 data/compression/bzip2: low
 data/compression/gzip: low
@@ -22,6 +23,7 @@ data/encoding/base64: low
 discover/multiple: medium
 discover/system/dmesg: low
 discover/system/platform: low
+discover/user/USER: low
 discover/user/name_get: medium
 evasion/bypass_security/linux/iptables: medium
 evasion/bypass_security/linux/ufw: medium
@@ -30,6 +32,7 @@ evasion/logging/acct: low
 evasion/process_injection/readelf: medium
 exec/plugin: low
 exec/shell/bash_dev_udp: medium
+exec/shell/command: medium
 exec/shell/nohup: medium
 exec/system_controls/apparmor: medium
 exec/tty/pathname: medium

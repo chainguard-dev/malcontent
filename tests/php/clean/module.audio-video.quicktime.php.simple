@@ -1,4 +1,5 @@
 # php/clean/module.audio-video.quicktime.php: medium
 anti-static/obfuscation/bitwise: medium
 anti-static/obfuscation/hex: medium
+crypto/encrypt: medium
 net/url/embedded: medium

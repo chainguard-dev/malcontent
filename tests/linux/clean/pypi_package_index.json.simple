@@ -1,7 +1,7 @@
 # linux/clean/pypi_package_index.json: critical
 anti-static/obfuscation/obfuscate: low
 c2/discovery/dyndns: medium
-c2/refs: medium
+c2/refs: high
 c2/tool_transfer/download: medium
 c2/tool_transfer/dropper: medium
 collect/archives/unarchive: medium
@@ -25,6 +25,8 @@ crypto/cipher: medium
 crypto/ed25519: low
 crypto/fernet: medium
 crypto/file_encrypter: medium
+crypto/openssl: medium
+crypto/public_key: low
 data/compression/bzip2: low
 data/compression/gzip: low
 data/compression/lzma: low
@@ -97,6 +99,7 @@ impact/remote_access/trojan: medium
 impact/ui/screen_capture: high
 impact/ui/x11_auth: medium
 lateral/scan/brute_force: low
+malware/ref: medium
 net/dns/over_https: medium
 net/download: medium
 net/http/auth: low

@@ -5,6 +5,9 @@ credential/password: low
 credential/ssl/private_key: low
 crypto/aes: low
 crypto/cipher: medium
+crypto/decrypt: low
+crypto/encrypt: medium
+crypto/public_key: low
 crypto/tls: low
 crypto/uuid: medium
 data/compression/bzip2: low
@@ -40,6 +43,7 @@ fs/directory/create: low
 fs/directory/remove: low
 fs/file/copy: medium
 fs/file/delete: medium
+fs/file/rename: low
 fs/file/times_set: medium
 fs/file/truncate: low
 fs/file/write: low

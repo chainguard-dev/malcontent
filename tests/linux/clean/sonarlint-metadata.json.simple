@@ -8,11 +8,17 @@ credential/password: low
 credential/ssl/private_key: low
 crypto/aes: low
 crypto/cipher: medium
+crypto/decrypt: low
 crypto/ed25519: low
+crypto/encrypt: medium
+crypto/openssl: medium
+crypto/public_key: low
 crypto/uuid: medium
 data/encoding/json_decode: low
 data/encoding/json_encode: low
 discover/network/interface_list: medium
+discover/process/working_directory: low
+discover/user/USER: low
 evasion/file/location/dev_mqueue: medium
 evasion/file/prefix: medium
 exec/plugin: low
@@ -38,6 +44,7 @@ impact/exploit: medium
 impact/infection/infected: medium
 impact/remote_access/agent: medium
 lateral/scan/brute_force: low
+malware/ref: medium
 net/download: medium
 net/http/2: low
 net/http/cookies: medium

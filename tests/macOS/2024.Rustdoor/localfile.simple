@@ -13,6 +13,7 @@ credential/shell/bash_history: high
 credential/shell/zsh_history: medium
 credential/ssh: medium
 crypto/aes: low
+crypto/public_key: low
 crypto/rc4: low
 data/compression/gzip: low
 data/compression/zstd: low
@@ -75,8 +76,8 @@ os/sync/semaphore_user: low
 persist/daemon: medium
 persist/launchd/launch_agent: medium
 privesc/osascript: critical
+privesc/setuid: low
 process/create: low
 process/groupid_set: low
 process/groups_set: low
 process/multithreaded: low
-process/userid_set: low

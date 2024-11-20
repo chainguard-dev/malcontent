@@ -22,8 +22,11 @@ credential/password: low
 credential/ssl/private_key: low
 crypto/aes: low
 crypto/cipher: medium
+crypto/decrypt: low
 crypto/ecdsa: low
 crypto/ed25519: low
+crypto/encrypt: medium
+crypto/public_key: low
 crypto/rc4: low
 crypto/tls: low
 data/compression/gzip: low
@@ -52,6 +55,7 @@ fs/directory/list: low
 fs/file/create: medium
 fs/file/delete: medium
 fs/file/read: low
+fs/file/rename: low
 fs/file/write: low
 fs/path/dev: medium
 fs/path/etc: low
@@ -66,6 +70,7 @@ hw/disk_info: medium
 impact/degrade/win_defender: high
 lateral/scan/tool: medium
 malware/family/skuld: critical
+malware/ref: medium
 net/dns: low
 net/dns/servers: low
 net/dns/txt: low

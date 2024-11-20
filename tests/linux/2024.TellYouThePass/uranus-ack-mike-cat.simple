@@ -7,8 +7,11 @@ collect/databases/sqlite: medium
 credential/password: low
 credential/shell/bash_history: high
 crypto/aes: low
+crypto/decrypt: low
 crypto/ecdsa: low
 crypto/ed25519: low
+crypto/encrypt: medium
+crypto/public_key: low
 crypto/rc4: low
 data/encoding/base64: low
 data/encoding/json: low

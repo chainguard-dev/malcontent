@@ -207,6 +207,35 @@
                     "RuleName": "ciphertext"
                 },
                 {
+                    "Description": "decrypts data",
+                    "MatchStrings": [
+                        "DecryptPEMBlock",
+                        "DecryptPKCS1v15SessionK",
+                        "DecryptPrivateKeys",
+                        "DecryptTicket",
+                        "DecrypterOpts",
+                        "DecrypterreadPythonMult",
+                        "DecryptionKeys",
+                        "ErrDecryption",
+                        "NewCBCDecrypter",
+                        "NewCFBDecrypter",
+                        "NewOCFBDecrypter",
+                        "PKCS1v15DecryptOptions",
+                        "aeadDecrypter",
+                        "cbcDecrypter",
+                        "lid options for Decrypttags don",
+                        "newDecrypter",
+                        "ocfbDecrypter",
+                        "pter type in NewDecrypterPrivateKeyargu",
+                        "rsaDecryptOk"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/crypto/decrypt.yara#decrypt",
+                    "ID": "crypto/decrypt",
+                    "RuleName": "decrypt"
+                },
+                {
                     "Description": "Uses the Go crypto/ecdsa library",
                     "MatchStrings": [
                         "crypto/ecdsa"
@@ -241,6 +270,57 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/crypto/elliptic.yara#elliptic",
                     "ID": "crypto/elliptic",
                     "RuleName": "elliptic"
+                },
+                {
+                    "Description": "encrypts data",
+                    "MatchStrings": [
+                        "AEADEncrypted",
+                        "AddEncryptionSubkey",
+                        "CanEncrypt",
+                        "EncryptPKCS1v15",
+                        "EncryptPrivateKeys",
+                        "EncryptTicket",
+                        "EncryptWithConfig",
+                        "EncryptionConfig",
+                        "EncryptionKey",
+                        "FlagEncryptCommunications",
+                        "FlagEncryptStorage",
+                        "IsEncryptedPEMBlock",
+                        "NewCBCEncrypter",
+                        "NewCFBEncrypter",
+                        "addEncryptionSubkey",
+                        "cbcEncrypter",
+                        "d PSK binderQUICEncryptionLevel",
+                        "e scalarunknown EncryptedKey version un",
+                        "getEncryptedKeyAeadInstanc",
+                        "getSymmetricallyEncryptedAeadInstance",
+                        "own SymmetricKeyEncrypted versionssh",
+                        "ryption functionEncryptedKey checksum i",
+                        "t32SymmetricallyEncrypted",
+                        "wn SymmetricallyEncrypted versionconsum"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/crypto/encrypt.yara#encrypt",
+                    "ID": "crypto/encrypt",
+                    "RuleName": "encrypt"
+                },
+                {
+                    "Description": "references a 'public key'",
+                    "MatchStrings": [
+                        "Public Key",
+                        "PublicKey",
+                        "public key",
+                        "public-key",
+                        "publicKey",
+                        "public_key",
+                        "publickey"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/crypto/public_key.yara#public_key",
+                    "ID": "crypto/public_key",
+                    "RuleName": "public_key"
                 },
                 {
                     "Description": "tls",
@@ -537,7 +617,7 @@
                     "RuleName": "getuid"
                 },
                 {
-                    "Description": "getwd",
+                    "Description": "gets current working directory",
                     "MatchStrings": [
                         "Getwd",
                         "getwd"
@@ -624,6 +704,7 @@
                     "Description": "Looks up the USER name of the current user",
                     "MatchStrings": [
                         "USER",
+                        "environ",
                         "getenv"
                     ],
                     "RiskScore": 1,
@@ -911,9 +992,9 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-rename.yara#os_rename",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-rename.yara#explicit_rename",
                     "ID": "fs/file/rename",
-                    "RuleName": "os_rename"
+                    "RuleName": "explicit_rename"
                 },
                 {
                     "Description": "access filesystem metadata",

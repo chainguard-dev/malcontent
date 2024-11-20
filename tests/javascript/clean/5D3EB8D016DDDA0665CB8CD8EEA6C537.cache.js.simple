@@ -10,6 +10,10 @@ collect/databases/sqlite: medium
 credential/password: low
 credential/ssl/private_key: low
 crypto/aes: low
+crypto/decrypt: low
+crypto/encrypt: medium
+crypto/openssl: medium
+crypto/public_key: low
 data/base64/decode: medium
 data/compression/bzip2: low
 data/compression/gzip: low
@@ -26,7 +30,7 @@ discover/process/egid: medium
 discover/process/parent: low
 discover/processes/list: medium
 discover/system/hostname: low
-discover/system/platform: low
+discover/system/platform: medium
 discover/user/HOME: low
 discover/user/USER: low
 discover/user/name_get: medium
@@ -37,6 +41,7 @@ exec/plugin: low
 exec/program: medium
 exec/program/background: low
 exec/remote_commands/code_eval: medium
+exec/shell/command: medium
 exec/shell/power: medium
 exec/tty/pathname: medium
 fs/directory/create: low
@@ -92,10 +97,10 @@ net/url/parse: low
 net/url/request: medium
 os/fd/read: low
 persist/daemon: medium
+privesc/setuid: low
 process/chdir: low
 process/chroot: low
 process/create: low
 process/groupid_set: low
-process/userid_set: low
 sus/exclamation: medium
 sus/intercept: medium

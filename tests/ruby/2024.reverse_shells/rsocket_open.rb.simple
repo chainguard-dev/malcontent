@@ -1,0 +1,4 @@
+# ruby/2024.reverse_shells/rsocket_open.rb: high
+exec/shell/exec: medium
+impact/remote_access/reverse_shell: high
+net/tcp/connect: medium
