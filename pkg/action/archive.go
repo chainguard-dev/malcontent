@@ -104,12 +104,33 @@ func extractTar(ctx context.Context, d string, f string) error {
 		}
 		defer gzStream.Close()
 		tr = tar.NewReader(gzStream)
-	case strings.Contains(filename, ".xz"):
+	case strings.Contains(filename, ".tar.xz"):
 		xzStream, err := xz.NewReader(tf)
 		if err != nil {
 			return fmt.Errorf("failed to create xz reader: %w", err)
 		}
 		tr = tar.NewReader(xzStream)
+	case strings.Contains(filename, ".xz"):
+		xzStream, err := xz.NewReader(tf)
+		if err != nil {
+			return fmt.Errorf("failed to create xz reader: %w", err)
+		}
+		uncompressed := strings.Trim(filepath.Base(f), ".xz")
+		target := filepath.Join(d, uncompressed)
+		if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
+			return fmt.Errorf("failed to create directory for file: %w", err)
+		}
+
+		// #nosec G115
+		f, err := os.OpenFile(target, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0o600)
+		if err != nil {
+			return fmt.Errorf("failed to create file: %w", err)
+		}
+		defer f.Close()
+		if _, err = io.Copy(f, xzStream); err != nil {
+			return fmt.Errorf("failed to write decompressed xz output: %w", err)
+		}
+		return nil
 	case strings.Contains(filename, ".bz2") || strings.Contains(filename, ".bzip2"):
 		br := bzip2.NewReader(tf)
 		tr = tar.NewReader(br)

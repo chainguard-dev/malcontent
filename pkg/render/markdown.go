@@ -44,7 +44,7 @@ func matchFragmentLink(s string) string {
 func (r Markdown) Scanning(_ context.Context, _ string) {}
 
 func (r Markdown) File(ctx context.Context, fr *malcontent.FileReport) error {
-	if len(fr.Behaviors) > 0 {
+	if fr.Skipped == "" && len(fr.Behaviors) > 0 {
 		markdownTable(ctx, fr, r.w, tableConfig{Title: fmt.Sprintf("## %s [%s]", fr.Path, mdRisk(fr.RiskScore, fr.RiskLevel))})
 	}
 	return nil

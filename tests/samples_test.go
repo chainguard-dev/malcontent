@@ -26,11 +26,15 @@ import (
 	"github.com/chainguard-dev/malcontent/rules"
 	thirdparty "github.com/chainguard-dev/malcontent/third_party"
 	"github.com/google/go-cmp/cmp"
+	"github.com/hillu/go-yara/v4"
 )
 
 var (
+	err         error
+	rfs         = []fs.FS{rules.FS, thirdparty.FS}
 	sampleDir   = ""
 	testDataDir = ""
+	yrs         *yara.Rules
 )
 
 func init() {
@@ -46,6 +50,12 @@ func init() {
 	if _, err := os.Stat(sampleDir); err != nil {
 		fmt.Printf("samples directory %q does not exist - please use 'make integration' or git clone https://github.com/chainguard-dev/malcontent-samples appropriately. This path may be overridden by --sample_dir", sampleDir)
 		os.Exit(1)
+	}
+
+	ctx := context.Background()
+	yrs, err = action.CachedRules(ctx, rfs)
+	if err != nil {
+		fmt.Printf("failed to compile rules")
 	}
 }
 
@@ -96,7 +106,7 @@ func TestJSON(t *testing.T) {
 				MinFileRisk: 1,
 				MinRisk:     1,
 				Renderer:    render,
-				RuleFS:      []fs.FS{rules.FS, thirdparty.FS},
+				Rules:       yrs,
 				ScanPaths:   []string{binPath},
 			}
 
@@ -166,7 +176,7 @@ func TestSimple(t *testing.T) {
 				MinRisk:               1,
 				QuantityIncreasesRisk: true,
 				Renderer:              simple,
-				RuleFS:                []fs.FS{rules.FS, thirdparty.FS},
+				Rules:                 yrs,
 				ScanPaths:             []string{binPath},
 			}
 
@@ -238,7 +248,7 @@ func TestDiff(t *testing.T) {
 				MinFileRisk: tc.minFileScore,
 				MinRisk:     tc.minResultScore,
 				Renderer:    simple,
-				RuleFS:      []fs.FS{rules.FS, thirdparty.FS},
+				Rules:       yrs,
 				ScanPaths:   []string{tc.src, tc.dest},
 			}
 
@@ -305,7 +315,7 @@ func TestDiffFileChange(t *testing.T) {
 				MinFileRisk:    tc.minFileScore,
 				MinRisk:        tc.minResultScore,
 				Renderer:       simple,
-				RuleFS:         []fs.FS{rules.FS, thirdparty.FS},
+				Rules:          yrs,
 				ScanPaths:      []string{strings.TrimPrefix(tc.src, "../out/chainguard-dev/malcontent-samples/"), strings.TrimPrefix(tc.dest, "../out/chainguard-dev/malcontent-samples/")},
 			}
 
@@ -372,7 +382,7 @@ func TestDiffFileIncrease(t *testing.T) {
 				MinFileRisk:      tc.minFileScore,
 				MinRisk:          tc.minResultScore,
 				Renderer:         simple,
-				RuleFS:           []fs.FS{rules.FS, thirdparty.FS},
+				Rules:            yrs,
 				ScanPaths:        []string{strings.TrimPrefix(tc.src, "../out/chainguard-dev/malcontent-samples/"), strings.TrimPrefix(tc.dest, "../out/chainguard-dev/malcontent-samples/")},
 			}
 
@@ -471,7 +481,7 @@ func TestMarkdown(t *testing.T) {
 				MinRisk:               1,
 				QuantityIncreasesRisk: true,
 				Renderer:              simple,
-				RuleFS:                []fs.FS{rules.FS, thirdparty.FS},
+				Rules:                 yrs,
 				ScanPaths:             []string{binPath},
 			}
 
@@ -549,7 +559,7 @@ func Template(b *testing.B, paths []string) func() {
 			IgnoreSelf:  true,
 			IgnoreTags:  []string{"harmless"},
 			Renderer:    simple,
-			RuleFS:      []fs.FS{rules.FS, thirdparty.FS},
+			Rules:       yrs,
 			ScanPaths:   paths,
 		}
 		res, err := action.Scan(ctx, mc)
