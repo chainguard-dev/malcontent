@@ -132,10 +132,10 @@ jobs:
 
       - name: install libyara-dev
         run: |
-          sudo add-apt-repository -n -y "deb http://archive.ubuntu.com/ubuntu/ mantic main restricted universe multiverse"
-          sudo add-apt-repository -n -y "deb http://archive.ubuntu.com/ubuntu/ mantic-updates main restricted universe multiverse"
-          sudo add-apt-repository -n -y "deb http://archive.ubuntu.com/ubuntu/ mantic-backports main restricted universe multiverse"
-          sudo add-apt-repository -n -y "deb http://security.ubuntu.com/ubuntu mantic-security main restricted universe multiverse"
+          sudo add-apt-repository -n -y "deb http://archive.ubuntu.com/ubuntu/ noble main restricted universe multiverse"
+          sudo add-apt-repository -n -y "deb http://archive.ubuntu.com/ubuntu/ noble-updates main restricted universe multiverse"
+          sudo add-apt-repository -n -y "deb http://archive.ubuntu.com/ubuntu/ noble-backports main restricted universe multiverse"
+          sudo add-apt-repository -n -y "deb http://security.ubuntu.com/ubuntu noble-security main restricted universe multiverse"
 
           sudo apt update && sudo apt install libyara-dev -y
 
@@ -144,4 +144,3 @@ jobs:
         with:
           version: v1.62.0
           args: --timeout=5m
-
