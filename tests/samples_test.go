@@ -522,15 +522,15 @@ func BenchmarkRun(b *testing.B) {
 func Benchmarks(b *testing.B, p string) {
 	// Default to all paths ("")
 	paths := []string{
-		"does-nothing",
-		"javascript",
-		"linux",
-		"macOS",
-		"npm",
-		"php",
-		"python",
-		"typescript",
-		"windows",
+		sampleDir + "does-nothing",
+		sampleDir + "javascript",
+		sampleDir + "linux",
+		sampleDir + "macOS",
+		sampleDir + "npm",
+		sampleDir + "php",
+		sampleDir + "python",
+		sampleDir + "typescript",
+		sampleDir + "windows",
 	}
 	if p != "" {
 		paths = strings.Split(p, ",")
