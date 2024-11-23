@@ -150,8 +150,8 @@ func extractTar(ctx context.Context, d string, f string) error {
 		}
 
 		clean := filepath.Clean(header.Name)
-		if filepath.IsAbs(clean) || strings.Contains(clean, "..") {
-			return fmt.Errorf("invalid file path: %s", header.Name)
+		if filepath.IsAbs(clean) || strings.Contains(clean, "../") {
+			return fmt.Errorf("path is absolute or contains a relative path traversal: %s", clean)
 		}
 
 		target := filepath.Join(d, clean)
