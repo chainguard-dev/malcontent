@@ -111,10 +111,10 @@ integration: out/$(SAMPLES_REPO)/.decompressed-$(SAMPLES_COMMIT)
 	go test -timeout 0 ./tests/...
 
 .PHONY: bench
-bench:
+bench: out/$(SAMPLES_REPO)/.decompressed-$(SAMPLES_COMMIT)
 	go test -run=^\$$ -bench=. ./... -benchmem
 
-BENCH_CMD := go test -benchmem -run=^\$$ -bench ^BenchmarkRun\$$ github.com/chainguard-dev/malcontent/samples -args
+BENCH_CMD := go test -benchmem -run=^\$$ -bench ^BenchmarkRun\$$ github.com/chainguard-dev/malcontent/tests -args
 
 .PHONY: bench-malcontent
 bench-malcontent:
