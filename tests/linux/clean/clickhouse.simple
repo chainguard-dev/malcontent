@@ -33,7 +33,6 @@ data/compression/gzip: low
 data/compression/lzma: low
 data/compression/zlib: low
 data/compression/zstd: low
-data/embedded/base64: high
 data/embedded/base64_url: medium
 data/embedded/html: medium
 data/embedded/pem_private_key: medium

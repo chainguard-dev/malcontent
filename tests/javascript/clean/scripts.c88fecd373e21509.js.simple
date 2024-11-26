@@ -1,8 +1,7 @@
-# javascript/clean/scripts.c88fecd373e21509.js: high
+# javascript/clean/scripts.c88fecd373e21509.js: medium
 anti-static/obfuscation/js: medium
 data/compression/bzip2: low
 data/compression/gzip: low
-data/embedded/base64: high
 data/encoding/json_decode: low
 data/encoding/json_encode: low
 discover/multiple: medium

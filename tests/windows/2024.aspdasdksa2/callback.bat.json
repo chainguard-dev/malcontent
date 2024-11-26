@@ -44,17 +44,6 @@
                     "RuleName": "github_raw_user"
                 },
                 {
-                    "Description": "Contains reversed base64 content",
-                    "MatchStrings": [
-                        "\"==\"am_admin\"::$b64_st"
-                    ],
-                    "RiskScore": 3,
-                    "RiskLevel": "HIGH",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/data/embedded/base64.yara#base64_content_reversed",
-                    "ID": "data/embedded/base64",
-                    "RuleName": "base64_content_reversed"
-                },
-                {
                     "Description": "runs powershell scripts",
                     "MatchStrings": [
                         "powershell -Command"

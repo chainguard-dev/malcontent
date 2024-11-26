@@ -3,7 +3,7 @@ rule dropper: medium {
     description = "References a 'dropper'"
 
   strings:
-    $ref = /[\w]{1,16}[dD]ropper\W/
+    $ref = /[\w]{1,16}[dD]ropper/ fullword
 
   condition:
     any of them

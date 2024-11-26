@@ -1,11 +1,10 @@
-# javascript/clean/securityDashboards.plugin.js: high
+# javascript/clean/securityDashboards.plugin.js: medium
 anti-static/obfuscation/bitwise: medium
 anti-static/obfuscation/js: medium
 collect/databases/mysql: medium
 credential/gaming/minecraft: medium
 credential/password: low
 crypto/cipher: medium
-data/embedded/base64: high
 data/encoding/base64: low
 data/encoding/json_decode: low
 data/encoding/json_encode: low

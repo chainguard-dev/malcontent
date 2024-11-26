@@ -2,5 +2,4 @@
 anti-static/obfuscation/obfuscate: low
 anti-static/obfuscation/python: critical
 anti-static/packer/pyobfuscate: high
-data/embedded/base64: medium
 net/url/embedded: low

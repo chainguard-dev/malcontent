@@ -4,7 +4,6 @@ c2/addr/ip: medium
 credential/gaming/minecraft: medium
 crypto/aes: low
 crypto/fernet: medium
-data/embedded/base64: high
 exfil/stealer/wallet: medium
 fs/file/delete_forcibly: low
 fs/path/relative: medium

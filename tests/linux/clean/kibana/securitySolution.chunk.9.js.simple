@@ -14,7 +14,6 @@ credential/password: low
 crypto/blockchain: medium
 crypto/encrypt: medium
 crypto/openssl: medium
-data/embedded/base64: high
 data/embedded/base64_url: medium
 data/encoding/base64: low
 data/encoding/json_decode: low

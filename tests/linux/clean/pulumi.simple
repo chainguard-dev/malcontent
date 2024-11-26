@@ -1,4 +1,4 @@
-# linux/clean/pulumi: high
+# linux/clean/pulumi: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/addr/server: medium
@@ -24,7 +24,6 @@ crypto/tls: low
 data/compression/bzip2: low
 data/compression/gzip: low
 data/compression/zlib: low
-data/embedded/base64: high
 data/embedded/html: medium
 data/embedded/pem_certificate: low
 data/embedded/pem_test_key: low

@@ -1,4 +1,4 @@
-# javascript/clean/highlight.esm.js: high
+# javascript/clean/highlight.esm.js: medium
 anti-static/obfuscation/js: medium
 c2/addr/ip: medium
 c2/connect/ping_pong: medium
@@ -16,7 +16,6 @@ data/base64/decode: medium
 data/compression/bzip2: low
 data/compression/lzma: low
 data/compression/zlib: low
-data/embedded/base64: high
 data/encoding/base64: low
 data/encoding/json_encode: low
 data/random/insecure: low
