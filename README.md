@@ -10,11 +10,10 @@
  _ _    _.  .    _   _    _  .  ___   _.   _  .  ___
 ( | )  (_|  |_  (_  (_)  ( \_)   |   (/_  ( \_)   |
 
- subtle malware discovery tool
+            subtle malware discovery tool
 ```
 
-malcontent discovers novel supply-chain compromises through
-the magic of context, differential analysis, and 14,000 YARA rules.
+malcontent discovers supply-chain compromises through the magic of context, differential analysis, and 14,000+ YARA rules.
 
 
 ```
@@ -40,8 +39,8 @@ malcontent is at its best analyzing programs that run on Linux. Still, it also p
 
 * 14,500+ [YARA](YARA) detection rules
   * Including third-party rules from companies such as Avast, Elastic, FireEye, Mandiant, Nextron, ReversingLabs, and more!
-* Analyzes binaries from nearly any operating system (Linux, macOS, FreeBSD, Windows, etc.)
-* Analyzes scripts (AppleScript, Javascript, PHP, Perl, Ruby, Shell, Typescript)
+* Analyzes binary files in most common formats (ELF, Mach-O, a.out, PE)
+* Analyzes code from most common languages (AppleScript, C, Go,  Javascript, PHP, Perl, Ruby, Shell, Typescript)
 * Transparent support for archives (apk, tar, zip, etc.) & container images
 * Multiple output formats (JSON, YAML, Markdown, Terminal)
 * Designed to work as part of a CI/CD pipeline
@@ -127,4 +126,4 @@ go install github.com/chainguard-dev/malcontent/cmd/mal@latest
 
 ## Help Wanted
 
-malcontent is an honest-to-goodness open-source project. If you are interested in contributing, check out [DEVELOPMENT.md](DEVELOPMENT.md). Send us a pull request, and we'll help you with the rest!
+malcontent is open source! If you are interested in contributing, check out [our development guide](DEVELOPMENT.md). Send us a pull request, and we'll help you with the rest!
