@@ -1,6 +1,7 @@
 # linux/clean/searchindex.json: medium
 anti-static/obfuscation/obfuscate: low
 c2/addr/discord: medium
+c2/tool_transfer/dropper: medium
 credential/keylogger: medium
 credential/password: low
 crypto/encrypt: medium
