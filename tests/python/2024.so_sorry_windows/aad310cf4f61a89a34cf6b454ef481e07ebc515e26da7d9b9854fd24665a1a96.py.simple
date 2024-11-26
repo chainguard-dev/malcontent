@@ -1,0 +1,13 @@
+# python/2024.so_sorry_windows/aad310cf4f61a89a34cf6b454ef481e07ebc515e26da7d9b9854fd24665a1a96.py: critical
+collect/archives/zip: medium
+crypto/aes: high
+crypto/cipher: medium
+data/base64/decode: medium
+data/compression/zlib: low
+data/encoding/base64: low
+exec/imports/python: high
+fs/file/open: low
+fs/file/read: medium
+net/url/embedded: low
+os/fd/read: low
+os/fd/write: low
