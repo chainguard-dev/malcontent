@@ -38,6 +38,7 @@ rule dropbox_disk_user: medium {
 
   strings:
     $dropbox = "dropboxapi.com"
+    $Dropbox = "Dropbox"
 
   condition:
     any of them
@@ -65,6 +66,19 @@ rule google_docs_uploader: high {
     any of them
 }
 
+rule file_io_uploader: high {
+  meta:
+    description = "uploads content to file.io"
+
+  strings:
+    $file_io = "file.io" fullword
+    $POST    = "POST" fullword
+    $Post    = "post" fullword
+
+  condition:
+    $file_io and any of ($P*)
+}
+
 rule transfer_file: low {
   meta:
     description = "transfers files"
@@ -82,6 +96,7 @@ rule upload_file: medium {
 
   strings:
     $transfer = "upload file"
+    $upload2  = /filesUploa[a-z]{0,6}/
 
   condition:
     any of them

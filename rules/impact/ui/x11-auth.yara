@@ -10,3 +10,4 @@ rule x11_refs: medium {
   condition:
     any of them
 }
+

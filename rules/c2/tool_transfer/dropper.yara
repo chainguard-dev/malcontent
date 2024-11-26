@@ -1,10 +1,9 @@
 rule dropper: medium {
   meta:
-    description = "References 'dropper'"
+    description = "References a 'dropper'"
 
   strings:
-    $ref  = "dropper" fullword
-    $ref2 = "Dropper" fullword
+    $ref = /[\w]{1,16}[dD]ropper\W/
 
   condition:
     any of them
