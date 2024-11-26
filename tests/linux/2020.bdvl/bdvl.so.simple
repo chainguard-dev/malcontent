@@ -24,6 +24,7 @@ exec/dylib/symbol_address: medium
 exec/program: medium
 exec/shell/TERM: low
 exec/shell/exec: medium
+exec/system_controls/systemd: low
 exfil/stealer/pam: critical
 fs/directory/create: low
 fs/directory/remove: low

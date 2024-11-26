@@ -1,13 +1,13 @@
 # linux/clean/searchindex.json: medium
 anti-static/obfuscation/obfuscate: low
 c2/addr/discord: medium
-c2/tool_transfer/dropper: medium
 credential/keylogger: medium
 credential/password: low
 crypto/encrypt: medium
 crypto/openssl: medium
 crypto/public_key: low
 data/compression/bzip2: low
+data/compression/zlib: low
 data/embedded/html: medium
 data/random/insecure: low
 discover/components/docker: medium
@@ -23,6 +23,7 @@ exec/plugin: low
 exec/program: medium
 exec/shell/command: medium
 exec/shell/exec: medium
+exec/system_controls/systemd: low
 exfil/stealer/credit_card: medium
 fs/directory/create: low
 fs/file/delete: low

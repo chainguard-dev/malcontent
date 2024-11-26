@@ -5,6 +5,7 @@ anti-static/obfuscation/obfuscate: low
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/addr/server: medium
+c2/client: medium
 c2/discovery/ip_dns_resolver: medium
 collect/archives/unarchive: medium
 collect/databases/postgresql: medium
@@ -27,7 +28,9 @@ data/base64/decode: medium
 data/compression/bzip2: low
 data/compression/gzip: low
 data/compression/lzma: low
+data/compression/zlib: low
 data/compression/zstd: low
+data/embedded/base64: high
 data/embedded/base64_gzip: medium
 data/embedded/base64_terms: medium
 data/embedded/base64_url: medium
@@ -76,6 +79,7 @@ exec/shell/echo: medium
 exec/shell/exec: medium
 exec/shell/pipe_sh: medium
 exec/shell/power: medium
+exec/system_controls/systemd: low
 exec/tty/pathname: medium
 exfil/office_file_ext: medium
 exfil/stealer/credit_card: medium

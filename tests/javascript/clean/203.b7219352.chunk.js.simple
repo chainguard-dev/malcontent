@@ -1,9 +1,10 @@
-# javascript/clean/203.b7219352.chunk.js: medium
+# javascript/clean/203.b7219352.chunk.js: high
 anti-static/obfuscation/js: medium
 collect/databases/sql: low
 credential/password: low
 data/compression/bzip2: low
 data/compression/gzip: low
+data/embedded/base64: high
 data/encoding/base64: low
 data/encoding/json_encode: low
 discover/network/interface_list: medium

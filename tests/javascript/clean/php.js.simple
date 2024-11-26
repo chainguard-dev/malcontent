@@ -1,5 +1,6 @@
 # javascript/clean/php.js: medium
 c2/addr/ip: medium
+c2/client: medium
 collect/databases/mysql: medium
 collect/databases/sql: low
 collect/databases/sqlite: medium
@@ -11,6 +12,7 @@ crypto/openssl: medium
 crypto/public_key: low
 data/base64/decode: medium
 data/compression/gzip: low
+data/compression/zlib: low
 data/encoding/base64: low
 data/encoding/reverse: low
 data/random/insecure: low

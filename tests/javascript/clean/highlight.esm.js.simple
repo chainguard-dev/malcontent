@@ -1,4 +1,4 @@
-# javascript/clean/highlight.esm.js: medium
+# javascript/clean/highlight.esm.js: high
 anti-static/obfuscation/js: medium
 c2/addr/ip: medium
 c2/connect/ping_pong: medium
@@ -15,6 +15,8 @@ crypto/public_key: low
 data/base64/decode: medium
 data/compression/bzip2: low
 data/compression/lzma: low
+data/compression/zlib: low
+data/embedded/base64: high
 data/encoding/base64: low
 data/encoding/json_encode: low
 data/random/insecure: low
@@ -36,6 +38,7 @@ exec/script/osa: medium
 exec/shell/SHELL: low
 exec/shell/exec: medium
 exec/shell/power: medium
+exec/system_controls/systemd: low
 fs/directory/create: low
 fs/directory/remove: low
 fs/file/capabilities_set: low
