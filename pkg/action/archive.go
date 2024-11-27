@@ -20,7 +20,7 @@ import (
 	"github.com/cavaliergopher/rpm"
 	"github.com/chainguard-dev/clog"
 
-	"pault.ag/go/debian/deb"
+	"github.com/egibs/go-debian/deb"
 
 	"github.com/ulikunitz/xz"
 )
