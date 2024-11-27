@@ -4,6 +4,8 @@ go 1.23.3
 
 require (
 	github.com/agext/levenshtein v1.2.3
+	github.com/cavaliergopher/cpio v1.0.1
+	github.com/cavaliergopher/rpm v1.2.0
 	github.com/chainguard-dev/clog v1.5.0
 	github.com/fatih/color v1.18.0
 	github.com/gabriel-vasile/mimetype v1.4.7
@@ -18,6 +20,7 @@ require (
 	golang.org/x/sync v0.9.0
 	golang.org/x/term v0.26.0
 	gopkg.in/yaml.v3 v3.0.1
+	pault.ag/go/debian v0.17.0
 )
 
 require (
@@ -30,6 +33,7 @@ require (
 	github.com/docker/docker-credential-helpers v0.8.2 // indirect
 	github.com/ebitengine/purego v0.8.1 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
+	github.com/kjk/lzma v0.0.0-20161016003348-3fd93898850d // indirect
 	github.com/klauspost/compress v1.17.11 // indirect
 	github.com/kr/pretty v0.2.1 // indirect
 	github.com/lufia/plan9stats v0.0.0-20240909124753-873cd0166683 // indirect
@@ -48,8 +52,11 @@ require (
 	github.com/tklauser/go-sysconf v0.3.14 // indirect
 	github.com/tklauser/numcpus v0.9.0 // indirect
 	github.com/vbatts/tar-split v0.11.6 // indirect
+	github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8 // indirect
 	github.com/xrash/smetrics v0.0.0-20240521201337-686a1a2994c1 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
+	golang.org/x/crypto v0.29.0 // indirect
 	golang.org/x/net v0.31.0 // indirect
 	golang.org/x/sys v0.27.0 // indirect
+	pault.ag/go/topsort v0.1.1 // indirect
 )
