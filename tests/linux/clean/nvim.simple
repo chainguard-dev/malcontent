@@ -11,6 +11,7 @@ credential/ssh/d: medium
 crypto/openssl: medium
 crypto/rc4: low
 data/base64/decode: medium
+data/compression/zlib: low
 data/encoding/base64: low
 data/random/insecure: low
 discover/processes/pgrep: medium
@@ -28,6 +29,7 @@ exec/shell/SHELL: low
 exec/shell/TERM: low
 exec/shell/echo: medium
 exec/shell/power: medium
+exec/system_controls/systemd: low
 fs/attributes/set: medium
 fs/blkid: low
 fs/directory/create: low

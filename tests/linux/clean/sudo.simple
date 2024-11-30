@@ -1,5 +1,6 @@
 # linux/clean/sudo: medium
 credential/password: low
+data/compression/zlib: low
 discover/network/interface_list: medium
 discover/process/parent: low
 discover/system/cpu: low

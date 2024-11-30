@@ -127,6 +127,17 @@
                     "RuleName": "server_address"
                 },
                 {
+                    "Description": "contains a client ID",
+                    "MatchStrings": [
+                        "client_id"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/client.yara#clientID",
+                    "ID": "c2/client",
+                    "RuleName": "clientID"
+                },
+                {
                     "Description": "Works with zip files",
                     "MatchStrings": [
                         "archive/zip"
@@ -335,6 +346,17 @@
                     "ReferenceURL": "https://en.wikipedia.org/wiki/Lempel%E2%80%93Ziv%E2%80%93Markov_chain_algorithm",
                     "ID": "data/compression/lzma",
                     "RuleName": "lzma"
+                },
+                {
+                    "Description": "uses zlib",
+                    "MatchStrings": [
+                        "zlib"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/data/compression/zlib.yara#zlib",
+                    "ID": "data/compression/zlib",
+                    "RuleName": "zlib"
                 },
                 {
                     "Description": "Zstandard: fast real-time compression algorithm",

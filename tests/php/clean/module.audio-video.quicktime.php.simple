@@ -2,4 +2,5 @@
 anti-static/obfuscation/bitwise: medium
 anti-static/obfuscation/hex: medium
 crypto/encrypt: medium
+data/compression/zlib: low
 net/url/embedded: medium

@@ -64,10 +64,21 @@ rule __import__: medium {
     description = "directly imports code using built-in __import__"
 
   strings:
-    $import = /__import__\([\w\(\[]\)\],]{0,64}/
+    $import = /__import__\([\'\w\(\[]\)\],]{0,64}/
 
   condition:
     filesize < 4MB and any of them
+}
+
+rule __import__sus: high {
+  meta:
+    description = "directly imports code using built-in __import__"
+
+  strings:
+    $sus = /__import__.{0,128}(zlib|fernet|base64|b64decode|exec\()/
+
+  condition:
+    filesize < 4MB and all of them
 }
 
 rule zipimport: medium {

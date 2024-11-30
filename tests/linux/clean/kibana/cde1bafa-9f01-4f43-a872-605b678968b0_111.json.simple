@@ -11,6 +11,7 @@ exec/plugin: low
 exec/shell/command: medium
 exec/shell/power: medium
 exfil/collection: medium
+exfil/upload: medium
 impact/infection/infected: medium
 impact/remote_access/backdoor: medium
 impact/remote_access/implant: medium

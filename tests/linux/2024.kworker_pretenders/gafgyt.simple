@@ -15,6 +15,7 @@ exec/shell/echo: medium
 exec/shell/exec: medium
 exec/shell/ignore_output: medium
 exec/shell/unusual_redirect: medium
+exec/system_controls/systemd: low
 fs/path/etc: low
 fs/path/etc_hosts: medium
 fs/path/etc_resolv.conf: low

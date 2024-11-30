@@ -57,3 +57,14 @@ rule python_exec_near_enough_base64: high {
   condition:
     all of them and math.abs(@base64 - @exec) < 200
 }
+
+rule python_base64_exec: critical {
+  meta:
+    description = "executes compressed base64 content"
+
+  strings:
+    $dec_b64decode_exec = /.{0,8}\.decompress\(.{0,96}\.b64decode\(.{0,64}\Wexec\(.{0,16}/
+
+  condition:
+    any of them
+}

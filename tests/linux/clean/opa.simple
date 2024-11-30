@@ -1,6 +1,7 @@
 # linux/clean/opa: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
+c2/client: medium
 c2/tool_transfer/download: medium
 collect/archives/zip: medium
 credential/password: low
@@ -31,6 +32,7 @@ discover/user/USER: low
 exec/cmd: medium
 exec/plugin: low
 exec/program: medium
+fs/directory/create: low
 fs/directory/list: low
 fs/directory/remove: low
 fs/file/copy: medium

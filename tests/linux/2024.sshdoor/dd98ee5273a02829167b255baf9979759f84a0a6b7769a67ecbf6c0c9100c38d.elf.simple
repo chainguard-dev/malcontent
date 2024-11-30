@@ -10,6 +10,7 @@ crypto/aes: low
 crypto/ed25519: low
 crypto/openssl: medium
 crypto/public_key: low
+data/compression/zlib: low
 data/embedded/pem_private_key: medium
 data/encoding/base64: low
 data/random/insecure: low
