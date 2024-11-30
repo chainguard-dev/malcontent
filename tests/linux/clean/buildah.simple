@@ -1,6 +1,7 @@
 # linux/clean/buildah: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
+c2/client: medium
 c2/discovery/ip_dns_resolver: medium
 collect/archives/zip: medium
 collect/databases/sql: low
@@ -21,6 +22,7 @@ data/compression/bzip2: low
 data/compression/gzip: low
 data/compression/lzma: low
 data/compression/xz: medium
+data/compression/zlib: low
 data/compression/zstd: low
 data/embedded/html: medium
 data/embedded/zstd: medium
@@ -53,6 +55,7 @@ exec/shell/TERM: low
 exec/shell/background_sleep: medium
 exec/shell/exec: medium
 exec/system_controls/apparmor: medium
+exec/system_controls/systemd: low
 fs/directory/create: low
 fs/directory/list: low
 fs/directory/remove: low

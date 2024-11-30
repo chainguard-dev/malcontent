@@ -1,6 +1,7 @@
 # linux/clean/containerd: medium
 c2/addr/ip: medium
 c2/addr/server: medium
+c2/client: medium
 collect/archives/zip: medium
 collect/databases/mysql: medium
 credential/password: low
@@ -16,6 +17,7 @@ crypto/public_key: low
 crypto/tls: low
 data/compression/bzip2: low
 data/compression/gzip: low
+data/compression/zlib: low
 data/compression/zstd: low
 data/embedded/html: medium
 data/embedded/zstd: medium
@@ -37,6 +39,7 @@ exec/program: medium
 exec/reconfigure/hostname_set: low
 exec/shell/TERM: low
 exec/system_controls/apparmor: medium
+exec/system_controls/systemd: low
 fs/attributes/set: medium
 fs/directory/create: low
 fs/directory/list: low

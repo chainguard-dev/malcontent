@@ -1,6 +1,7 @@
 # linux/clean/melange: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
+c2/client: medium
 c2/refs: medium
 collect/archives/tar_command: medium
 collect/archives/zip: medium
@@ -22,6 +23,7 @@ data/base64/external: medium
 data/compression/bzip2: low
 data/compression/gzip: low
 data/compression/lzma: low
+data/compression/zlib: low
 data/compression/zstd: low
 data/embedded/html: medium
 data/embedded/pem_certificate: low

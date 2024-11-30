@@ -9,6 +9,7 @@ discover/user/USER: low
 evasion/file/location/var_run: medium
 exec/program: medium
 exec/shell/TERM: low
+exec/system_controls/systemd: low
 fs/file/copy: medium
 fs/file/delete: low
 fs/file/truncate: low

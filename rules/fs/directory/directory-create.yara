@@ -5,7 +5,7 @@ rule mkdir {
     ref         = "https://man7.org/linux/man-pages/man2/mkdir.2.html"
 
   strings:
-    $mkdir        = "mkdir" fullword
+    $mkdir        = "mkdir"
     $createFolder = "createFolder" fullword
     $py           = "os.makedirs" fullword
     $win          = /CreateDirectory\w{0,8}/

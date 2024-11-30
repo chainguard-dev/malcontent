@@ -1,0 +1,9 @@
+# python/2024.aiocpa/sync.py: critical
+anti-static/base64/eval: critical
+data/base64/decode: medium
+data/compression/zlib: low
+data/embedded/base64: high
+data/encoding/base64: low
+discover/system/platform: medium
+exec/imports/python: high
+exec/remote_commands/code_eval: medium

@@ -1,6 +1,7 @@
 # linux/clean/systemd-sysv-generator: medium
 credential/password: low
 evasion/file/prefix: medium
+exec/system_controls/systemd: low
 false-positives/systemd: low
 fs/file/delete: low
 fs/path/etc: low

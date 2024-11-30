@@ -1,5 +1,6 @@
 # linux/clean/tracer.o.aarch64: medium
 c2/addr/ip: medium
+c2/client: medium
 collect/databases/mysql: medium
 collect/databases/sql: low
 credential/sniffer/bpf: medium

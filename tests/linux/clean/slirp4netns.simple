@@ -28,6 +28,7 @@ exec/program/background: low
 exec/reconfigure/hostname_set: low
 exec/shell/TERM: low
 exec/shell/exec: medium
+exec/system_controls/systemd: low
 exec/tty/vhangup: low
 false-positives/slirp: low
 fs/attributes/remove: medium

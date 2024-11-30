@@ -32,6 +32,7 @@ exec/shell/exec: medium
 exec/system_controls/systemd: medium
 exfil/stealer/linux_server: high
 exfil/stealer/ssh: medium
+fs/directory/create: low
 fs/directory/list: low
 fs/directory/remove: low
 fs/file/delete: low

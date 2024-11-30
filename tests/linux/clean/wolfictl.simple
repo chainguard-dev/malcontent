@@ -1,6 +1,7 @@
 # linux/clean/wolfictl: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
+c2/client: medium
 c2/tool_transfer/download: medium
 c2/tool_transfer/dropper: medium
 collect/archives/tar_command: medium
@@ -30,6 +31,7 @@ data/compression/bzip2: low
 data/compression/gzip: low
 data/compression/lzma: low
 data/compression/xz: medium
+data/compression/zlib: low
 data/compression/zstd: low
 data/embedded/html: medium
 data/embedded/pem_certificate: low
@@ -69,6 +71,7 @@ exec/program: medium
 exec/shell/TERM: low
 exec/shell/background_sleep: medium
 exec/shell/pipe_sh: medium
+exec/system_controls/systemd: low
 exfil/office_file_ext: medium
 fs/attributes/set: medium
 fs/blkid: low
