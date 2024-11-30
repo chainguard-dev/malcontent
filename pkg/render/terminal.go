@@ -317,7 +317,6 @@ func renderFileSummary(_ context.Context, fr *malcontent.FileReport, w io.Writer
 			pc := color.New()
 
 			if diffMode {
-
 				if b.DiffAdded {
 					pc = color.New(color.FgHiGreen)
 					diff = "+"
