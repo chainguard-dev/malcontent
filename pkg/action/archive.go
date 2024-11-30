@@ -16,7 +16,12 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/cavaliergopher/cpio"
+	"github.com/cavaliergopher/rpm"
 	"github.com/chainguard-dev/clog"
+
+	"github.com/egibs/go-debian/deb"
+
 	"github.com/ulikunitz/xz"
 )
 
@@ -24,9 +29,11 @@ var archiveMap = map[string]bool{
 	".apk":    true,
 	".bz2":    true,
 	".bzip2":  true,
+	".deb":    true,
 	".gem":    true,
 	".gz":     true,
 	".jar":    true,
+	".rpm":    true,
 	".tar.gz": true,
 	".tar.xz": true,
 	".tar":    true,
@@ -159,31 +166,35 @@ func extractTar(ctx context.Context, d string, f string) error {
 			return fmt.Errorf("invalid file path: %s", header.Name)
 		}
 
-		if header.FileInfo().IsDir() {
+		switch header.Typeflag {
+		case tar.TypeDir:
 			// #nosec G115
 			if err := os.MkdirAll(target, os.FileMode(header.Mode)); err != nil {
 				return fmt.Errorf("failed to create directory: %w", err)
 			}
-			continue
-		}
+		case tar.TypeReg:
+			if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
+				return fmt.Errorf("failed to create parent directory: %w", err)
+			}
 
-		if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
-			return fmt.Errorf("failed to create directory for file: %w", err)
-		}
+			// #nosec G115
+			out, err := os.OpenFile(target, os.O_RDWR|os.O_CREATE|os.O_TRUNC, os.FileMode(header.Mode))
+			if err != nil {
+				return fmt.Errorf("failed to create file: %w", err)
+			}
 
-		// #nosec G115
-		f, err := os.OpenFile(target, os.O_RDWR|os.O_CREATE|os.O_TRUNC, os.FileMode(header.Mode))
-		if err != nil {
-			return fmt.Errorf("failed to create file: %w", err)
-		}
+			if _, err := io.Copy(out, io.LimitReader(tr, maxBytes)); err != nil {
+				out.Close()
+				return fmt.Errorf("failed to copy file: %w", err)
+			}
 
-		if _, err := io.Copy(f, io.LimitReader(tr, maxBytes)); err != nil {
-			f.Close()
-			return fmt.Errorf("failed to copy file: %w", err)
-		}
-
-		if err := f.Close(); err != nil {
-			return fmt.Errorf("failed to close file: %w", err)
+			if err := out.Close(); err != nil {
+				return fmt.Errorf("failed to close file: %w", err)
+			}
+		case tar.TypeSymlink:
+			if err := os.Symlink(header.Linkname, target); err != nil {
+				return fmt.Errorf("failed to create symlink: %w", err)
+			}
 		}
 	}
 	return nil
@@ -299,6 +310,167 @@ func extractZip(ctx context.Context, d string, f string) error {
 		open.Close()
 		create.Close()
 	}
+	return nil
+}
+
+// extractRPM extracts .rpm packages.
+func extractRPM(ctx context.Context, d, f string) error {
+	logger := clog.FromContext(ctx).With("dir", d, "file", f)
+	logger.Info("extracting rpm")
+
+	rpmFile, err := os.Open(f)
+	if err != nil {
+		return fmt.Errorf("failed to open RPM file: %w", err)
+	}
+	defer rpmFile.Close()
+
+	pkg, err := rpm.Read(rpmFile)
+	if err != nil {
+		return fmt.Errorf("failed to read RPM package headers: %w", err)
+	}
+
+	if format := pkg.PayloadFormat(); format != "cpio" {
+		return fmt.Errorf("unsupported payload format: %s", format)
+	}
+
+	payloadOffset, err := rpmFile.Seek(0, io.SeekCurrent)
+	if err != nil {
+		return fmt.Errorf("failed to get payload offset: %w", err)
+	}
+
+	if _, err := rpmFile.Seek(payloadOffset, io.SeekStart); err != nil {
+		return fmt.Errorf("failed to seek to payload: %w", err)
+	}
+
+	var cr *cpio.Reader
+	switch compression := pkg.PayloadCompression(); compression {
+	case "gzip":
+		gzStream, err := gzip.NewReader(rpmFile)
+		if err != nil {
+			return fmt.Errorf("failed to create gzip reader: %w", err)
+		}
+		defer gzStream.Close()
+		cr = cpio.NewReader(gzStream)
+	case "xz":
+		xzStream, err := xz.NewReader(rpmFile)
+		if err != nil {
+			return fmt.Errorf("failed to create xz reader: %w", err)
+		}
+		cr = cpio.NewReader(xzStream)
+	default:
+		return fmt.Errorf("unsupported compression format: %s", compression)
+	}
+
+	for {
+		header, err := cr.Next()
+		if errors.Is(err, io.EOF) || errors.Is(err, io.ErrUnexpectedEOF) {
+			break
+		}
+		if err != nil {
+			return fmt.Errorf("failed to read cpio header: %w", err)
+		}
+
+		clean := filepath.Clean(header.Name)
+		if filepath.IsAbs(clean) || strings.Contains(clean, "../") {
+			return fmt.Errorf("path is absolute or contains a relative path traversal: %s", clean)
+		}
+
+		target := filepath.Join(d, clean)
+
+		if header.FileInfo().IsDir() {
+			if err := os.MkdirAll(target, os.FileMode(header.Mode)); err != nil {
+				return fmt.Errorf("failed to create directory: %w", err)
+			}
+			continue
+		}
+
+		if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
+			return fmt.Errorf("failed to create parent directory: %w", err)
+		}
+
+		out, err := os.OpenFile(target, os.O_RDWR|os.O_CREATE|os.O_TRUNC, os.FileMode(header.Mode))
+		if err != nil {
+			return fmt.Errorf("failed to create file: %w", err)
+		}
+
+		if _, err := io.Copy(out, io.LimitReader(cr, maxBytes)); err != nil {
+			out.Close()
+			return fmt.Errorf("failed to copy file: %w", err)
+		}
+
+		if err := out.Close(); err != nil {
+			return fmt.Errorf("failed to close file: %w", err)
+		}
+	}
+
+	return nil
+}
+
+// extractDeb extracts .deb packages.
+func extractDeb(ctx context.Context, d, f string) error {
+	logger := clog.FromContext(ctx).With("dir", d, "file", f)
+	logger.Info("extracting deb")
+
+	fd, err := os.Open(f)
+	if err != nil {
+		panic(err)
+	}
+	defer fd.Close()
+
+	df, err := deb.Load(fd, f)
+	if err != nil {
+		panic(err)
+	}
+	defer df.Close()
+
+	for {
+		header, err := df.Data.Next()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return fmt.Errorf("failed to read tar header: %w", err)
+		}
+
+		clean := filepath.Clean(header.Name)
+		if filepath.IsAbs(clean) || strings.Contains(clean, "../") {
+			return fmt.Errorf("path is absolute or contains a relative path traversal: %s", clean)
+		}
+
+		target := filepath.Join(d, clean)
+
+		switch header.Typeflag {
+		case tar.TypeDir:
+			// #nosec G115
+			if err := os.MkdirAll(target, os.FileMode(header.Mode)); err != nil {
+				return fmt.Errorf("failed to create directory: %w", err)
+			}
+		case tar.TypeReg:
+			if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
+				return fmt.Errorf("failed to create parent directory: %w", err)
+			}
+
+			// #nosec G115
+			out, err := os.OpenFile(target, os.O_RDWR|os.O_CREATE|os.O_TRUNC, os.FileMode(header.Mode))
+			if err != nil {
+				return fmt.Errorf("failed to create file: %w", err)
+			}
+
+			if _, err := io.Copy(out, io.LimitReader(df.Data, maxBytes)); err != nil {
+				out.Close()
+				return fmt.Errorf("failed to copy file: %w", err)
+			}
+
+			if err := out.Close(); err != nil {
+				return fmt.Errorf("failed to close file: %w", err)
+			}
+		case tar.TypeSymlink:
+			if err := os.Symlink(header.Linkname, target); err != nil {
+				return fmt.Errorf("failed to create symlink: %w", err)
+			}
+		}
+	}
+
 	return nil
 }
 
@@ -444,6 +616,10 @@ func extractionMethod(ext string) func(context.Context, string, string) error {
 		return extractGzip
 	case ".apk", ".bz2", ".bzip2", ".gem", ".tar", ".tar.gz", ".tgz", ".tar.xz", ".xz":
 		return extractTar
+	case ".rpm":
+		return extractRPM
+	case ".deb":
+		return extractDeb
 	default:
 		return nil
 	}
