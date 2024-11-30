@@ -295,6 +295,7 @@ func renderFileSummary(_ context.Context, fr *malcontent.FileReport, w io.Writer
 		}
 
 		// behavior readout per namespace
+		indent += "  "
 		for _, b := range bs {
 			_, rest := splitRuleID(b.ID)
 
