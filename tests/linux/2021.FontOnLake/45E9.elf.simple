@@ -13,6 +13,7 @@ crypto/encrypt: medium
 crypto/openssl: medium
 crypto/public_key: low
 crypto/rc4: low
+data/compression/zlib: low
 data/encoding/base64: low
 data/hash/md5: low
 discover/group/lookup: medium

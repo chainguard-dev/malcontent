@@ -32,6 +32,7 @@ evasion/logging/acct: low
 exec/plugin: low
 exec/system_controls/systemd: medium
 exfil/discord: critical
+fs/directory/create: low
 fs/file/delete: low
 fs/file/make_executable: high
 fs/path/etc: low

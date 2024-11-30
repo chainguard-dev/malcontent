@@ -1,5 +1,6 @@
 # linux/clean/libasan.so.8.0.0: medium
 data/compression/lzma: low
+data/compression/zlib: low
 data/compression/zstd: low
 data/random/insecure: low
 discover/group/lookup: medium

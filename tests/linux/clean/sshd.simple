@@ -9,6 +9,7 @@ crypto/aes: low
 crypto/ed25519: low
 crypto/openssl: medium
 crypto/public_key: low
+data/compression/zlib: low
 data/embedded/pem_private_key: medium
 data/encoding/base64: low
 discover/group/lookup: medium
@@ -27,6 +28,7 @@ exec/program/background: low
 exec/shell/SHELL: low
 exec/shell/TERM: low
 exec/shell/exec: medium
+exec/system_controls/systemd: low
 exec/tty/open: medium
 exec/tty/pathname: medium
 fs/directory/create: low

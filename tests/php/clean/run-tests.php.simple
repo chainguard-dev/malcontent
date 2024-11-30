@@ -1,6 +1,7 @@
 # php/clean/run-tests.php: medium
 data/base64/decode: medium
 data/compression/gzip: low
+data/compression/zlib: low
 data/encoding/base64: low
 discover/system/platform: low
 discover/user/USER: low

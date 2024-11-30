@@ -2,6 +2,7 @@
 anti-static/obfuscation/js: medium
 c2/addr/ip: medium
 c2/addr/server: medium
+c2/client: medium
 collect/archives/unarchive: medium
 collect/databases/mysql: medium
 collect/databases/postgresql: medium
@@ -17,6 +18,7 @@ crypto/public_key: low
 data/base64/decode: medium
 data/compression/bzip2: low
 data/compression/gzip: low
+data/compression/zlib: low
 data/embedded/base64_url: medium
 data/embedded/html: medium
 data/encoding/base64: low

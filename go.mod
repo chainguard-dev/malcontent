@@ -4,7 +4,10 @@ go 1.23.3
 
 require (
 	github.com/agext/levenshtein v1.2.3
+	github.com/cavaliergopher/cpio v1.0.1
+	github.com/cavaliergopher/rpm v1.2.0
 	github.com/chainguard-dev/clog v1.5.0
+	github.com/egibs/go-debian v0.18.0
 	github.com/fatih/color v1.18.0
 	github.com/gabriel-vasile/mimetype v1.4.7
 	github.com/google/go-cmp v0.6.0
@@ -50,6 +53,8 @@ require (
 	github.com/vbatts/tar-split v0.11.6 // indirect
 	github.com/xrash/smetrics v0.0.0-20240521201337-686a1a2994c1 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
+	golang.org/x/crypto v0.29.0 // indirect
 	golang.org/x/net v0.31.0 // indirect
 	golang.org/x/sys v0.27.0 // indirect
+	pault.ag/go/topsort v0.1.1 // indirect
 )
