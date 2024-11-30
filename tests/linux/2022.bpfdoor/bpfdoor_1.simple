@@ -6,6 +6,7 @@ exec/program: medium
 exec/program/background: low
 exec/shell/command: medium
 exec/shell/exec: medium
+exec/system_controls/systemd: low
 exec/tty/vhangup: low
 fs/file/delete: low
 fs/file/times_set: medium

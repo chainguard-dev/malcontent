@@ -5,7 +5,8 @@ rule sysinfo: medium {
     ref         = "https://man7.org/linux/man-pages/man2/sysinfo.2.html"
 
   strings:
-    $uname = "sysinfo" fullword
+    $sysinfo    = "sysinfo" fullword
+    $systeminfo = "systeminfo"
 
   condition:
     any of them

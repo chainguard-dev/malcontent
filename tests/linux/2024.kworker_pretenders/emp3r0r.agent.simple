@@ -25,6 +25,7 @@ data/compression/bzip2: low
 data/compression/gzip: low
 data/compression/lzma: low
 data/compression/xz: medium
+data/compression/zlib: low
 data/compression/zstd: low
 data/embedded/html: medium
 data/embedded/zstd: medium

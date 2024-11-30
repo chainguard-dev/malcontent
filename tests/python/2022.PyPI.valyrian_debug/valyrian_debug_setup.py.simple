@@ -4,6 +4,7 @@ discover/ip/public: high
 discover/multiple: medium
 discover/network/interface_list: medium
 discover/system/platform: medium
+discover/system/sysinfo: medium
 discover/user/name_get: high
 evasion/file/prefix: medium
 evasion/file/prefix/tmp: high

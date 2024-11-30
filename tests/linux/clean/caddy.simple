@@ -1,6 +1,7 @@
 # linux/clean/caddy: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
+c2/client: medium
 c2/discovery/ip_dns_resolver: medium
 c2/refs: medium
 c2/tool_transfer/download: medium
@@ -59,6 +60,7 @@ exec/shell/SHELL: low
 exec/shell/TERM: low
 exec/shell/background_sleep: medium
 exec/system_controls/stop: low
+exec/system_controls/systemd: low
 exfil/office_file_ext: medium
 fs/directory/create: low
 fs/directory/list: low

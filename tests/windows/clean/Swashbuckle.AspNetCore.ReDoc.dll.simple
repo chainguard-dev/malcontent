@@ -1,5 +1,6 @@
 # windows/clean/Swashbuckle.AspNetCore.ReDoc.dll: medium
 anti-static/obfuscation/js: medium
+c2/client: medium
 collect/databases/sql: low
 credential/password: low
 crypto/encrypt: medium

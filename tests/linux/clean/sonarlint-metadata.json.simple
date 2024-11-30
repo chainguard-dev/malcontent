@@ -22,6 +22,7 @@ evasion/file/location/dev_mqueue: medium
 evasion/file/prefix: medium
 exec/plugin: low
 exfil/stealer/credit_card: medium
+fs/directory/create: low
 fs/file/copy: medium
 fs/file/delete_forcibly: low
 fs/file/open: low

@@ -30,6 +30,7 @@ exfil/discord: critical
 exfil/stealer/browser: high
 exfil/stealer/discord: high
 exfil/stealer/keylogger: critical
+exfil/upload: high
 fs/directory/create: low
 fs/directory/list: low
 fs/directory/traverse: medium

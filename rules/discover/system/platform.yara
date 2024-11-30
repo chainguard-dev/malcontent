@@ -32,7 +32,8 @@ rule os_release: medium {
     ref         = "https://developer.apple.com/documentation/os/1524245-os_release"
 
   strings:
-    $ref = "os_release" fullword
+    $ref  = "os_release" fullword
+    $ref2 = "osInfo" fullword
 
   condition:
     any of them

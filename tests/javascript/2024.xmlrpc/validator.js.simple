@@ -1,0 +1,21 @@
+# javascript/2024.xmlrpc/validator.js: critical
+anti-static/obfuscation/hex: medium
+anti-static/obfuscation/js: critical
+anti-static/obfuscation/python: critical
+c2/client: medium
+c2/tool_transfer/dropper: medium
+discover/system/platform: medium
+discover/system/sysinfo: medium
+exec/shell/exec: medium
+exec/system_controls/systemd: medium
+exfil/upload: medium
+exfil/zip: medium
+fs/directory/create: low
+fs/file/copy: medium
+fs/file/write: low
+fs/path/etc: low
+impact/cryptojacking/generic: high
+impact/cryptojacking/xmrig: critical
+impact/ui/xsession: medium
+net/http/oauth2: low
+persist/daemon: medium

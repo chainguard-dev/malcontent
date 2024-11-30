@@ -19,6 +19,7 @@ data/base64/decode: medium
 data/compression/bzip2: low
 data/compression/gzip: low
 data/compression/lzma: low
+data/compression/zlib: low
 data/compression/zstd: low
 data/encoding/base64: low
 discover/multiple: medium
@@ -37,6 +38,7 @@ exec/shell/bash_dev_udp: medium
 exec/shell/command: medium
 exec/shell/nohup: medium
 exec/system_controls/apparmor: medium
+exec/system_controls/systemd: low
 exec/tty/pathname: medium
 exfil: medium
 exfil/stealer/linux_server: high

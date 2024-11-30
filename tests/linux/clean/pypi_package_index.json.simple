@@ -30,6 +30,7 @@ crypto/public_key: low
 data/compression/bzip2: low
 data/compression/gzip: low
 data/compression/lzma: low
+data/compression/zlib: low
 data/compression/zstd: low
 data/encoding/base64: low
 data/hash/blake2b: low
@@ -59,6 +60,7 @@ exec/program: medium
 exec/script/osa: medium
 exec/shell/power: medium
 exec/system_controls/apparmor: medium
+exec/system_controls/systemd: medium
 exec/tty/getpass: low
 exfil/office_file_ext: medium
 exfil/stealer/archive: high
