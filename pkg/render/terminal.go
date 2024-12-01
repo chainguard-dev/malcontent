@@ -269,11 +269,16 @@ func renderFileSummary(_ context.Context, fr *malcontent.FileReport, w io.Writer
 		riskScore := nsRiskScore[ns]
 		riskLevel := riskLevels[riskScore]
 		nsIcon := "≡"
-		indent := "     "
+		indent := "    "
+		diff := " "
 
 		// namespace readout
 		if len(previousNsRiskScore) > 0 && riskScore != previousNsRiskScore[ns] {
 			previousRiskLevel := riskLevels[previousNsRiskScore[ns]]
+			if previousRiskLevel == "NONE" {
+				diff = color.HiGreenString("+")
+			}
+
 			if riskLevel < previousRiskLevel {
 				nsIcon = color.HiYellowString("▲")
 			}
@@ -281,15 +286,16 @@ func renderFileSummary(_ context.Context, fr *malcontent.FileReport, w io.Writer
 				nsIcon = color.HiGreenString("▼")
 			}
 			if riskLevel == "NONE" {
-				nsIcon = color.RedString("X")
+				diff = color.HiRedString("-")
 			}
 
-			fmt.Fprintf(w, "│%s%s %s %s\n", indent, nsIcon, nsLongName(ns), darkBrackets(fmt.Sprintf("%s → %s", riskInColor(previousRiskLevel), riskInColor(riskLevel))))
+			fmt.Fprintf(w, "│%s%s%s %s %s\n", diff, indent, nsIcon, nsLongName(ns), darkBrackets(fmt.Sprintf("%s → %s", riskInColor(previousRiskLevel), riskInColor(riskLevel))))
 		} else {
-			fmt.Fprintf(w, "│%s%s %s %s\n", indent, nsIcon, nsLongName(ns), darkBrackets(riskInColor(riskLevel)))
+			fmt.Fprintf(w, "│%s%s%s %s %s\n", diff, indent, nsIcon, nsLongName(ns), darkBrackets(riskInColor(riskLevel)))
 		}
 
 		// behavior readout per namespace
+		indent += "  "
 		for _, b := range bs {
 			_, rest := splitRuleID(b.ID)
 
@@ -305,48 +311,47 @@ func renderFileSummary(_ context.Context, fr *malcontent.FileReport, w io.Writer
 				}
 			}
 
-			prefix := "│  "
 			bullet := riskEmoji(b.RiskScore)
-			content := fmt.Sprintf("%s%s%s %s", prefix, indent, riskColor(b.RiskLevel, bullet+" "+rest), desc)
+			diff := " "
+			content := fmt.Sprintf("%s%s%s %s", diff, indent, riskColor(b.RiskLevel, bullet+" "+rest), desc)
 			pc := color.New()
 
 			if diffMode {
-				content = fmt.Sprintf("%s%s%s %s %s", prefix, indent, bullet, rest, desc)
-
 				if b.DiffAdded {
 					pc = color.New(color.FgHiGreen)
-					prefix = "+++"
-					content = fmt.Sprintf("%s%s%s %s %s", prefix, indent, bullet, rest, desc)
+					diff = "+"
 				}
 
 				if b.DiffRemoved {
-					prefix = "---"
+					diff = "-"
 					pc = color.New(color.FgHiRed)
-					content = fmt.Sprintf("%s%s%s %s %s", prefix, indent, bullet, rest, desc)
 					e = ""
 				}
 
 				if !b.DiffAdded && !b.DiffRemoved {
-					prefix = "   "
 					pc = color.New(color.FgHiCyan)
-					content = fmt.Sprintf("%s%s%s %s %s", prefix, indent, bullet, rest, desc)
 					e = ""
 				}
+
+				content = fmt.Sprintf("%s%s%s %s %s", diff, indent, bullet, rest, desc)
 			}
 
+			prefix := "│"
 			// no evidence to give
 			if e == "" {
-				pc.Fprintln(w, content+e)
+				fmt.Fprint(w, prefix)
+				pc.Fprintln(w, content)
 				continue
 			}
 
+			fmt.Fprint(w, prefix)
 			pc.Fprint(w, content)
 			color.New(color.FgHiBlack).Fprint(w, ":")
 			e = color.RGB(255, 255, 255).Sprint(e)
 
 			// Two-line output for long evidence strings
 			if ansiLineLength(content+e)+1 > width && len(e) > 4 {
-				pc.Fprintln(w, "\n"+truncate(fmt.Sprintf("%s           %s", prefix, e), width))
+				pc.Fprintln(w, "\n"+truncate(fmt.Sprintf("%s%s         %s", prefix, diff, e), width))
 				continue
 			}
 			// Single-line output for short evidence
