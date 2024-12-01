@@ -1,4 +1,5 @@
 # linux/2024.melofee/pskt: critical
+3P/elastic/melofee: critical
 anti-behavior/LD_DEBUG: medium
 anti-behavior/LD_PROFILE: medium
 anti-static/elf/entropy: critical
