@@ -6,7 +6,7 @@ require (
 	github.com/agext/levenshtein v1.2.3
 	github.com/cavaliergopher/cpio v1.0.1
 	github.com/cavaliergopher/rpm v1.2.0
-	github.com/chainguard-dev/clog v1.5.0
+	github.com/chainguard-dev/clog v1.5.1
 	github.com/egibs/go-debian v0.18.0
 	github.com/fatih/color v1.18.0
 	github.com/gabriel-vasile/mimetype v1.4.7
@@ -14,7 +14,7 @@ require (
 	github.com/google/go-containerregistry v0.20.2
 	github.com/hillu/go-yara/v4 v4.3.3
 	github.com/olekukonko/tablewriter v0.0.5
-	github.com/shirou/gopsutil/v4 v4.24.10
+	github.com/shirou/gopsutil/v4 v4.24.11
 	github.com/ulikunitz/xz v0.5.12
 	github.com/urfave/cli/v2 v2.27.5
 	github.com/wk8/go-ordered-map/v2 v2.1.8
