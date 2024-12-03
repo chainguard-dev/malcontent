@@ -11,7 +11,7 @@ rule proc_listallpids: medium {
     any of them
 }
 
-rule ps_exec_pipe: critical {
+rule ps_exec_pipe: high {
   meta:
     description = "gets list of processes, isolating username, pid, ppid, cmdline"
 

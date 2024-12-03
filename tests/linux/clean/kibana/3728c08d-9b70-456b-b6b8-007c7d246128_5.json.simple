@@ -1,4 +1,4 @@
-# linux/clean/kibana/3728c08d-9b70-456b-b6b8-007c7d246128_5.json: high
+# linux/clean/kibana/3728c08d-9b70-456b-b6b8-007c7d246128_5.json: critical
 evasion/file/location/dev_shm: medium
 evasion/file/prefix: high
 evasion/file/prefix/dev: low

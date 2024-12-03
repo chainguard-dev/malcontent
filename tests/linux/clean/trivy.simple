@@ -13,7 +13,6 @@ collect/code/github_api: low
 collect/databases/leveldb: medium
 collect/databases/mysql: medium
 collect/databases/postgresql: medium
-collect/databases/sql: low
 collect/databases/sqlite: medium
 credential/cloud/aws: medium
 credential/cloud/g: medium

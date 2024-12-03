@@ -35,7 +35,7 @@ exec/program: medium
 exec/program/background: low
 exec/shell/SHELL: low
 exec/shell/TERM: low
-exec/shell/arbitrary_command_dev_null: medium
+exec/shell/arbitrary_command_dev_null: high
 exec/shell/exec: medium
 exec/shell/ignore_output: medium
 exec/tty/open: medium

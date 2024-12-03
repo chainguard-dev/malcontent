@@ -1,4 +1,4 @@
-rule hardcoded_onion: critical {
+rule hardcoded_onion: high {
   meta:
     description = "Contains hardcoded TOR onion address"
 

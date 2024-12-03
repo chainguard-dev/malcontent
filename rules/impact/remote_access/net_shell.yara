@@ -72,7 +72,7 @@ rule pcap_shell_exec: high {
     filesize < 10MB and filesize > 20KB and $libpcap and any of ($sh*) and any of ($y*) and none of ($not*)
 }
 
-rule go_pty_daemonize_net: critical {
+rule go_pty_daemonize_net: high {
   meta:
     description = "daemonizes and exposes a terminal to the internet"
 

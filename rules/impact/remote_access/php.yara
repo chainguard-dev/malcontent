@@ -222,7 +222,7 @@ rule php_system_hex: critical {
     filesize < 64KB and any of them
 }
 
-rule php_insecure_curl_uploader: critical {
+rule php_insecure_curl_uploader: high {
   meta:
     description = "PHP code that evaluates remote content and disables SSL verification"
 

@@ -1,6 +1,6 @@
-rule cmd_dev_null: medium {
+rule cmd_dev_null: high {
   meta:
-    description = "runs commands, discards output"
+    description = "runs templated commands, discards output"
 
   strings:
     $ref  = /"{0,1}%s"{0,1} {0,2}[12&]{0,1}> {0,1}\/dev\/null/

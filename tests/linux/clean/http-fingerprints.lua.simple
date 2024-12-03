@@ -3,7 +3,6 @@
 c2/tool_transfer/grayware: high
 collect/archives/zip: medium
 collect/databases/mysql: medium
-collect/databases/sql: low
 credential/password: low
 credential/server/htpasswd: medium
 exec/plugin: low

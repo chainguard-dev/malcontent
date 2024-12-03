@@ -1,4 +1,4 @@
-rule router_malware_paths: critical {
+rule router_malware_paths: high {
   meta:
     description = "access paths seen in router malware"
 

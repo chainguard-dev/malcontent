@@ -11,7 +11,6 @@ c2/tool_transfer/download: high
 c2/tool_transfer/github_raw: medium
 collect/archives/zip: medium
 collect/databases/leveldb: medium
-collect/databases/sql: low
 collect/databases/sqlite: medium
 credential/browser/chromium_credit_cards: critical
 credential/browser/chromium_master_password: high
