@@ -32,7 +32,7 @@ rule possible_reverse_shell: medium {
     filesize < 4MB and any of ($sh*) and all of ($f*) and none of ($not*)
 }
 
-rule mkfifo_netcat: high {
+rule mkfifo_netcat: critical {
   meta:
     description = "creates a reverse shell using mkfifo and netcat"
 
