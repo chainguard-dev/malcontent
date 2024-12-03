@@ -8,7 +8,6 @@ c2/tool_transfer/dropper: medium
 c2/tool_transfer/exe_url: high
 c2/tool_transfer/grayware: high
 collect/databases/mysql: medium
-collect/databases/sql: low
 credential/keylogger: medium
 credential/password: low
 crypto/blockchain: medium

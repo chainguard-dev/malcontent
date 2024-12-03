@@ -33,3 +33,17 @@ rule multiple_cloud_credentials: high {
   condition:
     filesize < 20MB and 5 of them
 }
+
+rule gcp_ssh_credentials: high {
+  meta:
+    description = "accesses GCP and SSH credentials"
+
+  strings:
+    $gcloud_cred = "gcloud/credentials.db"
+    $gcloud_adc  = "application_default_credentials.json"
+    $ssh         = ".ssh"
+    $ssh_id_rsa  = "id_rsa"
+
+  condition:
+    filesize < 20MB and any of ($gcloud*) and all of ($ssh*)
+}

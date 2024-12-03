@@ -10,7 +10,6 @@ collect/archives/zip: medium
 collect/code/github_api: low
 collect/databases/mysql: medium
 collect/databases/postgresql: medium
-collect/databases/sql: low
 collect/databases/sqlite: medium
 credential/clipboard: medium
 credential/cloud/g: medium

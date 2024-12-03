@@ -2,7 +2,6 @@
 c2/addr/ip: medium
 c2/client: medium
 collect/databases/mysql: medium
-collect/databases/sql: low
 collect/databases/sqlite: medium
 credential/password: low
 credential/ssl/private_key: low

@@ -1,6 +1,6 @@
 # linux/2024.fog/5a99a15406c218fd6862f90ed3534fb8f0a888bb0c5a09192eae01d595f05bc5.elf: critical
 3P/sig_base/ransom_lockbit: critical
-c2/addr/tor_onion: critical
+c2/addr/tor_onion: high
 credential/password: low
 crypto/rc4: low
 discover/system/sysinfo: medium

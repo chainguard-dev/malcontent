@@ -37,7 +37,7 @@ rule normal_elf_high_entropy_footer_7_4: high {
     normal_elf and math.entropy(filesize - 8192, filesize) >= 7.4
 }
 
-rule normal_elf_high_entropy_footer_7_4_rc4: critical {
+rule normal_elf_high_entropy_footer_7_4_rc4: high {
   meta:
     description = "high entropy footer in ELF binary (>7.4), likely RC4 encrypted"
 

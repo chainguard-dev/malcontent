@@ -11,7 +11,6 @@ c2/refs: medium
 c2/tool_transfer/dropper: medium
 collect/archives/zip: medium
 collect/databases/leveldb: medium
-collect/databases/sql: low
 collect/databases/sqlite: medium
 credential/keychain: medium
 credential/keychain/gnome_keyring_daemon: medium

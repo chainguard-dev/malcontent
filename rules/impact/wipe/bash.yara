@@ -11,3 +11,15 @@ rule sleep_rm_sh_pipe: high {
     filesize < 16KB and all of them
 }
 
+rule proc_mounts_dd_dev_zero: high {
+  meta:
+    description = "may wipe mounted drives"
+
+  strings:
+    $mounts    = "/proc/mounts"
+    $dd        = "dd" fullword
+    $dev_input = /if=\/dev\/(zero|urandom|random)/
+
+  condition:
+    @mounts < @dd and @dd < @dev_input and @dev_input - @mounts <= 256
+}

@@ -2,7 +2,7 @@
 3P/elastic/melofee: critical
 anti-behavior/LD_DEBUG: medium
 anti-behavior/LD_PROFILE: medium
-anti-static/elf/entropy: critical
+anti-static/elf/entropy: high
 c2/addr/ip: medium
 credential/os/gshadow: medium
 credential/os/shadow: medium
@@ -25,7 +25,7 @@ data/hash/blake2b: low
 data/hash/sha1: low
 discover/group/lookup: medium
 discover/network/interface_list: medium
-discover/processes/list: critical
+discover/processes/list: high
 evasion/file/location/dev_shm: medium
 evasion/file/location/var_run: medium
 evasion/file/prefix: medium
