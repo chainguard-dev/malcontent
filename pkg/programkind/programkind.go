@@ -42,7 +42,6 @@ var supportedKind = map[string]string{
 	"html":    "",
 	"java":    "text/x-java",
 	"js":      "application/javascript",
-	"json":    "application/json",
 	"lnk":     "application/x-ms-shortcut",
 	"lua":     "text/x-lua",
 	"macho":   "application/x-mach-binary",
@@ -77,6 +76,12 @@ type FileType struct {
 
 func makeFileType(path string, ext string, mime string) *FileType {
 	ext = strings.TrimPrefix(ext, ".")
+
+	// the only JSON files we currently scan are NPM package metadata, which ends in *package.json
+	if strings.HasSuffix(path, "package.json") {
+		return &FileType{MIME: "application/json", Ext: ext}
+	}
+
 	if supportedKind[ext] == "" {
 		return nil
 	}
@@ -169,8 +174,5 @@ func File(path string) (*FileType, error) {
 func Path(path string) *FileType {
 	ext := strings.ReplaceAll(filepath.Ext(path), ".", "")
 	mime := supportedKind[ext]
-	if mime != "" {
-		return &FileType{MIME: mime, Ext: ext}
-	}
-	return nil
+	return makeFileType(path, ext, mime)
 }

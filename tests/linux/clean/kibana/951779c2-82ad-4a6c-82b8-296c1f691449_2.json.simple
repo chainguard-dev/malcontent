@@ -1,7 +1,0 @@
-# linux/clean/kibana/951779c2-82ad-4a6c-82b8-296c1f691449_2.json: medium
-3P/sig_base/p0wnedpotato: low
-exec/shell/power: medium
-net/download: medium
-net/rpc/ntlm: medium
-net/url/embedded: low
-sus/intercept: medium
