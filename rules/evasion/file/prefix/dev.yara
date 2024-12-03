@@ -1,4 +1,4 @@
-rule dev_shm_hidden: critical linux {
+rule dev_shm_hidden: high linux {
   meta:
     description = "hidden path reference within /dev/shm (world writeable)"
 

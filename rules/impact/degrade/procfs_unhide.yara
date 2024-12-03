@@ -1,4 +1,4 @@
-rule procfs_unhide: critical {
+rule procfs_unhide: high {
   meta:
     description = "kills processes hidden by procfs bindmounts"
 

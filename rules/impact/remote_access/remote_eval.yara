@@ -19,7 +19,7 @@ rule remote_eval: critical {
     filesize < 65535 and $http and any of ($e*)
 }
 
-rule remote_eval_close: critical {
+rule remote_eval_close: high {
   meta:
     description = "Evaluates remotely sourced code"
 
@@ -34,7 +34,7 @@ rule remote_eval_close: critical {
     filesize < 16KB and $php and math.max(@header, @eval) - math.min(@header, @eval) < 96
 }
 
-rule python_exec_near_requests: critical {
+rule python_exec_near_requests: high {
   meta:
     description = "Executes code from encrypted remote content"
 
@@ -46,7 +46,7 @@ rule python_exec_near_requests: critical {
     all of them and math.abs(@requests - @exec) <= 256
 }
 
-rule python_eval_near_requests: critical {
+rule python_eval_near_requests: high {
   meta:
     description = "Evaluates code from encrypted remote content"
 
@@ -58,7 +58,7 @@ rule python_eval_near_requests: critical {
     all of them and math.abs(@requests - @eval) <= 256
 }
 
-rule python_exec_near_get: critical {
+rule python_exec_near_get: high {
   meta:
     description = "Executes code from encrypted content"
 
@@ -73,7 +73,7 @@ rule python_exec_near_get: critical {
     all of ($f*) and math.abs(@f_requests - @f_exec) <= 32 and none of ($not*)
 }
 
-rule python_eval_near_get: critical {
+rule python_eval_near_get: high {
   meta:
     description = "Executes code from encrypted content"
 

@@ -12,7 +12,7 @@ evasion/file/location/dev_shm: high
 evasion/file/location/lib: high
 evasion/file/location/system_directory: medium
 evasion/file/prefix: high
-evasion/file/prefix/dev: critical
+evasion/file/prefix/dev: high
 evasion/file/prefix/lib: high
 evasion/hijack_execution/LD_LIBRARY_PATH: low
 evasion/hijack_execution/etc_ld.so.preload: medium

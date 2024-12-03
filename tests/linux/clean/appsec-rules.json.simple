@@ -1,7 +1,6 @@
 # linux/clean/appsec-rules.json: critical
 collect/databases/mysql: medium
 collect/databases/postgresql: medium
-collect/databases/sql: low
 collect/databases/sqlite: medium
 credential/cloud/aws: medium
 credential/os/gshadow: medium

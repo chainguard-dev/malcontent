@@ -22,7 +22,7 @@ rule ruby_eval_base64_decode: critical {
     any of them
 }
 
-rule ruby_eval_near_enough: critical {
+rule ruby_eval_near_enough: high {
   meta:
     description = "Evaluates base64 content"
 
@@ -34,7 +34,7 @@ rule ruby_eval_near_enough: critical {
     all of them and math.abs(@base64 - @eval) <= 128
 }
 
-rule ruby_eval2_near_enough: critical {
+rule ruby_eval2_near_enough: high {
   meta:
     description = "Evaluates base64 content"
 

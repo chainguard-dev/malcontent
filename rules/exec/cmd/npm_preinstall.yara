@@ -10,7 +10,7 @@ rule npm_preinstall_command: high {
     filesize < 1KB and $ref
 }
 
-rule npm_preinstall_command_dev_null: critical {
+rule npm_preinstall_command_dev_null: high {
   meta:
     filetypes   = "json"
     description = "NPM preinstall runs an external command, hiding output"

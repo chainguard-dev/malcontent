@@ -62,7 +62,7 @@ rule hidden_shell_script: high {
     $crit
 }
 
-rule hidden_danger_path: critical {
+rule hidden_danger_path: high {
   meta:
     description = "hidden dangerous-looking path in a system directory"
 

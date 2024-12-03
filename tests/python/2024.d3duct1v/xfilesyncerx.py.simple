@@ -3,5 +3,5 @@ anti-static/obfuscation/bitwise: critical
 anti-static/obfuscation/python: high
 exec/imports/python: low
 exec/remote_commands/code_eval: high
-impact/remote_access/remote_eval: critical
+impact/remote_access/remote_eval: high
 net/url/request: medium
