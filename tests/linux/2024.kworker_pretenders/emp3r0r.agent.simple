@@ -63,7 +63,7 @@ exec/remote_commands/code_eval: medium
 exec/script/shell: medium
 exec/shell/SHELL: low
 exec/shell/TERM: low
-exec/shell/arbitrary_command_dev_null: medium
+exec/shell/arbitrary_command_dev_null: high
 exec/shell/background_launcher: high
 exec/shell/background_sleep: medium
 exec/shell/exec: medium
