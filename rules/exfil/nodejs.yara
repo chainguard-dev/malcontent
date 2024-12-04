@@ -94,3 +94,15 @@ rule nodejs_phone_home_hardcoded_host: critical {
     nodejs_phone_home and $ref
 }
 
+rule post_hardcoded_hardcoded_host: medium {
+  meta:
+    description = "posts content to a hardcoded host"
+
+  strings:
+    $ref  = /hostname: "[\w\.]{5,63}",/
+    $ref2 = /fetch\(\"https{0,1}:\/\/[\w\.]{5,63}"/
+    $post = "POST" fullword
+
+  condition:
+    any of ($ref*) and $post
+}

@@ -1,5 +1,6 @@
 # linux/clean/kibana/securitySolution.chunk.9.js: critical
 anti-static/obfuscation/js: medium
+anti-static/obfuscation/reverse: medium
 c2/addr/ip: medium
 c2/addr/url: high
 c2/discovery/dyndns: medium

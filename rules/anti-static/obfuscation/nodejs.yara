@@ -20,3 +20,13 @@ rule nodejs_buffer_from_many: high {
     any of them
 }
 
+rule string_reversal: medium {
+  meta:
+    description = "reverses strings"
+
+  strings:
+    $ref = "split(\"\").reverse().join(\"\")"
+
+  condition:
+    any of them
+}
