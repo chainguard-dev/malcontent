@@ -106,5 +106,5 @@ rule post_hardcoded_hardcoded_host: medium {
     $post = "POST" fullword
 
   condition:
-	any of ($ref*) and $post and ((math.abs(@ref - @post) <= 128) or ((math.abs(@ref2 - @post) <= 128)))
+    any of ($ref*) and $post and ((math.abs(@ref - @post) <= 128) or ((math.abs(@ref2 - @post) <= 128)))
 }
