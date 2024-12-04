@@ -4,6 +4,7 @@ credential/ssl/private_key: low
 data/encoding/base58: low
 data/encoding/json_encode: low
 discover/user/info: medium
+exfil/nodejs: medium
 exfil/stealer/crypto: high
 fs/file/read: low
 fs/lock_update: low
