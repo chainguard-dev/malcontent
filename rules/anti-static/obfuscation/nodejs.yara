@@ -19,4 +19,3 @@ rule nodejs_buffer_from_many: high {
   condition:
     any of them
 }
-
