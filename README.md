@@ -107,15 +107,16 @@ The analyze mode emits a list of capabilities often seen in malware, categorized
 
 Requirements:
 
-* [yara](https://virustotal.github.io/yara/) - the rule language
 * [go](https://go.dev/) - the programming language
-* [pkg-config](https://www.freedesktop.org/wiki/Software/pkg-config/) - for dependency handling, included in many UNIX distributions
+* [yara](https://virustotal.github.io/yara/) - the rule language
+* [pkgconf](http://pkgconf.org/) - required by Go to find C dependencies, included in many UNIX distributions
 
-For example, to install the YARA library on Linux or macOS:
+Linux or macOS users can run the following command to install the necessary dependencies, other than Go:
 
 ```shell
 brew install yara || sudo apt install libyara-dev \
- || sudo dnf install yara-devel || sudo pacman -S yara
+ || sudo dnf install yara-devel || sudo pacman -S yara \
+ || sudo zypper install yara
 ```
 
 Install malcontent:
