@@ -281,7 +281,7 @@ func main() {
 			&cli.StringFlag{
 				Name:        "format",
 				Value:       "auto",
-				Usage:       "Output format (json, markdown, simple, strings, terminal, tui, yaml)",
+				Usage:       "Output format (interactive, json, markdown, simple, strings, terminal, yaml)",
 				Destination: &formatFlag,
 			},
 			&cli.BoolFlag{
