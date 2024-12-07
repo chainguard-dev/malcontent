@@ -24,6 +24,7 @@ var supportedKind = map[string]string{
 	"bin":     "application/octet-stream",
 	"c":       "text/x-c",
 	"cc":      "text/x-c",
+	"class":   "application/java-vm",
 	"com":     "application/octet-stream",
 	"cpp":     "text/x-c",
 	"cron":    "text/x-cron",

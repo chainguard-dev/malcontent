@@ -1,6 +1,5 @@
 # python/2024.advpruebitaa9-1.0.0/setup.py: critical
 anti-static/base64/exec: critical
-data/base64/decode: medium
 data/encoding/base64: low
 exec/imports/python: low
 exec/program: medium

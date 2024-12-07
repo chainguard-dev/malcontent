@@ -61,6 +61,7 @@ fs/tempdir/tempfile_create: low
 lateral/scan/target_ip: medium
 lateral/scan/tool: medium
 net/download/fetch: medium
+net/http/accept: medium
 net/http/accept_encoding: low
 net/http/auth: low
 net/http/form_upload: medium

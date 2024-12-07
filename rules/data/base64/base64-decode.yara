@@ -1,56 +1,67 @@
-rule base64_decode: medium python {
+rule base64_encode: medium python {
   meta:
-    description = "decode base64 strings"
+    description = "encode base64 strings"
     ref         = "https://docs.python.org/3/library/base64.html"
 
   strings:
-    $b64decode = "b64decode"
+    $b64encode = "b64encode"
 
   condition:
     any of them
 }
 
-rule py_base64_decode: medium php {
+rule py_base64_encode: medium php {
   meta:
-    description = "decode base64 strings"
+    description = "encode base64 strings"
 
   strings:
-    $b64decode = "base64_decode"
+    $b64encode = "base64_encode"
 
   condition:
     any of them
 }
 
-rule ruby_base64_decode: medium ruby {
+rule ruby_base64_encode: medium ruby {
   meta:
-    description = "decode base64 strings"
+    description = "encode base64 strings"
 
   strings:
-    $b64decode = /[\._]decode64/
+    $b64encode = /[\._]encode64/
 
   condition:
     any of them
 }
 
-rule urlsafe_decode64: medium ruby {
+rule urlsafe_encode64: medium ruby {
   meta:
-    description = "decode base64 strings"
+    description = "encode base64 strings"
     ref         = "https://ruby-doc.org/3.3.0/stdlibs/base64/Base64.html"
 
   strings:
-    $urlsafe_decode64_ruby = "urlsafe_decode64"
+    $urlsafe_encode64_ruby = "urlsafe_encode64"
 
   condition:
     any of them
 }
 
-rule powershell_decode: medium {
+rule powershell_encode: medium {
   meta:
-    description = "decode base64 strings"
+    description = "encode base64 strings"
     ref         = "https://learn.microsoft.com/en-us/dotnet/api/system.convert.frombase64string?view=net-8.0"
 
   strings:
-    $ref = /System\.Convert[\]: ]+FromBase64String/ ascii
+    $ref = /System\.Convert[\]: ]+ToBase64String/ ascii
+
+  condition:
+    any of them
+}
+
+rule java_base64_encode: medium {
+  meta:
+    description = "encode base64 strings"
+
+  strings:
+    $ref = "Base64$Encoder"
 
   condition:
     any of them

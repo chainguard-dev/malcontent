@@ -104,3 +104,17 @@ rule php_remote_exec: critical {
   condition:
     filesize < 1048576 and $php and any of ($f*) and none of ($not*)
 }
+
+rule java_http_replacement_class: high java {
+  meta:
+    description = "runtime override of a class, possibly downloaded from elsewhere"
+    filetypes   = "class,java"
+
+  strings:
+    $replace = "loadReplacementClass"
+    $url     = /https*:\/\/\w{1}[\w\.\/\&]{8,64}/
+
+  condition:
+    all of them
+}
+

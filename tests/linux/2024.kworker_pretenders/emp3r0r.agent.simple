@@ -74,6 +74,7 @@ fs/directory/remove: low
 fs/file/copy: medium
 fs/file/delete: medium
 fs/file/delete_forcibly: medium
+fs/file/open: low
 fs/file/read: low
 fs/file/rename: low
 fs/file/times_set: low
@@ -118,6 +119,7 @@ net/dns/reverse: medium
 net/dns/servers: low
 net/dns/txt: low
 net/http/2: low
+net/http/accept: medium
 net/http/accept_encoding: low
 net/http/auth: low
 net/http/content_length: medium

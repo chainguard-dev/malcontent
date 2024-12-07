@@ -24,6 +24,7 @@ fs/path/tmp: medium
 fs/permission/modify: medium
 impact/remote_access/agent: medium
 impact/remote_access/net_exec: critical
+net/http/accept: medium
 net/http/accept_encoding: low
 net/http/cookies: medium
 net/http/post: medium

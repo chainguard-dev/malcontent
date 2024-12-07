@@ -962,6 +962,17 @@
                     "RuleName": "rm_force"
                 },
                 {
+                    "Description": "opens files",
+                    "MatchStrings": [
+                        "openFile"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-open.yara#java_open",
+                    "ID": "fs/file/open",
+                    "RuleName": "java_open"
+                },
+                {
                     "Description": "reads files",
                     "MatchStrings": [
                         "ReadFile",
@@ -1973,6 +1984,18 @@
                     "RuleName": "http2"
                 },
                 {
+                    "Description": "accepts binary files via HTTP",
+                    "MatchStrings": [
+                        "Accept",
+                        "application/octet-stream"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/accept.yara#http_accept_binary",
+                    "ID": "net/http/accept",
+                    "RuleName": "http_accept_binary"
+                },
+                {
                     "Description": "set HTTP response encoding format (example: gzip)",
                     "MatchStrings": [
                         "Accept-Encoding"
@@ -2038,10 +2061,14 @@
                 {
                     "Description": "submits content to websites",
                     "MatchStrings": [
-                        "Content-Type",
+                        "Content-Type for PUTeach colon",
+                        "Content-Type headerdid not find expected alp",
+                        "Content-Type isn",
+                        "Content-Type: text/plain",
+                        "Content-TypeCookie.Valuecontent",
+                        "Content-Typenet/http: timeout awaiting respo",
                         "HTTP",
-                        "POST",
-                        "http"
+                        "POST"
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",

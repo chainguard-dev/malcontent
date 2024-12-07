@@ -1,5 +1,6 @@
 # linux/clean/libgcj.so.17: medium
 3P/JPCERT/cobaltstrike_v3v4: medium
+anti-behavior/random_behavior: low
 c2/addr/ip: medium
 credential/password: low
 credential/ssl/private_key: low
@@ -37,11 +38,14 @@ exec/plugin: low
 exec/program: medium
 exec/program/background: low
 exec/shell/SHELL: low
+exec/shell/command: medium
 exfil/office_file_ext: medium
 fs/directory/create: low
+fs/directory/list: low
 fs/directory/remove: low
 fs/file/copy: medium
 fs/file/delete: medium
+fs/file/open: low
 fs/file/rename: low
 fs/file/times_set: medium
 fs/file/truncate: low
@@ -60,10 +64,12 @@ fs/proc/stat: medium
 fs/tempdir: low
 fs/tempdir/TEMP: low
 fs/tempdir/TMPDIR: low
+fs/tempdir/tempfile_create: low
 hw/iokit_registry: low
 impact/remote_access/agent: medium
 lateral/scan/tool: medium
 net/dns/txt: low
+net/http/accept: medium
 net/http/accept_encoding: low
 net/http/auth: low
 net/http/cookies: medium
@@ -72,6 +78,7 @@ net/http/post: medium
 net/http/proxy: low
 net/http/request: low
 net/ip: low
+net/ip/connect: medium
 net/ip/host_port: medium
 net/ip/multicast_send: low
 net/ip/parse: medium
@@ -87,6 +94,7 @@ net/socket/send: low
 net/url/embedded: low
 net/url/encode: medium
 net/url/parse: low
+net/url/request: medium
 process/multithreaded: low
 sus/exclamation: medium
 sus/intercept: medium

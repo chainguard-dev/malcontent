@@ -2,7 +2,6 @@
 collect/archives/zip: medium
 crypto/aes: high
 crypto/cipher: medium
-data/base64/decode: medium
 data/compression/zlib: low
 data/encoding/base64: low
 exec/imports/python: high

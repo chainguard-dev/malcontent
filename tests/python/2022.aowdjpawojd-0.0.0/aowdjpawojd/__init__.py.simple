@@ -2,6 +2,5 @@
 anti-static/obfuscation/hex: medium
 anti-static/obfuscation/python: high
 anti-static/packer/blankobf: critical
-data/base64/decode: medium
 exec/remote_commands/code_eval: medium
 net/url/embedded: low

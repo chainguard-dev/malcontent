@@ -28,3 +28,14 @@ rule setuptools_random: critical {
   condition:
     random_behavior_pythonSetup and $ref and none of ($not*)
 }
+
+rule java_random: low {
+  meta:
+    description = "exhibits random behavior"
+
+  strings:
+    $ref = "java/util/Random"
+
+  condition:
+    any of them
+}

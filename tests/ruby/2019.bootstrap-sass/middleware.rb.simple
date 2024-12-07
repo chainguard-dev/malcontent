@@ -1,6 +1,5 @@
 # ruby/2019.bootstrap-sass/middleware.rb: high
 anti-static/base64/eval: high
-data/base64/decode: medium
 exec/remote_commands/code_eval: medium
 net/http/cookies: medium
 os/fd/sendfile: low
