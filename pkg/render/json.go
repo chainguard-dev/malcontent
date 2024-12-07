@@ -20,6 +20,8 @@ func NewJSON(w io.Writer) JSON {
 	return JSON{w: w}
 }
 
+func (r JSON) Name() string { return "JSON" }
+
 func (r JSON) Scanning(_ context.Context, _ string) {}
 
 func (r JSON) File(_ context.Context, _ *malcontent.FileReport) error {

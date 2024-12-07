@@ -281,7 +281,7 @@ func main() {
 			&cli.StringFlag{
 				Name:        "format",
 				Value:       "auto",
-				Usage:       "Output format (json, markdown, simple, strings, terminal, yaml)",
+				Usage:       "Output format (json, markdown, simple, strings, terminal, tui, yaml)",
 				Destination: &formatFlag,
 			},
 			&cli.BoolFlag{
@@ -536,10 +536,19 @@ func main() {
 					}
 
 					res, err = action.Scan(ctx, mc)
-					if err != nil {
+					if err != nil && renderer.Name() != "BubbleTeaTerminal" {
 						returnCode = ExitActionFailed
 						return fmt.Errorf("scan: %w", err)
 					}
+
+					length := func(m *sync.Map) int {
+						length := 0
+						m.Range(func(_, _ any) bool {
+							length++
+							return true
+						})
+						return length
+					}(&res.Files)
 
 					err = renderer.Full(ctx, res)
 					if err != nil {
@@ -547,14 +556,7 @@ func main() {
 						return err
 					}
 
-					if length := func(m *sync.Map) int {
-						length := 0
-						m.Range(func(_, _ any) bool {
-							length++
-							return true
-						})
-						return length
-					}(&res.Files); length > 0 {
+					if length > 0 && mc.Renderer.Name() != "BubbleTeaTerminal" {
 						fmt.Fprintf(os.Stderr, "\n💡 For detailed analysis, try \"mal analyze <path>\"\n")
 					}
 

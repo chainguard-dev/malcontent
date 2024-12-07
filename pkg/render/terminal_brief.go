@@ -28,6 +28,8 @@ func NewTerminalBrief(w io.Writer) TerminalBrief {
 	return TerminalBrief{w: w}
 }
 
+func (r TerminalBrief) Name() string { return "TerminalBrief" }
+
 func (r TerminalBrief) Scanning(_ context.Context, path string) {
 	fmt.Fprintf(r.w, "🔎 Scanning %q\n", path)
 }
