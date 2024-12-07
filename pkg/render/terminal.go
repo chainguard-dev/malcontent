@@ -75,6 +75,8 @@ func ShortRisk(s string) string {
 	return short
 }
 
+func (r Terminal) Name() string { return "Terminal" }
+
 func (r Terminal) Scanning(_ context.Context, path string) {
 	fmt.Fprintf(r.w, "🔎 Scanning %q\n", path)
 }
