@@ -3,6 +3,8 @@ c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/client: medium
 c2/discovery/ip_dns_resolver: medium
+c2/tool_transfer/arch_ref: medium
+c2/tool_transfer/os_ref: medium
 collect/archives/zip: medium
 collect/databases/sqlite: medium
 credential/keychain: medium
@@ -23,6 +25,7 @@ data/compression/lzma: low
 data/compression/xz: medium
 data/compression/zlib: low
 data/compression/zstd: low
+data/embedded/git_commit: low
 data/embedded/html: medium
 data/embedded/zstd: medium
 data/encoding/base64: low

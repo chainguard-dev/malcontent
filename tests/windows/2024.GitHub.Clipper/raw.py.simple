@@ -4,6 +4,7 @@ c2/addr/url: high
 c2/tool_transfer/download: high
 c2/tool_transfer/exe_url: high
 c2/tool_transfer/python: high
+data/embedded/key: medium
 evasion/indicator_blocking/hidden_window: high
 exec/imports/python: low
 exec/program: medium

@@ -3,6 +3,7 @@ anti-static/base64/eval: medium
 data/base64/decode: medium
 data/embedded/base64_terms: medium
 data/embedded/base64_url: medium
+data/embedded/key: medium
 data/encoding/base64: low
 exec/remote_commands/code_eval: high
 fs/file/open: low

@@ -1,10 +1,13 @@
-# linux/clean/pulumi: medium
+# linux/clean/pulumi: high
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/addr/server: medium
 c2/client: medium
+c2/tool_transfer/arch_ref: medium
 c2/tool_transfer/download: medium
+c2/tool_transfer/os_ref: medium
 collect/archives/zip: medium
+collect/code/github_api: low
 collect/databases/mysql: medium
 collect/databases/postgresql: medium
 credential/clipboard: medium
@@ -23,6 +26,7 @@ crypto/tls: low
 data/compression/bzip2: low
 data/compression/gzip: low
 data/compression/zlib: low
+data/embedded/git_commit: low
 data/embedded/html: medium
 data/embedded/pem_certificate: low
 data/embedded/pem_test_key: low
@@ -118,7 +122,7 @@ net/http/proxy: low
 net/http/request: low
 net/http/websocket: medium
 net/ip: low
-net/ip/host_port: medium
+net/ip/host_port: high
 net/ip/icmp: medium
 net/ip/multicast_send: low
 net/ip/parse: medium

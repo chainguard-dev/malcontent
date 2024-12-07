@@ -7,6 +7,8 @@ c2/addr/ip: medium
 c2/addr/server: medium
 c2/client: medium
 c2/discovery/ip_dns_resolver: medium
+c2/tool_transfer/arch_ref: medium
+c2/tool_transfer/os_ref: medium
 collect/archives/unarchive: medium
 collect/databases/postgresql: medium
 collect/databases/sqlite: medium
@@ -32,6 +34,7 @@ data/compression/zstd: low
 data/embedded/base64_gzip: medium
 data/embedded/base64_terms: medium
 data/embedded/base64_url: medium
+data/embedded/git_commit: low
 data/embedded/html: medium
 data/embedded/pem_certificate: low
 data/embedded/pem_private_key: medium
@@ -140,7 +143,7 @@ net/http/post: medium
 net/http/proxy: low
 net/http/request: low
 net/http/websocket: medium
-net/ip/host_port: medium
+net/ip/host_port: high
 net/ip/icmp: medium
 net/ip/multicast_send: low
 net/ip/parse: medium

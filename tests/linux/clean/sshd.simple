@@ -1,5 +1,6 @@
 # linux/clean/sshd: medium
 c2/addr/ip: medium
+c2/tool_transfer/os_ref: low
 credential/password: low
 credential/ssh: medium
 credential/ssh/authorized_hosts: medium
@@ -10,6 +11,7 @@ crypto/ed25519: low
 crypto/openssl: medium
 crypto/public_key: low
 data/compression/zlib: low
+data/embedded/key: medium
 data/embedded/pem_private_key: medium
 data/encoding/base64: low
 discover/group/lookup: medium

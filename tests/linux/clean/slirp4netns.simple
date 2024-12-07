@@ -2,12 +2,16 @@
 anti-behavior/LD_DEBUG: medium
 anti-behavior/LD_PROFILE: medium
 c2/addr/ip: medium
+c2/tool_transfer/arch_ref: medium
+c2/tool_transfer/os_ref: low
 credential/os/gshadow: medium
 credential/os/shadow: medium
 credential/password: low
 credential/sniffer/bpf: medium
 crypto/public_key: low
 data/builtin/glibc: medium
+data/embedded/git_commit: low
+data/embedded/key: medium
 discover/group/lookup: medium
 discover/network/interface_list: medium
 discover/network/mac_address: medium

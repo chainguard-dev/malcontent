@@ -1,8 +1,10 @@
 # javascript/clean/203.b7219352.chunk.js: medium
 anti-static/obfuscation/js: medium
+c2/tool_transfer/os_ref: medium
 credential/password: low
 data/compression/bzip2: low
 data/compression/gzip: low
+data/embedded/key: medium
 data/encoding/base64: low
 data/encoding/json_encode: low
 discover/network/interface_list: medium
@@ -21,6 +23,7 @@ exec/remote_commands/code_eval: medium
 exec/shell/SHELL: low
 exec/shell/TERM: low
 exec/shell/power: medium
+false-positives/mlflow: low
 fs/directory/create: low
 fs/directory/remove: low
 fs/fifo_create: low
@@ -34,7 +37,6 @@ fs/symlink_resolve: low
 fs/tempdir/TEMP: low
 fs/unmount: low
 hw/wireless: low
-impact/degrade/infection: medium
 impact/remote_access/agent: medium
 impact/remote_access/heartbeat: medium
 net/dns/txt: low

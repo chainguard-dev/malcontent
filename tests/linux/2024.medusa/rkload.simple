@@ -3,6 +3,7 @@
 anti-behavior/LD_DEBUG: medium
 anti-behavior/LD_PROFILE: medium
 anti-static/xor/commands: high
+c2/tool_transfer/arch_ref: medium
 credential/ssh/d: medium
 crypto/rc4: low
 data/builtin/glibc: medium

@@ -4,6 +4,7 @@ anti-static/base64/exec: high
 anti-static/base64/http_agent: high
 anti-static/elf/header: critical
 c2/addr/ip: medium
+c2/tool_transfer/arch_ref: medium
 credential/password: low
 credential/ssh/d: medium
 credential/ssl/private_key: low
@@ -18,6 +19,7 @@ crypto/tls: low
 data/compression/gzip: low
 data/embedded/base64_terms: medium
 data/embedded/base64_url: medium
+data/embedded/key: medium
 data/encoding/base64: low
 data/encoding/json: low
 data/encoding/json_decode: low

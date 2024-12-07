@@ -4,6 +4,7 @@ anti-behavior/LD_PROFILE: medium
 anti-static/obfuscation/js: medium
 c2/addr/server: medium
 crypto/rc4: low
+data/embedded/key: medium
 discover/network/interface_list: medium
 discover/system/proc: high
 evasion/hijack_execution/LD_LIBRARY_PATH: low

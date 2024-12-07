@@ -1,11 +1,11 @@
-private rule py_fetcher {
+private rule py_fetcher: medium {
   meta:
     description = "fetches content"
 
   strings:
     $http_requests      = "requests.get" fullword
     $http_requests_post = "requests.post" fullword
-    $http_urrlib        = "urllib.request" fullword
+    $http_urllib        = "urllib.request" fullword
     $http_urlopen       = "urlopen" fullword
     $git_git            = /git.Git\(.{0,64}/
     $http_curl          = "curl" fullword
@@ -23,7 +23,7 @@ private rule py_runner {
     $os_system    = /os.system\([\"\'\w\ \-\)\/]{0,64}/
     $os_startfile = /os.startfile\([\"\'\w\ \-\)\/]{0,64}/
     $os_popen     = /os.spopen\([\"\'\w\ \-\)\/]{0,64}/
-    $subprocess   = /subprocess.\w{0,32}\([\"\'\/\w\ \-\)]{0,64}/
+    $subprocess   = /subprocess.\w{1,32}\([\"\'\/\w\ \-\)]{0,64}/
     $system       = /system\([\"\'\w\ \-\)\/]{0,64}/
 
   condition:
@@ -32,14 +32,36 @@ private rule py_runner {
 
 rule py_dropper: medium {
   meta:
-    description = "may fetch, stores, and execute programs"
+    description = "may fetch, store, and execute programs"
 
   strings:
     $open  = "open("
     $write = "write("
 
   condition:
-    filesize < 4000 and $open and $write and py_fetcher and py_runner
+    filesize < 16384 and $open and $write and py_fetcher and py_runner
+}
+
+rule py_arch_dropper: medium {
+  meta:
+    description = "fetches and executes program based on OS & architecture"
+
+  strings:
+    $os_Linux    = "Linux" fullword
+    $os_macOS    = "macOS" fullword
+    $os_platform = "platform.system()"
+
+    $arch_arm64   = "arm64" fullword
+    $arch_x86     = "x86" fullword
+    $arch_amd64   = "amd64" fullword
+    $arch_machine = "platform.machine()"
+
+    $download = "download" fullword
+
+    $exec_run = "run" fullword
+
+  condition:
+    filesize < 1MB and any of ($os*) and any of ($arch*) and any of ($download*) and (any of ($exec*) or py_runner)
 }
 
 rule py_dropper_obfuscated: high {
@@ -77,9 +99,10 @@ rule py_dropper_chmod: high {
     $val_x    = "+x"
     $val_exec = "755"
     $val_rwx  = "777"
+    $val_770  = "770"
 
   condition:
-    filesize < 16384 and py_fetcher and py_runner and $chmod and any of ($val*)
+    filesize < 1MB and py_fetcher and py_runner and $chmod and any of ($val*)
 }
 
 private rule tool_transfer_pythonSetup {

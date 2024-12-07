@@ -4,12 +4,15 @@
 3P/sig_base/susp_xored_mozilla: critical
 3P/volexity/iconic: critical
 anti-static/xor/user_agent: critical
+c2/tool_transfer/arch_ref: low
+c2/tool_transfer/os_ref: low
 crypto/aes: low
 crypto/encrypt: medium
 crypto/rc4: low
 data/base64/decode: medium
 data/compression/gzip: low
 data/compression/zlib: low
+data/embedded/key: medium
 data/encoding/base64: low
 data/random/insecure: low
 discover/system/hostname: low

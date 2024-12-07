@@ -1,5 +1,6 @@
 # linux/2022.Conti/bb64b27.elf_x86_64: critical
 3P/elastic/ransomware_conti: critical
+c2/tool_transfer/arch_ref: low
 crypto/encrypt: medium
 crypto/public_key: low
 fs/link_read: low

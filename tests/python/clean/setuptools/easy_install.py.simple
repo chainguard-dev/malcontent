@@ -1,6 +1,9 @@
 # python/clean/setuptools/easy_install.py: medium
 anti-static/obfuscation/python: medium
+c2/tool_transfer/arch_ref: low
+c2/tool_transfer/os_ref: low
 collect/archives/zip: medium
+data/embedded/git_commit: low
 discover/system/platform: medium
 discover/user/HOME: low
 discover/user/USER: low

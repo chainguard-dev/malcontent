@@ -1,11 +1,14 @@
-# php/clean/composer-2.7.7: medium
+# php/clean/composer-2.7.7: high
 anti-behavior/anti_debugger: medium
 anti-static/obfuscation/php: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/discovery/ip_dns_resolver: medium
 c2/refs: medium
+c2/tool_transfer/arch_ref: low
+c2/tool_transfer/os_ref: medium
 collect/archives/zip: medium
+collect/code/github_api: low
 collect/databases/mysql: medium
 collect/databases/sqlite: medium
 credential/password: low
@@ -20,6 +23,8 @@ data/compression/zlib: low
 data/embedded/app_manifest: medium
 data/embedded/base64_terms: medium
 data/embedded/base64_url: medium
+data/embedded/git_commit: low
+data/embedded/key: medium
 data/embedded/pem_certificate: low
 data/encoding/base64: low
 data/encoding/reverse: low
@@ -69,7 +74,7 @@ net/http/post: medium
 net/http/proxy: low
 net/http/request: low
 net/ip/addr: medium
-net/ip/host_port: medium
+net/ip/host_port: high
 net/ip/parse: medium
 net/resolve/hostname: low
 net/socket/listen: medium

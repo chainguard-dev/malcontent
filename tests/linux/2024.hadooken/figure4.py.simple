@@ -1,6 +1,6 @@
 # linux/2024.hadooken/figure4.py: critical
 c2/addr/ip: high
-c2/tool_transfer/binary: high
+c2/tool_transfer/dropper: high
 c2/tool_transfer/http_ip_temp: critical
 c2/tool_transfer/python: high
 exec/imports/python: low
@@ -10,7 +10,7 @@ fs/file/exists: low
 fs/file/open: low
 fs/path/dev: medium
 fs/path/var: low
-fs/permission/modify: medium
+fs/permission/modify: high
 net/download: medium
 net/url/embedded: low
 net/url/parse: low

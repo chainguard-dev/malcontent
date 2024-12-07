@@ -1,5 +1,6 @@
 # python/2024.runpython/344006eb4fc501c3937e121409b1f2af1f3f272109ca644755b3f83feb5edb01.py: critical
 crypto/fernet: medium
+data/embedded/key: medium
 discover/user/APPDATA: medium
 evasion/indicator_blocking/hidden_window: medium
 exec/imports/python: low

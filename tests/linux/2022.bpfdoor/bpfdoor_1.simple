@@ -1,6 +1,7 @@
 # linux/2022.bpfdoor/bpfdoor_1: critical
 3P/elastic/bpfdoor: critical
 3P/sig_base/redmenshen_bpfdoor: critical
+c2/tool_transfer/arch_ref: low
 data/random/insecure: low
 exec/program: medium
 exec/program/background: low

@@ -12,7 +12,7 @@ rule go_scan_tool_val: medium {
     $j_port and any of ($j_h*)
 }
 
-rule host_port: medium {
+rule host_port_ref: medium {
   meta:
     description = "connects to an arbitrary host:port"
 
@@ -42,6 +42,19 @@ rule port_number: medium {
   strings:
     $port_sp_number = "port number" fullword
     $port_number    = "port_number" fullword
+
+  condition:
+    any of them
+}
+
+rule hardcoded_host_port: high {
+  meta:
+    description = "hardcoded hostname:port destination"
+
+  strings:
+    $domain_tld          = /[a-z]{3,16}\.[a-z]{2,3}:\d{2,5}/ fullword
+    $host_domain_tld     = /[a-z]{3,64}\.[a-z]{3,64}\.[a-z]{2,3}:\d{2,5}/ fullword
+    $host_domain_sld_tld = /[a-z]{3,64}\.[a-z]{3,64}\.[a-z]{2,3}\.[a-z]{2,3}:\d{2,5}/ fullword
 
   condition:
     any of them

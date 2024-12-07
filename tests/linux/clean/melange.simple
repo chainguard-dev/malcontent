@@ -3,6 +3,8 @@ c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/client: medium
 c2/refs: medium
+c2/tool_transfer/arch_ref: medium
+c2/tool_transfer/os_ref: medium
 collect/archives/tar_command: medium
 collect/archives/zip: medium
 collect/code/github_api: low
@@ -25,6 +27,7 @@ data/compression/gzip: low
 data/compression/lzma: low
 data/compression/zlib: low
 data/compression/zstd: low
+data/embedded/git_commit: low
 data/embedded/html: medium
 data/embedded/pem_certificate: low
 data/embedded/ssh_signature: medium

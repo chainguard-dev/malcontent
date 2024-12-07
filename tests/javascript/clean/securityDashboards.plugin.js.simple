@@ -3,10 +3,12 @@ anti-static/obfuscation/bitwise: medium
 anti-static/obfuscation/js: medium
 anti-static/obfuscation/reverse: medium
 c2/tool_transfer/dropper: medium
+c2/tool_transfer/os_ref: low
 collect/databases/mysql: medium
 credential/gaming/minecraft: medium
 credential/password: low
 crypto/cipher: medium
+data/embedded/key: medium
 data/encoding/base64: low
 data/encoding/json_decode: low
 data/encoding/json_encode: low

@@ -3,6 +3,8 @@
 3P/elastic/cryptominer_stak: critical
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
+c2/tool_transfer/arch_ref: medium
+c2/tool_transfer/os_ref: medium
 credential/password: low
 credential/ssl/private_key: low
 crypto/aes: low
@@ -15,6 +17,7 @@ crypto/rc4: low
 data/base64/decode: medium
 data/compression/zlib: low
 data/embedded/html: medium
+data/embedded/key: medium
 data/encoding/base64: low
 data/hash/blake2b: low
 data/hash/sha1: low
@@ -73,7 +76,7 @@ net/http/cookies: medium
 net/http/form_upload: medium
 net/http/post: medium
 net/http/request: low
-net/ip/host_port: medium
+net/ip/host_port: high
 net/ip/icmp: medium
 net/ip/parse: medium
 net/ip/string: medium

@@ -1,4 +1,5 @@
 # linux/clean/systemd-sysv-generator: medium
+c2/tool_transfer/arch_ref: low
 credential/password: low
 evasion/file/prefix: medium
 exec/system_controls/systemd: low

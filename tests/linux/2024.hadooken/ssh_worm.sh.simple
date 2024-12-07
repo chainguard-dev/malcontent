@@ -7,6 +7,7 @@ credential/shell/bash_history: high
 credential/ssh: high
 data/base64/external: medium
 data/embedded/base64_url: medium
+data/embedded/key: medium
 data/encoding/base64: low
 evasion/file/prefix: medium
 exec/shell/pipe_sh: medium

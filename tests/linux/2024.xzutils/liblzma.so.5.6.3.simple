@@ -1,3 +1,4 @@
-# linux/2024.xzutils/liblzma.so.5.6.3: low
+# linux/2024.xzutils/liblzma.so.5.6.3: medium
+c2/tool_transfer/arch_ref: medium
 data/compression/lzma: low
 process/multithreaded: low

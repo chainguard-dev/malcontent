@@ -1,10 +1,13 @@
 *** changed: linux/2023.FreeDownloadManager/freedownloadmanager_infected_postinst
 +anti-static/base64/exec
 +anti-static/base64/http_agent
+c2/tool_transfer/arch_ref
+-c2/tool_transfer/os_ref
 +data/base64/external
 +data/embedded/base64_elf
 +data/embedded/base64_terms
 +data/embedded/base64_url
+data/embedded/key
 data/embedded/pgp_key
 +data/encoding/base64
 +evasion/file/location/var_tmp

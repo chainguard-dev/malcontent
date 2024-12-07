@@ -1,4 +1,6 @@
 # macOS/2024.Poseidon/co.novemberfive.xib2storyboard: high
+c2/tool_transfer/os_ref: low
+data/embedded/key: medium
 exec/shell/exec: medium
 impact/ui/dock_hide: high
 malware/family/poseidon_stealer: high

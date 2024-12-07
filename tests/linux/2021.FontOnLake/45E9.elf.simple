@@ -3,6 +3,8 @@
 3P/sig_base/susp_elf_upx: critical
 anti-static/packer/upx: high
 c2/addr/ip: high
+c2/tool_transfer/arch_ref: medium
+c2/tool_transfer/os_ref: low
 credential/password: low
 credential/ssh: medium
 credential/ssh/authorized_hosts: medium
@@ -14,6 +16,7 @@ crypto/openssl: medium
 crypto/public_key: low
 crypto/rc4: low
 data/compression/zlib: low
+data/embedded/key: medium
 data/encoding/base64: low
 data/hash/md5: low
 discover/group/lookup: medium

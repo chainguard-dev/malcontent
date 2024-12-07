@@ -1,5 +1,6 @@
 # macOS/2024.BeaverTail/client_5346.py: high
 c2/addr/ip: medium
+c2/tool_transfer/os_ref: medium
 c2/tool_transfer/python: high
 data/encoding/base64: low
 discover/system/platform: medium

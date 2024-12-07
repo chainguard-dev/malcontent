@@ -2,6 +2,9 @@
 anti-static/obfuscation/js: medium
 c2/addr/ip: medium
 c2/connect/ping_pong: medium
+c2/tool_transfer/arch_ref: medium
+c2/tool_transfer/os_ref: low
+c2/tool_transfer/python: medium
 collect/archives/unarchive: medium
 collect/databases/mysql: medium
 collect/databases/postgresql: medium

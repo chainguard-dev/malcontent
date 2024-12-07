@@ -1,5 +1,5 @@
 # linux/clean/linux-s390x.sh: medium
-c2/tool_transfer/github_raw: medium
+c2/tool_transfer/github: medium
 c2/tool_transfer/shell: medium
 fs/directory/create: low
 fs/permission/modify: medium

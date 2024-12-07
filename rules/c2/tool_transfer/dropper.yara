@@ -19,3 +19,15 @@ rule dropper_for: high {
   condition:
     any of them
 }
+
+rule download_and_execute: high {
+  meta:
+    description = "may download and execute a program"
+
+  strings:
+    $ref  = "download_and_execute"
+    $ref2 = "download_and_exec"
+
+  condition:
+    filesize < 1MB and any of them
+}

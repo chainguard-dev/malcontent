@@ -39,9 +39,20 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/github_raw.yara#github_raw_user",
-                    "ID": "c2/tool_transfer/github_raw",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/github.yara#github_raw_user",
+                    "ID": "c2/tool_transfer/github",
                     "RuleName": "github_raw_user"
+                },
+                {
+                    "Description": "references a specific operating system",
+                    "MatchStrings": [
+                        "Windows"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/os_ref.yara#os_ref",
+                    "ID": "c2/tool_transfer/os_ref",
+                    "RuleName": "os_ref"
                 },
                 {
                     "Description": "runs powershell scripts",

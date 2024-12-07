@@ -1,11 +1,13 @@
-# linux/clean/chezmoi: medium
+# linux/clean/chezmoi: high
 c2/addr/discord: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/addr/telegram: medium
 c2/client: medium
+c2/tool_transfer/arch_ref: medium
 c2/tool_transfer/download: medium
 c2/tool_transfer/dropper: medium
+c2/tool_transfer/os_ref: medium
 collect/archives/zip: medium
 collect/code/github_api: low
 collect/databases/leveldb: medium
@@ -36,6 +38,7 @@ data/compression/zlib: low
 data/compression/zstd: low
 data/embedded/base64_terms: medium
 data/embedded/base64_url: medium
+data/embedded/git_commit: low
 data/embedded/html: medium
 data/embedded/pem_certificate: low
 data/embedded/ssh_signature: medium
@@ -130,7 +133,7 @@ net/http/request: low
 net/http/webhook: medium
 net/http/websocket: medium
 net/ip: low
-net/ip/host_port: medium
+net/ip/host_port: high
 net/ip/multicast_send: low
 net/ip/parse: medium
 net/ip/resolve: low

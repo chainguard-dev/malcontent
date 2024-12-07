@@ -2,6 +2,7 @@
 anti-static/macho/footer: high
 c2/addr/ip: high
 c2/tool_transfer/dropper: medium
+c2/tool_transfer/os_ref: low
 collect/archives/zip: medium
 credential/keychain: medium
 credential/password: low
@@ -10,6 +11,8 @@ crypto/public_key: low
 crypto/rc4: low
 data/compression/bzip2: low
 data/compression/zstd: low
+data/embedded/git_commit: low
+data/embedded/key: medium
 data/embedded/zstd: medium
 data/encoding/base64: low
 discover/network/interface: low
@@ -40,7 +43,7 @@ net/http/auth: low
 net/http/post: medium
 net/http/proxy: low
 net/http/request: low
-net/ip/host_port: medium
+net/ip/host_port: high
 net/ip/icmp: medium
 net/proxy/tunnel: medium
 net/resolve/hostport_parse: low

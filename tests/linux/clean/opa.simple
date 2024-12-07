@@ -2,7 +2,9 @@
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/client: medium
+c2/tool_transfer/arch_ref: medium
 c2/tool_transfer/download: medium
+c2/tool_transfer/os_ref: medium
 collect/archives/zip: medium
 credential/password: low
 credential/ssl/private_key: low
@@ -16,6 +18,7 @@ crypto/tls: low
 data/base64/decode: medium
 data/compression/gzip: low
 data/compression/zstd: low
+data/embedded/git_commit: low
 data/embedded/html: medium
 data/encoding/base64: low
 data/encoding/json: low

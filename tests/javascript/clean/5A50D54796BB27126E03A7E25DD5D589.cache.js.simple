@@ -3,6 +3,7 @@ anti-static/obfuscation/reverse: medium
 c2/addr/ip: medium
 c2/addr/server: medium
 c2/client: medium
+c2/tool_transfer/os_ref: medium
 collect/archives/unarchive: medium
 collect/databases/mysql: medium
 collect/databases/postgresql: medium
@@ -20,6 +21,7 @@ data/compression/gzip: low
 data/compression/zlib: low
 data/embedded/base64_url: medium
 data/embedded/html: medium
+data/embedded/key: medium
 data/encoding/base64: low
 data/encoding/json_decode: low
 data/encoding/json_encode: low

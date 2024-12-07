@@ -1,13 +1,17 @@
 # windows/clean/Swashbuckle.AspNetCore.ReDoc.dll: medium
 anti-static/obfuscation/js: medium
 c2/client: medium
+c2/tool_transfer/arch_ref: low
+c2/tool_transfer/os_ref: low
 credential/password: low
 crypto/encrypt: medium
 crypto/public_key: low
 data/compression/bzip2: low
 data/compression/gzip: low
 data/embedded/base64_url: medium
+data/embedded/git_commit: low
 data/embedded/html: medium
+data/embedded/key: medium
 data/encoding/base64: low
 data/encoding/json_decode: low
 data/encoding/json_encode: low
@@ -27,6 +31,7 @@ exec/script/activex: medium
 exec/shell/SHELL: low
 exec/shell/TERM: low
 exec/shell/power: medium
+false-positives/jellyfin: low
 fs/directory/create: low
 fs/directory/remove: low
 fs/fifo_create: low
@@ -38,7 +43,6 @@ fs/quota_manipulate: low
 fs/swap/on: low
 fs/tempdir/TEMP: low
 fs/unmount: low
-impact/degrade/infection: medium
 net/download: medium
 net/http/auth: low
 net/http/form_upload: medium

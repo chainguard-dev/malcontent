@@ -138,6 +138,33 @@
                     "RuleName": "clientID"
                 },
                 {
+                    "Description": "references multiple architectures",
+                    "MatchStrings": [
+                        "AMD64",
+                        "amd64",
+                        "arm64",
+                        "x86_64"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/arch_ref.yara#multiple_arch_ref",
+                    "ID": "c2/tool_transfer/arch_ref",
+                    "RuleName": "multiple_arch_ref"
+                },
+                {
+                    "Description": "references multiple operating systems",
+                    "MatchStrings": [
+                        "Linux",
+                        "Windows",
+                        "macOS"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/os_ref.yara#multiple_os_ref",
+                    "ID": "c2/tool_transfer/os_ref",
+                    "RuleName": "multiple_os_ref"
+                },
+                {
                     "Description": "Works with zip files",
                     "MatchStrings": [
                         "archive/zip"
@@ -369,6 +396,19 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/data/compression/zstd.yara#zstd",
                     "ID": "data/compression/zstd",
                     "RuleName": "zstd"
+                },
+                {
+                    "Description": "Contains git commit hash",
+                    "MatchStrings": [
+                        "954b211cf5497b88ab969021c533f417e1d786b6",
+                        "commit",
+                        "git"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/data/embedded/git-commit.yara#git_commit_hash",
+                    "ID": "data/embedded/git_commit",
+                    "RuleName": "git_commit_hash"
                 },
                 {
                     "Description": "Contains embedded PEM certificate",
@@ -2092,9 +2132,9 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/ip/host_port.yara#host_port",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/ip/host_port.yara#host_port_ref",
                     "ID": "net/ip/host_port",
-                    "RuleName": "host_port"
+                    "RuleName": "host_port_ref"
                 },
                 {
                     "Description": "parses IP address (IPv4 or IPv6)",

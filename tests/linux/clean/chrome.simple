@@ -1,4 +1,4 @@
-# linux/clean/chrome: medium
+# linux/clean/chrome: high
 anti-behavior/LD_DEBUG: medium
 anti-behavior/LD_PROFILE: medium
 anti-static/obfuscation/obfuscate: low
@@ -8,7 +8,9 @@ c2/addr/server: medium
 c2/client: medium
 c2/discovery/ip_dns_resolver: medium
 c2/refs: medium
+c2/tool_transfer/arch_ref: medium
 c2/tool_transfer/dropper: medium
+c2/tool_transfer/os_ref: medium
 collect/archives/zip: medium
 collect/databases/leveldb: medium
 collect/databases/sqlite: medium
@@ -34,6 +36,7 @@ data/compression/lzma: low
 data/compression/zlib: low
 data/compression/zstd: low
 data/embedded/base64_url: medium
+data/embedded/git_commit: low
 data/embedded/html: medium
 data/embedded/pem_certificate: low
 data/encoding/base64: low
@@ -137,7 +140,7 @@ net/http/proxy: low
 net/http/request: low
 net/http/websocket: medium
 net/ip: low
-net/ip/host_port: medium
+net/ip/host_port: high
 net/ip/icmp: medium
 net/ip/multicast_send: low
 net/ip/p_request: low

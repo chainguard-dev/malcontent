@@ -5,9 +5,11 @@ c2/addr/ip: medium
 c2/addr/server: medium
 c2/client: medium
 c2/discovery/dyndns: medium
+c2/tool_transfer/arch_ref: medium
 c2/tool_transfer/download: medium
 c2/tool_transfer/dropper: medium
 c2/tool_transfer/grayware: high
+c2/tool_transfer/os_ref: medium
 collect/databases/leveldb: medium
 collect/databases/mysql: medium
 collect/databases/postgresql: medium
@@ -33,6 +35,7 @@ data/compression/lzma: low
 data/compression/zlib: low
 data/compression/zstd: low
 data/embedded/base64_url: medium
+data/embedded/git_commit: low
 data/embedded/html: medium
 data/embedded/pem_private_key: medium
 data/encoding/base64: low
@@ -153,7 +156,7 @@ net/http/proxy: low
 net/http/request: low
 net/http/websocket: medium
 net/ip: low
-net/ip/host_port: medium
+net/ip/host_port: high
 net/ip/icmp: medium
 net/ip/parse: medium
 net/ip/resolve: low

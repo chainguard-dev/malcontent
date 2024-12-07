@@ -1,6 +1,7 @@
 # linux/clean/libgcj.so.17: medium
 3P/JPCERT/cobaltstrike_v3v4: medium
 c2/addr/ip: medium
+c2/tool_transfer/os_ref: medium
 credential/password: low
 credential/ssl/private_key: low
 crypto/aes: low
@@ -13,6 +14,7 @@ data/compression/bzip2: low
 data/compression/gzip: low
 data/embedded/base64_terms: medium
 data/embedded/base64_url: medium
+data/embedded/git_commit: low
 data/embedded/html: medium
 data/embedded/pem_certificate: low
 data/encoding/base64: low

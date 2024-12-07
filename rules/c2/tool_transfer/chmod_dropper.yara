@@ -1,10 +1,10 @@
-rule chmod_777_dropper: critical {
+rule chmod_77x_dropper: critical {
   meta:
     description = "transfers program, uses dangerous permissions, and possibly runs a binary"
     filetypes   = "macho,elf"
 
   strings:
-    $chmod  = /chmod [\-\w ]{0,3}777 [ \$\@\w\/\.]{0,64}/
+    $chmod  = /chmod [\-\w ]{0,3}77[750] [ \$\@\w\/\.]{0,64}/
     $t_wget = "wget" fullword
     $t_curl = "curl" fullword
     $t_tftp = "tftp" fullword

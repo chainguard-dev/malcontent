@@ -24,6 +24,17 @@ rule tool_chmod_relative_run: medium {
     filesize < 1MB and all of ($f*) and none of ($not*)
 }
 
+rule fetch_tar_run: high {
+  meta:
+    description = "fetches, extracts, and runs program"
+
+  strings:
+    $fetch_tar_relative = /(curl|wget).{8,128}tar -{0,1}x.{8,96}[;& ]\.\/[a-z\$]{1,2}.{0,64}/
+
+  condition:
+    filesize < 1MB and any of them
+}
+
 rule tool_chmod_relative_run_tiny: critical {
   meta:
     description = "fetch file, make it executable, and run it"
