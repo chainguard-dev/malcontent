@@ -1,3 +1,5 @@
+import "math"
+
 rule nodejs_sysinfoexfil: high {
   meta:
     description = "may gather and exfiltrate system information"
@@ -88,9 +90,21 @@ rule nodejs_phone_home_hardcoded_host: critical {
     description = "accesses system information and uploads it to hardcoded host"
 
   strings:
-    $ref = /hostname: "[\w\.]{5,63}",/
+    $ref = /hostname: "[\w\.\-]{5,63}",/
 
   condition:
     nodejs_phone_home and $ref
 }
 
+rule post_hardcoded_hardcoded_host: medium {
+  meta:
+    description = "posts content to a hardcoded host"
+
+  strings:
+    $ref  = /hostname: "[\w\.\-]{5,63}",/
+    $ref2 = /fetch\(\"https{0,1}:\/\/[\w\.\-]{5,63}.{0,64}/
+    $post = "POST" fullword
+
+  condition:
+    any of ($ref*) and $post and ((math.abs(@ref - @post) <= 128) or ((math.abs(@ref2 - @post) <= 128)))
+}

@@ -34,6 +34,10 @@ func New(kind string, w io.Writer) (malcontent.Renderer, error) {
 		return NewSimple(w), nil
 	case "strings":
 		return NewStringMatches(w), nil
+	case "interactive":
+		t := NewInteractive(w)
+		t.Start()
+		return t, nil
 	default:
 		return nil, fmt.Errorf("unknown renderer: %q", kind)
 	}

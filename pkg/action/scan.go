@@ -104,7 +104,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 
 	mime := "<unknown>"
 	kind, err := programkind.File(path)
-	if err != nil {
+	if err != nil && c.Renderer.Name() != "Interactive" {
 		logger.Errorf("file type failure: %s: %s", path, err)
 	}
 	if kind != nil {
@@ -117,7 +117,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	logger = logger.With("mime", mime)
 
 	f, err := os.Open(path)
-	if err != nil {
+	if err != nil && c.Renderer.Name() != "Interactive" {
 		return nil, err
 	}
 	defer f.Close()
@@ -541,7 +541,7 @@ func processFile(ctx context.Context, c malcontent.Config, ruleFS []fs.FS, path 
 		return nil, nil
 	}
 
-	if fr.Error != "" {
+	if fr.Error != "" && c.Renderer.Name() != "Interactive" {
 		logger.Errorf("scan error: %s", fr.Error)
 		return nil, fmt.Errorf("report error: %v", fr.Error)
 	}

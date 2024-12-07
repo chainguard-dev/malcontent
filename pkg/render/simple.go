@@ -21,6 +21,8 @@ func NewSimple(w io.Writer) Simple {
 	return Simple{w: w}
 }
 
+func (r Simple) Name() string { return "Simple" }
+
 func (r Simple) Scanning(_ context.Context, _ string) {}
 
 func (r Simple) File(_ context.Context, fr *malcontent.FileReport) error {

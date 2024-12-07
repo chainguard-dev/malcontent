@@ -73,6 +73,8 @@ type Match struct {
 	Strings     []string
 }
 
+func (r StringMatches) Name() string { return "TerminalStrings" }
+
 func (r StringMatches) Scanning(_ context.Context, path string) {
 	fmt.Fprintf(r.w, "🔎 Scanning %q\n", path)
 }
