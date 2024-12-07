@@ -10,6 +10,20 @@ rule infected: medium {
     filesize < 5MB and any of them
 }
 
+rule infected_xor: high {
+  meta:
+    description = "References being 'infected', obfuscated using XOR"
+
+  strings:
+    $infected  = "infected" xor(1-31)
+    $infected2 = "infected2" xor(33-255)
+    $INFECTED  = "INFECTED" xor(1-31)
+    $INFECTED2 = "INFECTED2" xor(33-255)
+
+  condition:
+    filesize < 5MB and any of them
+}
+
 rule infection: medium {
   meta:
     description = "References 'infection'"

@@ -4,7 +4,8 @@ rule dlsym: medium {
     description = "get the address of a symbol"
 
   strings:
-    $ref = "dlsym" fullword
+    $ref  = "dlsym" fullword
+    $ref2 = "dlvsym" fullword
 
   condition:
     any of them

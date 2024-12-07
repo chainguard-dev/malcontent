@@ -46,6 +46,22 @@ rule readdir_intercept: high {
     filesize < 2MB and uint32(0) == 1179403647 and all of ($r*) and none of ($not*)
 }
 
+rule readdir_dlsym_interceptor: high {
+  meta:
+    description = "userland rootkit designed to hide files (readdir)"
+
+    filetypes = "so,c"
+
+  strings:
+    $dlsym                     = "dlsym" fullword
+    $readdir64                 = "readdir64" fullword
+    $readlink_maybe_not_needed = "readlink"
+    $proc                      = "/proc"
+
+  condition:
+    filesize < 1MB and uint32(0) == 1179403647 and all of them
+}
+
 rule readdir_tcp_wrapper_intercept: high {
   meta:
     description = "userland rootkit designed to hide files and bypass tcp-wrappers"

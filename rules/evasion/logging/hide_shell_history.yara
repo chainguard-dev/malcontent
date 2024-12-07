@@ -16,6 +16,18 @@ rule hide_shell_history: high {
     any of ($h*) and none of ($not*)
 }
 
+rule histfile_xor: high {
+  meta:
+    description = "commands obfuscated using xor"
+
+  strings:
+    $HISTFILE  = "HISTFILE" xor(1-31)
+    $HISTFILE2 = "HISTFILE" xor(33-255)
+
+  condition:
+    filesize < 10MB and any of them
+}
+
 rule histfile_savehist_ld: high {
   meta:
     description = "likely hides shell command history"
