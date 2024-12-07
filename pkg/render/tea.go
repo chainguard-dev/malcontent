@@ -334,7 +334,7 @@ func NewInteractive(w io.Writer) *Interactive {
 }
 
 func (r *Interactive) Name() string {
-	return "BubbleTeaTerminal"
+	return "Interactive"
 }
 
 func (r *Interactive) Start() {

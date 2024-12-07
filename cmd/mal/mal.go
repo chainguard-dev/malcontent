@@ -536,7 +536,7 @@ func main() {
 					}
 
 					res, err = action.Scan(ctx, mc)
-					if err != nil && renderer.Name() != "BubbleTeaTerminal" {
+					if err != nil && renderer.Name() != "Interactive" {
 						returnCode = ExitActionFailed
 						return fmt.Errorf("scan: %w", err)
 					}
@@ -556,7 +556,7 @@ func main() {
 						return err
 					}
 
-					if length > 0 && mc.Renderer.Name() != "BubbleTeaTerminal" {
+					if length > 0 && mc.Renderer.Name() != "Interactive" {
 						fmt.Fprintf(os.Stderr, "\n💡 For detailed analysis, try \"mal analyze <path>\"\n")
 					}
 
