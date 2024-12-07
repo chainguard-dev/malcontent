@@ -3,7 +3,7 @@ rule usr_bin_path {
     description = "path reference within /usr/bin"
 
   strings:
-    $resolv = /\/usr\/bin\/[\w\.\-\/]{0,64}/
+    $ref = /\/usr\/bin\/[\w\.\-]{0,32}/
 
   condition:
     any of them
