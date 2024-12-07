@@ -3,6 +3,7 @@ c2/addr/url: high
 credential/password: low
 crypto/openssl: medium
 crypto/public_key: low
+data/base64/decode: medium
 data/embedded/base64: medium
 data/encoding/base64: low
 data/encoding/json_decode: low

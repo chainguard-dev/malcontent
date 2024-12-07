@@ -14,6 +14,7 @@ crypto/ed25519: low
 crypto/public_key: low
 crypto/tls: low
 data/base64/decode: medium
+data/base64/encode: medium
 data/compression/gzip: low
 data/compression/zstd: low
 data/embedded/html: medium

@@ -2,6 +2,7 @@
 3P/sig_base/webshell_php: critical
 anti-static/base64/function_names: medium
 anti-static/obfuscation/php: medium
+data/base64/decode: medium
 data/encoding/base64: low
 evasion/indicator_blocking/mask_exceptions: medium
 exec/remote_commands/code_eval: medium

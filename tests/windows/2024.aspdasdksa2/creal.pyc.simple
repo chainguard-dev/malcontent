@@ -13,6 +13,7 @@ credential/browser/chromium_master_password: high
 credential/gaming/minecraft: medium
 credential/password: low
 crypto/aes: low
+data/base64/decode: medium
 data/encoding/base64: low
 discover/ip/geo: high
 discover/ip/public: high

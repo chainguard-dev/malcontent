@@ -9,6 +9,7 @@ crypto/gost89: low
 crypto/openssl: medium
 crypto/public_key: low
 crypto/rc4: low
+data/base64/decode: medium
 data/builtin/openssl: medium
 data/compression/zlib: low
 data/encoding/base64: low

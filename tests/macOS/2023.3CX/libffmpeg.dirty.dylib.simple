@@ -8,6 +8,7 @@ crypto/aes: low
 crypto/encrypt: medium
 crypto/rc4: low
 data/base64/decode: medium
+data/base64/encode: medium
 data/compression/gzip: low
 data/compression/zlib: low
 data/encoding/base64: low

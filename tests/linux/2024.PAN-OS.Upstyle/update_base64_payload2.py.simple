@@ -2,6 +2,7 @@
 3P/sig_base/uta028_forensicartefacts_paloalto: critical
 3P/volexity/py_upstyle: critical
 anti-static/obfuscation/python: medium
+data/base64/decode: medium
 data/encoding/base64: low
 exec/cmd/pipe: medium
 exec/imports/python: low
