@@ -1,6 +1,7 @@
 # linux/clean/libgcj.so.17: medium
 3P/JPCERT/cobaltstrike_v3v4: medium
 c2/addr/ip: medium
+c2/addr/url: low
 c2/tool_transfer/os: medium
 credential/password: low
 credential/ssl/private_key: low

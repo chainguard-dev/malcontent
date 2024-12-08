@@ -4,6 +4,7 @@ anti-behavior/vm_check: medium
 anti-static/elf/entropy: high
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
+c2/addr/url: low
 c2/discovery/ip_dns_resolver: medium
 c2/refs: high
 c2/tool_transfer/arch: low

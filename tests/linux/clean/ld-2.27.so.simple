@@ -1,6 +1,7 @@
 # linux/clean/ld-2.27.so: medium
 anti-behavior/LD_DEBUG: medium
 anti-behavior/LD_PROFILE: medium
+c2/addr/url: low
 c2/tool_transfer/arch: low
 c2/tool_transfer/os: low
 discover/process/runtime_deps: medium

@@ -4,6 +4,7 @@ anti-static/base64/exec: high
 anti-static/base64/http_agent: high
 anti-static/elf/header: critical
 c2/addr/ip: medium
+c2/addr/url: low
 c2/tool_transfer/arch: low
 credential/password: low
 credential/ssh/d: medium

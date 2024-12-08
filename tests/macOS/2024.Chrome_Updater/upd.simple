@@ -1,5 +1,6 @@
 # macOS/2024.Chrome_Updater/upd: high
 anti-static/binary/opaque: medium
+c2/addr/url: low
 c2/connect/curl_easy: medium
 crypto/rc4: low
 data/random/insecure: low

@@ -74,6 +74,17 @@ rule http_url_with_question: medium {
     filesize < 256KB and any of ($f*) and $ref and none of ($not*)
 }
 
+rule binary_with_url: low {
+  meta:
+    description = "binary contains hardcoded URL"
+
+  strings:
+    $ref = /https*:\/\/[\w\.\/]{8,160}[\/\w\=\&]{0,32}/
+
+  condition:
+    filesize < 150MB and elf_or_macho and $ref
+}
+
 rule binary_url_with_question: high {
   meta:
     description = "binary contains hardcoded URL with question mark"

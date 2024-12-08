@@ -1,5 +1,6 @@
 # linux/clean/nvim: medium
 c2/addr/server: medium
+c2/addr/url: low
 c2/tool_transfer/os: medium
 collect/databases/mysql: medium
 collect/databases/sqlite: medium

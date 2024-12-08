@@ -1,5 +1,6 @@
 # macOS/2024.AMOS/WeChat: critical
 anti-static/binary/opaque: medium
+c2/addr/url: low
 crypto/rc4: low
 exec/shell/exec: medium
 malware/family/amos: critical

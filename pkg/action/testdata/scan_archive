@@ -127,6 +127,29 @@
                     "RuleName": "server_address"
                 },
                 {
+                    "Description": "binary contains hardcoded URL",
+                    "MatchStrings": [
+                        "http://localhost",
+                        "http://www.w3.org/XML/1998/namespacexml",
+                        "https://GoString01234567beEfFgGvsignal",
+                        "https://alpinelinux.org/releases.jsondid",
+                        "https://github.com/chainguard",
+                        "https://github.com/google/go",
+                        "https://github.com/spf13/cobra/issues/1279",
+                        "https://github.com/spf13/cobra/issues/1508",
+                        "https://index.docker.io/v1/Path",
+                        "https://index.docker.io/v2/library/ubuntu/tags/list",
+                        "https://pkg.go.dev/text/template",
+                        "https://reproducible",
+                        "https://spdx.org/spdxdocs/apko/directory"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/url.yara#binary_with_url",
+                    "ID": "c2/addr/url",
+                    "RuleName": "binary_with_url"
+                },
+                {
                     "Description": "contains a client ID",
                     "MatchStrings": [
                         "client_id"

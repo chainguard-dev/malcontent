@@ -1,8 +1,10 @@
 # linux/2024.Kaiji/eight-nebraska-autumn-illinois: critical
 3P/elastic/threat: high
 c2/addr/ip: medium
+c2/addr/url: low
 c2/discovery/ip_dns_resolver: medium
 c2/tool_transfer/arch: low
+c2/tool_transfer/chmod_dropper: high
 c2/tool_transfer/os: medium
 credential/password: low
 credential/shell/bash_history: high

@@ -4,6 +4,7 @@
 3P/sig_base/susp_xored_mozilla: critical
 3P/volexity/iconic: critical
 anti-static/xor/user_agent: critical
+c2/addr/url: low
 c2/tool_transfer/arch: low
 c2/tool_transfer/os: low
 crypto/aes: low
@@ -19,7 +20,7 @@ discover/user/HOME: low
 evasion/file/prefix: medium
 exec/cmd/pipe: medium
 exec/shell/TERM: low
-exec/shell/arbitrary_command_dev_null: medium
+exec/shell/arbitrary_command_dev_null: high
 fs/directory/create: low
 fs/lock_update: low
 fs/path/tmp: medium
