@@ -3,8 +3,8 @@ c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/client: medium
 c2/refs: medium
-c2/tool_transfer/arch_ref: low
-c2/tool_transfer/os_ref: medium
+c2/tool_transfer/arch: low
+c2/tool_transfer/os: medium
 collect/archives/tar_command: medium
 collect/archives/zip: medium
 collect/code/github_api: low

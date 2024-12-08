@@ -1,5 +1,5 @@
 # python/clean/jaraco/__init__.py: medium
-c2/tool_transfer/os_ref: low
+c2/tool_transfer/os: low
 c2/tool_transfer/python: medium
 discover/system/platform: medium
 exec/imports/python: low

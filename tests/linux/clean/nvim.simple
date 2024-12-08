@@ -1,6 +1,6 @@
 # linux/clean/nvim: medium
 c2/addr/server: medium
-c2/tool_transfer/os_ref: medium
+c2/tool_transfer/os: medium
 collect/databases/mysql: medium
 collect/databases/sqlite: medium
 credential/cloud/aws: medium

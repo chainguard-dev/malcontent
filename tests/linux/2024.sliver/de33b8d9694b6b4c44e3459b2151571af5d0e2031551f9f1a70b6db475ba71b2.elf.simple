@@ -4,7 +4,7 @@ anti-static/elf/entropy: high
 anti-static/elf/header: high
 anti-static/packer/upx: high
 c2/addr/ip: high
-c2/tool_transfer/arch_ref: low
+c2/tool_transfer/arch: low
 credential/sniffer/bpf: medium
 fs/path/dev: medium
 fs/proc/self_exe: medium

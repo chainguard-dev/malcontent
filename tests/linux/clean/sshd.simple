@@ -1,6 +1,5 @@
 # linux/clean/sshd: medium
 c2/addr/ip: medium
-c2/tool_transfer/os_ref: low
 credential/password: low
 credential/ssh: medium
 credential/ssh/authorized_hosts: medium

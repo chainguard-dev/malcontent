@@ -1,5 +1,5 @@
 # php/clean/run-tests.php: medium
-c2/tool_transfer/os_ref: low
+c2/tool_transfer/os: low
 data/base64/decode: medium
 data/compression/gzip: low
 data/compression/zlib: low

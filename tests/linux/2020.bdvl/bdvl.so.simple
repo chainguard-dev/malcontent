@@ -2,8 +2,6 @@
 3P/elastic/rootkit_bedevil: critical
 anti-behavior/LD_DEBUG: medium
 anti-behavior/process_check: high
-c2/tool_transfer/arch_ref: low
-c2/tool_transfer/os_ref: low
 credential/password: low
 credential/sniffer/pcap: high
 credential/ssh/d: high

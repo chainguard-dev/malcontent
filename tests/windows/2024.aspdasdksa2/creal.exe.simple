@@ -2,8 +2,8 @@
 3P/bartblaze/pyinstaller: high
 anti-behavior/anti_debugger: medium
 anti-static/packer/pe: high
-c2/tool_transfer/arch_ref: low
-c2/tool_transfer/os_ref: low
+c2/tool_transfer/arch: low
+c2/tool_transfer/os: low
 collect/archives/zip: medium
 collect/databases/sqlite: medium
 credential/sniffer/bpf: medium

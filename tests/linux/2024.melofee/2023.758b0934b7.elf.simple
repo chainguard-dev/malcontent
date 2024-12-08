@@ -1,5 +1,4 @@
 # linux/2024.melofee/2023.758b0934b7.elf: critical
-c2/tool_transfer/arch_ref: low
 discover/processes/list: medium
 evasion/rootkit/refs: high
 exec/program: medium

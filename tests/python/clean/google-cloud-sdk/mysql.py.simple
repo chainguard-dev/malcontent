@@ -2,7 +2,6 @@
 collect/databases/mysql: medium
 credential/password: low
 exec/imports/python: low
-false-positives/google_cloud_sdk: low
 fs/directory/create: low
 fs/file/copy: medium
 fs/file/exists: low

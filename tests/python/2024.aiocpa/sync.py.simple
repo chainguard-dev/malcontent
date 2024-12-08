@@ -1,6 +1,5 @@
 # python/2024.aiocpa/sync.py: critical
 anti-static/base64/eval: critical
-c2/tool_transfer/os_ref: low
 data/base64/decode: medium
 data/compression/zlib: low
 data/embedded/base64: high

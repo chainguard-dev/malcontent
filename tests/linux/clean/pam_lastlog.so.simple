@@ -1,5 +1,4 @@
 # linux/clean/pam_lastlog.so: medium
-c2/tool_transfer/os_ref: low
 evasion/logging/acct: low
 fs/path/var: low
 fs/path/var_log: medium

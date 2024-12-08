@@ -2,8 +2,6 @@
 3P/elastic/gafgyt: critical
 c2/addr/ip: high
 c2/discovery/ip_dns_resolver: medium
-c2/tool_transfer/arch_ref: low
-c2/tool_transfer/os_ref: medium
 crypto/rc4: low
 data/random/insecure: low
 discover/network/mac_address: medium

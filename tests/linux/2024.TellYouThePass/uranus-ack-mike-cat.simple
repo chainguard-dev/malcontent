@@ -1,8 +1,6 @@
 # linux/2024.TellYouThePass/uranus-ack-mike-cat: critical
 3P/arkbird/solg_ran_elf: critical
 c2/addr/ip: high
-c2/tool_transfer/arch_ref: low
-c2/tool_transfer/os_ref: medium
 collect/databases/mysql: medium
 collect/databases/postgresql: medium
 collect/databases/sqlite: medium

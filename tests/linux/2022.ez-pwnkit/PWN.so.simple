@@ -1,5 +1,4 @@
 # linux/2022.ez-pwnkit/PWN.so: critical
-c2/tool_transfer/arch_ref: low
 exec/program: medium
 exec/shell/command: medium
 exec/shell/exec: medium

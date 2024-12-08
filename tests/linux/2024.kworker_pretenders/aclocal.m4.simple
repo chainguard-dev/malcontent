@@ -1,6 +1,5 @@
 # linux/2024.kworker_pretenders/aclocal.m4: high
 c2/connect/curl_easy: medium
-c2/tool_transfer/arch_ref: low
 discover/user/HOME: low
 exec/shell/command: medium
 exec/shell/exec: medium

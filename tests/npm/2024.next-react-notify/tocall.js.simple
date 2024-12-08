@@ -2,7 +2,7 @@
 anti-static/obfuscation/powershell: critical
 c2/addr/ip: high
 c2/addr/url: high
-c2/tool_transfer/os_ref: low
+c2/tool_transfer/os: low
 discover/system/platform: medium
 evasion/bypass_security/executionpolicy_bypass: high
 evasion/indicator_blocking/echo_off: high

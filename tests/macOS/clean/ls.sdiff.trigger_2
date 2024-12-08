@@ -1,5 +1,5 @@
 *** changed: macOS/clean/ls
--c2/tool_transfer/arch_ref
+-c2/tool_transfer/arch
 -data/compression/lzma
 -discover/system/hostname
 exec/shell/TERM

@@ -3,8 +3,6 @@ anti-static/macho/entropy: medium
 anti-static/macho/footer: high
 anti-static/packer/aes: high
 anti-static/packer/ezuri: critical
-c2/tool_transfer/arch_ref: low
-c2/tool_transfer/os_ref: low
 crypto/aes: low
 crypto/decrypt: low
 crypto/encrypt: medium

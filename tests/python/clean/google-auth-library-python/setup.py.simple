@@ -1,5 +1,5 @@
 # python/clean/google-auth-library-python/setup.py: medium
-c2/tool_transfer/os_ref: low
+c2/tool_transfer/os: low
 crypto/openssl: medium
 exec/imports/python: low
 exec/program: medium

@@ -6,9 +6,9 @@ c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/discovery/ip_dns_resolver: medium
 c2/refs: high
-c2/tool_transfer/arch_ref: low
+c2/tool_transfer/arch: low
 c2/tool_transfer/download: medium
-c2/tool_transfer/os_ref: medium
+c2/tool_transfer/os: medium
 collect/archives/unarchive: medium
 collect/archives/zip: medium
 credential/os/shadow: medium

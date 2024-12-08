@@ -1,7 +1,7 @@
 # macOS/2024.Rustdoor/localfile: critical
 anti-static/macho/footer: high
 c2/tool_transfer/macos: critical
-c2/tool_transfer/os_ref: low
+c2/tool_transfer/os: low
 c2/tool_transfer/shell: critical
 collect/archives/zip: medium
 collect/databases/mysql: medium

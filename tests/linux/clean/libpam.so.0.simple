@@ -1,6 +1,4 @@
 # linux/clean/libpam.so.0: medium
-c2/tool_transfer/arch_ref: low
-c2/tool_transfer/os_ref: low
 credential/password: low
 discover/user/name_get: low
 evasion/logging/acct: low

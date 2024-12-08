@@ -1,7 +1,6 @@
 # macOS/2024.cobaltstrike/EDnFsVAEbP: high
 anti-static/macho/footer: high
 c2/addr/ip: medium
-c2/tool_transfer/arch_ref: low
 credential/password: low
 credential/ssl/private_key: low
 crypto/aes: low

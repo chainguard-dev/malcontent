@@ -15,12 +15,13 @@
                 {
                     "Description": "references a specific architecture",
                     "MatchStrings": [
+                        "https://",
                         "x86_64"
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/arch_ref.yara#arch_ref",
-                    "ID": "c2/tool_transfer/arch_ref",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/arch.yara#arch_ref",
+                    "ID": "c2/tool_transfer/arch",
                     "RuleName": "arch_ref"
                 },
                 {
