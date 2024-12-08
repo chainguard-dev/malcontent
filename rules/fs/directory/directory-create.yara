@@ -9,6 +9,7 @@ rule mkdir {
     $createFolder = "createFolder" fullword
     $py           = "os.makedirs" fullword
     $win          = /CreateDirectory\w{0,8}/
+    $java         = "createDirectories"
 
   condition:
     any of them

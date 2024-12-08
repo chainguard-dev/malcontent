@@ -4,6 +4,7 @@
 anti-static/obfuscation/python: high
 c2/tool_transfer/python: high
 data/base64/decode: medium
+data/base64/encode: medium
 data/encoding/base64: low
 discover/multiple: high
 discover/network/interface_list: medium

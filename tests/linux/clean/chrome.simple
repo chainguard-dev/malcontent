@@ -126,6 +126,7 @@ net/dns/over_https: medium
 net/dns/servers: low
 net/dns/txt: low
 net/http/2: low
+net/http/accept: medium
 net/http/accept_encoding: low
 net/http/auth: low
 net/http/cookies: medium

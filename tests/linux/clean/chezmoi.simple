@@ -118,6 +118,7 @@ net/dns/txt: low
 net/download: medium
 net/download/fetch: medium
 net/http/2: low
+net/http/accept: medium
 net/http/accept_encoding: low
 net/http/auth: low
 net/http/content_length: medium

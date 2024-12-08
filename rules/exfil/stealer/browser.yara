@@ -1,3 +1,15 @@
+rule cookies: medium {
+  meta:
+    description = "may access cookies"
+
+  strings:
+    $Cookies = "Cookies"
+    $cookies = "cookies"
+
+  condition:
+    filesize < 128KB and any of them
+}
+
 rule multiple_browser_credentials: high {
   meta:
     description = "accesses credentials from multiple browsers"
@@ -235,4 +247,16 @@ rule select_chrome_logins: high {
 
   condition:
     filesize < 128KB and all of them
+}
+
+rule cookie_crawler: high {
+  meta:
+    description = "crawls directories looking for application cookies"
+
+  strings:
+    $crawlCookies = "crawlCookies"
+    $appdata      = "appData"
+
+  condition:
+    filesize < 1MB and all of them
 }

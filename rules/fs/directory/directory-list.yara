@@ -66,3 +66,16 @@ rule PythonListDir {
   condition:
     any of them
 }
+
+rule java_listdir {
+  meta:
+    description = "lists contents of a directory"
+    pledge      = "rpath"
+    filetypes   = "class,java"
+
+  strings:
+    $listFiles = "listFiles"
+
+  condition:
+    any of them
+}

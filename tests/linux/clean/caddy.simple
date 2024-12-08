@@ -107,6 +107,7 @@ net/dns/servers: low
 net/dns/txt: low
 net/download: medium
 net/http/2: low
+net/http/accept: medium
 net/http/accept_encoding: low
 net/http/auth: low
 net/http/content_length: medium
@@ -119,6 +120,7 @@ net/http/request: low
 net/http/webhook: medium
 net/http/websocket: medium
 net/ip: low
+net/ip/connect: medium
 net/ip/host_port: medium
 net/ip/icmp: medium
 net/ip/multicast_send: low
