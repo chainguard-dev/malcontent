@@ -4,7 +4,6 @@ c2/tool_transfer/download: medium
 c2/tool_transfer/github: medium
 collect/code/github_api: low
 data/embedded/base64: medium
-data/embedded/git_commit: low
 data/embedded/html: medium
 exec/install_additional/pip_install: medium
 exec/program: medium

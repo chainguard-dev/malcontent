@@ -17,7 +17,6 @@ crypto/blockchain: medium
 crypto/encrypt: medium
 crypto/openssl: medium
 data/embedded/base64_url: medium
-data/embedded/git_commit: low
 data/encoding/base64: low
 data/encoding/json_decode: low
 data/encoding/json_encode: low

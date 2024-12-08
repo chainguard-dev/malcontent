@@ -28,7 +28,6 @@ data/compression/gzip: low
 data/compression/zlib: low
 data/compression/zstd: low
 data/embedded/base64_url: medium
-data/embedded/git_commit: low
 data/embedded/html: medium
 data/embedded/pem_test_key: low
 data/encoding/base64: low

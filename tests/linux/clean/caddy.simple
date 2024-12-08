@@ -28,7 +28,6 @@ data/compression/gzip: low
 data/compression/zstd: low
 data/embedded/base64_terms: medium
 data/embedded/base64_url: medium
-data/embedded/git_commit: low
 data/embedded/html: medium
 data/embedded/pem_certificate: low
 data/embedded/pem_private_key: medium

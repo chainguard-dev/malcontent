@@ -12,7 +12,6 @@ crypto/public_key: low
 crypto/rc4: low
 data/compression/bzip2: low
 data/compression/zstd: low
-data/embedded/git_commit: low
 data/embedded/zstd: medium
 data/encoding/base64: low
 discover/network/interface: low

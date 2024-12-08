@@ -40,7 +40,6 @@ data/compression/lzma: low
 data/compression/xz: medium
 data/compression/zlib: low
 data/compression/zstd: low
-data/embedded/git_commit: low
 data/embedded/html: medium
 data/embedded/pem_certificate: low
 data/embedded/pem_private_key: medium

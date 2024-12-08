@@ -24,7 +24,6 @@ data/compression/zlib: low
 data/embedded/app_manifest: medium
 data/embedded/base64_terms: medium
 data/embedded/base64_url: medium
-data/embedded/git_commit: low
 data/embedded/pem_certificate: low
 data/encoding/base64: low
 data/encoding/reverse: low

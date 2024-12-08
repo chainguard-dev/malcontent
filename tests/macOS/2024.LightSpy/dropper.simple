@@ -8,7 +8,6 @@ c2/tool_transfer/macos: critical
 crypto/aes: low
 crypto/rc4: low
 crypto/xor: high
-data/embedded/git_commit: low
 data/hash/md5: medium
 discover/multiple: high
 discover/process/name: medium

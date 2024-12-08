@@ -12,7 +12,6 @@ credential/keylogger: medium
 credential/password: low
 crypto/blockchain: medium
 crypto/openssl: medium
-data/embedded/git_commit: low
 data/encoding/json_decode: low
 evasion/file/prefix: medium
 evasion/rootkit/refs: medium

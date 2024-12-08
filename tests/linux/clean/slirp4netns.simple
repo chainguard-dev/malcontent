@@ -11,7 +11,6 @@ credential/password: low
 credential/sniffer/bpf: medium
 crypto/public_key: low
 data/builtin/glibc: medium
-data/embedded/git_commit: low
 discover/group/lookup: medium
 discover/network/interface_list: medium
 discover/network/mac_address: medium

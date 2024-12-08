@@ -425,19 +425,6 @@
                     "RuleName": "zstd"
                 },
                 {
-                    "Description": "Contains git commit hash",
-                    "MatchStrings": [
-                        "954b211cf5497b88ab969021c533f417e1d786b6",
-                        "commit",
-                        "git"
-                    ],
-                    "RiskScore": 1,
-                    "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/data/embedded/git-commit.yara#git_commit_hash",
-                    "ID": "data/embedded/git_commit",
-                    "RuleName": "git_commit_hash"
-                },
-                {
                     "Description": "Contains embedded PEM certificate",
                     "MatchStrings": [
                         "-----BEGIN CERTIFICATE-----"

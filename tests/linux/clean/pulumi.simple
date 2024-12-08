@@ -27,7 +27,6 @@ crypto/tls: low
 data/compression/bzip2: low
 data/compression/gzip: low
 data/compression/zlib: low
-data/embedded/git_commit: low
 data/embedded/html: medium
 data/embedded/pem_certificate: low
 data/embedded/pem_test_key: low

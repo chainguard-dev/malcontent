@@ -4,7 +4,6 @@ data/base64/decode: medium
 data/base64/encode: medium
 data/compression/gzip: low
 data/compression/zlib: low
-data/embedded/git_commit: low
 data/encoding/base64: low
 discover/system/platform: low
 discover/user/USER: low

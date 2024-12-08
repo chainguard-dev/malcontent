@@ -16,7 +16,6 @@ data/compression/bzip2: low
 data/compression/gzip: low
 data/embedded/base64_terms: medium
 data/embedded/base64_url: medium
-data/embedded/git_commit: low
 data/embedded/html: medium
 data/embedded/pem_certificate: low
 data/encoding/base64: low

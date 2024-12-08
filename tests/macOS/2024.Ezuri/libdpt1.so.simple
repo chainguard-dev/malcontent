@@ -6,7 +6,6 @@ anti-static/packer/ezuri: critical
 crypto/aes: low
 crypto/decrypt: low
 crypto/encrypt: medium
-data/embedded/git_commit: low
 discover/system/cpu: low
 exec/plugin: low
 exec/program: medium
