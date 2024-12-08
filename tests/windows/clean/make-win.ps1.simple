@@ -3,6 +3,5 @@
 3P/secuinfra/susp_powershell_base64: medium
 data/base64/decode: medium
 data/embedded/base64_terms: medium
-data/embedded/key: medium
 exec/shell/pipe_sh: medium
 net/url/embedded: low

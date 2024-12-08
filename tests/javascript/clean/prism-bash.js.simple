@@ -8,7 +8,6 @@ discover/network/netstat: medium
 discover/system/dmesg: low
 discover/system/platform: low
 discover/user/name_get: medium
-evasion/bypass_security/linux/se: medium
 exec/shell/SHELL: low
 exec/shell/TERM: low
 false-positives/argo_workflows_ui: low

@@ -17,7 +17,6 @@ crypto/public_key: low
 crypto/rc4: low
 data/compression/gzip: low
 data/compression/zstd: low
-data/embedded/key: medium
 data/embedded/zstd: medium
 discover/network/interface: low
 discover/system/cpu: medium

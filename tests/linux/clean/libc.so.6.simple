@@ -4,7 +4,6 @@ credential/os/gshadow: medium
 credential/os/shadow: medium
 credential/password: low
 crypto/public_key: low
-data/embedded/key: medium
 data/random/insecure: low
 discover/group/lookup: medium
 discover/network/interface: low

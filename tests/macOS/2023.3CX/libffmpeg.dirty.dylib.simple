@@ -12,7 +12,6 @@ crypto/rc4: low
 data/base64/decode: medium
 data/compression/gzip: low
 data/compression/zlib: low
-data/embedded/key: medium
 data/encoding/base64: low
 data/random/insecure: low
 discover/system/hostname: low

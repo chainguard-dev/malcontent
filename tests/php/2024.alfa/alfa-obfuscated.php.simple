@@ -5,5 +5,4 @@ anti-static/obfuscation/bitwise: critical
 anti-static/obfuscation/php: critical
 credential/password: low
 credential/sniffer/bpf: medium
-data/embedded/key: medium
 net/http/post: medium

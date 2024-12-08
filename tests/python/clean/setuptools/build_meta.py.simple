@@ -6,7 +6,6 @@ collect/code/github_api: low
 data/embedded/base64: medium
 data/embedded/git_commit: low
 data/embedded/html: medium
-data/embedded/key: medium
 exec/install_additional/pip_install: medium
 exec/program: medium
 exec/remote_commands/code_eval: medium

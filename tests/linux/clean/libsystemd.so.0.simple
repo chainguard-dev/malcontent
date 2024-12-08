@@ -4,7 +4,6 @@ c2/tool_transfer/arch_ref: low
 c2/tool_transfer/os_ref: low
 crypto/rc4: low
 data/compression/lzma: low
-data/embedded/key: medium
 data/random/insecure: low
 discover/process/parent: low
 discover/process/runtime_deps: medium

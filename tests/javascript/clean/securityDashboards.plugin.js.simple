@@ -8,7 +8,6 @@ collect/databases/mysql: medium
 credential/gaming/minecraft: medium
 credential/password: low
 crypto/cipher: medium
-data/embedded/key: medium
 data/encoding/base64: low
 data/encoding/json_decode: low
 data/encoding/json_encode: low

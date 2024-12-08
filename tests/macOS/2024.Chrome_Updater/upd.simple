@@ -2,7 +2,6 @@
 anti-static/binary/opaque: medium
 c2/connect/curl_easy: medium
 crypto/rc4: low
-data/embedded/key: medium
 data/random/insecure: low
 discover/system/hostname: low
 discover/system/uuid: medium

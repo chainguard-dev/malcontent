@@ -8,7 +8,6 @@ crypto/openssl: medium
 crypto/tls: low
 data/embedded/base64_terms: medium
 data/embedded/base64_url: medium
-data/embedded/key: medium
 data/encoding/base64: low
 discover/system/hostname: low
 net/dns: low

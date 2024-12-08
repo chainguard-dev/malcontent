@@ -13,7 +13,6 @@ crypto/openssl: medium
 crypto/rc4: low
 data/base64/decode: medium
 data/compression/zlib: low
-data/embedded/key: medium
 data/encoding/base64: low
 data/random/insecure: low
 discover/processes/pgrep: medium

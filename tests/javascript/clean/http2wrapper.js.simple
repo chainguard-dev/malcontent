@@ -2,7 +2,6 @@
 crypto/tls: low
 data/embedded/base64_terms: medium
 data/embedded/base64_url: medium
-data/embedded/key: medium
 data/encoding/base64: low
 impact/remote_access/agent: medium
 net/http/2: low

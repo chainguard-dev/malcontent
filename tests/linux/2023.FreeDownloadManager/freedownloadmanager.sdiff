@@ -7,7 +7,6 @@ c2/tool_transfer/arch_ref
 +data/embedded/base64_elf
 +data/embedded/base64_terms
 +data/embedded/base64_url
-data/embedded/key
 data/embedded/pgp_key
 +data/encoding/base64
 +evasion/file/location/var_tmp

@@ -1,7 +1,7 @@
 # linux/clean/ld-2.27.so: medium
 anti-behavior/LD_DEBUG: medium
 anti-behavior/LD_PROFILE: medium
-c2/tool_transfer/arch_ref: medium
+c2/tool_transfer/arch_ref: low
 c2/tool_transfer/os_ref: low
 discover/process/runtime_deps: medium
 evasion/hijack_execution/LD_LIBRARY_PATH: low

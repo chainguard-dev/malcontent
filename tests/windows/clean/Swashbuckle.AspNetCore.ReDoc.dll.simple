@@ -11,7 +11,6 @@ data/compression/gzip: low
 data/embedded/base64_url: medium
 data/embedded/git_commit: low
 data/embedded/html: medium
-data/embedded/key: medium
 data/encoding/base64: low
 data/encoding/json_decode: low
 data/encoding/json_encode: low
@@ -22,7 +21,6 @@ discover/system/platform: low
 discover/user/HOME: low
 discover/user/USER: low
 discover/user/name_get: medium
-evasion/bypass_security/linux/se: medium
 exec/cmd: medium
 exec/conditional/LANG: low
 exec/plugin: low

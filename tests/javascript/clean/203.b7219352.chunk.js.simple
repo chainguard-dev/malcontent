@@ -4,7 +4,6 @@ c2/tool_transfer/os_ref: medium
 credential/password: low
 data/compression/bzip2: low
 data/compression/gzip: low
-data/embedded/key: medium
 data/encoding/base64: low
 data/encoding/json_encode: low
 discover/network/interface_list: medium
@@ -15,7 +14,6 @@ discover/system/platform: low
 discover/user/HOME: low
 discover/user/USER: low
 discover/user/name_get: medium
-evasion/bypass_security/linux/se: medium
 exec/cmd: medium
 exec/conditional/LANG: low
 exec/plugin: low

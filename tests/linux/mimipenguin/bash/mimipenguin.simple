@@ -1,7 +1,7 @@
 # linux/mimipenguin/bash/mimipenguin: critical
 3P/sig_base/mimipenguin: critical
 3P/sig_base/mimipenguin_sh: critical
-c2/tool_transfer/arch_ref: medium
+c2/tool_transfer/arch_ref: low
 credential/keychain/gnome_keyring_daemon: medium
 credential/os/shadow: medium
 credential/password: low

@@ -61,29 +61,6 @@
                     "RuleName": "login_keychain_eager_beaver"
                 },
                 {
-                    "Description": "possible key material",
-                    "MatchStrings": [
-                        "PN9QtPrivate15QSlotObjectBaseEN2Qt14ConnectionTypeEPKiPK11QMetaObject",
-                        "ZN15QGuiApplication25setQuitOnLastWindowClosedEb",
-                        "ZN15QNetworkRequest12setRawHeaderERK10QByteArrayS2",
-                        "ZN16QCoreApplication12setAttributeEN2Qt20ApplicationAttributeEb",
-                        "ZN21QNetworkAccessManager3getERK15QNetworkRequest",
-                        "ZN21QNetworkAccessManager4postERK15QNetworkRequestP14QHttpMultiPart",
-                        "ZN21QQmlApplicationEngine13objectCreatedEP7QObjectRK4QUrl",
-                        "ZN5QFile4openE6QFlagsIN9QIODevice12OpenModeFlagEE",
-                        "ZN5QHashI7QStringPKN11QQmlPrivate13CachedQmlUnitEE11deleteNode2EPN9QHashData4NodeE",
-                        "ZN5QHashI7QStringPKN11QQmlPrivate13CachedQmlUnitEE13duplicateNodeEPN9QHashData4NodeEPv",
-                        "ZN8QProcess5startERK7QStringRK11QStringList6QFlagsIN9QIODevice12OpenModeFlagEE",
-                        "ZN9QHttpPart9setHeaderEN15QNetworkRequest12KnownHeadersERK8QVariant",
-                        "ZNK7QString10startsWithE5QCharN2Qt15CaseSensitivityE"
-                    ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/data/embedded/key.yara#generic_key_48_192",
-                    "ID": "data/embedded/key",
-                    "RuleName": "generic_key_48_192"
-                },
-                {
                     "Description": "Makes references to multiple browser credentials",
                     "MatchStrings": [
                         ".config",

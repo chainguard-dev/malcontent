@@ -39,20 +39,6 @@
                     "RuleName": "etc_path"
                 },
                 {
-                    "Description": "path reference within /usr/",
-                    "MatchStrings": [
-                        "/usr/bin",
-                        "/usr/local/bin",
-                        "/usr/local/sbin",
-                        "/usr/sbin"
-                    ],
-                    "RiskScore": 0,
-                    "RiskLevel": "NONE",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/usr.yara#usr_path",
-                    "ID": "fs/path/usr",
-                    "RuleName": "usr_path"
-                },
-                {
                     "Description": "path reference within /usr/local/bin",
                     "MatchStrings": [
                         "/usr/local/bin"

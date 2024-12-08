@@ -1,6 +1,6 @@
 # linux/2024.chisel/crondx: critical
 c2/addr/ip: high
-c2/tool_transfer/arch_ref: medium
+c2/tool_transfer/arch_ref: low
 collect/archives/zip: medium
 credential/password: low
 credential/ssl/private_key: low
@@ -15,7 +15,6 @@ crypto/rc4: low
 crypto/tls: low
 data/compression/gzip: low
 data/embedded/git_commit: low
-data/embedded/key: medium
 data/encoding/base64: low
 data/encoding/json: low
 data/hash/md5: low

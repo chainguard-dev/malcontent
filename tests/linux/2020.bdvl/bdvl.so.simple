@@ -2,7 +2,7 @@
 3P/elastic/rootkit_bedevil: critical
 anti-behavior/LD_DEBUG: medium
 anti-behavior/process_check: high
-c2/tool_transfer/arch_ref: medium
+c2/tool_transfer/arch_ref: low
 c2/tool_transfer/os_ref: low
 credential/password: low
 credential/sniffer/pcap: high
@@ -10,7 +10,6 @@ credential/ssh/d: high
 data/random/insecure: low
 discover/process/parent: low
 discover/user/HOME: low
-evasion/bypass_security/linux/se: medium
 evasion/file/location/HOME: medium
 evasion/file/prefix: medium
 evasion/file/prefix/lib: high

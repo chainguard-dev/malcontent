@@ -1,7 +1,7 @@
 # linux/2024.TellYouThePass/uranus-ack-mike-cat: critical
 3P/arkbird/solg_ran_elf: critical
 c2/addr/ip: high
-c2/tool_transfer/arch_ref: medium
+c2/tool_transfer/arch_ref: low
 c2/tool_transfer/os_ref: medium
 collect/databases/mysql: medium
 collect/databases/postgresql: medium
@@ -15,7 +15,6 @@ crypto/ecdsa: low
 crypto/ed25519: low
 crypto/public_key: low
 crypto/rc4: low
-data/embedded/key: medium
 data/encoding/base64: low
 data/encoding/json: low
 data/encoding/json_decode: low

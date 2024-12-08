@@ -14,7 +14,6 @@ crypto/public_key: low
 data/compression/gzip: low
 data/compression/lzma: low
 data/embedded/app_manifest: medium
-data/embedded/key: medium
 data/encoding/base64: low
 discover/system/sysinfo: medium
 exec/program: medium
