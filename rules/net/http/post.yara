@@ -7,7 +7,7 @@ rule http_post: medium {
     $POST         = "POST"
     $h_HTTP       = "HTTP"
     $http         = "http"
-    $http_content = "Content-Type"
+    $http_content = /Content-Type[:\w \/\.]{0,32}/
 
   condition:
     $POST and any of ($h*)

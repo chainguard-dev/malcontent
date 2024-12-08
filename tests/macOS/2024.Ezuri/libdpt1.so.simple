@@ -10,6 +10,7 @@ data/embedded/git_commit: low
 discover/system/cpu: low
 exec/plugin: low
 exec/program: medium
+fs/file/open: low
 fs/file/read: low
 fs/path/etc: low
 fs/path/users: medium

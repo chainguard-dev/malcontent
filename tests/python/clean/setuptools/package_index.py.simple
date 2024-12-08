@@ -4,6 +4,7 @@ c2/tool_transfer/arch: low
 c2/tool_transfer/os: low
 c2/tool_transfer/python: medium
 credential/password: low
+data/base64/encode: medium
 data/embedded/html: medium
 data/encoding/base64: low
 exec/imports/python: low

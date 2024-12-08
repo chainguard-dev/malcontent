@@ -24,3 +24,16 @@ rule py_open: low {
   condition:
     any of them
 }
+
+rule java_open: low {
+  meta:
+    description = "opens files"
+    syscall     = "open,close"
+
+  strings:
+    $of  = "openFile"
+    $O_F = "OPEN_FILE"
+
+  condition:
+    any of them
+}

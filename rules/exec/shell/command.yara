@@ -13,6 +13,18 @@ rule system: medium {
     all of them in (1000..3000)
 }
 
+rule generic: medium {
+  meta:
+    description = "run a command"
+
+  strings:
+    $runCommand  = "runCommand" fullword
+    $RUN_COMMAND = "RUN_COMMAND" fullword
+
+  condition:
+    any of them
+}
+
 rule generic_shell_exec: medium {
   meta:
     description = "execute a shell command"

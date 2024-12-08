@@ -86,6 +86,7 @@ fs/file/copy: medium
 fs/file/create: medium
 fs/file/delete: medium
 fs/file/delete_forcibly: medium
+fs/file/open: low
 fs/file/read: low
 fs/file/rename: low
 fs/file/stat: low
@@ -136,6 +137,7 @@ net/dns/servers: low
 net/dns/txt: low
 net/download/fetch: medium
 net/http/2: low
+net/http/accept: medium
 net/http/accept_encoding: low
 net/http/auth: low
 net/http/content_length: medium

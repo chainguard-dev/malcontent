@@ -2,6 +2,8 @@
 c2/addr/url: low
 c2/tool_transfer/os: low
 exec/shell/exec: medium
+fs/file/open: low
 impact/ui/dock_hide: high
 malware/family/poseidon_stealer: high
 net/url/parse: low
+net/url/request: medium

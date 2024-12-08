@@ -67,6 +67,7 @@ fs/fifo_create: low
 fs/file/create: medium
 fs/file/delete: low
 fs/file/delete_forcibly: low
+fs/file/open: low
 fs/file/read: low
 fs/file/rename: low
 fs/file/times_set: medium
@@ -113,6 +114,7 @@ net/dns/servers: low
 net/dns/txt: low
 net/download: medium
 net/http/2: low
+net/http/accept: medium
 net/http/accept_encoding: low
 net/http/auth: low
 net/http/content_length: medium

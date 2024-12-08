@@ -10,6 +10,7 @@ exec/plugin: low
 exec/program: medium
 fs/directory/remove: low
 fs/file/delete: low
+fs/file/open: low
 fs/file/read: low
 fs/path/etc: low
 fs/path/home: low

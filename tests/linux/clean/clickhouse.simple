@@ -16,6 +16,7 @@ collect/databases/postgresql: medium
 collect/databases/sqlite: medium
 credential/cloud/aws: medium
 credential/cloud/g: medium
+credential/gaming/minecraft: medium
 credential/password: low
 credential/sniffer/bpf: medium
 credential/ssl/private_key: low
@@ -29,6 +30,7 @@ crypto/openssl: medium
 crypto/public_key: low
 crypto/tls: low
 data/base64/decode: medium
+data/base64/encode: medium
 data/compression/bzip2: low
 data/compression/gzip: low
 data/compression/lzma: low
@@ -88,6 +90,7 @@ exec/system_controls/systemd: low
 exfil/collection: medium
 exfil/proxy: medium
 fs/directory/create: low
+fs/directory/list: low
 fs/directory/remove: low
 fs/file/capabilities_set: low
 fs/file/copy: medium
@@ -146,6 +149,7 @@ net/dns/txt: low
 net/download/fetch: medium
 net/email/exotic_addr: medium
 net/http/2: low
+net/http/accept: medium
 net/http/accept_encoding: low
 net/http/auth: low
 net/http/cookies: medium

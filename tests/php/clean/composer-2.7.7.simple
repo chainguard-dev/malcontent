@@ -17,6 +17,7 @@ crypto/encrypt: medium
 crypto/openssl: medium
 crypto/public_key: low
 data/base64/decode: medium
+data/base64/encode: medium
 data/compression/bzip2: low
 data/compression/gzip: low
 data/compression/zlib: low
@@ -65,6 +66,7 @@ fs/tempdir/tempfile_create: low
 lateral/scan/target_ip: medium
 lateral/scan/tool: medium
 net/download/fetch: medium
+net/http/accept: medium
 net/http/accept_encoding: low
 net/http/auth: low
 net/http/form_upload: medium

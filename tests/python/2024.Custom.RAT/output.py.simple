@@ -9,6 +9,7 @@ credential/keylogger: high
 credential/password: low
 crypto/ssl: low
 data/base64/decode: medium
+data/base64/encode: medium
 data/encoding/base64: low
 data/encoding/json_decode: low
 discover/ip/geo: high

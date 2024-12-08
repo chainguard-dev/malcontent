@@ -33,6 +33,7 @@ crypto/openssl: medium
 crypto/public_key: low
 crypto/tls: low
 data/base64/decode: medium
+data/base64/encode: medium
 data/compression/bzip2: low
 data/compression/gzip: low
 data/compression/lzma: low
@@ -147,6 +148,7 @@ net/dns/servers: low
 net/dns/txt: low
 net/download/fetch: medium
 net/http/2: low
+net/http/accept: medium
 net/http/accept_encoding: low
 net/http/auth: low
 net/http/content_length: medium

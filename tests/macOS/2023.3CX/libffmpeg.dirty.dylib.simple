@@ -11,6 +11,7 @@ crypto/aes: low
 crypto/encrypt: medium
 crypto/rc4: low
 data/base64/decode: medium
+data/base64/encode: medium
 data/compression/gzip: low
 data/compression/zlib: low
 data/encoding/base64: low
@@ -27,6 +28,7 @@ fs/path/tmp: medium
 fs/permission/modify: medium
 impact/remote_access/agent: medium
 impact/remote_access/net_exec: critical
+net/http/accept: medium
 net/http/accept_encoding: low
 net/http/cookies: medium
 net/http/post: medium

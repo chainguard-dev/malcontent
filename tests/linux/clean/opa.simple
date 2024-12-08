@@ -17,6 +17,7 @@ crypto/ed25519: low
 crypto/public_key: low
 crypto/tls: low
 data/base64/decode: medium
+data/base64/encode: medium
 data/compression/gzip: low
 data/compression/zstd: low
 data/embedded/git_commit: low
@@ -41,6 +42,7 @@ fs/directory/list: low
 fs/directory/remove: low
 fs/file/copy: medium
 fs/file/delete: low
+fs/file/open: low
 fs/file/read: low
 fs/file/rename: low
 fs/file/stat: low
@@ -67,6 +69,7 @@ net/dns/servers: low
 net/dns/txt: low
 net/download: medium
 net/http/2: low
+net/http/accept: medium
 net/http/accept_encoding: low
 net/http/auth: low
 net/http/content_length: medium

@@ -27,6 +27,7 @@ crypto/public_key: low
 crypto/tls: low
 crypto/uuid: medium
 data/base64/decode: medium
+data/base64/encode: medium
 data/compression/bzip2: low
 data/compression/gzip: low
 data/compression/lzma: low
@@ -77,6 +78,7 @@ exec/script/activex: medium
 exec/script/osa: medium
 exec/shell/SHELL: low
 exec/shell/TERM: low
+exec/shell/command: medium
 exec/shell/echo: medium
 exec/shell/exec: medium
 exec/shell/pipe_sh: medium
@@ -120,6 +122,7 @@ fs/tempdir: low
 fs/tempdir/TEMP: low
 fs/tempdir/TMPDIR: low
 fs/tempdir/create: low
+fs/tempdir/tempfile_create: low
 fs/watch: low
 hw/cpu: medium
 hw/wireless: low
@@ -135,6 +138,7 @@ net/download: medium
 net/download/fetch: medium
 net/ftp: low
 net/http/2: low
+net/http/accept: medium
 net/http/accept_encoding: low
 net/http/auth: low
 net/http/cookies: medium
