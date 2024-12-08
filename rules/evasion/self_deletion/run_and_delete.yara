@@ -18,20 +18,6 @@ rule tiny_copy_run_delete: critical {
     filesize < 512 and $cp and $rm and $null and any of ($path*) and any of ($run*)
 }
 
-rule run_sleep_delete: critical {
-  meta:
-    description = "run executable, sleep, and delete"
-
-  strings:
-    $chmod     = /chmod [\-\+\w \$\@\{\w\/\.]{0,64}/
-    $dot_slash = /\.\/[a-z]{1,2}[a-z\.\/\- ]{0,32}/ fullword
-    $sleep     = /sleep \d{1,2}/ fullword
-    $rm        = /rm \.\/[a-z]{1,2}[a-z\.\/\- ]{0,32}/ fullword
-
-  condition:
-    filesize < 64KB and all of them
-}
-
 rule fetch_run_sleep_delete: critical {
   meta:
     description = "fetch, run executable, sleep, and delete"
@@ -50,7 +36,7 @@ rule fetch_run_sleep_delete: critical {
     filesize < 1KB and $url and $sleep and $rm and any of ($path*) and any of ($run*)
 }
 
-private rule py_fetcher: medium {
+private rule run_delete_py_fetcher: medium {
   meta:
     description = "fetches content"
 
@@ -77,6 +63,19 @@ rule python_setsid_remove: high {
     $remove     = "os.remove("
 
   condition:
-    filesize < 1MB and all of them and py_fetcher and @remove > @subprocess and @remove - @subprocess < 256
+    filesize < 1MB and all of them and run_delete_py_fetcher and @remove > @subprocess and @remove - @subprocess < 256
 }
 
+rule run_sleep_delete: critical {
+  meta:
+    description = "run executable, sleep, and delete"
+
+  strings:
+    $chmod     = /chmod [\-\+\w \$\@\{\w\/\.]{0,64}/
+    $dot_slash = /\.\/[a-z]{1,2}[a-z\.\/\- ]{0,32}/ fullword
+    $sleep     = /sleep \d{1,2}/ fullword
+    $rm        = /rm \.\/[a-z]{1,2}[a-z\.\/\- ]{0,32}/ fullword
+
+  condition:
+    filesize < 64KB and all of them
+}
