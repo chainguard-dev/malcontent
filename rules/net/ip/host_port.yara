@@ -47,15 +47,28 @@ rule port_number: medium {
     any of them
 }
 
-rule hardcoded_host_port: high {
+rule hardcoded_host_port: medium {
   meta:
     description = "hardcoded hostname:port destination"
 
   strings:
-    $domain_tld          = /[a-z]{3,16}\.[a-z]{2,3}:\d{2,5}/ fullword
+    $h_domain_tld        = /[a-z]{3,16}\.[a-z]{3}:\d{2,5}/ fullword
     $host_domain_tld     = /[a-z]{3,64}\.[a-z]{3,64}\.[a-z]{2,3}:\d{2,5}/ fullword
     $host_domain_sld_tld = /[a-z]{3,64}\.[a-z]{3,64}\.[a-z]{2,3}\.[a-z]{2,3}:\d{2,5}/ fullword
 
   condition:
-    any of them
+    any of ($h*)
+}
+
+rule hardcoded_host_port_over_10k: high {
+  meta:
+    description = "hardcoded hostname:port destination with high port"
+
+  strings:
+    $h_domain_tld        = /[a-z]{3,16}\.[a-z]{3}:\d{4,5}/ fullword
+    $host_domain_tld     = /[a-z]{3,64}\.[a-z]{3,64}\.[a-z]{2,3}:\d{4,5}/ fullword
+    $host_domain_sld_tld = /[a-z]{3,64}\.[a-z]{3,64}\.[a-z]{2,3}\.[a-z]{2,3}:\d{4,5}/ fullword
+
+  condition:
+    any of ($h*)
 }

@@ -19,7 +19,7 @@ discover/user/HOME: low
 evasion/file/prefix: medium
 exec/cmd/pipe: medium
 exec/shell/TERM: low
-exec/shell/arbitrary_command_dev_null: high
+exec/shell/arbitrary_command_dev_null: medium
 fs/directory/create: low
 fs/lock_update: low
 fs/path/tmp: medium

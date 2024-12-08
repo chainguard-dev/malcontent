@@ -1,4 +1,4 @@
-# linux/clean/chezmoi: high
+# linux/clean/chezmoi: medium
 c2/addr/discord: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
@@ -133,7 +133,7 @@ net/http/request: low
 net/http/webhook: medium
 net/http/websocket: medium
 net/ip: low
-net/ip/host_port: high
+net/ip/host_port: medium
 net/ip/multicast_send: low
 net/ip/parse: medium
 net/ip/resolve: low

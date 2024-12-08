@@ -1,4 +1,4 @@
-# linux/clean/chrome: high
+# linux/clean/chrome: medium
 anti-behavior/LD_DEBUG: medium
 anti-behavior/LD_PROFILE: medium
 anti-static/obfuscation/obfuscate: low
@@ -140,7 +140,7 @@ net/http/proxy: low
 net/http/request: low
 net/http/websocket: medium
 net/ip: low
-net/ip/host_port: high
+net/ip/host_port: medium
 net/ip/icmp: medium
 net/ip/multicast_send: low
 net/ip/p_request: low

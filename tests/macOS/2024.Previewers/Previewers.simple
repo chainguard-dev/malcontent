@@ -42,7 +42,7 @@ net/http/auth: low
 net/http/post: medium
 net/http/proxy: low
 net/http/request: low
-net/ip/host_port: high
+net/ip/host_port: medium
 net/ip/icmp: medium
 net/proxy/tunnel: medium
 net/resolve/hostport_parse: low

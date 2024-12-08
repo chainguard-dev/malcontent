@@ -110,6 +110,7 @@ var rulesWithWarnings = map[string]bool{
 	"git_commit_hash":                       true,
 	"hardcoded_host_port":                   true,
 	"generic_key_48_192":                    true,
+	"hardcoded_host_port_over_10k":          true,
 }
 
 func Recursive(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {

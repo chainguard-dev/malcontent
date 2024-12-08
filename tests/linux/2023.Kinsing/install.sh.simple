@@ -63,7 +63,6 @@ impact/remote_access/iptables: medium
 impact/remote_access/kill_rm: medium
 net/download: medium
 net/download/fetch: high
-net/ip/host_port: high
 net/url/embedded: low
 persist/cron/etc_d: high
 persist/cron/tab: medium

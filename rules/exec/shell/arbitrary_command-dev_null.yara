@@ -1,4 +1,4 @@
-rule cmd_dev_null: high {
+rule cmd_dev_null: medium {
   meta:
     description = "runs templated commands, discards output"
 

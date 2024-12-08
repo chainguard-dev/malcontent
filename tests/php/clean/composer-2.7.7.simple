@@ -1,4 +1,4 @@
-# php/clean/composer-2.7.7: high
+# php/clean/composer-2.7.7: medium
 anti-behavior/anti_debugger: medium
 anti-static/obfuscation/php: medium
 c2/addr/http_dynamic: medium
@@ -73,7 +73,7 @@ net/http/post: medium
 net/http/proxy: low
 net/http/request: low
 net/ip/addr: medium
-net/ip/host_port: high
+net/ip/host_port: medium
 net/ip/parse: medium
 net/resolve/hostname: low
 net/socket/listen: medium

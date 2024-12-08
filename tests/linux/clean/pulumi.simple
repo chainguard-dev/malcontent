@@ -1,4 +1,4 @@
-# linux/clean/pulumi: high
+# linux/clean/pulumi: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/addr/server: medium
@@ -122,7 +122,7 @@ net/http/proxy: low
 net/http/request: low
 net/http/websocket: medium
 net/ip: low
-net/ip/host_port: high
+net/ip/host_port: medium
 net/ip/icmp: medium
 net/ip/multicast_send: low
 net/ip/parse: medium
