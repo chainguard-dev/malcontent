@@ -13,6 +13,29 @@
             ],
             "Behaviors": [
                 {
+                    "Description": "binary contains hardcoded URL",
+                    "MatchStrings": [
+                        "https://wiki.musl"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/url.yara#binary_with_url",
+                    "ID": "c2/addr/url",
+                    "RuleName": "binary_with_url"
+                },
+                {
+                    "Description": "references a specific architecture",
+                    "MatchStrings": [
+                        "https://",
+                        "x86_64"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/arch.yara#arch_ref",
+                    "ID": "c2/tool_transfer/arch",
+                    "RuleName": "arch_ref"
+                },
+                {
                     "Description": "may inject code into other processes",
                     "MatchStrings": [
                         "/proc",

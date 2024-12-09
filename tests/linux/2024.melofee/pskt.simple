@@ -4,6 +4,8 @@ anti-behavior/LD_DEBUG: medium
 anti-behavior/LD_PROFILE: medium
 anti-static/elf/entropy: high
 c2/addr/ip: medium
+c2/addr/url: low
+c2/tool_transfer/arch: low
 credential/os/gshadow: medium
 credential/os/shadow: medium
 credential/password: low

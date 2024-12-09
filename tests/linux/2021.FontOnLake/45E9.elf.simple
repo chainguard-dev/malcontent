@@ -3,6 +3,9 @@
 3P/sig_base/susp_elf_upx: critical
 anti-static/packer/upx: high
 c2/addr/ip: high
+c2/addr/url: low
+c2/tool_transfer/arch: low
+c2/tool_transfer/os: low
 credential/password: low
 credential/ssh: medium
 credential/ssh/authorized_hosts: medium
@@ -21,7 +24,6 @@ discover/system/dmesg: low
 discover/system/hostname: low
 discover/user/HOME: low
 discover/user/USER: low
-evasion/bypass_security/linux/se: medium
 evasion/file/location/x11_unix: low
 evasion/file/prefix: medium
 evasion/file/prefix/proc: high
@@ -35,7 +37,7 @@ exec/program: medium
 exec/program/background: low
 exec/shell/SHELL: low
 exec/shell/TERM: low
-exec/shell/arbitrary_command_dev_null: high
+exec/shell/arbitrary_command_dev_null: medium
 exec/shell/exec: medium
 exec/shell/ignore_output: medium
 exec/tty/open: medium

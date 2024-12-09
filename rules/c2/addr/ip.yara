@@ -103,19 +103,3 @@ rule ip_port_mention: medium {
   condition:
     all of ($camel*) or all of ($under*) or all of ($word*)
 }
-
-rule logfile: override {
-  meta:
-    description          = "logfile"
-    ip_and_port          = "medium"
-    http_hardcoded_ip    = "medium"
-    exploiter            = "medium"
-    http_ip_url_with_exe = "medium"
-    filetypes            = "txt,log,json"
-
-  strings:
-    $timestamp = "@timestamp"
-
-  condition:
-    any of them
-}

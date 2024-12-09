@@ -1,4 +1,7 @@
 # linux/clean/libasan.so.8.0.0: medium
+c2/addr/url: low
+c2/tool_transfer/arch: low
+c2/tool_transfer/os: medium
 data/compression/lzma: low
 data/compression/zlib: low
 data/compression/zstd: low

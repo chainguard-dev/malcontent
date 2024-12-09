@@ -1,5 +1,6 @@
 # linux/2024.miner_dropper/drop.sh: critical
 c2/addr/ip: high
+c2/tool_transfer/arch: low
 c2/tool_transfer/shell: critical
 evasion/file/location/chdir_unusual: critical
 exec/shell/busybox_exec: high
@@ -8,8 +9,7 @@ exec/shell/relative_semicolon: high
 fs/path/root: medium
 fs/path/usr_local: medium
 fs/path/var: low
-fs/permission/modify: medium
-fs/permission/modify_dangerous: high
+fs/permission/modify: high
 net/download/fetch: critical
 net/url/embedded: low
 process/chdir: low

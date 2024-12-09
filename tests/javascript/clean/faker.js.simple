@@ -4,6 +4,8 @@ anti-static/base64/exec: high
 anti-static/base64/http_agent: high
 anti-static/obfuscation/obfuscate: low
 c2/addr/ip: medium
+c2/tool_transfer/arch: low
+c2/tool_transfer/os: medium
 credential/password: low
 crypto/blockchain: medium
 crypto/public_key: low

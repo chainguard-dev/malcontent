@@ -14,6 +14,20 @@
             ],
             "Behaviors": [
                 {
+                    "Description": "binary contains hardcoded URL",
+                    "MatchStrings": [
+                        "http://crl.apple.com/codesigning.crl0",
+                        "http://www.apple.com/DTDs/PropertyList",
+                        "http://www.apple.com/appleca/root.crl0",
+                        "https://www.apple.com/appleca/0"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/url.yara#binary_with_url",
+                    "ID": "c2/addr/url",
+                    "RuleName": "binary_with_url"
+                },
+                {
                     "Description": "Look up or override terminal settings",
                     "MatchStrings": [
                         "TERM"

@@ -3,7 +3,8 @@ rule github_api_user {
     description = "access GitHub API"
 
   strings:
-    $ref = "google/go-github"
+    $ref  = "google/go-github"
+    $ref2 = "api.github.com"
 
   condition:
     any of them

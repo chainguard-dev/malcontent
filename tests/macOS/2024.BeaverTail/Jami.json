@@ -48,6 +48,17 @@
                     "RuleName": "bin_hardcoded_ip"
                 },
                 {
+                    "Description": "binary contains hardcoded URL",
+                    "MatchStrings": [
+                        "http://95.164.17.24"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/url.yara#binary_with_url",
+                    "ID": "c2/addr/url",
+                    "RuleName": "binary_with_url"
+                },
+                {
                     "Description": "steals login keychain",
                     "MatchStrings": [
                         "Keychains",

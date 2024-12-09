@@ -1,7 +1,9 @@
 # macOS/2024.Previewers/Previewers: critical
 anti-static/macho/footer: high
 c2/addr/ip: high
+c2/addr/url: low
 c2/tool_transfer/dropper: medium
+c2/tool_transfer/os: low
 collect/archives/zip: medium
 credential/keychain: medium
 credential/password: low

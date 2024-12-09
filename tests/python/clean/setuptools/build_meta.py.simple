@@ -1,6 +1,8 @@
 # python/clean/setuptools/build_meta.py: medium
+c2/tool_transfer/arch: low
 c2/tool_transfer/download: medium
-c2/tool_transfer/github_raw: medium
+c2/tool_transfer/github: medium
+collect/code/github_api: low
 data/embedded/base64: medium
 data/embedded/html: medium
 exec/install_additional/pip_install: medium

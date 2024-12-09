@@ -3,9 +3,12 @@ c2/addr/discord: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/addr/telegram: medium
+c2/addr/url: low
 c2/client: medium
+c2/tool_transfer/arch: low
 c2/tool_transfer/download: medium
 c2/tool_transfer/dropper: medium
+c2/tool_transfer/os: medium
 collect/archives/zip: medium
 collect/code/github_api: low
 collect/databases/leveldb: medium

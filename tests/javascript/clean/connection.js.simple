@@ -1,6 +1,7 @@
 # javascript/clean/connection.js: medium
 anti-static/obfuscation/hex: medium
 c2/client: medium
+c2/tool_transfer/os: low
 credential/password: low
 crypto/encrypt: medium
 crypto/openssl: medium

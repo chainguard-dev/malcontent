@@ -2,6 +2,9 @@
 anti-behavior/LD_DEBUG: medium
 anti-behavior/LD_PROFILE: medium
 c2/addr/ip: medium
+c2/addr/url: low
+c2/tool_transfer/arch: low
+c2/tool_transfer/os: low
 credential/os/gshadow: medium
 credential/os/shadow: medium
 credential/password: low

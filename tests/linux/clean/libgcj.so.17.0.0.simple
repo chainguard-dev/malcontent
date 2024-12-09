@@ -2,6 +2,8 @@
 3P/JPCERT/cobaltstrike_v3v4: medium
 anti-behavior/random_behavior: low
 c2/addr/ip: medium
+c2/addr/url: low
+c2/tool_transfer/os: medium
 credential/password: low
 credential/ssl/private_key: low
 crypto/aes: low

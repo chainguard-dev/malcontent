@@ -1,4 +1,7 @@
 # macOS/2023.3CX/libffmpeg.dylib: medium
+c2/addr/url: low
+c2/tool_transfer/arch: low
+c2/tool_transfer/os: low
 crypto/aes: low
 crypto/encrypt: medium
 crypto/rc4: low

@@ -8,7 +8,6 @@ credential/ssh/d: high
 data/random/insecure: low
 discover/process/parent: low
 discover/user/HOME: low
-evasion/bypass_security/linux/se: medium
 evasion/file/location/HOME: medium
 evasion/file/prefix: medium
 evasion/file/prefix/lib: high

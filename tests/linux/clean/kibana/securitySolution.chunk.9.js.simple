@@ -4,10 +4,12 @@ anti-static/obfuscation/reverse: medium
 c2/addr/ip: medium
 c2/addr/url: high
 c2/discovery/dyndns: medium
+c2/tool_transfer/arch: low
 c2/tool_transfer/download: high
 c2/tool_transfer/dropper: medium
 c2/tool_transfer/exe_url: high
 c2/tool_transfer/grayware: high
+c2/tool_transfer/os: medium
 collect/databases/mysql: medium
 credential/keylogger: medium
 credential/password: low

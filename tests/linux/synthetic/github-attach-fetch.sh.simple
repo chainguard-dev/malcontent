@@ -1,5 +1,5 @@
 # linux/synthetic/github-attach-fetch.sh: critical
-c2/tool_transfer/github_attachment: high
+c2/tool_transfer/github: high
 c2/tool_transfer/shell: critical
 exec/shell/background_launcher: high
 exec/shell/exec: medium
