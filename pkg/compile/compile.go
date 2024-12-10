@@ -108,6 +108,8 @@ var rulesWithWarnings = map[string]bool{
 	"long_str":                              true,
 	"macho_backdoor_libc_signature":         true,
 	"http_accept":                           true,
+	"hardcoded_host_port":                   true,
+	"hardcoded_host_port_over_10k":          true,
 }
 
 func Recursive(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {
