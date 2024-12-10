@@ -111,7 +111,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		mime = kind.MIME
 	}
 	if !c.IncludeDataFiles && kind == nil {
-		logger.Infof("skipping %s [%s]: data file or empty", path, mime)
+		logger.Debugf("skipping %s [%s]: data file or empty", path, mime)
 		return &malcontent.FileReport{Skipped: "data file or empty", Path: path}, nil
 	}
 	logger = logger.With("mime", mime)
