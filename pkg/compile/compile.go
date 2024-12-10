@@ -193,7 +193,7 @@ func Recursive(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {
 		if !known {
 			logger.With("namespace, r.Namespace(), "id", id).Errorf("disabled due to unexpected warning: %s", warnings[id])
 		} else {
-			logger.With("namespace, r.Namespace(), "id", id).Infof("disabled due to unexpected warning: %s", warnings[id])
+			logger.With("namespace, r.Namespace(), "id", id).Infof("disabled due to expected warning: %s", warnings[id])
 		}
 		r.Disable()
 	}
