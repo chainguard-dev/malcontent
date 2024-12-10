@@ -6,6 +6,27 @@
             "Size": 770832,
             "Behaviors": [
                 {
+                    "Description": "Stealer targeted macOS and Windows for Lazarus",
+                    "MatchStrings": [
+                        "%1_%2_%3_%4_%5",
+                        "/.pyp/python.exe",
+                        "/AppData/Local/BraveSoftware/Brave-Browser/User Data",
+                        "/Library/Application Support/BraveSoftware/Brave-Browser",
+                        "/Library/Application Support/com.operasoftware.opera",
+                        "Download Client Success!",
+                        "Download Python Success!",
+                        "Upload LDB Finshed!!!",
+                        "boundary=---------------------------99614912995",
+                        "form-data; name=\"multi_file\"; filename=\"%1\""
+                    ],
+                    "RiskScore": 4,
+                    "RiskLevel": "CRITICAL",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/yara/JPCERT/lazarus.yara#Lazarus_jamistealer_str",
+                    "RuleAuthor": "JPCERT/CC Incident Response Group",
+                    "ID": "3P/JPCERT/lazarus_jamistealer_str",
+                    "RuleName": "Lazarus_jamistealer_str"
+                },
+                {
                     "Description": "binary contains little text content",
                     "MatchStrings": [
                         "ft hg"
