@@ -200,3 +200,55 @@ rule APT10_ChChes_powershell {
     	condition:
     		$v1c and ($v1a or $v1b)
 }
+
+rule APT10_ANEL_dll {
+    meta:
+	description = "ANEL loader dll"
+        author = "JPCERT/CC Incident Response Group"
+        hash = "ad81f5ca47f250198afeed733abde459fb83447f1a77d5fcb1548af387643b54"
+
+    strings:
+	$text_b = {3c 3e 44 3e 4c 3e 54 3e 5c 3e 64 3e 6c 3e 74 3e}
+        $text_s = "hprOBnaeloheSredDyrctbuo"
+
+    condition:
+        uint16(0) == 0x5a4d and
+		uint32(uint32(0x3c)) == 0x00004550 and
+		filesize < 1000KB and
+		all of them
+}
+
+rule APT10_ANEL_lnk {
+    meta:
+	description = "Link malware ANEL downloader"
+        author = "JPCERT/CC Incident Response Group"
+        hash = "1986ccf4d33b8dc291e7cbe73194a3e4cb617e37277ab93b7e320b6ea716f59d"
+
+    strings:
+        $s1 = "$($env:APPDATA)+'\\Microsoft\\Templates\\'" ascii wide
+        $s2 = ".Length - 1)]);expand $" ascii wide
+        $s3 = "Invoke-Item -Path $docPath;Remove-Item -Path $cabPath -Force" ascii wide
+        $cab_sig = {4D 53 43 46 00 00 00 00}
+
+    condition:
+        (uint32(0) == 0x0000004C) and
+        3 of them
+}
+
+rule APT10_ANEL_str {
+    meta:
+	description = "ANEL malware"
+        author = "JPCERT/CC Incident Response Group"
+        hash = "08533b6ba7801e6393be661190394eb0605cad465438fbc9806058ae8864468e"
+
+    strings:
+        $s1 = "dll_size %Iu bytes, compress_size %Iu bytes, dllhash 0x%08x"
+        $s2 = "The file does not exist on this server!"
+        $s3 = "WARNING: loading PE file without .reloc section!"
+        $s4 = "x86 version supports x86 shellcode only!"
+
+    condition:
+        uint16(0) == 0x5A4D and
+        uint32(uint32(0x3c)) == 0x00004550 and
+        3 of them
+}
