@@ -148,7 +148,7 @@ func Recursive(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {
 
 	warnings := map[string]string{}
 	for _, ycw := range yc.Warnings {
-		clog.WarnContext(ctx, "warning", slog.String("filename", ycw.Filename), slog.Int("line", ycw.Line), slog.String("text", ycw.Text))
+		clog.WarnContextf(ctx, "warning in %s line %d: %s", ycw.Filename, ycw.Line, ycw.Text)
 		if ycw.Rule == "" {
 			continue
 		}
