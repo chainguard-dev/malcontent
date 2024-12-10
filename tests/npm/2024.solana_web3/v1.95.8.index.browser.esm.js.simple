@@ -1,0 +1,21 @@
+# npm/2024.solana_web3/v1.95.8.index.browser.esm.js: high
+anti-static/obfuscation/hex: medium
+credential/ssl/key: high
+credential/ssl/private_key: low
+crypto/ed25519: low
+crypto/public_key: low
+data/encoding/base58: low
+data/encoding/base64: low
+data/encoding/json_decode: low
+data/encoding/json_encode: low
+exec/shell/TERM: low
+impact/remote_access/agent: medium
+impact/remote_access/heartbeat: medium
+net/http/form_upload: medium
+net/http/post: medium
+net/http/websocket: medium
+net/ip/host_port: medium
+net/socket/send: low
+net/url/embedded: low
+os/time/clock_sleep: medium
+persist/kernel_module/symbol_lookup: low
