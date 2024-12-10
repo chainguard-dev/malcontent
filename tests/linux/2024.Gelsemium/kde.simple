@@ -1,0 +1,22 @@
+# linux/2024.Gelsemium/kde: critical
+crypto/rc4: low
+discover/process/name: medium
+evasion/file/location/dev_shm: high
+evasion/file/prefix: high
+evasion/hijack_execution/etc_ld.so.preload: high
+exec/program: medium
+exec/program/background: low
+exec/shell/arbitrary_command_dev_null: medium
+fs/directory/create: low
+fs/directory/remove: low
+fs/file/delete: medium
+fs/file/delete_forcibly: low
+fs/file/times_set: medium
+fs/link_read: low
+fs/path/etc: low
+fs/path/usr_bin: low
+fs/proc/self_exe: medium
+persist/shell/bash: medium
+privesc/setuid: low
+process/groupid_set: low
+sus/compiler: high

@@ -1,0 +1,11 @@
+# linux/2024.Gelsemium/libselinux.so: high
+anti-static/xor/commands: high
+exec/dylib/symbol_address: medium
+exec/program: medium
+exec/tty/open: medium
+fs/directory/remove: low
+fs/file/delete: low
+fs/link_read: low
+fs/proc/arbitrary_pid: medium
+fs/proc/pid_fd: medium
+os/fd/multiplex: low
