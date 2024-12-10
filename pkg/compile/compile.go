@@ -7,7 +7,6 @@ import (
 	"context"
 	"fmt"
 	"io/fs"
-	"log/slog"
 	"path/filepath"
 	"strings"
 
