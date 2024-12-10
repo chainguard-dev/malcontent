@@ -46,9 +46,11 @@ rule tool_chmod_relative_run_tiny: critical {
     $o_chmod     = /chmod [\+\-\w \$\@\{\w\/\.]{0,64}/
     $o_dot_slash = /\.\/[\$a-z]{1,2}[a-z\.\/\- ]{0,32}/ fullword
 
-    $not_copyright_comment = "# Copyright"
-    $not_source            = "source ./"
-    $not_apache_license    = "Apache License"
+    $not_copyright_comment  = "# Copyright"
+    $not_source             = "source ./"
+    $not_apache_license     = "Apache License"
+    $not_ruby_health_check1 = "chruby"
+    $not_ruby_health_check2 = "RUBY_VERSION"
 
   condition:
     filesize < 6KB and any of ($must*) and all of ($o*) and none of ($not*)
@@ -184,6 +186,10 @@ rule obsessive_dropper: critical {
     $cmd_echo      = "echo" fullword
     $cmd_chmod     = "chmod" fullword
 
+    $not_deckar01_bootstrap1 = "gem install bundler"
+    $not_deckar01_bootstrap2 = "bundle install --no-color --binstubs --path vendor/gems"
+    $not_deckar01_bootstrap3 = "npm exec -- bower install --no-color"
+
   condition:
-    filesize < 1500 and any of ($http*) and 2 of ($tool*) and any of ($cmd*)
+    filesize < 1500 and any of ($http*) and 2 of ($tool*) and any of ($cmd*) and none of ($not*)
 }

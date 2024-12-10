@@ -32,6 +32,7 @@ var badRules = map[string]bool{
 	"SIGNATURE_BASE_Reconcommands_In_File":                true,
 	"SIGNATURE_BASE_Apt_CN_Tetrisplugins_JS":              true,
 	"CAPE_Sparkrat":                                       true,
+	"SECUINFRA_SUSP_Powershell_Base64_Decode":             true,
 	// ThreatHunting Keywords (some duplicates)
 	"Adobe_XMP_Identifier":                       true,
 	"Antivirus_Signature_signature_keyword":      true,

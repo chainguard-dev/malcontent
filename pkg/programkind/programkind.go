@@ -21,6 +21,7 @@ var supportedKind = map[string]string{
 	"asm":     "",
 	"bash":    "application/x-bsh",
 	"bat":     "application/bat",
+	"beam":    "application/x-erlang-binary",
 	"bin":     "application/octet-stream",
 	"c":       "text/x-c",
 	"cc":      "text/x-c",
@@ -167,6 +168,8 @@ func File(path string) (*FileType, error) {
 		return Path(".script"), nil
 	case strings.Contains(s, "#include <"):
 		return Path(".c"), nil
+	case strings.Contains(s, "BEAMAtU8"):
+		return Path(".beam"), nil
 	}
 	return nil, nil
 }
