@@ -7,7 +7,6 @@ import (
 	"context"
 	"fmt"
 	"io/fs"
-	"log/slog"
 	"path/filepath"
 	"strings"
 
@@ -113,6 +112,7 @@ var rulesWithWarnings = map[string]bool{
 }
 
 func Recursive(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {
+	logger := clog.FromContext(ctx)
 	yc, err := yara.NewCompiler()
 	if err != nil {
 		return nil, fmt.Errorf("yara compiler: %w", err)
@@ -148,7 +148,7 @@ func Recursive(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {
 
 	warnings := map[string]string{}
 	for _, ycw := range yc.Warnings {
-		clog.WarnContext(ctx, "warning", slog.String("filename", ycw.Filename), slog.Int("line", ycw.Line), slog.String("text", ycw.Text))
+		clog.WarnContextf(ctx, "warning in %s line %d: %s", ycw.Filename, ycw.Line, ycw.Text)
 		if ycw.Rule == "" {
 			continue
 		}
@@ -159,9 +159,9 @@ func Recursive(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {
 
 	errors := []string{}
 	for _, yce := range yc.Errors {
-		clog.ErrorContext(ctx, "error", slog.String("filename", yce.Filename), slog.Int("line", yce.Line), slog.String("text", yce.Text))
+		logger.With("line", yce.Line, "filename", yce.Filename).Errorf("error: %s", yce.Text)
 		if yce.Rule != "" {
-			clog.ErrorContext(ctx, "defective rule", slog.String("rule", yce.Rule))
+			logger.With("rule", yce.Rule).Error("defective rule")
 		}
 		errors = append(errors, yce.Text)
 	}
@@ -190,9 +190,9 @@ func Recursive(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {
 			continue
 		}
 		if !known {
-			clog.ErrorContext(ctx, "error", slog.String("namespace", r.Namespace()), slog.String("id", id), slog.String("disabled due to unexpected warning", warnings[id]))
+			logger.With("namespace", r.Namespace(), "id", id).Errorf("disabled due to unexpected warning: %s", warnings[id])
 		} else {
-			clog.InfoContext(ctx, "info", slog.String("namespace", r.Namespace()), slog.String("id", id), slog.String("disabled due to expected warning", warnings[id]))
+			logger.With("namespace", r.Namespace(), "id", id).Infof("disabled due to expected warning: %s", warnings[id])
 		}
 		r.Disable()
 	}
