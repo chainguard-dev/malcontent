@@ -220,12 +220,6 @@ func behaviorRisk(ns string, rule string, tags []string) int {
 			if strings.Contains(strings.ToLower(ns), "generic") || strings.Contains(strings.ToLower(rule), "generic") {
 				risk = 3
 			}
-
-			// Temporary reduction for files that trip the critical UPX rule
-			// Our UPX rule is marked as "high"
-			if strings.Contains(strings.ToLower(ns), "yaraforge") && rule == "SIGNATURE_BASE_SUSP_ELF_LNX_UPX_Compressed_File" {
-				risk = 3
-			}
 		}
 
 		if strings.Contains(strings.ToLower(ns), "keyword") || strings.Contains(strings.ToLower(rule), "keyword") {
