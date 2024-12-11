@@ -28,11 +28,11 @@ rule base64_obfuscated_js: high {
     description = "Contains base64 gzip content within high-entropy javascript"
 
   strings:
-    $f_header          = "H4sIA"
-    $f_char_at         = "charAt("
-    $f_substr          = "substr("
-    $f_join            = "join("
-    $f_function        = "function("
+    $f_header   = "H4sIA"
+    $f_char_at  = "charAt("
+    $f_substr   = "substr("
+    $f_join     = "join("
+    $f_function = "function("
 
   condition:
     filesize < 2MB and all of ($f*) and math.entropy(1, filesize) >= 5.0
