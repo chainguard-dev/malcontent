@@ -3,5 +3,4 @@
 data/base64/decode: medium
 data/embedded/base64_terms: medium
 exec/shell/pipe_sh: medium
-false-positives/kubeflow_centraldashboard: low
 net/url/embedded: low
