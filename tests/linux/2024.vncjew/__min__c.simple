@@ -1,5 +1,4 @@
 # linux/2024.vncjew/__min__c: critical
-3P/sig_base/susp_elf_upx: critical
 anti-static/elf/entropy: high
 anti-static/elf/header: high
 anti-static/packer/upx: high

@@ -1,5 +1,6 @@
 *** changed: linux/2024.sbcl.market/sbcl.dirty
 +anti-static/elf/entropy
+-anti-static/obfuscation/js
 c2/addr/url
 c2/tool_transfer/arch
 -crypto/rc4

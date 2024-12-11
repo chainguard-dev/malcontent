@@ -1,5 +1,4 @@
-# linux/clean/mongosh: critical
-anti-static/base64/function_names: critical
+# linux/clean/mongosh: medium
 anti-static/obfuscation/hex: medium
 anti-static/obfuscation/obfuscate: low
 c2/addr/http_dynamic: medium
