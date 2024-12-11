@@ -2,7 +2,6 @@
 3P/sig_base/webshell_php: critical
 anti-static/base64/obfuscated_caller: critical
 anti-static/obfuscation/bitwise: critical
-anti-static/obfuscation/js: medium
 anti-static/obfuscation/php: critical
 credential/password: low
 credential/sniffer/bpf: medium

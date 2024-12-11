@@ -6,11 +6,6 @@ private rule probably_js {
     $f_const    = /\bconst\b/
     $f_return   = /\breturn\b/
     $f_var      = /\bvar\b/
-    $f_let      = /\blet\b/
-    $f_if       = /\bif\b/
-    $f_else     = /\belse\b/
-    $f_for      = /\bfor\b/
-    $f_while    = /\bwhile\b/
     $f_Array    = "Array.prototype" fullword
     $f_true     = "true);"
     $f_run      = ".run("

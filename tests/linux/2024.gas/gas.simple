@@ -1,7 +1,6 @@
 # linux/2024.gas/gas: high
 anti-behavior/LD_DEBUG: medium
 anti-behavior/LD_PROFILE: medium
-anti-static/obfuscation/js: medium
 c2/addr/url: low
 c2/tool_transfer/arch: low
 crypto/rc4: low
