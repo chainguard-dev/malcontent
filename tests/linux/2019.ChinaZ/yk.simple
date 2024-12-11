@@ -1,7 +1,6 @@
 # linux/2019.ChinaZ/yk: critical
 anti-behavior/LD_DEBUG: medium
 anti-behavior/LD_PROFILE: medium
-anti-static/obfuscation/js: medium
 c2/addr/server: medium
 c2/addr/url: low
 crypto/rc4: low

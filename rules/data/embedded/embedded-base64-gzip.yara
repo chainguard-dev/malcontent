@@ -23,7 +23,7 @@ rule base64_gz_high_entropy: high {
     filesize < 2MB and math.entropy(1, filesize) >= 6.5 and $header and none of ($not*)
 }
 
-rule base64_obfuscated_js: critical {
+rule base64_obfuscated_js: high {
   meta:
     description = "Contains base64 gzip content within high-entropy javascript"
 
@@ -33,10 +33,7 @@ rule base64_obfuscated_js: critical {
     $f_substr          = "substr("
     $f_join            = "join("
     $f_function        = "function("
-    $not_events_js_map = "//# sourceMappingURL=events.js.map"
-    $not_jitsu1        = "admin-service-account@jitsu.com"
-    $not_jitsu2        = "jitsu-auth"
 
   condition:
-    filesize < 2MB and all of ($f*) and math.entropy(1, filesize) >= 5.0 and none of ($not*)
+    filesize < 2MB and all of ($f*) and math.entropy(1, filesize) >= 5.0
 }
