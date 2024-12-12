@@ -46,7 +46,7 @@ func findFilesRecursively(ctx context.Context, rootPath string) ([]string, error
 		// If the target does not exist, log the error but return gracefully
 		// This is useful when scanning -compat packages
 		if os.IsNotExist(err) {
-			logger.Infof("symlink target does not exist: %s", err.Error())
+			logger.Debugf("symlink target does not exist: %s", err.Error())
 			return nil, nil
 		}
 		// Allow /proc/XXX/exe to be scanned even if symlink is not resolveable
@@ -135,7 +135,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		yrs = c.Rules
 	}
 	if err := yrs.ScanFileDescriptor(fd, 0, 0, &mrs); err != nil {
-		logger.Info("skipping", slog.Any("error", err))
+		logger.Debug("skipping", slog.Any("error", err))
 		return &malcontent.FileReport{Path: path, Error: fmt.Sprintf("scan: %v", err)}, nil
 	}
 
@@ -537,7 +537,7 @@ func processFile(ctx context.Context, c malcontent.Config, ruleFS []fs.FS, path 
 	}
 
 	if fr == nil {
-		logger.Infof("%s returned nil result", path)
+		logger.Debugf("%s returned nil result", path)
 		return nil, nil
 	}
 

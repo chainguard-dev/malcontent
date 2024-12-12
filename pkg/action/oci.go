@@ -14,7 +14,7 @@ import (
 
 func prepareImage(ctx context.Context, d string) (string, *os.File, error) {
 	logger := clog.FromContext(ctx).With("image", d)
-	logger.Info("preparing image")
+	logger.Debug("preparing image")
 	tmpDir, err := os.MkdirTemp("", filepath.Base(d))
 	if err != nil {
 		return "", nil, fmt.Errorf("failed to create temp dir: %w", err)
