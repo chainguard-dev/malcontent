@@ -4,15 +4,22 @@
 package render
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"io"
 	"net/url"
+	"regexp"
 	"sort"
 	"strings"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/olekukonko/tablewriter"
+)
+
+var (
+	excessSpaceRe = regexp.MustCompile(` {2,}`)
+	excessDashRe  = regexp.MustCompile(`-{3,}`)
 )
 
 type Markdown struct {
@@ -248,12 +255,19 @@ func markdownTable(_ context.Context, fr *malcontent.FileReport, w io.Writer, rc
 		evidence := strings.Join(matchLinks, "<br>")
 		data = append(data, []string{risk, key, desc, evidence})
 	}
-	table := tablewriter.NewWriter(w)
+
+	buf := bytes.NewBuffer([]byte{})
+	table := tablewriter.NewWriter(buf)
 	table.SetAutoWrapText(false)
 	table.SetHeader([]string{"Risk", "Key", "Description", "Evidence"})
 	table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
 	table.SetCenterSeparator("|")
 	table.AppendBulk(data) // Add Bulk Data
 	table.Render()
-	fmt.Fprintln(w, "")
+
+	// remove excess whitespace
+	s := buf.String()
+	s = excessSpaceRe.ReplaceAllString(s, " ")
+	s = excessDashRe.ReplaceAllString(s, "--")
+	fmt.Fprintf(w, "%s\n", s)
 }

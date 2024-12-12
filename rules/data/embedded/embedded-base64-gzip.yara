@@ -23,17 +23,17 @@ rule base64_gz_high_entropy: high {
     filesize < 2MB and math.entropy(1, filesize) >= 6.5 and $header and none of ($not*)
 }
 
-rule base64_obfuscated_js: critical {
+rule base64_obfuscated_js: high {
   meta:
     description = "Contains base64 gzip content within high-entropy javascript"
 
   strings:
-    $header = "H4sIA"
-    $       = "charAt("
-    $       = "substr("
-    $       = "join("
-    $       = "function("
+    $f_header   = "H4sIA"
+    $f_char_at  = "charAt("
+    $f_substr   = "substr("
+    $f_join     = "join("
+    $f_function = "function("
 
   condition:
-    filesize < 2MB and all of them and math.entropy(1, filesize) >= 5.0
+    filesize < 2MB and all of ($f*) and math.entropy(1, filesize) >= 5.0
 }

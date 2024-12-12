@@ -1,8 +1,8 @@
 # linux/clean/runtime-security.o: medium
 c2/addr/ip: medium
+c2/addr/url: low
 credential/sniffer/bpf: medium
 evasion/bypass_security/linux/iptables: medium
-evasion/bypass_security/linux/se: medium
 evasion/logging/acct: low
 evasion/process_injection/ptrace: medium
 exec/program: medium

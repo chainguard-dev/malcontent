@@ -7,8 +7,10 @@ anti-behavior/anti_debugger: medium
 c2/addr/discord: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
+c2/tool_transfer/arch: low
 c2/tool_transfer/download: high
-c2/tool_transfer/github_raw: medium
+c2/tool_transfer/github: medium
+c2/tool_transfer/os: low
 collect/archives/zip: medium
 collect/databases/leveldb: medium
 collect/databases/sqlite: medium
@@ -17,6 +19,8 @@ credential/browser/chromium_master_password: high
 credential/browser/firefox_cookies: high
 credential/browser/firefox_master_password: high
 credential/clipboard: medium
+credential/gaming/minecraft: medium
+credential/gaming/minecraft_feather: high
 credential/password: low
 credential/ssl/private_key: low
 crypto/aes: low
@@ -53,6 +57,7 @@ fs/directory/create: low
 fs/directory/list: low
 fs/file/create: medium
 fs/file/delete: medium
+fs/file/open: low
 fs/file/read: low
 fs/file/rename: low
 fs/file/write: low
@@ -75,6 +80,7 @@ net/dns/servers: low
 net/dns/txt: low
 net/download: medium
 net/http/2: low
+net/http/accept: medium
 net/http/accept_encoding: low
 net/http/auth: low
 net/http/cookies: medium

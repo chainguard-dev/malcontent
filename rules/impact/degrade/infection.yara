@@ -29,5 +29,5 @@ rule infection_killer: critical {
     $not_passwordlist = "qwer1234"
 
   condition:
-    filesize < 1MB and any of ($k*) and 2 of ($c*) and none of ($not*)
+    filesize < 1MB and any of ($k*) and 4 of ($c*) and none of ($not*)
 }

@@ -2,6 +2,8 @@
 3P/huntress/lightspy_loader: critical
 anti-static/macho/footer: high
 c2/addr/ip: medium
+c2/addr/url: low
+c2/tool_transfer/arch: low
 c2/tool_transfer/macos: critical
 crypto/aes: low
 crypto/rc4: low

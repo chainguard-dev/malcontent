@@ -1,8 +1,11 @@
 # linux/clean/opa: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
+c2/addr/url: low
 c2/client: medium
+c2/tool_transfer/arch: low
 c2/tool_transfer/download: medium
+c2/tool_transfer/os: medium
 collect/archives/zip: medium
 credential/password: low
 credential/ssl/private_key: low
@@ -14,6 +17,7 @@ crypto/ed25519: low
 crypto/public_key: low
 crypto/tls: low
 data/base64/decode: medium
+data/base64/encode: medium
 data/compression/gzip: low
 data/compression/zstd: low
 data/embedded/html: medium
@@ -37,6 +41,7 @@ fs/directory/list: low
 fs/directory/remove: low
 fs/file/copy: medium
 fs/file/delete: low
+fs/file/open: low
 fs/file/read: low
 fs/file/rename: low
 fs/file/stat: low
@@ -63,6 +68,7 @@ net/dns/servers: low
 net/dns/txt: low
 net/download: medium
 net/http/2: low
+net/http/accept: medium
 net/http/accept_encoding: low
 net/http/auth: low
 net/http/content_length: medium

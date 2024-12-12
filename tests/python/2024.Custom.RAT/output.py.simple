@@ -1,11 +1,15 @@
 # python/2024.Custom.RAT/output.py: critical
 c2/addr/discord: medium
+c2/tool_transfer/arch: low
+c2/tool_transfer/os: medium
+c2/tool_transfer/python: medium
 collect/databases/leveldb: medium
 credential/clipboard: medium
 credential/keylogger: high
 credential/password: low
 crypto/ssl: low
 data/base64/decode: medium
+data/base64/encode: medium
 data/encoding/base64: low
 data/encoding/json_decode: low
 discover/ip/geo: high

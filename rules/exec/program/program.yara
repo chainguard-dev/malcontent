@@ -96,9 +96,9 @@ rule py_subprocess: medium {
 
   strings:
     $naked        = "subprocess"
-    $val          = /subprocess\.\w{1,16}[\(\"\/\w\'\.\- \,\[\]\/\{\}]{0,64}/
-    $os_system    = /os.system\([\"\'\w\. \-\)\/\{\}]{0,64}/
-    $os_startfile = /os.startfile\(.{0,64}/
+    $val          = /subprocess\.\w{1,16}.{0,96}/
+    $os_system    = /os.system\(.{0,96}/
+    $os_startfile = /os.startfile\(.{0,96}/
 
   condition:
     any of them

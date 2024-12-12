@@ -1,7 +1,9 @@
 # python/2023.axderz-1.0.4/setup.py: critical
 c2/tool_transfer/download: high
+c2/tool_transfer/os: medium
 c2/tool_transfer/python: critical
 credential/ssh: high
+data/base64/encode: medium
 data/encoding/base64: low
 discover/system/environment: medium
 evasion/net/http_443: high

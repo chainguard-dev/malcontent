@@ -1,5 +1,7 @@
 *** changed: linux/2024.sbcl.market/sbcl.dirty
 +anti-static/elf/entropy
+c2/addr/url
+c2/tool_transfer/arch
 -crypto/rc4
 data/compression/zstd
 +data/embedded/zstd

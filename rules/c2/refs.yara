@@ -1,13 +1,23 @@
 rule command_and_control: high {
   meta:
-    description = "Uses terms that may reference a command and control server"
+    description = "references ommand and control "
 
   strings:
     $c_and_c = "command & control"
-    $c2_addr = /[\w\( ]{0,12}[Cc]2[_ \(\)]{0,3}(addr|port|event|host|address|Address|Port|HOST|ADDR|ADDRESS|PORT)/
 
   condition:
-    any of them
+    any of ($c*)
+}
+
+rule c2_something: high {
+  meta:
+    description = "Uses terms that may reference a command and control server"
+
+  strings:
+    $c2_addr = /[Cc]2[_ \(\)]{0,3}(addr|port|event|host|address|Address|Port|HOST|ADDR|ADDRESS|PORT)/ fullword
+
+  condition:
+    any of ($c*)
 }
 
 rule send_to_c2: high {

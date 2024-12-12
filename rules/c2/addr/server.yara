@@ -13,7 +13,7 @@ rule server_address: medium {
     any of ($s*)
 }
 
-rule server_addr_small: high {
+rule server_addr_small: medium {
   meta:
     description = "may execute a shell and communicate with a server"
 

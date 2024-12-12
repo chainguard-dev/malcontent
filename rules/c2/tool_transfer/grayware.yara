@@ -29,3 +29,14 @@ rule grayware_sites: high {
   condition:
     any of them
 }
+
+rule shodan_io: medium {
+  meta:
+    description = "References shodan.io"
+
+  strings:
+    $ = "shodan.io"
+
+  condition:
+    any of them
+}

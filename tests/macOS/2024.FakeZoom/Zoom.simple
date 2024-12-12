@@ -1,4 +1,5 @@
 # macOS/2024.FakeZoom/Zoom: high
+c2/addr/url: low
 exec/program/opaque: high
 exec/shell/exec: medium
 net/url/embedded: low

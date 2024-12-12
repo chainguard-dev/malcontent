@@ -601,3 +601,105 @@ rule Lazarus_npmLoader_dll {
         (1 of ($pdb*)) or ($jnkcode and all of ($enccode*))
        )
 }
+
+rule Lazarus_defaultdownpy_python {
+   meta:
+      description = "Python downloader for Lazarus"
+      author = "JPCERT/CC Incident Response Group"
+      hash = "3b6a8d4c15f645d3c1a9f58fc8f4fd691cea26a54e5a251f445d4013e9057dd0"
+      hash = "70db987e2545cbc3e22bac0503f89f46a441cc9f206d0aa41d66b54f511638d6"
+      hash = "e93f2f24718711ddd7751b40cdfcd92814388a65015d1a1e8bc1b1885ada5fca"
+      hash = "6a2893c44d9a7f3bcad492ea7dbcea90eb0107fd0c191913cd097b663f806a67"
+      hash = "0046ad625564f42b9dd69f3479732b3e1aaf5ef3e365f4752006e703963dd3de"
+      hash = "1c0f6ffc30b702c7b6aeee2b38ef749b8329554603082d3e179b37ff86371858"
+
+   strings:
+      $enc1 = "d=base64.b64decode(t[8:])" ascii
+      $enc2 = "k=i&7;c=chr(d[i]^ord(sk[k]))" ascii
+      $enc3 = "exec(res)" ascii
+      $enc4 = "data=base64.b64decode(temp[8:]);" ascii
+      $enc5 = "k=i&7;c=chr(data[i]^ord(sk[k]))" ascii
+      $dec1 = "base64.b64decode(host[10:] + host[:10]).decode()" ascii
+      $dec2 = "subprocess.Popen([sys.executable, ap], creationflags=subprocess.CREATE_NO_WINDOW | subprocess.CREATE_NEW_PROCESS_GROUP)" ascii
+      $dec3 = "subprocess.Popen(cmd,shell=_T,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE).communicate()" ascii
+      $dec4 = "if ot==\"Darwin\":" ascii
+      $dec5 = "subprocess.check_call([sys.executable, '-m', 'pip', 'install', " ascii
+      $dec6 = "subprocess.check_call([sys.executable,'-m','pip','install'," ascii
+      $dec7 = "subprocess.check_call([sys.executable,_M,_P,_L," ascii
+      $dec8 = "subprocess.check_call([sys.executable,_m,_pp,_inl," ascii
+      $dec9 = "ot = platform.system()" ascii
+      $dec10 = "download_payload():" ascii
+      $dec11 = "download_browse()" ascii
+      $dec12 = "get_anydesk_path():" ascii
+      $dec13 = "retrieve_web(self):" ascii
+      $dec14 = "ssh_cmd(A,args):" ascii
+      $dec15 = "ssh_upload(A,args)" ascii
+      $dec16 = "win32process.GetWindowThreadProcessId(win32gui.GetForegroundWindow());return (pid[-1], psutil.Process(pid[-1]).name())" ascii
+      $dec17 = "is_down(pyHook.GetKeyState(0x11)) or is_down(pyHook.GetKeyState(0xA2)) or is_down(pyHook.GetKeyState(0xA3))" ascii
+      $dec18 = "sha256((str(getnode())+getuser()).encode()).digest().hex()" ascii
+      $dec19 = "return{'uuid':A.uuid,'system':A.system,'release':A.release,'version':A.version,'hostname':A.hostname,'username':A.username}" ascii
+      $dec20 = "{'ts':str(B),'type':sType,'hid':hn,'ss':'sys_info','cc':str(A.sys_info)}" ascii
+
+   condition:
+      3 of ($enc*) or 3 of ($dec*)
+}
+
+rule Lazarus_jamistealer_str {
+   meta:
+      description = "Stealer targeted macOS and Windows for Lazarus"
+      author = "JPCERT/CC Incident Response Group"
+      hash = "9abf6b93eafb797a3556bea1fe8a3b7311d2864d5a9a3687fce84bc1ec4a428c"
+      hash = "9e3a9dbf10793a27361b3cef4d2c87dbd3662646f4470e5242074df4cb96c6b4"
+
+   strings:
+      $str1 = "Download Python Success!" ascii
+      $str2 = "Download Client Success!" ascii
+      $str3 = "form-data; name=\"multi_file\"; filename=\"%1\"" ascii
+      $str4 = "boundary=---------------------------99614912995" ascii
+      $str5 = "/.pyp/python.exe" ascii
+      $str6 = "/AppData/Local/BraveSoftware/Brave-Browser/User Data" ascii
+      $str7 = "/Library/Application Support/BraveSoftware/Brave-Browser" ascii
+      $str8 = "/Library/Application Support/com.operasoftware.opera" ascii
+      $str9 = "Upload LDB Finshed!!!" ascii
+      $str10 = "%1_%2_%3_%4_%5" ascii
+
+   condition:
+      ((uint16(0) == 0x5A4D and
+       uint32(uint32(0x3c)) == 0x00004550) or
+      (uint32(0) == 0xfeedface or
+       uint32(0) == 0xcefaedfe or
+       uint32(0) == 0xfeedfacf or
+       uint32(0) == 0xcffaedfe or
+       uint32(0) == 0xcafebabe or
+       uint32(0) == 0xbebafeca or
+       uint32(0) == 0xcafebabf or
+       uint32(0) == 0xbfbafeca)) and
+      (5 of ($str*))
+}
+
+rule Lazarus_oprepjs_javascript {
+   meta:
+      description = "JS downloader for Lazarus"
+      author = "JPCERT/CC Incident Response Group"
+      hash = "d69691996067c04fdb5595cf1512aca8928ee64511b4b3674197015414d014c8"
+
+   strings:
+      $enc1 = "writeFileSync" ascii
+      $enc2 = "Login Data" ascii
+      $enc3 = "copyFile" ascii
+      $enc4 = ".replace(" ascii
+      $enc5 = "/client" ascii
+      $enc6 = "t[e], a += t[10 + e], $ += t[20 + e], r += t[30 + e];" ascii
+      $enc7 = "${c}${$}_${l}_${t}" ascii
+      $enc8 = "/.npl" ascii
+      $enc9 = "/Local Extension Settings/nkbihfbeogaeaoehlefnkodbefgpgkn[n]/" ascii
+      $enc10 = "/Library/Application Support/Google/Chrome/" ascii
+      $enc11 = "includes(\".ldb\")" ascii
+      $key1 = "30e5e005f625f45e9561c0c105466fd72be45e961fc88abc59012cb9b7fd091a" ascii
+      $key2 = "eafb61b23c14874c10945b466cfef16b" ascii
+      $key3 = "7a0508b2eb487b05be4aa5ea01c5e15d" ascii
+
+
+   condition:
+      6 of ($enc*) or all of ($key*)
+}

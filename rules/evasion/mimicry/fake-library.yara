@@ -28,7 +28,7 @@ rule libc_fake_number_val: high {
     description = "references a non-standard libc library (normally libc.so.6)"
 
   strings:
-    $ref            = /libc.so.[2345789]/
+    $ref            = /libc.so.[234589]/
     $not_go_example = "libc.so.96.1"
 
   condition:

@@ -1,6 +1,7 @@
-# javascript/clean/php.js: medium
+# javascript/clean/php.js: high
 c2/addr/ip: medium
 c2/client: medium
+c2/tool_transfer/python: high
 collect/databases/mysql: medium
 collect/databases/sqlite: medium
 credential/password: low
@@ -10,6 +11,7 @@ crypto/encrypt: medium
 crypto/openssl: medium
 crypto/public_key: low
 data/base64/decode: medium
+data/base64/encode: medium
 data/compression/gzip: low
 data/compression/zlib: low
 data/encoding/base64: low

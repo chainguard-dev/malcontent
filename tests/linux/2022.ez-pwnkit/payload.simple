@@ -9,6 +9,7 @@ exec/program: medium
 exec/shell/exec: medium
 fs/directory/remove: low
 fs/file/delete: low
+fs/file/open: low
 fs/file/read: low
 fs/path/etc: low
 fs/path/etc_hosts: medium

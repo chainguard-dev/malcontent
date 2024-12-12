@@ -3,9 +3,9 @@ rule selinux: medium {
     description = "alters the SELinux enforcement level"
 
   strings:
-    $ref1 = "SELINUX" fullword
-    $ref2 = "setenforce" fullword
+    $ref1 = "SELINUX"
+    $ref2 = "setenforce"
 
   condition:
-    any of them
+    all of them
 }

@@ -7,6 +7,9 @@ rule download_sites: high {
     $d_privatebin    = /[\w\.]+privatebin[\w\.]{1,4}\//
     $d_pastecode_dot = /pastecode\.[\w\.]{2,16}/
     $d_paste_dot     = /\/paste\.[\w\.]{2,3}\//
+    $d_api_paste_dot = /\/api\.paste\.[\w\.]{2,3}\//
+    $d_storj         = /link\.storjshare\.io[\/\w\.]{0,64}/
+
     $d_discord       = "cdn.discordapp.com"
     $d_pastebinger   = "paste.bingner.com"
     $d_transfer_sh   = "transfer.sh"

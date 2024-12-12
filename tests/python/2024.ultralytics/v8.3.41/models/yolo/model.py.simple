@@ -1,0 +1,7 @@
+# python/2024.ultralytics/v8.3.41/models/yolo/model.py: high
+c2/tool_transfer/python: medium
+discover/system/platform: medium
+exec/imports/python: low
+exec/program/tmpdir: high
+fs/path/tmp: medium
+net/download: medium

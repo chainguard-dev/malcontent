@@ -1,8 +1,11 @@
 # linux/clean/melange: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
+c2/addr/url: low
 c2/client: medium
 c2/refs: medium
+c2/tool_transfer/arch: low
+c2/tool_transfer/os: medium
 collect/archives/tar_command: medium
 collect/archives/zip: medium
 collect/code/github_api: low
@@ -50,7 +53,6 @@ discover/system/sysinfo: medium
 discover/user/HOME: low
 discover/user/USER: low
 discover/user/name_get: medium
-evasion/bypass_security/linux/se: medium
 evasion/file/location/system_directory: medium
 evasion/file/prefix: medium
 evasion/hide_artifacts/pivot_root: medium
@@ -71,6 +73,7 @@ fs/file/copy: medium
 fs/file/create: medium
 fs/file/delete: medium
 fs/file/delete_forcibly: medium
+fs/file/open: low
 fs/file/read: low
 fs/file/rename: low
 fs/file/write: low
@@ -109,6 +112,7 @@ net/dns/txt: low
 net/download: medium
 net/download/fetch: medium
 net/http/2: low
+net/http/accept: medium
 net/http/accept_encoding: low
 net/http/auth: low
 net/http/content_length: medium

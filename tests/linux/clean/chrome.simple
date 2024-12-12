@@ -8,7 +8,9 @@ c2/addr/server: medium
 c2/client: medium
 c2/discovery/ip_dns_resolver: medium
 c2/refs: medium
+c2/tool_transfer/arch: low
 c2/tool_transfer/dropper: medium
+c2/tool_transfer/os: medium
 collect/archives/zip: medium
 collect/databases/leveldb: medium
 collect/databases/sqlite: medium
@@ -126,6 +128,7 @@ net/dns/over_https: medium
 net/dns/servers: low
 net/dns/txt: low
 net/http/2: low
+net/http/accept: medium
 net/http/accept_encoding: low
 net/http/auth: low
 net/http/cookies: medium

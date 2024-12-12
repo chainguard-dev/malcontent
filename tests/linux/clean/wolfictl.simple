@@ -1,9 +1,12 @@
 # linux/clean/wolfictl: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
+c2/addr/url: low
 c2/client: medium
+c2/tool_transfer/arch: low
 c2/tool_transfer/download: medium
 c2/tool_transfer/dropper: medium
+c2/tool_transfer/os: medium
 collect/archives/tar_command: medium
 collect/archives/unarchive: medium
 collect/archives/zip: medium
@@ -82,6 +85,7 @@ fs/file/copy: medium
 fs/file/create: medium
 fs/file/delete: medium
 fs/file/delete_forcibly: medium
+fs/file/open: low
 fs/file/read: low
 fs/file/rename: low
 fs/file/stat: low
@@ -132,6 +136,7 @@ net/dns/servers: low
 net/dns/txt: low
 net/download/fetch: medium
 net/http/2: low
+net/http/accept: medium
 net/http/accept_encoding: low
 net/http/auth: low
 net/http/content_length: medium

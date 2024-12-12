@@ -3,19 +3,22 @@ rule requests_urls: medium {
     description = "requests resources via URL"
 
   strings:
-    $ref   = "NSMutableURLRequest"
-    $ref2  = "import requests"
-    $ref3  = "net/url"
-    $ref4  = /requests\.get\([\w, =\)]{0,16}/
-    $ref5  = "require('request');"
-    $ref6  = "request(url, "
-    $ref7  = "require('https').request"
-    $ref8  = "http.request"
-    $ref9  = "urllib2.urlopen"
-    $ref10 = "urllib.request"
-    $ref11 = "require 'httparty'"
-    $ref12 = "HTTParty.get"
-    $re13  = "HTTP.get_response"
+    $ = "NSMutableURLRequest"
+    $ = "import requests"
+    $ = "net/url"
+    $ = /requests\.get\([\w, =\)]{0,16}/
+    $ = "require('request');"
+    $ = "request(url, "
+    $ = "require('https').request"
+    $ = "http.request"
+    $ = "urllib2.urlopen"
+    $ = "urllib.request"
+    $ = "require 'httparty'"
+    $ = "HTTParty.get"
+    $ = "HTTP.get_response"
+    $ = "OPEN_URL" fullword
+    $ = "openUrl"
+    $ = "openURL"
 
   condition:
     any of them

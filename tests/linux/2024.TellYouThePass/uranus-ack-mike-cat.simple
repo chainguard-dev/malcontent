@@ -36,6 +36,7 @@ exfil/stealer/file: high
 fs/directory/remove: low
 fs/file/delete: low
 fs/file/make_executable: high
+fs/file/open: low
 fs/file/read: low
 fs/file/write: low
 fs/path/etc: low

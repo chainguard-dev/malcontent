@@ -14,7 +14,6 @@ rule is_busybox: low {
 rule busybox: override {
   meta:
     description                           = "busybox"
-    infection_killer                      = "ignore"
     ubi                                   = "low"
     dev_mem                               = "low"
     linux_critical_system_paths_small_elf = "low"

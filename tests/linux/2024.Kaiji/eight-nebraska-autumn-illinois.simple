@@ -1,9 +1,11 @@
 # linux/2024.Kaiji/eight-nebraska-autumn-illinois: critical
 3P/elastic/threat: high
 c2/addr/ip: medium
-c2/addr/url: high
+c2/addr/url: low
 c2/discovery/ip_dns_resolver: medium
-c2/tool_transfer/binary: high
+c2/tool_transfer/arch: low
+c2/tool_transfer/chmod_dropper: high
+c2/tool_transfer/os: medium
 credential/password: low
 credential/shell/bash_history: high
 credential/ssh: medium
@@ -38,6 +40,7 @@ fs/directory/remove: low
 fs/file/delete: low
 fs/file/delete_forcibly: low
 fs/file/make_executable: high
+fs/file/open: low
 fs/file/read: low
 fs/file/rename: low
 fs/file/times_set: low
@@ -66,6 +69,7 @@ net/dns/txt: low
 net/download: medium
 net/download/fetch: high
 net/http/2: low
+net/http/accept: medium
 net/http/accept_encoding: low
 net/http/auth: low
 net/http/cookies: medium

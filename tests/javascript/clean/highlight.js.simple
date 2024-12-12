@@ -2,6 +2,9 @@
 anti-static/obfuscation/js: medium
 c2/addr/ip: medium
 c2/connect/ping_pong: medium
+c2/tool_transfer/arch: low
+c2/tool_transfer/os: low
+c2/tool_transfer/python: medium
 collect/archives/unarchive: medium
 collect/databases/mysql: medium
 collect/databases/postgresql: medium
@@ -12,6 +15,7 @@ crypto/encrypt: medium
 crypto/openssl: medium
 crypto/public_key: low
 data/base64/decode: medium
+data/base64/encode: medium
 data/compression/bzip2: low
 data/compression/lzma: low
 data/compression/zlib: low

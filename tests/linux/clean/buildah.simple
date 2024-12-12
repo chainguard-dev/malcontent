@@ -1,8 +1,11 @@
 # linux/clean/buildah: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
+c2/addr/url: low
 c2/client: medium
 c2/discovery/ip_dns_resolver: medium
+c2/tool_transfer/arch: low
+c2/tool_transfer/os: medium
 collect/archives/zip: medium
 collect/databases/sqlite: medium
 credential/keychain: medium
@@ -63,6 +66,7 @@ fs/fifo_create: low
 fs/file/create: medium
 fs/file/delete: low
 fs/file/delete_forcibly: low
+fs/file/open: low
 fs/file/read: low
 fs/file/rename: low
 fs/file/times_set: medium
@@ -109,6 +113,7 @@ net/dns/servers: low
 net/dns/txt: low
 net/download: medium
 net/http/2: low
+net/http/accept: medium
 net/http/accept_encoding: low
 net/http/auth: low
 net/http/content_length: medium

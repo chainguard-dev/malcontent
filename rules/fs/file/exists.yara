@@ -1,4 +1,4 @@
-rule exists: low {
+rule path_exists: low {
   meta:
     description = "check if a file exists"
 
@@ -7,4 +7,16 @@ rule exists: low {
 
   condition:
     any of them
+}
+
+rule java_exists: low {
+  meta:
+    description = "check if a file exists"
+
+  strings:
+    $ref  = "java/io/File" fullword
+    $ref2 = "exists" fullword
+
+  condition:
+    all of them
 }

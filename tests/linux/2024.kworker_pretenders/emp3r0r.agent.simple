@@ -4,9 +4,12 @@ anti-behavior/vm_check: medium
 anti-static/elf/entropy: high
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
+c2/addr/url: low
 c2/discovery/ip_dns_resolver: medium
 c2/refs: high
+c2/tool_transfer/arch: low
 c2/tool_transfer/download: medium
+c2/tool_transfer/os: medium
 collect/archives/unarchive: medium
 collect/archives/zip: medium
 credential/os/shadow: medium
@@ -63,8 +66,7 @@ exec/remote_commands/code_eval: medium
 exec/script/shell: medium
 exec/shell/SHELL: low
 exec/shell/TERM: low
-exec/shell/arbitrary_command_dev_null: high
-exec/shell/background_launcher: high
+exec/shell/arbitrary_command_dev_null: medium
 exec/shell/background_sleep: medium
 exec/shell/exec: medium
 exec/tty/open: medium
@@ -74,6 +76,7 @@ fs/directory/remove: low
 fs/file/copy: medium
 fs/file/delete: medium
 fs/file/delete_forcibly: medium
+fs/file/open: low
 fs/file/read: low
 fs/file/rename: low
 fs/file/times_set: low
@@ -118,6 +121,7 @@ net/dns/reverse: medium
 net/dns/servers: low
 net/dns/txt: low
 net/http/2: low
+net/http/accept: medium
 net/http/accept_encoding: low
 net/http/auth: low
 net/http/content_length: medium

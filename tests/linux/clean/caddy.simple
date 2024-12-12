@@ -1,10 +1,13 @@
 # linux/clean/caddy: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
+c2/addr/url: low
 c2/client: medium
 c2/discovery/ip_dns_resolver: medium
 c2/refs: medium
+c2/tool_transfer/arch: low
 c2/tool_transfer/download: medium
+c2/tool_transfer/os: medium
 collect/archives/zip: medium
 collect/databases/mysql: medium
 collect/databases/postgresql: medium
@@ -107,6 +110,7 @@ net/dns/servers: low
 net/dns/txt: low
 net/download: medium
 net/http/2: low
+net/http/accept: medium
 net/http/accept_encoding: low
 net/http/auth: low
 net/http/content_length: medium
@@ -119,6 +123,7 @@ net/http/request: low
 net/http/webhook: medium
 net/http/websocket: medium
 net/ip: low
+net/ip/connect: medium
 net/ip/host_port: medium
 net/ip/icmp: medium
 net/ip/multicast_send: low

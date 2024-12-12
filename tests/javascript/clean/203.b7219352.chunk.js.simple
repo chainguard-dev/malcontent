@@ -1,5 +1,6 @@
 # javascript/clean/203.b7219352.chunk.js: medium
 anti-static/obfuscation/js: medium
+c2/tool_transfer/os: medium
 credential/password: low
 data/compression/bzip2: low
 data/compression/gzip: low
@@ -13,7 +14,6 @@ discover/system/platform: low
 discover/user/HOME: low
 discover/user/USER: low
 discover/user/name_get: medium
-evasion/bypass_security/linux/se: medium
 exec/cmd: medium
 exec/conditional/LANG: low
 exec/plugin: low
@@ -34,7 +34,6 @@ fs/symlink_resolve: low
 fs/tempdir/TEMP: low
 fs/unmount: low
 hw/wireless: low
-impact/degrade/infection: medium
 impact/remote_access/agent: medium
 impact/remote_access/heartbeat: medium
 net/dns/txt: low
