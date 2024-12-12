@@ -81,7 +81,7 @@ const maxBytes = 1 << 29 // 512MB
 // extractTar extracts .apk and .tar* archives.
 func extractTar(ctx context.Context, d string, f string) error {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
-	logger.Info("extracting tar")
+	logger.Debug("extracting tar")
 
 	// Check if the file is valid
 	_, err := os.Stat(f)
@@ -203,7 +203,7 @@ func extractTar(ctx context.Context, d string, f string) error {
 // extractGzip extracts .gz archives.
 func extractGzip(ctx context.Context, d string, f string) error {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
-	logger.Info("extracting gzip")
+	logger.Debug("extracting gzip")
 
 	// Check if the file is valid
 	_, err := os.Stat(f)
@@ -242,7 +242,7 @@ func extractGzip(ctx context.Context, d string, f string) error {
 // extractZip extracts .jar and .zip archives.
 func extractZip(ctx context.Context, d string, f string) error {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
-	logger.Info("extracting zip")
+	logger.Debug("extracting zip")
 
 	// Check if the file is valid
 	_, err := os.Stat(f)
@@ -316,7 +316,7 @@ func extractZip(ctx context.Context, d string, f string) error {
 // extractRPM extracts .rpm packages.
 func extractRPM(ctx context.Context, d, f string) error {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
-	logger.Info("extracting rpm")
+	logger.Debug("extracting rpm")
 
 	rpmFile, err := os.Open(f)
 	if err != nil {
@@ -409,7 +409,7 @@ func extractRPM(ctx context.Context, d, f string) error {
 // extractDeb extracts .deb packages.
 func extractDeb(ctx context.Context, d, f string) error {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
-	logger.Info("extracting deb")
+	logger.Debug("extracting deb")
 
 	fd, err := os.Open(f)
 	if err != nil {
@@ -530,7 +530,7 @@ func extractNestedArchive(
 // extractArchiveToTempDir creates a temporary directory and extracts the archive file for scanning.
 func extractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 	logger := clog.FromContext(ctx).With("path", path)
-	logger.Info("creating temp dir")
+	logger.Debug("creating temp dir")
 
 	tmpDir, err := os.MkdirTemp("", filepath.Base(path))
 	if err != nil {
