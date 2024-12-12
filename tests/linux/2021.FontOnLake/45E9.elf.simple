@@ -1,6 +1,5 @@
 # linux/2021.FontOnLake/45E9.elf: critical
 3P/elastic/rootkit_fontonlake: critical
-3P/sig_base/susp_elf_upx: critical
 anti-static/packer/upx: high
 c2/addr/ip: high
 c2/addr/url: low

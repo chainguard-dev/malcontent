@@ -3,9 +3,9 @@ import "math"
 private rule probably_js {
   strings:
     $f_function = /function\(\w{0,8}\)/
-    $f_const    = "const" fullword
-    $f_return   = "return" fullword
-    $f_var      = "var" fullword
+    $f_const    = /\bconst\s/
+    $f_return   = /\breturn\s/
+    $f_var      = /\bvar\s/
     $f_Array    = "Array.prototype" fullword
     $f_true     = "true);"
     $f_run      = ".run("

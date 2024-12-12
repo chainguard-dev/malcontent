@@ -1,5 +1,4 @@
 # linux/clean/libsystemd.so.0: medium
-anti-static/obfuscation/js: medium
 c2/addr/url: low
 c2/tool_transfer/arch: low
 c2/tool_transfer/os: low
