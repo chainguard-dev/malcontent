@@ -79,6 +79,8 @@ func getExt(path string) string {
 const maxBytes = 1 << 29 // 512MB
 
 // extractTar extracts .apk and .tar* archives.
+//
+//nolint:cyclop // ignore complexity of 38
 func extractTar(ctx context.Context, d string, f string) error {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting tar")
@@ -140,6 +142,27 @@ func extractTar(ctx context.Context, d string, f string) error {
 		return nil
 	case strings.Contains(filename, ".bz2") || strings.Contains(filename, ".bzip2"):
 		br := bzip2.NewReader(tf)
+		// Extract non-tar archives directly
+		if !strings.HasSuffix(filename, ".tar.bz2") {
+			uncompressed := strings.TrimSuffix(filepath.Base(f), ".bz2")
+			uncompressed = strings.TrimSuffix(uncompressed, ".bzip2")
+			target := filepath.Join(d, uncompressed)
+			if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
+				return fmt.Errorf("failed to create directory for file: %w", err)
+			}
+
+			// #nosec G115
+			out, err := os.OpenFile(target, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0o600)
+			if err != nil {
+				return fmt.Errorf("failed to create file: %w", err)
+			}
+			defer out.Close()
+			if _, err := io.Copy(out, io.LimitReader(br, maxBytes)); err != nil {
+				out.Close()
+				return fmt.Errorf("failed to copy file: %w", err)
+			}
+			return nil
+		}
 		tr = tar.NewReader(br)
 	default:
 		tr = tar.NewReader(tf)
