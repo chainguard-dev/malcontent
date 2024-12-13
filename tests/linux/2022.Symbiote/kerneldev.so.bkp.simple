@@ -19,6 +19,7 @@ fs/proc/arbitrary_pid: medium
 fs/proc/pid_status: medium
 fs/proc/self_cmdline: medium
 fs/proc/self_exe: medium
+fs/tempdir/tempfile_create: low
 net/dns/servers: low
 net/ip/byte_order: medium
 net/ip/parse: medium

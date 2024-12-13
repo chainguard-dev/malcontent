@@ -58,6 +58,7 @@ fs/path/usr_bin: low
 fs/permission/modify: medium
 fs/symlink_resolve: low
 fs/tempdir/TEMP: low
+fs/tempdir/tempfile_create: low
 hw/wireless: low
 impact/remote_access/agent: medium
 lateral/scan/tool: medium

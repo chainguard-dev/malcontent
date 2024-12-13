@@ -1,3 +1,5 @@
+import "math"
+
 rule proc_status: medium {
   meta:
     description = "access status fields for other processes"
@@ -9,4 +11,16 @@ rule proc_status: medium {
 
   condition:
     any of them
+}
+
+rule proc_status_near: medium {
+  meta:
+    description = "access status fields for other processes"
+
+  strings:
+    $proc = "/proc" fullword
+    $fmt  = /%[sd]\/status/ fullword
+
+  condition:
+    all of them and math.abs(@proc - @fmt) < 128
 }

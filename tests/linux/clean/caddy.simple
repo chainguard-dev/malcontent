@@ -92,6 +92,7 @@ fs/path/windows_root: low
 fs/permission/chown: medium
 fs/permission/modify: medium
 fs/proc/arbitrary_pid: medium
+fs/proc/pid_stat: medium
 fs/proc/pid_statistics: low
 fs/proc/self_cgroup: medium
 fs/proc/self_exe: medium
@@ -101,6 +102,7 @@ fs/symlink_resolve: low
 fs/tempdir: low
 fs/tempdir/TEMP: low
 fs/tempdir/TMPDIR: low
+fs/tempdir/tempfile_create: low
 fs/watch: low
 hw/wireless: low
 net/dns: low

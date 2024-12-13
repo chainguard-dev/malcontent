@@ -27,3 +27,15 @@ rule proc_fd_high: medium {
   condition:
     $ref and none of ($not*)
 }
+
+rule inspects_opened_sockets: high {
+  meta:
+    description = "inspects open file descriptors, looking for sockets"
+
+  strings:
+    $ref  = "socket:[" fullword
+    $ref2 = /\/proc\/[%{$][\w\}]{0,12}\/fd/
+
+  condition:
+    all of them
+}

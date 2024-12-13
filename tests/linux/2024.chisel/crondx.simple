@@ -33,6 +33,7 @@ fs/path/etc_hosts: medium
 fs/path/etc_resolv.conf: low
 fs/permission/chown: medium
 fs/permission/modify: medium
+fs/tempdir/tempfile_create: low
 net/dns: low
 net/dns/servers: low
 net/dns/txt: low

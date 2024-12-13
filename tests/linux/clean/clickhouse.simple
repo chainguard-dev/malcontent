@@ -135,6 +135,7 @@ fs/tempdir: low
 fs/tempdir/TEMP: low
 fs/tempdir/TMPDIR: low
 fs/tempdir/create: low
+fs/tempdir/tempfile_create: low
 fs/watch: low
 hw/cpu: medium
 hw/dev/block_ice: medium
@@ -183,6 +184,7 @@ net/url/embedded: medium
 net/url/encode: medium
 net/url/parse: low
 os/fd/epoll: low
+os/fd/print: low
 os/fd/read: low
 os/fd/sendfile: low
 os/kernel/netlink: low

@@ -1,3 +1,5 @@
+import "math"
+
 rule proc_s_cmdline: high {
   meta:
     description = "access command-line of other processes"
@@ -44,4 +46,17 @@ rule proc_py_cmdline: high {
 
   condition:
     any of them
+}
+
+rule proc_cmdline_near: high {
+  meta:
+    description = "access command-line for other processes"
+
+  strings:
+    $proc  = "/proc" fullword
+    $fmt   = "cmdline" fullword
+    $fmt_d = "%d" fullword
+
+  condition:
+    all of them and math.abs(@proc - @fmt) < 64 and math.abs(@fmt - @fmt_d) < 64
 }

@@ -16,6 +16,7 @@ fs/link_read: low
 fs/path/etc: low
 fs/path/usr_bin: low
 fs/proc/self_exe: medium
+malware/family/gelsemium: critical
 persist/shell/bash: medium
 privesc/setuid: low
 process/groupid_set: low

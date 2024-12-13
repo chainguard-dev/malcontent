@@ -86,6 +86,8 @@ net/socket/receive: low
 net/socket/send: low
 net/tun_tap: medium
 net/url/embedded: low
+os/fd/print: low
+os/fd/socket: medium
 os/time/clock_set: low
 persist/daemon: medium
 privesc/setuid: low

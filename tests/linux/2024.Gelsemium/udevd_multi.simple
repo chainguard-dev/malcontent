@@ -1,4 +1,4 @@
-# linux/2024.Gelsemium/udevd_multi: high
+# linux/2024.Gelsemium/udevd_multi: critical
 c2/addr/ip: medium
 c2/addr/url: low
 c2/client: medium
@@ -47,6 +47,7 @@ fs/proc/self_exe: medium
 impact/remote_access/heartbeat: medium
 impact/remote_access/reverse_shell: medium
 lateral/scan/tool: medium
+malware/family/gelsemium: critical
 net/dns/txt: low
 net/http/post: medium
 net/http/request: low
