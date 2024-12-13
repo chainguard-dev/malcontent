@@ -3,19 +3,19 @@ rule svg: medium {
     description = "Contains SVG file(s)"
 
   strings:
-    $svg_open = "<svg" nocase
+    $svg_open  = "<svg" nocase
     $svg_close = "</svg>" nocase
 
   condition:
     all of them
 }
 
-rule foreign_object : high {
+rule foreign_object: high {
   meta:
     description = "Contains SVG file(s) using foreignObjects"
 
   strings:
-    $foreign_obj_open = "<foreignObject>" nocase
+    $foreign_obj_open  = "<foreignObject>" nocase
     $foreign_obj_close = "</foreignObject>" nocase
 
   condition:
@@ -27,17 +27,18 @@ rule foreign_object_script: critical {
     description = "Contains SVG file(s) that use foreignObjects along with base64, images, input, obfuscated variables, or scripts"
 
   strings:
-    $base64_str = /[\"\'][\w\/\+]{24,2048}==[\"\']/
-    $i_button = "<button" nocase
-    $i_img = "data:image/" wide ascii
-    $i_input_pass = "<input" nocase
-    $i_onclick = "onclick=" nocase
-    $i_type_pass = "type=\"password\"" nocase
+    $base64_str     = /[\"\'][\w\/\+]{24,2048}==[\"\']/
+    $i_button       = "<button" nocase
+    $i_img          = "data:image/" wide ascii
+    $i_input_pass   = "<input" nocase
+    $i_onclick      = "onclick=" nocase
+    $i_type_pass    = "type=\"password\"" nocase
     $obfuscated_var = /_0x[0-9a-f]{4,}/
-    $s_cdata = "<![CDATA["
-    $s_script_tag = "<script" nocase
-    $xhtml = "xhtml" nocase
-    $xml = "xmlns" nocase
+    $s_cdata        = "<![CDATA["
+    $s_script_tag   = "<script" nocase
+    $xhtml          = "xhtml" nocase
+    $xml            = "xmlns" nocase
+
   condition:
     svg and foreign_object and (any of ($i*) or ($base64_str or $obfuscated_var) or ($xhtml or $xml or any of ($s*)))
 }
