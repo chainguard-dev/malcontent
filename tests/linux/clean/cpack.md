@@ -1,8 +1,8 @@
-## linux/clean/cpack [🛑 HIGH]
+## linux/clean/cpack [🟡 MEDIUM]
 
 | RISK | KEY | DESCRIPTION | EVIDENCE |
 |--|--|--|--|
-| HIGH | [anti-static/elf/multiple](https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/elf/multiple.yara#multiple_elf) | multiple ELF binaries concatenated into a single file | $elf_head |
+| MEDIUM | [anti-static/elf/multiple](https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/elf/multiple.yara#multiple_elf) | multiple ELF binaries within an ELF binary | $elf_head |
 | MEDIUM | [c2/addr/ip](https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/ip.yara#ip_port_mention) | mentions an IP and port | [IP](https://github.com/search?q=IP&type=code)<br>[Ip](https://github.com/search?q=Ip&type=code)<br>[Port](https://github.com/search?q=Port&type=code)<br>[local_ip](https://github.com/search?q=local_ip&type=code)<br>[use_port](https://github.com/search?q=use_port&type=code) |
 | MEDIUM | [c2/client](https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/client.yara#clientID) | contains a client ID | [clientID](https://github.com/search?q=clientID&type=code) |
 | MEDIUM | [c2/tool_transfer/os](https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/os.yara#multiple_os_ref) | references multiple operating systems | [Darwin](https://github.com/search?q=Darwin&type=code)<br>[Linux](https://github.com/search?q=Linux&type=code)<br>[Windows](https://github.com/search?q=Windows&type=code)<br>[http://](http://)<br>[https://](https://)<br>[macOS](https://github.com/search?q=macOS&type=code) |

@@ -2,7 +2,7 @@
 anti-static/elf/content: high
 anti-static/elf/entropy: high
 anti-static/elf/header: high
-anti-static/elf/multiple: high
+anti-static/elf/multiple: medium
 anti-static/packer/upx: high
 c2/addr/ip: high
 c2/addr/url: low

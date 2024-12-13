@@ -1,5 +1,5 @@
 # linux/2024.Gelsemium/udevd: critical
-anti-static/elf/multiple: high
+anti-static/elf/multiple: medium
 c2/addr/ip: medium
 c2/addr/url: low
 c2/client: medium

@@ -1,5 +1,5 @@
 # linux/2024.Gelsemium/dbus: critical
-anti-static/elf/multiple: high
+anti-static/elf/multiple: medium
 crypto/decrypt: low
 crypto/encrypt: medium
 data/hash/md5: medium
