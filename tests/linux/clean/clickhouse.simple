@@ -1,4 +1,5 @@
 # linux/clean/clickhouse: high
+anti-static/elf/multiple: high
 anti-static/obfuscation/obfuscate: low
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium

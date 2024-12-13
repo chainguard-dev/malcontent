@@ -1,4 +1,5 @@
-# linux/clean/melange: medium
+# linux/clean/melange: high
+anti-static/elf/multiple: high
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/addr/url: low

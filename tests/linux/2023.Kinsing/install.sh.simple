@@ -58,6 +58,7 @@ impact/cryptojacking/xmrig: high
 impact/degrade/firewall: high
 impact/degrade/infection: critical
 impact/degrade/linux_paths: high
+impact/degrade/systemd: medium
 impact/remote_access/agent: medium
 impact/remote_access/iptables: medium
 impact/remote_access/kill_rm: medium
@@ -67,7 +68,6 @@ net/url/embedded: low
 persist/cron/etc_d: high
 persist/cron/tab: medium
 persist/daemon: medium
-persist/linux_multi: high
 persist/shell/bash: medium
 persist/ssh_authorized_keys: medium
 persist/writeable_dir: high

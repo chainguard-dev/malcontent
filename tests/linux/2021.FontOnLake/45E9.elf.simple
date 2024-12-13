@@ -1,5 +1,6 @@
 # linux/2021.FontOnLake/45E9.elf: critical
 3P/elastic/rootkit_fontonlake: critical
+anti-static/elf/multiple: high
 anti-static/packer/upx: high
 c2/addr/ip: high
 c2/addr/url: low
@@ -91,7 +92,7 @@ net/tcp/ssh: medium
 net/tun_tap: medium
 net/url/embedded: low
 persist/daemon: medium
-persist/kernel_module/insert: high
+persist/kernel_module/install: high
 persist/kernel_module/kprobe: medium
 persist/kernel_module/module: medium
 persist/kernel_module/symbol_lookup: high

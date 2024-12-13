@@ -1,6 +1,7 @@
 # linux/2024.vncjew/__min__c: critical
 anti-static/elf/entropy: high
 anti-static/elf/header: high
+anti-static/elf/multiple: high
 anti-static/packer/upx: high
 c2/addr/ip: high
 c2/addr/url: low

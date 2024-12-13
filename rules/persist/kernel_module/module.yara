@@ -38,3 +38,19 @@ rule delete_module: medium {
   condition:
     all of them
 }
+
+rule init_module: medium linux {
+  meta:
+    description = "Linux kernel module"
+    syscall     = "init_module"
+    capability  = "CAP_SYS_MODULE"
+
+    filetypes = "ko,elf,so"
+
+  strings:
+    $ref = "init_module" fullword
+
+  condition:
+    filesize < 1MB and all of them
+}
+

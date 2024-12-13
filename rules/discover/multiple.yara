@@ -6,6 +6,7 @@ rule sys_net_recon: medium {
     $net_ipconfig          = "ipconfig" fullword
     $net_ipaddr            = "ipaddr" fullword
     $sys_getpass           = "getpass.getuser"
+    $sys_whoami            = "whoami" fullword
     $sys_platform_node     = "platform.node()" fullword
     $sys_platform_platform = "platform.platform()" fullword
     $sys_platform_system   = "platform.system()" fullword
@@ -19,13 +20,46 @@ rule sys_net_recon: medium {
     $sys_id                = "id" fullword
     $sys_lspi              = "lspci"
     $sys_sudo              = /sudo.{0,4}-l/
-    $sys_uname             = "uname -a"
-    $sys_whoami            = "whoami" fullword
+    $sys_uname_a           = "uname -a"
+    $sys_uname_r           = "uname -r"
     $sys_macos             = "isPlatformOrVariant"
     $sys_systeminfo        = "systeminfo" fullword
 
   condition:
     filesize < 512KB and any of ($sys*) and any of ($net*)
+}
+
+rule user_sys_net_disk_recon: high {
+  meta:
+    description = "collects user, system, disk, and network information"
+
+  strings:
+    $net_ipconfig          = "ipconfig"
+    $net_ipaddr            = "ipaddr" fullword
+    $user_getpass          = "getpass.getuser"
+    $user_whoami           = "whoami"
+    $sys_platform_node     = "platform.node()" fullword
+    $sys_platform_platform = "platform.platform()" fullword
+    $sys_platform_system   = "platform.system()" fullword
+    $sys_tasklist          = /tasklist.{0,4}\/svc/ fullword
+    $net_ifconfig          = "ifconfig" fullword
+    $net_ip_addr           = /ip.{0,4}addr/ fullword
+    $net_ip_route          = /ip.{0,4}route/
+    $net_netstat           = /netstat.{0,4}-[arn]/
+    $net_ufw               = /ufw.{0,4}status/
+    $sys_hostname          = "hostname" fullword
+    $sys_id                = "id" fullword
+    $sys_lspi              = "lspci"
+    $sys_sudo              = /sudo.{0,4}-l/
+    $sys_uname_a           = "uname -a"
+    $sys_uname_r           = "uname -r"
+    $sys_macos             = "isPlatformOrVariant"
+    $sys_systeminfo        = "systeminfo" fullword
+    $disk_df_h             = "df -h"
+    $disk_space            = "Disk space"
+
+  condition:
+    filesize < 512KB and any of ($sys*) and any of ($net*) and any of ($user*) and any of ($disk*)
 }
 
 private rule discover_obfuscate {

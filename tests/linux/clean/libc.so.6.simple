@@ -103,7 +103,7 @@ os/fd/sendfile: low
 os/kernel/netlink: low
 os/time/clock_set: low
 persist/daemon: medium
-persist/kernel_module/module: medium
+persist/kernel_module/unload: medium
 privesc/setuid: low
 process/chroot: low
 process/create: low

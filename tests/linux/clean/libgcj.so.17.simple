@@ -1,4 +1,4 @@
-# linux/clean/libgcj.so.17: medium
+# linux/clean/libgcj.so.17: high
 3P/JPCERT/cobaltstrike_v3v4: medium
 anti-behavior/random_behavior: low
 c2/addr/ip: medium
@@ -97,6 +97,7 @@ net/url/embedded: low
 net/url/encode: medium
 net/url/parse: low
 net/url/request: medium
+persist/kernel_module/name: high
 process/multithreaded: low
 sus/exclamation: medium
 sus/intercept: medium

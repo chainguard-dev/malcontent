@@ -65,6 +65,8 @@ net/socket/receive: low
 net/socket/send: low
 net/tcp/ssh: medium
 persist/daemon: medium
-persist/kernel_module/insert: high
+persist/kernel_module/install: high
+persist/kernel_module/name: high
+persist/kernel_module/unload: medium
 process/multithreaded: low
 sus/compiler: medium

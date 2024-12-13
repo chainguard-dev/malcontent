@@ -1,4 +1,5 @@
-# linux/clean/wolfictl: medium
+# linux/clean/wolfictl: high
+anti-static/elf/multiple: high
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/addr/url: low

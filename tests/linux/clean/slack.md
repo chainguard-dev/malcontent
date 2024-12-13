@@ -1,7 +1,8 @@
-## linux/clean/slack [🟡 MEDIUM]
+## linux/clean/slack [🛑 HIGH]
 
 | RISK | KEY | DESCRIPTION | EVIDENCE |
 |--|--|--|--|
+| HIGH | [anti-static/elf/multiple](https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/elf/multiple.yara#multiple_elf) | multiple ELF binaries concatenated into a single file | $elf_head |
 | MEDIUM | [anti-behavior/LD_DEBUG](https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-behavior/LD_DEBUG.yara#env_LD_DEBUG) | may check if dynamic linker debugging is enabled | [LD_DEBUG](https://github.com/search?q=LD_DEBUG&type=code) |
 | MEDIUM | [anti-behavior/LD_PROFILE](https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-behavior/LD_PROFILE.yara#env_LD_PROFILE) | may check if dynamic linker profiling is enabled | [LD_PROFILE](https://github.com/search?q=LD_PROFILE&type=code) |
 | MEDIUM | [anti-static/obfuscation/hex](https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/obfuscation/hex.yara#hex_parse) | converts hex data to ASCII | [Buffer.from(padded, 'hex')](https://github.com/search?q=Buffer.from%28padded%2C+%27hex%27%29&type=code) |

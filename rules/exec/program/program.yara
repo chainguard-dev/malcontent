@@ -161,3 +161,25 @@ rule npm_exec: medium {
   condition:
     all of them
 }
+
+rule hash_bang_bash_exec: high {
+  meta:
+    description = "starts program from a hash-bang line"
+
+  strings:
+    $bin_bash = /#!\/bin\/bash\s{1,256}\/[\w\/\.\-]{2,64}/
+
+  condition:
+    all of them and $bin_bash at 0
+}
+
+rule hash_bang_sh_exec: high {
+  meta:
+    description = "starts program from a hash-bang line"
+
+  strings:
+    $bin_sh = /#!\/bin\/sh\s{1,256}\/[\w\/\.\-]{2,64}/
+
+  condition:
+    all of them and $bin_sh at 0
+}

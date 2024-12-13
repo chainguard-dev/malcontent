@@ -1,4 +1,5 @@
-# linux/clean/trivy: medium
+# linux/clean/trivy: high
+anti-static/elf/multiple: high
 c2/addr/discord: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium

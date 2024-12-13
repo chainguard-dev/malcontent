@@ -154,7 +154,7 @@ net/webrtc: medium
 os/env/get: low
 os/fd/sendfile: low
 os/kernel/netlink: low
-persist/kernel_module/module: medium
+persist/kernel_module/unload: medium
 persist/pid_file: medium
 privesc/sudo: medium
 process/chroot: low

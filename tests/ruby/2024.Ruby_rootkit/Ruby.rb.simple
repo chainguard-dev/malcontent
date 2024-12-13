@@ -6,4 +6,4 @@ exec/shell/exec: medium
 impact/remote_access/reverse_shell: high
 net/tcp/connect: medium
 os/signal/send: high
-persist/kernel_module/insert: medium
+persist/kernel_module/unload: medium

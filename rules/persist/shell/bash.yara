@@ -16,6 +16,23 @@ rule bash_persist: medium {
     filesize < 2097152 and any of ($ref*) and none of ($not*)
 }
 
+rule bash_persist_persistent: high {
+  meta:
+    description = "acccesses multiple bash startup files"
+
+  strings:
+    $ref1 = ".bash_profile"
+    $ref2 = ".bash_login"
+    $ref3 = ".profile"
+    $ref4 = ".bashrc"
+
+    $not_bash = "POSIXLY_CORRECT"
+
+  condition:
+    3 of them and none of ($not*)
+
+}
+
 rule hardcoded_bash_persist_file: high {
   meta:
     description = "hardcodes a shell startup file"

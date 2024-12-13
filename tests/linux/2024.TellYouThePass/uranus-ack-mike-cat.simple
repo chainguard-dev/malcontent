@@ -48,6 +48,7 @@ fs/path/tmp: medium
 fs/path/var: low
 fs/permission/chown: medium
 fs/permission/modify: medium
+impact/degrade/systemd: medium
 impact/ransom/note: high
 impact/remote_access/reverse_shell: medium
 net/dns: low

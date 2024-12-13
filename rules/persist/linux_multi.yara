@@ -3,9 +3,12 @@ rule linux_multi_persist: high {
     description = "references multiple Linux persistence methods"
 
   strings:
-    $initd   = /etc\/init\.d\/[\w\/\.]{0,32}/ fullword
-    $udev    = "etc/udev"
-    $crontab = "crontab" fullword
+    $o_initd   = /etc\/init\.d\/[\w\/\.]{0,32}/ fullword
+    $o_udev    = "etc/udev"
+    $o_crontab = "crontab" fullword
+    $o_xdg     = "[Desktop Entry]"
+    $o_rc_d    = "/etc/rc.d/rc.local"
+    $o_insmod  = "insmod" fullword
 
     $bash_ref  = ".bash_profile"
     $bash_ref2 = ".profile" fullword
@@ -19,5 +22,5 @@ rule linux_multi_persist: high {
     $not_vim   = "VIMRUNTIME" fullword
 
   condition:
-    filesize < 20MB and ($initd or $udev) and $crontab and any of ($bash*) and none of ($not*)
+    filesize < 20MB and 3 of ($o*) and any of ($bash*) and none of ($not*)
 }
