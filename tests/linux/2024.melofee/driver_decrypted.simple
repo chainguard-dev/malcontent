@@ -4,7 +4,6 @@ anti-static/binary/opaque: medium
 evasion/indicator_blocking/process: high
 evasion/mimicry/fake_process: high
 impact/rootkit: critical
-persist/kernel_module/kprobe: medium
 persist/kernel_module/module: medium
 persist/kernel_module/symbol_lookup: high
 sus/compiler: medium

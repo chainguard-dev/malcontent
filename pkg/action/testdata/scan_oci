@@ -1,0 +1,74 @@
+{
+    "Files": {
+        "/etc/profile": {
+            "Path": "testdata/static.tar.xz ∴ /etc/profile",
+            "SHA256": "8adf547453fe02fdc92e90424bffea4130bf88cc772a492b74912fb50a85c467",
+            "Size": 534,
+            "Behaviors": [
+                {
+                    "Description": "set file mode creation mask",
+                    "MatchStrings": [
+                        "umask"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-permission-mask-set.yara#umask",
+                    "ID": "fs/file/permission_mask_set",
+                    "RuleName": "umask"
+                },
+                {
+                    "Description": "path reference within /etc",
+                    "MatchStrings": [
+                        "/etc/profile.d/"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/etc.yara#etc_path",
+                    "ID": "fs/path/etc",
+                    "RuleName": "etc_path"
+                },
+                {
+                    "Description": "path reference within /usr/local/bin",
+                    "MatchStrings": [
+                        "/usr/local/bin"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/usr-local.yara#usr_local_bin_path",
+                    "ID": "fs/path/usr_local",
+                    "RuleName": "usr_local_bin_path"
+                },
+                {
+                    "Description": "access bash startup files",
+                    "MatchStrings": [
+                        "/etc/profile"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/persist/shell/bash.yara#bash_persist",
+                    "ID": "persist/shell/bash",
+                    "RuleName": "bash_persist"
+                },
+                {
+                    "Description": "etc shell init references",
+                    "MatchStrings": [
+                        "/etc/profile"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/persist/shell/init_files.yara#etc_shell_init_references",
+                    "ID": "persist/shell/init_files",
+                    "RuleName": "etc_shell_init_references"
+                }
+            ],
+            "RiskScore": 2,
+            "RiskLevel": "MEDIUM"
+        },
+        "/etc/profile.d/locale.sh": {
+            "Path": "testdata/static.tar.xz ∴ /etc/profile.d/locale.sh",
+            "SHA256": "",
+            "Size": 0,
+            "RiskScore": 0
+        }
+    }
+}

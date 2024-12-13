@@ -92,8 +92,7 @@ net/tcp/ssh: medium
 net/tun_tap: medium
 net/url/embedded: low
 persist/daemon: medium
-persist/kernel_module/install: high
-persist/kernel_module/kprobe: medium
+persist/kernel_module/load: high
 persist/kernel_module/module: medium
 persist/kernel_module/symbol_lookup: high
 persist/pid_file: medium

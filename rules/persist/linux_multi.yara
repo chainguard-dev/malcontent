@@ -3,12 +3,14 @@ rule linux_multi_persist: high {
     description = "references multiple Linux persistence methods"
 
   strings:
-    $o_initd   = /etc\/init\.d\/[\w\/\.]{0,32}/ fullword
-    $o_udev    = "etc/udev"
-    $o_crontab = "crontab" fullword
-    $o_xdg     = "[Desktop Entry]"
-    $o_rc_d    = "/etc/rc.d/rc.local"
-    $o_insmod  = "insmod" fullword
+    $o_initd     = /etc\/init\.d\/[\w\/\.]{0,32}/ fullword
+    $o_udev      = "etc/udev"
+    $o_crontab   = "crontab" fullword
+    $o_xdg       = "[Desktop Entry]"
+    $o_rc_d      = "/etc/rc.d/rc.local"
+    $o_insmod    = "insmod" fullword
+    $o_preload   = "/etc/ld.so.preload"
+    $o_systemctl = "systemctl"
 
     $bash_ref  = ".bash_profile"
     $bash_ref2 = ".profile" fullword

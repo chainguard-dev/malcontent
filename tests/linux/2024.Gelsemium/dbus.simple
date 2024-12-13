@@ -31,8 +31,8 @@ net/socket/local_addr: low
 net/socket/receive: low
 net/socket/send: low
 persist/daemon: medium
-persist/kernel_module/install: high
-persist/kernel_module/name: high
+persist/kernel_module/load: high
+persist/kernel_module/name: medium
 persist/kernel_module/unload: high
 persist/linux_multi: high
 persist/pid_file: medium

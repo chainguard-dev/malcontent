@@ -68,6 +68,7 @@ net/url/embedded: low
 persist/cron/etc_d: high
 persist/cron/tab: medium
 persist/daemon: medium
+persist/linux_multi: high
 persist/shell/bash: medium
 persist/ssh_authorized_keys: medium
 persist/writeable_dir: high
