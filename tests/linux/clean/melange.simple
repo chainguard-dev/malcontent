@@ -100,7 +100,7 @@ fs/swap/on: low
 fs/symlink_resolve: low
 fs/tempdir/TEMP: low
 fs/tempdir/create: low
-fs/tempdir/tempfile_create: low
+fs/tempfile: low
 fs/unmount: low
 fs/watch: low
 impact/remote_access/heartbeat: medium

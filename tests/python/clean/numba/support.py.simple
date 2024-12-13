@@ -15,7 +15,7 @@ fs/file/write: low
 fs/tempdir: low
 fs/tempdir/TEMP: low
 fs/tempdir/create: low
-fs/tempdir/tempfile_create: low
+fs/tempfile: low
 net/url/embedded: low
 os/fd/read: low
 os/fd/write: low

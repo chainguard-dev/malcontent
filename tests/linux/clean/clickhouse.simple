@@ -135,7 +135,7 @@ fs/tempdir: low
 fs/tempdir/TEMP: low
 fs/tempdir/TMPDIR: low
 fs/tempdir/create: low
-fs/tempdir/tempfile_create: low
+fs/tempfile: low
 fs/watch: low
 hw/cpu: medium
 hw/dev/block_ice: medium

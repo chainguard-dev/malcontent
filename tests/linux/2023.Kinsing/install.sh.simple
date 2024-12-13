@@ -50,7 +50,7 @@ fs/path/usr_sbin: low
 fs/path/var: low
 fs/path/var_log: medium
 fs/permission/modify: medium
-fs/tempdir/tempfile_create: low
+fs/tempfile: low
 impact/cryptojacking/cryptonight: high
 impact/cryptojacking/generic: high
 impact/cryptojacking/monero_pool: medium

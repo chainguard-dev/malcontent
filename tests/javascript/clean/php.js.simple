@@ -44,7 +44,7 @@ fs/path/etc: low
 fs/permission/modify: medium
 fs/symlink_resolve: low
 fs/tempdir/TEMP: low
-fs/tempdir/tempfile_create: low
+fs/tempfile: low
 fs/watch: low
 impact/remote_access/agent: medium
 net/http/cookies: medium

@@ -102,7 +102,7 @@ fs/symlink_resolve: low
 fs/tempdir: low
 fs/tempdir/TEMP: low
 fs/tempdir/TMPDIR: low
-fs/tempdir/tempfile_create: low
+fs/tempfile: low
 fs/watch: low
 hw/wireless: low
 net/dns: low

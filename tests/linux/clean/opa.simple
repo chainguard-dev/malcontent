@@ -60,7 +60,7 @@ fs/permission/modify: medium
 fs/proc/self_cgroup: medium
 fs/proc/self_mountinfo: medium
 fs/tempdir/TEMP: low
-fs/tempdir/tempfile_create: low
+fs/tempfile: low
 fs/watch: low
 net/dns: low
 net/dns/reverse: medium

@@ -32,7 +32,7 @@ fs/file/delete: low
 fs/path/etc: low
 fs/path/users: medium
 fs/tempdir/TEMP: low
-fs/tempdir/tempfile_create: low
+fs/tempfile: low
 hw/disk_info: medium
 malware/family/rustdoor: critical
 net/dns/txt: low

@@ -47,7 +47,7 @@ fs/path/tmp: medium
 fs/path/usr_bin: low
 fs/permission/chown: medium
 fs/permission/modify: medium
-fs/tempdir/tempfile_create: low
+fs/tempfile: low
 impact/cryptojacking/nicehash_pool: high
 impact/cryptojacking/xmrig: high
 net/dns: low

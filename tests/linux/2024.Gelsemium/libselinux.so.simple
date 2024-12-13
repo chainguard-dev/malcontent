@@ -14,7 +14,7 @@ fs/link_read: low
 fs/proc/arbitrary_pid: medium
 fs/proc/pid_cmdline: high
 fs/proc/pid_stat: medium
-fs/tempdir/tempfile_create: low
+fs/tempfile: low
 malware/family/beurk: critical
 malware/family/gelsemium: critical
 os/fd/multiplex: low

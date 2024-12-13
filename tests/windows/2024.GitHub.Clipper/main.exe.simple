@@ -70,7 +70,7 @@ fs/permission/chown: medium
 fs/permission/modify: medium
 fs/tempdir: low
 fs/tempdir/TEMP: low
-fs/tempdir/tempfile_create: low
+fs/tempfile: low
 hw/disk_info: medium
 impact/degrade/win_defender: high
 lateral/scan/tool: medium

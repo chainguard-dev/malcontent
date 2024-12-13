@@ -2,7 +2,6 @@
 3P/elastic/orbit: critical
 anti-behavior/LD_DEBUG: medium
 anti-behavior/LD_PROFILE: medium
-anti-static/xor/commands: high
 anti-static/xor/paths: high
 c2/addr/url: low
 c2/tool_transfer/arch: low
@@ -44,7 +43,7 @@ fs/proc/self_exe: medium
 fs/proc/stat: medium
 fs/tempdir: low
 fs/tempdir/TMPDIR: low
-fs/tempdir/tempfile_create: low
+fs/tempfile: low
 hw/cpu: medium
 malware/family/medusa: critical
 net/socket/local_addr: low

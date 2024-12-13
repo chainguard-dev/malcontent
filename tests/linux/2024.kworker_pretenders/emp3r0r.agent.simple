@@ -104,7 +104,7 @@ fs/proc/arbitrary_pid: medium
 fs/proc/cpuinfo: medium
 fs/symlink_resolve: low
 fs/tempdir/TEMP: low
-fs/tempdir/tempfile_create: low
+fs/tempfile: low
 hw/cpu: medium
 impact/exploit: high
 impact/exploit/GCONV_PATH: high

@@ -100,7 +100,7 @@ fs/tempdir: low
 fs/tempdir/TEMP: low
 fs/tempdir/TMPDIR: low
 fs/tempdir/create: low
-fs/tempdir/tempfile_create: low
+fs/tempfile: low
 hw/wireless: low
 impact/remote_access/heartbeat: medium
 lateral/scan/tool: medium

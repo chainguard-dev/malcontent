@@ -61,7 +61,7 @@ fs/permission/modify: medium
 fs/symlink_resolve: low
 fs/tempdir/TEMP: low
 fs/tempdir/create: low
-fs/tempdir/tempfile_create: low
+fs/tempfile: low
 lateral/scan/target_ip: medium
 lateral/scan/tool: medium
 net/download/fetch: medium
