@@ -3,7 +3,7 @@ rule svg: medium {
     description = "Contains SVG file(s)"
 
   strings:
-    $svg_open  = "<svg" nocase
+    $svg_open  = "<svg>" nocase
     $svg_close = "</svg>" nocase
 
   condition:
