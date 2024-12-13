@@ -42,6 +42,7 @@ data/embedded/base64_url: medium
 data/embedded/html: medium
 data/embedded/pem_certificate: low
 data/embedded/ssh_signature: medium
+data/embedded/svg: medium
 data/embedded/zstd: medium
 data/encoding/base64: low
 data/encoding/json: low

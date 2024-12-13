@@ -14,6 +14,7 @@ data/compression/gzip: low
 data/compression/zlib: low
 data/embedded/base64_terms: medium
 data/embedded/base64_url: medium
+data/embedded/svg: medium
 data/encoding/base64: low
 data/encoding/json_decode: low
 data/encoding/json_encode: low

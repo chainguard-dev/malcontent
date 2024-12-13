@@ -30,6 +30,7 @@ data/compression/zstd: low
 data/embedded/base64_url: medium
 data/embedded/html: medium
 data/embedded/pem_test_key: low
+data/embedded/svg: medium
 data/encoding/base64: low
 data/encoding/json: low
 data/encoding/json_decode: low

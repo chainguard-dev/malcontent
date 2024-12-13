@@ -31,6 +31,7 @@ data/embedded/base64_url: medium
 data/embedded/html: medium
 data/embedded/pem_certificate: low
 data/embedded/pem_private_key: medium
+data/embedded/svg: medium
 data/encoding/base64: low
 data/encoding/json: low
 data/encoding/json_decode: low
