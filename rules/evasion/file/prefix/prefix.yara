@@ -23,6 +23,18 @@ rule static_hidden_path: medium {
     $ref
 }
 
+rule known_hidden_path: critical {
+  meta:
+    description = "known hidden file path"
+
+  strings:
+    $xl1      = /[a-z\/]{0,24}\/(var|usr|tmp|lib)\/[a-z\/]{0,24}\/\.Xl1[\w\_\-\.]{0,16}/
+    $kde_root = /[a-z\/]{0,24}\/(var|usr|tmp|lib)\/[a-z\/]{0,24}\/\.kde-root[\w\_\-\.]{0,16}/
+
+  condition:
+    any of them
+}
+
 rule hidden_path: medium {
   meta:
     description = "hidden path in a system directory"

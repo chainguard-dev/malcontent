@@ -2,7 +2,8 @@
 3P/elastic/orbit: critical
 anti-behavior/LD_DEBUG: medium
 anti-behavior/LD_PROFILE: medium
-anti-static/xor/commands: high
+anti-static/elf/multiple: medium
+anti-static/xor/paths: high
 c2/addr/url: low
 c2/tool_transfer/arch: low
 credential/ssh/d: medium
@@ -18,6 +19,7 @@ evasion/file/prefix/dev: high
 evasion/file/prefix/lib: high
 evasion/hijack_execution/LD_LIBRARY_PATH: low
 evasion/hijack_execution/etc_ld.so.preload: medium
+evasion/logging/hide_shell_history: high
 evasion/rootkit/userspace: critical
 exec/conditional/LANG: low
 exec/dylib/address_check: low
@@ -42,11 +44,13 @@ fs/proc/self_exe: medium
 fs/proc/stat: medium
 fs/tempdir: low
 fs/tempdir/TMPDIR: low
+fs/tempfile: low
 hw/cpu: medium
 malware/family/medusa: critical
 net/socket/local_addr: low
 net/socket/send: low
 net/url/embedded: low
+os/fd/print: low
 privesc/setuid: low
 process/create: low
 process/executable_path: low

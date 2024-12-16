@@ -1,4 +1,4 @@
-rule multiple_elf: high linux {
+rule multiple_elf_system_paths: high linux {
   meta:
     description = "references multiple system paths, may be trying to hide content"
 

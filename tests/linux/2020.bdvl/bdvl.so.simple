@@ -39,6 +39,7 @@ fs/path/usr_sbin: low
 fs/permission/modify: medium
 fs/proc/arbitrary_pid: medium
 fs/proc/pid_cmdline: high
+fs/tempfile: low
 impact/degrade/sshd: high
 impact/remote_access/backdoor: high
 impact/remote_access/net_exec: medium

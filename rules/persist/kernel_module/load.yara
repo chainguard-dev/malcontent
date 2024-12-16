@@ -9,17 +9,6 @@ rule kernel_module_loader: medium linux {
     filesize < 10MB and all of them
 }
 
-rule kernel_module_unloader: medium linux {
-  meta:
-    description = "unloads Linux kernel module via rmmod"
-
-  strings:
-    $insmod = /rmmod [ \#\{\}\$\%\w\.\/_-]{1,32}/
-
-  condition:
-    filesize < 10MB and all of them
-}
-
 rule kernel_module_loader_ko: high linux {
   meta:
     description = "loads Linux kernel module .ko via insmod"
@@ -36,10 +25,11 @@ rule kernel_module_loader_sus_redir: high linux {
     description = "suspiciously loads Linux kernel module via insmod"
 
   strings:
-    $insmod = /insmod [ \$\%\w\.\/_-]{1,32} .{0,16}\/dev\/null 2\>\&1/
+    $insmod  = /insmod [ \$\%\w\.\/_-]{1,32} .{0,16}\/dev\/null 2\>\&1/
+    $insmod2 = /insmod [ \$\%\w\.\/_-]{1,32} .{0,16}2>\/dev\/null/
 
   condition:
-    filesize < 10MB and all of them
+    filesize < 10MB and any of them
 }
 
 rule cha_cha_tests: override linux {
@@ -54,19 +44,3 @@ rule cha_cha_tests: override linux {
   condition:
     filesize < 2KB and any of them
 }
-
-rule init_module: medium linux {
-  meta:
-    description = "Linux kernel module"
-    syscall     = "init_module"
-    capability  = "CAP_SYS_MODULE"
-
-    filetypes = "ko,elf,so"
-
-  strings:
-    $ref = "init_module" fullword
-
-  condition:
-    filesize < 1MB and all of them
-}
-

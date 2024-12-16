@@ -57,6 +57,7 @@ fs/permission/chown: medium
 fs/permission/get: low
 fs/permission/modify: medium
 fs/proc/stat: medium
+fs/tempfile: low
 impact/exploit/cve_list: medium
 impact/remote_access/kill_rm: medium
 impact/remote_access/reverse_shell: high

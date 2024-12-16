@@ -1,6 +1,7 @@
 # linux/clean/slirp4netns: medium
 anti-behavior/LD_DEBUG: medium
 anti-behavior/LD_PROFILE: medium
+anti-static/elf/multiple: medium
 c2/addr/ip: medium
 c2/addr/url: low
 c2/tool_transfer/arch: low
@@ -100,7 +101,7 @@ os/kernel/netlink: low
 os/kernel/perfmon: low
 os/kernel/seccomp: low
 os/time/clock_set: low
-persist/kernel_module/module: medium
+persist/kernel_module/unload: medium
 persist/writeable_dir: medium
 privesc/setuid: low
 process/chroot: low

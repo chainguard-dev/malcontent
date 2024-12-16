@@ -13,6 +13,17 @@
             ],
             "Behaviors": [
                 {
+                    "Description": "multiple ELF binaries within an ELF binary",
+                    "MatchStrings": [
+                        "$elf_head"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/elf/multiple.yara#multiple_elf",
+                    "ID": "anti-static/elf/multiple",
+                    "RuleName": "multiple_elf"
+                },
+                {
                     "Description": "binary contains hardcoded URL",
                     "MatchStrings": [
                         "https://wiki.musl"

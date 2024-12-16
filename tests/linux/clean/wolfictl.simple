@@ -1,4 +1,5 @@
 # linux/clean/wolfictl: medium
+anti-static/elf/multiple: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/addr/url: low
@@ -120,7 +121,7 @@ fs/tempdir: low
 fs/tempdir/TEMP: low
 fs/tempdir/TMPDIR: low
 fs/tempdir/create: low
-fs/tempdir/tempfile_create: low
+fs/tempfile: low
 fs/unmount: low
 fs/watch: low
 hw/wireless: low

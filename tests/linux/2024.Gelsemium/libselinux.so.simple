@@ -1,5 +1,10 @@
-# linux/2024.Gelsemium/libselinux.so: high
+# linux/2024.Gelsemium/libselinux.so: critical
+anti-static/obfuscation/hidden_literals: medium
 anti-static/xor/commands: high
+anti-static/xor/paths: high
+anti-static/xor/terms: high
+evasion/logging/hide_shell_history: high
+evasion/rootkit/userspace: high
 exec/dylib/symbol_address: medium
 exec/program: medium
 exec/tty/open: medium
@@ -7,5 +12,11 @@ fs/directory/remove: low
 fs/file/delete: low
 fs/link_read: low
 fs/proc/arbitrary_pid: medium
-fs/proc/pid_fd: medium
+fs/proc/pid_cmdline: high
+fs/proc/pid_fd: high
+fs/proc/pid_stat: medium
+fs/tempfile: low
+malware/family/beurk: critical
+malware/family/gelsemium: critical
 os/fd/multiplex: low
+os/fd/print: low

@@ -104,6 +104,7 @@ fs/proc/arbitrary_pid: medium
 fs/proc/cpuinfo: medium
 fs/symlink_resolve: low
 fs/tempdir/TEMP: low
+fs/tempfile: low
 hw/cpu: medium
 impact/exploit: high
 impact/exploit/GCONV_PATH: high
@@ -160,6 +161,7 @@ os/fd/sendfile: low
 os/kernel/netlink: low
 persist/cron/tab: medium
 persist/pid_file: medium
+persist/shell/bash: high
 privesc/linpeas: high
 privesc/setuid: low
 privesc/sudo: medium

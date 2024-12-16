@@ -1,5 +1,16 @@
 import "elf"
 
+rule register_kprobe: medium {
+  meta:
+    description = "registers a kernel probe (possibly kernel module)"
+
+  strings:
+    $ref = "register_kprobe"
+
+  condition:
+    any of them
+}
+
 rule lkm: medium {
   meta:
     description = "Linux kernel module"
@@ -26,15 +37,18 @@ rule lkm_embedded_in_elf: high {
     elf.type == elf.ET_EXEC and all of them
 }
 
-rule delete_module: medium {
+rule init_module: medium linux {
   meta:
-    description = "Unload Linux kernel module"
-    syscall     = "delete_module"
+    description = "Linux kernel module"
+    syscall     = "init_module"
     capability  = "CAP_SYS_MODULE"
 
+    filetypes = "ko,elf,so"
+
   strings:
-    $ref = "delete_module" fullword
+    $ref = "init_module" fullword
 
   condition:
-    all of them
+    filesize < 1MB and all of them
 }
+

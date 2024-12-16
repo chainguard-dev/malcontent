@@ -1,6 +1,7 @@
 # linux/2021.FontOnLake/45E9.elf: critical
 3P/elastic/rootkit: high
 3P/elastic/rootkit_fontonlake: critical
+anti-static/elf/multiple: medium
 anti-static/packer/upx: high
 c2/addr/ip: high
 c2/addr/url: low
@@ -67,7 +68,7 @@ fs/proc/pid_fd: medium
 fs/proc/self_exe: medium
 fs/symlink_resolve: low
 fs/tempdir/create: low
-fs/tempdir/tempfile_create: low
+fs/tempfile: low
 impact/remote_access/agent: medium
 impact/remote_access/backdoor: high
 impact/remote_access/reverse_shell: medium
@@ -92,8 +93,7 @@ net/tcp/ssh: medium
 net/tun_tap: medium
 net/url/embedded: low
 persist/daemon: medium
-persist/kernel_module/insert: high
-persist/kernel_module/kprobe: medium
+persist/kernel_module/load: high
 persist/kernel_module/module: medium
 persist/kernel_module/symbol_lookup: high
 persist/pid_file: medium

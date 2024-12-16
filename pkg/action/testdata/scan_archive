@@ -1626,15 +1626,16 @@
                     "RuleName": "temp"
                 },
                 {
-                    "Description": "Uses mktemp to create temporary files",
+                    "Description": "creates temporary files",
                     "MatchStrings": [
                         "mktemp",
-                        "temp file"
+                        "temp file",
+                        "tmpfile"
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/tempdir/tempfile-create.yara#mktemp",
-                    "ID": "fs/tempdir/tempfile_create",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/tempfile.yara#mktemp",
+                    "ID": "fs/tempfile",
                     "RuleName": "mktemp"
                 },
                 {

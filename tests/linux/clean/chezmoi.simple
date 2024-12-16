@@ -103,7 +103,7 @@ fs/symlink_resolve: low
 fs/tempdir: low
 fs/tempdir/TEMP: low
 fs/tempdir/TMPDIR: low
-fs/tempdir/tempfile_create: low
+fs/tempfile: low
 fs/watch: low
 hw/dev/block_ice: medium
 hw/wireless: low
@@ -160,7 +160,7 @@ net/webrtc: medium
 os/env/get: low
 os/fd/sendfile: low
 os/kernel/netlink: low
-persist/kernel_module/module: medium
+persist/kernel_module/unload: medium
 persist/pid_file: medium
 privesc/sudo: medium
 process/chdir: low

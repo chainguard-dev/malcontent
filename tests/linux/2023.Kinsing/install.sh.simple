@@ -50,7 +50,7 @@ fs/path/usr_sbin: low
 fs/path/var: low
 fs/path/var_log: medium
 fs/permission/modify: medium
-fs/tempdir/tempfile_create: low
+fs/tempfile: low
 impact/cryptojacking/cryptonight: high
 impact/cryptojacking/generic: high
 impact/cryptojacking/monero_pool: medium
@@ -58,6 +58,7 @@ impact/cryptojacking/xmrig: high
 impact/degrade/firewall: high
 impact/degrade/infection: critical
 impact/degrade/linux_paths: high
+impact/degrade/systemd: medium
 impact/remote_access/agent: medium
 impact/remote_access/iptables: medium
 impact/remote_access/kill_rm: medium

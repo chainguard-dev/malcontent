@@ -77,7 +77,7 @@ fs/proc/self_cgroup: medium
 fs/proc/self_mountinfo: medium
 fs/tempdir/TEMP: low
 fs/tempdir/create: low
-fs/tempdir/tempfile_create: low
+fs/tempfile: low
 fs/unmount: low
 fs/watch: low
 hw/dev/block_ice: medium

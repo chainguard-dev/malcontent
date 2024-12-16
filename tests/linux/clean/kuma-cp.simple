@@ -85,6 +85,7 @@ fs/permission/modify: medium
 fs/quota_manipulate: low
 fs/swap/on: low
 fs/tempdir/TEMP: low
+fs/tempfile: low
 fs/unmount: low
 fs/watch: low
 hw/dev/block_ice: medium

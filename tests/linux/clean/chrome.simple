@@ -1,6 +1,7 @@
 # linux/clean/chrome: medium
 anti-behavior/LD_DEBUG: medium
 anti-behavior/LD_PROFILE: medium
+anti-static/elf/multiple: medium
 anti-static/obfuscation/obfuscate: low
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
@@ -114,7 +115,7 @@ fs/tempdir: low
 fs/tempdir/TEMP: low
 fs/tempdir/TMPDIR: low
 fs/tempdir/create: low
-fs/tempdir/tempfile_create: low
+fs/tempfile: low
 fs/unmount: low
 fs/watch: low
 hw/cpu: medium
@@ -159,6 +160,7 @@ net/socket/receive: low
 net/socket/reuseport: medium
 net/socket/send: low
 net/tcp/ssh: medium
+net/udp/kcp: medium
 net/udp/upnp: medium
 net/url/embedded: medium
 net/url/encode: medium

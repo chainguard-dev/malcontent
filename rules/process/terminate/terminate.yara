@@ -9,3 +9,4 @@ rule TerminateProcess: medium {
   condition:
     any of them
 }
+

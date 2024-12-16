@@ -1,4 +1,4 @@
-# linux/clean/busybox: medium
+# linux/clean/busybox: high
 c2/addr/ip: medium
 c2/addr/url: low
 c2/tool_transfer/os: low
@@ -60,13 +60,14 @@ fs/permission/modify: medium
 fs/proc/arbitrary_pid: medium
 fs/proc/meminfo: medium
 fs/proc/mounts: medium
+fs/proc/pid_fd: high
 fs/proc/stat: medium
 fs/symlink_resolve: low
 fs/tempdir: low
 fs/tempdir/TEMP: low
 fs/tempdir/TMPDIR: low
 fs/tempdir/create: low
-fs/tempdir/tempfile_create: low
+fs/tempfile: low
 fs/watch: low
 hw/cpu: medium
 impact/ddos/raw_flooder: medium
@@ -86,6 +87,7 @@ net/socket/receive: low
 net/socket/send: low
 net/tun_tap: medium
 net/url/embedded: low
+os/fd/print: low
 os/time/clock_set: low
 persist/daemon: medium
 privesc/setuid: low

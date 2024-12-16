@@ -1,4 +1,5 @@
 # linux/clean/clickhouse: high
+anti-static/elf/multiple: medium
 anti-static/obfuscation/obfuscate: low
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
@@ -135,6 +136,7 @@ fs/tempdir: low
 fs/tempdir/TEMP: low
 fs/tempdir/TMPDIR: low
 fs/tempdir/create: low
+fs/tempfile: low
 fs/watch: low
 hw/cpu: medium
 hw/dev/block_ice: medium
@@ -183,6 +185,7 @@ net/url/embedded: medium
 net/url/encode: medium
 net/url/parse: low
 os/fd/epoll: low
+os/fd/print: low
 os/fd/read: low
 os/fd/sendfile: low
 os/kernel/netlink: low

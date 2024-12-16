@@ -2,11 +2,11 @@
 crypto/rc4: low
 discover/process/name: medium
 evasion/file/location/dev_shm: high
-evasion/file/prefix: high
+evasion/file/prefix: critical
 evasion/hijack_execution/etc_ld.so.preload: high
 exec/program: medium
 exec/program/background: low
-exec/shell/arbitrary_command_dev_null: medium
+exec/shell/arbitrary_command_dev_null: high
 fs/directory/create: low
 fs/directory/remove: low
 fs/file/delete: medium
@@ -16,7 +16,11 @@ fs/link_read: low
 fs/path/etc: low
 fs/path/usr_bin: low
 fs/proc/self_exe: medium
-persist/shell/bash: medium
+malware/family/gelsemium: critical
+persist/plugin: high
+persist/shell/bash: high
 privesc/setuid: low
 process/groupid_set: low
+process/terminate/arbitrary: high
 sus/compiler: high
+sus/lang: medium

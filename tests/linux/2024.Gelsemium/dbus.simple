@@ -1,14 +1,16 @@
 # linux/2024.Gelsemium/dbus: critical
+anti-static/elf/multiple: medium
 crypto/decrypt: low
 crypto/encrypt: medium
 data/hash/md5: medium
 data/random/insecure: low
+discover/multiple: high
 discover/network/netstat: medium
 discover/system/platform: medium
 discover/system/sysinfo: medium
 discover/user/name_get: medium
-evasion/file/prefix: high
-exec/shell/arbitrary_command_dev_null: medium
+evasion/file/prefix: critical
+exec/shell/arbitrary_command_dev_null: high
 fs/directory/create: low
 fs/directory/remove: low
 fs/file/delete_forcibly: medium
@@ -29,10 +31,15 @@ net/socket/local_addr: low
 net/socket/receive: low
 net/socket/send: low
 persist/daemon: medium
-persist/kernel_module/insert: medium
+persist/kernel_module/load: high
+persist/kernel_module/name: medium
+persist/kernel_module/unload: high
+persist/linux_multi: high
 persist/pid_file: medium
 persist/shell/bash: medium
+persist/xdg_desktop_entry: high
 privesc/setuid: low
 process/groupid_set: low
 process/multithreaded: low
+process/terminate/arbitrary: high
 sus/compiler: medium

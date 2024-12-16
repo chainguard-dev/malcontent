@@ -1,4 +1,5 @@
-# linux/2024.Gelsemium/udevd_multi: high
+# linux/2024.Gelsemium/udevd_multi: critical
+anti-static/elf/multiple: medium
 c2/addr/ip: medium
 c2/addr/url: low
 c2/client: medium
@@ -21,12 +22,12 @@ data/hash/sha256: low
 data/random/insecure: low
 discover/system/platform: low
 evasion/file/location/dev_shm: medium
-evasion/file/prefix: high
+evasion/file/prefix: critical
 evasion/hijack_execution/etc_ld.so.preload: high
 exec/dylib/address_check: low
 exec/dylib/symbol_address: medium
 exec/plugin: low
-exec/shell/arbitrary_command_dev_null: medium
+exec/shell/arbitrary_command_dev_null: high
 exec/shell/exec: medium
 exec/system_controls/systemd: medium
 fs/directory/create: low
@@ -44,9 +45,11 @@ fs/permission/modify: medium
 fs/proc/arbitrary_pid: medium
 fs/proc/pid_fd: medium
 fs/proc/self_exe: medium
+impact/degrade/systemd: high
 impact/remote_access/heartbeat: medium
 impact/remote_access/reverse_shell: medium
 lateral/scan/tool: medium
+malware/family/gelsemium: critical
 net/dns/txt: low
 net/http/post: medium
 net/http/request: low
@@ -60,8 +63,14 @@ net/socket/listen: medium
 net/socket/local_addr: low
 net/socket/receive: low
 net/socket/send: low
+net/udp/kcp: medium
 net/url/embedded: low
+persist/linux_multi: high
+persist/plugin: high
+persist/shell/bash: high
 privesc/setuid: low
 process/groupid_set: low
 process/multithreaded: low
+process/terminate/arbitrary: high
 sus/compiler: high
+sus/lang: medium

@@ -27,7 +27,7 @@ net/socket/listen: medium
 net/socket/send: low
 net/url/embedded: low
 os/kernel/seccomp: low
-persist/kernel_module/module: medium
+persist/kernel_module/unload: medium
 privesc/setuid: low
 process/create: low
 process/groupid_set: low
