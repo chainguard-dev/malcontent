@@ -4,9 +4,9 @@ rule svg: harmless {
 
   strings:
     $svg_open1  = "<svg>"
-    $svg_open2 = "<SVG>"
+    $svg_open2  = "<SVG>"
     $svg_close1 = "</svg>"
-    $svg_close2  = "</SVG>"
+    $svg_close2 = "</SVG>"
 
   condition:
     all of them
