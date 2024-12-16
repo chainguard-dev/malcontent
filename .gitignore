@@ -29,3 +29,6 @@ profiles/
 
 # Malcontent samples (obsolete)
 samples/
+
+# Compiled rules
+*.yarc
