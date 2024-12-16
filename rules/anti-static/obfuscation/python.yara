@@ -440,19 +440,18 @@ rule decompress_base64_entropy: high {
     description = "hidden base64-encoded compressed content"
 
   strings:
-    $k_lzma       = "lzma"
-    $k_gzip       = "gzip"
-    $k_zlib       = "zlib"
-    $b64decode    = "b64decode("
-    $f_bytes      = "bytes("
-    $f_decode     = "decode("
-    $f_decompress = "decompress("
-    $f_eval       = "eval("
-    $f_exec       = "exec("
-    $long_str     = /[\'\"][\+\w\/]{96}/
+    $k_lzma         = "lzma"
+    $k_gzip         = "gzip"
+    $k_zlib         = "zlib"
+    $f_bytes        = "bytes("
+    $f_decode       = "decode("
+    $f_decompress   = "decompress("
+    $f_eval         = "eval("
+    $f_exec         = "exec("
+    $b64decode_long = /b64decode\(\"[\+\=\w\/]{96}/
 
   condition:
-    filesize < 10MB and any of ($k*) and $b64decode and $long_str and any of ($f*)
+    filesize < 10MB and any of ($k*) and $b64decode_long and any of ($f*)
 }
 
 rule join: low {
