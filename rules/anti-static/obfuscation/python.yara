@@ -443,16 +443,15 @@ rule decompress_base64_entropy: high {
     $k_lzma       = "lzma"
     $k_gzip       = "gzip"
     $k_zlib       = "zlib"
-    $b64decode    = "b64decode(\""
-    $f_bytes      = "bytes(\""
-    $f_decode     = "decode(\""
-    $f_decompress = "decompress(\""
-    $f_eval       = "eval(\""
-    $f_exec       = "exec(\""
-    $b64_char     = /[\w+=\/]/
+    $f_bytes      = "bytes("
+    $f_decode     = "decode("
+    $f_decompress = "decompress("
+    $f_eval       = "eval("
+    $f_exec       = "exec("
+    $b64decode_long = /b64decode\(\"[\+\=\w\/]{96}/
 
   condition:
-    filesize < 10MB and any of ($k*) and $b64decode and #b64_char >= 96 and any of ($f*)
+    filesize < 10MB and any of ($k*) and $b64decode_long and any of ($f*)
 }
 
 rule join: low {
