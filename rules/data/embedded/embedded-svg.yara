@@ -1,10 +1,12 @@
-rule svg: medium {
+rule svg: harmless {
   meta:
-    description = "Contains SVG file(s)"
+    description = "Contains SVG (Scalable Vector Graphics) content"
 
   strings:
-    $svg_open  = "<svg>" nocase
-    $svg_close = "</svg>" nocase
+    $svg_open1  = "<svg>"
+    $svg_open2 = "<SVG>"
+    $svg_close1 = "</svg>"
+    $svg_close2  = "</SVG>"
 
   condition:
     all of them
@@ -12,7 +14,7 @@ rule svg: medium {
 
 rule foreign_object: high {
   meta:
-    description = "Contains SVG file(s) using foreignObjects"
+    description = "Contains SVG (Scalable Vector Graphics) content using foreignObjects"
 
   strings:
     $foreign_obj_open  = "<foreignObject>" nocase
@@ -24,7 +26,7 @@ rule foreign_object: high {
 
 rule foreign_object_script: critical {
   meta:
-    description = "Contains SVG file(s) that use foreignObjects along with base64, images, input, obfuscated variables, or scripts"
+    description = "Contains SVG (Scalable Vector Graphics) content that uses foreignObjects along with base64, images, input, obfuscated variables, or scripts"
 
   strings:
     $base64_str     = /[\"\'][\w\/\+]{24,2048}==[\"\']/
