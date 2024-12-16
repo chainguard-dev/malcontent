@@ -12,7 +12,7 @@ rule svg: harmless {
     all of ($lower*) or all of ($upper*)
 }
 
-rule foreign_object: high {
+rule foreign_object: medium {
   meta:
     description = "Contains SVG (Scalable Vector Graphics) content using foreignObjects"
 
@@ -24,7 +24,7 @@ rule foreign_object: high {
     svg and all of them
 }
 
-rule foreign_object_script: critical {
+rule foreign_object_script: high {
   meta:
     description = "Contains SVG (Scalable Vector Graphics) content that uses foreignObjects along with base64, images, input, obfuscated variables, or scripts"
 
