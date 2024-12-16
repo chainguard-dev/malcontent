@@ -3,13 +3,13 @@ rule svg: harmless {
     description = "Contains SVG (Scalable Vector Graphics) content"
 
   strings:
-    $svg_open1  = "<svg>"
-    $svg_open2  = "<SVG>"
-    $svg_close1 = "</svg>"
-    $svg_close2 = "</SVG>"
+    $lower1 = "<svg>"
+    $lower2 = "</svg>"
+    $upper1 = "<SVG>"
+    $upper2 = "</SVG>"
 
   condition:
-    all of them
+    all of ($lower*) or all of ($upper*)
 }
 
 rule foreign_object: high {
