@@ -195,7 +195,21 @@ func extractTar(ctx context.Context, d string, f string) error {
 				return fmt.Errorf("failed to close file: %w", err)
 			}
 		case tar.TypeSymlink:
-			if err := os.Symlink(header.Linkname, target); err != nil {
+			// Skip symlinks for targets that do not exist
+			_, err = os.Readlink(target)
+			if os.IsNotExist(err) {
+				continue
+			}
+			// Ensure that symlinks are not relative path traversals
+			// #nosec G305 // L208 handles the check
+			linkReal, err := filepath.EvalSymlinks(filepath.Join(d, header.Linkname))
+			if err != nil {
+				return fmt.Errorf("failed to evaluate symlink: %w", err)
+			}
+			if !strings.HasPrefix(linkReal, filepath.Clean(d)+string(os.PathSeparator)) {
+				return fmt.Errorf("symlink points outside temporary directory: %s", linkReal)
+			}
+			if err := os.Symlink(linkReal, target); err != nil {
 				return fmt.Errorf("failed to create symlink: %w", err)
 			}
 		}
@@ -428,7 +442,7 @@ func extractDeb(ctx context.Context, d, f string) error {
 
 	for {
 		header, err := df.Data.Next()
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			break
 		}
 		if err != nil {
@@ -469,7 +483,21 @@ func extractDeb(ctx context.Context, d, f string) error {
 				return fmt.Errorf("failed to close file: %w", err)
 			}
 		case tar.TypeSymlink:
-			if err := os.Symlink(header.Linkname, target); err != nil {
+			// Skip symlinks for targets that do not exist
+			_, err = os.Readlink(target)
+			if os.IsNotExist(err) {
+				continue
+			}
+			// Ensure that symlinks are not relative path traversals
+			// #nosec G305 // L208 handles the check
+			linkReal, err := filepath.EvalSymlinks(filepath.Join(d, header.Linkname))
+			if err != nil {
+				return fmt.Errorf("failed to evaluate symlink: %w", err)
+			}
+			if !strings.HasPrefix(linkReal, filepath.Clean(d)+string(os.PathSeparator)) {
+				return fmt.Errorf("symlink points outside temporary directory: %s", linkReal)
+			}
+			if err := os.Symlink(linkReal, target); err != nil {
 				return fmt.Errorf("failed to create symlink: %w", err)
 			}
 		}
