@@ -79,8 +79,6 @@ func getExt(path string) string {
 const maxBytes = 1 << 29 // 512MB
 
 // extractTar extracts .apk and .tar* archives.
-//
-//nolint:cyclop // ignore complexity of 40
 func extractTar(ctx context.Context, d string, f string) error {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting tar")
