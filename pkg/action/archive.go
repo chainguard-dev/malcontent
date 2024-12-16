@@ -124,11 +124,12 @@ func extractTar(ctx context.Context, d string, f string) error {
 		}
 		uncompressed := strings.Trim(filepath.Base(f), ".xz")
 		target := filepath.Join(d, uncompressed)
-		if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
+		if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
 			return fmt.Errorf("failed to create directory for file: %w", err)
 		}
 
-		// #nosec G115
+		// #nosec G115 // ignore Type conversion which leads to integer overflow
+		// header.Mode is int64 and FileMode is uint32
 		f, err := os.OpenFile(target, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0o600)
 		if err != nil {
 			return fmt.Errorf("failed to create file: %w", err)
@@ -138,7 +139,7 @@ func extractTar(ctx context.Context, d string, f string) error {
 			return fmt.Errorf("failed to write decompressed xz output: %w", err)
 		}
 		return nil
-	case strings.Contains(filename, ".bz2") || strings.Contains(filename, ".bzip2"):
+	case strings.Contains(filename, ".tar.bz2") || strings.Contains(filename, ".tbz"):
 		br := bzip2.NewReader(tf)
 		tr = tar.NewReader(br)
 	default:
@@ -168,16 +169,18 @@ func extractTar(ctx context.Context, d string, f string) error {
 
 		switch header.Typeflag {
 		case tar.TypeDir:
-			// #nosec G115
+			// #nosec G115 // ignore Type conversion which leads to integer overflow
+			// header.Mode is int64 and FileMode is uint32
 			if err := os.MkdirAll(target, os.FileMode(header.Mode)); err != nil {
 				return fmt.Errorf("failed to create directory: %w", err)
 			}
 		case tar.TypeReg:
-			if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
+			if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
 				return fmt.Errorf("failed to create parent directory: %w", err)
 			}
 
-			// #nosec G115
+			// #nosec G115 // ignore Type conversion which leads to integer overflow
+			// header.Mode is int64 and FileMode is uint32
 			out, err := os.OpenFile(target, os.O_RDWR|os.O_CREATE|os.O_TRUNC, os.FileMode(header.Mode))
 			if err != nil {
 				return fmt.Errorf("failed to create file: %w", err)
@@ -289,7 +292,7 @@ func extractZip(ctx context.Context, d string, f string) error {
 		}
 
 		if file.Mode().IsDir() {
-			mode := file.Mode() | 0o755
+			mode := file.Mode() | 0o700
 			err := os.MkdirAll(name, mode)
 			if err != nil {
 				return fmt.Errorf("failed to create directory: %w", err)
@@ -302,7 +305,7 @@ func extractZip(ctx context.Context, d string, f string) error {
 			return fmt.Errorf("failed to open file in zip: %w", err)
 		}
 
-		err = os.MkdirAll(filepath.Dir(name), 0o755)
+		err = os.MkdirAll(filepath.Dir(name), 0o700)
 		if err != nil {
 			open.Close()
 			return fmt.Errorf("failed to create directory: %w", err)
@@ -398,7 +401,7 @@ func extractRPM(ctx context.Context, d, f string) error {
 			continue
 		}
 
-		if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
+		if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
 			return fmt.Errorf("failed to create parent directory: %w", err)
 		}
 
@@ -455,12 +458,13 @@ func extractDeb(ctx context.Context, d, f string) error {
 
 		switch header.Typeflag {
 		case tar.TypeDir:
-			// #nosec G115
+			// #nosec G115 // ignore Type conversion which leads to integer overflow
+			// header.Mode is int64 and FileMode is uint32
 			if err := os.MkdirAll(target, os.FileMode(header.Mode)); err != nil {
 				return fmt.Errorf("failed to create directory: %w", err)
 			}
 		case tar.TypeReg:
-			if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
+			if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
 				return fmt.Errorf("failed to create parent directory: %w", err)
 			}
 
@@ -499,6 +503,49 @@ func extractDeb(ctx context.Context, d, f string) error {
 		}
 	}
 
+	return nil
+}
+
+func extractBz2(ctx context.Context, d, f string) error {
+	logger := clog.FromContext(ctx).With("dir", d, "file", f)
+	logger.Debug("extracting bzip2 file")
+
+	// Check if the file is valid
+	_, err := os.Stat(f)
+	if err != nil {
+		return fmt.Errorf("failed to stat file: %w", err)
+	}
+
+	tf, err := os.Open(f)
+	if err != nil {
+		return fmt.Errorf("failed to open file: %w", err)
+	}
+	defer tf.Close()
+	// Set offset to the file origin regardless of type
+	_, err = tf.Seek(0, io.SeekStart)
+	if err != nil {
+		return fmt.Errorf("failed to seek to start: %w", err)
+	}
+
+	br := bzip2.NewReader(tf)
+	uncompressed := strings.TrimSuffix(filepath.Base(f), ".bz2")
+	uncompressed = strings.TrimSuffix(uncompressed, ".bzip2")
+	target := filepath.Join(d, uncompressed)
+	if err := os.MkdirAll(d, 0o700); err != nil {
+		return fmt.Errorf("failed to create directory for file: %w", err)
+	}
+
+	// #nosec G115 // ignore Type conversion which leads to integer overflow
+	// header.Mode is int64 and FileMode is uint32
+	out, err := os.OpenFile(target, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0o600)
+	if err != nil {
+		return fmt.Errorf("failed to create file: %w", err)
+	}
+	defer out.Close()
+	if _, err := io.Copy(out, io.LimitReader(br, maxBytes)); err != nil {
+		out.Close()
+		return fmt.Errorf("failed to copy file: %w", err)
+	}
 	return nil
 }
 
@@ -642,8 +689,10 @@ func extractionMethod(ext string) func(context.Context, string, string) error {
 		return extractZip
 	case ".gz":
 		return extractGzip
-	case ".apk", ".bz2", ".bzip2", ".gem", ".tar", ".tar.gz", ".tgz", ".tar.xz", ".xz":
+	case ".apk", ".gem", ".tar", ".tar.bz2", ".tar.gz", ".tgz", ".tar.xz", ".tbz", ".xz":
 		return extractTar
+	case ".bz2", ".bzip2":
+		return extractBz2
 	case ".rpm":
 		return extractRPM
 	case ".deb":
