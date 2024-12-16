@@ -102,6 +102,12 @@ func makeFileType(path string, ext string, mime string) *FileType {
 
 // File detects what kind of program this file might be.
 func File(path string) (*FileType, error) {
+	// Follow symlinks and return cleanly if the target does not exist
+	_, err := filepath.EvalSymlinks(path)
+	if os.IsNotExist(err) {
+		return nil, nil
+	}
+
 	st, err := os.Stat(path)
 	if err != nil {
 		return nil, fmt.Errorf("stat: %w", err)
