@@ -1,6 +1,6 @@
 import "math"
 
-rule proc_stat: medium {
+rule proc_pid_stat: medium {
   meta:
     description = "access status fields for other processes"
 
@@ -13,7 +13,7 @@ rule proc_stat: medium {
     any of them
 }
 
-rule proc_stat_near: medium {
+rule proc_pid_stat_near: medium {
   meta:
     description = "access status fields for other processes"
 
