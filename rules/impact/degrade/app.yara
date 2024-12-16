@@ -6,7 +6,7 @@ rule osascript_window_closer: medium {
     $c_osascript   = "osascript" fullword
     $c_tell        = "tell" fullword
     $c_application = "application" fullword
-    $c_app_name    = /\"\w[\.\w ]{0,24}\w\"/ fullword
+    $c_app_name    = /\"\w[\.\w]{0,24}\w\"/ fullword
     $c_to          = "to" fullword
     $c_close       = "close" fullword
     $c_window      = "window" fullword
@@ -23,11 +23,10 @@ rule osascript_quitter: medium {
     $c_osascript   = "osascript" fullword
     $c_tell        = "tell" fullword
     $c_application = "application" fullword
-    $c_app_name    = /\"\w[\.\w ]{0,24}\w\"/ fullword
+    $c_app_name    = /\"\w[\.\w]{0,24}\w\"/ fullword
     $c_to          = "to" fullword
     $c_quit        = "quit" fullword
 
   condition:
     filesize < 256KB and all of ($c*)
 }
-

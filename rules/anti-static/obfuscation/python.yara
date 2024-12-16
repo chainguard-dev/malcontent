@@ -449,10 +449,10 @@ rule decompress_base64_entropy: high {
     $f_decompress = "decompress("
     $f_eval       = "eval("
     $f_exec       = "exec("
-    $long_str     = /[\'\"][\+\w\/]{96}/
+    $long_str     = /[\'\"][\+\w\/]{,96}[\'\"]/
 
   condition:
-    filesize < 10MB and any of ($k*) and $b64decode and $long_str and any of ($f*)
+    filesize < 10MB and any of ($k*) and $b64decode and !long_str==96 and any of ($f*)
 }
 
 rule join: low {

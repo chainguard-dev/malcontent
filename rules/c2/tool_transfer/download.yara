@@ -75,7 +75,7 @@ rule http_archive_url: medium {
     description = "accesses hardcoded archive file endpoint"
 
   strings:
-    $ref         = /https*:\/\/[\w\.]{0,160}[:\/\w\_\-\?\@=]{6,160}\.(zip|tar|tgz|gz|xz)/ fullword
+    $ref         = /https{0,1}:\/\/[\w\.]{0,160}[:\/\w\_\-\?\@=]{6,160}\.(zip|tar|tgz|gz|xz)/ fullword
     $not_foo_bar = "http://foo/bar.tar"
 
   condition:
@@ -93,10 +93,9 @@ rule http_archive_url_higher: high {
     description = "accesses hardcoded archive file endpoint"
 
   strings:
-    $ref         = /https*:\/\/[\w\.]{0,160}[:\/\w\_\-\?\@=]{6,160}\.(zip|tar|tgz|gz|xz)/ fullword
+    $ref         = /https{0,1}:\/\/[\w\.]{0,160}[:\/\w\_\-\?\@=]{6,160}\.(zip|tar|tgz|gz|xz)/ fullword
     $not_foo_bar = "http://foo/bar.tar"
 
   condition:
     smallerBinary and any of ($ref*) and none of ($not*)
 }
-
