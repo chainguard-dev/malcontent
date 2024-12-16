@@ -13,10 +13,10 @@ fs/file/delete: low
 fs/link_read: low
 fs/proc/arbitrary_pid: medium
 fs/proc/pid_cmdline: high
+fs/proc/pid_fd: high
 fs/proc/pid_stat: medium
 fs/tempfile: low
 malware/family/beurk: critical
 malware/family/gelsemium: critical
 os/fd/multiplex: low
 os/fd/print: low
-os/fd/socket: medium
