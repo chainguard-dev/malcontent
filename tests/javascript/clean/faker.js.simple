@@ -1,7 +1,5 @@
-# javascript/clean/faker.js: high
+# javascript/clean/faker.js: medium
 anti-behavior/blocklist/user: low
-anti-static/base64/exec: high
-anti-static/base64/http_agent: high
 anti-static/obfuscation/obfuscate: low
 c2/addr/ip: medium
 c2/tool_transfer/arch: low

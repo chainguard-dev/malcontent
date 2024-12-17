@@ -3,7 +3,7 @@ rule iplookup_website: high {
     description = "public service to discover external IP address"
 
   strings:
-    $ipify       = "ipify.or"
+    $ipify       = /ipify\.org{0,1}/
     $wtfismyip   = "wtfismyip"
     $iplogger    = "iplogger.org"
     $getjsonip   = "getjsonip"

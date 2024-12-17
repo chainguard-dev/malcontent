@@ -12,6 +12,8 @@ rule linux_network_filter_exec: high {
     $e_bin_sh        = "/bin/sh"
     $e_bin_bash      = "/bin/bash"
     $not_cilium_node = "CILIUM_SOCK"
+    $not_tcp_ipv6    = "tcp[ipv6]"
+    $not_keycode     = "keycode=0x"
 
   condition:
     $0x and any of ($p*) and any of ($e*) and none of ($not*)

@@ -1,0 +1,8 @@
+# c/clean/falco/ppm_events.c: medium
+discover/multiple: medium
+impact/remote_access/backdoor: medium
+net/http/post: medium
+net/socket/connect: medium
+net/socket/send: low
+net/url/embedded: low
+persist/kernel_module/symbol_lookup: low

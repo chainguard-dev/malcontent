@@ -1,7 +1,6 @@
-# javascript/clean/mode-php.js: high
+# javascript/clean/mode-php.js: medium
 c2/addr/ip: medium
 c2/client: medium
-c2/tool_transfer/python: high
 collect/databases/mysql: medium
 collect/databases/sqlite: medium
 credential/password: low

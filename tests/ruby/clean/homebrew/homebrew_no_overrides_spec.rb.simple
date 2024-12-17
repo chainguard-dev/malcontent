@@ -1,0 +1,4 @@
+# ruby/clean/homebrew/homebrew_no_overrides_spec.rb: low
+c2/tool_transfer/arch: low
+c2/tool_transfer/os: low
+net/url/embedded: low

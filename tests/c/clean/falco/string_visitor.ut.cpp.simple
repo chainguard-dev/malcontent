@@ -1,0 +1,8 @@
+# c/clean/falco/string_visitor.ut.cpp: medium
+credential/shell/bash_history: medium
+fs/path/etc: low
+fs/path/var: low
+net/url/embedded: low
+persist/shell/bash: medium
+persist/shell/init_files: low
+persist/shell/zsh: medium

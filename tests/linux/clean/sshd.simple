@@ -17,7 +17,6 @@ discover/process/parent: low
 discover/system/hostname: low
 discover/user/HOME: low
 discover/user/USER: low
-evasion/file/location/x11_unix: low
 evasion/file/prefix: medium
 evasion/logging/acct: low
 evasion/logging/failed_logins: medium

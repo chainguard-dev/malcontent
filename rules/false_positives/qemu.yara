@@ -1,10 +1,12 @@
 rule qemu: override {
   meta:
-    description = "QEMU"
+    description    = "QEMU"
+    proc_d_cmdline = "medium"
 
   strings:
-    $module = "QEMU_MODULE"
+    $module  = "QEMU_MODULE"
+    $aligned = "QEMU_IS_ALIGNED"
 
   condition:
-    filesize < 5MB and all of them
+    filesize < 30MB and any of them
 }

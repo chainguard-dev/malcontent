@@ -32,7 +32,18 @@ private rule binary {
     filesize < 40MB and (uint32(0) == 1179403647 or uint32(0) == 4277009102 or uint32(0) == 3472551422 or uint32(0) == 4277009103 or uint32(0) == 3489328638 or uint32(0) == 3405691582 or uint32(0) == 3199925962)
 }
 
-rule multiple_gcc: high {
+rule multiple_gcc: medium {
+  meta:
+    description = "built with multiple versions of GCC"
+
+  strings:
+    $gcc = /GCC: \([\w \.\-\~\(\)]{8,64}/ fullword
+
+  condition:
+    binary and #gcc > 1 and !gcc[1] != !gcc[2]
+}
+
+rule multiple_gcc_high: high {
   meta:
     description = "built with multiple versions of GCC"
 
@@ -40,6 +51,7 @@ rule multiple_gcc: high {
     $gcc                        = /GCC: \([\w \.\-\~\(\)]{8,64}/ fullword
     $not_go_testdata_ranges_elf = "/home/iant/foo4.c"
     $not_go_testdata            = "dwarf/testdata"
+    $not_java                   = "JAVA_HOME"
 
   condition:
     binary and #gcc > 1 and !gcc[1] != !gcc[2] and none of ($not*)
