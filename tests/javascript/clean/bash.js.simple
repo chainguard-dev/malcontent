@@ -1,5 +1,4 @@
-# javascript/clean/bash.js: high
-anti-behavior/process_check: high
+# javascript/clean/bash.js: medium
 data/compression/bzip2: low
 data/compression/gzip: low
 discover/multiple: medium

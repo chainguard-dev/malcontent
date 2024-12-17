@@ -108,7 +108,6 @@ fs/tempfile: low
 hw/cpu: medium
 impact/exploit: high
 impact/exploit/GCONV_PATH: high
-impact/exploit/overflow_shellcode: high
 impact/exploit/pwnkit: critical
 impact/remote_access/heartbeat: medium
 impact/remote_access/kill_rm: medium

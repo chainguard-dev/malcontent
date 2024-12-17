@@ -95,6 +95,7 @@ rule binary_url_with_question: high {
     $not_msdn        = "msdn.microsoft.com/"
     $not_codeproject = "www.codeproject.com/"
     $not_wiki        = "index.php?title="
+    $not_mesibo      = "https://api.mesibo.com/api.php?"
 
   condition:
     filesize < 150MB and elf_or_macho and $ref and none of ($not*)

@@ -69,6 +69,13 @@ rule hardcoded_host_port_over_10k: high {
     $host_domain_tld     = /[a-z]{3,64}\.[a-z]{3,64}\.[a-z]{2,3}:\d{4,5}/ fullword
     $host_domain_sld_tld = /[a-z]{3,64}\.[a-z]{3,64}\.[a-z]{2,3}\.[a-z]{2,3}:\d{4,5}/ fullword
 
+    $not_roughtime_cloudflare = "roughtime.cloudflare.com:2003"
+    $not_roughtime_google     = "sandbox.google.com:2002"
+    $not_foo_bar              = "foo.bar:"
+    $not_example_com          = "example.com:"
+    $not_mygateway            = "mygateway.com:"
+    $not_mymachine            = "mymachine.com:"
+
   condition:
-    any of ($h*)
+    any of ($h*) and none of ($not*)
 }

@@ -43,6 +43,8 @@ rule bin_hardcoded_ip: high {
     $not_10_11_12_13       = "10.11.12.13"
     $not_libebt_among_init = "libebt_among_init"
     $not_send_att          = "3.2.5.7"
+    $not_192_168           = "192.168."
+    $not_2345              = "23.45.67.89"
 
   condition:
     filesize < 12MB and ip_elf_or_macho and 1 of ($sus_ip*) and none of ($not*)

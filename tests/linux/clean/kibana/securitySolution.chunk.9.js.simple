@@ -1,14 +1,14 @@
-# linux/clean/kibana/securitySolution.chunk.9.js: critical
+# linux/clean/kibana/securitySolution.chunk.9.js: medium
 anti-static/obfuscation/js: medium
 anti-static/obfuscation/reverse: medium
 c2/addr/ip: medium
-c2/addr/url: high
+c2/addr/url: low
 c2/discovery/dyndns: medium
 c2/tool_transfer/arch: low
-c2/tool_transfer/download: high
+c2/tool_transfer/download: low
 c2/tool_transfer/dropper: medium
-c2/tool_transfer/exe_url: high
-c2/tool_transfer/grayware: high
+c2/tool_transfer/exe_url: low
+c2/tool_transfer/grayware: low
 c2/tool_transfer/os: medium
 collect/databases/mysql: medium
 credential/keylogger: medium
@@ -40,12 +40,11 @@ impact/ddos: medium
 impact/exploit: medium
 impact/exploit/cve: medium
 impact/exploit/known_s: medium
-impact/exploit/overflow_shellcode: high
 impact/infection/infected: medium
 impact/infection/worm: medium
 impact/remote_access/backdoor: medium
 impact/remote_access/iptables: medium
-impact/remote_access/reverse_shell: high
+impact/remote_access/reverse_shell: low
 impact/remote_access/trojan: medium
 lateral/scan/brute_force: low
 malware/ref: medium
@@ -64,7 +63,7 @@ net/url/request: medium
 os/kernel/seccomp: low
 persist/daemon: medium
 process/chroot: low
-sec-tool/net/masscan: high
+sec-tool/net/masscan: low
 sec-tool/net/nmap: medium
 sec-tool/pentest/metasploit_ref: medium
 sus/leetspeak: medium
