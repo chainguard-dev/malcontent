@@ -2,7 +2,6 @@
 discover/system/platform: medium
 exec/imports/python: low
 exec/remote_commands/code_eval: medium
-false-positives/setuptools: low
 fs/directory/list: low
 fs/file/delete: low
 fs/file/exists: low

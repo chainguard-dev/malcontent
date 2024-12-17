@@ -30,18 +30,3 @@ rule numba_support: override {
   condition:
     filesize < 64KB and all of them
 }
-
-rule setup_pydevd_cython: override {
-  meta:
-    description          = "setup_pydevd_cython.py"
-    setuptools_exec_high = "low"
-
-  strings:
-    $example = "python setup_pydevd_cython build_ext --inplace"
-    $header  = "A simpler setup version just to compile the speedup module."
-    $import  = "from setuptools import setup"
-    $pydevd  = "pydevd"
-
-  condition:
-    filesize < 16KB and all of them
-}
