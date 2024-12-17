@@ -1,0 +1,9 @@
+# python/clean/matplotlib/backend_qt.py: medium
+c2/tool_transfer/os: medium
+discover/system/platform: medium
+exec/imports/python: low
+exec/remote_commands/code_eval: medium
+net/socket/pair: medium
+net/socket/receive: low
+net/url/embedded: low
+os/time/clock_sleep: medium
