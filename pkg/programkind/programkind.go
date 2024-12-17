@@ -39,6 +39,7 @@ var supportedKind = map[string]string{
 	"expect":  "text/x-expect",
 	"fish":    "text/x-fish",
 	"go":      "text/x-go",
+	"gzip":    "application/gzip",
 	"h":       "text/x-h",
 	"hh":      "text/x-h",
 	"html":    "",
@@ -68,6 +69,7 @@ var supportedKind = map[string]string{
 	"yaml":    "",
 	"yara":    "",
 	"yml":     "",
+	"zlib":    "application/zlib",
 	"zsh":     "application/x-zsh",
 }
 
@@ -176,6 +178,10 @@ func File(path string) (*FileType, error) {
 		return Path(".c"), nil
 	case strings.Contains(s, "BEAMAtU8"):
 		return Path(".beam"), nil
+	case hdr[0] == '\x1f' && hdr[1] == '\x8b':
+		return Path(".gzip"), nil
+	case hdr[0] == '\x78' && hdr[1] == '\x5E':
+		return Path(".zlib"), nil
 	}
 	return nil, nil
 }
