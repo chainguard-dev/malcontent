@@ -1,7 +1,7 @@
 rule migrate_py: override {
   meta:
     description     = "migrate.py"
-    setuptools_eval = "medium"
+    setuptools_eval_high = "medium"
 
   strings:
     $env     = "'_HATCHLING_PORT_ADD_'"

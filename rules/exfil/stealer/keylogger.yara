@@ -14,7 +14,7 @@ rule keylogger_discord_telegram: high {
     filesize < 256KB and any of ($http*) and any of ($k*)
 }
 
-rule py_keylogger_pynput_exfil: critical {
+rule py_keylogger_pynput_exfil: high {
   meta:
     description = "listens for keyboard events and exfiltrates them"
     filetypes   = "py"
@@ -33,7 +33,7 @@ rule py_keylogger_pynput_exfil: critical {
     filesize < 256KB and any of ($http*) and all of ($f*)
 }
 
-rule py_keykeyboard_exfil: critical {
+rule py_keykeyboard_exfil: high {
   meta:
     description = "listens for keyboard events and exfiltrates them"
     filetypes   = "py"
@@ -44,7 +44,8 @@ rule py_keykeyboard_exfil: critical {
     $http_Discord   = "Discord"
     $http_keylogger = /[kK]eylogger/
     $http_Telegram  = "Telegram"
-    $f_pynput       = "keyboard" fullword
+	$f_pynput = "pynput" fullword
+    $f_keyboard       = "keyboard" fullword
     $f_key          = ".name"
     $f_listener     = "on_release"
 

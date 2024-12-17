@@ -3,7 +3,7 @@ exec/imports/python: low
 exec/remote_commands/code_eval: medium
 fs/file/exists: low
 fs/file/open: low
-impact/remote_access/py_setuptools: low
+impact/remote_access/py_setuptools: medium
 net/download: medium
 net/url/embedded: low
 os/fd/read: low
