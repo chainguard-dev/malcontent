@@ -44,8 +44,8 @@ rule py_keykeyboard_exfil: high {
     $http_Discord   = "Discord"
     $http_keylogger = /[kK]eylogger/
     $http_Telegram  = "Telegram"
-	$f_pynput = "pynput" fullword
-    $f_keyboard       = "keyboard" fullword
+    $f_pynput       = "pynput" fullword
+    $f_keyboard     = "keyboard" fullword
     $f_key          = ".name"
     $f_listener     = "on_release"
 

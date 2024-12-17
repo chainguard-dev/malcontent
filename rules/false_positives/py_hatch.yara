@@ -1,6 +1,6 @@
 rule migrate_py: override {
   meta:
-    description     = "migrate.py"
+    description          = "migrate.py"
     setuptools_eval_high = "medium"
 
   strings:

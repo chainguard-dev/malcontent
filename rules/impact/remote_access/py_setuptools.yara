@@ -51,8 +51,9 @@ rule setuptools_cmd_exec: high {
     $not_comment           = "Editable install to a prefix should be discoverable."
     $not_egg_info_requires = "os.path.join(egg_info_dir, 'requires.txt')"
     $not_requests          = "'Documentation': 'https://requests.readthedocs.io'"
-	$not_sdist_publish = "python setup.py sdist bdist_wheel"
-	$not_twine_upload = "twine upload dist/*"
+    $not_sdist_publish     = "python setup.py sdist bdist_wheel"
+    $not_twine_upload      = "twine upload dist/*"
+
   condition:
     remote_access_pythonSetup and any of ($f*) and none of ($not*)
 }
@@ -71,25 +72,25 @@ rule setuptools_cmd_exec_start: critical {
     remote_access_pythonSetup and any of ($f*)
 }
 
-
 rule setuptools_eval: medium {
   meta:
     description = "Python library installer that evaluates arbitrary code"
 
   strings:
-    $f_eval           = /eval\([\"\'\/\w\,\.\ \-\)\(]{1,64}\)/ fullword
+    $f_eval = /eval\([\"\'\/\w\,\.\ \-\)\(]{1,64}\)/ fullword
+
   condition:
     remote_access_pythonSetup and any of ($f*)
 }
-
 
 rule setuptools_eval_high: high {
   meta:
     description = "Python library installer that evaluates arbitrary code"
 
   strings:
-    $f_eval           = /eval\([\"\'\/\w\,\.\ \-\)\(]{1,64}\)/ fullword
-    $not_namespaced  = /eval\([\w\.\(\)\"\/\']{4,16}, [a-z]{1,6}[,\)]/
+    $f_eval         = /eval\([\"\'\/\w\,\.\ \-\)\(]{1,64}\)/ fullword
+    $not_namespaced = /eval\([\w\.\(\)\"\/\']{4,16}, [a-z]{1,6}[,\)]/
+
   condition:
     remote_access_pythonSetup and any of ($f*) and none of ($not*)
 }
@@ -99,7 +100,8 @@ rule setuptools_exec: medium {
     description = "Python library installer that executes arbitrary code"
 
   strings:
-    $f_exec    = /exec\([\"\'\/\w\,\.\ \-\)\(]{1,64}\)/ fullword
+    $f_exec = /exec\([\"\'\/\w\,\.\ \-\)\(]{1,64}\)/ fullword
+
   condition:
     remote_access_pythonSetup and any of ($f*)
 }
@@ -109,7 +111,7 @@ rule setuptools_exec_high: high {
     description = "Python library installer that evaluates arbitrary code"
 
   strings:
-    $f_exec    = /exec\([\"\'\/\w\,\.\ \-\)\(]{1,64}\)/ fullword
+    $f_exec              = /exec\([\"\'\/\w\,\.\ \-\)\(]{1,64}\)/ fullword
     $not_apache          = "# Licensed under the Apache License, Version 2.0 (the \"License\")"
     $not_comment         = "Editable install to a prefix should be discoverable."
     $not_google          = /# Copyright [1-2][0-9]{3} Google Inc/
@@ -119,11 +121,11 @@ rule setuptools_exec_high: high {
     $not_pyspark_ioerror = "\"Failed to load PySpark version file for packaging. You must be in Spark's python dir.\""
     $not_requests        = "'Documentation': 'https://requests.readthedocs.io'"
     $not_test_egg_class  = "class TestEggInfo"
-    $not_namespaced  = /exec\([\w\.\(\)\"\/\']{4,16}, [a-z]{1,6}[,\)]/
+    $not_namespaced      = /exec\([\w\.\(\)\"\/\']{4,16}, [a-z]{1,6}[,\)]/
+
   condition:
     remote_access_pythonSetup and any of ($f*) and none of ($not*)
 }
-
 
 rule setuptools_b64decode: suspicious {
   meta:

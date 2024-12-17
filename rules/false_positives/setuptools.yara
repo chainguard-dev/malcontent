@@ -1,6 +1,6 @@
 rule setuptools_namespaces: override {
   meta:
-    description     = "namespaces.py"
+    description          = "namespaces.py"
     setuptools_exec_high = "low"
 
   strings:
@@ -18,7 +18,7 @@ rule setuptools_namespaces: override {
 
 rule numba_support: override {
   meta:
-    description     = "support.py"
+    description          = "support.py"
     setuptools_exec_high = "low"
 
   strings:
@@ -33,7 +33,7 @@ rule numba_support: override {
 
 rule setup_pydevd_cython: override {
   meta:
-    description     = "setup_pydevd_cython.py"
+    description          = "setup_pydevd_cython.py"
     setuptools_exec_high = "low"
 
   strings:
