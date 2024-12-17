@@ -497,12 +497,14 @@ func processArchive(ctx context.Context, c malcontent.Config, rfs []fs.FS, archi
 	if err != nil {
 		return nil, fmt.Errorf("extract to temp: %w", err)
 	}
-	// Ensure that tmpRoot is removed before returning
-	defer func() {
-		if err := os.RemoveAll(tmpRoot); err != nil {
-			logger.Errorf("remove %s: %v", tmpRoot, err)
-		}
-	}()
+	// Ensure that tmpRoot is removed before returning if created successfully
+	if tmpRoot != "" {
+		defer func() {
+			if err := os.RemoveAll(tmpRoot); err != nil {
+				logger.Errorf("remove %s: %v", tmpRoot, err)
+			}
+		}()
+	}
 	// macOS will prefix temporary directories with `/private`
 	// update tmpRoot with this prefix to allow strings.TrimPrefix to work
 	if runtime.GOOS == "darwin" {
