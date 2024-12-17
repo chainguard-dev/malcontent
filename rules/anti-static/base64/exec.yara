@@ -23,7 +23,7 @@ rule base64_commands: high {
     $not_kandji     = "kandji-parameter-agent"
     $not_mdmprofile = "mdmprofile"
     $not_example    = "commands are encoded"
-
+	$not_sourcemappingURL = "sourceMappingURL=data:application/json;charset=utf-8;base64"
   condition:
     any of ($b_*) and none of ($not_*)
 }
