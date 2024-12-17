@@ -113,9 +113,6 @@ var rulesWithWarnings = map[string]bool{
 	"http_accept":                           true,
 	"hardcoded_host_port":                   true,
 	"hardcoded_host_port_over_10k":          true,
-	"Agenda_golang":                         false,
-	"bookworm_dll_UUID":                     false,
-	"Microsoft_Excel_with_Macrosheet":       false,
 }
 
 func Recursive(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {
