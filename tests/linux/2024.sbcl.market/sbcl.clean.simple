@@ -1,4 +1,4 @@
-# linux/2024.sbcl.market/sbcl.clean: high
+# linux/2024.sbcl.market/sbcl.clean: medium
 c2/addr/url: low
 c2/tool_transfer/arch: low
 crypto/rc4: low
@@ -6,7 +6,6 @@ data/compression/zstd: low
 discover/user/HOME: low
 discover/user/USER: low
 evasion/file/location/var_tmp: medium
-evasion/rootkit/userspace: high
 exec/dylib/address_check: low
 exec/dylib/symbol_address: medium
 exec/program: medium
