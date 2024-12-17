@@ -1,0 +1,6 @@
+# python/clean/matplotlib/_backend_tk.py: medium
+anti-static/obfuscation/bitwise: low
+c2/tool_transfer/os: medium
+discover/system/platform: medium
+exec/imports/python: low
+net/url/embedded: low

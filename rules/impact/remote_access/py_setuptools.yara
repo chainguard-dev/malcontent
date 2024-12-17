@@ -82,6 +82,18 @@ rule setuptools_eval: medium {
     remote_access_pythonSetup and any of ($f*)
 }
 
+
+rule setuptools_eval_high: high {
+  meta:
+    description = "Python library installer that evaluates arbitrary code"
+
+  strings:
+    $f_eval           = /eval\([\"\'\/\w\,\.\ \-\)\(]{1,64}\)/ fullword
+    $not_namespaced  = /eval\([\w\.\(\)\"\/\']{4,16}, [a-z]{1,6}[,\)]/
+  condition:
+    remote_access_pythonSetup and any of ($f*) and none of ($not*)
+}
+
 rule setuptools_exec: medium {
   meta:
     description = "Python library installer that executes arbitrary code"
@@ -107,21 +119,11 @@ rule setuptools_exec_high: high {
     $not_pyspark_ioerror = "\"Failed to load PySpark version file for packaging. You must be in Spark's python dir.\""
     $not_requests        = "'Documentation': 'https://requests.readthedocs.io'"
     $not_test_egg_class  = "class TestEggInfo"
-	$not_requests_about = "exec(f.read(), about)"
-    $not_exec_ns  = "exec(code, ns, ns)"
+    $not_namespaced  = /exec\([\w\.\(\)\"\/\']{4,16}, [a-z]{1,6}[,\)]/
   condition:
     remote_access_pythonSetup and any of ($f*) and none of ($not*)
 }
 
-rule setuptools_eval_high: high {
-  meta:
-    description = "Python library installer that evaluates arbitrary code"
-
-  strings:
-    $f_eval           = /eval\([\"\'\/\w\,\.\ \-\)\(]{1,64}\)/ fullword
-  condition:
-    remote_access_pythonSetup and any of ($f*)
-}
 
 rule setuptools_b64decode: suspicious {
   meta:
