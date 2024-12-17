@@ -16,7 +16,7 @@ builds:
       - -trimpath
     mod_timestamp: '{{ .CommitTimestamp }}'
     ldflags:
-      - -X main.BuildVersion={{.Version}}
+      - -s -w -X main.BuildVersion={{.Version}}
 
 checksum:
   name_template: 'checksums.txt'
