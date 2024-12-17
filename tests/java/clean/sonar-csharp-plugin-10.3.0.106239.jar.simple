@@ -1,0 +1,729 @@
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/parsers/AbstractSAXParser.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /META-INF/versions/9/module-info.class: medium
+anti-static/binary/opaque: medium
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/google/protobuf/DoubleArrayList.class: low
+anti-behavior/random_behavior: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/ctc/wstx/cfg/ErrorConsts.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/dom/DOMConfigurationImpl.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/dom/CharacterDataImpl.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/dotnet/tests/UnitTestResultsAggregator.class: low
+exec/imports/python: low
+exec/plugin: low
+fs/directory/list: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/UnitTestResultsProvider$DotNetUnitTestResultsAggregator.class: medium
+anti-static/binary/opaque: medium
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/dotnet/tests/DotCoverReportParser$Parser.class: low
+exec/imports/python: low
+exec/plugin: low
+fs/file/path: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xml/serialize/XML11Serializer.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /javax/xml/transform/sax/SAXSource.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/dotnet/tests/PathSuffixPredicate.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /javax/xml/datatype/SecuritySupport$5.class: low
+fs/file/exists: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/protobuf/LogImporter$1.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/csharp/core/CSharpFileCacheSensor.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/AbstractLanguageConfiguration.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/dotnet/tests/WildcardPatternFileProvider.class: low
+exec/plugin: low
+fs/directory/list: low
+fs/file/exists: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/dom/AttrImpl.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/dom/DocumentImpl.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/Constants.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/google/protobuf/InvalidProtocolBufferException.class: medium
+sus/malicious: medium
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/XMLNSDocumentScannerImpl$NSContentDispatcher.class: medium
+anti-static/binary/opaque: medium
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/google/gson/internal/TroubleshootingGuide.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/dom/ObjectFactory.class: medium
+exec/shell/command: medium
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/io/UCSReader.class: medium
+anti-static/binary/opaque: medium
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/protobuf/TelemetryImporter.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/XMLErrorReporter$1.class: medium
+anti-static/binary/opaque: medium
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/dotnet/tests/CoverageCache.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/dotnet/tests/NUnitTestResultsFileParser$Parser.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/AnalysisWarningsSensor.class: low
+exec/plugin: low
+fs/file/path: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/dtd/XMLNSDTDValidator.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/PropertiesSensor.class: low
+exec/plugin: low
+fs/file/path: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/xs/opti/SchemaParsingConfig.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/dtd/DTDGrammar$QNameHashtable$PrimeNumberSequenceGenerator.class: low
+anti-behavior/random_behavior: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/dom/TreeWalkerImpl.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/protobuf/RawProtobufImporter.class: low
+exec/plugin: low
+fs/file/path: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/jaxp/DocumentBuilderImpl.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/xpath/regex/Op$ChildOp.class: medium
+anti-static/binary/opaque: medium
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/google/protobuf/CodedOutputStream$HeapNioEncoder.class: medium
+anti-static/binary/opaque: medium
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/FileTypeSensor.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/xs/XMLSchemaValidator.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/google/gson/internal/NonNullElementWrapperList.class: low
+anti-behavior/random_behavior: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/dom/ChildNode.class: medium
+anti-static/binary/opaque: medium
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/RoslynRules$1.class: medium
+anti-static/binary/opaque: medium
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /javax/xml/stream/FactoryFinder.class: medium
+exec/shell/command: medium
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/dotnet/tests/UnitTestConfiguration.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/dom/DOMMessageFormatter.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/RoslynRules$Rule.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/ProtobufDataImporter.class: low
+exec/plugin: low
+fs/file/exists: low
+fs/file/path: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/io/ASCIIReader.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/util/StAXInputSource.class: medium
+exec/shell/command: medium
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/dotnet/tests/BranchPoint.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/DotNetRulesDefinition.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/SarifParserCallbackImpl$ProjectIssue.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/dom/NodeImpl.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/package-info.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/AbstractSonarLintProfileExporter.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/google/protobuf/IntArrayList.class: low
+anti-behavior/random_behavior: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/dtd/XML11NSDTDValidator.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/dotnet/tests/NCover3ReportParser$Parser.class: low
+exec/imports/python: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/dtd/XMLDTDValidator.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/dotnet/tests/XmlParserHelper.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/protobuf/FileMetadataImporter.class: low
+exec/plugin: low
+fs/file/path: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/csharp/CSharpPlugin.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/dv/util/Base64.class: low
+data/encoding/base64: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/io/UTF8Reader.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/AnalysisWarningsSensor$Warning.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/dom/CoreDocumentImpl.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/dtd/XML11DTDValidator.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/parsers/XML11Configuration.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/google/protobuf/LongArrayList.class: low
+anti-behavior/random_behavior: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/xs/SchemaGrammar.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/xni/grammars/XMLGrammarDescription.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/RoslynRules$RuleParameter.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/XMLNSDocumentScannerImpl.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/csharp/S4428.html: medium
+exec/shell/command: medium
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/dotnet/tests/CoverageAggregator.class: low
+c2/addr/url: low
+exec/imports/python: low
+exec/plugin: low
+fs/directory/list: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/RoslynRules.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/ctc/wstx/dtd/DTDId.class: medium
+exec/shell/command: medium
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/csharp/CSharpPlugin$CSharpPluginMetadata.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/dotnet/tests/DotCoverReportParser.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/xs/XMLSchemaLoader.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/xs/XSConstraints.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/ctc/wstx/io/WstxInputLocation.class: medium
+exec/shell/command: medium
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /javax/xml/parsers/FactoryFinder.class: medium
+exec/shell/command: medium
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/jaxp/SchemaValidatorConfiguration.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/AbstractPropertyDefinitions.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/dotnet/tests/NUnitTestResultsFileParser.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/protobuf/MetricsImporter.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/io/UTF16Reader.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/google/protobuf/RepeatedFieldBuilder$MessageOrBuilderExternalList.class: low
+anti-behavior/random_behavior: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/dotnet/tests/ParseErrorException.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/csharp/S2077.html: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/dotnet/tests/UnitTestResults.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/dtd/XMLDTDLoader.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/xs/traversers/XSDHandler.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/xs/models/CMNodeFactory.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/sarif/SarifParserFactory.class: low
+exec/plugin: low
+fs/file/path: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/dotnet/tests/package-info.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /javax/xml/datatype/FactoryFinder.class: medium
+exec/shell/command: medium
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/xml/sax/helpers/ParserAdapter.class: medium
+c2/addr/url: low
+discover/process/name: medium
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /javax/xml/stream/SecuritySupport$5.class: low
+fs/file/exists: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/dv/SecuritySupport$7.class: low
+fs/file/exists: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/util/DOMEntityResolverWrapper.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/google/protobuf/SmallSortedMap$DescendingEntrySet.class: medium
+anti-static/binary/opaque: medium
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/xml/sax/helpers/NamespaceSupport.class: medium
+c2/addr/url: low
+discover/process/name: medium
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /SonarAnalyzer.CSharp.dll: medium
+3P/cod3nym/susp_obf_net: medium
+c2/tool_transfer/os: medium
+credential/password: low
+crypto/encrypt: medium
+crypto/public_key: low
+fs/directory/create: low
+fs/file/create: medium
+net/http/cookies: medium
+net/ip/addr: medium
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/jaxp/JAXPValidatorComponent.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/google/protobuf/RopeByteString$1.class: medium
+anti-static/binary/opaque: medium
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/dom/SecuritySupport$7.class: low
+fs/file/exists: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/XML11NSDocumentScannerImpl.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/xs/XSDDescription.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/csharp/core/CSharpCorePluginMetadata$CSharp.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/google/protobuf/UnmodifiableLazyStringList.class: low
+anti-behavior/random_behavior: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/csharp/package-info.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/XMLDocumentScannerImpl$TrailingMiscDispatcher.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/dotnet/tests/FileService.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/google/protobuf/SchemaUtil.class: low
+anti-behavior/random_behavior: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/dtd/XMLDTDDescription.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/xs/XSMessageFormatter.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/parsers/BasicParserConfiguration.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/XML11DocumentScannerImpl.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/jaxp/DocumentBuilderFactoryImpl.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/xs/SchemaSymbols.class: low
+c2/addr/url: low
+data/encoding/base64: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/google/protobuf/Internal$MapAdapter$SetAdapter.class: medium
+anti-static/binary/opaque: medium
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/google/protobuf/RepeatedFieldBuilder$BuilderExternalList.class: low
+anti-behavior/random_behavior: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/xs/traversers/XSDHandler$XSAnnotationGrammarPool.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/dotnet/tests/XUnitTestResultsFileParser.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/RoslynDataImporter.class: low
+exec/plugin: low
+fs/file/path: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/ctc/wstx/util/BaseNsContext.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/xml/sax/helpers/NamespaceSupport$Context.class: medium
+c2/addr/url: low
+discover/process/name: medium
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/dom/NamedNodeMapImpl.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /javax/xml/transform/dom/DOMSource.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/CodeCoverageProvider$UnitTestCoverageAggregator.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/DotNetSensor.class: low
+c2/addr/url: low
+exec/plugin: low
+fs/file/path: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/csharp/core/CSharpCoreExtensions.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/XMLDocumentScannerImpl$XMLDeclDispatcher.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/xni/NamespaceContext.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/dotnet/tests/CoverageParser.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/protobuf/ProtobufImporter.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/ctc/wstx/dtd/DTDSubset.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/google/protobuf/LazyStringArrayList.class: low
+anti-behavior/random_behavior: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/RoslynReport.class: low
+exec/plugin: low
+fs/file/path: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/ProjectTypeCollector.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/XML11NSDocumentScannerImpl$NS11ContentDispatcher.class: medium
+anti-static/binary/opaque: medium
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/dom/ElementNSImpl.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/TelemetryCollector.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/parsers/SecuritySupport$7.class: low
+fs/file/exists: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/WrongEncodingFileFilter.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/SarifParserCallbackImpl$Issue.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/google/protobuf/ProtobufArrayList.class: low
+anti-behavior/random_behavior: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/dotnet/tests/OpenCoverReportParser.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/xpath/regex/Op$ConditionOp.class: medium
+anti-static/binary/opaque: medium
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/XMLErrorReporter.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/google/protobuf/ByteString$1.class: medium
+anti-static/binary/opaque: medium
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/dom/AttrNSImpl.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/protobuf/CPDTokensImporter.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /javax/xml/parsers/SecuritySupport$5.class: low
+fs/file/exists: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/dotnet/tests/CoverageReportImportSensor$FileCountStatistics.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/TelemetrySensor.class: low
+exec/plugin: low
+fs/file/path: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/dom/ParentNode.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/dotnet/tests/BranchCoverage.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/dotnet/tests/CoverageReportImportSensor.class: low
+c2/addr/url: low
+exec/plugin: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/LogSensor.class: low
+exec/plugin: low
+fs/file/path: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/dotnet/tests/VisualStudioCoverageXmlReportParser.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/dom/ElementImpl.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/SensorContextUtils.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/dom/TextImpl.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/PluginMetadata.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/dom/DOMNormalizer.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/jaxp/JAXPConstants.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/EncodingPerFile.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/CodeCoverageProvider$UnitTestCoverageReportImportSensor.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/ctc/wstx/sr/AttributeCollector.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/dtd/XMLDTDProcessor.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/parsers/ObjectFactory.class: medium
+exec/shell/command: medium
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/dom/CoreDOMImplementationImpl.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/dotnet/tests/NCover3ReportParser.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/dotnet/tests/OpenCoverReportParser$CoveredFile.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/dotnet/tests/XUnitTestResultsFileParser$Parser.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/google/protobuf/Internal$ProtobufList.class: low
+anti-behavior/random_behavior: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/dom/RangeImpl.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/AbstractFileCacheSensor.class: medium
+exec/plugin: low
+exfil/upload: medium
+fs/file/path: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/protobuf/HighlightImporter.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/analyzer/commons/xml/SafeDomParserFactory.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/protobuf/LogImporter.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/ctc/wstx/sr/TypedStreamReader.class: low
+data/encoding/base64: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/dotnet/tests/UnitTestResultsImportSensor.class: low
+exec/imports/python: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/RoslynProfileExporter.class: medium
+data/base64/encode: medium
+data/encoding/base64: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/xs/traversers/XSDHandler$SAX2XNIUtil.class: medium
+anti-static/binary/opaque: medium
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/csharp/core/CSharpCorePluginMetadata.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/ctc/wstx/sr/InputElementStack.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/xs/traversers/XSDAbstractTraverser.class: low
+data/encoding/base64: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/protobuf/HighlightImporter$1.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/google/protobuf/LazyStringArrayList$ByteStringListView.class: low
+anti-behavior/random_behavior: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/dotnet/tests/VisualStudioTestResultsFileParser$Parser.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/google/protobuf/BooleanArrayList.class: low
+anti-behavior/random_behavior: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/util/DOMErrorHandlerWrapper$DOMErrorTypeMap.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/TelemetryProcessor.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/XMLEntityManager.class: medium
+c2/addr/url: low
+fs/directory/create: low
+fs/file/exists: low
+net/http/request: low
+net/ip/connect: medium
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/google/protobuf/ByteString$LeafByteString.class: medium
+anti-static/binary/opaque: medium
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/msg/XMLMessageFormatter.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xml/serialize/BaseMarkupSerializer.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/parsers/AbstractDOMParser.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/SonarLintProfileExporter.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/xml/sax/helpers/XMLReaderFactory.class: medium
+exec/shell/command: medium
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/util/URI.class: medium
+net/ip/host_port: medium
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/google/protobuf/LazyStringArrayList$ByteArrayListView.class: low
+anti-behavior/random_behavior: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/jaxp/JAXPValidatorComponent$1.class: medium
+anti-static/binary/opaque: medium
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/dotnet/tests/DotCoverReportsAggregator.class: medium
+data/embedded/html: medium
+exec/plugin: low
+fs/file/exists: low
+fs/file/path: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/dom/NodeIteratorImpl.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/XMLDTDScannerImpl.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/xs/util/XSNamedMapImpl$1.class: medium
+anti-static/binary/opaque: medium
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/ctc/wstx/api/CommonConfig.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/dotnet/tests/Coverage.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/dom/AttributeMap.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xml/serialize/OutputFormat$DTD.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /javax/xml/transform/stream/StreamSource.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/ctc/wstx/util/URLUtil.class: medium
+net/ip/connect: medium
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/dv/xs/Base64BinaryDV.class: low
+data/encoding/base64: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/XMLDocumentFragmentScannerImpl$FragmentContentDispatcher.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/ctc/wstx/io/DefaultInputResolver.class: medium
+exec/shell/command: medium
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/dotnet/tests/UnitTestResultsParser.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/HashProvider.class: low
+exec/plugin: low
+fs/file/path: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xml/serialize/OutputFormat.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/ctc/wstx/util/TextBuffer.class: low
+process/unshare: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/dv/ObjectFactory.class: medium
+exec/shell/command: medium
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/parsers/XMLParser.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/csharp/core/CSharpPropertyDefinitions.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/ctc/wstx/io/ISOLatinReader.class: medium
+anti-static/binary/opaque: medium
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/AnalysisWarningsSensor$1.class: medium
+anti-static/binary/opaque: medium
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/csharp/core/CSharpSonarWayProfile.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/util/PrimeNumberSequenceGenerator.class: low
+anti-behavior/random_behavior: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/dotnet/tests/VisualStudioTestResultsFileParser.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/RealPathProvider.class: low
+exec/plugin: low
+fs/file/path: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/dv/xs/BaseSchemaDVFactory.class: low
+c2/addr/url: low
+data/encoding/base64: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/XMLDocumentFragmentScannerImpl.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/google/gson/internal/LinkedTreeMap.class: low
+fs/file/delete: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/XMLScanner.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/ReportPathCollector.class: low
+exec/plugin: low
+fs/file/path: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/dotnet/tests/VisualStudioCoverageXmlReportParser$Parser.class: low
+exec/imports/python: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/xpath/regex/Op$ModifierOp.class: medium
+anti-static/binary/opaque: medium
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/dotnet/tests/OpenCoverReportParser$Parser.class: low
+exec/imports/python: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/dom/DeferredDOMImplementationImpl.class: medium
+anti-static/binary/opaque: medium
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/xpath/regex/Op$RangeOp.class: medium
+anti-static/binary/opaque: medium
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/parsers/DOMParser.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/dotnet/tests/CoverageConfiguration.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/xs/opti/SchemaDOMParser.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xml/serialize/DOMSerializerImpl.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/parsers/SAXParser.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonar/plugins/dotnet/tests/ScannerFileService.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/SarifParserCallbackImpl.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/dv/xs/XSSimpleTypeDecl.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/CodeCoverageProvider.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/ModuleConfiguration.class: low
+exec/plugin: low
+fs/file/exists: low
+fs/file/path: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /javax/xml/datatype/DatatypeConstants.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/google/protobuf/AbstractProtobufList.class: low
+anti-behavior/random_behavior: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/protobuf/SymbolRefsImporter.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/google/protobuf/RepeatedFieldBuilder$MessageExternalList.class: low
+anti-behavior/random_behavior: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/xpath/regex/Op$CharOp.class: medium
+anti-static/binary/opaque: medium
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/XMLDocumentScannerImpl.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xml/serialize/XMLSerializer.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/AbstractSonarWayProfile.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/util/ParserConfigurationSettings.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/GeneratedFileFilter.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/UnitTestResultsProvider.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/parsers/DOMParserImpl.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/dom/NotationImpl.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/protobuf/TelemetryAggregator.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/XMLVersionDetector.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/io/Latin1Reader.class: medium
+anti-static/binary/opaque: medium
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/GlobalProtobufFileProcessor.class: low
+exec/plugin: low
+fs/file/exists: low
+fs/file/path: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/dotnet/shared/plugins/protobuf/package-info.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/XMLEntityScanner.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/ctc/wstx/api/ReaderConfig.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/sonarsource/csharp/core/CSharpLanguageConfiguration.class: low
+exec/plugin: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/XML11EntityScanner.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/XMLDocumentScannerImpl$DTDDispatcher.class: low
+c2/addr/url: low
+net/url/embedded: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /com/google/protobuf/FloatArrayList.class: low
+anti-behavior/random_behavior: low
+# java/clean/sonar-csharp-plugin-10.3.0.106239.jar ∴ /org/apache/xerces/impl/XMLDocumentScannerImpl$PrologDispatcher.class: low
+c2/addr/url: low
+net/url/embedded: low
