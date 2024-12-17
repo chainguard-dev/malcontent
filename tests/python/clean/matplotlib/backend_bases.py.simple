@@ -1,0 +1,7 @@
+# python/clean/matplotlib/backend_bases.py: medium
+c2/tool_transfer/os: low
+discover/system/platform: medium
+net/socket/connect: medium
+net/socket/listen: medium
+net/socket/pair: medium
+net/url/embedded: low

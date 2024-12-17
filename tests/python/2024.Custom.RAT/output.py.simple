@@ -33,7 +33,7 @@ exec/shell/power: medium
 exfil/discord: critical
 exfil/stealer/browser: high
 exfil/stealer/discord: high
-exfil/stealer/keylogger: critical
+exfil/stealer/keylogger: high
 exfil/upload: high
 fs/directory/create: low
 fs/directory/list: low

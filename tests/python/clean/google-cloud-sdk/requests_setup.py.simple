@@ -1,12 +1,12 @@
-# python/clean/google-auth-library-python/setup.py: medium
-c2/tool_transfer/os: low
-crypto/openssl: medium
+# python/clean/google-cloud-sdk/requests_setup.py: medium
 exec/imports/python: low
 exec/program: medium
 exec/remote_commands/code_eval: medium
 exec/shell/command: medium
 fs/file/open: low
-fs/file/read: low
+fs/path/usr_bin: low
 impact/remote_access/py_setuptools: medium
 net/url/embedded: low
+net/url/parse: low
 os/fd/read: low
+process/multi: medium
