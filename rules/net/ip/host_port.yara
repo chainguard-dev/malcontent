@@ -75,6 +75,11 @@ rule hardcoded_host_port_over_10k: high {
     $not_example_com          = "example.com:"
     $not_mygateway            = "mygateway.com:"
     $not_mymachine            = "mymachine.com:"
+    $not_ruby_http            = "http://hypnotoad.org:1234?hail=all"
+    $not_test_parse           = "test_parse"
+    $not_slash_test           = "/test" fullword
+    $not_test_message         = "test_message"
+    $not_unit_test            = "unit test"
 
   condition:
     any of ($h*) and none of ($not*)
