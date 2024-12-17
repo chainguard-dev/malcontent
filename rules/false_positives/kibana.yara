@@ -15,12 +15,12 @@ rule kibana_powershell_evasion_rule: override {
 rule security_solution_plugin: override {
   meta:
     linux_rootkit_terms = "low"
-	masscan = "low"
-	reverse_shell = "low"
-	grayware_sites = "low"
-	http_url_with_exe = "Low"
-	exotic_tld = "low"
-	download_sites = "low"
+    masscan             = "low"
+    reverse_shell       = "low"
+    grayware_sites      = "low"
+    http_url_with_exe   = "Low"
+    exotic_tld          = "low"
+    download_sites      = "low"
     description         = "securitySolution.chunk.9.js, securitySolution.chunk.22.js"
 
   strings:

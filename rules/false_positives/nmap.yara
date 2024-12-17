@@ -2,8 +2,9 @@ rule nmap_fingerprints: override {
   meta:
     description                                 = "http-fingerprints.lua"
     SIGNATURE_BASE_Hacktool_Strings_P0Wnedshell = "medium"
-	meterpreter = "medium"
-	grayware_sites = "medium"
+    meterpreter                                 = "medium"
+    grayware_sites                              = "medium"
+
   strings:
     $description = "---HTTP Fingerprint files"
     $license     = "This file is released under the Nmap license"
