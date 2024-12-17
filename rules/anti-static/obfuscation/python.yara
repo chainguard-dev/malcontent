@@ -1,9 +1,10 @@
 private rule probably_python {
   strings:
-    $import = "import "
-	$def = "def "
+    $import   = "import "
+    $f_common = /\s(def|if|with|else:) /
+
   condition:
-    filesize < 10MB and $import in (1..1024) and $def
+    filesize < 10MB and $import in (1..1024) and any of ($f*)
 }
 
 rule py_indirect_builtins: suspicious {

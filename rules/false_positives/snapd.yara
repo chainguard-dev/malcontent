@@ -7,7 +7,7 @@ rule snapd: override linux {
     dev_mmc               = "medium"
     busybox_runner        = "medium"
     system_log_references = "medium"
-    hidden_x11            = "medium"
+    hidden_x11_unexpected = "medium"
     filetypes             = "elf,so"
 
   strings:

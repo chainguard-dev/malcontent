@@ -92,7 +92,8 @@ rule python_exec_complex: high {
     $exec           = /exec\([\w\. =]{1,32}\(.{0,8192}\)\)/ fullword
     $not_javascript = "function("
     $not_pyparser   = "exec(compile(open(self.parsedef).read(), self.parsedef, 'exec'))"
-	$not_versioneer = "exec(VERSIONEER.decode(), globals())"
+    $not_versioneer = "exec(VERSIONEER.decode(), globals())"
+
   condition:
     filesize < 512KB and $exec and none of ($not*)
 }

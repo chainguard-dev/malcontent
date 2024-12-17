@@ -71,10 +71,11 @@ rule hardcoded_host_port_over_10k: high {
 
     $not_roughtime_cloudflare = "roughtime.cloudflare.com:2003"
     $not_roughtime_google     = "sandbox.google.com:2002"
-	$not_foo_bar = "foo.bar:"
-	$not_example_com = "example.com:"
-	$not_mygateway = "mygateway.com:"
-	$not_mymachine = "mymachine.com:"
+    $not_foo_bar              = "foo.bar:"
+    $not_example_com          = "example.com:"
+    $not_mygateway            = "mygateway.com:"
+    $not_mymachine            = "mymachine.com:"
+
   condition:
     any of ($h*) and none of ($not*)
 }

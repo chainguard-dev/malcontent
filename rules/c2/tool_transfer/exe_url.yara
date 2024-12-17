@@ -3,8 +3,9 @@ rule http_url_with_exe: high {
     description = "accesses hardcoded executable endpoint"
 
   strings:
-    $exe_url = /https*:\/\/[\w\.]{0,160}[:\/\w\_\-\?\@=]{6,160}\.exe/
-	$not_mongodb_404 = "https://docs.mongodb.com/manual/reference/method/Bulk.exe"
+    $exe_url         = /https*:\/\/[\w\.]{0,160}[:\/\w\_\-\?\@=]{6,160}\.exe/
+    $not_mongodb_404 = "https://docs.mongodb.com/manual/reference/method/Bulk.exe"
+
   condition:
     any of ($exe*) and none of ($not*)
 }

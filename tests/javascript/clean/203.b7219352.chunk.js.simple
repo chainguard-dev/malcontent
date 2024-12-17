@@ -14,7 +14,6 @@ discover/system/platform: low
 discover/user/HOME: low
 discover/user/USER: low
 discover/user/name_get: medium
-evasion/file/location/x11_unix: low
 exec/cmd: medium
 exec/conditional/LANG: low
 exec/plugin: low

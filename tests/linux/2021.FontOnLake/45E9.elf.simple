@@ -25,7 +25,7 @@ discover/system/dmesg: low
 discover/system/hostname: low
 discover/user/HOME: low
 discover/user/USER: low
-evasion/file/location/x11_unix: low
+evasion/file/location/x11_unix: medium
 evasion/file/prefix: medium
 evasion/file/prefix/proc: high
 evasion/logging/acct: low

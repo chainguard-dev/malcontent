@@ -11,8 +11,8 @@ rule xor_decode_encode: high {
     $x_file_   = /\w{0,16}xor_file[\w]{0,32}/
     $x_crypt   = /\w{0,16}XorCrypt[\w]{0,32}/
 
+    $not_qemu = "Opcode_xor_encode"
 
-	$not_qemu = "Opcode_xor_encode"
   condition:
     any of ($x*) and none of ($not*)
 }

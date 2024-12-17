@@ -10,7 +10,6 @@ discover/network/netstat: medium
 discover/system/dmesg: low
 discover/system/platform: low
 discover/user/name_get: medium
-evasion/file/location/x11_unix: low
 exec/plugin: low
 exec/remote_commands/code_eval: medium
 exec/shell/SHELL: low
