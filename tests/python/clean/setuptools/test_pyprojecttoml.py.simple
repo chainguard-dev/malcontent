@@ -4,6 +4,5 @@ discover/system/platform: medium
 exec/imports/python: low
 exec/shell/command: medium
 fs/file/open: low
-impact/remote_access/py_setuptools: low
 net/url/embedded: low
 os/fd/write: low
