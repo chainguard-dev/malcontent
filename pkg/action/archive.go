@@ -263,7 +263,7 @@ func extractGzip(ctx context.Context, d string, f string) error {
 		if _, err := io.Copy(ef, io.LimitReader(gr, maxBytes)); err != nil {
 			return fmt.Errorf("failed to copy file: %w", err)
 		}
-	case "zlib":
+	case "Z":
 		zr, err := zlib.NewReader(gf)
 		if err != nil {
 			return fmt.Errorf("failed to create zlib reader: %w", err)

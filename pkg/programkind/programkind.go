@@ -18,6 +18,7 @@ import (
 // file extension to MIME type, if it's a good scanning target.
 var supportedKind = map[string]string{
 	"7z":      "",
+	"Z":       "application/zlib",
 	"asm":     "",
 	"bash":    "application/x-bsh",
 	"bat":     "application/bat",
@@ -58,9 +59,9 @@ var supportedKind = map[string]string{
 	"pyc":     "application/x-python-code",
 	"rb":      "text/x-ruby",
 	"rs":      "text/x-rust",
-	"script":  "text/x-generic-script",
 	"scpt":    "application/x-applescript",
 	"scptd":   "application/x-applescript",
+	"script":  "text/x-generic-script",
 	"service": "text/x-systemd",
 	"sh":      "application/x-sh",
 	"so":      "application/x-sharedlib",
@@ -69,7 +70,6 @@ var supportedKind = map[string]string{
 	"yaml":    "",
 	"yara":    "",
 	"yml":     "",
-	"zlib":    "application/zlib",
 	"zsh":     "application/x-zsh",
 }
 
@@ -183,7 +183,7 @@ func File(path string) (*FileType, error) {
 	case hdr[0] == '\x1f' && hdr[1] == '\x8b':
 		return Path(".gzip"), nil
 	case hdr[0] == '\x78' && hdr[1] == '\x5E':
-		return Path(".zlib"), nil
+		return Path(".Z"), nil
 	}
 	return nil, nil
 }
