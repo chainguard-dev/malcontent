@@ -1,25 +1,7 @@
-rule test_pyprojecttoml: override {
-  meta:
-    description     = "namespaces.py, test_pyprojecttoml.py"
-    setuptools_eval = "low"
-
-  strings:
-    $example   = "EXAMPLE"
-    $func1     = "def create_example("
-    $func2     = "def verify_example("
-    $func3     = "def test_read_configuration("
-    $import    = "import setuptools"
-    $kv        = "\"pyproject.toml\": EXAMPLE"
-    $pyproject = "pyproject.toml"
-
-  condition:
-    filesize < 16KB and all of them
-}
-
 rule setuptools_namespaces: override {
   meta:
-    description     = "namespaces.py"
-    setuptools_eval = "low"
+    description          = "namespaces.py"
+    setuptools_exec_high = "low"
 
   strings:
     $func1     = "def iter_namespace_pkgs("
@@ -36,30 +18,15 @@ rule setuptools_namespaces: override {
 
 rule numba_support: override {
   meta:
-    description     = "support.py"
-    setuptools_eval = "low"
+    description          = "support.py"
+    setuptools_exec_high = "low"
 
   strings:
     $comment    = "Assorted utilities for use in tests."
-    $gh_issue   = "numba#"
+    $gh_issue   = "numbsa#"
     $import     = "from numba"
     $repository = "https://github.com/numba/numba"
 
   condition:
     filesize < 64KB and all of them
-}
-
-rule setup_pydevd_cython: override {
-  meta:
-    description     = "setup_pydevd_cython.py"
-    setuptools_eval = "low"
-
-  strings:
-    $example = "python setup_pydevd_cython build_ext --inplace"
-    $header  = "A simpler setup version just to compile the speedup module."
-    $import  = "from setuptools import setup"
-    $pydevd  = "pydevd"
-
-  condition:
-    filesize < 16KB and all of them
 }
