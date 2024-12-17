@@ -1,0 +1,5 @@
+# npm/2024.depe-tool/package.json: critical
+data/encoding/json_decode: low
+exec/cmd/npm_preinstall: high
+exec/remote_commands/code_eval: critical
+fs/file/read: low

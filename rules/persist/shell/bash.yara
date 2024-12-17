@@ -27,6 +27,8 @@ rule bash_persist_persistent: high {
     $ref4 = ".bashrc"
 
     $not_bash = "POSIXLY_CORRECT"
+    $not_csh  = ".cshrc" fullword
+    $not_tcsh = "tcsh" fullword
 
   condition:
     3 of them and none of ($not*)
@@ -54,6 +56,7 @@ rule bash_logout_persist: high {
     $not_bash    = "POSIXLY_CORRECT"
     $not_comment = "# ~/.bash_logout"
     $not_clear   = "/usr/bin/clear_console"
+    $not_csh     = ".cshrc" fullword
 
   condition:
     filesize < 2097152 and any of ($ref*) and none of ($not*)

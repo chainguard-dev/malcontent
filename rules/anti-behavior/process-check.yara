@@ -34,8 +34,11 @@ rule linux_monitors: high linux {
     $x_vmstat  = "vmstat" fullword
     $x_ps      = "ps" fullword
 
+	$not_renice = "renice" fullword
+	$not_ddrescue = "ddrescue" fullword
+	$not_traceroute = "traceroute" fullword
   condition:
-    filesize < 100KB and any of ($p*) and 3 of ($x*)
+    filesize < 100KB and any of ($p*) and 3 of ($x*) and none of ($not*)
 }
 
 rule anti_rootkit_hunter: high linux {

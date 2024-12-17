@@ -36,6 +36,7 @@ rule id_rsa_not_ssh: high {
     $not_openssh       = "OpenSSH"
     $not_ssh2          = "SSH2" fullword
     $not_SSH_AUTH_SOCK = "SSH_AUTH_SOCK"
+	$not_host_key_check = "host_key_check"
 
   condition:
     filesize < 10MB and ssh_folder and $id_rsa and none of ($not*)

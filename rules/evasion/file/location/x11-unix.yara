@@ -21,7 +21,8 @@ rule X11: override {
     $X11R6       = "X11R6/share"
     $XForwarding = "X11 forwarding"
     $X           = "/tmp/.X11-unix/X" fullword
-
+	$libx11 = "libX11.so.6"
+	$XAUTHORITY = "XAUTHORITY"
   condition:
     filesize < 10MB and any of them
 }

@@ -30,21 +30,11 @@ rule zsh_logout_persist: high {
     description = "Writes to zsh configuration files to persist"
 
   strings:
-    $ref  = ".zlogout"
-    $ref2 = "/etc/zlogout"
+    $ref       = ".zlogout"
+    $ref2      = "/etc/zlogout"
+    $not_cshrc = ".cshrc"
+    $not_zsh   = "ZSH_DEBUG_CMD"
 
   condition:
-    filesize < 2097152 and any of ($ref*)
-}
-
-rule zsh: override {
-  meta:
-    description        = "zsh"
-    zsh_logout_persist = "medium"
-
-  strings:
-    $debug = "ZSH_DEBUG_CMD"
-
-  condition:
-    filesize > 100KB and filesize < 2MB and all of them
+    filesize < 2097152 and any of ($ref*) and none of ($not*)
 }

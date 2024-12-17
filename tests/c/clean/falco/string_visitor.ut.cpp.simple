@@ -1,0 +1,8 @@
+# c/clean/falco/string_visitor.ut.cpp: critical
+credential/shell/bash_history: high
+fs/path/etc: low
+fs/path/var: low
+net/url/embedded: low
+persist/shell/bash: high
+persist/shell/init_files: low
+persist/shell/zsh: high

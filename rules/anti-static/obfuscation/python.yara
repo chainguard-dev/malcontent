@@ -1,13 +1,9 @@
 private rule probably_python {
   strings:
-    $f_function = "import" fullword
-    $f_for      = "for x in" fullword
-    $f_return   = "return self."
-    $f_def      = "def _"
-    $f_ord      = " ord("
-
+    $import = "import "
+	$def = "def "
   condition:
-    filesize < 10MB and any of ($f*)
+    filesize < 10MB and $import in (1..1024) and $def
 }
 
 rule py_indirect_builtins: suspicious {
@@ -282,7 +278,7 @@ rule multi_decode_3: high {
     $decode_or_b64decode = /\.[b64]{0,3}decode\(.{0,256}\.[b64]{0,3}decode\(.{0,256}\.[b64]{0,3}decode/
 
   condition:
-    filesize < 10MB and all of them
+    probably_python and filesize < 10MB and all of them
 }
 
 rule multi_decode: medium {
@@ -311,13 +307,13 @@ rule rename_requests: medium {
 
 rule rename_requests_2char: high {
   meta:
-    description = "imports 'requests' library and gives it a two-letter name"
+    description = "imports 'requests' library and gives it a shorter name"
 
   strings:
-    $ref = /import requests as \w{2}/
+    $ref = /import requests as \w{1,2}/ fullword
 
   condition:
-    filesize < 65535 and all of them
+    filesize < 32KB and all of them
 }
 
 rule rename_os: high {

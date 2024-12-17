@@ -82,19 +82,6 @@ rule echo_decode_bash_probable: high {
     filesize < 256KB and any of them and (@shell[#shell] - @decode[#decode]) < 32 and (@shell[#shell] - @decode[#decode]) > 0
 }
 
-rule acme_sh: override {
-  meta:
-    description               = "acme.sh"
-    echo_decode_bash_probable = "medium"
-    iplookup_website          = "medium"
-
-  strings:
-    $ref = "https://github.com/acmesh-official"
-
-  condition:
-    $ref
-}
-
 rule ruby_system_near_enough: critical {
   meta:
     description = "Executes commands from base64 content"

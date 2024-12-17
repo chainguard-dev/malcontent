@@ -32,6 +32,7 @@ rule excessive_bitwise_math: high {
     $not_effective_bits = "effective bits"
     $not_bit_offsets    = "bit offsets"
     $not_uuid           = "uuid" fullword
+	$not_webpack = "webpack-api-runtime.js" fullword
 
   condition:
     filesize < 192KB and #x > 64 and none of ($not*)
@@ -132,8 +133,9 @@ rule unsigned_bitwise_math_excess: high {
     $left  = /[a-z]\>\>\>\d{1,3}/
     $right = /[a-z]\>\>\>\d{1,3}/
 
+	$not_webpack = "webpack-api-runtime.js" fullword
   condition:
-    filesize < 5MB and $function and $charAt and (#left > 50 or #right > 50)
+    filesize < 5MB and $function and $charAt and (#left > 50 or #right > 50) and none of ($not*)
 }
 
 rule charAtBitwise: high {

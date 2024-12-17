@@ -15,7 +15,7 @@ rule backdoor: medium {
     description = "References a 'backdoor'"
 
   strings:
-    $ref = /[a-zA-Z\-_ \']{0,16}[bB]ackdoor[a-zA-Z\-_ ]{0,16}/ fullword
+    $ref = /[\/a-zA-Z\-_ \']{0,16}[bB]ackdoor[\/a-zA-Z\-_ ]{0,48}/
 
     $not_vcpu    = "VCPUInfoBackdoor"
     $not_vmware  = "gGuestBackdoorOps"
@@ -38,7 +38,7 @@ rule backdoor_shell: high {
 
 rule backdoor_likely: high {
   meta:
-    description = "References a 'backdoor'"
+    description = "References a 'backdoor', uses sensitive Linux functions"
 
   strings:
     $backdoor                     = "backdoor" fullword
@@ -55,14 +55,17 @@ rule backdoor_likely: high {
 
 rule backdoor_high: high {
   meta:
-    description = "references a backdoor"
+    description = "suspicious backdoor reference"
 
   strings:
     $lower_prefix = /(hidden|hide|icmp|pam|ssh|sshd)[ _]backdoor/
     $lower_sufifx = /backdoor[_ ](task|process|up|method|user|shell|login|pass)/
 
+    $not_falco_dev_null        = "/dev/null is a backdoor method"
+    $not_falco_backdoor_insert = "backdoor method for inserting special events"
+
   condition:
-    filesize < 10MB and any of them
+    filesize < 10MB and any of ($lower*) and none of ($not*)
 }
 
 rule backdoor_caps: high {
