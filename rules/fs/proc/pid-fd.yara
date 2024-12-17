@@ -36,6 +36,8 @@ rule inspects_opened_sockets: high {
     $ref  = "socket:[" fullword
     $ref2 = /\/proc\/[%{$][\w\}]{0,12}\/fd/
 
+    $not_busybox = "BusyBox" fullword
+
   condition:
-    all of them
+    all of ($ref*) and none of ($not*)
 }

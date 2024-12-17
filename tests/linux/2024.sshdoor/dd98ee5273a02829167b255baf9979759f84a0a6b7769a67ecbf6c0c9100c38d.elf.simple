@@ -23,7 +23,6 @@ discover/user/HOME: low
 evasion/file/location/system_directory: medium
 evasion/file/location/var: high
 evasion/file/location/var_tmp: high
-evasion/file/location/x11_unix: low
 evasion/file/prefix: medium
 evasion/logging/failed_logins: medium
 evasion/logging/historical_logins: medium

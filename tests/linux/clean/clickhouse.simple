@@ -1,4 +1,4 @@
-# linux/clean/clickhouse: high
+# linux/clean/clickhouse: medium
 anti-static/elf/multiple: medium
 anti-static/obfuscation/obfuscate: low
 c2/addr/http_dynamic: medium
@@ -9,7 +9,7 @@ c2/discovery/dyndns: medium
 c2/tool_transfer/arch: low
 c2/tool_transfer/download: medium
 c2/tool_transfer/dropper: medium
-c2/tool_transfer/grayware: high
+c2/tool_transfer/grayware: medium
 c2/tool_transfer/os: medium
 collect/databases/leveldb: medium
 collect/databases/mysql: medium

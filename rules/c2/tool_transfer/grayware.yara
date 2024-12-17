@@ -22,7 +22,6 @@ rule grayware_sites: high {
     $ = "packetstormsecurity"
     $ = "pentestmonkey.net"
     $ = "phpjiami.com"
-    $ = "shodan.io"
     $ = "github.com/b374k/b374k"
     $ = "mumaasp.com"
 

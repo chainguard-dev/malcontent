@@ -70,9 +70,9 @@
                     ],
                     "RiskScore": 3,
                     "RiskLevel": "HIGH",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/evasion/process_injection/ptrace.yara#ptrace_injector",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/evasion/process_injection/ptrace.yara#ptrace_injector_unknown",
                     "ID": "evasion/process_injection/ptrace",
-                    "RuleName": "ptrace_injector"
+                    "RuleName": "ptrace_injector_unknown"
                 },
                 {
                     "Description": "get the address of a symbol",

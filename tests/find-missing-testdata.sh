@@ -6,7 +6,10 @@
 #
 
 set -e -u -o pipefail
-SAMPLE_DIR=${1:-"$(dirname $0)/../../malcontent-samples"}
+samples_rel_path="$(dirname $0)"
+cd "${samples_rel_path}"
+# assumes sample repo is checked out in directory above malcontent
+SAMPLE_DIR=${1:-"../../malcontent-samples"}
 
 # number of days to look back for missing testdata
 AGE_IN_DAYS=30
@@ -18,7 +21,12 @@ if [[ ! -d "${SAMPLE_DIR}/does-nothing" ]]; then
 	exit 1
 fi
 
-for sample_path in $(find "${SAMPLE_DIR}/" -type f -mtime -"${AGE_IN_DAYS}" -size +100c); do
+if [[ ! -f "does-nothing/does-nothing.simple" ]]; then
+	echo "working directory $(pwd) does not appear to be a valid tests directory; missing does-nothing/does-nothing.simple"
+	exit 1
+fi
+
+for sample_path in $(find "${SAMPLE_DIR}" -type f -mtime -"${AGE_IN_DAYS}" -size +100c); do
 	if [[ "${sample_path}" =~ ".git" ]]; then
 		continue
 	fi
@@ -37,18 +45,20 @@ for sample_path in $(find "${SAMPLE_DIR}/" -type f -mtime -"${AGE_IN_DAYS}" -siz
 
 	basename="${sample_path/${SAMPLE_DIR}\//}"
 	basename="${basename%\.xz}"
-	relative="./${basename}"
 	found=0
-	for test_path in "${relative}".*; do
+	for test_path in "${basename}".*; do
 		if [[ -f "${test_path}" ]]; then
 			found=1
 		fi
 	done
 
+	relative="${samples_rel_path}/${basename}"
+
 	if [[ "${found}" -eq 0 ]]; then
-		dir=$(dirname ${relative})
-		if [[ ! -d "${dir}" ]]; then
-			echo "mkdir -p ${dir} && touch ${relative}.simple"
+		real_dir=$(dirname ${basename})
+		if [[ ! -d "${real_dir}" ]]; then
+			rel_dir=$(dirname ${relative})
+			echo "mkdir -p "${rel_dir}" && touch ${relative}.simple"
 		else
 			echo "touch ${relative}.simple"
 		fi

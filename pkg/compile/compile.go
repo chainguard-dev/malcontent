@@ -58,6 +58,7 @@ var badRules = map[string]bool{
 	"mimikatz_offensive_tool_keyword":            true,
 	// Inquest
 	"Microsoft_Excel_Hidden_Macrosheet": true,
+	"Adobe_Type_1_Font":                 true,
 	// YARA VT
 	"Base64_Encoded_URL":   true,
 	"Windows_API_Function": true,
