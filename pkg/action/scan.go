@@ -511,14 +511,23 @@ func processArchive(ctx context.Context, c malcontent.Config, rfs []fs.FS, archi
 	for _, extractedFilePath := range extractedPaths {
 		fr, err := processFile(ctx, c, rfs, extractedFilePath, archivePath, tmpRoot, logger)
 		if err != nil {
+			// Ensure we clean up the extracted file path after any error
+			if err := os.RemoveAll(extractedFilePath); err != nil {
+				logger.Errorf("remove %s: %v", tmpRoot, err)
+			}
 			return nil, err
 		}
 		if fr != nil {
 			// Store a clean reprepsentation of the archive's scanned file to match single file scanning behavior
-			extractedFilePath = strings.TrimPrefix(extractedFilePath, tmpRoot)
-			frs.Store(extractedFilePath, fr)
+			clean := strings.TrimPrefix(extractedFilePath, tmpRoot)
+			frs.Store(clean, fr)
+		}
+		// Clean up the extracted file path after processing
+		if err := os.RemoveAll(extractedFilePath); err != nil {
+			logger.Errorf("remove %s: %v", tmpRoot, err)
 		}
 	}
+	// Remove the temporary parent path after all files are processed to clean up any remaining files
 	if err := os.RemoveAll(tmpRoot); err != nil {
 		logger.Errorf("remove %s: %v", tmpRoot, err)
 	}
