@@ -21,7 +21,6 @@ if [[ ! -d "${SAMPLE_DIR}/does-nothing" ]]; then
 	exit 1
 fi
 
-
 if [[ ! -f "does-nothing/does-nothing.simple" ]]; then
 	echo "working directory $(pwd) does not appear to be a valid tests directory; missing does-nothing/does-nothing.simple"
 	exit 1
