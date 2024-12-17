@@ -40,7 +40,6 @@ impact/ddos: medium
 impact/exploit: medium
 impact/exploit/cve: medium
 impact/exploit/known_s: medium
-impact/exploit/overflow_shellcode: high
 impact/infection/infected: medium
 impact/infection/worm: medium
 impact/remote_access/backdoor: medium

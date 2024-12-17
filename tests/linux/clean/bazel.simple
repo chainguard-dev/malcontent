@@ -1,7 +1,7 @@
-# linux/clean/bazel: high
-anti-static/elf/entropy: high
+# linux/clean/bazel: medium
+anti-static/elf/entropy: medium
 anti-static/obfuscation/obfuscate: low
-anti-static/xor/commands: high
+anti-static/xor/functions: medium
 c2/addr/ip: medium
 c2/addr/server: medium
 c2/addr/url: low
@@ -85,5 +85,5 @@ os/fd/print: low
 persist/pid_file: medium
 process/chdir: low
 process/multithreaded: low
-sus/compiler: high
+sus/compiler: medium
 sus/intercept: medium

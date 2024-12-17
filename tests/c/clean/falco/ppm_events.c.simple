@@ -1,6 +1,6 @@
-# c/clean/falco/ppm_events.c: high
+# c/clean/falco/ppm_events.c: medium
 discover/multiple: medium
-impact/remote_access/backdoor: high
+impact/remote_access/backdoor: medium
 net/http/post: medium
 net/socket/connect: medium
 net/socket/send: low

@@ -78,7 +78,7 @@ net/http/cookies: medium
 net/http/form_upload: medium
 net/http/post: medium
 net/http/request: low
-net/ip/host_port: high
+net/ip/host_port: medium
 net/ip/icmp: medium
 net/ip/parse: medium
 net/ip/string: medium

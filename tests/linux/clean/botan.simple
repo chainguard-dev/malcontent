@@ -1,4 +1,4 @@
-# linux/clean/botan: high
+# linux/clean/botan: medium
 credential/password: low
 credential/ssl/private_key: low
 crypto/aes: low
@@ -23,7 +23,7 @@ net/http/post: medium
 net/http/proxy: low
 net/http/request: low
 net/http/websocket: medium
-net/ip/host_port: high
+net/ip/host_port: medium
 net/ip/parse: medium
 net/ip/string: medium
 net/resolve/hostport_parse: low

@@ -1,10 +1,10 @@
-# c/clean/falco/filter_compiler.ut.cpp: critical
-credential/shell/bash_history: high
+# c/clean/falco/filter_compiler.ut.cpp: medium
+credential/shell/bash_history: medium
 exec/plugin: low
 fs/path/etc: low
 fs/path/home: low
 fs/path/var: low
 net/url/embedded: low
-persist/shell/bash: high
+persist/shell/bash: medium
 persist/shell/init_files: low
-persist/shell/zsh: high
+persist/shell/zsh: medium

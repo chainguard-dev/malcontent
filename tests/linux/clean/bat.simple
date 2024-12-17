@@ -1,4 +1,4 @@
-# linux/clean/bat: high
+# linux/clean/bat: medium
 anti-static/elf/multiple: medium
 c2/addr/ip: medium
 c2/addr/url: low
@@ -64,7 +64,6 @@ net/url/encode: medium
 persist/cron/tab: medium
 persist/kernel_module/unload: medium
 persist/pid_file: medium
-persist/shell/bash: high
 persist/shell/init_files: low
 persist/ssh_authorized_keys: medium
 privesc/setuid: low

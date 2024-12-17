@@ -1,6 +1,6 @@
-# linux/clean/x11vnc: critical
+# linux/clean/x11vnc: medium
 c2/addr/http_dynamic: medium
-c2/addr/ip: high
+c2/addr/ip: medium
 c2/addr/url: low
 c2/client: medium
 c2/refs: medium
@@ -66,7 +66,6 @@ impact/remote_access/heartbeat: medium
 impact/remote_access/kill_rm: medium
 impact/remote_access/pseudo_terminal: medium
 impact/remote_access/reverse_shell: medium
-impact/remote_access/socket_filter_exec: high
 impact/ui/screensaver: medium
 impact/ui/x11_auth: medium
 impact/ui/xsession: medium
@@ -75,7 +74,7 @@ net/http/post: medium
 net/http/request: low
 net/http/server: medium
 net/ip/addr: medium
-net/ip/host_port: high
+net/ip/host_port: medium
 net/ip/icmp: medium
 net/ip/parse: medium
 net/ip/resolve: low

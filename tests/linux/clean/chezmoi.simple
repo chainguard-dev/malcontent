@@ -1,4 +1,5 @@
 # linux/clean/chezmoi: medium
+anti-static/xor/functions: medium
 c2/addr/discord: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium

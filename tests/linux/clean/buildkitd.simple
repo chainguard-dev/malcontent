@@ -1,4 +1,4 @@
-# linux/clean/buildkitd: high
+# linux/clean/buildkitd: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/addr/url: low
@@ -80,7 +80,6 @@ fs/tempdir/TEMP: low
 fs/tempdir/create: low
 fs/tempfile: low
 fs/watch: low
-impact/cryptojacking/nicehash_pool: high
 impact/remote_access/heartbeat: medium
 impact/remote_access/iptables: medium
 impact/remote_access/pseudo_terminal: medium

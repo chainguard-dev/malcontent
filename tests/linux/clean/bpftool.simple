@@ -1,4 +1,4 @@
-# linux/clean/bpftool: high
+# linux/clean/bpftool: medium
 anti-static/elf/multiple: medium
 anti-static/obfuscation/js: medium
 credential/sniffer/bpf: medium
@@ -8,7 +8,7 @@ discover/system/platform: low
 discover/user/USER: low
 evasion/hijack_execution/LD_LIBRARY_PATH: low
 evasion/logging/acct: low
-evasion/process_injection/ptrace: high
+evasion/process_injection/ptrace: medium
 exec/program: medium
 fs/directory/create: low
 fs/directory/remove: low
