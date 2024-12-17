@@ -14,8 +14,12 @@ rule content_length_hardcoded: high {
     description = "Sets HTTP content length to hard-coded value"
 
   strings:
-    $ref = /Content-Length: \d{2,13}/ fullword
+    $ref              = /Content-Length: \d{2,13}/ fullword
+    $not_test_parse   = "test_parse"
+    $not_slash_test   = "/test" fullword
+    $not_test_message = "test_message"
+    $not_unit_test    = "unit test"
 
   condition:
-    $ref
+    $ref and none of ($not*)
 }
