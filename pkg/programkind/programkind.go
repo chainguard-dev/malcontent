@@ -18,6 +18,7 @@ import (
 // file extension to MIME type, if it's a good scanning target.
 var supportedKind = map[string]string{
 	"7z":      "",
+	"Z":       "application/zlib",
 	"asm":     "",
 	"bash":    "application/x-bsh",
 	"bat":     "application/bat",
@@ -39,6 +40,7 @@ var supportedKind = map[string]string{
 	"expect":  "text/x-expect",
 	"fish":    "text/x-fish",
 	"go":      "text/x-go",
+	"gzip":    "application/gzip",
 	"h":       "text/x-h",
 	"hh":      "text/x-h",
 	"html":    "",
@@ -57,9 +59,9 @@ var supportedKind = map[string]string{
 	"pyc":     "application/x-python-code",
 	"rb":      "text/x-ruby",
 	"rs":      "text/x-rust",
-	"script":  "text/x-generic-script",
 	"scpt":    "application/x-applescript",
 	"scptd":   "application/x-applescript",
+	"script":  "text/x-generic-script",
 	"service": "text/x-systemd",
 	"sh":      "application/x-sh",
 	"so":      "application/x-sharedlib",
@@ -101,6 +103,8 @@ func makeFileType(path string, ext string, mime string) *FileType {
 }
 
 // File detects what kind of program this file might be.
+//
+//nolint:cyclop // ignore complexity of 38
 func File(path string) (*FileType, error) {
 	// Follow symlinks and return cleanly if the target does not exist
 	_, err := filepath.EvalSymlinks(path)
@@ -176,6 +180,10 @@ func File(path string) (*FileType, error) {
 		return Path(".c"), nil
 	case strings.Contains(s, "BEAMAtU8"):
 		return Path(".beam"), nil
+	case hdr[0] == '\x1f' && hdr[1] == '\x8b':
+		return Path(".gzip"), nil
+	case hdr[0] == '\x78' && hdr[1] == '\x5E':
+		return Path(".Z"), nil
 	}
 	return nil, nil
 }

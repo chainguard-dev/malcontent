@@ -5,6 +5,7 @@ import (
 	"archive/zip"
 	"compress/bzip2"
 	"compress/gzip"
+	"compress/zlib"
 	"context"
 	"errors"
 	"fmt"
@@ -19,6 +20,7 @@ import (
 	"github.com/cavaliergopher/cpio"
 	"github.com/cavaliergopher/rpm"
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/programkind"
 
 	"github.com/egibs/go-debian/deb"
 
@@ -225,7 +227,6 @@ func extractTar(ctx context.Context, d string, f string) error {
 // extractGzip extracts .gz archives.
 func extractGzip(ctx context.Context, d string, f string) error {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
-	logger.Debug("extracting gzip")
 
 	// Check if the file is valid
 	_, err := os.Stat(f)
@@ -239,23 +240,50 @@ func extractGzip(ctx context.Context, d string, f string) error {
 	}
 	defer gf.Close()
 
-	gr, err := gzip.NewReader(gf)
+	// Determine if we're extracting a gzip- or zlib-compressed file
+	ft, err := programkind.File(f)
 	if err != nil {
-		return fmt.Errorf("failed to create gzip reader: %w", err)
+		return fmt.Errorf("failed to determine file type: %w", err)
 	}
-	defer gr.Close()
+
+	logger.Debugf("extracting %s", ft.Ext)
 
 	base := filepath.Base(f)
 	target := filepath.Join(d, base[:len(base)-len(filepath.Ext(base))])
 
-	ef, err := os.Create(target)
-	if err != nil {
-		return fmt.Errorf("failed to create extracted file: %w", err)
-	}
-	defer ef.Close()
+	switch ft.Ext {
+	case "gzip":
+		gr, err := gzip.NewReader(gf)
+		if err != nil {
+			return fmt.Errorf("failed to create gzip reader: %w", err)
+		}
+		defer gr.Close()
 
-	if _, err := io.Copy(ef, io.LimitReader(gr, maxBytes)); err != nil {
-		return fmt.Errorf("failed to copy file: %w", err)
+		ef, err := os.Create(target)
+		if err != nil {
+			return fmt.Errorf("failed to create extracted file: %w", err)
+		}
+		defer ef.Close()
+
+		if _, err := io.Copy(ef, io.LimitReader(gr, maxBytes)); err != nil {
+			return fmt.Errorf("failed to copy file: %w", err)
+		}
+	case "Z":
+		zr, err := zlib.NewReader(gf)
+		if err != nil {
+			return fmt.Errorf("failed to create zlib reader: %w", err)
+		}
+		defer zr.Close()
+
+		ef, err := os.Create(target)
+		if err != nil {
+			return fmt.Errorf("failed to create extracted file: %w", err)
+		}
+		defer ef.Close()
+
+		if _, err := io.Copy(ef, io.LimitReader(zr, maxBytes)); err != nil {
+			return fmt.Errorf("failed to copy file: %w", err)
+		}
 	}
 
 	return nil
