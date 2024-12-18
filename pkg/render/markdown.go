@@ -73,17 +73,6 @@ func (r Markdown) Full(ctx context.Context, rep *malcontent.Report) error {
 	}
 
 	for modified := rep.Diff.Modified.Oldest(); modified != nil; modified = modified.Next() {
-		var title string
-		if modified.Value.PreviousRelPath != "" && modified.Value.PreviousRelPathScore >= 0.9 {
-			title = fmt.Sprintf("## Moved: %s -> %s (similarity: %0.2f)", modified.Value.PreviousPath, modified.Value.Path, modified.Value.PreviousRelPathScore)
-		}
-		if modified.Value.RiskScore != modified.Value.PreviousRiskScore {
-			title = fmt.Sprintf("%s [%s → %s]",
-				title,
-				mdRisk(modified.Value.PreviousRiskScore, modified.Value.PreviousRiskLevel),
-				mdRisk(modified.Value.RiskScore, modified.Value.RiskLevel))
-		}
-
 		added := 0
 		removed := 0
 		noDiff := 0
@@ -99,10 +88,21 @@ func (r Markdown) Full(ctx context.Context, rep *malcontent.Report) error {
 			}
 		}
 
-		if added == 0 && removed == 0 {
+		var title string
+		switch {
+		case added == 0 && removed == 0:
 			title = fmt.Sprintf("## Unchanged: %s", modified.Value.Path)
-		} else {
+		case modified.Value.PreviousRelPath != "" && modified.Value.PreviousRelPathScore >= 0.9:
+			title = fmt.Sprintf("## Moved: %s -> %s (similarity: %0.2f)", modified.Value.PreviousPath, modified.Value.Path, modified.Value.PreviousRelPathScore)
+		default:
 			title = fmt.Sprintf("## Changed (%d added, %d removed): %s", added, removed, modified.Value.Path)
+		}
+
+		if modified.Value.RiskScore != modified.Value.PreviousRiskScore {
+			title = fmt.Sprintf("%s [%s → %s]",
+				title,
+				mdRisk(modified.Value.PreviousRiskScore, modified.Value.PreviousRiskLevel),
+				mdRisk(modified.Value.RiskScore, modified.Value.RiskLevel))
 		}
 
 		if len(modified.Value.Behaviors) > 0 {
