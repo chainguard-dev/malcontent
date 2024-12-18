@@ -394,7 +394,7 @@ func TestIsValidPath(t *testing.T) {
 		},
 		{
 			name:     "Path with irregular separators",
-			target:   strings.Replace(filepath.Join(tmpRoot, "file.txt"), "/", "//", -1),
+			target:   strings.ReplaceAll(filepath.Join(tmpRoot, "file.txt"), "/", "//"),
 			baseDir:  tmpRoot,
 			expected: true,
 		},
