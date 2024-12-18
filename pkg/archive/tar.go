@@ -1,4 +1,4 @@
-package action
+package archive
 
 import (
 	"archive/tar"
@@ -17,7 +17,7 @@ import (
 )
 
 // extractTar extracts .apk and .tar* archives.
-func extractTar(ctx context.Context, d string, f string) error {
+func ExtractTar(ctx context.Context, d string, f string) error {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting tar")
 
@@ -101,7 +101,7 @@ func extractTar(ctx context.Context, d string, f string) error {
 		}
 
 		target := filepath.Join(d, clean)
-		if !isValidPath(target, d) {
+		if !IsValidPath(target, d) {
 			return fmt.Errorf("invalid file path: %s", target)
 		}
 
@@ -144,7 +144,7 @@ func extractTar(ctx context.Context, d string, f string) error {
 			if err != nil {
 				return fmt.Errorf("failed to evaluate symlink: %w", err)
 			}
-			if !isValidPath(target, d) {
+			if !IsValidPath(target, d) {
 				return fmt.Errorf("symlink points outside temporary directory: %s", linkReal)
 			}
 			if err := os.Symlink(linkReal, target); err != nil {

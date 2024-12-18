@@ -1,4 +1,4 @@
-package action
+package archive
 
 import (
 	"compress/bzip2"
@@ -12,7 +12,8 @@ import (
 	"github.com/chainguard-dev/clog"
 )
 
-func extractBz2(ctx context.Context, d, f string) error {
+// Extract Bz2 extracts bzip2 files.
+func ExtractBz2(ctx context.Context, d, f string) error {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting bzip2 file")
 

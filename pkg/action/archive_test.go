@@ -12,7 +12,9 @@ import (
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/clog/slogtest"
+	"github.com/chainguard-dev/malcontent/pkg/archive"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
+	"github.com/chainguard-dev/malcontent/pkg/programkind"
 	"github.com/chainguard-dev/malcontent/pkg/render"
 	"github.com/chainguard-dev/malcontent/rules"
 	thirdparty "github.com/chainguard-dev/malcontent/third_party"
@@ -25,23 +27,23 @@ func TestExtractionMethod(t *testing.T) {
 		ext  string
 		want func(context.Context, string, string) error
 	}{
-		{"apk", ".apk", extractTar},
-		{"gem", ".gem", extractTar},
-		{"gzip", ".gz", extractGzip},
-		{"jar", ".jar", extractZip},
-		{"tar.gz", ".tar.gz", extractTar},
-		{"tar.xz", ".tar.xz", extractTar},
-		{"tar", ".tar", extractTar},
-		{"tgz", ".tgz", extractTar},
+		{"apk", ".apk", archive.ExtractTar},
+		{"gem", ".gem", archive.ExtractTar},
+		{"gzip", ".gz", archive.ExtractGzip},
+		{"jar", ".jar", archive.ExtractZip},
+		{"tar.gz", ".tar.gz", archive.ExtractTar},
+		{"tar.xz", ".tar.xz", archive.ExtractTar},
+		{"tar", ".tar", archive.ExtractTar},
+		{"tgz", ".tgz", archive.ExtractTar},
 		{"unknown", ".unknown", nil},
 		{"upx", ".upx", nil},
-		{"zip", ".zip", extractZip},
+		{"zip", ".zip", archive.ExtractZip},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got := extractionMethod(tt.ext)
+			got := archive.ExtractionMethod(tt.ext)
 			if (got == nil) != (tt.want == nil) {
 				t.Errorf("extractionMethod() for extension %v did not return expected result", tt.ext)
 			}
@@ -75,7 +77,7 @@ func TestExtractionMultiple(t *testing.T) {
 		t.Run(tt.path, func(t *testing.T) {
 			t.Parallel()
 			ctx := context.Background()
-			dir, err := extractArchiveToTempDir(ctx, tt.path)
+			dir, err := archive.ExtractArchiveToTempDir(ctx, tt.path)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -102,7 +104,7 @@ func TestExtractionMultiple(t *testing.T) {
 func TestExtractTar(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	dir, err := extractArchiveToTempDir(ctx, filepath.Join("testdata", "apko.tar.gz"))
+	dir, err := archive.ExtractArchiveToTempDir(ctx, filepath.Join("testdata", "apko.tar.gz"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -130,7 +132,7 @@ func TestExtractTar(t *testing.T) {
 func TestExtractGzip(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	dir, err := extractArchiveToTempDir(ctx, filepath.Join("testdata", "apko.gz"))
+	dir, err := archive.ExtractArchiveToTempDir(ctx, filepath.Join("testdata", "apko.gz"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -158,7 +160,7 @@ func TestExtractGzip(t *testing.T) {
 func TestExtractZip(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	dir, err := extractArchiveToTempDir(ctx, filepath.Join("testdata", "apko.zip"))
+	dir, err := archive.ExtractArchiveToTempDir(ctx, filepath.Join("testdata", "apko.zip"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -186,7 +188,7 @@ func TestExtractZip(t *testing.T) {
 func TestExtractNestedArchive(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	dir, err := extractArchiveToTempDir(ctx, filepath.Join("testdata", "apko_nested.tar.gz"))
+	dir, err := archive.ExtractArchiveToTempDir(ctx, filepath.Join("testdata", "apko_nested.tar.gz"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -325,7 +327,7 @@ func TestGetExt(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.path, func(t *testing.T) {
 			t.Parallel()
-			if got := getExt(tt.path); got != tt.want {
+			if got := programkind.GetExt(tt.path); got != tt.want {
 				t.Errorf("Ext() = %v, want %v", got, tt.want)
 			}
 		})
@@ -402,7 +404,7 @@ func TestIsValidPath(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := isValidPath(tt.target, tt.baseDir)
+			result := archive.IsValidPath(tt.target, tt.baseDir)
 			if result != tt.expected {
 				t.Errorf("isValidPath(%q, %q) = %v, want %v", tt.target, tt.baseDir, result, tt.expected)
 			}

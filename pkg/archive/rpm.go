@@ -1,4 +1,4 @@
-package action
+package archive
 
 import (
 	"compress/gzip"
@@ -17,7 +17,7 @@ import (
 )
 
 // extractRPM extracts .rpm packages.
-func extractRPM(ctx context.Context, d, f string) error {
+func ExtractRPM(ctx context.Context, d, f string) error {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting rpm")
 

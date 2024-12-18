@@ -1,4 +1,4 @@
-package action
+package archive
 
 import (
 	"archive/tar"
@@ -14,8 +14,8 @@ import (
 	"github.com/egibs/go-debian/deb"
 )
 
-// extractDeb extracts .deb packages.
-func extractDeb(ctx context.Context, d, f string) error {
+// ExtractDeb extracts .deb packages.
+func ExtractDeb(ctx context.Context, d, f string) error {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting deb")
 
@@ -85,7 +85,7 @@ func extractDeb(ctx context.Context, d, f string) error {
 			if err != nil {
 				return fmt.Errorf("failed to evaluate symlink: %w", err)
 			}
-			if !isValidPath(linkReal, d) {
+			if !IsValidPath(linkReal, d) {
 				return fmt.Errorf("symlink points outside temporary directory: %s", linkReal)
 			}
 			if err := os.Symlink(linkReal, target); err != nil {

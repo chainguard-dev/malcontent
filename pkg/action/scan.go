@@ -17,6 +17,7 @@ import (
 	"sync"
 
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/archive"
 	"github.com/chainguard-dev/malcontent/pkg/compile"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
@@ -294,7 +295,7 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 		if c.OCI {
 			// store the image URI for later use
 			imageURI = scanPath
-			ociExtractPath, err = oci(ctx, imageURI)
+			ociExtractPath, err = archive.OCI(ctx, imageURI)
 			logger.Debug("oci image", slog.Any("scanPath", scanPath), slog.Any("ociExtractPath", ociExtractPath))
 			if err != nil {
 				return nil, fmt.Errorf("failed to prepare OCI image for scanning: %w", err)
@@ -432,7 +433,7 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 				case <-scanCtx.Done():
 					return scanCtx.Err()
 				default:
-					if isSupportedArchive(path) {
+					if programkind.IsSupportedArchive(path) {
 						return handleArchive(path)
 					}
 					return handleFile(path)
@@ -493,7 +494,7 @@ func processArchive(ctx context.Context, c malcontent.Config, rfs []fs.FS, archi
 	var err error
 	var frs sync.Map
 
-	tmpRoot, err := extractArchiveToTempDir(ctx, archivePath)
+	tmpRoot, err := archive.ExtractArchiveToTempDir(ctx, archivePath)
 	if err != nil {
 		return nil, fmt.Errorf("extract to temp: %w", err)
 	}

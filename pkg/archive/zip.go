@@ -1,4 +1,4 @@
-package action
+package archive
 
 import (
 	"archive/zip"
@@ -13,7 +13,7 @@ import (
 )
 
 // extractZip extracts .jar and .zip archives.
-func extractZip(ctx context.Context, d string, f string) error {
+func ExtractZip(ctx context.Context, d string, f string) error {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting zip")
 
@@ -37,7 +37,7 @@ func extractZip(ctx context.Context, d string, f string) error {
 		}
 
 		name := filepath.Join(d, clean)
-		if !isValidPath(name, d) {
+		if !IsValidPath(name, d) {
 			logger.Warnf("skipping file path outside extraction directory: %s", name)
 			continue
 		}

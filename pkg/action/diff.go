@@ -16,6 +16,7 @@ import (
 	"github.com/agext/levenshtein"
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
+	"github.com/chainguard-dev/malcontent/pkg/programkind"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 	"golang.org/x/sync/errgroup"
 )
@@ -151,8 +152,8 @@ func Diff(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) 
 	var srcBase, destBase string
 	srcCh := make(chan map[string]*malcontent.FileReport, 1)
 	destCh := make(chan map[string]*malcontent.FileReport, 1)
-	srcIsArchive := isSupportedArchive(srcPath)
-	destIsArchive := isSupportedArchive(destPath)
+	srcIsArchive := programkind.IsSupportedArchive(srcPath)
+	destIsArchive := programkind.IsSupportedArchive(destPath)
 
 	srcInfo, err := os.Stat(srcPath)
 	if err != nil {

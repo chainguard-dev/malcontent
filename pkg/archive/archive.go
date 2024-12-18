@@ -1,4 +1,4 @@
-package action
+package archive
 
 import (
 	"context"
@@ -6,7 +6,6 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"sync"
 
@@ -14,60 +13,9 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 )
 
-var archiveMap = map[string]bool{
-	".apk":    true,
-	".bz2":    true,
-	".bzip2":  true,
-	".deb":    true,
-	".gem":    true,
-	".gz":     true,
-	".jar":    true,
-	".rpm":    true,
-	".tar":    true,
-	".tar.gz": true,
-	".tar.xz": true,
-	".tgz":    true,
-	".whl":    true,
-	".xz":     true,
-	".zip":    true,
-}
-
-// isSupportedArchive returns whether a path can be processed by our archive extractor.
-func isSupportedArchive(path string) bool {
-	return archiveMap[getExt(path)]
-}
-
 // isValidPath checks if the target file is within the given directory.
-func isValidPath(target, dir string) bool {
+func IsValidPath(target, dir string) bool {
 	return strings.HasPrefix(filepath.Clean(target), filepath.Clean(dir))
-}
-
-// getExt returns the extension of a file path
-// and attempts to avoid including fragments of filenames with other dots before the extension.
-func getExt(path string) string {
-	base := filepath.Base(path)
-
-	// Handle files with version numbers in the name
-	// e.g. file1.2.3.tar.gz -> .tar.gz
-	re := regexp.MustCompile(`\d+\.\d+\.\d+$`)
-	base = re.ReplaceAllString(base, "")
-
-	ext := filepath.Ext(base)
-
-	if ext != "" && strings.Contains(base, ".") {
-		parts := strings.Split(base, ".")
-		if len(parts) > 2 {
-			subExt := fmt.Sprintf(".%s%s", parts[len(parts)-2], ext)
-			if isValidExt := func(ext string) bool {
-				_, ok := archiveMap[ext]
-				return ok
-			}(subExt); isValidExt {
-				return subExt
-			}
-		}
-	}
-
-	return ext
 }
 
 const maxBytes = 1 << 29 // 512MB
@@ -87,7 +35,7 @@ func extractNestedArchive(
 	if ft != nil && ft.MIME == "application/zlib" {
 		isArchive = true
 	}
-	if _, ok := archiveMap[getExt(f)]; ok {
+	if _, ok := programkind.ArchiveMap[programkind.GetExt(f)]; ok {
 		isArchive = true
 	}
 	//nolint:nestif // ignore complexity of 8
@@ -105,9 +53,9 @@ func extractNestedArchive(
 			return fmt.Errorf("failed to determine file type: %w", err)
 		}
 		if ft != nil && ft.MIME == "application/zlib" {
-			extract = extractZlib
+			extract = ExtractZlib
 		} else {
-			extract = extractionMethod(getExt(fullPath))
+			extract = ExtractionMethod(programkind.GetExt(fullPath))
 		}
 		err = extract(ctx, d, fullPath)
 		if err != nil {
@@ -140,7 +88,7 @@ func extractNestedArchive(
 }
 
 // extractArchiveToTempDir creates a temporary directory and extracts the archive file for scanning.
-func extractArchiveToTempDir(ctx context.Context, path string) (string, error) {
+func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 	logger := clog.FromContext(ctx).With("path", path)
 	logger.Debug("creating temp dir")
 
@@ -156,9 +104,9 @@ func extractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 		return "", fmt.Errorf("failed to determine file type: %w", err)
 	}
 	if ft != nil && ft.MIME == "application/zlib" {
-		extract = extractZlib
+		extract = ExtractZlib
 	} else {
-		extract = extractionMethod(getExt(path))
+		extract = ExtractionMethod(programkind.GetExt(path))
 	}
 	if extract == nil {
 		return "", fmt.Errorf("unsupported archive type: %s", path)
@@ -183,7 +131,7 @@ func extractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 		}
 		//nolint: nestif // ignoring complexity of 11
 		if file, ok := key.(string); ok {
-			ext := getExt(file)
+			ext := programkind.GetExt(file)
 			info, err := os.Stat(file)
 			if err != nil {
 				return false
@@ -211,7 +159,7 @@ func extractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 				}
 				return true
 			case mode.IsRegular():
-				if _, ok := archiveMap[ext]; ok {
+				if _, ok := programkind.ArchiveMap[ext]; ok {
 					rel, err := filepath.Rel(tmpDir, file)
 					if err != nil {
 						return false
@@ -229,20 +177,20 @@ func extractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 	return tmpDir, nil
 }
 
-func extractionMethod(ext string) func(context.Context, string, string) error {
+func ExtractionMethod(ext string) func(context.Context, string, string) error {
 	switch ext {
 	case ".jar", ".zip", ".whl":
-		return extractZip
+		return ExtractZip
 	case ".gz":
-		return extractGzip
+		return ExtractGzip
 	case ".apk", ".gem", ".tar", ".tar.bz2", ".tar.gz", ".tgz", ".tar.xz", ".tbz", ".xz":
-		return extractTar
+		return ExtractTar
 	case ".bz2", ".bzip2":
-		return extractBz2
+		return ExtractBz2
 	case ".rpm":
-		return extractRPM
+		return ExtractRPM
 	case ".deb":
-		return extractDeb
+		return ExtractDeb
 	default:
 		return nil
 	}

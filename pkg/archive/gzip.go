@@ -1,4 +1,4 @@
-package action
+package archive
 
 import (
 	"compress/gzip"
@@ -12,7 +12,7 @@ import (
 )
 
 // extractGzip extracts .gz archives.
-func extractGzip(ctx context.Context, d string, f string) error {
+func ExtractGzip(ctx context.Context, d string, f string) error {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting gzip")
 
