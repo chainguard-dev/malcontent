@@ -17,7 +17,7 @@ import (
 type Renderer interface {
 	Scanning(context.Context, string)
 	File(context.Context, *FileReport) error
-	Full(context.Context, *Report) error
+	Full(context.Context, *Config, *Report) error
 	Name() string
 }
 

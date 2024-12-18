@@ -69,7 +69,7 @@ func (r TerminalBrief) File(_ context.Context, fr *malcontent.FileReport) error 
 	return nil
 }
 
-func (r TerminalBrief) Full(_ context.Context, rep *malcontent.Report) error {
+func (r TerminalBrief) Full(_ context.Context, _ *malcontent.Config, rep *malcontent.Report) error {
 	// Non-diff files are handled on the fly by File()
 	if rep.Diff == nil {
 		return nil

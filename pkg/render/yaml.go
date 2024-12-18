@@ -28,7 +28,7 @@ func (r YAML) File(_ context.Context, _ *malcontent.FileReport) error {
 	return nil
 }
 
-func (r YAML) Full(_ context.Context, rep *malcontent.Report) error {
+func (r YAML) Full(_ context.Context, c *malcontent.Config, rep *malcontent.Report) error {
 	// Make the sync.Map YAML-friendly
 	yr := Report{
 		Diff:   rep.Diff,
@@ -51,6 +51,10 @@ func (r YAML) Full(_ context.Context, rep *malcontent.Report) error {
 		}
 		return true
 	})
+
+	if c != nil && c.Stats {
+		yr.Stats = serializedStats(c, rep)
+	}
 
 	yaml, err := yaml.Marshal(yr)
 	if err != nil {

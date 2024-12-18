@@ -117,7 +117,7 @@ func TestJSON(t *testing.T) {
 				t.Fatalf("scan failed: %v", err)
 			}
 
-			if err := render.Full(ctx, res); err != nil {
+			if err := render.Full(ctx, nil, res); err != nil {
 				t.Fatalf("full: %v", err)
 			}
 
@@ -196,7 +196,7 @@ func TestSimple(t *testing.T) {
 				t.Fatalf("scan failed: %v", err)
 			}
 
-			if err := simple.Full(ctx, res); err != nil {
+			if err := simple.Full(ctx, nil, res); err != nil {
 				t.Fatalf("full: %v", err)
 			}
 
@@ -278,7 +278,7 @@ func TestDiff(t *testing.T) {
 				t.Fatalf("diff failed: %v", err)
 			}
 
-			if err := simple.Full(ctx, res); err != nil {
+			if err := simple.Full(ctx, nil, res); err != nil {
 				t.Fatalf("full: %v", err)
 			}
 
@@ -345,7 +345,7 @@ func TestDiffFileChange(t *testing.T) {
 				t.Fatalf("diff failed: %v", err)
 			}
 
-			if err := simple.Full(ctx, res); err != nil {
+			if err := simple.Full(ctx, nil, res); err != nil {
 				t.Fatalf("full: %v", err)
 			}
 
@@ -412,7 +412,7 @@ func TestDiffFileIncrease(t *testing.T) {
 				t.Fatalf("diff failed: %v", err)
 			}
 
-			if err := simple.Full(ctx, res); err != nil {
+			if err := simple.Full(ctx, nil, res); err != nil {
 				t.Fatalf("full: %v", err)
 			}
 
@@ -512,7 +512,7 @@ func TestMarkdown(t *testing.T) {
 				t.Fatalf("scan failed: %v", err)
 			}
 
-			if err := simple.Full(ctx, res); err != nil {
+			if err := simple.Full(ctx, nil, res); err != nil {
 				t.Fatalf("full: %v", err)
 			}
 
@@ -594,7 +594,7 @@ func Template(b *testing.B, paths []string) func() {
 		if err != nil {
 			b.Fatal(err)
 		}
-		if err := simple.Full(ctx, res); err != nil {
+		if err := simple.Full(ctx, nil, res); err != nil {
 			b.Fatalf("full: %v", err)
 		}
 	}
