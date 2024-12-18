@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"testing"
 
 	"github.com/chainguard-dev/clog"
@@ -326,6 +327,84 @@ func TestGetExt(t *testing.T) {
 			t.Parallel()
 			if got := getExt(tt.path); got != tt.want {
 				t.Errorf("Ext() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestIsValidPath(t *testing.T) {
+	tmpRoot, err := os.MkdirTemp("", "isValidPath-*")
+	if err != nil {
+		t.Fatalf("Failed to create temp base directory: %v", err)
+	}
+	defer os.RemoveAll(tmpRoot)
+
+	tempSubDir, err := os.MkdirTemp(tmpRoot, "isValidPathSub-*")
+	if err != nil {
+		t.Fatalf("Failed to create temp sub directory: %v", err)
+	}
+
+	tests := []struct {
+		name     string
+		target   string
+		baseDir  string
+		expected bool
+	}{
+		{
+			name:     "Valid direct child path",
+			target:   filepath.Join(tmpRoot, "file.txt"),
+			baseDir:  tmpRoot,
+			expected: true,
+		},
+		{
+			name:     "Valid nested path",
+			target:   filepath.Join(tempSubDir, "file.txt"),
+			baseDir:  tmpRoot,
+			expected: true,
+		},
+		{
+			name:     "Invalid parent directory traversal",
+			target:   filepath.Join(tmpRoot, "../file.txt"),
+			baseDir:  tmpRoot,
+			expected: false,
+		},
+		{
+			name:     "Invalid absolute path outside base",
+			target:   "/etc/passwd",
+			baseDir:  tmpRoot,
+			expected: false,
+		},
+		{
+			name:     "Invalid relative path outside base",
+			target:   "../../etc/passwd",
+			baseDir:  tmpRoot,
+			expected: false,
+		},
+		{
+			name:     "Empty target path",
+			target:   "",
+			baseDir:  tmpRoot,
+			expected: false,
+		},
+		{
+			name:     "Empty base directory",
+			target:   filepath.Join(tmpRoot, "file.txt"),
+			baseDir:  "",
+			expected: false,
+		},
+		{
+			name:     "Path with irregular separators",
+			target:   strings.Replace(filepath.Join(tmpRoot, "file.txt"), "/", "//", -1),
+			baseDir:  tmpRoot,
+			expected: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := isValidPath(tt.target, tt.baseDir)
+			if result != tt.expected {
+				t.Errorf("isValidPath(%q, %q) = %v, want %v", tt.target, tt.baseDir, result, tt.expected)
 			}
 		})
 	}
