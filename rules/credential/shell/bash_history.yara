@@ -1,23 +1,25 @@
-rule bash_history: high {
+rule bash_history: medium {
   meta:
     description = "accesses bash shell history"
 
   strings:
-    $ref = ".bash_history" fullword
+    $ref = ".bash_history"
 
   condition:
     all of them
 }
 
-rule bash: override {
+rule bash_history_high: high {
   meta:
-    description  = "bash"
-    bash_history = "medium"
+    description = "accesses bash shell history"
 
   strings:
-    $posix  = "POSIXLY_CORRECT"
-    $source = "BASH_SOURCE"
+    $ref        = ".bash_history"
+    $not_posix  = "POSIXLY_CORRECT"
+    $not_source = "BASH_SOURCE"
+    $not_cshrc  = ".cshrc"
 
   condition:
-    filesize > 100KB and filesize < 2MB and all of them
+    $ref and none of ($not*)
 }
+

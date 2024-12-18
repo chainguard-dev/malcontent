@@ -26,7 +26,10 @@ rule bash_persist_persistent: high {
     $ref3 = ".profile"
     $ref4 = ".bashrc"
 
-    $not_bash = "POSIXLY_CORRECT"
+    $not_bash   = "POSIXLY_CORRECT"
+    $not_csh    = ".cshrc"
+    $not_tcsh   = "tcsh" fullword
+    $not_tcshrc = ".tcshrc"
 
   condition:
     3 of them and none of ($not*)
@@ -54,6 +57,8 @@ rule bash_logout_persist: high {
     $not_bash    = "POSIXLY_CORRECT"
     $not_comment = "# ~/.bash_logout"
     $not_clear   = "/usr/bin/clear_console"
+    $not_csh     = ".cshrc"
+    $not_tcshrc  = ".tcshrc"
 
   condition:
     filesize < 2097152 and any of ($ref*) and none of ($not*)

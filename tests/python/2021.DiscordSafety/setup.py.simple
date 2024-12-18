@@ -15,6 +15,6 @@ exec/remote_commands/code_eval: critical
 exfil/stealer/browser: high
 fs/directory/create: low
 fs/path/users: medium
-impact/remote_access/py_setuptools: critical
+impact/remote_access/py_setuptools: high
 net/url/embedded: medium
 net/url/request: medium

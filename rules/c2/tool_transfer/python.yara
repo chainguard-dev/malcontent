@@ -1,3 +1,13 @@
+private rule probably_python_tt {
+  strings:
+    $import   = "import "
+    $f_common = /\s(def|if|with|else:) /
+    $f_exotic = /exec\(|b64decode|bytes\(/
+
+  condition:
+    filesize < 10MB and $import in (1..1024) and any of ($f*)
+}
+
 private rule py_fetcher: medium {
   meta:
     description = "fetches content"
@@ -12,7 +22,7 @@ private rule py_fetcher: medium {
     $http_wget          = "wget" fullword
 
   condition:
-    any of them
+    probably_python_tt and any of them
 }
 
 private rule py_runner {
@@ -27,7 +37,7 @@ private rule py_runner {
     $system       = /system\([\"\'\w\ \-\)\/]{0,64}/
 
   condition:
-    any of them
+    probably_python_tt and any of them
 }
 
 rule py_dropper: medium {

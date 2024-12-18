@@ -1,8 +1,7 @@
-## linux/clean/tree-sitter [🛑 HIGH]
+## linux/clean/tree-sitter [🟡 MEDIUM]
 
 | RISK | KEY | DESCRIPTION | EVIDENCE |
 |--|--|--|--|
-| HIGH | [exec/shell/tmp_semicolon](https://github.com/chainguard-dev/malcontent/blob/main/rules/exec/shell/tmp_semicolon.yara#semicolon_short_tmp) | unusual one-liners involving /tmp | [--;/tmp/rust-20241004-6494-uljaw4/rustc-1](https://github.com/search?q=--%3B%2Ftmp%2Frust-20241004-6494-uljaw4%2Frustc-1&type=code) |
 | MEDIUM | [anti-static/elf/multiple](https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/elf/multiple.yara#multiple_elf) | multiple ELF binaries within an ELF binary | $elf_head |
 | MEDIUM | [c2/tool_transfer/dropper](https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/dropper.yara#dropper) | References a 'dropper' | [Dropper](https://github.com/search?q=Dropper&type=code) |
 | MEDIUM | [c2/tool_transfer/os](https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/os.yara#multiple_os_ref) | references multiple operating systems | [Darwin](https://github.com/search?q=Darwin&type=code)<br>[Windows](https://github.com/search?q=Windows&type=code)<br>[http://](http://)<br>[https://](https://)<br>[macOS](https://github.com/search?q=macOS&type=code) |

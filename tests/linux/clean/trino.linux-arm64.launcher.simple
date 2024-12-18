@@ -1,0 +1,12 @@
+# linux/clean/trino.linux-arm64.launcher: medium
+anti-static/elf/content: medium
+anti-static/elf/entropy: medium
+anti-static/elf/header: medium
+anti-static/elf/multiple: medium
+anti-static/packer/upx: medium
+c2/addr/url: low
+crypto/aes: low
+fs/path/users: medium
+fs/proc/self_exe: medium
+net/dns/txt: low
+net/url/embedded: low

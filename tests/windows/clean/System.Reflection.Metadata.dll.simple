@@ -1,0 +1,7 @@
+# windows/clean/System.Reflection.Metadata.dll: medium
+c2/tool_transfer/os: low
+crypto/public_key: low
+crypto/rc4: low
+fs/file/read: low
+net/http/websocket: medium
+net/url/embedded: low

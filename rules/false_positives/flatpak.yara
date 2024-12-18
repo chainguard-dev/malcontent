@@ -1,7 +1,7 @@
 rule flatpak: override {
   meta:
-    description = "flatpak"
-    hidden_x11  = "medium"
+    description           = "flatpak"
+    hidden_x11_unexpected = "medium"
 
   strings:
     $flatpak = "FLATPAK_BINARY" fullword

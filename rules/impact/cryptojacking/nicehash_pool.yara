@@ -3,7 +3,7 @@ rule nicehash_pool: high {
     description = "References Nicehash and mining pools"
 
   strings:
-    $ref  = "nicehash"
+    $ref  = "nicehash" fullword
     $ref2 = "pool"
 
   condition:
