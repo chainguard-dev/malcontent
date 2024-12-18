@@ -76,8 +76,6 @@ func (r Markdown) Full(ctx context.Context, rep *malcontent.Report) error {
 		var title string
 		if modified.Value.PreviousRelPath != "" && modified.Value.PreviousRelPathScore >= 0.9 {
 			title = fmt.Sprintf("## Moved: %s -> %s (similarity: %0.2f)", modified.Value.PreviousPath, modified.Value.Path, modified.Value.PreviousRelPathScore)
-		} else {
-			title = fmt.Sprintf("## Changed: %s", modified.Value.Path)
 		}
 		if modified.Value.RiskScore != modified.Value.PreviousRiskScore {
 			title = fmt.Sprintf("%s [%s → %s]",
@@ -86,9 +84,6 @@ func (r Markdown) Full(ctx context.Context, rep *malcontent.Report) error {
 				mdRisk(modified.Value.RiskScore, modified.Value.RiskLevel))
 		}
 
-		if len(modified.Value.Behaviors) > 0 {
-			fmt.Fprint(r.w, title+"\n\n")
-		}
 		added := 0
 		removed := 0
 		noDiff := 0
@@ -102,6 +97,16 @@ func (r Markdown) Full(ctx context.Context, rep *malcontent.Report) error {
 			if !b.DiffAdded && !b.DiffRemoved {
 				noDiff++
 			}
+		}
+
+		if added == 0 && removed == 0 {
+			title = fmt.Sprintf("## Unchanged: %s", modified.Value.Path)
+		} else {
+			title = fmt.Sprintf("## Changed (%d added, %d removed): %s", added, removed, modified.Value.Path)
+		}
+
+		if len(modified.Value.Behaviors) > 0 {
+			fmt.Fprint(r.w, title+"\n\n")
 		}
 
 		// We split the added/removed up in Markdown to address readability feedback. Unfortunately,

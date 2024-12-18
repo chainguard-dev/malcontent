@@ -135,6 +135,7 @@ func renderFileSummaryTea(_ context.Context, fr *malcontent.FileReport, w io.Wri
 	previousNsRiskScore := map[string]int{}
 	diffMode := false
 
+	var added, removed int
 	for _, b := range fr.Behaviors {
 		ns, _ := splitRuleID(b.ID)
 		if b.DiffAdded || b.DiffRemoved {
@@ -146,6 +147,13 @@ func renderFileSummaryTea(_ context.Context, fr *malcontent.FileReport, w io.Wri
 		byNamespace[ns] = append(byNamespace[ns], b)
 		if !b.DiffRemoved && b.RiskScore > nsRiskScore[ns] {
 			nsRiskScore[ns] = b.RiskScore
+		}
+
+		if b.DiffAdded {
+			added++
+		}
+		if b.DiffRemoved {
+			removed++
 		}
 	}
 
@@ -177,6 +185,16 @@ func renderFileSummaryTea(_ context.Context, fr *malcontent.FileReport, w io.Wri
 	)
 
 	if diffMode {
+		rc.Title = fmt.Sprintf("Changed (%d added, %d removed): %s", added, removed, fr.Path)
+		header = lipgloss.JoinHorizontal(
+			lipgloss.Center,
+			pathStyle.Render(rc.Title),
+			" ",
+			riskBadge,
+		)
+	}
+	if !diffMode {
+		rc.Title = fmt.Sprintf("Unchanged: %s", fr.Path)
 		header = lipgloss.JoinHorizontal(
 			lipgloss.Center,
 			pathStyle.Render(rc.Title),
