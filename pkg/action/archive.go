@@ -50,6 +50,11 @@ func isSupportedArchive(path string) bool {
 	return archiveMap[getExt(path)]
 }
 
+// isValidPath checks if the target file is within the given directory.
+func isValidPath(target, dir string) bool {
+	return strings.HasPrefix(filepath.Clean(target), filepath.Clean(dir))
+}
+
 // getExt returns the extension of a file path
 // and attempts to avoid including fragments of filenames with other dots before the extension.
 func getExt(path string) string {
@@ -165,8 +170,8 @@ func extractTar(ctx context.Context, d string, f string) error {
 		}
 
 		target := filepath.Join(d, clean)
-		if !strings.HasPrefix(target, filepath.Clean(d)+string(os.PathSeparator)) {
-			return fmt.Errorf("invalid file path: %s", header.Name)
+		if !isValidPath(target, d) {
+			return fmt.Errorf("invalid file path: %s", target)
 		}
 
 		switch header.Typeflag {
@@ -208,7 +213,7 @@ func extractTar(ctx context.Context, d string, f string) error {
 			if err != nil {
 				return fmt.Errorf("failed to evaluate symlink: %w", err)
 			}
-			if !strings.HasPrefix(linkReal, filepath.Clean(d)+string(os.PathSeparator)) {
+			if !isValidPath(target, d) {
 				return fmt.Errorf("symlink points outside temporary directory: %s", linkReal)
 			}
 			if err := os.Symlink(linkReal, target); err != nil {
@@ -309,8 +314,8 @@ func extractZip(ctx context.Context, d string, f string) error {
 		}
 
 		name := filepath.Join(d, clean)
-		if !strings.HasPrefix(name, filepath.Clean(d)+string(os.PathSeparator)) {
-			logger.Warnf("skipping file path outside extraction directory: %s", file.Name)
+		if !isValidPath(name, d) {
+			logger.Warnf("skipping file path outside extraction directory: %s", name)
 			continue
 		}
 
@@ -522,7 +527,7 @@ func extractDeb(ctx context.Context, d, f string) error {
 			if err != nil {
 				return fmt.Errorf("failed to evaluate symlink: %w", err)
 			}
-			if !strings.HasPrefix(linkReal, filepath.Clean(d)+string(os.PathSeparator)) {
+			if !isValidPath(linkReal, d) {
 				return fmt.Errorf("symlink points outside temporary directory: %s", linkReal)
 			}
 			if err := os.Symlink(linkReal, target); err != nil {
