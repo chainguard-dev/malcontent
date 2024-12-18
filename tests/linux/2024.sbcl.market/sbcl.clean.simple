@@ -1,0 +1,24 @@
+# linux/2024.sbcl.market/sbcl.clean: medium
+c2/addr/url: low
+c2/tool_transfer/arch: low
+crypto/rc4: low
+data/compression/zstd: low
+discover/user/HOME: low
+discover/user/USER: low
+evasion/file/location/var_tmp: medium
+exec/dylib/address_check: low
+exec/dylib/symbol_address: medium
+exec/program: medium
+exec/program/background: low
+exec/shell/echo: medium
+fs/file/delete: low
+fs/file/truncate: low
+fs/link_read: low
+fs/path/dev: medium
+fs/path/tmp: medium
+fs/path/var: low
+fs/permission/modify: low
+fs/proc/self_exe: medium
+fs/symlink_resolve: low
+fs/tempdir/TEMP: low
+net/url/embedded: low

@@ -12,3 +12,18 @@ rule sonarqube_tutorial_app: override {
   condition:
     filesize < 192KB and all of them
 }
+
+rule sonar_analyzer_override: override {
+  meta:
+    description                                   = "SonarQube SonarAnalyzer.CSharp.dll"
+    COD3NYM_SUSP_OBF_NET_Reactor_Indicators_Jan24 = "medium"
+
+  strings:
+    $ = "SonarAnalyzer" fullword
+    $ = "SonarAnalysisContextBase" fullword
+    $ = "SonarCodeFixContext" fullword
+    $ = "https://www.sonarsource.com"
+
+  condition:
+    filesize > 1MB and filesize < 6MB and any of them
+}

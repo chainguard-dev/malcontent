@@ -8,7 +8,6 @@ data/compression/zstd
 discover/user/HOME
 discover/user/USER
 evasion/file/location/var_tmp
--evasion/rootkit/userspace
 exec/dylib/address_check
 exec/dylib/symbol_address
 exec/program
