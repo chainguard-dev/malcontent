@@ -10,10 +10,30 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/gabriel-vasile/mimetype"
 )
+
+// Supported archive extensions.
+var ArchiveMap = map[string]bool{
+	".apk":    true,
+	".bz2":    true,
+	".bzip2":  true,
+	".deb":    true,
+	".gem":    true,
+	".gz":     true,
+	".jar":    true,
+	".rpm":    true,
+	".tar":    true,
+	".tar.gz": true,
+	".tar.xz": true,
+	".tgz":    true,
+	".whl":    true,
+	".xz":     true,
+	".zip":    true,
+}
 
 // file extension to MIME type, if it's a good scanning target.
 var supportedKind = map[string]string{
@@ -76,6 +96,39 @@ var supportedKind = map[string]string{
 type FileType struct {
 	Ext  string
 	MIME string
+}
+
+// IsSupportedArchive returns whether a path can be processed by our archive extractor.
+func IsSupportedArchive(path string) bool {
+	return ArchiveMap[GetExt(path)]
+}
+
+// getExt returns the extension of a file path
+// and attempts to avoid including fragments of filenames with other dots before the extension.
+func GetExt(path string) string {
+	base := filepath.Base(path)
+
+	// Handle files with version numbers in the name
+	// e.g. file1.2.3.tar.gz -> .tar.gz
+	re := regexp.MustCompile(`\d+\.\d+\.\d+$`)
+	base = re.ReplaceAllString(base, "")
+
+	ext := filepath.Ext(base)
+
+	if ext != "" && strings.Contains(base, ".") {
+		parts := strings.Split(base, ".")
+		if len(parts) > 2 {
+			subExt := fmt.Sprintf(".%s%s", parts[len(parts)-2], ext)
+			if isValidExt := func(ext string) bool {
+				_, ok := ArchiveMap[ext]
+				return ok
+			}(subExt); isValidExt {
+				return subExt
+			}
+		}
+	}
+
+	return ext
 }
 
 func makeFileType(path string, ext string, mime string) *FileType {
