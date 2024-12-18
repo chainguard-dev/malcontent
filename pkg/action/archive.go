@@ -5,6 +5,7 @@ import (
 	"archive/zip"
 	"compress/bzip2"
 	"compress/gzip"
+	"compress/zlib"
 	"context"
 	"errors"
 	"fmt"
@@ -19,6 +20,7 @@ import (
 	"github.com/cavaliergopher/cpio"
 	"github.com/cavaliergopher/rpm"
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/programkind"
 
 	"github.com/egibs/go-debian/deb"
 
@@ -46,6 +48,11 @@ var archiveMap = map[string]bool{
 // isSupportedArchive returns whether a path can be processed by our archive extractor.
 func isSupportedArchive(path string) bool {
 	return archiveMap[getExt(path)]
+}
+
+// isValidPath checks if the target file is within the given directory.
+func isValidPath(target, dir string) bool {
+	return strings.HasPrefix(filepath.Clean(target), filepath.Clean(dir))
 }
 
 // getExt returns the extension of a file path
@@ -163,8 +170,8 @@ func extractTar(ctx context.Context, d string, f string) error {
 		}
 
 		target := filepath.Join(d, clean)
-		if !strings.HasPrefix(target, filepath.Clean(d)+string(os.PathSeparator)) {
-			return fmt.Errorf("invalid file path: %s", header.Name)
+		if !isValidPath(target, d) {
+			return fmt.Errorf("invalid file path: %s", target)
 		}
 
 		switch header.Typeflag {
@@ -206,7 +213,7 @@ func extractTar(ctx context.Context, d string, f string) error {
 			if err != nil {
 				return fmt.Errorf("failed to evaluate symlink: %w", err)
 			}
-			if !strings.HasPrefix(linkReal, filepath.Clean(d)+string(os.PathSeparator)) {
+			if !isValidPath(target, d) {
 				return fmt.Errorf("symlink points outside temporary directory: %s", linkReal)
 			}
 			if err := os.Symlink(linkReal, target); err != nil {
@@ -220,7 +227,6 @@ func extractTar(ctx context.Context, d string, f string) error {
 // extractGzip extracts .gz archives.
 func extractGzip(ctx context.Context, d string, f string) error {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
-	logger.Debug("extracting gzip")
 
 	// Check if the file is valid
 	_, err := os.Stat(f)
@@ -234,23 +240,50 @@ func extractGzip(ctx context.Context, d string, f string) error {
 	}
 	defer gf.Close()
 
-	gr, err := gzip.NewReader(gf)
+	// Determine if we're extracting a gzip- or zlib-compressed file
+	ft, err := programkind.File(f)
 	if err != nil {
-		return fmt.Errorf("failed to create gzip reader: %w", err)
+		return fmt.Errorf("failed to determine file type: %w", err)
 	}
-	defer gr.Close()
+
+	logger.Debugf("extracting %s", ft.Ext)
 
 	base := filepath.Base(f)
 	target := filepath.Join(d, base[:len(base)-len(filepath.Ext(base))])
 
-	ef, err := os.Create(target)
-	if err != nil {
-		return fmt.Errorf("failed to create extracted file: %w", err)
-	}
-	defer ef.Close()
+	switch ft.Ext {
+	case "gzip":
+		gr, err := gzip.NewReader(gf)
+		if err != nil {
+			return fmt.Errorf("failed to create gzip reader: %w", err)
+		}
+		defer gr.Close()
 
-	if _, err := io.Copy(ef, io.LimitReader(gr, maxBytes)); err != nil {
-		return fmt.Errorf("failed to copy file: %w", err)
+		ef, err := os.Create(target)
+		if err != nil {
+			return fmt.Errorf("failed to create extracted file: %w", err)
+		}
+		defer ef.Close()
+
+		if _, err := io.Copy(ef, io.LimitReader(gr, maxBytes)); err != nil {
+			return fmt.Errorf("failed to copy file: %w", err)
+		}
+	case "Z":
+		zr, err := zlib.NewReader(gf)
+		if err != nil {
+			return fmt.Errorf("failed to create zlib reader: %w", err)
+		}
+		defer zr.Close()
+
+		ef, err := os.Create(target)
+		if err != nil {
+			return fmt.Errorf("failed to create extracted file: %w", err)
+		}
+		defer ef.Close()
+
+		if _, err := io.Copy(ef, io.LimitReader(zr, maxBytes)); err != nil {
+			return fmt.Errorf("failed to copy file: %w", err)
+		}
 	}
 
 	return nil
@@ -281,8 +314,8 @@ func extractZip(ctx context.Context, d string, f string) error {
 		}
 
 		name := filepath.Join(d, clean)
-		if !strings.HasPrefix(name, filepath.Clean(d)+string(os.PathSeparator)) {
-			logger.Warnf("skipping file path outside extraction directory: %s", file.Name)
+		if !isValidPath(name, d) {
+			logger.Warnf("skipping file path outside extraction directory: %s", name)
 			continue
 		}
 
@@ -494,7 +527,7 @@ func extractDeb(ctx context.Context, d, f string) error {
 			if err != nil {
 				return fmt.Errorf("failed to evaluate symlink: %w", err)
 			}
-			if !strings.HasPrefix(linkReal, filepath.Clean(d)+string(os.PathSeparator)) {
+			if !isValidPath(linkReal, d) {
 				return fmt.Errorf("symlink points outside temporary directory: %s", linkReal)
 			}
 			if err := os.Symlink(linkReal, target); err != nil {
