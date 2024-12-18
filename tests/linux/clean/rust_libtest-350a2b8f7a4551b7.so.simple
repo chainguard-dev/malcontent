@@ -1,0 +1,7 @@
+# linux/clean/rust_libtest-350a2b8f7a4551b7.so: medium
+c2/addr/url: low
+c2/tool_transfer/arch: low
+discover/process/runtime_deps: medium
+exec/program: medium
+fs/path/etc: low
+net/url/embedded: low
