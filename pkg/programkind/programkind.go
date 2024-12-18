@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
 
 	"github.com/gabriel-vasile/mimetype"
@@ -65,6 +66,7 @@ var supportedKind = map[string]string{
 	"hh":      "text/x-h",
 	"html":    "",
 	"java":    "text/x-java",
+	"joblib":  "application/x-python-joblib",
 	"js":      "application/javascript",
 	"lnk":     "application/x-ms-shortcut",
 	"lua":     "text/x-lua",
@@ -157,7 +159,7 @@ func makeFileType(path string, ext string, mime string) *FileType {
 
 // File detects what kind of program this file might be.
 //
-//nolint:cyclop // ignore complexity of 38
+//nolint:cyclop // ignore complexity of 44
 func File(path string) (*FileType, error) {
 	// Follow symlinks and return cleanly if the target does not exist
 	_, err := filepath.EvalSymlinks(path)
@@ -237,6 +239,21 @@ func File(path string) (*FileType, error) {
 		return Path(".gzip"), nil
 	case hdr[0] == '\x78' && hdr[1] == '\x5E':
 		return Path(".Z"), nil
+	// Capture joblib files that cannot be decompressed externally
+	// https://joblib.readthedocs.io/en/stable/generated/joblib.dump.html
+	// Check the header, file extension, and MIME type to be as specific as possible
+	case hdr[0] == '\x5A' && hdr[1] == '\x46' && hdr[2] == '\x30' && hdr[3] == '\x78':
+		joblibExts := []string{
+			".z",
+			".gz",
+			".bz2",
+			".xz",
+			".lzma",
+		}
+
+		if slices.Contains(joblibExts, GetExt(path)) && mtype.String() == "application/octet-stream" {
+			return Path(".joblib"), nil
+		}
 	}
 	return nil, nil
 }

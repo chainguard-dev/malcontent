@@ -32,6 +32,9 @@ func extractNestedArchive(
 	if err != nil {
 		return fmt.Errorf("failed to determine file type: %w", err)
 	}
+	if ft != nil && ft.MIME == "application/x-python-joblib" {
+		return nil
+	}
 	if ft != nil && ft.MIME == "application/zlib" {
 		isArchive = true
 	}
@@ -51,6 +54,9 @@ func extractNestedArchive(
 		ft, err := programkind.File(fullPath)
 		if err != nil {
 			return fmt.Errorf("failed to determine file type: %w", err)
+		}
+		if ft != nil && ft.MIME == "application/x-python-joblib" {
+			return nil
 		}
 		if ft != nil && ft.MIME == "application/zlib" {
 			extract = ExtractZlib
@@ -102,6 +108,9 @@ func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 	ft, err := programkind.File(path)
 	if err != nil {
 		return "", fmt.Errorf("failed to determine file type: %w", err)
+	}
+	if ft != nil && ft.MIME == "application/x-python-joblib" {
+		return "", nil
 	}
 	if ft != nil && ft.MIME == "application/zlib" {
 		extract = ExtractZlib

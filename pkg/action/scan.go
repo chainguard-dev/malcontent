@@ -494,6 +494,15 @@ func processArchive(ctx context.Context, c malcontent.Config, rfs []fs.FS, archi
 	var err error
 	var frs sync.Map
 
+	ft, err := programkind.File(archivePath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to determine file type: %w", err)
+	}
+	if ft != nil && ft.MIME == "application/x-python-joblib" {
+		logger.Debugf("skipping unsupported archive: %s", archivePath)
+		return nil, nil
+	}
+
 	tmpRoot, err := archive.ExtractArchiveToTempDir(ctx, archivePath)
 	if err != nil {
 		return nil, fmt.Errorf("extract to temp: %w", err)
@@ -512,20 +521,22 @@ func processArchive(ctx context.Context, c malcontent.Config, rfs []fs.FS, archi
 		tmpRoot = fmt.Sprintf("/private%s", tmpRoot)
 	}
 
-	extractedPaths, err := findFilesRecursively(ctx, tmpRoot)
-	if err != nil {
-		return nil, fmt.Errorf("find: %w", err)
-	}
-
-	for _, extractedFilePath := range extractedPaths {
-		fr, err := processFile(ctx, c, rfs, extractedFilePath, archivePath, tmpRoot, logger)
+	if tmpRoot != "" {
+		extractedPaths, err := findFilesRecursively(ctx, tmpRoot)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("find: %w", err)
 		}
-		if fr != nil {
-			// Store a clean reprepsentation of the archive's scanned file to match single file scanning behavior
-			clean := strings.TrimPrefix(extractedFilePath, tmpRoot)
-			frs.Store(clean, fr)
+
+		for _, extractedFilePath := range extractedPaths {
+			fr, err := processFile(ctx, c, rfs, extractedFilePath, archivePath, tmpRoot, logger)
+			if err != nil {
+				return nil, err
+			}
+			if fr != nil {
+				// Store a clean reprepsentation of the archive's scanned file to match single file scanning behavior
+				clean := strings.TrimPrefix(extractedFilePath, tmpRoot)
+				frs.Store(clean, fr)
+			}
 		}
 	}
 
