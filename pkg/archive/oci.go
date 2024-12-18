@@ -1,4 +1,4 @@
-package action
+package archive
 
 import (
 	"context"
@@ -40,13 +40,13 @@ func prepareImage(ctx context.Context, d string) (string, *os.File, error) {
 }
 
 // return a directory with the extracted image directories/files in it.
-func oci(ctx context.Context, path string) (string, error) {
+func OCI(ctx context.Context, path string) (string, error) {
 	tmpDir, tmpFile, err := prepareImage(ctx, path)
 	if err != nil {
 		return "", fmt.Errorf("failed to prepare image: %w", err)
 	}
 
-	err = extractTar(ctx, tmpDir, tmpFile.Name())
+	err = ExtractTar(ctx, tmpDir, tmpFile.Name())
 	if err != nil {
 		return "", fmt.Errorf("extract tar: %w", err)
 	}
