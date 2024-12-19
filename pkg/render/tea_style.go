@@ -60,9 +60,6 @@ var (
 
 	diffRemovedStyle = lipgloss.NewStyle().
 				Foreground(lipgloss.Color("196"))
-
-	diffUnchangedStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("69"))
 )
 
 // cleanAndWrapEvidence handles evidence strings, including those with escape sequences.

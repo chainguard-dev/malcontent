@@ -6,6 +6,7 @@ rule move_pages: harmless {
 
   strings:
     $ref = "move_pages" fullword
+
   condition:
     any of them
 }
@@ -18,6 +19,7 @@ rule migrate_pages: harmless {
 
   strings:
     $ref = "migrate_pages" fullword
+
   condition:
     any of them
 }
