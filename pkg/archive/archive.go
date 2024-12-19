@@ -32,12 +32,15 @@ func extractNestedArchive(
 	if err != nil {
 		return fmt.Errorf("failed to determine file type: %w", err)
 	}
-	if ft != nil && ft.MIME == "application/zlib" {
+	switch {
+	case ft != nil && ft.MIME == "application/x-upx":
+		isArchive = true
+	case ft != nil && ft.MIME == "application/zlib":
+		isArchive = true
+	case programkind.ArchiveMap[programkind.GetExt(f)]:
 		isArchive = true
 	}
-	if _, ok := programkind.ArchiveMap[programkind.GetExt(f)]; ok {
-		isArchive = true
-	}
+
 	//nolint:nestif // ignore complexity of 8
 	if isArchive {
 		// Ensure the file was extracted and exists
@@ -52,11 +55,15 @@ func extractNestedArchive(
 		if err != nil {
 			return fmt.Errorf("failed to determine file type: %w", err)
 		}
-		if ft != nil && ft.MIME == "application/zlib" {
+		switch {
+		case ft != nil && ft.MIME == "application/x-upx":
+			extract = ExtractUPX
+		case ft != nil && ft.MIME == "application/zlib":
 			extract = ExtractZlib
-		} else {
+		default:
 			extract = ExtractionMethod(programkind.GetExt(fullPath))
 		}
+
 		err = extract(ctx, d, fullPath)
 		if err != nil {
 			return fmt.Errorf("extract nested archive: %w", err)
@@ -103,11 +110,16 @@ func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to determine file type: %w", err)
 	}
-	if ft != nil && ft.MIME == "application/zlib" {
+
+	switch {
+	case ft != nil && ft.MIME == "application/zlib":
 		extract = ExtractZlib
-	} else {
+	case ft != nil && ft.MIME == "application/x-upx":
+		extract = ExtractUPX
+	default:
 		extract = ExtractionMethod(programkind.GetExt(path))
 	}
+
 	if extract == nil {
 		return "", fmt.Errorf("unsupported archive type: %s", path)
 	}

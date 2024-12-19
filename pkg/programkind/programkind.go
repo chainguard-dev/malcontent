@@ -4,6 +4,7 @@
 package programkind
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -30,6 +31,7 @@ var ArchiveMap = map[string]bool{
 	".tar.gz": true,
 	".tar.xz": true,
 	".tgz":    true,
+	".upx":    true,
 	".whl":    true,
 	".xz":     true,
 	".zip":    true,
@@ -86,6 +88,7 @@ var supportedKind = map[string]string{
 	"sh":      "application/x-sh",
 	"so":      "application/x-sharedlib",
 	"ts":      "application/typescript",
+	"upx":     "application/x-upx",
 	"whl":     "application/x-wheel+zip",
 	"yaml":    "",
 	"yara":    "",
@@ -99,8 +102,17 @@ type FileType struct {
 }
 
 // IsSupportedArchive returns whether a path can be processed by our archive extractor.
+// UPX files are an edge case since they may or may not even have an extension that can be referenced.
 func IsSupportedArchive(path string) bool {
-	return ArchiveMap[GetExt(path)]
+	if _, isValidArchive := ArchiveMap[GetExt(path)]; isValidArchive {
+		return true
+	}
+	if ft, err := File(path); err == nil && ft != nil {
+		if ft.MIME == "application/x-upx" {
+			return true
+		}
+	}
+	return false
 }
 
 // getExt returns the extension of a file path
@@ -206,6 +218,10 @@ func File(path string) (*FileType, error) {
 	// final strategy: DIY matching where mimetype is too strict.
 	s := string(hdr[:])
 	switch {
+	// Check for UPX files before we do the ELF check
+	// We're looking for UPX! throughout the header since it may not be in the first 2-4 bytes
+	case bytes.Contains(hdr[:], []byte{'\x55', '\x50', '\x58', '\x21'}):
+		return Path(".upx"), nil
 	case hdr[0] == '\x7f' && hdr[1] == 'E' || hdr[2] == 'L' || hdr[3] == 'F':
 		return Path(".elf"), nil
 	case strings.Contains(s, "<?php"):
