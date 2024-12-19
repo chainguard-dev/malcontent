@@ -101,13 +101,14 @@ func TestJSON(t *testing.T) {
 			}
 
 			mc := malcontent.Config{
-				Concurrency: runtime.NumCPU(),
-				IgnoreSelf:  false,
-				MinFileRisk: 1,
-				MinRisk:     1,
-				Renderer:    render,
-				Rules:       yrs,
-				ScanPaths:   []string{binPath},
+				Concurrency:           runtime.NumCPU(),
+				IgnoreSelf:            false,
+				MinFileRisk:           1,
+				MinRisk:               1,
+				QuantityIncreasesRisk: true,
+				Renderer:              render,
+				Rules:                 yrs,
+				ScanPaths:             []string{binPath},
 			}
 
 			tcLogger := clog.FromContext(ctx).With("test", name)
