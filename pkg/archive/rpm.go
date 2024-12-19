@@ -13,6 +13,7 @@ import (
 	"github.com/cavaliergopher/cpio"
 	"github.com/cavaliergopher/rpm"
 	"github.com/chainguard-dev/clog"
+	"github.com/klauspost/compress/zstd"
 	"github.com/ulikunitz/xz"
 )
 
@@ -60,6 +61,12 @@ func ExtractRPM(ctx context.Context, d, f string) error {
 			return fmt.Errorf("failed to create xz reader: %w", err)
 		}
 		cr = cpio.NewReader(xzStream)
+	case "zstd":
+		zstdStream, err := zstd.NewReader(rpmFile)
+		if err != nil {
+			return fmt.Errorf("failed to create zstd reader: %w", err)
+		}
+		cr = cpio.NewReader(zstdStream)
 	default:
 		return fmt.Errorf("unsupported compression format: %s", compression)
 	}
