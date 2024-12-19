@@ -2,31 +2,18 @@ package archive
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/programkind"
 )
-
-var ErrUPXNotFound = errors.New("UPX executable not found in PATH")
-
-func upxInstalled() error {
-	_, err := exec.LookPath("upx")
-	if err != nil {
-		if errors.Is(err, exec.ErrNotFound) {
-			return ErrUPXNotFound
-		}
-		return fmt.Errorf("failed to check for UPX executable: %w", err)
-	}
-	return nil
-}
 
 func ExtractUPX(ctx context.Context, d, f string) error {
 	// Check if UPX is installed
-	if err := upxInstalled(); err != nil {
+	if err := programkind.UpxInstalled(); err != nil {
 		return err
 	}
 

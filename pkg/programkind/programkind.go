@@ -10,6 +10,7 @@ import (
 	"io"
 	"io/fs"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -143,6 +144,35 @@ func GetExt(path string) string {
 	return ext
 }
 
+var ErrUPXNotFound = errors.New("UPX executable not found in PATH")
+
+func ValidateUPX(path string) (bool, error) {
+	if err := UpxInstalled(); err != nil {
+		return false, err
+	}
+	cmd := exec.Command("upx", "-l", path)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		if bytes.Contains(output, []byte("NotPackedException")) ||
+			bytes.Contains(output, []byte("not packed by UPX")) {
+			return false, nil
+		}
+		return false, nil
+	}
+	return true, nil
+}
+
+func UpxInstalled() error {
+	_, err := exec.LookPath("upx")
+	if err != nil {
+		if errors.Is(err, exec.ErrNotFound) {
+			return ErrUPXNotFound
+		}
+		return fmt.Errorf("failed to check for UPX executable: %w", err)
+	}
+	return nil
+}
+
 func makeFileType(path string, ext string, mime string) *FileType {
 	ext = strings.TrimPrefix(ext, ".")
 
@@ -217,11 +247,13 @@ func File(path string) (*FileType, error) {
 
 	// final strategy: DIY matching where mimetype is too strict.
 	s := string(hdr[:])
+	if bytes.Contains(hdr[:], []byte{'\x55', '\x50', '\x58', '\x21'}) {
+		if isValid, err := ValidateUPX(path); err == nil && isValid {
+			return Path(".upx"), nil
+		}
+	}
+
 	switch {
-	// Check for UPX files before we do the ELF check
-	// We're looking for UPX! throughout the header since it may not be in the first 2-4 bytes
-	case bytes.Contains(hdr[:], []byte{'\x55', '\x50', '\x58', '\x21'}):
-		return Path(".upx"), nil
 	case hdr[0] == '\x7f' && hdr[1] == 'E' || hdr[2] == 'L' || hdr[3] == 'F':
 		return Path(".elf"), nil
 	case strings.Contains(s, "<?php"):
