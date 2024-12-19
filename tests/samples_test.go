@@ -139,6 +139,87 @@ func TestJSON(t *testing.T) {
 	})
 }
 
+func TestJSONStats(t *testing.T) {
+	ctx := slogtest.Context(t)
+	clog.FromContext(ctx).With("test", "TestJSON")
+
+	fileSystem := os.DirFS(testDataDir)
+	os.Chdir(sampleDir)
+
+	fs.WalkDir(fileSystem, ".", func(path string, _ fs.DirEntry, err error) error {
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !strings.HasSuffix(path, ".stats.json") {
+			return nil
+		}
+
+		name := strings.ReplaceAll(path, ".stats.json", "")
+		jsonPath := path
+		binPath := name
+
+		// must be a non-test JSON
+		if _, err := os.Stat(binPath); err != nil {
+			if errors.Is(err, os.ErrNotExist) {
+				return nil
+			}
+			return err
+		}
+
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			td, err := fs.ReadFile(fileSystem, jsonPath)
+			if err != nil {
+				t.Fatalf("testdata read failed: %v", err)
+			}
+			want := string(td)
+
+			var out bytes.Buffer
+			render, err := render.New("json", &out)
+			if err != nil {
+				t.Fatalf("render: %v", err)
+			}
+
+			mc := malcontent.Config{
+				Concurrency: runtime.NumCPU(),
+				IgnoreSelf:  false,
+				MinFileRisk: 1,
+				MinRisk:     1,
+				Renderer:    render,
+				Rules:       yrs,
+				ScanPaths:   []string{binPath},
+				Stats:       true,
+			}
+
+			tcLogger := clog.FromContext(ctx).With("test", name)
+			ctx := clog.WithLogger(ctx, tcLogger)
+			res, err := action.Scan(ctx, mc)
+			if err != nil {
+				t.Fatalf("scan failed: %v", err)
+			}
+
+			if err := render.Full(ctx, &mc, res); err != nil {
+				t.Fatalf("full: %v", err)
+			}
+
+			got := out.String()
+			if diff := cmp.Diff(want, got); diff != "" {
+				t.Errorf("json output mismatch: (-want +got):\n%s", diff)
+			}
+
+			res.Files.Range(func(_, value any) bool {
+				if r, ok := value.(*malcontent.FileReport); ok {
+					if strings.Contains(binPath, "/clean/") && r.RiskScore > 2 {
+						t.Errorf("%s score too high for a 'clean' sample: %s [%d]:\n%s", binPath, r.RiskLevel, r.RiskScore, got)
+					}
+				}
+				return true
+			})
+		})
+		return nil
+	})
+}
+
 func TestSimple(t *testing.T) {
 	ctx := slogtest.Context(t)
 	clog.FromContext(ctx).With("test", "simple")
