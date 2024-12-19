@@ -159,7 +159,7 @@ func UPXInstalled() error {
 
 // IsValidUPX checks whether a suspected UPX-compressed file can be decompressed with UPX.
 func IsValidUPX(header []byte, path string) (bool, error) {
-	if !bytes.Contains(header[:], []byte("UPX!")) {
+	if !bytes.Contains(header, []byte("UPX!")) {
 		return false, nil
 	}
 
