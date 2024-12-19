@@ -37,25 +37,13 @@ malcontent is at its best analyzing programs that run on Linux. Still, it also p
 
 ## ⚠️ Malware Disclaimer ⚠️
 
-Due to how malcontent operates, other malware scanners can detect malcontent as malicious. As a general rule of thumb, programs that leverage Yara rules will match other programs that use the same rules due to their strings looking for problematic behaviors.
+Due to how malcontent operates, other malware scanners can detect malcontent as malicious.
 
-While not exhaustive, here's an example list of how other scanners see malcontent (based on [this](https://www.virustotal.com/gui/file/b6f90aa5b9e7f3a5729a82f3ea35f96439691e150e0558c577a8541d3a187ba4/detection) VirusTotal scan:
-- Avast: `MacOS:Joker-B [Trj]`
-- AVG: `MacOS:Joker-B [Trj]`
-- Avira (no cloud): `OSX/GM.Joker.DS`
-- ClamAV: `Legacy.Trojan.Agent-37025`
-- Cynet: `Malicious (score: 99)`
-- Google: `Detected`
-- Kaspersky: `HEUR:Trojan-PSW.OSX.Amos.n`
-- MaxSecure: `Trojan.Malware.121218.susgen`
-- Rising: `Backdoor.JokerSpy/OSX!1.E753 (CLASSIC)`
-- Sangfor `Engine Zero: HackTool.Win32.Template_Py_v3_3_to_v4_x.uwccg`
-- SentinelOne (Static ML): `Static AI - Malicious Mach-O`
-- WithSecure: `Malware.OSX/GM.Joker.DS`
+Programs that leverage Yara rules will often see other programs that also use Yara rules as malicious due to the strings looking for problematic behavior(s).
 
-Elastic's Agent has also historically detected malcontent because of this: https://github.com/chainguard-dev/malcontent/issues/78
+For example, Elastic's agent has historically detected malcontent because of this: https://github.com/chainguard-dev/malcontent/issues/78*
 
-While not a permanent solution, running malcontent with `--third-party=false` can reduce these false positives. Writing more targeted rules can also help.
+>  \*Additional scanner findings can be seen in [this](https://www.virustotal.com/gui/file/b6f90aa5b9e7f3a5729a82f3ea35f96439691e150e0558c577a8541d3a187ba4/detection) VirusTotal scan.
 
 ## Features
 
