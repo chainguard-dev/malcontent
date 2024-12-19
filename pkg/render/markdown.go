@@ -88,10 +88,12 @@ func (r Markdown) Full(ctx context.Context, rep *malcontent.Report) error {
 			}
 		}
 
+		if added == 0 && removed == 0 {
+			continue
+		}
+
 		var title string
 		switch {
-		case added == 0 && removed == 0:
-			title = fmt.Sprintf("## Unchanged: %s", modified.Value.Path)
 		case modified.Value.PreviousRelPath != "" && modified.Value.PreviousRelPathScore >= 0.9:
 			title = fmt.Sprintf("## Moved: %s -> %s (similarity: %0.2f)", modified.Value.PreviousPath, modified.Value.Path, modified.Value.PreviousRelPathScore)
 		default:
@@ -145,17 +147,7 @@ func (r Markdown) Full(ctx context.Context, rep *malcontent.Report) error {
 		}
 
 		if noDiff > 0 {
-			count = noDiff
-			noun := "behavior"
-			qual = "consistent"
-			if count > 1 {
-				noun = "behaviors"
-			}
-			markdownTable(ctx, modified.Value, r.w, tableConfig{
-				Title:       fmt.Sprintf("### %d %s %s", count, qual, noun),
-				SkipAdded:   true,
-				SkipRemoved: true,
-			})
+			continue
 		}
 	}
 	return nil

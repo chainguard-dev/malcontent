@@ -1,27 +1,5 @@
 *** Changed (3 added, 1 removed): linux/2024.sbcl.market/sbcl.dirty
 +anti-static/elf/entropy
-c2/addr/url
-c2/tool_transfer/arch
 -crypto/rc4
-data/compression/zstd
 +data/embedded/zstd
-discover/user/HOME
-discover/user/USER
-evasion/file/location/var_tmp
-exec/dylib/address_check
-exec/dylib/symbol_address
-exec/program
-exec/program/background
-exec/shell/echo
-fs/file/delete
-fs/file/truncate
-fs/link_read
-fs/path/dev
-fs/path/tmp
-fs/path/var
-fs/permission/modify
-fs/proc/self_exe
-fs/symlink_resolve
-fs/tempdir/TEMP
 +net/dns/txt
-net/url/embedded

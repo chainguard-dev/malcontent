@@ -255,11 +255,12 @@ func renderFileSummary(_ context.Context, fr *malcontent.FileReport, w io.Writer
 			nsRiskScore[ns] = b.RiskScore
 		}
 
+		if added == 0 && removed == 0 {
+			continue
+		}
+
 		if diffMode {
 			rc.Title = fmt.Sprintf("Changed (%d added, %d removed): %s", added, removed, fr.Path)
-		}
-		if !diffMode {
-			rc.Title = fmt.Sprintf("Unchanged: %s", fr.Path)
 		}
 	}
 
@@ -340,8 +341,7 @@ func renderFileSummary(_ context.Context, fr *malcontent.FileReport, w io.Writer
 				}
 
 				if !b.DiffAdded && !b.DiffRemoved {
-					pc = color.New(color.FgHiCyan)
-					e = ""
+					continue
 				}
 
 				content = fmt.Sprintf("%s%s%s %s %s", diff, indent, bullet, rest, desc)

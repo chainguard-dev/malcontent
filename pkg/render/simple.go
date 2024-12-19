@@ -111,10 +111,10 @@ func (r Simple) Full(_ context.Context, rep *malcontent.Report) error {
 
 		added, removed := count(bs)
 		if added == 0 && removed == 0 {
-			fmt.Fprintf(r.w, "*** Unchanged: %s\n", modified.Value.Path)
-		} else {
-			fmt.Fprintf(r.w, "*** Changed (%d added, %d removed): %s\n", added, removed, modified.Value.Path)
+			continue
 		}
+
+		fmt.Fprintf(r.w, "*** Changed (%d added, %d removed): %s\n", added, removed, modified.Value.Path)
 
 		for _, b := range bs {
 			if b.DiffRemoved {
@@ -125,7 +125,7 @@ func (r Simple) Full(_ context.Context, rep *malcontent.Report) error {
 				fmt.Fprintf(r.w, "+%s\n", b.ID)
 			}
 			if !b.DiffRemoved && !b.DiffAdded {
-				fmt.Fprintf(r.w, "%s\n", b.ID)
+				continue
 			}
 		}
 	}
