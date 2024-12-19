@@ -22,5 +22,5 @@ rule vnc_elf_subtle: medium {
     $VNC          = "VNC"
 
   condition:
-    filesize < 3MB and uint32(0) == 1179403647 and all of them
+    filesize < 5MB and uint32(0) == 1179403647 and all of them
 }

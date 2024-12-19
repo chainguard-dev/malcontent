@@ -54,6 +54,7 @@ net/ip/addr: medium
 net/ip/host_port: medium
 net/ip/multicast_send: low
 net/ip/parse: medium
+net/remote_control/vnc: medium
 net/resolve/hostname: low
 net/socket/listen: medium
 net/socket/local_addr: low
@@ -69,3 +70,16 @@ net/url/request: medium
 os/fd/sendfile: low
 os/kernel/netlink: low
 sec-tool/net/masscan: high
+# linux/2024.vncjew/__min__c ∴ /__min__c.~: critical
+anti-static/elf/entropy: high
+anti-static/elf/header: high
+anti-static/elf/multiple: medium
+anti-static/packer/upx: high
+c2/addr/ip: high
+c2/addr/url: low
+c2/tool_transfer/arch: low
+fs/proc/self_exe: medium
+net/dns/txt: low
+net/http/request: low
+net/remote_control/vnc: medium
+net/url/embedded: low

@@ -58,3 +58,13 @@ os/kernel/netlink: low
 persist/daemon: medium
 persist/pid_file: medium
 process/groups_set: low
+# linux/clean/trino.linux-ppc64le.launcher ∴ /trino.linux-ppc64l~: medium
+anti-static/elf/content: medium
+anti-static/elf/entropy: medium
+anti-static/elf/header: medium
+anti-static/elf/multiple: medium
+anti-static/packer/upx: medium
+c2/addr/url: low
+net/dns/txt: low
+net/http/post: medium
+net/url/embedded: low

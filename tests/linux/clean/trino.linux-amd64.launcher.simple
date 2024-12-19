@@ -58,3 +58,17 @@ os/kernel/netlink: low
 persist/daemon: medium
 persist/pid_file: medium
 process/groups_set: low
+# linux/clean/trino.linux-amd64.launcher ∴ /trino.linux-amd6~: medium
+anti-static/elf/content: medium
+anti-static/elf/entropy: medium
+anti-static/elf/header: medium
+anti-static/elf/multiple: medium
+anti-static/packer/upx: medium
+c2/addr/url: low
+c2/tool_transfer/arch: low
+crypto/aes: low
+data/compression/gzip: low
+fs/proc/self_exe: medium
+net/dns/txt: low
+net/http/post: medium
+net/url/embedded: low

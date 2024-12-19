@@ -46,7 +46,8 @@ func ExtractUPX(ctx context.Context, d, f string) error {
 		return err
 	}
 
-	cmd := exec.Command("upx", "-d", target)
+	// Preserve the original file to scan both variants
+	cmd := exec.Command("upx", "-d", "-k", target)
 	if _, err := cmd.CombinedOutput(); err != nil {
 		return fmt.Errorf("failed to decompress upx file: %w", err)
 	}

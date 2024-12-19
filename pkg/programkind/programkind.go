@@ -146,23 +146,6 @@ func GetExt(path string) string {
 
 var ErrUPXNotFound = errors.New("UPX executable not found in PATH")
 
-// isValidUPX checks whether a suspected UPX-compressed file can be decompressed with UPX.
-func isValidUPX(path string) (bool, error) {
-	if err := UPXInstalled(); err != nil {
-		return false, err
-	}
-	cmd := exec.Command("upx", "-l", "-f", path)
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		if bytes.Contains(output, []byte("NotPackedException")) ||
-			bytes.Contains(output, []byte("not packed by UPX")) {
-			return false, nil
-		}
-		return false, nil
-	}
-	return true, nil
-}
-
 func UPXInstalled() error {
 	_, err := exec.LookPath("upx")
 	if err != nil {
@@ -172,6 +155,27 @@ func UPXInstalled() error {
 		return fmt.Errorf("failed to check for UPX executable: %w", err)
 	}
 	return nil
+}
+
+// IsValidUPX checks whether a suspected UPX-compressed file can be decompressed with UPX.
+func IsValidUPX(header []byte, path string) (bool, error) {
+	if !bytes.Contains(header[:], []byte("UPX!")) {
+		return false, nil
+	}
+
+	if err := UPXInstalled(); err != nil {
+		return false, err
+	}
+
+	cmd := exec.Command("upx", "-l", "-f", path)
+	output, err := cmd.CombinedOutput()
+
+	if err != nil && (bytes.Contains(output, []byte("NotPackedException")) ||
+		bytes.Contains(output, []byte("not packed by UPX"))) {
+		return false, nil
+	}
+
+	return true, nil
 }
 
 func makeFileType(path string, ext string, mime string) *FileType {
@@ -248,10 +252,8 @@ func File(path string) (*FileType, error) {
 
 	// final strategy: DIY matching where mimetype is too strict.
 	s := string(hdr[:])
-	if bytes.Contains(hdr[:], []byte("UPX!")) {
-		if isValid, err := isValidUPX(path); err == nil && isValid {
-			return Path(".upx"), nil
-		}
+	if isUPX, err := IsValidUPX(hdr[:], path); err == nil && isUPX {
+		return Path(".upx"), nil
 	}
 
 	switch {
