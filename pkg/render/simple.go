@@ -114,7 +114,7 @@ func (r Simple) Full(_ context.Context, rep *malcontent.Report) error {
 			continue
 		}
 
-		fmt.Fprintf(r.w, "*** Changed (%d added, %d removed): %s\n", added, removed, modified.Value.Path)
+		fmt.Fprintf(r.w, "*** changed (%d added, %d removed): %s\n", added, removed, modified.Value.Path)
 
 		for _, b := range bs {
 			if b.DiffRemoved {
