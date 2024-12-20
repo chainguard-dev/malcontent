@@ -1,4 +1,4 @@
-*** Changed (1 added, 5 removed): macOS/clean/ls
+*** changed (1 added, 5 removed): macOS/clean/ls
 -c2/tool_transfer/arch
 -data/compression/lzma
 -discover/system/hostname
