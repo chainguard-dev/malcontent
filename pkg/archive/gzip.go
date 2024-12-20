@@ -9,10 +9,23 @@ import (
 	"path/filepath"
 
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/programkind"
 )
 
 // extractGzip extracts .gz archives.
 func ExtractGzip(ctx context.Context, d string, f string) error {
+	// Check whether the provided file is a valid gzip archive
+	var isGzip bool
+	if ft, err := programkind.File(f); err == nil && ft != nil {
+		if ft.MIME == "application/gzip" {
+			isGzip = true
+		}
+	}
+
+	if !isGzip {
+		return fmt.Errorf("not a valid gzip archive")
+	}
+
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting gzip")
 

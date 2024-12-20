@@ -13,10 +13,13 @@ import (
 	"strings"
 
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/programkind"
 	"github.com/ulikunitz/xz"
 )
 
 // extractTar extracts .apk and .tar* archives.
+//
+//nolint:cyclop // ignore complexity of 39
 func ExtractTar(ctx context.Context, d string, f string) error {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting tar")
@@ -33,6 +36,15 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
 	defer tf.Close()
+
+	isTGZ := strings.Contains(f, ".tar.gz") || strings.Contains(f, ".tgz")
+	var isGzip bool
+	if ft, err := programkind.File(f); err == nil && ft != nil {
+		if ft.MIME == "application/gzip" {
+			isGzip = true
+		}
+	}
+
 	// Set offset to the file origin regardless of type
 	_, err = tf.Seek(0, io.SeekStart)
 	if err != nil {
@@ -40,9 +52,8 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 	}
 
 	var tr *tar.Reader
-
 	switch {
-	case strings.Contains(f, ".apk") || strings.Contains(f, ".tar.gz") || strings.Contains(f, ".tgz"):
+	case strings.Contains(f, ".apk") || (isTGZ && isGzip):
 		gzStream, err := gzip.NewReader(tf)
 		if err != nil {
 			return fmt.Errorf("failed to create gzip reader: %w", err)
@@ -133,21 +144,21 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 				return fmt.Errorf("failed to close file: %w", err)
 			}
 		case tar.TypeSymlink:
-			// Skip symlinks for targets that do not exist
-			_, err = os.Readlink(target)
+			// Ensure that symlinks are not relative path traversals
+			// #nosec G305 // L158 handles the check
+			fullLink := filepath.Join(d, header.Linkname)
+			_, err = os.Lstat(fullLink)
 			if os.IsNotExist(err) {
 				continue
 			}
-			// Ensure that symlinks are not relative path traversals
-			// #nosec G305 // L208 handles the check
-			linkReal, err := filepath.EvalSymlinks(filepath.Join(d, header.Linkname))
+			linkReal, err := filepath.EvalSymlinks(fullLink)
 			if err != nil {
 				return fmt.Errorf("failed to evaluate symlink: %w", err)
 			}
 			if !IsValidPath(target, d) {
 				return fmt.Errorf("symlink points outside temporary directory: %s", linkReal)
 			}
-			if err := os.Symlink(linkReal, target); err != nil {
+			if err := os.Symlink(header.Linkname, target); err != nil {
 				return fmt.Errorf("failed to create symlink: %w", err)
 			}
 		}

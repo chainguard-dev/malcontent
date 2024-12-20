@@ -181,10 +181,10 @@ func ExtractionMethod(ext string) func(context.Context, string, string) error {
 	switch ext {
 	case ".jar", ".zip", ".whl":
 		return ExtractZip
-	case ".gz":
-		return ExtractGzip
 	case ".apk", ".gem", ".tar", ".tar.bz2", ".tar.gz", ".tgz", ".tar.xz", ".tbz", ".xz":
 		return ExtractTar
+	case ".gz":
+		return ExtractGzip
 	case ".bz2", ".bzip2":
 		return ExtractBz2
 	case ".rpm":

@@ -74,21 +74,21 @@ func ExtractDeb(ctx context.Context, d, f string) error {
 				return fmt.Errorf("failed to close file: %w", err)
 			}
 		case tar.TypeSymlink:
-			// Skip symlinks for targets that do not exist
-			_, err = os.Readlink(target)
+			// Ensure that symlinks are not relative path traversals
+			// #nosec G305 // L88 handles the check
+			fullLink := filepath.Join(d, header.Linkname)
+			_, err = os.Lstat(fullLink)
 			if os.IsNotExist(err) {
 				continue
 			}
-			// Ensure that symlinks are not relative path traversals
-			// #nosec G305 // L208 handles the check
-			linkReal, err := filepath.EvalSymlinks(filepath.Join(d, header.Linkname))
+			linkReal, err := filepath.EvalSymlinks(fullLink)
 			if err != nil {
 				return fmt.Errorf("failed to evaluate symlink: %w", err)
 			}
-			if !IsValidPath(linkReal, d) {
+			if !IsValidPath(target, d) {
 				return fmt.Errorf("symlink points outside temporary directory: %s", linkReal)
 			}
-			if err := os.Symlink(linkReal, target); err != nil {
+			if err := os.Symlink(header.Linkname, target); err != nil {
 				return fmt.Errorf("failed to create symlink: %w", err)
 			}
 		}
