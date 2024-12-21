@@ -12,11 +12,16 @@ jobs:
   update:
     if: ${{ github.repository }} == 'chainguard-dev/malcontent'
     runs-on: mal-ubuntu-latest-8-core
+    container: cgr.dev/chainguard/wolfi-base:latest
     permissions:
       contents: write
       id-token: write
       pull-requests: write
     steps:
+      - name: Install dependencies
+        run: |
+          apk update
+          apk add bash curl findutils gh git go nodejs xz yara-x-compat
       - uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f
         with:
           egress-policy: audit
@@ -28,9 +33,7 @@ jobs:
         with:
           scope: chainguard-dev/malcontent
           identity: third-party
-      - name: Install yara and libyara-dev
-        run: |
-          sudo apt update && sudo apt install yara libyara-dev -y
+
       - name: Run make update-third-party
         run: |
           make update-third-party

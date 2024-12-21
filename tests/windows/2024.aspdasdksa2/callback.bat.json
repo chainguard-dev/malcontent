@@ -46,8 +46,8 @@
                 {
                     "Description": "references a specific operating system",
                     "MatchStrings": [
-                        "Windows",
-                        "https://"
+                        "https://",
+                        "Windows"
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
@@ -104,8 +104,8 @@
                     "Description": "mentions 'malware'",
                     "MatchStrings": [
                         "I \"IMAGENAME eq Malwarebytes",
-                        "N \"Malwarebytes",
-                        "malwarebytes_assistant"
+                        "malwarebytes_assistant",
+                        "N \"Malwarebytes"
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",

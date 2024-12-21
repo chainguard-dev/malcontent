@@ -3,6 +3,7 @@ c2/tool_transfer/download: medium
 c2/tool_transfer/shell: medium
 evasion/file/location/HOME: medium
 evasion/file/prefix: medium
+fs/file/copy: medium
 fs/file/delete: medium
 fs/file/delete_forcibly: low
 fs/file/make_executable: medium

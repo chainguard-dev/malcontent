@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"runtime"
 
 	"github.com/chainguard-dev/malcontent/pkg/action"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
@@ -202,6 +203,16 @@ func diffRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 			ScanPaths:             []string{src, dest},
 			TrimPrefixes:          []string{rc.SamplesPath},
 		}
+
+		var pool *malcontent.ScannerPool
+		if c.ScannerPool == nil {
+			pool, err = malcontent.NewScannerPool(yrs, runtime.NumCPU())
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		c.ScannerPool = pool
 
 		testData = append(testData, TestData{
 			Config:     c,

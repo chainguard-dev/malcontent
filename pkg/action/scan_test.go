@@ -9,11 +9,10 @@ import (
 
 func TestCleanPath(t *testing.T) {
 	tests := []struct {
-		name    string
-		path    string
-		prefix  string
-		want    string
-		wantErr bool
+		name   string
+		path   string
+		prefix string
+		want   string
 	}{
 		{
 			name:   "expected behavior",
@@ -34,10 +33,9 @@ func TestCleanPath(t *testing.T) {
 			want:   "/test.txt",
 		},
 		{
-			name:    "non-existent path",
-			path:    "does_not_exist/test.txt",
-			prefix:  "temp",
-			wantErr: true,
+			name:   "non-existent path",
+			path:   "does_not_exist/test.txt",
+			prefix: "temp",
 		},
 		{
 			name:   "path prefix mismatch",
@@ -88,12 +86,8 @@ func TestCleanPath(t *testing.T) {
 			fullPath := filepath.Join(tempDir, tt.path)
 			fullPrefix := filepath.Join(tempDir, tt.prefix)
 
-			got, err := cleanPath(fullPath, fullPrefix)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("cleanPath() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !tt.wantErr && !strings.HasSuffix(got, tt.want) {
+			got := cleanPath(fullPath, fullPrefix)
+			if !strings.HasSuffix(got, tt.want) {
 				t.Errorf("cleanPath() = %v, want suffix %v", got, tt.want)
 			}
 		})

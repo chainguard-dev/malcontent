@@ -108,16 +108,19 @@ The analyze mode emits a list of capabilities often seen in malware, categorized
 Requirements:
 
 * [go](https://go.dev/) - the programming language
-* [yara](https://virustotal.github.io/yara/) - the rule language
+* [yara-x](https://virustotal.github.io/yara-x/) - the rule language
 * [pkgconf](http://pkgconf.org/) - required by Go to find C dependencies, included in many UNIX distributions
 
-Linux or macOS users can run the following command to install the necessary dependencies, other than Go:
+`yara-x` requires an underlying C API to function. For Wolfi users, this can be installed by running `apk add yara-x-compat`.
 
-```shell
-brew install yara || sudo apt install libyara-dev \
- || sudo dnf install yara-devel || sudo pacman -S yara \
- || sudo zypper install yara
+For other devices, reference the documentation here for installation instructions: https://virustotal.github.io/yara-x/docs/api/c/c-/#building-the-c-library
+
+Running `cargo cinstall -p yara-x-capi --release` may encounter permission denied errors. If this is the case, run the following:
 ```
+cargo cinstall -p yara-x-capi --release --prefix=/tmp/yara-x
+```
+
+And then copy the resulting files from `/tmp/yara-x` to `/usr/local/lib` and `/usr/local/include` (or the preferred `PKG_CONFIG_PATH`/`LD_LIBRARY_PATH` location(s)).
 
 Install malcontent:
 

@@ -7,20 +7,18 @@ import (
 	"context"
 	"crypto/sha256"
 	"fmt"
-	"io"
 	"net/url"
-	"os"
 	"path/filepath"
 	"regexp"
 	"slices"
 	"sort"
 	"strconv"
 	"strings"
-	"unicode"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
-	"github.com/hillu/go-yara/v4"
+
+	yarax "github.com/VirusTotal/yara-x/go"
 )
 
 const NAME string = "malcontent"
@@ -80,20 +78,12 @@ var yaraForgeJunkWords = map[string]bool{
 	"YARAForge":         true,
 }
 
-// thirdPartyCriticalSources are 3P sources that default to critical.
-var thirdPartyCriticalSources = map[string]bool{
-	"YARAForge": true,
-	"huntress":  true,
-	"bartblaze": true,
-	"JPCERT":    true,
-}
-
 // authorWithURLRe matches "Arnim Rupp (https://github.com/ruppde)"
-var authorWithURLRe = regexp.MustCompile(`(.*?) \((http.*)\)`)
-
-var threatHuntingKeywordRe = regexp.MustCompile(`Detection patterns for the tool '(.*)' taken from the ThreatHunting-Keywords github project`)
-
-var dateRe = regexp.MustCompile(`[a-z]{3}\d{1,2}`)
+var (
+	authorWithURLRe        = regexp.MustCompile(`(.*?) \((http.*)\)`)
+	threatHuntingKeywordRe = regexp.MustCompile(`Detection patterns for the tool '(.*)' taken from the ThreatHunting-Keywords github project`)
+	dateRe                 = regexp.MustCompile(`[a-z]{3}\d{1,2}`)
+)
 
 // Map to handle RiskLevel -> RiskScore conversions.
 var Levels = map[string]int{
@@ -112,8 +102,11 @@ var Levels = map[string]int{
 
 func thirdPartyKey(path string, rule string) string {
 	// include the directory
-	pathParts := strings.Split(path, "/")
-	subDir := pathParts[slices.Index(pathParts, "yara")+1]
+	yaraIndex := strings.Index(path, "yara/")
+	if yaraIndex == -1 {
+		return ""
+	}
+	subDir := path[yaraIndex+5 : strings.IndexByte(path[yaraIndex+5:], '/')+yaraIndex+5]
 	words := []string{subDir}
 
 	// ELASTIC_Linux_Trojan_Gafgyt_E4A1982B
@@ -215,14 +208,17 @@ func behaviorRisk(ns string, rule string, tags []string) int {
 		risk = 3
 		src := strings.Split(ns, "/")[1]
 
-		if thirdPartyCriticalSources[src] {
+		switch src {
+		case "JPCERT", "YARAForge", "bartblaze", "huntress":
 			risk = 4
-			if strings.Contains(strings.ToLower(ns), "generic") || strings.Contains(strings.ToLower(rule), "generic") {
+			if strings.Contains(strings.ToLower(ns), "generic") ||
+				strings.Contains(strings.ToLower(rule), "generic") {
 				risk = 3
 			}
 		}
 
-		if strings.Contains(strings.ToLower(ns), "keyword") || strings.Contains(strings.ToLower(rule), "keyword") {
+		if strings.Contains(strings.ToLower(ns), "keyword") ||
+			strings.Contains(strings.ToLower(rule), "keyword") {
 			risk = 2
 		}
 	}
@@ -233,95 +229,95 @@ func behaviorRisk(ns string, rule string, tags []string) int {
 
 	for _, tag := range tags {
 		if r, ok := Levels[tag]; ok {
-			risk = r
-			break
+			return r
 		}
 	}
 
 	return risk
 }
 
-func unprintableString(s string) bool {
-	for _, r := range s {
-		if !unicode.IsPrint(r) {
-			return true
-		}
-	}
-	return false
-}
-
 func longestUnique(raw []string) []string {
-	var longest []string
+	longest := make([]string, 0, len(raw))
+	seen := make(map[string]bool, len(raw))
 
-	// inefficiently remove substring matches
-	for _, s := range slices.Compact(raw) {
-		if s == "" {
+	sort.Slice(raw, func(i, j int) bool {
+		return len(raw[i]) > len(raw[j])
+	})
+
+	for _, s := range raw {
+		if s == "" || seen[s] {
 			continue
 		}
-
 		isLongest := true
-		for _, o := range raw {
-			if o != s && strings.Contains(o, s) {
+		for _, o := range longest {
+			if strings.Contains(o, s) {
 				isLongest = false
 				break
 			}
 		}
 		if isLongest {
 			longest = append(longest, s)
+			seen[s] = true
 		}
 	}
 	return longest
 }
 
-func matchToString(ruleName string, m yara.MatchString) string {
-	s := string(m.Data)
-	switch {
-	case strings.Contains(ruleName, "base64") && !strings.Contains(s, "base64"):
-		s = fmt.Sprintf("%s::%s", s, m.Name)
-	case strings.Contains(ruleName, "xor") && !strings.Contains(s, "xor"):
-		s = fmt.Sprintf("%s::%s", s, m.Name)
-	case unprintableString(s):
-		s = m.Name
-	// bad hack, can we do this in YARA?
-	case strings.Contains(m.Name, "xml_key_val"):
-		s = strings.ReplaceAll(strings.ReplaceAll(s, "<key>", ""), "</key>", "")
+func matchToString(ruleName string, m string) string {
+	if containsUnprintable([]byte(m)) {
+		return ruleName
 	}
-	return strings.TrimSpace(s)
+
+	switch {
+	case strings.Contains(ruleName, "base64"),
+		strings.Contains(ruleName, "xor"):
+		return ruleName + "::" + m
+	case strings.Contains(ruleName, "xml_key_val"):
+		return strings.TrimSpace(strings.ReplaceAll(
+			strings.ReplaceAll(m, "<key>", ""),
+			"</key>", "",
+		))
+	}
+	return strings.TrimSpace(m)
 }
 
 // extract match strings.
-func matchStrings(ruleName string, ms []yara.MatchString) []string {
-	raw := make([]string, 0, len(ms))
-
-	for _, m := range ms {
-		raw = append(raw, matchToString(ruleName, m))
+func matchStrings(ruleName string, ms []string) []string {
+	if len(ms) == 0 {
+		return nil
 	}
 
-	slices.Sort(raw)
+	raw := make([]string, 0, len(ms))
+	for _, m := range ms {
+		str := matchToString(ruleName, m)
+		if str != "" {
+			raw = append(raw, str)
+		}
+	}
+
+	sort.Slice(raw, func(i, j int) bool {
+		if len(raw[i]) != len(raw[j]) {
+			return len(raw[i]) > len(raw[j])
+		}
+		return raw[i] < raw[j]
+	})
+
 	return longestUnique(raw)
 }
 
-func sizeAndChecksum(path string) (int64, string, error) {
-	s, err := os.Stat(path)
-	if err != nil {
-		return -1, "", err
+// sizeAndChecksum calculates size and checksum using already-read file contents if available.
+func sizeAndChecksum(fc []byte) (int64, string) {
+	var checksum string
+	var size int64
+
+	if len(fc) > 0 {
+		size = int64(len(fc))
+		h := sha256.New()
+		h.Write(fc)
+		checksum = fmt.Sprintf("%x", h.Sum(nil))
 	}
 
-	size := s.Size()
-
-	f, err := os.Open(path)
-	if err != nil {
-		return size, "", err
-	}
-
-	defer f.Close()
-
-	h := sha256.New()
-	if _, err := io.Copy(h, f); err != nil {
-		return size, "", err
-	}
-
-	return size, fmt.Sprintf("%x", h.Sum(nil)), nil
+	return size, checksum
 }
 
 // fixURL fixes badly formed URLs.
@@ -357,21 +353,18 @@ func TrimPrefixes(path string, prefixes []string) string {
 	return path
 }
 
-//nolint:cyclop // ignore complexity of 44
-func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malcontent.Config, expath string, _ *clog.Logger) (malcontent.FileReport, error) {
+//nolint:cyclop // ignore complexity of 64
+func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcontent.Config, expath string, _ *clog.Logger, fc []byte) (malcontent.FileReport, error) {
 	ignoreTags := c.IgnoreTags
 	minScore := c.MinRisk
 	ignoreSelf := c.IgnoreSelf
 
-	ignore := map[string]bool{}
+	ignore := make(map[string]bool, len(ignoreTags))
 	for _, t := range ignoreTags {
 		ignore[t] = true
 	}
 
-	size, checksum, err := sizeAndChecksum(path)
-	if err != nil {
-		return malcontent.FileReport{}, err
-	}
+	size, checksum := sizeAndChecksum(fc)
 
 	displayPath := path
 	if c.OCI {
@@ -381,24 +374,25 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 		displayPath = TrimPrefixes(displayPath, c.TrimPrefixes)
 	}
 
+	matchCount := len(mrs.MatchingRules())
 	fr := malcontent.FileReport{
 		Path:      displayPath,
 		SHA256:    checksum,
 		Size:      size,
-		Meta:      map[string]string{},
-		Behaviors: []*malcontent.Behavior{},
-		Overrides: []*malcontent.Behavior{},
+		Meta:      make(map[string]string, matchCount),
+		Behaviors: make([]*malcontent.Behavior, 0, matchCount),
+		Overrides: make([]*malcontent.Behavior, 0, matchCount),
 	}
 
-	var pledges []string
-	var caps []string
-	var syscalls []string
+	pledges := make([]string, 0, 8)
+	caps := make([]string, 0, 8)
+	syscalls := make([]string, 0, 16)
 
 	ignoreMalcontent := false
 	key := ""
 	overallRiskScore := 0
 	risk := 0
-	riskCounts := map[int]int{}
+	riskCounts := make(map[int]int, 0)
 
 	// If we're running a scan, only diplay findings of the highest risk
 	// Return an empty file report if the highest risk is medium or lower
@@ -411,25 +405,25 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 	}
 
 	// Store match rules in a map for future override operations
-	mrsMap := make(map[string]yara.MatchRule, len(mrs))
-	for _, m := range mrs {
-		mrsMap[m.Rule] = m
+	mrsMap := make(map[string]*yarax.Rule, len(mrs.MatchingRules()))
+	for _, m := range mrs.MatchingRules() {
+		mrsMap[m.Identifier()] = m
 	}
 
-	for _, m := range mrs {
+	for _, m := range mrs.MatchingRules() {
 		override := false
-		if all(m.Rule == NAME, ignoreSelf) {
+		if all(m.Identifier() == NAME, ignoreSelf) {
 			ignoreMalcontent = true
 		}
 
-		for _, t := range m.Tags {
+		for _, t := range m.Tags() {
 			if t == "override" {
 				override = true
 				break
 			}
 		}
 
-		risk = behaviorRisk(m.Namespace, m.Rule, m.Tags)
+		risk = behaviorRisk(m.Namespace(), m.Identifier(), m.Tags())
 		if risk > overallRiskScore {
 			overallRiskScore = risk
 		}
@@ -446,24 +440,32 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 		case c.Scan && risk < highestRisk && !ignoreMalcontent && !override:
 			continue
 		}
-		key = generateKey(m.Namespace, m.Rule)
-		ruleURL := generateRuleURL(m.Namespace, m.Rule)
+
+		key = generateKey(m.Namespace(), m.Identifier())
+		ruleURL := generateRuleURL(m.Namespace(), m.Identifier())
+		matches := make([]yarax.Match, 0, len(m.Patterns())*32)
+		for _, p := range m.Patterns() {
+			matches = append(matches, p.Matches()...)
+		}
+
+		processor := newMatchProcessor(fc, matches)
+		matchedStrings := processor.process()
 
 		b := &malcontent.Behavior{
 			ID:           key,
-			MatchStrings: matchStrings(m.Rule, m.Strings),
+			MatchStrings: matchStrings(m.Identifier(), matchedStrings),
 			RiskLevel:    RiskLevels[risk],
 			RiskScore:    risk,
-			RuleName:     m.Rule,
+			RuleName:     m.Identifier(),
 			RuleURL:      ruleURL,
 		}
 
 		k := ""
 		v := ""
 
-		for _, meta := range m.Metas {
-			k = meta.Identifier
-			v = fmt.Sprintf("%s", meta.Value)
+		for _, meta := range m.Metadata() {
+			k = meta.Identifier()
+			v = fmt.Sprintf("%s", meta.Value())
 			// Empty data is unusual, so just ignore it.
 			if k == "" || v == "" {
 				continue
@@ -548,14 +550,14 @@ func Generate(ctx context.Context, path string, mrs yara.MatchRules, c malconten
 			continue
 		}
 
-		if ignoreMatch(m.Tags, ignore) {
+		if ignoreMatch(m.Tags(), ignore) {
 			fr.FilteredBehaviors++
 			continue
 		}
 
 		// If the rule does not have a description, make one up based on the rule name
 		if b.Description == "" {
-			b.Description = strings.ReplaceAll(m.Rule, "_", " ")
+			b.Description = strings.ReplaceAll(m.Identifier(), "_", " ")
 		}
 
 		existingIndex := -1
@@ -679,14 +681,14 @@ func all(conditions ...bool) bool {
 }
 
 // highestMatchRisk returns the highest risk score from a slice of MatchRules.
-func highestMatchRisk(mrs yara.MatchRules) int {
-	if len(mrs) == 0 {
+func highestMatchRisk(mrs *yarax.ScanResults) int {
+	if len(mrs.MatchingRules()) == 0 {
 		return 0
 	}
 
 	highestRisk := 0
-	for _, m := range mrs {
-		risk := behaviorRisk(m.Namespace, m.Rule, m.Tags)
+	for _, m := range mrs.MatchingRules() {
+		risk := behaviorRisk(m.Namespace(), m.Identifier(), m.Tags())
 		if risk > highestRisk {
 			highestRisk = risk
 		}

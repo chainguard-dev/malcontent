@@ -239,6 +239,19 @@ func main() {
 				rfs = append(rfs, thirdparty.FS)
 			}
 
+			yrs, err := action.CachedRules(ctx, rfs)
+			if err != nil {
+				returnCode = ExitInvalidRules
+			}
+
+			var pool *malcontent.ScannerPool
+			if mc.ScannerPool == nil {
+				pool, err = malcontent.NewScannerPool(yrs, runtime.NumCPU())
+				if err != nil {
+					returnCode = ExitInvalidRules
+				}
+			}
+
 			mc = malcontent.Config{
 				Concurrency:           concurrencyFlag,
 				ExitFirstHit:          exitFirstHitFlag,
@@ -251,8 +264,9 @@ func main() {
 				OCI:                   ociFlag,
 				QuantityIncreasesRisk: quantityIncreasesRiskFlag,
 				Renderer:              renderer,
-				RuleFS:                rfs,
+				Rules:                 yrs,
 				ScanPaths:             scanPaths,
+				ScannerPool:           pool,
 				Stats:                 statsFlag,
 			}
 

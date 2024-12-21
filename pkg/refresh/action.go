@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"runtime"
 
 	"github.com/chainguard-dev/malcontent/pkg/action"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
@@ -76,6 +77,16 @@ func actionRefresh(ctx context.Context) ([]TestData, error) {
 			ScanPaths:             []string{scan},
 			TrimPrefixes:          []string{"pkg/action/"},
 		}
+
+		var pool *malcontent.ScannerPool
+		if c.ScannerPool == nil {
+			pool, err = malcontent.NewScannerPool(yrs, runtime.NumCPU())
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		c.ScannerPool = pool
 
 		testData = append(testData, TestData{
 			Config:     c,

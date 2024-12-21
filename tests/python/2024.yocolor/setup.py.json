@@ -30,10 +30,10 @@
                         "from distutils.core import setup",
                         "from setuptools import setup",
                         "import fernet",
-                        "import os",
-                        "import re",
+                        "import with",
                         "import sys",
-                        "import with"
+                        "import os",
+                        "import re"
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
