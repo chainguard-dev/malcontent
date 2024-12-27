@@ -207,7 +207,7 @@ func diffRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 
 		var pool *malcontent.ScannerPool
 		if c.ScannerPool == nil {
-			pool, err = malcontent.NewScannerPool(yrs, runtime.NumCPU())
+			pool, err = malcontent.NewScannerPool(yrs, c.Concurrency)
 			if err != nil {
 				return nil, err
 			}
