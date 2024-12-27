@@ -67,6 +67,7 @@ func actionRefresh(ctx context.Context) ([]TestData, error) {
 		}
 
 		c := &malcontent.Config{
+			Concurrency:           runtime.NumCPU(),
 			IgnoreSelf:            false,
 			MinFileRisk:           0,
 			MinRisk:               0,

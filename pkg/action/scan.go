@@ -57,7 +57,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 
 	var pool *malcontent.ScannerPool
 	if c.ScannerPool == nil {
-		pool, err = malcontent.NewScannerPool(yrs, runtime.NumCPU())
+		pool, err = malcontent.NewScannerPool(yrs, c.Concurrency)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create scanner pool: %w", err)
 		}

@@ -193,6 +193,7 @@ func diffRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 		}
 
 		c := &malcontent.Config{
+			Concurrency:           runtime.NumCPU(),
 			FileRiskChange:        td.riskChange,
 			FileRiskIncrease:      td.riskIncrease,
 			MinFileRisk:           minFileRisk,

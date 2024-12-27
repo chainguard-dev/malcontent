@@ -72,6 +72,7 @@ func discoverTestData(rc Config) (map[string]string, error) {
 // newConfig returns a new malcontent Config with parent configurations.
 func newConfig(rc Config) *malcontent.Config {
 	return &malcontent.Config{
+		Concurrency:           runtime.NumCPU(),
 		IgnoreTags:            []string{"harmless"},
 		MinFileRisk:           1,
 		MinRisk:               1,
