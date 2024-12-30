@@ -52,7 +52,7 @@ func (r YAML) Full(_ context.Context, c *malcontent.Config, rep *malcontent.Repo
 		return true
 	})
 
-	if c != nil && c.Stats && rep.Diff == nil {
+	if c != nil && c.Stats && yr.Diff == nil {
 		yr.Stats = serializedStats(c, rep)
 	}
 
