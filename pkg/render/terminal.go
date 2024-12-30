@@ -291,10 +291,10 @@ func renderFileSummary(_ context.Context, fr *malcontent.FileReport, w io.Writer
 				diff = color.HiGreenString("+")
 			}
 
-			if riskLevel < previousRiskLevel {
+			if riskLevel > previousRiskLevel {
 				nsIcon = color.HiYellowString("▲")
 			}
-			if riskLevel > previousRiskLevel {
+			if riskLevel < previousRiskLevel {
 				nsIcon = color.HiGreenString("▼")
 			}
 			if riskLevel == "NONE" {
