@@ -52,7 +52,7 @@ func (r JSON) Full(_ context.Context, c *malcontent.Config, rep *malcontent.Repo
 		return true
 	})
 
-	if c != nil && c.Stats {
+	if c != nil && c.Stats && rep.Diff == nil {
 		jr.Stats = serializedStats(c, rep)
 	}
 
