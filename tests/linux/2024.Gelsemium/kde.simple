@@ -1,4 +1,5 @@
 # linux/2024.Gelsemium/kde: critical
+3P/sekoia/gelsemium_wolfsbane_launcher: critical
 crypto/rc4: low
 discover/process/name: medium
 evasion/file/location/dev_shm: high
