@@ -83,11 +83,23 @@ func (r Simple) Full(_ context.Context, rep *malcontent.Report) error {
 		}
 	}
 
+	count := func(bs []*malcontent.Behavior) (int, int) {
+		var added, removed int
+		for _, b := range bs {
+			if b.DiffAdded {
+				added++
+			}
+			if b.DiffRemoved {
+				removed++
+			}
+		}
+
+		return added, removed
+	}
+
 	for modified := rep.Diff.Modified.Oldest(); modified != nil; modified = modified.Next() {
 		if modified.Value.PreviousRelPath != "" && modified.Value.PreviousRelPathScore >= 0.9 {
 			fmt.Fprintf(r.w, ">>> moved: %s -> %s (score: %f)\n", modified.Value.PreviousPath, modified.Value.Path, modified.Value.PreviousRelPathScore)
-		} else {
-			fmt.Fprintf(r.w, "*** changed: %s\n", modified.Value.Path)
 		}
 
 		var bs []*malcontent.Behavior
@@ -97,8 +109,14 @@ func (r Simple) Full(_ context.Context, rep *malcontent.Report) error {
 			return bs[i].ID < bs[j].ID
 		})
 
-		for i := range bs {
-			b := bs[i]
+		added, removed := count(bs)
+		if added == 0 && removed == 0 {
+			continue
+		}
+
+		fmt.Fprintf(r.w, "*** changed (%d added, %d removed): %s\n", added, removed, modified.Value.Path)
+
+		for _, b := range bs {
 			if b.DiffRemoved {
 				fmt.Fprintf(r.w, "-%s\n", b.ID)
 				continue
@@ -107,7 +125,7 @@ func (r Simple) Full(_ context.Context, rep *malcontent.Report) error {
 				fmt.Fprintf(r.w, "+%s\n", b.ID)
 			}
 			if !b.DiffRemoved && !b.DiffAdded {
-				fmt.Fprintf(r.w, "%s\n", b.ID)
+				continue
 			}
 		}
 	}

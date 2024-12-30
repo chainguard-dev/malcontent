@@ -73,22 +73,6 @@ func (r Markdown) Full(ctx context.Context, rep *malcontent.Report) error {
 	}
 
 	for modified := rep.Diff.Modified.Oldest(); modified != nil; modified = modified.Next() {
-		var title string
-		if modified.Value.PreviousRelPath != "" && modified.Value.PreviousRelPathScore >= 0.9 {
-			title = fmt.Sprintf("## Moved: %s -> %s (similarity: %0.2f)", modified.Value.PreviousPath, modified.Value.Path, modified.Value.PreviousRelPathScore)
-		} else {
-			title = fmt.Sprintf("## Changed: %s", modified.Value.Path)
-		}
-		if modified.Value.RiskScore != modified.Value.PreviousRiskScore {
-			title = fmt.Sprintf("%s [%s → %s]",
-				title,
-				mdRisk(modified.Value.PreviousRiskScore, modified.Value.PreviousRiskLevel),
-				mdRisk(modified.Value.RiskScore, modified.Value.RiskLevel))
-		}
-
-		if len(modified.Value.Behaviors) > 0 {
-			fmt.Fprint(r.w, title+"\n\n")
-		}
 		added := 0
 		removed := 0
 		noDiff := 0
@@ -102,6 +86,29 @@ func (r Markdown) Full(ctx context.Context, rep *malcontent.Report) error {
 			if !b.DiffAdded && !b.DiffRemoved {
 				noDiff++
 			}
+		}
+
+		if added == 0 && removed == 0 {
+			continue
+		}
+
+		var title string
+		switch {
+		case modified.Value.PreviousRelPath != "" && modified.Value.PreviousRelPathScore >= 0.9:
+			title = fmt.Sprintf("## Moved: %s -> %s (similarity: %0.2f)", modified.Value.PreviousPath, modified.Value.Path, modified.Value.PreviousRelPathScore)
+		default:
+			title = fmt.Sprintf("## Changed (%d added, %d removed): %s", added, removed, modified.Value.Path)
+		}
+
+		if modified.Value.RiskScore != modified.Value.PreviousRiskScore {
+			title = fmt.Sprintf("%s [%s → %s]",
+				title,
+				mdRisk(modified.Value.PreviousRiskScore, modified.Value.PreviousRiskLevel),
+				mdRisk(modified.Value.RiskScore, modified.Value.RiskLevel))
+		}
+
+		if len(modified.Value.Behaviors) > 0 {
+			fmt.Fprint(r.w, title+"\n\n")
 		}
 
 		// We split the added/removed up in Markdown to address readability feedback. Unfortunately,
@@ -140,17 +147,7 @@ func (r Markdown) Full(ctx context.Context, rep *malcontent.Report) error {
 		}
 
 		if noDiff > 0 {
-			count = noDiff
-			noun := "behavior"
-			qual = "consistent"
-			if count > 1 {
-				noun = "behaviors"
-			}
-			markdownTable(ctx, modified.Value, r.w, tableConfig{
-				Title:       fmt.Sprintf("### %d %s %s", count, qual, noun),
-				SkipAdded:   true,
-				SkipRemoved: true,
-			})
+			continue
 		}
 	}
 	return nil
