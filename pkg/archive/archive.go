@@ -190,11 +190,14 @@ func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 }
 
 func ExtractionMethod(ext string) func(context.Context, string, string) error {
+	// The ordering of these statements is important, especially for extensions
+	// that are substrings of other extensions (e.g., `.gz` and `.tar.gz` or `.tgz`)
 	switch ext {
-	case ".jar", ".zip", ".whl":
-		return ExtractZip
+	// New cases should go below this line so that the lengthier tar extensions are evaluated first
 	case ".apk", ".gem", ".tar", ".tar.bz2", ".tar.gz", ".tgz", ".tar.xz", ".tbz", ".xz":
 		return ExtractTar
+	case ".jar", ".zip", ".whl":
+		return ExtractZip
 	case ".gz":
 		return ExtractGzip
 	case ".bz2", ".bzip2":
