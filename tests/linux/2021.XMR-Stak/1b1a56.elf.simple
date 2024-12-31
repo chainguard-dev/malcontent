@@ -1,6 +1,7 @@
 # linux/2021.XMR-Stak/1b1a56.elf: critical
 3P/TTC-CERT/kittipongk_cryptominer_xmr: high
 3P/elastic/cryptominer_stak: critical
+3P/sekoia/miner_lin_xmrig: critical
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/addr/url: low

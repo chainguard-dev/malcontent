@@ -583,7 +583,7 @@ func Scan(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) 
 		}
 		return true
 	})
-	if c.Stats {
+	if c.Stats && c.Renderer.Name() != "JSON" && c.Renderer.Name() != "YAML" {
 		err = render.Statistics(&c, r)
 		if err != nil {
 			return r, fmt.Errorf("stats: %w", err)

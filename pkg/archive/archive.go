@@ -26,21 +26,24 @@ func extractNestedArchive(
 	f string,
 	extracted *sync.Map,
 ) error {
-	isArchive := false
+	var isArchive bool
 	// zlib-compressed files are also archives
 	ft, err := programkind.File(f)
 	if err != nil {
 		return fmt.Errorf("failed to determine file type: %w", err)
 	}
-	if ft != nil && ft.MIME == "application/x-python-joblib" {
-		return nil
-	}
-	if ft != nil && ft.MIME == "application/zlib" {
+
+	switch {
+	case ft != nil && ft.MIME == "application/x-upx":
 		isArchive = true
-	}
-	if _, ok := programkind.ArchiveMap[programkind.GetExt(f)]; ok {
+	case ft != nil && ft.MIME == "application/zlib":
 		isArchive = true
+	case programkind.ArchiveMap[programkind.GetExt(f)]:
+		isArchive = true
+  default:
+    isArchive = false
 	}
+
 	//nolint:nestif // ignore complexity of 8
 	if isArchive {
 		// Ensure the file was extracted and exists
@@ -55,14 +58,16 @@ func extractNestedArchive(
 		if err != nil {
 			return fmt.Errorf("failed to determine file type: %w", err)
 		}
-		if ft != nil && ft.MIME == "application/x-python-joblib" {
-			return nil
-		}
-		if ft != nil && ft.MIME == "application/zlib" {
+  
+		switch {      
+		case ft != nil && ft.MIME == "application/x-upx":
+			extract = ExtractUPX
+		case ft != nil && ft.MIME == "application/zlib":
 			extract = ExtractZlib
-		} else {
+		default:
 			extract = ExtractionMethod(programkind.GetExt(fullPath))
 		}
+
 		err = extract(ctx, d, fullPath)
 		if err != nil {
 			return fmt.Errorf("extract nested archive: %w", err)
@@ -109,15 +114,28 @@ func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to determine file type: %w", err)
 	}
-	if ft != nil && ft.MIME == "application/x-python-joblib" {
-		return "", nil
+  
+  var isArchive bool
+	ft, err := programkind.File(f)
+	if err != nil {
+		return fmt.Errorf("failed to determine file type: %w", err)
 	}
-	if ft != nil && ft.MIME == "application/zlib" {
-		extract = ExtractZlib
-	} else {
-		extract = ExtractionMethod(programkind.GetExt(path))
+
+	switch {
+	case ft != nil && ft.MIME == "application/x-upx":
+		isArchive = true
+    extract = ExtractUPX
+	case ft != nil && ft.MIME == "application/zlib":
+		isArchive = true
+    extract = ExtractZlib
+	case programkind.ArchiveMap[programkind.GetExt(f)]:
+		isArchive = true
+    extract = ExtractionMethod(programkind.GetExt(path))
+  default:
+    isArchive = false
 	}
-	if extract == nil {
+
+	if !isArchive || extract == nil {
 		return "", fmt.Errorf("unsupported archive type: %s", path)
 	}
 	err = extract(ctx, tmpDir, path)

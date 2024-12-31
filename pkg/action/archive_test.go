@@ -243,7 +243,7 @@ func TestScanArchive(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := r.Full(ctx, res); err != nil {
+	if err := r.Full(ctx, nil, res); err != nil {
 		t.Fatalf("full: %v", err)
 	}
 

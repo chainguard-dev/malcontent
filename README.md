@@ -35,6 +35,16 @@ malcontent has 3 modes of operation:
 
 malcontent is at its best analyzing programs that run on Linux. Still, it also performs admirably for programs designed for other UNIX platforms such as macOS and, to a lesser extent, Windows.
 
+## ⚠️ Malware Disclaimer ⚠️
+
+Due to how malcontent operates, other malware scanners can detect malcontent as malicious.
+
+Programs that leverage Yara rules will often see other programs that also use Yara rules as malicious due to the strings looking for problematic behavior(s).
+
+For example, Elastic's agent has historically detected malcontent because of this: https://github.com/chainguard-dev/malcontent/issues/78*.
+
+>  \*Additional scanner findings can be seen in [this](https://www.virustotal.com/gui/file/b6f90aa5b9e7f3a5729a82f3ea35f96439691e150e0558c577a8541d3a187ba4/detection) VirusTotal scan.
+
 ## Features
 
 * 14,500+ [YARA](YARA) detection rules

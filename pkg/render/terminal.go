@@ -92,7 +92,7 @@ func (r Terminal) File(ctx context.Context, fr *malcontent.FileReport) error {
 	return nil
 }
 
-func (r Terminal) Full(ctx context.Context, rep *malcontent.Report) error {
+func (r Terminal) Full(ctx context.Context, _ *malcontent.Config, rep *malcontent.Report) error {
 	// Non-diff files are handled on the fly by File()
 	if rep.Diff == nil {
 		return nil
@@ -116,10 +116,7 @@ func (r Terminal) Full(ctx context.Context, rep *malcontent.Report) error {
 		var title string
 		if modified.Value.PreviousRelPath != "" && modified.Value.PreviousRelPathScore >= 0.9 {
 			title = fmt.Sprintf("Moved: %s -> %s (score: %f)", modified.Value.PreviousPath, modified.Value.Path, modified.Value.PreviousRelPathScore)
-		} else {
-			title = fmt.Sprintf("Changed: %s", modified.Value.Path)
 		}
-
 		if modified.Value.RiskScore != modified.Value.PreviousRiskScore {
 			title = fmt.Sprintf("%s %s", title,
 				darkBrackets(fmt.Sprintf("%s %s %s", riskInColor(modified.Value.PreviousRiskLevel), color.HiWhiteString("→"), riskInColor(modified.Value.RiskLevel))))
@@ -220,7 +217,6 @@ func ansiLineLength(s string) int {
 }
 
 func renderFileSummary(_ context.Context, fr *malcontent.FileReport, w io.Writer, rc tableConfig) {
-	fmt.Fprintf(w, "├─ %s %s\n", riskEmoji(fr.RiskScore), rc.Title)
 	width := suggestedWidth()
 
 	byNamespace := map[string][]*malcontent.Behavior{}
@@ -232,6 +228,7 @@ func renderFileSummary(_ context.Context, fr *malcontent.FileReport, w io.Writer
 		return
 	}
 
+	var added, removed int
 	for _, b := range fr.Behaviors {
 		ns, _ := splitRuleID(b.ID)
 
@@ -247,14 +244,27 @@ func renderFileSummary(_ context.Context, fr *malcontent.FileReport, w io.Writer
 
 		byNamespace[ns] = append(byNamespace[ns], b)
 
+		if b.DiffAdded {
+			added++
+		}
 		if b.DiffRemoved {
-			continue
+			removed++
 		}
 
 		if b.RiskScore > nsRiskScore[ns] {
 			nsRiskScore[ns] = b.RiskScore
 		}
+
+		if added == 0 && removed == 0 {
+			continue
+		}
+
+		if diffMode {
+			rc.Title = fmt.Sprintf("Changed (%d added, %d removed): %s", added, removed, fr.Path)
+		}
 	}
+
+	fmt.Fprintf(w, "├─ %s %s\n", riskEmoji(fr.RiskScore), rc.Title)
 
 	nss := []string{}
 	for ns := range byNamespace {
@@ -281,10 +291,10 @@ func renderFileSummary(_ context.Context, fr *malcontent.FileReport, w io.Writer
 				diff = color.HiGreenString("+")
 			}
 
-			if riskLevel < previousRiskLevel {
+			if riskScore > previousNsRiskScore[ns] {
 				nsIcon = color.HiYellowString("▲")
 			}
-			if riskLevel > previousRiskLevel {
+			if riskScore < previousNsRiskScore[ns] {
 				nsIcon = color.HiGreenString("▼")
 			}
 			if riskLevel == "NONE" {
@@ -331,8 +341,7 @@ func renderFileSummary(_ context.Context, fr *malcontent.FileReport, w io.Writer
 				}
 
 				if !b.DiffAdded && !b.DiffRemoved {
-					pc = color.New(color.FgHiCyan)
-					e = ""
+					continue
 				}
 
 				content = fmt.Sprintf("%s%s%s %s %s", diff, indent, bullet, rest, desc)

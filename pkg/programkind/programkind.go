@@ -4,11 +4,13 @@
 package programkind
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io"
 	"io/fs"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"slices"
@@ -31,6 +33,7 @@ var ArchiveMap = map[string]bool{
 	".tar.gz": true,
 	".tar.xz": true,
 	".tgz":    true,
+	".upx":    true,
 	".whl":    true,
 	".xz":     true,
 	".zip":    true,
@@ -88,6 +91,7 @@ var supportedKind = map[string]string{
 	"sh":      "application/x-sh",
 	"so":      "application/x-sharedlib",
 	"ts":      "application/typescript",
+	"upx":     "application/x-upx",
 	"whl":     "application/x-wheel+zip",
 	"yaml":    "",
 	"yara":    "",
@@ -101,8 +105,17 @@ type FileType struct {
 }
 
 // IsSupportedArchive returns whether a path can be processed by our archive extractor.
+// UPX files are an edge case since they may or may not even have an extension that can be referenced.
 func IsSupportedArchive(path string) bool {
-	return ArchiveMap[GetExt(path)]
+	if _, isValidArchive := ArchiveMap[GetExt(path)]; isValidArchive {
+		return true
+	}
+	if ft, err := File(path); err == nil && ft != nil {
+		if ft.MIME == "application/x-upx" {
+			return true
+		}
+	}
+	return false
 }
 
 // getExt returns the extension of a file path
@@ -131,6 +144,40 @@ func GetExt(path string) string {
 	}
 
 	return ext
+}
+
+var ErrUPXNotFound = errors.New("UPX executable not found in PATH")
+
+func UPXInstalled() error {
+	_, err := exec.LookPath("upx")
+	if err != nil {
+		if errors.Is(err, exec.ErrNotFound) {
+			return ErrUPXNotFound
+		}
+		return fmt.Errorf("failed to check for UPX executable: %w", err)
+	}
+	return nil
+}
+
+// IsValidUPX checks whether a suspected UPX-compressed file can be decompressed with UPX.
+func IsValidUPX(header []byte, path string) (bool, error) {
+	if !bytes.Contains(header, []byte("UPX!")) {
+		return false, nil
+	}
+
+	if err := UPXInstalled(); err != nil {
+		return false, err
+	}
+
+	cmd := exec.Command("upx", "-l", "-f", path)
+	output, err := cmd.CombinedOutput()
+
+	if err != nil && (bytes.Contains(output, []byte("NotPackedException")) ||
+		bytes.Contains(output, []byte("not packed by UPX"))) {
+		return false, nil
+	}
+
+	return true, nil
 }
 
 func makeFileType(path string, ext string, mime string) *FileType {
@@ -207,6 +254,10 @@ func File(path string) (*FileType, error) {
 
 	// final strategy: DIY matching where mimetype is too strict.
 	s := string(hdr[:])
+	if isUPX, err := IsValidUPX(hdr[:], path); err == nil && isUPX {
+		return Path(".upx"), nil
+	}
+
 	switch {
 	case hdr[0] == '\x7f' && hdr[1] == 'E' || hdr[2] == 'L' || hdr[3] == 'F':
 		return Path(".elf"), nil
