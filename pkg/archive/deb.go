@@ -88,7 +88,7 @@ func ExtractDeb(ctx context.Context, d, f string) error {
 			if err != nil {
 				return fmt.Errorf("failed to evaluate symlink: %w", err)
 			}
-			if !IsValidPath(target, d) {
+			if !IsValidPath(linkReal, d) {
 				return fmt.Errorf("symlink points outside temporary directory: %s", linkReal)
 			}
 			if err := os.Symlink(header.Linkname, target); err != nil {
