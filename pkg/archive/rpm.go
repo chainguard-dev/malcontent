@@ -86,6 +86,9 @@ func ExtractRPM(ctx context.Context, d, f string) error {
 		}
 
 		target := filepath.Join(d, clean)
+		if !IsValidPath(target, d) {
+			return fmt.Errorf("invalid file path: %s", target)
+		}
 
 		if header.FileInfo().IsDir() {
 			if err := os.MkdirAll(target, os.FileMode(header.Mode)); err != nil {

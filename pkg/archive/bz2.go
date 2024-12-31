@@ -38,6 +38,9 @@ func ExtractBz2(ctx context.Context, d, f string) error {
 	uncompressed := strings.TrimSuffix(filepath.Base(f), ".bz2")
 	uncompressed = strings.TrimSuffix(uncompressed, ".bzip2")
 	target := filepath.Join(d, uncompressed)
+	if !IsValidPath(target, d) {
+		return fmt.Errorf("invalid file path: %s", target)
+	}
 	if err := os.MkdirAll(d, 0o700); err != nil {
 		return fmt.Errorf("failed to create directory for file: %w", err)
 	}

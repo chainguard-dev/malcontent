@@ -46,6 +46,9 @@ func ExtractDeb(ctx context.Context, d, f string) error {
 		}
 
 		target := filepath.Join(d, clean)
+		if !IsValidPath(target, d) {
+			return fmt.Errorf("invalid file path: %s", target)
+		}
 
 		switch header.Typeflag {
 		case tar.TypeDir:

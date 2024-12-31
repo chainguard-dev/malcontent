@@ -43,6 +43,9 @@ func ExtractGzip(ctx context.Context, d string, f string) error {
 
 	base := filepath.Base(f)
 	target := filepath.Join(d, base[:len(base)-len(filepath.Ext(base))])
+	if !IsValidPath(target, d) {
+		return fmt.Errorf("invalid file path: %s", target)
+	}
 
 	gr, err := gzip.NewReader(gf)
 	if err != nil {
