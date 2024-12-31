@@ -415,6 +415,9 @@
                 {
                     "Description": "Zstandard: fast real-time compression algorithm",
                     "MatchStrings": [
+                        "$magic_bytes",
+                        "$decompress",
+                        "$ref",
                         "zstd"
                     ],
                     "RiskScore": 1,
@@ -458,6 +461,9 @@
                 },
                 {
                     "Description": "Contains compressed content in ZStandard format",
+                    "MatchStrings": [
+                        "$ref"
+                    ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/data/embedded/embedded-zstd.yara#embedded_zstd",

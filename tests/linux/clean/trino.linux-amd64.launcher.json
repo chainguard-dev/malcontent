@@ -148,6 +148,10 @@
                 },
                 {
                     "Description": "RC4 key scheduling algorithm",
+                    "MatchStrings": [
+                        "$cmp_e_x_256",
+                        "$cmp_r_x_256"
+                    ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/crypto/rc4.yara#rc4_ksa",
@@ -791,6 +795,9 @@
                 },
                 {
                     "Description": "multiple ELF binaries within an ELF binary",
+                    "MatchStrings": [
+                        "$elf_head"
+                    ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/elf/multiple.yara#multiple_elf",

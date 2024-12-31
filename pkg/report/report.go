@@ -448,7 +448,7 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 			matches = append(matches, p.Matches()...)
 		}
 
-		processor := newMatchProcessor(fc, matches)
+		processor := newMatchProcessor(fc, matches, m.Patterns())
 		matchedStrings := processor.process()
 
 		b := &malcontent.Behavior{

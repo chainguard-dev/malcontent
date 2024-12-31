@@ -1,6 +1,7 @@
 package report
 
 import (
+	"slices"
 	"sync"
 
 	yarax "github.com/VirusTotal/yara-x/go"
@@ -49,16 +50,18 @@ var BufferPool = sync.Pool{
 }
 
 type matchProcessor struct {
-	fc      []byte
-	pool    *StringPool
-	matches []yarax.Match
+	fc       []byte
+	pool     *StringPool
+	matches  []yarax.Match
+	patterns []yarax.Pattern
 }
 
-func newMatchProcessor(fc []byte, matches []yarax.Match) *matchProcessor {
+func newMatchProcessor(fc []byte, matches []yarax.Match, mp []yarax.Pattern) *matchProcessor {
 	return &matchProcessor{
-		fc:      fc,
-		pool:    NewStringPool(len(matches)),
-		matches: matches,
+		fc:       fc,
+		pool:     NewStringPool(len(matches)),
+		matches:  matches,
+		patterns: mp,
 	}
 }
 
@@ -113,9 +116,17 @@ func (mp *matchProcessor) process() []string {
 			}
 
 			matchBytes := mp.fc[o : o+l]
+
+			var str string
 			if !containsUnprintable(matchBytes) {
-				str := mp.pool.Intern(string(matchBytes))
+				str = mp.pool.Intern(string(matchBytes))
 				*result = append(*result, str)
+			} else {
+				patterns := make([]string, 0, len(mp.patterns))
+				for _, p := range mp.patterns {
+					patterns = append(patterns, p.Identifier())
+				}
+				*result = append(*result, slices.Compact(patterns)...)
 			}
 		}
 	}
