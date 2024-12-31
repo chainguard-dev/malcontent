@@ -59,7 +59,7 @@ func (r Markdown) File(ctx context.Context, fr *malcontent.FileReport) error {
 	return nil
 }
 
-func (r Markdown) Full(ctx context.Context, rep *malcontent.Report) error {
+func (r Markdown) Full(ctx context.Context, _ *malcontent.Config, rep *malcontent.Report) error {
 	if rep.Diff == nil {
 		return nil
 	}
