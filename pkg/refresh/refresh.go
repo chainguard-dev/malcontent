@@ -205,7 +205,7 @@ func executeRefresh(ctx context.Context, testData []TestData) error {
 					return fmt.Errorf("refresh sample data for %s: %w", data.OutputPath, err)
 				}
 
-				if err := data.Config.Renderer.Full(ctx, res); err != nil {
+				if err := data.Config.Renderer.Full(ctx, nil, res); err != nil {
 					return fmt.Errorf("render results for %s: %w", data.OutputPath, err)
 				}
 

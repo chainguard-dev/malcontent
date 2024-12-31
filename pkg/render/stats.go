@@ -19,7 +19,7 @@ func smLength(m *sync.Map) int {
 	return length
 }
 
-func riskStatistics(c *malcontent.Config, files *sync.Map) ([]malcontent.IntMetric, int, int, int) {
+func RiskStatistics(c *malcontent.Config, files *sync.Map) ([]malcontent.IntMetric, int, int, int) {
 	length := smLength(files)
 
 	riskMap := make(map[int][]string, length)
@@ -73,7 +73,7 @@ func riskStatistics(c *malcontent.Config, files *sync.Map) ([]malcontent.IntMetr
 	return stats, total(), processedFiles, skippedFiles
 }
 
-func pkgStatistics(_ *malcontent.Config, files *sync.Map) ([]malcontent.StrMetric, int, int) {
+func PkgStatistics(_ *malcontent.Config, files *sync.Map) ([]malcontent.StrMetric, int, int) {
 	length := smLength(files)
 	numBehaviors := 0
 	pkgMap := make(map[string]int, length)
@@ -117,8 +117,8 @@ func pkgStatistics(_ *malcontent.Config, files *sync.Map) ([]malcontent.StrMetri
 }
 
 func Statistics(c *malcontent.Config, r *malcontent.Report) error {
-	riskStats, totalRisks, processedFiles, skippedFiles := riskStatistics(c, &r.Files)
-	pkgStats, width, totalBehaviors := pkgStatistics(c, &r.Files)
+	riskStats, totalRisks, processedFiles, skippedFiles := RiskStatistics(c, &r.Files)
+	pkgStats, width, totalBehaviors := PkgStatistics(c, &r.Files)
 
 	statsSymbol := "📊"
 	riskSymbol := "⚠️ "

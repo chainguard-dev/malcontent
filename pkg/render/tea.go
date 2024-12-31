@@ -385,7 +385,7 @@ func (r *Interactive) File(ctx context.Context, fr *malcontent.FileReport) error
 	return nil
 }
 
-func (r *Interactive) Full(ctx context.Context, rep *malcontent.Report) error {
+func (r *Interactive) Full(ctx context.Context, _ *malcontent.Config, rep *malcontent.Report) error {
 	defer func() {
 		r.program.Send(scanCompleteMsg{})
 		r.wg.Wait()
