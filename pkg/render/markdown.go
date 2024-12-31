@@ -38,7 +38,7 @@ func mdRisk(score int, level string) string {
 func matchFragmentLink(s string) string {
 	// it's probably the name of a matched YARA field, for example, if it's xor'ed data
 	if strings.HasPrefix(s, "$") {
-		return fmt.Sprintf("\\%s", s)
+		return fmt.Sprintf("`%s`", s)
 	}
 
 	if strings.HasPrefix(s, "https:") || strings.HasPrefix(s, "http://") {

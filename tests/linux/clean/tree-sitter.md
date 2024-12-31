@@ -2,7 +2,7 @@
 
 | RISK | KEY | DESCRIPTION | EVIDENCE |
 |--|--|--|--|
-| MEDIUM | [anti-static/elf/multiple](https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/elf/multiple.yara#multiple_elf) | multiple ELF binaries within an ELF binary | \$elf_head |
+| MEDIUM | [anti-static/elf/multiple](https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/elf/multiple.yara#multiple_elf) | multiple ELF binaries within an ELF binary | `$elf_head` |
 | MEDIUM | [c2/tool_transfer/dropper](https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/dropper.yara#dropper) | References a 'dropper' | [Dropper](https://github.com/search?q=Dropper&type=code) |
 | MEDIUM | [c2/tool_transfer/os](https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/os.yara#multiple_os_ref) | references multiple operating systems | [https://](https://)<br>[Windows](https://github.com/search?q=Windows&type=code)<br>[http://](http://)<br>[Darwin](https://github.com/search?q=Darwin&type=code)<br>[macOS](https://github.com/search?q=macOS&type=code) |
 | MEDIUM | [data/embedded/html](https://github.com/chainguard-dev/malcontent/blob/main/rules/data/embedded/embedded-html.yara#html) | Contains HTML content | [DOCTYPE html](https://github.com/search?q=DOCTYPE+html&type=code) |
