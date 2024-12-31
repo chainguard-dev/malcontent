@@ -52,46 +52,15 @@ func ExtractDeb(ctx context.Context, d, f string) error {
 
 		switch header.Typeflag {
 		case tar.TypeDir:
-			// #nosec G115 // ignore Type conversion which leads to integer overflow
-			// header.Mode is int64 and FileMode is uint32
-			if err := os.MkdirAll(target, os.FileMode(header.Mode)); err != nil {
-				return fmt.Errorf("failed to create directory: %w", err)
+			if err := handleDirectory(target); err != nil {
+				return fmt.Errorf("failed to extract directory: %w", err)
 			}
 		case tar.TypeReg:
-			if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
-				return fmt.Errorf("failed to create parent directory: %w", err)
-			}
-
-			// #nosec G115
-			out, err := os.OpenFile(target, os.O_RDWR|os.O_CREATE|os.O_TRUNC, os.FileMode(header.Mode))
-			if err != nil {
-				return fmt.Errorf("failed to create file: %w", err)
-			}
-
-			if _, err := io.Copy(out, io.LimitReader(df.Data, maxBytes)); err != nil {
-				out.Close()
-				return fmt.Errorf("failed to copy file: %w", err)
-			}
-
-			if err := out.Close(); err != nil {
-				return fmt.Errorf("failed to close file: %w", err)
+			if err := handleFile(target, df.Data); err != nil {
+				return fmt.Errorf("failed to extract file: %w", err)
 			}
 		case tar.TypeSymlink:
-			// Ensure that symlinks are not relative path traversals
-			// #nosec G305 // L88 handles the check
-			fullLink := filepath.Join(d, header.Linkname)
-			_, err = os.Lstat(fullLink)
-			if os.IsNotExist(err) {
-				continue
-			}
-			linkReal, err := filepath.EvalSymlinks(fullLink)
-			if err != nil {
-				return fmt.Errorf("failed to evaluate symlink: %w", err)
-			}
-			if !IsValidPath(linkReal, d) {
-				return fmt.Errorf("symlink points outside temporary directory: %s", linkReal)
-			}
-			if err := os.Symlink(header.Linkname, target); err != nil {
+			if err := handleSymlink(d, header.Linkname, target); err != nil {
 				return fmt.Errorf("failed to create symlink: %w", err)
 			}
 		}
