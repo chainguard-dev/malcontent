@@ -6,6 +6,7 @@ package render
 import (
 	"fmt"
 	"io"
+	"sort"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 )
@@ -15,6 +16,17 @@ type Report struct {
 	Diff   *malcontent.DiffReport            `json:",omitempty" yaml:",omitempty"`
 	Files  map[string]*malcontent.FileReport `json:",omitempty" yaml:",omitempty"`
 	Filter string                            `json:",omitempty" yaml:",omitempty"`
+	Stats  *Stats                            `json:",omitempty" yaml:",omitempty"`
+}
+
+// Stats stores a JSON- or YAML-friendly Statistics report.
+type Stats struct {
+	PkgStats       []malcontent.StrMetric `json:",omitempty" yaml:",omitempty"`
+	ProcessedFiles int                    `json:",omitempty" yaml:",omitempty"`
+	RiskStats      []malcontent.IntMetric `json:",omitempty" yaml:",omitempty"`
+	SkippedFiles   int                    `json:",omitempty" yaml:",omitempty"`
+	TotalBehaviors int                    `json:",omitempty" yaml:",omitempty"`
+	TotalRisks     int                    `json:",omitempty" yaml:",omitempty"`
 }
 
 // New returns a new Renderer.
@@ -55,4 +67,26 @@ func riskEmoji(score int) string {
 	}
 
 	return symbol
+}
+
+func serializedStats(c *malcontent.Config, r *malcontent.Report) *Stats {
+	pkgStats, _, totalBehaviors := PkgStatistics(c, &r.Files)
+	riskStats, totalRisks, processedFiles, skippedFiles := RiskStatistics(c, &r.Files)
+
+	sort.Slice(pkgStats, func(i, j int) bool {
+		return pkgStats[i].Key < pkgStats[j].Key
+	})
+
+	sort.Slice(riskStats, func(i, j int) bool {
+		return riskStats[i].Key < riskStats[j].Key
+	})
+
+	return &Stats{
+		PkgStats:       pkgStats,
+		ProcessedFiles: processedFiles,
+		RiskStats:      riskStats,
+		SkippedFiles:   skippedFiles,
+		TotalBehaviors: totalBehaviors,
+		TotalRisks:     totalRisks,
+	}
 }

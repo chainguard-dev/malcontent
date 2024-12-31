@@ -28,7 +28,7 @@ func (r JSON) File(_ context.Context, _ *malcontent.FileReport) error {
 	return nil
 }
 
-func (r JSON) Full(_ context.Context, rep *malcontent.Report) error {
+func (r JSON) Full(_ context.Context, c *malcontent.Config, rep *malcontent.Report) error {
 	jr := Report{
 		Diff:   rep.Diff,
 		Files:  make(map[string]*malcontent.FileReport),
@@ -51,6 +51,10 @@ func (r JSON) Full(_ context.Context, rep *malcontent.Report) error {
 		}
 		return true
 	})
+
+	if c != nil && c.Stats && jr.Diff == nil {
+		jr.Stats = serializedStats(c, rep)
+	}
 
 	j, err := json.MarshalIndent(jr, "", "    ")
 	if err != nil {

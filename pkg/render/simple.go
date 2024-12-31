@@ -48,7 +48,7 @@ func (r Simple) File(_ context.Context, fr *malcontent.FileReport) error {
 	return nil
 }
 
-func (r Simple) Full(_ context.Context, rep *malcontent.Report) error {
+func (r Simple) Full(_ context.Context, _ *malcontent.Config, rep *malcontent.Report) error {
 	if rep.Diff == nil {
 		return nil
 	}

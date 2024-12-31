@@ -424,7 +424,7 @@ func main() {
 						return err
 					}
 
-					err = renderer.Full(ctx, res)
+					err = renderer.Full(ctx, &mc, res)
 					if err != nil {
 						returnCode = ExitRenderFailed
 						return err
@@ -467,7 +467,7 @@ func main() {
 						return err
 					}
 
-					err = renderer.Full(ctx, res)
+					err = renderer.Full(ctx, &mc, res)
 					if err != nil {
 						returnCode = ExitRenderFailed
 						return err
@@ -550,7 +550,7 @@ func main() {
 						return length
 					}(&res.Files)
 
-					err = renderer.Full(ctx, res)
+					err = renderer.Full(ctx, &mc, res)
 					if err != nil {
 						returnCode = ExitRenderFailed
 						return err
