@@ -39,10 +39,10 @@
                 {
                     "Description": "mentions an IP and port",
                     "MatchStrings": [
-                        "IP",
-                        "lIp",
                         "lookupPort",
-                        "parsePort"
+                        "parsePort",
+                        "lIp",
+                        "IP"
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
@@ -64,9 +64,9 @@
                 {
                     "Description": "references a specific architecture",
                     "MatchStrings": [
+                        "http://",
                         "amd64",
-                        "arm64",
-                        "http://"
+                        "arm64"
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
@@ -77,8 +77,8 @@
                 {
                     "Description": "references a specific operating system",
                     "MatchStrings": [
-                        "Linux",
-                        "http://"
+                        "http://",
+                        "Linux"
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
@@ -228,8 +228,8 @@
                     "Description": "references a 'plugin'",
                     "MatchStrings": [
                         "bytestringconfigpluginfunc",
-                        "pluginpath",
-                        "pluginversion"
+                        "pluginversion",
+                        "pluginpath"
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
@@ -298,8 +298,8 @@
                 {
                     "Description": "reads files",
                     "MatchStrings": [
-                        "ReadFile",
-                        "os.(*File).Read"
+                        "os.(*File).Read",
+                        "ReadFile"
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
@@ -333,14 +333,14 @@
                 {
                     "Description": "path reference within /etc",
                     "MatchStrings": [
-                        "/etc/apache/mime.typesidna",
                         "/etc/hostsgetsockoptnetlinkribsetsock",
                         "/etc/httpd/conf/mime.typessegment",
-                        "/etc/mime.types",
+                        "/etc/apache/mime.typesidna",
                         "/etc/nsswitch.confinvalid",
                         "/etc/protocolsunknown",
                         "/etc/resolv.confnon-",
                         "/etc/servicesgzip",
+                        "/etc/mime.types",
                         "/etc/zoneinfo"
                     ],
                     "RiskScore": 1,
@@ -374,13 +374,6 @@
                 {
                     "Description": "references path within /Users",
                     "MatchStrings": [
-                        "/Users/martin/go/pkg/mod/github.com/fatih/color",
-                        "/Users/martin/go/pkg/mod/github.com/mattn/go-isatty",
-                        "/Users/martin/go/pkg/mod/github.com/spf13/afero",
-                        "/Users/martin/go/pkg/mod/github.com/theckman/go-flock",
-                        "/Users/martin/go/pkg/mod/golang.org/toolchain",
-                        "/Users/martin/go/pkg/mod/golang.org/x/sys",
-                        "/Users/martin/go/pkg/mod/golang.org/x/text",
                         "/Users/martin/projects/launcher/target/checkout/src/main/go/args/args.g",
                         "/Users/martin/projects/launcher/target/checkout/src/main/go/args/java_e",
                         "/Users/martin/projects/launcher/target/checkout/src/main/go/args/java_s",
@@ -388,10 +381,17 @@
                         "/Users/martin/projects/launcher/target/checkout/src/main/go/commands/co",
                         "/Users/martin/projects/launcher/target/checkout/src/main/go/directory/i",
                         "/Users/martin/projects/launcher/target/checkout/src/main/go/directory/u",
-                        "/Users/martin/projects/launcher/target/checkout/src/main/go/main.go",
                         "/Users/martin/projects/launcher/target/checkout/src/main/go/process/for",
                         "/Users/martin/projects/launcher/target/checkout/src/main/go/process/pro",
-                        "/Users/martin/projects/launcher/target/checkout/src/main/go/properties/"
+                        "/Users/martin/projects/launcher/target/checkout/src/main/go/properties/",
+                        "/Users/martin/projects/launcher/target/checkout/src/main/go/main.go",
+                        "/Users/martin/go/pkg/mod/github.com/theckman/go-flock",
+                        "/Users/martin/go/pkg/mod/github.com/mattn/go-isatty",
+                        "/Users/martin/go/pkg/mod/github.com/fatih/color",
+                        "/Users/martin/go/pkg/mod/github.com/spf13/afero",
+                        "/Users/martin/go/pkg/mod/golang.org/toolchain",
+                        "/Users/martin/go/pkg/mod/golang.org/x/text",
+                        "/Users/martin/go/pkg/mod/golang.org/x/sys"
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
@@ -402,9 +402,9 @@
                 {
                     "Description": "path reference within /var",
                     "MatchStrings": [
+                        "/var/run/launcher.pidfailed",
                         "/var/log/launcher.log",
-                        "/var/log/server.log",
-                        "/var/run/launcher.pidfailed"
+                        "/var/log/server.log"
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
@@ -440,8 +440,8 @@
                     "Description": "Uses DNS (Domain Name Service)",
                     "MatchStrings": [
                         "CNAMEResource",
-                        "SetEDNS0",
-                        "dnsmessage"
+                        "dnsmessage",
+                        "SetEDNS0"
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
@@ -649,8 +649,8 @@
                 {
                     "Description": "Sends UDP packets",
                     "MatchStrings": [
-                        "DialUDP",
-                        "WriteMsgUDP"
+                        "WriteMsgUDP",
+                        "DialUDP"
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
@@ -694,8 +694,8 @@
                 {
                     "Description": "transfer data between file descriptors",
                     "MatchStrings": [
-                        "sendfile",
-                        "syscall.Sendfile"
+                        "syscall.Sendfile",
+                        "sendfile"
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
@@ -789,9 +789,6 @@
                 },
                 {
                     "Description": "multiple ELF binaries within an ELF binary",
-                    "MatchStrings": [
-                        "$elf_head"
-                    ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/elf/multiple.yara#multiple_elf",
@@ -802,8 +799,8 @@
                     "Description": "Linux ELF binary packed with UPX",
                     "MatchStrings": [
                         "This file is packed",
-                        "UPX!",
-                        "executable packer"
+                        "executable packer",
+                        "UPX!"
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
@@ -885,12 +882,12 @@
                 {
                     "Description": "trino upx override",
                     "MatchStrings": [
-                        "Go buildinf",
                         "kTixuOsFBOtGYSTLRLWK6G",
+                        "Go buildinf",
                         "kUNKNOWN:$",
-                        "lmRnTEOIt",
                         "wnwmwkwbqc",
-                        "zYna%i%qj%"
+                        "zYna%i%qj%",
+                        "lmRnTEOIt"
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
@@ -907,12 +904,12 @@
                 {
                     "Description": "trino upx override",
                     "MatchStrings": [
-                        "Go buildinf",
                         "kTixuOsFBOtGYSTLRLWK6G",
+                        "Go buildinf",
                         "kUNKNOWN:$",
-                        "lmRnTEOIt",
                         "wnwmwkwbqc",
-                        "zYna%i%qj%"
+                        "zYna%i%qj%",
+                        "lmRnTEOIt"
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
@@ -929,12 +926,12 @@
                 {
                     "Description": "trino upx override",
                     "MatchStrings": [
-                        "Go buildinf",
                         "kTixuOsFBOtGYSTLRLWK6G",
+                        "Go buildinf",
                         "kUNKNOWN:$",
-                        "lmRnTEOIt",
                         "wnwmwkwbqc",
-                        "zYna%i%qj%"
+                        "zYna%i%qj%",
+                        "lmRnTEOIt"
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
@@ -951,12 +948,12 @@
                 {
                     "Description": "trino upx override",
                     "MatchStrings": [
-                        "Go buildinf",
                         "kTixuOsFBOtGYSTLRLWK6G",
+                        "Go buildinf",
                         "kUNKNOWN:$",
-                        "lmRnTEOIt",
                         "wnwmwkwbqc",
-                        "zYna%i%qj%"
+                        "zYna%i%qj%",
+                        "lmRnTEOIt"
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",

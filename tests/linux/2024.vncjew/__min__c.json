@@ -34,11 +34,11 @@
                 {
                     "Description": "mentions an IP and port",
                     "MatchStrings": [
-                        "IP",
-                        "lIp",
                         "lookupPort",
+                        "parsePort",
+                        "lIp",
                         "oIp",
-                        "parsePort"
+                        "IP"
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
@@ -60,10 +60,10 @@
                 {
                     "Description": "references a specific architecture",
                     "MatchStrings": [
+                        "http://",
                         "AMD64",
                         "amd64",
                         "arm64",
-                        "http://",
                         "x86"
                     ],
                     "RiskScore": 1,
@@ -167,8 +167,8 @@
                 {
                     "Description": "references a 'public key'",
                     "MatchStrings": [
-                        "PublicKey",
                         "public key",
+                        "PublicKey",
                         "publicKey"
                     ],
                     "RiskScore": 1,
@@ -179,10 +179,6 @@
                 },
                 {
                     "Description": "RC4 key scheduling algorithm",
-                    "MatchStrings": [
-                        "$cmp_e_x_256",
-                        "$cmp_r_x_256"
-                    ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/crypto/rc4.yara#rc4_ksa",
@@ -193,9 +189,9 @@
                 {
                     "Description": "tls",
                     "MatchStrings": [
-                        "TLS13",
                         "TLSVersion",
-                        "crypto/tls"
+                        "crypto/tls",
+                        "TLS13"
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
@@ -298,8 +294,8 @@
                 {
                     "Description": "Looks up the HOME directory for the current user",
                     "MatchStrings": [
-                        "HOME",
-                        "getenv"
+                        "getenv",
+                        "HOME"
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
@@ -311,8 +307,8 @@
                 {
                     "Description": "Looks up the USER name of the current user",
                     "MatchStrings": [
-                        "USER",
-                        "getenv"
+                        "getenv",
+                        "USER"
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
@@ -336,9 +332,9 @@
                 {
                     "Description": "Appends rules to a iptables chain",
                     "MatchStrings": [
-                        "-A",
+                        "iptables",
                         "INPUT",
-                        "iptables"
+                        "-A"
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
@@ -393,8 +389,8 @@
                 {
                     "Description": "reads files",
                     "MatchStrings": [
-                        "ReadFile",
-                        "os.(*File).Read"
+                        "os.(*File).Read",
+                        "ReadFile"
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
@@ -418,21 +414,21 @@
                     "Description": "path reference within /etc",
                     "MatchStrings": [
                         "/etc/apache/mime.types/etc/ssl/ca-bun",
-                        "/etc/hosts/setgroups",
-                        "/etc/httpd/conf/mime.types",
-                        "/etc/mdns.allow/etc/mime.types",
-                        "/etc/nsswitch.conf/etc/pki/tls/certs",
-                        "/etc/passwd/index.html",
                         "/etc/pki/ca-trust/extracted/pem/tls-c",
-                        "/etc/pki/tls/cacert.pem",
-                        "/etc/pki/tls/certs/ca-bundle.crt",
-                        "/etc/protocols/etc/ssl/certs",
-                        "/etc/resolv.conf",
                         "/etc/security/cacerts/usr/local/share",
-                        "/etc/services",
                         "/etc/ssl/ca-bundle.pem/lib/time/zonei",
+                        "/etc/nsswitch.conf/etc/pki/tls/certs",
+                        "/etc/ssl/certs/ca-certificates.crt",
+                        "/etc/pki/tls/certs/ca-bundle.crt",
+                        "/etc/mdns.allow/etc/mime.types",
+                        "/etc/protocols/etc/ssl/certs",
+                        "/etc/httpd/conf/mime.types",
+                        "/etc/pki/tls/cacert.pem",
+                        "/etc/passwd/index.html",
+                        "/etc/hosts/setgroups",
                         "/etc/ssl/cert.pem",
-                        "/etc/ssl/certs/ca-certificates.crt"
+                        "/etc/resolv.conf",
+                        "/etc/services"
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
@@ -513,8 +509,8 @@
                     "Description": "vncjew, a VNC scanner",
                     "MatchStrings": [
                         "iptables",
-                        "masscan",
-                        "readVNCs"
+                        "readVNCs",
+                        "masscan"
                     ],
                     "RiskScore": 4,
                     "RiskLevel": "CRITICAL",
@@ -526,8 +522,8 @@
                     "Description": "Uses DNS (Domain Name Service)",
                     "MatchStrings": [
                         "CNAMEResource",
-                        "SetEDNS0",
-                        "dnsmessage"
+                        "dnsmessage",
+                        "SetEDNS0"
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
@@ -561,8 +557,8 @@
                 {
                     "Description": "accepts JSON files via HTTP",
                     "MatchStrings": [
-                        "Accept",
-                        "application/json"
+                        "application/json",
+                        "Accept"
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
@@ -636,9 +632,9 @@
                 {
                     "Description": "makes HTTP requests",
                     "MatchStrings": [
+                        "User-Agent",
                         "HTTP/1.",
-                        "Referer",
-                        "User-Agent"
+                        "Referer"
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
@@ -814,8 +810,8 @@
                 {
                     "Description": "Sends UDP packets",
                     "MatchStrings": [
-                        "DialUDP",
-                        "WriteMsgUDP"
+                        "WriteMsgUDP",
+                        "DialUDP"
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
@@ -859,8 +855,8 @@
                 {
                     "Description": "transfer data between file descriptors",
                     "MatchStrings": [
-                        "sendfile",
-                        "syscall.Sendfile"
+                        "syscall.Sendfile",
+                        "sendfile"
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
@@ -922,9 +918,6 @@
                 },
                 {
                     "Description": "multiple ELF binaries within an ELF binary",
-                    "MatchStrings": [
-                        "$elf_head"
-                    ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/elf/multiple.yara#multiple_elf",
@@ -935,8 +928,8 @@
                     "Description": "Linux ELF binary packed with UPX",
                     "MatchStrings": [
                         "This file is packed",
-                        "UPX!",
-                        "executable packer"
+                        "executable packer",
+                        "UPX!"
                     ],
                     "RiskScore": 3,
                     "RiskLevel": "HIGH",
@@ -969,8 +962,8 @@
                 {
                     "Description": "references a specific architecture",
                     "MatchStrings": [
-                        "amd64",
-                        "http://"
+                        "http://",
+                        "amd64"
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
