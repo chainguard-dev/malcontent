@@ -117,9 +117,8 @@ func (mp *matchProcessor) process() []string {
 
 			matchBytes := mp.fc[o : o+l]
 
-			var str string
 			if !containsUnprintable(matchBytes) {
-				str = mp.pool.Intern(string(matchBytes))
+				str := mp.pool.Intern(string(matchBytes))
 				*result = append(*result, str)
 			} else {
 				patterns := make([]string, 0, len(mp.patterns))
