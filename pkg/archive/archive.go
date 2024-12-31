@@ -196,10 +196,10 @@ func ExtractionMethod(ext string) func(context.Context, string, string) error {
 	// New cases should go below this line so that the lengthier tar extensions are evaluated first
 	case ".apk", ".gem", ".tar", ".tar.bz2", ".tar.gz", ".tgz", ".tar.xz", ".tbz", ".xz":
 		return ExtractTar
+	case ".gz", ".gzip":
+		return ExtractGzip
 	case ".jar", ".zip", ".whl":
 		return ExtractZip
-	case ".gz":
-		return ExtractGzip
 	case ".bz2", ".bzip2":
 		return ExtractBz2
 	case ".rpm":
