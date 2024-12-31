@@ -246,6 +246,12 @@ func handleFile(target string, tr *tar.Reader) error {
 
 // handleSymlink creates valid symlinks when extracting .deb or .tar archives.
 func handleSymlink(dir, linkName, target string) error {
+	// Skip symlinks for targets that do not exist
+	_, err := os.Readlink(target)
+	if os.IsNotExist(err) {
+		return nil
+	}
+
 	fullLink := filepath.Join(dir, linkName)
 
 	// Remove existing symlinks
