@@ -53,14 +53,18 @@ func ExtractGzip(ctx context.Context, d string, f string) error {
 	}
 	defer gr.Close()
 
-	ef, err := os.Create(target)
+	out, err := os.Create(target)
 	if err != nil {
 		return fmt.Errorf("failed to create extracted file: %w", err)
 	}
-	defer ef.Close()
+	defer out.Close()
 
-	if _, err := io.Copy(ef, io.LimitReader(gr, maxBytes)); err != nil {
+	written, err := io.Copy(out, io.LimitReader(gr, maxBytes))
+	if err != nil {
 		return fmt.Errorf("failed to copy file: %w", err)
+	}
+	if written >= maxBytes {
+		return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
 	}
 
 	return nil

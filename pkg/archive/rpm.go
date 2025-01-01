@@ -101,14 +101,17 @@ func ExtractRPM(ctx context.Context, d, f string) error {
 			return fmt.Errorf("failed to create parent directory: %w", err)
 		}
 
-		out, err := os.OpenFile(target, os.O_RDWR|os.O_CREATE|os.O_TRUNC, os.FileMode(header.Mode))
+		out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
 		if err != nil {
 			return fmt.Errorf("failed to create file: %w", err)
 		}
 
-		if _, err := io.Copy(out, io.LimitReader(cr, maxBytes)); err != nil {
-			out.Close()
+		written, err := io.Copy(out, io.LimitReader(cr, maxBytes))
+		if err != nil {
 			return fmt.Errorf("failed to copy file: %w", err)
+		}
+		if written >= maxBytes {
+			return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
 		}
 
 		if err := out.Close(); err != nil {
