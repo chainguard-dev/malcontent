@@ -1,8 +1,10 @@
 package archive
 
 import (
+	"archive/tar"
 	"context"
 	"fmt"
+	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -190,13 +192,16 @@ func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 }
 
 func ExtractionMethod(ext string) func(context.Context, string, string) error {
+	// The ordering of these statements is important, especially for extensions
+	// that are substrings of other extensions (e.g., `.gz` and `.tar.gz` or `.tgz`)
 	switch ext {
-	case ".jar", ".zip", ".whl":
-		return ExtractZip
-	case ".gz":
-		return ExtractGzip
+	// New cases should go below this line so that the lengthier tar extensions are evaluated first
 	case ".apk", ".gem", ".tar", ".tar.bz2", ".tar.gz", ".tgz", ".tar.xz", ".tbz", ".xz":
 		return ExtractTar
+	case ".gz", ".gzip":
+		return ExtractGzip
+	case ".jar", ".zip", ".whl":
+		return ExtractZip
 	case ".bz2", ".bzip2":
 		return ExtractBz2
 	case ".rpm":
@@ -206,4 +211,69 @@ func ExtractionMethod(ext string) func(context.Context, string, string) error {
 	default:
 		return nil
 	}
+}
+
+// handleDirectory extracts valid directories within .deb or .tar archives.
+func handleDirectory(target string) error {
+	if err := os.MkdirAll(target, 0o700); err != nil {
+		return fmt.Errorf("failed to create directory: %w", err)
+	}
+	return nil
+}
+
+// handleFile extracts valid files within .deb or .tar archives.
+func handleFile(target string, tr *tar.Reader) error {
+	if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
+		return fmt.Errorf("failed to create parent directory: %w", err)
+	}
+
+	out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+	if err != nil {
+		return fmt.Errorf("failed to create file: %w", err)
+	}
+	defer out.Close()
+
+	written, err := io.Copy(out, io.LimitReader(tr, maxBytes))
+	if err != nil {
+		return fmt.Errorf("failed to copy file: %w", err)
+	}
+	if written >= maxBytes {
+		return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
+	}
+
+	return nil
+}
+
+// handleSymlink creates valid symlinks when extracting .deb or .tar archives.
+func handleSymlink(dir, linkName, target string) error {
+	// Skip symlinks for targets that do not exist
+	_, err := os.Readlink(target)
+	if os.IsNotExist(err) {
+		return nil
+	}
+
+	fullLink := filepath.Join(dir, linkName)
+
+	// Remove existing symlinks
+	if _, err := os.Lstat(fullLink); err == nil {
+		if err := os.Remove(fullLink); err != nil {
+			return fmt.Errorf("failed to remove existing symlink: %w", err)
+		}
+	}
+
+	if err := os.Symlink(target, fullLink); err != nil {
+		return fmt.Errorf("failed to create symlink: %w", err)
+	}
+
+	linkReal, err := filepath.EvalSymlinks(fullLink)
+	if err != nil {
+		os.Remove(fullLink)
+		return fmt.Errorf("failed to evaluate symlink: %w", err)
+	}
+	if !IsValidPath(linkReal, dir) {
+		os.Remove(fullLink)
+		return fmt.Errorf("symlink points outside temporary directory: %s", linkReal)
+	}
+
+	return nil
 }
