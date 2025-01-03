@@ -38,20 +38,28 @@ func ExtractBz2(ctx context.Context, d, f string) error {
 	uncompressed := strings.TrimSuffix(filepath.Base(f), ".bz2")
 	uncompressed = strings.TrimSuffix(uncompressed, ".bzip2")
 	target := filepath.Join(d, uncompressed)
+	if !IsValidPath(target, d) {
+		return fmt.Errorf("invalid file path: %s", target)
+	}
 	if err := os.MkdirAll(d, 0o700); err != nil {
 		return fmt.Errorf("failed to create directory for file: %w", err)
 	}
 
 	// #nosec G115 // ignore Type conversion which leads to integer overflow
 	// header.Mode is int64 and FileMode is uint32
-	out, err := os.OpenFile(target, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0o600)
+	out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
 	if err != nil {
 		return fmt.Errorf("failed to create file: %w", err)
 	}
 	defer out.Close()
-	if _, err := io.Copy(out, io.LimitReader(br, maxBytes)); err != nil {
-		out.Close()
+
+	written, err := io.Copy(out, io.LimitReader(br, maxBytes))
+	if err != nil {
 		return fmt.Errorf("failed to copy file: %w", err)
 	}
+	if written >= maxBytes {
+		return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
+	}
+
 	return nil
 }

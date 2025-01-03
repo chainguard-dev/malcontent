@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/programkind"
 	"github.com/ulikunitz/xz"
 )
 
@@ -33,6 +34,15 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
 	defer tf.Close()
+
+	isTGZ := strings.Contains(f, ".tar.gz") || strings.Contains(f, ".tgz")
+	var isGzip bool
+	if ft, err := programkind.File(f); err == nil && ft != nil {
+		if ft.MIME == "application/gzip" {
+			isGzip = true
+		}
+	}
+
 	// Set offset to the file origin regardless of type
 	_, err = tf.Seek(0, io.SeekStart)
 	if err != nil {
@@ -40,9 +50,8 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 	}
 
 	var tr *tar.Reader
-
 	switch {
-	case strings.Contains(f, ".apk") || strings.Contains(f, ".tar.gz") || strings.Contains(f, ".tgz"):
+	case strings.Contains(f, ".apk") || (isTGZ && isGzip):
 		gzStream, err := gzip.NewReader(tf)
 		if err != nil {
 			return fmt.Errorf("failed to create gzip reader: %w", err)
@@ -68,12 +77,13 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 
 		// #nosec G115 // ignore Type conversion which leads to integer overflow
 		// header.Mode is int64 and FileMode is uint32
-		f, err := os.OpenFile(target, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0o600)
+		out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
 		if err != nil {
 			return fmt.Errorf("failed to create file: %w", err)
 		}
-		defer f.Close()
-		if _, err = io.Copy(f, xzStream); err != nil {
+		defer out.Close()
+
+		if _, err = io.Copy(out, xzStream); err != nil {
 			return fmt.Errorf("failed to write decompressed xz output: %w", err)
 		}
 		return nil
@@ -107,47 +117,15 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 
 		switch header.Typeflag {
 		case tar.TypeDir:
-			// #nosec G115 // ignore Type conversion which leads to integer overflow
-			// header.Mode is int64 and FileMode is uint32
-			if err := os.MkdirAll(target, os.FileMode(header.Mode)); err != nil {
-				return fmt.Errorf("failed to create directory: %w", err)
+			if err := handleDirectory(target); err != nil {
+				return fmt.Errorf("failed to extract directory: %w", err)
 			}
 		case tar.TypeReg:
-			if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
-				return fmt.Errorf("failed to create parent directory: %w", err)
-			}
-
-			// #nosec G115 // ignore Type conversion which leads to integer overflow
-			// header.Mode is int64 and FileMode is uint32
-			out, err := os.OpenFile(target, os.O_RDWR|os.O_CREATE|os.O_TRUNC, os.FileMode(header.Mode))
-			if err != nil {
-				return fmt.Errorf("failed to create file: %w", err)
-			}
-
-			if _, err := io.Copy(out, io.LimitReader(tr, maxBytes)); err != nil {
-				out.Close()
-				return fmt.Errorf("failed to copy file: %w", err)
-			}
-
-			if err := out.Close(); err != nil {
-				return fmt.Errorf("failed to close file: %w", err)
+			if err := handleFile(target, tr); err != nil {
+				return fmt.Errorf("failed to extract file: %w", err)
 			}
 		case tar.TypeSymlink:
-			// Skip symlinks for targets that do not exist
-			_, err = os.Readlink(target)
-			if os.IsNotExist(err) {
-				continue
-			}
-			// Ensure that symlinks are not relative path traversals
-			// #nosec G305 // L208 handles the check
-			linkReal, err := filepath.EvalSymlinks(filepath.Join(d, header.Linkname))
-			if err != nil {
-				return fmt.Errorf("failed to evaluate symlink: %w", err)
-			}
-			if !IsValidPath(target, d) {
-				return fmt.Errorf("symlink points outside temporary directory: %s", linkReal)
-			}
-			if err := os.Symlink(linkReal, target); err != nil {
+			if err := handleSymlink(d, header.Linkname, target); err != nil {
 				return fmt.Errorf("failed to create symlink: %w", err)
 			}
 		}

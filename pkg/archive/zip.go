@@ -36,52 +36,57 @@ func ExtractZip(ctx context.Context, d string, f string) error {
 			continue
 		}
 
-		name := filepath.Join(d, clean)
-		if !IsValidPath(name, d) {
-			logger.Warnf("skipping file path outside extraction directory: %s", name)
+		target := filepath.Join(d, clean)
+		if !IsValidPath(target, d) {
+			logger.Warnf("skipping file path outside extraction directory: %s", target)
 			continue
 		}
 
 		// Check if a directory with the same name exists
-		if info, err := os.Stat(name); err == nil && info.IsDir() {
+		if info, err := os.Stat(target); err == nil && info.IsDir() {
 			continue
 		}
 
 		if file.Mode().IsDir() {
-			mode := file.Mode() | 0o700
-			err := os.MkdirAll(name, mode)
+			err := os.MkdirAll(target, 0o700)
 			if err != nil {
 				return fmt.Errorf("failed to create directory: %w", err)
 			}
 			continue
 		}
 
-		open, err := file.Open()
+		zf, err := file.Open()
 		if err != nil {
 			return fmt.Errorf("failed to open file in zip: %w", err)
 		}
 
-		err = os.MkdirAll(filepath.Dir(name), 0o700)
+		err = os.MkdirAll(filepath.Dir(target), 0o700)
 		if err != nil {
-			open.Close()
+			zf.Close()
 			return fmt.Errorf("failed to create directory: %w", err)
 		}
 
-		mode := file.Mode() | 0o200
-		create, err := os.OpenFile(name, os.O_RDWR|os.O_CREATE|os.O_TRUNC, mode)
+		out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
 		if err != nil {
-			open.Close()
+			out.Close()
 			return fmt.Errorf("failed to create file: %w", err)
 		}
 
-		if _, err = io.Copy(create, io.LimitReader(open, maxBytes)); err != nil {
-			open.Close()
-			create.Close()
+		written, err := io.Copy(out, io.LimitReader(zf, maxBytes))
+		if err != nil {
 			return fmt.Errorf("failed to copy file: %w", err)
 		}
+		if written >= maxBytes {
+			return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
+		}
 
-		open.Close()
-		create.Close()
+		if err := out.Close(); err != nil {
+			return fmt.Errorf("failed to close file: %w", err)
+		}
+
+		if err := zf.Close(); err != nil {
+			return fmt.Errorf("failed to close file: %w", err)
+		}
 	}
 	return nil
 }

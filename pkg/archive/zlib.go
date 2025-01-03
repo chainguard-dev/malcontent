@@ -22,29 +22,33 @@ func ExtractZlib(ctx context.Context, d string, f string) error {
 		return fmt.Errorf("failed to stat file: %w", err)
 	}
 
-	gf, err := os.Open(f)
+	zf, err := os.Open(f)
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
-	defer gf.Close()
+	defer zf.Close()
 
 	base := filepath.Base(f)
 	target := filepath.Join(d, base[:len(base)-len(filepath.Ext(base))])
 
-	zr, err := zlib.NewReader(gf)
+	zr, err := zlib.NewReader(zf)
 	if err != nil {
 		return fmt.Errorf("failed to create zlib reader: %w", err)
 	}
 	defer zr.Close()
 
-	ef, err := os.Create(target)
+	out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
 	if err != nil {
 		return fmt.Errorf("failed to create extracted file: %w", err)
 	}
-	defer ef.Close()
+	defer out.Close()
 
-	if _, err := io.Copy(ef, io.LimitReader(zr, maxBytes)); err != nil {
+	written, err := io.Copy(out, io.LimitReader(zr, maxBytes))
+	if err != nil {
 		return fmt.Errorf("failed to copy file: %w", err)
+	}
+	if written >= maxBytes {
+		return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
 	}
 
 	return nil
