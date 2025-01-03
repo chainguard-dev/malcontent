@@ -43,7 +43,6 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	logger := clog.FromContext(ctx)
 	logger = logger.With("path", path)
 
-	// For non-refresh scans, c.Rules will be nil
 	var yrs *yarax.Rules
 	var err error
 	if c.Rules == nil {
@@ -143,7 +142,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	return &fr, nil
 }
 
-// errIfMatch generates the right error if a match is encountered.
+// exitIfHitOrMiss generates the right error if a match is encountered.
 func exitIfHitOrMiss(frs *sync.Map, scanPath string, errIfHit bool, errIfMiss bool) (*malcontent.FileReport, error) {
 	var (
 		bList []string
