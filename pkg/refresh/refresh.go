@@ -140,9 +140,8 @@ func prepareRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 			if err != nil {
 				return nil, err
 			}
+			c.ScannerPool = pool
 		}
-
-		c.ScannerPool = pool
 
 		if strings.HasSuffix(data, ".mdiff") || strings.HasSuffix(data, ".sdiff") {
 			dirPath := filepath.Dir(sample)

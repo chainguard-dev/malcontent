@@ -85,9 +85,8 @@ func actionRefresh(ctx context.Context) ([]TestData, error) {
 			if err != nil {
 				return nil, err
 			}
+			c.ScannerPool = pool
 		}
-
-		c.ScannerPool = pool
 
 		testData = append(testData, TestData{
 			Config:     c,
