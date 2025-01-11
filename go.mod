@@ -13,7 +13,7 @@ require (
 	github.com/charmbracelet/lipgloss v1.0.0
 	github.com/egibs/go-debian v0.18.0
 	github.com/fatih/color v1.18.0
-	github.com/gabriel-vasile/mimetype v1.4.7
+	github.com/gabriel-vasile/mimetype v1.4.8
 	github.com/google/go-cmp v0.6.0
 	github.com/google/go-containerregistry v0.20.2
 	github.com/klauspost/compress v1.17.11
@@ -23,7 +23,7 @@ require (
 	github.com/urfave/cli/v2 v2.27.5
 	github.com/wk8/go-ordered-map/v2 v2.1.8
 	golang.org/x/sync v0.10.0
-	golang.org/x/term v0.27.0
+	golang.org/x/term v0.28.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -67,7 +67,7 @@ require (
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	golang.org/x/crypto v0.31.0 // indirect
 	golang.org/x/net v0.33.0 // indirect
-	golang.org/x/sys v0.28.0 // indirect
+	golang.org/x/sys v0.29.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
 	google.golang.org/protobuf v1.36.1 // indirect
 	pault.ag/go/topsort v0.1.1 // indirect
