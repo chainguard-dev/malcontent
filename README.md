@@ -121,20 +121,17 @@ Requirements:
 * [yara-x](https://virustotal.github.io/yara-x/) - the rule language
 * [pkgconf](http://pkgconf.org/) - required by Go to find C dependencies, included in many UNIX distributions
 
-`yara-x` requires an underlying C API to function. For Wolfi users, this can be installed by running `apk add yara-x-compat`.
+`yara-x` requires an underlying C API to function. To build and install the API, reference the documentation here for installation instructions: https://virustotal.github.io/yara-x/docs/api/c/c-/#building-the-c-library.
 
-For other devices, reference the documentation here for installation instructions: https://virustotal.github.io/yara-x/docs/api/c/c-/#building-the-c-library
+Running `cargo cinstall -p yara-x-capi --release` without `sudo` may encounter permission denied errors.
 
-Running `cargo cinstall -p yara-x-capi --release` may encounter permission denied errors. If this is the case, run the following:
+If this is the case, run the following:
+```sh
+sudo -E env "PATH=$PATH" $(which cargo) cinstall -p yara-x-capi --release
 ```
-cargo cinstall -p yara-x-capi --release --prefix=/tmp/yara-x
-```
-
-And then copy the resulting files from `/tmp/yara-x` to `/usr/local/lib` and `/usr/local/include` (or the preferred `PKG_CONFIG_PATH`/`LD_LIBRARY_PATH` location(s)).
 
 Install malcontent:
-
-```shell
+```sh
 go install github.com/chainguard-dev/malcontent/cmd/mal@latest
 ```
 
