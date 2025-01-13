@@ -121,7 +121,7 @@ Requirements:
 * [yara-x](https://virustotal.github.io/yara-x/) - the rule language
 * [pkgconf](http://pkgconf.org/) - required by Go to find C dependencies, included in many UNIX distributions
 
-`yara-x` requires an underlying C API to function. To build and install the API, reference the documentation here for installation instructions: https://virustotal.github.io/yara-x/docs/api/c/c-/#building-the-c-library.
+`yara-x` requires an underlying C API to function. To build and install the API, reference the documentation here: https://virustotal.github.io/yara-x/docs/api/c/c-/#building-the-c-library.
 
 Running `cargo cinstall -p yara-x-capi --release` without `sudo` may encounter permission denied errors.
 
