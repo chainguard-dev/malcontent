@@ -16,6 +16,7 @@ permissions:
 
 jobs:
   test:
+    if: ${{ github.repository }} == 'chainguard-dev/malcontent'
     runs-on: mal-ubuntu-latest-8-core
     container:
       image: cgr.dev/chainguard/wolfi-base@sha256:eeb70e74e2ac07d3c80a30150bf473970c8b51a57f06daef3e4d065ac52489bc
@@ -48,6 +49,7 @@ jobs:
           make test
 
   integration:
+    if: ${{ github.repository }} == 'chainguard-dev/malcontent'
     runs-on: mal-ubuntu-latest-8-core
     container:
       image: cgr.dev/chainguard/wolfi-base@sha256:eeb70e74e2ac07d3c80a30150bf473970c8b51a57f06daef3e4d065ac52489bc
