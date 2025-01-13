@@ -23,7 +23,6 @@ jobs:
         --cpu-shares=8192
         --memory-swappiness=0
         --security-opt no-new-privileges
-        --security-opt seccomp=default
         --ulimit core=0
         --ulimit nofile=1024:1024
         --ulimit nproc=4096:4096
