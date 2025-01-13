@@ -123,7 +123,7 @@ jobs:
         --cap-add SETUID
         --cap-drop ALL
         --cgroupns private
-        --cpu-shares=8192
+        --cpu-shares=4096
         --memory-swappiness=0
         --security-opt no-new-privileges
         --ulimit core=0
