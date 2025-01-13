@@ -17,7 +17,21 @@ permissions:
 jobs:
   test:
     runs-on: mal-ubuntu-latest-8-core
-    container: cgr.dev/chainguard/wolfi-base:latest
+    container:
+      image: cgr.dev/chainguard/wolfi-base@sha256:eeb70e74e2ac07d3c80a30150bf473970c8b51a57f06daef3e4d065ac52489bc
+      options: >-
+        --cap-add DAC_OVERRIDE
+        --cap-add SETGID
+        --cap-add SETUID
+        --cap-drop ALL
+        --cgroupns private
+        --cpu-shares=8192
+        --memory-swappiness=0
+        --security-opt no-new-privileges
+        --security-opt seccomp=default
+        --ulimit core=0
+        --ulimit nofile=1024:1024
+        --ulimit nproc=4096:4096
     steps:
       - name: Install dependencies
         run: |
@@ -36,7 +50,21 @@ jobs:
 
   integration:
     runs-on: mal-ubuntu-latest-8-core
-    container: cgr.dev/chainguard/wolfi-base:latest
+    container:
+      image: cgr.dev/chainguard/wolfi-base@sha256:eeb70e74e2ac07d3c80a30150bf473970c8b51a57f06daef3e4d065ac52489bc
+      options: >-
+        --cap-add DAC_OVERRIDE
+        --cap-add SETGID
+        --cap-add SETUID
+        --cap-drop ALL
+        --cgroupns private
+        --cpu-shares=8192
+        --memory-swappiness=0
+        --security-opt no-new-privileges
+        --security-opt seccomp=default
+        --ulimit core=0
+        --ulimit nofile=1024:1024
+        --ulimit nproc=4096:4096
     steps:
       - name: Install dependencies
         run: |
