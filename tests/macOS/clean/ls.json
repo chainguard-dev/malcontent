@@ -16,9 +16,9 @@
                 {
                     "Description": "binary contains hardcoded URL",
                     "MatchStrings": [
-                        "http://crl.apple.com/codesigning.crl0",
                         "http://www.apple.com/DTDs/PropertyList",
                         "http://www.apple.com/appleca/root.crl0",
+                        "http://crl.apple.com/codesigning.crl0",
                         "https://www.apple.com/appleca/0"
                     ],
                     "RiskScore": 1,

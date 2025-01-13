@@ -118,20 +118,20 @@ The analyze mode emits a list of capabilities often seen in malware, categorized
 Requirements:
 
 * [go](https://go.dev/) - the programming language
-* [yara](https://virustotal.github.io/yara/) - the rule language
+* [yara-x](https://virustotal.github.io/yara-x/) - the rule language
 * [pkgconf](http://pkgconf.org/) - required by Go to find C dependencies, included in many UNIX distributions
 
-Linux or macOS users can run the following command to install the necessary dependencies, other than Go:
+`yara-x` requires an underlying C API to function. To build and install the API, reference the documentation here: https://virustotal.github.io/yara-x/docs/api/c/c-/#building-the-c-library.
 
-```shell
-brew install yara || sudo apt install libyara-dev \
- || sudo dnf install yara-devel || sudo pacman -S yara \
- || sudo zypper install yara
+Running `cargo cinstall -p yara-x-capi --release` without `sudo` may encounter permission denied errors.
+
+If this is the case, run the following:
+```sh
+sudo -E env "PATH=$PATH" cargo cinstall -p yara-x-capi --release
 ```
 
 Install malcontent:
-
-```shell
+```sh
 go install github.com/chainguard-dev/malcontent/cmd/mal@latest
 ```
 

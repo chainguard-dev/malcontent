@@ -1,6 +1,7 @@
 # linux/clean/linux-sparc64.sh: medium
 c2/tool_transfer/shell: medium
 fs/directory/create: low
+fs/file/copy: medium
 fs/permission/modify: medium
 net/download/fetch: medium
 net/url/embedded: low

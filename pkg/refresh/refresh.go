@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 
@@ -71,6 +72,7 @@ func discoverTestData(rc Config) (map[string]string, error) {
 // newConfig returns a new malcontent Config with parent configurations.
 func newConfig(rc Config) *malcontent.Config {
 	return &malcontent.Config{
+		Concurrency:           runtime.NumCPU(),
 		IgnoreTags:            []string{"harmless"},
 		MinFileRisk:           1,
 		MinRisk:               1,
@@ -132,6 +134,15 @@ func prepareRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 		c.Renderer = r
 		c.Rules = yrs
 
+		var pool *malcontent.ScannerPool
+		if c.ScannerPool == nil {
+			pool, err = malcontent.NewScannerPool(yrs, c.Concurrency)
+			if err != nil {
+				return nil, err
+			}
+			c.ScannerPool = pool
+		}
+
 		if strings.HasSuffix(data, ".mdiff") || strings.HasSuffix(data, ".sdiff") {
 			dirPath := filepath.Dir(sample)
 			files, err := os.ReadDir(dirPath)
@@ -180,8 +191,6 @@ func executeRefresh(ctx context.Context, testData []TestData) error {
 			case <-ctx.Done():
 				return ctx.Err()
 			default:
-				defer mu.Unlock()
-
 				var err error
 				var res *malcontent.Report
 
@@ -200,6 +209,7 @@ func executeRefresh(ctx context.Context, testData []TestData) error {
 				}
 
 				mu.Lock()
+				defer mu.Unlock()
 				completed++
 				fmt.Printf("\rSample data refreshed: %d/%d (progress/total)", completed, total)
 

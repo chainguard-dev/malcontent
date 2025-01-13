@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"runtime"
 
 	"github.com/chainguard-dev/malcontent/pkg/action"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
@@ -192,6 +193,7 @@ func diffRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 		}
 
 		c := &malcontent.Config{
+			Concurrency:           runtime.NumCPU(),
 			FileRiskChange:        td.riskChange,
 			FileRiskIncrease:      td.riskIncrease,
 			MinFileRisk:           minFileRisk,
@@ -201,6 +203,15 @@ func diffRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 			Rules:                 yrs,
 			ScanPaths:             []string{src, dest},
 			TrimPrefixes:          []string{rc.SamplesPath},
+		}
+
+		var pool *malcontent.ScannerPool
+		if c.ScannerPool == nil {
+			pool, err = malcontent.NewScannerPool(yrs, c.Concurrency)
+			if err != nil {
+				return nil, err
+			}
+			c.ScannerPool = pool
 		}
 
 		testData = append(testData, TestData{

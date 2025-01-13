@@ -4,5 +4,6 @@ evasion/self_deletion/run_and_delete: critical
 exec/shell/exec: medium
 exec/shell/ignore_output: medium
 exec/shell/nohup: medium
+fs/file/copy: medium
 fs/file/delete_forcibly: medium
 process/chdir: low

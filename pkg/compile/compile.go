@@ -8,11 +8,13 @@ import (
 	"fmt"
 	"io/fs"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/rules"
-	"github.com/hillu/go-yara/v4"
+
+	yarax "github.com/VirusTotal/yara-x/go"
 )
 
 var FS = rules.FS
@@ -69,6 +71,9 @@ var badRules = map[string]bool{
 	"malware_shellcode_hash": true,
 	// bartblaze
 	"Rclone": true,
+	// Rules that are incompatible with yara-x (unescaped braces in regex strings)
+	"RTF_Header_Obfuscation":    true,
+	"RTF_File_Malformed_Header": true,
 }
 
 // rulesWithWarnings determines what to do with rules that have known warnings: true=keep, false=disable.
@@ -115,12 +120,51 @@ var rulesWithWarnings = map[string]bool{
 	"hardcoded_host_port_over_10k":          true,
 }
 
-func Recursive(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {
-	logger := clog.FromContext(ctx)
-	yc, err := yara.NewCompiler()
-	if err != nil {
-		return nil, fmt.Errorf("yara compiler: %w", err)
+var (
+	rulePattern    = regexp.MustCompile(`(?sm)^\s*rule\s+(%s)\s*(?::\s*[^\n{]+)?\s*{.*?^\s*}\s*$`)
+	newlinePattern = regexp.MustCompile(`\n{3,}`)
+)
+
+// getRulesToRemove returns a consolidated list of rules to remove from a rule string.
+func getRulesToRemove() []string {
+	rr := make([]string, 0)
+	// Add rules from badRules map that are marked true
+	for rule, remove := range badRules {
+		if remove {
+			rr = append(rr, rule)
+		}
 	}
+	// Add rules from rulesWithWarnings map that are marked false
+	for rule, keep := range rulesWithWarnings {
+		if !keep {
+			rr = append(rr, rule)
+		}
+	}
+	return rr
+}
+
+// removeRules removes rule matches from the file data.
+func removeRules(data []byte, rulesToRemove []string) []byte {
+	modified := data
+	ruleNames := make([]string, len(rulesToRemove))
+	for i, name := range rulesToRemove {
+		ruleNames[i] = regexp.QuoteMeta(name)
+	}
+	pattern := regexp.MustCompile(fmt.Sprintf(
+		rulePattern.String(),
+		strings.Join(ruleNames, "|"),
+	))
+	modified = pattern.ReplaceAll(modified, []byte{})
+	return newlinePattern.ReplaceAll(modified, []byte("\n\n"))
+}
+
+func Recursive(ctx context.Context, fss []fs.FS) (*yarax.Rules, error) {
+	yxc, err := yarax.NewCompiler()
+	if err != nil {
+		return nil, fmt.Errorf("yarax compiler: %w", err)
+	}
+
+	rulesToRemove := getRulesToRemove()
 
 	for _, root := range fss {
 		err = fs.WalkDir(root, ".", func(path string, d fs.DirEntry, err error) error {
@@ -134,7 +178,10 @@ func Recursive(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {
 					return fmt.Errorf("readfile: %w", err)
 				}
 
-				if err := yc.AddString(string(bs), path); err != nil {
+				bs = removeRules(bs, rulesToRemove)
+
+				yxc.NewNamespace(path)
+				if err := yxc.AddSource(string(bs), yarax.WithOrigin(path)); err != nil {
 					return fmt.Errorf("failed to parse %s: %v", path, err)
 				}
 			}
@@ -150,56 +197,17 @@ func Recursive(ctx context.Context, fss []fs.FS) (*yara.Rules, error) {
 		return nil, err
 	}
 
-	warnings := map[string]string{}
-	for _, ycw := range yc.Warnings {
-		clog.WarnContextf(ctx, "warning in %s line %d: %s", ycw.Filename, ycw.Line, ycw.Text)
-		if ycw.Rule == "" {
-			continue
-		}
-		parts := strings.Split(ycw.Rule, ".")
-		id := parts[len(parts)-1]
-		warnings[id] = ycw.Text
-	}
-
 	errors := []string{}
-	for _, yce := range yc.Errors {
-		logger.With("line", yce.Line, "filename", yce.Filename).Errorf("error: %s", yce.Text)
-		if yce.Rule != "" {
-			logger.With("rule", yce.Rule).Error("defective rule")
-		}
+	for _, yce := range yxc.Errors() {
+		clog.ErrorContext(ctx, "error", yce.Error())
 		errors = append(errors, yce.Text)
 	}
+
 	if len(errors) > 0 {
 		return nil, fmt.Errorf("compile errors encountered: %v", errors)
 	}
 
-	rs, err := yc.GetRules()
-	if err != nil {
-		return nil, err
-	}
-	for _, r := range rs.GetRules() {
-		id := r.Identifier()
-		if badRules[id] {
-			r.Disable()
-		}
+	yrs := yxc.Build()
 
-		warning := warnings[id]
-		if warning == "" {
-			continue
-		}
-
-		// use rule name instead of filename to lower maintenance in the face of renames
-		keep, known := rulesWithWarnings[id]
-		if keep {
-			continue
-		}
-		if !known {
-			logger.With("namespace", r.Namespace(), "id", id).Errorf("disabled due to unexpected warning: %s", warnings[id])
-		} else {
-			logger.With("namespace", r.Namespace(), "id", id).Infof("disabled due to expected warning: %s", warnings[id])
-		}
-		r.Disable()
-	}
-
-	return rs, nil
+	return yrs, nil
 }

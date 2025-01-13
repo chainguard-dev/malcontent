@@ -8,16 +8,16 @@
                 {
                     "Description": "Stealer targeted macOS and Windows for Lazarus",
                     "MatchStrings": [
-                        "%1_%2_%3_%4_%5",
-                        "/.pyp/python.exe",
-                        "/AppData/Local/BraveSoftware/Brave-Browser/User Data",
                         "/Library/Application Support/BraveSoftware/Brave-Browser",
+                        "/AppData/Local/BraveSoftware/Brave-Browser/User Data",
                         "/Library/Application Support/com.operasoftware.opera",
+                        "boundary=---------------------------99614912995",
+                        "form-data; name=\"multi_file\"; filename=\"%1\"",
                         "Download Client Success!",
                         "Download Python Success!",
                         "Upload LDB Finshed!!!",
-                        "boundary=---------------------------99614912995",
-                        "form-data; name=\"multi_file\"; filename=\"%1\""
+                        "/.pyp/python.exe",
+                        "%1_%2_%3_%4_%5"
                     ],
                     "RiskScore": 4,
                     "RiskLevel": "CRITICAL",
@@ -95,14 +95,14 @@
                 {
                     "Description": "Makes references to multiple browser credentials",
                     "MatchStrings": [
-                        ".config",
                         "Application Support",
-                        "Brave-Browser",
-                        "BraveSoftw",
                         "Chrome/User Data",
-                        "Google/Chrome",
                         "Opera Software",
-                        "Roaming/"
+                        "Brave-Browser",
+                        "Google/Chrome",
+                        "BraveSoftw",
+                        "Roaming/",
+                        ".config"
                     ],
                     "RiskScore": 3,
                     "RiskLevel": "HIGH",
@@ -113,19 +113,19 @@
                 {
                     "Description": "makes HTTPS connections and references multiple Chrome crypto wallet extensions",
                     "MatchStrings": [
-                        "aeachknmefph",
-                        "bfnaelmomeimh",
-                        "ebolmdjonilk",
-                        "ejbalbakoplch",
+                        "mccdpekplomjjkc",
                         "fhbohimaelbohp",
                         "gpafnldhgmapag",
+                        "bfnaelmomeimh",
+                        "ejbalbakoplch",
                         "hnfanknocfeof",
-                        "http",
                         "ibnejdfjmmkpc",
-                        "mccdpekplomjjkc",
                         "mihkjbmgjidlc",
+                        "ohmabehhmhfoo",
+                        "aeachknmefph",
+                        "ebolmdjonilk",
                         "nkbihfbeogae",
-                        "ohmabehhmhfoo"
+                        "http"
                     ],
                     "RiskScore": 4,
                     "RiskLevel": "CRITICAL",
@@ -149,19 +149,19 @@
                 {
                     "Description": "Beaver Tail Infostealer",
                     "MatchStrings": [
-                        "%1_%2_%3_%4_%5",
-                        "*.ldb",
-                        "/.pyp/python.exe",
-                        "/client/99",
-                        "/pdown",
-                        "/uploads",
                         "Download Python Success!",
                         "Upload LDB Finshed",
                         "clientDownFinished",
-                        "logkc_db",
                         "name=\"multi_file\"",
+                        "/.pyp/python.exe",
+                        "%1_%2_%3_%4_%5",
                         "pDownFinished",
-                        "upLDBFinished"
+                        "upLDBFinished",
+                        "/client/99",
+                        "/uploads",
+                        "logkc_db",
+                        "/pdown",
+                        "*.ldb"
                     ],
                     "RiskScore": 4,
                     "RiskLevel": "CRITICAL",

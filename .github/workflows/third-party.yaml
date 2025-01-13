@@ -12,14 +12,29 @@ jobs:
   update:
     if: ${{ github.repository }} == 'chainguard-dev/malcontent'
     runs-on: mal-ubuntu-latest-8-core
+    container:
+      image: cgr.dev/chainguard/wolfi-base@sha256:eeb70e74e2ac07d3c80a30150bf473970c8b51a57f06daef3e4d065ac52489bc
+      options: >-
+        --cap-add DAC_OVERRIDE
+        --cap-add SETGID
+        --cap-add SETUID
+        --cap-drop ALL
+        --cgroupns private
+        --cpu-shares=8192
+        --memory-swappiness=0
+        --security-opt no-new-privileges
+        --ulimit core=0
+        --ulimit nofile=1024:1024
+        --ulimit nproc=4096:4096
     permissions:
       contents: write
       id-token: write
       pull-requests: write
     steps:
-      - uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f
-        with:
-          egress-policy: audit
+      - name: Install dependencies
+        run: |
+          apk update
+          apk add bash curl findutils gh git go nodejs upx xz yara-x-compat
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - uses: chainguard-dev/actions/setup-gitsign@e82b4e5ae10182af72972addcb3fedf7454621c8
       - name: Set up Octo-STS
@@ -28,9 +43,7 @@ jobs:
         with:
           scope: chainguard-dev/malcontent
           identity: third-party
-      - name: Install yara and libyara-dev
-        run: |
-          sudo apt update && sudo apt install yara libyara-dev -y
+
       - name: Run make update-third-party
         run: |
           make update-third-party
