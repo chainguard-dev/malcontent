@@ -127,7 +127,7 @@ Running `cargo cinstall -p yara-x-capi --release` without `sudo` may encounter p
 
 If this is the case, run the following:
 ```sh
-sudo -E env "PATH=$PATH" $(which cargo) cinstall -p yara-x-capi --release
+sudo -E env "PATH=$PATH" cargo cinstall -p yara-x-capi --release
 ```
 
 Install malcontent:
