@@ -1,0 +1,8 @@
+# linux/clean/TEST-07-PID1.main-PID-change.sh: medium
+evasion/file/location/dev_shm: medium
+exec/system_controls/systemd: medium
+fs/file/make_executable: medium
+fs/path/tmp: medium
+fs/path/usr_bin: low
+fs/permission/modify: medium
+fs/watch: low

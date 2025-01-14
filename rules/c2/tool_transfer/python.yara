@@ -129,6 +129,9 @@ private rule tool_transfer_pythonSetup {
     $not_distutils     = "from distutils.errors import"
     $not_dir           = "dist-packages/setuptools"
     $not_fetch         = "fetch_distribution"
+    $not_hopper1       = "PACKAGE_NAME = \"flashattn-hopper\""
+    $not_hopper2       = "check_if_cuda_home_none(\"--fahopper\")"
+    $not_hopper3       = "name=\"flashattn_hopper_cuda\","
 
   condition:
     filesize < 128KB and $setup and any of ($i*) and none of ($not*)
@@ -146,8 +149,13 @@ rule setuptools_fetch_run: critical {
   meta:
     description = "setuptools script that fetches and executes"
 
+  strings:
+    $not_hopper1 = "PACKAGE_NAME = \"flashattn-hopper\""
+    $not_hopper2 = "check_if_cuda_home_none(\"--fahopper\")"
+    $not_hopper3 = "name=\"flashattn_hopper_cuda\","
+
   condition:
-    setuptools_fetcher and py_runner
+    setuptools_fetcher and py_runner and none of ($not*)
 }
 
 rule setuptools_dropper: critical {

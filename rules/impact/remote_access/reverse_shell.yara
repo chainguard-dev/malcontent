@@ -56,8 +56,13 @@ rule perl_reverse_shell: critical {
     $redir_single = "'>&"
     $sh_i         = "sh -i"
 
+    $not_yarn1 = "If the package is not specified, Yarn will default to the current workspace."
+    $not_yarn2 = "yarn npm"
+    $not_yarn3 = "@yarnpkg"
+    $not_yarn4 = "YARN_"
+
   condition:
-    $socket and $open and any of ($redir*) and $sh_i
+    $socket and $open and any of ($redir*) and $sh_i and none of ($not*)
 }
 
 rule go_reverse_shell: high {

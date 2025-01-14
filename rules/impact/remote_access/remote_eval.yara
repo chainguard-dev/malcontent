@@ -15,8 +15,11 @@ rule remote_eval: critical {
     $eval_urllib         = /eval\(urllib\.urlopen\([\(\)\"\'\-\w:\/\.]{0,64}\).read\(\)/
     $exec_urllib         = /exec\(urllib\.urlopen\([\(\)\"\'\-\w:\/\.]{0,64}\).read\(\)/
 
+    $not_open_clip1 = "class ResampledShards2(IterableDataset)"
+    $not_open_clip2 = "class SyntheticDataset(Dataset)"
+
   condition:
-    filesize < 65535 and $http and any of ($e*)
+    filesize < 65535 and $http and any of ($e*) and none of ($not*)
 }
 
 rule remote_eval_close: high {
@@ -117,4 +120,3 @@ rule java_http_replacement_class: high java {
   condition:
     all of them
 }
-
