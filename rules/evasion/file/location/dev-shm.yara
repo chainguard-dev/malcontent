@@ -25,13 +25,21 @@ rule dev_shm_file: high linux {
     description = "reference file within /dev/shm (world writeable)"
 
   strings:
-    $ref           = /\/dev\/shm\/[\w\.\-\/]{2,64}/ fullword
-    $not_c         = "/dev/shm/%s"
-    $not_shmem     = "shmem" fullword
-    $not_shm_pages = "shm_pages"
-    $not_wasm      = "FS.mkdir(\"/dev/shm/tmp\")"
-    $not_auxfs     = "/dev/shm/aufs"
-    $not_journal   = "/dev/shm/journal"
+    $ref               = /\/dev\/shm\/[\w\.\-\/]{2,64}/ fullword
+    $not_c             = "/dev/shm/%s"
+    $not_shmem         = "shmem" fullword
+    $not_shm_pages     = "shm_pages"
+    $not_wasm          = "FS.mkdir(\"/dev/shm/tmp\")"
+    $not_auxfs         = "/dev/shm/aufs"
+    $not_journal       = "/dev/shm/journal"
+    $not_systemd_test1 = "# Let's try to play games, and link up a privileged PID file"
+    $not_systemd_test2 = "ln -s ../mainpidsh/pid /run/mainpidsh3/pid"
+    $not_systemd_test3 = "/dev/shm/test-mainpid3.sh"
+    $not_yarn1         = "If the package is not specified, Yarn will default to the current workspace."
+    $not_yarn2         = "yarn npm"
+    $not_yarn3         = "@yarnpkg"
+    $not_yarn4         = "YARN_"
+    $not_yarn5         = "b.mkdir(\"/dev/shm/tmp\")"
 
   condition:
     $ref and none of ($not*) and not dev_shm_mkstemp

@@ -1,4 +1,4 @@
-# javascript/clean/yarn-3.8.7.cjs: high
+# javascript/clean/yarn-3.8.7.cjs: medium
 anti-static/obfuscation/bitwise: medium
 anti-static/obfuscation/hex: medium
 anti-static/obfuscation/js: medium
@@ -25,7 +25,7 @@ discover/system/platform: medium
 discover/user/USER: low
 discover/user/USERPROFILE: low
 discover/user/name_get: medium
-evasion/file/location/dev_shm: high
+evasion/file/location/dev_shm: medium
 exec/plugin: low
 exec/program: medium
 exec/shell/TERM: low

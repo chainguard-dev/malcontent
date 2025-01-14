@@ -13,6 +13,10 @@ private rule remote_access_pythonSetup {
     $not_setup_quoted  = "\"setup(name="
     $not_distutils     = "from distutils.errors import"
 
+    $not_hopper1 = "PACKAGE_NAME = \"flashattn-hopper\""
+    $not_hopper2 = "check_if_cuda_home_none(\"--fahopper\")"
+    $not_hopper3 = "name=\"flashattn_hopper_cuda\","
+
   condition:
     filesize < 128KB and $setup and any of ($i*) in (0..1024) and none of ($not*)
 }
@@ -200,4 +204,3 @@ rule setuptools_excessive_bitwise_math: critical {
   condition:
     remote_access_pythonSetup and #x > 20
 }
-
