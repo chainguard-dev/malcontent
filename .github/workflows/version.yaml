@@ -79,11 +79,13 @@ jobs:
         git add ${{ env.VERSION_FILE }}
         git commit -m "Bump malcontent version to $VERSION"
         git push origin "$BRANCH"
-
+        
+        echo "BRANCH=$BRANCH" >> $GITHUB_OUTPUT
         echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
     - name: Create Pull Request
       env:
         GH_TOKEN: ${{ steps.octo-sts.outputs.token }}
       run: |
+        BRANCH=${{ steps.update.outputs.BRANCH }}
         VERSION=${{ steps.update.outputs.VERSION }}
-        gh pr create -t "Update malcontent to $VERSION" -b "PR to update the version in ${{ env.VERSION_FILE }} to $VERSION" -B main
+        gh pr create -t "Update malcontent to $VERSION" -b "PR to update the version in ${{ env.VERSION_FILE }} to $VERSION" -B main -H "$BRANCH"
