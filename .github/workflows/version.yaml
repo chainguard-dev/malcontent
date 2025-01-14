@@ -80,8 +80,8 @@ jobs:
         git commit -m "Bump malcontent version to $VERSION"
         git push origin "$BRANCH"
         
-        echo "BRANCH=$BRANCH" >> $GITHUB_OUTPUT
-        echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+        echo "BRANCH=$BRANCH" >> "$GITHUB_OUTPUT"
+        echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
     - name: Create Pull Request
       env:
         GH_TOKEN: ${{ steps.octo-sts.outputs.token }}
