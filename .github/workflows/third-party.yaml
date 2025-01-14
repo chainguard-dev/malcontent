@@ -59,10 +59,11 @@ jobs:
           if [[ -n $(git status -s) ]]; then
             DATE=$(date +%F)
             BRANCH="third-party-rule-update-${DATE}"
-            git checkout -b $BRANCH
+            git checkout -b "$BRANCH"
             git add .
             git commit -m "Update third-party rules as of ${DATE}"
-            git push origin $BRANCH
+            git push origin "$BRANCH"
 
             gh pr create -t "Update third-party rules as of ${DATE}" -b "${DATE} third-party rule update for malcontent." -B main
           fi
+        shell: bash
