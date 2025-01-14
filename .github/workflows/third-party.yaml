@@ -64,6 +64,6 @@ jobs:
             git commit -m "Update third-party rules as of ${DATE}"
             git push origin "$BRANCH"
 
-            gh pr create -t "Update third-party rules as of ${DATE}" -b "${DATE} third-party rule update for malcontent." -B main
+            gh pr create -t "Update third-party rules as of ${DATE}" -b "${DATE} third-party rule update for malcontent." -B main -H "$BRANCH"
           fi
         shell: bash
