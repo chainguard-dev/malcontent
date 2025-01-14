@@ -75,10 +75,10 @@ jobs:
         sed -i "s/ID string = \"v[0-9]*\.[0-9]*\.[0-9]*\"/ID string = \"${VERSION}\"/" ${{ env.VERSION_FILE }}
 
         BRANCH="malcontent-version-bump-$VERSION"
-        git checkout -b $BRANCH
+        git checkout -b "$BRANCH"
         git add ${{ env.VERSION_FILE }}
         git commit -m "Bump malcontent version to $VERSION"
-        git push origin $BRANCH
+        git push origin "$BRANCH"
 
         echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
     - name: Create Pull Request
