@@ -34,7 +34,7 @@ jobs:
       - name: Install dependencies
         run: |
           apk update
-          apk add bash curl findutils gh git go nodejs upx xz yara-x-compat
+          apk add bash curl findutils gh git go nodejs perl upx xz yara-x-compat
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - uses: chainguard-dev/actions/setup-gitsign@e82b4e5ae10182af72972addcb3fedf7454621c8
       - name: Set up Octo-STS
