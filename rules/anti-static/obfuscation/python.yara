@@ -349,8 +349,11 @@ rule rename_base64: critical {
   strings:
     $ref = /import base64 as \w{0,64}/
 
+    $not_open_clip1 = "class ResampledShards2(IterableDataset)"
+    $not_open_clip2 = "class SyntheticDataset(Dataset)"
+
   condition:
-    filesize < 10MB and all of them
+    filesize < 10MB and all of them and none of ($not*)
 }
 
 rule rename_zlib: high {

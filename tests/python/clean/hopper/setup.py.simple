@@ -1,0 +1,16 @@
+# python/clean/hopper/setup.py: critical
+c2/tool_transfer/arch: low
+c2/tool_transfer/download: medium
+c2/tool_transfer/python: high
+discover/system/platform: medium
+discover/user/HOME: low
+exec/imports/python: low
+exec/program: medium
+fs/directory/create: low
+fs/file/exists: low
+fs/file/open: low
+impact/remote_access/py_setuptools: high
+net/url/embedded: low
+net/url/parse: low
+net/url/request: medium
+os/fd/read: low

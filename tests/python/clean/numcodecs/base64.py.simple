@@ -1,0 +1,5 @@
+# python/clean/numcodecs/base64.py: medium
+data/base64/decode: medium
+data/base64/encode: medium
+data/encoding/base64: low
+exec/imports/python: low

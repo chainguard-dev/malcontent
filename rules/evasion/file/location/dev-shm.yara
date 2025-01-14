@@ -44,7 +44,11 @@ rule dev_shm_sh: critical linux {
   strings:
     $ref = /\/dev\/shm\/[\%\w\.\-\/]{0,64}\.sh/
 
-  condition:
-    any of them
-}
+    $not_systemd       = "systemd-run"
+    $not_systemd_test1 = "chmod 755 /dev/shm/test-mainpid3.sh"
+    $not_systemd_test2 = "# This has to fail, as we shouldn't accept the dangerous PID file, and then"
+    $not_systemd_test3 = "# inotify-wait on it to be corrected which we never do."
 
+  condition:
+    any of them and none of ($not*)
+}

@@ -37,6 +37,9 @@ rule common_username_block_list: critical {
     $ = "test" fullword
     $ = "w0fjuOVmCcP5A" fullword
 
+    $not_redpanda  = "redpanda"
+    $not_wireshark = "wireshark.org"
+
   condition:
-    8 of them
+    8 of them and none of ($not*)
 }
