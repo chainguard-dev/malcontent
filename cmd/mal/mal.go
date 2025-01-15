@@ -63,6 +63,7 @@ var (
 	outputFlag                string
 	profileFlag               bool
 	quantityIncreasesRiskFlag bool
+	scannersFlag              int
 	statsFlag                 bool
 	thirdPartyFlag            bool
 	verboseFlag               bool
@@ -92,7 +93,7 @@ func showError(err error) {
 	fmt.Fprintf(os.Stderr, "%s %s\n", emoji, err.Error())
 }
 
-//nolint:cyclop // ignore complexity of 40
+//nolint:cyclop,gocognit // ignore complexity of 40,100
 func main() {
 	returnCode := ExitOK
 	defer func() { os.Exit(returnCode) }()
@@ -249,9 +250,14 @@ func main() {
 				concurrency = 1
 			}
 
+			maxScanners := scannersFlag
+			if maxScanners > concurrency {
+				maxScanners = concurrency
+			}
+
 			var pool *malcontent.ScannerPool
 			if mc.ScannerPool == nil {
-				pool, err = malcontent.NewScannerPool(yrs, concurrency)
+				pool, err = malcontent.NewScannerPool(yrs, maxScanners)
 				if err != nil {
 					returnCode = ExitInvalidRules
 				}
@@ -264,6 +270,7 @@ func main() {
 				IgnoreSelf:            ignoreSelfFlag,
 				IgnoreTags:            ignoreTags,
 				IncludeDataFiles:      includeDataFiles,
+				MaxScanners:           maxScanners,
 				MinFileRisk:           minFileRisk,
 				MinRisk:               minRisk,
 				OCI:                   ociFlag,
@@ -371,6 +378,12 @@ func main() {
 				Value:       true,
 				Usage:       "Increase file risk score based on behavior quantity",
 				Destination: &quantityIncreasesRiskFlag,
+			},
+			&cli.IntFlag{
+				Name:        "scanners",
+				Value:       runtime.NumCPU(),
+				Usage:       "Number of scanners to create",
+				Destination: &scannersFlag,
 			},
 			&cli.BoolFlag{
 				Name:        "stats",
