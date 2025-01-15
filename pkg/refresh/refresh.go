@@ -74,6 +74,7 @@ func newConfig(rc Config) *malcontent.Config {
 	return &malcontent.Config{
 		Concurrency:           runtime.NumCPU(),
 		IgnoreTags:            []string{"harmless"},
+		MaxScanners:           runtime.NumCPU(),
 		MinFileRisk:           1,
 		MinRisk:               1,
 		QuantityIncreasesRisk: true,

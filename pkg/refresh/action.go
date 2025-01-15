@@ -69,6 +69,7 @@ func actionRefresh(ctx context.Context) ([]TestData, error) {
 		c := &malcontent.Config{
 			Concurrency:           runtime.NumCPU(),
 			IgnoreSelf:            false,
+			MaxScanners:           runtime.NumCPU(),
 			MinFileRisk:           0,
 			MinRisk:               0,
 			OCI:                   false,
@@ -81,7 +82,7 @@ func actionRefresh(ctx context.Context) ([]TestData, error) {
 
 		var pool *malcontent.ScannerPool
 		if c.ScannerPool == nil {
-			pool, err = malcontent.NewScannerPool(yrs, c.Concurrency)
+			pool, err = malcontent.NewScannerPool(yrs, c.MaxScanners)
 			if err != nil {
 				return nil, err
 			}
