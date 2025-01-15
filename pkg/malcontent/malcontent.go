@@ -216,9 +216,9 @@ func (p *ScannerPool) validateScanner(scanner *yarax.Scanner) error {
 	if scanner == nil {
 		return fmt.Errorf("nil scanner")
 	}
-	testScanner := yarax.NewScanner(p.rules)
-	if testScanner == nil {
-		return fmt.Errorf("failed to create initial scanner")
+	_, err := scanner.Scan([]byte("test"))
+	if err != nil {
+		return fmt.Errorf("scanner validation failed: %w", err)
 	}
 	return nil
 }
