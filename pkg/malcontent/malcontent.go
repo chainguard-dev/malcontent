@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"runtime"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -165,7 +166,7 @@ func NewScannerPool(rules *yarax.Rules, maxScanners int) (*ScannerPool, error) {
 		return nil, fmt.Errorf("rules cannot be nil")
 	}
 	if maxScanners < 1 {
-		maxScanners = 1
+		maxScanners = max(1, runtime.GOMAXPROCS(0)/2)
 	}
 
 	// #nosec G115 // ignore converting int to int32
@@ -175,6 +176,8 @@ func NewScannerPool(rules *yarax.Rules, maxScanners int) (*ScannerPool, error) {
 		maxScanners: int32(maxScanners),
 		scanners:    make([]*yarax.Scanner, 0, maxScanners),
 	}
+
+	pool.closed.Store(false)
 
 	// Create a subset of the maximum number of scanners to avoid contention
 	initialScanners := maxScanners/2 + 1
@@ -194,6 +197,10 @@ func NewScannerPool(rules *yarax.Rules, maxScanners int) (*ScannerPool, error) {
 
 // createScanner creates a new yarax scanner.
 func (p *ScannerPool) createScanner() (*yarax.Scanner, error) {
+	if atomic.LoadInt32(&p.currentCount) > p.maxScanners/2 {
+		runtime.GC()
+	}
+
 	if p.rules == nil {
 		return nil, fmt.Errorf("rules not initialized")
 	}
@@ -275,9 +282,14 @@ func (p *ScannerPool) Put(scanner *yarax.Scanner) {
 	case p.available <- scanner:
 	default:
 		p.mu.Lock()
+		defer func() {
+			p.mu.Unlock()
+			if atomic.LoadInt32(&p.currentCount) > p.maxScanners/2 {
+				runtime.GC()
+			}
+		}()
 		scanner.Destroy()
 		atomic.AddInt32(&p.currentCount, -1)
-		p.mu.Unlock()
 	}
 }
 

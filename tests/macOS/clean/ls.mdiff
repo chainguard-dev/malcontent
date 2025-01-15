@@ -4,7 +4,7 @@
 
 | RISK | KEY | DESCRIPTION | EVIDENCE |
 |--|--|--|--|
-| +LOW | **[fs/directory/traverse](https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/directory/directory-traverse.yara#fts)** | traverse filesystem hierarchy | [_fts_children](https://github.com/search?q=_fts_children&type=code)<br>[_fts_close](https://github.com/search?q=_fts_close&type=code)<br>[_fts_open](https://github.com/search?q=_fts_open&type=code)<br>[_fts_read](https://github.com/search?q=_fts_read&type=code)<br>[_fts_set](https://github.com/search?q=_fts_set&type=code) |
+| +LOW | **[fs/directory/traverse](https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/directory/directory-traverse.yara#fts)** | traverse filesystem hierarchy | [_fts_children](https://github.com/search?q=_fts_children&type=code)<br>[_fts_close](https://github.com/search?q=_fts_close&type=code)<br>[_fts_read](https://github.com/search?q=_fts_read&type=code)<br>[_fts_open](https://github.com/search?q=_fts_open&type=code)<br>[_fts_set](https://github.com/search?q=_fts_set&type=code) |
 
 ### 5 removed behaviors
 

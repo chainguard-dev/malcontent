@@ -13,8 +13,8 @@
                         "/Library/Application Support/com.operasoftware.opera",
                         "boundary=---------------------------99614912995",
                         "form-data; name=\"multi_file\"; filename=\"%1\"",
-                        "Download Client Success!",
                         "Download Python Success!",
+                        "Download Client Success!",
                         "Upload LDB Finshed!!!",
                         "/.pyp/python.exe",
                         "%1_%2_%3_%4_%5"
@@ -114,17 +114,17 @@
                     "Description": "makes HTTPS connections and references multiple Chrome crypto wallet extensions",
                     "MatchStrings": [
                         "mccdpekplomjjkc",
-                        "fhbohimaelbohp",
                         "gpafnldhgmapag",
-                        "bfnaelmomeimh",
+                        "fhbohimaelbohp",
                         "ejbalbakoplch",
                         "hnfanknocfeof",
                         "ibnejdfjmmkpc",
-                        "mihkjbmgjidlc",
+                        "bfnaelmomeimh",
                         "ohmabehhmhfoo",
+                        "mihkjbmgjidlc",
                         "aeachknmefph",
-                        "ebolmdjonilk",
                         "nkbihfbeogae",
+                        "ebolmdjonilk",
                         "http"
                     ],
                     "RiskScore": 4,
@@ -173,8 +173,8 @@
                 {
                     "Description": "download files",
                     "MatchStrings": [
-                        "Download Client Success",
-                        "Download Python Success"
+                        "Download Python Success",
+                        "Download Client Success"
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",

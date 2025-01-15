@@ -237,17 +237,28 @@ func behaviorRisk(ns string, rule string, tags []string) int {
 }
 
 func longestUnique(raw []string) []string {
-	longest := make([]string, 0, len(raw))
-	seen := make(map[string]bool, len(raw))
+	if len(raw) <= 1 {
+		return raw
+	}
 
-	sort.Slice(raw, func(i, j int) bool {
-		return len(raw[i]) > len(raw[j])
+	safe := make([]string, len(raw))
+	copy(safe, raw)
+
+	// Sort by length first (descending)
+	sort.Slice(safe, func(i, j int) bool {
+		return len(safe[i]) > len(safe[j])
 	})
 
-	for _, s := range raw {
+	longest := make([]string, 0, len(safe))
+	seen := make(map[string]bool, len(safe))
+
+	// Since we sorted by length, longest strings come first
+	// This ensures we keep the longest strings that contain shorter ones
+	for _, s := range safe {
 		if s == "" || seen[s] {
 			continue
 		}
+
 		isLongest := true
 		for _, o := range longest {
 			if strings.Contains(o, s) {
@@ -260,6 +271,7 @@ func longestUnique(raw []string) []string {
 			seen[s] = true
 		}
 	}
+
 	return longest
 }
 
@@ -287,20 +299,19 @@ func matchStrings(ruleName string, ms []string) []string {
 		return nil
 	}
 
-	raw := make([]string, 0, len(ms))
-	for _, m := range ms {
+	// Create a thread-safe copy of the input
+	safe := make([]string, len(ms))
+	copy(safe, ms)
+
+	raw := make([]string, 0, len(safe))
+
+	// Process strings while keeping thread safety
+	for _, m := range safe {
 		str := matchToString(ruleName, m)
 		if str != "" {
 			raw = append(raw, str)
 		}
 	}
-
-	sort.Slice(raw, func(i, j int) bool {
-		if len(raw[i]) != len(raw[j]) {
-			return len(raw[i]) > len(raw[j])
-		}
-		return raw[i] < raw[j]
-	})
 
 	return longestUnique(raw)
 }

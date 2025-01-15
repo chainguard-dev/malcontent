@@ -103,12 +103,12 @@ out/$(SAMPLES_REPO)/.decompressed-$(SAMPLES_COMMIT): out/${SAMPLES_REPO}/.git/co
 # unit tests only
 .PHONY: test
 test:
-	go test ./pkg/...
+	go test -race ./pkg/...
 
 # integration tests only
 .PHONY: integration
 integration: out/$(SAMPLES_REPO)/.decompressed-$(SAMPLES_COMMIT)
-	go test -timeout 0 ./tests/...
+	go test -race -timeout 0 ./tests/...
 
 .PHONY: bench
 bench: out/$(SAMPLES_REPO)/.decompressed-$(SAMPLES_COMMIT)

@@ -16,8 +16,8 @@
                 {
                     "Description": "binary contains hardcoded URL",
                     "MatchStrings": [
-                        "http://www.apple.com/DTDs/PropertyList",
                         "http://www.apple.com/appleca/root.crl0",
+                        "http://www.apple.com/DTDs/PropertyList",
                         "http://crl.apple.com/codesigning.crl0",
                         "https://www.apple.com/appleca/0"
                     ],
@@ -44,8 +44,8 @@
                     "MatchStrings": [
                         "_fts_children",
                         "_fts_close",
-                        "_fts_open",
                         "_fts_read",
+                        "_fts_open",
                         "_fts_set"
                     ],
                     "RiskScore": 1,
