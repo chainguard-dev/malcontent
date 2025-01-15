@@ -148,10 +148,16 @@ func Diff(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) 
 	destPath := c.ScanPaths[1]
 
 	var g errgroup.Group
-	var src, dest map[string]*malcontent.FileReport
-	var srcBase, destBase string
-	srcCh := make(chan map[string]*malcontent.FileReport, 1)
-	destCh := make(chan map[string]*malcontent.FileReport, 1)
+
+	type scanResult struct {
+		files map[string]*malcontent.FileReport
+		base  string
+		err   error
+	}
+
+	srcCh := make(chan scanResult, 1)
+	destCh := make(chan scanResult, 1)
+
 	srcIsArchive := programkind.IsSupportedArchive(srcPath)
 	destIsArchive := programkind.IsSupportedArchive(destPath)
 
@@ -166,20 +172,14 @@ func Diff(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) 
 	}
 
 	g.Go(func() error {
-		src, srcBase, err = relFileReport(ctx, c, srcPath)
-		if err != nil {
-			return err
-		}
-		srcCh <- src
+		files, base, err := relFileReport(ctx, c, srcPath)
+		srcCh <- scanResult{files: files, base: base, err: err}
 		return nil
 	})
 
 	g.Go(func() error {
-		dest, destBase, err = relFileReport(ctx, c, destPath)
-		if err != nil {
-			return err
-		}
-		destCh <- dest
+		files, base, err := relFileReport(ctx, c, destPath)
+		destCh <- scanResult{files: files, base: base, err: err}
 		return nil
 	})
 
@@ -187,8 +187,15 @@ func Diff(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) 
 		return nil, err
 	}
 
-	src = <-srcCh
-	dest = <-destCh
+	srcResult := <-srcCh
+	if srcResult.err != nil {
+		return nil, fmt.Errorf("source scan error: %w", srcResult.err)
+	}
+
+	destResult := <-destCh
+	if destResult.err != nil {
+		return nil, fmt.Errorf("destination scan error: %w", destResult.err)
+	}
 
 	close(srcCh)
 	close(destCh)
@@ -204,20 +211,20 @@ func Diff(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) 
 	// When scanning two files, do a 1:1 comparison and
 	// consider the source -> destination as a change rather than an add/delete
 	if (srcInfo.IsDir() && destInfo.IsDir()) || (srcIsArchive && destIsArchive) {
-		handleDir(ctx, c, src, dest, d)
+		handleDir(ctx, c, srcResult.files, destResult.files, d)
 	} else {
 		var srcFile, destFile *malcontent.FileReport
-		for _, fr := range src {
+		for _, fr := range srcResult.files {
 			srcFile = fr
 			break
 		}
-		for _, fr := range dest {
+		for _, fr := range destResult.files {
 			destFile = fr
 			break
 		}
 		if srcFile != nil && destFile != nil {
-			formatSrc := displayPath(srcBase, srcFile.Path)
-			formatDest := displayPath(destBase, destFile.Path)
+			formatSrc := displayPath(srcResult.base, srcFile.Path)
+			formatDest := displayPath(destResult.base, destFile.Path)
 			if scoreFile(srcFile, destFile) {
 				d.Removed.Set(srcFile.Path, srcFile)
 				d.Added.Set(destFile.Path, destFile)

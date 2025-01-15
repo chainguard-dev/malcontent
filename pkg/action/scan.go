@@ -15,6 +15,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"sync/atomic"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/archive"
@@ -32,7 +33,7 @@ const interactive string = "Interactive"
 
 var (
 	// compiledRuleCache are a cache of previously compiled rules.
-	compiledRuleCache *yarax.Rules
+	compiledRuleCache atomic.Pointer[yarax.Rules]
 	// compileOnce ensures that we compile rules only once even across threads.
 	compileOnce         sync.Once
 	ErrMatchedCondition = errors.New("matched exit criteria")
@@ -205,21 +206,26 @@ func exitIfHitOrMiss(frs *sync.Map, scanPath string, errIfHit bool, errIfMiss bo
 }
 
 func CachedRules(ctx context.Context, fss []fs.FS) (*yarax.Rules, error) {
-	if compiledRuleCache != nil {
-		return compiledRuleCache, nil
+	if rules := compiledRuleCache.Load(); rules != nil {
+		return rules, nil
 	}
 
-	var yrs *yarax.Rules
 	var err error
 	compileOnce.Do(func() {
+		var yrs *yarax.Rules
 		yrs, err = compile.Recursive(ctx, fss)
 		if err != nil {
 			err = fmt.Errorf("compile: %w", err)
+			return
 		}
-
-		compiledRuleCache = yrs
+		compiledRuleCache.Store(yrs)
 	})
-	return compiledRuleCache, err
+
+	if err != nil {
+		return nil, err
+	}
+
+	return compiledRuleCache.Load(), nil
 }
 
 // matchResult represents the outcome of a match operation.

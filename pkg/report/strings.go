@@ -54,6 +54,7 @@ type matchProcessor struct {
 	pool     *StringPool
 	matches  []yarax.Match
 	patterns []yarax.Pattern
+	mu       sync.Mutex
 }
 
 func newMatchProcessor(fc []byte, matches []yarax.Match, mp []yarax.Pattern) *matchProcessor {
@@ -78,6 +79,9 @@ func (mp *matchProcessor) process() []string {
 	if len(mp.matches) == 0 {
 		return nil
 	}
+
+	mp.mu.Lock()
+	defer mp.mu.Unlock()
 
 	var result *[]string
 	var ok bool
@@ -130,7 +134,10 @@ func (mp *matchProcessor) process() []string {
 		}
 	}
 
-	return *result
+	finalResult := make([]string, len(*result))
+	copy(finalResult, *result)
+
+	return finalResult
 }
 
 // containsUnprintable determines if a byte is a valid character.

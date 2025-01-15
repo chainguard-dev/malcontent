@@ -193,8 +193,8 @@
                 {
                     "Description": "tls",
                     "MatchStrings": [
-                        "TLSVersion",
                         "crypto/tls",
+                        "TLSVersion",
                         "TLS13"
                     ],
                     "RiskScore": 1,
@@ -417,10 +417,10 @@
                 {
                     "Description": "path reference within /etc",
                     "MatchStrings": [
-                        "/etc/apache/mime.types/etc/ssl/ca-bun",
                         "/etc/pki/ca-trust/extracted/pem/tls-c",
                         "/etc/security/cacerts/usr/local/share",
                         "/etc/ssl/ca-bundle.pem/lib/time/zonei",
+                        "/etc/apache/mime.types/etc/ssl/ca-bun",
                         "/etc/nsswitch.conf/etc/pki/tls/certs",
                         "/etc/ssl/certs/ca-certificates.crt",
                         "/etc/pki/tls/certs/ca-bundle.crt",
@@ -488,8 +488,8 @@
                 {
                     "Description": "modifies file permissions",
                     "MatchStrings": [
-                        "Chmod",
-                        "chmod"
+                        "chmod",
+                        "Chmod"
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
@@ -512,8 +512,8 @@
                 {
                     "Description": "vncjew, a VNC scanner",
                     "MatchStrings": [
-                        "iptables",
                         "readVNCs",
+                        "iptables",
                         "masscan"
                     ],
                     "RiskScore": 4,
@@ -549,8 +549,8 @@
                 {
                     "Description": "Uses DNS TXT (text) records",
                     "MatchStrings": [
-                        "TXT",
-                        "dns"
+                        "dns",
+                        "TXT"
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
@@ -611,8 +611,8 @@
                     "Description": "submits content to websites",
                     "MatchStrings": [
                         "Content-TypeECDSA",
-                        "HTTP",
                         "POST",
+                        "HTTP",
                         "http"
                     ],
                     "RiskScore": 2,
@@ -709,8 +709,8 @@
                     "Description": "uses VNC remote desktop protocol",
                     "MatchStrings": [
                         "5900",
-                        "VNC",
-                        "vnc"
+                        "vnc",
+                        "VNC"
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
@@ -732,8 +732,8 @@
                 {
                     "Description": "listen on a socket",
                     "MatchStrings": [
-                        "accept",
-                        "socket"
+                        "socket",
+                        "accept"
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
@@ -992,8 +992,8 @@
                 {
                     "Description": "Uses DNS TXT (text) records",
                     "MatchStrings": [
-                        "TXT",
-                        "dns"
+                        "dns",
+                        "TXT"
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
@@ -1016,8 +1016,8 @@
                     "Description": "uses VNC remote desktop protocol",
                     "MatchStrings": [
                         "5900",
-                        "VNC",
-                        "vnc"
+                        "vnc",
+                        "VNC"
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
