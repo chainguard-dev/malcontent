@@ -11,7 +11,6 @@ import (
 	"runtime"
 	"sync"
 	"sync/atomic"
-	"time"
 
 	yarax "github.com/VirusTotal/yara-x/go"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
@@ -34,6 +33,7 @@ type Config struct {
 	IgnoreSelf            bool
 	IgnoreTags            []string
 	IncludeDataFiles      bool
+	MaxScanners           int
 	MinFileRisk           int
 	MinRisk               int
 	OCI                   bool
@@ -175,22 +175,16 @@ func NewScannerPool(rules *yarax.Rules, maxScanners int) (*ScannerPool, error) {
 		available:   make(chan *yarax.Scanner, maxScanners),
 		maxScanners: int32(maxScanners),
 		scanners:    make([]*yarax.Scanner, 0, maxScanners),
+		closed:      atomic.Bool{},
 	}
 
-	pool.closed.Store(false)
-
-	// Create a subset of the maximum number of scanners to avoid contention
-	initialScanners := maxScanners/2 + 1
-	for i := 0; i < initialScanners; i++ {
-		scanner, err := pool.createScanner()
-		if err != nil {
-			pool.Cleanup()
-			return nil, fmt.Errorf("failed to create initial scanner: %w", err)
-		}
-		pool.scanners = append(pool.scanners, scanner)
-		pool.available <- scanner
-		atomic.AddInt32(&pool.currentCount, 1)
+	scanner := yarax.NewScanner(rules)
+	if scanner == nil {
+		return nil, fmt.Errorf("failed to create scanner")
 	}
+
+	pool.available <- scanner
+	atomic.AddInt32(&pool.currentCount, 1)
 
 	return pool, nil
 }
@@ -236,39 +230,27 @@ func (p *ScannerPool) Get() (*yarax.Scanner, error) {
 		return nil, fmt.Errorf("scanner pool is closed")
 	}
 
+	// Retrieve an existing scanner
+	// If none are available, create up to the maximum number of scanners
 	select {
 	case scanner := <-p.available:
-		if scanner == nil {
-			return nil, fmt.Errorf("received nil scanner from pool")
-		}
 		return scanner, nil
-	case <-time.After(100 * time.Millisecond):
-	}
-
-	// Create a new scanner if we aren't already running the maximum number
-	p.mu.Lock()
-	current := atomic.LoadInt32(&p.currentCount)
-	if current < p.maxScanners {
-		scanner, err := p.createScanner()
-		if err != nil {
+	default:
+		p.mu.Lock()
+		if atomic.LoadInt32(&p.currentCount) < p.maxScanners {
+			scanner, err := p.createScanner()
+			if err != nil {
+				p.mu.Unlock()
+				return nil, fmt.Errorf("create scanner: %w", err)
+			}
+			p.scanners = append(p.scanners, scanner)
+			atomic.AddInt32(&p.currentCount, 1)
 			p.mu.Unlock()
-			return nil, fmt.Errorf("create scanner: %w", err)
+			return scanner, nil
 		}
-		p.scanners = append(p.scanners, scanner)
-		atomic.AddInt32(&p.currentCount, 1)
 		p.mu.Unlock()
-		return scanner, nil
-	}
-	p.mu.Unlock()
 
-	select {
-	case scanner := <-p.available:
-		if scanner == nil {
-			return nil, fmt.Errorf("received nil scanner from pool")
-		}
-		return scanner, nil
-	case <-time.After(10 * time.Second):
-		return nil, fmt.Errorf("timeout waiting for available scanner")
+		return <-p.available, nil
 	}
 }
 
@@ -277,20 +259,7 @@ func (p *ScannerPool) Put(scanner *yarax.Scanner) {
 	if scanner == nil || p.closed.Load() {
 		return
 	}
-
-	select {
-	case p.available <- scanner:
-	default:
-		p.mu.Lock()
-		defer func() {
-			p.mu.Unlock()
-			if atomic.LoadInt32(&p.currentCount) > p.maxScanners/2 {
-				runtime.GC()
-			}
-		}()
-		scanner.Destroy()
-		atomic.AddInt32(&p.currentCount, -1)
-	}
+	p.available <- scanner
 }
 
 // Cleanup destroys all scanners in the pool.
