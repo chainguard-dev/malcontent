@@ -255,14 +255,6 @@ func main() {
 				maxScanners = concurrency
 			}
 
-			var pool *malcontent.ScannerPool
-			if mc.ScannerPool == nil {
-				pool, err = malcontent.NewScannerPool(yrs, maxScanners)
-				if err != nil {
-					returnCode = ExitInvalidRules
-				}
-			}
-
 			mc = malcontent.Config{
 				Concurrency:           concurrency,
 				ExitFirstHit:          exitFirstHitFlag,
@@ -270,7 +262,6 @@ func main() {
 				IgnoreSelf:            ignoreSelfFlag,
 				IgnoreTags:            ignoreTags,
 				IncludeDataFiles:      includeDataFiles,
-				MaxScanners:           maxScanners,
 				MinFileRisk:           minFileRisk,
 				MinRisk:               minRisk,
 				OCI:                   ociFlag,
@@ -278,7 +269,6 @@ func main() {
 				Renderer:              renderer,
 				Rules:                 yrs,
 				ScanPaths:             scanPaths,
-				ScannerPool:           pool,
 				Stats:                 statsFlag,
 			}
 

@@ -74,7 +74,6 @@ func newConfig(rc Config) *malcontent.Config {
 	return &malcontent.Config{
 		Concurrency:           runtime.NumCPU(),
 		IgnoreTags:            []string{"harmless"},
-		MaxScanners:           runtime.NumCPU(),
 		MinFileRisk:           1,
 		MinRisk:               1,
 		QuantityIncreasesRisk: true,
@@ -135,15 +134,6 @@ func prepareRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 		c.Renderer = r
 		c.Rules = yrs
 
-		var pool *malcontent.ScannerPool
-		if c.ScannerPool == nil {
-			pool, err = malcontent.NewScannerPool(yrs, c.Concurrency)
-			if err != nil {
-				return nil, err
-			}
-			c.ScannerPool = pool
-		}
-
 		if strings.HasSuffix(data, ".mdiff") || strings.HasSuffix(data, ".sdiff") {
 			dirPath := filepath.Dir(sample)
 			files, err := os.ReadDir(dirPath)
@@ -179,13 +169,14 @@ func prepareRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 }
 
 // executeRefresh reads from a populated slice of TestData.
-func executeRefresh(ctx context.Context, testData []TestData) error {
+func executeRefresh(ctx context.Context, c Config, testData []TestData) error {
 	g, ctx := errgroup.WithContext(ctx)
 
 	var mu sync.Mutex
 	completed := 0
 	total := len(testData)
 
+	g.SetLimit(c.Concurrency)
 	for _, data := range testData {
 		g.Go(func() error {
 			select {
@@ -252,5 +243,5 @@ func Refresh(ctx context.Context, rc Config) error {
 		return fmt.Errorf("failed to prepare sample data refresh: %w", err)
 	}
 
-	return executeRefresh(ctx, testData)
+	return executeRefresh(ctx, rc, testData)
 }
