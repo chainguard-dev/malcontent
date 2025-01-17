@@ -63,7 +63,6 @@ var (
 	outputFlag                string
 	profileFlag               bool
 	quantityIncreasesRiskFlag bool
-	scannersFlag              int
 	statsFlag                 bool
 	thirdPartyFlag            bool
 	verboseFlag               bool
@@ -250,11 +249,6 @@ func main() {
 				concurrency = 1
 			}
 
-			maxScanners := scannersFlag
-			if maxScanners > concurrency {
-				maxScanners = concurrency
-			}
-
 			mc = malcontent.Config{
 				Concurrency:           concurrency,
 				ExitFirstHit:          exitFirstHitFlag,
@@ -368,12 +362,6 @@ func main() {
 				Value:       true,
 				Usage:       "Increase file risk score based on behavior quantity",
 				Destination: &quantityIncreasesRiskFlag,
-			},
-			&cli.IntFlag{
-				Name:        "scanners",
-				Value:       runtime.NumCPU(),
-				Usage:       "Number of scanners to create",
-				Destination: &scannersFlag,
 			},
 			&cli.BoolFlag{
 				Name:        "stats",
