@@ -196,7 +196,6 @@ func diffRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 			Concurrency:           runtime.NumCPU(),
 			FileRiskChange:        td.riskChange,
 			FileRiskIncrease:      td.riskIncrease,
-			MaxScanners:           runtime.NumCPU(),
 			MinFileRisk:           minFileRisk,
 			MinRisk:               minRisk,
 			QuantityIncreasesRisk: true,
@@ -204,15 +203,6 @@ func diffRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 			Rules:                 yrs,
 			ScanPaths:             []string{src, dest},
 			TrimPrefixes:          []string{rc.SamplesPath},
-		}
-
-		var pool *malcontent.ScannerPool
-		if c.ScannerPool == nil {
-			pool, err = malcontent.NewScannerPool(yrs, c.MaxScanners)
-			if err != nil {
-				return nil, err
-			}
-			c.ScannerPool = pool
 		}
 
 		testData = append(testData, TestData{

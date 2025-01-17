@@ -55,22 +55,6 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		yrs = c.Rules
 	}
 
-	var pool *malcontent.ScannerPool
-	if c.ScannerPool == nil {
-		pool, err = malcontent.NewScannerPool(yrs, c.MaxScanners)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create scanner pool: %w", err)
-		}
-		c.ScannerPool = pool
-	}
-
-	var scanner *yarax.Scanner
-	scanner, err = c.ScannerPool.Get()
-	if err != nil {
-		return nil, fmt.Errorf("failed to retrieve scanner: %w", err)
-	}
-	defer c.ScannerPool.Put(scanner)
-
 	isArchive := archiveRoot != ""
 	mime := "<unknown>"
 	kind, err := programkind.File(path)
@@ -91,7 +75,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		return nil, err
 	}
 
-	mrs, err := scanner.Scan(fc)
+	mrs, err := yrs.Scan(fc)
 	if err != nil {
 		logger.Debug("skipping", slog.Any("error", err))
 		return &malcontent.FileReport{Path: path, Error: fmt.Sprintf("scan: %v", err)}, nil
