@@ -26,7 +26,7 @@ func DefaultConfig() *Config {
 	return &Config{
 		OutputDir:      "profiles",
 		FilePrefix:     fmt.Sprintf("profile_%d", time.Now().UnixNano()),
-		SampleInterval: 30 * time.Second,
+		SampleInterval: 5 * time.Second,
 	}
 }
 
