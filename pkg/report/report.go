@@ -365,7 +365,7 @@ func TrimPrefixes(path string, prefixes []string) string {
 }
 
 //nolint:cyclop // ignore complexity of 64
-func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcontent.Config, expath string, _ *clog.Logger, fc []byte) (malcontent.FileReport, error) {
+func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcontent.Config, expath string, _ *clog.Logger, fc []byte) (*malcontent.FileReport, error) {
 	ignoreTags := c.IgnoreTags
 	minScore := c.MinRisk
 	ignoreSelf := c.IgnoreSelf
@@ -386,18 +386,18 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 	}
 
 	matchCount := len(mrs.MatchingRules())
-	fr := malcontent.FileReport{
+	fr := &malcontent.FileReport{
 		Path:      displayPath,
 		SHA256:    checksum,
 		Size:      size,
 		Meta:      make(map[string]string, matchCount),
 		Behaviors: make([]*malcontent.Behavior, 0, matchCount),
-		Overrides: make([]*malcontent.Behavior, 0, matchCount),
+		Overrides: make([]*malcontent.Behavior, 0, matchCount/10),
 	}
 
-	pledges := make([]string, 0, 8)
-	caps := make([]string, 0, 8)
-	syscalls := make([]string, 0, 16)
+	pledges := make([]string, 0, 4)
+	caps := make([]string, 0, 4)
+	syscalls := make([]string, 0, 8)
 
 	ignoreMalcontent := false
 	key := ""
@@ -416,7 +416,7 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 	}
 
 	// Store match rules in a map for future override operations
-	mrsMap := make(map[string]*yarax.Rule, len(mrs.MatchingRules()))
+	mrsMap := make(map[string]*yarax.Rule, matchCount)
 	for _, m := range mrs.MatchingRules() {
 		mrsMap[m.Identifier()] = m
 	}
@@ -454,13 +454,22 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 
 		key = generateKey(m.Namespace(), m.Identifier())
 		ruleURL := generateRuleURL(m.Namespace(), m.Identifier())
-		matches := make([]yarax.Match, 0, len(m.Patterns())*32)
-		for _, p := range m.Patterns() {
-			matches = append(matches, p.Matches()...)
-		}
 
-		processor := newMatchProcessor(fc, matches, m.Patterns())
-		matchedStrings := processor.process()
+		var matchedStrings []string
+		{
+			totalMatches := 0
+			for _, p := range m.Patterns() {
+				totalMatches += len(p.Matches())
+			}
+
+			matches := make([]yarax.Match, 0, totalMatches)
+			for _, p := range m.Patterns() {
+				matches = append(matches, p.Matches()...)
+			}
+
+			processor := newMatchProcessor(fc, matches, m.Patterns())
+			matchedStrings = processor.process()
+		}
 
 		b := &malcontent.Behavior{
 			ID:           key,
@@ -708,8 +717,8 @@ func highestMatchRisk(mrs *yarax.ScanResults) int {
 }
 
 // highestBehaviorRisk returns the highest risk score from a slice of FileReport Behaviors.
-func highestBehaviorRisk(fr malcontent.FileReport) int {
-	if len(fr.Behaviors) == 0 {
+func highestBehaviorRisk(fr *malcontent.FileReport) int {
+	if fr == nil || len(fr.Behaviors) == 0 {
 		return 0
 	}
 

@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"io/fs"
 	"log/slog"
 	"os"
@@ -70,7 +71,21 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	}
 	logger = logger.With("mime", mime)
 
-	fc, err := os.ReadFile(path)
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	fi, err := f.Stat()
+	if err != nil {
+		return nil, err
+	}
+
+	size := fi.Size()
+	fc := make([]byte, size)
+
+	_, err = io.ReadFull(f, fc)
 	if err != nil {
 		return nil, err
 	}
@@ -85,6 +100,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	if err != nil {
 		return nil, err
 	}
+	f.Close()
 
 	// Clean up the path if scanning an archive
 	var clean string
@@ -124,7 +140,8 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		}
 		return &malcontent.FileReport{Path: path}, nil
 	}
-	return &fr, nil
+
+	return fr, nil
 }
 
 // exitIfHitOrMiss generates the right error if a match is encountered.
@@ -576,7 +593,7 @@ func processFile(ctx context.Context, c malcontent.Config, ruleFS []fs.FS, path 
 // Scan YARA scans a data source, applying output filters if necessary.
 func Scan(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) {
 	r, err := recursiveScan(ctx, c)
-	if err != nil && c.Renderer.Name() != interactive {
+	if err != nil && (c.Renderer == nil || c.Renderer.Name() != interactive) {
 		return r, err
 	}
 	r.Files.Range(func(key, value any) bool {
