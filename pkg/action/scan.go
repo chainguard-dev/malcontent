@@ -102,7 +102,6 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	}
 
 	if fr.Error != "" {
-		logger.Debug("skipping", slog.Any("error", err))
 		return &malcontent.FileReport{Path: path, Error: fmt.Sprintf("generate: %v", fr.Error)}, nil
 	}
 
