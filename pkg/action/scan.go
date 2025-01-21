@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"io/fs"
 	"log/slog"
 	"os"
@@ -70,8 +71,21 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	}
 	logger = logger.With("mime", mime)
 
-	fc, err := os.ReadFile(path)
+	f, err := os.Open(path)
 	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	fi, err := f.Stat()
+	if err != nil {
+		return nil, err
+	}
+
+	size := fi.Size()
+	fc := make([]byte, size)
+
+	if _, err := io.ReadFull(f, fc); err != nil {
 		return nil, err
 	}
 
@@ -84,6 +98,10 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	fr, err := report.Generate(ctx, path, mrs, c, archiveRoot, logger, fc)
 	if err != nil {
 		return nil, err
+	}
+
+	if fr.Error != "" {
+		return &malcontent.FileReport{Path: path, Error: fmt.Sprintf("generate: %v", fr.Error)}, nil
 	}
 
 	// Clean up the path if scanning an archive
@@ -124,7 +142,8 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		}
 		return &malcontent.FileReport{Path: path}, nil
 	}
-	return &fr, nil
+
+	return fr, nil
 }
 
 // exitIfHitOrMiss generates the right error if a match is encountered.
