@@ -576,7 +576,7 @@ func processFile(ctx context.Context, c malcontent.Config, ruleFS []fs.FS, path 
 // Scan YARA scans a data source, applying output filters if necessary.
 func Scan(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) {
 	r, err := recursiveScan(ctx, c)
-	if err != nil && c.Renderer.Name() != interactive {
+	if err != nil && (c.Renderer == nil || c.Renderer.Name() != interactive) {
 		return r, err
 	}
 	r.Files.Range(func(key, value any) bool {
