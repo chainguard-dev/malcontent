@@ -75,6 +75,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	if err != nil {
 		return nil, err
 	}
+	defer f.Close()
 
 	fi, err := f.Stat()
 	if err != nil {
@@ -84,11 +85,9 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	size := fi.Size()
 	fc := make([]byte, size)
 
-	_, err = io.ReadFull(f, fc)
-	if err != nil {
+	if _, err := io.ReadFull(f, fc); err != nil {
 		return nil, err
 	}
-	f.Close()
 
 	mrs, err := yrs.Scan(fc)
 	if err != nil {
