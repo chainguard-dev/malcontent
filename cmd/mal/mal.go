@@ -92,7 +92,6 @@ func showError(err error) {
 	fmt.Fprintf(os.Stderr, "%s %s\n", emoji, err.Error())
 }
 
-//nolint:cyclop,gocognit // ignore complexity of 40,100
 func main() {
 	returnCode := ExitOK
 	defer func() { os.Exit(returnCode) }()
@@ -110,7 +109,7 @@ func main() {
 		outFile  = os.Stdout
 		renderer malcontent.Renderer
 		res      *malcontent.Report
-		stop     func()
+		p        *profile.Profiler
 		ver      string
 	)
 
@@ -134,7 +133,7 @@ func main() {
 
 			// Stop profiling if command was executed with that flag
 			if profileFlag {
-				stop()
+				p.Stop()
 			}
 			return nil
 		},
@@ -145,7 +144,7 @@ func main() {
 
 			if profileFlag {
 				var err error
-				stop, err = profile.Profile()
+				p, err = profile.StartProfiling(ctx, profile.DefaultConfig())
 				if err != nil {
 					log.Error("profiling failed", slog.Any("error", err))
 					returnCode = ExitProfilerError
