@@ -367,7 +367,7 @@ func TrimPrefixes(path string, prefixes []string) string {
 //nolint:cyclop // ignore complexity of 64
 func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcontent.Config, expath string, _ *clog.Logger, fc []byte) (*malcontent.FileReport, error) {
 	if mrs == nil {
-		return nil, fmt.Errorf("yara-x scan results are nil for %s", path)
+		return &malcontent.FileReport{Path: path, Error: fmt.Sprintf("yara-x scan results are nil for %s", path)}, nil
 	}
 
 	ignoreTags := c.IgnoreTags
