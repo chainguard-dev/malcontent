@@ -42,7 +42,7 @@ LINTERS :=
 FIXERS :=
 
 GOLANGCI_LINT_CONFIG := $(LINT_ROOT)/.golangci.yml
-GOLANGCI_LINT_VERSION ?= v1.62.0
+GOLANGCI_LINT_VERSION ?= v1.63.4
 GOLANGCI_LINT_BIN := $(LINT_ROOT)/out/linters/golangci-lint-$(GOLANGCI_LINT_VERSION)-$(LINT_ARCH)
 $(GOLANGCI_LINT_BIN):
 	mkdir -p $(LINT_ROOT)/out/linters
@@ -174,7 +174,7 @@ refresh-sample-testdata: out/$(SAMPLES_REPO)/.decompressed-$(SAMPLES_COMMIT) out
 	./out/mal refresh
 
 ARCH ?= $(shell uname -m)
-CRANE_VERSION=v0.20.2
+CRANE_VERSION=v0.20.3
 out/crane-$(ARCH)-$(CRANE_VERSION):
 	mkdir -p out
 	GOBIN=$(CURDIR)/out go install github.com/google/go-containerregistry/cmd/crane@$(CRANE_VERSION)
