@@ -75,7 +75,6 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	if err != nil {
 		return nil, err
 	}
-	defer f.Close()
 
 	fi, err := f.Stat()
 	if err != nil {
@@ -89,6 +88,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	if err != nil {
 		return nil, err
 	}
+	f.Close()
 
 	mrs, err := yrs.Scan(fc)
 	if err != nil {
@@ -100,7 +100,11 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	if err != nil {
 		return nil, err
 	}
-	f.Close()
+
+	if fr.Error != "" {
+		logger.Debug("skipping", slog.Any("error", err))
+		return &malcontent.FileReport{Path: path, Error: fmt.Sprintf("generate: %v", fr.Error)}, nil
+	}
 
 	// Clean up the path if scanning an archive
 	var clean string
