@@ -363,8 +363,6 @@ func (r *Interactive) File(ctx context.Context, fr *malcontent.FileReport) error
 
 	var content string
 	switch {
-	case fr.Error != "":
-		content = fmt.Sprintf("error scanning %s: %s", fr.Path, fr.Error)
 	case fr.Skipped != "":
 		content = fmt.Sprintf("skipped %s: %s", fr.Path, fr.Skipped)
 	case len(fr.Behaviors) > 0:

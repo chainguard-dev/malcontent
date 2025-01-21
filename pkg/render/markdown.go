@@ -154,12 +154,6 @@ func (r Markdown) Full(ctx context.Context, _ *malcontent.Config, rep *malconten
 }
 
 func markdownTable(_ context.Context, fr *malcontent.FileReport, w io.Writer, rc tableConfig) {
-	path := fr.Path
-	if fr.Error != "" {
-		fmt.Printf("⚠️ %s - error: %s\n", path, fr.Error)
-		return
-	}
-
 	if fr.Skipped != "" {
 		return
 	}
