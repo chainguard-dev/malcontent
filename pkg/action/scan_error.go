@@ -2,27 +2,36 @@ package action
 
 import "fmt"
 
+// Error message constants for NewFileReportError reasons.
+// If the compiled rules are invalid or the scanner malfunctions, yrs.Scan will fail.
+// If mrs is nil or Generate fails, the file report will be nil.
 const (
+	errMsgUnknown        = "unknown error"
 	errMsgScanFailed     = "scan failed"
 	errMsgGenerateFailed = "failed to generate file report"
-	errMsgNilReport      = "file report is nil"
 )
 
 type ErrorType int
 
+// Error type iotas.
+// TypeUnknown will be the default of `0`.
+// TypeScanError is to be used when compiled rules are invalid or the scan fails otherwise.
+// TypeGenerateError is to be used when a file's report cannot be created.
 const (
-	TypeScanError ErrorType = iota
+	TypeUnknown ErrorType = iota
+	TypeScanError
 	TypeGenerateError
-	TypeNilError
 )
 
+// FileReportError is a custom error type to hold the error, path, and vanity reason.
 type FileReportError struct {
 	err    error
 	path   string
-	reason string
+	reason ErrorType
 }
 
-func NewFileReportError(err error, path, reason string) *FileReportError {
+// NewFileReportError returns a new FileReportError.
+func NewFileReportError(err error, path string, reason ErrorType) *FileReportError {
 	return &FileReportError{
 		err:    err,
 		path:   path,
@@ -30,11 +39,24 @@ func NewFileReportError(err error, path, reason string) *FileReportError {
 	}
 }
 
-func (e *FileReportError) Error() string {
-	if e.err != nil {
-		return fmt.Sprintf("%s: %s: %v", e.reason, e.path, e.err)
+func (e *FileReportError) errMsg() string {
+	switch e.reason {
+	case TypeUnknown:
+		return errMsgUnknown
+	case TypeScanError:
+		return errMsgScanFailed
+	case TypeGenerateError:
+		return errMsgGenerateFailed
+	default:
+		return fmt.Sprintf("unknown error type(%d)", e.reason)
 	}
-	return fmt.Sprintf("%s: %s", e.reason, e.path)
+}
+
+func (e *FileReportError) Error() string {
+	if e.err == nil {
+		return fmt.Sprintf("%s: %s", e.errMsg(), e.path)
+	}
+	return fmt.Sprintf("%s: %s: %v", errMsgUnknown, e.path, e.err)
 }
 
 func (e *FileReportError) Is(target error) bool {
@@ -47,19 +69,10 @@ func (e *FileReportError) Is(target error) bool {
 
 func (e *FileReportError) Path() string { return e.path }
 
-func (e *FileReportError) Reason() string { return e.reason }
+func (e *FileReportError) Reason() string { return e.Error() }
 
 func (e *FileReportError) Type() ErrorType {
-	switch e.reason {
-	case errMsgScanFailed:
-		return TypeScanError
-	case errMsgGenerateFailed:
-		return TypeGenerateError
-	case errMsgNilReport:
-		return TypeNilError
-	default:
-		return -1
-	}
+	return e.reason
 }
 
 func (e *FileReportError) Unwrap() error {

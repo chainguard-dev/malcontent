@@ -36,11 +36,8 @@ var (
 	// compiledRuleCache are a cache of previously compiled rules.
 	compiledRuleCache atomic.Pointer[yarax.Rules]
 	// compileOnce ensures that we compile rules only once even across threads.
-	compileOnce           sync.Once
-	ErrMatchedCondition   = errors.New("matched exit criteria")
-	ErrFileScan           = NewFileReportError(nil, "", "scan failed")
-	ErrGenerateFileReport = NewFileReportError(nil, "", "failed to generate file report")
-	ErrNilFileReport      = NewFileReportError(nil, "", "file report is nil")
+	compileOnce         sync.Once
+	ErrMatchedCondition = errors.New("matched exit criteria")
 )
 
 // scanSinglePath YARA scans a single path and converts it to a fileReport.
@@ -76,31 +73,31 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 
 	f, err := os.Open(path)
 	if err != nil {
-		return nil, NewFileReportError(err, path, errMsgNilReport)
+		return nil, err
 	}
 	defer f.Close()
 
 	fi, err := f.Stat()
 	if err != nil {
-		return nil, NewFileReportError(err, path, errMsgNilReport)
+		return nil, err
 	}
 
 	size := fi.Size()
 	fc := make([]byte, size)
 
 	if _, err := io.ReadFull(f, fc); err != nil {
-		return nil, NewFileReportError(err, path, errMsgNilReport)
+		return nil, err
 	}
 
 	mrs, err := yrs.Scan(fc)
 	if err != nil {
 		logger.Debug("skipping", slog.Any("error", err))
-		return nil, NewFileReportError(err, path, errMsgScanFailed)
+		return nil, err
 	}
 
 	fr, err := report.Generate(ctx, path, mrs, c, archiveRoot, logger, fc)
 	if err != nil {
-		return nil, NewFileReportError(err, path, errMsgGenerateFailed)
+		return nil, NewFileReportError(err, path, TypeGenerateError)
 	}
 
 	// Clean up the path if scanning an archive
@@ -108,11 +105,11 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	if isArchive {
 		pathAbs, err := filepath.Abs(path)
 		if err != nil {
-			return nil, NewFileReportError(err, path, errMsgNilReport)
+			return nil, NewFileReportError(err, path, TypeGenerateError)
 		}
 		archiveRootAbs, err := filepath.Abs(archiveRoot)
 		if err != nil {
-			return nil, NewFileReportError(err, path, errMsgNilReport)
+			return nil, NewFileReportError(err, path, TypeGenerateError)
 		}
 		fr.ArchiveRoot = archiveRootAbs
 		fr.FullPath = pathAbs
@@ -569,25 +566,22 @@ func processArchive(ctx context.Context, c malcontent.Config, rfs []fs.FS, archi
 func handleFileReportError(err error, path string, logger *clog.Logger) (*malcontent.FileReport, error) {
 	var fileErr *FileReportError
 	if !errors.As(err, &fileErr) {
-		return nil, fmt.Errorf("unexpected error type scanning path %s: %w", path, err)
+		return nil, fmt.Errorf("failed to handle error for path %s: error type not FileReportError: %w", path, err)
 	}
 
 	switch fileErr.Type() {
+	case TypeUnknown:
+		return nil, fmt.Errorf("unknown error occurred while scanning path %s: %w", path, err)
 	case TypeScanError:
 		logger.Errorf("scan path: %v", err)
-		return nil, err
-
+		return nil, fmt.Errorf("scan failed for path %s: %w", path, err)
 	case TypeGenerateError:
 		return &malcontent.FileReport{
 			Path:    path,
 			Skipped: errMsgGenerateFailed,
 		}, nil
-
-	case TypeNilError:
-		return nil, nil
-
 	default:
-		return nil, fmt.Errorf("unexpected error category scanning path %s: %w", path, err)
+		return nil, fmt.Errorf("unhandled error type scanning path %s: %w", path, err)
 	}
 }
 
