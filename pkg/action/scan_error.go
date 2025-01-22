@@ -69,8 +69,6 @@ func (e *FileReportError) Is(target error) bool {
 
 func (e *FileReportError) Path() string { return e.path }
 
-func (e *FileReportError) Reason() string { return e.Error() }
-
 func (e *FileReportError) Type() ErrorType {
 	return e.reason
 }
