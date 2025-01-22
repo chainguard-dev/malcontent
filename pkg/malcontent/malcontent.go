@@ -79,7 +79,6 @@ type FileReport struct {
 	SHA256 string
 	Size   int64
 	// compiler -> x
-	Error             string            `json:",omitempty" yaml:",omitempty"`
 	Skipped           string            `json:",omitempty" yaml:",omitempty"`
 	Meta              map[string]string `json:",omitempty" yaml:",omitempty"`
 	Syscalls          []string          `json:",omitempty" yaml:",omitempty"`

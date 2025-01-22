@@ -96,7 +96,7 @@ func relFileReport(ctx context.Context, c malcontent.Config, fromPath string) (m
 		}
 		if fr, ok := value.(*malcontent.FileReport); ok {
 			isArchive := fr.ArchiveRoot != ""
-			if fr.Skipped != "" || fr.Error != "" {
+			if fr.Skipped != "" {
 				return true
 			}
 			rel, base, err = relPath(fromPath, fr, isArchive)

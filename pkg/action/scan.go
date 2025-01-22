@@ -92,16 +92,12 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	mrs, err := yrs.Scan(fc)
 	if err != nil {
 		logger.Debug("skipping", slog.Any("error", err))
-		return &malcontent.FileReport{Path: path, Error: fmt.Sprintf("scan: %v", err)}, nil
+		return nil, err
 	}
 
 	fr, err := report.Generate(ctx, path, mrs, c, archiveRoot, logger, fc)
 	if err != nil {
-		return nil, err
-	}
-
-	if fr.Error != "" {
-		return &malcontent.FileReport{Path: path, Error: fmt.Sprintf("generate: %v", fr.Error)}, nil
+		return nil, NewFileReportError(err, path, TypeGenerateError)
 	}
 
 	// Clean up the path if scanning an archive
@@ -109,11 +105,11 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	if isArchive {
 		pathAbs, err := filepath.Abs(path)
 		if err != nil {
-			return nil, err
+			return nil, NewFileReportError(err, path, TypeGenerateError)
 		}
 		archiveRootAbs, err := filepath.Abs(archiveRoot)
 		if err != nil {
-			return nil, err
+			return nil, NewFileReportError(err, path, TypeGenerateError)
 		}
 		fr.ArchiveRoot = archiveRootAbs
 		fr.FullPath = pathAbs
@@ -166,9 +162,6 @@ func exitIfHitOrMiss(frs *sync.Map, scanPath string, errIfHit bool, errIfMiss bo
 		}
 		if fr, ok := value.(*malcontent.FileReport); ok {
 			if fr.Skipped != "" {
-				return true
-			}
-			if fr.Error != "" {
 				return true
 			}
 			filesScanned++
@@ -446,7 +439,7 @@ func handleSingleFile(ctx context.Context, path string, scanInfo scanPathInfo, c
 	}
 
 	fr, err := processFile(ctx, c, c.RuleFS, path, scanInfo.effectivePath, trimPath, logger)
-	if err != nil && c.Renderer.Name() != interactive {
+	if err != nil && (c.Renderer == nil || c.Renderer.Name() != interactive) {
 		if len(c.TrimPrefixes) > 0 {
 			path = report.TrimPrefixes(path, c.TrimPrefixes)
 		}
@@ -569,24 +562,40 @@ func processArchive(ctx context.Context, c malcontent.Config, rfs []fs.FS, archi
 	return &frs, nil
 }
 
+// handleFileReportError returns the appropriate FileReport and error depending on the type of error.
+func handleFileReportError(err error, path string, logger *clog.Logger) (*malcontent.FileReport, error) {
+	var fileErr *FileReportError
+	if !errors.As(err, &fileErr) {
+		return nil, fmt.Errorf("failed to handle error for path %s: error type not FileReportError: %w", path, err)
+	}
+
+	switch fileErr.Type() {
+	case TypeUnknown:
+		return nil, fmt.Errorf("unknown error occurred while scanning path %s: %w", path, err)
+	case TypeScanError:
+		logger.Errorf("scan path: %v", err)
+		return nil, fmt.Errorf("scan failed for path %s: %w", path, err)
+	case TypeGenerateError:
+		return &malcontent.FileReport{
+			Path:    path,
+			Skipped: errMsgGenerateFailed,
+		}, nil
+	default:
+		return nil, fmt.Errorf("unhandled error type scanning path %s: %w", path, err)
+	}
+}
+
 // processFile scans a single output file, rendering live output if available.
 func processFile(ctx context.Context, c malcontent.Config, ruleFS []fs.FS, path string, scanPath string, archiveRoot string, logger *clog.Logger) (*malcontent.FileReport, error) {
 	logger = logger.With("path", path)
 
 	fr, err := scanSinglePath(ctx, c, path, ruleFS, scanPath, archiveRoot)
-	if err != nil && c.Renderer.Name() != interactive {
-		logger.Errorf("scan path: %v", err)
-		return nil, err
+	if err != nil && (c.Renderer == nil || c.Renderer.Name() != interactive) {
+		return handleFileReportError(err, path, logger)
 	}
 
 	if fr == nil {
-		logger.Debugf("%s returned nil result", path)
 		return nil, nil
-	}
-
-	if fr.Error != "" && c.Renderer.Name() != interactive {
-		logger.Errorf("scan error: %s", fr.Error)
-		return nil, fmt.Errorf("report error: %v", fr.Error)
 	}
 
 	return fr, nil
