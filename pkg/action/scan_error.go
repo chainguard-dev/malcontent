@@ -14,12 +14,12 @@ const (
 type ErrorType int
 
 // Error type iotas.
-// TypeUnknown will be the default of `0`.
-// TypeScanError is to be used when compiled rules are invalid or the scan fails otherwise.
-// TypeGenerateError is to be used when a file's report cannot be created.
 const (
+	// TypeUnknown will be the default of `0`.
 	TypeUnknown ErrorType = iota
+	// TypeScanError is to be used when compiled rules are invalid or the scan fails otherwise.
 	TypeScanError
+	// TypeGenerateError is to be used when a file's report cannot be created.
 	TypeGenerateError
 )
 
