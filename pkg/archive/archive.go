@@ -15,7 +15,12 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 )
 
-const bufferSize = 32 * 1024
+const (
+	// 32KB buffer.
+	bufferSize = 32 * 1024
+	// 512MB file limit.
+	maxBytes = 1 << 29
+)
 
 // Shared buffer pool for io.CopyBuffer operations.
 var bufferPool = sync.Pool{
@@ -29,8 +34,6 @@ var bufferPool = sync.Pool{
 func IsValidPath(target, dir string) bool {
 	return strings.HasPrefix(filepath.Clean(target), filepath.Clean(dir))
 }
-
-const maxBytes = 1 << 29 // 512MB
 
 func extractNestedArchive(
 	ctx context.Context,
