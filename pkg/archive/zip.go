@@ -9,21 +9,12 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
-	"sync"
 
 	"github.com/chainguard-dev/clog"
 	"golang.org/x/sync/errgroup"
 )
 
-const bufferSize = 32 * 1024
-
-var bufferPool = sync.Pool{
-	New: func() interface{} {
-		b := make([]byte, bufferSize)
-		return &b
-	},
-}
-
+// ExtractZip extracts .jar and .zip archives.
 func ExtractZip(ctx context.Context, d string, f string) error {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting zip")
@@ -46,12 +37,12 @@ func ExtractZip(ctx context.Context, d string, f string) error {
 		return fmt.Errorf("failed to create extraction directory: %w", err)
 	}
 
-	g, ctx := errgroup.WithContext(ctx)
+	g, gCtx := errgroup.WithContext(ctx)
 	g.SetLimit(runtime.GOMAXPROCS(0))
 
 	for _, file := range read.File {
 		g.Go(func() error {
-			return extractFile(ctx, file, d, logger)
+			return extractFile(gCtx, file, d, logger)
 		})
 	}
 

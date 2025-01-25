@@ -19,6 +19,12 @@ func ExtractDeb(ctx context.Context, d, f string) error {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting deb")
 
+	buf, ok := bufferPool.Get().(*[]byte)
+	if !ok {
+		return fmt.Errorf("failed to retrieve buffer")
+	}
+	defer bufferPool.Put(buf)
+
 	fd, err := os.Open(f)
 	if err != nil {
 		panic(err)
