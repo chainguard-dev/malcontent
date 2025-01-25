@@ -35,12 +35,7 @@ func IsValidPath(target, dir string) bool {
 	return strings.HasPrefix(filepath.Clean(target), filepath.Clean(dir))
 }
 
-func extractNestedArchive(
-	ctx context.Context,
-	d string,
-	f string,
-	extracted *sync.Map,
-) error {
+func extractNestedArchive(ctx context.Context, d string, f string, extracted *sync.Map) error {
 	isArchive := false
 	// zlib-compressed files are also archives
 	ft, err := programkind.File(f)
