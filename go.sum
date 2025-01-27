@@ -12,8 +12,8 @@ github.com/cavaliergopher/cpio v1.0.1 h1:KQFSeKmZhv0cr+kawA3a0xTQCU4QxXF1vhU7P7a
 github.com/cavaliergopher/cpio v1.0.1/go.mod h1:pBdaqQjnvXxdS/6CvNDwIANIFSP0xRKI16PX4xejRQc=
 github.com/cavaliergopher/rpm v1.2.0 h1:s0h+QeVK252QFTolkhGiMeQ1f+tMeIMhGl8B1HUmGUc=
 github.com/cavaliergopher/rpm v1.2.0/go.mod h1:R0q3vTqa7RUvPofAZYrnjJ63hh2vngjFfphuXiExVos=
-github.com/chainguard-dev/clog v1.5.1 h1:LeFeVlxiicswuTevtaXc0MXH1zV1iWkbg+H8iUuBTtQ=
-github.com/chainguard-dev/clog v1.5.1/go.mod h1:4+WFhRMsGH79etYXY3plYdp+tCz/KCkU8fAr0HoaPvs=
+github.com/chainguard-dev/clog v1.6.0 h1:fMjO82wByifo8D2iFBrEryc99XBXyLO6A6cwcxhfeko=
+github.com/chainguard-dev/clog v1.6.0/go.mod h1:4+WFhRMsGH79etYXY3plYdp+tCz/KCkU8fAr0HoaPvs=
 github.com/charmbracelet/bubbles v0.20.1-0.20241115220041-e5296a2b0fd6 h1:GJISC755OMVHyl7Zw9ziGFAXhbwr6FprHjxJYke8lGc=
 github.com/charmbracelet/bubbles v0.20.1-0.20241115220041-e5296a2b0fd6/go.mod h1:1WuvnY5+/Kf/JMo0ispmMqILezqZMLBKac+4VANbhfs=
 github.com/charmbracelet/bubbletea v1.2.4 h1:KN8aCViA0eps9SCOThb2/XPIlea3ANJLUkv3KnQRNCE=
