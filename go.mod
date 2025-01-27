@@ -7,7 +7,7 @@ require (
 	github.com/agext/levenshtein v1.2.3
 	github.com/cavaliergopher/cpio v1.0.1
 	github.com/cavaliergopher/rpm v1.2.0
-	github.com/chainguard-dev/clog v1.5.1
+	github.com/chainguard-dev/clog v1.6.0
 	github.com/charmbracelet/bubbles v0.20.1-0.20241115220041-e5296a2b0fd6
 	github.com/charmbracelet/bubbletea v1.2.4
 	github.com/charmbracelet/lipgloss v1.0.0
