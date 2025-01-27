@@ -7,20 +7,24 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/chainguard-dev/clog"
+	"golang.org/x/sync/errgroup"
 )
 
-// extractZip extracts .jar and .zip archives.
+// ExtractZip extracts .jar and .zip archives.
 func ExtractZip(ctx context.Context, d string, f string) error {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting zip")
 
-	// Check if the file is valid
-	_, err := os.Stat(f)
+	fi, err := os.Stat(f)
 	if err != nil {
 		return fmt.Errorf("failed to stat file %s: %w", f, err)
+	}
+	if fi.Size() == 0 {
+		return fmt.Errorf("empty zip file: %s", f)
 	}
 
 	read, err := zip.OpenReader(f)
@@ -29,64 +33,83 @@ func ExtractZip(ctx context.Context, d string, f string) error {
 	}
 	defer read.Close()
 
+	if err := os.MkdirAll(d, 0o700); err != nil {
+		return fmt.Errorf("failed to create extraction directory: %w", err)
+	}
+
+	g, gCtx := errgroup.WithContext(ctx)
+	g.SetLimit(runtime.GOMAXPROCS(0))
+
 	for _, file := range read.File {
-		clean := filepath.Clean(filepath.ToSlash(file.Name))
-		if strings.Contains(clean, "..") {
-			logger.Warnf("skipping potentially unsafe file path: %s", file.Name)
-			continue
-		}
+		g.Go(func() error {
+			return extractFile(gCtx, file, d, logger)
+		})
+	}
 
-		target := filepath.Join(d, clean)
-		if !IsValidPath(target, d) {
-			logger.Warnf("skipping file path outside extraction directory: %s", target)
-			continue
-		}
-
-		// Check if a directory with the same name exists
-		if info, err := os.Stat(target); err == nil && info.IsDir() {
-			continue
-		}
-
-		if file.Mode().IsDir() {
-			err := os.MkdirAll(target, 0o700)
-			if err != nil {
-				return fmt.Errorf("failed to create directory: %w", err)
-			}
-			continue
-		}
-
-		zf, err := file.Open()
-		if err != nil {
-			return fmt.Errorf("failed to open file in zip: %w", err)
-		}
-
-		err = os.MkdirAll(filepath.Dir(target), 0o700)
-		if err != nil {
-			zf.Close()
-			return fmt.Errorf("failed to create directory: %w", err)
-		}
-
-		out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
-		if err != nil {
-			out.Close()
-			return fmt.Errorf("failed to create file: %w", err)
-		}
-
-		written, err := io.Copy(out, io.LimitReader(zf, maxBytes))
-		if err != nil {
-			return fmt.Errorf("failed to copy file: %w", err)
-		}
-		if written >= maxBytes {
-			return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
-		}
-
-		if err := out.Close(); err != nil {
-			return fmt.Errorf("failed to close file: %w", err)
-		}
-
-		if err := zf.Close(); err != nil {
-			return fmt.Errorf("failed to close file: %w", err)
-		}
+	if err := g.Wait(); err != nil {
+		return fmt.Errorf("extraction failed: %w", err)
 	}
 	return nil
+}
+
+func extractFile(ctx context.Context, file *zip.File, destDir string, logger *clog.Logger) error {
+	buf, ok := bufferPool.Get().(*[]byte)
+	if !ok {
+		return fmt.Errorf("failed to retrieve buffer")
+	}
+	defer bufferPool.Put(buf)
+
+	clean := filepath.Clean(filepath.ToSlash(file.Name))
+	if strings.Contains(clean, "..") {
+		logger.Warnf("skipping potentially unsafe file path: %s", file.Name)
+		return nil
+	}
+
+	target := filepath.Join(destDir, clean)
+	if !IsValidPath(target, destDir) {
+		logger.Warnf("skipping file path outside extraction directory: %s", target)
+		return nil
+	}
+
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	default:
+	}
+
+	if file.Mode().IsDir() {
+		return os.MkdirAll(target, 0o700)
+	}
+
+	if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
+		return fmt.Errorf("failed to create directory structure: %w", err)
+	}
+
+	src, err := file.Open()
+	if err != nil {
+		return fmt.Errorf("failed to open archived file: %w", err)
+	}
+	defer src.Close()
+
+	dst, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+	if err != nil {
+		return fmt.Errorf("failed to create destination file: %w", err)
+	}
+
+	var closeErr error
+	defer func() {
+		if cerr := dst.Close(); cerr != nil && closeErr == nil {
+			closeErr = cerr
+		}
+	}()
+
+	written, err := io.CopyBuffer(dst, io.LimitReader(src, maxBytes), *buf)
+	if err != nil {
+		return fmt.Errorf("failed to copy file contents: %w", err)
+	}
+	if written >= maxBytes {
+		return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
+	}
+
+	return closeErr
 }

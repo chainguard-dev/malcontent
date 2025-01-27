@@ -15,19 +15,27 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 )
 
+const (
+	// 32KB buffer.
+	bufferSize = 32 * 1024
+	// 512MB file limit.
+	maxBytes = 1 << 29
+)
+
+// Shared buffer pool for io.CopyBuffer operations.
+var bufferPool = sync.Pool{
+	New: func() interface{} {
+		b := make([]byte, bufferSize)
+		return &b
+	},
+}
+
 // isValidPath checks if the target file is within the given directory.
 func IsValidPath(target, dir string) bool {
 	return strings.HasPrefix(filepath.Clean(target), filepath.Clean(dir))
 }
 
-const maxBytes = 1 << 29 // 512MB
-
-func extractNestedArchive(
-	ctx context.Context,
-	d string,
-	f string,
-	extracted *sync.Map,
-) error {
+func extractNestedArchive(ctx context.Context, d string, f string, extracted *sync.Map) error {
 	isArchive := false
 	// zlib-compressed files are also archives
 	ft, err := programkind.File(f)
@@ -223,6 +231,12 @@ func handleDirectory(target string) error {
 
 // handleFile extracts valid files within .deb or .tar archives.
 func handleFile(target string, tr *tar.Reader) error {
+	buf, ok := bufferPool.Get().(*[]byte)
+	if !ok {
+		return fmt.Errorf("failed to retrieve buffer")
+	}
+	defer bufferPool.Put(buf)
+
 	if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
 		return fmt.Errorf("failed to create parent directory: %w", err)
 	}
@@ -233,7 +247,7 @@ func handleFile(target string, tr *tar.Reader) error {
 	}
 	defer out.Close()
 
-	written, err := io.Copy(out, io.LimitReader(tr, maxBytes))
+	written, err := io.CopyBuffer(out, io.LimitReader(tr, maxBytes), *buf)
 	if err != nil {
 		return fmt.Errorf("failed to copy file: %w", err)
 	}

@@ -29,6 +29,12 @@ func ExtractGzip(ctx context.Context, d string, f string) error {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting gzip")
 
+	buf, ok := bufferPool.Get().(*[]byte)
+	if !ok {
+		return fmt.Errorf("failed to retrieve buffer")
+	}
+	defer bufferPool.Put(buf)
+
 	// Check if the file is valid
 	_, err := os.Stat(f)
 	if err != nil {
@@ -59,7 +65,7 @@ func ExtractGzip(ctx context.Context, d string, f string) error {
 	}
 	defer out.Close()
 
-	written, err := io.Copy(out, io.LimitReader(gr, maxBytes))
+	written, err := io.CopyBuffer(out, io.LimitReader(gr, maxBytes), *buf)
 	if err != nil {
 		return fmt.Errorf("failed to copy file: %w", err)
 	}

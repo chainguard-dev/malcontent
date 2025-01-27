@@ -20,6 +20,12 @@ func ExtractUPX(ctx context.Context, d, f string) error {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting upx")
 
+	buf, ok := bufferPool.Get().(*[]byte)
+	if !ok {
+		return fmt.Errorf("failed to retrieve buffer")
+	}
+	defer bufferPool.Put(buf)
+
 	// Check if the file is valid
 	_, err := os.Stat(f)
 	if err != nil {

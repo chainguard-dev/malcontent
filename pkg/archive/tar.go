@@ -22,6 +22,12 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting tar")
 
+	buf, ok := bufferPool.Get().(*[]byte)
+	if !ok {
+		return fmt.Errorf("failed to retrieve buffer")
+	}
+	defer bufferPool.Put(buf)
+
 	// Check if the file is valid
 	_, err := os.Stat(f)
 	if err != nil {
@@ -83,8 +89,12 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 		}
 		defer out.Close()
 
-		if _, err = io.Copy(out, xzStream); err != nil {
+		written, err := io.CopyBuffer(out, io.LimitReader(xzStream, maxBytes), *buf)
+		if err != nil {
 			return fmt.Errorf("failed to write decompressed xz output: %w", err)
+		}
+		if written >= maxBytes {
+			return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
 		}
 		return nil
 	case strings.Contains(filename, ".tar.bz2") || strings.Contains(filename, ".tbz"):
