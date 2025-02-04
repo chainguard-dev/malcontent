@@ -15,8 +15,8 @@ rule sonarqube_tutorial_app: override {
 
 rule sonar_analyzer_override: override {
   meta:
-    description                                   = "SonarQube SonarAnalyzer.CSharp.dll"
-    COD3NYM_SUSP_OBF_NET_Reactor_Indicators_Jan24 = "medium"
+    description                = "SonarQube SonarAnalyzer.CSharp.dll"
+    COD3NYM_Reactor_Indicators = "medium"
 
   strings:
     $ = "SonarAnalyzer" fullword
