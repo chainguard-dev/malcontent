@@ -565,7 +565,8 @@ func main() {
 						return err
 					}
 
-					if length > 0 && mc.Renderer.Name() != "Interactive" {
+					show := length > 0 && (mc.Renderer.Name() == "Simple" || strings.Contains(mc.Renderer.Name(), "Terminal"))
+					if show {
 						fmt.Fprintf(os.Stderr, "\n💡 For detailed analysis, try \"mal analyze <path>\"\n")
 					}
 
