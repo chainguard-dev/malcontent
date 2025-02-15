@@ -6,7 +6,7 @@ rule Webshell_in_image
         version = "1.0"
         creation_date = "2020-01-01"
         first_imported = "2021-12-30"
-        last_modified = "2021-12-30"
+        last_modified = "2025-02-14"
         status = "RELEASED"
         sharing = "TLP:WHITE"
         source = "BARTBLAZE"
@@ -21,11 +21,15 @@ rule Webshell_in_image
         $jpeg = {FF D8 FF E0}
         $bmp = {42 4D}
         $s1 = "<%@ Page Language=" ascii wide
-        $s2 = "<?php" ascii wide nocase
-        $s3 = "eval(" ascii wide nocase
-        $s4 = "<eval" ascii wide nocase
-        $s5 = "<%eval" ascii wide nocase
+        $s2 = /<\?php[ -~]{30,}/ ascii wide nocase
+        $s3 = /eval\([ -~]{30,}/ ascii wide nocase
+        $s4 = /<eval[ -~]{30,}/ ascii wide nocase
+        $s5 = /<%eval[ -~]{30,}/ ascii wide nocase
 
     condition:
         ($gif at 0 and any of ($s*)) or ($png at 0 and any of ($s*)) or ($jpeg at 0 and any of ($s*)) or ($bmp at 0 and any of ($s*))
 }
+
+
+
+
