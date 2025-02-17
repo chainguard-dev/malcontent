@@ -9,7 +9,7 @@ require (
 	github.com/cavaliergopher/rpm v1.2.0
 	github.com/chainguard-dev/clog v1.6.1
 	github.com/charmbracelet/bubbles v0.20.1-0.20241115220041-e5296a2b0fd6
-	github.com/charmbracelet/bubbletea v1.3.0
+	github.com/charmbracelet/bubbletea v1.3.3
 	github.com/charmbracelet/lipgloss v1.0.0
 	github.com/egibs/go-debian v0.18.0
 	github.com/fatih/color v1.18.0
