@@ -103,7 +103,7 @@ rule EXE_in_LNK
         version = "1.0"
         creation_date = "2020-01-01"
         first_imported = "2021-12-30"
-        last_modified = "2021-12-30"
+        last_modified = "2025-02-16"
         status = "RELEASED"
         sharing = "TLP:WHITE"
         source = "BARTBLAZE"
@@ -112,10 +112,6 @@ rule EXE_in_LNK
         category = "INFO"
 
     strings:
-        $ = ".exe" ascii wide nocase
-        $ = ".dll" ascii wide nocase
-        $ = ".scr" ascii wide nocase
-        $ = ".pif" ascii wide nocase
         $ = "This program" ascii wide nocase
         $ = "TVqQAA" ascii wide nocase
 
@@ -251,7 +247,7 @@ rule MSOffice_in_LNK
         version = "1.0"
         creation_date = "2020-01-01"
         first_imported = "2021-12-30"
-        last_modified = "2021-12-30"
+        last_modified = "2025-02-16"
         status = "RELEASED"
         sharing = "TLP:WHITE"
         source = "BARTBLAZE"
@@ -260,18 +256,21 @@ rule MSOffice_in_LNK
         category = "INFO"
 
     strings:
-        $ = "winword" ascii wide nocase
-        $ = "excel" ascii wide nocase
-        $ = "powerpnt" ascii wide nocase
+        $ = ".docm" ascii wide nocase
+        $ = ".dotm" ascii wide nocase
+        $ = ".potm" ascii wide nocase
+        $ = ".ppsm" ascii wide nocase
+        $ = ".pptm" ascii wide nocase
         $ = ".rtf" ascii wide nocase
-        $ = ".doc" ascii wide nocase
-        $ = ".dot" ascii wide nocase
-        $ = ".xls" ascii wide nocase
+        $ = ".sldm" ascii wide nocase
+        $ = ".slk" ascii wide nocase
+        $ = ".wll" ascii wide nocase
         $ = ".xla" ascii wide nocase
-        $ = ".csv" ascii wide nocase
-        $ = ".ppt" ascii wide nocase
-        $ = ".pps" ascii wide nocase
-        $ = ".xml" ascii wide nocase
+        $ = ".xlam" ascii wide nocase
+        $ = ".xls" ascii wide nocase
+        $ = ".xlsm" ascii wide nocase
+        $ = ".xll" ascii wide nocase
+        $ = ".xltm" ascii wide nocase
 
     condition:
         isLNK and any of them
@@ -356,7 +355,7 @@ rule Long_RelativePath_LNK
         version = "1.0"
         creation_date = "2020-01-01"
         first_imported = "2021-12-30"
-        last_modified = "2021-12-30"
+        last_modified = "2025-02-16"
         status = "RELEASED"
         sharing = "TLP:WHITE"
         source = "BARTBLAZE"
@@ -365,7 +364,7 @@ rule Long_RelativePath_LNK
         category = "INFO"
 
     strings:
-        $ = "..\\..\\..\\..\\" ascii wide nocase
+        $ = "..\\..\\..\\..\\..\\..\\" ascii wide nocase
 
     condition:
         isLNK and any of them
