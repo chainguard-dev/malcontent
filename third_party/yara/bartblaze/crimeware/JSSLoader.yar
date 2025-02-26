@@ -6,7 +6,7 @@ rule JSSLoader
         version = "1.0"
         creation_date = "2021-06-01"
         first_imported = "2021-12-30"
-        last_modified = "2021-12-30"
+        last_modified = "2025-02-24"
         status = "RELEASED"
         sharing = "TLP:WHITE"
         source = "BARTBLAZE"
@@ -18,22 +18,14 @@ rule JSSLoader
         mitre_att = "S0648"
 
     strings:
-        $s1 = "host" ascii wide fullword
-        $s2 = "domain" ascii wide fullword
-        $s3 = "user" ascii wide fullword
-        $s4 = "processes" ascii wide fullword
-        $s5 = "name" ascii wide fullword
-        $s6 = "pid" ascii wide fullword
-        $s7 = "desktop_file_list" ascii wide fullword
-        $s8 = "file" ascii wide fullword
-        $s9 = "size" ascii wide fullword
-        $s10 = "adinfo" ascii wide fullword
-        $s11 = "no_ad" ascii wide fullword
-        $s12 = "adinformation" ascii wide fullword
-        $s13 = "part_of_domain" ascii wide fullword
-        $s14 = "pc_domain" ascii wide fullword
-        $s15 = "pc_dns_host_name" ascii wide fullword
-        $s16 = "pc_model" ascii wide fullword
+        $s1 = "desktop_file_list" ascii wide fullword
+        $s2 = "adinfo" ascii wide fullword
+        $s3 = "no_ad" ascii wide fullword
+        $s4 = "adinformation" ascii wide fullword
+        $s5 = "part_of_domain" ascii wide fullword
+        $s6 = "pc_domain" ascii wide fullword
+        $s7 = "pc_dns_host_name" ascii wide fullword
+        $s8 = "pc_model" ascii wide fullword
         $x1 = "/?id=" ascii wide
         $x2 = "failed start exe" ascii wide
         $x3 = "Sending timer request failed, error code" ascii wide
@@ -41,5 +33,5 @@ rule JSSLoader
         $x5 = "Sending initial request failed, error code" ascii wide
 
     condition:
-        14 of ($s*) or 3 of ($x*)
+        filesize <200KB and (all of ($s*) or 3 of ($x*))
 }
