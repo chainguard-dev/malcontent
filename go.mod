@@ -16,7 +16,7 @@ require (
 	github.com/gabriel-vasile/mimetype v1.4.8
 	github.com/google/go-cmp v0.7.0
 	github.com/google/go-containerregistry v0.20.3
-	github.com/klauspost/compress v1.17.11
+	github.com/klauspost/compress v1.18.0
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/shirou/gopsutil/v4 v4.25.1
 	github.com/ulikunitz/xz v0.5.12
