@@ -9,7 +9,7 @@ require (
 	github.com/cavaliergopher/rpm v1.2.0
 	github.com/chainguard-dev/clog v1.6.1
 	github.com/charmbracelet/bubbles v0.20.1-0.20241115220041-e5296a2b0fd6
-	github.com/charmbracelet/bubbletea v1.3.3
+	github.com/charmbracelet/bubbletea v1.3.4
 	github.com/charmbracelet/lipgloss v1.0.0
 	github.com/egibs/go-debian v0.18.0
 	github.com/fatih/color v1.18.0
@@ -18,7 +18,7 @@ require (
 	github.com/google/go-containerregistry v0.20.3
 	github.com/klauspost/compress v1.18.0
 	github.com/olekukonko/tablewriter v0.0.5
-	github.com/shirou/gopsutil/v4 v4.25.1
+	github.com/shirou/gopsutil/v4 v4.25.2
 	github.com/ulikunitz/xz v0.5.12
 	github.com/urfave/cli/v2 v2.27.5
 	github.com/wk8/go-ordered-map/v2 v2.1.8
