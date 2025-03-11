@@ -30,7 +30,9 @@ import (
 	yarax "github.com/VirusTotal/yara-x/go"
 )
 
-const interactive string = "Interactive"
+func interactive(c malcontent.Config) bool {
+	return c.Renderer != nil && c.Renderer.Name() == "Interactive"
+}
 
 var (
 	// compiledRuleCache are a cache of previously compiled rules.
@@ -59,7 +61,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	isArchive := archiveRoot != ""
 	mime := "<unknown>"
 	kind, err := programkind.File(path)
-	if err != nil && (c.Renderer == nil || c.Renderer.Name() != interactive) {
+	if err != nil && !interactive(c) {
 		logger.Errorf("file type failure: %s: %s", path, err)
 	}
 	if kind != nil {
@@ -439,7 +441,7 @@ func handleSingleFile(ctx context.Context, path string, scanInfo scanPathInfo, c
 	}
 
 	fr, err := processFile(ctx, c, c.RuleFS, path, scanInfo.effectivePath, trimPath, logger)
-	if err != nil && (c.Renderer == nil || c.Renderer.Name() != interactive) {
+	if err != nil && !interactive(c) {
 		if len(c.TrimPrefixes) > 0 {
 			path = report.TrimPrefixes(path, c.TrimPrefixes)
 		}
@@ -590,7 +592,7 @@ func processFile(ctx context.Context, c malcontent.Config, ruleFS []fs.FS, path 
 	logger = logger.With("path", path)
 
 	fr, err := scanSinglePath(ctx, c, path, ruleFS, scanPath, archiveRoot)
-	if err != nil && (c.Renderer == nil || c.Renderer.Name() != interactive) {
+	if err != nil && !interactive(c) {
 		return handleFileReportError(err, path, logger)
 	}
 
@@ -604,7 +606,7 @@ func processFile(ctx context.Context, c malcontent.Config, ruleFS []fs.FS, path 
 // Scan YARA scans a data source, applying output filters if necessary.
 func Scan(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) {
 	r, err := recursiveScan(ctx, c)
-	if err != nil && (c.Renderer == nil || c.Renderer.Name() != interactive) {
+	if err != nil && !interactive(c) {
 		return r, err
 	}
 	r.Files.Range(func(key, value any) bool {
