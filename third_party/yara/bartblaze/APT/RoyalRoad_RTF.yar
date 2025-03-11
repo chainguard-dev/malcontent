@@ -6,12 +6,12 @@ rule RoyalRoad_RTF
         version = "1.0"
         creation_date = "2020-01-01"
         first_imported = "2021-12-30"
-        last_modified = "2021-12-30"
+        last_modified = "2025-03-17"
         status = "RELEASED"
         sharing = "TLP:WHITE"
         source = "BARTBLAZE"
         author = "@bartblaze"
-        description = "Identifies RoyalRoad RTF, used by multiple Chinese APT groups."
+        description = "Identifies RoyalRoad RTF, used by multiple China-based APT groups."
         category = "MALWARE"
         malware = "ROYALROAD"        
         malware_type = "EXPLOITKIT"
@@ -20,8 +20,8 @@ rule RoyalRoad_RTF
 
     strings:
         $rtf = "{\\rt"
-        $RR1 = "5C746D705C382E74" ascii wide nocase
-        $RR2 = "5C417070446174615C4C6F63616C5C54656D705C382E74" ascii wide nocase
+        $RR1 = "5C746D705C382E74" nocase
+        $RR2 = "5C417070446174615C4C6F63616C5C54656D705C382E74" nocase
 
     condition:
         $rtf at 0 and any of ($RR*)

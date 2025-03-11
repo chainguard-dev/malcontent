@@ -5,7 +5,7 @@ meta:
 	fingerprint = "8eea2d3d8d4e8ca6ef89d474232d1117e2a5a5b4c714b4c82493293f31e4f2c6"
 	version = "1.0"
 	first_imported = "2023-09-18"
-	last_modified = "2023-09-18"
+	last_modified = "2025-03-10"
 	status = "RELEASED"
 	sharing = "TLP:WHITE"
 	source = "BARTBLAZE"
@@ -18,7 +18,7 @@ meta:
 
 strings:
 	//PDB
-	$pdb = "I:\\Repository2\\test\\Project21\\event\\Release\\event.pdb" ascii wide
+	$pdb = "I:\\Repository2\\test\\Project21\\event\\Release\\event.pdb"
 	
 	//Mutants
 	$mut1 = "Global\\A6A161D8-150E-46A1-B7EC-18E4CB58C6D2" ascii wide

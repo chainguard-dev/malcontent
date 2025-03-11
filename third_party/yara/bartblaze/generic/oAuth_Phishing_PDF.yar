@@ -6,7 +6,7 @@ rule oAuth_Phishing_PDF
         version = "1.0"
         creation_date = "2022-01-01"
         first_imported = "2022-02-03"
-        last_modified = "2022-02-03"
+        last_modified = "2025-03-10"
         status = "RELEASED"
         sharing = "TLP:WHITE"
         source = "BARTBLAZE"
@@ -17,9 +17,9 @@ rule oAuth_Phishing_PDF
 
     strings:
         $pdf = {25504446} //%PDF
-        $s1 = "/URI (https://login.microsoftonline.com/common/oauth2/" ascii wide nocase
-        $s2 = "/URI (https://login.microsoftonline.com/consumers/oauth2" ascii wide nocase
-        $s3 = "/URI (https://accounts.google.com/o/oauth2" ascii wide nocase
+        $s1 = "/URI (https://login.microsoftonline.com/common/oauth2/" nocase
+        $s2 = "/URI (https://login.microsoftonline.com/consumers/oauth2" nocase
+        $s3 = "/URI (https://accounts.google.com/o/oauth2" nocase
 
     condition:
         $pdf at 0 and any of ($s*)

@@ -6,7 +6,7 @@ rule IISRaid
         version = "1.0"
         creation_date = "2021-08-01"
         first_imported = "2021-12-30"
-        last_modified = "2021-12-30"
+        last_modified = "2025-03-10"
         status = "RELEASED"
         sharing = "TLP:WHITE"
         source = "BARTBLAZE"
@@ -20,7 +20,7 @@ rule IISRaid
 
     strings:
         $pdb1 = "\\IIS-Raid-master\\" ascii wide
-        $pdb2 = "\\IIS-Backdoor.pdb" ascii wide
+        $pdb2 = "\\IIS-Backdoor.pdb"
         $s1 = "C:\\Windows\\System32\\credwiz.exe" ascii wide
         $s2 = "C:\\Windows\\Temp\\creds.db" ascii wide
         $s3 = "CHttpModule::" ascii wide

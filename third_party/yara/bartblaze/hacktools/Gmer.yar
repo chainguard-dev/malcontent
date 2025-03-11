@@ -8,7 +8,7 @@ rule Gmer
         version = "1.0"
         creation_date = "2021-07-01"
         first_imported = "2021-12-30"
-        last_modified = "2021-12-30"
+        last_modified = "2025-03-10"
         status = "RELEASED"
         sharing = "TLP:WHITE"
         source = "BARTBLAZE"
@@ -21,7 +21,7 @@ rule Gmer
     strings:
         $ = "GMER %s - %s" ascii wide
         $ = "IDI_GMER" ascii wide fullword
-        $ = "E:\\projects\\cpp\\gmer\\Release\\gmer.pdb" ascii wide
+        $ = "E:\\projects\\cpp\\gmer\\Release\\gmer.pdb"
 
     condition:
         any of them
