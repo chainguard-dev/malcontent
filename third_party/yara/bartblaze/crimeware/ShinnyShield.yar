@@ -5,7 +5,7 @@ meta:
 	fingerprint = "efbf32d12e094c838e2375689bbafeadb7859529ba87aefb45ae0a76575faf1d"
 	version = "1.0"
 	first_imported = "2023-08-01"
-	last_modified = "2023-08-01"
+	last_modified = "2025-03-10"
 	status = "RELEASED"
 	sharing = "TLP:WHITE"
 	source = "BARTBLAZE"
@@ -33,7 +33,7 @@ strings:
     $msg_worm5 = "wormStatus infected %s" ascii wide
     $msg_worm6 = "get cucked by shiny" ascii wide
 
-    $pdb = "F:\\1337 Call Of Duty\\dxproxies\\DirectX-Wrappers\\Release\\dsound.pdb" ascii wide
+    $pdb = "F:\\1337 Call Of Duty\\dxproxies\\DirectX-Wrappers\\Release\\dsound.pdb"
 
     $exp = "joinParty 149 1 1 0 0 0 32 0 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17"
     
