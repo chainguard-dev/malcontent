@@ -8,7 +8,7 @@ rule PowerTool
         version = "1.0"
         creation_date = "2021-07-01"
         first_imported = "2021-12-30"
-        last_modified = "2021-12-30"
+        last_modified = "2025-03-10"
         status = "RELEASED"
         sharing = "TLP:WHITE"
         source = "BARTBLAZE"
@@ -20,7 +20,7 @@ rule PowerTool
 
 
     strings:
-        $ = "C:\\dev\\pt64_en\\Release\\PowerTool.pdb" ascii wide
+        $ = "C:\\dev\\pt64_en\\Release\\PowerTool.pdb"
         $ = "Detection may be stuck, First confirm whether the device hijack in [Disk trace]" ascii wide
         $ = "SuspiciousDevice Error reading MBR(Kernel Mode) !" ascii wide
         $ = "Modify kill process Bug." ascii wide
