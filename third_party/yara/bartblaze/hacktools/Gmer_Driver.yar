@@ -8,7 +8,7 @@ rule Gmer_Driver
         version = "1.0"
         creation_date = "2021-07-01"
         first_imported = "2021-12-30"
-        last_modified = "2021-12-30"
+        last_modified = "2025-03-10"
         status = "RELEASED"
         sharing = "TLP:WHITE"
         source = "BARTBLAZE"
@@ -19,7 +19,7 @@ rule Gmer_Driver
 
 
     strings:
-        $ = "e:\\projects\\cpp\\gmer\\driver64\\objfre_wlh_amd64\\amd64\\gmer64.pdb" ascii wide
+        $ = "e:\\projects\\cpp\\gmer\\driver64\\objfre_wlh_amd64\\amd64\\gmer64.pdb"
         $ = "GMER Driver http://www.gmer.net" ascii wide
 
     condition:
