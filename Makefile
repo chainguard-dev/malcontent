@@ -163,6 +163,9 @@ bench-windows:
 .PHONY: out/mal
 out/mal:
 	mkdir -p out
+	CGO_LDFLAGS="-L${HOME}/lib -Wl,-rpath,${HOME}/lib" \
+	CGO_CPPFLAGS="-I${HOME}/include" \
+	PKG_CONFIG_PATH="${HOME}/lib/pkgconfig" \
 	go build -o out/mal ./cmd/mal
 
 .PHONY: update-third-party
