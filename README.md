@@ -127,38 +127,30 @@ Requirements:
 To build install the C API manually, do the following:
 - Install Rust: https://www.rust-lang.org/learn/get-started
 - Install `cargo-c`:
-  ```
+  ```sh
   cargo install cargo-c
   ```
 - Clone the `yara-x` repository and change directories:
-  ```
+  ```sh
   git clone https://github.com/VirusTotal/yara-x
   cd yara-x
   ```
 - Install the C API:
-  ```
+  ```sh
   cargo cinstall -p yara-x-capi --release --prefix=$HOME --libdir=$HOME/lib
   ```
-- Install malcontent:
+- Install malcontent with the `out/mal` Makefile target:
   ```sh
-  go install github.com/chainguard-dev/malcontent/cmd/mal@latest
+  make out/mal
   ```
-- Add `$HOME/lib` to `LD_LIBRARY_PATH` as well as `LIBRARY_PATH` and `$HOME/lib/pkgconfig` to `PKG_CONFIG_PATH`:
+  or manually ensuring that the correct environment variables are used:
+  ```sh
+  CGO_LDFLAGS="-L${HOME}/lib -Wl,-rpath,${HOME}/lib" \
+  CGO_CPPFLAGS="-I${HOME}/include" \
+  PKG_CONFIG_PATH="${HOME}/lib/pkgconfig" \
+  go install cmd/mal/mal.go
   ```
-  export LD_LIBRARY_PATH="$HOME/lib:$LD_LIBRARY_PATH"
-  export LIBRARY_PATH="$HOME/lib:$LIBRARY_PATH"
-  export PKG_CONFIG_PATH="$HOME/lib/pkgconfig:$PKG_CONFIG_PATH"
-  ```
-  - To persist these changes, add each line to `~/.bashrc`, `~/.zshrc`, etc*.
-- Run `sudo ldconfig -v` if on Linux
-- Test malcontent via `mal -h`
-
-\* Setting the path environment variables looks a little different for Fish:
-```fish
-set -Ux LD_LIBRARY_PATH "$HOME/lib:$LD_LIBRARY_PATH"
-set -Ux LIBRARY_PATH "$HOME/lib:$LIBRARY_PATH"
-set -Ux PKG_CONFIG_PATH "$HOME/lib/pkgconfig:$PKG_CONFIG_PATH"
-```
+- Test malcontent via `./out/mal -h`, `$GOPATH/bin/mal -h` (if installed directly) or with `go run cmd/mal/mal.go -h`
 
 For more information on building and installing the yara-x C API, reference the documentation here: https://virustotal.github.io/yara-x/docs/api/c/c-/#building-the-c-library.
 
