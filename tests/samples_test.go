@@ -356,7 +356,7 @@ func TestDiff(t *testing.T) {
 
 			logger := clog.New(slog.Default().Handler()).With("src", tc.src)
 			ctx := clog.WithLogger(context.Background(), logger)
-			res, err := action.Diff(ctx, mc)
+			res, err := action.Diff(ctx, mc, logger)
 			if err != nil {
 				t.Fatalf("diff failed: %v", err)
 			}
@@ -423,7 +423,7 @@ func TestDiffFileChange(t *testing.T) {
 
 			logger := clog.New(slog.Default().Handler()).With("src", tc.src)
 			ctx := clog.WithLogger(context.Background(), logger)
-			res, err := action.Diff(ctx, mc)
+			res, err := action.Diff(ctx, mc, logger)
 			if err != nil {
 				t.Fatalf("diff failed: %v", err)
 			}
@@ -490,7 +490,7 @@ func TestDiffFileIncrease(t *testing.T) {
 
 			logger := clog.New(slog.Default().Handler()).With("src", tc.src)
 			ctx := clog.WithLogger(context.Background(), logger)
-			res, err := action.Diff(ctx, mc)
+			res, err := action.Diff(ctx, mc, logger)
 			if err != nil {
 				t.Fatalf("diff failed: %v", err)
 			}
