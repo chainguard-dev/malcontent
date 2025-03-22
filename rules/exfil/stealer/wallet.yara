@@ -30,6 +30,9 @@ rule crypto_stealer_names: critical {
     $not_js          = /\"js\": \{[^}]{0,64}/
     $not_scriptsrc   = /\"scriptSrc\": "([^"]{0,64})"/
     $not_website     = /\"website\": "([^"]{0,64})"/
+    $not_geth_mod    = "github.com/ethereum/go-ethereum"
+    $not_clef        = "github.com/ethereum/go-ethereum/cmd/clef/main.go"
+    $not_geth        = "github.com/ethereum/go-ethereum/cmd/geth/main.go"
 
   condition:
     filesize < 100MB and $http and 2 of ($w*) and none of ($not*)

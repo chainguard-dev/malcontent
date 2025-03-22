@@ -106,8 +106,10 @@ rule setuptools_exec: medium {
   strings:
     $f_exec = /exec\([\"\'\/\w\,\.\ \-\)\(]{1,64}\)/ fullword
 
+    $not_hopper = "with open(\" hopper /__version__.py\") as fp:"
+
   condition:
-    remote_access_pythonSetup and any of ($f*)
+    remote_access_pythonSetup and any of ($f*) and none of ($not*)
 }
 
 rule setuptools_exec_high: high {
