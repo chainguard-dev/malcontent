@@ -17,7 +17,7 @@ rule nmap_fingerprints: override {
 rule nping_bin: override {
   meta:
     description               = "/usr/bin/nping"
-    SEKOIA_Tool_Nping_Strings = "low"
+    SEKOIA_Tool_Nping_Strings = "medium"
 
   strings:
     $nping = "Usage: nping [Probe mode] [Options] {target specification}"
