@@ -1,4 +1,5 @@
 # linux/2024.Gelsemium/udevd: critical
+3P/reversinglabs/backdoor_wolfsbane: critical
 3P/sekoia/gelsemium_wolfsbane_backdoor: critical
 anti-static/elf/multiple: medium
 c2/addr/ip: medium
