@@ -12,11 +12,11 @@
                     ],
                     "RiskScore": 4,
                     "RiskLevel": "CRITICAL",
-                    "RuleURL": "https://github.com/Neo23x0/signature-base/blob/c5eeeb93dd461671a2987f1f08ae0d9d00f7dd54/yara/gen_powershell_susp.yar#L52-L91",
+                    "RuleURL": "https://github.com/Neo23x0/signature-base/blob/cc1c7b6241acff6011fcee65dd2c9066644720cb/yara/gen_powershell_susp.yar#L52-L91",
                     "ReferenceURL": "Internal%20Research",
                     "RuleAuthor": "Florian Roth (Nextron Systems)",
                     "RuleLicense": "Detection Rule License 1.1 https://github.com/Neo23x0/signature-base/blob/master/LICENSE",
-                    "RuleLicenseURL": "https://github.com/Neo23x0/signature-base/blob/c5eeeb93dd461671a2987f1f08ae0d9d00f7dd54/LICENSE",
+                    "RuleLicenseURL": "https://github.com/Neo23x0/signature-base/blob/cc1c7b6241acff6011fcee65dd2c9066644720cb/LICENSE",
                     "ID": "3P/sig_base/powershell_webdownload",
                     "RuleName": "SIGNATURE_BASE_Suspicious_Powershell_Webdownload_1"
                 },
