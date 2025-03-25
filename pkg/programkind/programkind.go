@@ -35,6 +35,8 @@ var ArchiveMap = map[string]bool{
 	".upx":    true,
 	".whl":    true,
 	".xz":     true,
+	".zst":    true,
+	".zstd":   true,
 	".zip":    true,
 }
 
