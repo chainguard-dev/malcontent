@@ -51,11 +51,18 @@ $(GOLANGCI_LINT_BIN):
 	mv $(LINT_ROOT)/out/linters/golangci-lint $@
 
 YARA_X_VERSION ?= v0.13.0
+YARA_X_SHA :=
+ifeq ($(LINT_OS),Darwin)
+	YARA_X_SHA=d47f458d0bdd1cb5a3b25b8a1efa2826c263e2855f0615f5f36377af6799b217
+else
+	YARA_X_SHA=783a62c3493c42e380835bf5c2d12ba8e017d7ebe227e7d004bd5845d4cc38bc
+endif
 YARA_X_BIN := $(LINT_ROOT)/out/linters/yr-$(YARA_X_VERSION)-$(LINT_ARCH)
 $(YARA_X_BIN):
 	mkdir -p $(LINT_ROOT)/out/linters
 	rm -rf $(LINT_ROOT)/out/linters/yr
 	curl -sSfL https://github.com/VirusTotal/yara-x/releases/download/$(YARA_X_VERSION)/yara-x-$(YARA_X_VERSION)-$(LINT_ARCH)-$(LINT_PLATFORM)-$(LINT_OS_LOWER)$(LINT_PLATFORM_SUFFIX).gz -o yara-x.gzip
+	echo "$(YARA_X_SHA) *yara-x.gzip" | shasum -a 256 --check
 	tar -xzvf yara-x.gzip && mv yr $(LINT_ROOT)/out/linters && rm yara-x.gzip
 	mv $(LINT_ROOT)/out/linters/yr $@
 
