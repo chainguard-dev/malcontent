@@ -212,6 +212,8 @@ func ExtractionMethod(ext string) func(context.Context, string, string) error {
 		return ExtractZip
 	case ".bz2", ".bzip2":
 		return ExtractBz2
+	case ".zst", ".zstd":
+		return ExtractZstd
 	case ".rpm":
 		return ExtractRPM
 	case ".deb":
