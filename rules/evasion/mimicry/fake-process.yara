@@ -3,11 +3,13 @@ rule fake_kworker: critical linux {
     description = "Pretends to be a kworker kernel thread"
 
   strings:
-    $kworker  = /\[{0,1}kworker\/[\w\%:\-\]]{1,16}/
-    $kworker3 = "[kworker"
+    $kworker1 = /\[{0,1}kworker\/[\w\%:\-\]]{1,16}/
+    $kworker2 = "[kworker"
+
+    $not_rescue = "kworker/R-%s"
 
   condition:
-    filesize < 100MB and any of ($k*)
+    filesize < 100MB and any of ($kworker*) and none of ($not*)
 }
 
 rule kworker: medium linux {

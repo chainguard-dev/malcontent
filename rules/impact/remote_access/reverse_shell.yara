@@ -56,10 +56,12 @@ rule perl_reverse_shell: critical {
     $redir_single = "'>&"
     $sh_i         = "sh -i"
 
-    $not_yarn1 = "If the package is not specified, Yarn will default to the current workspace."
-    $not_yarn2 = "yarn npm"
-    $not_yarn3 = "@yarnpkg"
-    $not_yarn4 = "YARN_"
+    $not_comment1 = "Upgrade all instances of lodash to the latest release, but ask confirmation for each"
+    $not_comment2 = "$0 up lodash -i"
+    $not_yarn1    = "If the package is not specified, Yarn will default to the current workspace."
+    $not_yarn2    = "yarn npm"
+    $not_yarn3    = "@yarnpkg"
+    $not_yarn4    = "YARN_"
 
   condition:
     $socket and $open and any of ($redir*) and $sh_i and none of ($not*)
