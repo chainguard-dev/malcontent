@@ -118,22 +118,41 @@ The analyze mode emits a list of capabilities often seen in malware, categorized
 Requirements:
 
 * [go](https://go.dev/) - the programming language
+* [rust](https://www.rust-lang.org) - yara-x requirement
 * [yara-x](https://virustotal.github.io/yara-x/) - the rule language
 * [pkgconf](http://pkgconf.org/) - required by Go to find C dependencies, included in many UNIX distributions
 
-`yara-x` requires an underlying C API to function. To build and install the API, reference the documentation here: https://virustotal.github.io/yara-x/docs/api/c/c-/#building-the-c-library.
+`yara-x` requires an underlying C API to function with Golang.
 
-Running `cargo cinstall -p yara-x-capi --release` without `sudo` may encounter permission denied errors.
+To build install the C API manually, do the following:
+- Install Rust: https://www.rust-lang.org/learn/get-started
+- Install `cargo-c`:
+  ```sh
+  cargo install cargo-c
+  ```
+- Clone the `yara-x` repository and change directories:
+  ```sh
+  git clone https://github.com/VirusTotal/yara-x
+  cd yara-x
+  ```
+- Install the C API:
+  ```sh
+  cargo cinstall -p yara-x-capi --release --prefix=$HOME --libdir=$HOME/lib
+  ```
+- Install malcontent with the `out/mal` Makefile target:
+  ```sh
+  make out/mal
+  ```
+  or manually ensuring that the correct environment variables are used:
+  ```sh
+  CGO_LDFLAGS="-L${HOME}/lib -Wl,-rpath,${HOME}/lib" \
+  CGO_CPPFLAGS="-I${HOME}/include" \
+  PKG_CONFIG_PATH="${HOME}/lib/pkgconfig" \
+  go install cmd/mal/mal.go
+  ```
+- Test malcontent via `./out/mal -h`, `$GOPATH/bin/mal -h` (if installed directly) or with `go run cmd/mal/mal.go -h` (keep in mind that any `go run` invocations will require the CGO/PKG_CONFIG environment variables mentioned above)
 
-If this is the case, run the following:
-```sh
-sudo -E env "PATH=$PATH" cargo cinstall -p yara-x-capi --release
-```
-
-Install malcontent:
-```sh
-go install github.com/chainguard-dev/malcontent/cmd/mal@latest
-```
+For more information on building and installing the yara-x C API, reference the documentation here: https://virustotal.github.io/yara-x/docs/api/c/c-/#building-the-c-library.
 
 ## Help Wanted
 
