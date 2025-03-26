@@ -30,6 +30,9 @@ rule crypto_stealer_names: critical {
     $not_js          = /\"js\": \{[^}]{0,64}/
     $not_scriptsrc   = /\"scriptSrc\": "([^"]{0,64})"/
     $not_website     = /\"website\": "([^"]{0,64})"/
+    $not_clef1       = "These data types are defined in the channel between clef and the UILedger"
+    $not_clef2       = "The `transaction` (on input into clef) can have either `data` or `input`"
+    $not_geth_site   = "https://geth.ethereum.org"
 
   condition:
     filesize < 100MB and $http and 2 of ($w*) and none of ($not*)

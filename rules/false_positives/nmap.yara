@@ -13,3 +13,16 @@ rule nmap_fingerprints: override {
   condition:
     filesize < 512KB and $description and $license and #fingerprint > 0
 }
+
+rule nping_bin: override {
+  meta:
+    description               = "/usr/bin/nping"
+    SEKOIA_Tool_Nping_Strings = "medium"
+
+  strings:
+    $nping = "Usage: nping [Probe mode] [Options] {target specification}"
+    $site  = "https://nmap.org/nping"
+
+  condition:
+    filesize < 1MB and all of them
+}

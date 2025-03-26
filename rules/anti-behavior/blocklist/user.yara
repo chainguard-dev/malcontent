@@ -37,6 +37,7 @@ rule common_username_block_list: critical {
     $ = "test" fullword
     $ = "w0fjuOVmCcP5A" fullword
 
+    $not_jitsu     = "jitsu.com"
     $not_redpanda  = "redpanda"
     $not_wireshark = "wireshark.org"
 
