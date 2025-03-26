@@ -150,7 +150,7 @@ To build install the C API manually, do the following:
   PKG_CONFIG_PATH="${HOME}/lib/pkgconfig" \
   go install cmd/mal/mal.go
   ```
-- Test malcontent via `./out/mal -h`, `$GOPATH/bin/mal -h` (if installed directly) or with `go run cmd/mal/mal.go -h`
+- Test malcontent via `./out/mal -h`, `$GOPATH/bin/mal -h` (if installed directly) or with `go run cmd/mal/mal.go -h` (keep in mind that any `go run` invocations will require the CGO/PKG_CONFIG environment variables mentioned above)
 
 For more information on building and installing the yara-x C API, reference the documentation here: https://virustotal.github.io/yara-x/docs/api/c/c-/#building-the-c-library.
 
