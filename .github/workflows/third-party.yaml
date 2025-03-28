@@ -34,7 +34,7 @@ jobs:
       - name: Install dependencies
         run: |
           apk update
-          apk add bash curl findutils gh git go nodejs perl upx xz yara-x-compat
+          apk add bash curl findutils gh git go nodejs perl upx xz yara-x
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - name: Trust repository
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
