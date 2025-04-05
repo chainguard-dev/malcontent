@@ -128,7 +128,7 @@ To build install the C API manually, do the following:
 - Install Rust: https://www.rust-lang.org/learn/get-started
 - Install `cargo-c`:
   ```sh
-  cargo install cargo-c
+  cargo install cargo-c --locked
   ```
 - Clone the `yara-x` repository and change directories:
   ```sh
