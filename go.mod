@@ -25,7 +25,7 @@ require (
 	github.com/urfave/cli/v2 v2.27.6
 	github.com/wk8/go-ordered-map/v2 v2.1.8
 	golang.org/x/sync v0.12.0
-	golang.org/x/term v0.30.0
+	golang.org/x/term v0.31.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -71,7 +71,7 @@ require (
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	golang.org/x/crypto v0.35.0 // indirect
 	golang.org/x/net v0.36.0 // indirect
-	golang.org/x/sys v0.31.0 // indirect
+	golang.org/x/sys v0.32.0 // indirect
 	golang.org/x/text v0.22.0 // indirect
 	google.golang.org/protobuf v1.36.3 // indirect
 	pault.ag/go/topsort v0.1.1 // indirect
