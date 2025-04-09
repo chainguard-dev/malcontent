@@ -15,11 +15,20 @@ import (
 
 	"github.com/agext/levenshtein"
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/archive"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 	"golang.org/x/sync/errgroup"
 )
+
+type ScanResult struct {
+	files    map[string]*malcontent.FileReport
+	base     string
+	err      error
+	tmpRoot  string
+	imageURI string
+}
 
 // displayPath mimics diff(1) output for relative paths.
 func displayPath(base, path string) string {
@@ -33,7 +42,7 @@ func displayPath(base, path string) string {
 }
 
 // relPath returns the cleanest possible relative path between a source path and files within said path.
-func relPath(from string, fr *malcontent.FileReport, isArchive bool) (string, string, error) {
+func relPath(from string, fr *malcontent.FileReport, isArchive bool, isImage bool) (string, string, error) {
 	var base string
 	var err error
 	var rel string
@@ -44,6 +53,37 @@ func relPath(from string, fr *malcontent.FileReport, isArchive bool) (string, st
 		// trim archiveRoot from fullPath
 		archiveFile := strings.TrimPrefix(fr.FullPath, fr.ArchiveRoot)
 		rel, err = filepath.Rel(fromRoot, archiveFile)
+		if err != nil {
+			return "", "", err
+		}
+	case isImage:
+		from = fr.Path
+		if strings.Contains(fr.Path, "∴") {
+			parts := strings.Split(fr.Path, "∴")
+			from = strings.TrimSpace(parts[0])
+		}
+		base, err = filepath.Abs(from)
+		if err != nil {
+			return "", "", err
+		}
+		info, err := os.Stat(from)
+		if err != nil {
+			return "", "", err
+		}
+		dir := filepath.Dir(from)
+		var fromRoot string
+		if info.IsDir() {
+			fromRoot, err = filepath.EvalSymlinks(from)
+		} else {
+			fromRoot, err = filepath.EvalSymlinks(dir)
+		}
+		if err != nil {
+			return "", "", err
+		}
+		if fromRoot == "." {
+			fromRoot = from
+		}
+		rel, err = filepath.Rel(fromRoot, from)
 		if err != nil {
 			return "", "", err
 		}
@@ -80,7 +120,7 @@ func relPath(from string, fr *malcontent.FileReport, isArchive bool) (string, st
 	return rel, base, nil
 }
 
-func relFileReport(ctx context.Context, c malcontent.Config, fromPath string) (map[string]*malcontent.FileReport, string, error) {
+func relFileReport(ctx context.Context, c malcontent.Config, fromPath string, isImage bool) (map[string]*malcontent.FileReport, string, error) {
 	fromConfig := c
 	fromConfig.Renderer = nil
 	fromConfig.ScanPaths = []string{fromPath}
@@ -88,25 +128,37 @@ func relFileReport(ctx context.Context, c malcontent.Config, fromPath string) (m
 	if err != nil {
 		return nil, "", err
 	}
+
 	fromRelPath := map[string]*malcontent.FileReport{}
-	var base, rel string
+	var base string
+	var rangeErr error
+
 	fromReport.Files.Range(func(key, value any) bool {
 		if key == nil || value == nil {
 			return true
 		}
+
 		if fr, ok := value.(*malcontent.FileReport); ok {
 			isArchive := fr.ArchiveRoot != ""
 			if fr.Skipped != "" {
 				return true
 			}
-			rel, base, err = relPath(fromPath, fr, isArchive)
+
+			rel, base, err := relPath(fromPath, fr, isArchive, isImage)
 			if err != nil {
+				rangeErr = err
 				return false
 			}
+
 			fromRelPath[rel] = fr
+			base = base
 		}
 		return true
 	})
+
+	if rangeErr != nil {
+		return nil, "", rangeErr
+	}
 
 	return fromRelPath, base, nil
 }
@@ -139,7 +191,7 @@ func scoreFile(fr, tr *malcontent.FileReport) bool {
 	return false
 }
 
-func Diff(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) {
+func Diff(ctx context.Context, c malcontent.Config, logger *clog.Logger) (*malcontent.Report, error) {
 	if len(c.ScanPaths) != 2 {
 		return nil, fmt.Errorf("diff mode requires 2 paths, you passed in %d path(s)", len(c.ScanPaths))
 	}
@@ -147,40 +199,51 @@ func Diff(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) 
 	srcPath := c.ScanPaths[0]
 	destPath := c.ScanPaths[1]
 
-	var g errgroup.Group
-
-	type scanResult struct {
-		files map[string]*malcontent.FileReport
-		base  string
-		err   error
+	// If diffing images, use their temporary directories as scan paths
+	// Flip c.OCI to false when finished to block other image code paths
+	var isImage bool
+	var err error
+	if c.OCI {
+		srcPath, err = archive.OCI(ctx, srcPath)
+		if err != nil {
+			return nil, fmt.Errorf("failed to prepare scan path: %w", err)
+		}
+		destPath, err = archive.OCI(ctx, destPath)
+		if err != nil {
+			return nil, fmt.Errorf("failed to prepare scan path: %w", err)
+		}
+		isImage = true
+		c.OCI = false
 	}
 
-	srcCh := make(chan scanResult, 1)
-	destCh := make(chan scanResult, 1)
+	var g errgroup.Group
+
+	srcCh := make(chan ScanResult, 1)
+	destCh := make(chan ScanResult, 1)
 
 	srcIsArchive := programkind.IsSupportedArchive(srcPath)
 	destIsArchive := programkind.IsSupportedArchive(destPath)
 
-	srcInfo, err := os.Stat(srcPath)
-	if err != nil {
-		return nil, err
-	}
-
-	destInfo, err := os.Stat(destPath)
-	if err != nil {
-		return nil, err
-	}
-
 	g.Go(func() error {
-		files, base, err := relFileReport(ctx, c, srcPath)
-		srcCh <- scanResult{files: files, base: base, err: err}
-		return nil
+		files, base, err := relFileReport(ctx, c, srcPath, isImage)
+		res := ScanResult{files: files, base: base, err: err}
+		if isImage {
+			res.imageURI = c.ScanPaths[0]
+			res.tmpRoot = srcPath
+		}
+		srcCh <- res
+		return err
 	})
 
 	g.Go(func() error {
-		files, base, err := relFileReport(ctx, c, destPath)
-		destCh <- scanResult{files: files, base: base, err: err}
-		return nil
+		files, base, err := relFileReport(ctx, c, destPath, isImage)
+		res := ScanResult{files: files, base: base, err: err}
+		if isImage {
+			res.imageURI = c.ScanPaths[1]
+			res.tmpRoot = destPath
+		}
+		destCh <- res
+		return err
 	})
 
 	if err := g.Wait(); err != nil {
@@ -206,12 +269,22 @@ func Diff(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) 
 		Modified: orderedmap.New[string, *malcontent.FileReport](),
 	}
 
+	srcInfo, err := os.Stat(srcPath)
+	if err != nil {
+		return nil, err
+	}
+
+	destInfo, err := os.Stat(destPath)
+	if err != nil {
+		return nil, err
+	}
+
 	// When scanning two directories, compare the files in each directory
 	// and employ add/delete for files that are not the same
 	// When scanning two files, do a 1:1 comparison and
 	// consider the source -> destination as a change rather than an add/delete
-	if (srcInfo.IsDir() && destInfo.IsDir()) || (srcIsArchive && destIsArchive) {
-		handleDir(ctx, c, srcResult.files, destResult.files, d)
+	if ((srcInfo.IsDir() && destInfo.IsDir()) || (srcIsArchive && destIsArchive)) || isImage {
+		handleDir(ctx, c, srcResult, destResult, d, isImage)
 	} else {
 		var srcFile, destFile *malcontent.FileReport
 		for _, fr := range srcResult.files {
@@ -228,29 +301,29 @@ func Diff(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) 
 			if scoreFile(srcFile, destFile) {
 				d.Removed.Set(srcFile.Path, srcFile)
 				d.Added.Set(destFile.Path, destFile)
-				inferMoves(ctx, c, d)
+				inferMoves(ctx, c, d, srcResult, destResult, isImage)
 			} else {
-				handleFile(ctx, c, srcFile, destFile, fmt.Sprintf("%s -> %s", formatSrc, formatDest), d)
+				handleFile(ctx, c, srcFile, destFile, fmt.Sprintf("%s -> %s", formatSrc, formatDest), d, srcResult, destResult, isImage)
 			}
 		}
 	}
 
 	// skip inferring moves if added and removed are empty
 	if d.Added != nil && d.Removed != nil {
-		inferMoves(ctx, c, d)
+		inferMoves(ctx, c, d, srcResult, destResult, isImage)
 	}
 	return &malcontent.Report{Diff: d}, nil
 }
 
-func handleDir(ctx context.Context, c malcontent.Config, src, dest map[string]*malcontent.FileReport, d *malcontent.DiffReport) {
+func handleDir(ctx context.Context, c malcontent.Config, src, dest ScanResult, d *malcontent.DiffReport, isImage bool) {
 	srcFiles := make(map[string]*malcontent.FileReport)
 	destFiles := make(map[string]*malcontent.FileReport)
 
-	for path, fr := range src {
+	for path, fr := range src.files {
 		base := filepath.Base(path)
 		srcFiles[base] = fr
 	}
-	for path, fr := range dest {
+	for path, fr := range dest.files {
 		base := filepath.Base(path)
 		destFiles[base] = fr
 	}
@@ -267,15 +340,19 @@ func handleDir(ctx context.Context, c malcontent.Config, src, dest map[string]*m
 				if scoreFile(srcFr, destFr) {
 					d.Removed.Set(srcFr.Path, srcFr)
 					d.Added.Set(destFr.Path, destFr)
-					inferMoves(ctx, c, d)
+					inferMoves(ctx, c, d, src, dest, isImage)
 				} else {
-					handleFile(ctx, c, srcFr, destFr, fmt.Sprintf("%s -> %s", formatSrc, formatDest), d)
+					handleFile(ctx, c, srcFr, destFr, fmt.Sprintf("%s -> %s", formatSrc, formatDest), d, src, dest, isImage)
 				}
 			}
 		} else {
 			formatSrc := displayPath(name, srcFr.Path)
 			dirPath := filepath.Dir(formatSrc)
-			d.Removed.Set(fmt.Sprintf("%s/%s", dirPath, name), srcFr)
+			key := fmt.Sprintf("%s/%s", dirPath, name)
+			if isImage {
+				key = fmt.Sprintf("%s ∴ /%s", src.imageURI, name)
+			}
+			d.Removed.Set(key, srcFr)
 		}
 	}
 
@@ -285,12 +362,16 @@ func handleDir(ctx context.Context, c malcontent.Config, src, dest map[string]*m
 		if _, exists := srcFiles[name]; !exists {
 			formatDest := displayPath(name, destFr.Path)
 			dirPath := filepath.Dir(formatDest)
-			d.Added.Set(fmt.Sprintf("%s/%s", dirPath, name), destFr)
+			key := fmt.Sprintf("%s/%s", dirPath, name)
+			if isImage {
+				key = fmt.Sprintf("%s ∴ /%s", dest.imageURI, name)
+			}
+			d.Added.Set(key, destFr)
 		}
 	}
 }
 
-func handleFile(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileReport, relPath string, d *malcontent.DiffReport) {
+func handleFile(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileReport, relPath string, d *malcontent.DiffReport, src, dest ScanResult, isImage bool) {
 	// We've now established that file exists in both source & destination
 	if fr.RiskScore < c.MinFileRisk && tr.RiskScore < c.MinFileRisk {
 		clog.FromContext(ctx).Info("diff does not meet min trigger level", slog.Any("path", tr.Path))
@@ -329,6 +410,10 @@ func handleFile(ctx context.Context, c malcontent.Config, fr, tr *malcontent.Fil
 		}
 	}
 
+	if isImage {
+		rbs.Path = strings.TrimPrefix(rbs.Path, "/private")
+		rbs.Path = fmt.Sprintf("%s ∴ %s", dest.imageURI, strings.TrimPrefix(rbs.Path, dest.tmpRoot))
+	}
 	d.Modified.Set(relPath, rbs)
 }
 
@@ -375,13 +460,13 @@ func combineReports(removed, added *orderedmap.OrderedMap[string, *malcontent.Fi
 	return combined
 }
 
-func inferMoves(ctx context.Context, c malcontent.Config, d *malcontent.DiffReport) {
+func inferMoves(ctx context.Context, c malcontent.Config, d *malcontent.DiffReport, src, dest ScanResult, isImage bool) {
 	for _, cr := range combineReports(d.Removed, d.Added) {
-		fileMove(ctx, c, cr.RemovedFR, cr.AddedFR, cr.Removed, cr.Added, d, cr.Score)
+		fileMove(ctx, c, cr.RemovedFR, cr.AddedFR, cr.Removed, cr.Added, d, cr.Score, src, dest, isImage)
 	}
 }
 
-func fileMove(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileReport, rpath, apath string, d *malcontent.DiffReport, score float64) {
+func fileMove(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileReport, rpath, apath string, d *malcontent.DiffReport, score float64, src, dest ScanResult, isImage bool) {
 	minRisk := int(math.Min(float64(c.MinRisk), float64(c.MinFileRisk)))
 	if fr.RiskScore < minRisk && tr.RiskScore < minRisk {
 		clog.FromContext(ctx).Info("diff does not meet min trigger level", slog.Any("path", tr.Path))
@@ -428,6 +513,10 @@ func fileMove(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileR
 		}
 	}
 
+	if isImage {
+		abs.Path = strings.TrimPrefix(abs.Path, "/private")
+		abs.Path = fmt.Sprintf("%s ∴ %s", dest.imageURI, strings.TrimPrefix(abs.Path, dest.tmpRoot))
+	}
 	d.Modified.Set(apath, abs)
 	d.Removed.Delete(rpath)
 	d.Added.Delete(apath)
