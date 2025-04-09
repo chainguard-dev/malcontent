@@ -8,7 +8,7 @@ require (
 	github.com/VirusTotal/yara-x/go v0.14.0
 	github.com/agext/levenshtein v1.2.3
 	github.com/cavaliergopher/cpio v1.0.1
-	github.com/cavaliergopher/rpm v1.2.0
+	github.com/cavaliergopher/rpm v1.3.0
 	github.com/chainguard-dev/clog v1.7.0
 	github.com/charmbracelet/bubbles v0.20.1-0.20241115220041-e5296a2b0fd6
 	github.com/charmbracelet/bubbletea v1.3.4
@@ -20,12 +20,12 @@ require (
 	github.com/google/go-containerregistry v0.20.3
 	github.com/klauspost/compress v1.18.0
 	github.com/olekukonko/tablewriter v0.0.5
-	github.com/shirou/gopsutil/v4 v4.25.2
+	github.com/shirou/gopsutil/v4 v4.25.3
 	github.com/ulikunitz/xz v0.5.12
 	github.com/urfave/cli/v2 v2.27.6
 	github.com/wk8/go-ordered-map/v2 v2.1.8
-	golang.org/x/sync v0.12.0
-	golang.org/x/term v0.30.0
+	golang.org/x/sync v0.13.0
+	golang.org/x/term v0.31.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -71,7 +71,7 @@ require (
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	golang.org/x/crypto v0.35.0 // indirect
 	golang.org/x/net v0.36.0 // indirect
-	golang.org/x/sys v0.31.0 // indirect
+	golang.org/x/sys v0.32.0 // indirect
 	golang.org/x/text v0.22.0 // indirect
 	google.golang.org/protobuf v1.36.3 // indirect
 	pault.ag/go/topsort v0.1.1 // indirect
