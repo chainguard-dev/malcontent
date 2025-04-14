@@ -10,7 +10,7 @@ require (
 	github.com/cavaliergopher/cpio v1.0.1
 	github.com/cavaliergopher/rpm v1.3.0
 	github.com/chainguard-dev/clog v1.7.0
-	github.com/charmbracelet/bubbles v0.20.1-0.20241115220041-e5296a2b0fd6
+	github.com/charmbracelet/bubbles v0.21.0
 	github.com/charmbracelet/bubbletea v1.3.4
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/egibs/go-debian v0.18.0
