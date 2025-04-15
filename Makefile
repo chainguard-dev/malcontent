@@ -118,6 +118,7 @@ out/$(YARAX_REPO)/.git/commit-$(YARAX_COMMIT):
 	git -C out/$(YARAX_REPO) checkout $(YARAX_COMMIT)
 	touch out/$(YARAX_REPO)/.git/commit-$(YARAX_COMMIT)
 
+.PHONY: install-yara-x
 install-yara-x: out/$(YARAX_REPO)/.git/commit-$(YARAX_COMMIT)
 	mkdir -p out/lib
 	mkdir -p out/include
