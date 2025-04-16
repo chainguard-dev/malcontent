@@ -54,7 +54,7 @@ rule AutoIT_Script
         $ = ">>>AUTOIT SCRIPT<<<" ascii wide
         $ = "This is a third-party compiled AutoIt script." ascii wide
         $ = "AU3!EA06" ascii wide
-
+        $msi_magic = {D0 CF 11 E0 A1 B1 1A E1 00 00 00}
     condition:
-        uint16(0)!=0x5A4D and any of them
+        uint16(0)!=0x5A4D and not $msi_magic at 0 and any of them
 }
