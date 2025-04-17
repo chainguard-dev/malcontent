@@ -17,35 +17,38 @@ jobs:
       id-token: write
       contents: write
     steps:
-    - uses: step-security/harden-runner@c6295a65d1254861815972266d5933fd6e532bdf
-      with:
-        egress-policy: audit
-    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-    - uses: chainguard-dev/actions/setup-gitsign@e82b4e5ae10182af72972addcb3fedf7454621c8
-    - name: Set up Octo-STS
-      uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # v1.0.0
-      id: octo-sts
-      with:
-        scope: chainguard-dev/malcontent
-        identity: release
-    - name: Get Version
-      id: get-version
-      run: |
-        VERSION=$(awk -F'"' '/ID string =/ {print $2}' ${{ env.VERSION_FILE }})
-        if [[ ! "${VERSION}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-          echo "Error: VERSION is not a valid semver"
-          exit 1
-        fi
-        echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
-    - name: Create Release
-      env:
-        GH_TOKEN: ${{ steps.octo-sts.outputs.token }}
-      if: ${{ steps.get-version.outputs.VERSION != '' }}
-      run: |
-        VERSION=${{ steps.get-version.outputs.VERSION }}
-        if [[ ! "${VERSION}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-          echo "Error: VERSION is not a valid semver"
-          exit 1
-        fi
-        git config --global tag.gpgsign true
-        gh release create "$VERSION" --title "$VERSION" --notes "Release $VERSION" --draft
+      - uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481 # v2.11.0
+        with:
+          egress-policy: audit
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: chainguard-dev/actions/setup-gitsign@e82b4e5ae10182af72972addcb3fedf7454621c8
+      - name: Set up Octo-STS
+        uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # v1.0.0
+        id: octo-sts
+        with:
+          scope: chainguard-dev/malcontent
+          identity: release
+      - name: Get Version
+        id: get-version
+        run: |
+          VERSION=$(awk -F'"' '/ID string =/ {print $2}' "${VERSION_FILE})
+          if [[ ! "${VERSION}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Error: VERSION is not a valid semver"
+            exit 1
+          fi
+          echo "VERSION=${VERSION}" >> "${GITHUB_OUTPUT}"
+      - name: Create Release
+        env:
+          GH_TOKEN: ${{ steps.octo-sts.outputs.token }}
+          VERSION: ${{ steps.get-version.outputs.VERSION }}
+        if: ${{ steps.get-version.outputs.VERSION != '' }}
+        run: |
+          if [[ ! "${VERSION}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Error: VERSION is not a valid semver"
+            exit 1
+          fi
+          git config --global tag.gpgsign true
+          gh release create "${VERSION}" --title "${VERSION}" --notes "Release ${VERSION}" --draft
