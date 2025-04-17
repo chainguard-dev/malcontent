@@ -36,7 +36,7 @@ rule AutoIT_Script
         version = "1.0"
         creation_date = "2020-09-01"
         first_imported = "2021-12-30"
-        last_modified = "2023-12-28"
+        last_modified = "2025-04-16"
         status = "RELEASED"
         sharing = "TLP:WHITE"
         source = "BARTBLAZE"
