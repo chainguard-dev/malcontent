@@ -4,6 +4,7 @@ c2/tool_transfer/os: medium
 c2/tool_transfer/python: critical
 credential/ssh: high
 data/base64/encode: medium
+data/base64/external: medium
 data/encoding/base64: low
 discover/system/environment: medium
 evasion/net/http_443: high

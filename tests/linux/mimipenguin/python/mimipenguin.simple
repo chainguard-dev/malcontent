@@ -1,11 +1,13 @@
 # linux/mimipenguin/python/mimipenguin: critical
 3P/sig_base/mimipenguin: critical
+c2/tool_transfer/os: low
 credential/keychain/gnome_keyring_daemon: medium
 credential/os/shadow: medium
 credential/password: low
 credential/password/finder: high
 credential/ssh/d: medium
 data/base64/decode: medium
+data/base64/external: medium
 data/encoding/base64: low
 discover/process/name: medium
 discover/processes/list: medium

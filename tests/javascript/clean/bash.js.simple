@@ -5,10 +5,11 @@ discover/multiple: medium
 discover/network/interface_list: medium
 discover/network/netstat: medium
 discover/system/dmesg: low
-discover/system/platform: low
+discover/system/platform: medium
 discover/user/name_get: medium
 exec/shell/SHELL: low
 exec/shell/TERM: low
+exec/shell/exec: medium
 fs/directory/create: low
 fs/directory/remove: low
 fs/fifo_create: low

@@ -31,6 +31,8 @@ crypto/public_key: low
 crypto/rc4: medium
 crypto/tls: low
 crypto/uuid: medium
+data/base64/decode: medium
+data/base64/external: medium
 data/compression/bzip2: low
 data/compression/gzip: low
 data/compression/lzma: low

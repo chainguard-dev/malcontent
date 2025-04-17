@@ -1,4 +1,4 @@
-# linux/clean/mongosh: medium
+# linux/clean/mongosh: critical
 anti-static/obfuscation/hex: medium
 anti-static/obfuscation/obfuscate: low
 c2/addr/http_dynamic: medium
@@ -27,6 +27,7 @@ crypto/tls: low
 crypto/uuid: medium
 data/base64/decode: medium
 data/base64/encode: medium
+data/base64/external: medium
 data/compression/bzip2: low
 data/compression/gzip: low
 data/compression/lzma: low
@@ -74,6 +75,7 @@ exec/program: medium
 exec/program/background: low
 exec/script/activex: medium
 exec/script/osa: medium
+exec/script/wsh: critical
 exec/shell/SHELL: low
 exec/shell/TERM: low
 exec/shell/command: medium

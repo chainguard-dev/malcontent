@@ -3,6 +3,7 @@ anti-static/elf/multiple: medium
 c2/addr/ip: medium
 c2/addr/url: low
 c2/tool_transfer/arch: low
+c2/tool_transfer/os: medium
 credential/password: low
 credential/server/htpasswd: medium
 credential/ssh: medium
@@ -10,6 +11,7 @@ credential/ssh/authorized_hosts: medium
 credential/ssh/d: medium
 crypto/public_key: low
 crypto/rc4: low
+data/base64/external: medium
 data/compression/zlib: low
 data/embedded/pem_private_key: medium
 data/encoding/base64: low

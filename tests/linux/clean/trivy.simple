@@ -35,6 +35,7 @@ crypto/public_key: low
 crypto/tls: low
 data/base64/decode: medium
 data/base64/encode: medium
+data/base64/external: medium
 data/compression/bzip2: low
 data/compression/gzip: low
 data/compression/lzma: low
@@ -50,6 +51,7 @@ data/encoding/base64: low
 data/encoding/json: low
 data/encoding/json_decode: low
 data/encoding/json_encode: low
+data/encoding/yaml: low
 data/hash/blake2b: low
 data/hash/md5: medium
 data/hash/sha1: low

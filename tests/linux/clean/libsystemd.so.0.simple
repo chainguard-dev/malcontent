@@ -1,7 +1,7 @@
 # linux/clean/libsystemd.so.0: medium
 c2/addr/url: low
 c2/tool_transfer/arch: low
-c2/tool_transfer/os: low
+c2/tool_transfer/os: medium
 crypto/rc4: low
 data/compression/lzma: low
 data/random/insecure: low

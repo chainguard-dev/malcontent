@@ -2,5 +2,6 @@
 anti-static/obfuscation/python: high
 anti-static/packer/pycloak: critical
 data/base64/decode: medium
+data/base64/external: medium
 data/compression/lzma: low
 data/encoding/base64: low

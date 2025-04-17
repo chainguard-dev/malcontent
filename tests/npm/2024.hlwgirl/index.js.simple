@@ -1,5 +1,6 @@
 # npm/2024.hlwgirl/index.js: high
 anti-static/obfuscation/hex: high
+data/base64/external: medium
 data/encoding/base64: low
 fs/file/write: low
 impact/remote_access/base64_exec: high

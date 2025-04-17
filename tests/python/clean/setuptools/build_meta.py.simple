@@ -2,6 +2,7 @@
 c2/tool_transfer/arch: low
 c2/tool_transfer/download: medium
 c2/tool_transfer/github: medium
+c2/tool_transfer/os: low
 collect/code/github_api: low
 data/embedded/base64: medium
 data/embedded/html: medium

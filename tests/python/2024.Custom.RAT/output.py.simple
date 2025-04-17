@@ -10,6 +10,7 @@ credential/password: low
 crypto/ssl: low
 data/base64/decode: medium
 data/base64/encode: medium
+data/base64/external: medium
 data/encoding/base64: low
 data/encoding/json_decode: low
 discover/ip/geo: high
@@ -28,6 +29,7 @@ exec/conditional/root_check: medium
 exec/dylib/windll: medium
 exec/imports/python: low
 exec/program: medium
+exec/script/wsh: medium
 exec/shell/command: medium
 exec/shell/power: medium
 exfil/discord: critical

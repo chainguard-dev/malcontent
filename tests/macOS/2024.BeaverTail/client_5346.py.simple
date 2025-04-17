@@ -3,6 +3,7 @@
 c2/addr/ip: medium
 c2/tool_transfer/os: medium
 c2/tool_transfer/python: high
+data/base64/external: medium
 data/encoding/base64: low
 discover/system/platform: medium
 discover/user/HOME: low

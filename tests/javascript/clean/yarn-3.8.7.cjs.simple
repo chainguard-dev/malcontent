@@ -10,6 +10,7 @@ collect/databases/mysql: medium
 collect/databases/postgresql: medium
 collect/databases/sqlite: medium
 credential/password: low
+data/base64/external: medium
 data/compression/gzip: low
 data/compression/zlib: low
 data/embedded/base64: medium

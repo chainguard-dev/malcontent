@@ -1,6 +1,7 @@
 # ruby/2018.active-support/extconf.rb: critical
 anti-static/base64/exec: critical
 data/base64/decode: medium
+data/base64/external: medium
 data/encoding/base64: low
 exec/program: high
 exec/program/tmpdir: high

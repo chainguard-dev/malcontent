@@ -19,7 +19,7 @@ impact/ddos/raw_flooder: medium
 lateral/scan/tool: medium
 malware/family/mirai: critical
 net/dns/servers: low
-net/http/fake_user_agent: medium
+net/http/fake_user_agent: high
 net/ip/parse: medium
 net/ip/string: medium
 net/resolve/hostname: low

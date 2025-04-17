@@ -14,6 +14,7 @@ crypto/openssl: medium
 crypto/rc4: low
 data/base64/decode: medium
 data/base64/encode: medium
+data/base64/external: medium
 data/compression/zlib: low
 data/encoding/base64: low
 data/random/insecure: low

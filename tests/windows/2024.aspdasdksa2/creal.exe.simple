@@ -3,7 +3,7 @@
 anti-behavior/anti_debugger: medium
 anti-static/packer/pe: high
 c2/tool_transfer/arch: low
-c2/tool_transfer/os: low
+c2/tool_transfer/os: medium
 collect/archives/zip: medium
 collect/databases/sqlite: medium
 credential/sniffer/bpf: medium
@@ -11,6 +11,7 @@ crypto/aes: low
 crypto/ed25519: low
 crypto/openssl: medium
 crypto/public_key: low
+data/base64/external: medium
 data/compression/gzip: low
 data/compression/lzma: low
 data/embedded/app_manifest: medium

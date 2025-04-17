@@ -10,4 +10,5 @@ fs/file/exists: low
 fs/file/rename: low
 impact/remote_access/py_setuptools: high
 net/url/embedded: low
+os/env/get: low
 persist/windows_start: high

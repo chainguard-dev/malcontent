@@ -1,6 +1,7 @@
 # javascript/clean/mode-php.js: medium
 c2/addr/ip: medium
 c2/client: medium
+c2/tool_transfer/os: low
 collect/databases/mysql: medium
 collect/databases/sqlite: medium
 credential/password: low
@@ -11,6 +12,7 @@ crypto/openssl: medium
 crypto/public_key: low
 data/base64/decode: medium
 data/base64/encode: medium
+data/base64/external: medium
 data/compression/bzip2: low
 data/compression/gzip: low
 data/compression/zlib: low

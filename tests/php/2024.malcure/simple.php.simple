@@ -2,6 +2,7 @@
 3P/sig_base/webshell_php: critical
 3P/sig_base/webshell_php_obfusc: critical
 data/base64/decode: medium
+data/base64/external: medium
 data/encoding/base64: low
 exec/remote_commands/code_eval: high
 impact/remote_access/backdoor: medium

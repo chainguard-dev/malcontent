@@ -2,6 +2,7 @@
 anti-static/base64/eval: high
 anti-static/obfuscation/python: high
 data/base64/decode: medium
+data/base64/external: medium
 data/encoding/base64: low
 discover/system/platform: medium
 exec/imports/python: low

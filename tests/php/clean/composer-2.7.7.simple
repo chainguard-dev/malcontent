@@ -1,5 +1,6 @@
 # php/clean/composer-2.7.7: medium
 anti-behavior/anti_debugger: medium
+anti-static/obfuscation/js: medium
 anti-static/obfuscation/php: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
@@ -18,6 +19,7 @@ crypto/openssl: medium
 crypto/public_key: low
 data/base64/decode: medium
 data/base64/encode: medium
+data/base64/external: medium
 data/compression/bzip2: low
 data/compression/gzip: low
 data/compression/zlib: low
@@ -28,7 +30,7 @@ data/embedded/pem_certificate: low
 data/encoding/base64: low
 data/encoding/reverse: low
 discover/system/hostname: low
-discover/system/platform: low
+discover/system/platform: medium
 discover/user/APPDATA: low
 discover/user/HOME: low
 discover/user/USER: low
@@ -40,6 +42,7 @@ exec/plugin: low
 exec/shell/SHELL: low
 exec/shell/TERM: low
 exec/shell/command: medium
+exec/shell/exec: medium
 exec/shell/ignore_output: medium
 fs/directory/create: low
 fs/directory/remove: low

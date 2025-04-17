@@ -4,7 +4,7 @@ anti-behavior/LD_PROFILE: medium
 anti-static/elf/multiple: medium
 c2/addr/url: low
 c2/tool_transfer/arch: low
-c2/tool_transfer/os: low
+c2/tool_transfer/os: medium
 discover/process/runtime_deps: medium
 evasion/hijack_execution/LD_LIBRARY_PATH: low
 evasion/hijack_execution/etc_ld.so.preload: medium

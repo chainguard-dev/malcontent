@@ -10,6 +10,7 @@ crypto/rc4: low
 crypto/tls: low
 data/base64/decode: medium
 data/base64/encode: medium
+data/base64/external: medium
 data/compression/gzip: low
 data/compression/zlib: low
 data/encoding/base64: low
