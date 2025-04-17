@@ -10,6 +10,9 @@ rule os_ref: low {
     $o_Darwin  = "Darwin"
     $o_Linux   = "Linux"
     $o_Windows = "Windows"
+    $o_linux   = "linux"
+    $o_darwin  = "darwin"
+    $o_windows = "windows"
 
   condition:
     any of ($http*) and any of ($o*)
@@ -27,6 +30,9 @@ rule multiple_os_ref: medium {
     $o_Darwin  = "Darwin"
     $o_Linux   = "Linux"
     $o_Windows = "Windows"
+    $o_linux   = "linux"
+    $o_darwin  = "darwin"
+    $o_windows = "windows"
 
   condition:
     any of ($http*) and 2 of ($o*)

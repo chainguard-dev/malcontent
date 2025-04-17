@@ -34,6 +34,7 @@ rule os_release: medium {
   strings:
     $ref  = "os_release" fullword
     $ref2 = "osInfo" fullword
+    $ref3 = "OSTYPE" fullword
 
   condition:
     any of them

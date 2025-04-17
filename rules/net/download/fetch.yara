@@ -9,6 +9,39 @@ rule curl_value: medium {
     $ref
 }
 
+rule curl_sudo_pipe: medium {
+  meta:
+    description = "Invokes curl and executes content via sudo"
+
+  strings:
+    $ref = /curl [\w\.\- :\"\/]{0,64}.{0,128}\|\s{0,2}sudo/
+
+  condition:
+    $ref
+}
+
+rule curl_python_pipe: high {
+  meta:
+    description = "fetches python and executes python script"
+
+  strings:
+    $ref = /curl [\w\.\- :\"\/]{0,64}.{0,128}\|\s{0,2}python.{0,8}/
+
+  condition:
+    $ref
+}
+
+rule curl_sudo_python_pipe: critical {
+  meta:
+    description = "fetches python and executes python script using sudo"
+
+  strings:
+    $ref = /curl [\w\.\- :\"\/]{0,64}.{0,128}\|\s{0,2}sudo python.{0,8}/
+
+  condition:
+    $ref
+}
+
 rule curl_xxd: high {
   meta:
     description = "Invokes curl and generates hex codes"

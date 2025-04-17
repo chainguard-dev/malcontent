@@ -15,3 +15,26 @@ rule base64_shell_decode: medium {
   condition:
     any of ($base64*) and none of ($not*)
 }
+
+rule base64_shell_encode: medium {
+  meta:
+    description = "calls base64 command to encode strings"
+
+  strings:
+    $base64_pipe = /\|{0,2}base64/
+    $base64_w    = "base64 -w"
+
+  condition:
+    any of them
+}
+
+rule base64_shell_double_encode: critical {
+  meta:
+    description = "calls base64 command to double-encode strings"
+
+  strings:
+    $ref = /base64[\ \>].{0,32}\|\s{0,2}base64/
+
+  condition:
+    any of them
+}

@@ -285,7 +285,7 @@ rule many_complex_var_high: high {
     probably_js and #ref > 128
 }
 
-rule many_static_map_lookups: high {
+rule many_static_map_lookups: medium {
   meta:
     description = "contains large number of static map lookups"
 

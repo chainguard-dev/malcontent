@@ -24,3 +24,16 @@ rule comsvcs_minidump: high windows {
   condition:
     any of them
 }
+
+rule memdump: medium {
+  meta:
+    capability  = "CAP_SYS_RAWIO"
+    description = "dumps system memory"
+
+  strings:
+    $ = "memdump" fullword
+    $ = "dumpmem" fullword
+
+  condition:
+    filesize < 10MB and any of them
+}
