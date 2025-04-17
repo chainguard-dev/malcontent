@@ -1,3 +1,5 @@
+import "hash"
+
 private rule probably_python {
   strings:
     $import   = "import "
@@ -349,6 +351,10 @@ rule rename_base64: critical {
   strings:
     $ref = /import base64 as \w{0,64}/
 
+    $not_numcodecs1 = "Codec providing base64 compression via the Python standard library."
+    $not_numcodecs2 = "codec_id = \"base64\""
+    $not_numcodecs3 = "# normalise inputs"
+    $not_numcodecs4 = "# do compression"
     $not_open_clip1 = "class ResampledShards2(IterableDataset)"
     $not_open_clip2 = "class SyntheticDataset(Dataset)"
 
@@ -494,7 +500,9 @@ rule import_manipulator: critical {
     $def     = "def "
 
   condition:
-    filesize < 10MB and all of them
+    // a91160135598f3decc8ca9f9b019dcc5e1d73e79ebe639548cd9ee9e6d007ea6 is the sha256 hash
+    // for https://github.com/pypy/pypy/blob/main/lib-python/2.7/pickle.py
+    filesize < 10MB and (hash.sha256(0, filesize) != "a91160135598f3decc8ca9f9b019dcc5e1d73e79ebe639548cd9ee9e6d007ea6") and all of them
 }
 
 rule bloated_hex_python: high {
@@ -518,5 +526,4 @@ rule bloated_hex_python: high {
 
   condition:
     filesize > 512KB and filesize < 10MB and 90 % of ($f*) and none of ($not*)
-
 }
