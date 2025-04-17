@@ -36,6 +36,7 @@ var badRules = map[string]bool{
 	"SECUINFRA_SUSP_Powershell_Base64_Decode":             true,
 	"SIGNATURE_BASE_SUSP_ELF_LNX_UPX_Compressed_File":     true,
 	"DELIVRTO_SUSP_SVG_Foreignobject_Nov24":               true,
+	"CAPE_Eternalromance":                                 true,
 	// ThreatHunting Keywords (some duplicates)
 	"Adobe_XMP_Identifier":                       true,
 	"Antivirus_Signature_signature_keyword":      true,

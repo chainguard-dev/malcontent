@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       update:
-        description: 'Semver update type (patch, minor, major)'
+        description: "Semver update type (patch, minor, major)"
         required: true
-        default: 'minor'
+        default: "minor"
 
 permissions:
   contents: read
@@ -23,69 +23,71 @@ jobs:
       id-token: write
       pull-requests: write
     steps:
-    - uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481
-      with:
-        egress-policy: audit 
-    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-    - uses: chainguard-dev/actions/setup-gitsign@e82b4e5ae10182af72972addcb3fedf7454621c8
-    - name: Set up Octo-STS
-      uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # v1.0.0
-      id: octo-sts
-      with:
-        scope: chainguard-dev/malcontent
-        identity: release
-    - name: Update Version
-      id: update
-      run: |
-        UPDATE_TYPE=${{ github.event.inputs.update }}
+      - uses: step-security/harden-runner@c6295a65d1254861815972266d5933fd6e532bdf # v2.11.1
+        with:
+          egress-policy: audit
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: chainguard-dev/actions/setup-gitsign@87966c10ea9ee2c3a45da2dc41040ee57ab8376d
+      - name: Set up Octo-STS
+        uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # v1.0.0
+        id: octo-sts
+        with:
+          scope: chainguard-dev/malcontent
+          identity: release
+      - name: Update Version
+        id: update
+        env:
+          UPDATE_TYPE: ${{ github.event.inputs.update }}
+        run: |
+          CURRENT_VERSION=$(awk -F'"' '/ID string =/ {print $2}' "${VERSION_FILE}")
 
-        CURRENT_VERSION=$(awk -F'"' '/ID string =/ {print $2}' ${{ env.VERSION_FILE }})
-
-        if [[ ! "${CURRENT_VERSION}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-          echo "Error: CURRENT_VERSION is not a valid semver"
-          exit 1
-        fi
-        
-        IFS='.' read -ra VERSION_PARTS <<< "${CURRENT_VERSION:1}"
-        
-        case "$UPDATE_TYPE" in
-          major)
-            VERSION=$(printf "v%d.0.0" $((${VERSION_PARTS[0]}+1)))
-            ;;
-          minor)
-            VERSION=$(printf "v%s.%d.0" ${VERSION_PARTS[0]} $((${VERSION_PARTS[1]}+1)))
-            ;;
-          patch)
-            VERSION=$(printf "v%s.%s.%d" ${VERSION_PARTS[0]} ${VERSION_PARTS[1]} $((${VERSION_PARTS[2]}+1)))
-            ;;
-          *)
-            echo "Error: Invalid update type"
+          if [[ ! "${CURRENT_VERSION}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Error: CURRENT_VERSION is not a valid semver"
             exit 1
-            ;;
-        esac
+          fi
 
-        if [[ ! "${VERSION}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-          echo "Error: VERSION is not a valid semver"
-          exit 1
-        fi
+          IFS='.' read -ra VERSION_PARTS <<< "${CURRENT_VERSION:1}"
 
-        echo "Current malcontent version: $CURRENT_VERSION"
-        echo "New malcontent version: $VERSION"
-        
-        sed -i "s/ID string = \"v[0-9]*\.[0-9]*\.[0-9]*\"/ID string = \"${VERSION}\"/" ${{ env.VERSION_FILE }}
+          case "${UPDATE_TYPE}" in
+            major)
+              VERSION=$(printf "v%d.0.0" $((${VERSION_PARTS[0]}+1)))
+              ;;
+            minor)
+              VERSION=$(printf "v%s.%d.0" ${VERSION_PARTS[0]} $((${VERSION_PARTS[1]}+1)))
+              ;;
+            patch)
+              VERSION=$(printf "v%s.%s.%d" ${VERSION_PARTS[0]} ${VERSION_PARTS[1]} $((${VERSION_PARTS[2]}+1)))
+              ;;
+            *)
+              echo "Error: Invalid update type"
+              exit 1
+              ;;
+          esac
 
-        BRANCH="malcontent-version-bump-$VERSION"
-        git checkout -b "$BRANCH"
-        git add ${{ env.VERSION_FILE }}
-        git commit -m "Bump malcontent version to $VERSION"
-        git push origin "$BRANCH"
-        
-        echo "BRANCH=$BRANCH" >> "$GITHUB_OUTPUT"
-        echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
-    - name: Create Pull Request
-      env:
-        GH_TOKEN: ${{ steps.octo-sts.outputs.token }}
-      run: |
-        BRANCH=${{ steps.update.outputs.BRANCH }}
-        VERSION=${{ steps.update.outputs.VERSION }}
-        gh pr create -t "Update malcontent to $VERSION" -b "PR to update the version in ${{ env.VERSION_FILE }} to $VERSION" -B main -H "$BRANCH"
+          if [[ ! "${VERSION}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Error: VERSION is not a valid semver"
+            exit 1
+          fi
+
+          echo "Current malcontent version: ${CURRENT_VERSION}"
+          echo "New malcontent version: ${VERSION}"
+
+          sed -i "s/ID string = \"v[0-9]*\.[0-9]*\.[0-9]*\"/ID string = \"${VERSION}\"/" "${VERSION_FILE}"
+
+          BRANCH="malcontent-version-bump-$VERSION"
+          git checkout -b "$BRANCH"
+          git add "${VERSION_FILE}"
+          git commit -m "Bump malcontent version to ${VERSION}"
+          git push origin "${BRANCH}"
+
+          echo "BRANCH=${BRANCH}" >> "${GITHUB_OUTPUT}"
+          echo "VERSION=${VERSION}" >> "${GITHUB_OUTPUT}"
+      - name: Create Pull Request
+        env:
+          BRANCH: ${{ steps.update.outputs.BRANCH }}
+          GH_TOKEN: ${{ steps.octo-sts.outputs.token }}
+          VERSION: ${{ steps.update.outputs.VERSION }}
+        run: |
+          gh pr create -t "Update malcontent to ${VERSION}" -b "PR to update the version in ${VERSION_FILE} to ${VERSION}" -B main -H "${BRANCH}"

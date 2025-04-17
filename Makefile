@@ -4,6 +4,8 @@
 
 SAMPLES_REPO ?= chainguard-dev/malcontent-samples
 SAMPLES_COMMIT ?= f948cfd0f9d2a35a2452fe43ea4d094979652103
+YARAX_REPO ?= virusTotal/yara-x
+YARAX_COMMIT ?= b9ade771e129eda2487083f0eea6a05234b6dbcc
 
 # BEGIN: lint-install ../malcontent
 # http://github.com/tinkerbell/lint-install
@@ -42,7 +44,7 @@ LINTERS :=
 FIXERS :=
 
 GOLANGCI_LINT_CONFIG := $(LINT_ROOT)/.golangci.yml
-GOLANGCI_LINT_VERSION ?= v1.63.4
+GOLANGCI_LINT_VERSION ?= v1.64.8
 GOLANGCI_LINT_BIN := $(LINT_ROOT)/out/linters/golangci-lint-$(GOLANGCI_LINT_VERSION)-$(LINT_ARCH)
 $(GOLANGCI_LINT_BIN):
 	mkdir -p $(LINT_ROOT)/out/linters
@@ -50,12 +52,19 @@ $(GOLANGCI_LINT_BIN):
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(LINT_ROOT)/out/linters $(GOLANGCI_LINT_VERSION)
 	mv $(LINT_ROOT)/out/linters/golangci-lint $@
 
-YARA_X_VERSION ?= v0.12.0
+YARA_X_VERSION ?= v0.14.0
+YARA_X_SHA :=
+ifeq ($(LINT_OS),Darwin)
+	YARA_X_SHA=3d35ac9138d916834de7d5f9fd2d72bfa4f1c5bb3467deeb08728e80d48dab0e
+else
+	YARA_X_SHA=9e3bae16de66cbc6f79e83c3e743865867571601010f1d7c68510173c10a4889
+endif
 YARA_X_BIN := $(LINT_ROOT)/out/linters/yr-$(YARA_X_VERSION)-$(LINT_ARCH)
 $(YARA_X_BIN):
 	mkdir -p $(LINT_ROOT)/out/linters
 	rm -rf $(LINT_ROOT)/out/linters/yr
-	curl -sSfL https://github.com/VirusTotal/yara-x/releases/download/$(YARA_X_VERSION)/yara-x-$(YARA_X_VERSION)-$(LINT_ARCH)-$(LINT_PLATFORM)-$(LINT_OS_LOWER)$(LINT_PLATFORM_SUFFIX).gzip -o yara-x.gzip
+	curl -sSfL https://github.com/VirusTotal/yara-x/releases/download/$(YARA_X_VERSION)/yara-x-$(YARA_X_VERSION)-$(LINT_ARCH)-$(LINT_PLATFORM)-$(LINT_OS_LOWER)$(LINT_PLATFORM_SUFFIX).gz -o yara-x.gzip
+	echo "$(YARA_X_SHA) *yara-x.gzip" | shasum -a 256 --check
 	tar -xzvf yara-x.gzip && mv yr $(LINT_ROOT)/out/linters && rm yara-x.gzip
 	mv $(LINT_ROOT)/out/linters/yr $@
 
@@ -99,6 +108,23 @@ out/${SAMPLES_REPO}/.git/commit-$(SAMPLES_COMMIT):
 out/$(SAMPLES_REPO)/.decompressed-$(SAMPLES_COMMIT): out/${SAMPLES_REPO}/.git/commit-$(SAMPLES_COMMIT)
 	find out/$(SAMPLES_REPO)/ -name "*.xz" -type f -exec xz -dk {} \;
 	touch out/$(SAMPLES_REPO)/.decompressed-$(SAMPLES_COMMIT)
+
+out/$(YARAX_REPO)/.git/commit-$(YARAX_COMMIT):
+	mkdir -p out/$(YARAX_REPO)
+	test -d out/$(YARAX_REPO)/.git ||git clone https://github.com/$(YARAX_REPO).git out/$(YARAX_REPO)
+	rm out/$(YARAX_REPO)/.git/commit-* 2>/dev/null || true
+	git -C out/$(YARAX_REPO) switch - || true
+	git -C out/$(YARAX_REPO) pull
+	git -C out/$(YARAX_REPO) checkout $(YARAX_COMMIT)
+	touch out/$(YARAX_REPO)/.git/commit-$(YARAX_COMMIT)
+
+.PHONY: install-yara-x
+install-yara-x: out/$(YARAX_REPO)/.git/commit-$(YARAX_COMMIT)
+	mkdir -p out/lib
+	mkdir -p out/include
+	cd out/$(YARAX_REPO) && \
+	cargo install cargo-c --locked && \
+	cargo cinstall -p yara-x-capi --release --prefix="$(LINT_ROOT)/out" --libdir="$(LINT_ROOT)/out/lib"
 
 # unit tests only
 .PHONY: test
@@ -163,6 +189,9 @@ bench-windows:
 .PHONY: out/mal
 out/mal:
 	mkdir -p out
+	CGO_LDFLAGS="-L$(LINT_ROOT)/out/lib -Wl,-rpath,$(LINT_ROOT)/out/lib" \
+	CGO_CPPFLAGS="-I$(LINT_ROOT)/out/include" \
+	PKG_CONFIG_PATH="$(LINT_ROOT)/out/lib/pkgconfig" \
 	go build -o out/mal ./cmd/mal
 
 .PHONY: update-third-party
