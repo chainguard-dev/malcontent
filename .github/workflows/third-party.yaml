@@ -36,8 +36,6 @@ jobs:
           apk update
           apk add bash curl findutils gh git go nodejs perl upx xz yara-x
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          persist-credentials: false
       - name: Trust repository
         run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
       - uses: chainguard-dev/actions/setup-gitsign@e82b4e5ae10182af72972addcb3fedf7454621c8
