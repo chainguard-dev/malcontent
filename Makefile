@@ -4,6 +4,8 @@
 
 SAMPLES_REPO ?= chainguard-dev/malcontent-samples
 SAMPLES_COMMIT ?= f948cfd0f9d2a35a2452fe43ea4d094979652103
+YARAX_REPO ?= virusTotal/yara-x
+YARAX_COMMIT ?= b9ade771e129eda2487083f0eea6a05234b6dbcc
 
 # BEGIN: lint-install ../malcontent
 # http://github.com/tinkerbell/lint-install
@@ -107,6 +109,23 @@ out/$(SAMPLES_REPO)/.decompressed-$(SAMPLES_COMMIT): out/${SAMPLES_REPO}/.git/co
 	find out/$(SAMPLES_REPO)/ -name "*.xz" -type f -exec xz -dk {} \;
 	touch out/$(SAMPLES_REPO)/.decompressed-$(SAMPLES_COMMIT)
 
+out/$(YARAX_REPO)/.git/commit-$(YARAX_COMMIT):
+	mkdir -p out/$(YARAX_REPO)
+	test -d out/$(YARAX_REPO)/.git ||git clone https://github.com/$(YARAX_REPO).git out/$(YARAX_REPO)
+	rm out/$(YARAX_REPO)/.git/commit-* 2>/dev/null || true
+	git -C out/$(YARAX_REPO) switch - || true
+	git -C out/$(YARAX_REPO) pull
+	git -C out/$(YARAX_REPO) checkout $(YARAX_COMMIT)
+	touch out/$(YARAX_REPO)/.git/commit-$(YARAX_COMMIT)
+
+.PHONY: install-yara-x
+install-yara-x: out/$(YARAX_REPO)/.git/commit-$(YARAX_COMMIT)
+	mkdir -p out/lib
+	mkdir -p out/include
+	cd out/$(YARAX_REPO) && \
+	cargo install cargo-c --locked && \
+	cargo cinstall -p yara-x-capi --release --prefix="$(LINT_ROOT)/out" --libdir="$(LINT_ROOT)/out/lib"
+
 # unit tests only
 .PHONY: test
 test:
@@ -170,6 +189,9 @@ bench-windows:
 .PHONY: out/mal
 out/mal:
 	mkdir -p out
+	CGO_LDFLAGS="-L$(LINT_ROOT)/out/lib -Wl,-rpath,$(LINT_ROOT)/out/lib" \
+	CGO_CPPFLAGS="-I$(LINT_ROOT)/out/include" \
+	PKG_CONFIG_PATH="$(LINT_ROOT)/out/lib/pkgconfig" \
 	go build -o out/mal ./cmd/mal
 
 .PHONY: update-third-party
