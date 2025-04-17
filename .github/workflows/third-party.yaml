@@ -13,7 +13,7 @@ jobs:
     if: ${{ github.repository }} == 'chainguard-dev/malcontent'
     runs-on: mal-ubuntu-latest-8-core
     container:
-      image: cgr.dev/chainguard/wolfi-base@sha256:eeb70e74e2ac07d3c80a30150bf473970c8b51a57f06daef3e4d065ac52489bc
+      image: cgr.dev/chainguard/wolfi-base@sha256:91ed94ec4e72368a9b5113f2ffb1d8e783a91db489011a89d9fad3e3816a75ba
       options: >-
         --cap-add DAC_OVERRIDE
         --cap-add SETGID
@@ -35,10 +35,12 @@ jobs:
         run: |
           apk update
           apk add bash curl findutils gh git go nodejs perl upx xz yara-x
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
       - name: Trust repository
-        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
-      - uses: chainguard-dev/actions/setup-gitsign@e82b4e5ae10182af72972addcb3fedf7454621c8
+        run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
+      - uses: chainguard-dev/actions/setup-gitsign@87966c10ea9ee2c3a45da2dc41040ee57ab8376d
       - name: Set up Octo-STS
         uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # v1.0.0
         id: octo-sts
@@ -59,11 +61,11 @@ jobs:
           if [[ -n $(git status -s) ]]; then
             DATE=$(date +%F)
             BRANCH="third-party-rule-update-${DATE}"
-            git checkout -b "$BRANCH"
+            git checkout -b "${BRANCH}"
             git add .
             git commit -m "Update third-party rules as of ${DATE}"
-            git push origin "$BRANCH"
+            git push origin "${BRANCH}"
 
-            gh pr create -t "Update third-party rules as of ${DATE}" -b "${DATE} third-party rule update for malcontent." -B main -H "$BRANCH"
+            gh pr create -t "Update third-party rules as of ${DATE}" -b "${DATE} third-party rule update for malcontent." -B main -H "${BRANCH}"
           fi
         shell: bash

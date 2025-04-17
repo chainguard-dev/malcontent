@@ -47,6 +47,7 @@ var (
 var (
 	allFlag                   bool
 	concurrencyFlag           int
+	diffImageFlag             bool
 	exitFirstHitFlag          bool
 	exitFirstMissFlag         bool
 	fileRiskChangeFlag        bool
@@ -212,10 +213,17 @@ func main() {
 				}
 			}
 
-			// when scanning, increment the slice index by one to account for flags
+			// when diffing images, make sure the last two args are captured (the image URIs)
+			// when running refreshes, no flags will be passed
+			// when scanning, increment the slice index by one to account for flags by default
 			args := c.Args().Slice()
-			scanPaths := args[1:]
-			if slices.Contains(args, "analyze") || slices.Contains(args, "scan") {
+			var scanPaths []string
+			switch {
+			case slices.Contains(args, "diff") && slices.Contains(args, "--image"):
+				scanPaths = args[len(args)-2:]
+			case slices.Contains(args, "refresh"):
+				scanPaths = args[1:]
+			default:
 				scanPaths = args[2:]
 			}
 
@@ -458,19 +466,28 @@ func main() {
 						Usage:       "Only show diffs when file risk increases",
 						Destination: &fileRiskIncreaseFlag,
 					},
+					&cli.BoolFlag{
+						Name:        "image",
+						Aliases:     []string{"i"},
+						Value:       false,
+						Usage:       "Scan an image",
+						Destination: &diffImageFlag,
+					},
 				},
 				Action: func(c *cli.Context) error {
 					switch {
 					case c.Bool("file-risk-change"):
 						mc.FileRiskChange = true
-						cmdArgs := c.Args().Slice()
-						mc.ScanPaths = cmdArgs
 					case c.Bool("file-risk-increase"):
 						mc.FileRiskIncrease = true
-						cmdArgs := c.Args().Slice()
-						mc.ScanPaths = cmdArgs
+					default:
 					}
-					res, err = action.Diff(ctx, mc)
+					// Allow for images to be scanned with the file risk flags
+					if c.Bool("image") {
+						mc.OCI = true
+					}
+
+					res, err = action.Diff(ctx, mc, log)
 					if err != nil {
 						returnCode = ExitActionFailed
 						return err
@@ -493,7 +510,7 @@ func main() {
 						SamplesPath:  "./out/chainguard-dev/malcontent-samples",
 						TestDataPath: "./tests",
 					}
-					if err := refresh.Refresh(ctx, cfg); err != nil {
+					if err := refresh.Refresh(ctx, cfg, log); err != nil {
 						returnCode = ExitInputOutput
 						return err
 					}
