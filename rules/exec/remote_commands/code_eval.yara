@@ -18,12 +18,16 @@ rule python_exec: medium {
     description = "evaluate code dynamically using exec()"
 
   strings:
-    $import = "import" fullword
-    $val    = /exec\([\w\ \"\'\.\(\)\[\]]{1,64}/ fullword
-    $empty  = "exec()"
+    $f_import = "import" fullword
+    $f_join   = ".join("
+    $f_chr    = "chr("
+    $f_int    = "int("
+    $f_for    = /for [a-z] in /
+    $val      = /exec\([\w\ \"\'\.\(\)\[\]]{1,64}/ fullword
+    $empty    = "exec()"
 
   condition:
-    filesize < 1MB and $import and $val and not $empty
+    filesize < 1MB and any of ($f*) and $val and not $empty
 }
 
 rule python_exec_near_enough_chr: high {
@@ -35,7 +39,7 @@ rule python_exec_near_enough_chr: high {
     $chr  = "chr("
 
   condition:
-    all of them and math.abs(@chr - @exec) < 100
+    all of them and math.abs(@chr - @exec) < 768
 }
 
 rule python_exec_near_enough_fernet: high {
@@ -47,7 +51,7 @@ rule python_exec_near_enough_fernet: high {
     $fernet = "Fernet("
 
   condition:
-    all of them and math.abs(@exec - @fernet) < 100
+    all of them and math.abs(@exec - @fernet) < 768
 }
 
 rule python_exec_near_enough_decrypt: high {
@@ -59,7 +63,7 @@ rule python_exec_near_enough_decrypt: high {
     $fernet = "decrypt("
 
   condition:
-    all of them and math.abs(@exec - @fernet) < 100
+    all of them and math.abs(@exec - @fernet) < 768
 }
 
 rule python_exec_chr: critical {

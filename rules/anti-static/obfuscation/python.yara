@@ -5,9 +5,11 @@ private rule probably_python {
     $import   = "import "
     $f_common = /\s(def|if|with|else:) /
     $f_exotic = /exec\(|b64decode|bytes\(/
+    $f_for    = /for [a-z] in/
+    $f_join   = ".join("
 
   condition:
-    filesize < 10MB and $import in (1..1024) and any of ($f*)
+    filesize < 10MB and ($import in (1..1024) or any of ($f*))
 }
 
 rule py_indirect_builtins: suspicious {
@@ -203,30 +205,6 @@ rule fernet_base64: high {
 
   condition:
     filesize < 2MB and any of ($fernet*) and any of ($bdecode*) and any of ($o*) and none of ($not*)
-}
-
-rule python_long_hex: medium {
-  meta:
-    description = "contains a large hexadecimal string variable"
-    filetypes   = "py"
-
-  strings:
-    $assign = /\w{0,16}=["'][a-z0-9]{1024}/
-
-  condition:
-    filesize < 10MB and $assign
-}
-
-rule python_long_hex_multiple: high {
-  meta:
-    description = "contains multiple large hexadecimal string variables"
-    filetypes   = "py"
-
-  strings:
-    $assign = /\w{0,16}=["'][a-z0-9]{1024}/
-
-  condition:
-    filesize < 10MB and #assign > 3
 }
 
 rule python_hex_decimal: high {
@@ -471,6 +449,51 @@ rule join: low {
 
   condition:
     probably_python and any of them
+}
+
+rule join_chr_array: medium {
+  meta:
+    description = "joins lengthy character array"
+
+  strings:
+    $ref     = /[a-z]{1,64}\s{0,2}=\s{0,2}\[\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}/
+    $chr_int = "chr(int("
+
+  condition:
+    join and all of them
+}
+
+rule join_chr_array_exec: high {
+  meta:
+    description = "joins lengthy character array and executes arbitrary code"
+
+  strings:
+    $val = /exec\(\w{1,32}\)/ fullword
+
+  condition:
+    join_chr_array and all of them
+}
+
+rule join_chr_array_math: high {
+  meta:
+    description = "joins obfuscated character array"
+
+  strings:
+    $ref2 = /chr\(int\([a-z]{1,32}\)\s{0,2}[\-\*\+\^]\s{0,2}\w{1,32}/
+
+  condition:
+    join_chr_array and all of them
+}
+
+rule join_chr_array_exec_math: critical {
+  meta:
+    description = "joins obfuscated character array and executes arbitrary code"
+
+  strings:
+    $val = /exec\(\w{1,32}\)/ fullword
+
+  condition:
+    join_chr_array_math and all of them
 }
 
 rule urllib_as_int_array: critical {

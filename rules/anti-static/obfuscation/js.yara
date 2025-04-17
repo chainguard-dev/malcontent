@@ -8,10 +8,12 @@ private rule probably_js {
     $f_var      = /\bvar\s/
     $f_Array    = "Array.prototype" fullword
     $f_true     = "true);"
+    $f_false    = "false);"
     $f_run      = ".run("
+    $f_Run      = ".Run("
 
   condition:
-    filesize < 1MB and 3 of ($f*)
+    filesize < 3MB and 3 of them
 }
 
 rule character_obfuscation: medium {
@@ -228,6 +230,17 @@ rule string_prototype_function: high {
     any of them
 }
 
+rule unicode_prototype: critical {
+  meta:
+    description = "sets obfuscated Array.prototype attribute"
+
+  strings:
+    $ref = /Array\.prototype\.\\[\w\\]{2,256}\s{0,2}=.{0,64}/
+
+  condition:
+    probably_js and any of them
+}
+
 rule var_filler: high {
   meta:
     description = "header is filled with excessive variable declarations"
@@ -248,6 +261,50 @@ rule large_random_variables: high {
 
   condition:
     probably_js and #ref > 1
+}
+
+rule many_complex_var: medium {
+  meta:
+    description = "contains multiple complex variables"
+
+  strings:
+    $ref = /var [a-zA-Z_]{1,256} = \(/
+
+  condition:
+    probably_js and #ref > 32
+}
+
+rule many_complex_var_high: high {
+  meta:
+    description = "excessive complex variable declarations"
+
+  strings:
+    $ref = /var [a-zA-Z_]{1,256} = \(.{1,64}/
+
+  condition:
+    probably_js and #ref > 128
+}
+
+rule many_static_map_lookups: high {
+  meta:
+    description = "contains large number of static map lookups"
+
+  strings:
+    $ref = /\[[\"\'][a-z]{1,32}[\"\']\]/
+
+  condition:
+    probably_js and #ref > 128
+}
+
+rule obfuscated_map_to_array_conversions: high {
+  meta:
+    description = "obfuscated map to array conversions"
+
+  strings:
+    $ref = /\[[\"\'a-z]{1,32}\]\s{0,2}\+\s{0,2}\[\]\)\[\d{1,4}\]/
+
+  condition:
+    probably_js and #ref > 32
 }
 
 rule large_obfuscated_array: high {

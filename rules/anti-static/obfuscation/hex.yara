@@ -81,3 +81,25 @@ rule xxd_p: medium {
   condition:
     filesize < 128KB and any of them
 }
+
+rule long_hex_var_multiple: high {
+  meta:
+    description = "contains multiple large hexadecimal string variables"
+
+  strings:
+    $assign = /\w{0,16}=["'][a-z0-9]{1024}/
+
+  condition:
+    filesize < 10MB and #assign > 3
+}
+
+rule long_hex_var: medium {
+  meta:
+    description = "contains a large hexadecimal string variable"
+
+  strings:
+    $assign = /\w{0,16}=["'][a-z0-9]{1024}/
+
+  condition:
+    filesize < 10MB and $assign
+}
