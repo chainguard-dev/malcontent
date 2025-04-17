@@ -40,7 +40,7 @@ jobs:
           persist-credentials: false
       - name: Trust repository
         run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
-      - uses: chainguard-dev/actions/setup-gitsign@e82b4e5ae10182af72972addcb3fedf7454621c8
+      - uses: chainguard-dev/actions/setup-gitsign@87966c10ea9ee2c3a45da2dc41040ee57ab8376d
       - name: Set up Octo-STS
         uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # v1.0.0
         id: octo-sts
