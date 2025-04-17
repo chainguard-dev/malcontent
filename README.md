@@ -118,22 +118,13 @@ The analyze mode emits a list of capabilities often seen in malware, categorized
 Requirements:
 
 * [go](https://go.dev/) - the programming language
-* [yara-x](https://virustotal.github.io/yara-x/) - the rule language
+* [rust](https://www.rust-lang.org) - yara-x requirement
+* [yara-x](https://virustotal.github.io/yara-x/) - Rust implementation of YARA
 * [pkgconf](http://pkgconf.org/) - required by Go to find C dependencies, included in many UNIX distributions
 
-`yara-x` requires an underlying C API to function. To build and install the API, reference the documentation here: https://virustotal.github.io/yara-x/docs/api/c/c-/#building-the-c-library.
+To install yara-x, first install Rust and then run `make install-yara-x` which will clone the yara-x repository and install yara-x's dependenicies and its C API.
 
-Running `cargo cinstall -p yara-x-capi --release` without `sudo` may encounter permission denied errors.
-
-If this is the case, run the following:
-```sh
-sudo -E env "PATH=$PATH" cargo cinstall -p yara-x-capi --release
-```
-
-Install malcontent:
-```sh
-go install github.com/chainguard-dev/malcontent/cmd/mal@latest
-```
+For more information about the yara-x C API, reference the documentation here: https://virustotal.github.io/yara-x/docs/api/c/c-/#building-the-c-library.
 
 ## Help Wanted
 
