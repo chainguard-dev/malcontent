@@ -15,6 +15,22 @@ rule fake_user_agent_msie: high {
     any of ($u_*) and none of ($not_*)
 }
 
+rule fake_windows_user_agent: high {
+  meta:
+    description = "pretends to be a Windows browser"
+
+  strings:
+    $u_Win64        = /Windows NT 10.0; Win64/
+    $u_WinNT        = /Mozilla\/5.0 \(Windows NT/
+    $not_access_log = "\"GET http://"
+    $not_pixel      = "Pixel 5"
+    $not_ipad       = "iPad Mini"
+    $not_firefox    = "Firefox"
+
+  condition:
+    any of ($u_*) and none of ($not_*)
+}
+
 rule fake_user_agent_khtml_val: high {
   strings:
     $u_khtml        = /KHTML, like Gecko\w Version\/\d+.\d+ Safari/

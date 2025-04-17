@@ -9,6 +9,17 @@ rule curl_value: medium {
     $ref
 }
 
+rule curl_xxd: high {
+  meta:
+    description = "Invokes curl and generates hex codes"
+
+  strings:
+    $ref = "xxd -p"
+
+  condition:
+    filesize < 8KB and curl_value and $ref
+}
+
 rule curl_download_val: medium {
   meta:
     description = "Invokes curl to download a file"

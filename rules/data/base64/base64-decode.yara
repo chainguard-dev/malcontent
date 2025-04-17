@@ -21,6 +21,28 @@ rule py_base64_decode: medium php {
     any of them
 }
 
+rule js_base64_decode: medium js {
+  meta:
+    description = "decode base64 strings"
+
+  strings:
+    $atob = "atob("
+
+  condition:
+    any of them
+}
+
+rule js_double_base64_decode: critical js {
+  meta:
+    description = "double-decodes base64 strings"
+
+  strings:
+    $atob = "atob(atob("
+
+  condition:
+    any of them
+}
+
 rule ruby_base64_decode: medium ruby {
   meta:
     description = "decode base64 strings"

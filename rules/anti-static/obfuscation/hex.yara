@@ -70,3 +70,14 @@ rule mega_string: high {
     filesize < 5MB and $unhexlify and any of ($hex*)
 
 }
+
+rule xxd_p: medium {
+  meta:
+    description = "uses the xxd command to generate hex"
+
+  strings:
+    $xxd_p = "xxd -p"
+
+  condition:
+    filesize < 128KB and any of them
+}
