@@ -33,7 +33,7 @@ rule base64_shell_double_encode: critical {
     description = "calls base64 command to double-encode strings"
 
   strings:
-    $ref = /base64[\ \>].{0,32}\|\s{0,2}base64/
+    $ref = /base64[\s>].{0,32}\|\s{0,2}base64/
 
   condition:
     any of them
