@@ -59,11 +59,11 @@ rule python_exec_near_enough_decrypt: high {
     description = "Likely executes encrypted content"
 
   strings:
-    $exec   = "exec("
-    $fernet = "decrypt("
+    $exec    = /\bexec\(/
+    $decrypt = "decrypt("
 
   condition:
-    all of them and math.abs(@exec - @fernet) < 768
+    all of them and math.abs(@exec - @decrypt) < 768
 }
 
 rule python_exec_chr: critical {

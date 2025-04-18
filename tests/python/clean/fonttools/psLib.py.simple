@@ -1,4 +1,3 @@
-# python/clean/fonttools/psLib.py: high
+# python/clean/fonttools/psLib.py: low
 anti-static/obfuscation/python: low
 exec/imports/python: low
-exec/remote_commands/code_eval: high
