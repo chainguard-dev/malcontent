@@ -11,7 +11,6 @@ crypto/aes: low
 crypto/ed25519: low
 crypto/openssl: medium
 crypto/public_key: low
-data/base64/external: medium
 data/compression/gzip: low
 data/compression/lzma: low
 data/embedded/app_manifest: medium

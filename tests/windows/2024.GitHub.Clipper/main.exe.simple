@@ -10,7 +10,7 @@ c2/addr/ip: medium
 c2/tool_transfer/arch: low
 c2/tool_transfer/download: high
 c2/tool_transfer/github: medium
-c2/tool_transfer/os: medium
+c2/tool_transfer/os: low
 collect/archives/zip: medium
 collect/databases/leveldb: medium
 collect/databases/sqlite: medium
@@ -31,7 +31,6 @@ crypto/ed25519: low
 crypto/public_key: low
 crypto/rc4: low
 crypto/tls: low
-data/base64/external: medium
 data/compression/gzip: low
 data/compression/zlib: low
 data/encoding/base64: low

@@ -6,7 +6,6 @@ credential/password: low
 crypto/encrypt: medium
 crypto/openssl: medium
 crypto/tls: low
-data/base64/external: medium
 data/embedded/base64_terms: medium
 data/embedded/base64_url: medium
 data/encoding/base64: low

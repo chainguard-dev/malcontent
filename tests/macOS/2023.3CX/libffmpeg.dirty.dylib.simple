@@ -7,13 +7,12 @@
 anti-static/xor/user_agent: critical
 c2/addr/url: low
 c2/tool_transfer/arch: low
-c2/tool_transfer/os: medium
+c2/tool_transfer/os: low
 crypto/aes: low
 crypto/encrypt: medium
 crypto/rc4: low
 data/base64/decode: medium
 data/base64/encode: medium
-data/base64/external: medium
 data/compression/gzip: low
 data/compression/zlib: low
 data/encoding/base64: low

@@ -1,6 +1,6 @@
 # python/2024.ultralytics/v8.3.46/__init__.py: critical
 3P/sig_base/pua_crypto_mining: critical
-c2/tool_transfer/os: medium
+c2/tool_transfer/os: low
 c2/tool_transfer/shell: high
 discover/system/platform: medium
 exec/imports/python: low

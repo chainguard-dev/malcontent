@@ -21,7 +21,7 @@ rule base64_shell_encode: medium {
     description = "calls base64 command to encode strings"
 
   strings:
-    $base64_pipe = /\|{0,2}base64/
+    $base64_pipe = /\| {0,2}base64/
     $base64_w    = "base64 -w"
 
   condition:

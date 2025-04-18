@@ -8,7 +8,6 @@ credential/shell/bash_history: medium
 credential/ssh/authorized_hosts: medium
 crypto/ed25519: low
 crypto/rc4: low
-data/base64/external: medium
 data/encoding/base64: low
 discover/user/HOME: low
 evasion/file/prefix: medium

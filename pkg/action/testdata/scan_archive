@@ -369,17 +369,6 @@
                     "RuleName": "tls"
                 },
                 {
-                    "Description": "calls base64 command to encode strings",
-                    "MatchStrings": [
-                        "base64_shell_encode::base64"
-                    ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/data/base64/external.yara#base64_shell_encode",
-                    "ID": "data/base64/external",
-                    "RuleName": "base64_shell_encode"
-                },
-                {
                     "Description": "Works with bzip2 files",
                     "MatchStrings": [
                         "bzip2"

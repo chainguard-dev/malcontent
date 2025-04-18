@@ -1,5 +1,5 @@
 # c/clean/ruby_http_parser/test.c: medium
-c2/tool_transfer/os: medium
+c2/tool_transfer/os: low
 crypto/openssl: medium
 data/compression/gzip: low
 data/compression/zlib: low

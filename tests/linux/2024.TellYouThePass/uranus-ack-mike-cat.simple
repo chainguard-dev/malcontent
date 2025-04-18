@@ -13,7 +13,6 @@ crypto/ecdsa: low
 crypto/ed25519: low
 crypto/public_key: low
 crypto/rc4: low
-data/base64/external: medium
 data/encoding/base64: low
 data/encoding/json: low
 data/encoding/json_decode: low

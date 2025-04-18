@@ -5,7 +5,7 @@ discover/multiple: medium
 discover/network/interface_list: medium
 discover/network/netstat: medium
 discover/system/dmesg: low
-discover/system/platform: medium
+discover/system/platform: low
 discover/user/name_get: medium
 exec/shell/SHELL: low
 exec/shell/TERM: low

@@ -11,7 +11,7 @@ discover/network/interface_list: medium
 discover/network/mac_address: medium
 discover/network/netstat: medium
 discover/system/dmesg: low
-discover/system/platform: medium
+discover/system/platform: low
 discover/user/HOME: low
 discover/user/USER: low
 discover/user/name_get: medium
