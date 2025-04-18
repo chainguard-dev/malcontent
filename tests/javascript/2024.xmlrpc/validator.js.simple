@@ -4,6 +4,7 @@ anti-static/obfuscation/js: critical
 anti-static/obfuscation/python: critical
 c2/client: medium
 c2/tool_transfer/dropper: medium
+c2/tool_transfer/os: low
 discover/system/platform: medium
 discover/system/sysinfo: medium
 exec/shell/exec: medium
@@ -14,7 +15,6 @@ fs/directory/create: low
 fs/file/copy: medium
 fs/file/write: low
 fs/path/etc: low
-impact/cryptojacking/generic: high
 impact/cryptojacking/xmrig: critical
 impact/ui/xsession: medium
 net/http/oauth2: low

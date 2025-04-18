@@ -3,10 +3,12 @@ rule geoip_website_value: high {
     description = "public service for IP geolocation"
 
   strings:
-    $ipify     = "ip-api.com"
-    $wtfismyip = "freegeoip"
-    $geo       = "geolocation-db.com"
+    $p_ipify     = "ip-api.com"
+    $p_wtfismyip = "freegeoip"
+    $p_geo       = "geolocation-db.com"
+
+    $not_pypi_index = "testpack-id-lb001"
 
   condition:
-    any of them
+    any of ($p*) and none of ($not*)
 }

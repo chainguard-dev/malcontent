@@ -3,7 +3,7 @@ anti-static/macho/footer: high
 c2/addr/ip: high
 c2/addr/url: low
 c2/tool_transfer/dropper: medium
-c2/tool_transfer/os: low
+c2/tool_transfer/os: medium
 collect/archives/zip: medium
 credential/keychain: medium
 credential/password: low
@@ -42,6 +42,7 @@ net/http/auth: low
 net/http/post: medium
 net/http/proxy: low
 net/http/request: low
+net/http/websocket: medium
 net/ip/host_port: medium
 net/ip/icmp: medium
 net/proxy/tunnel: medium

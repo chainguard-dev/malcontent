@@ -3,14 +3,15 @@ rule calls_shell: medium {
     description = "executes shell"
 
   strings:
-    $bin_sh   = "/bin/sh"
-    $bin_bash = "/bin/bash"
-    $bin_dash = "/bin/dash"
-    $bin_zsh  = "/bin/zsh"
-    $sh_val   = /\/bin\/sh[ \%\{\}\$\-\"\'][ \%\{\}\$\-\w\"\']{1,64}/
-    $bash_val = /\/bin\/bash[ \%\{\}\$\-\"\'][ \%\{\}\$\-\w\"\']{1,64}/
-    $dash_val = /\/bin\/dash[ \%\{\}\$\-\"\'][ \%\{\}\$\-\w\"\']{1,64}/
-    $zsh_val  = /\/bin\/zsh[ \%\{\}\$\-\"\'][ \%\{\}\$\-\w\"\']{1,64}/
+    $bin_sh          = "/bin/sh"
+    $bin_bash        = "/bin/bash"
+    $bin_dash        = "/bin/dash"
+    $bin_zsh         = "/bin/zsh"
+    $sh_val          = /\/bin\/sh[ \%\{\}\$\-\"\'][ \%\{\}\$\-\w\"\']{1,64}/
+    $bash_val        = /\/bin\/bash[ \%\{\}\$\-\"\'][ \%\{\}\$\-\w\"\']{1,64}/
+    $dash_val        = /\/bin\/dash[ \%\{\}\$\-\"\'][ \%\{\}\$\-\w\"\']{1,64}/
+    $zsh_val         = /\/bin\/zsh[ \%\{\}\$\-\"\'][ \%\{\}\$\-\w\"\']{1,64}/
+    $bash_apostrophe = "'bash'"
 
   condition:
     filesize < 104857600 and any of them

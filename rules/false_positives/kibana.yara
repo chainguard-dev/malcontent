@@ -46,6 +46,7 @@ rule security_detection_engine: override {
     SIGNATURE_BASE_P0Wnedpotato                 = "low"
     SIGNATURE_BASE_Wmimplant                    = "low"
     win_defender_exclusion                      = "low"
+    hidden_short_path_system                    = "low"
 
   strings:
     $attr1   = "rule_id"

@@ -70,3 +70,36 @@ rule mega_string: high {
     filesize < 5MB and $unhexlify and any of ($hex*)
 
 }
+
+rule xxd_p: medium {
+  meta:
+    description = "uses the xxd command to generate hex"
+
+  strings:
+    $xxd_p = "xxd -p"
+
+  condition:
+    filesize < 128KB and any of them
+}
+
+rule long_hex_var_multiple: high {
+  meta:
+    description = "contains multiple large hexadecimal string variables"
+
+  strings:
+    $assign = /\w{0,16}=["'][a-z0-9]{1024}/
+
+  condition:
+    filesize < 10MB and #assign > 3
+}
+
+rule long_hex_var: medium {
+  meta:
+    description = "contains a large hexadecimal string variable"
+
+  strings:
+    $assign = /\w{0,16}=["'][a-z0-9]{1024}/
+
+  condition:
+    filesize < 10MB and $assign
+}

@@ -2,6 +2,7 @@
 anti-static/obfuscation/python: low
 c2/tool_transfer/arch: low
 c2/tool_transfer/os: medium
+data/encoding/yaml: medium
 discover/system/platform: medium
 exec/imports/python: low
 exec/program: medium
@@ -16,6 +17,7 @@ fs/tempdir/TEMP: low
 fs/tempdir/create: low
 fs/tempfile: low
 net/url/embedded: low
+os/env/get: low
 os/fd/read: low
 os/fd/write: low
 process/executable_path: medium

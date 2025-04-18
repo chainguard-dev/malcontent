@@ -6,6 +6,7 @@ anti-static/elf/multiple: medium
 anti-static/xor/paths: high
 c2/addr/url: low
 c2/tool_transfer/arch: low
+c2/tool_transfer/os: low
 credential/ssh/d: medium
 crypto/rc4: low
 data/builtin/glibc: medium

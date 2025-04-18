@@ -44,19 +44,20 @@ rule flooder: high {
     description = "References an IP flooder"
 
   strings:
-    $ = "flooder" fullword
-    $ = "FLOODER" fullword
-    $ = "Flood operation"
-    $ = "Starting Flood"
-    $ = "stresser" fullword
-    $ = "dosia" fullword
-    $ = "ICMPFLOOD" fullword
-    $ = "BLACKNURSE" fullword
-    $ = "HYDRASYN" fullword
-    $ = "KAFFER-SLAP" fullword
+    $               = "flooder" fullword
+    $               = "FLOODER" fullword
+    $               = "Flood operation"
+    $               = "Starting Flood"
+    $               = "stresser" fullword
+    $               = "dosia" fullword
+    $               = "ICMPFLOOD" fullword
+    $               = "BLACKNURSE" fullword
+    $               = "HYDRASYN" fullword
+    $               = "KAFFER-SLAP" fullword
+    $not_pypi_index = "testpack-id-lb001"
 
   condition:
-    any of them
+    any of them and none of ($not*)
 }
 
 rule ddos: medium {

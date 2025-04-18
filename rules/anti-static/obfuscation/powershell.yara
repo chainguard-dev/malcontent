@@ -8,6 +8,7 @@ rule powershell_byte_xor: critical windows {
     $xor           = "-bxor" fullword
     $not_docs      = " https://docs.microsoft.com"
     $not_verbs     = "-cnotcontains"
+    $not_elastic   = "\"Suspicious Windows Powershell Arguments\""
 
   condition:
     filesize < 16KB and $xor and any of ($ps*) and none of ($not*)

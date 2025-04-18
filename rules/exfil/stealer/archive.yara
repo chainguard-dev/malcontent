@@ -45,13 +45,14 @@ rule usbmon_webproxy_zipper: high {
     description = "uses usbmon, web proxies, and zip files"
 
   strings:
-    $usbmon    = "usbmon" fullword
-    $webproxy  = "WebProxy"
-    $web_proxy = "webproxy"
-    $zip       = "zip" fullword
+    $usbmon         = "usbmon" fullword
+    $webproxy       = "WebProxy"
+    $web_proxy      = "webproxy"
+    $zip            = "zip" fullword
+    $not_pypi_index = "testpack-id-lb001"
 
   condition:
-    $usbmon and $zip and any of ($web*)
+    $usbmon and $zip and any of ($web*) and none of ($not*)
 }
 
 rule osascript_http_zipper: high {

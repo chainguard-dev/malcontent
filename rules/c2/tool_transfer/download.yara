@@ -31,6 +31,23 @@ rule download_sites: high {
     any of ($d_*) and none of ($not*)
 }
 
+rule base64_download_site: high {
+  meta:
+    description = "References known file hosting site, base64 encoded"
+
+  strings:
+    $ = "privatebin" base64
+    $ = "pastebin" base64
+    $ = "api.paste." base64
+    $ = "cdn.discordapp.com" base64
+    $ = "privnote.com" base64
+    $ = "hushnote" base64
+    $ = "gist.githubusercontent.com" base64
+
+  condition:
+    any of them
+}
+
 rule pastebin: medium {
   meta:
     ref         = "https://github.com/ditekshen/detection/blob/e6579590779f62cbe7f5e14b5be7d77b2280f516/yara/indicator_high.yar#L1001"

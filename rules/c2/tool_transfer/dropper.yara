@@ -14,7 +14,7 @@ rule dropper_for: high {
     description = "References 'dropper for'"
 
   strings:
-    $ref = /[dD]ropper for [\w ]{0,32}/
+    $ref = /[dD]ropper for [\w ]{0,32}/ fullword
 
   condition:
     any of them

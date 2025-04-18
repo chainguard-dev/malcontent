@@ -2,4 +2,5 @@
 anti-static/obfuscation/js: high
 data/encoding/json_decode: low
 exec/plugin: low
+exec/remote_commands/code_eval: medium
 net/url/encode: medium

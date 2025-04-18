@@ -3,7 +3,7 @@ anti-static/macho/footer: high
 c2/addr/url: low
 c2/tool_transfer/chmod_dropper: high
 c2/tool_transfer/macos: critical
-c2/tool_transfer/os: low
+c2/tool_transfer/os: medium
 c2/tool_transfer/shell: critical
 collect/archives/zip: medium
 collect/databases/mysql: medium
@@ -63,6 +63,7 @@ net/http/cookies: medium
 net/http/post: medium
 net/http/proxy: low
 net/http/request: low
+net/http/websocket: medium
 net/ip/host_port: medium
 net/resolve/hostport_parse: low
 net/socket/connect: medium

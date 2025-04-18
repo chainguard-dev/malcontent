@@ -17,8 +17,8 @@ rule get_env_val {
     description = "Retrieve environment variable values"
 
   strings:
-    $node_val   = /env\.[A-Z]{3,16}/
-    $python_val = /os\.environ\[[\'\"][a-zA-Z]{1,32}[\'\"]\]/
+    $node_val   = /env\.[A-Z_]{3,16}/
+    $python_val = /os\.environ\[[\'\"][a-zA-Z_]{1,32}[\'\"]\]/
 
   condition:
     any of them

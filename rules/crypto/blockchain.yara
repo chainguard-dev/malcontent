@@ -1,4 +1,4 @@
-rule blockchain: medium override {
+rule blockchain: medium {
   meta:
     description = "Uses a blockchain"
 

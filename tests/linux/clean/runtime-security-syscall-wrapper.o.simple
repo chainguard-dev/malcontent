@@ -2,6 +2,7 @@
 c2/addr/ip: medium
 c2/addr/url: low
 c2/tool_transfer/arch: low
+c2/tool_transfer/os: medium
 credential/sniffer/bpf: medium
 evasion/bypass_security/linux/iptables: medium
 evasion/logging/acct: low

@@ -11,6 +11,7 @@ rule reverse_shell: high {
     $r_stdin_redir          = "0>&1" fullword
     $not_ref_1              = "reverse shellConf"
     $not_ref_2              = "reverse shellshare"
+    $not_pypi_index         = "testpack-id-lb001"
 
   condition:
     any of ($r_*) and none of ($not_*)
@@ -26,7 +27,8 @@ rule possible_reverse_shell: medium {
     $sh_bash   = "/bin/bash"
     $sh        = "/bin/sh"
 
-    $not_uc2 = "ucs2reverse"
+    $not_uc2        = "ucs2reverse"
+    $not_pypi_index = "testpack-id-lb001"
 
   condition:
     filesize < 4MB and any of ($sh*) and all of ($f*) and none of ($not*)

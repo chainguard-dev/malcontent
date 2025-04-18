@@ -18,6 +18,8 @@ rule linux_server_stealer: high {
     $term_crontab = "crontab" fullword
     $term_http    = "http" fullword
 
+    $not_appsec_rules = "\"id\": \"crs-930-120\""
+
   condition:
-    filesize < 10MB and $bash_history and any of ($other*) and any of ($term*)
+    filesize < 10MB and $bash_history and any of ($other*) and any of ($term*) and none of ($not*)
 }

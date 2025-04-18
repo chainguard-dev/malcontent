@@ -117,8 +117,10 @@ rule linux_rootkit_terms: critical linux {
     $o_sshd      = "sshd" fullword
     $o_miner     = "miner" fullword
 
+    $not_pypi_index = "testpack-id-lb001"
+
   condition:
-    filesize < 10MB and any of ($s*) and any of ($o*)
+    filesize < 10MB and any of ($s*) and any of ($o*) and none of ($not*)
 }
 
 rule linux_process_hider: critical linux {

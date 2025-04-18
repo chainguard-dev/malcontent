@@ -1,5 +1,6 @@
 # php/clean/composer-2.7.7: medium
 anti-behavior/anti_debugger: medium
+anti-static/obfuscation/js: medium
 anti-static/obfuscation/php: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
@@ -40,6 +41,7 @@ exec/plugin: low
 exec/shell/SHELL: low
 exec/shell/TERM: low
 exec/shell/command: medium
+exec/shell/exec: medium
 exec/shell/ignore_output: medium
 fs/directory/create: low
 fs/directory/remove: low

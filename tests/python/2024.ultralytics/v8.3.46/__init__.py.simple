@@ -14,4 +14,5 @@ net/download: medium
 net/download/fetch: medium
 net/ip/host_port: high
 net/url/embedded: low
+os/env/get: low
 process/chdir: low

@@ -3,11 +3,12 @@ rule dev_shm_hidden: high linux {
     description = "hidden path reference within /dev/shm (world writeable)"
 
   strings:
-    $dev_shm        = /\/dev\/shm\/\.[\%\w\.\-\/]{0,64}/
-    $ignore_mkstemp = /\/dev\/shm\/[%\w\.\-\/]{0,64}X{6}/
+    $dev_shm     = /\/dev\/shm\/\.[\%\w\.\-\/]{0,64}/
+    $not_mkstemp = /\/dev\/shm\/[%\w\.\-\/]{0,64}X{6}/
+    $not_elastic = "\"Potential Suspicious File Edit\""
 
   condition:
-    $dev_shm and not $ignore_mkstemp
+    $dev_shm and none of ($not*)
 }
 
 rule dev_mqueue_hidden: high {

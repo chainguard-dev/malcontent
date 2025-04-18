@@ -3,8 +3,10 @@ rule stealer: high {
     description = "literally calls itself a stealer"
 
   strings:
-    $Stealer  = "Stealer" fullword
-    $Stealer2 = "stealer" fullword
+    $Stealer     = "Stealer" fullword
+    $Stealer2    = "stealer" fullword
+    $StealToken  = "stealToken"
+    $StealToken2 = "StealTokens"
 
     $o_requests = "requests" fullword
     $o_telegram = "Telegram" fullword
@@ -16,6 +18,5 @@ rule stealer: high {
     $o_riot     = "Riot Games" fullword
 
   condition:
-    filesize < 64KB and any of ($Stealer*) and any of ($o*)
+    filesize < 128KB and any of ($Steal*) and any of ($o*)
 }
-
