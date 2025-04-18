@@ -9,6 +9,7 @@ rule macos_screencapture_caller: high {
     $not_private         = "/System/Library/PrivateFrameworks/"
     $not_screencaptureui = "screencaptureui.app"
     $not_signal          = "_availability_version_check"
+    $not_pypi_index      = "testpack-id-lb001"
 
   condition:
     $screencap and none of ($not_*)

@@ -21,6 +21,8 @@ rule multiple_pools: critical {
     $ = "whales" fullword
     $ = "woolypooly" fullword
 
+    $not_pypi_index = "testpack-id-lb001"
+
   condition:
-    filesize < 200MB and 4 of them
+    filesize < 100MB and 4 of them and none of ($not*)
 }

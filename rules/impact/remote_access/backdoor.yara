@@ -48,6 +48,7 @@ rule backdoor_likely: high {
     $f_sshd                       = "sshd" fullword
     $f_readdir64                  = "readdir64" fullword
     $not_BackdoorChannel_Fallback = "BackdoorChannel_Fallback"
+    $not_pypi_index               = "testpack-id-lb001"
 
   condition:
     filesize < 10MB and $backdoor and any of ($f*) and none of ($not*)

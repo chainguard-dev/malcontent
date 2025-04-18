@@ -12,6 +12,8 @@ rule killer_miner_panchansminingisland: critical {
     $ = "spreader"
     $ = "updater"
 
+    $not_pypi_index = "testpack-id-lb001"
+
   condition:
-    filesize < 120MB and 6 of them
+    filesize < 120MB and 6 of them and none of ($not*)
 }

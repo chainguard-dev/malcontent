@@ -15,7 +15,6 @@ fs/directory/create: low
 fs/file/copy: medium
 fs/file/write: low
 fs/path/etc: low
-impact/cryptojacking/generic: high
 impact/cryptojacking/xmrig: critical
 impact/ui/xsession: medium
 net/http/oauth2: low

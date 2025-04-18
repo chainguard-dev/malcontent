@@ -17,8 +17,10 @@ rule iplookup_website: high {
     $ipinfo      = "ipinfo.io"
     $check_ip    = "checkip.amazonaws.com"
 
+    $not_pypi_index = "testpack-id-lb001"
+
   condition:
-    filesize < 250MB and any of them
+    filesize < 250MB and any of them and none of ($not*)
 }
 
 rule v6_ipinfo_website: override {

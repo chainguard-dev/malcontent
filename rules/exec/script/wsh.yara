@@ -39,7 +39,7 @@ rule WScript_Obfuscated: critical windows {
     description = "obfuscated access to a Windows Scripting Host"
 
   strings:
-    $WScript      = "WScript" fullword
+    $WScript      = /WScript\./ fullword
     $fromCharCode = /fromCharCode\(\d+/
     $math         = /fromCharCode\(\d+\^/
 

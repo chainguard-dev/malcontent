@@ -3,10 +3,11 @@ rule zsh_history: high {
     description = "accesses zsh shell history"
 
   strings:
-    $ref = ".zsh_history" fullword
+    $ref              = ".zsh_history" fullword
+    $not_appsec_rules = "\"id\": \"crs-930-120\""
 
   condition:
-    all of them
+    $ref and none of ($not*)
 }
 
 rule zsh_history_editor: override {

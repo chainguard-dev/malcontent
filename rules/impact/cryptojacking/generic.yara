@@ -26,6 +26,8 @@ rule danger_crypto_miner: high {
     $cryptonight     = "Cryptonight"
     $minergate       = "minergate"
 
+    $not_pypi_index = "testpack-id-lb001"
+
   condition:
-    filesize < 10485760 and 1 of them
+    filesize < 10485760 and 2 of them and none of ($not*)
 }

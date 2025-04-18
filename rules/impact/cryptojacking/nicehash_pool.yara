@@ -3,9 +3,10 @@ rule nicehash_pool: high {
     description = "References Nicehash and mining pools"
 
   strings:
-    $ref  = "nicehash" fullword
-    $ref2 = "pool"
+    $ref            = "nicehash" fullword
+    $ref2           = "pool"
+    $not_pypi_index = "testpack-id-lb001"
 
   condition:
-    all of them
+    all of ($ref*) and none of ($not*)
 }

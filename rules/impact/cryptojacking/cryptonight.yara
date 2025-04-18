@@ -3,9 +3,10 @@ rule cryptonight: high {
     description = "References CryptoNight, a proof-of-work algorithm"
 
   strings:
-    $ref  = "cryptonight"
-    $ref2 = "Cryptonight"
+    $ref            = "cryptonight"
+    $ref2           = "Cryptonight"
+    $not_pypi_index = "testpack-id-lb001"
 
   condition:
-    any of them
+    any of ($ref*) and none of ($not*)
 }

@@ -98,6 +98,8 @@ rule pip_installer_sus: high {
     $json    = "json"
     $sqlite  = "sqlite3"
 
+    $not_pypi_index = "testpack-id-lb001"
+
   condition:
-    pip_installer and 4 of them
+    pip_installer and 4 of them and none of ($not*)
 }
