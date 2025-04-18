@@ -12,6 +12,7 @@ rule popen: medium {
     $ruby2        = /Open\w{0,1}\.popen\w{0,2}\(["'\w \.\#\{\}]{0,64}/
     $pipe_glibc   = "pipe@@GLIBC"
     $pipe_generic = "cmdpipe"
+    $js           = "getExecOutput" fullword
 
   condition:
     any of them

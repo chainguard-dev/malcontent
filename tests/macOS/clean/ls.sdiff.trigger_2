@@ -1,5 +1,6 @@
-*** changed (1 added, 5 removed): macOS/clean/ls
+*** changed (1 added, 6 removed): macOS/clean/ls
 -c2/tool_transfer/arch
+-c2/tool_transfer/os
 -data/compression/lzma
 -discover/system/hostname
 +fs/directory/traverse

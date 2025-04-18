@@ -39,6 +39,20 @@ rule os_release: medium {
     any of them
 }
 
+rule os_type: low {
+  meta:
+    description = "operating-system identification"
+    pledge      = "sysctl"
+    syscall     = "sysctl"
+    ref         = "https://developer.apple.com/documentation/os/1524245-os_release"
+
+  strings:
+    $ref3 = "$OSTYPE" fullword
+
+  condition:
+    any of them
+}
+
 rule macos_platform_check: medium {
   meta:
     description = "platform check"

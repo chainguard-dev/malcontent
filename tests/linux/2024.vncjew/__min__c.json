@@ -73,6 +73,18 @@
                     "RuleName": "arch_ref"
                 },
                 {
+                    "Description": "references a specific operating system",
+                    "MatchStrings": [
+                        "http://",
+                        "linux"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/os.yara#os_ref",
+                    "ID": "c2/tool_transfer/os",
+                    "RuleName": "os_ref"
+                },
+                {
                     "Description": "references a 'password'",
                     "MatchStrings": [
                         "UserPassword",
@@ -881,15 +893,17 @@
                     "RuleName": "netlink"
                 },
                 {
-                    "Description": "references 'masscan', an asynchronous TCP port scanner",
+                    "Description": "executes 'masscan', an asynchronous TCP port scanner",
                     "MatchStrings": [
-                        "masscan"
+                        "exec.(*Cmd).Run",
+                        "masscan",
+                        "system"
                     ],
                     "RiskScore": 3,
                     "RiskLevel": "HIGH",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/sec-tool/net/masscan.yara#masscan",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/sec-tool/net/masscan.yara#masscan_elf",
                     "ID": "sec-tool/net/masscan",
-                    "RuleName": "masscan"
+                    "RuleName": "masscan_elf"
                 }
             ],
             "RiskScore": 4,

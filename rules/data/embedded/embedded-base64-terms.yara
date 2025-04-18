@@ -15,6 +15,17 @@ rule contains_base64: medium {
     any of them
 }
 
+rule contains_base64_technical: high {
+  meta:
+    description = "Contains base64 technical content"
+
+  strings:
+    $linux_gnu = "linux-gnu" base64
+
+  condition:
+    any of them
+}
+
 rule contains_base64_certificate: medium {
   meta:
     description = "Contains base64 CERTIFICATE"

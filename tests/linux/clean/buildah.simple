@@ -31,6 +31,7 @@ data/embedded/zstd: medium
 data/encoding/base64: low
 data/encoding/json: low
 data/encoding/json_decode: low
+data/encoding/yaml: low
 data/hash/blake2b: low
 data/hash/md5: low
 discover/network/mac_address: medium

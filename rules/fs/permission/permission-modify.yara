@@ -55,6 +55,7 @@ rule chmod_dangerous_exec: high exfil {
     $not_chromium    = "CHROMIUM_TIMESTAMP"
     $not_var_tmp     = "chmod 0777 /var/tmp" fullword
     $not_extutils    = "chmod 0777, [.foo.bar] doesn't work on VMS"
+    $not_sonarqube   = "Setting loose POSIX file permissions is security-sensitive"
 
   condition:
     filesize < 50MB and any of ($r*) and none of ($not*)
@@ -73,6 +74,7 @@ rule chmod_group_writeable: high exfil {
     $not_chromium    = "CHROMIUM_TIMESTAMP"
     $not_var_tmp     = "chmod 0770 /var/tmp" fullword
     $not_extutils    = "chmod 0770, [.foo.bar] doesn't work on VMS"
+    $not_sonarqube   = "Setting loose POSIX file permissions is security-sensitive"
 
   condition:
     filesize < 50MB and any of ($r*) and none of ($not*)

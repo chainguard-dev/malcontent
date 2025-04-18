@@ -63,7 +63,8 @@ rule echo_decode_bash: critical {
     description = "executes base64 encoded shell commands"
 
   strings:
-    $ref = /base64 {0,2}(-d|--decode) {0,2}\| {0,2}(bash|zsh|sh)/ fullword
+    $pipe  = /base64 {0,2}(-d|--decode) {0,2}\| {0,2}(bash|zsh|sh)/ fullword
+    $redir = /base64 {0,2}(-d|--decode) {0,2}\>.{0,16}[\;\&]\s{0,2}(bash|zsh|sh)/ fullword
 
   condition:
     filesize < 256KB and any of them

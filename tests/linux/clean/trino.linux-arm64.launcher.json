@@ -292,16 +292,18 @@
                     "RuleName": "arch_ref"
                 },
                 {
-                    "Description": "references a specific operating system",
+                    "Description": "references multiple operating systems",
                     "MatchStrings": [
                         "http://",
+                        "darwin",
+                        "linux",
                         "Linux"
                     ],
-                    "RiskScore": 1,
-                    "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/os.yara#os_ref",
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/os.yara#multiple_os_ref",
                     "ID": "c2/tool_transfer/os",
-                    "RuleName": "os_ref"
+                    "RuleName": "multiple_os_ref"
                 },
                 {
                     "Description": "Works with zip files",

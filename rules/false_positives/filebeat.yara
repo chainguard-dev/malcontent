@@ -1,7 +1,8 @@
 rule misp_mdjson: override {
   meta:
-    description = "misp_sample.mdjson.log"
-    lvt_locker  = "medium"
+    description  = "misp_sample.mdjson.log"
+    pastebin     = "low"
+    rootkit_high = "low"
 
   strings:
     $attribute = "Attribute"

@@ -14,11 +14,12 @@ rule xmrig: high {
     description = "References XMRig, a high-performance cryptocurrency miner"
 
   strings:
-    $ref  = "XMRig"
-    $ref2 = "xmrig"
+    $ref            = "XMRig"
+    $ref2           = "xmrig"
+    $not_pypi_index = "testpack-id-lb001"
 
   condition:
-    any of them
+    any of them and none of ($not*)
 }
 
 rule xmrdrop: critical {
@@ -35,4 +36,3 @@ rule xmrdrop: critical {
   condition:
     any of ($r*) and any of ($x*)
 }
-

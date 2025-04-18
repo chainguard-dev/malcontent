@@ -16,6 +16,18 @@ rule hide_shell_history: high {
     any of ($h*) and none of ($not*)
 }
 
+rule hide_shell_history_template: override {
+  meta:
+    hide_shell_history = "medium"
+
+  strings:
+    $disable = "{{.DisableHistory}}"
+    $enable  = "{{.EnableHistory}}"
+
+  condition:
+    all of them
+}
+
 rule histfile_xor: high {
   meta:
     description = "commands obfuscated using xor"

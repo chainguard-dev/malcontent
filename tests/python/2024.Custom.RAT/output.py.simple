@@ -28,6 +28,7 @@ exec/conditional/root_check: medium
 exec/dylib/windll: medium
 exec/imports/python: low
 exec/program: medium
+exec/script/wsh: medium
 exec/shell/command: medium
 exec/shell/power: medium
 exfil/discord: critical

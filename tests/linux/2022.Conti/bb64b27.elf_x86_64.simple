@@ -2,6 +2,7 @@
 3P/elastic/ransomware_conti: critical
 c2/addr/url: low
 c2/tool_transfer/arch: low
+c2/tool_transfer/os: low
 crypto/encrypt: medium
 crypto/public_key: low
 fs/link_read: low

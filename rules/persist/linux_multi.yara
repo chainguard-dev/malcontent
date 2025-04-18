@@ -20,8 +20,9 @@ rule linux_multi_persist: high {
     $bash_ref6 = "/etc/bashrc"
     $bash_ref7 = "/etc/bash"
 
-    $not_shell = "POSIXLY_CORRECT" fullword
-    $not_vim   = "VIMRUNTIME" fullword
+    $not_shell        = "POSIXLY_CORRECT" fullword
+    $not_vim          = "VIMRUNTIME" fullword
+    $not_appsec_rules = "\"id\": \"crs-930-120\""
 
   condition:
     filesize < 20MB and 3 of ($o*) and any of ($bash*) and none of ($not*)

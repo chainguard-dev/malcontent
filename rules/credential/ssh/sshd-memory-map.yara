@@ -4,12 +4,14 @@ rule ssh_password_trace: high {
     description = "May access the memory map for sshd"
 
   strings:
-    $ptrace   = "ptrace" fullword
-    $tracer   = "tracer" fullword
-    $password = "password" fullword
-    $passwd   = "passwd" fullword
-    $sshd     = "sshd" fullword
+    $f_ptrace   = "ptrace" fullword
+    $f_tracer   = "tracer" fullword
+    $f_password = "password" fullword
+    $f_passwd   = "passwd" fullword
+    $f_sshd     = "sshd" fullword
+
+    $not_pypi_index = "testpack-id-lb001"
 
   condition:
-    all of them
+    filesize < 50MB and all of ($f*) and none of ($not*)
 }

@@ -4,6 +4,7 @@ anti-behavior/LD_PROFILE: medium
 anti-static/elf/multiple: medium
 c2/addr/url: low
 c2/tool_transfer/arch: low
+c2/tool_transfer/os: low
 crypto/rc4: low
 data/builtin/glibc: medium
 discover/system/cpu: low

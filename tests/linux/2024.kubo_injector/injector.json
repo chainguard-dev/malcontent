@@ -47,6 +47,18 @@
                     "RuleName": "arch_ref"
                 },
                 {
+                    "Description": "references a specific operating system",
+                    "MatchStrings": [
+                        "https://",
+                        "linux"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/os.yara#os_ref",
+                    "ID": "c2/tool_transfer/os",
+                    "RuleName": "os_ref"
+                },
+                {
                     "Description": "may inject code into other processes",
                     "MatchStrings": [
                         "successfully injected",

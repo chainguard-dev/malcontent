@@ -57,16 +57,17 @@ rule pcap_shell_exec: high {
     filetypes = "elf,macho"
 
   strings:
-    $libpcap      = "libpcap"
-    $shell        = "shell" fullword
-    $sh           = "/bin/sh"
-    $sh_bash      = "/bin/bash"
-    $y_exec       = "exec" fullword
-    $y_execve     = "execve" fullword
-    $y_execvp     = "execvp" fullword
-    $y_system     = "system" fullword
-    $not_airportd = "airportd"
-    $not_license  = "Alternate form in libpcap, which also omits the IN NO EVENT paragraph"
+    $libpcap        = "libpcap"
+    $shell          = "shell" fullword
+    $sh             = "/bin/sh"
+    $sh_bash        = "/bin/bash"
+    $y_exec         = "exec" fullword
+    $y_execve       = "execve" fullword
+    $y_execvp       = "execvp" fullword
+    $y_system       = "system" fullword
+    $not_airportd   = "airportd"
+    $not_license    = "Alternate form in libpcap, which also omits the IN NO EVENT paragraph"
+    $not_pypi_index = "testpack-id-lb001"
 
   condition:
     filesize < 10MB and filesize > 20KB and $libpcap and any of ($sh*) and any of ($y*) and none of ($not*)

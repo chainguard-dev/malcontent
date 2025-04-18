@@ -104,7 +104,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 
 	// Clean up the path if scanning an archive
 	var clean string
-	if isArchive {
+	if isArchive || c.OCI {
 		pathAbs, err := filepath.Abs(path)
 		if err != nil {
 			return nil, NewFileReportError(err, path, TypeGenerateError)
@@ -113,6 +113,10 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		if err != nil {
 			return nil, NewFileReportError(err, path, TypeGenerateError)
 		}
+		if runtime.GOOS == "darwin" {
+			pathAbs = strings.TrimPrefix(pathAbs, "/private")
+			archiveRootAbs = strings.TrimPrefix(archiveRootAbs, "/private")
+		}
 		fr.ArchiveRoot = archiveRootAbs
 		fr.FullPath = pathAbs
 		clean = formatPath(cleanPath(pathAbs, archiveRootAbs))
@@ -120,7 +124,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 
 	// If absPath is provided, use it instead of the path if they are different.
 	// This is useful when scanning images and archives.
-	if absPath != "" && absPath != path && isArchive {
+	if absPath != "" && absPath != path && (isArchive || c.OCI) {
 		if len(c.TrimPrefixes) > 0 {
 			absPath = report.TrimPrefixes(absPath, c.TrimPrefixes)
 		}

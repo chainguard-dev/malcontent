@@ -180,8 +180,10 @@
                     "Description": "references multiple operating systems",
                     "MatchStrings": [
                         "https://",
-                        "Windows",
+                        "windows",
                         "http://",
+                        "Windows",
+                        "linux",
                         "Linux",
                         "macOS"
                     ],
@@ -537,6 +539,17 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/data/encoding/protobuf.yara#protobuf",
                     "ID": "data/encoding/protobuf",
                     "RuleName": "protobuf"
+                },
+                {
+                    "Description": "Decodes YAML content",
+                    "MatchStrings": [
+                        "yaml.Unmarshal"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/data/encoding/yaml.yara#yaml_decode",
+                    "ID": "data/encoding/yaml",
+                    "RuleName": "yaml_decode"
                 },
                 {
                     "Description": "Uses blake2b encryption algorithm",

@@ -9,6 +9,7 @@ discover/system/platform: low
 discover/user/name_get: medium
 exec/shell/SHELL: low
 exec/shell/TERM: low
+exec/shell/exec: medium
 fs/directory/create: low
 fs/directory/remove: low
 fs/fifo_create: low

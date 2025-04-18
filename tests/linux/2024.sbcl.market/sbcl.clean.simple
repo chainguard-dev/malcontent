@@ -1,6 +1,7 @@
 # linux/2024.sbcl.market/sbcl.clean: medium
 c2/addr/url: low
 c2/tool_transfer/arch: low
+c2/tool_transfer/os: low
 crypto/rc4: low
 data/compression/zstd: low
 discover/user/HOME: low

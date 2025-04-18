@@ -1,12 +1,13 @@
-rule masscan: high {
+rule masscan: medium {
   meta:
     description = "references 'masscan', an asynchronous TCP port scanner"
 
   strings:
-    $ref = "masscan" fullword
+    $ref        = "masscan" fullword
+    $not_kibana = "ua0-600-60x" fullword
 
   condition:
-    $ref
+    $ref and none of ($not*)
 }
 
 rule masscan_elf: high linux {

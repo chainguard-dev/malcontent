@@ -10,6 +10,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/action"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/render"
@@ -169,7 +170,7 @@ func prepareRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 }
 
 // executeRefresh reads from a populated slice of TestData.
-func executeRefresh(ctx context.Context, c Config, testData []TestData) error {
+func executeRefresh(ctx context.Context, c Config, testData []TestData, logger *clog.Logger) error {
 	g, ctx := errgroup.WithContext(ctx)
 
 	var mu sync.Mutex
@@ -187,7 +188,7 @@ func executeRefresh(ctx context.Context, c Config, testData []TestData) error {
 				var res *malcontent.Report
 
 				if len(data.Config.ScanPaths) == 2 {
-					res, err = action.Diff(ctx, *data.Config)
+					res, err = action.Diff(ctx, *data.Config, logger)
 				} else {
 					res, err = action.Scan(ctx, *data.Config)
 				}
@@ -219,7 +220,7 @@ func executeRefresh(ctx context.Context, c Config, testData []TestData) error {
 }
 
 // Refresh updates all relevant test data in pkg/action and tests.
-func Refresh(ctx context.Context, rc Config) error {
+func Refresh(ctx context.Context, rc Config, logger *clog.Logger) error {
 	if rc.SamplesPath == "" {
 		return fmt.Errorf("sample location is required")
 	}
@@ -243,5 +244,5 @@ func Refresh(ctx context.Context, rc Config) error {
 		return fmt.Errorf("failed to prepare sample data refresh: %w", err)
 	}
 
-	return executeRefresh(ctx, rc, testData)
+	return executeRefresh(ctx, rc, testData, logger)
 }

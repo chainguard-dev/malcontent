@@ -11,5 +11,6 @@ credential/sniffer/bpf: medium
 fs/path/dev: medium
 fs/proc/self_exe: medium
 net/dns/txt: low
+net/http/websocket: medium
 net/tcp/ssh: medium
 net/url/embedded: low
