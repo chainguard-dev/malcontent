@@ -265,13 +265,13 @@ rule large_random_variables: high {
 
 rule many_complex_var: medium {
   meta:
-    description = "contains multiple complex variables"
+    description = "defines multiple complex variables"
 
   strings:
     $ref = /var [a-zA-Z_]{1,256} = \(/
 
   condition:
-    probably_js and #ref > 32
+    probably_js and #ref > 64
 }
 
 rule many_complex_var_high: high {
@@ -282,7 +282,7 @@ rule many_complex_var_high: high {
     $ref = /var [a-zA-Z_]{1,256} = \(.{1,64}/
 
   condition:
-    probably_js and #ref > 128
+    probably_js and #ref > 400
 }
 
 rule many_static_map_lookups: medium {
