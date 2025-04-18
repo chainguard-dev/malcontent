@@ -33,7 +33,8 @@ rule multiple_os_ref: medium {
     $o_linux   = "linux"
     $o_darwin  = "darwin"
     $o_windows = "windows"
-    $o_macos = "macos"
+    $o_macos   = "macos"
+
   condition:
     any of ($http*) and (2 of ($o*) or 2 of ($O*))
 }

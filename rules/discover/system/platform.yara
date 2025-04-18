@@ -53,7 +53,6 @@ rule os_type: low {
     any of them
 }
 
-
 rule macos_platform_check: medium {
   meta:
     description = "platform check"
