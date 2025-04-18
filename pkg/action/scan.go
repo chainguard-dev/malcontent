@@ -117,6 +117,8 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 			pathAbs = strings.TrimPrefix(pathAbs, "/private")
 			archiveRootAbs = strings.TrimPrefix(archiveRootAbs, "/private")
 		}
+		fr.ArchiveRoot = archiveRootAbs
+		fr.FullPath = pathAbs
 		clean = formatPath(cleanPath(pathAbs, archiveRootAbs))
 	}
 
