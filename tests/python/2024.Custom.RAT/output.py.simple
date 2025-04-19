@@ -12,6 +12,7 @@ data/base64/decode: medium
 data/base64/encode: medium
 data/encoding/base64: low
 data/encoding/json_decode: low
+data/random: low
 discover/ip/geo: high
 discover/ip/public: high
 discover/multiple: high
@@ -49,6 +50,7 @@ impact/degrade/bluescreen: high
 impact/degrade/panic: medium
 impact/degrade/win_defender: critical
 net/download: medium
+net/http: low
 net/http/fake_user_agent: medium
 net/http/form_upload: medium
 net/http/post: medium

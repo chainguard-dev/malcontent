@@ -12,6 +12,7 @@ credential/password: low
 credential/sniffer/bpf: medium
 crypto/public_key: low
 data/builtin/glibc: medium
+data/random: low
 discover/group/lookup: medium
 discover/network/interface_list: medium
 discover/network/mac_address: medium
@@ -79,6 +80,7 @@ net/dns/reverse: medium
 net/dns/servers: low
 net/dns/txt: low
 net/download: medium
+net/http: low
 net/ip/addr: medium
 net/ip/host_port: medium
 net/ip/icmp: low

@@ -27,6 +27,7 @@ fs/path/var: low
 fs/proc/arbitrary_pid: medium
 fs/proc/self_exe: medium
 net/dns/servers: low
+net/http: low
 net/http/request: low
 net/socket/send: low
 persist/cron/etc_d: high

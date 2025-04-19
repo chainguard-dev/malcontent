@@ -2,6 +2,7 @@
 c2/addr/url: low
 c2/tool_transfer/arch: low
 c2/tool_transfer/os: medium
+data/random: low
 discover/process/runtime_deps: medium
 exec/program: medium
 fs/path/etc: low

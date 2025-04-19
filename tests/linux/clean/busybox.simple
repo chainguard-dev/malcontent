@@ -9,6 +9,7 @@ data/compression/bzip2: low
 data/compression/gzip: low
 data/compression/lzma: low
 data/encoding/base64: low
+data/random: low
 data/random/insecure: low
 discover/group/lookup: medium
 discover/network/interface: low

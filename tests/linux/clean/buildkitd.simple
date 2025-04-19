@@ -27,6 +27,7 @@ data/encoding/base64: low
 data/encoding/json: low
 data/encoding/json_decode: low
 data/hash/md5: low
+data/random: low
 discover/network/mac_address: medium
 discover/network/netstat: medium
 discover/process/name: medium
@@ -88,6 +89,7 @@ net/dns/reverse: medium
 net/dns/servers: low
 net/dns/txt: low
 net/download: medium
+net/http: low
 net/http/2: low
 net/http/accept: medium
 net/http/accept_encoding: low

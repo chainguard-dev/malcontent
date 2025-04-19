@@ -13,6 +13,7 @@ credential/password: low
 crypto/blockchain: medium
 crypto/openssl: medium
 data/encoding/json_decode: low
+data/random: low
 evasion/file/prefix: medium
 evasion/rootkit/refs: medium
 evasion/rootkit/userspace: low
@@ -36,6 +37,7 @@ lateral/scan/brute_force: low
 malware/ref: medium
 net/dns/txt: low
 net/download: medium
+net/http: low
 net/tcp/sftp: medium
 net/url/embedded: medium
 net/url/parse: low

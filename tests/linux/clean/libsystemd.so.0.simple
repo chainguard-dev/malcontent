@@ -4,6 +4,7 @@ c2/tool_transfer/arch: low
 c2/tool_transfer/os: low
 crypto/rc4: low
 data/compression/lzma: low
+data/random: low
 data/random/insecure: low
 discover/process/parent: low
 discover/process/runtime_deps: medium
@@ -28,6 +29,7 @@ fs/proc/self_exe: medium
 fs/proc/self_status: medium
 fs/watch: low
 mem/anonymous_file: medium
+net/http: low
 net/ip/addr: medium
 net/resolve/hostport_parse: low
 net/socket/listen: medium

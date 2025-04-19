@@ -16,6 +16,7 @@ crypto/openssl: medium
 crypto/public_key: low
 crypto/rc4: low
 data/embedded/pem_certificate: low
+data/random: low
 data/random/insecure: low
 discover/group/lookup: medium
 discover/network/netstat: medium
@@ -70,6 +71,7 @@ impact/ui/screensaver: medium
 impact/ui/x11_auth: medium
 impact/ui/xsession: medium
 lateral/scan/tool: medium
+net/http: low
 net/http/post: medium
 net/http/request: low
 net/http/server: medium

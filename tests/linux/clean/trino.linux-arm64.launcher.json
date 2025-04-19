@@ -762,6 +762,7 @@
             "SHA256": "156c164df577b3a60c80d7ea0e338f4797193975db03e871789398b82b1016b4",
             "Size": 1371632,
             "Pledge": [
+                "inet",
                 "stdio"
             ],
             "Behaviors": [
@@ -836,6 +837,17 @@
                     "RuleName": "crypto_aes"
                 },
                 {
+                    "Description": "uses a random number generator",
+                    "MatchStrings": [
+                        "urandom"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/data/random/random.yara#random",
+                    "ID": "data/random",
+                    "RuleName": "random"
+                },
+                {
                     "Description": "references path within /Users",
                     "MatchStrings": [
                         "/Users/martin/go/pkg"
@@ -868,6 +880,18 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/dns/dns-txt.yara#dns_txt",
                     "ID": "net/dns/txt",
                     "RuleName": "dns_txt"
+                },
+                {
+                    "Description": "Uses the HTTP protocol",
+                    "MatchStrings": [
+                        "http",
+                        "HTTP"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/http.yara#http",
+                    "ID": "net/http",
+                    "RuleName": "http"
                 },
                 {
                     "Description": "contains embedded HTTP URLs",

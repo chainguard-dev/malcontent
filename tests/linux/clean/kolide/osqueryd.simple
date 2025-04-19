@@ -38,6 +38,7 @@ data/hash/md5: low
 data/hash/sha1: low
 data/hash/sha256: low
 data/hash/whirlpool: medium
+data/random: low
 data/random/insecure: low
 discover/cloud/google_metadata: low
 discover/components/docker: medium
@@ -153,6 +154,7 @@ impact/remote_access/iptables: medium
 lateral/scan/tool: medium
 mem/anonymous_file: medium
 net/dns/txt: low
+net/http: low
 net/http/2: low
 net/http/accept: low
 net/http/accept_encoding: low

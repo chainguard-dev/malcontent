@@ -1,5 +1,9 @@
 # npm/2024.discord-api-ts/postinstall.js: critical
+anti-static/obfuscation/bool: medium
 anti-static/obfuscation/hex: medium
 anti-static/obfuscation/js: critical
+anti-static/obfuscation/strtoi: medium
+data/encoding/int: medium
+data/random: low
 fs/directory/create: low
 sus/exclamation: medium

@@ -12,6 +12,7 @@ crypto/public_key: low
 data/compression/zlib: low
 data/embedded/pem_private_key: medium
 data/encoding/base64: low
+data/random: low
 discover/group/lookup: medium
 discover/process/parent: low
 discover/system/hostname: low

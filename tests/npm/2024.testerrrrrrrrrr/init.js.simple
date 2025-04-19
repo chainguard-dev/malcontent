@@ -1,8 +1,12 @@
 # npm/2024.testerrrrrrrrrr/init.js: critical
+anti-static/obfuscation/bool: medium
 anti-static/obfuscation/hex: medium
 anti-static/obfuscation/js: critical
 anti-static/obfuscation/python: critical
 c2/addr/server: medium
+data/encoding/int: medium
+data/encoding/url: medium
+data/encoding/utf16: medium
 discover/network/interface_list: medium
 exec/shell/exec: medium
 exfil/nodejs: critical

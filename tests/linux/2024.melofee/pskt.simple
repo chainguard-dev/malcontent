@@ -27,6 +27,7 @@ data/compression/zlib: low
 data/encoding/base64: low
 data/hash/blake2b: low
 data/hash/sha1: low
+data/random: low
 discover/group/lookup: medium
 discover/network/interface_list: medium
 discover/processes/list: high
@@ -60,6 +61,7 @@ malware/family/melofee: critical
 net/dns/reverse: medium
 net/dns/servers: low
 net/dns/txt: low
+net/http: low
 net/http/post: medium
 net/http/request: low
 net/ip/addr: medium

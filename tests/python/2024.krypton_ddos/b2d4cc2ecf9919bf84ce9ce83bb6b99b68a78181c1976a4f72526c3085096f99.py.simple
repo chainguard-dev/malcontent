@@ -5,12 +5,14 @@ c2/connect/ping_pong: medium
 c2/refs: high
 c2/tool_transfer/os: low
 credential/password: low
+data/random: low
 data/random/insecure: low
 exec/imports/python: low
 fs/file/open: low
 fs/file/read: low
 impact/remote_access/agent: medium
 net/download: medium
+net/http: low
 net/http/fake_user_agent: medium
 net/http/request: low
 net/ip/host_port: medium

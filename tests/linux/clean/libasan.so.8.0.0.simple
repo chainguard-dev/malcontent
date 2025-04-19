@@ -5,6 +5,7 @@ c2/tool_transfer/os: medium
 data/compression/lzma: low
 data/compression/zlib: low
 data/compression/zstd: low
+data/random: low
 data/random/insecure: low
 discover/group/lookup: medium
 discover/network/interface: low

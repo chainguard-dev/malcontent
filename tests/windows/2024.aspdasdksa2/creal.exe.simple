@@ -15,6 +15,7 @@ data/compression/gzip: low
 data/compression/lzma: low
 data/embedded/app_manifest: medium
 data/encoding/base64: low
+data/random: low
 discover/system/sysinfo: medium
 exec/program: medium
 exec/tty/getpass: low
@@ -26,6 +27,7 @@ fs/file/read: low
 fs/file/write: low
 fs/path/relative: medium
 net/dns/txt: low
+net/http: low
 net/url/embedded: low
 net/url/parse: low
 net/url/request: medium

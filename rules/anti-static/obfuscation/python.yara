@@ -8,8 +8,11 @@ private rule probably_python {
     $f_for    = /for [a-z] in/
     $f_join   = ".join("
 
+    $not_use_strict = "use strict"
+    $not_defineprop = "Object.defineProperty"
+
   condition:
-    filesize < 10MB and ($import in (1..1024) or any of ($f*))
+    filesize < 10MB and ($import in (1..1024) or any of ($f*)) and none of ($not*)
 }
 
 rule py_indirect_builtins: suspicious {

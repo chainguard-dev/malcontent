@@ -25,6 +25,7 @@ data/encoding/base64: low
 data/encoding/json: low
 data/encoding/json_decode: low
 data/hash/md5: low
+data/random: low
 discover/ip/public: high
 discover/processes/list: medium
 discover/system/cpu: low
@@ -56,6 +57,7 @@ net/dns/reverse: medium
 net/dns/servers: low
 net/dns/txt: low
 net/download: medium
+net/http: low
 net/http/2: low
 net/http/accept: low
 net/http/accept_encoding: low

@@ -22,6 +22,7 @@ data/embedded/html: medium
 data/encoding/base64: low
 data/hash/blake2b: low
 data/hash/sha1: low
+data/random: low
 data/random/insecure: low
 discover/network/interface: low
 discover/process/runtime_deps: medium
@@ -73,6 +74,7 @@ impact/remote_access/net_term: high
 lateral/scan/tool: medium
 net/dns/reverse: medium
 net/dns/servers: low
+net/http: low
 net/http/accept: low
 net/http/auth: low
 net/http/cookies: medium

@@ -15,6 +15,7 @@ data/compression/zlib: low
 data/encoding/base64: low
 data/hash/blake2b: low
 data/hash/sha1: low
+data/random: low
 data/random/insecure: low
 discover/network/interface_list: medium
 discover/system/hostname: low
@@ -35,6 +36,7 @@ fs/tempdir/TEMP: low
 impact/remote_access/heartbeat: medium
 lateral/scan/tool: medium
 malware/framework/cobalt_strike: high
+net/http: low
 net/http/post: medium
 net/http/request: low
 net/ip/addr: medium

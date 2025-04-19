@@ -6,6 +6,7 @@ collect/archives/zip: medium
 collect/databases/mysql: medium
 credential/password: low
 credential/server/htpasswd: medium
+data/random: low
 exec/plugin: low
 fs/file/read: low
 fs/path/etc: low
@@ -16,6 +17,7 @@ fs/path/var: low
 impact/exploit/cve: medium
 impact/remote_access/agent: medium
 net/download: medium
+net/http: low
 net/http/post: medium
 net/http/request: low
 net/tcp/ssh: medium

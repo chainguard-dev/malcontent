@@ -15,6 +15,7 @@ crypto/public_key: low
 data/compression/zlib: low
 data/embedded/pem_private_key: medium
 data/encoding/base64: low
+data/random: low
 data/random/insecure: low
 discover/group/lookup: medium
 discover/process/parent: low
@@ -61,6 +62,7 @@ impact/remote_access/agent: medium
 impact/remote_access/reverse_shell: medium
 impact/ui/x11_auth: medium
 malware/family/sshdoor: critical
+net/http: low
 net/ip: low
 net/ip/addr: medium
 net/ip/host_port: medium

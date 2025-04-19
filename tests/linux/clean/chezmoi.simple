@@ -48,9 +48,11 @@ data/embedded/zstd: medium
 data/encoding/base64: low
 data/encoding/json: low
 data/encoding/json_decode: low
+data/encoding/utf16: medium
 data/encoding/yaml: low
 data/hash/blake2b: low
 data/hash/md5: low
+data/random: low
 data/random/insecure: low
 discover/group/lookup: medium
 discover/network/mac_address: medium
@@ -123,6 +125,7 @@ net/dns/servers: low
 net/dns/txt: low
 net/download: medium
 net/download/fetch: medium
+net/http: low
 net/http/2: low
 net/http/accept: medium
 net/http/accept_encoding: low

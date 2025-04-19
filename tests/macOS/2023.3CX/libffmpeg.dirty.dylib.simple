@@ -16,6 +16,7 @@ data/base64/encode: medium
 data/compression/gzip: low
 data/compression/zlib: low
 data/encoding/base64: low
+data/random: low
 data/random/insecure: low
 discover/system/hostname: low
 discover/user/HOME: low
@@ -29,6 +30,7 @@ fs/path/tmp: medium
 fs/permission/modify: medium
 impact/remote_access/agent: medium
 impact/remote_access/net_exec: critical
+net/http: low
 net/http/accept: medium
 net/http/accept_encoding: low
 net/http/cookies: medium

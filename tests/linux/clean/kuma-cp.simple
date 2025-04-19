@@ -31,11 +31,14 @@ data/embedded/base64_url: medium
 data/embedded/html: medium
 data/embedded/pem_test_key: low
 data/encoding/base64: low
+data/encoding/int: medium
 data/encoding/json: low
 data/encoding/json_decode: low
 data/encoding/json_encode: low
+data/encoding/utf16: medium
 data/encoding/yaml: low
 data/hash/md5: low
+data/random: low
 discover/network/interface_list: medium
 discover/network/mac_address: medium
 discover/network/netstat: medium
@@ -98,6 +101,7 @@ net/dns/servers: low
 net/dns/txt: low
 net/download: medium
 net/download/fetch: medium
+net/http: low
 net/http/2: low
 net/http/accept: medium
 net/http/accept_encoding: low

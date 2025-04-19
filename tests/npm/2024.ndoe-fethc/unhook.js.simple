@@ -3,6 +3,7 @@ credential/ssl/key: high
 credential/ssl/private_key: low
 data/encoding/base58: low
 data/encoding/json_encode: low
+data/random: low
 discover/user/info: medium
 exfil/nodejs: high
 exfil/stealer/crypto: high

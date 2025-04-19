@@ -32,13 +32,13 @@ rule ActiveXObject_obfuscated_split: critical windows {
 }
 
 
-rule ActiveXObject_obfuscated_fromCharCode: critical windows {
+rule ActiveXObject_obfuscated_fromCharCode: high windows {
   meta:
     description = "Invokes obfuscated ActiveX object"
 
   strings:
     $activex = "ActiveXObject("
-    $fromchar = "fromCharCode"
+    $fromchar = "fromCharCode("
 condition:
-  all of them and math.abs(@activex - @fromchar) > 256
+    filesize < 128KB and all of them and math.abs(@activex - @fromchar) > 64
 }

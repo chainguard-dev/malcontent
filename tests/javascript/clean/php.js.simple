@@ -1,4 +1,5 @@
 # javascript/clean/php.js: medium
+anti-static/obfuscation/strtoi: medium
 c2/addr/ip: medium
 c2/client: medium
 c2/tool_transfer/os: low
@@ -17,6 +18,8 @@ data/compression/gzip: low
 data/compression/zlib: low
 data/encoding/base64: low
 data/encoding/reverse: low
+data/encoding/url: medium
+data/random: low
 data/random/insecure: low
 discover/process/egid: medium
 discover/process/parent: low
@@ -48,6 +51,7 @@ fs/tempdir/TEMP: low
 fs/tempfile: low
 fs/watch: low
 impact/remote_access/agent: medium
+net/http: low
 net/http/cookies: medium
 net/http/form_upload: medium
 net/http/post: medium

@@ -16,8 +16,11 @@ data/embedded/base64: medium
 data/embedded/base64_terms: medium
 data/embedded/html: medium
 data/encoding/base64: low
+data/encoding/int: medium
 data/encoding/json_decode: low
 data/encoding/json_encode: low
+data/encoding/utf16: medium
+data/random: low
 discover/network/interface_list: medium
 discover/process/parent: low
 discover/process/working_directory: low
@@ -52,6 +55,7 @@ fs/permission/modify: medium
 fs/symlink_resolve: low
 impact/remote_access/reverse_shell: medium
 net/dns/txt: low
+net/http: low
 net/http/accept: medium
 net/http/auth: low
 net/http/cookies: medium

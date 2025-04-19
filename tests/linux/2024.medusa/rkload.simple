@@ -10,6 +10,7 @@ c2/tool_transfer/os: low
 credential/ssh/d: medium
 crypto/rc4: low
 data/builtin/glibc: medium
+data/random: low
 discover/system/cpu: low
 discover/system/sysinfo: medium
 evasion/file/location/dev_shm: high

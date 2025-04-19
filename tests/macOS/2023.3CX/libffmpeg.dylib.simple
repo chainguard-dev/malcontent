@@ -9,10 +9,12 @@ data/base64/decode: medium
 data/base64/encode: medium
 data/compression/zlib: low
 data/encoding/base64: low
+data/random: low
 exec/shell/TERM: low
 fs/directory/create: low
 fs/path/tmp: medium
 impact/remote_access/agent: medium
+net/http: low
 net/http/post: medium
 net/url/parse: low
 process/multithreaded: low

@@ -52,10 +52,10 @@ rule js_eval_near_enough_fromChar: high {
     description = "Likely executes encrypted content"
 
   strings:
-    $exec    = /\beval\(/
+    $exec    = /[\s\{]eval\(/
     $decrypt = "String.fromCharCode"
   condition:
-    all of them and math.abs(@exec - @decrypt) > 768
+    filesize < 5MB and all of them and math.abs(@exec - @decrypt) > 384
 }
 
 rule js_eval_obfuscated_fromChar: critical {
@@ -63,13 +63,11 @@ rule js_eval_obfuscated_fromChar: critical {
     description = "Likely executes encrypted content"
 
   strings:
-    $exec    = /\beval\(/
+  $exec    = /[\s\{]eval\(/
     $ref = /fromCharCode\(\w{0,16}\s{0,2}[\-\+\*\^]{0,2}\w{0,16}/
 condition:
-        all of them
+    filesize < 5MB and all of them and math.abs(@exec - @ref) > 384
 }
-
-
 
 rule python_exec: medium {
   meta:

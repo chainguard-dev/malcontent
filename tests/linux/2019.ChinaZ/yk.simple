@@ -28,6 +28,7 @@ fs/proc/stat: medium
 fs/proc/sys_kernel_osrelease: medium
 fs/tempdir: low
 net/dns/servers: low
+net/http: low
 net/socket/receive: low
 net/socket/send: low
 net/url/embedded: low

@@ -3,6 +3,7 @@
 c2/addr/ip: high
 c2/discovery/ip_dns_resolver: medium
 crypto/rc4: low
+data/random: low
 data/random/insecure: low
 discover/network/mac_address: medium
 exec/program/background: low

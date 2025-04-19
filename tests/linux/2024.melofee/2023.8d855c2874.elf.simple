@@ -17,6 +17,7 @@ data/hash/blake2b: low
 data/hash/md5: low
 data/hash/sha1: low
 data/hash/sha256: low
+data/random: low
 data/random/insecure: low
 discover/process/parent: low
 discover/system/hostname: low
@@ -49,6 +50,7 @@ fs/tempdir/TEMP: low
 impact/remote_access/heartbeat: medium
 lateral/scan/tool: medium
 malware/family/melofee: critical
+net/http: low
 net/http/post: medium
 net/http/request: low
 net/ip/addr: medium

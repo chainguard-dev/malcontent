@@ -5,6 +5,7 @@ collect/databases/mysql: medium
 credential/gaming/minecraft: medium
 credential/password: low
 crypto/cipher: medium
+data/random: low
 discover/user/name_get: medium
 exec/plugin: low
 fs/lock_update: low
@@ -17,6 +18,7 @@ impact/remote_access/implant: medium
 impact/remote_access/trojan: medium
 malware/ref: medium
 net/download: medium
+net/http: low
 net/ip/multicast_send: low
 net/ip/spoof: medium
 net/proxy/tunnel: medium

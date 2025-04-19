@@ -4,6 +4,7 @@ anti-static/elf/multiple: medium
 crypto/decrypt: low
 crypto/encrypt: medium
 data/hash/md5: medium
+data/random: low
 data/random/insecure: low
 discover/multiple: high
 discover/network/netstat: medium

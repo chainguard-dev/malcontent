@@ -18,6 +18,7 @@ data/encoding/json: low
 data/encoding/json_decode: low
 data/encoding/yaml: low
 data/hash/md5: low
+data/random: low
 discover/system/cpu: low
 discover/system/hostname: low
 discover/system/platform: low
@@ -55,6 +56,7 @@ impact/remote_access/reverse_shell: medium
 net/dns: low
 net/dns/servers: low
 net/dns/txt: low
+net/http: low
 net/http/cookies: medium
 net/http/post: medium
 net/http/request: low

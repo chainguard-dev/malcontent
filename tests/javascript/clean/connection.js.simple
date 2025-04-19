@@ -9,9 +9,11 @@ crypto/tls: low
 data/embedded/base64_terms: medium
 data/embedded/base64_url: medium
 data/encoding/base64: low
+data/random: low
 discover/system/hostname: low
 exec/remote_commands/code_eval: medium
 net/dns: low
+net/http: low
 net/ip/host_port: medium
 net/rpc/ntlm: medium
 net/socket/send: low

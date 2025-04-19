@@ -4,6 +4,7 @@ c2/addr/url: low
 c2/connect/curl_easy: medium
 c2/tool_transfer/os: low
 crypto/rc4: low
+data/random: low
 data/random/insecure: low
 discover/system/hostname: low
 discover/system/uuid: medium
@@ -18,6 +19,7 @@ fs/path/applications: medium
 fs/path/dev: medium
 fs/symlink_resolve: low
 hw/iokit_registry: low
+net/http: low
 net/ip/parse: medium
 net/socket/connect: medium
 net/socket/receive: low

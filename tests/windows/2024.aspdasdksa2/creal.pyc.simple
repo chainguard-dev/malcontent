@@ -17,6 +17,7 @@ credential/password: low
 crypto/aes: low
 data/base64/decode: medium
 data/encoding/base64: low
+data/random: low
 discover/ip/geo: high
 discover/ip/public: high
 discover/system/hostname: low

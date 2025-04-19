@@ -14,6 +14,7 @@ data/compression/bzip2: low
 data/compression/zstd: low
 data/embedded/zstd: medium
 data/encoding/base64: low
+data/random: low
 discover/network/interface: low
 discover/system/cpu: medium
 discover/system/hardware: low
@@ -37,6 +38,7 @@ hw/disk_info: medium
 malware/family/rustdoor: critical
 net/dns/txt: low
 net/download: medium
+net/http: low
 net/http/2: low
 net/http/auth: low
 net/http/post: medium

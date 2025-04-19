@@ -21,6 +21,7 @@ crypto/tls: low
 data/compression/gzip: low
 data/encoding/base64: low
 data/hash/md5: low
+data/random: low
 discover/network/netstat: medium
 discover/system/cpu: low
 discover/system/hostname: low
@@ -69,6 +70,7 @@ net/dns/servers: low
 net/dns/txt: low
 net/download: medium
 net/download/fetch: high
+net/http: low
 net/http/2: low
 net/http/accept: medium
 net/http/accept_encoding: low

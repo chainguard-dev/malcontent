@@ -20,6 +20,7 @@ crypto/rc4: low
 data/compression/zlib: low
 data/encoding/base64: low
 data/hash/md5: low
+data/random: low
 discover/group/lookup: medium
 discover/system/dmesg: low
 discover/system/hostname: low
@@ -76,6 +77,7 @@ impact/remote_access/ssh: high
 impact/ui/x11_auth: medium
 malware/family/fontonlake: critical
 net/download: medium
+net/http: low
 net/ip/host_port: medium
 net/ip/spoof: medium
 net/ip/string: medium

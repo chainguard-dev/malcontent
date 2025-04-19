@@ -1,4 +1,5 @@
 # linux/2024.Mirai/ppc: critical
+data/random: low
 data/random/insecure: low
 fs/proc/arbitrary_pid: medium
 fs/proc/cpuinfo: medium

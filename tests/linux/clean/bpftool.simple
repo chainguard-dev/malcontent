@@ -3,6 +3,7 @@ anti-static/elf/multiple: medium
 anti-static/obfuscation/js: medium
 credential/sniffer/bpf: medium
 crypto/rc4: low
+data/random: low
 discover/network/interface: low
 discover/system/platform: low
 discover/user/USER: low

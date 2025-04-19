@@ -6,6 +6,7 @@ c2/tool_transfer/python: high
 data/base64/decode: medium
 data/base64/encode: medium
 data/encoding/base64: low
+data/random: low
 discover/multiple: high
 discover/network/interface_list: medium
 discover/system/platform: medium

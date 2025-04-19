@@ -1016,6 +1016,18 @@
                     "RuleName": "dns_txt"
                 },
                 {
+                    "Description": "Uses the HTTP protocol",
+                    "MatchStrings": [
+                        "http",
+                        "HTTP"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/http.yara#http",
+                    "ID": "net/http",
+                    "RuleName": "http"
+                },
+                {
                     "Description": "makes HTTP requests",
                     "MatchStrings": [
                         "HTTP/1."

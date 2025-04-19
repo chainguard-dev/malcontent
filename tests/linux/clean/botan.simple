@@ -13,9 +13,11 @@ data/base64/encode: medium
 data/compression/gzip: low
 data/compression/zlib: low
 data/encoding/base64: low
+data/random: low
 discover/network/interface: low
 exec/shell/echo: medium
 exfil/stealer/credit_card: medium
+net/http: low
 net/http/accept_encoding: low
 net/http/auth: low
 net/http/cookies: medium

@@ -585,6 +585,33 @@
                     "RuleName": "SHA512"
                 },
                 {
+                    "Description": "uses a random number generator",
+                    "MatchStrings": [
+                        "getrandomUnsupported",
+                        "nonZeroRandomBytes",
+                        "startupRandomData",
+                        "readRandomUint32",
+                        "rand_getrandom",
+                        "portRandomizer",
+                        "random_vectors",
+                        "getRandomData",
+                        "extendRandom",
+                        "altGetRandom",
+                        "randomOrder",
+                        "randomPoint",
+                        "urandom_dev",
+                        "randomEnum",
+                        "nextRandom",
+                        "randomized",
+                        "randomsbom"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/data/random/random.yara#random",
+                    "ID": "data/random",
+                    "RuleName": "random"
+                },
+                {
                     "Description": "list network interfaces",
                     "MatchStrings": [
                         "ifconfig"
@@ -1780,6 +1807,18 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/download/fetch.yara#curl_value",
                     "ID": "net/download/fetch",
                     "RuleName": "curl_value"
+                },
+                {
+                    "Description": "Uses the HTTP protocol",
+                    "MatchStrings": [
+                        "http",
+                        "HTTP"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/http.yara#http",
+                    "ID": "net/http",
+                    "RuleName": "http"
                 },
                 {
                     "Description": "Uses the HTTP/2 protocol",

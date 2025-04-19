@@ -8,9 +8,11 @@ c2/addr/ip: high
 c2/addr/url: low
 c2/tool_transfer/arch: low
 credential/sniffer/bpf: medium
+data/random: low
 fs/path/dev: medium
 fs/proc/self_exe: medium
 net/dns/txt: low
+net/http: low
 net/http/websocket: medium
 net/tcp/ssh: medium
 net/url/embedded: low

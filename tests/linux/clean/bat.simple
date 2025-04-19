@@ -15,6 +15,7 @@ data/base64/external: medium
 data/compression/zlib: low
 data/embedded/pem_private_key: medium
 data/encoding/base64: low
+data/random: low
 data/random/insecure: low
 discover/group/lookup: medium
 discover/process/parent: low
@@ -51,6 +52,7 @@ lateral/scan/tool: medium
 net/dns/servers: low
 net/dns/txt: low
 net/download: medium
+net/http: low
 net/http/post: medium
 net/ip/resolve: low
 net/resolve/hostname: low

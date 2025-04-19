@@ -22,6 +22,7 @@ data/encoding/base64: low
 data/hash/md5: low
 data/hash/sha1: low
 data/hash/sha256: low
+data/random: low
 data/random/insecure: low
 discover/system/platform: low
 evasion/file/location/dev_shm: medium
@@ -54,6 +55,7 @@ impact/remote_access/reverse_shell: medium
 lateral/scan/tool: medium
 malware/family/gelsemium: critical
 net/dns/txt: low
+net/http: low
 net/http/post: medium
 net/http/request: low
 net/ip/addr: medium

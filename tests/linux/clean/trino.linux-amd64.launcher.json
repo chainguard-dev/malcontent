@@ -878,6 +878,17 @@
                     "RuleName": "gzip"
                 },
                 {
+                    "Description": "uses a random number generator",
+                    "MatchStrings": [
+                        "urandomC"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/data/random/random.yara#random",
+                    "ID": "data/random",
+                    "RuleName": "random"
+                },
+                {
                     "Description": "gets executable associated to this process",
                     "MatchStrings": [
                         "/proc/self/exe"
@@ -899,6 +910,18 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/dns/dns-txt.yara#dns_txt",
                     "ID": "net/dns/txt",
                     "RuleName": "dns_txt"
+                },
+                {
+                    "Description": "Uses the HTTP protocol",
+                    "MatchStrings": [
+                        "http",
+                        "HTTP"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/http.yara#http",
+                    "ID": "net/http",
+                    "RuleName": "http"
                 },
                 {
                     "Description": "submits content to websites",

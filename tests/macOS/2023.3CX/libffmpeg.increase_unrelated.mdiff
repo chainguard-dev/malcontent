@@ -1,6 +1,6 @@
-## Changed (15 added, 2 removed): macOS/2023.3CX/libffmpeg.dylib [🔵 LOW → 🟡 MEDIUM]
+## Changed (16 added, 2 removed): macOS/2023.3CX/libffmpeg.dylib [🔵 LOW → 🟡 MEDIUM]
 
-### 15 new behaviors
+### 16 new behaviors
 
 | RISK | KEY | DESCRIPTION | EVIDENCE |
 |--|--|--|--|
@@ -16,6 +16,7 @@
 | +LOW | **[crypto/rc4](https://github.com/chainguard-dev/malcontent/blob/main/rules/crypto/rc4.yara#rc4_ksa)** | RC4 key scheduling algorithm, by Thomas Barabosch | `$cmp_e_x_256`<br>`$cmp_r_x_256` |
 | +LOW | **[data/compression/zlib](https://github.com/chainguard-dev/malcontent/blob/main/rules/data/compression/zlib.yara#zlib)** | uses zlib | [zlib](https://github.com/search?q=zlib&type=code) |
 | +LOW | **[data/encoding/base64](https://github.com/chainguard-dev/malcontent/blob/main/rules/data/encoding/base64.yara#b64)** | Supports base64 encoded strings | [base64](https://github.com/search?q=base64&type=code) |
+| +LOW | **[data/random](https://github.com/chainguard-dev/malcontent/blob/main/rules/data/random/random.yara#random)** | uses a random number generator | [_av_aes_ctr_set_random_iv](https://github.com/search?q=_av_aes_ctr_set_random_iv&type=code)<br>[_av_get_random_seed](https://github.com/search?q=_av_get_random_seed&type=code)<br>[_arc4random](https://github.com/search?q=_arc4random&type=code)<br>[randomly](https://github.com/search?q=randomly&type=code) |
 | +LOW | **[fs/directory/create](https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/directory/directory-create.yara#mkdir)** | [creates directories](https://man7.org/linux/man-pages/man2/mkdir.2.html) | [mkdir](https://github.com/search?q=mkdir&type=code) |
 | +LOW | **[net/url/parse](https://github.com/chainguard-dev/malcontent/blob/main/rules/net/url/parse.yara#url_handle)** | Handles URL strings | [URLContext](https://github.com/search?q=URLContext&type=code) |
 | +LOW | **[process/multithreaded](https://github.com/chainguard-dev/malcontent/blob/main/rules/process/multithreaded.yara#pthread_create)** | [creates pthreads](https://man7.org/linux/man-pages/man3/pthread_create.3.html) | [pthread_create](https://github.com/search?q=pthread_create&type=code) |

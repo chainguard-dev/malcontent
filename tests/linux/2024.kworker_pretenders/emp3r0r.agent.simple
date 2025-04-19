@@ -32,12 +32,14 @@ data/compression/zstd: low
 data/embedded/html: medium
 data/embedded/zstd: medium
 data/encoding/base64: low
+data/encoding/int: low
 data/encoding/json: low
 data/encoding/json_decode: low
 data/encoding/yaml: low
 data/hash/blake2b: low
 data/hash/md5: low
 data/hash/sha256: low
+data/random: low
 discover/network/connectivity: low
 discover/network/netstat: medium
 discover/processes/list: medium
@@ -120,6 +122,7 @@ net/dns/over_https: medium
 net/dns/reverse: medium
 net/dns/servers: low
 net/dns/txt: low
+net/http: low
 net/http/2: low
 net/http/accept: medium
 net/http/accept_encoding: low

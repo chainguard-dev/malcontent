@@ -1,5 +1,6 @@
 # linux/2024.Beast/wyoming-xray-undress-robert: critical
 anti-static/elf/entropy: high
+data/random: low
 fs/path/dev: medium
 fs/path/tmp: medium
 impact/ransom/linux: high

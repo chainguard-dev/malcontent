@@ -41,6 +41,7 @@ data/hash/blake2b: low
 data/hash/md5: low
 data/hash/sha1: low
 data/hash/sha256: low
+data/random: low
 data/random/insecure: low
 discover/cloud/aws_metadata: low
 discover/cloud/google_metadata: low
@@ -112,6 +113,7 @@ net/dns/servers: low
 net/dns/txt: low
 net/download: medium
 net/download/fetch: medium
+net/http: low
 net/http/2: low
 net/http/accept: medium
 net/http/accept_encoding: low
@@ -120,6 +122,7 @@ net/http/content_length: medium
 net/http/cookies: medium
 net/http/form_upload: medium
 net/http/oauth2: low
+net/http/oauth2_google: medium
 net/http/post: medium
 net/http/proxy: low
 net/http/request: low

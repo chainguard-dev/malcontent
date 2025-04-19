@@ -20,6 +20,7 @@ data/compression/gzip: low
 data/encoding/base64: low
 data/encoding/json: low
 data/hash/md5: low
+data/random: low
 discover/system/cpu: low
 discover/system/hostname: low
 discover/system/platform: low
@@ -39,6 +40,7 @@ fs/tempfile: low
 net/dns: low
 net/dns/servers: low
 net/dns/txt: low
+net/http: low
 net/http/accept_encoding: low
 net/http/auth: low
 net/http/cookies: medium

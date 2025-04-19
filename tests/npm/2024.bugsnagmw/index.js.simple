@@ -1,6 +1,9 @@
 # npm/2024.bugsnagmw/index.js: critical
+anti-static/obfuscation/bool: medium
 anti-static/obfuscation/hex: medium
 anti-static/obfuscation/js: critical
 anti-static/obfuscation/python: critical
+data/encoding/int: medium
 discover/ip/public: high
+net/http: low
 net/http/request: low

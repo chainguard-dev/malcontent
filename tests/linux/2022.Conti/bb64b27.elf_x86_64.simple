@@ -5,6 +5,7 @@ c2/tool_transfer/arch: low
 c2/tool_transfer/os: low
 crypto/encrypt: medium
 crypto/public_key: low
+data/random: low
 fs/link_read: low
 fs/path/relative: medium
 fs/path/root: medium
@@ -14,6 +15,7 @@ impact/ransom/linux: high
 impact/ransom/note: high
 malware/family/conti: critical
 net/download: medium
+net/http: low
 net/p2p/tor: high
 net/tcp/ssh: medium
 net/url/embedded: low
