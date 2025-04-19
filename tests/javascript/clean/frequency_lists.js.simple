@@ -1,11 +1,11 @@
 # javascript/clean/frequency_lists.js: medium
+anti-behavior/random_behavior: low
 anti-static/xor/functions: medium
 c2/tool_transfer/dropper: medium
 collect/databases/mysql: medium
 credential/gaming/minecraft: medium
 credential/password: low
 crypto/cipher: medium
-data/random: low
 discover/user/name_get: medium
 exec/plugin: low
 fs/lock_update: low

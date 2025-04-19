@@ -1,12 +1,12 @@
 # linux/clean/http-fingerprints.lua: medium
 3P/sig_base/hacktool_strings_p0wnedshell: medium
+anti-behavior/random_behavior: low
 c2/tool_transfer/grayware: medium
 c2/tool_transfer/os: medium
 collect/archives/zip: medium
 collect/databases/mysql: medium
 credential/password: low
 credential/server/htpasswd: medium
-data/random: low
 exec/plugin: low
 fs/file/read: low
 fs/path/etc: low

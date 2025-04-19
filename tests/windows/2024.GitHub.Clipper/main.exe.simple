@@ -4,6 +4,7 @@
 3P/ditekshen/vm_evasion_macaddrcomb: critical
 3P/elastic/multi_threat: high
 anti-behavior/anti_debugger: medium
+anti-behavior/random_behavior: low
 c2/addr/discord: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
@@ -37,7 +38,6 @@ data/encoding/base64: low
 data/encoding/json: low
 data/encoding/json_decode: low
 data/hash/md5: low
-data/random: low
 discover/ip/geo: high
 discover/ip/public: high
 discover/network/mac_address: medium

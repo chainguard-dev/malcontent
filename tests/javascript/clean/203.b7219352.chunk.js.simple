@@ -1,4 +1,5 @@
 # javascript/clean/203.b7219352.chunk.js: medium
+anti-behavior/random_behavior: low
 anti-static/obfuscation/js: medium
 anti-static/obfuscation/strtoi: medium
 anti-static/obfuscation/utf16: medium
@@ -11,7 +12,6 @@ data/encoding/base64: low
 data/encoding/int: medium
 data/encoding/json_encode: low
 data/encoding/utf16: medium
-data/random: low
 discover/network/interface_list: medium
 discover/network/mac_address: medium
 discover/network/netstat: medium

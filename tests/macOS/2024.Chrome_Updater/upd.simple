@@ -1,10 +1,10 @@
 # macOS/2024.Chrome_Updater/upd: high
+anti-behavior/random_behavior: low
 anti-static/binary/opaque: medium
 c2/addr/url: low
 c2/connect/curl_easy: medium
 c2/tool_transfer/os: low
 crypto/rc4: low
-data/random: low
 data/random/insecure: low
 discover/system/hostname: low
 discover/system/uuid: medium

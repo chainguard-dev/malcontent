@@ -23,7 +23,6 @@ data/hash/md5: low
 data/hash/sha1: low
 data/hash/sha256: low
 data/hash/whirlpool: medium
-data/random: low
 discover/network/interface_list: medium
 discover/process/name: medium
 discover/system/cpu: low

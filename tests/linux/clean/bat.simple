@@ -1,4 +1,5 @@
 # linux/clean/bat: medium
+anti-behavior/random_behavior: low
 anti-static/elf/multiple: medium
 c2/addr/ip: medium
 c2/addr/url: low
@@ -15,7 +16,6 @@ data/base64/external: medium
 data/compression/zlib: low
 data/embedded/pem_private_key: medium
 data/encoding/base64: low
-data/random: low
 data/random/insecure: low
 discover/group/lookup: medium
 discover/process/parent: low

@@ -1,5 +1,6 @@
 # php/clean/composer-2.7.7: medium
 anti-behavior/anti_debugger: medium
+anti-behavior/random_behavior: low
 anti-static/obfuscation/js: medium
 anti-static/obfuscation/php: medium
 c2/addr/http_dynamic: medium
@@ -28,7 +29,6 @@ data/embedded/base64_url: medium
 data/embedded/pem_certificate: low
 data/encoding/base64: low
 data/encoding/reverse: low
-data/random: low
 discover/system/hostname: low
 discover/system/platform: low
 discover/user/APPDATA: low

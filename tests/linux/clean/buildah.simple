@@ -1,4 +1,5 @@
 # linux/clean/buildah: medium
+anti-behavior/random_behavior: low
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/addr/url: low
@@ -34,7 +35,6 @@ data/encoding/json_decode: low
 data/encoding/yaml: low
 data/hash/blake2b: low
 data/hash/md5: low
-data/random: low
 discover/network/mac_address: medium
 discover/process/name: medium
 discover/system/cpu: low

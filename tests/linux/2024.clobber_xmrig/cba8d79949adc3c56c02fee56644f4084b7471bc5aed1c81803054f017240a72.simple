@@ -1,5 +1,6 @@
 # linux/2024.clobber_xmrig/cba8d79949adc3c56c02fee56644f4084b7471bc5aed1c81803054f017240a72: critical
 3P/elastic/threat: high
+anti-behavior/random_behavior: low
 anti-static/base64/exec: high
 anti-static/base64/http_agent: high
 anti-static/elf/header: critical
@@ -25,7 +26,6 @@ data/encoding/base64: low
 data/encoding/json: low
 data/encoding/json_decode: low
 data/hash/md5: low
-data/random: low
 discover/ip/public: high
 discover/processes/list: medium
 discover/system/cpu: low

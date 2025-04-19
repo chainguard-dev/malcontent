@@ -1,4 +1,5 @@
 # linux/clean/opa: medium
+anti-behavior/random_behavior: low
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/addr/url: low
@@ -27,7 +28,6 @@ data/encoding/json_decode: low
 data/encoding/json_encode: low
 data/encoding/yaml: low
 data/hash/md5: low
-data/random: low
 discover/cloud/aws_metadata: low
 discover/cloud/google_metadata: low
 discover/system/cpu: low

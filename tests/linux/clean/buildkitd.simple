@@ -1,4 +1,5 @@
 # linux/clean/buildkitd: medium
+anti-behavior/random_behavior: low
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/addr/url: low
@@ -27,7 +28,6 @@ data/encoding/base64: low
 data/encoding/json: low
 data/encoding/json_decode: low
 data/hash/md5: low
-data/random: low
 discover/network/mac_address: medium
 discover/network/netstat: medium
 discover/process/name: medium

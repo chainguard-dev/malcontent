@@ -1,10 +1,10 @@
 # linux/clean/libsystemd.so.0: medium
+anti-behavior/random_behavior: low
 c2/addr/url: low
 c2/tool_transfer/arch: low
 c2/tool_transfer/os: low
 crypto/rc4: low
 data/compression/lzma: low
-data/random: low
 data/random/insecure: low
 discover/process/parent: low
 discover/process/runtime_deps: medium

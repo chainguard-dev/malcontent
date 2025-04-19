@@ -1,4 +1,5 @@
 # linux/clean/kolide/osqueryd: medium
+anti-behavior/random_behavior: low
 anti-static/elf/multiple: medium
 anti-static/obfuscation/obfuscate: low
 c2/addr/http_dynamic: medium
@@ -38,7 +39,6 @@ data/hash/md5: low
 data/hash/sha1: low
 data/hash/sha256: low
 data/hash/whirlpool: medium
-data/random: low
 data/random/insecure: low
 discover/cloud/google_metadata: low
 discover/components/docker: medium

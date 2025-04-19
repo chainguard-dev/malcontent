@@ -1,4 +1,5 @@
 # macOS/2024.Previewers/Previewers: critical
+anti-behavior/random_behavior: low
 anti-static/macho/footer: high
 c2/addr/ip: high
 c2/addr/url: low
@@ -14,7 +15,6 @@ data/compression/bzip2: low
 data/compression/zstd: low
 data/embedded/zstd: medium
 data/encoding/base64: low
-data/random: low
 discover/network/interface: low
 discover/system/cpu: medium
 discover/system/hardware: low

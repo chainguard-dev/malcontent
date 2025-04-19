@@ -1,4 +1,4 @@
-rule browser_platform: low {
+rule user_agent_data: low {
   meta:
     description = "gets browser user-agent"
 

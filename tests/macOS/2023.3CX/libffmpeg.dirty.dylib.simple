@@ -4,6 +4,7 @@
 3P/sig_base/nk_3cx_dylib: critical
 3P/sig_base/susp_xored_mozilla: critical
 3P/volexity/iconic: critical
+anti-behavior/random_behavior: low
 anti-static/xor/user_agent: critical
 c2/addr/url: low
 c2/tool_transfer/arch: low
@@ -16,7 +17,6 @@ data/base64/encode: medium
 data/compression/gzip: low
 data/compression/zlib: low
 data/encoding/base64: low
-data/random: low
 data/random/insecure: low
 discover/system/hostname: low
 discover/user/HOME: low

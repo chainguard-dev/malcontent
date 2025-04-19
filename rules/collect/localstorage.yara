@@ -1,4 +1,4 @@
-rule sqlite: medium {
+rule localstorage: medium {
   meta:
     description = "accesses browser local storage"
 

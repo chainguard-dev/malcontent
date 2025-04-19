@@ -77,6 +77,33 @@
             ],
             "Behaviors": [
                 {
+                    "Description": "uses a random number generator",
+                    "MatchStrings": [
+                        "getrandomUnsupported",
+                        "nonZeroRandomBytes",
+                        "startupRandomData",
+                        "readRandomUint32",
+                        "rand_getrandom",
+                        "portRandomizer",
+                        "random_vectors",
+                        "getRandomData",
+                        "extendRandom",
+                        "altGetRandom",
+                        "randomOrder",
+                        "randomPoint",
+                        "urandom_dev",
+                        "randomEnum",
+                        "nextRandom",
+                        "randomized",
+                        "randomsbom"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-behavior/random_behavior.yara#random",
+                    "ID": "anti-behavior/random_behavior",
+                    "RuleName": "random"
+                },
+                {
                     "Description": "Contains a table that may be used for XOR decryption",
                     "MatchStrings": [
                         "xor_table::56789abcdefghijklmnopqrstuvwxyzABCDE"
@@ -583,33 +610,6 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/data/hash/sha512.yara#SHA512",
                     "ID": "data/hash/sha512",
                     "RuleName": "SHA512"
-                },
-                {
-                    "Description": "uses a random number generator",
-                    "MatchStrings": [
-                        "getrandomUnsupported",
-                        "nonZeroRandomBytes",
-                        "startupRandomData",
-                        "readRandomUint32",
-                        "rand_getrandom",
-                        "portRandomizer",
-                        "random_vectors",
-                        "getRandomData",
-                        "extendRandom",
-                        "altGetRandom",
-                        "randomOrder",
-                        "randomPoint",
-                        "urandom_dev",
-                        "randomEnum",
-                        "nextRandom",
-                        "randomized",
-                        "randomsbom"
-                    ],
-                    "RiskScore": 1,
-                    "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/data/random/random.yara#random",
-                    "ID": "data/random",
-                    "RuleName": "random"
                 },
                 {
                     "Description": "list network interfaces",

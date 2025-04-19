@@ -1,4 +1,5 @@
 # linux/clean/chezmoi: medium
+anti-behavior/random_behavior: low
 anti-static/xor/functions: medium
 c2/addr/discord: medium
 c2/addr/http_dynamic: medium
@@ -48,10 +49,10 @@ data/embedded/zstd: medium
 data/encoding/base64: low
 data/encoding/json: low
 data/encoding/json_decode: low
+data/encoding/utf16: medium
 data/encoding/yaml: low
 data/hash/blake2b: low
 data/hash/md5: low
-data/random: low
 data/random/insecure: low
 discover/group/lookup: medium
 discover/network/mac_address: medium

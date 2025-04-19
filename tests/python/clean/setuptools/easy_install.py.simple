@@ -1,9 +1,9 @@
 # python/clean/setuptools/easy_install.py: medium
+anti-behavior/random_behavior: low
 anti-static/obfuscation/python: medium
 c2/tool_transfer/arch: low
 c2/tool_transfer/os: medium
 collect/archives/zip: medium
-data/random: low
 discover/system/platform: medium
 discover/user/HOME: low
 discover/user/USER: low

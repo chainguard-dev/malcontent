@@ -1,4 +1,4 @@
-rule decode_url_component: medium {
+rule decode_uri_component: medium {
   meta:
     description = "decodes URL components"
 

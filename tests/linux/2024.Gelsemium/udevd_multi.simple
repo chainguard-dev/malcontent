@@ -1,6 +1,7 @@
 # linux/2024.Gelsemium/udevd_multi: critical
 3P/reversinglabs/backdoor_wolfsbane: critical
 3P/sekoia/gelsemium_wolfsbane_backdoor: critical
+anti-behavior/random_behavior: low
 anti-static/elf/multiple: medium
 c2/addr/ip: medium
 c2/addr/url: low
@@ -22,7 +23,6 @@ data/encoding/base64: low
 data/hash/md5: low
 data/hash/sha1: low
 data/hash/sha256: low
-data/random: low
 data/random/insecure: low
 discover/system/platform: low
 evasion/file/location/dev_shm: medium

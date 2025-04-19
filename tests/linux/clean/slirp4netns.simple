@@ -1,6 +1,7 @@
 # linux/clean/slirp4netns: medium
 anti-behavior/LD_DEBUG: medium
 anti-behavior/LD_PROFILE: medium
+anti-behavior/random_behavior: low
 anti-static/elf/multiple: medium
 c2/addr/ip: medium
 c2/addr/url: low
@@ -12,7 +13,6 @@ credential/password: low
 credential/sniffer/bpf: medium
 crypto/public_key: low
 data/builtin/glibc: medium
-data/random: low
 discover/group/lookup: medium
 discover/network/interface_list: medium
 discover/network/mac_address: medium

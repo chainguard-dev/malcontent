@@ -1,4 +1,5 @@
 # linux/clean/eza: medium
+anti-behavior/random_behavior: low
 anti-static/elf/multiple: medium
 c2/addr/url: low
 c2/tool_transfer/arch: low
@@ -9,7 +10,6 @@ credential/ssh/authorized_hosts: medium
 crypto/ed25519: low
 crypto/rc4: low
 data/encoding/base64: low
-data/random: low
 discover/user/HOME: low
 evasion/file/prefix: medium
 exec/dylib/iterate: low

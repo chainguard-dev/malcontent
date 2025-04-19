@@ -1,9 +1,9 @@
 # linux/clean/tracer.o.aarch64: medium
+anti-behavior/random_behavior: low
 c2/addr/ip: medium
 c2/client: medium
 collect/databases/mysql: medium
 credential/sniffer/bpf: medium
-data/random: low
 discover/network/netstat: medium
 evasion/bypass_security/linux/iptables: medium
 evasion/logging/acct: low

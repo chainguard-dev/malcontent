@@ -1,6 +1,6 @@
 import "math"
 
-rule decode_url_component: critical {
+rule decode_url_component_char_code: critical {
   meta:
     description = "decodes obfuscated URL components"
 

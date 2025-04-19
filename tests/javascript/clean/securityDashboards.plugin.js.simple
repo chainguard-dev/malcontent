@@ -1,4 +1,5 @@
 # javascript/clean/securityDashboards.plugin.js: medium
+anti-behavior/random_behavior: low
 anti-static/obfuscation/bitwise: medium
 anti-static/obfuscation/js: medium
 anti-static/xor/functions: medium
@@ -14,7 +15,6 @@ data/encoding/int: low
 data/encoding/json_decode: low
 data/encoding/json_encode: low
 data/encoding/utf16: medium
-data/random: low
 discover/system/platform: medium
 discover/user/name_get: medium
 exec/plugin: low

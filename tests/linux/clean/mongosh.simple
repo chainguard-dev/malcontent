@@ -1,4 +1,5 @@
 # linux/clean/mongosh: medium
+anti-behavior/random_behavior: low
 anti-static/obfuscation/hex: medium
 anti-static/obfuscation/obfuscate: low
 c2/addr/http_dynamic: medium
@@ -45,7 +46,6 @@ data/encoding/json_decode: low
 data/encoding/json_encode: low
 data/encoding/utf16: medium
 data/hash/sha256: low
-data/random: low
 data/random/insecure: low
 discover/cloud/aws_metadata: low
 discover/cloud/google_metadata: low
