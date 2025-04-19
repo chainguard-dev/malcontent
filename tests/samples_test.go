@@ -109,6 +109,7 @@ func TestJSON(t *testing.T) {
 				QuantityIncreasesRisk: true,
 				Renderer:              render,
 				Rules:                 yrs,
+				Scan:                  false,
 				ScanPaths:             []string{binPath},
 			}
 
@@ -189,6 +190,7 @@ func TestJSONStats(t *testing.T) {
 				MinRisk:     1,
 				Renderer:    render,
 				Rules:       yrs,
+				Scan:        false,
 				ScanPaths:   []string{binPath},
 				Stats:       true,
 			}
@@ -269,6 +271,7 @@ func TestSimple(t *testing.T) {
 				QuantityIncreasesRisk: true,
 				Renderer:              simple,
 				Rules:                 yrs,
+				Scan:                  false,
 				ScanPaths:             []string{binPath},
 			}
 
@@ -351,6 +354,7 @@ func TestDiff(t *testing.T) {
 				MinRisk:     tc.minResultScore,
 				Renderer:    simple,
 				Rules:       yrs,
+				Scan:        false,
 				ScanPaths:   []string{tc.src, tc.dest},
 			}
 
@@ -418,6 +422,7 @@ func TestDiffFileChange(t *testing.T) {
 				MinRisk:        tc.minResultScore,
 				Renderer:       simple,
 				Rules:          yrs,
+				Scan:           false,
 				ScanPaths:      []string{strings.TrimPrefix(tc.src, "../out/chainguard-dev/malcontent-samples/"), strings.TrimPrefix(tc.dest, "../out/chainguard-dev/malcontent-samples/")},
 			}
 
@@ -485,6 +490,7 @@ func TestDiffFileIncrease(t *testing.T) {
 				MinRisk:          tc.minResultScore,
 				Renderer:         simple,
 				Rules:            yrs,
+				Scan:             false,
 				ScanPaths:        []string{strings.TrimPrefix(tc.src, "../out/chainguard-dev/malcontent-samples/"), strings.TrimPrefix(tc.dest, "../out/chainguard-dev/malcontent-samples/")},
 			}
 
@@ -584,6 +590,7 @@ func TestMarkdown(t *testing.T) {
 				QuantityIncreasesRisk: true,
 				Renderer:              simple,
 				Rules:                 yrs,
+				Scan:                  false,
 				ScanPaths:             []string{binPath},
 			}
 
@@ -671,6 +678,7 @@ func Template(b *testing.B, paths []string) func() {
 			IgnoreTags:  []string{"harmless"},
 			Renderer:    simple,
 			Rules:       yrs,
+			Scan:        false,
 			ScanPaths:   paths,
 		}
 		res, err := action.Scan(ctx, mc)

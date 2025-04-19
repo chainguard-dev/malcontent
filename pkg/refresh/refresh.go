@@ -79,6 +79,7 @@ func newConfig(rc Config) *malcontent.Config {
 		MinRisk:               1,
 		QuantityIncreasesRisk: true,
 		RuleFS:                []fs.FS{rules.FS, thirdparty.FS},
+		Scan:                  false,
 		TrimPrefixes:          []string{rc.SamplesPath},
 	}
 }

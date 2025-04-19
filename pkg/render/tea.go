@@ -188,13 +188,13 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.quitting = true
 			return m, tea.Quit
 		case "up", "k":
-			m.viewport.LineUp(1)
+			m.viewport.ScrollUp(1)
 		case "down", "j":
-			m.viewport.LineDown(1)
+			m.viewport.ScrollDown(1)
 		case "pgup":
-			m.viewport.HalfViewUp()
+			m.viewport.HalfPageUp()
 		case "pgdown":
-			m.viewport.HalfViewDown()
+			m.viewport.HalfPageDown()
 		case "home":
 			m.viewport.GotoTop()
 		case "end":

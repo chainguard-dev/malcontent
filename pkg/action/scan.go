@@ -38,7 +38,9 @@ var (
 	// compiledRuleCache are a cache of previously compiled rules.
 	compiledRuleCache atomic.Pointer[yarax.Rules]
 	// compileOnce ensures that we compile rules only once even across threads.
-	compileOnce         sync.Once
+	compileOnce sync.Once
+	// initializeOnce ensures that the scanner pool is only initialized once.
+	initializeOnce      sync.Once
 	ErrMatchedCondition = errors.New("matched exit criteria")
 )
 
@@ -58,9 +60,20 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		yrs = c.Rules
 	}
 
+	initializeOnce.Do(func() {
+		malcontent.InitScannerPool(yrs, c.Concurrency)
+	})
+
+	scanner := malcontent.GetScanner()
+	// Scanner should not be nil here, but guard against it anyway
+	if scanner == nil {
+		scanner = yarax.NewScanner(yrs)
+	}
+	defer malcontent.ReturnScanner(scanner)
+
 	isArchive := archiveRoot != ""
 	mime := "<unknown>"
-	kind, err := programkind.GetCachedFileType(path)
+	kind, err := programkind.File(path)
 	if err != nil && !interactive(c) {
 		logger.Errorf("file type failure: %s: %s", path, err)
 	}
@@ -69,7 +82,12 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	}
 	if !c.IncludeDataFiles && kind == nil {
 		logger.Debugf("skipping %s [%s]: data file or empty", path, mime)
-		return &malcontent.FileReport{Skipped: "data file or empty", Path: path}, nil
+		fr := &malcontent.FileReport{Skipped: "data file or empty", Path: path}
+		// Immediately remove skipped files within archives
+		if isArchive {
+			os.RemoveAll(path)
+		}
+		return fr, nil
 	}
 	logger = logger.With("mime", mime)
 
@@ -91,10 +109,24 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		return nil, err
 	}
 
-	mrs, err := yrs.Scan(fc)
+	// Immediately remove archive files read into memory
+	if isArchive {
+		os.RemoveAll(path)
+	}
+
+	mrs, err := scanner.Scan(fc)
 	if err != nil {
 		logger.Debug("skipping", slog.Any("error", err))
 		return nil, err
+	}
+
+	// If running a scan, only generate reports for mrs that satisfy the risk threshold of 3
+	// This is a short-circuit that avoids any report generation logic
+	risk := report.HighestMatchRisk(mrs)
+	if c.Scan && risk < 3 {
+		fr := &malcontent.FileReport{Skipped: "overall risk too low for scan", Path: path}
+		os.RemoveAll(path)
+		return fr, nil
 	}
 
 	fr, err := report.Generate(ctx, path, mrs, c, archiveRoot, logger, fc)

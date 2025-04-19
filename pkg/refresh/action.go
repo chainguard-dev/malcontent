@@ -75,6 +75,7 @@ func actionRefresh(ctx context.Context) ([]TestData, error) {
 			QuantityIncreasesRisk: true,
 			Renderer:              r,
 			Rules:                 yrs,
+			Scan:                  false,
 			ScanPaths:             []string{scan},
 			TrimPrefixes:          []string{"pkg/action/"},
 		}
