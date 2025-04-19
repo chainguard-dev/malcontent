@@ -201,6 +201,7 @@ func diffRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 			QuantityIncreasesRisk: true,
 			Renderer:              renderer,
 			Rules:                 yrs,
+			Scan:                  false,
 			ScanPaths:             []string{src, dest},
 			TrimPrefixes:          []string{rc.SamplesPath},
 		}

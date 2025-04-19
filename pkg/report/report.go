@@ -409,16 +409,7 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 	risk := 0
 	riskCounts := make(map[int]int, 0)
 
-	// If we're running a scan, only diplay findings of the highest risk
-	// Return an empty file report if the highest risk is medium or lower
-	var highestRisk int
-	if c.Scan {
-		highestRisk = highestMatchRisk(mrs)
-		if highestRisk < 3 {
-			fr.Skipped = "overall risk too low for scan"
-		}
-	}
-
+	highestRisk := HighestMatchRisk(mrs)
 	// Store match rules in a map for future override operations
 	mrsMap := make(map[string]*yarax.Rule, matchCount)
 	for _, m := range mrs.MatchingRules() {
@@ -426,22 +417,14 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 	}
 
 	for _, m := range mrs.MatchingRules() {
-		override := false
 		if all(m.Identifier() == NAME, ignoreSelf) {
 			ignoreMalcontent = true
 		}
 
-		for _, t := range m.Tags() {
-			if t == "override" {
-				override = true
-				break
-			}
-		}
+		override := slices.Contains(m.Tags(), "override")
 
 		risk = behaviorRisk(m.Namespace(), m.Identifier(), m.Tags())
-		if risk > overallRiskScore {
-			overallRiskScore = risk
-		}
+		overallRiskScore = max(overallRiskScore, risk)
 		riskCounts[risk]++
 		// The malcontent rule is classified as harmless
 		// A !ignoreMalcontent condition will prevent the rule from being filtered
@@ -659,38 +642,26 @@ func upgradeRisk(ctx context.Context, riskScore int, riskCounts map[int]int, siz
 	sizeMB := size / 1024 / 1024
 	upgrade := false
 
+	switch {
 	// small scripts, tiny ELF binaries
-	if size < 1024 && highCount > 1 {
+	case size < 1024 && highCount > 1:
 		upgrade = true
-	}
-
 	// include most UPX binaries
-	if sizeMB < 2 && highCount > 2 {
+	case sizeMB < 2 && highCount > 2:
 		upgrade = true
-	}
-
-	if sizeMB < 4 && highCount > 3 {
+	case sizeMB < 4 && highCount > 3:
 		upgrade = true
-	}
-
-	if sizeMB < 10 && highCount > 4 {
+	case sizeMB < 10 && highCount > 4:
 		upgrade = true
-	}
-
-	if sizeMB < 20 && highCount > 5 {
+	case sizeMB < 20 && highCount > 5:
 		upgrade = true
-	}
-
-	if highCount > 6 {
+	case highCount > 6:
 		upgrade = true
-	}
-
-	if !upgrade {
-		return false
+	case !upgrade:
+		upgrade = false
 	}
 
 	clog.DebugContextf(ctx, "upgrading risk: high=%d, size=%d", highCount, size)
-
 	return upgrade
 }
 
@@ -704,18 +675,16 @@ func all(conditions ...bool) bool {
 	return true
 }
 
-// highestMatchRisk returns the highest risk score from a slice of MatchRules.
-func highestMatchRisk(mrs *yarax.ScanResults) int {
+// HighestMatchRisk returns the highest risk score from a slice of MatchRules.
+func HighestMatchRisk(mrs *yarax.ScanResults) int {
 	if len(mrs.MatchingRules()) == 0 {
 		return 0
 	}
 
-	highestRisk := 0
+	var highestRisk int
 	for _, m := range mrs.MatchingRules() {
 		risk := behaviorRisk(m.Namespace(), m.Identifier(), m.Tags())
-		if risk > highestRisk {
-			highestRisk = risk
-		}
+		highestRisk = max(highestRisk, risk)
 	}
 	return highestRisk
 }
@@ -726,11 +695,9 @@ func highestBehaviorRisk(fr *malcontent.FileReport) int {
 		return 0
 	}
 
-	highestRisk := 0
+	var highestRisk int
 	for _, b := range fr.Behaviors {
-		if b.RiskScore > highestRisk {
-			highestRisk = b.RiskScore
-		}
+		highestRisk = max(highestRisk, b.RiskScore)
 	}
 
 	return highestRisk

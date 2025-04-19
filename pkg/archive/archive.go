@@ -15,10 +15,10 @@ import (
 )
 
 const (
-	// 32KB buffer.
-	bufferSize = 32 * 1024
-	// 512MB file limit.
-	maxBytes = 1 << 29
+	// 1MB buffer.
+	bufferSize = 1024 * 1024
+	// 1024MB file limit.
+	maxBytes = 1 << 30
 )
 
 // Shared buffer pool for io.CopyBuffer operations.
@@ -45,7 +45,7 @@ func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 	}
 
 	var extract func(context.Context, string, string) error
-	ft, err := programkind.GetCachedFileType(path)
+	ft, err := programkind.File(path)
 	if err != nil {
 		return "", fmt.Errorf("failed to determine file type: %w", err)
 	}
@@ -100,7 +100,7 @@ func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 
 			extractedFiles.Store(fullPath, true)
 
-			ft, err := programkind.GetCachedFileType(fullPath)
+			ft, err := programkind.File(fullPath)
 			if err != nil {
 				logger.Warn("error determining file type", "path", fullPath, "error", err)
 				continue
@@ -122,7 +122,7 @@ func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 			}
 
 			if isArchive && extract != nil {
-				if err := os.MkdirAll(dir, 0755); err != nil {
+				if err := os.MkdirAll(dir, 0o755); err != nil {
 					logger.Warn("failed to create extraction directory", "path", dir, "error", err)
 					continue
 				}
