@@ -39,3 +39,14 @@ rule java_random: low {
   condition:
     any of them
 }
+
+rule random : medium {
+meta:
+  description = "exhibits random behavior"
+
+strings:
+  $ref = "rand()"
+
+condition:
+  filesize < 1MB and any of them
+}

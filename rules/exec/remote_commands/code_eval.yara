@@ -1,6 +1,6 @@
 import "math"
 
-rule eval: medium {
+rule js_eval: medium {
   meta:
     description = "evaluate code dynamically using eval()"
 
@@ -12,6 +12,64 @@ rule eval: medium {
   condition:
     filesize < 1MB and any of ($val*) and none of ($not*)
 }
+
+rule js_eval_fx_str: high {
+  meta:
+    description = "evaluate processed string using eval()"
+
+  strings:
+    $val       = /eval\(\w{0,16}\([\"\'].{0,16}/
+
+  condition:
+    filesize < 1MB and any of ($val*)
+}
+
+rule js_eval_fx_str_multiple: critical {
+  meta:
+    description = "multiple evaluations of processed string using eval()"
+
+  strings:
+    $val       = /eval\(\w{0,16}\([\"\'].{0,16}/
+
+  condition:
+    filesize < 1MB and #val > 1
+}
+
+rule js_eval_response: critical {
+  meta:
+    description = "executes code directly from HTTP response"
+
+  strings:
+    $val       = /eval\(\w{0,16}\.responseText\)/
+
+  condition:
+    filesize < 1MB and any of ($val*)
+}
+
+
+rule js_eval_near_enough_fromChar: high {
+  meta:
+    description = "Likely executes encrypted content"
+
+  strings:
+    $exec    = /\beval\(/
+    $decrypt = "String.fromCharCode"
+  condition:
+    all of them and math.abs(@exec - @decrypt) > 768
+}
+
+rule js_eval_obfuscated_fromChar: critical {
+  meta:
+    description = "Likely executes encrypted content"
+
+  strings:
+    $exec    = /\beval\(/
+    $ref = /fromCharCode\(\w{0,16}\s{0,2}[\-\+\*\^]{0,2}\w{0,16}/
+condition:
+        all of them
+}
+
+
 
 rule python_exec: medium {
   meta:

@@ -34,15 +34,28 @@ rule WScript_Shell: medium windows {
     math.max(@WScript, @Shell) - math.min(@WScript, @Shell) <= 4500
 }
 
-rule WScript_Obfuscated: critical windows {
+rule WScript_char_obfuscation: critical windows {
   meta:
     description = "obfuscated access to a Windows Scripting Host"
 
   strings:
-    $WScript      = /WScript\./ fullword
+    $WScript      = /WScript[\.\[]/
     $fromCharCode = /fromCharCode\(\d+/
-    $math         = /fromCharCode\(\d+\^/
+    $fromCharCodeMath         = /fromCharCode\(\d+\^/
+    $charCodeAt = /charCodeAt/
 
   condition:
-    $WScript and ((#fromCharCode > 3) or $math)
+    filesize < 512KB and $WScript and ((#fromCharCode > 3) or (#charCodeAt > 3) or $fromCharCodeMath)
+}
+
+
+rule WScript_hex: critical windows {
+  meta:
+    description = "obfuscated access to a Windows Scripting Host"
+
+  strings:
+    $hex = /WScript\[\w{0,2}\(\w{0,8}\)\]/
+
+  condition:
+    filesize < 2MB and $hex
 }

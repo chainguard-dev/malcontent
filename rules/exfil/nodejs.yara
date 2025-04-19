@@ -103,10 +103,11 @@ rule post_hardcoded_hardcoded_host: medium {
   strings:
     $ref  = /hostname: "[\w\.\-]{5,63}",/
     $ref2 = /fetch\([\"']https{0,1}:\/\/[\w\.\-]{5,63}.{0,64}/
+    $ref3 = /url: ["']https{0,1}:\/\/[\w\.\-]{5,63}.{0,64}/
     $post = "POST" fullword
 
   condition:
-    any of ($ref*) and $post and ((math.abs(@ref - @post) <= 128) or ((math.abs(@ref2 - @post) <= 128)))
+    any of ($ref*) and $post and ((math.abs(@ref - @post) <= 128) or ((math.abs(@ref2 - @post) <= 128)) or ((math.abs(@ref3 - @post) >= 128)))
 }
 
 rule post_hardcoded_hardcoded_host_os: high {

@@ -164,18 +164,6 @@ rule very_high_entropy: critical {
     probably_js and math.entropy(1, filesize) >= 7
 }
 
-rule js_char_code_at: medium {
-  meta:
-    description = "converts strings into integers"
-    filetypes   = "javascript"
-
-  strings:
-    $charCodeAt = "fromCharCode" fullword
-
-  condition:
-    filesize < 16KB and any of them
-}
-
 rule charCodeAtIncrement: medium {
   meta:
     description = "converts incremented numbers into characters"
