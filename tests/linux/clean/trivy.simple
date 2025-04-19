@@ -1,4 +1,5 @@
 # linux/clean/trivy: medium
+anti-behavior/random_behavior: low
 anti-static/elf/multiple: medium
 c2/addr/discord: medium
 c2/addr/http_dynamic: medium
@@ -148,6 +149,7 @@ net/dns/reverse: medium
 net/dns/servers: low
 net/dns/txt: low
 net/download/fetch: medium
+net/http: low
 net/http/2: low
 net/http/accept: medium
 net/http/accept_encoding: low
@@ -156,6 +158,7 @@ net/http/content_length: medium
 net/http/cookies: medium
 net/http/form_upload: medium
 net/http/oauth2: low
+net/http/oauth2_google: medium
 net/http/post: medium
 net/http/proxy: low
 net/http/request: low

@@ -71,6 +71,7 @@ hw/iokit_registry: low
 impact/remote_access/agent: medium
 lateral/scan/tool: medium
 net/dns/txt: low
+net/http: low
 net/http/accept: medium
 net/http/accept_encoding: low
 net/http/auth: low

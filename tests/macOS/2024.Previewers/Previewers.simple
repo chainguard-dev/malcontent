@@ -1,4 +1,5 @@
 # macOS/2024.Previewers/Previewers: critical
+anti-behavior/random_behavior: low
 anti-static/macho/footer: high
 c2/addr/ip: high
 c2/addr/url: low
@@ -37,6 +38,7 @@ hw/disk_info: medium
 malware/family/rustdoor: critical
 net/dns/txt: low
 net/download: medium
+net/http: low
 net/http/2: low
 net/http/auth: low
 net/http/post: medium

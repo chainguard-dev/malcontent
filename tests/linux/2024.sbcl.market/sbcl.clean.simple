@@ -22,4 +22,5 @@ fs/permission/modify: low
 fs/proc/self_exe: medium
 fs/symlink_resolve: low
 fs/tempdir/TEMP: low
+net/http: low
 net/url/embedded: low

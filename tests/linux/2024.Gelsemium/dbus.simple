@@ -1,5 +1,6 @@
 # linux/2024.Gelsemium/dbus: critical
 3P/sekoia/gelsemium_firewood_backdoor: critical
+anti-behavior/random_behavior: low
 anti-static/elf/multiple: medium
 crypto/decrypt: low
 crypto/encrypt: medium

@@ -1,5 +1,7 @@
 # javascript/clean/highlight.esm.js: medium
+anti-behavior/random_behavior: low
 anti-static/obfuscation/js: medium
+anti-static/obfuscation/strtoi: medium
 c2/addr/ip: medium
 c2/connect/ping_pong: medium
 c2/tool_transfer/arch: low
@@ -20,7 +22,9 @@ data/compression/bzip2: low
 data/compression/lzma: low
 data/compression/zlib: low
 data/encoding/base64: low
+data/encoding/int: medium
 data/encoding/json_encode: low
+data/encoding/url: medium
 data/random/insecure: low
 discover/group/lookup: medium
 discover/network/mac_address: medium
@@ -65,6 +69,7 @@ lateral/scan/tool: medium
 net/dns/txt: low
 net/download: medium
 net/download/fetch: medium
+net/http: low
 net/http/cookies: medium
 net/http/post: medium
 net/ip/addr: medium

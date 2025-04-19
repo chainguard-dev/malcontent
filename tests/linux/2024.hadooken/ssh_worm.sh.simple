@@ -23,4 +23,5 @@ fs/permission/modify: medium
 lateral/ssh/worm: critical
 net/download: medium
 net/download/fetch: medium
+net/http: low
 net/url/embedded: low

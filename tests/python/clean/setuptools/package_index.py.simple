@@ -18,6 +18,7 @@ fs/symlink_resolve: low
 fs/tempdir/create: low
 impact/remote_access/agent: medium
 net/download: medium
+net/http: low
 net/http/request: low
 net/ip/host_port: medium
 net/url/embedded: low

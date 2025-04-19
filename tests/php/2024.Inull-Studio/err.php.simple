@@ -1,5 +1,6 @@
 # php/2024.Inull-Studio/err.php: critical
 anti-static/base64/obfuscated_caller: critical
+anti-static/obfuscation/padding: medium
 anti-static/obfuscation/php: high
 evasion/indicator_blocking/mask_exceptions: medium
 impact/remote_access/php: critical

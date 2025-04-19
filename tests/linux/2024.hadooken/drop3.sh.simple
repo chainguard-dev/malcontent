@@ -2,4 +2,5 @@
 c2/addr/ip: high
 evasion/self_deletion/run_and_delete: critical
 fs/file/delete_forcibly: low
+net/http: low
 net/url/embedded: low

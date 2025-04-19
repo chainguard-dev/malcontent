@@ -1,4 +1,5 @@
 # python/2024.krypton_ddos/b2d4cc2ecf9919bf84ce9ce83bb6b99b68a78181c1976a4f72526c3085096f99.py: critical
+anti-behavior/random_behavior: low
 anti-static/obfuscation/python: medium
 c2/addr/ip: medium
 c2/connect/ping_pong: medium
@@ -11,6 +12,7 @@ fs/file/open: low
 fs/file/read: low
 impact/remote_access/agent: medium
 net/download: medium
+net/http: low
 net/http/fake_user_agent: medium
 net/http/request: low
 net/ip/host_port: medium

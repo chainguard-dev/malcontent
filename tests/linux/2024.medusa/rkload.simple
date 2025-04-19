@@ -2,6 +2,7 @@
 3P/elastic/orbit: critical
 anti-behavior/LD_DEBUG: medium
 anti-behavior/LD_PROFILE: medium
+anti-behavior/random_behavior: low
 anti-static/elf/multiple: medium
 anti-static/xor/paths: high
 c2/addr/url: low

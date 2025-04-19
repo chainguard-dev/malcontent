@@ -8,6 +8,7 @@ data/embedded/pem_certificate: low
 data/random/insecure: low
 impact/remote_access/agent: medium
 net/download/fetch: medium
+net/http: low
 net/http/accept_encoding: low
 net/http/content_length: medium
 net/http/cookies: medium

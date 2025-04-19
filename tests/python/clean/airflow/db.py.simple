@@ -8,6 +8,7 @@ credential/password: low
 credential/ssh: medium
 exec/plugin: low
 fs/tempdir: low
+net/http: low
 net/ip/host_port: medium
 net/tcp/sftp: medium
 net/url/embedded: low

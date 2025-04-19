@@ -1,4 +1,5 @@
 # npm/2024.nvmfix/config.js: critical
 anti-static/obfuscation/hex: medium
 anti-static/obfuscation/js: critical
+data/encoding/utf16: medium
 process/create: medium

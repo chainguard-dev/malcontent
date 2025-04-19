@@ -21,6 +21,7 @@ fs/path/usr_local: medium
 fs/symlink_resolve: low
 fs/tempdir/TEMP: low
 fs/tempdir/create: low
+net/http: low
 net/ip/spoof: medium
 net/url/embedded: low
 os/env/get: low

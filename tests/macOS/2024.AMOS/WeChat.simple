@@ -4,5 +4,6 @@ c2/addr/url: low
 crypto/rc4: low
 exec/shell/exec: medium
 malware/family/amos: critical
+net/http: low
 net/http/post: medium
 net/url/embedded: low

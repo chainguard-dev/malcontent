@@ -1,4 +1,5 @@
 # javascript/clean/5D3EB8D016DDDA0665CB8CD8EEA6C537.cache.js: medium
+anti-behavior/random_behavior: low
 anti-static/obfuscation/js: medium
 anti-static/obfuscation/reverse: medium
 c2/addr/ip: medium
@@ -25,9 +26,11 @@ data/compression/zlib: low
 data/embedded/base64_url: medium
 data/embedded/html: medium
 data/encoding/base64: low
+data/encoding/int: low
 data/encoding/json_decode: low
 data/encoding/json_encode: low
 data/encoding/reverse: low
+data/encoding/utf16: medium
 data/hash/md5: low
 data/random/insecure: low
 discover/group/lookup: medium
@@ -77,6 +80,7 @@ impact/remote_access/crypto_geoip_exec: medium
 impact/remote_access/heartbeat: medium
 net/download: medium
 net/download/fetch: medium
+net/http: low
 net/http/cookies: medium
 net/http/form_upload: medium
 net/http/post: medium

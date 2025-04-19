@@ -4,6 +4,7 @@
 3P/sig_base/nk_3cx_dylib: critical
 3P/sig_base/susp_xored_mozilla: critical
 3P/volexity/iconic: critical
+anti-behavior/random_behavior: low
 anti-static/xor/user_agent: critical
 c2/addr/url: low
 c2/tool_transfer/arch: low
@@ -29,6 +30,7 @@ fs/path/tmp: medium
 fs/permission/modify: medium
 impact/remote_access/agent: medium
 impact/remote_access/net_exec: critical
+net/http: low
 net/http/accept: medium
 net/http/accept_encoding: low
 net/http/cookies: medium

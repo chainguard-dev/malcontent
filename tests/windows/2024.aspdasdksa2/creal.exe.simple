@@ -1,6 +1,7 @@
 # windows/2024.aspdasdksa2/creal.exe: critical
 3P/bartblaze/pyinstaller: high
 anti-behavior/anti_debugger: medium
+anti-behavior/random_behavior: low
 anti-static/packer/pe: high
 c2/tool_transfer/arch: low
 c2/tool_transfer/os: medium
@@ -26,6 +27,7 @@ fs/file/read: low
 fs/file/write: low
 fs/path/relative: medium
 net/dns/txt: low
+net/http: low
 net/url/embedded: low
 net/url/parse: low
 net/url/request: medium

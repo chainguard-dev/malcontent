@@ -10,6 +10,7 @@ fs/file/make_executable: high
 fs/path/tmp: medium
 fs/permission/modify: medium
 impact/remote_access/backdoor: high
+net/http: low
 net/http/content_length: high
 net/http/post: high
 net/http/request: low

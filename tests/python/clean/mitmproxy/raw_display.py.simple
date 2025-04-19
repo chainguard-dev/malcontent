@@ -6,6 +6,7 @@ exec/program/background: low
 exec/shell/TERM: low
 fs/file/write: low
 fs/path/usr_bin: low
+net/http: low
 net/socket/connect: medium
 net/socket/pair: medium
 net/socket/receive: low

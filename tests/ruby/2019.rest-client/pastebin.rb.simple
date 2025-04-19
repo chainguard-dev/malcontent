@@ -9,6 +9,7 @@ data/encoding/base64: low
 data/encoding/json_decode: low
 exec/remote_commands/code_eval: medium
 impact/remote_access/payload: high
+net/http: low
 net/http/cookies: medium
 net/http/post: high
 net/url/embedded: low

@@ -13,6 +13,7 @@
 | MEDIUM | [fs/path/root](https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/root.yara#root_path_val) | path reference within /root | [/root](https://github.com/search?q=%2Froot&type=code) |
 | MEDIUM | [fs/permission/modify](https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/permission/permission-modify.yara#chmod) | [modifies file permissions](https://linux.die.net/man/1/chmod) | [chmod](https://github.com/search?q=chmod&type=code) |
 | LOW | [fs/path/var](https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/var.yara#var_path) | path reference within /var | [/var/run](https://github.com/search?q=%2Fvar%2Frun&type=code) |
+| LOW | [net/http](https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/http.yara#http) | Uses the HTTP protocol | [http](https://github.com/search?q=http&type=code) |
 | LOW | [net/url/embedded](https://github.com/chainguard-dev/malcontent/blob/main/rules/net/url/embedded.yara#http_url) | contains embedded HTTP URLs | [http://179.191.68.85](http://179.191.68.85) |
 | LOW | [process/chdir](https://github.com/chainguard-dev/malcontent/blob/main/rules/process/chdir.yara#chdir_shell) | changes working directory | [cd /var/run](https://github.com/search?q=cd+%2Fvar%2Frun&type=code)<br>[cd /root](https://github.com/search?q=cd+%2Froot&type=code)<br>[cd /tmp](https://github.com/search?q=cd+%2Ftmp&type=code)<br>[cd /mnt](https://github.com/search?q=cd+%2Fmnt&type=code) |
 

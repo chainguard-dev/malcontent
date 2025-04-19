@@ -17,5 +17,6 @@ fs/file/delete: low
 fs/file/exists: low
 fs/file/open: low
 net/download: medium
+net/http: low
 net/url/request: medium
 process/executable_path: medium

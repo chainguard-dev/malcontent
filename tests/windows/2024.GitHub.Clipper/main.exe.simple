@@ -4,6 +4,7 @@
 3P/ditekshen/vm_evasion_macaddrcomb: critical
 3P/elastic/multi_threat: high
 anti-behavior/anti_debugger: medium
+anti-behavior/random_behavior: low
 c2/addr/discord: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
@@ -80,6 +81,7 @@ net/dns: low
 net/dns/servers: low
 net/dns/txt: low
 net/download: medium
+net/http: low
 net/http/2: low
 net/http/accept: medium
 net/http/accept_encoding: low

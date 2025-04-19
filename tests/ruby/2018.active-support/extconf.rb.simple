@@ -8,6 +8,7 @@ fs/file/write: medium
 fs/path/tmp: medium
 fs/permission/modify: high
 impact/exploit: high
+net/http: low
 net/http/request: low
 net/ip/resolve: high
 net/url/request: medium

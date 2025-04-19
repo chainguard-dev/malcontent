@@ -6,5 +6,6 @@ evasion/net/http_443: high
 fs/path/dev: medium
 fs/path/var: low
 net/download: medium
+net/http: low
 net/url/embedded: low
 persist/writeable_dir: high

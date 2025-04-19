@@ -3,4 +3,5 @@ anti-static/obfuscation/bitwise: low
 c2/tool_transfer/os: medium
 discover/system/platform: medium
 exec/imports/python: low
+net/http: low
 net/url/embedded: low

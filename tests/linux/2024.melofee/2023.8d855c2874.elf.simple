@@ -1,4 +1,5 @@
 # linux/2024.melofee/2023.8d855c2874.elf: critical
+anti-behavior/random_behavior: low
 c2/addr/ip: medium
 credential/password: low
 credential/ssl/private_key: low
@@ -49,6 +50,7 @@ fs/tempdir/TEMP: low
 impact/remote_access/heartbeat: medium
 lateral/scan/tool: medium
 malware/family/melofee: critical
+net/http: low
 net/http/post: medium
 net/http/request: low
 net/ip/addr: medium

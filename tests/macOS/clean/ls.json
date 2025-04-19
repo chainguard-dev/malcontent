@@ -10,6 +10,7 @@
                 "readlink"
             ],
             "Pledge": [
+                "inet",
                 "rpath"
             ],
             "Behaviors": [
@@ -65,6 +66,17 @@
                     "ReferenceURL": "https://man7.org/linux/man-pages/man2/readlink.2.html",
                     "ID": "fs/link_read",
                     "RuleName": "readlink"
+                },
+                {
+                    "Description": "Uses the HTTP protocol",
+                    "MatchStrings": [
+                        "http"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/http.yara#http",
+                    "ID": "net/http",
+                    "RuleName": "http"
                 }
             ],
             "RiskScore": 1,

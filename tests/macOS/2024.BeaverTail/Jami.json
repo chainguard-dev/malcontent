@@ -4,6 +4,9 @@
             "Path": "macOS/2024.BeaverTail/Jami",
             "SHA256": "0f5f0a3ac843df675168f82021c24180ea22f764f87f82f9f77fe8f0ba0b7132",
             "Size": 770832,
+            "Pledge": [
+                "inet"
+            ],
             "Behaviors": [
                 {
                     "Description": "Stealer targeted macOS and Windows for Lazarus",
@@ -181,6 +184,17 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/download/download.yara#download",
                     "ID": "net/download",
                     "RuleName": "download"
+                },
+                {
+                    "Description": "Uses the HTTP protocol",
+                    "MatchStrings": [
+                        "http"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/http.yara#http",
+                    "ID": "net/http",
+                    "RuleName": "http"
                 },
                 {
                     "Description": "submits form content to websites",

@@ -1,12 +1,17 @@
 # javascript/clean/203.b7219352.chunk.js: medium
+anti-behavior/random_behavior: low
 anti-static/obfuscation/js: medium
+anti-static/obfuscation/strtoi: medium
+anti-static/obfuscation/utf16: medium
 c2/tool_transfer/os: medium
 credential/password: low
 data/base64/external: medium
 data/compression/bzip2: low
 data/compression/gzip: low
 data/encoding/base64: low
+data/encoding/int: medium
 data/encoding/json_encode: low
+data/encoding/utf16: medium
 discover/network/interface_list: medium
 discover/network/mac_address: medium
 discover/network/netstat: medium
@@ -39,6 +44,7 @@ impact/remote_access/agent: medium
 impact/remote_access/heartbeat: medium
 net/dns/txt: low
 net/download: medium
+net/http: low
 net/http/cookies: medium
 net/http/form_upload: medium
 net/http/post: medium

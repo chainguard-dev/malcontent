@@ -1,4 +1,5 @@
 # macOS/2024.Chrome_Updater/upd: high
+anti-behavior/random_behavior: low
 anti-static/binary/opaque: medium
 c2/addr/url: low
 c2/connect/curl_easy: medium
@@ -18,6 +19,7 @@ fs/path/applications: medium
 fs/path/dev: medium
 fs/symlink_resolve: low
 hw/iokit_registry: low
+net/http: low
 net/ip/parse: medium
 net/socket/connect: medium
 net/socket/receive: low
