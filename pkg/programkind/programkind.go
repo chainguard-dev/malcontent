@@ -14,6 +14,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"sync"
 
 	"github.com/gabriel-vasile/mimetype"
 )
@@ -102,6 +103,23 @@ var supportedKind = map[string]string{
 type FileType struct {
 	Ext  string
 	MIME string
+}
+
+var fileTypeCache = sync.Map{}
+
+// GetCachedFileType returns previously-seen filetypes or stores novel filetypes for future retrieval
+func GetCachedFileType(path string) (*FileType, error) {
+	if ft, ok := fileTypeCache.Load(path); ok {
+		return ft.(*FileType), nil
+	}
+
+	ft, err := File(path)
+	if err != nil {
+		return nil, err
+	}
+
+	fileTypeCache.Store(path, ft)
+	return ft, nil
 }
 
 // IsSupportedArchive returns whether a path can be processed by our archive extractor.
@@ -240,7 +258,7 @@ func File(path string) (*FileType, error) {
 	}
 
 	// read file header
-	var hdr [256]byte
+	var hdr [512]byte
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("open: %w", err)

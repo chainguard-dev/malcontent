@@ -1,6 +1,5 @@
 # python/clean/matplotlib/backend_bases.py: medium
 c2/tool_transfer/os: medium
-data/random: low
 discover/system/platform: medium
 net/socket/connect: medium
 net/socket/listen: medium

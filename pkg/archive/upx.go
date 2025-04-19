@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
@@ -20,12 +21,6 @@ func ExtractUPX(ctx context.Context, d, f string) error {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting upx")
 
-	buf, ok := bufferPool.Get().(*[]byte)
-	if !ok {
-		return fmt.Errorf("failed to retrieve buffer")
-	}
-	defer bufferPool.Put(buf)
-
 	// Check if the file is valid
 	_, err := os.Stat(f)
 	if err != nil {
@@ -38,28 +33,33 @@ func ExtractUPX(ctx context.Context, d, f string) error {
 	}
 	defer gf.Close()
 
-	base := filepath.Base(f)
-	target := filepath.Join(d, base[:len(base)-len(filepath.Ext(base))])
+	target := filepath.Join(d, filepath.Base(f))
 	if !IsValidPath(target, d) {
 		return fmt.Errorf("invalid file path: %s", target)
 	}
 
-	// copy the file to the temporary directory before decompressing
 	tf, err := os.ReadFile(f)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to read file: %w", err)
 	}
 
 	err = os.WriteFile(target, tf, 0o600)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to write file: %w", err)
 	}
 
-	// Preserve the original file to scan both variants
 	cmd := exec.Command("upx", "-d", "-k", target)
-	if _, err := cmd.CombinedOutput(); err != nil {
-		return fmt.Errorf("failed to decompress upx file: %w", err)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		os.Remove(target)
+		return fmt.Errorf("failed to decompress upx file: %w, output: %s", err, output)
 	}
 
+	if !strings.Contains(string(output), "Decompressed") && !strings.Contains(string(output), "Unpacked") {
+		os.Remove(target)
+		return fmt.Errorf("upx decompression might have failed: %s", output)
+	}
+
+	logger.Debug("successfully decompressed upx file", "output", string(output), "target", target)
 	return nil
 }

@@ -7,7 +7,6 @@ anti-static/obfuscation/strtoi: medium
 c2/client: medium
 c2/tool_transfer/dropper: medium
 c2/tool_transfer/os: low
-data/encoding/int: medium
 discover/system/platform: medium
 discover/system/sysinfo: medium
 exec/shell/exec: medium
