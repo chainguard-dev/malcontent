@@ -153,4 +153,5 @@ jobs:
 
       - name: Run golangci-lint
         run: |
-          make golangci-lint-lint
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.64.8
+          find "${GITHUB_WORKSPACE}" -name go.mod -execdir $(go env GOPATH)/bin/golangci-lint run -c "${GITHUB_WORKSPACE}/.golangci.yml" \;

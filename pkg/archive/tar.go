@@ -43,7 +43,7 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 
 	isTGZ := strings.Contains(f, ".tar.gz") || strings.Contains(f, ".tgz")
 	var isGzip bool
-	if ft, err := programkind.GetCachedFileType(f); err == nil && ft != nil {
+	if ft, err := programkind.File(f); err == nil && ft != nil {
 		if ft.MIME == "application/gzip" {
 			isGzip = true
 		}

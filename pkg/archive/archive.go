@@ -12,6 +12,7 @@ import (
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
+	"golang.org/x/sync/errgroup"
 )
 
 const (
@@ -45,7 +46,7 @@ func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 	}
 
 	var extract func(context.Context, string, string) error
-	ft, err := programkind.GetCachedFileType(path)
+	ft, err := programkind.File(path)
 	if err != nil {
 		return "", fmt.Errorf("failed to determine file type: %w", err)
 	}
@@ -78,71 +79,76 @@ func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 			return fmt.Errorf("failed to read directory %s: %w", dir, err)
 		}
 
+		g := &errgroup.Group{}
+		g.SetLimit(len(files))
 		for _, file := range files {
-			fullPath := filepath.Join(dir, file.Name())
+			g.Go(func() error {
+				fullPath := filepath.Join(dir, file.Name())
 
-			if file.IsDir() {
-				if err := processDir(fullPath); err != nil {
-					logger.Warn("error processing subdirectory", "path", fullPath, "error", err)
+				if file.IsDir() {
+					if err := processDir(fullPath); err != nil {
+						logger.Warn("error processing subdirectory", "path", fullPath, "error", err)
+					}
+					return nil
 				}
-				continue
-			}
 
-			if _, processed := extractedFiles.Load(fullPath); processed {
-				continue
-			}
+				if _, processed := extractedFiles.Load(fullPath); processed {
+					return nil
+				}
 
-			// Handle extracted UPX files separately; we keep the original around to show that UPX was used
-			if strings.HasSuffix(file.Name(), ".~") || strings.HasSuffix(file.Name(), ".000") {
+				// Handle extracted UPX files separately; we keep the original around to show that UPX was used
+				if strings.HasSuffix(file.Name(), ".~") || strings.HasSuffix(file.Name(), ".000") {
+					extractedFiles.Store(fullPath, true)
+					return nil
+				}
+
 				extractedFiles.Store(fullPath, true)
-				continue
-			}
 
-			extractedFiles.Store(fullPath, true)
-
-			ft, err := programkind.GetCachedFileType(fullPath)
-			if err != nil {
-				logger.Warn("error determining file type", "path", fullPath, "error", err)
-				continue
-			}
-
-			isArchive := false
-			var extract func(context.Context, string, string) error
-
-			switch {
-			case ft != nil && ft.MIME == "application/x-upx":
-				isArchive = true
-				extract = ExtractUPX
-			case ft != nil && ft.MIME == "application/zlib":
-				isArchive = true
-				extract = ExtractZlib
-			case programkind.ArchiveMap[programkind.GetExt(file.Name())]:
-				isArchive = true
-				extract = ExtractionMethod(programkind.GetExt(file.Name()))
-			}
-
-			if isArchive && extract != nil {
-				if err := os.MkdirAll(dir, 0755); err != nil {
-					logger.Warn("failed to create extraction directory", "path", dir, "error", err)
-					continue
+				ft, err := programkind.File(fullPath)
+				if err != nil {
+					logger.Warn("error determining file type", "path", fullPath, "error", err)
+					return nil
 				}
 
-				if err := extract(ctx, dir, fullPath); err != nil {
-					logger.Warn("failed to extract archive", "path", fullPath, "error", err)
-					os.RemoveAll(dir)
-					continue
+				isArchive := false
+				var extract func(context.Context, string, string) error
+
+				switch {
+				case ft != nil && ft.MIME == "application/x-upx":
+					isArchive = true
+					extract = ExtractUPX
+				case ft != nil && ft.MIME == "application/zlib":
+					isArchive = true
+					extract = ExtractZlib
+				case programkind.ArchiveMap[programkind.GetExt(file.Name())]:
+					isArchive = true
+					extract = ExtractionMethod(programkind.GetExt(file.Name()))
 				}
 
-				if err := os.Remove(fullPath); err != nil {
-					logger.Warn("failed to remove archive after extraction", "path", fullPath, "error", err)
-				}
+				if isArchive && extract != nil {
+					if err := os.MkdirAll(dir, 0o755); err != nil {
+						logger.Warn("failed to create extraction directory", "path", dir, "error", err)
+						return nil
+					}
 
-				if err := processDir(dir); err != nil {
-					logger.Warn("error processing extracted directory", "path", dir, "error", err)
+					if err := extract(ctx, dir, fullPath); err != nil {
+						logger.Warn("failed to extract archive", "path", fullPath, "error", err)
+						os.RemoveAll(dir)
+						return nil
+					}
+
+					if err := os.Remove(fullPath); err != nil {
+						logger.Warn("failed to remove archive after extraction", "path", fullPath, "error", err)
+					}
+
+					if err := processDir(dir); err != nil {
+						logger.Warn("error processing extracted directory", "path", dir, "error", err)
+					}
 				}
-			}
+				return nil
+			})
 		}
-		return nil
+		return g.Wait()
 	}
 
 	if err := processDir(tmpDir); err != nil {

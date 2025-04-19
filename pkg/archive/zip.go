@@ -7,7 +7,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
 
 	"github.com/chainguard-dev/clog"
@@ -38,7 +37,7 @@ func ExtractZip(ctx context.Context, d string, f string) error {
 	}
 
 	g, gCtx := errgroup.WithContext(ctx)
-	g.SetLimit(runtime.GOMAXPROCS(0))
+	g.SetLimit(len(read.File))
 
 	for _, file := range read.File {
 		g.Go(func() error {

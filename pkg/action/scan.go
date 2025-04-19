@@ -47,20 +47,26 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	logger := clog.FromContext(ctx)
 	logger = logger.With("path", path)
 
-	var yrs *yarax.Rules
 	var err error
 	if c.Rules == nil {
-		yrs, err = CachedRules(ctx, ruleFS)
+		c.Rules, err = CachedRules(ctx, ruleFS)
 		if err != nil {
 			return nil, fmt.Errorf("rules: %w", err)
 		}
-	} else {
-		yrs = c.Rules
 	}
+	scanner, err := c.GetScanner()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get scanner: %w", err)
+	}
+	defer func() {
+		if err := c.PutScanner(scanner); err != nil {
+			logger.Warnf("failed to return scanner to pool: %v", err)
+		}
+	}()
 
 	isArchive := archiveRoot != ""
 	mime := "<unknown>"
-	kind, err := programkind.GetCachedFileType(path)
+	kind, err := programkind.File(path)
 	if err != nil && !interactive(c) {
 		logger.Errorf("file type failure: %s: %s", path, err)
 	}
@@ -91,7 +97,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		return nil, err
 	}
 
-	mrs, err := yrs.Scan(fc)
+	mrs, err := scanner.Scan(fc)
 	if err != nil {
 		logger.Debug("skipping", slog.Any("error", err))
 		return nil, err
