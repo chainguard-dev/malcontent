@@ -7,27 +7,24 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/pool"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 )
 
 const (
-	// 32KB buffer.
-	bufferSize = 32 * 1024
-	// 512MB file limit.
-	maxBytes = 1 << 29
+	// 1024MB file limit.
+	maxBytes = 1 << 30
 )
 
-// Shared buffer pool for io.CopyBuffer operations.
-var bufferPool = sync.Pool{
-	New: func() any {
-		b := make([]byte, bufferSize)
-		return &b
-	},
-}
+var (
+	bufferPool     *pool.SlicePool
+	initializeOnce sync.Once
+)
 
 // isValidPath checks if the target file is within the given directory.
 func IsValidPath(target, dir string) bool {
@@ -44,8 +41,14 @@ func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 		return "", fmt.Errorf("failed to create temp dir: %w", err)
 	}
 
+	initializeOnce.Do(func() {
+		bufferPool = pool.NewBufferPool(pool.BufferPoolConfig{
+			Concurrency: runtime.GOMAXPROCS(0),
+		})
+	})
+
 	var extract func(context.Context, string, string) error
-	ft, err := programkind.GetCachedFileType(path)
+	ft, err := programkind.File(path)
 	if err != nil {
 		return "", fmt.Errorf("failed to determine file type: %w", err)
 	}
@@ -100,7 +103,7 @@ func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 
 			extractedFiles.Store(fullPath, true)
 
-			ft, err := programkind.GetCachedFileType(fullPath)
+			ft, err := programkind.File(fullPath)
 			if err != nil {
 				logger.Warn("error determining file type", "path", fullPath, "error", err)
 				continue
@@ -122,7 +125,7 @@ func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 			}
 
 			if isArchive && extract != nil {
-				if err := os.MkdirAll(dir, 0755); err != nil {
+				if err := os.MkdirAll(dir, 0o755); err != nil {
 					logger.Warn("failed to create extraction directory", "path", dir, "error", err)
 					continue
 				}
@@ -184,11 +187,8 @@ func handleDirectory(target string) error {
 }
 
 // handleFile extracts valid files within .deb or .tar archives.
-func handleFile(target string, tr *tar.Reader) error {
-	buf, ok := bufferPool.Get().(*[]byte)
-	if !ok {
-		return fmt.Errorf("failed to retrieve buffer")
-	}
+func handleFile(target string, tr *tar.Reader, size int64) error {
+	buf := bufferPool.Get(size)
 	defer bufferPool.Put(buf)
 
 	if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
@@ -201,7 +201,7 @@ func handleFile(target string, tr *tar.Reader) error {
 	}
 	defer out.Close()
 
-	written, err := io.CopyBuffer(out, io.LimitReader(tr, maxBytes), *buf)
+	written, err := io.CopyBuffer(out, io.LimitReader(tr, maxBytes), buf)
 	if err != nil {
 		return fmt.Errorf("failed to copy file: %w", err)
 	}

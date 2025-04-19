@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
@@ -16,8 +17,8 @@ import (
 func ExtractGzip(ctx context.Context, d string, f string) error {
 	// Check whether the provided file is a valid gzip archive
 	var isGzip bool
-	if ft, err := programkind.GetCachedFileType(f); err == nil && ft != nil {
-		if ft.MIME == "application/gzip" {
+	if ft, err := programkind.File(f); err == nil && ft != nil {
+		if ft.MIME == "application/gzip" && !strings.Contains(f, ".xz") {
 			isGzip = true
 		}
 	}
@@ -29,17 +30,14 @@ func ExtractGzip(ctx context.Context, d string, f string) error {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting gzip")
 
-	buf, ok := bufferPool.Get().(*[]byte)
-	if !ok {
-		return fmt.Errorf("failed to retrieve buffer")
-	}
-	defer bufferPool.Put(buf)
-
 	// Check if the file is valid
-	_, err := os.Stat(f)
+	fi, err := os.Stat(f)
 	if err != nil {
 		return fmt.Errorf("failed to stat file: %w", err)
 	}
+
+	buf := bufferPool.Get(fi.Size())
+	defer bufferPool.Put(buf)
 
 	gf, err := os.Open(f)
 	if err != nil {
@@ -65,7 +63,7 @@ func ExtractGzip(ctx context.Context, d string, f string) error {
 	}
 	defer out.Close()
 
-	written, err := io.CopyBuffer(out, io.LimitReader(gr, maxBytes), *buf)
+	written, err := io.CopyBuffer(out, io.LimitReader(gr, maxBytes), buf)
 	if err != nil {
 		return fmt.Errorf("failed to copy file: %w", err)
 	}

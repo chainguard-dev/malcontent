@@ -1,14 +1,18 @@
 package report
 
 import (
+	"runtime"
 	"slices"
 	"sync"
 
 	yarax "github.com/VirusTotal/yara-x/go"
+	"github.com/chainguard-dev/malcontent/pkg/pool"
 )
 
-// Number of strings to process at any given time.
-const batchSize = 4096
+var (
+	bufferPool     *pool.SlicePool
+	initializeOnce sync.Once
+)
 
 // StringPool holds data to handle string interning.
 type StringPool struct {
@@ -41,12 +45,6 @@ func (sp *StringPool) Intern(s string) string {
 
 	sp.strings[s] = s
 	return s
-}
-
-var BufferPool = sync.Pool{
-	New: func() interface{} {
-		return make([]byte, 0, 1024)
-	},
 }
 
 type matchProcessor struct {
@@ -93,44 +91,42 @@ func (mp *matchProcessor) process() []string {
 	}
 	defer matchResultPool.Put(result)
 
-	var buffer *[]byte
-	if tmp := BufferPool.Get(); tmp != nil {
-		if b, ok := tmp.(*[]byte); ok {
-			buffer = b
-		} else {
-			slice := make([]byte, 0, 32)
-			buffer = &slice
+	initializeOnce.Do(func() {
+		bufferPool = pool.NewBufferPool(pool.BufferPoolConfig{
+			Concurrency: runtime.GOMAXPROCS(0),
+		})
+	})
+
+	buffer := bufferPool.Get(8)
+	defer bufferPool.Put(buffer)
+
+	for _, match := range mp.matches {
+		// #nosec G115 // ignore Type conversion which leads to integer overflow
+		l := int(match.Length())
+		o := int(match.Offset())
+
+		if o < 0 || o+l > len(mp.fc) {
+			continue
 		}
-	}
-	defer BufferPool.Put(buffer)
 
-	for i := 0; i < len(mp.matches); i += batchSize {
-		end := i + batchSize
-		if end > len(mp.matches) {
-			end = len(mp.matches)
-		}
+		matchBytes := mp.fc[o : o+l]
 
-		// #nosec G115 // ignore converting uint64 values to int
-		for _, match := range mp.matches[i:end] {
-			l := int(match.Length())
-			o := int(match.Offset())
-
-			if o < 0 || o+l > len(mp.fc) {
-				continue
-			}
-
-			matchBytes := mp.fc[o : o+l]
-
-			if !containsUnprintable(matchBytes) {
-				str := mp.pool.Intern(string(matchBytes))
+		if !containsUnprintable(matchBytes) {
+			if l <= cap(buffer) {
+				buffer = (buffer)[:l]
+				copy(buffer, matchBytes)
+				str := mp.pool.Intern(string(buffer))
 				*result = append(*result, str)
 			} else {
-				patterns := make([]string, 0, len(mp.patterns))
-				for _, p := range mp.patterns {
-					patterns = append(patterns, p.Identifier())
-				}
-				*result = append(*result, slices.Compact(patterns)...)
+				str := mp.pool.Intern(string(matchBytes))
+				*result = append(*result, str)
 			}
+		} else {
+			patterns := make([]string, 0, len(mp.patterns))
+			for _, p := range mp.patterns {
+				patterns = append(patterns, p.Identifier())
+			}
+			*result = append(*result, slices.Compact(patterns)...)
 		}
 	}
 

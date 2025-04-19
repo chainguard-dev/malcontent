@@ -16,17 +16,14 @@ func ExtractZlib(ctx context.Context, d string, f string) error {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debugf("extracting zlib")
 
-	buf, ok := bufferPool.Get().(*[]byte)
-	if !ok {
-		return fmt.Errorf("failed to retrieve buffer")
-	}
-	defer bufferPool.Put(buf)
-
 	// Check if the file is valid
-	_, err := os.Stat(f)
+	fi, err := os.Stat(f)
 	if err != nil {
 		return fmt.Errorf("failed to stat file: %w", err)
 	}
+
+	buf := bufferPool.Get(fi.Size())
+	defer bufferPool.Put(buf)
 
 	zf, err := os.Open(f)
 	if err != nil {
@@ -49,7 +46,7 @@ func ExtractZlib(ctx context.Context, d string, f string) error {
 	}
 	defer out.Close()
 
-	written, err := io.CopyBuffer(out, io.LimitReader(zr, maxBytes), *buf)
+	written, err := io.CopyBuffer(out, io.LimitReader(zr, maxBytes), buf)
 	if err != nil {
 		return fmt.Errorf("failed to copy file: %w", err)
 	}
