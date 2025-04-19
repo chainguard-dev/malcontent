@@ -3,7 +3,7 @@ rule string_reversal: medium {
     description = "reverses strings"
 
   strings:
-    $ref = " .reverse().join(\"\")"
+    $ref = ".reverse().join(\"\")"
 
   condition:
     any of them
