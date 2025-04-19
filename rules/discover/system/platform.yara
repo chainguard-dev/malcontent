@@ -84,7 +84,6 @@ rule python_platform: medium {
     any of them
 }
 
-
 rule browser_platform: medium {
   meta:
     description = "system platform identification via browser user-agent"

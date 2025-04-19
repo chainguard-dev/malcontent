@@ -3,8 +3,9 @@ rule js_while_true_obfuscation: medium {
     description = "obfuscated 'while true' loop"
 
   strings:
-    $ref = "while (!![])"
+    $ref  = "while (!![])"
     $ref2 = "while(!![])"
+
   condition:
     any of them
 }

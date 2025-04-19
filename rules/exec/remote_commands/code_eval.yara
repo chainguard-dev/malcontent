@@ -18,7 +18,7 @@ rule js_eval_fx_str: high {
     description = "evaluate processed string using eval()"
 
   strings:
-    $val       = /eval\(\w{0,16}\([\"\'].{0,16}/
+    $val = /eval\(\w{0,16}\([\"\'].{0,16}/
 
   condition:
     filesize < 1MB and any of ($val*)
@@ -29,7 +29,7 @@ rule js_eval_fx_str_multiple: critical {
     description = "multiple evaluations of processed string using eval()"
 
   strings:
-    $val       = /eval\(\w{0,16}\([\"\'].{0,16}/
+    $val = /eval\(\w{0,16}\([\"\'].{0,16}/
 
   condition:
     filesize < 1MB and #val > 1
@@ -40,12 +40,11 @@ rule js_eval_response: critical {
     description = "executes code directly from HTTP response"
 
   strings:
-    $val       = /eval\(\w{0,16}\.responseText\)/
+    $val = /eval\(\w{0,16}\.responseText\)/
 
   condition:
     filesize < 1MB and any of ($val*)
 }
-
 
 rule js_eval_near_enough_fromChar: high {
   meta:
@@ -54,6 +53,7 @@ rule js_eval_near_enough_fromChar: high {
   strings:
     $exec    = /[\s\{]eval\(/
     $decrypt = "String.fromCharCode"
+
   condition:
     filesize < 5MB and all of them and math.abs(@exec - @decrypt) > 384
 }
@@ -63,9 +63,10 @@ rule js_eval_obfuscated_fromChar: critical {
     description = "Likely executes encrypted content"
 
   strings:
-  $exec    = /[\s\{]eval\(/
-    $ref = /fromCharCode\(\w{0,16}\s{0,2}[\-\+\*\^]{0,2}\w{0,16}/
-condition:
+    $exec = /[\s\{]eval\(/
+    $ref  = /fromCharCode\(\w{0,16}\s{0,2}[\-\+\*\^]{0,2}\w{0,16}/
+
+  condition:
     filesize < 5MB and all of them and math.abs(@exec - @ref) > 384
 }
 

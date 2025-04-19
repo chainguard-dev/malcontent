@@ -3,7 +3,7 @@ rule user_agent_data: low {
     description = "gets browser user-agent"
 
   strings:
-    $ref  = "navigator.userAgentData.get"
+    $ref = "navigator.userAgentData.get"
 
   condition:
     any of them

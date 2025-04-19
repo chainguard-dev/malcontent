@@ -3,7 +3,7 @@ rule localstorage: medium {
     description = "accesses browser local storage"
 
   strings:
-    $ref  = "localStorage.get"
+    $ref = "localStorage.get"
 
   condition:
     any of them

@@ -4,16 +4,18 @@ rule js_parseInt: low {
 
   strings:
     $ref = "parseInt("
+
   condition:
     any of them
 }
 
-rule js_parseInt_Math : medium {
+rule js_parseInt_Math: medium {
   meta:
     description = "performs math directly against parsed integers"
 
   strings:
     $ref = /[\^\*\-\+]\s{0,2}parseInt\(/
+
   condition:
     any of them
 }

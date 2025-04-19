@@ -1,4 +1,3 @@
-
 rule php_obfuscation: high {
   meta:
     description = "obfuscated PHP code"

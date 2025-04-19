@@ -15,12 +15,13 @@ rule set_variable_variable_casing: high windows {
     description = "Set-Item case obfuscation"
 
   strings:
-    $ref = /[Ss][eE][tT]-[vV][aA][rR][iI][aA][bB][Ll][eE]/
-    $not = "Set-Variable"
+    $ref  = /[Ss][eE][tT]-[vV][aA][rR][iI][aA][bB][Ll][eE]/
+    $not  = "Set-Variable"
     $not2 = "SET-VARIABLE"
     $not3 = "set-variable"
     $not4 = "set-Variable"
     $not5 = "Set-variable"
+
   condition:
     filesize < 1MB and $ref and none of ($not*)
 }
@@ -30,12 +31,13 @@ rule set_item_variable_casing: high windows {
     description = "Set-Item case obfuscation"
 
   strings:
-    $ref = /[Ss][eE][tT]-[Ii][Tt][Ee][Mm]/
-    $not = "Set-Item"
+    $ref  = /[Ss][eE][tT]-[Ii][Tt][Ee][Mm]/
+    $not  = "Set-Item"
     $not2 = "SET-ITEM"
     $not3 = "set-item"
     $not4 = "set-Item"
     $not5 = "Set-item"
+
   condition:
     filesize < 1MB and $ref and none of ($not*)
 }
@@ -45,10 +47,11 @@ rule string_variable_casing: high windows {
     description = "[string] case obfuscation"
 
   strings:
-    $ref = /\[[Ss][Tt][Rr][Ii][Nn][Gg]\]/
-    $not = "[string]"
+    $ref  = /\[[Ss][Tt][Rr][Ii][Nn][Gg]\]/
+    $not  = "[string]"
     $not2 = "[STRING]"
     $not3 = "[String]"
+
   condition:
     filesize < 1MB and $ref and none of ($not*)
 }
@@ -58,10 +61,11 @@ rule length_casing: medium windows {
     description = "length case obfuscation"
 
   strings:
-    $ref = /\.[Ll][Ee][Nn][Gg][Tt][Hh]/
-    $not = "Length"
+    $ref  = /\.[Ll][Ee][Nn][Gg][Tt][Hh]/
+    $not  = "Length"
     $not2 = "length"
     $not3 = "LENGTH"
+
   condition:
     filesize < 1MB and $ref and none of ($not*)
 }
@@ -71,10 +75,11 @@ rule pshome_casing: high windows {
     description = "PSHOME case obfuscation"
 
   strings:
-    $ref = /[Pp][Ss][Hh][Oo][Mm][Ee]/ fullword
-    $not = "PSHOME"
+    $ref  = /[Pp][Ss][Hh][Oo][Mm][Ee]/ fullword
+    $not  = "PSHOME"
     $not2 = "pshome"
     $not3 = "Pshome"
+
   condition:
     filesize < 1MB and $ref and none of ($not*)
 }
@@ -84,10 +89,11 @@ rule variable_casing: high windows {
     description = "Variable case obfuscation"
 
   strings:
-    $ref = /[Vv][Aa][Rr][Ii][Aa][Bb][Ll][Ee]/ fullword
-    $not = "variable"
+    $ref  = /[Vv][Aa][Rr][Ii][Aa][Bb][Ll][Ee]/ fullword
+    $not  = "variable"
     $not2 = "Variable"
     $not3 = "VARIABLE"
+
   condition:
     filesize < 1MB and $ref and none of ($not*)
 }
@@ -97,10 +103,11 @@ rule pshome_multiple_casing: critical windows {
     description = "Multiple forms of case obfuscation"
 
   strings:
-    $ref = /[Pp][Ss][Hh][Oo][Mm][Ee]/ fullword
-    $not = "PSHOME"
+    $ref  = /[Pp][Ss][Hh][Oo][Mm][Ee]/ fullword
+    $not  = "PSHOME"
     $not2 = "pshome"
     $not3 = "Pshome"
+
   condition:
     filesize < 1MB and ($ref and none of ($not*)) and (string_variable_casing or set_item_variable_casing or length_casing)
 }
@@ -110,10 +117,11 @@ rule string_multiple_casing: critical windows {
     description = "Multiple forms of case obfuscation"
 
   strings:
-    $ref = /\[[Ss][Tt][Rr][Ii][Nn][Gg]\]/
-    $not = "[string]"
+    $ref  = /\[[Ss][Tt][Rr][Ii][Nn][Gg]\]/
+    $not  = "[string]"
     $not2 = "[STRING]"
     $not3 = "[String]"
+
   condition:
     filesize < 1MB and ($ref and none of ($not*)) and (string_variable_casing or set_item_variable_casing or length_casing or set_variable_variable_casing)
 }

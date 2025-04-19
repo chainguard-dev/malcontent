@@ -4,6 +4,7 @@ rule chr: medium {
 
   strings:
     $ref = /.{0,8}fromCharCode.{0,8}/
+
   condition:
     any of them
 }
