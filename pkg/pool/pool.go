@@ -1,6 +1,7 @@
 package pool
 
 import (
+	"math"
 	"sync"
 
 	yarax "github.com/VirusTotal/yara-x/go"
@@ -31,25 +32,25 @@ func NewBufferPool() *SlicePool {
 }
 
 // Get retrieves a byte buffer with the required capacity.
-func (sp *SlicePool) Get(requiredSize int64) []byte {
-	if requiredSize <= 0 {
-		requiredSize = 1
+func (sp *SlicePool) Get(size int64) []byte {
+	if size <= 0 || uint64(size) >= math.MaxInt64 {
+		size = 1
 	}
 
 	bufInterface := sp.pool.Get()
 
 	buf, ok := bufInterface.([]byte)
 	if !ok || buf == nil {
-		return make([]byte, requiredSize)
+		return make([]byte, size)
 	}
 
 	bufPtr := &buf
-	if cap(*bufPtr) < int(requiredSize) {
+	if cap(*bufPtr) < int(size) {
 		sp.pool.Put(bufPtr)
-		return make([]byte, requiredSize)
+		return make([]byte, size)
 	}
 
-	return buf[:requiredSize]
+	return buf[:size]
 }
 
 // Put returns a byte buffer to the pool for future reuse.
