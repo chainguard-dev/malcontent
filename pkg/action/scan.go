@@ -36,14 +36,14 @@ func interactive(c malcontent.Config) bool {
 }
 
 var (
+	bufferPool *pool.SlicePool
 	// compiledRuleCache are a cache of previously compiled rules.
 	compiledRuleCache atomic.Pointer[yarax.Rules]
 	// compileOnce ensures that we compile rules only once even across threads.
-	compileOnce sync.Once
-	// initializeOnce ensures that the scanner pool is only initialized once.
-	initializeOnce      sync.Once
+	compileOnce         sync.Once
 	ErrMatchedCondition = errors.New("matched exit criteria")
-	bufferPool          *pool.SlicePool
+	// initializeOnce ensures that the scanner pool is only initialized once.
+	initializeOnce sync.Once
 )
 
 // scanSinglePath YARA scans a single path and converts it to a fileReport.
@@ -79,6 +79,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	isArchive := archiveRoot != ""
 	mime := "<unknown>"
 	kind, err := programkind.File(path)
+	defer programkind.ReturnFileType(kind)
 	if err != nil && !interactive(c) {
 		logger.Errorf("file type failure: %s: %s", path, err)
 	}

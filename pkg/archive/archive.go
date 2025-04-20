@@ -49,6 +49,7 @@ func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 
 	var extract func(context.Context, string, string) error
 	ft, err := programkind.File(path)
+	defer programkind.ReturnFileType(ft)
 	if err != nil {
 		return "", fmt.Errorf("failed to determine file type: %w", err)
 	}
@@ -104,6 +105,7 @@ func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 			extractedFiles.Store(fullPath, true)
 
 			ft, err := programkind.File(fullPath)
+			defer programkind.ReturnFileType(ft)
 			if err != nil {
 				logger.Warn("error determining file type", "path", fullPath, "error", err)
 				continue

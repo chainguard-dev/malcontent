@@ -13,8 +13,11 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strings"
+	"sync"
 
+	"github.com/chainguard-dev/malcontent/pkg/pool"
 	"github.com/gabriel-vasile/mimetype"
 )
 
@@ -104,6 +107,39 @@ type FileType struct {
 	MIME string
 }
 
+var (
+	bufferPool     *pool.SlicePool
+	fileTypePool   sync.Pool
+	initializeOnce sync.Once
+)
+
+func init() {
+	fileTypePool = sync.Pool{
+		New: func() any {
+			return &FileType{}
+		},
+	}
+}
+
+func GetFileType() *FileType {
+	fileType, ok := fileTypePool.Get().(*FileType)
+	if !ok {
+		return &FileType{}
+	}
+	return fileType
+}
+
+func ReturnFileType(ft *FileType) {
+	if ft == nil {
+		return
+	}
+
+	ft.Ext = ""
+	ft.MIME = ""
+
+	fileTypePool.Put(ft)
+}
+
 // IsSupportedArchive returns whether a path can be processed by our archive extractor.
 // UPX files are an edge case since they may or may not even have an extension that can be referenced.
 func IsSupportedArchive(path string) bool {
@@ -185,7 +221,10 @@ func makeFileType(path string, ext string, mime string) *FileType {
 
 	// the only JSON files we currently scan are NPM package metadata, which ends in *package.json
 	if strings.HasSuffix(path, "package.json") {
-		return &FileType{MIME: "application/json", Ext: ext}
+		ft := GetFileType()
+		ft.MIME = "application/json"
+		ft.Ext = ext
+		return ft
 	}
 
 	if supportedKind[ext] == "" {
@@ -198,7 +237,10 @@ func makeFileType(path string, ext string, mime string) *FileType {
 	}
 
 	if strings.Contains(mime, "application") || strings.Contains(mime, "text/x-") || strings.Contains(mime, "text/x-") || strings.Contains(mime, "executable") {
-		return &FileType{MIME: mime, Ext: ext}
+		ft := GetFileType()
+		ft.MIME = mime
+		ft.Ext = ext
+		return ft
 	}
 
 	return nil
@@ -225,6 +267,9 @@ func File(path string) (*FileType, error) {
 	if st.Mode().Type() == fs.ModeIrregular {
 		return nil, nil
 	}
+	if st.Size() == 0 {
+		return nil, nil
+	}
 
 	// first strategy: mimetype
 	mtype, err := mimetype.DetectFile(path)
@@ -239,14 +284,20 @@ func File(path string) (*FileType, error) {
 		return mtype, nil
 	}
 
-	// read file header
-	var hdr [512]byte
+	initializeOnce.Do(func() {
+		bufferPool = pool.NewBufferPool(pool.BufferPoolConfig{
+			Concurrency: runtime.GOMAXPROCS(0),
+		})
+	})
+	hdr := bufferPool.Get(512)
+	defer bufferPool.Put(hdr)
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("open: %w", err)
 	}
 	defer f.Close()
 
+	// read file header
 	_, err = io.ReadFull(f, hdr[:])
 	if err != nil && !errors.Is(err, io.ErrUnexpectedEOF) && !errors.Is(err, io.EOF) {
 		return nil, fmt.Errorf("read: %w", err)

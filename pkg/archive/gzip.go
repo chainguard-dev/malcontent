@@ -21,6 +21,7 @@ func ExtractGzip(ctx context.Context, d string, f string) error {
 		if ft.MIME == "application/gzip" && !strings.Contains(f, ".xz") {
 			isGzip = true
 		}
+		defer programkind.ReturnFileType(ft)
 	}
 
 	if !isGzip {
