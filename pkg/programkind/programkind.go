@@ -298,14 +298,14 @@ func File(path string) (*FileType, error) {
 	defer f.Close()
 
 	// read file header
-	_, err = io.ReadFull(f, hdr[:])
+	_, err = io.ReadFull(f, hdr)
 	if err != nil && !errors.Is(err, io.ErrUnexpectedEOF) && !errors.Is(err, io.EOF) {
 		return nil, fmt.Errorf("read: %w", err)
 	}
 
 	// final strategy: DIY matching where mimetype is too strict.
-	s := string(hdr[:])
-	if isUPX, err := IsValidUPX(hdr[:], path); err == nil && isUPX {
+	s := string(hdr)
+	if isUPX, err := IsValidUPX(hdr, path); err == nil && isUPX {
 		return Path(".upx"), nil
 	}
 

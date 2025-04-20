@@ -100,8 +100,8 @@ func (mp *matchProcessor) process() []string {
 	buffer := bufferPool.Get(8)
 	defer bufferPool.Put(buffer)
 
+	// #nosec G115 // ignore Type conversion which leads to integer overflow
 	for _, match := range mp.matches {
-		// #nosec G115 // ignore Type conversion which leads to integer overflow
 		l := int(match.Length())
 		o := int(match.Offset())
 

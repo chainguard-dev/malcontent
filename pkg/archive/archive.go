@@ -105,7 +105,6 @@ func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 			extractedFiles.Store(fullPath, true)
 
 			ft, err := programkind.File(fullPath)
-			defer programkind.ReturnFileType(ft)
 			if err != nil {
 				logger.Warn("error determining file type", "path", fullPath, "error", err)
 				continue
@@ -125,6 +124,7 @@ func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 				isArchive = true
 				extract = ExtractionMethod(programkind.GetExt(file.Name()))
 			}
+			programkind.ReturnFileType(ft)
 
 			if isArchive && extract != nil {
 				if err := os.MkdirAll(dir, 0o755); err != nil {
