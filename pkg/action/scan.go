@@ -26,7 +26,6 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 	"github.com/chainguard-dev/malcontent/pkg/render"
 	"github.com/chainguard-dev/malcontent/pkg/report"
-	"github.com/edsrzf/mmap-go"
 	"golang.org/x/sync/errgroup"
 
 	yarax "github.com/VirusTotal/yara-x/go"
@@ -109,24 +108,10 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	}
 	size := fi.Size()
 
-	var fc []byte
-	mm, err := mmap.Map(f, int(size), 0)
-	if err != nil {
-		if _, err := f.Seek(0, 0); err != nil {
-			return nil, err
-		}
-		fc = filePool.Get(size)
-		defer filePool.Put(fc)
-		if _, err := io.ReadFull(f, fc); err != nil {
-			return nil, err
-		}
-	} else {
-		fc = mm
-		defer func() {
-			if err := mm.Unmap(); err != nil {
-				logger.Warnf("failed to unmap memory for %s: %v", path, err)
-			}
-		}()
+	fc := filePool.Get(size)
+	defer filePool.Put(fc)
+	if _, err := io.ReadFull(f, fc); err != nil {
+		return nil, err
 	}
 
 	// Immediately remove archive files read into memory

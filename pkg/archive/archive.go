@@ -30,7 +30,78 @@ func IsValidPath(target, dir string) bool {
 	return strings.HasPrefix(filepath.Clean(target), filepath.Clean(dir))
 }
 
-// ExtractArchiveToTempDir creates a temporary directory and extracts the archive file for scanning.
+func extractNestedArchive(ctx context.Context, d string, f string, extracted *sync.Map) error {
+	isArchive := false
+	// zlib-compressed files are also archives
+	ft, err := programkind.File(f)
+	if err != nil {
+		return fmt.Errorf("failed to determine file type: %w", err)
+	}
+	defer programkind.Put(ft)
+	switch {
+	case ft != nil && ft.MIME == "application/x-upx":
+		isArchive = true
+	case ft != nil && ft.MIME == "application/zlib":
+		isArchive = true
+	case programkind.ArchiveMap[programkind.GetExt(f)]:
+		isArchive = true
+	}
+
+	//nolint:nestif // ignore complexity of 8
+	if isArchive {
+		// Ensure the file was extracted and exists
+		fullPath := filepath.Join(d, f)
+		if _, err := os.Stat(fullPath); os.IsNotExist(err) {
+			return fmt.Errorf("file does not exist: %w", err)
+		}
+
+		var extract func(context.Context, string, string) error
+		// Check for zlib-compressed files first and use the zlib-specific function
+		ft, err := programkind.File(fullPath)
+		if err != nil {
+			return fmt.Errorf("failed to determine file type: %w", err)
+		}
+		defer programkind.Put(ft)
+		switch {
+		case ft != nil && ft.MIME == "application/x-upx":
+			extract = ExtractUPX
+		case ft != nil && ft.MIME == "application/zlib":
+			extract = ExtractZlib
+		default:
+			extract = ExtractionMethod(programkind.GetExt(fullPath))
+		}
+
+		err = extract(ctx, d, fullPath)
+		if err != nil {
+			return fmt.Errorf("extract nested archive: %w", err)
+		}
+		// Mark the file as extracted
+		extracted.Store(f, true)
+
+		// Remove the nested archive file
+		// This is done to prevent the file from being scanned
+		if err := os.Remove(fullPath); err != nil {
+			return fmt.Errorf("failed to remove file: %w", err)
+		}
+
+		// Check if there are any newly extracted files that are also archives
+		files, err := os.ReadDir(d)
+		if err != nil {
+			return fmt.Errorf("failed to read directory after extraction: %w", err)
+		}
+		for _, file := range files {
+			relPath := filepath.Join(d, file.Name())
+			if _, isExtracted := extracted.Load(relPath); !isExtracted {
+				if err := extractNestedArchive(ctx, d, file.Name(), extracted); err != nil {
+					return fmt.Errorf("failed to extract nested archive %s: %w", file.Name(), err)
+				}
+			}
+		}
+	}
+	return nil
+}
+
+// extractArchiveToTempDir creates a temporary directory and extracts the archive file for scanning.
 func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 	logger := clog.FromContext(ctx).With("path", path)
 	logger.Debug("creating temp dir")
@@ -48,6 +119,7 @@ func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 	})
 
 	var extract func(context.Context, string, string) error
+	// Check for zlib-compressed files first and use the zlib-specific function
 	ft, err := programkind.File(path)
 	defer programkind.Put(ft)
 	if err != nil {
@@ -66,93 +138,69 @@ func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 	if extract == nil {
 		return "", fmt.Errorf("unsupported archive type: %s", path)
 	}
-
 	err = extract(ctx, tmpDir, path)
 	if err != nil {
-		os.RemoveAll(tmpDir)
 		return "", fmt.Errorf("failed to extract %s: %w", path, err)
 	}
 
 	var extractedFiles sync.Map
+	files, err := os.ReadDir(tmpDir)
+	if err != nil {
+		return "", fmt.Errorf("failed to read files in directory %s: %w", tmpDir, err)
+	}
+	for _, file := range files {
+		extractedFiles.Store(filepath.Join(tmpDir, file.Name()), false)
+	}
 
-	var processDir func(string) error
-	processDir = func(dir string) error {
-		files, err := os.ReadDir(dir)
-		if err != nil {
-			return fmt.Errorf("failed to read directory %s: %w", dir, err)
+	extractedFiles.Range(func(key, _ any) bool {
+		if key == nil {
+			return true
 		}
-
-		for _, file := range files {
-			fullPath := filepath.Join(dir, file.Name())
-
-			if file.IsDir() {
-				if err := processDir(fullPath); err != nil {
-					logger.Warn("error processing subdirectory", "path", fullPath, "error", err)
-				}
-				continue
-			}
-
-			if _, processed := extractedFiles.Load(fullPath); processed {
-				continue
-			}
-
-			// Handle extracted UPX files separately; we keep the original around to show that UPX was used
-			if strings.HasSuffix(file.Name(), ".~") || strings.HasSuffix(file.Name(), ".000") {
-				extractedFiles.Store(fullPath, true)
-				continue
-			}
-
-			extractedFiles.Store(fullPath, true)
-
-			ft, err := programkind.File(fullPath)
+		//nolint: nestif // ignoring complexity of 11
+		if file, ok := key.(string); ok {
+			ext := programkind.GetExt(file)
+			info, err := os.Stat(file)
 			if err != nil {
-				logger.Warn("error determining file type", "path", fullPath, "error", err)
-				continue
+				return false
 			}
+			switch mode := info.Mode(); {
+			case mode.IsDir():
+				err = filepath.WalkDir(file, func(path string, d os.DirEntry, err error) error {
+					if err != nil {
+						return err
+					}
+					rel, err := filepath.Rel(tmpDir, path)
+					if err != nil {
+						return fmt.Errorf("filepath.Rel: %w", err)
+					}
+					if !d.IsDir() {
+						if err := extractNestedArchive(ctx, tmpDir, rel, &extractedFiles); err != nil {
+							return fmt.Errorf("failed to extract nested archive %s: %w", rel, err)
+						}
+					}
 
-			isArchive := false
-			var extract func(context.Context, string, string) error
-
-			switch {
-			case ft != nil && ft.MIME == "application/x-upx":
-				isArchive = true
-				extract = ExtractUPX
-			case ft != nil && ft.MIME == "application/zlib":
-				isArchive = true
-				extract = ExtractZlib
-			case programkind.ArchiveMap[programkind.GetExt(file.Name())]:
-				isArchive = true
-				extract = ExtractionMethod(programkind.GetExt(file.Name()))
-			}
-			programkind.Put(ft)
-
-			if isArchive && extract != nil {
-				if err := os.MkdirAll(dir, 0o755); err != nil {
-					logger.Warn("failed to create extraction directory", "path", dir, "error", err)
-					continue
+					return nil
+				})
+				if err != nil {
+					return false
 				}
-
-				if err := extract(ctx, dir, fullPath); err != nil {
-					logger.Warn("failed to extract archive", "path", fullPath, "error", err)
-					os.RemoveAll(dir)
-					continue
+				return true
+			case mode.IsRegular():
+				if _, ok := programkind.ArchiveMap[ext]; ok {
+					rel, err := filepath.Rel(tmpDir, file)
+					if err != nil {
+						return false
+					}
+					if err := extractNestedArchive(ctx, tmpDir, rel, &extractedFiles); err != nil {
+						return false
+					}
 				}
-
-				if err := os.Remove(fullPath); err != nil {
-					logger.Warn("failed to remove archive after extraction", "path", fullPath, "error", err)
-				}
-
-				if err := processDir(dir); err != nil {
-					logger.Warn("error processing extracted directory", "path", dir, "error", err)
-				}
+				return true
 			}
 		}
-		return nil
-	}
+		return true
+	})
 
-	if err := processDir(tmpDir); err != nil {
-		logger.Warn("error during recursive extraction", "error", err)
-	}
 	return tmpDir, nil
 }
 
