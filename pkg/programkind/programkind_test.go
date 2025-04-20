@@ -31,7 +31,7 @@ func TestFile(t *testing.T) {
 			if err != nil {
 				t.Errorf("File(%s) returned error: %v", tt.in, err)
 			}
-			defer ReturnFileType(got)
+			defer Put(got)
 			if diff := cmp.Diff(got, tt.want); diff != "" {
 				t.Errorf("File(%s) = %v, want %v, diff: %s", tt.in, got, tt.want, diff)
 			}

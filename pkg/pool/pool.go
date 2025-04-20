@@ -8,9 +8,8 @@ import (
 )
 
 const (
-	defaultBuffer    int = 32 * 1024       // 32KB
-	maxBuffer        int = 1 * 1024 * 1024 // 1MB
-	buffersPerWorker int = 2
+	defaultBuffer int = 32 * 1024       // 32KB
+	maxBuffer     int = 1 * 1024 * 1024 // 1MB
 )
 
 // SlicePool provides a pool of byte slices.

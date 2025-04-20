@@ -78,7 +78,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	isArchive := archiveRoot != ""
 	mime := "<unknown>"
 	kind, err := programkind.File(path)
-	defer programkind.ReturnFileType(kind)
+	defer programkind.Put(kind)
 	if err != nil && !interactive(c) {
 		logger.Errorf("file type failure: %s: %s", path, err)
 	}

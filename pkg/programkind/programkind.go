@@ -112,15 +112,8 @@ var (
 	initializeOnce sync.Once
 )
 
-func init() {
-	fileTypePool = sync.Pool{
-		New: func() any {
-			return &FileType{}
-		},
-	}
-}
-
-func GetFileType() *FileType {
+// Get retrieves a FileType from the pool.
+func Get() *FileType {
 	fileType, ok := fileTypePool.Get().(*FileType)
 	if !ok {
 		return &FileType{}
@@ -128,7 +121,8 @@ func GetFileType() *FileType {
 	return fileType
 }
 
-func ReturnFileType(ft *FileType) {
+// Put returns a FileType to the pool.
+func Put(ft *FileType) {
 	if ft == nil {
 		return
 	}
@@ -220,7 +214,7 @@ func makeFileType(path string, ext string, mime string) *FileType {
 
 	// the only JSON files we currently scan are NPM package metadata, which ends in *package.json
 	if strings.HasSuffix(path, "package.json") {
-		ft := GetFileType()
+		ft := Get()
 		ft.MIME = "application/json"
 		ft.Ext = ext
 		return ft
@@ -236,7 +230,7 @@ func makeFileType(path string, ext string, mime string) *FileType {
 	}
 
 	if strings.Contains(mime, "application") || strings.Contains(mime, "text/x-") || strings.Contains(mime, "text/x-") || strings.Contains(mime, "executable") {
-		ft := GetFileType()
+		ft := Get()
 		ft.MIME = mime
 		ft.Ext = ext
 		return ft
@@ -285,6 +279,11 @@ func File(path string) (*FileType, error) {
 
 	initializeOnce.Do(func() {
 		bufferPool = pool.NewBufferPool()
+		fileTypePool = sync.Pool{
+			New: func() any {
+				return &FileType{}
+			},
+		}
 	})
 	hdr := bufferPool.Get(512)
 	defer bufferPool.Put(hdr)
