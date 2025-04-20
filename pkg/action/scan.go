@@ -36,14 +36,14 @@ func interactive(c malcontent.Config) bool {
 }
 
 var (
-	bufferPool *pool.SlicePool
 	// compiledRuleCache are a cache of previously compiled rules.
 	compiledRuleCache atomic.Pointer[yarax.Rules]
 	// compileOnce ensures that we compile rules only once even across threads.
 	compileOnce         sync.Once
 	ErrMatchedCondition = errors.New("matched exit criteria")
-	// initializeOnce ensures that the scanner pool is only initialized once.
+	// initializeOnce ensures that the file and scanner pools are only initialized once.
 	initializeOnce sync.Once
+	filePool       *pool.BufferPool
 	scannerPool    *pool.ScannerPool
 )
 
@@ -64,7 +64,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	}
 
 	initializeOnce.Do(func() {
-		bufferPool = pool.NewBufferPool()
+		filePool = pool.NewBufferPool()
 		scannerPool = pool.NewScannerPool(yrs, c.Concurrency)
 	})
 
@@ -107,8 +107,8 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		return nil, err
 	}
 
-	fc := bufferPool.Get(fi.Size())
-	defer bufferPool.Put(fc)
+	fc := filePool.Get(fi.Size())
+	defer filePool.Put(fc)
 
 	if _, err := io.ReadFull(f, fc); err != nil {
 		return nil, err

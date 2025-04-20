@@ -21,8 +21,8 @@ const (
 )
 
 var (
-	bufferPool     *pool.SlicePool
-	initializeOnce sync.Once
+	archivePool, tarPool, zipPool *pool.BufferPool
+	initializeOnce                sync.Once
 )
 
 // isValidPath checks if the target file is within the given directory.
@@ -41,7 +41,10 @@ func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 	}
 
 	initializeOnce.Do(func() {
-		bufferPool = pool.NewBufferPool()
+		archivePool = pool.NewBufferPool()
+		// Create separate pools for frequently-extracted archive types
+		tarPool = pool.NewBufferPool()
+		zipPool = pool.NewBufferPool()
 	})
 
 	var extract func(context.Context, string, string) error
@@ -187,8 +190,8 @@ func handleDirectory(target string) error {
 
 // handleFile extracts valid files within .deb or .tar archives.
 func handleFile(target string, tr *tar.Reader, size int64) error {
-	buf := bufferPool.Get(size)
-	defer bufferPool.Put(buf)
+	buf := tarPool.Get(size)
+	defer tarPool.Put(buf)
 
 	if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
 		return fmt.Errorf("failed to create parent directory: %w", err)

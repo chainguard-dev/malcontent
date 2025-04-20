@@ -22,8 +22,8 @@ func ExtractZstd(ctx context.Context, d string, f string) error {
 		return fmt.Errorf("failed to stat zstd file %s: %w", f, err)
 	}
 
-	buf := bufferPool.Get(fi.Size())
-	defer bufferPool.Put(buf)
+	buf := archivePool.Get(fi.Size())
+	defer archivePool.Put(buf)
 
 	uncompressed := strings.TrimSuffix(filepath.Base(f), ".zstd")
 	uncompressed = strings.TrimSuffix(uncompressed, ".zst")

@@ -33,8 +33,8 @@ func ExtractRPM(ctx context.Context, d, f string) error {
 		return fmt.Errorf("failed to stat RPM file: %w", err)
 	}
 
-	buf := bufferPool.Get(fi.Size())
-	defer bufferPool.Put(buf)
+	buf := archivePool.Get(fi.Size())
+	defer archivePool.Put(buf)
 
 	pkg, err := rpm.Read(rpmFile)
 	if err != nil {

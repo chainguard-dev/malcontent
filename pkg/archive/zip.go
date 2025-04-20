@@ -54,8 +54,8 @@ func ExtractZip(ctx context.Context, d string, f string) error {
 
 func extractFile(ctx context.Context, file *zip.File, destDir string, logger *clog.Logger) error {
 	// #nosec G115 // ignore Type conversion which leads to integer overflow
-	buf := bufferPool.Get(int64(file.UncompressedSize64))
-	defer bufferPool.Put(buf)
+	buf := zipPool.Get(int64(file.UncompressedSize64))
+	defer zipPool.Put(buf)
 
 	clean := filepath.Clean(filepath.ToSlash(file.Name))
 	if strings.Contains(clean, "..") {

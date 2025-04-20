@@ -9,8 +9,8 @@ import (
 )
 
 var (
-	bufferPool     *pool.SlicePool
 	initializeOnce sync.Once
+	matchPool      *pool.BufferPool
 )
 
 // StringPool holds data to handle string interning.
@@ -91,11 +91,11 @@ func (mp *matchProcessor) process() []string {
 	defer matchResultPool.Put(result)
 
 	initializeOnce.Do(func() {
-		bufferPool = pool.NewBufferPool()
+		matchPool = pool.NewBufferPool()
 	})
 
-	buffer := bufferPool.Get(8)
-	defer bufferPool.Put(buffer)
+	buffer := matchPool.Get(8)
+	defer matchPool.Put(buffer)
 
 	// #nosec G115 // ignore Type conversion which leads to integer overflow
 	for _, match := range mp.matches {

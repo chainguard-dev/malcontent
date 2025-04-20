@@ -107,7 +107,7 @@ type FileType struct {
 }
 
 var (
-	bufferPool     *pool.SlicePool
+	headerPool     *pool.BufferPool
 	fileTypePool   sync.Pool
 	initializeOnce sync.Once
 )
@@ -278,15 +278,15 @@ func File(path string) (*FileType, error) {
 	}
 
 	initializeOnce.Do(func() {
-		bufferPool = pool.NewBufferPool()
+		headerPool = pool.NewBufferPool()
 		fileTypePool = sync.Pool{
 			New: func() any {
 				return &FileType{}
 			},
 		}
 	})
-	hdr := bufferPool.Get(512)
-	defer bufferPool.Put(hdr)
+	hdr := headerPool.Get(512)
+	defer headerPool.Put(hdr)
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("open: %w", err)

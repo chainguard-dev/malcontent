@@ -12,31 +12,31 @@ const (
 	maxBuffer     int = 1 * 1024 * 1024 // 1MB
 )
 
-// SlicePool provides a pool of byte slices.
-type SlicePool struct {
+// BufferPool provides a pool of byte slices for use as buffers.
+type BufferPool struct {
 	pool sync.Pool
 }
 
-// NewBufferPool creates a buffer pool for byte slices.
-func NewBufferPool() *SlicePool {
-	sp := &SlicePool{}
+// NewBufferPool creates a pool of byte slices.
+func NewBufferPool() *BufferPool {
+	bp := &BufferPool{}
 
-	sp.pool = sync.Pool{
+	bp.pool = sync.Pool{
 		New: func() any {
 			return make([]byte, defaultBuffer)
 		},
 	}
 
-	return sp
+	return bp
 }
 
 // Get retrieves a byte buffer with the required capacity.
-func (sp *SlicePool) Get(size int64) []byte {
+func (bp *BufferPool) Get(size int64) []byte {
 	if size <= 0 || uint64(size) >= math.MaxInt64 {
 		size = 1
 	}
 
-	bufInterface := sp.pool.Get()
+	bufInterface := bp.pool.Get()
 
 	buf, ok := bufInterface.([]byte)
 	if !ok || buf == nil {
@@ -45,7 +45,7 @@ func (sp *SlicePool) Get(size int64) []byte {
 
 	bufPtr := &buf
 	if cap(*bufPtr) < int(size) {
-		sp.pool.Put(bufPtr)
+		bp.pool.Put(bufPtr)
 		return make([]byte, size)
 	}
 
@@ -53,14 +53,14 @@ func (sp *SlicePool) Get(size int64) []byte {
 }
 
 // Put returns a byte buffer to the pool for future reuse.
-func (sp *SlicePool) Put(buf []byte) {
+func (bp *BufferPool) Put(buf []byte) {
 	if buf == nil {
 		return
 	}
 
 	bufPtr := &buf
 	if cap(*bufPtr) <= maxBuffer {
-		sp.pool.Put(bufPtr)
+		bp.pool.Put(bufPtr)
 	}
 }
 
@@ -69,7 +69,7 @@ type ScannerPool struct {
 	pool sync.Pool
 }
 
-// NewScannerPool creates a scanner pool of the specified size.
+// NewScannerPool creates a pool containing the specified number of yara-x scanners.
 func NewScannerPool(yrs *yarax.Rules, count int) *ScannerPool {
 	sp := &ScannerPool{}
 

@@ -28,8 +28,8 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 		return fmt.Errorf("failed to stat file: %w", err)
 	}
 
-	buf := bufferPool.Get(fi.Size())
-	defer bufferPool.Put(buf)
+	buf := tarPool.Get(fi.Size())
+	defer tarPool.Put(buf)
 
 	filename := filepath.Base(f)
 	tf, err := os.Open(f)

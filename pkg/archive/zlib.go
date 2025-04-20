@@ -22,8 +22,8 @@ func ExtractZlib(ctx context.Context, d string, f string) error {
 		return fmt.Errorf("failed to stat file: %w", err)
 	}
 
-	buf := bufferPool.Get(fi.Size())
-	defer bufferPool.Put(buf)
+	buf := archivePool.Get(fi.Size())
+	defer archivePool.Put(buf)
 
 	zf, err := os.Open(f)
 	if err != nil {
