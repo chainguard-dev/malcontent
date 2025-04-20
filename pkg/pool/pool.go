@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	defaultBuffer int = 32 * 1024       // 32KB
-	maxBuffer     int = 1 * 1024 * 1024 // 1MB
+	defaultBuffer int = 4 * 1024   // 4KB
+	maxBuffer     int = 128 * 1024 // 128KB
 )
 
 // BufferPool provides a pool of byte slices for use as buffers.
