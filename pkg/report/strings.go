@@ -1,7 +1,6 @@
 package report
 
 import (
-	"runtime"
 	"slices"
 	"sync"
 
@@ -92,9 +91,7 @@ func (mp *matchProcessor) process() []string {
 	defer matchResultPool.Put(result)
 
 	initializeOnce.Do(func() {
-		bufferPool = pool.NewBufferPool(pool.BufferPoolConfig{
-			Concurrency: runtime.GOMAXPROCS(0),
-		})
+		bufferPool = pool.NewBufferPool()
 	})
 
 	buffer := bufferPool.Get(8)

@@ -63,9 +63,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	}
 
 	initializeOnce.Do(func() {
-		bufferPool = pool.NewBufferPool(pool.BufferPoolConfig{
-			Concurrency: c.Concurrency,
-		})
+		bufferPool = pool.NewBufferPool()
 		malcontent.InitScannerPool(yrs, c.Concurrency)
 	})
 

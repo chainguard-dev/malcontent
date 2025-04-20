@@ -10,26 +10,14 @@ const (
 	buffersPerWorker int = 2
 )
 
-// BufferPoolConfig contains configuration for the buffer pool.
-type BufferPoolConfig struct {
-	Concurrency int
-}
-
-// SlicePool provides a pool of byte slices with reduced contention.
+// SlicePool provides a pool of byte slices to reduce contention.
 type SlicePool struct {
-	pool    sync.Pool
-	counter uint32
-	size    int
+	pool sync.Pool
 }
 
 // NewBufferPool creates a buffer pool sized according to concurrency.
-func NewBufferPool(config BufferPoolConfig) *SlicePool {
-	poolSize := max(1, config.Concurrency*buffersPerWorker)
-
-	sp := &SlicePool{
-		size:    poolSize,
-		counter: 0,
-	}
+func NewBufferPool() *SlicePool {
+	sp := &SlicePool{}
 
 	sp.pool = sync.Pool{
 		New: func() any {

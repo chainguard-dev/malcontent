@@ -7,7 +7,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
 	"sync"
 
@@ -42,9 +41,7 @@ func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 	}
 
 	initializeOnce.Do(func() {
-		bufferPool = pool.NewBufferPool(pool.BufferPoolConfig{
-			Concurrency: runtime.GOMAXPROCS(0),
-		})
+		bufferPool = pool.NewBufferPool()
 	})
 
 	var extract func(context.Context, string, string) error

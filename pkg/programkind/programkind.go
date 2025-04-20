@@ -13,7 +13,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
-	"runtime"
 	"strings"
 	"sync"
 
@@ -285,9 +284,7 @@ func File(path string) (*FileType, error) {
 	}
 
 	initializeOnce.Do(func() {
-		bufferPool = pool.NewBufferPool(pool.BufferPoolConfig{
-			Concurrency: runtime.GOMAXPROCS(0),
-		})
+		bufferPool = pool.NewBufferPool()
 	})
 	hdr := bufferPool.Get(512)
 	defer bufferPool.Put(hdr)
