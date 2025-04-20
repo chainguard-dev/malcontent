@@ -44,6 +44,7 @@ var (
 	ErrMatchedCondition = errors.New("matched exit criteria")
 	// initializeOnce ensures that the scanner pool is only initialized once.
 	initializeOnce sync.Once
+	scannerPool    *pool.ScannerPool
 )
 
 // scanSinglePath YARA scans a single path and converts it to a fileReport.
@@ -64,15 +65,15 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 
 	initializeOnce.Do(func() {
 		bufferPool = pool.NewBufferPool()
-		malcontent.InitScannerPool(yrs, c.Concurrency)
+		scannerPool = pool.NewScannerPool(yrs, c.Concurrency)
 	})
 
-	scanner := malcontent.GetScanner()
+	scanner := scannerPool.Get()
 	// Scanner should not be nil here, but guard against it anyway
 	if scanner == nil {
 		scanner = yarax.NewScanner(yrs)
 	}
-	defer malcontent.ReturnScanner(scanner)
+	defer scannerPool.Put(scanner)
 
 	isArchive := archiveRoot != ""
 	mime := "<unknown>"

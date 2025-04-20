@@ -142,30 +142,3 @@ type CombinedReport struct {
 	RemovedFR *FileReport
 	Score     float64
 }
-
-var ScannerPool *sync.Pool
-
-// InitializeScannerPool creates a scanner pool of the specified size.
-func InitScannerPool(yrs *yarax.Rules, count int) {
-	ScannerPool = &sync.Pool{
-		New: func() any {
-			return yarax.NewScanner(yrs)
-		},
-	}
-	for range count {
-		ScannerPool.Put(yarax.NewScanner(yrs))
-	}
-}
-
-// GetScanner retrieves a scanner from the scanner pool.
-func GetScanner() *yarax.Scanner {
-	if scanner, ok := ScannerPool.Get().(*yarax.Scanner); ok {
-		return scanner
-	}
-	return nil
-}
-
-// ReturnScanner returns a scanner to the scanner pool.
-func ReturnScanner(scanner *yarax.Scanner) {
-	ScannerPool.Put(scanner)
-}

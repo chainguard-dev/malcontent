@@ -2,6 +2,8 @@ package pool
 
 import (
 	"sync"
+
+	yarax "github.com/VirusTotal/yara-x/go"
 )
 
 const (
@@ -10,12 +12,12 @@ const (
 	buffersPerWorker int = 2
 )
 
-// SlicePool provides a pool of byte slices to reduce contention.
+// SlicePool provides a pool of byte slices.
 type SlicePool struct {
 	pool sync.Pool
 }
 
-// NewBufferPool creates a buffer pool sized according to concurrency.
+// NewBufferPool creates a buffer pool for byte slices.
 func NewBufferPool() *SlicePool {
 	sp := &SlicePool{}
 
@@ -60,4 +62,38 @@ func (sp *SlicePool) Put(buf []byte) {
 	if cap(*bufPtr) <= maxBuffer {
 		sp.pool.Put(bufPtr)
 	}
+}
+
+// ScannerPool provides a pool of yara-x scanners.
+type ScannerPool struct {
+	pool sync.Pool
+}
+
+// NewScannerPool creates a scanner pool of the specified size.
+func NewScannerPool(yrs *yarax.Rules, count int) *ScannerPool {
+	sp := &ScannerPool{}
+
+	sp.pool = sync.Pool{
+		New: func() any {
+			return yarax.NewScanner(yrs)
+		},
+	}
+
+	for range count {
+		sp.pool.Put(yarax.NewScanner(yrs))
+	}
+	return sp
+}
+
+// Get retrieves a scanner from the scanner pool.
+func (sp *ScannerPool) Get() *yarax.Scanner {
+	if scanner, ok := sp.pool.Get().(*yarax.Scanner); ok {
+		return scanner
+	}
+	return nil
+}
+
+// Put returns a scanner to the scanner pool.
+func (sp *ScannerPool) Put(scanner *yarax.Scanner) {
+	sp.pool.Put(scanner)
 }
