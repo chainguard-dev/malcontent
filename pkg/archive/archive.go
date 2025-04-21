@@ -121,9 +121,6 @@ func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 
 	initializeOnce.Do(func() {
 		archivePool = pool.NewBufferPool()
-		// Create separate pools for frequently-extracted archive types
-		tarPool = pool.NewBufferPool()
-		zipPool = pool.NewBufferPool()
 	})
 
 	var extract func(context.Context, string, string) error

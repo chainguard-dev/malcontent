@@ -107,6 +107,12 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	}
 	size := fi.Size()
 
+	if size == 0 {
+		fr := &malcontent.FileReport{Skipped: "zero-sized file", Path: path}
+		defer os.RemoveAll(path)
+		return fr, nil
+	}
+
 	fc := filePool.Get(size)
 	defer filePool.Put(fc)
 	if _, err := io.ReadFull(f, fc); err != nil {
