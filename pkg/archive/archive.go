@@ -52,7 +52,7 @@ func extractNestedArchive(ctx context.Context, d string, f string, extracted *sy
 	isArchive := false
 	ft, err := programkind.File(fullPath)
 	if err != nil {
-		return nil
+		return fmt.Errorf("failed to determine file type: %w", err)
 	}
 
 	switch {
