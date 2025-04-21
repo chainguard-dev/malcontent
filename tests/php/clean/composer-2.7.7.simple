@@ -1,5 +1,6 @@
 # php/clean/composer-2.7.7: medium
 anti-behavior/anti_debugger: medium
+anti-behavior/random_behavior: low
 anti-static/obfuscation/js: medium
 anti-static/obfuscation/php: medium
 c2/addr/http_dynamic: medium
@@ -67,6 +68,7 @@ fs/tempfile: low
 lateral/scan/target_ip: medium
 lateral/scan/tool: medium
 net/download/fetch: medium
+net/http: low
 net/http/accept: medium
 net/http/accept_encoding: low
 net/http/auth: low

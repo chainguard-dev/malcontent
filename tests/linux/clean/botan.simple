@@ -1,4 +1,5 @@
 # linux/clean/botan: medium
+anti-behavior/random_behavior: low
 credential/password: low
 credential/ssl/private_key: low
 crypto/aes: low
@@ -16,6 +17,7 @@ data/encoding/base64: low
 discover/network/interface: low
 exec/shell/echo: medium
 exfil/stealer/credit_card: medium
+net/http: low
 net/http/accept_encoding: low
 net/http/auth: low
 net/http/cookies: medium

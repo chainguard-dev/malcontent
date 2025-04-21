@@ -1,5 +1,6 @@
 # linux/2022.Conti/bb64b27.elf_x86_64: critical
 3P/elastic/ransomware_conti: critical
+anti-behavior/random_behavior: low
 c2/addr/url: low
 c2/tool_transfer/arch: low
 c2/tool_transfer/os: low
@@ -14,6 +15,7 @@ impact/ransom/linux: high
 impact/ransom/note: high
 malware/family/conti: critical
 net/download: medium
+net/http: low
 net/p2p/tor: high
 net/tcp/ssh: medium
 net/url/embedded: low

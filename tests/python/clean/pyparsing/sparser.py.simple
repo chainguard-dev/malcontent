@@ -9,6 +9,7 @@ fs/file/open: low
 fs/file/read: low
 fs/file/write: low
 fs/path/usr_bin: low
+net/http: low
 net/url/embedded: low
 net/url/parse: low
 net/url/request: medium

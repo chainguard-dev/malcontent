@@ -9,5 +9,6 @@ fs/file/rename: medium
 fs/file/write: low
 impact/remote_access/dll_injection: critical
 net/download/fetch: critical
+net/http: low
 net/url/embedded: medium
 process/create: medium

@@ -1,5 +1,6 @@
 # linux/clean/http-fingerprints.lua: medium
 3P/sig_base/hacktool_strings_p0wnedshell: medium
+anti-behavior/random_behavior: low
 c2/tool_transfer/grayware: medium
 c2/tool_transfer/os: medium
 collect/archives/zip: medium
@@ -16,6 +17,7 @@ fs/path/var: low
 impact/exploit/cve: medium
 impact/remote_access/agent: medium
 net/download: medium
+net/http: low
 net/http/post: medium
 net/http/request: low
 net/tcp/ssh: medium

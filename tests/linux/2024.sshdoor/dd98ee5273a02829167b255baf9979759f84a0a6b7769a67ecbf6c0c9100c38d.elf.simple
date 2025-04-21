@@ -1,4 +1,5 @@
 # linux/2024.sshdoor/dd98ee5273a02829167b255baf9979759f84a0a6b7769a67ecbf6c0c9100c38d.elf: critical
+anti-behavior/random_behavior: low
 c2/addr/ip: medium
 c2/addr/url: low
 c2/tool_transfer/os: low
@@ -61,6 +62,7 @@ impact/remote_access/agent: medium
 impact/remote_access/reverse_shell: medium
 impact/ui/x11_auth: medium
 malware/family/sshdoor: critical
+net/http: low
 net/ip: low
 net/ip/addr: medium
 net/ip/host_port: medium

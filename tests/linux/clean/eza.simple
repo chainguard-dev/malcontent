@@ -1,4 +1,5 @@
 # linux/clean/eza: medium
+anti-behavior/random_behavior: low
 anti-static/elf/multiple: medium
 c2/addr/url: low
 c2/tool_transfer/arch: low
@@ -22,6 +23,7 @@ fs/proc/self_exe: medium
 fs/proc/self_mountinfo: medium
 fs/symlink_resolve: low
 fs/tempdir/TEMP: low
+net/http: low
 net/url/embedded: low
 persist/shell/bash: medium
 persist/shell/zsh: medium

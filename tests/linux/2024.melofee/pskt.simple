@@ -2,6 +2,7 @@
 3P/elastic/melofee: critical
 anti-behavior/LD_DEBUG: medium
 anti-behavior/LD_PROFILE: medium
+anti-behavior/random_behavior: low
 anti-static/elf/entropy: high
 anti-static/elf/multiple: medium
 c2/addr/ip: medium
@@ -60,6 +61,7 @@ malware/family/melofee: critical
 net/dns/reverse: medium
 net/dns/servers: low
 net/dns/txt: low
+net/http: low
 net/http/post: medium
 net/http/request: low
 net/ip/addr: medium

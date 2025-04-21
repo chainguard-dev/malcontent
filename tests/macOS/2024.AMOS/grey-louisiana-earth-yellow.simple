@@ -5,4 +5,5 @@ crypto/rc4: low
 exec/program/opaque: high
 exec/shell/exec: medium
 malware/family/amos: critical
+net/http: low
 net/url/embedded: low

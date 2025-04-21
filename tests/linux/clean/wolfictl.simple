@@ -1,4 +1,5 @@
 # linux/clean/wolfictl: medium
+anti-behavior/random_behavior: low
 anti-static/elf/multiple: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
@@ -40,6 +41,7 @@ data/embedded/html: medium
 data/embedded/pem_certificate: low
 data/embedded/ssh_signature: medium
 data/encoding/base64: low
+data/encoding/int: low
 data/encoding/json: low
 data/encoding/json_decode: low
 data/encoding/json_encode: low
@@ -137,6 +139,7 @@ net/dns/reverse: medium
 net/dns/servers: low
 net/dns/txt: low
 net/download/fetch: medium
+net/http: low
 net/http/2: low
 net/http/accept: medium
 net/http/accept_encoding: low
@@ -145,6 +148,7 @@ net/http/content_length: medium
 net/http/cookies: medium
 net/http/form_upload: medium
 net/http/oauth2: low
+net/http/oauth2_google: medium
 net/http/post: medium
 net/http/proxy: low
 net/http/request: low

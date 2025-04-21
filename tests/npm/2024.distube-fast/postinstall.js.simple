@@ -5,6 +5,7 @@ c2/tool_transfer/js: critical
 fs/file/delete: low
 fs/tempfile: low
 net/download: medium
+net/http: low
 net/http/request: low
 net/url/embedded: low
 os/env/get: low

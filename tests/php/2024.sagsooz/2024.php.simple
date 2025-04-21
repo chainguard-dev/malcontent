@@ -15,6 +15,7 @@ fs/file/delete: low
 fs/permission/modify: medium
 impact/remote_access/php: critical
 impact/remote_access/reverse_shell: high
+net/http: low
 net/http/form_upload: medium
 net/http/post: medium
 net/url/embedded: low

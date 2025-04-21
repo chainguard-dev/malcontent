@@ -1,4 +1,5 @@
 # does-nothing/does-nothing: medium
+anti-behavior/random_behavior: low
 crypto/rc4: low
 data/encoding/base64: low
 data/encoding/json: low

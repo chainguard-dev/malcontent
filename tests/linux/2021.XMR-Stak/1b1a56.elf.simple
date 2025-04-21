@@ -2,6 +2,7 @@
 3P/TTC-CERT/kittipongk_cryptominer_xmr: high
 3P/elastic/cryptominer_stak: critical
 3P/sekoia/miner_lin_xmrig: critical
+anti-behavior/random_behavior: low
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/addr/url: low
@@ -73,6 +74,7 @@ impact/remote_access/net_term: high
 lateral/scan/tool: medium
 net/dns/reverse: medium
 net/dns/servers: low
+net/http: low
 net/http/accept: low
 net/http/auth: low
 net/http/cookies: medium

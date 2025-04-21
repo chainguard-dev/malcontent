@@ -21,6 +21,7 @@ fs/proc/arbitrary_pid: medium
 fs/proc/pid_cmdline: high
 fs/proc/pid_maps: medium
 impact/degrade/sshd: low
+net/http: low
 net/tcp/ssh: medium
 net/url/embedded: low
 os/fd/read: low

@@ -1,4 +1,5 @@
 # macOS/2024.cobaltstrike/EDnFsVAEbP: high
+anti-behavior/random_behavior: low
 anti-static/macho/footer: high
 c2/addr/ip: medium
 credential/password: low
@@ -35,6 +36,7 @@ fs/tempdir/TEMP: low
 impact/remote_access/heartbeat: medium
 lateral/scan/tool: medium
 malware/framework/cobalt_strike: high
+net/http: low
 net/http/post: medium
 net/http/request: low
 net/ip/addr: medium
