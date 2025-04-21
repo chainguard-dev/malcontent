@@ -1,4 +1,5 @@
 # python/clean/airflow/botocore_config.py: medium
+c2/addr/url: medium
 exec/imports/python: low
 impact/remote_access/agent: medium
 net/http: low

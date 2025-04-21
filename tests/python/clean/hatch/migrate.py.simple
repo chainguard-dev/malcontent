@@ -1,4 +1,5 @@
 # python/clean/hatch/migrate.py: medium
+c2/addr/url: medium
 discover/system/environment: medium
 exec/imports/python: low
 exec/program: medium

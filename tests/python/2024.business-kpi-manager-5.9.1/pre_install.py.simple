@@ -1,4 +1,5 @@
 # python/2024.business-kpi-manager-5.9.1/pre_install.py: critical
+c2/addr/url: medium
 discover/user/name_get: medium
 exec/imports/python: low
 exec/program: medium

@@ -1,4 +1,5 @@
 # ruby/2024.reverse_shells/shell.rb: high
+c2/addr/url: medium
 exec/cmd/pipe: medium
 fs/path/usr_bin: low
 impact/remote_access/listen_shell: high

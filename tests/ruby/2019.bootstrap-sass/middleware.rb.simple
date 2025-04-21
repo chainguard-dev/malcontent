@@ -1,5 +1,6 @@
 # ruby/2019.bootstrap-sass/middleware.rb: high
 anti-static/base64/eval: high
+c2/addr/url: medium
 data/base64/decode: medium
 exec/remote_commands/code_eval: medium
 net/http: low

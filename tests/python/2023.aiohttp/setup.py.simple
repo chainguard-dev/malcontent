@@ -3,6 +3,7 @@ anti-behavior/random_behavior: critical
 anti-static/obfuscation/bitwise: high
 anti-static/obfuscation/python: high
 anti-static/obfuscation/python_setuptools: medium
+c2/addr/url: medium
 discover/system/platform: medium
 exec/conditional/is_admin: medium
 exec/dylib/windll: medium

@@ -2,6 +2,7 @@
 anti-static/obfuscation/bitwise: medium
 anti-static/obfuscation/hex: medium
 anti-static/obfuscation/js: medium
+c2/addr/url: medium
 c2/tool_transfer/os: low
 crypto/encrypt: medium
 data/compression/zlib: low

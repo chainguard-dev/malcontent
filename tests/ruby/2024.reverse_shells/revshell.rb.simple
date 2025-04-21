@@ -1,5 +1,6 @@
 # ruby/2024.reverse_shells/revshell.rb: high
 c2/addr/ip: medium
+c2/addr/url: medium
 exec/cmd/pipe: medium
 fs/path/usr_bin: low
 impact/remote_access/reverse_shell: high

@@ -1,4 +1,5 @@
 # linux/2024.kworker_pretenders/aclocal.m4: high
+c2/addr/url: medium
 c2/connect/curl_easy: medium
 discover/user/HOME: low
 exec/shell/command: medium
