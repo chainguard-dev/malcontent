@@ -9,15 +9,25 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"sync"
 
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/pool"
 	"golang.org/x/sync/errgroup"
+)
+
+var (
+	initZipPool sync.Once
 )
 
 // ExtractZip extracts .jar and .zip archives.
 func ExtractZip(ctx context.Context, d string, f string) error {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting zip")
+
+	initZipPool.Do(func() {
+		zipPool = pool.NewBufferPool()
+	})
 
 	fi, err := os.Stat(f)
 	if err != nil {
