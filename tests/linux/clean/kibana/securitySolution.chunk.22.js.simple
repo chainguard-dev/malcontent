@@ -1,4 +1,5 @@
 # linux/clean/kibana/securitySolution.chunk.22.js: medium
+anti-behavior/random_behavior: low
 c2/addr/url: low
 c2/discovery/dyndns: medium
 c2/tool_transfer/arch: low
@@ -36,6 +37,7 @@ lateral/scan/brute_force: low
 malware/ref: medium
 net/dns/txt: low
 net/download: medium
+net/http: low
 net/tcp/sftp: medium
 net/url/embedded: medium
 net/url/parse: low

@@ -1,6 +1,7 @@
 # linux/clean/slirp4netns: medium
 anti-behavior/LD_DEBUG: medium
 anti-behavior/LD_PROFILE: medium
+anti-behavior/random_behavior: low
 anti-static/elf/multiple: medium
 c2/addr/ip: medium
 c2/addr/url: low
@@ -79,6 +80,7 @@ net/dns/reverse: medium
 net/dns/servers: low
 net/dns/txt: low
 net/download: medium
+net/http: low
 net/ip/addr: medium
 net/ip/host_port: medium
 net/ip/icmp: low

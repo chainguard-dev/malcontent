@@ -1,9 +1,11 @@
 # macOS/2024.Poseidon/co.novemberfive.xib2storyboard: high
-c2/addr/url: medium
+anti-behavior/random_behavior: low
+c2/addr/url: low
 c2/tool_transfer/os: low
 exec/shell/exec: medium
 fs/file/open: low
 impact/ui/dock_hide: high
 malware/family/poseidon_stealer: high
+net/http: low
 net/url/parse: low
 net/url/request: medium

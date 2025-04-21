@@ -16,6 +16,7 @@ fs/file/exists: low
 fs/file/open: low
 fs/file/read: low
 impact/remote_access/py_setuptools: critical
+net/http: low
 net/url/embedded: low
 os/fd/read: low
 sus/malicious: medium

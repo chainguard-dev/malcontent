@@ -6,4 +6,5 @@ c2/addr/url: medium
 c2/tool_transfer/os: low
 crypto/encrypt: medium
 data/compression/zlib: low
+net/http: low
 net/url/embedded: medium

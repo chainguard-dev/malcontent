@@ -3,6 +3,7 @@ c2/addr/url: medium
 credential/shell/bash_history: medium
 fs/path/etc: low
 fs/path/var: low
+net/http: low
 net/url/embedded: low
 persist/shell/bash: medium
 persist/shell/init_files: low

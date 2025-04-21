@@ -2,6 +2,7 @@
 anti-static/obfuscation/python: medium
 c2/addr/url: medium
 exec/imports/python: low
+net/http: low
 net/http/auth: low
 net/url/embedded: low
 net/url/request: medium

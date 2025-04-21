@@ -7,5 +7,6 @@ fs/directory/create: low
 fs/file/copy: medium
 fs/permission/modify: medium
 net/download/fetch: medium
+net/http: low
 net/url/embedded: low
 process/chdir: low

@@ -1,4 +1,5 @@
 # python/clean/numba/support.py: medium
+anti-behavior/random_behavior: low
 anti-static/obfuscation/python: low
 c2/addr/url: medium
 c2/tool_transfer/arch: low
@@ -17,6 +18,7 @@ fs/tempdir: low
 fs/tempdir/TEMP: low
 fs/tempdir/create: low
 fs/tempfile: low
+net/http: low
 net/url/embedded: low
 os/env/get: low
 os/fd/read: low

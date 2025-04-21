@@ -7,6 +7,7 @@ discover/network/interface_list: medium
 discover/system/hostname: low
 discover/system/platform: medium
 discover/user/USER: low
+net/http: low
 net/http/request: low
 net/ip/addr: medium
 net/url/embedded: low

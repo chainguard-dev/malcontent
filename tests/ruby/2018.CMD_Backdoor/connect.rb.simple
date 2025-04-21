@@ -5,5 +5,6 @@ discover/system/platform: medium
 exec/shell/command: medium
 fs/path/usr_bin: low
 impact/remote_access/backdoor: high
+net/http: low
 net/http/request: low
 net/url/embedded: medium

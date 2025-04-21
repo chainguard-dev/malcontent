@@ -1,4 +1,5 @@
 # linux/clean/bazel: medium
+anti-behavior/random_behavior: low
 anti-static/elf/entropy: medium
 anti-static/obfuscation/obfuscate: low
 anti-static/xor/functions: medium
@@ -59,6 +60,7 @@ lateral/scan/tool: medium
 net/dns/servers: low
 net/dns/txt: low
 net/download: medium
+net/http: low
 net/http/2: low
 net/http/auth: low
 net/http/post: medium

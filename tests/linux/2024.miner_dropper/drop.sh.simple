@@ -12,6 +12,7 @@ fs/path/usr_local: medium
 fs/path/var: low
 fs/permission/modify: high
 net/download/fetch: critical
+net/http: low
 net/url/embedded: low
 process/chdir: low
 process/executable_path: low

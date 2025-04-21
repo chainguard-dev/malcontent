@@ -1,5 +1,5 @@
 # php/clean/run-tests.php: medium
-c2/addr/url: medium
+anti-behavior/random_behavior: low
 c2/tool_transfer/os: low
 data/base64/decode: medium
 data/base64/encode: medium
@@ -23,6 +23,7 @@ fs/symlink_resolve: low
 fs/tempdir: low
 fs/tempdir/TEMP: low
 impact/remote_access/reverse_shell: medium
+net/http: low
 net/http/cookies: medium
 net/http/form_upload: medium
 net/http/post: medium

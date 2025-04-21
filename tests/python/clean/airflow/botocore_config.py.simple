@@ -2,6 +2,7 @@
 c2/addr/url: medium
 exec/imports/python: low
 impact/remote_access/agent: medium
+net/http: low
 net/http/request: low
 net/ip/host_port: medium
 net/socket/connect: medium

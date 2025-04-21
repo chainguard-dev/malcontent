@@ -4,4 +4,5 @@ exfil/curl_post: medium
 exfil/stealer/archive: high
 fs/path/tmp: medium
 net/download/fetch: medium
+net/http: low
 net/http/post: medium

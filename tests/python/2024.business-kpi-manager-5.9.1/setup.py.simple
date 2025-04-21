@@ -3,4 +3,5 @@ c2/addr/url: medium
 exec/imports/python: low
 impact/remote_access/py_setuptools: high
 net/download: medium
+net/http: low
 net/url/embedded: low

@@ -11,5 +11,6 @@ fs/file/delete: medium
 fs/file/rename: medium
 fs/file/write: low
 net/download/fetch: critical
+net/http: low
 net/url/embedded: medium
 process/create: medium

@@ -14,5 +14,6 @@ fs/path/root: medium
 fs/path/tmp: medium
 fs/permission/modify: medium
 net/download/fetch: medium
+net/http: low
 net/url/embedded: low
 process/chdir: low

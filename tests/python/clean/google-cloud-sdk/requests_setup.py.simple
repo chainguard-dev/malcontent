@@ -7,6 +7,7 @@ exec/shell/command: medium
 fs/file/open: low
 fs/path/usr_bin: low
 impact/remote_access/py_setuptools: medium
+net/http: low
 net/url/embedded: low
 net/url/parse: low
 os/fd/read: low

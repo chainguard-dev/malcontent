@@ -10,6 +10,7 @@ exec/program: medium
 fs/directory/create: low
 fs/file/exists: low
 fs/file/open: low
+net/http: low
 net/url/embedded: low
 net/url/parse: low
 net/url/request: medium
