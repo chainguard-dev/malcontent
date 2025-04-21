@@ -144,14 +144,14 @@ func relFileReport(ctx context.Context, c malcontent.Config, fromPath string, is
 				return true
 			}
 
-			rel, base, err := relPath(fromPath, fr, isArchive, isImage)
+			rel, b, err := relPath(fromPath, fr, isArchive, isImage)
 			if err != nil {
 				rangeErr = err
 				return false
 			}
 
 			fromRelPath[rel] = fr
-			base = base
+			base = b
 		}
 		return true
 	})
@@ -191,7 +191,7 @@ func scoreFile(fr, tr *malcontent.FileReport) bool {
 	return false
 }
 
-func Diff(ctx context.Context, c malcontent.Config, logger *clog.Logger) (*malcontent.Report, error) {
+func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent.Report, error) {
 	if len(c.ScanPaths) != 2 {
 		return nil, fmt.Errorf("diff mode requires 2 paths, you passed in %d path(s)", len(c.ScanPaths))
 	}
@@ -371,7 +371,7 @@ func handleDir(ctx context.Context, c malcontent.Config, src, dest ScanResult, d
 	}
 }
 
-func handleFile(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileReport, relPath string, d *malcontent.DiffReport, src, dest ScanResult, isImage bool) {
+func handleFile(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileReport, relPath string, d *malcontent.DiffReport, _, dest ScanResult, isImage bool) {
 	// We've now established that file exists in both source & destination
 	if fr.RiskScore < c.MinFileRisk && tr.RiskScore < c.MinFileRisk {
 		clog.FromContext(ctx).Info("diff does not meet min trigger level", slog.Any("path", tr.Path))
@@ -466,7 +466,7 @@ func inferMoves(ctx context.Context, c malcontent.Config, d *malcontent.DiffRepo
 	}
 }
 
-func fileMove(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileReport, rpath, apath string, d *malcontent.DiffReport, score float64, src, dest ScanResult, isImage bool) {
+func fileMove(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileReport, rpath, apath string, d *malcontent.DiffReport, score float64, _, dest ScanResult, isImage bool) {
 	minRisk := int(math.Min(float64(c.MinRisk), float64(c.MinFileRisk)))
 	if fr.RiskScore < minRisk && tr.RiskScore < minRisk {
 		clog.FromContext(ctx).Info("diff does not meet min trigger level", slog.Any("path", tr.Path))
