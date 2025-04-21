@@ -16,9 +16,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-var (
-	initZipPool sync.Once
-)
+var initZipPool sync.Once
 
 // ExtractZip extracts .jar and .zip archives.
 func ExtractZip(ctx context.Context, d string, f string) error {

@@ -19,9 +19,7 @@ import (
 	"github.com/ulikunitz/xz"
 )
 
-var (
-	initTarPool sync.Once
-)
+var initTarPool sync.Once
 
 // extractTar extracts .apk and .tar* archives.
 func ExtractTar(ctx context.Context, d string, f string) error {
