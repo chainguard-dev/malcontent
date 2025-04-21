@@ -21,7 +21,7 @@ rule exotic_tld: high {
     description = "Contains HTTP hostname with unusual top-level domain"
 
   strings:
-    $http_exotic_tld = /https*:\/\/[\w\-\.]{1,128}\.(vip|red|cc|wtf|top|pw|ke|space|zw|bd|ke|am|sbs|date|pw|quest|cd|bid|xyz|cm|xxx|casino|online|poker|ua)\//
+    $http_exotic_tld = /https*:\/\/[\w\-\.]{1,128}\.(vip|red|cc|wtf|top|pw|ke|space|zw|bd|ke|am|sbs|date|pw|quest|cd|bid|xyz|cm|xxx|casino|online|poker|ua|icu)\//
     $not_electron    = "ELECTRON_RUN_AS_NODE"
     $not_nips        = "nips.cc"
     $not_gov_bd      = ".gov.bd"
@@ -38,7 +38,7 @@ rule post_exotic_tld: high {
     description = "uploads content to hostname with unusual top-level domain"
 
   strings:
-    $http_exotic_tld = /https*:\/\/[\w\-\.]{1,128}\.(vip|red|cc|wtf|top|pw|ke|space|zw|bd|ke|am|sbs|date|pw|quest|cd|bid|xyz|cm|xxx|casino|online|poker|ua)\//
+    $http_exotic_tld = /https*:\/\/[\w\-\.]{1,128}\.(vip|red|cc|wtf|top|pw|ke|space|zw|bd|ke|am|sbs|date|pw|quest|cd|bid|xyz|cm|xxx|casino|online|poker|ua|icu)\//
     $post            = /(post|POST)/ fullword
     $not_electron    = "ELECTRON_RUN_AS_NODE"
     $not_nips        = "nips.cc"
@@ -64,14 +64,17 @@ rule http_url_with_question: medium {
     $f_requests_post     = "requests.post" fullword
     $f_urllib            = "urllib.request" fullword
     $f_urlopen           = "urlopen" fullword
-    $ref                 = /https*:\/\/[\w\.\/]{8,160}\.[a-zA-Z]{2,3}\?[\w\=\&]{0,32}/
+    $f_fetch             = ".fetch("
+    $f_get               = ".get("
+    $ref                 = /https*:\/\/[\w\.\/]{8,160}\.[a-zA-Z]{2,3}[\w\/]{0,32}\?[\w\=\&]{0,32}/
     $not_cvs_sourceforge = /cvs.sourceforge.net.{0,64}\?rev=/
     $not_rev_head        = "?rev=HEAD"
     $not_cgi             = ".cgi?"
     $not_doku            = "/doku.php?"
 
   condition:
-    filesize < 256KB and any of ($f*) and $ref and none of ($not*)
+    filesize < 256KB and any of them
+  // ($f*) and $ref and none of ($not*)
 }
 
 rule binary_with_url: low {

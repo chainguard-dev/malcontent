@@ -1,5 +1,6 @@
 # javascript/clean/scripts.c88fecd373e21509.js: medium
 anti-static/obfuscation/js: medium
+c2/addr/url: medium
 data/compression/bzip2: low
 data/compression/gzip: low
 data/encoding/json_decode: low

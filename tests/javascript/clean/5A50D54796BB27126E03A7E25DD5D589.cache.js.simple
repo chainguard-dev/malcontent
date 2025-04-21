@@ -52,6 +52,7 @@ exec/tty/pathname: medium
 fs/directory/create: low
 fs/directory/remove: low
 fs/fifo_create: low
+fs/file/append: low
 fs/file/create: medium
 fs/file/delete: low
 fs/file/delete_forcibly: low

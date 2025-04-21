@@ -1,4 +1,5 @@
 # python/clean/conda-build/_load_setup_py_data.py: medium
+c2/addr/url: medium
 exec/imports/python: low
 exec/remote_commands/code_eval: medium
 fs/file/exists: low

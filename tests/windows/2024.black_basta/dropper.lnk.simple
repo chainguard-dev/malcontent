@@ -1,3 +1,4 @@
-# windows/2024.black_basta/dropper.lnk: low
+# windows/2024.black_basta/dropper.lnk: medium
+c2/addr/url: medium
 discover/user/APPDATA: low
 process/chdir: low

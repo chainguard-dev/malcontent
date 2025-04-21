@@ -2,6 +2,7 @@
 3P/elastic/mirai: critical
 anti-static/base64/exec: critical
 anti-static/elf/content: high
+c2/addr/url: medium
 credential/ssh/d: medium
 crypto/rc4: low
 data/base64/external: medium

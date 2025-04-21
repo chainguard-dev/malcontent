@@ -1,5 +1,6 @@
 # python/clean/versioneer/versioneer.py: medium
 anti-static/base64/eval: medium
+c2/addr/url: medium
 data/base64/decode: medium
 data/embedded/base64_terms: medium
 data/embedded/base64_url: medium

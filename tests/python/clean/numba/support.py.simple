@@ -1,5 +1,6 @@
 # python/clean/numba/support.py: medium
 anti-static/obfuscation/python: low
+c2/addr/url: medium
 c2/tool_transfer/arch: low
 c2/tool_transfer/os: medium
 data/encoding/yaml: medium

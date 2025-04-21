@@ -1,4 +1,5 @@
 # python/clean/pydevd/setup_pydevd_cython.py: medium
+c2/addr/url: medium
 discover/system/platform: medium
 exec/imports/python: low
 exec/remote_commands/code_eval: medium

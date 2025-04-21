@@ -1,4 +1,5 @@
 # javascript/clean/prism-bash.js: medium
+c2/addr/url: medium
 data/compression/bzip2: low
 data/compression/gzip: low
 discover/multiple: medium

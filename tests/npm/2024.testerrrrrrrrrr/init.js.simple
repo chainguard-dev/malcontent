@@ -3,6 +3,7 @@ anti-static/obfuscation/hex: medium
 anti-static/obfuscation/js: critical
 anti-static/obfuscation/python: critical
 c2/addr/server: medium
+c2/addr/url: medium
 discover/network/interface_list: medium
 exec/shell/exec: medium
 exfil/nodejs: critical

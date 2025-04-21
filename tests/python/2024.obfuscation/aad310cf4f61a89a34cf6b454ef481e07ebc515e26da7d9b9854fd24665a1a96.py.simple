@@ -1,4 +1,5 @@
 # python/2024.obfuscation/aad310cf4f61a89a34cf6b454ef481e07ebc515e26da7d9b9854fd24665a1a96.py: critical
+c2/addr/url: medium
 collect/archives/zip: medium
 crypto/aes: high
 crypto/cipher: medium

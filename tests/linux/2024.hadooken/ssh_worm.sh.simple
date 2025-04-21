@@ -2,6 +2,7 @@
 anti-static/base64/exec: critical
 anti-static/base64/function_names: critical
 c2/addr/ip: high
+c2/addr/url: medium
 c2/tool_transfer/shell: medium
 credential/shell/bash_history: high
 credential/ssh: high

@@ -1,4 +1,5 @@
 # ruby/2024.gtfo/download.rb: medium
+c2/addr/url: medium
 fs/file/open: low
 net/download: medium
 net/http/request: low

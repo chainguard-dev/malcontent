@@ -1,4 +1,5 @@
 # c/clean/falco/string_visitor.ut.cpp: medium
+c2/addr/url: medium
 credential/shell/bash_history: medium
 fs/path/etc: low
 fs/path/var: low

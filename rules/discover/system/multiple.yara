@@ -37,3 +37,54 @@ rule hostinfo_collector_api: high macos {
   condition:
     60 % of them
 }
+
+private rule iplookup_website: high {
+  meta:
+    description = "public service to discover external IP address"
+
+  strings:
+    $ipify       = /ipify\.org{0,1}/
+    $wtfismyip   = "wtfismyip"
+    $iplogger    = "iplogger.org"
+    $getjsonip   = "getjsonip"
+    $ipconfig_me = "ifconfig.me"
+    $icanhazip   = "icanhazip"
+    $grabify     = "grabify.link"
+    $ident_me    = "ident.me" fullword
+    $showip_net  = "showip.net" fullword
+    $ifconfig_io = "ifconfig.io" fullword
+    $ifconfig_co = "ifconfig.co" fullword
+    $ipinfo      = "ipinfo.io"
+    $check_ip    = "checkip.amazonaws.com"
+
+    $not_pypi_index = "testpack-id-lb001"
+
+  condition:
+    filesize < 250MB and any of them and none of ($not*)
+}
+
+rule hostinfo_collector_npm: critical {
+  meta:
+    description = "collects an unusual amount of host information"
+
+  strings:
+    $f_userInfo = "os.userInfo()"
+    $f_homedir  = "os.homedir()"
+
+    $a_ipify       = /ipify\.org{0,1}/
+    $a_wtfismyip   = "wtfismyip"
+    $a_iplogger    = "iplogger.org"
+    $a_getjsonip   = "getjsonip"
+    $a_ipconfig_me = "ifconfig.me"
+    $a_icanhazip   = "icanhazip"
+    $a_grabify     = "grabify.link"
+    $a_ident_me    = "ident.me" fullword
+    $a_showip_net  = "showip.net" fullword
+    $a_ifconfig_io = "ifconfig.io" fullword
+    $a_ifconfig_co = "ifconfig.co" fullword
+    $a_ipinfo      = "ipinfo.io"
+    $a_check_ip    = "checkip.amazonaws.com"
+
+  condition:
+    filesize < 512KB and 2 of ($f*) and any of ($a*)
+}

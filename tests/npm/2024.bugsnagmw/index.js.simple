@@ -2,5 +2,6 @@
 anti-static/obfuscation/hex: medium
 anti-static/obfuscation/js: critical
 anti-static/obfuscation/python: critical
+c2/addr/url: medium
 discover/ip/public: high
 net/http/request: low

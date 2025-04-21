@@ -1,4 +1,5 @@
 # python/clean/google-cloud-sdk/mysql.py: medium
+c2/addr/url: medium
 collect/databases/mysql: medium
 credential/password: low
 exec/imports/python: low

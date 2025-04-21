@@ -10,6 +10,19 @@ rule bot: medium {
     filesize < 1MB and any of them
 }
 
+rule bot_id: medium {
+  meta:
+    description = "References a 'bot_id'"
+
+  strings:
+    $BOT_ID = "BOT_ID"
+    $bot_id = "bot_id"
+    $BotId  = "BotId"
+
+  condition:
+    filesize < 1MB and any of them
+}
+
 rule botnet_high: high {
   meta:
     description = "References a 'botnet'"

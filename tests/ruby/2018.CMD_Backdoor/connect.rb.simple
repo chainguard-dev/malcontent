@@ -1,4 +1,5 @@
 # ruby/2018.CMD_Backdoor/connect.rb: high
+c2/addr/url: medium
 discover/process/working_directory: low
 discover/system/platform: medium
 exec/shell/command: medium

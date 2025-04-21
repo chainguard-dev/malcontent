@@ -2,6 +2,7 @@
 3P/volexity/py_upstyle: critical
 anti-static/base64/eval: high
 anti-static/base64/function_names: critical
+c2/addr/url: medium
 data/base64/decode: medium
 data/encoding/base64: low
 exec/imports/python: low

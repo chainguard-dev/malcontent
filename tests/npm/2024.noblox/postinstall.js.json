@@ -2042,6 +2042,17 @@
                     "RuleName": "js_hex_obfuscation"
                 },
                 {
+                    "Description": "contains hardcoded endpoint with a question mark",
+                    "MatchStrings": [
+                        "require"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/url.yara#http_url_with_question",
+                    "ID": "c2/addr/url",
+                    "RuleName": "http_url_with_question"
+                },
+                {
                     "Description": "creates directories",
                     "MatchStrings": [
                         "mkdir"

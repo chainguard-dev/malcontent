@@ -1,4 +1,5 @@
 # macOS/2024.AMOS/example.scpt: high
+c2/addr/url: medium
 exfil/curl_post: medium
 exfil/stealer/archive: high
 fs/path/tmp: medium

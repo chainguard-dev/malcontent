@@ -1,5 +1,5 @@
 # macOS/2024.Poseidon/co.novemberfive.xib2storyboard: high
-c2/addr/url: low
+c2/addr/url: medium
 c2/tool_transfer/os: low
 exec/shell/exec: medium
 fs/file/open: low
