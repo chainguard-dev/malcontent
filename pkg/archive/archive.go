@@ -11,30 +11,105 @@ import (
 	"sync"
 
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/pool"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 )
 
 const (
-	// 32KB buffer.
-	bufferSize = 32 * 1024
-	// 512MB file limit.
-	maxBytes = 1 << 29
+	// 1024MB file limit.
+	maxBytes = 1 << 30
 )
 
-// Shared buffer pool for io.CopyBuffer operations.
-var bufferPool = sync.Pool{
-	New: func() any {
-		b := make([]byte, bufferSize)
-		return &b
-	},
-}
+var (
+	archivePool, tarPool, zipPool *pool.BufferPool
+	initializeOnce                sync.Once
+)
 
 // isValidPath checks if the target file is within the given directory.
 func IsValidPath(target, dir string) bool {
 	return strings.HasPrefix(filepath.Clean(target), filepath.Clean(dir))
 }
 
-// ExtractArchiveToTempDir creates a temporary directory and extracts the archive file for scanning.
+func extractNestedArchive(ctx context.Context, d string, f string, extracted *sync.Map) error {
+	fullPath := filepath.Join(d, f)
+
+	fi, err := os.Stat(fullPath)
+	if os.IsNotExist(err) {
+		return nil
+	}
+	if err != nil {
+		return fmt.Errorf("failed to stat file: %w", err)
+	}
+
+	if fi.IsDir() {
+		return nil
+	}
+
+	if _, isExtracted := extracted.Load(f); isExtracted {
+		return nil
+	}
+
+	isArchive := false
+	ft, err := programkind.File(fullPath)
+	if err != nil {
+		return fmt.Errorf("failed to determine file type: %w", err)
+	}
+
+	switch {
+	case ft != nil && ft.MIME == "application/x-upx":
+		isArchive = true
+	case ft != nil && ft.MIME == "application/zlib":
+		isArchive = true
+	case programkind.ArchiveMap[programkind.GetExt(f)]:
+		isArchive = true
+	}
+
+	if !isArchive {
+		return nil
+	}
+
+	var extract func(context.Context, string, string) error
+	switch {
+	case ft != nil && ft.MIME == "application/x-upx":
+		extract = ExtractUPX
+	case ft != nil && ft.MIME == "application/zlib":
+		extract = ExtractZlib
+	default:
+		extract = ExtractionMethod(programkind.GetExt(fullPath))
+	}
+
+	if extract == nil {
+		return nil
+	}
+
+	err = extract(ctx, d, fullPath)
+	if err != nil {
+		return fmt.Errorf("failed to extract archive: %w", err)
+	}
+
+	extracted.Store(f, true)
+
+	if err := os.Remove(fullPath); err != nil {
+		return fmt.Errorf("failed to remove archive file: %w", err)
+	}
+
+	files, err := os.ReadDir(d)
+	if err != nil {
+		return fmt.Errorf("failed to read directory after extraction: %w", err)
+	}
+
+	for _, file := range files {
+		rel := file.Name()
+		if _, alreadyProcessed := extracted.Load(rel); !alreadyProcessed {
+			if err := extractNestedArchive(ctx, d, rel, extracted); err != nil {
+				return fmt.Errorf("process nested file %s: %w", rel, err)
+			}
+		}
+	}
+	return nil
+}
+
+// extractArchiveToTempDir creates a temporary directory and extracts the archive file for scanning.
 func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 	logger := clog.FromContext(ctx).With("path", path)
 	logger.Debug("creating temp dir")
@@ -44,8 +119,13 @@ func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 		return "", fmt.Errorf("failed to create temp dir: %w", err)
 	}
 
+	initializeOnce.Do(func() {
+		archivePool = pool.NewBufferPool()
+	})
+
 	var extract func(context.Context, string, string) error
-	ft, err := programkind.GetCachedFileType(path)
+	// Check for zlib-compressed files first and use the zlib-specific function
+	ft, err := programkind.File(path)
 	if err != nil {
 		return "", fmt.Errorf("failed to determine file type: %w", err)
 	}
@@ -62,92 +142,69 @@ func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 	if extract == nil {
 		return "", fmt.Errorf("unsupported archive type: %s", path)
 	}
-
 	err = extract(ctx, tmpDir, path)
 	if err != nil {
-		os.RemoveAll(tmpDir)
 		return "", fmt.Errorf("failed to extract %s: %w", path, err)
 	}
 
 	var extractedFiles sync.Map
+	files, err := os.ReadDir(tmpDir)
+	if err != nil {
+		return "", fmt.Errorf("failed to read files in directory %s: %w", tmpDir, err)
+	}
+	for _, file := range files {
+		extractedFiles.Store(filepath.Join(tmpDir, file.Name()), false)
+	}
 
-	var processDir func(string) error
-	processDir = func(dir string) error {
-		files, err := os.ReadDir(dir)
-		if err != nil {
-			return fmt.Errorf("failed to read directory %s: %w", dir, err)
+	extractedFiles.Range(func(key, _ any) bool {
+		if key == nil {
+			return true
 		}
-
-		for _, file := range files {
-			fullPath := filepath.Join(dir, file.Name())
-
-			if file.IsDir() {
-				if err := processDir(fullPath); err != nil {
-					logger.Warn("error processing subdirectory", "path", fullPath, "error", err)
-				}
-				continue
-			}
-
-			if _, processed := extractedFiles.Load(fullPath); processed {
-				continue
-			}
-
-			// Handle extracted UPX files separately; we keep the original around to show that UPX was used
-			if strings.HasSuffix(file.Name(), ".~") || strings.HasSuffix(file.Name(), ".000") {
-				extractedFiles.Store(fullPath, true)
-				continue
-			}
-
-			extractedFiles.Store(fullPath, true)
-
-			ft, err := programkind.GetCachedFileType(fullPath)
+		//nolint: nestif // ignoring complexity of 11
+		if file, ok := key.(string); ok {
+			ext := programkind.GetExt(file)
+			info, err := os.Stat(file)
 			if err != nil {
-				logger.Warn("error determining file type", "path", fullPath, "error", err)
-				continue
+				return false
 			}
+			switch mode := info.Mode(); {
+			case mode.IsDir():
+				err = filepath.WalkDir(file, func(path string, d os.DirEntry, err error) error {
+					if err != nil {
+						return err
+					}
+					rel, err := filepath.Rel(tmpDir, path)
+					if err != nil {
+						return fmt.Errorf("filepath.Rel: %w", err)
+					}
+					if !d.IsDir() {
+						if err := extractNestedArchive(ctx, tmpDir, rel, &extractedFiles); err != nil {
+							return fmt.Errorf("failed to extract nested archive %s: %w", rel, err)
+						}
+					}
 
-			isArchive := false
-			var extract func(context.Context, string, string) error
-
-			switch {
-			case ft != nil && ft.MIME == "application/x-upx":
-				isArchive = true
-				extract = ExtractUPX
-			case ft != nil && ft.MIME == "application/zlib":
-				isArchive = true
-				extract = ExtractZlib
-			case programkind.ArchiveMap[programkind.GetExt(file.Name())]:
-				isArchive = true
-				extract = ExtractionMethod(programkind.GetExt(file.Name()))
-			}
-
-			if isArchive && extract != nil {
-				if err := os.MkdirAll(dir, 0755); err != nil {
-					logger.Warn("failed to create extraction directory", "path", dir, "error", err)
-					continue
+					return nil
+				})
+				if err != nil {
+					return false
 				}
-
-				if err := extract(ctx, dir, fullPath); err != nil {
-					logger.Warn("failed to extract archive", "path", fullPath, "error", err)
-					os.RemoveAll(dir)
-					continue
+				return true
+			case mode.IsRegular():
+				if _, ok := programkind.ArchiveMap[ext]; ok {
+					rel, err := filepath.Rel(tmpDir, file)
+					if err != nil {
+						return false
+					}
+					if err := extractNestedArchive(ctx, tmpDir, rel, &extractedFiles); err != nil {
+						return false
+					}
 				}
-
-				if err := os.Remove(fullPath); err != nil {
-					logger.Warn("failed to remove archive after extraction", "path", fullPath, "error", err)
-				}
-
-				if err := processDir(dir); err != nil {
-					logger.Warn("error processing extracted directory", "path", dir, "error", err)
-				}
+				return true
 			}
 		}
-		return nil
-	}
+		return true
+	})
 
-	if err := processDir(tmpDir); err != nil {
-		logger.Warn("error during recursive extraction", "error", err)
-	}
 	return tmpDir, nil
 }
 
@@ -184,12 +241,9 @@ func handleDirectory(target string) error {
 }
 
 // handleFile extracts valid files within .deb or .tar archives.
-func handleFile(target string, tr *tar.Reader) error {
-	buf, ok := bufferPool.Get().(*[]byte)
-	if !ok {
-		return fmt.Errorf("failed to retrieve buffer")
-	}
-	defer bufferPool.Put(buf)
+func handleFile(target string, tr *tar.Reader, size int64) error {
+	buf := tarPool.Get(size)
+	defer tarPool.Put(buf)
 
 	if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
 		return fmt.Errorf("failed to create parent directory: %w", err)
@@ -201,7 +255,7 @@ func handleFile(target string, tr *tar.Reader) error {
 	}
 	defer out.Close()
 
-	written, err := io.CopyBuffer(out, io.LimitReader(tr, maxBytes), *buf)
+	written, err := io.CopyBuffer(out, io.LimitReader(tr, maxBytes), buf)
 	if err != nil {
 		return fmt.Errorf("failed to copy file: %w", err)
 	}

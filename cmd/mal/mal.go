@@ -213,13 +213,13 @@ func main() {
 				}
 			}
 
-			// when diffing images, make sure the last two args are captured (the image URIs)
+			// when diffing, make sure the last two args are captured (packages or image URIs)
 			// when running refreshes, no flags will be passed
 			// when scanning, increment the slice index by one to account for flags by default
 			args := c.Args().Slice()
 			var scanPaths []string
 			switch {
-			case slices.Contains(args, "diff") && slices.Contains(args, "--image"):
+			case slices.Contains(args, "diff"):
 				scanPaths = args[len(args)-2:]
 			case slices.Contains(args, "refresh"):
 				scanPaths = args[1:]

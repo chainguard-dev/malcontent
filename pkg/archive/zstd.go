@@ -17,19 +17,13 @@ func ExtractZstd(ctx context.Context, d string, f string) error {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting zstd")
 
-	buf, ok := bufferPool.Get().(*[]byte)
-	if !ok {
-		return fmt.Errorf("failed to retrieve buffer for zstd")
-	}
-	defer bufferPool.Put(buf)
-
 	fi, err := os.Stat(f)
 	if err != nil {
 		return fmt.Errorf("failed to stat zstd file %s: %w", f, err)
 	}
-	if fi.Size() == 0 {
-		return fmt.Errorf("empty zstd file: %s", f)
-	}
+
+	buf := archivePool.Get(fi.Size())
+	defer archivePool.Put(buf)
 
 	uncompressed := strings.TrimSuffix(filepath.Base(f), ".zstd")
 	uncompressed = strings.TrimSuffix(uncompressed, ".zst")
@@ -61,7 +55,7 @@ func ExtractZstd(ctx context.Context, d string, f string) error {
 	}
 	defer zr.Close()
 
-	written, err := io.CopyBuffer(out, io.LimitReader(zr, maxBytes), *buf)
+	written, err := io.CopyBuffer(out, io.LimitReader(zr, maxBytes), buf)
 	if err != nil {
 		return fmt.Errorf("failed to copy zstd compressed file: %w", err)
 	}

@@ -11,28 +11,34 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/pool"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 	"github.com/ulikunitz/xz"
 )
+
+var initTarPool sync.Once
 
 // extractTar extracts .apk and .tar* archives.
 func ExtractTar(ctx context.Context, d string, f string) error {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting tar")
 
-	buf, ok := bufferPool.Get().(*[]byte)
-	if !ok {
-		return fmt.Errorf("failed to retrieve buffer")
-	}
-	defer bufferPool.Put(buf)
+	// Initialize the tar sync pool here since OCI preparation bypasses the main extraction method
+	initTarPool.Do(func() {
+		tarPool = pool.NewBufferPool()
+	})
 
 	// Check if the file is valid
-	_, err := os.Stat(f)
+	fi, err := os.Stat(f)
 	if err != nil {
 		return fmt.Errorf("failed to stat file: %w", err)
 	}
+
+	buf := tarPool.Get(fi.Size())
+	defer tarPool.Put(buf)
 
 	filename := filepath.Base(f)
 	tf, err := os.Open(f)
@@ -43,7 +49,7 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 
 	isTGZ := strings.Contains(f, ".tar.gz") || strings.Contains(f, ".tgz")
 	var isGzip bool
-	if ft, err := programkind.GetCachedFileType(f); err == nil && ft != nil {
+	if ft, err := programkind.File(f); err == nil && ft != nil {
 		if ft.MIME == "application/gzip" {
 			isGzip = true
 		}
@@ -89,7 +95,7 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 		}
 		defer out.Close()
 
-		written, err := io.CopyBuffer(out, io.LimitReader(xzStream, maxBytes), *buf)
+		written, err := io.CopyBuffer(out, io.LimitReader(xzStream, maxBytes), buf)
 		if err != nil {
 			return fmt.Errorf("failed to write decompressed xz output: %w", err)
 		}
@@ -131,7 +137,7 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 				return fmt.Errorf("failed to extract directory: %w", err)
 			}
 		case tar.TypeReg:
-			if err := handleFile(target, tr); err != nil {
+			if err := handleFile(target, tr, fi.Size()); err != nil {
 				return fmt.Errorf("failed to extract file: %w", err)
 			}
 		case tar.TypeSymlink:

@@ -9,15 +9,23 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"sync"
 
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/pool"
 	"golang.org/x/sync/errgroup"
 )
+
+var initZipPool sync.Once
 
 // ExtractZip extracts .jar and .zip archives.
 func ExtractZip(ctx context.Context, d string, f string) error {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting zip")
+
+	initZipPool.Do(func() {
+		zipPool = pool.NewBufferPool()
+	})
 
 	fi, err := os.Stat(f)
 	if err != nil {
@@ -38,7 +46,7 @@ func ExtractZip(ctx context.Context, d string, f string) error {
 	}
 
 	g, gCtx := errgroup.WithContext(ctx)
-	g.SetLimit(runtime.GOMAXPROCS(0))
+	g.SetLimit(min(runtime.GOMAXPROCS(0), len(read.File)))
 
 	for _, file := range read.File {
 		g.Go(func() error {
@@ -53,11 +61,9 @@ func ExtractZip(ctx context.Context, d string, f string) error {
 }
 
 func extractFile(ctx context.Context, file *zip.File, destDir string, logger *clog.Logger) error {
-	buf, ok := bufferPool.Get().(*[]byte)
-	if !ok {
-		return fmt.Errorf("failed to retrieve buffer")
-	}
-	defer bufferPool.Put(buf)
+	// #nosec G115 // ignore Type conversion which leads to integer overflow
+	buf := zipPool.Get(int64(file.UncompressedSize64))
+	defer zipPool.Put(buf)
 
 	clean := filepath.Clean(filepath.ToSlash(file.Name))
 	if strings.Contains(clean, "..") {
@@ -103,7 +109,7 @@ func extractFile(ctx context.Context, file *zip.File, destDir string, logger *cl
 		}
 	}()
 
-	written, err := io.CopyBuffer(dst, io.LimitReader(src, maxBytes), *buf)
+	written, err := io.CopyBuffer(dst, io.LimitReader(src, maxBytes), buf)
 	if err != nil {
 		return fmt.Errorf("failed to copy file contents: %w", err)
 	}

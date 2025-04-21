@@ -16,6 +16,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/chainguard-dev/malcontent/pkg/pool"
 	"github.com/gabriel-vasile/mimetype"
 )
 
@@ -105,22 +106,10 @@ type FileType struct {
 	MIME string
 }
 
-var fileTypeCache = sync.Map{}
-
-// GetCachedFileType returns previously-seen filetypes or stores novel filetypes for future retrieval
-func GetCachedFileType(path string) (*FileType, error) {
-	if ft, ok := fileTypeCache.Load(path); ok {
-		return ft.(*FileType), nil
-	}
-
-	ft, err := File(path)
-	if err != nil {
-		return nil, err
-	}
-
-	fileTypeCache.Store(path, ft)
-	return ft, nil
-}
+var (
+	headerPool     *pool.BufferPool
+	initializeOnce sync.Once
+)
 
 // IsSupportedArchive returns whether a path can be processed by our archive extractor.
 // UPX files are an edge case since they may or may not even have an extension that can be referenced.
@@ -203,7 +192,10 @@ func makeFileType(path string, ext string, mime string) *FileType {
 
 	// the only JSON files we currently scan are NPM package metadata, which ends in *package.json
 	if strings.HasSuffix(path, "package.json") {
-		return &FileType{MIME: "application/json", Ext: ext}
+		return &FileType{
+			Ext:  ext,
+			MIME: "application/json",
+		}
 	}
 
 	if supportedKind[ext] == "" {
@@ -216,7 +208,10 @@ func makeFileType(path string, ext string, mime string) *FileType {
 	}
 
 	if strings.Contains(mime, "application") || strings.Contains(mime, "text/x-") || strings.Contains(mime, "text/x-") || strings.Contains(mime, "executable") {
-		return &FileType{MIME: mime, Ext: ext}
+		return &FileType{
+			Ext:  ext,
+			MIME: mime,
+		}
 	}
 
 	return nil
@@ -243,6 +238,9 @@ func File(path string) (*FileType, error) {
 	if st.Mode().Type() == fs.ModeIrregular {
 		return nil, nil
 	}
+	if st.Size() == 0 {
+		return nil, nil
+	}
 
 	// first strategy: mimetype
 	mtype, err := mimetype.DetectFile(path)
@@ -257,22 +255,26 @@ func File(path string) (*FileType, error) {
 		return mtype, nil
 	}
 
-	// read file header
-	var hdr [512]byte
+	initializeOnce.Do(func() {
+		headerPool = pool.NewBufferPool()
+	})
+	hdr := headerPool.Get(512)
+	defer headerPool.Put(hdr)
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("open: %w", err)
 	}
 	defer f.Close()
 
-	_, err = io.ReadFull(f, hdr[:])
+	// read file header
+	_, err = io.ReadFull(f, hdr)
 	if err != nil && !errors.Is(err, io.ErrUnexpectedEOF) && !errors.Is(err, io.EOF) {
 		return nil, fmt.Errorf("read: %w", err)
 	}
 
 	// final strategy: DIY matching where mimetype is too strict.
-	s := string(hdr[:])
-	if isUPX, err := IsValidUPX(hdr[:], path); err == nil && isUPX {
+	s := string(hdr)
+	if isUPX, err := IsValidUPX(hdr, path); err == nil && isUPX {
 		return Path(".upx"), nil
 	}
 

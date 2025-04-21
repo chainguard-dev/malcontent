@@ -19,17 +19,16 @@ func ExtractDeb(ctx context.Context, d, f string) error {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting deb")
 
-	buf, ok := bufferPool.Get().(*[]byte)
-	if !ok {
-		return fmt.Errorf("failed to retrieve buffer")
-	}
-	defer bufferPool.Put(buf)
-
 	fd, err := os.Open(f)
 	if err != nil {
-		panic(err)
+		return fmt.Errorf("failed to open file: %w", err)
 	}
 	defer fd.Close()
+
+	fi, err := fd.Stat()
+	if err != nil {
+		return fmt.Errorf("failed to stat file: %w", err)
+	}
 
 	df, err := deb.Load(fd, f)
 	if err != nil {
@@ -62,7 +61,7 @@ func ExtractDeb(ctx context.Context, d, f string) error {
 				return fmt.Errorf("failed to extract directory: %w", err)
 			}
 		case tar.TypeReg:
-			if err := handleFile(target, df.Data); err != nil {
+			if err := handleFile(target, df.Data, fi.Size()); err != nil {
 				return fmt.Errorf("failed to extract file: %w", err)
 			}
 		case tar.TypeSymlink:

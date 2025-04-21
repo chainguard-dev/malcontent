@@ -22,17 +22,19 @@ func ExtractRPM(ctx context.Context, d, f string) error {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting rpm")
 
-	buf, ok := bufferPool.Get().(*[]byte)
-	if !ok {
-		return fmt.Errorf("failed to retrieve buffer")
-	}
-	defer bufferPool.Put(buf)
-
 	rpmFile, err := os.Open(f)
 	if err != nil {
 		return fmt.Errorf("failed to open RPM file: %w", err)
 	}
 	defer rpmFile.Close()
+
+	fi, err := rpmFile.Stat()
+	if err != nil {
+		return fmt.Errorf("failed to stat RPM file: %w", err)
+	}
+
+	buf := archivePool.Get(fi.Size())
+	defer archivePool.Put(buf)
 
 	pkg, err := rpm.Read(rpmFile)
 	if err != nil {
@@ -112,7 +114,7 @@ func ExtractRPM(ctx context.Context, d, f string) error {
 			return fmt.Errorf("failed to create file: %w", err)
 		}
 
-		written, err := io.CopyBuffer(out, io.LimitReader(cr, maxBytes), *buf)
+		written, err := io.CopyBuffer(out, io.LimitReader(cr, maxBytes), buf)
 		if err != nil {
 			return fmt.Errorf("failed to copy file: %w", err)
 		}
