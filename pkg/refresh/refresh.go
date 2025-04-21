@@ -13,6 +13,7 @@ import (
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/action"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
+	"github.com/chainguard-dev/malcontent/pkg/programkind"
 	"github.com/chainguard-dev/malcontent/pkg/render"
 	"github.com/chainguard-dev/malcontent/rules"
 	thirdparty "github.com/chainguard-dev/malcontent/third_party"
@@ -221,6 +222,10 @@ func executeRefresh(ctx context.Context, c Config, testData []TestData, logger *
 
 // Refresh updates all relevant test data in pkg/action and tests.
 func Refresh(ctx context.Context, rc Config, logger *clog.Logger) error {
+	// Check if UPX is present which is required for certain refreshes
+	if err := programkind.UPXInstalled(); err != nil {
+		return fmt.Errorf("required UPX installation not found: %w", err)
+	}
 	if rc.SamplesPath == "" {
 		return fmt.Errorf("sample location is required")
 	}
