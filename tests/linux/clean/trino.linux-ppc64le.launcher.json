@@ -1,7 +1,7 @@
 {
     "Files": {
-        "linux/clean/trino.linux-ppc64le.launcher": {
-            "Path": "linux/clean/trino.linux-ppc64le.launcher",
+        "/trino.linux-ppc64le.000": {
+            "Path": "linux/clean/trino.linux-ppc64le.launcher ∴ /trino.linux-ppc64le.000",
             "SHA256": "b332b6c83764b0fab3347dfb0925bec3617fd3a414ff7498020db444136e0f6a",
             "Size": 1406908,
             "Pledge": [

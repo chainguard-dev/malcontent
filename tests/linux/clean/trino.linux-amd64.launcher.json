@@ -1,7 +1,7 @@
 {
     "Files": {
-        "linux/clean/trino.linux-amd64.launcher": {
-            "Path": "linux/clean/trino.linux-amd64.launcher",
+        "/trino.linux-amd64.000": {
+            "Path": "linux/clean/trino.linux-amd64.launcher ∴ /trino.linux-amd64.000",
             "SHA256": "0422725108b2d91d2bc9b433b6262e5bf6aea5d4de09ca1c7813c1ecd98f5f97",
             "Size": 1464916,
             "Pledge": [
