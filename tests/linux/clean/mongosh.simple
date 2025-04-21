@@ -92,7 +92,6 @@ exfil/stealer/credit_card: medium
 fs/directory/create: low
 fs/directory/list: low
 fs/directory/remove: low
-fs/file/append: low
 fs/file/capabilities_set: low
 fs/file/copy: medium
 fs/file/create: medium

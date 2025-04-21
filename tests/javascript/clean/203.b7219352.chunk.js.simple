@@ -30,7 +30,6 @@ exec/shell/power: medium
 fs/directory/create: low
 fs/directory/remove: low
 fs/fifo_create: low
-fs/file/append: low
 fs/file/write: low
 fs/mount: low
 fs/node_create: low

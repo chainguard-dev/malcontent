@@ -36,7 +36,6 @@ exec/shell/exec: medium
 fs/directory/create: low
 fs/directory/list: low
 fs/directory/remove: low
-fs/file/append: low
 fs/file/copy: medium
 fs/file/delete: low
 fs/file/delete_forcibly: medium
