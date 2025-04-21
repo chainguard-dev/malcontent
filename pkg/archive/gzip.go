@@ -20,7 +20,6 @@ func ExtractGzip(ctx context.Context, d string, f string) error {
 		if ft.MIME == "application/gzip" {
 			isGzip = true
 		}
-		defer programkind.Put(ft)
 	}
 
 	if !isGzip {

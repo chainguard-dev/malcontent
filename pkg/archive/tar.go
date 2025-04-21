@@ -44,7 +44,6 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 		if ft.MIME == "application/gzip" {
 			isGzip = true
 		}
-		defer programkind.Put(ft)
 	}
 
 	// Set offset to the file origin regardless of type

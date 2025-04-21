@@ -54,7 +54,6 @@ func extractNestedArchive(ctx context.Context, d string, f string, extracted *sy
 	if err != nil {
 		return nil
 	}
-	defer programkind.Put(ft)
 
 	switch {
 	case ft != nil && ft.MIME == "application/x-upx":
@@ -130,7 +129,6 @@ func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 	var extract func(context.Context, string, string) error
 	// Check for zlib-compressed files first and use the zlib-specific function
 	ft, err := programkind.File(path)
-	defer programkind.Put(ft)
 	if err != nil {
 		return "", fmt.Errorf("failed to determine file type: %w", err)
 	}

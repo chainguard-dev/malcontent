@@ -108,30 +108,8 @@ type FileType struct {
 
 var (
 	headerPool     *pool.BufferPool
-	fileTypePool   sync.Pool
 	initializeOnce sync.Once
 )
-
-// Get retrieves a FileType from the pool.
-func Get() *FileType {
-	fileType, ok := fileTypePool.Get().(*FileType)
-	if !ok {
-		return &FileType{}
-	}
-	return fileType
-}
-
-// Put returns a FileType to the pool.
-func Put(ft *FileType) {
-	if ft == nil {
-		return
-	}
-
-	ft.Ext = ""
-	ft.MIME = ""
-
-	fileTypePool.Put(ft)
-}
 
 // IsSupportedArchive returns whether a path can be processed by our archive extractor.
 // UPX files are an edge case since they may or may not even have an extension that can be referenced.
@@ -214,10 +192,10 @@ func makeFileType(path string, ext string, mime string) *FileType {
 
 	// the only JSON files we currently scan are NPM package metadata, which ends in *package.json
 	if strings.HasSuffix(path, "package.json") {
-		ft := Get()
-		ft.MIME = "application/json"
-		ft.Ext = ext
-		return ft
+		return &FileType{
+			Ext:  ext,
+			MIME: "application/json",
+		}
 	}
 
 	if supportedKind[ext] == "" {
@@ -230,10 +208,10 @@ func makeFileType(path string, ext string, mime string) *FileType {
 	}
 
 	if strings.Contains(mime, "application") || strings.Contains(mime, "text/x-") || strings.Contains(mime, "text/x-") || strings.Contains(mime, "executable") {
-		ft := Get()
-		ft.MIME = mime
-		ft.Ext = ext
-		return ft
+		return &FileType{
+			Ext:  ext,
+			MIME: mime,
+		}
 	}
 
 	return nil
@@ -279,11 +257,6 @@ func File(path string) (*FileType, error) {
 
 	initializeOnce.Do(func() {
 		headerPool = pool.NewBufferPool()
-		fileTypePool = sync.Pool{
-			New: func() any {
-				return &FileType{}
-			},
-		}
 	})
 	hdr := headerPool.Get(512)
 	defer headerPool.Put(hdr)
