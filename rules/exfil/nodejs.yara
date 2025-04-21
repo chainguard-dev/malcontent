@@ -123,7 +123,7 @@ rule post_hardcoded_hardcoded_host_os: high {
     filesize < 256KB and any of ($ref*) and $post and ((math.abs(@ref - @post) <= 128) or ((math.abs(@ref2 - @post) <= 128))) and $os
 }
 
-private rule iplookup_website: high {
+private rule nodejs_iplookup_website: high {
   meta:
     description = "public service to discover external IP address"
 
@@ -160,5 +160,5 @@ rule get_hardcoded_hardcoded_host_os: critical {
     $i_os_userinfo = "os.userInfo"
 
   condition:
-    filesize < 256KB and $ref and (any of ($i*) or iplookup_website)
+    filesize < 256KB and $ref and (any of ($i*) or nodejs_iplookup_website)
 }

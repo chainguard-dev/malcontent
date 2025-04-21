@@ -38,31 +38,6 @@ rule hostinfo_collector_api: high macos {
     60 % of them
 }
 
-private rule iplookup_website: high {
-  meta:
-    description = "public service to discover external IP address"
-
-  strings:
-    $ipify       = /ipify\.org{0,1}/
-    $wtfismyip   = "wtfismyip"
-    $iplogger    = "iplogger.org"
-    $getjsonip   = "getjsonip"
-    $ipconfig_me = "ifconfig.me"
-    $icanhazip   = "icanhazip"
-    $grabify     = "grabify.link"
-    $ident_me    = "ident.me" fullword
-    $showip_net  = "showip.net" fullword
-    $ifconfig_io = "ifconfig.io" fullword
-    $ifconfig_co = "ifconfig.co" fullword
-    $ipinfo      = "ipinfo.io"
-    $check_ip    = "checkip.amazonaws.com"
-
-    $not_pypi_index = "testpack-id-lb001"
-
-  condition:
-    filesize < 250MB and any of them and none of ($not*)
-}
-
 rule hostinfo_collector_npm: critical {
   meta:
     description = "collects an unusual amount of host information"
