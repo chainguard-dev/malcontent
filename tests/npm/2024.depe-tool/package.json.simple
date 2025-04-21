@@ -1,4 +1,5 @@
 # npm/2024.depe-tool/package.json: critical
+c2/addr/url: medium
 data/encoding/json_decode: low
 exec/cmd/npm_preinstall: high
 exec/remote_commands/code_eval: critical

@@ -1,4 +1,5 @@
 # python/clean/setuptools/discovery.py: medium
+c2/addr/url: medium
 exec/imports/python: low
 fs/directory/traverse: medium
 fs/path/relative: medium

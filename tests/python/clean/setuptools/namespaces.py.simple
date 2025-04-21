@@ -1,4 +1,5 @@
 # python/clean/setuptools/namespaces.py: medium
+c2/addr/url: medium
 data/encoding/json_encode: low
 exec/imports/python: low
 exec/remote_commands/code_eval: medium

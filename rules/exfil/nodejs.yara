@@ -42,7 +42,7 @@ rule nodejs_phone_home: high {
     filesize < 8KB and any of ($require*) and any of ($serial*) and 3 of ($f*)
 }
 
-rule nodejs_phone_hom_obscure: critical {
+rule nodejs_phone_home_obscure: critical {
   meta:
     description = "accesses system information and uploads it"
 
@@ -121,4 +121,44 @@ rule post_hardcoded_hardcoded_host_os: high {
 
   condition:
     filesize < 256KB and any of ($ref*) and $post and ((math.abs(@ref - @post) <= 128) or ((math.abs(@ref2 - @post) <= 128))) and $os
+}
+
+private rule nodejs_iplookup_website: high {
+  meta:
+    description = "public service to discover external IP address"
+
+  strings:
+    $ipify       = /ipify\.org{0,1}/
+    $wtfismyip   = "wtfismyip"
+    $iplogger    = "iplogger.org"
+    $getjsonip   = "getjsonip"
+    $ipconfig_me = "ifconfig.me"
+    $icanhazip   = "icanhazip"
+    $grabify     = "grabify.link"
+    $ident_me    = "ident.me" fullword
+    $showip_net  = "showip.net" fullword
+    $ifconfig_io = "ifconfig.io" fullword
+    $ifconfig_co = "ifconfig.co" fullword
+    $ipinfo      = "ipinfo.io"
+    $check_ip    = "checkip.amazonaws.com"
+
+    $not_pypi_index = "testpack-id-lb001"
+
+  condition:
+    filesize < 250MB and any of them and none of ($not*)
+}
+
+rule get_hardcoded_hardcoded_host_os: critical {
+  meta:
+    description = "leaks host information to a hardcoded host"
+
+  strings:
+    $ref           = /get\([\"']https{0,1}:\/\/[\w\.\-]{5,63}.{0,64}\?.{0,16}=[\'"]\s{0,2}\+/
+    // ['"]\s{0,2]\?\s{0,2}/
+    $i_ipaddr      = "ipAddress"
+    $i_username    = "username"
+    $i_os_userinfo = "os.userInfo"
+
+  condition:
+    filesize < 256KB and $ref and (any of ($i*) or nodejs_iplookup_website)
 }

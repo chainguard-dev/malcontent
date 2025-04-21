@@ -1,4 +1,5 @@
 # linux/clean/linux-s390x.sh: medium
+c2/addr/url: medium
 c2/tool_transfer/github: medium
 c2/tool_transfer/os: low
 c2/tool_transfer/shell: medium

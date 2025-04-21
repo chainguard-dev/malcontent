@@ -5,6 +5,7 @@ anti-behavior/blocklist/user: critical
 anti-behavior/random_behavior: low
 c2/addr/discord: medium
 c2/addr/telegram: medium
+c2/addr/url: medium
 c2/tool_transfer/arch: low
 c2/tool_transfer/download: high
 c2/tool_transfer/os: low

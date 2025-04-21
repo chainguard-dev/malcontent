@@ -1,4 +1,5 @@
 # python/clean/pyparsing/sparser.py: medium
+c2/addr/url: medium
 data/compression/bzip2: low
 data/compression/gzip: low
 exec/cmd/pipe: medium

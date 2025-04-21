@@ -1,3 +1,4 @@
-# python/clean/fonttools/psLib.py: low
+# python/clean/fonttools/psLib.py: medium
 anti-static/obfuscation/python: low
+c2/addr/url: medium
 exec/imports/python: low

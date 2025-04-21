@@ -1,4 +1,5 @@
 # npm/2024.helmet-validate.axios/config.js: medium
+c2/addr/url: medium
 exec/remote_commands/code_eval: medium
 net/http: low
 net/http/request: low
