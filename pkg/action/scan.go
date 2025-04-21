@@ -89,7 +89,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		fr := &malcontent.FileReport{Skipped: "data file or empty", Path: path}
 		// Immediately remove skipped files within archives
 		if isArchive {
-			os.RemoveAll(path)
+			defer os.RemoveAll(path)
 		}
 		return fr, nil
 	}
@@ -115,7 +115,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 
 	// Immediately remove archive files read into memory
 	if isArchive {
-		os.RemoveAll(path)
+		defer os.RemoveAll(path)
 	}
 
 	mrs, err := scanner.Scan(fc)
