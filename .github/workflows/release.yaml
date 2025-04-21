@@ -32,7 +32,7 @@ jobs:
       - name: Get Version
         id: get-version
         run: |
-          VERSION=$(awk -F'"' '/ID string =/ {print $2}' "${VERSION_FILE})
+          VERSION=$(awk -F'"' '/ID string =/ {print $2}' "${VERSION_FILE}")
           if [[ ! "${VERSION}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "Error: VERSION is not a valid semver"
             exit 1
