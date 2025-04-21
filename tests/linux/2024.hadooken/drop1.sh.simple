@@ -13,4 +13,5 @@ fs/file/delete_forcibly: medium
 fs/path/tmp: medium
 net/download: medium
 net/download/fetch: medium
+net/http: low
 net/url/embedded: low

@@ -1,4 +1,5 @@
 # macOS/2023.3CX/libffmpeg.dylib: medium
+anti-behavior/random_behavior: low
 c2/addr/url: low
 c2/tool_transfer/arch: low
 c2/tool_transfer/os: low
@@ -13,6 +14,7 @@ exec/shell/TERM: low
 fs/directory/create: low
 fs/path/tmp: medium
 impact/remote_access/agent: medium
+net/http: low
 net/http/post: medium
 net/url/parse: low
 process/multithreaded: low

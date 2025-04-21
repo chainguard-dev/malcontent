@@ -2,6 +2,7 @@
 anti-behavior/blocklist/hostname: critical
 anti-behavior/blocklist/mac_addr: critical
 anti-behavior/blocklist/user: critical
+anti-behavior/random_behavior: low
 c2/addr/discord: medium
 c2/addr/telegram: medium
 c2/tool_transfer/arch: low

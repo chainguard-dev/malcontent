@@ -10,4 +10,5 @@ exec/shell/exec: medium
 fs/file/copy: medium
 fs/path/dev: medium
 fs/path/usr_bin: low
+net/http: low
 net/http/request: low

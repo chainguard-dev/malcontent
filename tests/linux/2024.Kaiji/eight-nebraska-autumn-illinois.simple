@@ -1,5 +1,6 @@
 # linux/2024.Kaiji/eight-nebraska-autumn-illinois: critical
 3P/elastic/threat: high
+anti-behavior/random_behavior: low
 c2/addr/ip: medium
 c2/addr/url: low
 c2/discovery/ip_dns_resolver: medium
@@ -69,6 +70,7 @@ net/dns/servers: low
 net/dns/txt: low
 net/download: medium
 net/download/fetch: high
+net/http: low
 net/http/2: low
 net/http/accept: medium
 net/http/accept_encoding: low
