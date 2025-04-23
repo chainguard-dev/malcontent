@@ -1,5 +1,4 @@
 # linux/2024.melofee/driver_decrypted: critical
-3P/elastic/rootkit_melofee: critical
 anti-static/binary/opaque: medium
 evasion/indicator_blocking/process: high
 evasion/mimicry/fake_process: high

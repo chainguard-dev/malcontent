@@ -1,6 +1,4 @@
 # linux/2021.FontOnLake/45E9.elf: critical
-3P/elastic/rootkit: high
-3P/elastic/rootkit_fontonlake: critical
 anti-behavior/random_behavior: low
 anti-static/elf/multiple: medium
 anti-static/packer/upx: high
