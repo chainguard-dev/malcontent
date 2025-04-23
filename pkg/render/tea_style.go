@@ -121,8 +121,8 @@ func wrapLine(text string, width int) string {
 	return result.String()
 }
 
-func renderFileSummaryTea(_ context.Context, fr *malcontent.FileReport, w io.Writer, rc tableConfig) {
-	if fr.Skipped != "" {
+func renderFileSummaryTea(ctx context.Context, fr *malcontent.FileReport, w io.Writer, rc tableConfig) {
+	if ctx.Err() != nil || fr.Skipped != "" {
 		return
 	}
 

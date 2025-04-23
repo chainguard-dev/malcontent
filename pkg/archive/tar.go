@@ -23,6 +23,10 @@ var initTarPool sync.Once
 
 // extractTar extracts .apk and .tar* archives.
 func ExtractTar(ctx context.Context, d string, f string) error {
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
+
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting tar")
 

@@ -60,6 +60,10 @@ func (r Markdown) File(ctx context.Context, fr *malcontent.FileReport) error {
 }
 
 func (r Markdown) Full(ctx context.Context, _ *malcontent.Config, rep *malcontent.Report) error {
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
+
 	if rep.Diff == nil {
 		return nil
 	}
@@ -153,8 +157,8 @@ func (r Markdown) Full(ctx context.Context, _ *malcontent.Config, rep *malconten
 	return nil
 }
 
-func markdownTable(_ context.Context, fr *malcontent.FileReport, w io.Writer, rc tableConfig) {
-	if fr.Skipped != "" {
+func markdownTable(ctx context.Context, fr *malcontent.FileReport, w io.Writer, rc tableConfig) {
+	if ctx.Err() != nil || fr.Skipped != "" {
 		return
 	}
 

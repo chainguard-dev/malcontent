@@ -121,6 +121,10 @@ func relPath(from string, fr *malcontent.FileReport, isArchive bool, isImage boo
 }
 
 func relFileReport(ctx context.Context, c malcontent.Config, fromPath string, isImage bool) (map[string]*malcontent.FileReport, string, error) {
+	if ctx.Err() != nil {
+		return nil, "", ctx.Err()
+	}
+
 	fromConfig := c
 	fromConfig.Renderer = nil
 	fromConfig.ScanPaths = []string{fromPath}
@@ -192,6 +196,10 @@ func scoreFile(fr, tr *malcontent.FileReport) bool {
 }
 
 func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent.Report, error) {
+	if ctx.Err() != nil {
+		return nil, ctx.Err()
+	}
+
 	if len(c.ScanPaths) != 2 {
 		return nil, fmt.Errorf("diff mode requires 2 paths, you passed in %d path(s)", len(c.ScanPaths))
 	}
@@ -316,6 +324,10 @@ func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent
 }
 
 func handleDir(ctx context.Context, c malcontent.Config, src, dest ScanResult, d *malcontent.DiffReport, isImage bool) {
+	if ctx.Err() != nil {
+		return
+	}
+
 	srcFiles := make(map[string]*malcontent.FileReport)
 	destFiles := make(map[string]*malcontent.FileReport)
 
@@ -372,6 +384,10 @@ func handleDir(ctx context.Context, c malcontent.Config, src, dest ScanResult, d
 }
 
 func handleFile(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileReport, relPath string, d *malcontent.DiffReport, _, dest ScanResult, isImage bool) {
+	if ctx.Err() != nil {
+		return
+	}
+
 	// We've now established that file exists in both source & destination
 	if fr.RiskScore < c.MinFileRisk && tr.RiskScore < c.MinFileRisk {
 		clog.FromContext(ctx).Info("diff does not meet min trigger level", slog.Any("path", tr.Path))
@@ -461,12 +477,20 @@ func combineReports(removed, added *orderedmap.OrderedMap[string, *malcontent.Fi
 }
 
 func inferMoves(ctx context.Context, c malcontent.Config, d *malcontent.DiffReport, src, dest ScanResult, isImage bool) {
+	if ctx.Err() != nil {
+		return
+	}
+
 	for _, cr := range combineReports(d.Removed, d.Added) {
 		fileMove(ctx, c, cr.RemovedFR, cr.AddedFR, cr.Removed, cr.Added, d, cr.Score, src, dest, isImage)
 	}
 }
 
 func fileMove(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileReport, rpath, apath string, d *malcontent.DiffReport, score float64, _, dest ScanResult, isImage bool) {
+	if ctx.Err() != nil {
+		return
+	}
+
 	minRisk := int(math.Min(float64(c.MinRisk), float64(c.MinFileRisk)))
 	if fr.RiskScore < minRisk && tr.RiskScore < minRisk {
 		clog.FromContext(ctx).Info("diff does not meet min trigger level", slog.Any("path", tr.Path))
@@ -527,6 +551,10 @@ func fileMove(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileR
 // `true` when passing `--file-risk-increase` and the source risk score is equal to or greater than the destination risk score
 // `false` otherwise.
 func filterDiff(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileReport) bool {
+	if ctx.Err() != nil {
+		return false
+	}
+
 	if c.FileRiskChange && fr.RiskScore == tr.RiskScore {
 		clog.FromContext(ctx).Info("dropping result because diff scores were the same", slog.Any("paths", fmt.Sprintf("%s (%d) %s (%d)", fr.Path, fr.RiskScore, tr.Path, tr.RiskScore)))
 		return true

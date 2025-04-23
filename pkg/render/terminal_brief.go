@@ -34,7 +34,11 @@ func (r TerminalBrief) Scanning(_ context.Context, path string) {
 	fmt.Fprintf(r.w, "🔎 Scanning %q\n", path)
 }
 
-func (r TerminalBrief) File(_ context.Context, fr *malcontent.FileReport) error {
+func (r TerminalBrief) File(ctx context.Context, fr *malcontent.FileReport) error {
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
+
 	if fr.Skipped != "" || len(fr.Behaviors) == 0 {
 		return nil
 	}
@@ -69,7 +73,11 @@ func (r TerminalBrief) File(_ context.Context, fr *malcontent.FileReport) error 
 	return nil
 }
 
-func (r TerminalBrief) Full(_ context.Context, _ *malcontent.Config, rep *malcontent.Report) error {
+func (r TerminalBrief) Full(ctx context.Context, _ *malcontent.Config, rep *malcontent.Report) error {
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
+
 	// Non-diff files are handled on the fly by File()
 	if rep.Diff == nil {
 		return nil

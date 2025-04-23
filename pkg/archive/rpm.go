@@ -19,6 +19,10 @@ import (
 
 // extractRPM extracts .rpm packages.
 func ExtractRPM(ctx context.Context, d, f string) error {
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
+
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting rpm")
 

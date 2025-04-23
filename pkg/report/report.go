@@ -366,6 +366,10 @@ func TrimPrefixes(path string, prefixes []string) string {
 
 //nolint:cyclop // ignore complexity of 64
 func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcontent.Config, expath string, _ *clog.Logger, fc []byte) (*malcontent.FileReport, error) {
+	if ctx.Err() != nil {
+		return &malcontent.FileReport{}, ctx.Err()
+	}
+
 	if mrs == nil {
 		return nil, fmt.Errorf("scan failed")
 	}
@@ -635,6 +639,10 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 
 // upgradeRisk determines whether to upgrade risk based on finding density.
 func upgradeRisk(ctx context.Context, riskScore int, riskCounts map[int]int, size int64) bool {
+	if ctx.Err() != nil {
+		return false
+	}
+
 	if riskScore != 3 {
 		return false
 	}

@@ -13,6 +13,10 @@ import (
 )
 
 func ExtractUPX(ctx context.Context, d, f string) error {
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
+
 	// Check if UPX is installed
 	if err := programkind.UPXInstalled(); err != nil {
 		return err

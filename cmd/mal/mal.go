@@ -13,10 +13,12 @@ import (
 	"io/fs"
 	"log/slog"
 	"os"
+	"os/signal"
 	"runtime"
 	"slices"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
@@ -105,7 +107,7 @@ func main() {
 	// variables to share between stages
 	var (
 		mc       malcontent.Config
-		ctx      context.Context
+		baseCtx  context.Context
 		err      error
 		outFile  = os.Stdout
 		renderer malcontent.Renderer
@@ -140,12 +142,12 @@ func main() {
 		},
 		// Handle shared initialization (flag parsing, rule compilation, configuration)
 		Before: func(c *cli.Context) error {
-			ctx = clog.WithLogger(c.Context, log)
-			clog.FromContext(ctx).Info("malcontent starting")
+			baseCtx = clog.WithLogger(c.Context, log)
+			clog.FromContext(baseCtx).Info("malcontent starting")
 
 			if profileFlag {
 				var err error
-				p, err = profile.StartProfiling(ctx, profile.DefaultConfig())
+				p, err = profile.StartProfiling(baseCtx, profile.DefaultConfig())
 				if err != nil {
 					log.Error("profiling failed", slog.Any("error", err))
 					returnCode = ExitProfilerError
@@ -246,15 +248,12 @@ func main() {
 				rfs = append(rfs, thirdparty.FS)
 			}
 
-			yrs, err := action.CachedRules(ctx, rfs)
+			yrs, err := action.CachedRules(baseCtx, rfs)
 			if err != nil {
 				returnCode = ExitInvalidRules
 			}
 
-			concurrency := concurrencyFlag
-			if concurrency < 1 {
-				concurrency = 1
-			}
+			concurrency := max(1, concurrencyFlag)
 
 			mc = malcontent.Config{
 				Concurrency:           concurrency,
@@ -408,6 +407,13 @@ func main() {
 					},
 				},
 				Action: func(c *cli.Context) error {
+					ctx, cancel := context.WithCancel(baseCtx)
+					defer cancel()
+
+					go func() {
+						handleContext(cancel, clog.FromContext(ctx))
+					}()
+
 					// Handle edge cases
 					// Set bc.OCI if the image flag is used
 					// Default to path scanning if neither flag is passed (images must be scanned via --image or -i)
@@ -475,6 +481,13 @@ func main() {
 					},
 				},
 				Action: func(c *cli.Context) error {
+					ctx, cancel := context.WithCancel(baseCtx)
+					defer cancel()
+
+					go func() {
+						handleContext(cancel, clog.FromContext(ctx))
+					}()
+
 					switch {
 					case c.Bool("file-risk-change"):
 						mc.FileRiskChange = true
@@ -505,6 +518,13 @@ func main() {
 				Name:  "refresh",
 				Usage: "Refresh test data",
 				Action: func(_ *cli.Context) error {
+					ctx, cancel := context.WithCancel(baseCtx)
+					defer cancel()
+
+					go func() {
+						handleContext(cancel, clog.FromContext(ctx))
+					}()
+
 					cfg := refresh.Config{
 						Concurrency:  runtime.NumCPU(),
 						SamplesPath:  "./out/chainguard-dev/malcontent-samples",
@@ -534,6 +554,13 @@ func main() {
 					},
 				},
 				Action: func(c *cli.Context) error {
+					ctx, cancel := context.WithCancel(baseCtx)
+					defer cancel()
+
+					go func() {
+						handleContext(cancel, clog.FromContext(ctx))
+					}()
+
 					mc.Scan = true
 					// Handle edge cases
 					// Set bc.OCI if the image flag is used
@@ -603,4 +630,20 @@ func main() {
 
 		showError(err)
 	}
+}
+
+// handleContext gracefully handles context cancellations.
+func handleContext(cancel context.CancelFunc, logger *clog.Logger) {
+	sigCh := make(chan os.Signal, 1)
+	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
+
+	sig := <-sigCh
+	logger.Debug("received signal", slog.Any("signal", sig))
+	cancel()
+
+	// Force exit after timeout
+	time.AfterFunc(10*time.Second, func() {
+		logger.Error("forced exit after timeout")
+		os.Exit(1)
+	})
 }

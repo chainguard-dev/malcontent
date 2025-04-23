@@ -12,6 +12,10 @@ import (
 
 // findFilesRecursively returns a list of files found recursively within a path.
 func findFilesRecursively(ctx context.Context, rootPath string) ([]string, error) {
+	if ctx.Err() != nil {
+		return nil, ctx.Err()
+	}
+
 	logger := clog.FromContext(ctx)
 	var files []string
 

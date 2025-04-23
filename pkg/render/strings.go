@@ -79,7 +79,11 @@ func (r StringMatches) Scanning(_ context.Context, path string) {
 	fmt.Fprintf(r.w, "🔎 Scanning %q\n", path)
 }
 
-func (r StringMatches) File(_ context.Context, fr *malcontent.FileReport) error {
+func (r StringMatches) File(ctx context.Context, fr *malcontent.FileReport) error {
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
+
 	if fr.Skipped != "" || len(fr.Behaviors) == 0 {
 		return nil
 	}
@@ -109,7 +113,11 @@ func (r StringMatches) File(_ context.Context, fr *malcontent.FileReport) error 
 	return nil
 }
 
-func (r StringMatches) Full(_ context.Context, _ *malcontent.Config, rep *malcontent.Report) error {
+func (r StringMatches) Full(ctx context.Context, _ *malcontent.Config, rep *malcontent.Report) error {
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
+
 	// Non-diff files are handled on the fly by File()
 	if rep.Diff == nil {
 		return nil
