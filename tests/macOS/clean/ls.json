@@ -29,6 +29,17 @@
                     "RuleName": "binary_with_url"
                 },
                 {
+                    "Description": "accesses process list",
+                    "MatchStrings": [
+                        "processes"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/discover/processes/list.yara#processes",
+                    "ID": "discover/processes/list",
+                    "RuleName": "processes"
+                },
+                {
                     "Description": "Look up or override terminal settings",
                     "MatchStrings": [
                         "TERM"
@@ -77,10 +88,21 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/http.yara#http",
                     "ID": "net/http",
                     "RuleName": "http"
+                },
+                {
+                    "Description": "Retrieve environment variables",
+                    "MatchStrings": [
+                        "getenv"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/os/env/get.yara#getenv",
+                    "ID": "os/env/get",
+                    "RuleName": "getenv"
                 }
             ],
-            "RiskScore": 1,
-            "RiskLevel": "LOW"
+            "RiskScore": 2,
+            "RiskLevel": "MEDIUM"
         }
     }
 }

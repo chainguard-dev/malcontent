@@ -35,6 +35,7 @@ hw/cpu: medium
 impact/remote_access/dl_iterate: high
 net/socket/send: low
 net/url/embedded: low
+os/env/get: low
 os/fd/print: low
 process/create: low
 process/executable_path: low

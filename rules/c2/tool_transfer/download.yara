@@ -87,6 +87,17 @@ rule executable_url: high {
     any of ($xec*) and none of ($not*)
 }
 
+rule download_and_exec: high {
+  strings:
+    $down_exec = "down-n-exec" fullword
+    $e_process = "process"
+    $e_Process = "Process"
+    $e_exec    = "exec"
+
+  condition:
+    filesize < 2MB and $down_exec and any of ($e*)
+}
+
 rule http_archive_url: medium {
   meta:
     description = "accesses hardcoded archive file endpoint"

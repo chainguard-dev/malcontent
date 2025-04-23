@@ -21,4 +21,5 @@ net/download: medium
 net/http: low
 net/http/form_upload: medium
 net/url/embedded: low
+os/env/get: low
 os/fd/read: low

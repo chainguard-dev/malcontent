@@ -5,6 +5,7 @@ c2/addr/url: medium
 c2/tool_transfer/arch: low
 c2/tool_transfer/os: medium
 data/encoding/yaml: medium
+discover/processes/list: medium
 discover/system/platform: medium
 exec/imports/python: low
 exec/program: medium

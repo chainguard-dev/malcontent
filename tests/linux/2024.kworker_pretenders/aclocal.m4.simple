@@ -11,4 +11,5 @@ fs/link_read: low
 fs/lock_update: low
 fs/permission/modify: medium
 fs/proc/self_exe: medium
+os/env/get: low
 process/create: low

@@ -67,3 +67,14 @@ rule proclist: medium {
   condition:
     any of them
 }
+
+rule processes: medium {
+  meta:
+    description = "accesses process list"
+
+  strings:
+    $processes = "processes" fullword
+    $not_child = "child processes"
+  condition:
+    $processes and none of ($not*)
+}

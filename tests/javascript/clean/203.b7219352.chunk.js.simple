@@ -15,6 +15,7 @@ data/encoding/utf16: medium
 discover/network/interface_list: medium
 discover/network/mac_address: medium
 discover/network/netstat: medium
+discover/processes/list: medium
 discover/system/dmesg: low
 discover/system/platform: low
 discover/user/HOME: low
@@ -55,6 +56,7 @@ net/socket/send: low
 net/tcp/sftp: medium
 net/tcp/ssh: medium
 net/url/embedded: low
+os/env/get: low
 os/fd/sendfile: low
 persist/cron/tab: medium
 persist/daemon: medium

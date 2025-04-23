@@ -117,6 +117,7 @@ net/url/embedded: low
 net/url/encode: medium
 net/url/parse: low
 net/url/request: medium
+os/env/get: low
 os/fd/sendfile: low
 os/kernel/key_management: low
 os/kernel/netlink: low

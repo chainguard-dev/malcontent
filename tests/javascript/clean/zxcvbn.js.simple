@@ -9,6 +9,7 @@ credential/gaming/minecraft: medium
 credential/password: low
 crypto/cipher: medium
 data/encoding/int: low
+discover/processes/list: medium
 discover/user/name_get: medium
 exec/plugin: low
 exec/remote_commands/code_eval: medium

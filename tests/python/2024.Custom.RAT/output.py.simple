@@ -59,6 +59,7 @@ net/http/request: low
 net/url/embedded: low
 net/url/parse: low
 net/url/request: medium
+os/env/get: low
 os/fd/read: low
 os/fd/write: low
 persist/daemon: medium

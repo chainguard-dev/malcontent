@@ -1,4 +1,5 @@
 # linux/clean/healthcheck: medium
+discover/processes/list: medium
 exec/shell/exec: medium
 fs/path/dev: medium
 net/http: low

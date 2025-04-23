@@ -12,3 +12,4 @@ fs/directory/traverse: medium
 fs/file/exists: low
 fs/file/open: low
 impact/remote_access/py_setuptools: critical
+os/env/get: low

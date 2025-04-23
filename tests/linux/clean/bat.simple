@@ -19,6 +19,7 @@ data/encoding/base64: low
 data/random/insecure: low
 discover/group/lookup: medium
 discover/process/parent: low
+discover/processes/list: medium
 discover/system/hostname: low
 discover/user/APPDATA: low
 discover/user/HOME: low
@@ -65,6 +66,7 @@ net/socket/send: low
 net/tcp/ssh: medium
 net/url/embedded: low
 net/url/encode: medium
+os/env/get: low
 persist/cron/tab: medium
 persist/kernel_module/unload: medium
 persist/pid_file: medium

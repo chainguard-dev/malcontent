@@ -29,6 +29,7 @@ data/embedded/base64_url: medium
 data/embedded/pem_certificate: low
 data/encoding/base64: low
 data/encoding/reverse: low
+discover/processes/list: medium
 discover/system/hostname: low
 discover/system/platform: low
 discover/user/APPDATA: low
@@ -86,6 +87,7 @@ net/socket/send: low
 net/tcp/ssh: medium
 net/url/embedded: medium
 net/url/encode: medium
+os/env/get: low
 privesc/sudo: medium
 process/chdir: low
 process/terminate: medium

@@ -6,6 +6,7 @@ collect/databases/mysql: medium
 credential/gaming/minecraft: medium
 credential/password: low
 crypto/cipher: medium
+discover/processes/list: medium
 discover/user/name_get: medium
 exec/plugin: low
 fs/lock_update: low

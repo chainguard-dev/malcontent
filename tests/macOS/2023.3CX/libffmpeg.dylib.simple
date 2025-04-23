@@ -17,4 +17,5 @@ impact/remote_access/agent: medium
 net/http: low
 net/http/post: medium
 net/url/parse: low
+os/env/get: low
 process/multithreaded: low

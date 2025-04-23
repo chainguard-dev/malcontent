@@ -13,4 +13,5 @@ net/http: low
 net/ip/host_port: medium
 net/tcp/sftp: medium
 net/url/embedded: low
+os/env/get: low
 os/fd/multiplex: low

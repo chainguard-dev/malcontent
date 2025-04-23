@@ -16,6 +16,7 @@ data/compression/zstd: low
 data/embedded/zstd: medium
 data/encoding/base64: low
 discover/network/interface: low
+discover/processes/list: medium
 discover/system/cpu: medium
 discover/system/hardware: low
 discover/system/hostname: low
@@ -57,6 +58,7 @@ net/socket/peer_address: low
 net/socket/receive: low
 net/socket/send: low
 net/url/embedded: low
+os/env/get: low
 os/kernel/dispatch_semaphore: low
 os/sync/semaphore_user: low
 persist/launchd/launch_agent: medium

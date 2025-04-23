@@ -18,6 +18,7 @@ data/encoding/base64: low
 data/hash/md5: low
 discover/network/interface: low
 discover/network/interface_list: medium
+discover/processes/list: medium
 discover/system/hostname: low
 discover/system/platform: low
 discover/system/sysinfo: medium
@@ -82,6 +83,7 @@ net/socket/reuseport: medium
 net/socket/send: low
 net/tcp/grpc: low
 net/url/embedded: low
+os/env/get: low
 os/fd/epoll: low
 os/fd/print: low
 persist/pid_file: medium

@@ -68,6 +68,7 @@ net/socket/send: low
 net/tcp/sftp: medium
 net/tcp/ssh: medium
 net/tun_tap: medium
+os/env/get: low
 os/kernel/seccomp: low
 persist/daemon: medium
 persist/pid_file: medium
