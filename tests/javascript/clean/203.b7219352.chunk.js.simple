@@ -15,7 +15,6 @@ data/encoding/utf16: medium
 discover/network/interface_list: medium
 discover/network/mac_address: medium
 discover/network/netstat: medium
-discover/processes/list: medium
 discover/system/dmesg: low
 discover/system/platform: low
 discover/user/HOME: low

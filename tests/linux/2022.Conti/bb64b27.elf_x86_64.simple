@@ -6,6 +6,7 @@ c2/tool_transfer/arch: low
 c2/tool_transfer/os: low
 crypto/encrypt: medium
 crypto/public_key: low
+discover/processes/list: medium
 fs/link_read: low
 fs/path/relative: medium
 fs/path/root: medium

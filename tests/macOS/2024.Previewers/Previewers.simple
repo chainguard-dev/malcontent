@@ -16,7 +16,6 @@ data/compression/zstd: low
 data/embedded/zstd: medium
 data/encoding/base64: low
 discover/network/interface: low
-discover/processes/list: medium
 discover/system/cpu: medium
 discover/system/hardware: low
 discover/system/hostname: low

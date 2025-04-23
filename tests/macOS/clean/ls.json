@@ -29,17 +29,6 @@
                     "RuleName": "binary_with_url"
                 },
                 {
-                    "Description": "accesses process list",
-                    "MatchStrings": [
-                        "processes"
-                    ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/discover/processes/list.yara#processes",
-                    "ID": "discover/processes/list",
-                    "RuleName": "processes"
-                },
-                {
                     "Description": "Look up or override terminal settings",
                     "MatchStrings": [
                         "TERM"
@@ -101,8 +90,8 @@
                     "RuleName": "getenv"
                 }
             ],
-            "RiskScore": 2,
-            "RiskLevel": "MEDIUM"
+            "RiskScore": 1,
+            "RiskLevel": "LOW"
         }
     }
 }

@@ -25,7 +25,6 @@ data/hash/md5: low
 data/random/insecure: low
 discover/process/egid: medium
 discover/process/parent: low
-discover/processes/list: medium
 discover/system/hostname: low
 discover/system/platform: low
 discover/user/USER: low

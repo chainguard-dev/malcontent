@@ -49,7 +49,6 @@ discover/network/mac_address: medium
 discover/process/name: medium
 discover/process/parent: low
 discover/process/runtime_deps: medium
-discover/processes/list: medium
 discover/system/cpu: low
 discover/system/hostname: low
 discover/system/machine_id: low

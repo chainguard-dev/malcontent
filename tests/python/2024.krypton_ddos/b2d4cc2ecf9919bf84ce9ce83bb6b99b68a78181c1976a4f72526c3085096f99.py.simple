@@ -8,7 +8,6 @@ c2/refs: high
 c2/tool_transfer/os: low
 credential/password: low
 data/random/insecure: low
-discover/processes/list: medium
 exec/imports/python: low
 fs/file/open: low
 fs/file/read: low

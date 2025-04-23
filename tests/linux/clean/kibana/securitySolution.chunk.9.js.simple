@@ -27,7 +27,6 @@ data/hash/md5: low
 discover/network/mac_address: medium
 discover/process/name: medium
 discover/process/parent: low
-discover/processes/list: medium
 evasion/file/prefix: medium
 evasion/rootkit/refs: medium
 evasion/rootkit/userspace: low

@@ -19,7 +19,6 @@ data/encoding/base64: low
 data/random/insecure: low
 discover/group/lookup: medium
 discover/process/parent: low
-discover/processes/list: medium
 discover/system/hostname: low
 discover/user/APPDATA: low
 discover/user/HOME: low

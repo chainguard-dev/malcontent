@@ -15,7 +15,6 @@ discover/group/lookup: medium
 discover/network/interface: low
 discover/network/netstat: medium
 discover/process/parent: low
-discover/processes/list: medium
 discover/processes/pgrep: medium
 discover/system/cpu: low
 discover/system/dmesg: low

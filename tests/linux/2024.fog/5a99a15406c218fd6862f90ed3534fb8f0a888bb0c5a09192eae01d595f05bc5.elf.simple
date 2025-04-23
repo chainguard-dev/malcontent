@@ -3,7 +3,6 @@
 c2/addr/tor_onion: high
 credential/password: low
 crypto/rc4: low
-discover/processes/list: medium
 discover/system/sysinfo: medium
 fs/lock_update: low
 fs/path/tmp: medium
