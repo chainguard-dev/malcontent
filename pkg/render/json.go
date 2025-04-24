@@ -28,7 +28,11 @@ func (r JSON) File(_ context.Context, _ *malcontent.FileReport) error {
 	return nil
 }
 
-func (r JSON) Full(_ context.Context, c *malcontent.Config, rep *malcontent.Report) error {
+func (r JSON) Full(ctx context.Context, c *malcontent.Config, rep *malcontent.Report) error {
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
+
 	jr := Report{
 		Diff:   rep.Diff,
 		Files:  make(map[string]*malcontent.FileReport),
@@ -36,6 +40,10 @@ func (r JSON) Full(_ context.Context, c *malcontent.Config, rep *malcontent.Repo
 	}
 
 	rep.Files.Range(func(key, value any) bool {
+		if ctx.Err() != nil {
+			return false
+		}
+
 		if key == nil || value == nil {
 			return true
 		}

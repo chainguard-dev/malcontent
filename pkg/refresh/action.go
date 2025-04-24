@@ -36,6 +36,10 @@ var actionTestData = []actionData{
 }
 
 func actionRefresh(ctx context.Context) ([]TestData, error) {
+	if ctx.Err() != nil {
+		return nil, ctx.Err()
+	}
+
 	testData := make([]TestData, 0, len(actionTestData))
 
 	for _, td := range actionTestData {

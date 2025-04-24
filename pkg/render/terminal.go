@@ -82,6 +82,10 @@ func (r Terminal) Scanning(_ context.Context, path string) {
 }
 
 func (r Terminal) File(ctx context.Context, fr *malcontent.FileReport) error {
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
+
 	if fr.Skipped == "" && len(fr.Behaviors) > 0 {
 		renderFileSummary(ctx, fr, r.w,
 			tableConfig{
@@ -93,6 +97,10 @@ func (r Terminal) File(ctx context.Context, fr *malcontent.FileReport) error {
 }
 
 func (r Terminal) Full(ctx context.Context, _ *malcontent.Config, rep *malcontent.Report) error {
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
+
 	// Non-diff files are handled on the fly by File()
 	if rep.Diff == nil {
 		return nil
@@ -216,7 +224,11 @@ func ansiLineLength(s string) int {
 	return len(clean)
 }
 
-func renderFileSummary(_ context.Context, fr *malcontent.FileReport, w io.Writer, rc tableConfig) {
+func renderFileSummary(ctx context.Context, fr *malcontent.FileReport, w io.Writer, rc tableConfig) {
+	if ctx.Err() != nil {
+		return
+	}
+
 	width := suggestedWidth()
 
 	byNamespace := map[string][]*malcontent.Behavior{}

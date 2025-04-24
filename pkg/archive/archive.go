@@ -31,6 +31,10 @@ func IsValidPath(target, dir string) bool {
 }
 
 func extractNestedArchive(ctx context.Context, d string, f string, extracted *sync.Map) error {
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
+
 	fullPath := filepath.Join(d, f)
 
 	fi, err := os.Stat(fullPath)
@@ -99,6 +103,9 @@ func extractNestedArchive(ctx context.Context, d string, f string, extracted *sy
 	}
 
 	for _, file := range files {
+		if ctx.Err() != nil {
+			return ctx.Err()
+		}
 		rel := file.Name()
 		if _, alreadyProcessed := extracted.Load(rel); !alreadyProcessed {
 			if err := extractNestedArchive(ctx, d, rel, extracted); err != nil {
@@ -111,6 +118,10 @@ func extractNestedArchive(ctx context.Context, d string, f string, extracted *sy
 
 // extractArchiveToTempDir creates a temporary directory and extracts the archive file for scanning.
 func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
+	if ctx.Err() != nil {
+		return "", ctx.Err()
+	}
+
 	logger := clog.FromContext(ctx).With("path", path)
 	logger.Debug("creating temp dir")
 
@@ -118,6 +129,12 @@ func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to create temp dir: %w", err)
 	}
+
+	go func() {
+		<-ctx.Done()
+		logger.Debug("context cancelled, cleaning up temp dir")
+		os.RemoveAll(tmpDir)
+	}()
 
 	initializeOnce.Do(func() {
 		archivePool = pool.NewBufferPool()

@@ -148,6 +148,10 @@ var diffTestData = []diffData{
 }
 
 func diffRefresh(ctx context.Context, rc Config) ([]TestData, error) {
+	if ctx.Err() != nil {
+		return nil, ctx.Err()
+	}
+
 	testData := make([]TestData, 0, len(diffTestData))
 
 	for _, td := range diffTestData {

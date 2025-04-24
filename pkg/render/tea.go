@@ -347,13 +347,21 @@ func (r *Interactive) Start() {
 	}()
 }
 
-func (r *Interactive) Scanning(_ context.Context, path string) {
+func (r *Interactive) Scanning(ctx context.Context, path string) {
+	if ctx.Err() != nil {
+		return
+	}
+
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.program.Send(scanUpdateMsg{path: path})
 }
 
 func (r *Interactive) File(ctx context.Context, fr *malcontent.FileReport) error {
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
+
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -384,6 +392,10 @@ func (r *Interactive) File(ctx context.Context, fr *malcontent.FileReport) error
 }
 
 func (r *Interactive) Full(ctx context.Context, _ *malcontent.Config, rep *malcontent.Report) error {
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
+
 	defer func() {
 		r.program.Send(scanCompleteMsg{})
 		r.wg.Wait()

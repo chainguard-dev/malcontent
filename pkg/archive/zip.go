@@ -20,6 +20,10 @@ var initZipPool sync.Once
 
 // ExtractZip extracts .jar and .zip archives.
 func ExtractZip(ctx context.Context, d string, f string) error {
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
+
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting zip")
 
@@ -61,6 +65,10 @@ func ExtractZip(ctx context.Context, d string, f string) error {
 }
 
 func extractFile(ctx context.Context, file *zip.File, destDir string, logger *clog.Logger) error {
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
+
 	// #nosec G115 // ignore Type conversion which leads to integer overflow
 	buf := zipPool.Get(int64(file.UncompressedSize64))
 	defer zipPool.Put(buf)

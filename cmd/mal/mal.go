@@ -13,10 +13,12 @@ import (
 	"io/fs"
 	"log/slog"
 	"os"
+	"os/signal"
 	"runtime"
 	"slices"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
@@ -105,7 +107,6 @@ func main() {
 	// variables to share between stages
 	var (
 		mc       malcontent.Config
-		ctx      context.Context
 		err      error
 		outFile  = os.Stdout
 		renderer malcontent.Renderer
@@ -113,6 +114,14 @@ func main() {
 		p        *profile.Profiler
 		ver      string
 	)
+
+	ctx, cancel := context.WithCancel(context.TODO())
+	ctx = clog.WithLogger(ctx, log)
+	defer cancel()
+
+	go func() {
+		handleContext(cancel, log)
+	}()
 
 	ver, err = version.Version()
 	if err != nil {
@@ -140,7 +149,6 @@ func main() {
 		},
 		// Handle shared initialization (flag parsing, rule compilation, configuration)
 		Before: func(c *cli.Context) error {
-			ctx = clog.WithLogger(c.Context, log)
 			clog.FromContext(ctx).Info("malcontent starting")
 
 			if profileFlag {
@@ -154,7 +162,6 @@ func main() {
 			}
 
 			if verboseFlag {
-				logOpts.AddSource = true
 				logLevel.Set(slog.LevelDebug)
 			}
 
@@ -251,10 +258,7 @@ func main() {
 				returnCode = ExitInvalidRules
 			}
 
-			concurrency := concurrencyFlag
-			if concurrency < 1 {
-				concurrency = 1
-			}
+			concurrency := max(1, concurrencyFlag)
 
 			mc = malcontent.Config{
 				Concurrency:           concurrency,
@@ -593,7 +597,7 @@ func main() {
 		},
 	}
 
-	if err := app.Run(os.Args); err != nil {
+	if err := app.RunContext(ctx, os.Args); err != nil {
 		if returnCode != 0 {
 			returnCode = ExitActionFailed
 		}
@@ -603,4 +607,20 @@ func main() {
 
 		showError(err)
 	}
+}
+
+// handleContext gracefully handles context cancellations.
+func handleContext(cancel context.CancelFunc, logger *clog.Logger) {
+	sigCh := make(chan os.Signal, 1)
+	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
+
+	sig := <-sigCh
+	logger.Debug("received signal", slog.Any("signal", sig))
+	cancel()
+
+	// Force exit after timeout
+	time.AfterFunc(10*time.Second, func() {
+		logger.Error("forced exit after timeout")
+		os.Exit(1)
+	})
 }
