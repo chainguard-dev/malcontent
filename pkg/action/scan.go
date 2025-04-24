@@ -11,14 +11,12 @@ import (
 	"io/fs"
 	"log/slog"
 	"os"
-	"os/signal"
 	"path/filepath"
 	"runtime"
 	"sort"
 	"strings"
 	"sync"
 	"sync/atomic"
-	"syscall"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/archive"
@@ -725,14 +723,6 @@ func processFile(ctx context.Context, c malcontent.Config, ruleFS []fs.FS, path 
 func Scan(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) {
 	scanCtx, cancel := context.WithCancel(ctx)
 	defer cancel()
-
-	sigCh := make(chan os.Signal, 1)
-	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
-	defer signal.Stop(sigCh)
-	go func() {
-		<-sigCh
-		cancel()
-	}()
 
 	r, err := recursiveScan(scanCtx, c)
 	if errors.Is(err, context.Canceled) {
