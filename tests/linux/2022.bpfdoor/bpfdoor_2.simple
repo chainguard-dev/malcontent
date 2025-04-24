@@ -1,5 +1,4 @@
 # linux/2022.bpfdoor/bpfdoor_2: critical
-3P/elastic/bpfdoor: critical
 credential/sniffer/pcap: high
 evasion/logging/hide_shell_history: high
 exec/program: medium

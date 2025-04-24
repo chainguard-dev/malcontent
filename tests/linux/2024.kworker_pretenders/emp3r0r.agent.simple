@@ -1,5 +1,4 @@
 # linux/2024.kworker_pretenders/emp3r0r.agent: critical
-3P/elastic/exploit_cve_2021: critical
 anti-behavior/random_behavior: low
 anti-behavior/vm_check: medium
 anti-static/elf/entropy: high

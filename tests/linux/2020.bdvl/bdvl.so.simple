@@ -1,5 +1,4 @@
 # linux/2020.bdvl/bdvl.so: critical
-3P/elastic/rootkit_bedevil: critical
 anti-behavior/LD_DEBUG: medium
 anti-behavior/process_check: high
 credential/password: low
