@@ -133,7 +133,7 @@ func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 	go func() {
 		<-ctx.Done()
 		logger.Debug("context cancelled, cleaning up temp dir")
-		defer os.RemoveAll(tmpDir)
+		os.RemoveAll(tmpDir)
 	}()
 
 	initializeOnce.Do(func() {
@@ -221,11 +221,6 @@ func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 		}
 		return true
 	})
-
-	if ctx.Err() != nil {
-		defer os.RemoveAll(tmpDir)
-		return "", ctx.Err()
-	}
 
 	return tmpDir, nil
 }

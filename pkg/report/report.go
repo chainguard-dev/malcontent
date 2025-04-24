@@ -639,10 +639,6 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 
 // upgradeRisk determines whether to upgrade risk based on finding density.
 func upgradeRisk(ctx context.Context, riskScore int, riskCounts map[int]int, size int64) bool {
-	if ctx.Err() != nil {
-		return false
-	}
-
 	if riskScore != 3 {
 		return false
 	}

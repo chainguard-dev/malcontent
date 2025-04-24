@@ -107,7 +107,6 @@ func main() {
 	// variables to share between stages
 	var (
 		mc       malcontent.Config
-		baseCtx  context.Context
 		err      error
 		outFile  = os.Stdout
 		renderer malcontent.Renderer
@@ -115,6 +114,14 @@ func main() {
 		p        *profile.Profiler
 		ver      string
 	)
+
+	ctx, cancel := context.WithCancel(context.TODO())
+	ctx = clog.WithLogger(ctx, log)
+	defer cancel()
+
+	go func() {
+		handleContext(cancel, log)
+	}()
 
 	ver, err = version.Version()
 	if err != nil {
@@ -142,12 +149,11 @@ func main() {
 		},
 		// Handle shared initialization (flag parsing, rule compilation, configuration)
 		Before: func(c *cli.Context) error {
-			baseCtx = clog.WithLogger(c.Context, log)
-			clog.FromContext(baseCtx).Info("malcontent starting")
+			clog.FromContext(ctx).Info("malcontent starting")
 
 			if profileFlag {
 				var err error
-				p, err = profile.StartProfiling(baseCtx, profile.DefaultConfig())
+				p, err = profile.StartProfiling(ctx, profile.DefaultConfig())
 				if err != nil {
 					log.Error("profiling failed", slog.Any("error", err))
 					returnCode = ExitProfilerError
@@ -156,7 +162,6 @@ func main() {
 			}
 
 			if verboseFlag {
-				logOpts.AddSource = true
 				logLevel.Set(slog.LevelDebug)
 			}
 
@@ -248,7 +253,7 @@ func main() {
 				rfs = append(rfs, thirdparty.FS)
 			}
 
-			yrs, err := action.CachedRules(baseCtx, rfs)
+			yrs, err := action.CachedRules(ctx, rfs)
 			if err != nil {
 				returnCode = ExitInvalidRules
 			}
@@ -407,13 +412,6 @@ func main() {
 					},
 				},
 				Action: func(c *cli.Context) error {
-					ctx, cancel := context.WithCancel(baseCtx)
-					defer cancel()
-
-					go func() {
-						handleContext(cancel, clog.FromContext(ctx))
-					}()
-
 					// Handle edge cases
 					// Set bc.OCI if the image flag is used
 					// Default to path scanning if neither flag is passed (images must be scanned via --image or -i)
@@ -481,13 +479,6 @@ func main() {
 					},
 				},
 				Action: func(c *cli.Context) error {
-					ctx, cancel := context.WithCancel(baseCtx)
-					defer cancel()
-
-					go func() {
-						handleContext(cancel, clog.FromContext(ctx))
-					}()
-
 					switch {
 					case c.Bool("file-risk-change"):
 						mc.FileRiskChange = true
@@ -518,13 +509,6 @@ func main() {
 				Name:  "refresh",
 				Usage: "Refresh test data",
 				Action: func(_ *cli.Context) error {
-					ctx, cancel := context.WithCancel(baseCtx)
-					defer cancel()
-
-					go func() {
-						handleContext(cancel, clog.FromContext(ctx))
-					}()
-
 					cfg := refresh.Config{
 						Concurrency:  runtime.NumCPU(),
 						SamplesPath:  "./out/chainguard-dev/malcontent-samples",
@@ -554,13 +538,6 @@ func main() {
 					},
 				},
 				Action: func(c *cli.Context) error {
-					ctx, cancel := context.WithCancel(baseCtx)
-					defer cancel()
-
-					go func() {
-						handleContext(cancel, clog.FromContext(ctx))
-					}()
-
 					mc.Scan = true
 					// Handle edge cases
 					// Set bc.OCI if the image flag is used
@@ -620,7 +597,7 @@ func main() {
 		},
 	}
 
-	if err := app.Run(os.Args); err != nil {
+	if err := app.RunContext(ctx, os.Args); err != nil {
 		if returnCode != 0 {
 			returnCode = ExitActionFailed
 		}

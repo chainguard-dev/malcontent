@@ -398,7 +398,7 @@ func processPaths(ctx context.Context, paths []string, scanInfo scanPathInfo, c 
 		cancel()
 	}()
 
-	g := setupErrorGroup(scanCtx, maxConcurrency)
+	g := setupErrorGroup(maxConcurrency)
 
 	setupMatchHandler(scanCtx, matchChan, c, cancel, logger)
 
@@ -416,10 +416,6 @@ func processPaths(ctx context.Context, paths []string, scanInfo scanPathInfo, c 
 	}()
 
 	for path := range pc {
-		if scanCtx.Err() != nil {
-			break
-		}
-
 		g.Go(func() error {
 			if scanCtx.Err() != nil {
 				return scanCtx.Err()
@@ -462,11 +458,7 @@ func createPathChannel(paths []string) chan string {
 	return pc
 }
 
-func setupErrorGroup(ctx context.Context, maxConcurrency int) *errgroup.Group {
-	if ctx.Err() != nil {
-		return nil
-	}
-
+func setupErrorGroup(maxConcurrency int) *errgroup.Group {
 	g := &errgroup.Group{}
 	g.SetLimit(maxConcurrency)
 	return g
@@ -666,7 +658,7 @@ func processArchive(ctx context.Context, c malcontent.Config, rfs []fs.FS, archi
 	scanCtx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	g := setupErrorGroup(ctx, maxConcurrency)
+	g := setupErrorGroup(maxConcurrency)
 
 	ep := createPathChannel(extractedPaths)
 	for path := range ep {
