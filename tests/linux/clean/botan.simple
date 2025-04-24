@@ -1,5 +1,6 @@
 # linux/clean/botan: medium
 anti-behavior/random_behavior: low
+anti-static/obfuscation/js: medium
 credential/password: low
 credential/ssl/private_key: low
 crypto/aes: low

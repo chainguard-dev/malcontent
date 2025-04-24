@@ -1,12 +1,15 @@
 import "hash"
 
-private rule probably_python {
+private rule obfs_probably_python {
   strings:
-    $import   = "import "
-    $f_common = /\s(def|if|with|else:) /
-    $f_exotic = /exec\(|b64decode|bytes\(/
-    $f_for    = /for [a-z] in/
-    $f_join   = ".join("
+    $import       = "import "
+    $f_common     = /\s(def|if|with|else|try|except:) /
+    $f_exotic     = /exec\(|b64decode|bytes\(/
+    $f_for        = /for [a-z] in/
+    $f_join       = ".join("
+    $f_requests   = /(from|import) requests/
+    $f_requests2  = "requests."
+    $f_subprocess = /subprocess.(Popen|run)/
 
   condition:
     filesize < 10MB and ($import in (1..1024) or any of ($f*))
@@ -34,7 +37,7 @@ rule join_map_chr: high {
     $ref2 = /join\(chr\([a-z]{1,5}\) for [a-z]{1,5} in \[\d{1,3}, {0,2}\d{1,3}, {0,2}[\d\,]{1,32}/
 
   condition:
-    filesize < 10MB and any of them
+    obfs_probably_python and filesize < 10MB and any of them
 }
 
 rule for_join_ord: high {
@@ -46,7 +49,7 @@ rule for_join_ord: high {
     $ref = /for [\w]{1,10} in ["']{2}\.join\(chr\(ord\(\w{1,8}\)[-\w\), ]{0,16}/
 
   condition:
-    filesize < 10MB and any of them
+    obfs_probably_python and filesize < 10MB and any of them
 }
 
 rule codecs_decode: high {
@@ -57,7 +60,7 @@ rule codecs_decode: high {
     $val = /[\w\= ]{0,16}codecs\.decode\(\'.{0,32}\'/
 
   condition:
-    $val
+    obfs_probably_python and $val
 }
 
 import "math"
@@ -73,7 +76,7 @@ rule python_exec_eval_one_line: critical {
     $not_opa2                = " (DEPRECATED: %s)decryption"
 
   condition:
-    any of ($f*) and none of ($not*)
+    obfs_probably_python and any of ($f*) and none of ($not*)
 }
 
 rule dynamic_require: high {
@@ -87,7 +90,7 @@ rule dynamic_require: high {
     $not_str = "require(str("
 
   condition:
-    $import and $ref and none of ($not*)
+    obfs_probably_python and $import and $ref and none of ($not*)
 }
 
 rule dynamic_require_decoded: critical {
@@ -99,7 +102,7 @@ rule dynamic_require_decoded: critical {
     $ref = /require\((strrev|base64_decode)\(.{0,64}\)/
 
   condition:
-    $ref
+    obfs_probably_python and $ref
 }
 
 rule dynamic_require_double_obscured: critical {
@@ -110,7 +113,7 @@ rule dynamic_require_double_obscured: critical {
     $ref = /require\(\w{0,16}\d\w{0,16}\(.{0,16}\d\w{0,16}/
 
   condition:
-    $ref
+    obfs_probably_python and $ref
 }
 
 rule python_eval_hex: high {
@@ -122,7 +125,7 @@ rule python_eval_hex: high {
     $chars = /eval\(\"\\\d{1,3}.{0,32}/
 
   condition:
-    any of them
+    obfs_probably_python and any of them
 }
 
 rule python_eval_marshal: high {
@@ -134,7 +137,7 @@ rule python_eval_marshal: high {
     $json    = "eval(json.loads"
 
   condition:
-    any of them
+    obfs_probably_python and any of them
 }
 
 rule python_eval_gzip: high {
@@ -145,7 +148,7 @@ rule python_eval_gzip: high {
     $ref = /eval\(.{0,32}\(gzip\.decompress\(b.{0,32}/
 
   condition:
-    any of them
+    obfs_probably_python and any of them
 }
 
 rule python_exec_hex: high {
@@ -157,7 +160,7 @@ rule python_exec_hex: high {
     $chars = /exec\(\"\\\d{1,3}.{0,32}/
 
   condition:
-    any of them
+    obfs_probably_python and any of them
 }
 
 rule python_exec_marshal: high {
@@ -169,7 +172,7 @@ rule python_exec_marshal: high {
     $json    = "exec(json.loads"
 
   condition:
-    any of them
+    obfs_probably_python and any of them
 }
 
 rule python_exec_gzip: high {
@@ -180,7 +183,7 @@ rule python_exec_gzip: high {
     $ref = /exec\(.{0,32}\(gzip\.decompress\(b.{0,32}/
 
   condition:
-    any of them
+    obfs_probably_python and any of them
 }
 
 rule fernet_base64: high {
@@ -204,7 +207,7 @@ rule fernet_base64: high {
     $not_fernet_itself = "class Fernet"
 
   condition:
-    filesize < 2MB and any of ($fernet*) and any of ($bdecode*) and any of ($o*) and none of ($not*)
+    obfs_probably_python and filesize < 2MB and any of ($fernet*) and any of ($bdecode*) and any of ($o*) and none of ($not*)
 }
 
 rule python_hex_decimal: high {
@@ -223,7 +226,7 @@ rule python_hex_decimal: high {
     $not_testing_t = "*testing.T" fullword
 
   condition:
-    filesize < 10MB and any of ($f*) and #trash in (filesize - 1024..filesize) > 100 and none of ($not*)
+    obfs_probably_python and filesize < 10MB and any of ($f*) and #trash in (filesize - 1024..filesize) > 100 and none of ($not*)
 }
 
 rule dumb_int_compares: high {
@@ -236,7 +239,7 @@ rule dumb_int_compares: high {
     $decode_or_b64decode = /if \d{2,16} == \d{2,16}/
 
   condition:
-    filesize < 10MB and all of them
+    obfs_probably_python and filesize < 10MB and all of them
 }
 
 rule py_lib_alias_val: medium {
@@ -260,7 +263,7 @@ rule multi_decode_3: high {
     $decode_or_b64decode = /\.[b64]{0,3}decode\(.{0,256}\.[b64]{0,3}decode\(.{0,256}\.[b64]{0,3}decode/
 
   condition:
-    probably_python and filesize < 10MB and all of them
+    obfs_probably_python and filesize < 10MB and all of them
 }
 
 rule multi_decode: medium {
@@ -273,7 +276,7 @@ rule multi_decode: medium {
     $decode_or_b64decode = /\.[b64]{0,3}decode\(.{0,32}\.[b64]{0,3}decode\(/
 
   condition:
-    filesize < 10MB and all of them
+    obfs_probably_python and filesize < 10MB and all of them
 }
 
 rule rename_requests: medium {
@@ -284,7 +287,7 @@ rule rename_requests: medium {
     $ref = /import requests as \w{0,64}/
 
   condition:
-    filesize < 10MB and all of them
+    obfs_probably_python and filesize < 10MB and all of them
 }
 
 rule rename_requests_2char: high {
@@ -295,7 +298,7 @@ rule rename_requests_2char: high {
     $ref = /import requests as \w{1,2}/ fullword
 
   condition:
-    filesize < 32KB and all of them
+    obfs_probably_python and filesize < 32KB and all of them
 }
 
 rule rename_os: high {
@@ -319,7 +322,7 @@ rule rename_marshal: critical {
     $ref = /import marshal as \w{0,64}/
 
   condition:
-    filesize < 10MB and all of them
+    obfs_probably_python and filesize < 10MB and all of them
 }
 
 rule rename_base64: critical {
@@ -348,7 +351,7 @@ rule rename_zlib: high {
     $ref = /import zlib as \w{0,64}/
 
   condition:
-    filesize < 10MB and all of them
+    obfs_probably_python and filesize < 10MB and all of them
 }
 
 rule too_many_lambdas_small: high {
@@ -370,7 +373,7 @@ rule too_many_lambdas_large: high {
     $ref = /lambda \W: \W [\+\-\*]/
 
   condition:
-    filesize < 10MB and #ref > 100
+    obfs_probably_python and filesize < 10MB and #ref > 100
 }
 
 rule lambda_funk: high {
@@ -386,7 +389,7 @@ rule lambda_funk: high {
     $ = ".decode('utf-8'))"
 
   condition:
-    filesize < 10MB and 80 % of them
+    obfs_probably_python and filesize < 10MB and 80 % of them
 }
 
 rule lambda_funk_high: high {
@@ -436,7 +439,7 @@ rule decompress_base64_entropy: high {
     $b64decode_long = /b64decode\(\"[\+\=\w\/]{96}/
 
   condition:
-    filesize < 10MB and any of ($k*) and $b64decode_long and any of ($f*)
+    obfs_probably_python and filesize < 10MB and any of ($k*) and $b64decode_long and any of ($f*)
 }
 
 rule join: low {
@@ -448,7 +451,7 @@ rule join: low {
     $join_double = "\"\".join("
 
   condition:
-    probably_python and any of them
+    obfs_probably_python and any of them
 }
 
 rule join_chr_array: medium {
@@ -460,7 +463,7 @@ rule join_chr_array: medium {
     $chr_int = "chr(int("
 
   condition:
-    join and all of them
+    obfs_probably_python and join and all of them
 }
 
 rule join_chr_array_exec: high {
@@ -505,7 +508,7 @@ rule urllib_as_int_array: critical {
     $urllib_dot2 = "117, 114, 108, 108, 105, 98, 46"
 
   condition:
-    filesize < 10MB and any of them
+    obfs_probably_python and filesize < 10MB and any of them
 }
 
 rule import_manipulator: critical {
@@ -525,7 +528,7 @@ rule import_manipulator: critical {
   condition:
     // a91160135598f3decc8ca9f9b019dcc5e1d73e79ebe639548cd9ee9e6d007ea6 is the sha256 hash
     // for https://github.com/pypy/pypy/blob/main/lib-python/2.7/pickle.py
-    filesize < 10MB and (hash.sha256(0, filesize) != "a91160135598f3decc8ca9f9b019dcc5e1d73e79ebe639548cd9ee9e6d007ea6") and all of them
+    obfs_probably_python and filesize < 10MB and (hash.sha256(0, filesize) != "a91160135598f3decc8ca9f9b019dcc5e1d73e79ebe639548cd9ee9e6d007ea6") and all of them
 }
 
 rule bloated_hex_python: high {
@@ -548,5 +551,5 @@ rule bloated_hex_python: high {
     $not_highlight = "highlight"
 
   condition:
-    filesize > 512KB and filesize < 10MB and 90 % of ($f*) and none of ($not*)
+    obfs_probably_python and filesize > 512KB and filesize < 10MB and 90 % of ($f*) and none of ($not*)
 }

@@ -1,19 +1,26 @@
 import "math"
 
-private rule probably_js {
+private rule obfs_probably_js {
   strings:
-    $f_function = /function\(\w{0,8}\)/
-    $f_const    = /\bconst\s/
-    $f_return   = /\breturn\s/
-    $f_var      = /\bvar\s/
-    $f_Array    = "Array.prototype" fullword
-    $f_true     = "true);"
-    $f_false    = "false);"
-    $f_run      = ".run("
-    $f_Run      = ".Run("
+    $f_function  = /function\(\w{0,8}\)/
+    $f_const     = /\bconst\s/
+    $f_return    = /\breturn\s/
+    $f_var       = /\bvar\s/
+    $f_Array     = "Array.prototype" fullword
+    $f_true      = "true);"
+    $f_false     = "false);"
+    $f_run       = ".run("
+    $f_Run       = ".Run("
+    $f_Object    = "Object."
+    $f_async     = "async function"
+    $f_await     = "await"
+    $f_this      = "this."
+    $f_prototype = ".prototype"
+
+    $not_asyncio = "await asyncio"
 
   condition:
-    filesize < 3MB and 3 of them
+    filesize < 5MB and 3 of them and none of ($not*)
 }
 
 rule character_obfuscation: medium {
@@ -35,7 +42,7 @@ rule character_obfuscation: medium {
     $return   = "{return"
 
   condition:
-    filesize < 4MB and all of them
+    obfs_probably_js and filesize < 4MB and all of them
 }
 
 rule js_char_code_at_substitution: high {
@@ -48,7 +55,7 @@ rule js_char_code_at_substitution: high {
     $index      = "fghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ012345"
 
   condition:
-    filesize < 256KB and all of them
+    obfs_probably_js and filesize < 256KB and all of them
 }
 
 rule child_process: critical {
@@ -66,7 +73,7 @@ rule child_process: critical {
     $wtf_hex         = /\w{4,16}\<\-0x\d{2,4}/
 
   condition:
-    filesize < 1MB and all of them and math.entropy(1, filesize) >= 6
+    obfs_probably_js and filesize < 1MB and all of them and math.entropy(1, filesize) >= 6
 }
 
 rule ebe: critical {
@@ -81,7 +88,7 @@ rule ebe: critical {
     $ref = /eBe\(-\d{1,3}\)/
 
   condition:
-    filesize < 5MB and $function and $charCodeAt and #ref > 10
+    obfs_probably_js and filesize < 5MB and $function and $charCodeAt and #ref > 10
 }
 
 rule ebe_generic: high {
@@ -98,7 +105,7 @@ rule ebe_generic: high {
     $ref3 = /\>\w{1,3}\(\d{1,3}\)\);\w\[\w{1,3}\(\d{1,3}\)\]\=/
 
   condition:
-    filesize < 5MB and #function > 0 and $charCodeAt and (#ref > 5 or #ref2 > 5 or #ref3 > 5)
+    obfs_probably_js and filesize < 5MB and #function > 0 and $charCodeAt and (#ref > 5 or #ref2 > 5 or #ref3 > 5)
 }
 
 rule exec_console_log: critical {
@@ -122,7 +129,7 @@ rule js_const_func_obfuscation: medium {
     $return   = "{return"
 
   condition:
-    filesize < 256KB and #const > 32 and #function > 48 and #return > 64
+    obfs_probably_js and filesize < 256KB and #const > 32 and #function > 48 and #return > 64
 }
 
 rule js_hex_eval_obfuscation: critical {
@@ -133,7 +140,7 @@ rule js_hex_eval_obfuscation: critical {
     $return = /\(eval, _{0,4}0x[\w]{0,32}[\(\[]/
 
   condition:
-    filesize < 128KB and any of them
+    obfs_probably_js and filesize < 128KB and any of them
 }
 
 rule js_hex_obfuscation: critical {
@@ -145,7 +152,7 @@ rule js_hex_obfuscation: critical {
     $const  = /const _{0,4}0x[\w]{0,32}\s*=[\w]{0,32}/
 
   condition:
-    filesize < 1MB and any of them
+    obfs_probably_js and filesize < 1MB and any of them
 }
 
 rule high_entropy: medium {
@@ -153,7 +160,7 @@ rule high_entropy: medium {
     description = "high entropy javascript (>6)"
 
   condition:
-    probably_js and math.entropy(1, filesize) >= 6
+    obfs_probably_js and math.entropy(1, filesize) >= 6
 }
 
 rule very_high_entropy: critical {
@@ -161,7 +168,7 @@ rule very_high_entropy: critical {
     description = "very high entropy javascript (>7)"
 
   condition:
-    probably_js and math.entropy(1, filesize) >= 7
+    obfs_probably_js and math.entropy(1, filesize) >= 7
 }
 
 rule charCodeAtIncrement: medium {
@@ -174,7 +181,7 @@ rule charCodeAtIncrement: medium {
     $increment = /charCodeAt\(\+\+\w{0,4}\)/
 
   condition:
-    filesize < 4MB and $function and #increment > 1
+    obfs_probably_js and filesize < 4MB and $function and #increment > 1
 }
 
 rule js_many_parseInt: high {
@@ -189,7 +196,7 @@ rule js_many_parseInt: high {
     $parseInt = "parseInt"
 
   condition:
-    filesize < 256KB and #const > 16 and #function > 32 and #parseInt > 8 and #return > 32
+    obfs_probably_js and filesize < 256KB and #const > 16 and #function > 32 and #parseInt > 8 and #return > 32
 }
 
 rule over_powered_arrays: high {
@@ -203,7 +210,7 @@ rule over_powered_arrays: high {
     $power_array = /\w\[\d{1,4}\]\^\w\[\d{1,4}\]/
 
   condition:
-    filesize < 5MB and $function and $charAt and #power_array > 25
+    obfs_probably_js and filesize < 5MB and $function and $charAt and #power_array > 25
 }
 
 rule string_prototype_function: high {
@@ -226,7 +233,7 @@ rule unicode_prototype: critical {
     $ref = /Array\.prototype\.\\[\w\\]{2,256}\s{0,2}=.{0,64}/
 
   condition:
-    probably_js and any of them
+    obfs_probably_js and any of them
 }
 
 rule var_filler: high {
@@ -248,7 +255,7 @@ rule large_random_variables: high {
     $ref = /var [a-zA-Z_]{32,256} = '.{4}/ fullword
 
   condition:
-    probably_js and #ref > 1
+    obfs_probably_js and #ref > 1
 }
 
 rule many_complex_var: medium {
@@ -259,7 +266,7 @@ rule many_complex_var: medium {
     $ref = /var [a-zA-Z_]{1,256} = \(/
 
   condition:
-    probably_js and #ref > 64
+    obfs_probably_js and #ref > 64
 }
 
 rule many_complex_var_high: high {
@@ -270,7 +277,7 @@ rule many_complex_var_high: high {
     $ref = /var [a-zA-Z_]{1,256} = \(.{1,64}/
 
   condition:
-    probably_js and #ref > 400
+    obfs_probably_js and #ref > 400
 }
 
 rule many_static_map_lookups: medium {
@@ -281,7 +288,7 @@ rule many_static_map_lookups: medium {
     $ref = /\[[\"\'][a-z]{1,32}[\"\']\]/
 
   condition:
-    probably_js and #ref > 128
+    obfs_probably_js and #ref > 128
 }
 
 rule obfuscated_map_to_array_conversions: high {
@@ -292,7 +299,7 @@ rule obfuscated_map_to_array_conversions: high {
     $ref = /\[[\"\'a-z]{1,32}\]\s{0,2}\+\s{0,2}\[\]\)\[\d{1,4}\]/
 
   condition:
-    probably_js and #ref > 32
+    obfs_probably_js and #ref > 32
 }
 
 rule large_obfuscated_array: high {
@@ -304,7 +311,7 @@ rule large_obfuscated_array: high {
     $ref2 = /[a-z]{1,256}\[\'\w{32,2048}\'\]/ fullword
 
   condition:
-    probably_js and all of them
+    obfs_probably_js and all of them
 }
 
 rule high_entropy_charAt: medium {
@@ -319,5 +326,5 @@ rule high_entropy_charAt: medium {
     $ = "for("
 
   condition:
-    probably_js and math.entropy(1, filesize) >= 5.37 and all of them
+    obfs_probably_js and math.entropy(1, filesize) >= 5.37 and all of them
 }
