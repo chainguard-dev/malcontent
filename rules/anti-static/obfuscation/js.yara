@@ -2,25 +2,32 @@ import "math"
 
 private rule obfs_probably_js {
   strings:
-    $f_function  = /function\(\w{0,8}\)/
-    $f_const     = /\bconst\s/
-    $f_return    = /\breturn\s/
-    $f_var       = /\bvar\s/
     $f_Array     = "Array.prototype" fullword
-    $f_true      = "true);"
-    $f_false     = "false);"
-    $f_run       = ".run("
-    $f_Run       = ".Run("
-    $f_Object    = "Object."
     $f_async     = "async function"
     $f_await     = "await"
-    $f_this      = "this."
+    $f_catch     = "} catch"
+    $f_const     = /\bconst\s/
+    $f_false     = "false);"
+    $f_function  = /function\(\w{0,32}\)/
+    $f_function2 = "function()"
+    $f_Object    = "Object."
+    $f_promise   = "Promise"
     $f_prototype = ".prototype"
+    $f_require   = "require("
+    $f_return    = /\breturn\s/
+    $f_Run       = ".Run("
+    $f_run       = ".run("
+    $f_strict    = "==="
+    $f_this      = "this."
+    $f_this2     = "this["
+    $f_true      = "true);"
+    $f_try       = "try {"
+    $f_var       = /\bvar\s/
 
     $not_asyncio = "await asyncio"
 
   condition:
-    filesize < 5MB and 3 of them and none of ($not*)
+    filesize < 5MB and 4 of them and none of ($not*)
 }
 
 rule character_obfuscation: medium {
