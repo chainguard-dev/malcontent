@@ -49,10 +49,33 @@ func ExtractZip(ctx context.Context, d string, f string) error {
 		return fmt.Errorf("failed to create extraction directory: %w", err)
 	}
 
+	for _, file := range read.File {
+		if file.Mode().IsDir() {
+			clean := filepath.Clean(filepath.ToSlash(file.Name))
+			if strings.Contains(clean, "..") {
+				logger.Warnf("skipping potentially unsafe directory path: %s", file.Name)
+				continue
+			}
+
+			target := filepath.Join(d, clean)
+			if !IsValidPath(target, d) {
+				logger.Warnf("skipping directory path outside extraction directory: %s", target)
+				continue
+			}
+
+			if err := os.MkdirAll(target, 0o700); err != nil {
+				return fmt.Errorf("failed to create directory structure: %w", err)
+			}
+		}
+	}
+
 	g, gCtx := errgroup.WithContext(ctx)
 	g.SetLimit(min(runtime.GOMAXPROCS(0), len(read.File)))
 
 	for _, file := range read.File {
+		if file.Mode().IsDir() {
+			continue
+		}
 		g.Go(func() error {
 			return extractFile(gCtx, file, d, logger)
 		})
@@ -89,10 +112,6 @@ func extractFile(ctx context.Context, file *zip.File, destDir string, logger *cl
 	case <-ctx.Done():
 		return ctx.Err()
 	default:
-	}
-
-	if file.Mode().IsDir() {
-		return os.MkdirAll(target, 0o700)
 	}
 
 	if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
