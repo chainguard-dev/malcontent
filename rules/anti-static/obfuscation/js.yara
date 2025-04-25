@@ -105,7 +105,7 @@ rule ebe: critical {
     $function   = "function("
     $charCodeAt = "charCodeAt"
 
-    $ref  = /eBe\([-]?\d{1,3}\)/
+    $ref = /eBe\([-]?\d{1,3}\)/
 
   condition:
     obfs_probably_js and filesize < 5MB and $function and $charCodeAt and #ref > 10
