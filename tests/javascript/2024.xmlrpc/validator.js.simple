@@ -2,7 +2,6 @@
 anti-static/obfuscation/bool: medium
 anti-static/obfuscation/hex: medium
 anti-static/obfuscation/js: critical
-anti-static/obfuscation/python: critical
 anti-static/obfuscation/strtoi: medium
 c2/addr/url: medium
 c2/client: medium

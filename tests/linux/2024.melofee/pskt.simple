@@ -5,6 +5,7 @@ anti-behavior/LD_PROFILE: medium
 anti-behavior/random_behavior: low
 anti-static/elf/entropy: high
 anti-static/elf/multiple: medium
+anti-static/obfuscation/js: medium
 c2/addr/ip: medium
 c2/addr/url: low
 c2/tool_transfer/arch: low

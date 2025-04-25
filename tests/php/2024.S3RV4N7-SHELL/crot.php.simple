@@ -5,6 +5,5 @@ anti-static/obfuscation/php: medium
 data/base64/decode: medium
 data/encoding/base64: low
 evasion/indicator_blocking/mask_exceptions: medium
-exec/remote_commands/code_eval: medium
 impact/remote_access/php: high
 net/url/embedded: low

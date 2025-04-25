@@ -2,7 +2,6 @@
 c2/addr/url: medium
 data/encoding/json_encode: low
 exec/imports/python: low
-exec/remote_commands/code_eval: medium
 exec/shell/command: medium
 false-positives/setuptools: low
 fs/directory/create: low
