@@ -1,5 +1,4 @@
 # ruby/2024.Ruby_rootkit/Ruby.c: critical
-3P/elastic/rootkit: high
 c2/refs: medium
 evasion/rootkit/kernel: critical
 evasion/rootkit/refs: high

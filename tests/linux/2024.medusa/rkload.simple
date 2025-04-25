@@ -1,5 +1,4 @@
 # linux/2024.medusa/rkload: critical
-3P/elastic/orbit: critical
 anti-behavior/LD_DEBUG: medium
 anti-behavior/LD_PROFILE: medium
 anti-behavior/random_behavior: low
