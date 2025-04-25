@@ -34,6 +34,18 @@ function fixup_rules() {
 	perl -p -i -e 's/ +$//;' "$@"
 	# VirusTotal-specific YARA
 	perl -p -i -e 's#and file_type contains \"\w+\"##;' "$@"
+	# Convert problematic string literals
+	for file in "$@"; do
+		if [[ "$(basename "$file")" == "Macos_Infostealer_Wallets.yar" ]]; then
+			perl -p -i -e 'if (/^(\s*)(\$s\d+)\s*=\s*"([^"]+)"\s+ascii wide nocase$/) {
+				my $indent = $1;
+				my $var = $2;
+				my $str = $3;
+				my $hex = join(" ", map { sprintf "%02X", ord($_) } split(//, $str));
+				$_ = "$indent$var = {$hex}\n";
+			}' "$file"
+		fi
+	done
 }
 
 # update_dep updates a dependency to the latest release
@@ -72,6 +84,10 @@ function update_dep() {
 		rel=$(git_clone https://github.com/ttc-cert/TTC-CERT-YARA-Rules.git "${tmpdir}")
 		cp -Rp ${tmpdir}/* "${kind}/"
 		;;
+	elastic)
+	  rel=$(git_clone https://github.com/elastic/protections-artifacts.git "${tmpdir}")
+		find "${tmpdir}" \( -name "*.yar*" -o -name "*LICENSE*" \) -print -exec cp {} "${kind}" \;
+	  ;;
 	*)
 		echo "unknown kind: ${kind}"
 		exit 2

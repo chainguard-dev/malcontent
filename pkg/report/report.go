@@ -209,7 +209,7 @@ func behaviorRisk(ns string, rule string, tags []string) int {
 		src := strings.Split(ns, "/")[1]
 
 		switch src {
-		case "JPCERT", "YARAForge", "bartblaze", "huntress":
+		case "JPCERT", "YARAForge", "bartblaze", "huntress", "elastic":
 			risk = 4
 			if strings.Contains(strings.ToLower(ns), "generic") ||
 				strings.Contains(strings.ToLower(rule), "generic") {
