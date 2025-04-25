@@ -2,6 +2,7 @@
 3P/JPCERT/apt10_chches_lnk: critical
 3P/ditekshen/discordurl: critical
 3P/ditekshen/vm_evasion_macaddrcomb: critical
+3P/elastic/infostealer_wallets: critical
 3P/elastic/multi_threat: high
 anti-behavior/anti_debugger: medium
 anti-behavior/random_behavior: low

@@ -14,6 +14,10 @@ import (
 
 // extractGzip extracts .gz archives.
 func ExtractGzip(ctx context.Context, d string, f string) error {
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
+
 	// Check whether the provided file is a valid gzip archive
 	var isGzip bool
 	if ft, err := programkind.File(f); err == nil && ft != nil {

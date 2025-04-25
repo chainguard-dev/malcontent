@@ -23,6 +23,10 @@ type ProcessInfo struct {
 
 // ActiveProcesses is an exported function that a list of active processes.
 func ActiveProcesses(ctx context.Context) ([]*ProcessInfo, error) {
+	if ctx.Err() != nil {
+		return nil, ctx.Err()
+	}
+
 	// Retrieve all of the active PIDs
 	procs, err := process.ProcessesWithContext(ctx)
 	if err != nil {

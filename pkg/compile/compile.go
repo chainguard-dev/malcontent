@@ -160,6 +160,10 @@ func removeRules(data []byte, rulesToRemove []string) []byte {
 }
 
 func Recursive(ctx context.Context, fss []fs.FS) (*yarax.Rules, error) {
+	if ctx.Err() != nil {
+		return nil, ctx.Err()
+	}
+
 	yxc, err := yarax.NewCompiler(yarax.ConditionOptimization(true))
 	if err != nil {
 		return nil, fmt.Errorf("yarax compiler: %w", err)

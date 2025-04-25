@@ -13,6 +13,10 @@ import (
 )
 
 func prepareImage(ctx context.Context, d string) (string, *os.File, error) {
+	if ctx.Err() != nil {
+		return "", nil, ctx.Err()
+	}
+
 	logger := clog.FromContext(ctx).With("image", d)
 	logger.Debug("preparing image")
 	tmpDir, err := os.MkdirTemp("", filepath.Base(d))

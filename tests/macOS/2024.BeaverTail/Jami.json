@@ -30,6 +30,26 @@
                     "RuleName": "Lazarus_jamistealer_str"
                 },
                 {
+                    "Description": "Macos.Infostealer.Wallets",
+                    "MatchStrings": [
+                        "fhbohimaelbohpjbbldcngcnapndodjp",
+                        "hnfanknocfeofbddgcijnmhnfnkdnaad",
+                        "nkbihfbeogaeaoehlefnkodbefgpgknn",
+                        "aeachknmefphepccionboohckonoeemg",
+                        "acmacodkjbdgmoleebolmdjonilkdbch",
+                        "bfnaelmomeimhlpmgjnjophhpkkoljpa",
+                        "ejbalbakoplchlghecdalmeeeajnimhm",
+                        "aholpfdialjgjfhomihkjbmgjidlcdno"
+                    ],
+                    "RiskScore": 4,
+                    "RiskLevel": "CRITICAL",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/yara/elastic/Macos_Infostealer_Wallets.yar#Macos_Infostealer_Wallets_8e469ea0",
+                    "RuleAuthor": "Elastic Security",
+                    "RuleLicense": "Elastic License v2",
+                    "ID": "3P/elastic/infostealer_wallets",
+                    "RuleName": "Macos_Infostealer_Wallets_8e469ea0"
+                },
+                {
                     "Description": "binary contains little text content",
                     "MatchStrings": [
                         "ft hg"

@@ -28,7 +28,11 @@ func (r YAML) File(_ context.Context, _ *malcontent.FileReport) error {
 	return nil
 }
 
-func (r YAML) Full(_ context.Context, c *malcontent.Config, rep *malcontent.Report) error {
+func (r YAML) Full(ctx context.Context, c *malcontent.Config, rep *malcontent.Report) error {
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
+
 	// Make the sync.Map YAML-friendly
 	yr := Report{
 		Diff:   rep.Diff,
@@ -37,6 +41,9 @@ func (r YAML) Full(_ context.Context, c *malcontent.Config, rep *malcontent.Repo
 	}
 
 	rep.Files.Range(func(key, value any) bool {
+		if ctx.Err() != nil {
+			return false
+		}
 		if key == nil || value == nil {
 			return true
 		}

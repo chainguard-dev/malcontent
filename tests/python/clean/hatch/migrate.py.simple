@@ -3,7 +3,6 @@ c2/addr/url: medium
 discover/system/environment: medium
 exec/imports/python: low
 exec/program: medium
-exec/remote_commands/code_eval: medium
 false-positives/py_hatch: low
 fs/directory/list: low
 fs/file/open: low

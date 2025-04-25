@@ -49,6 +49,10 @@ var (
 
 // scanSinglePath YARA scans a single path and converts it to a fileReport.
 func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleFS []fs.FS, absPath string, archiveRoot string) (*malcontent.FileReport, error) {
+	if ctx.Err() != nil {
+		return &malcontent.FileReport{}, ctx.Err()
+	}
+
 	logger := clog.FromContext(ctx)
 	logger = logger.With("path", path)
 
@@ -250,6 +254,10 @@ func exitIfHitOrMiss(frs *sync.Map, scanPath string, errIfHit bool, errIfMiss bo
 }
 
 func CachedRules(ctx context.Context, fss []fs.FS) (*yarax.Rules, error) {
+	if ctx.Err() != nil {
+		return nil, ctx.Err()
+	}
+
 	if rules := compiledRuleCache.Load(); rules != nil {
 		return rules, nil
 	}
@@ -288,6 +296,10 @@ type scanPathInfo struct {
 
 // recursiveScan recursively YARA scans the configured paths - handling archives and OCI images.
 func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) {
+	if ctx.Err() != nil {
+		return &malcontent.Report{}, ctx.Err()
+	}
+
 	logger := clog.FromContext(ctx)
 	r := initializeReport(c.IgnoreTags)
 	matchChan := make(chan matchResult, 1)
@@ -312,6 +324,10 @@ func initializeReport(ignoreTags []string) *malcontent.Report {
 }
 
 func handleScanPath(ctx context.Context, scanPath string, c malcontent.Config, r *malcontent.Report, matchChan chan matchResult, matchOnce *sync.Once, logger *clog.Logger) error {
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
+
 	if c.Renderer != nil {
 		c.Renderer.Scanning(ctx, scanPath)
 	}
@@ -338,6 +354,10 @@ func handleScanPath(ctx context.Context, scanPath string, c malcontent.Config, r
 }
 
 func prepareScanPath(ctx context.Context, scanPath string, isOCI bool, logger *clog.Logger) (scanPathInfo, error) {
+	if ctx.Err() != nil {
+		return scanPathInfo{}, ctx.Err()
+	}
+
 	info := scanPathInfo{
 		originalPath:  scanPath,
 		effectivePath: scanPath,
@@ -361,26 +381,59 @@ func prepareScanPath(ctx context.Context, scanPath string, isOCI bool, logger *c
 }
 
 func processPaths(ctx context.Context, paths []string, scanInfo scanPathInfo, c malcontent.Config, r *malcontent.Report, matchChan chan matchResult, matchOnce *sync.Once, logger *clog.Logger) error {
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
+
 	maxConcurrency := getMaxConcurrency(c.Concurrency)
-	pc := createPathChannel(paths)
 
 	scanCtx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
+	go func() {
+		<-ctx.Done()
+		logger.Debug("parent context canceled, stopping scan")
+		cancel()
+	}()
+
 	g := setupErrorGroup(maxConcurrency)
+
 	setupMatchHandler(scanCtx, matchChan, c, cancel, logger)
+
+	pc := make(chan string, len(paths))
+	go func() {
+		defer close(pc)
+
+		for _, path := range paths {
+			select {
+			case <-scanCtx.Done():
+				return
+			case pc <- path:
+			}
+		}
+	}()
 
 	for path := range pc {
 		g.Go(func() error {
+			if scanCtx.Err() != nil {
+				return scanCtx.Err()
+			}
 			return processPath(scanCtx, path, scanInfo, c, r, matchChan, matchOnce, logger)
 		})
 	}
 
-	if err := g.Wait(); err != nil {
+	err := g.Wait()
+
+	if scanCtx.Err() != nil && errors.Is(scanCtx.Err(), context.Canceled) {
+		logger.Debug("scan operation was canceled")
+		return scanCtx.Err()
+	}
+
+	if err != nil {
 		return handleScanError(matchChan, r, c, err)
 	}
 
-	if c.OCI {
+	if c.OCI && ctx.Err() == nil {
 		return handleOCIResults(ctx, scanInfo.imageURI, &r.Files, c, logger)
 	}
 
@@ -410,6 +463,10 @@ func setupErrorGroup(maxConcurrency int) *errgroup.Group {
 }
 
 func setupMatchHandler(ctx context.Context, matchChan chan matchResult, c malcontent.Config, cancel context.CancelFunc, logger *clog.Logger) {
+	if ctx.Err() != nil {
+		return
+	}
+
 	go func() {
 		select {
 		case match := <-matchChan:
@@ -426,6 +483,9 @@ func setupMatchHandler(ctx context.Context, matchChan chan matchResult, c malcon
 }
 
 func processPath(ctx context.Context, path string, scanInfo scanPathInfo, c malcontent.Config, r *malcontent.Report, matchChan chan matchResult, matchOnce *sync.Once, logger *clog.Logger) error {
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
 	select {
 	case <-ctx.Done():
 		return ctx.Err()
@@ -438,6 +498,10 @@ func processPath(ctx context.Context, path string, scanInfo scanPathInfo, c malc
 }
 
 func handleArchiveFile(ctx context.Context, path string, c malcontent.Config, r *malcontent.Report, matchChan chan matchResult, matchOnce *sync.Once, logger *clog.Logger) error {
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
+
 	frs, err := processArchive(ctx, c, c.RuleFS, path, logger)
 	if err != nil {
 		logger.Errorf("unable to process %s: %v", path, err)
@@ -457,6 +521,9 @@ func handleArchiveFile(ctx context.Context, path string, c malcontent.Config, r 
 	//nolint:nestif // ignore complexity of 14
 	if frs != nil {
 		frs.Range(func(key, value any) bool {
+			if ctx.Err() != nil {
+				return false
+			}
 			if key == nil || value == nil {
 				return true
 			}
@@ -586,12 +653,15 @@ func processArchive(ctx context.Context, c malcontent.Config, rfs []fs.FS, archi
 	}
 
 	maxConcurrency := getMaxConcurrency(c.Concurrency)
+	scanCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
 	g := setupErrorGroup(maxConcurrency)
 
 	ep := createPathChannel(extractedPaths)
 	for path := range ep {
 		g.Go(func() error {
-			fr, err := processFile(ctx, c, rfs, path, archivePath, tmpRoot, logger)
+			fr, err := processFile(scanCtx, c, rfs, path, archivePath, tmpRoot, logger)
 			if err != nil {
 				return err
 			}
@@ -651,11 +721,21 @@ func processFile(ctx context.Context, c malcontent.Config, ruleFS []fs.FS, path 
 
 // Scan YARA scans a data source, applying output filters if necessary.
 func Scan(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) {
-	r, err := recursiveScan(ctx, c)
+	scanCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	r, err := recursiveScan(scanCtx, c)
+	if errors.Is(err, context.Canceled) {
+		return r, fmt.Errorf("scan operation cancelled: %w", err)
+	}
 	if err != nil && !interactive(c) {
 		return r, err
 	}
+
 	r.Files.Range(func(key, value any) bool {
+		if scanCtx.Err() != nil {
+			return false
+		}
 		if key == nil || value == nil {
 			return true
 		}
@@ -666,7 +746,7 @@ func Scan(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) 
 		}
 		return true
 	})
-	if c.Stats && c.Renderer.Name() != "JSON" && c.Renderer.Name() != "YAML" {
+	if scanCtx.Err() != nil && c.Stats && c.Renderer.Name() != "JSON" && c.Renderer.Name() != "YAML" {
 		err = render.Statistics(&c, r)
 		if err != nil {
 			return r, fmt.Errorf("stats: %w", err)

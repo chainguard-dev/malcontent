@@ -209,7 +209,7 @@ func behaviorRisk(ns string, rule string, tags []string) int {
 		src := strings.Split(ns, "/")[1]
 
 		switch src {
-		case "JPCERT", "YARAForge", "bartblaze", "huntress":
+		case "JPCERT", "YARAForge", "bartblaze", "huntress", "elastic":
 			risk = 4
 			if strings.Contains(strings.ToLower(ns), "generic") ||
 				strings.Contains(strings.ToLower(rule), "generic") {
@@ -366,6 +366,10 @@ func TrimPrefixes(path string, prefixes []string) string {
 
 //nolint:cyclop // ignore complexity of 64
 func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcontent.Config, expath string, _ *clog.Logger, fc []byte) (*malcontent.FileReport, error) {
+	if ctx.Err() != nil {
+		return &malcontent.FileReport{}, ctx.Err()
+	}
+
 	if mrs == nil {
 		return nil, fmt.Errorf("scan failed")
 	}

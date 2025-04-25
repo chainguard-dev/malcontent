@@ -1,5 +1,50 @@
 import "math"
 
+private rule eval_probably_js {
+  strings:
+    $f_Array     = "Array.prototype" fullword
+    $f_async     = "async function"
+    $f_await     = "await"
+    $f_catch     = "} catch"
+    $f_const     = /\bconst\s/
+    $f_false     = "false);"
+    $f_function  = /function\(\w{0,32}\)/
+    $f_function2 = "function()"
+    $f_Object    = "Object."
+    $f_promise   = "Promise"
+    $f_prototype = ".prototype"
+    $f_require   = "require("
+    $f_return    = /\breturn\s/
+    $f_Run       = ".Run("
+    $f_run       = ".run("
+    $f_strict    = "==="
+    $f_this      = "this."
+    $f_this2     = "this["
+    $f_true      = "true);"
+    $f_try       = "try {"
+    $f_var       = /\bvar\s/
+
+    $not_asyncio = "await asyncio"
+
+  condition:
+    filesize < 5MB and 4 of them and none of ($not*)
+}
+
+private rule eval_probably_python {
+  strings:
+    $import       = "import "
+    $f_common     = /\s(def|if|with|else|try|except:) /
+    $f_exotic     = /exec\(|b64decode|bytes\(/
+    $f_for        = /for [a-z] in/
+    $f_join       = ".join("
+    $f_requests   = /(from|import) requests/
+    $f_requests2  = "requests."
+    $f_subprocess = /subprocess.(Popen|run)/
+
+  condition:
+    filesize < 10MB and ($import in (1..1024) or any of ($f*))
+}
+
 rule js_eval: medium {
   meta:
     description = "evaluate code dynamically using eval()"
@@ -10,7 +55,7 @@ rule js_eval: medium {
     $not_empty = "eval()"
 
   condition:
-    filesize < 1MB and any of ($val*) and none of ($not*)
+    eval_probably_js and filesize < 1MB and any of ($val*) and none of ($not*)
 }
 
 rule js_eval_fx_str: high {
@@ -21,7 +66,7 @@ rule js_eval_fx_str: high {
     $val = /eval\(\w{0,16}\([\"\'].{0,16}/
 
   condition:
-    filesize < 1MB and any of ($val*)
+    eval_probably_js and filesize < 1MB and any of ($val*)
 }
 
 rule js_eval_fx_str_multiple: critical {
@@ -32,7 +77,7 @@ rule js_eval_fx_str_multiple: critical {
     $val = /eval\(\w{0,16}\([\"\'].{0,16}/
 
   condition:
-    filesize < 1MB and #val > 1
+    eval_probably_js and filesize < 1MB and #val > 1
 }
 
 rule js_eval_response: critical {
@@ -43,7 +88,7 @@ rule js_eval_response: critical {
     $val = /eval\(\w{0,16}\.responseText\)/
 
   condition:
-    filesize < 1MB and any of ($val*)
+    eval_probably_js and filesize < 1MB and any of ($val*)
 }
 
 rule js_eval_near_enough_fromChar: high {
@@ -55,7 +100,7 @@ rule js_eval_near_enough_fromChar: high {
     $decrypt = "String.fromCharCode"
 
   condition:
-    filesize < 5MB and all of them and math.abs(@exec - @decrypt) > 384
+    eval_probably_js and filesize < 5MB and all of them and math.abs(@exec - @decrypt) > 384
 }
 
 rule js_eval_obfuscated_fromChar: critical {
@@ -67,7 +112,7 @@ rule js_eval_obfuscated_fromChar: critical {
     $ref  = /fromCharCode\(\w{0,16}\s{0,2}[\-\+\*\^]{0,2}\w{0,16}/
 
   condition:
-    filesize < 5MB and all of them and math.abs(@exec - @ref) > 384
+    eval_probably_js and filesize < 5MB and all of them and math.abs(@exec - @ref) > 384
 }
 
 rule python_exec: medium {
@@ -84,7 +129,7 @@ rule python_exec: medium {
     $empty    = "exec()"
 
   condition:
-    filesize < 1MB and any of ($f*) and $val and not $empty
+    eval_probably_python and filesize < 1MB and any of ($f*) and $val and not $empty
 }
 
 rule python_exec_near_enough_chr: high {
@@ -96,7 +141,7 @@ rule python_exec_near_enough_chr: high {
     $chr  = "chr("
 
   condition:
-    all of them and math.abs(@chr - @exec) < 768
+    eval_probably_python and all of them and math.abs(@chr - @exec) < 768
 }
 
 rule python_exec_near_enough_fernet: high {
@@ -108,7 +153,7 @@ rule python_exec_near_enough_fernet: high {
     $fernet = "Fernet("
 
   condition:
-    all of them and math.abs(@exec - @fernet) < 768
+    eval_probably_python and all of them and math.abs(@exec - @fernet) < 768
 }
 
 rule python_exec_near_enough_decrypt: high {
@@ -120,7 +165,7 @@ rule python_exec_near_enough_decrypt: high {
     $decrypt = "decrypt("
 
   condition:
-    all of them and math.abs(@exec - @decrypt) < 768
+    eval_probably_python and all of them and math.abs(@exec - @decrypt) < 768
 }
 
 rule python_exec_chr: critical {
@@ -131,7 +176,7 @@ rule python_exec_chr: critical {
     $exec = /exec\(.{0,16}chr\(.{0,16}\[\d[\d\, ]{0,64}/
 
   condition:
-    filesize < 512KB and all of them
+    eval_probably_python and filesize < 512KB and all of them
 }
 
 rule python_exec_bytes: critical {
@@ -142,7 +187,7 @@ rule python_exec_bytes: critical {
     $exec = /exec\([\w\.\(]{0,16}\(b['"].{8,16}/
 
   condition:
-    filesize < 512KB and all of them
+    eval_probably_python and filesize < 512KB and all of them
 }
 
 rule python_exec_complex: high {
@@ -156,7 +201,7 @@ rule python_exec_complex: high {
     $not_versioneer = "exec(VERSIONEER.decode(), globals())"
 
   condition:
-    filesize < 512KB and $exec and none of ($not*)
+    eval_probably_python and filesize < 512KB and $exec and none of ($not*)
 }
 
 rule python_exec_fernet: critical {
@@ -167,7 +212,7 @@ rule python_exec_fernet: critical {
     $exec = /exec\(.{0,16}Fernet\(.{0,64}/
 
   condition:
-    filesize < 512KB and all of them
+    eval_probably_python and filesize < 512KB and all of them
 }
 
 rule shell_eval: medium {

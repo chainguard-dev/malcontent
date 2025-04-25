@@ -87,6 +87,10 @@ func newConfig(rc Config) *malcontent.Config {
 func prepareRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 	var testData []TestData
 
+	if ctx.Err() != nil {
+		return nil, ctx.Err()
+	}
+
 	actions, err := actionRefresh(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("retrieve action tasks: %w", err)
@@ -172,7 +176,11 @@ func prepareRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 
 // executeRefresh reads from a populated slice of TestData.
 func executeRefresh(ctx context.Context, c Config, testData []TestData, logger *clog.Logger) error {
-	g, ctx := errgroup.WithContext(ctx)
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
+
+	g, refreshCtx := errgroup.WithContext(ctx)
 
 	var mu sync.Mutex
 	completed := 0
@@ -182,16 +190,16 @@ func executeRefresh(ctx context.Context, c Config, testData []TestData, logger *
 	for _, data := range testData {
 		g.Go(func() error {
 			select {
-			case <-ctx.Done():
-				return ctx.Err()
+			case <-refreshCtx.Done():
+				return refreshCtx.Err()
 			default:
 				var err error
 				var res *malcontent.Report
 
 				if len(data.Config.ScanPaths) == 2 {
-					res, err = action.Diff(ctx, *data.Config, logger)
+					res, err = action.Diff(refreshCtx, *data.Config, logger)
 				} else {
-					res, err = action.Scan(ctx, *data.Config)
+					res, err = action.Scan(refreshCtx, *data.Config)
 				}
 
 				if err != nil {
@@ -222,6 +230,10 @@ func executeRefresh(ctx context.Context, c Config, testData []TestData, logger *
 
 // Refresh updates all relevant test data in pkg/action and tests.
 func Refresh(ctx context.Context, rc Config, logger *clog.Logger) error {
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
+
 	// Check if UPX is present which is required for certain refreshes
 	if err := programkind.UPXInstalled(); err != nil {
 		return fmt.Errorf("required UPX installation not found: %w", err)

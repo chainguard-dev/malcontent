@@ -16,6 +16,10 @@ import (
 
 // ExtractDeb extracts .deb packages.
 func ExtractDeb(ctx context.Context, d, f string) error {
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
+
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting deb")
 

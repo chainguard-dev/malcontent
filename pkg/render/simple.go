@@ -25,7 +25,11 @@ func (r Simple) Name() string { return "Simple" }
 
 func (r Simple) Scanning(_ context.Context, _ string) {}
 
-func (r Simple) File(_ context.Context, fr *malcontent.FileReport) error {
+func (r Simple) File(ctx context.Context, fr *malcontent.FileReport) error {
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
+
 	if fr.Skipped != "" {
 		return nil
 	}
@@ -48,7 +52,11 @@ func (r Simple) File(_ context.Context, fr *malcontent.FileReport) error {
 	return nil
 }
 
-func (r Simple) Full(_ context.Context, _ *malcontent.Config, rep *malcontent.Report) error {
+func (r Simple) Full(ctx context.Context, _ *malcontent.Config, rep *malcontent.Report) error {
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
+
 	if rep.Diff == nil {
 		return nil
 	}

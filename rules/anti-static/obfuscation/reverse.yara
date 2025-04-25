@@ -1,3 +1,33 @@
+private rule reverse_probably_js {
+  strings:
+    $f_Array     = "Array.prototype" fullword
+    $f_async     = "async function"
+    $f_await     = "await"
+    $f_catch     = "} catch"
+    $f_const     = /\bconst\s/
+    $f_false     = "false);"
+    $f_function  = /function\(\w{0,32}\)/
+    $f_function2 = "function()"
+    $f_Object    = "Object."
+    $f_promise   = "Promise"
+    $f_prototype = ".prototype"
+    $f_require   = "require("
+    $f_return    = /\breturn\s/
+    $f_Run       = ".Run("
+    $f_run       = ".run("
+    $f_strict    = "==="
+    $f_this      = "this."
+    $f_this2     = "this["
+    $f_true      = "true);"
+    $f_try       = "try {"
+    $f_var       = /\bvar\s/
+
+    $not_asyncio = "await asyncio"
+
+  condition:
+    filesize < 5MB and 4 of them and none of ($not*)
+}
+
 rule string_reversal: medium {
   meta:
     description = "reverses strings"
@@ -29,5 +59,5 @@ rule js_reversal: critical {
     $ref2 = /n.{0,3}r.{0,3}u.{0,3}t.{0,3}e.{0,3}r/
 
   condition:
-    filesize < 1MB and all of them
+    reverse_probably_js and filesize < 1MB and all of them
 }
