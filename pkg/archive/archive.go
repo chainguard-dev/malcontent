@@ -18,7 +18,7 @@ import (
 
 const (
 	extractBuffer = 64 * 1024 // 32KB
-	maxBytes      = 1 << 30   // 1024MB
+	maxBytes      = 1 << 29   // 1024MB
 	zipBuffer     = 2 * 1024  // 2KB
 )
 

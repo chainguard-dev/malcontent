@@ -58,8 +58,42 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	logger := clog.FromContext(ctx)
 	logger = logger.With("path", path)
 
+	isArchive := archiveRoot != ""
+
+	fi, err := os.Stat(path)
+	if err != nil {
+		return nil, err
+	}
+
+	size := fi.Size()
+	if size == 0 {
+		fr := &malcontent.FileReport{Skipped: "zero-sized file", Path: path}
+		if isArchive {
+			defer os.RemoveAll(path)
+		}
+		return fr, nil
+	}
+
+	mime := "<unknown>"
+	kind, err := programkind.File(path)
+	if err != nil && !interactive(c) {
+		logger.Errorf("file type failure: %s: %s", path, err)
+	}
+	if kind != nil {
+		mime = kind.MIME
+	}
+
+	if !c.IncludeDataFiles && kind == nil {
+		logger.Debugf("skipping %s [%s]: data file or empty", path, mime)
+		fr := &malcontent.FileReport{Skipped: "data file or empty", Path: path}
+		if isArchive {
+			defer os.RemoveAll(path)
+		}
+		return fr, nil
+	}
+	logger = logger.With("mime", mime)
+
 	var yrs *yarax.Rules
-	var err error
 	if c.Rules == nil {
 		yrs, err = CachedRules(ctx, ruleFS)
 		if err != nil {
@@ -75,54 +109,16 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	})
 
 	scanner := scannerPool.Get()
-	// Scanner should not be nil here, but guard against it anyway
 	if scanner == nil {
 		scanner = yarax.NewScanner(yrs)
 	}
 	defer scannerPool.Put(scanner)
-
-	isArchive := archiveRoot != ""
-	if isArchive {
-		defer os.RemoveAll(path)
-	}
-	mime := "<unknown>"
-	kind, err := programkind.File(path)
-	if err != nil && !interactive(c) {
-		logger.Errorf("file type failure: %s: %s", path, err)
-	}
-	if kind != nil {
-		mime = kind.MIME
-	}
-	if !c.IncludeDataFiles && kind == nil {
-		logger.Debugf("skipping %s [%s]: data file or empty", path, mime)
-		fr := &malcontent.FileReport{Skipped: "data file or empty", Path: path}
-		// Immediately remove skipped files within archives
-		if isArchive {
-			defer os.RemoveAll(path)
-		}
-		return fr, nil
-	}
-	logger = logger.With("mime", mime)
 
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, err
 	}
 	defer f.Close()
-
-	fi, err := f.Stat()
-	if err != nil {
-		return nil, err
-	}
-	size := fi.Size()
-
-	if size == 0 {
-		fr := &malcontent.FileReport{Skipped: "zero-sized file", Path: path}
-		if isArchive {
-			defer os.RemoveAll(path)
-		}
-		return fr, nil
-	}
 
 	fc := filePool.Get(size)
 	defer filePool.Put(fc)
@@ -150,9 +146,6 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		return nil, err
 	}
 
-	// If running a scan, only generate reports for mrs that satisfy
-	// the risk threshold of 3 or the configured minimum file risk/risk (whichever is highest)
-	// This is a short-circuit that avoids any report generation logic
 	risk := report.HighestMatchRisk(mrs)
 	threshold := max(3, c.MinFileRisk, c.MinRisk)
 	if c.Scan && risk < threshold {
@@ -168,7 +161,6 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		return nil, NewFileReportError(err, path, TypeGenerateError)
 	}
 
-	// Clean up the path if scanning an archive
 	var clean string
 	if isArchive || c.OCI {
 		pathAbs, err := filepath.Abs(path)
@@ -186,15 +178,13 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		fr.ArchiveRoot = archiveRootAbs
 		fr.FullPath = pathAbs
 		clean = formatPath(cleanPath(pathAbs, archiveRootAbs))
-	}
 
-	// If absPath is provided, use it instead of the path if they are different.
-	// This is useful when scanning images and archives.
-	if absPath != "" && absPath != path && (isArchive || c.OCI) {
-		if len(c.TrimPrefixes) > 0 {
-			absPath = report.TrimPrefixes(absPath, c.TrimPrefixes)
+		if absPath != "" && absPath != path && (isArchive || c.OCI) {
+			if len(c.TrimPrefixes) > 0 {
+				absPath = report.TrimPrefixes(absPath, c.TrimPrefixes)
+			}
+			fr.Path = fmt.Sprintf("%s ∴ %s", absPath, clean)
 		}
-		fr.Path = fmt.Sprintf("%s ∴ %s", absPath, clean)
 	}
 
 	if len(fr.Behaviors) == 0 {
