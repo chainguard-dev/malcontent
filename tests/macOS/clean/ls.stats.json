@@ -77,6 +77,17 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/http.yara#http",
                     "ID": "net/http",
                     "RuleName": "http"
+                },
+                {
+                    "Description": "Retrieve environment variables",
+                    "MatchStrings": [
+                        "getenv"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/os/env/get.yara#getenv",
+                    "ID": "os/env/get",
+                    "RuleName": "getenv"
                 }
             ],
             "RiskScore": 1,
@@ -88,32 +99,38 @@
             {
                 "Count": 1,
                 "Key": "c2/addr/url",
-                "Total": 5,
-                "Value": 20
+                "Total": 6,
+                "Value": 16.666666666666664
             },
             {
                 "Count": 1,
                 "Key": "exec/shell/TERM",
-                "Total": 5,
-                "Value": 20
+                "Total": 6,
+                "Value": 16.666666666666664
             },
             {
                 "Count": 1,
                 "Key": "fs/directory/traverse",
-                "Total": 5,
-                "Value": 20
+                "Total": 6,
+                "Value": 16.666666666666664
             },
             {
                 "Count": 1,
                 "Key": "fs/link_read",
-                "Total": 5,
-                "Value": 20
+                "Total": 6,
+                "Value": 16.666666666666664
             },
             {
                 "Count": 1,
                 "Key": "net/http",
-                "Total": 5,
-                "Value": 20
+                "Total": 6,
+                "Value": 16.666666666666664
+            },
+            {
+                "Count": 1,
+                "Key": "os/env/get",
+                "Total": 6,
+                "Value": 16.666666666666664
             }
         ],
         "ProcessedFiles": 1,
@@ -125,7 +142,7 @@
                 "Value": 100
             }
         ],
-        "TotalBehaviors": 5,
+        "TotalBehaviors": 6,
         "TotalRisks": 1
     }
 }
