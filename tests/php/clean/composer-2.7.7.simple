@@ -86,6 +86,7 @@ net/socket/send: low
 net/tcp/ssh: medium
 net/url/embedded: medium
 net/url/encode: medium
+os/env/get: low
 privesc/sudo: medium
 process/chdir: low
 process/terminate: medium

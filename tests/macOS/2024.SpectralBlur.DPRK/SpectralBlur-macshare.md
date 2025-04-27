@@ -21,6 +21,7 @@
 | LOW | [net/resolve/hostname](https://github.com/chainguard-dev/malcontent/blob/main/rules/net/resolve/hostname-resolve.yara#gethostbyname) | [resolve network host name to IP address](https://linux.die.net/man/3/gethostbyname) | [gethostbyname](https://github.com/search?q=gethostbyname&type=code) |
 | LOW | [net/socket/receive](https://github.com/chainguard-dev/malcontent/blob/main/rules/net/socket/socket-receive.yara#recvmsg) | [receive a message from a socket](https://linux.die.net/man/2/recvmsg) | [_recv](https://github.com/search?q=_recv&type=code) |
 | LOW | [net/socket/send](https://github.com/chainguard-dev/malcontent/blob/main/rules/net/socket/socket-send.yara#sendmsg) | [send a message to a socket](https://linux.die.net/man/2/sendmsg) | [_send](https://github.com/search?q=_send&type=code) |
+| LOW | [os/env/get](https://github.com/chainguard-dev/malcontent/blob/main/rules/os/env/get.yara#getenv) | Retrieve environment variables | [getenv](https://github.com/search?q=getenv&type=code) |
 | LOW | [process/create](https://github.com/chainguard-dev/malcontent/blob/main/rules/process/create.yara#_fork) | [create child process](https://man7.org/linux/man-pages/man2/fork.2.html) | [_fork](https://github.com/search?q=_fork&type=code) |
 | LOW | [process/multithreaded](https://github.com/chainguard-dev/malcontent/blob/main/rules/process/multithreaded.yara#pthread_create) | [creates pthreads](https://man7.org/linux/man-pages/man3/pthread_create.3.html) | [pthread_create](https://github.com/search?q=pthread_create&type=code) |
 

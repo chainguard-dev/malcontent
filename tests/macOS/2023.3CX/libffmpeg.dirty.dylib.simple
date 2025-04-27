@@ -37,6 +37,7 @@ net/http/cookies: medium
 net/http/post: medium
 net/url/parse: low
 net/url/request: medium
+os/env/get: low
 os/kernel/dispatch_semaphore: low
 os/sync/semaphore_user: low
 process/multithreaded: low

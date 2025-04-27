@@ -82,6 +82,7 @@ net/tcp/sftp: medium
 net/tcp/ssh: medium
 net/tun_tap: medium
 net/url/embedded: low
+os/env/get: low
 os/kernel/seccomp: low
 persist/daemon: medium
 persist/pid_file: medium

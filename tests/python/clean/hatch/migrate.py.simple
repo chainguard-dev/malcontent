@@ -9,6 +9,7 @@ fs/file/open: low
 fs/symlink_resolve: low
 fs/tempdir/TEMP: low
 net/download: medium
+os/env/get: low
 os/fd/read: low
 os/fd/write: low
 process/executable_path: medium

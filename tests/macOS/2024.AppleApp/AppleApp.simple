@@ -18,5 +18,6 @@ net/ip/parse: medium
 net/socket/connect: medium
 net/socket/receive: low
 net/socket/send: low
+os/env/get: low
 process/create: low
 process/multithreaded: low

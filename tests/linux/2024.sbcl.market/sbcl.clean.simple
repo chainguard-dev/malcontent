@@ -24,3 +24,4 @@ fs/symlink_resolve: low
 fs/tempdir/TEMP: low
 net/http: low
 net/url/embedded: low
+os/env/get: low

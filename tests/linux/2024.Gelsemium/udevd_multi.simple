@@ -70,6 +70,7 @@ net/socket/receive: low
 net/socket/send: low
 net/udp/kcp: medium
 net/url/embedded: low
+os/env/get: low
 persist/linux_multi: high
 persist/plugin: high
 persist/shell/bash: high

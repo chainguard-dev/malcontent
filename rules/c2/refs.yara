@@ -39,6 +39,8 @@ rule remote_control: medium {
   strings:
     $ref  = "remote_control"
     $ref2 = "remote control"
+    $ref3 = "remote-cmd"
+    $ref4 = "remote_cmd"
 
   condition:
     any of them

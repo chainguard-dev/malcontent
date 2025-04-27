@@ -86,6 +86,7 @@ net/socket/receive: low
 net/socket/send: low
 net/url/embedded: low
 net/url/encode: medium
+os/env/get: low
 process/chdir: low
 process/chroot: low
 process/namespace_set: low

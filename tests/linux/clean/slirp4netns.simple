@@ -96,6 +96,7 @@ net/socket/receive: low
 net/socket/send: low
 net/tun_tap: medium
 net/url/embedded: low
+os/env/get: low
 os/fd/epoll: low
 os/fd/sendfile: low
 os/kernel/key_management: low

@@ -1,10 +1,20 @@
-rule getenv: harmless {
+rule go_getenv: harmless {
+  meta:
+    description = "Retrieve environment variables"
+
+  strings:
+    $go_Getenv = "Getenv" fullword
+
+  condition:
+    any of them
+}
+
+rule getenv: low {
   meta:
     description = "Retrieve environment variables"
 
   strings:
     $getenv        = "getenv" fullword
-    $go_Getenv     = "Getenv" fullword
     $secure_getenv = "secure_getenv" fullword
     $python_val    = "os.environ"
 

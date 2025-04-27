@@ -2199,9 +2199,9 @@
                     ],
                     "RiskScore": 0,
                     "RiskLevel": "NONE",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/os/env/get.yara#getenv",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/os/env/get.yara#go_getenv",
                     "ID": "os/env/get",
-                    "RuleName": "getenv"
+                    "RuleName": "go_getenv"
                 },
                 {
                     "Description": "places a variable into the environment",

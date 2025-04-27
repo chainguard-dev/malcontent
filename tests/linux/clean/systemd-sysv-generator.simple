@@ -10,3 +10,4 @@ fs/file/delete: low
 fs/path/etc: low
 impact/remote_access/agent: medium
 net/url/embedded: low
+os/env/get: low

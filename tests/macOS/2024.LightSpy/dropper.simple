@@ -34,6 +34,7 @@ net/download: medium
 net/http: low
 net/url/embedded: low
 net/url/parse: low
+os/env/get: low
 os/kernel/dispatch_semaphore: low
 os/sync/semaphore_user: low
 persist/daemon: medium

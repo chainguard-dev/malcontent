@@ -11,4 +11,5 @@ fs/directory/create: low
 fs/file/exists: low
 fs/file/open: low
 fs/file/write: low
+os/env/get: low
 os/fd/write: low

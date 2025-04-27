@@ -25,6 +25,7 @@ fs/symlink_resolve: low
 fs/tempdir/TEMP: low
 net/http: low
 net/url/embedded: low
+os/env/get: low
 persist/shell/bash: medium
 persist/shell/zsh: medium
 process/multithreaded: low

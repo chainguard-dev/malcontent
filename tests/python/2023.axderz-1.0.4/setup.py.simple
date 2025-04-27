@@ -18,5 +18,6 @@ fs/file/read: low
 impact/remote_access/py_setuptools: critical
 net/http: low
 net/url/embedded: low
+os/env/get: low
 os/fd/read: low
 sus/malicious: medium
