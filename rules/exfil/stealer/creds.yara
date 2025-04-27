@@ -59,3 +59,35 @@ rule previewers_alike: high {
   condition:
     all of them
 }
+
+rule STRRat_high: high {
+  meta:
+    description = "steals multiple types of passwords"
+
+  strings:
+    $p_pass         = "pass"
+    $p_keylogger    = "keylogger"
+    $browser_chrome = "chrome" fullword
+    $browser_ie     = "ie" fullword
+    $mail_foxmail   = "foxmail"
+    $mail_outlook   = "outlook"
+
+  condition:
+    filesize < 128KB and any of ($p*) and any of ($browser*) and any of ($mail*)
+}
+
+rule STRRat_critical: critical {
+  meta:
+    description = "steals multiple types of passwords"
+
+  strings:
+    $p_pass         = "pass"
+    $p_keylogger    = "keylogger"
+    $browser_chrome = "chrome" fullword
+    $browser_ie     = "ie" fullword
+    $mail_foxmail   = "foxmail"
+    $mail_outlook   = "outlook"
+
+  condition:
+    filesize < 128KB and all of ($p*) and any of ($browser*) and any of ($mail*)
+}

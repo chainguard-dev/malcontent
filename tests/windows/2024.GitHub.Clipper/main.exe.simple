@@ -107,6 +107,7 @@ net/udp/send: low
 net/url/embedded: low
 net/url/parse: low
 net/url/request: medium
+os/env/get: low
 os/fd/sendfile: low
 os/signal/handle: low
 persist/pid_file: medium

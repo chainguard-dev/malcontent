@@ -37,3 +37,30 @@ rule ruby_run_exe: high {
   condition:
     filesize < 1MB and $require and $val
 }
+
+rule java_process_builder: medium {
+  meta:
+    description = "runs an external program"
+    filetypes   = "java,jar"
+
+  strings:
+    $lang    = "java/lang/Process"
+    $require = "ProcessBuilder"
+    $val     = "start" fullword
+
+  condition:
+    filesize < 2MB and all of them
+}
+
+rule java_exec: medium {
+  meta:
+    description = "runs an external program"
+    filetypes   = "java,jar"
+
+  strings:
+    $lang = "java/lang/Runtime"
+    $val  = "exec" fullword
+
+  condition:
+    filesize < 2MB and all of them
+}

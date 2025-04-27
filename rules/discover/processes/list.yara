@@ -67,3 +67,30 @@ rule proclist: medium {
   condition:
     any of them
 }
+
+rule java_lang_processes_opaque: medium {
+  meta:
+    description = "accesses process list"
+
+  strings:
+    $processes = "processes" fullword
+    $lang      = "java/lang/Process"
+
+  condition:
+    filesize < 2MB and all of them
+}
+
+rule generic_process_list: medium {
+  meta:
+    description = "accesses process list"
+
+  strings:
+    $pl  = "ProcessList"
+    $pl2 = "processList"
+    $al  = "allProcesses"
+    $lp  = "listProcesses"
+    $lp2 = "ListProcesses"
+
+  condition:
+    filesize < 10MB and any of them
+}

@@ -52,3 +52,16 @@ rule py_keykeyboard_exfil: high {
   condition:
     filesize < 256KB and any of ($http*) and all of ($f*)
 }
+
+rule java_keylogger {
+  meta:
+    description = "listens for keyboard events"
+    filetypes   = "java,jar"
+
+  strings:
+    $jnativehook    = "jnativehook"
+    $NativeKeyEvent = "NativeKeyEvent"
+
+  condition:
+    filesize < 2MB and all of them
+}

@@ -24,3 +24,15 @@ rule lockf {
     any of them
 }
 
+rule java_flock {
+  meta:
+    pledge      = "flock"
+    syscall     = "flock"
+    description = "apply or remove an advisory lock on a file"
+
+  strings:
+    $ref = "java/nio/channels/FileLock"
+
+  condition:
+    any of them
+}

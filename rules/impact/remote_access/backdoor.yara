@@ -151,3 +151,19 @@ rule macho_backdoor_libc_signature: high {
   condition:
     backdoor_small_macho and #word_with_spaces < 10 and #libc_call < 74 and 95 % of ($f*) and none of ($not*)
 }
+
+rule minecraft_load_fetch_class_backdoor: critical {
+  meta:
+    description = "likely minecraft backdoor"
+    filetypes   = "class,java"
+
+  strings:
+    $minecraft   = "minecraft"
+    $replace     = "loadReplacementClass"
+    $url         = /https*:\/\/\w{1}[\w\.\/\&]{8,64}/
+    $classLoader = "ClassLoader"
+    $write       = "write"
+
+  condition:
+    filesize < 2MB and all of them
+}

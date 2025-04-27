@@ -51,6 +51,7 @@ net/ip/parse: medium
 net/ip/string: medium
 net/socket/listen: medium
 net/socket/send: low
+os/env/get: low
 persist/shell/bash: high
 privesc/setuid: low
 process/executable_path: low

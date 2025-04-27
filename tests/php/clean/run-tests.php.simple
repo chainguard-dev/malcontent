@@ -33,4 +33,5 @@ net/socket/send: low
 net/tcp/ssh: medium
 net/url/embedded: low
 net/url/encode: medium
+os/env/get: low
 sus/intercept: medium

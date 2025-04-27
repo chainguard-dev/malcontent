@@ -190,6 +190,7 @@ net/tcp/ssh: medium
 net/url/embedded: medium
 net/url/encode: medium
 net/url/parse: low
+os/env/get: low
 os/fd/epoll: low
 os/fd/print: low
 os/fd/read: low

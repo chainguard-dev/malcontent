@@ -19,5 +19,6 @@ fs/proc/pid_stat: medium
 fs/tempfile: low
 malware/family/beurk: critical
 malware/family/gelsemium: critical
+os/env/get: low
 os/fd/multiplex: low
 os/fd/print: low

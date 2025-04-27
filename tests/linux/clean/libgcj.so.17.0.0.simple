@@ -98,6 +98,7 @@ net/url/embedded: low
 net/url/encode: medium
 net/url/parse: low
 net/url/request: medium
+os/env/get: low
 process/multithreaded: low
 sus/exclamation: medium
 sus/intercept: medium

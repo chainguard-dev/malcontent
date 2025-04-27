@@ -77,6 +77,17 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/http.yara#http",
                     "ID": "net/http",
                     "RuleName": "http"
+                },
+                {
+                    "Description": "Retrieve environment variables",
+                    "MatchStrings": [
+                        "getenv"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/os/env/get.yara#getenv",
+                    "ID": "os/env/get",
+                    "RuleName": "getenv"
                 }
             ],
             "RiskScore": 1,

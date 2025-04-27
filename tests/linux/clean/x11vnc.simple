@@ -96,6 +96,7 @@ net/socket/reuseport: medium
 net/socket/send: low
 net/tcp/ssh: medium
 net/url/embedded: low
+os/env/get: low
 persist/daemon: medium
 privesc/setuid: low
 process/chdir: low

@@ -172,6 +172,7 @@ net/url/encode: medium
 net/url/parse: low
 net/url/request: medium
 net/webrtc: medium
+os/env/get: low
 os/fd/epoll: low
 os/kernel/netlink: low
 os/kernel/opencl: medium

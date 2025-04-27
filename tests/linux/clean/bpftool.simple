@@ -32,6 +32,7 @@ net/socket/local_addr: low
 net/socket/peer_address: low
 net/socket/receive: low
 net/socket/send: low
+os/env/get: low
 os/fd/epoll: low
 os/kernel/netlink: low
 os/kernel/perfmon: low
