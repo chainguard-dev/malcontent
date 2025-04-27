@@ -86,6 +86,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	if !c.IncludeDataFiles && kind == nil {
 		logger.Debugf("skipping %s [%s]: data file or empty", path, mime)
 		fr := &malcontent.FileReport{Skipped: "data file or empty", Path: path}
+		// Immediately remove skipped files within archives
 		if isArchive {
 			defer os.RemoveAll(path)
 		}
@@ -146,6 +147,8 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		return nil, err
 	}
 
+	// If running a scan, only generate reports for mrs that satisfy the risk threshold of 3
+	// This is a short-circuit that avoids any report generation logic
 	risk := report.HighestMatchRisk(mrs)
 	threshold := max(3, c.MinFileRisk, c.MinRisk)
 	if c.Scan && risk < threshold {
@@ -161,6 +164,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		return nil, NewFileReportError(err, path, TypeGenerateError)
 	}
 
+	// Clean up the path if scanning an archive
 	var clean string
 	if isArchive || c.OCI {
 		pathAbs, err := filepath.Abs(path)
