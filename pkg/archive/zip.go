@@ -70,7 +70,7 @@ func ExtractZip(ctx context.Context, d string, f string) error {
 	}
 
 	g, gCtx := errgroup.WithContext(ctx)
-	g.SetLimit(runtime.GOMAXPROCS(0) * 2)
+	g.SetLimit(runtime.GOMAXPROCS(0))
 
 	for _, file := range read.File {
 		if file.Mode().IsDir() {
