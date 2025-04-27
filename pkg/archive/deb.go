@@ -30,7 +30,7 @@ func ExtractDeb(ctx context.Context, d, f string) error {
 
 	df, err := deb.Load(fd, f)
 	if err != nil {
-		panic(err)
+		return fmt.Errorf("failed to load file: %w", err)
 	}
 
 	defer func() {

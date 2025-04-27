@@ -285,7 +285,7 @@ func File(path string) (*FileType, error) {
 	}
 
 	switch {
-	case hdr[0] == '\x7f' && hdr[1] == 'E' || hdr[2] == 'L' || hdr[3] == 'F':
+	case hdr[0] == '\x7f' && (hdr[1] == 'E' && hdr[2] == 'L' && hdr[3] == 'F'):
 		return Path(".elf"), nil
 	case bytes.Contains(hdr, []byte("<?php")):
 		return Path(".php"), nil
