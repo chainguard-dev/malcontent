@@ -91,11 +91,14 @@ func (mp *matchProcessor) process() []string {
 	defer matchResultPool.Put(result)
 
 	initializeOnce.Do(func() {
-		matchPool = pool.NewBufferPool()
+		matchPool = pool.NewBufferPool(len(mp.matches))
 	})
 
 	buffer := matchPool.Get(8)
 	defer matchPool.Put(buffer)
+
+	patternsCap := len(mp.patterns)
+	var patterns []string
 
 	// #nosec G115 // ignore Type conversion which leads to integer overflow
 	for _, match := range mp.matches {
@@ -110,16 +113,18 @@ func (mp *matchProcessor) process() []string {
 
 		if !containsUnprintable(matchBytes) {
 			if l <= cap(buffer) {
-				buffer = (buffer)[:l]
+				buffer = buffer[:l]
 				copy(buffer, matchBytes)
-				str := mp.pool.Intern(string(buffer))
-				*result = append(*result, str)
+				*result = append(*result, mp.pool.Intern(string(buffer)))
 			} else {
-				str := mp.pool.Intern(string(matchBytes))
-				*result = append(*result, str)
+				*result = append(*result, mp.pool.Intern(string(matchBytes)))
 			}
 		} else {
-			patterns := make([]string, 0, len(mp.patterns))
+			if patterns == nil || cap(patterns) < patternsCap {
+				patterns = make([]string, 0, patternsCap)
+			} else {
+				patterns = patterns[:0]
+			}
 			for _, p := range mp.patterns {
 				patterns = append(patterns, p.Identifier())
 			}

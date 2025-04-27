@@ -18,13 +18,18 @@ type BufferPool struct {
 }
 
 // NewBufferPool creates a pool of byte slices.
-func NewBufferPool() *BufferPool {
+func NewBufferPool(count int) *BufferPool {
 	bp := &BufferPool{}
 
 	bp.pool = sync.Pool{
 		New: func() any {
 			return make([]byte, defaultBuffer)
 		},
+	}
+
+	for range count {
+		buffer := make([]byte, defaultBuffer)
+		bp.pool.Put(&buffer)
 	}
 
 	return bp
@@ -58,6 +63,7 @@ func (bp *BufferPool) Put(buf []byte) {
 		return
 	}
 
+	clear(buf)
 	bufPtr := &buf
 	if cap(*bufPtr) <= maxBuffer {
 		bp.pool.Put(bufPtr)

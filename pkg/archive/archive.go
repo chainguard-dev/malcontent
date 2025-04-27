@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 
@@ -16,8 +17,9 @@ import (
 )
 
 const (
-	// 1024MB file limit.
-	maxBytes = 1 << 30
+	extractBuffer = 64 * 1024 // 64KB
+	maxBytes      = 1 << 31   // 2048MB
+	zipBuffer     = 2 * 1024  // 2KB
 )
 
 var (
@@ -36,7 +38,6 @@ func extractNestedArchive(ctx context.Context, d string, f string, extracted *sy
 	}
 
 	fullPath := filepath.Join(d, f)
-
 	fi, err := os.Stat(fullPath)
 	if os.IsNotExist(err) {
 		return nil
@@ -93,7 +94,7 @@ func extractNestedArchive(ctx context.Context, d string, f string, extracted *sy
 
 	extracted.Store(f, true)
 
-	if err := os.Remove(fullPath); err != nil {
+	if err := os.RemoveAll(fullPath); err != nil {
 		return fmt.Errorf("failed to remove archive file: %w", err)
 	}
 
@@ -137,7 +138,7 @@ func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 	}()
 
 	initializeOnce.Do(func() {
-		archivePool = pool.NewBufferPool()
+		archivePool = pool.NewBufferPool(runtime.GOMAXPROCS(0))
 	})
 
 	var extract func(context.Context, string, string) error
@@ -258,8 +259,8 @@ func handleDirectory(target string) error {
 }
 
 // handleFile extracts valid files within .deb or .tar archives.
-func handleFile(target string, tr *tar.Reader, size int64) error {
-	buf := tarPool.Get(size)
+func handleFile(target string, tr *tar.Reader) error {
+	buf := tarPool.Get(extractBuffer)
 	defer tarPool.Put(buf)
 
 	if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
