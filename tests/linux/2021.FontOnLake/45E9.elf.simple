@@ -94,6 +94,7 @@ net/tcp/sftp: medium
 net/tcp/ssh: medium
 net/tun_tap: medium
 net/url/embedded: low
+os/env/get: low
 persist/daemon: medium
 persist/kernel_module/load: high
 persist/kernel_module/module: medium

@@ -61,7 +61,8 @@ rule java_base64_encode: medium {
     description = "encode base64 strings"
 
   strings:
-    $ref = "Base64$Encoder"
+    $ref  = "Base64$Encoder"
+    $ref2 = "printBase64Binary"
 
   condition:
     any of them

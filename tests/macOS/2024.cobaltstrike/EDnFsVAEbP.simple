@@ -50,6 +50,7 @@ net/socket/connect: medium
 net/socket/listen: medium
 net/socket/local_addr: low
 net/tcp/ssh: medium
+os/env/get: low
 persist/daemon: medium
 privesc/setuid: low
 process/create: low

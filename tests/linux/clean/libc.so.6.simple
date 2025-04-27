@@ -99,6 +99,7 @@ net/socket/peer_address: low
 net/socket/receive: low
 net/socket/send: low
 net/url/embedded: low
+os/env/get: low
 os/fd/epoll: low
 os/fd/print: low
 os/fd/sendfile: low

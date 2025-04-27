@@ -7,3 +7,4 @@ net/socket/connect: medium
 net/socket/listen: medium
 net/socket/pair: medium
 net/url/embedded: low
+os/env/get: low

@@ -19,4 +19,5 @@
 | LOW | [fs/tempdir/TEMP](https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/tempdir/TEMP.yara#temp) | temp | [getenv](https://github.com/search?q=getenv&type=code)<br>[temp](https://github.com/search?q=temp&type=code) |
 | LOW | [net/http](https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/http.yara#http) | Uses the HTTP protocol | [http](https://github.com/search?q=http&type=code) |
 | LOW | [net/url/embedded](https://github.com/chainguard-dev/malcontent/blob/main/rules/net/url/embedded.yara#https_url) | contains embedded HTTPS URLs | [https://github.com/x3dom/x3dom/tree/](https://github.com/x3dom/x3dom/tree/) |
+| LOW | [os/env/get](https://github.com/chainguard-dev/malcontent/blob/main/rules/os/env/get.yara#getenv) | Retrieve environment variables | [getenv](https://github.com/search?q=getenv&type=code) |
 
