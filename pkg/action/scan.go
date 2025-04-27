@@ -137,7 +137,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		totalRead += int64(bytesRead)
 	}
 
-	if totalRead < size && !errors.Is(err, io.EOF) {
+	if totalRead < size && err != nil {
 		return nil, fmt.Errorf("incomplete read: got %d bytes, expected %d", totalRead, size)
 	}
 
