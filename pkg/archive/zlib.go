@@ -25,15 +25,17 @@ func ExtractZlib(ctx context.Context, d string, f string) error {
 	if err != nil {
 		return fmt.Errorf("failed to stat file: %w", err)
 	}
+	if fi.Size() == 0 {
+		return nil
+	}
 
-	buf := archivePool.Get(fi.Size())
+	buf := archivePool.Get(extractBuffer)
 	defer archivePool.Put(buf)
 
 	zf, err := os.Open(f)
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
-	defer zf.Close()
 
 	base := filepath.Base(f)
 	target := filepath.Join(d, base[:len(base)-len(filepath.Ext(base))])
@@ -42,20 +44,40 @@ func ExtractZlib(ctx context.Context, d string, f string) error {
 	if err != nil {
 		return fmt.Errorf("failed to create zlib reader: %w", err)
 	}
-	defer zr.Close()
 
 	out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
 	if err != nil {
 		return fmt.Errorf("failed to create extracted file: %w", err)
 	}
-	defer out.Close()
 
-	written, err := io.CopyBuffer(out, io.LimitReader(zr, maxBytes), buf)
-	if err != nil {
-		return fmt.Errorf("failed to copy file: %w", err)
-	}
-	if written >= maxBytes {
-		return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
+	defer func() {
+		archivePool.Put(buf)
+		zr.Close()
+		out.Close()
+	}()
+
+	var written int64
+	for {
+		if written > 0 && written%extractBuffer == 0 && ctx.Err() != nil {
+			return ctx.Err()
+		}
+
+		n, err := zr.Read(buf)
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return fmt.Errorf("failed to read file contents: %w", err)
+		}
+
+		written += int64(n)
+		if written > maxBytes {
+			return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
+		}
+
+		if _, err := out.Write(buf[:n]); err != nil {
+			return fmt.Errorf("failed to write file contents: %w", err)
+		}
 	}
 
 	return nil

@@ -1,7 +1,6 @@
 package archive
 
 import (
-	"archive/zip"
 	"context"
 	"fmt"
 	"io"
@@ -13,6 +12,7 @@ import (
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/pool"
+	zip "github.com/klauspost/compress/zip"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -28,7 +28,7 @@ func ExtractZip(ctx context.Context, d string, f string) error {
 	logger.Debug("extracting zip")
 
 	initZipPool.Do(func() {
-		zipPool = pool.NewBufferPool()
+		zipPool = pool.NewBufferPool(runtime.GOMAXPROCS(0) * 2)
 	})
 
 	fi, err := os.Stat(f)
@@ -36,7 +36,7 @@ func ExtractZip(ctx context.Context, d string, f string) error {
 		return fmt.Errorf("failed to stat file %s: %w", f, err)
 	}
 	if fi.Size() == 0 {
-		return fmt.Errorf("empty zip file: %s", f)
+		return nil
 	}
 
 	read, err := zip.OpenReader(f)
@@ -49,10 +49,33 @@ func ExtractZip(ctx context.Context, d string, f string) error {
 		return fmt.Errorf("failed to create extraction directory: %w", err)
 	}
 
+	for _, file := range read.File {
+		if file.Mode().IsDir() {
+			clean := filepath.Clean(filepath.ToSlash(file.Name))
+			if strings.Contains(clean, "..") {
+				logger.Warnf("skipping potentially unsafe directory path: %s", file.Name)
+				continue
+			}
+
+			target := filepath.Join(d, clean)
+			if !IsValidPath(target, d) {
+				logger.Warnf("skipping directory path outside extraction directory: %s", target)
+				continue
+			}
+
+			if err := os.MkdirAll(target, 0o700); err != nil {
+				return fmt.Errorf("failed to create directory structure: %w", err)
+			}
+		}
+	}
+
 	g, gCtx := errgroup.WithContext(ctx)
-	g.SetLimit(min(runtime.GOMAXPROCS(0), len(read.File)))
+	g.SetLimit(runtime.GOMAXPROCS(0) * 2)
 
 	for _, file := range read.File {
+		if file.Mode().IsDir() {
+			continue
+		}
 		g.Go(func() error {
 			return extractFile(gCtx, file, d, logger)
 		})
@@ -69,9 +92,7 @@ func extractFile(ctx context.Context, file *zip.File, destDir string, logger *cl
 		return ctx.Err()
 	}
 
-	// #nosec G115 // ignore Type conversion which leads to integer overflow
-	buf := zipPool.Get(int64(file.UncompressedSize64))
-	defer zipPool.Put(buf)
+	buf := zipPool.Get(zipBuffer)
 
 	clean := filepath.Clean(filepath.ToSlash(file.Name))
 	if strings.Contains(clean, "..") {
@@ -85,16 +106,6 @@ func extractFile(ctx context.Context, file *zip.File, destDir string, logger *cl
 		return nil
 	}
 
-	select {
-	case <-ctx.Done():
-		return ctx.Err()
-	default:
-	}
-
-	if file.Mode().IsDir() {
-		return os.MkdirAll(target, 0o700)
-	}
-
 	if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
 		return fmt.Errorf("failed to create directory structure: %w", err)
 	}
@@ -103,27 +114,41 @@ func extractFile(ctx context.Context, file *zip.File, destDir string, logger *cl
 	if err != nil {
 		return fmt.Errorf("failed to open archived file: %w", err)
 	}
-	defer src.Close()
 
 	dst, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
 	if err != nil {
 		return fmt.Errorf("failed to create destination file: %w", err)
 	}
 
-	var closeErr error
 	defer func() {
-		if cerr := dst.Close(); cerr != nil && closeErr == nil {
-			closeErr = cerr
-		}
+		src.Close()
+		dst.Close()
+		zipPool.Put(buf)
 	}()
 
-	written, err := io.CopyBuffer(dst, io.LimitReader(src, maxBytes), buf)
-	if err != nil {
-		return fmt.Errorf("failed to copy file contents: %w", err)
-	}
-	if written >= maxBytes {
-		return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
+	var written int64
+	for {
+		if written > 0 && written%zipBuffer == 0 && ctx.Err() != nil {
+			return ctx.Err()
+		}
+
+		n, err := src.Read(buf)
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return fmt.Errorf("failed to read file contents: %w", err)
+		}
+
+		written += int64(n)
+		if written > maxBytes {
+			return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
+		}
+
+		if _, err := dst.Write(buf[:n]); err != nil {
+			return fmt.Errorf("failed to write file contents: %w", err)
+		}
 	}
 
-	return closeErr
+	return nil
 }

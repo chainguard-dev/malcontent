@@ -27,18 +27,16 @@ func ExtractDeb(ctx context.Context, d, f string) error {
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
-	defer fd.Close()
-
-	fi, err := fd.Stat()
-	if err != nil {
-		return fmt.Errorf("failed to stat file: %w", err)
-	}
 
 	df, err := deb.Load(fd, f)
 	if err != nil {
 		panic(err)
 	}
-	defer df.Close()
+
+	defer func() {
+		fd.Close()
+		df.Close()
+	}()
 
 	for {
 		header, err := df.Data.Next()
@@ -65,7 +63,7 @@ func ExtractDeb(ctx context.Context, d, f string) error {
 				return fmt.Errorf("failed to extract directory: %w", err)
 			}
 		case tar.TypeReg:
-			if err := handleFile(target, df.Data, fi.Size()); err != nil {
+			if err := handleFile(target, df.Data); err != nil {
 				return fmt.Errorf("failed to extract file: %w", err)
 			}
 		case tar.TypeSymlink:

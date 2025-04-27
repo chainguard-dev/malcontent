@@ -13,6 +13,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strings"
 	"sync"
 
@@ -110,6 +111,8 @@ var (
 	headerPool     *pool.BufferPool
 	initializeOnce sync.Once
 )
+
+const headerSize int = 512
 
 // IsSupportedArchive returns whether a path can be processed by our archive extractor.
 // UPX files are an edge case since they may or may not even have an extension that can be referenced.
@@ -242,12 +245,33 @@ func File(path string) (*FileType, error) {
 		return nil, nil
 	}
 
+	initializeOnce.Do(func() {
+		headerPool = pool.NewBufferPool(runtime.GOMAXPROCS(0))
+	})
+
+	buf := headerPool.Get(int64(headerSize))
+	defer headerPool.Put(buf)
+
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, fmt.Errorf("open: %w", err)
+	}
+	defer f.Close()
+
+	bs, err := f.Read(buf)
+	if err != nil && errors.Is(err, io.EOF) {
+		return nil, fmt.Errorf("read: %w", err)
+	}
+	hdr := buf[:bs]
+
 	// first strategy: mimetype
-	mtype, err := mimetype.DetectFile(path)
-	if err == nil {
-		if ft := makeFileType(path, mtype.Extension(), mtype.String()); ft != nil {
-			return ft, nil
-		}
+	mimetype.SetLimit(uint32(headerSize))
+	mtype := mimetype.Detect(hdr)
+	if err != nil && !errors.Is(err, io.ErrUnexpectedEOF) && !errors.Is(err, io.EOF) {
+		return nil, fmt.Errorf("read: %w", err)
+	}
+	if ft := makeFileType(path, mtype.Extension(), mtype.String()); ft != nil {
+		return ft, nil
 	}
 
 	// second strategy: path (extension, mostly)
@@ -255,25 +279,7 @@ func File(path string) (*FileType, error) {
 		return mtype, nil
 	}
 
-	initializeOnce.Do(func() {
-		headerPool = pool.NewBufferPool()
-	})
-	hdr := headerPool.Get(512)
-	defer headerPool.Put(hdr)
-	f, err := os.Open(path)
-	if err != nil {
-		return nil, fmt.Errorf("open: %w", err)
-	}
-	defer f.Close()
-
-	// read file header
-	_, err = io.ReadFull(f, hdr)
-	if err != nil && !errors.Is(err, io.ErrUnexpectedEOF) && !errors.Is(err, io.EOF) {
-		return nil, fmt.Errorf("read: %w", err)
-	}
-
 	// final strategy: DIY matching where mimetype is too strict.
-	s := string(hdr)
 	if isUPX, err := IsValidUPX(hdr, path); err == nil && isUPX {
 		return Path(".upx"), nil
 	}
@@ -281,30 +287,30 @@ func File(path string) (*FileType, error) {
 	switch {
 	case hdr[0] == '\x7f' && hdr[1] == 'E' || hdr[2] == 'L' || hdr[3] == 'F':
 		return Path(".elf"), nil
-	case strings.Contains(s, "<?php"):
+	case bytes.Contains(hdr, []byte("<?php")):
 		return Path(".php"), nil
-	case strings.HasPrefix(s, "import "):
+	case bytes.HasPrefix(hdr, []byte("import ")):
 		return Path(".py"), nil
-	case strings.Contains(s, " = require("):
+	case bytes.Contains(hdr, []byte(" = require(")):
 		return Path(".js"), nil
-	case strings.HasPrefix(s, "#!/bin/ash") ||
-		strings.HasPrefix(s, "#!/bin/bash") ||
-		strings.HasPrefix(s, "#!/bin/fish") ||
-		strings.HasPrefix(s, "#!/bin/sh") ||
-		strings.HasPrefix(s, "#!/bin/zsh") ||
-		strings.Contains(s, `if [`) ||
-		strings.Contains(s, "if !") ||
-		strings.Contains(s, `echo "`) ||
-		strings.Contains(s, `grep `) ||
-		strings.Contains(s, "; then") ||
-		strings.Contains(s, "export ") ||
+	case bytes.HasPrefix(hdr, []byte("#!/bin/ash")) ||
+		bytes.HasPrefix(hdr, []byte("#!/bin/bash")) ||
+		bytes.HasPrefix(hdr, []byte("#!/bin/fish")) ||
+		bytes.HasPrefix(hdr, []byte("#!/bin/sh")) ||
+		bytes.HasPrefix(hdr, []byte("#!/bin/zsh")) ||
+		bytes.Contains(hdr, []byte("if [")) ||
+		bytes.Contains(hdr, []byte("if !")) ||
+		bytes.Contains(hdr, []byte("echo ")) ||
+		bytes.Contains(hdr, []byte("grep ")) ||
+		bytes.Contains(hdr, []byte("; then")) ||
+		bytes.Contains(hdr, []byte("export ")) ||
 		strings.HasSuffix(path, "profile"):
 		return Path(".sh"), nil
-	case strings.HasPrefix(s, "#!"):
+	case bytes.HasPrefix(hdr, []byte("#!")):
 		return Path(".script"), nil
-	case strings.Contains(s, "#include <"):
+	case bytes.Contains(hdr, []byte("#include <")):
 		return Path(".c"), nil
-	case strings.Contains(s, "BEAMAtU8"):
+	case bytes.Contains(hdr, []byte("BEAMAtU8")):
 		return Path(".beam"), nil
 	case hdr[0] == '\x1f' && hdr[1] == '\x8b':
 		return Path(".gzip"), nil

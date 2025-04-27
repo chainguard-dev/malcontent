@@ -1,7 +1,6 @@
 package archive
 
 import (
-	"compress/bzip2"
 	"context"
 	"fmt"
 	"io"
@@ -10,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/chainguard-dev/clog"
+	bzip2 "github.com/cosnicolaou/pbzip2"
 )
 
 // Extract Bz2 extracts bzip2 files.
@@ -26,22 +26,23 @@ func ExtractBz2(ctx context.Context, d, f string) error {
 	if err != nil {
 		return fmt.Errorf("failed to stat file: %w", err)
 	}
+	if fi.Size() == 0 {
+		return nil
+	}
 
-	buf := archivePool.Get(fi.Size())
-	defer archivePool.Put(buf)
+	buf := archivePool.Get(extractBuffer)
 
 	tf, err := os.Open(f)
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
-	defer tf.Close()
 	// Set offset to the file origin regardless of type
 	_, err = tf.Seek(0, io.SeekStart)
 	if err != nil {
 		return fmt.Errorf("failed to seek to start: %w", err)
 	}
 
-	br := bzip2.NewReader(tf)
+	br := bzip2.NewReader(ctx, tf)
 	uncompressed := strings.TrimSuffix(filepath.Base(f), ".bz2")
 	uncompressed = strings.TrimSuffix(uncompressed, ".bzip2")
 	target := filepath.Join(d, uncompressed)
@@ -58,14 +59,35 @@ func ExtractBz2(ctx context.Context, d, f string) error {
 	if err != nil {
 		return fmt.Errorf("failed to create file: %w", err)
 	}
-	defer out.Close()
 
-	written, err := io.CopyBuffer(out, io.LimitReader(br, maxBytes), buf)
-	if err != nil {
-		return fmt.Errorf("failed to copy file: %w", err)
-	}
-	if written >= maxBytes {
-		return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
+	defer func() {
+		archivePool.Put(buf)
+		tf.Close()
+		out.Close()
+	}()
+
+	var written int64
+	for {
+		if written > 0 && written%extractBuffer == 0 && ctx.Err() != nil {
+			return ctx.Err()
+		}
+
+		n, err := br.Read(buf)
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return fmt.Errorf("failed to read file contents: %w", err)
+		}
+
+		written += int64(n)
+		if written > maxBytes {
+			return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
+		}
+
+		if _, err := out.Write(buf[:n]); err != nil {
+			return fmt.Errorf("failed to write file contents: %w", err)
+		}
 	}
 
 	return nil
