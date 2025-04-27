@@ -7,7 +7,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"io"
 	"io/fs"
 	"os"
 	"os/exec"
@@ -259,7 +258,7 @@ func File(path string) (*FileType, error) {
 	defer f.Close()
 
 	bs, err := f.Read(buf)
-	if err != nil && errors.Is(err, io.EOF) {
+	if err != nil {
 		return nil, fmt.Errorf("read: %w", err)
 	}
 	hdr := buf[:bs]
@@ -267,9 +266,6 @@ func File(path string) (*FileType, error) {
 	// first strategy: mimetype
 	mimetype.SetLimit(uint32(headerSize))
 	mtype := mimetype.Detect(hdr)
-	if err != nil && !errors.Is(err, io.ErrUnexpectedEOF) && !errors.Is(err, io.EOF) {
-		return nil, fmt.Errorf("read: %w", err)
-	}
 	if ft := makeFileType(path, mtype.Extension(), mtype.String()); ft != nil {
 		return ft, nil
 	}
