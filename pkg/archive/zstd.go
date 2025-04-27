@@ -2,6 +2,7 @@ package archive
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -25,9 +26,11 @@ func ExtractZstd(ctx context.Context, d string, f string) error {
 	if err != nil {
 		return fmt.Errorf("failed to stat zstd file %s: %w", f, err)
 	}
+	if fi.Size() == 0 {
+		return nil
+	}
 
-	buf := archivePool.Get(fi.Size())
-	defer archivePool.Put(buf)
+	buf := archivePool.Get(extractBuffer)
 
 	uncompressed := strings.TrimSuffix(filepath.Base(f), ".zstd")
 	uncompressed = strings.TrimSuffix(uncompressed, ".zst")
@@ -45,27 +48,46 @@ func ExtractZstd(ctx context.Context, d string, f string) error {
 	if err != nil {
 		return fmt.Errorf("failed to create decompressed zstd file: %w", err)
 	}
-	defer out.Close()
 
 	zstdFile, err := os.Open(f)
 	if err != nil {
 		return fmt.Errorf("failed to open zstd file: %w", err)
 	}
-	defer zstdFile.Close()
 
 	zr, err := zstd.NewReader(zstdFile)
 	if err != nil {
 		return fmt.Errorf("failed to open zstd file %s: %w", f, err)
 	}
-	defer zr.Close()
 
-	written, err := io.CopyBuffer(out, io.LimitReader(zr, maxBytes), buf)
-	if err != nil {
-		return fmt.Errorf("failed to copy zstd compressed file: %w", err)
-	}
+	defer func() {
+		archivePool.Put(buf)
+		zstdFile.Close()
+		zr.Close()
+		out.Close()
+	}()
 
-	if written >= maxBytes {
-		return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
+	var written int64
+	for {
+		if written > 0 && written%extractBuffer == 0 && ctx.Err() != nil {
+			return ctx.Err()
+		}
+
+		n, err := zr.Read(buf)
+		if errors.Is(err, io.EOF) {
+			break
+		}
+		if err != nil {
+			return fmt.Errorf("failed to read file contents: %w", err)
+		}
+
+		written += int64(n)
+		if written > maxBytes {
+			return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
+		}
+
+		if _, err := out.Write(buf[:n]); err != nil {
+			return fmt.Errorf("failed to write file contents: %w", err)
+		}
 	}
 
 	return nil

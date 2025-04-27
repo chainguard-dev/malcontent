@@ -124,7 +124,7 @@ install-yara-x: out/$(YARAX_REPO)/.git/commit-$(YARAX_COMMIT)
 	mkdir -p out/include
 	cd out/$(YARAX_REPO) && \
 	cargo install cargo-c --locked && \
-	cargo cinstall -p yara-x-capi --release --prefix="$(LINT_ROOT)/out" --libdir="$(LINT_ROOT)/out/lib"
+	cargo cinstall -p yara-x-capi --features=native-code-serialization --release --prefix="$(LINT_ROOT)/out" --libdir="$(LINT_ROOT)/out/lib"
 
 # unit tests only
 .PHONY: test

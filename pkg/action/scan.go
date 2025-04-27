@@ -48,6 +48,8 @@ var (
 )
 
 // scanSinglePath YARA scans a single path and converts it to a fileReport.
+//
+//nolint:cyclop // ignore complexity of 38
 func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleFS []fs.FS, absPath string, archiveRoot string) (*malcontent.FileReport, error) {
 	if ctx.Err() != nil {
 		return &malcontent.FileReport{}, ctx.Err()
@@ -56,30 +58,22 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	logger := clog.FromContext(ctx)
 	logger = logger.With("path", path)
 
-	var yrs *yarax.Rules
-	var err error
-	if c.Rules == nil {
-		yrs, err = CachedRules(ctx, ruleFS)
-		if err != nil {
-			return nil, fmt.Errorf("rules: %w", err)
-		}
-	} else {
-		yrs = c.Rules
-	}
-
-	initializeOnce.Do(func() {
-		filePool = pool.NewBufferPool()
-		scannerPool = pool.NewScannerPool(yrs, c.Concurrency)
-	})
-
-	scanner := scannerPool.Get()
-	// Scanner should not be nil here, but guard against it anyway
-	if scanner == nil {
-		scanner = yarax.NewScanner(yrs)
-	}
-	defer scannerPool.Put(scanner)
-
 	isArchive := archiveRoot != ""
+
+	fi, err := os.Stat(path)
+	if err != nil {
+		return nil, err
+	}
+
+	size := fi.Size()
+	if size == 0 {
+		fr := &malcontent.FileReport{Skipped: "zero-sized file", Path: path}
+		if isArchive {
+			defer os.RemoveAll(path)
+		}
+		return fr, nil
+	}
+
 	mime := "<unknown>"
 	kind, err := programkind.File(path)
 	if err != nil && !interactive(c) {
@@ -88,6 +82,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	if kind != nil {
 		mime = kind.MIME
 	}
+
 	if !c.IncludeDataFiles && kind == nil {
 		logger.Debugf("skipping %s [%s]: data file or empty", path, mime)
 		fr := &malcontent.FileReport{Skipped: "data file or empty", Path: path}
@@ -99,33 +94,51 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	}
 	logger = logger.With("mime", mime)
 
+	var yrs *yarax.Rules
+	if c.Rules == nil {
+		yrs, err = CachedRules(ctx, ruleFS)
+		if err != nil {
+			return nil, fmt.Errorf("rules: %w", err)
+		}
+	} else {
+		yrs = c.Rules
+	}
+
+	initializeOnce.Do(func() {
+		filePool = pool.NewBufferPool(c.Concurrency + 1)
+		scannerPool = pool.NewScannerPool(yrs, c.Concurrency+1)
+	})
+
+	scanner := scannerPool.Get()
+	if scanner == nil {
+		scanner = yarax.NewScanner(yrs)
+	}
+	defer scannerPool.Put(scanner)
+
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, err
 	}
 	defer f.Close()
 
-	fi, err := f.Stat()
-	if err != nil {
-		return nil, err
-	}
-	size := fi.Size()
-
-	if size == 0 {
-		fr := &malcontent.FileReport{Skipped: "zero-sized file", Path: path}
-		defer os.RemoveAll(path)
-		return fr, nil
-	}
-
 	fc := filePool.Get(size)
 	defer filePool.Put(fc)
-	if _, err := io.ReadFull(f, fc); err != nil {
-		return nil, err
+
+	var bytesRead int
+	var totalRead int64
+	for totalRead < size {
+		bytesRead, err = f.Read(fc[totalRead:])
+		if errors.Is(err, io.EOF) {
+			break
+		}
+		if err != nil {
+			return nil, err
+		}
+		totalRead += int64(bytesRead)
 	}
 
-	// Immediately remove archive files read into memory
-	if isArchive {
-		defer os.RemoveAll(path)
+	if totalRead < size && err != nil {
+		return nil, fmt.Errorf("incomplete read: got %d bytes, expected %d: %w", totalRead, size, err)
 	}
 
 	mrs, err := scanner.Scan(fc)
@@ -137,9 +150,12 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	// If running a scan, only generate reports for mrs that satisfy the risk threshold of 3
 	// This is a short-circuit that avoids any report generation logic
 	risk := report.HighestMatchRisk(mrs)
-	if c.Scan && risk < 3 {
+	threshold := max(3, c.MinFileRisk, c.MinRisk)
+	if c.Scan && risk < threshold {
 		fr := &malcontent.FileReport{Skipped: "overall risk too low for scan", Path: path}
-		os.RemoveAll(path)
+		if isArchive {
+			os.RemoveAll(path)
+		}
 		return fr, nil
 	}
 
@@ -166,15 +182,13 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		fr.ArchiveRoot = archiveRootAbs
 		fr.FullPath = pathAbs
 		clean = formatPath(cleanPath(pathAbs, archiveRootAbs))
-	}
 
-	// If absPath is provided, use it instead of the path if they are different.
-	// This is useful when scanning images and archives.
-	if absPath != "" && absPath != path && (isArchive || c.OCI) {
-		if len(c.TrimPrefixes) > 0 {
-			absPath = report.TrimPrefixes(absPath, c.TrimPrefixes)
+		if absPath != "" && absPath != path && (isArchive || c.OCI) {
+			if len(c.TrimPrefixes) > 0 {
+				absPath = report.TrimPrefixes(absPath, c.TrimPrefixes)
+			}
+			fr.Path = fmt.Sprintf("%s ∴ %s", absPath, clean)
 		}
-		fr.Path = fmt.Sprintf("%s ∴ %s", absPath, clean)
 	}
 
 	if len(fr.Behaviors) == 0 {
@@ -396,17 +410,17 @@ func processPaths(ctx context.Context, paths []string, scanInfo scanPathInfo, c 
 		cancel()
 	}()
 
-	g := setupErrorGroup(maxConcurrency)
+	g, gCtx := errgroup.WithContext(scanCtx)
+	g.SetLimit(maxConcurrency)
 
-	setupMatchHandler(scanCtx, matchChan, c, cancel, logger)
+	setupMatchHandler(gCtx, matchChan, c, cancel, logger)
 
 	pc := make(chan string, len(paths))
 	go func() {
 		defer close(pc)
-
 		for _, path := range paths {
 			select {
-			case <-scanCtx.Done():
+			case <-gCtx.Done():
 				return
 			case pc <- path:
 			}
@@ -415,10 +429,10 @@ func processPaths(ctx context.Context, paths []string, scanInfo scanPathInfo, c 
 
 	for path := range pc {
 		g.Go(func() error {
-			if scanCtx.Err() != nil {
+			if gCtx.Err() != nil {
 				return scanCtx.Err()
 			}
-			return processPath(scanCtx, path, scanInfo, c, r, matchChan, matchOnce, logger)
+			return processPath(gCtx, path, scanInfo, c, r, matchChan, matchOnce, logger)
 		})
 	}
 
@@ -445,21 +459,6 @@ func getMaxConcurrency(configured int) int {
 		return 1
 	}
 	return configured
-}
-
-func createPathChannel(paths []string) chan string {
-	pc := make(chan string, len(paths))
-	for _, path := range paths {
-		pc <- path
-	}
-	close(pc)
-	return pc
-}
-
-func setupErrorGroup(maxConcurrency int) *errgroup.Group {
-	g := &errgroup.Group{}
-	g.SetLimit(maxConcurrency)
-	return g
 }
 
 func setupMatchHandler(ctx context.Context, matchChan chan matchResult, c malcontent.Config, cancel context.CancelFunc, logger *clog.Logger) {
@@ -634,13 +633,12 @@ func processArchive(ctx context.Context, c malcontent.Config, rfs []fs.FS, archi
 		return nil, fmt.Errorf("extract to temp: %w", err)
 	}
 	// Ensure that tmpRoot is removed before returning if created successfully
-	if tmpRoot != "" {
-		defer func() {
-			if err := os.RemoveAll(tmpRoot); err != nil {
-				logger.Errorf("remove %s: %v", tmpRoot, err)
-			}
-		}()
-	}
+	defer func() {
+		if err := os.RemoveAll(tmpRoot); err != nil {
+			logger.Errorf("remove %s: %v", tmpRoot, err)
+		}
+	}()
+
 	// macOS will prefix temporary directories with `/private`
 	// update tmpRoot with this prefix to allow strings.TrimPrefix to work
 	if runtime.GOOS == "darwin" {
@@ -652,16 +650,28 @@ func processArchive(ctx context.Context, c malcontent.Config, rfs []fs.FS, archi
 		return nil, fmt.Errorf("find: %w", err)
 	}
 
+	ep := make(chan string, len(extractedPaths))
+	go func() {
+		defer close(ep)
+		for _, path := range extractedPaths {
+			select {
+			case <-ctx.Done():
+				return
+			case ep <- path:
+			}
+		}
+	}()
+
 	maxConcurrency := getMaxConcurrency(c.Concurrency)
 	scanCtx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	g := setupErrorGroup(maxConcurrency)
+	g, gCtx := errgroup.WithContext(scanCtx)
+	g.SetLimit(maxConcurrency)
 
-	ep := createPathChannel(extractedPaths)
 	for path := range ep {
 		g.Go(func() error {
-			fr, err := processFile(scanCtx, c, rfs, path, archivePath, tmpRoot, logger)
+			fr, err := processFile(gCtx, c, rfs, path, archivePath, tmpRoot, logger)
 			if err != nil {
 				return err
 			}

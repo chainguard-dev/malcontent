@@ -2,26 +2,29 @@ package archive
 
 import (
 	"archive/tar"
-	"compress/bzip2"
-	"compress/gzip"
 	"context"
 	"errors"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/pool"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
+	bzip2 "github.com/cosnicolaou/pbzip2"
+	gzip "github.com/klauspost/pgzip"
 	"github.com/ulikunitz/xz"
 )
 
 var initTarPool sync.Once
 
 // extractTar extracts .apk and .tar* archives.
+//
+//nolint:cyclop // ignore complexity of 42
 func ExtractTar(ctx context.Context, d string, f string) error {
 	if ctx.Err() != nil {
 		return ctx.Err()
@@ -32,7 +35,7 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 
 	// Initialize the tar sync pool here since OCI preparation bypasses the main extraction method
 	initTarPool.Do(func() {
-		tarPool = pool.NewBufferPool()
+		tarPool = pool.NewBufferPool(runtime.GOMAXPROCS(0))
 	})
 
 	// Check if the file is valid
@@ -41,15 +44,22 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 		return fmt.Errorf("failed to stat file: %w", err)
 	}
 
-	buf := tarPool.Get(fi.Size())
-	defer tarPool.Put(buf)
+	if fi.Size() == 0 {
+		return nil
+	}
+
+	buf := tarPool.Get(extractBuffer)
 
 	filename := filepath.Base(f)
 	tf, err := os.Open(f)
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
-	defer tf.Close()
+
+	defer func() {
+		tarPool.Put(buf)
+		tf.Close()
+	}()
 
 	isTGZ := strings.Contains(f, ".tar.gz") || strings.Contains(f, ".tgz")
 	var isGzip bool
@@ -99,17 +109,65 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 		}
 		defer out.Close()
 
-		written, err := io.CopyBuffer(out, io.LimitReader(xzStream, maxBytes), buf)
-		if err != nil {
-			return fmt.Errorf("failed to write decompressed xz output: %w", err)
-		}
-		if written >= maxBytes {
-			return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
+		var written int64
+		for {
+			if written > 0 && written%extractBuffer == 0 && ctx.Err() != nil {
+				return ctx.Err()
+			}
+
+			n, err := xzStream.Read(buf)
+			if errors.Is(err, io.EOF) {
+				break
+			}
+			if err != nil {
+				return fmt.Errorf("failed to read file contents: %w", err)
+			}
+
+			written += int64(n)
+			if written > maxBytes {
+				return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
+			}
+
+			if _, err := out.Write(buf[:n]); err != nil {
+				return fmt.Errorf("failed to write file contents: %w", err)
+			}
 		}
 		return nil
 	case strings.Contains(filename, ".tar.bz2") || strings.Contains(filename, ".tbz"):
-		br := bzip2.NewReader(tf)
-		tr = tar.NewReader(br)
+		br := bzip2.NewReader(ctx, tf)
+		uncompressed := strings.Trim(filepath.Base(f), programkind.GetExt(filename))
+		target := filepath.Join(d, uncompressed)
+		if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
+			return fmt.Errorf("failed to create directory for file: %w", err)
+		}
+		out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+		if err != nil {
+			return fmt.Errorf("failed to create file: %w", err)
+		}
+		var written int64
+		for {
+			if written > 0 && written%extractBuffer == 0 && ctx.Err() != nil {
+				return ctx.Err()
+			}
+
+			n, err := br.Read(buf)
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
+				return fmt.Errorf("failed to read file contents: %w", err)
+			}
+
+			written += int64(n)
+			if written > maxBytes {
+				return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
+			}
+
+			if _, err := out.Write(buf[:n]); err != nil {
+				return fmt.Errorf("failed to write file contents: %w", err)
+			}
+		}
+		return nil
 	default:
 		tr = tar.NewReader(tf)
 	}
@@ -141,7 +199,7 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 				return fmt.Errorf("failed to extract directory: %w", err)
 			}
 		case tar.TypeReg:
-			if err := handleFile(target, tr, fi.Size()); err != nil {
+			if err := handleFile(target, tr); err != nil {
 				return fmt.Errorf("failed to extract file: %w", err)
 			}
 		case tar.TypeSymlink:

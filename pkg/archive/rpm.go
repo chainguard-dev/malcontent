@@ -36,8 +36,11 @@ func ExtractRPM(ctx context.Context, d, f string) error {
 	if err != nil {
 		return fmt.Errorf("failed to stat RPM file: %w", err)
 	}
+	if fi.Size() == 0 {
+		return nil
+	}
 
-	buf := archivePool.Get(fi.Size())
+	buf := archivePool.Get(extractBuffer)
 	defer archivePool.Put(buf)
 
 	pkg, err := rpm.Read(rpmFile)
@@ -118,12 +121,28 @@ func ExtractRPM(ctx context.Context, d, f string) error {
 			return fmt.Errorf("failed to create file: %w", err)
 		}
 
-		written, err := io.CopyBuffer(out, io.LimitReader(cr, maxBytes), buf)
-		if err != nil {
-			return fmt.Errorf("failed to copy file: %w", err)
-		}
-		if written >= maxBytes {
-			return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
+		var written int64
+		for {
+			if written > 0 && written%extractBuffer == 0 && ctx.Err() != nil {
+				return ctx.Err()
+			}
+
+			n, err := cr.Read(buf)
+			if errors.Is(err, io.EOF) {
+				break
+			}
+			if err != nil {
+				return fmt.Errorf("failed to read file contents: %w", err)
+			}
+
+			written += int64(n)
+			if written > maxBytes {
+				return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
+			}
+
+			if _, err := out.Write(buf[:n]); err != nil {
+				return fmt.Errorf("failed to write file contents: %w", err)
+			}
 		}
 
 		if err := out.Close(); err != nil {
