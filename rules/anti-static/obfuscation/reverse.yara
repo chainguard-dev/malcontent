@@ -38,7 +38,7 @@ private rule reverse_probably_js {
     $not_typedef        = "typedef typename"
 
   condition:
-    filesize < 5MB and 4 of them and none of ($not*)
+    filesize < 5MB and 4 of ($f*) and none of ($not*)
 }
 
 rule string_reversal: medium {
