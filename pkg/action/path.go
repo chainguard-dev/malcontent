@@ -3,6 +3,7 @@ package action
 import (
 	"context"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -44,6 +45,26 @@ func findFilesRecursively(ctx context.Context, rootPath string) ([]string, error
 			}
 			if info.IsDir() || strings.Contains(path, "/.git/") {
 				return nil
+			}
+
+			// Ignore symlinked directories like regular directories
+			if info.Type()&fs.ModeSymlink == fs.ModeSymlink {
+				logger.Debugf("attempting to resolve symlink: %s", path)
+				eval, err := filepath.EvalSymlinks(path)
+				if err != nil {
+					logger.Errorf("eval: %s: %s", path, err)
+					return nil
+				}
+				fi, err := os.Stat(eval)
+				if err != nil {
+					logger.Errorf("stat: %s: %s", path, err)
+					return nil
+				}
+				if fi.IsDir() {
+					logger.Debugf("ignoring symlinked directory: %s", path)
+					return nil
+				}
+				path = eval
 			}
 
 			files = append(files, path)
