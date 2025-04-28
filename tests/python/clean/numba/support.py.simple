@@ -8,7 +8,6 @@ data/encoding/yaml: medium
 discover/system/platform: medium
 exec/imports/python: low
 exec/program: medium
-exec/remote_commands/code_eval: medium
 fs/directory/create: low
 fs/directory/list: low
 fs/file/open: low
