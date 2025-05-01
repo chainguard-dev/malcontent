@@ -2,6 +2,7 @@ rule discord_bot: high {
   meta:
     description = "Uses the Discord webhooks API"
     ref         = "https://github.com/bartblaze/community/blob/3f3997f8c79c3605ae6d5324c8578cb12c452512/data/yara/binaries/indicator_high.yar#L706"
+    filetypes   = "text/x-python"
 
   strings:
     $ = /discordapp.com\/api\/webhooks[\/\d]{0,32}/

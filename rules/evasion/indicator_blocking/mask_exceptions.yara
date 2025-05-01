@@ -19,6 +19,7 @@ private rule indicator_blocking_pythonSetup {
 rule py_no_fail: medium {
   meta:
     description = "Python code that hides exceptions"
+    filetypes   = "text/x-python"
 
   strings:
     $e_short = /except:.{0,4}pass/ fullword
@@ -31,6 +32,7 @@ rule py_no_fail: medium {
 rule setuptools_no_fail: suspicious {
   meta:
     description = "Python library installer that hides exceptions"
+    filetypes   = "text/x-python"
 
   condition:
     indicator_blocking_pythonSetup and py_no_fail
@@ -39,6 +41,7 @@ rule setuptools_no_fail: suspicious {
 rule php_disable_errors: medium {
   meta:
     description = "PHP code that disables error reporting"
+    filetypes   = "text/x-php"
 
   strings:
     $err_rep       = "error_reporting(0)"

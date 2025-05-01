@@ -13,7 +13,6 @@ evasion/hijack_execution/etc_ld.so.preload: medium
 evasion/indicator_blocking/process: high
 evasion/logging/acct: low
 evasion/logging/hide_shell_history: high
-evasion/net/hide_ports: high
 evasion/process_injection/dlsym: high
 evasion/process_injection/ptrace: medium
 evasion/rootkit/userspace: high

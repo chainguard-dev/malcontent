@@ -1,6 +1,7 @@
 rule python_sysinfo_http: high {
   meta:
     description = "exfiltrate system information"
+    filetypes   = "text/x-php"
 
   strings:
     $r_user     = "getpass.getuser"

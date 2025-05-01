@@ -119,6 +119,7 @@ private rule smallerBinary {
 rule http_archive_url_higher: high {
   meta:
     description = "accesses hardcoded archive file endpoint"
+    filetypes   = "application/x-elf,application/x-mach-binary"
 
   strings:
     $ref         = /https{0,1}:\/\/[\w\.]{0,160}[:\/\w\_\-\?\@=]{6,160}\.(zip|tar|tgz|gz|xz)/ fullword
