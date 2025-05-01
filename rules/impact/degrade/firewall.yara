@@ -2,7 +2,7 @@ import "math"
 
 rule selinux_firewall: high linux {
   meta:
-    filetypes   = "elf,so"
+    filetypes   = "application/x-elf,application/x-sharedlib"
     description = "references both SELinux and iptables/firewalld"
 
   strings:

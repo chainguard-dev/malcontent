@@ -2,7 +2,6 @@
 c2/addr/ip: high
 c2/addr/url: medium
 exec/imports/python: low
-exec/remote_commands/code_eval: high
 impact/remote_access/remote_eval: critical
 net/http: low
 net/url/embedded: low

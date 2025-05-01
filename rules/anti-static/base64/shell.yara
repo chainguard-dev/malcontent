@@ -1,6 +1,7 @@
 rule base64_shell: high {
   meta:
     description = "Contains base64 shell script"
+    filetypes   = "application/x-sh,application/x-zsh"
 
   strings:
     $if     = "aWYgW1sg"

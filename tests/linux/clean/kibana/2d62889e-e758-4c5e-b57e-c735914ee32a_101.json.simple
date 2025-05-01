@@ -1,0 +1,7 @@
+# linux/clean/kibana/2d62889e-e758-4c5e-b57e-c735914ee32a_101.json: medium
+c2/tool_transfer/arch: low
+c2/tool_transfer/os: low
+exec/shell/power: medium
+impact/degrade/win_defender: low
+net/download: medium
+net/url/embedded: low

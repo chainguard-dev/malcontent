@@ -10,7 +10,6 @@ data/encoding/base64: low
 discover/system/platform: low
 discover/user/USER: low
 evasion/time/php_no_limit: medium
-exec/cmd: medium
 exec/shell/command: medium
 exec/shell/exec: medium
 exec/shell/ignore_output: medium

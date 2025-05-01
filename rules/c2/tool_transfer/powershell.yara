@@ -1,6 +1,7 @@
 rule powershell_base64_dropper: critical {
   meta:
     description = "Powershell base64 dropper"
+    filetypes   = "text/x-powershell"
 
   strings:
     $base64     = "FromBase64String"

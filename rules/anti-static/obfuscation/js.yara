@@ -1,57 +1,9 @@
 import "math"
 
-private rule obfs_probably_js {
-  strings:
-    $f_Array     = "Array.prototype" fullword
-    $f_async     = "async function"
-    $f_await     = "await"
-    $f_catch     = "} catch"
-    $f_class     = "@class"
-    $f_const     = /\bconst\s/
-    $f_define    = "define("
-    $f_false     = "false);"
-    $f_function  = /function\(\w{0,32}\)/
-    $f_function2 = "function()"
-    $f_method    = "@method"
-    $f_namespace = "@namespace"
-    $f_Object    = "Object."
-    $f_param     = "@param"
-    $f_private   = "@private"
-    $f_promise   = "Promise"
-    $f_prototype = ".prototype"
-    $f_require   = "require("
-    $f_return    = /\breturn\s/
-    $f_Run       = ".Run("
-    $f_run       = ".run("
-    $f_strict    = " === "
-    $f_this      = "this."
-    $f_this2     = "this["
-    $f_true      = "true);"
-    $f_try       = "try {"
-    $f_var       = /\bvar\s/
-
-    $not_asyncio           = "await asyncio"
-    $not_class             = /class \w{1,32}\(/ fullword
-    $not_def               = /def [a-zA-Z_][a-zA-Z0-9_]{1,32} \(/ ascii
-    $not_equals_comment    = "// ==="
-    $not_error             = "err error"
-    $not_header            = /^#ifndef\s/
-    $not_header2           = /^#define\s/
-    $not_header3           = /^#include\s/
-    $not_import            = /^import \(/
-    $not_package           = /^package\s/
-    $not_self_assert_equal = "self.assertEqual("
-    $not_struct            = /^type \w{1,32} struct \{/ fullword
-    $not_typedef           = "typedef typename"
-
-  condition:
-    filesize < 5MB and 4 of ($f*) and none of ($not*)
-}
-
 rule character_obfuscation: medium {
   meta:
     description = "obfuscated javascript that relies on character manipulation"
-    filetypes   = "javascript"
+    filetypes   = "application/javascript"
 
   strings:
     $a_char         = "charCodeAt"
@@ -67,25 +19,26 @@ rule character_obfuscation: medium {
     $return   = "{return"
 
   condition:
-    obfs_probably_js and filesize < 4MB and all of them
+    filesize < 4MB and all of them
 }
 
 rule js_char_code_at_substitution: high {
   meta:
     description = "converts integers into strings and contains a substitution map"
-    filetypes   = "javascript"
+    filetypes   = "application/javascript"
 
   strings:
     $charCodeAt = "charCodeAt" fullword
     $index      = "fghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ012345"
 
   condition:
-    obfs_probably_js and filesize < 256KB and all of them
+    filesize < 256KB and all of them
 }
 
 rule child_process: critical {
   meta:
     description = "obfuscated javascript that calls external programs"
+    filetypes   = "application/javascript"
 
   strings:
     $f_const         = "const" fullword
@@ -98,13 +51,13 @@ rule child_process: critical {
     $wtf_hex         = /\w{4,16}\<\-0x\d{2,4}/
 
   condition:
-    obfs_probably_js and filesize < 1MB and all of them and math.entropy(1, filesize) >= 6
+    filesize < 1MB and all of them and math.entropy(1, filesize) >= 6
 }
 
 rule ebe: critical {
   meta:
     description = "highly obfuscated javascript (eBe)"
-    filetypes   = "javascript"
+    filetypes   = "application/javascript"
 
   strings:
     $function   = "function("
@@ -113,13 +66,13 @@ rule ebe: critical {
     $ref = /eBe\([-]?\d{1,3}\)/
 
   condition:
-    obfs_probably_js and filesize < 5MB and $function and $charCodeAt and #ref > 10
+    filesize < 5MB and $function and $charCodeAt and #ref > 10
 }
 
 rule ebe_generic: high {
   meta:
     description = "highly obfuscated javascript"
-    filetypes   = "javascript"
+    filetypes   = "application/javascript"
 
   strings:
     $function   = "function("
@@ -130,12 +83,13 @@ rule ebe_generic: high {
     $ref3 = /\>\w{1,3}\(\d{1,3}\)\);\w\[\w{1,3}\(\d{1,3}\)\]\=/
 
   condition:
-    obfs_probably_js and filesize < 5MB and #function > 0 and $charCodeAt and (#ref > 5 or #ref2 > 5 or #ref3 > 5)
+    filesize < 5MB and #function > 0 and $charCodeAt and (#ref > 5 or #ref2 > 5 or #ref3 > 5)
 }
 
 rule exec_console_log: critical {
   meta:
     description = "evaluates the return of console.log()"
+    filetypes   = "application/javascript"
 
   strings:
     $ref = ".exec(console.log("
@@ -147,6 +101,7 @@ rule exec_console_log: critical {
 rule js_const_func_obfuscation: medium {
   meta:
     description = "javascript obfuscation (excessive const functions)"
+    filetypes   = "application/javascript"
 
   strings:
     $const    = "const "
@@ -154,65 +109,82 @@ rule js_const_func_obfuscation: medium {
     $return   = "{return"
 
   condition:
-    obfs_probably_js and filesize < 256KB and #const > 32 and #function > 48 and #return > 64
+    filesize < 256KB and #const > 32 and #function > 48 and #return > 64
 }
 
-rule js_hex_eval_obfuscation: critical {
+rule js_hex_eval_obfuscation: high {
   meta:
     description = "javascript eval obfuscation (hex)"
+    filetypes   = "application/javascript"
 
   strings:
     $return = /\(eval, _{0,4}0x[\w]{0,32}[\(\[]/
 
   condition:
-    obfs_probably_js and filesize < 128KB and any of them
+    filesize < 128KB and any of them
 }
 
-rule js_hex_obfuscation: critical {
+rule js_hex_obfuscation: high {
   meta:
     description = "javascript function obfuscation (hex)"
+    filetypes   = "application/javascript"
 
   strings:
     $return = /return _{0,4}0x[\w]{0,32}[\(\w]{0,32}/
     $const  = /const _{0,4}0x[\w]{0,32}\s*=[\w]{0,32}/
 
   condition:
-    obfs_probably_js and filesize < 1MB and any of them
+    filesize < 1MB and any of them
+}
+
+rule multiple_js_hex_obfuscation: critical {
+  meta:
+    description = "javascript function obfuscation (hex)"
+    filetypes   = "application/javascript"
+
+  strings:
+    $return = /return _{0,4}0x[\w]{0,32}[\(\w]{0,32}/
+    $const  = /const _{0,4}0x[\w]{0,32}\s*=[\w]{0,32}/
+
+  condition:
+    filesize < 1MB and #return > 5 and #const > 5
 }
 
 rule high_entropy: medium {
   meta:
     description = "high entropy javascript (>6)"
+    filetypes   = "application/javascript"
 
   condition:
-    obfs_probably_js and math.entropy(1, filesize) >= 6
+    math.entropy(1, filesize) >= 6
 }
 
 rule very_high_entropy: critical {
   meta:
     description = "very high entropy javascript (>7)"
+    filetypes   = "application/javascript"
 
   condition:
-    obfs_probably_js and math.entropy(1, filesize) >= 7
+    math.entropy(1, filesize) >= 7
 }
 
 rule charCodeAtIncrement: medium {
   meta:
     description = "converts incremented numbers into characters"
-    filetypes   = "javascript"
+    filetypes   = "application/javascript"
 
   strings:
     $function  = "function("
     $increment = /charCodeAt\(\+\+\w{0,4}\)/
 
   condition:
-    obfs_probably_js and filesize < 4MB and $function and #increment > 1
+    filesize < 4MB and $function and #increment > 1
 }
 
 rule js_many_parseInt: high {
   meta:
     description = "javascript obfuscation (integer parsing)"
-    filetypes   = "javascript"
+    filetypes   = "application/javascript"
 
   strings:
     $const    = "const "
@@ -221,13 +193,13 @@ rule js_many_parseInt: high {
     $parseInt = "parseInt"
 
   condition:
-    obfs_probably_js and filesize < 256KB and #const > 16 and #function > 32 and #parseInt > 8 and #return > 32
+    filesize < 256KB and #const > 16 and #function > 32 and #parseInt > 8 and #return > 32
 }
 
 rule over_powered_arrays: high {
   meta:
     description = "uses many powered array elements (>25)"
-    filetypes   = "javascript"
+    filetypes   = "application/javascript"
 
   strings:
     $function    = /function\(\w,/
@@ -235,12 +207,13 @@ rule over_powered_arrays: high {
     $power_array = /\w\[\d{1,4}\]\^\w\[\d{1,4}\]/
 
   condition:
-    obfs_probably_js and filesize < 5MB and $function and $charAt and #power_array > 25
+    filesize < 5MB and $function and $charAt and #power_array > 25
 }
 
 rule string_prototype_function: high {
   meta:
     description = "obfuscates function calls via string prototypes"
+    filetypes   = "application/javascript"
 
   strings:
     $ref  = /String\["prototype"\].{1,32} = function\(\) \{ eval\(this\.toString\(\)\)\;/
@@ -253,17 +226,19 @@ rule string_prototype_function: high {
 rule unicode_prototype: critical {
   meta:
     description = "sets obfuscated Array.prototype attribute"
+    filetypes   = "application/javascript"
 
   strings:
     $ref = /Array\.prototype\.\\[\w\\]{2,256}\s{0,2}=.{0,64}/
 
   condition:
-    obfs_probably_js and any of them
+    any of them
 }
 
 rule var_filler: high {
   meta:
     description = "header is filled with excessive variable declarations"
+    filetypes   = "application/javascript"
 
   strings:
     $ref = /[a-z]{2,8}\d{1,5} = "[a-z]{2,8}\d{1,5}"/ fullword
@@ -275,73 +250,80 @@ rule var_filler: high {
 rule large_random_variables: high {
   meta:
     description = "contains large random variable names"
+    filetypes   = "application/javascript"
 
   strings:
     $ref = /var [a-zA-Z_]{32,256} = '.{4}/ fullword
 
   condition:
-    obfs_probably_js and #ref > 1
+    #ref > 1
 }
 
 rule many_complex_var: medium {
   meta:
     description = "defines multiple complex variables"
+    filetypes   = "application/javascript"
 
   strings:
     $ref = /var [a-zA-Z_]{1,256} = \(/
 
   condition:
-    obfs_probably_js and #ref > 64
+    #ref > 64
 }
 
 rule many_complex_var_high: high {
   meta:
     description = "excessive complex variable declarations"
+    filetypes   = "application/javascript"
 
   strings:
     $ref = /var [a-zA-Z_]{1,256} = \(.{1,64}/
 
   condition:
-    obfs_probably_js and #ref > 400
+    #ref > 400
 }
 
 rule many_static_map_lookups: medium {
   meta:
     description = "contains large number of static map lookups"
+    filetypes   = "application/javascript"
 
   strings:
     $ref = /\[[\"\'][a-z]{1,32}[\"\']\]/
 
   condition:
-    obfs_probably_js and #ref > 128
+    #ref > 128
 }
 
 rule obfuscated_map_to_array_conversions: high {
   meta:
     description = "obfuscated map to array conversions"
+    filetypes   = "application/javascript"
 
   strings:
     $ref = /\[[\"\'a-z]{1,32}\]\s{0,2}\+\s{0,2}\[\]\)\[\d{1,4}\]/
 
   condition:
-    obfs_probably_js and #ref > 32
+    #ref > 32
 }
 
 rule large_obfuscated_array: high {
   meta:
     description = "contains large obfuscated arrays"
+    filetypes   = "application/javascript"
 
   strings:
     $ref  = /[a-z]{32,256}=\[\]/ fullword
     $ref2 = /[a-z]{1,256}\[\'\w{32,2048}\'\]/ fullword
 
   condition:
-    obfs_probably_js and all of them
+    all of them
 }
 
 rule high_entropy_charAt: medium {
   meta:
     description = "high entropy javascript (>5.37) that uses charAt/substr/join loops"
+    filetypes   = "application/javascript"
 
   strings:
     $ = "charAt("
@@ -351,5 +333,5 @@ rule high_entropy_charAt: medium {
     $ = "for("
 
   condition:
-    obfs_probably_js and math.entropy(1, filesize) >= 5.37 and all of them
+    math.entropy(1, filesize) >= 5.37 and all of them
 }

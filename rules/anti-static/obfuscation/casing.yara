@@ -2,6 +2,7 @@ rule casing_obfuscation: medium windows {
   meta:
     description = "unusual casing obfuscation"
     author      = "Florian Roth"
+    filetypes   = "text/x-powershell"
 
   strings:
     $ref = /  (sEt|SEt|SeT|sET|seT)  / ascii wide
@@ -13,6 +14,7 @@ rule casing_obfuscation: medium windows {
 rule set_variable_variable_casing: high windows {
   meta:
     description = "Set-Item case obfuscation"
+    filetypes   = "text/x-powershell"
 
   strings:
     $ref  = /[Ss][eE][tT]-[vV][aA][rR][iI][aA][bB][Ll][eE]/
@@ -29,6 +31,7 @@ rule set_variable_variable_casing: high windows {
 rule set_item_variable_casing: high windows {
   meta:
     description = "Set-Item case obfuscation"
+    filetypes   = "text/x-powershell"
 
   strings:
     $ref  = /[Ss][eE][tT]-[Ii][Tt][Ee][Mm]/
@@ -45,6 +48,7 @@ rule set_item_variable_casing: high windows {
 rule string_variable_casing: high windows {
   meta:
     description = "[string] case obfuscation"
+    filetypes   = "text/x-powershell"
 
   strings:
     $ref  = /\[[Ss][Tt][Rr][Ii][Nn][Gg]\]/
@@ -59,6 +63,7 @@ rule string_variable_casing: high windows {
 rule length_casing: medium windows {
   meta:
     description = "length case obfuscation"
+    filetypes   = "text/x-powershell"
 
   strings:
     $ref  = /\.[Ll][Ee][Nn][Gg][Tt][Hh]/
@@ -73,6 +78,7 @@ rule length_casing: medium windows {
 rule pshome_casing: high windows {
   meta:
     description = "PSHOME case obfuscation"
+    filetypes   = "text/x-powershell"
 
   strings:
     $ref  = /[Pp][Ss][Hh][Oo][Mm][Ee]/ fullword
@@ -87,6 +93,7 @@ rule pshome_casing: high windows {
 rule variable_casing: high windows {
   meta:
     description = "Variable case obfuscation"
+    filetypes   = "text/x-powershell"
 
   strings:
     $ref  = /[Vv][Aa][Rr][Ii][Aa][Bb][Ll][Ee]/ fullword
@@ -101,6 +108,7 @@ rule variable_casing: high windows {
 rule pshome_multiple_casing: critical windows {
   meta:
     description = "Multiple forms of case obfuscation"
+    filetypes   = "text/x-powershell"
 
   strings:
     $ref  = /[Pp][Ss][Hh][Oo][Mm][Ee]/ fullword
@@ -115,6 +123,7 @@ rule pshome_multiple_casing: critical windows {
 rule string_multiple_casing: critical windows {
   meta:
     description = "Multiple forms of case obfuscation"
+    filetypes   = "text/x-powershell"
 
   strings:
     $ref  = /\[[Ss][Tt][Rr][Ii][Nn][Gg]\]/

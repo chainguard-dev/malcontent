@@ -1,7 +1,7 @@
 rule py_exe_stealer: critical windows {
   meta:
     description = "Compiled Python Windows Stealer"
-    filetypes   = "py"
+    filetypes   = "text/x-python,application/x-python-code,application/octet-stream,application/vnd.microsoft.portable-executable"
 
   strings:
     $installer      = "PyInstaller"
@@ -26,7 +26,7 @@ rule py_crypto_urllib_multiprocessing: high {
     description = "calls multiple functions useful for exfiltrating data"
     ref         = "trojan.python/drop - e8eb4f2a73181711fc5439d0dc90059f54820fe07d9727cf5f2417c5cec6da0e"
 
-    filetypes = "py"
+    filetypes = "text/x-python"
 
   strings:
     $pydata = "pydata" fullword

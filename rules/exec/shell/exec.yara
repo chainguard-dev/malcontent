@@ -39,7 +39,7 @@ rule ExecShell: medium {
 rule system_call: medium {
   meta:
     description = "executes a shell command"
-    filetypes   = "elf"
+    filetypes   = "application/x-elf"
 
   strings:
     $ref = "system" fullword
@@ -51,7 +51,7 @@ rule system_call: medium {
 rule macho_system: medium {
   meta:
     description = "executes a shell command"
-    filetypes   = "macho"
+    filetypes   = "application/x-mach-binary"
 
   strings:
     $ref = "@_system" fullword

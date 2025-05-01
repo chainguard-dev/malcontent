@@ -80,6 +80,7 @@ rule http_url_with_question: medium {
 rule binary_with_url: low {
   meta:
     description = "binary contains hardcoded URL"
+    filetypes   = "application/x-mach-binary,application/x-elf"
 
   strings:
     $ref = /https*:\/\/[\w\.\/]{8,160}[\/\w\=\&]{0,32}/
@@ -91,6 +92,7 @@ rule binary_with_url: low {
 rule binary_url_with_question: high {
   meta:
     description = "binary contains hardcoded URL with question mark"
+    filetypes   = "application/x-mach-binary,application/x-elf"
 
   strings:
     $ref             = /https*:\/\/[\w\.\/]{8,160}\.(asp|php|exe|dll)\?[\w\=\&]{1,32}/

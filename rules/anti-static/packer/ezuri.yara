@@ -2,7 +2,7 @@ rule ezuri: critical {
   meta:
     description = "packed with Ezuri (AES)"
     hash        = "3020810ea859787a9730de3df822caad3178a7179d587d6a96e303a3c159e714"
-    filetypes   = "elf,macho"
+    filetypes   = "application/x-mach-binary,application/x-elf"
 
   strings:
     $runFromMemory = "main.runFromMemory" fullword

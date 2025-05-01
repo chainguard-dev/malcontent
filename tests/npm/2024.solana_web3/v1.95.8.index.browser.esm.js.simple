@@ -22,4 +22,3 @@ net/ip/host_port: medium
 net/socket/send: low
 net/url/embedded: low
 os/time/clock_sleep: medium
-persist/kernel_module/symbol_lookup: low

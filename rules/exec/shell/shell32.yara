@@ -1,7 +1,7 @@
 rule shell32_ShellExecuteW: high windows {
   meta:
     description = "Runs command using shell32.ShellExecuteW"
-    filetypes   = "py,pyc"
+    filetypes   = "text/x-python,application/x-python-code"
 
   strings:
     $shell = "shell32.ShellExecuteW"

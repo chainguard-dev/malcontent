@@ -104,7 +104,7 @@ rule fetch_tool: medium {
 rule binary_calls_fetch_tool: high {
   meta:
     description = "binary calls fetch tool"
-    filetypes   = "macho,elf"
+    filetypes   = "application/x-mach-binary,application/x-elf"
 
   strings:
     $t_curl_O  = /[a-z]url [-\w ]{0,8}-[oOk] [ \w\:\/\-\.\"]{0,32}/

@@ -18,7 +18,6 @@ discover/system/dmesg: low
 discover/system/platform: low
 discover/user/name_get: medium
 exec/plugin: low
-exec/remote_commands/code_eval: medium
 exec/shell/SHELL: low
 exec/shell/TERM: low
 exec/shell/power: medium

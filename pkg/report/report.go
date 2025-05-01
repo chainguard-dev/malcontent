@@ -17,6 +17,7 @@ import (
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
+	"github.com/chainguard-dev/malcontent/pkg/programkind"
 
 	yarax "github.com/VirusTotal/yara-x/go"
 )
@@ -364,8 +365,20 @@ func TrimPrefixes(path string, prefixes []string) string {
 	return path
 }
 
+// fileMatchesRules checks the scanned file's type against a rule's defined filetypes
+func fileMatchesRule(meta []yarax.Metadata, mime string) bool {
+	for _, m := range meta {
+		if m.Identifier() == "filetypes" {
+			filetypes := strings.Split(fmt.Sprintf("%s", m.Value()), ",")
+			return slices.Contains(filetypes, mime)
+		}
+	}
+	// Rules without filetype metadata are universal
+	return true
+}
+
 //nolint:cyclop // ignore complexity of 64
-func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcontent.Config, expath string, _ *clog.Logger, fc []byte) (*malcontent.FileReport, error) {
+func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcontent.Config, expath string, _ *clog.Logger, fc []byte, kind *programkind.FileType) (*malcontent.FileReport, error) {
 	if ctx.Err() != nil {
 		return &malcontent.FileReport{}, ctx.Err()
 	}
@@ -423,6 +436,10 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 	for _, m := range mrs.MatchingRules() {
 		if all(m.Identifier() == NAME, ignoreSelf) {
 			ignoreMalcontent = true
+		}
+
+		if !fileMatchesRule(m.Metadata(), kind.MIME) {
+			continue
 		}
 
 		override := slices.Contains(m.Tags(), "override")

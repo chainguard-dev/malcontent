@@ -2,6 +2,7 @@ rule systemd_no_comments_or_documentation: medium {
   meta:
     ref         = "https://sandflysecurity.com/blog/log4j-kinsing-linux-malware-in-the-wild/"
     description = "systemd unit is undocumented"
+    filetypes   = "text/x-systemd"
 
   strings:
     $execstart          = "ExecStart="

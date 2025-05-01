@@ -1,7 +1,7 @@
 rule killer_miner_panchansminingisland: critical {
   meta:
     description = "crypto miner virus"
-    filetypes   = "elf"
+    filetypes   = "application/x-elf"
 
   strings:
     $ = "killer"

@@ -2,7 +2,6 @@
 3P/sig_base/pua_crypto_mining: critical
 c2/addr/url: medium
 c2/tool_transfer/os: low
-c2/tool_transfer/shell: high
 discover/system/platform: medium
 exec/imports/python: low
 exec/program: medium

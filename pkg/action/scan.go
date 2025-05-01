@@ -159,7 +159,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		return fr, nil
 	}
 
-	fr, err := report.Generate(ctx, path, mrs, c, archiveRoot, logger, fc)
+	fr, err := report.Generate(ctx, path, mrs, c, archiveRoot, logger, fc, kind)
 	if err != nil {
 		return nil, NewFileReportError(err, path, TypeGenerateError)
 	}

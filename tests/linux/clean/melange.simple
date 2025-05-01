@@ -5,10 +5,10 @@ c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/addr/url: low
 c2/client: medium
+c2/discovery/ip_dns_resolver: medium
 c2/refs: medium
 c2/tool_transfer/arch: low
 c2/tool_transfer/os: medium
-collect/archives/tar_command: medium
 collect/archives/zip: medium
 collect/code/github_api: low
 credential/cloud/g: medium
@@ -60,7 +60,6 @@ evasion/file/location/system_directory: medium
 evasion/file/prefix: medium
 evasion/hide_artifacts/pivot_root: medium
 exec/cmd: medium
-exec/install_additional/pip_install: medium
 exec/plugin: low
 exec/program: medium
 exec/shell/TERM: low
@@ -78,7 +77,6 @@ fs/file/delete: medium
 fs/file/delete_forcibly: medium
 fs/file/open: low
 fs/file/read: low
-fs/file/rename: low
 fs/file/write: low
 fs/link_create: low
 fs/link_read: low

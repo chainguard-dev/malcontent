@@ -17,7 +17,7 @@ rule keylogger_discord_telegram: high {
 rule py_keylogger_pynput_exfil: high {
   meta:
     description = "listens for keyboard events and exfiltrates them"
-    filetypes   = "py"
+    filetypes   = "text/x-python"
 
   strings:
     $http           = "http"
@@ -36,7 +36,7 @@ rule py_keylogger_pynput_exfil: high {
 rule py_keykeyboard_exfil: high {
   meta:
     description = "listens for keyboard events and exfiltrates them"
-    filetypes   = "py"
+    filetypes   = "text/x-python"
 
   strings:
     $http           = "http"
@@ -56,7 +56,7 @@ rule py_keykeyboard_exfil: high {
 rule java_keylogger {
   meta:
     description = "listens for keyboard events"
-    filetypes   = "java,jar"
+    filetypes   = "text/x-java,application/java-archive"
 
   strings:
     $jnativehook    = "jnativehook"

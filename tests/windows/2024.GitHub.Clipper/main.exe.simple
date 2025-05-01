@@ -4,11 +4,11 @@
 3P/ditekshen/vm_evasion_macaddrcomb: critical
 3P/elastic/infostealer_wallets: critical
 3P/elastic/multi_threat: high
-anti-behavior/anti_debugger: medium
 anti-behavior/random_behavior: low
 c2/addr/discord: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
+c2/discovery/ip_dns_resolver: medium
 c2/tool_transfer/arch: low
 c2/tool_transfer/download: high
 c2/tool_transfer/github: medium
@@ -61,7 +61,6 @@ fs/file/create: medium
 fs/file/delete: medium
 fs/file/open: low
 fs/file/read: low
-fs/file/rename: low
 fs/file/write: low
 fs/path/dev: medium
 fs/path/etc: low

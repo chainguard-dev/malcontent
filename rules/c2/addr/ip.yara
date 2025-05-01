@@ -27,6 +27,7 @@ private rule ip_elf_or_macho {
 rule bin_hardcoded_ip: high {
   meta:
     description = "ELF with hardcoded IP address"
+    filetypes   = "application/x-mach-binary,application/x-elf"
 
   strings:
     // stricter version of what's above: excludes 255.* and *.0.* *.1.*, and 8.* (likely Google)

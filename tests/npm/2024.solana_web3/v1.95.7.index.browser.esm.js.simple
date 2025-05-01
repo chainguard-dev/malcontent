@@ -1,7 +1,6 @@
 # npm/2024.solana_web3/v1.95.7.index.browser.esm.js: critical
 anti-behavior/random_behavior: low
 anti-static/obfuscation/hex: medium
-anti-static/obfuscation/reverse: medium
 anti-static/obfuscation/strtoi: medium
 c2/addr/url: high
 credential/ssl/key: high
@@ -26,4 +25,3 @@ net/ip/host_port: medium
 net/socket/send: low
 net/url/embedded: low
 os/time/clock_sleep: medium
-persist/kernel_module/symbol_lookup: low

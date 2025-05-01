@@ -1,7 +1,7 @@
 rule Vare_Obfuscator: critical {
   meta:
     description = "obfuscated with https://github.com/saintdaddy/Vare-Obfuscator"
-    filetype    = "py"
+    filetypes   = "text/x-python"
 
   strings:
     $var  = "__VareObfuscator__"

@@ -2,7 +2,7 @@ rule systemd_not_in_dependency_tree: medium {
   meta:
     description = "Relies on nothing, nothing relies on it"
 
-    filetypes = "service"
+    filetypes = "text/x-systemd"
 
   strings:
     $execstart        = "ExecStart="

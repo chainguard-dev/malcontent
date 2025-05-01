@@ -10,7 +10,6 @@ collect/code/github_api: low
 evasion/self_deletion/run_and_delete: high
 exec/imports/python: low
 exec/program: medium
-exec/shell/command: medium
 exfil/stealer/browser: medium
 exfil/upload: medium
 fs/directory/create: low

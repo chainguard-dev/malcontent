@@ -1,6 +1,6 @@
 rule chattr_caller: medium {
   meta:
-    filetypes = "!service"
+    filetypes = "text/x-systemd"
 
   strings:
     $chattr = /chattr [-\+][\w\- ]{0,32} [\w\.\/]{0,64}/
@@ -13,7 +13,7 @@ rule chattr_immutable_caller_high: high {
   meta:
     description = "modifies immutability of a file"
 
-    filetypes = "!service"
+    filetypes = "text/x-systemd"
 
   strings:
     $chattr  = /chattr [-\+]i [\-\w\.\/]{0,64}/

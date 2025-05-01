@@ -1,7 +1,7 @@
 rule npm_node_preinstall: medium {
   meta:
     description = "preinstall is run under a separate node process"
-    filetypes   = "json"
+    filetypes   = "application/json"
 
   strings:
     $ref = /\s{2,8}"preinstall": ".{0,256}node \.\/preinstall\.js.{1,32}/
@@ -13,7 +13,7 @@ rule npm_node_preinstall: medium {
 rule npm_preinstall_command: high {
   meta:
     description = "NPM preinstall runs an external command"
-    filetypes   = "json"
+    filetypes   = "application/json"
 
   strings:
     $ref = /\s{2,8}"preinstall": ".{12,256}/
@@ -24,7 +24,7 @@ rule npm_preinstall_command: high {
 
 rule npm_preinstall_command_dev_null: high {
   meta:
-    filetypes   = "json"
+    filetypes   = "application/json"
     description = "NPM preinstall runs an external command, hiding output"
 
   strings:
@@ -37,7 +37,7 @@ rule npm_preinstall_command_dev_null: high {
 rule npm_preinstall_curl: critical {
   meta:
     description = "NPM preinstall runs curl"
-    filetypes   = "json"
+    filetypes   = "application/json"
 
   strings:
     $ref = /\s{2,8}"preinstall": ".{12,256}curl .{12,256}/
@@ -45,4 +45,3 @@ rule npm_preinstall_curl: critical {
   condition:
     filesize < 1KB and $ref
 }
-

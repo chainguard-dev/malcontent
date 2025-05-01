@@ -16,4 +16,3 @@ net/socket/listen: medium
 net/socket/receive: low
 net/socket/send: low
 net/tcp/synflood: medium
-persist/kernel_module/symbol_lookup: low

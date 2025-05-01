@@ -1,6 +1,7 @@
 rule systemd_no_output: high {
   meta:
     description = "Discards all logging output"
+    filetypes   = "text/x-systemd"
 
   strings:
     $discard_stdout = "StandardOutput=null"

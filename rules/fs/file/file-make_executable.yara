@@ -14,7 +14,7 @@ rule chmod_executable_shell: medium {
 rule chmod_executable_binary: high {
   meta:
     description = "executable makes another file executable"
-    filetypes   = "macho,elf"
+    filetypes   = "application/x-mach-binary,application/x-elf"
 
   strings:
     $val         = /chmod [\-\w ]{0,4}\+[rw]{0,2}x[ \$\@\w\/\.]{0,64}/

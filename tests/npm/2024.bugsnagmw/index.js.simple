@@ -2,7 +2,6 @@
 anti-static/obfuscation/bool: medium
 anti-static/obfuscation/hex: medium
 anti-static/obfuscation/js: critical
-anti-static/obfuscation/python: critical
 c2/addr/url: medium
 data/encoding/int: medium
 discover/ip/public: high
