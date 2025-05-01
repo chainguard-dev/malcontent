@@ -1,4 +1,4 @@
-# linux/clean/wikiticker-2015-09-12-sampled.json: high
+# linux/clean/wikiticker-2015-09-12-sampled.json: medium
 anti-behavior/blocklist/user: medium
 anti-behavior/random_behavior: low
 c2/addr/ip: medium
@@ -12,7 +12,6 @@ fs/file/delete_forcibly: low
 fs/path/relative: medium
 impact/infection/worm: medium
 impact/remote_access/agent: medium
-impact/remote_access/botnet: high
 impact/remote_access/implant: medium
 impact/remote_access/trojan: medium
 net/download: medium

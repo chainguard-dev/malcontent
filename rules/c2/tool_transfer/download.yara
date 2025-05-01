@@ -26,6 +26,7 @@ rule download_sites: high {
     $not_manual      = "manually upload"
     $not_paste_go    = "paste.go"
     $not_netlify     = "netlify.app"
+    $not_misp_galaxy = "misp-galaxy:"
 
   condition:
     any of ($d_*) and none of ($not*)
@@ -56,8 +57,10 @@ rule pastebin: medium {
   strings:
     $d_pastebin = /[\w\.]{1,128}astebin[\w\.\/]{1,128}/
 
+    $not_misp_galaxy = "misp-galaxy:"
+
   condition:
-    any of ($d_*)
+    any of ($d_*) and none of ($not*)
 }
 
 rule program_dropper_url: medium {

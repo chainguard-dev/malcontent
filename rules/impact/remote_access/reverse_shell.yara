@@ -9,6 +9,7 @@ rule reverse_shell: high {
     $r_reverse_space_shell  = "reverse shell" nocase fullword
     $r_revshell             = "revshell"
     $r_stdin_redir          = "0>&1" fullword
+    $not_elastic    = "\"license\": \"Elastic License v2\""
     $not_ref_1              = "reverse shellConf"
     $not_ref_2              = "reverse shellshare"
     $not_pypi_index         = "testpack-id-lb001"
@@ -27,6 +28,7 @@ rule possible_reverse_shell: medium {
     $sh_bash   = "/bin/bash"
     $sh        = "/bin/sh"
 
+    $not_elastic    = "\"license\": \"Elastic License v2\""
     $not_uc2        = "ucs2reverse"
     $not_pypi_index = "testpack-id-lb001"
 

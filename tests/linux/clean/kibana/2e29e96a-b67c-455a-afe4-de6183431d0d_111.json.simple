@@ -1,6 +1,5 @@
-# linux/clean/kibana/2e29e96a-b67c-455a-afe4-de6183431d0d_111.json: high
+# linux/clean/kibana/2e29e96a-b67c-455a-afe4-de6183431d0d_111.json: medium
 3P/sig_base/hacktool_strings_p0wnedshell: low
-c2/tool_transfer/exe_url: high
 c2/tool_transfer/os: low
 exec/shell/power: medium
 impact/infection/infected: medium

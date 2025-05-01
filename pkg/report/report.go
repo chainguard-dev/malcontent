@@ -365,7 +365,7 @@ func TrimPrefixes(path string, prefixes []string) string {
 	return path
 }
 
-// fileMatchesRules checks the scanned file's type against a rule's defined filetypes
+// fileMatchesRules checks the scanned file's type against a rule's defined filetypes.
 func fileMatchesRule(meta []yarax.Metadata, mime string) bool {
 	for _, m := range meta {
 		if m.Identifier() == "filetypes" {
