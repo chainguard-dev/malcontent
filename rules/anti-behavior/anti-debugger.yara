@@ -1,7 +1,7 @@
 rule win_debugger_present: medium windows {
   meta:
     description = "Detects if process is being executed within a debugger"
-    filetypes   = "text/x-powershell"
+    filetypes   = "text/x-powershell,application/octet-stream,application/vnd.microsoft.portable-executable"
 
   strings:
     $debug_idp = "IsDebuggerPresent"
@@ -14,7 +14,7 @@ rule win_debugger_present: medium windows {
 rule win_debugger_or_vm: medium windows {
   meta:
     description = "Detects if process is being executed within a debugger or VM"
-    filetypes   = "text/x-powershell"
+    filetypes   = "text/x-powershell,application/octet-stream,application/vnd.microsoft.portable-executable"
 
   strings:
     $cpu_pfp   = "IsProcessorFeaturePresent"
