@@ -2,6 +2,7 @@ rule npm_dropper: critical {
   meta:
     description = "NPM binary dropper"
     ref         = "https://www.reversinglabs.com/blog/a-lurking-npm-package-makes-the-case-for-open-source-health-checks"
+    filetypes   = "application/javascript,application/typescript"
 
   strings:
     $npm_format      = /"format":/

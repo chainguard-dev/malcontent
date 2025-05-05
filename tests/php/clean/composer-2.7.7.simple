@@ -1,7 +1,5 @@
 # php/clean/composer-2.7.7: medium
-anti-behavior/anti_debugger: medium
 anti-behavior/random_behavior: low
-anti-static/obfuscation/js: medium
 anti-static/obfuscation/php: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium

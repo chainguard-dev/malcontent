@@ -14,7 +14,6 @@ discover/processes/list: medium
 discover/system/platform: medium
 exec/imports/python: low
 exfil/stealer/password: critical
-fs/directory/list: low
 fs/file/open: low
 fs/path/etc: low
 fs/path/usr_bin: low

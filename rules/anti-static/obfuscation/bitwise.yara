@@ -41,6 +41,7 @@ rule excessive_bitwise_math: high {
 rule bitwise_math: low {
   meta:
     description = "uses bitwise math"
+    filetypes   = "text/x-python"
 
   strings:
     $x = /\-{0,1}[\da-z]{1,8} \<\< \-{0,1}\d{1,8}/
@@ -54,6 +55,7 @@ rule bidirectional_bitwise_math: medium {
   meta:
     description = "uses bitwise math in both directions"
     ref         = "https://www.reversinglabs.com/blog/python-downloader-highlights-noise-problem-in-open-source-threat-detection"
+    filetypes   = "text/x-python"
 
   strings:
     $x = /\-{0,1}[\da-z]{1,8} \<\< \-{0,1}\d{1,8}/
@@ -67,6 +69,7 @@ rule bitwise_python_string: medium {
   meta:
     description = "creates string using bitwise math"
     ref         = "https://www.reversinglabs.com/blog/python-downloader-highlights-noise-problem-in-open-source-threat-detection"
+    filetypes   = "text/x-python"
 
   strings:
     $ref = /"".join\(chr\(\w{1,4} >> \w{1,3}\) for \w{1,16} in \w{1,16}/
@@ -79,6 +82,7 @@ rule bitwise_python_string_exec_eval: high {
   meta:
     description = "creates and evaluates string using bitwise math"
     ref         = "https://www.reversinglabs.com/blog/python-downloader-highlights-noise-problem-in-open-source-threat-detection"
+    filetypes   = "text/x-python"
 
   strings:
     $ref  = /"".join\(chr\(\w{1,4} >> \w{1,3}\) for \w{1,16} in \w{1,16}/
@@ -93,6 +97,7 @@ rule bitwise_python_string_exec_eval_nearby: critical {
   meta:
     description = "creates and executes string using bitwise math"
     ref         = "https://www.reversinglabs.com/blog/python-downloader-highlights-noise-problem-in-open-source-threat-detection"
+    filetypes   = "text/x-python"
 
   strings:
     $ref  = /"".join\(chr\(\w{1,4} >> \w{1,3}\) for \w{1,16} in \w{1,16}/
@@ -107,7 +112,7 @@ rule unsigned_bitwise_math: medium {
   meta:
     description = "uses unsigned bitwise math"
     ref         = "https://www.reversinglabs.com/blog/python-downloader-highlights-noise-problem-in-open-source-threat-detection"
-    filetypes   = "javascript"
+    filetypes   = "application/javascript"
 
   strings:
     $function = "function("
@@ -124,7 +129,7 @@ rule unsigned_bitwise_math_excess: high {
   meta:
     description = "uses an excessive amount of unsigned bitwise math"
     ref         = "https://www.reversinglabs.com/blog/python-downloader-highlights-noise-problem-in-open-source-threat-detection"
-    filetypes   = "javascript"
+    filetypes   = "application/javascript"
 
   strings:
     $function = "function("
@@ -142,7 +147,7 @@ rule unsigned_bitwise_math_excess: high {
 rule charAtBitwise: high {
   meta:
     description = "converts manipulated numbers into characters"
-    filetypes   = "javascript"
+    filetypes   = "application/javascript"
 
   strings:
     $function    = "function("
@@ -157,7 +162,7 @@ rule bidirectional_bitwise_math_php: high {
   meta:
     description = "uses bitwise math in both directions"
     ref         = "https://www.reversinglabs.com/blog/python-downloader-highlights-noise-problem-in-open-source-threat-detection"
-    filetypes   = "php"
+    filetypes   = "text/x-php"
 
   strings:
     $php = "<?php"
@@ -172,7 +177,7 @@ rule bitwise_obfuscation: critical {
   meta:
     description = "uses bitwise math to obfuscate code"
     ref         = "https://www.reversinglabs.com/blog/python-downloader-highlights-noise-problem-in-open-source-threat-detection"
-    filetypes   = "php"
+    filetypes   = "text/x-php"
 
   strings:
     $php       = "<?php"

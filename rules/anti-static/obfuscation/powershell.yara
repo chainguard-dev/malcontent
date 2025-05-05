@@ -1,6 +1,7 @@
 rule powershell_byte_xor: critical windows {
   meta:
     description = "powershell byte XOR"
+    filetypes   = "text/x-powershell"
 
   strings:
     $ps_powershell = "powershell"
@@ -18,6 +19,7 @@ rule powershell_compact: medium windows {
   meta:
     description = "unusually compact PowerShell representation"
     author      = "Florian Roth"
+    filetypes   = "text/x-powershell"
 
   strings:
     $InokeExpression = ");iex" ascii wide nocase
@@ -30,6 +32,7 @@ rule powershell_encoded: high windows {
   meta:
     description = "Encoded Powershell"
     author      = "Florian Roth"
+    filetypes   = "text/x-powershell"
 
   strings:
     $ref = / -[eE][decoman]{0,41} ['"]?(JAB|SUVYI|aWV4I|SQBFAFgA|aQBlAHgA|cgBlAG)/ ascii wide
@@ -42,6 +45,7 @@ rule powershell_format: high {
   meta:
     description = "obfuscated Powershell format string"
     author      = "Florian Roth"
+    filetypes   = "text/x-powershell"
 
   strings:
     $ref = "}{0}\"-f " ascii wide

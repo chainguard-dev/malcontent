@@ -5,6 +5,7 @@ rule http_url_with_exe: high {
   strings:
     $exe_url         = /https*:\/\/[\w\.]{0,160}[:\/\w\_\-\?\@=]{6,160}\.exe/
     $not_mongodb_404 = "https://docs.mongodb.com/manual/reference/method/Bulk.exe"
+    $not_elastic     = "\"license\": \"Elastic License v2\""
 
   condition:
     any of ($exe*) and none of ($not*)
@@ -17,8 +18,10 @@ rule http_ip_url_with_exe: critical {
   strings:
     $exe_url = /https*:\/\/[\d\.\:\[\]]{8,64}[:\/\w\_\-\?\@=]{6,160}\.exe/
 
+    $not_elastic = "\"license\": \"Elastic License v2\""
+
   condition:
-    any of ($exe*)
+    any of ($exe*) and none of ($not*)
 }
 
 rule http_url_with_msi: high {
@@ -28,8 +31,10 @@ rule http_url_with_msi: high {
   strings:
     $exe_url = /https*:\/\/[\w\.]{0,160}[:\/\w\_\-\?\@=]{6,160}\.msi/
 
+    $not_elastic = "\"license\": \"Elastic License v2\""
+
   condition:
-    any of ($exe*)
+    any of ($exe*) and none of ($not*)
 }
 
 rule http_ip_url_with_msi: critical {
@@ -39,8 +44,10 @@ rule http_ip_url_with_msi: critical {
   strings:
     $exe_url = /https*:\/\/[\d\.\:\[\]]{8,64}[:\/\w\_\-\?\@=]{6,160}\.msi/
 
+    $not_elastic = "\"license\": \"Elastic License v2\""
+
   condition:
-    any of ($exe*)
+    any of ($exe*) and none of ($not*)
 }
 
 rule http_url_with_powershell: high {
@@ -50,8 +57,10 @@ rule http_url_with_powershell: high {
   strings:
     $exe_url = /https*:\/\/[\w\.]{0,160}[:\/\w\_\-\?\@=]{6,160}\.ps1/
 
+    $not_elastic = "\"license\": \"Elastic License v2\""
+
   condition:
-    any of ($exe*)
+    any of ($exe*) and none of ($not*)
 }
 
 rule http_ip_url_with_powershell: critical {
@@ -61,6 +70,8 @@ rule http_ip_url_with_powershell: critical {
   strings:
     $exe_url = /https*:\/\/[\d\.\:\[\]]{8,64}[:\/\w\_\-\?\@=]{6,160}\.ps1/
 
+    $not_elastic = "\"license\": \"Elastic License v2\""
+
   condition:
-    any of ($exe*)
+    any of ($exe*) and none of ($not*)
 }

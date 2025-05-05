@@ -1,6 +1,7 @@
 rule js_long_math: high {
   meta:
     description = "performs multiple rounds of long integer math"
+    filetypes   = "application/javascript"
 
   strings:
     $f_function = "function"
@@ -17,6 +18,7 @@ rule js_long_math: high {
 rule js_long_dumb_math: critical {
   meta:
     description = "performs multiple rounds of long dumb integer math"
+    filetypes   = "application/javascript"
 
   strings:
     $f_function = "function"

@@ -3,6 +3,7 @@ anti-behavior/random_behavior: low
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/addr/url: low
+c2/discovery/ip_dns_resolver: medium
 c2/tool_transfer/arch: low
 c2/tool_transfer/os: medium
 collect/archives/zip: medium
@@ -52,7 +53,6 @@ fs/file/create: medium
 fs/file/delete: low
 fs/file/open: low
 fs/file/read: low
-fs/file/rename: low
 fs/file/stat: low
 fs/file/truncate: low
 fs/file/write: low

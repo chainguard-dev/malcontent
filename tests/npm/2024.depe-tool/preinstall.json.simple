@@ -1,0 +1,3 @@
+# npm/2024.depe-tool/preinstall.json: high
+anti-static/obfuscation/hex: medium
+impact/remote_access/payload: high

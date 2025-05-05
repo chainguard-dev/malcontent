@@ -1,0 +1,10 @@
+# linux/clean/kibana/83bf249e-4348-47ba-9741-1202a09556ad_101.json: medium
+c2/addr/url: medium
+c2/tool_transfer/os: low
+exec/shell/power: medium
+false-positives/kibana: low
+malware/ref: medium
+net/download: medium
+net/download/fetch: medium
+net/http: low
+net/url/embedded: low

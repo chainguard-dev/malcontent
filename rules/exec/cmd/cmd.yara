@@ -15,7 +15,7 @@ rule exec: medium {
 rule ruby_exec: medium {
   meta:
     description = "executes a command"
-    filetypes   = "rb"
+    filetypes   = "text/x-ruby"
 
   strings:
     $require = "require" fullword
@@ -28,7 +28,7 @@ rule ruby_exec: medium {
 rule ruby_run_exe: high {
   meta:
     description = "runs an executable program"
-    filetypes   = "rb"
+    filetypes   = "text/x-ruby"
 
   strings:
     $require = "require" fullword
@@ -41,7 +41,7 @@ rule ruby_run_exe: high {
 rule java_process_builder: medium {
   meta:
     description = "runs an external program"
-    filetypes   = "java,jar"
+    filetypes   = "text/x-java,application/java-archive"
 
   strings:
     $lang    = "java/lang/Process"
@@ -55,7 +55,7 @@ rule java_process_builder: medium {
 rule java_exec: medium {
   meta:
     description = "runs an external program"
-    filetypes   = "java,jar"
+    filetypes   = "text/x-java,application/java-archive"
 
   strings:
     $lang = "java/lang/Runtime"

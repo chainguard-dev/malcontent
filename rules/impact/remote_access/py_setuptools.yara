@@ -24,6 +24,7 @@ private rule remote_access_pythonSetup {
 rule setuptools_oslogin: medium {
   meta:
     description = "Python library installer that accesses user information"
+    filetypes   = "text/x-python"
 
   strings:
     $oslogin = "os.login()"
@@ -35,6 +36,7 @@ rule setuptools_oslogin: medium {
 rule setuptools_homedir: high {
   meta:
     description = "Python library installer that users home directory"
+    filetypes   = "text/x-python"
 
   strings:
     $oslogin = "C:\\Users\\.{0,64}os.login()"
@@ -46,6 +48,7 @@ rule setuptools_homedir: high {
 rule setuptools_cmd_exec: high {
   meta:
     description = "Python library installer that executes external commands"
+    filetypes   = "text/x-python"
 
   strings:
     $f_os_system           = /os.system\([\"\'\.:\\\{\w\ \-\)\/]{0,64}/
@@ -65,6 +68,7 @@ rule setuptools_cmd_exec: high {
 rule setuptools_cmd_exec_start: critical {
   meta:
     description = "Python library installer that executes the Windows 'start' command"
+    filetypes   = "text/x-python"
 
   strings:
     $f_os_system    = /os.system\([f\"\']{0,2}start .{0,64}/
@@ -79,6 +83,7 @@ rule setuptools_cmd_exec_start: critical {
 rule setuptools_eval: medium {
   meta:
     description = "Python library installer that evaluates arbitrary code"
+    filetypes   = "text/x-python"
 
   strings:
     $f_eval = /eval\([\"\'\/\w\,\.\ \-\)\(]{1,64}\)/ fullword
@@ -90,6 +95,7 @@ rule setuptools_eval: medium {
 rule setuptools_eval_high: high {
   meta:
     description = "Python library installer that evaluates arbitrary code"
+    filetypes   = "text/x-python"
 
   strings:
     $f_eval         = /eval\([\"\'\/\w\,\.\ \-\)\(]{1,64}\)/ fullword
@@ -102,6 +108,7 @@ rule setuptools_eval_high: high {
 rule setuptools_exec: medium {
   meta:
     description = "Python library installer that executes arbitrary code"
+    filetypes   = "text/x-python"
 
   strings:
     $f_exec = /exec\([\"\'\/\w\,\.\ \-\)\(]{1,64}\)/ fullword
@@ -115,6 +122,7 @@ rule setuptools_exec: medium {
 rule setuptools_exec_high: high {
   meta:
     description = "Python library installer that evaluates arbitrary code"
+    filetypes   = "text/x-python"
 
   strings:
     $f_exec              = /exec\([\"\'\/\w\,\.\ \-\)\(]{1,64}\)/ fullword
@@ -136,6 +144,7 @@ rule setuptools_exec_high: high {
 rule setuptools_b64decode: suspicious {
   meta:
     description = "Python library installer that does base64 decoding"
+    filetypes   = "text/x-python"
 
   strings:
     $base64 = "b64decode"
@@ -147,6 +156,7 @@ rule setuptools_b64decode: suspicious {
 rule setuptools_preinstall: suspicious {
   meta:
     description = "Python library installer that imports a pre_install script"
+    filetypes   = "text/x-python"
 
   strings:
     $preinstall    = "import preinstall"
@@ -161,6 +171,7 @@ rule setuptools_preinstall: suspicious {
 rule setuptools_b64encode: suspicious {
   meta:
     description = "Python library installer that does base64 encoding"
+    filetypes   = "text/x-python"
 
   strings:
     $base64 = "b64encode"
@@ -172,6 +183,7 @@ rule setuptools_b64encode: suspicious {
 rule setuptools_exec_powershell: critical windows {
   meta:
     description = "Python library installer that runs powershell"
+    filetypes   = "text/x-python"
 
   strings:
     $powershell = "powershell" fullword
@@ -185,6 +197,7 @@ rule setuptools_exec_powershell: critical windows {
 rule setuptools_os_path_exists: medium {
   meta:
     description = "Python library installer that checks for file existence"
+    filetypes   = "text/x-python"
 
   strings:
     $ref                   = /[\w\.]{0,8}path.exists\([\"\'\w\ \-\)\/]{0,32}/
@@ -199,6 +212,7 @@ rule setuptools_os_path_exists: medium {
 rule setuptools_excessive_bitwise_math: critical {
   meta:
     description = "Python library installer that makes heavy use of bitwise math"
+    filetypes   = "text/x-python"
 
   strings:
     $x = /\-{0,1}\d{1,8} \<\< \-{0,1}\d{1,8}/

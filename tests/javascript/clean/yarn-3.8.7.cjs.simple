@@ -1,8 +1,6 @@
 # javascript/clean/yarn-3.8.7.cjs: medium
 anti-behavior/random_behavior: low
-anti-static/obfuscation/bitwise: medium
 anti-static/obfuscation/hex: medium
-anti-static/obfuscation/js: medium
 c2/addr/ip: medium
 c2/tool_transfer/arch: low
 c2/tool_transfer/github: medium
@@ -34,7 +32,6 @@ exec/program: medium
 exec/shell/TERM: low
 exec/shell/exec: medium
 fs/directory/create: low
-fs/directory/list: low
 fs/directory/remove: low
 fs/file/append: low
 fs/file/copy: medium

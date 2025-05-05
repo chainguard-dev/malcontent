@@ -1,6 +1,7 @@
 rule archaic_gcc: medium {
   meta:
     description = "built by an ancient version of GCC"
+    filetypes   = "application/x-mach-binary,application/x-elf"
 
   strings:
     $gcc_v4   = /GCC: \([\w \.\-\~]{1,128}\) 4\.\d{1,16}\.\d{1,128}/
@@ -13,6 +14,7 @@ rule archaic_gcc: medium {
 rule small_opaque_archaic_gcc: high linux {
   meta:
     description = "small and built by an ancient version of GCC"
+    filetypes   = "application/x-mach-binary,application/x-elf"
 
   strings:
     $gcc_v4           = /GCC: \([\w \.\-\~]{1,128}\) 4\.\d{1,16}\.\d{1,128}/
@@ -35,6 +37,7 @@ private rule binary {
 rule multiple_gcc: medium {
   meta:
     description = "built with multiple versions of GCC"
+    filetypes   = "application/x-mach-binary,application/x-elf"
 
   strings:
     $gcc = /GCC: \([\w \.\-\~\(\)]{8,64}/ fullword
@@ -46,6 +49,7 @@ rule multiple_gcc: medium {
 rule multiple_gcc_high: high {
   meta:
     description = "built with multiple versions of GCC"
+    filetypes   = "application/x-mach-binary,application/x-elf"
 
   strings:
     $gcc                        = /GCC: \([\w \.\-\~\(\)]{8,64}/ fullword

@@ -30,6 +30,7 @@ private rule hidden_window_pythonSetup {
 rule subprocess_CREATE_NO_WINDOW_setuptools: high {
   meta:
     description = "runs commands, hides windows"
+    filetypes   = "text/x-python"
 
   strings:
     $sub       = "subprocess"
@@ -42,6 +43,7 @@ rule subprocess_CREATE_NO_WINDOW_setuptools: high {
 rule subprocess_CREATE_NO_WINDOW_high: high {
   meta:
     description = "runs commands, hides windows"
+    filetypes   = "text/x-python"
 
   strings:
     $s_sub       = "subprocess"

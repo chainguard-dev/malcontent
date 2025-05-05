@@ -2,7 +2,7 @@ rule generic_obfuscated_perl: medium {
   meta:
     description = "Obfuscated PERL code"
 
-    filetypes = "pl"
+    filetypes = "text/x-perl"
 
   strings:
     $unpack_nospace = "pack'" fullword

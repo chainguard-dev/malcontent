@@ -2,7 +2,6 @@
 c2/addr/url: medium
 c2/refs: high
 evasion/rootkit/refs: high
-exec/shell/command: medium
 exec/shell/exec: medium
 impact/remote_access/reverse_shell: high
 net/tcp/connect: medium

@@ -6,7 +6,7 @@ rule exfil_libcurl_elf: high linux {
     description = "obfuscated binary may exfiltrate data"
     sha256      = "caa69b10b0bfca561dec90cbd1132b6dcb2c8a44d76a272a0b70b5c64776ff6c"
     ref         = "https://www.uptycs.com/blog/threat-research-report-team/new-poc-exploit-backdoor-malware"
-    filetypes   = "elf"
+    filetypes   = "application/x-elf"
 
   strings:
     $f_curl_easy      = "curl_easy_init" fullword

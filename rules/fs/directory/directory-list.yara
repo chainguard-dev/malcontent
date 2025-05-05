@@ -45,7 +45,7 @@ rule NodeReadDir {
   meta:
     description = "Uses NodeJS functions to list a directory"
     pledge      = "rpath"
-    filetypes   = "javascript"
+    filetypes   = "application/javascript"
 
   strings:
     $ref = ".readdirSync("
@@ -58,7 +58,7 @@ rule PythonListDir {
   meta:
     description = "lists contents of a directory"
     pledge      = "rpath"
-    filetypes   = "python"
+    filetypes   = "text/x-python"
 
   strings:
     $ref = ".listdir("
@@ -71,7 +71,7 @@ rule java_listdir {
   meta:
     description = "lists contents of a directory"
     pledge      = "rpath"
-    filetypes   = "class,java"
+    filetypes   = "application/java-vm,text/x-java"
 
   strings:
     $listFiles = "listFiles"

@@ -188,6 +188,17 @@
                     "RuleName": "clientID"
                 },
                 {
+                    "Description": "contains Cloudflare DNS resolver IP",
+                    "MatchStrings": [
+                        "1.1.1.1"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/discovery/ip-dns_resolver.yara#cloudflare_dns_ip",
+                    "ID": "c2/discovery/ip_dns_resolver",
+                    "RuleName": "cloudflare_dns_ip"
+                },
+                {
                     "Description": "references a specific architecture",
                     "MatchStrings": [
                         "https://",
@@ -1070,15 +1081,15 @@
                     "RuleName": "go_file_read"
                 },
                 {
-                    "Description": "renames files",
+                    "Description": "rename",
                     "MatchStrings": [
-                        "os.rename"
+                        "rename"
                     ],
-                    "RiskScore": 1,
-                    "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-rename.yara#explicit_rename",
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-rename.yara#rename",
                     "ID": "fs/file/rename",
-                    "RuleName": "explicit_rename"
+                    "RuleName": "rename"
                 },
                 {
                     "Description": "access filesystem metadata",

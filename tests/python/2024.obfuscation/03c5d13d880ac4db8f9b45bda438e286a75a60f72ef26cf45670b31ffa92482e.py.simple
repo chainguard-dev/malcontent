@@ -1,5 +1,6 @@
 # python/2024.obfuscation/03c5d13d880ac4db8f9b45bda438e286a75a60f72ef26cf45670b31ffa92482e.py: critical
 anti-static/obfuscation/python: high
+anti-static/obfuscation/python_setuptools: medium
 anti-static/packer/pycloak: critical
 data/base64/decode: medium
 data/compression/lzma: low

@@ -23,7 +23,6 @@ discover/user/name_get: medium
 exec/cmd: medium
 exec/conditional/LANG: low
 exec/plugin: low
-exec/remote_commands/code_eval: medium
 exec/shell/SHELL: low
 exec/shell/TERM: low
 exec/shell/power: medium

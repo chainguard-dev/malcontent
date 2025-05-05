@@ -1,7 +1,7 @@
 rule blankOBF: critical {
   meta:
     description = "packed with https://github.com/Blank-c/BlankOBF"
-    filetypes   = "py"
+    filetypes   = "text/x-python"
 
   strings:
     $obfus  = "Obfuscated with BlankOBF"
@@ -14,4 +14,3 @@ rule blankOBF: critical {
   condition:
     filesize < 1MB and any of them
 }
-

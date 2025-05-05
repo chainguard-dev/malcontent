@@ -4,7 +4,6 @@ c2/addr/url: low
 c2/tool_transfer/chmod_dropper: high
 c2/tool_transfer/macos: critical
 c2/tool_transfer/os: medium
-c2/tool_transfer/shell: critical
 collect/archives/zip: medium
 collect/databases/mysql: medium
 collect/databases/sqlite: medium
@@ -80,7 +79,6 @@ os/kernel/dispatch_semaphore: low
 os/sync/semaphore_user: low
 persist/daemon: medium
 persist/launchd/launch_agent: medium
-privesc/osascript: critical
 privesc/setuid: low
 process/chdir: low
 process/create: low

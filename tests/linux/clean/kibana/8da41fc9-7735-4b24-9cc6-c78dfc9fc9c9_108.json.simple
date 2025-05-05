@@ -1,0 +1,8 @@
+# linux/clean/kibana/8da41fc9-7735-4b24-9cc6-c78dfc9fc9c9_108.json: medium
+c2/tool_transfer/os: low
+impact/exploit: medium
+impact/exploit/cve: medium
+impact/exploit/pwnkit: low
+impact/remote_access/agent: medium
+net/url/embedded: low
+os/fd/multiplex: low

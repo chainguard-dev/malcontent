@@ -1,6 +1,7 @@
 rule tar_script: medium {
   meta:
     description = "script shells out to tar"
+    filetypes   = "application/x-sh,application/x-zsh"
 
   strings:
     $a_tar_rX  = /tar -r -X[\|\-\\\"\$\w\; ]{0,64}/
@@ -14,6 +15,7 @@ rule tar_script: medium {
 rule local_tar: medium {
   meta:
     description = "command archives current directory"
+    filetypes   = "application/x-sh,application/x-zsh"
 
   strings:
     $a_tar_c = /tar -c\w{0,8} \. [\|\-\\\"\$\w\; ]{0,64}/
@@ -25,6 +27,7 @@ rule local_tar: medium {
 rule collect_executable_calls_archive_tool: high {
   meta:
     description = "command shells out to tar"
+    filetypes   = "application/x-sh,application/x-zsh"
 
   strings:
     $a_tar_c   = /tar -c\w{0,8} \. [\|\-\\\"\$\w\; ]{0,64}/

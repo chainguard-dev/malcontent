@@ -90,7 +90,6 @@ exec/tty/pathname: medium
 exfil/office_file_ext: medium
 exfil/stealer/credit_card: medium
 fs/directory/create: low
-fs/directory/list: low
 fs/directory/remove: low
 fs/file/append: low
 fs/file/capabilities_set: low
@@ -100,7 +99,6 @@ fs/file/delete: medium
 fs/file/delete_forcibly: low
 fs/file/open: low
 fs/file/read: low
-fs/file/rename: low
 fs/file/stat: low
 fs/file/times_set: medium
 fs/file/truncate: low

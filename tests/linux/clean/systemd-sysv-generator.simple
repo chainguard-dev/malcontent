@@ -5,7 +5,6 @@ c2/tool_transfer/os: low
 credential/password: low
 evasion/file/prefix: medium
 exec/system_controls/systemd: low
-false-positives/systemd: low
 fs/file/delete: low
 fs/path/etc: low
 impact/remote_access/agent: medium

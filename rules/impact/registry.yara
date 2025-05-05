@@ -1,7 +1,7 @@
 rule registry: medium {
   meta:
     description = "writes to the Windows registry"
-    filetypes   = "py"
+    filetypes   = "text/x-python"
 
   strings:
     $ref  = "winreg"

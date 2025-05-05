@@ -12,7 +12,7 @@ rule macos_chflags_hidden: critical {
   meta:
     description = "dropper that hides it's payload using chflags"
     hash        = "e064158742c9a5f451e69b02e83eea9fb888623fafe34ff5b38036901d8419b4"
-    filetypes   = "macho"
+    filetypes   = "application/x-mach-binary"
 
   strings:
     $c_curl    = "curl" fullword
@@ -26,7 +26,8 @@ rule macos_chflags_hidden: critical {
 
 rule cocoa_bundle_dropper: critical {
   meta:
-    ref = "https://www.huntress.com/blog/lightspy-malware-variant-targeting-macos"
+    ref       = "https://www.huntress.com/blog/lightspy-malware-variant-targeting-macos"
+    filetypes = "application/x-mach-binary"
 
   strings:
     $bundle   = "NSBundle" fullword

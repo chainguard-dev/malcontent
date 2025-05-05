@@ -3,6 +3,7 @@ import "elf"
 rule obfuscated_elf: high linux {
   meta:
     description = "Obfuscated ELF binary (missing symbols)"
+    filetypes   = "application/x-elf"
 
   strings:
     $dlsym             = "dlsym" fullword

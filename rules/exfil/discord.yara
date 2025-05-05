@@ -1,15 +1,29 @@
 rule discord_bot: high {
   meta:
     description = "Uses the Discord webhooks API"
-    ref         = "https://github.com/bartblaze/community/blob/3f3997f8c79c3605ae6d5324c8578cb12c452512/data/yara/binaries/indicator_high.yar#L706"
 
   strings:
-    $ = /discordapp.com\/api\/webhooks[\/\d]{0,32}/
-    $ = /discord.com\/api\/webhooks[\/\d]{0,32}/
-    $ = "import discord"
+    $webhook_endpoint  = /discordapp.com\/api\/webhooks[\/\d]{0,32}/
+    $webhook_endpoint2 = /discord.com\/api\/webhooks[\/\d]{0,32}/
+    $l_discordjs       = "discord.js"
+    $l_discord4j       = "discord4j"
+    $l_discordgo       = "discordgo"
+    $l_discord         = "import discord"
+    $l_disnake         = "import disnake"
+    $l_hikari          = "import hikari"
+    $l_interactions    = "import interactions"
+    $l_nextcord        = "import nextcord"
+    $l_jda             = "net.dv8tion:JDA"
+    $l_discordia       = "discordia"
+    $l_eris            = /require\(("|')eris("|')\);/
+    $l_oceanic         = /require\(("|')oceanic.js("|')\);/
+    $l_discordphp      = "use Discord\\Discord;"
+
+    $not_pypi_index  = /\"index_date\":\"\d{4}-\d{2}\d{2}\"/
+    $not_pypi_index2 = "\"package_names\""
 
   condition:
-    any of them
+    any of them and none of ($not*)
 }
 
 private rule iplookup_website_value_copy: high {

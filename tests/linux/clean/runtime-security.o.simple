@@ -1,7 +1,6 @@
 # linux/clean/runtime-security.o: medium
 anti-behavior/random_behavior: low
 c2/addr/ip: medium
-c2/addr/url: low
 c2/tool_transfer/os: medium
 credential/sniffer/bpf: medium
 evasion/bypass_security/linux/iptables: medium

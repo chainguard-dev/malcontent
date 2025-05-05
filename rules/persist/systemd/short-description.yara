@@ -1,6 +1,7 @@
 rule systemd_short_description {
   meta:
     description = "Short or no description"
+    filetypes   = "text/x-systemd"
 
   strings:
     $execstart  = "ExecStart="

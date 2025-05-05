@@ -70,7 +70,6 @@ fs/file/delete: low
 fs/file/delete_forcibly: low
 fs/file/open: low
 fs/file/read: low
-fs/file/rename: low
 fs/file/times_set: medium
 fs/file/truncate: low
 fs/file/write: low

@@ -1,7 +1,6 @@
 # javascript/clean/5D3EB8D016DDDA0665CB8CD8EEA6C537.cache.js: medium
 anti-behavior/random_behavior: low
 anti-static/obfuscation/js: medium
-anti-static/obfuscation/reverse: medium
 c2/addr/ip: medium
 c2/addr/server: medium
 c2/client: medium
@@ -48,7 +47,6 @@ exec/cmd: medium
 exec/plugin: low
 exec/program: medium
 exec/program/background: low
-exec/remote_commands/code_eval: medium
 exec/shell/command: medium
 exec/shell/power: medium
 exec/tty/pathname: medium

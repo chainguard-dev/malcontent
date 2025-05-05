@@ -16,7 +16,6 @@ crypto/openssl: medium
 data/encoding/json_decode: low
 evasion/file/prefix: medium
 evasion/rootkit/refs: medium
-evasion/rootkit/userspace: low
 exec/plugin: low
 exec/shell/power: medium
 exfil/upload: medium

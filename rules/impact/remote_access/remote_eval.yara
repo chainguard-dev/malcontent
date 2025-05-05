@@ -26,7 +26,7 @@ rule remote_eval_close: high {
   meta:
     description = "Evaluates remotely sourced code"
 
-    filetypes = "php"
+    filetypes = "text/x-php"
 
   strings:
     $php    = "<?php"
@@ -111,7 +111,7 @@ rule php_remote_exec: critical {
 rule java_http_replacement_class: high java {
   meta:
     description = "runtime override of a class, possibly downloaded from elsewhere"
-    filetypes   = "class,java"
+    filetypes   = "application/java-vm,text/x-java"
 
   strings:
     $replace = "loadReplacementClass"

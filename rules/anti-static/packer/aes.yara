@@ -9,7 +9,7 @@ private rule smallBinary {
 rule go_aes: high {
   meta:
     description = "go binary packed with AES"
-    filetypes   = "macho,elf"
+    filetypes   = "application/x-mach-binary,application/x-elf"
 
   strings:
     $aes     = "crypto/aes"
@@ -19,4 +19,3 @@ rule go_aes: high {
   condition:
     smallBinary and math.entropy(1, filesize) >= 7 and all of them
 }
-

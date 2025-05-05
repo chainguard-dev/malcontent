@@ -3,7 +3,7 @@ rule linux_kernel_module_getdents64: critical linux {
     description = "kernel module that intercepts directory listing"
     ref         = "https://github.com/m0nad/Diamorphine"
 
-    filetypes = "elf,so"
+    filetypes = "application/x-elf,application/x-sharedlib"
 
   strings:
     $getdents64 = "getdents64"
@@ -17,7 +17,7 @@ rule linux_kernel_module_getdents64: critical linux {
 rule linux_kernel_module_orig: high linux {
   meta:
     description = "kernel module that intercepts directory listing and signals"
-    filetypes   = "elf,so"
+    filetypes   = "application/x-elf,application/x-sharedlib"
 
   strings:
     $getdents64 = "orig_getdents64"
@@ -43,7 +43,7 @@ rule lkm_dirent: high {
   meta:
     description = "kernel rootkit designed to hide files (linux_dirent)"
 
-    filetypes = "so"
+    filetypes = "application/x-sharedlib"
 
   strings:
     $l_dirent     = "linux_dirent"

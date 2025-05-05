@@ -54,7 +54,7 @@ rule pcap_shell_exec: high {
   meta:
     description = "sniffs network traffic, executes shell"
 
-    filetypes = "elf,macho"
+    filetypes = "application/x-elf,application/x-mach-binary"
 
   strings:
     $libpcap        = "libpcap"
