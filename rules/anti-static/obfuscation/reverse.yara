@@ -57,7 +57,7 @@ rule string_reversal: medium {
     any of them
 }
 
-rule function_reversal: high {
+rule function_reversal: medium {
   meta:
     description = "reversed function definition"
 
