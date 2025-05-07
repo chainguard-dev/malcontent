@@ -70,7 +70,7 @@ rule character_obfuscation: medium {
     obfs_probably_js and filesize < 4MB and all of them
 }
 
-rule js_char_code_at_substitution: low {
+rule js_char_code_at_substitution: high {
   meta:
     description = "converts integers into strings and contains a substitution map"
     filetypes   = "javascript"
@@ -83,7 +83,7 @@ rule js_char_code_at_substitution: low {
     obfs_probably_js and filesize < 256KB and all of them
 }
 
-rule child_process: medium {
+rule child_process: high {
   meta:
     description = "obfuscated javascript that calls external programs"
 
@@ -101,7 +101,7 @@ rule child_process: medium {
     obfs_probably_js and filesize < 1MB and all of them and math.entropy(1, filesize) >= 6
 }
 
-rule ebe: medium {
+rule ebe: high {
   meta:
     description = "highly obfuscated javascript (eBe)"
     filetypes   = "javascript"
@@ -116,7 +116,7 @@ rule ebe: medium {
     obfs_probably_js and filesize < 5MB and $function and $charCodeAt and #ref > 10
 }
 
-rule ebe_generic: low {
+rule ebe_generic: high {
   meta:
     description = "highly obfuscated javascript"
     filetypes   = "javascript"
@@ -168,7 +168,7 @@ rule js_hex_eval_obfuscation: critical {
     obfs_probably_js and filesize < 128KB and any of them
 }
 
-rule js_hex_obfuscation: medium {
+rule js_hex_obfuscation: high {
   meta:
     description = "javascript function obfuscation (hex)"
 
@@ -180,7 +180,7 @@ rule js_hex_obfuscation: medium {
     obfs_probably_js and filesize < 1MB and any of them
 }
 
-rule high_entropy: low {
+rule high_entropy: medium {
   meta:
     description = "high entropy javascript (>6)"
 
@@ -188,7 +188,7 @@ rule high_entropy: low {
     obfs_probably_js and math.entropy(1, filesize) >= 6
 }
 
-rule very_high_entropy: medium {
+rule very_high_entropy: high {
   meta:
     description = "very high entropy javascript (>7)"
 
@@ -209,7 +209,7 @@ rule charCodeAtIncrement: medium {
     obfs_probably_js and filesize < 4MB and $function and #increment > 1
 }
 
-rule js_many_parseInt: medium {
+rule js_many_parseInt: high {
   meta:
     description = "javascript obfuscation (integer parsing)"
     filetypes   = "javascript"
@@ -261,7 +261,7 @@ rule unicode_prototype: critical {
     obfs_probably_js and any of them
 }
 
-rule var_filler: medium {
+rule var_filler: high {
   meta:
     description = "header is filled with excessive variable declarations"
 
@@ -327,7 +327,7 @@ rule obfuscated_map_to_array_conversions: high {
     obfs_probably_js and #ref > 32
 }
 
-rule large_obfuscated_array: medium {
+rule large_obfuscated_array: high {
   meta:
     description = "contains large obfuscated arrays"
 
