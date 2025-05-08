@@ -1820,7 +1820,7 @@
                     "RuleName": "excessive_hex_refs"
                 },
                 {
-                    "Description": "javascript function obfuscation (hex)",
+                    "Description": "javascript obfuscation (integer parsing)",
                     "MatchStrings": [
                         "return _0x46844b(_0x4f512e",
                         "return _0x1bfdb5(_0x3d15bf",
