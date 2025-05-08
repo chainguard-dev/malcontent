@@ -83,7 +83,7 @@ rule js_char_code_at_substitution: high {
     obfs_probably_js and filesize < 256KB and all of them
 }
 
-rule child_process: critical {
+rule child_process: high {
   meta:
     description = "obfuscated javascript that calls external programs"
 
@@ -101,7 +101,7 @@ rule child_process: critical {
     obfs_probably_js and filesize < 1MB and all of them and math.entropy(1, filesize) >= 6
 }
 
-rule ebe: critical {
+rule ebe: high {
   meta:
     description = "highly obfuscated javascript (eBe)"
     filetypes   = "javascript"
@@ -168,7 +168,7 @@ rule js_hex_eval_obfuscation: critical {
     obfs_probably_js and filesize < 128KB and any of them
 }
 
-rule js_hex_obfuscation: critical {
+rule js_hex_obfuscation: high {
   meta:
     description = "javascript function obfuscation (hex)"
 
@@ -188,7 +188,7 @@ rule high_entropy: medium {
     obfs_probably_js and math.entropy(1, filesize) >= 6
 }
 
-rule very_high_entropy: critical {
+rule very_high_entropy: high {
   meta:
     description = "very high entropy javascript (>7)"
 
