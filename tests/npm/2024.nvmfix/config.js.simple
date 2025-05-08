@@ -1,4 +1,4 @@
-# npm/2024.nvmfix/config.js: critical
+# npm/2024.nvmfix/config.js: high
 anti-static/obfuscation/hex: medium
 anti-static/obfuscation/js: high
 c2/addr/url: medium
