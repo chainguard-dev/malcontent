@@ -1,6 +1,6 @@
 import "elf"
 
-rule base64_elf: high {
+rule contains_base64_elf: high {
   meta:
     description = "contains base64 ELF binary"
 
