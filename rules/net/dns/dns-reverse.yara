@@ -6,6 +6,7 @@ rule in_addr_arpa: medium {
   strings:
     $ref  = ".in-addr.arpa"
     $ref2 = "ip6.arpa"
+
   condition:
     any of them
 }

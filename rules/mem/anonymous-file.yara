@@ -6,7 +6,7 @@ rule memfd_create: medium {
 
   strings:
     $ref = "memfd_create" fullword
-    $go = "MemfdCreate"
+    $go  = "MemfdCreate"
 
   condition:
     any of them

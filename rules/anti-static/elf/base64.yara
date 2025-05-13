@@ -8,9 +8,8 @@ rule base64_elf: high {
     $elf_head = "f0VMRgI"
 
   condition:
-  any of them
+    any of them
 }
-
 
 rule elf_contains_base64_elf: critical {
   meta:

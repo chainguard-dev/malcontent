@@ -40,7 +40,6 @@ rule java_random: low {
     any of them
 }
 
-
 rule go_rand: medium {
   meta:
     description = "exhibits random behavior"
@@ -51,7 +50,6 @@ rule go_rand: medium {
   condition:
     filesize < 100MB and any of them
 }
-
 
 rule rand_call: medium {
   meta:

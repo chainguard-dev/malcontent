@@ -16,7 +16,7 @@ rule go_raw_syscall: medium {
     description = "invokes raw system calls"
 
   strings:
-    $go    = "unix.RawSyscall"
+    $go = "unix.RawSyscall"
 
   condition:
     any of them

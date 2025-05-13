@@ -13,10 +13,10 @@ rule popen: medium {
     $pipe_glibc   = "pipe@@GLIBC"
     $pipe_generic = "cmdpipe"
     $js           = "getExecOutput" fullword
+
   condition:
     any of them
 }
-
 
 rule popen_go: medium {
   meta:
@@ -26,7 +26,8 @@ rule popen_go: medium {
 
   strings:
     $exec = "exec"
-    $co = "CombinedOutput"
+    $co   = "CombinedOutput"
+
   condition:
     all of them
 }

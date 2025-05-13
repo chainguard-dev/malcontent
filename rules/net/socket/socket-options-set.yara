@@ -11,14 +11,14 @@ rule setsockopt: harmless {
     any of them
 }
 
-rule go_setsockopt_int : medium {
-    meta:
-        description = "set socket options by integer"
-        syscall     = "setsockopt"
+rule go_setsockopt_int: medium {
+  meta:
+    description = "set socket options by integer"
+    syscall     = "setsockopt"
 
-    strings:
-        $setsockopt = "SetsockoptInt"
+  strings:
+    $setsockopt = "SetsockoptInt"
 
-    condition:
-        any of them
+  condition:
+    any of them
 }
