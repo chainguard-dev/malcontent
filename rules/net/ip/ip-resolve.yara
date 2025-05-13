@@ -9,7 +9,7 @@ rule gethostbyaddr {
     $ResolvHost     = "ResolvHost"
     $resolv_host    = "resolv_host"
     $ruby           = "Resolv.getaddress"
-
+    $lookup_ip = "LookupIP"
   condition:
     any of them
 }
