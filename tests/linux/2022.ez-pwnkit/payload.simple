@@ -5,6 +5,7 @@ crypto/rc4: low
 discover/system/cpu: low
 discover/system/hostname: low
 discover/system/platform: low
+exec/cmd/pipe: medium
 exec/plugin: low
 exec/program: medium
 exec/shell/exec: medium
@@ -30,10 +31,12 @@ net/ip/addr: medium
 net/ip/host_port: medium
 net/ip/multicast_send: low
 net/ip/parse: medium
-net/resolve/hostname: low
+net/ip/resolve: low
+net/resolve/hostname: medium
 net/resolve/hostport_parse: low
 net/socket/listen: medium
 net/socket/local_addr: low
+net/socket/options_set: medium
 net/socket/peer_address: low
 net/socket/receive: low
 net/socket/send: low
