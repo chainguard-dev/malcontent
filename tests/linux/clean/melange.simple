@@ -1,6 +1,7 @@
 # linux/clean/melange: medium
-anti-behavior/random_behavior: low
+anti-behavior/random_behavior: medium
 anti-static/elf/multiple: medium
+anti-static/obfuscation/syscall: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/addr/url: low
@@ -14,7 +15,6 @@ collect/code/github_api: low
 credential/cloud/g: medium
 credential/keychain: medium
 credential/password: low
-credential/sniffer/bpf: medium
 credential/ssl/private_key: low
 crypto/aes: low
 crypto/cipher: medium
@@ -40,6 +40,7 @@ data/encoding/json_decode: low
 data/encoding/json_encode: low
 data/encoding/yaml: low
 data/hash/blake2b: low
+data/hash/fnv: low
 data/hash/md5: low
 discover/cloud/aws_metadata: low
 discover/cloud/google_metadata: low
@@ -60,6 +61,7 @@ evasion/file/location/system_directory: medium
 evasion/file/prefix: medium
 evasion/hide_artifacts/pivot_root: medium
 exec/cmd: medium
+exec/cmd/pipe: medium
 exec/install_additional/pip_install: medium
 exec/plugin: low
 exec/program: medium
@@ -131,12 +133,14 @@ net/ip: low
 net/ip/host_port: medium
 net/ip/icmp: medium
 net/ip/parse: medium
+net/ip/resolve: low
 net/proxy/socks5: medium
 net/proxy/tunnel: medium
-net/resolve/hostname: low
+net/resolve/hostname: medium
 net/resolve/hostport_parse: low
 net/socket/listen: medium
 net/socket/local_addr: low
+net/socket/options_set: medium
 net/socket/peer_address: low
 net/socket/receive: low
 net/socket/send: low

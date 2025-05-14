@@ -15,7 +15,6 @@ collect/databases/postgresql: medium
 collect/databases/sqlite: medium
 credential/cloud/aws: medium
 credential/password: low
-credential/sniffer/bpf: medium
 credential/ssl/private_key: low
 crypto/aes: low
 crypto/cipher: medium
