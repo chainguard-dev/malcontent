@@ -10,3 +10,15 @@ rule setsockopt: harmless {
   condition:
     any of them
 }
+
+rule go_setsockopt_int: medium {
+  meta:
+    description = "set socket options by integer"
+    syscall     = "setsockopt"
+
+  strings:
+    $setsockopt = "SetsockoptInt"
+
+  condition:
+    any of them
+}

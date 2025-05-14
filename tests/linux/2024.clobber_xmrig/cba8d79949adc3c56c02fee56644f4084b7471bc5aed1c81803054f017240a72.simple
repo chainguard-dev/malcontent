@@ -1,8 +1,9 @@
 # linux/2024.clobber_xmrig/cba8d79949adc3c56c02fee56644f4084b7471bc5aed1c81803054f017240a72: critical
 3P/elastic/threat: high
-anti-behavior/random_behavior: low
+anti-behavior/random_behavior: medium
 anti-static/base64/exec: high
 anti-static/base64/http_agent: high
+anti-static/elf/base64: critical
 anti-static/elf/header: critical
 c2/addr/ip: medium
 c2/addr/url: low
@@ -33,6 +34,7 @@ discover/system/hostname: low
 discover/user/HOME: low
 evasion/file/prefix: medium
 evasion/logging/acct: low
+exec/cmd/pipe: medium
 exec/plugin: low
 exec/system_controls/systemd: medium
 exfil/discord: critical
@@ -70,10 +72,12 @@ net/http/webhook: medium
 net/ip: low
 net/ip/multicast_send: low
 net/ip/parse: medium
+net/ip/resolve: low
 net/ip/tcp_state_tracker: medium
-net/resolve/hostname: low
+net/resolve/hostname: medium
 net/resolve/hostport_parse: low
 net/socket/listen: medium
+net/socket/options_set: medium
 net/socket/receive: low
 net/socket/send: low
 net/tcp/connect: medium

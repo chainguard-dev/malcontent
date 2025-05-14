@@ -5,7 +5,7 @@
 3P/elastic/infostealer_wallets: critical
 3P/elastic/multi_threat: high
 anti-behavior/anti_debugger: medium
-anti-behavior/random_behavior: low
+anti-behavior/random_behavior: medium
 c2/addr/discord: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
@@ -44,6 +44,7 @@ discover/ip/public: high
 discover/network/mac_address: medium
 discover/processes/list: medium
 discover/system/cpu: low
+exec/cmd/pipe: medium
 exec/conditional/is_admin: medium
 exec/plugin: low
 exec/program: medium
@@ -94,10 +95,12 @@ net/http/request: low
 net/http/webhook: medium
 net/ip/host_port: medium
 net/ip/parse: medium
+net/ip/resolve: low
 net/remote_control/vnc: medium
-net/resolve/hostname: low
+net/resolve/hostname: medium
 net/socket/listen: medium
 net/socket/local_addr: low
+net/socket/options_set: medium
 net/socket/peer_address: low
 net/socket/receive: low
 net/socket/send: low

@@ -4,7 +4,6 @@ rule sniffer_bpf: medium {
     description = "BPF (Berkeley Packet Filter)"
 
   strings:
-    $ref  = "bpf" fullword
     $ref2 = "/dev/bpf"
     $ref3 = "SetBPF" fullword
     $ref4 = "SetsockoptSockFprog"
