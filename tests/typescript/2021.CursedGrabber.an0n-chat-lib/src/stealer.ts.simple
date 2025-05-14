@@ -1,6 +1,5 @@
 # typescript/2021.CursedGrabber.an0n-chat-lib/src/stealer.ts: critical
 c2/addr/discord: medium
-c2/addr/url: medium
 c2/tool_transfer/os: low
 collect/databases/leveldb: medium
 data/encoding/json_decode: low

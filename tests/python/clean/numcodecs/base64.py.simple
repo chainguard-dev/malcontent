@@ -1,5 +1,4 @@
 # python/clean/numcodecs/base64.py: medium
-c2/addr/url: medium
 data/base64/decode: medium
 data/base64/encode: medium
 data/encoding/base64: low

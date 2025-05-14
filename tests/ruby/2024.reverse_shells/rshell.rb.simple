@@ -1,6 +1,5 @@
 # ruby/2024.reverse_shells/rshell.rb: high
 anti-static/obfuscation/syscall: medium
-c2/addr/url: medium
 exec/shell/exec: medium
 fs/path/usr_bin: low
 impact/remote_access/reverse_shell: high

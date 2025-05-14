@@ -2,7 +2,6 @@
 anti-static/base64/eval: high
 anti-static/base64/function_names: critical
 anti-static/obfuscation/bitwise: low
-c2/addr/url: medium
 data/base64/decode: medium
 data/encoding/base64: low
 exec/cmd/pipe: medium

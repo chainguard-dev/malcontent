@@ -1,5 +1,4 @@
 # python/clean/google-cloud-sdk/requests_setup.py: medium
-c2/addr/url: medium
 exec/imports/python: low
 exec/program: medium
 exec/remote_commands/code_eval: medium

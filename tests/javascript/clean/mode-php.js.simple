@@ -1,5 +1,6 @@
 # javascript/clean/mode-php.js: medium
 anti-behavior/random_behavior: low
+anti-static/obfuscation/js: medium
 anti-static/obfuscation/strtoi: medium
 c2/addr/ip: medium
 c2/client: medium
