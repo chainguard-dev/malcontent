@@ -59,3 +59,14 @@ rule nodejs: medium {
   condition:
     filesize < 512KB and any of them
 }
+
+rule go_resolve: medium {
+  meta:
+    description = "resolve network host name to IP address"
+
+  strings:
+    $resolve = "LookupHost" fullword
+
+  condition:
+    any of them
+}
