@@ -12,6 +12,8 @@ private rule eval_probably_js {
     $f_false     = "false);"
     $f_function  = /function\(\w{0,32}\)/
     $f_function2 = "function()"
+    $f_function3 = "function ()"
+    $f_global    = "global["
     $f_method    = "@method"
     $f_namespace = "@namespace"
     $f_Object    = "Object."
@@ -131,6 +133,18 @@ rule js_eval_obfuscated_fromChar: critical {
 
   condition:
     eval_probably_js and filesize < 5MB and all of them and math.abs(@exec - @ref) > 384
+}
+
+rule js_anonymous_function: medium {
+  meta:
+    description = "evaluates code using an anonymous function"
+
+  strings:
+    $func = /\n\s{0,8}\(function\s{0,8}\(\)\s{0,8}\{/
+    $run  = /\n\s{0,8}\}\)\(\);/
+
+  condition:
+    eval_probably_js and filesize < 5MB and all of them and (@run - @func) > 384
 }
 
 rule python_exec: medium {

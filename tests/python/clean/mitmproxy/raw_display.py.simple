@@ -1,5 +1,4 @@
 # python/clean/mitmproxy/raw_display.py: medium
-c2/addr/url: medium
 c2/tool_transfer/os: low
 exec/imports/python: low
 exec/program: medium

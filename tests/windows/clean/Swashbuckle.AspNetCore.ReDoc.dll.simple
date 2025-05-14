@@ -1,6 +1,7 @@
 # windows/clean/Swashbuckle.AspNetCore.ReDoc.dll: medium
 anti-behavior/random_behavior: low
 anti-static/obfuscation/js: medium
+anti-static/obfuscation/math: medium
 anti-static/obfuscation/strtoi: medium
 anti-static/obfuscation/utf16: medium
 c2/client: medium

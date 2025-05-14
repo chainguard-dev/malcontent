@@ -1,5 +1,4 @@
 # python/clean/pydevd/setup_pydevd_cython.py: medium
-c2/addr/url: medium
 discover/system/platform: medium
 exec/imports/python: low
 fs/directory/list: low

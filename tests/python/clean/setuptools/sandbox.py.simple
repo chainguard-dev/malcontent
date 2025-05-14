@@ -1,5 +1,4 @@
 # python/clean/setuptools/sandbox.py: medium
-c2/addr/url: medium
 discover/system/platform: medium
 exec/imports/python: low
 exec/plugin: low

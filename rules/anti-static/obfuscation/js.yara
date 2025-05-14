@@ -12,6 +12,8 @@ private rule obfs_probably_js {
     $f_false     = "false);"
     $f_function  = /function\(\w{0,32}\)/
     $f_function2 = "function()"
+    $f_function3 = "function ()"
+    $f_global    = "global["
     $f_method    = "@method"
     $f_namespace = "@namespace"
     $f_Object    = "Object."
@@ -46,6 +48,20 @@ private rule obfs_probably_js {
 
   condition:
     filesize < 5MB and 4 of ($f*) and none of ($not*)
+}
+
+rule js_var_misdirection: medium {
+  meta:
+    description = "multiple layers of variable misdirection"
+
+  strings:
+    $short_mix_high = /var [a-z]{0,2}[A-Z]{1,2}[a-z]\w{1,2}\s{0,2}=\s{0,2}\w{0,2}[A-Z]\w{1,2}[\;\(\[]/
+    $empty          = /var [a-z]{1,3}[A-Z][a-z]{0,2}\s{0,2}=\s{0,2}"";/
+    $short_mix_low  = /var [a-z][A-Z]{1,6}\w{1,2}\s{0,2}=\s{0,2}\w{0,2}[A-Z]\w{1,2}[\;\(\[]/
+    $short_low      = /var [a-z]{1,3}\s{0,2}=\s{0,2}\w{0,2}[A-Z]\w{1,2}[\;\(\[]/
+
+  condition:
+    obfs_probably_js and filesize < 4MB and 3 of them
 }
 
 rule character_obfuscation: medium {
@@ -344,11 +360,59 @@ rule high_entropy_charAt: medium {
     description = "high entropy javascript (>5.37) that uses charAt/substr/join loops"
 
   strings:
-    $ = "charAt("
-    $ = "substr("
-    $ = "join("
-    $ = "function("
-    $ = "for("
+    $           = "charAt("
+    $           = "substr("
+    $           = "join("
+    $s_function = /function\s{0,2}\(/
+    $s_for      = /for\s{0,2}\(/
+
+  condition:
+    obfs_probably_js and math.entropy(1, filesize) >= 5.37 and all of them
+}
+
+rule charAt_long_string: medium {
+  meta:
+    description = "uses charAt/substr/join loops with a long variable"
+
+  strings:
+    $s_charAt   = "charAt("
+    $s_substr   = "substr("
+    $s_join     = "join("
+    $s_function = /function\s{0,2}\(/
+    $s_for      = /for\s{0,2}\(/
+
+    $long_string  = /\([\'\"]\w{32,1024}[\"\']\)/
+    $long_garbage = /['"][\w\~\!\@\#\$\%\^\&\*\(\)\{\}\?\+\/\/\=\-\;\[\]\.><\,\`\'\"_\\:]{16,256}[\s\%\$]{1,2}[\w\~\!\@\#\$\%\^\&\*\(\)\{\}\?\+\/\/\=\-\;\[\]\.><\,\`\'\"_\\:]{0,256}/
+
+  condition:
+    obfs_probably_js and all of ($s*) and any of ($long*)
+}
+
+rule charAt_long_vars: medium {
+  meta:
+    description = "uses charAt/substr/join loops with long variables"
+
+  strings:
+    $s_charAt   = "charAt("
+    $s_substr   = "substr("
+    $s_join     = "join("
+    $s_function = /function\s{0,2}\(/
+    $s_for      = /for\s{0,2}\(/
+
+    $long_string  = /\([\'\"]\w{32,1024}[\"\']\)/
+    $long_garbage = /['"][\w\~\!\@\#\$\%\^\&\*\(\)\{\}\?\+\/\/\=\-\;\[\]\.><\,\`\'\"_\\:]{16,256}[\s\%\$]{1,2}[\w\~\!\@\#\$\%\^\&\*\(\)\{\}\?\+\/\/\=\-\;\[\]\.><\,\`\'\"_\\:]{0,256}/
+
+  condition:
+    obfs_probably_js and all of ($s*) and (#long_string + #long_garbage) > 3
+}
+
+rule obfuscated_require: high {
+  meta:
+    description = "sets variable to the 'require' keyword"
+
+  strings:
+    $ = /global\[\"\w{1,16}\"\]\s{0,2}=\s{0,2}require;/
+    $ = /var \w{1,16}\s{0,2}=\s{0,2}require;/
 
   condition:
     obfs_probably_js and math.entropy(1, filesize) >= 5.37 and all of them
