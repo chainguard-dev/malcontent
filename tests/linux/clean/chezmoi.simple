@@ -1,5 +1,6 @@
 # linux/clean/chezmoi: medium
-anti-behavior/random_behavior: low
+anti-behavior/random_behavior: medium
+anti-static/obfuscation/syscall: medium
 anti-static/xor/functions: medium
 c2/addr/discord: medium
 c2/addr/http_dynamic: medium
@@ -22,7 +23,6 @@ credential/gaming/minecraft: medium
 credential/keychain: medium
 credential/password: low
 credential/server/htpasswd: medium
-credential/sniffer/bpf: medium
 credential/ssl/private_key: low
 crypto/aes: low
 crypto/cipher: medium
@@ -52,6 +52,7 @@ data/encoding/json_decode: low
 data/encoding/utf16: medium
 data/encoding/yaml: low
 data/hash/blake2b: low
+data/hash/fnv: low
 data/hash/md5: low
 data/random/insecure: low
 discover/group/lookup: medium
@@ -66,6 +67,7 @@ discover/user/USER: low
 discover/user/name_get: medium
 evasion/file/prefix: medium
 exec/cmd: medium
+exec/cmd/pipe: medium
 exec/conditional/LANG: low
 exec/plugin: low
 exec/program: medium
@@ -147,9 +149,10 @@ net/ip/resolve: low
 net/ip/spoof: medium
 net/proxy/socks5: medium
 net/proxy/tunnel: medium
-net/resolve/hostname: low
+net/resolve/hostname: medium
 net/socket/listen: medium
 net/socket/local_addr: low
+net/socket/options_set: medium
 net/socket/pair: medium
 net/socket/peer_address: low
 net/socket/receive: low

@@ -10,7 +10,6 @@ c2/tool_transfer/os: low
 credential/os/gshadow: medium
 credential/os/shadow: medium
 credential/password: low
-credential/sniffer/bpf: medium
 crypto/public_key: low
 data/builtin/glibc: medium
 discover/group/lookup: medium

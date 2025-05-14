@@ -16,6 +16,7 @@ fs/path/etc: low
 fs/path/home: low
 fs/permission/chown: medium
 fs/permission/modify: medium
+net/socket/options_set: medium
 net/socket/receive: low
 net/socket/send: low
 process/multithreaded: low
