@@ -10,3 +10,14 @@ rule syscall: medium {
   condition:
     filesize < 64KB and any of ($r*) and $syscall
 }
+
+rule go_raw_syscall: medium {
+  meta:
+    description = "invokes raw system calls"
+
+  strings:
+    $go = "unix.RawSyscall"
+
+  condition:
+    any of them
+}

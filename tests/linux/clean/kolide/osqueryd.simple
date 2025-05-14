@@ -15,7 +15,6 @@ credential/keychain: medium
 credential/password: low
 credential/shell/bash_history: medium
 credential/shell/zsh_history: medium
-credential/sniffer/bpf: medium
 credential/ssh/authorized_hosts: medium
 credential/ssl/private_key: low
 crypto/aes: low

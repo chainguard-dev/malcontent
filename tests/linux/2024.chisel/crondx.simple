@@ -1,6 +1,6 @@
 # linux/2024.chisel/crondx: critical
 3P/sekoia/chisel_strings: critical
-anti-behavior/random_behavior: low
+anti-behavior/random_behavior: medium
 c2/addr/ip: high
 c2/addr/url: low
 c2/tool_transfer/arch: low
@@ -52,12 +52,14 @@ net/ip: low
 net/ip/host_port: medium
 net/ip/icmp: medium
 net/ip/parse: medium
+net/ip/resolve: low
 net/proxy/socks5: medium
 net/proxy/tunnel: medium
-net/resolve/hostname: low
+net/resolve/hostname: medium
 net/resolve/hostport_parse: low
 net/socket/listen: medium
 net/socket/local_addr: low
+net/socket/options_set: medium
 net/socket/peer_address: low
 net/socket/receive: low
 net/socket/send: low

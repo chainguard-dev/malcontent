@@ -1,6 +1,6 @@
 # linux/2024.TellYouThePass/uranus-ack-mike-cat: critical
 3P/arkbird/solg_ran_elf: critical
-anti-behavior/random_behavior: low
+anti-behavior/random_behavior: medium
 c2/addr/ip: high
 collect/databases/mysql: medium
 collect/databases/postgresql: medium
@@ -26,6 +26,7 @@ discover/user/HOME: low
 discover/user/USER: low
 evasion/file/prefix: medium
 exec/cmd: medium
+exec/cmd/pipe: medium
 exec/plugin: low
 exec/program: medium
 exec/shell/background_sleep: medium
@@ -65,9 +66,11 @@ net/ip/addr: medium
 net/ip/host_port: medium
 net/ip/multicast_send: low
 net/ip/parse: medium
-net/resolve/hostname: low
+net/ip/resolve: low
+net/resolve/hostname: medium
 net/socket/listen: medium
 net/socket/local_addr: low
+net/socket/options_set: medium
 net/socket/peer_address: low
 net/socket/receive: low
 net/socket/send: low
