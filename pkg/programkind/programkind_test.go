@@ -49,7 +49,7 @@ func TestPath(t *testing.T) {
 		{"/etc/systemd/system/launcher.service", &FileType{MIME: "text/x-systemd", Ext: "service"}},
 		{"yarn-package.json", &FileType{MIME: "application/json", Ext: "json"}},
 		{"/home/yeti/.hidden/package.json", &FileType{MIME: "application/json", Ext: "json"}},
-		{"unknown.json", &FileType{MIME: "application/json", Ext: "json"}},
+		{"unknown.json", nil},
 	}
 	for _, tt := range tests {
 		t.Run(tt.in, func(t *testing.T) {
