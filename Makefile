@@ -4,8 +4,8 @@
 
 SAMPLES_REPO ?= chainguard-dev/malcontent-samples
 SAMPLES_COMMIT ?= f948cfd0f9d2a35a2452fe43ea4d094979652103
-YARAX_REPO ?= virusTotal/yara-x
-YARAX_COMMIT ?= b9ade771e129eda2487083f0eea6a05234b6dbcc
+YARA_X_REPO ?= virusTotal/yara-x
+YARA_X_COMMIT ?= 3537bcfd9c4f2dc6a38f266079a40c1a1dc5eb72
 
 # BEGIN: lint-install ../malcontent
 # http://github.com/tinkerbell/lint-install
@@ -52,12 +52,12 @@ $(GOLANGCI_LINT_BIN):
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(LINT_ROOT)/out/linters $(GOLANGCI_LINT_VERSION)
 	mv $(LINT_ROOT)/out/linters/golangci-lint $@
 
-YARA_X_VERSION ?= v0.14.0
+YARA_X_VERSION ?= v0.15.0
 YARA_X_SHA :=
 ifeq ($(LINT_OS),Darwin)
-	YARA_X_SHA=3d35ac9138d916834de7d5f9fd2d72bfa4f1c5bb3467deeb08728e80d48dab0e
+	YARA_X_SHA=c9463e2d2c5662e103fe85e1dab999338e446280c54fb5a24f6af8fde2018fc6
 else
-	YARA_X_SHA=9e3bae16de66cbc6f79e83c3e743865867571601010f1d7c68510173c10a4889
+	YARA_X_SHA=56b207268dd8cfd237bfeb75199e3133fcec1b729e8113d8561c267ac3dccad6
 endif
 YARA_X_BIN := $(LINT_ROOT)/out/linters/yr-$(YARA_X_VERSION)-$(LINT_ARCH)
 $(YARA_X_BIN):
@@ -109,20 +109,20 @@ out/$(SAMPLES_REPO)/.decompressed-$(SAMPLES_COMMIT): out/${SAMPLES_REPO}/.git/co
 	find out/$(SAMPLES_REPO)/ -name "*.xz" -type f -exec xz -dk {} \;
 	touch out/$(SAMPLES_REPO)/.decompressed-$(SAMPLES_COMMIT)
 
-out/$(YARAX_REPO)/.git/commit-$(YARAX_COMMIT):
-	mkdir -p out/$(YARAX_REPO)
-	test -d out/$(YARAX_REPO)/.git ||git clone https://github.com/$(YARAX_REPO).git out/$(YARAX_REPO)
-	rm out/$(YARAX_REPO)/.git/commit-* 2>/dev/null || true
-	git -C out/$(YARAX_REPO) switch - || true
-	git -C out/$(YARAX_REPO) pull
-	git -C out/$(YARAX_REPO) checkout $(YARAX_COMMIT)
-	touch out/$(YARAX_REPO)/.git/commit-$(YARAX_COMMIT)
+out/$(YARA_X_REPO)/.git/commit-$(YARA_X_COMMIT):
+	mkdir -p out/$(YARA_X_REPO)
+	test -d out/$(YARA_X_REPO)/.git ||git clone https://github.com/$(YARA_X_REPO).git out/$(YARA_X_REPO)
+	rm out/$(YARA_X_REPO)/.git/commit-* 2>/dev/null || true
+	git -C out/$(YARA_X_REPO) switch - || true
+	git -C out/$(YARA_X_REPO) pull
+	git -C out/$(YARA_X_REPO) checkout $(YARA_X_COMMIT)
+	touch out/$(YARA_X_REPO)/.git/commit-$(YARA_X_COMMIT)
 
 .PHONY: install-yara-x
-install-yara-x: out/$(YARAX_REPO)/.git/commit-$(YARAX_COMMIT)
+install-yara-x: out/$(YARA_X_REPO)/.git/commit-$(YARA_X_COMMIT)
 	mkdir -p out/lib
 	mkdir -p out/include
-	cd out/$(YARAX_REPO) && \
+	cd out/$(YARA_X_REPO) && \
 	cargo install cargo-c --locked && \
 	cargo cinstall -p yara-x-capi --features=native-code-serialization --release --prefix="$(LINT_ROOT)/out" --libdir="$(LINT_ROOT)/out/lib"
 
