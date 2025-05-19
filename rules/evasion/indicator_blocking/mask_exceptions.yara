@@ -41,7 +41,7 @@ rule setuptools_no_fail: suspicious {
 rule php_disable_errors: medium {
   meta:
     description = "PHP code that disables error reporting"
-    filetypes   = "text/x-php"
+    filetypes   = "php"
 
   strings:
     $err_rep       = "error_reporting(0)"

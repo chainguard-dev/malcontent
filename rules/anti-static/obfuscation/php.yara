@@ -78,7 +78,7 @@ rule small_reversed_function_names: critical {
   meta:
     description = "Contains function names in reverse"
     credit      = "Initially ported from https://github.com/jvoisin/php-malware-finder"
-    filetypes   = "text/x-php"
+    filetypes   = "php"
 
   strings:
     $php             = "<?php"
@@ -96,7 +96,7 @@ rule small_reversed_function_names: critical {
 rule php_str_replace_obfuscation: high {
   meta:
     description = "calls str_replace and uses obfuscated functions"
-    filetypes   = "text/x-php"
+    filetypes   = "php"
 
   strings:
     $str_replace        = "str_replace"
@@ -113,7 +113,7 @@ rule php_obfuscated_concat: medium {
   meta:
     description = "obfuscated PHP concatenation"
     credit      = "Ported from https://github.com/jvoisin/php-malware-finder"
-    filetypes   = "text/x-php"
+    filetypes   = "php"
 
   strings:
     $php    = "<?php"
@@ -127,7 +127,7 @@ rule php_obfuscated_concat_long: high {
   meta:
     description = "obfuscated PHP concatenation (long)"
     credit      = "Ported from https://github.com/jvoisin/php-malware-finder"
-    filetypes   = "text/x-php"
+    filetypes   = "php"
 
   strings:
     $php    = "<?php"
@@ -140,7 +140,7 @@ rule php_obfuscated_concat_long: high {
 rule obfuscated_concat_multiple: critical {
   meta:
     description = "obfuscated string concatenation (multiple)"
-    filetypes   = "text/x-php"
+    filetypes   = "php"
 
   strings:
     $php    = "<?php"
@@ -154,7 +154,7 @@ rule php_short_concat: medium {
   meta:
     description = "concatenates short strings"
     ref         = "https://blog.sucuri.net/2024/07/new-variation-of-wordfence-evasion-malware.html?ref=news.risky.biz"
-    filetypes   = "text/x-php"
+    filetypes   = "php"
 
   strings:
     $concat = /["'][\.\w\=]{0,6}["'] {0,1}[\.\+] {0,1}["'][\w\=]{0,6}["'] {0,1}[\.\+] {0,1}["'][\w\=]{0,6}["'] {0,1}[\.\+] {0,1}["'][\w\=]{0,4}["']/
@@ -167,7 +167,7 @@ rule php_short_concat_multiple: high {
   meta:
     description = "concatenates short strings (multiple)"
     ref         = "https://blog.sucuri.net/2024/07/new-variation-of-wordfence-evasion-malware.html?ref=news.risky.biz"
-    filetypes   = "text/x-php"
+    filetypes   = "php"
 
   strings:
     $concat = /["'][\.\w\=]{0,6}["'] {0,1}[\.\+] {0,1}["'][\w\=]{0,6}["'] {0,1}[\.\+] {0,1}["'][\w\=]{0,6}["'] {0,1}[\.\+] {0,1}["'][\w\=]{0,4}["']/
@@ -179,7 +179,7 @@ rule php_short_concat_multiple: high {
 rule strrev_multiple: medium {
   meta:
     description = "reverses strings an excessive number of times"
-    filetypes   = "text/x-php"
+    filetypes   = "php"
 
   strings:
     $ref  = "strrev("
@@ -192,7 +192,7 @@ rule strrev_multiple: medium {
 rule strrev_short: medium {
   meta:
     description = "reverses a short string"
-    filetypes   = "text/x-php"
+    filetypes   = "php"
 
   strings:
     $ref = /strrev\(['"][\w\=]{0,5}['"]\)/
@@ -204,7 +204,7 @@ rule strrev_short: medium {
 rule strrev_short_multiple: high {
   meta:
     description = "reverses multiple short strings"
-    filetypes   = "text/x-php"
+    filetypes   = "php"
 
   strings:
     $ref = /strrev\(['"][\w\=]{0,5}['"]\)/

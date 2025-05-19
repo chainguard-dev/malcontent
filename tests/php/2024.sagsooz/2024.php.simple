@@ -7,6 +7,7 @@ data/embedded/base64_url: medium
 data/embedded/html: medium
 data/encoding/base64: low
 discover/process/egid: medium
+evasion/indicator_blocking/mask_exceptions: medium
 evasion/time/php_no_limit: medium
 exec/shell/command: medium
 fs/directory/remove: low
