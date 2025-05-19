@@ -215,7 +215,7 @@ func makeFileType(path string, ext string, mime string) *FileType {
 		return Path(".elf")
 	}
 
-	if strings.Contains(mime, "application") || strings.Contains(mime, "text/x-") || strings.Contains(mime, "text/x-") || strings.Contains(mime, "executable") {
+	if strings.Contains(mime, "application") || strings.Contains(mime, "text/x-") || strings.Contains(mime, "executable") {
 		return &FileType{
 			Ext:  ext,
 			MIME: mime,
