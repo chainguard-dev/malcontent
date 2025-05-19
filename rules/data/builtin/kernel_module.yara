@@ -2,7 +2,7 @@ rule kmod: medium linux {
   meta:
     description = "Linux kernel module source code"
 
-    filetypes = "c,h"
+    filetypes = "c,h,hh"
 
   strings:
     $ref              = "<linux/kmod.h>"

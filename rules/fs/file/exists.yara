@@ -12,6 +12,7 @@ rule path_exists: low {
 rule java_exists: low {
   meta:
     description = "check if a file exists"
+    filetypes   = "java"
 
   strings:
     $ref  = "java/io/File" fullword

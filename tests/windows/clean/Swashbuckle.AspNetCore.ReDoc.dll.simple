@@ -1,9 +1,5 @@
 # windows/clean/Swashbuckle.AspNetCore.ReDoc.dll: medium
 anti-behavior/random_behavior: low
-anti-static/obfuscation/js: medium
-anti-static/obfuscation/math: medium
-anti-static/obfuscation/strtoi: medium
-anti-static/obfuscation/utf16: medium
 c2/client: medium
 c2/tool_transfer/arch: low
 c2/tool_transfer/os: low
@@ -30,7 +26,6 @@ discover/user/name_get: medium
 exec/cmd: medium
 exec/conditional/LANG: low
 exec/plugin: low
-exec/remote_commands/code_eval: medium
 exec/script/activex: medium
 exec/shell/SHELL: low
 exec/shell/TERM: low

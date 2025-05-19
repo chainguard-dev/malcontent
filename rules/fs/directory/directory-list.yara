@@ -41,11 +41,11 @@ rule bin_ls {
     any of them
 }
 
-rule NodeReadDir {
+rule node_readdir {
   meta:
     description = "Uses NodeJS functions to list a directory"
     pledge      = "rpath"
-    filetypes   = "javascript"
+    filetypes   = "js,ts"
 
   strings:
     $ref = ".readdirSync("
@@ -54,11 +54,11 @@ rule NodeReadDir {
     any of them
 }
 
-rule PythonListDir {
+rule python_listdir {
   meta:
     description = "lists contents of a directory"
     pledge      = "rpath"
-    filetypes   = "python"
+    filetypes   = "py"
 
   strings:
     $ref = ".listdir("
@@ -71,7 +71,7 @@ rule java_listdir {
   meta:
     description = "lists contents of a directory"
     pledge      = "rpath"
-    filetypes   = "class,java"
+    filetypes   = "jar,java"
 
   strings:
     $listFiles = "listFiles"

@@ -71,13 +71,19 @@ var supportedKind = map[string]string{
 	"h":       "text/x-h",
 	"hh":      "text/x-h",
 	"html":    "",
+	"jar":     "application/java-archive",
 	"java":    "text/x-java",
 	"js":      "application/javascript",
+	"ko":      "application/x-object",
 	"lnk":     "application/x-ms-shortcut",
 	"lua":     "text/x-lua",
+	"M":       "text/x-objectivec",
+	"m":       "text/x-objectivec",
 	"macho":   "application/x-mach-binary",
+	"mm":      "text/x-objectivec",
 	"md":      "",
 	"o":       "application/octet-stream",
+	"pe":      "application/vnd.microsoft.portable-executable",
 	"php":     "text/x-php",
 	"pl":      "text/x-perl",
 	"pm":      "text/x-script.perl-module",
@@ -209,7 +215,7 @@ func makeFileType(path string, ext string, mime string) *FileType {
 		return Path(".elf")
 	}
 
-	if strings.Contains(mime, "application") || strings.Contains(mime, "text/x-") || strings.Contains(mime, "text/x-") || strings.Contains(mime, "executable") {
+	if strings.Contains(mime, "application") || strings.Contains(mime, "text/x-") || strings.Contains(mime, "executable") {
 		return &FileType{
 			Ext:  ext,
 			MIME: mime,

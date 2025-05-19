@@ -52,6 +52,7 @@ rule net_hostlookup {
 rule nodejs: medium {
   meta:
     description = "resolve network host name to IP address"
+    filetypes   = "js,ts"
 
   strings:
     $resolve = "resolve4" fullword
@@ -63,6 +64,7 @@ rule nodejs: medium {
 rule go_resolve: medium {
   meta:
     description = "resolve network host name to IP address"
+    filetypes   = "elf,go,macho"
 
   strings:
     $resolve = "LookupHost" fullword

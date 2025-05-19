@@ -50,6 +50,7 @@ rule base64_suspicious_commands: critical {
 rule base64_exec: critical {
   meta:
     description = "executes base64 encoded commands"
+    filetypes   = "py"
 
   strings:
     $os_system = /os\.system\(b64[\"\'\(\)\w\=]{3,96}/ fullword
@@ -61,6 +62,7 @@ rule base64_exec: critical {
 rule echo_decode_bash: critical {
   meta:
     description = "executes base64 encoded shell commands"
+    filetypes   = "bash,sh,zsh"
 
   strings:
     $pipe  = /base64 {0,2}(-d|--decode) {0,2}\| {0,2}(bash|zsh|sh)/ fullword
@@ -75,6 +77,7 @@ import "math"
 rule echo_decode_bash_probable: high {
   meta:
     description = "likely pipes base64 into a shell"
+    filetypes   = "bash,sh,zsh"
 
   strings:
     $decode = /base64 {0,2}(-d|--decode)/ fullword
@@ -87,6 +90,7 @@ rule echo_decode_bash_probable: high {
 rule ruby_system_near_enough: critical {
   meta:
     description = "Executes commands from base64 content"
+    filetypes   = "rb"
 
   strings:
     $system   = /system\(["'\w\)]{0,16}/

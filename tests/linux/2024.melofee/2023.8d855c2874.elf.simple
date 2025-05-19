@@ -1,6 +1,7 @@
 # linux/2024.melofee/2023.8d855c2874.elf: critical
 anti-behavior/random_behavior: low
 c2/addr/ip: medium
+c2/discovery/ip_dns_resolver: medium
 credential/password: low
 credential/ssl/private_key: low
 crypto/aes: low
@@ -10,7 +11,6 @@ crypto/gost89: low
 crypto/openssl: medium
 crypto/public_key: low
 crypto/rc4: low
-data/base64/decode: medium
 data/builtin/openssl: medium
 data/compression/zlib: low
 data/encoding/base64: low

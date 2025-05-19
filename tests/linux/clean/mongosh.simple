@@ -1,6 +1,5 @@
 # linux/clean/mongosh: medium
 anti-behavior/random_behavior: low
-anti-static/obfuscation/hex: medium
 anti-static/obfuscation/obfuscate: low
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
@@ -25,8 +24,6 @@ crypto/openssl: medium
 crypto/public_key: low
 crypto/tls: low
 crypto/uuid: medium
-data/base64/decode: medium
-data/base64/encode: medium
 data/base64/external: medium
 data/compression/bzip2: low
 data/compression/gzip: low
@@ -57,13 +54,12 @@ discover/process/parent: low
 discover/process/working_directory: low
 discover/processes/list: medium
 discover/system/hostname: low
-discover/system/platform: medium
+discover/system/platform: low
 discover/system/sysinfo: medium
 discover/user/APPDATA: low
 discover/user/HOME: low
 discover/user/USER: low
 discover/user/USERPROFILE: medium
-discover/user/info: medium
 discover/user/name_get: low
 evasion/file/prefix: medium
 evasion/logging/acct: low
@@ -89,7 +85,6 @@ exec/tty/pathname: medium
 exfil/office_file_ext: medium
 exfil/stealer/credit_card: medium
 fs/directory/create: low
-fs/directory/list: low
 fs/directory/remove: low
 fs/file/append: low
 fs/file/capabilities_set: low
@@ -100,7 +95,6 @@ fs/file/delete_forcibly: low
 fs/file/open: low
 fs/file/read: low
 fs/file/rename: low
-fs/file/stat: low
 fs/file/times_set: medium
 fs/file/truncate: low
 fs/file/write: low

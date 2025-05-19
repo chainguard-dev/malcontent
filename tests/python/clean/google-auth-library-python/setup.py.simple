@@ -4,7 +4,6 @@ crypto/openssl: medium
 exec/imports/python: low
 exec/program: medium
 exec/remote_commands/code_eval: medium
-exec/shell/command: medium
 fs/file/open: low
 fs/file/read: low
 impact/remote_access/py_setuptools: medium

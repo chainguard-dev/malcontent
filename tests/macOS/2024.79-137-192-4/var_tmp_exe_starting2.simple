@@ -1,6 +1,5 @@
 # macOS/2024.79-137-192-4/var_tmp_exe_starting2: critical
 anti-static/xor/certs: high
-c2/tool_transfer/osascript: high
 evasion/file/location/var_tmp: medium
 exec/script/osa: high
 exec/shell/exec: medium
@@ -8,6 +7,5 @@ fs/file/make_executable: high
 fs/path/tmp: medium
 fs/path/var: low
 fs/permission/modify: medium
-impact/degrade/app: medium
 process/create: low
 process/multithreaded: low

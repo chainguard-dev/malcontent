@@ -43,7 +43,7 @@ rule init_module: medium linux {
     syscall     = "init_module"
     capability  = "CAP_SYS_MODULE"
 
-    filetypes = "ko,elf,so"
+    filetypes = "elf,ko,so"
 
   strings:
     $ref = "init_module" fullword
@@ -51,4 +51,3 @@ rule init_module: medium linux {
   condition:
     filesize < 1MB and all of them
 }
-

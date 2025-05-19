@@ -7,7 +7,6 @@ discover/network/interface_list: medium
 discover/system/platform: low
 evasion/bypass_security/linux/pam: medium
 evasion/indicator_blocking/process: high
-evasion/net/hide_ports: high
 evasion/rootkit/userspace: critical
 exec/dylib/symbol_address: medium
 exfil/stealer/pam: critical
@@ -25,4 +24,3 @@ net/ip/byte_order: medium
 net/ip/parse: medium
 net/socket/receive: low
 net/socket/send: low
-sus/compiler: medium

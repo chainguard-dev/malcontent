@@ -1,7 +1,7 @@
 rule py_exe_stealer: critical windows {
   meta:
     description = "Compiled Python Windows Stealer"
-    filetypes   = "py"
+    filetypes   = "exe,pe,py,pyc"
 
   strings:
     $installer      = "PyInstaller"

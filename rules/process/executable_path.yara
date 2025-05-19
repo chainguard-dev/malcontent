@@ -1,6 +1,7 @@
 rule python_sys_executable: medium {
   meta:
     description = "gets executable associated to this process"
+    filetypes   = "py"
 
   strings:
     $ref = "sys.executable" fullword

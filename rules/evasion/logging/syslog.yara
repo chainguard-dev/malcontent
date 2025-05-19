@@ -15,6 +15,7 @@ rule var_log_syslog: medium {
 rule var_log_syslog_elf: high {
   meta:
     description = "ELF binary that accesses system logs"
+    filetypes   = "elf"
 
   strings:
     $ref              = "/var/log/messages" fullword

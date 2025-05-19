@@ -1,6 +1,7 @@
 rule javascript_dropper: critical {
   meta:
     description = "Javascript dropper"
+    filetypes   = "js,ts"
 
   strings:
     $lh                = /require\(['"]https{0,1}['"]\)/

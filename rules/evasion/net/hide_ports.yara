@@ -11,6 +11,7 @@ private rule net_elf {
 rule hides_ports: high {
   meta:
     description = "may hide ports"
+    filetypes   = "elf,macho"
 
   strings:
     $bin_ss        = "/usr/bin/ss"

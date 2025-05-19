@@ -26,7 +26,7 @@ rule pip_installer: medium {
   meta:
     description = "Installs software using pip from python"
 
-    filetypes = "py,pyc,sh"
+    filetypes = "bash,py,pyc,sh,zsh"
 
   strings:
     $ref = /pip3{0,1}[ \'\"\,]{0,5}install[ \'\"\,]{0,5}[\w\-\_\%]{0,32}/
@@ -52,7 +52,7 @@ rule pip_installer_url: critical {
   meta:
     description = "Installs Python package from hardcoded URL"
     ref         = "https://checkmarx.com/blog/over-170k-users-affected-by-attack-using-fake-python-infrastructure/"
-    filetypes   = "py,pyc,sh"
+    filetypes   = "bash,py,pyc,sh,zsh"
 
   strings:
     $ref = /pip.{1,5}install.{1,4}https{0,1}:\/\/.{0,64}/

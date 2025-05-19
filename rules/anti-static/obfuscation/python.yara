@@ -1,23 +1,9 @@
 import "hash"
 
-private rule obfs_probably_python {
-  strings:
-    $import       = "import "
-    $f_common     = /\s(def|if|with|else|try|except:) /
-    $f_exotic     = /exec\(|b64decode|bytes\(/
-    $f_for        = /for [a-z] in/
-    $f_join       = ".join("
-    $f_requests   = /(from|import) requests/
-    $f_requests2  = "requests."
-    $f_subprocess = /subprocess.(Popen|run)/
-
-  condition:
-    filesize < 10MB and ($import in (1..1024) or any of ($f*))
-}
-
 rule py_indirect_builtins: suspicious {
   meta:
     description = "Indirectly refers to Python builtins"
+    filetypes   = "py"
 
   strings:
     $val = /getattr\(__builtins__,[ \w\.\)\)]{0,64}/
@@ -37,7 +23,7 @@ rule join_map_chr: high {
     $ref2 = /join\(chr\([a-z]{1,5}\) for [a-z]{1,5} in \[\d{1,3}, {0,2}\d{1,3}, {0,2}[\d\,]{1,32}/
 
   condition:
-    obfs_probably_python and filesize < 10MB and any of them
+    filesize < 10MB and any of them
 }
 
 rule for_join_ord: high {
@@ -49,18 +35,19 @@ rule for_join_ord: high {
     $ref = /for [\w]{1,10} in ["']{2}\.join\(chr\(ord\(\w{1,8}\)[-\w\), ]{0,16}/
 
   condition:
-    obfs_probably_python and filesize < 10MB and any of them
+    filesize < 10MB and any of them
 }
 
 rule codecs_decode: high {
   meta:
     description = "decodes text with an arbitrary codec"
+    filetypes   = "py"
 
   strings:
     $val = /[\w\= ]{0,16}codecs\.decode\(\'.{0,32}\'/
 
   condition:
-    obfs_probably_python and $val
+    $val
 }
 
 import "math"
@@ -68,6 +55,7 @@ import "math"
 rule python_exec_eval_one_line: critical {
   meta:
     description = "Evaluates code from encrypted content on a single line via exec or eval"
+    filetypes   = "py"
 
   strings:
     $f_eval_decrypt_one_line = /eval\s{0,32}\(.{0,32}decrypt/ ascii wide
@@ -76,7 +64,7 @@ rule python_exec_eval_one_line: critical {
     $not_opa2                = " (DEPRECATED: %s)decryption"
 
   condition:
-    obfs_probably_python and any of ($f*) and none of ($not*)
+    any of ($f*) and none of ($not*)
 }
 
 rule dynamic_require: high {
@@ -90,100 +78,108 @@ rule dynamic_require: high {
     $not_str = "require(str("
 
   condition:
-    obfs_probably_python and $import and $ref and none of ($not*)
+    $import and $ref and none of ($not*)
 }
 
 rule dynamic_require_decoded: critical {
   meta:
     description = "imports an obfuscated library dynamically"
     ref         = "https://blog.sucuri.net/2024/07/new-variation-of-wordfence-evasion-malware.html?ref=news.risky.biz"
+    filetypes   = "py"
 
   strings:
     $ref = /require\((strrev|base64_decode)\(.{0,64}\)/
 
   condition:
-    obfs_probably_python and $ref
+    $ref
 }
 
 rule dynamic_require_double_obscured: critical {
   meta:
     description = "imports an obfuscated library dynamically"
+    filetypes   = "py"
 
   strings:
     $ref = /require\(\w{0,16}\d\w{0,16}\(.{0,16}\d\w{0,16}/
 
   condition:
-    obfs_probably_python and $ref
+    $ref
 }
 
 rule python_eval_hex: high {
   meta:
     description = "evaluates code from an obfuscated data stream"
+    filetypes   = "py"
 
   strings:
     $hex   = /eval\(\"\\x\d{1,3}.{0,32}/
     $chars = /eval\(\"\\\d{1,3}.{0,32}/
 
   condition:
-    obfs_probably_python and any of them
+    any of them
 }
 
 rule python_eval_marshal: high {
   meta:
     description = "evaluates code from marshalled data"
+    filetypes   = "py"
 
   strings:
     $marshal = "eval(marshal.loads"
     $json    = "eval(json.loads"
 
   condition:
-    obfs_probably_python and any of them
+    any of them
 }
 
 rule python_eval_gzip: high {
   meta:
     description = "evaluates code from gzip content"
+    filetypes   = "py"
 
   strings:
     $ref = /eval\(.{0,32}\(gzip\.decompress\(b.{0,32}/
 
   condition:
-    obfs_probably_python and any of them
+    any of them
 }
 
 rule python_exec_hex: high {
   meta:
     description = "executs code from an obfuscated data stream"
+    filetypes   = "py"
 
   strings:
     $hex   = /exec\(\"\\x\d{1,3}.{0,32}/
     $chars = /exec\(\"\\\d{1,3}.{0,32}/
 
   condition:
-    obfs_probably_python and any of them
+    any of them
 }
 
 rule python_exec_marshal: high {
   meta:
     description = "evaluates code from marshalled data"
+    filetypes   = "py"
 
   strings:
     $marshal = "exec(marshal.loads"
     $json    = "exec(json.loads"
 
   condition:
-    obfs_probably_python and any of them
+    any of them
 }
 
 rule python_exec_gzip: high {
   meta:
     description = "executes code from gzip content"
+    filetypes   = "py"
 
   strings:
     $ref = /exec\(.{0,32}\(gzip\.decompress\(b.{0,32}/
 
   condition:
-    obfs_probably_python and any of them
+    any of them
 }
 
 rule fernet_base64: high {
@@ -207,7 +203,7 @@ rule fernet_base64: high {
     $not_fernet_itself = "class Fernet"
 
   condition:
-    obfs_probably_python and filesize < 2MB and any of ($fernet*) and any of ($bdecode*) and any of ($o*) and none of ($not*)
+    filesize < 2MB and any of ($fernet*) and any of ($bdecode*) and any of ($o*) and none of ($not*)
 }
 
 rule python_hex_decimal: high {
@@ -226,7 +222,7 @@ rule python_hex_decimal: high {
     $not_testing_t = "*testing.T" fullword
 
   condition:
-    obfs_probably_python and filesize < 10MB and any of ($f*) and #trash in (filesize - 1024..filesize) > 100 and none of ($not*)
+    filesize < 10MB and any of ($f*) and #trash in (filesize - 1024..filesize) > 100 and none of ($not*)
 }
 
 rule dumb_int_compares: high {
@@ -239,7 +235,7 @@ rule dumb_int_compares: high {
     $decode_or_b64decode = /if \d{2,16} == \d{2,16}/
 
   condition:
-    obfs_probably_python and filesize < 10MB and all of them
+    filesize < 10MB and all of them
 }
 
 rule py_lib_alias_val: medium {
@@ -253,7 +249,7 @@ rule py_lib_alias_val: medium {
     $val
 }
 
-rule multi_decode_3: medium {
+rule multi_decode_3: high {
   meta:
     description = "multiple (3+) levels of decoding"
     filetypes   = "py"
@@ -263,20 +259,7 @@ rule multi_decode_3: medium {
     $decode_or_b64decode = /\.[b64]{0,3}decode\(.{0,256}\.[b64]{0,3}decode\(.{0,256}\.[b64]{0,3}decode/
 
   condition:
-    obfs_probably_python and filesize < 10MB and all of them
-}
-
-rule multi_decode_3_smaller_file: high {
-  meta:
-    description = "multiple (3+) levels of decoding"
-    filetypes   = "py"
-
-  strings:
-    $return              = "return"
-    $decode_or_b64decode = /\.[b64]{0,3}decode\(.{0,256}\.[b64]{0,3}decode\(.{0,256}\.[b64]{0,3}decode/
-
-  condition:
-    obfs_probably_python and filesize < 256KB and all of them
+    filesize < 10MB and all of them
 }
 
 rule multi_decode: medium {
@@ -289,34 +272,37 @@ rule multi_decode: medium {
     $decode_or_b64decode = /\.[b64]{0,3}decode\(.{0,32}\.[b64]{0,3}decode\(/
 
   condition:
-    obfs_probably_python and filesize < 10MB and all of them
+    filesize < 10MB and all of them
 }
 
 rule rename_requests: medium {
   meta:
     description = "imports 'requests' library and gives it another name"
+    filetypes   = "py"
 
   strings:
     $ref = /import requests as \w{0,64}/
 
   condition:
-    obfs_probably_python and filesize < 10MB and all of them
+    filesize < 10MB and all of them
 }
 
 rule rename_requests_2char: high {
   meta:
     description = "imports 'requests' library and gives it a shorter name"
+    filetypes   = "py"
 
   strings:
     $ref = /import requests as \w{1,2}/ fullword
 
   condition:
-    obfs_probably_python and filesize < 32KB and all of them
+    filesize < 32KB and all of them
 }
 
 rule rename_os: high {
   meta:
     description = "imports 'os' library and gives it another name"
+    filetypes   = "py"
 
   strings:
     $ref            = /import os as \w{0,64}/
@@ -330,17 +316,19 @@ rule rename_os: high {
 rule rename_marshal: critical {
   meta:
     description = "imports 'marshal' library and gives it another name"
+    filetypes   = "py"
 
   strings:
     $ref = /import marshal as \w{0,64}/
 
   condition:
-    obfs_probably_python and filesize < 10MB and all of them
+    filesize < 10MB and all of them
 }
 
 rule rename_base64: critical {
   meta:
     description = "imports 'base64' library and gives it another name"
+    filetypes   = "py"
 
   strings:
     $ref = /import base64 as \w{0,64}/
@@ -359,17 +347,19 @@ rule rename_base64: critical {
 rule rename_zlib: high {
   meta:
     description = "imports 'base64' library and gives it another name"
+    filetypes   = "py"
 
   strings:
     $ref = /import zlib as \w{0,64}/
 
   condition:
-    obfs_probably_python and filesize < 10MB and all of them
+    filesize < 10MB and all of them
 }
 
 rule too_many_lambdas_small: high {
   meta:
     description = "lambda based obfuscation"
+    filetypes   = "py"
 
   strings:
     $ref = /lambda \W: \W [\+\-\*]/
@@ -381,17 +371,19 @@ rule too_many_lambdas_small: high {
 rule too_many_lambdas_large: high {
   meta:
     description = "lambda based obfuscation"
+    filetypes   = "py"
 
   strings:
     $ref = /lambda \W: \W [\+\-\*]/
 
   condition:
-    obfs_probably_python and filesize < 10MB and #ref > 100
+    filesize < 10MB and #ref > 100
 }
 
 rule lambda_funk: high {
   meta:
     description = "likely obfuscated with lambda functions"
+    filetypes   = "py"
 
   strings:
     $ = "__builtins__.__dict__"
@@ -402,12 +394,13 @@ rule lambda_funk: high {
     $ = ".decode('utf-8'))"
 
   condition:
-    obfs_probably_python and filesize < 10MB and 80 % of them
+    filesize < 10MB and 80 % of them
 }
 
 rule lambda_funk_high: high {
   meta:
     description = "obfuscated with lambda expressions"
+    filetypes   = "py"
 
   strings:
     $ = "__builtins__.__dict__"
@@ -424,6 +417,7 @@ rule lambda_funk_high: high {
 rule confusing_function_name: high {
   meta:
     description = "obfuscated with confusing function names"
+    filetypes   = "py"
 
   strings:
     $def    = /def [Il]{6,64}/
@@ -439,6 +433,7 @@ rule confusing_function_name: high {
 rule decompress_base64_entropy: high {
   meta:
     description = "hidden base64-encoded compressed content"
+    filetypes   = "py"
 
   strings:
     $k_lzma         = "lzma"
@@ -452,36 +447,39 @@ rule decompress_base64_entropy: high {
     $b64decode_long = /b64decode\(\"[\+\=\w\/]{96}/
 
   condition:
-    obfs_probably_python and filesize < 10MB and any of ($k*) and $b64decode_long and any of ($f*)
+    filesize < 10MB and any of ($k*) and $b64decode_long and any of ($f*)
 }
 
 rule join: low {
   meta:
     description = "joins array together with an empty delimiter"
+    filetypes   = "py"
 
   strings:
     $join        = "''.join("
     $join_double = "\"\".join("
 
   condition:
-    obfs_probably_python and any of them
+    any of them
 }
 
 rule join_chr_array: medium {
   meta:
     description = "joins lengthy character array"
+    filetypes   = "py"
 
   strings:
     $ref     = /[a-z]{1,64}\s{0,2}=\s{0,2}\[\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}/
     $chr_int = "chr(int("
 
   condition:
-    obfs_probably_python and join and all of them
+    join and all of them
 }
 
 rule join_chr_array_exec: high {
   meta:
     description = "joins lengthy character array and executes arbitrary code"
+    filetypes   = "py"
 
   strings:
     $val = /exec\(\w{1,32}\)/ fullword
@@ -493,6 +491,7 @@ rule join_chr_array_exec: high {
 rule join_chr_array_math: high {
   meta:
     description = "joins obfuscated character array"
+    filetypes   = "py"
 
   strings:
     $ref2 = /chr\(int\([a-z]{1,32}\)\s{0,2}[\-\*\+\^]\s{0,2}\w{1,32}/
@@ -504,6 +503,7 @@ rule join_chr_array_math: high {
 rule join_chr_array_exec_math: critical {
   meta:
     description = "joins obfuscated character array and executes arbitrary code"
+    filetypes   = "py"
 
   strings:
     $val = /exec\(\w{1,32}\)/ fullword
@@ -521,12 +521,13 @@ rule urllib_as_int_array: critical {
     $urllib_dot2 = "117, 114, 108, 108, 105, 98, 46"
 
   condition:
-    obfs_probably_python and filesize < 10MB and any of them
+    filesize < 10MB and any of them
 }
 
 rule import_manipulator: critical {
   meta:
     description = "manipulates globals and imports into executing obfuscated code"
+    filetypes   = "py"
 
   strings:
     $import  = "__import__("
@@ -541,12 +542,13 @@ rule import_manipulator: critical {
   condition:
     // a91160135598f3decc8ca9f9b019dcc5e1d73e79ebe639548cd9ee9e6d007ea6 is the sha256 hash
     // for https://github.com/pypy/pypy/blob/main/lib-python/2.7/pickle.py
-    obfs_probably_python and filesize < 10MB and (hash.sha256(0, filesize) != "a91160135598f3decc8ca9f9b019dcc5e1d73e79ebe639548cd9ee9e6d007ea6") and all of them
+    filesize < 10MB and (hash.sha256(0, filesize) != "a91160135598f3decc8ca9f9b019dcc5e1d73e79ebe639548cd9ee9e6d007ea6") and all of them
 }
 
 rule bloated_hex_python: high {
   meta:
     description = "python script bloated with obfuscated content"
+    filetypes   = "py"
 
   strings:
     $f_unhexlify = "unhexlify" fullword
@@ -564,5 +566,5 @@ rule bloated_hex_python: high {
     $not_highlight = "highlight"
 
   condition:
-    obfs_probably_python and filesize > 512KB and filesize < 10MB and 90 % of ($f*) and none of ($not*)
+    filesize > 512KB and filesize < 10MB and 90 % of ($f*) and none of ($not*)
 }

@@ -7,6 +7,7 @@ rule kiteshield: high {
     reference       = "https://blog.xlab.qianxin.com/kiteshield_packer_is_being_abused_by_linux_cyber_threat_actors"
     tool            = "Kiteshield"
     tool_repository = "https://github.com/GunshipPenguin/kiteshield"
+    filetypes       = "elf"
 
   strings:
     $loader_jmp = { 31 D2 31 C0 31 C9 31 F6 31 FF 31 ED 45 31 C0 45 31 C9 45 31 D2 45 31 DB 45 31 E4 45 31 ED 45 31 F6 45 31 FF 5B FF E3 }

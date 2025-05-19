@@ -20,6 +20,7 @@ private rule random_behavior_pythonSetup {
 rule setuptools_random: critical {
   meta:
     description = "Python library installer that exhibits random behavior"
+    filetypes   = "py"
 
   strings:
     $ref              = "import random"
@@ -32,6 +33,7 @@ rule setuptools_random: critical {
 rule java_random: low {
   meta:
     description = "exhibits random behavior"
+    filetypes   = "java"
 
   strings:
     $ref = "java/util/Random"
@@ -43,6 +45,7 @@ rule java_random: low {
 rule go_rand: medium {
   meta:
     description = "exhibits random behavior"
+    filetypes   = "go"
 
   strings:
     $ref = "math/rand"
@@ -54,6 +57,7 @@ rule go_rand: medium {
 rule rand_call: medium {
   meta:
     description = "exhibits random behavior"
+    filetypes   = "c,pl,php"
 
   strings:
     $ref = "rand()"

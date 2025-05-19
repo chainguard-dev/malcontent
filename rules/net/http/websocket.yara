@@ -16,6 +16,7 @@ rule websocket: medium {
 rule websocket_send_json: medium {
   meta:
     description = "uploads JSON data via web socket"
+    filetypes   = "js,ts"
 
   strings:
     $send = "ws.send(JSON.stringify("

@@ -1,7 +1,7 @@
 rule raise_hard_error: medium windows {
   meta:
     description = "crashes (bluescreens) the machine"
-    filetypes   = "py,exe"
+    filetypes   = "exe,pe,py"
 
   strings:
     $crash = "NtRaiseHardError" fullword

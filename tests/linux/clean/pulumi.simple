@@ -1,11 +1,12 @@
 # linux/clean/pulumi: medium
-anti-behavior/random_behavior: medium
+anti-behavior/random_behavior: low
 anti-static/obfuscation/syscall: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/addr/server: medium
 c2/addr/url: low
 c2/client: medium
+c2/discovery/ip_dns_resolver: medium
 c2/tool_transfer/arch: low
 c2/tool_transfer/download: medium
 c2/tool_transfer/os: medium
@@ -64,7 +65,6 @@ evasion/file/prefix: medium
 exec/cmd: medium
 exec/cmd/pipe: medium
 exec/conditional/LANG: low
-exec/install_additional/pip_install: medium
 exec/plugin: low
 exec/program: medium
 exec/program/background: low

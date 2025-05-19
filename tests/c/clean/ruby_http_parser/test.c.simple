@@ -18,7 +18,6 @@ net/http/request: low
 net/http/websocket: medium
 net/ip/host_port: medium
 net/socket/send: low
-net/udp/kcp: medium
 net/udp/upnp: medium
 net/url/embedded: low
 net/url/encode: medium

@@ -3,7 +3,7 @@ rule kallsyms_lookup: high linux {
     description = "access unexported kernel symbols"
     ref         = "https://lwn.net/Articles/813350/"
 
-    filetypes = "so,elf"
+    filetypes = "c,elf,so"
 
   strings:
     $ref           = "kallsyms_lookup_name" fullword
@@ -29,7 +29,7 @@ rule kallsyms: medium linux {
 rule bpftrace: override linux {
   meta:
     description = "bpftrace"
-    filetypes   = "so,elf"
+    filetypes   = "c,elf,so"
     kallsyms    = "medium"
 
   strings:
@@ -42,7 +42,7 @@ rule bpftrace: override linux {
 rule bpf: override linux {
   meta:
     description     = "libbpf"
-    filetypes       = "so,elf"
+    filetypes       = "c,so,elf"
     kallsyms_lookup = "medium"
     proc_d_exe_high = "medium"
     proc_d_cmdline  = "medium"

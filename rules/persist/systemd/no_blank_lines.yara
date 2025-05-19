@@ -1,6 +1,7 @@
 rule systemd_no_blank_lines: high {
   meta:
-    ref = "https://sandflysecurity.com/blog/log4j-kinsing-linux-malware-in-the-wild/"
+    ref       = "https://sandflysecurity.com/blog/log4j-kinsing-linux-malware-in-the-wild/"
+    filetypes = "service"
 
   strings:
     $execstart  = "ExecStart"

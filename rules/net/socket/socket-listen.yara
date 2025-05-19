@@ -19,6 +19,7 @@ rule go_listen: medium {
     description = "listen on a socket"
     pledge      = "inet"
     syscall     = "accept"
+    filetypes   = "elf,go,macho"
 
   strings:
     $net_listen = "net.Listen"
@@ -49,6 +50,7 @@ rule netcat_listener: medium {
 rule ruby_listener: medium {
   meta:
     description = "listens at a TCP socket"
+    filetypes   = "rb"
 
   strings:
     $socket_tcp = "Socket.tcp_server"

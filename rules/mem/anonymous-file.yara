@@ -17,6 +17,7 @@ rule go_memfd_create: high {
     syscall     = "memfd_create"
     description = "create an anonymous file"
     capability  = "CAP_IPC_LOCK"
+    filetypes   = "elf,go,macho"
 
   strings:
     $go = "MemfdCreate"

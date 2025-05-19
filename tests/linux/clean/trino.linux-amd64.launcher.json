@@ -40,15 +40,22 @@
             ],
             "Behaviors": [
                 {
-                    "Description": "exhibits random behavior",
+                    "Description": "uses a random number generator",
                     "MatchStrings": [
-                        "math/rand"
+                        "readTimeRandom",
+                        "rand_getrandom",
+                        "urandomECDSA",
+                        "randomOrder",
+                        "readRandom",
+                        "randomEnum",
+                        "GetRandom",
+                        "getRandom"
                     ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-behavior/random_behavior.yara#go_rand",
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-behavior/random_behavior.yara#random",
                     "ID": "anti-behavior/random_behavior",
-                    "RuleName": "go_rand"
+                    "RuleName": "random"
                 },
                 {
                     "Description": "mentions an IP and port",
@@ -856,41 +863,6 @@
                     "RuleName": "random"
                 },
                 {
-                    "Description": "Obfuscated ELF binary (missing symbols)",
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/elf/content.yara#obfuscated_elf",
-                    "ID": "anti-static/elf/content",
-                    "RuleName": "obfuscated_elf"
-                },
-                {
-                    "Description": "high entropy footer in ELF binary (\u003e7.4)",
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/elf/entropy.yara#normal_elf_high_entropy_7_4",
-                    "ID": "anti-static/elf/entropy",
-                    "RuleName": "normal_elf_high_entropy_7_4"
-                },
-                {
-                    "Description": "high entropy ELF header (\u003e7)",
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/elf/header.yara#high_entropy_header",
-                    "ID": "anti-static/elf/header",
-                    "RuleName": "high_entropy_header"
-                },
-                {
-                    "Description": "multiple ELF binaries within an ELF binary",
-                    "MatchStrings": [
-                        "$elf_head"
-                    ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/elf/multiple.yara#multiple_elf",
-                    "ID": "anti-static/elf/multiple",
-                    "RuleName": "multiple_elf"
-                },
-                {
                     "Description": "Linux ELF binary packed with UPX",
                     "MatchStrings": [
                         "This file is packed",
@@ -902,17 +874,6 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/packer/upx.yara#upx",
                     "ID": "anti-static/packer/upx",
                     "RuleName": "upx"
-                },
-                {
-                    "Description": "binary contains hardcoded URL",
-                    "MatchStrings": [
-                        "http://upx.sf.net"
-                    ],
-                    "RiskScore": 1,
-                    "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/url.yara#binary_with_url",
-                    "ID": "c2/addr/url",
-                    "RuleName": "binary_with_url"
                 },
                 {
                     "Description": "references a specific architecture",

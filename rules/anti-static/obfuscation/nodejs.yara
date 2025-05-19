@@ -1,6 +1,7 @@
 rule nodejs_buffer_from: medium {
   meta:
     description = "loads arbitrary bytes from a buffer"
+    filetypes   = "js,ts"
 
   strings:
     $ref = /Buffer\.from\(\[[\d,]{8,63}\)/
@@ -12,6 +13,7 @@ rule nodejs_buffer_from: medium {
 rule nodejs_buffer_from_many: high {
   meta:
     description = "loads many arbitrary bytes from a buffer"
+    filetypes   = "js,ts"
 
   strings:
     $ref = /Buffer\.from\(\[[\d,]{63,2048}/

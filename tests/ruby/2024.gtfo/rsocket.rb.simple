@@ -1,5 +1,4 @@
 # ruby/2024.gtfo/rsocket.rb: high
 exec/cmd/pipe: medium
-fs/file/read: low
 impact/remote_access/reverse_shell: high
 net/tcp/connect: medium

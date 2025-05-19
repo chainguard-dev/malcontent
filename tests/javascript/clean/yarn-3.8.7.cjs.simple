@@ -1,9 +1,5 @@
 # javascript/clean/yarn-3.8.7.cjs: medium
 anti-behavior/random_behavior: low
-anti-static/obfuscation/bitwise: medium
-anti-static/obfuscation/hex: medium
-anti-static/obfuscation/js: medium
-anti-static/obfuscation/math: medium
 c2/addr/ip: medium
 c2/tool_transfer/arch: low
 c2/tool_transfer/github: medium
@@ -25,7 +21,7 @@ data/encoding/utf16: medium
 discover/network/interface_list: medium
 discover/process/parent: low
 discover/process/working_directory: low
-discover/system/platform: medium
+discover/system/platform: low
 discover/user/USER: low
 discover/user/USERPROFILE: low
 discover/user/name_get: medium
@@ -35,14 +31,12 @@ exec/program: medium
 exec/shell/TERM: low
 exec/shell/exec: medium
 fs/directory/create: low
-fs/directory/list: low
 fs/directory/remove: low
 fs/file/append: low
 fs/file/copy: medium
 fs/file/delete: low
 fs/file/delete_forcibly: medium
 fs/file/read: low
-fs/file/stat: low
 fs/file/times_set: medium
 fs/file/truncate: low
 fs/file/write: low

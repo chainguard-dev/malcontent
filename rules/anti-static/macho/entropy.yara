@@ -8,6 +8,7 @@ private rule smaller_macho {
 rule higher_entropy_6_9: medium {
   meta:
     description = "higher entropy binary (>6.9)"
+    filetypes   = "macho"
 
   condition:
     smaller_macho and math.entropy(1, filesize) >= 6.9
@@ -16,6 +17,7 @@ rule higher_entropy_6_9: medium {
 rule high_entropy_7_2: high {
   meta:
     description = "high entropy binary (>7.2)"
+    filetypes   = "macho"
 
   strings:
     // prevent bazel false positive

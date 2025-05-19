@@ -2,6 +2,7 @@ rule base64_encode: medium python {
   meta:
     description = "encode base64 strings"
     ref         = "https://docs.python.org/3/library/base64.html"
+    filetypes   = "py"
 
   strings:
     $b64encode = "b64encode"
@@ -13,6 +14,7 @@ rule base64_encode: medium python {
 rule py_base64_encode: medium php {
   meta:
     description = "encode base64 strings"
+    filetypes   = "php"
 
   strings:
     $b64encode = "base64_encode"
@@ -24,6 +26,7 @@ rule py_base64_encode: medium php {
 rule ruby_base64_encode: medium ruby {
   meta:
     description = "encode base64 strings"
+    filetypes   = "rb"
 
   strings:
     $b64encode = /[\._]encode64/
@@ -36,6 +39,7 @@ rule urlsafe_encode64: medium ruby {
   meta:
     description = "encode base64 strings"
     ref         = "https://ruby-doc.org/3.3.0/stdlibs/base64/Base64.html"
+    filetypes   = "rb"
 
   strings:
     $urlsafe_encode64_ruby = "urlsafe_encode64"
@@ -48,6 +52,7 @@ rule powershell_encode: medium {
   meta:
     description = "encode base64 strings"
     ref         = "https://learn.microsoft.com/en-us/dotnet/api/system.convert.frombase64string?view=net-8.0"
+    filetypes   = "ps1"
 
   strings:
     $ref = /System\.Convert[\]: ]+ToBase64String/ ascii
@@ -59,6 +64,7 @@ rule powershell_encode: medium {
 rule java_base64_encode: medium {
   meta:
     description = "encode base64 strings"
+    filetypes   = "jar,java"
 
   strings:
     $ref  = "Base64$Encoder"

@@ -4,6 +4,7 @@ anti-static/obfuscation/python: medium
 c2/addr/ip: medium
 c2/addr/url: medium
 c2/connect/ping_pong: medium
+c2/discovery/ip_dns_resolver: medium
 c2/refs: high
 c2/tool_transfer/os: low
 credential/password: low

@@ -1,6 +1,5 @@
 # javascript/clean/connection.js: medium
 anti-behavior/random_behavior: low
-anti-static/obfuscation/hex: medium
 c2/client: medium
 c2/tool_transfer/os: low
 credential/password: low
@@ -11,7 +10,6 @@ data/embedded/base64_terms: medium
 data/embedded/base64_url: medium
 data/encoding/base64: low
 discover/system/hostname: low
-exec/remote_commands/code_eval: medium
 net/dns: low
 net/http: low
 net/ip/host_port: medium

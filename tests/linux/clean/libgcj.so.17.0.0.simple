@@ -2,7 +2,6 @@
 3P/JPCERT/cobaltstrike_v3v4: medium
 anti-behavior/random_behavior: low
 c2/addr/ip: medium
-c2/addr/url: low
 c2/tool_transfer/os: medium
 credential/password: low
 credential/ssl/private_key: low
@@ -43,12 +42,10 @@ exec/shell/SHELL: low
 exec/shell/command: medium
 exfil/office_file_ext: medium
 fs/directory/create: low
-fs/directory/list: low
 fs/directory/remove: low
 fs/file/copy: medium
 fs/file/delete: medium
 fs/file/open: low
-fs/file/rename: low
 fs/file/times_set: medium
 fs/file/truncate: low
 fs/file/write: low

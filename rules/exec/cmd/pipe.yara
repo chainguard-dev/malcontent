@@ -23,6 +23,7 @@ rule popen_go: medium {
     description = "launches program and reads its output"
     syscall     = "pipe"
     ref         = "https://linux.die.net/man/3/popen"
+    filetypes   = "elf,go,macho"
 
   strings:
     $exec = "exec"

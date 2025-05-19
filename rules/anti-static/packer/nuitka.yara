@@ -3,6 +3,7 @@ import "math"
 rule nuitka: critical {
   meta:
     description = "packed with Nuitka (Python compiler)"
+    filetypes   = "py"
 
   strings:
     $old = "onefile_%PID%_%TIME%"

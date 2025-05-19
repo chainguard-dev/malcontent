@@ -1,6 +1,7 @@
 rule syscall: medium {
   meta:
     description = "directly invokes syscalls"
+    filetypes   = "rb"
 
   strings:
     $ruby    = "ruby" fullword

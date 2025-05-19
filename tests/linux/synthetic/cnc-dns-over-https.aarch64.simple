@@ -1,5 +1,5 @@
 # linux/synthetic/cnc-dns-over-https.aarch64: high
-anti-behavior/random_behavior: medium
+anti-behavior/random_behavior: low
 c2/addr/ip: high
 c2/addr/url: low
 c2/discovery/ip_dns_resolver: medium

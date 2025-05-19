@@ -1,6 +1,7 @@
 rule pyobfuscate: high {
   meta:
     description = "uses 'pyobfuscate' packer"
+    filetypes   = "py"
 
   strings:
     $def         = "def" fullword

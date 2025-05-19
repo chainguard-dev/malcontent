@@ -5,7 +5,6 @@ discover/system/platform: medium
 evasion/file/prefix: medium
 exec/install_additional/pip_install: medium
 exec/program: medium
-exec/shell/command: medium
 fs/directory/list: low
 fs/directory/traverse: medium
 fs/file/delete: low

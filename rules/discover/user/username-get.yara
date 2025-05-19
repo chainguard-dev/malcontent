@@ -47,6 +47,7 @@ private rule user_pythonSetup {
 rule pysetup_gets_login: high {
   meta:
     description = "Python library installer gets login information"
+    filetypes   = "py"
 
   strings:
     $ref  = "os.getlogin" fullword

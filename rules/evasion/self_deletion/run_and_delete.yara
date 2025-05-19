@@ -39,6 +39,7 @@ rule fetch_run_sleep_delete: critical {
 private rule run_delete_py_fetcher: medium {
   meta:
     description = "fetches content"
+    filetypes   = "py"
 
   strings:
     $http_requests      = "requests.get" fullword
@@ -56,6 +57,7 @@ private rule run_delete_py_fetcher: medium {
 rule python_setsid_remove: high {
   meta:
     description = "fetch, run in background, delete"
+    filetypes   = "py"
 
   strings:
     $subprocess = /subprocess.\w{1,32}\([\"\'\/\w\ \-\)]{0,64}/

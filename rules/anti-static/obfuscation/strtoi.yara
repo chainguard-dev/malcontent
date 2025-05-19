@@ -1,6 +1,7 @@
 rule sketchy_parseint_math: medium {
   meta:
     description = "complex math and string to integer conversion"
+    filetypes   = "js,ts"
 
   strings:
     $m1         = /\d{2,16}[\-\+\*\^]\w{1,8}/

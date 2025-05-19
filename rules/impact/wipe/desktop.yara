@@ -1,6 +1,7 @@
 rule USERPROFILE_delete: high {
   meta:
     description = "deletes files in the USERPROFILE directory"
+    filetypes   = "py"
 
   strings:
     $appdata = "USERPROFILE" fullword
@@ -14,6 +15,7 @@ rule USERPROFILE_delete: high {
 rule Desktop_delete: critical {
   meta:
     description = "deletes files in the Desktop directory"
+    filetypes   = "py"
 
   strings:
     $appdata = "USERPROFILE" fullword

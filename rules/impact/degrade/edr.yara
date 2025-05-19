@@ -20,7 +20,7 @@ rule win_kill_proc: medium windows {
 rule win_edr_stopper: critical windows {
   meta:
     description = "Stops EDR/Antivirus services"
-    filetypes   = "exe,dll"
+    filetypes   = "bat,exe,pe"
 
   strings:
     $kind_malwarebytes = "alwarebytes"
@@ -30,7 +30,7 @@ rule win_edr_stopper: critical windows {
     filesize < 1MB and $stop and any of ($kind*)
 }
 
-rule linux_edr_killlall: critical linux {
+rule linux_edr_killall: critical linux {
   meta:
     description = "Kills EDR/Antivirus services"
 
@@ -67,7 +67,7 @@ rule linux_edr_unistall: critical linux {
 rule linux_edr_kill: high linux {
   meta:
     description = "Kills EDR/Antivirus services"
-    filetypes   = "exe,dll"
+    filetypes   = "bat,exe,pe"
 
   strings:
     $kill           = "kill"

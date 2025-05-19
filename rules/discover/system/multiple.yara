@@ -41,6 +41,7 @@ rule hostinfo_collector_api: high macos {
 rule hostinfo_collector_npm: critical {
   meta:
     description = "collects an unusual amount of host information"
+    filetypes   = "js,ts"
 
   strings:
     $f_userInfo = "os.userInfo()"
