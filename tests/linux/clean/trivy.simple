@@ -1,6 +1,7 @@
 # linux/clean/trivy: medium
 anti-behavior/random_behavior: low
 anti-static/elf/multiple: medium
+anti-static/obfuscation/syscall: medium
 c2/addr/discord: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
@@ -23,7 +24,6 @@ credential/cloud/g: medium
 credential/keychain: medium
 credential/password: low
 credential/server/htpasswd: medium
-credential/sniffer/bpf: medium
 credential/ssl/private_key: low
 crypto/aes: low
 crypto/blockchain: medium
@@ -53,6 +53,7 @@ data/encoding/json_decode: low
 data/encoding/json_encode: low
 data/encoding/yaml: low
 data/hash/blake2b: low
+data/hash/fnv: low
 data/hash/md5: medium
 data/hash/sha1: low
 data/random/insecure: low
@@ -76,6 +77,7 @@ evasion/file/location/dev_shm: medium
 evasion/file/location/var_run: medium
 evasion/file/prefix: medium
 exec/cmd: medium
+exec/cmd/pipe: medium
 exec/conditional/LANG: low
 exec/dylib/symbol_address: medium
 exec/install_additional/package_install: medium
@@ -167,12 +169,14 @@ net/ip/host_port: medium
 net/ip/icmp: medium
 net/ip/multicast_send: low
 net/ip/parse: medium
+net/ip/resolve: low
 net/ip/syncookie: medium
 net/proxy/socks5: medium
 net/proxy/tunnel: medium
-net/resolve/hostname: low
+net/resolve/hostname: medium
 net/socket/listen: medium
 net/socket/local_addr: low
+net/socket/options_set: medium
 net/socket/peer_address: low
 net/socket/receive: low
 net/socket/send: low

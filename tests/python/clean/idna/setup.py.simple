@@ -1,5 +1,4 @@
 # python/clean/idna/setup.py: medium
-c2/addr/url: medium
 exec/imports/python: low
 exec/remote_commands/code_eval: medium
 fs/file/open: low

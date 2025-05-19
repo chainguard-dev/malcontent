@@ -1,6 +1,5 @@
 # php/clean/run-tests.php: medium
 anti-behavior/random_behavior: low
-c2/addr/url: medium
 c2/tool_transfer/os: low
 data/base64/decode: medium
 data/base64/encode: medium

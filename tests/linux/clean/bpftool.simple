@@ -1,7 +1,6 @@
 # linux/clean/bpftool: medium
 anti-behavior/random_behavior: low
 anti-static/elf/multiple: medium
-credential/sniffer/bpf: medium
 crypto/rc4: low
 discover/network/interface: low
 discover/system/platform: low

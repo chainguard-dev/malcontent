@@ -1,5 +1,6 @@
 # linux/clean/buildah: medium
-anti-behavior/random_behavior: low
+anti-behavior/random_behavior: medium
+anti-static/obfuscation/syscall: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/addr/url: low
@@ -11,7 +12,6 @@ collect/archives/zip: medium
 collect/databases/sqlite: medium
 credential/keychain: medium
 credential/password: low
-credential/sniffer/bpf: medium
 credential/ssl/private_key: low
 crypto/aes: low
 crypto/cipher: medium
@@ -34,6 +34,7 @@ data/encoding/json: low
 data/encoding/json_decode: low
 data/encoding/yaml: low
 data/hash/blake2b: low
+data/hash/fnv: low
 data/hash/md5: low
 discover/network/mac_address: medium
 discover/process/name: medium
@@ -50,6 +51,7 @@ evasion/file/location/var_run: medium
 evasion/file/prefix: medium
 evasion/file/prefix/dev: low
 exec/cmd: medium
+exec/cmd/pipe: medium
 exec/dylib/symbol_address: medium
 exec/plugin: low
 exec/program: medium
@@ -129,10 +131,12 @@ net/http/request: low
 net/ip/host_port: medium
 net/ip/icmp: medium
 net/ip/parse: medium
-net/resolve/hostname: low
+net/ip/resolve: low
+net/resolve/hostname: medium
 net/resolve/hostport_parse: low
 net/socket/listen: medium
 net/socket/local_addr: low
+net/socket/options_set: medium
 net/socket/peer_address: low
 net/socket/receive: low
 net/socket/send: low

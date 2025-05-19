@@ -1,5 +1,6 @@
 # linux/clean/kolide/launcher: medium
-anti-behavior/random_behavior: low
+anti-behavior/random_behavior: medium
+anti-static/obfuscation/syscall: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/addr/url: low
@@ -30,6 +31,7 @@ data/encoding/base64: low
 data/encoding/json: low
 data/encoding/json_decode: low
 data/hash/blake2b: low
+data/hash/fnv: low
 data/hash/md5: low
 discover/network/netstat: medium
 discover/processes/list: medium
@@ -40,6 +42,7 @@ discover/user/USER: low
 evasion/file/prefix: medium
 evasion/logging/acct: low
 exec/cmd: medium
+exec/cmd/pipe: medium
 exec/plugin: low
 exec/program: medium
 exec/shell/TERM: low
@@ -99,11 +102,13 @@ net/http/request: low
 net/ip/host_port: medium
 net/ip/icmp: medium
 net/ip/parse: medium
+net/ip/resolve: low
 net/ip/tcp_state_tracker: medium
-net/resolve/hostname: low
+net/resolve/hostname: medium
 net/resolve/hostport_parse: low
 net/socket/listen: medium
 net/socket/local_addr: low
+net/socket/options_set: medium
 net/socket/peer_address: low
 net/socket/receive: low
 net/socket/send: low

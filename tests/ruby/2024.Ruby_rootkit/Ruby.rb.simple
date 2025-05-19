@@ -1,5 +1,4 @@
 # ruby/2024.Ruby_rootkit/Ruby.rb: critical
-c2/addr/url: medium
 c2/refs: high
 evasion/rootkit/refs: high
 exec/shell/exec: medium

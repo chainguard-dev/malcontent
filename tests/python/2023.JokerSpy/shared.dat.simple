@@ -3,7 +3,6 @@
 3P/JPCERT/crypthunter_pythonsimplerat: critical
 anti-behavior/random_behavior: low
 anti-static/obfuscation/python: high
-c2/addr/url: medium
 c2/tool_transfer/python: high
 data/base64/decode: medium
 data/base64/encode: medium

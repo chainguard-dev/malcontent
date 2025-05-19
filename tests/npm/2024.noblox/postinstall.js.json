@@ -1820,7 +1820,7 @@
                     "RuleName": "excessive_hex_refs"
                 },
                 {
-                    "Description": "javascript function obfuscation (hex)",
+                    "Description": "javascript obfuscation (integer parsing)",
                     "MatchStrings": [
                         "return _0x46844b(_0x4f512e",
                         "return _0x1bfdb5(_0x3d15bf",
@@ -2210,17 +2210,6 @@
                     "RuleName": "sketchy_parseint_math"
                 },
                 {
-                    "Description": "contains hardcoded endpoint with a question mark",
-                    "MatchStrings": [
-                        "require"
-                    ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/url.yara#http_url_with_question",
-                    "ID": "c2/addr/url",
-                    "RuleName": "http_url_with_question"
-                },
-                {
                     "Description": "performs math directly against parsed integers",
                     "MatchStrings": [
                         "-parseInt(",
@@ -2291,8 +2280,8 @@
                     "RuleName": "exclamations"
                 }
             ],
-            "RiskScore": 4,
-            "RiskLevel": "CRITICAL"
+            "RiskScore": 3,
+            "RiskLevel": "HIGH"
         }
     }
 }

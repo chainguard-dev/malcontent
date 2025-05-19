@@ -35,7 +35,7 @@ rule js_char_code_at_substitution: high {
     filesize < 256KB and all of them
 }
 
-rule child_process: critical {
+rule child_process: high {
   meta:
     description = "obfuscated javascript that calls external programs"
     filetypes   = "application/javascript"
@@ -54,7 +54,7 @@ rule child_process: critical {
     filesize < 1MB and all of them and math.entropy(1, filesize) >= 6
 }
 
-rule ebe: critical {
+rule ebe: high {
   meta:
     description = "highly obfuscated javascript (eBe)"
     filetypes   = "application/javascript"
@@ -137,7 +137,7 @@ rule js_hex_obfuscation: high {
     filesize < 1MB and any of them
 }
 
-rule multiple_js_hex_obfuscation: critical {
+rule js_hex_obfuscation: high {
   meta:
     description = "javascript function obfuscation (hex)"
     filetypes   = "application/javascript"
@@ -159,7 +159,7 @@ rule high_entropy: medium {
     math.entropy(1, filesize) >= 6
 }
 
-rule very_high_entropy: critical {
+rule very_high_entropy: high {
   meta:
     description = "very high entropy javascript (>7)"
     filetypes   = "application/javascript"
@@ -326,11 +326,59 @@ rule high_entropy_charAt: medium {
     filetypes   = "application/javascript"
 
   strings:
-    $ = "charAt("
-    $ = "substr("
-    $ = "join("
-    $ = "function("
-    $ = "for("
+    $           = "charAt("
+    $           = "substr("
+    $           = "join("
+    $s_function = /function\s{0,2}\(/
+    $s_for      = /for\s{0,2}\(/
+
+  condition:
+    obfs_probably_js and math.entropy(1, filesize) >= 5.37 and all of them
+}
+
+rule charAt_long_string: medium {
+  meta:
+    description = "uses charAt/substr/join loops with a long variable"
+
+  strings:
+    $s_charAt   = "charAt("
+    $s_substr   = "substr("
+    $s_join     = "join("
+    $s_function = /function\s{0,2}\(/
+    $s_for      = /for\s{0,2}\(/
+
+    $long_string  = /\([\'\"]\w{32,1024}[\"\']\)/
+    $long_garbage = /['"][\w\~\!\@\#\$\%\^\&\*\(\)\{\}\?\+\/\/\=\-\;\[\]\.><\,\`\'\"_\\:]{16,256}[\s\%\$]{1,2}[\w\~\!\@\#\$\%\^\&\*\(\)\{\}\?\+\/\/\=\-\;\[\]\.><\,\`\'\"_\\:]{0,256}/
+
+  condition:
+    obfs_probably_js and all of ($s*) and any of ($long*)
+}
+
+rule charAt_long_vars: medium {
+  meta:
+    description = "uses charAt/substr/join loops with long variables"
+
+  strings:
+    $s_charAt   = "charAt("
+    $s_substr   = "substr("
+    $s_join     = "join("
+    $s_function = /function\s{0,2}\(/
+    $s_for      = /for\s{0,2}\(/
+
+    $long_string  = /\([\'\"]\w{32,1024}[\"\']\)/
+    $long_garbage = /['"][\w\~\!\@\#\$\%\^\&\*\(\)\{\}\?\+\/\/\=\-\;\[\]\.><\,\`\'\"_\\:]{16,256}[\s\%\$]{1,2}[\w\~\!\@\#\$\%\^\&\*\(\)\{\}\?\+\/\/\=\-\;\[\]\.><\,\`\'\"_\\:]{0,256}/
+
+  condition:
+    obfs_probably_js and all of ($s*) and (#long_string + #long_garbage) > 3
+}
+
+rule obfuscated_require: high {
+  meta:
+    description = "sets variable to the 'require' keyword"
+
+  strings:
+    $ = /global\[\"\w{1,16}\"\]\s{0,2}=\s{0,2}require;/
+    $ = /var \w{1,16}\s{0,2}=\s{0,2}require;/
 
   condition:
     math.entropy(1, filesize) >= 5.37 and all of them

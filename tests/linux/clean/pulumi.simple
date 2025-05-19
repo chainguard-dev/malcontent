@@ -1,5 +1,6 @@
 # linux/clean/pulumi: medium
-anti-behavior/random_behavior: low
+anti-behavior/random_behavior: medium
+anti-static/obfuscation/syscall: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/addr/server: medium
@@ -40,6 +41,7 @@ data/encoding/json_decode: low
 data/encoding/json_encode: low
 data/encoding/yaml: low
 data/hash/blake2b: low
+data/hash/fnv: low
 data/hash/md5: low
 data/hash/sha1: low
 data/hash/sha256: low
@@ -61,6 +63,7 @@ discover/user/USER: low
 discover/user/name_get: medium
 evasion/file/prefix: medium
 exec/cmd: medium
+exec/cmd/pipe: medium
 exec/conditional/LANG: low
 exec/plugin: low
 exec/program: medium
@@ -133,9 +136,10 @@ net/ip/multicast_send: low
 net/ip/parse: medium
 net/ip/resolve: low
 net/proxy/socks5: medium
-net/resolve/hostname: low
+net/resolve/hostname: medium
 net/socket/listen: medium
 net/socket/local_addr: low
+net/socket/options_set: medium
 net/socket/pair: medium
 net/socket/peer_address: low
 net/socket/receive: low

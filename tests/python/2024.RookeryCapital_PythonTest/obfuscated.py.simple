@@ -2,7 +2,6 @@
 anti-behavior/random_behavior: low
 anti-static/base64/eval: high
 anti-static/obfuscation/python: high
-c2/addr/url: medium
 data/base64/decode: medium
 data/encoding/base64: low
 discover/system/platform: medium

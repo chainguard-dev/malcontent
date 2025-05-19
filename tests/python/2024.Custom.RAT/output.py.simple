@@ -1,7 +1,6 @@
 # python/2024.Custom.RAT/output.py: critical
 anti-behavior/random_behavior: low
 c2/addr/discord: medium
-c2/addr/url: medium
 c2/tool_transfer/arch: low
 c2/tool_transfer/os: medium
 c2/tool_transfer/python: medium

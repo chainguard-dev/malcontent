@@ -1,5 +1,4 @@
 # ruby/2021.vector/vector.rb: medium
-c2/addr/url: medium
 crypto/decrypt: low
 crypto/encrypt: medium
 exec/program: medium

@@ -1,5 +1,4 @@
 # python/clean/setuptools/namespaces.py: medium
-c2/addr/url: medium
 data/encoding/json_encode: low
 exec/imports/python: low
 false-positives/setuptools: low

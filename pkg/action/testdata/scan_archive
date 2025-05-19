@@ -35,6 +35,7 @@
                 "mount",
                 "nice",
                 "open",
+                "pipe",
                 "pivot_root",
                 "posix_spawn",
                 "pread64",
@@ -63,6 +64,7 @@
             ],
             "Pledge": [
                 "cpath",
+                "dns",
                 "exec",
                 "fattr",
                 "flock",
@@ -77,31 +79,15 @@
             ],
             "Behaviors": [
                 {
-                    "Description": "uses a random number generator",
+                    "Description": "exhibits random behavior",
                     "MatchStrings": [
-                        "getrandomUnsupported",
-                        "nonZeroRandomBytes",
-                        "startupRandomData",
-                        "readRandomUint32",
-                        "rand_getrandom",
-                        "portRandomizer",
-                        "random_vectors",
-                        "getRandomData",
-                        "extendRandom",
-                        "altGetRandom",
-                        "randomOrder",
-                        "randomPoint",
-                        "urandom_dev",
-                        "randomEnum",
-                        "nextRandom",
-                        "randomized",
-                        "randomsbom"
+                        "math/rand"
                     ],
-                    "RiskScore": 1,
-                    "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-behavior/random_behavior.yara#random",
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-behavior/random_behavior.yara#go_rand",
                     "ID": "anti-behavior/random_behavior",
-                    "RuleName": "random"
+                    "RuleName": "go_rand"
                 },
                 {
                     "Description": "Contains a table that may be used for XOR decryption",
@@ -590,7 +576,7 @@
                     "RuleName": "yaml_decode"
                 },
                 {
-                    "Description": "Uses blake2b encryption algorithm",
+                    "Description": "Uses blake2b hash algorithm",
                     "MatchStrings": [
                         "blake2b"
                     ],
@@ -854,6 +840,19 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/evasion/hide_artifacts/pivot_root.yara#pivot_root",
                     "ID": "evasion/hide_artifacts/pivot_root",
                     "RuleName": "pivot_root"
+                },
+                {
+                    "Description": "launches program and reads its output",
+                    "MatchStrings": [
+                        "CombinedOutput",
+                        "exec"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/exec/cmd/pipe.yara#popen_go",
+                    "ReferenceURL": "https://linux.die.net/man/3/popen",
+                    "ID": "exec/cmd/pipe",
+                    "RuleName": "popen_go"
                 },
                 {
                     "Description": "references a 'plugin'",
@@ -1995,6 +1994,18 @@
                     "RuleName": "ip_go"
                 },
                 {
+                    "Description": "resolves network hosts via IP address",
+                    "MatchStrings": [
+                        "LookupIP"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/ip/ip-resolve.yara#gethostbyaddr",
+                    "ReferenceURL": "https://linux.die.net/man/3/gethostbyaddr",
+                    "ID": "net/ip/resolve",
+                    "RuleName": "gethostbyaddr"
+                },
+                {
                     "Description": "Supports SOCK5 proxies",
                     "MatchStrings": [
                         "SOCKS5",
@@ -2009,13 +2020,13 @@
                 {
                     "Description": "resolve network host name to IP address",
                     "MatchStrings": [
-                        "net.hostLookup"
+                        "LookupHost"
                     ],
-                    "RiskScore": 1,
-                    "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/resolve/hostname-resolve.yara#net_hostlookup",
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/resolve/hostname-resolve.yara#go_resolve",
                     "ID": "net/resolve/hostname",
-                    "RuleName": "net_hostlookup"
+                    "RuleName": "go_resolve"
                 },
                 {
                     "Description": "listen on a socket",
@@ -2054,15 +2065,15 @@
                     "RuleName": "getsockopt"
                 },
                 {
-                    "Description": "set socket options",
+                    "Description": "set socket options by integer",
                     "MatchStrings": [
-                        "setsockopt"
+                        "SetsockoptInt"
                     ],
-                    "RiskScore": 0,
-                    "RiskLevel": "NONE",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/socket/socket-options-set.yara#setsockopt",
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/socket/socket-options-set.yara#go_setsockopt_int",
                     "ID": "net/socket/options_set",
-                    "RuleName": "setsockopt"
+                    "RuleName": "go_setsockopt_int"
                 },
                 {
                     "Description": "get peer address of connected socket",

@@ -1,5 +1,6 @@
 # linux/clean/opa: medium
-anti-behavior/random_behavior: low
+anti-behavior/random_behavior: medium
+anti-static/obfuscation/syscall: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/addr/url: low
@@ -28,6 +29,7 @@ data/encoding/json: low
 data/encoding/json_decode: low
 data/encoding/json_encode: low
 data/encoding/yaml: low
+data/hash/fnv: low
 data/hash/md5: low
 discover/cloud/aws_metadata: low
 discover/cloud/google_metadata: low
@@ -37,6 +39,7 @@ discover/system/platform: medium
 discover/system/sysinfo: medium
 discover/user/USER: low
 exec/cmd: medium
+exec/cmd/pipe: medium
 exec/plugin: low
 exec/program: medium
 fs/directory/create: low
@@ -85,10 +88,12 @@ net/ip/host_port: medium
 net/ip/icmp: medium
 net/ip/multicast_send: low
 net/ip/parse: medium
+net/ip/resolve: low
 net/ip/send_unicast: low
-net/resolve/hostname: low
+net/resolve/hostname: medium
 net/socket/listen: medium
 net/socket/local_addr: low
+net/socket/options_set: medium
 net/socket/peer_address: low
 net/socket/receive: low
 net/socket/send: low

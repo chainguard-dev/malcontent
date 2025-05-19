@@ -10,3 +10,15 @@ rule macaddr: medium {
   condition:
     any of them
 }
+
+rule parse_macaddr: medium {
+  meta:
+    description = "Parses network MAC address"
+
+  strings:
+    $net_mac  = "net/mac.go" fullword
+    $parsemac = "ParseMAC" fullword
+
+  condition:
+    any of them
+}

@@ -19,7 +19,6 @@ collect/databases/sqlite: medium
 credential/keychain: medium
 credential/keychain/gnome_keyring_daemon: medium
 credential/password: low
-credential/sniffer/bpf: medium
 credential/ssh: medium
 credential/ssl/private_key: low
 crypto/aes: low

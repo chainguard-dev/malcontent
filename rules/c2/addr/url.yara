@@ -73,8 +73,7 @@ rule http_url_with_question: medium {
     $not_doku            = "/doku.php?"
 
   condition:
-    filesize < 256KB and any of them
-  // ($f*) and $ref and none of ($not*)
+    filesize < 256KB and any of ($f*) and $ref and none of ($not*)
 }
 
 rule binary_with_url: low {

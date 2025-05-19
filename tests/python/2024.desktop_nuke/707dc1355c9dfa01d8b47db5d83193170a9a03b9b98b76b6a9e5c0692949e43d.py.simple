@@ -1,5 +1,4 @@
 # python/2024.desktop_nuke/707dc1355c9dfa01d8b47db5d83193170a9a03b9b98b76b6a9e5c0692949e43d.py: critical
-c2/addr/url: medium
 discover/user/USERPROFILE: medium
 exec/dylib/windll: medium
 exec/imports/python: low

@@ -1,5 +1,6 @@
 # linux/clean/buildkitd: medium
-anti-behavior/random_behavior: low
+anti-behavior/random_behavior: medium
+anti-static/obfuscation/syscall: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/addr/url: low
@@ -27,6 +28,7 @@ data/embedded/zstd: medium
 data/encoding/base64: low
 data/encoding/json: low
 data/encoding/json_decode: low
+data/hash/fnv: low
 data/hash/md5: low
 discover/network/mac_address: medium
 discover/network/netstat: medium
@@ -41,6 +43,7 @@ evasion/file/location/dev_mqueue: medium
 evasion/file/prefix: medium
 evasion/process_injection/ptrace: medium
 exec/cmd: medium
+exec/cmd/pipe: medium
 exec/plugin: low
 exec/program: medium
 exec/reconfigure/hostname_set: low
@@ -105,9 +108,11 @@ net/ip/host_port: medium
 net/ip/icmp: medium
 net/ip/multicast_send: low
 net/ip/parse: medium
-net/resolve/hostname: low
+net/ip/resolve: low
+net/resolve/hostname: medium
 net/socket/listen: medium
 net/socket/local_addr: low
+net/socket/options_set: medium
 net/socket/pair: medium
 net/socket/peer_address: low
 net/socket/receive: low

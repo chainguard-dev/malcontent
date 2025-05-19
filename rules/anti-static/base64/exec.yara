@@ -69,7 +69,7 @@ rule echo_decode_bash: critical {
     $redir = /base64 {0,2}(-d|--decode) {0,2}\>.{0,16}[\;\&]\s{0,2}(bash|zsh|sh)/ fullword
 
   condition:
-    filesize < 256KB and any of them
+    filesize < 10MB and any of them
 }
 
 import "math"
@@ -84,7 +84,7 @@ rule echo_decode_bash_probable: high {
     $shell  = /(bash|zsh|sh)/ fullword
 
   condition:
-    filesize < 256KB and any of them and (@shell[#shell] - @decode[#decode]) < 32 and (@shell[#shell] - @decode[#decode]) > 0
+    filesize < 3MB and any of them and (@shell[#shell] - @decode[#decode]) < 32 and (@shell[#shell] - @decode[#decode]) > 0
 }
 
 rule ruby_system_near_enough: critical {

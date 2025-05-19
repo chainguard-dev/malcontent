@@ -8,6 +8,7 @@ rule uname {
   strings:
     $uname  = "uname" fullword
     $uname2 = "syscall.Uname" fullword
+    $uname3 = "unix.Uname"
 
   condition:
     any of them

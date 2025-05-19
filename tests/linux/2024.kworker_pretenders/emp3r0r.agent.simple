@@ -1,8 +1,9 @@
 # linux/2024.kworker_pretenders/emp3r0r.agent: critical
 3P/elastic/exploit_cve_2021: critical
-anti-behavior/random_behavior: low
+anti-behavior/random_behavior: medium
 anti-behavior/vm_check: medium
 anti-static/elf/entropy: high
+anti-static/obfuscation/syscall: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/addr/url: low
@@ -38,9 +39,11 @@ data/encoding/json: low
 data/encoding/json_decode: low
 data/encoding/yaml: low
 data/hash/blake2b: low
+data/hash/fnv: low
 data/hash/md5: low
 data/hash/sha256: low
 discover/network/connectivity: low
+discover/network/mac_address: medium
 discover/network/netstat: medium
 discover/processes/list: medium
 discover/system/cpu: low
@@ -60,6 +63,7 @@ evasion/logging/current_logins: medium
 evasion/logging/hide_shell_history: high
 evasion/mimicry/fake_process: critical
 exec/cmd: medium
+exec/cmd/pipe: medium
 exec/conditional/LANG: low
 exec/dylib/symbol_address: medium
 exec/plugin: low
@@ -137,13 +141,15 @@ net/ip/host_port: medium
 net/ip/icmp: medium
 net/ip/multicast_send: low
 net/ip/parse: medium
+net/ip/resolve: low
 net/ip/tcp_state_tracker: medium
 net/proxy/shadowsocks: high
 net/proxy/socks5: medium
-net/resolve/hostname: low
+net/resolve/hostname: medium
 net/resolve/hostport_parse: low
 net/socket/listen: medium
 net/socket/local_addr: low
+net/socket/options_set: medium
 net/socket/peer_address: low
 net/socket/raw: medium
 net/socket/receive: low
