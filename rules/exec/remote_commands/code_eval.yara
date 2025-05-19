@@ -79,6 +79,7 @@ rule js_eval_obfuscated_fromChar: critical {
 rule js_anonymous_function: medium {
   meta:
     description = "evaluates code using an anonymous function"
+    filetypes   = "js,ts"
 
   strings:
     $func = /\n\s{0,8}\(function\s{0,8}\(\)\s{0,8}\{/
