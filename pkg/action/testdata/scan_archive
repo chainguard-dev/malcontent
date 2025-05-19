@@ -79,15 +79,31 @@
             ],
             "Behaviors": [
                 {
-                    "Description": "exhibits random behavior",
+                    "Description": "uses a random number generator",
                     "MatchStrings": [
-                        "math/rand"
+                        "getrandomUnsupported",
+                        "nonZeroRandomBytes",
+                        "startupRandomData",
+                        "readRandomUint32",
+                        "rand_getrandom",
+                        "portRandomizer",
+                        "random_vectors",
+                        "getRandomData",
+                        "extendRandom",
+                        "altGetRandom",
+                        "randomOrder",
+                        "randomPoint",
+                        "urandom_dev",
+                        "randomEnum",
+                        "nextRandom",
+                        "randomized",
+                        "randomsbom"
                     ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-behavior/random_behavior.yara#go_rand",
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-behavior/random_behavior.yara#random",
                     "ID": "anti-behavior/random_behavior",
-                    "RuleName": "go_rand"
+                    "RuleName": "random"
                 },
                 {
                     "Description": "Contains a table that may be used for XOR decryption",
@@ -172,6 +188,17 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/client.yara#clientID",
                     "ID": "c2/client",
                     "RuleName": "clientID"
+                },
+                {
+                    "Description": "contains Cloudflare DNS resolver IP",
+                    "MatchStrings": [
+                        "1.1.1.1"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/discovery/ip-dns_resolver.yara#cloudflare_dns_ip",
+                    "ID": "c2/discovery/ip_dns_resolver",
+                    "RuleName": "cloudflare_dns_ip"
                 },
                 {
                     "Description": "references a specific architecture",
@@ -1071,7 +1098,8 @@
                 {
                     "Description": "renames files",
                     "MatchStrings": [
-                        "os.rename"
+                        "os.rename",
+                        "os.Rename"
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
@@ -1080,15 +1108,15 @@
                     "RuleName": "explicit_rename"
                 },
                 {
-                    "Description": "access filesystem metadata",
+                    "Description": "access filesystem information",
                     "MatchStrings": [
-                        "fs.statDirEntry"
+                        "_stat"
                     ],
-                    "RiskScore": 1,
-                    "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-stat.yara#npm_stat",
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-stat.yara#stat",
                     "ID": "fs/file/stat",
-                    "RuleName": "npm_stat"
+                    "RuleName": "stat"
                 },
                 {
                     "Description": "forcibly synchronizes file state to disk",

@@ -41,7 +41,7 @@ rule ruby_run_exe: high {
 rule java_process_builder: medium {
   meta:
     description = "runs an external program"
-    filetypes   = "java,jar"
+    filetypes   = "jar,java"
 
   strings:
     $lang    = "java/lang/Process"
@@ -55,7 +55,7 @@ rule java_process_builder: medium {
 rule java_exec: medium {
   meta:
     description = "runs an external program"
-    filetypes   = "java,jar"
+    filetypes   = "jar,java"
 
   strings:
     $lang = "java/lang/Runtime"

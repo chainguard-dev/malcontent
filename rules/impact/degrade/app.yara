@@ -1,6 +1,7 @@
 rule osascript_window_closer: medium {
   meta:
     description = "closes the window of a running application"
+    filetypes   = "scpt,scptd"
 
   strings:
     $c_osascript   = "osascript" fullword
@@ -18,6 +19,7 @@ rule osascript_window_closer: medium {
 rule osascript_quitter: medium {
   meta:
     description = "quits a running application"
+    filetypes   = "scpt,scptd"
 
   strings:
     $c_osascript   = "osascript" fullword

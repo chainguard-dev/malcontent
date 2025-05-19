@@ -26,7 +26,8 @@ rule macos_chflags_hidden: critical {
 
 rule cocoa_bundle_dropper: critical {
   meta:
-    ref = "https://www.huntress.com/blog/lightspy-malware-variant-targeting-macos"
+    ref       = "https://www.huntress.com/blog/lightspy-malware-variant-targeting-macos"
+    filetypes = "macho"
 
   strings:
     $bundle   = "NSBundle" fullword

@@ -1,6 +1,7 @@
 rule php_copy_url: high {
   meta:
-    ref = "kinsing"
+    ref       = "kinsing"
+    filetypes = "php"
 
   strings:
     $php  = "<?php"

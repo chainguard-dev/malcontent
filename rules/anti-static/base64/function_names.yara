@@ -1,6 +1,7 @@
 rule base64_php_functions: medium {
   meta:
     description = "References PHP functions in base64 form"
+    filetypes   = "php"
 
   strings:
     $php           = "<?php"
@@ -67,6 +68,7 @@ rule base64_php_functions: medium {
 rule base64_php_functions_multiple: critical {
   meta:
     description = "References multiple PHP functions in base64 form"
+    filetypes   = "php"
 
   strings:
     $php           = "<?php"
@@ -133,6 +135,7 @@ rule base64_php_functions_multiple: critical {
 rule base64_python_functions: critical {
   meta:
     description = "contains base64 Python code"
+    filetypes   = "py"
 
   strings:
     $f_exec          = "exec(" base64

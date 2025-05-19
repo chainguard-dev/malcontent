@@ -71,6 +71,7 @@ rule proclist: medium {
 rule java_lang_processes_opaque: medium {
   meta:
     description = "accesses process list"
+    filetypes   = "jar,java"
 
   strings:
     $processes = "processes" fullword

@@ -13,8 +13,6 @@ crypto/decrypt: low
 crypto/encrypt: medium
 crypto/openssl: medium
 crypto/public_key: low
-data/base64/decode: medium
-data/base64/encode: medium
 data/base64/external: medium
 data/compression/gzip: low
 data/compression/zlib: low
@@ -33,8 +31,6 @@ evasion/logging/acct: low
 exec/plugin: low
 exec/program: medium
 exec/program/background: low
-exec/remote_commands/code_eval: medium
-exec/shell/command: medium
 exec/tty/pathname: medium
 fs/directory/create: low
 fs/directory/remove: low
@@ -64,7 +60,6 @@ net/ip/spoof: medium
 net/ip/string: medium
 net/proxy/tunnel: medium
 net/resolve/hostname: low
-net/socket/connect: medium
 net/socket/listen: medium
 net/socket/local_addr: low
 net/socket/peer_address: low

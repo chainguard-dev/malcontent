@@ -5,10 +5,11 @@
 3P/elastic/infostealer_wallets: critical
 3P/elastic/multi_threat: high
 anti-behavior/anti_debugger: medium
-anti-behavior/random_behavior: medium
+anti-behavior/random_behavior: low
 c2/addr/discord: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
+c2/discovery/ip_dns_resolver: medium
 c2/tool_transfer/arch: low
 c2/tool_transfer/download: high
 c2/tool_transfer/github: medium
@@ -28,7 +29,6 @@ credential/ssl/private_key: low
 crypto/aes: low
 crypto/cipher: medium
 crypto/decrypt: low
-crypto/ecdsa: low
 crypto/ed25519: low
 crypto/public_key: low
 crypto/rc4: low
@@ -44,7 +44,6 @@ discover/ip/public: high
 discover/network/mac_address: medium
 discover/processes/list: medium
 discover/system/cpu: low
-exec/cmd/pipe: medium
 exec/conditional/is_admin: medium
 exec/plugin: low
 exec/program: medium
@@ -62,7 +61,6 @@ fs/file/create: medium
 fs/file/delete: medium
 fs/file/open: low
 fs/file/read: low
-fs/file/rename: low
 fs/file/write: low
 fs/path/dev: medium
 fs/path/etc: low
@@ -97,10 +95,9 @@ net/ip/host_port: medium
 net/ip/parse: medium
 net/ip/resolve: low
 net/remote_control/vnc: medium
-net/resolve/hostname: medium
+net/resolve/hostname: low
 net/socket/listen: medium
 net/socket/local_addr: low
-net/socket/options_set: medium
 net/socket/peer_address: low
 net/socket/receive: low
 net/socket/send: low

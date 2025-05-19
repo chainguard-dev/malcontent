@@ -6,11 +6,11 @@ c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/addr/url: low
 c2/client: medium
+c2/discovery/ip_dns_resolver: medium
 c2/tool_transfer/arch: low
 c2/tool_transfer/download: medium
 c2/tool_transfer/dropper: medium
 c2/tool_transfer/os: medium
-collect/archives/tar_command: medium
 collect/archives/unarchive: medium
 collect/archives/zip: medium
 collect/code/github_api: low
@@ -74,7 +74,6 @@ exec/cmd: medium
 exec/cmd/pipe: medium
 exec/conditional/LANG: low
 exec/dylib/symbol_address: medium
-exec/install_additional/pip_install: medium
 exec/plugin: low
 exec/program: medium
 exec/shell/TERM: low
@@ -95,7 +94,6 @@ fs/file/delete_forcibly: medium
 fs/file/open: low
 fs/file/read: low
 fs/file/rename: low
-fs/file/stat: low
 fs/file/times_set: medium
 fs/file/truncate: low
 fs/file/write: low

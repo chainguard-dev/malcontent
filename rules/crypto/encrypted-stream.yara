@@ -1,6 +1,7 @@
 rule go_encrypted_stream: high {
   meta:
     description = "Uses github.com/nknorg/encrypted-stream to encrypt streams"
+    filetypes   = "elf,go,macho"
 
   strings:
     $ref1 = ").Encrypt"

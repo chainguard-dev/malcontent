@@ -56,7 +56,7 @@ rule py_keykeyboard_exfil: high {
 rule java_keylogger {
   meta:
     description = "listens for keyboard events"
-    filetypes   = "java,jar"
+    filetypes   = "jar,java"
 
   strings:
     $jnativehook    = "jnativehook"

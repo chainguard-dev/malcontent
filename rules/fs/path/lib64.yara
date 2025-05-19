@@ -1,6 +1,7 @@
 rule elf_lib_dir_refs: harmless {
   meta:
     description = "references /lib64 path"
+    filetypes   = "elf"
 
   strings:
     $ref  = /\/lib64\/[\%\w\.\-\/]{4,32}/ fullword

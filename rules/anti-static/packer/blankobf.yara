@@ -14,4 +14,3 @@ rule blankOBF: critical {
   condition:
     filesize < 1MB and any of them
 }
-

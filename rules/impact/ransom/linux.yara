@@ -70,7 +70,7 @@ rule linux_syscalls: high {
 rule conti_alike: high posix {
   meta:
     description = "Reads directories, renames files, encrypts files"
-    filetypes   = "so,elf,macho"
+    filetypes   = "elf,macho,so"
 
   strings:
     $readdir       = "readdir" fullword
@@ -86,4 +86,3 @@ rule conti_alike: high posix {
   condition:
     filesize < 512KB and $readdir and $rename and 2 of ($enc*) and none of ($not*)
 }
-

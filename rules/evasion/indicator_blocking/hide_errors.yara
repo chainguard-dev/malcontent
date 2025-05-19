@@ -2,6 +2,7 @@ rule php_suppressed_include: high {
   meta:
     description = "Includes a file, suppressing errors"
     credit      = "Inspired by DodgyPHP rule in php-malware-finder"
+    filetypes   = "php"
 
   strings:
     $php           = "<?php"

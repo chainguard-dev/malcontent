@@ -15,6 +15,7 @@ rule go_setsockopt_int: medium {
   meta:
     description = "set socket options by integer"
     syscall     = "setsockopt"
+    filetypes   = "elf,go,macho"
 
   strings:
     $setsockopt = "SetsockoptInt"

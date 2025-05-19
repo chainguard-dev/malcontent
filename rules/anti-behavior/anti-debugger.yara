@@ -1,6 +1,7 @@
 rule win_debugger_present: medium windows {
   meta:
     description = "Detects if process is being executed within a debugger"
+    filetypes   = "exe,pe,ps1"
 
   strings:
     $debug_idp = "IsDebuggerPresent"
@@ -13,6 +14,7 @@ rule win_debugger_present: medium windows {
 rule win_debugger_or_vm: medium windows {
   meta:
     description = "Detects if process is being executed within a debugger or VM"
+    filetypes   = "exe,pe,ps1"
 
   strings:
     $cpu_pfp   = "IsProcessorFeaturePresent"
@@ -27,6 +29,7 @@ rule win_debugger_or_vm: medium windows {
 rule multiple_linux_methods: high linux {
   meta:
     description = "possible debugger detection across multiple methods"
+    filetypes   = "elf"
 
   strings:
     $ld_profile    = "LD_PROFILE" fullword

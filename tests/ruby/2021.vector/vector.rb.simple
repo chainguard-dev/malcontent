@@ -3,6 +3,5 @@ crypto/decrypt: low
 crypto/encrypt: medium
 exec/program: medium
 exec/script/ruby: medium
-exec/shell/command: medium
 fs/file/write: medium
 net/url/embedded: medium

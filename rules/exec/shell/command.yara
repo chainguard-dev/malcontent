@@ -29,6 +29,8 @@ rule generic_shell_exec: medium {
   meta:
     description = "execute a shell command"
 
+    filetypes = "php"
+
   strings:
     $exec = "shell_exec"
 

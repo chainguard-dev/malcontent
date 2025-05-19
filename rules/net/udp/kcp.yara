@@ -1,6 +1,7 @@
 rule kcp_go: medium {
   meta:
     description = "uses kcp-go, a reliable UDP library for Go"
+    filetypes   = "elf,go,macho"
 
   strings:
     $                = "ikcp_waitsnd"

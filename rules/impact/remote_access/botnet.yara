@@ -28,10 +28,11 @@ rule botnet_high: high {
     description = "References a 'botnet'"
 
   strings:
-    $bot_deployed  = "bot deployed"
-    $botnet        = "Botnet"
-    $not_phishing  = "phishing"
-    $not_keylogger = "keylogger"
+    $bot_deployed                = "bot deployed"
+    $botnet                      = "Botnet"
+    $not_phishing                = "phishing"
+    $not_keylogger               = "keylogger"
+    $not_wikiticker_contribution = "Undid revision 680586363 by"
 
   condition:
     filesize < 20MB and any of ($bot*) and none of ($not*)

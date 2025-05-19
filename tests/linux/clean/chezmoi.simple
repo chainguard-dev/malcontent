@@ -1,5 +1,5 @@
 # linux/clean/chezmoi: medium
-anti-behavior/random_behavior: medium
+anti-behavior/random_behavior: low
 anti-static/obfuscation/syscall: medium
 anti-static/xor/functions: medium
 c2/addr/discord: medium
@@ -8,6 +8,7 @@ c2/addr/ip: medium
 c2/addr/telegram: medium
 c2/addr/url: low
 c2/client: medium
+c2/discovery/ip_dns_resolver: medium
 c2/tool_transfer/arch: low
 c2/tool_transfer/download: medium
 c2/tool_transfer/dropper: medium
@@ -79,7 +80,6 @@ exec/shell/background_sleep: medium
 exec/shell/exec: medium
 exec/system_controls/systemd: low
 exfil/upload: medium
-fs/attributes/chattr: medium
 fs/directory/create: low
 fs/directory/list: low
 fs/directory/remove: low
@@ -90,7 +90,6 @@ fs/file/delete_forcibly: low
 fs/file/open: low
 fs/file/read: low
 fs/file/rename: low
-fs/file/stat: low
 fs/file/times_set: medium
 fs/file/write: low
 fs/link_create: low

@@ -12,7 +12,6 @@ evasion/file/prefix/tmp: high
 exec/cmd/pipe: medium
 exec/imports/python: low
 exec/program: medium
-exec/shell/command: medium
 exfil/curl_post: medium
 exfil/whoami_hostname: high
 fs/file/read: low

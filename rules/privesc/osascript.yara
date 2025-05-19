@@ -1,6 +1,7 @@
 rule osascript_shell_as_admin: medium {
   meta:
     description = "uses osascript with admin privileges"
+    filetypes   = "scpt,scptd"
 
   strings:
     $do_shell                   = "do shell script"
@@ -15,6 +16,7 @@ rule osascript_shell_as_admin: medium {
 rule osascript_fake_password: critical {
   meta:
     description = "uses osascript to prompt for a sudo password"
+    filetypes   = "scpt,scptd"
 
   strings:
     $osascript = "osascript"

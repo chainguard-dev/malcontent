@@ -3,6 +3,7 @@ import "elf"
 rule multiple_elf: medium {
   meta:
     description = "multiple ELF binaries within an ELF binary"
+    filetypes   = "elf"
 
   strings:
     $elf_head = "\x7fELF"

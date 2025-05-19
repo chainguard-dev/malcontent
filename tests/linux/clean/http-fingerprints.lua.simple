@@ -8,7 +8,6 @@ collect/databases/mysql: medium
 credential/password: low
 credential/server/htpasswd: medium
 exec/plugin: low
-fs/file/read: low
 fs/path/etc: low
 fs/path/home: low
 fs/path/root: medium

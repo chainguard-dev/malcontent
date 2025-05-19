@@ -3,6 +3,7 @@ import "elf"
 rule impossibly_small_elf_program: high {
   meta:
     description = "ELF binary is unusually small"
+    filetypes   = "elf"
 
   strings:
     $not_hello_c = "hello.c"

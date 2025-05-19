@@ -2,7 +2,6 @@
 anti-behavior/random_behavior: low
 anti-static/obfuscation/js: medium
 anti-static/obfuscation/math: medium
-anti-static/obfuscation/reverse: medium
 c2/addr/ip: medium
 c2/addr/server: medium
 c2/client: medium
@@ -18,8 +17,6 @@ crypto/decrypt: low
 crypto/encrypt: medium
 crypto/openssl: medium
 crypto/public_key: low
-data/base64/decode: medium
-data/base64/encode: medium
 data/base64/external: medium
 data/compression/bzip2: low
 data/compression/gzip: low
@@ -39,7 +36,7 @@ discover/process/egid: medium
 discover/process/parent: low
 discover/processes/list: medium
 discover/system/hostname: low
-discover/system/platform: medium
+discover/system/platform: low
 discover/user/HOME: low
 discover/user/USER: low
 discover/user/name_get: medium
@@ -49,8 +46,6 @@ exec/cmd: medium
 exec/plugin: low
 exec/program: medium
 exec/program/background: low
-exec/remote_commands/code_eval: medium
-exec/shell/command: medium
 exec/shell/power: medium
 exec/tty/pathname: medium
 fs/directory/create: low
@@ -96,7 +91,6 @@ net/ip/string: medium
 net/proxy/tunnel: medium
 net/resolve/hostname: low
 net/resolve/hostport_parse: low
-net/socket/connect: medium
 net/socket/listen: medium
 net/socket/local_addr: low
 net/socket/pair: medium

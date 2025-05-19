@@ -17,6 +17,7 @@ rule nspasteboard: medium macos {
 rule py_pasteboard: high {
   meta:
     description = "access clipboard contents"
+    filetypes   = "py"
 
   strings:
     $clip   = "pyperclip.copy("
@@ -25,4 +26,3 @@ rule py_pasteboard: high {
   condition:
     any of them
 }
-

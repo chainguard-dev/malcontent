@@ -2,7 +2,6 @@
 anti-behavior/random_behavior: low
 anti-static/obfuscation/js: medium
 anti-static/obfuscation/math: medium
-anti-static/obfuscation/reverse: medium
 c2/addr/ip: medium
 c2/addr/url: low
 c2/discovery/dyndns: medium
@@ -30,7 +29,6 @@ discover/process/name: medium
 discover/process/parent: low
 evasion/file/prefix: medium
 evasion/rootkit/refs: medium
-evasion/rootkit/userspace: low
 exec/cmd: medium
 exec/plugin: low
 exec/shell/power: medium

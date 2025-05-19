@@ -13,6 +13,7 @@ rule runas_admin: high {
 rule py_runas_admin: high {
   meta:
     description = "Uses RunAs to execute itself as another user"
+    filetypes   = "py"
 
   strings:
     $double = "\"runas\", sys.executable,"

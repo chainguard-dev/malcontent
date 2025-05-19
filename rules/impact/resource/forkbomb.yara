@@ -1,6 +1,7 @@
 rule elf_pthread_forkbomb: high {
   meta:
     description = "may implement a pthread-based forkbomb"
+    filetypes   = "elf"
 
   strings:
     $f_wait     = "wait" fullword
@@ -19,6 +20,7 @@ rule elf_pthread_forkbomb: high {
 rule elf_fork_usleep: high {
   meta:
     description = "may implement a forkbomb"
+    filetypes   = "elf"
 
   strings:
     $f_wait     = "wait" fullword

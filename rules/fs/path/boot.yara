@@ -12,6 +12,7 @@ rule boot_path: medium {
 rule elf_boot_path: medium {
   meta:
     description = "path reference within /boot"
+    filetypes   = "elf"
 
   strings:
     $ref              = /\/boot\/[\%\w\.\-\/]{4,32}/ fullword

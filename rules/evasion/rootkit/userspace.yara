@@ -1,7 +1,7 @@
 rule readdir_intercept_source: high {
   meta:
     description = "userland rootkit source designed to hide files (DECLARE_READDIR)"
-    filetypes   = "so,c"
+    filetypes   = "c,so"
 
   strings:
     $declare = "DECLARE_READDIR"
@@ -14,7 +14,7 @@ rule readdir_intercept_source: high {
 rule hide_dir_contents: high {
   meta:
     description = "userland rootkit source designed to hide files"
-    filetypes   = "so,c"
+    filetypes   = "c,so"
 
   strings:
     $readdir64 = "readdir64"
@@ -32,7 +32,7 @@ rule readdir_intercept: high {
   meta:
     description = "userland rootkit designed to hide files (readdir64)"
 
-    filetypes = "so,c"
+    filetypes = "c,so"
 
   strings:
     $r_new65      = "readdir64" fullword
@@ -50,7 +50,7 @@ rule readdir_dlsym_interceptor: high {
   meta:
     description = "userland rootkit designed to hide files (readdir64+readlink)"
 
-    filetypes = "so,c"
+    filetypes = "c,so"
 
   strings:
     $f_dlsym                     = "dlsym" fullword
@@ -68,7 +68,7 @@ rule readdir_tcp_wrapper_intercept: high {
   meta:
     description = "userland rootkit designed to hide files and bypass tcp-wrappers"
     ref         = "https://github.com/ldpreload/Medusa"
-    filetypes   = "so,c"
+    filetypes   = "c,so"
 
   strings:
     $r_new65        = "readdir64" fullword

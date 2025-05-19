@@ -5,7 +5,6 @@ anti-behavior/LD_PROFILE: medium
 anti-behavior/random_behavior: low
 anti-static/elf/entropy: high
 anti-static/elf/multiple: medium
-anti-static/obfuscation/js: medium
 c2/addr/ip: medium
 c2/addr/url: low
 c2/tool_transfer/arch: low
@@ -21,7 +20,6 @@ crypto/gost89: low
 crypto/openssl: medium
 crypto/public_key: low
 crypto/rc4: low
-data/base64/decode: medium
 data/builtin/glibc: medium
 data/builtin/multiple: high
 data/builtin/openssl: medium

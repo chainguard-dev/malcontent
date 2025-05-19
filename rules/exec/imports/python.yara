@@ -1,6 +1,7 @@
 rule has_import: low {
   meta:
     description = "imports python modules"
+    filetypes   = "py"
 
   strings:
     $ref  = /import [a-z0-9A-Z]{2,12}/ fullword
@@ -13,6 +14,7 @@ rule has_import: low {
 rule python_code_as_chr_int: critical {
   meta:
     description = "hides additional import as array of integers"
+    filetypes   = "py"
 
   strings:
     $import       = "import" fullword
@@ -26,7 +28,7 @@ rule python_code_as_chr_int: critical {
 rule single_line_import: medium {
   meta:
     description = "imports built-in and executes more code on the same line"
-    filetypes   = "python"
+    filetypes   = "py"
 
   strings:
     $ref = /import [a-z0-9]{0,8};/
@@ -38,7 +40,7 @@ rule single_line_import: medium {
 rule single_line_import_multiple: high {
   meta:
     description = "imports multiple built-ins on the same line"
-    filetypes   = "python"
+    filetypes   = "py"
 
   strings:
     $ref = /import [a-z0-9]{0,8}; {0,2}import [a-z0-9]{0,8}; {0,2}/
@@ -50,7 +52,7 @@ rule single_line_import_multiple: high {
 rule single_line_import_multiple_comma: medium {
   meta:
     description = "imports multiple comma spearated built-ins"
-    filetypes   = "python"
+    filetypes   = "py"
 
   strings:
     $ref2 = /import \w{2,8},\w{2,8},\w{2,8},[\w,]{0,64}/
@@ -62,6 +64,7 @@ rule single_line_import_multiple_comma: medium {
 rule __import__: medium {
   meta:
     description = "directly imports code using built-in __import__"
+    filetypes   = "py"
 
   strings:
     $import = /__import__\([\'\w\(\[]\)\],]{0,64}/
@@ -73,6 +76,7 @@ rule __import__: medium {
 rule __import__sus: high {
   meta:
     description = "directly imports code using built-in __import__"
+    filetypes   = "py"
 
   strings:
     $sus = /__import__.{0,128}(zlib|fernet|base64|b64decode|exec\()/
@@ -84,6 +88,7 @@ rule __import__sus: high {
 rule zipimport: medium {
   meta:
     description = "loads external module using zipimporter"
+    filetypes   = "py"
 
   strings:
     $zipimporter = "zipimporter"
@@ -96,6 +101,7 @@ rule zipimport: medium {
 rule zipimport_obfuscated: high {
   meta:
     description = "loads obfuscated enccrypted module using zipimporter"
+    filetypes   = "py"
 
   strings:
     $must_import      = "import" fullword

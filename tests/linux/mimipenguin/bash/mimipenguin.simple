@@ -8,8 +8,6 @@ credential/ssh/d: medium
 data/base64/external: medium
 data/encoding/base64: low
 discover/system/platform: medium
-exec/imports/python: medium
-exec/shell/command: medium
 exec/shell/exec: medium
 exec/shell/ignore_output: medium
 exfil/stealer/password: critical

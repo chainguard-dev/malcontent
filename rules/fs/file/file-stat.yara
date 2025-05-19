@@ -45,7 +45,8 @@ rule go_stat: harmless {
     syscall     = "stat"
 
   strings:
-    $filestat = "os.(*fileStat)"
+    $filestat  = "os.(*fileStat)"
+    $filestat2 = "os.Stat("
 
   condition:
     any of them
@@ -56,6 +57,7 @@ rule py_timestamps {
     description = "Access filesystem timestamps"
     pledge      = "rpath"
     syscall     = "stat"
+    filetypes   = "py"
 
   strings:
     $atime = "os.path.getatime"
@@ -71,6 +73,7 @@ rule npm_stat {
     description = "access filesystem metadata"
     pledge      = "rpath"
     syscall     = "stat"
+    filetypes   = "js,ts"
 
   strings:
     $filestat = /fs\.stat[\w\(\'\.\)]{0,32}/

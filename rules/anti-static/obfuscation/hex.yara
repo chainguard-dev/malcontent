@@ -13,6 +13,7 @@ rule excessive_hex_refs: medium {
 rule hex_parse: medium {
   meta:
     description = "converts hex data to ASCII"
+    filetypes   = "py"
 
   strings:
     $node   = /Buffer\.from\(\w{0,16}, {0,2}'hex'\)/
@@ -26,6 +27,7 @@ rule hex_parse: medium {
 rule hex_convert_from_base64: medium {
   meta:
     description = "converts base64 hex data to ASCII"
+    filetypes   = "py"
 
   strings:
     $lang_node   = /Buffer\.from\(\w{0,16}, {0,2}'hex'\)/
@@ -40,6 +42,7 @@ rule hex_convert_from_base64: medium {
 rule hex_parse_base64_high: high {
   meta:
     description = "converts base64 hex data to ASCII"
+    filetypes   = "py"
 
   strings:
     $lang_node         = /Buffer\.from\(\w{0,16}, {0,2}'hex'\)/
@@ -58,6 +61,7 @@ rule hex_parse_base64_high: high {
 rule mega_string: high {
   meta:
     description = "python script decodes large hexadecimal string"
+    filetypes   = "py"
 
   strings:
     $unhexlify            = "unhexlify"

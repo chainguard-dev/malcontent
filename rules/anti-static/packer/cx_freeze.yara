@@ -1,6 +1,7 @@
 rule cxFreeze_Python_executable: high {
   meta:
     description = "uses cxFreeze packer"
+    filetypes   = "py"
 
   strings:
     $cxfreeze      = "cx_Freeze"

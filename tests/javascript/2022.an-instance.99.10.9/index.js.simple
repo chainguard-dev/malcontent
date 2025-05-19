@@ -1,5 +1,4 @@
 # javascript/2022.an-instance.99.10.9/index.js: critical
-anti-static/obfuscation/hex: medium
 data/encoding/int: low
 data/encoding/json_encode: low
 discover/network/interface_list: medium

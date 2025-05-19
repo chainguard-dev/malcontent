@@ -5,7 +5,7 @@ rule single_load_rwe: critical {
   meta:
     description = "Binary with a single LOAD segment marked RWE"
     family      = "Stager"
-    filetype    = "ELF"
+    filetypes   = "elf"
 
     author = "Tenable"
 
@@ -17,7 +17,7 @@ rule fake_section_headers_conflicting_entry_point_address: critical {
   meta:
     description = "binary with fake sections header"
     family      = "Obfuscation"
-    filetype    = "ELF"
+    filetypes   = "elf"
 
     author = "Tenable"
 
@@ -29,7 +29,7 @@ rule fake_dynamic_symbols: critical {
   meta:
     description = "binary with fake dynamic symbol table"
     family      = "Obfuscation"
-    filetype    = "ELF"
+    filetypes   = "elf"
     author      = "Tenable"
 
   condition:
@@ -39,6 +39,7 @@ rule fake_dynamic_symbols: critical {
 rule high_entropy_header: high {
   meta:
     description = "high entropy ELF header (>7)"
+    filetypes   = "elf"
 
   strings:
     $not_pyinst = "pyi-bootloader-ignore-signals"

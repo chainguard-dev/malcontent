@@ -35,15 +35,28 @@
             ],
             "Behaviors": [
                 {
-                    "Description": "exhibits random behavior",
+                    "Description": "uses a random number generator",
                     "MatchStrings": [
-                        "math/rand"
+                        "nonZeroRandomBytes",
+                        "p224RandomPoint",
+                        "p521RandomPoint",
+                        "p384RandomPoint",
+                        "getRandomBatch",
+                        "getRandomData",
+                        "serverRandom",
+                        "extendRandom",
+                        "clientRandom",
+                        "randomOrder",
+                        "randomEnum",
+                        "urandom127",
+                        "getrandom",
+                        "GetRandom"
                     ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-behavior/random_behavior.yara#go_rand",
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-behavior/random_behavior.yara#random",
                     "ID": "anti-behavior/random_behavior",
-                    "RuleName": "go_rand"
+                    "RuleName": "random"
                 },
                 {
                     "Description": "mentions an IP and port",
@@ -70,6 +83,17 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/url.yara#binary_with_url",
                     "ID": "c2/addr/url",
                     "RuleName": "binary_with_url"
+                },
+                {
+                    "Description": "contains Cloudflare DNS resolver IP",
+                    "MatchStrings": [
+                        "1.1.1.1"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/discovery/ip-dns_resolver.yara#cloudflare_dns_ip",
+                    "ID": "c2/discovery/ip_dns_resolver",
+                    "RuleName": "cloudflare_dns_ip"
                 },
                 {
                     "Description": "references a specific architecture",
@@ -981,33 +1005,6 @@
             ],
             "Behaviors": [
                 {
-                    "Description": "high entropy footer in ELF binary (\u003e7.4)",
-                    "RiskScore": 3,
-                    "RiskLevel": "HIGH",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/elf/entropy.yara#normal_elf_high_entropy_7_4",
-                    "ID": "anti-static/elf/entropy",
-                    "RuleName": "normal_elf_high_entropy_7_4"
-                },
-                {
-                    "Description": "high entropy ELF header (\u003e7)",
-                    "RiskScore": 3,
-                    "RiskLevel": "HIGH",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/elf/header.yara#high_entropy_header",
-                    "ID": "anti-static/elf/header",
-                    "RuleName": "high_entropy_header"
-                },
-                {
-                    "Description": "multiple ELF binaries within an ELF binary",
-                    "MatchStrings": [
-                        "$elf_head"
-                    ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/elf/multiple.yara#multiple_elf",
-                    "ID": "anti-static/elf/multiple",
-                    "RuleName": "multiple_elf"
-                },
-                {
                     "Description": "Linux ELF binary packed with UPX",
                     "MatchStrings": [
                         "This file is packed",
@@ -1021,26 +1018,15 @@
                     "RuleName": "upx"
                 },
                 {
-                    "Description": "ELF with hardcoded IP address",
+                    "Description": "hardcoded IP address",
                     "MatchStrings": [
                         "2.5.4.3"
                     ],
-                    "RiskScore": 3,
-                    "RiskLevel": "HIGH",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/ip.yara#bin_hardcoded_ip",
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/ip.yara#hardcoded_ip",
                     "ID": "c2/addr/ip",
-                    "RuleName": "bin_hardcoded_ip"
-                },
-                {
-                    "Description": "binary contains hardcoded URL",
-                    "MatchStrings": [
-                        "http://upx.sf.net"
-                    ],
-                    "RiskScore": 1,
-                    "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/url.yara#binary_with_url",
-                    "ID": "c2/addr/url",
-                    "RuleName": "binary_with_url"
+                    "RuleName": "hardcoded_ip"
                 },
                 {
                     "Description": "references a specific architecture",
@@ -1125,8 +1111,8 @@
                     "RuleName": "http_url"
                 }
             ],
-            "RiskScore": 4,
-            "RiskLevel": "CRITICAL"
+            "RiskScore": 3,
+            "RiskLevel": "HIGH"
         }
     }
 }

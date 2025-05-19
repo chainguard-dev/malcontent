@@ -1,6 +1,5 @@
 # linux/2022.ez-pwnkit/PWN.so: critical
 exec/program: medium
-exec/shell/command: medium
 exec/shell/exec: medium
 fs/file/delete_forcibly: low
 fs/path/home: low

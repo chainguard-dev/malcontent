@@ -112,6 +112,7 @@ private rule backdoor_small_macho {
 rule macho_backdoor_libc_signature: high {
   meta:
     description = "executes libc functions common to backdoors"
+    filetypes   = "macho"
 
   strings:
     $word_with_spaces = /[a-z]{2,16} [a-uxyz]{2,16}/ fullword
@@ -155,7 +156,7 @@ rule macho_backdoor_libc_signature: high {
 rule minecraft_load_fetch_class_backdoor: critical {
   meta:
     description = "likely minecraft backdoor"
-    filetypes   = "class,java"
+    filetypes   = "jar,java"
 
   strings:
     $minecraft   = "minecraft"

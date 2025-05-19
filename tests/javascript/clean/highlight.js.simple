@@ -6,7 +6,6 @@ c2/addr/ip: medium
 c2/connect/ping_pong: medium
 c2/tool_transfer/arch: low
 c2/tool_transfer/os: medium
-c2/tool_transfer/python: medium
 collect/archives/unarchive: medium
 collect/databases/mysql: medium
 collect/databases/postgresql: medium
@@ -16,8 +15,6 @@ crypto/decrypt: low
 crypto/encrypt: medium
 crypto/openssl: medium
 crypto/public_key: low
-data/base64/decode: medium
-data/base64/encode: medium
 data/compression/bzip2: low
 data/compression/lzma: low
 data/compression/zlib: low
@@ -38,7 +35,6 @@ exec/cmd: medium
 exec/plugin: low
 exec/program/background: low
 exec/program/hidden: medium
-exec/remote_commands/code_eval: medium
 exec/script/activex: medium
 exec/script/osa: medium
 exec/shell/SHELL: low

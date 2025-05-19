@@ -1,6 +1,7 @@
 rule compiled_osascript: medium {
   meta:
     description = "compiled osascript"
+    filetypes   = "scpt,scptd"
 
   strings:
     $s_sysoexec        = "sysoexecTEXT"

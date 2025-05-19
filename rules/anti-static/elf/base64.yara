@@ -14,6 +14,7 @@ rule contains_base64_elf: high {
 rule elf_contains_base64_elf: critical {
   meta:
     description = "ELF binary contains base64 ELF binary"
+    filetypes   = "elf"
 
   strings:
     $elf_head = "f0VMRgI"

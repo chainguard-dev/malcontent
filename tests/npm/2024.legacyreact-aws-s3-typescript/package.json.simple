@@ -1,6 +1,4 @@
 # npm/2024.legacyreact-aws-s3-typescript/package.json: critical
-c2/tool_transfer/npm: critical
-c2/tool_transfer/shell: high
 exec/program/hidden: medium
 exec/shell/background_launcher: high
 exfil/npm: high

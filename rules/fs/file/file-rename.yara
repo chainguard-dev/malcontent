@@ -14,7 +14,7 @@ rule rename: harmless posix {
 rule explicit_rename: low {
   meta:
     description = "renames files"
-    filetypes   = "py,rb"
+    filetypes   = "elf,go,js,macho,m,py,rb,ts"
 
   strings:
     $rename      = "os.rename" fullword
@@ -22,6 +22,7 @@ rule explicit_rename: low {
     $move_file   = "MoveFile"
     $ruby        = "File.rename"
     $objc        = "renameFile" fullword
+    $go          = "os.Rename" fullword
 
   condition:
     any of them
@@ -30,6 +31,7 @@ rule explicit_rename: low {
 rule ren: medium windows {
   meta:
     description = "renames files"
+    filetypes   = "exe,pe,ps1"
 
   strings:
     $rename         = "rename"
