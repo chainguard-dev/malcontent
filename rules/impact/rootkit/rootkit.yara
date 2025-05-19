@@ -34,7 +34,7 @@ rule linux_kernel_module_hider: critical linux {
 rule linux_kernel_module_hide_self: critical linux {
   meta:
     description = "kernel module that hides itself"
-    filetypes = "elf,so"
+    filetypes   = "elf,so"
 
   strings:
     $register_kprobe = "register_kprobe"

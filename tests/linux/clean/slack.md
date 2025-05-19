@@ -1,8 +1,7 @@
-## linux/clean/slack [🛑 HIGH]
+## linux/clean/slack [🟡 MEDIUM]
 
 | RISK | KEY | DESCRIPTION | EVIDENCE |
 |--|--|--|--|
-| HIGH | [anti-static/obfuscation/math](https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/obfuscation/math.yara#js_junk_math_high) | multiple examples of suspicious junk math | [(bid_time%86400000000)](https://github.com/search?q=%28bid_time%2586400000000%29&type=code)<br>[var kSize = 2048;](https://github.com/search?q=var+kSize+%3D+2048%3B&type=code)<br>[(i + 32)](https://github.com/search?q=%28i+%2B+32%29&type=code)<br>[charAt](https://github.com/search?q=charAt&type=code)<br>[(e+38)](https://github.com/search?q=%28e%2B38%29&type=code) |
 | MEDIUM | [anti-behavior/LD_DEBUG](https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-behavior/LD_DEBUG.yara#env_LD_DEBUG) | may check if dynamic linker debugging is enabled | [LD_DEBUG](https://github.com/search?q=LD_DEBUG&type=code) |
 | MEDIUM | [anti-behavior/LD_PROFILE](https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-behavior/LD_PROFILE.yara#env_LD_PROFILE) | may check if dynamic linker profiling is enabled | [LD_PROFILE](https://github.com/search?q=LD_PROFILE&type=code) |
 | MEDIUM | [anti-static/elf/multiple](https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/elf/multiple.yara#multiple_elf) | multiple ELF binaries within an ELF binary | `$elf_head` |

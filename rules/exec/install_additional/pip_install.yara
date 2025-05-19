@@ -26,7 +26,7 @@ rule pip_installer: medium {
   meta:
     description = "Installs software using pip from python"
 
-    filetypes   = "bash,py,pyc,sh,zsh"
+    filetypes = "bash,py,pyc,sh,zsh"
 
   strings:
     $ref = /pip3{0,1}[ \'\"\,]{0,5}install[ \'\"\,]{0,5}[\w\-\_\%]{0,32}/

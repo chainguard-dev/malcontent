@@ -3,7 +3,7 @@ import "math"
 rule remote_eval: critical {
   meta:
     description = "Evaluates remotely sourced code"
-    filetypes = "py,rb"
+    filetypes   = "py,rb"
 
   strings:
     $http                = "http"
@@ -26,7 +26,7 @@ rule remote_eval: critical {
 rule remote_eval_close: high {
   meta:
     description = "Evaluates remotely sourced code"
-    filetypes = "php"
+    filetypes   = "php"
 
   strings:
     $php    = "<?php"
@@ -40,7 +40,7 @@ rule remote_eval_close: high {
 rule python_exec_near_requests: high {
   meta:
     description = "Executes code from encrypted remote content"
-    filetypes = "py"
+    filetypes   = "py"
 
   strings:
     $exec     = "exec("
@@ -53,7 +53,7 @@ rule python_exec_near_requests: high {
 rule python_eval_near_requests: high {
   meta:
     description = "Evaluates code from encrypted remote content"
-    filetypes = "py"
+    filetypes   = "py"
 
   strings:
     $eval     = "eval("
@@ -66,7 +66,7 @@ rule python_eval_near_requests: high {
 rule python_exec_near_get: high {
   meta:
     description = "Executes code from encrypted content"
-    filetypes = "py"
+    filetypes   = "py"
 
   strings:
     $f_exec        = "exec("
@@ -82,7 +82,7 @@ rule python_exec_near_get: high {
 rule python_eval_near_get: high {
   meta:
     description = "Executes code from encrypted content"
-    filetypes = "py"
+    filetypes   = "py"
 
   strings:
     $eval     = "eval("
@@ -96,7 +96,7 @@ rule php_remote_exec: critical {
   meta:
     description = "Executes code from a remote source"
     credit      = "Inspired by DodgyPHP rule in php-malware-finder"
-    filetypes = "php"
+    filetypes   = "php"
 
   strings:
     $php                 = "<?php"

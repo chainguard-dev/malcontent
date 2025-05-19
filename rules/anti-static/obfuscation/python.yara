@@ -3,7 +3,7 @@ import "hash"
 rule py_indirect_builtins: suspicious {
   meta:
     description = "Indirectly refers to Python builtins"
-    filetypes = "py"
+    filetypes   = "py"
 
   strings:
     $val = /getattr\(__builtins__,[ \w\.\)\)]{0,64}/

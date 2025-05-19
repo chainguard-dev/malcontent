@@ -29,7 +29,7 @@ rule kallsyms: medium linux {
 rule bpftrace: override linux {
   meta:
     description = "bpftrace"
-    filetypes = "elf,so"
+    filetypes   = "elf,so"
     kallsyms    = "medium"
 
   strings:

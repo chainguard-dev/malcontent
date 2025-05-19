@@ -45,7 +45,7 @@ rule java_random: low {
 rule go_rand: medium {
   meta:
     description = "exhibits random behavior"
-    filetypes = "go"
+    filetypes   = "go"
 
   strings:
     $ref = "math/rand"

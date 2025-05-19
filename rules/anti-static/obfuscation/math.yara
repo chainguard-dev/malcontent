@@ -25,6 +25,7 @@ rule js_long_dumb_math: critical {
 rule js_junk_math: medium {
   meta:
     description = "suspicious junk math"
+    filetypes   = "js,ts"
 
   strings:
     $charAt                     = "charAt"
@@ -41,6 +42,7 @@ rule js_junk_math: medium {
 rule js_junk_math_high: high {
   meta:
     description = "multiple examples of suspicious junk math"
+    filetypes   = "js,ts"
 
   strings:
     $charAt                     = "charAt"

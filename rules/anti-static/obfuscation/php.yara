@@ -3,7 +3,7 @@ rule php_obfuscation: high {
     description = "obfuscated PHP code"
     credit      = "Ported from https://github.com/jvoisin/php-malware-finder"
 
-    filetypes   = "php"
+    filetypes = "php"
 
   strings:
     $php                 = "<?php"
@@ -28,7 +28,7 @@ rule php_hex_functions: high {
   meta:
     description = "contains function references encoded in hex"
 
-    filetypes   = "php"
+    filetypes = "php"
 
   strings:
     $h_globals         = "\\x47\\x4c\\x4f\\x42\\x41\\x4c\\x53" nocase
@@ -49,7 +49,7 @@ rule php_non_printable: medium {
     description = "non-printable values unexpectedly passed to a function"
     credit      = "Ported from https://github.com/jvoisin/php-malware-finder"
 
-    filetypes   = "php"
+    filetypes = "php"
 
   strings:
     $ref = /(function|return|base64_decode).{,64}[^\x09-\x0d\x20-\x7E]{3}/
@@ -64,7 +64,7 @@ rule php_oneliner: medium {
     description = "sets up PHP and jumps directly into risky function"
     credit      = "Ported from https://github.com/jvoisin/php-malware-finder"
 
-    filetypes   = "php"
+    filetypes = "php"
 
   strings:
     $php        = "<?php"
