@@ -61,6 +61,7 @@ evasion/file/location/system_directory: medium
 evasion/file/prefix: medium
 evasion/hide_artifacts/pivot_root: medium
 exec/cmd: medium
+exec/cmd/pipe: medium
 exec/plugin: low
 exec/program: medium
 exec/shell/TERM: low

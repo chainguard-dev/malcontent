@@ -1,5 +1,4 @@
 # linux/clean/appsec-rules.json: medium
-c2/addr/url: medium
 collect/databases/mysql: medium
 collect/databases/postgresql: medium
 collect/databases/sqlite: medium

@@ -1,5 +1,20 @@
 import "math"
 
+rule js_var_misdirection: medium {
+  meta:
+    description = "multiple layers of variable misdirection"
+    filetypes   = "application/javascript"
+
+  strings:
+    $short_mix_high = /var [a-z]{0,2}[A-Z]{1,2}[a-z]\w{1,2}\s{0,2}=\s{0,2}\w{0,2}[A-Z]\w{1,2}[\;\(\[]/
+    $empty          = /var [a-z]{1,3}[A-Z][a-z]{0,2}\s{0,2}=\s{0,2}"";/
+    $short_mix_low  = /var [a-z][A-Z]{1,6}\w{1,2}\s{0,2}=\s{0,2}\w{0,2}[A-Z]\w{1,2}[\;\(\[]/
+    $short_low      = /var [a-z]{1,3}\s{0,2}=\s{0,2}\w{0,2}[A-Z]\w{1,2}[\;\(\[]/
+
+  condition:
+    filesize < 4MB and 3 of them
+}
+
 rule character_obfuscation: medium {
   meta:
     description = "obfuscated javascript that relies on character manipulation"
@@ -135,19 +150,6 @@ rule js_hex_obfuscation: high {
 
   condition:
     filesize < 1MB and any of them
-}
-
-rule js_hex_obfuscation: high {
-  meta:
-    description = "javascript function obfuscation (hex)"
-    filetypes   = "application/javascript"
-
-  strings:
-    $return = /return _{0,4}0x[\w]{0,32}[\(\w]{0,32}/
-    $const  = /const _{0,4}0x[\w]{0,32}\s*=[\w]{0,32}/
-
-  condition:
-    filesize < 1MB and #return > 5 and #const > 5
 }
 
 rule high_entropy: medium {
@@ -333,12 +335,13 @@ rule high_entropy_charAt: medium {
     $s_for      = /for\s{0,2}\(/
 
   condition:
-    obfs_probably_js and math.entropy(1, filesize) >= 5.37 and all of them
+    math.entropy(1, filesize) >= 5.37 and all of them
 }
 
 rule charAt_long_string: medium {
   meta:
     description = "uses charAt/substr/join loops with a long variable"
+    filetypes   = "application/javascript"
 
   strings:
     $s_charAt   = "charAt("
@@ -351,12 +354,13 @@ rule charAt_long_string: medium {
     $long_garbage = /['"][\w\~\!\@\#\$\%\^\&\*\(\)\{\}\?\+\/\/\=\-\;\[\]\.><\,\`\'\"_\\:]{16,256}[\s\%\$]{1,2}[\w\~\!\@\#\$\%\^\&\*\(\)\{\}\?\+\/\/\=\-\;\[\]\.><\,\`\'\"_\\:]{0,256}/
 
   condition:
-    obfs_probably_js and all of ($s*) and any of ($long*)
+    all of ($s*) and any of ($long*)
 }
 
 rule charAt_long_vars: medium {
   meta:
     description = "uses charAt/substr/join loops with long variables"
+    filetypes   = "application/javascript"
 
   strings:
     $s_charAt   = "charAt("
@@ -369,12 +373,13 @@ rule charAt_long_vars: medium {
     $long_garbage = /['"][\w\~\!\@\#\$\%\^\&\*\(\)\{\}\?\+\/\/\=\-\;\[\]\.><\,\`\'\"_\\:]{16,256}[\s\%\$]{1,2}[\w\~\!\@\#\$\%\^\&\*\(\)\{\}\?\+\/\/\=\-\;\[\]\.><\,\`\'\"_\\:]{0,256}/
 
   condition:
-    obfs_probably_js and all of ($s*) and (#long_string + #long_garbage) > 3
+    all of ($s*) and (#long_string + #long_garbage) > 3
 }
 
 rule obfuscated_require: high {
   meta:
     description = "sets variable to the 'require' keyword"
+    filetypes   = "application/javascript"
 
   strings:
     $ = /global\[\"\w{1,16}\"\]\s{0,2}=\s{0,2}require;/

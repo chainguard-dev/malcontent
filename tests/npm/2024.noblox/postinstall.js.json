@@ -2046,11 +2046,11 @@
                         "return _0xc65b7",
                         "return _0xa137f"
                     ],
-                    "RiskScore": 4,
-                    "RiskLevel": "CRITICAL",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/obfuscation/js.yara#multiple_js_hex_obfuscation",
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/obfuscation/js.yara#js_hex_obfuscation",
                     "ID": "anti-static/obfuscation/js",
-                    "RuleName": "multiple_js_hex_obfuscation"
+                    "RuleName": "js_hex_obfuscation"
                 },
                 {
                     "Description": "complex math and string to integer conversion",

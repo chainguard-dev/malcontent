@@ -16,7 +16,6 @@ credential/keychain: medium
 credential/keylogger: medium
 credential/password: low
 credential/password/hashcat: medium
-credential/sniffer/bpf: medium
 credential/ssh/d: medium
 credential/ssl/private_key: low
 crypto/aes: low

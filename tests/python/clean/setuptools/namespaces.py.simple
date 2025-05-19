@@ -1,4 +1,4 @@
-# python/clean/setuptools/namespaces.py: medium
+# python/clean/setuptools/namespaces.py: low
 data/encoding/json_encode: low
 exec/imports/python: low
 false-positives/setuptools: low

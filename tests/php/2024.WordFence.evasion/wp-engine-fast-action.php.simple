@@ -1,5 +1,4 @@
 # php/2024.WordFence.evasion/wp-engine-fast-action.php: critical
 anti-static/obfuscation/php: high
-c2/addr/url: medium
 data/embedded/base64: medium
 data/encoding/reverse: low

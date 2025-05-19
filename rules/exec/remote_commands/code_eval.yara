@@ -85,7 +85,7 @@ rule js_anonymous_function: medium {
     $run  = /\n\s{0,8}\}\)\(\);/
 
   condition:
-    eval_probably_js and filesize < 5MB and all of them and (@run - @func) > 384
+    filesize < 5MB and all of them and (@run - @func) > 384
 }
 
 rule python_exec: medium {
