@@ -1,8 +1,0 @@
-# linux/clean/kibana/defense_evasion_defender_exclusion_via_powershell.json: medium
-c2/tool_transfer/os: low
-exec/shell/power: medium
-impact/degrade/win_defender: low
-impact/exploit: medium
-malware/ref: medium
-net/url/embedded: low
-sus/malicious: medium

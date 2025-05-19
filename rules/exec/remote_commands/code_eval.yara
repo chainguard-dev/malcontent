@@ -237,7 +237,6 @@ rule php_at_eval: critical {
 rule npm_preinstall_eval: critical {
   meta:
     description = "NPM preinstall evaluates arbitrary code"
-    filetypes   = "application/json"
 
   strings:
     $ref = /\s{2,8}"preinstall": ".{12,256}eval\([\w\.]{1,32}\).{0,256}"/

@@ -74,7 +74,6 @@ var supportedKind = map[string]string{
 	"jar":     "application/java-archive",
 	"java":    "text/x-java",
 	"js":      "application/javascript",
-	"json":    "application/json",
 	"ko":      "application/x-object",
 	"lnk":     "application/x-ms-shortcut",
 	"lua":     "text/x-lua",

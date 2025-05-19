@@ -1,9 +1,0 @@
-# javascript/clean/3937.844b09f50594ca2613b4.js.map: medium
-c2/tool_transfer/os: low
-exec/shell/power: medium
-false-positives/mattermost: low
-fs/directory/remove: low
-fs/file/copy: medium
-fs/file/delete: medium
-net/download/fetch: medium
-net/url/embedded: low
