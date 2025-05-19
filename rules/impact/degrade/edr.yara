@@ -30,7 +30,7 @@ rule win_edr_stopper: critical windows {
     filesize < 1MB and $stop and any of ($kind*)
 }
 
-rule linux_edr_killlall: critical linux {
+rule linux_edr_killall: critical linux {
   meta:
     description = "Kills EDR/Antivirus services"
 

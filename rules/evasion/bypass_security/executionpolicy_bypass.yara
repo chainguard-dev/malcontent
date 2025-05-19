@@ -1,6 +1,7 @@
 rule ps_executionpolicy_bypass: high {
   meta:
     description = "bypasses PowerShell Execution Policy"
+    filetypes   = "ps1"
 
   strings:
     $ref = "-ExecutionPolicy Bypass"
@@ -12,6 +13,7 @@ rule ps_executionpolicy_bypass: high {
 rule ps_executionpolicy_bypass_small_child: high {
   meta:
     description = "Calls powerscript and bypasses PowerShell Execution Policy"
+    filetypes   = "ps1"
 
   strings:
     $ref   = "-ExecutionPolicy Bypass"

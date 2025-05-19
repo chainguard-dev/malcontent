@@ -7,6 +7,5 @@ fs/file/make_executable: high
 fs/path/tmp: medium
 fs/path/var: low
 fs/permission/modify: medium
-impact/degrade/app: medium
 process/create: low
 process/multithreaded: low

@@ -22,6 +22,7 @@ private rule applicatons_macho {
 rule macho_app_path: high {
   meta:
     description = "references hardcoded application path"
+    filetypes   = "macho"
 
   strings:
     $ref = /\/Applications\/.{0,32}\.app\/Contents\/MacOS\/[\w \.\-]{0,32}/
@@ -33,6 +34,7 @@ rule macho_app_path: high {
 rule mac_applications: medium {
   meta:
     description = "references /Applications directly"
+    filetypes   = "macho"
 
   strings:
     $ref = "/Applications" fullword

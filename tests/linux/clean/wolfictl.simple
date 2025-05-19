@@ -94,7 +94,6 @@ fs/file/delete_forcibly: medium
 fs/file/open: low
 fs/file/read: low
 fs/file/rename: low
-fs/file/stat: low
 fs/file/times_set: medium
 fs/file/truncate: low
 fs/file/write: low

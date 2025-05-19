@@ -1,7 +1,7 @@
 rule win_debugger_present: medium windows {
   meta:
     description = "Detects if process is being executed within a debugger"
-    filetypes   = "ps1,exe,pe"
+    filetypes   = "exe,pe,ps1"
 
   strings:
     $debug_idp = "IsDebuggerPresent"
@@ -14,7 +14,7 @@ rule win_debugger_present: medium windows {
 rule win_debugger_or_vm: medium windows {
   meta:
     description = "Detects if process is being executed within a debugger or VM"
-    filetypes   = "ps1,exe,pe"
+    filetypes   = "exe,pe,ps1"
 
   strings:
     $cpu_pfp   = "IsProcessorFeaturePresent"

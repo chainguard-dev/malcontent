@@ -6,6 +6,7 @@ private rule crypto_elf_or_macho {
 rule uname_hostname_encrypt_wipe_kill_small: high {
   meta:
     description = "May encrypt, wipe files, and kill processes"
+    filetypes   = "elf,macho"
 
   strings:
     $encrypt   = "encrypt" fullword
@@ -22,6 +23,7 @@ rule uname_hostname_encrypt_wipe_kill_small: high {
 rule uname_hostname_encrypt_wipe_kill: medium {
   meta:
     description = "May encrypt, wipe files, and kill processes"
+    filetypes   = "elf,macho"
 
   strings:
     $encrypt   = "encrypt" fullword

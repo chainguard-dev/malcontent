@@ -74,6 +74,7 @@ rule python_platform: medium {
   meta:
     description = "system platform identification"
     ref         = "https://docs.python.org/3/library/platform.html"
+    filetypes   = "py"
 
   strings:
     $ref  = "platform.dist()"
@@ -101,6 +102,7 @@ rule npm_uname: medium {
   meta:
     description = "get system identification"
     ref         = "https://nodejs.org/api/process.html"
+    filetypes   = "js,ts"
 
   strings:
     $ = "process.platform"
@@ -118,6 +120,7 @@ rule npm_uname: medium {
 rule ruby_uname: medium ruby {
   meta:
     description = "get system identification"
+    filetypes   = "rb"
 
   strings:
     $ = "CONFIG['host_os']"

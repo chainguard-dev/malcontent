@@ -30,6 +30,7 @@ rule py_connect: medium {
     description = "initiate a connection on a socket"
     syscall     = "connect"
     ref         = "https://docs.python.org/3/library/socket.html"
+    filetypes   = "py"
 
   strings:
     $socket = "socket.socket"
@@ -44,6 +45,7 @@ rule php_connect: medium {
     description = "initiate a connection on a socket"
     syscall     = "connect"
     ref         = "https://www.php.net/manual/en/function.fsockopen.php"
+    filetypes   = "php"
 
   strings:
     $ref = "fsockopen"

@@ -14,6 +14,7 @@ rule desktop_app_exec_entry: medium {
 rule elf_desktop_app_exec_entry: high {
   meta:
     description = "persists via an XDG Desktop Entry"
+    filetypes   = "elf"
 
   strings:
     $ = "[Desktop Entry]"

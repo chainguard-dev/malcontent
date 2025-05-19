@@ -1,6 +1,7 @@
 rule go_cipher: harmless {
   meta:
     description = "Uses crypto/cipher"
+    filetypes   = "elf,go,macho"
 
   strings:
     $ref = "XORKeyStream"

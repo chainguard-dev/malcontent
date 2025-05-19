@@ -41,7 +41,7 @@ rule bin_ls {
     any of them
 }
 
-rule NodeReadDir {
+rule node_readdir {
   meta:
     description = "Uses NodeJS functions to list a directory"
     pledge      = "rpath"
@@ -54,7 +54,7 @@ rule NodeReadDir {
     any of them
 }
 
-rule PythonListDir {
+rule python_listdir {
   meta:
     description = "lists contents of a directory"
     pledge      = "rpath"

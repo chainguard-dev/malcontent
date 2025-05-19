@@ -1,6 +1,7 @@
 rule elf_processhide: high {
   meta:
     description = "userland rootkit designed to hide processes"
+    filetypes   = "elf"
 
   strings:
     $prochide          = "processhide"

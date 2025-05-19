@@ -37,6 +37,7 @@ rule python_read {
 rule ruby_read {
   meta:
     description = "reads files"
+    filetypes   = "rb"
 
   strings:
     $ref = /File\.read\([\w\.'"]{1,64}\)/
@@ -48,6 +49,7 @@ rule ruby_read {
 rule python_file_read {
   meta:
     description = "opens a file for read"
+    filetypes   = "py"
 
   strings:
     $val = /open\([\"\w\.]{1,32}\, {0,2}["']r["']\)/
@@ -59,6 +61,7 @@ rule python_file_read {
 rule python_file_read_binary: medium {
   meta:
     description = "opens a binary file for read"
+    filetypes   = "py"
 
   strings:
     $val = /open\([\"\w\.]{1,32}\, {0,2}["']rb["']\)/

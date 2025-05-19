@@ -19,8 +19,6 @@ crypto/ecdsa: low
 crypto/ed25519: low
 crypto/public_key: low
 crypto/tls: low
-data/base64/decode: medium
-data/base64/encode: medium
 data/compression/gzip: low
 data/compression/zstd: low
 data/embedded/html: medium
@@ -50,7 +48,6 @@ fs/file/delete: low
 fs/file/open: low
 fs/file/read: low
 fs/file/rename: low
-fs/file/stat: low
 fs/file/times_set: low
 fs/file/write: low
 fs/link_read: low

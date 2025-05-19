@@ -1,6 +1,7 @@
 rule subprocess_CREATE_NO_WINDOW: medium {
   meta:
     description = "runs commands, hides windows"
+    filetypes   = "py"
 
   strings:
     $sub       = "subprocess"

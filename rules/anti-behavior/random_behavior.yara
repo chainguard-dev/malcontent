@@ -57,7 +57,7 @@ rule go_rand: medium {
 rule rand_call: medium {
   meta:
     description = "exhibits random behavior"
-    filetypes   = "c,perl,php"
+    filetypes   = "c,pl,php"
 
   strings:
     $ref = "rand()"

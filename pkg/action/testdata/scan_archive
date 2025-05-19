@@ -1108,15 +1108,15 @@
                     "RuleName": "explicit_rename"
                 },
                 {
-                    "Description": "access filesystem metadata",
+                    "Description": "access filesystem information",
                     "MatchStrings": [
-                        "fs.statDirEntry"
+                        "_stat"
                     ],
-                    "RiskScore": 1,
-                    "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-stat.yara#npm_stat",
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-stat.yara#stat",
                     "ID": "fs/file/stat",
-                    "RuleName": "npm_stat"
+                    "RuleName": "stat"
                 },
                 {
                     "Description": "forcibly synchronizes file state to disk",

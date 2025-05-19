@@ -15,8 +15,6 @@ crypto/decrypt: low
 crypto/encrypt: medium
 crypto/openssl: medium
 crypto/public_key: low
-data/base64/decode: medium
-data/base64/encode: medium
 data/compression/bzip2: low
 data/compression/lzma: low
 data/compression/zlib: low

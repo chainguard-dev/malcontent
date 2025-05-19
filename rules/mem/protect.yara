@@ -12,6 +12,7 @@ rule virtualprotect: low windows {
 rule virtualprotect_py_crazy: high windows {
   meta:
     description = "Changes the protection of virtual memory within the calling process"
+    filetypes   = "py"
 
   strings:
     $ref      = "ctypes.windll.kernel32.VirtualProtect" fullword

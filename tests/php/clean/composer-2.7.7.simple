@@ -16,7 +16,6 @@ crypto/aes: low
 crypto/encrypt: medium
 crypto/openssl: medium
 crypto/public_key: low
-data/base64/decode: medium
 data/base64/encode: medium
 data/compression/bzip2: low
 data/compression/gzip: low
@@ -47,7 +46,6 @@ fs/directory/remove: low
 fs/file/copy: medium
 fs/file/delete: low
 fs/file/delete_forcibly: medium
-fs/file/read: low
 fs/file/times_set: medium
 fs/file/truncate: low
 fs/file/write: low

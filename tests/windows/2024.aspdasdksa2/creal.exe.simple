@@ -33,5 +33,4 @@ net/url/request: medium
 os/signal/handle: low
 process/chdir: low
 process/create: low
-process/multi: medium
 process/terminate: medium

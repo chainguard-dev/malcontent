@@ -75,7 +75,6 @@ fs/file/delete_forcibly: low
 fs/file/open: low
 fs/file/read: low
 fs/file/rename: low
-fs/file/stat: low
 fs/file/write: low
 fs/link_read: low
 fs/mount: low

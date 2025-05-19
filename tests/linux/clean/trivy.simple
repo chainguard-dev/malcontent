@@ -34,8 +34,6 @@ crypto/ed25519: low
 crypto/openssl: medium
 crypto/public_key: low
 crypto/tls: low
-data/base64/decode: medium
-data/base64/encode: medium
 data/compression/bzip2: low
 data/compression/gzip: low
 data/compression/lzma: low
@@ -103,7 +101,6 @@ fs/file/delete_forcibly: medium
 fs/file/open: low
 fs/file/read: low
 fs/file/rename: low
-fs/file/stat: low
 fs/file/times_set: medium
 fs/file/truncate: low
 fs/file/write: low

@@ -16,6 +16,7 @@ rule node_HOME {
   meta:
     description = "Looks up the HOME directory for the current user"
     ref         = "https://man.openbsd.org/login.1#ENVIRONMENT"
+    filetypes   = "js,ts"
 
   strings:
     $ref = "env.HOME" fullword
@@ -27,6 +28,7 @@ rule node_HOME {
 rule py_HOME {
   meta:
     description = "Looks up the HOME directory for the current user"
+    filetypes   = "py"
 
   strings:
     $ref = "os.path.expanduser(\"~\")" fullword
@@ -34,4 +36,3 @@ rule py_HOME {
   condition:
     all of them
 }
-

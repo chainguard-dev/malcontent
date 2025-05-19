@@ -21,7 +21,7 @@ data/encoding/utf16: medium
 discover/network/interface_list: medium
 discover/process/parent: low
 discover/process/working_directory: low
-discover/system/platform: medium
+discover/system/platform: low
 discover/user/USER: low
 discover/user/USERPROFILE: low
 discover/user/name_get: medium
@@ -37,7 +37,6 @@ fs/file/copy: medium
 fs/file/delete: low
 fs/file/delete_forcibly: medium
 fs/file/read: low
-fs/file/stat: low
 fs/file/times_set: medium
 fs/file/truncate: low
 fs/file/write: low
