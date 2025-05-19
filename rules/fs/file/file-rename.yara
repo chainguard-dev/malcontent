@@ -14,7 +14,7 @@ rule rename: harmless posix {
 rule explicit_rename: low {
   meta:
     description = "renames files"
-    filetypes   = "elf,go,macho,m,py,rb"
+    filetypes   = "elf,go,js,macho,m,py,rb,ts"
 
   strings:
     $rename      = "os.rename" fullword
