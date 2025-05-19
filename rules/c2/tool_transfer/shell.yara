@@ -1,7 +1,7 @@
 rule fetch_chmod_run_oneliner_value: critical {
   meta:
     description = "fetches, chmods, and runs a program"
-    filetypes   = "application/x-sh,application/x-zsh"
+    filetypes   = "bash,sh,zsh"
 
   strings:
     $ref = /[a-z](url|get) .{4,64}chmod .{4,64}\.\/[a-z]{1,16}/
@@ -13,7 +13,7 @@ rule fetch_chmod_run_oneliner_value: critical {
 rule tool_chmod_relative_run: medium {
   meta:
     description = "may fetch file, make it executable, and run it"
-    filetypes   = "application/x-sh,application/x-zsh"
+    filetypes   = "bash,sh,zsh"
 
   strings:
     $f_curl      = /(curl|wget) [\-\w \$\@\{\w\/\.\:]{0,96}/
@@ -29,7 +29,7 @@ rule tool_chmod_relative_run: medium {
 rule fetch_tar_run: high {
   meta:
     description = "fetches, extracts, and runs program"
-    filetypes   = "application/x-sh,application/x-zsh"
+    filetypes   = "bash,sh,zsh"
 
   strings:
     $fetch_tar_relative = /(curl|wget).{8,128}tar -{0,1}x.{8,96}[;& ]\.\/[a-z\$]{1,2}.{0,64}/
@@ -41,7 +41,7 @@ rule fetch_tar_run: high {
 rule tool_chmod_relative_run_tiny: high {
   meta:
     description = "fetch file, make it executable, and run it"
-    filetypes   = "application/x-sh,application/x-zsh"
+    filetypes   = "bash,sh,zsh"
 
   strings:
     $must_cd     = /cd {1,2}[\/\$][\w\/]{0,16}/
@@ -70,7 +70,7 @@ rule helm_test_env: override {
 rule tool_tor_chmod_relative_run: high {
   meta:
     description = "change dir, fetch file via tor, make it executable, and run it"
-    filetypes   = "application/x-sh,application/x-zsh"
+    filetypes   = "bash,sh,zsh"
 
   strings:
     $tor2web   = "tor2web"
@@ -124,7 +124,7 @@ rule nohup_bash_background: high {
 rule fetch_pipe_shell_value: medium {
   meta:
     description = "fetches content and pipes it to a shell"
-    filetypes   = "application/x-sh,application/x-zsh"
+    filetypes   = "bash,sh,zsh"
 
   strings:
     $wget_bash = /wget .{8,128}\| {0,2}bash/
@@ -139,7 +139,7 @@ rule fetch_pipe_shell_value: medium {
 rule fetch_chmod_execute: high {
   meta:
     description = "single line fetch, chmod, execute"
-    filetypes   = "application/x-sh,application/x-zsh"
+    filetypes   = "bash,sh,zsh"
 
   strings:
     $wget = /wget .{8,64} \&\&.{0,64} chmod .{3,16} \&\& \.\/[\.\w]{1,16}/
@@ -152,7 +152,7 @@ rule fetch_chmod_execute: high {
 rule possible_dropper: high {
   meta:
     description = "download and execute a program"
-    filetypes   = "application/x-sh,application/x-zsh"
+    filetypes   = "bash,sh,zsh"
 
   strings:
     $http          = /https{0,1}:\/\/[\.\w\/\?\=\-]{1,64}/
@@ -172,7 +172,7 @@ rule possible_dropper: high {
 rule nohup_dropper: critical {
   meta:
     description = "downloads and executes a program with nohup"
-    filetypes   = "application/x-sh,application/x-zsh"
+    filetypes   = "bash,sh,zsh"
 
   strings:
     $nohup = "nohup" fullword
@@ -184,7 +184,7 @@ rule nohup_dropper: critical {
 rule obsessive_dropper: high {
   meta:
     description = "invokes multiple tools to download and execute a program"
-    filetypes   = "application/x-sh,application/x-zsh"
+    filetypes   = "bash,sh,zsh"
 
   strings:
     $http          = "http://"

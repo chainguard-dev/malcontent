@@ -1,5 +1,5 @@
 # linux/clean/chezmoi: medium
-anti-behavior/random_behavior: medium
+anti-behavior/random_behavior: low
 anti-static/obfuscation/syscall: medium
 anti-static/xor/functions: medium
 c2/addr/discord: medium

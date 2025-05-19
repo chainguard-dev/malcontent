@@ -13,7 +13,7 @@ private rule small_elf {
 rule higher_elf_entropy_68: medium {
   meta:
     description = "higher entropy ELF binary (>6.95)"
-    filetypes   = "application/x-elf"
+    filetypes   = "elf"
 
   condition:
     normal_elf and math.entropy(1, filesize) >= 6.95
@@ -22,7 +22,7 @@ rule higher_elf_entropy_68: medium {
 rule normal_elf_high_entropy_7_4: high {
   meta:
     description = "high entropy ELF binary (>7.4)"
-    filetypes   = "application/x-elf"
+    filetypes   = "elf"
 
   strings:
     $not_whirlpool = "libgcrypt-grub/cipher/whirlpool.c"
@@ -35,7 +35,7 @@ rule normal_elf_high_entropy_7_4: high {
 rule normal_elf_high_entropy_footer_7_4: high {
   meta:
     description = "high entropy footer in ELF binary (>7.4)"
-    filetypes   = "application/x-elf"
+    filetypes   = "elf"
 
   condition:
     normal_elf and math.entropy(filesize - 8192, filesize) >= 7.4
@@ -44,7 +44,7 @@ rule normal_elf_high_entropy_footer_7_4: high {
 rule normal_elf_high_entropy_footer_7_4_rc4: high {
   meta:
     description = "high entropy footer in ELF binary (>7.4), likely RC4 encrypted"
-    filetypes   = "application/x-elf"
+    filetypes   = "elf"
 
   strings:
     $cmp_e_x_256 = { 81 f? 00 01 00 00 }  // cmp {ebx, ecx, edx}, 256

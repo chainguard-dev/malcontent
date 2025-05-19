@@ -3,7 +3,7 @@ import "math"
 rule nodejs_sysinfoexfil: high {
   meta:
     description = "may gather and exfiltrate system information"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $proc1        = "process.platform"
@@ -21,7 +21,7 @@ rule nodejs_sysinfoexfil: high {
 rule nodejs_phone_home: high {
   meta:
     description = "accesses system information and reports back"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $f_homedir    = "os.homedir"
@@ -47,7 +47,7 @@ rule nodejs_phone_home: high {
 rule nodejs_phone_home_obscure: critical {
   meta:
     description = "accesses system information and uploads it"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $f_homedir  = "homedir"
@@ -76,7 +76,7 @@ rule nodejs_phone_home_obscure: critical {
 rule nodejs_phone_home_interact_sh: critical {
   meta:
     description = "accesses system information and uploads it to a known site"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $ref     = /[\w]{8,32}\.interactsh\.com/
@@ -92,7 +92,7 @@ rule nodejs_phone_home_interact_sh: critical {
 rule nodejs_phone_home_hardcoded_host: critical {
   meta:
     description = "accesses system information and uploads it to hardcoded host"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $ref = /hostname: "[\w\.\-]{5,63}",/
@@ -104,7 +104,7 @@ rule nodejs_phone_home_hardcoded_host: critical {
 rule post_hardcoded_hardcoded_host: medium {
   meta:
     description = "posts content to a hardcoded host"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $ref  = /hostname: "[\w\.\-]{5,63}",/
@@ -118,7 +118,7 @@ rule post_hardcoded_hardcoded_host: medium {
 rule post_hardcoded_hardcoded_host_os: high {
   meta:
     description = "posts content to a hardcoded host"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $ref  = /hostname: "[\w\.\-]{5,63}",/
@@ -158,7 +158,7 @@ private rule nodejs_iplookup_website: high {
 rule get_hardcoded_hardcoded_host_os: critical {
   meta:
     description = "leaks host information to a hardcoded host"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $ref           = /get\([\"']https{0,1}:\/\/[\w\.\-]{5,63}.{0,64}\?.{0,16}=[\'"]\s{0,2}\+/

@@ -39,7 +39,7 @@ rule vaguely_gafygt: critical {
 rule mirai_like: high linux {
   meta:
     description = "Mirai-like backdoor capabilities"
-    filetypes   = "application/x-elf"
+    filetypes   = "elf"
     ref         = "https://www.cloudflare.com/learning/ddos/glossary/mirai-botnet/"
 
   strings:

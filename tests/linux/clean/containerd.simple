@@ -1,5 +1,5 @@
 # linux/clean/containerd: medium
-anti-behavior/random_behavior: medium
+anti-behavior/random_behavior: low
 anti-static/obfuscation/syscall: medium
 c2/addr/ip: medium
 c2/addr/server: medium

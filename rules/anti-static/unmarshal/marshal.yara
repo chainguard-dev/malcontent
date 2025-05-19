@@ -14,7 +14,7 @@ private rule pySetup {
 rule unmarshal_py_marshal: medium {
   meta:
     description = "reads python values from binary content"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $ref = "import marshal"
@@ -26,7 +26,7 @@ rule unmarshal_py_marshal: medium {
 rule setuptools_py_marshal: suspicious {
   meta:
     description = "Python library installer that reads values from binary content"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   condition:
     pySetup and unmarshal_py_marshal

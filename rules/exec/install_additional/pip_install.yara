@@ -26,7 +26,7 @@ rule pip_installer: medium {
   meta:
     description = "Installs software using pip from python"
 
-    filetypes = "text/x-python,application/x-python-code,application/x-sh"
+    filetypes   = "bash,py,pyc,sh,zsh"
 
   strings:
     $ref = /pip3{0,1}[ \'\"\,]{0,5}install[ \'\"\,]{0,5}[\w\-\_\%]{0,32}/
@@ -39,7 +39,7 @@ rule pip_installer_fernet: critical {
   meta:
     description = "Installs fernet crypto package using pip"
     ref         = "https://checkmarx.com/blog/over-170k-users-affected-by-attack-using-fake-python-infrastructure/"
-    filetypes   = "text/x-python,application/x-python-code"
+    filetypes   = "py,pyc"
 
   strings:
     $ref = /pip.{1,5}install.{1,4}fernet/
@@ -52,7 +52,7 @@ rule pip_installer_url: critical {
   meta:
     description = "Installs Python package from hardcoded URL"
     ref         = "https://checkmarx.com/blog/over-170k-users-affected-by-attack-using-fake-python-infrastructure/"
-    filetypes   = "text/x-python,application/x-python-code,application/x-sh"
+    filetypes   = "bash,py,pyc,sh,zsh"
 
   strings:
     $ref = /pip.{1,5}install.{1,4}https{0,1}:\/\/.{0,64}/
@@ -64,7 +64,7 @@ rule pip_installer_url: critical {
 rule pip_installer_socket: critical {
   meta:
     description = "Installs socket library using pip"
-    filetypes   = "text/x-python,application/x-python-code"
+    filetypes   = "py,pyc"
 
   strings:
     $ref = /pip.{1,5}install.{1,4}socket/
@@ -76,7 +76,7 @@ rule pip_installer_socket: critical {
 rule pip_installer_requests: high {
   meta:
     description = "Installs requests library using pip"
-    filetypes   = "text/x-python,application/x-python-code"
+    filetypes   = "py,pyc"
 
   strings:
     $ref = /pip.{1,5}install.{1,4}requests/
@@ -88,7 +88,7 @@ rule pip_installer_requests: high {
 rule pip_installer_sus: high {
   meta:
     description = "Installs libraries using pip"
-    filetypes   = "text/x-python,application/x-python-code"
+    filetypes   = "py,pyc"
 
   strings:
     $crypto  = "Crypto.Cipher"

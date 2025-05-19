@@ -9,7 +9,7 @@ private rule smallBinary {
 rule go_aes: high {
   meta:
     description = "go binary packed with AES"
-    filetypes   = "application/x-mach-binary,application/x-elf"
+    filetypes   = "elf,macho"
 
   strings:
     $aes     = "crypto/aes"

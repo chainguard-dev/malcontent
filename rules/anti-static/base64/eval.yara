@@ -3,7 +3,7 @@ import "math"
 rule eval_base64: high {
   meta:
     description = "Evaluates base64 content"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $eval = /eval\(.{0,256}base64/
@@ -15,7 +15,7 @@ rule eval_base64: high {
 rule ruby_eval_base64_decode: critical {
   meta:
     description = "Evaluates base64 content"
-    filetypes   = "text/x-ruby"
+    filetypes   = "rb"
 
   strings:
     $eval_base64_decode = "eval(Base64."
@@ -27,7 +27,7 @@ rule ruby_eval_base64_decode: critical {
 rule ruby_eval_near_enough: high {
   meta:
     description = "Evaluates base64 content"
-    filetypes   = "text/x-ruby"
+    filetypes   = "rb"
 
   strings:
     $eval   = "eval("
@@ -40,7 +40,7 @@ rule ruby_eval_near_enough: high {
 rule ruby_eval2_near_enough: high {
   meta:
     description = "Evaluates base64 content"
-    filetypes   = "text/x-ruby"
+    filetypes   = "rb"
 
   strings:
     $eval   = "eval("
@@ -53,7 +53,7 @@ rule ruby_eval2_near_enough: high {
 rule python_exec_near_enough_base64: high {
   meta:
     description = "Likely executes base64 content"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $exec   = "exec("
@@ -66,7 +66,7 @@ rule python_exec_near_enough_base64: high {
 rule python_base64_exec: critical {
   meta:
     description = "executes compressed base64 content"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $dec_b64decode_exec = /.{0,8}\.decompress\(.{0,96}\.b64decode\(.{0,64}\Wexec\(.{0,16}/

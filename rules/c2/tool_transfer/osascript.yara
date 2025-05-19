@@ -1,7 +1,7 @@
 rule osascript_dropper: high {
   meta:
     description = "osascript dropper"
-    filetypes   = "application/x-applescript"
+    filetypes   = "scpt,scptd"
 
   strings:
     $c_osascript = "osascript" fullword

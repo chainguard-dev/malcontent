@@ -11,7 +11,7 @@ private rule entitlement_macho {
 rule com_apple_get_task_allow: medium {
   meta:
     description = "debug binary"
-    filetypes   = "application/x-mach-binary"
+    filetypes   = "macho"
 
   strings:
     $get_task_allow = "<key>com.apple.security.get-task-allow</key>"

@@ -1,7 +1,7 @@
 rule open_base64: high {
   meta:
     description = "opens locations based on base64 encoded content"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $import   = "import" fullword

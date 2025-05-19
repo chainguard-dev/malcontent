@@ -1,7 +1,7 @@
 rule activity_monitor_checker: high macos {
   meta:
     description = "checks if 'Activity Monitor' is running"
-    filetypes   = "application/x-mach-binary"
+    filetypes   = "macho"
 
   strings:
     $ps             = "ps" fullword
@@ -17,7 +17,7 @@ rule activity_monitor_checker: high macos {
 rule linux_monitors: high linux {
   meta:
     description = "checks if various process monitors are running"
-    filetypes   = "application/x-elf"
+    filetypes   = "elf"
 
   strings:
     $pgrep = "pgrep" fullword
@@ -47,7 +47,7 @@ rule linux_monitors: high linux {
 rule anti_rootkit_hunter: high linux {
   meta:
     description = "checks if rootkit detectors are running"
-    filetypes   = "application/x-elf"
+    filetypes   = "elf"
 
   strings:
     $proc       = "/proc/"

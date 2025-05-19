@@ -30,7 +30,7 @@ private rule _bundled_glibc: medium {
 rule elf_with_bundled_glibc_and_openssl: high {
   meta:
     description = "includes bundled copy of glibc and OpenSSL"
-    filetypes   = "application/x-elf"
+    filetypes   = "elf"
 
   condition:
     _bundled_openssl and _bundled_glibc

@@ -24,7 +24,7 @@ rule MarshalJSON: harmless {
 rule json_dumps: low {
   meta:
     description = "encodes JSON"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $jsone   = "json" fullword

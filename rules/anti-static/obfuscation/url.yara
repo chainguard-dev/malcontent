@@ -3,7 +3,7 @@ import "math"
 rule decode_url_component_char_code: critical {
   meta:
     description = "decodes obfuscated URL components"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $ref          = "decodeURIComponent"

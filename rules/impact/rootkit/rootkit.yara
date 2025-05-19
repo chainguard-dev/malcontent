@@ -3,7 +3,7 @@ rule linux_register_kprobe_getdents64: critical linux {
     description = "kernel module that intercepts directory listing"
     ref         = "https://github.com/m0nad/Diamorphine"
 
-    filetypes = "application/x-elf,application/x-sharedlib"
+    filetypes = "elf,so"
 
   strings:
     $register_kprobe = "register_kprobe"
@@ -19,7 +19,7 @@ rule linux_kernel_module_hider: critical linux {
     description = "kernel module that hides files and open ports"
     ref         = "https://github.com/m0nad/Diamorphine"
 
-    filetypes = "application/x-elf,application/x-sharedlib"
+    filetypes = "elf,so"
 
   strings:
     $register_kprobe = "register_kprobe"
@@ -34,7 +34,7 @@ rule linux_kernel_module_hider: critical linux {
 rule linux_kernel_module_hide_self: critical linux {
   meta:
     description = "kernel module that hides itself"
-    filetypes   = "application/x-elf,application/x-sharedlib"
+    filetypes = "elf,so"
 
   strings:
     $register_kprobe = "register_kprobe"

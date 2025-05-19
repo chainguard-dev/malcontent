@@ -43,7 +43,7 @@ rule init_module: medium linux {
     syscall     = "init_module"
     capability  = "CAP_SYS_MODULE"
 
-    filetypes = "application/x-object,application/x-elf,application/x-sharedlib"
+    filetypes = "elf,ko,so"
 
   strings:
     $ref = "init_module" fullword

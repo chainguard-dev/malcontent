@@ -3,7 +3,7 @@ import "math"
 rule js_var_misdirection: medium {
   meta:
     description = "multiple layers of variable misdirection"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $short_mix_high = /var [a-z]{0,2}[A-Z]{1,2}[a-z]\w{1,2}\s{0,2}=\s{0,2}\w{0,2}[A-Z]\w{1,2}[\;\(\[]/
@@ -18,7 +18,7 @@ rule js_var_misdirection: medium {
 rule character_obfuscation: medium {
   meta:
     description = "obfuscated javascript that relies on character manipulation"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $a_char         = "charCodeAt"
@@ -40,7 +40,7 @@ rule character_obfuscation: medium {
 rule js_char_code_at_substitution: high {
   meta:
     description = "converts integers into strings and contains a substitution map"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $charCodeAt = "charCodeAt" fullword
@@ -53,7 +53,7 @@ rule js_char_code_at_substitution: high {
 rule child_process: high {
   meta:
     description = "obfuscated javascript that calls external programs"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $f_const         = "const" fullword
@@ -72,7 +72,7 @@ rule child_process: high {
 rule ebe: high {
   meta:
     description = "highly obfuscated javascript (eBe)"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $function   = "function("
@@ -87,7 +87,7 @@ rule ebe: high {
 rule ebe_generic: high {
   meta:
     description = "highly obfuscated javascript"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $function   = "function("
@@ -104,7 +104,7 @@ rule ebe_generic: high {
 rule exec_console_log: critical {
   meta:
     description = "evaluates the return of console.log()"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $ref = ".exec(console.log("
@@ -116,7 +116,7 @@ rule exec_console_log: critical {
 rule js_const_func_obfuscation: medium {
   meta:
     description = "javascript obfuscation (excessive const functions)"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $const    = "const "
@@ -130,7 +130,7 @@ rule js_const_func_obfuscation: medium {
 rule js_hex_eval_obfuscation: high {
   meta:
     description = "javascript eval obfuscation (hex)"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $return = /\(eval, _{0,4}0x[\w]{0,32}[\(\[]/
@@ -142,7 +142,7 @@ rule js_hex_eval_obfuscation: high {
 rule js_hex_obfuscation: high {
   meta:
     description = "javascript function obfuscation (hex)"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $return = /return _{0,4}0x[\w]{0,32}[\(\w]{0,32}/
@@ -155,7 +155,7 @@ rule js_hex_obfuscation: high {
 rule high_entropy: medium {
   meta:
     description = "high entropy javascript (>6)"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   condition:
     math.entropy(1, filesize) >= 6
@@ -164,7 +164,7 @@ rule high_entropy: medium {
 rule very_high_entropy: high {
   meta:
     description = "very high entropy javascript (>7)"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   condition:
     math.entropy(1, filesize) >= 7
@@ -173,7 +173,7 @@ rule very_high_entropy: high {
 rule charCodeAtIncrement: medium {
   meta:
     description = "converts incremented numbers into characters"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $function  = "function("
@@ -186,7 +186,7 @@ rule charCodeAtIncrement: medium {
 rule js_many_parseInt: high {
   meta:
     description = "javascript obfuscation (integer parsing)"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $const    = "const "
@@ -201,7 +201,7 @@ rule js_many_parseInt: high {
 rule over_powered_arrays: high {
   meta:
     description = "uses many powered array elements (>25)"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $function    = /function\(\w,/
@@ -215,7 +215,7 @@ rule over_powered_arrays: high {
 rule string_prototype_function: high {
   meta:
     description = "obfuscates function calls via string prototypes"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $ref  = /String\["prototype"\].{1,32} = function\(\) \{ eval\(this\.toString\(\)\)\;/
@@ -228,7 +228,7 @@ rule string_prototype_function: high {
 rule unicode_prototype: critical {
   meta:
     description = "sets obfuscated Array.prototype attribute"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $ref = /Array\.prototype\.\\[\w\\]{2,256}\s{0,2}=.{0,64}/
@@ -240,7 +240,7 @@ rule unicode_prototype: critical {
 rule var_filler: high {
   meta:
     description = "header is filled with excessive variable declarations"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $ref = /[a-z]{2,8}\d{1,5} = "[a-z]{2,8}\d{1,5}"/ fullword
@@ -252,7 +252,7 @@ rule var_filler: high {
 rule large_random_variables: high {
   meta:
     description = "contains large random variable names"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $ref = /var [a-zA-Z_]{32,256} = '.{4}/ fullword
@@ -264,7 +264,7 @@ rule large_random_variables: high {
 rule many_complex_var: medium {
   meta:
     description = "defines multiple complex variables"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $ref = /var [a-zA-Z_]{1,256} = \(/
@@ -276,7 +276,7 @@ rule many_complex_var: medium {
 rule many_complex_var_high: high {
   meta:
     description = "excessive complex variable declarations"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $ref = /var [a-zA-Z_]{1,256} = \(.{1,64}/
@@ -288,7 +288,7 @@ rule many_complex_var_high: high {
 rule many_static_map_lookups: medium {
   meta:
     description = "contains large number of static map lookups"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $ref = /\[[\"\'][a-z]{1,32}[\"\']\]/
@@ -300,7 +300,7 @@ rule many_static_map_lookups: medium {
 rule obfuscated_map_to_array_conversions: high {
   meta:
     description = "obfuscated map to array conversions"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $ref = /\[[\"\'a-z]{1,32}\]\s{0,2}\+\s{0,2}\[\]\)\[\d{1,4}\]/
@@ -312,7 +312,7 @@ rule obfuscated_map_to_array_conversions: high {
 rule large_obfuscated_array: high {
   meta:
     description = "contains large obfuscated arrays"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $ref  = /[a-z]{32,256}=\[\]/ fullword
@@ -325,7 +325,7 @@ rule large_obfuscated_array: high {
 rule high_entropy_charAt: medium {
   meta:
     description = "high entropy javascript (>5.37) that uses charAt/substr/join loops"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $           = "charAt("
@@ -341,7 +341,7 @@ rule high_entropy_charAt: medium {
 rule charAt_long_string: medium {
   meta:
     description = "uses charAt/substr/join loops with a long variable"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $s_charAt   = "charAt("
@@ -360,7 +360,7 @@ rule charAt_long_string: medium {
 rule charAt_long_vars: medium {
   meta:
     description = "uses charAt/substr/join loops with long variables"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $s_charAt   = "charAt("
@@ -379,7 +379,7 @@ rule charAt_long_vars: medium {
 rule obfuscated_require: high {
   meta:
     description = "sets variable to the 'require' keyword"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $ = /global\[\"\w{1,16}\"\]\s{0,2}=\s{0,2}require;/

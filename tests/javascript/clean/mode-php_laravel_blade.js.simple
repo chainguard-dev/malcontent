@@ -35,7 +35,6 @@ evasion/logging/acct: low
 exec/plugin: low
 exec/program: medium
 exec/program/background: low
-exec/shell/command: medium
 exec/tty/pathname: medium
 fs/directory/create: low
 fs/directory/remove: low

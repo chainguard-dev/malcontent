@@ -45,7 +45,7 @@ rule gzinflate_str_replace: critical {
 rule funky_function: critical {
   meta:
     description = "creatively hidden forms of the term 'function'"
-    filetypes   = "text/x-php"
+    filetypes   = "php"
 
   strings:
     $a = "'fu'.'nct'.'ion'"

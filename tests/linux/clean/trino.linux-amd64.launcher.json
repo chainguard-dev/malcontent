@@ -40,15 +40,22 @@
             ],
             "Behaviors": [
                 {
-                    "Description": "exhibits random behavior",
+                    "Description": "uses a random number generator",
                     "MatchStrings": [
-                        "math/rand"
+                        "readTimeRandom",
+                        "rand_getrandom",
+                        "urandomECDSA",
+                        "randomOrder",
+                        "readRandom",
+                        "randomEnum",
+                        "GetRandom",
+                        "getRandom"
                     ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-behavior/random_behavior.yara#go_rand",
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-behavior/random_behavior.yara#random",
                     "ID": "anti-behavior/random_behavior",
-                    "RuleName": "go_rand"
+                    "RuleName": "random"
                 },
                 {
                     "Description": "mentions an IP and port",

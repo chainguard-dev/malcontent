@@ -11,7 +11,7 @@ import "math"
 rule macho_opaque_binary: high {
   meta:
     description = "opaque binary executes mystery command-lines"
-    filetypes   = "application/x-mach-binary"
+    filetypes   = "macho"
 
   strings:
     $word_with_spaces = /[a-z]{2,16} [a-uxyz]{2,16}/ fullword
@@ -30,7 +30,7 @@ rule macho_opaque_binary: high {
 rule macho_opaque_binary_long_str: high {
   meta:
     description = "opaque binary executes mystery command-lines, contains large alphanumeric string"
-    filetypes   = "application/x-mach-binary"
+    filetypes   = "macho"
 
   strings:
     $word_with_spaces = /[a-z]{2,16} [a-uxyz]{2,16}/ fullword

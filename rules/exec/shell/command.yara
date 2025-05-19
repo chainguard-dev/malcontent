@@ -4,7 +4,7 @@ rule system: medium {
     syscalls    = "fork,execl"
     ref         = "https://man7.org/linux/man-pages/man3/system.3.html"
 
-    filetypes = "application/x-elf,application/x-mach-binary"
+    filetypes = "elf,macho"
 
   strings:
     $system = "system" fullword
@@ -29,6 +29,8 @@ rule generic_shell_exec: medium {
   meta:
     description = "execute a shell command"
 
+    filetypes = "php"
+
   strings:
     $exec = "shell_exec"
 
@@ -41,7 +43,7 @@ rule php_shell_exec: medium php {
     description = "execute a shell command"
     syscalls    = "fork,execl"
 
-    filetypes = "text/x-php"
+    filetypes = "php"
 
   strings:
     $php = "<?php"

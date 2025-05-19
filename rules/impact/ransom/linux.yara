@@ -70,7 +70,7 @@ rule linux_syscalls: high {
 rule conti_alike: high posix {
   meta:
     description = "Reads directories, renames files, encrypts files"
-    filetypes   = "application/x-sharedlib,application/x-elf,application/x-mach-binary"
+    filetypes   = "elf,macho,so"
 
   strings:
     $readdir       = "readdir" fullword

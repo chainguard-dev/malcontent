@@ -3,6 +3,7 @@ import "hash"
 rule py_indirect_builtins: suspicious {
   meta:
     description = "Indirectly refers to Python builtins"
+    filetypes = "py"
 
   strings:
     $val = /getattr\(__builtins__,[ \w\.\)\)]{0,64}/
@@ -15,7 +16,7 @@ rule join_map_chr: high {
   meta:
     description = "assembles strings from character code constants"
     ref         = "https://checkmarx.com/blog/crypto-stealing-code-lurking-in-python-package-dependencies/"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $ref  = /join\(map\(chr,\[\d{1,3}, {0,2}\d{1,3}, {0,2}[\d\,]{1,32}/
@@ -28,7 +29,7 @@ rule join_map_chr: high {
 rule for_join_ord: high {
   meta:
     description = "decodes numbers from an obfuscated string"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $ref = /for [\w]{1,10} in ["']{2}\.join\(chr\(ord\(\w{1,8}\)[-\w\), ]{0,16}/
@@ -40,7 +41,7 @@ rule for_join_ord: high {
 rule codecs_decode: high {
   meta:
     description = "decodes text with an arbitrary codec"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $val = /[\w\= ]{0,16}codecs\.decode\(\'.{0,32}\'/
@@ -54,7 +55,7 @@ import "math"
 rule python_exec_eval_one_line: critical {
   meta:
     description = "Evaluates code from encrypted content on a single line via exec or eval"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $f_eval_decrypt_one_line = /eval\s{0,32}\(.{0,32}decrypt/ ascii wide
@@ -69,7 +70,7 @@ rule python_exec_eval_one_line: critical {
 rule dynamic_require: high {
   meta:
     description = "imports a library dynamically"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $import  = "import" fullword
@@ -84,7 +85,7 @@ rule dynamic_require_decoded: critical {
   meta:
     description = "imports an obfuscated library dynamically"
     ref         = "https://blog.sucuri.net/2024/07/new-variation-of-wordfence-evasion-malware.html?ref=news.risky.biz"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $ref = /require\((strrev|base64_decode)\(.{0,64}\)/
@@ -96,7 +97,7 @@ rule dynamic_require_decoded: critical {
 rule dynamic_require_double_obscured: critical {
   meta:
     description = "imports an obfuscated library dynamically"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $ref = /require\(\w{0,16}\d\w{0,16}\(.{0,16}\d\w{0,16}/
@@ -108,7 +109,7 @@ rule dynamic_require_double_obscured: critical {
 rule python_eval_hex: high {
   meta:
     description = "evaluates code from an obfuscated data stream"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $hex   = /eval\(\"\\x\d{1,3}.{0,32}/
@@ -121,7 +122,7 @@ rule python_eval_hex: high {
 rule python_eval_marshal: high {
   meta:
     description = "evaluates code from marshalled data"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $marshal = "eval(marshal.loads"
@@ -134,7 +135,7 @@ rule python_eval_marshal: high {
 rule python_eval_gzip: high {
   meta:
     description = "evaluates code from gzip content"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $ref = /eval\(.{0,32}\(gzip\.decompress\(b.{0,32}/
@@ -146,7 +147,7 @@ rule python_eval_gzip: high {
 rule python_exec_hex: high {
   meta:
     description = "executs code from an obfuscated data stream"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $hex   = /exec\(\"\\x\d{1,3}.{0,32}/
@@ -159,7 +160,7 @@ rule python_exec_hex: high {
 rule python_exec_marshal: high {
   meta:
     description = "evaluates code from marshalled data"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $marshal = "exec(marshal.loads"
@@ -172,7 +173,7 @@ rule python_exec_marshal: high {
 rule python_exec_gzip: high {
   meta:
     description = "executes code from gzip content"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $ref = /exec\(.{0,32}\(gzip\.decompress\(b.{0,32}/
@@ -184,7 +185,7 @@ rule python_exec_gzip: high {
 rule fernet_base64: high {
   meta:
     description = "Decodes base64, uses Fernet"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $fernet     = "Fernet" fullword
@@ -208,7 +209,7 @@ rule fernet_base64: high {
 rule python_hex_decimal: high {
   meta:
     description = "contains a large amount of escaped hex/decimal content"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $f_return = "return"
@@ -227,7 +228,7 @@ rule python_hex_decimal: high {
 rule dumb_int_compares: high {
   meta:
     description = "compares arbitrary integers, likely encoding something"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $import              = "import" fullword
@@ -251,7 +252,7 @@ rule py_lib_alias_val: medium {
 rule multi_decode_3: high {
   meta:
     description = "multiple (3+) levels of decoding"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $return              = "return"
@@ -264,7 +265,7 @@ rule multi_decode_3: high {
 rule multi_decode: medium {
   meta:
     description = "multiple (2) levels of decoding"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $return              = "return"
@@ -277,7 +278,7 @@ rule multi_decode: medium {
 rule rename_requests: medium {
   meta:
     description = "imports 'requests' library and gives it another name"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $ref = /import requests as \w{0,64}/
@@ -289,7 +290,7 @@ rule rename_requests: medium {
 rule rename_requests_2char: high {
   meta:
     description = "imports 'requests' library and gives it a shorter name"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $ref = /import requests as \w{1,2}/ fullword
@@ -301,7 +302,7 @@ rule rename_requests_2char: high {
 rule rename_os: high {
   meta:
     description = "imports 'os' library and gives it another name"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $ref            = /import os as \w{0,64}/
@@ -315,7 +316,7 @@ rule rename_os: high {
 rule rename_marshal: critical {
   meta:
     description = "imports 'marshal' library and gives it another name"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $ref = /import marshal as \w{0,64}/
@@ -327,7 +328,7 @@ rule rename_marshal: critical {
 rule rename_base64: critical {
   meta:
     description = "imports 'base64' library and gives it another name"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $ref = /import base64 as \w{0,64}/
@@ -346,7 +347,7 @@ rule rename_base64: critical {
 rule rename_zlib: high {
   meta:
     description = "imports 'base64' library and gives it another name"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $ref = /import zlib as \w{0,64}/
@@ -358,7 +359,7 @@ rule rename_zlib: high {
 rule too_many_lambdas_small: high {
   meta:
     description = "lambda based obfuscation"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $ref = /lambda \W: \W [\+\-\*]/
@@ -370,7 +371,7 @@ rule too_many_lambdas_small: high {
 rule too_many_lambdas_large: high {
   meta:
     description = "lambda based obfuscation"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $ref = /lambda \W: \W [\+\-\*]/
@@ -382,7 +383,7 @@ rule too_many_lambdas_large: high {
 rule lambda_funk: high {
   meta:
     description = "likely obfuscated with lambda functions"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $ = "__builtins__.__dict__"
@@ -399,7 +400,7 @@ rule lambda_funk: high {
 rule lambda_funk_high: high {
   meta:
     description = "obfuscated with lambda expressions"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $ = "__builtins__.__dict__"
@@ -416,7 +417,7 @@ rule lambda_funk_high: high {
 rule confusing_function_name: high {
   meta:
     description = "obfuscated with confusing function names"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $def    = /def [Il]{6,64}/
@@ -432,7 +433,7 @@ rule confusing_function_name: high {
 rule decompress_base64_entropy: high {
   meta:
     description = "hidden base64-encoded compressed content"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $k_lzma         = "lzma"
@@ -452,7 +453,7 @@ rule decompress_base64_entropy: high {
 rule join: low {
   meta:
     description = "joins array together with an empty delimiter"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $join        = "''.join("
@@ -465,7 +466,7 @@ rule join: low {
 rule join_chr_array: medium {
   meta:
     description = "joins lengthy character array"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $ref     = /[a-z]{1,64}\s{0,2}=\s{0,2}\[\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}\d{1,5},\s{0,2}/
@@ -478,7 +479,7 @@ rule join_chr_array: medium {
 rule join_chr_array_exec: high {
   meta:
     description = "joins lengthy character array and executes arbitrary code"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $val = /exec\(\w{1,32}\)/ fullword
@@ -490,7 +491,7 @@ rule join_chr_array_exec: high {
 rule join_chr_array_math: high {
   meta:
     description = "joins obfuscated character array"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $ref2 = /chr\(int\([a-z]{1,32}\)\s{0,2}[\-\*\+\^]\s{0,2}\w{1,32}/
@@ -502,7 +503,7 @@ rule join_chr_array_math: high {
 rule join_chr_array_exec_math: critical {
   meta:
     description = "joins obfuscated character array and executes arbitrary code"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $val = /exec\(\w{1,32}\)/ fullword
@@ -526,7 +527,7 @@ rule urllib_as_int_array: critical {
 rule import_manipulator: critical {
   meta:
     description = "manipulates globals and imports into executing obfuscated code"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $import  = "__import__("
@@ -547,7 +548,7 @@ rule import_manipulator: critical {
 rule bloated_hex_python: high {
   meta:
     description = "python script bloated with obfuscated content"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $f_unhexlify = "unhexlify" fullword

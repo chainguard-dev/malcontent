@@ -48,7 +48,6 @@ exec/cmd: medium
 exec/plugin: low
 exec/program: medium
 exec/program/background: low
-exec/shell/command: medium
 exec/shell/power: medium
 exec/tty/pathname: medium
 fs/directory/create: low

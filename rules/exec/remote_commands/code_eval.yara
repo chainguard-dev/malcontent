@@ -3,7 +3,7 @@ import "math"
 rule js_eval: medium {
   meta:
     description = "evaluate code dynamically using eval()"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $val       = /eval\([\.\+ _a-zA-Z\"\'\(\,\)]{1,32}/ fullword
@@ -17,7 +17,7 @@ rule js_eval: medium {
 rule js_eval_fx_str: high {
   meta:
     description = "evaluate processed string using eval()"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $val = /eval\(\w{0,16}\([\"\'].{0,16}/
@@ -29,7 +29,7 @@ rule js_eval_fx_str: high {
 rule js_eval_fx_str_multiple: critical {
   meta:
     description = "multiple evaluations of processed string using eval()"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $val = /eval\(\w{0,16}\([\"\'].{0,16}/
@@ -41,7 +41,7 @@ rule js_eval_fx_str_multiple: critical {
 rule js_eval_response: critical {
   meta:
     description = "executes code directly from HTTP response"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $val = /eval\(\w{0,16}\.responseText\)/
@@ -53,7 +53,7 @@ rule js_eval_response: critical {
 rule js_eval_near_enough_fromChar: high {
   meta:
     description = "Likely executes encrypted content"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $exec    = /[\s\{]eval\(/
@@ -66,7 +66,7 @@ rule js_eval_near_enough_fromChar: high {
 rule js_eval_obfuscated_fromChar: critical {
   meta:
     description = "Likely executes encrypted content"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $exec = /[\s\{]eval\(/
@@ -91,7 +91,7 @@ rule js_anonymous_function: medium {
 rule python_exec: medium {
   meta:
     description = "evaluate code dynamically using exec()"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $f_import = "import" fullword
@@ -109,7 +109,7 @@ rule python_exec: medium {
 rule python_exec_near_enough_chr: high {
   meta:
     description = "Likely executes encoded character content"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $exec = "exec("
@@ -122,7 +122,7 @@ rule python_exec_near_enough_chr: high {
 rule python_exec_near_enough_fernet: high {
   meta:
     description = "Likely executes Fernet encrypted content"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $exec   = "exec("
@@ -135,7 +135,7 @@ rule python_exec_near_enough_fernet: high {
 rule python_exec_near_enough_decrypt: high {
   meta:
     description = "Likely executes encrypted content"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $exec    = /\bexec\(/
@@ -148,7 +148,7 @@ rule python_exec_near_enough_decrypt: high {
 rule python_exec_chr: critical {
   meta:
     description = "Executes encoded character content"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $exec = /exec\(.{0,16}chr\(.{0,16}\[\d[\d\, ]{0,64}/
@@ -160,7 +160,7 @@ rule python_exec_chr: critical {
 rule python_exec_bytes: critical {
   meta:
     description = "Executes a transformed bytestream"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $exec = /exec\([\w\.\(]{0,16}\(b['"].{8,16}/
@@ -172,7 +172,7 @@ rule python_exec_bytes: critical {
 rule python_exec_complex: high {
   meta:
     description = "Executes code from a complex expression"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $exec           = /exec\([\w\. =]{1,32}\(.{0,8192}\)\)/ fullword
@@ -187,7 +187,7 @@ rule python_exec_complex: high {
 rule python_exec_fernet: critical {
   meta:
     description = "Executes Fernet encrypted content"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $exec = /exec\(.{0,16}Fernet\(.{0,64}/
@@ -199,7 +199,7 @@ rule python_exec_fernet: critical {
 rule shell_eval: medium {
   meta:
     description = "evaluate shell code dynamically using eval"
-    filetypes   = "application/x-sh,application/x-zsh"
+    filetypes   = "bash,sh,zsh"
 
   strings:
     $val                 = /eval \$\w{0,64}/ fullword
@@ -212,7 +212,7 @@ rule shell_eval: medium {
 rule php_create_function_no_args: high {
   meta:
     description = "dynamically creates PHP functions without arguments"
-    filetypes   = "text/x-php"
+    filetypes   = "php"
 
   strings:
     $val = /create_function\([\'\"]{2},\$/
@@ -224,7 +224,7 @@ rule php_create_function_no_args: high {
 rule php_at_eval: critical {
   meta:
     description = "evaluates code in a way that suppresses errors"
-    filetypes   = "text/x-php"
+    filetypes   = "php"
 
   strings:
     $at_eval   = /@\beval\s{0,32}\(\s{0,32}(\$\w{0,32}|\.\s{0,32}"[^"]{0,32}"|\.\s{0,32}'[^']{0,32}'|\w+\(\s{0,32}\))/

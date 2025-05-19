@@ -1,7 +1,7 @@
 rule string_reversal: medium {
   meta:
     description = "reverses strings"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $ref = ".reverse().join(\"\")"
@@ -13,6 +13,7 @@ rule string_reversal: medium {
 rule function_reversal: high {
   meta:
     description = "reversed function definition"
+    filetypes   = "js,ts"
 
   strings:
     $ref = /n.{0,3}o.{0,3}i.{0,3}t.{0,3}c.{0,3}n.{0,3}u.{0,3}f/
@@ -24,7 +25,7 @@ rule function_reversal: high {
 rule js_reversal: high {
   meta:
     description = "multiple reversed javascript calls"
-    filetypes   = "application/javascript"
+    filetypes   = "js,ts"
 
   strings:
     $ref  = /n.{0,3}o.{0,3}i.{0,3}t.{0,3}c.{0,3}n.{0,3}u.{0,3}f/

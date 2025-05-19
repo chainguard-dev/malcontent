@@ -9,7 +9,7 @@ rule high_entropy_trailer: high {
   meta:
     description = "higher-entropy machO trailer (normally NULL) - possible viral infection"
     ref         = "https://www.virusbulletin.com/virusbulletin/2013/06/multiplatform-madness"
-    filetypes   = "application/x-mach-binary"
+    filetypes   = "macho"
 
   strings:
     $page_zero = "_PAGEZERO"

@@ -3,7 +3,7 @@ import "math"
 rule setuptools_builtins: medium {
   meta:
     description = "Python library installer that references builtins"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $ref = "__builtins__" fullword

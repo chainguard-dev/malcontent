@@ -2,7 +2,7 @@ rule execstart_danger_path_val: high {
   meta:
     ref         = "https://sandflysecurity.com/blog/log4j-kinsing-linux-malware-in-the-wild/"
     description = "Starts from a dangerous-looking path"
-    filetypes   = "text/x-systemd"
+    filetypes   = "service"
 
   strings:
     $awkward = /ExecStart=\/(boot|var|tmp|dev|root)\/[\.\w\-\/]{0,32}/
@@ -15,7 +15,7 @@ rule execstart_unexpected_dir_val: medium {
   meta:
     description = "Starts from an unusual path"
     ref         = "https://sandflysecurity.com/blog/log4j-kinsing-linux-malware-in-the-wild/"
-    filetypes   = "text/x-systemd"
+    filetypes   = "service"
 
   strings:
     $execstart           = /ExecStart=\/[\w\/]{1,128}/

@@ -2,7 +2,7 @@ rule cipher_exfil: high {
   meta:
     description = "may exfiltrate base64-encoded zlib content"
     ref         = "https://checkmarx.com/blog/crypto-stealing-code-lurking-in-python-package-dependencies/"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $s_zlib      = "zlib" fullword
@@ -23,7 +23,7 @@ rule cipher_exfil2: high {
   meta:
     description = "may exfiltrate base64-encoded zlib content"
     ref         = "https://checkmarx.com/blog/crypto-stealing-code-lurking-in-python-package-dependencies/"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $s_zlib      = "zlib" fullword

@@ -1,7 +1,7 @@
 rule upx: high {
   meta:
     description = "Binary is packed with UPX"
-    filetype    = "application/x-upx"
+    filetype    = "upx"
 
   strings:
     $u_upx_sig   = "UPX!"
@@ -16,7 +16,7 @@ rule upx: high {
 rule upx_elf: high {
   meta:
     description = "Linux ELF binary packed with UPX"
-    filetype    = "application/x-upx"
+    filetype    = "upx"
 
   strings:
     $proc_self      = "/proc/self/exe"
@@ -30,7 +30,7 @@ rule upx_elf: high {
 rule upx_elf_tampered: critical {
   meta:
     description = "Linux ELF binary packed with modified UPX"
-    filetype    = "application/x-upx"
+    filetype    = "upx"
 
   strings:
     $prot_exec = "PROT_EXEC|PROT_WRITE failed"

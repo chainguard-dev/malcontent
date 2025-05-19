@@ -1,5 +1,5 @@
 # linux/clean/buildah: medium
-anti-behavior/random_behavior: medium
+anti-behavior/random_behavior: low
 anti-static/obfuscation/syscall: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium

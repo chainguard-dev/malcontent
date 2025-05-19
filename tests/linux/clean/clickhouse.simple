@@ -1,6 +1,7 @@
 # linux/clean/clickhouse: medium
 anti-behavior/random_behavior: low
 anti-static/elf/multiple: medium
+anti-static/obfuscation/math: medium
 anti-static/obfuscation/obfuscate: low
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium

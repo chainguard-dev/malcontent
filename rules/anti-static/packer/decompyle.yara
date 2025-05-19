@@ -2,7 +2,7 @@ rule py_kramer_packer: critical python {
   meta:
     description = "packed with Kramer"
     ref         = "https://github.com/billythegoat356/Kramer"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $ = "Source Generated with Decompyle++"

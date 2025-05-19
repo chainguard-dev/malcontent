@@ -1,7 +1,7 @@
 rule impossibly_small_macho_program: medium {
   meta:
     description = "machO binary is unusually small"
-    filetypes   = "application/x-mach-binary"
+    filetypes   = "macho"
 
   strings:
     $stub_helper = "__stub_helper"

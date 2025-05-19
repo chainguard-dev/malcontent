@@ -1,7 +1,7 @@
 rule chmod_77x_dropper: critical {
   meta:
     description = "transfers program, uses dangerous permissions, and possibly runs a binary"
-    filetypes   = "application/x-mach-binary,application/x-elf"
+    filetypes   = "elf,macho"
 
   strings:
     $chmod  = /chmod [\-\w ]{0,3}77[750] [ \$\@\w\/\.]{0,64}/
@@ -21,7 +21,7 @@ rule chmod_77x_dropper: critical {
 rule chmod_executable_shell_binary: high {
   meta:
     description = "executable makes another file executable"
-    filetypes   = "application/x-mach-binary,application/x-elf"
+    filetypes   = "elf,macho"
 
   strings:
     $chmod       = /chmod [\-\w ]{0,4}\+[rw]{0,2}x[ \$\@\w\/\.]{0,64}/

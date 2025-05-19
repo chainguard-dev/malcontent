@@ -366,11 +366,11 @@ func TrimPrefixes(path string, prefixes []string) string {
 }
 
 // fileMatchesRules checks the scanned file's type against a rule's defined filetypes.
-func fileMatchesRule(meta []yarax.Metadata, mime string) bool {
+func fileMatchesRule(meta []yarax.Metadata, ext string) bool {
 	for _, m := range meta {
 		if m.Identifier() == "filetypes" {
 			filetypes := strings.Split(fmt.Sprintf("%s", m.Value()), ",")
-			return slices.Contains(filetypes, mime)
+			return slices.Contains(filetypes, ext)
 		}
 	}
 	// Rules without filetype metadata are universal
@@ -438,7 +438,7 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 			ignoreMalcontent = true
 		}
 
-		if !fileMatchesRule(m.Metadata(), kind.MIME) {
+		if !fileMatchesRule(m.Metadata(), kind.Ext) {
 			continue
 		}
 

@@ -2,7 +2,7 @@ rule kramer: critical {
   meta:
     description = "packed with Kramer"
     ref         = "https://github.com/billythegoat356/Kramer"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $ = ".__init__.<locals>.<lambda>.<locals>.<genexpr>"
@@ -21,7 +21,7 @@ rule py_kramer_packer2: critical python {
   meta:
     description = "packed with Kramer"
     ref         = "https://github.com/billythegoat356/Kramer"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $ = "class Kramer():"
@@ -38,7 +38,7 @@ rule py_kramer_packer3: critical python {
   meta:
     description = "packed with Kramer"
     ref         = "https://github.com/billythegoat356/Kramer"
-    filetypes   = "text/x-python"
+    filetypes   = "py"
 
   strings:
     $ = "Kramer.__decode__"
