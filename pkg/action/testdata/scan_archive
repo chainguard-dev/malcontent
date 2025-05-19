@@ -1096,15 +1096,16 @@
                     "RuleName": "go_file_read"
                 },
                 {
-                    "Description": "rename",
+                    "Description": "renames files",
                     "MatchStrings": [
-                        "rename"
+                        "os.rename",
+                        "os.Rename"
                     ],
-                    "RiskScore": 0,
-                    "RiskLevel": "NONE",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-rename.yara#rename",
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-rename.yara#explicit_rename",
                     "ID": "fs/file/rename",
-                    "RuleName": "rename"
+                    "RuleName": "explicit_rename"
                 },
                 {
                     "Description": "access filesystem metadata",

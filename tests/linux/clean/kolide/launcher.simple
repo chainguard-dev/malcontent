@@ -56,6 +56,7 @@ fs/file/create: medium
 fs/file/delete: low
 fs/file/open: low
 fs/file/read: low
+fs/file/rename: low
 fs/file/stat: low
 fs/file/truncate: low
 fs/file/write: low

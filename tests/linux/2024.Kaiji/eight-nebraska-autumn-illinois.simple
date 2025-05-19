@@ -44,6 +44,7 @@ fs/file/delete_forcibly: low
 fs/file/make_executable: high
 fs/file/open: low
 fs/file/read: low
+fs/file/rename: low
 fs/file/times_set: low
 fs/link_read: low
 fs/lock_update: low

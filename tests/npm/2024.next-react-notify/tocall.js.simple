@@ -7,7 +7,6 @@ evasion/bypass_security/executionpolicy_bypass: high
 evasion/indicator_blocking/echo_off: high
 exec/shell/power: medium
 fs/file/delete: medium
-fs/file/rename: medium
 fs/file/write: low
 net/download/fetch: critical
 net/http: low
