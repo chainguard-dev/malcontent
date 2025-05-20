@@ -1,6 +1,6 @@
-include "rules/global/global.yara"
-
 import "math"
+
+include "rules/global/global.yara"
 
 rule high_entropy_trailer: high {
   meta:

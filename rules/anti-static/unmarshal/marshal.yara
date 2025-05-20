@@ -1,6 +1,6 @@
-include "rules/global/global.yara"
-
 import "math"
+
+include "rules/global/global.yara"
 
 rule unmarshal_py_marshal: medium {
   meta:

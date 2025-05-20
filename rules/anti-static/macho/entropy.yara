@@ -1,6 +1,6 @@
-include "rules/global/global.yara"
-
 import "math"
+
+include "rules/global/global.yara"
 
 rule higher_entropy_6_9: medium {
   meta:

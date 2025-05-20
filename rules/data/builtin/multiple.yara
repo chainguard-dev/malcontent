@@ -1,6 +1,6 @@
-include "rules/global/global.yara"
-
 import "elf"
+
+include "rules/global/global.yara"
 
 rule elf_with_bundled_glibc_and_openssl: high {
   meta:
