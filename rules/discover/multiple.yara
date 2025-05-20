@@ -1,3 +1,5 @@
+include "rules/global.yara"
+
 rule sys_net_recon: medium {
   meta:
     description = "collects system and network information"
@@ -62,35 +64,6 @@ rule user_sys_net_disk_recon: high {
     filesize < 512KB and any of ($sys*) and any of ($net*) and any of ($user*) and any of ($disk*)
 }
 
-private rule discover_obfuscate {
-  strings:
-    $b64decode = "b64decode"
-    $base64    = "base64"
-    $codecs    = "codecs.decode"
-    $x_decode  = /\w{0,16}XorDecode[\w]{0,32}/
-    $x_encode  = /\w{0,16}XorEncode[\w]{0,32}/
-    $x_file    = /\w{0,16}XorFile[\w]{0,32}/
-    $x_decode_ = /\w{0,16}xor_decode[\w]{0,32}/
-    $x_encode_ = /\w{0,16}xor_encode[\w]{0,32}/
-    $x_file_   = /\w{0,16}xor_file[\w]{0,32}/
-
-  condition:
-    filesize < 512KB and any of them
-}
-
-private rule discover_exfil {
-  strings:
-    $f_app_json = "application/json"
-    $f_post     = "requests.post"
-    $f_nsurl    = "NSURLRequest"
-    $f_curl     = /curl.{0,32}-X POST/
-
-    $not_requests_utils = "requests.utils"
-
-  condition:
-    filesize < 512KB and any of ($f*) and none of ($not*)
-}
-
 rule sys_net_recon_exfil: high {
   meta:
     description = "may exfiltrate collected system and network information"
@@ -100,5 +73,5 @@ rule sys_net_recon_exfil: high {
     $not_cloudinit = "cloudinit" fullword
 
   condition:
-    sys_net_recon and discover_obfuscate and discover_exfil and none of ($not*)
+    sys_net_recon and obfuscate and exfil and none of ($not*)
 }

@@ -1,3 +1,5 @@
+include "rules/global.yara"
+
 rule tiny_copy_run_delete: critical {
   meta:
     description = "copy executable, run, and delete"
@@ -36,24 +38,6 @@ rule fetch_run_sleep_delete: critical {
     filesize < 1KB and $url and $sleep and $rm and any of ($path*) and any of ($run*)
 }
 
-private rule run_delete_py_fetcher: medium {
-  meta:
-    description = "fetches content"
-    filetypes   = "py"
-
-  strings:
-    $http_requests      = "requests.get" fullword
-    $http_requests_post = "requests.post" fullword
-    $http_urllib        = "urllib.request" fullword
-    $http_urlopen       = "urlopen" fullword
-    $git_git            = /git.Git\(.{0,64}/
-    $http_curl          = "curl" fullword
-    $http_wget          = "wget" fullword
-
-  condition:
-    any of them
-}
-
 rule python_setsid_remove: high {
   meta:
     description = "fetch, run in background, delete"
@@ -65,7 +49,7 @@ rule python_setsid_remove: high {
     $remove     = "os.remove("
 
   condition:
-    filesize < 1MB and all of them and run_delete_py_fetcher and @remove > @subprocess and @remove - @subprocess < 256
+    filesize < 1MB and all of them and py_fetcher and @remove > @subprocess and @remove - @subprocess < 256
 }
 
 rule run_sleep_delete: critical {

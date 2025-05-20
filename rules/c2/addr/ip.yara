@@ -1,3 +1,5 @@
+include "rules/global.yara"
+
 rule hardcoded_ip: medium {
   meta:
     description = "hardcoded IP address"
@@ -17,11 +19,6 @@ rule hardcoded_ip: medium {
 
   condition:
     filesize < 200MB and 1 of ($sus_ip*) and none of ($not*)
-}
-
-private rule ip_elf_or_macho {
-  condition:
-    uint32(0) == 1179403647 or (uint32(0) == 4277009102 or uint32(0) == 3472551422 or uint32(0) == 4277009103 or uint32(0) == 3489328638 or uint32(0) == 3405691582 or uint32(0) == 3199925962 or uint32(0) == 3405691583 or uint32(0) == 3216703178)
 }
 
 rule bin_hardcoded_ip: high {
@@ -48,7 +45,7 @@ rule bin_hardcoded_ip: high {
     $not_2345              = "23.45.67.89"
 
   condition:
-    filesize < 12MB and ip_elf_or_macho and 1 of ($sus_ip*) and none of ($not*)
+    filesize < 12MB and elf_or_macho and 1 of ($sus_ip*) and none of ($not*)
 }
 
 rule http_hardcoded_ip: high exfil {

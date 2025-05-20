@@ -1,14 +1,6 @@
+include "rules/global.yara"
+
 import "math"
-
-private rule normal_elf {
-  condition:
-    filesize < 64MB and uint32(0) == 1179403647
-}
-
-private rule small_elf {
-  condition:
-    filesize < 400KB and uint32(0) == 1179403647
-}
 
 rule higher_elf_entropy_68: medium {
   meta:

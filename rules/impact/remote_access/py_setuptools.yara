@@ -1,25 +1,6 @@
+include "rules/global.yara"
+
 import "math"
-
-private rule remote_access_pythonSetup {
-  strings:
-    $if_distutils  = /from distutils.core import .{0,32}setup/
-    $if_setuptools = /from setuptools import .{0,32}setup/
-    $i_setuptools  = "import setuptools"
-    $setup         = "setup("
-
-    $not_setup_example = ">>> setup("
-    $not_setup_todict  = "setup(**config.todict()"
-    $not_import_quoted = "\"from setuptools import setup"
-    $not_setup_quoted  = "\"setup(name="
-    $not_distutils     = "from distutils.errors import"
-
-    $not_hopper1 = "PACKAGE_NAME = \"flashattn-hopper\""
-    $not_hopper2 = "check_if_cuda_home_none(\"--fahopper\")"
-    $not_hopper3 = "name=\"flashattn_hopper_cuda\","
-
-  condition:
-    filesize < 128KB and $setup and any of ($i*) in (0..1024) and none of ($not*)
-}
 
 rule setuptools_oslogin: medium {
   meta:
@@ -30,7 +11,7 @@ rule setuptools_oslogin: medium {
     $oslogin = "os.login()"
 
   condition:
-    remote_access_pythonSetup and any of them
+    python_setup and any of them
 }
 
 rule setuptools_homedir: high {
@@ -42,7 +23,7 @@ rule setuptools_homedir: high {
     $oslogin = "C:\\Users\\.{0,64}os.login()"
 
   condition:
-    remote_access_pythonSetup and any of them
+    python_setup and any of them
 }
 
 rule setuptools_cmd_exec: high {
@@ -62,7 +43,7 @@ rule setuptools_cmd_exec: high {
     $not_twine_upload      = "twine upload dist/*"
 
   condition:
-    remote_access_pythonSetup and any of ($f*) and none of ($not*)
+    python_setup and any of ($f*) and none of ($not*)
 }
 
 rule setuptools_cmd_exec_start: critical {
@@ -77,7 +58,7 @@ rule setuptools_cmd_exec_start: critical {
     $f_subprocess   = /subprocess.\w{0,32}\([f\"\']{0,2}start[,'" ]{1,3}.{0,64}/
 
   condition:
-    remote_access_pythonSetup and any of ($f*)
+    python_setup and any of ($f*)
 }
 
 rule setuptools_eval: medium {
@@ -89,7 +70,7 @@ rule setuptools_eval: medium {
     $f_eval = /eval\([\"\'\/\w\,\.\ \-\)\(]{1,64}\)/ fullword
 
   condition:
-    remote_access_pythonSetup and any of ($f*)
+    python_setup and any of ($f*)
 }
 
 rule setuptools_eval_high: high {
@@ -102,7 +83,7 @@ rule setuptools_eval_high: high {
     $not_namespaced = /eval\([\w\.\(\)\"\/\']{4,16}, [a-z]{1,6}[,\)]/
 
   condition:
-    remote_access_pythonSetup and any of ($f*) and none of ($not*)
+    python_setup and any of ($f*) and none of ($not*)
 }
 
 rule setuptools_exec: medium {
@@ -116,7 +97,7 @@ rule setuptools_exec: medium {
     $not_hopper = "with open(\" hopper /__version__.py\") as fp:"
 
   condition:
-    remote_access_pythonSetup and any of ($f*) and none of ($not*)
+    python_setup and any of ($f*) and none of ($not*)
 }
 
 rule setuptools_exec_high: high {
@@ -138,7 +119,7 @@ rule setuptools_exec_high: high {
     $not_namespaced      = /exec\([\w\.\(\)\"\/\']{4,16}, [a-z]{1,6}[,\)]/
 
   condition:
-    remote_access_pythonSetup and any of ($f*) and none of ($not*)
+    python_setup and any of ($f*) and none of ($not*)
 }
 
 rule setuptools_b64decode: suspicious {
@@ -150,7 +131,7 @@ rule setuptools_b64decode: suspicious {
     $base64 = "b64decode"
 
   condition:
-    remote_access_pythonSetup and any of them
+    python_setup and any of them
 }
 
 rule setuptools_preinstall: suspicious {
@@ -165,7 +146,7 @@ rule setuptools_preinstall: suspicious {
     $f_pre_install = "from pre_install"
 
   condition:
-    remote_access_pythonSetup and any of them
+    python_setup and any of them
 }
 
 rule setuptools_b64encode: suspicious {
@@ -177,7 +158,7 @@ rule setuptools_b64encode: suspicious {
     $base64 = "b64encode"
 
   condition:
-    remote_access_pythonSetup and any of them
+    python_setup and any of them
 }
 
 rule setuptools_exec_powershell: critical windows {
@@ -206,7 +187,7 @@ rule setuptools_os_path_exists: medium {
     $not_pyspark_ioerror   = "\"Failed to load PySpark version file for packaging. You must be in Spark's python dir.\""
 
   condition:
-    remote_access_pythonSetup and $ref and none of ($not*)
+    python_setup and $ref and none of ($not*)
 }
 
 rule setuptools_excessive_bitwise_math: critical {
@@ -218,5 +199,5 @@ rule setuptools_excessive_bitwise_math: critical {
     $x = /\-{0,1}\d{1,8} \<\< \-{0,1}\d{1,8}/
 
   condition:
-    remote_access_pythonSetup and #x > 20
+    python_setup and #x > 20
 }

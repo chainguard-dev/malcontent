@@ -1,46 +1,4 @@
-private rule probably_python_tt {
-  strings:
-    $import   = "import "
-    $f_common = /\s(def|if|with|else:) /
-    $f_exotic = /exec\(|b64decode|bytes\(/
-
-  condition:
-    filesize < 10MB and $import in (1..1024) and any of ($f*)
-}
-
-private rule py_fetcher: medium {
-  meta:
-    description = "fetches content"
-    filetypes   = "py"
-
-  strings:
-    $http_requests      = "requests.get" fullword
-    $http_requests_post = "requests.post" fullword
-    $http_urllib        = "urllib.request" fullword
-    $http_urlopen       = "urlopen" fullword
-    $git_git            = /git.Git\(.{0,64}/
-    $http_curl          = "curl" fullword
-    $http_wget          = "wget" fullword
-
-  condition:
-    probably_python_tt and any of them
-}
-
-private rule py_runner {
-  meta:
-    description = "runs programs"
-    filetypes   = "py"
-
-  strings:
-    $os_system    = /os.system\([\"\'\w\ \-\)\/]{0,64}/
-    $os_startfile = /os.startfile\([\"\'\w\ \-\)\/]{0,64}/
-    $os_popen     = /os.spopen\([\"\'\w\ \-\)\/]{0,64}/
-    $subprocess   = /subprocess.\w{1,32}\([\"\'\/\w\ \-\)]{0,64}/
-    $system       = /system\([\"\'\w\ \-\)\/]{0,64}/
-
-  condition:
-    probably_python_tt and any of them
-}
+include "rules/global.yara"
 
 rule py_dropper: medium {
   meta:
@@ -122,35 +80,13 @@ rule py_dropper_chmod: high {
     filesize < 1MB and py_fetcher and py_runner and $chmod and any of ($val*)
 }
 
-private rule tool_transfer_pythonSetup {
-  strings:
-    $if_distutils  = /from distutils.core import .{0,32}setup/
-    $if_setuptools = /from setuptools import .{0,32}setup/
-    $i_setuptools  = "import setuptools"
-    $setup         = "setup("
-
-    $not_setup_example = ">>> setup("
-    $not_setup_todict  = "setup(**config.todict()"
-    $not_import_quoted = "\"from setuptools import setup"
-    $not_setup_quoted  = "\"setup(name="
-    $not_distutils     = "from distutils.errors import"
-    $not_dir           = "dist-packages/setuptools"
-    $not_fetch         = "fetch_distribution"
-    $not_hopper1       = "PACKAGE_NAME = \"flashattn-hopper\""
-    $not_hopper2       = "check_if_cuda_home_none(\"--fahopper\")"
-    $not_hopper3       = "name=\"flashattn_hopper_cuda\","
-
-  condition:
-    filesize < 128KB and $setup and any of ($i*) and none of ($not*)
-}
-
 rule setuptools_fetcher: suspicious {
   meta:
     description = "setuptools script that fetches content"
     filetypes   = "py"
 
   condition:
-    tool_transfer_pythonSetup and py_fetcher
+    python_setup and py_fetcher
 }
 
 rule setuptools_fetch_run: critical {
@@ -173,7 +109,7 @@ rule setuptools_dropper: critical {
     filetypes   = "py"
 
   condition:
-    tool_transfer_pythonSetup and py_dropper
+    python_setup and py_dropper
 }
 
 rule dropper_imports: high {

@@ -1,10 +1,4 @@
-private rule local_cd {
-  strings:
-    $cd = /cd [a-z]{4,12}; \.\//
-
-  condition:
-    any of them
-}
+include "rules/global.yara"
 
 rule semicolon_relative_path_cd: medium {
   meta:

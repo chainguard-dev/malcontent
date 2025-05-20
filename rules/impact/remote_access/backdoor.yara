@@ -1,14 +1,4 @@
-private rule wordlist {
-  strings:
-    $scorpion = "scorpion"
-    $superman = "superman"
-    $porsche  = "porsche"
-    $cardinal = "cardinal"
-    $wombat   = "wombat"
-
-  condition:
-    filesize < 100MB and 3 of them
-}
+include "rules/global.yara"
 
 rule backdoor: medium {
   meta:
@@ -104,11 +94,6 @@ rule commands: high {
     all of them
 }
 
-private rule backdoor_small_macho {
-  condition:
-    filesize < 1MB and (uint32(0) == 4277009102 or uint32(0) == 3472551422 or uint32(0) == 4277009103 or uint32(0) == 3489328638 or uint32(0) == 3405691582 or uint32(0) == 3199925962)
-}
-
 rule macho_backdoor_libc_signature: high {
   meta:
     description = "executes libc functions common to backdoors"
@@ -150,7 +135,7 @@ rule macho_backdoor_libc_signature: high {
     $not_java       = "java/lang"
 
   condition:
-    backdoor_small_macho and #word_with_spaces < 10 and #libc_call < 74 and 95 % of ($f*) and none of ($not*)
+    small_macho and #word_with_spaces < 10 and #libc_call < 74 and 95 % of ($f*) and none of ($not*)
 }
 
 rule minecraft_load_fetch_class_backdoor: critical {

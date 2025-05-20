@@ -1,12 +1,4 @@
-private rule post_json {
-  strings:
-    $json             = "application/json"
-    $POST             = "POST"
-    $encode_stringify = "JSON.stringify"
-
-  condition:
-    $json and $POST and any of ($encode*)
-}
+include "rules/global.yara"
 
 rule possible_oauth_stealer: high {
   meta:

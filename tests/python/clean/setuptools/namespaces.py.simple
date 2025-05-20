@@ -1,5 +1,5 @@
 # python/clean/setuptools/namespaces.py: low
 data/encoding/json_encode: low
 exec/imports/python: low
-false-positives/setuptools: low
 fs/directory/create: low
+impact/remote_access/py_setuptools: low

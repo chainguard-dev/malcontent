@@ -38,7 +38,7 @@ jobs:
           yr --version
       - name: Run yr compile
         run: |
-          yr compile rules/
+          yr compile --path-as-namespace -w rules/
           ret=$?
           if [[ $ret -ne 0 ]]; then
             echo "Rule compilation failed; address findings and commit the changes"

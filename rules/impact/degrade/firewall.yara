@@ -1,3 +1,5 @@
+include "rules/global.yara"
+
 import "math"
 
 rule selinux_firewall: high linux {
@@ -19,18 +21,6 @@ rule selinux_firewall: high linux {
 
   condition:
     filesize < 1MB and $selinux and any of ($f*) and none of ($not*)
-}
-
-private rule ufw_tool {
-  strings:
-    $not_route         = "route-insert"
-    $not_statusverbose = "statusverbose"
-    $not_enables_the   = "enables the"
-    $not_enable_the    = "enable the"
-    $not_enable        = "ufw enable"
-
-  condition:
-    filesize < 256KB and any of them
 }
 
 rule ufw_disable_word: high {

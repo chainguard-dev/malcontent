@@ -1,17 +1,4 @@
-private rule package_scripts {
-  strings:
-    $npm_name        = /"name":/
-    $npm_version     = /"version":/
-    $npm_description = /"description":/
-    $npm_lint        = /"lint":/
-    $npm_test        = /"test":/
-    $npm_postversion = /"postversion":/
-    $npm_postinstall = /"postinstall":/
-    $scripts         = /"scripts":/
-
-  condition:
-    filesize < 32KB and 3 of ($npm*) and $scripts
-}
+include "rules/global.yara"
 
 rule npm_fetcher: high {
   meta:
