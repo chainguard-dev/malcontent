@@ -1,4 +1,4 @@
-include "rules/global.yara"
+include "rules/global/global.yara"
 
 rule sys_net_recon: medium {
   meta:
@@ -73,5 +73,5 @@ rule sys_net_recon_exfil: high {
     $not_cloudinit = "cloudinit" fullword
 
   condition:
-    sys_net_recon and obfuscate and exfil and none of ($not*)
+    sys_net_recon and global_obfuscate and global_exfil and none of ($not*)
 }

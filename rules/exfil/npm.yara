@@ -1,4 +1,4 @@
-include "rules/global.yara"
+include "rules/global/global.yara"
 
 rule npm_fetcher: high {
   meta:
@@ -9,7 +9,7 @@ rule npm_fetcher: high {
     $url   = /https{0,1}:\/\/[\w][\w\.\/\-_\?=\@]{8,64}/
 
   condition:
-    package_scripts and $fetch and $url
+    global_package_scripts and $fetch and $url
 }
 
 rule npm_dev_tcp: critical {
@@ -20,7 +20,7 @@ rule npm_dev_tcp: critical {
     $dev_tcp = /\/dev\/tcp\/[\w\.\/]{0,32}/
 
   condition:
-    package_scripts and $dev_tcp
+    global_package_scripts and $dev_tcp
 }
 
 rule npm_ping: critical {
@@ -31,7 +31,7 @@ rule npm_ping: critical {
     $ping = /ping -\w [\w\-\. \$]{0,63}/
 
   condition:
-    package_scripts and $ping
+    global_package_scripts and $ping
 }
 
 rule npm_sensitive_files: high {
@@ -47,7 +47,7 @@ rule npm_sensitive_files: high {
     $ = "/etc/passwd"
 
   condition:
-    package_scripts and any of them
+    global_package_scripts and any of them
 }
 
 rule npm_recon_commands: high {
@@ -59,5 +59,5 @@ rule npm_recon_commands: high {
     $ = "cat /etc/shadow"
 
   condition:
-    package_scripts and any of them
+    global_package_scripts and any of them
 }

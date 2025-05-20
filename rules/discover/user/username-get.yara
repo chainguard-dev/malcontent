@@ -1,4 +1,4 @@
-include "rules/global.yara"
+include "rules/global/global.yara"
 
 rule getlogin {
   meta:
@@ -40,5 +40,5 @@ rule pysetup_gets_login: high {
     $ref3 = "whoami" fullword
 
   condition:
-    python_setup and any of them
+    global_python_setup and any of them
 }

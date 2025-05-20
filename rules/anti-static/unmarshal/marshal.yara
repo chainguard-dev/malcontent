@@ -1,4 +1,4 @@
-include "rules/global.yara"
+include "rules/global/global.yara"
 
 import "math"
 
@@ -20,5 +20,5 @@ rule setuptools_py_marshal: suspicious {
     filetypes   = "py"
 
   condition:
-    python_setup and unmarshal_py_marshal
+    global_python_setup and unmarshal_py_marshal
 }

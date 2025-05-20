@@ -1,4 +1,4 @@
-include "rules/global.yara"
+include "rules/global/global.yara"
 
 import "math"
 
@@ -21,7 +21,7 @@ rule setuptools_no_fail: suspicious {
     filetypes   = "py"
 
   condition:
-    python_setup and py_no_fail
+    global_python_setup and py_no_fail
 }
 
 rule php_disable_errors: medium {

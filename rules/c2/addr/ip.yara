@@ -1,4 +1,4 @@
-include "rules/global.yara"
+include "rules/global/global.yara"
 
 rule hardcoded_ip: medium {
   meta:
@@ -45,7 +45,7 @@ rule bin_hardcoded_ip: high {
     $not_2345              = "23.45.67.89"
 
   condition:
-    filesize < 12MB and elf_or_macho and 1 of ($sus_ip*) and none of ($not*)
+    filesize < 12MB and global_elf_or_macho and 1 of ($sus_ip*) and none of ($not*)
 }
 
 rule http_hardcoded_ip: high exfil {

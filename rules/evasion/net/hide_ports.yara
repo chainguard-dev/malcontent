@@ -1,4 +1,4 @@
-include "rules/global.yara"
+include "rules/global/global.yara"
 
 rule hides_ports: high {
   meta:
@@ -14,5 +14,5 @@ rule hides_ports: high {
     $hidden_port   = "hidden_port"
 
   condition:
-    filesize < 2MB and (elf_or_macho) and any of ($bin*) and any of ($hid*)
+    filesize < 2MB and (global_elf_or_macho) and any of ($bin*) and any of ($hid*)
 }

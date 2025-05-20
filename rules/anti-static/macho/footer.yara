@@ -1,4 +1,4 @@
-include "rules/global.yara"
+include "rules/global/global.yara"
 
 import "math"
 
@@ -12,5 +12,5 @@ rule high_entropy_trailer: high {
     $page_zero = "_PAGEZERO"
 
   condition:
-    filesize < 10MB and macho and $page_zero and math.entropy(filesize - 1024, filesize - 1) >= 4
+    filesize < 10MB and global_macho and $page_zero and math.entropy(filesize - 1024, filesize - 1) >= 4
 }

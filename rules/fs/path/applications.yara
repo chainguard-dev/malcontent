@@ -1,4 +1,4 @@
-include "rules/global.yara"
+include "rules/global/global.yara"
 
 rule app_path: medium {
   meta:
@@ -20,7 +20,7 @@ rule macho_app_path: high {
     $ref = /\/Applications\/.{0,32}\.app\/Contents\/MacOS\/[\w \.\-]{0,32}/
 
   condition:
-    specific_macho and any of them
+    global_specific_macho and any of them
 }
 
 rule mac_applications: medium {
@@ -32,5 +32,5 @@ rule mac_applications: medium {
     $ref = "/Applications" fullword
 
   condition:
-    specific_macho and any of them
+    global_specific_macho and any of them
 }

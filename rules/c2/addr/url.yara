@@ -1,4 +1,4 @@
-include "rules/global.yara"
+include "rules/global/global.yara"
 
 import "math"
 
@@ -82,7 +82,7 @@ rule binary_with_url: low {
     $ref = /https*:\/\/[\w\.\/]{8,160}[\/\w\=\&]{0,32}/
 
   condition:
-    filesize < 150MB and elf_or_macho and $ref
+    filesize < 150MB and global_elf_or_macho and $ref
 }
 
 rule binary_url_with_question: high {
@@ -99,7 +99,7 @@ rule binary_url_with_question: high {
     $not_mesibo      = "https://api.mesibo.com/api.php?"
 
   condition:
-    filesize < 150MB and elf_or_macho and $ref and none of ($not*)
+    filesize < 150MB and global_elf_or_macho and $ref and none of ($not*)
 }
 
 rule script_url_with_question: high {

@@ -1,4 +1,4 @@
-include "rules/global.yara"
+include "rules/global/global.yara"
 
 rule uname_hostname_encrypt_wipe_kill_small: high {
   meta:
@@ -14,7 +14,7 @@ rule uname_hostname_encrypt_wipe_kill_small: high {
     $hostname  = "hostname" fullword
 
   condition:
-    filesize < 2MB and elf_or_macho and all of them
+    filesize < 2MB and global_elf_or_macho and all of them
 }
 
 rule uname_hostname_encrypt_wipe_kill: medium {
@@ -31,5 +31,5 @@ rule uname_hostname_encrypt_wipe_kill: medium {
     $hostname  = "hostname" fullword
 
   condition:
-    filesize < 20MB and elf_or_macho and all of them
+    filesize < 20MB and global_elf_or_macho and all of them
 }

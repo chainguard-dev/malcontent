@@ -1,4 +1,4 @@
-include "rules/global.yara"
+include "rules/global/global.yara"
 
 import "math"
 
@@ -11,7 +11,7 @@ rule setuptools_oslogin: medium {
     $oslogin = "os.login()"
 
   condition:
-    python_setup and any of them
+    global_python_setup and any of them
 }
 
 rule setuptools_homedir: high {
@@ -23,7 +23,7 @@ rule setuptools_homedir: high {
     $oslogin = "C:\\Users\\.{0,64}os.login()"
 
   condition:
-    python_setup and any of them
+    global_python_setup and any of them
 }
 
 rule setuptools_cmd_exec: high {
@@ -43,7 +43,7 @@ rule setuptools_cmd_exec: high {
     $not_twine_upload      = "twine upload dist/*"
 
   condition:
-    python_setup and any of ($f*) and none of ($not*)
+    global_python_setup and any of ($f*) and none of ($not*)
 }
 
 rule setuptools_cmd_exec_start: critical {
@@ -58,7 +58,7 @@ rule setuptools_cmd_exec_start: critical {
     $f_subprocess   = /subprocess.\w{0,32}\([f\"\']{0,2}start[,'" ]{1,3}.{0,64}/
 
   condition:
-    python_setup and any of ($f*)
+    global_python_setup and any of ($f*)
 }
 
 rule setuptools_eval: medium {
@@ -70,7 +70,7 @@ rule setuptools_eval: medium {
     $f_eval = /eval\([\"\'\/\w\,\.\ \-\)\(]{1,64}\)/ fullword
 
   condition:
-    python_setup and any of ($f*)
+    global_python_setup and any of ($f*)
 }
 
 rule setuptools_eval_high: high {
@@ -83,7 +83,7 @@ rule setuptools_eval_high: high {
     $not_namespaced = /eval\([\w\.\(\)\"\/\']{4,16}, [a-z]{1,6}[,\)]/
 
   condition:
-    python_setup and any of ($f*) and none of ($not*)
+    global_python_setup and any of ($f*) and none of ($not*)
 }
 
 rule setuptools_exec: medium {
@@ -97,7 +97,7 @@ rule setuptools_exec: medium {
     $not_hopper = "with open(\" hopper /__version__.py\") as fp:"
 
   condition:
-    python_setup and any of ($f*) and none of ($not*)
+    global_python_setup and any of ($f*) and none of ($not*)
 }
 
 rule setuptools_exec_high: high {
@@ -119,7 +119,7 @@ rule setuptools_exec_high: high {
     $not_namespaced      = /exec\([\w\.\(\)\"\/\']{4,16}, [a-z]{1,6}[,\)]/
 
   condition:
-    python_setup and any of ($f*) and none of ($not*)
+    global_python_setup and any of ($f*) and none of ($not*)
 }
 
 rule setuptools_b64decode: suspicious {
@@ -131,7 +131,7 @@ rule setuptools_b64decode: suspicious {
     $base64 = "b64decode"
 
   condition:
-    python_setup and any of them
+    global_python_setup and any of them
 }
 
 rule setuptools_preinstall: suspicious {
@@ -146,7 +146,7 @@ rule setuptools_preinstall: suspicious {
     $f_pre_install = "from pre_install"
 
   condition:
-    python_setup and any of them
+    global_python_setup and any of them
 }
 
 rule setuptools_b64encode: suspicious {
@@ -158,7 +158,7 @@ rule setuptools_b64encode: suspicious {
     $base64 = "b64encode"
 
   condition:
-    python_setup and any of them
+    global_python_setup and any of them
 }
 
 rule setuptools_exec_powershell: critical windows {
@@ -187,7 +187,7 @@ rule setuptools_os_path_exists: medium {
     $not_pyspark_ioerror   = "\"Failed to load PySpark version file for packaging. You must be in Spark's python dir.\""
 
   condition:
-    python_setup and $ref and none of ($not*)
+    global_python_setup and $ref and none of ($not*)
 }
 
 rule setuptools_excessive_bitwise_math: critical {
@@ -199,5 +199,5 @@ rule setuptools_excessive_bitwise_math: critical {
     $x = /\-{0,1}\d{1,8} \<\< \-{0,1}\d{1,8}/
 
   condition:
-    python_setup and #x > 20
+    global_python_setup and #x > 20
 }

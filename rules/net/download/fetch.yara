@@ -1,4 +1,4 @@
-include "rules/global.yara"
+include "rules/global/global.yara"
 
 rule curl_value: medium {
   meta:
@@ -109,7 +109,7 @@ rule binary_calls_fetch_tool: high {
     $not_tftp_err = "tftp error"
 
   condition:
-    filesize < 10MB and (elf_or_macho) and any of ($t*) and none of ($not*)
+    filesize < 10MB and (global_elf_or_macho) and any of ($t*) and none of ($not*)
 }
 
 rule curl_agent_val: high {

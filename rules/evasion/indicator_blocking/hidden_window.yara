@@ -1,4 +1,4 @@
-include "rules/global.yara"
+include "rules/global/global.yara"
 
 rule subprocess_CREATE_NO_WINDOW: medium {
   meta:
@@ -23,7 +23,7 @@ rule subprocess_CREATE_NO_WINDOW_setuptools: high {
     $no_window = "CREATE_NO_WINDOW"
 
   condition:
-    filesize < 32KB and python_setup and all of them
+    filesize < 32KB and global_python_setup and all of them
 }
 
 rule subprocess_CREATE_NO_WINDOW_high: high {

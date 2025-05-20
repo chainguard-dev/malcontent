@@ -1,4 +1,4 @@
-include "rules/global.yara"
+include "rules/global/global.yara"
 
 rule discord_bot: high {
   meta:
@@ -33,5 +33,5 @@ rule discord_exfil: critical {
     description = "exfiltrates data via discord webhook"
 
   condition:
-    filesize < 100MB and discord_bot and iplookup_website
+    filesize < 100MB and discord_bot and global_iplookup_website
 }

@@ -1,4 +1,4 @@
-include "rules/global.yara"
+include "rules/global/global.yara"
 
 import "math"
 
@@ -8,7 +8,7 @@ rule higher_entropy_6_9: medium {
     filetypes   = "macho"
 
   condition:
-    small_macho and math.entropy(1, filesize) >= 6.9
+    global_small_macho and math.entropy(1, filesize) >= 6.9
 }
 
 rule high_entropy_7_2: high {
@@ -21,5 +21,5 @@ rule high_entropy_7_2: high {
     $bin_java = "bin/java"
 
   condition:
-    small_macho and math.entropy(1, filesize) >= 7.2 and not $bin_java
+    global_small_macho and math.entropy(1, filesize) >= 7.2 and not $bin_java
 }

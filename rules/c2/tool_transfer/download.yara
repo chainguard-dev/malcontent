@@ -1,4 +1,4 @@
-include "rules/global.yara"
+include "rules/global/global.yara"
 
 rule download_sites: high {
   meta:
@@ -125,5 +125,5 @@ rule http_archive_url_higher: high {
     $not_foo_bar = "http://foo/bar.tar"
 
   condition:
-    small_binary and any of ($ref*) and none of ($not*)
+    global_small_binary and any of ($ref*) and none of ($not*)
 }

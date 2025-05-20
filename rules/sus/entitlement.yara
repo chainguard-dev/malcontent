@@ -1,4 +1,4 @@
-include "rules/global.yara"
+include "rules/global/global.yara"
 
 rule com_apple_get_task_allow: medium {
   meta:
@@ -10,5 +10,5 @@ rule com_apple_get_task_allow: medium {
     $true           = "<true/>"
 
   condition:
-    specific_macho and all of them
+    global_specific_macho and all of them
 }

@@ -1,4 +1,4 @@
-include "rules/global.yara"
+include "rules/global/global.yara"
 
 rule possible_oauth_stealer: high {
   meta:
@@ -21,7 +21,7 @@ rule possible_oauth_stealer: high {
     $o_microsoft5 = "code_challenge_method"
 
   condition:
-    filesize < 10MB and post_json and 5 of ($o*)
+    filesize < 10MB and global_post_json and 5 of ($o*)
 }
 
 rule oauth_stealer: critical {

@@ -1,4 +1,4 @@
-include "rules/global.yara"
+include "rules/global/global.yara"
 
 rule archaic_gcc: medium {
   meta:
@@ -39,7 +39,7 @@ rule multiple_gcc: medium {
     $gcc = /GCC: \([\w \.\-\~\(\)]{8,64}/ fullword
 
   condition:
-    binary and #gcc > 1 and !gcc[1] != !gcc[2]
+    global_binary and #gcc > 1 and !gcc[1] != !gcc[2]
 }
 
 rule multiple_gcc_high: high {
@@ -54,5 +54,5 @@ rule multiple_gcc_high: high {
     $not_java                   = "JAVA_HOME"
 
   condition:
-    binary and #gcc > 1 and !gcc[1] != !gcc[2] and none of ($not*)
+    global_binary and #gcc > 1 and !gcc[1] != !gcc[2] and none of ($not*)
 }

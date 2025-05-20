@@ -1,4 +1,4 @@
-include "rules/global.yara"
+include "rules/global/global.yara"
 
 rule tiny_copy_run_delete: critical {
   meta:
@@ -49,7 +49,7 @@ rule python_setsid_remove: high {
     $remove     = "os.remove("
 
   condition:
-    filesize < 1MB and all of them and py_fetcher and @remove > @subprocess and @remove - @subprocess < 256
+    filesize < 1MB and all of them and global_py_fetcher and @remove > @subprocess and @remove - @subprocess < 256
 }
 
 rule run_sleep_delete: critical {

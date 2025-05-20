@@ -1,4 +1,4 @@
-include "rules/global.yara"
+include "rules/global/global.yara"
 
 rule macos_chflags_hidden: critical {
   meta:
@@ -30,5 +30,5 @@ rule cocoa_bundle_dropper: critical {
     $platform = "isPlatformOrVariantPlatformVersionAtLeast" fullword
 
   condition:
-    specific_macho and $shared and 5 of them
+    global_specific_macho and $shared and 5 of them
 }

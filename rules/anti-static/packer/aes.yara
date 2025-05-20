@@ -1,4 +1,4 @@
-include "rules/global.yara"
+include "rules/global/global.yara"
 
 import "math"
 
@@ -13,5 +13,5 @@ rule go_aes: high {
     $decrypt = "NewCFBDecrypter"
 
   condition:
-    small_binary and math.entropy(1, filesize) >= 7 and all of them
+    global_small_binary and math.entropy(1, filesize) >= 7 and all of them
 }

@@ -1,4 +1,4 @@
-include "rules/global.yara"
+include "rules/global/global.yara"
 
 import "math"
 
@@ -31,7 +31,7 @@ rule ufw_disable_word: high {
     $ref = /ufw['", ]{1,4}disable/ fullword
 
   condition:
-    filesize < 256KB and $ref and not ufw_tool
+    filesize < 256KB and $ref and not global_ufw_tool
 }
 
 rule firewall_iptables_disable: high {

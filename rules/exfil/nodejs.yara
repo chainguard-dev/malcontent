@@ -1,4 +1,4 @@
-include "rules/global.yara"
+include "rules/global/global.yara"
 
 import "math"
 
@@ -145,5 +145,5 @@ rule get_hardcoded_hardcoded_host_os: critical {
     $i_os_userinfo = "os.userInfo"
 
   condition:
-    filesize < 256KB and $ref and (any of ($i*) or iplookup_website)
+    filesize < 256KB and $ref and (any of ($i*) or global_iplookup_website)
 }

@@ -1,11 +1,11 @@
 import "elf"
 
-private rule binary {
+private rule global_binary {
   condition:
     filesize < 40MB and (uint32(0) == 1179403647 or uint32(0) == 4277009102 or uint32(0) == 3472551422 or uint32(0) == 4277009103 or uint32(0) == 3489328638 or uint32(0) == 3405691582 or uint32(0) == 3199925962)
 }
 
-private rule bundled_glibc {
+private rule global_bundled_glibc {
   meta:
     description = "includes bundled copy of glibc"
     filetypes   = "elf,so"
@@ -19,7 +19,7 @@ private rule bundled_glibc {
     filesize > 1024 and filesize < 25MB and elf.type == elf.ET_EXEC and uint32(0) == 1179403647 and all of them
 }
 
-private rule bundled_openssl {
+private rule global_bundled_openssl {
   meta:
     description = "includes bundled copy of OpenSSL"
     filetypes   = "elf,so"
@@ -34,7 +34,7 @@ private rule bundled_openssl {
     filesize > 1024 and filesize < 150MB and elf.type == elf.ET_EXEC and uint32(0) == 1179403647 and any of them
 }
 
-private rule container_managers {
+private rule global_container_managers {
   strings:
     $containerd = "github.com/containerd/containerd"
     $systemd    = "SYSTEMD_PROC_CMDLINE"
@@ -44,12 +44,12 @@ private rule container_managers {
     any of them
 }
 
-private rule elf_or_macho {
+private rule global_elf_or_macho {
   condition:
     uint32(0) == 1179403647 or (uint32(0) == 4277009102 or uint32(0) == 3472551422 or uint32(0) == 4277009103 or uint32(0) == 3489328638 or uint32(0) == 3405691582 or uint32(0) == 3199925962 or uint32(0) == 3405691583 or uint32(0) == 3216703178)
 }
 
-private rule exfil {
+private rule global_exfil {
   strings:
     $f_app_json = "application/json"
     $f_post     = "requests.post"
@@ -62,7 +62,7 @@ private rule exfil {
     filesize < 512KB and any of ($f*) and none of ($not*)
 }
 
-private rule iplookup_website {
+private rule global_iplookup_website {
   meta:
     description = "public service to discover external IP address"
 
@@ -95,7 +95,7 @@ private rule iplookup_website {
     filesize < 250MB and any of them and none of ($not*)
 }
 
-private rule legal_license {
+private rule global_legal_license {
   strings:
     $ = "using, exploiting or modifying the Software"
     $ = "exploit the Information commercially"
@@ -105,7 +105,7 @@ private rule legal_license {
     any of them
 }
 
-private rule local_cd {
+private rule global_local_cd {
   strings:
     $cd = /cd [a-z]{4,12}; \.\//
 
@@ -113,7 +113,7 @@ private rule local_cd {
     any of them
 }
 
-private rule macho {
+private rule global_macho {
   condition:
     (uint32(0) == 4277009102
       or uint32(0) == 3472551422
@@ -125,12 +125,12 @@ private rule macho {
       or uint32(0) == 3216703178)
 }
 
-private rule normal_elf {
+private rule global_normal_elf {
   condition:
     filesize < 64MB and uint32(0) == 1179403647
 }
 
-private rule obfuscate {
+private rule global_obfuscate {
   strings:
     $b64decode = "b64decode"
     $base64    = "base64"
@@ -146,7 +146,7 @@ private rule obfuscate {
     filesize < 512KB and any of them
 }
 
-private rule package_scripts {
+private rule global_package_scripts {
   strings:
     $npm_name        = /"name":/
     $npm_version     = /"version":/
@@ -161,7 +161,7 @@ private rule package_scripts {
     filesize < 32KB and 3 of ($npm*) and $scripts
 }
 
-private rule post_json {
+private rule global_post_json {
   strings:
     $json             = "application/json"
     $POST             = "POST"
@@ -171,7 +171,7 @@ private rule post_json {
     $json and $POST and any of ($encode*)
 }
 
-private rule py_fetcher {
+private rule global_py_fetcher {
   meta:
     description = "fetches content"
     filetypes   = "py"
@@ -189,7 +189,7 @@ private rule py_fetcher {
     any of them
 }
 
-private rule py_runner {
+private rule global_py_runner {
   meta:
     description = "runs programs"
     filetypes   = "py"
@@ -205,7 +205,7 @@ private rule py_runner {
     any of them
 }
 
-private rule python_setup {
+private rule global_python_setup {
   meta:
     filetypes = "py"
 
@@ -230,7 +230,7 @@ private rule python_setup {
     filesize < 131072 and $setup and any of ($i*) and none of ($not*)
 }
 
-private rule sensitive_log_files {
+private rule global_sensitive_log_files {
   strings:
     $wtmp     = "/var/log/wtmp"
     $secure   = "/var/log/secure"
@@ -249,27 +249,27 @@ private rule sensitive_log_files {
     filesize < 16KB and 2 of them
 }
 
-private rule small_binary {
+private rule global_small_binary {
   condition:
     filesize < 10MB and (uint32(0) == 1179403647 or uint32(0) == 4277009102 or uint32(0) == 3472551422 or uint32(0) == 4277009103 or uint32(0) == 3489328638 or uint32(0) == 3405691582 or uint32(0) == 3199925962)
 }
 
-private rule small_elf {
+private rule global_small_elf {
   condition:
     filesize < 400KB and uint32(0) == 1179403647
 }
 
-private rule small_elf_or_macho {
+private rule global_small_elf_or_macho {
   condition:
     filesize > 1MB and filesize < 8MB and (uint32(0) == 1179403647 or uint32(0) == 4277009102 or uint32(0) == 3472551422 or uint32(0) == 4277009103 or uint32(0) == 3489328638 or uint32(0) == 3405691582 or uint32(0) == 3199925962)
 }
 
-private rule small_macho {
+private rule global_small_macho {
   condition:
     filesize < 64MB and (uint32(0) == 4277009102 or uint32(0) == 3472551422 or uint32(0) == 4277009103 or uint32(0) == 3489328638 or uint32(0) == 3405691582 or uint32(0) == 3199925962)
 }
 
-private rule specific_macho {
+private rule global_specific_macho {
   strings:
     $not_jar   = "META-INF/"
     $not_dwarf = "_DWARF"
@@ -287,7 +287,7 @@ private rule specific_macho {
     and none of ($not*)
 }
 
-private rule stub_macho {
+private rule global_stub_macho {
   strings:
     $stub_helper = "__stub_helper"
 
@@ -295,7 +295,7 @@ private rule stub_macho {
     filesize < 1MB and (uint32(0) == 4277009102 or uint32(0) == 3472551422 or uint32(0) == 4277009103 or uint32(0) == 3489328638 or uint32(0) == 3405691582 or uint32(0) == 3199925962) and $stub_helper
 }
 
-private rule ufw_tool {
+private rule global_ufw_tool {
   strings:
     $not_route         = "route-insert"
     $not_statusverbose = "statusverbose"
@@ -307,7 +307,7 @@ private rule ufw_tool {
     filesize < 256KB and any of them
 }
 
-private rule wordlist {
+private rule global_word_list {
   strings:
     $scorpion = "scorpion"
     $superman = "superman"

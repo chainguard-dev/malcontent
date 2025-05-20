@@ -1,4 +1,4 @@
-include "rules/global.yara"
+include "rules/global/global.yara"
 
 import "math"
 
@@ -12,7 +12,7 @@ rule setuptools_random: critical {
     $not_easy_install = "pid = random.randint(0, sys.maxsize)"
 
   condition:
-    python_setup and $ref and none of ($not*)
+    global_python_setup and $ref and none of ($not*)
 }
 
 rule java_random: low {

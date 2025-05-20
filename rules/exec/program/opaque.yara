@@ -1,4 +1,4 @@
-include "rules/global.yara"
+include "rules/global/global.yara"
 
 import "math"
 
@@ -18,7 +18,7 @@ rule macho_opaque_binary: high {
     $not_java         = "java/lang"
 
   condition:
-    small_macho and #word_with_spaces < 8 and #libc_call < 6 and all of ($f*) and none of ($not*)
+    global_small_macho and #word_with_spaces < 8 and #libc_call < 6 and all of ($f*) and none of ($not*)
 }
 
 rule macho_opaque_binary_long_str: high {
@@ -39,7 +39,7 @@ rule macho_opaque_binary_long_str: high {
     $long_low_str = /\x00[a-z0-9]{3000}/
 
   condition:
-    stub_macho and #word_with_spaces < 10 and #libc_call < 15 and all of ($f*) and any of ($long*) and none of ($not*)
+    global_stub_macho and #word_with_spaces < 10 and #libc_call < 15 and all of ($f*) and any of ($long*) and none of ($not*)
 }
 
 rule decoded_or_encoded_cmd: medium {

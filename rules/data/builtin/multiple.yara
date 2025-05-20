@@ -1,4 +1,4 @@
-include "rules/global.yara"
+include "rules/global/global.yara"
 
 import "elf"
 
@@ -8,5 +8,5 @@ rule elf_with_bundled_glibc_and_openssl: high {
     filetypes   = "elf"
 
   condition:
-    bundled_openssl and bundled_glibc
+    global_bundled_openssl and global_bundled_glibc
 }
