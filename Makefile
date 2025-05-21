@@ -81,7 +81,7 @@ yara-x-fmt: $(YARA_X_BIN)
 	find rules -type f -name "*.yara" -execdir "$(YARA_X_BIN)" fmt {} \;
 
 yara-x-compile: $(YARA_X_BIN)
-	"$(YARA_X_BIN)" compile ./rules/
+	"$(YARA_X_BIN)" compile --path-as-namespace -w rules/
 
 .PHONY: _lint $(LINTERS)
 _lint: $(LINTERS)
