@@ -1,20 +1,6 @@
 import "math"
 
-private rule indicator_blocking_pythonSetup {
-  strings:
-    $if_distutils      = /from distutils.core import .{0,32}setup/
-    $if_setuptools     = /from setuptools import .{0,32}setup/
-    $i_setuptools      = "import setuptools"
-    $setup             = "setup("
-    $not_setup_example = ">>> setup("
-    $not_setup_todict  = "setup(**config.todict()"
-    $not_import_quoted = "\"from setuptools import setup"
-    $not_setup_quoted  = "\"setup(name="
-    $not_distutils     = "from distutils.errors import"
-
-  condition:
-    filesize < 131072 and $setup and any of ($i*) and none of ($not*)
-}
+include "rules/global/global.yara"
 
 rule py_no_fail: medium {
   meta:
@@ -35,7 +21,7 @@ rule setuptools_no_fail: suspicious {
     filetypes   = "py"
 
   condition:
-    indicator_blocking_pythonSetup and py_no_fail
+    global_python_setup and py_no_fail
 }
 
 rule php_disable_errors: medium {

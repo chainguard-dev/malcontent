@@ -1,14 +1,6 @@
 import "math"
 
-private rule normal_elf {
-  condition:
-    filesize < 64MB and uint32(0) == 1179403647
-}
-
-private rule small_elf {
-  condition:
-    filesize < 400KB and uint32(0) == 1179403647
-}
+include "rules/global/global.yara"
 
 rule higher_elf_entropy_68: medium {
   meta:
@@ -16,7 +8,7 @@ rule higher_elf_entropy_68: medium {
     filetypes   = "elf"
 
   condition:
-    normal_elf and math.entropy(1, filesize) >= 6.95
+    global_normal_elf and math.entropy(1, filesize) >= 6.95
 }
 
 rule normal_elf_high_entropy_7_4: high {
@@ -29,7 +21,7 @@ rule normal_elf_high_entropy_7_4: high {
     $not_bazel     = "BazelLogHandler"
 
   condition:
-    filesize < 30MB and normal_elf and math.entropy(1, filesize) >= 7.4 and none of ($not*)
+    filesize < 30MB and global_normal_elf and math.entropy(1, filesize) >= 7.4 and none of ($not*)
 }
 
 rule normal_elf_high_entropy_footer_7_4: high {
@@ -38,7 +30,7 @@ rule normal_elf_high_entropy_footer_7_4: high {
     filetypes   = "elf"
 
   condition:
-    normal_elf and math.entropy(filesize - 8192, filesize) >= 7.4
+    global_normal_elf and math.entropy(filesize - 8192, filesize) >= 7.4
 }
 
 rule normal_elf_high_entropy_footer_7_4_rc4: high {
@@ -51,5 +43,5 @@ rule normal_elf_high_entropy_footer_7_4_rc4: high {
     $cmp_r_x_256 = { 48 81 f? 00 01 00 00 }  // cmp {rbx, rcx, …}, 256
 
   condition:
-    filesize < 25MB and normal_elf and math.entropy(filesize - 8192, filesize) >= 7.4 and any of them
+    filesize < 25MB and global_normal_elf and math.entropy(filesize - 8192, filesize) >= 7.4 and any of them
 }
