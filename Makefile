@@ -44,7 +44,7 @@ LINTERS :=
 FIXERS :=
 
 GOLANGCI_LINT_CONFIG := $(LINT_ROOT)/.golangci.yml
-GOLANGCI_LINT_VERSION ?= v1.64.8
+GOLANGCI_LINT_VERSION ?= v2.1.6
 GOLANGCI_LINT_BIN := $(LINT_ROOT)/out/linters/golangci-lint-$(GOLANGCI_LINT_VERSION)-$(LINT_ARCH)
 $(GOLANGCI_LINT_BIN):
 	mkdir -p $(LINT_ROOT)/out/linters
@@ -63,9 +63,9 @@ YARA_X_BIN := $(LINT_ROOT)/out/linters/yr-$(YARA_X_VERSION)-$(LINT_ARCH)
 $(YARA_X_BIN):
 	mkdir -p $(LINT_ROOT)/out/linters
 	rm -rf $(LINT_ROOT)/out/linters/yr
-	curl -sSfL https://github.com/VirusTotal/yara-x/releases/download/$(YARA_X_VERSION)/yara-x-$(YARA_X_VERSION)-$(LINT_ARCH)-$(LINT_PLATFORM)-$(LINT_OS_LOWER)$(LINT_PLATFORM_SUFFIX).gz -o yara-x.gzip
-	echo "$(YARA_X_SHA) *yara-x.gzip" | shasum -a 256 --check
-	tar -xzvf yara-x.gzip && mv yr $(LINT_ROOT)/out/linters && rm yara-x.gzip
+	curl -sSfL https://github.com/VirusTotal/yara-x/releases/download/$(YARA_X_VERSION)/yara-x-$(YARA_X_VERSION)-$(LINT_ARCH)-$(LINT_PLATFORM)-$(LINT_OS_LOWER)$(LINT_PLATFORM_SUFFIX).gz -o yara-x.gz
+	echo "$(YARA_X_SHA) *yara-x.gz" | shasum -a 256 --check
+	tar -xzvf yara-x.gz && mv yr $(LINT_ROOT)/out/linters && rm yara-x.gz
 	mv $(LINT_ROOT)/out/linters/yr $@
 
 LINTERS += golangci-lint-lint
@@ -81,7 +81,7 @@ yara-x-fmt: $(YARA_X_BIN)
 	find rules -type f -name "*.yara" -execdir "$(YARA_X_BIN)" fmt {} \;
 
 yara-x-compile: $(YARA_X_BIN)
-	"$(YARA_X_BIN)" compile ./rules/
+	"$(YARA_X_BIN)" compile --path-as-namespace -w rules/
 
 .PHONY: _lint $(LINTERS)
 _lint: $(LINTERS)

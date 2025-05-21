@@ -116,9 +116,9 @@ type DiffReport struct {
 }
 
 type Report struct {
-	Files  sync.Map    `json:",omitempty" yaml:",omitempty"`
-	Diff   *DiffReport `json:",omitempty" yaml:",omitempty"`
-	Filter string      `json:",omitempty" yaml:",omitempty"`
+	Files  sync.Map
+	Diff   *DiffReport
+	Filter string
 }
 
 type IntMetric struct {

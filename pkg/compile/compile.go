@@ -190,7 +190,7 @@ func findRoot(start string) string {
 func replaceGlobal(data []byte, path string) []byte {
 	modified := data
 	if bytes.Contains(data, []byte(globalInclude)) {
-		modified = bytes.Replace(data, []byte(globalInclude), []byte(fmt.Sprintf(`include "%s"`, path)), 1)
+		modified = bytes.Replace(data, []byte(globalInclude), fmt.Appendf(nil, `include "%s"`, path), 1)
 	}
 	return modified
 }
