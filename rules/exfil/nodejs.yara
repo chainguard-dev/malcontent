@@ -1,5 +1,7 @@
 import "math"
 
+include "rules/global/global.yara"
+
 rule nodejs_sysinfoexfil: high {
   meta:
     description = "may gather and exfiltrate system information"
@@ -130,31 +132,6 @@ rule post_hardcoded_hardcoded_host_os: high {
     filesize < 256KB and any of ($ref*) and $post and ((math.abs(@ref - @post) <= 128) or ((math.abs(@ref2 - @post) <= 128))) and $os
 }
 
-private rule nodejs_iplookup_website: high {
-  meta:
-    description = "public service to discover external IP address"
-
-  strings:
-    $ipify       = /ipify\.org{0,1}/
-    $wtfismyip   = "wtfismyip"
-    $iplogger    = "iplogger.org"
-    $getjsonip   = "getjsonip"
-    $ipconfig_me = "ifconfig.me"
-    $icanhazip   = "icanhazip"
-    $grabify     = "grabify.link"
-    $ident_me    = "ident.me" fullword
-    $showip_net  = "showip.net" fullword
-    $ifconfig_io = "ifconfig.io" fullword
-    $ifconfig_co = "ifconfig.co" fullword
-    $ipinfo      = "ipinfo.io"
-    $check_ip    = "checkip.amazonaws.com"
-
-    $not_pypi_index = "testpack-id-lb001"
-
-  condition:
-    filesize < 250MB and any of them and none of ($not*)
-}
-
 rule get_hardcoded_hardcoded_host_os: critical {
   meta:
     description = "leaks host information to a hardcoded host"
@@ -168,5 +145,5 @@ rule get_hardcoded_hardcoded_host_os: critical {
     $i_os_userinfo = "os.userInfo"
 
   condition:
-    filesize < 256KB and $ref and (any of ($i*) or nodejs_iplookup_website)
+    filesize < 256KB and $ref and (any of ($i*) or global_iplookup_website)
 }

@@ -31,14 +31,14 @@ jobs:
 
       - name: Install yara-x
         run: |
-          wget https://github.com/VirusTotal/yara-x/releases/download/v0.10.0/yara-x-v0.10.0-x86_64-unknown-linux-gnu.gzip -O yara-x.gzip
-          tar -xzvf yara-x.gzip && mv yr /usr/local/bin/ && rm yara-x.gzip
+          wget https://github.com/VirusTotal/yara-x/releases/download/v0.15.0/yara-x-v0.15.0-x86_64-unknown-linux-gnu.gz -O yara-x.gz
+          tar -xzvf yara-x.gz && mv yr /usr/local/bin/ && rm yara-x.gz
       - name: Verify yr installation
         run: |
           yr --version
       - name: Run yr compile
         run: |
-          yr compile rules/
+          yr compile --path-as-namespace -w rules/
           ret=$?
           if [[ $ret -ne 0 ]]; then
             echo "Rule compilation failed; address findings and commit the changes"

@@ -1,14 +1,4 @@
-private rule wordlist {
-  strings:
-    $scorpion = "scorpion"
-    $superman = "superman"
-    $porsche  = "porsche"
-    $cardinal = "cardinal"
-    $wombat   = "wombat"
-
-  condition:
-    filesize < 100MB and 3 of them
-}
+include "rules/global/global.yara"
 
 rule backdoor: medium {
   meta:
@@ -22,7 +12,7 @@ rule backdoor: medium {
     $not_comment = "# backdoor:"
 
   condition:
-    filesize < 40MB and any of them and not wordlist and none of ($not*)
+    filesize < 40MB and any of them and not global_word_list and none of ($not*)
 }
 
 rule backdoor_shell: high {
@@ -77,7 +67,7 @@ rule backdoor_caps: high {
     $ref2 = /[a-zA-Z\-_ \']{0,16}BACKDOOR[a-zA-Z\-_ ]{0,16}/ fullword
 
   condition:
-    filesize < 40MB and any of them and not wordlist
+    filesize < 40MB and any of them and not global_word_list
 }
 
 rule backdoor_leet: critical {
@@ -88,7 +78,7 @@ rule backdoor_leet: critical {
     $ref4 = /[a-zA-Z\-_ \']{0,16}[bB][a4]ckd00r[a-zA-Z\-_ ]{0,16}/
 
   condition:
-    filesize < 100MB and any of them and not wordlist
+    filesize < 100MB and any of them and not global_word_list
 }
 
 rule commands: high {
@@ -102,11 +92,6 @@ rule commands: high {
 
   condition:
     all of them
-}
-
-private rule backdoor_small_macho {
-  condition:
-    filesize < 1MB and (uint32(0) == 4277009102 or uint32(0) == 3472551422 or uint32(0) == 4277009103 or uint32(0) == 3489328638 or uint32(0) == 3405691582 or uint32(0) == 3199925962)
 }
 
 rule macho_backdoor_libc_signature: high {
@@ -150,7 +135,7 @@ rule macho_backdoor_libc_signature: high {
     $not_java       = "java/lang"
 
   condition:
-    backdoor_small_macho and #word_with_spaces < 10 and #libc_call < 74 and 95 % of ($f*) and none of ($not*)
+    global_small_macho and #word_with_spaces < 10 and #libc_call < 74 and 95 % of ($f*) and none of ($not*)
 }
 
 rule minecraft_load_fetch_class_backdoor: critical {

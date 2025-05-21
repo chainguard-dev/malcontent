@@ -1,46 +1,4 @@
-private rule probably_python_tt {
-  strings:
-    $import   = "import "
-    $f_common = /\s(def|if|with|else:) /
-    $f_exotic = /exec\(|b64decode|bytes\(/
-
-  condition:
-    filesize < 10MB and $import in (1..1024) and any of ($f*)
-}
-
-private rule py_fetcher: medium {
-  meta:
-    description = "fetches content"
-    filetypes   = "py"
-
-  strings:
-    $http_requests      = "requests.get" fullword
-    $http_requests_post = "requests.post" fullword
-    $http_urllib        = "urllib.request" fullword
-    $http_urlopen       = "urlopen" fullword
-    $git_git            = /git.Git\(.{0,64}/
-    $http_curl          = "curl" fullword
-    $http_wget          = "wget" fullword
-
-  condition:
-    probably_python_tt and any of them
-}
-
-private rule py_runner {
-  meta:
-    description = "runs programs"
-    filetypes   = "py"
-
-  strings:
-    $os_system    = /os.system\([\"\'\w\ \-\)\/]{0,64}/
-    $os_startfile = /os.startfile\([\"\'\w\ \-\)\/]{0,64}/
-    $os_popen     = /os.spopen\([\"\'\w\ \-\)\/]{0,64}/
-    $subprocess   = /subprocess.\w{1,32}\([\"\'\/\w\ \-\)]{0,64}/
-    $system       = /system\([\"\'\w\ \-\)\/]{0,64}/
-
-  condition:
-    probably_python_tt and any of them
-}
+include "rules/global/global.yara"
 
 rule py_dropper: medium {
   meta:
@@ -52,7 +10,7 @@ rule py_dropper: medium {
     $write = "write("
 
   condition:
-    filesize < 16384 and $open and $write and py_fetcher and py_runner
+    filesize < 16384 and $open and $write and global_py_fetcher and global_py_runner
 }
 
 rule py_arch_dropper: medium {
@@ -75,7 +33,7 @@ rule py_arch_dropper: medium {
     $exec_run = "run" fullword
 
   condition:
-    filesize < 1MB and any of ($os*) and any of ($arch*) and any of ($download*) and (any of ($exec*) or py_runner)
+    filesize < 1MB and any of ($os*) and any of ($arch*) and any of ($download*) and (any of ($exec*) or global_py_runner)
 }
 
 rule py_dropper_obfuscated: high {
@@ -90,7 +48,7 @@ rule py_dropper_obfuscated: high {
     $ob_codecs = "codecs.decode"
 
   condition:
-    filesize < 16000 and $open and $write and any of ($ob_*) and py_fetcher and py_runner
+    filesize < 16000 and $open and $write and any of ($ob_*) and global_py_fetcher and global_py_runner
 }
 
 rule py_dropper_tiny: high {
@@ -103,7 +61,7 @@ rule py_dropper_tiny: high {
     $write = "write("
 
   condition:
-    filesize < 900 and $open and $write and py_fetcher and py_runner
+    filesize < 900 and $open and $write and global_py_fetcher and global_py_runner
 }
 
 rule py_dropper_chmod: high {
@@ -119,29 +77,7 @@ rule py_dropper_chmod: high {
     $val_770  = "770"
 
   condition:
-    filesize < 1MB and py_fetcher and py_runner and $chmod and any of ($val*)
-}
-
-private rule tool_transfer_pythonSetup {
-  strings:
-    $if_distutils  = /from distutils.core import .{0,32}setup/
-    $if_setuptools = /from setuptools import .{0,32}setup/
-    $i_setuptools  = "import setuptools"
-    $setup         = "setup("
-
-    $not_setup_example = ">>> setup("
-    $not_setup_todict  = "setup(**config.todict()"
-    $not_import_quoted = "\"from setuptools import setup"
-    $not_setup_quoted  = "\"setup(name="
-    $not_distutils     = "from distutils.errors import"
-    $not_dir           = "dist-packages/setuptools"
-    $not_fetch         = "fetch_distribution"
-    $not_hopper1       = "PACKAGE_NAME = \"flashattn-hopper\""
-    $not_hopper2       = "check_if_cuda_home_none(\"--fahopper\")"
-    $not_hopper3       = "name=\"flashattn_hopper_cuda\","
-
-  condition:
-    filesize < 128KB and $setup and any of ($i*) and none of ($not*)
+    filesize < 1MB and global_py_fetcher and global_py_runner and $chmod and any of ($val*)
 }
 
 rule setuptools_fetcher: suspicious {
@@ -150,7 +86,7 @@ rule setuptools_fetcher: suspicious {
     filetypes   = "py"
 
   condition:
-    tool_transfer_pythonSetup and py_fetcher
+    global_python_setup and global_py_fetcher
 }
 
 rule setuptools_fetch_run: critical {
@@ -164,7 +100,7 @@ rule setuptools_fetch_run: critical {
     $not_hopper3 = "name=\"flashattn_hopper_cuda\","
 
   condition:
-    setuptools_fetcher and py_runner and none of ($not*)
+    setuptools_fetcher and global_py_runner and none of ($not*)
 }
 
 rule setuptools_dropper: critical {
@@ -173,7 +109,7 @@ rule setuptools_dropper: critical {
     filetypes   = "py"
 
   condition:
-    tool_transfer_pythonSetup and py_dropper
+    global_python_setup and py_dropper
 }
 
 rule dropper_imports: high {
@@ -204,6 +140,6 @@ rule oneline: high {
     $urlopen = /\.write\(.{0,8}urlopen\("http.{0,128}\"\).read\(\)/
 
   condition:
-    filesize < 512KB and any of them and py_fetcher and py_runner
+    filesize < 512KB and any of them and global_py_fetcher and global_py_runner
 
 }

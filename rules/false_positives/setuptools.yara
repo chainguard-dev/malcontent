@@ -2,6 +2,7 @@ rule setuptools_namespaces: override {
   meta:
     description          = "namespaces.py"
     setuptools_exec_high = "low"
+    setuptools_eval_high = "low"
 
   strings:
     $func1     = "def iter_namespace_pkgs("

@@ -1,12 +1,4 @@
-private rule post_json {
-  strings:
-    $json             = "application/json"
-    $POST             = "POST"
-    $encode_stringify = "JSON.stringify"
-
-  condition:
-    $json and $POST and any of ($encode*)
-}
+include "rules/global/global.yara"
 
 rule possible_oauth_stealer: high {
   meta:
@@ -29,7 +21,7 @@ rule possible_oauth_stealer: high {
     $o_microsoft5 = "code_challenge_method"
 
   condition:
-    filesize < 10MB and post_json and 5 of ($o*)
+    filesize < 10MB and global_post_json and 5 of ($o*)
 }
 
 rule oauth_stealer: critical {

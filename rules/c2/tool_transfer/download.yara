@@ -1,3 +1,5 @@
+include "rules/global/global.yara"
+
 rule download_sites: high {
   meta:
     ref         = "https://github.com/ditekshen/detection/blob/e6579590779f62cbe7f5e14b5be7d77b2280f516/yara/indicator_high.yar#L1001"
@@ -113,12 +115,6 @@ rule http_archive_url: medium {
     any of ($ref*) and none of ($not*)
 }
 
-private rule smallerBinary {
-  condition:
-    // matches ELF or machO binary
-    filesize < 10MB and (uint32(0) == 1179403647 or uint32(0) == 4277009102 or uint32(0) == 3472551422 or uint32(0) == 4277009103 or uint32(0) == 3489328638 or uint32(0) == 3405691582 or uint32(0) == 3199925962)
-}
-
 rule http_archive_url_higher: high {
   meta:
     description = "accesses hardcoded archive file endpoint"
@@ -129,5 +125,5 @@ rule http_archive_url_higher: high {
     $not_foo_bar = "http://foo/bar.tar"
 
   condition:
-    smallerBinary and any of ($ref*) and none of ($not*)
+    global_small_binary and any of ($ref*) and none of ($not*)
 }

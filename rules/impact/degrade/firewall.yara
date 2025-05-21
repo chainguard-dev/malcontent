@@ -1,5 +1,7 @@
 import "math"
 
+include "rules/global/global.yara"
+
 rule selinux_firewall: high linux {
   meta:
     filetypes   = "elf,so"
@@ -21,18 +23,6 @@ rule selinux_firewall: high linux {
     filesize < 1MB and $selinux and any of ($f*) and none of ($not*)
 }
 
-private rule ufw_tool {
-  strings:
-    $not_route         = "route-insert"
-    $not_statusverbose = "statusverbose"
-    $not_enables_the   = "enables the"
-    $not_enable_the    = "enable the"
-    $not_enable        = "ufw enable"
-
-  condition:
-    filesize < 256KB and any of them
-}
-
 rule ufw_disable_word: high {
   meta:
     description = "disables ufw firewall"
@@ -41,7 +31,7 @@ rule ufw_disable_word: high {
     $ref = /ufw['", ]{1,4}disable/ fullword
 
   condition:
-    filesize < 256KB and $ref and not ufw_tool
+    filesize < 256KB and $ref and not global_ufw_tool
 }
 
 rule firewall_iptables_disable: high {
