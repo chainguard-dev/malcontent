@@ -117,10 +117,10 @@ func prepareRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 
 		ext := filepath.Ext(data)
 		format := strings.TrimPrefix(ext, ".")
-		switch {
-		case format == "sdiff":
+		switch format {
+		case "sdiff":
 			format = "simple"
-		case format == "mdiff" || format == "md":
+		case "mdiff", "md":
 			format = "markdown"
 		}
 

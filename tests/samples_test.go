@@ -646,7 +646,7 @@ func Benchmarks(b *testing.B, p string) {
 	if p != "" {
 		paths = strings.Split(p, ",")
 	}
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		bench := Template(b, paths)
 		bench()
 	}

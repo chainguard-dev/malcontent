@@ -64,7 +64,7 @@ func newMatchProcessor(fc []byte, matches []yarax.Match, mp []yarax.Pattern) *ma
 }
 
 var matchResultPool = sync.Pool{
-	New: func() interface{} {
+	New: func() any {
 		s := make([]string, 0, 32)
 		return &s
 	},

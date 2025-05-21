@@ -60,7 +60,7 @@ func BenchmarkLongestUnique(b *testing.B) {
 		"cherrybanana",
 		"upload_content",
 	}
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		longestUnique(raw)
 	}
 }

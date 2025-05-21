@@ -216,7 +216,7 @@ func markdownTable(ctx context.Context, fr *malcontent.FileReport, w io.Writer, 
 
 		risk := k.Behavior.RiskLevel
 
-		if rc.SkipExisting && !(k.Behavior.DiffAdded || k.Behavior.DiffRemoved) {
+		if rc.SkipExisting && !k.Behavior.DiffAdded && !k.Behavior.DiffRemoved {
 			continue
 		}
 
