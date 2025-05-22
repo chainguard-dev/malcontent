@@ -438,8 +438,10 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 			ignoreMalcontent = true
 		}
 
-		if !fileMatchesRule(m.Metadata(), kind.Ext) {
-			continue
+		if kind != nil && kind.Ext != "" {
+			if !fileMatchesRule(m.Metadata(), kind.Ext) {
+				continue
+			}
 		}
 
 		override := slices.Contains(m.Tags(), "override")
