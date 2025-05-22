@@ -50,62 +50,30 @@ rule js_eval_response: critical {
     filesize < 1MB and any of ($val*)
 }
 
-rule js_eval_near_enough_fromChar: high {
+rule js_eval_near_enough_fromChar: medium {
   meta:
-    description = "Likely executes encrypted content"
+    description = "Evaluates content via String.fromCharCode"
     filetypes   = "js,ts"
 
   strings:
-    $exec    = /[\s\{]eval\(/
+    $eval    = /[\s\{]eval\(/
     $decrypt = "String.fromCharCode"
 
-    $not_code_server = "fromCharCode(...codes: number[]): string;"
-    $not_grafana     = "self.webpackChunkgrafana=self.webpackChunkgrafana||[]).push("
-    $not_jupyter     = "self[\" webpackChunk_jupyterlab_application_top \"]=self[\" webpackChunk_jupyterlab_application_top \"]||[]).push("
-    $not_jupyter2    = "self[\" webpackChunk_JUPYTERLAB_CORE_OUTPUT \"] = self[\" webpackChunk_JUPYTERLAB_CORE_OUTPUT \"] || []).push([[132,7061]"
-    $not_jupyter3    = "self[\" webpackChunk_jupyterlab_application_top \"]=self[\" webpackChunk_jupyterlab_application_top \"]||[]).push([[227],{69119:"
-    $not_jupyter4    = "self[\" webpackChunk_jupyterlab_application_top \"]=self[\" webpackChunk_jupyterlab_application_top \"]||[]).push([[9296],{49296:"
-    $not_jupyter5    = "self[\" webpackChunk_jupyterlab_application_top \"]=self[\" webpackChunk_jupyterlab_application_top \"]||[]).push([[4470],{27902:"
-    $not_monaco1     = "https://github.com/microsoft/monaco-editor"
-    $not_monaco2     = "Monaco is not using webworkers for background tasks"
-    $not_pem1        = "Determine if an object is a Buffer"
-    $not_pem2        = "@author   Feross Aboukhadijeh <https://feross.org>"
-    $not_phpmain     = "php-language-features/dist/phpMain.js.map"
-    $not_protobuf    = "see: https://github.com/dcodeio/protobuf.js for details"
-    $not_tree_sitter = "@see https://tree-sitter.github.io/tree-sitter/using-parsers/queries"
-    $not_tweetnacl   = "Implementation derived from TweetNaCl"
-
   condition:
-    filesize < 5MB and all of them and math.abs(@exec - @decrypt) > 384 and none of ($not*)
+    filesize < 5MB and all of them and math.abs(@eval - @decrypt) > 384
 }
 
-rule js_eval_obfuscated_fromChar: critical {
+rule js_eval_obfuscated_fromChar: high {
   meta:
-    description = "Likely executes encrypted content"
+    description = "Likely evaluates encrypted content via fromCharCode"
     filetypes   = "js,ts"
 
   strings:
-    $exec = /[\s\{]eval\(/
+    $eval = /[\s\{]eval\(/
     $ref  = /fromCharCode\(\w{0,16}\s{0,2}[\-\+\*\^]{0,2}\w{0,16}/
 
-    $not_code_server = "fromCharCode(...codes: number[]): string;"
-    $not_grafana     = "self.webpackChunkgrafana=self.webpackChunkgrafana||[]).push("
-    $not_jupyter     = "self[\" webpackChunk_jupyterlab_application_top \"]=self[\" webpackChunk_jupyterlab_application_top \"]||[]).push("
-    $not_jupyter2    = "self[\" webpackChunk_JUPYTERLAB_CORE_OUTPUT \"] = self[\" webpackChunk_JUPYTERLAB_CORE_OUTPUT \"] || []).push([[132,7061]"
-    $not_jupyter3    = "self[\" webpackChunk_jupyterlab_application_top \"]=self[\" webpackChunk_jupyterlab_application_top \"]||[]).push([[227],{69119:"
-    $not_jupyter4    = "self[\" webpackChunk_jupyterlab_application_top \"]=self[\" webpackChunk_jupyterlab_application_top \"]||[]).push([[9296],{49296:"
-    $not_jupyter5    = "self[\" webpackChunk_jupyterlab_application_top \"]=self[\" webpackChunk_jupyterlab_application_top \"]||[]).push([[4470],{27902:"
-    $not_monaco1     = "https://github.com/microsoft/monaco-editor"
-    $not_monaco2     = "Monaco is not using webworkers for background tasks"
-    $not_pem1        = "Determine if an object is a Buffer"
-    $not_pem2        = "@author   Feross Aboukhadijeh <https://feross.org>"
-    $not_phpmain     = "php-language-features/dist/phpMain.js.map"
-    $not_protobuf    = "see: https://github.com/dcodeio/protobuf.js for details"
-    $not_tree_sitter = "@see https://tree-sitter.github.io/tree-sitter/using-parsers/queries"
-    $not_tweetnacl   = "Implementation derived from TweetNaCl"
-
   condition:
-    filesize < 5MB and all of them and math.abs(@exec - @ref) > 384 and none of ($not*)
+    filesize < 5MB and all of them and math.abs(@eval - @ref) > 384
 }
 
 rule js_anonymous_function: medium {
