@@ -1,6 +1,21 @@
 import "math"
 
-include "rules/global/global.yara"
+private rule random_behavior_pythonSetup {
+  strings:
+    $if_distutils  = /from distutils.core import .{0,32}setup/
+    $if_setuptools = /from setuptools import .{0,32}setup/
+    $i_setuptools  = "import setuptools"
+    $setup         = "setup("
+
+    $not_setup_example = ">>> setup("
+    $not_setup_todict  = "setup(**config.todict()"
+    $not_import_quoted = "\"from setuptools import setup"
+    $not_setup_quoted  = "\"setup(name="
+    $not_distutils     = "from distutils.errors import"
+
+  condition:
+    filesize < 128KB and $setup and any of ($i*) and none of ($not*)
+}
 
 rule setuptools_random: critical {
   meta:
@@ -12,7 +27,7 @@ rule setuptools_random: critical {
     $not_easy_install = "pid = random.randint(0, sys.maxsize)"
 
   condition:
-    global_python_setup and $ref and none of ($not*)
+    random_behavior_pythonSetup and $ref and none of ($not*)
 }
 
 rule java_random: low {

@@ -4,25 +4,17 @@
 package compile
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"io/fs"
-	"os"
 	"path/filepath"
 	"regexp"
-	"runtime"
 	"strings"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/rules"
 
 	yarax "github.com/VirusTotal/yara-x/go"
-)
-
-const (
-	globalInclude = `include "rules/global/global.yara"`
-	globalPath    = "rules/global/global.yara"
 )
 
 var FS = rules.FS
@@ -167,47 +159,6 @@ func removeRules(data []byte, rulesToRemove []string) []byte {
 	return newlinePattern.ReplaceAll(modified, []byte("\n\n"))
 }
 
-// findRoot locates the packages's root directory on the fly.
-func findRoot() (string, error) {
-	_, here, _, ok := runtime.Caller(0)
-	if !ok {
-		return "", fmt.Errorf("failed to get current file path")
-	}
-
-	dir := filepath.Dir(here)
-	current := dir
-	for {
-		rulesPath := filepath.Join(current, "rules")
-		if fi, err := os.Stat(rulesPath); err == nil && fi.IsDir() {
-			return current, nil
-		}
-
-		parent := filepath.Dir(current)
-		if parent == current {
-			break
-		}
-		current = parent
-	}
-
-	rulesPath := filepath.Join(filepath.Dir(dir), "rules")
-	if fi, err := os.Stat(rulesPath); err == nil && fi.IsDir() {
-		return filepath.Dir(dir), nil
-	}
-
-	return "", fmt.Errorf("could not find rules directory from %s", dir)
-}
-
-// replaceGlobal updates the include string to reference the absolute path of rules/global/global.yara
-// by default, the relative path is valid for local compilations and builds done from the root of the repository,
-// but this is not valid for test files located in various directories.
-func replaceGlobal(data []byte, path string) []byte {
-	modified := data
-	if bytes.Contains(data, []byte(globalInclude)) {
-		modified = bytes.Replace(data, []byte(globalInclude), fmt.Appendf(nil, `include "%s"`, path), 1)
-	}
-	return modified
-}
-
 func Recursive(ctx context.Context, fss []fs.FS) (*yarax.Rules, error) {
 	if ctx.Err() != nil {
 		return nil, ctx.Err()
@@ -216,11 +167,6 @@ func Recursive(ctx context.Context, fss []fs.FS) (*yarax.Rules, error) {
 	yxc, err := yarax.NewCompiler(yarax.ConditionOptimization(true), yarax.EnableIncludes(true))
 	if err != nil {
 		return nil, fmt.Errorf("yarax compiler: %w", err)
-	}
-
-	rootPath, err := findRoot()
-	if err != nil {
-		return nil, err
 	}
 
 	rulesToRemove := getRulesToRemove()
@@ -242,9 +188,6 @@ func Recursive(ctx context.Context, fss []fs.FS) (*yarax.Rules, error) {
 				}
 
 				bs = removeRules(bs, rulesToRemove)
-
-				globalAbs := filepath.Join(rootPath, globalPath)
-				bs = replaceGlobal(bs, globalAbs)
 
 				yxc.NewNamespace(path)
 				if err := yxc.AddSource(string(bs), yarax.WithOrigin(path)); err != nil {

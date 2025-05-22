@@ -1,6 +1,15 @@
 import "math"
 
-include "rules/global/global.yara"
+private rule pySetup {
+  strings:
+    $i_distutils    = "from distutils.core import setup"
+    $i_setuptools   = "setuptools"
+    $setup          = "setup("
+    $not_setuptools = "setuptools.command"
+
+  condition:
+    filesize < 2097152 and $setup and any of ($i*) and none of ($not*)
+}
 
 rule unmarshal_py_marshal: medium {
   meta:
@@ -20,5 +29,5 @@ rule setuptools_py_marshal: suspicious {
     filetypes   = "py"
 
   condition:
-    global_python_setup and unmarshal_py_marshal
+    pySetup and unmarshal_py_marshal
 }
