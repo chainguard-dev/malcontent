@@ -50,30 +50,30 @@ rule js_eval_response: critical {
     filesize < 1MB and any of ($val*)
 }
 
-rule js_eval_near_enough_fromChar: high {
+rule js_eval_near_enough_fromChar: medium {
   meta:
-    description = "Likely executes encrypted content"
+    description = "Evaluates content via String.fromCharCode"
     filetypes   = "js,ts"
 
   strings:
-    $exec    = /[\s\{]eval\(/
+    $eval    = /[\s\{]eval\(/
     $decrypt = "String.fromCharCode"
 
   condition:
-    filesize < 5MB and all of them and math.abs(@exec - @decrypt) > 384
+    filesize < 5MB and all of them and math.abs(@eval - @decrypt) > 384
 }
 
-rule js_eval_obfuscated_fromChar: critical {
+rule js_eval_obfuscated_fromChar: high {
   meta:
-    description = "Likely executes encrypted content"
+    description = "Likely evaluates encrypted content via fromCharCode"
     filetypes   = "js,ts"
 
   strings:
-    $exec = /[\s\{]eval\(/
+    $eval = /[\s\{]eval\(/
     $ref  = /fromCharCode\(\w{0,16}\s{0,2}[\-\+\*\^]{0,2}\w{0,16}/
 
   condition:
-    filesize < 5MB and all of them and math.abs(@exec - @ref) > 384
+    filesize < 5MB and all of them and math.abs(@eval - @ref) > 384
 }
 
 rule js_anonymous_function: medium {
