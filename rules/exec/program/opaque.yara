@@ -1,6 +1,12 @@
-import "math"
+private rule program_small_macho {
+  strings:
+    $stub_helper = "__stub_helper"
 
-include "rules/global/global.yara"
+  condition:
+    filesize < 1MB and (uint32(0) == 4277009102 or uint32(0) == 3472551422 or uint32(0) == 4277009103 or uint32(0) == 3489328638 or uint32(0) == 3405691582 or uint32(0) == 3199925962) and $stub_helper
+}
+
+import "math"
 
 rule macho_opaque_binary: high {
   meta:
@@ -18,7 +24,7 @@ rule macho_opaque_binary: high {
     $not_java         = "java/lang"
 
   condition:
-    global_small_macho and #word_with_spaces < 8 and #libc_call < 6 and all of ($f*) and none of ($not*)
+    program_small_macho and #word_with_spaces < 8 and #libc_call < 6 and all of ($f*) and none of ($not*)
 }
 
 rule macho_opaque_binary_long_str: high {
@@ -39,7 +45,7 @@ rule macho_opaque_binary_long_str: high {
     $long_low_str = /\x00[a-z0-9]{3000}/
 
   condition:
-    global_stub_macho and #word_with_spaces < 10 and #libc_call < 15 and all of ($f*) and any of ($long*) and none of ($not*)
+    program_small_macho and #word_with_spaces < 10 and #libc_call < 15 and all of ($f*) and any of ($long*) and none of ($not*)
 }
 
 rule decoded_or_encoded_cmd: medium {
