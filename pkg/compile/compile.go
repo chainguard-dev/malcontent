@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strings"
 
 	"github.com/chainguard-dev/clog"
@@ -166,22 +167,34 @@ func removeRules(data []byte, rulesToRemove []string) []byte {
 	return newlinePattern.ReplaceAll(modified, []byte("\n\n"))
 }
 
-// findRoot locates the repository root on the fly.
-func findRoot(start string) string {
-	current := start
+// findRoot locates the packages's root directory on the fly.
+func findRoot() (string, error) {
+	_, here, _, ok := runtime.Caller(0)
+	if !ok {
+		return "", fmt.Errorf("failed to get current file path")
+	}
+
+	dir := filepath.Dir(here)
+	current := dir
 	for {
-		next := filepath.Join(current, "rules")
-		if _, err := os.Stat(next); err == nil {
-			return current
+		rulesPath := filepath.Join(current, "rules")
+		if fi, err := os.Stat(rulesPath); err == nil && fi.IsDir() {
+			return current, nil
 		}
 
 		parent := filepath.Dir(current)
 		if parent == current {
-			return ""
+			break
 		}
-
 		current = parent
 	}
+
+	rulesPath := filepath.Join(filepath.Dir(dir), "rules")
+	if fi, err := os.Stat(rulesPath); err == nil && fi.IsDir() {
+		return filepath.Dir(dir), nil
+	}
+
+	return "", fmt.Errorf("could not find rules directory from %s", dir)
 }
 
 // replaceGlobal updates the include string to reference the absolute path of rules/global/global.yara
@@ -205,17 +218,10 @@ func Recursive(ctx context.Context, fss []fs.FS) (*yarax.Rules, error) {
 		return nil, fmt.Errorf("yarax compiler: %w", err)
 	}
 
-	// use the current working directory to determine the root path
-	// this only needs to be done once
-	cwd, err := os.Getwd()
+	rootPath, err := findRoot()
 	if err != nil {
 		return nil, err
 	}
-	abs, err := filepath.Abs(cwd)
-	if err != nil {
-		return nil, err
-	}
-	rootPath := findRoot(abs)
 
 	rulesToRemove := getRulesToRemove()
 
