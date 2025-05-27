@@ -12,11 +12,20 @@ import (
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/pool"
+	"github.com/chainguard-dev/malcontent/pkg/programkind"
 	zip "github.com/klauspost/compress/zip"
 	"golang.org/x/sync/errgroup"
 )
 
 var initZipPool sync.Once
+
+var zipMIME = map[string]struct{}{
+	"application/java-archive":     {},
+	"application/x-wheel+zip":      {},
+	"application/x-zip":            {},
+	"application/x-zip-compressed": {},
+	"application/zip":              {},
+}
 
 // ExtractZip extracts .jar and .zip archives.
 func ExtractZip(ctx context.Context, d string, f string) error {
@@ -36,6 +45,17 @@ func ExtractZip(ctx context.Context, d string, f string) error {
 		return fmt.Errorf("failed to stat file %s: %w", f, err)
 	}
 	if fi.Size() == 0 {
+		return nil
+	}
+
+	var isZip bool
+	if ft, err := programkind.File(f); err == nil && ft != nil {
+		if _, ok := zipMIME[ft.MIME]; ok {
+			isZip = true
+		}
+	}
+
+	if !isZip {
 		return nil
 	}
 

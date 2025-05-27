@@ -630,6 +630,11 @@ func processArchive(ctx context.Context, c malcontent.Config, rfs []fs.FS, archi
 
 	tmpRoot, err := archive.ExtractArchiveToTempDir(ctx, archivePath)
 	if err != nil {
+		// Avoid failing an entire scan when encountering problematic archives
+		// e.g., joblib_0.8.4_compressed_pickle_py27_np17.gz: not a valid gzip archive
+		if !c.ExitExtraction {
+			return nil, nil
+		}
 		return nil, fmt.Errorf("extract to temp: %w", err)
 	}
 	// Ensure that tmpRoot is removed before returning if created successfully
@@ -640,8 +645,8 @@ func processArchive(ctx context.Context, c malcontent.Config, rfs []fs.FS, archi
 	}()
 
 	// macOS will prefix temporary directories with `/private`
-	// update tmpRoot with this prefix to allow strings.TrimPrefix to work
-	if runtime.GOOS == "darwin" {
+	// update tmpRoot (if populated) with this prefix to allow strings.TrimPrefix to work
+	if runtime.GOOS == "darwin" && tmpRoot != "" {
 		tmpRoot = fmt.Sprintf("/private%s", tmpRoot)
 	}
 
