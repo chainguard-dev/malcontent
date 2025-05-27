@@ -32,7 +32,7 @@ func ExtractGzip(ctx context.Context, d string, f string) error {
 	// Check whether the provided file is a valid gzip archive
 	var isGzip bool
 	if ft, err := programkind.File(f); err == nil && ft != nil {
-		if ft.MIME == "application/gzip" {
+		if _, ok := gzMIME[ft.MIME]; ok {
 			isGzip = true
 		}
 	}
