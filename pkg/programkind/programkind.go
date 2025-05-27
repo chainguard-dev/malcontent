@@ -44,7 +44,7 @@ var ArchiveMap = map[string]bool{
 
 // file extension to MIME type, if it's a good scanning target.
 var supportedKind = map[string]string{
-	"7z":      "",
+	"7z":      "application/x-7z-compressed",
 	"Z":       "application/zlib",
 	"apk":     "application/gzip",
 	"asm":     "",
