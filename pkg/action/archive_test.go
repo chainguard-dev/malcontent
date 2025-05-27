@@ -11,7 +11,6 @@ import (
 	"testing"
 
 	"github.com/chainguard-dev/clog"
-	"github.com/chainguard-dev/clog/slogtest"
 	"github.com/chainguard-dev/malcontent/pkg/archive"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
@@ -215,7 +214,7 @@ func TestExtractNestedArchive(t *testing.T) {
 
 func TestScanArchive(t *testing.T) {
 	t.Parallel()
-	ctx := slogtest.Context(t)
+	ctx := context.Background()
 	clog.FromContext(ctx).With("test", "scan_archive")
 
 	var out bytes.Buffer
@@ -269,8 +268,8 @@ func extractError(e error) error {
 
 func TestScanInvalidArchive(t *testing.T) {
 	t.Parallel()
-	ctx := slogtest.Context(t)
-	clog.FromContext(ctx).With("test", "scan_archive")
+	ctx := context.Background()
+	clog.FromContext(ctx).With("test", "scan_invalid_archive")
 
 	var out bytes.Buffer
 	r, err := render.New("json", &out)
@@ -306,8 +305,8 @@ func TestScanInvalidArchive(t *testing.T) {
 
 func TestScanInvalidArchiveIgnore(t *testing.T) {
 	t.Parallel()
-	ctx := slogtest.Context(t)
-	clog.FromContext(ctx).With("test", "scan_archive")
+	ctx := context.Background()
+	clog.FromContext(ctx).With("test", "scan_invalid_archive_ignore")
 
 	var out bytes.Buffer
 	r, err := render.New("json", &out)

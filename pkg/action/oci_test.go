@@ -2,13 +2,13 @@ package action
 
 import (
 	"bytes"
+	"context"
 	"io/fs"
 	"os"
 	"runtime"
 	"testing"
 
 	"github.com/chainguard-dev/clog"
-	"github.com/chainguard-dev/clog/slogtest"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/render"
 	"github.com/chainguard-dev/malcontent/rules"
@@ -18,7 +18,7 @@ import (
 
 func TestOCI(t *testing.T) {
 	t.Parallel()
-	ctx := slogtest.Context(t)
+	ctx := context.Background()
 	clog.FromContext(ctx).With("test", "scan_oci")
 
 	var out bytes.Buffer
