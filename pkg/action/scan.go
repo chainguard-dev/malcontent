@@ -645,8 +645,8 @@ func processArchive(ctx context.Context, c malcontent.Config, rfs []fs.FS, archi
 	}()
 
 	// macOS will prefix temporary directories with `/private`
-	// update tmpRoot with this prefix to allow strings.TrimPrefix to work
-	if runtime.GOOS == "darwin" {
+	// update tmpRoot (if populated) with this prefix to allow strings.TrimPrefix to work
+	if runtime.GOOS == "darwin" && tmpRoot != "" {
 		tmpRoot = fmt.Sprintf("/private%s", tmpRoot)
 	}
 

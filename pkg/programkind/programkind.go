@@ -46,11 +46,14 @@ var ArchiveMap = map[string]bool{
 var supportedKind = map[string]string{
 	"7z":      "",
 	"Z":       "application/zlib",
+	"apk":     "application/gzip",
 	"asm":     "",
 	"bash":    "application/x-bsh",
 	"bat":     "application/bat",
 	"beam":    "application/x-erlang-binary",
 	"bin":     "application/octet-stream",
+	"bz2":     "application/x-bzip2",
+	"bzip2":   "application/x-bzip2",
 	"c":       "text/x-c",
 	"cc":      "text/x-c",
 	"class":   "application/java-vm",
@@ -60,14 +63,17 @@ var supportedKind = map[string]string{
 	"crontab": "text/x-crontab",
 	"csh":     "application/x-csh",
 	"cxx":     "text/x-c",
+	"deb":     "application/vnd.debian.binary-package",
 	"dll":     "application/octet-stream",
 	"dylib":   "application/x-sharedlib",
 	"elf":     "application/x-elf",
 	"exe":     "application/octet-stream",
 	"expect":  "text/x-expect",
 	"fish":    "text/x-fish",
+	"gem":     "application/octet-stream",
 	"go":      "text/x-go",
 	"gzip":    "application/gzip",
+	"gz":      "application/gzip",
 	"h":       "text/x-h",
 	"hh":      "text/x-h",
 	"html":    "",
@@ -91,6 +97,7 @@ var supportedKind = map[string]string{
 	"py":      "text/x-python",
 	"pyc":     "application/x-python-code",
 	"rb":      "text/x-ruby",
+	"rpm":     "application/x-rpm",
 	"rs":      "text/x-rust",
 	"scpt":    "application/x-applescript",
 	"scptd":   "application/x-applescript",
@@ -98,13 +105,21 @@ var supportedKind = map[string]string{
 	"service": "text/x-systemd",
 	"sh":      "application/x-sh",
 	"so":      "application/x-sharedlib",
+	"tar":     "application/x-tar",
+	"tar.gz":  "application/gzip",
+	"tar.xz":  "application/x-xz",
+	"tgz":     "application/gzip",
 	"ts":      "application/typescript",
 	"upx":     "application/x-upx",
 	"whl":     "application/x-wheel+zip",
+	"xz":      "application/x-xz",
 	"yaml":    "",
 	"yara":    "",
 	"yml":     "",
+	"zip":     "application/zip",
 	"zsh":     "application/x-zsh",
+	"zst":     "application/zstd",
+	"zstd":    "application/zstd",
 }
 
 type FileType struct {
@@ -324,7 +339,8 @@ func File(path string) (*FileType, error) {
 
 // Path returns a filetype based strictly on file path.
 func Path(path string) *FileType {
-	ext := strings.ReplaceAll(filepath.Ext(path), ".", "")
+	// Trim the leading '.'
+	ext := strings.TrimPrefix(GetExt(path), ".")
 	mime := supportedKind[ext]
 	return makeFileType(path, ext, mime)
 }

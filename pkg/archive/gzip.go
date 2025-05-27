@@ -13,6 +13,16 @@ import (
 	gzip "github.com/klauspost/pgzip"
 )
 
+var gzMIME = map[string]struct{}{
+	"application/gzip":              {},
+	"application/gzip-compressed":   {},
+	"application/gzipped":           {},
+	"application/x-gunzip":          {},
+	"application/x-gzip":            {},
+	"application/x-gzip-compressed": {},
+	"gzip/document":                 {},
+}
+
 // extractGzip extracts .gz archives.
 func ExtractGzip(ctx context.Context, d string, f string) error {
 	if ctx.Err() != nil {
@@ -28,7 +38,7 @@ func ExtractGzip(ctx context.Context, d string, f string) error {
 	}
 
 	if !isGzip {
-		return fmt.Errorf("not a valid gzip archive")
+		return nil
 	}
 
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
