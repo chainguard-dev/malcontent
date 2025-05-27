@@ -50,6 +50,7 @@ var (
 	allFlag                   bool
 	concurrencyFlag           int
 	diffImageFlag             bool
+	exitExtractionFlag        bool
 	exitFirstHitFlag          bool
 	exitFirstMissFlag         bool
 	fileRiskChangeFlag        bool
@@ -262,6 +263,7 @@ func main() {
 
 			mc = malcontent.Config{
 				Concurrency:           concurrency,
+				ExitExtraction:        exitExtractionFlag,
 				ExitFirstHit:          exitFirstHitFlag,
 				ExitFirstMiss:         exitFirstMissFlag,
 				IgnoreSelf:            ignoreSelfFlag,
@@ -286,6 +288,12 @@ func main() {
 				Value:       false,
 				Usage:       "Ignore nothing within a provided scan path",
 				Destination: &allFlag,
+			},
+			&cli.BoolFlag{
+				Name:        "exit-extraction",
+				Value:       true,
+				Usage:       "Exit when encountering file extraction errors",
+				Destination: &exitExtractionFlag,
 			},
 			&cli.BoolFlag{
 				Name:        "exit-first-miss",

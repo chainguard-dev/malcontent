@@ -260,6 +260,95 @@ func TestScanArchive(t *testing.T) {
 	}
 }
 
+func extractError(e error) error {
+	if strings.Contains(e.Error(), "not a valid gzip archive") || strings.Contains(e.Error(), "not a valid zip file") {
+		return nil
+	}
+	return e
+}
+
+func TestScanInvalidArchive(t *testing.T) {
+	t.Parallel()
+	ctx := slogtest.Context(t)
+	clog.FromContext(ctx).With("test", "scan_archive")
+
+	var out bytes.Buffer
+	r, err := render.New("json", &out)
+	if err != nil {
+		t.Fatalf("render: %v", err)
+	}
+
+	rfs := []fs.FS{rules.FS, thirdparty.FS}
+	yrs, err := CachedRules(ctx, rfs)
+	if err != nil {
+		t.Fatalf("rules: %v", err)
+	}
+
+	mc := malcontent.Config{
+		Concurrency:    runtime.NumCPU(),
+		ExitExtraction: true,
+		IgnoreSelf:     false,
+		MinFileRisk:    0,
+		MinRisk:        0,
+		Renderer:       r,
+		Rules:          yrs,
+		ScanPaths: []string{
+			"testdata/17419.zip",
+			"testdata/joblib_0.9.4.dev0_compressed_cache_size_pickle_py35_np19.gz",
+		},
+	}
+	_, err = Scan(ctx, mc)
+	err = extractError(err)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestScanInvalidArchiveIgnore(t *testing.T) {
+	t.Parallel()
+	ctx := slogtest.Context(t)
+	clog.FromContext(ctx).With("test", "scan_archive")
+
+	var out bytes.Buffer
+	r, err := render.New("json", &out)
+	if err != nil {
+		t.Fatalf("render: %v", err)
+	}
+
+	rfs := []fs.FS{rules.FS, thirdparty.FS}
+	yrs, err := CachedRules(ctx, rfs)
+	if err != nil {
+		t.Fatalf("rules: %v", err)
+	}
+
+	mc := malcontent.Config{
+		Concurrency:    runtime.NumCPU(),
+		ExitExtraction: false,
+		IgnoreSelf:     false,
+		MinFileRisk:    0,
+		MinRisk:        0,
+		Renderer:       r,
+		Rules:          yrs,
+		ScanPaths: []string{
+			"testdata/17419.zip",
+			"testdata/joblib_0.9.4.dev0_compressed_cache_size_pickle_py35_np19.gz",
+		},
+	}
+	res, err := Scan(ctx, mc)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Full(ctx, nil, res); err != nil {
+		t.Fatalf("full: %v", err)
+	}
+
+	got := out.String()
+	want := "{}\n"
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("output mismatch: (-want +got):\n%s", diff)
+	}
+}
+
 func TestGetExt(t *testing.T) {
 	tests := []struct {
 		path string

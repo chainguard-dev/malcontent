@@ -630,6 +630,11 @@ func processArchive(ctx context.Context, c malcontent.Config, rfs []fs.FS, archi
 
 	tmpRoot, err := archive.ExtractArchiveToTempDir(ctx, archivePath)
 	if err != nil {
+		// Avoid failing an entire scan when encountering problematic archives
+		// e.g., joblib_0.8.4_compressed_pickle_py27_np17.gz: not a valid gzip archive
+		if !c.ExitExtraction {
+			return nil, nil
+		}
 		return nil, fmt.Errorf("extract to temp: %w", err)
 	}
 	// Ensure that tmpRoot is removed before returning if created successfully

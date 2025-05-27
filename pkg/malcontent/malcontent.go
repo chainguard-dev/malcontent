@@ -23,6 +23,7 @@ type Renderer interface {
 
 type Config struct {
 	Concurrency           int
+	ExitExtraction        bool
 	ExitFirstHit          bool
 	ExitFirstMiss         bool
 	FileRiskChange        bool
