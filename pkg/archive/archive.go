@@ -60,11 +60,6 @@ func extractNestedArchive(ctx context.Context, d string, f string, extracted *sy
 		return fmt.Errorf("failed to determine file type: %w", err)
 	}
 
-	// Empty filetypes or invalid MIME types should not be evaluated via `extract`
-	if ft == nil || (ft != nil && ft.MIME == "") {
-		return nil
-	}
-
 	switch {
 	case ft != nil && ft.MIME == "application/x-upx":
 		isArchive = true
@@ -151,11 +146,6 @@ func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 	ft, err := programkind.File(path)
 	if err != nil {
 		return "", fmt.Errorf("failed to determine file type: %w", err)
-	}
-
-	// Empty filetypes or invalid MIME types should not be evaluated via `extract`
-	if ft == nil || (ft != nil && ft.MIME == "") {
-		return "", fmt.Errorf("unsupported archive type: %s", path)
 	}
 
 	switch {
