@@ -20,6 +20,7 @@ import (
 var initZipPool sync.Once
 
 var zipMIME = map[string]struct{}{
+	"application/jar":              {},
 	"application/java-archive":     {},
 	"application/x-wheel+zip":      {},
 	"application/x-zip":            {},
