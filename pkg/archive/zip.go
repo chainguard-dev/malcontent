@@ -2,6 +2,7 @@ package archive
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -154,20 +155,23 @@ func extractFile(ctx context.Context, file *zip.File, destDir string, logger *cl
 		}
 
 		n, err := src.Read(buf)
-		if err == io.EOF {
+		if n > 0 {
+			written += int64(n)
+			if written > maxBytes {
+				return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
+			}
+
+			if _, writeErr := dst.Write(buf[:n]); writeErr != nil {
+				return fmt.Errorf("failed to write file contents: %w", writeErr)
+			}
+		}
+
+		if errors.Is(err, io.EOF) {
 			break
 		}
+
 		if err != nil {
 			return fmt.Errorf("failed to read file contents: %w", err)
-		}
-
-		written += int64(n)
-		if written > maxBytes {
-			return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
-		}
-
-		if _, err := dst.Write(buf[:n]); err != nil {
-			return fmt.Errorf("failed to write file contents: %w", err)
 		}
 	}
 

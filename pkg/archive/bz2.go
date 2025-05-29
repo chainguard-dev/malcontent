@@ -2,6 +2,7 @@ package archive
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -49,7 +50,7 @@ func ExtractBz2(ctx context.Context, d, f string) error {
 	if !IsValidPath(target, d) {
 		return fmt.Errorf("invalid file path: %s", target)
 	}
-	if err := os.MkdirAll(d, 0o700); err != nil {
+	if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
 		return fmt.Errorf("failed to create directory for file: %w", err)
 	}
 
@@ -73,20 +74,22 @@ func ExtractBz2(ctx context.Context, d, f string) error {
 		}
 
 		n, err := br.Read(buf)
-		if err == io.EOF {
+		if n > 0 {
+			written += int64(n)
+			if written > maxBytes {
+				return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
+			}
+			if _, writeErr := out.Write(buf[:n]); writeErr != nil {
+				return fmt.Errorf("failed to write file contents: %w", writeErr)
+			}
+		}
+
+		if errors.Is(err, io.EOF) {
 			break
 		}
+
 		if err != nil {
 			return fmt.Errorf("failed to read file contents: %w", err)
-		}
-
-		written += int64(n)
-		if written > maxBytes {
-			return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
-		}
-
-		if _, err := out.Write(buf[:n]); err != nil {
-			return fmt.Errorf("failed to write file contents: %w", err)
 		}
 	}
 

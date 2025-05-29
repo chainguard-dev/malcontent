@@ -114,23 +114,22 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 			}
 
 			n, err := xzStream.Read(buf)
+			if n > 0 {
+				written += int64(n)
+				if written > maxBytes {
+					return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
+				}
+				if _, writeErr := out.Write(buf[:n]); writeErr != nil {
+					return fmt.Errorf("failed to write file contents: %w", writeErr)
+				}
+			}
+
 			if errors.Is(err, io.EOF) {
 				break
 			}
+
 			if err != nil {
-				if strings.Contains(err.Error(), "unexpected EOF") && n > 0 {
-					break
-				}
 				return fmt.Errorf("failed to read file contents: %w", err)
-			}
-
-			written += int64(n)
-			if written > maxBytes {
-				return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
-			}
-
-			if _, err := out.Write(buf[:n]); err != nil {
-				return fmt.Errorf("failed to write file contents: %w", err)
 			}
 		}
 		return nil
@@ -152,20 +151,23 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 			}
 
 			n, err := br.Read(buf)
-			if err == io.EOF {
+			if n > 0 {
+				written += int64(n)
+				if written > maxBytes {
+					return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
+				}
+
+				if _, writeErr := out.Write(buf[:n]); writeErr != nil {
+					return fmt.Errorf("failed to write file contents: %w", writeErr)
+				}
+			}
+
+			if errors.Is(err, io.EOF) {
 				break
 			}
+
 			if err != nil {
 				return fmt.Errorf("failed to read file contents: %w", err)
-			}
-
-			written += int64(n)
-			if written > maxBytes {
-				return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
-			}
-
-			if _, err := out.Write(buf[:n]); err != nil {
-				return fmt.Errorf("failed to write file contents: %w", err)
 			}
 		}
 		return nil
