@@ -3,14 +3,14 @@
 ### 2 new behaviors
 
 | RISK | KEY | DESCRIPTION | EVIDENCE |
-|--|--|--|--|
+|:--|:--|:--|:--|
 | +LOW | **[fs/directory/traverse](https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/directory/directory-traverse.yara#fts)** | traverse filesystem hierarchy | [_fts_children](https://github.com/search?q=_fts_children&type=code)<br>[_fts_close](https://github.com/search?q=_fts_close&type=code)<br>[_fts_read](https://github.com/search?q=_fts_read&type=code)<br>[_fts_open](https://github.com/search?q=_fts_open&type=code)<br>[_fts_set](https://github.com/search?q=_fts_set&type=code) |
 | +LOW | **[net/http](https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/http.yara#http)** | Uses the HTTP protocol | [http](https://github.com/search?q=http&type=code) |
 
 ### 6 removed behaviors
 
 | RISK | KEY | DESCRIPTION | EVIDENCE |
-|--|--|--|--|
+|:--|:--|:--|:--|
 | -MEDIUM | [process/name_set](https://github.com/chainguard-dev/malcontent/blob/main/rules/process/name-set.yara#__progname) | [get or set the current process name](https://stackoverflow.com/questions/273691/using-progname-instead-of-argv0) | [__progname](https://github.com/search?q=__progname&type=code) |
 | -LOW | [c2/tool_transfer/arch](https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/arch.yara#arch_ref) | references a specific architecture | [https://](https://)<br>[x86](https://github.com/search?q=x86&type=code) |
 | -LOW | [c2/tool_transfer/os](https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/os.yara#os_ref) | references a specific operating system | [https://](https://)<br>[linux](https://github.com/search?q=linux&type=code) |
