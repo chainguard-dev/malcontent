@@ -260,7 +260,7 @@ func TestScanArchive(t *testing.T) {
 }
 
 func extractError(e error) error {
-	if strings.Contains(e.Error(), "not a valid gzip archive") || strings.Contains(e.Error(), "not a valid zip file") {
+	if strings.Contains(e.Error(), "not a valid gzip archive") || strings.Contains(e.Error(), "not a valid zip archive") {
 		return nil
 	}
 	return e

@@ -57,7 +57,7 @@ func ExtractZip(ctx context.Context, d string, f string) error {
 	}
 
 	if !isZip {
-		return nil
+		return fmt.Errorf("not a valid zip archive: %s", f)
 	}
 
 	read, err := zip.OpenReader(f)

@@ -38,7 +38,7 @@ func ExtractGzip(ctx context.Context, d string, f string) error {
 	}
 
 	if !isGzip {
-		return nil
+		return fmt.Errorf("not a valid gzip archive: %s", f)
 	}
 
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
