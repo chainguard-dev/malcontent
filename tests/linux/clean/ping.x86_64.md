@@ -1,7 +1,7 @@
 ## linux/clean/ping.x86_64 [🟡 MEDIUM]
 
 | RISK | KEY | DESCRIPTION | EVIDENCE |
-|--|--|--|--|
+|:--:|:--:|:--:|:--:|
 | MEDIUM | [c2/addr/ip](https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/ip.yara#ip_port_mention) | mentions an IP and port | [Port](https://github.com/search?q=Port&type=code)<br>[IP](https://github.com/search?q=IP&type=code) |
 | MEDIUM | [discover/multiple](https://github.com/chainguard-dev/malcontent/blob/main/rules/discover/multiple.yara#sys_net_recon) | collects system and network information | [ipv6=addr](https://github.com/search?q=ipv6%3Daddr&type=code)<br>[ipv4=addr](https://github.com/search?q=ipv4%3Daddr&type=code)<br>[id](https://github.com/search?q=id&type=code) |
 | MEDIUM | [discover/network/interface_list](https://github.com/chainguard-dev/malcontent/blob/main/rules/discover/network/interface-list.yara#bsd_ifaddrs) | list network interfaces | [freeifaddrs](https://github.com/search?q=freeifaddrs&type=code)<br>[getifaddrs](https://github.com/search?q=getifaddrs&type=code) |

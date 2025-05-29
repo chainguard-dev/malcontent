@@ -15,6 +15,8 @@ import (
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/olekukonko/tablewriter"
+	"github.com/olekukonko/tablewriter/renderer"
+	"github.com/olekukonko/tablewriter/tw"
 )
 
 var (
@@ -252,12 +254,13 @@ func markdownTable(ctx context.Context, fr *malcontent.FileReport, w io.Writer, 
 	}
 
 	buf := bytes.NewBuffer([]byte{})
-	table := tablewriter.NewWriter(buf)
-	table.SetAutoWrapText(false)
-	table.SetHeader([]string{"Risk", "Key", "Description", "Evidence"})
-	table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
-	table.SetCenterSeparator("|")
-	table.AppendBulk(data) // Add Bulk Data
+	table := tablewriter.NewTable(buf,
+		tablewriter.WithRenderer(renderer.NewMarkdown()),
+		tablewriter.WithRendition(tw.Rendition{Symbols: tw.NewSymbols(tw.StyleDefault)}),
+		tablewriter.WithRowAutoWrap(0),
+	)
+	table.Header([]string{"Risk", "Key", "Description", "Evidence"})
+	table.Bulk(data) // Add Bulk Data
 	table.Render()
 
 	// remove excess whitespace

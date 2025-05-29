@@ -1,7 +1,7 @@
 ## linux/clean/redis-server.aarch64 [🟡 MEDIUM]
 
 | RISK | KEY | DESCRIPTION | EVIDENCE |
-|--|--|--|--|
+|:--:|:--:|:--:|:--:|
 | MEDIUM | [c2/addr/ip](https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/ip.yara#ip_port_mention) | mentions an IP and port | [master_port](https://github.com/search?q=master_port&type=code)<br>[updatePort](https://github.com/search?q=updatePort&type=code)<br>[host_port](https://github.com/search?q=host_port&type=code)<br>[tcp_port](https://github.com/search?q=tcp_port&type=code)<br>[bus_port](https://github.com/search?q=bus_port&type=code)<br>[prev_ip](https://github.com/search?q=prev_ip&type=code)<br>[IP](https://github.com/search?q=IP&type=code) |
 | MEDIUM | [crypto/openssl](https://github.com/chainguard-dev/malcontent/blob/main/rules/crypto/openssl.yara#openssl_user) | Uses OpenSSL | [OpenSSL](https://github.com/search?q=OpenSSL&type=code) |
 | MEDIUM | [discover/user/name_get](https://github.com/chainguard-dev/malcontent/blob/main/rules/discover/user/username-get.yara#whoami) | [returns the user name running this process](https://man7.org/linux/man-pages/man1/whoami.1.html) | [whoami](https://github.com/search?q=whoami&type=code) |

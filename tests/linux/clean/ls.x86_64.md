@@ -1,7 +1,7 @@
 ## linux/clean/ls.x86_64 [🟡 MEDIUM]
 
 | RISK | KEY | DESCRIPTION | EVIDENCE |
-|--|--|--|--|
+|:--:|:--:|:--:|:--:|
 | MEDIUM | [process/name_set](https://github.com/chainguard-dev/malcontent/blob/main/rules/process/name-set.yara#__progname) | [get or set the current process name](https://stackoverflow.com/questions/273691/using-progname-instead-of-argv0) | [__progname](https://github.com/search?q=__progname&type=code) |
 | LOW | [c2/addr/url](https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/url.yara#binary_with_url) | binary contains hardcoded URL | [https://wiki.xiph.org/MIME_Types_and_File_Extensions](https://wiki.xiph.org/MIME_Types_and_File_Extensions)<br>[https://www.gnu.org/software/coreutils/](https://www.gnu.org/software/coreutils/)<br>[https://translationproject.org/team/](https://translationproject.org/team/)<br>[https://gnu.org/licenses/gpl.html](https://gnu.org/licenses/gpl.html) |
 | LOW | [c2/tool_transfer/arch](https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/arch.yara#arch_ref) | references a specific architecture | [https://](https://)<br>[x86](https://github.com/search?q=x86&type=code) |
