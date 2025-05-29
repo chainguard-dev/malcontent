@@ -1,7 +1,7 @@
 ## macOS/2024.SpectralBlur.DPRK/SpectralBlur-macshare [🛑 HIGH]
 
 | RISK | KEY | DESCRIPTION | EVIDENCE |
-|--|--|--|--|
+|:--|:--|:--|:--|
 | HIGH | [anti-static/macho/footer](https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/macho/footer.yara#high_entropy_trailer) | [higher-entropy machO trailer (normally NULL) - possible viral infection](https://www.virusbulletin.com/virusbulletin/2013/06/multiplatform-madness) | [_PAGEZERO](https://github.com/search?q=_PAGEZERO&type=code) |
 | HIGH | [impact/remote_access/net_term](https://github.com/chainguard-dev/malcontent/blob/main/rules/impact/remote_access/net_term.yara#spectralblur_alike) | uploads, provides a terminal, runs program | [tcsetattr](https://github.com/search?q=tcsetattr&type=code)<br>[_waitpid](https://github.com/search?q=_waitpid&type=code)<br>[_unlink](https://github.com/search?q=_unlink&type=code)<br>[execve](https://github.com/search?q=execve&type=code)<br>[upload](https://github.com/search?q=upload&type=code)<br>[_uname](https://github.com/search?q=_uname&type=code)<br>[shell](https://github.com/search?q=shell&type=code) |
 | MEDIUM | [exec/program](https://github.com/chainguard-dev/malcontent/blob/main/rules/exec/program/program.yara#execve) | executes external programs | [execve](https://github.com/search?q=execve&type=code) |

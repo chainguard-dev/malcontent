@@ -1,7 +1,7 @@
 ## linux/clean/cpack [🟡 MEDIUM]
 
 | RISK | KEY | DESCRIPTION | EVIDENCE |
-|--|--|--|--|
+|:--|:--|:--|:--|
 | MEDIUM | [anti-static/elf/multiple](https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/elf/multiple.yara#multiple_elf) | multiple ELF binaries within an ELF binary | `$elf_head` |
 | MEDIUM | [c2/addr/ip](https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/ip.yara#ip_port_mention) | mentions an IP and port | [local_ip](https://github.com/search?q=local_ip&type=code)<br>[use_port](https://github.com/search?q=use_port&type=code)<br>[Port](https://github.com/search?q=Port&type=code)<br>[Ip](https://github.com/search?q=Ip&type=code)<br>[IP](https://github.com/search?q=IP&type=code) |
 | MEDIUM | [c2/client](https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/client.yara#clientID) | contains a client ID | [clientID](https://github.com/search?q=clientID&type=code) |
