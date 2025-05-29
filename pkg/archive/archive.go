@@ -194,7 +194,6 @@ func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 
 		return nil
 	})
-
 	if err != nil {
 		return "", fmt.Errorf("failed to walk directory: %w", err)
 	}
