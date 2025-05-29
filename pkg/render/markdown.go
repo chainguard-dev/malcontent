@@ -274,11 +274,11 @@ func markdownTable(ctx context.Context, fr *malcontent.FileReport, w io.Writer, 
 				Alignment: tw.CellAlignment{Global: tw.AlignLeft},
 			},
 		}),
+		tablewriter.WithHeader([]string{"Risk", "Key", "Description", "Evidence"}),
 		tablewriter.WithRenderer(renderer.NewMarkdown()),
 		tablewriter.WithRendition(tw.Rendition{Symbols: tw.NewSymbols(tw.StyleMarkdown)}),
 		tablewriter.WithRowAutoWrap(0),
 	)
-	table.Header([]string{"Risk", "Key", "Description", "Evidence"})
 	// Add Bulk Data
 	if err := table.Bulk(data); err != nil {
 		return err
