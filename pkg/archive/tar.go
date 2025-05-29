@@ -64,7 +64,7 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 	isTGZ := strings.Contains(f, ".tar.gz") || strings.Contains(f, ".tgz")
 	var isGzip bool
 	if ft, err := programkind.File(f); err == nil && ft != nil {
-		if ft.MIME == "application/gzip" {
+		if _, ok := GzMIME[ft.MIME]; ok {
 			isGzip = true
 		}
 	}
@@ -96,13 +96,11 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 			return fmt.Errorf("failed to create xz reader: %w", err)
 		}
 		uncompressed := strings.Trim(filepath.Base(f), ".xz")
-		target := filepath.Join(d, uncompressed)
+		target := filepath.Join(d, filepath.Base(filepath.Dir(f)), uncompressed)
 		if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
 			return fmt.Errorf("failed to create directory for file: %w", err)
 		}
 
-		// #nosec G115 // ignore Type conversion which leads to integer overflow
-		// header.Mode is int64 and FileMode is uint32
 		out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
 		if err != nil {
 			return fmt.Errorf("failed to create file: %w", err)
@@ -120,6 +118,9 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 				break
 			}
 			if err != nil {
+				if strings.Contains(err.Error(), "unexpected EOF") && n > 0 {
+					break
+				}
 				return fmt.Errorf("failed to read file contents: %w", err)
 			}
 
@@ -136,7 +137,7 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 	case strings.Contains(filename, ".tar.bz2") || strings.Contains(filename, ".tbz"):
 		br := bzip2.NewReader(ctx, tf)
 		uncompressed := strings.Trim(filepath.Base(f), programkind.GetExt(filename))
-		target := filepath.Join(d, uncompressed)
+		target := filepath.Join(d, filepath.Base(filepath.Dir(f)), uncompressed)
 		if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
 			return fmt.Errorf("failed to create directory for file: %w", err)
 		}

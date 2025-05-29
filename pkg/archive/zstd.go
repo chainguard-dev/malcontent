@@ -34,7 +34,7 @@ func ExtractZstd(ctx context.Context, d string, f string) error {
 
 	uncompressed := strings.TrimSuffix(filepath.Base(f), ".zstd")
 	uncompressed = strings.TrimSuffix(uncompressed, ".zst")
-	target := filepath.Join(d, uncompressed)
+	target := filepath.Join(d, filepath.Base(filepath.Dir(f)), uncompressed)
 
 	if !IsValidPath(target, d) {
 		return fmt.Errorf("invalid zstd decompression file path: %s", target)

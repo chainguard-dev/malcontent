@@ -166,62 +166,38 @@ func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 	}
 
 	var extractedFiles sync.Map
-	files, err := os.ReadDir(tmpDir)
-	if err != nil {
-		return "", fmt.Errorf("failed to read files in directory %s: %w", tmpDir, err)
-	}
-	for _, file := range files {
-		extractedFiles.Store(filepath.Join(tmpDir, file.Name()), false)
-	}
 
-	extractedFiles.Range(func(key, _ any) bool {
-		if key == nil {
-			return true
+	err = filepath.WalkDir(tmpDir, func(path string, d os.DirEntry, err error) error {
+		if err != nil {
+			return err
 		}
-		//nolint: nestif // ignoring complexity of 11
-		if file, ok := key.(string); ok {
-			ext := programkind.GetExt(file)
-			info, err := os.Stat(file)
-			if err != nil {
-				return false
-			}
-			switch mode := info.Mode(); {
-			case mode.IsDir():
-				err = filepath.WalkDir(file, func(path string, d os.DirEntry, err error) error {
-					if err != nil {
-						return err
-					}
-					rel, err := filepath.Rel(tmpDir, path)
-					if err != nil {
-						return fmt.Errorf("filepath.Rel: %w", err)
-					}
-					if !d.IsDir() {
-						if err := extractNestedArchive(ctx, tmpDir, rel, &extractedFiles); err != nil {
-							return fmt.Errorf("failed to extract nested archive %s: %w", rel, err)
-						}
-					}
 
-					return nil
-				})
-				if err != nil {
-					return false
-				}
-				return true
-			case mode.IsRegular():
-				if _, ok := programkind.ArchiveMap[ext]; ok {
-					rel, err := filepath.Rel(tmpDir, file)
-					if err != nil {
-						return false
-					}
-					if err := extractNestedArchive(ctx, tmpDir, rel, &extractedFiles); err != nil {
-						return false
-					}
-				}
-				return true
+		if d.IsDir() {
+			return nil
+		}
+
+		if path == tmpDir {
+			return nil
+		}
+
+		rel, err := filepath.Rel(tmpDir, path)
+		if err != nil {
+			return fmt.Errorf("filepath.Rel: %w", err)
+		}
+
+		ext := programkind.GetExt(path)
+		if _, ok := programkind.ArchiveMap[ext]; ok {
+			if err := extractNestedArchive(ctx, tmpDir, rel, &extractedFiles); err != nil {
+				return err
 			}
 		}
-		return true
+
+		return nil
 	})
+
+	if err != nil {
+		return "", fmt.Errorf("failed to walk directory: %w", err)
+	}
 
 	return tmpDir, nil
 }
@@ -275,7 +251,10 @@ func handleFile(target string, tr *tar.Reader) error {
 
 	written, err := io.CopyBuffer(out, io.LimitReader(tr, maxBytes), buf)
 	if err != nil {
-		return fmt.Errorf("failed to copy file: %w", err)
+		if (strings.Contains(err.Error(), "unexpected EOF") && written == 0) ||
+			!strings.Contains(err.Error(), "unexpected EOF") {
+			return fmt.Errorf("failed to copy file: %w", err)
+		}
 	}
 	if written >= maxBytes {
 		return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)

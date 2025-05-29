@@ -45,7 +45,7 @@ func ExtractBz2(ctx context.Context, d, f string) error {
 	br := bzip2.NewReader(ctx, tf)
 	uncompressed := strings.TrimSuffix(filepath.Base(f), ".bz2")
 	uncompressed = strings.TrimSuffix(uncompressed, ".bzip2")
-	target := filepath.Join(d, uncompressed)
+	target := filepath.Join(d, filepath.Base(filepath.Dir(f)), uncompressed)
 	if !IsValidPath(target, d) {
 		return fmt.Errorf("invalid file path: %s", target)
 	}
