@@ -56,7 +56,9 @@ func (r Markdown) Scanning(_ context.Context, _ string) {}
 
 func (r Markdown) File(ctx context.Context, fr *malcontent.FileReport) error {
 	if fr.Skipped == "" && len(fr.Behaviors) > 0 {
-		markdownTable(ctx, fr, r.w, tableConfig{Title: fmt.Sprintf("## %s [%s]", fr.Path, mdRisk(fr.RiskScore, fr.RiskLevel))})
+		if err := markdownTable(ctx, fr, r.w, tableConfig{Title: fmt.Sprintf("## %s [%s]", fr.Path, mdRisk(fr.RiskScore, fr.RiskLevel))}); err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -71,11 +73,15 @@ func (r Markdown) Full(ctx context.Context, _ *malcontent.Config, rep *malconten
 	}
 
 	for removed := rep.Diff.Removed.Oldest(); removed != nil; removed = removed.Next() {
-		markdownTable(ctx, removed.Value, r.w, tableConfig{Title: fmt.Sprintf("## Deleted: %s [%s]", removed.Key, mdRisk(removed.Value.RiskScore, removed.Value.RiskLevel)), DiffRemoved: true})
+		if err := markdownTable(ctx, removed.Value, r.w, tableConfig{Title: fmt.Sprintf("## Deleted: %s [%s]", removed.Key, mdRisk(removed.Value.RiskScore, removed.Value.RiskLevel)), DiffRemoved: true}); err != nil {
+			return err
+		}
 	}
 
 	for added := rep.Diff.Added.Oldest(); added != nil; added = added.Next() {
-		markdownTable(ctx, added.Value, r.w, tableConfig{Title: fmt.Sprintf("## Added: %s [%s]", added.Key, mdRisk(added.Value.RiskScore, added.Value.RiskLevel)), DiffAdded: true})
+		if err := markdownTable(ctx, added.Value, r.w, tableConfig{Title: fmt.Sprintf("## Added: %s [%s]", added.Key, mdRisk(added.Value.RiskScore, added.Value.RiskLevel)), DiffAdded: true}); err != nil {
+			return err
+		}
 	}
 
 	for modified := rep.Diff.Modified.Oldest(); modified != nil; modified = modified.Next() {
@@ -129,12 +135,14 @@ func (r Markdown) Full(ctx context.Context, _ *malcontent.Config, rep *malconten
 			if count > 1 {
 				noun = "behaviors"
 			}
-			markdownTable(ctx, modified.Value, r.w, tableConfig{
+			if err := markdownTable(ctx, modified.Value, r.w, tableConfig{
 				Title:        fmt.Sprintf("### %d %s %s", count, qual, noun),
 				SkipRemoved:  true,
 				SkipExisting: true,
 				SkipNoDiff:   true,
-			})
+			}); err != nil {
+				return err
+			}
 		}
 
 		if removed > 0 {
@@ -144,12 +152,14 @@ func (r Markdown) Full(ctx context.Context, _ *malcontent.Config, rep *malconten
 			if count > 1 {
 				noun = "behaviors"
 			}
-			markdownTable(ctx, modified.Value, r.w, tableConfig{
+			if err := markdownTable(ctx, modified.Value, r.w, tableConfig{
 				Title:        fmt.Sprintf("### %d %s %s", count, qual, noun),
 				SkipAdded:    true,
 				SkipExisting: true,
 				SkipNoDiff:   true,
-			})
+			}); err != nil {
+				return err
+			}
 		}
 
 		if noDiff > 0 {
@@ -159,9 +169,13 @@ func (r Markdown) Full(ctx context.Context, _ *malcontent.Config, rep *malconten
 	return nil
 }
 
-func markdownTable(ctx context.Context, fr *malcontent.FileReport, w io.Writer, rc tableConfig) {
-	if ctx.Err() != nil || fr.Skipped != "" {
-		return
+func markdownTable(ctx context.Context, fr *malcontent.FileReport, w io.Writer, rc tableConfig) error {
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
+
+	if fr.Skipped != "" {
+		return nil
 	}
 
 	kbs := make([]KeyedBehavior, 0, len(fr.Behaviors))
@@ -173,7 +187,7 @@ func markdownTable(ctx context.Context, fr *malcontent.FileReport, w io.Writer, 
 		if fr.PreviousRelPath != "" && rc.Title != "" {
 			fmt.Fprintf(w, "%s\n\n", rc.Title)
 		}
-		return
+		return nil
 	}
 
 	if rc.Title != "" {
@@ -260,12 +274,20 @@ func markdownTable(ctx context.Context, fr *malcontent.FileReport, w io.Writer, 
 		tablewriter.WithRowAutoWrap(0),
 	)
 	table.Header([]string{"Risk", "Key", "Description", "Evidence"})
-	table.Bulk(data) // Add Bulk Data
-	table.Render()
+	// Add Bulk Data
+	if err := table.Bulk(data); err != nil {
+		return err
+	}
+
+	if err := table.Render(); err != nil {
+		return err
+	}
 
 	// remove excess whitespace
 	s := buf.String()
 	s = excessSpaceRe.ReplaceAllString(s, " ")
 	s = excessDashRe.ReplaceAllString(s, "--")
 	fmt.Fprintf(w, "%s\n", s)
+
+	return nil
 }
