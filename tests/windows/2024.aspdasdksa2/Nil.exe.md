@@ -1,7 +1,7 @@
 ## windows/2024.aspdasdksa2/Nil.exe [😈 CRITICAL]
 
 | RISK | KEY | DESCRIPTION | EVIDENCE |
-|:--:|:--:|:--:|:--:|
+|:--|:--|:--|:--|
 | CRITICAL | [impact/degrade/win_defender](https://github.com/chainguard-dev/malcontent/blob/main/rules/impact/degrade/win_defender.yara#win_defender_exclusion) | Uses powershell to define Windows Defender exclusions | [powershell -Command "Add-MpPreference -ExclusionPath 'C:\'"](https://github.com/search?q=powershell+-Command+%22Add-MpPreference+-ExclusionPath+%27C%3A%5C%27%22&type=code) |
 | MEDIUM | [anti-behavior/anti_debugger](https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-behavior/anti-debugger.yara#win_debugger_present) | Detects if process is being executed within a debugger or VM | [UnhandledExceptionFilter](https://github.com/search?q=UnhandledExceptionFilter&type=code)<br>[IsDebuggerPresent](https://github.com/search?q=IsDebuggerPresent&type=code) |
 | MEDIUM | [data/embedded/app_manifest](https://github.com/chainguard-dev/malcontent/blob/main/rules/data/embedded/app-manifest.yara#app_manifest) | [Contains embedded Microsoft Windows application manifest](https://learn.microsoft.com/en-us/cpp/build/reference/manifestuac-embeds-uac-information-in-manifest?view=msvc-170) | [requestedExecutionLevel](https://github.com/search?q=requestedExecutionLevel&type=code)<br>[requestedPrivileges](https://github.com/search?q=requestedPrivileges&type=code) |

@@ -269,8 +269,13 @@ func markdownTable(ctx context.Context, fr *malcontent.FileReport, w io.Writer, 
 
 	buf := bytes.NewBuffer([]byte{})
 	table := tablewriter.NewTable(buf,
+		tablewriter.WithConfig(tablewriter.Config{
+			Header: tw.CellConfig{
+				Alignment: tw.CellAlignment{Global: tw.AlignLeft},
+			},
+		}),
 		tablewriter.WithRenderer(renderer.NewMarkdown()),
-		tablewriter.WithRendition(tw.Rendition{Symbols: tw.NewSymbols(tw.StyleDefault)}),
+		tablewriter.WithRendition(tw.Rendition{Symbols: tw.NewSymbols(tw.StyleMarkdown)}),
 		tablewriter.WithRowAutoWrap(0),
 	)
 	table.Header([]string{"Risk", "Key", "Description", "Evidence"})

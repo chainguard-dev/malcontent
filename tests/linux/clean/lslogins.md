@@ -1,7 +1,7 @@
 ## linux/clean/lslogins [🟡 MEDIUM]
 
 | RISK | KEY | DESCRIPTION | EVIDENCE |
-|:--:|:--:|:--:|:--:|
+|:--|:--|:--|:--|
 | MEDIUM | [collect/databases/sqlite](https://github.com/chainguard-dev/malcontent/blob/main/rules/collect/databases/sqlite.yara#sqlite) | accesses SQLite databases | [sqlite](https://github.com/search?q=sqlite&type=code) |
 | MEDIUM | [evasion/file/prefix](https://github.com/chainguard-dev/malcontent/blob/main/rules/evasion/file/prefix/prefix.yara#static_hidden_path) | possible hidden file path | [/home/linuxbrew/.linuxbrew](https://github.com/search?q=%2Fhome%2Flinuxbrew%2F.linuxbrew&type=code) |
 | MEDIUM | [evasion/logging/current_logins](https://github.com/chainguard-dev/malcontent/blob/main/rules/evasion/logging/current_logins.yara#current_logins) | accesses current logins | [/var/log/wtmp](https://github.com/search?q=%2Fvar%2Flog%2Fwtmp&type=code) |

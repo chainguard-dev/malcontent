@@ -1,7 +1,7 @@
 ## linux/clean/viewgam [🟡 MEDIUM]
 
 | RISK | KEY | DESCRIPTION | EVIDENCE |
-|:--:|:--:|:--:|:--:|
+|:--|:--|:--|:--|
 | MEDIUM | [c2/tool_transfer/os](https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/os.yara#multiple_os_ref) | references multiple operating systems | [https://](https://)<br>[http://](http://)<br>[windows](https://github.com/search?q=windows&type=code)<br>[linux](https://github.com/search?q=linux&type=code) |
 | MEDIUM | [data/embedded/html](https://github.com/chainguard-dev/malcontent/blob/main/rules/data/embedded/embedded-html.yara#html) | Contains HTML content | [DOCTYPE html](https://github.com/search?q=DOCTYPE+html&type=code)<br>[<html>](https://github.com/search?q=%3Chtml%3E&type=code) |
 | MEDIUM | [data/encoding/int](https://github.com/chainguard-dev/malcontent/blob/main/rules/data/encoding/int.yara#js_parseInt_Math) | performs math directly against parsed integers | [+parseInt(](https://github.com/search?q=%2BparseInt%28&type=code) |

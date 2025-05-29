@@ -1,7 +1,7 @@
 ## linux/clean/trufflehog [🟡 MEDIUM]
 
 | RISK | KEY | DESCRIPTION | EVIDENCE |
-|:--:|:--:|:--:|:--:|
+|:--|:--|:--|:--|
 | MEDIUM | [anti-behavior/vm_check](https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-behavior/vm-check.yara#vm_checker) | Checks to see if it is running with a VM | [GenuineIntel](https://github.com/search?q=GenuineIntel&type=code)<br>[VMware](https://github.com/search?q=VMware&type=code) |
 | MEDIUM | [anti-static/elf/multiple](https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/elf/multiple.yara#multiple_elf) | multiple ELF binaries within an ELF binary | `$elf_head` |
 | MEDIUM | [anti-static/obfuscation/syscall](https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/obfuscation/syscall.yara#go_raw_syscall) | invokes raw system calls | [unix.RawSyscall](https://github.com/search?q=unix.RawSyscall&type=code) |

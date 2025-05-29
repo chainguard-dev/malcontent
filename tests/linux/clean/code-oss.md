@@ -1,7 +1,7 @@
 ## linux/clean/code-oss [🟡 MEDIUM]
 
 | RISK | KEY | DESCRIPTION | EVIDENCE |
-|:--:|:--:|:--:|:--:|
+|:--|:--|:--|:--|
 | MEDIUM | [anti-behavior/LD_DEBUG](https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-behavior/LD_DEBUG.yara#env_LD_DEBUG) | may check if dynamic linker debugging is enabled | [LD_DEBUG](https://github.com/search?q=LD_DEBUG&type=code) |
 | MEDIUM | [anti-behavior/LD_PROFILE](https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-behavior/LD_PROFILE.yara#env_LD_PROFILE) | may check if dynamic linker profiling is enabled | [LD_PROFILE](https://github.com/search?q=LD_PROFILE&type=code) |
 | MEDIUM | [anti-behavior/vm_check](https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-behavior/vm-check.yara#vm_checker) | Checks to see if it is running with a VM | [GenuineIntel](https://github.com/search?q=GenuineIntel&type=code)<br>[VMware](https://github.com/search?q=VMware&type=code) |
