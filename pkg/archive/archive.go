@@ -96,6 +96,9 @@ func extractNestedArchive(ctx context.Context, d string, f string, extracted *sy
 	if _, err := os.Stat(archivePath); err == nil {
 		logger.Debugf("duplicate file name already exists, skipping extraction for %s", filepath.Join(d, f))
 		extracted.Store(f, true)
+		if err := os.Remove(fullPath); err != nil {
+			return fmt.Errorf("failed to remove archive file: %w", err)
+		}
 		return nil
 	}
 
