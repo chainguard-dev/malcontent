@@ -2,6 +2,7 @@ package archive
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -9,6 +10,7 @@ import (
 	"runtime"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/pool"
@@ -113,6 +115,14 @@ func extractFile(ctx context.Context, file *zip.File, destDir string, logger *cl
 		return ctx.Err()
 	}
 
+	// macOS will encounter issues with paths like META-INF/LICENSE and META-INF/license/foo
+	// this case insensitivity will break scans, so rename files that collide with existing directories
+	if runtime.GOOS == "darwin" {
+		if _, err := os.Stat(filepath.Join(destDir, file.Name)); err == nil {
+			file.Name = fmt.Sprintf("%s%d", file.Name, time.Now().UnixNano())
+		}
+	}
+
 	buf := zipPool.Get(zipBuffer)
 
 	clean := filepath.Clean(filepath.ToSlash(file.Name))
@@ -154,20 +164,23 @@ func extractFile(ctx context.Context, file *zip.File, destDir string, logger *cl
 		}
 
 		n, err := src.Read(buf)
-		if err == io.EOF {
+		if n > 0 {
+			written += int64(n)
+			if written > maxBytes {
+				return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
+			}
+
+			if _, writeErr := dst.Write(buf[:n]); writeErr != nil {
+				return fmt.Errorf("failed to write file contents: %w", writeErr)
+			}
+		}
+
+		if errors.Is(err, io.EOF) {
 			break
 		}
+
 		if err != nil {
 			return fmt.Errorf("failed to read file contents: %w", err)
-		}
-
-		written += int64(n)
-		if written > maxBytes {
-			return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
-		}
-
-		if _, err := dst.Write(buf[:n]); err != nil {
-			return fmt.Errorf("failed to write file contents: %w", err)
 		}
 	}
 

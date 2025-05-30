@@ -131,6 +131,29 @@ install-yara-x: out/$(YARA_X_REPO)/.git/commit-$(YARA_X_COMMIT)
 test:
 	go test -race ./pkg/...
 
+# unit tests only
+.PHONY: coverage
+coverage: out/mal.coverage
+
+# generate the html report
+.PHONY: coverage-html
+coverage-html: out/coverage.html
+
+# pop open the html page in a browser directly
+.PHONY: coverage-browser
+coverage-browser: out/mal.coverage
+	go tool cover -html=$<
+
+# generate the html report
+out/coverage.html: out/mal.coverage
+	go tool cover -html=$< -o $@
+
+# we always want to regen the coverage data file
+.PHONY: out/mal.coverage
+out/mal.coverage:
+	mkdir -p out
+	go test -coverprofile $@ -race ./pkg/... -coverpkg ./pkg/...
+
 # integration tests only
 .PHONY: integration
 integration: out/$(SAMPLES_REPO)/.decompressed-$(SAMPLES_COMMIT)
