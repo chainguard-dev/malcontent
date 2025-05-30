@@ -87,14 +87,19 @@ func extractNestedArchive(ctx context.Context, d string, f string, extracted *sy
 		return nil
 	}
 
-	err = extract(ctx, d, fullPath)
+	archivePath := filepath.Join(d, strings.TrimSuffix(f, programkind.GetExt(f)))
+	if err := os.MkdirAll(archivePath, 0o755); err != nil {
+		return fmt.Errorf("failed to create extraction directory: %w", err)
+	}
+
+	err = extract(ctx, archivePath, fullPath)
 	if err != nil {
 		return fmt.Errorf("failed to extract archive: %w", err)
 	}
 
 	extracted.Store(f, true)
 
-	if err := os.RemoveAll(fullPath); err != nil {
+	if err := os.Remove(fullPath); err != nil {
 		return fmt.Errorf("failed to remove archive file: %w", err)
 	}
 

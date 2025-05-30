@@ -114,6 +114,14 @@ func extractFile(ctx context.Context, file *zip.File, destDir string, logger *cl
 		return ctx.Err()
 	}
 
+	// macOS will encounter issues with paths like META-INF/LICENSE and META-INF/license/foo
+	// this case insensitivity will break scans, so rename files that collide with existing directories
+	if runtime.GOOS == "darwin" {
+		if _, err := os.Stat(filepath.Join(destDir, file.Name)); err == nil {
+			file.Name = fmt.Sprintf("%s_file", file.Name)
+		}
+	}
+
 	buf := zipPool.Get(zipBuffer)
 
 	clean := filepath.Clean(filepath.ToSlash(file.Name))
