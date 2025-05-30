@@ -27,6 +27,16 @@ integration tests:
 
 ```make integration```
 
+## Viewing test coverage
+
+Generate an html report in `out/coverage.html`:
+
+```make coverage-html```
+
+Open the coverage report in a browser automatically:
+
+```make coverage-browser```
+
 
 ## Writing rule tests
 
