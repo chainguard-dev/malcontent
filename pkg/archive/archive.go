@@ -94,7 +94,7 @@ func extractNestedArchive(ctx context.Context, d string, f string, extracted *sy
 	// the former is the uncompressed version of the latter
 	// if we encounter this, replace the name with something that won't collide
 	if _, err := os.Stat(archivePath); err == nil {
-		logger.Debugf("duplicate file name already exists, modifying directory name for %s", filepath.Join(d, f))
+		logger.Debugf("duplicate file name already exists, modifying directory name for %s", archivePath)
 		archivePath = fmt.Sprintf("%s%d", archivePath, time.Now().UnixNano())
 	}
 
