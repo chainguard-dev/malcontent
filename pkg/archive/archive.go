@@ -32,7 +32,7 @@ func IsValidPath(target, dir string) bool {
 	return strings.HasPrefix(filepath.Clean(target), filepath.Clean(dir))
 }
 
-func extractNestedArchive(ctx context.Context, d string, f string, extracted *sync.Map) error {
+func extractNestedArchive(ctx context.Context, d string, f string, extracted *sync.Map, logger *clog.Logger) error {
 	if ctx.Err() != nil {
 		return ctx.Err()
 	}
@@ -88,6 +88,17 @@ func extractNestedArchive(ctx context.Context, d string, f string, extracted *sy
 	}
 
 	archivePath := filepath.Join(d, strings.TrimSuffix(f, programkind.GetExt(f)))
+
+	// Some packages may have archives and files with colliding names
+	// e.g., demo_page.css and demo_page.css.gz
+	// the former is the uncompressed version of the latter
+	// if we encounter this, just avoid extracting the archive but mark it as such
+	if _, err := os.Stat(archivePath); err == nil {
+		logger.Debugf("duplicate file name already exists, skipping extraction for %s", filepath.Join(d, f))
+		extracted.Store(f, true)
+		return nil
+	}
+
 	if err := os.MkdirAll(archivePath, 0o755); err != nil {
 		return fmt.Errorf("failed to create extraction directory: %w", err)
 	}
@@ -114,7 +125,7 @@ func extractNestedArchive(ctx context.Context, d string, f string, extracted *sy
 		}
 		rel := file.Name()
 		if _, alreadyProcessed := extracted.Load(rel); !alreadyProcessed {
-			if err := extractNestedArchive(ctx, d, rel, extracted); err != nil {
+			if err := extractNestedArchive(ctx, d, rel, extracted, logger); err != nil {
 				return fmt.Errorf("process nested file %s: %w", rel, err)
 			}
 		}
@@ -192,7 +203,7 @@ func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 
 		ext := programkind.GetExt(path)
 		if _, ok := programkind.ArchiveMap[ext]; ok {
-			if err := extractNestedArchive(ctx, tmpDir, rel, &extractedFiles); err != nil {
+			if err := extractNestedArchive(ctx, tmpDir, rel, &extractedFiles, logger); err != nil {
 				return err
 			}
 		}

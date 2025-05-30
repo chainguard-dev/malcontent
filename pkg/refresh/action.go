@@ -33,6 +33,11 @@ var actionTestData = []actionData{
 		scanPath:   "pkg/action/testdata/apko_nested.tar.gz",
 		outputPath: "pkg/action/testdata/scan_archive",
 	},
+	{
+		format:     "json",
+		scanPath:   "pkg/action/testdata/conflict.zip",
+		outputPath: "pkg/action/testdata/scan_conflict",
+	},
 }
 
 func actionRefresh(ctx context.Context) ([]TestData, error) {
