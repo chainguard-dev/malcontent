@@ -10,6 +10,7 @@ import (
 	"runtime"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/pool"
@@ -88,18 +89,13 @@ func extractNestedArchive(ctx context.Context, d string, f string, extracted *sy
 	}
 
 	archivePath := filepath.Join(d, strings.TrimSuffix(f, programkind.GetExt(f)))
-
 	// Some packages may have archives and files with colliding names
 	// e.g., demo_page.css and demo_page.css.gz
 	// the former is the uncompressed version of the latter
-	// if we encounter this, just avoid extracting the archive but mark it as such
+	// if we encounter this, replace the name with something that won't collide
 	if _, err := os.Stat(archivePath); err == nil {
-		logger.Debugf("duplicate file name already exists, skipping extraction for %s", filepath.Join(d, f))
-		extracted.Store(f, true)
-		if err := os.Remove(fullPath); err != nil {
-			return fmt.Errorf("failed to remove archive file: %w", err)
-		}
-		return nil
+		logger.Debugf("duplicate file name already exists, modifying directory name for %s", filepath.Join(d, f))
+		archivePath = fmt.Sprintf("%s%d", archivePath, time.Now().UnixNano())
 	}
 
 	if err := os.MkdirAll(archivePath, 0o755); err != nil {
