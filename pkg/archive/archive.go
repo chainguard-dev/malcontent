@@ -10,6 +10,7 @@ import (
 	"runtime"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/pool"
@@ -32,7 +33,7 @@ func IsValidPath(target, dir string) bool {
 	return strings.HasPrefix(filepath.Clean(target), filepath.Clean(dir))
 }
 
-func extractNestedArchive(ctx context.Context, d string, f string, extracted *sync.Map) error {
+func extractNestedArchive(ctx context.Context, d string, f string, extracted *sync.Map, logger *clog.Logger) error {
 	if ctx.Err() != nil {
 		return ctx.Err()
 	}
@@ -87,14 +88,28 @@ func extractNestedArchive(ctx context.Context, d string, f string, extracted *sy
 		return nil
 	}
 
-	err = extract(ctx, d, fullPath)
+	archivePath := filepath.Join(d, strings.TrimSuffix(f, programkind.GetExt(f)))
+	// Some packages may have archives and files with colliding names
+	// e.g., demo_page.css and demo_page.css.gz
+	// the former is the uncompressed version of the latter
+	// if we encounter this, replace the name with something that won't collide
+	if _, err := os.Stat(archivePath); err == nil {
+		logger.Debugf("duplicate file name already exists, modifying directory name for %s", archivePath)
+		archivePath = fmt.Sprintf("%s%d", archivePath, time.Now().UnixNano())
+	}
+
+	if err := os.MkdirAll(archivePath, 0o755); err != nil {
+		return fmt.Errorf("failed to create extraction directory: %w", err)
+	}
+
+	err = extract(ctx, archivePath, fullPath)
 	if err != nil {
 		return fmt.Errorf("failed to extract archive: %w", err)
 	}
 
 	extracted.Store(f, true)
 
-	if err := os.RemoveAll(fullPath); err != nil {
+	if err := os.Remove(fullPath); err != nil {
 		return fmt.Errorf("failed to remove archive file: %w", err)
 	}
 
@@ -109,7 +124,7 @@ func extractNestedArchive(ctx context.Context, d string, f string, extracted *sy
 		}
 		rel := file.Name()
 		if _, alreadyProcessed := extracted.Load(rel); !alreadyProcessed {
-			if err := extractNestedArchive(ctx, d, rel, extracted); err != nil {
+			if err := extractNestedArchive(ctx, d, rel, extracted, logger); err != nil {
 				return fmt.Errorf("process nested file %s: %w", rel, err)
 			}
 		}
@@ -187,7 +202,7 @@ func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 
 		ext := programkind.GetExt(path)
 		if _, ok := programkind.ArchiveMap[ext]; ok {
-			if err := extractNestedArchive(ctx, tmpDir, rel, &extractedFiles); err != nil {
+			if err := extractNestedArchive(ctx, tmpDir, rel, &extractedFiles, logger); err != nil {
 				return err
 			}
 		}

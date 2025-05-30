@@ -1,7 +1,7 @@
 {
     "Files": {
-        "/apko_0.13.2_linux_arm64/apko": {
-            "Path": "testdata/apko_nested.tar.gz ∴ /apko_0.13.2_linux_arm64/apko",
+        "/apko_0.13.2_linux_arm64/apko_0.13.2_linux_arm64/apko": {
+            "Path": "testdata/apko_nested.tar.gz ∴ /apko_0.13.2_linux_arm64/apko_0.13.2_linux_arm64/apko",
             "SHA256": "ad237dc65d25cfe673b4891e189e9ff1fd041ec817133ac6c565120a6a189189",
             "Size": 26400952,
             "Syscalls": [
