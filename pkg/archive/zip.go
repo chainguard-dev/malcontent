@@ -10,6 +10,7 @@ import (
 	"runtime"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/pool"
@@ -118,7 +119,7 @@ func extractFile(ctx context.Context, file *zip.File, destDir string, logger *cl
 	// this case insensitivity will break scans, so rename files that collide with existing directories
 	if runtime.GOOS == "darwin" {
 		if _, err := os.Stat(filepath.Join(destDir, file.Name)); err == nil {
-			file.Name = fmt.Sprintf("%s_file", file.Name)
+			file.Name = fmt.Sprintf("%s%d", file.Name, time.Now().UnixNano())
 		}
 	}
 
