@@ -12,3 +12,4 @@ rule sqlmap_override: override {
 
   condition:
     any of ($c*) and all of ($f*)
+}
