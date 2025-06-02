@@ -37,6 +37,9 @@ rule common_username_block_list: critical {
     $ = "test" fullword
     $ = "w0fjuOVmCcP5A" fullword
 
+    $not_grafana1  = "self.webpackChunkgrafana=self.webpackChunkgrafana||[]"
+    $not_grafana2  = "The Grafana LLM plugin is not installed."
+    $not_grafana3  = "grafana.debug.scenes"
     $not_jitsu     = "jitsu.com"
     $not_redpanda  = "redpanda"
     $not_wireshark = "wireshark.org"
