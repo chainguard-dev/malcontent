@@ -11,5 +11,5 @@ rule sqlmap_override: override {
     $f_sqlmap4 = "if \"sqlmap.sqlmap\" in sys.modules"
 
   condition:
-    any of ($c*) and all of ($f*)
+    any of ($c*) and any of ($f*)
 }
