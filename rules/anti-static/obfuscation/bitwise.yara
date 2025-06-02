@@ -173,7 +173,7 @@ rule bidirectional_bitwise_math_php: high {
     filesize < 192KB and all of them
 }
 
-rule bitwise_obfuscation: critical {
+rule bitwise_obfuscation: high {
   meta:
     description = "uses bitwise math to obfuscate code"
     ref         = "https://www.reversinglabs.com/blog/python-downloader-highlights-noise-problem-in-open-source-threat-detection"
@@ -188,17 +188,6 @@ rule bitwise_obfuscation: critical {
     $f_substr  = "substr("
     $f_ord     = "ord("
 
-    $not_phpseclib1 = "http://phpseclib.sourceforge.net"
-    $not_phpseclib2 = "Pure-PHP PKCS#1 (v2.1) compliant implementation of RSA."
-    $not_phpseclib3 = "Pure-PHP ASN.1 Parser"
-    $not_phpseclib4 = "Pure-PHP arbitrary precision integer arithmetic library."
-    $not_phpseclib5 = "Pure-PHP implementation of SFTP."
-    $not_phpseclib6 = "Pure-PHP implementation of SSHv2."
-    $not_symfony1   = "This file is part of the Symfony package."
-    $not_symfony2   = "(c) Fabien Potencier <fabien@symfony.com>"
-    $not_voku1      = "namespace voku\\helper;"
-    $not_voku2      = "final class ASCII"
-
   condition:
-    filesize < 192KB and $php and any of ($bit*) and 3 of ($f*) and none of ($not*)
+    filesize < 192KB and $php and any of ($bit*) and 3 of ($f*)
 }
