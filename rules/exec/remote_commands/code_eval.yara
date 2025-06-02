@@ -46,8 +46,10 @@ rule js_eval_response: critical {
   strings:
     $val = /eval\(\w{0,16}\.responseText\)/
 
+    $not_ejs = /EJS\.|EJS=/
+
   condition:
-    filesize < 1MB and any of ($val*)
+    filesize < 1MB and any of ($val*) and not #not_ejs > 0
 }
 
 rule js_eval_near_enough_fromChar: medium {

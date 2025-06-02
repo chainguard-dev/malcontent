@@ -5,8 +5,11 @@ rule msxml2_http: critical {
   strings:
     $a = /M.{0,48}S.{0,48}X.{0,48}M.{0,48}L.{0,48}2.{0,48}\.X.{0,48}M.{0,48}L.{0,48}H.{0,48}T.{0,48}T.{0,48}P.{0,48}/
 
+    $not_i18next1 = "i18nextHttpBackend"
+    $not_i18next2 = "u[\"User-Agent\"]=\"i18next-http-backend (node/\".concat(S.process.version,\"; \")"
+
   condition:
-    filesize < 128KB and $a and !a > 32
+    filesize < 128KB and $a and !a > 32 and none of ($not*)
 }
 
 rule obfuscation_base64_str_replace: medium {

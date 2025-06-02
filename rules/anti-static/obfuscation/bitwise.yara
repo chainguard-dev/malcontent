@@ -173,7 +173,7 @@ rule bidirectional_bitwise_math_php: high {
     filesize < 192KB and all of them
 }
 
-rule bitwise_obfuscation: critical {
+rule bitwise_obfuscation: high {
   meta:
     description = "uses bitwise math to obfuscate code"
     ref         = "https://www.reversinglabs.com/blog/python-downloader-highlights-noise-problem-in-open-source-threat-detection"
