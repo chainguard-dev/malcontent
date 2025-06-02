@@ -40,7 +40,7 @@ func findFilesRecursively(ctx context.Context, rootPath string) ([]string, error
 	err = filepath.WalkDir(root,
 		func(path string, info os.DirEntry, err error) error {
 			if err != nil {
-				logger.Errorf("error: %s: %s", path, err)
+				logger.Debugf("error: %s: %s", path, err)
 				return nil
 			}
 			if info.IsDir() || strings.Contains(path, "/.git/") {
@@ -52,12 +52,12 @@ func findFilesRecursively(ctx context.Context, rootPath string) ([]string, error
 				logger.Debugf("attempting to resolve symlink: %s", path)
 				eval, err := filepath.EvalSymlinks(path)
 				if err != nil {
-					logger.Errorf("eval: %s: %s", path, err)
+					logger.Debugf("eval: %s: %s", path, err)
 					return nil
 				}
 				fi, err := os.Stat(eval)
 				if err != nil {
-					logger.Errorf("stat: %s: %s", path, err)
+					logger.Debugf("stat: %s: %s", path, err)
 					return nil
 				}
 				if fi.IsDir() {
