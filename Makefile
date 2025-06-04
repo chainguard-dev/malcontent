@@ -5,7 +5,7 @@
 SAMPLES_REPO ?= chainguard-dev/malcontent-samples
 SAMPLES_COMMIT ?= f948cfd0f9d2a35a2452fe43ea4d094979652103
 YARA_X_REPO ?= virusTotal/yara-x
-YARA_X_COMMIT ?= 3537bcfd9c4f2dc6a38f266079a40c1a1dc5eb72
+YARA_X_COMMIT ?= 35bbdabb8c7ba6b0351d675e06ad074abfa3b522
 
 # BEGIN: lint-install ../malcontent
 # http://github.com/tinkerbell/lint-install
@@ -52,12 +52,12 @@ $(GOLANGCI_LINT_BIN):
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(LINT_ROOT)/out/linters $(GOLANGCI_LINT_VERSION)
 	mv $(LINT_ROOT)/out/linters/golangci-lint $@
 
-YARA_X_VERSION ?= v0.15.0
+YARA_X_VERSION ?= v1.0.0
 YARA_X_SHA :=
 ifeq ($(LINT_OS),Darwin)
-	YARA_X_SHA=c9463e2d2c5662e103fe85e1dab999338e446280c54fb5a24f6af8fde2018fc6
+	YARA_X_SHA=d2cb19fe77289ce763e0a0b1bec6f03f4a751c44bd8310a808ad1aeafba41fbe
 else
-	YARA_X_SHA=56b207268dd8cfd237bfeb75199e3133fcec1b729e8113d8561c267ac3dccad6
+	YARA_X_SHA=aeba6f56c50a0c931ab8f6e8f3dbe60b8affc8452e1f9c90da47e8357f524852
 endif
 YARA_X_BIN := $(LINT_ROOT)/out/linters/yr-$(YARA_X_VERSION)-$(LINT_ARCH)
 $(YARA_X_BIN):
