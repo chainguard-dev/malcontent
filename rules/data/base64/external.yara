@@ -35,6 +35,9 @@ rule base64_shell_double_encode: critical {
   strings:
     $ref = /base64[\s>].{0,32}\|\s{0,2}base64/
 
+    $not_gpgme   = "if (!base64 || base64 == -1) /* Make sure that we really have a string.  */"
+    $not_unix_rb = "echo '%<base64>s' | base64 --decode > %<file>s"
+
   condition:
-    any of them
+    any of them and none of ($not*)
 }

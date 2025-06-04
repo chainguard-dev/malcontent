@@ -5,6 +5,8 @@ rule msxml2_http: critical {
   strings:
     $a = /M.{0,48}S.{0,48}X.{0,48}M.{0,48}L.{0,48}2.{0,48}\.X.{0,48}M.{0,48}L.{0,48}H.{0,48}T.{0,48}T.{0,48}P.{0,48}/
 
+    // https://github.com/mailru/FileAPI/blob/5b50e8ed012e089eb578e586d860a6fd035e16d8/lib/FileAPI.core.js#L298
+    $not_fileapi  = "MSXML2.XMLHttp.3.0\")}catch(c){b=new ActiveXObject(\"Microsoft.XMLHTTP\")}return b},isArray:l,support:{dnd:s&&\"ondrop\"i"
     $not_i18next1 = "i18nextHttpBackend"
     $not_i18next2 = "u[\"User-Agent\"]=\"i18next-http-backend (node/\".concat(S.process.version,\"; \")"
 

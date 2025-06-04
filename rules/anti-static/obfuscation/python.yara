@@ -542,7 +542,10 @@ rule import_manipulator: critical {
   condition:
     // a91160135598f3decc8ca9f9b019dcc5e1d73e79ebe639548cd9ee9e6d007ea6 is the sha256 hash
     // for https://github.com/pypy/pypy/blob/main/lib-python/2.7/pickle.py
-    filesize < 10MB and (hash.sha256(0, filesize) != "a91160135598f3decc8ca9f9b019dcc5e1d73e79ebe639548cd9ee9e6d007ea6") and all of them
+    // 44cdd1503ae0b1d7c9e5eb79fd624a7e51780b7a8fc6cfbc68b49ef7c6e63abc is the sha256 hash
+    // https://github.com/jython/jython/blob/v2.7.4/Lib/pickle.py
+    filesize < 10MB and (hash.sha256(0, filesize) != "a91160135598f3decc8ca9f9b019dcc5e1d73e79ebe639548cd9ee9e6d007ea6") and
+    (hash.sha256(0, filesize) != "44cdd1503ae0b1d7c9e5eb79fd624a7e51780b7a8fc6cfbc68b49ef7c6e63abc") and all of them
 }
 
 rule bloated_hex_python: high {
