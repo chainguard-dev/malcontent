@@ -5,7 +5,7 @@ go 1.24.0
 toolchain go1.24.1
 
 require (
-	github.com/VirusTotal/yara-x/go v0.15.0
+	github.com/VirusTotal/yara-x/go v1.0.0
 	github.com/agext/levenshtein v1.2.3
 	github.com/cavaliergopher/cpio v1.0.1
 	github.com/cavaliergopher/rpm v1.3.0
