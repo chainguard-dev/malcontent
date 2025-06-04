@@ -33,9 +33,11 @@ rule crypto_stealer_names: critical {
     $not_clef1       = "These data types are defined in the channel between clef and the UILedger"
     $not_clef2       = "The `transaction` (on input into clef) can have either `data` or `input`"
     $not_geth_site   = "https://geth.ethereum.org"
+    $gpt_tokenizer1  = "GPTTokenizer"
+    $gpt_tokenizer2  = "GPT-4"
 
   condition:
-    filesize < 100MB and $http and 2 of ($w*) and none of ($not*)
+    filesize < 100MB and $http and 2 of ($w*) and none of ($not*) and (#gpt_tokenizer1 < 3 and #gpt_tokenizer2 < 65)
 }
 
 rule crypto_extension_stealer: critical {
