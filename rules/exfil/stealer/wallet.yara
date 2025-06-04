@@ -35,9 +35,12 @@ rule crypto_stealer_names: critical {
     $not_geth_site   = "https://geth.ethereum.org"
     $gpt_tokenizer1  = "GPTTokenizer"
     $gpt_tokenizer2  = "GPT-4"
+    $gpt_tokenizer3  = "const bpe = c0.concat();"
+    $gpt_tokenizer4  = "const bpe = c0.concat(c1);"
+    $gpt_tokenizer5  = "export default bpe;"
 
   condition:
-    filesize < 100MB and $http and 2 of ($w*) and none of ($not*) and (#gpt_tokenizer1 < 3 and #gpt_tokenizer2 < 65)
+    filesize < 100MB and $http and 2 of ($w*) and none of ($not*) and none of ($gpt_tokenizer*)
 }
 
 rule crypto_extension_stealer: critical {

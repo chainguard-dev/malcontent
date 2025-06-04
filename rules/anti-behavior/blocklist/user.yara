@@ -48,7 +48,10 @@ rule common_username_block_list: critical {
     $not_wireshark  = "wireshark.org"
     $gpt_tokenizer1 = "GPTTokenizer"
     $gpt_tokenizer2 = "GPT-4"
+    $gpt_tokenizer3 = "const bpe = c0.concat();"
+    $gpt_tokenizer4 = "const bpe = c0.concat(c1);"
+    $gpt_tokenizer5 = "export default bpe;"
 
   condition:
-    8 of them and none of ($not*) and (#gpt_tokenizer1 < 3 and #gpt_tokenizer2 < 65)
+    8 of them and none of ($not*) and none of ($gpt_tokenizer*)
 }
