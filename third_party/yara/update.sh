@@ -67,6 +67,8 @@ function update_dep() {
 		find "${tmpdir}" \( -name "*.yar*" -o -name "*LICENSE*" \) -print -exec cp {} "${kind}" \;
 		# error: rule "BOINC" in boinc.yar(1): syntax error, unexpected identifier, expecting '{'
 		rm "${kind}/boinc.yar"
+		# ^ expecting pattern modifier, pattern identifier or `condition`, found `}` (missing condition field)
+		rm "${kind}/defendnot_tool.yar"
 		;;
 	InQuest-VT)
 		rel=$(git_clone https://github.com/InQuest/yara-rules-vt.git "${tmpdir}")
