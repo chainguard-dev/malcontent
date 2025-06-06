@@ -391,30 +391,13 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 	minScore := c.MinRisk
 	ignoreSelf := c.IgnoreSelf
 
-	ignore := make(map[string]bool, len(ignoreTags))
-	for _, t := range ignoreTags {
-		ignore[t] = true
-	}
-
+	ignore := buildIgnoreMap(ignoreTags)
 	size, checksum := sizeAndChecksum(fc)
 
-	displayPath := path
-	if c.OCI {
-		displayPath = strings.TrimPrefix(path, expath)
-	}
-	if len(c.TrimPrefixes) > 0 {
-		displayPath = TrimPrefixes(displayPath, c.TrimPrefixes)
-	}
+	displayPath := trimDisplayPath(path, expath, c)
 
 	matchCount := len(mrs.MatchingRules())
-	fr := &malcontent.FileReport{
-		Path:      displayPath,
-		SHA256:    checksum,
-		Size:      size,
-		Meta:      make(map[string]string, matchCount),
-		Behaviors: make([]*malcontent.Behavior, 0, matchCount),
-		Overrides: make([]*malcontent.Behavior, 0, matchCount/10),
-	}
+	fr := initFileReport(displayPath, checksum, size, matchCount)
 
 	pledges := make([]string, 0, 4)
 	caps := make([]string, 0, 4)
@@ -428,10 +411,7 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 
 	highestRisk := HighestMatchRisk(mrs)
 	// Store match rules in a map for future override operations
-	mrsMap := make(map[string]*yarax.Rule, matchCount)
-	for _, m := range mrs.MatchingRules() {
-		mrsMap[m.Identifier()] = m
-	}
+	mrsMap := createMatchRulesMap(mrs, matchCount)
 
 	for _, m := range mrs.MatchingRules() {
 		if all(m.Identifier() == NAME, ignoreSelf) {
@@ -465,106 +445,11 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 		key = generateKey(m.Namespace(), m.Identifier())
 		ruleURL := generateRuleURL(m.Namespace(), m.Identifier())
 
-		var matchedStrings []string
-		{
-			totalMatches := 0
-			for _, p := range m.Patterns() {
-				totalMatches += len(p.Matches())
-			}
+		matchedStrings := processMatchedStrings(fc, m)
 
-			matches := make([]yarax.Match, 0, totalMatches)
-			for _, p := range m.Patterns() {
-				matches = append(matches, p.Matches()...)
-			}
+		b := buildBehavior(m, matchedStrings, key, ruleURL, risk)
 
-			processor := newMatchProcessor(fc, matches, m.Patterns())
-			matchedStrings = processor.process()
-			processor.clearFileContent()
-		}
-
-		b := &malcontent.Behavior{
-			ID:           key,
-			MatchStrings: matchStrings(m.Identifier(), matchedStrings),
-			RiskLevel:    RiskLevels[risk],
-			RiskScore:    risk,
-			RuleName:     m.Identifier(),
-			RuleURL:      ruleURL,
-		}
-
-		k := ""
-		v := ""
-
-		for _, meta := range m.Metadata() {
-			k = meta.Identifier()
-			v = fmt.Sprintf("%s", meta.Value())
-			// Empty data is unusual, so just ignore it.
-			if k == "" || v == "" {
-				continue
-			}
-
-			// If we find a match in the map for the metadata key, that's the rule to override
-			// Store this rule (the override) in the fr.Overrides behavior slice
-			// If an override rule is not overriding a valid rule, log an error
-			_, exists := mrsMap[k]
-			switch {
-			case exists && override:
-				var overrideSev int
-				if sev, ok := Levels[v]; ok {
-					overrideSev = sev
-				}
-				b.RiskLevel = RiskLevels[overrideSev]
-				b.RiskScore = overrideSev
-				b.Override = append(b.Override, k)
-				fr.Overrides = append(fr.Overrides, b)
-			case !exists && override:
-				// TODO: return error if override references an unknown rule name
-				continue
-			}
-
-			switch k {
-			case "author":
-				b.RuleAuthor = v
-				m := authorWithURLRe.FindStringSubmatch(v)
-				if len(m) > 0 && isValidURL(m[2]) {
-					b.RuleAuthor = m[1]
-					b.RuleAuthorURL = m[2]
-				}
-				// If author is in @username format, strip @ to avoid constantly pinging them on GitHub
-				if strings.HasPrefix(b.RuleAuthor, "@") {
-					b.RuleAuthor = strings.Replace(b.RuleAuthor, "@", "", 1)
-				}
-			case "author_url":
-				b.RuleAuthorURL = v
-			case fmt.Sprintf("__%s__", NAME):
-				if v == "true" {
-					fr.IsMalcontent = true
-				}
-			case "license":
-				b.RuleLicense = v
-			case "license_url":
-				b.RuleLicenseURL = v
-			case "description", "threat_name", "name":
-				desc := mungeDescription(v)
-				if len(desc) > len(b.Description) {
-					b.Description = desc
-				}
-			case "ref", "reference":
-				u := fixURL(v)
-				if isValidURL(u) {
-					b.ReferenceURL = u
-				}
-			case "source_url":
-				// YARAforge forgets to encode spaces
-				b.RuleURL = fixURL(v)
-			case "pledge":
-				pledges = append(pledges, v)
-			case "syscall":
-				sy := strings.Split(v, ",")
-				syscalls = append(syscalls, sy...)
-			case "cap":
-				caps = append(caps, v)
-			}
-		}
+		handleMetadata(m, b, fr, override, mrsMap, &pledges, &caps, &syscalls)
 
 		// Fix YARA Forge rules that record their author URL as reference URLs
 		if strings.HasPrefix(b.RuleURL, b.ReferenceURL) {
@@ -591,25 +476,7 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 			b.Description = strings.ReplaceAll(m.Identifier(), "_", " ")
 		}
 
-		existingIndex := -1
-		for i, existing := range fr.Behaviors {
-			if existing.ID == key {
-				existingIndex = i
-				break
-			}
-		}
-
-		// If the existing description is longer and the priority is the same or lower
-		if existingIndex != -1 {
-			if fr.Behaviors[existingIndex].RiskScore < b.RiskScore {
-				fr.Behaviors = append(fr.Behaviors[:existingIndex], append([]*malcontent.Behavior{b}, fr.Behaviors[existingIndex+1:]...)...)
-			}
-			if len(fr.Behaviors[existingIndex].Description) < len(b.Description) && fr.Behaviors[existingIndex].RiskScore <= b.RiskScore {
-				fr.Behaviors[existingIndex].Description = b.Description
-			}
-		} else {
-			fr.Behaviors = append(fr.Behaviors, b)
-		}
+		updateBehavior(fr, b, key)
 
 		// TODO: If we match multiple rules within a single namespace, merge matchstrings
 	}
@@ -657,6 +524,169 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 	return fr, nil
 }
 
+func buildIgnoreMap(ignoreTags []string) map[string]bool {
+	ignore := make(map[string]bool, len(ignoreTags))
+	for _, t := range ignoreTags {
+		ignore[t] = true
+	}
+	return ignore
+}
+
+func trimDisplayPath(path string, expath string, c malcontent.Config) string {
+	displayPath := path
+	if c.OCI {
+		displayPath = strings.TrimPrefix(path, expath)
+	}
+	if len(c.TrimPrefixes) > 0 {
+		displayPath = TrimPrefixes(displayPath, c.TrimPrefixes)
+	}
+	return displayPath
+}
+
+func initFileReport(path string, checksum string, size int64, matchCount int) *malcontent.FileReport {
+	return &malcontent.FileReport{
+		Path:      path,
+		SHA256:    checksum,
+		Size:      size,
+		Meta:      make(map[string]string, matchCount),
+		Behaviors: make([]*malcontent.Behavior, 0, matchCount),
+		Overrides: make([]*malcontent.Behavior, 0, matchCount/10),
+	}
+}
+
+func createMatchRulesMap(mrs *yarax.ScanResults, matchCount int) map[string]*yarax.Rule {
+	mrsMap := make(map[string]*yarax.Rule, matchCount)
+	for _, m := range mrs.MatchingRules() {
+		mrsMap[m.Identifier()] = m
+	}
+	return mrsMap
+}
+
+func processMatchedStrings(fc []byte, m *yarax.Rule) []string {
+	totalMatches := 0
+	for _, p := range m.Patterns() {
+		totalMatches += len(p.Matches())
+	}
+
+	matches := make([]yarax.Match, 0, totalMatches)
+	for _, p := range m.Patterns() {
+		matches = append(matches, p.Matches()...)
+	}
+
+	processor := newMatchProcessor(fc, matches, m.Patterns())
+	return processor.process()
+}
+
+func buildBehavior(m *yarax.Rule, matchedStrings []string, key string, ruleURL string, risk int) *malcontent.Behavior {
+	return &malcontent.Behavior{
+		ID:           key,
+		MatchStrings: matchStrings(m.Identifier(), matchedStrings),
+		RiskLevel:    RiskLevels[risk],
+		RiskScore:    risk,
+		RuleName:     m.Identifier(),
+		RuleURL:      ruleURL,
+	}
+}
+
+func handleMetadata(m *yarax.Rule, b *malcontent.Behavior, fr *malcontent.FileReport, override bool, mrsMap map[string]*yarax.Rule, pledges *[]string, caps *[]string, syscalls *[]string) {
+	k := ""
+	v := ""
+
+	for _, meta := range m.Metadata() {
+		k = meta.Identifier()
+		v = fmt.Sprintf("%s", meta.Value())
+		// Empty data is unusual, so just ignore it.
+		if k == "" || v == "" {
+			continue
+		}
+
+		// If we find a match in the map for the metadata key, that's the rule to override
+		// Store this rule (the override) in the fr.Overrides behavior slice
+		// If an override rule is not overriding a valid rule, log an error
+		_, exists := mrsMap[k]
+		switch {
+		case exists && override:
+			var overrideSev int
+			if sev, ok := Levels[v]; ok {
+				overrideSev = sev
+			}
+			b.RiskLevel = RiskLevels[overrideSev]
+			b.RiskScore = overrideSev
+			b.Override = append(b.Override, k)
+			fr.Overrides = append(fr.Overrides, b)
+		case !exists && override:
+			// TODO: return error if override references an unknown rule name
+			continue
+		}
+
+		switch k {
+		case "author":
+			b.RuleAuthor = v
+			m := authorWithURLRe.FindStringSubmatch(v)
+			if len(m) > 0 && isValidURL(m[2]) {
+				b.RuleAuthor = m[1]
+				b.RuleAuthorURL = m[2]
+			}
+			// If author is in @username format, strip @ to avoid constantly pinging them on GitHub
+			if strings.HasPrefix(b.RuleAuthor, "@") {
+				b.RuleAuthor = strings.Replace(b.RuleAuthor, "@", "", 1)
+			}
+		case "author_url":
+			b.RuleAuthorURL = v
+		case fmt.Sprintf("__%s__", NAME):
+			if v == "true" {
+				fr.IsMalcontent = true
+			}
+		case "license":
+			b.RuleLicense = v
+		case "license_url":
+			b.RuleLicenseURL = v
+		case "description", "threat_name", "name":
+			desc := mungeDescription(v)
+			if len(desc) > len(b.Description) {
+				b.Description = desc
+			}
+		case "ref", "reference":
+			u := fixURL(v)
+			if isValidURL(u) {
+				b.ReferenceURL = u
+			}
+		case "source_url":
+			// YARAforge forgets to encode spaces
+			b.RuleURL = fixURL(v)
+		case "pledge":
+			pledges = append(pledges, v)
+		case "syscall":
+			sy := strings.Split(v, ",")
+			syscalls = append(syscalls, sy...)
+		case "cap":
+			caps = append(caps, v)
+		}
+	}
+
+}
+
+func updateBehavior(fr *malcontent.FileReport, b *malcontent.Behavior, key string) {
+	existingIndex := -1
+	for i, existing := range fr.Behaviors {
+		if existing.ID == key {
+			existingIndex = i
+			break
+		}
+	}
+
+	// If the existing description is longer and the priority is the same or lower
+	if existingIndex != -1 {
+		if fr.Behaviors[existingIndex].RiskScore < b.RiskScore {
+			fr.Behaviors = append(fr.Behaviors[:existingIndex], append([]*malcontent.Behavior{b}, fr.Behaviors[existingIndex+1:]...)...)
+		}
+		if len(fr.Behaviors[existingIndex].Description) < len(b.Description) && fr.Behaviors[existingIndex].RiskScore <= b.RiskScore {
+			fr.Behaviors[existingIndex].Description = b.Description
+		}
+	} else {
+		fr.Behaviors = append(fr.Behaviors, b)
+	}
+}
 // upgradeRisk determines whether to upgrade risk based on finding density.
 func upgradeRisk(ctx context.Context, riskScore int, riskCounts map[int]int, size int64) bool {
 	if riskScore != 3 {
