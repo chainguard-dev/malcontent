@@ -588,7 +588,7 @@ func buildBehavior(m *yarax.Rule, matchedStrings []string, key string, ruleURL s
 	}
 }
 
-func handleMetadata(m *yarax.Rule, b *malcontent.Behavior, fr *malcontent.FileReport, override bool, mrsMap map[string]*yarax.Rule, pledges *[]string, caps *[]string, syscalls *[]string) {
+func handleMetadata(m *yarax.Rule, b *malcontent.Behavior, fr *malcontent.FileReport, override bool, mrsMap map[string]*yarax.Rule, pledges []string, caps []string, syscalls []string) {
 	k := ""
 	v := ""
 
@@ -687,6 +687,7 @@ func updateBehavior(fr *malcontent.FileReport, b *malcontent.Behavior, key strin
 		fr.Behaviors = append(fr.Behaviors, b)
 	}
 }
+
 // upgradeRisk determines whether to upgrade risk based on finding density.
 func upgradeRisk(ctx context.Context, riskScore int, riskCounts map[int]int, size int64) bool {
 	if riskScore != 3 {
