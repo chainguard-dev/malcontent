@@ -663,7 +663,6 @@ func handleMetadata(m *yarax.Rule, b *malcontent.Behavior, fr *malcontent.FileRe
 			caps = append(caps, v)
 		}
 	}
-
 }
 
 func updateBehavior(fr *malcontent.FileReport, b *malcontent.Behavior, key string) {
