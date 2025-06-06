@@ -449,7 +449,7 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 
 		b := buildBehavior(m, matchedStrings, key, ruleURL, risk)
 
-		handleMetadata(m, b, fr, override, mrsMap, &pledges, &caps, &syscalls)
+		handleMetadata(m, b, fr, override, mrsMap, pledges, caps, syscalls)
 
 		// Fix YARA Forge rules that record their author URL as reference URLs
 		if strings.HasPrefix(b.RuleURL, b.ReferenceURL) {
