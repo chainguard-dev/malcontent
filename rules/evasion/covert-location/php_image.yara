@@ -9,7 +9,8 @@ rule php_image_include: critical {
 
     // https://github.com/symfony/symfony/blob/7.4/src/Symfony/Component/ErrorHandler/Resources/views/exception_full.html.php#L9
     // https://github.com/symfony/symfony/blob/7.4/src/Symfony/Component/ErrorHandler/Resources/assets/images/favicon.png.base64
-    $not_symfony = "include('assets/images/favicon.png.base64')"
+    $not_symfony1 = "include('assets/images/favicon.png.base64')"
+    $not_symfony2 = "<a href=\"https://symfony.com/doc/<?= Symfony\\Component\\HttpKernel\\Kernel::VERSION; ?>/index.html\">"
 
   condition:
     filesize < 5242880 and all of them and none of ($not*)
