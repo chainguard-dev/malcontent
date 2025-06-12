@@ -7,8 +7,12 @@ rule php_image_include: critical {
     $php     = "<?php"
     $include = /include\s*\(\s*[^\.]+\.(png|jpg|gif|bmp)/
 
+    // https://github.com/symfony/symfony/blob/7.4/src/Symfony/Component/ErrorHandler/Resources/views/exception_full.html.php#L9
+    // https://github.com/symfony/symfony/blob/7.4/src/Symfony/Component/ErrorHandler/Resources/assets/images/favicon.png.base64
+    $not_symfony = "include('assets/images/favicon.png.base64')"
+
   condition:
-    filesize < 5242880 and all of them
+    filesize < 5242880 and all of them and none of ($not*)
 }
 
 rule php_in_image: critical {
