@@ -250,11 +250,6 @@ func handleDirectory(target string) error {
 
 // handleFile extracts valid files within .deb or .tar archives.
 func handleFile(target string, tr *tar.Reader) error {
-	// Initialize the tar pool if it hasn't been initialized yet.
-	initTarPool.Do(func() {
-		tarPool = pool.NewBufferPool(runtime.GOMAXPROCS(0))
-	})
-
 	buf := tarPool.Get(extractBuffer)
 	defer tarPool.Put(buf)
 
