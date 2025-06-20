@@ -8,9 +8,11 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/pool"
 	"github.com/egibs/go-debian/deb"
 )
 
@@ -22,6 +24,10 @@ func ExtractDeb(ctx context.Context, d, f string) error {
 
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting deb")
+
+	initTarPool.Do(func() {
+		tarPool = pool.NewBufferPool(runtime.GOMAXPROCS(0))
+	})
 
 	fd, err := os.Open(f)
 	if err != nil {
