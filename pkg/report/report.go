@@ -449,7 +449,7 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 
 		b := buildBehavior(m, matchedStrings, key, ruleURL, risk)
 
-		handleMetadata(m, b, fr, override, mrsMap, pledges, caps, syscalls)
+		handleMetadata(m, b, fr, override, mrsMap, &pledges, &caps, &syscalls)
 
 		// Fix YARA Forge rules that record their author URL as reference URLs
 		if strings.HasPrefix(b.RuleURL, b.ReferenceURL) {
@@ -588,7 +588,7 @@ func buildBehavior(m *yarax.Rule, matchedStrings []string, key string, ruleURL s
 	}
 }
 
-func handleMetadata(m *yarax.Rule, b *malcontent.Behavior, fr *malcontent.FileReport, override bool, mrsMap map[string]*yarax.Rule, pledges []string, caps []string, syscalls []string) {
+func handleMetadata(m *yarax.Rule, b *malcontent.Behavior, fr *malcontent.FileReport, override bool, mrsMap map[string]*yarax.Rule, pledges *[]string, caps *[]string, syscalls *[]string) {
 	k := ""
 	v := ""
 
@@ -655,12 +655,12 @@ func handleMetadata(m *yarax.Rule, b *malcontent.Behavior, fr *malcontent.FileRe
 			// YARAforge forgets to encode spaces
 			b.RuleURL = fixURL(v)
 		case "pledge":
-			pledges = append(pledges, v)
+			*pledges = append(*pledges, v)
 		case "syscall":
 			sy := strings.Split(v, ",")
-			syscalls = append(syscalls, sy...)
+			*syscalls = append(*syscalls, sy...)
 		case "cap":
-			caps = append(caps, v)
+			*caps = append(*caps, v)
 		}
 	}
 }
