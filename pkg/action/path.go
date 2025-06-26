@@ -49,22 +49,7 @@ func findFilesRecursively(ctx context.Context, rootPath string) ([]string, error
 
 			// Ignore symlinked directories like regular directories
 			if info.Type()&fs.ModeSymlink == fs.ModeSymlink {
-				logger.Debugf("attempting to resolve symlink: %s", path)
-				eval, err := filepath.EvalSymlinks(path)
-				if err != nil {
-					logger.Debugf("eval: %s: %s", path, err)
-					return nil
-				}
-				fi, err := os.Stat(eval)
-				if err != nil {
-					logger.Debugf("stat: %s: %s", path, err)
-					return nil
-				}
-				if fi.IsDir() {
-					logger.Debugf("ignoring symlinked directory: %s", path)
-					return nil
-				}
-				path = eval
+				return nil
 			}
 
 			files = append(files, path)

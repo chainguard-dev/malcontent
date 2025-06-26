@@ -19,6 +19,13 @@ type StringPool struct {
 	strings map[string]string
 }
 
+// clear removes all strings from the pool to free memory.
+func (sp *StringPool) clear() {
+	sp.Lock()
+	defer sp.Unlock()
+	clear(sp.strings)
+}
+
 // NewStringPool creates a new string pool.
 func NewStringPool(length int) *StringPool {
 	return &StringPool{
@@ -70,6 +77,12 @@ var matchResultPool = sync.Pool{
 	},
 }
 
+// clearFileContent releases the file content to free memory after processing.
+func (mp *matchProcessor) clearFileContent() {
+	mp.fc = nil
+	mp.pool.clear()
+}
+
 // process performantly handles the conversion of matched data to strings.
 // yara-x does not expose the rendered string via the API due to performance overhead.
 func (mp *matchProcessor) process() []string {
@@ -115,20 +128,24 @@ func (mp *matchProcessor) process() []string {
 			if l <= cap(buffer) {
 				buffer = buffer[:l]
 				copy(buffer, matchBytes)
-				*result = append(*result, mp.pool.Intern(string(buffer)))
+				matchStr := string(buffer)
+				*result = append(*result, mp.pool.Intern(string([]byte(matchStr))))
 			} else {
-				*result = append(*result, mp.pool.Intern(string(matchBytes)))
+				matchStr := string(matchBytes)
+				*result = append(*result, mp.pool.Intern(string([]byte(matchStr))))
 			}
 		} else {
 			if patterns == nil || cap(patterns) < patternsCap {
 				patterns = make([]string, 0, patternsCap)
 			} else {
+				clear(patterns)
 				patterns = patterns[:0]
 			}
 			for _, p := range mp.patterns {
 				patterns = append(patterns, p.Identifier())
 			}
-			*result = append(*result, slices.Compact(patterns)...)
+			compacted := slices.Compact(patterns)
+			*result = append(*result, compacted...)
 		}
 	}
 

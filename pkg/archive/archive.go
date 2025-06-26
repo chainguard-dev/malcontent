@@ -146,12 +146,6 @@ func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 		return "", fmt.Errorf("failed to create temp dir: %w", err)
 	}
 
-	go func() {
-		<-ctx.Done()
-		logger.Debug("context cancelled, cleaning up temp dir")
-		os.RemoveAll(tmpDir)
-	}()
-
 	initializeOnce.Do(func() {
 		archivePool = pool.NewBufferPool(runtime.GOMAXPROCS(0))
 	})
