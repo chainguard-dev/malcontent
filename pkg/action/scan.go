@@ -7,7 +7,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
 	"io/fs"
 	"log/slog"
 	"os"
@@ -17,6 +16,7 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
+	"syscall"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/archive"
@@ -43,13 +43,59 @@ var (
 	ErrMatchedCondition = errors.New("matched exit criteria")
 	// initializeOnce ensures that the file and scanner pools are only initialized once.
 	initializeOnce sync.Once
-	filePool       *pool.BufferPool
 	scannerPool    *pool.ScannerPool
+	maxMmapSize    int64 = 1 << 31
 )
 
+// scanFD scans a file descriptor using memory mapping for efficient large file handling.
+// This avoids loading the entire file into memory while still using yara-x's byte slice scanning.
+func scanFD(scanner *yarax.Scanner, fd uintptr, logger *clog.Logger) ([]byte, *yarax.ScanResults, error) {
+	var stat syscall.Stat_t
+	if err := syscall.Fstat(int(fd), &stat); err != nil {
+		return nil, nil, fmt.Errorf("fstat failed: %w", err)
+	}
+
+	size := stat.Size
+	if size == 0 {
+		mrs, err := scanner.Scan([]byte{})
+		return nil, mrs, err
+	}
+
+	if size < 0 {
+		return nil, nil, fmt.Errorf("invalid file size: %d", size)
+	}
+
+	if size > maxMmapSize {
+		logger.Warn("file exceeds mmap limit, scanning first portion only",
+			"size", size, "limit", maxMmapSize)
+		size = maxMmapSize
+	}
+
+	data, err := syscall.Mmap(int(fd), 0, int(size), syscall.PROT_READ, syscall.MAP_PRIVATE)
+	if err != nil {
+		return nil, nil, fmt.Errorf("mmap failed: %w", err)
+	}
+	defer func() {
+		if unmapErr := syscall.Munmap(data); unmapErr != nil {
+			logger.Error("failed to unmap memory", "error", unmapErr)
+		}
+	}()
+
+	mrs, err := scanner.Scan(data)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// Create a copy of the data to return since the mmap will be unmapped
+	// This is necessary because report generation needs access to file content
+	// for checksum calculation and match string extraction
+	fc := make([]byte, len(data))
+	copy(fc, data)
+
+	return fc, mrs, err
+}
+
 // scanSinglePath YARA scans a single path and converts it to a fileReport.
-//
-//nolint:cyclop // ignore complexity of 38
 func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleFS []fs.FS, absPath string, archiveRoot string) (*malcontent.FileReport, error) {
 	if ctx.Err() != nil {
 		return &malcontent.FileReport{}, ctx.Err()
@@ -60,7 +106,14 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 
 	isArchive := archiveRoot != ""
 
-	fi, err := os.Stat(path)
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	fd := f.Fd()
+	defer f.Close()
+
+	fi, err := f.Stat()
 	if err != nil {
 		return nil, err
 	}
@@ -105,43 +158,13 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	}
 
 	initializeOnce.Do(func() {
-		filePool = pool.NewBufferPool(c.Concurrency + 1)
-		scannerPool = pool.NewScannerPool(yrs, c.Concurrency+1)
+		scannerPool = pool.NewScannerPool(yrs, c.Concurrency)
 	})
 
 	scanner := scannerPool.Get()
-	if scanner == nil {
-		scanner = yarax.NewScanner(yrs)
-	}
 	defer scannerPool.Put(scanner)
 
-	f, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-
-	fc := filePool.Get(size)
-	defer filePool.Put(fc)
-
-	var bytesRead int
-	var totalRead int64
-	for totalRead < size {
-		bytesRead, err = f.Read(fc[totalRead:])
-		if errors.Is(err, io.EOF) {
-			break
-		}
-		if err != nil {
-			return nil, err
-		}
-		totalRead += int64(bytesRead)
-	}
-
-	if totalRead < size && err != nil {
-		return nil, fmt.Errorf("incomplete read: got %d bytes, expected %d: %w", totalRead, size, err)
-	}
-
-	mrs, err := scanner.Scan(fc)
+	fc, mrs, err := scanFD(scanner, fd, logger)
 	if err != nil {
 		logger.Debug("skipping", slog.Any("error", err))
 		return nil, err
@@ -163,6 +186,11 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	if err != nil {
 		return nil, NewFileReportError(err, path, TypeGenerateError)
 	}
+
+	defer func() {
+		fc = nil
+		mrs = nil
+	}()
 
 	// Clean up the path if scanning an archive
 	var clean string
@@ -425,6 +453,12 @@ func processPaths(ctx context.Context, paths []string, scanInfo scanPathInfo, c 
 			case pc <- path:
 			}
 		}
+	}()
+
+	// Zero-out the path strings and empty the slice once read into the path channel
+	defer func() {
+		clear(paths)
+		paths = paths[:0]
 	}()
 
 	for path := range pc {

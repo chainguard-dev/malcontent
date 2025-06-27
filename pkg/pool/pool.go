@@ -2,6 +2,7 @@ package pool
 
 import (
 	"math"
+	"runtime"
 	"sync"
 
 	yarax "github.com/VirusTotal/yara-x/go"
@@ -23,7 +24,8 @@ func NewBufferPool(count int) *BufferPool {
 
 	bp.pool = sync.Pool{
 		New: func() any {
-			return make([]byte, defaultBuffer)
+			buffer := make([]byte, defaultBuffer)
+			return &buffer
 		},
 	}
 
@@ -43,18 +45,17 @@ func (bp *BufferPool) Get(size int64) []byte {
 
 	bufInterface := bp.pool.Get()
 
-	buf, ok := bufInterface.([]byte)
-	if !ok || buf == nil {
+	bufPtr, ok := bufInterface.(*[]byte)
+	if !ok || bufPtr == nil {
 		return make([]byte, size)
 	}
 
-	bufPtr := &buf
 	if cap(*bufPtr) < int(size) {
 		bp.pool.Put(bufPtr)
 		return make([]byte, size)
 	}
 
-	return buf[:size]
+	return (*bufPtr)[:size]
 }
 
 // Put returns a byte buffer to the pool for future reuse.
@@ -72,34 +73,50 @@ func (bp *BufferPool) Put(buf []byte) {
 
 // ScannerPool provides a pool of yara-x scanners.
 type ScannerPool struct {
-	pool sync.Pool
+	scanners  chan *yarax.Scanner
+	pinner    *runtime.Pinner
+	closeOnce sync.Once
 }
 
 // NewScannerPool creates a pool containing the specified number of yara-x scanners.
 func NewScannerPool(yrs *yarax.Rules, count int) *ScannerPool {
-	sp := &ScannerPool{}
-
-	sp.pool = sync.Pool{
-		New: func() any {
-			return yarax.NewScanner(yrs)
-		},
+	sp := &ScannerPool{
+		scanners: make(chan *yarax.Scanner, count),
+		pinner:   &runtime.Pinner{},
 	}
 
 	for range count {
-		sp.pool.Put(yarax.NewScanner(yrs))
+		scanner := yarax.NewScanner(yrs)
+		// Pin the scanner in memory to prevent GC movement
+		sp.pinner.Pin(scanner)
+		sp.scanners <- scanner
 	}
 	return sp
 }
 
-// Get retrieves a scanner from the scanner pool.
+// Get retrieves a scanner from the scanner pool, blocking if none are available.
 func (sp *ScannerPool) Get() *yarax.Scanner {
-	if scanner, ok := sp.pool.Get().(*yarax.Scanner); ok {
-		return scanner
-	}
-	return nil
+	return <-sp.scanners
 }
 
 // Put returns a scanner to the scanner pool.
 func (sp *ScannerPool) Put(scanner *yarax.Scanner) {
-	sp.pool.Put(scanner)
+	if scanner != nil {
+		select {
+		case sp.scanners <- scanner:
+		default:
+		}
+	}
+}
+
+// Close destroys all active scanners.
+// Currently unused.
+func (sp *ScannerPool) Close() {
+	sp.closeOnce.Do(func() {
+		sp.pinner.Unpin()
+		close(sp.scanners)
+		for scanner := range sp.scanners {
+			scanner.Destroy()
+		}
+	})
 }
