@@ -158,7 +158,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	}
 
 	initializeOnce.Do(func() {
-		scannerPool = pool.NewScannerPool(yrs, c.Concurrency)
+		scannerPool = pool.NewScannerPool(yrs, getMaxConcurrency(c.Concurrency))
 	})
 
 	scanner := scannerPool.Get()
