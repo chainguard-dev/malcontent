@@ -9,6 +9,11 @@ rule msxml2_http: critical {
     $not_fileapi  = "MSXML2.XMLHttp.3.0\")}catch(c){b=new ActiveXObject(\"Microsoft.XMLHTTP\")}return b},isArray:l,support:{dnd:s&&\"ondrop\"i"
     $not_i18next1 = "i18nextHttpBackend"
     $not_i18next2 = "u[\"User-Agent\"]=\"i18next-http-backend (node/\".concat(S.process.version,\"; \")"
+    $not_yui1     = "Copyright (c) 2008, Yahoo! Inc. All rights reserved."
+    $not_yui2     = "http://developer.yahoo.net/yui/license.txt"
+    $not_yui3     = "version: 2.6.0"
+    $not_yui4     = "YAHOO.util.Connect={_msxml_progid:[\"Microsoft.XMLHTTP\",\"MSXML2.XMLHTTP.3.0\",\"MSXML2.XMLHTTP\"]"
+    $not_yui5     = "if(typeof YAHOO==\"undefined\"||!YAHOO){var YAHOO={};}YAHOO.namespace=function()"
 
   condition:
     filesize < 128KB and $a and !a > 32 and none of ($not*)
