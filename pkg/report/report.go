@@ -377,7 +377,6 @@ func fileMatchesRule(meta []yarax.Metadata, ext string) bool {
 	return true
 }
 
-//nolint:cyclop // ignore complexity of 64
 func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcontent.Config, expath string, _ *clog.Logger, fc []byte, kind *programkind.FileType) (*malcontent.FileReport, error) {
 	if ctx.Err() != nil {
 		return &malcontent.FileReport{}, ctx.Err()

@@ -229,8 +229,6 @@ func makeFileType(path string, ext string, mime string) *FileType {
 }
 
 // File detects what kind of program this file might be.
-//
-//nolint:cyclop // ignore complexity of 38
 func File(path string) (*FileType, error) {
 	// Follow symlinks and return cleanly if the target does not exist
 	_, err := filepath.EvalSymlinks(path)
