@@ -123,7 +123,7 @@ Requirements:
 * [pkgconf](http://pkgconf.org/) - required by Go to find C dependencies, included in many UNIX distributions
 * [libssl-dev](https://packages.debian.org/buster/libssl-dev) package
 
-To install yara-x, first install Rust and then run `make install-yara-x` which will clone the yara-x repository and install yara-x's dependenicies and its C API.
+To install yara-x, first install Rust and then run `make install-yara-x` which will clone the yara-x repository and install yara-x's dependencies and its C API.
 
 ### Building locally in Debian/Ubuntu
 
