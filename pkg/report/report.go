@@ -573,7 +573,9 @@ func processMatchedStrings(fc []byte, m *yarax.Rule) []string {
 	}
 
 	processor := newMatchProcessor(fc, matches, m.Patterns())
-	return processor.process()
+	matchedStrings := processor.process()
+	processor.clearFileContent()
+	return matchedStrings
 }
 
 func buildBehavior(m *yarax.Rule, matchedStrings []string, key string, ruleURL string, risk int) *malcontent.Behavior {
