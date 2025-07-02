@@ -1,8 +1,7 @@
 # javascript/clean/203.b7219352.chunk.js: medium
 anti-behavior/random_behavior: low
 anti-static/obfuscation/js: medium
-anti-static/obfuscation/strtoi: medium
-anti-static/obfuscation/utf16: medium
+anti-static/obfuscation/math: medium
 c2/tool_transfer/os: medium
 credential/password: low
 data/base64/external: medium

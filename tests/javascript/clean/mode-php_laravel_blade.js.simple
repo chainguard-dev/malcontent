@@ -1,7 +1,6 @@
 # javascript/clean/mode-php_laravel_blade.js: medium
 anti-behavior/random_behavior: low
-anti-static/obfuscation/js: medium
-anti-static/obfuscation/strtoi: medium
+anti-static/obfuscation/math: medium
 c2/addr/ip: medium
 c2/client: medium
 c2/tool_transfer/os: low

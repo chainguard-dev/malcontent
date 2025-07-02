@@ -340,40 +340,43 @@ rule high_entropy_charAt: medium {
 
 rule charAt_long_string: medium {
   meta:
-    description = "uses charAt/substr/join loops with a long variable"
+    description = "charAt/substr operations with long strings"
     filetypes   = "js,ts"
 
   strings:
-    $s_charAt   = "charAt("
-    $s_substr   = "substr("
-    $s_join     = "join("
-    $s_function = /function\s{0,2}\(/
-    $s_for      = /for\s{0,2}\(/
+    $charAt = "charAt("
+    $substr = "substr("
+    $join   = "join("
+    $func   = "function"
+    $for    = "for"
 
-    $long_string  = /\([\'\"]\w{32,1024}[\"\']\)/
-    $long_garbage = /['"][\w\~\!\@\#\$\%\^\&\*\(\)\{\}\?\+\/\/\=\-\;\[\]\.><\,\`\'\"_\\:]{16,256}[\s\%\$]{1,2}[\w\~\!\@\#\$\%\^\&\*\(\)\{\}\?\+\/\/\=\-\;\[\]\.><\,\`\'\"_\\:]{0,256}/
+    $long1 = /["'][a-zA-Z0-9]{32,}["']/
+    $long2 = /["']\w{50,}["']/
 
   condition:
-    all of ($s*) and any of ($long*)
+    2 of ($charAt, $substr, $join) and
+    $func and $for and
+    any of ($long*)
 }
 
-rule charAt_long_vars: medium {
+rule charAt_multiple_suspicious: medium {
   meta:
-    description = "uses charAt/substr/join loops with long variables"
+    description = "Multiple suspicious string patterns with charAt operations"
     filetypes   = "js,ts"
 
   strings:
-    $s_charAt   = "charAt("
-    $s_substr   = "substr("
-    $s_join     = "join("
-    $s_function = /function\s{0,2}\(/
-    $s_for      = /for\s{0,2}\(/
+    $charAt = "charAt("
+    $substr = "substr("
+    $join   = "join("
 
-    $long_string  = /\([\'\"]\w{32,1024}[\"\']\)/
-    $long_garbage = /['"][\w\~\!\@\#\$\%\^\&\*\(\)\{\}\?\+\/\/\=\-\;\[\]\.><\,\`\'\"_\\:]{16,256}[\s\%\$]{1,2}[\w\~\!\@\#\$\%\^\&\*\(\)\{\}\?\+\/\/\=\-\;\[\]\.><\,\`\'\"_\\:]{0,256}/
+    $susp1 = /["'][a-zA-Z0-9]{32,}["']/
+    $susp2 = /["'][!@#$%^&*(){}\[\]]{8,}["']/
+    $susp3 = /["'][0-9a-fA-F]{32,}["']/
+    $susp4 = /["'][a-zA-Z0-9+\/=]{50,}["']/
 
   condition:
-    all of ($s*) and (#long_string + #long_garbage) > 3
+    2 of ($charAt, $substr, $join) and
+    #susp1 + #susp2 + #susp3 + #susp4 > 3
 }
 
 rule obfuscated_require: high {
