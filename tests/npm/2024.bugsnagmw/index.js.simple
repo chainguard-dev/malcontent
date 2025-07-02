@@ -2,6 +2,7 @@
 anti-static/obfuscation/bool: medium
 anti-static/obfuscation/hex: medium
 anti-static/obfuscation/js: high
+anti-static/obfuscation/math: medium
 data/encoding/int: medium
 discover/ip/public: high
 net/http: low

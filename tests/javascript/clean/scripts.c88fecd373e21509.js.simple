@@ -1,8 +1,7 @@
 # javascript/clean/scripts.c88fecd373e21509.js: medium
 anti-behavior/random_behavior: low
 anti-static/obfuscation/js: medium
-anti-static/obfuscation/strtoi: medium
-anti-static/obfuscation/utf16: medium
+anti-static/obfuscation/math: medium
 data/compression/bzip2: low
 data/compression/gzip: low
 data/encoding/int: low

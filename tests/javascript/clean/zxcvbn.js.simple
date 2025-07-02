@@ -1,6 +1,6 @@
 # javascript/clean/zxcvbn.js: medium
 anti-behavior/random_behavior: low
-anti-static/obfuscation/strtoi: medium
+anti-static/obfuscation/math: medium
 anti-static/xor/functions: medium
 c2/tool_transfer/dropper: medium
 collect/databases/mysql: medium
