@@ -112,6 +112,11 @@ type FileType struct {
 var (
 	headerPool     *pool.BufferPool
 	initializeOnce sync.Once
+	versionRegex   = regexp.MustCompile(`\d+\.\d+\.\d+$`)
+	// Magic byte constants for common file signatures.
+	elfMagic  = []byte{0x7f, 'E', 'L', 'F'}
+	gzipMagic = []byte{0x1f, 0x8b}
+	ZMagic    = []byte{0x78, 0x5E}
 )
 
 const headerSize int = 512
@@ -137,8 +142,7 @@ func GetExt(path string) string {
 
 	// Handle files with version numbers in the name
 	// e.g. file1.2.3.tar.gz -> .tar.gz
-	re := regexp.MustCompile(`\d+\.\d+\.\d+$`)
-	base = re.ReplaceAllString(base, "")
+	base = versionRegex.ReplaceAllString(base, "")
 
 	ext := filepath.Ext(base)
 
@@ -146,10 +150,7 @@ func GetExt(path string) string {
 		parts := strings.Split(base, ".")
 		if len(parts) > 2 {
 			subExt := fmt.Sprintf(".%s%s", parts[len(parts)-2], ext)
-			if isValidExt := func(ext string) bool {
-				_, ok := ArchiveMap[ext]
-				return ok
-			}(subExt); isValidExt {
+			if _, ok := ArchiveMap[subExt]; ok {
 				return subExt
 			}
 		}
@@ -228,8 +229,6 @@ func makeFileType(path string, ext string, mime string) *FileType {
 }
 
 // File detects what kind of program this file might be.
-//
-//nolint:cyclop // ignore complexity of 38
 func File(path string) (*FileType, error) {
 	// Follow symlinks and return cleanly if the target does not exist
 	_, err := filepath.EvalSymlinks(path)
@@ -252,9 +251,7 @@ func File(path string) (*FileType, error) {
 		return nil, nil
 	}
 
-	initializeOnce.Do(func() {
-		headerPool = pool.NewBufferPool(runtime.GOMAXPROCS(0))
-	})
+	initializeHeaderPool()
 
 	buf := headerPool.Get(int64(headerSize))
 	defer headerPool.Put(buf)
@@ -289,7 +286,7 @@ func File(path string) (*FileType, error) {
 	}
 
 	switch {
-	case hdr[0] == '\x7f' && (hdr[1] == 'E' && hdr[2] == 'L' && hdr[3] == 'F'):
+	case bytes.HasPrefix(hdr, elfMagic):
 		return Path(".elf"), nil
 	case bytes.Contains(hdr, []byte("<?php")):
 		return Path(".php"), nil
@@ -316,12 +313,18 @@ func File(path string) (*FileType, error) {
 		return Path(".c"), nil
 	case bytes.Contains(hdr, []byte("BEAMAtU8")):
 		return Path(".beam"), nil
-	case hdr[0] == '\x1f' && hdr[1] == '\x8b':
+	case bytes.HasPrefix(hdr, gzipMagic):
 		return Path(".gzip"), nil
-	case hdr[0] == '\x78' && hdr[1] == '\x5E':
+	case bytes.HasPrefix(hdr, ZMagic):
 		return Path(".Z"), nil
 	}
 	return nil, nil
+}
+
+func initializeHeaderPool() {
+	initializeOnce.Do(func() {
+		headerPool = pool.NewBufferPool(runtime.GOMAXPROCS(0))
+	})
 }
 
 // Path returns a filetype based strictly on file path.
