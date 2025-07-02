@@ -448,7 +448,11 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 
 		b := buildBehavior(m, matchedStrings, key, ruleURL, risk)
 
-		handleMetadata(m, b, fr, override, mrsMap, &pledges, &caps, &syscalls)
+		// if the rule has an override tag but is not overriding a valid rule,
+		// ignore this match rule so that we don't show errant false positive rules in reports
+		if !parseMetadata(m, b, fr, override, mrsMap, &pledges, &caps, &syscalls) {
+			continue
+		}
 
 		// Fix YARA Forge rules that record their author URL as reference URLs
 		if strings.HasPrefix(b.RuleURL, b.ReferenceURL) {
@@ -476,8 +480,6 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 		}
 
 		updateBehavior(fr, b, key)
-
-		// TODO: If we match multiple rules within a single namespace, merge matchstrings
 	}
 
 	// Update the behaviors to account for overrides
@@ -589,34 +591,19 @@ func buildBehavior(m *yarax.Rule, matchedStrings []string, key string, ruleURL s
 	}
 }
 
-func handleMetadata(m *yarax.Rule, b *malcontent.Behavior, fr *malcontent.FileReport, override bool, mrsMap map[string]*yarax.Rule, pledges *[]string, caps *[]string, syscalls *[]string) {
+func parseMetadata(m *yarax.Rule, b *malcontent.Behavior, fr *malcontent.FileReport, override bool, mrsMap map[string]*yarax.Rule, pledges *[]string, caps *[]string, syscalls *[]string) bool {
 	k := ""
 	v := ""
+
+	// valid represents whether a rule's metadata contains a legitimate override
+	// or is otherwise valid for the matching rule
+	valid := true
 
 	for _, meta := range m.Metadata() {
 		k = meta.Identifier()
 		v = fmt.Sprintf("%s", meta.Value())
 		// Empty data is unusual, so just ignore it.
 		if k == "" || v == "" {
-			continue
-		}
-
-		// If we find a match in the map for the metadata key, that's the rule to override
-		// Store this rule (the override) in the fr.Overrides behavior slice
-		// If an override rule is not overriding a valid rule, log an error
-		_, exists := mrsMap[k]
-		switch {
-		case exists && override:
-			var overrideSev int
-			if sev, ok := Levels[v]; ok {
-				overrideSev = sev
-			}
-			b.RiskLevel = RiskLevels[overrideSev]
-			b.RiskScore = overrideSev
-			b.Override = append(b.Override, k)
-			fr.Overrides = append(fr.Overrides, b)
-		case !exists && override:
-			// TODO: return error if override references an unknown rule name
 			continue
 		}
 
@@ -656,14 +643,47 @@ func handleMetadata(m *yarax.Rule, b *malcontent.Behavior, fr *malcontent.FileRe
 			// YARAforge forgets to encode spaces
 			b.RuleURL = fixURL(v)
 		case "pledge":
-			*pledges = append(*pledges, v)
+			// pledges should not be nil when we get here, but guard against it
+			if pledges != nil {
+				*pledges = append(*pledges, v)
+			}
 		case "syscall":
-			sy := strings.Split(v, ",")
-			*syscalls = append(*syscalls, sy...)
+			// syscalls should not be nil when we get here, but guard against it
+			if syscalls != nil {
+				calls := strings.Split(v, ",")
+				*syscalls = append(*syscalls, calls...)
+			}
 		case "cap":
-			*caps = append(*caps, v)
+			// caps should not be nil when we get here, but guard against it
+			if caps != nil {
+				*caps = append(*caps, v)
+			}
+		case "filetypes":
+			continue
+		// If we find a match in the map for the metadata key after exhausting known keys, that's the rule to override
+		// Store this rule (the override) in the fr.Overrides behavior slice
+		// If an override rule is not overriding a valid rule, set `valid` to false so we can
+		// skip the parent rule match in the report
+		default:
+			_, exists := mrsMap[k]
+			switch {
+			case exists && override:
+				var overrideSev int
+				if sev, ok := Levels[v]; ok {
+					overrideSev = sev
+				}
+				b.RiskLevel = RiskLevels[overrideSev]
+				b.RiskScore = overrideSev
+				b.Override = append(b.Override, k)
+				fr.Overrides = append(fr.Overrides, b)
+			case !exists && override:
+				valid = false
+				continue
+			}
 		}
 	}
+
+	return valid
 }
 
 func updateBehavior(fr *malcontent.FileReport, b *malcontent.Behavior, key string) {

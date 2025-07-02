@@ -43,7 +43,6 @@ os/env/get: low
 os/kernel/seccomp: low
 privesc/setuid: low
 privesc/sudo: medium
-privesc/sudoers: low
 process/chroot: low
 process/groupid_set: low
 process/groups_set: low

@@ -1,7 +1,6 @@
 # javascript/clean/powershell.js: medium
 c2/tool_transfer/os: low
 exec/shell/power: medium
-false-positives/opensearch_dashboard: low
 fs/directory/remove: low
 fs/file/copy: medium
 fs/file/delete: medium
