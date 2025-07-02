@@ -1,7 +1,7 @@
 # javascript/clean/highlight.esm.js: medium
 anti-behavior/random_behavior: low
 anti-static/obfuscation/js: medium
-anti-static/obfuscation/strtoi: medium
+anti-static/obfuscation/math: medium
 c2/addr/ip: medium
 c2/connect/ping_pong: medium
 c2/tool_transfer/arch: low

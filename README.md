@@ -123,7 +123,7 @@ Requirements:
 * [pkgconf](http://pkgconf.org/) - required by Go to find C dependencies, included in many UNIX distributions
 * [libssl-dev](https://packages.debian.org/buster/libssl-dev) package
 
-To install yara-x, first install Rust and then run `make install-yara-x` which will clone the yara-x repository and install yara-x's dependenicies and its C API.
+To install yara-x, first install Rust and then run `make install-yara-x` which will clone the yara-x repository and install yara-x's dependencies and its C API.
 
 ### Building locally in Debian/Ubuntu
 
@@ -132,11 +132,11 @@ To install yara-x, first install Rust and then run `make install-yara-x` which w
    ```bash
    sudo apt-get install -y pkgconf libssl-dev
    ```
-   
+
    Make sure [Go](https://go.dev/doc/install) and [Rust](https://www.rust-lang.org/tools/install) are installed
 
 2. Run `make install-yara-x` to build the yara-x C API. (The
-   `yara_xcapi.pc` file will be generated under `./out/lib/pkgconfig`. 
+   `yara_xcapi.pc` file will be generated under `./out/lib/pkgconfig`.
    For more information about the yara-x C API, reference the documentation here: https://virustotal.github.io/yara-x/docs/api/c/c-/#building-the-c-library.).
 
 3. Build the malcontent binary with:

@@ -3,7 +3,7 @@ anti-behavior/random_behavior: low
 anti-static/obfuscation/bool: medium
 anti-static/obfuscation/hex: medium
 anti-static/obfuscation/js: high
-anti-static/obfuscation/strtoi: medium
+anti-static/obfuscation/math: medium
 data/encoding/int: medium
 fs/directory/create: low
 sus/exclamation: medium
