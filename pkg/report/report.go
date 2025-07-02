@@ -662,8 +662,8 @@ func parseMetadata(m *yarax.Rule, b *malcontent.Behavior, fr *malcontent.FileRep
 			continue
 		// If we find a match in the map for the metadata key after exhausting known keys, that's the rule to override
 		// Store this rule (the override) in the fr.Overrides behavior slice
-		// If an override rule is not overriding a valid rule, return early since the parent rule
-		// should not be considered a valid rule match (i.e., this is not valid metadata)
+		// If an override rule is not overriding a valid rule, set `valid` to false so we can
+		// skip the parent rule match in the report
 		default:
 			_, exists := mrsMap[k]
 			switch {
