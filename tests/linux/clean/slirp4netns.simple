@@ -34,7 +34,6 @@ exec/shell/TERM: low
 exec/shell/exec: medium
 exec/system_controls/systemd: low
 exec/tty/vhangup: low
-false-positives/slirp: low
 fs/attributes/remove: medium
 fs/attributes/set: medium
 fs/directory/create: low

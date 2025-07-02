@@ -1,12 +1,11 @@
 rule vmtools: override {
   meta:
-    description                      = "vmtools"
-    backdoor                         = "medium"
-    linux_critical_system_paths_high = "medium"
-    proc_net_route_high              = "medium"
-    proc_s_exe                       = "medium"
-    sys_net_recon_exfil              = "medium"
-    proc_s_cmdline                   = "medium"
+    description         = "vmtools"
+    backdoor            = "medium"
+    proc_net_route_high = "medium"
+    proc_s_exe          = "medium"
+    sys_net_recon_exfil = "medium"
+    proc_s_cmdline      = "medium"
 
   strings:
     $vmtools   = "VMTools" fullword

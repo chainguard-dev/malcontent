@@ -2,7 +2,6 @@ rule snapd: override linux {
   meta:
     description           = "snapd"
     nohup                 = "medium"
-    login_records         = "medium"
     dev_mem               = "medium"
     dev_mmc               = "medium"
     busybox_runner        = "medium"

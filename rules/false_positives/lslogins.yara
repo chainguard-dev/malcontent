@@ -1,7 +1,7 @@
 rule lastlogins: override linux {
   meta:
-    description   = "lastlogins"
-    login_records = "low"
+    description    = "lastlogins"
+    current_logins = "low"
 
   strings:
     $lastlogin = "LAST-LOGIN"

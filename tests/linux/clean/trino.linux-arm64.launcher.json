@@ -932,7 +932,7 @@
             "RiskLevel": "MEDIUM",
             "Overrides": [
                 {
-                    "Description": "trino upx override",
+                    "Description": "https://trino.io/ - UPX encrypted and crazy",
                     "MatchStrings": [
                         "kTixuOsFBOtGYSTLRLWK6G",
                         "Go buildinf",
@@ -954,7 +954,7 @@
                     ]
                 },
                 {
-                    "Description": "trino upx override",
+                    "Description": "https://trino.io/ - UPX encrypted and crazy",
                     "MatchStrings": [
                         "kTixuOsFBOtGYSTLRLWK6G",
                         "Go buildinf",
@@ -976,7 +976,7 @@
                     ]
                 },
                 {
-                    "Description": "trino upx override",
+                    "Description": "https://trino.io/ - UPX encrypted and crazy",
                     "MatchStrings": [
                         "kTixuOsFBOtGYSTLRLWK6G",
                         "Go buildinf",
@@ -998,7 +998,7 @@
                     ]
                 },
                 {
-                    "Description": "trino upx override",
+                    "Description": "https://trino.io/ - UPX encrypted and crazy",
                     "MatchStrings": [
                         "kTixuOsFBOtGYSTLRLWK6G",
                         "Go buildinf",

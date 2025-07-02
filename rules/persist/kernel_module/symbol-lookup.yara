@@ -1,4 +1,4 @@
-rule kallsyms_lookup: high linux {
+rule kallsyms_lookup: high {
   meta:
     description = "access unexported kernel symbols"
     ref         = "https://lwn.net/Articles/813350/"
@@ -15,9 +15,10 @@ rule kallsyms_lookup: high linux {
     filesize < 1MB and $ref and none of ($not*)
 }
 
-rule kallsyms: medium linux {
+rule kallsyms: medium {
   meta:
     description = "access kernel symbols"
+    filetypes   = "c,elf,so"
 
   strings:
     $kallsyms = "/proc/kallsyms"
@@ -26,11 +27,10 @@ rule kallsyms: medium linux {
     any of them
 }
 
-rule bpftrace: override linux {
+rule bpftrace: medium {
   meta:
     description = "bpftrace"
     filetypes   = "c,elf,so"
-    kallsyms    = "medium"
 
   strings:
     $ref2 = "BPFTRACE" fullword
@@ -39,7 +39,7 @@ rule bpftrace: override linux {
     filesize < 2MB and any of them
 }
 
-rule bpf: override linux {
+rule bpf: override {
   meta:
     description     = "libbpf"
     filetypes       = "c,so,elf"
