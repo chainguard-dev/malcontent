@@ -6,6 +6,7 @@ rule fake_kworker: critical linux {
     $kworker1 = /\[{0,1}kworker\/[\w\%:\-\]]{1,16}/
     $kworker2 = "[kworker"
 
+    $not_dockworker      = "dockworker/MS"
     $not_rescue          = "kworker/R-%s"
     $not_psutil_comment1 = "root           4   0.0    0.0B    0.0B   -20   idle  Mar27  00:00  kworker/0:0H"
     $not_psutil_comment2 = "root       20414   0.0    0.0B    0.0B         idle  Apr04  00:00  kworker/4:2"

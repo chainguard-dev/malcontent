@@ -4,13 +4,13 @@ rule killer_miner_panchansminingisland: critical {
     filetypes   = "elf"
 
   strings:
-    $ = "killer"
-    $ = "miner"
-    $ = "p2p"
-    $ = "protector"
-    $ = "rootkit"
-    $ = "spreader"
-    $ = "updater"
+    $ = "killer" fullword
+    $ = "miner" fullword
+    $ = "p2p" fullword
+    $ = "protector" fullword
+    $ = "rootkit" fullword
+    $ = "spreader" fullword
+    $ = "updater" fullword
 
     $not_pypi_index = "testpack-id-lb001"
 

@@ -231,8 +231,10 @@ rule php_at_eval: critical {
     filetypes   = "php"
 
   strings:
-    $at_eval   = /@\beval\s{0,32}\(\s{0,32}(\$\w{0,32}|\.\s{0,32}"[^"]{0,32}"|\.\s{0,32}'[^']{0,32}'|\w+\(\s{0,32}\))/
-    $not_empty = "eval()"
+    $at_eval      = /@\beval\s{0,32}\(\s{0,32}(\$\w{0,32}|\.\s{0,32}"[^"]{0,32}"|\.\s{0,32}'[^']{0,32}'|\w+\(\s{0,32}\))/
+    $not_empty    = "eval()"
+    $not_phpunit1 = "This file is part of PHPUnit."
+    $not_phpunit2 = "(c) Sebastian Bergmann <sebastian@phpunit.de>"
 
   condition:
     $at_eval and none of ($not*)
