@@ -2,7 +2,7 @@
 3P/elastic/infostealer_wallets: critical
 anti-behavior/blocklist/hostname: critical
 anti-behavior/blocklist/mac_addr: critical
-anti-behavior/blocklist/user: critical
+anti-behavior/blocklist/user: high
 anti-behavior/random_behavior: low
 c2/addr/discord: medium
 c2/addr/telegram: medium
