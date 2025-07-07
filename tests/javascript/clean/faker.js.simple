@@ -1,5 +1,4 @@
 # javascript/clean/faker.js: medium
-anti-behavior/blocklist/user: low
 anti-behavior/random_behavior: low
 anti-static/obfuscation/js: medium
 anti-static/obfuscation/math: medium
