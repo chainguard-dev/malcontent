@@ -145,14 +145,20 @@ func GetExt(path string) string {
 	base = versionRegex.ReplaceAllString(base, "")
 
 	ext := filepath.Ext(base)
+	if ext == "" {
+		return ""
+	}
 
-	if ext != "" && strings.Contains(base, ".") {
-		parts := strings.Split(base, ".")
-		if len(parts) > 2 {
-			subExt := fmt.Sprintf(".%s%s", parts[len(parts)-2], ext)
-			if _, ok := ArchiveMap[subExt]; ok {
-				return subExt
-			}
+	lastDot := strings.LastIndex(base, ".")
+	if lastDot == -1 {
+		return ext
+	}
+
+	prevDot := strings.LastIndex(base[:lastDot], ".")
+	if prevDot != -1 {
+		subExt := base[prevDot:]
+		if _, ok := ArchiveMap[subExt]; ok {
+			return subExt
 		}
 	}
 
