@@ -289,7 +289,7 @@ rule PDF_in_LNK
         sharing = "TLP:WHITE"
         source = "BARTBLAZE"
         author = "@bartblaze"
-        description = "Identifies Adobe Acrobat artefacts in shortcut (LNK) files."
+        description = "Identifies Adobe Acrobat artefacts in shortcut (LNK) files. A PDF document is typically used as decoy in a malicious LNK."
         category = "INFO"
 
     strings:
