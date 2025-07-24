@@ -174,7 +174,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	// This is a short-circuit that avoids any report generation logic
 	risk := report.HighestMatchRisk(mrs)
 	threshold := max(3, c.MinFileRisk, c.MinRisk)
-	if c.Scan && risk < threshold {
+	if c.Scan && risk < threshold && !c.QuantityIncreasesRisk {
 		fr := &malcontent.FileReport{Skipped: "overall risk too low for scan", Path: path}
 		if isArchive {
 			os.RemoveAll(path)
@@ -182,7 +182,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		return fr, nil
 	}
 
-	fr, err := report.Generate(ctx, path, mrs, c, archiveRoot, logger, fc, kind)
+	fr, err := report.Generate(ctx, path, mrs, c, archiveRoot, logger, fc, kind, risk)
 	if err != nil {
 		return nil, NewFileReportError(err, path, TypeGenerateError)
 	}
