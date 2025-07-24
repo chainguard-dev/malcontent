@@ -377,7 +377,7 @@ func fileMatchesRule(meta []yarax.Metadata, ext string) bool {
 	return true
 }
 
-func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcontent.Config, expath string, _ *clog.Logger, fc []byte, kind *programkind.FileType) (*malcontent.FileReport, error) {
+func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcontent.Config, expath string, _ *clog.Logger, fc []byte, kind *programkind.FileType, highestRisk int) (*malcontent.FileReport, error) {
 	if ctx.Err() != nil {
 		return &malcontent.FileReport{}, ctx.Err()
 	}
@@ -408,7 +408,6 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 	risk := 0
 	riskCounts := make(map[int]int, 0)
 
-	highestRisk := HighestMatchRisk(mrs)
 	// Store match rules in a map for future override operations
 	mrsMap := createMatchRulesMap(mrs, matchCount)
 
@@ -435,9 +434,9 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 		switch {
 		case risk == -1:
 			continue
-		case risk < minScore && !ignoreMalcontent && !override:
+		case !c.Scan && risk < minScore && !ignoreMalcontent && !override:
 			continue
-		case c.Scan && risk < highestRisk && !ignoreMalcontent && !override:
+		case c.Scan && risk < highestRisk && !c.QuantityIncreasesRisk && !ignoreMalcontent && !override:
 			continue
 		}
 
@@ -483,13 +482,15 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 	}
 
 	// Update the behaviors to account for overrides
-	fr.Behaviors = handleOverrides(fr.Behaviors, fr.Overrides, minScore)
+	fr.Behaviors = handleOverrides(fr.Behaviors, fr.Overrides, minScore, c.Scan, c.QuantityIncreasesRisk)
 
 	// Adjust the overall risk if we deviated from overallRiskScore
 	// Scans will still need to drop <= medium results
-	newRisk := highestBehaviorRisk(fr)
-	if overallRiskScore != newRisk {
-		overallRiskScore = newRisk
+	overallRiskScore = highestBehaviorRisk(fr)
+
+	// If something has a lot of high, it's probably critical
+	if c.QuantityIncreasesRisk && upgradeRisk(ctx, overallRiskScore, riskCounts, size) {
+		overallRiskScore = CRITICAL
 	}
 
 	if c.Scan && overallRiskScore < HIGH {
@@ -501,11 +502,6 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 
 	if all(ignoreSelf, fr.IsMalcontent, ignoreMalcontent, isMalBinary) {
 		fr.Skipped = "ignoring malcontent binary"
-	}
-
-	// If something has a lot of high, it's probably critical
-	if c.QuantityIncreasesRisk && upgradeRisk(ctx, overallRiskScore, riskCounts, size) {
-		overallRiskScore = 4
 	}
 
 	slices.Sort(pledges)
@@ -732,8 +728,6 @@ func upgradeRisk(ctx context.Context, riskScore int, riskCounts map[int]int, siz
 		upgrade = true
 	case highCount > 6:
 		upgrade = true
-	case !upgrade:
-		upgrade = false
 	}
 
 	clog.DebugContextf(ctx, "upgrading risk: high=%d, size=%d", highCount, size)
@@ -779,7 +773,7 @@ func highestBehaviorRisk(fr *malcontent.FileReport) int {
 }
 
 // handleOverrides modifies the behavior slice based on the contents of the override slice.
-func handleOverrides(original, override []*malcontent.Behavior, minScore int) []*malcontent.Behavior {
+func handleOverrides(original, override []*malcontent.Behavior, minScore int, scan, quantityIncreasesRisk bool) []*malcontent.Behavior {
 	behaviorMap := make(map[string]*malcontent.Behavior, len(original))
 	for _, b := range original {
 		behaviorMap[b.RuleName] = b
@@ -798,6 +792,11 @@ func handleOverrides(original, override []*malcontent.Behavior, minScore int) []
 
 	modified := make([]*malcontent.Behavior, 0, len(behaviorMap))
 	for _, b := range behaviorMap {
+		// if running a scan and using quantityIncreasesRisk,
+		// append every behavior so we can handle filtering correctly
+		if scan && quantityIncreasesRisk && b.RiskScore >= HIGH {
+			modified = append(modified, b)
+		}
 		if b.RiskScore >= minScore {
 			modified = append(modified, b)
 		}
