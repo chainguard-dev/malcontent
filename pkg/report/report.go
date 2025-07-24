@@ -794,7 +794,7 @@ func handleOverrides(original, override []*malcontent.Behavior, minScore int, sc
 	for _, b := range behaviorMap {
 		// if running a scan and using quantityIncreasesRisk,
 		// append every behavior so we can handle filtering correctly
-		if scan && quantityIncreasesRisk && b.RiskScore >= 3 {
+		if scan && quantityIncreasesRisk && b.RiskScore >= HIGH {
 			modified = append(modified, b)
 		}
 		if b.RiskScore >= minScore {
