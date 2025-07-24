@@ -490,7 +490,7 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 
 	// If something has a lot of high, it's probably critical
 	if c.QuantityIncreasesRisk && upgradeRisk(ctx, overallRiskScore, riskCounts, size) {
-		overallRiskScore = 4
+		overallRiskScore = CRITICAL
 	}
 
 	if c.Scan && overallRiskScore < HIGH {
