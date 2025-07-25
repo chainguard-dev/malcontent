@@ -8,14 +8,14 @@ rule PowerTool
         version = "1.0"
         creation_date = "2021-07-01"
         first_imported = "2021-12-30"
-        last_modified = "2025-03-10"
+        last_modified = "2025-07-24"
         status = "RELEASED"
         sharing = "TLP:WHITE"
         source = "BARTBLAZE"
         author = "@bartblaze"
         description = "Identifies PowerTool, sometimes used by attackers to disable security software."
-        category = "MALWARE"
-        malware = "POWERTOOL"
+        category = "TOOL"
+        tool = "POWERTOOL"
         reference = "https://www.softpedia.com/get/Antivirus/Removal-Tools/ithurricane-PowerTool.shtml"
 
 
