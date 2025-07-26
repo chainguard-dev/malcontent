@@ -377,6 +377,51 @@ func fileMatchesRule(meta []yarax.Metadata, ext string) bool {
 	return true
 }
 
+// skipMatch determines whether to avoid processing a rule match.
+func skipMatch(ignoreMalcontent, override, scan bool, risk, threshold, highestRisk int) bool {
+	switch {
+	case risk == -1:
+		return true
+	// The malcontent rule is classified as harmless
+	// A !ignoreMalcontent condition will prevent the rule from being filtered
+	case !scan && risk < threshold && !ignoreMalcontent && !override:
+		return true
+	// If running a scan as opposed to an analyze,
+	// drop any matches that fall below the highest risk
+	case scan && risk < highestRisk && !ignoreMalcontent && !override:
+		return true
+	}
+	return false
+}
+
+// skipScanFile determines whether a scanned file should
+// be ignored when running a scan and the file's risk is below HIGH.
+func skipScanFile(scan bool, overallRiskScore int) bool {
+	if scan && overallRiskScore < HIGH {
+		return true
+	}
+	return false
+}
+
+// applyCriticalUpgrade evaluates whether to apply a risk increase
+// depending on c.QuantityIncreasesRisk, the file's high behavior count, and the file's size.
+func applyCriticalUpgrade(ctx context.Context, quantityIncreasesRisk bool, riskCounts map[int]int, overallRiskScore int, size int64) bool {
+	// If something has a lot of high, it's probably critical
+	if quantityIncreasesRisk && upgradeRisk(ctx, overallRiskScore, riskCounts, size) {
+		return true
+	}
+	return false
+}
+
+// isMalcontent determines whether the scanned file is the malcontent binary itself
+// which causes false positives and is generally better to ignore entirely.
+func isMalcontent(path string) bool {
+	if strings.ToLower(filepath.Base(path)) == NAME || strings.ToLower(filepath.Base(path)) == "mal" {
+		return true
+	}
+	return false
+}
+
 func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcontent.Config, expath string, _ *clog.Logger, fc []byte, kind *programkind.FileType, highestRisk int) (*malcontent.FileReport, error) {
 	if ctx.Err() != nil {
 		return &malcontent.FileReport{}, ctx.Err()
@@ -416,10 +461,8 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 			ignoreMalcontent = true
 		}
 
-		if kind != nil && kind.Ext != "" {
-			if !fileMatchesRule(m.Metadata(), kind.Ext) {
-				continue
-			}
+		if kind != nil && kind.Ext != "" && !fileMatchesRule(m.Metadata(), kind.Ext) {
+			continue
 		}
 
 		override := slices.Contains(m.Tags(), "override")
@@ -427,16 +470,8 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 		risk = behaviorRisk(m.Namespace(), m.Identifier(), m.Tags())
 		overallRiskScore = max(overallRiskScore, risk)
 		riskCounts[risk]++
-		// The malcontent rule is classified as harmless
-		// A !ignoreMalcontent condition will prevent the rule from being filtered
-		// If running a scan as opposed to an analyze,
-		// drop any matches that fall below the highest risk
-		switch {
-		case risk == -1:
-			continue
-		case !c.Scan && risk < minScore && !ignoreMalcontent && !override:
-			continue
-		case c.Scan && risk < highestRisk && !c.QuantityIncreasesRisk && !ignoreMalcontent && !override:
+
+		if skipMatch(ignoreMalcontent, override, c.Scan, risk, minScore, highestRisk) {
 			continue
 		}
 
@@ -488,19 +523,15 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 	// Scans will still need to drop <= medium results
 	overallRiskScore = highestBehaviorRisk(fr)
 
-	// If something has a lot of high, it's probably critical
-	if c.QuantityIncreasesRisk && upgradeRisk(ctx, overallRiskScore, riskCounts, size) {
+	if applyCriticalUpgrade(ctx, c.QuantityIncreasesRisk, riskCounts, overallRiskScore, size) {
 		overallRiskScore = CRITICAL
 	}
 
-	if c.Scan && overallRiskScore < HIGH {
+	if skipScanFile(c.Scan, overallRiskScore) {
 		fr.Skipped = "overall risk too low for scan"
 	}
 
-	// Check for both the full and shortened variants of malcontent
-	isMalBinary := (filepath.Base(path) == NAME || filepath.Base(path) == "mal")
-
-	if all(ignoreSelf, fr.IsMalcontent, ignoreMalcontent, isMalBinary) {
+	if all(ignoreSelf, fr.IsMalcontent, ignoreMalcontent, isMalcontent(path)) {
 		fr.Skipped = "ignoring malcontent binary"
 	}
 
