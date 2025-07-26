@@ -5,7 +5,6 @@ package report
 
 import (
 	"context"
-	"crypto/sha256"
 	"fmt"
 	"net/url"
 	"path/filepath"
@@ -319,21 +318,6 @@ func matchStrings(ruleName string, ms []string) []string {
 	return longestUnique(raw)
 }
 
-// sizeAndChecksum calculates size and checksum using already-read file contents if available.
-func sizeAndChecksum(fc []byte) (int64, string) {
-	var checksum string
-	var size int64
-
-	if len(fc) > 0 {
-		size = int64(len(fc))
-		h := sha256.New()
-		h.Write(fc)
-		checksum = fmt.Sprintf("%x", h.Sum(nil))
-	}
-
-	return size, checksum
-}
-
 // fixURL fixes badly formed URLs.
 func fixURL(s string) string {
 	// YARAforge forgets to encode spaces, but encodes everything else
@@ -424,7 +408,7 @@ func isMalcontent(path string) bool {
 	return false
 }
 
-func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcontent.Config, expath string, _ *clog.Logger, fc []byte, kind *programkind.FileType, highestRisk int) (*malcontent.FileReport, error) {
+func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcontent.Config, expath string, _ *clog.Logger, fc []byte, size int64, checksum string, kind *programkind.FileType, highestRisk int) (*malcontent.FileReport, error) {
 	if ctx.Err() != nil {
 		return &malcontent.FileReport{}, ctx.Err()
 	}
@@ -438,7 +422,6 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 	ignoreSelf := c.IgnoreSelf
 
 	ignore := buildIgnoreMap(ignoreTags)
-	size, checksum := sizeAndChecksum(fc)
 
 	displayPath := trimDisplayPath(path, expath, c)
 
