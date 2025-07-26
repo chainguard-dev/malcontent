@@ -173,7 +173,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	// If running a scan, only generate reports for mrs that satisfy the risk threshold of 3
 	// This is a short-circuit that avoids any report generation logic
 	risk := report.HighestMatchRisk(mrs)
-	threshold := max(3, c.MinFileRisk, c.MinRisk)
+	threshold := max(report.HIGH, c.MinFileRisk, c.MinRisk)
 	if c.Scan && risk < threshold && !c.QuantityIncreasesRisk {
 		fr := &malcontent.FileReport{Skipped: "overall risk too low for scan", Path: path}
 		if isArchive {

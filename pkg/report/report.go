@@ -25,7 +25,8 @@ import (
 const NAME string = "malcontent"
 
 const (
-	HARMLESS int = iota
+	INVALID int = iota - 1
+	HARMLESS
 	LOW
 	MEDIUM
 	HIGH
@@ -34,11 +35,12 @@ const (
 
 // Map to handle RiskScore -> RiskLevel conversions.
 var RiskLevels = map[int]string{
-	0: "NONE",     // harmless: common to all executables, no system impact
-	1: "LOW",      // undefined: low impact, common to good and bad executables
-	2: "MEDIUM",   // notable: may have impact, but common
-	3: "HIGH",     // suspicious: uncommon, but could be legit
-	4: "CRITICAL", // critical: certainly malware
+	INVALID:  "NONE",     // inalid: unmodified initial value which should not happen
+	HARMLESS: "NONE",     // harmless: common to all executables, no system impact
+	LOW:      "LOW",      // undefined: low impact, common to good and bad executables
+	MEDIUM:   "MEDIUM",   // notable: may have impact, but common
+	HIGH:     "HIGH",     // suspicious: uncommon, but could be legit
+	CRITICAL: "CRITICAL", // critical: certainly malware
 }
 
 // yaraForge has some very, very long rule names.
@@ -88,17 +90,17 @@ var (
 
 // Map to handle RiskLevel -> RiskScore conversions.
 var Levels = map[string]int{
-	"ignore":     -1,
-	"none":       -1,
-	"harmless":   0,
-	"low":        1,
-	"notable":    2,
-	"medium":     2,
-	"suspicious": 3,
-	"weird":      3,
-	"high":       3,
-	"crit":       4,
-	"critical":   4,
+	"ignore":     INVALID,
+	"none":       INVALID,
+	"harmless":   HARMLESS,
+	"low":        LOW,
+	"notable":    MEDIUM,
+	"medium":     MEDIUM,
+	"suspicious": HIGH,
+	"weird":      HIGH,
+	"high":       HIGH,
+	"crit":       CRITICAL,
+	"critical":   CRITICAL,
 }
 
 func thirdPartyKey(path string, rule string) string {
@@ -203,29 +205,29 @@ func ignoreMatch(tags []string, ignoreTags map[string]bool) bool {
 }
 
 func behaviorRisk(ns string, rule string, tags []string) int {
-	risk := 1
+	risk := LOW
 
 	if thirdParty(ns) {
-		risk = 3
+		risk = HIGH
 		src := strings.Split(ns, "/")[1]
 
 		switch src {
 		case "JPCERT", "YARAForge", "bartblaze", "huntress", "elastic":
-			risk = 4
+			risk = CRITICAL
 			if strings.Contains(strings.ToLower(ns), "generic") ||
 				strings.Contains(strings.ToLower(rule), "generic") {
-				risk = 3
+				risk = HIGH
 			}
 		}
 
 		if strings.Contains(strings.ToLower(ns), "keyword") ||
 			strings.Contains(strings.ToLower(rule), "keyword") {
-			risk = 2
+			risk = MEDIUM
 		}
 	}
 
 	if strings.Contains(ns, "combo/") {
-		risk = 2
+		risk = MEDIUM
 	}
 
 	for _, tag := range tags {
@@ -380,7 +382,7 @@ func fileMatchesRule(meta []yarax.Metadata, ext string) bool {
 // skipMatch determines whether to avoid processing a rule match.
 func skipMatch(ignoreMalcontent, override, scan bool, risk, threshold, highestRisk int) bool {
 	switch {
-	case risk == -1:
+	case risk == INVALID:
 		return true
 	// The malcontent rule is classified as harmless
 	// A !ignoreMalcontent condition will prevent the rule from being filtered
@@ -737,10 +739,10 @@ func updateBehavior(fr *malcontent.FileReport, b *malcontent.Behavior, key strin
 
 // upgradeRisk determines whether to upgrade risk based on finding density.
 func upgradeRisk(ctx context.Context, riskScore int, riskCounts map[int]int, size int64) bool {
-	if riskScore != 3 {
+	if riskScore != HIGH {
 		return false
 	}
-	highCount := riskCounts[3]
+	highCount := riskCounts[HIGH]
 	sizeMB := size / 1024 / 1024
 	upgrade := false
 
