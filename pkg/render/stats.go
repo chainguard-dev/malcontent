@@ -117,6 +117,11 @@ func PkgStatistics(_ *malcontent.Config, files *sync.Map) ([]malcontent.StrMetri
 }
 
 func Statistics(c *malcontent.Config, r *malcontent.Report) error {
+	// guard against nil reports
+	if r == nil {
+		return fmt.Errorf("unexpected nil report")
+	}
+
 	riskStats, totalRisks, processedFiles, skippedFiles := RiskStatistics(c, &r.Files)
 	pkgStats, width, totalBehaviors := PkgStatistics(c, &r.Files)
 

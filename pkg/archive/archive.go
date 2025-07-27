@@ -244,7 +244,7 @@ func handleDirectory(target string) error {
 
 // handleFile extracts valid files within .deb or .tar archives.
 func handleFile(target string, tr *tar.Reader) error {
-	buf := tarPool.Get(extractBuffer)
+	buf := tarPool.Get(extractBuffer) //nolint:nilaway // the buffer pool is created above
 	defer tarPool.Put(buf)
 
 	if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {

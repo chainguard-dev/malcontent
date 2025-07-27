@@ -70,6 +70,11 @@ func riskEmoji(score int) string {
 }
 
 func serializedStats(c *malcontent.Config, r *malcontent.Report) *Stats {
+	// guard against nil reports
+	if r == nil {
+		return &Stats{}
+	}
+
 	pkgStats, _, totalBehaviors := PkgStatistics(c, &r.Files)
 	riskStats, totalRisks, processedFiles, skippedFiles := RiskStatistics(c, &r.Files)
 

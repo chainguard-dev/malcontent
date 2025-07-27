@@ -40,7 +40,7 @@ func ExtractRPM(ctx context.Context, d, f string) error {
 		return nil
 	}
 
-	buf := archivePool.Get(extractBuffer)
+	buf := archivePool.Get(extractBuffer) //nolint:nilaway // the buffer pool is created in archive.go
 	defer archivePool.Put(buf)
 
 	pkg, err := rpm.Read(rpmFile)

@@ -101,8 +101,9 @@ func (r Terminal) Full(ctx context.Context, _ *malcontent.Config, rep *malconten
 		return ctx.Err()
 	}
 
+	// guard against nil reports
 	// Non-diff files are handled on the fly by File()
-	if rep.Diff == nil {
+	if rep == nil || rep.Diff == nil {
 		return nil
 	}
 
@@ -187,8 +188,13 @@ func nsLongName(s string) string {
 // split rule into namespace + resource/technique.
 func splitRuleID(s string) (string, string) {
 	parts := strings.Split(s, "/")
-	rest := strings.Join(parts[1:], "/")
-	return parts[0], rest
+	id := ""
+	rest := ""
+	if len(parts) > 0 {
+		id = parts[0]
+		rest = strings.Join(parts[1:], "/")
+	}
+	return id, rest
 }
 
 // suggestedWidth calculates a maximum terminal width to render against.

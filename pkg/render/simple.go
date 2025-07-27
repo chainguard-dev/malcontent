@@ -57,7 +57,8 @@ func (r Simple) Full(ctx context.Context, _ *malcontent.Config, rep *malcontent.
 		return ctx.Err()
 	}
 
-	if rep.Diff == nil {
+	// guard against nil reports
+	if rep == nil || rep.Diff == nil {
 		return nil
 	}
 

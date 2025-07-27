@@ -46,11 +46,11 @@ func (bp *BufferPool) Get(size int64) []byte {
 	bufInterface := bp.pool.Get()
 
 	bufPtr, ok := bufInterface.(*[]byte)
-	if !ok || bufPtr == nil {
+	if !ok {
 		return make([]byte, size)
 	}
 
-	if cap(*bufPtr) < int(size) {
+	if bufPtr != nil && cap(*bufPtr) < int(size) {
 		bp.pool.Put(bufPtr)
 		return make([]byte, size)
 	}
@@ -95,8 +95,13 @@ func NewScannerPool(yrs *yarax.Rules, count int) *ScannerPool {
 }
 
 // Get retrieves a scanner from the scanner pool, blocking if none are available.
-func (sp *ScannerPool) Get() *yarax.Scanner {
-	return <-sp.scanners
+func (sp *ScannerPool) Get(yrs *yarax.Rules) *yarax.Scanner {
+	if sp != nil {
+		return <-sp.scanners
+	}
+	// Guard against a nil scanner pool and
+	// create a new scanner with the cached rules as a fallback
+	return yarax.NewScanner(yrs)
 }
 
 // Put returns a scanner to the scanner pool.

@@ -118,8 +118,9 @@ func (r StringMatches) Full(ctx context.Context, _ *malcontent.Config, rep *malc
 		return ctx.Err()
 	}
 
+	// guard against nil reports
 	// Non-diff files are handled on the fly by File()
-	if rep.Diff == nil {
+	if rep == nil || rep.Diff == nil {
 		return nil
 	}
 

@@ -259,7 +259,7 @@ func File(path string) (*FileType, error) {
 
 	initializeHeaderPool()
 
-	buf := headerPool.Get(int64(headerSize))
+	buf := headerPool.Get(int64(headerSize)) //nolint:nilaway // the buffer pool is created above
 	defer headerPool.Put(buf)
 
 	f, err := os.Open(path)

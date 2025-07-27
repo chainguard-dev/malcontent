@@ -53,7 +53,7 @@ func ExtractGzip(ctx context.Context, d string, f string) error {
 		return nil
 	}
 
-	buf := archivePool.Get(extractBuffer)
+	buf := archivePool.Get(extractBuffer) //nolint:nilaway // the buffer pool is created in archive.go
 
 	gf, err := os.Open(f)
 	if err != nil {

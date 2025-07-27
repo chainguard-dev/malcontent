@@ -33,6 +33,11 @@ func (r YAML) Full(ctx context.Context, c *malcontent.Config, rep *malcontent.Re
 		return ctx.Err()
 	}
 
+	// guard against nil reports
+	if rep == nil {
+		return nil
+	}
+
 	// Make the sync.Map YAML-friendly
 	yr := Report{
 		Diff:   rep.Diff,
@@ -60,7 +65,9 @@ func (r YAML) Full(ctx context.Context, c *malcontent.Config, rep *malcontent.Re
 	})
 
 	if c != nil && c.Stats && yr.Diff == nil {
-		yr.Stats = serializedStats(c, rep)
+		if s := serializedStats(c, rep); s != nil {
+			yr.Stats = s
+		}
 	}
 
 	yaml, err := yaml.Marshal(yr)

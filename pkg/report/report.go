@@ -115,13 +115,16 @@ func thirdPartyKey(path string, rule string) string {
 	words = append(words, strings.Split(strings.ToLower(rule), "_")...)
 
 	// strip off the last word if it's a hex key
-	lastWord := words[len(words)-1]
-	_, err := strconv.ParseUint(lastWord, 16, 64)
-	if err == nil {
-		words = words[0 : len(words)-1]
+	lastWord := ""
+	if len(words) > 0 {
+		lastWord = words[len(words)-1]
+		_, err := strconv.ParseUint(lastWord, 16, 64)
+		if err == nil {
+			words = words[0 : len(words)-1]
+		}
 	}
 
-	var keepWords []string
+	keepWords := make([]string, 0, len(words))
 	for x, w := range words {
 		// ends with a date
 		if x == len(words)-1 && dateRe.MatchString(w) {
@@ -139,7 +142,10 @@ func thirdPartyKey(path string, rule string) string {
 		keepWords = keepWords[0:4]
 	}
 
-	src := keepWords[0]
+	src := ""
+	if len(keepWords) > 0 {
+		src = keepWords[0]
+	}
 
 	// Fix name for https://github.com/Neo23x0/signature-base within YARAForge
 	if src == "signature" {
@@ -173,18 +179,21 @@ func generateKey(src string, rule string) string {
 
 	dirParts := strings.Split(key, "/")
 	// ID's generally follow: `<namespace>/<resource>/<technique>`
-	ns := dirParts[0]
-	// namespaces can have dashes, like 'anti-static'
-	ns = strings.ReplaceAll(ns, "_", "-")
-	rsrc := dirParts[len(dirParts)-2]
-	tech := dirParts[len(dirParts)-1]
+	if len(dirParts) >= 1 {
+		ns := dirParts[0]
+		// namespaces can have dashes, like 'anti-static'
+		ns = strings.ReplaceAll(ns, "_", "-")
+		rsrc := dirParts[len(dirParts)-2]
+		tech := dirParts[len(dirParts)-1]
 
-	tech = strings.ReplaceAll(tech, rsrc, "")
-	tech = strings.ReplaceAll(tech, "__", "_")
-	tech = strings.Trim(tech, "_")
+		tech = strings.ReplaceAll(tech, rsrc, "")
+		tech = strings.ReplaceAll(tech, "__", "_")
+		tech = strings.Trim(tech, "_")
 
-	dirParts[0] = ns
-	dirParts[len(dirParts)-1] = tech
+		dirParts[0] = ns
+		dirParts[len(dirParts)-1] = tech
+	}
+
 	return strings.TrimSuffix(strings.Join(dirParts, "/"), "/")
 }
 
@@ -463,7 +472,10 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 		key = generateKey(m.Namespace(), m.Identifier())
 		ruleURL := generateRuleURL(m.Namespace(), m.Identifier())
 
-		matchedStrings := processMatchedStrings(fc, m)
+		var matchedStrings []string
+		if fc != nil {
+			matchedStrings = processMatchedStrings(fc, m)
+		}
 
 		b := buildBehavior(m, matchedStrings, key, ruleURL, risk)
 

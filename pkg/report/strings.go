@@ -107,7 +107,7 @@ func (mp *matchProcessor) process() []string {
 		matchPool = pool.NewBufferPool(len(mp.matches))
 	})
 
-	buffer := matchPool.Get(8)
+	buffer := matchPool.Get(8) //nolint:nilaway // the buffer pool is created above
 	defer matchPool.Put(buffer)
 
 	patternsCap := len(mp.patterns)
@@ -118,11 +118,15 @@ func (mp *matchProcessor) process() []string {
 		l := int(match.Length())
 		o := int(match.Offset())
 
-		if o < 0 || o+l > len(mp.fc) {
+		// if the match processor's file content is nil,
+		// or the offset is less than zero,
+		// or the match length + offset exceeds the size of the file,
+		// avoid any processing and continue
+		if len(mp.fc) == 0 || o < 0 || o+l > len(mp.fc) {
 			continue
 		}
 
-		matchBytes := mp.fc[o : o+l]
+		matchBytes := (mp.fc)[o : o+l]
 
 		if !containsUnprintable(matchBytes) {
 			if l <= cap(buffer) {
