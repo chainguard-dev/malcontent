@@ -5,12 +5,6 @@ import (
 	"sync"
 
 	yarax "github.com/VirusTotal/yara-x/go"
-	"github.com/chainguard-dev/malcontent/pkg/pool"
-)
-
-var (
-	initializeOnce sync.Once
-	matchPool      *pool.BufferPool
 )
 
 // StringPool holds data to handle string interning.
@@ -103,60 +97,47 @@ func (mp *matchProcessor) process() []string {
 	}
 	defer matchResultPool.Put(result)
 
-	initializeOnce.Do(func() {
-		matchPool = pool.NewBufferPool(len(mp.matches))
-	})
-
-	buffer := matchPool.Get(8) //nolint:nilaway // the buffer pool is created above
-	defer matchPool.Put(buffer)
-
-	patternsCap := len(mp.patterns)
-	var patterns []string
-
 	// #nosec G115 // ignore Type conversion which leads to integer overflow
 	for _, match := range mp.matches {
 		l := int(match.Length())
 		o := int(match.Offset())
 
-		// if the match processor's file content is nil,
+		// if the match processor's file content is empty,
 		// or the offset is less than zero,
 		// or the match length + offset exceeds the size of the file,
-		// avoid any processing and continue
+		// then avoid any processing and continue
 		if len(mp.fc) == 0 || o < 0 || o+l > len(mp.fc) {
 			continue
 		}
 
 		matchBytes := (mp.fc)[o : o+l]
 
-		if !containsUnprintable(matchBytes) {
-			if l <= cap(buffer) {
-				buffer = buffer[:l]
-				copy(buffer, matchBytes)
-				matchStr := string(buffer)
-				*result = append(*result, mp.pool.Intern(string([]byte(matchStr))))
+		switch !containsUnprintable(matchBytes) {
+		case true:
+			var matchStr string
+			if l <= cap(matchBytes) {
+				matchStr = string(append([]byte(nil), matchBytes[:l]...))
 			} else {
-				matchStr := string(matchBytes)
-				*result = append(*result, mp.pool.Intern(string([]byte(matchStr))))
+				matchStr = string(matchBytes)
 			}
-		} else {
-			if patterns == nil || cap(patterns) < patternsCap {
+			*result = append(*result, mp.pool.Intern(matchStr))
+		default:
+			patternsCap := len(mp.patterns)
+			var patterns []string
+			if len(patterns) == 0 || cap(patterns) < patternsCap {
 				patterns = make([]string, 0, patternsCap)
 			} else {
 				clear(patterns)
 				patterns = patterns[:0]
 			}
 			for _, p := range mp.patterns {
-				patterns = append(patterns, p.Identifier())
+				patterns = append(patterns, mp.pool.Intern(p.Identifier()))
 			}
-			compacted := slices.Compact(patterns)
-			*result = append(*result, compacted...)
+			*result = append(*result, slices.Compact(patterns)...)
 		}
 	}
 
-	finalResult := make([]string, len(*result))
-	copy(finalResult, *result)
-
-	return finalResult
+	return append([]string{}, *result...)
 }
 
 // containsUnprintable determines if a byte is a valid character.

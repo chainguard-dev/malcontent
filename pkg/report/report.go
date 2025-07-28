@@ -179,19 +179,20 @@ func generateKey(src string, rule string) string {
 
 	dirParts := strings.Split(key, "/")
 	// ID's generally follow: `<namespace>/<resource>/<technique>`
-	if len(dirParts) >= 1 {
-		ns := dirParts[0]
+	if len(dirParts) > 1 {
 		// namespaces can have dashes, like 'anti-static'
-		ns = strings.ReplaceAll(ns, "_", "-")
-		rsrc := dirParts[len(dirParts)-2]
-		tech := dirParts[len(dirParts)-1]
+		dirParts[0] = strings.ReplaceAll(dirParts[0], "_", "-")
 
-		tech = strings.ReplaceAll(tech, rsrc, "")
-		tech = strings.ReplaceAll(tech, "__", "_")
-		tech = strings.Trim(tech, "_")
-
-		dirParts[0] = ns
-		dirParts[len(dirParts)-1] = tech
+		var rsrc, tech string
+		// we need at least two parts to pull out resources and technique (potentially one in the same)
+		if len(dirParts) >= 2 {
+			rsrc = dirParts[len(dirParts)-2]
+			tech = dirParts[len(dirParts)-1]
+			tech = strings.ReplaceAll(tech, rsrc, "")
+			tech = strings.ReplaceAll(tech, "__", "_")
+			tech = strings.Trim(tech, "_")
+			dirParts[len(dirParts)-1] = tech
+		}
 	}
 
 	return strings.TrimSuffix(strings.Join(dirParts, "/"), "/")
@@ -472,10 +473,7 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 		key = generateKey(m.Namespace(), m.Identifier())
 		ruleURL := generateRuleURL(m.Namespace(), m.Identifier())
 
-		var matchedStrings []string
-		if fc != nil {
-			matchedStrings = processMatchedStrings(fc, m)
-		}
+		matchedStrings := processMatchedStrings(fc, m)
 
 		b := buildBehavior(m, matchedStrings, key, ruleURL, risk)
 
