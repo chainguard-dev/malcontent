@@ -192,7 +192,9 @@ func splitRuleID(s string) (string, string) {
 	rest := ""
 	if len(parts) > 0 {
 		id = parts[0]
-		rest = strings.Join(parts[1:], "/")
+		if len(parts) >= 1 {
+			rest = strings.Join(parts[1:], "/")
+		}
 	}
 	return id, rest
 }
