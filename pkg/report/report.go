@@ -120,8 +120,7 @@ func thirdPartyKey(path string, rule string) string {
 	if len(words) > 0 {
 		// strip off the last word if it's a hex key
 		lastWord = words[len(words)-1]
-		_, err := strconv.ParseUint(lastWord, 16, 64)
-		if err == nil {
+		if _, err := strconv.ParseUint(lastWord, 16, 64); err == nil {
 			words = words[0 : len(words)-1]
 		}
 	}
