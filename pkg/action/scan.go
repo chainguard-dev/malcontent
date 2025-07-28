@@ -18,6 +18,8 @@ import (
 	"sync/atomic"
 	"syscall"
 
+	"github.com/minio/sha256-simd"
+
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/archive"
 	"github.com/chainguard-dev/malcontent/pkg/compile"
@@ -49,20 +51,22 @@ var (
 
 // scanFD scans a file descriptor using memory mapping for efficient large file handling.
 // This avoids loading the entire file into memory while still using yara-x's byte slice scanning.
-func scanFD(scanner *yarax.Scanner, fd uintptr, logger *clog.Logger) ([]byte, *yarax.ScanResults, error) {
+// scanFD also returns the file's contents for match string extraction,
+// as well as the file's size and its checksum which were originally calculated separately as part of report generation.
+func scanFD(scanner *yarax.Scanner, fd uintptr, logger *clog.Logger) ([]byte, *yarax.ScanResults, int64, string, error) {
 	var stat syscall.Stat_t
 	if err := syscall.Fstat(int(fd), &stat); err != nil {
-		return nil, nil, fmt.Errorf("fstat failed: %w", err)
+		return nil, nil, 0, "", fmt.Errorf("fstat failed: %w", err)
 	}
 
 	size := stat.Size
 	if size == 0 {
 		mrs, err := scanner.Scan([]byte{})
-		return nil, mrs, err
+		return nil, mrs, 0, "", err
 	}
 
 	if size < 0 {
-		return nil, nil, fmt.Errorf("invalid file size: %d", size)
+		return nil, nil, 0, "", fmt.Errorf("invalid file size: %d", size)
 	}
 
 	if size > maxMmapSize {
@@ -73,7 +77,7 @@ func scanFD(scanner *yarax.Scanner, fd uintptr, logger *clog.Logger) ([]byte, *y
 
 	data, err := syscall.Mmap(int(fd), 0, int(size), syscall.PROT_READ, syscall.MAP_PRIVATE)
 	if err != nil {
-		return nil, nil, fmt.Errorf("mmap failed: %w", err)
+		return nil, nil, 0, "", fmt.Errorf("mmap failed: %w", err)
 	}
 	defer func() {
 		if unmapErr := syscall.Munmap(data); unmapErr != nil {
@@ -81,18 +85,21 @@ func scanFD(scanner *yarax.Scanner, fd uintptr, logger *clog.Logger) ([]byte, *y
 		}
 	}()
 
+	h := sha256.New()
+	h.Write(data)
+	checksum := fmt.Sprintf("%x", h.Sum(nil))
+
 	mrs, err := scanner.Scan(data)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, 0, "", err
 	}
 
 	// Create a copy of the data to return since the mmap will be unmapped
 	// This is necessary because report generation needs access to file content
-	// for checksum calculation and match string extraction
-	fc := make([]byte, len(data))
-	copy(fc, data)
+	// for match string extraction
+	fc := append([]byte(nil), data...)
 
-	return fc, mrs, err
+	return fc, mrs, size, checksum, err
 }
 
 // scanSinglePath YARA scans a single path and converts it to a fileReport.
@@ -164,7 +171,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	scanner := scannerPool.Get()
 	defer scannerPool.Put(scanner)
 
-	fc, mrs, err := scanFD(scanner, fd, logger)
+	fc, mrs, size, checksum, err := scanFD(scanner, fd, logger)
 	if err != nil {
 		logger.Debug("skipping", slog.Any("error", err))
 		return nil, err
@@ -173,7 +180,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	// If running a scan, only generate reports for mrs that satisfy the risk threshold of 3
 	// This is a short-circuit that avoids any report generation logic
 	risk := report.HighestMatchRisk(mrs)
-	threshold := max(3, c.MinFileRisk, c.MinRisk)
+	threshold := max(report.HIGH, c.MinFileRisk, c.MinRisk)
 	if c.Scan && risk < threshold && !c.QuantityIncreasesRisk {
 		fr := &malcontent.FileReport{Skipped: "overall risk too low for scan", Path: path}
 		if isArchive {
@@ -182,7 +189,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		return fr, nil
 	}
 
-	fr, err := report.Generate(ctx, path, mrs, c, archiveRoot, logger, fc, kind, risk)
+	fr, err := report.Generate(ctx, path, mrs, c, archiveRoot, logger, fc, size, checksum, kind, risk)
 	if err != nil {
 		return nil, NewFileReportError(err, path, TypeGenerateError)
 	}
