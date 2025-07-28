@@ -216,14 +216,16 @@ func behaviorRisk(ns string, rule string, tags []string) int {
 
 	if thirdParty(ns) {
 		risk = HIGH
-		src := strings.Split(ns, "/")[1]
+		src := strings.Split(ns, "/")
 
-		switch src {
-		case "JPCERT", "YARAForge", "bartblaze", "huntress", "elastic":
-			risk = CRITICAL
-			if strings.Contains(strings.ToLower(ns), "generic") ||
-				strings.Contains(strings.ToLower(rule), "generic") {
-				risk = HIGH
+		if len(src) > 1 {
+			switch src[1] {
+			case "JPCERT", "YARAForge", "bartblaze", "huntress", "elastic":
+				risk = CRITICAL
+				if strings.Contains(strings.ToLower(ns), "generic") ||
+					strings.Contains(strings.ToLower(rule), "generic") {
+					risk = HIGH
+				}
 			}
 		}
 
