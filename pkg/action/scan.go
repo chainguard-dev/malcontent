@@ -96,7 +96,7 @@ func scanFD(scanner *yarax.Scanner, fd uintptr, logger *clog.Logger) ([]byte, *y
 
 	// Create a copy of the data to return since the mmap will be unmapped
 	// This is necessary because report generation needs access to file content
-	// for checksum calculation and match string extraction
+	// for match string extraction
 	fc := append([]byte(nil), data...)
 
 	return fc, mrs, size, checksum, err
