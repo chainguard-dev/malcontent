@@ -114,9 +114,11 @@ func thirdPartyKey(path string, rule string) string {
 	// ELASTIC_Linux_Trojan_Gafgyt_E4A1982B
 	words = append(words, strings.Split(strings.ToLower(rule), "_")...)
 
-	// strip off the last word if it's a hex key
-	lastWord := ""
+	var lastWord string
+	// creating a slice with subDir initially should usually ensure this is at least one,
+	// but the subDir assignment may not result in a non-empty string
 	if len(words) > 0 {
+		// strip off the last word if it's a hex key
 		lastWord = words[len(words)-1]
 		_, err := strconv.ParseUint(lastWord, 16, 64)
 		if err == nil {
@@ -126,11 +128,8 @@ func thirdPartyKey(path string, rule string) string {
 
 	keepWords := make([]string, 0, len(words))
 	for x, w := range words {
-		// ends with a date
-		if x == len(words)-1 && dateRe.MatchString(w) {
-			continue
-		}
-		if w == "" {
+		// ends with a date or empty
+		if (x == len(words)-1 && dateRe.MatchString(w)) || w == "" {
 			continue
 		}
 
@@ -142,19 +141,18 @@ func thirdPartyKey(path string, rule string) string {
 		keepWords = keepWords[0:4]
 	}
 
-	src := ""
+	var src string
+	// the rule name is equivalent to the words we're keeping minus one to account for the source
+	ruleName := make([]string, 0, len(keepWords)-1)
 	if len(keepWords) > 0 {
-		src = keepWords[0]
+		// Fix name for https://github.com/Neo23x0/signature-base within YARAForge
+		src = strings.Replace(keepWords[0], "signature", "sig_base", 1)
+		if len(keepWords) > 1 {
+			ruleName = keepWords[1:]
+		}
 	}
 
-	// Fix name for https://github.com/Neo23x0/signature-base within YARAForge
-	if src == "signature" {
-		src = "sig_base"
-	}
-	rulename := keepWords[1:]
-
-	key := fmt.Sprintf("3P/%s/%s", src, strings.Join(rulename, "_"))
-	return key
+	return fmt.Sprintf("3P/%s/%s", src, strings.Join(ruleName, "_"))
 }
 
 // thirdParty returns whether the rule is sourced from a 3rd party.

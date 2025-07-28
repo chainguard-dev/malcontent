@@ -188,8 +188,7 @@ func nsLongName(s string) string {
 // split rule into namespace + resource/technique.
 func splitRuleID(s string) (string, string) {
 	parts := strings.Split(s, "/")
-	id := ""
-	rest := ""
+	var id, rest string
 	if len(parts) > 0 {
 		id = parts[0]
 		if len(parts) >= 1 {
