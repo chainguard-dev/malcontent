@@ -167,9 +167,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	initializeOnce.Do(func() {
 		scannerPool = pool.NewScannerPool(yrs, getMaxConcurrency(c.Concurrency))
 	})
-
-	scanner := scannerPool.Get()
-	defer scannerPool.Put(scanner)
+	scanner := scannerPool.Get(yrs)
 
 	fc, mrs, size, checksum, err := scanFD(scanner, fd, logger)
 	if err != nil {
@@ -195,6 +193,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	}
 
 	defer func() {
+		scannerPool.Put(scanner)
 		fc = nil
 		mrs = nil
 	}()
@@ -788,20 +787,22 @@ func Scan(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) 
 		return r, err
 	}
 
-	r.Files.Range(func(key, value any) bool {
-		if scanCtx.Err() != nil {
-			return false
-		}
-		if key == nil || value == nil {
-			return true
-		}
-		if fr, ok := value.(*malcontent.FileReport); ok {
-			if fr.RiskScore < c.MinFileRisk {
-				r.Files.Delete(key)
+	if r != nil {
+		r.Files.Range(func(key, value any) bool {
+			if scanCtx.Err() != nil {
+				return false
 			}
-		}
-		return true
-	})
+			if key == nil || value == nil {
+				return true
+			}
+			if fr, ok := value.(*malcontent.FileReport); ok {
+				if fr.RiskScore < c.MinFileRisk {
+					r.Files.Delete(key)
+				}
+			}
+			return true
+		})
+	}
 	if scanCtx.Err() == nil && c.Stats && c.Renderer.Name() != "JSON" && c.Renderer.Name() != "YAML" {
 		err = render.Statistics(&c, r)
 		if err != nil {

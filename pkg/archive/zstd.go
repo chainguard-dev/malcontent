@@ -30,7 +30,7 @@ func ExtractZstd(ctx context.Context, d string, f string) error {
 		return nil
 	}
 
-	buf := archivePool.Get(extractBuffer)
+	buf := archivePool.Get(extractBuffer) //nolint:nilaway // the buffer pool is created in archive.go
 
 	uncompressed := strings.TrimSuffix(filepath.Base(f), ".zstd")
 	uncompressed = strings.TrimSuffix(uncompressed, ".zst")

@@ -217,7 +217,5 @@ func Recursive(ctx context.Context, fss []fs.FS) (*yarax.Rules, error) {
 		return nil, fmt.Errorf("compile errors encountered: %v", errors)
 	}
 
-	yrs := yxc.Build()
-
-	return yrs, nil
+	return yxc.Build(), nil
 }

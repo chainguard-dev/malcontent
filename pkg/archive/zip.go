@@ -123,7 +123,7 @@ func extractFile(ctx context.Context, file *zip.File, destDir string, logger *cl
 		}
 	}
 
-	buf := zipPool.Get(zipBuffer)
+	buf := zipPool.Get(zipBuffer) //nolint:nilaway // the buffer pool is created in archive.go
 
 	clean := filepath.Clean(filepath.ToSlash(file.Name))
 	if strings.Contains(clean, "..") {

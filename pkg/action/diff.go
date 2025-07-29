@@ -60,7 +60,9 @@ func relPath(from string, fr *malcontent.FileReport, isArchive bool, isImage boo
 		from = fr.Path
 		if strings.Contains(fr.Path, "∴") {
 			parts := strings.Split(fr.Path, "∴")
-			from = strings.TrimSpace(parts[0])
+			if len(parts) > 0 {
+				from = strings.TrimSpace(parts[0])
+			}
 		}
 		base, err = filepath.Abs(from)
 		if err != nil {

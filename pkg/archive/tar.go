@@ -48,7 +48,7 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 		return nil
 	}
 
-	buf := tarPool.Get(extractBuffer)
+	buf := tarPool.Get(extractBuffer) //nolint:nilaway // the buffer pool is created in archive.go
 
 	filename := filepath.Base(f)
 	tf, err := os.Open(f)

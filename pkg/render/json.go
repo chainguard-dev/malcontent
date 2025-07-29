@@ -33,6 +33,11 @@ func (r JSON) Full(ctx context.Context, c *malcontent.Config, rep *malcontent.Re
 		return ctx.Err()
 	}
 
+	// guard against nil reports
+	if rep == nil {
+		return nil
+	}
+
 	jr := Report{
 		Diff:   rep.Diff,
 		Files:  make(map[string]*malcontent.FileReport),
@@ -61,7 +66,9 @@ func (r JSON) Full(ctx context.Context, c *malcontent.Config, rep *malcontent.Re
 	})
 
 	if c != nil && c.Stats && jr.Diff == nil {
-		jr.Stats = serializedStats(c, rep)
+		if s := serializedStats(c, rep); s != nil {
+			jr.Stats = s
+		}
 	}
 
 	j, err := json.MarshalIndent(jr, "", "    ")

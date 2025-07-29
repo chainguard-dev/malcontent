@@ -31,7 +31,7 @@ func ExtractBz2(ctx context.Context, d, f string) error {
 		return nil
 	}
 
-	buf := archivePool.Get(extractBuffer)
+	buf := archivePool.Get(extractBuffer) //nolint:nilaway // the buffer pool is created in archive.go
 
 	tf, err := os.Open(f)
 	if err != nil {

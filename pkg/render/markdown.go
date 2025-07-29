@@ -68,7 +68,7 @@ func (r Markdown) Full(ctx context.Context, _ *malcontent.Config, rep *malconten
 		return ctx.Err()
 	}
 
-	if rep.Diff == nil {
+	if rep == nil || rep.Diff == nil {
 		return nil
 	}
 
