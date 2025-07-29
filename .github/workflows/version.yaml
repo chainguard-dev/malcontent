@@ -23,11 +23,11 @@ jobs:
       id-token: write
       pull-requests: write
     steps:
-      - uses: step-security/harden-runner@6c439dc8bdf85cadbbce9ed30d1c7b959517bc49 # v2.12.2
+      - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
         with:
           egress-policy: audit
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - uses: chainguard-dev/actions/setup-gitsign@a643adefc8ec64796d92837210be6bf0a6d0788e
+      - uses: chainguard-dev/actions/setup-gitsign@708219d4822f33611ac1a2653815cc10e1ab54a6
       - name: Set up Octo-STS
         uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # v1.0.0
         id: octo-sts

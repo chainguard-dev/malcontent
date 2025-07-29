@@ -5,7 +5,6 @@ package report
 
 import (
 	"context"
-	"crypto/sha256"
 	"fmt"
 	"net/url"
 	"path/filepath"
@@ -25,7 +24,8 @@ import (
 const NAME string = "malcontent"
 
 const (
-	HARMLESS int = iota
+	INVALID int = iota - 1
+	HARMLESS
 	LOW
 	MEDIUM
 	HIGH
@@ -34,11 +34,12 @@ const (
 
 // Map to handle RiskScore -> RiskLevel conversions.
 var RiskLevels = map[int]string{
-	0: "NONE",     // harmless: common to all executables, no system impact
-	1: "LOW",      // undefined: low impact, common to good and bad executables
-	2: "MEDIUM",   // notable: may have impact, but common
-	3: "HIGH",     // suspicious: uncommon, but could be legit
-	4: "CRITICAL", // critical: certainly malware
+	INVALID:  "NONE",     // inalid: unmodified initial value which should not happen
+	HARMLESS: "NONE",     // harmless: common to all executables, no system impact
+	LOW:      "LOW",      // undefined: low impact, common to good and bad executables
+	MEDIUM:   "MEDIUM",   // notable: may have impact, but common
+	HIGH:     "HIGH",     // suspicious: uncommon, but could be legit
+	CRITICAL: "CRITICAL", // critical: certainly malware
 }
 
 // yaraForge has some very, very long rule names.
@@ -88,17 +89,17 @@ var (
 
 // Map to handle RiskLevel -> RiskScore conversions.
 var Levels = map[string]int{
-	"ignore":     -1,
-	"none":       -1,
-	"harmless":   0,
-	"low":        1,
-	"notable":    2,
-	"medium":     2,
-	"suspicious": 3,
-	"weird":      3,
-	"high":       3,
-	"crit":       4,
-	"critical":   4,
+	"ignore":     INVALID,
+	"none":       INVALID,
+	"harmless":   HARMLESS,
+	"low":        LOW,
+	"notable":    MEDIUM,
+	"medium":     MEDIUM,
+	"suspicious": HIGH,
+	"weird":      HIGH,
+	"high":       HIGH,
+	"crit":       CRITICAL,
+	"critical":   CRITICAL,
 }
 
 func thirdPartyKey(path string, rule string) string {
@@ -203,29 +204,29 @@ func ignoreMatch(tags []string, ignoreTags map[string]bool) bool {
 }
 
 func behaviorRisk(ns string, rule string, tags []string) int {
-	risk := 1
+	risk := LOW
 
 	if thirdParty(ns) {
-		risk = 3
+		risk = HIGH
 		src := strings.Split(ns, "/")[1]
 
 		switch src {
 		case "JPCERT", "YARAForge", "bartblaze", "huntress", "elastic":
-			risk = 4
+			risk = CRITICAL
 			if strings.Contains(strings.ToLower(ns), "generic") ||
 				strings.Contains(strings.ToLower(rule), "generic") {
-				risk = 3
+				risk = HIGH
 			}
 		}
 
 		if strings.Contains(strings.ToLower(ns), "keyword") ||
 			strings.Contains(strings.ToLower(rule), "keyword") {
-			risk = 2
+			risk = MEDIUM
 		}
 	}
 
 	if strings.Contains(ns, "combo/") {
-		risk = 2
+		risk = MEDIUM
 	}
 
 	for _, tag := range tags {
@@ -317,21 +318,6 @@ func matchStrings(ruleName string, ms []string) []string {
 	return longestUnique(raw)
 }
 
-// sizeAndChecksum calculates size and checksum using already-read file contents if available.
-func sizeAndChecksum(fc []byte) (int64, string) {
-	var checksum string
-	var size int64
-
-	if len(fc) > 0 {
-		size = int64(len(fc))
-		h := sha256.New()
-		h.Write(fc)
-		checksum = fmt.Sprintf("%x", h.Sum(nil))
-	}
-
-	return size, checksum
-}
-
 // fixURL fixes badly formed URLs.
 func fixURL(s string) string {
 	// YARAforge forgets to encode spaces, but encodes everything else
@@ -377,7 +363,52 @@ func fileMatchesRule(meta []yarax.Metadata, ext string) bool {
 	return true
 }
 
-func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcontent.Config, expath string, _ *clog.Logger, fc []byte, kind *programkind.FileType) (*malcontent.FileReport, error) {
+// skipMatch determines whether to avoid processing a rule match.
+func skipMatch(ignoreMalcontent, override, scan bool, risk, threshold, highestRisk int) bool {
+	switch {
+	case risk == INVALID:
+		return true
+	// The malcontent rule is classified as harmless
+	// A !ignoreMalcontent condition will prevent the rule from being filtered
+	case !scan && risk < threshold && !ignoreMalcontent && !override:
+		return true
+	// If running a scan as opposed to an analyze,
+	// drop any matches that fall below the highest risk
+	case scan && risk < highestRisk && !ignoreMalcontent && !override:
+		return true
+	}
+	return false
+}
+
+// skipScanFile determines whether a scanned file should
+// be ignored when running a scan and the file's risk is below HIGH.
+func skipScanFile(scan bool, overallRiskScore int) bool {
+	if scan && overallRiskScore < HIGH {
+		return true
+	}
+	return false
+}
+
+// applyCriticalUpgrade evaluates whether to apply a risk increase
+// depending on c.QuantityIncreasesRisk, the file's high behavior count, and the file's size.
+func applyCriticalUpgrade(ctx context.Context, quantityIncreasesRisk bool, riskCounts map[int]int, overallRiskScore int, size int64) bool {
+	// If something has a lot of high, it's probably critical
+	if quantityIncreasesRisk && upgradeRisk(ctx, overallRiskScore, riskCounts, size) {
+		return true
+	}
+	return false
+}
+
+// isMalcontent determines whether the scanned file is the malcontent binary itself
+// which causes false positives and is generally better to ignore entirely.
+func isMalcontent(path string) bool {
+	if strings.ToLower(filepath.Base(path)) == NAME || strings.ToLower(filepath.Base(path)) == "mal" {
+		return true
+	}
+	return false
+}
+
+func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcontent.Config, expath string, _ *clog.Logger, fc []byte, size int64, checksum string, kind *programkind.FileType, highestRisk int) (*malcontent.FileReport, error) {
 	if ctx.Err() != nil {
 		return &malcontent.FileReport{}, ctx.Err()
 	}
@@ -391,7 +422,6 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 	ignoreSelf := c.IgnoreSelf
 
 	ignore := buildIgnoreMap(ignoreTags)
-	size, checksum := sizeAndChecksum(fc)
 
 	displayPath := trimDisplayPath(path, expath, c)
 
@@ -408,7 +438,6 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 	risk := 0
 	riskCounts := make(map[int]int, 0)
 
-	highestRisk := HighestMatchRisk(mrs)
 	// Store match rules in a map for future override operations
 	mrsMap := createMatchRulesMap(mrs, matchCount)
 
@@ -417,10 +446,8 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 			ignoreMalcontent = true
 		}
 
-		if kind != nil && kind.Ext != "" {
-			if !fileMatchesRule(m.Metadata(), kind.Ext) {
-				continue
-			}
+		if kind != nil && kind.Ext != "" && !fileMatchesRule(m.Metadata(), kind.Ext) {
+			continue
 		}
 
 		override := slices.Contains(m.Tags(), "override")
@@ -428,16 +455,8 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 		risk = behaviorRisk(m.Namespace(), m.Identifier(), m.Tags())
 		overallRiskScore = max(overallRiskScore, risk)
 		riskCounts[risk]++
-		// The malcontent rule is classified as harmless
-		// A !ignoreMalcontent condition will prevent the rule from being filtered
-		// If running a scan as opposed to an analyze,
-		// drop any matches that fall below the highest risk
-		switch {
-		case risk == -1:
-			continue
-		case risk < minScore && !ignoreMalcontent && !override:
-			continue
-		case c.Scan && risk < highestRisk && !ignoreMalcontent && !override:
+
+		if skipMatch(ignoreMalcontent, override, c.Scan, risk, minScore, highestRisk) {
 			continue
 		}
 
@@ -483,29 +502,22 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 	}
 
 	// Update the behaviors to account for overrides
-	fr.Behaviors = handleOverrides(fr.Behaviors, fr.Overrides, minScore)
+	fr.Behaviors = handleOverrides(fr.Behaviors, fr.Overrides, minScore, c.Scan, c.QuantityIncreasesRisk)
 
 	// Adjust the overall risk if we deviated from overallRiskScore
 	// Scans will still need to drop <= medium results
-	newRisk := highestBehaviorRisk(fr)
-	if overallRiskScore != newRisk {
-		overallRiskScore = newRisk
+	overallRiskScore = highestBehaviorRisk(fr)
+
+	if applyCriticalUpgrade(ctx, c.QuantityIncreasesRisk, riskCounts, overallRiskScore, size) {
+		overallRiskScore = CRITICAL
 	}
 
-	if c.Scan && overallRiskScore < HIGH {
+	if skipScanFile(c.Scan, overallRiskScore) {
 		fr.Skipped = "overall risk too low for scan"
 	}
 
-	// Check for both the full and shortened variants of malcontent
-	isMalBinary := (filepath.Base(path) == NAME || filepath.Base(path) == "mal")
-
-	if all(ignoreSelf, fr.IsMalcontent, ignoreMalcontent, isMalBinary) {
+	if all(ignoreSelf, fr.IsMalcontent, ignoreMalcontent, isMalcontent(path)) {
 		fr.Skipped = "ignoring malcontent binary"
-	}
-
-	// If something has a lot of high, it's probably critical
-	if c.QuantityIncreasesRisk && upgradeRisk(ctx, overallRiskScore, riskCounts, size) {
-		overallRiskScore = 4
 	}
 
 	slices.Sort(pledges)
@@ -710,10 +722,10 @@ func updateBehavior(fr *malcontent.FileReport, b *malcontent.Behavior, key strin
 
 // upgradeRisk determines whether to upgrade risk based on finding density.
 func upgradeRisk(ctx context.Context, riskScore int, riskCounts map[int]int, size int64) bool {
-	if riskScore != 3 {
+	if riskScore != HIGH {
 		return false
 	}
-	highCount := riskCounts[3]
+	highCount := riskCounts[HIGH]
 	sizeMB := size / 1024 / 1024
 	upgrade := false
 
@@ -732,8 +744,6 @@ func upgradeRisk(ctx context.Context, riskScore int, riskCounts map[int]int, siz
 		upgrade = true
 	case highCount > 6:
 		upgrade = true
-	case !upgrade:
-		upgrade = false
 	}
 
 	clog.DebugContextf(ctx, "upgrading risk: high=%d, size=%d", highCount, size)
@@ -779,7 +789,7 @@ func highestBehaviorRisk(fr *malcontent.FileReport) int {
 }
 
 // handleOverrides modifies the behavior slice based on the contents of the override slice.
-func handleOverrides(original, override []*malcontent.Behavior, minScore int) []*malcontent.Behavior {
+func handleOverrides(original, override []*malcontent.Behavior, minScore int, scan, quantityIncreasesRisk bool) []*malcontent.Behavior {
 	behaviorMap := make(map[string]*malcontent.Behavior, len(original))
 	for _, b := range original {
 		behaviorMap[b.RuleName] = b
@@ -798,6 +808,11 @@ func handleOverrides(original, override []*malcontent.Behavior, minScore int) []
 
 	modified := make([]*malcontent.Behavior, 0, len(behaviorMap))
 	for _, b := range behaviorMap {
+		// if running a scan and using quantityIncreasesRisk,
+		// append every behavior so we can handle filtering correctly
+		if scan && quantityIncreasesRisk && b.RiskScore >= HIGH {
+			modified = append(modified, b)
+		}
 		if b.RiskScore >= minScore {
 			modified = append(modified, b)
 		}
