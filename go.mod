@@ -23,7 +23,7 @@ require (
 	github.com/klauspost/pgzip v1.2.6
 	github.com/minio/sha256-simd v1.0.1
 	github.com/olekukonko/tablewriter v1.0.9
-	github.com/shirou/gopsutil/v4 v4.25.6
+	github.com/shirou/gopsutil/v4 v4.25.7
 	github.com/ulikunitz/xz v0.5.12
 	github.com/urfave/cli/v2 v2.27.7
 	github.com/wk8/go-ordered-map/v2 v2.1.8
@@ -70,8 +70,8 @@ require (
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
-	github.com/tklauser/go-sysconf v0.3.14 // indirect
-	github.com/tklauser/numcpus v0.9.0 // indirect
+	github.com/tklauser/go-sysconf v0.3.15 // indirect
+	github.com/tklauser/numcpus v0.10.0 // indirect
 	github.com/vbatts/tar-split v0.12.1 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/xrash/smetrics v0.0.0-20240521201337-686a1a2994c1 // indirect
