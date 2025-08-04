@@ -13,7 +13,7 @@ jobs:
     if: ${{ github.repository }} == 'chainguard-dev/malcontent'
     runs-on: mal-ubuntu-latest-8-core
     container:
-      image: cgr.dev/chainguard/wolfi-base@sha256:91ed94ec4e72368a9b5113f2ffb1d8e783a91db489011a89d9fad3e3816a75ba
+      image: cgr.dev/chainguard/wolfi-base:latest
       options: >-
         --cap-add DAC_OVERRIDE
         --cap-add SETGID
@@ -38,7 +38,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Trust repository
         run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
-      - uses: chainguard-dev/actions/setup-gitsign@708219d4822f33611ac1a2653815cc10e1ab54a6
+      - uses: chainguard-dev/actions/setup-gitsign@df684a72f67ce7eecd78098365cb5057f16be3b1
       - name: Set up Octo-STS
         uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # v1.0.0
         id: octo-sts
