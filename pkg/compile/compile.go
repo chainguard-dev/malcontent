@@ -38,6 +38,7 @@ var badRules = map[string]bool{
 	"DELIVRTO_SUSP_SVG_Foreignobject_Nov24":               true,
 	"CAPE_Eternalromance":                                 true,
 	"CAPE_Formhookb":                                      true,
+	"TELEKOM_SECURITY_Cn_Utf8_Windows_Terminal":           true,
 	// ThreatHunting Keywords (some duplicates)
 	"Adobe_XMP_Identifier":                       true,
 	"Antivirus_Signature_signature_keyword":      true,
@@ -72,7 +73,8 @@ var badRules = map[string]bool{
 	"malware_PlugX_config":   true,
 	"malware_shellcode_hash": true,
 	// bartblaze
-	"Rclone": true,
+	"Rclone":                        true,
+	"Extract_MachineKey_SharePoint": true,
 	// Rules that are incompatible with yara-x (unescaped braces in regex strings)
 	"RTF_Header_Obfuscation":    true,
 	"RTF_File_Malformed_Header": true,

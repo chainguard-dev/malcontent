@@ -13,6 +13,7 @@ rule killer_miner_panchansminingisland: critical {
     $ = "updater" fullword
 
     $not_pypi_index = "testpack-id-lb001"
+    $not_vale       = "github.com/errata-ai/vale"
 
   condition:
     filesize < 120MB and 6 of them and none of ($not*)

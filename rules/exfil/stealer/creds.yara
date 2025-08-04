@@ -3,34 +3,39 @@ rule suspected_data_stealer: high {
     description = "suspected data stealer"
 
   strings:
-    $e_atomic        = "Atomic" fullword
-    $e_bitcoin       = "Bitcoin" fullword
-    $e_chromium      = "Chromium"
-    $e_chrome        = "Chrome" fullword
-    $e_firefox       = "Firefox"
-    $e_openvpn       = "OpenVPN"
-    $s_bookmarks     = "Bookmarks"
-    $s_history       = "History"
-    $s_binance       = "Binance"
-    $s_discord       = "Discord"
-    $s_electrum      = "Electrum"
-    $s_electrum2     = "/.elect"
-    $s_exodus        = "Exodus"
-    $s_exodus_ext    = "aholpfdial"
-    $s_crypto        = "cfgodnhcel"
-    $s_obs           = "obs-studio"
-    $s_pidgin        = "Pidgin"
-    $s_snowflake     = "Snowflake"
-    $s_telegram      = "Telegram"
-    $s_zcash         = "Zcash"
-    $s_zip           = "zip -r"
-    $s_login         = "Login Data"
-    $not_electron    = "ELECTRON_RUN_AS_NODE"
-    $not_chromium    = "RasterCHROMIUM"
-    $not_descriptive = "Binance Pay is a contactless"
+    $e_atomic           = "Atomic" fullword
+    $e_bitcoin          = "Bitcoin" fullword
+    $e_chromium         = "Chromium"
+    $e_chrome           = "Chrome" fullword
+    $e_firefox          = "Firefox"
+    $e_openvpn          = "OpenVPN"
+    $s_bookmarks        = "Bookmarks"
+    $s_history          = "History"
+    $s_binance          = "Binance"
+    $s_discord          = "Discord"
+    $s_electrum         = "Electrum"
+    $s_electrum2        = "/.elect"
+    $s_exodus           = "Exodus"
+    $s_exodus_ext       = "aholpfdial"
+    $s_crypto           = "cfgodnhcel"
+    $s_obs              = "obs-studio"
+    $s_pidgin           = "Pidgin"
+    $s_snowflake        = "Snowflake"
+    $s_telegram         = "Telegram"
+    $s_zcash            = "Zcash"
+    $s_zip              = "zip -r"
+    $s_login            = "Login Data"
+    $not_chromium       = "RasterCHROMIUM"
+    $not_descriptive    = "Binance Pay is a contactless"
+    $not_electron       = "ELECTRON_RUN_AS_NODE"
+    $not_gpt_tokenizer1 = "GPTTokenizer"
+    $not_gpt_tokenizer2 = "GPT-4"
+    $not_gpt_tokenizer3 = "const bpe = c0.concat();"
+    $not_gpt_tokenizer4 = "const bpe = c0.concat(c1);"
+    $not_gpt_tokenizer5 = "export default bpe;"
 
   condition:
-    (8 of them and none of ($not*)) or 5 of ($s*)
+    (8 of them or 5 of ($s*)) and none of ($not*)
 }
 
 rule steal_creds: high {

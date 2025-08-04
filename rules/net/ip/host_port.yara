@@ -80,6 +80,7 @@ rule hardcoded_host_port_over_10k: high {
     $not_slash_test           = "/test" fullword
     $not_test_message         = "test_message"
     $not_unit_test            = "unit test"
+    $not_example_registry     = "registry.com:5000"
 
   condition:
     any of ($h*) and none of ($not*)

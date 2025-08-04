@@ -37,6 +37,13 @@ rule common_username_block_list: high {
     $ = "test" fullword
     $ = "w0fjuOVmCcP5A" fullword
 
+    $not_gpt_tokenizer1 = "GPTTokenizer"
+    $not_gpt_tokenizer2 = "GPT-4"
+    $not_gpt_tokenizer3 = "const bpe = c0.concat();"
+    $not_gpt_tokenizer4 = "const bpe = c0.concat(c1);"
+    $not_gpt_tokenizer5 = "export default bpe;"
+    $not_vale           = "github.com/errata-ai/vale"
+
   condition:
-    12 of them
+    12 of them and none of ($not*)
 }

@@ -177,11 +177,13 @@ rule high_fetch_command_val: high {
     $not_continue                 = "--continue-at"
     $not_pciid                    = "https://pci-ids.ucw.cz"
 
-    $x_chmod    = "chmod" fullword
-    $x_Chmod    = "Chmod" fullword
-    $x_exe      = ".exe"
-    $x_rename   = "rename"
-    $x_rundll32 = "rundll32"
+    $x_chmod      = "chmod" fullword
+    $x_Chmod      = "Chmod" fullword
+    $not_elastic1 = "/*! Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one or more contributor license agreements."
+    $not_elastic2 = "* Licensed under the Elastic License 2.0; you may not use this file except in compliance with the Elastic License 2.0. */"
+    $x_exe        = ".exe"
+    $x_rename     = "rename"
+    $x_rundll32   = "rundll32"
 
   condition:
     filesize < 1MB and any of ($c*) and any of ($x*) and none of ($not*)

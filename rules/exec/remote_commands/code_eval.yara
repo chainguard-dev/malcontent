@@ -75,8 +75,11 @@ rule js_eval_obfuscated_fromChar: high {
     $eval = /[\s\{]eval\(/
     $ref  = /fromCharCode\(\w{0,16}\s{0,2}[\-\+\*\^]{0,2}\w{0,16}/
 
+    $not_elastic1 = "/*! Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one or more contributor license agreements."
+    $not_elastic2 = "* Licensed under the Elastic License 2.0; you may not use this file except in compliance with the Elastic License 2.0. */"
+
   condition:
-    filesize < 5MB and all of them and math.abs(@eval - @ref) > 384
+    filesize < 5MB and all of them and math.abs(@eval - @ref) > 384 and none of ($not*)
 }
 
 rule js_anonymous_function: medium {
