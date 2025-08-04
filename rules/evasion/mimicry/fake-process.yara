@@ -46,8 +46,10 @@ rule fake_bash: high {
   strings:
     $bash = "-bash" fullword
 
+    $not_kong_template = "name: {{ template \"kong.fullname\" . }}-bash-wait-for-postgres"
+
   condition:
-    filesize < 8KB and $bash
+    filesize < 8KB and $bash and none of ($not*)
 }
 
 rule fake_systemd: critical linux {

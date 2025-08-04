@@ -138,7 +138,9 @@ rule unsigned_bitwise_math_excess: high {
     $left  = /[a-z]\>\>\>\d{1,3}/
     $right = /[a-z]\>\>\>\d{1,3}/
 
-    $not_webpack = "webpack-api-runtime.js" fullword
+    $not_elastic1 = "/*! Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one or more contributor license agreements."
+    $not_elastic2 = "* Licensed under the Elastic License 2.0; you may not use this file except in compliance with the Elastic License 2.0. */"
+    $not_webpack  = "webpack-api-runtime.js" fullword
 
   condition:
     filesize < 5MB and $function and $charAt and (#left > 50 or #right > 50) and none of ($not*)

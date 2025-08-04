@@ -52,6 +52,10 @@ rule crontab_entry: high {
     $not_day_of_week  = "dayOfWeek"
     $not_day_of_month = "dayOfMonth"
 
+    $not_wolfi1 = "# As wolfi-baselayout does provide /var/spool/cron already, and we can not create this"
+    $not_wolfi2 = "# directory in the package, we need to create the cron file in the post-install scriptlet."
+    $not_wolfi3 = "# Since scriptlets don't run in apko, this is for the `apk add` command only."
+
   condition:
     filesize < 6KB and $crontab and any of ($repeat*) and none of ($not*)
 }

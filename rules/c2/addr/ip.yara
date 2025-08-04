@@ -56,13 +56,15 @@ rule http_hardcoded_ip: high exfil {
     description = "hardcoded IP address within a URL"
 
   strings:
-    $ipv4         = /https*:\/\/([1-9][0-9]{1,2}\.){3}[1-9][0-9]{1,2}[:\/\w\-\?\.\=]{0,64}/
-    $not_metadata = "http://169.254.169.254"
-    $not_100      = "http://100.100.100"
-    $not_11       = "http://11.11.11"
-    $not_192      = "http://192.168"
-    $not_169      = "http://169.254"
-    $not_aria     = "http://210.104.33.10/ARIA/"
+    $ipv4             = /https*:\/\/([1-9][0-9]{1,2}\.){3}[1-9][0-9]{1,2}[:\/\w\-\?\.\=]{0,64}/
+    $not_metadata     = "http://169.254.169.254"
+    $not_100          = "http://100.100.100"
+    $not_11           = "http://11.11.11"
+    $not_192          = "http://192.168"
+    $not_169          = "http://169.254"
+    $not_aria         = "http://210.104.33.10/ARIA/"
+    $not_placeholder1 = "placeholder:\"e.g. https://192.168.99.200:443/api\""
+    $not_placeholder2 = "placeholder:\"e.g. http://138.68.74.142:7860\""
 
   condition:
     $ipv4 and none of ($not*)

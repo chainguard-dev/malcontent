@@ -40,6 +40,7 @@ rule dev_shm_file: high linux {
     $not_yarn3         = "@yarnpkg"
     $not_yarn4         = "YARN_"
     $not_yarn5         = "b.mkdir(\"/dev/shm/tmp\")"
+    $not_libheif       = "EA.mkdir(\"/dev/shm\"),EA.mkdir(\"/dev/shm/tmp\")"
 
   condition:
     $ref and none of ($not*) and not dev_shm_mkstemp
