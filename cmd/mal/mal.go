@@ -133,7 +133,7 @@ func main() {
 		Name:      "malcontent",
 		Version:   ver,
 		Usage:     "Detect malicious program behaviors",
-		UsageText: "mal <flags> [diff, scan] <path>",
+		UsageText: "mal [GLOBAL FLAGS] <command> [COMMAND FLAGS] <path>",
 		Compiled:  time.Now(),
 		// Close the output file and stop profiling if appropriate
 		After: func(_ *cli.Context) error {
