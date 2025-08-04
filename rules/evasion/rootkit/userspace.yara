@@ -58,7 +58,7 @@ rule readdir_dlsym_interceptor: high {
     $f_readlink_maybe_not_needed = "readlink"
     $f_proc                      = "/proc"
 
-    $not_j9   = "j9port_" fullword
+    $not_j9   = "j9port_"
     $not_sbcl = "SBCL_HOME" fullword
 
   condition:

@@ -2,6 +2,7 @@ rule vimeo_psalm_md_php_override: override {
   meta:
     description                         = "Psalm MD files with PHP code excerpts"
     SIGNATURE_BASE_WEBSHELL_PHP_Dynamic = "harmless"
+    SIGNATURE_BASE_WEBSHELL_PHP_Generic = "harmless"
     remote_eval_close                   = "harmless"
 
   strings:

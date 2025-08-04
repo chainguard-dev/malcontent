@@ -5,8 +5,9 @@ rule fastfetch_override: override {
     proc_d_exe_high = "medium"
 
   strings:
-    $repo = "https://github.com/fastfetch-cli/fastfetch"
+    $fastfetch = "fastfetch/packages/%s.txt"
+    $repo      = "https://github.com/fastfetch-cli/fastfetch"
 
   condition:
-    $repo
+    any of them
 }

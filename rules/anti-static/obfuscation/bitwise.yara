@@ -141,6 +141,7 @@ rule unsigned_bitwise_math_excess: high {
     $not_elastic1 = "/*! Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one or more contributor license agreements."
     $not_elastic2 = "* Licensed under the Elastic License 2.0; you may not use this file except in compliance with the Elastic License 2.0. */"
     $not_webpack  = "webpack-api-runtime.js" fullword
+    $not_wso2is   = "(self.webpackChunk_wso2is_console=self.webpackChunk_wso2is_console||[])"
 
   condition:
     filesize < 5MB and $function and $charAt and (#left > 50 or #right > 50) and none of ($not*)
