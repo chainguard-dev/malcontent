@@ -3,7 +3,7 @@ anti-static/obfuscation/bool: medium
 anti-static/obfuscation/hex: medium
 anti-static/obfuscation/js: high
 anti-static/obfuscation/math: medium
-anti-static/obfuscation/url: high
+anti-static/obfuscation/url: medium
 c2/addr/server: medium
 data/encoding/int: medium
 data/encoding/url: medium

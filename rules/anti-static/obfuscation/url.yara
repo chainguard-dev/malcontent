@@ -1,6 +1,6 @@
 import "math"
 
-rule decode_url_component_char_code: high {
+rule decode_url_component_char_code: medium {
   meta:
     description = "decodes obfuscated URL components"
     filetypes   = "js,ts"
