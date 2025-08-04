@@ -19,7 +19,7 @@ jobs:
     if: ${{ github.repository }} == 'chainguard-dev/malcontent'
     runs-on: mal-ubuntu-latest-8-core
     container:
-      image: cgr.dev/chainguard/wolfi-base@sha256:91ed94ec4e72368a9b5113f2ffb1d8e783a91db489011a89d9fad3e3816a75ba
+      image: cgr.dev/chainguard/wolfi-base:latest
       options: >-
         --cap-add DAC_OVERRIDE
         --cap-add SETGID
@@ -54,7 +54,7 @@ jobs:
     if: ${{ github.repository }} == 'chainguard-dev/malcontent'
     runs-on: mal-ubuntu-latest-8-core
     container:
-      image: cgr.dev/chainguard/wolfi-base@sha256:91ed94ec4e72368a9b5113f2ffb1d8e783a91db489011a89d9fad3e3816a75ba
+      image: cgr.dev/chainguard/wolfi-base:latest
       options: >-
         --cap-add DAC_OVERRIDE
         --cap-add SETGID
