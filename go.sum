@@ -1,5 +1,5 @@
-github.com/VirusTotal/yara-x/go v1.4.0 h1:pfDYRrM4LOzH42V8L5hHQpQ5F2tNhtLCSjWtrKc7UiY=
-github.com/VirusTotal/yara-x/go v1.4.0/go.mod h1:lgXP/nkYX349MVowrtTtU5hzMdCOWQLv3+wKll9+0F8=
+github.com/VirusTotal/yara-x/go v1.5.0 h1:smx7tUcq8Gd2K/IlLk9Dow7ttRxAnHBA8yy/8Gfq0fw=
+github.com/VirusTotal/yara-x/go v1.5.0/go.mod h1:lgXP/nkYX349MVowrtTtU5hzMdCOWQLv3+wKll9+0F8=
 github.com/agext/levenshtein v1.2.3 h1:YB2fHEn0UJagG8T1rrWknE3ZQzWM06O8AMAatNn7lmo=
 github.com/agext/levenshtein v1.2.3/go.mod h1:JEDfjyjHDjOF/1e4FlBE/PkbqA9OfWu2ki2W0IB5558=
 github.com/aymanbagabas/go-osc52/v2 v2.0.1 h1:HwpRHbFMcZLEVr42D4p7XBqjyuxQH5SMiErDT4WkJ2k=
