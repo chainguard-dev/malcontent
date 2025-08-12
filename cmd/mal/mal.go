@@ -291,7 +291,7 @@ func main() {
 			},
 			&cli.BoolFlag{
 				Name:        "exit-extraction",
-				Value:       true,
+				Value:       false,
 				Usage:       "Exit when encountering file extraction errors",
 				Destination: &exitExtractionFlag,
 			},
