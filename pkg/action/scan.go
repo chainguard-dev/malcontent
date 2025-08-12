@@ -4,6 +4,7 @@
 package action
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -77,7 +78,7 @@ func scanFD(scanner *yarax.Scanner, fd uintptr, size int64, logger *clog.Logger)
 	// Create a copy of the data to return since the mmap will be unmapped
 	// This is necessary because report generation needs access to file content
 	// for match string extraction
-	fc := append([]byte(nil), data...)
+	fc := bytes.Clone(data)
 
 	mrs, err := scanner.Scan(data)
 	if err != nil {
@@ -110,7 +111,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	}
 
 	size := fi.Size()
-	if size <= 0 {
+	if size == 0 {
 		fr := &malcontent.FileReport{Skipped: "zero-sized file", Path: path}
 		if isArchive {
 			defer os.RemoveAll(path)
