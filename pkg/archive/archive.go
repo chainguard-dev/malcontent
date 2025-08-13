@@ -108,7 +108,7 @@ func extractNestedArchive(ctx context.Context, c malcontent.Config, d string, f 
 		if c.ExitExtraction {
 			return fmt.Errorf("failed to extract archive: %w", err)
 		}
-		logger.Debugf("ignoring extraction error for %s", f)
+		logger.Debugf("ignoring extraction error for %s: %s", f, err.Error())
 	}
 
 	extracted.Store(f, true)
