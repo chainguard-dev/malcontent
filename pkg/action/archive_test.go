@@ -76,7 +76,8 @@ func TestExtractionMultiple(t *testing.T) {
 		t.Run(tt.path, func(t *testing.T) {
 			t.Parallel()
 			ctx := context.Background()
-			dir, err := archive.ExtractArchiveToTempDir(ctx, tt.path)
+
+			dir, err := archive.ExtractArchiveToTempDir(ctx, malcontent.Config{}, tt.path)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -103,7 +104,7 @@ func TestExtractionMultiple(t *testing.T) {
 func TestExtractTar(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	dir, err := archive.ExtractArchiveToTempDir(ctx, filepath.Join("testdata", "apko.tar.gz"))
+	dir, err := archive.ExtractArchiveToTempDir(ctx, malcontent.Config{}, filepath.Join("testdata", "apko.tar.gz"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -131,7 +132,7 @@ func TestExtractTar(t *testing.T) {
 func TestExtractGzip(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	dir, err := archive.ExtractArchiveToTempDir(ctx, filepath.Join("testdata", "apko.gz"))
+	dir, err := archive.ExtractArchiveToTempDir(ctx, malcontent.Config{}, filepath.Join("testdata", "apko.gz"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -159,7 +160,7 @@ func TestExtractGzip(t *testing.T) {
 func TestExtractZip(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	dir, err := archive.ExtractArchiveToTempDir(ctx, filepath.Join("testdata", "apko.zip"))
+	dir, err := archive.ExtractArchiveToTempDir(ctx, malcontent.Config{}, filepath.Join("testdata", "apko.zip"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -187,7 +188,7 @@ func TestExtractZip(t *testing.T) {
 func TestExtractNestedArchive(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	dir, err := archive.ExtractArchiveToTempDir(ctx, filepath.Join("testdata", "apko_nested.tar.gz"))
+	dir, err := archive.ExtractArchiveToTempDir(ctx, malcontent.Config{}, filepath.Join("testdata", "apko_nested.tar.gz"))
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -666,7 +666,7 @@ func processArchive(ctx context.Context, c malcontent.Config, rfs []fs.FS, archi
 
 	var frs sync.Map
 
-	tmpRoot, err := archive.ExtractArchiveToTempDir(ctx, archivePath)
+	tmpRoot, err := archive.ExtractArchiveToTempDir(ctx, c, archivePath)
 	if err != nil {
 		return nil, fmt.Errorf("extract to temp: %w", err)
 	}
