@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/pool"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 )
@@ -33,7 +34,7 @@ func IsValidPath(target, dir string) bool {
 	return strings.HasPrefix(filepath.Clean(target), filepath.Clean(dir))
 }
 
-func extractNestedArchive(ctx context.Context, d string, f string, extracted *sync.Map, logger *clog.Logger) error {
+func extractNestedArchive(ctx context.Context, c malcontent.Config, d string, f string, extracted *sync.Map, logger *clog.Logger) error {
 	if ctx.Err() != nil {
 		return ctx.Err()
 	}
@@ -104,7 +105,10 @@ func extractNestedArchive(ctx context.Context, d string, f string, extracted *sy
 
 	err = extract(ctx, archivePath, fullPath)
 	if err != nil {
-		return fmt.Errorf("failed to extract archive: %w", err)
+		if c.ExitExtraction {
+			return fmt.Errorf("failed to extract archive: %w", err)
+		}
+		logger.Debugf("ignoring extraction error for %s: %s", f, err.Error())
 	}
 
 	extracted.Store(f, true)
@@ -124,7 +128,7 @@ func extractNestedArchive(ctx context.Context, d string, f string, extracted *sy
 		}
 		rel := file.Name()
 		if _, alreadyProcessed := extracted.Load(rel); !alreadyProcessed {
-			if err := extractNestedArchive(ctx, d, rel, extracted, logger); err != nil {
+			if err := extractNestedArchive(ctx, c, d, rel, extracted, logger); err != nil {
 				return fmt.Errorf("process nested file %s: %w", rel, err)
 			}
 		}
@@ -133,7 +137,7 @@ func extractNestedArchive(ctx context.Context, d string, f string, extracted *sy
 }
 
 // extractArchiveToTempDir creates a temporary directory and extracts the archive file for scanning.
-func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
+func ExtractArchiveToTempDir(ctx context.Context, c malcontent.Config, path string) (string, error) {
 	if ctx.Err() != nil {
 		return "", ctx.Err()
 	}
@@ -196,7 +200,7 @@ func ExtractArchiveToTempDir(ctx context.Context, path string) (string, error) {
 
 		ext := programkind.GetExt(path)
 		if _, ok := programkind.ArchiveMap[ext]; ok {
-			if err := extractNestedArchive(ctx, tmpDir, rel, &extractedFiles, logger); err != nil {
+			if err := extractNestedArchive(ctx, c, tmpDir, rel, &extractedFiles, logger); err != nil {
 				return err
 			}
 		}
