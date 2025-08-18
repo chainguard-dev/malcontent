@@ -128,7 +128,7 @@ jobs:
         --memory-swappiness=0
         --security-opt no-new-privileges
         --ulimit core=0
-        --ulimit nofile=1024:1024
+        --ulimit nofile=4096:4096
         --ulimit nproc=4096:4096
     steps:
       - name: Install dependencies
