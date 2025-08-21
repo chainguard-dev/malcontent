@@ -24,7 +24,7 @@ require (
 	github.com/minio/sha256-simd v1.0.1
 	github.com/olekukonko/tablewriter v1.0.9
 	github.com/shirou/gopsutil/v4 v4.25.7
-	github.com/ulikunitz/xz v0.5.12
+	github.com/ulikunitz/xz v0.5.13
 	github.com/urfave/cli/v2 v2.27.7
 	github.com/wk8/go-ordered-map/v2 v2.1.8
 	golang.org/x/sync v0.16.0
