@@ -6,10 +6,14 @@ credential/os/shadow: medium
 credential/password: low
 credential/password/finder: high
 credential/ssh/d: medium
+data/base64/decode: medium
 data/encoding/base64: low
 discover/process/name: medium
 discover/processes/list: medium
+discover/system/platform: medium
+exec/imports/python: low
 exfil/stealer/password: critical
+fs/directory/list: low
 fs/file/open: low
 fs/path/etc: low
 fs/path/usr_bin: low

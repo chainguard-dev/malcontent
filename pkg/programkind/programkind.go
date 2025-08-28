@@ -94,7 +94,7 @@ var supportedKind = map[string]string{
 	"scptd":   "application/x-applescript",
 	"script":  "text/x-generic-script",
 	"service": "text/x-systemd",
-	"sh":      "application/x-sh",
+	"sh":      "text/x-shellscript",
 	"so":      "application/x-sharedlib",
 	"ts":      "application/typescript",
 	"upx":     "application/x-upx",
@@ -119,7 +119,7 @@ var (
 	ZMagic    = []byte{0x78, 0x5E}
 )
 
-const headerSize int = 512
+const headerSize int = 1024
 
 // IsSupportedArchive returns whether a path can be processed by our archive extractor.
 // UPX files are an edge case since they may or may not even have an extension that can be referenced.
@@ -224,6 +224,11 @@ func makeFileType(path string, ext string, mime string) *FileType {
 		return Path(".elf")
 	}
 
+	// fix mimetype bug that detects certain .js files as Bash
+	if mime == "text/x-shellscript" && strings.Contains(path, ".js") {
+		return Path(".js")
+	}
+
 	if strings.Contains(mime, "application") || strings.Contains(mime, "text/x-") || strings.Contains(mime, "executable") {
 		return &FileType{
 			Ext:  ext,
@@ -324,6 +329,7 @@ func File(path string) (*FileType, error) {
 	case bytes.HasPrefix(hdr, ZMagic):
 		return Path(".Z"), nil
 	}
+
 	return nil, nil
 }
 
