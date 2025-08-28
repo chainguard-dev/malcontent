@@ -119,7 +119,7 @@ var (
 	ZMagic    = []byte{0x78, 0x5E}
 )
 
-const headerSize int = 1024
+const headerSize int = 512
 
 // IsSupportedArchive returns whether a path can be processed by our archive extractor.
 // UPX files are an edge case since they may or may not even have an extension that can be referenced.
