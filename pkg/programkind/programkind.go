@@ -94,7 +94,7 @@ var supportedKind = map[string]string{
 	"scptd":   "application/x-applescript",
 	"script":  "text/x-generic-script",
 	"service": "text/x-systemd",
-	"sh":      "application/x-sh",
+	"sh":      "text/x-shellscript",
 	"so":      "application/x-sharedlib",
 	"ts":      "application/typescript",
 	"upx":     "application/x-upx",
@@ -224,6 +224,11 @@ func makeFileType(path string, ext string, mime string) *FileType {
 		return Path(".elf")
 	}
 
+	// fix mimetype bug that detects certain .js files as shellscript
+	if mime == "text/x-shellscript" && strings.Contains(path, ".js") {
+		return Path(".js")
+	}
+
 	if strings.Contains(mime, "application") || strings.Contains(mime, "text/x-") || strings.Contains(mime, "executable") {
 		return &FileType{
 			Ext:  ext,
@@ -324,6 +329,7 @@ func File(path string) (*FileType, error) {
 	case bytes.HasPrefix(hdr, ZMagic):
 		return Path(".Z"), nil
 	}
+
 	return nil, nil
 }
 

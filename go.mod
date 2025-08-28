@@ -16,7 +16,7 @@ require (
 	github.com/cosnicolaou/pbzip2 v1.0.5
 	github.com/egibs/go-debian v0.18.0
 	github.com/fatih/color v1.18.0
-	github.com/gabriel-vasile/mimetype v1.4.9
+	github.com/gabriel-vasile/mimetype v1.4.10
 	github.com/google/go-cmp v0.7.0
 	github.com/google/go-containerregistry v0.20.6
 	github.com/klauspost/compress v1.18.0
@@ -77,7 +77,6 @@ require (
 	github.com/xrash/smetrics v0.0.0-20240521201337-686a1a2994c1 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	golang.org/x/crypto v0.37.0 // indirect
-	golang.org/x/net v0.39.0 // indirect
 	golang.org/x/sys v0.35.0 // indirect
 	golang.org/x/text v0.24.0 // indirect
 	google.golang.org/protobuf v1.36.3 // indirect

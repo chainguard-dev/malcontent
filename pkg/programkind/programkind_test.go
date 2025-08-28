@@ -16,10 +16,10 @@ func TestFile(t *testing.T) {
 		want *FileType
 	}{
 		{"expr", &FileType{MIME: "application/x-mach-binary", Ext: "macho"}},
-		{"snmpd", &FileType{MIME: "application/x-sh", Ext: "sh"}},
+		{"snmpd", &FileType{MIME: "text/x-shellscript", Ext: "sh"}},
 		{"test.pl", &FileType{MIME: "text/x-perl", Ext: "pl"}},
 		{"peclcmd", &FileType{MIME: "text/x-php", Ext: "php"}},
-		{"test.sh", &FileType{MIME: "application/x-sh", Ext: "sh"}},
+		{"test.sh", &FileType{MIME: "text/x-shellscript", Ext: "sh"}},
 		{"libpam.so.0", &FileType{MIME: "application/x-sharedlib", Ext: "so"}},
 		{"ls", &FileType{MIME: "application/x-elf", Ext: "elf"}},
 		{"tiny", &FileType{MIME: "application/x-elf", Ext: "elf"}},
@@ -44,7 +44,7 @@ func TestPath(t *testing.T) {
 		want *FileType
 	}{
 		{"applescript.scpt", &FileType{MIME: "application/x-applescript", Ext: "scpt"}},
-		{"./shell.sh", &FileType{MIME: "application/x-sh", Ext: "sh"}},
+		{"./shell.sh", &FileType{MIME: "text/x-shellscript", Ext: "sh"}},
 		{"ls", nil},
 		{"/etc/systemd/system/launcher.service", &FileType{MIME: "text/x-systemd", Ext: "service"}},
 		{"yarn-package.json", &FileType{MIME: "application/json", Ext: "json"}},
