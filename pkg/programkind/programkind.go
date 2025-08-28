@@ -224,7 +224,7 @@ func makeFileType(path string, ext string, mime string) *FileType {
 		return Path(".elf")
 	}
 
-	// fix mimetype bug that detects certain .js files as Bash
+	// fix mimetype bug that detects certain .js files as shellscript
 	if mime == "text/x-shellscript" && strings.Contains(path, ".js") {
 		return Path(".js")
 	}
