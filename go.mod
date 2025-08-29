@@ -13,7 +13,7 @@ require (
 	github.com/charmbracelet/bubbles v0.21.0
 	github.com/charmbracelet/bubbletea v1.3.6
 	github.com/charmbracelet/lipgloss v1.1.0
-	github.com/cosnicolaou/pbzip2 v1.0.5
+	github.com/cosnicolaou/pbzip2 v1.0.6
 	github.com/egibs/go-debian v0.18.0
 	github.com/fatih/color v1.18.0
 	github.com/gabriel-vasile/mimetype v1.4.10
@@ -24,7 +24,7 @@ require (
 	github.com/minio/sha256-simd v1.0.1
 	github.com/olekukonko/tablewriter v1.0.9
 	github.com/shirou/gopsutil/v4 v4.25.7
-	github.com/ulikunitz/xz v0.5.14
+	github.com/ulikunitz/xz v0.5.15
 	github.com/urfave/cli/v2 v2.27.7
 	github.com/wk8/go-ordered-map/v2 v2.1.8
 	golang.org/x/sync v0.16.0
