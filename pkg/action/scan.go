@@ -307,7 +307,7 @@ func CachedRules(ctx context.Context, fss []fs.FS) (*yarax.Rules, error) {
 	var err error
 	compileOnce.Do(func() {
 		var yrs *yarax.Rules
-		yrs, err = compile.Recursive(ctx, fss)
+		yrs, err = compile.RecursiveCached(ctx, fss)
 		if err != nil {
 			err = fmt.Errorf("compile: %w", err)
 			return
