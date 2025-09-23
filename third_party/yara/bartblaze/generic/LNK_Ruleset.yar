@@ -338,6 +338,7 @@ rule SMB_in_LNK
         source = "BARTBLAZE"
         author = "@bartblaze"
         category = "INFO"
+        description = "Identifies SMB in shortcut (LNK) files"
 
     strings:
         $ = "\\c$\\" ascii wide nocase
