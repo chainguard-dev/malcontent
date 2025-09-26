@@ -38,7 +38,7 @@ type TestData struct {
 func discoverTestData(rc Config) (map[string]string, error) {
 	testFiles := make(map[string]string)
 
-	err := filepath.Walk(rc.TestDataPath, func(path string, info fs.FileInfo, err error) error {
+	err := filepath.WalkDir(rc.TestDataPath, func(path string, info os.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
