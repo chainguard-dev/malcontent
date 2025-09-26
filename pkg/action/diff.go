@@ -186,7 +186,7 @@ func scoreFile(fr, tr *malcontent.FileReport) bool {
 	for _, pattern := range patterns {
 		re := regexp.MustCompile(pattern)
 
-		// If both files match patterns, reeturn true to indicate that `inferMoves` should be used
+		// If both files match patterns, return true to indicate that `inferMoves` should be used
 		// Otherwise, indicate that `handleFile` should be used
 		if re.MatchString(fr.Path) && re.MatchString(tr.Path) {
 			return true
