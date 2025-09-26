@@ -10,4 +10,3 @@ rule osqueryd: override {
   condition:
     filesize < 100MB and any of them
 }
-

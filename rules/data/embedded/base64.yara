@@ -19,4 +19,3 @@ rule base64_content_reversed: high {
   condition:
     any of them
 }
-

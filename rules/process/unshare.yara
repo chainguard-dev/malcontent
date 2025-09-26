@@ -11,4 +11,3 @@ rule syscall_unshare {
   condition:
     any of them
 }
-

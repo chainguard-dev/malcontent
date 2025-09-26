@@ -21,4 +21,3 @@ rule ruby_dylib: low ruby {
   condition:
     any of them
 }
-

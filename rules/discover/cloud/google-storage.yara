@@ -8,4 +8,3 @@ rule go_import {
   condition:
     any of them
 }
-

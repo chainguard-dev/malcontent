@@ -9,4 +9,3 @@ rule telegram: medium {
   condition:
     any of them
 }
-

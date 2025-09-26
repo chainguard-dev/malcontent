@@ -8,4 +8,3 @@ rule begin_cert {
   condition:
     any of them
 }
-

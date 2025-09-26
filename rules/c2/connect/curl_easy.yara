@@ -8,4 +8,3 @@ rule curl_easy: medium {
   condition:
     filesize < 1MB and all of them
 }
-

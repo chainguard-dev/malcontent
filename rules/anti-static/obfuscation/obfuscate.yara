@@ -20,4 +20,3 @@ rule obfuscator {
   condition:
     $obfuscate
 }
-

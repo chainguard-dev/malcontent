@@ -8,4 +8,3 @@ rule aws_metadata {
   condition:
     any of them
 }
-

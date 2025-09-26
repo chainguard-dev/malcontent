@@ -9,4 +9,3 @@ rule sysctl: harmless {
   condition:
     any of them
 }
-

@@ -33,4 +33,3 @@ rule essential_microsoft_accounts: high {
   condition:
     all of them
 }
-

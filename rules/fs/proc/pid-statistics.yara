@@ -9,4 +9,3 @@ rule proc_pid_stat_val {
   condition:
     any of them
 }
-

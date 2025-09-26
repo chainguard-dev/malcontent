@@ -9,4 +9,3 @@ rule syscall_keyctl {
   condition:
     any of them
 }
-

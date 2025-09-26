@@ -1,3 +1,14 @@
+rule malicious_https_url: critical {
+  meta:
+    description = "contains embedded, malicious HTTPS URLs"
+
+  strings:
+    $ = "https://mainnet.solana-rpc-pool.workers.dev"
+
+  condition:
+    any of them
+}
+
 rule https_url {
   meta:
     description = "contains embedded HTTPS URLs"

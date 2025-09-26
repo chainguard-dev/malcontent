@@ -8,4 +8,3 @@ rule ssh_signature: medium {
   condition:
     any of them
 }
-

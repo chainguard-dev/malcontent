@@ -21,4 +21,3 @@ rule bitsadmin_transfer: high {
   condition:
     filesize < 250KB and all of them
 }
-

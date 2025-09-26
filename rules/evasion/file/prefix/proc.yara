@@ -8,4 +8,3 @@ rule hidden_proc: high linux {
   condition:
     filesize < 10MB and all of them
 }
-

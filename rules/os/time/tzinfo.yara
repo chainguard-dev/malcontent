@@ -10,4 +10,3 @@ rule tzinfo {
   condition:
     any of them
 }
-

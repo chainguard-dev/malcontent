@@ -96,3 +96,22 @@ rule STRRat_critical: critical {
   condition:
     filesize < 128KB and all of ($p*) and any of ($browser*) and any of ($mail*)
 }
+
+rule RustEthereumSolanaStealer: critical {
+  meta:
+    description = "steals ethereum and solana wallet keys via compromised Crates"
+    filetypes   = "rs"
+
+  strings:
+    $base58           = "base58" nocase
+    $base58_alphabet  = "const BASE58_ALPHABET: &[u8] = b\"123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz\";"
+    $endpoint_sub1    = "mainnet"
+    $endpoint_sub2    = "solana-rpc-pool"
+    $endpoint_domain  = "workers.dev"
+    $regex_byte_array = "Regex::new(r#\"\\[(?:\\s*0x[0-9a-fA-F]{1,2}\\s*,?\\s*)+\\]|\\[(?:\\s*\\d{1,3}\\s*,?\\s*)+\\]\"#)?"
+    $regex_address    = "Regex::new(r#\"\"[1-9A-HJ-NP-Za-km-z]{32,44}\"\"#)?"
+    $regex_hex        = "Regex::new(r#\"\"0x[0-9a-fA-F]{64}\"\"#)?"
+
+  condition:
+    filesize < 128KB and any of ($base58*) and all of ($endpoint*) and any of ($regex*)
+}

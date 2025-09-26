@@ -9,4 +9,3 @@ rule gcloud_config_value: medium {
   condition:
     any of them
 }
-

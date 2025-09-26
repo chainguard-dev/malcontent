@@ -8,4 +8,3 @@ rule home_config_path {
   condition:
     any of them
 }
-

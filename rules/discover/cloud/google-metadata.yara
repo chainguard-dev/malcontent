@@ -8,4 +8,3 @@ rule google_metadata {
   condition:
     any of them
 }
-

@@ -12,4 +12,3 @@ rule hex_convert_base64_ascii: high {
   condition:
     filesize < 32KB and any of ($lang*) and any of ($b*) and any of ($exec*)
 }
-

@@ -76,6 +76,18 @@ rule http_url_with_question: medium {
     filesize < 256KB and any of ($f*) and $ref and none of ($not*)
 }
 
+rule binary_with_malicious_url: critical {
+  meta:
+    description = "binary contains hardcoded, malicious URL"
+    filetypes   = "elf,macho"
+
+  strings:
+    $ = "https://mainnet.solana-rpc-pool.workers.dev"
+
+  condition:
+    filesize < 150MB and elf_or_macho and any of them
+}
+
 rule binary_with_url: low {
   meta:
     description = "binary contains hardcoded URL"

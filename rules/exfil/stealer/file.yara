@@ -103,4 +103,3 @@ rule curl_easy_exfil: high {
   condition:
     filesize < 1MB and all of them
 }
-

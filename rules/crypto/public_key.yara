@@ -19,4 +19,3 @@ rule verifies_public_key: medium {
   condition:
     any of them
 }
-

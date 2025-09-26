@@ -9,4 +9,3 @@ rule fzf: override {
   condition:
     filesize < 6MB and any of them
 }
-

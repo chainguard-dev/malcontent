@@ -7,4 +7,3 @@ rule pcm: harmless {
   condition:
     any of them
 }
-

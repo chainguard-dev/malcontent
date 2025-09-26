@@ -21,4 +21,3 @@ rule var_tmp_path_hidden: high {
   condition:
     $ref and none of ($not*)
 }
-

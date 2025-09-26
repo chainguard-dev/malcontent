@@ -34,4 +34,3 @@ rule telegram_content: critical {
   condition:
     filesize < 32KB and all of them
 }
-

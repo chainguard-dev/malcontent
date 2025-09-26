@@ -9,4 +9,3 @@ rule py_ssl_socket: medium {
   condition:
     all of them
 }
-

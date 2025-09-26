@@ -12,4 +12,3 @@ rule dl_iterate_cpu_pthreads: high linux {
   condition:
     filesize < 1200KB and uint32(0) == 1179403647 and all of them
 }
-

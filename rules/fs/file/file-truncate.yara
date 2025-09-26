@@ -22,4 +22,3 @@ rule truncate: harmless {
   condition:
     any of them
 }
-

@@ -9,4 +9,3 @@ rule dl_iterate_phdr {
   condition:
     any of them
 }
-

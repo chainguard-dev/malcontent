@@ -8,4 +8,3 @@ rule testing_key {
   condition:
     any of them
 }
-
