@@ -30,4 +30,3 @@ rule hidden_x11_unexpected: high {
   condition:
     filesize < 10MB and $x11 and none of ($not*)
 }
-

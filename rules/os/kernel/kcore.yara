@@ -9,4 +9,3 @@ rule kcore: unusual {
   condition:
     any of them
 }
-

@@ -8,4 +8,3 @@ rule dev_mqueue: medium {
   condition:
     any of them
 }
-

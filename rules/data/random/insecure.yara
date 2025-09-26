@@ -22,4 +22,3 @@ rule insecure_rand {
   condition:
     any of them in (1000..3000)
 }
-

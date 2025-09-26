@@ -8,4 +8,3 @@ rule encoding_py_marshal: medium {
   condition:
     filesize < 1MB and any of them
 }
-

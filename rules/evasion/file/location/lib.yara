@@ -44,4 +44,3 @@ rule multiple_lib_so_high: medium linux {
   condition:
     filesize < 10MB and uint32(0) == 1179403647 and #lib > 1
 }
-

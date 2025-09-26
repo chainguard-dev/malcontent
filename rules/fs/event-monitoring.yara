@@ -10,4 +10,3 @@ rule syscall_fanotify_init: linux {
   condition:
     any of them
 }
-

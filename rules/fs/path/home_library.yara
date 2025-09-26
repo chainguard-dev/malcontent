@@ -8,4 +8,3 @@ rule home_lib_path {
   condition:
     any of them
 }
-

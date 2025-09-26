@@ -11,4 +11,3 @@ rule curl_post: medium {
   condition:
     filesize < 8KB and $curl and $post and any of ($http*)
 }
-

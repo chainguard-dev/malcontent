@@ -6,4 +6,3 @@ rule google_docs_user: high {
   condition:
     any of them
 }
-

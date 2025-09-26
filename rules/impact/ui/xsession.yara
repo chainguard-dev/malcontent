@@ -8,4 +8,3 @@ rule xsession: medium {
   condition:
     any of them
 }
-

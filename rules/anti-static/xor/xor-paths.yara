@@ -29,4 +29,3 @@ rule xor_paths: high {
   condition:
     filesize < 10MB and any of them
 }
-

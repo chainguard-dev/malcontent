@@ -8,4 +8,3 @@ rule connect_server: medium {
   condition:
     filesize < 1MB and any of them
 }
-

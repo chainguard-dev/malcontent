@@ -10,4 +10,3 @@ rule ping_pong: medium {
   condition:
     filesize < 1MB and all of them
 }
-

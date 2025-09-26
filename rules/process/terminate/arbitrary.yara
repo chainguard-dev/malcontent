@@ -19,4 +19,3 @@ rule kill_9_d: high {
   condition:
     any of them
 }
-

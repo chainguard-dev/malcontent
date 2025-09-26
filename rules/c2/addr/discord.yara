@@ -9,4 +9,3 @@ rule discord: medium {
   condition:
     any of them
 }
-

@@ -9,4 +9,3 @@ rule kandji: override {
   condition:
     any of them
 }
-

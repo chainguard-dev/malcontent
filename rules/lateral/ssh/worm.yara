@@ -46,4 +46,3 @@ rule ssh_worm_router: high {
   condition:
     filesize < 1MB and all of ($s*) and any of ($h*) and 2 of ($p*)
 }
-

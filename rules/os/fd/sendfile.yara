@@ -11,4 +11,3 @@ rule sendfile {
   condition:
     any of them
 }
-

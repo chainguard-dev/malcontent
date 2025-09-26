@@ -11,4 +11,3 @@ rule syscalls: harmless {
   condition:
     any of them
 }
-

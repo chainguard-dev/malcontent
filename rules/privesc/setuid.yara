@@ -85,4 +85,3 @@ rule ruby_setuid_0: high {
   condition:
     any of them
 }
-

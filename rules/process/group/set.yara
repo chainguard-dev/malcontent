@@ -10,4 +10,3 @@ rule setpgid: harmless {
   condition:
     any of them
 }
-

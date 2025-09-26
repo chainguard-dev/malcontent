@@ -21,4 +21,3 @@ rule taskkill_force: high windows {
   condition:
     any of them
 }
-

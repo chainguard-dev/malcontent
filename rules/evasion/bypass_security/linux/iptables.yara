@@ -58,4 +58,3 @@ rule iptables_delete: medium {
   condition:
     any of them
 }
-

@@ -34,4 +34,3 @@ rule libc_fake_number_val: high {
   condition:
     $ref and none of ($not*)
 }
-

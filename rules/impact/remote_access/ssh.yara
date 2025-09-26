@@ -24,4 +24,3 @@ rule sshd_backdoor_private_key: critical {
   condition:
     filesize < 5MB and all of them
 }
-

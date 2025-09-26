@@ -19,4 +19,3 @@ rule CpuInfoAndModel: macos medium {
   condition:
     any of them
 }
-
