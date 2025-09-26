@@ -502,6 +502,8 @@ func setupMatchHandler(ctx context.Context, matchChan chan matchResult, c malcon
 
 	go func() {
 		select {
+		case <-ctx.Done():
+			return
 		case match := <-matchChan:
 			if match.fr != nil && c.Renderer != nil && match.fr.RiskScore >= c.MinFileRisk {
 				if err := c.Renderer.File(ctx, match.fr); err != nil {
@@ -509,8 +511,6 @@ func setupMatchHandler(ctx context.Context, matchChan chan matchResult, c malcon
 				}
 			}
 			cancel()
-		case <-ctx.Done():
-			return
 		}
 	}()
 }
@@ -545,6 +545,10 @@ func handleArchiveFile(ctx context.Context, path string, c malcontent.Config, r 
 		}
 	}
 
+	if frs == nil {
+		return nil
+	}
+
 	if !c.OCI && (c.ExitFirstHit || c.ExitFirstMiss) {
 		match, err := exitIfHitOrMiss(frs, path, c.ExitFirstHit, c.ExitFirstMiss)
 		if err != nil {
@@ -555,31 +559,30 @@ func handleArchiveFile(ctx context.Context, path string, c malcontent.Config, r 
 		}
 	}
 
-	//nolint:nestif // ignore complexity of 14
-	if frs != nil {
-		frs.Range(func(key, value any) bool {
-			if ctx.Err() != nil {
-				return false
-			}
-			if key == nil || value == nil {
-				return true
-			}
-			if k, ok := key.(string); ok {
-				if fr, ok := value.(*malcontent.FileReport); ok {
-					if len(c.TrimPrefixes) > 0 {
-						k = report.TrimPrefixes(k, c.TrimPrefixes)
-					}
-					r.Files.Store(k, fr)
-					if c.Renderer != nil && r.Diff == nil && fr.RiskScore >= c.MinFileRisk {
-						if err := c.Renderer.File(ctx, fr); err != nil {
-							logger.Errorf("render error: %v", err)
-						}
+	//nolint:nestif // ignore complexity of 13
+	frs.Range(func(key, value any) bool {
+		if ctx.Err() != nil {
+			return false
+		}
+		if key == nil || value == nil {
+			return true
+		}
+		if k, ok := key.(string); ok {
+			if fr, ok := value.(*malcontent.FileReport); ok {
+				if len(c.TrimPrefixes) > 0 {
+					k = report.TrimPrefixes(k, c.TrimPrefixes)
+				}
+				r.Files.Store(k, fr)
+				if c.Renderer != nil && r.Diff == nil && fr.RiskScore >= c.MinFileRisk {
+					if err := c.Renderer.File(ctx, fr); err != nil {
+						logger.Errorf("render error: %v", err)
 					}
 				}
 			}
-			return true
-		})
-	}
+		}
+		return true
+	})
+
 	return nil
 }
 
@@ -783,23 +786,25 @@ func Scan(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) 
 	if err != nil && !interactive(c) {
 		return r, err
 	}
-
-	if r != nil {
-		r.Files.Range(func(key, value any) bool {
-			if scanCtx.Err() != nil {
-				return false
-			}
-			if key == nil || value == nil {
-				return true
-			}
-			if fr, ok := value.(*malcontent.FileReport); ok {
-				if fr.RiskScore < c.MinFileRisk {
-					r.Files.Delete(key)
-				}
-			}
-			return true
-		})
+	if r == nil {
+		return nil, nil
 	}
+
+	r.Files.Range(func(key, value any) bool {
+		if scanCtx.Err() != nil {
+			return false
+		}
+		if key == nil || value == nil {
+			return true
+		}
+		if fr, ok := value.(*malcontent.FileReport); ok {
+			if fr.RiskScore < c.MinFileRisk {
+				r.Files.Delete(key)
+			}
+		}
+		return true
+	})
+
 	if scanCtx.Err() == nil && c.Stats && c.Renderer.Name() != "JSON" && c.Renderer.Name() != "YAML" {
 		err = render.Statistics(&c, r)
 		if err != nil {
