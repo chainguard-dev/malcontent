@@ -38,7 +38,7 @@ jobs:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - name: Trust repository
         run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
-      - uses: chainguard-dev/actions/setup-gitsign@7b18ea9960f945cabf19a84752e580829347f4ed
+      - uses: chainguard-dev/actions/setup-gitsign@94249a4828defae94ef3eaeaafaff2f95f1b446f
       - name: Set up Octo-STS
         uses: octo-sts/action@a26b0c6455c7f13316f29a8766287f939e75f6c8 # v1.0.2
         id: octo-sts
