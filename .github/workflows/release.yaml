@@ -22,9 +22,9 @@ jobs:
           egress-policy: audit
       - name: Checkout code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-      - uses: chainguard-dev/actions/setup-gitsign@94249a4828defae94ef3eaeaafaff2f95f1b446f
+      - uses: chainguard-dev/actions/setup-gitsign@1b32103f5aa389c31ab0be75a8edc38d7e4750d8
       - name: Set up Octo-STS
-        uses: octo-sts/action@a26b0c6455c7f13316f29a8766287f939e75f6c8 # v1.0.2
+        uses: octo-sts/action@d6c70ad3b9ac85df6da6b9749014d7283987cfec # v1.0.3
         id: octo-sts
         with:
           scope: chainguard-dev/malcontent
