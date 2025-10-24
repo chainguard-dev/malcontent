@@ -116,9 +116,19 @@ func (mp *matchProcessor) process() []string {
 			}
 			*result = append(*result, mp.pool.Intern(matchStr))
 		default:
+			// for rules which contain non-string patterns (e.g., hex),
+			// we only want to display patterns with non-zero match lengths
+			// rather than all of the patterns which is potentially inaccurate
+			// e.g., `any of them` with multiple strings and one pattern match
+			// will display matches for all of the rule's strings
+			// if we naively append all of the matched rule's patterns
 			patterns := make([]string, 0, len(mp.patterns))
 			for _, p := range mp.patterns {
-				patterns = append(patterns, mp.pool.Intern(p.Identifier()))
+				if slices.ContainsFunc(p.Matches(), func(m yarax.Match) bool {
+					return m.Length() > 0
+				}) {
+					patterns = append(patterns, mp.pool.Intern(p.Identifier()))
+				}
 			}
 			*result = append(*result, slices.Compact(patterns)...)
 		}

@@ -458,7 +458,6 @@
                     "Description": "Zstandard: fast real-time compression algorithm",
                     "MatchStrings": [
                         "$magic_bytes",
-                        "$decompress",
                         "zstd",
                         "$ref"
                     ],
