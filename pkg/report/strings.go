@@ -116,8 +116,8 @@ func (mp *matchProcessor) process() []string {
 			}
 			*result = append(*result, mp.pool.Intern(matchStr))
 		default:
-			// for rules that contain non-string patterns (e.g., hex),
-			// we only want to display patterns which have non-zero match lengths
+			// for rules which contain non-string patterns (e.g., hex),
+			// we only want to display patterns with non-zero match lengths
 			// rather than all of the patterns which is potentially inaccurate
 			// e.g., `any of them` with multiple strings and one pattern match
 			// will display matches for all of the rule's strings
