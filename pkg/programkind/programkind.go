@@ -5,6 +5,7 @@ package programkind
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"io/fs"
@@ -123,11 +124,11 @@ const headerSize int = 512
 
 // IsSupportedArchive returns whether a path can be processed by our archive extractor.
 // UPX files are an edge case since they may or may not even have an extension that can be referenced.
-func IsSupportedArchive(path string) bool {
+func IsSupportedArchive(ctx context.Context, path string) bool {
 	if _, isValidArchive := ArchiveMap[GetExt(path)]; isValidArchive {
 		return true
 	}
-	if ft, err := File(path); err == nil && ft != nil {
+	if ft, err := File(ctx, path); err == nil && ft != nil {
 		if ft.MIME == "application/x-upx" {
 			return true
 		}
@@ -179,7 +180,7 @@ func UPXInstalled() error {
 }
 
 // IsValidUPX checks whether a suspected UPX-compressed file can be decompressed with UPX.
-func IsValidUPX(header []byte, path string) (bool, error) {
+func IsValidUPX(ctx context.Context, header []byte, path string) (bool, error) {
 	if !bytes.Contains(header, []byte("UPX!")) {
 		return false, nil
 	}
@@ -188,7 +189,7 @@ func IsValidUPX(header []byte, path string) (bool, error) {
 		return false, err
 	}
 
-	cmd := exec.Command("upx", "-l", "-f", path)
+	cmd := exec.CommandContext(ctx, "upx", "-l", "-f", path)
 	output, err := cmd.CombinedOutput()
 
 	if err != nil && (bytes.Contains(output, []byte("NotPackedException")) ||
@@ -240,7 +241,7 @@ func makeFileType(path string, ext string, mime string) *FileType {
 }
 
 // File detects what kind of program this file might be.
-func File(path string) (*FileType, error) {
+func File(ctx context.Context, path string) (*FileType, error) {
 	// Follow symlinks and return cleanly if the target does not exist
 	_, err := filepath.EvalSymlinks(path)
 	if os.IsNotExist(err) {
@@ -292,7 +293,7 @@ func File(path string) (*FileType, error) {
 	}
 
 	// final strategy: DIY matching where mimetype is too strict.
-	if isUPX, err := IsValidUPX(hdr, path); err == nil && isUPX {
+	if isUPX, err := IsValidUPX(ctx, hdr, path); err == nil && isUPX {
 		return Path(".upx"), nil
 	}
 

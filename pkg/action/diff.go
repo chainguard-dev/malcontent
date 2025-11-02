@@ -230,7 +230,7 @@ func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent
 
 	srcCh, destCh := make(chan ScanResult, 1), make(chan ScanResult, 1)
 
-	srcIsArchive, destIsArchive := programkind.IsSupportedArchive(srcPath), programkind.IsSupportedArchive(destPath)
+	srcIsArchive, destIsArchive := programkind.IsSupportedArchive(ctx, srcPath), programkind.IsSupportedArchive(ctx, destPath)
 
 	g.Go(func() error {
 		files, base, err := relFileReport(ctx, c, srcPath, isImage)

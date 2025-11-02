@@ -52,7 +52,7 @@ func ExtractZip(ctx context.Context, d string, f string) error {
 	}
 
 	var isZip bool
-	if ft, err := programkind.File(f); err == nil && ft != nil {
+	if ft, err := programkind.File(ctx, f); err == nil && ft != nil {
 		if _, ok := zipMIME[ft.MIME]; ok {
 			isZip = true
 		}

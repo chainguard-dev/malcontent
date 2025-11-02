@@ -52,7 +52,7 @@ func ExtractUPX(ctx context.Context, d, f string) error {
 		return fmt.Errorf("failed to write file: %w", err)
 	}
 
-	cmd := exec.Command("upx", "-d", "-k", target)
+	cmd := exec.CommandContext(ctx, "upx", "-d", "-k", target)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		os.Remove(target)

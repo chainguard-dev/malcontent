@@ -27,7 +27,7 @@ func TestFile(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.in, func(t *testing.T) {
 			t.Parallel()
-			got, err := File(filepath.Join("testdata/", tt.in))
+			got, err := File(t.Context(), filepath.Join("testdata/", tt.in))
 			if err != nil {
 				t.Errorf("File(%s) returned error: %v", tt.in, err)
 			}
