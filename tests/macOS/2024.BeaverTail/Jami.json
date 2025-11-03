@@ -16,8 +16,8 @@
                         "/Library/Application Support/com.operasoftware.opera",
                         "boundary=---------------------------99614912995",
                         "form-data; name=\"multi_file\"; filename=\"%1\"",
-                        "Download Python Success!",
                         "Download Client Success!",
+                        "Download Python Success!",
                         "Upload LDB Finshed!!!",
                         "/.pyp/python.exe",
                         "%1_%2_%3_%4_%5"
@@ -32,14 +32,14 @@
                 {
                     "Description": "Macos.Infostealer.Wallets",
                     "MatchStrings": [
-                        "fhbohimaelbohpjbbldcngcnapndodjp",
-                        "hnfanknocfeofbddgcijnmhnfnkdnaad",
-                        "nkbihfbeogaeaoehlefnkodbefgpgknn",
-                        "aeachknmefphepccionboohckonoeemg",
                         "acmacodkjbdgmoleebolmdjonilkdbch",
+                        "aeachknmefphepccionboohckonoeemg",
+                        "aholpfdialjgjfhomihkjbmgjidlcdno",
                         "bfnaelmomeimhlpmgjnjophhpkkoljpa",
                         "ejbalbakoplchlghecdalmeeeajnimhm",
-                        "aholpfdialjgjfhomihkjbmgjidlcdno"
+                        "fhbohimaelbohpjbbldcngcnapndodjp",
+                        "hnfanknocfeofbddgcijnmhnfnkdnaad",
+                        "nkbihfbeogaeaoehlefnkodbefgpgknn"
                     ],
                     "RiskScore": 4,
                     "RiskLevel": "CRITICAL",
@@ -137,17 +137,17 @@
                     "Description": "makes HTTPS connections and references multiple Chrome crypto wallet extensions",
                     "MatchStrings": [
                         "mccdpekplomjjkc",
-                        "gpafnldhgmapag",
                         "fhbohimaelbohp",
+                        "gpafnldhgmapag",
+                        "bfnaelmomeimh",
                         "ejbalbakoplch",
                         "hnfanknocfeof",
                         "ibnejdfjmmkpc",
-                        "bfnaelmomeimh",
-                        "ohmabehhmhfoo",
                         "mihkjbmgjidlc",
+                        "ohmabehhmhfoo",
                         "aeachknmefph",
-                        "nkbihfbeogae",
                         "ebolmdjonilk",
+                        "nkbihfbeogae",
                         "http"
                     ],
                     "RiskScore": 4,
@@ -196,8 +196,8 @@
                 {
                     "Description": "download files",
                     "MatchStrings": [
-                        "Download Python Success",
-                        "Download Client Success"
+                        "Download Client Success",
+                        "Download Python Success"
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",

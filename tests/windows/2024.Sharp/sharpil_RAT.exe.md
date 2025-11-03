@@ -2,7 +2,7 @@
 
 | RISK | KEY | DESCRIPTION | EVIDENCE |
 |:--|:--|:--|:--|
-| CRITICAL | [3P/ditekshen/telegramchatbot](https://github.com/ditekshen/detection/blob/e76c93dcdedff04076380ffc60ea54e45b313635/yara/indicator_suspicious.yar#L1293-L1308) | Detects executables using Telegram Chat Bot, by [ditekSHen](https://github.com/ditekshen/detection) | `$s1`<br>`$s2`<br>`$s4`<br>`$p1`<br>`$p2` |
+| CRITICAL | [3P/ditekshen/telegramchatbot](https://github.com/ditekshen/detection/blob/e76c93dcdedff04076380ffc60ea54e45b313635/yara/indicator_suspicious.yar#L1293-L1308) | Detects executables using Telegram Chat Bot, by [ditekSHen](https://github.com/ditekshen/detection) | `$p1`<br>`$p2`<br>`$s1`<br>`$s2`<br>`$s4` |
 | HIGH | [net/email/send](https://github.com/chainguard-dev/malcontent/blob/main/rules/net/email/send.yara#SMTPClient_Send_creds) | sends e-mail with a hardcoded credentials | [NetworkCredential](https://github.com/search?q=NetworkCredential&type=code) |
 | MEDIUM | [c2/addr/discord](https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/discord.yara#discord) | may report back to 'Discord' | [Discord](https://github.com/search?q=Discord&type=code) |
 | MEDIUM | [c2/addr/telegram](https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/telegram.yara#telegram) | telegram | [Telegram](https://github.com/search?q=Telegram&type=code) |
