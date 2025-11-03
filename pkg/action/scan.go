@@ -8,6 +8,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"io/fs"
 	"log/slog"
 	"os"
@@ -17,9 +18,6 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
-	"syscall"
-
-	"github.com/minio/sha256-simd"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/archive"
@@ -29,6 +27,7 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 	"github.com/chainguard-dev/malcontent/pkg/render"
 	"github.com/chainguard-dev/malcontent/pkg/report"
+	"github.com/minio/sha256-simd"
 	"golang.org/x/sync/errgroup"
 
 	yarax "github.com/VirusTotal/yara-x/go"
@@ -39,54 +38,16 @@ func interactive(c malcontent.Config) bool {
 }
 
 var (
-	// compiledRuleCache are a cache of previously compiled rules.
-	compiledRuleCache atomic.Pointer[yarax.Rules]
-	// compileOnce ensures that we compile rules only once even across threads.
-	compileOnce         sync.Once
+	compiledRuleCache   atomic.Pointer[yarax.Rules] // compiledRuleCache are a cache of previously compiled rules.
+	compileOnce         sync.Once                   // compileOnce ensures that we compile rules only once even across threads.
 	ErrMatchedCondition = errors.New("matched exit criteria")
-	// initializeOnce ensures that the file and scanner pools are only initialized once.
-	initializeOnce sync.Once
-	scannerPool    *pool.ScannerPool
-	maxMmapSize    int64 = 1 << 31
+	initReadPool        sync.Once             // initReadPool ensures that the bytes read pool is only initialized once.
+	initScannerPool     sync.Once             // initScannerPool ensures that the scanner pool is only initialized once.
+	maxBytes            int64     = 1 << 32   // 4GB
+	readBuffer          int64     = 64 * 1024 // 64KB
+	readPool            *pool.BufferPool
+	scannerPool         *pool.ScannerPool
 )
-
-// scanFD scans a file descriptor using memory mapping for efficient large file handling.
-// This avoids loading the entire file into memory while still using yara-x's byte slice scanning.
-// scanFD also returns the file's contents for match string extraction,
-// as well as the file's size and its checksum which were originally calculated separately as part of report generation.
-func scanFD(scanner *yarax.Scanner, fd uintptr, size int64, logger *clog.Logger) ([]byte, *yarax.ScanResults, string, error) {
-	stat := &syscall.Stat_t{}
-	if err := syscall.Fstat(int(fd), stat); err != nil {
-		return nil, nil, "", fmt.Errorf("fstat failed: %w", err)
-	}
-
-	data, err := syscall.Mmap(int(fd), 0, int(size), syscall.PROT_READ, syscall.MAP_PRIVATE)
-	if err != nil {
-		return nil, nil, "", fmt.Errorf("mmap failed: %w", err)
-	}
-
-	defer func() {
-		if unmapErr := syscall.Munmap(data); unmapErr != nil {
-			logger.Error("failed to unmap memory", "error", unmapErr)
-		}
-	}()
-
-	h := sha256.New()
-	h.Write(data)
-	checksum := fmt.Sprintf("%x", h.Sum(nil))
-
-	// Create a copy of the data to return since the mmap will be unmapped
-	// This is necessary because report generation needs access to file content
-	// for match string extraction
-	fc := bytes.Clone(data)
-
-	mrs, err := scanner.Scan(data)
-	if err != nil {
-		return nil, nil, "", err
-	}
-
-	return fc, mrs, checksum, err
-}
 
 // scanSinglePath YARA scans a single path and converts it to a fileReport.
 func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleFS []fs.FS, absPath string, archiveRoot string) (*malcontent.FileReport, error) {
@@ -103,7 +64,6 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	if err != nil {
 		return nil, err
 	}
-	fd := f.Fd()
 
 	fi, err := f.Stat()
 	if err != nil {
@@ -119,11 +79,23 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		return fr, nil
 	}
 
-	if size > maxMmapSize {
-		logger.Warn("file exceeds mmap limit, scanning first portion only",
-			"size", size, "limit", maxMmapSize)
-		size = maxMmapSize
+	initReadPool.Do(func() {
+		readPool = pool.NewBufferPool(runtime.GOMAXPROCS(0))
+	})
+	buf := readPool.Get(readBuffer) //nolint:nilaway // the buffer pool is created above
+
+	var fc bytes.Buffer
+	_, err = io.CopyBuffer(&fc, io.LimitReader(f, maxBytes), buf)
+	if err != nil {
+		return nil, err
 	}
+
+	h := sha256.New()
+	_, err = h.Write(fc.Bytes())
+	if err != nil {
+		return nil, err
+	}
+	checksum := fmt.Sprintf("%x", h.Sum(nil))
 
 	mime := "<unknown>"
 	kind, err := programkind.File(path)
@@ -155,14 +127,14 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		}
 	}
 
-	initializeOnce.Do(func() {
+	initScannerPool.Do(func() {
 		// always create one scanner per available CPU core since the pool is used for the duration of
 		// a scan which may involve concurrent scans of individual files
 		scannerPool = pool.NewScannerPool(yrs, getMaxConcurrency(runtime.GOMAXPROCS(0)))
 	})
 	scanner := scannerPool.Get(yrs)
 
-	fc, mrs, checksum, err := scanFD(scanner, fd, size, logger)
+	mrs, err := scanner.ScanFile(path)
 	if err != nil {
 		logger.Debug("skipping", slog.Any("error", err))
 		return nil, err
@@ -180,16 +152,17 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		return fr, nil
 	}
 
-	fr, err := report.Generate(ctx, path, mrs, c, archiveRoot, logger, fc, size, checksum, kind, risk)
+	fr, err := report.Generate(ctx, path, mrs, c, archiveRoot, logger, fc.Bytes(), size, checksum, kind, risk)
 	if err != nil {
 		return nil, NewFileReportError(err, path, TypeGenerateError)
 	}
 
 	defer func() {
 		f.Close()
+		readPool.Put(buf)
 		scannerPool.Put(scanner)
-		fc = nil
 		mrs = nil
+		fc.Reset()
 	}()
 
 	// Clean up the path if scanning an archive
