@@ -57,7 +57,7 @@ func extractNestedArchive(ctx context.Context, c malcontent.Config, d string, f 
 	}
 
 	isArchive := false
-	ft, err := programkind.File(fullPath)
+	ft, err := programkind.File(ctx, fullPath)
 	if err != nil {
 		return fmt.Errorf("failed to determine file type: %w", err)
 	}
@@ -156,7 +156,7 @@ func ExtractArchiveToTempDir(ctx context.Context, c malcontent.Config, path stri
 
 	var extract func(context.Context, string, string) error
 	// Check for zlib-compressed files first and use the zlib-specific function
-	ft, err := programkind.File(path)
+	ft, err := programkind.File(ctx, path)
 	if err != nil {
 		return "", fmt.Errorf("failed to determine file type: %w", err)
 	}
