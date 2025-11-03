@@ -98,7 +98,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	checksum := fmt.Sprintf("%x", h.Sum(nil))
 
 	mime := "<unknown>"
-	kind, err := programkind.File(path)
+	kind, err := programkind.File(ctx, path)
 	if err != nil && !interactive(c) {
 		logger.Errorf("file type failure: %s: %s", path, err)
 	}
@@ -496,7 +496,7 @@ func processPath(ctx context.Context, path string, scanInfo scanPathInfo, c malc
 	case <-ctx.Done():
 		return ctx.Err()
 	default:
-		if programkind.IsSupportedArchive(path) {
+		if programkind.IsSupportedArchive(ctx, path) {
 			return handleArchiveFile(ctx, path, c, r, matchChan, matchOnce, logger)
 		}
 		return handleSingleFile(ctx, path, scanInfo, c, r, matchChan, matchOnce, logger)
