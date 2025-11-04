@@ -42,12 +42,12 @@
                 {
                     "Description": "uses a random number generator",
                     "MatchStrings": [
-                        "readTimeRandom",
                         "rand_getrandom",
+                        "readTimeRandom",
                         "urandomECDSA",
                         "randomOrder",
-                        "readRandom",
                         "randomEnum",
+                        "readRandom",
                         "GetRandom",
                         "getRandom"
                     ],
@@ -420,21 +420,21 @@
                 {
                     "Description": "references path within /Users",
                     "MatchStrings": [
+                        "/Users/martin/projects/launcher/target/checkout/src/main/go/args/args.g",
                         "/Users/martin/projects/launcher/target/checkout/src/main/go/args/java_e",
+                        "/Users/martin/projects/launcher/target/checkout/src/main/go/args/java_s",
+                        "/Users/martin/projects/launcher/target/checkout/src/main/go/args/paths.",
+                        "/Users/martin/projects/launcher/target/checkout/src/main/go/commands/co",
                         "/Users/martin/projects/launcher/target/checkout/src/main/go/directory/i",
                         "/Users/martin/projects/launcher/target/checkout/src/main/go/directory/u",
-                        "/Users/martin/projects/launcher/target/checkout/src/main/go/properties/",
-                        "/Users/martin/projects/launcher/target/checkout/src/main/go/args/java_s",
-                        "/Users/martin/projects/launcher/target/checkout/src/main/go/process/pro",
                         "/Users/martin/projects/launcher/target/checkout/src/main/go/process/for",
-                        "/Users/martin/projects/launcher/target/checkout/src/main/go/commands/co",
-                        "/Users/martin/projects/launcher/target/checkout/src/main/go/args/args.g",
-                        "/Users/martin/projects/launcher/target/checkout/src/main/go/args/paths.",
+                        "/Users/martin/projects/launcher/target/checkout/src/main/go/process/pro",
+                        "/Users/martin/projects/launcher/target/checkout/src/main/go/properties/",
                         "/Users/martin/projects/launcher/target/checkout/src/main/go/main.go",
                         "/Users/martin/go/pkg/mod/github.com/theckman/go-flock",
                         "/Users/martin/go/pkg/mod/github.com/mattn/go-isatty",
-                        "/Users/martin/go/pkg/mod/github.com/spf13/afero",
                         "/Users/martin/go/pkg/mod/github.com/fatih/color",
+                        "/Users/martin/go/pkg/mod/github.com/spf13/afero",
                         "/Users/martin/go/pkg/mod/golang.org/toolchain",
                         "/Users/martin/go/pkg/mod/golang.org/x/text",
                         "/Users/martin/go/pkg/mod/golang.org/x/sys"
@@ -472,8 +472,8 @@
                 {
                     "Description": "modifies file permissions",
                     "MatchStrings": [
-                        "chmod",
-                        "Chmod"
+                        "Chmod",
+                        "chmod"
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
@@ -509,8 +509,8 @@
                 {
                     "Description": "Uses DNS TXT (text) records",
                     "MatchStrings": [
-                        "dns",
-                        "TXT"
+                        "TXT",
+                        "dns"
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
@@ -521,8 +521,8 @@
                 {
                     "Description": "Uses the HTTP protocol",
                     "MatchStrings": [
-                        "http",
-                        "HTTP"
+                        "HTTP",
+                        "http"
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
@@ -544,8 +544,8 @@
                 {
                     "Description": "submits content to websites",
                     "MatchStrings": [
-                        "POST",
                         "HTTP",
+                        "POST",
                         "http"
                     ],
                     "RiskScore": 2,
@@ -637,8 +637,8 @@
                 {
                     "Description": "listen on a socket",
                     "MatchStrings": [
-                        "socket",
-                        "accept"
+                        "accept",
+                        "socket"
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
@@ -811,8 +811,8 @@
                     "Description": "pid file, likely DIY daemon",
                     "MatchStrings": [
                         "/var/run/launcher.pid",
-                        "lockablePidFile",
                         "LockablePidFile",
+                        "lockablePidFile",
                         "pidFile"
                     ],
                     "RiskScore": 2,
@@ -871,8 +871,8 @@
                 {
                     "Description": "Uses DNS TXT (text) records",
                     "MatchStrings": [
-                        "dns",
-                        "TXT"
+                        "TXT",
+                        "dns"
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
@@ -883,8 +883,8 @@
                 {
                     "Description": "Uses the HTTP protocol",
                     "MatchStrings": [
-                        "http",
-                        "HTTP"
+                        "HTTP",
+                        "http"
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
@@ -895,8 +895,8 @@
                 {
                     "Description": "submits content to websites",
                     "MatchStrings": [
-                        "POST",
                         "HTTP",
+                        "POST",
                         "http"
                     ],
                     "RiskScore": 2,
@@ -925,9 +925,9 @@
                     "MatchStrings": [
                         "kTixuOsFBOtGYSTLRLWK6G",
                         "Go buildinf",
+                        "kUNKNOWN:$",
                         "wnwmwkwbqc",
                         "zYna%i%qj%",
-                        "kUNKNOWN:$",
                         "lmRnTEOIt"
                     ],
                     "RiskScore": 2,
@@ -947,9 +947,9 @@
                     "MatchStrings": [
                         "kTixuOsFBOtGYSTLRLWK6G",
                         "Go buildinf",
+                        "kUNKNOWN:$",
                         "wnwmwkwbqc",
                         "zYna%i%qj%",
-                        "kUNKNOWN:$",
                         "lmRnTEOIt"
                     ],
                     "RiskScore": 2,
@@ -969,9 +969,9 @@
                     "MatchStrings": [
                         "kTixuOsFBOtGYSTLRLWK6G",
                         "Go buildinf",
+                        "kUNKNOWN:$",
                         "wnwmwkwbqc",
                         "zYna%i%qj%",
-                        "kUNKNOWN:$",
                         "lmRnTEOIt"
                     ],
                     "RiskScore": 2,
@@ -991,9 +991,9 @@
                     "MatchStrings": [
                         "kTixuOsFBOtGYSTLRLWK6G",
                         "Go buildinf",
+                        "kUNKNOWN:$",
                         "wnwmwkwbqc",
                         "zYna%i%qj%",
-                        "kUNKNOWN:$",
                         "lmRnTEOIt"
                     ],
                     "RiskScore": 2,

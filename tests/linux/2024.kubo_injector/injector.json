@@ -62,8 +62,8 @@
                     "Description": "may inject code into other processes",
                     "MatchStrings": [
                         "successfully injected",
-                        "to-inject",
                         "to inject",
+                        "to-inject",
                         "/proc",
                         "maps"
                     ],

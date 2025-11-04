@@ -6,6 +6,7 @@ package report
 import (
 	"context"
 	"fmt"
+	"maps"
 	"net/url"
 	"path/filepath"
 	"regexp"
@@ -252,34 +253,44 @@ func longestUnique(raw []string) []string {
 		return raw
 	}
 
-	safe := make([]string, len(raw))
-	copy(safe, raw)
+	unique := make(map[string]struct{}, len(raw))
+	for _, s := range raw {
+		if s != "" {
+			unique[s] = struct{}{}
+		}
+	}
 
-	// Sort by length first (descending)
-	sort.Slice(safe, func(i, j int) bool {
-		return len(safe[i]) > len(safe[j])
+	if len(unique) == 0 {
+		return nil
+	}
+
+	keys := slices.Sorted(maps.Keys(unique))
+	slices.SortFunc(keys, func(a, b string) int {
+		diff := len(b) - len(a)
+		switch {
+		case diff != 0:
+			return diff
+		case a < b:
+			return -1
+		case a > b:
+			return 1
+		default:
+			return 0
+		}
 	})
 
-	longest := make([]string, 0, len(safe))
-	seen := make(map[string]bool, len(safe))
+	longest := make([]string, 0, len(keys))
 
-	// Since we sorted by length, longest strings come first
-	// This ensures we keep the longest strings that contain shorter ones
-	for _, s := range safe {
-		if s == "" || seen[s] {
-			continue
-		}
-
-		isLongest := true
+	for _, s := range keys {
+		contained := false
 		for _, o := range longest {
 			if strings.Contains(o, s) {
-				isLongest = false
+				contained = true
 				break
 			}
 		}
-		if isLongest {
+		if !contained {
 			longest = append(longest, s)
-			seen[s] = true
 		}
 	}
 
@@ -294,7 +305,12 @@ func matchToString(ruleName string, m string) string {
 	switch {
 	case strings.Contains(ruleName, "base64"),
 		strings.Contains(ruleName, "xor"):
-		return ruleName + "::" + m
+		var sb strings.Builder
+		sb.Grow(len(ruleName) + 2 + len(m))
+		sb.WriteString(ruleName)
+		sb.WriteString("::")
+		sb.WriteString(m)
+		return sb.String()
 	case strings.Contains(ruleName, "xml_key_val"):
 		return strings.TrimSpace(strings.ReplaceAll(
 			strings.ReplaceAll(m, "<key>", ""),

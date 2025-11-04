@@ -31,6 +31,7 @@ func NewStringPool(length int) *StringPool {
 func (sp *StringPool) Intern(s string) string {
 	sp.RLock()
 	defer sp.RUnlock()
+
 	if interned, ok := sp.strings[s]; ok {
 		return interned
 	}

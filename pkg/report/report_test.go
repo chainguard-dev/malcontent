@@ -20,7 +20,7 @@ func TestLongestUnique(t *testing.T) {
 		{
 			name: "Test 2",
 			raw:  []string{"test", "testing", "tester", "testest"},
-			want: []string{"testing", "testest", "tester"},
+			want: []string{"testest", "testing", "tester"},
 		},
 		{
 			name: "Test 3",
