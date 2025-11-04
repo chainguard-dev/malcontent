@@ -237,19 +237,19 @@ func (m *mainModel) performSearch() {
 		if strings.Contains(lowerLine, term) {
 			foundMatch = true
 			lastIndex := 0
-			resultLine := ""
+			var resultLine strings.Builder
 			for {
 				index := strings.Index(strings.ToLower(line[lastIndex:]), term)
 				if index == -1 {
-					resultLine += line[lastIndex:]
+					resultLine.WriteString(line[lastIndex:])
 					break
 				}
-				resultLine += line[lastIndex : lastIndex+index]
+				resultLine.WriteString(line[lastIndex : lastIndex+index])
 				matchText := line[lastIndex+index : lastIndex+index+len(term)]
-				resultLine += matchStyle.Render(matchText)
+				resultLine.WriteString(matchStyle.Render(matchText))
 				lastIndex += index + len(term)
 			}
-			matchedLines = append(matchedLines, resultLine)
+			matchedLines = append(matchedLines, resultLine.String())
 		} else if foundMatch {
 			matchedLines = append(matchedLines, line)
 			foundMatch = false
