@@ -267,8 +267,7 @@ func BenchmarkRecursive(b *testing.B) {
 	ctx := context.Background()
 	fss := getAllRuleFS()
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		rules, err := Recursive(ctx, fss)
 		if err != nil {
 			b.Fatalf("Compilation failed: %v", err)
@@ -284,8 +283,7 @@ func BenchmarkRecursiveCachedFirstRun(b *testing.B) {
 	ctx := context.Background()
 	fss := getAllRuleFS()
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		rules, err := Recursive(ctx, fss)
 		if err != nil {
 			b.Fatalf("Compilation failed: %v", err)
@@ -306,8 +304,7 @@ func BenchmarkRecursiveCachedSubsequentRuns(b *testing.B) {
 		b.Fatalf("Failed to populate cache: %v", err)
 	}
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		rules, err := RecursiveCached(ctx, fss)
 		if err != nil {
 			b.Fatalf("Cached compilation failed: %v", err)
@@ -323,8 +320,7 @@ func BenchmarkGetRulesHash(b *testing.B) {
 	ctx := context.Background()
 	realFS := getAllRuleFS()
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		hash, err := getRulesHash(ctx, realFS)
 		if err != nil {
 			b.Fatalf("Hash calculation failed: %v", err)
@@ -349,7 +345,7 @@ func BenchmarkCacheOperations(b *testing.B) {
 	cacheFile := filepath.Join(tempDir, "benchmark-rules.cache")
 
 	b.Run("Save", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for i := 0; b.Loop(); i++ {
 			testFile := filepath.Join(tempDir, "test-"+string(rune('a'+i%26))+".cache")
 			err := saveCachedRules(rules, testFile)
 			if err != nil {
@@ -364,7 +360,7 @@ func BenchmarkCacheOperations(b *testing.B) {
 	}
 
 	b.Run("Load", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			loadedRules, err := loadCachedRules(cacheFile)
 			if err != nil {
 				b.Fatalf("Failed to load rules: %v", err)
@@ -382,7 +378,7 @@ func BenchmarkCompareCompilation(b *testing.B) {
 	fss := getAllRuleFS()
 
 	b.Run("Uncached", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			rules, err := Recursive(ctx, fss)
 			if err != nil {
 				b.Fatalf("Uncached compilation failed: %v", err)
@@ -394,7 +390,7 @@ func BenchmarkCompareCompilation(b *testing.B) {
 	})
 
 	b.Run("CachedFirstRun", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			rules, err := Recursive(ctx, fss)
 			if err != nil {
 				b.Fatalf("Compilation failed: %v", err)
@@ -414,7 +410,7 @@ func BenchmarkCompareCompilation(b *testing.B) {
 		}
 
 		b.ResetTimer()
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			rules, err := RecursiveCached(ctx, fss)
 			if err != nil {
 				b.Fatalf("Cached compilation failed: %v", err)
