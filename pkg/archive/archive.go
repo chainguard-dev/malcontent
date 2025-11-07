@@ -31,7 +31,22 @@ var (
 
 // isValidPath checks if the target file is within the given directory.
 func IsValidPath(target, dir string) bool {
-	return strings.HasPrefix(filepath.Clean(target), filepath.Clean(dir))
+	cleanTarget := filepath.Clean(target)
+	cleanDir := filepath.Clean(dir)
+
+	switch {
+	case cleanDir == "", cleanTarget == "":
+		return false
+	case !strings.HasPrefix(cleanTarget, cleanDir):
+		return false
+	case cleanTarget == cleanDir:
+		return true
+	case len(cleanTarget) > len(cleanDir):
+		nextChar := cleanTarget[len(cleanDir)]
+		return nextChar == filepath.Separator || nextChar == '/'
+	default:
+		return false
+	}
 }
 
 func extractNestedArchive(ctx context.Context, c malcontent.Config, d string, f string, extracted *sync.Map, logger *clog.Logger) error {

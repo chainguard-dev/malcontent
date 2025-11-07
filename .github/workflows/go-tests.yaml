@@ -84,3 +84,42 @@ jobs:
       - name: Integration tests
         run: |
           make integration
+
+  fuzz:
+    if: ${{ github.repository }} == 'chainguard-dev/malcontent'
+    runs-on: mal-ubuntu-latest-8-core
+    container:
+      image: cgr.dev/chainguard/wolfi-base:latest
+      options: >-
+        --cap-add DAC_OVERRIDE
+        --cap-add SETGID
+        --cap-add SETUID
+        --cap-drop ALL
+        --cgroupns private
+        --cpu-shares=8192
+        --memory-swappiness=0
+        --security-opt no-new-privileges
+        --ulimit core=0
+        --ulimit nofile=4096:4096
+        --ulimit nproc=4096:4096
+    steps:
+      - name: Install dependencies
+        run: |
+          apk update
+          apk add curl findutils git go nodejs upx xz yara-x
+
+      - name: Checkout code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+
+      - name: Trust repository
+        run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
+
+      - name: Clone malcontent samples required for Fuzz tests
+        run: |
+          make samples
+
+      - name: Fuzz tests
+        run: |
+          make fuzz

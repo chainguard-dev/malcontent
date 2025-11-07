@@ -123,6 +123,8 @@ out/$(YARA_X_REPO)/.git/commit-$(YARA_X_COMMIT):
 	git -C out/$(YARA_X_REPO) checkout $(YARA_X_COMMIT)
 	touch out/$(YARA_X_REPO)/.git/commit-$(YARA_X_COMMIT)
 
+samples: out/$(SAMPLES_REPO)/.decompressed-$(SAMPLES_COMMIT)
+
 .PHONY: install-yara-x
 install-yara-x: out/$(YARA_X_REPO)/.git/commit-$(YARA_X_COMMIT)
 	mkdir -p out/lib
@@ -135,6 +137,27 @@ install-yara-x: out/$(YARA_X_REPO)/.git/commit-$(YARA_X_COMMIT)
 .PHONY: test
 test:
 	go test -race ./pkg/...
+
+.PHONY: fuzz
+fuzz:
+	go test -fuzz=FuzzExtractTar -fuzztime=10s ./pkg/archive/
+	go test -fuzz=FuzzExtractZip -fuzztime=10s ./pkg/archive/
+	go test -fuzz=FuzzExtractArchive -fuzztime=10s ./pkg/archive/
+	go test -fuzz=FuzzIsValidPath -fuzztime=10s ./pkg/archive/
+	go test -fuzz=FuzzFile -fuzztime=30s ./pkg/programkind/
+	go test -fuzz=FuzzPath -fuzztime=10s ./pkg/programkind/
+	go test -fuzz=FuzzGetExt -fuzztime=10s ./pkg/programkind/
+	go test -fuzz=FuzzLongestUnique -fuzztime=10s ./pkg/report/
+	go test -fuzz=FuzzTrimPrefixes -fuzztime=10s ./pkg/report/
+	go test -fuzz=FuzzMatchToString -fuzztime=10s ./pkg/report/
+
+# fuzz tests - runs continuously (use Ctrl+C to stop)
+# Usage: make fuzz-continuous FUZZ_TARGET=FuzzExtractArchive FUZZ_PKG=./pkg/archive/
+FUZZ_TARGET ?= FuzzExtractArchive
+FUZZ_PKG ?= ./pkg/archive/
+.PHONY: fuzz-continuous
+fuzz-continuous:
+	go test -fuzz=$(FUZZ_TARGET) $(FUZZ_PKG)
 
 # unit tests only
 .PHONY: coverage
