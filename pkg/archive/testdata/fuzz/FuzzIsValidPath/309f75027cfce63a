@@ -1,0 +1,3 @@
+go test fuzz v1
+string("/va")
+string("/va0")
