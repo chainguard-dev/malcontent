@@ -116,6 +116,10 @@ jobs:
       - name: Trust repository
         run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
 
+      - name: Clone malcontent samples required for Fuzz tests
+        run: |
+          make samples
+
       - name: Fuzz tests
         run: |
           make fuzz

@@ -5,19 +5,29 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 )
 
 // FuzzFile tests file type detection with random inputs.
 func FuzzFile(f *testing.F) {
-	testFiles := []string{
-		"../../tests/linux/clean/ls",
-		"../../tests/linux/clean/busybox",
-	}
-
-	for _, tf := range testFiles {
-		if data, err := os.ReadFile(tf); err == nil {
-			f.Add(data, filepath.Base(tf))
+	samplesDir := "../../out/chainguard-dev/malcontent-samples"
+	err := filepath.WalkDir(samplesDir, func(path string, d os.DirEntry, _ error) error {
+		if d == nil || d.IsDir() {
+			return nil
 		}
+		if filepath.Base(path)[0] == '.' {
+			return nil
+		}
+
+		if data, readErr := os.ReadFile(path); readErr == nil {
+			if len(data) <= 10*1024*1024 { // 10MB max
+				f.Add(data, filepath.Base(path))
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		f.Logf("Could not walk samples directory: %v", err)
 	}
 
 	f.Add([]byte{0x7f, 0x45, 0x4c, 0x46}, "test.elf")                 // ELF magic
@@ -51,7 +61,9 @@ func FuzzFile(f *testing.F) {
 		}
 		tmpFile.Close()
 
-		ctx := context.Background()
+		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+		defer cancel()
+
 		ft, err := File(ctx, tmpFile.Name())
 
 		_ = ft

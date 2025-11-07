@@ -123,6 +123,8 @@ out/$(YARA_X_REPO)/.git/commit-$(YARA_X_COMMIT):
 	git -C out/$(YARA_X_REPO) checkout $(YARA_X_COMMIT)
 	touch out/$(YARA_X_REPO)/.git/commit-$(YARA_X_COMMIT)
 
+samples: out/$(SAMPLES_REPO)/.decompressed-$(SAMPLES_COMMIT)
+
 .PHONY: install-yara-x
 install-yara-x: out/$(YARA_X_REPO)/.git/commit-$(YARA_X_COMMIT)
 	mkdir -p out/lib
@@ -142,7 +144,7 @@ fuzz:
 	go test -fuzz=FuzzExtractZip -fuzztime=10s ./pkg/archive/
 	go test -fuzz=FuzzExtractArchive -fuzztime=10s ./pkg/archive/
 	go test -fuzz=FuzzIsValidPath -fuzztime=10s ./pkg/archive/
-	go test -fuzz=FuzzFile -fuzztime=10s ./pkg/programkind/
+	go test -fuzz=FuzzFile -fuzztime=30s ./pkg/programkind/
 	go test -fuzz=FuzzPath -fuzztime=10s ./pkg/programkind/
 	go test -fuzz=FuzzGetExt -fuzztime=10s ./pkg/programkind/
 	go test -fuzz=FuzzLongestUnique -fuzztime=10s ./pkg/report/
