@@ -338,13 +338,11 @@ func (r *Interactive) Name() string {
 }
 
 func (r *Interactive) Start() {
-	r.wg.Add(1)
-	go func() {
-		defer r.wg.Done()
+	r.wg.Go(func() {
 		if _, err := r.program.Run(); err != nil {
 			fmt.Fprintf(os.Stderr, "Error running program: %v\n", err)
 		}
-	}()
+	})
 }
 
 func (r *Interactive) Scanning(ctx context.Context, path string) {
