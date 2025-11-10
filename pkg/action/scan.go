@@ -84,19 +84,6 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	})
 	buf := readPool.Get(readBuffer) //nolint:nilaway // the buffer pool is created above
 
-	var fc bytes.Buffer
-	_, err = io.CopyBuffer(&fc, io.LimitReader(f, maxBytes), buf)
-	if err != nil {
-		return nil, err
-	}
-
-	h := sha256.New()
-	_, err = h.Write(fc.Bytes())
-	if err != nil {
-		return nil, err
-	}
-	checksum := fmt.Sprintf("%x", h.Sum(nil))
-
 	mime := "<unknown>"
 	kind, err := programkind.File(ctx, path)
 	if err != nil && !interactive(c) {
@@ -151,6 +138,20 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		}
 		return fr, nil
 	}
+
+	// Only retrieve the file's contents and calculate its checksum if we need to generate a report
+	var fc bytes.Buffer
+	_, err = io.CopyBuffer(&fc, io.LimitReader(f, maxBytes), buf)
+	if err != nil {
+		return nil, err
+	}
+
+	h := sha256.New()
+	_, err = h.Write(fc.Bytes())
+	if err != nil {
+		return nil, err
+	}
+	checksum := fmt.Sprintf("%x", h.Sum(nil))
 
 	fr, err := report.Generate(ctx, path, mrs, c, archiveRoot, logger, fc.Bytes(), size, checksum, kind, risk)
 	if err != nil {
