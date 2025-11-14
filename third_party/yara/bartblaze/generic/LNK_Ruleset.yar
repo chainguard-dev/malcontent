@@ -8,7 +8,7 @@ private rule isLNK
         version = "1.0"
         creation_date = "2020-01-01"
         first_imported = "2021-12-30"
-        last_modified = "2021-12-30"
+        last_modified = "2025-11-14"
         status = "RELEASED"
         sharing = "TLP:WHITE"
         source = "BARTBLAZE"
@@ -54,7 +54,7 @@ rule PS_in_LNK
         $ = "bypass" ascii wide nocase
 
     condition:
-        isLNK and any of them
+        isLNK and 2 of them
 }
 
 rule Script_in_LNK
