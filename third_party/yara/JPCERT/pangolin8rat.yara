@@ -1,7 +1,7 @@
 
 rule malware_Pangolin8RAT {
     meta:
-        description = "Hunt GobLoaderScript"
+        description = "Hunt Pangolin8RAT"
         author = "JPCERT/CC Incident Response Group"
         hash = "F95441B1CD6399887E99DBE6AA0CEB0CA907E8175192E71F8F1A4CCA49E8FC82"
 
