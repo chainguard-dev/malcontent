@@ -35,10 +35,10 @@ jobs:
         run: |
           apk update
           apk add bash curl findutils gh git go nodejs perl upx xz yara-x
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
       - name: Trust repository
         run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
-      - uses: chainguard-dev/actions/setup-gitsign@abcc11e1cf9073eff6c69e91c49756c1430b094c
+      - uses: chainguard-dev/actions/setup-gitsign@b479012116eacde7f895586c17b598f7ba0ee700
       - name: Set up Octo-STS
         uses: octo-sts/action@d6c70ad3b9ac85df6da6b9749014d7283987cfec # v1.0.3
         id: octo-sts
