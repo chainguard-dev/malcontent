@@ -440,3 +440,26 @@ rule CDN_in_LNK
     condition:
         isLNK and any of them
 }
+
+rule WebDAV_in_LNK
+{
+    meta:
+        id = "1Be4RxPZQBGIyDOiKzgw"
+        fingerprint = "v1_sha256_ee6d3555011e9eec0b9724327fc17394c45f985249a5a3ce000cad505399a10b"
+        version = "1.0"
+        date = "2025-11-20"
+        modified = "2025-11-20"
+        status = "RELEASED"
+        sharing = "TLP:CLEAR"
+        source = "BARTBLAZE"
+        author = "@bartblaze"
+        description = "Identifies WebDAV in shortcut (LNK) file."
+        category = "INFO"
+
+    strings:
+        $ = "\\DavWWWRoot\\" ascii wide nocase
+        $ = "\\webdav\\" ascii wide nocase
+
+    condition:
+        isLNK and any of them
+}
