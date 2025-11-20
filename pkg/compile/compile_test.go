@@ -254,7 +254,9 @@ func TestCacheFileSize(t *testing.T) {
 		t.Fatalf("Failed to stat cache file: %v", err)
 	}
 
-	if fi.Size() < 50000000 {
+	// yara-x 1.10.0 reduced compiled ruleset sizes
+	// originally 50000000
+	if fi.Size() < 30000000 {
 		t.Fatalf("Cache file seems too small: %d bytes", fi.Size())
 	}
 
