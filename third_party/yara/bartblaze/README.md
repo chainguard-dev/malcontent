@@ -31,7 +31,7 @@ There's two workflows running on this Github repository:
 [![Package Yara Rules](https://github.com/bartblaze/Yara-rules/actions/workflows/yara.yml/badge.svg)](https://github.com/bartblaze/Yara-rules/actions/workflows/yara.yml)
 
 ## Minimum Yara version needed?
-**v3.3.0** is minimally needed, as some rules may require a specific module. Note that it's recommended to always use the latest Yara version as found [here](https://github.com/VirusTotal/yara/releases). Yara 4.5.1, likely the last release to be available, works without issue.
+**v3.3.0** is minimally needed, as some rules may require a specific module. Note that it's recommended to always use the latest Yara version as found [here](https://github.com/VirusTotal/yara/releases). Yara 4.5.5, likely the last release to be available, works without issue.
 
 ## Do the rules work with Yara-X?
 [Yara-X](https://github.com/VirusTotal/yara-x), a rewrite of Yara in Rust, should have no difficulty running the rules in this repo. At time of writing, Yara-X v0.6.0 works fine with the rules presented here.
@@ -50,8 +50,8 @@ More information: https://yara.readthedocs.io/en/stable/index.html
 ## What is TLP?
 > The Traffic Light Protocol (TLP) was created in order to facilitate greater sharing of information.
 
-The rules in this repo are TLP:White (or TLP:Clear).
-> Subject to standard copyright rules, TLP:WHITE information may be distributed without restriction.
+The rules in this repo are TLP:CLEAR.
+> Recipients may share this information without restriction. Information is subject to standard copyright rules.
 
 More information: https://www.us-cert.gov/tlp
 

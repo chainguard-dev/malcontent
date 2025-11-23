@@ -6,7 +6,7 @@ rule NikiGo
         version = "1.0"
         date = "2024-06"
         status = "RELEASED"
-        sharing = "TLP:WHITE"
+        sharing = "TLP:CLEAR"
         source = "BARTBLAZE"
         author = "@bartblaze, @nsquar3"
         description = "Identifies NikiGo, a Go dropper by (likely) Kimsuky."

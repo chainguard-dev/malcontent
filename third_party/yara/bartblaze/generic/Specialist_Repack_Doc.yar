@@ -8,7 +8,7 @@ rule Specialist_Repack_Doc
         first_imported = "2022-01-24"
         last_modified = "2022-01-24"
         status = "RELEASED"
-        sharing = "TLP:WHITE"
+        sharing = "TLP:CLEAR"
         source = "BARTBLAZE"
         author = "@bartblaze"
         description = "Identifies Office documents created by a cracked Office version, SPecialiST RePack."

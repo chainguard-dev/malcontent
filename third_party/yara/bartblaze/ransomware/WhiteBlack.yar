@@ -8,7 +8,7 @@ rule WhiteBlack
         first_imported = "2022-02-03"
         last_modified = "2022-02-03"
         status = "RELEASED"
-        sharing = "TLP:WHITE"
+        sharing = "TLP:CLEAR"
         source = "BARTBLAZE"
         author = "@bartblaze"
         description = "Identifies WhiteBlack ransomware."

@@ -8,7 +8,7 @@ rule OfflRouter
         first_imported = "2022-01-24"
         last_modified = "2022-01-24"
         status = "RELEASED"
-        sharing = "TLP:WHITE"
+        sharing = "TLP:CLEAR"
         source = "BARTBLAZE"
         author = "@bartblaze"
         description = "Identifies OfflRouter, malware which spreads to Office documents and removable drives."

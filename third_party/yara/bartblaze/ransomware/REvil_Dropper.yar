@@ -8,7 +8,7 @@ rule REvil_Dropper
         first_imported = "2021-12-30"
         last_modified = "2021-12-30"
         status = "RELEASED"
-        sharing = "TLP:WHITE"
+        sharing = "TLP:CLEAR"
         source = "BARTBLAZE"
         author = "@bartblaze"
         description = "Identifies the dropper used by REvil in the Kaseya supply chain attack."

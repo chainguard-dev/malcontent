@@ -7,7 +7,7 @@ rule Unk_Crime_Downloader_2
         date = "2024-03-20"
         modified = "2024-03-20"
         status = "RELEASED"
-        sharing = "TLP:WHITE"
+        sharing = "TLP:CLEAR"
         source = "BARTBLAZE"
         author = "@bartblaze"
         description = "Identifies what appears to be related to PureLogs stealer, but it's likely a 2nd stage with the final stage to be downloaded."
