@@ -7,7 +7,7 @@ rule SharpHostInfo
         date = "2025-07-24"
         modified = "2025-07-24"
         status = "RELEASED"
-        sharing = "TLP:WHITE"
+        sharing = "TLP:CLEAR"
         source = "BARTBLAZE"
         author = "@bartblaze"
         description = "Identifies SharpHostInfo, a tool used for quickly detecting intranet host information and also abused by attackers such as Storm-2603."

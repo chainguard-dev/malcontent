@@ -7,7 +7,7 @@ rule WinRAR_ADS_Traversal
         date = "2025-08-12"
         modified = "2025-08-12"
         status = "RELEASED"
-        sharing = "TLP:WHITE"
+        sharing = "TLP:CLEAR"
         source = "BARTBLAZE"
         author = "@bartblaze"
         description = "Identifies potential ADS traversal in RAR archives."

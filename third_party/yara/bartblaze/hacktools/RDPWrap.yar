@@ -8,7 +8,7 @@ rule RDPWrap
         first_imported = "2021-12-30"
         last_modified = "2022-11-04"
         status = "RELEASED"
-        sharing = "TLP:WHITE"
+        sharing = "TLP:CLEAR"
         source = "BARTBLAZE"
         author = "@bartblaze"
         description = "Identifies RDP Wrapper, sometimes used by attackers to maintain persistence."

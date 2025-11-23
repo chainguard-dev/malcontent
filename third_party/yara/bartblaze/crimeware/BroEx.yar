@@ -7,7 +7,7 @@ meta:
 	first_imported = "2023-09-18"
 	last_modified = "2025-03-10"
 	status = "RELEASED"
-	sharing = "TLP:WHITE"
+	sharing = "TLP:CLEAR"
 	source = "BARTBLAZE"
 	author = "@bartblaze"
 	description = "Detects BroEx, a type of agressive adware."

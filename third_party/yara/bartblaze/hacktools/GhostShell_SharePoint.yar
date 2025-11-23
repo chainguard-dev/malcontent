@@ -8,7 +8,7 @@ rule GhostShell_SharePoint
         date = "2025-07-25"
         modified = "2025-07-25"
         status = "RELEASED"
-        sharing = "TLP:WHITE"
+        sharing = "TLP:CLEAR"
         source = "BARTBLAZE"
         author = "@bartblaze"
         description = "Identifies compiled Ghostfile.aspx, simple reverse shell / backdoor as also seen in the ToolShell (SharePoint) attacks."

@@ -6,7 +6,7 @@ meta:
 	version = "1.0"
 	modified = "2024-03-08"
 	status = "RELEASED"
-	sharing = "TLP:WHITE"
+	sharing = "TLP:CLEAR"
 	source = "BARTBLAZE"
 	author = "@bartblaze"
 	description = "Identifies RokRAT."

@@ -7,7 +7,7 @@ rule Warlock
         date = "2025-07-24"
         modified = "2025-07-24"
         status = "RELEASED"
-        sharing = "TLP:WHITE"
+        sharing = "TLP:CLEAR"
         source = "BARTBLAZE"
         author = "@bartblaze"
         description = "Identifies Warlock ransomware used by Storm-2603. It is also known as x2anylock ransomware and is a Lockbit (Black) derivative."

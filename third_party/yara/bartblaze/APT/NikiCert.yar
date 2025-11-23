@@ -7,7 +7,7 @@ rule NikiCert
         version = "1.0"
         creation_date = "2024-06"
         status = "RELEASED"
-        sharing = "TLP:WHITE"
+        sharing = "TLP:CLEAR"
         source = "BARTBLAZE"
         author = "@bartblaze, @nsquar3"
         description = "Identifies Nexaweb digital certificate used in (likely) Kimsuky campaign."

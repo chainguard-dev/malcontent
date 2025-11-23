@@ -8,7 +8,7 @@ rule SharpAdidnsdump
         date = "2025-07-24"
         modified = "2025-07-24"
         status = "RELEASED"
-        sharing = "TLP:WHITE"
+        sharing = "TLP:CLEAR"
         source = "BARTBLAZE"
         author = "@bartblaze"
         description = "Identifies SharpAdidnsdump, which allows for AD integrated DNS dumping and also abused by attackers such as Storm-2603."

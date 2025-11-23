@@ -8,7 +8,7 @@ rule Ekans
         first_imported = "2021-12-30"
         last_modified = "2023-12-24"
         status = "RELEASED"
-        sharing = "TLP:WHITE"
+        sharing = "TLP:CLEAR"
         source = "BARTBLAZE"
         author = "@bartblaze"
         description = "Identifies Ekans aka Snake ransomware unpacked or in memory."

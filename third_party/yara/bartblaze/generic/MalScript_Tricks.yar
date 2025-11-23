@@ -8,7 +8,7 @@ rule MalScript_Tricks
         first_imported = "2021-12-30"
         last_modified = "2025-03-10"
         status = "RELEASED"
-        sharing = "TLP:WHITE"
+        sharing = "TLP:CLEAR"
         source = "BARTBLAZE"
         author = "@bartblaze"
         description = "Identifies tricks often seen in malicious scripts such as moving the window off-screen or resizing it to zero."

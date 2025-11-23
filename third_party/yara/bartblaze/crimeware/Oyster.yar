@@ -7,7 +7,7 @@ rule Oyster
         date = "2025-09-26"
         modified = "2025-09-26"
         status = "RELEASED"
-        sharing = "TLP:WHITE"
+        sharing = "TLP:CLEAR"
         source = "BARTBLAZE"
         author = "@bartblaze"
         description = "Identifies Oyster aka Broomstick aka CleanUp backdoor."

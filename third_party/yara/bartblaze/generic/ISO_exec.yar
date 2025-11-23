@@ -7,7 +7,7 @@ rule ISO_exec
         first_imported = "2022-07-29"
         last_modified = "2022-07-29"
         status = "RELEASED"
-        sharing = "TLP:WHITE"
+        sharing = "TLP:CLEAR"
         source = "BARTBLAZE"
         author = "@bartblaze"
         description = "Identifies execution artefacts in ISO files, seen in malware such as Bumblebee."

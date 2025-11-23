@@ -8,7 +8,7 @@ rule EE_Dropper
         date = "2025-10-27"
         modified = "2025-10-27"
         status = "RELEASED"
-        sharing = "TLP:WHITE"
+        sharing = "TLP:CLEAR"
         source = "BARTBLAZE"
         author = "@bartblaze"
         description = "Identifies dropper, EXE dropping and loading 3 CAB files, as seen in Earth Estries campaign."
