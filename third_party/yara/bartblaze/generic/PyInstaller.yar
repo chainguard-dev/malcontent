@@ -11,7 +11,7 @@ rule PyInstaller
         first_imported = "2021-12-30"
         last_modified = "2023-12-28"
         status = "RELEASED"
-        sharing = "TLP:WHITE"
+        sharing = "TLP:CLEAR"
         source = "BARTBLAZE"
         author = "@bartblaze"
         description = "Identifies executable converted using PyInstaller. This rule by itself does NOT necessarily mean the detected file is malicious."

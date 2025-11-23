@@ -7,7 +7,7 @@ meta:
 	first_imported = "2023-05-26"
 	last_modified = "2024-08-14"
 	status = "RELEASED"
-	sharing = "TLP:WHITE"
+	sharing = "TLP:CLEAR"
 	source = "BARTBLAZE"
 	author = "@bartblaze"
 	description = "Identifies Aurora Stealer."

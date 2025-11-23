@@ -7,7 +7,7 @@ meta:
 	first_imported = "2023-08-01"
 	last_modified = "2025-03-10"
 	status = "RELEASED"
-	sharing = "TLP:WHITE"
+	sharing = "TLP:CLEAR"
 	source = "BARTBLAZE"
 	author = "@bartblaze"
 	description = "Worm that spreads via Call of Duty Modern Warfare 2, 2009 version."

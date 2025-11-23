@@ -8,7 +8,7 @@ rule Unk_DesktopLoader
         first_imported = "2021-12-30"
         last_modified = "2021-12-30"
         status = "RELEASED"
-        sharing = "TLP:WHITE"
+        sharing = "TLP:CLEAR"
         source = "BARTBLAZE"
         author = "@bartblaze"
         description = "Identifies implant that will decrypt and load shellcode from a blob file. Calling it DesktopLoader for now, based on the filename it seeks."

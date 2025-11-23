@@ -8,7 +8,7 @@ rule oAuth_Phishing_PDF
         first_imported = "2022-02-03"
         last_modified = "2025-03-10"
         status = "RELEASED"
-        sharing = "TLP:WHITE"
+        sharing = "TLP:CLEAR"
         source = "BARTBLAZE"
         author = "@bartblaze"
         description = "Identifies potential phishing PDFs that target oAuth."

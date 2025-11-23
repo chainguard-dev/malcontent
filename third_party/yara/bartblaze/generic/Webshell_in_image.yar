@@ -8,7 +8,7 @@ rule Webshell_in_image
         first_imported = "2021-12-30"
         last_modified = "2025-02-14"
         status = "RELEASED"
-        sharing = "TLP:WHITE"
+        sharing = "TLP:CLEAR"
         source = "BARTBLAZE"
         author = "@bartblaze"
         description = "Identifies a webshell or backdoor in image files."

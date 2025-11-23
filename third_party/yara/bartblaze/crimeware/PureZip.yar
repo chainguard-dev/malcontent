@@ -7,7 +7,7 @@ rule PureZip
         date = "2024-03-20"
         modified = "2024-03-20"
         status = "RELEASED"
-        sharing = "TLP:WHITE"
+        sharing = "TLP:CLEAR"
         source = "BARTBLAZE"
         author = "@bartblaze"
         description = "Identifies ZIP files with a hidden file named '__.exe', as seen in a massive PureCrypt campaign in Q1 2024."

@@ -8,7 +8,7 @@ rule OLEfile_in_CAD_FAS_LSP
         first_imported = "2021-12-30"
         last_modified = "2021-12-30"
         status = "RELEASED"
-        sharing = "TLP:WHITE"
+        sharing = "TLP:CLEAR"
         source = "BARTBLAZE"
         author = "@bartblaze"
         description = "Identifies OLE files embedded in AutoCAD and related Autodesk files, quite uncommon and potentially malicious."

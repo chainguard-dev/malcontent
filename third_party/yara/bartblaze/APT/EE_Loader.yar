@@ -7,7 +7,7 @@ rule EE_Loader
         date = "2025-10-27"
         modified = "2025-10-27"
         status = "RELEASED"
-        sharing = "TLP:WHITE"
+        sharing = "TLP:CLEAR"
         source = "BARTBLAZE"
         author = "@bartblaze"
         description = "Identifies loader used by Earth Estries."

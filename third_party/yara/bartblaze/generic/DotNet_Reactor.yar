@@ -7,7 +7,7 @@ rule DotNet_Reactor
         date = "2024-03-20"
         modified = "2024-04-02"
         status = "RELEASED"
-        sharing = "TLP:WHITE"
+        sharing = "TLP:CLEAR"
         source = "BARTBLAZE"
         author = "@bartblaze"
         description = "Identifies .NET Reactor, which offers .NET code protection such as obfuscation, encryption and so on."

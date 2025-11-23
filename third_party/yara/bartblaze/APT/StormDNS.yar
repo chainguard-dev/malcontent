@@ -7,7 +7,7 @@ rule StormDNS
         date = "2025-07-24"
         modified = "2025-07-24"
         status = "RELEASED"
-        sharing = "TLP:WHITE"
+        sharing = "TLP:CLEAR"
         source = "BARTBLAZE"
         author = "@bartblaze"
         description = "Identifies StormDNS, a DNS shell used by Storm-260 to receive and execute commands from a C2."

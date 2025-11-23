@@ -7,7 +7,7 @@ rule OneNote_BuildPath
         first_imported = "2023-02-02"
         last_modified = "2023-02-23"
         status = "RELEASED"
-        sharing = "TLP:WHITE"
+        sharing = "TLP:CLEAR"
         source = "BARTBLAZE"
         author = "@bartblaze"
         description = "Identifies malicious OneNote file by build path."
