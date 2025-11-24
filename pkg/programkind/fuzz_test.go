@@ -64,7 +64,7 @@ func FuzzFile(f *testing.F) {
 		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
 		defer cancel()
 
-		ft, err := File(ctx, tmpFile.Name())
+		_, ft, err := File(ctx, tmpFile.Name())
 
 		_ = ft
 		_ = err

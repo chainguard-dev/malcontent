@@ -20,7 +20,7 @@ import (
 
 const (
 	extractBuffer = 64 * 1024 // 64KB
-	maxBytes      = 1 << 31   // 2048MB
+	maxBytes      = 1 << 32   // 4GB
 	zipBuffer     = 2 * 1024  // 2KB
 )
 
@@ -72,7 +72,7 @@ func extractNestedArchive(ctx context.Context, c malcontent.Config, d string, f 
 	}
 
 	isArchive := false
-	ft, err := programkind.File(ctx, fullPath)
+	_, ft, err := programkind.File(ctx, fullPath)
 	if err != nil {
 		return fmt.Errorf("failed to determine file type: %w", err)
 	}
@@ -171,7 +171,7 @@ func ExtractArchiveToTempDir(ctx context.Context, c malcontent.Config, path stri
 
 	var extract func(context.Context, string, string) error
 	// Check for zlib-compressed files first and use the zlib-specific function
-	ft, err := programkind.File(ctx, path)
+	_, ft, err := programkind.File(ctx, path)
 	if err != nil {
 		return "", fmt.Errorf("failed to determine file type: %w", err)
 	}

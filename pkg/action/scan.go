@@ -4,11 +4,9 @@
 package action
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
-	"io"
 	"io/fs"
 	"log/slog"
 	"os"
@@ -41,11 +39,7 @@ var (
 	compiledRuleCache   atomic.Pointer[yarax.Rules] // compiledRuleCache are a cache of previously compiled rules.
 	compileOnce         sync.Once                   // compileOnce ensures that we compile rules only once even across threads.
 	ErrMatchedCondition = errors.New("matched exit criteria")
-	initReadPool        sync.Once             // initReadPool ensures that the bytes read pool is only initialized once.
-	initScannerPool     sync.Once             // initScannerPool ensures that the scanner pool is only initialized once.
-	maxBytes            int64     = 1 << 32   // 4GB
-	readBuffer          int64     = 64 * 1024 // 64KB
-	readPool            *pool.BufferPool
+	initScannerPool     sync.Once // initScannerPool ensures that the scanner pool is only initialized once.
 	scannerPool         *pool.ScannerPool
 )
 
@@ -79,13 +73,8 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		return fr, nil
 	}
 
-	initReadPool.Do(func() {
-		readPool = pool.NewBufferPool(runtime.GOMAXPROCS(0))
-	})
-	buf := readPool.Get(readBuffer) //nolint:nilaway // the buffer pool is created above
-
 	mime := "<unknown>"
-	kind, err := programkind.File(ctx, path)
+	fc, kind, err := programkind.File(ctx, path)
 	if err != nil && !interactive(c) {
 		logger.Errorf("file type failure: %s: %s", path, err)
 	}
@@ -139,31 +128,24 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		return fr, nil
 	}
 
-	// Only retrieve the file's contents and calculate its checksum if we need to generate a report
-	var fc bytes.Buffer
-	_, err = io.CopyBuffer(&fc, io.LimitReader(f, maxBytes), buf)
-	if err != nil {
-		return nil, err
-	}
-
+	// Only calculate the file's checksum if we need to generate a report
 	h := sha256.New()
-	_, err = h.Write(fc.Bytes())
+	_, err = h.Write(fc)
 	if err != nil {
 		return nil, err
 	}
 	checksum := fmt.Sprintf("%x", h.Sum(nil))
 
-	fr, err := report.Generate(ctx, path, mrs, c, archiveRoot, logger, fc.Bytes(), size, checksum, kind, risk)
+	fr, err := report.Generate(ctx, path, mrs, c, archiveRoot, logger, fc, size, checksum, kind, risk)
 	if err != nil {
 		return nil, NewFileReportError(err, path, TypeGenerateError)
 	}
 
 	defer func() {
 		f.Close()
-		readPool.Put(buf)
 		scannerPool.Put(scanner)
 		mrs = nil
-		fc.Reset()
+		fc = fc[:0]
 	}()
 
 	// Clean up the path if scanning an archive

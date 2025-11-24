@@ -1,0 +1,4 @@
+# ruby/2020.bitcoin-ruby/the_Score.vbs: medium
+exec/script/wsh: medium
+fs/file/delete: medium
+fs/path/windows_root: low

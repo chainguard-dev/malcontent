@@ -8,6 +8,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"io/fs"
 	"os"
 	"os/exec"
@@ -120,7 +121,10 @@ var (
 	ZMagic    = []byte{0x78, 0x5E}
 )
 
-const headerSize int = 512
+const (
+	maxBytes   int64 = 1 << 32   // 4GB
+	readBuffer int64 = 64 * 1024 // 64KB
+)
 
 // IsSupportedArchive returns whether a path can be processed by our archive extractor.
 // UPX files are an edge case since they may or may not even have an extension that can be referenced.
@@ -128,7 +132,7 @@ func IsSupportedArchive(ctx context.Context, path string) bool {
 	if _, isValidArchive := ArchiveMap[GetExt(path)]; isValidArchive {
 		return true
 	}
-	if ft, err := File(ctx, path); err == nil && ft != nil {
+	if _, ft, err := File(ctx, path); err == nil && ft != nil {
 		if ft.MIME == "application/x-upx" {
 			return true
 		}
@@ -241,97 +245,106 @@ func makeFileType(path string, ext string, mime string) *FileType {
 }
 
 // File detects what kind of program this file might be.
-func File(ctx context.Context, path string) (*FileType, error) {
+func File(ctx context.Context, path string) ([]byte, *FileType, error) {
 	// Follow symlinks and return cleanly if the target does not exist
 	_, err := filepath.EvalSymlinks(path)
 	if os.IsNotExist(err) {
-		return nil, nil
+		return nil, nil, nil
 	}
 
 	st, err := os.Stat(path)
 	if err != nil {
-		return nil, fmt.Errorf("stat: %w", err)
+		return nil, nil, fmt.Errorf("stat: %w", err)
 	}
 
 	if st.IsDir() {
-		return nil, nil
+		return nil, nil, nil
 	}
 	if st.Mode().Type() == fs.ModeIrregular {
-		return nil, nil
+		return nil, nil, nil
 	}
 	if st.Size() == 0 {
-		return nil, nil
+		return nil, nil, nil
 	}
 
 	initializeHeaderPool()
 
-	buf := headerPool.Get(int64(headerSize)) //nolint:nilaway // the buffer pool is created above
+	buf := headerPool.Get(readBuffer) //nolint:nilaway // the buffer pool is created above
 	defer headerPool.Put(buf)
 
 	f, err := os.Open(path)
 	if err != nil {
-		return nil, fmt.Errorf("open: %w", err)
+		return nil, nil, err
 	}
-	defer f.Close()
 
-	bs, err := f.Read(buf)
+	// read the file's contents to determine its type here and to generate reports (if necessary)
+	// scanSinglePath originally read the entire file's contents in addition to this function,
+	// so it makes sense to read the file's contents once and return them even if we don't end up generating a report (due to filtering, size, etc.)
+	// reading the entire file also addresses edge cases where a file's type may not have been identified correctly
+	var b bytes.Buffer
+	_, err = io.CopyBuffer(&b, io.LimitReader(f, maxBytes), buf)
 	if err != nil {
-		return nil, fmt.Errorf("read: %w", err)
+		return nil, nil, err
 	}
-	hdr := buf[:bs]
+	fc := b.Bytes()
 
-	// first strategy: mimetype
-	mimetype.SetLimit(uint32(headerSize))
-	mtype := mimetype.Detect(hdr)
+	defer func() {
+		f.Close()
+		b.Reset()
+	}()
+
+	// handle any UPX files first which are not supported by mimetype and may be incorrectly identified
+	if isUPX, err := IsValidUPX(ctx, fc, path); err == nil && isUPX {
+		return fc, Path(".upx"), nil
+	}
+
+	// default strategy: mimetype
+	mimetype.SetLimit(0)
+	mtype := mimetype.Detect(fc)
 	if ft := makeFileType(path, mtype.Extension(), mtype.String()); ft != nil {
-		return ft, nil
+		return fc, ft, nil
 	}
 
-	// second strategy: path (extension, mostly)
+	// fallback strategy: path (extension, mostly)
 	if mtype := Path(path); mtype != nil {
-		return mtype, nil
-	}
-
-	// final strategy: DIY matching where mimetype is too strict.
-	if isUPX, err := IsValidUPX(ctx, hdr, path); err == nil && isUPX {
-		return Path(".upx"), nil
+		return fc, mtype, nil
 	}
 
 	switch {
-	case bytes.HasPrefix(hdr, elfMagic):
-		return Path(".elf"), nil
-	case bytes.Contains(hdr, []byte("<?php")):
-		return Path(".php"), nil
-	case bytes.HasPrefix(hdr, []byte("import ")):
-		return Path(".py"), nil
-	case bytes.Contains(hdr, []byte(" = require(")):
-		return Path(".js"), nil
-	case bytes.HasPrefix(hdr, []byte("#!/bin/ash")) ||
-		bytes.HasPrefix(hdr, []byte("#!/bin/bash")) ||
-		bytes.HasPrefix(hdr, []byte("#!/bin/fish")) ||
-		bytes.HasPrefix(hdr, []byte("#!/bin/sh")) ||
-		bytes.HasPrefix(hdr, []byte("#!/bin/zsh")) ||
-		bytes.Contains(hdr, []byte("if [")) ||
-		bytes.Contains(hdr, []byte("if !")) ||
-		bytes.Contains(hdr, []byte("echo ")) ||
-		bytes.Contains(hdr, []byte("grep ")) ||
-		bytes.Contains(hdr, []byte("; then")) ||
-		bytes.Contains(hdr, []byte("export ")) ||
+	case bytes.HasPrefix(fc, elfMagic):
+		return fc, Path(".elf"), nil
+	case bytes.Contains(fc, []byte("<?php")):
+		return fc, Path(".php"), nil
+	case bytes.HasPrefix(fc, []byte("import ")):
+		return fc, Path(".py"), nil
+	case bytes.Contains(fc, []byte(" = require(")):
+		return fc, Path(".js"), nil
+	case bytes.HasPrefix(fc, []byte("#!/bin/ash")) ||
+		bytes.HasPrefix(fc, []byte("#!/bin/bash")) ||
+		bytes.HasPrefix(fc, []byte("#!/bin/fish")) ||
+		bytes.HasPrefix(fc, []byte("#!/bin/sh")) ||
+		bytes.HasPrefix(fc, []byte("#!/bin/zsh")) ||
+		bytes.Contains(fc, []byte("if [")) ||
+		bytes.Contains(fc, []byte("if !")) ||
+		bytes.Contains(fc, []byte("echo ")) ||
+		bytes.Contains(fc, []byte("grep ")) ||
+		bytes.Contains(fc, []byte("; then")) ||
+		bytes.Contains(fc, []byte("export ")) ||
 		strings.HasSuffix(path, "profile"):
-		return Path(".sh"), nil
-	case bytes.HasPrefix(hdr, []byte("#!")):
-		return Path(".script"), nil
-	case bytes.Contains(hdr, []byte("#include <")):
-		return Path(".c"), nil
-	case bytes.Contains(hdr, []byte("BEAMAtU8")):
-		return Path(".beam"), nil
-	case bytes.HasPrefix(hdr, gzipMagic):
-		return Path(".gzip"), nil
-	case bytes.HasPrefix(hdr, ZMagic):
-		return Path(".Z"), nil
+		return fc, Path(".sh"), nil
+	case bytes.HasPrefix(fc, []byte("#!")):
+		return fc, Path(".script"), nil
+	case bytes.Contains(fc, []byte("#include <")):
+		return fc, Path(".c"), nil
+	case bytes.Contains(fc, []byte("BEAMAtU8")):
+		return fc, Path(".beam"), nil
+	case bytes.HasPrefix(fc, gzipMagic):
+		return fc, Path(".gzip"), nil
+	case bytes.HasPrefix(fc, ZMagic):
+		return fc, Path(".Z"), nil
 	}
 
-	return nil, nil
+	return nil, nil, nil
 }
 
 func initializeHeaderPool() {
