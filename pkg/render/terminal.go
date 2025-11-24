@@ -107,6 +107,10 @@ func (r Terminal) Full(ctx context.Context, _ *malcontent.Config, rep *malconten
 		return nil
 	}
 
+	if rep.Diff.Added.Len() == 0 && rep.Diff.Removed.Len() == 0 {
+		return nil
+	}
+
 	for removed := rep.Diff.Removed.Oldest(); removed != nil; removed = removed.Next() {
 		renderFileSummary(ctx, removed.Value, r.w, tableConfig{
 			Title:       fmt.Sprintf("Deleted: %s %s", removed.Key, darkBrackets(riskInColor(removed.Value.RiskLevel))),
