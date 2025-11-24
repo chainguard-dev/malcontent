@@ -274,7 +274,7 @@ func File(ctx context.Context, path string) ([]byte, *FileType, error) {
 
 	f, err := os.Open(path)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("open: %w", err)
 	}
 
 	// read the file's contents to determine its type here and to generate reports (if necessary)
