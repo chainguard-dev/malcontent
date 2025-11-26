@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/rw"
 	"github.com/klauspost/compress/zstd"
 )
 
@@ -30,7 +31,7 @@ func ExtractZstd(ctx context.Context, d string, f string) error {
 		return nil
 	}
 
-	buf := archivePool.Get(extractBuffer) //nolint:nilaway // the buffer pool is created in archive.go
+	buf := archivePool.Get(rw.ExtractBuffer) //nolint:nilaway // the buffer pool is created in archive.go
 
 	uncompressed := strings.TrimSuffix(filepath.Base(f), ".zstd")
 	uncompressed = strings.TrimSuffix(uncompressed, ".zst")
@@ -68,15 +69,15 @@ func ExtractZstd(ctx context.Context, d string, f string) error {
 
 	var written int64
 	for {
-		if written > 0 && written%extractBuffer == 0 && ctx.Err() != nil {
+		if written > 0 && written%rw.ExtractBuffer == 0 && ctx.Err() != nil {
 			return ctx.Err()
 		}
 
 		n, err := zr.Read(buf)
 		if n > 0 {
 			written += int64(n)
-			if written > maxBytes {
-				return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
+			if written > rw.MaxBytes {
+				return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", rw.MaxBytes, target)
 			}
 			if _, writeErr := out.Write(buf[:n]); writeErr != nil {
 				return fmt.Errorf("failed to write file contents: %w", writeErr)
