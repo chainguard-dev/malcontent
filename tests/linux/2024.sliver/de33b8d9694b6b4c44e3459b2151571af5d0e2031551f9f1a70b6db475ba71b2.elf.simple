@@ -1,15 +1,3 @@
-# linux/2024.sliver/de33b8d9694b6b4c44e3459b2151571af5d0e2031551f9f1a70b6db475ba71b2.elf ∴ /de33b8d9694b6b4c44e3459b2151571af5d0e2031551f9f1a70b6db475ba71b2.el~: high
-anti-behavior/random_behavior: low
-anti-static/packer/upx: high
-c2/addr/ip: medium
-c2/tool_transfer/arch: low
-fs/path/dev: medium
-fs/proc/self_exe: medium
-net/dns/txt: low
-net/http: low
-net/http/websocket: medium
-net/tcp/ssh: medium
-net/url/embedded: low
 # linux/2024.sliver/de33b8d9694b6b4c44e3459b2151571af5d0e2031551f9f1a70b6db475ba71b2.elf ∴ /de33b8d9694b6b4c44e3459b2151571af5d0e2031551f9f1a70b6db475ba71b2.elf: critical
 3P/sig_base/susp_gobfuscate: critical
 anti-behavior/random_behavior: low
@@ -53,3 +41,15 @@ net/udp/receive: low
 net/udp/send: low
 net/url/embedded: low
 net/url/parse: low
+# linux/2024.sliver/de33b8d9694b6b4c44e3459b2151571af5d0e2031551f9f1a70b6db475ba71b2.elf ∴ /de33b8d9694b6b4c44e3459b2151571af5d0e2031551f9f1a70b6db475ba71b2.el~: high
+anti-behavior/random_behavior: low
+anti-static/packer/upx: high
+c2/addr/ip: medium
+c2/tool_transfer/arch: low
+fs/path/dev: medium
+fs/proc/self_exe: medium
+net/dns/txt: low
+net/http: low
+net/http/websocket: medium
+net/tcp/ssh: medium
+net/url/embedded: low
