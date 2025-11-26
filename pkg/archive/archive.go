@@ -16,12 +16,7 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/pool"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
-)
-
-const (
-	extractBuffer = 64 * 1024 // 64KB
-	maxBytes      = 1 << 32   // 4GB
-	zipBuffer     = 2 * 1024  // 2KB
+	"github.com/chainguard-dev/malcontent/pkg/rw"
 )
 
 var (
@@ -263,7 +258,7 @@ func handleDirectory(target string) error {
 
 // handleFile extracts valid files within .deb or .tar archives.
 func handleFile(target string, tr *tar.Reader) error {
-	buf := tarPool.Get(extractBuffer) //nolint:nilaway // the buffer pool is created above
+	buf := tarPool.Get(rw.ExtractBuffer) //nolint:nilaway // the buffer pool is created above
 	defer tarPool.Put(buf)
 
 	if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
@@ -276,15 +271,15 @@ func handleFile(target string, tr *tar.Reader) error {
 	}
 	defer out.Close()
 
-	written, err := io.CopyBuffer(out, io.LimitReader(tr, maxBytes), buf)
+	written, err := io.CopyBuffer(out, io.LimitReader(tr, rw.MaxBytes), buf)
 	if err != nil {
 		if (strings.Contains(err.Error(), "unexpected EOF") && written == 0) ||
 			!strings.Contains(err.Error(), "unexpected EOF") {
 			return fmt.Errorf("failed to copy file: %w", err)
 		}
 	}
-	if written >= maxBytes {
-		return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
+	if written >= rw.MaxBytes {
+		return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", rw.MaxBytes, target)
 	}
 
 	return nil

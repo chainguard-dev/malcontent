@@ -15,6 +15,7 @@ import (
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/pool"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
+	"github.com/chainguard-dev/malcontent/pkg/rw"
 	bzip2 "github.com/cosnicolaou/pbzip2"
 	gzip "github.com/klauspost/pgzip"
 	"github.com/ulikunitz/xz"
@@ -48,7 +49,7 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 		return nil
 	}
 
-	buf := tarPool.Get(extractBuffer) //nolint:nilaway // the buffer pool is created in archive.go
+	buf := tarPool.Get(rw.ExtractBuffer) //nolint:nilaway // the buffer pool is created in archive.go
 
 	filename := filepath.Base(f)
 	tf, err := os.Open(f)
@@ -109,15 +110,15 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 
 		var written int64
 		for {
-			if written > 0 && written%extractBuffer == 0 && ctx.Err() != nil {
+			if written > 0 && written%rw.ExtractBuffer == 0 && ctx.Err() != nil {
 				return ctx.Err()
 			}
 
 			n, err := xzStream.Read(buf)
 			if n > 0 {
 				written += int64(n)
-				if written > maxBytes {
-					return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
+				if written > rw.MaxBytes {
+					return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", rw.MaxBytes, target)
 				}
 				if _, writeErr := out.Write(buf[:n]); writeErr != nil {
 					return fmt.Errorf("failed to write file contents: %w", writeErr)
@@ -146,15 +147,15 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 		}
 		var written int64
 		for {
-			if written > 0 && written%extractBuffer == 0 && ctx.Err() != nil {
+			if written > 0 && written%rw.ExtractBuffer == 0 && ctx.Err() != nil {
 				return ctx.Err()
 			}
 
 			n, err := br.Read(buf)
 			if n > 0 {
 				written += int64(n)
-				if written > maxBytes {
-					return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
+				if written > rw.MaxBytes {
+					return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", rw.MaxBytes, target)
 				}
 
 				if _, writeErr := out.Write(buf[:n]); writeErr != nil {

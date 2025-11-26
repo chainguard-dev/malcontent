@@ -15,6 +15,7 @@ import (
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/pool"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
+	"github.com/chainguard-dev/malcontent/pkg/rw"
 	zip "github.com/klauspost/compress/zip"
 	"golang.org/x/sync/errgroup"
 )
@@ -123,7 +124,7 @@ func extractFile(ctx context.Context, file *zip.File, destDir string, logger *cl
 		}
 	}
 
-	buf := zipPool.Get(zipBuffer) //nolint:nilaway // the buffer pool is created in archive.go
+	buf := zipPool.Get(rw.ZipBuffer) //nolint:nilaway // the buffer pool is created in archive.go
 
 	clean := filepath.Clean(filepath.ToSlash(file.Name))
 	if strings.Contains(clean, "..") {
@@ -159,15 +160,15 @@ func extractFile(ctx context.Context, file *zip.File, destDir string, logger *cl
 
 	var written int64
 	for {
-		if written > 0 && written%zipBuffer == 0 && ctx.Err() != nil {
+		if written > 0 && written%rw.ZipBuffer == 0 && ctx.Err() != nil {
 			return ctx.Err()
 		}
 
 		n, err := src.Read(buf)
 		if n > 0 {
 			written += int64(n)
-			if written > maxBytes {
-				return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
+			if written > rw.MaxBytes {
+				return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", rw.MaxBytes, target)
 			}
 
 			if _, writeErr := dst.Write(buf[:n]); writeErr != nil {

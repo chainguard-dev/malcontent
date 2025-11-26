@@ -19,6 +19,7 @@ import (
 	"sync"
 
 	"github.com/chainguard-dev/malcontent/pkg/pool"
+	"github.com/chainguard-dev/malcontent/pkg/rw"
 	"github.com/gabriel-vasile/mimetype"
 )
 
@@ -119,11 +120,6 @@ var (
 	elfMagic  = []byte{0x7f, 'E', 'L', 'F'}
 	gzipMagic = []byte{0x1f, 0x8b}
 	ZMagic    = []byte{0x78, 0x5E}
-)
-
-const (
-	maxBytes   int64 = 1 << 32   // 4GB
-	readBuffer int64 = 64 * 1024 // 64KB
 )
 
 // IsSupportedArchive returns whether a path can be processed by our archive extractor.
@@ -270,7 +266,7 @@ func File(ctx context.Context, path string) ([]byte, *FileType, error) {
 
 	initializeHeaderPool()
 
-	buf := headerPool.Get(readBuffer) //nolint:nilaway // the buffer pool is created above
+	buf := headerPool.Get(rw.ReadBuffer) //nolint:nilaway // the buffer pool is created above
 	defer headerPool.Put(buf)
 
 	f, err := os.Open(path)
@@ -283,7 +279,7 @@ func File(ctx context.Context, path string) ([]byte, *FileType, error) {
 	// so it makes sense to read the file's contents once and return them even if we don't end up generating a report (due to filtering, size, etc.)
 	// reading the entire file also addresses edge cases where a file's type may not have been identified correctly
 	var b bytes.Buffer
-	_, err = io.CopyBuffer(&b, io.LimitReader(f, maxBytes), buf)
+	_, err = io.CopyBuffer(&b, io.LimitReader(f, rw.MaxBytes), buf)
 	if err != nil {
 		return nil, nil, err
 	}

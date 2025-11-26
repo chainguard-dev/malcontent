@@ -10,6 +10,7 @@ import (
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
+	"github.com/chainguard-dev/malcontent/pkg/rw"
 	gzip "github.com/klauspost/pgzip"
 )
 
@@ -53,7 +54,7 @@ func ExtractGzip(ctx context.Context, d string, f string) error {
 		return nil
 	}
 
-	buf := archivePool.Get(extractBuffer) //nolint:nilaway // the buffer pool is created in archive.go
+	buf := archivePool.Get(rw.ExtractBuffer) //nolint:nilaway // the buffer pool is created in archive.go
 
 	gf, err := os.Open(f)
 	if err != nil {
@@ -85,15 +86,15 @@ func ExtractGzip(ctx context.Context, d string, f string) error {
 
 	var written int64
 	for {
-		if written > 0 && written%extractBuffer == 0 && ctx.Err() != nil {
+		if written > 0 && written%rw.ExtractBuffer == 0 && ctx.Err() != nil {
 			return ctx.Err()
 		}
 
 		n, err := gr.Read(buf)
 		if n > 0 {
 			written += int64(n)
-			if written > maxBytes {
-				return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
+			if written > rw.MaxBytes {
+				return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", rw.MaxBytes, target)
 			}
 
 			if _, writeErr := out.Write(buf[:n]); writeErr != nil {
