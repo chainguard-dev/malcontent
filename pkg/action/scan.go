@@ -145,7 +145,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		f.Close()
 		scannerPool.Put(scanner)
 		mrs = nil
-		fc = fc[:0]
+		fc = nil
 	}()
 
 	// Clean up the path if scanning an archive

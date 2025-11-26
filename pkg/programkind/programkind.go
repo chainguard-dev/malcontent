@@ -244,7 +244,8 @@ func makeFileType(path string, ext string, mime string) *FileType {
 	return nil
 }
 
-// File detects what kind of program this file might be.
+// File returns a file's contents as a byte slice, its file type (extension and MIME type),
+// and/or the error encountered when attempting to retrieve either of them.
 func File(ctx context.Context, path string) ([]byte, *FileType, error) {
 	// Follow symlinks and return cleanly if the target does not exist
 	_, err := filepath.EvalSymlinks(path)

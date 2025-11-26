@@ -994,6 +994,125 @@
             ],
             "RiskScore": 4,
             "RiskLevel": "CRITICAL"
+        },
+        "/__min__c.~": {
+            "Path": "linux/2024.vncjew/__min__c ∴ /__min__c.~",
+            "SHA256": "58fa45ce3665fd665bde9589297a5a34c8df403e8732eb7bdc77d00c669fac29",
+            "Size": 1726820,
+            "Pledge": [
+                "inet",
+                "stdio"
+            ],
+            "Behaviors": [
+                {
+                    "Description": "Linux ELF binary packed with UPX",
+                    "MatchStrings": [
+                        "This file is packed",
+                        "executable packer",
+                        "UPX!"
+                    ],
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/packer/upx.yara#upx",
+                    "ID": "anti-static/packer/upx",
+                    "RuleName": "upx"
+                },
+                {
+                    "Description": "hardcoded IP address",
+                    "MatchStrings": [
+                        "2.5.4.3"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/ip.yara#hardcoded_ip",
+                    "ID": "c2/addr/ip",
+                    "RuleName": "hardcoded_ip"
+                },
+                {
+                    "Description": "references a specific architecture",
+                    "MatchStrings": [
+                        "http://",
+                        "amd64"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/arch.yara#arch_ref",
+                    "ID": "c2/tool_transfer/arch",
+                    "RuleName": "arch_ref"
+                },
+                {
+                    "Description": "gets executable associated to this process",
+                    "MatchStrings": [
+                        "/proc/self/exe"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/proc/self-exe.yara#proc_self_exe",
+                    "ID": "fs/proc/self_exe",
+                    "RuleName": "proc_self_exe"
+                },
+                {
+                    "Description": "Uses DNS TXT (text) records",
+                    "MatchStrings": [
+                        "TXT",
+                        "dns"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/dns/dns-txt.yara#dns_txt",
+                    "ID": "net/dns/txt",
+                    "RuleName": "dns_txt"
+                },
+                {
+                    "Description": "Uses the HTTP protocol",
+                    "MatchStrings": [
+                        "HTTP",
+                        "http"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/http.yara#http",
+                    "ID": "net/http",
+                    "RuleName": "http"
+                },
+                {
+                    "Description": "makes HTTP requests",
+                    "MatchStrings": [
+                        "HTTP/1."
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/http-request.yara#http_request",
+                    "ID": "net/http/request",
+                    "RuleName": "http_request"
+                },
+                {
+                    "Description": "uses VNC remote desktop protocol",
+                    "MatchStrings": [
+                        "5900",
+                        "VNC",
+                        "vnc"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/remote_control/vnc.yara#vnc_elf_subtle",
+                    "ID": "net/remote_control/vnc",
+                    "RuleName": "vnc_elf_subtle"
+                },
+                {
+                    "Description": "contains embedded HTTP URLs",
+                    "MatchStrings": [
+                        "http://upx.sf.net"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/url/embedded.yara#http_url",
+                    "ID": "net/url/embedded",
+                    "RuleName": "http_url"
+                }
+            ],
+            "RiskScore": 3,
+            "RiskLevel": "HIGH"
         }
     }
 }

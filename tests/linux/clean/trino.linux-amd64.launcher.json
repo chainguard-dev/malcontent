@@ -841,6 +841,228 @@
             ],
             "RiskScore": 2,
             "RiskLevel": "MEDIUM"
+        },
+        "/trino.linux-amd64.launche~": {
+            "Path": "linux/clean/trino.linux-amd64.launcher ∴ /trino.linux-amd64.launche~",
+            "SHA256": "0422725108b2d91d2bc9b433b6262e5bf6aea5d4de09ca1c7813c1ecd98f5f97",
+            "Size": 1464916,
+            "Pledge": [
+                "inet",
+                "stdio"
+            ],
+            "Behaviors": [
+                {
+                    "Description": "uses a random number generator",
+                    "MatchStrings": [
+                        "urandomC"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-behavior/random_behavior.yara#random",
+                    "ID": "anti-behavior/random_behavior",
+                    "RuleName": "random"
+                },
+                {
+                    "Description": "Linux ELF binary packed with UPX",
+                    "MatchStrings": [
+                        "This file is packed",
+                        "executable packer",
+                        "UPX!"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/packer/upx.yara#upx",
+                    "ID": "anti-static/packer/upx",
+                    "RuleName": "upx"
+                },
+                {
+                    "Description": "references a specific architecture",
+                    "MatchStrings": [
+                        "http://",
+                        "amd64",
+                        "x86"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/arch.yara#arch_ref",
+                    "ID": "c2/tool_transfer/arch",
+                    "RuleName": "arch_ref"
+                },
+                {
+                    "Description": "Supports AES (Advanced Encryption Standard)",
+                    "MatchStrings": [
+                        "AES"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/crypto/aes.yara#crypto_aes",
+                    "ID": "crypto/aes",
+                    "RuleName": "crypto_aes"
+                },
+                {
+                    "Description": "works with gzip files",
+                    "MatchStrings": [
+                        "gzip"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/data/compression/gzip.yara#gzip",
+                    "ReferenceURL": "https://www.gnu.org/software/gzip/",
+                    "ID": "data/compression/gzip",
+                    "RuleName": "gzip"
+                },
+                {
+                    "Description": "gets executable associated to this process",
+                    "MatchStrings": [
+                        "/proc/self/exe"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/proc/self-exe.yara#proc_self_exe",
+                    "ID": "fs/proc/self_exe",
+                    "RuleName": "proc_self_exe"
+                },
+                {
+                    "Description": "Uses DNS TXT (text) records",
+                    "MatchStrings": [
+                        "TXT",
+                        "dns"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/dns/dns-txt.yara#dns_txt",
+                    "ID": "net/dns/txt",
+                    "RuleName": "dns_txt"
+                },
+                {
+                    "Description": "Uses the HTTP protocol",
+                    "MatchStrings": [
+                        "HTTP",
+                        "http"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/http.yara#http",
+                    "ID": "net/http",
+                    "RuleName": "http"
+                },
+                {
+                    "Description": "submits content to websites",
+                    "MatchStrings": [
+                        "HTTP",
+                        "POST",
+                        "http"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/post.yara#http_post",
+                    "ID": "net/http/post",
+                    "RuleName": "http_post"
+                },
+                {
+                    "Description": "contains embedded HTTP URLs",
+                    "MatchStrings": [
+                        "http://upx.sf.net"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/url/embedded.yara#http_url",
+                    "ID": "net/url/embedded",
+                    "RuleName": "http_url"
+                }
+            ],
+            "RiskScore": 2,
+            "RiskLevel": "MEDIUM",
+            "Overrides": [
+                {
+                    "Description": "https://trino.io/ - UPX encrypted and crazy",
+                    "MatchStrings": [
+                        "kTixuOsFBOtGYSTLRLWK6G",
+                        "Go buildinf",
+                        "kUNKNOWN:$",
+                        "wnwmwkwbqc",
+                        "zYna%i%qj%",
+                        "lmRnTEOIt"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/false_positives/trino_upx.yara#trino_upx_override",
+                    "ID": "false-positives/trino_upx",
+                    "RuleName": "trino_upx_override",
+                    "Override": [
+                        "upx",
+                        "high_entropy_header",
+                        "normal_elf_high_entropy_7_4",
+                        "obfuscated_elf"
+                    ]
+                },
+                {
+                    "Description": "https://trino.io/ - UPX encrypted and crazy",
+                    "MatchStrings": [
+                        "kTixuOsFBOtGYSTLRLWK6G",
+                        "Go buildinf",
+                        "kUNKNOWN:$",
+                        "wnwmwkwbqc",
+                        "zYna%i%qj%",
+                        "lmRnTEOIt"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/false_positives/trino_upx.yara#trino_upx_override",
+                    "ID": "false-positives/trino_upx",
+                    "RuleName": "trino_upx_override",
+                    "Override": [
+                        "upx",
+                        "high_entropy_header",
+                        "normal_elf_high_entropy_7_4",
+                        "obfuscated_elf"
+                    ]
+                },
+                {
+                    "Description": "https://trino.io/ - UPX encrypted and crazy",
+                    "MatchStrings": [
+                        "kTixuOsFBOtGYSTLRLWK6G",
+                        "Go buildinf",
+                        "kUNKNOWN:$",
+                        "wnwmwkwbqc",
+                        "zYna%i%qj%",
+                        "lmRnTEOIt"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/false_positives/trino_upx.yara#trino_upx_override",
+                    "ID": "false-positives/trino_upx",
+                    "RuleName": "trino_upx_override",
+                    "Override": [
+                        "upx",
+                        "high_entropy_header",
+                        "normal_elf_high_entropy_7_4",
+                        "obfuscated_elf"
+                    ]
+                },
+                {
+                    "Description": "https://trino.io/ - UPX encrypted and crazy",
+                    "MatchStrings": [
+                        "kTixuOsFBOtGYSTLRLWK6G",
+                        "Go buildinf",
+                        "kUNKNOWN:$",
+                        "wnwmwkwbqc",
+                        "zYna%i%qj%",
+                        "lmRnTEOIt"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/false_positives/trino_upx.yara#trino_upx_override",
+                    "ID": "false-positives/trino_upx",
+                    "RuleName": "trino_upx_override",
+                    "Override": [
+                        "upx",
+                        "high_entropy_header",
+                        "normal_elf_high_entropy_7_4",
+                        "obfuscated_elf"
+                    ]
+                }
+            ]
         }
     }
 }
