@@ -5,7 +5,7 @@ meta:
 	fingerprint = "8eea2d3d8d4e8ca6ef89d474232d1117e2a5a5b4c714b4c82493293f31e4f2c6"
 	version = "1.0"
 	first_imported = "2023-09-18"
-	last_modified = "2025-03-10"
+	last_modified = "2025-11-26"
 	status = "RELEASED"
 	sharing = "TLP:CLEAR"
 	source = "BARTBLAZE"
@@ -46,5 +46,5 @@ strings:
 
 condition:
 	uint16(0) == 0x5a4d and ($pdb or 2 of ($mut*) or all of ($browser*) 
-	or 2 of ($svc*) or $str_decode)
+	or 2 of ($svc*) or (any of ($mut*, $browser*, $svc*) and $str_decode))
 }
