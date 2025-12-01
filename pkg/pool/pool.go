@@ -62,7 +62,7 @@ func (bp *BufferPool) Put(buf []byte) {
 
 	clear(buf)
 	bufPtr := &buf
-	if cap(*bufPtr) <= file.MaxPoolBuffer {
+	if int64(cap(*bufPtr)) <= file.MaxPoolBuffer {
 		bp.pool.Put(bufPtr)
 	}
 }
