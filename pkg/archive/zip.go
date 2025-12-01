@@ -73,11 +73,11 @@ func ExtractZip(ctx context.Context, d string, f string) error {
 		return fmt.Errorf("failed to create extraction directory: %w", err)
 	}
 
-	for _, f := range read.File {
-		if f.Mode().IsDir() {
-			clean := filepath.Clean(filepath.ToSlash(f.Name))
+	for _, zf := range read.File {
+		if zf.Mode().IsDir() {
+			clean := filepath.Clean(filepath.ToSlash(zf.Name))
 			if strings.Contains(clean, "..") {
-				logger.Warnf("skipping potentially unsafe directory path: %s", f.Name)
+				logger.Warnf("skipping potentially unsafe directory path: %s", zf.Name)
 				continue
 			}
 
@@ -96,12 +96,12 @@ func ExtractZip(ctx context.Context, d string, f string) error {
 	g, gCtx := errgroup.WithContext(ctx)
 	g.SetLimit(runtime.GOMAXPROCS(0))
 
-	for _, f := range read.File {
-		if f.Mode().IsDir() {
+	for _, zf := range read.File {
+		if zf.Mode().IsDir() {
 			continue
 		}
 		g.Go(func() error {
-			return extractFile(gCtx, f, d, logger)
+			return extractFile(gCtx, zf, d, logger)
 		})
 	}
 
@@ -111,7 +111,7 @@ func ExtractZip(ctx context.Context, d string, f string) error {
 	return nil
 }
 
-func extractFile(ctx context.Context, f *zip.File, destDir string, logger *clog.Logger) error {
+func extractFile(ctx context.Context, zf *zip.File, destDir string, logger *clog.Logger) error {
 	if ctx.Err() != nil {
 		return ctx.Err()
 	}
@@ -119,16 +119,16 @@ func extractFile(ctx context.Context, f *zip.File, destDir string, logger *clog.
 	// macOS will encounter issues with paths like META-INF/LICENSE and META-INF/license/foo
 	// this case insensitivity will break scans, so rename files that collide with existing directories
 	if runtime.GOOS == "darwin" {
-		if _, err := os.Stat(filepath.Join(destDir, f.Name)); err == nil {
-			f.Name = fmt.Sprintf("%s%d", f.Name, time.Now().UnixNano())
+		if _, err := os.Stat(filepath.Join(destDir, zf.Name)); err == nil {
+			zf.Name = fmt.Sprintf("%s%d", zf.Name, time.Now().UnixNano())
 		}
 	}
 
 	buf := zipPool.Get(file.ZipBuffer) //nolint:nilaway // the buffer pool is created in archive.go
 
-	clean := filepath.Clean(filepath.ToSlash(f.Name))
+	clean := filepath.Clean(filepath.ToSlash(zf.Name))
 	if strings.Contains(clean, "..") {
-		logger.Warnf("skipping potentially unsafe file path: %s", f.Name)
+		logger.Warnf("skipping potentially unsafe file path: %s", zf.Name)
 		return nil
 	}
 
@@ -142,7 +142,7 @@ func extractFile(ctx context.Context, f *zip.File, destDir string, logger *clog.
 		return fmt.Errorf("failed to create directory structure: %w", err)
 	}
 
-	src, err := f.Open()
+	src, err := zf.Open()
 	if err != nil {
 		return fmt.Errorf("failed to open archived file: %w", err)
 	}

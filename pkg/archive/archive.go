@@ -127,16 +127,16 @@ func extractNestedArchive(ctx context.Context, c malcontent.Config, d string, f 
 		return fmt.Errorf("failed to remove archive file: %w", err)
 	}
 
-	files, err := os.ReadDir(d)
+	entries, err := os.ReadDir(d)
 	if err != nil {
 		return fmt.Errorf("failed to read directory after extraction: %w", err)
 	}
 
-	for _, f := range files {
+	for _, entry := range entries {
 		if ctx.Err() != nil {
 			return ctx.Err()
 		}
-		rel := f.Name()
+		rel := entry.Name()
 		if _, alreadyProcessed := extracted.Load(rel); !alreadyProcessed {
 			if err := extractNestedArchive(ctx, c, d, rel, extracted, logger); err != nil {
 				return fmt.Errorf("process nested file %s: %w", rel, err)
