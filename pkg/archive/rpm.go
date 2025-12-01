@@ -13,6 +13,7 @@ import (
 	"github.com/cavaliergopher/cpio"
 	"github.com/cavaliergopher/rpm"
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/klauspost/compress/zstd"
 	"github.com/ulikunitz/xz"
 )
@@ -40,7 +41,7 @@ func ExtractRPM(ctx context.Context, d, f string) error {
 		return nil
 	}
 
-	buf := archivePool.Get(extractBuffer) //nolint:nilaway // the buffer pool is created in archive.go
+	buf := archivePool.Get(file.ExtractBuffer) //nolint:nilaway // the buffer pool is created in archive.go
 	defer archivePool.Put(buf)
 
 	pkg, err := rpm.Read(rpmFile)
@@ -123,15 +124,15 @@ func ExtractRPM(ctx context.Context, d, f string) error {
 
 		var written int64
 		for {
-			if written > 0 && written%extractBuffer == 0 && ctx.Err() != nil {
+			if written > 0 && written%file.ExtractBuffer == 0 && ctx.Err() != nil {
 				return ctx.Err()
 			}
 
 			n, err := cr.Read(buf)
 			if n > 0 {
 				written += int64(n)
-				if written > maxBytes {
-					return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
+				if written > file.MaxBytes {
+					return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", file.MaxBytes, target)
 				}
 				if _, writeErr := out.Write(buf[:n]); writeErr != nil {
 					return fmt.Errorf("failed to write file contents: %w", writeErr)

@@ -6,11 +6,7 @@ import (
 	"sync"
 
 	yarax "github.com/VirusTotal/yara-x/go"
-)
-
-const (
-	defaultBuffer int = 4 * 1024   // 4KB
-	maxBuffer     int = 128 * 1024 // 128KB
+	"github.com/chainguard-dev/malcontent/pkg/file"
 )
 
 // BufferPool provides a pool of byte slices for use as buffers.
@@ -24,13 +20,13 @@ func NewBufferPool(count int) *BufferPool {
 
 	bp.pool = sync.Pool{
 		New: func() any {
-			buffer := make([]byte, defaultBuffer)
+			buffer := make([]byte, file.DefaultPoolBuffer)
 			return &buffer
 		},
 	}
 
 	for range count {
-		buffer := make([]byte, defaultBuffer)
+		buffer := make([]byte, file.DefaultPoolBuffer)
 		bp.pool.Put(&buffer)
 	}
 
@@ -66,7 +62,7 @@ func (bp *BufferPool) Put(buf []byte) {
 
 	clear(buf)
 	bufPtr := &buf
-	if cap(*bufPtr) <= maxBuffer {
+	if int64(cap(*bufPtr)) <= file.MaxPoolBuffer {
 		bp.pool.Put(bufPtr)
 	}
 }

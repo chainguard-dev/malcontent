@@ -13,15 +13,10 @@ import (
 	"time"
 
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/pool"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
-)
-
-const (
-	extractBuffer = 64 * 1024 // 64KB
-	maxBytes      = 1 << 31   // 2048MB
-	zipBuffer     = 2 * 1024  // 2KB
 )
 
 var (
@@ -132,16 +127,16 @@ func extractNestedArchive(ctx context.Context, c malcontent.Config, d string, f 
 		return fmt.Errorf("failed to remove archive file: %w", err)
 	}
 
-	files, err := os.ReadDir(d)
+	entries, err := os.ReadDir(d)
 	if err != nil {
 		return fmt.Errorf("failed to read directory after extraction: %w", err)
 	}
 
-	for _, file := range files {
+	for _, entry := range entries {
 		if ctx.Err() != nil {
 			return ctx.Err()
 		}
-		rel := file.Name()
+		rel := entry.Name()
 		if _, alreadyProcessed := extracted.Load(rel); !alreadyProcessed {
 			if err := extractNestedArchive(ctx, c, d, rel, extracted, logger); err != nil {
 				return fmt.Errorf("process nested file %s: %w", rel, err)
@@ -263,7 +258,7 @@ func handleDirectory(target string) error {
 
 // handleFile extracts valid files within .deb or .tar archives.
 func handleFile(target string, tr *tar.Reader) error {
-	buf := tarPool.Get(extractBuffer) //nolint:nilaway // the buffer pool is created above
+	buf := tarPool.Get(file.ExtractBuffer) //nolint:nilaway // the buffer pool is created above
 	defer tarPool.Put(buf)
 
 	if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
@@ -276,15 +271,15 @@ func handleFile(target string, tr *tar.Reader) error {
 	}
 	defer out.Close()
 
-	written, err := io.CopyBuffer(out, io.LimitReader(tr, maxBytes), buf)
+	written, err := io.CopyBuffer(out, io.LimitReader(tr, file.MaxBytes), buf)
 	if err != nil {
 		if (strings.Contains(err.Error(), "unexpected EOF") && written == 0) ||
 			!strings.Contains(err.Error(), "unexpected EOF") {
 			return fmt.Errorf("failed to copy file: %w", err)
 		}
 	}
-	if written >= maxBytes {
-		return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
+	if written >= file.MaxBytes {
+		return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", file.MaxBytes, target)
 	}
 
 	return nil
