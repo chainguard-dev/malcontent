@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/pool"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 	zip "github.com/klauspost/compress/zip"
@@ -72,11 +73,11 @@ func ExtractZip(ctx context.Context, d string, f string) error {
 		return fmt.Errorf("failed to create extraction directory: %w", err)
 	}
 
-	for _, file := range read.File {
-		if file.Mode().IsDir() {
-			clean := filepath.Clean(filepath.ToSlash(file.Name))
+	for _, f := range read.File {
+		if f.Mode().IsDir() {
+			clean := filepath.Clean(filepath.ToSlash(f.Name))
 			if strings.Contains(clean, "..") {
-				logger.Warnf("skipping potentially unsafe directory path: %s", file.Name)
+				logger.Warnf("skipping potentially unsafe directory path: %s", f.Name)
 				continue
 			}
 
@@ -95,12 +96,12 @@ func ExtractZip(ctx context.Context, d string, f string) error {
 	g, gCtx := errgroup.WithContext(ctx)
 	g.SetLimit(runtime.GOMAXPROCS(0))
 
-	for _, file := range read.File {
-		if file.Mode().IsDir() {
+	for _, f := range read.File {
+		if f.Mode().IsDir() {
 			continue
 		}
 		g.Go(func() error {
-			return extractFile(gCtx, file, d, logger)
+			return extractFile(gCtx, f, d, logger)
 		})
 	}
 
@@ -110,7 +111,7 @@ func ExtractZip(ctx context.Context, d string, f string) error {
 	return nil
 }
 
-func extractFile(ctx context.Context, file *zip.File, destDir string, logger *clog.Logger) error {
+func extractFile(ctx context.Context, f *zip.File, destDir string, logger *clog.Logger) error {
 	if ctx.Err() != nil {
 		return ctx.Err()
 	}
@@ -118,16 +119,16 @@ func extractFile(ctx context.Context, file *zip.File, destDir string, logger *cl
 	// macOS will encounter issues with paths like META-INF/LICENSE and META-INF/license/foo
 	// this case insensitivity will break scans, so rename files that collide with existing directories
 	if runtime.GOOS == "darwin" {
-		if _, err := os.Stat(filepath.Join(destDir, file.Name)); err == nil {
-			file.Name = fmt.Sprintf("%s%d", file.Name, time.Now().UnixNano())
+		if _, err := os.Stat(filepath.Join(destDir, f.Name)); err == nil {
+			f.Name = fmt.Sprintf("%s%d", f.Name, time.Now().UnixNano())
 		}
 	}
 
-	buf := zipPool.Get(zipBuffer) //nolint:nilaway // the buffer pool is created in archive.go
+	buf := zipPool.Get(file.ZipBuffer) //nolint:nilaway // the buffer pool is created in archive.go
 
-	clean := filepath.Clean(filepath.ToSlash(file.Name))
+	clean := filepath.Clean(filepath.ToSlash(f.Name))
 	if strings.Contains(clean, "..") {
-		logger.Warnf("skipping potentially unsafe file path: %s", file.Name)
+		logger.Warnf("skipping potentially unsafe file path: %s", f.Name)
 		return nil
 	}
 
@@ -141,7 +142,7 @@ func extractFile(ctx context.Context, file *zip.File, destDir string, logger *cl
 		return fmt.Errorf("failed to create directory structure: %w", err)
 	}
 
-	src, err := file.Open()
+	src, err := f.Open()
 	if err != nil {
 		return fmt.Errorf("failed to open archived file: %w", err)
 	}
@@ -159,15 +160,15 @@ func extractFile(ctx context.Context, file *zip.File, destDir string, logger *cl
 
 	var written int64
 	for {
-		if written > 0 && written%zipBuffer == 0 && ctx.Err() != nil {
+		if written > 0 && written%file.ZipBuffer == 0 && ctx.Err() != nil {
 			return ctx.Err()
 		}
 
 		n, err := src.Read(buf)
 		if n > 0 {
 			written += int64(n)
-			if written > maxBytes {
-				return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", maxBytes, target)
+			if written > file.MaxBytes {
+				return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", file.MaxBytes, target)
 			}
 
 			if _, writeErr := dst.Write(buf[:n]); writeErr != nil {

@@ -22,6 +22,7 @@ import (
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/archive"
 	"github.com/chainguard-dev/malcontent/pkg/compile"
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/pool"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
@@ -41,10 +42,8 @@ var (
 	compiledRuleCache   atomic.Pointer[yarax.Rules] // compiledRuleCache are a cache of previously compiled rules.
 	compileOnce         sync.Once                   // compileOnce ensures that we compile rules only once even across threads.
 	ErrMatchedCondition = errors.New("matched exit criteria")
-	initReadPool        sync.Once             // initReadPool ensures that the bytes read pool is only initialized once.
-	initScannerPool     sync.Once             // initScannerPool ensures that the scanner pool is only initialized once.
-	maxBytes            int64     = 1 << 32   // 4GB
-	readBuffer          int64     = 64 * 1024 // 64KB
+	initReadPool        sync.Once // initReadPool ensures that the bytes read pool is only initialized once.
+	initScannerPool     sync.Once // initScannerPool ensures that the scanner pool is only initialized once.
 	readPool            *pool.BufferPool
 	scannerPool         *pool.ScannerPool
 )
@@ -82,7 +81,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	initReadPool.Do(func() {
 		readPool = pool.NewBufferPool(runtime.GOMAXPROCS(0))
 	})
-	buf := readPool.Get(readBuffer) //nolint:nilaway // the buffer pool is created above
+	buf := readPool.Get(file.ReadBuffer) //nolint:nilaway // the buffer pool is created above
 
 	mime := "<unknown>"
 	kind, err := programkind.File(ctx, path)
@@ -141,7 +140,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 
 	// Only retrieve the file's contents and calculate its checksum if we need to generate a report
 	var fc bytes.Buffer
-	_, err = io.CopyBuffer(&fc, io.LimitReader(f, maxBytes), buf)
+	_, err = io.CopyBuffer(&fc, io.LimitReader(f, file.MaxBytes), buf)
 	if err != nil {
 		return nil, err
 	}
