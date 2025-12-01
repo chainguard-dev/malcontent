@@ -245,13 +245,13 @@ func getCacheDir() (string, error) {
 
 // loadCachedRules attempts to load rules from the local, compiled rules.
 func loadCachedRules(cacheFile string) (*yarax.Rules, error) {
-	file, err := os.Open(cacheFile)
+	f, err := os.Open(cacheFile)
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+	defer f.Close()
 
-	compiledRules, err := yarax.ReadFrom(file)
+	compiledRules, err := yarax.ReadFrom(f)
 	if err != nil {
 		return nil, fmt.Errorf("read cached rules: %w", err)
 	}
@@ -262,13 +262,13 @@ func loadCachedRules(cacheFile string) (*yarax.Rules, error) {
 // saveCachedRules saves rules to a local file.
 func saveCachedRules(compiledRules *yarax.Rules, cacheFile string) error {
 	tmpFile := cacheFile + ".tmp"
-	file, err := os.OpenFile(tmpFile, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o644)
+	f, err := os.OpenFile(tmpFile, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o644)
 	if err != nil {
 		return fmt.Errorf("create cache file: %w", err)
 	}
-	defer file.Close()
+	defer f.Close()
 
-	if _, err := compiledRules.WriteTo(file); err != nil {
+	if _, err := compiledRules.WriteTo(f); err != nil {
 		os.Remove(tmpFile)
 		return fmt.Errorf("write rules to cache: %w", err)
 	}

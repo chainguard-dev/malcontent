@@ -77,11 +77,11 @@ func TestCleanPath(t *testing.T) {
 			}
 
 			filePath := filepath.Join(nestedDir, "test.txt")
-			file, err := os.Create(filePath)
+			f, err := os.Create(filePath)
 			if err != nil {
 				t.Fatalf("failed to create file: %v", err)
 			}
-			file.Close()
+			defer f.Close()
 
 			fullPath := filepath.Join(tempDir, tt.path)
 			fullPrefix := filepath.Join(tempDir, tt.prefix)
