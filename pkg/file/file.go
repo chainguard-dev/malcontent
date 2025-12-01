@@ -1,5 +1,11 @@
 package file
 
+import (
+	"bytes"
+	"io"
+	"os"
+)
+
 // common values used across malcontent for extracting and reading files.
 const (
 	DefaultPoolBuffer int64 = 4 * 1024   // 4KB
@@ -9,3 +15,14 @@ const (
 	ReadBuffer        int64 = 64 * 1024  // 64KB
 	ZipBuffer         int64 = 2 * 1024   // 2KB
 )
+
+// GetContents takes a file, reads its contents, and returns them as a slice of bytes.
+func GetContents(f *os.File, buf []byte) ([]byte, error) {
+	b := &bytes.Buffer{}
+	_, err := io.CopyBuffer(b, io.LimitReader(f, MaxBytes), buf)
+	if err != nil {
+		return nil, err
+	}
+
+	return b.Bytes(), nil
+}
