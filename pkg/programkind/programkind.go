@@ -207,11 +207,20 @@ func makeFileType(path string, ext string, mime string) *FileType {
 		return &FileType{Ext: ext, MIME: mime}
 	}
 
-	// the only JSON files we currently scan are NPM package metadata, which ends in *package.json
-	if strings.HasSuffix(path, "package.json") {
+	// typically, JSON and YAML files are data files only scanned via --all, but we want to support the NPM ecosystem
+	if strings.HasSuffix(path, "package.json") || strings.HasSuffix(path, "package-lock.json") {
 		return &FileType{
 			Ext:  ext,
 			MIME: "application/json",
+		}
+	}
+
+	if strings.HasSuffix(path, "pnpm-lock.yaml") ||
+		strings.HasSuffix(path, "pnpm-workspace.yaml") ||
+		strings.HasSuffix(path, "yarn.lock") {
+		return &FileType{
+			Ext:  ext,
+			MIME: "application/x-yaml",
 		}
 	}
 
