@@ -76,12 +76,6 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		return fr, nil
 	}
 
-	initReadPool.Do(func() {
-		readPool = pool.NewBufferPool(runtime.GOMAXPROCS(0))
-	})
-	// create a buffer sized to the minimum of the file's size or the default ReadBuffer
-	buf := readPool.Get(min(size, file.ReadBuffer)) //nolint:nilaway // the buffer pool is created above
-
 	mime := "<unknown>"
 	kind, err := programkind.File(ctx, path)
 	if err != nil && !interactive(c) {
@@ -136,6 +130,14 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		}
 		return fr, nil
 	}
+
+	initReadPool.Do(func() {
+		readPool = pool.NewBufferPool(runtime.GOMAXPROCS(0))
+	})
+
+	// create a buffer sized to the minimum of the file's size or the default ReadBuffer
+	// only do so if we actually need to retrieve the file's contents
+	buf := readPool.Get(min(size, file.ReadBuffer)) //nolint:nilaway // the buffer pool is created above
 
 	// Only retrieve the file's contents and calculate its checksum if we need to generate a report
 	fc, err := file.GetContents(f, buf)

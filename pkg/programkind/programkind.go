@@ -252,27 +252,23 @@ func File(ctx context.Context, path string) (*FileType, error) {
 		return nil, fmt.Errorf("stat: %w", err)
 	}
 
-	if st.IsDir() {
+	// ignore directories, irregular files, and empty files
+	if st.IsDir() || st.Mode().Type() == fs.ModeIrregular || st.Size() == 0 {
 		return nil, nil
 	}
-	if st.Mode().Type() == fs.ModeIrregular {
-		return nil, nil
-	}
-	if st.Size() == 0 {
-		return nil, nil
-	}
-
-	initializeHeaderPool()
-
-	// create a buffer sized to the minimum of the file's size or the default ReadBuffer
-	buf := headerPool.Get(min(st.Size(), file.ReadBuffer)) //nolint:nilaway // the buffer pool is created above
-	defer headerPool.Put(buf)
 
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("open: %w", err)
 	}
 	defer f.Close()
+
+	// initialize the header pool after we've successfully opened the file
+	initializeHeaderPool()
+
+	// create a buffer sized to the minimum of the file's size or the default ReadBuffer
+	buf := headerPool.Get(min(st.Size(), file.ReadBuffer)) //nolint:nilaway // the buffer pool is created above
+	defer headerPool.Put(buf)
 
 	fc, err := file.GetContents(f, buf)
 	if err != nil {
