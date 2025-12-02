@@ -1,8 +1,8 @@
 # python/clean/ml_sdk/setup.py: medium
-exec/imports/python: low
 exec/remote_commands/code_eval: medium
-fs/file/open: low
 impact/remote_access/py_setuptools: medium
+exec/imports/python: low
+fs/file/open: low
 net/http: low
 net/url/embedded: low
 os/fd/read: low

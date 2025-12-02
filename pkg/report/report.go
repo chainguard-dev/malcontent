@@ -364,13 +364,17 @@ func mungeDescription(s string) string {
 // This function will only be used via the refresh package.
 func TrimPrefixes(path string, prefixes []string) string {
 	for _, prefix := range prefixes {
-		if prefix == "" {
+		switch prefix {
+		case "":
 			continue
-		}
-		prefix = strings.TrimPrefix(prefix, "./")
-		if strings.HasPrefix(path, prefix) {
-			trimmed := path[len(prefix):]
-			return strings.TrimPrefix(trimmed, string(filepath.Separator))
+		case "/private":
+			return strings.TrimPrefix(path, prefix)
+		default:
+			prefix = strings.TrimPrefix(prefix, "./")
+			if strings.HasPrefix(path, prefix) {
+				trimmed := path[len(prefix):]
+				return strings.TrimPrefix(trimmed, string(filepath.Separator))
+			}
 		}
 	}
 	return path
@@ -554,9 +558,12 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 	fr.RiskScore = overallRiskScore
 	fr.RiskLevel = RiskLevels[fr.RiskScore]
 
-	// Ensure that the behaviors are consistently sorted by ID
+	// Ensure that the behaviors are consistently sorted by RiskScore and then by ID
 	sort.Slice(fr.Behaviors, func(i, j int) bool {
-		return fr.Behaviors[i].ID < fr.Behaviors[j].ID
+		if fr.Behaviors[i].RiskScore == fr.Behaviors[j].RiskScore {
+			return fr.Behaviors[i].ID < fr.Behaviors[j].ID
+		}
+		return fr.Behaviors[i].RiskScore > fr.Behaviors[j].RiskScore
 	})
 
 	return fr, nil

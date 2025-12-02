@@ -1,8 +1,8 @@
 # php/clean/module.audio-video.quicktime.php: medium
 anti-static/obfuscation/bitwise: medium
 anti-static/obfuscation/hex: medium
-c2/tool_transfer/os: low
 crypto/encrypt: medium
+net/url/embedded: medium
+c2/tool_transfer/os: low
 data/compression/zlib: low
 net/http: low
-net/url/embedded: medium

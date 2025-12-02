@@ -1,11 +1,11 @@
 # python/2024.runpython/344006eb4fc501c3937e121409b1f2af1f3f272109ca644755b3f83feb5edb01.py: critical
+exec/remote_commands/code_eval: critical
+exec/script/python: high
 crypto/fernet: medium
 discover/user/APPDATA: medium
 evasion/indicator_blocking/hidden_window: medium
-exec/imports/python: low
 exec/program: medium
-exec/remote_commands/code_eval: critical
-exec/script/python: high
+exec/imports/python: low
 fs/directory/create: low
 fs/file/exists: low
 fs/file/open: low

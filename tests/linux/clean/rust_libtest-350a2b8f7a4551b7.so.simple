@@ -1,8 +1,8 @@
 # linux/clean/rust_libtest-350a2b8f7a4551b7.so: medium
-anti-behavior/random_behavior: low
-c2/tool_transfer/arch: low
 c2/tool_transfer/os: medium
 discover/process/runtime_deps: medium
 exec/program: medium
+anti-behavior/random_behavior: low
+c2/tool_transfer/arch: low
 fs/path/etc: low
 net/url/embedded: low

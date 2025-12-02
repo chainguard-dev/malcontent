@@ -1,10 +1,10 @@
 # linux/synthetic/github-attach-fetch.sh: critical
-c2/tool_transfer/github: high
 c2/tool_transfer/shell: critical
+impact/remote_access/backdoor: critical
+c2/tool_transfer/github: high
 exec/shell/background_launcher: high
 exec/shell/exec: medium
 exec/shell/nohup: medium
 fs/permission/modify: medium
-impact/remote_access/backdoor: critical
 net/download/fetch: medium
 net/url/embedded: low

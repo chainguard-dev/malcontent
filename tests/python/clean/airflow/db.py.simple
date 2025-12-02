@@ -1,16 +1,16 @@
 # python/clean/airflow/db.py: medium
-c2/tool_transfer/os: low
 collect/databases/leveldb: medium
 collect/databases/mysql: medium
 collect/databases/postgresql: medium
 collect/databases/sqlite: medium
-credential/password: low
 credential/ssh: medium
+net/ip/host_port: medium
+net/tcp/sftp: medium
+c2/tool_transfer/os: low
+credential/password: low
 exec/plugin: low
 fs/tempdir: low
 net/http: low
-net/ip/host_port: medium
-net/tcp/sftp: medium
 net/url/embedded: low
 os/env/get: low
 os/fd/multiplex: low

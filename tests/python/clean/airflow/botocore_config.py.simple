@@ -1,8 +1,8 @@
 # python/clean/airflow/botocore_config.py: medium
-exec/imports/python: low
 impact/remote_access/agent: medium
-net/http: low
-net/http/request: low
 net/ip/host_port: medium
 net/socket/connect: medium
+exec/imports/python: low
+net/http: low
+net/http/request: low
 net/url/embedded: low

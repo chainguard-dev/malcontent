@@ -1,11 +1,11 @@
 # linux/clean/linux-s390x.sh: medium
 c2/tool_transfer/github: medium
-c2/tool_transfer/os: low
 c2/tool_transfer/shell: medium
-fs/directory/create: low
 fs/file/copy: medium
 fs/permission/modify: medium
 net/download/fetch: medium
+c2/tool_transfer/os: low
+fs/directory/create: low
 net/http: low
 net/url/embedded: low
 process/chdir: low

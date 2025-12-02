@@ -21,63 +21,6 @@
                     "RuleName": "SIGNATURE_BASE_Suspicious_Powershell_Webdownload_1"
                 },
                 {
-                    "Description": "accesses hardcoded executable endpoint",
-                    "MatchStrings": [
-                        "https://github.com/aspdasdksa2/callback/raw/main/Client-built.exe"
-                    ],
-                    "RiskScore": 3,
-                    "RiskLevel": "HIGH",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/exe_url.yara#http_url_with_exe",
-                    "ID": "c2/tool_transfer/exe_url",
-                    "RuleName": "http_url_with_exe"
-                },
-                {
-                    "Description": "downloads raw content from GitHub",
-                    "MatchStrings": [
-                        "github.com",
-                        "raw/main"
-                    ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/github.yara#github_raw_user",
-                    "ID": "c2/tool_transfer/github",
-                    "RuleName": "github_raw_user"
-                },
-                {
-                    "Description": "references a specific operating system",
-                    "MatchStrings": [
-                        "https://",
-                        "Windows"
-                    ],
-                    "RiskScore": 1,
-                    "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/os.yara#os_ref",
-                    "ID": "c2/tool_transfer/os",
-                    "RuleName": "os_ref"
-                },
-                {
-                    "Description": "runs powershell scripts",
-                    "MatchStrings": [
-                        "powershell -Command"
-                    ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/exec/shell/powershell.yara#powershell",
-                    "ID": "exec/shell/power",
-                    "RuleName": "powershell"
-                },
-                {
-                    "Description": "path reference for C:\\Windows (may be partial)",
-                    "MatchStrings": [
-                        "C:\\Windows"
-                    ],
-                    "RiskScore": 1,
-                    "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/windows_root.yara#windows_path",
-                    "ID": "fs/path/windows_root",
-                    "RuleName": "windows_path"
-                },
-                {
                     "Description": "Stops EDR/Antivirus services",
                     "MatchStrings": [
                         "alwarebytes",
@@ -99,6 +42,51 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/impact/degrade/win_defender.yara#win_defender_exclusion",
                     "ID": "impact/degrade/win_defender",
                     "RuleName": "win_defender_exclusion"
+                },
+                {
+                    "Description": "accesses hardcoded executable endpoint",
+                    "MatchStrings": [
+                        "https://github.com/aspdasdksa2/callback/raw/main/Client-built.exe"
+                    ],
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/exe_url.yara#http_url_with_exe",
+                    "ID": "c2/tool_transfer/exe_url",
+                    "RuleName": "http_url_with_exe"
+                },
+                {
+                    "Description": "Uses RunAs to execute code as another user",
+                    "MatchStrings": [
+                        "powershell -Command \"Start-Process -Verb RunAs -FilePath '%0' -ArgumentList 'a"
+                    ],
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/privesc/runas.yara#runas_admin",
+                    "ID": "privesc/runas",
+                    "RuleName": "runas_admin"
+                },
+                {
+                    "Description": "downloads raw content from GitHub",
+                    "MatchStrings": [
+                        "github.com",
+                        "raw/main"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/github.yara#github_raw_user",
+                    "ID": "c2/tool_transfer/github",
+                    "RuleName": "github_raw_user"
+                },
+                {
+                    "Description": "runs powershell scripts",
+                    "MatchStrings": [
+                        "powershell -Command"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/exec/shell/powershell.yara#powershell",
+                    "ID": "exec/shell/power",
+                    "RuleName": "powershell"
                 },
                 {
                     "Description": "mentions 'malware'",
@@ -125,28 +113,6 @@
                     "RuleName": "download"
                 },
                 {
-                    "Description": "contains embedded HTTPS URLs",
-                    "MatchStrings": [
-                        "https://github.com/aspdasdksa2/callback/raw/main/Client-built.exe"
-                    ],
-                    "RiskScore": 1,
-                    "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/url/embedded.yara#https_url",
-                    "ID": "net/url/embedded",
-                    "RuleName": "https_url"
-                },
-                {
-                    "Description": "Uses RunAs to execute code as another user",
-                    "MatchStrings": [
-                        "powershell -Command \"Start-Process -Verb RunAs -FilePath '%0' -ArgumentList 'a"
-                    ],
-                    "RiskScore": 3,
-                    "RiskLevel": "HIGH",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/privesc/runas.yara#runas_admin",
-                    "ID": "privesc/runas",
-                    "RuleName": "runas_admin"
-                },
-                {
                     "Description": "kills tasks and/or processes",
                     "MatchStrings": [
                         "taskkill"
@@ -156,6 +122,40 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/process/terminate/taskkill.yara#taskkill",
                     "ID": "process/terminate/taskkill",
                     "RuleName": "taskkill"
+                },
+                {
+                    "Description": "references a specific operating system",
+                    "MatchStrings": [
+                        "https://",
+                        "Windows"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/os.yara#os_ref",
+                    "ID": "c2/tool_transfer/os",
+                    "RuleName": "os_ref"
+                },
+                {
+                    "Description": "path reference for C:\\Windows (may be partial)",
+                    "MatchStrings": [
+                        "C:\\Windows"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/windows_root.yara#windows_path",
+                    "ID": "fs/path/windows_root",
+                    "RuleName": "windows_path"
+                },
+                {
+                    "Description": "contains embedded HTTPS URLs",
+                    "MatchStrings": [
+                        "https://github.com/aspdasdksa2/callback/raw/main/Client-built.exe"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/url/embedded.yara#https_url",
+                    "ID": "net/url/embedded",
+                    "RuleName": "https_url"
                 }
             ],
             "RiskScore": 4,

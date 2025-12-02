@@ -1,6 +1,6 @@
 # ruby/2024.Ruby_rootkit/Ruby.c: critical
 3P/elastic/rootkit: high
-c2/refs: medium
 evasion/rootkit/refs: high
-malware/ref: medium
 persist/kernel_module/symbol_lookup: high
+c2/refs: medium
+malware/ref: medium

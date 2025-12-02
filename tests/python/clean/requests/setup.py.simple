@@ -1,14 +1,14 @@
 # python/clean/requests/setup.py: medium
 c2/tool_transfer/download: medium
-exec/imports/python: low
 exec/program: medium
 exec/remote_commands/code_eval: medium
+impact/remote_access/py_setuptools: medium
+net/ip/parse: medium
+process/multi: medium
+exec/imports/python: low
 fs/file/open: low
 fs/path/usr_bin: low
-impact/remote_access/py_setuptools: medium
 net/http: low
-net/ip/parse: medium
 net/url/embedded: low
 net/url/parse: low
 os/fd/read: low
-process/multi: medium

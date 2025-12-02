@@ -174,13 +174,15 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		if err != nil {
 			return nil, NewFileReportError(err, path, TypeGenerateError)
 		}
-		if runtime.GOOS == "darwin" {
-			pathAbs = strings.TrimPrefix(pathAbs, "/private")
-			archiveRootAbs = strings.TrimPrefix(archiveRootAbs, "/private")
-		}
+
+		// handle macOS prefixing temporary directories with /private
+		absPath = CleanPath(absPath, "/private")
+		pathAbs = CleanPath(pathAbs, "/private")
+		archiveRootAbs = CleanPath(archiveRootAbs, "/private")
+
 		fr.ArchiveRoot = archiveRootAbs
 		fr.FullPath = pathAbs
-		clean = formatPath(cleanPath(pathAbs, archiveRootAbs))
+		clean = CleanPath(pathAbs, archiveRootAbs)
 
 		if absPath != "" && absPath != path && (isArchive || c.OCI) {
 			if len(c.TrimPrefixes) > 0 {

@@ -1,14 +1,14 @@
 # python/clean/google-cloud-sdk/mysql.py: medium
 collect/databases/mysql: medium
+fs/file/copy: medium
+fs/path/etc_initd: medium
+process/terminate/kill_multiple: medium
 credential/password: low
 exec/imports/python: low
 fs/directory/create: low
-fs/file/copy: medium
 fs/file/exists: low
 fs/file/open: low
 fs/path/etc: low
-fs/path/etc_initd: medium
 fs/path/var: low
 net/http: low
 net/url/embedded: low
-process/terminate/kill_multiple: medium

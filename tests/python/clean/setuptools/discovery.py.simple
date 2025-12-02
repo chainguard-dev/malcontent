@@ -1,5 +1,5 @@
 # python/clean/setuptools/discovery.py: medium
-exec/imports/python: low
 fs/directory/traverse: medium
 fs/path/relative: medium
 fs/path/root: medium
+exec/imports/python: low

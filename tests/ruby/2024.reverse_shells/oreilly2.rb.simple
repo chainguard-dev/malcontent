@@ -1,5 +1,5 @@
 # ruby/2024.reverse_shells/oreilly2.rb: critical
 3P/sig_base/hktl_shellpop_ruby: critical
-exec/cmd/pipe: medium
 impact/remote_access/reverse_shell: high
+exec/cmd/pipe: medium
 net/tcp/connect: medium

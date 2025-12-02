@@ -1,7 +1,7 @@
 # macOS/2024.AMOS/example.scpt: high
-exfil/curl_post: medium
 exfil/stealer/archive: high
+exfil/curl_post: medium
 fs/path/tmp: medium
 net/download/fetch: medium
-net/http: low
 net/http/post: medium
+net/http: low

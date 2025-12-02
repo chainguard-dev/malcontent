@@ -50,15 +50,64 @@
                     "RuleName": "Macos_Infostealer_Wallets_8e469ea0"
                 },
                 {
-                    "Description": "binary contains little text content",
+                    "Description": "steals login keychain",
                     "MatchStrings": [
-                        "ft hg"
+                        "Keychains",
+                        "logkc_db"
                     ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/binary/opaque.yara#opaque_binary",
-                    "ID": "anti-static/binary/opaque",
-                    "RuleName": "opaque_binary"
+                    "RiskScore": 4,
+                    "RiskLevel": "CRITICAL",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/credential/keychain/keychain.yara#login_keychain_eager_beaver",
+                    "ReferenceURL": "https://www.group-ib.com/blog/apt-lazarus-python-scripts/",
+                    "ID": "credential/keychain",
+                    "RuleName": "login_keychain_eager_beaver"
+                },
+                {
+                    "Description": "makes HTTPS connections and references multiple Chrome crypto wallet extensions",
+                    "MatchStrings": [
+                        "mccdpekplomjjkc",
+                        "fhbohimaelbohp",
+                        "gpafnldhgmapag",
+                        "bfnaelmomeimh",
+                        "ejbalbakoplch",
+                        "hnfanknocfeof",
+                        "ibnejdfjmmkpc",
+                        "mihkjbmgjidlc",
+                        "ohmabehhmhfoo",
+                        "aeachknmefph",
+                        "ebolmdjonilk",
+                        "nkbihfbeogae",
+                        "http"
+                    ],
+                    "RiskScore": 4,
+                    "RiskLevel": "CRITICAL",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/exfil/stealer/wallet.yara#crypto_extension_stealer",
+                    "ID": "exfil/stealer/wallet",
+                    "RuleName": "crypto_extension_stealer"
+                },
+                {
+                    "Description": "Beaver Tail Infostealer",
+                    "MatchStrings": [
+                        "Download Python Success!",
+                        "Upload LDB Finshed",
+                        "clientDownFinished",
+                        "name=\"multi_file\"",
+                        "/.pyp/python.exe",
+                        "%1_%2_%3_%4_%5",
+                        "pDownFinished",
+                        "upLDBFinished",
+                        "/client/99",
+                        "/uploads",
+                        "logkc_db",
+                        "/pdown",
+                        "*.ldb"
+                    ],
+                    "RiskScore": 4,
+                    "RiskLevel": "CRITICAL",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/malware/family/beaver_tail.yara#beaver_tail",
+                    "ReferenceURL": "https://objective-see.org/blog/blog_0x7A.html",
+                    "ID": "malware/family/beaver_tail",
+                    "RuleName": "beaver_tail"
                 },
                 {
                     "Description": "high entropy binary (\u003e7.2)",
@@ -92,30 +141,6 @@
                     "RuleName": "bin_hardcoded_ip"
                 },
                 {
-                    "Description": "binary contains hardcoded URL",
-                    "MatchStrings": [
-                        "http://95.164.17.24"
-                    ],
-                    "RiskScore": 1,
-                    "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/url.yara#binary_with_url",
-                    "ID": "c2/addr/url",
-                    "RuleName": "binary_with_url"
-                },
-                {
-                    "Description": "steals login keychain",
-                    "MatchStrings": [
-                        "Keychains",
-                        "logkc_db"
-                    ],
-                    "RiskScore": 4,
-                    "RiskLevel": "CRITICAL",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/credential/keychain/keychain.yara#login_keychain_eager_beaver",
-                    "ReferenceURL": "https://www.group-ib.com/blog/apt-lazarus-python-scripts/",
-                    "ID": "credential/keychain",
-                    "RuleName": "login_keychain_eager_beaver"
-                },
-                {
                     "Description": "Makes references to multiple browser credentials",
                     "MatchStrings": [
                         "Application Support",
@@ -134,27 +159,60 @@
                     "RuleName": "multiple_browser_refs"
                 },
                 {
-                    "Description": "makes HTTPS connections and references multiple Chrome crypto wallet extensions",
+                    "Description": "binary contains little text content",
                     "MatchStrings": [
-                        "mccdpekplomjjkc",
-                        "fhbohimaelbohp",
-                        "gpafnldhgmapag",
-                        "bfnaelmomeimh",
-                        "ejbalbakoplch",
-                        "hnfanknocfeof",
-                        "ibnejdfjmmkpc",
-                        "mihkjbmgjidlc",
-                        "ohmabehhmhfoo",
-                        "aeachknmefph",
-                        "ebolmdjonilk",
-                        "nkbihfbeogae",
-                        "http"
+                        "ft hg"
                     ],
-                    "RiskScore": 4,
-                    "RiskLevel": "CRITICAL",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/exfil/stealer/wallet.yara#crypto_extension_stealer",
-                    "ID": "exfil/stealer/wallet",
-                    "RuleName": "crypto_extension_stealer"
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/binary/opaque.yara#opaque_binary",
+                    "ID": "anti-static/binary/opaque",
+                    "RuleName": "opaque_binary"
+                },
+                {
+                    "Description": "download files",
+                    "MatchStrings": [
+                        "Download Client Success",
+                        "Download Python Success"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/download/download.yara#download",
+                    "ID": "net/download",
+                    "RuleName": "download"
+                },
+                {
+                    "Description": "submits form content to websites",
+                    "MatchStrings": [
+                        "multipart/form-data; boundary="
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/post.yara#form_data_reference",
+                    "ID": "net/http/post",
+                    "RuleName": "form_data_reference"
+                },
+                {
+                    "Description": "gets very excited",
+                    "MatchStrings": [
+                        "Upload LDB Finshed!!!"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/sus/exclamation.yara#exclamations",
+                    "ID": "sus/exclamation",
+                    "RuleName": "exclamations"
+                },
+                {
+                    "Description": "binary contains hardcoded URL",
+                    "MatchStrings": [
+                        "http://95.164.17.24"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/url.yara#binary_with_url",
+                    "ID": "c2/addr/url",
+                    "RuleName": "binary_with_url"
                 },
                 {
                     "Description": "path reference within ~/.config",
@@ -170,42 +228,6 @@
                     "RuleName": "home_config_path"
                 },
                 {
-                    "Description": "Beaver Tail Infostealer",
-                    "MatchStrings": [
-                        "Download Python Success!",
-                        "Upload LDB Finshed",
-                        "clientDownFinished",
-                        "name=\"multi_file\"",
-                        "/.pyp/python.exe",
-                        "%1_%2_%3_%4_%5",
-                        "pDownFinished",
-                        "upLDBFinished",
-                        "/client/99",
-                        "/uploads",
-                        "logkc_db",
-                        "/pdown",
-                        "*.ldb"
-                    ],
-                    "RiskScore": 4,
-                    "RiskLevel": "CRITICAL",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/malware/family/beaver_tail.yara#beaver_tail",
-                    "ReferenceURL": "https://objective-see.org/blog/blog_0x7A.html",
-                    "ID": "malware/family/beaver_tail",
-                    "RuleName": "beaver_tail"
-                },
-                {
-                    "Description": "download files",
-                    "MatchStrings": [
-                        "Download Client Success",
-                        "Download Python Success"
-                    ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/download/download.yara#download",
-                    "ID": "net/download",
-                    "RuleName": "download"
-                },
-                {
                     "Description": "Uses the HTTP protocol",
                     "MatchStrings": [
                         "http"
@@ -217,17 +239,6 @@
                     "RuleName": "http"
                 },
                 {
-                    "Description": "submits form content to websites",
-                    "MatchStrings": [
-                        "multipart/form-data; boundary="
-                    ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/post.yara#form_data_reference",
-                    "ID": "net/http/post",
-                    "RuleName": "form_data_reference"
-                },
-                {
                     "Description": "contains embedded HTTP URLs",
                     "MatchStrings": [
                         "http://95.164.17.24"
@@ -237,17 +248,6 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/url/embedded.yara#http_url",
                     "ID": "net/url/embedded",
                     "RuleName": "http_url"
-                },
-                {
-                    "Description": "gets very excited",
-                    "MatchStrings": [
-                        "Upload LDB Finshed!!!"
-                    ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/sus/exclamation.yara#exclamations",
-                    "ID": "sus/exclamation",
-                    "RuleName": "exclamations"
                 }
             ],
             "RiskScore": 4,

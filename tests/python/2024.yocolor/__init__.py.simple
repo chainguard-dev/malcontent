@@ -1,7 +1,7 @@
 # python/2024.yocolor/__init__.py: critical
-c2/tool_transfer/os: low
-exec/imports/python: low
 exec/install_additional/pip_install: critical
 exec/program: medium
-net/url/embedded: low
 process/executable_path: medium
+c2/tool_transfer/os: low
+exec/imports/python: low
+net/url/embedded: low

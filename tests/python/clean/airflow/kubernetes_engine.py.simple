@@ -1,7 +1,7 @@
 # python/clean/airflow/kubernetes_engine.py: medium
 anti-static/obfuscation/python: medium
+net/url/request: medium
 exec/imports/python: low
 net/http: low
 net/http/auth: low
 net/url/embedded: low
-net/url/request: medium

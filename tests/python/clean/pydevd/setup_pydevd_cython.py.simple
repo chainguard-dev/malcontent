@@ -1,5 +1,6 @@
 # python/clean/pydevd/setup_pydevd_cython.py: medium
 discover/system/platform: medium
+impact/remote_access/py_setuptools: medium
 exec/imports/python: low
 fs/directory/list: low
 fs/file/delete: low
@@ -8,7 +9,6 @@ fs/file/open: low
 fs/file/read: low
 fs/file/write: low
 fs/tempdir/TEMP: low
-impact/remote_access/py_setuptools: medium
 os/env/get: low
 os/fd/read: low
 os/fd/write: low

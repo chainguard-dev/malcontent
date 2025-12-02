@@ -108,6 +108,10 @@ func (r Terminal) Full(ctx context.Context, _ *malcontent.Config, rep *malconten
 	}
 
 	for removed := rep.Diff.Removed.Oldest(); removed != nil; removed = removed.Next() {
+		if len(removed.Value.Behaviors) == 0 {
+			continue
+		}
+
 		renderFileSummary(ctx, removed.Value, r.w, tableConfig{
 			Title:       fmt.Sprintf("Deleted: %s %s", removed.Key, darkBrackets(riskInColor(removed.Value.RiskLevel))),
 			DiffRemoved: true,
@@ -115,6 +119,10 @@ func (r Terminal) Full(ctx context.Context, _ *malcontent.Config, rep *malconten
 	}
 
 	for added := rep.Diff.Added.Oldest(); added != nil; added = added.Next() {
+		if len(added.Value.Behaviors) == 0 {
+			continue
+		}
+
 		renderFileSummary(ctx, added.Value, r.w, tableConfig{
 			Title:     fmt.Sprintf("Added: %s %s", added.Key, darkBrackets(riskInColor(added.Value.RiskLevel))),
 			DiffAdded: true,
@@ -122,11 +130,14 @@ func (r Terminal) Full(ctx context.Context, _ *malcontent.Config, rep *malconten
 	}
 
 	for modified := rep.Diff.Modified.Oldest(); modified != nil; modified = modified.Next() {
+		if len(modified.Value.Behaviors) == 0 {
+			continue
+		}
+
 		var title string
 		if modified.Value.PreviousRelPath != "" && modified.Value.PreviousRelPathScore >= 0.9 {
 			title = fmt.Sprintf("Moved: %s -> %s (score: %f)", modified.Value.PreviousPath, modified.Value.Path, modified.Value.PreviousRelPathScore)
-		}
-		if modified.Value.RiskScore != modified.Value.PreviousRiskScore {
+		} else if modified.Value.RiskScore != modified.Value.PreviousRiskScore {
 			title = fmt.Sprintf("%s %s", title,
 				darkBrackets(fmt.Sprintf("%s %s %s", riskInColor(modified.Value.PreviousRiskLevel), color.HiWhiteString("→"), riskInColor(modified.Value.RiskLevel))))
 		}

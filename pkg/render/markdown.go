@@ -10,7 +10,6 @@ import (
 	"io"
 	"net/url"
 	"regexp"
-	"sort"
 	"strings"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
@@ -73,18 +72,30 @@ func (r Markdown) Full(ctx context.Context, _ *malcontent.Config, rep *malconten
 	}
 
 	for removed := rep.Diff.Removed.Oldest(); removed != nil; removed = removed.Next() {
+		if len(removed.Value.Behaviors) == 0 {
+			continue
+		}
+
 		if err := markdownTable(ctx, removed.Value, r.w, tableConfig{Title: fmt.Sprintf("## Deleted: %s [%s]", removed.Key, mdRisk(removed.Value.RiskScore, removed.Value.RiskLevel)), DiffRemoved: true}); err != nil {
 			return err
 		}
 	}
 
 	for added := rep.Diff.Added.Oldest(); added != nil; added = added.Next() {
+		if len(added.Value.Behaviors) == 0 {
+			continue
+		}
+
 		if err := markdownTable(ctx, added.Value, r.w, tableConfig{Title: fmt.Sprintf("## Added: %s [%s]", added.Key, mdRisk(added.Value.RiskScore, added.Value.RiskLevel)), DiffAdded: true}); err != nil {
 			return err
 		}
 	}
 
 	for modified := rep.Diff.Modified.Oldest(); modified != nil; modified = modified.Next() {
+		if len(modified.Value.Behaviors) == 0 {
+			continue
+		}
+
 		added := 0
 		removed := 0
 		noDiff := 0
@@ -194,13 +205,6 @@ func markdownTable(ctx context.Context, fr *malcontent.FileReport, w io.Writer, 
 		fmt.Fprintf(w, "%s\n\n", rc.Title)
 	}
 
-	sort.Slice(kbs, func(i, j int) bool {
-		if kbs[i].Behavior.RiskScore == kbs[j].Behavior.RiskScore {
-			return kbs[i].Key < kbs[j].Key
-		}
-		return kbs[i].Behavior.RiskScore > kbs[j].Behavior.RiskScore
-	})
-
 	data := make([][]string, 0, len(kbs))
 	for _, k := range kbs {
 		data = append(data, make([]string, 0, len(k.Behavior.MatchStrings)))
@@ -236,6 +240,12 @@ func markdownTable(ctx context.Context, fr *malcontent.FileReport, w io.Writer, 
 			continue
 		}
 
+		if (!k.Behavior.DiffRemoved && !k.Behavior.DiffAdded) || rc.NoDiff {
+			if rc.SkipNoDiff {
+				continue
+			}
+		}
+
 		if k.Behavior.DiffAdded || rc.DiffAdded {
 			if rc.SkipAdded {
 				continue
@@ -247,11 +257,6 @@ func markdownTable(ctx context.Context, fr *malcontent.FileReport, w io.Writer, 
 				continue
 			}
 			risk = fmt.Sprintf("-%s", risk)
-		}
-		if (!k.Behavior.DiffRemoved && !k.Behavior.DiffAdded) || rc.NoDiff {
-			if rc.SkipNoDiff {
-				continue
-			}
 		}
 
 		key := fmt.Sprintf("[%s](%s)", k.Key, k.Behavior.RuleURL)

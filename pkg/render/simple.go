@@ -7,7 +7,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"sort"
 	"strings"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
@@ -42,10 +41,6 @@ func (r Simple) File(ctx context.Context, fr *malcontent.FileReport) error {
 
 	bs = append(bs, fr.Behaviors...)
 
-	sort.Slice(bs, func(i, j int) bool {
-		return bs[i].ID < bs[j].ID
-	})
-
 	for _, b := range bs {
 		fmt.Fprintf(r.w, "%s: %s\n", b.ID, strings.ToLower(b.RiskLevel))
 	}
@@ -63,14 +58,14 @@ func (r Simple) Full(ctx context.Context, _ *malcontent.Config, rep *malcontent.
 	}
 
 	for removed := rep.Diff.Removed.Oldest(); removed != nil; removed = removed.Next() {
+		if len(removed.Value.Behaviors) == 0 {
+			continue
+		}
+
 		fmt.Fprintf(r.w, "--- missing: %s\n", removed.Key)
 
 		var bs []*malcontent.Behavior
 		bs = append(bs, removed.Value.Behaviors...)
-
-		sort.Slice(bs, func(i, j int) bool {
-			return bs[i].ID < bs[j].ID
-		})
 
 		for _, b := range bs {
 			fmt.Fprintf(r.w, "-%s\n", b.ID)
@@ -78,14 +73,14 @@ func (r Simple) Full(ctx context.Context, _ *malcontent.Config, rep *malcontent.
 	}
 
 	for added := rep.Diff.Added.Oldest(); added != nil; added = added.Next() {
-		fmt.Fprintf(r.w, "++++ added: %s\n", added.Key)
+		if len(added.Value.Behaviors) == 0 {
+			continue
+		}
+
+		fmt.Fprintf(r.w, "+++ added: %s\n", added.Key)
 
 		var bs []*malcontent.Behavior
 		bs = append(bs, added.Value.Behaviors...)
-
-		sort.Slice(bs, func(i, j int) bool {
-			return bs[i].ID < bs[j].ID
-		})
 
 		for _, b := range bs {
 			fmt.Fprintf(r.w, "+%s\n", b.ID)
@@ -107,34 +102,33 @@ func (r Simple) Full(ctx context.Context, _ *malcontent.Config, rep *malcontent.
 	}
 
 	for modified := rep.Diff.Modified.Oldest(); modified != nil; modified = modified.Next() {
-		if modified.Value.PreviousRelPath != "" && modified.Value.PreviousRelPathScore >= 0.9 {
-			fmt.Fprintf(r.w, ">>> moved: %s -> %s (score: %f)\n", modified.Value.PreviousPath, modified.Value.Path, modified.Value.PreviousRelPathScore)
+		if len(modified.Value.Behaviors) == 0 {
+			continue
 		}
 
 		var bs []*malcontent.Behavior
 		bs = append(bs, modified.Value.Behaviors...)
-
-		sort.Slice(bs, func(i, j int) bool {
-			return bs[i].ID < bs[j].ID
-		})
 
 		added, removed := count(bs)
 		if added == 0 && removed == 0 {
 			continue
 		}
 
-		fmt.Fprintf(r.w, "*** changed (%d added, %d removed): %s\n", added, removed, modified.Value.Path)
+		if modified.Value.PreviousRelPath != "" && modified.Value.PreviousRelPathScore >= 0.9 {
+			fmt.Fprintf(r.w, ">>> moved: %s -> %s (score: %f)\n", modified.Value.PreviousPath, modified.Value.Path, modified.Value.PreviousRelPathScore)
+		} else {
+			fmt.Fprintf(r.w, "*** changed (%d added, %d removed): %s\n", added, removed, modified.Value.Path)
+		}
 
 		for _, b := range bs {
+			if !b.DiffRemoved && !b.DiffAdded {
+				continue
+			}
 			if b.DiffRemoved {
 				fmt.Fprintf(r.w, "-%s\n", b.ID)
-				continue
 			}
 			if b.DiffAdded {
 				fmt.Fprintf(r.w, "+%s\n", b.ID)
-			}
-			if !b.DiffRemoved && !b.DiffAdded {
-				continue
 			}
 		}
 	}

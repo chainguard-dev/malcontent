@@ -6,28 +6,6 @@
             "Size": 534,
             "Behaviors": [
                 {
-                    "Description": "set file mode creation mask",
-                    "MatchStrings": [
-                        "umask"
-                    ],
-                    "RiskScore": 0,
-                    "RiskLevel": "NONE",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-permission-mask-set.yara#umask",
-                    "ID": "fs/file/permission_mask_set",
-                    "RuleName": "umask"
-                },
-                {
-                    "Description": "path reference within /etc",
-                    "MatchStrings": [
-                        "/etc/profile.d/"
-                    ],
-                    "RiskScore": 1,
-                    "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/etc.yara#etc_path",
-                    "ID": "fs/path/etc",
-                    "RuleName": "etc_path"
-                },
-                {
                     "Description": "path reference within /usr/local/bin",
                     "MatchStrings": [
                         "/usr/local/bin"
@@ -50,6 +28,17 @@
                     "RuleName": "bash_persist"
                 },
                 {
+                    "Description": "path reference within /etc",
+                    "MatchStrings": [
+                        "/etc/profile.d/"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/etc.yara#etc_path",
+                    "ID": "fs/path/etc",
+                    "RuleName": "etc_path"
+                },
+                {
                     "Description": "etc shell init references",
                     "MatchStrings": [
                         "/etc/profile"
@@ -59,6 +48,17 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/persist/shell/init_files.yara#etc_shell_init_references",
                     "ID": "persist/shell/init_files",
                     "RuleName": "etc_shell_init_references"
+                },
+                {
+                    "Description": "set file mode creation mask",
+                    "MatchStrings": [
+                        "umask"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-permission-mask-set.yara#umask",
+                    "ID": "fs/file/permission_mask_set",
+                    "RuleName": "umask"
                 }
             ],
             "RiskScore": 2,

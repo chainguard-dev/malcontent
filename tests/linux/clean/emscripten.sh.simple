@@ -1,18 +1,18 @@
 # linux/clean/emscripten.sh: medium
 c2/tool_transfer/download: medium
-c2/tool_transfer/os: low
 c2/tool_transfer/shell: medium
 evasion/file/location/HOME: medium
 evasion/file/prefix: medium
 fs/file/copy: medium
 fs/file/delete: medium
-fs/file/delete_forcibly: low
 fs/file/make_executable: medium
 fs/path/relative: medium
 fs/path/root: medium
 fs/path/tmp: medium
 fs/permission/modify: medium
 net/download/fetch: medium
+c2/tool_transfer/os: low
+fs/file/delete_forcibly: low
 net/http: low
 net/url/embedded: low
 process/chdir: low

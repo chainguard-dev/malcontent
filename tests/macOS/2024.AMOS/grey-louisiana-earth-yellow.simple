@@ -1,9 +1,9 @@
 # macOS/2024.AMOS/grey-louisiana-earth-yellow: critical
+malware/family/amos: critical
+exec/program/opaque: high
 anti-static/binary/opaque: medium
+exec/shell/exec: medium
 c2/addr/url: low
 crypto/rc4: low
-exec/program/opaque: high
-exec/shell/exec: medium
-malware/family/amos: critical
 net/http: low
 net/url/embedded: low

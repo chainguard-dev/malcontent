@@ -1,8 +1,8 @@
 # javascript/clean/powershell.js: medium
-c2/tool_transfer/os: low
 exec/shell/power: medium
-fs/directory/remove: low
 fs/file/copy: medium
 fs/file/delete: medium
 net/download/fetch: medium
+c2/tool_transfer/os: low
+fs/directory/remove: low
 net/url/embedded: low

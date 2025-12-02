@@ -1,12 +1,12 @@
 # ruby/2023.gunther/Rakefile.rb: critical
 c2/addr/ip: high
-c2/tool_transfer/os: low
 data/base64/encode: medium
 discover/network/interface_list: medium
-discover/system/hostname: low
 discover/system/platform: medium
+net/ip/addr: medium
+c2/tool_transfer/os: low
+discover/system/hostname: low
 discover/user/USER: low
 net/http: low
 net/http/request: low
-net/ip/addr: medium
 net/url/embedded: low

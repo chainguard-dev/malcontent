@@ -1,17 +1,17 @@
 # python/2024.ultralytics/v8.3.46/__init__.py: critical
 3P/sig_base/pua_crypto_mining: critical
-c2/tool_transfer/os: low
-discover/system/platform: medium
-exec/imports/python: low
-exec/program: medium
 exec/shell/background_launcher: high
-exec/shell/nohup: medium
-fs/path/relative: medium
 impact/cryptojacking/generic: high
 impact/cryptojacking/xmrig: high
+net/ip/host_port: high
+discover/system/platform: medium
+exec/program: medium
+exec/shell/nohup: medium
+fs/path/relative: medium
 net/download: medium
 net/download/fetch: medium
-net/ip/host_port: high
+c2/tool_transfer/os: low
+exec/imports/python: low
 net/url/embedded: low
 os/env/get: low
 process/chdir: low

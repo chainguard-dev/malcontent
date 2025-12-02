@@ -1,14 +1,14 @@
 # linux/clean/ld-2.27.so: medium
-c2/tool_transfer/arch: low
-c2/tool_transfer/os: low
 discover/process/runtime_deps: medium
-evasion/hijack_execution/LD_LIBRARY_PATH: low
 evasion/hijack_execution/etc_ld.so.preload: medium
-fs/path/etc: low
-fs/path/var: low
 fs/path/var_profile: medium
 fs/proc/self_exe: medium
 fs/proc/sys_kernel_osrelease: medium
+persist/shell/bash: medium
+c2/tool_transfer/arch: low
+c2/tool_transfer/os: low
+evasion/hijack_execution/LD_LIBRARY_PATH: low
+fs/path/etc: low
+fs/path/var: low
 fs/tempdir: low
 net/url/embedded: low
-persist/shell/bash: medium

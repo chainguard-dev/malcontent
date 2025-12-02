@@ -1,12 +1,15 @@
 # python/clean/numba/support.py: medium
-anti-behavior/random_behavior: low
-anti-static/obfuscation/python: low
-c2/tool_transfer/arch: low
 c2/tool_transfer/os: medium
 data/encoding/yaml: medium
 discover/system/platform: medium
-exec/imports/python: low
 exec/program: medium
+process/executable_path: medium
+process/multi: medium
+process/multithreaded: medium
+anti-behavior/random_behavior: low
+anti-static/obfuscation/python: low
+c2/tool_transfer/arch: low
+exec/imports/python: low
 fs/directory/create: low
 fs/directory/list: low
 fs/file/open: low
@@ -21,6 +24,3 @@ net/url/embedded: low
 os/env/get: low
 os/fd/read: low
 os/fd/write: low
-process/executable_path: medium
-process/multi: medium
-process/multithreaded: medium

@@ -58,15 +58,12 @@ func findFilesRecursively(ctx context.Context, rootPath string) ([]string, error
 	return files, err
 }
 
-// cleanPath removes the temporary directory prefix from the path.
-func cleanPath(path string, prefix string) string {
-	return strings.TrimPrefix(path, prefix)
+// CleanPath removes the temporary directory prefix from the path.
+func CleanPath(path string, prefix string) string {
+	return formatPath(strings.TrimPrefix(path, prefix))
 }
 
 // formatPath formats the path for display.
 func formatPath(path string) string {
-	if strings.Contains(path, "\\") {
-		path = strings.ReplaceAll(path, "\\", "/")
-	}
-	return path
+	return strings.ReplaceAll(path, "\\", "/")
 }

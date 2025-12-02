@@ -1,12 +1,12 @@
 # python/clean/google-cloud-sdk/requests_setup.py: medium
-exec/imports/python: low
 exec/program: medium
 exec/remote_commands/code_eval: medium
+impact/remote_access/py_setuptools: medium
+process/multi: medium
+exec/imports/python: low
 fs/file/open: low
 fs/path/usr_bin: low
-impact/remote_access/py_setuptools: medium
 net/http: low
 net/url/embedded: low
 net/url/parse: low
 os/fd/read: low
-process/multi: medium

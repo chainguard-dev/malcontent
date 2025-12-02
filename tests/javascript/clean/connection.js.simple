@@ -1,19 +1,19 @@
 # javascript/clean/connection.js: medium
-anti-behavior/random_behavior: low
 c2/client: medium
-c2/tool_transfer/os: low
-credential/password: low
 crypto/encrypt: medium
 crypto/openssl: medium
-crypto/tls: low
 data/embedded/base64_terms: medium
 data/embedded/base64_url: medium
+net/ip/host_port: medium
+net/rpc/ntlm: medium
+net/url/embedded: medium
+anti-behavior/random_behavior: low
+c2/tool_transfer/os: low
+credential/password: low
+crypto/tls: low
 data/encoding/base64: low
 discover/system/hostname: low
 net/dns: low
 net/http: low
-net/ip/host_port: medium
-net/rpc/ntlm: medium
 net/socket/send: low
-net/url/embedded: medium
 os/fd/write: low

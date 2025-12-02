@@ -1,8 +1,8 @@
 # php/2024.malcure/simple.php: critical
 3P/sig_base/webshell_php: critical
 3P/sig_base/webshell_php_obfusc: critical
-data/encoding/base64: low
+impact/remote_access/remote_eval: critical
 exec/remote_commands/code_eval: high
 impact/remote_access/backdoor: medium
-impact/remote_access/remote_eval: critical
+data/encoding/base64: low
 net/url/embedded: low

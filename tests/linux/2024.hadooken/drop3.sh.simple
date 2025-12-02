@@ -1,6 +1,6 @@
 # linux/2024.hadooken/drop3.sh: critical
-c2/addr/ip: high
 evasion/self_deletion/run_and_delete: critical
+c2/addr/ip: high
 fs/file/delete_forcibly: low
 net/http: low
 net/url/embedded: low

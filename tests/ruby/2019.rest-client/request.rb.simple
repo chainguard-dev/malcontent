@@ -1,4 +1,4 @@
 # ruby/2019.rest-client/request.rb: critical
-c2/tool_transfer/download: high
 impact/remote_access/remote_eval: critical
+c2/tool_transfer/download: high
 net/url/embedded: low
