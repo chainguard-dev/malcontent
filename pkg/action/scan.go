@@ -4,11 +4,9 @@
 package action
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
-	"io"
 	"io/fs"
 	"log/slog"
 	"os"
@@ -78,11 +76,6 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		return fr, nil
 	}
 
-	initReadPool.Do(func() {
-		readPool = pool.NewBufferPool(runtime.GOMAXPROCS(0))
-	})
-	buf := readPool.Get(file.ReadBuffer) //nolint:nilaway // the buffer pool is created above
-
 	mime := "<unknown>"
 	kind, err := programkind.File(ctx, path)
 	if err != nil && !interactive(c) {
@@ -138,21 +131,28 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		return fr, nil
 	}
 
+	initReadPool.Do(func() {
+		readPool = pool.NewBufferPool(runtime.GOMAXPROCS(0))
+	})
+
+	// create a buffer sized to the minimum of the file's size or the default ReadBuffer
+	// only do so if we actually need to retrieve the file's contents
+	buf := readPool.Get(min(size, file.ReadBuffer)) //nolint:nilaway // the buffer pool is created above
+
 	// Only retrieve the file's contents and calculate its checksum if we need to generate a report
-	var fc bytes.Buffer
-	_, err = io.CopyBuffer(&fc, io.LimitReader(f, file.MaxBytes), buf)
+	fc, err := file.GetContents(f, buf)
 	if err != nil {
 		return nil, err
 	}
 
 	h := sha256.New()
-	_, err = h.Write(fc.Bytes())
+	_, err = h.Write(fc)
 	if err != nil {
 		return nil, err
 	}
 	checksum := fmt.Sprintf("%x", h.Sum(nil))
 
-	fr, err := report.Generate(ctx, path, mrs, c, archiveRoot, logger, fc.Bytes(), size, checksum, kind, risk)
+	fr, err := report.Generate(ctx, path, mrs, c, archiveRoot, logger, fc, size, checksum, kind, risk)
 	if err != nil {
 		return nil, NewFileReportError(err, path, TypeGenerateError)
 	}
@@ -161,8 +161,6 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		f.Close()
 		readPool.Put(buf)
 		scannerPool.Put(scanner)
-		mrs = nil
-		fc.Reset()
 	}()
 
 	// Clean up the path if scanning an archive

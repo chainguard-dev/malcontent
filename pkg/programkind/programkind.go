@@ -17,6 +17,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/pool"
 	"github.com/gabriel-vasile/mimetype"
 )
@@ -120,8 +121,6 @@ var (
 	ZMagic    = []byte{0x78, 0x5E}
 )
 
-const headerSize int = 512
-
 // IsSupportedArchive returns whether a path can be processed by our archive extractor.
 // UPX files are an edge case since they may or may not even have an extension that can be referenced.
 func IsSupportedArchive(ctx context.Context, path string) bool {
@@ -180,8 +179,8 @@ func UPXInstalled() error {
 }
 
 // IsValidUPX checks whether a suspected UPX-compressed file can be decompressed with UPX.
-func IsValidUPX(ctx context.Context, header []byte, path string) (bool, error) {
-	if !bytes.Contains(header, []byte("UPX!")) {
+func IsValidUPX(ctx context.Context, fc []byte, path string) (bool, error) {
+	if !bytes.Contains(fc, []byte("UPX!")) {
 		return false, nil
 	}
 
@@ -208,11 +207,20 @@ func makeFileType(path string, ext string, mime string) *FileType {
 		return &FileType{Ext: ext, MIME: mime}
 	}
 
-	// the only JSON files we currently scan are NPM package metadata, which ends in *package.json
-	if strings.HasSuffix(path, "package.json") {
+	// typically, JSON and YAML files are data files only scanned via --all, but we want to support the NPM ecosystem
+	if strings.HasSuffix(path, "package.json") || strings.HasSuffix(path, "package-lock.json") {
 		return &FileType{
 			Ext:  ext,
 			MIME: "application/json",
+		}
+	}
+
+	if strings.HasSuffix(path, "pnpm-lock.yaml") ||
+		strings.HasSuffix(path, "pnpm-workspace.yaml") ||
+		strings.HasSuffix(path, "yarn.lock") {
+		return &FileType{
+			Ext:  ext,
+			MIME: "application/x-yaml",
 		}
 	}
 
@@ -253,20 +261,10 @@ func File(ctx context.Context, path string) (*FileType, error) {
 		return nil, fmt.Errorf("stat: %w", err)
 	}
 
-	if st.IsDir() {
+	// ignore directories, irregular files, and empty files
+	if st.IsDir() || st.Mode().Type() == fs.ModeIrregular || st.Size() == 0 {
 		return nil, nil
 	}
-	if st.Mode().Type() == fs.ModeIrregular {
-		return nil, nil
-	}
-	if st.Size() == 0 {
-		return nil, nil
-	}
-
-	initializeHeaderPool()
-
-	buf := headerPool.Get(int64(headerSize)) //nolint:nilaway // the buffer pool is created above
-	defer headerPool.Put(buf)
 
 	f, err := os.Open(path)
 	if err != nil {
@@ -274,60 +272,67 @@ func File(ctx context.Context, path string) (*FileType, error) {
 	}
 	defer f.Close()
 
-	bs, err := f.Read(buf)
-	if err != nil {
-		return nil, fmt.Errorf("read: %w", err)
-	}
-	hdr := buf[:bs]
+	// initialize the header pool after we've successfully opened the file
+	initializeHeaderPool()
 
-	// first strategy: mimetype
-	mimetype.SetLimit(uint32(headerSize))
-	mtype := mimetype.Detect(hdr)
+	// create a buffer sized to the minimum of the file's size or the default ReadBuffer
+	buf := headerPool.Get(min(st.Size(), file.ReadBuffer)) //nolint:nilaway // the buffer pool is created above
+	defer headerPool.Put(buf)
+
+	fc, err := file.GetContents(f, buf)
+	if err != nil {
+		return nil, fmt.Errorf("file contents: %w", err)
+	}
+
+	// handle UPX files first since mimetype.Detect does not support them
+	// and will likely misidentify them
+	if isUPX, err := IsValidUPX(ctx, fc, path); err == nil && isUPX {
+		return Path(".upx"), nil
+	}
+
+	// default strategy: mimetype (no limit for improved magic type detection)
+	mimetype.SetLimit(0) // a limit of 0 means the whole input file will be used
+	mtype := mimetype.Detect(fc)
 	if ft := makeFileType(path, mtype.Extension(), mtype.String()); ft != nil {
 		return ft, nil
 	}
 
-	// second strategy: path (extension, mostly)
+	// fallback strategy: path (extension, mostly)
 	if mtype := Path(path); mtype != nil {
 		return mtype, nil
 	}
 
-	// final strategy: DIY matching where mimetype is too strict.
-	if isUPX, err := IsValidUPX(ctx, hdr, path); err == nil && isUPX {
-		return Path(".upx"), nil
-	}
-
 	switch {
-	case bytes.HasPrefix(hdr, elfMagic):
+	case bytes.HasPrefix(fc, elfMagic):
 		return Path(".elf"), nil
-	case bytes.Contains(hdr, []byte("<?php")):
+	case bytes.Contains(fc, []byte("<?php")):
 		return Path(".php"), nil
-	case bytes.HasPrefix(hdr, []byte("import ")):
+	case bytes.HasPrefix(fc, []byte("import ")):
 		return Path(".py"), nil
-	case bytes.Contains(hdr, []byte(" = require(")):
+	case bytes.Contains(fc, []byte(" = require(")):
 		return Path(".js"), nil
-	case bytes.HasPrefix(hdr, []byte("#!/bin/ash")) ||
-		bytes.HasPrefix(hdr, []byte("#!/bin/bash")) ||
-		bytes.HasPrefix(hdr, []byte("#!/bin/fish")) ||
-		bytes.HasPrefix(hdr, []byte("#!/bin/sh")) ||
-		bytes.HasPrefix(hdr, []byte("#!/bin/zsh")) ||
-		bytes.Contains(hdr, []byte("if [")) ||
-		bytes.Contains(hdr, []byte("if !")) ||
-		bytes.Contains(hdr, []byte("echo ")) ||
-		bytes.Contains(hdr, []byte("grep ")) ||
-		bytes.Contains(hdr, []byte("; then")) ||
-		bytes.Contains(hdr, []byte("export ")) ||
+	case bytes.HasPrefix(fc, []byte("#!/bin/ash")) ||
+		bytes.HasPrefix(fc, []byte("#!/bin/bash")) ||
+		bytes.HasPrefix(fc, []byte("#!/bin/fish")) ||
+		bytes.HasPrefix(fc, []byte("#!/bin/sh")) ||
+		bytes.HasPrefix(fc, []byte("#!/bin/zsh")) ||
+		bytes.Contains(fc, []byte("if [")) ||
+		bytes.Contains(fc, []byte("if !")) ||
+		bytes.Contains(fc, []byte("echo ")) ||
+		bytes.Contains(fc, []byte("grep ")) ||
+		bytes.Contains(fc, []byte("; then")) ||
+		bytes.Contains(fc, []byte("export ")) ||
 		strings.HasSuffix(path, "profile"):
 		return Path(".sh"), nil
-	case bytes.HasPrefix(hdr, []byte("#!")):
+	case bytes.HasPrefix(fc, []byte("#!")):
 		return Path(".script"), nil
-	case bytes.Contains(hdr, []byte("#include <")):
+	case bytes.Contains(fc, []byte("#include <")):
 		return Path(".c"), nil
-	case bytes.Contains(hdr, []byte("BEAMAtU8")):
+	case bytes.Contains(fc, []byte("BEAMAtU8")):
 		return Path(".beam"), nil
-	case bytes.HasPrefix(hdr, gzipMagic):
+	case bytes.HasPrefix(fc, gzipMagic):
 		return Path(".gzip"), nil
-	case bytes.HasPrefix(hdr, ZMagic):
+	case bytes.HasPrefix(fc, ZMagic):
 		return Path(".Z"), nil
 	}
 
