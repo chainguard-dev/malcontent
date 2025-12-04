@@ -40,7 +40,7 @@ jobs:
         run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
       - uses: chainguard-dev/actions/setup-gitsign@3e8a2a226fad9e1ecbf2d359b8a7697554a4ac6d
       - name: Set up Octo-STS
-        uses: octo-sts/action@d6c70ad3b9ac85df6da6b9749014d7283987cfec # v1.0.3
+        uses: octo-sts/action@f603d3be9d8dd9871a265776e625a27b00effe05 # v1.1.1
         id: octo-sts
         with:
           scope: chainguard-dev/malcontent
