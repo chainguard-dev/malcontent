@@ -170,7 +170,7 @@ func relFileReport(ctx context.Context, c malcontent.Config, fromPath string, is
 // scoreFile returns a boolean to determine how individual files are stored in a diff report.
 func scoreFile(fr, tr *malcontent.FileReport) bool {
 	patterns := []string{
-		`^(.+)\/([^\/]+)\.so(\..*)$`,
+		`^(.+)\/([^\/]+)\.so(\..*)?$`,
 		`^(.+)\/([^\/]+).spdx\.json$`,
 	}
 
