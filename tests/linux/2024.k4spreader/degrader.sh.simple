@@ -1,6 +1,6 @@
 # linux/2024.k4spreader/degrader.sh: critical
-evasion/hijack_execution/etc_ld.so.preload: high
-impact/degrade/firewall: high
 evasion/bypass_security/linux/iptables: medium
 evasion/bypass_security/linux/ufw: medium
+evasion/hijack_execution/etc_ld.so.preload: high
 fs/path/etc: low
+impact/degrade/firewall: high

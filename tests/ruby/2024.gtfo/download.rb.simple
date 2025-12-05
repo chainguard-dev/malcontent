@@ -1,6 +1,6 @@
 # ruby/2024.gtfo/download.rb: medium
-net/download: medium
 fs/file/open: low
+net/download: medium
 net/http: low
 net/http/request: low
 net/url/embedded: low

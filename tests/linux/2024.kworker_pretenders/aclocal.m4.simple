@@ -1,13 +1,13 @@
 # linux/2024.kworker_pretenders/aclocal.m4: medium
 c2/connect/curl_easy: medium
+discover/user/HOME: low
 exec/shell/command: medium
 exec/shell/exec: medium
 fs/file/times_set: medium
-fs/permission/modify: medium
-fs/proc/self_exe: medium
-discover/user/HOME: low
 fs/file/truncate: low
 fs/link_read: low
 fs/lock_update: low
+fs/permission/modify: medium
+fs/proc/self_exe: medium
 os/env/get: low
 process/create: low

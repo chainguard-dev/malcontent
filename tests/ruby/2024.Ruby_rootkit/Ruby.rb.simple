@@ -1,8 +1,8 @@
 # ruby/2024.Ruby_rootkit/Ruby.rb: critical
 c2/refs: high
 evasion/rootkit/refs: high
-impact/remote_access/reverse_shell: high
-os/signal/send: high
 exec/shell/exec: medium
+impact/remote_access/reverse_shell: high
 net/tcp/connect: medium
+os/signal/send: high
 persist/kernel_module/unload: medium

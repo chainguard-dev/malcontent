@@ -2,6 +2,6 @@
 3P/sig_base/webshell_php: critical
 3P/sig_base/webshell_php_by: critical
 3P/sig_base/webshell_php_strings: critical
-impact/remote_access/reverse_shell: high
 anti-static/obfuscation/php: medium
+impact/remote_access/reverse_shell: high
 net/url/embedded: medium

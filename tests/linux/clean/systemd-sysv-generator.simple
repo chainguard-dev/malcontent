@@ -1,12 +1,12 @@
 # linux/clean/systemd-sysv-generator: medium
-evasion/file/prefix: medium
-impact/remote_access/agent: medium
 c2/addr/url: low
 c2/tool_transfer/arch: low
 c2/tool_transfer/os: low
 credential/password: low
+evasion/file/prefix: medium
 exec/system_controls/systemd: low
 fs/file/delete: low
 fs/path/etc: low
+impact/remote_access/agent: medium
 net/url/embedded: low
 os/env/get: low

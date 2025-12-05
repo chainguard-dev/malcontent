@@ -1,10 +1,14 @@
 # javascript/clean/frequency_lists.js: medium
+anti-behavior/random_behavior: low
 anti-static/xor/functions: medium
 c2/tool_transfer/dropper: medium
 collect/databases/mysql: medium
 credential/gaming/minecraft: medium
+credential/password: low
 crypto/cipher: medium
 discover/user/name_get: medium
+exec/plugin: low
+fs/lock_update: low
 impact/exploit: medium
 impact/infection/infected: medium
 impact/infection/worm: medium
@@ -14,17 +18,13 @@ impact/remote_access/implant: medium
 impact/remote_access/trojan: medium
 malware/ref: medium
 net/download: medium
+net/http: low
+net/ip/multicast_send: low
 net/ip/spoof: medium
 net/proxy/tunnel: medium
 net/socket/listen: medium
+net/socket/send: low
 net/telephony/tcap: medium
 persist/daemon: medium
 sus/intercept: medium
 sus/malicious: medium
-anti-behavior/random_behavior: low
-credential/password: low
-exec/plugin: low
-fs/lock_update: low
-net/http: low
-net/ip/multicast_send: low
-net/socket/send: low

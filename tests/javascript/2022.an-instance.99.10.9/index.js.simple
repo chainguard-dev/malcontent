@@ -1,19 +1,19 @@
 # javascript/2022.an-instance.99.10.9/index.js: critical
-exfil/nodejs: critical
 anti-static/obfuscation/math: medium
+data/encoding/int: low
+data/encoding/json_encode: low
 discover/network/interface_list: medium
+discover/system/hostname: low
 discover/user/info: medium
+exfil/nodejs: critical
+fs/directory/list: low
+fs/path/home: low
 fs/path/relative: medium
 fs/path/root: medium
+net/dns: low
+net/dns/servers: low
 net/http/form_upload: medium
 net/http/post: medium
 net/ip/host_port: medium
 net/url/encode: medium
-data/encoding/int: low
-data/encoding/json_encode: low
-discover/system/hostname: low
-fs/directory/list: low
-fs/path/home: low
-net/dns: low
-net/dns/servers: low
 os/fd/write: low

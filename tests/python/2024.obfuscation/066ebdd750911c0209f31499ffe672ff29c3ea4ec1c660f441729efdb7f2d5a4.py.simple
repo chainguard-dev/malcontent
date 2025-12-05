@@ -1,4 +1,4 @@
 # python/2024.obfuscation/066ebdd750911c0209f31499ffe672ff29c3ea4ec1c660f441729efdb7f2d5a4.py: critical
-anti-static/packer/py_kramer: critical
 anti-static/obfuscation/hex: medium
 anti-static/obfuscation/python: low
+anti-static/packer/py_kramer: critical

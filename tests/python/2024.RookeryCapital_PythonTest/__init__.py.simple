@@ -1,11 +1,11 @@
 # python/2024.RookeryCapital_PythonTest/__init__.py: high
 anti-static/obfuscation/python: high
 data/base64/decode: medium
-discover/system/platform: medium
-exec/program: medium
-net/url/request: medium
 data/encoding/base64: low
+discover/system/platform: medium
 exec/imports/python: low
+exec/program: medium
 fs/file/open: low
 fs/file/write: low
 fs/tempdir: low
+net/url/request: medium

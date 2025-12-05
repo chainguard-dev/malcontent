@@ -1,14 +1,14 @@
 # linux/2024.Spinning.YARN/yarn_w.sh: critical
 anti-static/obfuscation/sh: high
 c2/connect/bash_tcp: high
-evasion/file/name/re_system_binary: high
 data/base64/external: medium
 data/embedded/base64_url: medium
+data/encoding/base64: low
 evasion/file/location/system_directory: medium
+evasion/file/name/re_system_binary: high
 exec/shell/exec: medium
 fs/file/copy: medium
 fs/path/dev: medium
-data/encoding/base64: low
 fs/path/usr_bin: low
 net/http: low
 net/http/request: low

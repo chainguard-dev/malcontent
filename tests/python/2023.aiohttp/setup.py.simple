@@ -1,14 +1,14 @@
 # python/2023.aiohttp/setup.py: critical
 anti-behavior/random_behavior: critical
-impact/remote_access/py_setuptools: critical
 anti-static/obfuscation/bitwise: high
 anti-static/obfuscation/python: high
 anti-static/obfuscation/python_setuptools: medium
 discover/system/platform: medium
 exec/conditional/is_admin: medium
 exec/dylib/windll: medium
-fs/directory/traverse: medium
 fs/directory/create: low
+fs/directory/traverse: medium
 fs/file/exists: low
 fs/file/open: low
+impact/remote_access/py_setuptools: critical
 os/env/get: low

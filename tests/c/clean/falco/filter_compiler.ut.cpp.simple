@@ -1,10 +1,10 @@
 # c/clean/falco/filter_compiler.ut.cpp: medium
 credential/shell/bash_history: medium
-persist/shell/bash: medium
-persist/shell/zsh: medium
 exec/plugin: low
 fs/path/etc: low
 fs/path/home: low
 fs/path/var: low
 net/url/embedded: low
+persist/shell/bash: medium
 persist/shell/init_files: low
+persist/shell/zsh: medium

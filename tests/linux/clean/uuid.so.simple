@@ -1,4 +1,4 @@
 # linux/clean/uuid.so: medium
-hw/hardware_enumeration: medium
 exec/plugin: low
 fs/path/etc: low
+hw/hardware_enumeration: medium

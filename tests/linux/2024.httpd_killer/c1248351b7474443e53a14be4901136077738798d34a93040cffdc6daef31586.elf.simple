@@ -1,8 +1,8 @@
 # linux/2024.httpd_killer/c1248351b7474443e53a14be4901136077738798d34a93040cffdc6daef31586.elf: high
-anti-static/elf/tiny: high
-impact/degrade/httpd: high
 anti-static/binary/opaque: medium
+anti-static/elf/tiny: high
 exec/shell/command: medium
 exec/shell/exec: medium
+impact/degrade/httpd: high
 process/terminate/kill_multiple: medium
 sus/compiler: medium

@@ -1,18 +1,9 @@
 # npm/2024.solana_web3/v1.95.7.index.browser.esm.js: critical
-c2/addr/url: high
-credential/ssl/key: high
-exfil/http_headers: high
+anti-behavior/random_behavior: low
 anti-static/obfuscation/js: medium
 anti-static/obfuscation/math: medium
-exfil/nodejs: medium
-impact/remote_access/agent: medium
-impact/remote_access/heartbeat: medium
-net/http/form_upload: medium
-net/http/post: medium
-net/http/websocket: medium
-net/ip/host_port: medium
-os/time/clock_sleep: medium
-anti-behavior/random_behavior: low
+c2/addr/url: high
+credential/ssl/key: high
 credential/ssl/private_key: low
 crypto/ed25519: low
 crypto/public_key: low
@@ -22,6 +13,15 @@ data/encoding/int: low
 data/encoding/json_decode: low
 data/encoding/json_encode: low
 exec/shell/TERM: low
+exfil/http_headers: high
+exfil/nodejs: medium
+impact/remote_access/agent: medium
+impact/remote_access/heartbeat: medium
 net/http: low
+net/http/form_upload: medium
+net/http/post: medium
+net/http/websocket: medium
+net/ip/host_port: medium
 net/socket/send: low
 net/url/embedded: low
+os/time/clock_sleep: medium

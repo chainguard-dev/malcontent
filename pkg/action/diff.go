@@ -579,16 +579,16 @@ func fileMove(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileR
 	for _, tb := range tr.Behaviors {
 		if !behaviorExists(tb, fr.Behaviors) {
 			tb.DiffAdded = true
+			abs.Behaviors = append(abs.Behaviors, tb)
 		}
-		abs.Behaviors = append(abs.Behaviors, tb)
 	}
 
 	// if source behavior is not in the destination
 	for _, fb := range fr.Behaviors {
 		if !behaviorExists(fb, tr.Behaviors) {
 			fb.DiffRemoved = true
+			abs.Behaviors = append(abs.Behaviors, fb)
 		}
-		abs.Behaviors = append(abs.Behaviors, fb)
 	}
 
 	if archiveOrImage {

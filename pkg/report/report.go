@@ -560,10 +560,7 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 
 	// Ensure that the behaviors are consistently sorted by RiskScore and then by ID
 	sort.Slice(fr.Behaviors, func(i, j int) bool {
-		if fr.Behaviors[i].RiskScore == fr.Behaviors[j].RiskScore {
-			return fr.Behaviors[i].ID < fr.Behaviors[j].ID
-		}
-		return fr.Behaviors[i].RiskScore > fr.Behaviors[j].RiskScore
+		return fr.Behaviors[i].ID < fr.Behaviors[j].ID
 	})
 
 	return fr, nil

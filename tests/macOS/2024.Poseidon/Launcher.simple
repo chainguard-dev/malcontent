@@ -1,7 +1,7 @@
 # macOS/2024.Poseidon/Launcher: critical
-malware/family/amos: critical
-malware/family/poseidon_stealer: high
+anti-behavior/random_behavior: low
 anti-static/binary/opaque: medium
 exec/shell/exec: medium
-anti-behavior/random_behavior: low
+malware/family/amos: critical
+malware/family/poseidon_stealer: high
 process/create: low

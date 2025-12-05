@@ -1,11 +1,11 @@
 # javascript/2024.xmlrpc/validator.js: critical
-impact/cryptojacking/xmrig: critical
-anti-static/obfuscation/js: high
 anti-static/obfuscation/bool: medium
 anti-static/obfuscation/hex: medium
+anti-static/obfuscation/js: high
 anti-static/obfuscation/math: medium
 c2/client: medium
 c2/tool_transfer/dropper: medium
+c2/tool_transfer/os: low
 data/encoding/int: medium
 discover/system/platform: medium
 discover/system/sysinfo: medium
@@ -13,11 +13,11 @@ exec/shell/exec: medium
 exec/system_controls/systemd: medium
 exfil/upload: medium
 exfil/zip: medium
-fs/file/copy: medium
-impact/ui/xsession: medium
-persist/daemon: medium
-c2/tool_transfer/os: low
 fs/directory/create: low
+fs/file/copy: medium
 fs/file/write: low
 fs/path/etc: low
+impact/cryptojacking/xmrig: critical
+impact/ui/xsession: medium
 net/http/oauth2: low
+persist/daemon: medium

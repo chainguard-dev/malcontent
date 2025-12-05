@@ -1,9 +1,9 @@
 # c/clean/falco/ppm_events.c: medium
+c2/tool_transfer/os: low
 discover/multiple: medium
 impact/remote_access/backdoor: medium
+net/http: low
 net/http/post: medium
 net/socket/connect: medium
-c2/tool_transfer/os: low
-net/http: low
 net/socket/send: low
 net/url/embedded: low

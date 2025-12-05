@@ -1,19 +1,19 @@
 # linux/2024.melofee/2023.758b0934b7.elf: critical
-malware/family/melofee: critical
-evasion/rootkit/refs: high
-sus/compiler: high
 discover/processes/list: medium
+evasion/rootkit/refs: high
 exec/program: medium
 exec/shell/command: medium
 exec/shell/exec: medium
+fs/directory/create: low
+fs/file/delete: low
 fs/file/delete_forcibly: medium
+fs/link_read: low
+fs/path/etc: low
+malware/family/melofee: critical
 persist/daemon: medium
 persist/kernel_module/load: medium
 persist/kernel_module/name: medium
 persist/kernel_module/unload: medium
-process/terminate/kill_multiple: medium
-fs/directory/create: low
-fs/file/delete: low
-fs/link_read: low
-fs/path/etc: low
 process/create: low
+process/terminate/kill_multiple: medium
+sus/compiler: high

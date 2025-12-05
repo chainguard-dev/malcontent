@@ -1,9 +1,9 @@
 *** changed (2 added, 6 removed): macOS/clean/ls
--process/name_set
 -c2/tool_transfer/arch
 -c2/tool_transfer/os
 -data/compression/lzma
 -discover/system/hostname
 -net/url/embedded
+-process/name_set
 +fs/directory/traverse
 +net/http

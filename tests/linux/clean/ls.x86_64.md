@@ -2,7 +2,6 @@
 
 | RISK | KEY | DESCRIPTION | EVIDENCE |
 |:--|:--|:--|:--|
-| MEDIUM | [process/name_set](https://github.com/chainguard-dev/malcontent/blob/main/rules/process/name-set.yara#__progname) | [get or set the current process name](https://stackoverflow.com/questions/273691/using-progname-instead-of-argv0) | [__progname](https://github.com/search?q=__progname&type=code) |
 | LOW | [c2/addr/url](https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/url.yara#binary_with_url) | binary contains hardcoded URL | [https://wiki.xiph.org/MIME_Types_and_File_Extensions](https://wiki.xiph.org/MIME_Types_and_File_Extensions)<br>[https://www.gnu.org/software/coreutils/](https://www.gnu.org/software/coreutils/)<br>[https://translationproject.org/team/](https://translationproject.org/team/)<br>[https://gnu.org/licenses/gpl.html](https://gnu.org/licenses/gpl.html) |
 | LOW | [c2/tool_transfer/arch](https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/arch.yara#arch_ref) | references a specific architecture | [https://](https://)<br>[x86](https://github.com/search?q=x86&type=code) |
 | LOW | [c2/tool_transfer/os](https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/os.yara#os_ref) | references a specific operating system | [https://](https://)<br>[linux](https://github.com/search?q=linux&type=code) |
@@ -12,4 +11,5 @@
 | LOW | [fs/link_read](https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/link-read.yara#readlink) | [read value of a symbolic link](https://man7.org/linux/man-pages/man2/readlink.2.html) | [readlink](https://github.com/search?q=readlink&type=code) |
 | LOW | [net/url/embedded](https://github.com/chainguard-dev/malcontent/blob/main/rules/net/url/embedded.yara#https_url) | contains embedded HTTPS URLs | [https://wiki.xiph.org/MIME_Types_and_File_Extensions](https://wiki.xiph.org/MIME_Types_and_File_Extensions)<br>[https://www.gnu.org/software/coreutils/](https://www.gnu.org/software/coreutils/)<br>[https://translationproject.org/team/](https://translationproject.org/team/)<br>[https://gnu.org/licenses/gpl.html](https://gnu.org/licenses/gpl.html) |
 | LOW | [os/env/get](https://github.com/chainguard-dev/malcontent/blob/main/rules/os/env/get.yara#getenv) | Retrieve environment variables | [getenv](https://github.com/search?q=getenv&type=code) |
+| MEDIUM | [process/name_set](https://github.com/chainguard-dev/malcontent/blob/main/rules/process/name-set.yara#__progname) | [get or set the current process name](https://stackoverflow.com/questions/273691/using-progname-instead-of-argv0) | [__progname](https://github.com/search?q=__progname&type=code) |
 

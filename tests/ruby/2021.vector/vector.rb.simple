@@ -1,7 +1,7 @@
 # ruby/2021.vector/vector.rb: medium
+crypto/decrypt: low
 crypto/encrypt: medium
 exec/program: medium
 exec/script/ruby: medium
 fs/file/write: medium
 net/url/embedded: medium
-crypto/decrypt: low

@@ -1,8 +1,8 @@
 # php/2024.S3RV4N7-SHELL/crot.php: critical
 3P/sig_base/webshell_php: critical
-impact/remote_access/php: high
 anti-static/base64/function_names: medium
 anti-static/obfuscation/php: medium
-evasion/indicator_blocking/mask_exceptions: medium
 data/encoding/base64: low
+evasion/indicator_blocking/mask_exceptions: medium
+impact/remote_access/php: high
 net/url/embedded: low

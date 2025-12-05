@@ -1,14 +1,14 @@
 # ruby/2019.rest-client/pastebin.rb: critical
 c2/addr/url: high
-impact/remote_access/payload: high
-net/http/post: high
+credential/password: low
 crypto/openssl: medium
+crypto/public_key: low
 data/base64/decode: medium
 data/embedded/base64: medium
-net/http/cookies: medium
-credential/password: low
-crypto/public_key: low
 data/encoding/base64: low
 data/encoding/json_decode: low
+impact/remote_access/payload: high
 net/http: low
+net/http/cookies: medium
+net/http/post: high
 net/url/embedded: low

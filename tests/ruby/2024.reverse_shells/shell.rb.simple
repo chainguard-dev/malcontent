@@ -1,7 +1,7 @@
 # ruby/2024.reverse_shells/shell.rb: high
-impact/remote_access/listen_shell: high
 exec/cmd/pipe: medium
+fs/path/usr_bin: low
+impact/remote_access/listen_shell: high
 net/ip/host_port: medium
 net/socket/listen: medium
-fs/path/usr_bin: low
 net/socket/peer_address: low

@@ -1,5 +1,5 @@
 # ruby/2024.reverse_shells/oreilly1.rb: high
-impact/remote_access/reverse_shell: high
 c2/addr/ip: medium
 exec/cmd/pipe: medium
+impact/remote_access/reverse_shell: high
 net/tcp/connect: medium

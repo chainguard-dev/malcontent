@@ -1,12 +1,12 @@
 # linux/mimipenguin/c/mimipenguin: critical
-exfil/stealer/password: critical
-fs/proc/pid_cmdline: high
 credential/keychain/gnome_keyring_daemon: medium
 credential/os/shadow: medium
+credential/password: low
 credential/ssh/d: medium
+exfil/stealer/password: critical
+fs/path/etc: low
 fs/proc/arbitrary_pid: medium
+fs/proc/pid_cmdline: high
 fs/proc/pid_maps: medium
 net/tcp/ssh: medium
 privesc/sudo: medium
-credential/password: low
-fs/path/etc: low

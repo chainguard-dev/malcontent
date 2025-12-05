@@ -1,12 +1,12 @@
 # npm/2024.distube-fast/postinstall.js: critical
+c2/addr/ip: medium
 c2/tool_transfer/exe_url: critical
 c2/tool_transfer/js: critical
-c2/addr/ip: medium
-net/download: medium
-process/create: medium
 fs/file/delete: low
 fs/tempfile: low
+net/download: medium
 net/http: low
 net/http/request: low
 net/url/embedded: low
 os/env/get: low
+process/create: medium

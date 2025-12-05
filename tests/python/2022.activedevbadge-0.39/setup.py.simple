@@ -1,14 +1,14 @@
 # python/2022.activedevbadge-0.39/setup.py: critical
+c2/tool_transfer/os: low
 c2/tool_transfer/python: critical
 discover/user/name_get: high
-impact/remote_access/py_setuptools: high
-persist/windows_start: high
-exec/program: medium
-c2/tool_transfer/os: low
 exec/imports/python: low
+exec/program: medium
 fs/directory/create: low
 fs/directory/list: low
 fs/file/exists: low
 fs/file/rename: low
+impact/remote_access/py_setuptools: high
 net/url/embedded: low
 os/env/get: low
+persist/windows_start: high

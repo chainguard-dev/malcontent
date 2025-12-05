@@ -1,5 +1,5 @@
 # macOS/2024.AMOS/setup: high
-malware/family/amos: high
 anti-static/obfuscation/hex: medium
 exec/shell/exec: medium
+malware/family/amos: high
 process/create: low

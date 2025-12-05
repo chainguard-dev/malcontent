@@ -1,19 +1,19 @@
 # macOS/2023.3CX/libffmpeg.dylib: medium
-crypto/encrypt: medium
-fs/path/tmp: medium
-impact/remote_access/agent: medium
-net/http/post: medium
 anti-behavior/random_behavior: low
 c2/addr/url: low
 c2/tool_transfer/arch: low
 c2/tool_transfer/os: low
 crypto/aes: low
+crypto/encrypt: medium
 crypto/rc4: low
 data/compression/zlib: low
 data/encoding/base64: low
 exec/shell/TERM: low
 fs/directory/create: low
+fs/path/tmp: medium
+impact/remote_access/agent: medium
 net/http: low
+net/http/post: medium
 net/url/parse: low
 os/env/get: low
 process/multithreaded: low

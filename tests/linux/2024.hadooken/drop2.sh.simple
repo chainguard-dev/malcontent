@@ -1,7 +1,7 @@
 # linux/2024.hadooken/drop2.sh: high
 c2/addr/ip: high
-net/url/request: medium
 net/http: low
 net/url/embedded: low
 net/url/parse: low
+net/url/request: medium
 os/fd/read: low

@@ -1,12 +1,12 @@
 # linux/2024.hadooken/crondr_as_bash.sh: critical
-evasion/self_deletion/run_and_delete: critical
-impact/cryptojacking/tls_dp_port: critical
 evasion/file/location/chdir_unusual: high
 evasion/mimicry/fake_process: high
+evasion/self_deletion/run_and_delete: critical
 exec/shell/exec: medium
 exec/shell/ignore_output: medium
 exec/shell/unusual_redirect: medium
 fs/file/copy: medium
 fs/file/delete_forcibly: medium
 fs/path/relative: medium
+impact/cryptojacking/tls_dp_port: critical
 process/chdir: low

@@ -13,63 +13,6 @@
             ],
             "Behaviors": [
                 {
-                    "Description": "Kubo Injector",
-                    "MatchStrings": [
-                        "inject_in_cloned_thread",
-                        "collect_libc_info",
-                        "shellcode_size",
-                        "remote_vcall",
-                        "arch2name"
-                    ],
-                    "RiskScore": 4,
-                    "RiskLevel": "CRITICAL",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/malware/family/kubo_injector.yara#kubo",
-                    "ReferenceURL": "https://github.com/kubo/injector",
-                    "ID": "malware/family/kubo_injector",
-                    "RuleName": "kubo"
-                },
-                {
-                    "Description": "may inject code into other processes",
-                    "MatchStrings": [
-                        "successfully injected",
-                        "to inject",
-                        "to-inject",
-                        "/proc",
-                        "maps"
-                    ],
-                    "RiskScore": 3,
-                    "RiskLevel": "HIGH",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/evasion/process_injection/process-inject.yara#library_injector",
-                    "ID": "evasion/process_injection/process_inject",
-                    "RuleName": "library_injector"
-                },
-                {
-                    "Description": "may inject code into other processes",
-                    "MatchStrings": [
-                        "/proc/%d/maps",
-                        "process",
-                        "ptrace"
-                    ],
-                    "RiskScore": 3,
-                    "RiskLevel": "HIGH",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/evasion/process_injection/ptrace.yara#ptrace_injector_unknown",
-                    "ID": "evasion/process_injection/ptrace",
-                    "RuleName": "ptrace_injector_unknown"
-                },
-                {
-                    "Description": "Buffer overflow exploit",
-                    "MatchStrings": [
-                        "shellcode",
-                        "address",
-                        "offset"
-                    ],
-                    "RiskScore": 3,
-                    "RiskLevel": "HIGH",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/impact/exploit/overflow-shellcode.yara#exploit",
-                    "ID": "impact/exploit/overflow_shellcode",
-                    "RuleName": "exploit"
-                },
-                {
                     "Description": "multiple ELF binaries within an ELF binary",
                     "MatchStrings": [
                         "$elf_head"
@@ -79,42 +22,6 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/elf/multiple.yara#multiple_elf",
                     "ID": "anti-static/elf/multiple",
                     "RuleName": "multiple_elf"
-                },
-                {
-                    "Description": "get the address of a symbol",
-                    "MatchStrings": [
-                        "dlsym"
-                    ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/exec/dylib/symbol-address.yara#dlsym",
-                    "ReferenceURL": "https://man7.org/linux/man-pages/man3/dlsym.3.html",
-                    "ID": "exec/dylib/symbol_address",
-                    "RuleName": "dlsym"
-                },
-                {
-                    "Description": "access /proc for arbitrary pids",
-                    "MatchStrings": [
-                        "/proc/%d/maps",
-                        "/proc/%d/root",
-                        "/proc/%s/exe"
-                    ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/proc/arbitrary-pid.yara#proc_arbitrary",
-                    "ID": "fs/proc/arbitrary_pid",
-                    "RuleName": "proc_arbitrary"
-                },
-                {
-                    "Description": "access process memory maps",
-                    "MatchStrings": [
-                        "/proc/%d/maps"
-                    ],
-                    "RiskScore": 2,
-                    "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/proc/pid-maps.yara#proc_maps",
-                    "ID": "fs/proc/pid_maps",
-                    "RuleName": "proc_maps"
                 },
                 {
                     "Description": "binary contains hardcoded URL",
@@ -152,6 +59,46 @@
                     "RuleName": "os_ref"
                 },
                 {
+                    "Description": "may inject code into other processes",
+                    "MatchStrings": [
+                        "successfully injected",
+                        "to inject",
+                        "to-inject",
+                        "/proc",
+                        "maps"
+                    ],
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/evasion/process_injection/process-inject.yara#library_injector",
+                    "ID": "evasion/process_injection/process_inject",
+                    "RuleName": "library_injector"
+                },
+                {
+                    "Description": "may inject code into other processes",
+                    "MatchStrings": [
+                        "/proc/%d/maps",
+                        "process",
+                        "ptrace"
+                    ],
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/evasion/process_injection/ptrace.yara#ptrace_injector_unknown",
+                    "ID": "evasion/process_injection/ptrace",
+                    "RuleName": "ptrace_injector_unknown"
+                },
+                {
+                    "Description": "get the address of a symbol",
+                    "MatchStrings": [
+                        "dlsym"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/exec/dylib/symbol-address.yara#dlsym",
+                    "ReferenceURL": "https://man7.org/linux/man-pages/man3/dlsym.3.html",
+                    "ID": "exec/dylib/symbol_address",
+                    "RuleName": "dlsym"
+                },
+                {
                     "Description": "wait for process to exit",
                     "MatchStrings": [
                         "waitpid"
@@ -176,6 +123,30 @@
                     "RuleName": "readlink"
                 },
                 {
+                    "Description": "access /proc for arbitrary pids",
+                    "MatchStrings": [
+                        "/proc/%d/maps",
+                        "/proc/%d/root",
+                        "/proc/%s/exe"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/proc/arbitrary-pid.yara#proc_arbitrary",
+                    "ID": "fs/proc/arbitrary_pid",
+                    "RuleName": "proc_arbitrary"
+                },
+                {
+                    "Description": "access process memory maps",
+                    "MatchStrings": [
+                        "/proc/%d/maps"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/proc/pid-maps.yara#proc_maps",
+                    "ID": "fs/proc/pid_maps",
+                    "RuleName": "proc_maps"
+                },
+                {
                     "Description": "resolves symbolic links",
                     "MatchStrings": [
                         "realpath"
@@ -186,6 +157,35 @@
                     "ReferenceURL": "https://man7.org/linux/man-pages/man3/realpath.3.html",
                     "ID": "fs/symlink_resolve",
                     "RuleName": "realpath"
+                },
+                {
+                    "Description": "Buffer overflow exploit",
+                    "MatchStrings": [
+                        "shellcode",
+                        "address",
+                        "offset"
+                    ],
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/impact/exploit/overflow-shellcode.yara#exploit",
+                    "ID": "impact/exploit/overflow_shellcode",
+                    "RuleName": "exploit"
+                },
+                {
+                    "Description": "Kubo Injector",
+                    "MatchStrings": [
+                        "inject_in_cloned_thread",
+                        "collect_libc_info",
+                        "shellcode_size",
+                        "remote_vcall",
+                        "arch2name"
+                    ],
+                    "RiskScore": 4,
+                    "RiskLevel": "CRITICAL",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/malware/family/kubo_injector.yara#kubo",
+                    "ReferenceURL": "https://github.com/kubo/injector",
+                    "ID": "malware/family/kubo_injector",
+                    "RuleName": "kubo"
                 },
                 {
                     "Description": "contains embedded HTTPS URLs",

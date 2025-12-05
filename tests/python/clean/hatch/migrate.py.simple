@@ -1,14 +1,14 @@
 # python/clean/hatch/migrate.py: medium
 discover/system/environment: medium
-exec/program: medium
-impact/remote_access/py_setuptools: medium
-net/download: medium
-process/executable_path: medium
 exec/imports/python: low
+exec/program: medium
 fs/directory/list: low
 fs/file/open: low
 fs/symlink_resolve: low
 fs/tempdir/TEMP: low
+impact/remote_access/py_setuptools: medium
+net/download: medium
 os/env/get: low
 os/fd/read: low
 os/fd/write: low
+process/executable_path: medium

@@ -1,18 +1,18 @@
 # python/clean/mitmproxy/raw_display.py: medium
-exec/program: medium
-net/socket/connect: medium
-net/socket/pair: medium
-persist/daemon: medium
-process/multithreaded: medium
 c2/tool_transfer/os: low
 exec/imports/python: low
+exec/program: medium
 exec/program/background: low
 exec/shell/TERM: low
 fs/file/write: low
 fs/path/usr_bin: low
 net/http: low
+net/socket/connect: medium
+net/socket/pair: medium
 net/socket/receive: low
 net/socket/send: low
 net/url/embedded: low
 os/env/get: low
 os/fd/write: low
+persist/daemon: medium
+process/multithreaded: medium

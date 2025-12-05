@@ -1,12 +1,12 @@
 # python/clean/google-auth-library-python/setup.py: medium
+c2/tool_transfer/os: low
 crypto/openssl: medium
+exec/imports/python: low
 exec/program: medium
 exec/remote_commands/code_eval: medium
-impact/remote_access/py_setuptools: medium
-c2/tool_transfer/os: low
-exec/imports/python: low
 fs/file/open: low
 fs/file/read: low
+impact/remote_access/py_setuptools: medium
 net/http: low
 net/url/embedded: low
 os/fd/read: low

@@ -7,8 +7,9 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"maps"
 	"regexp"
-	"sort"
+	"slices"
 	"strings"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
@@ -113,7 +114,7 @@ func (r Terminal) Full(ctx context.Context, _ *malcontent.Config, rep *malconten
 		}
 
 		renderFileSummary(ctx, removed.Value, r.w, tableConfig{
-			Title:       fmt.Sprintf("Deleted: %s %s", removed.Key, darkBrackets(riskInColor(removed.Value.RiskLevel))),
+			Title:       fmt.Sprintf(riskColor(removed.Value.RiskLevel, "Deleted: %s %s"), removed.Key, darkBrackets(riskInColor(removed.Value.RiskLevel))),
 			DiffRemoved: true,
 		})
 	}
@@ -124,7 +125,7 @@ func (r Terminal) Full(ctx context.Context, _ *malcontent.Config, rep *malconten
 		}
 
 		renderFileSummary(ctx, added.Value, r.w, tableConfig{
-			Title:     fmt.Sprintf("Added: %s %s", added.Key, darkBrackets(riskInColor(added.Value.RiskLevel))),
+			Title:     fmt.Sprintf(riskColor(added.Value.RiskLevel, "Added: %s %s"), added.Key, darkBrackets(riskInColor(added.Value.RiskLevel))),
 			DiffAdded: true,
 		})
 	}
@@ -136,7 +137,7 @@ func (r Terminal) Full(ctx context.Context, _ *malcontent.Config, rep *malconten
 
 		var title string
 		if modified.Value.PreviousRelPath != "" && modified.Value.PreviousRelPathScore >= 0.9 {
-			title = fmt.Sprintf("Moved: %s -> %s (score: %f)", modified.Value.PreviousPath, modified.Value.Path, modified.Value.PreviousRelPathScore)
+			title = fmt.Sprintf(riskColor(modified.Value.PreviousRiskLevel, "Moved: %s -> %s (score: %f)"), modified.Value.PreviousPath, modified.Value.Path, modified.Value.PreviousRelPathScore)
 		} else if modified.Value.RiskScore != modified.Value.PreviousRiskScore {
 			title = fmt.Sprintf("%s %s", title,
 				darkBrackets(fmt.Sprintf("%s %s %s", riskInColor(modified.Value.PreviousRiskLevel), color.HiWhiteString("→"), riskInColor(modified.Value.RiskLevel))))
@@ -290,23 +291,23 @@ func renderFileSummary(ctx context.Context, fr *malcontent.FileReport, w io.Writ
 		}
 
 		if diffMode {
-			rc.Title = fmt.Sprintf("Changed (%d added, %d removed): %s", added, removed, fr.Path)
+			rc.Title = fmt.Sprintf(riskColor(fr.RiskLevel, "Changed (%d added, %d removed): %s"), added, removed, fr.Path)
 		}
 	}
 
 	fmt.Fprintf(w, "├─ %s %s\n", riskEmoji(fr.RiskScore), rc.Title)
 
-	nss := []string{}
+	nss := make(map[string]struct{}, len(byNamespace))
 	for ns := range byNamespace {
-		nss = append(nss, ns)
+		nss[ns] = struct{}{}
 	}
 
 	// sort by the long names as that's how they'll be displayed later
-	sort.Slice(nss, func(i, j int) bool {
-		return nsLongName(nss[i]) < nsLongName(nss[j])
+	slices.SortedFunc(maps.Keys(nss), func(i, j string) int {
+		return len(nsLongName(i)) - len(nsLongName(j))
 	})
 
-	for _, ns := range nss {
+	for ns := range nss {
 		bs := byNamespace[ns]
 		riskScore := nsRiskScore[ns]
 		riskLevel := riskLevels[riskScore]

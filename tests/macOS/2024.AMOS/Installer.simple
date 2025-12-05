@@ -1,8 +1,8 @@
 # macOS/2024.AMOS/Installer: critical
-malware/family/amos: critical
 anti-static/binary/opaque: medium
-exec/shell/exec: medium
 c2/addr/url: low
 crypto/rc4: low
+exec/shell/exec: medium
+malware/family/amos: critical
 net/http: low
 net/url/embedded: low
