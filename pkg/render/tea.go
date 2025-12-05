@@ -423,14 +423,26 @@ func (r *Interactive) Full(ctx context.Context, _ *malcontent.Config, rep *malco
 	if rep.Diff != nil {
 		// Process all diffs, handling any potential nil values
 		for removed := rep.Diff.Removed.Oldest(); removed != nil; removed = removed.Next() {
+			if len(removed.Value.Behaviors) == 0 {
+				continue
+			}
+
 			processFile(removed.Value, "Removed")
 		}
 
 		for added := rep.Diff.Added.Oldest(); added != nil; added = added.Next() {
+			if len(added.Value.Behaviors) == 0 {
+				continue
+			}
+
 			processFile(added.Value, "Added")
 		}
 
 		for modified := rep.Diff.Modified.Oldest(); modified != nil; modified = modified.Next() {
+			if len(modified.Value.Behaviors) == 0 {
+				continue
+			}
+
 			processFile(modified.Value, "Modified")
 		}
 	}

@@ -86,7 +86,7 @@ func TestCleanPath(t *testing.T) {
 			fullPath := filepath.Join(tempDir, tt.path)
 			fullPrefix := filepath.Join(tempDir, tt.prefix)
 
-			got := cleanPath(fullPath, fullPrefix)
+			got := CleanPath(fullPath, fullPrefix)
 			if !strings.HasSuffix(got, tt.want) {
 				t.Errorf("cleanPath() = %v, want suffix %v", got, tt.want)
 			}

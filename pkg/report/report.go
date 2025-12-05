@@ -364,13 +364,17 @@ func mungeDescription(s string) string {
 // This function will only be used via the refresh package.
 func TrimPrefixes(path string, prefixes []string) string {
 	for _, prefix := range prefixes {
-		if prefix == "" {
+		switch prefix {
+		case "":
 			continue
-		}
-		prefix = strings.TrimPrefix(prefix, "./")
-		if strings.HasPrefix(path, prefix) {
-			trimmed := path[len(prefix):]
-			return strings.TrimPrefix(trimmed, string(filepath.Separator))
+		case "/private":
+			return strings.TrimPrefix(path, prefix)
+		default:
+			prefix = strings.TrimPrefix(prefix, "./")
+			if strings.HasPrefix(path, prefix) {
+				trimmed := path[len(prefix):]
+				return strings.TrimPrefix(trimmed, string(filepath.Separator))
+			}
 		}
 	}
 	return path

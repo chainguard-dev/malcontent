@@ -50,10 +50,13 @@ func OCI(ctx context.Context, path string) (string, error) {
 		return "", fmt.Errorf("failed to prepare image: %w", err)
 	}
 
-	err = ExtractTar(ctx, tmpDir, tmpFile.Name())
-	if err != nil {
-		return "", fmt.Errorf("extract tar: %w", err)
+	if err := ExtractTar(ctx, tmpDir, tmpFile.Name()); err != nil {
+		return "", fmt.Errorf("extract image: %w", err)
 	}
+	// remove the temporary tarball after we extract it
+	// otherwise we scan the tarball
+	// in addition to its contents which produces odd results
+	defer os.Remove(tmpFile.Name())
 
 	return tmpDir, nil
 }

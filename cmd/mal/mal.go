@@ -67,6 +67,7 @@ var (
 	outputFlag                string
 	profileFlag               bool
 	quantityIncreasesRiskFlag bool
+	scoreAllFlag              bool
 	statsFlag                 bool
 	thirdPartyFlag            bool
 	verboseFlag               bool
@@ -279,6 +280,11 @@ func main() {
 				Stats:                 statsFlag,
 			}
 
+			// always trim macOS' /private prefix
+			if runtime.GOOS == "darwin" {
+				mc.TrimPrefixes = append(mc.TrimPrefixes, "/private")
+			}
+
 			return nil
 		},
 		// Global flags shared between commands
@@ -485,6 +491,12 @@ func main() {
 						Usage:       "Scan an image",
 						Destination: &diffImageFlag,
 					},
+					&cli.BoolFlag{
+						Name:        "score-all",
+						Value:       false,
+						Usage:       "Compute the Levenshtein distance for all source and destination paths (warning: experimental and slow!)",
+						Destination: &scoreAllFlag,
+					},
 				},
 				Action: func(c *cli.Context) error {
 					switch {
@@ -492,6 +504,8 @@ func main() {
 						mc.FileRiskChange = true
 					case c.Bool("file-risk-increase"):
 						mc.FileRiskIncrease = true
+					case c.Bool("score-all"):
+						mc.ScoreAll = true
 					default:
 					}
 					// Allow for images to be scanned with the file risk flags
