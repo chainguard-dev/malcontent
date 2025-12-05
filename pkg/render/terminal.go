@@ -297,17 +297,9 @@ func renderFileSummary(ctx context.Context, fr *malcontent.FileReport, w io.Writ
 
 	fmt.Fprintf(w, "├─ %s %s\n", riskEmoji(fr.RiskScore), rc.Title)
 
-	nss := make(map[string]struct{}, len(byNamespace))
-	for ns := range byNamespace {
-		nss[ns] = struct{}{}
-	}
-
-	// sort by the long names as that's how they'll be displayed later
-	slices.SortedFunc(maps.Keys(nss), func(i, j string) int {
+	for _, ns := range slices.SortedFunc(maps.Keys(byNamespace), func(i, j string) int {
 		return len(nsLongName(i)) - len(nsLongName(j))
-	})
-
-	for ns := range nss {
+	}) {
 		bs := byNamespace[ns]
 		riskScore := nsRiskScore[ns]
 		riskLevel := riskLevels[riskScore]
