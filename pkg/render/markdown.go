@@ -10,6 +10,7 @@ import (
 	"io"
 	"net/url"
 	"regexp"
+	"sort"
 	"strings"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
@@ -204,6 +205,13 @@ func markdownTable(ctx context.Context, fr *malcontent.FileReport, w io.Writer, 
 	if rc.Title != "" {
 		fmt.Fprintf(w, "%s\n\n", rc.Title)
 	}
+
+	sort.Slice(kbs, func(i, j int) bool {
+		if kbs[i].Behavior.RiskScore == kbs[j].Behavior.RiskScore {
+			return kbs[i].Key < kbs[j].Key
+		}
+		return kbs[i].Behavior.RiskScore > kbs[j].Behavior.RiskScore
+	})
 
 	data := make([][]string, 0, len(kbs))
 	for _, k := range kbs {
