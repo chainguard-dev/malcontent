@@ -475,7 +475,14 @@ func combineReports(ctx context.Context, c malcontent.Config, removed, added *or
 			if !c.ScoreAll && !scoreFile(r.Value, a.Value) {
 				continue
 			}
-			score := levenshtein.Match(filepath.Base(r.Key), filepath.Base(a.Key), levenshtein.NewParams())
+			// avoid the CPU cycles involved in scoring files with identical names
+			// since the score would be 1.0 indicating a perfect match
+			var score float64
+			if filepath.Base(r.Key) == filepath.Base(a.Key) {
+				score = 1.0
+			} else {
+				score = levenshtein.Match(filepath.Base(r.Key), filepath.Base(a.Key), levenshtein.NewParams())
+			}
 			allPairs = append(allPairs, scoredPair{
 				rpath: r.Key,
 				rfr:   r.Value,

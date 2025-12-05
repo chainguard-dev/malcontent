@@ -92,6 +92,7 @@ func (r Terminal) File(ctx context.Context, fr *malcontent.FileReport) error {
 			tableConfig{
 				Title: fmt.Sprintf("%s %s", fr.Path, darkBrackets(riskInColor(fr.RiskLevel))),
 			},
+			false,
 		)
 	}
 	return nil
@@ -116,7 +117,7 @@ func (r Terminal) Full(ctx context.Context, _ *malcontent.Config, rep *malconten
 		renderFileSummary(ctx, removed.Value, r.w, tableConfig{
 			Title:       fmt.Sprintf(riskColor(removed.Value.RiskLevel, "Deleted: %s %s"), removed.Key, darkBrackets(riskInColor(removed.Value.RiskLevel))),
 			DiffRemoved: true,
-		})
+		}, false)
 	}
 
 	for added := rep.Diff.Added.Oldest(); added != nil; added = added.Next() {
@@ -127,7 +128,7 @@ func (r Terminal) Full(ctx context.Context, _ *malcontent.Config, rep *malconten
 		renderFileSummary(ctx, added.Value, r.w, tableConfig{
 			Title:     fmt.Sprintf(riskColor(added.Value.RiskLevel, "Added: %s %s"), added.Key, darkBrackets(riskInColor(added.Value.RiskLevel))),
 			DiffAdded: true,
-		})
+		}, false)
 	}
 
 	for modified := rep.Diff.Modified.Oldest(); modified != nil; modified = modified.Next() {
@@ -135,15 +136,17 @@ func (r Terminal) Full(ctx context.Context, _ *malcontent.Config, rep *malconten
 			continue
 		}
 
+		var moved bool
 		var title string
 		if modified.Value.PreviousRelPath != "" && modified.Value.PreviousRelPathScore >= 0.9 {
+			moved = true
 			title = fmt.Sprintf(riskColor(modified.Value.PreviousRiskLevel, "Moved: %s -> %s (score: %f)"), modified.Value.PreviousPath, modified.Value.Path, modified.Value.PreviousRelPathScore)
 		} else if modified.Value.RiskScore != modified.Value.PreviousRiskScore {
 			title = fmt.Sprintf("%s %s", title,
 				darkBrackets(fmt.Sprintf("%s %s %s", riskInColor(modified.Value.PreviousRiskLevel), color.HiWhiteString("→"), riskInColor(modified.Value.RiskLevel))))
 		}
 
-		renderFileSummary(ctx, modified.Value, r.w, tableConfig{Title: title})
+		renderFileSummary(ctx, modified.Value, r.w, tableConfig{Title: title}, moved)
 	}
 
 	return nil
@@ -243,7 +246,7 @@ func ansiLineLength(s string) int {
 	return len(clean)
 }
 
-func renderFileSummary(ctx context.Context, fr *malcontent.FileReport, w io.Writer, rc tableConfig) {
+func renderFileSummary(ctx context.Context, fr *malcontent.FileReport, w io.Writer, rc tableConfig, moved bool) {
 	if ctx.Err() != nil {
 		return
 	}
@@ -290,7 +293,7 @@ func renderFileSummary(ctx context.Context, fr *malcontent.FileReport, w io.Writ
 			continue
 		}
 
-		if diffMode {
+		if !moved && diffMode {
 			rc.Title = fmt.Sprintf(riskColor(fr.RiskLevel, "Changed (%d added, %d removed): %s"), added, removed, fr.Path)
 		}
 	}
