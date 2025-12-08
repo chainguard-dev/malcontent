@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 )
@@ -46,7 +47,8 @@ func FuzzExtractTar(f *testing.F) {
 		}
 		defer os.RemoveAll(tmpDir)
 
-		ctx := context.Background()
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
 		_ = ExtractTar(ctx, tmpDir, tmpFile.Name())
 
 		err = filepath.WalkDir(tmpDir, func(path string, _ os.DirEntry, err error) error {
@@ -100,7 +102,8 @@ func FuzzExtractZip(f *testing.F) {
 		}
 		defer os.RemoveAll(tmpDir)
 
-		ctx := context.Background()
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
 		_ = ExtractZip(ctx, tmpDir, tmpFile.Name())
 
 		err = filepath.WalkDir(tmpDir, func(path string, _ os.DirEntry, err error) error {
@@ -163,7 +166,8 @@ func FuzzExtractArchive(f *testing.F) {
 		}
 		tmpFile.Close()
 
-		ctx := context.Background()
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
 		cfg := malcontent.Config{}
 		extractedDir, err := ExtractArchiveToTempDir(ctx, cfg, tmpFile.Name())
 		if err == nil && extractedDir != "" {
