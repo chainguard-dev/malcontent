@@ -32,7 +32,6 @@ func ExtractZlib(ctx context.Context, d string, f string) error {
 	}
 
 	buf := archivePool.Get(file.ExtractBuffer) //nolint:nilaway // the buffer pool is created in archive.go
-	defer archivePool.Put(buf)
 
 	zf, err := os.Open(f)
 	if err != nil {
@@ -54,6 +53,7 @@ func ExtractZlib(ctx context.Context, d string, f string) error {
 
 	defer func() {
 		archivePool.Put(buf)
+		zf.Close()
 		zr.Close()
 		out.Close()
 	}()

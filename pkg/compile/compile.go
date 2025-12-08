@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/minio/sha256-simd"
 
@@ -153,9 +154,18 @@ func getRulesToRemove() []string {
 
 // removeRules removes rule matches from the file data.
 func removeRules(data []byte, rulesToRemove []string) []byte {
+	if len(rulesToRemove) == 0 {
+		return data
+	}
+
 	modified := data
 	ruleNames := make([]string, len(rulesToRemove))
 	for i, name := range rulesToRemove {
+		// we only ever include rules listed above in badRules and rulesWithWarnings
+		// but ignore any rule names that aren't valid UTF-8
+		if !utf8.ValidString(name) {
+			continue
+		}
 		ruleNames[i] = regexp.QuoteMeta(name)
 	}
 	pattern := regexp.MustCompile(fmt.Sprintf(

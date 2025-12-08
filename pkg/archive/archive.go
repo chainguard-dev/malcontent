@@ -26,8 +26,28 @@ var (
 
 // isValidPath checks if the target file is within the given directory.
 func IsValidPath(target, dir string) bool {
+	if strings.Contains(target, "\x00") || strings.Contains(dir, "\x00") {
+		return false
+	}
+
 	cleanTarget := filepath.Clean(target)
 	cleanDir := filepath.Clean(dir)
+
+	// avoid evaluating symlinks if the target is not a symlink
+	if fi, err := os.Lstat(cleanTarget); err == nil && fi.Mode()&os.ModeSymlink == os.ModeSymlink {
+		var evalTarget, evalDir, rel string
+
+		if evalTarget, err = filepath.EvalSymlinks(cleanTarget); err != nil {
+			return false
+		}
+		if evalDir, err = filepath.EvalSymlinks(cleanDir); err != nil {
+			return false
+		}
+		if rel, err = filepath.Rel(evalDir, evalTarget); err == nil &&
+			rel == ".." || strings.HasPrefix(rel, "..") {
+			return false
+		}
+	}
 
 	switch {
 	case cleanDir == "", cleanTarget == "":
