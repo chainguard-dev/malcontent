@@ -56,7 +56,11 @@ rule sketchy_math_conversions: medium {
     $xor1 = /\d{2,16}\^\w{1,8}/
     $xor2 = /\w{1,8}\^\d{2,16}/
 
-    $complex_math = /[\(\[][\w\d\s\+\-\*\/\^]{10,50}[\)\]]/
+    $complex_math_add = /[\(\[][\w\d\s\+\-\*\/\^]{1,}\+[\w\d\s\+\-\*\/\^]{1,}[\)\]]/
+    $complex_math_sub = /[\(\[][\w\d\s\+\-\*\/\^]{1,}\-[\w\d\s\+\-\*\/\^]{1,}[\)\]]/
+    $complex_math_mul = /[\(\[][\w\d\s\+\-\*\/\^]{1,}\*[\w\d\s\+\-\*\/\^]{1,}[\)\]]/
+    $complex_math_div = /[\(\[][\w\d\s\+\-\*\/\^]{1,}\/[\w\d\s\+\-\*\/\^]{1,}[\)\]]/
+    $complex_math_pow = /[\(\[][\w\d\s\+\-\*\/\^]{1,}\^[\w\d\s\+\-\*\/\^]{1,}[\)\]]/
 
   condition:
     filesize < 1MB and
@@ -64,6 +68,6 @@ rule sketchy_math_conversions: medium {
     (
       (#math1 + #math2 > 5) or
       (#xor1 + #xor2 > 2) or
-      #complex_math > 3
+      any of ($complex_math*)
     )
 }
