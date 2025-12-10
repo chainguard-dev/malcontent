@@ -17,7 +17,7 @@ rule js_function_reversal: high {
 
   strings:
     $function_rev1 = "noitcnuf"
-    $function_rev2 = { 6E 6F 69 74 63 6E 75 66 }
+    $function_rev2 = { 6E 6F 69 74 63 6E 75 66 }  // suppress: text_as_hex
 
     $function_dots = /no\.?i\.?t\.?c\.?n\.?u\.?f/
     $return_rev    = "nruter"
