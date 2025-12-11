@@ -104,6 +104,7 @@ var supportedKind = map[string]string{
 	"txt":     "",
 	"upx":     "application/x-upx",
 	"vbs":     "text/x-vbscript",
+	"vim":     "text/x-vim",
 	"yaml":    "",
 	"yara":    "",
 	"yml":     "",
