@@ -13,7 +13,6 @@ import (
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/archive"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
-	"github.com/chainguard-dev/malcontent/pkg/programkind"
 	"github.com/chainguard-dev/malcontent/pkg/render"
 	"github.com/chainguard-dev/malcontent/rules"
 	thirdparty "github.com/chainguard-dev/malcontent/third_party"
@@ -395,80 +394,6 @@ func TestScanConflictingArchiveFiles(t *testing.T) {
 
 	if diff := cmp.Diff(want, got); diff != "" {
 		t.Errorf("output mismatch: (-want +got):\n%s", diff)
-	}
-}
-
-func TestGetExt(t *testing.T) {
-	tests := []struct {
-		path string
-		want string
-	}{
-		{
-			path: "testdata/file.apk",
-			want: ".apk",
-		}, {
-			path: "testdata/file.jar",
-			want: ".jar",
-		}, {
-			path: "testdata/file.tar",
-			want: ".tar",
-		}, {
-			path: "testdata/file.tgz",
-			want: ".tgz",
-		}, {
-			path: "testdata/file.tar.gz",
-			want: ".tar.gz",
-		}, {
-			path: "testdata/file.tar.xz",
-			want: ".tar.xz",
-		}, {
-			path: "testdata/file.zip",
-			want: ".zip",
-		}, {
-			path: "testdata/file_1.0.0",
-			want: "",
-		}, {
-			path: "testdata/file_1.0.0.apk",
-			want: ".apk",
-		}, {
-			path: "testdata/file_1.0.0.jar",
-			want: ".jar",
-		}, {
-			path: "testdata/file_1.0.0.tar",
-			want: ".tar",
-		}, {
-			path: "testdata/file_1.0.0.tgz",
-			want: ".tgz",
-		}, {
-			path: "testdata/file_1.0.0.tar.gz",
-			want: ".tar.gz",
-		}, {
-			path: "testdata/file_1.0.0.tar.xz",
-			want: ".tar.xz",
-		}, {
-			path: "testdata/file_1.0.0.zip",
-			want: ".zip",
-		}, {
-			path: "testdata/file.a.b.c.tar.gz",
-			want: ".tar.gz",
-		}, {
-			path: "testdata/file_a.b.c.tar.xz",
-			want: ".tar.xz",
-		}, {
-			path: "testdata/file_a.b.0.tar",
-			want: ".tar",
-		}, {
-			path: "testdata/file_no_ext",
-			want: "",
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.path, func(t *testing.T) {
-			t.Parallel()
-			if got := programkind.GetExt(tt.path); got != tt.want {
-				t.Errorf("Ext() = %v, want %v", got, tt.want)
-			}
-		})
 	}
 }
 

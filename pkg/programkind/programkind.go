@@ -14,6 +14,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"slices"
 	"strings"
 	"sync"
 
@@ -74,6 +75,7 @@ var supportedKind = map[string]string{
 	"html":    "",
 	"java":    "text/x-java",
 	"js":      "application/javascript",
+	"json":    "",
 	"ko":      "application/x-object",
 	"lnk":     "application/x-ms-shortcut",
 	"lua":     "text/x-lua",
@@ -99,7 +101,9 @@ var supportedKind = map[string]string{
 	"sh":      "text/x-shellscript",
 	"so":      "application/x-sharedlib",
 	"ts":      "application/typescript",
+	"txt":     "",
 	"upx":     "application/x-upx",
+	"vbs":     "text/x-vbscript",
 	"yaml":    "",
 	"yara":    "",
 	"yml":     "",
@@ -116,9 +120,41 @@ var (
 	initializeOnce sync.Once
 	versionRegex   = regexp.MustCompile(`\d+\.\d+\.\d+$`)
 	// Magic byte constants for common file signatures.
-	elfMagic  = []byte{0x7f, 'E', 'L', 'F'}
-	gzipMagic = []byte{0x1f, 0x8b}
-	ZMagic    = []byte{0x78, 0x5E}
+	elfMagic      = []byte{0x7f, 'E', 'L', 'F'}
+	gzipMagic     = []byte{0x1f, 0x8b}
+	ZMagic        = []byte{0x78, 0x5E}
+	shellShebangs = [][]byte{
+		[]byte("#!/bin/ash"),
+		[]byte("#!/bin/bash"),
+		[]byte("#!/bin/dash"),
+		[]byte("#!/bin/fish"),
+		[]byte("#!/bin/ksh"),
+		[]byte("#!/bin/sh"),
+		[]byte("#!/bin/zsh"),
+		[]byte("#!/usr/bin/env bash"),
+		[]byte("#!/usr/bin/env sh"),
+		[]byte("#!/usr/bin/env zsh"),
+	}
+	shellPatterns = [][]byte{
+		[]byte("; then\n"),
+		[]byte("; do\n"),
+		[]byte("esac"),
+		[]byte("fi\n"),
+		[]byte("done\n"),
+		[]byte("$(("),
+		[]byte("$("),
+		[]byte("${"),
+		[]byte("<<EOF"),
+		[]byte("<<-EOF"),
+		[]byte("<<'EOF'"),
+		[]byte("|| exit"),
+		[]byte("&& exit"),
+		[]byte("set -e"),
+		[]byte("set -x"),
+		[]byte("set -u"),
+		[]byte("set -o "),
+		[]byte("export PATH"),
+	}
 )
 
 // IsSupportedArchive returns whether a path can be processed by our archive extractor.
@@ -203,12 +239,15 @@ func makeFileType(path string, ext string, mime string) *FileType {
 	ext = strings.TrimPrefix(ext, ".")
 
 	// Archives are supported
+	if _, ok := ArchiveMap[ext]; ok {
+		return &FileType{Ext: ext, MIME: mime}
+	}
 	if _, ok := ArchiveMap[GetExt(path)]; ok {
 		return &FileType{Ext: ext, MIME: mime}
 	}
 
 	// typically, JSON and YAML files are data files only scanned via --all, but we want to support the NPM ecosystem
-	if strings.HasSuffix(path, "package.json") || strings.HasSuffix(path, "package-lock.json") {
+	if strings.HasSuffix(path, "package.json") || strings.HasSuffix(path, "package-lock.json") || strings.Contains(path, ".js.map") {
 		return &FileType{
 			Ext:  ext,
 			MIME: "application/json",
@@ -246,6 +285,36 @@ func makeFileType(path string, ext string, mime string) *FileType {
 	}
 
 	return nil
+}
+
+// isLikelyShellScript determines if file content is likely a shell script
+// and focuses on multiple criteria to reduce false-positives.
+func isLikelyShellScript(fc []byte, path string) bool {
+	if slices.ContainsFunc(shellShebangs, func(shebang []byte) bool {
+		return bytes.HasPrefix(fc, shebang)
+	}) {
+		return true
+	}
+
+	if strings.HasSuffix(path, "profile") ||
+		strings.HasSuffix(path, ".bashrc") ||
+		strings.HasSuffix(path, ".bash_profile") ||
+		strings.HasSuffix(path, ".zshrc") ||
+		strings.HasSuffix(path, ".zsh_profile") {
+		return true
+	}
+
+	matches := 0
+	for _, pattern := range shellPatterns {
+		if bytes.Contains(fc, pattern) {
+			matches++
+			if matches >= 2 {
+				return true
+			}
+		}
+	}
+
+	return false
 }
 
 // File detects what kind of program this file might be.
@@ -293,7 +362,8 @@ func File(ctx context.Context, path string) (*FileType, error) {
 	// default strategy: mimetype (no limit for improved magic type detection)
 	mimetype.SetLimit(0) // a limit of 0 means the whole input file will be used
 	mtype := mimetype.Detect(fc)
-	if ft := makeFileType(path, mtype.Extension(), mtype.String()); ft != nil {
+	ext, mime := mtype.Extension(), mtype.String()
+	if ft := makeFileType(path, ext, mime); ft != nil {
 		return ft, nil
 	}
 
@@ -302,6 +372,17 @@ func File(ctx context.Context, path string) (*FileType, error) {
 		return mtype, nil
 	}
 
+	pathExt := strings.TrimPrefix(GetExt(path), ".")
+
+	if _, pathExtKnown := supportedKind[pathExt]; pathExtKnown {
+		return nil, nil
+	}
+
+	if mime == "application/octet-stream" && len(pathExt) >= 2 {
+		return nil, nil
+	}
+
+	// Content-based detection for files with no recognized extension or mimetype
 	switch {
 	case bytes.HasPrefix(fc, elfMagic):
 		return Path(".elf"), nil
@@ -311,18 +392,7 @@ func File(ctx context.Context, path string) (*FileType, error) {
 		return Path(".py"), nil
 	case bytes.Contains(fc, []byte(" = require(")):
 		return Path(".js"), nil
-	case bytes.HasPrefix(fc, []byte("#!/bin/ash")) ||
-		bytes.HasPrefix(fc, []byte("#!/bin/bash")) ||
-		bytes.HasPrefix(fc, []byte("#!/bin/fish")) ||
-		bytes.HasPrefix(fc, []byte("#!/bin/sh")) ||
-		bytes.HasPrefix(fc, []byte("#!/bin/zsh")) ||
-		bytes.Contains(fc, []byte("if [")) ||
-		bytes.Contains(fc, []byte("if !")) ||
-		bytes.Contains(fc, []byte("echo ")) ||
-		bytes.Contains(fc, []byte("grep ")) ||
-		bytes.Contains(fc, []byte("; then")) ||
-		bytes.Contains(fc, []byte("export ")) ||
-		strings.HasSuffix(path, "profile"):
+	case isLikelyShellScript(fc, path):
 		return Path(".sh"), nil
 	case bytes.HasPrefix(fc, []byte("#!")):
 		return Path(".script"), nil
@@ -347,7 +417,7 @@ func initializeHeaderPool() {
 
 // Path returns a filetype based strictly on file path.
 func Path(path string) *FileType {
-	ext := strings.ReplaceAll(filepath.Ext(path), ".", "")
+	ext := strings.TrimPrefix(GetExt(path), ".")
 	mime := supportedKind[ext]
 	return makeFileType(path, ext, mime)
 }
