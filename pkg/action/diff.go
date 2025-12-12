@@ -7,10 +7,12 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"maps"
 	"os"
 	"path/filepath"
 	"regexp"
 	"slices"
+	"sort"
 	"strings"
 
 	"github.com/agext/levenshtein"
@@ -111,6 +113,25 @@ func relPath(from string, fr *malcontent.FileReport, isArchive bool, isImage boo
 		}
 	}
 	return rel, base, nil
+}
+
+// selectPrimaryFile selects a single file from a map of file reports in a deterministic way.
+// e.g., when a UPX-packed file is scanned, it produces the decompressed file
+// and preserves the original file (with a .~ suffix).
+func selectPrimaryFile(files map[string]*malcontent.FileReport) *malcontent.FileReport {
+	if len(files) == 0 {
+		return nil
+	}
+
+	keys := slices.Sorted(maps.Keys(files))
+
+	if i := slices.IndexFunc(keys, func(k string) bool {
+		return !strings.HasSuffix(k, ".~")
+	}); i >= 0 {
+		return files[keys[i]]
+	}
+
+	return files[keys[0]]
 }
 
 func relFileReport(ctx context.Context, c malcontent.Config, fromPath string, isImage bool) (map[string]*malcontent.FileReport, string, error) {
@@ -283,15 +304,8 @@ func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent
 	if shouldHandleDir {
 		handleDir(ctx, c, srcResult, destResult, d, archiveOrImage)
 	} else {
-		var srcFile, destFile *malcontent.FileReport
-		for _, fr := range srcResult.files {
-			srcFile = fr
-			break
-		}
-		for _, fr := range destResult.files {
-			destFile = fr
-			break
-		}
+		srcFile := selectPrimaryFile(srcResult.files)
+		destFile := selectPrimaryFile(destResult.files)
 		if srcFile != nil && destFile != nil {
 			removed := formatKey(srcResult, CleanPath(srcFile.Path, srcResult.tmpRoot))
 			added := formatKey(srcResult, CleanPath(destFile.Path, destResult.tmpRoot))
@@ -418,6 +432,11 @@ func handleFile(ctx context.Context, c malcontent.Config, fr, tr *malcontent.Fil
 		}
 		rbs.Behaviors = append(rbs.Behaviors, tb)
 	}
+
+	// Sort behaviors by ID for deterministic output
+	sort.Slice(rbs.Behaviors, func(i, j int) bool {
+		return rbs.Behaviors[i].ID < rbs.Behaviors[j].ID
+	})
 
 	if archiveOrImage {
 		rbs.Path = CleanPath(rbs.Path, "/private")
@@ -597,6 +616,11 @@ func fileMove(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileR
 			abs.Behaviors = append(abs.Behaviors, fb)
 		}
 	}
+
+	// Sort behaviors by ID for deterministic output
+	sort.Slice(abs.Behaviors, func(i, j int) bool {
+		return abs.Behaviors[i].ID < abs.Behaviors[j].ID
+	})
 
 	if archiveOrImage {
 		abs.Path = CleanPath(abs.Path, "/private")

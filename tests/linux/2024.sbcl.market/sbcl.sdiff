@@ -1,5 +1,5 @@
 *** changed (3 added, 1 removed): linux/2024.sbcl.market/sbcl.dirty
--crypto/rc4
 +anti-static/elf/entropy
+-crypto/rc4
 +data/embedded/zstd
 +net/dns/txt

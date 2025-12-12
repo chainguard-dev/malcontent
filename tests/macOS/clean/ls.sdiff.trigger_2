@@ -3,7 +3,7 @@
 -c2/tool_transfer/os
 -data/compression/lzma
 -discover/system/hostname
--net/url/embedded
--process/name_set
 +fs/directory/traverse
 +net/http
+-net/url/embedded
+-process/name_set
