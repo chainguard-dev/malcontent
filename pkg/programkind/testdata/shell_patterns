@@ -1,0 +1,6 @@
+set -e
+export PATH="/usr/bin:$PATH"
+if [ -f test ]; then
+    echo "test"
+fi
+done
