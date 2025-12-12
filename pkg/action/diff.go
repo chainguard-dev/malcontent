@@ -134,6 +134,18 @@ func selectPrimaryFile(files map[string]*malcontent.FileReport) *malcontent.File
 	return files[keys[0]]
 }
 
+// isUPXBackup returns true if the path is a UPX backup file (.~ suffix)
+// and the corresponding decompressed file exists in the files map.
+func isUPXBackup(path string, files map[string]*malcontent.FileReport) bool {
+	if !strings.HasSuffix(path, ".~") {
+		return false
+	}
+
+	decompressed := strings.TrimSuffix(path, ".~")
+	_, exists := files[decompressed]
+	return exists
+}
+
 func relFileReport(ctx context.Context, c malcontent.Config, fromPath string, isImage bool) (map[string]*malcontent.FileReport, string, error) {
 	if ctx.Err() != nil {
 		return nil, "", ctx.Err()
@@ -339,12 +351,12 @@ func handleDir(ctx context.Context, c malcontent.Config, src, dest ScanResult, d
 	srcFiles, destFiles := make(map[string]*malcontent.FileReport), make(map[string]*malcontent.FileReport)
 
 	for rel, fr := range src.files {
-		if rel != "" {
+		if rel != "" && !isUPXBackup(rel, src.files) {
 			srcFiles[rel] = fr
 		}
 	}
 	for rel, fr := range dest.files {
-		if rel != "" {
+		if rel != "" && !isUPXBackup(rel, dest.files) {
 			destFiles[rel] = fr
 		}
 	}
