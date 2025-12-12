@@ -56,7 +56,7 @@ jobs:
           check-latest: true
           cache: false
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@cf1bb45a277cb3c205638b2cd5c984db1c46a412 # v4.31.7
+        uses: github/codeql-action/init@1b168cd39490f61582a9beae412bb7057a6b2c4e # v4.31.8
         with:
           languages: go
           build-mode: manual
@@ -64,7 +64,7 @@ jobs:
           go build -o /dev/null ./...
           go test -o /dev/null -c ./...
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@cf1bb45a277cb3c205638b2cd5c984db1c46a412 # v4.31.7
+        uses: github/codeql-action/analyze@1b168cd39490f61582a9beae412bb7057a6b2c4e # v4.31.8
         with:
           category: "/language:go"
   analyze-actions:
@@ -82,11 +82,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@cf1bb45a277cb3c205638b2cd5c984db1c46a412 # v4.31.7
+        uses: github/codeql-action/init@1b168cd39490f61582a9beae412bb7057a6b2c4e # v4.31.8
         with:
           languages: actions
           build-mode: none
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@cf1bb45a277cb3c205638b2cd5c984db1c46a412 # v4.31.7
+        uses: github/codeql-action/analyze@1b168cd39490f61582a9beae412bb7057a6b2c4e # v4.31.8
         with:
           category: "/language:actions"
