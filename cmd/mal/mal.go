@@ -50,6 +50,7 @@ var (
 	allFlag                   bool
 	concurrencyFlag           int
 	diffImageFlag             bool
+	diffReportFlag            bool
 	exitExtractionFlag        bool
 	exitFirstHitFlag          bool
 	exitFirstMissFlag         bool
@@ -492,6 +493,13 @@ func main() {
 						Destination: &diffImageFlag,
 					},
 					&cli.BoolFlag{
+						Name:        "report",
+						Aliases:     []string{"r"},
+						Value:       false,
+						Usage:       "Diff existing analyze/scan reports",
+						Destination: &diffReportFlag,
+					},
+					&cli.BoolFlag{
 						Name:        "score-all",
 						Value:       false,
 						Usage:       "Compute the Levenshtein distance for all source and destination paths (warning: experimental and slow!)",
@@ -511,6 +519,9 @@ func main() {
 					// Allow for images to be scanned with the file risk flags
 					if c.Bool("image") {
 						mc.OCI = true
+					}
+					if c.Bool("report") {
+						mc.Report = true
 					}
 
 					res, err = action.Diff(ctx, mc, log)

@@ -38,6 +38,7 @@ type Config struct {
 	Processes             bool
 	QuantityIncreasesRisk bool
 	Renderer              Renderer
+	Report                bool
 	RuleFS                []fs.FS
 	Rules                 *yarax.Rules
 	Scan                  bool
@@ -115,6 +116,10 @@ type DiffReport struct {
 	Added    *orderedmap.OrderedMap[string, *FileReport] `json:",omitempty" yaml:",omitempty"`
 	Removed  *orderedmap.OrderedMap[string, *FileReport] `json:",omitempty" yaml:",omitempty"`
 	Modified *orderedmap.OrderedMap[string, *FileReport] `json:",omitempty" yaml:",omitempty"`
+}
+
+type ScanResult struct {
+	FileReports map[string]*FileReport `json:"Files,omitempty" yaml:"Files,omitempty"`
 }
 
 type Report struct {

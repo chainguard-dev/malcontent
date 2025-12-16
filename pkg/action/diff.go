@@ -6,6 +6,7 @@ package action
 import (
 	"context"
 	"fmt"
+	"io"
 	"log/slog"
 	"maps"
 	"os"
@@ -20,6 +21,7 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/archive"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
+	"github.com/chainguard-dev/malcontent/pkg/report"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 	"golang.org/x/sync/errgroup"
 )
@@ -234,8 +236,9 @@ func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent
 	// If diffing images, use their temporary directories as scan paths
 	// Flip c.OCI to false when finished to block other image code paths
 	var (
-		err     error
-		isImage bool
+		err      error
+		isImage  bool
+		isReport bool
 	)
 
 	if c.OCI {
@@ -250,44 +253,86 @@ func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent
 		isImage, c.OCI = true, false
 	}
 
-	var g errgroup.Group
-
 	srcCh, destCh := make(chan ScanResult, 1), make(chan ScanResult, 1)
-
 	srcIsArchive, destIsArchive := programkind.IsSupportedArchive(ctx, srcPath), programkind.IsSupportedArchive(ctx, destPath)
+	srcResult, destResult := ScanResult{}, ScanResult{}
 
-	g.Go(func() error {
-		files, base, err := relFileReport(ctx, c, srcPath, isImage)
-		res := ScanResult{files: files, base: base, err: err}
-		if isImage {
-			res.imageURI, res.tmpRoot = c.ScanPaths[0], srcPath
+	// If diffing existing reports, we just need to unmarshal them into a ScanResult and run the diff
+	// Only JSON or YAML reports are supported, however
+	switch c.Report {
+	case true:
+		isReport = true
+		srcFile, err := os.Open(srcPath)
+		if err != nil {
+			return nil, err
 		}
-		srcCh <- res
-		return err
-	})
-
-	srcResult := <-srcCh
-	if srcResult.err != nil {
-		return nil, fmt.Errorf("source scan error: %w", srcResult.err)
-	}
-
-	g.Go(func() error {
-		files, base, err := relFileReport(ctx, c, destPath, isImage)
-		res := ScanResult{files: files, base: base, err: err}
-		if isImage {
-			res.imageURI, res.tmpRoot = c.ScanPaths[1], destPath
+		defer srcFile.Close()
+		src, err := io.ReadAll(srcFile)
+		if err != nil {
+			return nil, err
 		}
-		destCh <- res
-		return err
-	})
+		srcFiles, err := report.Load(src)
+		srcResult.err = err
+		srcResult.files = srcFiles.FileReports
 
-	destResult := <-destCh
-	if destResult.err != nil {
-		return nil, fmt.Errorf("destination scan error: %w", destResult.err)
-	}
+		// Extract image URI and temp root from the report's file paths
+		srcResult.imageURI = report.ExtractImageURI(srcResult.files)
+		srcResult.tmpRoot = report.ExtractTmpRoot(srcResult.files)
+		srcResult.base = filepath.Base(srcPath)
 
-	if err := g.Wait(); err != nil {
-		return nil, err
+		destFile, err := os.Open(destPath)
+		if err != nil {
+			return nil, err
+		}
+		defer destFile.Close()
+		dst, err := io.ReadAll(destFile)
+		if err != nil {
+			return nil, err
+		}
+
+		destFiles, err := report.Load(dst)
+		destResult.err = err
+		destResult.files = destFiles.FileReports
+
+		// Extract image URI and temp root from the report's file paths
+		destResult.imageURI = report.ExtractImageURI(destResult.files)
+		destResult.tmpRoot = report.ExtractTmpRoot(destResult.files)
+	default:
+		var g errgroup.Group
+
+		g.Go(func() error {
+			files, base, err := relFileReport(ctx, c, srcPath, isImage)
+			res := ScanResult{files: files, base: base, err: err}
+			if isImage {
+				res.imageURI, res.tmpRoot = c.ScanPaths[0], srcPath
+			}
+			srcCh <- res
+			return err
+		})
+
+		srcResult = <-srcCh
+		if srcResult.err != nil {
+			return nil, fmt.Errorf("source scan error: %w", srcResult.err)
+		}
+
+		g.Go(func() error {
+			files, base, err := relFileReport(ctx, c, destPath, isImage)
+			res := ScanResult{files: files, base: base, err: err}
+			if isImage {
+				res.imageURI, res.tmpRoot = c.ScanPaths[1], destPath
+			}
+			destCh <- res
+			return err
+		})
+
+		destResult = <-destCh
+		if destResult.err != nil {
+			return nil, fmt.Errorf("destination scan error: %w", destResult.err)
+		}
+
+		if err := g.Wait(); err != nil {
+			return nil, err
+		}
 	}
 
 	d := &malcontent.DiffReport{
@@ -310,11 +355,11 @@ func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent
 	// and employ add/delete for files that are not the same
 	// When scanning two files, do a 1:1 comparison and
 	// consider the source -> destination as a change rather than an add/delete
-	shouldHandleDir := ((srcInfo.IsDir() && destInfo.IsDir()) || (srcIsArchive && destIsArchive)) || isImage
+	shouldHandleDir := ((srcInfo.IsDir() && destInfo.IsDir()) || (srcIsArchive && destIsArchive)) || isImage || isReport
 	archiveOrImage := (srcIsArchive && destIsArchive) || isImage
 
 	if shouldHandleDir {
-		handleDir(ctx, c, srcResult, destResult, d, archiveOrImage)
+		handleDir(ctx, c, srcResult, destResult, d, archiveOrImage, isReport)
 	} else {
 		srcFile := selectPrimaryFile(srcResult.files)
 		destFile := selectPrimaryFile(destResult.files)
@@ -325,14 +370,14 @@ func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent
 				d.Removed.Set(removed, srcFile)
 				d.Added.Set(added, destFile)
 			} else {
-				handleFile(ctx, c, srcFile, destFile, removed, added, d, srcResult, destResult, archiveOrImage)
+				handleFile(ctx, c, srcFile, destFile, removed, added, d, srcResult, destResult, archiveOrImage, isReport)
 			}
 		}
 	}
 
 	// infer moves only if there are entries in both Added and Removed
 	if d.Added.Len() > 0 && d.Removed.Len() > 0 {
-		inferMoves(ctx, c, d, srcResult, destResult, archiveOrImage)
+		inferMoves(ctx, c, d, srcResult, destResult, archiveOrImage, isReport)
 	}
 
 	defer func() {
@@ -343,7 +388,7 @@ func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent
 	return &malcontent.Report{Diff: d}, nil
 }
 
-func handleDir(ctx context.Context, c malcontent.Config, src, dest ScanResult, d *malcontent.DiffReport, archiveOrImage bool) {
+func handleDir(ctx context.Context, c malcontent.Config, src, dest ScanResult, d *malcontent.DiffReport, archiveOrImage, isReport bool) {
 	if ctx.Err() != nil {
 		return
 	}
@@ -380,9 +425,19 @@ func handleDir(ctx context.Context, c malcontent.Config, src, dest ScanResult, d
 	// These files are considered removals from the destination
 	for _, name := range srcKeys {
 		srcFr := srcFiles[name]
-		removed := formatKey(src, CleanPath(srcFr.Path, src.tmpRoot))
+		var removed string
+		if isReport {
+			removed = report.FormatReportKey(srcFr.Path, src.tmpRoot, src.imageURI)
+		} else {
+			removed = formatKey(src, CleanPath(srcFr.Path, src.tmpRoot))
+		}
 		if destFr, exists := destFiles[name]; exists {
-			added := formatKey(dest, CleanPath(destFr.Path, dest.tmpRoot))
+			var added string
+			if isReport {
+				added = report.FormatReportKey(destFr.Path, dest.tmpRoot, dest.imageURI)
+			} else {
+				added = formatKey(dest, CleanPath(destFr.Path, dest.tmpRoot))
+			}
 			if filterDiff(ctx, c, srcFr, destFr) {
 				continue
 			}
@@ -390,7 +445,7 @@ func handleDir(ctx context.Context, c malcontent.Config, src, dest ScanResult, d
 				d.Removed.Set(removed, srcFr)
 				d.Added.Set(added, destFr)
 			} else {
-				handleFile(ctx, c, srcFr, destFr, removed, added, d, src, dest, archiveOrImage)
+				handleFile(ctx, c, srcFr, destFr, removed, added, d, src, dest, archiveOrImage, isReport)
 			}
 		} else {
 			d.Removed.Set(removed, srcFr)
@@ -401,14 +456,19 @@ func handleDir(ctx context.Context, c malcontent.Config, src, dest ScanResult, d
 	// These files are considered additions to the destination
 	for _, name := range destKeys {
 		destFr := destFiles[name]
-		added := formatKey(dest, CleanPath(destFr.Path, dest.tmpRoot))
+		var added string
+		if isReport {
+			added = report.FormatReportKey(destFr.Path, dest.tmpRoot, dest.imageURI)
+		} else {
+			added = formatKey(dest, CleanPath(destFr.Path, dest.tmpRoot))
+		}
 		if _, exists := srcFiles[name]; !exists {
 			d.Added.Set(added, destFr)
 		}
 	}
 }
 
-func handleFile(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileReport, removed, added string, d *malcontent.DiffReport, _, dest ScanResult, archiveOrImage bool) {
+func handleFile(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileReport, removed, added string, d *malcontent.DiffReport, _, dest ScanResult, archiveOrImage, isReport bool) {
 	if ctx.Err() != nil {
 		return
 	}
@@ -450,7 +510,9 @@ func handleFile(ctx context.Context, c malcontent.Config, fr, tr *malcontent.Fil
 		return rbs.Behaviors[i].ID < rbs.Behaviors[j].ID
 	})
 
-	if archiveOrImage {
+	if isReport {
+		rbs.Path = report.FormatReportKey(rbs.Path, dest.tmpRoot, dest.imageURI)
+	} else if archiveOrImage {
 		rbs.Path = CleanPath(rbs.Path, "/private")
 		rbs.Path = formatKey(dest, CleanPath(rbs.Path, dest.tmpRoot))
 	}
@@ -571,17 +633,17 @@ func combineReports(ctx context.Context, c malcontent.Config, removed, added *or
 	return combined
 }
 
-func inferMoves(ctx context.Context, c malcontent.Config, d *malcontent.DiffReport, src, dest ScanResult, archiveOrImage bool) {
+func inferMoves(ctx context.Context, c malcontent.Config, d *malcontent.DiffReport, src, dest ScanResult, archiveOrImage, isReport bool) {
 	if ctx.Err() != nil {
 		return
 	}
 
 	for _, cr := range combineReports(ctx, c, d.Removed, d.Added) {
-		fileMove(ctx, c, cr.RemovedFR, cr.AddedFR, cr.Removed, cr.Added, d, cr.Score, src, dest, archiveOrImage)
+		fileMove(ctx, c, cr.RemovedFR, cr.AddedFR, cr.Removed, cr.Added, d, cr.Score, src, dest, archiveOrImage, isReport)
 	}
 }
 
-func fileMove(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileReport, rpath, apath string, d *malcontent.DiffReport, score float64, src ScanResult, dest ScanResult, archiveOrImage bool) {
+func fileMove(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileReport, rpath, apath string, d *malcontent.DiffReport, score float64, src ScanResult, dest ScanResult, archiveOrImage, isReport bool) {
 	if ctx.Err() != nil {
 		return
 	}
@@ -634,7 +696,10 @@ func fileMove(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileR
 		return abs.Behaviors[i].ID < abs.Behaviors[j].ID
 	})
 
-	if archiveOrImage {
+	if isReport {
+		abs.Path = report.FormatReportKey(abs.Path, dest.tmpRoot, dest.imageURI)
+		abs.PreviousPath = report.FormatReportKey(abs.PreviousPath, src.tmpRoot, src.imageURI)
+	} else if archiveOrImage {
 		abs.Path = CleanPath(abs.Path, "/private")
 		abs.PreviousPath = CleanPath(abs.PreviousPath, "/private")
 		abs.Path = formatKey(dest, CleanPath(abs.Path, dest.tmpRoot))

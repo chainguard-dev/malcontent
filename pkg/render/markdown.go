@@ -118,7 +118,7 @@ func (r Markdown) Full(ctx context.Context, _ *malcontent.Config, rep *malconten
 
 		var title string
 		switch {
-		case modified.Value.PreviousRelPath != "" && modified.Value.PreviousRelPathScore >= 0.9:
+		case modified.Value.PreviousPath != "" && modified.Value.PreviousRelPathScore >= 0.9:
 			title = fmt.Sprintf("## Moved: %s -> %s (similarity: %0.2f)", modified.Value.PreviousPath, modified.Value.Path, modified.Value.PreviousRelPathScore)
 		default:
 			title = fmt.Sprintf("## Changed (%d added, %d removed): %s", added, removed, modified.Value.Path)
