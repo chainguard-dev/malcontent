@@ -1,7 +1,6 @@
 # Copyright 2024 Chainguard, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
-
 SAMPLES_REPO ?= chainguard-dev/malcontent-samples
 SAMPLES_COMMIT ?= f948cfd0f9d2a35a2452fe43ea4d094979652103
 
@@ -31,12 +30,10 @@ else
 	LINT_PLATFORM=unknown
 endif
 
-
 LINT_PLATFOM_SUFFIX :=
 ifeq ($(LINT_OS),Linux)
 	LINT_PLATFORM_SUFFIX=-gnu
 endif
-
 
 LINTERS :=
 FIXERS :=
@@ -132,6 +129,11 @@ install-yara-x: out/$(YARA_X_REPO)/.git/commit-$(YARA_X_COMMIT)
 	cd out/$(YARA_X_REPO) && \
 	cargo install cargo-c --locked && \
 	cargo cinstall -p yara-x-capi --features=native-code-serialization --release --prefix="$(LINT_ROOT)/out" --libdir="$(LINT_ROOT)/out/lib"
+
+.PHONY: update-deps
+update-deps:
+	go get -u ./...
+	go mod tidy
 
 # unit tests only
 .PHONY: test
