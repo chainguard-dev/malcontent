@@ -11,7 +11,7 @@ rule RoyalRoad_RTF
         sharing = "TLP:CLEAR"
         source = "BARTBLAZE"
         author = "@bartblaze"
-        description = "Identifies RoyalRoad RTF, used by multiple China-based APT groups."
+        description = "Identifies RoyalRoad RTF, used by multiple China-nexus APT groups."
         category = "MALWARE"
         malware = "ROYALROAD"        
         malware_type = "EXPLOITKIT"
