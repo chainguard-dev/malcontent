@@ -138,7 +138,7 @@ func (r Terminal) Full(ctx context.Context, _ *malcontent.Config, rep *malconten
 
 		var moved bool
 		var title string
-		if modified.Value.PreviousRelPath != "" && modified.Value.PreviousRelPathScore >= 0.9 {
+		if modified.Value.PreviousPath != "" && modified.Value.PreviousRelPathScore >= 0.9 {
 			moved = true
 			title = fmt.Sprintf(riskColor(modified.Value.PreviousRiskLevel, "Moved: %s -> %s (score: %f)"), modified.Value.PreviousPath, modified.Value.Path, modified.Value.PreviousRelPathScore)
 		} else if modified.Value.RiskScore != modified.Value.PreviousRiskScore {
