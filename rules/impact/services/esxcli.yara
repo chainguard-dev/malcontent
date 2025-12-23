@@ -17,16 +17,18 @@ rule esxcli_onion_ransom: critical linux {
     $esxcli = "esxcli"
     $onion  = ".onion"
 
-    $w_cyber     = "cyber"
-    $w_victim    = "victim"
-    $w_encrypted = "encrypted"
-    $w_tor       = "tor" fullword
-    $w_Tor       = "Tor" fullword
-    $w_TOR       = "TOR" fullword
-    $w_company   = "company" fullword
-    $w_your      = "your data"
-    $w_incident  = "incident"
+    $w_cyber        = "cyber"
+    $w_victim       = "victim"
+    $w_encrypted    = "encrypted"
+    $w_tor          = "tor" fullword
+    $w_Tor          = "Tor" fullword
+    $w_TOR          = "TOR" fullword
+    $w_company      = "company" fullword
+    $w_your         = "your data"
+    $w_incident     = "incident"
+    $not_dnsclient1 = "net/dnsclient.go"
+    $not_dnsclient2 = "net/dnsclient_unix.go"
 
   condition:
-    $esxcli and $onion and any of ($w*)
+    $esxcli and $onion and any of ($w*) and none of ($not*)
 }

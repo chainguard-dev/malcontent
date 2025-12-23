@@ -44,6 +44,7 @@ var badRules = map[string]bool{
 	"CAPE_Eternalromance":                                 true,
 	"CAPE_Formhookb":                                      true,
 	"TELEKOM_SECURITY_Cn_Utf8_Windows_Terminal":           true,
+	"CAPE_Nitrogenloaderconfig":                           true,
 	// ThreatHunting Keywords (some duplicates)
 	"Adobe_XMP_Identifier":                       true,
 	"Antivirus_Signature_signature_keyword":      true,

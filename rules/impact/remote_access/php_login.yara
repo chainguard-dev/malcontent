@@ -1,6 +1,7 @@
-rule php_login {
+rule php_login: high {
   meta:
     description = "unusual PHP login/password check"
+    filetypes   = "php"
 
   strings:
     $md5        = /md5\s*\(\s*\$_(GET|REQUEST|POST|COOKIE|SERVER)[^)]+\)\s*===?\s*['"][0-9a-f]{32}['"]/ nocase

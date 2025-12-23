@@ -1,3 +1,5 @@
+import "hash"
+
 rule exec_regex: override {
   meta:
     description                         = "csv_builder_spec.rb"
@@ -12,4 +14,16 @@ rule exec_regex: override {
 
   condition:
     filesize < 8192 and all of them
+}
+
+rule fetch_command: override {
+  meta:
+    description            = "install.sh"
+    filetypes              = "sh"
+    download_and_execute   = "medium"
+    high_fetch_command_val = "low"
+    possible_dropper       = "harmless"
+
+  condition:
+    filesize < 1024 and (hash.sha256(0, filesize) == "316d9c447de581287bf6912947999327360677eae7c51cd62b708f664198f032")
 }

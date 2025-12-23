@@ -1,6 +1,7 @@
 rule timeout_eval: critical {
   meta:
     description = "evaluate code dynamically using eval() after timeout"
+    filetypes   = "js,ts"
 
   strings:
     $ref = /setTimeout\(.{0,64}eval\([\w\(\,\)\;\*\}]{0,32}/ fullword

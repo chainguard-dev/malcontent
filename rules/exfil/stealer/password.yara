@@ -17,6 +17,9 @@ rule password_finder_mimipenguin: critical {
     $not_basic_auth_example = /\w{0,32}\:[Pp]assword/
     $not_caddy              = "//starting caddy process"
     $not_datadog            = /[Dd]ata[Dd]og/
+    $not_vim1               = "\" Vim support file to detect file types"
+    $not_vim2               = "\" Maintainer:           The Vim Project <https://github.com/vim/vim>"
+    $not_vim3               = "@vim.org>"
 
   condition:
     filesize < 2MB and 3 of ($base*) and any of ($extra*) and none of ($not*)
