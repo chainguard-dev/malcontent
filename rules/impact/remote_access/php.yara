@@ -1,6 +1,7 @@
 rule php_possible_backdoor: critical {
   meta:
     description = "Decodes and evaluates code"
+    filetypes   = "php"
 
   strings:
     $php             = "<?php"
@@ -41,6 +42,7 @@ rule php_eval_base64_decode: critical {
 rule php_executor: critical {
   meta:
     description = "calls shell_exec and get_current_user"
+    filetypes   = "php"
 
   strings:
     $php          = "<?php"
@@ -54,6 +56,7 @@ rule php_executor: critical {
 rule php_bin_hashbang: critical {
   meta:
     description = "PHP code that references hash-bangs and remotely supplied content"
+    filetypes   = "php"
 
   strings:
     $php     = "<?php"
@@ -69,6 +72,7 @@ rule php_bin_hashbang: critical {
 rule php_urlvar_recon_exec: critical {
   meta:
     description = "Runs programs, gets URL data, and looks up system info"
+    filetypes   = "php"
     ref         = "Backdoor.PHP.Llama"
 
   strings:
@@ -92,8 +96,9 @@ rule php_urlvar_recon_exec: critical {
 
 rule php_system_to_perl {
   meta:
-    ref         = "kinsing"
     description = "Launches Perl from PHP"
+    filetypes   = "php,pl"
+    ref         = "kinsing"
 
   strings:
     $php         = "<?php"
@@ -105,7 +110,8 @@ rule php_system_to_perl {
 
 rule php_eval_gzinflate_base64_backdoor: critical {
   meta:
-    ref = "xoxo"
+    filetypes = "php"
+    ref       = "xoxo"
 
   strings:
     $f_eval          = "eval("
@@ -129,6 +135,7 @@ rule php_eval_gzinflate_base64_backdoor: critical {
 rule php_obfuscated_with_hex_characters: high {
   meta:
     description = "PHP obfuscated with multiple hex characters"
+    filetypes   = "php"
 
   strings:
     $php         = "<?php"
@@ -146,6 +153,7 @@ rule php_obfuscated_with_hex_characters: high {
 rule php_base64_eval_uname: critical {
   meta:
     description = "PHP code that calls eval, uname, and base64_decode"
+    filetypes   = "php"
 
   strings:
     $f_php           = "<?php"
@@ -163,6 +171,7 @@ rule php_base64_eval_uname: critical {
 rule php_post_system: medium {
   meta:
     description = "Accepts GET/POST variables, executes code"
+    filetypes   = "php"
 
   strings:
     $php         = "<?php"
@@ -182,6 +191,7 @@ rule php_post_system: medium {
 rule php_error_reporting_disable: high {
   meta:
     description = "sets configuration, turns off error reporting"
+    filetypes   = "php"
 
   strings:
     $error_reporting = "error_reporting(0)"
@@ -194,6 +204,7 @@ rule php_error_reporting_disable: high {
 rule php_system_manipulation: high {
   meta:
     description = "multiple forms of system manipulation"
+    filetypes   = "php"
 
   strings:
     $php            = "<?php"
@@ -214,6 +225,7 @@ rule php_system_manipulation: high {
 rule php_system_hex: critical {
   meta:
     description = "runs hex-obfuscated command-lines"
+    filetypes   = "php"
 
   strings:
     $system_hex = "system(\"\\x"
@@ -241,6 +253,7 @@ rule php_insecure_curl_uploader: high {
 rule php_eval_get_contents: high {
   meta:
     description = "PHP code that may evaluate remote file contents"
+    filetypes   = "php"
 
   strings:
     $php                   = "<?php"
@@ -256,6 +269,7 @@ rule php_eval_get_contents: high {
 rule php_is_jpeg: critical {
   meta:
     description = "PHP script embedded within JPEG file"
+    filetypes   = "jpg,jpeg,php"
 
   strings:
     $jfif        = "JFIF"
@@ -280,6 +294,7 @@ rule php_copy_files: high {
 rule php_base64_encoded: critical {
   meta:
     description = "accepts POST/COOKIE input and uses base64"
+    filetypes   = "php"
 
   strings:
     $php           = "<?php " base64
@@ -295,6 +310,7 @@ rule php_base64_encoded: critical {
 rule php_run_obfuscated: critical {
   meta:
     description = "accepts input and runs obfuscated code"
+    filetypes   = "php"
 
   strings:
     $f_str_replace      = "str_replace"

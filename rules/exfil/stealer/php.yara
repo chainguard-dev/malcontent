@@ -1,6 +1,7 @@
 rule php_uploader: medium {
   meta:
     description = "PHP script that accepts requests and uploads content"
+    filetypes   = "php"
 
   strings:
     $php           = "<?php"

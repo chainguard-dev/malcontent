@@ -291,6 +291,11 @@ func makeFileType(path string, ext string, mime string) *FileType {
 // isLikelyShellScript determines if file content is likely a shell script
 // and focuses on multiple criteria to reduce false-positives.
 func isLikelyShellScript(fc []byte, path string) bool {
+	// ignore files that contain shell-like strings but are configuration files
+	if bytes.Contains(fc, []byte("type: policy")) && strings.Contains(path, ".policy") {
+		return false
+	}
+
 	if slices.ContainsFunc(shellShebangs, func(shebang []byte) bool {
 		return bytes.HasPrefix(fc, shebang)
 	}) {

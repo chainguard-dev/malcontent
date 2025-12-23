@@ -64,8 +64,10 @@ rule iplookup_website_base64: critical {
     $iplogger_b  = "iplogger.org" base64
     $wtfismyip_b = "wtfismyip" base64
 
+    $not_cookiemonster = /github.com\/iangcarroll\/cookiemonster@v.*\/pkg\/monster\/wordlist.go/
+
   condition:
-    any of them
+    any of them and none of ($not*)
 }
 
 rule iplookup_website_xor: critical {

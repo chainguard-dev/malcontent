@@ -1,6 +1,7 @@
 rule dll_injection: high {
   meta:
     description = "injects a DLL into other processes"
+    filetypes   = "dll,pe,ps1"
 
   strings:
     $prog_rundll          = "rundll32"
@@ -13,6 +14,7 @@ rule dll_injection: high {
 rule dll_injection_js: critical {
   meta:
     description = "injects a DLL into other processes from javascript"
+    filetypes   = "js,ts"
 
   strings:
     $f_child_proc = "require('child_process');"
