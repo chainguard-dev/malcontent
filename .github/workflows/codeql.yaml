@@ -18,7 +18,7 @@ permissions: {}
 jobs:
   analyze:
     if: ${{ github.repository }} == 'chainguard-dev/malcontent'
-    runs-on: mal-ubuntu-latest-8-core
+    runs-on: ubuntu-latest-16-core
     permissions:
       actions: read
       contents: read
