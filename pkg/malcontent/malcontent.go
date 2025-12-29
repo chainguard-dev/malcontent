@@ -44,6 +44,7 @@ type Config struct {
 	Scan                  bool
 	ScanPaths             []string
 	ScoreAll              bool
+	Sensitivity           int
 	Stats                 bool
 	TrimPrefixes          []string
 }

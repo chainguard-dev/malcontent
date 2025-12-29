@@ -17,7 +17,7 @@ permissions:
 jobs:
   test:
     if: ${{ github.repository }} == 'chainguard-dev/malcontent'
-    runs-on: mal-ubuntu-latest-8-core
+    runs-on: ubuntu-latest-16-core
     container:
       image: cgr.dev/chainguard/wolfi-base:latest
       options: >-
@@ -26,12 +26,12 @@ jobs:
         --cap-add SETUID
         --cap-drop ALL
         --cgroupns private
-        --cpu-shares=8192
+        --cpu-shares=16384
         --memory-swappiness=0
         --security-opt no-new-privileges
         --ulimit core=0
-        --ulimit nofile=4096:4096
-        --ulimit nproc=4096:4096
+        --ulimit nofile=65535:65535
+        --ulimit nproc=65535:65535
     steps:
       - name: Install dependencies
         run: |
@@ -52,7 +52,7 @@ jobs:
 
   integration:
     if: ${{ github.repository }} == 'chainguard-dev/malcontent'
-    runs-on: mal-ubuntu-latest-8-core
+    runs-on: ubuntu-latest-16-core
     container:
       image: cgr.dev/chainguard/wolfi-base:latest
       options: >-
@@ -61,12 +61,12 @@ jobs:
         --cap-add SETUID
         --cap-drop ALL
         --cgroupns private
-        --cpu-shares=8192
+        --cpu-shares=16384
         --memory-swappiness=0
         --security-opt no-new-privileges
         --ulimit core=0
-        --ulimit nofile=4096:4096
-        --ulimit nproc=4096:4096
+        --ulimit nofile=65535:65535
+        --ulimit nproc=65535:65535
     steps:
       - name: Install dependencies
         run: |
@@ -87,7 +87,7 @@ jobs:
 
   fuzz:
     if: ${{ github.repository }} == 'chainguard-dev/malcontent'
-    runs-on: mal-ubuntu-latest-8-core
+    runs-on: ubuntu-latest-16-core
     container:
       image: cgr.dev/chainguard/wolfi-base:latest
       options: >-
@@ -96,12 +96,12 @@ jobs:
         --cap-add SETUID
         --cap-drop ALL
         --cgroupns private
-        --cpu-shares=8192
+        --cpu-shares=16384
         --memory-swappiness=0
         --security-opt no-new-privileges
         --ulimit core=0
-        --ulimit nofile=4096:4096
-        --ulimit nproc=4096:4096
+        --ulimit nofile=65535:65535
+        --ulimit nproc=65535:65535
     steps:
       - name: Install dependencies
         run: |
