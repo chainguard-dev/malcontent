@@ -68,6 +68,7 @@ var (
 	outputFlag                string
 	profileFlag               bool
 	quantityIncreasesRiskFlag bool
+	sensitivityFlag           int
 	scoreAllFlag              bool
 	statsFlag                 bool
 	thirdPartyFlag            bool
@@ -516,10 +517,20 @@ func main() {
 						Destination: &scoreAllFlag,
 						Local:       true,
 					},
+					&cli.IntFlag{
+						Name:        "sensitivity",
+						Aliases:     []string{"sens"},
+						Value:       5,
+						Usage:       "Control the sensitivity when diffing two files, paths, etc.",
+						Destination: &sensitivityFlag,
+						Local:       true,
+					},
 				},
 				Action: func(ctx context.Context, c *cli.Command) error {
+					sensitivity := c.Int("sensitivity")
+
 					switch {
-					case c.Bool("file-risk-change"):
+					case c.Bool("file-risk-change"), sensitivity == 1:
 						mc.FileRiskChange = true
 					case c.Bool("file-risk-increase"):
 						mc.FileRiskIncrease = true
@@ -527,6 +538,7 @@ func main() {
 						mc.ScoreAll = true
 					default:
 					}
+
 					// Allow for images to be scanned with the file risk flags
 					if c.Bool("image") {
 						mc.OCI = true
@@ -535,6 +547,7 @@ func main() {
 						mc.Report = true
 					}
 
+					mc.Sensitivity = sensitivity
 					mc.ScanPaths = c.Args().Slice()
 
 					res, err = action.Diff(ctx, mc, log)

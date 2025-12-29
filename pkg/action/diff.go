@@ -711,21 +711,150 @@ func fileMove(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileR
 	d.Modified.Set(apath, abs)
 }
 
+// behavior represents the parsed components of a behavior ID.
+// e.g., "anti-static/base64/eval" -> objective="anti-static", resource="base64", technique="eval".
+type behavior struct {
+	objective string
+	resource  string
+	technique string
+}
+
+// Sensitivity levels:
+// 1: Only display a diff if the file's risk score changes (equivalent to FileRiskChange)
+// 2: Only display a diff if the file's objective changes (e.g., anti-static -> c2)
+// 3: Only display a diff if the file's resource changes (e.g., base64 -> binary)
+// 4: Only display a diff if the file's technique changes (e.g., eval -> exec)
+// 5: Display all files in a diff (default, no filtering)
+const (
+	CHANGE = iota + 1
+	OBJECTIVE
+	RESOURCE
+	TECHNIQUE
+	ALL
+)
+
+// parseBehaviorID parses a behavior ID into its component parts.
+func parseBehaviorID(id string) behavior {
+	parts := strings.Split(id, "/")
+	bc := behavior{}
+
+	switch len(parts) {
+	case 1:
+		bc.objective = parts[0]
+	case 2:
+		bc.objective = parts[0]
+		bc.resource = parts[1]
+	default:
+		if len(parts) >= 3 {
+			bc.objective = parts[0]
+			bc.resource = parts[1]
+			bc.technique = strings.Join(parts[2:], "/")
+		}
+	}
+
+	return bc
+}
+
+// extractBehaviors extracts unique components at the specified sensitivity level from behaviors.
+func extractBehaviors(behaviors []*malcontent.Behavior, sensitivity int) map[string]bool {
+	components := make(map[string]bool)
+
+	for _, b := range behaviors {
+		if b == nil {
+			continue
+		}
+
+		bc := parseBehaviorID(b.ID)
+
+		switch sensitivity {
+		case OBJECTIVE:
+			if bc.objective != "" {
+				components[bc.objective] = true
+			}
+		case RESOURCE:
+			if bc.objective != "" && bc.resource != "" {
+				key := fmt.Sprintf("%s/%s", bc.objective, bc.resource)
+				components[key] = true
+			} else if bc.objective != "" {
+				components[bc.objective] = true
+			}
+		case TECHNIQUE:
+			if b.ID != "" {
+				components[b.ID] = true
+			}
+		}
+	}
+
+	return components
+}
+
+// behaviorsChanged checks if there are any differences between source and destination behaviors at the specified sensitivity level.
+func behaviorsChanged(fr, tr *malcontent.FileReport, sensitivity int) bool {
+	sb := extractBehaviors(fr.Behaviors, sensitivity)
+	db := extractBehaviors(tr.Behaviors, sensitivity)
+
+	for bc := range db {
+		if !sb[bc] {
+			return true
+		}
+	}
+
+	for bc := range sb {
+		if !db[bc] {
+			return true
+		}
+	}
+
+	return false
+}
+
 // filterDiff returns a boolean dictating whether a diff report should be ignored depending on the following conditions:
-// `true` when passing `--file-risk-change` and the source risk score matches the destination risk score
+// `true` when passing `--file-risk-change` or --sensitivity=1 and the source risk score matches the destination risk score
 // `true` when passing `--file-risk-increase` and the source risk score is equal to or greater than the destination risk score
+// `true` when passing --sensitivity=2/3/4 and no changes at the corresponding level (objective/resource/technique)
 // `false` otherwise.
 func filterDiff(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileReport) bool {
 	if ctx.Err() != nil {
 		return false
 	}
 
+	var (
+		change    = c.FileRiskChange || c.Sensitivity == CHANGE
+		equalRisk = fr.RiskScore == tr.RiskScore
+		lessRisk  = fr.RiskScore >= tr.RiskScore
+	)
+
 	switch {
-	case c.FileRiskChange && fr.RiskScore == tr.RiskScore:
-		clog.FromContext(ctx).Info("dropping result because diff scores were the same", slog.Any("paths", fmt.Sprintf("%s (%d) %s (%d)", fr.Path, fr.RiskScore, tr.Path, tr.RiskScore)))
+	case c.Sensitivity == ALL:
+		return false
+	case c.Sensitivity == TECHNIQUE:
+		if !behaviorsChanged(fr, tr, TECHNIQUE) {
+			clog.FromContext(ctx).Info("dropping result because no technique-level changes detected",
+				slog.Any("paths", fmt.Sprintf("%s -> %s", fr.Path, tr.Path)))
+			return true
+		}
+		return false
+	case c.Sensitivity == RESOURCE:
+		if !behaviorsChanged(fr, tr, RESOURCE) {
+			clog.FromContext(ctx).Info("dropping result because no resource-level changes detected",
+				slog.Any("paths", fmt.Sprintf("%s -> %s", fr.Path, tr.Path)))
+			return true
+		}
+		return false
+	case c.Sensitivity == OBJECTIVE:
+		if !behaviorsChanged(fr, tr, OBJECTIVE) {
+			clog.FromContext(ctx).Info("dropping result because no objective-level changes detected",
+				slog.Any("paths", fmt.Sprintf("%s -> %s", fr.Path, tr.Path)))
+			return true
+		}
+		return false
+	case change && equalRisk:
+		clog.FromContext(ctx).Info("dropping result because diff scores were the same",
+			slog.Any("paths", fmt.Sprintf("%s (%d) %s (%d)", fr.Path, fr.RiskScore, tr.Path, tr.RiskScore)))
 		return true
-	case c.FileRiskIncrease && fr.RiskScore >= tr.RiskScore:
-		clog.FromContext(ctx).Info("dropping result because old score was the same or higher than the new score", slog.Any("paths ", fmt.Sprintf("%s (%d) %s (%d)", fr.Path, fr.RiskScore, tr.Path, tr.RiskScore)))
+	case c.FileRiskIncrease && lessRisk:
+		clog.FromContext(ctx).Info("dropping result because old score was the same or higher than the new score",
+			slog.Any("paths ", fmt.Sprintf("%s (%d) %s (%d)", fr.Path, fr.RiskScore, tr.Path, tr.RiskScore)))
 		return true
 	default:
 		return false
