@@ -85,6 +85,7 @@ var supportedKind = map[string]string{
 	"mm":      "text/x-objectivec",
 	"md":      "",
 	"o":       "application/octet-stream",
+	"pdf":     "",
 	"pe":      "application/vnd.microsoft.portable-executable",
 	"php":     "text/x-php",
 	"pl":      "text/x-perl",
@@ -94,17 +95,20 @@ var supportedKind = map[string]string{
 	"pyc":     "application/x-python-code",
 	"rb":      "text/x-ruby",
 	"rs":      "text/x-rust",
+	"rst":     "",
 	"scpt":    "application/x-applescript",
 	"scptd":   "application/x-applescript",
 	"script":  "text/x-generic-script",
 	"service": "text/x-systemd",
 	"sh":      "text/x-shellscript",
 	"so":      "application/x-sharedlib",
+	"texi":    "",
 	"ts":      "application/typescript",
 	"txt":     "",
 	"upx":     "application/x-upx",
 	"vbs":     "text/x-vbscript",
 	"vim":     "text/x-vim",
+	"xml":     "application/xml",
 	"yaml":    "",
 	"yara":    "",
 	"yml":     "",
@@ -257,7 +261,8 @@ func makeFileType(path string, ext string, mime string) *FileType {
 
 	if strings.HasSuffix(path, "pnpm-lock.yaml") ||
 		strings.HasSuffix(path, "pnpm-workspace.yaml") ||
-		strings.HasSuffix(path, "yarn.lock") {
+		strings.HasSuffix(path, "yarn.lock") ||
+		strings.HasSuffix(path, ".policy") {
 		return &FileType{
 			Ext:  ext,
 			MIME: "application/x-yaml",
@@ -291,11 +296,6 @@ func makeFileType(path string, ext string, mime string) *FileType {
 // isLikelyShellScript determines if file content is likely a shell script
 // and focuses on multiple criteria to reduce false-positives.
 func isLikelyShellScript(fc []byte, path string) bool {
-	// ignore files that contain shell-like strings but are configuration files
-	if bytes.Contains(fc, []byte("type: policy")) && strings.Contains(path, ".policy") {
-		return false
-	}
-
 	if slices.ContainsFunc(shellShebangs, func(shebang []byte) bool {
 		return bytes.HasPrefix(fc, shebang)
 	}) {
