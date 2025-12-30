@@ -302,6 +302,10 @@ func makeFileType(path string, ext string, mime string) *FileType {
 // isLikelyShellScript determines if a file's content resembles a shell script
 // and focuses on multiple criteria to reduce false-positives.
 func isLikelyShellScript(fc []byte, path string) bool {
+	if isLikelyManPage(path) {
+		return false
+	}
+
 	if slices.ContainsFunc(shellShebangs, func(shebang []byte) bool {
 		return bytes.HasPrefix(fc, shebang)
 	}) {
@@ -431,7 +435,7 @@ func File(ctx context.Context, path string) (*FileType, error) {
 		return Path(".py"), nil
 	case bytes.Contains(fc, []byte(" = require(")):
 		return Path(".js"), nil
-	case isLikelyShellScript(fc, path) && !isLikelyManPage(path):
+	case isLikelyShellScript(fc, path):
 		return Path(".sh"), nil
 	case bytes.HasPrefix(fc, []byte("#!")):
 		return Path(".script"), nil
