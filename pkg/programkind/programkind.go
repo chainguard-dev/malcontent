@@ -15,6 +15,7 @@ import (
 	"regexp"
 	"runtime"
 	"slices"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -121,24 +122,28 @@ type FileType struct {
 }
 
 var (
+	ZMagic = []byte{0x78, 0x5E} // Z magic bytes
+	// default, partial MIME types we want to consider as valid by default.
+	defaultMIME = []string{
+		"application",
+		"executable",
+		"text/x-",
+	}
+	elfMagic       = []byte{0x7f, 'E', 'L', 'F'} // ELF magic bytes
+	gzipMagic      = []byte{0x1f, 0x8b}          // gZip magic bytes
 	headerPool     *pool.BufferPool
 	initializeOnce sync.Once
-	versionRegex   = regexp.MustCompile(`\d+\.\d+\.\d+$`)
-	// Magic byte constants for common file signatures.
-	elfMagic      = []byte{0x7f, 'E', 'L', 'F'}
-	gzipMagic     = []byte{0x1f, 0x8b}
-	ZMagic        = []byte{0x78, 0x5E}
-	shellShebangs = [][]byte{
-		[]byte("#!/bin/ash"),
-		[]byte("#!/bin/bash"),
-		[]byte("#!/bin/dash"),
-		[]byte("#!/bin/fish"),
-		[]byte("#!/bin/ksh"),
-		[]byte("#!/bin/sh"),
-		[]byte("#!/bin/zsh"),
-		[]byte("#!/usr/bin/env bash"),
-		[]byte("#!/usr/bin/env sh"),
-		[]byte("#!/usr/bin/env zsh"),
+	// supported NPM JSON extensions or file names we want to avoid classifying as data files.
+	npmJSON = []string{
+		".js.map",
+		"package-lock.json",
+		"package.json",
+	}
+	// supported NPM YAML file names we want to avoid classsifying as data files.
+	npmYAML = []string{
+		"pnpm-lock.yaml",
+		"pnpm-workspace.yaml",
+		"yarn.lock",
 	}
 	shellPatterns = [][]byte{
 		[]byte("; then\n"),
@@ -160,6 +165,19 @@ var (
 		[]byte("set -o "),
 		[]byte("export PATH"),
 	}
+	shellShebangs = [][]byte{
+		[]byte("#!/bin/ash"),
+		[]byte("#!/bin/bash"),
+		[]byte("#!/bin/dash"),
+		[]byte("#!/bin/fish"),
+		[]byte("#!/bin/ksh"),
+		[]byte("#!/bin/sh"),
+		[]byte("#!/bin/zsh"),
+		[]byte("#!/usr/bin/env bash"),
+		[]byte("#!/usr/bin/env sh"),
+		[]byte("#!/usr/bin/env zsh"),
+	}
+	versionRegex = regexp.MustCompile(`\d+\.\d+\.\d+$`)
 )
 
 // IsSupportedArchive returns whether a path can be processed by our archive extractor.
@@ -251,49 +269,37 @@ func makeFileType(path string, ext string, mime string) *FileType {
 		return &FileType{Ext: ext, MIME: mime}
 	}
 
-	// typically, JSON and YAML files are data files only scanned via --all, but we want to support the NPM ecosystem
-	if strings.HasSuffix(path, "package.json") || strings.HasSuffix(path, "package-lock.json") || strings.Contains(path, ".js.map") {
-		return &FileType{
-			Ext:  ext,
-			MIME: "application/json",
-		}
-	}
-
-	if strings.HasSuffix(path, "pnpm-lock.yaml") ||
-		strings.HasSuffix(path, "pnpm-workspace.yaml") ||
-		strings.HasSuffix(path, "yarn.lock") ||
-		strings.HasSuffix(path, ".policy") {
-		return &FileType{
-			Ext:  ext,
-			MIME: "application/x-yaml",
-		}
-	}
-
-	if supportedKind[ext] == "" {
+	switch {
+	// by default, JSON files will not have a defined MIME type,
+	// but we want to specifically target the NPM ecosystem
+	// using --all or --include-data-files will override these distinctions
+	case containsSuffix(path, npmJSON):
+		return &FileType{Ext: ext, MIME: "application/json"}
+	// by default, YAML files will also not have a defined MIME type,
+	// but we want to specifically target the NPM ecosystem
+	// using --all or --include-data-files will override these distinctions
+	case containsSuffix(path, npmYAML):
+		return &FileType{Ext: ext, MIME: "application/x-yaml"}
+	// the ordering of this statement is important
+	// placing it first would prevent the preceding JSON/YAML statemments from taking effect
+	case supportedKind[ext] == "":
+		return nil
+	// the follwing statements are not at risk of being preempted by the preceding statement
+	// fix mimetype bug that defaults elf binaries to x-sharedlib
+	case mime == "application/x-sharedlib" && !strings.Contains(path, ".so"):
+		return Path(".elf")
+	// fix mimetype bug that detects certain .js files as shellscript
+	case mime == "text/x-shellscript" && strings.Contains(path, ".js"):
+		return Path(".js")
+	// treat all other MIME types as valid
+	case containsValue(mime, defaultMIME):
+		return &FileType{Ext: ext, MIME: mime}
+	default:
 		return nil
 	}
-
-	// fix mimetype bug that defaults elf binaries to x-sharedlib
-	if mime == "application/x-sharedlib" && !strings.Contains(path, ".so") {
-		return Path(".elf")
-	}
-
-	// fix mimetype bug that detects certain .js files as shellscript
-	if mime == "text/x-shellscript" && strings.Contains(path, ".js") {
-		return Path(".js")
-	}
-
-	if strings.Contains(mime, "application") || strings.Contains(mime, "text/x-") || strings.Contains(mime, "executable") {
-		return &FileType{
-			Ext:  ext,
-			MIME: mime,
-		}
-	}
-
-	return nil
 }
 
-// isLikelyShellScript determines if file content is likely a shell script
+// isLikelyShellScript determines if a file's content resembles a shell script
 // and focuses on multiple criteria to reduce false-positives.
 func isLikelyShellScript(fc []byte, path string) bool {
 	if slices.ContainsFunc(shellShebangs, func(shebang []byte) bool {
@@ -321,6 +327,31 @@ func isLikelyShellScript(fc []byte, path string) bool {
 	}
 
 	return false
+}
+
+// isLikelyManPage checks a file's path and its extension to determine
+// if it is a man page (e.g., usr/share/man/man7/parallel_examples.7).
+func isLikelyManPage(path string) bool {
+	if strings.Contains(path, "usr/share/man/") {
+		if _, err := strconv.Atoi(strings.TrimPrefix(GetExt(path), ".")); err == nil {
+			return true
+		}
+	}
+	return false
+}
+
+// containsSuffix determines whether a value contains any of the specified strings as a suffix.
+func containsSuffix(value string, slice []string) bool {
+	return slices.ContainsFunc(slice, func(s string) bool {
+		return strings.HasSuffix(value, s)
+	})
+}
+
+// containsValue determines whether a value contains any of the specified substrings.
+func containsValue(value string, slice []string) bool {
+	return slices.ContainsFunc(slice, func(s string) bool {
+		return strings.Contains(value, s)
+	})
 }
 
 // File detects what kind of program this file might be.
@@ -380,16 +411,18 @@ func File(ctx context.Context, path string) (*FileType, error) {
 
 	pathExt := strings.TrimPrefix(GetExt(path), ".")
 
-	if _, pathExtKnown := supportedKind[pathExt]; pathExtKnown {
-		return nil, nil
-	}
-
-	if mime == "application/octet-stream" && len(pathExt) >= 2 {
-		return nil, nil
-	}
+	_, pathExtKnown := supportedKind[pathExt]
 
 	// Content-based detection for files with no recognized extension or mimetype
 	switch {
+	// if we track an extension in our supportedKind map and the files's type is still nil,
+	// return nil (e.g., valid JSON or YAML files that we want to treat as data files by default)
+	case pathExtKnown:
+		return nil, nil
+	case mime == "application/octet-stream" && len(pathExt) >= 2:
+		return nil, nil
+	case strings.Contains(mime, "text/plain") && isLikelyManPage(path):
+		return nil, nil
 	case bytes.HasPrefix(fc, elfMagic):
 		return Path(".elf"), nil
 	case bytes.Contains(fc, []byte("<?php")):
@@ -398,7 +431,7 @@ func File(ctx context.Context, path string) (*FileType, error) {
 		return Path(".py"), nil
 	case bytes.Contains(fc, []byte(" = require(")):
 		return Path(".js"), nil
-	case isLikelyShellScript(fc, path):
+	case isLikelyShellScript(fc, path) && !isLikelyManPage(path):
 		return Path(".sh"), nil
 	case bytes.HasPrefix(fc, []byte("#!")):
 		return Path(".script"), nil
@@ -410,9 +443,9 @@ func File(ctx context.Context, path string) (*FileType, error) {
 		return Path(".gzip"), nil
 	case bytes.HasPrefix(fc, ZMagic):
 		return Path(".Z"), nil
+	default:
+		return nil, nil
 	}
-
-	return nil, nil
 }
 
 func initializeHeaderPool() {
