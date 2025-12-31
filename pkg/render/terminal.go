@@ -136,14 +136,32 @@ func (r Terminal) Full(ctx context.Context, _ *malcontent.Config, rep *malconten
 			continue
 		}
 
+		// Count added and removed behaviors
+		var added, removed int
+		for _, b := range modified.Value.Behaviors {
+			if b.DiffAdded {
+				added++
+			}
+			if b.DiffRemoved {
+				removed++
+			}
+		}
+
+		if added == 0 && removed == 0 {
+			continue
+		}
+
 		var moved bool
 		var title string
-		if modified.Value.PreviousPath != "" && modified.Value.PreviousRelPathScore >= 0.9 {
+		if modified.Value.PreviousPath != "" {
 			moved = true
-			title = fmt.Sprintf(riskColor(modified.Value.PreviousRiskLevel, "Moved: %s -> %s (score: %f)"), modified.Value.PreviousPath, modified.Value.Path, modified.Value.PreviousRelPathScore)
-		} else if modified.Value.RiskScore != modified.Value.PreviousRiskScore {
-			title = fmt.Sprintf("%s %s", title,
-				darkBrackets(fmt.Sprintf("%s %s %s", riskInColor(modified.Value.PreviousRiskLevel), color.HiWhiteString("→"), riskInColor(modified.Value.RiskLevel))))
+			title = fmt.Sprintf(riskColor(modified.Value.PreviousRiskLevel, "Moved (%d added, %d removed): %s -> %s"), added, removed, modified.Value.PreviousPath, modified.Value.Path)
+		} else {
+			title = fmt.Sprintf(riskColor(modified.Value.RiskLevel, "Changed (%d added, %d removed): %s"), added, removed, modified.Value.Path)
+			if modified.Value.RiskScore != modified.Value.PreviousRiskScore {
+				title = fmt.Sprintf("%s %s", title,
+					darkBrackets(fmt.Sprintf("%s %s %s", riskInColor(modified.Value.PreviousRiskLevel), color.HiWhiteString("→"), riskInColor(modified.Value.RiskLevel))))
+			}
 		}
 
 		renderFileSummary(ctx, modified.Value, r.w, tableConfig{Title: title}, moved)

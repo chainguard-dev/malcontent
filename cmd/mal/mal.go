@@ -69,7 +69,6 @@ var (
 	profileFlag               bool
 	quantityIncreasesRiskFlag bool
 	sensitivityFlag           int
-	scoreAllFlag              bool
 	statsFlag                 bool
 	thirdPartyFlag            bool
 	verboseFlag               bool
@@ -510,13 +509,6 @@ func main() {
 						Destination: &diffReportFlag,
 						Local:       true,
 					},
-					&cli.BoolFlag{
-						Name:        "score-all",
-						Value:       false,
-						Usage:       "Compute the Levenshtein distance for all source and destination paths (warning: experimental and slow!)",
-						Destination: &scoreAllFlag,
-						Local:       true,
-					},
 					&cli.IntFlag{
 						Name:        "sensitivity",
 						Aliases:     []string{"sens"},
@@ -534,8 +526,6 @@ func main() {
 						mc.FileRiskChange = true
 					case c.Bool("file-risk-increase"):
 						mc.FileRiskIncrease = true
-					case c.Bool("score-all"):
-						mc.ScoreAll = true
 					default:
 					}
 

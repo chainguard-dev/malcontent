@@ -114,8 +114,8 @@ func (r Simple) Full(ctx context.Context, _ *malcontent.Config, rep *malcontent.
 			continue
 		}
 
-		if modified.Value.PreviousRelPath != "" && modified.Value.PreviousRelPathScore >= 0.9 {
-			fmt.Fprintf(r.w, ">>> moved: %s -> %s (score: %f)\n", modified.Value.PreviousPath, modified.Value.Path, modified.Value.PreviousRelPathScore)
+		if modified.Value.PreviousPath != "" {
+			fmt.Fprintf(r.w, ">>> moved (%d added, %d removed): %s -> %s\n", added, removed, modified.Value.PreviousPath, modified.Value.Path)
 		} else {
 			fmt.Fprintf(r.w, "*** changed (%d added, %d removed): %s\n", added, removed, modified.Value.Path)
 		}

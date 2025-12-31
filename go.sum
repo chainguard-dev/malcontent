@@ -1,7 +1,5 @@
 github.com/VirusTotal/yara-x/go v1.10.0 h1:m9etz6DhriZYlTyynnsi1sw4basIseuC5G6K/VBWZSY=
 github.com/VirusTotal/yara-x/go v1.10.0/go.mod h1:lgXP/nkYX349MVowrtTtU5hzMdCOWQLv3+wKll9+0F8=
-github.com/agext/levenshtein v1.2.3 h1:YB2fHEn0UJagG8T1rrWknE3ZQzWM06O8AMAatNn7lmo=
-github.com/agext/levenshtein v1.2.3/go.mod h1:JEDfjyjHDjOF/1e4FlBE/PkbqA9OfWu2ki2W0IB5558=
 github.com/aymanbagabas/go-osc52/v2 v2.0.1 h1:HwpRHbFMcZLEVr42D4p7XBqjyuxQH5SMiErDT4WkJ2k=
 github.com/aymanbagabas/go-osc52/v2 v2.0.1/go.mod h1:uYgXzlJ7ZpABp8OJ+exZzJJhRNQ2ASbcXHWsFqH8hp8=
 github.com/bahlo/generic-list-go v0.2.0 h1:5sz/EEAK+ls5wF+NeqDpk5+iNdMDXrh3z3nPnH1Wvgk=
@@ -51,6 +49,8 @@ github.com/ebitengine/purego v0.9.1 h1:a/k2f2HQU3Pi399RPW1MOaZyhKJL9w/xFpKAg4q1s
 github.com/ebitengine/purego v0.9.1/go.mod h1:iIjxzd6CiRiOG0UyXP+V1+jWqUXVjPKLAI0mRfJZTmQ=
 github.com/egibs/go-debian v0.19.0 h1:Evvogj5KRLrYhFzMpzeEvYFtXJH8wlCyhPM028plKvQ=
 github.com/egibs/go-debian v0.19.0/go.mod h1:4XUFCjQ5x9cup/tvXjTM9K7SzPokY1ke6EAwKiIzSlY=
+github.com/egibs/reconcile v0.1.1 h1:lQWeiqJJ3lSv/S87swh4CLAm/g73Sfoq3GbIHvbS3ME=
+github.com/egibs/reconcile v0.1.1/go.mod h1:k50Yw8ZAhL06S31E8b/J+Vdkn+MyLqi07InSWfNIGYc=
 github.com/erikgeiser/coninput v0.0.0-20211004153227-1c3628e74d0f h1:Y/CXytFA4m6baUTXGLOoWe4PQhGxaX0KpnayAqC48p4=
 github.com/erikgeiser/coninput v0.0.0-20211004153227-1c3628e74d0f/go.mod h1:vw97MGsxSvLiUE2X8qFplwetxpGLQrlU1Q9AUEIzCaM=
 github.com/fatih/color v1.18.0 h1:S8gINlzdQ840/4pfAwic/ZE0djQEH3wM94VfqLTZcOM=
