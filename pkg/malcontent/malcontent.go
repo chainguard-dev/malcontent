@@ -43,7 +43,6 @@ type Config struct {
 	Rules                 *yarax.Rules
 	Scan                  bool
 	ScanPaths             []string
-	ScoreAll              bool
 	Sensitivity           int
 	Stats                 bool
 	TrimPrefixes          []string

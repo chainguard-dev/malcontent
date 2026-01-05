@@ -4,7 +4,6 @@ go 1.25.0
 
 require (
 	github.com/VirusTotal/yara-x/go v1.10.0
-	github.com/agext/levenshtein v1.2.3
 	github.com/cavaliergopher/cpio v1.0.1
 	github.com/cavaliergopher/rpm v1.3.0
 	github.com/chainguard-dev/clog v1.8.0
@@ -13,6 +12,7 @@ require (
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/cosnicolaou/pbzip2 v1.0.6
 	github.com/egibs/go-debian v0.19.0
+	github.com/egibs/reconcile v0.1.1
 	github.com/fatih/color v1.18.0
 	github.com/gabriel-vasile/mimetype v1.4.12
 	github.com/google/go-cmp v0.7.0
