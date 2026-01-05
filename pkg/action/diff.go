@@ -399,14 +399,44 @@ func handleDir(ctx context.Context, c malcontent.Config, src, dest ScanResult, d
 	// Fast O(n+m) reconciliation with identity-based matching
 	result := files.Diff(srcPaths, destPaths)
 
-	// Process reconciliation results
+	// Collect all entries for deterministic sorting
+	// The reconcile package uses concurrency, so initial order is non-deterministic
+	type diffEntry struct {
+		status   files.Status
+		entry    files.Entry
+		sortKey  string
+		srcPath  string
+		destPath string
+	}
+
+	entries := make([]diffEntry, 0, len(result.E))
 	for status, entry := range result.All() {
+		var sortKey, srcPath, destPath string
 		switch status {
 		case files.Unchanged, files.Updated:
-			srcPath := srcPaths[entry.Old]
-			destPath := destPaths[entry.New]
-			srcFr := srcFiles[srcPath]
-			destFr := destFiles[destPath]
+			srcPath = srcPaths[entry.Old]
+			destPath = destPaths[entry.New]
+			sortKey = destPath
+		case files.Removed:
+			srcPath = srcPaths[entry.Old]
+			sortKey = srcPath
+		case files.Added:
+			destPath = destPaths[entry.New]
+			sortKey = destPath
+		}
+		entries = append(entries, diffEntry{status, entry, sortKey, srcPath, destPath})
+	}
+
+	// Sort entries by path for deterministic output
+	slices.SortFunc(entries, func(a, b diffEntry) int {
+		return strings.Compare(a.sortKey, b.sortKey)
+	})
+
+	for _, e := range entries {
+		switch e.status {
+		case files.Unchanged, files.Updated:
+			srcFr := srcFiles[e.srcPath]
+			destFr := destFiles[e.destPath]
 
 			if filterDiff(ctx, c, srcFr, destFr) {
 				continue
@@ -415,18 +445,16 @@ func handleDir(ctx context.Context, c malcontent.Config, src, dest ScanResult, d
 			rpath := formatReportKey(src, srcFr, isReport)
 			apath := formatReportKey(dest, destFr, isReport)
 			// Determine whether this is a move (Updated) vs change (Unchanged)
-			isMoved := status == files.Updated
+			isMoved := e.status == files.Updated
 			fileDiff(ctx, c, srcFr, destFr, rpath, apath, d, src, dest, archiveOrImage, isReport, isMoved)
 
 		case files.Removed:
-			srcPath := srcPaths[entry.Old]
-			srcFr := srcFiles[srcPath]
+			srcFr := srcFiles[e.srcPath]
 			removed := formatReportKey(src, srcFr, isReport)
 			d.Removed.Set(removed, srcFr)
 
 		case files.Added:
-			destPath := destPaths[entry.New]
-			destFr := destFiles[destPath]
+			destFr := destFiles[e.destPath]
 			added := formatReportKey(dest, destFr, isReport)
 			d.Added.Set(added, destFr)
 		}
