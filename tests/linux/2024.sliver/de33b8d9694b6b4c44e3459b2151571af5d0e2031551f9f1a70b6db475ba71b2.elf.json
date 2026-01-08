@@ -26,10 +26,10 @@
                     ],
                     "RiskScore": 4,
                     "RiskLevel": "CRITICAL",
-                    "RuleURL": "https://github.com/Neo23x0/signature-base/blob/7c07dc26303ccf056c9ef623fada89458b331e7b/yara/gen_gobfuscate.yar#L2-L18",
+                    "RuleURL": "https://github.com/Neo23x0/signature-base/blob/42eae6fef41552e3faa3b3f82166ff4eecba9146/yara/gen_gobfuscate.yar#L2-L18",
                     "ReferenceURL": "https://github.com/unixpickle/gobfuscate",
                     "RuleAuthor": "James Quinn, Paul Hager (merged with new similar pattern)",
-                    "RuleLicenseURL": "https://github.com/Neo23x0/signature-base/blob/7c07dc26303ccf056c9ef623fada89458b331e7b/LICENSE",
+                    "RuleLicenseURL": "https://github.com/Neo23x0/signature-base/blob/42eae6fef41552e3faa3b3f82166ff4eecba9146/LICENSE",
                     "ID": "3P/sig_base/susp_gobfuscate",
                     "RuleName": "SIGNATURE_BASE_SUSP_Gobfuscate_May21"
                 },
