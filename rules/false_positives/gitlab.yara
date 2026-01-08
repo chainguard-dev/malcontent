@@ -27,3 +27,19 @@ rule fetch_command: override {
   condition:
     filesize < 1024 and (hash.sha256(0, filesize) == "316d9c447de581287bf6912947999327360677eae7c51cd62b708f664198f032")
 }
+
+rule vscode_extension: override {
+  meta:
+    description                  = "browser.js"
+    leveldb_exfil                = "harmless"
+    slack_leveldb                = "harmless"
+    unsigned_bitwise_math_excess = "medium"
+
+  strings:
+    $secretEntry     = /\{description\:\".*\",id\:\".*\",regex\:.*,(secretGroup\:\d{1},){0,1}keywords\:\[.*\]\}/
+    $secretRedactor1 = "_ge=(0,gge.createInterfaceId)(\"SecretRedactor\")"
+    $secretRedactor2 = "this.#t=Vt(t,\"[SecretRedactor]\")"
+
+  condition:
+    filesize < 3MB and #secretEntry > 0 and all of ($secretRedactor*)
+}
