@@ -1,5 +1,4 @@
 # linux/2024.TellYouThePass/uranus-ack-mike-cat: critical
-3P/arkbird/solg_ran_elf: critical
 anti-behavior/random_behavior: low
 c2/addr/ip: high
 collect/databases/mysql: medium
