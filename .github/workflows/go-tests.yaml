@@ -36,7 +36,7 @@ jobs:
       - name: Install dependencies
         run: |
           apk update
-          apk add curl findutils git go nodejs upx xz yara-x
+          apk add curl findutils git go nodejs upx xz yara-x~1.10.0
 
       - name: Checkout code
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -71,7 +71,7 @@ jobs:
       - name: Install dependencies
         run: |
           apk update
-          apk add curl findutils git go nodejs upx xz yara-x
+          apk add curl findutils git go nodejs upx xz yara-x~1.10.0
 
       - name: Checkout code
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -106,7 +106,7 @@ jobs:
       - name: Install dependencies
         run: |
           apk update
-          apk add curl findutils git go nodejs upx xz yara-x
+          apk add curl findutils git go nodejs upx xz yara-x~1.10.0
 
       - name: Checkout code
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
