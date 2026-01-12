@@ -12,7 +12,7 @@ require (
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/cosnicolaou/pbzip2 v1.0.6
 	github.com/egibs/go-debian v0.19.1
-	github.com/egibs/reconcile v0.1.1
+	github.com/egibs/reconcile v0.2.0
 	github.com/fatih/color v1.18.0
 	github.com/gabriel-vasile/mimetype v1.4.12
 	github.com/google/go-cmp v0.7.0

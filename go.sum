@@ -49,8 +49,8 @@ github.com/ebitengine/purego v0.9.1 h1:a/k2f2HQU3Pi399RPW1MOaZyhKJL9w/xFpKAg4q1s
 github.com/ebitengine/purego v0.9.1/go.mod h1:iIjxzd6CiRiOG0UyXP+V1+jWqUXVjPKLAI0mRfJZTmQ=
 github.com/egibs/go-debian v0.19.1 h1:96QHIfmuIobAq6dFJEuryQTLat96sXWFc1OntVBtlng=
 github.com/egibs/go-debian v0.19.1/go.mod h1:6pIeUAuaPWoh6lyPBgxAY9eU7IO8PUWv+s53uCOskyY=
-github.com/egibs/reconcile v0.1.1 h1:lQWeiqJJ3lSv/S87swh4CLAm/g73Sfoq3GbIHvbS3ME=
-github.com/egibs/reconcile v0.1.1/go.mod h1:k50Yw8ZAhL06S31E8b/J+Vdkn+MyLqi07InSWfNIGYc=
+github.com/egibs/reconcile v0.2.0 h1:h6I6nginPdp4S9yEQeDt+U0Yk2Nn0xApLwQs5ytkKqg=
+github.com/egibs/reconcile v0.2.0/go.mod h1:k50Yw8ZAhL06S31E8b/J+Vdkn+MyLqi07InSWfNIGYc=
 github.com/erikgeiser/coninput v0.0.0-20211004153227-1c3628e74d0f h1:Y/CXytFA4m6baUTXGLOoWe4PQhGxaX0KpnayAqC48p4=
 github.com/erikgeiser/coninput v0.0.0-20211004153227-1c3628e74d0f/go.mod h1:vw97MGsxSvLiUE2X8qFplwetxpGLQrlU1Q9AUEIzCaM=
 github.com/fatih/color v1.18.0 h1:S8gINlzdQ840/4pfAwic/ZE0djQEH3wM94VfqLTZcOM=
