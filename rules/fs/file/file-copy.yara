@@ -14,7 +14,7 @@ rule file_copy_cp: medium {
     description = "copy files using cp"
 
   strings:
-    $ref = /cp [-\w ]{0,2}[ \$\w\/\.\-]{0,32}/ fullword
+    $ref = /cp [\-\w ]{0,2}[ \$\w\/\.\-]{0,}/ fullword
 
   condition:
     any of them
@@ -25,7 +25,7 @@ rule file_copy_force: medium {
     description = "forcibly copy files using cp -f"
 
   strings:
-    $ref = /cp [-\w ]{0,2}f [ \$\w\/\.\-]{0,32}/ fullword
+    $ref = /cp \-f [ \$\w\/\.\-]{0,}/ fullword
 
   condition:
     any of them
