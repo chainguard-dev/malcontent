@@ -80,7 +80,6 @@ os/sync/semaphore_user: low
 persist/daemon: medium
 persist/launchd/launch_agent: medium
 privesc/setuid: low
-process/chdir: low
 process/create: low
 process/groupid_set: low
 process/groups_set: low
