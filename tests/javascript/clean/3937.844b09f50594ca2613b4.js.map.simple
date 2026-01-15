@@ -6,3 +6,4 @@ fs/file/copy: medium
 fs/file/delete: medium
 net/download/fetch: medium
 net/url/embedded: low
+process/chdir: low

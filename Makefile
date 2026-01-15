@@ -48,18 +48,23 @@ $(GOLANGCI_LINT_BIN):
 	mv $(LINT_ROOT)/out/linters/golangci-lint $@
 
 YARA_X_REPO ?= virusTotal/yara-x
-YARA_X_VERSION ?= v1.10.0
-YARA_X_COMMIT ?= 04817dd2ec529b71af47722a473bbdb2db65b15d
+YARA_X_VERSION ?= v1.11.0
+YARA_X_COMMIT ?= 3fe7b380da183d9fcae8d37030fc602c18225687
 YARA_X_SHA :=
 ifeq ($(LINT_OS),Darwin)
 	ifeq ($(shell uname -m),arm64)
 		LINT_ARCH = aarch64
-		YARA_X_SHA = 90d21c292e582c05febf64d149dbdf02616800c91cc6a9737426cff7a7922e64
+		YARA_X_SHA = 6d2f549fedb8e2f5b5804dab0f03f0cc390953ff238c1bb5dfe6a9ad747640a2
 	else
-		YARA_X_SHA = 73f0d99c534f6b8fbf30473000933085f3f2f0c47cb024e4283d53b2cc9cea64
+		YARA_X_SHA = e4e902171f649f02788f2098ac6c7d67f70b400b7e5346c7f4f70847b5dc9740
 	endif
-else
-	YARA_X_SHA = 361a880b38729647db53d1e7360d46af2416b08ddcc443fbb440f73c6cb1a90a
+else ifeq ($(LINT_OS),Linux)
+	ifeq ($(shell uname -m),arm64)
+		LINT_ARCH = aarch64
+		YARA_X_SHA = 327c23f795ae4fe167adf97e5fea001d048d1e2200db15d44caa79292bc64f1a
+	else
+		YARA_X_SHA = 5e1dd056550248375c8bf1232696027ea5036da1fc5ee2db9a74babc94deaa4c
+	endif
 endif
 YARA_X_BIN := $(LINT_ROOT)/out/linters/yr-$(YARA_X_VERSION)-$(LINT_ARCH)
 $(YARA_X_BIN):
@@ -116,7 +121,7 @@ out/$(YARA_X_REPO)/.git/commit-$(YARA_X_COMMIT):
 	test -d out/$(YARA_X_REPO)/.git ||git clone https://github.com/$(YARA_X_REPO).git out/$(YARA_X_REPO)
 	rm out/$(YARA_X_REPO)/.git/commit-* 2>/dev/null || true
 	git -C out/$(YARA_X_REPO) switch - || true
-	git -C out/$(YARA_X_REPO) pull
+	git -C out/$(YARA_X_REPO) pull --rebase --autostash
 	git -C out/$(YARA_X_REPO) checkout $(YARA_X_COMMIT)
 	touch out/$(YARA_X_REPO)/.git/commit-$(YARA_X_COMMIT)
 

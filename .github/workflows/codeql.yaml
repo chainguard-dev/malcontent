@@ -36,7 +36,7 @@ jobs:
           fetch-tags: true
           repository: virusTotal/yara-x
           path: yara-x
-          ref: refs/tags/v1.10.0
+          ref: refs/tags/v1.11.0
       - name: Install Rust for yara-x-capi
         uses: dtolnay/rust-toolchain@e97e2d8cc328f1b50210efc529dca0028893a2d9
         with:

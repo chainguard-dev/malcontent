@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"runtime/debug"
 	"strings"
 	"unicode/utf8"
 
@@ -292,13 +293,33 @@ func saveCachedRules(compiledRules *yarax.Rules, cacheFile string) error {
 	return nil
 }
 
+// getYaraXVersion returns the yara-x module version from build info.
+// This is used to invalidate the cache when yara-x is updated.
+func getYaraXVersion() string {
+	info, ok := debug.ReadBuildInfo()
+	if !ok {
+		return "unknown"
+	}
+	for _, dep := range info.Deps {
+		if dep.Path == "github.com/VirusTotal/yara-x/go" {
+			return dep.Version
+		}
+	}
+	return "unknown"
+}
+
 // getRulesHash computes a hash of the rule sources for cache validation.
+// It includes the yara-x version to ensure cache invalidation when
+// yara-x is updated with incompatible serialization format changes.
 func getRulesHash(ctx context.Context, fss []fs.FS) (string, error) {
 	if ctx.Err() != nil {
 		return "", ctx.Err()
 	}
 
 	hasher := sha256.New()
+
+	// Include yara-x version in hash to invalidate cache on version changes
+	hasher.Write([]byte(getYaraXVersion()))
 
 	for _, fsys := range fss {
 		err := fs.WalkDir(fsys, ".", func(path string, d fs.DirEntry, err error) error {

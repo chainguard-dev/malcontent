@@ -1049,6 +1049,17 @@
                     "RuleName": "_access"
                 },
                 {
+                    "Description": "copy files using cp",
+                    "MatchStrings": [
+                        "cp registry.example.com/library/ubuntu"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-copy.yara#file_copy_cp",
+                    "ID": "fs/file/copy",
+                    "RuleName": "file_copy_cp"
+                },
+                {
                     "Description": "deletes files",
                     "MatchStrings": [
                         "unlinkat"
