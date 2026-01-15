@@ -1,5 +1,5 @@
-github.com/VirusTotal/yara-x/go v1.10.0 h1:m9etz6DhriZYlTyynnsi1sw4basIseuC5G6K/VBWZSY=
-github.com/VirusTotal/yara-x/go v1.10.0/go.mod h1:lgXP/nkYX349MVowrtTtU5hzMdCOWQLv3+wKll9+0F8=
+github.com/VirusTotal/yara-x/go v1.11.0 h1:5p6wTzf9OyEsz7PtvvqSu+fe/dSku5lTYI8udTLN9tg=
+github.com/VirusTotal/yara-x/go v1.11.0/go.mod h1:lgXP/nkYX349MVowrtTtU5hzMdCOWQLv3+wKll9+0F8=
 github.com/aymanbagabas/go-osc52/v2 v2.0.1 h1:HwpRHbFMcZLEVr42D4p7XBqjyuxQH5SMiErDT4WkJ2k=
 github.com/aymanbagabas/go-osc52/v2 v2.0.1/go.mod h1:uYgXzlJ7ZpABp8OJ+exZzJJhRNQ2ASbcXHWsFqH8hp8=
 github.com/bahlo/generic-list-go v0.2.0 h1:5sz/EEAK+ls5wF+NeqDpk5+iNdMDXrh3z3nPnH1Wvgk=
