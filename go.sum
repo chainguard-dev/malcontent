@@ -49,8 +49,8 @@ github.com/ebitengine/purego v0.9.1 h1:a/k2f2HQU3Pi399RPW1MOaZyhKJL9w/xFpKAg4q1s
 github.com/ebitengine/purego v0.9.1/go.mod h1:iIjxzd6CiRiOG0UyXP+V1+jWqUXVjPKLAI0mRfJZTmQ=
 github.com/egibs/go-debian v0.19.1 h1:96QHIfmuIobAq6dFJEuryQTLat96sXWFc1OntVBtlng=
 github.com/egibs/go-debian v0.19.1/go.mod h1:6pIeUAuaPWoh6lyPBgxAY9eU7IO8PUWv+s53uCOskyY=
-github.com/egibs/reconcile v0.2.0 h1:h6I6nginPdp4S9yEQeDt+U0Yk2Nn0xApLwQs5ytkKqg=
-github.com/egibs/reconcile v0.2.0/go.mod h1:k50Yw8ZAhL06S31E8b/J+Vdkn+MyLqi07InSWfNIGYc=
+github.com/egibs/reconcile v0.2.1 h1:r0e9VgnjsWXuq6EX64sss2vHUC4uX3I3n6YiHZKvSVU=
+github.com/egibs/reconcile v0.2.1/go.mod h1:isDFUotFCiXvvTawDoa3PtidRq2tTpUbupfmQ50YWk4=
 github.com/erikgeiser/coninput v0.0.0-20211004153227-1c3628e74d0f h1:Y/CXytFA4m6baUTXGLOoWe4PQhGxaX0KpnayAqC48p4=
 github.com/erikgeiser/coninput v0.0.0-20211004153227-1c3628e74d0f/go.mod h1:vw97MGsxSvLiUE2X8qFplwetxpGLQrlU1Q9AUEIzCaM=
 github.com/fatih/color v1.18.0 h1:S8gINlzdQ840/4pfAwic/ZE0djQEH3wM94VfqLTZcOM=
@@ -103,10 +103,10 @@ github.com/olekukonko/cat v0.0.0-20250911104152-50322a0618f6 h1:zrbMGy9YXpIeTnGj
 github.com/olekukonko/cat v0.0.0-20250911104152-50322a0618f6/go.mod h1:rEKTHC9roVVicUIfZK7DYrdIoM0EOr8mK1Hj5s3JjH0=
 github.com/olekukonko/errors v1.1.0 h1:RNuGIh15QdDenh+hNvKrJkmxxjV4hcS50Db478Ou5sM=
 github.com/olekukonko/errors v1.1.0/go.mod h1:ppzxA5jBKcO1vIpCXQ9ZqgDh8iwODz6OXIGKU8r5m4Y=
-github.com/olekukonko/ll v0.1.3 h1:sV2jrhQGq5B3W0nENUISCR6azIPf7UBUpVq0x/y70Fg=
-github.com/olekukonko/ll v0.1.3/go.mod h1:b52bVQRRPObe+yyBl0TxNfhesL0nedD4Cht0/zx55Ew=
-github.com/olekukonko/tablewriter v1.1.2 h1:L2kI1Y5tZBct/O/TyZK1zIE9GlBj/TVs+AY5tZDCDSc=
-github.com/olekukonko/tablewriter v1.1.2/go.mod h1:z7SYPugVqGVavWoA2sGsFIoOVNmEHxUAAMrhXONtfkg=
+github.com/olekukonko/ll v0.1.4-0.20260115111900-9e59c2286df0 h1:jrYnow5+hy3WRDCBypUFvVKNSPPCdqgSXIE9eJDD8LM=
+github.com/olekukonko/ll v0.1.4-0.20260115111900-9e59c2286df0/go.mod h1:b52bVQRRPObe+yyBl0TxNfhesL0nedD4Cht0/zx55Ew=
+github.com/olekukonko/tablewriter v1.1.3 h1:VSHhghXxrP0JHl+0NnKid7WoEmd9/urKRJLysb70nnA=
+github.com/olekukonko/tablewriter v1.1.3/go.mod h1:9VU0knjhmMkXjnMKrZ3+L2JhhtsQ/L38BbL3CRNE8tM=
 github.com/opencontainers/go-digest v1.0.0 h1:apOUWs51W5PlhuyGyz9FCeeBIOUDA/6nW8Oi/yOhh5U=
 github.com/opencontainers/go-digest v1.0.0/go.mod h1:0JzlMkj0TRzQZfJkVvzbP0HBR3IKzErnv2BNG4W4MAM=
 github.com/opencontainers/image-spec v1.1.1 h1:y0fUlFfIZhPF1W537XOLg0/fcx6zcHCJwooC2xJA040=
