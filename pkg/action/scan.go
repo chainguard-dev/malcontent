@@ -409,7 +409,7 @@ func processPaths(ctx context.Context, paths []string, scanInfo scanPathInfo, c 
 	defer cancel()
 
 	go func() {
-		<-ctx.Done()
+		<-scanCtx.Done()
 		logger.Debug("parent context canceled, stopping scan")
 		cancel()
 	}()

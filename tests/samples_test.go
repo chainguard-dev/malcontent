@@ -26,6 +26,7 @@ import (
 	"github.com/chainguard-dev/malcontent/rules"
 	thirdparty "github.com/chainguard-dev/malcontent/third_party"
 	"github.com/google/go-cmp/cmp"
+	"go.uber.org/goleak"
 
 	yarax "github.com/VirusTotal/yara-x/go"
 )
@@ -682,4 +683,8 @@ func Template(b *testing.B, paths []string) func() {
 		}
 	}
 	return bench
+}
+
+func TestMain(m *testing.M) {
+	goleak.VerifyTestMain(m)
 }
