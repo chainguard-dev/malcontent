@@ -104,7 +104,7 @@ var supportedKind = map[string]string{
 	"service": "text/x-systemd",
 	"sh":      "text/x-shellscript",
 	"so":      "application/x-sharedlib",
-	"sqlite":  "application/vnd.sqlite3",
+	"sqlite":  "",
 	"texi":    "",
 	"ts":      "application/typescript",
 	"txt":     "",
