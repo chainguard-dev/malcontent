@@ -14,7 +14,8 @@ rule killer_miner_panchansminingisland: critical {
 
     $not_pypi_index = "testpack-id-lb001"
     $not_vale       = "github.com/errata-ai/vale"
+    $zxcvbn         = "zxcvbn"
 
   condition:
-    filesize < 120MB and 6 of them and none of ($not*)
+    filesize < 120MB and 6 of them and none of ($not*) and #zxcvbn == 0
 }
