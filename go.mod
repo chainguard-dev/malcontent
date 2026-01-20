@@ -23,7 +23,7 @@ require (
 	github.com/olekukonko/tablewriter v1.1.3
 	github.com/shirou/gopsutil/v4 v4.25.12
 	github.com/ulikunitz/xz v0.5.15
-	github.com/urfave/cli/v3 v3.6.1
+	github.com/urfave/cli/v3 v3.6.2
 	github.com/wk8/go-ordered-map/v2 v2.1.8
 	golang.org/x/sync v0.19.0
 	golang.org/x/term v0.39.0

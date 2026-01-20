@@ -14,7 +14,7 @@ rule obfuscated_caller_base64_str_replace: critical {
     $i = "'b'.'ase'.'6'.'4"
     $j = "'bas'.'e'.'6'.'4"
 
-    $not_unrelated1 = "_bias_eb604"
+    $not_unrelated1 = "libcublas_"
 
   condition:
     any of them and none of ($not*)
