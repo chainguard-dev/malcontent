@@ -10,7 +10,7 @@ Of course! That's why I created this repo.
 
 You can use them in your detection systems. For example, [CAPE sandbox](https://github.com/kevoreilly/CAPEv2), [MalwareBazaar](https://bazaar.abuse.ch/), [UnPac.me](https://www.unpac.me/) and [VirusTotal](https://www.virustotal.com/) (must be logged in, signup is free) and others are using these rules. Furthermore, the rules can work natively with [AssemblyLine](https://www.cyber.gc.ca/en/tools-services/assemblyline) due to the CCCS Yara rule standard adoption.
 
-All rules are TLP:White, so you can use and distribute them freely. Please retain the meta. 
+All rules are TLP:CLEAR, so you can use and distribute them freely. Please retain the meta. 
 
 ## Help! A generic rule is hitting my software!
 If one of the rules in the [generic](https://github.com/bartblaze/Yara-rules/tree/master/rules/generic) rules section hits on your software: this is not a false positive. It is simply an objective fact that, for example, your software has been compiled or wrapped using AutoIT. It equally does **not** mean your software is malicious. 
@@ -33,8 +33,8 @@ There's two workflows running on this Github repository:
 ## Minimum Yara version needed?
 **v3.3.0** is minimally needed, as some rules may require a specific module. Note that it's recommended to always use the latest Yara version as found [here](https://github.com/VirusTotal/yara/releases). Yara 4.5.5, likely the last release to be available, works without issue.
 
-## Do the rules work with Yara-X?
-[Yara-X](https://github.com/VirusTotal/yara-x), a rewrite of Yara in Rust, should have no difficulty running the rules in this repo. At time of writing, Yara-X v0.6.0 works fine with the rules presented here.
+## Do the rules work with YARA-X?
+[Yara-X](https://github.com/VirusTotal/yara-x), a rewrite of Yara in Rust, has no difficulty running the rules in this repo. At time of writing, YARA-X v1.x and above works fine with the rules presented here.
 
 ## Feedback?
 If you spot an issue or improvement with one of the rules, feel free to submit a PR or open an Issue.
@@ -50,7 +50,7 @@ More information: https://yara.readthedocs.io/en/stable/index.html
 ## What is TLP?
 > The Traffic Light Protocol (TLP) was created in order to facilitate greater sharing of information.
 
-The rules in this repo are TLP:CLEAR.
+The rules in this repo are TLP:CLEAR (TLP:CLEAR was previously known as TLP:WHITE).
 > Recipients may share this information without restriction. Information is subject to standard copyright rules.
 
 More information: https://www.us-cert.gov/tlp
