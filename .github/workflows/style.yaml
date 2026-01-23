@@ -3,8 +3,7 @@
 
 name: Code Style
 
-permissions:
-  contents: read
+permissions: {}
 
 on:
   pull_request:
@@ -18,6 +17,8 @@ jobs:
   yrcompile:
     name: check yr compile
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
@@ -41,6 +42,8 @@ jobs:
   yrfmt:
     name: check yr fmt
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
@@ -70,6 +73,8 @@ jobs:
   gofmt:
     name: check gofmt
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
@@ -94,6 +99,8 @@ jobs:
   goimports:
     name: check goimports
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
@@ -116,6 +123,8 @@ jobs:
   golangci-lint:
     name: golangci-lint
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     container:
       image: cgr.dev/chainguard/wolfi-base:latest
       options: >-

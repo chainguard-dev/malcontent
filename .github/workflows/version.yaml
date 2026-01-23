@@ -16,7 +16,7 @@ env:
 
 jobs:
   version:
-    if: ${{ github.repository }} == 'chainguard-dev/malcontent'
+    if: ${{ github.repository == 'chainguard-dev/malcontent' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
