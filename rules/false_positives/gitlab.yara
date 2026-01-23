@@ -37,9 +37,9 @@ rule vscode_extension: override {
 
   strings:
     $secretEntry     = /\{description\:\".*\",id\:\".*\",regex\:.*,(secretGroup\:\d{1},){0,1}keywords\:\[.*\]\}/
-    $secretRedactor1 = "_ge=(0,gge.createInterfaceId)(\"SecretRedactor\")"
-    $secretRedactor2 = "this.#t=Vt(t,\"[SecretRedactor]\")"
+    $secretRedactor1 = "(\"SecretRedactor\")"
+    $secretRedactor2 = "[SecretRedactor]"
 
   condition:
-    filesize < 3MB and #secretEntry > 0 and all of ($secretRedactor*)
+    filesize < 3MB and all of them
 }
