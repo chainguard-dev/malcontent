@@ -6,14 +6,15 @@ rule fake_kworker: critical linux {
     $kworker1 = /\[{0,1}kworker\/[\w\%:\-\]]{1,16}/
     $kworker2 = "[kworker"
 
-    $not_dockworker      = "dockworker/MS"
-    $not_f2fs_h1         = "* fs/f2fs/f2fs.h"
-    $not_f2fs_h2         = "#ifndef _LINUX_F2FS_H"
-    $not_f2fs_h3         = "#define _LINUX_F2FS_H"
-    $not_rescue          = "kworker/R-%s"
-    $not_psutil_comment1 = "root           4   0.0    0.0B    0.0B   -20   idle  Mar27  00:00  kworker/0:0H"
-    $not_psutil_comment2 = "root       20414   0.0    0.0B    0.0B         idle  Apr04  00:00  kworker/4:2"
-    $not_psutil_comment3 = "root       22338   0.0    0.0B    0.0B         idle  02:04  00:00  kworker/1:2"
+    $not_bpftrace_comment1 = " * 03:14:49 496    kworker/1:0H     md0"
+    $not_dockworker        = "dockworker/MS"
+    $not_f2fs_h1           = "* fs/f2fs/f2fs.h"
+    $not_f2fs_h2           = "#ifndef _LINUX_F2FS_H"
+    $not_f2fs_h3           = "#define _LINUX_F2FS_H"
+    $not_rescue            = "kworker/R-%s"
+    $not_psutil_comment1   = "root           4   0.0    0.0B    0.0B   -20   idle  Mar27  00:00  kworker/0:0H"
+    $not_psutil_comment2   = "root       20414   0.0    0.0B    0.0B         idle  Apr04  00:00  kworker/4:2"
+    $not_psutil_comment3   = "root       22338   0.0    0.0B    0.0B         idle  02:04  00:00  kworker/1:2"
 
   condition:
     filesize < 100MB and any of ($kworker*) and none of ($not*)
