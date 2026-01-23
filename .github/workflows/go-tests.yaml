@@ -11,13 +11,14 @@ on:
     branches:
       - "main"
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   test:
-    if: ${{ github.repository }} == 'chainguard-dev/malcontent'
+    if: ${{ github.repository == 'chainguard-dev/malcontent' }}
     runs-on: ubuntu-latest-16-core
+    permissions:
+      contents: read
     container:
       image: cgr.dev/chainguard/wolfi-base:latest
       options: >-
@@ -51,8 +52,10 @@ jobs:
           make test
 
   integration:
-    if: ${{ github.repository }} == 'chainguard-dev/malcontent'
+    if: ${{ github.repository == 'chainguard-dev/malcontent' }}
     runs-on: ubuntu-latest-16-core
+    permissions:
+      contents: read
     container:
       image: cgr.dev/chainguard/wolfi-base:latest
       options: >-
@@ -86,8 +89,10 @@ jobs:
           make integration
 
   fuzz:
-    if: ${{ github.repository }} == 'chainguard-dev/malcontent'
+    if: ${{ github.repository == 'chainguard-dev/malcontent' }}
     runs-on: ubuntu-latest-16-core
+    permissions:
+      contents: read
     container:
       image: cgr.dev/chainguard/wolfi-base:latest
       options: >-

@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   update:
-    if: ${{ github.repository }} == 'chainguard-dev/malcontent'
+    if: ${{ github.repository == 'chainguard-dev/malcontent' }}
     runs-on: ubuntu-latest-16-core
     container:
       image: cgr.dev/chainguard/wolfi-base:latest
