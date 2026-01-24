@@ -13,6 +13,7 @@ rule EE_Dropper
         author = "@bartblaze"
         description = "Identifies dropper, EXE dropping and loading 3 CAB files, as seen in Earth Estries campaign."
         category = "MALWARE"
+        reference = "https://bartblaze.blogspot.com/2025/10/earth-estries-alive-and-kicking.html"
         hash = "3822207529127eb7bdf2abc41073f6bbe4cd6e9b95d78b6d7dd04f42d643d2c3"
 
 	strings:

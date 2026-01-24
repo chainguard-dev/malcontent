@@ -6,7 +6,7 @@ rule GhostShell_SharePoint
         fingerprint = "v1_sha256_f5b1a1f487e7af2f315825c0a6657a84088bbfcdf57f3523de14c36e608bf287"
         version = "1.0"
         date = "2025-07-25"
-        modified = "2025-07-25"
+        modified = "2026-01-23"
         status = "RELEASED"
         sharing = "TLP:CLEAR"
         source = "BARTBLAZE"
@@ -33,7 +33,7 @@ rule GhostShell_SharePoint
 
 
     condition:
-        $aspx and any of ($cmd_*) and any of ($layout_*) or
+        ($aspx and any of ($cmd_*) and any of ($layout_*)) or
         dotnet.guids[0]=="5497bdc1-57e4-4c5b-81eb-9dc7ca8b5aec" or
         dotnet.guids[0]=="cbcef74f-0a3d-4d87-8c6a-7044755c24f8"
 }
