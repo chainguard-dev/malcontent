@@ -12,6 +12,7 @@ rule EE_Loader
         author = "@bartblaze"
         description = "Identifies loader used by Earth Estries."
         category = "MALWARE"
+        reference = "https://bartblaze.blogspot.com/2025/10/earth-estries-alive-and-kicking.html"
         hash = "5e062fee5b8ff41b7dd0824f0b93467359ad849ecf47312e62c9501b4096ccda"
 
 	strings:
