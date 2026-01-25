@@ -144,18 +144,7 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 
-		// Update viewport to show both content and errors
-		var displayContent []string
-		displayContent = append(displayContent, m.content...)
-		// if len(m.errors) > 0 {
-		// 	if len(displayContent) > 0 {
-		// 		displayContent = append(displayContent, "")
-		// 	}
-		// 	displayContent = append(displayContent, "Errors:")
-		// 	displayContent = append(displayContent, m.errors...)
-		// }
-
-		m.viewport.SetContent(strings.Join(displayContent, "\n"))
+		m.viewport.SetContent(strings.Join(m.content, "\n"))
 		m.viewport.GotoBottom()
 		return m, cmd
 

@@ -15,13 +15,6 @@ LINT_OS := $(shell uname)
 LINT_OS_LOWER := $(shell echo $(LINT_OS) | tr '[:upper:]' '[:lower:]')
 LINT_ROOT := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
-# shellcheck and hadolint lack arm64 native binaries: rely on x86-64 emulation
-ifeq ($(LINT_OS),Darwin)
-	ifeq ($(LINT_ARCH),arm64)
-		LINT_ARCH=x86_64
-	endif
-endif
-
 # yara-x adds an additional string for the platform (apple, unknown)
 LINT_PLATFORM :=
 ifeq ($(LINT_OS),Darwin)
@@ -39,7 +32,7 @@ LINTERS :=
 FIXERS :=
 
 GOLANGCI_LINT_CONFIG := $(LINT_ROOT)/.golangci.yml
-GOLANGCI_LINT_VERSION ?= v2.6.1
+GOLANGCI_LINT_VERSION ?= v2.8.0
 GOLANGCI_LINT_BIN := $(LINT_ROOT)/out/linters/golangci-lint-$(GOLANGCI_LINT_VERSION)-$(LINT_ARCH)
 $(GOLANGCI_LINT_BIN):
 	mkdir -p $(LINT_ROOT)/out/linters
@@ -261,7 +254,7 @@ refresh-sample-testdata: out/$(SAMPLES_REPO)/.decompressed-$(SAMPLES_COMMIT) out
 	./out/mal refresh
 
 ARCH ?= $(shell uname -m)
-CRANE_VERSION=v0.20.3
+CRANE_VERSION=v0.20.7
 out/crane-$(ARCH)-$(CRANE_VERSION):
 	mkdir -p out
 	GOBIN=$(CURDIR)/out go install github.com/google/go-containerregistry/cmd/crane@$(CRANE_VERSION)

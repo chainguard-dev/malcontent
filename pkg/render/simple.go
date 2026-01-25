@@ -37,11 +37,7 @@ func (r Simple) File(ctx context.Context, fr *malcontent.FileReport) error {
 		fmt.Fprintf(r.w, "# %s: %s\n", fr.Path, strings.ToLower(fr.RiskLevel))
 	}
 
-	var bs []*malcontent.Behavior
-
-	bs = append(bs, fr.Behaviors...)
-
-	for _, b := range bs {
+	for _, b := range fr.Behaviors {
 		fmt.Fprintf(r.w, "%s: %s\n", b.ID, strings.ToLower(b.RiskLevel))
 	}
 	return nil
@@ -64,10 +60,7 @@ func (r Simple) Full(ctx context.Context, _ *malcontent.Config, rep *malcontent.
 
 		fmt.Fprintf(r.w, "--- missing: %s\n", removed.Key)
 
-		var bs []*malcontent.Behavior
-		bs = append(bs, removed.Value.Behaviors...)
-
-		for _, b := range bs {
+		for _, b := range removed.Value.Behaviors {
 			fmt.Fprintf(r.w, "-%s\n", b.ID)
 		}
 	}
@@ -79,10 +72,7 @@ func (r Simple) Full(ctx context.Context, _ *malcontent.Config, rep *malcontent.
 
 		fmt.Fprintf(r.w, "+++ added: %s\n", added.Key)
 
-		var bs []*malcontent.Behavior
-		bs = append(bs, added.Value.Behaviors...)
-
-		for _, b := range bs {
+		for _, b := range added.Value.Behaviors {
 			fmt.Fprintf(r.w, "+%s\n", b.ID)
 		}
 	}
@@ -106,10 +96,7 @@ func (r Simple) Full(ctx context.Context, _ *malcontent.Config, rep *malcontent.
 			continue
 		}
 
-		var bs []*malcontent.Behavior
-		bs = append(bs, modified.Value.Behaviors...)
-
-		added, removed := count(bs)
+		added, removed := count(modified.Value.Behaviors)
 		if added == 0 && removed == 0 {
 			continue
 		}
@@ -120,7 +107,7 @@ func (r Simple) Full(ctx context.Context, _ *malcontent.Config, rep *malcontent.
 			fmt.Fprintf(r.w, "*** changed (%d added, %d removed): %s\n", added, removed, modified.Value.Path)
 		}
 
-		for _, b := range bs {
+		for _, b := range modified.Value.Behaviors {
 			if !b.DiffRemoved && !b.DiffAdded {
 				continue
 			}
