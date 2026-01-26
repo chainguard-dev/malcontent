@@ -87,7 +87,7 @@ func TestExtractionMultiple(t *testing.T) {
 			if len(dirFiles) != len(tt.want) {
 				t.Fatalf("unexpected number of files in dir: %d", len(dirFiles))
 			}
-			var got []string
+			got := make([]string, 0, len(dirFiles))
 			for _, f := range dirFiles {
 				got = append(got, f.Name())
 			}
