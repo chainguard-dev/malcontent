@@ -569,7 +569,7 @@ func main() {
 				Action: func(_ context.Context, _ *cli.Command) error {
 					cfg := refresh.Config{
 						Concurrency:  runtime.NumCPU(),
-						SamplesPath:  "./out/chainguard-dev/malcontent-samples",
+						SamplesPath:  "./out/chainguard-sandbox/malcontent-samples",
 						TestDataPath: "./tests",
 					}
 					if err := refresh.Refresh(ctx, cfg, log); err != nil {
