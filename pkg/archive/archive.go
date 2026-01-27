@@ -306,34 +306,25 @@ func handleFile(target string, tr *tar.Reader) error {
 }
 
 // handleSymlink creates valid symlinks when extracting .deb or .tar archives.
-func handleSymlink(dir, linkName, target string) error {
-	// Skip symlinks for targets that do not exist
-	_, err := os.Readlink(target)
-	if os.IsNotExist(err) {
-		return nil
+// linkPath is where the symlink will be created (relative to dir).
+// linkTarget is what the symlink points to.
+func handleSymlink(dir, linkPath, linkTarget string) error {
+	fullPath := filepath.Join(dir, linkPath)
+
+	// Validate symlink location is within extraction directory
+	if !IsValidPath(fullPath, dir) {
+		return fmt.Errorf("symlink location outside extraction directory: %s", fullPath)
 	}
 
-	fullLink := filepath.Join(dir, linkName)
-
 	// Remove existing symlinks
-	if _, err := os.Lstat(fullLink); err == nil {
-		if err := os.Remove(fullLink); err != nil {
+	if _, err := os.Lstat(fullPath); err == nil {
+		if err := os.Remove(fullPath); err != nil {
 			return fmt.Errorf("failed to remove existing symlink: %w", err)
 		}
 	}
 
-	if err := os.Symlink(target, fullLink); err != nil {
+	if err := os.Symlink(linkTarget, fullPath); err != nil {
 		return fmt.Errorf("failed to create symlink: %w", err)
-	}
-
-	linkReal, err := filepath.EvalSymlinks(fullLink)
-	if err != nil {
-		os.Remove(fullLink)
-		return fmt.Errorf("failed to evaluate symlink: %w", err)
-	}
-	if !IsValidPath(linkReal, dir) {
-		os.Remove(fullLink)
-		return fmt.Errorf("symlink points outside temporary directory: %s", linkReal)
 	}
 
 	return nil

@@ -73,7 +73,7 @@ func ExtractDeb(ctx context.Context, d, f string) error {
 				return fmt.Errorf("failed to extract file: %w", err)
 			}
 		case tar.TypeSymlink:
-			if err := handleSymlink(d, header.Linkname, target); err != nil {
+			if err := handleSymlink(d, clean, header.Linkname); err != nil {
 				return fmt.Errorf("failed to create symlink: %w", err)
 			}
 		}
