@@ -316,6 +316,17 @@ func handleSymlink(dir, linkPath, linkTarget string) error {
 		return fmt.Errorf("symlink location outside extraction directory: %s", fullPath)
 	}
 
+	// Skip absolute symlink targets
+	if filepath.IsAbs(linkTarget) {
+		return nil
+	}
+
+	// Validate relative symlink target resolves within extraction directory
+	resolvedTarget := filepath.Clean(filepath.Join(filepath.Dir(fullPath), linkTarget))
+	if !IsValidPath(resolvedTarget, dir) {
+		return fmt.Errorf("symlink target escapes extraction directory: %s -> %s", linkPath, linkTarget)
+	}
+
 	// Remove existing symlinks
 	if _, err := os.Lstat(fullPath); err == nil {
 		if err := os.Remove(fullPath); err != nil {
