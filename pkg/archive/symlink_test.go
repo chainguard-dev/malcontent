@@ -14,11 +14,10 @@ func TestSymlinkExtraction(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			// Symlinks pointing outside the directory are allowed
-			// (common in container images, e.g., /etc/mtab -> /proc/mounts)
-			name:    "symlink target outside directory is allowed",
+			// Relative symlink that escapes the extraction directory should be rejected
+			name:    "relative symlink escaping directory is rejected",
 			tarFile: "testdata/symlink_escape.tar",
-			wantErr: false,
+			wantErr: true,
 		},
 		{
 			name:    "valid symlink within directory",
@@ -52,27 +51,46 @@ func TestSymlinkExtraction(t *testing.T) {
 }
 
 func TestHandleSymlink(t *testing.T) {
-	tmpDir, err := os.MkdirTemp("", "symlink-location-test-*")
+	tmpDir, err := os.MkdirTemp("", "symlink-test-*")
 	if err != nil {
 		t.Fatalf("failed to create temp dir: %v", err)
 	}
 	defer os.RemoveAll(tmpDir)
 
-	// Symlink location that would escape should be rejected
+	// A symlink location which escapes should be rejected
 	err = handleSymlink(tmpDir, "../escape", "target")
 	if err == nil {
 		t.Error("expected error for symlink location escaping directory")
 	}
 
-	// Valid symlink location should succeed
-	err = handleSymlink(tmpDir, "valid_link", "/some/absolute/target")
+	// Absolute symlink targets are skipped (no error, no symlink created)
+	err = handleSymlink(tmpDir, "abs_link", "/some/absolute/target")
 	if err != nil {
-		t.Errorf("unexpected error for valid symlink location: %v", err)
+		t.Errorf("unexpected error for absolute symlink target: %v", err)
+	}
+	if _, err := os.Lstat(filepath.Join(tmpDir, "abs_link")); err == nil {
+		t.Error("absolute symlink should not have been created")
 	}
 
-	// Verify symlink was created
+	// A relative symlink target which escapes should be rejected
+	err = handleSymlink(tmpDir, "escape_link", "../../etc/passwd")
+	if err == nil {
+		t.Error("expected error for relative symlink target escaping directory")
+	}
+
+	// Write a file we can create a valid symlink for
+	targetFile := filepath.Join(tmpDir, "realfile.txt")
+	if err := os.WriteFile(targetFile, []byte("test"), 0o644); err != nil {
+		t.Fatalf("failed to create target file: %v", err)
+	}
+
+	// A valid relative symlink should succeed
+	err = handleSymlink(tmpDir, "valid_link", "realfile.txt")
+	if err != nil {
+		t.Errorf("unexpected error for valid symlink: %v", err)
+	}
 	linkPath := filepath.Join(tmpDir, "valid_link")
 	if _, err := os.Lstat(linkPath); err != nil {
-		t.Errorf("symlink was not created: %v", err)
+		t.Errorf("valid symlink was not created: %v", err)
 	}
 }
