@@ -80,7 +80,7 @@ func TestHandleSymlink(t *testing.T) {
 
 	// Write a file we can create a valid symlink for
 	targetFile := filepath.Join(tmpDir, "realfile.txt")
-	if err := os.WriteFile(targetFile, []byte("test"), 0o644); err != nil {
+	if err := os.WriteFile(targetFile, []byte("test"), 0o600); err != nil {
 		t.Fatalf("failed to create target file: %v", err)
 	}
 

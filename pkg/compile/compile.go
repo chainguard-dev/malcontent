@@ -248,7 +248,7 @@ func getCacheDir() (string, error) {
 		cacheDir = filepath.Join(os.TempDir(), "malcontent-cache")
 	}
 
-	if err := os.MkdirAll(cacheDir, 0o755); err != nil {
+	if err := os.MkdirAll(cacheDir, 0o700); err != nil {
 		return "", fmt.Errorf("create cache dir: %w", err)
 	}
 
@@ -274,7 +274,7 @@ func loadCachedRules(cacheFile string) (*yarax.Rules, error) {
 // saveCachedRules saves rules to a local file.
 func saveCachedRules(compiledRules *yarax.Rules, cacheFile string) error {
 	tmpFile := cacheFile + ".tmp"
-	f, err := os.OpenFile(tmpFile, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o644)
+	f, err := os.OpenFile(tmpFile, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600)
 	if err != nil {
 		return fmt.Errorf("create cache file: %w", err)
 	}

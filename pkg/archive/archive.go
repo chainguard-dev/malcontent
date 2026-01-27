@@ -129,7 +129,7 @@ func extractNestedArchive(ctx context.Context, c malcontent.Config, d string, f 
 		archivePath = fmt.Sprintf("%s%d", archivePath, time.Now().UnixNano())
 	}
 
-	if err := os.MkdirAll(archivePath, 0o755); err != nil {
+	if err := os.MkdirAll(archivePath, 0o700); err != nil {
 		return fmt.Errorf("failed to create extraction directory: %w", err)
 	}
 

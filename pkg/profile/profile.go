@@ -57,7 +57,7 @@ func StartProfiling(ctx context.Context, config *Config) (*Profiler, error) {
 		cancel:   cancel,
 	}
 
-	if err := os.MkdirAll(config.OutputDir, 0o755); err != nil {
+	if err := os.MkdirAll(config.OutputDir, 0o700); err != nil {
 		return nil, fmt.Errorf("failed to create profile directory: %w", err)
 	}
 

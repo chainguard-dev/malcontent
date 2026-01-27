@@ -55,7 +55,7 @@ func actionRefresh(ctx context.Context) ([]TestData, error) {
 			return nil, fmt.Errorf("special case input file not found: %s: %w", scan, err)
 		}
 
-		if err := os.MkdirAll(filepath.Dir(output), 0o755); err != nil {
+		if err := os.MkdirAll(filepath.Dir(output), 0o700); err != nil {
 			return nil, fmt.Errorf("create output directory: %w", err)
 		}
 
