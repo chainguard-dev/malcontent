@@ -8,11 +8,12 @@ import (
 	"path/filepath"
 
 	"github.com/chainguard-dev/clog"
+	"github.com/google/go-containerregistry/pkg/authn"
 	"github.com/google/go-containerregistry/pkg/crane"
 	v1 "github.com/google/go-containerregistry/pkg/v1"
 )
 
-func prepareImage(ctx context.Context, d string) (string, *os.File, error) {
+func prepareImage(ctx context.Context, d string, useAuth bool) (string, *os.File, error) {
 	if ctx.Err() != nil {
 		return "", nil, ctx.Err()
 	}
@@ -29,8 +30,18 @@ func prepareImage(ctx context.Context, d string) (string, *os.File, error) {
 		return "", nil, fmt.Errorf("failed to create temp file: %w", err)
 	}
 
+	// Use anonymous auth by default to avoid credential leakage.
+	// This is an upstream implementation detail in the Docker registry auth spec,
+	// but it's safer to default to anonymous auth by default.
+	opts := []crane.Option{crane.WithContext(ctx)}
+	if useAuth {
+		opts = append(opts, crane.WithAuthFromKeychain(authn.DefaultKeychain))
+	} else {
+		opts = append(opts, crane.WithAuth(authn.Anonymous))
+	}
+
 	var image v1.Image
-	if image, err = crane.Pull(d, crane.WithContext(ctx)); err != nil {
+	if image, err = crane.Pull(d, opts...); err != nil {
 		return "", nil, fmt.Errorf("failed to pull image: %w", err)
 	}
 	if err := crane.Export(image, tmpFile); err != nil {
@@ -43,9 +54,9 @@ func prepareImage(ctx context.Context, d string) (string, *os.File, error) {
 	return tmpDir, tmpFile, nil
 }
 
-// return a directory with the extracted image directories/files in it.
-func OCI(ctx context.Context, path string) (string, error) {
-	tmpDir, tmpFile, err := prepareImage(ctx, path)
+// OCI returns a directory with the extracted image directories/files in it.
+func OCI(ctx context.Context, path string, useAuth bool) (string, error) {
+	tmpDir, tmpFile, err := prepareImage(ctx, path, useAuth)
 	if err != nil {
 		return "", fmt.Errorf("failed to prepare image: %w", err)
 	}

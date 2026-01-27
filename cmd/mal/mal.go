@@ -64,6 +64,7 @@ var (
 	minFileRiskFlag           string
 	minLevelFlag              int
 	minRiskFlag               string
+	ociAuthFlag               bool
 	ociFlag                   bool
 	outputFlag                string
 	profileFlag               bool
@@ -259,6 +260,7 @@ func main() {
 				IncludeDataFiles:      includeDataFiles,
 				MinFileRisk:           minFileRisk,
 				MinRisk:               minRisk,
+				OCIAuth:               ociAuthFlag,
 				OCI:                   ociFlag,
 				QuantityIncreasesRisk: quantityIncreasesRiskFlag,
 				Renderer:              renderer,
@@ -365,6 +367,13 @@ func main() {
 				Value:       "low",
 				Usage:       "Only show results which meet the given risk level (any, low, medium, high, critical)",
 				Destination: &minRiskFlag,
+				Local:       false,
+			},
+			&cli.BoolFlag{
+				Name:        "oci-auth",
+				Value:       false,
+				Usage:       "Use Docker Keychain authentication to pull images (warning: may leak credentials to malicious registries!)",
+				Destination: &ociAuthFlag,
 				Local:       false,
 			},
 			&cli.StringFlag{

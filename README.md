@@ -68,13 +68,20 @@ GLOBAL OPTIONS:
    --min-file-risk string      Only show results for files which meet the given risk level (any, low, medium, high, critical) (default: "low")
    --min-level int             Obsoleted by --min-risk (default: -1)
    --min-risk string           Only show results which meet the given risk level (any, low, medium, high, critical) (default: "low")
+   --oci-auth                  Use Docker Keychain authentication to pull images (warning: may leak credentials to malicious registries!)
    --output string, -o string  Write output to specified file instead of stdout
    --profile, -p               Generate profile and trace files
    --quantity-increases-risk   Increase file risk score based on behavior quantity
    --stats, -s                 Show scan statistics
    --third-party               Include third-party rules which may have licensing restrictions
    --verbose                   Emit verbose logging messages to stderr
+   --help, -h                  show help
+   --version, -v               print the version
 ```
+
+> Using `--oci-auth` leverages the Docker Keychain to authenticate image pulls.  
+> This option may expose a malicious registry to sensitve auth tokens but is not materially different from other image pull mechanisms (e.g., Docker or `google/go-containerregistry` which malcontent leverages via the `crane` package).   
+> Malcontent defaults to anonymous pulls and authentication is opt-in when needing to scan OCI images from private, trusted registries.
 
 ## Modes
 

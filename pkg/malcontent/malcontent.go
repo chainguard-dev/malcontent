@@ -34,6 +34,7 @@ type Config struct {
 	MinFileRisk           int
 	MinRisk               int
 	OCI                   bool
+	OCIAuth               bool
 	Output                io.Writer
 	Processes             bool
 	QuantityIncreasesRisk bool
