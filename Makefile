@@ -1,7 +1,7 @@
 # Copyright 2024 Chainguard, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
-SAMPLES_REPO ?= chainguard-dev/malcontent-samples
+SAMPLES_REPO ?= chainguard-sandbox/malcontent-samples
 SAMPLES_COMMIT ?= f948cfd0f9d2a35a2452fe43ea4d094979652103
 
 # BEGIN: lint-install ../malcontent

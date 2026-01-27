@@ -41,8 +41,8 @@ var (
 
 func init() {
 	flag.StringVar(&sampleDir, "sample_dir",
-		"../out/chainguard-dev/malcontent-samples",
-		"root directory of sample data, typically checked out from https://github.com/chainguard-dev/malcontent-samples via 'make integration'")
+		"../out/chainguard-sandbox/malcontent-samples",
+		"root directory of sample data, typically checked out from https://github.com/chainguard-sandbox/malcontent-samples via 'make integration'")
 
 	_, me, _, _ := runtime.Caller(0) //nolint:dogsled // don't need the rest
 	testDataDir = filepath.Dir(me)
@@ -50,7 +50,7 @@ func init() {
 	fmt.Printf(">>> sample data dir: %s\n", sampleDir)
 
 	if _, err := os.Stat(sampleDir); err != nil {
-		fmt.Printf("samples directory %q does not exist - please use 'make integration' or git clone https://github.com/chainguard-dev/malcontent-samples appropriately. This path may be overridden by --sample_dir", sampleDir)
+		fmt.Printf("samples directory %q does not exist - please use 'make integration' or git clone https://github.com/chainguard-sandbox/malcontent-samples appropriately. This path may be overridden by --sample_dir", sampleDir)
 		os.Exit(1)
 	}
 
@@ -419,7 +419,7 @@ func TestDiffFileChange(t *testing.T) {
 				MinRisk:        tc.minResultScore,
 				Renderer:       simple,
 				Rules:          yrs,
-				ScanPaths:      []string{strings.TrimPrefix(tc.src, "../out/chainguard-dev/malcontent-samples/"), strings.TrimPrefix(tc.dest, "../out/chainguard-dev/malcontent-samples/")},
+				ScanPaths:      []string{strings.TrimPrefix(tc.src, "../out/chainguard-sandbox/malcontent-samples/"), strings.TrimPrefix(tc.dest, "../out/chainguard-sandbox/malcontent-samples/")},
 			}
 
 			logger := clog.New(slog.Default().Handler()).With("src", tc.src)
@@ -486,7 +486,7 @@ func TestDiffFileIncrease(t *testing.T) {
 				MinRisk:          tc.minResultScore,
 				Renderer:         simple,
 				Rules:            yrs,
-				ScanPaths:        []string{strings.TrimPrefix(tc.src, "../out/chainguard-dev/malcontent-samples/"), strings.TrimPrefix(tc.dest, "../out/chainguard-dev/malcontent-samples/")},
+				ScanPaths:        []string{strings.TrimPrefix(tc.src, "../out/chainguard-sandbox/malcontent-samples/"), strings.TrimPrefix(tc.dest, "../out/chainguard-sandbox/malcontent-samples/")},
 			}
 
 			logger := clog.New(slog.Default().Handler()).With("src", tc.src)

@@ -42,7 +42,7 @@ Open the coverage report in a browser automatically:
 
 Not every rule needs a test, but tests do ensure that a rules behavior stays consistent:
 
-1. Add a sample to https://github.com/chainguard-dev/malcontent-samples
+1. Add a sample to https://github.com/chainguard-sandbox/malcontent-samples
 2. Create a directory within `test_data` using the same directory name as your sample:
 
 ```

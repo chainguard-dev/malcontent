@@ -10,7 +10,7 @@ import (
 
 // FuzzFile tests file type detection with random inputs.
 func FuzzFile(f *testing.F) {
-	samplesDir := "../../out/chainguard-dev/malcontent-samples"
+	samplesDir := "../../out/chainguard-sandbox/malcontent-samples"
 	err := filepath.WalkDir(samplesDir, func(path string, d os.DirEntry, _ error) error {
 		if d == nil || d.IsDir() {
 			return nil
