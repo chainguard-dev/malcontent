@@ -41,6 +41,10 @@ func ExtractZlib(ctx context.Context, d string, f string) error {
 	base := filepath.Base(f)
 	target := filepath.Join(d, base[:len(base)-len(filepath.Ext(base))])
 
+	if !IsValidPath(target, d) {
+		return fmt.Errorf("invalid zlib decompression file path: %s", target)
+	}
+
 	zr, err := zlib.NewReader(zf)
 	if err != nil {
 		return fmt.Errorf("failed to create zlib reader: %w", err)

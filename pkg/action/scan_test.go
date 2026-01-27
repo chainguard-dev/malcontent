@@ -67,7 +67,7 @@ func TestCleanPath(t *testing.T) {
 			defer os.RemoveAll(tempDir)
 
 			nestedDir := filepath.Join(tempDir, "nested")
-			if err := os.Mkdir(nestedDir, 0o755); err != nil {
+			if err := os.Mkdir(nestedDir, 0o700); err != nil {
 				t.Fatalf("failed to create nested directory: %v", err)
 			}
 
