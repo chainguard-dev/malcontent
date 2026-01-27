@@ -80,7 +80,7 @@ GLOBAL OPTIONS:
 ```
 
 > Using `--oci-auth` leverages the Docker Keychain to authenticate image pulls.  
-> This option may expose a malicious registry to sensitve auth tokens but is not materially different from other image pull mechanisms (e.g., Docker or `google/go-containerregistry` which malcontent leverages via the `crane` package).   
+> This option may expose sensitive auth tokens to a malicious registry but is not materially different from other image pull mechanisms (e.g., Docker or `google/go-containerregistry` which malcontent leverages via the `crane` package).  
 > Malcontent defaults to anonymous pulls and authentication is opt-in when needing to scan OCI images from private, trusted registries.
 
 ## Modes
