@@ -10,7 +10,7 @@ rule WinRAR_ADS_Traversal
         sharing = "TLP:CLEAR"
         source = "BARTBLAZE"
         author = "@bartblaze"
-        description = "Identifies potential ADS traversal in RAR archives."
+        description = "Identifies potential ADS traversal in RAR archives, seen in vulnerabilities such as CVE‑2025‑6218 and CVE-2025-8088."
         category = "INFO"
         reference = "https://www.welivesecurity.com/en/eset-research/update-winrar-tools-now-romcom-and-others-exploiting-zero-day-vulnerability/"
 
