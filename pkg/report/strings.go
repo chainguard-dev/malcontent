@@ -9,34 +9,27 @@ import (
 
 // StringPool holds data to handle string interning.
 type StringPool struct {
-	sync.RWMutex
-	strings map[string]string
+	strings sync.Map
 }
 
 // clear removes all strings from the pool to free memory.
 func (sp *StringPool) clear() {
-	sp.Lock()
-	defer sp.Unlock()
-	clear(sp.strings)
+	sp.strings.Clear()
 }
 
 // NewStringPool creates a new string pool.
-func NewStringPool(length int) *StringPool {
+func NewStringPool() *StringPool {
 	return &StringPool{
-		strings: make(map[string]string, length),
+		strings: sync.Map{},
 	}
 }
 
 // Intern returns an interned version of the input string.
 func (sp *StringPool) Intern(s string) string {
-	sp.RLock()
-	defer sp.RUnlock()
-
-	if interned, ok := sp.strings[s]; ok {
-		return interned
+	interned, _ := sp.strings.LoadOrStore(s, s)
+	if is, ok := interned.(string); ok {
+		return is
 	}
-
-	sp.strings[s] = s
 	return s
 }
 
@@ -45,13 +38,12 @@ type matchProcessor struct {
 	pool     *StringPool
 	matches  []yarax.Match
 	patterns []yarax.Pattern
-	mu       sync.Mutex
 }
 
 func newMatchProcessor(fc []byte, matches []yarax.Match, mp []yarax.Pattern) *matchProcessor {
 	return &matchProcessor{
 		fc:       fc,
-		pool:     NewStringPool(len(matches)),
+		pool:     NewStringPool(),
 		matches:  matches,
 		patterns: mp,
 	}
@@ -77,23 +69,12 @@ func (mp *matchProcessor) process() []string {
 		return nil
 	}
 
-	mp.mu.Lock()
-	defer mp.mu.Unlock()
-
-	var result *[]string
-	var ok bool
-	if result, ok = matchResultPool.Get().(*[]string); !ok {
+	resultPtr, ok := matchResultPool.Get().(*[]string)
+	if !ok || resultPtr == nil {
 		s := make([]string, 0, len(mp.matches))
-		result = &s
+		resultPtr = &s
 	}
-
-	// Return early if neither the pool nor the make result in a usable slice
-	if result == nil {
-		return nil
-	}
-
-	ret := (*result)[:0]
-	defer matchResultPool.Put(&ret)
+	result := (*resultPtr)[:0]
 
 	// #nosec G115 // ignore Type conversion which leads to integer overflow
 	for _, match := range mp.matches {
@@ -105,24 +86,9 @@ func (mp *matchProcessor) process() []string {
 			continue
 		}
 
-		matchBytes := (mp.fc)[o : o+l]
+		matchBytes := mp.fc[o : o+l]
 
-		switch !containsUnprintable(matchBytes) {
-		case true:
-			var matchStr string
-			if l <= uint64(cap(matchBytes)) {
-				matchStr = string(append([]byte(nil), matchBytes[:l]...))
-			} else {
-				matchStr = string(matchBytes)
-			}
-			*result = append(*result, mp.pool.Intern(matchStr))
-		default:
-			// for rules which contain non-string patterns (e.g., hex),
-			// we only want to display patterns with non-zero match lengths
-			// rather than all of the patterns which is potentially inaccurate
-			// e.g., `any of them` with multiple strings and one pattern match
-			// will display matches for all of the rule's strings
-			// if we naively append all of the matched rule's patterns
+		if containsUnprintable(matchBytes) {
 			patterns := make([]string, 0, len(mp.patterns))
 			for _, p := range mp.patterns {
 				if slices.ContainsFunc(p.Matches(), func(m yarax.Match) bool {
@@ -131,11 +97,18 @@ func (mp *matchProcessor) process() []string {
 					patterns = append(patterns, mp.pool.Intern(p.Identifier()))
 				}
 			}
-			*result = append(*result, slices.Compact(patterns)...)
+			result = append(result, slices.Compact(patterns)...)
+		} else {
+			result = append(result, mp.pool.Intern(string(matchBytes)))
 		}
 	}
 
-	return append([]string{}, *result...)
+	ret := append([]string{}, result...)
+
+	*resultPtr = result
+	matchResultPool.Put(resultPtr)
+
+	return ret
 }
 
 // containsUnprintable determines if a byte is a valid character.

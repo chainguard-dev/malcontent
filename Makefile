@@ -140,16 +140,20 @@ test:
 
 .PHONY: fuzz
 fuzz:
+	go test -timeout 0 -fuzz=FuzzContainsUnprintable -fuzztime=10s ./pkg/report/
+	go test -timeout 0 -fuzz=FuzzExtractArchive -fuzztime=10s ./pkg/archive/
 	go test -timeout 0 -fuzz=FuzzExtractTar -fuzztime=10s ./pkg/archive/
 	go test -timeout 0 -fuzz=FuzzExtractZip -fuzztime=10s ./pkg/archive/
-	go test -timeout 0 -fuzz=FuzzExtractArchive -fuzztime=10s ./pkg/archive/
-	go test -timeout 0 -fuzz=FuzzIsValidPath -fuzztime=10s ./pkg/archive/
 	go test -timeout 0 -fuzz=FuzzFile -fuzztime=30s ./pkg/programkind/
-	go test -timeout 0 -fuzz=FuzzPath -fuzztime=10s ./pkg/programkind/
 	go test -timeout 0 -fuzz=FuzzGetExt -fuzztime=10s ./pkg/programkind/
+	go test -timeout 0 -fuzz=FuzzIsValidPath -fuzztime=10s ./pkg/archive/
 	go test -timeout 0 -fuzz=FuzzLongestUnique -fuzztime=10s ./pkg/report/
-	go test -timeout 0 -fuzz=FuzzTrimPrefixes -fuzztime=10s ./pkg/report/
 	go test -timeout 0 -fuzz=FuzzMatchToString -fuzztime=10s ./pkg/report/
+	go test -timeout 0 -fuzz=FuzzPath -fuzztime=10s ./pkg/programkind/
+	go test -timeout 0 -fuzz=FuzzStringPoolAtomic -fuzztime=10s ./pkg/report/
+	go test -timeout 0 -fuzz=FuzzStringPoolConcurrent -fuzztime=10s ./pkg/report/
+	go test -timeout 0 -fuzz=FuzzStringPoolIntern -fuzztime=10s ./pkg/report/
+	go test -timeout 0 -fuzz=FuzzTrimPrefixes -fuzztime=10s ./pkg/report/
 
 # fuzz tests - runs continuously (use Ctrl+C to stop)
 # Usage: make fuzz-continuous FUZZ_TARGET=FuzzExtractArchive FUZZ_PKG=./pkg/archive/

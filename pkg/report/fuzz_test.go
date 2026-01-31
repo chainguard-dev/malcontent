@@ -2,6 +2,7 @@ package report
 
 import (
 	"strings"
+	"sync"
 	"testing"
 )
 
@@ -156,6 +157,200 @@ func FuzzMatchToString(f *testing.F) {
 
 		if len(result) > len(ruleName)+len(match)+100 {
 			t.Fatalf("result length %d is unreasonably large", len(result))
+		}
+	})
+}
+
+// FuzzStringPoolIntern tests the StringPool.Intern function.
+func FuzzStringPoolIntern(f *testing.F) {
+	f.Add("hello")
+	f.Add("")
+	f.Add("test string with spaces")
+	f.Add(strings.Repeat("a", 1000))
+	f.Add("unicode: 你好世界")
+	f.Add("emoji: 🎉🔥")
+	f.Add("null\x00byte")
+	f.Add("newline\nand\ttab")
+	f.Add("special!@#$%^&*()")
+	f.Add("\x00\x01\x02\x03")
+
+	f.Fuzz(func(t *testing.T, input string) {
+		if len(input) > 10000 {
+			input = input[:10000]
+		}
+
+		pool := NewStringPool()
+
+		s1 := pool.Intern(input)
+		if s1 != input {
+			t.Fatalf("intern(%q) returned %q", input, s1)
+		}
+
+		s2 := pool.Intern(input)
+		if s2 != input {
+			t.Fatalf("second Intern(%q) returned %q", input, s2)
+		}
+
+		if StringDataPointer(s1) != StringDataPointer(s2) {
+			t.Fatal("interned strings should share the same backing data")
+		}
+	})
+}
+
+// FuzztStringPoolConcurrent tests general StringPool concurrency.
+func FuzzStringPoolConcurrent(f *testing.F) {
+	f.Add("test1,test2,test3")
+	f.Add("a,a,a,a,a")
+	f.Add("unique1,unique2,unique3,shared,shared")
+	f.Add(strings.Repeat("x,", 50))
+	f.Add("")
+
+	f.Fuzz(func(t *testing.T, input string) {
+		if input == "" {
+			return
+		}
+
+		parts := strings.Split(input, ",")
+		if len(parts) > 100 {
+			parts = parts[:100]
+		}
+
+		var filtered []string
+		for _, p := range parts {
+			if len(p) <= 1000 && p != "" {
+				filtered = append(filtered, p)
+			}
+		}
+		if len(filtered) == 0 {
+			return
+		}
+
+		pool := NewStringPool()
+
+		var wg sync.WaitGroup
+		wg.Add(numGoroutines)
+
+		results := make([]map[string]uintptr, numGoroutines)
+
+		for i := range numGoroutines {
+			results[i] = make(map[string]uintptr)
+			wg.Go(func() {
+				defer wg.Done()
+				for _, s := range filtered {
+					// Create a copy to ensure unique backing array
+					sCopy := string([]byte(s))
+					interned := pool.Intern(sCopy)
+					if interned != s {
+						t.Errorf("intern returned wrong value: got %q, want %q", interned, s)
+					}
+					results[i][s] = StringDataPointer(interned)
+				}
+			})
+		}
+
+		wg.Wait()
+
+		// Verify all goroutines got the same pointers for the same strings
+		for _, s := range filtered {
+			var firstPtr uintptr
+			for i, res := range results {
+				ptr := res[s]
+				if i == 0 {
+					firstPtr = ptr
+				} else if ptr != firstPtr {
+					t.Errorf("string %q has inconsistent pointers across goroutines", s)
+				}
+			}
+		}
+	})
+}
+
+// FuzzContainsUnprintable tests the containsUnprintable function.
+func FuzzContainsUnprintable(f *testing.F) {
+	f.Add([]byte("hello"))
+	f.Add([]byte(""))
+	f.Add([]byte{0x00})
+	f.Add([]byte{0x1f})
+	f.Add([]byte{0x20})
+	f.Add([]byte{0x7e})
+	f.Add([]byte{0x7f})
+	f.Add([]byte{0x80})
+	f.Add([]byte{0xff})
+	f.Add([]byte("mixed\x00content"))
+
+	f.Fuzz(func(t *testing.T, input []byte) {
+		if len(input) > 10000 {
+			input = input[:10000]
+		}
+
+		got := containsUnprintable(input)
+
+		want := false
+		for _, c := range input {
+			if c < 32 || c > 126 {
+				want = true
+				break
+			}
+		}
+
+		if got != want {
+			t.Fatalf("containsUnprintable(%v) = %v, want %v", input, got, want)
+		}
+	})
+}
+
+// FuzzStringPoolAtomic ensures that pool.Intern is resistant to TOCTOU scenarios.
+func FuzzStringPoolAtomic(f *testing.F) {
+	f.Add("race-test")
+	f.Add("another-test")
+	f.Add("hello")
+	f.Add("")
+	f.Add("test string with spaces")
+	f.Add(strings.Repeat("a", 1000))
+	f.Add("unicode: 你好世界")
+	f.Add("emoji: 🎉🔥")
+	f.Add("null\x00byte")
+	f.Add("newline\nand\ttab")
+	f.Add("special!@#$%^&*()")
+	f.Add("\x00\x01\x02\x03")
+	f.Add(strings.Repeat("long", 100))
+
+	f.Fuzz(func(t *testing.T, input string) {
+		if len(input) > 1000 || input == "" {
+			return
+		}
+
+		pool := NewStringPool()
+
+		results := make(chan uintptr, numGoroutines)
+		var wg sync.WaitGroup
+		wg.Add(numGoroutines)
+
+		start := make(chan struct{})
+
+		for range numGoroutines {
+			wg.Go(func() {
+				defer wg.Done()
+				<-start
+				cpy := input
+				interned := pool.Intern(cpy)
+				results <- StringDataPointer(interned)
+			})
+		}
+
+		close(start)
+		wg.Wait()
+		close(results)
+
+		var firstPtr uintptr
+		first := true
+		for ptr := range results {
+			if first {
+				firstPtr = ptr
+				first = false
+			} else if ptr != firstPtr {
+				t.Fatal("different pointers returned for same string")
+			}
 		}
 	})
 }
