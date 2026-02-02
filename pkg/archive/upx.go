@@ -31,15 +31,22 @@ func ExtractUPX(ctx context.Context, d, f string) error {
 		return fmt.Errorf("failed to stat file: %w", err)
 	}
 
-	gf, err := os.Open(f)
-	if err != nil {
-		return fmt.Errorf("failed to open file: %w", err)
+	base := filepath.Base(f)
+	if strings.HasPrefix(base, "-") {
+		return fmt.Errorf("file name begins with '-': %q", base)
 	}
-	defer gf.Close()
+	if len(base) > 255 {
+		return fmt.Errorf("file name exceeds 255 characters")
+	}
 
 	target := filepath.Join(d, filepath.Base(f))
 	if !IsValidPath(target, d) {
 		return fmt.Errorf("invalid file path: %s", target)
+	}
+
+	absTarget, err := filepath.Abs(target)
+	if err != nil {
+		return fmt.Errorf("failed to get absolute path: %w", err)
 	}
 
 	tf, err := os.ReadFile(f)
@@ -52,18 +59,18 @@ func ExtractUPX(ctx context.Context, d, f string) error {
 		return fmt.Errorf("failed to write file: %w", err)
 	}
 
-	cmd := exec.CommandContext(ctx, "upx", "-d", "-k", target)
+	cmd := exec.CommandContext(ctx, "upx", "-d", "-k", "--", absTarget)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		os.Remove(target)
+		os.Remove(absTarget)
 		return fmt.Errorf("failed to decompress upx file: %w, output: %s", err, output)
 	}
 
 	if !strings.Contains(string(output), "Decompressed") && !strings.Contains(string(output), "Unpacked") {
-		os.Remove(target)
+		os.Remove(absTarget)
 		return fmt.Errorf("upx decompression might have failed: %s", output)
 	}
 
-	logger.Debug("successfully decompressed upx file", "output", string(output), "target", target)
+	logger.Debug("successfully decompressed upx file", "output", string(output), "target", absTarget)
 	return nil
 }

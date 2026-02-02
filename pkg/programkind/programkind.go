@@ -249,7 +249,20 @@ func IsValidUPX(ctx context.Context, fc []byte, path string) (bool, error) {
 		return false, err
 	}
 
-	cmd := exec.CommandContext(ctx, "upx", "-l", "-f", path)
+	base := filepath.Base(path)
+	if strings.HasPrefix(path, "-") || strings.HasPrefix(base, "-") {
+		return false, fmt.Errorf("path and/or file begins with '-': %q", path)
+	}
+	if len(base) > 255 {
+		return false, fmt.Errorf("file name exceeds 255 characters")
+	}
+
+	absPath, err := filepath.Abs(path)
+	if err != nil {
+		return false, err
+	}
+
+	cmd := exec.CommandContext(ctx, "upx", "-l", "-f", "--", absPath)
 	output, err := cmd.CombinedOutput()
 
 	if err != nil && (bytes.Contains(output, []byte("NotPackedException")) ||
