@@ -14,14 +14,14 @@ require (
 	github.com/egibs/go-debian v0.19.2
 	github.com/egibs/reconcile v0.2.1
 	github.com/fatih/color v1.18.0
-	github.com/gabriel-vasile/mimetype v1.4.12
+	github.com/gabriel-vasile/mimetype v1.4.13
 	github.com/google/go-cmp v0.7.0
 	github.com/google/go-containerregistry v0.20.7
 	github.com/klauspost/compress v1.18.3
 	github.com/klauspost/pgzip v1.2.6
 	github.com/minio/sha256-simd v1.0.1
 	github.com/olekukonko/tablewriter v1.1.3
-	github.com/shirou/gopsutil/v4 v4.25.12
+	github.com/shirou/gopsutil/v4 v4.26.1
 	github.com/ulikunitz/xz v0.5.15
 	github.com/urfave/cli/v3 v3.6.2
 	github.com/wk8/go-ordered-map/v2 v2.1.8
