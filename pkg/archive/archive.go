@@ -361,3 +361,56 @@ func handleSymlink(dir, linkPath, linkTarget string) error {
 
 	return nil
 }
+
+// handleHardlink creates valid hardlinks when extracting .deb or .tar archives.
+// linkPath is where the hardlink will be created (relative to dir).
+// linkTarget is the existing file the hardlink points to (relative to dir).
+func handleHardlink(dir, linkPath, linkTarget string) error {
+	fullPath := filepath.Join(dir, linkPath)
+	targetPath := filepath.Join(dir, linkTarget)
+
+	if !IsValidPath(fullPath, dir) {
+		return fmt.Errorf("hardlink location outside extraction directory: %s", fullPath)
+	}
+
+	if !IsValidPath(targetPath, dir) {
+		return fmt.Errorf("hardlink target outside extraction directory: %s", targetPath)
+	}
+
+	if err := os.MkdirAll(filepath.Dir(fullPath), 0o700); err != nil {
+		return fmt.Errorf("failed to create parent directory for hardlink: %w", err)
+	}
+
+	// Remove existing file/link at the path
+	if _, err := os.Lstat(fullPath); err == nil {
+		if err := os.Remove(fullPath); err != nil {
+			return fmt.Errorf("failed to remove existing file for hardlink: %w", err)
+		}
+	}
+
+	if err := os.Link(targetPath, fullPath); err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
+		return fmt.Errorf("failed to create hardlink: %w", err)
+	}
+
+	linkInfo, err := os.Stat(fullPath)
+	if err != nil {
+		os.Remove(fullPath)
+		return fmt.Errorf("failed to stat hardlink after creation: %w", err)
+	}
+
+	targetInfo, err := os.Stat(targetPath)
+	if err != nil {
+		os.Remove(fullPath)
+		return fmt.Errorf("failed to stat hardlink target after creation: %w", err)
+	}
+
+	if !os.SameFile(linkInfo, targetInfo) {
+		os.Remove(fullPath)
+		return fmt.Errorf("hardlink validation failed: link and target are not the same file")
+	}
+
+	return nil
+}

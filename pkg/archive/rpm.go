@@ -19,6 +19,8 @@ import (
 )
 
 // extractRPM extracts .rpm packages.
+//
+//nolint:cyclop // ignore complexity of 40
 func ExtractRPM(ctx context.Context, d, f string) error {
 	if ctx.Err() != nil {
 		return ctx.Err()
@@ -87,6 +89,8 @@ func ExtractRPM(ctx context.Context, d, f string) error {
 		return fmt.Errorf("unsupported compression format: %s", compression)
 	}
 
+	inodeMap := make(map[int64]string)
+
 	for {
 		header, err := cr.Next()
 		if errors.Is(err, io.EOF) || errors.Is(err, io.ErrUnexpectedEOF) {
@@ -106,10 +110,35 @@ func ExtractRPM(ctx context.Context, d, f string) error {
 			return fmt.Errorf("invalid file path: %s", target)
 		}
 
-		if header.FileInfo().IsDir() {
-			if err := os.MkdirAll(target, os.FileMode(header.Mode)); err != nil {
+		// https://github.com/cavaliergopher/cpio/blob/main/header.go#L24
+		const modeTypeMask = 0o170000
+		fileType := header.Mode & modeTypeMask
+
+		switch fileType {
+		case cpio.TypeDir:
+			if err := os.MkdirAll(target, 0o700); err != nil {
 				return fmt.Errorf("failed to create directory: %w", err)
 			}
+			continue
+
+		case cpio.TypeSymlink:
+			if err := handleSymlink(d, clean, header.Linkname); err != nil {
+				return fmt.Errorf("failed to create symlink: %w", err)
+			}
+			continue
+
+		case cpio.TypeReg:
+			if header.Links > 1 {
+				if existingPath, ok := inodeMap[header.Inode]; ok {
+					if err := handleHardlink(d, clean, existingPath); err != nil {
+						return fmt.Errorf("failed to create hardlink: %w", err)
+					}
+					continue
+				}
+				inodeMap[header.Inode] = clean
+			}
+
+		default:
 			continue
 		}
 
