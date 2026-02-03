@@ -60,6 +60,8 @@ var (
 	ignoreSelfFlag            bool
 	ignoreTagsFlag            string
 	includeDataFilesFlag      bool
+	maxDepthFlag              int
+	maxScanFilesFlag          int
 	minFileLevelFlag          int
 	minFileRiskFlag           string
 	minLevelFlag              int
@@ -258,6 +260,8 @@ func main() {
 				IgnoreSelf:            ignoreSelfFlag,
 				IgnoreTags:            ignoreTags,
 				IncludeDataFiles:      includeDataFiles,
+				MaxDepth:              maxDepthFlag,
+				MaxScanFiles:          maxScanFilesFlag,
 				MinFileRisk:           minFileRisk,
 				MinRisk:               minRisk,
 				OCIAuth:               ociAuthFlag,
@@ -339,6 +343,20 @@ func main() {
 				Value:       runtime.NumCPU(),
 				Usage:       "Concurrently scan files within target scan paths",
 				Destination: &concurrencyFlag,
+				Local:       false,
+			},
+			&cli.IntFlag{
+				Name:        "max-depth",
+				Value:       32,
+				Usage:       "Maximum depth for archive extraction (-1 for unlimited)",
+				Destination: &maxDepthFlag,
+				Local:       false,
+			},
+			&cli.IntFlag{
+				Name:        "max-files",
+				Value:       1 << 21, // ~2 million files
+				Usage:       "Maximum number of files to scan (-1 for unlimited)",
+				Destination: &maxScanFilesFlag,
 				Local:       false,
 			},
 			&cli.IntFlag{

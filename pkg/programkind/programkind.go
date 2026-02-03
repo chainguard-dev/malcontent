@@ -5,6 +5,7 @@ package programkind
 
 import (
 	"bytes"
+	"cmp"
 	"context"
 	"errors"
 	"fmt"
@@ -111,7 +112,7 @@ var supportedKind = map[string]string{
 	"upx":     "application/x-upx",
 	"vbs":     "text/x-vbscript",
 	"vim":     "text/x-vim",
-	"xml":     "application/xml",
+	"xml":     "",
 	"yaml":    "",
 	"yara":    "",
 	"yml":     "",
@@ -226,16 +227,24 @@ func GetExt(path string) string {
 	return ext
 }
 
-var ErrUPXNotFound = errors.New("UPX executable not found in PATH")
+var ErrUPXNotFound = errors.New("UPX executable not found")
+
+const defaultUPXPath = "/usr/bin/upx"
 
 func UPXInstalled() error {
-	_, err := exec.LookPath("upx")
+	upxPath := cmp.Or(os.Getenv("MALCONTENT_UPX_PATH"), defaultUPXPath)
+
+	fi, err := os.Stat(upxPath)
 	if err != nil {
-		if errors.Is(err, exec.ErrNotFound) {
+		if os.IsNotExist(err) {
 			return ErrUPXNotFound
 		}
 		return fmt.Errorf("failed to check for UPX executable: %w", err)
 	}
+	if fi.Mode()&0o111 != 0o111 {
+		return fmt.Errorf("provided UPX binary is not executable")
+	}
+
 	return nil
 }
 

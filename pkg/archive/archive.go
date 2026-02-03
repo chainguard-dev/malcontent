@@ -3,6 +3,7 @@ package archive
 import (
 	"archive/tar"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -17,6 +18,11 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/pool"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
+)
+
+var (
+	ErrMaxFilesExceeded = errors.New("maximum scan file count exceeded")
+	ErrMaxDepthExceeded = errors.New("maximum archive nesting depth exceeded")
 )
 
 var (
@@ -64,9 +70,15 @@ func IsValidPath(target, dir string) bool {
 	}
 }
 
-func extractNestedArchive(ctx context.Context, c malcontent.Config, d string, f string, extracted *sync.Map, logger *clog.Logger) error {
+func extractNestedArchive(ctx context.Context, c malcontent.Config, d string, f string, extracted *sync.Map, logger *clog.Logger, depth int) error {
 	if ctx.Err() != nil {
 		return ctx.Err()
+	}
+
+	// Check depth limit (0 or -1 means unlimited, positive values are limits)
+	if c.MaxDepth > 0 && depth > c.MaxDepth {
+		logger.Warnf("skipping nested archive %s: depth %d exceeds limit %d", f, depth, c.MaxDepth)
+		return nil
 	}
 
 	fullPath := filepath.Join(d, f)
@@ -158,7 +170,7 @@ func extractNestedArchive(ctx context.Context, c malcontent.Config, d string, f 
 		}
 		rel := entry.Name()
 		if _, alreadyProcessed := extracted.Load(rel); !alreadyProcessed {
-			if err := extractNestedArchive(ctx, c, d, rel, extracted, logger); err != nil {
+			if err := extractNestedArchive(ctx, c, d, rel, extracted, logger, depth+1); err != nil {
 				return fmt.Errorf("process nested file %s: %w", rel, err)
 			}
 		}
@@ -230,7 +242,7 @@ func ExtractArchiveToTempDir(ctx context.Context, c malcontent.Config, path stri
 
 		ext := programkind.GetExt(path)
 		if _, ok := programkind.ArchiveMap[ext]; ok {
-			if err := extractNestedArchive(ctx, c, tmpDir, rel, &extractedFiles, logger); err != nil {
+			if err := extractNestedArchive(ctx, c, tmpDir, rel, &extractedFiles, logger, 1); err != nil {
 				return err
 			}
 		}
@@ -336,6 +348,22 @@ func handleSymlink(dir, linkPath, linkTarget string) error {
 
 	if err := os.Symlink(linkTarget, fullPath); err != nil {
 		return fmt.Errorf("failed to create symlink: %w", err)
+	}
+
+	actualTarget, err := os.Readlink(fullPath)
+	if err != nil {
+		os.Remove(fullPath)
+		return fmt.Errorf("failed to verify symlink target: %w", err)
+	}
+	if actualTarget != linkTarget {
+		os.Remove(fullPath)
+		return fmt.Errorf("symlink target mismatch: expected %s, got %s", linkTarget, actualTarget)
+	}
+
+	actualResolved := filepath.Clean(filepath.Join(filepath.Dir(fullPath), actualTarget))
+	if !IsValidPath(actualResolved, dir) {
+		os.Remove(fullPath)
+		return fmt.Errorf("symlink target escapes extraction directory after creation: %s -> %s", linkPath, actualTarget)
 	}
 
 	return nil
