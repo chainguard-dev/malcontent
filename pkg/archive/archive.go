@@ -71,8 +71,7 @@ func extractNestedArchive(ctx context.Context, c malcontent.Config, d string, f 
 
 	// Check depth limit (0 or -1 means unlimited, positive values are limits)
 	if c.MaxDepth > 0 && depth > c.MaxDepth {
-		logger.Warnf("skipping nested archive %s: depth %d exceeds limit %d", f, depth, c.MaxDepth)
-		return nil
+		return fmt.Errorf("current depth of %d exceeds limit of %d which may be an indicator of compromise", depth, c.MaxDepth)
 	}
 
 	fullPath := filepath.Join(d, f)
