@@ -44,7 +44,7 @@ func IsValidPath(target, dir string) bool {
 			return false
 		}
 		if rel, err = filepath.Rel(evalDir, evalTarget); err == nil &&
-			rel == ".." || strings.HasPrefix(rel, "..") {
+			(rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator))) {
 			return false
 		}
 	}
@@ -64,9 +64,14 @@ func IsValidPath(target, dir string) bool {
 	}
 }
 
-func extractNestedArchive(ctx context.Context, c malcontent.Config, d string, f string, extracted *sync.Map, logger *clog.Logger) error {
+func extractNestedArchive(ctx context.Context, c malcontent.Config, d string, f string, extracted *sync.Map, logger *clog.Logger, depth int) error {
 	if ctx.Err() != nil {
 		return ctx.Err()
+	}
+
+	// Check depth limit (0 or -1 means unlimited, positive values are limits)
+	if c.MaxDepth > 0 && depth > c.MaxDepth {
+		return fmt.Errorf("current depth of %d exceeds limit of %d which may be an indicator of compromise", depth, c.MaxDepth)
 	}
 
 	fullPath := filepath.Join(d, f)
@@ -158,7 +163,7 @@ func extractNestedArchive(ctx context.Context, c malcontent.Config, d string, f 
 		}
 		rel := entry.Name()
 		if _, alreadyProcessed := extracted.Load(rel); !alreadyProcessed {
-			if err := extractNestedArchive(ctx, c, d, rel, extracted, logger); err != nil {
+			if err := extractNestedArchive(ctx, c, d, rel, extracted, logger, depth+1); err != nil {
 				return fmt.Errorf("process nested file %s: %w", rel, err)
 			}
 		}
@@ -230,7 +235,7 @@ func ExtractArchiveToTempDir(ctx context.Context, c malcontent.Config, path stri
 
 		ext := programkind.GetExt(path)
 		if _, ok := programkind.ArchiveMap[ext]; ok {
-			if err := extractNestedArchive(ctx, c, tmpDir, rel, &extractedFiles, logger); err != nil {
+			if err := extractNestedArchive(ctx, c, tmpDir, rel, &extractedFiles, logger, 1); err != nil {
 				return err
 			}
 		}
@@ -327,6 +332,11 @@ func handleSymlink(dir, linkPath, linkTarget string) error {
 		return fmt.Errorf("symlink target escapes extraction directory: %s -> %s", linkPath, linkTarget)
 	}
 
+	// Ensure parent directory exists
+	if err := os.MkdirAll(filepath.Dir(fullPath), 0o700); err != nil {
+		return fmt.Errorf("failed to create parent directory for symlink: %w", err)
+	}
+
 	// Remove existing symlinks
 	if _, err := os.Lstat(fullPath); err == nil {
 		if err := os.Remove(fullPath); err != nil {
@@ -336,6 +346,75 @@ func handleSymlink(dir, linkPath, linkTarget string) error {
 
 	if err := os.Symlink(linkTarget, fullPath); err != nil {
 		return fmt.Errorf("failed to create symlink: %w", err)
+	}
+
+	actualTarget, err := os.Readlink(fullPath)
+	if err != nil {
+		os.Remove(fullPath)
+		return fmt.Errorf("failed to verify symlink target: %w", err)
+	}
+	if actualTarget != linkTarget {
+		os.Remove(fullPath)
+		return fmt.Errorf("symlink target mismatch: expected %s, got %s", linkTarget, actualTarget)
+	}
+
+	actualResolved := filepath.Clean(filepath.Join(filepath.Dir(fullPath), actualTarget))
+	if !IsValidPath(actualResolved, dir) {
+		os.Remove(fullPath)
+		return fmt.Errorf("symlink target escapes extraction directory after creation: %s -> %s", linkPath, actualTarget)
+	}
+
+	return nil
+}
+
+// handleHardlink creates valid hardlinks when extracting .deb or .tar archives.
+// linkPath is where the hardlink will be created (relative to dir).
+// linkTarget is the existing file the hardlink points to (relative to dir).
+func handleHardlink(dir, linkPath, linkTarget string) error {
+	fullPath := filepath.Join(dir, linkPath)
+	targetPath := filepath.Join(dir, linkTarget)
+
+	if !IsValidPath(fullPath, dir) {
+		return fmt.Errorf("hardlink location outside extraction directory: %s", fullPath)
+	}
+
+	if !IsValidPath(targetPath, dir) {
+		return fmt.Errorf("hardlink target outside extraction directory: %s", targetPath)
+	}
+
+	if err := os.MkdirAll(filepath.Dir(fullPath), 0o700); err != nil {
+		return fmt.Errorf("failed to create parent directory for hardlink: %w", err)
+	}
+
+	// Remove existing file/link at the path
+	if _, err := os.Lstat(fullPath); err == nil {
+		if err := os.Remove(fullPath); err != nil {
+			return fmt.Errorf("failed to remove existing file for hardlink: %w", err)
+		}
+	}
+
+	if err := os.Link(targetPath, fullPath); err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
+		return fmt.Errorf("failed to create hardlink: %w", err)
+	}
+
+	linkInfo, err := os.Stat(fullPath)
+	if err != nil {
+		os.Remove(fullPath)
+		return fmt.Errorf("failed to stat hardlink after creation: %w", err)
+	}
+
+	targetInfo, err := os.Stat(targetPath)
+	if err != nil {
+		os.Remove(fullPath)
+		return fmt.Errorf("failed to stat hardlink target after creation: %w", err)
+	}
+
+	if !os.SameFile(linkInfo, targetInfo) {
+		os.Remove(fullPath)
+		return fmt.Errorf("hardlink validation failed: link and target are not the same file")
 	}
 
 	return nil

@@ -259,6 +259,194 @@ func TestScanArchive(t *testing.T) {
 	}
 }
 
+func TestScanDeb(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	clog.FromContext(ctx).With("test", "scan_archive")
+
+	var out bytes.Buffer
+	r, err := render.New("json", &out)
+	if err != nil {
+		t.Fatalf("render: %v", err)
+	}
+
+	rfs := []fs.FS{rules.FS, thirdparty.FS}
+	yrs, err := CachedRules(ctx, rfs)
+	if err != nil {
+		t.Fatalf("rules: %v", err)
+	}
+
+	mc := malcontent.Config{
+		Concurrency: runtime.NumCPU(),
+		IgnoreSelf:  false,
+		MinFileRisk: 0,
+		MinRisk:     0,
+		Renderer:    r,
+		Rules:       yrs,
+		ScanPaths:   []string{"testdata/yara.deb"},
+	}
+	res, err := Scan(ctx, mc)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Full(ctx, nil, res); err != nil {
+		t.Fatalf("full: %v", err)
+	}
+
+	got := out.String()
+
+	td, err := os.ReadFile("testdata/scan_deb")
+	if err != nil {
+		t.Fatalf("testdata read failed: %v", err)
+	}
+	want := string(td)
+
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("output mismatch: (-want +got):\n%s", diff)
+	}
+}
+
+func TestScanRPM(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	clog.FromContext(ctx).With("test", "scan_archive")
+
+	var out bytes.Buffer
+	r, err := render.New("json", &out)
+	if err != nil {
+		t.Fatalf("render: %v", err)
+	}
+
+	rfs := []fs.FS{rules.FS, thirdparty.FS}
+	yrs, err := CachedRules(ctx, rfs)
+	if err != nil {
+		t.Fatalf("rules: %v", err)
+	}
+
+	mc := malcontent.Config{
+		Concurrency: runtime.NumCPU(),
+		IgnoreSelf:  false,
+		MinFileRisk: 0,
+		MinRisk:     0,
+		Renderer:    r,
+		Rules:       yrs,
+		ScanPaths:   []string{"testdata/yara.rpm"},
+	}
+	res, err := Scan(ctx, mc)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Full(ctx, nil, res); err != nil {
+		t.Fatalf("full: %v", err)
+	}
+
+	got := out.String()
+
+	td, err := os.ReadFile("testdata/scan_rpm")
+	if err != nil {
+		t.Fatalf("testdata read failed: %v", err)
+	}
+	want := string(td)
+
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("output mismatch: (-want +got):\n%s", diff)
+	}
+}
+
+func TestScanZlib(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	clog.FromContext(ctx).With("test", "scan_archive")
+
+	var out bytes.Buffer
+	r, err := render.New("json", &out)
+	if err != nil {
+		t.Fatalf("render: %v", err)
+	}
+
+	rfs := []fs.FS{rules.FS, thirdparty.FS}
+	yrs, err := CachedRules(ctx, rfs)
+	if err != nil {
+		t.Fatalf("rules: %v", err)
+	}
+
+	mc := malcontent.Config{
+		Concurrency: runtime.NumCPU(),
+		IgnoreSelf:  false,
+		MinFileRisk: 0,
+		MinRisk:     0,
+		Renderer:    r,
+		Rules:       yrs,
+		ScanPaths:   []string{"testdata/yara.tar.zlib"},
+	}
+	res, err := Scan(ctx, mc)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Full(ctx, nil, res); err != nil {
+		t.Fatalf("full: %v", err)
+	}
+
+	got := out.String()
+
+	td, err := os.ReadFile("testdata/scan_zlib")
+	if err != nil {
+		t.Fatalf("testdata read failed: %v", err)
+	}
+	want := string(td)
+
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("output mismatch: (-want +got):\n%s", diff)
+	}
+}
+
+func TestScanZstd(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	clog.FromContext(ctx).With("test", "scan_archive")
+
+	var out bytes.Buffer
+	r, err := render.New("json", &out)
+	if err != nil {
+		t.Fatalf("render: %v", err)
+	}
+
+	rfs := []fs.FS{rules.FS, thirdparty.FS}
+	yrs, err := CachedRules(ctx, rfs)
+	if err != nil {
+		t.Fatalf("rules: %v", err)
+	}
+
+	mc := malcontent.Config{
+		Concurrency: runtime.NumCPU(),
+		IgnoreSelf:  false,
+		MinFileRisk: 0,
+		MinRisk:     0,
+		Renderer:    r,
+		Rules:       yrs,
+		ScanPaths:   []string{"testdata/yara.tar.zst"},
+	}
+	res, err := Scan(ctx, mc)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Full(ctx, nil, res); err != nil {
+		t.Fatalf("full: %v", err)
+	}
+
+	got := out.String()
+
+	td, err := os.ReadFile("testdata/scan_zstd")
+	if err != nil {
+		t.Fatalf("testdata read failed: %v", err)
+	}
+	want := string(td)
+
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("output mismatch: (-want +got):\n%s", diff)
+	}
+}
+
 func extractError(e error) error {
 	if strings.Contains(e.Error(), "not a valid gzip archive") || strings.Contains(e.Error(), "not a valid zip archive") {
 		return nil

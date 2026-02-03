@@ -64,6 +64,8 @@ GLOBAL OPTIONS:
    --ignore-tags string        Rule tags to ignore (default: "false_positive,ignore")
    --include-data-files        Include files that are detected as non-program (binary or source) files
    --jobs int, -j int          Concurrently scan files within target scan paths (default: 12)
+   --max-depth int             Maximum depth for archive extraction (-1 for unlimited) (default: 32)
+   --max-files int             Maximum number of files to scan (-1 for unlimited) (default: 2097152)
    --min-file-level int        Obsoleted by --min-file-risk (default: -1)
    --min-file-risk string      Only show results for files which meet the given risk level (any, low, medium, high, critical) (default: "low")
    --min-level int             Obsoleted by --min-risk (default: -1)
@@ -187,6 +189,9 @@ Requirements:
 * [YARA-X](https://virustotal.github.io/yara-x/docs/intro/installation/) - Rust implementation of YARA
 * [pkgconf](https://github.com/pkgconf/pkgconf) - required by Go to find C dependencies, included in many UNIX distributions
 * [libssl-dev](https://packages.debian.org/sid/libssl-dev) package
+* [UPX](https://upx.github.io/)* - required for refreshing sample testdata
+
+> \* By default, malcontent will look for a UPX binary at /usr/bin/upx; to specify a different, [trusted] location, use `MALCONTENT_UPX_PATH=/path/to/upx`
 
 To install YARA-X, first install Rust and then run `make install-yara-x` which will clone the YARA-X repository and install its dependencies and C API.
 

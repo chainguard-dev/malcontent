@@ -255,7 +255,7 @@ update-third-party:
 
 .PHONY: refresh-sample-testdata
 refresh-sample-testdata: out/$(SAMPLES_REPO)/.decompressed-$(SAMPLES_COMMIT) out/mal
-	./out/mal refresh
+	MALCONTENT_UPX_PATH=$(shell which upx) ./out/mal refresh
 
 ARCH ?= $(shell uname -m)
 CRANE_VERSION=v0.20.7

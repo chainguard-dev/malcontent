@@ -31,6 +31,8 @@ type Config struct {
 	IgnoreSelf            bool
 	IgnoreTags            []string
 	IncludeDataFiles      bool
+	MaxDepth              int
+	MaxScanFiles          int
 	MinFileRisk           int
 	MinRisk               int
 	OCI                   bool

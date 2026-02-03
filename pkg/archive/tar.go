@@ -25,7 +25,7 @@ var initTarPool sync.Once
 
 // extractTar extracts .apk and .tar* archives.
 //
-//nolint:cyclop // ignore complexity of 42
+//nolint:cyclop,gocognit // ignore complexity of 42, 99 respectively
 func ExtractTar(ctx context.Context, d string, f string) error {
 	if ctx.Err() != nil {
 		return ctx.Err()
@@ -209,6 +209,10 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 		case tar.TypeSymlink:
 			if err := handleSymlink(d, clean, header.Linkname); err != nil {
 				return fmt.Errorf("failed to create symlink: %w", err)
+			}
+		case tar.TypeLink:
+			if err := handleHardlink(d, clean, header.Linkname); err != nil {
+				return fmt.Errorf("failed to create hardlink: %w", err)
 			}
 		}
 	}

@@ -6,18 +6,20 @@ package action
 import (
 	"context"
 	"fmt"
-	"io"
 	"log/slog"
 	"maps"
 	"os"
 	"path/filepath"
+	"runtime"
 	"slices"
 	"sort"
 	"strings"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/archive"
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
+	"github.com/chainguard-dev/malcontent/pkg/pool"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 	"github.com/chainguard-dev/malcontent/pkg/report"
 	"github.com/egibs/reconcile/pkg/files"
@@ -220,6 +222,10 @@ func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent
 		isReport bool
 	)
 
+	initReadPool.Do(func() {
+		readPool = pool.NewBufferPool(runtime.GOMAXPROCS(0))
+	})
+
 	if c.OCI {
 		srcPath, err = archive.OCI(ctx, srcPath, c.OCIAuth)
 		if err != nil {
@@ -245,11 +251,24 @@ func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent
 		if err != nil {
 			return nil, err
 		}
-		defer srcFile.Close()
-		src, err := io.ReadAll(srcFile)
+
+		st, err := srcFile.Stat()
 		if err != nil {
 			return nil, err
 		}
+
+		defer srcFile.Close()
+
+		// create a buffer sized to the minimum of the file's size or the default ReadBuffer
+		// only do so if we actually need to retrieve the file's contents
+		buf := readPool.Get(min(st.Size(), file.ReadBuffer)) //nolint:nilaway // the buffer pool is created above
+
+		src, err := file.GetContents(srcFile, buf)
+		if err != nil {
+			return nil, err
+		}
+		readPool.Put(buf)
+
 		srcFiles, err := report.Load(src)
 		srcResult.err = err
 		srcResult.files = srcFiles.FileReports
@@ -264,10 +283,21 @@ func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent
 			return nil, err
 		}
 		defer destFile.Close()
-		dst, err := io.ReadAll(destFile)
+
+		st, err = destFile.Stat()
 		if err != nil {
 			return nil, err
 		}
+
+		// create a buffer sized to the minimum of the file's size or the default ReadBuffer
+		// only do so if we actually need to retrieve the file's contents
+		buf = readPool.Get(min(st.Size(), file.ReadBuffer)) //nolint:nilaway // the buffer pool is created above
+
+		dst, err := file.GetContents(destFile, buf)
+		if err != nil {
+			return nil, err
+		}
+		readPool.Put(buf)
 
 		destFiles, err := report.Load(dst)
 		destResult.err = err

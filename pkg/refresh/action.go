@@ -38,6 +38,26 @@ var actionTestData = []actionData{
 		scanPath:   "pkg/action/testdata/conflict.zip",
 		outputPath: "pkg/action/testdata/scan_conflict",
 	},
+	{
+		format:     "json",
+		scanPath:   "pkg/action/testdata/yara.deb",
+		outputPath: "pkg/action/testdata/scan_deb",
+	},
+	{
+		format:     "json",
+		scanPath:   "pkg/action/testdata/yara.rpm",
+		outputPath: "pkg/action/testdata/scan_rpm",
+	},
+	{
+		format:     "json",
+		scanPath:   "pkg/action/testdata/yara.tar.zlib",
+		outputPath: "pkg/action/testdata/scan_zlib",
+	},
+	{
+		format:     "json",
+		scanPath:   "pkg/action/testdata/yara.tar.zst",
+		outputPath: "pkg/action/testdata/scan_zstd",
+	},
 }
 
 func actionRefresh(ctx context.Context) ([]TestData, error) {

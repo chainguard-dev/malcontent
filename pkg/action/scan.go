@@ -47,7 +47,9 @@ var (
 )
 
 // scanSinglePath YARA scans a single path and converts it to a fileReport.
-func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleFS []fs.FS, absPath string, archiveRoot string) (*malcontent.FileReport, error) {
+//
+//nolint:cyclop // ignore complexity of 39
+func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleFS []fs.FS, absPath string, archiveRoot string, fileCount *atomic.Int64) (*malcontent.FileReport, error) {
 	if ctx.Err() != nil {
 		return &malcontent.FileReport{}, ctx.Err()
 	}
@@ -95,6 +97,17 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		return fr, nil
 	}
 	logger = logger.With("mime", mime)
+
+	if fileCount != nil {
+		count := fileCount.Add(1)
+		if c.MaxScanFiles > 0 && count > int64(c.MaxScanFiles) {
+			logger.Warnf("skipping %s: file count %d exceeds limit %d", path, count, c.MaxScanFiles)
+			if isArchive {
+				defer os.RemoveAll(path)
+			}
+			return &malcontent.FileReport{Skipped: "max file count exceeded", Path: path}, nil
+		}
+	}
 
 	var yrs *yarax.Rules
 	if c.Rules != nil {
@@ -566,7 +579,7 @@ func handleSingleFile(ctx context.Context, path string, scanInfo scanPathInfo, c
 		trimPath = scanInfo.ociExtractPath
 	}
 
-	fr, err := processFile(ctx, c, c.RuleFS, path, scanInfo.effectivePath, trimPath, logger)
+	fr, err := processFile(ctx, c, c.RuleFS, path, scanInfo.effectivePath, trimPath, logger, nil)
 	if err != nil && !interactive(c) {
 		if len(c.TrimPrefixes) > 0 {
 			path = report.TrimPrefixes(path, c.TrimPrefixes)
@@ -641,6 +654,7 @@ func processArchive(ctx context.Context, c malcontent.Config, rfs []fs.FS, archi
 	logger = logger.With("archivePath", archivePath)
 
 	var frs sync.Map
+	var fileCount atomic.Int64
 
 	tmpRoot, err := archive.ExtractArchiveToTempDir(ctx, c, archivePath)
 	if err != nil {
@@ -689,7 +703,7 @@ func processArchive(ctx context.Context, c malcontent.Config, rfs []fs.FS, archi
 
 	for path := range ep {
 		g.Go(func() error {
-			fr, err := processFile(gCtx, c, rfs, path, archivePath, tmpRoot, logger)
+			fr, err := processFile(gCtx, c, rfs, path, archivePath, tmpRoot, logger, &fileCount)
 			if err != nil {
 				return err
 			}
@@ -732,10 +746,10 @@ func handleFileReportError(err error, path string, logger *clog.Logger) (*malcon
 }
 
 // processFile scans a single output file, rendering live output if available.
-func processFile(ctx context.Context, c malcontent.Config, ruleFS []fs.FS, path string, scanPath string, archiveRoot string, logger *clog.Logger) (*malcontent.FileReport, error) {
+func processFile(ctx context.Context, c malcontent.Config, ruleFS []fs.FS, path string, scanPath string, archiveRoot string, logger *clog.Logger, fileCount *atomic.Int64) (*malcontent.FileReport, error) {
 	logger = logger.With("path", path)
 
-	fr, err := scanSinglePath(ctx, c, path, ruleFS, scanPath, archiveRoot)
+	fr, err := scanSinglePath(ctx, c, path, ruleFS, scanPath, archiveRoot, fileCount)
 	if err != nil && !interactive(c) {
 		return handleFileReportError(err, path, logger)
 	}

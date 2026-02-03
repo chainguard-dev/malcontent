@@ -1,0 +1,218 @@
+{
+    "Files": {
+        "/usr/bin/yara": {
+            "Path": "testdata/yara.deb ∴ /usr/bin/yara",
+            "SHA256": "38008bfab3807e83de4d9301669334f763cb91c860cfce4e51e8e1761da7a890",
+            "Size": 41864,
+            "Syscalls": [
+                "close",
+                "lstat",
+                "open",
+                "pread644",
+                "pthread_create",
+                "pwrite64",
+                "readlink",
+                "stat"
+            ],
+            "Pledge": [
+                "rpath",
+                "stdio"
+            ],
+            "Behaviors": [
+                {
+                    "Description": "possible hidden file path",
+                    "MatchStrings": [
+                        "/usr/lib/debug/.dwz"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/evasion/file/prefix/prefix.yara#static_hidden_path",
+                    "ID": "evasion/file/prefix",
+                    "RuleName": "static_hidden_path"
+                },
+                {
+                    "Description": "Uses libc functions to list a directory",
+                    "MatchStrings": [
+                        "opendir",
+                        "readdir"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/directory/directory-list.yara#opendir_readdir",
+                    "ID": "fs/directory/list",
+                    "RuleName": "opendir_readdir"
+                },
+                {
+                    "Description": "opens files",
+                    "MatchStrings": [
+                        "fclose",
+                        "fopen"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-open.yara#file_open",
+                    "ID": "fs/file/open",
+                    "RuleName": "file_open"
+                },
+                {
+                    "Description": "access filesystem information",
+                    "MatchStrings": [
+                        "_stat"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-stat.yara#stat",
+                    "ID": "fs/file/stat",
+                    "RuleName": "stat"
+                },
+                {
+                    "Description": "read value of a symbolic link",
+                    "MatchStrings": [
+                        "readlink"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/link-read.yara#readlink",
+                    "ReferenceURL": "https://man7.org/linux/man-pages/man2/readlink.2.html",
+                    "ID": "fs/link_read",
+                    "RuleName": "readlink"
+                },
+                {
+                    "Description": "references /lib64 path",
+                    "MatchStrings": [
+                        "/lib64/ld-linux-x86-64.so.2"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/lib64.yara#elf_lib_dir_refs",
+                    "ID": "fs/path/lib64",
+                    "RuleName": "elf_lib_dir_refs"
+                },
+                {
+                    "Description": "Read binary from a file descriptor",
+                    "MatchStrings": [
+                        "fread"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/os/fd/read.yara#fread",
+                    "ReferenceURL": "https://man7.org/linux/man-pages/man3/fread.3p.html",
+                    "ID": "os/fd/read",
+                    "RuleName": "fread"
+                },
+                {
+                    "Description": "write binary to file descriptor",
+                    "MatchStrings": [
+                        "fwrite"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/os/fd/write.yara#fwrite",
+                    "ReferenceURL": "https://man7.org/linux/man-pages/man3/fwrite.3p.html",
+                    "ID": "os/fd/write",
+                    "RuleName": "fwrite"
+                },
+                {
+                    "Description": "creates pthreads",
+                    "MatchStrings": [
+                        "pthread_create"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/process/multithreaded.yara#pthread_create",
+                    "ReferenceURL": "https://man7.org/linux/man-pages/man3/pthread_create.3.html",
+                    "ID": "process/multithreaded",
+                    "RuleName": "pthread_create"
+                },
+                {
+                    "Description": "Uses pthreads",
+                    "MatchStrings": [
+                        "pthread_join"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/process/pthreads.yara#pthreads",
+                    "ReferenceURL": "https://en.wikipedia.org/wiki/Pthreads",
+                    "ID": "process/pthreads",
+                    "RuleName": "pthreads"
+                }
+            ],
+            "RiskScore": 2,
+            "RiskLevel": "MEDIUM"
+        },
+        "/usr/bin/yarac": {
+            "Path": "testdata/yara.deb ∴ /usr/bin/yarac",
+            "SHA256": "e94cecc024c584ebfd08cb1dd4242533ab90dbc6a71a357ba5df21792923818a",
+            "Size": 23672,
+            "Syscalls": [
+                "close",
+                "open",
+                "pwrite64"
+            ],
+            "Pledge": [
+                "stdio"
+            ],
+            "Behaviors": [
+                {
+                    "Description": "possible hidden file path",
+                    "MatchStrings": [
+                        "/usr/lib/debug/.dwz"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/evasion/file/prefix/prefix.yara#static_hidden_path",
+                    "ID": "evasion/file/prefix",
+                    "RuleName": "static_hidden_path"
+                },
+                {
+                    "Description": "check if the current user can access a file",
+                    "MatchStrings": [
+                        "access"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-access-check.yara#access",
+                    "ID": "fs/file/access_check",
+                    "RuleName": "access"
+                },
+                {
+                    "Description": "opens files",
+                    "MatchStrings": [
+                        "fclose",
+                        "fopen"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-open.yara#file_open",
+                    "ID": "fs/file/open",
+                    "RuleName": "file_open"
+                },
+                {
+                    "Description": "references /lib64 path",
+                    "MatchStrings": [
+                        "/lib64/ld-linux-x86-64.so.2"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/lib64.yara#elf_lib_dir_refs",
+                    "ID": "fs/path/lib64",
+                    "RuleName": "elf_lib_dir_refs"
+                },
+                {
+                    "Description": "write binary to file descriptor",
+                    "MatchStrings": [
+                        "fwrite"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/os/fd/write.yara#fwrite",
+                    "ReferenceURL": "https://man7.org/linux/man-pages/man3/fwrite.3p.html",
+                    "ID": "os/fd/write",
+                    "RuleName": "fwrite"
+                }
+            ],
+            "RiskScore": 2,
+            "RiskLevel": "MEDIUM"
+        }
+    }
+}

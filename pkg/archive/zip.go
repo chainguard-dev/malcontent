@@ -124,8 +124,6 @@ func extractFile(ctx context.Context, zf *zip.File, destDir string, logger *clog
 		}
 	}
 
-	buf := zipPool.Get(file.ZipBuffer) //nolint:nilaway // the buffer pool is created in archive.go
-
 	clean := filepath.Clean(filepath.ToSlash(zf.Name))
 	if strings.Contains(clean, "..") {
 		logger.Warnf("skipping potentially unsafe file path: %s", zf.Name)
@@ -137,6 +135,27 @@ func extractFile(ctx context.Context, zf *zip.File, destDir string, logger *clog
 		logger.Warnf("skipping file path outside extraction directory: %s", target)
 		return nil
 	}
+
+	if zf.Mode()&os.ModeSymlink != 0 {
+		src, err := zf.Open()
+		if err != nil {
+			return fmt.Errorf("failed to open symlink entry: %w", err)
+		}
+		defer src.Close()
+
+		const maxSymlinkTarget int64 = 4096
+		linkTarget, err := io.ReadAll(io.LimitReader(src, maxSymlinkTarget))
+		if err != nil {
+			return fmt.Errorf("failed to read symlink target: %w", err)
+		}
+
+		if err := handleSymlink(destDir, clean, string(linkTarget)); err != nil {
+			return fmt.Errorf("failed to create symlink: %w", err)
+		}
+		return nil
+	}
+
+	buf := zipPool.Get(file.ZipBuffer) //nolint:nilaway // the buffer pool is created in archive.go
 
 	if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
 		return fmt.Errorf("failed to create directory structure: %w", err)
