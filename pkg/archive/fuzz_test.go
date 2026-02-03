@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
+	"github.com/chainguard-dev/malcontent/pkg/programkind"
 )
 
 // FuzzExtractTar tests tar extraction with random inputs to find crashes,
@@ -17,6 +18,11 @@ func FuzzExtractTar(f *testing.F) {
 	testdata := []string{
 		"../../pkg/action/testdata/apko.tar.gz",
 		"../../pkg/action/testdata/apko_nested.tar.gz",
+		"../../pkg/action/testdata/static.tar.xz",
+		"../../pkg/action/testdata/yara.tar.zlib",
+		"../../pkg/action/testdata/yara.tar.zst",
+		"testdata/symlink_escape.tar",
+		"testdata/symlink_valid.tar",
 	}
 
 	for _, td := range testdata {
@@ -69,9 +75,9 @@ func FuzzExtractTar(f *testing.F) {
 // FuzzExtractZip tests zip extraction with random inputs.
 func FuzzExtractZip(f *testing.F) {
 	testdata := []string{
+		"../../pkg/action/testdata/17419.zip",
 		"../../pkg/action/testdata/apko.zip",
 		"../../pkg/action/testdata/conflict.zip",
-		"../../pkg/action/testdata/17419.zip",
 	}
 
 	for _, td := range testdata {
@@ -125,10 +131,20 @@ func FuzzExtractZip(f *testing.F) {
 // function which handles initialization properly.
 func FuzzExtractArchive(f *testing.F) {
 	testdata := []string{
-		"../../pkg/action/testdata/apko.tar.gz",
-		"../../pkg/action/testdata/apko_nested.tar.gz",
-		"../../pkg/action/testdata/apko.zip",
+		"../../pkg/action/testdata/17419.zip",
 		"../../pkg/action/testdata/apko.gz",
+		"../../pkg/action/testdata/apko.tar.gz",
+		"../../pkg/action/testdata/apko.zip",
+		"../../pkg/action/testdata/apko_nested.tar.gz",
+		"../../pkg/action/testdata/conflict.zip",
+		"../../pkg/action/testdata/joblib_0.9.4.dev0_compressed_cache_size_pickle_py35_np19.gz",
+		"../../pkg/action/testdata/static.tar.xz",
+		"../../pkg/action/testdata/yara.deb",
+		"../../pkg/action/testdata/yara.rpm",
+		"../../pkg/action/testdata/yara.tar.zlib",
+		"../../pkg/action/testdata/yara.tar.zst",
+		"testdata/symlink_escape.tar",
+		"testdata/symlink_valid.tar",
 	}
 
 	for _, td := range testdata {
@@ -140,6 +156,19 @@ func FuzzExtractArchive(f *testing.F) {
 				f.Add(data, ".zip")
 			case strings.HasSuffix(td, ".gz"):
 				f.Add(data, ".gz")
+			case strings.HasSuffix(td, ".tar.xz"):
+				f.Add(data, ".tar.xz")
+			case strings.HasSuffix(td, ".deb"):
+				f.Add(data, ".deb")
+			case strings.HasSuffix(td, ".rpm"):
+				f.Add(data, ".rpm")
+			case strings.HasSuffix(td, ".tar.zlib"):
+				f.Add(data, ".tar.zlib")
+				f.Add(data, ".zlib")
+			case strings.HasSuffix(td, ".tar.zst"):
+				f.Add(data, ".tar.zst")
+				f.Add(data, ".zst")
+				f.Add(data, ".zstd")
 			}
 		}
 	}
@@ -151,7 +180,7 @@ func FuzzExtractArchive(f *testing.F) {
 	f.Add([]byte{0x1f, 0x8b, 0x08, 0x00}, ".gz")     // gzip header
 
 	f.Fuzz(func(t *testing.T, data []byte, ext string) {
-		if ext != ".tar.gz" && ext != ".zip" && ext != ".gz" && ext != ".tar" {
+		if _, ok := programkind.ArchiveMap[ext]; !ok {
 			return
 		}
 
