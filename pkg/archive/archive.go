@@ -44,7 +44,7 @@ func IsValidPath(target, dir string) bool {
 			return false
 		}
 		if rel, err = filepath.Rel(evalDir, evalTarget); err == nil &&
-			rel == ".." || strings.HasPrefix(rel, "..") {
+			(rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator))) {
 			return false
 		}
 	}
@@ -330,6 +330,11 @@ func handleSymlink(dir, linkPath, linkTarget string) error {
 	resolvedTarget := filepath.Clean(filepath.Join(filepath.Dir(fullPath), linkTarget))
 	if !IsValidPath(resolvedTarget, dir) {
 		return fmt.Errorf("symlink target escapes extraction directory: %s -> %s", linkPath, linkTarget)
+	}
+
+	// Ensure parent directory exists
+	if err := os.MkdirAll(filepath.Dir(fullPath), 0o700); err != nil {
+		return fmt.Errorf("failed to create parent directory for symlink: %w", err)
 	}
 
 	// Remove existing symlinks

@@ -120,13 +120,11 @@ func ExtractRPM(ctx context.Context, d, f string) error {
 				return fmt.Errorf("failed to create directory: %w", err)
 			}
 			continue
-
 		case cpio.TypeSymlink:
 			if err := handleSymlink(d, clean, header.Linkname); err != nil {
 				return fmt.Errorf("failed to create symlink: %w", err)
 			}
 			continue
-
 		case cpio.TypeReg:
 			if header.Links > 1 {
 				if existingPath, ok := inodeMap[header.Inode]; ok {
@@ -137,7 +135,6 @@ func ExtractRPM(ctx context.Context, d, f string) error {
 				}
 				inodeMap[header.Inode] = clean
 			}
-
 		default:
 			continue
 		}

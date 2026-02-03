@@ -42,9 +42,10 @@ var ArchiveMap = map[string]bool{
 	".upx":    true,
 	".whl":    true,
 	".xz":     true,
+	".zip":    true,
+	".zlib":   true,
 	".zst":    true,
 	".zstd":   true,
-	".zip":    true,
 }
 
 // file extension to MIME type, if it's a good scanning target.

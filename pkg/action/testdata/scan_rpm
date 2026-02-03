@@ -1,0 +1,566 @@
+{
+    "Files": {
+        "/usr/bin/yara": {
+            "Path": "testdata/yara.rpm ∴ /usr/bin/yara",
+            "SHA256": "ea5195a25d5dc1ba9ba4e9bfa04995adc816b810d249ae0997590402bb5d9d15",
+            "Size": 540912,
+            "Syscalls": [
+                "close",
+                "fstat",
+                "lstat",
+                "madvise",
+                "open",
+                "pread644",
+                "pthread_create",
+                "pwrite64",
+                "readlink"
+            ],
+            "Pledge": [
+                "inet",
+                "rpath",
+                "stdio"
+            ],
+            "Behaviors": [
+                {
+                    "Description": "multiple ELF binaries within an ELF binary",
+                    "MatchStrings": [
+                        "$elf_head"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/elf/multiple.yara#multiple_elf",
+                    "ID": "anti-static/elf/multiple",
+                    "RuleName": "multiple_elf"
+                },
+                {
+                    "Description": "references a 'public key'",
+                    "MatchStrings": [
+                        "public_key"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/crypto/public_key.yara#public_key",
+                    "ID": "crypto/public_key",
+                    "RuleName": "public_key"
+                },
+                {
+                    "Description": "RC4 key scheduling algorithm",
+                    "MatchStrings": [
+                        "$cmp_e_x_256"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/crypto/rc4.yara#rc4_ksa",
+                    "RuleAuthor": "Thomas Barabosch",
+                    "ID": "crypto/rc4",
+                    "RuleName": "rc4_ksa"
+                },
+                {
+                    "Description": "Supports base64 encoded strings",
+                    "MatchStrings": [
+                        "base64"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/data/encoding/base64.yara#b64",
+                    "ID": "data/encoding/base64",
+                    "RuleName": "b64"
+                },
+                {
+                    "Description": "protobuf",
+                    "MatchStrings": [
+                        "protobuf"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/data/encoding/protobuf.yara#protobuf",
+                    "ID": "data/encoding/protobuf",
+                    "RuleName": "protobuf"
+                },
+                {
+                    "Description": "generate random numbers insecurely",
+                    "MatchStrings": [
+                        "srand"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/data/random/insecure.yara#bsd_rand",
+                    "ReferenceURL": "https://man.openbsd.org/rand",
+                    "ID": "data/random/insecure",
+                    "RuleName": "bsd_rand"
+                },
+                {
+                    "Description": "Look up or override terminal settings",
+                    "MatchStrings": [
+                        "TERM"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/exec/shell/TERM.yara#TERM",
+                    "ReferenceURL": "https://www.gnu.org/software/gettext/manual/html_node/The-TERM-variable.html",
+                    "ID": "exec/shell/TERM",
+                    "RuleName": "TERM"
+                },
+                {
+                    "Description": "Uses libc functions to list a directory",
+                    "MatchStrings": [
+                        "opendir",
+                        "readdir"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/directory/directory-list.yara#opendir_readdir",
+                    "ID": "fs/directory/list",
+                    "RuleName": "opendir_readdir"
+                },
+                {
+                    "Description": "opens files",
+                    "MatchStrings": [
+                        "fopen64",
+                        "fclose"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-open.yara#file_open",
+                    "ID": "fs/file/open",
+                    "RuleName": "file_open"
+                },
+                {
+                    "Description": "fstat",
+                    "MatchStrings": [
+                        "fstat64"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-stat.yara#fstat",
+                    "ID": "fs/file/stat",
+                    "RuleName": "fstat"
+                },
+                {
+                    "Description": "read value of a symbolic link",
+                    "MatchStrings": [
+                        "readlink"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/link-read.yara#readlink",
+                    "ReferenceURL": "https://man7.org/linux/man-pages/man2/readlink.2.html",
+                    "ID": "fs/link_read",
+                    "RuleName": "readlink"
+                },
+                {
+                    "Description": "references /lib64 path",
+                    "MatchStrings": [
+                        "/lib64/ld-linux-x86-64.so.2"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/lib64.yara#elf_lib_dir_refs",
+                    "ID": "fs/path/lib64",
+                    "RuleName": "elf_lib_dir_refs"
+                },
+                {
+                    "Description": "access /proc for arbitrary pids",
+                    "MatchStrings": [
+                        "/proc/%u/pagemap",
+                        "/proc/%u/maps",
+                        "/proc/%u/mem"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/proc/arbitrary-pid.yara#proc_arbitrary",
+                    "ID": "fs/proc/arbitrary_pid",
+                    "RuleName": "proc_arbitrary"
+                },
+                {
+                    "Description": "give advice about use of memory",
+                    "MatchStrings": [
+                        "madvise"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/mem/advise.yara#madvise",
+                    "ID": "mem/advise",
+                    "RuleName": "madvise"
+                },
+                {
+                    "Description": "Uses the HTTP protocol",
+                    "MatchStrings": [
+                        "http"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/http.yara#http",
+                    "ID": "net/http",
+                    "RuleName": "http"
+                },
+                {
+                    "Description": "receive a message from a socket",
+                    "MatchStrings": [
+                        "recvfrom"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/socket/socket-receive.yara#recvmsg",
+                    "ReferenceURL": "https://linux.die.net/man/2/recvmsg",
+                    "ID": "net/socket/receive",
+                    "RuleName": "recvmsg"
+                },
+                {
+                    "Description": " close",
+                    "MatchStrings": [
+                        "_close"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/os/fd/access.yara#_close",
+                    "ID": "os/fd/access",
+                    "RuleName": "_close"
+                },
+                {
+                    "Description": "Read binary from a file descriptor",
+                    "MatchStrings": [
+                        "fread"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/os/fd/read.yara#fread",
+                    "ReferenceURL": "https://man7.org/linux/man-pages/man3/fread.3p.html",
+                    "ID": "os/fd/read",
+                    "RuleName": "fread"
+                },
+                {
+                    "Description": "write binary to file descriptor",
+                    "MatchStrings": [
+                        "fwrite"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/os/fd/write.yara#fwrite",
+                    "ReferenceURL": "https://man7.org/linux/man-pages/man3/fwrite.3p.html",
+                    "ID": "os/fd/write",
+                    "RuleName": "fwrite"
+                },
+                {
+                    "Description": "libc",
+                    "MatchStrings": [
+                        "sigaction"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/os/signal/handle.yara#libc",
+                    "ID": "os/signal/handle",
+                    "RuleName": "libc"
+                },
+                {
+                    "Description": "bsd time conversion",
+                    "MatchStrings": [
+                        "timegm"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/os/time/clock-convert.yara#bsd_time_conversion",
+                    "ID": "os/time/clock_convert",
+                    "RuleName": "bsd_time_conversion"
+                },
+                {
+                    "Description": "creates pthreads",
+                    "MatchStrings": [
+                        "pthread_create"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/process/multithreaded.yara#pthread_create",
+                    "ReferenceURL": "https://man7.org/linux/man-pages/man3/pthread_create.3.html",
+                    "ID": "process/multithreaded",
+                    "RuleName": "pthread_create"
+                },
+                {
+                    "Description": "Uses pthreads",
+                    "MatchStrings": [
+                        "pthread_join"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/process/pthreads.yara#pthreads",
+                    "ReferenceURL": "https://en.wikipedia.org/wiki/Pthreads",
+                    "ID": "process/pthreads",
+                    "RuleName": "pthreads"
+                }
+            ],
+            "RiskScore": 2,
+            "RiskLevel": "MEDIUM"
+        },
+        "/usr/bin/yarac": {
+            "Path": "testdata/yara.rpm ∴ /usr/bin/yarac",
+            "SHA256": "f9255c7ad436d3794750d010f10ad12f120d7969e7a5fc2d71413a6e4f5bf67c",
+            "Size": 20352,
+            "Syscalls": [
+                "close",
+                "open",
+                "pwrite64"
+            ],
+            "Pledge": [
+                "stdio"
+            ],
+            "Behaviors": [
+                {
+                    "Description": "opens files",
+                    "MatchStrings": [
+                        "fclose",
+                        "fopen"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-open.yara#file_open",
+                    "ID": "fs/file/open",
+                    "RuleName": "file_open"
+                },
+                {
+                    "Description": "references /lib64 path",
+                    "MatchStrings": [
+                        "/lib64/ld-linux-x86-64.so.2"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/lib64.yara#elf_lib_dir_refs",
+                    "ID": "fs/path/lib64",
+                    "RuleName": "elf_lib_dir_refs"
+                },
+                {
+                    "Description": "write binary to file descriptor",
+                    "MatchStrings": [
+                        "fwrite"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/os/fd/write.yara#fwrite",
+                    "ReferenceURL": "https://man7.org/linux/man-pages/man3/fwrite.3p.html",
+                    "ID": "os/fd/write",
+                    "RuleName": "fwrite"
+                }
+            ],
+            "RiskScore": 0,
+            "RiskLevel": "NONE"
+        },
+        "/usr/lib64/libyara.so.10.0.0": {
+            "Path": "testdata/yara.rpm ∴ /usr/lib64/libyara.so.10.0.0",
+            "SHA256": "06cd11736ee1842b13837dd6a43ec431f1d77a0c125e2154fb0e0569c3e931fb",
+            "Size": 538840,
+            "Syscalls": [
+                "close",
+                "fstat",
+                "madvise",
+                "open",
+                "pread644",
+                "pwrite64",
+                "stat"
+            ],
+            "Pledge": [
+                "inet",
+                "rpath",
+                "stdio"
+            ],
+            "Behaviors": [
+                {
+                    "Description": "references a 'public key'",
+                    "MatchStrings": [
+                        "public_key"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/crypto/public_key.yara#public_key",
+                    "ID": "crypto/public_key",
+                    "RuleName": "public_key"
+                },
+                {
+                    "Description": "RC4 key scheduling algorithm",
+                    "MatchStrings": [
+                        "$cmp_e_x_256"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/crypto/rc4.yara#rc4_ksa",
+                    "RuleAuthor": "Thomas Barabosch",
+                    "ID": "crypto/rc4",
+                    "RuleName": "rc4_ksa"
+                },
+                {
+                    "Description": "Supports base64 encoded strings",
+                    "MatchStrings": [
+                        "base64"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/data/encoding/base64.yara#b64",
+                    "ID": "data/encoding/base64",
+                    "RuleName": "b64"
+                },
+                {
+                    "Description": "protobuf",
+                    "MatchStrings": [
+                        "protobuf"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/data/encoding/protobuf.yara#protobuf",
+                    "ID": "data/encoding/protobuf",
+                    "RuleName": "protobuf"
+                },
+                {
+                    "Description": "generate random numbers insecurely",
+                    "MatchStrings": [
+                        "srand"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/data/random/insecure.yara#bsd_rand",
+                    "ReferenceURL": "https://man.openbsd.org/rand",
+                    "ID": "data/random/insecure",
+                    "RuleName": "bsd_rand"
+                },
+                {
+                    "Description": "Look up or override terminal settings",
+                    "MatchStrings": [
+                        "TERM"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/exec/shell/TERM.yara#TERM",
+                    "ReferenceURL": "https://www.gnu.org/software/gettext/manual/html_node/The-TERM-variable.html",
+                    "ID": "exec/shell/TERM",
+                    "RuleName": "TERM"
+                },
+                {
+                    "Description": "opens files",
+                    "MatchStrings": [
+                        "fopen64",
+                        "fclose"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-open.yara#file_open",
+                    "ID": "fs/file/open",
+                    "RuleName": "file_open"
+                },
+                {
+                    "Description": "access filesystem information",
+                    "MatchStrings": [
+                        "_stat"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-stat.yara#stat",
+                    "ID": "fs/file/stat",
+                    "RuleName": "stat"
+                },
+                {
+                    "Description": "access /proc for arbitrary pids",
+                    "MatchStrings": [
+                        "/proc/%u/pagemap",
+                        "/proc/%u/maps",
+                        "/proc/%u/mem"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/proc/arbitrary-pid.yara#proc_arbitrary",
+                    "ID": "fs/proc/arbitrary_pid",
+                    "RuleName": "proc_arbitrary"
+                },
+                {
+                    "Description": "give advice about use of memory",
+                    "MatchStrings": [
+                        "madvise"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/mem/advise.yara#madvise",
+                    "ID": "mem/advise",
+                    "RuleName": "madvise"
+                },
+                {
+                    "Description": "Uses the HTTP protocol",
+                    "MatchStrings": [
+                        "http"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/http.yara#http",
+                    "ID": "net/http",
+                    "RuleName": "http"
+                },
+                {
+                    "Description": "receive a message from a socket",
+                    "MatchStrings": [
+                        "recvfrom"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/socket/socket-receive.yara#recvmsg",
+                    "ReferenceURL": "https://linux.die.net/man/2/recvmsg",
+                    "ID": "net/socket/receive",
+                    "RuleName": "recvmsg"
+                },
+                {
+                    "Description": " close",
+                    "MatchStrings": [
+                        "_close"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/os/fd/access.yara#_close",
+                    "ID": "os/fd/access",
+                    "RuleName": "_close"
+                },
+                {
+                    "Description": "Read binary from a file descriptor",
+                    "MatchStrings": [
+                        "fread"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/os/fd/read.yara#fread",
+                    "ReferenceURL": "https://man7.org/linux/man-pages/man3/fread.3p.html",
+                    "ID": "os/fd/read",
+                    "RuleName": "fread"
+                },
+                {
+                    "Description": "write binary to file descriptor",
+                    "MatchStrings": [
+                        "fwrite"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/os/fd/write.yara#fwrite",
+                    "ReferenceURL": "https://man7.org/linux/man-pages/man3/fwrite.3p.html",
+                    "ID": "os/fd/write",
+                    "RuleName": "fwrite"
+                },
+                {
+                    "Description": "libc",
+                    "MatchStrings": [
+                        "sigaction"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/os/signal/handle.yara#libc",
+                    "ID": "os/signal/handle",
+                    "RuleName": "libc"
+                },
+                {
+                    "Description": "bsd time conversion",
+                    "MatchStrings": [
+                        "timegm"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/os/time/clock-convert.yara#bsd_time_conversion",
+                    "ID": "os/time/clock_convert",
+                    "RuleName": "bsd_time_conversion"
+                }
+            ],
+            "RiskScore": 2,
+            "RiskLevel": "MEDIUM"
+        }
+    }
+}

@@ -143,7 +143,8 @@ func extractFile(ctx context.Context, zf *zip.File, destDir string, logger *clog
 		}
 		defer src.Close()
 
-		linkTarget, err := io.ReadAll(io.LimitReader(src, file.MaxBytes))
+		const maxSymlinkTarget int64 = 4096
+		linkTarget, err := io.ReadAll(io.LimitReader(src, maxSymlinkTarget))
 		if err != nil {
 			return fmt.Errorf("failed to read symlink target: %w", err)
 		}
