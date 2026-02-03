@@ -3,7 +3,6 @@ package archive
 import (
 	"archive/tar"
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -18,11 +17,6 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/pool"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
-)
-
-var (
-	ErrMaxFilesExceeded = errors.New("maximum scan file count exceeded")
-	ErrMaxDepthExceeded = errors.New("maximum archive nesting depth exceeded")
 )
 
 var (
