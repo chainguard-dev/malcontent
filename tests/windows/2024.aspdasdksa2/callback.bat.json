@@ -17,7 +17,7 @@
                     "RuleAuthor": "Florian Roth (Nextron Systems)",
                     "RuleLicense": "Detection Rule License 1.1 https://github.com/Neo23x0/signature-base/blob/master/LICENSE",
                     "RuleLicenseURL": "https://github.com/Neo23x0/signature-base/blob/6a18e50cdc09a14f850d17e6ae9c1f05f5ed9ba6/LICENSE",
-                    "ID": "3P/sig_base/powershell_webdownload",
+                    "ID": "3P/YARAForge/signature_powershell_webdownload",
                     "RuleName": "SIGNATURE_BASE_Suspicious_Powershell_Webdownload_1"
                 },
                 {

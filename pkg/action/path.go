@@ -1,3 +1,6 @@
+// Copyright 2025 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
 package action
 
 import (
@@ -59,8 +62,32 @@ func findFilesRecursively(ctx context.Context, rootPath string) ([]string, error
 }
 
 // CleanPath removes the temporary directory prefix from the path.
+// It only removes the prefix if it's at a directory boundary to avoid
+// partial matches (e.g., "/tmp/extract" should not match "/tmp/extract2/file").
 func CleanPath(path string, prefix string) string {
-	return formatPath(strings.TrimPrefix(path, prefix))
+	if prefix == "" {
+		return formatPath(path)
+	}
+
+	// Check if path starts with prefix
+	if !strings.HasPrefix(path, prefix) {
+		return formatPath(path)
+	}
+
+	// If path equals prefix exactly, return empty
+	if len(path) == len(prefix) {
+		return ""
+	}
+
+	// Only strip if the next character is a path separator (directory boundary)
+	remainder := path[len(prefix):]
+	if remainder[0] == '/' || remainder[0] == '\\' {
+		return formatPath(remainder)
+	}
+
+	// Partial match (e.g., prefix="/tmp/extract" but path="/tmp/extract2/file")
+	// Don't strip anything
+	return formatPath(path)
 }
 
 // formatPath formats the path for display.

@@ -1,3 +1,6 @@
+// Copyright 2024 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
 package archive
 
 import (
@@ -19,10 +22,14 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 )
 
-var (
-	archivePool, tarPool, zipPool *pool.BufferPool
-	initializeOnce                sync.Once
-)
+var archivePool, tarPool, zipPool *pool.BufferPool
+
+func init() {
+	// Initialize pools for direct use in one location
+	archivePool = pool.NewBufferPool(runtime.GOMAXPROCS(0))
+	tarPool = pool.NewBufferPool(runtime.GOMAXPROCS(0))
+	zipPool = pool.NewBufferPool(runtime.GOMAXPROCS(0) * 2)
+}
 
 // isValidPath checks if the target file is within the given directory.
 func IsValidPath(target, dir string) bool {
@@ -184,10 +191,6 @@ func ExtractArchiveToTempDir(ctx context.Context, c malcontent.Config, path stri
 	if err != nil {
 		return "", fmt.Errorf("failed to create temp dir: %w", err)
 	}
-
-	initializeOnce.Do(func() {
-		archivePool = pool.NewBufferPool(runtime.GOMAXPROCS(0))
-	})
 
 	var extract func(context.Context, string, string) error
 	// Check for zlib-compressed files first and use the zlib-specific function

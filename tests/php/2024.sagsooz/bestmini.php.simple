@@ -1,7 +1,5 @@
 # php/2024.sagsooz/bestmini.php: critical
-3P/sig_base/webshell_php: critical
-3P/sig_base/webshell_php_by: critical
-3P/sig_base/webshell_php_strings: critical
+3P/YARAForge/signature_webshell_php: critical
 anti-static/obfuscation/php: medium
 impact/remote_access/reverse_shell: high
 net/url/embedded: medium

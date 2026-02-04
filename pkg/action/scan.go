@@ -40,11 +40,14 @@ var (
 	compiledRuleCache   atomic.Pointer[yarax.Rules] // compiledRuleCache are a cache of previously compiled rules.
 	compileOnce         sync.Once                   // compileOnce ensures that we compile rules only once even across threads.
 	ErrMatchedCondition = errors.New("matched exit criteria")
-	initReadPool        sync.Once // initReadPool ensures that the bytes read pool is only initialized once.
 	initScannerPool     sync.Once // initScannerPool ensures that the scanner pool is only initialized once.
 	readPool            *pool.BufferPool
 	scannerPool         *pool.ScannerPool
 )
+
+func init() {
+	readPool = pool.NewBufferPool(runtime.GOMAXPROCS(0))
+}
 
 // scanSinglePath YARA scans a single path and converts it to a fileReport.
 //
@@ -144,13 +147,9 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		return fr, nil
 	}
 
-	initReadPool.Do(func() {
-		readPool = pool.NewBufferPool(runtime.GOMAXPROCS(0))
-	})
-
 	// create a buffer sized to the minimum of the file's size or the default ReadBuffer
 	// only do so if we actually need to retrieve the file's contents
-	buf := readPool.Get(min(size, file.ReadBuffer)) //nolint:nilaway // the buffer pool is created above
+	buf := readPool.Get(min(size, file.ReadBuffer)) //nolint:nilaway // the buffer pool is initialized in init()
 
 	// Only retrieve the file's contents and calculate its checksum if we need to generate a report
 	fc, err := file.GetContents(f, buf)

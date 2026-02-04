@@ -1,3 +1,6 @@
+// Copyright 2025 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
 package report
 
 import (
@@ -42,16 +45,6 @@ func FuzzLongestUnique(f *testing.F) {
 		var strs []string
 		if input != "" {
 			strs = strings.Split(input, ",")
-		}
-
-		if len(strs) > 1000 {
-			strs = strs[:1000]
-		}
-
-		for i, s := range strs {
-			if len(s) > 10000 {
-				strs[i] = s[:10000]
-			}
 		}
 
 		result := longestUnique(strs)
@@ -125,10 +118,6 @@ func FuzzTrimPrefixes(f *testing.F) {
 			prefixes = strings.Split(prefixesStr, ",")
 		}
 
-		if len(prefixes) > 100 {
-			prefixes = prefixes[:100]
-		}
-
 		result := TrimPrefixes(path, prefixes)
 
 		if len(result) > len(path) {
@@ -146,13 +135,6 @@ func FuzzMatchToString(f *testing.F) {
 	f.Add(strings.Repeat("a", 1000), strings.Repeat("b", 1000)) // long strings
 
 	f.Fuzz(func(t *testing.T, ruleName, match string) {
-		if len(ruleName) > 10000 {
-			ruleName = ruleName[:10000]
-		}
-		if len(match) > 10000 {
-			match = match[:10000]
-		}
-
 		result := matchToString(ruleName, match)
 
 		if len(result) > len(ruleName)+len(match)+100 {
@@ -175,10 +157,6 @@ func FuzzStringPoolIntern(f *testing.F) {
 	f.Add("\x00\x01\x02\x03")
 
 	f.Fuzz(func(t *testing.T, input string) {
-		if len(input) > 10000 {
-			input = input[:10000]
-		}
-
 		pool := NewStringPool()
 
 		s1 := pool.Intern(input)
@@ -211,13 +189,10 @@ func FuzzStringPoolConcurrent(f *testing.F) {
 		}
 
 		parts := strings.Split(input, ",")
-		if len(parts) > 100 {
-			parts = parts[:100]
-		}
 
 		var filtered []string
 		for _, p := range parts {
-			if len(p) <= 1000 && p != "" {
+			if p != "" {
 				filtered = append(filtered, p)
 			}
 		}
@@ -279,10 +254,6 @@ func FuzzContainsUnprintable(f *testing.F) {
 	f.Add([]byte("mixed\x00content"))
 
 	f.Fuzz(func(t *testing.T, input []byte) {
-		if len(input) > 10000 {
-			input = input[:10000]
-		}
-
 		got := containsUnprintable(input)
 
 		want := false
@@ -352,5 +323,52 @@ func FuzzStringPoolAtomic(f *testing.F) {
 				t.Fatal("different pointers returned for same string")
 			}
 		}
+	})
+}
+
+// FuzzReportLoad tests the Load function with random JSON inputs to find crashes,
+// DoS via resource exhaustion, and unmarshaling bugs.
+func FuzzReportLoad(f *testing.F) {
+	// Seed with valid JSON reports
+	f.Add([]byte(`{}`))
+	f.Add([]byte(`{"Files":{}}`))
+	f.Add([]byte(`{"Files":{"/bin/ls":{"Path":"/bin/ls","RiskScore":1,"RiskLevel":"low"}}}`))
+	f.Add([]byte(`{"Files":{"/usr/bin/curl":{"Path":"/usr/bin/curl","RiskScore":2,"RiskLevel":"medium","Behaviors":{"net/http":{"Description":"HTTP"}}}}}`))
+
+	// Malformed JSON
+	f.Add([]byte(`{invalid json`))
+	f.Add([]byte(`{"Files":`))
+	f.Add([]byte(`null`))
+	f.Add([]byte(``))
+
+	// Edge cases
+	f.Add([]byte(`{"Files":null}`))
+	f.Add([]byte(`[]`))       // Wrong type
+	f.Add([]byte(`"string"`)) // Wrong type
+
+	// Large JSON (potential DoS)
+	largeReport := []byte(`{"Files":{`)
+	for i := range 100 {
+		if i > 0 {
+			largeReport = append(largeReport, ',')
+		}
+		largeReport = append(largeReport, []byte(`"/file`+strings.Repeat("x", 100)+`":{"Path":"/file","RiskScore":1}`)...)
+	}
+	largeReport = append(largeReport, '}', '}')
+	f.Add(largeReport)
+
+	// Deeply nested JSON
+	f.Add([]byte(`{"Files":{"/a":{"Behaviors":{"b1":{"Description":"d1"},"b2":{"Description":"d2"},"b3":{"Description":"d3"}}}}}`))
+
+	// Special characters
+	f.Add([]byte(`{"Files":{"/bin/\u0000":{"Path":"/bin/\u0000"}}}`))  // null byte
+	f.Add([]byte(`{"Files":{"/bin/\n\r\t":{"Path":"/bin/\n\r\t"}}}`))  // whitespace
+	f.Add([]byte(`{"Files":{"/bin/\"':{}\":{"Path":"/bin/\"':{}"}}}`)) // quote chars
+
+	// Very long strings
+	f.Add([]byte(`{"Files":{"/bin/` + strings.Repeat("a", 10000) + `":{"Path":"x"}}}`))
+
+	f.Fuzz(func(_ *testing.T, data []byte) {
+		_, _ = Load(data)
 	})
 }

@@ -1,3 +1,6 @@
+// Copyright 2024 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
 package report
 
 import (
@@ -386,6 +389,423 @@ func TestIsMalcontent(t *testing.T) {
 			t.Parallel()
 			if got := isMalcontent(tt.path); got != tt.want {
 				t.Errorf("isMalcontent(%s) = %v, want %v", tt.path, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestThirdPartyKey(t *testing.T) {
+	tests := []struct {
+		name string
+		path string
+		rule string
+		want string
+	}{
+		{
+			name: "ELASTIC Linux Trojan",
+			path: "yara/elastic/linux_trojan_gafgyt.yara",
+			rule: "ELASTIC_Linux_Trojan_Gafgyt_E4A1982B",
+			want: "3P/elastic/gafgyt",
+		},
+		{
+			name: "no yara path",
+			path: "rules/malware/trojan.yara",
+			rule: "trojan_test",
+			want: "",
+		},
+		{
+			name: "with hex suffix",
+			path: "yara/signature/test.yara",
+			rule: "SIG_Test_Rule_ABC123",
+			want: "3P/sig_base/rule",
+		},
+		{
+			name: "with date suffix",
+			path: "yara/malware/test.yara",
+			rule: "Malware_Test_jan01",
+			want: "3P/malware/test",
+		},
+		{
+			name: "many junk words",
+			path: "yara/forensic/test.yara",
+			rule: "forensic_generic_malware_trojan_suspicious_test_hunting",
+			want: "3P/forensic/test",
+		},
+		{
+			name: "max 4 words",
+			path: "yara/source/test.yara",
+			rule: "Test_Word1_Word2_Word3_Word4_Word5_Word6",
+			want: "3P/source/word1_word2_word3",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := thirdPartyKey(tt.path, tt.rule)
+			if got != tt.want {
+				t.Errorf("thirdPartyKey() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestGenerateKey(t *testing.T) {
+	tests := []struct {
+		name string
+		src  string
+		rule string
+		want string
+	}{
+		{
+			name: "third party rule",
+			src:  "yara/elastic/test.yara",
+			rule: "ELASTIC_Test_Rule",
+			want: "3P/elastic/rule",
+		},
+		{
+			name: "simple rule",
+			src:  "malware/trojan.yara",
+			rule: "trojan_test",
+			want: "malware/trojan",
+		},
+		{
+			name: "with dashes",
+			src:  "anti-static/analysis.yara",
+			rule: "static_analysis",
+			want: "anti-static/analysis",
+		},
+		{
+			name: "remove .yara extension",
+			src:  "exec/exec_dylib.yara",
+			rule: "dylib_test",
+			want: "exec/dylib",
+		},
+		{
+			name: "reduce stutter",
+			src:  "credential/credential_access.yara",
+			rule: "credential_dump",
+			want: "credential/access",
+		},
+		{
+			name: "multiple levels",
+			src:  "namespace/resource/technique.yara",
+			rule: "test",
+			want: "namespace/resource/technique",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := generateKey(tt.src, tt.rule)
+			if got != tt.want {
+				t.Errorf("generateKey() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestGenerateRuleURL(t *testing.T) {
+	tests := []struct {
+		name string
+		src  string
+		rule string
+		want string
+	}{
+		{
+			name: "basic rule",
+			src:  "malware/trojan.yara",
+			rule: "trojan_test",
+			want: "https://github.com/chainguard-dev/malcontent/blob/main/rules/malware/trojan.yara#trojan_test",
+		},
+		{
+			name: "nested path",
+			src:  "exec/dylib/loader.yara",
+			rule: "dylib_inject",
+			want: "https://github.com/chainguard-dev/malcontent/blob/main/rules/exec/dylib/loader.yara#dylib_inject",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := generateRuleURL(tt.src, tt.rule)
+			if got != tt.want {
+				t.Errorf("generateRuleURL() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestIgnoreMatch(t *testing.T) {
+	tests := []struct {
+		name       string
+		tags       []string
+		ignoreTags map[string]bool
+		want       bool
+	}{
+		{
+			name:       "no tags to ignore",
+			tags:       []string{"malware", "trojan"},
+			ignoreTags: map[string]bool{},
+			want:       false,
+		},
+		{
+			name:       "tag should be ignored",
+			tags:       []string{"harmless", "common"},
+			ignoreTags: map[string]bool{"harmless": true},
+			want:       true,
+		},
+		{
+			name:       "multiple tags one ignored",
+			tags:       []string{"suspicious", "harmless"},
+			ignoreTags: map[string]bool{"harmless": true, "benign": true},
+			want:       true,
+		},
+		{
+			name:       "no matching ignore tags",
+			tags:       []string{"malware", "critical"},
+			ignoreTags: map[string]bool{"harmless": true, "benign": true},
+			want:       false,
+		},
+		{
+			name:       "empty tags",
+			tags:       []string{},
+			ignoreTags: map[string]bool{"harmless": true},
+			want:       false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := ignoreMatch(tt.tags, tt.ignoreTags)
+			if got != tt.want {
+				t.Errorf("ignoreMatch() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestBehaviorRisk(t *testing.T) {
+	tests := []struct {
+		name string
+		ns   string
+		rule string
+		tags []string
+		want int
+	}{
+		{
+			name: "third party default",
+			ns:   "yara/somevendor/test.yara",
+			rule: "test_rule",
+			tags: []string{},
+			want: HIGH,
+		},
+		{
+			name: "low risk",
+			ns:   "malware/test.yara",
+			rule: "test_rule",
+			tags: []string{"low"},
+			want: LOW,
+		},
+		{
+			name: "medium risk",
+			ns:   "malware/test.yara",
+			rule: "test_rule",
+			tags: []string{"medium"},
+			want: MEDIUM,
+		},
+		{
+			name: "high risk",
+			ns:   "malware/test.yara",
+			rule: "test_rule",
+			tags: []string{"high"},
+			want: HIGH,
+		},
+		{
+			name: "critical risk",
+			ns:   "malware/test.yara",
+			rule: "test_rule",
+			tags: []string{"critical"},
+			want: CRITICAL,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := behaviorRisk(tt.ns, tt.rule, tt.tags)
+			if got != tt.want {
+				t.Errorf("behaviorRisk() = %d, want %d", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestFixURL(t *testing.T) {
+	tests := []struct {
+		name string
+		url  string
+		want string
+	}{
+		{
+			name: "url with spaces",
+			url:  "https://example.com/path with spaces",
+			want: "https://example.com/path%20with%20spaces",
+		},
+		{
+			name: "url without spaces",
+			url:  "https://example.com/path",
+			want: "https://example.com/path",
+		},
+		{
+			name: "empty url",
+			url:  "",
+			want: "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := fixURL(tt.url)
+			if got != tt.want {
+				t.Errorf("fixURL() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestMungeDescription(t *testing.T) {
+	tests := []struct {
+		name string
+		desc string
+		want string
+	}{
+		{
+			name: "threat hunting keyword",
+			desc: "Detection patterns for the tool 'Nsight RMM' taken from the ThreatHunting-Keywords github project",
+			want: "references 'Nsight RMM' tool",
+		},
+		{
+			name: "another threat hunting pattern",
+			desc: "Detection patterns for the tool 'AnyDesk' taken from the ThreatHunting-Keywords github project",
+			want: "references 'AnyDesk' tool",
+		},
+		{
+			name: "normal description unchanged",
+			desc: "This is a normal malware description",
+			want: "This is a normal malware description",
+		},
+		{
+			name: "empty description",
+			desc: "",
+			want: "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := mungeDescription(tt.desc)
+			if got != tt.want {
+				t.Errorf("mungeDescription() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestThirdParty(t *testing.T) {
+	tests := []struct {
+		name string
+		src  string
+		want bool
+	}{
+		{"third party yara path", "yara/elastic/test.yara", true},
+		{"local rule", "malware/trojan.yara", false},
+		{"nested yara path", "rules/yara/test.yara", true},
+		{"empty path", "", false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := thirdParty(tt.src)
+			if got != tt.want {
+				t.Errorf("thirdParty() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestIsValidURL(t *testing.T) {
+	tests := []struct {
+		name string
+		url  string
+		want bool
+	}{
+		{"valid http url", "http://example.com", true},
+		{"valid https url", "https://example.com/path", true},
+		{"valid relative url", "/path/to/resource", true},
+		{"valid file url", "file:///path/to/file", true},
+		{"empty string", "", true},                                // url.Parse("") doesn't return error
+		{"invalid url with spaces", "http://example .com", false}, // url.Parse rejects spaces in hostname
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := isValidURL(tt.url)
+			if got != tt.want {
+				t.Errorf("isValidURL() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestTrimPrefixes(t *testing.T) {
+	tests := []struct {
+		name     string
+		path     string
+		prefixes []string
+		want     string
+	}{
+		{
+			name:     "remove matching prefix",
+			path:     "/tmp/extract/bin/ls",
+			prefixes: []string{"/tmp/extract"},
+			want:     "bin/ls",
+		},
+		{
+			name:     "no matching prefix",
+			path:     "/usr/bin/ls",
+			prefixes: []string{"/tmp"},
+			want:     "/usr/bin/ls",
+		},
+		{
+			name:     "private prefix",
+			path:     "/private/tmp/file",
+			prefixes: []string{"/private"},
+			want:     "/tmp/file",
+		},
+		{
+			name:     "relative prefix",
+			path:     "/samples/test.bin",
+			prefixes: []string{"./samples"},
+			want:     "test.bin",
+		},
+		{
+			name:     "empty prefix",
+			path:     "/tmp/file",
+			prefixes: []string{""},
+			want:     "/tmp/file",
+		},
+		{
+			name:     "multiple prefixes",
+			path:     "/samples/malware/test.bin",
+			prefixes: []string{"/tmp", "/samples"},
+			want:     "malware/test.bin",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := TrimPrefixes(tt.path, tt.prefixes)
+			if got != tt.want {
+				t.Errorf("TrimPrefixes() = %q, want %q", got, tt.want)
 			}
 		})
 	}

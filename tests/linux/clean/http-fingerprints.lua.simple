@@ -1,5 +1,5 @@
 # linux/clean/http-fingerprints.lua: medium
-3P/sig_base/hacktool_strings_p0wnedshell: medium
+3P/YARAForge/signature_hacktool_strings: medium
 anti-behavior/random_behavior: low
 c2/tool_transfer/grayware: medium
 c2/tool_transfer/os: medium

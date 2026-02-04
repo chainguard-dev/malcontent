@@ -10,7 +10,6 @@ import (
 	"maps"
 	"os"
 	"path/filepath"
-	"runtime"
 	"slices"
 	"sort"
 	"strings"
@@ -19,7 +18,6 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/archive"
 	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
-	"github.com/chainguard-dev/malcontent/pkg/pool"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 	"github.com/chainguard-dev/malcontent/pkg/report"
 	"github.com/egibs/reconcile/pkg/files"
@@ -221,10 +219,6 @@ func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent
 		isImage  bool
 		isReport bool
 	)
-
-	initReadPool.Do(func() {
-		readPool = pool.NewBufferPool(runtime.GOMAXPROCS(0))
-	})
 
 	if c.OCI {
 		srcPath, err = archive.OCI(ctx, srcPath, c.OCIAuth)

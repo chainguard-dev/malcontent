@@ -1,0 +1,6 @@
+go test fuzz v1
+int8(1)
+string("\xff")
+string("0")
+string("0")
+bool(false)
