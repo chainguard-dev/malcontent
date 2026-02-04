@@ -4,9 +4,6 @@
 name: Fuzz Tests
 
 on:
-  push:
-    branches:
-      - "main"
   schedule:
     # Run weekly on Sunday at midnight UTC
     - cron: "0 0 * * 0"
@@ -126,7 +123,7 @@ jobs:
         run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
 
       - name: Clone malcontent samples (required for compile fuzzers)
-        if: contains(matrix.target.package, 'compile')
+        if: contains(matrix.target.package, 'programkind')
         run: |
           make samples
 
