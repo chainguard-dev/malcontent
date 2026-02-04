@@ -1,5 +1,5 @@
 # php/2024.alfa/alfa-obfuscated.php: critical
-3P/sig_base/webshell_php: critical
+3P/YARAForge/signature_webshell_php: critical
 anti-static/base64/obfuscated_caller: critical
 anti-static/obfuscation/bitwise: high
 anti-static/obfuscation/padding: critical

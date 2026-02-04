@@ -1,3 +1,6 @@
+// Copyright 2024 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
 package archive
 
 import (
@@ -9,18 +12,14 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/file"
-	"github.com/chainguard-dev/malcontent/pkg/pool"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 	zip "github.com/klauspost/compress/zip"
 	"golang.org/x/sync/errgroup"
 )
-
-var initZipPool sync.Once
 
 var zipMIME = map[string]struct{}{
 	"application/jar":              {},
@@ -39,10 +38,6 @@ func ExtractZip(ctx context.Context, d string, f string) error {
 
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting zip")
-
-	initZipPool.Do(func() {
-		zipPool = pool.NewBufferPool(runtime.GOMAXPROCS(0) * 2)
-	})
 
 	fi, err := os.Stat(f)
 	if err != nil {

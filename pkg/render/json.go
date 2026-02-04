@@ -55,10 +55,21 @@ func (r JSON) Full(ctx context.Context, c *malcontent.Config, rep *malcontent.Re
 		if path, ok := key.(string); ok {
 			if r, ok := value.(*malcontent.FileReport); ok {
 				if r.Skipped == "" {
-					// Filter out diff-related fields
 					r.ArchiveRoot = ""
 					r.FullPath = ""
-					jr.Files[path] = r
+
+					cleanPath := sanitizeUTF8(path)
+
+					r.Path = sanitizeUTF8(r.Path)
+
+					for _, b := range r.Behaviors {
+						if b != nil {
+							b.ID = sanitizeUTF8(b.ID)
+							b.Description = sanitizeUTF8(b.Description)
+						}
+					}
+
+					jr.Files[cleanPath] = r
 				}
 			}
 		}

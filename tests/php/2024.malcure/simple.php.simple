@@ -1,6 +1,5 @@
 # php/2024.malcure/simple.php: critical
-3P/sig_base/webshell_php: critical
-3P/sig_base/webshell_php_obfusc: critical
+3P/YARAForge/signature_webshell_php: critical
 data/encoding/base64: low
 exec/remote_commands/code_eval: high
 impact/remote_access/backdoor: medium

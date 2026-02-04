@@ -1,6 +1,6 @@
 # linux/mimipenguin/bash/mimipenguin: critical
-3P/sig_base/mimipenguin: critical
-3P/sig_base/mimipenguin_sh: critical
+3P/YARAForge/signature_mimipenguin: critical
+3P/YARAForge/signature_mimipenguin_sh: critical
 credential/keychain/gnome_keyring_daemon: medium
 credential/os/shadow: medium
 credential/password: low

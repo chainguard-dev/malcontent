@@ -1,5 +1,5 @@
 # ruby/2024.reverse_shells/oreilly2.rb: critical
-3P/sig_base/hktl_shellpop_ruby: critical
+3P/YARAForge/signature_hktl_shellpop: critical
 exec/cmd/pipe: medium
 impact/remote_access/reverse_shell: high
 net/tcp/connect: medium

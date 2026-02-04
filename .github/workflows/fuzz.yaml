@@ -1,0 +1,137 @@
+# Copyright 2026 Chainguard, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+name: Fuzz Tests
+
+on:
+  push:
+    branches:
+      - "main"
+  schedule:
+    # Run weekly on Sunday at midnight UTC
+    - cron: "0 0 * * 0"
+  workflow_dispatch:
+    inputs:
+      fuzz_target:
+        description: "Specific fuzzer to run (leave empty for all)"
+        required: false
+        default: ""
+        type: string
+      fuzz_time:
+        description: "Fuzz duration per target (e.g., 30s, 1m, 5m)"
+        required: false
+        default: "30s"
+        type: choice
+        options:
+          - "10s"
+          - "30s"
+          - "1m"
+          - "5m"
+          - "10m"
+          - "30m"
+          - "60m"
+          - "180m"
+
+permissions: {}
+
+jobs:
+  discover:
+    if: ${{ github.repository == 'chainguard-dev/malcontent' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      targets: ${{ steps.find.outputs.targets }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Discover fuzz targets
+        id: find
+        env:
+          TARGET_FILTER: ${{ inputs.fuzz_target }}
+        run: |
+          # Find all Fuzz* functions in test files and build JSON array
+          # Format: [{"test": "FuzzName", "package": "./pkg/path/"}]
+          all_targets=$(grep -r "^func Fuzz" --include="*_test.go" -l pkg/ | while read -r file; do
+            dir="./$(dirname "${file}")/"
+            grep -o "^func Fuzz[A-Za-z0-9_]*" "${file}" | sed 's/^func //' | while read -r func; do
+              echo "{\"test\":\"${func}\",\"package\":\"${dir}\"}"
+            done
+          done | jq -s -c '.')
+
+          targets="${all_targets}"
+
+          # If a specific target is requested, validate and filter
+          if [ -n "${TARGET_FILTER}" ]; then
+            # Validate format: must start with "Fuzz" and contain only alphanumeric/underscore
+            if ! echo "${TARGET_FILTER}" | grep -qE '^Fuzz[A-Za-z0-9_]+$'; then
+              echo "::error::Invalid fuzz target format: '${TARGET_FILTER}'. Must match pattern 'Fuzz[A-Za-z0-9_]+'"
+              exit 1
+            fi
+
+            # Filter to the requested target
+            targets=$(echo "${all_targets}" | jq -c --arg t "${TARGET_FILTER}" '[.[] | select(.test == $t)]')
+
+            # Check if target exists
+            if [ "${targets}" = "[]" ]; then
+              echo "::error::Fuzz target '${TARGET_FILTER}' not found."
+              echo "Available targets:"
+              echo "${all_targets}" | jq -r '.[].test' | sort | sed 's/^/  - /'
+              exit 1
+            fi
+          fi
+
+          echo "targets=${targets}" >> "${GITHUB_OUTPUT}"
+          echo "Discovered targets: ${targets}"
+
+  fuzz:
+    if: ${{ github.repository == 'chainguard-dev/malcontent' && needs.discover.outputs.targets != '[]' }}
+    needs: discover
+    runs-on: ubuntu-latest-16-core
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJson(needs.discover.outputs.targets) }}
+    container:
+      image: cgr.dev/chainguard/wolfi-base:latest # zizmor: ignore[unpinned-images]
+      options: >-
+        --cap-add DAC_OVERRIDE
+        --cap-add SETGID
+        --cap-add SETUID
+        --cap-drop ALL
+        --cgroupns private
+        --cpu-shares=16384
+        --memory-swappiness=0
+        --security-opt no-new-privileges
+        --ulimit core=0
+        --ulimit nofile=65535:65535
+        --ulimit nproc=65535:65535
+    steps:
+      - name: Install dependencies
+        run: |
+          apk update
+          apk add curl findutils git go nodejs upx xz yara-x~1.12.0
+
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Trust repository
+        run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
+
+      - name: Clone malcontent samples (required for compile fuzzers)
+        if: contains(matrix.target.package, 'compile')
+        run: |
+          make samples
+
+      - name: Run fuzzer - ${{ matrix.target.test }}
+        env:
+          FUZZ_TIME: ${{ inputs.fuzz_time || '30s' }}
+        run: |
+          go test -timeout 0 -fuzz="${{ matrix.target.test }}" -fuzztime="${FUZZ_TIME}" "${{ matrix.target.package }}"

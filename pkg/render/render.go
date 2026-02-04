@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"io"
 	"sort"
+	"strings"
+	"unicode/utf8"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 )
@@ -27,6 +29,19 @@ type Stats struct {
 	SkippedFiles   int                    `json:",omitempty" yaml:",omitempty"`
 	TotalBehaviors int                    `json:",omitempty" yaml:",omitempty"`
 	TotalRisks     int                    `json:",omitempty" yaml:",omitempty"`
+}
+
+// sanitizeUTF8 replaces invalid UTF-8 sequences with the Unicode replacement character
+// and replaces newlines/carriage returns with spaces to prevent YAML serialization issues.
+// This ensures consistent handling across JSON and YAML serialization.
+func sanitizeUTF8(s string) string {
+	if !utf8.ValidString(s) {
+		s = strings.ToValidUTF8(s, string(utf8.RuneError))
+	}
+	// Replace newlines and carriage returns with spaces to avoid YAML complex key issues
+	s = strings.ReplaceAll(s, "\n", " ")
+	s = strings.ReplaceAll(s, "\r", " ")
+	return strings.TrimSpace(s)
 }
 
 // New returns a new Renderer.

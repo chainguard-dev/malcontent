@@ -1,3 +1,6 @@
+// Copyright 2025 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
 package report
 
 import (
@@ -72,8 +75,8 @@ func CleanReportPath(path, tmpRoot, imageURI string) string {
 		path = strings.TrimPrefix(path, matches[1])
 	}
 
-	// Ensure path starts with /
-	if !strings.HasPrefix(path, "/") && !strings.HasPrefix(path, imageURI) {
+	// Ensure path starts with / (unless it has an imageURI prefix)
+	if !strings.HasPrefix(path, "/") && (imageURI == "" || !strings.HasPrefix(path, imageURI)) {
 		path = "/" + path
 	}
 

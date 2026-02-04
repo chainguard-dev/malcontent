@@ -1,5 +1,5 @@
 # linux/2024.chisel/crondx: critical
-3P/sekoia/chisel_strings: critical
+3P/YARAForge/sekoia_chisel_strings: critical
 anti-behavior/random_behavior: low
 c2/addr/ip: high
 c2/addr/url: low

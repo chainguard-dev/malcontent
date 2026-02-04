@@ -1,3 +1,6 @@
+// Copyright 2024 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
 package archive
 
 import (
@@ -8,20 +11,15 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
-	"sync"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/file"
-	"github.com/chainguard-dev/malcontent/pkg/pool"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 	bzip2 "github.com/cosnicolaou/pbzip2"
 	gzip "github.com/klauspost/pgzip"
 	"github.com/ulikunitz/xz"
 )
-
-var initTarPool sync.Once
 
 // extractTar extracts .apk and .tar* archives.
 //
@@ -33,11 +31,6 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting tar")
-
-	// Initialize the tar sync pool here since OCI preparation bypasses the main extraction method
-	initTarPool.Do(func() {
-		tarPool = pool.NewBufferPool(runtime.GOMAXPROCS(0))
-	})
 
 	// Check if the file is valid
 	fi, err := os.Stat(f)

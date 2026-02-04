@@ -57,7 +57,19 @@ func (r YAML) Full(ctx context.Context, c *malcontent.Config, rep *malcontent.Re
 				if r.Skipped == "" {
 					r.ArchiveRoot = ""
 					r.FullPath = ""
-					yr.Files[path] = r
+
+					cleanPath := sanitizeUTF8(path)
+
+					r.Path = sanitizeUTF8(r.Path)
+
+					for _, b := range r.Behaviors {
+						if b != nil {
+							b.ID = sanitizeUTF8(b.ID)
+							b.Description = sanitizeUTF8(b.Description)
+						}
+					}
+
+					yr.Files[cleanPath] = r
 				}
 			}
 		}

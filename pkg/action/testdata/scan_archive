@@ -2275,7 +2275,7 @@
                     "RuleName": "unsetenv"
                 },
                 {
-                    "Description": " close",
+                    "Description": "close",
                     "MatchStrings": [
                         "_close"
                     ],

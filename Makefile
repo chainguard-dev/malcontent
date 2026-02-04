@@ -142,14 +142,25 @@ test:
 fuzz:
 	go test -timeout 0 -fuzz=FuzzContainsUnprintable -fuzztime=10s ./pkg/report/
 	go test -timeout 0 -fuzz=FuzzExtractArchive -fuzztime=10s ./pkg/archive/
+	go test -timeout 0 -fuzz=FuzzExtractBz2 -fuzztime=10s ./pkg/archive/
+	go test -timeout 0 -fuzz=FuzzExtractDeb -fuzztime=10s ./pkg/archive/
+	go test -timeout 0 -fuzz=FuzzExtractGzip -fuzztime=10s ./pkg/archive/
+	go test -timeout 0 -fuzz=FuzzExtractRPM -fuzztime=10s ./pkg/archive/
 	go test -timeout 0 -fuzz=FuzzExtractTar -fuzztime=10s ./pkg/archive/
+	go test -timeout 0 -fuzz=FuzzExtractUPX -fuzztime=10s ./pkg/archive/
 	go test -timeout 0 -fuzz=FuzzExtractZip -fuzztime=10s ./pkg/archive/
+	go test -timeout 0 -fuzz=FuzzExtractZlib -fuzztime=10s ./pkg/archive/
+	go test -timeout 0 -fuzz=FuzzExtractZstd -fuzztime=10s ./pkg/archive/
 	go test -timeout 0 -fuzz=FuzzFile -fuzztime=30s ./pkg/programkind/
 	go test -timeout 0 -fuzz=FuzzGetExt -fuzztime=10s ./pkg/programkind/
 	go test -timeout 0 -fuzz=FuzzIsValidPath -fuzztime=10s ./pkg/archive/
 	go test -timeout 0 -fuzz=FuzzLongestUnique -fuzztime=10s ./pkg/report/
 	go test -timeout 0 -fuzz=FuzzMatchToString -fuzztime=10s ./pkg/report/
 	go test -timeout 0 -fuzz=FuzzPath -fuzztime=10s ./pkg/programkind/
+	go test -timeout 0 -fuzz=FuzzRecursiveCompile -fuzztime=10s ./pkg/compile/
+	go test -timeout 0 -fuzz=FuzzRemoveRules -fuzztime=10s ./pkg/compile/
+	go test -timeout 0 -fuzz=FuzzRenderDifferential -fuzztime=10s ./pkg/render/
+	go test -timeout 0 -fuzz=FuzzReportLoad -fuzztime=10s ./pkg/report/
 	go test -timeout 0 -fuzz=FuzzStringPoolAtomic -fuzztime=10s ./pkg/report/
 	go test -timeout 0 -fuzz=FuzzStringPoolConcurrent -fuzztime=10s ./pkg/report/
 	go test -timeout 0 -fuzz=FuzzStringPoolIntern -fuzztime=10s ./pkg/report/

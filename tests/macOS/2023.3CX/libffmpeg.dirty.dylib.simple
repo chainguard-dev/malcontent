@@ -1,9 +1,9 @@
 # macOS/2023.3CX/libffmpeg.dirty.dylib: critical
-3P/sekoia/downloader_smooth_operator: critical
-3P/sig_base/3cxdesktopapp_backdoor: critical
-3P/sig_base/nk_3cx_dylib: critical
-3P/sig_base/susp_xored_mozilla: critical
-3P/volexity/iconic: critical
+3P/YARAForge/sekoia_downloader_smooth: critical
+3P/YARAForge/signature_3cxdesktopapp_backdoor: critical
+3P/YARAForge/signature_nk_3cx: critical
+3P/YARAForge/signature_susp_xored: critical
+3P/YARAForge/volexity_iconic: critical
 anti-behavior/random_behavior: low
 anti-static/xor/user_agent: critical
 c2/addr/url: low

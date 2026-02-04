@@ -207,7 +207,7 @@
                     "RuleName": "recvmsg"
                 },
                 {
-                    "Description": " close",
+                    "Description": "close",
                     "MatchStrings": [
                         "_close"
                     ],
@@ -502,7 +502,7 @@
                     "RuleName": "recvmsg"
                 },
                 {
-                    "Description": " close",
+                    "Description": "close",
                     "MatchStrings": [
                         "_close"
                     ],

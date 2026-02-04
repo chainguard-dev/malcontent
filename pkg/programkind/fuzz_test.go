@@ -1,3 +1,6 @@
+// Copyright 2025 Chainguard, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
 package programkind
 
 import (
@@ -20,9 +23,7 @@ func FuzzFile(f *testing.F) {
 		}
 
 		if data, readErr := os.ReadFile(path); readErr == nil {
-			if len(data) <= 10*1024*1024 { // 10MB max
-				f.Add(data, filepath.Base(path))
-			}
+			f.Add(data, filepath.Base(path))
 		}
 		return nil
 	})

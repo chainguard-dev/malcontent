@@ -73,6 +73,7 @@ var yaraForgeJunkWords = map[string]bool{
 	"malware":           true,
 	"offensive":         true,
 	"osx":               true,
+	"sig":               true,
 	"small":             true,
 	"suspicious":        true,
 	"tool":              true,
@@ -110,10 +111,10 @@ func thirdPartyKey(path string, rule string) string {
 		return ""
 	}
 	subDir := path[yaraIndex+5 : strings.IndexByte(path[yaraIndex+5:], '/')+yaraIndex+5]
-	words := []string{subDir}
 
 	// ELASTIC_Linux_Trojan_Gafgyt_E4A1982B
-	words = append(words, strings.Split(strings.ToLower(rule), "_")...)
+	// Start with words from the rule name, not including subDir yet
+	words := strings.Split(strings.ToLower(rule), "_")
 
 	var lastWord string
 	// creating a slice with subDir initially should usually ensure this is at least one,
@@ -127,30 +128,45 @@ func thirdPartyKey(path string, rule string) string {
 	}
 
 	keepWords := make([]string, 0, len(words))
+	subDirLower := strings.ToLower(subDir)
+
 	for x, w := range words {
 		// ends with a date or empty
 		if (x == len(words)-1 && dateRe.MatchString(w)) || w == "" {
 			continue
 		}
 
-		if !yaraForgeJunkWords[w] {
+		// Filter out junk words and the subdirectory name
+		if !yaraForgeJunkWords[w] && w != subDirLower {
 			keepWords = append(keepWords, w)
 		}
 	}
-	if len(keepWords) > 4 {
-		keepWords = keepWords[0:4]
+
+	// Additionally filter "test" from the beginning if there are other words
+	if len(keepWords) > 1 && keepWords[0] == "test" {
+		keepWords = keepWords[1:]
 	}
 
-	var src string
-	// the rule name is equivalent to the words we're keeping minus one to account for the source
-	ruleName := make([]string, 0, len(keepWords)-1)
-	if len(keepWords) > 0 {
-		// Fix name for https://github.com/Neo23x0/signature-base within YARAForge
-		src = strings.Replace(keepWords[0], "signature", "sig_base", 1)
-		if len(keepWords) > 1 {
-			ruleName = keepWords[1:]
+	// If we filtered everything, keep at least the first word that's not the subdir
+	if len(keepWords) == 0 {
+		for x := 0; x < len(words); x++ {
+			if words[x] != "" && !dateRe.MatchString(words[x]) && words[x] != subDirLower {
+				keepWords = append(keepWords, words[x])
+				break
+			}
 		}
 	}
+
+	// Max 3 words in the rule name (source is separate)
+	if len(keepWords) > 3 {
+		keepWords = keepWords[0:3]
+	}
+
+	// Fix name for https://github.com/Neo23x0/signature-base within YARAForge
+	src := strings.Replace(subDir, "signature", "sig_base", 1)
+
+	// All keepWords are part of the rule name
+	ruleName := keepWords
 
 	return fmt.Sprintf("3P/%s/%s", src, strings.Join(ruleName, "_"))
 }
@@ -370,10 +386,25 @@ func TrimPrefixes(path string, prefixes []string) string {
 		case "/private":
 			return strings.TrimPrefix(path, prefix)
 		default:
+			// Strip ./ prefix
 			prefix = strings.TrimPrefix(prefix, "./")
+			if prefix == "" {
+				continue
+			}
+
+			// Try matching as-is first (handles both relative and absolute)
 			if strings.HasPrefix(path, prefix) {
 				trimmed := path[len(prefix):]
 				return strings.TrimPrefix(trimmed, string(filepath.Separator))
+			}
+
+			// If prefix is relative but path is absolute, try with leading /
+			if !strings.HasPrefix(prefix, "/") && strings.HasPrefix(path, "/") {
+				absPrefix := "/" + prefix
+				if strings.HasPrefix(path, absPrefix) {
+					trimmed := path[len(absPrefix):]
+					return strings.TrimPrefix(trimmed, string(filepath.Separator))
+				}
 			}
 		}
 	}
