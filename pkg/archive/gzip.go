@@ -58,11 +58,13 @@ func ExtractGzip(ctx context.Context, d string, f string) error {
 	}
 
 	buf := archivePool.Get(file.ExtractBuffer) //nolint:nilaway // the buffer pool is created in archive.go
+	defer archivePool.Put(buf)
 
 	gf, err := os.Open(f)
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
+	defer gf.Close()
 
 	base := filepath.Base(f)
 	target := filepath.Join(d, base[:len(base)-len(filepath.Ext(base))])
@@ -74,18 +76,13 @@ func ExtractGzip(ctx context.Context, d string, f string) error {
 	if err != nil {
 		return fmt.Errorf("failed to create gzip reader: %w", err)
 	}
+	defer gr.Close()
 
 	out, err := os.Create(target)
 	if err != nil {
 		return fmt.Errorf("failed to create extracted file: %w", err)
 	}
-
-	defer func() {
-		archivePool.Put(buf)
-		gf.Close()
-		gr.Close()
-		out.Close()
-	}()
+	defer out.Close()
 
 	var written int64
 	for {

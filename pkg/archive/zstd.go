@@ -35,6 +35,7 @@ func ExtractZstd(ctx context.Context, d string, f string) error {
 	}
 
 	buf := archivePool.Get(file.ExtractBuffer) //nolint:nilaway // the buffer pool is created in archive.go
+	defer archivePool.Put(buf)
 
 	uncompressed := strings.TrimSuffix(filepath.Base(f), ".zstd")
 	uncompressed = strings.TrimSuffix(uncompressed, ".zst")
@@ -52,23 +53,19 @@ func ExtractZstd(ctx context.Context, d string, f string) error {
 	if err != nil {
 		return fmt.Errorf("failed to create decompressed zstd file: %w", err)
 	}
+	defer out.Close()
 
 	zstdFile, err := os.Open(f)
 	if err != nil {
 		return fmt.Errorf("failed to open zstd file: %w", err)
 	}
+	defer zstdFile.Close()
 
 	zr, err := zstd.NewReader(zstdFile)
 	if err != nil {
 		return fmt.Errorf("failed to open zstd file %s: %w", f, err)
 	}
-
-	defer func() {
-		archivePool.Put(buf)
-		zstdFile.Close()
-		zr.Close()
-		out.Close()
-	}()
+	defer zr.Close()
 
 	var written int64
 	for {
