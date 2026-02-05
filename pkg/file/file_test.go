@@ -11,6 +11,7 @@ import (
 )
 
 func TestGetContents(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name        string
 		content     []byte
@@ -103,6 +104,7 @@ func TestGetContents(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			tmpDir := t.TempDir()
 			tmpFile := filepath.Join(tmpDir, "testfile")
 
@@ -136,6 +138,7 @@ func TestGetContents(t *testing.T) {
 }
 
 func TestGetContentsClosedFile(t *testing.T) {
+	t.Parallel()
 	tmpDir := t.TempDir()
 	tmpFile := filepath.Join(tmpDir, "testfile")
 
@@ -158,6 +161,7 @@ func TestGetContentsClosedFile(t *testing.T) {
 }
 
 func TestGetContentsMaxBytesLimit(t *testing.T) {
+	t.Parallel()
 	tmpDir := t.TempDir()
 	tmpFile := filepath.Join(tmpDir, "largefile")
 
@@ -210,6 +214,7 @@ func TestGetContentsMaxBytesLimit(t *testing.T) {
 }
 
 func TestGetContentsNilBuffer(t *testing.T) {
+	t.Parallel()
 	tmpDir := t.TempDir()
 	tmpFile := filepath.Join(tmpDir, "testfile")
 
@@ -235,6 +240,7 @@ func TestGetContentsNilBuffer(t *testing.T) {
 }
 
 func TestConstants(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name string
 		got  int64
@@ -250,6 +256,7 @@ func TestConstants(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			if tt.got != tt.want {
 				t.Errorf("%s = %d, want %d", tt.name, tt.got, tt.want)
 			}

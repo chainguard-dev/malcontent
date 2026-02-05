@@ -10,6 +10,7 @@ import (
 )
 
 func TestNew(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name    string
 		kind    string
@@ -32,6 +33,7 @@ func TestNew(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			var buf bytes.Buffer
 			got, err := New(tt.kind, &buf)
 
@@ -60,6 +62,7 @@ func TestNew(t *testing.T) {
 }
 
 func TestRiskEmoji(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name  string
 		score int
@@ -76,6 +79,7 @@ func TestRiskEmoji(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			got := riskEmoji(tt.score)
 			if got != tt.want {
 				t.Errorf("riskEmoji(%d) = %q, want %q", tt.score, got, tt.want)
@@ -85,6 +89,7 @@ func TestRiskEmoji(t *testing.T) {
 }
 
 func TestSerializedStatsNilReport(t *testing.T) {
+	t.Parallel()
 	stats := serializedStats(nil, nil)
 	if stats != nil {
 		t.Error("serializedStats with nil report should return nil")
@@ -92,6 +97,7 @@ func TestSerializedStatsNilReport(t *testing.T) {
 }
 
 func TestNewJSON(t *testing.T) {
+	t.Parallel()
 	var buf bytes.Buffer
 	renderer := NewJSON(&buf)
 
@@ -101,6 +107,7 @@ func TestNewJSON(t *testing.T) {
 }
 
 func TestNewYAML(t *testing.T) {
+	t.Parallel()
 	var buf bytes.Buffer
 	renderer := NewYAML(&buf)
 
@@ -110,6 +117,7 @@ func TestNewYAML(t *testing.T) {
 }
 
 func TestNewMarkdown(t *testing.T) {
+	t.Parallel()
 	var buf bytes.Buffer
 	renderer := NewMarkdown(&buf)
 
@@ -119,6 +127,7 @@ func TestNewMarkdown(t *testing.T) {
 }
 
 func TestNewTerminal(t *testing.T) {
+	t.Parallel()
 	var buf bytes.Buffer
 	renderer := NewTerminal(&buf)
 
@@ -128,6 +137,7 @@ func TestNewTerminal(t *testing.T) {
 }
 
 func TestNewTerminalBrief(t *testing.T) {
+	t.Parallel()
 	var buf bytes.Buffer
 	renderer := NewTerminalBrief(&buf)
 
@@ -137,6 +147,7 @@ func TestNewTerminalBrief(t *testing.T) {
 }
 
 func TestNewSimple(t *testing.T) {
+	t.Parallel()
 	var buf bytes.Buffer
 	renderer := NewSimple(&buf)
 
@@ -146,6 +157,7 @@ func TestNewSimple(t *testing.T) {
 }
 
 func TestNewStringMatches(t *testing.T) {
+	t.Parallel()
 	var buf bytes.Buffer
 	renderer := NewStringMatches(&buf)
 

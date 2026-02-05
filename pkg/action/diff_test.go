@@ -13,6 +13,7 @@ import (
 
 // TestRelPath tests the relPath function which computes relative paths for diff operations.
 func TestRelPath(t *testing.T) {
+	t.Parallel()
 	tmpDir := t.TempDir()
 
 	// Create test file structure
@@ -105,6 +106,7 @@ func TestRelPath(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			base, rel, err := relPath(tt.from, tt.fr, tt.isArchive, tt.isImage)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("relPath() error = %v, wantErr %v", err, tt.wantErr)
@@ -119,6 +121,7 @@ func TestRelPath(t *testing.T) {
 }
 
 func TestIsUPXBackup(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name  string
 		path  string
@@ -159,6 +162,7 @@ func TestIsUPXBackup(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			got := isUPXBackup(tt.path, tt.files)
 			if got != tt.want {
 				t.Errorf("isUPXBackup(%q, ...) = %v, want %v", tt.path, got, tt.want)
@@ -168,6 +172,7 @@ func TestIsUPXBackup(t *testing.T) {
 }
 
 func TestSelectPrimaryFile(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name  string
 		files map[string]*malcontent.FileReport
@@ -197,6 +202,7 @@ func TestSelectPrimaryFile(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			got := selectPrimaryFile(tt.files)
 			if got == nil && tt.want == "" {
 				return // both nil, OK
@@ -213,6 +219,7 @@ func TestSelectPrimaryFile(t *testing.T) {
 }
 
 func TestFormatKey(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name string
 		res  ScanResult
@@ -241,6 +248,7 @@ func TestFormatKey(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			got := formatKey(tt.res, tt.file)
 			if got != tt.want {
 				t.Errorf("formatKey() = %q, want %q", got, tt.want)

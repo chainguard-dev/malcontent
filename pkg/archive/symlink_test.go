@@ -11,6 +11,7 @@ import (
 )
 
 func TestSymlinkExtraction(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name    string
 		tarFile string
@@ -31,6 +32,7 @@ func TestSymlinkExtraction(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			tmpDir, err := os.MkdirTemp("", "symlink-test-*")
 			if err != nil {
 				t.Fatalf("failed to create temp dir: %v", err)
@@ -54,6 +56,7 @@ func TestSymlinkExtraction(t *testing.T) {
 }
 
 func TestHandleSymlink(t *testing.T) {
+	t.Parallel()
 	tmpDir, err := os.MkdirTemp("", "symlink-test-*")
 	if err != nil {
 		t.Fatalf("failed to create temp dir: %v", err)

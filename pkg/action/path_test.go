@@ -13,6 +13,7 @@ import (
 )
 
 func TestFindFilesRecursively(t *testing.T) {
+	t.Parallel()
 	// Create temporary test directory structure
 	tmpDir := t.TempDir()
 
@@ -80,6 +81,7 @@ func TestFindFilesRecursively(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			ctx := context.Background()
 			got, err := findFilesRecursively(ctx, tt.rootPath)
 
@@ -104,6 +106,7 @@ func TestFindFilesRecursively(t *testing.T) {
 }
 
 func TestFindFilesRecursivelySymlinks(t *testing.T) {
+	t.Parallel()
 	tmpDir := t.TempDir()
 
 	// Create a file
@@ -131,6 +134,7 @@ func TestFindFilesRecursivelySymlinks(t *testing.T) {
 }
 
 func TestFindFilesRecursivelySymlinkRoot(t *testing.T) {
+	t.Parallel()
 	tmpDir := t.TempDir()
 
 	// Create a directory with a file
@@ -163,6 +167,7 @@ func TestFindFilesRecursivelySymlinkRoot(t *testing.T) {
 }
 
 func TestFindFilesRecursivelyCanceledContext(t *testing.T) {
+	t.Parallel()
 	tmpDir := t.TempDir()
 
 	// Create a file
@@ -181,6 +186,7 @@ func TestFindFilesRecursivelyCanceledContext(t *testing.T) {
 }
 
 func TestFindFilesRecursivelyPermissionDenied(t *testing.T) {
+	t.Parallel()
 	if os.Getuid() == 0 {
 		t.Skip("Skipping permission test when running as root")
 	}
@@ -232,6 +238,7 @@ func TestFindFilesRecursivelyPermissionDenied(t *testing.T) {
 }
 
 func TestFindFilesRecursivelyEmptyDirectory(t *testing.T) {
+	t.Parallel()
 	tmpDir := t.TempDir()
 
 	ctx := context.Background()
@@ -246,6 +253,7 @@ func TestFindFilesRecursivelyEmptyDirectory(t *testing.T) {
 }
 
 func TestFindFilesRecursivelyDeepNesting(t *testing.T) {
+	t.Parallel()
 	tmpDir := t.TempDir()
 
 	// Create deeply nested structure
@@ -275,6 +283,7 @@ func TestFindFilesRecursivelyDeepNesting(t *testing.T) {
 }
 
 func TestCleanPath(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name   string
 		path   string
@@ -321,6 +330,7 @@ func TestCleanPath(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			got := CleanPath(tt.path, tt.prefix)
 			if got != tt.want {
 				t.Errorf("CleanPath(%q, %q) = %q, want %q", tt.path, tt.prefix, got, tt.want)
@@ -330,6 +340,7 @@ func TestCleanPath(t *testing.T) {
 }
 
 func TestFormatPath(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name string
 		path string
@@ -364,6 +375,7 @@ func TestFormatPath(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			got := formatPath(tt.path)
 			if got != tt.want {
 				t.Errorf("formatPath(%q) = %q, want %q", tt.path, got, tt.want)

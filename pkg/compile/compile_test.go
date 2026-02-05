@@ -65,6 +65,7 @@ func clearRulesCacheB(b *testing.B, fss []fs.FS) {
 }
 
 func TestRecursive(t *testing.T) {
+	t.Parallel()
 	ctx := context.Background()
 
 	rules, err := Recursive(ctx, getAllRuleFS())
@@ -78,6 +79,7 @@ func TestRecursive(t *testing.T) {
 }
 
 func TestGetRulesHash(t *testing.T) {
+	t.Parallel()
 	ctx := context.Background()
 
 	fss := getAllRuleFS()
@@ -103,6 +105,7 @@ func TestGetRulesHash(t *testing.T) {
 }
 
 func TestCacheOperations(t *testing.T) {
+	t.Parallel()
 	ctx := context.Background()
 
 	tempDir := t.TempDir()
@@ -140,6 +143,7 @@ func TestCacheOperations(t *testing.T) {
 }
 
 func TestRecursiveCached(t *testing.T) {
+	t.Parallel()
 	ctx := context.Background()
 
 	fss := getAllRuleFS()
@@ -187,6 +191,7 @@ func TestRecursiveCached(t *testing.T) {
 }
 
 func TestRecursiveCachedFallback(t *testing.T) {
+	t.Parallel()
 	ctx := context.Background()
 
 	rules, err := RecursiveCached(ctx, getAllRuleFS())
@@ -200,6 +205,7 @@ func TestRecursiveCachedFallback(t *testing.T) {
 }
 
 func TestGetCacheDir(t *testing.T) {
+	t.Parallel()
 	cacheDir, err := getCacheDir()
 	if err != nil {
 		t.Fatalf("getCacheDir failed: %v", err)
@@ -228,6 +234,7 @@ func TestGetCacheDir(t *testing.T) {
 }
 
 func TestCacheFileSize(t *testing.T) {
+	t.Parallel()
 	ctx := context.Background()
 
 	tempDir := t.TempDir()

@@ -15,6 +15,7 @@ import (
 )
 
 func TestDiscoverTestData(t *testing.T) {
+	t.Parallel()
 	// Create temporary directories
 	samplesDir := t.TempDir()
 	testDataDir := t.TempDir()
@@ -106,6 +107,7 @@ func TestDiscoverTestData(t *testing.T) {
 }
 
 func TestDiscoverTestDataEmptyDirectory(t *testing.T) {
+	t.Parallel()
 	samplesDir := t.TempDir()
 	testDataDir := t.TempDir()
 
@@ -125,6 +127,7 @@ func TestDiscoverTestDataEmptyDirectory(t *testing.T) {
 }
 
 func TestDiscoverTestDataNonExistentPath(t *testing.T) {
+	t.Parallel()
 	samplesDir := t.TempDir()
 	nonExistentPath := filepath.Join(t.TempDir(), "nonexistent")
 
@@ -140,6 +143,7 @@ func TestDiscoverTestDataNonExistentPath(t *testing.T) {
 }
 
 func TestNewConfig(t *testing.T) {
+	t.Parallel()
 	samplesDir := t.TempDir()
 
 	rc := Config{
@@ -180,6 +184,7 @@ func TestNewConfig(t *testing.T) {
 }
 
 func TestRefreshValidationErrors(t *testing.T) {
+	t.Parallel()
 	ctx := context.Background()
 	logger := clog.FromContext(ctx)
 
@@ -235,6 +240,7 @@ func TestRefreshValidationErrors(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			cfg := tt.setup()
 			err := Refresh(ctx, cfg, logger)
 			if err == nil {
@@ -245,6 +251,7 @@ func TestRefreshValidationErrors(t *testing.T) {
 }
 
 func TestRefreshCanceledContext(t *testing.T) {
+	t.Parallel()
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel() // Cancel immediately
 
@@ -265,6 +272,7 @@ func TestRefreshCanceledContext(t *testing.T) {
 }
 
 func TestPrepareRefreshCanceledContext(t *testing.T) {
+	t.Parallel()
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel() // Cancel immediately
 
@@ -284,6 +292,7 @@ func TestPrepareRefreshCanceledContext(t *testing.T) {
 }
 
 func TestExecuteRefreshCanceledContext(t *testing.T) {
+	t.Parallel()
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel() // Cancel immediately
 
@@ -302,6 +311,7 @@ func TestExecuteRefreshCanceledContext(t *testing.T) {
 }
 
 func TestExecuteRefreshEmptyTestData(t *testing.T) {
+	t.Parallel()
 	ctx := context.Background()
 
 	cfg := Config{
@@ -319,6 +329,7 @@ func TestExecuteRefreshEmptyTestData(t *testing.T) {
 }
 
 func TestConfigConcurrencyDefault(t *testing.T) {
+	t.Parallel()
 	ctx := context.Background()
 	samplesDir := t.TempDir()
 	testDataDir := t.TempDir()
@@ -355,6 +366,7 @@ func fileExists(path string) bool {
 }
 
 func TestDiscoverTestDataVariousExtensions(t *testing.T) {
+	t.Parallel()
 	samplesDir := t.TempDir()
 	testDataDir := t.TempDir()
 

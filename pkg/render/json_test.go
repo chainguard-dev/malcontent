@@ -16,6 +16,7 @@ import (
 )
 
 func TestJSONRendererEmpty(t *testing.T) {
+	t.Parallel()
 	var buf bytes.Buffer
 	renderer := NewJSON(&buf)
 
@@ -38,6 +39,7 @@ func TestJSONRendererEmpty(t *testing.T) {
 }
 
 func TestJSONRendererWithFiles(t *testing.T) {
+	t.Parallel()
 	var buf bytes.Buffer
 	renderer := NewJSON(&buf)
 
@@ -82,6 +84,7 @@ func TestJSONRendererWithFiles(t *testing.T) {
 }
 
 func TestJSONRendererWithSkippedFiles(t *testing.T) {
+	t.Parallel()
 	var buf bytes.Buffer
 	renderer := NewJSON(&buf)
 
@@ -124,6 +127,7 @@ func TestJSONRendererWithSkippedFiles(t *testing.T) {
 }
 
 func TestJSONRendererNilReport(t *testing.T) {
+	t.Parallel()
 	var buf bytes.Buffer
 	renderer := NewJSON(&buf)
 
@@ -142,6 +146,7 @@ func TestJSONRendererNilReport(t *testing.T) {
 }
 
 func TestJSONRendererCanceledContext(t *testing.T) {
+	t.Parallel()
 	var buf bytes.Buffer
 	renderer := NewJSON(&buf)
 
@@ -160,6 +165,7 @@ func TestJSONRendererCanceledContext(t *testing.T) {
 }
 
 func TestJSONRendererWithStats(t *testing.T) {
+	t.Parallel()
 	var buf bytes.Buffer
 	renderer := NewJSON(&buf)
 
@@ -197,6 +203,7 @@ func TestJSONRendererWithStats(t *testing.T) {
 }
 
 func TestJSONRendererWithDiff(t *testing.T) {
+	t.Parallel()
 	var buf bytes.Buffer
 	renderer := NewJSON(&buf)
 
@@ -237,6 +244,7 @@ func TestJSONRendererWithDiff(t *testing.T) {
 }
 
 func TestJSONRendererScanningNoOp(t *testing.T) {
+	t.Parallel()
 	var buf bytes.Buffer
 	renderer := NewJSON(&buf)
 
@@ -249,6 +257,7 @@ func TestJSONRendererScanningNoOp(t *testing.T) {
 }
 
 func TestJSONRendererFileNoOp(t *testing.T) {
+	t.Parallel()
 	var buf bytes.Buffer
 	renderer := NewJSON(&buf)
 
@@ -264,6 +273,7 @@ func TestJSONRendererFileNoOp(t *testing.T) {
 }
 
 func TestJSONRendererSpecialCharacters(t *testing.T) {
+	t.Parallel()
 	var buf bytes.Buffer
 	renderer := NewJSON(&buf)
 

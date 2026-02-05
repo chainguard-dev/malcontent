@@ -12,6 +12,7 @@ import (
 )
 
 func TestLoad(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name            string
 		data            []byte
@@ -84,6 +85,7 @@ func TestLoad(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			got, err := Load(tt.data)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Load() error = %v, wantErr %v", err, tt.wantErr)
@@ -98,6 +100,7 @@ func TestLoad(t *testing.T) {
 }
 
 func TestExtractImageURI(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name  string
 		files map[string]*malcontent.FileReport
@@ -162,6 +165,7 @@ func TestExtractImageURI(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			got := ExtractImageURI(tt.files)
 			if got != tt.want {
 				t.Errorf("ExtractImageURI() = %q, want %q", got, tt.want)
@@ -171,6 +175,7 @@ func TestExtractImageURI(t *testing.T) {
 }
 
 func TestExtractTmpRoot(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name  string
 		files map[string]*malcontent.FileReport
@@ -242,6 +247,7 @@ func TestExtractTmpRoot(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			got := ExtractTmpRoot(tt.files)
 
 			// edge case: multiple files test (map iteration is non-deterministic)
@@ -262,6 +268,7 @@ func TestExtractTmpRoot(t *testing.T) {
 }
 
 func TestCleanReportPath(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name     string
 		path     string
@@ -329,6 +336,7 @@ func TestCleanReportPath(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			got := CleanReportPath(tt.path, tt.tmpRoot, tt.imageURI)
 			if got != tt.want {
 				t.Errorf("CleanReportPath() = %q, want %q", got, tt.want)
@@ -338,6 +346,7 @@ func TestCleanReportPath(t *testing.T) {
 }
 
 func TestFormatReportKey(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name     string
 		path     string
@@ -405,6 +414,7 @@ func TestFormatReportKey(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			got := FormatReportKey(tt.path, tt.tmpRoot, tt.imageURI)
 			if got != tt.want {
 				t.Errorf("FormatReportKey() = %q, want %q", got, tt.want)
@@ -414,6 +424,7 @@ func TestFormatReportKey(t *testing.T) {
 }
 
 func TestLoadRoundTrip(t *testing.T) {
+	t.Parallel()
 	original := malcontent.ScanResult{
 		FileReports: map[string]*malcontent.FileReport{
 			"/bin/ls": {
