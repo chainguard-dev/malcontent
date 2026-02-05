@@ -83,6 +83,7 @@ func TestExtractionMultiple(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
+			defer os.RemoveAll(dir)
 			dirFiles, err := os.ReadDir(dir)
 			if err != nil {
 				t.Fatal(err)
@@ -110,6 +111,7 @@ func TestExtractTar(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer os.RemoveAll(dir)
 	want := []string{
 		"apko_0.13.2_linux_arm64",
 	}
@@ -138,6 +140,7 @@ func TestExtractGzip(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer os.RemoveAll(dir)
 	want := []string{
 		"apko",
 	}
@@ -166,6 +169,7 @@ func TestExtractZip(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer os.RemoveAll(dir)
 	want := []string{
 		"apko_0.13.2_linux_arm64",
 	}
@@ -194,6 +198,7 @@ func TestExtractNestedArchive(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer os.RemoveAll(dir)
 	want := []string{
 		"apko_0.13.2_linux_arm64",
 	}

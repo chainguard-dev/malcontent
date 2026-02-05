@@ -37,7 +37,6 @@ func countOpenFDs(t *testing.T) int {
 // TestScanSinglePathNoFDLeak verifies that early return paths in scanSinglePath
 // properly close file handles and don't leak file descriptors.
 func TestScanSinglePathNoFDLeak(t *testing.T) {
-	t.Parallel()
 	ctx := context.Background()
 
 	fdsBefore := countOpenFDs(t)
@@ -89,7 +88,6 @@ func TestScanSinglePathNoFDLeak(t *testing.T) {
 // TestScanSinglePathNonExistentFile verifies that scanning a non-existent file
 // returns an error without leaking resources.
 func TestScanSinglePathNonExistentFile(t *testing.T) {
-	t.Parallel()
 	ctx := context.Background()
 
 	fdsBefore := countOpenFDs(t)
@@ -130,7 +128,6 @@ func TestScanSinglePathNonExistentFile(t *testing.T) {
 // TestScanRepeatedScansNoResourceExhaustion verifies that repeated scans
 // don't exhaust scanner pool or buffer pool resources.
 func TestScanRepeatedScansNoResourceExhaustion(t *testing.T) {
-	t.Parallel()
 	ctx := context.Background()
 
 	rfs := []fs.FS{rules.FS, thirdparty.FS}
