@@ -5,6 +5,7 @@ package action
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io/fs"
 	"os"
@@ -28,7 +29,7 @@ func findFilesRecursively(ctx context.Context, rootPath string) ([]string, error
 	if err != nil {
 		// If the target does not exist, log the error but return gracefully
 		// This is useful when scanning -compat packages
-		if os.IsNotExist(err) {
+		if errors.Is(err, fs.ErrNotExist) {
 			logger.Debugf("symlink target does not exist: %s", err.Error())
 			return nil, nil
 		}

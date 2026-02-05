@@ -237,7 +237,7 @@ func UPXInstalled() error {
 
 	fi, err := os.Stat(upxPath)
 	if err != nil {
-		if os.IsNotExist(err) {
+		if errors.Is(err, fs.ErrNotExist) {
 			return ErrUPXNotFound
 		}
 		return fmt.Errorf("failed to check for UPX executable: %w", err)
@@ -387,7 +387,7 @@ func containsValue(value string, slice []string) bool {
 func File(ctx context.Context, path string) (*FileType, error) {
 	// Follow symlinks and return cleanly if the target does not exist
 	_, err := filepath.EvalSymlinks(path)
-	if os.IsNotExist(err) {
+	if errors.Is(err, fs.ErrNotExist) {
 		return nil, nil
 	}
 

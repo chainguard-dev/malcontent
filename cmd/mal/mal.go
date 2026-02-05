@@ -121,7 +121,7 @@ func main() {
 		ver      string
 	)
 
-	ctx, cancel := context.WithCancel(context.TODO())
+	ctx, cancel := context.WithCancel(context.Background())
 	ctx = clog.WithLogger(ctx, log)
 	defer cancel()
 

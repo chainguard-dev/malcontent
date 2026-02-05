@@ -5,6 +5,7 @@ package compile
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io/fs"
 	"os"
@@ -37,7 +38,7 @@ func clearRulesCache(t *testing.T, fss []fs.FS) {
 
 	cacheFile := filepath.Join(cacheDir, fmt.Sprintf("rules-%s.cache", hash))
 
-	if err := os.Remove(cacheFile); err != nil && !os.IsNotExist(err) {
+	if err := os.Remove(cacheFile); err != nil && !errors.Is(err, fs.ErrNotExist) {
 		t.Fatalf("Failed to remove cache file: %v", err)
 	}
 }
@@ -59,7 +60,7 @@ func clearRulesCacheB(b *testing.B, fss []fs.FS) {
 
 	cacheFile := filepath.Join(cacheDir, fmt.Sprintf("rules-%s.cache", hash))
 
-	if err := os.Remove(cacheFile); err != nil && !os.IsNotExist(err) {
+	if err := os.Remove(cacheFile); err != nil && !errors.Is(err, fs.ErrNotExist) {
 		b.Fatalf("Failed to remove cache file: %v", err)
 	}
 }
@@ -122,7 +123,7 @@ func TestCacheOperations(t *testing.T) {
 		t.Fatalf("Failed to save rules to cache: %v", err)
 	}
 
-	if _, err := os.Stat(cacheFile); os.IsNotExist(err) {
+	if _, err := os.Stat(cacheFile); errors.Is(err, fs.ErrNotExist) {
 		t.Fatal("Cache file was not created")
 	}
 
