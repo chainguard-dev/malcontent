@@ -21,9 +21,48 @@ import (
 	"github.com/ulikunitz/xz"
 )
 
+// extractFileFromCPIO extracts a single file from a CPIO archive.
+func extractFileFromCPIO(ctx context.Context, cr *cpio.Reader, target string, buf []byte) error {
+	if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
+		return fmt.Errorf("failed to create parent directory: %w", err)
+	}
+
+	out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+	if err != nil {
+		return fmt.Errorf("failed to create file: %w", err)
+	}
+	defer out.Close()
+
+	var written int64
+	for {
+		if written > 0 && written%file.ExtractBuffer == 0 && ctx.Err() != nil {
+			return ctx.Err()
+		}
+
+		n, err := cr.Read(buf)
+		if n > 0 {
+			written += int64(n)
+			if written > file.MaxBytes {
+				return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", file.MaxBytes, target)
+			}
+			if _, writeErr := out.Write(buf[:n]); writeErr != nil {
+				return fmt.Errorf("failed to write file contents: %w", writeErr)
+			}
+		}
+
+		if errors.Is(err, io.EOF) {
+			break
+		}
+
+		if err != nil {
+			return fmt.Errorf("failed to read file contents: %w", err)
+		}
+	}
+
+	return nil
+}
+
 // extractRPM extracts .rpm packages.
-//
-//nolint:cyclop // ignore complexity of 40
 func ExtractRPM(ctx context.Context, d, f string) error {
 	if ctx.Err() != nil {
 		return ctx.Err()
@@ -142,43 +181,8 @@ func ExtractRPM(ctx context.Context, d, f string) error {
 			continue
 		}
 
-		if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
-			return fmt.Errorf("failed to create parent directory: %w", err)
-		}
-
-		out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
-		if err != nil {
-			return fmt.Errorf("failed to create file: %w", err)
-		}
-
-		var written int64
-		for {
-			if written > 0 && written%file.ExtractBuffer == 0 && ctx.Err() != nil {
-				return ctx.Err()
-			}
-
-			n, err := cr.Read(buf)
-			if n > 0 {
-				written += int64(n)
-				if written > file.MaxBytes {
-					return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", file.MaxBytes, target)
-				}
-				if _, writeErr := out.Write(buf[:n]); writeErr != nil {
-					return fmt.Errorf("failed to write file contents: %w", writeErr)
-				}
-			}
-
-			if errors.Is(err, io.EOF) {
-				break
-			}
-
-			if err != nil {
-				return fmt.Errorf("failed to read file contents: %w", err)
-			}
-		}
-
-		if err := out.Close(); err != nil {
-			return fmt.Errorf("failed to close file: %w", err)
+		if err := extractFileFromCPIO(ctx, cr, target, buf); err != nil {
+			return err
 		}
 	}
 
