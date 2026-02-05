@@ -43,17 +43,14 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 	}
 
 	buf := tarPool.Get(file.ExtractBuffer) //nolint:nilaway // the buffer pool is created in archive.go
+	defer tarPool.Put(buf)
 
 	filename := filepath.Base(f)
 	tf, err := os.Open(f)
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
-
-	defer func() {
-		tarPool.Put(buf)
-		tf.Close()
-	}()
+	defer tf.Close()
 
 	isTGZ := strings.Contains(f, ".tar.gz") || strings.Contains(f, ".tgz")
 	var isGzip bool
@@ -138,6 +135,8 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 		if err != nil {
 			return fmt.Errorf("failed to create file: %w", err)
 		}
+		defer out.Close()
+
 		var written int64
 		for {
 			if written > 0 && written%file.ExtractBuffer == 0 && ctx.Err() != nil {

@@ -233,6 +233,12 @@ func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent
 	}
 
 	srcCh, destCh := make(chan ScanResult, 1), make(chan ScanResult, 1)
+
+	defer func() {
+		close(srcCh)
+		close(destCh)
+	}()
+
 	srcIsArchive, destIsArchive := programkind.IsSupportedArchive(ctx, srcPath), programkind.IsSupportedArchive(ctx, destPath)
 	srcResult, destResult := ScanResult{}, ScanResult{}
 
@@ -372,11 +378,6 @@ func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent
 			fileDiff(ctx, c, srcFile, destFile, removed, added, d, srcResult, destResult, archiveOrImage, isReport, false)
 		}
 	}
-
-	defer func() {
-		close(srcCh)
-		close(destCh)
-	}()
 
 	return &malcontent.Report{Diff: d}, nil
 }
