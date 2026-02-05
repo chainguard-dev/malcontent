@@ -51,6 +51,7 @@ function fixup_rules() {
 # update_dep updates a dependency to the latest release
 function update_dep() {
 	local kind=$1
+	local tmpdir=""
 	local rel="unknown"
 
 	tmpdir="$(mktemp -d)"
