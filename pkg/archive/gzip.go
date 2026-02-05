@@ -78,7 +78,7 @@ func ExtractGzip(ctx context.Context, d string, f string) error {
 	}
 	defer gr.Close()
 
-	out, err := os.Create(target)
+	out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
 	if err != nil {
 		return fmt.Errorf("failed to create extracted file: %w", err)
 	}

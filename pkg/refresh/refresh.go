@@ -33,6 +33,7 @@ type Config struct {
 // TestData stores per-scan configuration and output location.
 type TestData struct {
 	Config     *malcontent.Config
+	OutFile    *os.File
 	OutputPath string
 }
 
@@ -129,6 +130,7 @@ func prepareRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 
 		r, err := render.New(format, outFile)
 		if err != nil {
+			outFile.Close()
 			return nil, fmt.Errorf("create renderer for %s: %w", sample, err)
 		}
 
@@ -137,6 +139,7 @@ func prepareRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 		rfs := []fs.FS{rules.FS, thirdparty.FS}
 		yrs, err := action.CachedRules(ctx, rfs)
 		if err != nil {
+			outFile.Close()
 			return nil, err
 		}
 
@@ -162,6 +165,7 @@ func prepareRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 				c.ScanPaths = diffFiles
 				testData = append(testData, TestData{
 					Config:     c,
+					OutFile:    outFile,
 					OutputPath: data,
 				})
 			}
@@ -169,6 +173,7 @@ func prepareRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 			c.ScanPaths = []string{sample}
 			testData = append(testData, TestData{
 				Config:     c,
+				OutFile:    outFile,
 				OutputPath: data,
 			})
 		}
@@ -177,9 +182,19 @@ func prepareRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 	return testData, nil
 }
 
+// closeTestDataFiles closes all open output files in the test data slice.
+func closeTestDataFiles(testData []TestData) {
+	for _, td := range testData {
+		if td.OutFile != nil {
+			td.OutFile.Close()
+		}
+	}
+}
+
 // executeRefresh reads from a populated slice of TestData.
 func executeRefresh(ctx context.Context, c Config, testData []TestData, logger *clog.Logger) error {
 	if ctx.Err() != nil {
+		closeTestDataFiles(testData)
 		return ctx.Err()
 	}
 
@@ -192,6 +207,10 @@ func executeRefresh(ctx context.Context, c Config, testData []TestData, logger *
 	g.SetLimit(c.Concurrency)
 	for _, data := range testData {
 		g.Go(func() error {
+			if data.OutFile != nil {
+				defer data.OutFile.Close()
+			}
+
 			select {
 			case <-refreshCtx.Done():
 				return refreshCtx.Err()
@@ -238,7 +257,7 @@ func Refresh(ctx context.Context, rc Config, logger *clog.Logger) error {
 	}
 
 	// Check if UPX is present which is required for certain refreshes
-	if err := programkind.UPXInstalled(); err != nil {
+	if _, err := programkind.UPXInstalled(); err != nil {
 		return fmt.Errorf("required UPX installation not found: %w", err)
 	}
 	if rc.SamplesPath == "" {

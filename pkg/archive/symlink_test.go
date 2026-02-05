@@ -7,7 +7,11 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"sync"
 	"testing"
+
+	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 )
 
 func TestSymlinkExtraction(t *testing.T) {
@@ -52,6 +56,142 @@ func TestSymlinkExtraction(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func TestValidateResolvedPath(t *testing.T) {
+	t.Parallel()
+	tmpDir, err := os.MkdirTemp("", "validate-resolved-*")
+	if err != nil {
+		t.Fatalf("failed to create temp dir: %v", err)
+	}
+	defer os.RemoveAll(tmpDir)
+
+	// Create a subdirectory and a file inside the temp dir
+	subDir := filepath.Join(tmpDir, "subdir")
+	if err := os.MkdirAll(subDir, 0o700); err != nil {
+		t.Fatalf("failed to create subdir: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(subDir, "file.txt"), []byte("test"), 0o600); err != nil {
+		t.Fatalf("failed to create file: %v", err)
+	}
+
+	// A normal file path within the extraction dir should pass
+	target := filepath.Join(subDir, "file.txt")
+	if err := ValidateResolvedPath(target, tmpDir, "subdir/file.txt"); err != nil {
+		t.Errorf("expected no error for valid path, got: %v", err)
+	}
+
+	// Create a symlink that points outside the extraction directory
+	escapingLink := filepath.Join(tmpDir, "escape")
+	if err := os.Symlink("/tmp", escapingLink); err != nil {
+		t.Fatalf("failed to create escaping symlink: %v", err)
+	}
+
+	// A path whose parent resolves outside the dir should fail
+	targetViaEscape := filepath.Join(escapingLink, "somefile")
+	if err := ValidateResolvedPath(targetViaEscape, tmpDir, "escape/somefile"); err == nil {
+		t.Error("expected error for path traversal via symlink, got nil")
+	}
+
+	// Create a symlink that points to a directory within the extraction dir
+	internalLink := filepath.Join(tmpDir, "internal_link")
+	if err := os.Symlink(subDir, internalLink); err != nil {
+		t.Fatalf("failed to create internal symlink: %v", err)
+	}
+
+	// A path whose parent resolves within the dir should pass
+	targetViaInternal := filepath.Join(internalLink, "file.txt")
+	if err := ValidateResolvedPath(targetViaInternal, tmpDir, "internal_link/file.txt"); err != nil {
+		t.Errorf("expected no error for valid symlink path, got: %v", err)
+	}
+
+	// A path with a nonexistent parent should pass (EvalSymlinks fails, returns nil)
+	nonexistent := filepath.Join(tmpDir, "nonexistent", "file.txt")
+	if err := ValidateResolvedPath(nonexistent, tmpDir, "nonexistent/file.txt"); err != nil {
+		t.Errorf("expected no error for nonexistent parent, got: %v", err)
+	}
+}
+
+// TestExtractNestedArchiveWithSubdirectory verifies that extractNestedArchive
+// handles archives located in subdirectories (where the relative path contains
+// path separators). This is a regression test for a bug where os.MkdirTemp
+// was called with a pattern containing path separators, which is not allowed.
+func TestExtractNestedArchiveWithSubdirectory(t *testing.T) {
+	t.Parallel()
+
+	tmpDir, err := os.MkdirTemp("", "nested-archive-test-*")
+	if err != nil {
+		t.Fatalf("failed to create temp dir: %v", err)
+	}
+	defer os.RemoveAll(tmpDir)
+
+	// Create a nested archive inside a subdirectory, simulating what happens
+	// when an archive contains another archive at a path like "subdir/inner.tar.gz"
+	subDir := filepath.Join(tmpDir, "subdir")
+	if err := os.MkdirAll(subDir, 0o700); err != nil {
+		t.Fatalf("failed to create subdir: %v", err)
+	}
+
+	// Copy a real .gz test file into the subdirectory
+	srcData, err := os.ReadFile("../../pkg/action/testdata/apko.gz")
+	if err != nil {
+		t.Fatalf("failed to read test archive: %v", err)
+	}
+	nestedArchive := filepath.Join(subDir, "apko.gz")
+	if err := os.WriteFile(nestedArchive, srcData, 0o600); err != nil {
+		t.Fatalf("failed to write nested archive: %v", err)
+	}
+
+	ctx := context.Background()
+	logger := clog.FromContext(ctx)
+	cfg := malcontent.Config{}
+	var extracted sync.Map
+
+	// This is the call that previously failed with "pattern contains path separator"
+	err = extractNestedArchive(ctx, cfg, tmpDir, "subdir/apko.gz", &extracted, logger, 1)
+	if err != nil {
+		t.Fatalf("extractNestedArchive failed: %v", err)
+	}
+}
+
+// TestExtractNestedArchiveCollision verifies that extractNestedArchive handles
+// name collisions by falling back to os.MkdirTemp when the deterministic path
+// already exists.
+func TestExtractNestedArchiveCollision(t *testing.T) {
+	t.Parallel()
+
+	tmpDir, err := os.MkdirTemp("", "nested-collision-test-*")
+	if err != nil {
+		t.Fatalf("failed to create temp dir: %v", err)
+	}
+	defer os.RemoveAll(tmpDir)
+
+	// Create a file that will collide with the extraction directory name.
+	// When extracting "apko.gz", the extraction dir would be "apko" — create
+	// that as a file first to force the collision path.
+	collisionPath := filepath.Join(tmpDir, "apko")
+	if err := os.WriteFile(collisionPath, []byte("existing"), 0o600); err != nil {
+		t.Fatalf("failed to create collision file: %v", err)
+	}
+
+	srcData, err := os.ReadFile("../../pkg/action/testdata/apko.gz")
+	if err != nil {
+		t.Fatalf("failed to read test archive: %v", err)
+	}
+	archivePath := filepath.Join(tmpDir, "apko.gz")
+	if err := os.WriteFile(archivePath, srcData, 0o600); err != nil {
+		t.Fatalf("failed to write archive: %v", err)
+	}
+
+	ctx := context.Background()
+	logger := clog.FromContext(ctx)
+	cfg := malcontent.Config{}
+	var extracted sync.Map
+
+	err = extractNestedArchive(ctx, cfg, tmpDir, "apko.gz", &extracted, logger, 1)
+	if err != nil {
+		t.Fatalf("extractNestedArchive with collision failed: %v", err)
 	}
 }
 

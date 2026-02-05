@@ -7,7 +7,6 @@ import (
 	"bytes"
 	"context"
 	"io/fs"
-	"os"
 	"runtime"
 	"testing"
 
@@ -55,10 +54,7 @@ func TestOCI(t *testing.T) {
 
 	got := out.String()
 
-	td, err := os.ReadFile("testdata/scan_oci")
-	if err != nil {
-		t.Fatalf("testdata read failed: %v", err)
-	}
+	td := readTestFile(t, "testdata/scan_oci")
 	want := string(td)
 
 	if diff := cmp.Diff(want, got); diff != "" {

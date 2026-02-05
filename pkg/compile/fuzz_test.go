@@ -4,6 +4,7 @@
 package compile
 
 import (
+	"bytes"
 	"context"
 	"io/fs"
 	"regexp"
@@ -131,7 +132,21 @@ func FuzzRecursiveCompile(f *testing.F) {
 	// Non-UTF8 rule name (should be skipped)
 	f.Add([]byte(`rule \xff\xfe { condition: true }`))
 
+	// yara[-x] does not support floating-point literals in conditions.
+	// The yara-x C API aborts (exit status 2) on inputs like
+	// "filesize < 1.485760", which cannot be caught by recover().
+	floatPattern := regexp.MustCompile(`\d+\.\d+`)
+
 	f.Fuzz(func(_ *testing.T, data []byte) {
+		if len(data) > 50*1024*1024 {
+			return
+		}
+
+		// Skip inputs with float literals that crash the YARA-X C library.
+		if bytes.Contains(data, []byte("condition")) && floatPattern.Match(data) {
+			return
+		}
+
 		fsys := fstest.MapFS{
 			"test.yara": {
 				Data: data,

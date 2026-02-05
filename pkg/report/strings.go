@@ -4,6 +4,7 @@
 package report
 
 import (
+	"cmp"
 	"slices"
 	"sync"
 
@@ -72,6 +73,8 @@ func (mp *matchProcessor) process() []string {
 		return nil
 	}
 
+	fcl := uint64(len(mp.fc))
+
 	resultPtr, ok := matchResultPool.Get().(*[]string)
 	if !ok || resultPtr == nil {
 		s := make([]string, 0, len(mp.matches))
@@ -79,13 +82,11 @@ func (mp *matchProcessor) process() []string {
 	}
 	result := (*resultPtr)[:0]
 
-	// #nosec G115 // ignore Type conversion which leads to integer overflow
 	for _, match := range mp.matches {
 		l := match.Length()
 		o := match.Offset()
 
-		// avoid any processing if the match offset and match length exceed the size of the file
-		if o+l > uint64(len(mp.fc)) {
+		if cmp.Or(o > fcl, l > fcl, o+l > fcl) {
 			continue
 		}
 

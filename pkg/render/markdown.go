@@ -36,18 +36,32 @@ func mdRisk(score int, level string) string {
 	return fmt.Sprintf("%s %s", riskEmoji(score), level)
 }
 
+// sanitizeMarkdown escapes characters that could be used for markdown injection.
+func sanitizeMarkdown(s string) string {
+	r := strings.NewReplacer(
+		"[", "\\[",
+		"]", "\\]",
+		"(", "\\(",
+		")", "\\)",
+		"`", "\\`",
+	)
+	return r.Replace(s)
+}
+
 // generate a markdown link for a matched fragment.
 func matchFragmentLink(s string) string {
 	// it's probably the name of a matched YARA field, for example, if it's xor'ed data
 	if strings.HasPrefix(s, "$") {
-		return fmt.Sprintf("`%s`", s)
+		return fmt.Sprintf("`%s`", sanitizeMarkdown(s))
 	}
 
 	if strings.HasPrefix(s, "https:") || strings.HasPrefix(s, "http://") {
-		return fmt.Sprintf("[%s](%s)", s, s)
+		safe := sanitizeMarkdown(s)
+		return fmt.Sprintf("[%s](%s)", safe, url.QueryEscape(s))
 	}
 
-	return fmt.Sprintf("[%s](https://github.com/search?q=%s&type=code)", s, url.QueryEscape(s))
+	safe := sanitizeMarkdown(s)
+	return fmt.Sprintf("[%s](https://github.com/search?q=%s&type=code)", safe, url.QueryEscape(s))
 }
 
 func (r Markdown) Name() string { return "Markdown" }

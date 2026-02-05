@@ -252,6 +252,16 @@ func getCacheDir() (string, error) {
 		return "", fmt.Errorf("create cache dir: %w", err)
 	}
 
+	// Verify the cache directory has safe permissions to prevent cache poisoning
+	// via pre-created directories with permissive permissions
+	fi, err := os.Stat(cacheDir)
+	if err != nil {
+		return "", fmt.Errorf("stat cache dir: %w", err)
+	}
+	if fi.Mode().Perm()&0o077 != 0 {
+		return "", fmt.Errorf("cache directory %s has unsafe permissions %o (expected 0700)", cacheDir, fi.Mode().Perm())
+	}
+
 	return cacheDir, nil
 }
 

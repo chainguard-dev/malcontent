@@ -355,7 +355,7 @@ func handleScanPath(ctx context.Context, scanPath string, c malcontent.Config, r
 		c.Renderer.Scanning(ctx, scanPath)
 	}
 
-	scanInfo, err := prepareScanPath(ctx, scanPath, c.OCI, c.OCIAuth, logger)
+	scanInfo, err := prepareScanPath(ctx, scanPath, c.OCI, c.OCIAuth, c.MaxImageSize, logger)
 	if err != nil {
 		return fmt.Errorf("failed to prepare scan path: %w", err)
 	}
@@ -376,7 +376,7 @@ func handleScanPath(ctx context.Context, scanPath string, c malcontent.Config, r
 	return processPaths(ctx, paths, scanInfo, c, r, matchChan, matchOnce, logger)
 }
 
-func prepareScanPath(ctx context.Context, scanPath string, isOCI, useAuth bool, logger *clog.Logger) (scanPathInfo, error) {
+func prepareScanPath(ctx context.Context, scanPath string, isOCI, useAuth bool, maxImageSize int64, logger *clog.Logger) (scanPathInfo, error) {
 	if ctx.Err() != nil {
 		return scanPathInfo{}, ctx.Err()
 	}
@@ -391,7 +391,7 @@ func prepareScanPath(ctx context.Context, scanPath string, isOCI, useAuth bool, 
 	}
 
 	info.imageURI = scanPath
-	ociPath, err := archive.OCI(ctx, info.imageURI, useAuth)
+	ociPath, err := archive.OCI(ctx, info.imageURI, useAuth, maxImageSize)
 	if err != nil {
 		return info, fmt.Errorf("failed to prepare OCI image for scanning: %w", err)
 	}

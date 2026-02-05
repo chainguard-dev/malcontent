@@ -15,7 +15,6 @@ import (
 	"runtime"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/file"
@@ -31,6 +30,34 @@ func init() {
 	archivePool = pool.NewBufferPool(runtime.GOMAXPROCS(0))
 	tarPool = pool.NewBufferPool(runtime.GOMAXPROCS(0))
 	zipPool = pool.NewBufferPool(runtime.GOMAXPROCS(0) * 2)
+}
+
+// ValidateResolvedPath checks that the target path still resides within the extraction directory
+// after resolving symlinks in its parent directory.
+func ValidateResolvedPath(target, dir, clean string) error {
+	resolvedParent, ok := evalSymlinks(filepath.Dir(target))
+	if !ok {
+		return nil
+	}
+	resolvedDir, ok := evalSymlinks(dir)
+	if !ok {
+		return nil
+	}
+	resolvedTarget := filepath.Join(resolvedParent, filepath.Base(target))
+	if !IsValidPath(resolvedTarget, resolvedDir) {
+		return fmt.Errorf("path traversal via symlink in parent directory: %s", clean)
+	}
+	return nil
+}
+
+// evalSymlinks resolves symlinks in the given path, returning the resolved path
+// and true on success, or an empty string and false if resolution fails.
+func evalSymlinks(path string) (string, bool) {
+	resolved, err := filepath.EvalSymlinks(path)
+	if err != nil {
+		return "", false
+	}
+	return resolved, true
 }
 
 // isValidPath checks if the target file is within the given directory.
@@ -137,13 +164,15 @@ func extractNestedArchive(ctx context.Context, c malcontent.Config, d string, f 
 	// Some packages may have archives and files with colliding names
 	// e.g., demo_page.css and demo_page.css.gz
 	// the former is the uncompressed version of the latter
-	// if we encounter this, replace the name with something that won't collide
+	// if we encounter this, use os.MkdirTemp to create a unique directory
 	if _, err := os.Stat(archivePath); err == nil {
 		logger.Debugf("duplicate file name already exists, modifying directory name for %s", archivePath)
-		archivePath = fmt.Sprintf("%s%d", archivePath, time.Now().UnixNano())
-	}
-
-	if err := os.MkdirAll(archivePath, 0o700); err != nil {
+		var mkErr error
+		archivePath, mkErr = os.MkdirTemp(filepath.Dir(archivePath), filepath.Base(archivePath)+"_*")
+		if mkErr != nil {
+			return fmt.Errorf("failed to create unique extraction directory: %w", mkErr)
+		}
+	} else if err := os.MkdirAll(archivePath, 0o700); err != nil {
 		return fmt.Errorf("failed to create extraction directory: %w", err)
 	}
 
@@ -331,9 +360,19 @@ func handleSymlink(dir, linkPath, linkTarget string) error {
 		return nil
 	}
 
+	parentDir := filepath.Dir(fullPath)
+	resolvedDir := dir
+	if rp, err := filepath.EvalSymlinks(parentDir); err == nil {
+		parentDir = rp
+		if rd, err := filepath.EvalSymlinks(dir); err == nil {
+			resolvedDir = rd
+		}
+	}
+
 	// Validate relative symlink target resolves within extraction directory
-	resolvedTarget := filepath.Clean(filepath.Join(filepath.Dir(fullPath), linkTarget))
-	if !IsValidPath(resolvedTarget, dir) {
+	// using the actual (resolved) parent directory
+	resolvedTarget := filepath.Clean(filepath.Join(parentDir, linkTarget))
+	if !IsValidPath(resolvedTarget, resolvedDir) {
 		return fmt.Errorf("symlink target escapes extraction directory: %s -> %s", linkPath, linkTarget)
 	}
 
@@ -363,8 +402,9 @@ func handleSymlink(dir, linkPath, linkTarget string) error {
 		return fmt.Errorf("symlink target mismatch: expected %s, got %s", linkTarget, actualTarget)
 	}
 
-	actualResolved := filepath.Clean(filepath.Join(filepath.Dir(fullPath), actualTarget))
-	if !IsValidPath(actualResolved, dir) {
+	// Post-creation validation using the resolved parent directory
+	actualResolved := filepath.Clean(filepath.Join(parentDir, actualTarget))
+	if !IsValidPath(actualResolved, resolvedDir) {
 		os.Remove(fullPath)
 		return fmt.Errorf("symlink target escapes extraction directory after creation: %s -> %s", linkPath, actualTarget)
 	}

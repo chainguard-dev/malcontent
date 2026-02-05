@@ -63,7 +63,13 @@ func extractFileFromCPIO(ctx context.Context, cr *cpio.Reader, target string, bu
 }
 
 // extractRPM extracts .rpm packages.
-func ExtractRPM(ctx context.Context, d, f string) error {
+func ExtractRPM(ctx context.Context, d, f string) (retErr error) {
+	// Recover from panics in third-party RPM parsing library (cavaliergopher/rpm).
+	defer func() {
+		if r := recover(); r != nil {
+			retErr = fmt.Errorf("recovered from panic during RPM extraction: %v", r)
+		}
+	}()
 	if ctx.Err() != nil {
 		return ctx.Err()
 	}
@@ -151,6 +157,10 @@ func ExtractRPM(ctx context.Context, d, f string) error {
 		target := filepath.Join(d, clean)
 		if !IsValidPath(target, d) {
 			return fmt.Errorf("invalid file path: %s", target)
+		}
+
+		if err := ValidateResolvedPath(target, d, clean); err != nil {
+			return err
 		}
 
 		// https://github.com/cavaliergopher/cpio/blob/main/header.go#L24

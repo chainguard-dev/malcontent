@@ -61,6 +61,7 @@ var (
 	ignoreTagsFlag            string
 	includeDataFilesFlag      bool
 	maxDepthFlag              int
+	maxImageSizeFlag          int64
 	maxScanFilesFlag          int
 	minFileLevelFlag          int
 	minFileRiskFlag           string
@@ -261,6 +262,7 @@ func main() {
 				IgnoreTags:            ignoreTags,
 				IncludeDataFiles:      includeDataFiles,
 				MaxDepth:              maxDepthFlag,
+				MaxImageSize:          maxImageSizeFlag,
 				MaxScanFiles:          maxScanFilesFlag,
 				MinFileRisk:           minFileRisk,
 				MinRisk:               minRisk,
@@ -348,15 +350,22 @@ func main() {
 			&cli.IntFlag{
 				Name:        "max-depth",
 				Value:       32,
-				Usage:       "Maximum depth for archive extraction (-1 for unlimited)",
+				Usage:       "Maximum depth for archive extraction (0 or -1 for unlimited)",
 				Destination: &maxDepthFlag,
 				Local:       false,
 			},
 			&cli.IntFlag{
 				Name:        "max-files",
 				Value:       1 << 21, // ~2 million files
-				Usage:       "Maximum number of files to scan (-1 for unlimited)",
+				Usage:       "Maximum number of files to scan (0 or -1 for unlimited)",
 				Destination: &maxScanFilesFlag,
+				Local:       false,
+			},
+			&cli.Int64Flag{
+				Name:        "max-image-size",
+				Value:       1 << 34, // ~16 GB
+				Usage:       "Maximum OCI image size in bytes (0 or -1 for unlimited)",
+				Destination: &maxImageSizeFlag,
 				Local:       false,
 			},
 			&cli.IntFlag{

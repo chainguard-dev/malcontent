@@ -93,22 +93,22 @@ func StartProfiling(ctx context.Context, config *Config) (*Profiler, error) {
 func (p *Profiler) initializeProfiles() error {
 	var err error
 
-	p.cpuFile, err = os.Create(filepath.Join(p.config.OutputDir, p.config.FilePrefix+"_cpu.pprof"))
+	p.cpuFile, err = os.OpenFile(filepath.Join(p.config.OutputDir, p.config.FilePrefix+"_cpu.pprof"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
 	if err != nil {
 		return fmt.Errorf("failed to create CPU profile: %w", err)
 	}
 
-	p.memFile, err = os.Create(filepath.Join(p.config.OutputDir, p.config.FilePrefix+"_mem_final.pprof"))
+	p.memFile, err = os.OpenFile(filepath.Join(p.config.OutputDir, p.config.FilePrefix+"_mem_final.pprof"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
 	if err != nil {
 		return fmt.Errorf("failed to create memory profile: %w", err)
 	}
 
-	p.traceFile, err = os.Create(filepath.Join(p.config.OutputDir, p.config.FilePrefix+"_trace.out"))
+	p.traceFile, err = os.OpenFile(filepath.Join(p.config.OutputDir, p.config.FilePrefix+"_trace.out"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
 	if err != nil {
 		return fmt.Errorf("failed to create trace file: %w", err)
 	}
 
-	p.goroutFile, err = os.Create(filepath.Join(p.config.OutputDir, p.config.FilePrefix+"_goroutines.txt"))
+	p.goroutFile, err = os.OpenFile(filepath.Join(p.config.OutputDir, p.config.FilePrefix+"_goroutines.txt"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
 	if err != nil {
 		return fmt.Errorf("failed to create goroutine profile: %w", err)
 	}
@@ -123,23 +123,27 @@ func (p *Profiler) periodicHeapProfile() {
 	for {
 		select {
 		case <-ticker.C:
-			timestamp := time.Now().UnixNano()
-			filename := filepath.Join(p.config.OutputDir,
-				fmt.Sprintf("%s_mem_%d.pprof", p.config.FilePrefix, timestamp))
-
-			f, err := os.Create(filename)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "failed to create heap profile: %v\n", err)
-				continue
-			}
-
-			if err := pprof.WriteHeapProfile(f); err != nil {
-				fmt.Fprintf(os.Stderr, "failed to write heap profile: %v\n", err)
-			}
-			f.Close()
+			p.writeHeapSnapshot()
 		case <-p.ctx.Done():
 			return
 		}
+	}
+}
+
+func (p *Profiler) writeHeapSnapshot() {
+	timestamp := time.Now().UnixNano()
+	filename := filepath.Join(p.config.OutputDir,
+		fmt.Sprintf("%s_mem_%d.pprof", p.config.FilePrefix, timestamp))
+
+	f, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "failed to create heap profile: %v\n", err)
+		return
+	}
+	defer f.Close()
+
+	if err := pprof.WriteHeapProfile(f); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to write heap profile: %v\n", err)
 	}
 }
 
@@ -147,17 +151,24 @@ func (p *Profiler) profileGoroutines() {
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
 
+	const maxStackBuf = 64 * 1024 * 1024 // 64MB
+	buf := make([]byte, 1<<20)
+
 	for {
 		select {
 		case <-ticker.C:
-			buf := make([]byte, 1<<20)
+			buf = buf[:cap(buf)]
 			for i := 0; ; i++ {
 				n := runtime.Stack(buf, true)
 				if n < len(buf) {
 					buf = buf[:n]
 					break
 				}
-				buf = make([]byte, 2*len(buf))
+				if cap(buf)*2 > maxStackBuf {
+					buf = buf[:n]
+					break
+				}
+				buf = make([]byte, cap(buf)*2)
 			}
 
 			if _, err := fmt.Fprintf(p.goroutFile, "\n--- Goroutine dump at %s ---\n", time.Now().Format(time.RFC3339)); err != nil {

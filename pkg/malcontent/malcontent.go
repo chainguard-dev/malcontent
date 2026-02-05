@@ -32,6 +32,7 @@ type Config struct {
 	IgnoreTags            []string
 	IncludeDataFiles      bool
 	MaxDepth              int
+	MaxImageSize          int64
 	MaxScanFiles          int
 	MinFileRisk           int
 	MinRisk               int

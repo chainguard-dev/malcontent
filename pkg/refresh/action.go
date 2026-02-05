@@ -89,12 +89,14 @@ func actionRefresh(ctx context.Context) ([]TestData, error) {
 
 		r, err := render.New(td.format, outFile)
 		if err != nil {
+			outFile.Close()
 			return nil, fmt.Errorf("create renderer for %s: %w", output, err)
 		}
 
 		rfs := []fs.FS{rules.FS, thirdparty.FS}
 		yrs, err := action.CachedRules(ctx, rfs)
 		if err != nil {
+			outFile.Close()
 			return nil, err
 		}
 
@@ -113,6 +115,7 @@ func actionRefresh(ctx context.Context) ([]TestData, error) {
 
 		testData = append(testData, TestData{
 			Config:     c,
+			OutFile:    outFile,
 			OutputPath: output,
 		})
 	}

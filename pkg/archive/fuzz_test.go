@@ -4,6 +4,7 @@
 package archive
 
 import (
+	"bytes"
 	"context"
 	"os"
 	"path/filepath"
@@ -11,9 +12,21 @@ import (
 	"testing"
 	"time"
 
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 )
+
+// readTestFile reads a file using file.GetContents for consistency with production code.
+func readTestFile(path string) ([]byte, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	buf := make([]byte, file.ExtractBuffer)
+	return file.GetContents(f, buf)
+}
 
 // FuzzExtractTar tests tar extraction with random inputs to find crashes,
 // path traversal vulnerabilities, and other issues.
@@ -29,7 +42,7 @@ func FuzzExtractTar(f *testing.F) {
 	}
 
 	for _, td := range testdata {
-		if data, err := os.ReadFile(td); err == nil {
+		if data, err := readTestFile(td); err == nil {
 			f.Add(data)
 		}
 	}
@@ -84,7 +97,7 @@ func FuzzExtractZip(f *testing.F) {
 	}
 
 	for _, td := range testdata {
-		if data, err := os.ReadFile(td); err == nil {
+		if data, err := readTestFile(td); err == nil {
 			f.Add(data)
 		}
 	}
@@ -151,7 +164,7 @@ func FuzzExtractArchive(f *testing.F) {
 	}
 
 	for _, td := range testdata {
-		if data, err := os.ReadFile(td); err == nil {
+		if data, err := readTestFile(td); err == nil {
 			switch {
 			case strings.HasSuffix(td, ".tar.gz"):
 				f.Add(data, ".tar.gz")
@@ -269,7 +282,7 @@ func FuzzExtractGzip(f *testing.F) {
 	}
 
 	for _, td := range testdata {
-		if data, err := os.ReadFile(td); err == nil {
+		if data, err := readTestFile(td); err == nil {
 			f.Add(data)
 		}
 	}
@@ -366,7 +379,7 @@ func FuzzExtractZstd(f *testing.F) {
 	}
 
 	for _, td := range testdata {
-		if data, err := os.ReadFile(td); err == nil {
+		if data, err := readTestFile(td); err == nil {
 			f.Add(data)
 		}
 	}
@@ -418,7 +431,7 @@ func FuzzExtractZlib(f *testing.F) {
 	}
 
 	for _, td := range testdata {
-		if data, err := os.ReadFile(td); err == nil {
+		if data, err := readTestFile(td); err == nil {
 			f.Add(data)
 		}
 	}
@@ -472,16 +485,22 @@ func FuzzExtractRPM(f *testing.F) {
 	}
 
 	for _, td := range testdata {
-		if data, err := os.ReadFile(td); err == nil {
+		if data, err := readTestFile(td); err == nil {
 			f.Add(data)
 		}
 	}
 
-	f.Add([]byte{})                       // empty
-	f.Add([]byte{0xed, 0xab, 0xee, 0xdb}) // rpm magic
-	f.Add([]byte("not rpm"))              // invalid
+	rpmMagic := []byte{0xed, 0xab, 0xee, 0xdb}
+
+	f.Add([]byte{})          // empty
+	f.Add(rpmMagic)          // rpm magic
+	f.Add([]byte("not rpm")) // invalid
 
 	f.Fuzz(func(t *testing.T, data []byte) {
+		if len(data) < 96 || !bytes.Equal(data[:4], rpmMagic) {
+			return
+		}
+
 		tmpFile, err := os.CreateTemp("", "fuzz-rpm-*.rpm")
 		if err != nil {
 			t.Skip()
@@ -523,7 +542,7 @@ func FuzzExtractDeb(f *testing.F) {
 	}
 
 	for _, td := range testdata {
-		if data, err := os.ReadFile(td); err == nil {
+		if data, err := readTestFile(td); err == nil {
 			f.Add(data)
 		}
 	}

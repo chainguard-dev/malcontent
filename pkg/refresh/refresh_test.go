@@ -358,6 +358,79 @@ func TestConfigConcurrencyDefault(t *testing.T) {
 	}
 }
 
+func TestCloseTestDataFiles(t *testing.T) {
+	t.Parallel()
+	tmpDir := t.TempDir()
+
+	// Open several files and build TestData entries
+	testData := make([]TestData, 0, 4)
+	files := make([]*os.File, 0, 3)
+	for i := range 3 {
+		f, err := os.CreateTemp(tmpDir, "close-test-*")
+		if err != nil {
+			t.Fatalf("failed to create temp file %d: %v", i, err)
+		}
+		files = append(files, f)
+		testData = append(testData, TestData{
+			OutFile:    f,
+			OutputPath: f.Name(),
+		})
+	}
+
+	// Also include a nil OutFile entry to ensure it's handled gracefully
+	testData = append(testData, TestData{OutputPath: "no-file"})
+
+	closeTestDataFiles(testData)
+
+	// Verify all files are closed by attempting to write — should fail
+	for i, f := range files {
+		_, err := f.Write([]byte("should fail"))
+		if err == nil {
+			t.Errorf("file %d (%s) is still open after closeTestDataFiles", i, f.Name())
+		}
+	}
+}
+
+func TestExecuteRefreshClosesFilesOnCancel(t *testing.T) {
+	t.Parallel()
+	tmpDir := t.TempDir()
+
+	// Create open files for TestData
+	testData := make([]TestData, 0, 3)
+	files := make([]*os.File, 0, 3)
+	for i := range 3 {
+		f, err := os.CreateTemp(tmpDir, "cancel-test-*")
+		if err != nil {
+			t.Fatalf("failed to create temp file %d: %v", i, err)
+		}
+		files = append(files, f)
+		testData = append(testData, TestData{
+			OutFile:    f,
+			OutputPath: f.Name(),
+		})
+	}
+
+	// Cancel context before calling executeRefresh
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	logger := clog.FromContext(ctx)
+	cfg := Config{Concurrency: 1}
+
+	err := executeRefresh(ctx, cfg, testData, logger)
+	if !errors.Is(err, context.Canceled) {
+		t.Fatalf("expected context.Canceled, got: %v", err)
+	}
+
+	// Verify all files were closed by the early-return path
+	for i, f := range files {
+		_, err := f.Write([]byte("should fail"))
+		if err == nil {
+			t.Errorf("file %d (%s) is still open after cancelled executeRefresh", i, f.Name())
+		}
+	}
+}
+
 // Helper functions
 
 func fileExists(path string) bool {

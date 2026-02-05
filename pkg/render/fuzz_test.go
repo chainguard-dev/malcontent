@@ -31,8 +31,23 @@ func FuzzRenderDifferential(f *testing.F) {
 	f.Add(int8(0), "/very/long/"+strings.Repeat("path/", 50), "behavior", "description", false)
 	f.Add(int8(4), "/bin/app", "critical", "Very dangerous", true) // With diff
 
+	// YAML special values that cannot round-trip as map keys due to
+	// YAML 1.1 merge key and implicit typing (boolean, null) semantics.
+	yamlIgnore := map[string]bool{
+		"<<": true, "~": true,
+		"null": true, "Null": true, "NULL": true,
+		"true": true, "True": true, "TRUE": true,
+		"false": true, "False": true, "FALSE": true,
+		"yes": true, "Yes": true, "YES": true,
+		"no": true, "No": true, "NO": true,
+		"on": true, "On": true, "ON": true,
+		"off": true, "Off": true, "OFF": true,
+		"y": true, "Y": true,
+		"n": true, "N": true,
+	}
+
 	f.Fuzz(func(t *testing.T, riskLevel int8, filePath, behaviorName, behaviorDesc string, hasDiff bool) {
-		if filePath == "" {
+		if filePath == "" || yamlIgnore[filePath] {
 			return
 		}
 
