@@ -51,24 +51,26 @@ function fixup_rules() {
 # update_dep updates a dependency to the latest release
 function update_dep() {
 	local kind=$1
-	local tmpdir=$(mktemp -d)
+	local tmpdir=""
 	local rel="unknown"
+
+	tmpdir="$(mktemp -d)"
 
 	mkdir -p "${kind}" || true
 
 	case $kind in
 	YARAForge)
 		rel=$(latest_github_release YARAHQ/yara-forge)
-		curl -L -o "${tmpdir}/yaraforge.zip" "https://github.com/YARAHQ/yara-forge/releases/download/${rel}/yara-forge-rules-full.zip"
-		unzip -o -j "${tmpdir}/yaraforge.zip" packages/full/yara-rules-full.yar -d "${kind}"
+		curl -L -o "${tmpdir}"/yaraforge.zip "https://github.com/YARAHQ/yara-forge/releases/download/${rel}/yara-forge-rules-full.zip"
+		unzip -o -j "${tmpdir}"/yaraforge.zip packages/full/yara-rules-full.yar -d "${kind}"
 		;;
 	huntress)
 		rel=$(git_clone https://github.com/huntresslabs/threat-intel.git "${tmpdir}")
 		find "${tmpdir}" \( -name "*.yar*" -o -name "*LICENSE*" \) -print -exec cp {} "${kind}" \;
 		# error: rule "BOINC" in boinc.yar(1): syntax error, unexpected identifier, expecting '{'
-		rm "${kind}/boinc.yar"
+		rm "${kind}"/boinc.yar
 		# ^ expecting pattern modifier, pattern identifier or `condition`, found `}` (missing condition field)
-		rm "${kind}/defendnot_tool.yar"
+		rm "${kind}"/defendnot_tool.yar
 		;;
 	InQuest-VT)
 		rel=$(git_clone https://github.com/InQuest/yara-rules-vt.git "${tmpdir}")
@@ -76,7 +78,7 @@ function update_dep() {
 		;;
 	bartblaze)
 		rel=$(git_clone https://github.com/bartblaze/Yara-rules.git "${tmpdir}")
-		cp -Rp ${tmpdir}/LICENSE ${tmpdir}/README.md ${tmpdir}/rules/* "${kind}/"
+		cp -Rp "${tmpdir}"/LICENSE "${tmpdir}"/README.md "${tmpdir}"/rules/* "${kind}"/
 		;;
 	JPCERT)
 		rel=$(git_clone https://github.com/JPCERTCC/jpcert-yara.git "${tmpdir}")
@@ -84,7 +86,7 @@ function update_dep() {
 		;;
 	TTC-CERT)
 		rel=$(git_clone https://github.com/ttc-cert/TTC-CERT-YARA-Rules.git "${tmpdir}")
-		cp -Rp ${tmpdir}/* "${kind}/"
+		cp -Rp "${tmpdir}"/* "${kind}"/
 		;;
 	elastic)
 	  rel=$(git_clone https://github.com/elastic/protections-artifacts.git "${tmpdir}")
@@ -96,12 +98,12 @@ function update_dep() {
 		;;
 	esac
 
-	fixup_rules ${kind}/*.yar* # nolint
-	echo "${rel}" >"${kind}/RELEASE"
+	fixup_rules "${kind}"/*.yar*
+	echo "${rel}" > "${kind}"/RELEASE
 	echo "updated ${kind} to ${rel}"
 }
 
-cd "$(dirname $0)"
+cd "$(dirname "$0")"
 
 if [[ "$1" != "" ]]; then
 	update_dep "$1"

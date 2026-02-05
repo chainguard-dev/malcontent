@@ -6,8 +6,10 @@ package archive
 import (
 	"archive/tar"
 	"context"
+	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -83,7 +85,7 @@ func extractNestedArchive(ctx context.Context, c malcontent.Config, d string, f 
 
 	fullPath := filepath.Join(d, f)
 	fi, err := os.Stat(fullPath)
-	if os.IsNotExist(err) {
+	if errors.Is(err, fs.ErrNotExist) {
 		return nil
 	}
 	if err != nil {
@@ -397,7 +399,7 @@ func handleHardlink(dir, linkPath, linkTarget string) error {
 	}
 
 	if err := os.Link(targetPath, fullPath); err != nil {
-		if os.IsNotExist(err) {
+		if errors.Is(err, fs.ErrNotExist) {
 			return nil
 		}
 		return fmt.Errorf("failed to create hardlink: %w", err)
