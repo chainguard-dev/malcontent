@@ -151,6 +151,7 @@ func extractFile(ctx context.Context, zf *zip.File, destDir string, logger *clog
 	}
 
 	buf := zipPool.Get(file.ZipBuffer) //nolint:nilaway // the buffer pool is created in archive.go
+	defer zipPool.Put(buf)
 
 	if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
 		return fmt.Errorf("failed to create directory structure: %w", err)
@@ -160,17 +161,13 @@ func extractFile(ctx context.Context, zf *zip.File, destDir string, logger *clog
 	if err != nil {
 		return fmt.Errorf("failed to open archived file: %w", err)
 	}
+	defer src.Close()
 
 	dst, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
 	if err != nil {
 		return fmt.Errorf("failed to create destination file: %w", err)
 	}
-
-	defer func() {
-		src.Close()
-		dst.Close()
-		zipPool.Put(buf)
-	}()
+	defer dst.Close()
 
 	var written int64
 	for {

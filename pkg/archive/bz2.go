@@ -36,11 +36,14 @@ func ExtractBz2(ctx context.Context, d, f string) error {
 	}
 
 	buf := archivePool.Get(file.ExtractBuffer) //nolint:nilaway // the buffer pool is created in archive.go
+	defer archivePool.Put(buf)
 
 	tf, err := os.Open(f)
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
+	defer tf.Close()
+
 	// Set offset to the file origin regardless of type
 	_, err = tf.Seek(0, io.SeekStart)
 	if err != nil {
@@ -64,12 +67,7 @@ func ExtractBz2(ctx context.Context, d, f string) error {
 	if err != nil {
 		return fmt.Errorf("failed to create file: %w", err)
 	}
-
-	defer func() {
-		archivePool.Put(buf)
-		tf.Close()
-		out.Close()
-	}()
+	defer out.Close()
 
 	var written int64
 	for {

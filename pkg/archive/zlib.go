@@ -35,11 +35,13 @@ func ExtractZlib(ctx context.Context, d string, f string) error {
 	}
 
 	buf := archivePool.Get(file.ExtractBuffer) //nolint:nilaway // the buffer pool is created in archive.go
+	defer archivePool.Put(buf)
 
 	zf, err := os.Open(f)
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
+	defer zf.Close()
 
 	base := filepath.Base(f)
 	target := filepath.Join(d, base[:len(base)-len(filepath.Ext(base))])
@@ -52,18 +54,13 @@ func ExtractZlib(ctx context.Context, d string, f string) error {
 	if err != nil {
 		return fmt.Errorf("failed to create zlib reader: %w", err)
 	}
+	defer zr.Close()
 
 	out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
 	if err != nil {
 		return fmt.Errorf("failed to create extracted file: %w", err)
 	}
-
-	defer func() {
-		archivePool.Put(buf)
-		zf.Close()
-		zr.Close()
-		out.Close()
-	}()
+	defer out.Close()
 
 	var written int64
 	for {

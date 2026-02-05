@@ -30,16 +30,13 @@ func ExtractDeb(ctx context.Context, d, f string) error {
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
+	defer fd.Close()
 
 	df, err := deb.Load(fd, f)
 	if err != nil {
 		return fmt.Errorf("failed to load file: %w", err)
 	}
-
-	defer func() {
-		fd.Close()
-		df.Close()
-	}()
+	defer df.Close()
 
 	for {
 		header, err := df.Data.Next()
