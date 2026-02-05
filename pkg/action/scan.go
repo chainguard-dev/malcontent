@@ -62,13 +62,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 
 	isArchive := archiveRoot != ""
 
-	f, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-
-	fi, err := f.Stat()
+	fi, err := os.Stat(path)
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +148,12 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	buf := readPool.Get(min(size, file.ReadBuffer)) //nolint:nilaway // the buffer pool is initialized in init()
 	defer readPool.Put(buf)
 
-	// Only retrieve the file's contents and calculate its checksum if we need to generate a report
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
 	fc, err := file.GetContents(f, buf)
 	if err != nil {
 		return nil, err
