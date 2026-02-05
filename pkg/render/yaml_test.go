@@ -16,6 +16,7 @@ import (
 )
 
 func TestYAMLRendererEmpty(t *testing.T) {
+	t.Parallel()
 	var buf bytes.Buffer
 	renderer := NewYAML(&buf)
 
@@ -38,6 +39,7 @@ func TestYAMLRendererEmpty(t *testing.T) {
 }
 
 func TestYAMLRendererWithFiles(t *testing.T) {
+	t.Parallel()
 	var buf bytes.Buffer
 	renderer := NewYAML(&buf)
 
@@ -82,6 +84,7 @@ func TestYAMLRendererWithFiles(t *testing.T) {
 }
 
 func TestYAMLRendererWithSkippedFiles(t *testing.T) {
+	t.Parallel()
 	var buf bytes.Buffer
 	renderer := NewYAML(&buf)
 
@@ -124,6 +127,7 @@ func TestYAMLRendererWithSkippedFiles(t *testing.T) {
 }
 
 func TestYAMLRendererNilReport(t *testing.T) {
+	t.Parallel()
 	var buf bytes.Buffer
 	renderer := NewYAML(&buf)
 
@@ -142,6 +146,7 @@ func TestYAMLRendererNilReport(t *testing.T) {
 }
 
 func TestYAMLRendererCanceledContext(t *testing.T) {
+	t.Parallel()
 	var buf bytes.Buffer
 	renderer := NewYAML(&buf)
 
@@ -160,6 +165,7 @@ func TestYAMLRendererCanceledContext(t *testing.T) {
 }
 
 func TestYAMLRendererWithStats(t *testing.T) {
+	t.Parallel()
 	var buf bytes.Buffer
 	renderer := NewYAML(&buf)
 
@@ -197,6 +203,7 @@ func TestYAMLRendererWithStats(t *testing.T) {
 }
 
 func TestYAMLRendererWithDiff(t *testing.T) {
+	t.Parallel()
 	var buf bytes.Buffer
 	renderer := NewYAML(&buf)
 
@@ -237,6 +244,7 @@ func TestYAMLRendererWithDiff(t *testing.T) {
 }
 
 func TestYAMLRendererScanningNoOp(t *testing.T) {
+	t.Parallel()
 	var buf bytes.Buffer
 	renderer := NewYAML(&buf)
 
@@ -249,6 +257,7 @@ func TestYAMLRendererScanningNoOp(t *testing.T) {
 }
 
 func TestYAMLRendererFileNoOp(t *testing.T) {
+	t.Parallel()
 	var buf bytes.Buffer
 	renderer := NewYAML(&buf)
 
@@ -264,6 +273,7 @@ func TestYAMLRendererFileNoOp(t *testing.T) {
 }
 
 func TestYAMLRendererSpecialCharacters(t *testing.T) {
+	t.Parallel()
 	var buf bytes.Buffer
 	renderer := NewYAML(&buf)
 
@@ -292,6 +302,7 @@ func TestYAMLRendererSpecialCharacters(t *testing.T) {
 }
 
 func TestYAMLRendererMultipleFiles(t *testing.T) {
+	t.Parallel()
 	var buf bytes.Buffer
 	renderer := NewYAML(&buf)
 

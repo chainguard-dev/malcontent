@@ -14,6 +14,7 @@ import (
 )
 
 func TestNewBufferPool(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name  string
 		count int
@@ -26,6 +27,7 @@ func TestNewBufferPool(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			bp := NewBufferPool(tt.count)
 			if bp == nil {
 				t.Fatal("NewBufferPool returned nil")
@@ -44,6 +46,7 @@ func TestNewBufferPool(t *testing.T) {
 }
 
 func TestBufferPoolGet(t *testing.T) {
+	t.Parallel()
 	bp := NewBufferPool(2)
 
 	tests := []struct {
@@ -62,6 +65,7 @@ func TestBufferPoolGet(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			buf := bp.Get(tt.size)
 			if buf == nil {
 				t.Fatal("Get returned nil")
@@ -82,6 +86,7 @@ func TestBufferPoolGet(t *testing.T) {
 }
 
 func TestBufferPoolGetExceedsCapacity(t *testing.T) {
+	t.Parallel()
 	bp := NewBufferPool(1)
 
 	// Get a small buffer
@@ -101,14 +106,17 @@ func TestBufferPoolGetExceedsCapacity(t *testing.T) {
 }
 
 func TestBufferPoolPut(t *testing.T) {
+	t.Parallel()
 	bp := NewBufferPool(2)
 
-	t.Run("put nil buffer", func(_ *testing.T) {
+	t.Run("put nil buffer", func(t *testing.T) {
+		t.Parallel()
 		// Should not panic
 		bp.Put(nil)
 	})
 
 	t.Run("put normal buffer", func(t *testing.T) {
+		t.Parallel()
 		buf := bp.Get(file.DefaultPoolBuffer)
 		// Modify buffer
 		for i := range buf {
@@ -128,6 +136,7 @@ func TestBufferPoolPut(t *testing.T) {
 	})
 
 	t.Run("put buffer exceeding max pool size", func(t *testing.T) {
+		t.Parallel()
 		// Create a very large buffer
 		largeBuf := make([]byte, file.MaxPoolBuffer*2)
 		bp.Put(largeBuf)
@@ -140,7 +149,8 @@ func TestBufferPoolPut(t *testing.T) {
 	})
 }
 
-func TestBufferPoolConcurrency(_ *testing.T) {
+func TestBufferPoolConcurrency(t *testing.T) {
+	t.Parallel()
 	bp := NewBufferPool(5)
 	var wg sync.WaitGroup
 	iterations := 100
@@ -163,6 +173,7 @@ func TestBufferPoolConcurrency(_ *testing.T) {
 }
 
 func TestNewScannerPool(t *testing.T) {
+	t.Parallel()
 	// Create a minimal YARA rule for testing
 	compiler, err := yarax.NewCompiler()
 	if err != nil {
@@ -182,7 +193,7 @@ func TestNewScannerPool(t *testing.T) {
 	}
 
 	rules := compiler.Build()
-	defer rules.Destroy()
+	t.Cleanup(func() { rules.Destroy() })
 
 	tests := []struct {
 		name  string
@@ -197,6 +208,7 @@ func TestNewScannerPool(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			sp := NewScannerPool(rules, tt.count)
 			if sp == nil {
 				t.Fatal("NewScannerPool returned nil")
@@ -213,6 +225,7 @@ func TestNewScannerPool(t *testing.T) {
 }
 
 func TestScannerPoolGet(t *testing.T) {
+	t.Parallel()
 	compiler, err := yarax.NewCompiler()
 	if err != nil {
 		t.Fatalf("failed to create compiler: %v", err)
@@ -231,9 +244,10 @@ func TestScannerPoolGet(t *testing.T) {
 	}
 
 	rules := compiler.Build()
-	defer rules.Destroy()
+	t.Cleanup(func() { rules.Destroy() })
 
 	t.Run("get from pool", func(t *testing.T) {
+		t.Parallel()
 		sp := NewScannerPool(rules, 2)
 		defer sp.Close()
 
@@ -246,6 +260,7 @@ func TestScannerPoolGet(t *testing.T) {
 	})
 
 	t.Run("get from nil pool", func(t *testing.T) {
+		t.Parallel()
 		var sp *ScannerPool
 		scanner := sp.Get(rules)
 		if scanner == nil {
@@ -257,6 +272,7 @@ func TestScannerPoolGet(t *testing.T) {
 }
 
 func TestScannerPoolPut(t *testing.T) {
+	t.Parallel()
 	compiler, err := yarax.NewCompiler()
 	if err != nil {
 		t.Fatalf("failed to create compiler: %v", err)
@@ -275,16 +291,18 @@ func TestScannerPoolPut(t *testing.T) {
 	}
 
 	rules := compiler.Build()
-	defer rules.Destroy()
+	t.Cleanup(func() { rules.Destroy() })
 
 	sp := NewScannerPool(rules, 2)
-	defer sp.Close()
+	t.Cleanup(func() { sp.Close() })
 
-	t.Run("put nil scanner", func(_ *testing.T) {
+	t.Run("put nil scanner", func(t *testing.T) {
+		t.Parallel()
 		sp.Put(nil)
 	})
 
 	t.Run("put valid scanner", func(t *testing.T) {
+		t.Parallel()
 		s1 := sp.Get(rules)
 		sp.Put(s1)
 
@@ -295,7 +313,8 @@ func TestScannerPoolPut(t *testing.T) {
 		sp.Put(s2)
 	})
 
-	t.Run("fill pool", func(_ *testing.T) {
+	t.Run("fill pool", func(t *testing.T) {
+		t.Parallel()
 		s1 := sp.Get(rules)
 		s2 := sp.Get(rules)
 
@@ -310,6 +329,7 @@ func TestScannerPoolPut(t *testing.T) {
 }
 
 func TestScannerPoolClose(t *testing.T) {
+	t.Parallel()
 	compiler, err := yarax.NewCompiler()
 	if err != nil {
 		t.Fatalf("failed to create compiler: %v", err)
@@ -337,6 +357,7 @@ func TestScannerPoolClose(t *testing.T) {
 }
 
 func TestScannerPoolConcurrency(t *testing.T) {
+	t.Parallel()
 	compiler, err := yarax.NewCompiler()
 	if err != nil {
 		t.Fatalf("failed to create compiler: %v", err)

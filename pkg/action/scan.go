@@ -414,18 +414,23 @@ func processPaths(ctx context.Context, paths []string, scanInfo scanPathInfo, c 
 	maxConcurrency := getMaxConcurrency(min(c.Concurrency, numPaths))
 
 	scanCtx, cancel := context.WithCancel(ctx)
-	defer cancel()
 
-	go func() {
+	var wg sync.WaitGroup
+	wg.Go(func() {
 		<-scanCtx.Done()
 		logger.Debug("parent context canceled, stopping scan")
 		cancel()
+	})
+	defer func() {
+		cancel()
+		wg.Wait()
 	}()
 
 	g, gCtx := errgroup.WithContext(scanCtx)
 	g.SetLimit(maxConcurrency)
 
-	setupMatchHandler(gCtx, matchChan, c, cancel, logger)
+	waitMatchHandler := setupMatchHandler(gCtx, matchChan, c, cancel, logger)
+	defer waitMatchHandler()
 
 	pc := make(chan string, numPaths)
 	go func() {
@@ -476,12 +481,13 @@ func getMaxConcurrency(configured int) int {
 	return max(1, configured)
 }
 
-func setupMatchHandler(ctx context.Context, matchChan chan matchResult, c malcontent.Config, cancel context.CancelFunc, logger *clog.Logger) {
+func setupMatchHandler(ctx context.Context, matchChan chan matchResult, c malcontent.Config, cancel context.CancelFunc, logger *clog.Logger) func() {
 	if ctx.Err() != nil {
-		return
+		return func() {}
 	}
 
-	go func() {
+	var wg sync.WaitGroup
+	wg.Go(func() {
 		select {
 		case <-ctx.Done():
 			return
@@ -493,7 +499,8 @@ func setupMatchHandler(ctx context.Context, matchChan chan matchResult, c malcon
 			}
 			cancel()
 		}
-	}()
+	})
+	return wg.Wait
 }
 
 func processPath(ctx context.Context, path string, scanInfo scanPathInfo, c malcontent.Config, r *malcontent.Report, matchChan chan matchResult, matchOnce *sync.Once, logger *clog.Logger) error {

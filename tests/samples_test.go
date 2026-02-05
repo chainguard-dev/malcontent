@@ -62,6 +62,7 @@ func init() {
 }
 
 func TestJSON(t *testing.T) {
+	t.Parallel()
 	ctx := slogtest.Context(t)
 	clog.FromContext(ctx).With("test", "TestJSON")
 
@@ -143,6 +144,7 @@ func TestJSON(t *testing.T) {
 }
 
 func TestJSONStats(t *testing.T) {
+	t.Parallel()
 	ctx := slogtest.Context(t)
 	clog.FromContext(ctx).With("test", "TestJSON")
 
@@ -224,6 +226,7 @@ func TestJSONStats(t *testing.T) {
 }
 
 func TestSimple(t *testing.T) {
+	t.Parallel()
 	ctx := slogtest.Context(t)
 	clog.FromContext(ctx).With("test", "simple")
 
@@ -304,6 +307,7 @@ func TestSimple(t *testing.T) {
 }
 
 func TestDiff(t *testing.T) {
+	t.Parallel()
 	ctx := slogtest.Context(t)
 	clog.FromContext(ctx).With("test", "diff")
 
@@ -375,6 +379,7 @@ func TestDiff(t *testing.T) {
 }
 
 func TestDiffFileChange(t *testing.T) {
+	t.Parallel()
 	ctx := slogtest.Context(t)
 	clog.FromContext(ctx).With("test", "diff")
 
@@ -442,6 +447,7 @@ func TestDiffFileChange(t *testing.T) {
 }
 
 func TestDiffFileIncrease(t *testing.T) {
+	t.Parallel()
 	ctx := slogtest.Context(t)
 	clog.FromContext(ctx).With("test", "diff")
 
@@ -540,6 +546,7 @@ func testInputs(path string) string {
 }
 
 func TestMarkdown(t *testing.T) {
+	t.Parallel()
 	ctx := slogtest.Context(t)
 	clog.FromContext(ctx).With("test", "TestMarkDown")
 
