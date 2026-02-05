@@ -126,6 +126,7 @@ func ExtractRPM(ctx context.Context, d, f string) error {
 		if err != nil {
 			return fmt.Errorf("failed to create zstd reader: %w", err)
 		}
+		defer zstdStream.Close()
 		cr = cpio.NewReader(zstdStream)
 	default:
 		return fmt.Errorf("unsupported compression format: %s", compression)

@@ -62,12 +62,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 
 	isArchive := archiveRoot != ""
 
-	f, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-
-	fi, err := f.Stat()
+	fi, err := os.Stat(path)
 	if err != nil {
 		return nil, err
 	}
@@ -128,6 +123,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		scannerPool = pool.NewScannerPool(yrs, getMaxConcurrency(runtime.GOMAXPROCS(0)))
 	})
 	scanner := scannerPool.Get(yrs)
+	defer scannerPool.Put(scanner)
 
 	mrs, err := scanner.ScanFile(path)
 	if err != nil {
@@ -150,8 +146,14 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	// create a buffer sized to the minimum of the file's size or the default ReadBuffer
 	// only do so if we actually need to retrieve the file's contents
 	buf := readPool.Get(min(size, file.ReadBuffer)) //nolint:nilaway // the buffer pool is initialized in init()
+	defer readPool.Put(buf)
 
-	// Only retrieve the file's contents and calculate its checksum if we need to generate a report
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
 	fc, err := file.GetContents(f, buf)
 	if err != nil {
 		return nil, err
@@ -168,12 +170,6 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	if err != nil {
 		return nil, NewFileReportError(err, path, TypeGenerateError)
 	}
-
-	defer func() {
-		f.Close()
-		readPool.Put(buf)
-		scannerPool.Put(scanner)
-	}()
 
 	// Clean up the path if scanning an archive
 	var clean string
