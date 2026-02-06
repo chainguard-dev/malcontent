@@ -196,6 +196,10 @@ func Recursive(ctx context.Context, fss []fs.FS) (*yarax.Rules, error) {
 				return err
 			}
 
+			if ctx.Err() != nil {
+				return ctx.Err()
+			}
+
 			if d.IsDir() {
 				return nil
 			}
