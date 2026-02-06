@@ -60,6 +60,31 @@ func evalSymlinks(path string) (string, bool) {
 	return resolved, true
 }
 
+// symlinkEscapesDir checks whether a symlink at target resolves outside dir.
+func symlinkEscapesDir(target, dir string) bool {
+	fi, err := os.Lstat(target)
+	if err != nil || fi.Mode()&os.ModeSymlink == 0 {
+		return false
+	}
+
+	evalTarget, err := filepath.EvalSymlinks(target)
+	if err != nil {
+		// Dangling symlinks (target doesn't exist) are not path traversals.
+		return !errors.Is(err, fs.ErrNotExist)
+	}
+
+	evalDir, err := filepath.EvalSymlinks(dir)
+	if err != nil {
+		return true
+	}
+
+	rel, err := filepath.Rel(evalDir, evalTarget)
+	if err != nil {
+		return false
+	}
+	return rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator))
+}
+
 // isValidPath checks if the target file is within the given directory.
 func IsValidPath(target, dir string) bool {
 	if strings.Contains(target, "\x00") || strings.Contains(dir, "\x00") {
@@ -69,20 +94,8 @@ func IsValidPath(target, dir string) bool {
 	cleanTarget := filepath.Clean(target)
 	cleanDir := filepath.Clean(dir)
 
-	// avoid evaluating symlinks if the target is not a symlink
-	if fi, err := os.Lstat(cleanTarget); err == nil && fi.Mode()&os.ModeSymlink == os.ModeSymlink {
-		var evalTarget, evalDir, rel string
-
-		if evalTarget, err = filepath.EvalSymlinks(cleanTarget); err != nil {
-			return false
-		}
-		if evalDir, err = filepath.EvalSymlinks(cleanDir); err != nil {
-			return false
-		}
-		if rel, err = filepath.Rel(evalDir, evalTarget); err == nil &&
-			(rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator))) {
-			return false
-		}
+	if symlinkEscapesDir(cleanTarget, cleanDir) {
+		return false
 	}
 
 	switch {

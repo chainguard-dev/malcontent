@@ -47,6 +47,7 @@ func FuzzRenderDifferential(f *testing.F) {
 	}
 
 	f.Fuzz(func(t *testing.T, riskLevel int8, filePath, behaviorName, behaviorDesc string, hasDiff bool) {
+		filePath = sanitizeUTF8(filePath)
 		if filePath == "" || yamlIgnore[filePath] {
 			return
 		}

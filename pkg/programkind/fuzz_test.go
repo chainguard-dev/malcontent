@@ -13,10 +13,13 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/file"
 )
 
+// maxFuzzSize is the maximum input size for fuzz tests to stay well under
+// Go's 100MB fuzzer shared memory capacity and avoid OOM in parsers.
+const maxFuzzSize = 10 * 1024 * 1024
+
 // FuzzFile tests file type detection with random inputs.
 func FuzzFile(f *testing.F) {
-	// Limit seed file size to avoid excessive memory usage during fuzzing.
-	const maxSeedSize int64 = 50 * 1024 * 1024 // 50MB
+	const maxSeedSize int64 = maxFuzzSize
 
 	samplesDir := "../../out/chainguard-sandbox/malcontent-samples"
 	err := filepath.WalkDir(samplesDir, func(path string, d os.DirEntry, _ error) error {
@@ -64,7 +67,7 @@ func FuzzFile(f *testing.F) {
 	f.Add([]byte("UPX!"), "test.upx")                                 // UPX magic
 
 	f.Fuzz(func(t *testing.T, data []byte, filename string) {
-		if len(data) > 50*1024*1024 {
+		if len(data) > maxFuzzSize {
 			return
 		}
 		if len(filename) > 255 || filepath.Clean(filename) != filename {
