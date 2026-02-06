@@ -180,6 +180,7 @@ func diffRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 
 		renderer, err := render.New(td.format, outFile)
 		if err != nil {
+			outFile.Close()
 			return nil, fmt.Errorf("create renderer for %s: %w", output, err)
 		}
 
@@ -196,6 +197,7 @@ func diffRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 		rfs := []fs.FS{rules.FS, thirdparty.FS}
 		yrs, err := action.CachedRules(ctx, rfs)
 		if err != nil {
+			outFile.Close()
 			return nil, err
 		}
 
@@ -214,6 +216,7 @@ func diffRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 
 		testData = append(testData, TestData{
 			Config:     c,
+			OutFile:    outFile,
 			OutputPath: output,
 		})
 	}

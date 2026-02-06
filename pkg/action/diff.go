@@ -221,11 +221,11 @@ func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent
 	)
 
 	if c.OCI {
-		srcPath, err = archive.OCI(ctx, srcPath, c.OCIAuth)
+		srcPath, err = archive.OCI(ctx, srcPath, c.OCIAuth, c.MaxImageSize)
 		if err != nil {
 			return nil, fmt.Errorf("failed to prepare scan path: %w", err)
 		}
-		destPath, err = archive.OCI(ctx, destPath, c.OCIAuth)
+		destPath, err = archive.OCI(ctx, destPath, c.OCIAuth, c.MaxImageSize)
 		if err != nil {
 			return nil, fmt.Errorf("failed to prepare scan path: %w", err)
 		}

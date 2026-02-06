@@ -232,21 +232,22 @@ var ErrUPXNotFound = errors.New("UPX executable not found")
 
 const defaultUPXPath = "/usr/bin/upx"
 
-func UPXInstalled() error {
+// UPXInstalled returns the resolved path to the UPX binary, or an error if not found.
+func UPXInstalled() (string, error) {
 	upxPath := cmp.Or(os.Getenv("MALCONTENT_UPX_PATH"), defaultUPXPath)
 
 	fi, err := os.Stat(upxPath)
 	if err != nil {
 		if errors.Is(err, fs.ErrNotExist) {
-			return ErrUPXNotFound
+			return "", ErrUPXNotFound
 		}
-		return fmt.Errorf("failed to check for UPX executable: %w", err)
+		return "", fmt.Errorf("failed to check for UPX executable: %w", err)
 	}
 	if fi.Mode()&0o111 != 0o111 {
-		return fmt.Errorf("provided UPX binary is not executable")
+		return "", fmt.Errorf("provided UPX binary is not executable")
 	}
 
-	return nil
+	return upxPath, nil
 }
 
 // IsValidUPX checks whether a suspected UPX-compressed file can be decompressed with UPX.
@@ -255,7 +256,8 @@ func IsValidUPX(ctx context.Context, fc []byte, path string) (bool, error) {
 		return false, nil
 	}
 
-	if err := UPXInstalled(); err != nil {
+	upxPath, err := UPXInstalled()
+	if err != nil {
 		return false, err
 	}
 
@@ -272,7 +274,7 @@ func IsValidUPX(ctx context.Context, fc []byte, path string) (bool, error) {
 		return false, err
 	}
 
-	cmd := exec.CommandContext(ctx, "upx", "-l", "-f", "--", absPath)
+	cmd := exec.CommandContext(ctx, upxPath, "-l", "-f", "--", absPath)
 	output, err := cmd.CombinedOutput()
 
 	if err != nil && (bytes.Contains(output, []byte("NotPackedException")) ||

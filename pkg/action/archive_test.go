@@ -15,12 +15,29 @@ import (
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/archive"
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/render"
 	"github.com/chainguard-dev/malcontent/rules"
 	thirdparty "github.com/chainguard-dev/malcontent/third_party"
 	"github.com/google/go-cmp/cmp"
 )
+
+// readTestFile reads a file using file.GetContents for consistency with production code.
+func readTestFile(t *testing.T, path string) []byte {
+	t.Helper()
+	f, err := os.Open(path)
+	if err != nil {
+		t.Fatalf("failed to open test file %s: %v", path, err)
+	}
+	defer f.Close()
+	buf := make([]byte, file.ExtractBuffer)
+	data, err := file.GetContents(f, buf)
+	if err != nil {
+		t.Fatalf("failed to read test file %s: %v", path, err)
+	}
+	return data
+}
 
 func TestExtractionMethod(t *testing.T) {
 	tests := []struct {
@@ -256,10 +273,7 @@ func TestScanArchive(t *testing.T) {
 
 	got := out.String()
 
-	td, err := os.ReadFile("testdata/scan_archive")
-	if err != nil {
-		t.Fatalf("testdata read failed: %v", err)
-	}
+	td := readTestFile(t, "testdata/scan_archive")
 	want := string(td)
 
 	if diff := cmp.Diff(want, got); diff != "" {
@@ -303,10 +317,7 @@ func TestScanDeb(t *testing.T) {
 
 	got := out.String()
 
-	td, err := os.ReadFile("testdata/scan_deb")
-	if err != nil {
-		t.Fatalf("testdata read failed: %v", err)
-	}
+	td := readTestFile(t, "testdata/scan_deb")
 	want := string(td)
 
 	if diff := cmp.Diff(want, got); diff != "" {
@@ -350,10 +361,7 @@ func TestScanRPM(t *testing.T) {
 
 	got := out.String()
 
-	td, err := os.ReadFile("testdata/scan_rpm")
-	if err != nil {
-		t.Fatalf("testdata read failed: %v", err)
-	}
+	td := readTestFile(t, "testdata/scan_rpm")
 	want := string(td)
 
 	if diff := cmp.Diff(want, got); diff != "" {
@@ -397,10 +405,7 @@ func TestScanZlib(t *testing.T) {
 
 	got := out.String()
 
-	td, err := os.ReadFile("testdata/scan_zlib")
-	if err != nil {
-		t.Fatalf("testdata read failed: %v", err)
-	}
+	td := readTestFile(t, "testdata/scan_zlib")
 	want := string(td)
 
 	if diff := cmp.Diff(want, got); diff != "" {
@@ -444,10 +449,7 @@ func TestScanZstd(t *testing.T) {
 
 	got := out.String()
 
-	td, err := os.ReadFile("testdata/scan_zstd")
-	if err != nil {
-		t.Fatalf("testdata read failed: %v", err)
-	}
+	td := readTestFile(t, "testdata/scan_zstd")
 	want := string(td)
 
 	if diff := cmp.Diff(want, got); diff != "" {
@@ -582,10 +584,7 @@ func TestScanConflictingArchiveFiles(t *testing.T) {
 	}
 
 	got := out.String()
-	td, err := os.ReadFile("testdata/scan_conflict")
-	if err != nil {
-		t.Fatalf("testdata read failed: %v", err)
-	}
+	td := readTestFile(t, "testdata/scan_conflict")
 	want := string(td)
 
 	if diff := cmp.Diff(want, got); diff != "" {

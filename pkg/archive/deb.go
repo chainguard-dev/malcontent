@@ -18,7 +18,13 @@ import (
 )
 
 // ExtractDeb extracts .deb packages.
-func ExtractDeb(ctx context.Context, d, f string) error {
+func ExtractDeb(ctx context.Context, d, f string) (retErr error) {
+	// Recover from panics in third-party deb parsing library.
+	defer func() {
+		if r := recover(); r != nil {
+			retErr = fmt.Errorf("recovered from panic during deb extraction: %v", r)
+		}
+	}()
 	if ctx.Err() != nil {
 		return ctx.Err()
 	}
@@ -55,6 +61,10 @@ func ExtractDeb(ctx context.Context, d, f string) error {
 		target := filepath.Join(d, clean)
 		if !IsValidPath(target, d) {
 			return fmt.Errorf("invalid file path: %s", target)
+		}
+
+		if err := ValidateResolvedPath(target, d, clean); err != nil {
+			return err
 		}
 
 		switch header.Typeflag {

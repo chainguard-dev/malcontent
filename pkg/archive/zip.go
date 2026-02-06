@@ -12,7 +12,6 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
-	"time"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/file"
@@ -115,7 +114,13 @@ func extractFile(ctx context.Context, zf *zip.File, destDir string, logger *clog
 	// this case insensitivity will break scans, so rename files that collide with existing directories
 	if runtime.GOOS == "darwin" {
 		if _, err := os.Stat(filepath.Join(destDir, zf.Name)); err == nil {
-			zf.Name = fmt.Sprintf("%s%d", zf.Name, time.Now().UnixNano())
+			uniqueDir, mkErr := os.MkdirTemp(filepath.Join(destDir, filepath.Dir(zf.Name)), filepath.Base(zf.Name)+"_*")
+			if mkErr == nil {
+				rel, relErr := filepath.Rel(destDir, uniqueDir)
+				if relErr == nil {
+					zf.Name = rel
+				}
+			}
 		}
 	}
 
@@ -128,6 +133,11 @@ func extractFile(ctx context.Context, zf *zip.File, destDir string, logger *clog
 	target := filepath.Join(destDir, clean)
 	if !IsValidPath(target, destDir) {
 		logger.Warnf("skipping file path outside extraction directory: %s", target)
+		return nil
+	}
+
+	if err := ValidateResolvedPath(target, destDir, clean); err != nil {
+		logger.Warnf("skipping path with symlink traversal: %s", target)
 		return nil
 	}
 
@@ -162,6 +172,11 @@ func extractFile(ctx context.Context, zf *zip.File, destDir string, logger *clog
 		return fmt.Errorf("failed to open archived file: %w", err)
 	}
 	defer src.Close()
+
+	// Verify target is not a symlink before opening (defense against TOCTOU in concurrent extraction)
+	if fi, err := os.Lstat(target); err == nil && fi.Mode()&os.ModeSymlink != 0 {
+		return fmt.Errorf("refusing to overwrite symlink at target path: %s", target)
+	}
 
 	dst, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
 	if err != nil {

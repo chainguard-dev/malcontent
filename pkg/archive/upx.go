@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 )
 
@@ -20,8 +21,9 @@ func ExtractUPX(ctx context.Context, d, f string) error {
 		return ctx.Err()
 	}
 
-	// Check if UPX is installed
-	if err := programkind.UPXInstalled(); err != nil {
+	// Check if UPX is installed and get its validated path
+	upxPath, err := programkind.UPXInstalled()
+	if err != nil {
 		return err
 	}
 
@@ -29,7 +31,7 @@ func ExtractUPX(ctx context.Context, d, f string) error {
 	logger.Debug("extracting upx")
 
 	// Check if the file is valid
-	_, err := os.Stat(f)
+	_, err = os.Stat(f)
 	if err != nil {
 		return fmt.Errorf("failed to stat file: %w", err)
 	}
@@ -52,7 +54,16 @@ func ExtractUPX(ctx context.Context, d, f string) error {
 		return fmt.Errorf("failed to get absolute path: %w", err)
 	}
 
-	tf, err := os.ReadFile(f)
+	buf := archivePool.Get(file.ExtractBuffer)
+	defer archivePool.Put(buf)
+
+	src, err := os.Open(f)
+	if err != nil {
+		return fmt.Errorf("failed to open file: %w", err)
+	}
+	defer src.Close()
+
+	tf, err := file.GetContents(src, buf)
 	if err != nil {
 		return fmt.Errorf("failed to read file: %w", err)
 	}
@@ -62,16 +73,16 @@ func ExtractUPX(ctx context.Context, d, f string) error {
 		return fmt.Errorf("failed to write file: %w", err)
 	}
 
-	cmd := exec.CommandContext(ctx, "upx", "-d", "-k", "--", absTarget)
+	cmd := exec.CommandContext(ctx, upxPath, "-d", "-k", "--", absTarget)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		os.Remove(absTarget)
-		return fmt.Errorf("failed to decompress upx file: %w, output: %s", err, output)
+		return fmt.Errorf("failed to decompress upx file: %w", err)
 	}
 
 	if !strings.Contains(string(output), "Decompressed") && !strings.Contains(string(output), "Unpacked") {
 		os.Remove(absTarget)
-		return fmt.Errorf("upx decompression might have failed: %s", output)
+		return fmt.Errorf("upx decompression might have failed")
 	}
 
 	logger.Debug("successfully decompressed upx file", "output", string(output), "target", absTarget)

@@ -1,0 +1,2 @@
+go test fuzz v1
+[]byte("rule cxFreeze_Python_executable: high {\n  meta:\n    description = \"uses cxFreeze packer\"\n    filetypes   = \"py\"\n\n  strings:\n    $cxfreeze      = \"cx_Freeze\"\n    $not_importlib = \"tool like cx_Freeze\"\n\n  condition:\n    filesize < 1.485760 and $cxfreeze and none of ($not*)\n}\n")

@@ -86,7 +86,7 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 		if err != nil {
 			return fmt.Errorf("failed to create xz reader: %w", err)
 		}
-		uncompressed := strings.Trim(filepath.Base(f), ".xz")
+		uncompressed := strings.TrimSuffix(filepath.Base(f), ".xz")
 		target := filepath.Join(d, filepath.Base(filepath.Dir(f)), uncompressed)
 		if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
 			return fmt.Errorf("failed to create directory for file: %w", err)
@@ -126,7 +126,7 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 		return nil
 	case strings.Contains(filename, ".tar.bz2") || strings.Contains(filename, ".tbz"):
 		br := bzip2.NewReader(ctx, tf)
-		uncompressed := strings.Trim(filepath.Base(f), programkind.GetExt(filename))
+		uncompressed := strings.TrimSuffix(filepath.Base(f), programkind.GetExt(filename))
 		target := filepath.Join(d, filepath.Base(filepath.Dir(f)), uncompressed)
 		if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
 			return fmt.Errorf("failed to create directory for file: %w", err)
@@ -187,6 +187,10 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 		target := filepath.Join(d, clean)
 		if !IsValidPath(target, d) {
 			return fmt.Errorf("invalid file path: %s", target)
+		}
+
+		if err := ValidateResolvedPath(target, d, clean); err != nil {
+			return err
 		}
 
 		switch header.Typeflag {

@@ -64,8 +64,9 @@ GLOBAL OPTIONS:
    --ignore-tags string        Rule tags to ignore (default: "false_positive,ignore")
    --include-data-files        Include files that are detected as non-program (binary or source) files
    --jobs int, -j int          Concurrently scan files within target scan paths (default: 12)
-   --max-depth int             Maximum depth for archive extraction (-1 for unlimited) (default: 32)
-   --max-files int             Maximum number of files to scan (-1 for unlimited) (default: 2097152)
+   --max-depth int             Maximum depth for archive extraction (0 or -1 for unlimited) (default: 32)
+   --max-files int             Maximum number of files to scan (0 or -1 for unlimited) (default: 2097152)
+   --max-image-size int        Maximum OCI image size in bytes (0 or -1 for unlimited) (default: 17179869184)
    --min-file-level int        Obsoleted by --min-file-risk (default: -1)
    --min-file-risk string      Only show results for files which meet the given risk level (any, low, medium, high, critical) (default: "low")
    --min-level int             Obsoleted by --min-risk (default: -1)

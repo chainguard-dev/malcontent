@@ -9,10 +9,15 @@ import (
 	"path/filepath"
 	"testing"
 	"time"
+
+	"github.com/chainguard-dev/malcontent/pkg/file"
 )
 
 // FuzzFile tests file type detection with random inputs.
 func FuzzFile(f *testing.F) {
+	// Limit seed file size to avoid excessive memory usage during fuzzing.
+	const maxSeedSize int64 = 50 * 1024 * 1024 // 50MB
+
 	samplesDir := "../../out/chainguard-sandbox/malcontent-samples"
 	err := filepath.WalkDir(samplesDir, func(path string, d os.DirEntry, _ error) error {
 		if d == nil || d.IsDir() {
@@ -22,8 +27,20 @@ func FuzzFile(f *testing.F) {
 			return nil
 		}
 
-		if data, readErr := os.ReadFile(path); readErr == nil {
-			f.Add(data, filepath.Base(path))
+		info, infoErr := d.Info()
+		if infoErr != nil {
+			return infoErr
+		}
+		if info.Size() > maxSeedSize {
+			return nil
+		}
+
+		if fp, readErr := os.Open(path); readErr == nil {
+			buf := make([]byte, file.ExtractBuffer)
+			if data, contentsErr := file.GetContents(fp, buf); contentsErr == nil {
+				f.Add(data, filepath.Base(path))
+			}
+			fp.Close()
 		}
 		return nil
 	})
@@ -47,6 +64,9 @@ func FuzzFile(f *testing.F) {
 	f.Add([]byte("UPX!"), "test.upx")                                 // UPX magic
 
 	f.Fuzz(func(t *testing.T, data []byte, filename string) {
+		if len(data) > 50*1024*1024 {
+			return
+		}
 		if len(filename) > 255 || filepath.Clean(filename) != filename {
 			return
 		}
