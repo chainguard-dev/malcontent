@@ -38,6 +38,19 @@ func sanitizeUTF8(s string) string {
 	if !utf8.ValidString(s) {
 		s = strings.ToValidUTF8(s, string(utf8.RuneError))
 	}
+	// Strip BiDi override characters that can confuse visual display
+	s = strings.Map(func(r rune) rune {
+		switch {
+		case r >= 0x202A && r <= 0x202E: // LRE, RLE, PDF, LRO, RLO
+			return -1
+		case r >= 0x2066 && r <= 0x2069: // LRI, RLI, FSI, PDI
+			return -1
+		case r == 0x200E || r == 0x200F: // LRM, RLM
+			return -1
+		default:
+			return r
+		}
+	}, s)
 	// Replace newlines and carriage returns with spaces to avoid YAML complex key issues
 	s = strings.ReplaceAll(s, "\n", " ")
 	s = strings.ReplaceAll(s, "\r", " ")
@@ -68,6 +81,33 @@ func New(kind string, w io.Writer) (malcontent.Renderer, error) {
 	default:
 		return nil, fmt.Errorf("unknown renderer: %q", kind)
 	}
+}
+
+// sanitizeFileReport sanitizes a sync.Map entry and stores it in files.
+// Returns false only if iteration should stop (never in this implementation).
+func sanitizeFileReport(key, value any, files map[string]*malcontent.FileReport) {
+	path, ok := key.(string)
+	if !ok {
+		return
+	}
+
+	r, ok := value.(*malcontent.FileReport)
+	if !ok || r.Skipped != "" {
+		return
+	}
+
+	r.ArchiveRoot = ""
+	r.FullPath = ""
+	r.Path = sanitizeUTF8(r.Path)
+
+	for _, b := range r.Behaviors {
+		if b != nil {
+			b.ID = sanitizeUTF8(b.ID)
+			b.Description = sanitizeUTF8(b.Description)
+		}
+	}
+
+	files[sanitizeUTF8(path)] = r
 }
 
 func riskEmoji(score int) string {

@@ -14,6 +14,10 @@ import (
 	"time"
 )
 
+// maxFuzzSize is the maximum input size for fuzz tests to stay well under
+// Go's 100MB fuzzer shared memory capacity and avoid OOM in parsers.
+const maxFuzzSize = 10 * 1024 * 1024
+
 // FuzzRemoveRules tests the removeRules function with random inputs.
 func FuzzRemoveRules(f *testing.F) {
 	for _, root := range getAllRuleFS() {
@@ -75,6 +79,9 @@ rule keep_me { condition: true }
 `), "remove_me_1,remove_me_2")
 
 	f.Fuzz(func(t *testing.T, data []byte, rulesToRemove string) {
+		if len(data) > maxFuzzSize {
+			return
+		}
 		var rules []string
 		if rulesToRemove != "" {
 			rules = strings.Split(rulesToRemove, ",")
@@ -138,7 +145,7 @@ func FuzzRecursiveCompile(f *testing.F) {
 	floatPattern := regexp.MustCompile(`\d+\.\d+`)
 
 	f.Fuzz(func(_ *testing.T, data []byte) {
-		if len(data) > 50*1024*1024 {
+		if len(data) > maxFuzzSize {
 			return
 		}
 

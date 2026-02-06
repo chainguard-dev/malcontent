@@ -17,6 +17,10 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 )
 
+// maxFuzzSize is the maximum input size for fuzz tests to stay well under
+// Go's 100MB fuzzer shared memory capacity and avoid OOM in parsers.
+const maxFuzzSize = 10 * 1024 * 1024
+
 // readTestFile reads a file using file.GetContents for consistency with production code.
 func readTestFile(path string) ([]byte, error) {
 	f, err := os.Open(path)
@@ -52,6 +56,9 @@ func FuzzExtractTar(f *testing.F) {
 	f.Add([]byte{0x1f, 0x8b, 0x08, 0x00}) // gzip magic bytes only
 
 	f.Fuzz(func(t *testing.T, data []byte) {
+		if len(data) > maxFuzzSize {
+			return
+		}
 		tmpFile, err := os.CreateTemp("", "fuzz-tar-*.tar.gz")
 		if err != nil {
 			t.Skip("failed to create temp file")
@@ -107,6 +114,9 @@ func FuzzExtractZip(f *testing.F) {
 	f.Add([]byte{0x50, 0x4b, 0x03, 0x04}) // full zip signature
 
 	f.Fuzz(func(t *testing.T, data []byte) {
+		if len(data) > maxFuzzSize {
+			return
+		}
 		tmpFile, err := os.CreateTemp("", "fuzz-zip-*.zip")
 		if err != nil {
 			t.Skip("failed to create temp file")
@@ -196,6 +206,9 @@ func FuzzExtractArchive(f *testing.F) {
 	f.Add([]byte{0x1f, 0x8b, 0x08, 0x00}, ".gz")     // gzip header
 
 	f.Fuzz(func(t *testing.T, data []byte, ext string) {
+		if len(data) > maxFuzzSize {
+			return
+		}
 		if _, ok := programkind.ArchiveMap[ext]; !ok {
 			return
 		}
@@ -294,6 +307,9 @@ func FuzzExtractGzip(f *testing.F) {
 	f.Add(make([]byte, 1024*1024))        // large zeros (compression bomb test)
 
 	f.Fuzz(func(t *testing.T, data []byte) {
+		if len(data) > maxFuzzSize {
+			return
+		}
 		tmpFile, err := os.CreateTemp("", "fuzz-gz-*.gz")
 		if err != nil {
 			t.Skip()
@@ -338,6 +354,9 @@ func FuzzExtractBz2(f *testing.F) {
 	f.Add(make([]byte, 1024*1024))  // large zeros
 
 	f.Fuzz(func(t *testing.T, data []byte) {
+		if len(data) > maxFuzzSize {
+			return
+		}
 		tmpFile, err := os.CreateTemp("", "fuzz-bz2-*.bz2")
 		if err != nil {
 			t.Skip()
@@ -390,6 +409,9 @@ func FuzzExtractZstd(f *testing.F) {
 	f.Add(make([]byte, 1024*1024))        // large zeros
 
 	f.Fuzz(func(t *testing.T, data []byte) {
+		if len(data) > maxFuzzSize {
+			return
+		}
 		tmpFile, err := os.CreateTemp("", "fuzz-zst-*.zst")
 		if err != nil {
 			t.Skip()
@@ -444,6 +466,9 @@ func FuzzExtractZlib(f *testing.F) {
 	f.Add(make([]byte, 1024*1024)) // large zeros
 
 	f.Fuzz(func(t *testing.T, data []byte) {
+		if len(data) > maxFuzzSize {
+			return
+		}
 		tmpFile, err := os.CreateTemp("", "fuzz-zlib-*.zlib")
 		if err != nil {
 			t.Skip()
@@ -497,7 +522,7 @@ func FuzzExtractRPM(f *testing.F) {
 	f.Add([]byte("not rpm")) // invalid
 
 	f.Fuzz(func(t *testing.T, data []byte) {
-		if len(data) < 96 || !bytes.Equal(data[:4], rpmMagic) {
+		if len(data) < 96 || len(data) > maxFuzzSize || !bytes.Equal(data[:4], rpmMagic) {
 			return
 		}
 
@@ -552,6 +577,9 @@ func FuzzExtractDeb(f *testing.F) {
 	f.Add([]byte("not deb"))   // invalid
 
 	f.Fuzz(func(t *testing.T, data []byte) {
+		if len(data) > maxFuzzSize {
+			return
+		}
 		tmpFile, err := os.CreateTemp("", "fuzz-deb-*.deb")
 		if err != nil {
 			t.Skip()
@@ -593,6 +621,9 @@ func FuzzExtractUPX(f *testing.F) {
 	f.Add([]byte("not upx")) // invalid
 
 	f.Fuzz(func(t *testing.T, data []byte) {
+		if len(data) > maxFuzzSize {
+			return
+		}
 		tmpFile, err := os.CreateTemp("", "fuzz-upx-*")
 		if err != nil {
 			t.Skip()
