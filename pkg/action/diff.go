@@ -251,13 +251,12 @@ func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent
 		if err != nil {
 			return nil, err
 		}
+		defer srcFile.Close()
 
 		st, err := srcFile.Stat()
 		if err != nil {
 			return nil, err
 		}
-
-		defer srcFile.Close()
 
 		// create a buffer sized to the minimum of the file's size or the default ReadBuffer
 		// only do so if we actually need to retrieve the file's contents
