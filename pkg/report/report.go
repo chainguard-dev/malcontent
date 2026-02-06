@@ -6,6 +6,7 @@ package report
 import (
 	"context"
 	"fmt"
+	"index/suffixarray"
 	"maps"
 	"net/url"
 	"path/filepath"
@@ -281,36 +282,72 @@ func longestUnique(raw []string) []string {
 	}
 
 	keys := slices.Sorted(maps.Keys(unique))
-	slices.SortFunc(keys, func(a, b string) int {
-		diff := len(b) - len(a)
-		switch {
-		case diff != 0:
-			return diff
-		case a < b:
+
+	// Find a byte value not present in any string to use as separator
+	sep := findSeparator(keys)
+
+	totalLen := 0
+	for _, s := range keys {
+		totalLen += len(s) + 1
+	}
+	combined := make([]byte, 0, totalLen)
+	offsets := make([]int, len(keys))
+	for i, s := range keys {
+		offsets[i] = len(combined)
+		combined = append(combined, s...)
+		combined = append(combined, sep)
+	}
+
+	sa := suffixarray.New(combined)
+
+	parentOf := func(pos int) int {
+		idx := sort.Search(len(offsets), func(i int) bool {
+			return offsets[i] > pos
+		}) - 1
+		if idx < 0 || pos >= offsets[idx]+len(keys[idx]) {
 			return -1
-		case a > b:
-			return 1
-		default:
-			return 0
 		}
-	})
+		return idx
+	}
 
 	longest := make([]string, 0, len(keys))
-
-	for _, s := range keys {
+	for i, k := range keys {
+		positions := sa.Lookup([]byte(k), -1)
 		contained := false
-		for _, o := range longest {
-			if strings.Contains(o, s) {
+		for _, pos := range positions {
+			if p := parentOf(pos); p >= 0 && p != i {
 				contained = true
 				break
 			}
 		}
 		if !contained {
-			longest = append(longest, s)
+			longest = append(longest, k)
 		}
 	}
 
+	slices.SortFunc(longest, func(a, b string) int {
+		if diff := len(b) - len(a); diff != 0 {
+			return diff
+		}
+		return strings.Compare(a, b)
+	})
 	return longest
+}
+
+// findSeparator returns a byte value not present in any of the input strings.
+func findSeparator(strs []string) byte {
+	var used [256]bool
+	for _, s := range strs {
+		for _, b := range []byte(s) {
+			used[b] = true
+		}
+	}
+	for b := range used {
+		if !used[b] {
+			return byte(b)
+		}
+	}
+	return 0
 }
 
 func matchToString(ruleName string, m string) string {
@@ -740,6 +777,9 @@ func parseMetadata(m *yarax.Rule, b *malcontent.Behavior, fr *malcontent.FileRep
 			_, exists := mrsMap[k]
 			switch {
 			case exists && override:
+				if thirdParty(m.Namespace()) {
+					continue
+				}
 				var overrideSev int
 				if sev, ok := Levels[v]; ok {
 					overrideSev = sev

@@ -233,10 +233,10 @@ func TestFormatKey(t *testing.T) {
 			want: "/bin/ls",
 		},
 		{
-			name: "with tmpRoot prepends tmpRoot",
+			name: "with tmpRoot falls through to plain path",
 			res:  ScanResult{tmpRoot: "/tmp/extract", imageURI: ""},
 			file: "/tmp/extract/bin/ls",
-			want: "/tmp/extract ∴ /tmp/extract/bin/ls",
+			want: "/tmp/extract/bin/ls",
 		},
 		{
 			name: "with image URI prepends imageURI",

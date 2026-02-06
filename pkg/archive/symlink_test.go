@@ -4,6 +4,8 @@
 package archive
 
 import (
+	"archive/tar"
+	"bytes"
 	"context"
 	"os"
 	"path/filepath"
@@ -192,6 +194,57 @@ func TestExtractNestedArchiveCollision(t *testing.T) {
 	err = extractNestedArchive(ctx, cfg, tmpDir, "apko.gz", &extracted, logger, 1)
 	if err != nil {
 		t.Fatalf("extractNestedArchive with collision failed: %v", err)
+	}
+}
+
+// TestDanglingSymlinkExtraction verifies that a tar containing a dangling symlink
+// (target doesn't exist) extracts without error and all extracted paths pass IsValidPath.
+func TestDanglingSymlinkExtraction(t *testing.T) {
+	t.Parallel()
+
+	// Build a tar in memory with a dangling symlink (points to nonexistent file within dir)
+	var buf bytes.Buffer
+	tw := tar.NewWriter(&buf)
+	if err := tw.WriteHeader(&tar.Header{
+		Name:     "link",
+		Typeflag: tar.TypeSymlink,
+		Linkname: "nonexistent",
+	}); err != nil {
+		t.Fatal(err)
+	}
+	tw.Close()
+
+	tmpFile, err := os.CreateTemp("", "dangling-symlink-*.tar")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(tmpFile.Name())
+	tmpFile.Write(buf.Bytes())
+	tmpFile.Close()
+
+	tmpDir, err := os.MkdirTemp("", "dangling-symlink-extract-*")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(tmpDir)
+
+	// Extraction should succeed
+	if err := ExtractTar(context.Background(), tmpDir, tmpFile.Name()); err != nil {
+		t.Fatalf("ExtractTar failed on dangling symlink: %v", err)
+	}
+
+	// Every extracted path must pass IsValidPath (this is what the fuzzer checks)
+	err = filepath.WalkDir(tmpDir, func(path string, _ os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if !IsValidPath(path, tmpDir) {
+			t.Errorf("IsValidPath returned false for dangling symlink: %s", path)
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("WalkDir failed: %v", err)
 	}
 }
 

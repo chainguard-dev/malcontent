@@ -519,15 +519,6 @@ func formatReportKey(res ScanResult, fr *malcontent.FileReport, isReport bool) s
 	return formatKey(res, CleanPath(fr.Path, res.tmpRoot))
 }
 
-func behaviorExists(b *malcontent.Behavior, behaviors []*malcontent.Behavior) bool {
-	for _, tb := range behaviors {
-		if b.ID == tb.ID {
-			return true
-		}
-	}
-	return false
-}
-
 // fileDiff handles files that exist in both source and destination.
 func fileDiff(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileReport, rpath, apath string, d *malcontent.DiffReport, src ScanResult, dest ScanResult, archiveOrImage, isReport, isMoved bool) {
 	if ctx.Err() != nil {
@@ -563,9 +554,18 @@ func fileDiff(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileR
 		abs.PreviousPath = fr.Path
 	}
 
+	srcBehaviorIDs := make(map[string]struct{}, len(fr.Behaviors))
+	for _, b := range fr.Behaviors {
+		srcBehaviorIDs[b.ID] = struct{}{}
+	}
+	destBehaviorIDs := make(map[string]struct{}, len(tr.Behaviors))
+	for _, b := range tr.Behaviors {
+		destBehaviorIDs[b.ID] = struct{}{}
+	}
+
 	// if destination behavior is not in the source
 	for _, tb := range tr.Behaviors {
-		if !behaviorExists(tb, fr.Behaviors) {
+		if _, ok := srcBehaviorIDs[tb.ID]; !ok {
 			tb.DiffAdded = true
 			abs.Behaviors = append(abs.Behaviors, tb)
 		}
@@ -573,7 +573,7 @@ func fileDiff(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileR
 
 	// if source behavior is not in the destination
 	for _, fb := range fr.Behaviors {
-		if !behaviorExists(fb, tr.Behaviors) {
+		if _, ok := destBehaviorIDs[fb.ID]; !ok {
 			fb.DiffRemoved = true
 			abs.Behaviors = append(abs.Behaviors, fb)
 		}
@@ -758,8 +758,6 @@ func formatKey(res ScanResult, name string) string {
 	switch {
 	case res.imageURI != "":
 		return fmt.Sprintf("%s ∴ %s", res.imageURI, name)
-	case res.tmpRoot != "":
-		return fmt.Sprintf("%s ∴ %s", res.tmpRoot, name)
 	case res.base != "":
 		return fmt.Sprintf("%s ∴ %s", res.base, name)
 	default:

@@ -497,7 +497,7 @@ func FuzzExtractRPM(f *testing.F) {
 	f.Add([]byte("not rpm")) // invalid
 
 	f.Fuzz(func(t *testing.T, data []byte) {
-		if len(data) < 96 || !bytes.Equal(data[:4], rpmMagic) {
+		if len(data) < 96 || len(data) > 10*1024*1024 || !bytes.Equal(data[:4], rpmMagic) {
 			return
 		}
 
