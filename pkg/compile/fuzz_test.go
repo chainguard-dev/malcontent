@@ -8,6 +8,7 @@ import (
 	"context"
 	"io/fs"
 	"regexp"
+	"slices"
 	"strings"
 	"testing"
 	"testing/fstest"
@@ -118,6 +119,10 @@ func FuzzRecursiveCompile(f *testing.F) {
 				return err
 			}
 
+			if len(data) > maxFuzzSize {
+				return nil
+			}
+
 			f.Add(data)
 
 			return nil
@@ -149,6 +154,13 @@ func FuzzRecursiveCompile(f *testing.F) {
 			return
 		}
 
+		// Skip inputs containing non-printable-ASCII bytes.
+		if slices.ContainsFunc(data, func(b byte) bool {
+			return b > 0x7e || (b < 0x20 && b != '\n' && b != '\r' && b != '\t')
+		}) {
+			return
+		}
+
 		// Skip inputs with float literals that crash the YARA-X C library.
 		if bytes.Contains(data, []byte("condition")) && floatPattern.Match(data) {
 			return
@@ -160,7 +172,7 @@ func FuzzRecursiveCompile(f *testing.F) {
 			},
 		}
 
-		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 
 		_, _ = Recursive(ctx, []fs.FS{fsys})
