@@ -92,7 +92,7 @@ jobs:
   fuzz:
     if: ${{ github.repository == 'chainguard-dev/malcontent' && needs.discover.outputs.targets != '[]' }}
     needs: discover
-    runs-on: ubuntu-latest-16-core
+    runs-on: ubuntu-latest
     permissions:
       contents: read
     strategy:
@@ -107,7 +107,7 @@ jobs:
         --cap-add SETUID
         --cap-drop ALL
         --cgroupns private
-        --cpu-shares=16384
+        --cpu-shares=4096
         --memory-swappiness=0
         --security-opt no-new-privileges
         --ulimit core=0
@@ -159,8 +159,9 @@ jobs:
         run: |
           make samples
 
+      # -parallel=1 is used for now due to this: https://github.com/golang/go/issues/56238
       - name: Run fuzzer - ${{ matrix.target.test }}
         env:
           FUZZ_TIME: ${{ inputs.fuzz_time || '30s' }}
         run: |
-          go test -timeout 0 -fuzz="${{ matrix.target.test }}" -fuzztime="${FUZZ_TIME}" "${{ matrix.target.package }}"
+          go test -parallel=1 -timeout 0 -fuzz="${{ matrix.target.test }}" -fuzztime="${FUZZ_TIME}" "${{ matrix.target.package }}"

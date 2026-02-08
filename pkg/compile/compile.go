@@ -287,16 +287,22 @@ func loadCachedRules(cacheFile string) (*yarax.Rules, error) {
 
 // saveCachedRules saves rules to a local file.
 func saveCachedRules(compiledRules *yarax.Rules, cacheFile string) error {
-	tmpFile := cacheFile + ".tmp"
-	f, err := os.OpenFile(tmpFile, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600)
+	cacheDir := filepath.Dir(cacheFile)
+	f, err := os.CreateTemp(cacheDir, ".rules-*.cache.tmp")
 	if err != nil {
 		return fmt.Errorf("create cache file: %w", err)
 	}
-	defer f.Close()
+	tmpFile := f.Name()
 
 	if _, err := compiledRules.WriteTo(f); err != nil {
+		f.Close()
 		os.Remove(tmpFile)
 		return fmt.Errorf("write rules to cache: %w", err)
+	}
+
+	if err := f.Close(); err != nil {
+		os.Remove(tmpFile)
+		return fmt.Errorf("close cache file: %w", err)
 	}
 
 	if err := os.Rename(tmpFile, cacheFile); err != nil {
