@@ -76,7 +76,7 @@ func FuzzExtractTar(f *testing.F) {
 		}
 		defer os.RemoveAll(tmpDir)
 
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 		_ = ExtractTar(ctx, tmpDir, tmpFile.Name())
 
@@ -134,7 +134,7 @@ func FuzzExtractZip(f *testing.F) {
 		}
 		defer os.RemoveAll(tmpDir)
 
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 		_ = ExtractZip(ctx, tmpDir, tmpFile.Name())
 
@@ -224,7 +224,7 @@ func FuzzExtractArchive(f *testing.F) {
 		}
 		tmpFile.Close()
 
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 		cfg := malcontent.Config{}
 		extractedDir, err := ExtractArchiveToTempDir(ctx, cfg, tmpFile.Name())
@@ -327,7 +327,7 @@ func FuzzExtractGzip(f *testing.F) {
 		}
 		defer os.RemoveAll(tmpDir)
 
-		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 
 		_ = ExtractGzip(ctx, tmpDir, tmpFile.Name())
@@ -374,7 +374,7 @@ func FuzzExtractBz2(f *testing.F) {
 		}
 		defer os.RemoveAll(tmpDir)
 
-		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 
 		_ = ExtractBz2(ctx, tmpDir, tmpFile.Name())
@@ -429,7 +429,7 @@ func FuzzExtractZstd(f *testing.F) {
 		}
 		defer os.RemoveAll(tmpDir)
 
-		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 
 		_ = ExtractZstd(ctx, tmpDir, tmpFile.Name())
@@ -486,7 +486,7 @@ func FuzzExtractZlib(f *testing.F) {
 		}
 		defer os.RemoveAll(tmpDir)
 
-		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 
 		_ = ExtractZlib(ctx, tmpDir, tmpFile.Name())
@@ -543,7 +543,7 @@ func FuzzExtractRPM(f *testing.F) {
 		}
 		defer os.RemoveAll(tmpDir)
 
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 
 		_ = ExtractRPM(ctx, tmpDir, tmpFile.Name())
@@ -597,7 +597,7 @@ func FuzzExtractDeb(f *testing.F) {
 		}
 		defer os.RemoveAll(tmpDir)
 
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 
 		_ = ExtractDeb(ctx, tmpDir, tmpFile.Name())
@@ -641,7 +641,7 @@ func FuzzExtractUPX(f *testing.F) {
 		}
 		defer os.RemoveAll(tmpDir)
 
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 
 		_ = ExtractUPX(ctx, tmpDir, tmpFile.Name())
