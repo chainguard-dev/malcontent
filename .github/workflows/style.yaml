@@ -3,6 +3,9 @@
 
 name: Code Style
 
+env:
+  YARA_X_RELEASE: "v1.13.0"
+
 permissions: {}
 
 on:
@@ -57,7 +60,7 @@ jobs:
 
       - name: Install yara-x
         run: |
-          wget https://github.com/VirusTotal/yara-x/releases/download/v1.10.0/yara-x-v1.10.0-x86_64-unknown-linux-gnu.gz -O yara-x.gz
+          wget https://github.com/VirusTotal/yara-x/releases/download/${{ env.YARA_X_RELEASE }}/yara-x-${{ env.YARA_X_RELEASE }}-x86_64-unknown-linux-gnu.gz -O yara-x.gz
           gunzip yara-x.gz && tar -xvf yara-x && chmod +x yr && mv yr /usr/local/bin/ && rm yara-x
       - name: Verify yr installation
         run: |
@@ -143,7 +146,7 @@ jobs:
       - name: Install dependencies
         run: |
           apk update
-          apk add curl findutils git go nodejs yara-x~1.10.0
+          apk add curl findutils git go-1.26 nodejs yara-x~1.13.0
 
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2

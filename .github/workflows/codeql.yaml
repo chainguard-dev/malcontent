@@ -12,6 +12,7 @@ on:
 
 env:
   CODEQL_EXTRACTOR_GO_BUILD_TRACING: "on"
+  YARA_X_RELEASE: "v1.13.0"
 
 permissions: {}
 
@@ -34,7 +35,7 @@ jobs:
         uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           path: yara-x-install
-          key: yara-x-capi-v1.12.0-${{ runner.os }}
+          key: yara-x-capi-${{ env.YARA_X_RELEASE }}-${{ runner.os }}
       - name: Checkout virusTotal/yara-x
         if: steps.yara-x-capi.outputs.cache-hit != 'true'
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -43,7 +44,7 @@ jobs:
           fetch-tags: true
           repository: virusTotal/yara-x
           path: yara-x
-          ref: refs/tags/v1.12.0
+          ref: refs/tags/${{ env.YARA_X_RELEASE }}
       - name: Install Rust for yara-x-capi
         if: steps.yara-x-capi.outputs.cache-hit != 'true'
         uses: dtolnay/rust-toolchain@e97e2d8cc328f1b50210efc529dca0028893a2d9
@@ -56,14 +57,19 @@ jobs:
           path: |
             ~/.cargo/registry/
             ~/.cargo/git/
-          key: rust-cargo-v1.12.0-${{ runner.os }}
+          key: rust-cargo-${{ env.YARA_X_RELEASE }}-${{ runner.os }}
           restore-keys: rust-cargo-
       - name: Build yara-x-capi
         if: steps.yara-x-capi.outputs.cache-hit != 'true'
         run: |
           command -v cargo-cinstall || cargo install cargo-c --locked
           cd ${{ github.workspace }}/yara-x
-          cargo cinstall -p yara-x-capi --features=native-code-serialization --release --pkgconfigdir=${{ github.workspace }}/yara-x-install --includedir=${{ github.workspace }}/yara-x-install --libdir=${{ github.workspace }}/yara-x-install
+          RUSTFLAGS="-C target-feature=+crt-static" cargo cinstall -p yara-x-capi --features=native-code-serialization \
+            --profile release-lto \
+            --pkgconfigdir=${{ github.workspace }}/yara-x-install \
+            --includedir=${{ github.workspace }}/yara-x-install \
+            --libdir=${{ github.workspace }}/yara-x-install \
+            --crt-static --library-type="staticlib"
           rm -rf ${{ github.workspace }}/yara-x
       - name: Set up Go
         uses: actions/setup-go@7a3fe6cf4cb3a834922a1244abfce67bcef6a0c5 # v6.2.0
