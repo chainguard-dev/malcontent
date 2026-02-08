@@ -37,10 +37,39 @@ jobs:
       - name: Install dependencies
         run: |
           apk update
-          apk add bash curl findutils gh git go nodejs perl upx xz yara-x~1.12.0
+          apk add bash curl findutils gh git gnutar go nodejs perl upx xz yara-x~1.12.0
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Trust repository
         run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
+
+      - name: Get Go cache paths
+        id: go-env
+        run: |
+          echo "modcache=$(go env GOMODCACHE)" >> "$GITHUB_OUTPUT"
+          echo "cache=$(go env GOCACHE)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Go dependencies
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        with:
+          path: |
+            ${{ steps.go-env.outputs.modcache }}
+            ${{ steps.go-env.outputs.cache }}
+          key: go-${{ hashFiles('go.sum') }}
+          restore-keys: go-
+
+      - name: Get samples commit
+        id: samples
+        run: echo "commit=$(grep '^SAMPLES_COMMIT' Makefile | head -1 | cut -d'=' -f2 | tr -d ' ?')" >> "$GITHUB_OUTPUT"
+
+      - name: Cache malcontent samples
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        with:
+          path: out/chainguard-sandbox/malcontent-samples
+          key: samples-${{ steps.samples.outputs.commit }}
+
+      - name: Prepare samples
+        run: make samples
+
       - uses: chainguard-dev/actions/setup-gitsign@6f74cdeee55d70b03fa220746d6739dbbb3e9421
       - name: Set up Octo-STS
         uses: octo-sts/action@f603d3be9d8dd9871a265776e625a27b00effe05 # v1.1.1
