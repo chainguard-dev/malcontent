@@ -37,7 +37,7 @@ jobs:
       - name: Install dependencies
         run: |
           apk update
-          apk add curl findutils git go nodejs upx xz yara-x~1.12.0
+          apk add curl findutils git gnutar go nodejs upx xz yara-x~1.12.0
 
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -47,13 +47,28 @@ jobs:
       - name: Trust repository
         run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
 
+      - name: Get Go cache paths
+        id: go-env
+        run: |
+          echo "modcache=$(go env GOMODCACHE)" >> "$GITHUB_OUTPUT"
+          echo "cache=$(go env GOCACHE)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Go dependencies
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        with:
+          path: |
+            ${{ steps.go-env.outputs.modcache }}
+            ${{ steps.go-env.outputs.cache }}
+          key: go-${{ hashFiles('go.sum') }}
+          restore-keys: go-
+
       - name: Unit tests
         run: |
           make test
 
   integration:
     if: ${{ github.repository == 'chainguard-dev/malcontent' }}
-    runs-on: ubuntu-latest-16-core
+    runs-on: ubuntu-latest-32-core
     permissions:
       contents: read
     container:
@@ -64,7 +79,7 @@ jobs:
         --cap-add SETUID
         --cap-drop ALL
         --cgroupns private
-        --cpu-shares=16384
+        --cpu-shares=32768
         --memory-swappiness=0
         --security-opt no-new-privileges
         --ulimit core=0
@@ -74,7 +89,7 @@ jobs:
       - name: Install dependencies
         run: |
           apk update
-          apk add curl findutils git go nodejs upx xz yara-x~1.12.0
+          apk add curl findutils git gnutar go nodejs upx xz yara-x~1.12.0
 
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -83,6 +98,34 @@ jobs:
 
       - name: Trust repository
         run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
+
+      - name: Get Go cache paths
+        id: go-env
+        run: |
+          echo "modcache=$(go env GOMODCACHE)" >> "$GITHUB_OUTPUT"
+          echo "cache=$(go env GOCACHE)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Go dependencies
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        with:
+          path: |
+            ${{ steps.go-env.outputs.modcache }}
+            ${{ steps.go-env.outputs.cache }}
+          key: go-${{ hashFiles('go.sum') }}
+          restore-keys: go-
+
+      - name: Get samples commit
+        id: samples
+        run: echo "commit=$(grep '^SAMPLES_COMMIT' Makefile | head -1 | cut -d'=' -f2 | tr -d ' ?')" >> "$GITHUB_OUTPUT"
+
+      - name: Cache malcontent samples
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        with:
+          path: out/chainguard-sandbox/malcontent-samples
+          key: samples-${{ steps.samples.outputs.commit }}
+
+      - name: Prepare samples
+        run: make samples
 
       - name: Integration tests
         run: |
