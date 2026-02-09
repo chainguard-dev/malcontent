@@ -70,7 +70,7 @@ jobs:
       - name: Prepare samples
         run: make samples
 
-      - uses: chainguard-dev/actions/setup-gitsign@6f74cdeee55d70b03fa220746d6739dbbb3e9421
+      - uses: chainguard-dev/actions/setup-gitsign@eba358c567c5b091e34187d905258baebdd2a4ec
       - name: Set up Octo-STS
         uses: octo-sts/action@f603d3be9d8dd9871a265776e625a27b00effe05 # v1.1.1
         id: octo-sts
