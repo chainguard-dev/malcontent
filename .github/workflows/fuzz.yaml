@@ -92,7 +92,7 @@ jobs:
   fuzz:
     if: ${{ github.repository == 'chainguard-dev/malcontent' && needs.discover.outputs.targets != '[]' }}
     needs: discover
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.target.test == 'FuzzExtractArchive' && 'ubuntu-latest-8-core' || 'ubuntu-latest' }}
     permissions:
       contents: read
     strategy:
@@ -107,7 +107,7 @@ jobs:
         --cap-add SETUID
         --cap-drop ALL
         --cgroupns private
-        --cpu-shares=4096
+        --cpu-shares=${{ matrix.target.test == 'FuzzExtractArchive' && '8192' || '4096' }}
         --memory-swappiness=0
         --security-opt no-new-privileges
         --ulimit core=0
