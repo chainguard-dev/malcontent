@@ -178,3 +178,50 @@ func FuzzRecursiveCompile(f *testing.F) {
 		_, _ = Recursive(ctx, []fs.FS{fsys})
 	})
 }
+
+// FuzzRemoveRulesRegex tests removeRules with adversarial rule names containing
+// regex-significant characters to ensure no ReDoS or panics.
+func FuzzRemoveRulesRegex(f *testing.F) {
+	// Normal rule names
+	f.Add([]byte(`rule test_rule { condition: true }`), "test_rule")
+	// Regex-significant characters in rule names
+	f.Add([]byte(`rule test { condition: true }`), "test.*")
+	f.Add([]byte(`rule test { condition: true }`), "test+")
+	f.Add([]byte(`rule test { condition: true }`), "test?")
+	f.Add([]byte(`rule test { condition: true }`), "(test)")
+	f.Add([]byte(`rule test { condition: true }`), "[test]")
+	f.Add([]byte(`rule test { condition: true }`), "test{1,2}")
+	f.Add([]byte(`rule test { condition: true }`), "test|other")
+	f.Add([]byte(`rule test { condition: true }`), `test\d+`)
+	f.Add([]byte(`rule test { condition: true }`), "^test$")
+	// Multiple rules with special chars
+	f.Add([]byte(`rule a { condition: true } rule b { condition: false }`), "a.*,b+")
+	// Empty inputs
+	f.Add([]byte(``), "")
+	f.Add([]byte(`rule x { condition: true }`), "")
+
+	f.Fuzz(func(t *testing.T, data []byte, rulesToRemove string) {
+		if len(data) > maxFuzzSize {
+			return
+		}
+
+		var rules []string
+		if rulesToRemove != "" {
+			rules = strings.Split(rulesToRemove, ",")
+		}
+
+		result := removeRules(data, rules)
+
+		// Result should never be longer than input
+		if len(result) > len(data) {
+			t.Fatalf("result length %d > input length %d", len(result), len(data))
+		}
+
+		// Empty rule list should not modify data
+		if len(rules) == 0 || (len(rules) == 1 && rules[0] == "") {
+			if string(result) != string(data) {
+				t.Error("removeRules with empty rule list modified data")
+			}
+		}
+	})
+}

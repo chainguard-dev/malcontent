@@ -66,14 +66,16 @@ func riskColor(level string, text string) string {
 }
 
 func ShortRisk(s string) string {
-	if len(s) < 4 {
+	switch s {
+	case "CRITICAL":
+		return "CRIT"
+	case "MEDIUM":
+		return "MED"
+	case "HIGH", "LOW", "NONE":
+		return s
+	default:
 		return s
 	}
-	short := s[0:4]
-	if s == "MEDIUM" {
-		return "MED"
-	}
-	return short
 }
 
 func (r Terminal) Name() string { return "Terminal" }

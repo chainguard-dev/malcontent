@@ -76,6 +76,10 @@ FIXERS += golangci-lint-fix
 golangci-lint-fix: $(GOLANGCI_LINT_BIN)
 	find . -maxdepth 1 -name go.mod -execdir "$(GOLANGCI_LINT_BIN)" run -c "$(GOLANGCI_LINT_CONFIG)" --fix \;
 
+FIXERS += modernize
+modernize:
+	go run golang.org/x/tools/gopls/internal/analysis/modernize/cmd/modernize@latest -fix -test ./...
+
 LINTERS += yara-x-fmt
 yara-x-fmt: $(YARA_X_BIN)
 	find rules -type f -name "*.yara" -execdir "$(YARA_X_BIN)" fmt {} \;
@@ -138,33 +142,18 @@ update-deps:
 test:
 	go test -race ./pkg/...
 
+FUZZ_TIME ?= 10s
 .PHONY: fuzz
 fuzz:
-	go test -timeout 0 -fuzz=FuzzContainsUnprintable -fuzztime=10s ./pkg/report/
-	go test -timeout 0 -fuzz=FuzzExtractArchive -fuzztime=10s ./pkg/archive/
-	go test -timeout 0 -fuzz=FuzzExtractBz2 -fuzztime=10s ./pkg/archive/
-	go test -timeout 0 -fuzz=FuzzExtractDeb -fuzztime=10s ./pkg/archive/
-	go test -timeout 0 -fuzz=FuzzExtractGzip -fuzztime=10s ./pkg/archive/
-	go test -timeout 0 -fuzz=FuzzExtractRPM -fuzztime=10s ./pkg/archive/
-	go test -timeout 0 -fuzz=FuzzExtractTar -fuzztime=10s ./pkg/archive/
-	go test -timeout 0 -fuzz=FuzzExtractUPX -fuzztime=10s ./pkg/archive/
-	go test -timeout 0 -fuzz=FuzzExtractZip -fuzztime=10s ./pkg/archive/
-	go test -timeout 0 -fuzz=FuzzExtractZlib -fuzztime=10s ./pkg/archive/
-	go test -timeout 0 -fuzz=FuzzExtractZstd -fuzztime=10s ./pkg/archive/
-	go test -timeout 0 -fuzz=FuzzFile -fuzztime=30s ./pkg/programkind/
-	go test -timeout 0 -fuzz=FuzzGetExt -fuzztime=10s ./pkg/programkind/
-	go test -timeout 0 -fuzz=FuzzIsValidPath -fuzztime=10s ./pkg/archive/
-	go test -timeout 0 -fuzz=FuzzLongestUnique -fuzztime=10s ./pkg/report/
-	go test -timeout 0 -fuzz=FuzzMatchToString -fuzztime=10s ./pkg/report/
-	go test -timeout 0 -fuzz=FuzzPath -fuzztime=10s ./pkg/programkind/
-	go test -timeout 0 -fuzz=FuzzRecursiveCompile -fuzztime=10s ./pkg/compile/
-	go test -timeout 0 -fuzz=FuzzRemoveRules -fuzztime=10s ./pkg/compile/
-	go test -timeout 0 -fuzz=FuzzRenderDifferential -fuzztime=10s ./pkg/render/
-	go test -timeout 0 -fuzz=FuzzReportLoad -fuzztime=10s ./pkg/report/
-	go test -timeout 0 -fuzz=FuzzStringPoolAtomic -fuzztime=10s ./pkg/report/
-	go test -timeout 0 -fuzz=FuzzStringPoolConcurrent -fuzztime=10s ./pkg/report/
-	go test -timeout 0 -fuzz=FuzzStringPoolIntern -fuzztime=10s ./pkg/report/
-	go test -timeout 0 -fuzz=FuzzTrimPrefixes -fuzztime=10s ./pkg/report/
+	@grep -r "^func Fuzz" --include="*_test.go" pkg/ | \
+		awk -F'[:(]' '{gsub(/func /, "", $$2); dir=$$1; sub(/\/[^/]+$$/, "/", dir); print $$2, "./" dir}' | \
+		while read -r func dir; do \
+			echo "--- $$func ($$dir) ---"; \
+			CGO_LDFLAGS="-L$(LINT_ROOT)/out/lib -Wl,-rpath,$(LINT_ROOT)/out/lib" \
+			CGO_CPPFLAGS="-I$(LINT_ROOT)/out/include" \
+			PKG_CONFIG_PATH="$(LINT_ROOT)/out/lib/pkgconfig" \
+			go test -timeout 0 -fuzz="^$$func$$" -fuzztime=$(FUZZ_TIME) "$$dir" || exit 1; \
+		done
 
 # fuzz tests - runs continuously (use Ctrl+C to stop)
 # Usage: make fuzz-continuous FUZZ_TARGET=FuzzExtractArchive FUZZ_PKG=./pkg/archive/

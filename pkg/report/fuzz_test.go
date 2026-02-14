@@ -4,9 +4,12 @@
 package report
 
 import (
+	"context"
 	"strings"
 	"sync"
 	"testing"
+
+	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 )
 
 // FuzzLongestUnique tests the longestUnique function with random string inputs.
@@ -370,5 +373,199 @@ func FuzzReportLoad(f *testing.F) {
 
 	f.Fuzz(func(_ *testing.T, data []byte) {
 		_, _ = Load(data)
+	})
+}
+
+// FuzzHandleOverrides tests the handleOverrides function with fuzzed inputs.
+func FuzzHandleOverrides(f *testing.F) {
+	f.Add("rule_a", 3, "override_x", 1, "rule_a", 1, false, false)
+	f.Add("rule_a", 4, "override_x", 0, "rule_a", 0, true, true)
+	f.Add("rule_a", 2, "override_x", 3, "nonexistent", 1, false, false)
+	f.Add("", 0, "", 0, "", 0, false, false)
+
+	f.Fuzz(func(t *testing.T, origName string, origRisk int, overName string, overRisk int, overTarget string, minScore int, scan, qir bool) {
+		// Clamp values to valid ranges
+		origRisk = max(origRisk%5, 0)
+		overRisk = max(overRisk%5, 0)
+		minScore = max(minScore%5, 0)
+
+		if origName == "" || overName == "" {
+			return
+		}
+
+		original := []*malcontent.Behavior{
+			{RuleName: origName, RiskScore: origRisk, RiskLevel: RiskLevels[origRisk], ID: "id1"},
+		}
+		override := []*malcontent.Behavior{
+			{RuleName: overName, RiskScore: overRisk, RiskLevel: RiskLevels[overRisk], Override: []string{overTarget}},
+		}
+
+		result := handleOverrides(original, override, minScore, scan, qir)
+
+		// Result should never be longer than original
+		if len(result) > len(original) {
+			t.Errorf("result length %d exceeds original %d", len(result), len(original))
+		}
+
+		// Override rule itself should never appear in result
+		for _, b := range result {
+			if b.RuleName == overName {
+				t.Errorf("override rule %q should not be in result", overName)
+			}
+		}
+
+		// All remaining behaviors should meet the filter criteria
+		for _, b := range result {
+			if scan && qir && b.RiskScore < HIGH {
+				t.Errorf("scan+QIR: behavior %q has score %d < HIGH", b.RuleName, b.RiskScore)
+			}
+			if !scan && b.RiskScore < minScore {
+				t.Errorf("non-scan: behavior %q has score %d < minScore %d", b.RuleName, b.RiskScore, minScore)
+			}
+		}
+	})
+}
+
+// FuzzGenerateKey tests the generateKey function with random namespace/rule inputs.
+func FuzzGenerateKey(f *testing.F) {
+	// Real YARA namespaces from the malcontent rule set
+	f.Add("evasion/bypass_security/disable_firewall.yara", "disable_firewall")
+	f.Add("crypto/aes/aes_key.yara", "aes_key")
+	f.Add("3P/YARAForge/rule_name", "rule_name")
+	f.Add("net/http/http_client.yara", "http_client")
+	f.Add("exec/shell/bash_exec.yara", "bash_exec")
+	f.Add("combo/mixed/multi_behavior.yara", "multi_behavior")
+	f.Add("anti-static/obfuscation/packed.yara", "packed")
+	f.Add("yara/JPCERT/Trojan_Linux_123", "Trojan_Linux_123")
+	f.Add("yara/YARAForge/ELASTIC_Linux_Trojan_Gafgyt_E4A1982B", "ELASTIC_Linux_Trojan_Gafgyt_E4A1982B")
+	f.Add("yara/elastic/rule", "rule")
+	f.Add("single", "rule")
+	f.Add("a/b", "b")
+	f.Add("a/b/c.yara", "c")
+	f.Add("a-b/c_d/e-f.yara", "e_f")
+	f.Add("yara/.yara/", "foo")
+
+	f.Fuzz(func(t *testing.T, src, rule string) {
+		result := generateKey(src, rule)
+
+		// Result should never contain ".yara"
+		if strings.Contains(result, ".yara") {
+			t.Errorf("generateKey(%q, %q) result %q contains .yara", src, rule, result)
+		}
+
+		// Result should never have a trailing "/"
+		if result != "" && strings.HasSuffix(result, "/") {
+			t.Errorf("generateKey(%q, %q) = %q has trailing slash", src, rule, result)
+		}
+	})
+}
+
+// FuzzThirdPartyKey tests the thirdPartyKey function with random path/rule inputs.
+func FuzzThirdPartyKey(f *testing.F) {
+	f.Add("yara/JPCERT/Trojan_Linux_123", "Trojan_Linux_123")
+	f.Add("yara/YARAForge/ELASTIC_Linux_Trojan_Gafgyt_E4A1982B", "ELASTIC_Linux_Trojan_Gafgyt_E4A1982B")
+	f.Add("yara/elastic/rule", "rule")
+	f.Add("yara/bartblaze/APT_Example_Rule", "APT_Example_Rule")
+	f.Add("yara/huntress/Trojan_Generic_ABC123", "Trojan_Generic_ABC123")
+	f.Add("yara/signature-base/Linux_Malware_Detection", "Linux_Malware_Detection")
+	f.Add("prefix/yara/JPCERT/rule_name", "rule_name")
+	f.Add("yara/sub/deep/path", "deep")
+
+	f.Fuzz(func(t *testing.T, path, rule string) {
+		// thirdPartyKey requires "yara/" in the path to function
+		if !strings.Contains(path, "yara/") {
+			return
+		}
+
+		result := thirdPartyKey(path, rule)
+
+		// Result should start with "3P/" or be empty
+		if result != "" && !strings.HasPrefix(result, "3P/") {
+			t.Errorf("thirdPartyKey(%q, %q) = %q does not start with 3P/", path, rule, result)
+		}
+
+		// If result is non-empty, check word count after source component
+		if result != "" {
+			parts := strings.SplitN(result, "/", 3)
+			if len(parts) == 3 {
+				ruleWords := strings.Split(parts[2], "_")
+				if len(ruleWords) > 3 {
+					t.Errorf("thirdPartyKey(%q, %q) = %q has more than 3 words in rule component: %v", path, rule, result, ruleWords)
+				}
+			}
+		}
+	})
+}
+
+// FuzzBehaviorRisk tests the behaviorRisk function with random inputs.
+func FuzzBehaviorRisk(f *testing.F) {
+	f.Add("evasion/bypass.yara", "rule_name", "high")
+	f.Add("yara/JPCERT/rule", "rule", "")
+	f.Add("combo/mixed", "test", "critical")
+	f.Add("yara/YARAForge/ELASTIC_Linux_Trojan", "ELASTIC_Linux_Trojan", "low")
+	f.Add("net/http/client.yara", "client", "medium")
+	f.Add("yara/elastic/generic_rule", "generic_rule", "")
+	f.Add("yara/huntress/keyword_tool", "keyword_tool", "")
+	f.Add("exec/shell/bash", "bash", "harmless,critical")
+	f.Add("", "", "")
+	f.Add("yara/bartblaze/test", "test", "ignore")
+
+	f.Fuzz(func(t *testing.T, ns, rule, tagStr string) {
+		var tags []string
+		if tagStr != "" {
+			tags = strings.Split(tagStr, ",")
+		}
+
+		result := behaviorRisk(ns, rule, tags)
+
+		// Result must always be in range [INVALID..CRITICAL] (-1..4)
+		// INVALID (-1) is returned for tags like "ignore" and "none"
+		if result < INVALID || result > CRITICAL {
+			t.Errorf("behaviorRisk(%q, %q, %v) = %d, outside range [%d..%d]", ns, rule, tags, result, INVALID, CRITICAL)
+		}
+
+		// When tags contain a known level key, the tag value should win
+		for _, tag := range tags {
+			if expectedRisk, ok := Levels[tag]; ok {
+				if result != expectedRisk {
+					t.Errorf("behaviorRisk(%q, %q, %v) = %d, but tag %q should set risk to %d", ns, rule, tags, result, tag, expectedRisk)
+				}
+				break
+			}
+		}
+	})
+}
+
+// FuzzUpgradeRisk tests the upgradeRisk function with random inputs.
+func FuzzUpgradeRisk(f *testing.F) {
+	f.Add(3, 2, int64(500))
+	f.Add(3, 3, int64(1500000))
+	f.Add(3, 7, int64(50000000))
+	f.Add(2, 5, int64(100))
+	f.Add(3, 0, int64(0))
+	f.Add(3, 1, int64(512))
+	f.Add(3, 10, int64(1024*1024*25))
+	f.Add(0, 0, int64(0))
+	f.Add(4, 100, int64(1))
+	f.Add(1, 3, int64(1024))
+
+	f.Fuzz(func(t *testing.T, riskScore, highCount int, size int64) {
+		// Avoid negative sizes which don't make sense for file sizes
+		if size < 0 {
+			size = -size
+		}
+
+		riskCounts := map[int]int{HIGH: highCount}
+		ctx := context.Background()
+
+		result := upgradeRisk(ctx, riskScore, riskCounts, size)
+
+		// upgradeRisk should never upgrade when riskScore != HIGH (3)
+		if riskScore != HIGH && result {
+			t.Errorf("upgradeRisk(ctx, %d, {HIGH: %d}, %d) = true, but riskScore != HIGH", riskScore, highCount, size)
+		}
+
+		// Result is a bool, so no panic means success for non-HIGH cases
+		_ = result
 	})
 }
