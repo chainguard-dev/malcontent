@@ -69,6 +69,10 @@ linters:
         - G107 # Potential HTTP request made with variable url
         - G204 # Subprocess launched with function call as argument or cmd arguments
         - G404 # Use of weak random number generator (math/rand instead of crypto/rand
+        - G602 # https://github.com/securego/gosec/issues/1525
+        - G702 # https://github.com/securego/gosec/issues/1500
+        - G703 # https://github.com/securego/gosec/issues/1500
+        - G705 # https://github.com/securego/gosec/issues/1500
     nestif:
       min-complexity: 8
     nolintlint:
