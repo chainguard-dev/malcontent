@@ -194,13 +194,17 @@ func extractNestedArchive(ctx context.Context, c malcontent.Config, d string, f 
 		if c.ExitExtraction {
 			return fmt.Errorf("failed to extract archive: %w", err)
 		}
-		logger.Debugf("ignoring extraction error for %s: %s", f, err.Error())
+		logger.Warnf("extraction failed for %s, retaining archive for scanning: %s", f, err.Error())
 	}
 
 	extracted.Store(f, true)
 
-	if err := os.Remove(fullPath); err != nil {
-		return fmt.Errorf("failed to remove archive file: %w", err)
+	// only attempt to remove the archive file if we don't encounter an extraction error
+	// any archives which cannot be extracted will be scanned like non-archive files
+	if err == nil {
+		if err := os.Remove(fullPath); err != nil {
+			return fmt.Errorf("failed to remove archive file: %w", err)
+		}
 	}
 
 	entries, err := os.ReadDir(d)
