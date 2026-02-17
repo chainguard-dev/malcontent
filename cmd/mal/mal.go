@@ -22,13 +22,13 @@ import (
 	"time"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
+	"github.com/chainguard-dev/malcontent/pkg/release"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/action"
 	"github.com/chainguard-dev/malcontent/pkg/profile"
 	"github.com/chainguard-dev/malcontent/pkg/refresh"
 	"github.com/chainguard-dev/malcontent/pkg/render"
-	"github.com/chainguard-dev/malcontent/pkg/version"
 	"github.com/chainguard-dev/malcontent/rules"
 	thirdparty "github.com/chainguard-dev/malcontent/third_party"
 
@@ -130,7 +130,7 @@ func main() {
 		handleContext(cancel, log)
 	}()
 
-	ver, err = version.Version()
+	ver, err = release.Version()
 	if err != nil {
 		returnCode = ExitActionFailed
 	}
