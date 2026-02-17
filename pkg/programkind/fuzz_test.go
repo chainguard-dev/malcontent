@@ -4,9 +4,11 @@
 package programkind
 
 import (
+	"bytes"
 	"context"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -160,5 +162,80 @@ func FuzzGetExt(f *testing.F) {
 		if ext != "" && ext[0] != '.' {
 			t.Fatalf("extension doesn't start with dot: %q", ext)
 		}
+	})
+}
+
+// FuzzIsSupportedArchive tests the IsSupportedArchive function with random paths.
+func FuzzIsSupportedArchive(f *testing.F) {
+	// Seed with all known archive extensions
+	for ext := range ArchiveMap {
+		f.Add("file" + ext)
+	}
+	f.Add("not_an_archive")
+	f.Add("")
+	f.Add("file.txt")
+	f.Add("file.tar.gz")
+	f.Add("file.TAR.GZ")     // case variation
+	f.Add("file.tar.gz.bak") // double extension
+	f.Add("archive")         // no extension
+
+	f.Fuzz(func(t *testing.T, path string) {
+		if len(path) > 4096 {
+			return
+		}
+
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
+
+		result := IsSupportedArchive(ctx, path)
+
+		// If the extension is in ArchiveMap, result must be true
+		ext := GetExt(path)
+		if ArchiveMap[ext] && !result {
+			t.Errorf("IsSupportedArchive(%q) = false, but ext %q is in ArchiveMap", path, ext)
+		}
+
+		_ = result // no panics
+	})
+}
+
+// FuzzIsValidUPX tests the IsValidUPX function with random file contents.
+func FuzzIsValidUPX(f *testing.F) {
+	f.Add([]byte{}, "/tmp/test")
+	f.Add([]byte("UPX!"), "/tmp/test")
+	f.Add([]byte("not upx"), "/tmp/test")
+	f.Add([]byte{0x7f, 0x45, 0x4c, 0x46, 'U', 'P', 'X', '!'}, "/tmp/elf_upx")
+	f.Add([]byte("UPX!extra"), "/tmp/test")
+
+	f.Fuzz(func(t *testing.T, data []byte, path string) {
+		if len(data) > maxFuzzSize {
+			return
+		}
+		// Avoid paths that start with "-" (rejected by the function)
+		if strings.HasPrefix(path, "-") || path == "" {
+			return
+		}
+		// Avoid long filenames
+		if len(filepath.Base(path)) > 255 {
+			return
+		}
+
+		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		defer cancel()
+
+		valid, err := IsValidUPX(ctx, data, path)
+
+		// If data doesn't contain "UPX!" magic, result must be false
+		if !bytes.Contains(data, []byte("UPX!")) {
+			if valid {
+				t.Error("IsValidUPX returned true for data without UPX! magic")
+			}
+			if err != nil {
+				t.Error("IsValidUPX returned error for data without UPX! magic")
+			}
+		}
+
+		_ = valid
+		_ = err
 	})
 }
