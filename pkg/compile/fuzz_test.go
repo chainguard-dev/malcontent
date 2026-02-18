@@ -19,8 +19,8 @@ import (
 // Go's 100MB fuzzer shared memory capacity and avoid OOM in parsers.
 const maxFuzzSize = 10 * 1024 * 1024
 
-// FuzzRemoveRules tests the removeRules function with random inputs.
-func FuzzRemoveRules(f *testing.F) {
+// FuzzRemoveRulesExact tests the removeRules function with random inputs.
+func FuzzRemoveRulesExact(f *testing.F) {
 	for _, root := range getAllRuleFS() {
 		err := fs.WalkDir(root, ".", func(path string, d fs.DirEntry, err error) error {
 			if err != nil || d.IsDir() {

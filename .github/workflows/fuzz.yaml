@@ -164,4 +164,4 @@ jobs:
         env:
           FUZZ_TIME: ${{ inputs.fuzz_time || '30s' }}
         run: |
-          go test -parallel=1 -timeout 0 -fuzz="${{ matrix.target.test }}" -fuzztime="${FUZZ_TIME}" "${{ matrix.target.package }}"
+          go test -parallel=1 -timeout 0 -fuzz="^${{ matrix.target.test }}$" -fuzztime="${FUZZ_TIME}" "${{ matrix.target.package }}"
