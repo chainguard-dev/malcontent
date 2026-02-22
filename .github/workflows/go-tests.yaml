@@ -63,8 +63,7 @@ jobs:
           restore-keys: go-
 
       - name: Unit tests
-        run: |
-          go test -race ./pkg/...
+        run: make test
 
   integration:
     if: ${{ github.repository == 'chainguard-dev/malcontent' }}
@@ -128,4 +127,4 @@ jobs:
         run: make samples
 
       - name: Integration tests
-        run: go test -race -timeout 0 ./tests/...
+        run: make integration
