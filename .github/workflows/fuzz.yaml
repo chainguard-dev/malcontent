@@ -29,6 +29,10 @@ on:
           - "60m"
           - "180m"
 
+env:
+  GO_RELEASE: "go-1.26"
+  YARA_X_RELEASE: "1.13.0"
+
 permissions: {}
 
 jobs:
@@ -117,7 +121,7 @@ jobs:
       - name: Install dependencies
         run: |
           apk update
-          apk add curl findutils git gnutar go-1.26 nodejs upx xz yara-x~1.13.0
+          apk add curl findutils git gnutar ${{ env.GO_RELEASE }} nodejs upx xz yara-x~${{ env.YARA_X_RELEASE }}
 
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
