@@ -38,17 +38,18 @@ func (r JSON) Full(ctx context.Context, c *malcontent.Config, rep *malcontent.Re
 		return nil
 	}
 
+	// Make the xsync.Map JSON-friendly
 	jr := Report{
 		Diff:   rep.Diff,
 		Files:  make(map[string]*malcontent.FileReport),
 		Filter: "",
 	}
 
-	rep.Files.Range(func(key, value any) bool {
+	rep.Files.Range(func(key string, fr *malcontent.FileReport) bool {
 		if ctx.Err() != nil {
 			return false
 		}
-		sanitizeFileReport(key, value, jr.Files)
+		sanitizeFileReport(key, fr, jr.Files)
 		return true
 	})
 

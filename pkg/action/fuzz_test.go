@@ -8,11 +8,11 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"sync"
 	"testing"
 	"time"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
+	"github.com/puzpuzpuz/xsync/v4"
 )
 
 // FuzzCleanPath fuzzes the CleanPath function.
@@ -66,7 +66,7 @@ func FuzzExitIfHitOrMiss(f *testing.F) {
 		}
 
 		// When both flags are false, always returns nil, nil
-		m := &sync.Map{}
+		m := xsync.NewMap[string, *malcontent.FileReport]()
 		behaviors := make([]*malcontent.Behavior, numBehaviors)
 		for i := range numBehaviors {
 			behaviors[i] = &malcontent.Behavior{ID: "test"}
