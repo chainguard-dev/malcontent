@@ -223,12 +223,10 @@ func TestStringPoolRaceCondition(t *testing.T) {
 	pool := NewStringPool()
 
 	var wg sync.WaitGroup
-	wg.Add(numGoroutines * 3)
 
 	// Concurrent interning of identical strings
 	for range numGoroutines {
 		wg.Go(func() {
-			defer wg.Done()
 			for range numOps {
 				pool.Intern("shared")
 			}
@@ -238,17 +236,16 @@ func TestStringPoolRaceCondition(t *testing.T) {
 	// Concurrent interning of unique strings
 	for i := range numGoroutines {
 		wg.Go(func() {
-			defer wg.Done()
 			for j := range numOps {
 				pool.Intern(fmt.Sprintf("unique-%d-%d", i, j))
 			}
 		})
 	}
 
-	// Concurrent clear operations
-	for range numGoroutines {
+	// Use a small number of goroutines to exercise the race detector without triggering
+	// resize contention in xsync.Map.
+	for range 10 {
 		wg.Go(func() {
-			defer wg.Done()
 			for range numOps {
 				pool.clear()
 			}
