@@ -7,9 +7,9 @@ import (
 	"context"
 	"io"
 	"io/fs"
-	"sync"
 
 	yarax "github.com/VirusTotal/yara-x/go"
+	"github.com/puzpuzpuz/xsync/v4"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
@@ -127,7 +127,7 @@ type ScanResult struct {
 }
 
 type Report struct {
-	Files  sync.Map
+	Files  *xsync.Map[string, *FileReport]
 	Diff   *DiffReport
 	Filter string
 }

@@ -6,11 +6,11 @@ package render
 import (
 	"bytes"
 	"strings"
-	"sync"
 	"testing"
 	"unicode/utf8"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
+	"github.com/puzpuzpuz/xsync/v4"
 )
 
 func TestNew(t *testing.T) {
@@ -297,25 +297,6 @@ func TestSanitizeFileReport(t *testing.T) {
 		}
 	})
 
-	t.Run("non-string key ignored", func(t *testing.T) {
-		t.Parallel()
-		fr := &malcontent.FileReport{Path: "path"}
-		files := make(map[string]*malcontent.FileReport)
-		sanitizeFileReport(42, fr, files)
-		if len(files) != 0 {
-			t.Errorf("expected empty map for non-string key, got %d", len(files))
-		}
-	})
-
-	t.Run("non-FileReport value ignored", func(t *testing.T) {
-		t.Parallel()
-		files := make(map[string]*malcontent.FileReport)
-		sanitizeFileReport("key", "not-a-report", files)
-		if len(files) != 0 {
-			t.Errorf("expected empty map for non-FileReport value, got %d", len(files))
-		}
-	})
-
 	t.Run("nil behaviors tolerated", func(t *testing.T) {
 		t.Parallel()
 		fr := &malcontent.FileReport{
@@ -567,7 +548,7 @@ func TestRiskStatistics(t *testing.T) {
 
 	t.Run("empty map", func(t *testing.T) {
 		t.Parallel()
-		files := &sync.Map{}
+		files := xsync.NewMap[string, *malcontent.FileReport]()
 		stats, totalRisks, processed, skipped := RiskStatistics(&malcontent.Config{}, files)
 		if len(stats) != 0 || totalRisks != 0 || processed != 0 || skipped != 0 {
 			t.Errorf("empty map: stats=%d totalRisks=%d processed=%d skipped=%d", len(stats), totalRisks, processed, skipped)
@@ -576,7 +557,7 @@ func TestRiskStatistics(t *testing.T) {
 
 	t.Run("single file non-scan", func(t *testing.T) {
 		t.Parallel()
-		files := &sync.Map{}
+		files := xsync.NewMap[string, *malcontent.FileReport]()
 		files.Store("/bin/ls", &malcontent.FileReport{Path: "/bin/ls", RiskScore: 2, RiskLevel: "MEDIUM"})
 		stats, totalRisks, processed, skipped := RiskStatistics(&malcontent.Config{}, files)
 		if processed != 1 || totalRisks != 1 || skipped != 0 {
@@ -589,7 +570,7 @@ func TestRiskStatistics(t *testing.T) {
 
 	t.Run("skipped files excluded non-scan", func(t *testing.T) {
 		t.Parallel()
-		files := &sync.Map{}
+		files := xsync.NewMap[string, *malcontent.FileReport]()
 		files.Store("/bin/ls", &malcontent.FileReport{Path: "/bin/ls", RiskScore: 2})
 		files.Store("/bin/skip", &malcontent.FileReport{Path: "/bin/skip", Skipped: "data"})
 		_, totalRisks, processed, skipped := RiskStatistics(&malcontent.Config{}, files)
@@ -600,7 +581,7 @@ func TestRiskStatistics(t *testing.T) {
 
 	t.Run("scan mode skips low risk", func(t *testing.T) {
 		t.Parallel()
-		files := &sync.Map{}
+		files := xsync.NewMap[string, *malcontent.FileReport]()
 		files.Store("/low", &malcontent.FileReport{Path: "/low", RiskScore: 1})
 		files.Store("/high", &malcontent.FileReport{Path: "/high", RiskScore: 3})
 		files.Store("/crit", &malcontent.FileReport{Path: "/crit", RiskScore: 4})
@@ -616,7 +597,7 @@ func TestPkgStatistics(t *testing.T) {
 
 	t.Run("empty map", func(t *testing.T) {
 		t.Parallel()
-		files := &sync.Map{}
+		files := xsync.NewMap[string, *malcontent.FileReport]()
 		stats, _, total := PkgStatistics(&malcontent.Config{}, files)
 		if len(stats) != 0 || total != 0 {
 			t.Errorf("empty: stats=%d total=%d", len(stats), total)
@@ -625,7 +606,7 @@ func TestPkgStatistics(t *testing.T) {
 
 	t.Run("behaviors counted", func(t *testing.T) {
 		t.Parallel()
-		files := &sync.Map{}
+		files := xsync.NewMap[string, *malcontent.FileReport]()
 		files.Store("/bin/ls", &malcontent.FileReport{
 			Path:      "/bin/ls",
 			Behaviors: []*malcontent.Behavior{{ID: "net/connect"}, {ID: "fs/read"}, {ID: "net/bind"}},
@@ -641,7 +622,7 @@ func TestPkgStatistics(t *testing.T) {
 
 	t.Run("skipped files excluded", func(t *testing.T) {
 		t.Parallel()
-		files := &sync.Map{}
+		files := xsync.NewMap[string, *malcontent.FileReport]()
 		files.Store("/a", &malcontent.FileReport{Path: "/a", Behaviors: []*malcontent.Behavior{{ID: "net/connect"}}})
 		files.Store("/skip", &malcontent.FileReport{Path: "/skip", Skipped: "reason", Behaviors: []*malcontent.Behavior{{ID: "bad"}}})
 		_, _, total := PkgStatistics(&malcontent.Config{}, files)
@@ -652,7 +633,7 @@ func TestPkgStatistics(t *testing.T) {
 
 	t.Run("duplicate IDs aggregated", func(t *testing.T) {
 		t.Parallel()
-		files := &sync.Map{}
+		files := xsync.NewMap[string, *malcontent.FileReport]()
 		files.Store("/a", &malcontent.FileReport{Path: "/a", Behaviors: []*malcontent.Behavior{{ID: "net/connect"}}})
 		files.Store("/b", &malcontent.FileReport{Path: "/b", Behaviors: []*malcontent.Behavior{{ID: "net/connect"}}})
 		stats, _, total := PkgStatistics(&malcontent.Config{}, files)

@@ -38,18 +38,18 @@ func (r YAML) Full(ctx context.Context, c *malcontent.Config, rep *malcontent.Re
 		return nil
 	}
 
-	// Make the sync.Map YAML-friendly
+	// Make the xsync.Map YAML-friendly
 	yr := Report{
 		Diff:   rep.Diff,
 		Files:  make(map[string]*malcontent.FileReport),
 		Filter: "",
 	}
 
-	rep.Files.Range(func(key, value any) bool {
+	rep.Files.Range(func(key string, fr *malcontent.FileReport) bool {
 		if ctx.Err() != nil {
 			return false
 		}
-		sanitizeFileReport(key, value, yr.Files)
+		sanitizeFileReport(key, fr, yr.Files)
 		return true
 	})
 

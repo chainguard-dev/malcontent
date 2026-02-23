@@ -167,30 +167,29 @@ func relFileReport(ctx context.Context, c malcontent.Config, fromPath string, is
 		rangeErr error
 	)
 
-	fromReport.Files.Range(func(key, value any) bool {
+	fromReport.Files.Range(func(key string, fr *malcontent.FileReport) bool {
 		if ctx.Err() != nil {
 			return false
 		}
-		if key == nil || value == nil {
+		if key == "" || fr == nil {
 			return true
 		}
 
-		if fr, ok := value.(*malcontent.FileReport); ok {
-			isArchive := fr.ArchiveRoot != ""
-			if fr.Skipped != "" {
-				return true
-			}
-
-			rel, b, err := relPath(fromPath, fr, isArchive, isImage)
-			if err != nil {
-				rangeErr = err
-				return false
-			}
-
-			fr.PreviousRelPath = rel
-			fromRelPath[rel] = fr
-			base = b
+		isArchive := fr.ArchiveRoot != ""
+		if fr.Skipped != "" {
+			return true
 		}
+
+		rel, b, err := relPath(fromPath, fr, isArchive, isImage)
+		if err != nil {
+			rangeErr = err
+			return false
+		}
+
+		fr.PreviousRelPath = rel
+		fromRelPath[rel] = fr
+		base = b
+
 		return true
 	})
 

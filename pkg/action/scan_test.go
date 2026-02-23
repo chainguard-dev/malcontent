@@ -11,13 +11,13 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
-	"sync"
 	"testing"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/rules"
 	thirdparty "github.com/chainguard-dev/malcontent/third_party"
+	"github.com/puzpuzpuz/xsync/v4"
 )
 
 // countOpenFDs returns the number of open file descriptors for the current process.
@@ -168,10 +168,10 @@ func TestScanRepeatedScansNoResourceExhaustion(t *testing.T) {
 func TestExitIfHitOrMiss(t *testing.T) {
 	t.Parallel()
 
-	buildMap := func(entries ...any) *sync.Map {
-		m := &sync.Map{}
-		for i := 0; i < len(entries); i += 2 {
-			m.Store(entries[i], entries[i+1])
+	buildMap := func(entries map[string]*malcontent.FileReport) *xsync.Map[string, *malcontent.FileReport] {
+		m := xsync.NewMap[string, *malcontent.FileReport]()
+		for k, v := range entries {
+			m.Store(k, v)
 		}
 		return m
 	}
@@ -185,7 +185,7 @@ func TestExitIfHitOrMiss(t *testing.T) {
 
 	tests := []struct {
 		name      string
-		frs       *sync.Map
+		frs       *xsync.Map[string, *malcontent.FileReport]
 		scanPath  string
 		errIfHit  bool
 		errIfMiss bool
@@ -193,15 +193,15 @@ func TestExitIfHitOrMiss(t *testing.T) {
 		wantErr   bool
 	}{
 		{"nil map", nil, "/scan", true, true, false, false},
-		{"empty map", &sync.Map{}, "/scan", true, true, false, false},
-		{"behaviors errIfHit", buildMap("/bin/malware", frWithBehaviors), "/scan", true, false, true, true},
-		{"behaviors no errIfHit", buildMap("/bin/malware", frWithBehaviors), "/scan", false, false, false, false},
-		{"no behaviors errIfMiss", buildMap("/bin/clean", frNoBehaviors), "/scan", false, true, false, true},
-		{"no behaviors no errIfMiss", buildMap("/bin/clean", frNoBehaviors), "/scan", false, false, false, false},
-		{"only skipped zero scanned", buildMap("/bin/skipped", frSkipped), "/scan", true, true, false, false},
-		{"skipped+real errIfHit", buildMap("/s", frSkipped, "/m", frWithBehaviors), "/scan", true, false, true, true},
-		{"nil value skipped", buildMap("/nil", nil, "/m", frWithBehaviors), "/scan", true, false, true, true},
-		{"both false always nil", buildMap("/m", frWithBehaviors), "/scan", false, false, false, false},
+		{"empty map", xsync.NewMap[string, *malcontent.FileReport](), "/scan", true, true, false, false},
+		{"behaviors errIfHit", buildMap(map[string]*malcontent.FileReport{"/bin/malware": frWithBehaviors}), "/scan", true, false, true, true},
+		{"behaviors no errIfHit", buildMap(map[string]*malcontent.FileReport{"/bin/malware": frWithBehaviors}), "/scan", false, false, false, false},
+		{"no behaviors errIfMiss", buildMap(map[string]*malcontent.FileReport{"/bin/clean": frNoBehaviors}), "/scan", false, true, false, true},
+		{"no behaviors no errIfMiss", buildMap(map[string]*malcontent.FileReport{"/bin/clean": frNoBehaviors}), "/scan", false, false, false, false},
+		{"only skipped zero scanned", buildMap(map[string]*malcontent.FileReport{"/bin/skipped": frSkipped}), "/scan", true, true, false, false},
+		{"skipped+real errIfHit", buildMap(map[string]*malcontent.FileReport{"/s": frSkipped, "/m": frWithBehaviors}), "/scan", true, false, true, true},
+		{"nil value skipped", buildMap(map[string]*malcontent.FileReport{"/nil": nil, "/m": frWithBehaviors}), "/scan", true, false, true, true},
+		{"both false always nil", buildMap(map[string]*malcontent.FileReport{"/m": frWithBehaviors}), "/scan", false, false, false, false},
 	}
 
 	for _, tt := range tests {

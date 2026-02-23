@@ -9,11 +9,11 @@ import (
 	"context"
 	"os"
 	"path/filepath"
-	"sync"
 	"testing"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
+	"github.com/puzpuzpuz/xsync/v4"
 )
 
 func TestSymlinkExtraction(t *testing.T) {
@@ -148,10 +148,10 @@ func TestExtractNestedArchiveWithSubdirectory(t *testing.T) {
 	ctx := context.Background()
 	logger := clog.FromContext(ctx)
 	cfg := malcontent.Config{}
-	var extracted sync.Map
+	extracted := xsync.NewMap[string, bool]()
 
 	// This is the call that previously failed with "pattern contains path separator"
-	err = extractNestedArchive(ctx, cfg, tmpDir, "subdir/apko.gz", &extracted, logger, 1)
+	err = extractNestedArchive(ctx, cfg, tmpDir, "subdir/apko.gz", extracted, logger, 1)
 	if err != nil {
 		t.Fatalf("extractNestedArchive failed: %v", err)
 	}
@@ -189,9 +189,9 @@ func TestExtractNestedArchiveCollision(t *testing.T) {
 	ctx := context.Background()
 	logger := clog.FromContext(ctx)
 	cfg := malcontent.Config{}
-	var extracted sync.Map
+	extracted := xsync.NewMap[string, bool]()
 
-	err = extractNestedArchive(ctx, cfg, tmpDir, "apko.gz", &extracted, logger, 1)
+	err = extractNestedArchive(ctx, cfg, tmpDir, "apko.gz", extracted, logger, 1)
 	if err != nil {
 		t.Fatalf("extractNestedArchive with collision failed: %v", err)
 	}

@@ -7,10 +7,10 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"sync"
 	"testing"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
+	"github.com/puzpuzpuz/xsync/v4"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 	"gopkg.in/yaml.v3"
 )
@@ -23,7 +23,7 @@ func TestYAMLRendererEmpty(t *testing.T) {
 	ctx := context.Background()
 	cfg := &malcontent.Config{}
 	report := &malcontent.Report{
-		Files: sync.Map{},
+		Files: xsync.NewMap[string, *malcontent.FileReport](),
 	}
 
 	err := renderer.Full(ctx, cfg, report)
@@ -46,7 +46,7 @@ func TestYAMLRendererWithFiles(t *testing.T) {
 	ctx := context.Background()
 	cfg := &malcontent.Config{}
 	report := &malcontent.Report{
-		Files: sync.Map{},
+		Files: xsync.NewMap[string, *malcontent.FileReport](),
 	}
 
 	// Add a file report
@@ -91,7 +91,7 @@ func TestYAMLRendererWithSkippedFiles(t *testing.T) {
 	ctx := context.Background()
 	cfg := &malcontent.Config{}
 	report := &malcontent.Report{
-		Files: sync.Map{},
+		Files: xsync.NewMap[string, *malcontent.FileReport](),
 	}
 
 	// Add a skipped file (should be filtered out)
@@ -155,7 +155,7 @@ func TestYAMLRendererCanceledContext(t *testing.T) {
 
 	cfg := &malcontent.Config{}
 	report := &malcontent.Report{
-		Files: sync.Map{},
+		Files: xsync.NewMap[string, *malcontent.FileReport](),
 	}
 
 	err := renderer.Full(ctx, cfg, report)
@@ -172,7 +172,7 @@ func TestYAMLRendererWithStats(t *testing.T) {
 	ctx := context.Background()
 	cfg := &malcontent.Config{Stats: true}
 	report := &malcontent.Report{
-		Files: sync.Map{},
+		Files: xsync.NewMap[string, *malcontent.FileReport](),
 	}
 
 	// Add some files to generate stats
@@ -218,7 +218,7 @@ func TestYAMLRendererWithDiff(t *testing.T) {
 	diff.Removed.Set("/bin/removed", &malcontent.FileReport{Path: "/bin/removed", RiskScore: 1})
 	diff.Modified.Set("/bin/modified", &malcontent.FileReport{Path: "/bin/modified", RiskScore: 3})
 	report := &malcontent.Report{
-		Files: sync.Map{},
+		Files: xsync.NewMap[string, *malcontent.FileReport](),
 		Diff:  diff,
 	}
 
@@ -280,7 +280,7 @@ func TestYAMLRendererSpecialCharacters(t *testing.T) {
 	ctx := context.Background()
 	cfg := &malcontent.Config{}
 	report := &malcontent.Report{
-		Files: sync.Map{},
+		Files: xsync.NewMap[string, *malcontent.FileReport](),
 	}
 
 	// Add file with special characters
@@ -309,7 +309,7 @@ func TestYAMLRendererMultipleFiles(t *testing.T) {
 	ctx := context.Background()
 	cfg := &malcontent.Config{}
 	report := &malcontent.Report{
-		Files: sync.Map{},
+		Files: xsync.NewMap[string, *malcontent.FileReport](),
 	}
 
 	// Add multiple files

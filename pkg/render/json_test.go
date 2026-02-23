@@ -8,10 +8,10 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"sync"
 	"testing"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
+	"github.com/puzpuzpuz/xsync/v4"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
@@ -23,7 +23,7 @@ func TestJSONRendererEmpty(t *testing.T) {
 	ctx := context.Background()
 	cfg := &malcontent.Config{}
 	report := &malcontent.Report{
-		Files: sync.Map{},
+		Files: xsync.NewMap[string, *malcontent.FileReport](),
 	}
 
 	err := renderer.Full(ctx, cfg, report)
@@ -46,7 +46,7 @@ func TestJSONRendererWithFiles(t *testing.T) {
 	ctx := context.Background()
 	cfg := &malcontent.Config{}
 	report := &malcontent.Report{
-		Files: sync.Map{},
+		Files: xsync.NewMap[string, *malcontent.FileReport](),
 	}
 
 	// Add a file report
@@ -91,7 +91,7 @@ func TestJSONRendererWithSkippedFiles(t *testing.T) {
 	ctx := context.Background()
 	cfg := &malcontent.Config{}
 	report := &malcontent.Report{
-		Files: sync.Map{},
+		Files: xsync.NewMap[string, *malcontent.FileReport](),
 	}
 
 	// Add a skipped file (should be filtered out)
@@ -155,7 +155,7 @@ func TestJSONRendererCanceledContext(t *testing.T) {
 
 	cfg := &malcontent.Config{}
 	report := &malcontent.Report{
-		Files: sync.Map{},
+		Files: xsync.NewMap[string, *malcontent.FileReport](),
 	}
 
 	err := renderer.Full(ctx, cfg, report)
@@ -172,7 +172,7 @@ func TestJSONRendererWithStats(t *testing.T) {
 	ctx := context.Background()
 	cfg := &malcontent.Config{Stats: true}
 	report := &malcontent.Report{
-		Files: sync.Map{},
+		Files: xsync.NewMap[string, *malcontent.FileReport](),
 	}
 
 	// Add some files to generate stats
@@ -218,7 +218,7 @@ func TestJSONRendererWithDiff(t *testing.T) {
 	diff.Removed.Set("/bin/removed", &malcontent.FileReport{Path: "/bin/removed", RiskScore: 1})
 	diff.Modified.Set("/bin/modified", &malcontent.FileReport{Path: "/bin/modified", RiskScore: 3})
 	report := &malcontent.Report{
-		Files: sync.Map{},
+		Files: xsync.NewMap[string, *malcontent.FileReport](),
 		Diff:  diff,
 	}
 
@@ -280,7 +280,7 @@ func TestJSONRendererSpecialCharacters(t *testing.T) {
 	ctx := context.Background()
 	cfg := &malcontent.Config{}
 	report := &malcontent.Report{
-		Files: sync.Map{},
+		Files: xsync.NewMap[string, *malcontent.FileReport](),
 	}
 
 	// Add file with special characters

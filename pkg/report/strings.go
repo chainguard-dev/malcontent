@@ -9,11 +9,12 @@ import (
 	"sync"
 
 	yarax "github.com/VirusTotal/yara-x/go"
+	"github.com/puzpuzpuz/xsync/v4"
 )
 
 // StringPool holds data to handle string interning.
 type StringPool struct {
-	strings sync.Map
+	strings *xsync.Map[string, string]
 }
 
 // clear removes all strings from the pool to free memory.
@@ -24,17 +25,14 @@ func (sp *StringPool) clear() {
 // NewStringPool creates a new string pool.
 func NewStringPool() *StringPool {
 	return &StringPool{
-		strings: sync.Map{},
+		strings: xsync.NewMap[string, string](),
 	}
 }
 
 // Intern returns an interned version of the input string.
 func (sp *StringPool) Intern(s string) string {
 	interned, _ := sp.strings.LoadOrStore(s, s)
-	if is, ok := interned.(string); ok {
-		return is
-	}
-	return s
+	return interned
 }
 
 type matchProcessor struct {

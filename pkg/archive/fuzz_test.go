@@ -9,7 +9,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"sync"
 	"testing"
 	"time"
 
@@ -17,6 +16,7 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
+	"github.com/puzpuzpuz/xsync/v4"
 )
 
 // FuzzValidateResolvedPath tests path validation via the ValidateResolvedPath function
@@ -723,11 +723,11 @@ func FuzzExtractNestedArchive(f *testing.F) {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
-		var extracted sync.Map
+		extracted := xsync.NewMap[string, bool]()
 		cfg := malcontent.Config{MaxDepth: maxDepth}
 
 		logger := clog.FromContext(ctx)
-		_ = extractNestedArchive(ctx, cfg, tmpDir, filename, &extracted, logger, 0)
+		_ = extractNestedArchive(ctx, cfg, tmpDir, filename, extracted, logger, 0)
 	})
 }
 

@@ -130,11 +130,9 @@ func TestJSON(t *testing.T) {
 				t.Errorf("json output mismatch: (-want +got):\n%s", diff)
 			}
 
-			res.Files.Range(func(_, value any) bool {
-				if r, ok := value.(*malcontent.FileReport); ok {
-					if strings.Contains(binPath, "/clean/") && r.RiskScore > 2 {
-						t.Errorf("%s score too high for a 'clean' sample: %s [%d]:\n%s", binPath, r.RiskLevel, r.RiskScore, got)
-					}
+			res.Files.Range(func(_ string, r *malcontent.FileReport) bool {
+				if strings.Contains(binPath, "/clean/") && r.RiskScore > 2 {
+					t.Errorf("%s score too high for a 'clean' sample: %s [%d]:\n%s", binPath, r.RiskLevel, r.RiskScore, got)
 				}
 				return true
 			})
@@ -212,11 +210,9 @@ func TestJSONStats(t *testing.T) {
 				t.Errorf("json output mismatch: (-want +got):\n%s", diff)
 			}
 
-			res.Files.Range(func(_, value any) bool {
-				if r, ok := value.(*malcontent.FileReport); ok {
-					if strings.Contains(binPath, "/clean/") && r.RiskScore > 2 {
-						t.Errorf("%s score too high for a 'clean' sample: %s [%d]:\n%s", binPath, r.RiskLevel, r.RiskScore, got)
-					}
+			res.Files.Range(func(_ string, r *malcontent.FileReport) bool {
+				if strings.Contains(binPath, "/clean/") && r.RiskScore > 2 {
+					t.Errorf("%s score too high for a 'clean' sample: %s [%d]:\n%s", binPath, r.RiskLevel, r.RiskScore, got)
 				}
 				return true
 			})
@@ -293,11 +289,9 @@ func TestSimple(t *testing.T) {
 			}
 
 			// Eeek. We shouldn't be returning such an awkward object in a public interface
-			res.Files.Range(func(_, value any) bool {
-				if r, ok := value.(*malcontent.FileReport); ok {
-					if strings.Contains(binPath, "/clean/") && r.RiskScore > 2 {
-						t.Errorf("%s score too high for a 'clean' sample: %s [%d]:\n%s", binPath, r.RiskLevel, r.RiskScore, got)
-					}
+			res.Files.Range(func(_ string, r *malcontent.FileReport) bool {
+				if strings.Contains(binPath, "/clean/") && r.RiskScore > 2 {
+					t.Errorf("%s score too high for a 'clean' sample: %s [%d]:\n%s", binPath, r.RiskLevel, r.RiskScore, got)
 				}
 				return true
 			})
@@ -612,11 +606,9 @@ func TestMarkdown(t *testing.T) {
 				t.Errorf("markdown output mismatch: (-want +got):\n%s", diff)
 			}
 
-			res.Files.Range(func(_, value any) bool {
-				if r, ok := value.(*malcontent.FileReport); ok {
-					if strings.Contains(binPath, "/clean/") && r.RiskScore > 2 {
-						t.Errorf("%s score too high for a 'clean' sample: %s [%d]:\n%s", binPath, r.RiskLevel, r.RiskScore, got)
-					}
+			res.Files.Range(func(_ string, r *malcontent.FileReport) bool {
+				if strings.Contains(binPath, "/clean/") && r.RiskScore > 2 {
+					t.Errorf("%s score too high for a 'clean' sample: %s [%d]:\n%s", binPath, r.RiskLevel, r.RiskScore, got)
 				}
 				return true
 			})
