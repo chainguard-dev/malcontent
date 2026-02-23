@@ -6,50 +6,38 @@ package render
 import (
 	"fmt"
 	"sort"
-	"sync"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/report"
+	"github.com/puzpuzpuz/xsync/v4"
 )
 
-// smLength returns the length of a sync.Map.
-func smLength(m *sync.Map) int {
-	length := 0
-	m.Range(func(_, _ any) bool {
-		length++
-		return true
-	})
-	return length
-}
-
-func RiskStatistics(c *malcontent.Config, files *sync.Map) ([]malcontent.IntMetric, int, int, int) {
-	length := smLength(files)
+func RiskStatistics(c *malcontent.Config, files *xsync.Map[string, *malcontent.FileReport]) ([]malcontent.IntMetric, int, int, int) {
+	length := files.Size()
 
 	riskMap := make(map[int][]string, length)
 	riskStats := make(map[int]float64, length)
 
 	processedFiles := 0
 	skippedFiles := 0
-	files.Range(func(key, value any) bool {
-		if key == nil || value == nil {
+	files.Range(func(key string, fr *malcontent.FileReport) bool {
+		if key == "" || fr == nil {
 			return true
 		}
 		processedFiles++
 
-		if fr, ok := value.(*malcontent.FileReport); ok {
-			switch {
-			case c.Scan:
-				if fr.RiskScore >= 3 {
-					riskMap[fr.RiskScore] = append(riskMap[fr.RiskScore], fr.Path)
-				} else {
-					skippedFiles++
-				}
-			default:
-				if fr.Skipped == "" {
-					riskMap[fr.RiskScore] = append(riskMap[fr.RiskScore], fr.Path)
-				} else {
-					skippedFiles++
-				}
+		switch {
+		case c.Scan:
+			if fr.RiskScore >= 3 {
+				riskMap[fr.RiskScore] = append(riskMap[fr.RiskScore], fr.Path)
+			} else {
+				skippedFiles++
+			}
+		default:
+			if fr.Skipped == "" {
+				riskMap[fr.RiskScore] = append(riskMap[fr.RiskScore], fr.Path)
+			} else {
+				skippedFiles++
 			}
 		}
 		for riskLevel := range riskMap {
@@ -76,21 +64,19 @@ func RiskStatistics(c *malcontent.Config, files *sync.Map) ([]malcontent.IntMetr
 	return stats, total(), processedFiles, skippedFiles
 }
 
-func PkgStatistics(_ *malcontent.Config, files *sync.Map) ([]malcontent.StrMetric, int, int) {
-	length := smLength(files)
+func PkgStatistics(_ *malcontent.Config, files *xsync.Map[string, *malcontent.FileReport]) ([]malcontent.StrMetric, int, int) {
+	length := files.Size()
 	numBehaviors := 0
 	pkgMap := make(map[string]int, length)
 	pkg := make(map[string]float64, length)
-	files.Range(func(key, value any) bool {
-		if key == nil || value == nil {
+	files.Range(func(key string, fr *malcontent.FileReport) bool {
+		if key == "" || fr == nil {
 			return true
 		}
-		if fr, ok := value.(*malcontent.FileReport); ok {
-			if fr.Skipped == "" {
-				for _, b := range fr.Behaviors {
-					numBehaviors++
-					pkgMap[b.ID]++
-				}
+		if fr.Skipped == "" {
+			for _, b := range fr.Behaviors {
+				numBehaviors++
+				pkgMap[b.ID]++
 			}
 		}
 		return true
@@ -125,8 +111,8 @@ func Statistics(c *malcontent.Config, r *malcontent.Report) error {
 		return fmt.Errorf("unexpected nil report")
 	}
 
-	riskStats, totalRisks, processedFiles, skippedFiles := RiskStatistics(c, &r.Files)
-	pkgStats, width, totalBehaviors := PkgStatistics(c, &r.Files)
+	riskStats, totalRisks, processedFiles, skippedFiles := RiskStatistics(c, r.Files)
+	pkgStats, width, totalBehaviors := PkgStatistics(c, r.Files)
 
 	statsSymbol := "📊"
 	riskSymbol := "⚠️ "

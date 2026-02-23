@@ -83,16 +83,9 @@ func New(kind string, w io.Writer) (malcontent.Renderer, error) {
 	}
 }
 
-// sanitizeFileReport sanitizes a sync.Map entry and stores it in files.
-// Returns false only if iteration should stop (never in this implementation).
-func sanitizeFileReport(key, value any, files map[string]*malcontent.FileReport) {
-	path, ok := key.(string)
-	if !ok {
-		return
-	}
-
-	r, ok := value.(*malcontent.FileReport)
-	if !ok || r.Skipped != "" {
+// sanitizeFileReport sanitizes a file report entry and stores it in files.
+func sanitizeFileReport(path string, r *malcontent.FileReport, files map[string]*malcontent.FileReport) {
+	if r == nil || r.Skipped != "" {
 		return
 	}
 
@@ -130,8 +123,8 @@ func serializedStats(c *malcontent.Config, r *malcontent.Report) *Stats {
 		return nil
 	}
 
-	pkgStats, _, totalBehaviors := PkgStatistics(c, &r.Files)
-	riskStats, totalRisks, processedFiles, skippedFiles := RiskStatistics(c, &r.Files)
+	pkgStats, _, totalBehaviors := PkgStatistics(c, r.Files)
+	riskStats, totalRisks, processedFiles, skippedFiles := RiskStatistics(c, r.Files)
 
 	sort.Slice(pkgStats, func(i, j int) bool {
 		return pkgStats[i].Key < pkgStats[j].Key

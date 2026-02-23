@@ -8,11 +8,11 @@ import (
 	"context"
 	"encoding/json"
 	"strings"
-	"sync"
 	"testing"
 	"unicode/utf8"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
+	"github.com/puzpuzpuz/xsync/v4"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 	"gopkg.in/yaml.v3"
 )
@@ -56,7 +56,7 @@ func FuzzRenderDifferential(f *testing.F) {
 		risk := max(int(riskLevel)%5, 0)
 
 		report := &malcontent.Report{
-			Files: sync.Map{},
+			Files: xsync.NewMap[string, *malcontent.FileReport](),
 		}
 
 		fileReport := &malcontent.FileReport{

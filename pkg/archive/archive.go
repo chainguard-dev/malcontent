@@ -14,13 +14,13 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
-	"sync"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/pool"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
+	"github.com/puzpuzpuz/xsync/v4"
 )
 
 var archivePool, tarPool, zipPool *pool.BufferPool
@@ -113,7 +113,7 @@ func IsValidPath(target, dir string) bool {
 	}
 }
 
-func extractNestedArchive(ctx context.Context, c malcontent.Config, d string, f string, extracted *sync.Map, logger *clog.Logger, depth int) error {
+func extractNestedArchive(ctx context.Context, c malcontent.Config, d string, f string, extracted *xsync.Map[string, bool], logger *clog.Logger, depth int) error {
 	if ctx.Err() != nil {
 		return ctx.Err()
 	}
@@ -264,7 +264,7 @@ func ExtractArchiveToTempDir(ctx context.Context, c malcontent.Config, path stri
 		return "", fmt.Errorf("failed to extract %s: %w", path, err)
 	}
 
-	var extractedFiles sync.Map
+	extractedFiles := xsync.NewMap[string, bool]()
 
 	err = filepath.WalkDir(tmpDir, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
@@ -286,7 +286,7 @@ func ExtractArchiveToTempDir(ctx context.Context, c malcontent.Config, path stri
 
 		ext := programkind.GetExt(path)
 		if _, ok := programkind.ArchiveMap[ext]; ok {
-			if err := extractNestedArchive(ctx, c, tmpDir, rel, &extractedFiles, logger, 1); err != nil {
+			if err := extractNestedArchive(ctx, c, tmpDir, rel, extractedFiles, logger, 1); err != nil {
 				return err
 			}
 		}
