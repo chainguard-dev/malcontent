@@ -15,7 +15,7 @@ permissions:
   contents: read
 
 env:
-  VERSION_FILE: pkg/version/version.go
+  VERSION_FILE: "pkg/release/version.go"
 
 jobs:
   version:
