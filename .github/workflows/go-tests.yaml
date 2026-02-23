@@ -11,6 +11,10 @@ on:
     branches:
       - "main"
 
+env:
+  GO_RELEASE: "go-1.26"
+  YARA_X_RELEASE: "1.13.0"
+
 permissions: {}
 
 jobs:
@@ -37,7 +41,7 @@ jobs:
       - name: Install dependencies
         run: |
           apk update
-          apk add curl findutils git gnutar go nodejs upx xz yara-x~1.12.0
+          apk add curl findutils git gnutar ${{ env.GO_RELEASE }} nodejs upx xz yara-x~${{ env.YARA_X_RELEASE }}
 
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -63,8 +67,7 @@ jobs:
           restore-keys: go-
 
       - name: Unit tests
-        run: |
-          make test
+        run: make test
 
   integration:
     if: ${{ github.repository == 'chainguard-dev/malcontent' }}
@@ -89,7 +92,7 @@ jobs:
       - name: Install dependencies
         run: |
           apk update
-          apk add curl findutils git gnutar go nodejs upx xz yara-x~1.12.0
+          apk add curl findutils git gnutar ${{ env.GO_RELEASE }} nodejs upx xz yara-x~${{ env.YARA_X_RELEASE }}
 
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -128,5 +131,4 @@ jobs:
         run: make samples
 
       - name: Integration tests
-        run: |
-          make integration
+        run: make integration

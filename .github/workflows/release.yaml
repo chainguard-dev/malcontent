@@ -6,8 +6,7 @@ name: Cut Release
 on:
   workflow_dispatch:
 
-permissions:
-  contents: read
+permissions: {}
 
 env:
   VERSION_FILE: pkg/version/version.go

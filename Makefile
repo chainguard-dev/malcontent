@@ -15,6 +15,16 @@ LINT_OS := $(shell uname)
 LINT_OS_LOWER := $(shell echo $(LINT_OS) | tr '[:upper:]' '[:lower:]')
 LINT_ROOT := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
+# flags required to successfully build malcontent with yara-x's C API
+CPPFLAGS ?= "-I$(LINT_ROOT)/out/include"
+LDFLAGS :=
+PKGCONF_PATH ?= "$(LINT_ROOT)/out/lib/pkgconfig"
+ifeq ($(LINT_OS),Darwin)
+	LDFLAGS="-L$(LINT_ROOT)/out/lib -Wl,-no_warn_duplicate_libraries,-rpath,$(LINT_ROOT)/out/lib,-lyara_x_capi"
+else ifeq ($(LINT_OS),Linux)
+	LDFLAGS="-L$(LINT_ROOT)/out/lib -Wl,-rpath,$(LINT_ROOT)/out/lib,-lyara_x_capi,-no-pie"
+endif
+
 # yara-x adds an additional string for the platform (apple, unknown)
 LINT_PLATFORM :=
 ifeq ($(LINT_OS),Darwin)
@@ -41,22 +51,22 @@ $(GOLANGCI_LINT_BIN):
 	mv $(LINT_ROOT)/out/linters/golangci-lint $@
 
 YARA_X_REPO ?= virusTotal/yara-x
-YARA_X_VERSION ?= v1.12.0
-YARA_X_COMMIT ?= 466a624e381beefde7665433494887d80932a662
+YARA_X_VERSION ?= v1.13.0
+YARA_X_COMMIT ?= d397e8c3feee79e91f4b389288ba244264da2813
 YARA_X_SHA :=
 ifeq ($(LINT_OS),Darwin)
 	ifeq ($(shell uname -m),arm64)
 		LINT_ARCH = aarch64
-		YARA_X_SHA = 63100b4d6505c366d3c6af5145a26b961d2bf1646a4442716d81bb6f6a4dbee2
+		YARA_X_SHA = 0931697b9cfe74cade4a7136610a5cd254ae3bed95831b413c6b54f5760d554f
 	else
-		YARA_X_SHA = 29a50a3cf442206b9c116f3a322debc367215d4667cf99512550cbdca7c88fc0
+		YARA_X_SHA = 226dce240b8d674db3c83b5c0b6d336268a46f1fbd6718fa9bdeb3735857f6c4
 	endif
 else ifeq ($(LINT_OS),Linux)
 	ifeq ($(shell uname -m),arm64)
 		LINT_ARCH = aarch64
-		YARA_X_SHA = 614cb7b5a738e1e6e3fe6b98bca207c2dfd012ad95d4a85d5e62a0eac985c554
+		YARA_X_SHA = a50e9b593c5a6039c227f665b8ade1ea1c4bee3be5789add3e33f033cbf427ae
 	else
-		YARA_X_SHA = f460a20b78b66b08b6d323f1d1ed00ab94328ae98a3f755f29692e49caa48cb7
+		YARA_X_SHA = b93fb0b87016c60498c26b8a17d2617bbc49f5d5b1a291cde5b09658ce93bb69
 	endif
 endif
 YARA_X_BIN := $(LINT_ROOT)/out/linters/yr-$(YARA_X_VERSION)-$(LINT_ARCH)
@@ -70,14 +80,20 @@ $(YARA_X_BIN):
 
 LINTERS += golangci-lint-lint
 golangci-lint-lint: $(GOLANGCI_LINT_BIN)
-	find . -maxdepth 1 -name go.mod -print0 | xargs -0 -L1 -I{} /bin/sh -c '"$(GOLANGCI_LINT_BIN)" run -c "$(GOLANGCI_LINT_CONFIG)"' \;
+	find . -maxdepth 1 -name go.mod -print0 | xargs -0 -L1 -I{} /bin/sh -c 'CGO_LDFLAGS=$(LDFLAGS) CGO_CPPFLAGS=$(CPPFLAGS) PKG_CONFIG_PATH=$(PKGCONF_PATH) "$(GOLANGCI_LINT_BIN)" run -c "$(GOLANGCI_LINT_CONFIG)"' \;
 
 FIXERS += golangci-lint-fix
 golangci-lint-fix: $(GOLANGCI_LINT_BIN)
+	CGO_LDFLAGS=$(LDFLAGS) \
+	CGO_CPPFLAGS=$(CPPFLAGS) \
+	PKG_CONFIG_PATH=$(PKGCONF_PATH) \
 	find . -maxdepth 1 -name go.mod -execdir "$(GOLANGCI_LINT_BIN)" run -c "$(GOLANGCI_LINT_CONFIG)" --fix \;
 
 FIXERS += modernize
 modernize:
+	CGO_LDFLAGS=$(LDFLAGS) \
+	CGO_CPPFLAGS=$(CPPFLAGS) \
+	PKG_CONFIG_PATH=$(PKGCONF_PATH) \
 	go run golang.org/x/tools/gopls/internal/analysis/modernize/cmd/modernize@latest -fix -test ./...
 
 LINTERS += yara-x-fmt
@@ -115,7 +131,7 @@ out/$(SAMPLES_REPO)/.decompressed-$(SAMPLES_COMMIT): out/${SAMPLES_REPO}/.git/co
 
 out/$(YARA_X_REPO)/.git/commit-$(YARA_X_COMMIT):
 	mkdir -p out/$(YARA_X_REPO)
-	test -d out/$(YARA_X_REPO)/.git ||git clone https://github.com/$(YARA_X_REPO).git out/$(YARA_X_REPO)
+	test -d out/$(YARA_X_REPO)/.git || git clone https://github.com/$(YARA_X_REPO).git out/$(YARA_X_REPO)
 	rm out/$(YARA_X_REPO)/.git/commit-* 2>/dev/null || true
 	git -C out/$(YARA_X_REPO) switch - || true
 	git -C out/$(YARA_X_REPO) pull --rebase --autostash
@@ -130,7 +146,7 @@ install-yara-x: out/$(YARA_X_REPO)/.git/commit-$(YARA_X_COMMIT)
 	mkdir -p out/include
 	cd out/$(YARA_X_REPO) && \
 	cargo install cargo-c --locked && \
-	cargo cinstall -p yara-x-capi --features=native-code-serialization --release --prefix="$(LINT_ROOT)/out" --libdir="$(LINT_ROOT)/out/lib"
+	RUSTFLAGS="-C target-feature=+crt-static" cargo cinstall -p yara-x-capi --features=native-code-serialization --profile release-lto --prefix="$(LINT_ROOT)/out" --libdir="$(LINT_ROOT)/out/lib" --crt-static --library-type="staticlib"
 
 .PHONY: update-deps
 update-deps:
@@ -140,6 +156,9 @@ update-deps:
 # unit tests only
 .PHONY: test
 test:
+	CGO_LDFLAGS=$(LDFLAGS) \
+	CGO_CPPFLAGS=$(CPPFLAGS) \
+	PKG_CONFIG_PATH=$(PKGCONF_PATH) \
 	go test -race ./pkg/...
 
 FUZZ_TIME ?= 10s
@@ -149,9 +168,9 @@ fuzz:
 		awk -F'[:(]' '{gsub(/func /, "", $$2); dir=$$1; sub(/\/[^/]+$$/, "/", dir); print $$2, "./" dir}' | \
 		while read -r func dir; do \
 			echo "--- $$func ($$dir) ---"; \
-			CGO_LDFLAGS="-L$(LINT_ROOT)/out/lib -Wl,-rpath,$(LINT_ROOT)/out/lib" \
-			CGO_CPPFLAGS="-I$(LINT_ROOT)/out/include" \
-			PKG_CONFIG_PATH="$(LINT_ROOT)/out/lib/pkgconfig" \
+			CGO_LDFLAGS=$(LDFLAGS) \
+			CGO_CPPFLAGS=$(CPPFLAGS) \
+			PKG_CONFIG_PATH=$(PKGCONF_PATH) \
 			go test -timeout 0 -fuzz="^$$func$$" -fuzztime=$(FUZZ_TIME) "$$dir" || exit 1; \
 		done
 
@@ -161,6 +180,9 @@ FUZZ_TARGET ?= FuzzExtractArchive
 FUZZ_PKG ?= ./pkg/archive/
 .PHONY: fuzz-continuous
 fuzz-continuous:
+	CGO_LDFLAGS=$(LDFLAGS) \
+	CGO_CPPFLAGS=$(CPPFLAGS) \
+	PKG_CONFIG_PATH=$(PKGCONF_PATH) \
 	go test -fuzz=$(FUZZ_TARGET) $(FUZZ_PKG)
 
 # unit tests only
@@ -174,28 +196,44 @@ coverage-html: out/coverage.html
 # pop open the html page in a browser directly
 .PHONY: coverage-browser
 coverage-browser: out/mal.coverage
+	CGO_LDFLAGS=$(LDFLAGS) \
+	CGO_CPPFLAGS=$(CPPFLAGS) \
+	PKG_CONFIG_PATH=$(PKGCONF_PATH) \
 	go tool cover -html=$<
 
 # generate the html report
 out/coverage.html: out/mal.coverage
+	CGO_LDFLAGS=$(LDFLAGS) \
+	CGO_CPPFLAGS=$(CPPFLAGS) \
+	PKG_CONFIG_PATH=$(PKGCONF_PATH) \
 	go tool cover -html=$< -o $@
 
 # we always want to regen the coverage data file
 .PHONY: out/mal.coverage
 out/mal.coverage:
 	mkdir -p out
+	CGO_LDFLAGS=$(LDFLAGS) \
+	CGO_CPPFLAGS=$(CPPFLAGS) \
+	PKG_CONFIG_PATH=$(PKGCONF_PATH) \
 	go test -coverprofile $@ -race ./pkg/... -coverpkg ./pkg/...
 
 # integration tests only
 .PHONY: integration
 integration: out/$(SAMPLES_REPO)/.decompressed-$(SAMPLES_COMMIT)
+	CGO_LDFLAGS=$(LDFLAGS) \
+	CGO_CPPFLAGS=$(CPPFLAGS) \
+	PKG_CONFIG_PATH=$(PKGCONF_PATH) \
 	go test -race -timeout 0 ./tests/...
 
 .PHONY: bench
 bench: out/$(SAMPLES_REPO)/.decompressed-$(SAMPLES_COMMIT)
+	CGO_LDFLAGS=$(LDFLAGS) \
+	CGO_CPPFLAGS=$(CPPFLAGS) \
+	PKG_CONFIG_PATH=$(PKGCONF_PATH) \
 	go test -run=^\$$ -bench=. ./... -benchmem
 
-BENCH_CMD := go test -benchmem -run=^\$$ -bench ^BenchmarkRun\$$ github.com/chainguard-dev/malcontent/tests -args
+BENCH_CMD := CGO_LDFLAGS=$(LDFLAGS) CGO_CPPFLAGS=$(CPPFLAGS) PKG_CONFIG_PATH=$(PKGCONF_PATH) \
+	go test -benchmem -run=^\$$ -bench ^BenchmarkRun\$$ github.com/chainguard-dev/malcontent/tests -args
 
 .PHONY: bench-malcontent
 bench-malcontent:
@@ -244,9 +282,9 @@ bench-windows:
 .PHONY: out/mal
 out/mal:
 	mkdir -p out
-	CGO_LDFLAGS="-L$(LINT_ROOT)/out/lib -Wl,-rpath,$(LINT_ROOT)/out/lib" \
-	CGO_CPPFLAGS="-I$(LINT_ROOT)/out/include" \
-	PKG_CONFIG_PATH="$(LINT_ROOT)/out/lib/pkgconfig" \
+	CGO_LDFLAGS=$(LDFLAGS) \
+	CGO_CPPFLAGS=$(CPPFLAGS) \
+	PKG_CONFIG_PATH=$(PKGCONF_PATH) \
 	go build -o out/mal ./cmd/mal
 
 .PHONY: update-third-party
@@ -258,7 +296,7 @@ refresh-sample-testdata: out/$(SAMPLES_REPO)/.decompressed-$(SAMPLES_COMMIT) out
 	MALCONTENT_UPX_PATH=$(shell which upx) ./out/mal refresh
 
 ARCH ?= $(shell uname -m)
-CRANE_VERSION=v0.20.7
+CRANE_VERSION=v0.21.0
 out/crane-$(ARCH)-$(CRANE_VERSION):
 	mkdir -p out
 	GOBIN=$(CURDIR)/out go install github.com/google/go-containerregistry/cmd/crane@$(CRANE_VERSION)

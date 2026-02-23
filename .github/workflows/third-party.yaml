@@ -8,8 +8,11 @@ on:
   schedule:
     - cron: "0 */12 * * *"
 
-permissions:
-  contents: read
+env:
+  GO_RELEASE: "go-1.26"
+  YARA_X_RELEASE: "1.13.0"
+
+permissions: {}
 
 jobs:
   update:
@@ -37,7 +40,7 @@ jobs:
       - name: Install dependencies
         run: |
           apk update
-          apk add bash curl findutils gh git gnutar go nodejs perl upx xz yara-x~1.12.0
+          apk add bash curl findutils gh git gnutar ${{ env.GO_RELEASE }} nodejs perl upx xz yara-x~${{ env.YARA_X_RELEASE }}
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Trust repository
         run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
