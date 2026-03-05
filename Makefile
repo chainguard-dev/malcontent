@@ -62,7 +62,7 @@ ifeq ($(LINT_OS),Darwin)
 		YARA_X_SHA = 226dce240b8d674db3c83b5c0b6d336268a46f1fbd6718fa9bdeb3735857f6c4
 	endif
 else ifeq ($(LINT_OS),Linux)
-	ifeq ($(shell uname -m),arm64)
+	ifneq ($(filter $(shell uname -m),aarch64 arm64),)
 		LINT_ARCH = aarch64
 		YARA_X_SHA = a50e9b593c5a6039c227f665b8ade1ea1c4bee3be5789add3e33f033cbf427ae
 	else

@@ -14,7 +14,7 @@ env:
 jobs:
   tag:
     if: ${{ github.repository == 'chainguard-dev/malcontent' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     permissions:
       id-token: write
       contents: write
