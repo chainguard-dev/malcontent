@@ -38,7 +38,7 @@ permissions: {}
 jobs:
   discover:
     if: ${{ github.repository == 'chainguard-dev/malcontent' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     permissions:
       contents: read
     outputs:
@@ -96,7 +96,7 @@ jobs:
   fuzz:
     if: ${{ github.repository == 'chainguard-dev/malcontent' && needs.discover.outputs.targets != '[]' }}
     needs: discover
-    runs-on: ${{ matrix.target.test == 'FuzzExtractArchive' && 'ubuntu-latest-8-core' || 'ubuntu-latest' }}
+    runs-on: ${{ matrix.target.test == 'FuzzExtractArchive' && 'ubuntu-latest-arm-8-core' || 'ubuntu-24.04-arm' }}
     permissions:
       contents: read
     strategy:
