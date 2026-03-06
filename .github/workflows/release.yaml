@@ -19,12 +19,12 @@ jobs:
       id-token: write
       contents: write
     steps:
-      - uses: step-security/harden-runner@a90bcbc6539c36a85cdfeb73f7e2f433735f215b # v2.15.0
+      - uses: step-security/harden-runner@58077d3c7e43986b6b15fba718e8ea69e387dfcc # v2.15.1
         with:
           egress-policy: audit
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - uses: chainguard-dev/actions/setup-gitsign@71714a76c3df10b544595a2294c16649dc3472e5
+      - uses: chainguard-dev/actions/setup-gitsign@e9290faa91aa6b1226df129cb450f2ff49235b92
       - name: Set up Octo-STS
         uses: octo-sts/action@f603d3be9d8dd9871a265776e625a27b00effe05 # v1.1.1
         id: octo-sts
