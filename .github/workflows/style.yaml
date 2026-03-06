@@ -25,7 +25,7 @@ jobs:
       contents: read
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@a90bcbc6539c36a85cdfeb73f7e2f433735f215b # v2.15.0
+        uses: step-security/harden-runner@58077d3c7e43986b6b15fba718e8ea69e387dfcc # v2.15.1
         with:
           egress-policy: audit
 
@@ -50,7 +50,7 @@ jobs:
       contents: read
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@a90bcbc6539c36a85cdfeb73f7e2f433735f215b # v2.15.0
+        uses: step-security/harden-runner@58077d3c7e43986b6b15fba718e8ea69e387dfcc # v2.15.1
         with:
           egress-policy: audit
 
@@ -81,7 +81,7 @@ jobs:
       contents: read
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@a90bcbc6539c36a85cdfeb73f7e2f433735f215b # v2.15.0
+        uses: step-security/harden-runner@58077d3c7e43986b6b15fba718e8ea69e387dfcc # v2.15.1
         with:
           egress-policy: audit
 
@@ -96,7 +96,7 @@ jobs:
           go-version-file: go.mod
           check-latest: true
 
-      - uses: chainguard-dev/actions/gofmt@71714a76c3df10b544595a2294c16649dc3472e5 # main
+      - uses: chainguard-dev/actions/gofmt@e9290faa91aa6b1226df129cb450f2ff49235b92 # main
         with:
           args: -s
 
@@ -107,7 +107,7 @@ jobs:
       contents: read
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@a90bcbc6539c36a85cdfeb73f7e2f433735f215b # v2.15.0
+        uses: step-security/harden-runner@58077d3c7e43986b6b15fba718e8ea69e387dfcc # v2.15.1
         with:
           egress-policy: audit
 
@@ -122,7 +122,7 @@ jobs:
           go-version-file: go.mod
           check-latest: true
 
-      - uses: chainguard-dev/actions/goimports@71714a76c3df10b544595a2294c16649dc3472e5 # main
+      - uses: chainguard-dev/actions/goimports@e9290faa91aa6b1226df129cb450f2ff49235b92 # main
 
   golangci-lint:
     name: golangci-lint
