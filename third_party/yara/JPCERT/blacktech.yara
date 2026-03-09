@@ -456,3 +456,40 @@ rule BlackTech_AresPYDoor_str {
      condition:
        5 of them
 }
+
+rule malware_Kivars_Loader {
+    meta:
+        description = "Kivars Loader"
+        author = "JPCERT/CC Incident Response Group"
+        hash = "35efb2661b580866ef9a29770ff960c105edb1239a5d4279e7e6b4e9f9b6256a"
+        created_date = "2025-11-25"
+        updated_date = "2025-11-25"
+        reference = "https://sect.iij.ad.jp/blog/2025/10/blacktech-malware-kivars-2025/"
+
+    strings:
+        $dll_name = "sericeMain.dll" ascii
+        $custom_rc4 = {41 02 02 32 C1 41 88 02 EB ?? 41 32 0A [0-1] 02 CB 41 88 0A 49 FF C2}
+
+    condition:
+        uint16(0) == 0x5A4D and
+        all of them
+}
+
+rule malware_Kivars {
+    meta:
+        description = "Kivars"
+        author = "JPCERT/CC Incident Response Group"
+        hash = "5a9f96217530b68c2fc7a06f25b52062dbcc8dd2760de0f7dca3456af2dc4bec"
+        created_date = "2025-11-25"
+        updated_date = "2025-11-25"
+        reference = "https://sect.iij.ad.jp/blog/2025/10/blacktech-malware-kivars-2025/"
+
+    strings:
+        $s1 = {25 73 5C 25 73 07 33 25 75 07 34 25 75 2D 25 2E 32 75 2D 25 2E 32 75 20 25 2E 32 75 3A 25 2E 32 75 00}
+        $s2 = {58 C6 84 24 ?? ?? ?? ?? 45 C6 84 24 ?? ?? ?? ?? 43 C6 84 24 ?? ?? ?? ?? 50 C6 84 24 ?? ?? ?? ?? 52 C6 84 24 ?? ?? ?? ?? 4F C6 84 24 ?? ?? ?? ?? 42 C6 84 24 ?? ?? ?? ?? 45} // XECPROBELOADER
+        $custom_rc4 = {41 02 02 32 C1 41 88 02 EB ?? 41 32 0A [0-1] 02 CB 41 88 0A 49 FF C2}
+
+    condition:
+        uint16(0) == 0x5A4D and
+        2 of them
+}

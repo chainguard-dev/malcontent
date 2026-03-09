@@ -71,3 +71,60 @@ rule kimsuky_downloader_pe
         all of ($dotnet*) and
         3 of ($s*)
 }
+
+rule kimsuky_uploader_github_ps1 {
+    meta:
+        description = "Powershell script to upload device information to GitHub"
+        author = "JPCERT/CC Incident Response Group"
+        hash = "d4054495cfabbf511fb2f860487cb1d9e969e0a571bcb5e5c88f7d1ab75c0c09"
+        created_date = "2025-12-19"
+        updated_date = "2025-12-19"
+
+    strings:
+        $s1 = "-XXX-kkk.txt" ascii
+        $s2 = "-0956_info.txt" ascii
+        $s3 = "branch = \"main" ascii
+        $s4 = "message = \"Upload file $" ascii
+        $s5 = "Get-Date -Format \"MMdd_HHmm\"" ascii
+        $s6 = "Write-Output \"Note\" | Out-File" ascii
+
+    condition:
+        3 of them
+}
+
+rule kimsuky_initial_downloader_github_ps1 {
+    meta:
+        description = "Powershell script to download ps1 from GitHub and set by scheduled task"
+        author = "JPCERT/CC Incident Response Group"
+        hash = "0b50547274455ee876512687d8bd24911a97429d2642dff8aeb6c42c7601fe53"
+        created_date = "2025-12-19"
+        updated_date = "2025-12-19"
+
+    strings:
+        $s1 = "($env:AppData) \\\"whale.ps1" ascii
+        $s2 = "($env:AppData) \"Doks.ps1" ascii
+        $s3 = "=\"ghp_" ascii
+        $s4 = "vnd.github.v3.raw" ascii
+        $s5 = "New-ScheduledTaskAction -Execute 'PowerShell.exe'" ascii
+
+    condition:
+        3 of them
+}
+
+rule kimsuky_downloader_github_ps1 {
+    meta:
+        description = "Powershell script to download ps1 from GitHub"
+        author = "JPCERT/CC Incident Response Group"
+        hash = "938650b7ef26cc4ff3586414734a30c7fbc4a0ec82459305000d6778660deb59"
+        created_date = "2025-12-19"
+        updated_date = "2025-12-19"
+
+    strings:
+        $s1 = "($env:AppData) \"Doks.ps1" ascii
+        $s2 = "Authorization=\"token ghp_" ascii
+        $s3 = "vnd.github.v3.raw" ascii
+
+    condition:
+        all of them
+}
+
