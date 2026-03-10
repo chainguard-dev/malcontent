@@ -1,0 +1,127 @@
+# Copyright 2026 Chainguard, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+name: Update yara-x
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 12 * * 1"
+
+permissions: {}
+
+jobs:
+  check-version:
+    if: ${{ github.repository == 'chainguard-dev/malcontent' }}
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: read
+    outputs:
+      update_available: ${{ steps.check.outputs.update_available }}
+      new_version: ${{ steps.check.outputs.new_version }}
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@58077d3c7e43986b6b15fba718e8ea69e387dfcc # v2.15.1
+        with:
+          egress-policy: audit
+
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Check for new yara-x version
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          CURRENT=$(grep '^YARA_X_VERSION' Makefile | head -1 | sed 's/.*= *//')
+          echo "Current version: ${CURRENT}"
+
+          LATEST=$(gh release view --repo VirusTotal/yara-x --json tagName --jq '.tagName')
+          echo "Latest release: ${LATEST}"
+
+          if [[ "${CURRENT}" == "${LATEST}" ]]; then
+            echo "Already up to date"
+            echo "update_available=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Both the release tag and the Go binding tag must exist
+          if ! gh api "repos/VirusTotal/yara-x/git/ref/tags/go/${LATEST}" &>/dev/null; then
+            echo "Go tag go/${LATEST} does not exist yet"
+            echo "update_available=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Skip if there is already an open PR for this version
+          VERSION="${LATEST#v}"
+          EXISTING=$(gh pr list --repo "${{ github.repository }}" --head "bump-yara-x-${VERSION}" --state open --json number --jq 'length')
+          if [[ "${EXISTING}" -gt 0 ]]; then
+            echo "Open PR already exists for yara-x ${VERSION}"
+            echo "update_available=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "Update available: ${CURRENT} -> ${LATEST}"
+          echo "update_available=true" >> "$GITHUB_OUTPUT"
+          echo "new_version=${VERSION}" >> "$GITHUB_OUTPUT"
+        shell: bash
+
+  update:
+    needs: check-version
+    if: ${{ needs.check-version.outputs.update_available == 'true' }}
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: write
+      id-token: write
+      pull-requests: write
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@58077d3c7e43986b6b15fba718e8ea69e387dfcc # v2.15.1
+        with:
+          egress-policy: audit
+
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Set up Go
+        uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # v6.3.0
+        with:
+          go-version-file: go.mod
+          check-latest: true
+
+      - uses: chainguard-dev/actions/setup-gitsign@5e84f02889db0de213947c80a5d75b51bb899048
+      - name: Set up Octo-STS
+        uses: octo-sts/action@f603d3be9d8dd9871a265776e625a27b00effe05 # v1.1.1
+        id: octo-sts
+        with:
+          scope: chainguard-dev/malcontent
+          identity: update-yara-x
+
+      - name: Run update script
+        env:
+          GH_TOKEN: ${{ steps.octo-sts.outputs.token }}
+          VERSION: ${{ needs.check-version.outputs.new_version }}
+        run: hack/update_yara_x.sh "${VERSION}"
+
+      - name: Create PR
+        env:
+          GH_TOKEN: ${{ steps.octo-sts.outputs.token }}
+          VERSION: ${{ needs.check-version.outputs.new_version }}
+        run: |
+          if [[ -z $(git status -s) ]]; then
+            echo "No changes detected"
+            exit 0
+          fi
+
+          BRANCH="bump-yara-x-${VERSION}"
+          git checkout -b "${BRANCH}"
+          git add .
+          git commit -m "chore: bump yara-x to ${VERSION}"
+          git push origin "${BRANCH}"
+
+          gh pr create \
+            -t "chore: bump yara-x to ${VERSION}" \
+            -b "Automated yara-x update to v${VERSION}." \
+            -B main \
+            -H "${BRANCH}"
+        shell: bash

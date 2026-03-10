@@ -5,7 +5,7 @@ name: Code Style
 
 env:
   GO_RELEASE: "go-1.26"
-  YARA_X_RELEASE: "1.13.0"
+  YARA_X_RELEASE: "1.14.0"
 
 permissions: {}
 
