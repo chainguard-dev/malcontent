@@ -51,22 +51,22 @@ $(GOLANGCI_LINT_BIN):
 	mv $(LINT_ROOT)/out/linters/golangci-lint $@
 
 YARA_X_REPO ?= virusTotal/yara-x
-YARA_X_VERSION ?= v1.13.0
-YARA_X_COMMIT ?= d397e8c3feee79e91f4b389288ba244264da2813
+YARA_X_VERSION ?= v1.14.0
+YARA_X_COMMIT ?= 6a7982f5924c63a7ccafdf440798e06f5e6a4ccd
 YARA_X_SHA :=
 ifeq ($(LINT_OS),Darwin)
 	ifeq ($(shell uname -m),arm64)
 		LINT_ARCH = aarch64
-		YARA_X_SHA = 0931697b9cfe74cade4a7136610a5cd254ae3bed95831b413c6b54f5760d554f
+		YARA_X_SHA = cee7ac001004fb721508c55190f57291b7b843290d488334a1d5cff45c519bc9
 	else
-		YARA_X_SHA = 226dce240b8d674db3c83b5c0b6d336268a46f1fbd6718fa9bdeb3735857f6c4
+		YARA_X_SHA = 344eedd347d2aafb447d381a18f88974576231171ca72b3d969e88ace0cbf9ca
 	endif
 else ifeq ($(LINT_OS),Linux)
 	ifneq ($(filter $(shell uname -m),aarch64 arm64),)
 		LINT_ARCH = aarch64
-		YARA_X_SHA = a50e9b593c5a6039c227f665b8ade1ea1c4bee3be5789add3e33f033cbf427ae
+		YARA_X_SHA = 3c46835d0ffb8786b7e901517971b105eb1692f578dc244194ce206cf99ce988
 	else
-		YARA_X_SHA = b93fb0b87016c60498c26b8a17d2617bbc49f5d5b1a291cde5b09658ce93bb69
+		YARA_X_SHA = 59b768cf25aa48fc30e7e9aaeb9166921ce18e3472d7059e7f5b12744224b712
 	endif
 endif
 YARA_X_BIN := $(LINT_ROOT)/out/linters/yr-$(YARA_X_VERSION)-$(LINT_ARCH)
