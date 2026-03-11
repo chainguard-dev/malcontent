@@ -96,7 +96,7 @@ jobs:
           go-version-file: go.mod
           check-latest: true
 
-      - uses: chainguard-dev/actions/gofmt@5e84f02889db0de213947c80a5d75b51bb899048 # main
+      - uses: chainguard-dev/actions/gofmt@7440e20e3e0bb180a2f6e330bcd53504e2ac8980 # main
         with:
           args: -s
 
@@ -122,7 +122,7 @@ jobs:
           go-version-file: go.mod
           check-latest: true
 
-      - uses: chainguard-dev/actions/goimports@5e84f02889db0de213947c80a5d75b51bb899048 # main
+      - uses: chainguard-dev/actions/goimports@7440e20e3e0bb180a2f6e330bcd53504e2ac8980 # main
 
   golangci-lint:
     name: golangci-lint
