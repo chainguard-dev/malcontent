@@ -20,7 +20,7 @@ require (
 	github.com/klauspost/compress v1.18.4
 	github.com/klauspost/pgzip v1.2.6
 	github.com/minio/sha256-simd v1.0.1
-	github.com/olekukonko/tablewriter v1.1.3
+	github.com/olekukonko/tablewriter v1.1.4
 	github.com/puzpuzpuz/xsync/v4 v4.4.0
 	github.com/shirou/gopsutil/v4 v4.26.2
 	github.com/ulikunitz/xz v0.5.15
