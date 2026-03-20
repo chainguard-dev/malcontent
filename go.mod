@@ -13,11 +13,11 @@ require (
 	github.com/cosnicolaou/pbzip2 v1.0.6
 	github.com/egibs/go-debian v0.19.3
 	github.com/egibs/reconcile v0.2.2
-	github.com/fatih/color v1.18.0
+	github.com/fatih/color v1.19.0
 	github.com/gabriel-vasile/mimetype v1.4.13
 	github.com/google/go-cmp v0.7.0
 	github.com/google/go-containerregistry v0.21.3
-	github.com/klauspost/compress v1.18.4
+	github.com/klauspost/compress v1.18.5
 	github.com/klauspost/pgzip v1.2.6
 	github.com/minio/sha256-simd v1.0.1
 	github.com/olekukonko/tablewriter v1.1.4
