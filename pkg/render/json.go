@@ -45,13 +45,15 @@ func (r JSON) Full(ctx context.Context, c *malcontent.Config, rep *malcontent.Re
 		Filter: "",
 	}
 
-	rep.Files.Range(func(key string, fr *malcontent.FileReport) bool {
-		if ctx.Err() != nil {
-			return false
-		}
-		sanitizeFileReport(key, fr, jr.Files)
-		return true
-	})
+	if rep.Files != nil {
+		rep.Files.Range(func(key string, fr *malcontent.FileReport) bool {
+			if ctx.Err() != nil {
+				return false
+			}
+			sanitizeFileReport(key, fr, jr.Files)
+			return true
+		})
+	}
 
 	if c != nil && c.Stats && jr.Diff == nil {
 		if s := serializedStats(c, rep); s != nil {
