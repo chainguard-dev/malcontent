@@ -30,6 +30,25 @@
                     "RuleName": "Lazarus_jamistealer_str"
                 },
                 {
+                    "Description": "MacOS.Trojan.BeaverTail",
+                    "MatchStrings": [
+                        "/Library/Keychains/login.keychain-db",
+                        "Download Client Success!",
+                        "Download Python Success!",
+                        "Upload LDB Finshed!!!",
+                        "clientDownFinished",
+                        "/.pyp/python.exe",
+                        "upLDBFinished"
+                    ],
+                    "RiskScore": 4,
+                    "RiskLevel": "CRITICAL",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/yara/elastic/MacOS_Trojan_BeaverTail.yar#MacOS_Trojan_BeaverTail_90b8abd6",
+                    "RuleAuthor": "Elastic Security",
+                    "RuleLicense": "Elastic License v2",
+                    "ID": "3P/elastic/beavertail",
+                    "RuleName": "MacOS_Trojan_BeaverTail_90b8abd6"
+                },
+                {
                     "Description": "Macos.Infostealer.Wallets",
                     "MatchStrings": [
                         "acmacodkjbdgmoleebolmdjonilkdbch",
@@ -39,6 +58,7 @@
                         "ejbalbakoplchlghecdalmeeeajnimhm",
                         "fhbohimaelbohpjbbldcngcnapndodjp",
                         "hnfanknocfeofbddgcijnmhnfnkdnaad",
+                        "ibnejdfjmmkpcnlpebklmnkoeoihofec",
                         "nkbihfbeogaeaoehlefnkodbefgpgknn"
                     ],
                     "RiskScore": 4,

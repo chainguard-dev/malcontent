@@ -1,4 +1,5 @@
 # php/2024.malcure/simple.php: critical
+3P/YARAForge/signature_ext_webshell: high
 3P/YARAForge/signature_webshell_php: critical
 data/encoding/base64: low
 exec/remote_commands/code_eval: high
