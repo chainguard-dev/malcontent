@@ -40,7 +40,7 @@ jobs:
             release-assets.githubusercontent.com:443
             tuf-repo-cdn.sigstore.dev:443
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - uses: chainguard-dev/actions/setup-gitsign@f45211d3e8f9d2676c6b8cdd6a765435e06c819d
+      - uses: chainguard-dev/actions/setup-gitsign@de68b87302e6266db5fb5220246f8aa46fe94b67
       - name: Set up Octo-STS
         uses: octo-sts/action@f603d3be9d8dd9871a265776e625a27b00effe05 # v1.1.1
         id: octo-sts
