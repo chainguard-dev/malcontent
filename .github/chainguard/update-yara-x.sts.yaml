@@ -4,6 +4,7 @@ claim_pattern:
   workflow_ref: chainguard-dev/malcontent/.github/workflows/update-yara-x.yaml@refs/heads/main
 
 permissions:
+  actions: write
   contents: write
   pull_requests: write
   workflows: write
