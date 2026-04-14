@@ -33,6 +33,7 @@ jobs:
             github.com:443
             octo-sts.dev:443
             rekor.sigstore.dev:443
+            release-assets.githubusercontent.com:443
             tuf-repo-cdn.sigstore.dev:443
 
       - uses: chainguard-dev/actions/setup-gitsign@de68b87302e6266db5fb5220246f8aa46fe94b67
