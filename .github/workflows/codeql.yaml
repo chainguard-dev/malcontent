@@ -12,7 +12,7 @@ on:
 
 env:
   CODEQL_EXTRACTOR_GO_BUILD_TRACING: "on"
-  YARA_X_RELEASE: "1.14.0"
+  YARA_X_RELEASE: "1.15.0"
 
 permissions: {}
 
