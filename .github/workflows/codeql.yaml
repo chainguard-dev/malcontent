@@ -12,7 +12,7 @@ on:
 
 env:
   CODEQL_EXTRACTOR_GO_BUILD_TRACING: "on"
-  YARA_X_RELEASE: "1.14.0"
+  YARA_X_RELEASE: "1.15.0"
 
 permissions: {}
 
@@ -36,9 +36,12 @@ jobs:
             dl.google.com:443
             github.com:443
             go.dev:443
+            index.crates.io:443
             objects.githubusercontent.com:443
             proxy.golang.org:443
             release-assets.githubusercontent.com:443
+            static.crates.io:443
+            static.rust-lang.org:443
             storage.googleapis.com:443
             sum.golang.org:443
             uploads.github.com:443

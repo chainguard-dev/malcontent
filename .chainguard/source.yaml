@@ -12,6 +12,8 @@ spec:
           - issuer: https://token.actions.githubusercontent.com
             subject: https://github.com/chainguard-dev/malcontent/.github/workflows/third-party.yaml@refs/heads/main
           - issuer: https://token.actions.githubusercontent.com
+            subject: https://github.com/chainguard-dev/malcontent/.github/workflows/update-yara-x.yaml@refs/heads/main
+          - issuer: https://token.actions.githubusercontent.com
             subject: https://github.com/chainguard-dev/malcontent/.github/workflows/version.yaml@refs/heads/main
     - key:
         # allow commits signed by GitHub, e.g. the UI
