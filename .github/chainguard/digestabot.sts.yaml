@@ -1,0 +1,8 @@
+issuer: https://token.actions.githubusercontent.com
+subject: repo:chainguard-dev/malcontent:ref:refs/heads/main
+claim_pattern:
+  workflow_ref: chainguard-dev/malcontent/.github/workflows/digestabot.yaml@refs/heads/main
+
+permissions:
+  contents: write
+  pull_requests: write

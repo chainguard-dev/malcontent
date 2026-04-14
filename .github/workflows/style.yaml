@@ -83,18 +83,11 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install yara-x
+      - name: Run make yara-x-fmt
         run: |
-          wget https://github.com/VirusTotal/yara-x/releases/download/v${{ env.YARA_X_RELEASE }}/yara-x-v${{ env.YARA_X_RELEASE }}-aarch64-unknown-linux-gnu.gz -O yara-x.gz
-          gunzip yara-x.gz && tar -xvf yara-x && chmod +x yr && mv yr /usr/local/bin/ && rm yara-x
-      - name: Verify yr installation
-        run: |
-          yr --version
-      - name: Run yr fmt
-        run: |
-          find rules -type f -name "*.yara" | xargs -n 1 -I {} yr fmt {}
+          make yara-x-fmt
           if [[ -n $(git status -s) ]]; then
-            echo "Rule files updated; please run yr fmt locally and commit the changes"
+            echo "Rule files updated; please run 'make yara-x-fmt' locally and commit the changes"
             exit 1
           fi
 
@@ -178,7 +171,7 @@ jobs:
     permissions:
       contents: read
     container:
-      image: cgr.dev/chainguard/wolfi-base:latest
+      image: cgr.dev/chainguard/wolfi-base:latest@sha256:9a74366aa10eff2bf14dab0948123bd2c51703e1c553a73740ef687f723aecf4
       options: >-
         --cap-add DAC_OVERRIDE
         --cap-add SETGID

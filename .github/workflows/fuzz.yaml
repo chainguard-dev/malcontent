@@ -108,7 +108,7 @@ jobs:
       matrix:
         target: ${{ fromJson(needs.discover.outputs.targets) }}
     container:
-      image: cgr.dev/chainguard/wolfi-base:latest # zizmor: ignore[unpinned-images]
+      image: cgr.dev/chainguard/wolfi-base:latest@sha256:9a74366aa10eff2bf14dab0948123bd2c51703e1c553a73740ef687f723aecf4
       options: >-
         --cap-add DAC_OVERRIDE
         --cap-add SETGID

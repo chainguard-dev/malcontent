@@ -19,7 +19,7 @@ jobs:
     if: ${{ github.repository == 'chainguard-dev/malcontent' }}
     runs-on: ubuntu-latest-arm-16-core
     container:
-      image: cgr.dev/chainguard/wolfi-base:latest
+      image: cgr.dev/chainguard/wolfi-base:latest@sha256:9a74366aa10eff2bf14dab0948123bd2c51703e1c553a73740ef687f723aecf4
       options: >-
         --cap-add DAC_OVERRIDE
         --cap-add SETGID
@@ -41,7 +41,17 @@ jobs:
         run: |
           apk update
           apk add bash curl findutils gh git gnutar ${{ env.GO_RELEASE }} nodejs perl upx xz yara-x~${{ env.YARA_X_RELEASE }}
+      - uses: chainguard-dev/actions/setup-gitsign@de68b87302e6266db5fb5220246f8aa46fe94b67
+      - name: Set up Octo-STS
+        uses: octo-sts/action@f603d3be9d8dd9871a265776e625a27b00effe05 # v1.1.1
+        id: octo-sts
+        with:
+          scope: chainguard-dev/malcontent
+          identity: third-party
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        # zizmor: ignore[artipacked] - credentials needed for git push and gh pr create
+        with:
+          token: ${{ steps.octo-sts.outputs.token }}
       - name: Trust repository
         run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
 
@@ -72,14 +82,6 @@ jobs:
 
       - name: Prepare samples
         run: make samples
-
-      - uses: chainguard-dev/actions/setup-gitsign@de68b87302e6266db5fb5220246f8aa46fe94b67
-      - name: Set up Octo-STS
-        uses: octo-sts/action@f603d3be9d8dd9871a265776e625a27b00effe05 # v1.1.1
-        id: octo-sts
-        with:
-          scope: chainguard-dev/malcontent
-          identity: third-party
 
       - name: Run make update-third-party
         run: |
