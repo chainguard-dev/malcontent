@@ -39,7 +39,6 @@ jobs:
             rekor.sigstore.dev:443
             release-assets.githubusercontent.com:443
             tuf-repo-cdn.sigstore.dev:443
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - uses: chainguard-dev/actions/setup-gitsign@de68b87302e6266db5fb5220246f8aa46fe94b67
       - name: Set up Octo-STS
         uses: octo-sts/action@f603d3be9d8dd9871a265776e625a27b00effe05 # v1.1.1
@@ -47,6 +46,10 @@ jobs:
         with:
           scope: chainguard-dev/malcontent
           identity: release
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        # zizmor: ignore[artipacked] - credentials needed for git push and gh pr create
+        with:
+          token: ${{ steps.octo-sts.outputs.token }}
       - name: Update Version
         id: update
         env:
@@ -63,13 +66,13 @@ jobs:
 
           case "${UPDATE_TYPE}" in
             major)
-              VERSION=$(printf "v%d.0.0" $((${VERSION_PARTS[0]}+1)))
+              VERSION=$(printf "v%d.0.0" $((VERSION_PARTS[0]+1)))
               ;;
             minor)
-              VERSION=$(printf "v%s.%d.0" ${VERSION_PARTS[0]} $((${VERSION_PARTS[1]}+1)))
+              VERSION=$(printf "v%s.%d.0" "${VERSION_PARTS[0]}" $((VERSION_PARTS[1]+1)))
               ;;
             patch)
-              VERSION=$(printf "v%s.%s.%d" ${VERSION_PARTS[0]} ${VERSION_PARTS[1]} $((${VERSION_PARTS[2]}+1)))
+              VERSION=$(printf "v%s.%s.%d" "${VERSION_PARTS[0]}" "${VERSION_PARTS[1]}" $((VERSION_PARTS[2]+1)))
               ;;
             *)
               echo "Error: Invalid update type"

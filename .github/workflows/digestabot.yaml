@@ -1,0 +1,54 @@
+# Copyright 2026 Chainguard, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+name: Image digest update
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 1 * * *"
+
+permissions: {}
+
+jobs:
+  image-update:
+    name: Image digest update
+    runs-on: ubuntu-latest
+    if: github.repository == 'chainguard-dev/malcontent'
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: step-security/harden-runner@f808768d1510423e83855289c910610ca9b43176 # v2.17.0
+        with:
+          egress-policy: block
+          allowed-endpoints: >
+            *.blob.core.windows.net:443
+            *.githubapp.com:443
+            api.github.com:443
+            cgr.dev:443
+            fulcio.sigstore.dev:443
+            github.com:443
+            octo-sts.dev:443
+            rekor.sigstore.dev:443
+            tuf-repo-cdn.sigstore.dev:443
+
+      - uses: chainguard-dev/actions/setup-gitsign@de68b87302e6266db5fb5220246f8aa46fe94b67
+
+      - uses: octo-sts/action@f603d3be9d8dd9871a265776e625a27b00effe05 # v1.1.1
+        id: octo-sts
+        with:
+          scope: ${{ github.repository }}
+          identity: digestabot
+
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        # zizmor: ignore[artipacked] - credentials needed for digestabot to push and create PRs
+        with:
+          token: ${{ steps.octo-sts.outputs.token }}
+
+      - uses: chainguard-dev/digestabot@afe360aa3b0c29d88844138e8fa0349384398967 # v1.3.1
+        with:
+          token: ${{ steps.octo-sts.outputs.token }}
+          include-files: ".github/workflows/*.yaml"
