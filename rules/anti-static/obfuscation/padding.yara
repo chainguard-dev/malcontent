@@ -14,6 +14,8 @@ rule msxml2_http: critical {
     $not_yui3     = "version: 2.6.0"
     $not_yui4     = "YAHOO.util.Connect={_msxml_progid:[\"Microsoft.XMLHTTP\",\"MSXML2.XMLHTTP.3.0\",\"MSXML2.XMLHTTP\"]"
     $not_yui5     = "if(typeof YAHOO==\"undefined\"||!YAHOO){var YAHOO={};}YAHOO.namespace=function()"
+    $not_dojo1    = "dojotoolkit.org"
+    $not_dojo2    = "dojo.xd.js"
 
   condition:
     filesize < 128KB and $a and !a > 32 and none of ($not*)
