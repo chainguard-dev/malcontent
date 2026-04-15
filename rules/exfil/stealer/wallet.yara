@@ -38,9 +38,12 @@ rule crypto_stealer_names: critical {
     $gpt_tokenizer3  = "const bpe = c0.concat();"
     $gpt_tokenizer4  = "const bpe = c0.concat(c1);"
     $gpt_tokenizer5  = "export default bpe;"
+    $bpe_tokenizer1  = "cl100k_base"
+    $bpe_tokenizer2  = "o200k_base"
+    $bpe_tokenizer3  = "p50k_base"
 
   condition:
-    filesize < 100MB and $http and 2 of ($w*) and none of ($not*) and none of ($gpt_tokenizer*)
+    filesize < 100MB and $http and 2 of ($w*) and none of ($not*) and none of ($gpt_tokenizer*) and none of ($bpe_tokenizer*)
 }
 
 rule crypto_extension_stealer: critical {

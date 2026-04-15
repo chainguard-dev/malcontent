@@ -26,7 +26,7 @@ git_clone() {
 	popd >/dev/null || exit 1
 }
 
-# fixup_rules fixes rules up, including lightly obfuscating them to avoid XProtect from matching malcontent
+# fixup_rules fixes rules up, including lightly obfuscating them to avoid CrowdStrike/XProtect from matching malcontent
 function fixup_rules() {
 	perl -p -i -e 's#"/Library/Application Support\/Google/Chrome/Default/History"#/\\/Library\\/Application Support\\/Google\\/Chrome\\/Default\\/History\/#' "$@"
 	perl -p -i -e 's#\/([a-z]{31})([a-z])\/#\/$1\[$2\]\/#;' "$@"
@@ -34,17 +34,22 @@ function fixup_rules() {
 	perl -p -i -e 's/ +$//;' "$@"
 	# VirusTotal-specific YARA
 	perl -p -i -e 's#and file_type contains \"\w+\"##;' "$@"
-	# Convert problematic string literals
+	# Convert text strings to hex in rules that trigger CrowdStrike/XProtect on macOS.
+	# These rules contain malware signature strings that, when embedded in the mal binary
+	# via go:embed, cause endpoint protection to kill the process or delete the binary.
+	local edr_flagged_rules=(
+		"Macos_Infostealer_Wallets.yar"
+		"MacOS_Trojan_XScreen.yar"
+	)
 	for file in "$@"; do
-		if [[ "$(basename "$file")" == "Macos_Infostealer_Wallets.yar" ]]; then
-			perl -p -i -e 'if (/^(\s*)(\$s\d+)\s*=\s*"([^"]+)"\s+ascii wide nocase$/) {
-				my $indent = $1;
-				my $var = $2;
-				my $str = $3;
-				my $hex = join(" ", map { sprintf "%02X", ord($_) } split(//, $str));
-				$_ = "$indent$var = {$hex}\n";
-			}' "$file"
-		fi
+		local base
+		base="$(basename "$file")"
+		for flagged in "${edr_flagged_rules[@]}"; do
+			if [[ "$base" == "$flagged" ]]; then
+				perl -i -pe 's/^(\s*)(\$\w+)\s*=\s*"([^"]+)"\s+ascii\s+\w+\s*$/sprintf("%s%s = { %s }\n", $1, $2, join(" ", map { sprintf "%02X", ord($_) } split(m{}, $3)))/e' "$file"
+				break
+			fi
+		done
 	done
 }
 

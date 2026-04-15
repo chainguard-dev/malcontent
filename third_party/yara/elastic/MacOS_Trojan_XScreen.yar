@@ -13,11 +13,11 @@ rule MacOS_Trojan_XScreen_7837ad6c {
         license = "Elastic License v2"
         os = "macos"
     strings:
-        $a1 = "/Users/Shared/._cfg" ascii fullword
-        $a2 = "base64EncodedStringWithOptions:" ascii fullword
-        $a3 = "/private/tmp/google_cache.db" ascii fullword
-        $a4 = "[hyphen]" ascii fullword
-        $a5 = "generalPasteboard" ascii fullword
+        $a1 = { 2F 55 73 65 72 73 2F 53 68 61 72 65 64 2F 2E 5F 63 66 67 }
+        $a2 = { 62 61 73 65 36 34 45 6E 63 6F 64 65 64 53 74 72 69 6E 67 57 69 74 68 4F 70 74 69 6F 6E 73 3A }
+        $a3 = { 2F 70 72 69 76 61 74 65 2F 74 6D 70 2F 67 6F 6F 67 6C 65 5F 63 61 63 68 65 2E 64 62 }
+        $a4 = { 5B 68 79 70 68 65 6E 5D }
+        $a5 = { 67 65 6E 65 72 61 6C 50 61 73 74 65 62 6F 61 72 64 }
     condition:
         all of them
 }
