@@ -14,3 +14,16 @@ rule ansible_override: override {
   condition:
     $ansible and ($async or $become)
 }
+
+rule ansible_report_coverage: override {
+  meta:
+    description       = "report-coverage.sh from Ansible collections CI scripts"
+    pip_installer_url = "low"
+
+  strings:
+    $coverage  = "ansible-test coverage xml"
+    $pipelines = "Generate code coverage reports for uploading to Azure Pipelines"
+
+  condition:
+    filesize < 2048 and all of them
+}

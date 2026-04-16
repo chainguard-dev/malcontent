@@ -4,7 +4,7 @@ rule ltp_dirtypipe_override: override {
     Linux_Exploit_CVE_2022_0847_e831c285 = "high"
 
   strings:
-    $dirtypipe = "@dirtypipe.c"
+    $dirtypipe = "dirtypipe.c"
     $ltp       = "LTPROOT                  Prefix for installed LTP (default: /opt/ltp)"
 
   condition:
