@@ -4,9 +4,9 @@ rule bento_bin: override {
     CAPE_Nitrogenloader = "harmless"
 
   strings:
-    $golang = /(google.){0,1}golang.org/
-    $repo   = "github.com/warpstreamlabs/bento"
+    $go_module = "github.com/warpstreamlabs/bento/cmd/bento"
+    $go_pkg    = "github.com/warpstreamlabs/bento/public/service"
 
   condition:
-    filesize < 250MB and #golang > 38000 and #repo > 21000
+    filesize > 200MB and filesize < 300MB and all of them
 }

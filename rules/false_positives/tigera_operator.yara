@@ -2,6 +2,7 @@ rule tigera_operator: override {
   meta:
     description                                                     = "tigera-operator (Calico networking) Go binary"
     SIGNATURE_BASE_WEBSHELL_H4Ntu_Shell_Powered_Tsoi                = "harmless"
+    SIGNATURE_BASE_H4Ntu_Shell__Powered_By_Tsoi_                    = "harmless"
     SIGNATURE_BASE_Ironshell_Php                                    = "harmless"
     SIGNATURE_BASE_Lamashell_Php                                    = "harmless"
     SIGNATURE_BASE_Safe0Ver_Shell__Safe_Mod_Bypass_By_Evilc0Der_Php = "harmless"

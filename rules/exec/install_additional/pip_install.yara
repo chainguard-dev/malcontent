@@ -61,6 +61,7 @@ rule pip_installer_url: critical {
     $not_langchain_comment1 = "Please install the exllamav2 library with (cuda 12.1 is required)"
     $not_langchain_comment2 = "example : "
     $not_langchain_comment3 = "\"!python -m pip install https://github.com/turboderp/exllamav2/releases/download/v0.0.12/exllamav2-0.0.12+cu121-cp311-cp311-linux_x86_64.whl\""
+    $not_mlflow_docker      = "from mlflow.environment_variables import MLFLOW_DOCKER_OPENJDK_VERSION"
 
   condition:
     filesize < 8192 and $ref and none of ($not*) and (hash.sha256(0, filesize) != "f6a373322759ccc2736fb25d25d8c402dfe16b5d9a57cfccb1ca8cb136e09663")

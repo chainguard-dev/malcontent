@@ -6,6 +6,7 @@ rule stress_ng: override {
     kmem              = "medium"
     multiple_gcc      = "harmless"
     multiple_gcc_high = "medium"
+    proc_s_cmdline    = "medium"
 
   strings:
     $stress_version = "stress-ng-version"
