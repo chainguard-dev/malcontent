@@ -1,6 +1,6 @@
 module github.com/chainguard-dev/malcontent
 
-go 1.26.1
+go 1.26.2
 
 require (
 	github.com/VirusTotal/yara-x/go v1.15.0
@@ -12,7 +12,7 @@ require (
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/cosnicolaou/pbzip2 v1.0.6
 	github.com/egibs/go-debian v0.19.3
-	github.com/egibs/reconcile v0.3.0
+	github.com/egibs/reconcile v0.4.0
 	github.com/fatih/color v1.19.0
 	github.com/gabriel-vasile/mimetype v1.4.13
 	github.com/google/go-cmp v0.7.0
@@ -21,7 +21,7 @@ require (
 	github.com/klauspost/pgzip v1.2.6
 	github.com/minio/sha256-simd v1.0.1
 	github.com/olekukonko/tablewriter v1.1.4
-	github.com/puzpuzpuz/xsync/v4 v4.4.0
+	github.com/puzpuzpuz/xsync/v4 v4.5.0
 	github.com/shirou/gopsutil/v4 v4.26.3
 	github.com/ulikunitz/xz v0.5.15
 	github.com/urfave/cli/v3 v3.8.0
