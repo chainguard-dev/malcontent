@@ -12,3 +12,19 @@ rule librechat_anthropic_thinking: override {
   condition:
     filesize < 200KB and $thinking and 1 of ($anchor*)
 }
+
+rule librechat_pdfjs_worker: override {
+  meta:
+    description = "Mozilla PDF.js worker bundles (build/ and legacy/build/) shipped under pdfjs-dist"
+    xor_certs   = "low"
+    xor_terms   = "low"
+    xor_url     = "low"
+
+  strings:
+    $anchor1 = "pdfjsVersion = "
+    $anchor2 = "pdfjsBuild = "
+    $anchor3 = "pdfjs_internal_editor_"
+
+  condition:
+    filesize < 3MB and all of them
+}
