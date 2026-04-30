@@ -36,7 +36,7 @@ jobs:
             release-assets.githubusercontent.com:443
             tuf-repo-cdn.sigstore.dev:443
 
-      - uses: chainguard-dev/actions/setup-gitsign@0cba302c40fce067ec0d39f1d91b10580d4b06b0
+      - uses: chainguard-dev/actions/setup-gitsign@916fec00fb80f3cd124a0b41eef79ee63f607c5d
 
       - uses: octo-sts/action@f603d3be9d8dd9871a265776e625a27b00effe05 # v1.1.1
         id: octo-sts
