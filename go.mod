@@ -17,12 +17,12 @@ require (
 	github.com/gabriel-vasile/mimetype v1.4.13
 	github.com/google/go-cmp v0.7.0
 	github.com/google/go-containerregistry v0.21.5
-	github.com/klauspost/compress v1.18.5
+	github.com/klauspost/compress v1.18.6
 	github.com/klauspost/pgzip v1.2.6
 	github.com/minio/sha256-simd v1.0.1
 	github.com/olekukonko/tablewriter v1.1.4
 	github.com/puzpuzpuz/xsync/v4 v4.5.0
-	github.com/shirou/gopsutil/v4 v4.26.3
+	github.com/shirou/gopsutil/v4 v4.26.4
 	github.com/ulikunitz/xz v0.5.15
 	github.com/urfave/cli/v3 v3.8.0
 	github.com/wk8/go-ordered-map/v2 v2.1.8
