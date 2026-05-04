@@ -71,6 +71,7 @@ var (
 	outputFlag                string
 	profileFlag               bool
 	quantityIncreasesRiskFlag bool
+	ruleCategoriesFlag        []string
 	sensitivityFlag           int
 	statsFlag                 bool
 	thirdPartyFlag            bool
@@ -269,6 +270,7 @@ func main() {
 				OCI:                   ociFlag,
 				QuantityIncreasesRisk: quantityIncreasesRiskFlag,
 				Renderer:              renderer,
+				RuleCategories:        ruleCategoriesFlag,
 				Rules:                 yrs,
 				Stats:                 statsFlag,
 			}
@@ -423,6 +425,13 @@ func main() {
 				Value:       true,
 				Usage:       "Increase file risk score based on behavior quantity",
 				Destination: &quantityIncreasesRiskFlag,
+				Local:       false,
+			},
+			&cli.StringSliceFlag{
+				Name:        "rule-category",
+				Value:       []string{},
+				Usage:       "Only show matches whose rule path starts with one of the given categories (e.g. exfil, exfil/stealer); repeatable, no-op when unset",
+				Destination: &ruleCategoriesFlag,
 				Local:       false,
 			},
 			&cli.BoolFlag{
