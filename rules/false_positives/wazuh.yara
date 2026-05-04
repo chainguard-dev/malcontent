@@ -60,6 +60,7 @@ rule wazuh_syscheckd: override {
     rootkit_high        = "medium"
     cmd_dev_null_quoted = "medium"
     proc_s_exe          = "medium"
+    curl_easy_exfil     = "low"
 
   strings:
     $libwazuhext   = "libwazuhext.so"
