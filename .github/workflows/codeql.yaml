@@ -66,7 +66,7 @@ jobs:
           ref: refs/tags/v${{ env.YARA_X_RELEASE }}
       - name: Install Rust for yara-x-capi
         if: steps.yara-x-capi.outputs.cache-hit != 'true'
-        uses: dtolnay/rust-toolchain@e97e2d8cc328f1b50210efc529dca0028893a2d9
+        uses: dtolnay/rust-toolchain@e97e2d8cc328f1b50210efc529dca0028893a2d9 # v1
         with:
           toolchain: stable
       - name: Cache Rust dependencies
