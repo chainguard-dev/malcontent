@@ -74,3 +74,27 @@ rule npm_recon_commands: high {
   condition:
     package_scripts and any of them
 }
+
+rule npm_install_credential_exfiltration: high {
+  meta:
+    description = "npm installer references package-manager credentials and sends data over HTTP"
+
+  strings:
+    $install_pre = /"(preinstall|install|postinstall|prepare)":/
+
+    $cred_npmrc      = ".npmrc"
+    $cred_auth_token = "_authToken" fullword
+    $cred_node_auth  = "NODE_AUTH_TOKEN" fullword
+    $cred_npm_token  = "NPM_TOKEN" fullword
+    $cred_gh_token   = "GITHUB_TOKEN" fullword
+
+    $http_fetch   = /fetch\(\s{0,4}[\"']https{0,1}:\/\/[\w][\w\.\/\-_\?=\@]{8,128}/
+    $http_request = /require\(\s{0,4}[\"']https{0,1}[\"']\)/
+    $http_curl    = /(curl|wget) .{0,128}https{0,1}:\/\/[\w][\w\.\/\-_\?=\@]{8,128}/
+    $http_url     = /https{0,1}:\/\/[\w][\w\.\/\-_\?=\@]{8,128}/
+    $http_post    = "POST" fullword
+
+  condition:
+    package_scripts and $install_pre and any of ($cred*) and
+    ($http_fetch or $http_curl or ($http_request and $http_post) or ($http_url and $http_post))
+}
