@@ -46,6 +46,7 @@ jobs:
         id: check
         env:
           GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
         run: |
           CURRENT=$(grep '^YARA_X_VERSION' Makefile | head -1 | sed 's/.*= *//')
           echo "Current version: ${CURRENT}"
@@ -68,7 +69,7 @@ jobs:
 
           # Skip if there is already an open PR for this version
           VERSION="${LATEST#v}"
-          EXISTING=$(gh pr list --repo "${{ github.repository }}" --head "bump-yara-x-${VERSION}" --state open --json number --jq 'length')
+          EXISTING=$(gh pr list --repo "${REPOSITORY}" --head "bump-yara-x-${VERSION}" --state open --json number --jq 'length')
           if [[ "${EXISTING}" -gt 0 ]]; then
             echo "Open PR already exists for yara-x ${VERSION}"
             echo "update_available=false" >> "$GITHUB_OUTPUT"

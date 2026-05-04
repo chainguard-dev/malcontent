@@ -80,16 +80,18 @@ jobs:
           restore-keys: rust-cargo-
       - name: Build yara-x-capi
         if: steps.yara-x-capi.outputs.cache-hit != 'true'
+        env:
+          WORKSPACE: ${{ github.workspace }}
         run: |
           command -v cargo-cinstall || cargo install cargo-c --locked
-          cd ${{ github.workspace }}/yara-x
+          cd "${WORKSPACE}/yara-x"
           RUSTFLAGS="-C target-feature=+crt-static" cargo cinstall -p yara-x-capi --features=native-code-serialization \
             --profile release-lto \
-            --pkgconfigdir=${{ github.workspace }}/yara-x-install \
-            --includedir=${{ github.workspace }}/yara-x-install \
-            --libdir=${{ github.workspace }}/yara-x-install \
+            --pkgconfigdir="${WORKSPACE}/yara-x-install" \
+            --includedir="${WORKSPACE}/yara-x-install" \
+            --libdir="${WORKSPACE}/yara-x-install" \
             --crt-static --library-type="staticlib"
-          rm -rf ${{ github.workspace }}/yara-x
+          rm -rf "${WORKSPACE}/yara-x"
       - name: Set up Go
         uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
         with:

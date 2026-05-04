@@ -125,7 +125,7 @@ jobs:
       - name: Install dependencies
         run: |
           apk update
-          apk add curl findutils git gnutar ${{ env.GO_RELEASE }} nodejs upx xz yara-x~${{ env.YARA_X_RELEASE }}
+          apk add curl findutils git gnutar "${GO_RELEASE}" nodejs upx xz "yara-x~${YARA_X_RELEASE}"
 
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -170,6 +170,8 @@ jobs:
       # -parallel=1 is used for now due to this: https://github.com/golang/go/issues/56238
       - name: Run fuzzer - ${{ matrix.target.test }}
         env:
+          FUZZ_TARGET: ${{ matrix.target.test }}
+          FUZZ_PACKAGE: ${{ matrix.target.package }}
           FUZZ_TIME: ${{ inputs.fuzz_time || '30s' }}
         run: |
-          go test -parallel=1 -timeout 0 -fuzz="^${{ matrix.target.test }}$" -fuzztime="${FUZZ_TIME}" "${{ matrix.target.package }}"
+          go test -parallel=1 -timeout 0 -fuzz="^${FUZZ_TARGET}$" -fuzztime="${FUZZ_TIME}" "${FUZZ_PACKAGE}"
