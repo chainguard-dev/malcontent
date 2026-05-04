@@ -276,9 +276,6 @@ func TestTrimFileReport_KeepsFileWhenNoMatch(t *testing.T) {
 	if TrimFileReport(fr, []string{"net"}) {
 		t.Fatalf("TrimFileReport = true, want false (no match)")
 	}
-	if fr == nil {
-		t.Fatalf("TrimFileReport must not nil out the report")
-	}
 	if len(fr.Behaviors) != 0 {
 		t.Errorf("behaviors = %v, want empty after no-match trim", fr.Behaviors)
 	}
