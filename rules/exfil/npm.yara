@@ -78,6 +78,7 @@ rule npm_recon_commands: high {
 rule npm_install_credential_exfiltration: high {
   meta:
     description = "npm installer references package-manager credentials and sends data over HTTP"
+    reference   = "https://unit42.paloaltonetworks.com/npm-supply-chain-attack/"
 
   strings:
     $install_pre = /"(preinstall|install|postinstall|prepare)":/

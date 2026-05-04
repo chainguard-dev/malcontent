@@ -165,6 +165,69 @@ func TestScanRepeatedScansNoResourceExhaustion(t *testing.T) {
 	}
 }
 
+func TestNPMCredentialExfiltrationRule(t *testing.T) {
+	ctx := context.Background()
+
+	rfs := []fs.FS{rules.FS, thirdparty.FS}
+	yrs, err := CachedRules(ctx, rfs)
+	if err != nil {
+		t.Fatalf("rules: %v", err)
+	}
+
+	cfg := malcontent.Config{
+		Concurrency:      runtime.NumCPU(),
+		IgnoreSelf:       false,
+		IncludeDataFiles: false,
+		MinFileRisk:      0,
+		MinRisk:          0,
+		Rules:            yrs,
+		RuleFS:           rfs,
+	}
+
+	tests := []struct {
+		name     string
+		path     string
+		wantRule bool
+	}{
+		{
+			name:     "postinstall credential exfiltration",
+			path:     filepath.Join("testdata", "npm-token-exfil", "package.json"),
+			wantRule: true,
+		},
+		{
+			name:     "release script token reference",
+			path:     filepath.Join("testdata", "npm-token-release", "package.json"),
+			wantRule: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			fr, err := scanSinglePath(ctx, cfg, tt.path, rfs, tt.path, "", nil)
+			if err != nil {
+				t.Fatalf("scan: %v", err)
+			}
+
+			gotRule := hasRuleName(fr, "npm_install_credential_exfiltration")
+			if gotRule != tt.wantRule {
+				t.Fatalf("npm_install_credential_exfiltration match = %t, want %t", gotRule, tt.wantRule)
+			}
+		})
+	}
+}
+
+func hasRuleName(fr *malcontent.FileReport, ruleName string) bool {
+	if fr == nil {
+		return false
+	}
+	for _, b := range fr.Behaviors {
+		if b.RuleName == ruleName {
+			return true
+		}
+	}
+	return false
+}
+
 func TestExitIfHitOrMiss(t *testing.T) {
 	t.Parallel()
 
