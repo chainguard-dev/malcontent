@@ -1,0 +1,7 @@
+# npm/2025.shai-hulud/package.json: high
+exfil: medium
+exfil/npm: high
+fs/file/read: low
+net/http/post: medium
+net/url/embedded: low
+os/env/get: low

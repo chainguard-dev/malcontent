@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 SAMPLES_REPO ?= chainguard-sandbox/malcontent-samples
-SAMPLES_COMMIT ?= f948cfd0f9d2a35a2452fe43ea4d094979652103
+SAMPLES_COMMIT ?= fca96935d01d3b0a7a2765626279c676bd9d495f
 
 # BEGIN: lint-install ../malcontent
 # http://github.com/tinkerbell/lint-install
