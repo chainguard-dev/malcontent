@@ -1,0 +1,9 @@
+{
+  "name": "npm-token-release-test",
+  "version": "1.0.0",
+  "description": "test fixture",
+  "homepage": "https://example.com/package",
+  "scripts": {
+    "release": "NPM_TOKEN=$NPM_TOKEN node ./scripts/release.js"
+  }
+}
