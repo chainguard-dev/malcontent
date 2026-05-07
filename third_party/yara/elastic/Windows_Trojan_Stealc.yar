@@ -94,3 +94,23 @@ rule Windows_Trojan_Stealc_41db1d4d {
         3 of them
 }
 
+rule Windows_Trojan_Stealc_df3cdc7e {
+    meta:
+        author = "Elastic Security"
+        id = "df3cdc7e-a9ef-4719-90ce-a45106166f00"
+        fingerprint = "71c93f3ff9248b5d13bd01cfedf2f5999e39689b7553fc606a623a9beca7d281"
+        creation_date = "2026-03-16"
+        last_modified = "2026-05-05"
+        threat_name = "Windows.Trojan.Stealc"
+        reference_sample = "503879c9c294cd7a2b7b13c643b93d8a8e7ae00af5b2b56fcbb90e6c096f40d6"
+        severity = 100
+        arch_context = "x86"
+        scan_context = "file, memory"
+        license = "Elastic License v2"
+        os = "windows"
+    strings:
+        $a = { 48 8B E8 48 8D 48 FF 48 83 F9 ?? ?? ?? ?? ?? ?? 00 48 8D 54 24 48 48 8B C8 FF 15 30 4E 01 00 85 C0 74 52 39 74 24 4C 75 4C 8B 5C 24 48 8D 4E 40 8B D3 FF 15 2F 4E 01 00 48 8B F8 48 85 C0 74 3E }
+    condition:
+        all of them
+}
+
