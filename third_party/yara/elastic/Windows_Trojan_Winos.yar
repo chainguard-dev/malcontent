@@ -54,3 +54,32 @@ rule Windows_Trojan_Winos_a60d5880 {
         4 of them
 }
 
+rule Windows_Trojan_Winos_8da8c378 {
+    meta:
+        author = "Elastic Security"
+        id = "8da8c378-6594-439f-9ad8-8323564c07d2"
+        fingerprint = "b17624486cd5f605e8c261b3d49e8f347ad7fe2b1fd82410f1d9517a80b588c8"
+        creation_date = "2026-03-25"
+        last_modified = "2026-05-05"
+        threat_name = "Windows.Trojan.Winos"
+        reference_sample = "014ef95c17d2cca28356ce51366d9927e4db4c706fa3c2cf1b6bb284dc9722d1"
+        severity = 100
+        arch_context = "x86"
+        scan_context = "file, memory"
+        license = "Elastic License v2"
+        os = "windows"
+    strings:
+        $a0 = "[CmdHandler] cmdUsdtHijackStart failed. bufferSize=" fullword
+        $a1 = "[CmdHandler] Error in USDT hijack thread:" fullword
+        $a2 = "[CmdHandler] heart beat failed. re-online" fullword
+        $a3 = "[CmdHandler] maybe is not root plugin." fullword
+        $a4 = "[CmdHandler] received re-online command from console." fullword
+        $a5 = "Received dup connection command from console, The progress will dup connection." fullword
+        $a6 = "[CmdHandler] failed to allocate memory for token user information." fullword
+        $a7 = "handle cmdExecuteCommand failed. bufferSize=" fullword
+        $a8 = "[KeyboardRecord] Failed to disable offline keyboard" fullword
+        $a9 = ".?AVKeyboardRecord@@" fullword
+    condition:
+        5 of them
+}
+

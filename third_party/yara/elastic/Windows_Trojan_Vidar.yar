@@ -185,3 +185,50 @@ rule Windows_Trojan_Vidar_540563cf {
         5 of them
 }
 
+rule Windows_Trojan_Vidar_14210811 {
+    meta:
+        author = "Elastic Security"
+        id = "14210811-3bf5-400a-ab5d-f112023b1580"
+        fingerprint = "dc3a25458dc42f62ecee9078893a0f3850c89436bf5321c9e44f6618fe5a2d39"
+        creation_date = "2026-03-16"
+        last_modified = "2026-05-05"
+        threat_name = "Windows.Trojan.Vidar"
+        reference_sample = "07b84bdfa4d296bcf370019f1a94121e117082a9f02c8fc534c9fcf83df60e1f"
+        severity = 100
+        arch_context = "x86"
+        scan_context = "file, memory"
+        license = "Elastic License v2"
+        os = "windows"
+    strings:
+        $a = { 48 83 C4 40 49 89 C7 8B 05 5B ?? ?? ?? ?? ?? ?? B6 0D 00 8D 50 01 0F AF D0 83 E2 01 83 F9 0A 7C 6C 85 D2 74 68 48 83 EC 40 48 C7 44 24 30 00 00 00 00 C7 44 24 28 80 00 00 00 C7 44 24 20 03 00 }
+    condition:
+        all of them
+}
+
+rule Windows_Trojan_Vidar_0f323538 {
+    meta:
+        author = "Elastic Security"
+        id = "0f323538-d789-4480-9b10-db31e0a18790"
+        fingerprint = "52039ef9b44bbe4a6594d4efdf20a124a13133e30bb8788978baf2fcd30013e4"
+        creation_date = "2026-03-16"
+        last_modified = "2026-05-05"
+        threat_name = "Windows.Trojan.Vidar"
+        reference_sample = "aae5335b89c8655cffbd9e2e8de1726be6bc38e68dcbb048aabb03a2012640aa"
+        severity = 100
+        arch_context = "x86"
+        scan_context = "memory"
+        license = "Elastic License v2"
+        os = "windows"
+    strings:
+        $steam = "steamcommunity.com/profiles/"
+        $telegram = "telegram.me/"
+        $hwid = "Content-Disposition: form-data; name=\"hwid\""
+        $browser2 = "\\IndexedDB\\chrome-extension__0.indexeddb.leveldb"
+        $browser4 = "\"encrypted_key\":\""
+        $c1 = "information.txt"
+        $pipe = "\\\\.\\pipe\\test"
+        $telemetry1 = "\\telemetry.b64"
+    condition:
+        all of them
+}
+
