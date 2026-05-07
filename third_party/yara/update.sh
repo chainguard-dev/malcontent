@@ -51,6 +51,36 @@ function fixup_rules() {
 			fi
 		done
 	done
+
+	# Convert text strings to hex for specific rules inside monolithic YARA files.
+	# Format: "rule_name:filename" pairs. The filename is matched against basename.
+	local edr_flagged_monolithic_rules=(
+		"SEKOIA_Infostealer_Mac_Realst:yara-rules-full.yar"
+	)
+	for file in "$@"; do
+		local base
+		base="$(basename "$file")"
+		for entry in "${edr_flagged_monolithic_rules[@]}"; do
+			local rule_name="${entry%%:*}"
+			local target_file="${entry##*:}"
+			if [[ "$base" == "$target_file" ]]; then
+				perl -i -pe '
+					BEGIN { $in_rule = 0; $in_strings = 0; }
+					if (/^rule '"${rule_name}"' /) { $in_rule = 1; }
+					if ($in_rule && /^\s+strings:/) { $in_strings = 1; next; }
+					if ($in_rule && $in_strings && /^\s+condition:/) { $in_rule = 0; $in_strings = 0; next; }
+					if ($in_rule && $in_strings) {
+						s{^(\s*)(\$\w+)\s*=\s*"((?:[^"\\]|\\.)+)"\s+ascii(\s+\w+)?\s*$}{
+							my ($ind, $var, $raw, $mod) = ($1, $2, $3, $4);
+							$raw =~ s/\\(.)/$1/g;
+							my $hex = join(" ", map { sprintf "%02X", ord($_) } split(//, $raw));
+							sprintf("%s%s = { %s }%s\n", $ind, $var, $hex, defined($mod) ? $mod : "");
+						}e;
+					}
+				' "$file"
+			fi
+		done
+	done
 }
 
 # update_dep updates a dependency to the latest release
