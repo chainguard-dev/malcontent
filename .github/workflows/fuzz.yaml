@@ -30,6 +30,7 @@ on:
           - "180m"
 
 env:
+  CGO_ENABLED: "1"
   GO_RELEASE: "go-1.26"
   YARA_X_RELEASE: "1.16.0"
 

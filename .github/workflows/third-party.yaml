@@ -9,6 +9,7 @@ on:
     - cron: "0 */12 * * *"
 
 env:
+  CGO_ENABLED: "1"
   GO_RELEASE: "go-1.26"
   YARA_X_RELEASE: "1.16.0"
 
@@ -36,7 +37,7 @@ jobs:
       contents: write
       id-token: write
       pull-requests: write
-    steps:https://github.com/chainguard-dev/malcontent/pull/1521/conflict?name=.github%252Fworkflows%252Fthird-party.yaml&ancestor_oid=f84dbd70f97e41fd06ce7bcd87f2f29b97aaf8a1&base_oid=b8b883d6843d3880ba2db913f84e977b957d536e&head_oid=7c682f895d662285ce339438d9b801d1e0973a14
+    steps:
       - name: Install dependencies
         run: |
           apk update
