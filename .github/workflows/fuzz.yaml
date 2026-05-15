@@ -31,7 +31,7 @@ on:
 
 env:
   GO_RELEASE: "go-1.26"
-  YARA_X_RELEASE: "1.14.0"
+  YARA_X_RELEASE: "1.16.0"
 
 permissions: {}
 
@@ -45,9 +45,13 @@ jobs:
       targets: ${{ steps.find.outputs.targets }}
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
         with:
-          egress-policy: audit
+          egress-policy: block
+          allowed-endpoints: >
+            *.blob.core.windows.net:443
+            *.githubapp.com:443
+            github.com:443
 
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -104,7 +108,7 @@ jobs:
       matrix:
         target: ${{ fromJson(needs.discover.outputs.targets) }}
     container:
-      image: cgr.dev/chainguard/wolfi-base:latest # zizmor: ignore[unpinned-images]
+      image: cgr.dev/chainguard/wolfi-base:latest@sha256:9a74366aa10eff2bf14dab0948123bd2c51703e1c553a73740ef687f723aecf4
       options: >-
         --cap-add DAC_OVERRIDE
         --cap-add SETGID
@@ -121,7 +125,7 @@ jobs:
       - name: Install dependencies
         run: |
           apk update
-          apk add curl findutils git gnutar ${{ env.GO_RELEASE }} make nodejs upx xz yara-x~${{ env.YARA_X_RELEASE }}
+          apk add curl findutils git gnutar "${GO_RELEASE}" make nodejs upx xz "yara-x~${YARA_X_RELEASE}"
 
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -138,7 +142,7 @@ jobs:
           echo "cache=$(go env GOCACHE)" >> "${GITHUB_OUTPUT}"
 
       - name: Cache Go dependencies
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: |
             ${{ steps.go-env.outputs.modcache }}
@@ -153,7 +157,7 @@ jobs:
 
       - name: Cache malcontent samples
         if: contains(matrix.target.package, 'programkind')
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: out/chainguard-sandbox/malcontent-samples
           key: samples-${{ steps.samples.outputs.commit }}
@@ -166,6 +170,8 @@ jobs:
       # -parallel=1 is used for now due to this: https://github.com/golang/go/issues/56238
       - name: Run fuzzer - ${{ matrix.target.test }}
         env:
+          FUZZ_TARGET: ${{ matrix.target.test }}
+          FUZZ_PACKAGE: ${{ matrix.target.package }}
           FUZZ_TIME: ${{ inputs.fuzz_time || '30s' }}
         run: |
-          go test -parallel=1 -timeout 0 -fuzz="^${{ matrix.target.test }}$" -fuzztime="${FUZZ_TIME}" "${{ matrix.target.package }}"
+          go test -parallel=1 -timeout 0 -fuzz="^${FUZZ_TARGET}$" -fuzztime="${FUZZ_TIME}" "${FUZZ_PACKAGE}"

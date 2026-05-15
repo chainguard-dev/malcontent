@@ -256,6 +256,37 @@ func TestJSONRendererScanningNoOp(t *testing.T) {
 	}
 }
 
+func TestJSONRendererDiffWithNilFiles(t *testing.T) {
+	t.Parallel()
+	var buf bytes.Buffer
+	renderer := NewJSON(&buf)
+
+	ctx := context.Background()
+	cfg := &malcontent.Config{}
+	diff := &malcontent.DiffReport{
+		Added:    orderedmap.New[string, *malcontent.FileReport](),
+		Removed:  orderedmap.New[string, *malcontent.FileReport](),
+		Modified: orderedmap.New[string, *malcontent.FileReport](),
+	}
+	diff.Added.Set("/bin/added", &malcontent.FileReport{Path: "/bin/added", RiskScore: 2})
+	// Mirror what action.Diff() actually returns: Diff set, Files nil
+	report := &malcontent.Report{Diff: diff}
+
+	err := renderer.Full(ctx, cfg, report)
+	if err != nil {
+		t.Fatalf("Full() error = %v", err)
+	}
+
+	var result Report
+	if err := json.Unmarshal(buf.Bytes(), &result); err != nil {
+		t.Fatalf("Generated invalid JSON: %v", err)
+	}
+
+	if result.Diff == nil {
+		t.Error("Expected diff in output")
+	}
+}
+
 func TestJSONRendererFileNoOp(t *testing.T) {
 	t.Parallel()
 	var buf bytes.Buffer

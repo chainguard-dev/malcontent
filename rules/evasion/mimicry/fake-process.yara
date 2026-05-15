@@ -7,6 +7,7 @@ rule fake_kworker: critical linux {
     $kworker2 = "[kworker"
 
     $not_bpftrace_comment1 = " * 03:14:49 496    kworker/1:0H     md0"
+    $not_bpftrace_script   = "bpftrace" fullword
     $not_dockworker        = "dockworker/MS"
     $not_f2fs_h1           = "* fs/f2fs/f2fs.h"
     $not_f2fs_h2           = "#ifndef _LINUX_F2FS_H"

@@ -157,3 +157,78 @@ rule Windows_Trojan_Vidar_4ed00a37 {
         all of them
 }
 
+rule Windows_Trojan_Vidar_540563cf {
+    meta:
+        author = "Elastic Security"
+        id = "540563cf-c0d4-4720-b465-85469366a600"
+        fingerprint = "6a804cc2bf7b71497cd70c653763bd2359d1716921adb2943425f03bd2521da1"
+        creation_date = "2026-01-30"
+        last_modified = "2026-03-17"
+        threat_name = "Windows.Trojan.Vidar"
+        reference_sample = "5293d0caca719e681358502968b75c2209e78d2822975a9ab54cec10f0f4dc57"
+        severity = 100
+        arch_context = "x86"
+        scan_context = "file, memory"
+        license = "Elastic License v2"
+        os = "windows"
+    strings:
+        $a = { 48 8D 15 ?? ?? FF FF 41 B8 00 01 00 00 E8 ?? ?? ?? 00 48 8D 0D }
+        $b = { 48 00 6F 00 73 00 74 00 4E 00 61 00 6D 00 65 00 00 00 55 00 73 00 65 00 72 00 4E 00 61 00 6D 00 65 00 00 00 50 00 61 00 73 00 73 00 77 00 6F 00 72 00 64 00 00 00 50 00 6F 00 72 00 74 00 4E 00 75 00 6D 00 62 00 65 00 72 }
+        $c = { 8D 48 01 0F AF C8 83 E1 01 74 02 EB FE C3 }
+        $d = { 31 C0 41 80 3C 24 31 0F 94 C0 89 86 14 04 00 00 }
+        $e = { 31 C0 41 80 3C 24 31 0F 94 C0 89 86 38 04 00 00 }
+        $f = { 45 31 C0 41 80 3C 24 31 41 0F 94 C0 44 89 86 24 04 00 00 }
+        $g = "File Grabber Rules" fullword
+        $h = "Wallet Rules" fullword
+        $i = "%08lX%04lX%08lX" fullword
+    condition:
+        5 of them
+}
+
+rule Windows_Trojan_Vidar_14210811 {
+    meta:
+        author = "Elastic Security"
+        id = "14210811-3bf5-400a-ab5d-f112023b1580"
+        fingerprint = "dc3a25458dc42f62ecee9078893a0f3850c89436bf5321c9e44f6618fe5a2d39"
+        creation_date = "2026-03-16"
+        last_modified = "2026-05-05"
+        threat_name = "Windows.Trojan.Vidar"
+        reference_sample = "07b84bdfa4d296bcf370019f1a94121e117082a9f02c8fc534c9fcf83df60e1f"
+        severity = 100
+        arch_context = "x86"
+        scan_context = "file, memory"
+        license = "Elastic License v2"
+        os = "windows"
+    strings:
+        $a = { 48 83 C4 40 49 89 C7 8B 05 5B ?? ?? ?? ?? ?? ?? B6 0D 00 8D 50 01 0F AF D0 83 E2 01 83 F9 0A 7C 6C 85 D2 74 68 48 83 EC 40 48 C7 44 24 30 00 00 00 00 C7 44 24 28 80 00 00 00 C7 44 24 20 03 00 }
+    condition:
+        all of them
+}
+
+rule Windows_Trojan_Vidar_0f323538 {
+    meta:
+        author = "Elastic Security"
+        id = "0f323538-d789-4480-9b10-db31e0a18790"
+        fingerprint = "52039ef9b44bbe4a6594d4efdf20a124a13133e30bb8788978baf2fcd30013e4"
+        creation_date = "2026-03-16"
+        last_modified = "2026-05-05"
+        threat_name = "Windows.Trojan.Vidar"
+        reference_sample = "aae5335b89c8655cffbd9e2e8de1726be6bc38e68dcbb048aabb03a2012640aa"
+        severity = 100
+        arch_context = "x86"
+        scan_context = "memory"
+        license = "Elastic License v2"
+        os = "windows"
+    strings:
+        $steam = "steamcommunity.com/profiles/"
+        $telegram = "telegram.me/"
+        $hwid = "Content-Disposition: form-data; name=\"hwid\""
+        $browser2 = "\\IndexedDB\\chrome-extension__0.indexeddb.leveldb"
+        $browser4 = "\"encrypted_key\":\""
+        $c1 = "information.txt"
+        $pipe = "\\\\.\\pipe\\test"
+        $telemetry1 = "\\telemetry.b64"
+    condition:
+        all of them
+}
+

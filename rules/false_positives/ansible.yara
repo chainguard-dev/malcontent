@@ -14,3 +14,42 @@ rule ansible_override: override {
   condition:
     $ansible and ($async or $become)
 }
+
+rule ansible_report_coverage: override {
+  meta:
+    description       = "report-coverage.sh from Ansible collections CI scripts"
+    pip_installer_url = "low"
+
+  strings:
+    $coverage  = "ansible-test coverage xml"
+    $pipelines = "Generate code coverage reports for uploading to Azure Pipelines"
+
+  condition:
+    filesize < 2048 and all of them
+}
+
+rule ansible_shippable_ci: override {
+  meta:
+    description       = "shippable.sh CI test runners from Ansible collections"
+    pip_installer_url = "low"
+
+  strings:
+    $shippable    = "SHIPPABLE_BUILD_ID"
+    $ansible_test = "ansible-test env --dump"
+
+  condition:
+    filesize < 8192 and all of them
+}
+
+rule ansible_collection_ci_workflow: override {
+  meta:
+    description       = "Ansible collection CI workflow installing ansible-core for testing"
+    pip_installer_url = "low"
+
+  strings:
+    $ansible_core = "Install ansible-core"
+    $test_deps    = "ansible-lint docker flake8 molecule"
+
+  condition:
+    filesize < 4096 and all of them
+}

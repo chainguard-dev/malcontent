@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 SAMPLES_REPO ?= chainguard-sandbox/malcontent-samples
-SAMPLES_COMMIT ?= f948cfd0f9d2a35a2452fe43ea4d094979652103
+SAMPLES_COMMIT ?= fca96935d01d3b0a7a2765626279c676bd9d495f
 
 # BEGIN: lint-install ../malcontent
 # http://github.com/tinkerbell/lint-install
@@ -51,22 +51,22 @@ $(GOLANGCI_LINT_BIN):
 	mv $(LINT_ROOT)/out/linters/golangci-lint $@
 
 YARA_X_REPO ?= virusTotal/yara-x
-YARA_X_VERSION ?= v1.14.0
-YARA_X_COMMIT ?= 6a7982f5924c63a7ccafdf440798e06f5e6a4ccd
+YARA_X_VERSION ?= v1.16.0
+YARA_X_COMMIT ?= 5bd1f35db783679c90a3ea1a66bd15fe4e55bef1
 YARA_X_SHA :=
 ifeq ($(LINT_OS),Darwin)
 	ifeq ($(shell uname -m),arm64)
 		LINT_ARCH = aarch64
-		YARA_X_SHA = cee7ac001004fb721508c55190f57291b7b843290d488334a1d5cff45c519bc9
+		YARA_X_SHA = 802b43a9dbdc0f2b6ea01d66f9269ff89f6d47a3bc175dfa3e0960b967ad445e
 	else
-		YARA_X_SHA = 344eedd347d2aafb447d381a18f88974576231171ca72b3d969e88ace0cbf9ca
+		YARA_X_SHA = a6c7773eb123cd33682d2921fc3ffeaa253241da661f03477cf0f296d61ec402
 	endif
 else ifeq ($(LINT_OS),Linux)
 	ifneq ($(filter $(shell uname -m),aarch64 arm64),)
 		LINT_ARCH = aarch64
-		YARA_X_SHA = 3c46835d0ffb8786b7e901517971b105eb1692f578dc244194ce206cf99ce988
+		YARA_X_SHA = cf1f9c4e04964492870b94e1dc6196a771ff118e2cf2a37198f535c55bf122a2
 	else
-		YARA_X_SHA = 59b768cf25aa48fc30e7e9aaeb9166921ce18e3472d7059e7f5b12744224b712
+		YARA_X_SHA = fcbf94231fc4d563a4f80c7c384499b6ab75894851308894071a0a319f9801a2
 	endif
 endif
 YARA_X_BIN := $(LINT_ROOT)/out/linters/yr-$(YARA_X_VERSION)-$(LINT_ARCH)

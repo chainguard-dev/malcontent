@@ -1,4 +1,5 @@
-# macOS/2024.CryptoNews/CryptoNews-PR-Agreement: high
+# macOS/2024.CryptoNews/CryptoNews-PR-Agreement: critical
+3P/elastic/infostealer_banshee: critical
 anti-static/binary/opaque: high
 data/random/insecure: low
 exec/cmd/pipe: medium

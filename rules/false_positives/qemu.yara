@@ -2,6 +2,7 @@ rule qemu: override {
   meta:
     description    = "QEMU"
     proc_d_cmdline = "medium"
+    ESET_Moose_2   = "harmless"
 
   strings:
     $module  = "QEMU_MODULE"

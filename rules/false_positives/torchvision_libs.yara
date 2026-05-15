@@ -1,13 +1,13 @@
 rule libpng_override: override {
   meta:
-    description          = "libpng16.ca116d9f.so.16"
+    description          = "libpng16.*.so.16"
     upx_antiunpack_elf64 = "harmless"
 
   strings:
     $libpng1 = "Application built with libpng-"
     $libpng2 = "libpng version"
-    $libpng3 = "0123456789ABCDEFlibpng warning: %s"
-    $libpng4 = "libpng16.so.16"
+    $libpng3 = "libpng warning: %s"
+    $libpng4 = "libpng error: %s"
 
   condition:
     all of them

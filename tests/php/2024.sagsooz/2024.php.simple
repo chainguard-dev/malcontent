@@ -1,4 +1,5 @@
 # php/2024.sagsooz/2024.php: critical
+3P/YARAForge/signature_ext_webshell: high
 3P/YARAForge/signature_webshell_php: critical
 c2/addr/url: medium
 credential/password: low

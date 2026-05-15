@@ -836,26 +836,16 @@ func upgradeRisk(ctx context.Context, riskScore int, riskCounts map[int]int, siz
 	}
 	highCount := riskCounts[HIGH]
 	sizeMB := size / 1024 / 1024
-	upgrade := false
 
-	switch {
-	// small scripts, tiny ELF binaries
-	case size < 1024 && highCount > 1:
-		upgrade = true
-	// include most UPX binaries
-	case sizeMB < 2 && highCount > 2:
-		upgrade = true
-	case sizeMB < 4 && highCount > 3:
-		upgrade = true
-	case sizeMB < 10 && highCount > 4:
-		upgrade = true
-	case sizeMB < 20 && highCount > 5:
-		upgrade = true
-	case highCount > 6:
-		upgrade = true
+	upgrade := (size < 1024 && highCount > 1) || // small scripts, tiny ELF binaries
+		(sizeMB < 2 && highCount > 2) || // include most UPX binaries
+		(sizeMB < 4 && highCount > 3) ||
+		(sizeMB < 10 && highCount > 4) ||
+		highCount > 5
+
+	if upgrade {
+		clog.DebugContextf(ctx, "upgrading risk to critical: high=%d, size=%d", highCount, size)
 	}
-
-	clog.DebugContextf(ctx, "upgrading risk: high=%d, size=%d", highCount, size)
 	return upgrade
 }
 

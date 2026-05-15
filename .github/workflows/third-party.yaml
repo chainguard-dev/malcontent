@@ -10,7 +10,7 @@ on:
 
 env:
   GO_RELEASE: "go-1.26"
-  YARA_X_RELEASE: "1.14.0"
+  YARA_X_RELEASE: "1.16.0"
 
 permissions: {}
 
@@ -19,7 +19,7 @@ jobs:
     if: ${{ github.repository == 'chainguard-dev/malcontent' }}
     runs-on: ubuntu-latest-arm-16-core
     container:
-      image: cgr.dev/chainguard/wolfi-base:latest
+      image: cgr.dev/chainguard/wolfi-base:latest@sha256:9a74366aa10eff2bf14dab0948123bd2c51703e1c553a73740ef687f723aecf4
       options: >-
         --cap-add DAC_OVERRIDE
         --cap-add SETGID
@@ -36,12 +36,22 @@ jobs:
       contents: write
       id-token: write
       pull-requests: write
-    steps:
+    steps:https://github.com/chainguard-dev/malcontent/pull/1521/conflict?name=.github%252Fworkflows%252Fthird-party.yaml&ancestor_oid=f84dbd70f97e41fd06ce7bcd87f2f29b97aaf8a1&base_oid=b8b883d6843d3880ba2db913f84e977b957d536e&head_oid=7c682f895d662285ce339438d9b801d1e0973a14
       - name: Install dependencies
         run: |
           apk update
-          apk add bash curl findutils gh git gnutar ${{ env.GO_RELEASE }} make nodejs perl upx xz yara-x~${{ env.YARA_X_RELEASE }}
+          apk add bash curl findutils gh git gnutar "${GO_RELEASE}"} make nodejs perl upx xz "yara-x~${YARA_X_RELEASE}"
+      - uses: chainguard-dev/actions/setup-gitsign@c69a264ec2a5934c3186c618f368fc1c86f16cff # main
+      - name: Set up Octo-STS
+        uses: octo-sts/action@f603d3be9d8dd9871a265776e625a27b00effe05 # v1.1.1
+        id: octo-sts
+        with:
+          scope: chainguard-dev/malcontent
+          identity: third-party
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        # zizmor: ignore[artipacked] - credentials needed for git push and gh pr create
+        with:
+          token: ${{ steps.octo-sts.outputs.token }}
       - name: Trust repository
         run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
 
@@ -52,7 +62,7 @@ jobs:
           echo "cache=$(go env GOCACHE)" >> "$GITHUB_OUTPUT"
 
       - name: Cache Go dependencies
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: |
             ${{ steps.go-env.outputs.modcache }}
@@ -65,21 +75,13 @@ jobs:
         run: echo "commit=$(grep '^SAMPLES_COMMIT' Makefile | head -1 | cut -d'=' -f2 | tr -d ' ?')" >> "$GITHUB_OUTPUT"
 
       - name: Cache malcontent samples
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: out/chainguard-sandbox/malcontent-samples
           key: samples-${{ steps.samples.outputs.commit }}
 
       - name: Prepare samples
         run: make samples
-
-      - uses: chainguard-dev/actions/setup-gitsign@7440e20e3e0bb180a2f6e330bcd53504e2ac8980
-      - name: Set up Octo-STS
-        uses: octo-sts/action@f603d3be9d8dd9871a265776e625a27b00effe05 # v1.1.1
-        id: octo-sts
-        with:
-          scope: chainguard-dev/malcontent
-          identity: third-party
 
       - name: Run make update-third-party
         run: |

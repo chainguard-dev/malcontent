@@ -34,6 +34,21 @@ rule security_solution_plugin: override {
     filesize < 5MB and all of ($license*) and $security_solution and ($jsonp or $xpac)
 }
 
+rule security_solution_prepackaged_rules_index: override {
+  meta:
+    description     = "prepackaged_rules/index.js"
+    backdoor_likely = "low"
+    reverse_shell   = "low"
+    ssh_backdoor    = "low"
+
+  strings:
+    $elastic_copyright = "Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V."
+    $raw_rules         = "exports.rawRules"
+
+  condition:
+    filesize < 200KB and all of them
+}
+
 rule security_detection_engine: override {
   meta:
     casing_obfuscation                          = "low"

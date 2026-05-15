@@ -30,3 +30,17 @@ rule sanity_test: override {
   condition:
     filesize < 2MB and #lustre > 200 and all of them
 }
+
+rule monitor_lustrefs: override {
+  meta:
+    description       = "monitor_lustrefs"
+    proc_d_cmdline    = "medium"
+    multiple_gcc_high = "medium"
+
+  strings:
+    $monitor = "Monitor some file operations on a lustre fs"
+    $usage   = "LUSTRE_MOUNT_DIR"
+
+  condition:
+    filesize < 100KB and all of them
+}

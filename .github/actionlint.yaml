@@ -1,0 +1,8 @@
+# Copyright 2026 Chainguard, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+# Custom GitHub-hosted runner labels used by Chainguard
+self-hosted-runner:
+  labels:
+    - ubuntu-latest-16-core
+    - ubuntu-latest-arm-16-core

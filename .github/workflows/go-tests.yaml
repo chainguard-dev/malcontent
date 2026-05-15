@@ -13,7 +13,7 @@ on:
 
 env:
   GO_RELEASE: "go-1.26"
-  YARA_X_RELEASE: "1.14.0"
+  YARA_X_RELEASE: "1.16.0"
 
 permissions: {}
 
@@ -24,7 +24,7 @@ jobs:
     permissions:
       contents: read
     container:
-      image: cgr.dev/chainguard/wolfi-base:latest # zizmor: ignore[unpinned-images]
+      image: cgr.dev/chainguard/wolfi-base:latest@sha256:9a74366aa10eff2bf14dab0948123bd2c51703e1c553a73740ef687f723aecf4
       options: >-
         --cap-add DAC_OVERRIDE
         --cap-add SETGID
@@ -41,7 +41,7 @@ jobs:
       - name: Install dependencies
         run: |
           apk update
-          apk add curl findutils git gnutar ${{ env.GO_RELEASE }} make nodejs upx xz yara-x~${{ env.YARA_X_RELEASE }}
+          apk add curl findutils git gnutar "${GO_RELEASE}" make nodejs upx xz "yara-x~${YARA_X_RELEASE}"
 
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -58,7 +58,7 @@ jobs:
           echo "cache=$(go env GOCACHE)" >> "$GITHUB_OUTPUT"
 
       - name: Cache Go dependencies
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: |
             ${{ steps.go-env.outputs.modcache }}
@@ -75,7 +75,7 @@ jobs:
     permissions:
       contents: read
     container:
-      image: cgr.dev/chainguard/wolfi-base:latest # zizmor: ignore[unpinned-images]
+      image: cgr.dev/chainguard/wolfi-base:latest@sha256:9a74366aa10eff2bf14dab0948123bd2c51703e1c553a73740ef687f723aecf4
       options: >-
         --cap-add DAC_OVERRIDE
         --cap-add SETGID
@@ -92,7 +92,7 @@ jobs:
       - name: Install dependencies
         run: |
           apk update
-          apk add curl findutils git gnutar ${{ env.GO_RELEASE }} make nodejs upx xz yara-x~${{ env.YARA_X_RELEASE }}
+          apk add curl findutils git gnutar "${GO_RELEASE}" make nodejs upx xz "yara-x~${YARA_X_RELEASE}"
 
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -109,7 +109,7 @@ jobs:
           echo "cache=$(go env GOCACHE)" >> "$GITHUB_OUTPUT"
 
       - name: Cache Go dependencies
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: |
             ${{ steps.go-env.outputs.modcache }}
@@ -122,7 +122,7 @@ jobs:
         run: echo "commit=$(grep '^SAMPLES_COMMIT' Makefile | head -1 | cut -d'=' -f2 | tr -d ' ?')" >> "$GITHUB_OUTPUT"
 
       - name: Cache malcontent samples
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: out/chainguard-sandbox/malcontent-samples
           key: samples-${{ steps.samples.outputs.commit }}

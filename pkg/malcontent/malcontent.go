@@ -43,6 +43,7 @@ type Config struct {
 	QuantityIncreasesRisk bool
 	Renderer              Renderer
 	Report                bool
+	RuleCategories        []string
 	RuleFS                []fs.FS
 	Rules                 *yarax.Rules
 	Scan                  bool

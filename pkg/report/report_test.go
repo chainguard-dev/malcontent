@@ -85,6 +85,8 @@ func TestUpgradeRisk(t *testing.T) {
 		{"small-risky", 3, map[int]int{3: 3}, 8192, true},
 		{"large-not", 3, map[int]int{3: 3}, 1024 * 1024 * 1024, false},
 		{"large-yes", 3, map[int]int{3: 10}, 1024 * 1024 * 1024, true},
+		{"large-default-threshold", 3, map[int]int{3: 6}, 1024 * 1024 * 1024, true},
+		{"large-below-threshold", 3, map[int]int{3: 5}, 1024 * 1024 * 1024, false},
 	}
 
 	for _, tt := range tests {

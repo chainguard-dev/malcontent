@@ -486,7 +486,10 @@ func setupMatchHandler(ctx context.Context, matchChan chan matchResult, c malcon
 		case <-ctx.Done():
 			return
 		case match := <-matchChan:
-			if match.fr != nil && c.Renderer != nil && match.fr.RiskScore >= c.MinFileRisk {
+			if match.fr != nil {
+				TrimFileReport(match.fr, c.RuleCategories)
+			}
+			if match.fr != nil && c.Renderer != nil && match.fr.RiskScore >= c.MinFileRisk && len(match.fr.Behaviors) > 0 {
 				if err := c.Renderer.File(ctx, match.fr); err != nil {
 					logger.Errorf("render error: %v", err)
 				}
@@ -549,12 +552,14 @@ func handleArchiveFile(ctx context.Context, path string, c malcontent.Config, r 
 			return true
 		}
 
+		TrimFileReport(fr, c.RuleCategories)
+
 		if len(c.TrimPrefixes) > 0 {
 			key = report.TrimPrefixes(key, c.TrimPrefixes)
 		}
 
 		r.Files.Store(key, fr)
-		if c.Renderer != nil && r.Diff == nil && fr.RiskScore >= c.MinFileRisk {
+		if c.Renderer != nil && r.Diff == nil && fr.RiskScore >= c.MinFileRisk && len(fr.Behaviors) > 0 {
 			if err := c.Renderer.File(ctx, fr); err != nil {
 				logger.Errorf("render error: %v", err)
 			}
@@ -597,11 +602,13 @@ func handleSingleFile(ctx context.Context, path string, scanInfo scanPathInfo, c
 		}
 	}
 
+	TrimFileReport(fr, c.RuleCategories)
+
 	if len(c.TrimPrefixes) > 0 {
 		path = report.TrimPrefixes(path, c.TrimPrefixes)
 	}
 	r.Files.Store(path, fr)
-	if c.Renderer != nil && r.Diff == nil && fr.RiskScore >= c.MinFileRisk {
+	if c.Renderer != nil && r.Diff == nil && fr.RiskScore >= c.MinFileRisk && len(fr.Behaviors) > 0 {
 		if err := c.Renderer.File(ctx, fr); err != nil {
 			return fmt.Errorf("render: %w", err)
 		}
@@ -770,6 +777,8 @@ func Scan(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) 
 	if r == nil {
 		return nil, nil
 	}
+
+	ApplyCategoryFilter(r, c.RuleCategories)
 
 	r.Files.Range(func(key string, fr *malcontent.FileReport) bool {
 		if scanCtx.Err() != nil {
