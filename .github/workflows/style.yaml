@@ -4,6 +4,7 @@
 name: Code Style
 
 env:
+  CGO_ENABLED: "1"
   GO_RELEASE: "go-1.26"
   YARA_X_RELEASE: "1.16.0"
 
@@ -188,7 +189,7 @@ jobs:
       - name: Install dependencies
         run: |
           apk update
-          apk add curl findutils git "${GO_RELEASE}" nodejs "yara-x~${YARA_X_RELEASE}"
+          apk add curl findutils gcc git "${GO_RELEASE}" make nodejs pkgconf "yara-x~${YARA_X_RELEASE}"
 
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
