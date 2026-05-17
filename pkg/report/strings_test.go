@@ -408,3 +408,68 @@ func BenchmarkContainsUnprintableInvalid(b *testing.B) {
 		containsUnprintable(data)
 	}
 }
+
+// TestNewStringPoolSingleton verifies NewStringPool returns the same
+// process-wide instance on successive calls.
+func TestNewStringPoolSingleton(t *testing.T) {
+	t.Parallel()
+
+	p1 := NewStringPool()
+	p2 := NewStringPool()
+	if p1 != p2 {
+		t.Errorf("expected pointer-equal pools, got distinct instances: %p vs %p", p1, p2)
+	}
+}
+
+// TestNewStringPoolSingletonParallel verifies that concurrent callers
+// of NewStringPool all observe the same pointer — the once-value init
+// is race-free under contention.
+func TestNewStringPoolSingletonParallel(t *testing.T) {
+	t.Parallel()
+
+	const parallelism = 256
+	pointers := make([]*StringPool, parallelism)
+
+	var wg sync.WaitGroup
+	wg.Add(parallelism)
+	start := make(chan struct{})
+	for i := range parallelism {
+		wg.Go(func() {
+			defer wg.Done()
+			<-start
+			pointers[i] = NewStringPool()
+		})
+	}
+	close(start)
+	wg.Wait()
+
+	first := pointers[0]
+	for i, p := range pointers {
+		if p != first {
+			t.Errorf("goroutine %d observed pool %p, want %p", i, p, first)
+		}
+	}
+}
+
+// TestNewStringPoolSingletonSharesState verifies that two references
+// returned by NewStringPool see the same interned strings — proves
+// the underlying state is shared, not merely the pointer.
+func TestNewStringPoolSingletonSharesState(t *testing.T) {
+	t.Parallel()
+
+	p1 := NewStringPool()
+	p2 := NewStringPool()
+
+	// Distinct heap allocations of the same bytes so identity is
+	// established by the pool, not by the literal pool of the linker.
+	a := string([]byte("singleton-shared-state-marker"))
+	b := string([]byte("singleton-shared-state-marker"))
+
+	s1 := p1.Intern(a)
+	s2 := p2.Intern(b)
+
+	if StringDataPointer(s1) != StringDataPointer(s2) {
+		t.Errorf("interning the same value through two NewStringPool() references returned different backing pointers: %v vs %v",
+			StringDataPointer(s1), StringDataPointer(s2))
+	}
+}

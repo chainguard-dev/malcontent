@@ -1,4 +1,4 @@
-# macOS/2024.Chrome_Updater/upd: high
+# macOS/2024.Chrome_Updater/upd: critical
 anti-behavior/random_behavior: low
 anti-static/binary/opaque: medium
 c2/addr/url: low

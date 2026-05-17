@@ -17,16 +17,27 @@ type StringPool struct {
 	strings *xsync.Map[string, string]
 }
 
-// clear removes all strings from the pool to free memory.
-func (sp *StringPool) clear() {
-	sp.strings.Clear()
-}
+// clear is retained as a no-op so that the public surface is stable
+// for in-package callers. The pool's lifetime spans the process, so
+// dropping entries mid-process would race in-flight Intern calls and
+// erase deduplicated strings that may still be reachable from result
+// slices held by other goroutines.
+func (sp *StringPool) clear() {}
 
-// NewStringPool creates a new string pool.
-func NewStringPool() *StringPool {
+// stringPoolSingleton lazily constructs the package-wide pool the
+// first time NewStringPool is invoked. sync.OnceValue is lock-free
+// after the first call and race-free under concurrent first callers.
+var stringPoolSingleton = sync.OnceValue(func() *StringPool {
 	return &StringPool{
 		strings: xsync.NewMap[string, string](),
 	}
+})
+
+// NewStringPool returns the process-wide string pool. Successive calls
+// return the same instance so interning state is shared across every
+// match processor for the lifetime of the process.
+func NewStringPool() *StringPool {
+	return stringPoolSingleton()
 }
 
 // Intern returns an interned version of the input string.
@@ -61,7 +72,6 @@ var matchResultPool = sync.Pool{
 // clearFileContent releases the file content to free memory after processing.
 func (mp *matchProcessor) clearFileContent() {
 	mp.fc = nil
-	mp.pool.clear()
 }
 
 // process performantly handles the conversion of matched data to strings.

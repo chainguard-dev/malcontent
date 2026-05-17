@@ -32,7 +32,7 @@ func ExtractDeb(ctx context.Context, d, f string) (retErr error) {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting deb")
 
-	fd, err := os.Open(f)
+	fd, err := os.Open(f) // #nosec G304 -- archive path resolved and validated by caller before extraction
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
@@ -73,7 +73,7 @@ func ExtractDeb(ctx context.Context, d, f string) (retErr error) {
 				return fmt.Errorf("failed to extract directory: %w", err)
 			}
 		case tar.TypeReg:
-			if err := handleFile(target, df.Data); err != nil {
+			if err := handleFile(target, df.Data, nil); err != nil {
 				return fmt.Errorf("failed to extract file: %w", err)
 			}
 		case tar.TypeSymlink:

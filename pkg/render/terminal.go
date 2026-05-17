@@ -396,23 +396,23 @@ func renderFileSummary(ctx context.Context, fr *malcontent.FileReport, w io.Writ
 			prefix := "│"
 			// no evidence to give
 			if e == "" {
-				fmt.Fprint(w, prefix)
-				pc.Fprintln(w, content)
+				_, _ = fmt.Fprint(w, prefix)
+				_, _ = pc.Fprintln(w, content)
 				continue
 			}
 
-			fmt.Fprint(w, prefix)
-			pc.Fprint(w, content)
-			color.New(color.FgHiBlack).Fprint(w, ":")
+			_, _ = fmt.Fprint(w, prefix)
+			_, _ = pc.Fprint(w, content)
+			_, _ = color.New(color.FgHiBlack).Fprint(w, ":")
 			e = color.RGB(255, 255, 255).Sprint(e)
 
 			// Two-line output for long evidence strings
 			if ansiLineLength(content+e)+1 > width && len(e) > 4 {
-				pc.Fprintln(w, "\n"+truncate(fmt.Sprintf("%s%s         %s", prefix, diff, e), width))
+				_, _ = pc.Fprintln(w, "\n"+truncate(fmt.Sprintf("%s%s         %s", prefix, diff, e), width))
 				continue
 			}
 			// Single-line output for short evidence
-			pc.Fprintln(w, " "+e)
+			_, _ = pc.Fprintln(w, " "+e)
 		}
 	}
 	fmt.Fprintf(w, "│\n")

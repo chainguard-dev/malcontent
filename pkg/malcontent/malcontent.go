@@ -5,6 +5,7 @@ package malcontent
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"io/fs"
 
@@ -12,6 +13,36 @@ import (
 	"github.com/puzpuzpuz/xsync/v4"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
+
+// KeepalivePolicy selects how the OCI HTTP transport configures keepalives.
+type KeepalivePolicy string
+
+const (
+	KeepalivePolicyGoDefault          KeepalivePolicy = "go-default"
+	KeepalivePolicyExplicitlyEnabled  KeepalivePolicy = "enabled"
+	KeepalivePolicyExplicitlyDisabled KeepalivePolicy = "disabled"
+)
+
+func (p KeepalivePolicy) IsValid() bool {
+	switch p {
+	case "", KeepalivePolicyGoDefault, KeepalivePolicyExplicitlyEnabled, KeepalivePolicyExplicitlyDisabled:
+		return true
+	}
+	return false
+}
+
+// ParseKeepalivePolicy maps a string to a KeepalivePolicy. Empty input maps to go-default.
+func ParseKeepalivePolicy(s string) (KeepalivePolicy, error) {
+	switch s {
+	case "", "go-default":
+		return KeepalivePolicyGoDefault, nil
+	case "enabled":
+		return KeepalivePolicyExplicitlyEnabled, nil
+	case "disabled":
+		return KeepalivePolicyExplicitlyDisabled, nil
+	}
+	return "", fmt.Errorf("invalid keepalive policy %q: expected one of go-default, enabled, disabled", s)
+}
 
 // Renderer is a common interface for Renderers.
 type Renderer interface {
@@ -22,35 +53,71 @@ type Renderer interface {
 }
 
 type Config struct {
-	Concurrency           int
-	ExitExtraction        bool
-	ExitFirstHit          bool
-	ExitFirstMiss         bool
-	FileRiskChange        bool
-	FileRiskIncrease      bool
-	IgnoreSelf            bool
-	IgnoreTags            []string
-	IncludeDataFiles      bool
-	MaxDepth              int
-	MaxImageSize          int64
-	MaxScanFiles          int
-	MinFileRisk           int
-	MinRisk               int
-	OCI                   bool
-	OCIAuth               bool
-	Output                io.Writer
-	Processes             bool
-	QuantityIncreasesRisk bool
-	Renderer              Renderer
-	Report                bool
-	RuleCategories        []string
-	RuleFS                []fs.FS
-	Rules                 *yarax.Rules
-	Scan                  bool
-	ScanPaths             []string
-	Sensitivity           int
-	Stats                 bool
-	TrimPrefixes          []string
+	Concurrency    int
+	ExitExtraction bool
+	// ExitOnExtractorPanic: when true, fail-loud on extractor panic by
+	// terminating the process after the panic is logged. Zero-value false
+	// preserves the historical catch-and-continue behavior.
+	ExitOnExtractorPanic bool
+	ExitFirstHit         bool
+	ExitFirstMiss        bool
+	FileRiskChange       bool
+	FileRiskIncrease     bool
+	IgnoreSelf           bool
+	IgnoreTags           []string
+	IncludeDataFiles     bool
+	// MaxArchiveBytes caps the total uncompressed bytes produced by archive
+	// extraction. Zero means use file.DefaultMaxArchiveBytes.
+	MaxArchiveBytes int64
+	// MaxArchiveRatio caps the uncompressed:compressed expansion ratio.
+	// Zero means use file.DefaultMaxArchiveRatio.
+	MaxArchiveRatio float64
+	MaxDepth        int
+	MaxImageSize    int64
+	MaxScanFiles    int
+	MinFileRisk     int
+	MinRisk         int
+	OCI             bool
+	OCIAuth         bool
+	// OCI transport hardening fields. Zero values trigger sane defaults inside prepareImage; configure via With... setters or environment.
+	OCIPullTimeoutSeconds    int
+	OCIRetryMaxAttempts      int
+	OCIRetryMaxWindowSeconds int
+	OCIPerHostSlots          int
+	OCIKeepalivePolicy       KeepalivePolicy
+	OCIKeepaliveSeconds      int
+	OCIProxyOptIn            bool
+	OCICABundlePath          string
+	Output                   io.Writer
+	Processes                bool
+	QuantityIncreasesRisk    bool
+	Renderer                 Renderer
+	Report                   bool
+	RuleCategories           []string
+	RuleFS                   []fs.FS
+	Rules                    *yarax.Rules
+	Scan                     bool
+	ScanPaths                []string
+	Sensitivity              int
+	Skipped                  *xsync.Map[string, struct{}]
+	Stats                    bool
+	TrimPrefixes             []string
+}
+
+// configCtxKey is the unexported key used to attach a *Config to a context.
+type configCtxKey struct{}
+
+// ContextWithConfig stores c on ctx. The returned context is safe to pass to
+// any helper that may need extractor configuration (e.g., recoverExtractor).
+func ContextWithConfig(ctx context.Context, c *Config) context.Context {
+	return context.WithValue(ctx, configCtxKey{}, c)
+}
+
+// ConfigFromContext returns the *Config previously attached via
+// ContextWithConfig, or nil if none is present.
+func ConfigFromContext(ctx context.Context) *Config {
+	c, _ := ctx.Value(configCtxKey{}).(*Config)
+	return c
 }
 
 type Behavior struct {

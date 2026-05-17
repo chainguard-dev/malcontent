@@ -27,7 +27,7 @@ func extractFileFromCPIO(ctx context.Context, cr *cpio.Reader, target string, bu
 		return fmt.Errorf("failed to create parent directory: %w", err)
 	}
 
-	out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+	out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600) // #nosec G304 -- target validated by IsValidPath + ValidateResolvedPath against sandbox dir before reaching this helper
 	if err != nil {
 		return fmt.Errorf("failed to create file: %w", err)
 	}
@@ -77,7 +77,7 @@ func ExtractRPM(ctx context.Context, d, f string) (retErr error) {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting rpm")
 
-	rpmFile, err := os.Open(f)
+	rpmFile, err := os.Open(f) // #nosec G304 -- archive path resolved and validated by caller before extraction
 	if err != nil {
 		return fmt.Errorf("failed to open RPM file: %w", err)
 	}

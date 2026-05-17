@@ -139,7 +139,9 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	if c.Scan && risk < threshold && !c.QuantityIncreasesRisk {
 		fr := &malcontent.FileReport{Skipped: "overall risk too low for scan", Path: path}
 		if isArchive {
-			os.RemoveAll(path)
+			if rmErr := os.RemoveAll(path); rmErr != nil {
+				logger.Warnf("remove skipped archive entry %s: %v", path, rmErr)
+			}
 		}
 		return fr, nil
 	}
@@ -149,6 +151,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	buf := readPool.Get(min(size, file.ReadBuffer)) //nolint:nilaway // the buffer pool is initialized in init()
 	defer readPool.Put(buf)
 
+	// #nosec G304 -- path originates from findFilesRecursively over caller-supplied scan paths or archive temp dirs already validated by ValidateResolvedPath/IsValidPath during extraction
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -472,7 +475,23 @@ func processPaths(ctx context.Context, paths []string, scanInfo scanPathInfo, c 
 }
 
 func getMaxConcurrency(configured int) int {
-	return max(1, configured)
+	procs := runtime.GOMAXPROCS(0)
+	if configured <= 0 {
+		return 1
+	}
+	if configured > procs {
+		return procs
+	}
+	return configured
+}
+
+// channelBufferSize bounds the path-dispatch channel capacity so a caller
+// scanning millions of paths cannot allocate a millions-deep slice for the
+// channel buffer; we never need more in-flight than the worker pool can
+// consume, so capping at maxConcurrency is the upper bound. When numPaths is
+// below the concurrency cap, the smaller value is the right capacity.
+func channelBufferSize(maxConcurrency, numPaths int) int {
+	return min(maxConcurrency, numPaths)
 }
 
 func setupMatchHandler(ctx context.Context, matchChan chan matchResult, c malcontent.Config, cancel context.CancelFunc, logger *clog.Logger) func() {
@@ -764,6 +783,11 @@ func processFile(ctx context.Context, c malcontent.Config, ruleFS []fs.FS, path 
 
 // Scan YARA scans a data source, applying output filters if necessary.
 func Scan(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) {
+	// Attach the Config to ctx so downstream archive extractors (e.g.
+	// ExtractZip's resolveArchiveCaps) observe per-scan caps such as
+	// MaxArchiveBytes; without this the extractor falls back to package
+	// defaults and ErrArchiveBytesCap can never fire for caller-tuned limits.
+	ctx = malcontent.ContextWithConfig(ctx, &c)
 	scanCtx, cancel := context.WithCancel(ctx)
 	defer cancel()
 

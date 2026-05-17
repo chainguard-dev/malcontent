@@ -49,13 +49,13 @@ func ExtractZstd(ctx context.Context, d string, f string) error {
 		return fmt.Errorf("failed to create directory for decomrpessed zstd file: %w", err)
 	}
 
-	out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+	out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600) // #nosec G304 -- target validated by IsValidPath against sandbox dir d
 	if err != nil {
 		return fmt.Errorf("failed to create decompressed zstd file: %w", err)
 	}
 	defer out.Close()
 
-	zstdFile, err := os.Open(f)
+	zstdFile, err := os.Open(f) // #nosec G304 -- archive path resolved and validated by caller before extraction
 	if err != nil {
 		return fmt.Errorf("failed to open zstd file: %w", err)
 	}

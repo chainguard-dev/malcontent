@@ -183,6 +183,24 @@ func TestNewConfig(t *testing.T) {
 	}
 }
 
+func TestNewConfig_InitializesSkipped(t *testing.T) {
+	t.Parallel()
+
+	cfg := newConfig(Config{})
+	if cfg == nil {
+		t.Fatal("newConfig() returned nil")
+	}
+	if cfg.Skipped == nil {
+		t.Fatal("newConfig() Skipped is nil, want non-nil *xsync.Map")
+	}
+
+	const key = "/test/path"
+	cfg.Skipped.Store(key, struct{}{})
+	if _, ok := cfg.Skipped.Load(key); !ok {
+		t.Fatalf("newConfig() Skipped did not retain stored entry %q", key)
+	}
+}
+
 func TestRefreshValidationErrors(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
@@ -247,6 +265,63 @@ func TestRefreshValidationErrors(t *testing.T) {
 				t.Error("Refresh() should return error for invalid config")
 			}
 		})
+	}
+}
+
+func TestRefreshRejectsUnresolvedCommit(t *testing.T) {
+	// not parallel: mutates package-level resolveCommit hook
+	original := resolveCommit
+	t.Cleanup(func() { resolveCommit = original })
+
+	resolveCommit = func() (string, error) {
+		return "", errors.New("release commit unresolved: \"main\" is not a 40-character lowercase hex SHA")
+	}
+
+	ctx := context.Background()
+	logger := clog.FromContext(ctx)
+
+	cfg := Config{
+		SamplesPath:  t.TempDir(),
+		TestDataPath: t.TempDir(),
+		Concurrency:  1,
+	}
+
+	err := Refresh(ctx, cfg, logger)
+	if err == nil {
+		t.Fatal("Refresh() error = nil, want non-nil when commit resolver fails")
+	}
+	if !strings.Contains(err.Error(), "refresh requires a resolved commit SHA") {
+		t.Errorf("Refresh() error = %v, want it to contain %q", err, "refresh requires a resolved commit SHA")
+	}
+	if !strings.Contains(err.Error(), "release commit unresolved") {
+		t.Errorf("Refresh() error = %v, want it to wrap the underlying resolver error", err)
+	}
+}
+
+func TestRefreshAcceptsResolvedCommit(t *testing.T) {
+	// not parallel: mutates package-level resolveCommit hook
+	original := resolveCommit
+	t.Cleanup(func() { resolveCommit = original })
+
+	resolveCommit = func() (string, error) {
+		return "0123456789abcdef0123456789abcdef01234567", nil
+	}
+
+	ctx := context.Background()
+	logger := clog.FromContext(ctx)
+
+	// Use an empty SamplesPath to force a validation error AFTER the guard.
+	cfg := Config{
+		TestDataPath: t.TempDir(),
+		Concurrency:  1,
+	}
+
+	err := Refresh(ctx, cfg, logger)
+	if err == nil {
+		t.Fatal("Refresh() error = nil, want validation failure on empty SamplesPath")
+	}
+	if strings.Contains(err.Error(), "refresh requires a resolved commit SHA") {
+		t.Errorf("Refresh() error = %v, should not surface the commit guard when resolver succeeds", err)
 	}
 }
 
@@ -426,7 +501,7 @@ func TestExecuteRefreshClosesFilesOnCancel(t *testing.T) {
 	for i, f := range files {
 		_, err := f.Write([]byte("should fail"))
 		if err == nil {
-			t.Errorf("file %d (%s) is still open after cancelled executeRefresh", i, f.Name())
+			t.Errorf("file %d (%s) is still open after canceled executeRefresh", i, f.Name())
 		}
 	}
 }

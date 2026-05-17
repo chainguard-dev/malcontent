@@ -6,6 +6,7 @@ package compile
 import (
 	"context"
 	"fmt"
+	"io"
 	"io/fs"
 	"log/slog"
 	"os"
@@ -271,11 +272,15 @@ func getCacheDir() (string, error) {
 
 // loadCachedRules attempts to load rules from the local, compiled rules.
 func loadCachedRules(cacheFile string) (*yarax.Rules, error) {
-	f, err := os.Open(cacheFile)
+	if err := verifyCacheSidecar(cacheFile); err != nil {
+		return nil, err
+	}
+
+	f, err := os.Open(cacheFile) // #nosec G304 -- rule cache path derived from getRulesHash + cache dir permission gate
 	if err != nil {
 		return nil, err
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	compiledRules, err := yarax.ReadFrom(f)
 	if err != nil {
@@ -283,6 +288,32 @@ func loadCachedRules(cacheFile string) (*yarax.Rules, error) {
 	}
 
 	return compiledRules, nil
+}
+
+// Note: caches written before the sidecar landed will fail integrity check and recompute.
+func verifyCacheSidecar(cacheFile string) error {
+	sidecarPath := cacheFile + ".sha256"
+	expectedBytes, err := os.ReadFile(sidecarPath) // #nosec G304 -- sidecar path derived from cacheFile
+	if err != nil {
+		return fmt.Errorf("cache integrity sidecar missing: %w", err)
+	}
+	expected := strings.TrimSpace(string(expectedBytes))
+
+	f, err := os.Open(cacheFile) // #nosec G304 -- cache path derived from getRulesHash + cache dir permission gate
+	if err != nil {
+		return fmt.Errorf("open cache for integrity check: %w", err)
+	}
+	defer func() { _ = f.Close() }()
+
+	hasher := sha256.New()
+	if _, err := io.Copy(hasher, f); err != nil {
+		return fmt.Errorf("hash cache for integrity check: %w", err)
+	}
+	actual := fmt.Sprintf("%x", hasher.Sum(nil))
+	if actual != expected {
+		return fmt.Errorf("cache integrity mismatch: expected %s got %s", expected, actual)
+	}
+	return nil
 }
 
 // saveCachedRules saves rules to a local file.
@@ -295,22 +326,78 @@ func saveCachedRules(compiledRules *yarax.Rules, cacheFile string) error {
 	tmpFile := f.Name()
 
 	if _, err := compiledRules.WriteTo(f); err != nil {
-		f.Close()
-		os.Remove(tmpFile)
+		_ = f.Close()
+		_ = os.Remove(tmpFile)
 		return fmt.Errorf("write rules to cache: %w", err)
 	}
 
 	if err := f.Close(); err != nil {
-		os.Remove(tmpFile)
+		_ = os.Remove(tmpFile)
 		return fmt.Errorf("close cache file: %w", err)
 	}
 
+	digest, err := hashFile(tmpFile)
+	if err != nil {
+		_ = os.Remove(tmpFile)
+		return fmt.Errorf("hash cache file: %w", err)
+	}
+
+	tmpSidecar, err := writeSidecarTemp(cacheDir, digest)
+	if err != nil {
+		_ = os.Remove(tmpFile)
+		return fmt.Errorf("write sidecar: %w", err)
+	}
+
+	// Rename cache before sidecar so a partial state surfaces as a cache miss in loadCachedRules.
 	if err := os.Rename(tmpFile, cacheFile); err != nil {
-		os.Remove(tmpFile)
+		_ = os.Remove(tmpFile)
+		_ = os.Remove(tmpSidecar)
 		return fmt.Errorf("rename cache file: %w", err)
+	}
+	if err := os.Rename(tmpSidecar, cacheFile+".sha256"); err != nil {
+		_ = os.Remove(tmpSidecar)
+		return fmt.Errorf("rename sidecar file: %w", err)
 	}
 
 	return nil
+}
+
+// hashFile returns the lowercase hex sha256 digest of a file's contents.
+func hashFile(path string) (string, error) {
+	f, err := os.Open(path) // #nosec G304 -- path supplied by saveCachedRules from CreateTemp
+	if err != nil {
+		return "", err
+	}
+	defer func() { _ = f.Close() }()
+	hasher := sha256.New()
+	if _, err := io.Copy(hasher, f); err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%x", hasher.Sum(nil)), nil
+}
+
+// writeSidecarTemp creates a temporary sidecar file in dir containing digest + newline and returns its path.
+func writeSidecarTemp(dir, digest string) (string, error) {
+	sf, err := os.CreateTemp(dir, ".rules-*.sha256.tmp")
+	if err != nil {
+		return "", err
+	}
+	tmpPath := sf.Name()
+	if _, err := sf.WriteString(digest + "\n"); err != nil {
+		_ = sf.Close()
+		_ = os.Remove(tmpPath)
+		return "", err
+	}
+	if err := sf.Sync(); err != nil {
+		_ = sf.Close()
+		_ = os.Remove(tmpPath)
+		return "", err
+	}
+	if err := sf.Close(); err != nil {
+		_ = os.Remove(tmpPath)
+		return "", err
+	}
+	return tmpPath, nil
 }
 
 // getYaraXVersion returns the yara-x module version from build info.

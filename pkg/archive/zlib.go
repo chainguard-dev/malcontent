@@ -37,7 +37,7 @@ func ExtractZlib(ctx context.Context, d string, f string) error {
 	buf := archivePool.Get(file.ExtractBuffer) //nolint:nilaway // the buffer pool is created in archive.go
 	defer archivePool.Put(buf)
 
-	zf, err := os.Open(f)
+	zf, err := os.Open(f) // #nosec G304 -- archive path resolved and validated by caller before extraction
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
@@ -56,7 +56,7 @@ func ExtractZlib(ctx context.Context, d string, f string) error {
 	}
 	defer zr.Close()
 
-	out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+	out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600) // #nosec G304 -- target validated by IsValidPath against sandbox dir d
 	if err != nil {
 		return fmt.Errorf("failed to create extracted file: %w", err)
 	}

@@ -10,6 +10,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -270,6 +271,58 @@ func TestCacheFileSize(t *testing.T) {
 
 	t.Logf("Cache file: %s", cacheFile)
 	t.Logf("Cache file size: %d bytes (%.2f MB)", fi.Size(), float64(fi.Size())/1024/1024)
+}
+
+func TestCacheIntegrity_SidecarRoundtrip(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	tempDir := t.TempDir()
+	rules, err := Recursive(ctx, getAllRuleFS())
+	if err != nil {
+		t.Fatalf("Recursive failed: %v", err)
+	}
+
+	cacheFile := filepath.Join(tempDir, "integrity.cache")
+	if err := saveCachedRules(rules, cacheFile); err != nil {
+		t.Fatalf("saveCachedRules failed: %v", err)
+	}
+
+	if _, err := os.Stat(cacheFile); err != nil {
+		t.Fatalf("cache file missing: %v", err)
+	}
+	if _, err := os.Stat(cacheFile + ".sha256"); err != nil {
+		t.Fatalf("sidecar missing: %v", err)
+	}
+
+	if _, err := loadCachedRules(cacheFile); err != nil {
+		t.Fatalf("loadCachedRules failed before tamper: %v", err)
+	}
+
+	bs, err := os.ReadFile(cacheFile)
+	if err != nil {
+		t.Fatalf("read cache: %v", err)
+	}
+	if len(bs) == 0 {
+		t.Fatal("cache file is empty; cannot tamper")
+	}
+	bs[0] ^= 0xff
+	if err := os.WriteFile(cacheFile, bs, 0o600); err != nil {
+		t.Fatalf("tamper write: %v", err)
+	}
+
+	if _, err := loadCachedRules(cacheFile); err == nil {
+		t.Fatal("expected integrity error after tamper, got nil")
+	} else if !strings.Contains(err.Error(), "integrity") {
+		t.Fatalf("expected integrity error, got: %v", err)
+	}
+
+	if err := os.Remove(cacheFile + ".sha256"); err != nil {
+		t.Fatalf("remove sidecar: %v", err)
+	}
+	if _, err := loadCachedRules(cacheFile); err == nil {
+		t.Fatal("expected missing-sidecar error, got nil")
+	}
 }
 
 // BenchmarkRecursive benchmarks uncached rule compilation.

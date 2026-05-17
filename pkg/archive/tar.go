@@ -24,7 +24,8 @@ import (
 // extractTar extracts .apk and .tar* archives.
 //
 //nolint:cyclop,gocognit // ignore complexity of 42, 99 respectively
-func ExtractTar(ctx context.Context, d string, f string) error {
+func ExtractTar(ctx context.Context, d string, f string) (err error) {
+	defer recoverExtractor(ctx, "tar", f, &err)
 	if ctx.Err() != nil {
 		return ctx.Err()
 	}
@@ -45,8 +46,19 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 	buf := tarPool.Get(file.ExtractBuffer) //nolint:nilaway // the buffer pool is created in archive.go
 	defer tarPool.Put(buf)
 
+	// Shared counter across every member of the tar enforces a uniform byte
+	// and ratio ceiling. InputBytes seeds the ratio denominator. Caps prefer
+	// ctx-attached Config values; absent/zero values fall back to the
+	// package defaults so zero-config callers still receive a finite cap.
+	maxBytes, maxRatio := resolveArchiveCaps(ctx)
+	counter := &file.ArchiveCounter{
+		MaxBytes:   maxBytes,
+		MaxRatio:   int64(maxRatio),
+		InputBytes: fi.Size(),
+	}
+
 	filename := filepath.Base(f)
-	tf, err := os.Open(f)
+	tf, err := os.Open(f) // #nosec G304 -- archive path resolved and validated by caller before extraction
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
@@ -92,7 +104,7 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 			return fmt.Errorf("failed to create directory for file: %w", err)
 		}
 
-		out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+		out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600) // #nosec G304 -- target path computed under sandbox dir d, parent dir created with 0700
 		if err != nil {
 			return fmt.Errorf("failed to create file: %w", err)
 		}
@@ -109,6 +121,9 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 				written += int64(n)
 				if written > file.MaxBytes {
 					return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", file.MaxBytes, target)
+				}
+				if capErr := counter.Add(n); capErr != nil {
+					return fmt.Errorf("xz extraction aborted on %s: %w", target, capErr)
 				}
 				if _, writeErr := out.Write(buf[:n]); writeErr != nil {
 					return fmt.Errorf("failed to write file contents: %w", writeErr)
@@ -131,7 +146,7 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 		if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
 			return fmt.Errorf("failed to create directory for file: %w", err)
 		}
-		out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+		out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600) // #nosec G304 -- target path computed under sandbox dir d, parent dir created with 0700
 		if err != nil {
 			return fmt.Errorf("failed to create file: %w", err)
 		}
@@ -148,6 +163,10 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 				written += int64(n)
 				if written > file.MaxBytes {
 					return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", file.MaxBytes, target)
+				}
+
+				if capErr := counter.Add(n); capErr != nil {
+					return fmt.Errorf("bz2 extraction aborted on %s: %w", target, capErr)
 				}
 
 				if _, writeErr := out.Write(buf[:n]); writeErr != nil {
@@ -168,6 +187,7 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 		tr = tar.NewReader(tf)
 	}
 
+	sem := extractionSemaphore()
 	for {
 		header, err := tr.Next()
 
@@ -193,23 +213,32 @@ func ExtractTar(ctx context.Context, d string, f string) error {
 			return err
 		}
 
-		switch header.Typeflag {
-		case tar.TypeDir:
-			if err := handleDirectory(target); err != nil {
-				return fmt.Errorf("failed to extract directory: %w", err)
+		if err := func() error {
+			if err := sem.Acquire(ctx, 1); err != nil {
+				return err
 			}
-		case tar.TypeReg:
-			if err := handleFile(target, tr); err != nil {
-				return fmt.Errorf("failed to extract file: %w", err)
+			defer sem.Release(1)
+			switch header.Typeflag {
+			case tar.TypeDir:
+				if err := handleDirectory(target); err != nil {
+					return fmt.Errorf("failed to extract directory: %w", err)
+				}
+			case tar.TypeReg:
+				if err := handleFile(target, tr, counter); err != nil {
+					return fmt.Errorf("failed to extract file: %w", err)
+				}
+			case tar.TypeSymlink:
+				if err := handleSymlink(d, clean, header.Linkname); err != nil {
+					return fmt.Errorf("failed to create symlink: %w", err)
+				}
+			case tar.TypeLink:
+				if err := handleHardlink(d, clean, header.Linkname); err != nil {
+					return fmt.Errorf("failed to create hardlink: %w", err)
+				}
 			}
-		case tar.TypeSymlink:
-			if err := handleSymlink(d, clean, header.Linkname); err != nil {
-				return fmt.Errorf("failed to create symlink: %w", err)
-			}
-		case tar.TypeLink:
-			if err := handleHardlink(d, clean, header.Linkname); err != nil {
-				return fmt.Errorf("failed to create hardlink: %w", err)
-			}
+			return nil
+		}(); err != nil {
+			return err
 		}
 	}
 	return nil

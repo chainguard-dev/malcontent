@@ -9,6 +9,51 @@
 #      ./update.sh
 
 set -ex -o pipefail
+IFS=$'\n\t'
+
+# Pinned SHA256 hashes for HTTPS-downloaded release artifacts, keyed by release tag.
+# YARAForge does not publish a SHA256SUMS manifest or a sigstore signature for its
+# release zips, so we pin the artifact hash directly (trust-on-first-use). To bump
+# a dependency, run this script, copy the computed hash printed in the abort
+# message, and append a new pinned entry below.
+#
+# yara-forge-rules-full.zip @ release tag 20260517
+# shellcheck disable=SC2034  # referenced indirectly via ${!pin_var}
+YARAFORGE_FULL_ZIP_SHA256_20260517="94dbfade552a4fd7cfcd8213ddfc0d96f4a01a37c036626f645402e538a03726"
+
+# sha256_of computes the sha256 of a file using the platform-appropriate tool.
+# Prints only the hex digest to stdout.
+sha256_of() {
+	local path=$1
+	if command -v sha256sum >/dev/null 2>&1; then
+		sha256sum "${path}" | awk '{print $1}'
+	elif command -v shasum >/dev/null 2>&1; then
+		shasum -a 256 "${path}" | awk '{print $1}'
+	else
+		echo "error: no sha256 tool available (need sha256sum or shasum)" >&2
+		exit 3
+	fi
+}
+
+# verify_pinned_sha256 aborts if the file at $1 does not match the pinned hex
+# digest $2. $3 is a human-readable label for diagnostics.
+verify_pinned_sha256() {
+	local path=$1
+	local expected=$2
+	local label=$3
+	local actual
+	actual=$(sha256_of "${path}")
+	if [[ "${actual}" != "${expected}" ]]; then
+		echo "error: sha256 mismatch for ${label}" >&2
+		echo "  expected: ${expected}" >&2
+		echo "  actual:   ${actual}" >&2
+		echo "  path:     ${path}" >&2
+		echo "If the upstream release tag has been bumped, update the pinned" >&2
+		echo "constant at the top of this script to the actual value above." >&2
+		exit 4
+	fi
+	echo "verified sha256 for ${label}: ${actual}"
+}
 
 # latest_github_release returns the most recent release tag for a GitHub project
 latest_github_release() {
@@ -97,6 +142,18 @@ function update_dep() {
 	YARAForge)
 		rel=$(latest_github_release YARAHQ/yara-forge)
 		curl -L -o "${tmpdir}"/yaraforge.zip "https://github.com/YARAHQ/yara-forge/releases/download/${rel}/yara-forge-rules-full.zip"
+		local pin_var="YARAFORGE_FULL_ZIP_SHA256_${rel}"
+		local expected_sha=${!pin_var:-}
+		if [[ -z "${expected_sha}" ]]; then
+			local observed_sha
+			observed_sha=$(sha256_of "${tmpdir}"/yaraforge.zip)
+			echo "error: no pinned sha256 for YARAForge release tag ${rel}" >&2
+			echo "  observed sha256: ${observed_sha}" >&2
+			echo "Add the following line near the top of this script, then re-run:" >&2
+			echo "  ${pin_var}=\"${observed_sha}\"" >&2
+			exit 5
+		fi
+		verify_pinned_sha256 "${tmpdir}"/yaraforge.zip "${expected_sha}" "yara-forge-rules-full.zip@${rel}"
 		unzip -o -j "${tmpdir}"/yaraforge.zip packages/full/yara-rules-full.yar -d "${kind}"
 		;;
 	huntress)

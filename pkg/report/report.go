@@ -4,10 +4,14 @@
 package report
 
 import (
+	"bufio"
+	"bytes"
 	"context"
 	"fmt"
 	"index/suffixarray"
+	"io/fs"
 	"maps"
+	"math"
 	"net/url"
 	"path/filepath"
 	"regexp"
@@ -15,10 +19,13 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
+	"github.com/chainguard-dev/malcontent/pkg/release"
+	"github.com/chainguard-dev/malcontent/rules"
 
 	yarax "github.com/VirusTotal/yara-x/go"
 )
@@ -176,9 +183,10 @@ func thirdPartyKey(path string, rule string) string {
 	return strings.TrimRight(fmt.Sprintf("3P/%s/%s", src, strings.Join(ruleName, "_")), "/")
 }
 
-// thirdParty returns whether the rule is sourced from a 3rd party.
+// thirdParty reports whether a rule originates from a third-party feed.
+// A rule is third-party iff its source path begins with "yara/".
 func thirdParty(src string) bool {
-	return strings.Contains(src, "yara/")
+	return strings.HasPrefix(src, "yara/")
 }
 
 func isValidURL(s string) bool {
@@ -222,10 +230,106 @@ func generateKey(src string, rule string) string {
 	return strings.TrimRight(result, "/")
 }
 
+// ruleDeclRE matches a YARA rule declaration at the start of a line.
+// Anchored at column zero so commented or quoted occurrences of "rule"
+// inside a string literal do not match. Bounded `\w+` has no backtracking.
+var ruleDeclRE = regexp.MustCompile(`^rule\s+(\w+)`)
+
+const (
+	// ruleIndexMaxEntries bounds the size of ruleLineIndex. The rules tree
+	// is in the low thousands; the cap is a safety margin that guards
+	// against pathological embed contents.
+	ruleIndexMaxEntries = 4096
+	// ruleMaxLines caps the line counter to avoid signed-int overflow on
+	// hostile inputs. No real rule file approaches this.
+	ruleMaxLines = math.MaxInt32
+)
+
+var (
+	ruleLineIndexOnce sync.Once
+	ruleLineIndex     map[string]int
+	errRuleLineIndex  error
+)
+
+// buildRuleLineIndex walks the embedded rules.FS exactly once, mapping
+// "<src>:<rule_name>" to the 1-based line of its declaration. The result
+// is cached in ruleLineIndex; subsequent callers read the map directly.
+func buildRuleLineIndex() (map[string]int, error) {
+	idx := make(map[string]int, 2048)
+	err := fs.WalkDir(rules.FS, ".", func(path string, d fs.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
+		if d.IsDir() {
+			return nil
+		}
+		ext := filepath.Ext(path)
+		if ext != ".yara" && ext != ".yar" {
+			return nil
+		}
+		bs, err := fs.ReadFile(rules.FS, path)
+		if err != nil {
+			return fmt.Errorf("read %s: %w", path, err)
+		}
+		scanner := bufio.NewScanner(bytes.NewReader(bs))
+		// YARA rules can have long string literals; bump the buffer.
+		scanner.Buffer(make([]byte, 64*1024), 1024*1024)
+		lineNo := 0
+		for scanner.Scan() {
+			if lineNo == ruleMaxLines {
+				return fmt.Errorf("%s: exceeds line cap", path)
+			}
+			lineNo++
+			line := scanner.Bytes()
+			m := ruleDeclRE.FindSubmatch(line)
+			if m == nil {
+				continue
+			}
+			name := string(m[1])
+			key := path + ":" + name
+			if _, dup := idx[key]; dup {
+				continue
+			}
+			idx[key] = lineNo
+			if len(idx) > ruleIndexMaxEntries {
+				return fmt.Errorf("rule index exceeds cap %d", ruleIndexMaxEntries)
+			}
+		}
+		return scanner.Err()
+	})
+	if err != nil {
+		return nil, err
+	}
+	return idx, nil
+}
+
+// ruleLine returns the 1-based line of the declaration for (src, rule) in
+// the embedded rules tree. The second value is false when the pair is not
+// indexed or when the index failed to build.
+func ruleLine(src, rule string) (int, bool) {
+	ruleLineIndexOnce.Do(func() {
+		ruleLineIndex, errRuleLineIndex = buildRuleLineIndex()
+	})
+	if errRuleLineIndex != nil || ruleLineIndex == nil {
+		return 0, false
+	}
+	line, ok := ruleLineIndex[src+":"+rule]
+	return line, ok
+}
+
 func generateRuleURL(src string, rule string) string {
-	// Linking to exact commit and line number would be ideal, but
-	// we aren't parsing that information out of our YARA files yet
-	return fmt.Sprintf("https://github.com/chainguard-dev/malcontent/blob/main/rules/%s#%s", src, rule)
+	commit := release.ResolveRuleURLCommit()
+	// third_party rules live under third_party/, not rules/. The embedded
+	// rules.FS only covers the first-party tree, so ruleLine misses for
+	// third_party src and the name-anchor fallback applies.
+	pathPrefix := "rules"
+	if thirdParty(src) {
+		pathPrefix = "third_party"
+	}
+	if line, ok := ruleLine(src, rule); ok {
+		return fmt.Sprintf("https://github.com/chainguard-dev/malcontent/blob/%s/%s/%s#L%d", commit, pathPrefix, src, line)
+	}
+	return fmt.Sprintf("https://github.com/chainguard-dev/malcontent/blob/%s/%s/%s#%s", commit, pathPrefix, src, rule)
 }
 
 func ignoreMatch(tags []string, ignoreTags map[string]bool) bool {
@@ -237,26 +341,65 @@ func ignoreMatch(tags []string, ignoreTags map[string]bool) bool {
 	return false
 }
 
+// nsSecondSegment returns the substring between the first and second '/'
+// of ns, or "" if ns has fewer than two '/'-separated segments. The
+// result is a sub-slice of the input; no allocation is performed.
+func nsSecondSegment(ns string) string {
+	_, rest, ok := strings.Cut(ns, "/")
+	if !ok {
+		return ""
+	}
+	if seg, _, ok := strings.Cut(rest, "/"); ok {
+		return seg
+	}
+	return rest
+}
+
+// containsFoldASCII reports whether haystack contains needle under ASCII
+// case folding, without allocating. needle must already be lowercase
+// ASCII; all bytes outside [A-Z] match exactly.
+func containsFoldASCII(haystack, needle string) bool {
+	if len(needle) == 0 {
+		return true
+	}
+	if len(haystack) < len(needle) {
+		return false
+	}
+	last := len(haystack) - len(needle)
+	for i := 0; i <= last; i++ {
+		match := true
+		for j := 0; j < len(needle); j++ {
+			c := haystack[i+j]
+			if c >= 'A' && c <= 'Z' {
+				c += 'a' - 'A'
+			}
+			if c != needle[j] {
+				match = false
+				break
+			}
+		}
+		if match {
+			return true
+		}
+	}
+	return false
+}
+
 func behaviorRisk(ns string, rule string, tags []string) int {
 	risk := LOW
 
 	if thirdParty(ns) {
 		risk = HIGH
-		src := strings.Split(ns, "/")
 
-		if len(src) > 1 {
-			switch src[1] {
-			case "JPCERT", "YARAForge", "bartblaze", "huntress", "elastic":
-				risk = CRITICAL
-				if strings.Contains(strings.ToLower(ns), "generic") ||
-					strings.Contains(strings.ToLower(rule), "generic") {
-					risk = HIGH
-				}
+		switch nsSecondSegment(ns) {
+		case "JPCERT", "YARAForge", "bartblaze", "huntress", "elastic":
+			risk = CRITICAL
+			if containsFoldASCII(ns, "generic") || containsFoldASCII(rule, "generic") {
+				risk = HIGH
 			}
 		}
 
-		if strings.Contains(strings.ToLower(ns), "keyword") ||
-			strings.Contains(strings.ToLower(rule), "keyword") {
+		if containsFoldASCII(ns, "keyword") || containsFoldASCII(rule, "keyword") {
 			risk = MEDIUM
 		}
 	}
@@ -543,6 +686,7 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 	overallRiskScore := 0
 	risk := 0
 	riskCounts := make(map[int]int, 0)
+	behaviorIdx := make(map[string]int, matchCount)
 
 	// Store match rules in a map for future override operations
 	mrsMap := createMatchRulesMap(mrs, matchCount)
@@ -604,7 +748,7 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 			b.Description = strings.ReplaceAll(m.Identifier(), "_", " ")
 		}
 
-		updateBehavior(fr, b, key)
+		updateBehavior(fr, b, key, behaviorIdx)
 	}
 
 	// Update the behaviors to account for overrides
@@ -807,25 +951,37 @@ func parseMetadata(m *yarax.Rule, b *malcontent.Behavior, fr *malcontent.FileRep
 	return valid
 }
 
-func updateBehavior(fr *malcontent.FileReport, b *malcontent.Behavior, key string) {
-	existingIndex := -1
-	for i, existing := range fr.Behaviors {
-		if existing.ID == key {
-			existingIndex = i
-			break
+// updateBehavior dedupes by key against fr.Behaviors using an index map
+// so insertion is O(1) amortized. When idx is nil (call sites outside
+// the accumulation loop), a transient index is reconstructed from the
+// current Behaviors slice; production hot paths must pass a reusable
+// map to keep the operation O(1). When the same key has already been
+// seen, the entry with the higher RiskScore wins (in-place replace at
+// the existing slot); when the score is equal-or-greater than the
+// current entry, the longer description wins. The slice itself is not
+// sorted here; the caller is responsible for any finalize-time sort.
+func updateBehavior(fr *malcontent.FileReport, b *malcontent.Behavior, key string, idx map[string]int) {
+	if idx == nil {
+		idx = make(map[string]int, len(fr.Behaviors)+8)
+		for i, existing := range fr.Behaviors {
+			idx[existing.ID] = i
 		}
 	}
 
-	// If the existing description is longer and the priority is the same or lower
-	if existingIndex != -1 {
-		if fr.Behaviors[existingIndex].RiskScore < b.RiskScore {
-			fr.Behaviors = append(fr.Behaviors[:existingIndex], append([]*malcontent.Behavior{b}, fr.Behaviors[existingIndex+1:]...)...)
-		}
-		if len(fr.Behaviors[existingIndex].Description) < len(b.Description) && fr.Behaviors[existingIndex].RiskScore <= b.RiskScore {
-			fr.Behaviors[existingIndex].Description = b.Description
-		}
-	} else {
+	i, ok := idx[key]
+	if !ok {
 		fr.Behaviors = append(fr.Behaviors, b)
+		idx[key] = len(fr.Behaviors) - 1
+		return
+	}
+
+	existing := fr.Behaviors[i]
+	if existing.RiskScore < b.RiskScore {
+		fr.Behaviors[i] = b
+		return
+	}
+	if len(existing.Description) < len(b.Description) && existing.RiskScore <= b.RiskScore {
+		existing.Description = b.Description
 	}
 }
 
@@ -837,11 +993,19 @@ func upgradeRisk(ctx context.Context, riskScore int, riskCounts map[int]int, siz
 	highCount := riskCounts[HIGH]
 	sizeMB := size / 1024 / 1024
 
-	upgrade := (size < 1024 && highCount > 1) || // small scripts, tiny ELF binaries
-		(sizeMB < 2 && highCount > 2) || // include most UPX binaries
-		(sizeMB < 4 && highCount > 3) ||
-		(sizeMB < 10 && highCount > 4) ||
-		highCount > 5
+	var upgrade bool
+	switch {
+	case sizeMB < 1:
+		upgrade = highCount > 1
+	case sizeMB < 2:
+		upgrade = highCount > 2
+	case sizeMB < 4:
+		upgrade = highCount > 3
+	case sizeMB < 10:
+		upgrade = highCount > 4
+	default:
+		upgrade = highCount > 5
+	}
 
 	if upgrade {
 		clog.DebugContextf(ctx, "upgrading risk to critical: high=%d, size=%d", highCount, size)

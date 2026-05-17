@@ -31,6 +31,7 @@ import (
 	"github.com/chainguard-dev/malcontent/rules"
 	thirdparty "github.com/chainguard-dev/malcontent/third_party"
 
+	"github.com/puzpuzpuz/xsync/v4"
 	"github.com/urfave/cli/v3"
 )
 
@@ -68,6 +69,7 @@ var (
 	minRiskFlag               string
 	ociAuthFlag               bool
 	ociFlag                   bool
+	caBundleFlag              string
 	outputFlag                string
 	profileFlag               bool
 	quantityIncreasesRiskFlag bool
@@ -145,7 +147,7 @@ func main() {
 		After: func(_ context.Context, _ *cli.Command) error {
 			// Close our output file (or stdout) after commands have run
 			defer func() {
-				outFile.Close()
+				_ = outFile.Close()
 			}()
 
 			// Stop profiling if command was executed with that flag
@@ -220,7 +222,7 @@ func main() {
 			}
 
 			if outputFlag != "" {
-				outFile, err = os.OpenFile(outputFlag, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600)
+				outFile, err = os.OpenFile(outputFlag, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600) // #nosec G304 -- CLI flag values are user-supplied paths intended for the operation
 				if err != nil {
 					returnCode = ExitInputOutput
 					return ctx, err
@@ -268,10 +270,12 @@ func main() {
 				MinRisk:               minRisk,
 				OCIAuth:               ociAuthFlag,
 				OCI:                   ociFlag,
+				OCICABundlePath:       caBundleFlag,
 				QuantityIncreasesRisk: quantityIncreasesRiskFlag,
 				Renderer:              renderer,
 				RuleCategories:        ruleCategoriesFlag,
 				Rules:                 yrs,
+				Skipped:               xsync.NewMap[string, struct{}](),
 				Stats:                 statsFlag,
 			}
 
@@ -280,6 +284,7 @@ func main() {
 				mc.TrimPrefixes = append(mc.TrimPrefixes, "/private")
 			}
 
+			ctx = malcontent.ContextWithConfig(ctx, &mc)
 			return ctx, nil
 		},
 		// Global flags shared between commands
@@ -402,6 +407,13 @@ func main() {
 				Value:       false,
 				Usage:       "Use Docker Keychain authentication to pull images (warning: may leak credentials to malicious registries!)",
 				Destination: &ociAuthFlag,
+				Local:       false,
+			},
+			&cli.StringFlag{
+				Name:        "ca-bundle",
+				Value:       "system",
+				Usage:       "OCI registry CA bundle: system (default; use OS trust store) or absolute path to a PEM bundle",
+				Destination: &caBundleFlag,
 				Local:       false,
 			},
 			&cli.StringFlag{
@@ -708,6 +720,7 @@ func handleContext(cancel context.CancelFunc, logger *clog.Logger) {
 
 	// Force exit after timeout
 	time.AfterFunc(10*time.Second, func() {
+		logger.Warn("force exit: drain timeout exceeded, unrendered matches may be discarded", slog.Duration("timeout", 10*time.Second))
 		logger.Error("forced exit after timeout")
 		os.Exit(1)
 	})

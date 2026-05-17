@@ -38,7 +38,7 @@ func ExtractBz2(ctx context.Context, d, f string) error {
 	buf := archivePool.Get(file.ExtractBuffer) //nolint:nilaway // the buffer pool is created in archive.go
 	defer archivePool.Put(buf)
 
-	tf, err := os.Open(f)
+	tf, err := os.Open(f) // #nosec G304 -- archive path resolved and validated by caller before extraction
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
@@ -61,7 +61,7 @@ func ExtractBz2(ctx context.Context, d, f string) error {
 		return fmt.Errorf("failed to create directory for file: %w", err)
 	}
 
-	out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+	out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600) // #nosec G304 -- target validated by IsValidPath against sandbox dir d
 	if err != nil {
 		return fmt.Errorf("failed to create file: %w", err)
 	}

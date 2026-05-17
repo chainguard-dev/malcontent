@@ -1,0 +1,96 @@
+# Copyright 2026 Chainguard, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+name: Benchmarks
+
+on:
+  pull_request:
+    branches:
+      - "main"
+    paths:
+      - "**.go"
+      - "Makefile"
+      - "go.mod"
+      - "go.sum"
+  workflow_dispatch:
+
+env:
+  GO_RELEASE: "go-1.26"
+  YARA_X_RELEASE: "1.16.0"
+  BENCHSTAT_VERSION: "v0.0.0-20260512194132-3cf34090a3db"
+
+permissions: {}
+
+jobs:
+  bench:
+    if: ${{ github.repository == 'chainguard-dev/malcontent' }}
+    runs-on: ubuntu-latest-arm-16-core
+    permissions:
+      contents: read
+    container:
+      image: cgr.dev/chainguard/wolfi-base:latest@sha256:9a74366aa10eff2bf14dab0948123bd2c51703e1c553a73740ef687f723aecf4
+      options: >-
+        --cap-add DAC_OVERRIDE
+        --cap-add SETGID
+        --cap-add SETUID
+        --cap-drop ALL
+        --cgroupns private
+        --cpu-shares=16384
+        --memory-swappiness=0
+        --security-opt no-new-privileges
+        --ulimit core=0
+        --ulimit nofile=65535:65535
+        --ulimit nproc=65535:65535
+    steps:
+      - name: Install dependencies
+        run: |
+          apk update
+          apk add bash curl findutils gcc gh git gnutar "${GO_RELEASE}" make nodejs perl pkgconf upx xz "yara-x~${YARA_X_RELEASE}"
+
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Trust repository
+        run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
+
+      - name: Get Go cache paths
+        id: go-env
+        run: |
+          echo "modcache=$(go env GOMODCACHE)" >> "$GITHUB_OUTPUT"
+          echo "cache=$(go env GOCACHE)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Go dependencies
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: |
+            ${{ steps.go-env.outputs.modcache }}
+            ${{ steps.go-env.outputs.cache }}
+          key: go-${{ hashFiles('go.sum') }}
+          restore-keys: go-
+
+      - name: Install benchstat
+        run: go install "golang.org/x/perf/cmd/benchstat@${BENCHSTAT_VERSION}"
+
+      - name: Run benchmarks
+        run: |
+          go test -run=^$ -bench=. -benchmem -count=10 \
+            ./pkg/archive ./pkg/action ./pkg/file ./pkg/refresh \
+            > bench.new.txt 2>&1
+
+      - name: Compare against committed baseline
+        run: |
+          if [ -f bench.baseline.txt ]; then
+            "$(go env GOPATH)/bin/benchstat" bench.baseline.txt bench.new.txt
+          else
+            echo "No bench.baseline.txt found; printing new results only"
+            "$(go env GOPATH)/bin/benchstat" bench.new.txt
+          fi
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: bench-results
+          path: bench.new.txt
+          retention-days: 30

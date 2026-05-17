@@ -1,4 +1,4 @@
-# linux/2024.gas/gas: high
+# linux/2024.gas/gas: critical
 anti-behavior/LD_DEBUG: medium
 anti-behavior/LD_PROFILE: medium
 anti-behavior/random_behavior: low

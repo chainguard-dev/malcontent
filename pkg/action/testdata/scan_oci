@@ -12,7 +12,7 @@
                     ],
                     "RiskScore": 0,
                     "RiskLevel": "NONE",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-permission-mask-set.yara#umask",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-permission-mask-set.yara#L1",
                     "ID": "fs/file/permission_mask_set",
                     "RuleName": "umask"
                 },
@@ -23,7 +23,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/etc.yara#etc_path",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/etc.yara#L1",
                     "ID": "fs/path/etc",
                     "RuleName": "etc_path"
                 },
@@ -34,7 +34,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/usr-local.yara#usr_local_bin_path",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/usr-local.yara#L13",
                     "ID": "fs/path/usr_local",
                     "RuleName": "usr_local_bin_path"
                 },
@@ -45,7 +45,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/persist/shell/bash.yara#bash_persist",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/persist/shell/bash.yara#L1",
                     "ID": "persist/shell/bash",
                     "RuleName": "bash_persist"
                 },
@@ -56,7 +56,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/persist/shell/init_files.yara#etc_shell_init_references",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/persist/shell/init_files.yara#L1",
                     "ID": "persist/shell/init_files",
                     "RuleName": "etc_shell_init_references"
                 }

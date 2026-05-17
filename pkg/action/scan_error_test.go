@@ -138,14 +138,15 @@ func TestFileReportErrorError(t *testing.T) {
 }
 
 // TestFileReportErrorErrorFormat verifies the exact format differs based on whether
-// the underlying error is nil or non-nil.
+// the underlying error is nil or non-nil. In both branches the message constant is
+// chosen by reason via errMsg().
 func TestFileReportErrorErrorFormat(t *testing.T) {
 	t.Parallel()
 
-	// With a non-nil underlying error, the format is: "unknown error: <path>: <err>"
+	// With a non-nil underlying error, the format is: "<errMsg>: <path>: <err>"
 	withErr := NewFileReportError(errors.New("boom"), "/p", TypeScanError)
 	got := withErr.Error()
-	want := fmt.Sprintf("%s: %s: %v", errMsgUnknown, "/p", errors.New("boom"))
+	want := fmt.Sprintf("%s: %s: %v", errMsgScanFailed, "/p", errors.New("boom"))
 	if got != want {
 		t.Errorf("Error() with underlying error = %q, want %q", got, want)
 	}
@@ -156,6 +157,78 @@ func TestFileReportErrorErrorFormat(t *testing.T) {
 	want2 := fmt.Sprintf("%s: %s", errMsgScanFailed, "/q")
 	if got2 != want2 {
 		t.Errorf("Error() without underlying error = %q, want %q", got2, want2)
+	}
+}
+
+// TestFileReportErrorErrorDispatchByReason exercises the full cross product of
+// {TypeUnknown, TypeScanError, TypeGenerateError} x {nil, non-nil} to confirm
+// the Error() string is built from the reason-specific message constant in both
+// branches and that the underlying error text is appended only when present.
+func TestFileReportErrorErrorDispatchByReason(t *testing.T) {
+	t.Parallel()
+
+	underlying := errors.New("boom")
+
+	tests := []struct {
+		name   string
+		err    error
+		path   string
+		reason ErrorType
+		want   string
+	}{
+		{
+			name:   "unknown_reason_nil_err",
+			err:    nil,
+			path:   "/u/nil",
+			reason: TypeUnknown,
+			want:   errMsgUnknown + ": /u/nil",
+		},
+		{
+			name:   "unknown_reason_non_nil_err",
+			err:    underlying,
+			path:   "/u/err",
+			reason: TypeUnknown,
+			want:   errMsgUnknown + ": /u/err: boom",
+		},
+		{
+			name:   "scan_failed_nil_err",
+			err:    nil,
+			path:   "/s/nil",
+			reason: TypeScanError,
+			want:   errMsgScanFailed + ": /s/nil",
+		},
+		{
+			name:   "scan_failed_non_nil_err",
+			err:    underlying,
+			path:   "/s/err",
+			reason: TypeScanError,
+			want:   errMsgScanFailed + ": /s/err: boom",
+		},
+		{
+			name:   "generate_failed_nil_err",
+			err:    nil,
+			path:   "/g/nil",
+			reason: TypeGenerateError,
+			want:   errMsgGenerateFailed + ": /g/nil",
+		},
+		{
+			name:   "generate_failed_non_nil_err",
+			err:    underlying,
+			path:   "/g/err",
+			reason: TypeGenerateError,
+			want:   errMsgGenerateFailed + ": /g/err: boom",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			fre := &FileReportError{reason: tt.reason, err: tt.err, path: tt.path}
+			got := fre.Error()
+			if got != tt.want {
+				t.Errorf("Error() = %q, want %q", got, tt.want)
+			}
+		})
 	}
 }
 

@@ -83,6 +83,26 @@ jobs:
       - name: Prepare samples
         run: make samples
 
+      - name: Auto-pin YARAForge SHA256 for latest release
+        run: |
+          set -euo pipefail
+          SCRIPT=third_party/yara/update.sh
+          REL=$(basename "$(curl -fLs -o /dev/null -w '%{url_effective}' https://github.com/YARAHQ/yara-forge/releases/latest)")
+          if grep -q "^YARAFORGE_FULL_ZIP_SHA256_${REL}=" "${SCRIPT}"; then
+            echo "YARAForge pin already present for release ${REL}"
+            exit 0
+          fi
+          TMP=$(mktemp -d)
+          trap 'rm -rf "${TMP}"' EXIT
+          curl -fL -o "${TMP}/yaraforge.zip" "https://github.com/YARAHQ/yara-forge/releases/download/${REL}/yara-forge-rules-full.zip"
+          SHA=$(sha256sum "${TMP}/yaraforge.zip" | awk '{print $1}')
+          REL="${REL}" SHA="${SHA}" perl -i -pe '
+            s|^# yara-forge-rules-full\.zip \@ release tag \d+$|# yara-forge-rules-full.zip \@ release tag $ENV{REL}|;
+            s|^YARAFORGE_FULL_ZIP_SHA256_\d+="[0-9a-f]+"$|YARAFORGE_FULL_ZIP_SHA256_$ENV{REL}="$ENV{SHA}"|;
+          ' "${SCRIPT}"
+          echo "Updated YARAForge pin to release ${REL} (sha256: ${SHA})"
+        shell: bash
+
       - name: Run make update-third-party
         run: |
           make update-third-party

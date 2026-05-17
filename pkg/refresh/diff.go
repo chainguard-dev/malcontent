@@ -16,6 +16,7 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/render"
 	"github.com/chainguard-dev/malcontent/rules"
 	thirdparty "github.com/chainguard-dev/malcontent/third_party"
+	"github.com/puzpuzpuz/xsync/v4"
 )
 
 type diffData struct {
@@ -173,14 +174,14 @@ func diffRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 			return nil, fmt.Errorf("create output directory: %w", err)
 		}
 
-		outFile, err := os.OpenFile(output, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600)
+		outFile, err := os.OpenFile(output, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600) // #nosec G304 -- refresh operates on testdata roots controlled by the test harness
 		if err != nil {
 			return nil, fmt.Errorf("create output file %s: %w", output, err)
 		}
 
 		renderer, err := render.New(td.format, outFile)
 		if err != nil {
-			outFile.Close()
+			_ = outFile.Close()
 			return nil, fmt.Errorf("create renderer for %s: %w", output, err)
 		}
 
@@ -197,7 +198,7 @@ func diffRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 		rfs := []fs.FS{rules.FS, thirdparty.FS}
 		yrs, err := action.CachedRules(ctx, rfs)
 		if err != nil {
-			outFile.Close()
+			_ = outFile.Close()
 			return nil, err
 		}
 
@@ -211,6 +212,7 @@ func diffRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 			Renderer:              renderer,
 			Rules:                 yrs,
 			ScanPaths:             []string{src, dest},
+			Skipped:               xsync.NewMap[string, struct{}](),
 			TrimPrefixes:          []string{rc.SamplesPath},
 		}
 

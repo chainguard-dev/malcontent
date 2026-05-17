@@ -59,7 +59,7 @@ func (e *FileReportError) Error() string {
 	if e.err == nil {
 		return fmt.Sprintf("%s: %s", e.errMsg(), e.path)
 	}
-	return fmt.Sprintf("%s: %s: %v", errMsgUnknown, e.path, e.err)
+	return fmt.Sprintf("%s: %s: %v", e.errMsg(), e.path, e.err)
 }
 
 func (e *FileReportError) Is(target error) bool {

@@ -15,6 +15,7 @@ import (
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/file"
+	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 	zip "github.com/klauspost/compress/zip"
 	"golang.org/x/sync/errgroup"
@@ -29,8 +30,32 @@ var zipMIME = map[string]struct{}{
 	"application/zip":              {},
 }
 
+// defaultMaxArchiveBytes seeds ExtractZip's per-archive byte cap. It is a var
+// (not a const) so tests can shrink the cap to a synthesizable bound; the
+// production value is file.DefaultMaxArchiveBytes (16 GiB).
+var defaultMaxArchiveBytes = file.DefaultMaxArchiveBytes
+
+// resolveArchiveCaps returns the effective byte and ratio caps for an archive
+// extraction. Caller-supplied Config values take precedence over defaults; a
+// zero/unset value falls back to file.DefaultMaxArchiveBytes /
+// file.DefaultMaxArchiveRatio.
+func resolveArchiveCaps(ctx context.Context) (maxBytes int64, maxRatio float64) {
+	maxBytes = defaultMaxArchiveBytes
+	maxRatio = file.DefaultMaxArchiveRatio
+	if cfg := malcontent.ConfigFromContext(ctx); cfg != nil {
+		if cfg.MaxArchiveBytes > 0 {
+			maxBytes = cfg.MaxArchiveBytes
+		}
+		if cfg.MaxArchiveRatio > 0 {
+			maxRatio = cfg.MaxArchiveRatio
+		}
+	}
+	return maxBytes, maxRatio
+}
+
 // ExtractZip extracts .jar and .zip archives.
-func ExtractZip(ctx context.Context, d string, f string) error {
+func ExtractZip(ctx context.Context, d string, f string) (err error) {
+	defer recoverExtractor(ctx, "zip", f, &err)
 	if ctx.Err() != nil {
 		return ctx.Err()
 	}
@@ -88,14 +113,31 @@ func ExtractZip(ctx context.Context, d string, f string) error {
 	}
 
 	g, gCtx := errgroup.WithContext(ctx)
-	g.SetLimit(runtime.GOMAXPROCS(0))
+	g.SetLimit(EffectiveMaxConcurrency(runtime.GOMAXPROCS(0)))
+	sem := extractionSemaphore()
+
+	// Shared counter across all entries enforces a uniform byte and ratio
+	// ceiling. InputBytes seeds the ratio denominator from the outer archive
+	// size. Caps prefer ctx-attached Config values; absent/zero values fall
+	// back to the package defaults so zero-config callers still receive a
+	// finite cap.
+	maxBytes, maxRatio := resolveArchiveCaps(ctx)
+	counter := &file.ArchiveCounter{
+		MaxBytes:   maxBytes,
+		MaxRatio:   int64(maxRatio),
+		InputBytes: fi.Size(),
+	}
 
 	for _, zf := range read.File {
 		if zf.Mode().IsDir() {
 			continue
 		}
 		g.Go(func() error {
-			return extractFile(gCtx, zf, d, logger)
+			if err := sem.Acquire(gCtx, 1); err != nil {
+				return err
+			}
+			defer sem.Release(1)
+			return extractFile(gCtx, zf, d, logger, counter)
 		})
 	}
 
@@ -105,7 +147,7 @@ func ExtractZip(ctx context.Context, d string, f string) error {
 	return nil
 }
 
-func extractFile(ctx context.Context, zf *zip.File, destDir string, logger *clog.Logger) error {
+func extractFile(ctx context.Context, zf *zip.File, destDir string, logger *clog.Logger, counter *file.ArchiveCounter) error {
 	if ctx.Err() != nil {
 		return ctx.Err()
 	}
@@ -178,7 +220,7 @@ func extractFile(ctx context.Context, zf *zip.File, destDir string, logger *clog
 		return fmt.Errorf("refusing to overwrite symlink at target path: %s", target)
 	}
 
-	dst, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+	dst, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600) // #nosec G304 -- target validated by IsValidPath + ValidateResolvedPath against extraction dir destDir; symlink overwrite refused above
 	if err != nil {
 		return fmt.Errorf("failed to create destination file: %w", err)
 	}
@@ -195,6 +237,10 @@ func extractFile(ctx context.Context, zf *zip.File, destDir string, logger *clog
 			written += int64(n)
 			if written > file.MaxBytes {
 				return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", file.MaxBytes, target)
+			}
+
+			if capErr := counter.Add(n); capErr != nil {
+				return fmt.Errorf("zip extraction aborted on %s: %w", target, capErr)
 			}
 
 			if _, writeErr := dst.Write(buf[:n]); writeErr != nil {

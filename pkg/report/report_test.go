@@ -5,11 +5,16 @@ package report
 
 import (
 	"context"
+	"io/fs"
+	"path/filepath"
 	"reflect"
+	"slices"
 	"strings"
 	"testing"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
+	"github.com/chainguard-dev/malcontent/pkg/release"
+	"github.com/chainguard-dev/malcontent/rules"
 )
 
 func TestLongestUnique(t *testing.T) {
@@ -81,7 +86,7 @@ func TestUpgradeRisk(t *testing.T) {
 	}{
 		{"no risk", 0, map[int]int{}, 1024, false},
 		{"tiny-risky", 3, map[int]int{3: 2}, 310, true},
-		{"small-not", 3, map[int]int{3: 2}, 8192, false},
+		{"small-not", 3, map[int]int{3: 2}, 8192, true},
 		{"small-risky", 3, map[int]int{3: 3}, 8192, true},
 		{"large-not", 3, map[int]int{3: 3}, 1024 * 1024 * 1024, false},
 		{"large-yes", 3, map[int]int{3: 10}, 1024 * 1024 * 1024, true},
@@ -94,6 +99,36 @@ func TestUpgradeRisk(t *testing.T) {
 			t.Parallel()
 			if got := upgradeRisk(context.Background(), tt.currentScore, tt.riskCounts, tt.size); got != tt.want {
 				t.Errorf("upgradeRisk(%d, %v, %v) = %v, want %v", tt.currentScore, tt.riskCounts, tt.size, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestUpgradeRisk_BandPartition(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name       string
+		size       int64
+		riskCounts map[int]int
+		want       bool
+	}{
+		{name: "band1 sub-MB highCount=2 upgrades", size: 500 * 1024, riskCounts: map[int]int{3: 2}, want: true},
+		{name: "band1 sub-MB highCount=1 no upgrade", size: 500 * 1024, riskCounts: map[int]int{3: 1}, want: false},
+		{name: "band2 1.5MB highCount=3 upgrades", size: int64(1.5 * 1024 * 1024), riskCounts: map[int]int{3: 3}, want: true},
+		{name: "band2 1.5MB highCount=2 no upgrade", size: int64(1.5 * 1024 * 1024), riskCounts: map[int]int{3: 2}, want: false},
+		{name: "band3 3MB highCount=4 upgrades", size: 3 * 1024 * 1024, riskCounts: map[int]int{3: 4}, want: true},
+		{name: "band4 5MB highCount=5 upgrades", size: 5 * 1024 * 1024, riskCounts: map[int]int{3: 5}, want: true},
+		{name: "band4 5MB highCount=4 no upgrade", size: 5 * 1024 * 1024, riskCounts: map[int]int{3: 4}, want: false},
+		{name: "default 20MB highCount=6 upgrades", size: 20 * 1024 * 1024, riskCounts: map[int]int{3: 6}, want: true},
+		{name: "default 20MB highCount=5 no upgrade", size: 20 * 1024 * 1024, riskCounts: map[int]int{3: 5}, want: false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			if got := upgradeRisk(context.Background(), HIGH, tt.riskCounts, tt.size); got != tt.want {
+				t.Errorf("upgradeRisk(HIGH, %v, %d) = %v, want %v", tt.riskCounts, tt.size, got, tt.want)
 			}
 		})
 	}
@@ -509,7 +544,22 @@ func TestGenerateKey(t *testing.T) {
 	}
 }
 
+// withBuildCommit sets release.BuildCommit for the lifetime of the test
+// and restores the prior value via t.Cleanup. The package-level variable
+// is mutated directly because release does not expose a setter.
+func withBuildCommit(t *testing.T, v string) {
+	t.Helper()
+	prev := release.BuildCommit
+	release.BuildCommit = v
+	t.Cleanup(func() { release.BuildCommit = prev })
+}
+
 func TestGenerateRuleURL(t *testing.T) {
+	// Pin BuildCommit so the assertion is deterministic regardless of the
+	// host's go test build-info VCS state.
+	const sha = "0123456789abcdef0123456789abcdef01234567"
+	withBuildCommit(t, sha)
+
 	tests := []struct {
 		name string
 		src  string
@@ -517,22 +567,254 @@ func TestGenerateRuleURL(t *testing.T) {
 		want string
 	}{
 		{
-			name: "basic rule",
-			src:  "malware/trojan.yara",
-			rule: "trojan_test",
-			want: "https://github.com/chainguard-dev/malcontent/blob/main/rules/malware/trojan.yara#trojan_test",
+			name: "known rule maps to line anchor",
+			src:  "sus/leetspeak.yara",
+			rule: "one_three_three_seven",
+			want: "https://github.com/chainguard-dev/malcontent/blob/" + sha + "/rules/sus/leetspeak.yara#L1",
 		},
 		{
-			name: "nested path",
-			src:  "exec/dylib/loader.yara",
-			rule: "dylib_inject",
-			want: "https://github.com/chainguard-dev/malcontent/blob/main/rules/exec/dylib/loader.yara#dylib_inject",
+			name: "unknown rule falls back to name anchor",
+			src:  "malware/trojan.yara",
+			rule: "trojan_test",
+			want: "https://github.com/chainguard-dev/malcontent/blob/" + sha + "/rules/malware/trojan.yara#trojan_test",
+		},
+		{
+			// third_party rules live under third_party/, not rules/
+			name: "third_party_jpcert_rule",
+			src:  "yara/JPCERT/lazarus.yara",
+			rule: "Lazarus_jamistealer_str",
+			want: "https://github.com/chainguard-dev/malcontent/blob/" + sha + "/third_party/yara/JPCERT/lazarus.yara#Lazarus_jamistealer_str",
+		},
+		{
+			name: "third_party_elastic_rule",
+			src:  "yara/elastic/MacOS_Trojan_BeaverTail.yar",
+			rule: "MacOS_Trojan_BeaverTail_90b8abd6",
+			want: "https://github.com/chainguard-dev/malcontent/blob/" + sha + "/third_party/yara/elastic/MacOS_Trojan_BeaverTail.yar#MacOS_Trojan_BeaverTail_90b8abd6",
+		},
+		{
+			name: "first_party_unchanged",
+			src:  "malware/trojan.yara",
+			rule: "Trojan_Generic",
+			want: "https://github.com/chainguard-dev/malcontent/blob/" + sha + "/rules/malware/trojan.yara#Trojan_Generic",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := generateRuleURL(tt.src, tt.rule)
+			if got != tt.want {
+				t.Errorf("generateRuleURL() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestGenerateRuleURL_CommitPinned(t *testing.T) {
+	const sha = "abcdef0123456789abcdef0123456789abcdef01"
+
+	tests := []struct {
+		name        string
+		buildCommit string
+		src         string
+		rule        string
+		want        string
+	}{
+		{
+			name:        "build commit set with map hit",
+			buildCommit: sha,
+			src:         "sus/leetspeak.yara",
+			rule:        "too_l33t_for_me",
+			want:        "https://github.com/chainguard-dev/malcontent/blob/" + sha + "/rules/sus/leetspeak.yara#L13",
+		},
+		{
+			name:        "build commit empty falls back to main",
+			buildCommit: "",
+			src:         "sus/leetspeak.yara",
+			rule:        "one_three_three_seven",
+			want:        "",
+		},
+		{
+			name:        "map miss yields name anchor",
+			buildCommit: sha,
+			src:         "sus/leetspeak.yara",
+			rule:        "no_such_rule_anywhere",
+			want:        "https://github.com/chainguard-dev/malcontent/blob/" + sha + "/rules/sus/leetspeak.yara#no_such_rule_anywhere",
+		},
+		{
+			name:        "non-hex build commit rejected, falls back to main",
+			buildCommit: "not-a-sha-just-some-text-here-padding-12",
+			src:         "sus/leetspeak.yara",
+			rule:        "one_three_three_seven",
+			want:        "",
+		},
+		{
+			name:        "empty src still produces a URL",
+			buildCommit: sha,
+			src:         "",
+			rule:        "anything",
+			want:        "https://github.com/chainguard-dev/malcontent/blob/" + sha + "/rules/#anything",
+		},
+		{
+			name:        "third_party_jpcert_with_commit",
+			buildCommit: sha,
+			src:         "yara/JPCERT/lazarus.yara",
+			rule:        "Lazarus_jamistealer_str",
+			want:        "https://github.com/chainguard-dev/malcontent/blob/" + sha + "/third_party/yara/JPCERT/lazarus.yara#Lazarus_jamistealer_str",
+		},
+		{
+			name:        "third_party_elastic_falls_back_to_main",
+			buildCommit: "",
+			src:         "yara/elastic/MacOS_Trojan_BeaverTail.yar",
+			rule:        "MacOS_Trojan_BeaverTail_90b8abd6",
+			want:        "",
+		},
+		{
+			name:        "first_party_with_commit_unchanged",
+			buildCommit: sha,
+			src:         "malware/trojan.yara",
+			rule:        "Trojan_Generic",
+			want:        "https://github.com/chainguard-dev/malcontent/blob/" + sha + "/rules/malware/trojan.yara#Trojan_Generic",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			withBuildCommit(t, tt.buildCommit)
+			got := generateRuleURL(tt.src, tt.rule)
+			if got != tt.want {
+				t.Errorf("generateRuleURL() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestRuleLineIndex_BuildsForAllRules(t *testing.T) {
+	// Independently walk the embedded rules FS and gather every
+	// (src, rule_name) pair. The index under test must contain each.
+	type ruleKey struct {
+		src  string
+		rule string
+	}
+
+	var discovered []ruleKey
+	err := fs.WalkDir(rules.FS, ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() {
+			return nil
+		}
+		ext := filepath.Ext(path)
+		if ext != ".yara" && ext != ".yar" {
+			return nil
+		}
+		bs, err := fs.ReadFile(rules.FS, path)
+		if err != nil {
+			return err
+		}
+		for line := range strings.SplitSeq(string(bs), "\n") {
+			// match `^rule\s+(\w+)` semantics for the verification loop
+			if !strings.HasPrefix(line, "rule") {
+				continue
+			}
+			rest := strings.TrimPrefix(line, "rule")
+			if rest == "" || (rest[0] != ' ' && rest[0] != '\t') {
+				continue
+			}
+			rest = strings.TrimLeft(rest, " \t")
+			end := 0
+			for end < len(rest) {
+				c := rest[end]
+				if (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_' {
+					end++
+					continue
+				}
+				break
+			}
+			if end == 0 {
+				continue
+			}
+			discovered = append(discovered, ruleKey{src: path, rule: rest[:end]})
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("walking rules.FS: %v", err)
+	}
+
+	if len(discovered) == 0 {
+		t.Fatalf("walk found zero rules; the embed must contain at least one")
+	}
+	const upperBound = 2200
+	if len(discovered) > upperBound {
+		t.Fatalf("walk found %d rules, exceeds upper bound %d", len(discovered), upperBound)
+	}
+
+	slices.SortFunc(discovered, func(a, b ruleKey) int {
+		if a.src != b.src {
+			return strings.Compare(a.src, b.src)
+		}
+		return strings.Compare(a.rule, b.rule)
+	})
+
+	for _, k := range discovered {
+		line, ok := ruleLine(k.src, k.rule)
+		if !ok {
+			t.Errorf("ruleLine(%q, %q): not found in index", k.src, k.rule)
+			continue
+		}
+		if line <= 0 {
+			t.Errorf("ruleLine(%q, %q) = %d; want positive", k.src, k.rule, line)
+		}
+	}
+}
+
+// TestResolveCommit_PriorityChain exercises the resolver indirectly through
+// generateRuleURL. Each row alters release.BuildCommit and asserts the URL
+// scheme chosen by the resolver.
+func TestResolveCommit_PriorityChain(t *testing.T) {
+	const validSHA = "abcdef0123456789abcdef0123456789abcdef01"
+
+	tests := []struct {
+		name        string
+		buildCommit string
+		want        string
+	}{
+		{name: "valid hex sha accepted", buildCommit: validSHA, want: "https://github.com/chainguard-dev/malcontent/blob/" + validSHA + "/rules/sus/leetspeak.yara#L1"},
+		{name: "empty falls back to main", buildCommit: "", want: ""},
+		{name: "uppercase rejected", buildCommit: strings.ToUpper(validSHA), want: ""},
+		{name: "short rejected", buildCommit: validSHA[:39], want: ""},
+		{name: "long rejected", buildCommit: validSHA + "0", want: ""},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			withBuildCommit(t, tt.buildCommit)
+			got := generateRuleURL("sus/leetspeak.yara", "one_three_three_seven")
+			if got != tt.want {
+				t.Errorf("generateRuleURL() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestGenerateRuleURL_EmptyOnNonCanonical(t *testing.T) {
+	tests := []struct {
+		name        string
+		buildCommit string
+		want        string
+	}{
+		{name: "literal_main_suppressed", buildCommit: "", want: ""},
+		{name: "short_hex_suppressed", buildCommit: "abcdef0", want: ""},
+		{name: "mixed_case_suppressed", buildCommit: "ABCDEF0123456789ABCDEF0123456789ABCDEF01", want: ""},
+		{name: "forty_one_hex_suppressed", buildCommit: "abcdef0123456789abcdef0123456789abcdef010", want: ""},
+		{name: "valid_lower_hex_emits_url", buildCommit: "abcdef0123456789abcdef0123456789abcdef01", want: "https://github.com/chainguard-dev/malcontent/blob/abcdef0123456789abcdef0123456789abcdef01/rules/sus/leetspeak.yara#L1"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			withBuildCommit(t, tt.buildCommit)
+			got := generateRuleURL("sus/leetspeak.yara", "one_three_three_seven")
 			if got != tt.want {
 				t.Errorf("generateRuleURL() = %q, want %q", got, tt.want)
 			}
@@ -723,7 +1005,9 @@ func TestThirdParty(t *testing.T) {
 	}{
 		{"third party yara path", "yara/elastic/test.yara", true},
 		{"local rule", "malware/trojan.yara", false},
-		{"nested yara path", "rules/yara/test.yara", true},
+		{"nested yara reference is not third-party", "rules/yara/test.yara", false},
+		{"prefix yara is third-party", "yara/feed/rule", true},
+		{"contains yara mid-path is not third-party", "internal/yara/foo", false},
 		{"empty path", "", false},
 	}
 
@@ -1001,7 +1285,7 @@ func TestUpdateBehavior(t *testing.T) {
 		fr := &malcontent.FileReport{
 			Behaviors: []*malcontent.Behavior{{ID: "existing", RiskScore: LOW}},
 		}
-		updateBehavior(fr, &malcontent.Behavior{ID: "new_id", RiskScore: MEDIUM, Description: "new"}, "new_id")
+		updateBehavior(fr, &malcontent.Behavior{ID: "new_id", RiskScore: MEDIUM, Description: "new"}, "new_id", nil)
 		if len(fr.Behaviors) != 2 {
 			t.Fatalf("expected 2, got %d", len(fr.Behaviors))
 		}
@@ -1015,7 +1299,7 @@ func TestUpdateBehavior(t *testing.T) {
 		fr := &malcontent.FileReport{
 			Behaviors: []*malcontent.Behavior{{ID: "rule_a", RiskScore: LOW, Description: "original"}},
 		}
-		updateBehavior(fr, &malcontent.Behavior{ID: "rule_a", RiskScore: CRITICAL, Description: "upgraded"}, "rule_a")
+		updateBehavior(fr, &malcontent.Behavior{ID: "rule_a", RiskScore: CRITICAL, Description: "upgraded"}, "rule_a", nil)
 		if len(fr.Behaviors) != 1 || fr.Behaviors[0].RiskScore != CRITICAL {
 			t.Errorf("expected CRITICAL replacement, got %+v", fr.Behaviors)
 		}
@@ -1026,7 +1310,7 @@ func TestUpdateBehavior(t *testing.T) {
 		fr := &malcontent.FileReport{
 			Behaviors: []*malcontent.Behavior{{ID: "rule_b", RiskScore: MEDIUM, Description: "short"}},
 		}
-		updateBehavior(fr, &malcontent.Behavior{ID: "rule_b", RiskScore: MEDIUM, Description: "a much longer description"}, "rule_b")
+		updateBehavior(fr, &malcontent.Behavior{ID: "rule_b", RiskScore: MEDIUM, Description: "a much longer description"}, "rule_b", nil)
 		if fr.Behaviors[0].Description != "a much longer description" {
 			t.Errorf("description not updated: %q", fr.Behaviors[0].Description)
 		}
@@ -1040,7 +1324,7 @@ func TestUpdateBehavior(t *testing.T) {
 		fr := &malcontent.FileReport{
 			Behaviors: []*malcontent.Behavior{{ID: "rule_c", RiskScore: HIGH, Description: "original"}},
 		}
-		updateBehavior(fr, &malcontent.Behavior{ID: "rule_c", RiskScore: LOW, Description: "low"}, "rule_c")
+		updateBehavior(fr, &malcontent.Behavior{ID: "rule_c", RiskScore: LOW, Description: "low"}, "rule_c", nil)
 		if fr.Behaviors[0].RiskScore != HIGH || fr.Behaviors[0].Description != "original" {
 			t.Errorf("should be unchanged, got score=%d desc=%q", fr.Behaviors[0].RiskScore, fr.Behaviors[0].Description)
 		}
@@ -1055,7 +1339,7 @@ func TestUpdateBehavior(t *testing.T) {
 				{ID: "third", RiskScore: LOW},
 			},
 		}
-		updateBehavior(fr, &malcontent.Behavior{ID: "target", RiskScore: CRITICAL}, "target")
+		updateBehavior(fr, &malcontent.Behavior{ID: "target", RiskScore: CRITICAL}, "target", nil)
 		if len(fr.Behaviors) != 3 {
 			t.Fatalf("expected 3, got %d", len(fr.Behaviors))
 		}
@@ -1066,6 +1350,23 @@ func TestUpdateBehavior(t *testing.T) {
 			t.Error("neighbors should be undisturbed")
 		}
 	})
+}
+
+func TestUpdateBehavior_Idempotence(t *testing.T) {
+	t.Parallel()
+
+	fr := &malcontent.FileReport{
+		Behaviors: []*malcontent.Behavior{},
+	}
+	b := &malcontent.Behavior{ID: "same_key", RiskScore: MEDIUM, Description: "stable"}
+
+	updateBehavior(fr, b, "same_key", nil)
+	updateBehavior(fr, b, "same_key", nil)
+	updateBehavior(fr, b, "same_key", nil)
+
+	if len(fr.Behaviors) != 1 {
+		t.Errorf("expected 1 behavior after 3 identical updates, got %d", len(fr.Behaviors))
+	}
 }
 
 func TestHighestBehaviorRisk(t *testing.T) {
