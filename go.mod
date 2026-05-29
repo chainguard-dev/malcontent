@@ -3,7 +3,7 @@ module github.com/chainguard-dev/malcontent
 go 1.26.2
 
 require (
-	github.com/VirusTotal/yara-x/go v1.16.0
+	github.com/VirusTotal/yara-x/go v1.17.0
 	github.com/cavaliergopher/cpio v1.0.1
 	github.com/cavaliergopher/rpm v1.3.0
 	github.com/chainguard-dev/clog v1.8.0
