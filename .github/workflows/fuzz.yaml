@@ -30,8 +30,9 @@ on:
           - "180m"
 
 env:
+  CGO_ENABLED: "1"
   GO_RELEASE: "go-1.26"
-  YARA_X_RELEASE: "1.16.0"
+  YARA_X_RELEASE: "1.17.0"
 
 permissions: {}
 
@@ -45,7 +46,7 @@ jobs:
       targets: ${{ steps.find.outputs.targets }}
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
+        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
         with:
           egress-policy: block
           allowed-endpoints: >
@@ -125,7 +126,7 @@ jobs:
       - name: Install dependencies
         run: |
           apk update
-          apk add curl findutils git gnutar "${GO_RELEASE}" nodejs upx xz "yara-x~${YARA_X_RELEASE}"
+          apk add curl findutils gcc git gnutar "${GO_RELEASE}" make nodejs pkgconf upx xz "yara-x~${YARA_X_RELEASE}"
 
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
