@@ -30,9 +30,13 @@ func sha256OfPath(p string) string {
 
 // recoverExtractor is a deferred safety net for archive extractors. If the
 // extractor panics, the panic is converted to an error and assigned to *err so
-// the parent process can mark the archive skipped and continue scanning. The
-// caller's named return must be `err`. This function is invoked as
-// `defer recoverExtractor(...)` so recover() runs in the deferred frame.
+// the caller can surface the failure and continue scanning. The caller's named
+// return must be `err`. This function is invoked as `defer recoverExtractor(...)`
+// so recover() runs directly in the deferred frame. Each goroutine that may
+// panic must defer its own recoverExtractor: recover() only observes panics in
+// the same goroutine as the deferred frame, and errgroup does not propagate
+// panics from worker funcs, so concurrent extractors defer it inside each
+// worker closure as well as in the parent.
 func recoverExtractor(ctx context.Context, kind, path string, err *error) {
 	r := recover() //nolint:revive // invoked via defer at every call site
 	if r == nil {
@@ -48,11 +52,6 @@ func recoverExtractor(ctx context.Context, kind, path string, err *error) {
 		*err = fmt.Errorf("%w: extractor %s on %s: %v", ErrExtractorPanic, kind, path, r)
 	}
 	cfg := malcontent.ConfigFromContext(ctx)
-	// Publish the panicked path so downstream scan stages can skip it.
-	// First-publication-wins semantics keep concurrent recoveries idempotent.
-	if cfg != nil && cfg.Skipped != nil {
-		cfg.Skipped.LoadOrStore(path, struct{}{})
-	}
 	// TODO: replace with mal_extractor_panic_total counter once pkg/metrics exists
 	if cfg != nil && cfg.ExitOnExtractorPanic {
 		// Operator opted into fail-loud on extractor panic.
@@ -61,3 +60,8 @@ func recoverExtractor(ctx context.Context, kind, path string, err *error) {
 		os.Exit(1) //nolint:revive // deep-exit is intentional: operator-opted fail-loud
 	}
 }
+
+// workerPanicHook, when non-nil, is invoked at the top of every extraction
+// worker closure. It exists solely so tests can force a panic inside a worker
+// goroutine; production leaves it nil and the call is a no-op.
+var workerPanicHook func(path string)

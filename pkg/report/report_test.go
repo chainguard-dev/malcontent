@@ -86,7 +86,7 @@ func TestUpgradeRisk(t *testing.T) {
 	}{
 		{"no risk", 0, map[int]int{}, 1024, false},
 		{"tiny-risky", 3, map[int]int{3: 2}, 310, true},
-		{"small-not", 3, map[int]int{3: 2}, 8192, true},
+		{"small-not", 3, map[int]int{3: 2}, 8192, false},
 		{"small-risky", 3, map[int]int{3: 3}, 8192, true},
 		{"large-not", 3, map[int]int{3: 3}, 1024 * 1024 * 1024, false},
 		{"large-yes", 3, map[int]int{3: 10}, 1024 * 1024 * 1024, true},
@@ -113,8 +113,17 @@ func TestUpgradeRisk_BandPartition(t *testing.T) {
 		riskCounts map[int]int
 		want       bool
 	}{
-		{name: "band1 sub-MB highCount=2 upgrades", size: 500 * 1024, riskCounts: map[int]int{3: 2}, want: true},
-		{name: "band1 sub-MB highCount=1 no upgrade", size: 500 * 1024, riskCounts: map[int]int{3: 1}, want: false},
+		{name: "band1 sub-KiB highCount=2 upgrades", size: 1000, riskCounts: map[int]int{3: 2}, want: true},
+		{name: "band1 sub-KiB highCount=1 no upgrade", size: 1000, riskCounts: map[int]int{3: 1}, want: false},
+		{name: "1023 bytes highCount=2 upgrades", size: 1023, riskCounts: map[int]int{3: 2}, want: true},
+		{name: "1024 bytes highCount=2 no upgrade", size: 1024, riskCounts: map[int]int{3: 2}, want: false},
+		{name: "1024 bytes highCount=3 upgrades", size: 1024, riskCounts: map[int]int{3: 3}, want: true},
+		{name: "sub-MiB highCount=2 no upgrade", size: 500 * 1024, riskCounts: map[int]int{3: 2}, want: false},
+		{name: "sub-MiB highCount=3 upgrades", size: 500 * 1024, riskCounts: map[int]int{3: 3}, want: true},
+		{name: "1048575 bytes highCount=2 no upgrade", size: 1048575, riskCounts: map[int]int{3: 2}, want: false},
+		{name: "1048575 bytes highCount=3 upgrades", size: 1048575, riskCounts: map[int]int{3: 3}, want: true},
+		{name: "1048576 bytes highCount=2 no upgrade", size: 1048576, riskCounts: map[int]int{3: 2}, want: false},
+		{name: "1048576 bytes highCount=3 upgrades", size: 1048576, riskCounts: map[int]int{3: 3}, want: true},
 		{name: "band2 1.5MB highCount=3 upgrades", size: int64(1.5 * 1024 * 1024), riskCounts: map[int]int{3: 3}, want: true},
 		{name: "band2 1.5MB highCount=2 no upgrade", size: int64(1.5 * 1024 * 1024), riskCounts: map[int]int{3: 2}, want: false},
 		{name: "band3 3MB highCount=4 upgrades", size: 3 * 1024 * 1024, riskCounts: map[int]int{3: 4}, want: true},

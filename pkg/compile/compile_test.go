@@ -311,10 +311,13 @@ func TestCacheIntegrity_SidecarRoundtrip(t *testing.T) {
 		t.Fatalf("tamper write: %v", err)
 	}
 
-	if _, err := loadCachedRules(cacheFile); err == nil {
-		t.Fatal("expected integrity error after tamper, got nil")
-	} else if !strings.Contains(err.Error(), "integrity") {
-		t.Fatalf("expected integrity error, got: %v", err)
+	// Corruption must be rejected: a tampered cache yields a non-nil error and
+	// no rules, whether the byte change is caught while deserializing or by the
+	// post-deserialization digest comparison.
+	if got, err := loadCachedRules(cacheFile); err == nil {
+		t.Fatal("expected error after tamper, got nil")
+	} else if got != nil {
+		t.Fatal("tampered cache must not return rules")
 	}
 
 	if err := os.Remove(cacheFile + ".sha256"); err != nil {
@@ -322,6 +325,83 @@ func TestCacheIntegrity_SidecarRoundtrip(t *testing.T) {
 	}
 	if _, err := loadCachedRules(cacheFile); err == nil {
 		t.Fatal("expected missing-sidecar error, got nil")
+	}
+}
+
+func TestLoadCachedRules_DigestMismatchRejected(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	tempDir := t.TempDir()
+	rules, err := Recursive(ctx, getAllRuleFS())
+	if err != nil {
+		t.Fatalf("Recursive failed: %v", err)
+	}
+
+	cacheFile := filepath.Join(tempDir, "mismatch.cache")
+	if err := saveCachedRules(rules, cacheFile); err != nil {
+		t.Fatalf("saveCachedRules failed: %v", err)
+	}
+
+	// A deserializable cache file paired with a wrong sidecar digest exercises
+	// the verify-after-deserialize comparison: ReadFrom succeeds, then the
+	// computed digest disagrees with the sidecar and the rules are rejected.
+	if _, err := loadCachedRules(cacheFile); err != nil {
+		t.Fatalf("loadCachedRules failed before sidecar tamper: %v", err)
+	}
+
+	wrongDigest := strings.Repeat("0", 64)
+	if err := os.WriteFile(cacheFile+".sha256", []byte(wrongDigest+"\n"), 0o600); err != nil {
+		t.Fatalf("write tampered sidecar: %v", err)
+	}
+
+	got, err := loadCachedRules(cacheFile)
+	if err == nil {
+		t.Fatal("expected digest mismatch error, got nil")
+	}
+	if got != nil {
+		t.Fatal("rules that failed integrity verification must not be returned")
+	}
+	if !strings.Contains(err.Error(), "integrity mismatch") {
+		t.Fatalf("expected integrity mismatch error, got: %v", err)
+	}
+}
+
+func TestSweepStaleTempFiles(t *testing.T) {
+	t.Parallel()
+
+	cacheDir := t.TempDir()
+
+	staleCache := filepath.Join(cacheDir, ".rules-stale.cache.tmp")
+	staleSidecar := filepath.Join(cacheDir, ".rules-stale.sha256.tmp")
+	freshCache := filepath.Join(cacheDir, ".rules-fresh.cache.tmp")
+	liveCache := filepath.Join(cacheDir, "rules-abc123.cache")
+	liveSidecar := filepath.Join(cacheDir, "rules-abc123.cache.sha256")
+
+	for _, p := range []string{staleCache, staleSidecar, freshCache, liveCache, liveSidecar} {
+		if err := os.WriteFile(p, []byte("x"), 0o600); err != nil {
+			t.Fatalf("write %s: %v", p, err)
+		}
+	}
+
+	old := time.Now().Add(-48 * time.Hour)
+	for _, p := range []string{staleCache, staleSidecar, liveCache, liveSidecar} {
+		if err := os.Chtimes(p, old, old); err != nil {
+			t.Fatalf("chtimes %s: %v", p, err)
+		}
+	}
+
+	sweepStaleTempFiles(cacheDir)
+
+	for _, p := range []string{staleCache, staleSidecar} {
+		if _, err := os.Stat(p); !errors.Is(err, fs.ErrNotExist) {
+			t.Errorf("expected stale temp %s removed, stat err: %v", p, err)
+		}
+	}
+	for _, p := range []string{freshCache, liveCache, liveSidecar} {
+		if _, err := os.Stat(p); err != nil {
+			t.Errorf("expected %s preserved, stat err: %v", p, err)
+		}
 	}
 }
 

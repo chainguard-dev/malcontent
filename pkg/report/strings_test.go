@@ -9,6 +9,8 @@ import (
 	"sync/atomic"
 	"testing"
 	"unsafe"
+
+	"github.com/puzpuzpuz/xsync/v4"
 )
 
 // Constants used across strings_test and fuzz_test.
@@ -25,6 +27,14 @@ func StringDataPointer(s string) uintptr {
 	return (*[2]uintptr)(unsafe.Pointer(&s))[0]
 }
 
+// newIsolatedPool returns a StringPool that does not share state with the
+// process-wide singleton. Tests asserting backing-array identity use it so
+// the assertion is unaffected by the singleton's bounded resets, which can
+// fire when other parallel tests intern large numbers of distinct strings.
+func newIsolatedPool() *StringPool {
+	return &StringPool{strings: xsync.NewMap[string, string]()}
+}
+
 func TestNewStringPool(t *testing.T) {
 	t.Parallel()
 	pool := NewStringPool()
@@ -35,7 +45,7 @@ func TestNewStringPool(t *testing.T) {
 
 func TestStringPoolInternBasic(t *testing.T) {
 	t.Parallel()
-	pool := NewStringPool()
+	pool := newIsolatedPool()
 
 	s1 := pool.Intern("hello")
 	if s1 != "hello" {
@@ -81,7 +91,7 @@ func TestStringPoolInternEmptyString(t *testing.T) {
 
 func TestStringPoolInternDynamicStrings(t *testing.T) {
 	t.Parallel()
-	pool := NewStringPool()
+	pool := newIsolatedPool()
 
 	base := "test"
 	d1 := base + "123"
@@ -111,6 +121,54 @@ func TestStringPoolClear(t *testing.T) {
 	s := pool.Intern("hello")
 	if s != "hello" {
 		t.Errorf("intern after clear returned %q, want %q", s, "hello")
+	}
+}
+
+// TestStringPoolBounded verifies the interned set does not grow without
+// bound: interning more distinct values than maxInternedStrings resets the
+// pool so its size stays within the cap rather than accumulating every
+// distinct string across the process lifetime. An isolated pool keeps the
+// count deterministic, independent of the shared singleton other parallel
+// tests exercise.
+func TestStringPoolBounded(t *testing.T) {
+	t.Parallel()
+	pool := newIsolatedPool()
+
+	const distinct = maxInternedStrings * 2
+	for i := range distinct {
+		s := pool.Intern(fmt.Sprintf("bounded-%d", i))
+		if want := fmt.Sprintf("bounded-%d", i); s != want {
+			t.Fatalf("intern returned %q for index %d, want %q", s, i, want)
+		}
+		if got := pool.strings.Size(); got > maxInternedStrings {
+			t.Fatalf("pool size %d exceeded cap %d at index %d", got, maxInternedStrings, i)
+		}
+	}
+
+	// Interning twice the cap in distinct values must not retain them all.
+	if got := pool.strings.Size(); got >= distinct {
+		t.Fatalf("pool size %d did not stay bounded below %d distinct strings", got, distinct)
+	}
+}
+
+// TestStringPoolBoundedAcrossCycles verifies that repeated batches of
+// distinct strings keep the interned set bounded rather than accumulating
+// every string seen across batches.
+func TestStringPoolBoundedAcrossCycles(t *testing.T) {
+	t.Parallel()
+	pool := newIsolatedPool()
+
+	const (
+		cycles   = 4
+		perCycle = maxInternedStrings
+	)
+	for c := range cycles {
+		for j := range perCycle {
+			pool.Intern(fmt.Sprintf("cycle-%d-%d", c, j))
+		}
+		if got := pool.strings.Size(); got > maxInternedStrings {
+			t.Fatalf("after cycle %d, pool size %d exceeded cap %d", c, got, maxInternedStrings)
+		}
 	}
 }
 
@@ -145,7 +203,7 @@ func TestStringPoolConcurrent(t *testing.T) {
 // concurrent interning returns the same pointer for identical strings.
 func TestStringPoolConcurrentSamePointers(t *testing.T) {
 	t.Parallel()
-	pool := NewStringPool()
+	pool := newIsolatedPool()
 
 	const testString = "concurrent-test-string"
 
@@ -186,7 +244,7 @@ func TestStringPoolAtomic(t *testing.T) {
 	t.Parallel()
 
 	for iter := range numIterations {
-		pool := NewStringPool()
+		pool := newIsolatedPool()
 		testStr := fmt.Sprintf("race-test-%d", iter)
 
 		results := make([]string, numGoroutines)
@@ -259,7 +317,7 @@ func TestStringPoolRaceCondition(t *testing.T) {
 // reduces memory usage by sharing backing arrays.
 func TestStringPoolMemoryDeduplication(t *testing.T) {
 	t.Parallel()
-	pool := NewStringPool()
+	pool := newIsolatedPool()
 
 	const testString = "this is a test string for deduplication"
 

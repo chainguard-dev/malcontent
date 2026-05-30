@@ -6,6 +6,8 @@ package programkind
 import (
 	"os"
 	"path/filepath"
+	"runtime"
+	"strings"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -380,10 +382,11 @@ func TestIsLikelyShellScript(t *testing.T) {
 
 func TestValidateUPXPath(t *testing.T) {
 	tests := []struct {
-		name    string
-		path    string
-		wantErr bool
-		skipFn  func(t *testing.T)
+		name             string
+		path             string
+		operatorSupplied bool
+		wantErr          bool
+		skipFn           func(t *testing.T)
 	}{
 		{
 			name:    "empty_path_rejected",
@@ -401,9 +404,10 @@ func TestValidateUPXPath(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name:    "path_with_dotdot_rejected",
-			path:    "/usr/bin/../tmp/evil",
-			wantErr: true,
+			name:             "operator_relative_path_rejected",
+			path:             "upx",
+			operatorSupplied: true,
+			wantErr:          true,
 		},
 		{
 			name:    "non_allowlisted_absolute_rejected",
@@ -433,36 +437,133 @@ func TestValidateUPXPath(t *testing.T) {
 			if tt.skipFn != nil {
 				tt.skipFn(t)
 			}
-			got, err := validateUPXPath(tt.path)
+			got, err := validateUPXPath(tt.path, tt.operatorSupplied)
 			if tt.wantErr {
 				if err == nil {
-					t.Errorf("validateUPXPath(%q) = %q, want error", tt.path, got)
+					t.Errorf("validateUPXPath(%q, %v) = %q, want error", tt.path, tt.operatorSupplied, got)
 				}
 				return
 			}
 			if err != nil {
-				t.Errorf("validateUPXPath(%q) returned unexpected error: %v", tt.path, err)
+				t.Errorf("validateUPXPath(%q, %v) returned unexpected error: %v", tt.path, tt.operatorSupplied, err)
 			}
 			if got == "" {
-				t.Errorf("validateUPXPath(%q) returned empty path on success", tt.path)
+				t.Errorf("validateUPXPath(%q, %v) returned empty path on success", tt.path, tt.operatorSupplied)
 			}
 		})
 	}
 }
 
-func TestValidateUPXPathSymlinkOutsideAllowlistRejected(t *testing.T) {
-	// Create a symlink in a temp dir; even with a valid absolute path that
-	// resolves cleanly, the resolved location must still be in the allowlist.
-	dir := t.TempDir()
-	target := filepath.Join(dir, "fake-upx")
-	if err := os.WriteFile(target, []byte("not really upx"), 0o755); err != nil {
-		t.Fatalf("WriteFile: %v", err)
+// writeExecutable creates a regular, executable file with the given mode and
+// returns its path.
+func writeExecutable(t *testing.T, dir, name string, mode os.FileMode) string {
+	t.Helper()
+	p := filepath.Join(dir, name)
+	if err := os.WriteFile(p, []byte("#!/bin/sh\nexit 0\n"), mode); err != nil {
+		t.Fatalf("WriteFile(%q): %v", p, err)
 	}
+	// WriteFile honors umask; force the exact mode so the writable-bit cases
+	// are deterministic.
+	if err := os.Chmod(p, mode); err != nil {
+		t.Fatalf("Chmod(%q): %v", p, err)
+	}
+	return p
+}
+
+func TestValidateUPXPathOperatorTrust(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("POSIX chmod semantics required for permission cases")
+	}
+
+	t.Run("operator_path_outside_allowlist_accepted", func(t *testing.T) {
+		dir := t.TempDir()
+		bin := writeExecutable(t, dir, "upx", 0o755)
+		got, err := validateUPXPath(bin, true)
+		if err != nil {
+			t.Fatalf("validateUPXPath(%q, true) = error %v, want accepted", bin, err)
+		}
+		resolved, _ := filepath.EvalSymlinks(bin)
+		if got != resolved {
+			t.Errorf("validateUPXPath(%q, true) = %q, want %q", bin, got, resolved)
+		}
+	})
+
+	t.Run("operator_path_with_dotdot_in_name_accepted", func(t *testing.T) {
+		dir := t.TempDir()
+		bin := writeExecutable(t, dir, "upx..bak", 0o755)
+		if _, err := validateUPXPath(bin, true); err != nil {
+			t.Errorf("validateUPXPath(%q, true) = error %v, want accepted (literal '..' in filename is not traversal)", bin, err)
+		}
+	})
+
+	t.Run("operator_world_writable_rejected", func(t *testing.T) {
+		dir := t.TempDir()
+		bin := writeExecutable(t, dir, "upx", 0o757)
+		_, err := validateUPXPath(bin, true)
+		if err == nil {
+			t.Fatalf("validateUPXPath(%q, true) = nil error, want rejection (world-writable)", bin)
+		}
+		if !strings.Contains(err.Error(), "writable") {
+			t.Errorf("validateUPXPath(%q, true) error = %v, want a writable-specific reason", bin, err)
+		}
+	})
+
+	t.Run("operator_group_writable_rejected", func(t *testing.T) {
+		dir := t.TempDir()
+		bin := writeExecutable(t, dir, "upx", 0o775)
+		_, err := validateUPXPath(bin, true)
+		if err == nil {
+			t.Fatalf("validateUPXPath(%q, true) = nil error, want rejection (group-writable)", bin)
+		}
+		if !strings.Contains(err.Error(), "writable") {
+			t.Errorf("validateUPXPath(%q, true) error = %v, want a writable-specific reason", bin, err)
+		}
+	})
+
+	t.Run("operator_not_executable_rejected", func(t *testing.T) {
+		dir := t.TempDir()
+		bin := writeExecutable(t, dir, "upx", 0o644)
+		_, err := validateUPXPath(bin, true)
+		if err == nil {
+			t.Fatalf("validateUPXPath(%q, true) = nil error, want rejection (not executable)", bin)
+		}
+		if !strings.Contains(err.Error(), "executable") {
+			t.Errorf("validateUPXPath(%q, true) error = %v, want a not-executable reason", bin, err)
+		}
+	})
+
+	t.Run("operator_directory_rejected", func(t *testing.T) {
+		dir := t.TempDir()
+		if _, err := validateUPXPath(dir, true); err == nil {
+			t.Errorf("validateUPXPath(%q, true) = nil error, want rejection (not a regular file)", dir)
+		}
+	})
+
+	t.Run("operator_relative_rejected", func(t *testing.T) {
+		if _, err := validateUPXPath("bin/upx", true); err == nil {
+			t.Errorf("validateUPXPath(%q, true) = nil error, want rejection (relative path)", "bin/upx")
+		}
+	})
+
+	t.Run("discovery_path_outside_allowlist_rejected", func(t *testing.T) {
+		dir := t.TempDir()
+		bin := writeExecutable(t, dir, "upx", 0o755)
+		if _, err := validateUPXPath(bin, false); err == nil {
+			t.Errorf("validateUPXPath(%q, false) = nil error, want rejection (outside allowlist)", bin)
+		}
+	})
+}
+
+func TestValidateUPXPathSymlinkOutsideAllowlistRejected(t *testing.T) {
+	// Create a symlink in a temp dir; on the discovery path a valid absolute
+	// path that resolves cleanly must still land in the allowlist.
+	dir := t.TempDir()
+	target := writeExecutable(t, dir, "fake-upx", 0o755)
 	link := filepath.Join(dir, "upx-link")
 	if err := os.Symlink(target, link); err != nil {
 		t.Fatalf("Symlink: %v", err)
 	}
-	if _, err := validateUPXPath(link); err == nil {
-		t.Errorf("validateUPXPath(%q) = nil error, want rejection (resolved path outside allowlist)", link)
+	if _, err := validateUPXPath(link, false); err == nil {
+		t.Errorf("validateUPXPath(%q, false) = nil error, want rejection (resolved path outside allowlist)", link)
 	}
 }

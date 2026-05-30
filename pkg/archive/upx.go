@@ -130,8 +130,11 @@ func ExtractUPX(ctx context.Context, d, f string) (err error) {
 		return fmt.Errorf("failed to close target: %w", err)
 	}
 
-	// Per-call sandbox dir bounds any side files UPX might drop and lets
-	// the kernel reclaim space immediately on completion.
+	// Per-call sandbox dir is UPX's cwd, so it bounds only side files UPX
+	// names relatively; absolutely-named outputs (such as the -k backup
+	// alongside the absolute target) land in the destination dir, which is
+	// itself scanned and cleaned. RemoveAll lets the kernel reclaim the
+	// sandbox immediately on completion.
 	sandbox, err := os.MkdirTemp("", "mal-upx-*")
 	if err != nil {
 		return fmt.Errorf("upx sandbox tmpdir: %w", err)

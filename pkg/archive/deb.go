@@ -14,6 +14,7 @@ import (
 	"strings"
 
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/egibs/go-debian/deb"
 )
 
@@ -38,11 +39,26 @@ func ExtractDeb(ctx context.Context, d, f string) (retErr error) {
 	}
 	defer fd.Close()
 
+	fi, err := fd.Stat()
+	if err != nil {
+		return fmt.Errorf("failed to stat file: %w", err)
+	}
+
 	df, err := deb.Load(fd, f)
 	if err != nil {
 		return fmt.Errorf("failed to load file: %w", err)
 	}
 	defer df.Close()
+
+	// Shared counter across every tar member of the deb data archive enforces a
+	// uniform byte and ratio ceiling. InputBytes seeds the ratio denominator
+	// from the deb file size.
+	maxBytes, maxRatio := resolveArchiveCaps(ctx)
+	counter := &file.ArchiveCounter{
+		MaxBytes:   maxBytes,
+		MaxRatio:   maxRatio,
+		InputBytes: fi.Size(),
+	}
 
 	for {
 		header, err := df.Data.Next()
@@ -73,7 +89,7 @@ func ExtractDeb(ctx context.Context, d, f string) (retErr error) {
 				return fmt.Errorf("failed to extract directory: %w", err)
 			}
 		case tar.TypeReg:
-			if err := handleFile(target, df.Data, nil); err != nil {
+			if err := handleFile(target, df.Data, counter); err != nil {
 				return fmt.Errorf("failed to extract file: %w", err)
 			}
 		case tar.TypeSymlink:

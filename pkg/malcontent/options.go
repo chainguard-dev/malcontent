@@ -16,9 +16,12 @@ import (
 // and may overwrite earlier settings.
 type Option func(*Config)
 
-// LibraryDefaults returns a Config preloaded with values that match the
-// malcontent CLI's defaults for embedding callers. Output defaults to
-// io.Discard so library use will not panic on a nil writer.
+// LibraryDefaults returns a Config preloaded with sane defaults for embedding
+// callers, drawn from the malcontent CLI's defaults. Most fields mirror the CLI
+// scan defaults; Sensitivity:5 corresponds to the diff/ALL default (the value
+// the CLI uses on the diff path) and is inert for scans, which never read
+// Sensitivity. Output defaults to io.Discard so library use will not panic on a
+// nil writer.
 func LibraryDefaults() Config {
 	return Config{
 		Concurrency:      runtime.NumCPU(),

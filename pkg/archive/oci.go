@@ -299,6 +299,14 @@ func prepareImage(ctx context.Context, c *malcontent.Config, d string) (string, 
 	if err != nil {
 		return "", nil, fmt.Errorf("failed to create temp file: %w", err)
 	}
+	// On any error return the caller never receives tmpFile, so its descriptor
+	// must be closed here. The success-path caller owns the close otherwise; the
+	// success guard prevents a double-close.
+	defer func() {
+		if !success {
+			_ = tmpFile.Close()
+		}
+	}()
 
 	useAuth := c.OCIAuth
 	maxImageSize := c.MaxImageSize
@@ -339,7 +347,13 @@ func prepareImage(ctx context.Context, c *malcontent.Config, d string) (string, 
 		}
 		var totalSize int64
 		for _, layer := range manifest.Layers {
+			if layer.Size < 0 || totalSize > maxImageSize-layer.Size {
+				return "", nil, fmt.Errorf("image size exceeds maximum allowed size (%d bytes)", maxImageSize)
+			}
 			totalSize += layer.Size
+		}
+		if manifest.Config.Size < 0 || totalSize > maxImageSize-manifest.Config.Size {
+			return "", nil, fmt.Errorf("image size exceeds maximum allowed size (%d bytes)", maxImageSize)
 		}
 		totalSize += manifest.Config.Size
 		if totalSize > maxImageSize {

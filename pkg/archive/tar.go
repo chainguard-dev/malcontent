@@ -53,7 +53,7 @@ func ExtractTar(ctx context.Context, d string, f string) (err error) {
 	maxBytes, maxRatio := resolveArchiveCaps(ctx)
 	counter := &file.ArchiveCounter{
 		MaxBytes:   maxBytes,
-		MaxRatio:   int64(maxRatio),
+		MaxRatio:   maxRatio,
 		InputBytes: fi.Size(),
 	}
 

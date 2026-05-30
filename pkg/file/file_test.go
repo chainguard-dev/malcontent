@@ -6,6 +6,7 @@ package file
 import (
 	"bytes"
 	"errors"
+	"io"
 	"math"
 	"os"
 	"path/filepath"
@@ -554,6 +555,198 @@ func TestSizeClassClassification(t *testing.T) {
 			t.Parallel()
 			if got := sizeClass(tt.n); got != tt.want {
 				t.Errorf("sizeClass(%d) = %v, want %v", tt.n, got, tt.want)
+			}
+		})
+	}
+}
+
+// TestReadSmallFileMatchesReadAll asserts readSmallFile returns bytes
+// identical to io.ReadAll(io.LimitReader(...)) across the small-file size
+// range, including the empty, sub-buffer, and exact-ceiling cases. The size
+// hint is supplied honestly here (it equals the on-disk length).
+func TestReadSmallFileMatchesReadAll(t *testing.T) {
+	t.Parallel()
+	sizes := []struct {
+		name string
+		n    int
+	}{
+		{"empty", 0},
+		{"tiny_below_512", 200},
+		{"one_byte", 1},
+		{"mid_8KiB", 8 * 1024},
+		{"exact_ceiling_64KiB", int(smallFileMaxBytes)},
+	}
+	for _, sz := range sizes {
+		t.Run(sz.name, func(t *testing.T) {
+			t.Parallel()
+			content := deterministicBytes(sz.n)
+
+			ref := writeTempFile(t, content)
+			defer ref.Close()
+			want, err := io.ReadAll(io.LimitReader(ref, smallFileMaxBytes))
+			if err != nil {
+				t.Fatalf("reference ReadAll: %v", err)
+			}
+
+			f := writeTempFile(t, content)
+			defer f.Close()
+			info, err := f.Stat()
+			if err != nil {
+				t.Fatalf("Stat: %v", err)
+			}
+			got, err := readSmallFile(f, info.Size())
+			if err != nil {
+				t.Fatalf("readSmallFile: %v", err)
+			}
+			if !bytes.Equal(got, want) {
+				t.Fatalf("content mismatch: got %d bytes, want %d", len(got), len(want))
+			}
+			if len(got) != len(want) {
+				t.Fatalf("length mismatch: got %d, want %d", len(got), len(want))
+			}
+		})
+	}
+}
+
+// TestReadSmallFileStaleSizeHint feeds readSmallFile a size hint that
+// disagrees with the file's actual length in both directions. The hint must
+// only presize the buffer; the returned bytes must reflect the real on-disk
+// content with no truncation and no zero-padding.
+func TestReadSmallFileStaleSizeHint(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name string
+		// actual on-disk length
+		actual int
+		// stale hint passed to readSmallFile
+		hint int64
+	}{
+		{"hint_larger_than_actual", 1024, 32 * 1024},
+		{"hint_smaller_than_actual", 8 * 1024, 16},
+		{"hint_zero_nonempty_file", 4 * 1024, 0},
+		{"hint_negative", 4 * 1024, -1},
+		{"hint_above_ceiling_small_file", 1024, smallFileMaxBytes * 4},
+		{"hint_at_ceiling_actual_empty", 0, smallFileMaxBytes},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			content := deterministicBytes(tt.actual)
+			f := writeTempFile(t, content)
+			defer f.Close()
+
+			got, err := readSmallFile(f, tt.hint)
+			if err != nil {
+				t.Fatalf("readSmallFile: %v", err)
+			}
+			if !bytes.Equal(got, content) {
+				t.Fatalf("content mismatch with stale hint: got %d bytes, want %d", len(got), len(content))
+			}
+		})
+	}
+}
+
+// TestReadSmallFileCapsAtCeiling confirms readSmallFile never returns more
+// than smallFileMaxBytes even when both the file and the hint exceed it, and
+// that the LimitReader cap matches io.ReadAll's cap behavior exactly.
+func TestReadSmallFileCapsAtCeiling(t *testing.T) {
+	t.Parallel()
+	// File larger than the small ceiling; the stat-driven dispatch would not
+	// route this to readSmallFile, but the helper must still honor its own cap
+	// defensively when the size hint is wrong.
+	content := deterministicBytes(int(smallFileMaxBytes) + 4096)
+
+	ref := writeTempFile(t, content)
+	defer ref.Close()
+	want, err := io.ReadAll(io.LimitReader(ref, smallFileMaxBytes))
+	if err != nil {
+		t.Fatalf("reference ReadAll: %v", err)
+	}
+
+	f := writeTempFile(t, content)
+	defer f.Close()
+	got, err := readSmallFile(f, int64(len(content)))
+	if err != nil {
+		t.Fatalf("readSmallFile: %v", err)
+	}
+	if int64(len(got)) != smallFileMaxBytes {
+		t.Fatalf("len(got) = %d, want %d", len(got), smallFileMaxBytes)
+	}
+	if !bytes.Equal(got, want) {
+		t.Fatalf("capped content mismatch vs io.ReadAll")
+	}
+}
+
+// TestArchiveCounter_FractionalRatio exercises ArchiveCounter.Add with
+// non-integer MaxRatio values. A ratio in (0,1) must enforce rather than
+// disable the cap, and a fractional ratio above 1 must fire at its exact
+// threshold rather than the truncated integer.
+func TestArchiveCounter_FractionalRatio(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name       string
+		maxRatio   float64
+		inputBytes int64
+		writes     []int
+		wantErr    bool
+	}{
+		{
+			name:       "ratio below one enforces",
+			maxRatio:   0.5,
+			inputBytes: 1000,
+			writes:     []int{500, 1},
+			wantErr:    true,
+		},
+		{
+			name:       "ratio below one does not fire at threshold",
+			maxRatio:   0.5,
+			inputBytes: 1000,
+			writes:     []int{500},
+			wantErr:    false,
+		},
+		{
+			name:       "fractional ratio fires at 2.5x not 2x",
+			maxRatio:   2.5,
+			inputBytes: 100,
+			writes:     []int{200, 51},
+			wantErr:    true,
+		},
+		{
+			name:       "fractional ratio does not fire just below 2.5x",
+			maxRatio:   2.5,
+			inputBytes: 100,
+			writes:     []int{200, 50},
+			wantErr:    false,
+		},
+		{
+			name:       "non-positive ratio disables the cap",
+			maxRatio:   0,
+			inputBytes: 100,
+			writes:     []int{1 << 20},
+			wantErr:    false,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			c := &ArchiveCounter{MaxRatio: tc.maxRatio, InputBytes: tc.inputBytes}
+			var lastErr error
+			for _, n := range tc.writes {
+				if err := c.Add(n); err != nil {
+					lastErr = err
+					break
+				}
+			}
+			if tc.wantErr {
+				if !errors.Is(lastErr, ErrArchiveRatioCap) {
+					t.Fatalf("want ErrArchiveRatioCap, got %v", lastErr)
+				}
+				return
+			}
+			if lastErr != nil {
+				t.Fatalf("expected no error, got %v", lastErr)
 			}
 		})
 	}

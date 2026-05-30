@@ -56,6 +56,42 @@ func BenchmarkGetContents(b *testing.B) {
 	}
 }
 
+// BenchmarkReadSmallFile measures the small-file read path across the
+// representative sizes the small size-class covers. The size hint passed is
+// the true on-disk length, so the pre-grown buffer is sized in one shot.
+func BenchmarkReadSmallFile(b *testing.B) {
+	sizes := []struct {
+		name string
+		n    int
+	}{
+		{"1KiB", 1 * 1024},
+		{"8KiB", 8 * 1024},
+		{"64KiB", 64 * 1024},
+	}
+	for _, sz := range sizes {
+		b.Run(sz.name, func(b *testing.B) {
+			payload := bytes.Repeat([]byte("z"), sz.n)
+			f := makeTempFile(b, "bench.bin", payload)
+			defer f.Close()
+			info, err := f.Stat()
+			if err != nil {
+				b.Fatalf("stat: %v", err)
+			}
+			size := info.Size()
+			b.ReportAllocs()
+			b.ResetTimer()
+			for range b.N {
+				if _, err := f.Seek(0, 0); err != nil {
+					b.Fatalf("seek: %v", err)
+				}
+				if _, err := readSmallFile(f, size); err != nil {
+					b.Fatalf("readSmallFile: %v", err)
+				}
+			}
+		})
+	}
+}
+
 // BenchmarkArchiveCounterAdd measures the atomic-increment + cap-check fast
 // path under a fresh counter.
 func BenchmarkArchiveCounterAdd(b *testing.B) {

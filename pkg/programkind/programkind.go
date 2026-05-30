@@ -228,13 +228,21 @@ func GetExt(path string) string {
 	return ext
 }
 
-var ErrUPXNotFound = errors.New("UPX executable not found")
+var (
+	// ErrUPXNotFound reports that no usable UPX binary was discovered on the
+	// automatic discovery path (MALCONTENT_UPX_PATH unset).
+	ErrUPXNotFound = errors.New("UPX executable not found")
+	// ErrUPXPathInvalid reports that an operator-supplied MALCONTENT_UPX_PATH
+	// failed validation. The wrapped error names the specific reason.
+	ErrUPXPathInvalid = errors.New("MALCONTENT_UPX_PATH is invalid")
+)
 
 const defaultUPXPath = "/usr/bin/upx"
 
-// upxAllowedPrefixes lists directories from which a UPX binary may be loaded.
-// Operators with non-standard UPX installs must place a symlink into one of
-// these prefixes or rebuild without the MALCONTENT_UPX_PATH override.
+// upxAllowedPrefixes lists directories from which a UPX binary may be loaded
+// during automatic discovery (MALCONTENT_UPX_PATH unset). An operator who sets
+// MALCONTENT_UPX_PATH explicitly bypasses this allowlist; their path is trusted
+// after the per-path safety checks in validateUPXPath.
 var upxAllowedPrefixes = []string{
 	"/usr/bin/",
 	"/usr/local/bin/",
@@ -247,12 +255,18 @@ var upxAllowedResolvedPrefixes = []string{
 	"/opt/homebrew/Cellar/upx/",
 }
 
-// validateUPXPath enforces:
-//  1. absolute path (rejects relative + paths containing "..")
-//  2. EvalSymlinks resolves cleanly
-//  3. resolved path lives directly under one of the well-known UPX install
-//     prefixes (no nested subdirs) to prevent traversal chains.
-func validateUPXPath(p string) (string, error) {
+// validateUPXPath resolves and vets a candidate UPX binary path.
+//
+// Every candidate must be an absolute path that resolves cleanly through
+// EvalSymlinks to a regular, executable file that is not group- or
+// world-writable.
+//
+// When operatorSupplied is true (MALCONTENT_UPX_PATH was set), the resolved
+// path is trusted regardless of its directory: the operator has made an
+// explicit trust assertion. When operatorSupplied is false (automatic
+// discovery via the default path), the resolved path must additionally live
+// directly under one of the well-known UPX install prefixes.
+func validateUPXPath(p string, operatorSupplied bool) (string, error) {
 	if p == "" {
 		return "", errors.New("empty upx path")
 	}
@@ -260,13 +274,29 @@ func validateUPXPath(p string) (string, error) {
 		return "", fmt.Errorf("upx path must be absolute: %q", p)
 	}
 	cleaned := filepath.Clean(p)
-	if strings.Contains(cleaned, "..") {
-		return "", fmt.Errorf("upx path contains '..' after clean: %q", cleaned)
-	}
 	resolved, err := filepath.EvalSymlinks(cleaned)
 	if err != nil {
 		return "", fmt.Errorf("upx path resolve failed: %w", err)
 	}
+
+	fi, err := os.Lstat(resolved)
+	if err != nil {
+		return "", fmt.Errorf("upx path stat failed: %w", err)
+	}
+	if !fi.Mode().IsRegular() {
+		return "", fmt.Errorf("upx path is not a regular file: %q", resolved)
+	}
+	if fi.Mode()&0o111 == 0 {
+		return "", fmt.Errorf("upx path is not executable: %q", resolved)
+	}
+	if fi.Mode()&0o022 != 0 {
+		return "", fmt.Errorf("upx path is group- or world-writable: %q", resolved)
+	}
+
+	if operatorSupplied {
+		return resolved, nil
+	}
+
 	parent := filepath.Dir(resolved) + "/"
 	if slices.Contains(upxAllowedPrefixes, parent) {
 		return resolved, nil
@@ -280,25 +310,26 @@ func validateUPXPath(p string) (string, error) {
 }
 
 // UPXInstalled returns the resolved path to the UPX binary, or an error if not found.
+//
+// When MALCONTENT_UPX_PATH is set, it is treated as an explicit operator trust
+// assertion: the path bypasses the directory allowlist but must still pass the
+// per-path safety checks, and any failure is surfaced as a specific
+// ErrUPXPathInvalid reason rather than a generic "not found".
 func UPXInstalled() (string, error) {
-	candidate := cmp.Or(os.Getenv("MALCONTENT_UPX_PATH"), defaultUPXPath)
+	operatorPath := os.Getenv("MALCONTENT_UPX_PATH")
+	operatorSupplied := operatorPath != ""
+	candidate := cmp.Or(operatorPath, defaultUPXPath)
 
-	upxPath, err := validateUPXPath(candidate)
+	upxPath, err := validateUPXPath(candidate, operatorSupplied)
 	if err != nil {
-		// Treat validation failure as "UPX unavailable" so extractors skip
-		// the path. Do not surface attacker-controlled details further.
-		return "", ErrUPXNotFound
-	}
-
-	fi, err := os.Stat(upxPath) // #nosec G304,G703 -- upxPath comes from the allowlisted validator above
-	if err != nil {
-		if errors.Is(err, fs.ErrNotExist) {
-			return "", ErrUPXNotFound
+		if operatorSupplied {
+			// The operator asked for a specific binary; tell them why it was
+			// rejected instead of hiding the reason behind "not found".
+			return "", fmt.Errorf("%w: %w", ErrUPXPathInvalid, err)
 		}
-		return "", fmt.Errorf("failed to check for UPX executable: %w", err)
-	}
-	if fi.Mode()&0o111 != 0o111 {
-		return "", fmt.Errorf("provided UPX binary is not executable")
+		// Automatic discovery failed; extractors skip the UPX path. Do not
+		// surface attacker-controlled details further.
+		return "", ErrUPXNotFound
 	}
 
 	return upxPath, nil

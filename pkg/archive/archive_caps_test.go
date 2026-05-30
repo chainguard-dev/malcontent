@@ -4,6 +4,7 @@
 package archive
 
 import (
+	"compress/gzip"
 	"context"
 	"errors"
 	"os"
@@ -76,7 +77,7 @@ func TestArchiveRatioCap_HitsLimit(t *testing.T) {
 	tests := []struct {
 		name       string
 		inputBytes int64
-		maxRatio   int64
+		maxRatio   float64
 		writes     []int
 		wantErr    bool
 	}{
@@ -92,6 +93,34 @@ func TestArchiveRatioCap_HitsLimit(t *testing.T) {
 			inputBytes: 100,
 			maxRatio:   10,
 			writes:     []int{500, 500},
+			wantErr:    false,
+		},
+		{
+			name:       "fractional ratio enforces rather than disabling",
+			inputBytes: 1000,
+			maxRatio:   0.5,
+			writes:     []int{500, 1},
+			wantErr:    true,
+		},
+		{
+			name:       "fractional ratio does not fire at exactly the threshold",
+			inputBytes: 1000,
+			maxRatio:   0.5,
+			writes:     []int{500},
+			wantErr:    false,
+		},
+		{
+			name:       "non-integer ratio fires at 2.5x not 2x",
+			inputBytes: 100,
+			maxRatio:   2.5,
+			writes:     []int{200, 51},
+			wantErr:    true,
+		},
+		{
+			name:       "non-integer ratio does not fire below 2.5x",
+			inputBytes: 100,
+			maxRatio:   2.5,
+			writes:     []int{200, 50},
 			wantErr:    false,
 		},
 	}
@@ -242,6 +271,50 @@ func TestExtractZip_DefaultBytesCap_Fires(t *testing.T) {
 	}
 	if !errors.Is(err, file.ErrArchiveBytesCap) {
 		t.Fatalf("ExtractZip err = %v; want chain containing ErrArchiveBytesCap", err)
+	}
+}
+
+// TestExtractGzip_RatioCap_Fires proves the standalone gzip decompressor wires
+// an ArchiveCounter so a high-expansion single stream is rejected by the ratio
+// cap. A run of zeros compresses to a tiny payload, yielding an expansion ratio
+// far above the low cap supplied through the context Config.
+func TestExtractGzip_RatioCap_Fires(t *testing.T) {
+	t.Parallel()
+
+	const payload = 64 * 1024
+
+	tmp := t.TempDir()
+	gzPath := filepath.Join(tmp, "bomb.gz")
+	gf, err := os.OpenFile(gzPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+	if err != nil {
+		t.Fatalf("create gz: %v", err)
+	}
+	gw := gzip.NewWriter(gf)
+	if _, err := gw.Write(make([]byte, payload)); err != nil {
+		_ = gf.Close()
+		t.Fatalf("write payload: %v", err)
+	}
+	if err := gw.Close(); err != nil {
+		_ = gf.Close()
+		t.Fatalf("close gzip writer: %v", err)
+	}
+	if err := gf.Close(); err != nil {
+		t.Fatalf("close gz file: %v", err)
+	}
+
+	cfg := &malcontent.Config{MaxArchiveRatio: 2}
+	ctx := malcontent.ContextWithConfig(context.Background(), cfg)
+
+	dst := filepath.Join(tmp, "out")
+	if err := os.MkdirAll(dst, 0o700); err != nil {
+		t.Fatalf("mkdir dst: %v", err)
+	}
+	err = ExtractGzip(ctx, dst, gzPath)
+	if err == nil {
+		t.Fatalf("ExtractGzip succeeded; want ErrArchiveRatioCap")
+	}
+	if !errors.Is(err, file.ErrArchiveRatioCap) {
+		t.Fatalf("ExtractGzip err = %v; want chain containing ErrArchiveRatioCap", err)
 	}
 }
 

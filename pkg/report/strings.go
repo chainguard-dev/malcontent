@@ -12,16 +12,25 @@ import (
 	"github.com/puzpuzpuz/xsync/v4"
 )
 
+// maxInternedStrings bounds the number of distinct strings the
+// process-wide pool retains. The pool is shared across every match
+// processor for the lifetime of the process, so without a cap the
+// intern map accumulates every distinct matched string indefinitely.
+// When the map reaches this size, Intern resets it; already-returned
+// strings stay valid because callers hold their own references and a
+// subsequent Intern of the same value simply re-stores it.
+const maxInternedStrings = 1 << 16
+
 // StringPool holds data to handle string interning.
 type StringPool struct {
 	strings *xsync.Map[string, string]
 }
 
-// clear is retained as a no-op so that the public surface is stable
-// for in-package callers. The pool's lifetime spans the process, so
-// dropping entries mid-process would race in-flight Intern calls and
-// erase deduplicated strings that may still be reachable from result
-// slices held by other goroutines.
+// clear is a no-op for in-package callers. The pool is the process-wide
+// singleton, so emptying it on demand would race in-flight Intern calls
+// and break the same-backing-array guarantee that concurrent callers
+// depend on. Growth is instead bounded inside Intern, which resets the
+// pool only once it reaches maxInternedStrings entries.
 func (sp *StringPool) clear() {}
 
 // stringPoolSingleton lazily constructs the package-wide pool the
@@ -40,8 +49,13 @@ func NewStringPool() *StringPool {
 	return stringPoolSingleton()
 }
 
-// Intern returns an interned version of the input string.
+// Intern returns an interned version of the input string. When the pool
+// reaches maxInternedStrings distinct entries it is reset before storing,
+// bounding the pool's memory footprint over the process lifetime.
 func (sp *StringPool) Intern(s string) string {
+	if sp.strings.Size() >= maxInternedStrings {
+		sp.strings.Clear()
+	}
 	interned, _ := sp.strings.LoadOrStore(s, s)
 	return interned
 }

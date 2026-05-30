@@ -27,17 +27,18 @@ const (
 )
 
 // ErrArchiveBytesCap is returned by ArchiveCounter.Add once the running total
-// of uncompressed bytes would exceed MaxBytes. Callers wrap this sentinel and
-// callers in the extractor abort the in-flight extraction.
+// of uncompressed bytes would exceed ArchiveCounter.MaxBytes (seeded from
+// DefaultMaxArchiveBytes when the caller supplies no override). Extractors wrap
+// this sentinel and abort the in-flight extraction.
 var ErrArchiveBytesCap = errors.New("archive total uncompressed bytes exceeded")
 
 // ErrArchiveRatioCap is returned by ArchiveCounter.Add once the running total
 // of uncompressed bytes exceeds InputBytes * MaxRatio.
 var ErrArchiveRatioCap = errors.New("archive expansion ratio exceeded")
 
-// ratioOverflowOnce guards a single warning emission when InputBytes*MaxRatio
-// would overflow int64. Operators see the unbounded condition once per process
-// rather than per archive entry.
+// ratioOverflowOnce guards a single warning emission when MaxRatio*InputBytes
+// would overflow the int64 byte domain. Operators see the unbounded condition
+// once per process rather than per archive entry.
 var ratioOverflowOnce sync.Once
 
 // ArchiveCounter accumulates uncompressed bytes written by an extractor and
@@ -48,9 +49,9 @@ var ratioOverflowOnce sync.Once
 // (e.g., the zip errgroup fan-out) may share a single counter without locks.
 type ArchiveCounter struct {
 	Total      atomic.Int64
-	MaxBytes   int64 // 0 = unlimited
-	MaxRatio   int64 // 0 = unlimited; ratio measured against InputBytes
-	InputBytes int64 // size of the outer archive blob; 0 disables ratio check
+	MaxBytes   int64   // 0 = unlimited
+	MaxRatio   float64 // <= 0 = unlimited; ratio measured against InputBytes
+	InputBytes int64   // size of the outer archive blob; 0 disables ratio check
 }
 
 // Add records additional uncompressed bytes against the counter. A nil
@@ -66,21 +67,23 @@ func (c *ArchiveCounter) Add(n int) error {
 	if c.MaxBytes > 0 && total > c.MaxBytes {
 		return ErrArchiveBytesCap
 	}
-	// Skip the ratio cap when InputBytes * MaxRatio would overflow int64; this
-	// can happen with pathologically large inputs or operator-supplied caps.
-	// "Would overflow" is treated as "ratio cap inactive" and logged once so
-	// operators can see the unbounded condition. The bytes cap above still
-	// applies. Division is safe here because InputBytes > 0 is already gated.
+	// Skip the ratio cap when MaxRatio * InputBytes exceeds the int64 byte
+	// domain; this can happen with pathologically large inputs or
+	// operator-supplied caps. "Would overflow" is treated as "ratio cap
+	// inactive" and logged once so operators can see the unbounded condition.
+	// The bytes cap above still applies. InputBytes > 0 is already gated so the
+	// threshold is well defined.
 	if c.MaxRatio > 0 && c.InputBytes > 0 {
-		if c.MaxRatio > math.MaxInt64/c.InputBytes {
+		threshold := c.MaxRatio * float64(c.InputBytes)
+		if threshold > math.MaxInt64 {
 			ratioOverflowOnce.Do(func() {
 				slog.Default().Warn(
-					"archive ratio cap disabled — InputBytes*MaxRatio overflows int64",
+					"archive ratio cap disabled — MaxRatio*InputBytes overflows int64",
 					"input_bytes", c.InputBytes,
 					"max_ratio", c.MaxRatio,
 				)
 			})
-		} else if total > c.InputBytes*c.MaxRatio {
+		} else if float64(total) > threshold {
 			return ErrArchiveRatioCap
 		}
 	}
@@ -120,11 +123,24 @@ func sizeClass(n int64) sizeClassEnum {
 	}
 }
 
-// readSmallFile pulls the entire payload in a single allocation. Suitable
-// for inputs where the function-call overhead of a buffered copy outweighs
-// the cost of one io.ReadAll allocation.
-func readSmallFile(f *os.File) ([]byte, error) {
-	return io.ReadAll(io.LimitReader(f, smallFileMaxBytes))
+// readSmallFile pulls the entire payload through a bytes.Buffer pre-grown to
+// the stat-reported size, capped at smallFileMaxBytes. The size is a capacity
+// hint only: io.Copy from the capped LimitReader supplies the actual content,
+// so a file that grew or shrank between stat and read is read defensively —
+// the hint never truncates the result nor zero-pads it. A correct hint avoids
+// the incremental regrowth a default-sized buffer would incur.
+func readSmallFile(f *os.File, sizeHint int64) ([]byte, error) {
+	var b bytes.Buffer
+	if sizeHint > 0 {
+		if sizeHint > smallFileMaxBytes {
+			sizeHint = smallFileMaxBytes
+		}
+		b.Grow(int(sizeHint))
+	}
+	if _, err := io.Copy(&b, io.LimitReader(f, smallFileMaxBytes)); err != nil {
+		return nil, err
+	}
+	return b.Bytes(), nil
 }
 
 // readBuffered streams the input through the caller-supplied buffer up to
@@ -146,7 +162,7 @@ func GetContents(f *os.File, buf []byte) ([]byte, error) {
 	}
 	switch sizeClass(info.Size()) {
 	case sizeClassSmall:
-		return readSmallFile(f)
+		return readSmallFile(f, info.Size())
 	case sizeClassMedium:
 		return readBuffered(f, buf, mediumFileMaxBytes)
 	default:

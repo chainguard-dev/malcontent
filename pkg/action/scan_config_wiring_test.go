@@ -88,3 +88,32 @@ func TestScan_WiresMaxArchiveBytesFromConfig(t *testing.T) {
 		t.Fatalf("Scan err = %v; want zip extraction abort message", scanErr)
 	}
 }
+
+// TestScan_WiresOCICABundlePathFromConfig asserts the scan path threads
+// OCICABundlePath through to the OCI transport builder. buildTransport rejects
+// a non-empty relative CA bundle path before any network call, so observing
+// that rejection on the scan path proves the Config-carried CA bundle reached
+// the transport. The legacy OCI helper dropped this field, so a relative path
+// would otherwise be silently ignored and the system trust store used.
+func TestScan_WiresOCICABundlePathFromConfig(t *testing.T) {
+	r, err := render.New("json", &bytes.Buffer{})
+	if err != nil {
+		t.Fatalf("render: %v", err)
+	}
+
+	mc := malcontent.Config{
+		Concurrency:     runtime.NumCPU(),
+		OCI:             true,
+		OCICABundlePath: "relative/ca-bundle.pem",
+		Renderer:        r,
+		ScanPaths:       []string{"127.0.0.1:0/nonexistent:latest"},
+	}
+
+	_, scanErr := Scan(context.Background(), mc)
+	if scanErr == nil {
+		t.Fatalf("Scan returned nil; want chain containing CA bundle absolute-path rejection")
+	}
+	if !strings.Contains(scanErr.Error(), "--ca-bundle path must be absolute") {
+		t.Fatalf("Scan err = %v; want CA bundle absolute-path rejection (OCICABundlePath not threaded to OCI transport)", scanErr)
+	}
+}

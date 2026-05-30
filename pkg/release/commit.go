@@ -10,17 +10,9 @@ import (
 
 // BuildCommit is populated at link time via
 // `-ldflags "-X github.com/chainguard-dev/malcontent/pkg/release.BuildCommit=<sha>"`.
-// When unset, ResolveCommit falls back to the VCS revision recorded in the
+// When unset, the resolvers fall back to the VCS revision recorded in the
 // embedded build info, then to the literal "main".
 var BuildCommit string
-
-// ResolveCommit returns a canonical 40-char lowercase hex commit SHA or
-// the literal "main". Inputs are validated; any non-canonical value falls
-// through to the next source in the priority chain. Order: VCS revision
-// (from runtime/debug.ReadBuildInfo), then BuildCommit, then "main".
-func ResolveCommit() string {
-	return pickCommit(readVCSRevision(), BuildCommit)
-}
 
 // ResolveCommitStrict returns the resolved commit SHA only when it is a
 // valid 40-character lowercase hex value. The "main" fallback is treated
@@ -31,14 +23,14 @@ func ResolveCommitStrict() (string, error) {
 }
 
 // ResolveRuleURLCommit returns the commit ref used in generated rule
-// deep-link URLs. Production binaries inject a 40-char SHA via the
-// BuildCommit ldflag; every other build mode (go test, go run, ad-hoc
-// builds) yields "main" so URLs are stable across environments.
+// deep-link URLs. A canonical 40-char lowercase hex BuildCommit, injected
+// at link time by production builds, yields that pinned commit. Any other
+// BuildCommit value yields "" so the rule URL is suppressed entirely.
 func ResolveRuleURLCommit() string {
 	if isFortyHexLower(BuildCommit) {
 		return BuildCommit
 	}
-	return "main"
+	return ""
 }
 
 // resolveCommitStrictFrom is the seam used by ResolveCommitStrict tests.

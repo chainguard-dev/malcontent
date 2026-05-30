@@ -46,9 +46,6 @@ func effectiveConcurrencyFor(quotaCPUs int, quotaOK bool, gomaxprocs, configured
 			n = q
 		}
 	}
-	if n < 1 {
-		return 1
-	}
 	return n
 }
 
@@ -67,15 +64,6 @@ var extractionSemaphoreOnce = sync.OnceValue(func() *semaphore.Weighted {
 // number of concurrent extraction goroutines across every archive type.
 func extractionSemaphore() *semaphore.Weighted {
 	return extractionSemaphoreOnce()
-}
-
-// newExtractionSemaphoreForTest is a hook for unit tests that need to exercise
-// the semaphore's blocking behavior at a controlled capacity.
-func newExtractionSemaphoreForTest(n int) *semaphore.Weighted {
-	if n < 1 {
-		n = 1
-	}
-	return semaphore.NewWeighted(int64(n))
 }
 
 // ValidateResolvedPath checks that the target path still resides within the extraction directory
@@ -395,14 +383,18 @@ func handleFile(target string, tr *tar.Reader, counter *file.ArchiveCounter) err
 	}
 	defer func() { _ = out.Close() }()
 
-	written, err := io.CopyBuffer(out, io.LimitReader(tr, file.MaxBytes), buf)
+	// Read one byte past the ceiling so a member sized exactly file.MaxBytes is
+	// distinguishable from an oversize member truncated by the limit reader.
+	// The streaming extractors reject written > file.MaxBytes; matching that
+	// operator here keeps the boundary fail-closed and consistent.
+	written, err := io.CopyBuffer(out, io.LimitReader(tr, file.MaxBytes+1), buf)
 	if err != nil {
 		if (strings.Contains(err.Error(), "unexpected EOF") && written == 0) ||
 			!strings.Contains(err.Error(), "unexpected EOF") {
 			return fmt.Errorf("failed to copy file: %w", err)
 		}
 	}
-	if written >= file.MaxBytes {
+	if written > file.MaxBytes {
 		return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", file.MaxBytes, target)
 	}
 

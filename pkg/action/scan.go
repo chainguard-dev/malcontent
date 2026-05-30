@@ -42,6 +42,7 @@ var (
 	compileOnce         sync.Once                   // compileOnce ensures that we compile rules only once even across threads.
 	ErrMatchedCondition = errors.New("matched exit criteria")
 	initScannerPool     sync.Once // initScannerPool ensures that the scanner pool is only initialized once.
+	jobsCapWarnOnce     sync.Once // jobsCapWarnOnce ensures the --jobs cap warning is emitted at most once per process.
 	readPool            *pool.BufferPool
 	scannerPool         *pool.ScannerPool
 )
@@ -352,7 +353,7 @@ func handleScanPath(ctx context.Context, scanPath string, c malcontent.Config, r
 		c.Renderer.Scanning(ctx, scanPath)
 	}
 
-	scanInfo, err := prepareScanPath(ctx, scanPath, c.OCI, c.OCIAuth, c.MaxImageSize, logger)
+	scanInfo, err := prepareScanPath(ctx, scanPath, c, logger)
 	if err != nil {
 		return fmt.Errorf("failed to prepare scan path: %w", err)
 	}
@@ -373,7 +374,7 @@ func handleScanPath(ctx context.Context, scanPath string, c malcontent.Config, r
 	return processPaths(ctx, paths, scanInfo, c, r, matchChan, matchOnce, logger)
 }
 
-func prepareScanPath(ctx context.Context, scanPath string, isOCI, useAuth bool, maxImageSize int64, logger *clog.Logger) (scanPathInfo, error) {
+func prepareScanPath(ctx context.Context, scanPath string, c malcontent.Config, logger *clog.Logger) (scanPathInfo, error) {
 	if ctx.Err() != nil {
 		return scanPathInfo{}, ctx.Err()
 	}
@@ -383,12 +384,12 @@ func prepareScanPath(ctx context.Context, scanPath string, isOCI, useAuth bool, 
 		effectivePath: scanPath,
 	}
 
-	if !isOCI {
+	if !c.OCI {
 		return info, nil
 	}
 
 	info.imageURI = scanPath
-	ociPath, err := archive.OCI(ctx, info.imageURI, useAuth, maxImageSize)
+	ociPath, err := archive.OCIWithConfig(ctx, info.imageURI, &c)
 	if err != nil {
 		return info, fmt.Errorf("failed to prepare OCI image for scanning: %w", err)
 	}
@@ -480,18 +481,12 @@ func getMaxConcurrency(configured int) int {
 		return 1
 	}
 	if configured > procs {
+		jobsCapWarnOnce.Do(func() {
+			clog.Warnf("--jobs %d capped at %d: scanner concurrency is bound by GOMAXPROCS, so higher values do not increase throughput", configured, procs)
+		})
 		return procs
 	}
 	return configured
-}
-
-// channelBufferSize bounds the path-dispatch channel capacity so a caller
-// scanning millions of paths cannot allocate a millions-deep slice for the
-// channel buffer; we never need more in-flight than the worker pool can
-// consume, so capping at maxConcurrency is the upper bound. When numPaths is
-// below the concurrency cap, the smaller value is the right capacity.
-func channelBufferSize(maxConcurrency, numPaths int) int {
-	return min(maxConcurrency, numPaths)
 }
 
 func setupMatchHandler(ctx context.Context, matchChan chan matchResult, c malcontent.Config, cancel context.CancelFunc, logger *clog.Logger) func() {

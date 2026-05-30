@@ -37,6 +37,15 @@ func ExtractZstd(ctx context.Context, d string, f string) error {
 	buf := archivePool.Get(file.ExtractBuffer) //nolint:nilaway // the buffer pool is created in archive.go
 	defer archivePool.Put(buf)
 
+	// Enforce a byte and ratio ceiling against the single decompressed stream.
+	// InputBytes seeds the ratio denominator from the compressed file size.
+	maxBytes, maxRatio := resolveArchiveCaps(ctx)
+	counter := &file.ArchiveCounter{
+		MaxBytes:   maxBytes,
+		MaxRatio:   maxRatio,
+		InputBytes: fi.Size(),
+	}
+
 	uncompressed := strings.TrimSuffix(filepath.Base(f), ".zstd")
 	uncompressed = strings.TrimSuffix(uncompressed, ".zst")
 	target := filepath.Join(d, filepath.Base(filepath.Dir(f)), uncompressed)
@@ -78,6 +87,9 @@ func ExtractZstd(ctx context.Context, d string, f string) error {
 			written += int64(n)
 			if written > file.MaxBytes {
 				return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", file.MaxBytes, target)
+			}
+			if capErr := counter.Add(n); capErr != nil {
+				return fmt.Errorf("zstd extraction aborted on %s: %w", target, capErr)
 			}
 			if _, writeErr := out.Write(buf[:n]); writeErr != nil {
 				return fmt.Errorf("failed to write file contents: %w", writeErr)

@@ -14,7 +14,6 @@ import (
 	"testing"
 
 	"github.com/chainguard-dev/clog"
-	"github.com/puzpuzpuz/xsync/v4"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 )
@@ -144,10 +143,10 @@ func callWithoutPanic() (err error) {
 	return nil
 }
 
-// callWithPanicSkip exercises recoverExtractor with a caller-supplied path and
-// a config attached to the context so the skip set can be inspected after
-// recovery.
-func callWithPanicSkip(ctx context.Context, p any, kind, path string) (err error) {
+// callWithPanicCfg exercises recoverExtractor with a Config attached to the
+// context so the ExitOnExtractorPanic policy and recovery error can be
+// inspected after a worker-style panic.
+func callWithPanicCfg(ctx context.Context, p any, kind, path string) (err error) {
 	defer recoverExtractor(ctx, kind, path, &err)
 	if p == nil {
 		var s *string
@@ -156,61 +155,16 @@ func callWithPanicSkip(ctx context.Context, p any, kind, path string) (err error
 	panic(p)
 }
 
-// callWithoutPanicSkip is the no-panic counterpart used to assert the skip set
-// stays empty when recovery fires with a nil panic value.
-func callWithoutPanicSkip(ctx context.Context, path string) (err error) {
-	defer recoverExtractor(ctx, "zip", path, &err)
-	return nil
-}
-
-func newSkipConfigCtx(t *testing.T) (context.Context, *malcontent.Config) {
+func newConfigCtx(t *testing.T) (context.Context, *malcontent.Config) {
 	t.Helper()
-	cfg := &malcontent.Config{Skipped: xsync.NewMap[string, struct{}]()}
+	cfg := &malcontent.Config{}
 	ctx := malcontent.ContextWithConfig(context.Background(), cfg)
 	return ctx, cfg
 }
 
-func TestRecoverExtractor_PanicAppendsSkipSet(t *testing.T) {
-	cases := []struct {
-		name      string
-		kind      string
-		path      string
-		panicWith any
-	}{
-		{"string panic", "zip", "/synthetic/string.zip", "boom"},
-		{"error panic", "tar", "/synthetic/error.tar", errors.New("malformed")},
-		{"runtime nil deref", "upx", "/synthetic/nil.upx", nil},
-	}
-	for _, tc := range cases {
-		t.Run(tc.name, func(t *testing.T) {
-			ctx, cfg := newSkipConfigCtx(t)
-			err := callWithPanicSkip(ctx, tc.panicWith, tc.kind, tc.path)
-			if err == nil {
-				t.Fatal("expected error from recovered panic, got nil")
-			}
-			if _, ok := cfg.Skipped.Load(tc.path); !ok {
-				t.Fatalf("path %q missing from skip set after recovery", tc.path)
-			}
-			if got := cfg.Skipped.Size(); got != 1 {
-				t.Fatalf("skip set size = %d, want 1", got)
-			}
-		})
-	}
-}
-
-func TestRecoverExtractor_NoPanicLeavesSkipSetEmpty(t *testing.T) {
-	ctx, cfg := newSkipConfigCtx(t)
-	if err := callWithoutPanicSkip(ctx, "/synthetic/quiet.zip"); err != nil {
-		t.Fatalf("expected nil from no-panic path, got %v", err)
-	}
-	if got := cfg.Skipped.Size(); got != 0 {
-		t.Fatalf("skip set size = %d, want 0", got)
-	}
-}
-
-func TestRecoverExtractor_ConcurrentPanicsAllRecorded(t *testing.T) {
+func TestRecoverExtractor_ConcurrentPanicsAllRecover(t *testing.T) {
 	const n = 100
-	ctx, cfg := newSkipConfigCtx(t)
+	ctx, _ := newConfigCtx(t)
 
 	var wg sync.WaitGroup
 	wg.Add(n)
@@ -218,18 +172,10 @@ func TestRecoverExtractor_ConcurrentPanicsAllRecorded(t *testing.T) {
 		path := fmt.Sprintf("/synthetic/concurrent/%d.zip", i)
 		go func(p string) {
 			defer wg.Done()
-			_ = callWithPanicSkip(ctx, "boom", "zip", p)
+			if err := callWithPanicCfg(ctx, "boom", "zip", p); err == nil {
+				t.Errorf("expected error from recovered panic for %q, got nil", p)
+			}
 		}(path)
 	}
 	wg.Wait()
-
-	if got := cfg.Skipped.Size(); got != n {
-		t.Fatalf("skip set size = %d, want %d", got, n)
-	}
-	for i := range n {
-		path := fmt.Sprintf("/synthetic/concurrent/%d.zip", i)
-		if _, ok := cfg.Skipped.Load(path); !ok {
-			t.Fatalf("path %q missing from skip set", path)
-		}
-	}
 }

@@ -124,7 +124,7 @@ func ExtractZip(ctx context.Context, d string, f string) (err error) {
 	maxBytes, maxRatio := resolveArchiveCaps(ctx)
 	counter := &file.ArchiveCounter{
 		MaxBytes:   maxBytes,
-		MaxRatio:   int64(maxRatio),
+		MaxRatio:   maxRatio,
 		InputBytes: fi.Size(),
 	}
 
@@ -132,7 +132,11 @@ func ExtractZip(ctx context.Context, d string, f string) (err error) {
 		if zf.Mode().IsDir() {
 			continue
 		}
-		g.Go(func() error {
+		g.Go(func() (err error) {
+			defer recoverExtractor(gCtx, "zip", f, &err)
+			if hook := workerPanicHook; hook != nil {
+				hook(f)
+			}
 			if err := sem.Acquire(gCtx, 1); err != nil {
 				return err
 			}

@@ -319,6 +319,9 @@ func ruleLine(src, rule string) (int, bool) {
 
 func generateRuleURL(src string, rule string) string {
 	commit := release.ResolveRuleURLCommit()
+	if commit == "" {
+		return ""
+	}
 	// third_party rules live under third_party/, not rules/. The embedded
 	// rules.FS only covers the first-party tree, so ruleLine misses for
 	// third_party src and the name-anchor fallback applies.
@@ -995,9 +998,11 @@ func upgradeRisk(ctx context.Context, riskScore int, riskCounts map[int]int, siz
 
 	var upgrade bool
 	switch {
-	case sizeMB < 1:
+	case size < 1024:
+		// small scripts, tiny ELF binaries
 		upgrade = highCount > 1
 	case sizeMB < 2:
+		// include most UPX binaries
 		upgrade = highCount > 2
 	case sizeMB < 4:
 		upgrade = highCount > 3

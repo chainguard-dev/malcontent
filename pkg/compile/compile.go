@@ -14,6 +14,7 @@ import (
 	"regexp"
 	"runtime/debug"
 	"strings"
+	"time"
 	"unicode/utf8"
 
 	"github.com/minio/sha256-simd"
@@ -267,12 +268,50 @@ func getCacheDir() (string, error) {
 		return "", fmt.Errorf("cache directory %s has unsafe permissions %o (expected 0700)", cacheDir, fi.Mode().Perm())
 	}
 
+	sweepStaleTempFiles(cacheDir)
+
 	return cacheDir, nil
 }
 
+// staleTempThreshold is the age past which an orphaned cache temp file is removed.
+const staleTempThreshold = 24 * time.Hour
+
+// sweepStaleTempFiles removes orphaned cache temp files left behind when a
+// process is killed between os.CreateTemp and the atomic rename in saveCachedRules.
+//
+// It matches both the rules and sidecar temp suffixes (.rules-*.cache.tmp and
+// .rules-*.sha256.tmp) via the shared .rules-*.tmp pattern, which never matches
+// the live cache (rules-*.cache) or sidecar (rules-*.cache.sha256) files. The
+// sweep is best-effort: errors are ignored and never block or fail compilation.
+func sweepStaleTempFiles(cacheDir string) {
+	matches, err := filepath.Glob(filepath.Join(cacheDir, ".rules-*.tmp"))
+	if err != nil {
+		return
+	}
+	cutoff := time.Now().Add(-staleTempThreshold)
+	for _, path := range matches {
+		fi, err := os.Stat(path)
+		if err != nil {
+			continue
+		}
+		if fi.ModTime().Before(cutoff) {
+			_ = os.Remove(path)
+		}
+	}
+}
+
 // loadCachedRules attempts to load rules from the local, compiled rules.
+//
+// The cache file is read in a single pass: a TeeReader feeds the same bytes to
+// the yara-x deserializer and to the SHA-256 hasher. The digest is compared
+// against the integrity sidecar after deserialization, and rules are returned
+// only when the digest matches the sidecar. A mismatch (or a missing sidecar)
+// surfaces as an error so the caller treats it as a cache miss and recompiles.
+//
+// Caches written before the sidecar landed will fail this integrity check and recompute.
 func loadCachedRules(cacheFile string) (*yarax.Rules, error) {
-	if err := verifyCacheSidecar(cacheFile); err != nil {
+	expected, err := readSidecarDigest(cacheFile)
+	if err != nil {
 		return nil, err
 	}
 
@@ -282,38 +321,28 @@ func loadCachedRules(cacheFile string) (*yarax.Rules, error) {
 	}
 	defer func() { _ = f.Close() }()
 
-	compiledRules, err := yarax.ReadFrom(f)
+	hasher := sha256.New()
+	compiledRules, err := yarax.ReadFrom(io.TeeReader(f, hasher))
 	if err != nil {
 		return nil, fmt.Errorf("read cached rules: %w", err)
+	}
+
+	actual := fmt.Sprintf("%x", hasher.Sum(nil))
+	if actual != expected {
+		return nil, fmt.Errorf("cache integrity mismatch: expected %s got %s", expected, actual)
 	}
 
 	return compiledRules, nil
 }
 
-// Note: caches written before the sidecar landed will fail integrity check and recompute.
-func verifyCacheSidecar(cacheFile string) error {
+// readSidecarDigest returns the expected digest recorded in the cache integrity sidecar.
+func readSidecarDigest(cacheFile string) (string, error) {
 	sidecarPath := cacheFile + ".sha256"
 	expectedBytes, err := os.ReadFile(sidecarPath) // #nosec G304 -- sidecar path derived from cacheFile
 	if err != nil {
-		return fmt.Errorf("cache integrity sidecar missing: %w", err)
+		return "", fmt.Errorf("cache integrity sidecar missing: %w", err)
 	}
-	expected := strings.TrimSpace(string(expectedBytes))
-
-	f, err := os.Open(cacheFile) // #nosec G304 -- cache path derived from getRulesHash + cache dir permission gate
-	if err != nil {
-		return fmt.Errorf("open cache for integrity check: %w", err)
-	}
-	defer func() { _ = f.Close() }()
-
-	hasher := sha256.New()
-	if _, err := io.Copy(hasher, f); err != nil {
-		return fmt.Errorf("hash cache for integrity check: %w", err)
-	}
-	actual := fmt.Sprintf("%x", hasher.Sum(nil))
-	if actual != expected {
-		return fmt.Errorf("cache integrity mismatch: expected %s got %s", expected, actual)
-	}
-	return nil
+	return strings.TrimSpace(string(expectedBytes)), nil
 }
 
 // saveCachedRules saves rules to a local file.

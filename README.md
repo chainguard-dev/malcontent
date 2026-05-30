@@ -192,7 +192,7 @@ Requirements:
 * [libssl-dev](https://packages.debian.org/sid/libssl-dev) package
 * [UPX](https://upx.github.io/)* - required for refreshing sample testdata
 
-> \* By default, malcontent will look for a UPX binary at /usr/bin/upx; to specify a different, [trusted] location, use `MALCONTENT_UPX_PATH=/path/to/upx`
+> \* By default, malcontent looks for a UPX binary at /usr/bin/upx and only trusts it from a small set of standard install directories. To use a binary from any other location, set `MALCONTENT_UPX_PATH=/path/to/upx`; this is treated as an explicit trust assertion and bypasses the directory allowlist, but the path must still be absolute and resolve to a regular, executable file that is not group- or world-writable.
 
 To install YARA-X, first install Rust and then run `make install-yara-x` which will clone the YARA-X repository and install its dependencies and C API.
 

@@ -20,11 +20,6 @@ CPPFLAGS ?= "-I$(LINT_ROOT)/out/include"
 LDFLAGS :=
 PKGCONF_PATH ?= "$(LINT_ROOT)/out/lib/pkgconfig"
 
-# Inject the current commit SHA into the release package at link time.
-# Falls back to empty when not in a git checkout; the package resolves to
-# the literal "main" in that case.
-GIT_COMMIT := $(shell git rev-parse HEAD 2>/dev/null)
-GO_LDFLAGS := -X github.com/chainguard-dev/malcontent/pkg/release.BuildCommit=$(GIT_COMMIT)
 ifeq ($(LINT_OS),Darwin)
 	LDFLAGS="-L$(LINT_ROOT)/out/lib -Wl,-no_warn_duplicate_libraries,-rpath,$(LINT_ROOT)/out/lib,-lyara_x_capi"
 else ifeq ($(LINT_OS),Linux)
@@ -165,7 +160,7 @@ test:
 	CGO_LDFLAGS=$(LDFLAGS) \
 	CGO_CPPFLAGS=$(CPPFLAGS) \
 	PKG_CONFIG_PATH=$(PKGCONF_PATH) \
-	go test -race -ldflags '$(GO_LDFLAGS)' ./pkg/...
+	go test -race ./pkg/...
 
 # aggregated quality gate: vet, formatter, linter chain, and the test
 # suite. `make test` is invoked (not bare `go test`) because the

@@ -5,7 +5,6 @@ package malcontent
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"io/fs"
 
@@ -22,27 +21,6 @@ const (
 	KeepalivePolicyExplicitlyEnabled  KeepalivePolicy = "enabled"
 	KeepalivePolicyExplicitlyDisabled KeepalivePolicy = "disabled"
 )
-
-func (p KeepalivePolicy) IsValid() bool {
-	switch p {
-	case "", KeepalivePolicyGoDefault, KeepalivePolicyExplicitlyEnabled, KeepalivePolicyExplicitlyDisabled:
-		return true
-	}
-	return false
-}
-
-// ParseKeepalivePolicy maps a string to a KeepalivePolicy. Empty input maps to go-default.
-func ParseKeepalivePolicy(s string) (KeepalivePolicy, error) {
-	switch s {
-	case "", "go-default":
-		return KeepalivePolicyGoDefault, nil
-	case "enabled":
-		return KeepalivePolicyExplicitlyEnabled, nil
-	case "disabled":
-		return KeepalivePolicyExplicitlyDisabled, nil
-	}
-	return "", fmt.Errorf("invalid keepalive policy %q: expected one of go-default, enabled, disabled", s)
-}
 
 // Renderer is a common interface for Renderers.
 type Renderer interface {
