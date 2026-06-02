@@ -21,7 +21,6 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/os.yara#L1",
                     "ID": "c2/tool_transfer/os",
                     "RuleName": "os_ref"
                 },
@@ -32,7 +31,6 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/crypto/fernet.yara#L1",
                     "ID": "crypto/fernet",
                     "RuleName": "crypto_fernet"
                 },
@@ -49,7 +47,6 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/exec/imports/python.yara#L1",
                     "ID": "exec/imports/python",
                     "RuleName": "has_import"
                 },
@@ -60,7 +57,6 @@
                     ],
                     "RiskScore": 4,
                     "RiskLevel": "CRITICAL",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/exec/install_additional/pip_install.yara#L39",
                     "ReferenceURL": "https://checkmarx.com/blog/over-170k-users-affected-by-attack-using-fake-python-infrastructure/",
                     "ID": "exec/install_additional/pip_install",
                     "RuleName": "pip_installer_fernet"
@@ -72,7 +68,6 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/exec/program/program.yara#L90",
                     "ReferenceURL": "https://man7.org/linux/man-pages/man2/execve.2.html",
                     "ID": "exec/program",
                     "RuleName": "py_subprocess"
@@ -84,7 +79,6 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-open.yara#L16",
                     "ID": "fs/file/open",
                     "RuleName": "py_open"
                 },
@@ -95,7 +89,6 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/usr-bin.yara#L1",
                     "ID": "fs/path/usr_bin",
                     "RuleName": "usr_bin_path"
                 },
@@ -106,7 +99,6 @@
                     ],
                     "RiskScore": 4,
                     "RiskLevel": "CRITICAL",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/impact/remote_access/py_setuptools.yara#L72",
                     "ID": "impact/remote_access/py_setuptools",
                     "RuleName": "setuptools_cmd_exec_start"
                 },
@@ -118,7 +110,6 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/url/embedded.yara#L12",
                     "ID": "net/url/embedded",
                     "RuleName": "https_url"
                 },
@@ -129,7 +120,6 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/os/fd/read.yara#L28",
                     "ID": "os/fd/read",
                     "RuleName": "py_fd_read"
                 },
@@ -140,7 +130,6 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/process/executable_path.yara#L1",
                     "ID": "process/executable_path",
                     "RuleName": "python_sys_executable"
                 }
