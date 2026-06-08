@@ -12,13 +12,13 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-// cfg1Flags returns the subset of the global flag set that exposes the
-// configuration fields hardened by the cfg-1 work: the archive caps, the
-// extractor-panic switch, and the OCI transport knobs. Each flag mirrors the
-// production definition in mal.go exactly (name, default Value, and the
-// package-level Destination pointer) so that parsing through urfave/cli
-// populates the same variables the real Before hook reads.
-func cfg1Flags() []cli.Flag {
+// hardenedConfigFlags returns the subset of the global flag set that exposes the
+// hardened configuration fields: the archive caps, the extractor-panic switch,
+// and the OCI transport knobs. Each flag mirrors the production definition in
+// mal.go exactly (name, default Value, and the package-level Destination pointer)
+// so that parsing through urfave/cli populates the same variables the real Before
+// hook reads.
+func hardenedConfigFlags() []cli.Flag {
 	return []cli.Flag{
 		&cli.BoolFlag{
 			Name:        "exit-on-extractor-panic",
@@ -73,7 +73,7 @@ func cfg1Flags() []cli.Flag {
 	}
 }
 
-// configFromFlags lands the cfg-1 flag variables into a malcontent.Config using
+// configFromFlags lands the parsed flag variables into a malcontent.Config using
 // the same field assignments mal.go's Before hook performs. Keeping this in step
 // with mal.go is the contract the wiring test guards.
 func configFromFlags() malcontent.Config {
@@ -92,7 +92,7 @@ func configFromFlags() malcontent.Config {
 	}
 }
 
-// parseGlobals drives urfave/cli over the cfg-1 flags so that the real
+// parseGlobals drives urfave/cli over the hardened config flags so that the real
 // Destination wiring populates the package-level flag variables, then returns
 // the resulting Config. The Action is a no-op terminal so no scan (and no
 // CGO/YARA work) runs; only flag parsing is exercised.
@@ -103,7 +103,7 @@ func parseGlobals(t *testing.T, args []string) malcontent.Config {
 
 	cmd := &cli.Command{
 		Name:  "mal",
-		Flags: cfg1Flags(),
+		Flags: hardenedConfigFlags(),
 		Commands: []*cli.Command{
 			{
 				Name: "scan",

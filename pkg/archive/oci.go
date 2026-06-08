@@ -43,7 +43,7 @@ func (lw *limitedWriter) Write(p []byte) (int, error) {
 	return lw.w.Write(p)
 }
 
-// Default values applied when the corresponding Config field is zero-valued. These satisfy the OCI transport-hardening predicates.
+// Default values applied when the corresponding Config field is zero-valued. These keep the OCI transport hardened (bounded timeouts, retries, and keepalive) by default.
 const (
 	defaultOCIPullTimeoutSeconds    = 600
 	defaultOCIRetryMaxAttempts      = 3
@@ -172,7 +172,7 @@ func (staticAnonKeychain) Resolve(_ authn.Resource) (authn.Authenticator, error)
 	return authn.Anonymous, nil
 }
 
-// buildTransport plumbs the OCI transport-hardening predicates into a single *http.Transport.
+// buildTransport assembles the hardened OCI transport settings into a single *http.Transport.
 func buildTransport(cfg ociTransportConfig) (http.RoundTripper, error) {
 	tlsCfg := &tls.Config{MinVersion: tls.VersionTLS12}
 	switch cfg.caBundlePath {

@@ -312,7 +312,7 @@ func TestOCIHardening_PerHostConcurrency_CapEnforced(t *testing.T) {
 }
 
 func TestOCIHardening_Keepalive_Explicit(t *testing.T) {
-	// Predicate KeepalivePolicy.explicitlyEnabled: policy=enabled with positive seconds yields IdleConnTimeout > 0.
+	// KeepalivePolicy enabled with positive seconds yields IdleConnTimeout > 0.
 	cfg := ociTransportConfig{
 		pullTimeoutSeconds: 5,
 		keepalivePolicy:    malcontent.KeepalivePolicyExplicitlyEnabled,
