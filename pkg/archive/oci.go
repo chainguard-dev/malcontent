@@ -136,6 +136,9 @@ func resolveOCITransportConfig(ctx context.Context, c *malcontent.Config) ociTra
 // scoped to the host in MALCONTENT_REGISTRY_HOST. If the requested resource's
 // registry does not match the expected host, Anonymous is returned so that
 // private credentials are never leaked to an attacker-controlled registry.
+// The match is against authn.Resource.RegistryStr(), which go-containerregistry
+// normalizes (e.g. Docker Hub resolves to "index.docker.io"), so
+// MALCONTENT_REGISTRY_HOST must be set to that normalized host.
 type envKeychain struct{}
 
 func (envKeychain) Resolve(resource authn.Resource) (authn.Authenticator, error) {
@@ -154,7 +157,7 @@ func (envKeychain) Resolve(resource authn.Resource) (authn.Authenticator, error)
 	return &authn.Basic{Username: user, Password: pass}, nil
 }
 
-// buildScopedKeychain returns a request-scoped keychain. authn.DefaultKeychain is intentionally never returned, discharging predicate OciKeychainScopedNotAmbient_holds.
+// buildScopedKeychain returns a request-scoped keychain. authn.DefaultKeychain is intentionally never returned, so credentials are never resolved from the ambient Docker keychain.
 func buildScopedKeychain(useAuth bool) authn.Keychain {
 	if !useAuth {
 		return authn.NewMultiKeychain(authn.Keychain(staticAnonKeychain{}))
@@ -217,7 +220,7 @@ func buildTransport(cfg ociTransportConfig) (http.RoundTripper, error) {
 	return t, nil
 }
 
-// hostSemaphores tracks per-registry-hostname concurrency caps. Keyed by RegistryStr() to discharge predicate OciPerRegistryConcurrencyCap_holds.
+// hostSemaphores tracks per-registry-hostname concurrency caps, keyed by RegistryStr().
 var hostSemaphores sync.Map
 
 // getOrCreateHostSemaphore lazily creates a per-hostname weighted semaphore.
@@ -238,7 +241,7 @@ func getOrCreateHostSemaphore(host string, slots int) *semaphore.Weighted {
 	return sem
 }
 
-// pullWithRetry performs a bounded retry around remote.Image, discharging predicate OciPullRetryBounded_holds.
+// pullWithRetry performs a bounded retry around remote.Image.
 func pullWithRetry(ctx context.Context, ref name.Reference, rt http.RoundTripper, keychain authn.Keychain, attempts, windowSeconds int) (v1.Image, error) {
 	deadline := time.Now().Add(time.Duration(windowSeconds) * time.Second)
 	var lastErr error
@@ -249,7 +252,8 @@ func pullWithRetry(ctx context.Context, ref name.Reference, rt http.RoundTripper
 		if time.Now().After(deadline) {
 			break
 		}
-		img, err := remote.Image(ref,
+		img, err := remote.Image(
+			ref,
 			remote.WithContext(ctx),
 			remote.WithTransport(rt),
 			remote.WithAuthFromKeychain(keychain),
@@ -343,7 +347,7 @@ func prepareImage(ctx context.Context, c *malcontent.Config, d string) (string, 
 	}
 	defer sem.Release(1)
 
-	// Bound the entire pull in a derived context (predicate OciPullTimeoutBounded_holds).
+	// Bound the entire pull in a derived context so it always has a deadline.
 	pullCtx, cancel := context.WithTimeout(ctx, time.Duration(cfg.pullTimeoutSeconds)*time.Second)
 	defer cancel()
 
@@ -352,7 +356,7 @@ func prepareImage(ctx context.Context, c *malcontent.Config, d string) (string, 
 		return "", nil, fmt.Errorf("failed to pull image: %w", err)
 	}
 
-	// Preflight manifest size check before any layer is exported (predicate OciSizeCheckedBeforePull_holds).
+	// Preflight manifest size check before any layer is exported.
 	if maxImageSize > 0 {
 		manifest, err := image.Manifest()
 		if err != nil {
@@ -374,7 +378,7 @@ func prepareImage(ctx context.Context, c *malcontent.Config, d string) (string, 
 		}
 	}
 
-	// Counting-writer abort as secondary defense (predicate OciSizeCheckedBeforePull_holds, countingWriterAbort branch).
+	// Counting-writer abort as a secondary defense if the manifest understated the image size.
 	var exportWriter io.Writer = tmpFile
 	if maxImageSize > 0 {
 		exportWriter = &limitedWriter{w: tmpFile, remaining: maxImageSize}

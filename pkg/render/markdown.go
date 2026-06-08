@@ -295,7 +295,8 @@ func markdownTable(ctx context.Context, fr *malcontent.FileReport, w io.Writer, 
 	}
 
 	buf := bytes.NewBuffer([]byte{})
-	table := tablewriter.NewTable(buf,
+	table := tablewriter.NewTable(
+		buf,
 		tablewriter.WithConfig(tablewriter.Config{
 			Header: tw.CellConfig{
 				Alignment: tw.CellAlignment{Global: tw.AlignLeft},

@@ -318,9 +318,9 @@ func ruleLine(src, rule string) (int, bool) {
 }
 
 func generateRuleURL(src string, rule string) string {
-	commit := release.ResolveRuleURLCommit()
-	if commit == "" {
-		return ""
+	ref := release.ResolveRuleURLCommit()
+	if ref == "" {
+		ref = "main"
 	}
 	// third_party rules live under third_party/, not rules/. The embedded
 	// rules.FS only covers the first-party tree, so ruleLine misses for
@@ -330,9 +330,9 @@ func generateRuleURL(src string, rule string) string {
 		pathPrefix = "third_party"
 	}
 	if line, ok := ruleLine(src, rule); ok {
-		return fmt.Sprintf("https://github.com/chainguard-dev/malcontent/blob/%s/%s/%s#L%d", commit, pathPrefix, src, line)
+		return fmt.Sprintf("https://github.com/chainguard-dev/malcontent/blob/%s/%s/%s#L%d", ref, pathPrefix, src, line)
 	}
-	return fmt.Sprintf("https://github.com/chainguard-dev/malcontent/blob/%s/%s/%s#%s", commit, pathPrefix, src, rule)
+	return fmt.Sprintf("https://github.com/chainguard-dev/malcontent/blob/%s/%s/%s#%s", ref, pathPrefix, src, rule)
 }
 
 func ignoreMatch(tags []string, ignoreTags map[string]bool) bool {

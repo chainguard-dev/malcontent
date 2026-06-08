@@ -32,7 +32,6 @@ import (
 	"github.com/chainguard-dev/malcontent/rules"
 	thirdparty "github.com/chainguard-dev/malcontent/third_party"
 
-	"github.com/puzpuzpuz/xsync/v4"
 	"github.com/urfave/cli/v3"
 )
 
@@ -296,7 +295,6 @@ func main() {
 				Renderer:                 renderer,
 				RuleCategories:           ruleCategoriesFlag,
 				Rules:                    yrs,
-				Skipped:                  xsync.NewMap[string, struct{}](),
 				Stats:                    statsFlag,
 			}
 
@@ -447,7 +445,7 @@ func main() {
 			&cli.BoolFlag{
 				Name:        "oci-auth",
 				Value:       false,
-				Usage:       "Use Docker Keychain authentication to pull images (warning: may leak credentials to malicious registries!)",
+				Usage:       "Authenticate OCI pulls with MALCONTENT_REGISTRY_USER/PASS, scoped to the registry in MALCONTENT_REGISTRY_HOST",
 				Destination: &ociAuthFlag,
 				Local:       false,
 			},

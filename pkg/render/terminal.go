@@ -90,7 +90,8 @@ func (r Terminal) File(ctx context.Context, fr *malcontent.FileReport) error {
 	}
 
 	if fr.Skipped == "" && len(fr.Behaviors) > 0 {
-		renderFileSummary(ctx, fr, r.w,
+		renderFileSummary(
+			ctx, fr, r.w,
 			tableConfig{
 				Title: fmt.Sprintf("%s %s", fr.Path, darkBrackets(riskInColor(fr.RiskLevel))),
 			},

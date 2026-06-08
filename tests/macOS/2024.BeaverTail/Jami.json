@@ -24,6 +24,7 @@
                     ],
                     "RiskScore": 4,
                     "RiskLevel": "CRITICAL",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/third_party/yara/JPCERT/lazarus.yara#Lazarus_jamistealer_str",
                     "RuleAuthor": "JPCERT/CC Incident Response Group",
                     "ID": "3P/JPCERT/lazarus_jamistealer_str",
                     "RuleName": "Lazarus_jamistealer_str"
@@ -41,6 +42,7 @@
                     ],
                     "RiskScore": 4,
                     "RiskLevel": "CRITICAL",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/third_party/yara/elastic/MacOS_Trojan_BeaverTail.yar#MacOS_Trojan_BeaverTail_90b8abd6",
                     "RuleAuthor": "Elastic Security",
                     "RuleLicense": "Elastic License v2",
                     "ID": "3P/elastic/beavertail",
@@ -61,6 +63,7 @@
                     ],
                     "RiskScore": 4,
                     "RiskLevel": "CRITICAL",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/third_party/yara/elastic/Macos_Infostealer_Wallets.yar#Macos_Infostealer_Wallets_8e469ea0",
                     "RuleAuthor": "Elastic Security",
                     "RuleLicense": "Elastic License v2",
                     "ID": "3P/elastic/infostealer_wallets",
@@ -73,6 +76,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/binary/opaque.yara#L3",
                     "ID": "anti-static/binary/opaque",
                     "RuleName": "opaque_binary"
                 },
@@ -80,6 +84,7 @@
                     "Description": "high entropy binary (\u003e7.2)",
                     "RiskScore": 3,
                     "RiskLevel": "HIGH",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/macho/entropy.yara#L17",
                     "ID": "anti-static/macho/entropy",
                     "RuleName": "high_entropy_7_2"
                 },
@@ -90,6 +95,7 @@
                     ],
                     "RiskScore": 3,
                     "RiskLevel": "HIGH",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/macho/footer.yara#L8",
                     "ReferenceURL": "https://www.virusbulletin.com/virusbulletin/2013/06/multiplatform-madness",
                     "ID": "anti-static/macho/footer",
                     "RuleName": "high_entropy_trailer"
@@ -101,6 +107,7 @@
                     ],
                     "RiskScore": 3,
                     "RiskLevel": "HIGH",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/ip.yara#L27",
                     "ID": "c2/addr/ip",
                     "RuleName": "bin_hardcoded_ip"
                 },
@@ -111,6 +118,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/url.yara#L91",
                     "ID": "c2/addr/url",
                     "RuleName": "binary_with_url"
                 },
@@ -122,6 +130,7 @@
                     ],
                     "RiskScore": 4,
                     "RiskLevel": "CRITICAL",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/credential/keychain/keychain.yara#L79",
                     "ReferenceURL": "https://www.group-ib.com/blog/apt-lazarus-python-scripts/",
                     "ID": "credential/keychain",
                     "RuleName": "login_keychain_eager_beaver"
@@ -140,6 +149,7 @@
                     ],
                     "RiskScore": 3,
                     "RiskLevel": "HIGH",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/exfil/stealer/browser.yara#L35",
                     "ID": "exfil/stealer/browser",
                     "RuleName": "multiple_browser_refs"
                 },
@@ -162,6 +172,7 @@
                     ],
                     "RiskScore": 4,
                     "RiskLevel": "CRITICAL",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/exfil/stealer/wallet.yara#L49",
                     "ID": "exfil/stealer/wallet",
                     "RuleName": "crypto_extension_stealer"
                 },
@@ -174,6 +185,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/home-config.yara#L1",
                     "ID": "fs/path/home_config",
                     "RuleName": "home_config_path"
                 },
@@ -196,6 +208,7 @@
                     ],
                     "RiskScore": 4,
                     "RiskLevel": "CRITICAL",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/malware/family/beaver_tail.yara#L1",
                     "ReferenceURL": "https://objective-see.org/blog/blog_0x7A.html",
                     "ID": "malware/family/beaver_tail",
                     "RuleName": "beaver_tail"
@@ -208,6 +221,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/download/download.yara#L1",
                     "ID": "net/download",
                     "RuleName": "download"
                 },
@@ -218,6 +232,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/http.yara#L1",
                     "ID": "net/http",
                     "RuleName": "http"
                 },
@@ -228,6 +243,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/post.yara#L65",
                     "ID": "net/http/post",
                     "RuleName": "form_data_reference"
                 },
@@ -238,6 +254,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/url/embedded.yara#L24",
                     "ID": "net/url/embedded",
                     "RuleName": "http_url"
                 },
@@ -248,6 +265,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/sus/exclamation.yara#L1",
                     "ID": "sus/exclamation",
                     "RuleName": "exclamations"
                 }

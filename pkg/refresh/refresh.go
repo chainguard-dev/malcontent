@@ -21,7 +21,6 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/render"
 	"github.com/chainguard-dev/malcontent/rules"
 	thirdparty "github.com/chainguard-dev/malcontent/third_party"
-	"github.com/puzpuzpuz/xsync/v4"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -90,7 +89,6 @@ func newConfig(rc Config) *malcontent.Config {
 		MinRisk:               1,
 		QuantityIncreasesRisk: true,
 		RuleFS:                []fs.FS{rules.FS, thirdparty.FS},
-		Skipped:               xsync.NewMap[string, struct{}](),
 		TrimPrefixes:          []string{rc.SamplesPath},
 	}
 }

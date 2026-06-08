@@ -25,7 +25,8 @@ func ResolveCommitStrict() (string, error) {
 // ResolveRuleURLCommit returns the commit ref used in generated rule
 // deep-link URLs. A canonical 40-char lowercase hex BuildCommit, injected
 // at link time by production builds, yields that pinned commit. Any other
-// BuildCommit value yields "" so the rule URL is suppressed entirely.
+// BuildCommit value yields ""; callers should fall back to "main" to
+// produce a working URL rather than suppressing it.
 func ResolveRuleURLCommit() string {
 	if isFortyHexLower(BuildCommit) {
 		return BuildCommit

@@ -18,7 +18,8 @@ func benchBehaviors(n int) []*malcontent.Behavior {
 	techniques := []string{"eval", "exfil", "install", "list", "read"}
 	out := make([]*malcontent.Behavior, 0, n)
 	for i := range n {
-		id := fmt.Sprintf("%s/%s/%s-%d",
+		id := fmt.Sprintf(
+			"%s/%s/%s-%d",
 			objectives[i%len(objectives)],
 			resources[i%len(resources)],
 			techniques[i%len(techniques)],

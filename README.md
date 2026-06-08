@@ -71,7 +71,7 @@ GLOBAL OPTIONS:
    --min-file-risk string      Only show results for files which meet the given risk level (any, low, medium, high, critical) (default: "low")
    --min-level int             Obsoleted by --min-risk (default: -1)
    --min-risk string           Only show results which meet the given risk level (any, low, medium, high, critical) (default: "low")
-   --oci-auth                  Use Docker Keychain authentication to pull images (warning: may leak credentials to malicious registries!)
+   --oci-auth                  Authenticate OCI pulls with MALCONTENT_REGISTRY_USER/PASS, scoped to the registry in MALCONTENT_REGISTRY_HOST
    --output string, -o string  Write output to specified file instead of stdout
    --profile, -p               Generate profile and trace files
    --quantity-increases-risk   Increase file risk score based on behavior quantity
@@ -82,9 +82,9 @@ GLOBAL OPTIONS:
    --version, -v               print the version
 ```
 
-> Using `--oci-auth` leverages the Docker Keychain to authenticate image pulls.  
-> This option may expose sensitive auth tokens to a malicious registry but is not materially different from other image pull mechanisms (e.g., Docker or `google/go-containerregistry` which malcontent leverages via the `crane` package).  
-> Malcontent defaults to anonymous pulls and authentication is opt-in when needing to scan OCI images from private, trusted registries.
+> Malcontent defaults to anonymous OCI pulls. Authentication is opt-in via `--oci-auth`, which reads Basic credentials from the `MALCONTENT_REGISTRY_USER` and `MALCONTENT_REGISTRY_PASS` environment variables. The ambient Docker keychain (`~/.docker/config.json`) is intentionally never used.  
+> Credentials are scoped to a single registry: they are sent only when the image's registry host matches `MALCONTENT_REGISTRY_HOST` exactly, and malcontent falls back to anonymous pulls for any other registry, so private credentials are never presented to an unexpected (potentially malicious) registry.  
+> Registry hosts are normalized by `google/go-containerregistry`, so set `MALCONTENT_REGISTRY_HOST=index.docker.io` (not `docker.io`) when authenticating to Docker Hub.
 
 ## Modes
 

@@ -4,17 +4,17 @@
 
 | RISK | KEY | DESCRIPTION | EVIDENCE |
 |:--|:--|:--|:--|
-| +LOW | **[fs/directory/traverse]()** | traverse filesystem hierarchy | [_fts_children](https://github.com/search?q=_fts_children&type=code)<br>[_fts_close](https://github.com/search?q=_fts_close&type=code)<br>[_fts_open](https://github.com/search?q=_fts_open&type=code)<br>[_fts_read](https://github.com/search?q=_fts_read&type=code)<br>[_fts_set](https://github.com/search?q=_fts_set&type=code) |
-| +LOW | **[net/http]()** | Uses the HTTP protocol | [http](https://github.com/search?q=http&type=code) |
+| +LOW | **[fs/directory/traverse](https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/directory/directory-traverse.yara#L1)** | traverse filesystem hierarchy | [_fts_children](https://github.com/search?q=_fts_children&type=code)<br>[_fts_close](https://github.com/search?q=_fts_close&type=code)<br>[_fts_open](https://github.com/search?q=_fts_open&type=code)<br>[_fts_read](https://github.com/search?q=_fts_read&type=code)<br>[_fts_set](https://github.com/search?q=_fts_set&type=code) |
+| +LOW | **[net/http](https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/http.yara#L1)** | Uses the HTTP protocol | [http](https://github.com/search?q=http&type=code) |
 
 ### 6 removed behaviors
 
 | RISK | KEY | DESCRIPTION | EVIDENCE |
 |:--|:--|:--|:--|
-| -MEDIUM | [process/name_set]() | [get or set the current process name](https://stackoverflow.com/questions/273691/using-progname-instead-of-argv0) | [__progname](https://github.com/search?q=__progname&type=code) |
-| -LOW | [c2/tool_transfer/arch]() | references a specific architecture | [https://](https%3A%2F%2F)<br>[x86](https://github.com/search?q=x86&type=code) |
-| -LOW | [c2/tool_transfer/os]() | references a specific operating system | [https://](https%3A%2F%2F)<br>[linux](https://github.com/search?q=linux&type=code) |
-| -LOW | [data/compression/lzma]() | [works with lzma files](https://en.wikipedia.org/wiki/Lempel%E2%80%93Ziv%E2%80%93Markov_chain_algorithm) | [lzma](https://github.com/search?q=lzma&type=code) |
-| -LOW | [discover/system/hostname]() | [get computer host name](https://man7.org/linux/man-pages/man2/sethostname.2.html) | [gethostname](https://github.com/search?q=gethostname&type=code) |
-| -LOW | [net/url/embedded]() | contains embedded HTTPS URLs | [https://wiki.xiph.org/MIME_Types_and_File_Extensions](https%3A%2F%2Fwiki.xiph.org%2FMIME_Types_and_File_Extensions)<br>[https://www.gnu.org/software/coreutils/](https%3A%2F%2Fwww.gnu.org%2Fsoftware%2Fcoreutils%2F)<br>[https://translationproject.org/team/](https%3A%2F%2Ftranslationproject.org%2Fteam%2F)<br>[https://gnu.org/licenses/gpl.html](https%3A%2F%2Fgnu.org%2Flicenses%2Fgpl.html) |
+| -MEDIUM | [process/name_set](https://github.com/chainguard-dev/malcontent/blob/main/rules/process/name-set.yara#L1) | [get or set the current process name](https://stackoverflow.com/questions/273691/using-progname-instead-of-argv0) | [__progname](https://github.com/search?q=__progname&type=code) |
+| -LOW | [c2/tool_transfer/arch](https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/arch.yara#L1) | references a specific architecture | [https://](https%3A%2F%2F)<br>[x86](https://github.com/search?q=x86&type=code) |
+| -LOW | [c2/tool_transfer/os](https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/os.yara#L1) | references a specific operating system | [https://](https%3A%2F%2F)<br>[linux](https://github.com/search?q=linux&type=code) |
+| -LOW | [data/compression/lzma](https://github.com/chainguard-dev/malcontent/blob/main/rules/data/compression/lzma.yara#L1) | [works with lzma files](https://en.wikipedia.org/wiki/Lempel%E2%80%93Ziv%E2%80%93Markov_chain_algorithm) | [lzma](https://github.com/search?q=lzma&type=code) |
+| -LOW | [discover/system/hostname](https://github.com/chainguard-dev/malcontent/blob/main/rules/discover/system/hostname.yara#L1) | [get computer host name](https://man7.org/linux/man-pages/man2/sethostname.2.html) | [gethostname](https://github.com/search?q=gethostname&type=code) |
+| -LOW | [net/url/embedded](https://github.com/chainguard-dev/malcontent/blob/main/rules/net/url/embedded.yara#L12) | contains embedded HTTPS URLs | [https://wiki.xiph.org/MIME_Types_and_File_Extensions](https%3A%2F%2Fwiki.xiph.org%2FMIME_Types_and_File_Extensions)<br>[https://www.gnu.org/software/coreutils/](https%3A%2F%2Fwww.gnu.org%2Fsoftware%2Fcoreutils%2F)<br>[https://translationproject.org/team/](https%3A%2F%2Ftranslationproject.org%2Fteam%2F)<br>[https://gnu.org/licenses/gpl.html](https%3A%2F%2Fgnu.org%2Flicenses%2Fgpl.html) |
 

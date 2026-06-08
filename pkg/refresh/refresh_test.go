@@ -183,24 +183,6 @@ func TestNewConfig(t *testing.T) {
 	}
 }
 
-func TestNewConfig_InitializesSkipped(t *testing.T) {
-	t.Parallel()
-
-	cfg := newConfig(Config{})
-	if cfg == nil {
-		t.Fatal("newConfig() returned nil")
-	}
-	if cfg.Skipped == nil {
-		t.Fatal("newConfig() Skipped is nil, want non-nil *xsync.Map")
-	}
-
-	const key = "/test/path"
-	cfg.Skipped.Store(key, struct{}{})
-	if _, ok := cfg.Skipped.Load(key); !ok {
-		t.Fatalf("newConfig() Skipped did not retain stored entry %q", key)
-	}
-}
-
 func TestRefreshValidationErrors(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()

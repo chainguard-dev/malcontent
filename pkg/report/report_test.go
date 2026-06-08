@@ -640,7 +640,7 @@ func TestGenerateRuleURL_CommitPinned(t *testing.T) {
 			buildCommit: "",
 			src:         "sus/leetspeak.yara",
 			rule:        "one_three_three_seven",
-			want:        "",
+			want:        "https://github.com/chainguard-dev/malcontent/blob/main/rules/sus/leetspeak.yara#L1",
 		},
 		{
 			name:        "map miss yields name anchor",
@@ -654,7 +654,7 @@ func TestGenerateRuleURL_CommitPinned(t *testing.T) {
 			buildCommit: "not-a-sha-just-some-text-here-padding-12",
 			src:         "sus/leetspeak.yara",
 			rule:        "one_three_three_seven",
-			want:        "",
+			want:        "https://github.com/chainguard-dev/malcontent/blob/main/rules/sus/leetspeak.yara#L1",
 		},
 		{
 			name:        "empty src still produces a URL",
@@ -675,7 +675,7 @@ func TestGenerateRuleURL_CommitPinned(t *testing.T) {
 			buildCommit: "",
 			src:         "yara/elastic/MacOS_Trojan_BeaverTail.yar",
 			rule:        "MacOS_Trojan_BeaverTail_90b8abd6",
-			want:        "",
+			want:        "https://github.com/chainguard-dev/malcontent/blob/main/third_party/yara/elastic/MacOS_Trojan_BeaverTail.yar#MacOS_Trojan_BeaverTail_90b8abd6",
 		},
 		{
 			name:        "first_party_with_commit_unchanged",
@@ -790,10 +790,10 @@ func TestResolveCommit_PriorityChain(t *testing.T) {
 		want        string
 	}{
 		{name: "valid hex sha accepted", buildCommit: validSHA, want: "https://github.com/chainguard-dev/malcontent/blob/" + validSHA + "/rules/sus/leetspeak.yara#L1"},
-		{name: "empty falls back to main", buildCommit: "", want: ""},
-		{name: "uppercase rejected", buildCommit: strings.ToUpper(validSHA), want: ""},
-		{name: "short rejected", buildCommit: validSHA[:39], want: ""},
-		{name: "long rejected", buildCommit: validSHA + "0", want: ""},
+		{name: "empty falls back to main", buildCommit: "", want: "https://github.com/chainguard-dev/malcontent/blob/main/rules/sus/leetspeak.yara#L1"},
+		{name: "uppercase rejected", buildCommit: strings.ToUpper(validSHA), want: "https://github.com/chainguard-dev/malcontent/blob/main/rules/sus/leetspeak.yara#L1"},
+		{name: "short rejected", buildCommit: validSHA[:39], want: "https://github.com/chainguard-dev/malcontent/blob/main/rules/sus/leetspeak.yara#L1"},
+		{name: "long rejected", buildCommit: validSHA + "0", want: "https://github.com/chainguard-dev/malcontent/blob/main/rules/sus/leetspeak.yara#L1"},
 	}
 
 	for _, tt := range tests {
@@ -807,16 +807,16 @@ func TestResolveCommit_PriorityChain(t *testing.T) {
 	}
 }
 
-func TestGenerateRuleURL_EmptyOnNonCanonical(t *testing.T) {
+func TestGenerateRuleURL_FallbackOnNonCanonical(t *testing.T) {
 	tests := []struct {
 		name        string
 		buildCommit string
 		want        string
 	}{
-		{name: "literal_main_suppressed", buildCommit: "", want: ""},
-		{name: "short_hex_suppressed", buildCommit: "abcdef0", want: ""},
-		{name: "mixed_case_suppressed", buildCommit: "ABCDEF0123456789ABCDEF0123456789ABCDEF01", want: ""},
-		{name: "forty_one_hex_suppressed", buildCommit: "abcdef0123456789abcdef0123456789abcdef010", want: ""},
+		{name: "empty_falls_back_to_main", buildCommit: "", want: "https://github.com/chainguard-dev/malcontent/blob/main/rules/sus/leetspeak.yara#L1"},
+		{name: "short_hex_falls_back_to_main", buildCommit: "abcdef0", want: "https://github.com/chainguard-dev/malcontent/blob/main/rules/sus/leetspeak.yara#L1"},
+		{name: "mixed_case_falls_back_to_main", buildCommit: "ABCDEF0123456789ABCDEF0123456789ABCDEF01", want: "https://github.com/chainguard-dev/malcontent/blob/main/rules/sus/leetspeak.yara#L1"},
+		{name: "forty_one_hex_falls_back_to_main", buildCommit: "abcdef0123456789abcdef0123456789abcdef010", want: "https://github.com/chainguard-dev/malcontent/blob/main/rules/sus/leetspeak.yara#L1"},
 		{name: "valid_lower_hex_emits_url", buildCommit: "abcdef0123456789abcdef0123456789abcdef01", want: "https://github.com/chainguard-dev/malcontent/blob/abcdef0123456789abcdef0123456789abcdef01/rules/sus/leetspeak.yara#L1"},
 	}
 

@@ -16,7 +16,6 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/render"
 	"github.com/chainguard-dev/malcontent/rules"
 	thirdparty "github.com/chainguard-dev/malcontent/third_party"
-	"github.com/puzpuzpuz/xsync/v4"
 )
 
 type actionData struct {
@@ -111,7 +110,6 @@ func actionRefresh(ctx context.Context) ([]TestData, error) {
 			Renderer:              r,
 			Rules:                 yrs,
 			ScanPaths:             []string{scan},
-			Skipped:               xsync.NewMap[string, struct{}](),
 			TrimPrefixes:          []string{"pkg/action/"},
 		}
 

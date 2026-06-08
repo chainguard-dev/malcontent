@@ -16,7 +16,6 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/render"
 	"github.com/chainguard-dev/malcontent/rules"
 	thirdparty "github.com/chainguard-dev/malcontent/third_party"
-	"github.com/puzpuzpuz/xsync/v4"
 )
 
 type diffData struct {
@@ -212,7 +211,6 @@ func diffRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 			Renderer:              renderer,
 			Rules:                 yrs,
 			ScanPaths:             []string{src, dest},
-			Skipped:               xsync.NewMap[string, struct{}](),
 			TrimPrefixes:          []string{rc.SamplesPath},
 		}
 

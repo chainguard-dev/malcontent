@@ -77,7 +77,6 @@ type Config struct {
 	Scan                     bool
 	ScanPaths                []string
 	Sensitivity              int
-	Skipped                  *xsync.Map[string, struct{}]
 	Stats                    bool
 	TrimPrefixes             []string
 }
