@@ -164,22 +164,22 @@ awk \
     }' Makefile > "${WORK_DIR}/Makefile.tmp" && mv "${WORK_DIR}/Makefile.tmp" Makefile
 
 # ---- Update workflow files ----
+# Auto-discover every workflow that pins YARA_X_RELEASE rather than maintaining
+# a hardcoded list (which previously drifted and left bench.yml on a stale
+# version). Any new workflow that defines YARA_X_RELEASE is picked up here.
 echo "==> Updating workflow files..."
-WORKFLOW_FILES=(
-    .github/workflows/codeql.yaml
-    .github/workflows/fuzz.yaml
-    .github/workflows/go-tests.yaml
-    .github/workflows/style.yaml
-    .github/workflows/third-party.yaml
-)
+WORKFLOW_FILES=()
+while IFS= read -r wf; do
+    [[ -n "${wf}" ]] && WORKFLOW_FILES+=("${wf}")
+done < <(grep -rlE '^[[:space:]]*YARA_X_RELEASE:[[:space:]]*"' .github/workflows/ | sort || true)
+
+if [[ ${#WORKFLOW_FILES[@]} -eq 0 ]]; then
+    echo "    WARNING: no workflow files define YARA_X_RELEASE"
+fi
 
 for wf in "${WORKFLOW_FILES[@]}"; do
-    if [[ -f "${wf}" ]]; then
-        sed_inplace "s/YARA_X_RELEASE: \"[0-9.]*\"/YARA_X_RELEASE: \"${VERSION}\"/" "${wf}"
-        echo "    Updated ${wf}"
-    else
-        echo "    WARNING: ${wf} not found, skipping"
-    fi
+    sed_inplace "s/YARA_X_RELEASE: \"[0-9.]*\"/YARA_X_RELEASE: \"${VERSION}\"/" "${wf}"
+    echo "    Updated ${wf}"
 done
 
 # ---- Update go.mod + go.sum ----
