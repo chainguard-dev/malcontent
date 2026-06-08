@@ -84,7 +84,7 @@ func BenchmarkReadSmallFile(b *testing.B) {
 				if _, err := f.Seek(0, 0); err != nil {
 					b.Fatalf("seek: %v", err)
 				}
-				if _, err := readSmallFile(f, size); err != nil {
+				if _, _, err := readSmallFile(f, size); err != nil {
 					b.Fatalf("readSmallFile: %v", err)
 				}
 			}

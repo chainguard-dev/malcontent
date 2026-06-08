@@ -20,12 +20,7 @@ import (
 
 // ExtractDeb extracts .deb packages.
 func ExtractDeb(ctx context.Context, d, f string) (retErr error) {
-	// Recover from panics in third-party deb parsing library.
-	defer func() {
-		if r := recover(); r != nil {
-			retErr = fmt.Errorf("recovered from panic during deb extraction: %v", r)
-		}
-	}()
+	defer recoverExtractor(ctx, "deb", f, &retErr)
 	if ctx.Err() != nil {
 		return ctx.Err()
 	}

@@ -73,3 +73,39 @@ func TestHandleFile_WithCounter(t *testing.T) {
 		t.Fatalf("counter.Total: got %d want %d", got, len(body))
 	}
 }
+
+// TestHandleFile_ArchiveBudgetBoundsPerMemberWrite verifies that when the
+// archive-level byte cap (MaxBytes on the counter) is smaller than the per-file
+// ceiling (file.MaxBytes), a single oversize member is rejected WITHOUT writing
+// the full member to disk. This exercises the LimitReader bound added to
+// handleFile.
+func TestHandleFile_ArchiveBudgetBoundsPerMemberWrite(t *testing.T) {
+	t.Parallel()
+
+	const archiveCap = 512
+	const memberSize = 2048
+
+	dir := t.TempDir()
+	body := make([]byte, memberSize)
+	for i := range body {
+		body[i] = byte(i % 256)
+	}
+	tr := makeTarStream(t, "oversize.bin", body)
+	target := filepath.Join(dir, "oversize.bin")
+
+	counter := &file.ArchiveCounter{MaxBytes: archiveCap, InputBytes: 1 << 20}
+	err := handleFile(target, tr, counter)
+	if err == nil {
+		t.Fatalf("handleFile succeeded; want error for member exceeding archive cap")
+	}
+
+	// The written file on disk must not contain the full member body.
+	data, readErr := os.ReadFile(target)
+	if readErr != nil {
+		// File may not exist if we aborted before any write; that is acceptable.
+		return
+	}
+	if int64(len(data)) > archiveCap+1 {
+		t.Fatalf("wrote %d bytes to disk, want at most %d (archive cap not enforced per-member)", len(data), archiveCap+1)
+	}
+}

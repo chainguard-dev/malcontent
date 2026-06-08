@@ -56,6 +56,7 @@ const (
 const (
 	registryUserEnv = "MALCONTENT_REGISTRY_USER"
 	registryPassEnv = "MALCONTENT_REGISTRY_PASS"
+	registryHostEnv = "MALCONTENT_REGISTRY_HOST"
 )
 
 // ociTransportConfig captures the resolved transport-hardening values used by prepareImage.
@@ -131,13 +132,23 @@ func resolveOCITransportConfig(ctx context.Context, c *malcontent.Config) ociTra
 	return cfg
 }
 
-// envKeychain resolves Basic auth from MALCONTENT_REGISTRY_USER / MALCONTENT_REGISTRY_PASS for any registry. Returning Anonymous when unset keeps callers off the ambient docker config path.
+// envKeychain resolves Basic auth from MALCONTENT_REGISTRY_USER / MALCONTENT_REGISTRY_PASS,
+// scoped to the host in MALCONTENT_REGISTRY_HOST. If the requested resource's
+// registry does not match the expected host, Anonymous is returned so that
+// private credentials are never leaked to an attacker-controlled registry.
 type envKeychain struct{}
 
-func (envKeychain) Resolve(_ authn.Resource) (authn.Authenticator, error) {
+func (envKeychain) Resolve(resource authn.Resource) (authn.Authenticator, error) {
 	user := strings.TrimSpace(os.Getenv(registryUserEnv))
 	pass := strings.TrimSpace(os.Getenv(registryPassEnv))
 	if user == "" || pass == "" {
+		return authn.Anonymous, nil
+	}
+	expectedHost := strings.TrimSpace(os.Getenv(registryHostEnv))
+	if expectedHost == "" {
+		return authn.Anonymous, nil
+	}
+	if resource.RegistryStr() != expectedHost {
 		return authn.Anonymous, nil
 	}
 	return &authn.Basic{Username: user, Password: pass}, nil
@@ -192,9 +203,11 @@ func buildTransport(cfg ociTransportConfig) (http.RoundTripper, error) {
 	case malcontent.KeepalivePolicyExplicitlyDisabled:
 		t.DisableKeepAlives = true
 	case malcontent.KeepalivePolicyExplicitlyEnabled:
-		if cfg.keepaliveSeconds > 0 {
-			t.IdleConnTimeout = time.Duration(cfg.keepaliveSeconds) * time.Second
+		secs := cfg.keepaliveSeconds
+		if secs <= 0 {
+			secs = defaultOCIKeepaliveSeconds
 		}
+		t.IdleConnTimeout = time.Duration(secs) * time.Second
 	case malcontent.KeepalivePolicyGoDefault, "":
 		// Leave transport keepalive at the Go default.
 	}

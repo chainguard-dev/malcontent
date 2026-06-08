@@ -549,6 +549,9 @@ func TestSizeClassClassification(t *testing.T) {
 		{"large just above medium", mediumFileMaxBytes + 1, sizeClassLarge},
 		{"large at MaxBytes", MaxBytes, sizeClassLarge},
 		{"large above MaxBytes", MaxBytes + 1, sizeClassLarge},
+		{"negative minus one routes to large", -1, sizeClassLarge},
+		{"negative large routes to large", -1000, sizeClassLarge},
+		{"negative MinInt64 routes to large", math.MinInt64, sizeClassLarge},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -594,7 +597,7 @@ func TestReadSmallFileMatchesReadAll(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Stat: %v", err)
 			}
-			got, err := readSmallFile(f, info.Size())
+			got, _, err := readSmallFile(f, info.Size())
 			if err != nil {
 				t.Fatalf("readSmallFile: %v", err)
 			}
@@ -635,7 +638,7 @@ func TestReadSmallFileStaleSizeHint(t *testing.T) {
 			f := writeTempFile(t, content)
 			defer f.Close()
 
-			got, err := readSmallFile(f, tt.hint)
+			got, _, err := readSmallFile(f, tt.hint)
 			if err != nil {
 				t.Fatalf("readSmallFile: %v", err)
 			}
@@ -665,7 +668,7 @@ func TestReadSmallFileCapsAtCeiling(t *testing.T) {
 
 	f := writeTempFile(t, content)
 	defer f.Close()
-	got, err := readSmallFile(f, int64(len(content)))
+	got, _, err := readSmallFile(f, int64(len(content)))
 	if err != nil {
 		t.Fatalf("readSmallFile: %v", err)
 	}
@@ -749,5 +752,95 @@ func TestArchiveCounter_FractionalRatio(t *testing.T) {
 				t.Fatalf("expected no error, got %v", lastErr)
 			}
 		})
+	}
+}
+
+// TestArchiveCounter_Remaining verifies Remaining returns correct values.
+func TestArchiveCounter_Remaining(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name    string
+		counter *ArchiveCounter
+		preAdd  int
+		want    int64
+	}{
+		{
+			name:    "nil counter returns MaxInt64",
+			counter: nil,
+			want:    math.MaxInt64,
+		},
+		{
+			name:    "zero MaxBytes returns MaxInt64",
+			counter: &ArchiveCounter{MaxBytes: 0},
+			want:    math.MaxInt64,
+		},
+		{
+			name:    "full budget available",
+			counter: &ArchiveCounter{MaxBytes: 1000},
+			want:    1000,
+		},
+		{
+			name:    "partial budget consumed",
+			counter: &ArchiveCounter{MaxBytes: 1000},
+			preAdd:  600,
+			want:    400,
+		},
+		{
+			name:    "budget fully consumed",
+			counter: &ArchiveCounter{MaxBytes: 1000},
+			preAdd:  1000,
+			want:    0,
+		},
+		{
+			name:    "budget overdrawn returns zero",
+			counter: &ArchiveCounter{MaxBytes: 100, InputBytes: 1 << 30},
+			preAdd:  200,
+			want:    0,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			if tt.preAdd > 0 && tt.counter != nil {
+				_ = tt.counter.Add(tt.preAdd)
+			}
+			if got := tt.counter.Remaining(); got != tt.want {
+				t.Errorf("Remaining() = %d, want %d", got, tt.want)
+			}
+		})
+	}
+}
+
+// TestGetContents_SmallFileSpillThrough verifies that a file stat'd as small
+// that grew past the small ceiling between stat and read is not silently
+// truncated but instead spills to the large read path.
+func TestGetContents_SmallFileSpillThrough(t *testing.T) {
+	t.Parallel()
+
+	tmp := filepath.Join(t.TempDir(), "growing")
+	// Write content larger than smallFileMaxBytes (64 KiB).
+	size := int(smallFileMaxBytes) + 4096
+	content := deterministicBytes(size)
+	if err := os.WriteFile(tmp, content, 0o644); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
+
+	f, err := os.Open(tmp)
+	if err != nil {
+		t.Fatalf("Open: %v", err)
+	}
+	defer f.Close()
+
+	buf := make([]byte, ExtractBuffer)
+	got, err := GetContents(f, buf)
+	if err != nil {
+		t.Fatalf("GetContents: %v", err)
+	}
+
+	if len(got) != size {
+		t.Fatalf("GetContents returned %d bytes, want %d (truncation detected)", len(got), size)
+	}
+	if !bytes.Equal(got, content) {
+		t.Fatalf("content mismatch after spill-through")
 	}
 }

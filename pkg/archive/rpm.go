@@ -69,12 +69,7 @@ func extractFileFromCPIO(ctx context.Context, cr *cpio.Reader, target string, bu
 
 // extractRPM extracts .rpm packages.
 func ExtractRPM(ctx context.Context, d, f string) (retErr error) {
-	// Recover from panics in third-party RPM parsing library (cavaliergopher/rpm).
-	defer func() {
-		if r := recover(); r != nil {
-			retErr = fmt.Errorf("recovered from panic during RPM extraction: %v", r)
-		}
-	}()
+	defer recoverExtractor(ctx, "rpm", f, &retErr)
 	if ctx.Err() != nil {
 		return ctx.Err()
 	}

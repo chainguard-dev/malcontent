@@ -294,7 +294,10 @@ func ExtractArchiveToTempDir(ctx context.Context, c malcontent.Config, path stri
 	if extract == nil {
 		return "", fmt.Errorf("unsupported archive type: %s", path)
 	}
-	err = extract(ctx, tmpDir, path)
+	err = func() (extractErr error) {
+		defer recoverExtractor(ctx, "top-level", path, &extractErr)
+		return extract(ctx, tmpDir, path)
+	}()
 	if err != nil {
 		return "", fmt.Errorf("failed to extract %s: %w", path, err)
 	}
@@ -383,11 +386,16 @@ func handleFile(target string, tr *tar.Reader, counter *file.ArchiveCounter) err
 	}
 	defer func() { _ = out.Close() }()
 
-	// Read one byte past the ceiling so a member sized exactly file.MaxBytes is
-	// distinguishable from an oversize member truncated by the limit reader.
-	// The streaming extractors reject written > file.MaxBytes; matching that
-	// operator here keeps the boundary fail-closed and consistent.
-	written, err := io.CopyBuffer(out, io.LimitReader(tr, file.MaxBytes+1), buf)
+	// Bound the read to the stricter of the per-file ceiling and the remaining
+	// archive budget so that a single oversize member cannot bypass a lowered
+	// MaxArchiveBytes cap. Read one byte past the effective ceiling so a member
+	// sized exactly at the limit is distinguishable from a truncated oversize
+	// member.
+	readLimit := file.MaxBytes + 1
+	if rem := counter.Remaining(); rem < file.MaxBytes {
+		readLimit = rem + 1
+	}
+	written, err := io.CopyBuffer(out, io.LimitReader(tr, readLimit), buf)
 	if err != nil {
 		if (strings.Contains(err.Error(), "unexpected EOF") && written == 0) ||
 			!strings.Contains(err.Error(), "unexpected EOF") {

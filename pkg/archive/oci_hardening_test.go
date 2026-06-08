@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
+	"github.com/google/go-containerregistry/pkg/authn"
 )
 
 // hostileRegistry implements a minimal subset of the OCI distribution v2 protocol with
@@ -345,6 +346,34 @@ func TestOCIHardening_Keepalive_Explicit(t *testing.T) {
 	}
 }
 
+// TestOCIHardening_Keepalive_ExplicitlyEnabledZeroSeconds_FallsBackToDefault
+// verifies that when policy is ExplicitlyEnabled but keepaliveSeconds is 0,
+// buildTransport falls back to defaultOCIKeepaliveSeconds rather than leaving
+// IdleConnTimeout at 0 (unbounded).
+func TestOCIHardening_Keepalive_ExplicitlyEnabledZeroSeconds_FallsBackToDefault(t *testing.T) {
+	cfg := ociTransportConfig{
+		pullTimeoutSeconds: 5,
+		keepalivePolicy:    malcontent.KeepalivePolicyExplicitlyEnabled,
+		keepaliveSeconds:   0,
+		perHostSlots:       1,
+	}
+	rt, err := buildTransport(cfg)
+	if err != nil {
+		t.Fatalf("buildTransport: %v", err)
+	}
+	tr, ok := rt.(*http.Transport)
+	if !ok {
+		t.Fatalf("unexpected RoundTripper type %T", rt)
+	}
+	want := time.Duration(defaultOCIKeepaliveSeconds) * time.Second
+	if tr.IdleConnTimeout != want {
+		t.Fatalf("IdleConnTimeout = %s, want %s (should fall back to default)", tr.IdleConnTimeout, want)
+	}
+	if tr.DisableKeepAlives {
+		t.Fatalf("expected DisableKeepAlives=false")
+	}
+}
+
 func TestOCIHardening_ProxyPolicy_HTTPSProxyBypassedByDefault(t *testing.T) {
 	withCleanHostSemaphores(t)
 	t.Setenv("HTTPS_PROXY", "http://untrusted.invalid:9999")
@@ -400,6 +429,85 @@ func TestOCIHardening_SizePreflight_OversizedAbortedBeforeBodyFetch(t *testing.T
 		t.Fatalf("size preflight should have aborted before blob fetch, got %d blob hits", got)
 	}
 }
+
+// TestEnvKeychain_CredsOnlyForExpectedHost verifies that envKeychain returns
+// Basic creds only when the resource's registry matches MALCONTENT_REGISTRY_HOST,
+// and returns Anonymous otherwise, preventing credential leakage to attacker-
+// controlled registries.
+func TestEnvKeychain_CredsOnlyForExpectedHost(t *testing.T) {
+	tests := []struct {
+		name          string
+		user          string
+		pass          string
+		host          string
+		resourceHost  string
+		wantAnonymous bool
+	}{
+		{
+			name:          "matching host returns creds",
+			user:          "myuser",
+			pass:          "mypass",
+			host:          "registry.example.com",
+			resourceHost:  "registry.example.com",
+			wantAnonymous: false,
+		},
+		{
+			name:          "mismatched host returns anonymous",
+			user:          "myuser",
+			pass:          "mypass",
+			host:          "registry.example.com",
+			resourceHost:  "evil.attacker.com",
+			wantAnonymous: true,
+		},
+		{
+			name:          "empty host env returns anonymous",
+			user:          "myuser",
+			pass:          "mypass",
+			host:          "",
+			resourceHost:  "registry.example.com",
+			wantAnonymous: true,
+		},
+		{
+			name:          "empty creds returns anonymous",
+			user:          "",
+			pass:          "",
+			host:          "registry.example.com",
+			resourceHost:  "registry.example.com",
+			wantAnonymous: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Setenv(registryUserEnv, tt.user)
+			t.Setenv(registryPassEnv, tt.pass)
+			t.Setenv(registryHostEnv, tt.host)
+
+			kc := envKeychain{}
+			auth, err := kc.Resolve(testResource{registry: tt.resourceHost})
+			if err != nil {
+				t.Fatalf("Resolve error: %v", err)
+			}
+			if tt.wantAnonymous {
+				if auth != authn.Anonymous {
+					t.Fatalf("expected Anonymous authenticator, got %T", auth)
+				}
+			} else {
+				if auth == authn.Anonymous {
+					t.Fatalf("expected Basic authenticator, got Anonymous")
+				}
+			}
+		})
+	}
+}
+
+// testResource implements authn.Resource for test purposes.
+type testResource struct {
+	registry string
+}
+
+func (r testResource) String() string      { return r.registry + "/test" }
+func (r testResource) RegistryStr() string { return r.registry }
 
 func TestOCIHardening_Keychain_AmbientDefaultRejected(t *testing.T) {
 	withCleanHostSemaphores(t)
@@ -459,6 +567,9 @@ func TestOCIHardening_Keychain_AmbientDefaultRejected(t *testing.T) {
 		reg := newHostileRegistry(t, 0)
 		srv := httptest.NewServer(reg.handler())
 		defer srv.Close()
+
+		// Set the expected registry host to the test server's host:port.
+		t.Setenv(registryHostEnv, hostPort(t, srv.URL))
 
 		c := &malcontent.Config{
 			OCIAuth:                  true,

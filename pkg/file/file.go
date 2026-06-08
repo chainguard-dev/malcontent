@@ -54,6 +54,20 @@ type ArchiveCounter struct {
 	InputBytes int64   // size of the outer archive blob; 0 disables ratio check
 }
 
+// Remaining returns the number of bytes still available under the byte cap.
+// A nil receiver or a zero MaxBytes (unlimited) returns MaxInt64 so callers
+// can unconditionally use min(Remaining(), otherLimit) without nil checks.
+func (c *ArchiveCounter) Remaining() int64 {
+	if c == nil || c.MaxBytes <= 0 {
+		return math.MaxInt64
+	}
+	used := c.Total.Load()
+	if used >= c.MaxBytes {
+		return 0
+	}
+	return c.MaxBytes - used
+}
+
 // Add records additional uncompressed bytes against the counter. A nil
 // receiver is a documented no-op so call sites can pass a nil counter to opt
 // out without nil-checking. The byte-cap and ratio-cap guards are evaluated
@@ -114,6 +128,8 @@ const (
 // through to large so the caller still receives a bounded, streaming read.
 func sizeClass(n int64) sizeClassEnum {
 	switch {
+	case n < 0:
+		return sizeClassLarge
 	case n <= smallFileMaxBytes:
 		return sizeClassSmall
 	case n <= mediumFileMaxBytes:
@@ -123,13 +139,14 @@ func sizeClass(n int64) sizeClassEnum {
 	}
 }
 
-// readSmallFile pulls the entire payload through a bytes.Buffer pre-grown to
-// the stat-reported size, capped at smallFileMaxBytes. The size is a capacity
-// hint only: io.Copy from the capped LimitReader supplies the actual content,
-// so a file that grew or shrank between stat and read is read defensively —
-// the hint never truncates the result nor zero-pads it. A correct hint avoids
-// the incremental regrowth a default-sized buffer would incur.
-func readSmallFile(f *os.File, sizeHint int64) ([]byte, error) {
+// readSmallFile pulls the payload through a bytes.Buffer pre-grown to the
+// stat-reported size, capped at smallFileMaxBytes. The size is a capacity hint
+// only: io.Copy from the capped LimitReader supplies the actual content, so a
+// file that grew or shrank between stat and read is handled defensively. The
+// returned boolean is true when exactly smallFileMaxBytes were read, signaling
+// the file may have been truncated by the limit and the caller should spill
+// to a larger read path.
+func readSmallFile(f *os.File, sizeHint int64) ([]byte, bool, error) {
 	var b bytes.Buffer
 	if sizeHint > 0 {
 		if sizeHint > smallFileMaxBytes {
@@ -138,9 +155,10 @@ func readSmallFile(f *os.File, sizeHint int64) ([]byte, error) {
 		b.Grow(int(sizeHint))
 	}
 	if _, err := io.Copy(&b, io.LimitReader(f, smallFileMaxBytes)); err != nil {
-		return nil, err
+		return nil, false, err
 	}
-	return b.Bytes(), nil
+	filled := int64(b.Len()) >= smallFileMaxBytes
+	return b.Bytes(), filled, nil
 }
 
 // readBuffered streams the input through the caller-supplied buffer up to
@@ -155,6 +173,9 @@ func readBuffered(f *os.File, buf []byte, limit int64) ([]byte, error) {
 }
 
 // GetContents takes a file, reads its contents, and returns them as a slice of bytes.
+// If a file was stat'd as small but grew past the small ceiling between stat
+// and read, the read spills through to the large (up-to-MaxBytes) path so
+// content is never silently truncated.
 func GetContents(f *os.File, buf []byte) ([]byte, error) {
 	info, err := f.Stat()
 	if err != nil || !info.Mode().IsRegular() {
@@ -162,9 +183,31 @@ func GetContents(f *os.File, buf []byte) ([]byte, error) {
 	}
 	switch sizeClass(info.Size()) {
 	case sizeClassSmall:
-		return readSmallFile(f, info.Size())
+		data, filled, err := readSmallFile(f, info.Size())
+		if err != nil {
+			return nil, err
+		}
+		if filled {
+			// The file filled the small buffer -- it may have grown since
+			// stat. Seek back and fall through to the large read path.
+			if _, seekErr := f.Seek(0, io.SeekStart); seekErr != nil {
+				return nil, seekErr
+			}
+			return readBuffered(f, buf, MaxBytes)
+		}
+		return data, nil
 	case sizeClassMedium:
-		return readBuffered(f, buf, mediumFileMaxBytes)
+		data, err := readBuffered(f, buf, mediumFileMaxBytes)
+		if err != nil {
+			return nil, err
+		}
+		if int64(len(data)) >= mediumFileMaxBytes {
+			if _, seekErr := f.Seek(0, io.SeekStart); seekErr != nil {
+				return nil, seekErr
+			}
+			return readBuffered(f, buf, MaxBytes)
+		}
+		return data, nil
 	default:
 		return readBuffered(f, buf, MaxBytes)
 	}

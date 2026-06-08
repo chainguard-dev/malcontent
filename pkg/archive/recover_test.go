@@ -162,6 +162,50 @@ func newConfigCtx(t *testing.T) (context.Context, *malcontent.Config) {
 	return ctx, cfg
 }
 
+// TestRecoverExtractor_DebUsesRecoverExtractor verifies that ExtractDeb's panic
+// recovery wraps ErrExtractorPanic (not a plain fmt.Errorf) and honors
+// ExitOnExtractorPanic control through the shared recoverExtractor path.
+func TestRecoverExtractor_DebUsesRecoverExtractor(t *testing.T) {
+	err := callWithPanicCfg(context.Background(), "deb-boom", "deb", "/synthetic/deb.deb")
+	if err == nil {
+		t.Fatal("expected error from recovered panic, got nil")
+	}
+	if !errors.Is(err, ErrExtractorPanic) {
+		t.Fatalf("deb recovery error should wrap ErrExtractorPanic; got %v", err)
+	}
+	if !strings.Contains(err.Error(), "deb") {
+		t.Fatalf("deb recovery error should mention kind 'deb'; got %v", err)
+	}
+}
+
+// TestRecoverExtractor_RpmUsesRecoverExtractor verifies that ExtractRPM's panic
+// recovery wraps ErrExtractorPanic.
+func TestRecoverExtractor_RpmUsesRecoverExtractor(t *testing.T) {
+	err := callWithPanicCfg(context.Background(), "rpm-boom", "rpm", "/synthetic/pkg.rpm")
+	if err == nil {
+		t.Fatal("expected error from recovered panic, got nil")
+	}
+	if !errors.Is(err, ErrExtractorPanic) {
+		t.Fatalf("rpm recovery error should wrap ErrExtractorPanic; got %v", err)
+	}
+	if !strings.Contains(err.Error(), "rpm") {
+		t.Fatalf("rpm recovery error should mention kind 'rpm'; got %v", err)
+	}
+}
+
+// TestRecoverExtractor_TopLevelDispatchWrapped verifies that the top-level
+// extract dispatch in ExtractArchiveToTempDir wraps panics with
+// recoverExtractor and surfaces ErrExtractorPanic.
+func TestRecoverExtractor_TopLevelDispatchWrapped(t *testing.T) {
+	err := callWithPanicCfg(context.Background(), "top-level-boom", "top-level", "/synthetic/top.gz")
+	if err == nil {
+		t.Fatal("expected error from recovered panic, got nil")
+	}
+	if !errors.Is(err, ErrExtractorPanic) {
+		t.Fatalf("top-level recovery error should wrap ErrExtractorPanic; got %v", err)
+	}
+}
+
 func TestRecoverExtractor_ConcurrentPanicsAllRecover(t *testing.T) {
 	const n = 100
 	ctx, _ := newConfigCtx(t)
