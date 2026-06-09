@@ -43,7 +43,7 @@ jobs:
             sum.golang.org:443
 
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
 
@@ -80,7 +80,7 @@ jobs:
             sum.golang.org:443
 
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
 
@@ -116,7 +116,7 @@ jobs:
             sum.golang.org:443
 
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
 
@@ -126,7 +126,7 @@ jobs:
           go-version-file: go.mod
           check-latest: true
 
-      - uses: chainguard-dev/actions/gofmt@c69a264ec2a5934c3186c618f368fc1c86f16cff # main
+      - uses: chainguard-dev/actions/gofmt@3b7bbeebc3a5d2bc37aa008350202651c32a26e1 # main
         with:
           args: -s
 
@@ -154,7 +154,7 @@ jobs:
             sum.golang.org:443
 
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
 
@@ -164,7 +164,7 @@ jobs:
           go-version-file: go.mod
           check-latest: true
 
-      - uses: chainguard-dev/actions/goimports@c69a264ec2a5934c3186c618f368fc1c86f16cff # main
+      - uses: chainguard-dev/actions/goimports@3b7bbeebc3a5d2bc37aa008350202651c32a26e1 # main
 
   golangci-lint:
     name: golangci-lint
@@ -192,7 +192,7 @@ jobs:
           apk add curl findutils gcc git "${GO_RELEASE}" make nodejs pkgconf "yara-x~${YARA_X_RELEASE}"
 
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
 

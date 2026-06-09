@@ -70,12 +70,13 @@ else ifeq ($(LINT_OS),Linux)
 	endif
 endif
 YARA_X_BIN := $(LINT_ROOT)/out/linters/yr-$(YARA_X_VERSION)-$(LINT_ARCH)
+YARA_X_RELEASE_EXT := .tar.gz
 $(YARA_X_BIN):
 	mkdir -p $(LINT_ROOT)/out/linters
 	rm -rf $(LINT_ROOT)/out/linters/yr
-	curl -sSfL https://github.com/VirusTotal/yara-x/releases/download/$(YARA_X_VERSION)/yara-x-$(YARA_X_VERSION)-$(LINT_ARCH)-$(LINT_PLATFORM)-$(LINT_OS_LOWER)$(LINT_PLATFORM_SUFFIX).gz -o yara-x.gz
-	echo "$(YARA_X_SHA) *yara-x.gz" | shasum -a 256 --check
-	tar -xzvf yara-x.gz && mv yr $(LINT_ROOT)/out/linters && rm yara-x.gz
+	curl -sSfL https://github.com/VirusTotal/yara-x/releases/download/$(YARA_X_VERSION)/yara-x-$(YARA_X_VERSION)-$(LINT_ARCH)-$(LINT_PLATFORM)-$(LINT_OS_LOWER)$(LINT_PLATFORM_SUFFIX)$(YARA_X_RELEASE_EXT) -o yara-x$(YARA_X_RELEASE_EXT)
+	echo "$(YARA_X_SHA) *yara-x$(YARA_X_RELEASE_EXT)" | shasum -a 256 --check
+	tar -xzvf yara-x$(YARA_X_RELEASE_EXT) && mv yr $(LINT_ROOT)/out/linters && rm yara-x$(YARA_X_RELEASE_EXT)
 	mv $(LINT_ROOT)/out/linters/yr $@
 
 LINTERS += golangci-lint-lint
