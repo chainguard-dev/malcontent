@@ -53,3 +53,17 @@ rule ansible_collection_ci_workflow: override {
   condition:
     filesize < 4096 and all of them
 }
+
+rule ansible_test_entrypoint: override {
+  meta:
+    description                                        = "entrypoint.ps1 from ansible-test target setup"
+    SIGNATURE_BASE_Suspicious_Powershell_Webdownload_1 = "harmless"
+
+  strings:
+    $parser         = "System.Management.Automation.Language.Parser"
+    $manifest       = "FromBase64String('{{ MANIFEST }}')"
+    $getscriptblock = "GetScriptBlock()"
+
+  condition:
+    filesize < 2048 and $parser and any of ($manifest, $getscriptblock)
+}

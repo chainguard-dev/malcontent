@@ -2,6 +2,7 @@ rule crossplane_aws_provider: override {
   meta:
     description              = "provider-aws-* crossplane-contrib/provider-upjet-aws Go binary"
     RUSSIANPANDA_Mintsloader = "harmless"
+    BlackTech_TSCookie_elf   = "harmless"
 
   strings:
     $upjet_build = "crossplane-contrib/provider-upjet-aws/internal/version"
