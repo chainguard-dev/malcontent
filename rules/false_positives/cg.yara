@@ -7,6 +7,7 @@ rule cg: override {
     curl_python_pipe               = "low"
     hidden_short_path_temp         = "low"
     ssh_backdoor                   = "low"
+    exploit_attempt                = "low"
 
   strings:
     $go_mod = "chainguard.dev/cg"

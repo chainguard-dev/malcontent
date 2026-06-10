@@ -7,6 +7,7 @@ rule grype_offline_db: override {
     hacktool_chisel                 = "harmless"
     perl_reverse_shell              = "harmless"
     polkit_pkexec_exploit           = "harmless"
+    metasploit_payload              = "harmless"
     systemctl_botnet_client         = "harmless"
 
   strings:

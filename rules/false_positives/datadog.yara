@@ -22,6 +22,7 @@ rule datadog_agent_binary: override {
     ipinfo_and_bash           = "medium"
     linux_network_filter_exec = "medium"
     go_memfd_create           = "medium"
+    reverse_shell             = "low"
 
   strings:
     $datadog_module = "github.com/DataDog/datadog-agent"
