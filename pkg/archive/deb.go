@@ -14,7 +14,6 @@ import (
 	"strings"
 
 	"github.com/chainguard-dev/clog"
-	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/egibs/go-debian/deb"
 )
 
@@ -48,12 +47,7 @@ func ExtractDeb(ctx context.Context, d, f string) (retErr error) {
 	// Shared counter across every tar member of the deb data archive enforces a
 	// uniform byte and ratio ceiling. InputBytes seeds the ratio denominator
 	// from the deb file size.
-	maxBytes, maxRatio := resolveArchiveCaps(ctx)
-	counter := &file.ArchiveCounter{
-		MaxBytes:   maxBytes,
-		MaxRatio:   maxRatio,
-		InputBytes: fi.Size(),
-	}
+	counter := newArchiveCounter(ctx, fi.Size())
 
 	for {
 		header, err := df.Data.Next()

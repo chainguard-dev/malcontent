@@ -360,6 +360,12 @@ func saveCachedRules(compiledRules *yarax.Rules, cacheFile string) error {
 		return fmt.Errorf("write rules to cache: %w", err)
 	}
 
+	if err := f.Sync(); err != nil {
+		_ = f.Close()
+		_ = os.Remove(tmpFile)
+		return fmt.Errorf("sync cache file: %w", err)
+	}
+
 	if err := f.Close(); err != nil {
 		_ = os.Remove(tmpFile)
 		return fmt.Errorf("close cache file: %w", err)
@@ -385,6 +391,8 @@ func saveCachedRules(compiledRules *yarax.Rules, cacheFile string) error {
 	}
 	if err := os.Rename(tmpSidecar, cacheFile+".sha256"); err != nil {
 		_ = os.Remove(tmpSidecar)
+		// Cache and sidecar must exist as an atomic pair; remove the orphaned cache file.
+		_ = os.Remove(cacheFile)
 		return fmt.Errorf("rename sidecar file: %w", err)
 	}
 

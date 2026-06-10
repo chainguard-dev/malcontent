@@ -22,7 +22,7 @@ const (
 	MaxBytes               int64   = 1 << 32    // 4096MB
 	ReadBuffer             int64   = 64 * 1024  // 64KB
 	ZipBuffer              int64   = 2 * 1024   // 2KB
-	DefaultMaxArchiveBytes int64   = 16 << 30   // 16GiB total uncompressed across all entries
+	DefaultMaxArchiveBytes int64   = 32 << 30   // 32GiB total uncompressed across all entries
 	DefaultMaxArchiveRatio float64 = 100        // uncompressed/input expansion ceiling
 )
 
@@ -36,11 +36,6 @@ var ErrArchiveBytesCap = errors.New("archive total uncompressed bytes exceeded")
 // of uncompressed bytes exceeds InputBytes * MaxRatio.
 var ErrArchiveRatioCap = errors.New("archive expansion ratio exceeded")
 
-// ratioOverflowOnce guards a single warning emission when MaxRatio*InputBytes
-// would overflow the int64 byte domain. Operators see the unbounded condition
-// once per process rather than per archive entry.
-var ratioOverflowOnce sync.Once
-
 // ArchiveCounter accumulates uncompressed bytes written by an extractor and
 // enforces a byte cap and an expansion-ratio cap. A zero value disables a
 // cap; a nil receiver disables accounting entirely so callers may opt out.
@@ -52,6 +47,10 @@ type ArchiveCounter struct {
 	MaxBytes   int64   // 0 = unlimited
 	MaxRatio   float64 // <= 0 = unlimited; ratio measured against InputBytes
 	InputBytes int64   // size of the outer archive blob; 0 disables ratio check
+
+	// warnOnce guards a single warning emission per counter when
+	// MaxRatio*InputBytes would overflow the int64 byte domain.
+	warnOnce sync.Once
 }
 
 // Remaining returns the number of bytes still available under the byte cap.
@@ -90,7 +89,7 @@ func (c *ArchiveCounter) Add(n int) error {
 	if c.MaxRatio > 0 && c.InputBytes > 0 {
 		threshold := c.MaxRatio * float64(c.InputBytes)
 		if threshold > math.MaxInt64 {
-			ratioOverflowOnce.Do(func() {
+			c.warnOnce.Do(func() {
 				slog.Default().Warn(
 					"archive ratio cap disabled — MaxRatio*InputBytes overflows int64",
 					"input_bytes", c.InputBytes,

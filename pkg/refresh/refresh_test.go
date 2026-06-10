@@ -12,6 +12,7 @@ import (
 	"testing"
 
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/release"
 )
 
 func TestDiscoverTestData(t *testing.T) {
@@ -250,60 +251,56 @@ func TestRefreshValidationErrors(t *testing.T) {
 	}
 }
 
-func TestRefreshRejectsUnresolvedCommit(t *testing.T) {
-	// not parallel: mutates package-level resolveCommit hook
-	original := resolveCommit
-	t.Cleanup(func() { resolveCommit = original })
+func TestRefreshPinsRuleURLToMain(t *testing.T) {
+	// not parallel: mutates package globals
+	origBuild := release.BuildCommit
+	t.Cleanup(func() {
+		release.BuildCommit = origBuild
+		release.ResetRuleURLRef()
+	})
 
-	resolveCommit = func() (string, error) {
-		return "", errors.New("release commit unresolved: \"main\" is not a 40-character lowercase hex SHA")
+	// Simulate a release binary with a stamped commit.
+	release.BuildCommit = "fedcba9876543210fedcba9876543210fedcba98"
+	release.ResetRuleURLRef()
+
+	// Before Refresh, the stamped commit is returned.
+	if got := release.ResolveRuleURLCommit(); got != release.BuildCommit {
+		t.Fatalf("before Refresh: ResolveRuleURLCommit() = %q, want %q", got, release.BuildCommit)
 	}
 
 	ctx := context.Background()
 	logger := clog.FromContext(ctx)
 
+	// Use an empty SamplesPath to make Refresh fail fast AFTER the pin.
 	cfg := Config{
-		SamplesPath:  t.TempDir(),
 		TestDataPath: t.TempDir(),
 		Concurrency:  1,
 	}
 
-	err := Refresh(ctx, cfg, logger)
-	if err == nil {
-		t.Fatal("Refresh() error = nil, want non-nil when commit resolver fails")
-	}
-	if !strings.Contains(err.Error(), "refresh requires a resolved commit SHA") {
-		t.Errorf("Refresh() error = %v, want it to contain %q", err, "refresh requires a resolved commit SHA")
-	}
-	if !strings.Contains(err.Error(), "release commit unresolved") {
-		t.Errorf("Refresh() error = %v, want it to wrap the underlying resolver error", err)
+	_ = Refresh(ctx, cfg, logger)
+
+	// After Refresh (even partial), rule URLs must resolve to "main".
+	if got := release.ResolveRuleURLCommit(); got != "main" {
+		t.Errorf("after Refresh: ResolveRuleURLCommit() = %q, want %q", got, "main")
 	}
 }
 
-func TestRefreshAcceptsResolvedCommit(t *testing.T) {
-	// not parallel: mutates package-level resolveCommit hook
-	original := resolveCommit
-	t.Cleanup(func() { resolveCommit = original })
+func TestWithoutRefreshStampedCommitUsed(t *testing.T) {
+	// not parallel: mutates package globals
+	origBuild := release.BuildCommit
+	t.Cleanup(func() {
+		release.BuildCommit = origBuild
+		release.ResetRuleURLRef()
+	})
 
-	resolveCommit = func() (string, error) {
-		return "0123456789abcdef0123456789abcdef01234567", nil
-	}
+	const sha = "fedcba9876543210fedcba9876543210fedcba98"
+	release.BuildCommit = sha
+	release.ResetRuleURLRef()
 
-	ctx := context.Background()
-	logger := clog.FromContext(ctx)
-
-	// Use an empty SamplesPath to force a validation error AFTER the guard.
-	cfg := Config{
-		TestDataPath: t.TempDir(),
-		Concurrency:  1,
-	}
-
-	err := Refresh(ctx, cfg, logger)
-	if err == nil {
-		t.Fatal("Refresh() error = nil, want validation failure on empty SamplesPath")
-	}
-	if strings.Contains(err.Error(), "refresh requires a resolved commit SHA") {
-		t.Errorf("Refresh() error = %v, should not surface the commit guard when resolver succeeds", err)
+	// Without Refresh (i.e., a normal release binary), the stamped
+	// BuildCommit is returned for rule URLs.
+	if got := release.ResolveRuleURLCommit(); got != sha {
+		t.Errorf("ResolveRuleURLCommit() = %q, want %q", got, sha)
 	}
 }
 

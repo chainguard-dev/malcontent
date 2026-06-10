@@ -44,9 +44,6 @@ func extractFileFromCPIO(ctx context.Context, cr *cpio.Reader, target string, bu
 		n, err := cr.Read(buf)
 		if n > 0 {
 			written += int64(n)
-			if written > file.MaxBytes {
-				return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", file.MaxBytes, target)
-			}
 			if capErr := counter.Add(n); capErr != nil {
 				return fmt.Errorf("rpm extraction aborted on %s: %w", target, capErr)
 			}
@@ -96,12 +93,7 @@ func ExtractRPM(ctx context.Context, d, f string) (retErr error) {
 
 	// Shared counter across every CPIO member enforces a uniform byte and ratio
 	// ceiling. InputBytes seeds the ratio denominator from the RPM file size.
-	maxBytes, maxRatio := resolveArchiveCaps(ctx)
-	counter := &file.ArchiveCounter{
-		MaxBytes:   maxBytes,
-		MaxRatio:   maxRatio,
-		InputBytes: fi.Size(),
-	}
+	counter := newArchiveCounter(ctx, fi.Size())
 
 	pkg, err := rpm.Read(rpmFile)
 	if err != nil {

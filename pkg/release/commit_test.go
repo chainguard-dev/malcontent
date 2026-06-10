@@ -4,73 +4,8 @@
 package release
 
 import (
-	"strings"
 	"testing"
 )
-
-func TestPickCommit(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		name        string
-		vcsRev      string
-		buildCommit string
-		want        string
-	}{
-		{
-			name:        "valid vcs revision takes priority",
-			vcsRev:      "0123456789abcdef0123456789abcdef01234567",
-			buildCommit: "fedcba9876543210fedcba9876543210fedcba98",
-			want:        "0123456789abcdef0123456789abcdef01234567",
-		},
-		{
-			name:        "valid buildCommit when vcs empty",
-			vcsRev:      "",
-			buildCommit: "fedcba9876543210fedcba9876543210fedcba98",
-			want:        "fedcba9876543210fedcba9876543210fedcba98",
-		},
-		{
-			name:        "empty both falls back to main",
-			vcsRev:      "",
-			buildCommit: "",
-			want:        "main",
-		},
-		{
-			name:        "short hex falls through",
-			vcsRev:      "0123456789abcdef",
-			buildCommit: "",
-			want:        "main",
-		},
-		{
-			name:        "mixed case rejected",
-			vcsRev:      "0123456789ABCDEF0123456789ABCDEF01234567",
-			buildCommit: "",
-			want:        "main",
-		},
-		{
-			name:        "non-hex characters rejected",
-			vcsRev:      "g123456789abcdef0123456789abcdef01234567",
-			buildCommit: "",
-			want:        "main",
-		},
-		{
-			name:        "forty-one chars rejected",
-			vcsRev:      "0123456789abcdef0123456789abcdef012345678",
-			buildCommit: "",
-			want:        "main",
-		},
-	}
-
-	for _, tc := range tests {
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-			got := pickCommit(tc.vcsRev, tc.buildCommit)
-			if got != tc.want {
-				t.Errorf("pickCommit(%q, %q) = %q, want %q", tc.vcsRev, tc.buildCommit, got, tc.want)
-			}
-		})
-	}
-}
 
 func TestIsFortyHexLower(t *testing.T) {
 	t.Parallel()
@@ -101,118 +36,130 @@ func TestIsFortyHexLower(t *testing.T) {
 	}
 }
 
-func TestResolveCommitStrictFrom(t *testing.T) {
-	t.Parallel()
-
+func TestResolveRuleURLCommit(t *testing.T) {
 	tests := []struct {
 		name        string
-		vcsRev      string
 		buildCommit string
 		want        string
-		wantErr     bool
 	}{
 		{
-			name:        "valid vcs revision",
-			vcsRev:      "0123456789abcdef0123456789abcdef01234567",
-			buildCommit: "",
-			want:        "0123456789abcdef0123456789abcdef01234567",
-		},
-		{
-			name:        "valid buildCommit when vcs empty",
-			vcsRev:      "",
+			name:        "valid 40-hex BuildCommit returned",
 			buildCommit: "fedcba9876543210fedcba9876543210fedcba98",
 			want:        "fedcba9876543210fedcba9876543210fedcba98",
 		},
 		{
-			name:        "vcs precedence over buildCommit when both valid",
-			vcsRev:      "0123456789abcdef0123456789abcdef01234567",
-			buildCommit: "fedcba9876543210fedcba9876543210fedcba98",
-			want:        "0123456789abcdef0123456789abcdef01234567",
-		},
-		{
-			name:        "empty both falls back to main rejected",
-			vcsRev:      "",
+			name:        "empty BuildCommit returns empty",
 			buildCommit: "",
-			wantErr:     true,
+			want:        "",
 		},
 		{
-			name:    "short hex rejected",
-			vcsRev:  "0123456789abcdef",
-			wantErr: true,
+			name:        "non-hex BuildCommit returns empty",
+			buildCommit: "not-a-sha",
+			want:        "",
 		},
 		{
-			name:    "mixed case rejected",
-			vcsRev:  "0123456789ABCDEF0123456789ABCDEF01234567",
-			wantErr: true,
+			name:        "short hex returns empty",
+			buildCommit: "abcdef01",
+			want:        "",
 		},
 		{
-			name:    "non-hex chars rejected",
-			vcsRev:  "g123456789abcdef0123456789abcdef01234567",
-			wantErr: true,
-		},
-		{
-			name:    "forty-one chars rejected",
-			vcsRev:  "0123456789abcdef0123456789abcdef012345678",
-			wantErr: true,
+			name:        "uppercase hex rejected",
+			buildCommit: "FEDCBA9876543210FEDCBA9876543210FEDCBA98",
+			want:        "",
 		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-			got, err := resolveCommitStrictFrom(tc.vcsRev, tc.buildCommit)
-			if tc.wantErr {
-				if err == nil {
-					t.Fatalf("resolveCommitStrictFrom(%q, %q) error = nil, want non-nil", tc.vcsRev, tc.buildCommit)
-				}
-				if got != "" {
-					t.Errorf("resolveCommitStrictFrom(%q, %q) = %q on error, want empty string", tc.vcsRev, tc.buildCommit, got)
-				}
-				if !strings.Contains(err.Error(), "release commit unresolved") {
-					t.Errorf("resolveCommitStrictFrom(%q, %q) error = %v, want it to contain %q", tc.vcsRev, tc.buildCommit, err, "release commit unresolved")
-				}
-				return
-			}
-			if err != nil {
-				t.Fatalf("resolveCommitStrictFrom(%q, %q) error = %v, want nil", tc.vcsRev, tc.buildCommit, err)
-			}
-			if got != tc.want {
-				t.Errorf("resolveCommitStrictFrom(%q, %q) = %q, want %q", tc.vcsRev, tc.buildCommit, got, tc.want)
+			// not parallel: mutates package global
+			original := BuildCommit
+			t.Cleanup(func() {
+				BuildCommit = original
+				ResetRuleURLRef()
+			})
+
+			ResetRuleURLRef()
+			BuildCommit = tc.buildCommit
+
+			if got := ResolveRuleURLCommit(); got != tc.want {
+				t.Errorf("ResolveRuleURLCommit() = %q, want %q", got, tc.want)
 			}
 		})
 	}
 }
 
-func TestResolveCommitStrictUsesBuildCommitGlobal(t *testing.T) {
-	// not parallel: mutates package global
-	original := BuildCommit
-	t.Cleanup(func() { BuildCommit = original })
-
-	BuildCommit = "fedcba9876543210fedcba9876543210fedcba98"
-	got, err := ResolveCommitStrict()
-	if err != nil {
-		t.Fatalf("ResolveCommitStrict() error = %v, want nil with valid BuildCommit", err)
+func TestPinRuleURLRef(t *testing.T) {
+	tests := []struct {
+		name        string
+		pin         string
+		buildCommit string
+		want        string
+	}{
+		{
+			name:        "pin overrides valid BuildCommit",
+			pin:         "main",
+			buildCommit: "fedcba9876543210fedcba9876543210fedcba98",
+			want:        "main",
+		},
+		{
+			name:        "pin overrides empty BuildCommit",
+			pin:         "main",
+			buildCommit: "",
+			want:        "main",
+		},
+		{
+			name:        "pin to arbitrary ref",
+			pin:         "some-branch",
+			buildCommit: "fedcba9876543210fedcba9876543210fedcba98",
+			want:        "some-branch",
+		},
+		{
+			name:        "empty pin returned as-is",
+			pin:         "",
+			buildCommit: "fedcba9876543210fedcba9876543210fedcba98",
+			want:        "",
+		},
 	}
-	// When tests run, vcs.revision is typically empty; the BuildCommit global should win.
-	// If vcs.revision is set in the build, that is also valid; accept either as long as 40-hex-lower.
-	if !isFortyHexLower(got) {
-		t.Errorf("ResolveCommitStrict() = %q, want a 40-char lowercase hex value", got)
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			// not parallel: mutates package globals
+			origBuild := BuildCommit
+			t.Cleanup(func() {
+				BuildCommit = origBuild
+				ResetRuleURLRef()
+			})
+
+			BuildCommit = tc.buildCommit
+			PinRuleURLRef(tc.pin)
+
+			if got := ResolveRuleURLCommit(); got != tc.want {
+				t.Errorf("ResolveRuleURLCommit() = %q, want %q (pin=%q, BuildCommit=%q)",
+					got, tc.want, tc.pin, tc.buildCommit)
+			}
+		})
 	}
 }
 
-func TestResolveCommitStrictRejectsInvalidBuildCommitGlobal(t *testing.T) {
-	// not parallel: mutates package global
-	original := BuildCommit
-	t.Cleanup(func() { BuildCommit = original })
+func TestResetRuleURLRef(t *testing.T) {
+	// not parallel: mutates package globals
+	origBuild := BuildCommit
+	t.Cleanup(func() {
+		BuildCommit = origBuild
+		ResetRuleURLRef()
+	})
 
-	BuildCommit = "not-a-sha"
-	// If vcs.revision happens to be a valid 40-hex value during the test run, the strict
-	// resolver will accept it. Otherwise, expect a rejection on the "main" fallback.
-	if isFortyHexLower(readVCSRevision()) {
-		t.Skip("vcs.revision is a valid 40-hex SHA in this build; cannot exercise the rejection path")
+	BuildCommit = "fedcba9876543210fedcba9876543210fedcba98"
+
+	// With pin set, pin wins.
+	PinRuleURLRef("main")
+	if got := ResolveRuleURLCommit(); got != "main" {
+		t.Fatalf("after PinRuleURLRef: got %q, want %q", got, "main")
 	}
-	_, err := ResolveCommitStrict()
-	if err == nil {
-		t.Fatal("ResolveCommitStrict() error = nil, want non-nil when both inputs are invalid")
+
+	// After reset, BuildCommit is used again.
+	ResetRuleURLRef()
+	if got := ResolveRuleURLCommit(); got != "fedcba9876543210fedcba9876543210fedcba98" {
+		t.Errorf("after ResetRuleURLRef: got %q, want BuildCommit", got)
 	}
 }

@@ -228,7 +228,7 @@ func TestArchiveCounter_AtomicConcurrency(t *testing.T) {
 
 // TestExtractZip_DefaultBytesCap_Fires proves the package-level default cap is
 // applied at the ExtractZip allocation site. The production default
-// (file.DefaultMaxArchiveBytes = 16 GiB) is too large to synthesize, so the
+// (file.DefaultMaxArchiveBytes = 32 GiB) is too large to synthesize, so the
 // test temporarily shrinks defaultMaxArchiveBytes; the lowest-blast-radius
 // override available without touching production callers.
 func TestExtractZip_DefaultBytesCap_Fires(t *testing.T) {

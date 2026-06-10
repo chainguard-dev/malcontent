@@ -50,12 +50,7 @@ func ExtractTar(ctx context.Context, d string, f string) (err error) {
 	// and ratio ceiling. InputBytes seeds the ratio denominator. Caps prefer
 	// ctx-attached Config values; absent/zero values fall back to the
 	// package defaults so zero-config callers still receive a finite cap.
-	maxBytes, maxRatio := resolveArchiveCaps(ctx)
-	counter := &file.ArchiveCounter{
-		MaxBytes:   maxBytes,
-		MaxRatio:   maxRatio,
-		InputBytes: fi.Size(),
-	}
+	counter := newArchiveCounter(ctx, fi.Size())
 
 	filename := filepath.Base(f)
 	tf, err := os.Open(f) // #nosec G304 -- archive path resolved and validated by caller before extraction
@@ -119,9 +114,6 @@ func ExtractTar(ctx context.Context, d string, f string) (err error) {
 			n, err := xzStream.Read(buf)
 			if n > 0 {
 				written += int64(n)
-				if written > file.MaxBytes {
-					return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", file.MaxBytes, target)
-				}
 				if capErr := counter.Add(n); capErr != nil {
 					return fmt.Errorf("xz extraction aborted on %s: %w", target, capErr)
 				}
@@ -161,10 +153,6 @@ func ExtractTar(ctx context.Context, d string, f string) (err error) {
 			n, err := br.Read(buf)
 			if n > 0 {
 				written += int64(n)
-				if written > file.MaxBytes {
-					return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", file.MaxBytes, target)
-				}
-
 				if capErr := counter.Add(n); capErr != nil {
 					return fmt.Errorf("bz2 extraction aborted on %s: %w", target, capErr)
 				}

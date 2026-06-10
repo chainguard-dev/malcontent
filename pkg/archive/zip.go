@@ -32,7 +32,7 @@ var zipMIME = map[string]struct{}{
 
 // defaultMaxArchiveBytes seeds ExtractZip's per-archive byte cap. It is a var
 // (not a const) so tests can shrink the cap to a synthesizable bound; the
-// production value is file.DefaultMaxArchiveBytes (16 GiB).
+// production value is file.DefaultMaxArchiveBytes (32 GiB).
 var defaultMaxArchiveBytes = file.DefaultMaxArchiveBytes
 
 // resolveArchiveCaps returns the effective byte and ratio caps for an archive
@@ -121,12 +121,7 @@ func ExtractZip(ctx context.Context, d string, f string) (err error) {
 	// size. Caps prefer ctx-attached Config values; absent/zero values fall
 	// back to the package defaults so zero-config callers still receive a
 	// finite cap.
-	maxBytes, maxRatio := resolveArchiveCaps(ctx)
-	counter := &file.ArchiveCounter{
-		MaxBytes:   maxBytes,
-		MaxRatio:   maxRatio,
-		InputBytes: fi.Size(),
-	}
+	counter := newArchiveCounter(ctx, fi.Size())
 
 	for _, zf := range read.File {
 		if zf.Mode().IsDir() {
@@ -239,10 +234,6 @@ func extractFile(ctx context.Context, zf *zip.File, destDir string, logger *clog
 		n, err := src.Read(buf)
 		if n > 0 {
 			written += int64(n)
-			if written > file.MaxBytes {
-				return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", file.MaxBytes, target)
-			}
-
 			if capErr := counter.Add(n); capErr != nil {
 				return fmt.Errorf("zip extraction aborted on %s: %w", target, capErr)
 			}

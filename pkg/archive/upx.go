@@ -16,7 +16,6 @@ import (
 	"time"
 
 	"github.com/chainguard-dev/clog"
-	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 )
 
@@ -25,10 +24,6 @@ const (
 	upxOutputCap = 1 << 20 // 1 MiB ceiling on captured stdout/stderr.
 	upxWaitDelay = 5 * time.Second
 )
-
-// upxMaxBytes seeds ExtractUPX's per-file byte cap. It is a var (not a const)
-// so tests can lower it without producing multi-GiB fixtures.
-var upxMaxBytes = file.MaxBytes
 
 // buildUPXCmd returns a fully configured *exec.Cmd. The caller is responsible
 // for invoking cmd.Run() and for cleaning up tmpdir. Stdout/Stderr are left
@@ -118,11 +113,16 @@ func ExtractUPX(ctx context.Context, d, f string) (err error) {
 	}
 	defer func() { _ = src.Close() }()
 
+	// Honor operator-configured archive caps: resolve the effective max-bytes
+	// from the context so UPX output is subject to the same per-level budget
+	// as every other extractor.
+	copyLimit, _ := resolveArchiveCaps(ctx)
+
 	dst, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600) // #nosec G304 -- target derived from absTarget computed under sandbox dir
 	if err != nil {
 		return fmt.Errorf("failed to open target: %w", err)
 	}
-	if _, err := copyBoundedToSandbox(dst, src, upxMaxBytes); err != nil {
+	if _, err := copyBoundedToSandbox(dst, src, copyLimit); err != nil {
 		_ = dst.Close()
 		return fmt.Errorf("failed to write file: %w", err)
 	}

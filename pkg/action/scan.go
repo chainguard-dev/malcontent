@@ -42,7 +42,6 @@ var (
 	compileOnce         sync.Once                   // compileOnce ensures that we compile rules only once even across threads.
 	ErrMatchedCondition = errors.New("matched exit criteria")
 	initScannerPool     sync.Once // initScannerPool ensures that the scanner pool is only initialized once.
-	jobsCapWarnOnce     sync.Once // jobsCapWarnOnce ensures the --jobs cap warning is emitted at most once per process.
 	readPool            *pool.BufferPool
 	scannerPool         *pool.ScannerPool
 )
@@ -481,9 +480,7 @@ func getMaxConcurrency(configured int) int {
 		return 1
 	}
 	if configured > procs {
-		jobsCapWarnOnce.Do(func() {
-			clog.Warnf("--jobs %d capped at %d: scanner concurrency is bound by GOMAXPROCS, so higher values do not increase throughput", configured, procs)
-		})
+		clog.Warnf("--jobs %d capped at %d: scanner concurrency is bound by GOMAXPROCS, so higher values do not increase throughput", configured, procs)
 		return procs
 	}
 	return configured

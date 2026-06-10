@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"math"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -64,6 +65,19 @@ var extractionSemaphoreOnce = sync.OnceValue(func() *semaphore.Weighted {
 // number of concurrent extraction goroutines across every archive type.
 func extractionSemaphore() *semaphore.Weighted {
 	return extractionSemaphoreOnce()
+}
+
+// newArchiveCounter resolves the effective byte and ratio caps from the
+// context-attached Config and returns a ready-to-use ArchiveCounter seeded
+// with inputBytes as the ratio denominator. This centralizes the three-line
+// resolve-and-construct pattern shared by every extractor.
+func newArchiveCounter(ctx context.Context, inputBytes int64) *file.ArchiveCounter {
+	maxBytes, maxRatio := resolveArchiveCaps(ctx)
+	return &file.ArchiveCounter{
+		MaxBytes:   maxBytes,
+		MaxRatio:   maxRatio,
+		InputBytes: inputBytes,
+	}
 }
 
 // ValidateResolvedPath checks that the target path still resides within the extraction directory
@@ -386,24 +400,23 @@ func handleFile(target string, tr *tar.Reader, counter *file.ArchiveCounter) err
 	}
 	defer func() { _ = out.Close() }()
 
-	// Bound the read to the stricter of the per-file ceiling and the remaining
-	// archive budget so that a single oversize member cannot bypass a lowered
-	// MaxArchiveBytes cap. Read one byte past the effective ceiling so a member
-	// sized exactly at the limit is distinguishable from a truncated oversize
-	// member.
-	readLimit := file.MaxBytes + 1
-	if rem := counter.Remaining(); rem < file.MaxBytes {
-		readLimit = rem + 1
+	// Bound the read to the remaining archive budget so that a single oversize
+	// member cannot exhaust the per-level byte cap. Read one byte past the
+	// remaining budget so a member sized exactly at the limit is
+	// distinguishable from a truncated oversize member. When the counter is
+	// nil (accounting disabled), Remaining returns MaxInt64; cap the limit to
+	// avoid int64 overflow on the +1.
+	rem := counter.Remaining()
+	readLimit := rem + 1
+	if rem == math.MaxInt64 {
+		readLimit = math.MaxInt64
 	}
 	written, err := io.CopyBuffer(out, io.LimitReader(tr, readLimit), buf)
 	if err != nil {
-		if (strings.Contains(err.Error(), "unexpected EOF") && written == 0) ||
-			!strings.Contains(err.Error(), "unexpected EOF") {
+		if (errors.Is(err, io.ErrUnexpectedEOF) && written == 0) ||
+			!errors.Is(err, io.ErrUnexpectedEOF) {
 			return fmt.Errorf("failed to copy file: %w", err)
 		}
-	}
-	if written > file.MaxBytes {
-		return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", file.MaxBytes, target)
 	}
 
 	// Account for written bytes; chunk through int range in case io.CopyBuffer

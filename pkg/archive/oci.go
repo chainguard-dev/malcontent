@@ -66,9 +66,8 @@ const (
 // keepaliveSeconds = defaultOCIKeepaliveSeconds when keepaliveSeconds is also
 // zero. Callers that want the Go stdlib's default transport keepalive behavior
 // must set malcontent.Config.OCIKeepalivePolicy to
-// malcontent.KeepalivePolicyGoDefault explicitly (constructible via
-// malcontent.WithOCIKeepalivePolicy). A one-shot WARN is emitted from
-// resolveOCITransportConfig on the first promotion in a process.
+// malcontent.KeepalivePolicyGoDefault explicitly. A one-shot WARN is emitted
+// from resolveOCITransportConfig on the first promotion in a process.
 type ociTransportConfig struct {
 	pullTimeoutSeconds int
 	retryAttempts      int
@@ -89,9 +88,9 @@ var keepaliveUnsetWarnOnce sync.Once
 //
 // Note on keepalive: when both OCIKeepalivePolicy and OCIKeepaliveSeconds are
 // zero, the policy is silently promoted to KeepalivePolicyExplicitlyEnabled
-// with defaultOCIKeepaliveSeconds. Pass malcontent.KeepalivePolicyGoDefault
-// via malcontent.WithOCIKeepalivePolicy to opt into Go's stdlib default
-// transport keepalive behavior and suppress the one-shot WARN.
+// with defaultOCIKeepaliveSeconds. Set malcontent.Config.OCIKeepalivePolicy to
+// malcontent.KeepalivePolicyGoDefault to opt into Go's stdlib default transport
+// keepalive behavior and suppress the one-shot WARN.
 func resolveOCITransportConfig(ctx context.Context, c *malcontent.Config) ociTransportConfig {
 	cfg := ociTransportConfig{
 		pullTimeoutSeconds: c.OCIPullTimeoutSeconds,
@@ -157,10 +156,24 @@ func (envKeychain) Resolve(resource authn.Resource) (authn.Authenticator, error)
 	return &authn.Basic{Username: user, Password: pass}, nil
 }
 
+// authMissingWarnOnce gates a single WARN per process when OCI auth is
+// requested but the MALCONTENT_REGISTRY_* environment credentials are
+// absent or incomplete.
+var authMissingWarnOnce sync.Once
+
 // buildScopedKeychain returns a request-scoped keychain. authn.DefaultKeychain is intentionally never returned, so credentials are never resolved from the ambient Docker keychain.
-func buildScopedKeychain(useAuth bool) authn.Keychain {
+func buildScopedKeychain(ctx context.Context, useAuth bool) authn.Keychain {
 	if !useAuth {
 		return authn.NewMultiKeychain(authn.Keychain(staticAnonKeychain{}))
+	}
+	user := strings.TrimSpace(os.Getenv(registryUserEnv))
+	pass := strings.TrimSpace(os.Getenv(registryPassEnv))
+	if user == "" || pass == "" {
+		authMissingWarnOnce.Do(func() {
+			clog.FromContext(ctx).Warn(
+				"OCI auth requested but MALCONTENT_REGISTRY_USER/MALCONTENT_REGISTRY_PASS are not set; ambient docker credentials are no longer used — proceeding anonymously",
+			)
+		})
 	}
 	return authn.NewMultiKeychain(envKeychain{})
 }
@@ -213,11 +226,25 @@ func buildTransport(cfg ociTransportConfig) (http.RoundTripper, error) {
 		t.IdleConnTimeout = time.Duration(secs) * time.Second
 	case malcontent.KeepalivePolicyGoDefault, "":
 		// Leave transport keepalive at the Go default.
+	default:
+		clog.WarnContextf(context.Background(), "unrecognized OCI keepalive policy %q; using Go default keepalive behavior", cfg.keepalivePolicy)
 	}
 	if cfg.proxyOptIn {
 		t.Proxy = http.ProxyFromEnvironment
 	}
 	return t, nil
+}
+
+// sanitizeRefName maps any rune outside [A-Za-z0-9._-] to '-'. Image refs
+// contain ':' (tag separator) which is invalid in Windows filenames; this
+// helper makes the name safe for use in temp-file patterns on all platforms.
+func sanitizeRefName(s string) string {
+	return strings.Map(func(r rune) rune {
+		if (r >= 'A' && r <= 'Z') || (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') || r == '.' || r == '_' || r == '-' {
+			return r
+		}
+		return '-'
+	}, s)
 }
 
 // hostSemaphores tracks per-registry-hostname concurrency caps, keyed by RegistryStr().
@@ -281,10 +308,12 @@ func pullWithRetry(ctx context.Context, ref name.Reference, rt http.RoundTripper
 		if sleep <= 0 {
 			break
 		}
+		timer := time.NewTimer(sleep)
 		select {
 		case <-ctx.Done():
+			timer.Stop()
 			return nil, ctx.Err()
-		case <-time.After(sleep):
+		case <-timer.C:
 		}
 	}
 	if lastErr == nil {
@@ -300,7 +329,7 @@ func prepareImage(ctx context.Context, c *malcontent.Config, d string) (string, 
 
 	logger := clog.FromContext(ctx).With("image", d)
 	logger.Debug("preparing image")
-	tmpDir, err := os.MkdirTemp("", filepath.Base(d))
+	tmpDir, err := os.MkdirTemp("", sanitizeRefName(filepath.Base(d)))
 	if err != nil {
 		return "", nil, fmt.Errorf("failed to create temp dir: %w", err)
 	}
@@ -312,7 +341,7 @@ func prepareImage(ctx context.Context, c *malcontent.Config, d string) (string, 
 		}
 	}()
 
-	tmpFile, err := os.CreateTemp(tmpDir, fmt.Sprintf("%s.tar", filepath.Base(d)))
+	tmpFile, err := os.CreateTemp(tmpDir, fmt.Sprintf("%s.tar", sanitizeRefName(filepath.Base(d))))
 	if err != nil {
 		return "", nil, fmt.Errorf("failed to create temp file: %w", err)
 	}
@@ -330,7 +359,7 @@ func prepareImage(ctx context.Context, c *malcontent.Config, d string) (string, 
 
 	cfg := resolveOCITransportConfig(ctx, c)
 
-	keychain := buildScopedKeychain(useAuth)
+	keychain := buildScopedKeychain(ctx, useAuth)
 	rt, err := buildTransport(cfg)
 	if err != nil {
 		return "", nil, fmt.Errorf("build OCI transport: %w", err)

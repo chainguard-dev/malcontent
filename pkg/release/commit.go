@@ -3,72 +3,47 @@
 
 package release
 
-import (
-	"fmt"
-	"runtime/debug"
-)
+import "sync/atomic"
 
 // BuildCommit is populated at link time via
 // `-ldflags "-X github.com/chainguard-dev/malcontent/pkg/release.BuildCommit=<sha>"`.
-// When unset, the resolvers fall back to the VCS revision recorded in the
-// embedded build info, then to the literal "main".
+// When unset, ResolveRuleURLCommit returns "" (callers fall back to "main").
 var BuildCommit string
 
-// ResolveCommitStrict returns the resolved commit SHA only when it is a
-// valid 40-character lowercase hex value. The "main" fallback is treated
-// as an error so callers that embed the value in persistent artifacts
-// (fixture URLs, release manifests) cannot silently ship a placeholder.
-func ResolveCommitStrict() (string, error) {
-	return resolveCommitStrictFrom(readVCSRevision(), BuildCommit)
+// ruleURLRefOverride, when set, takes priority over BuildCommit in
+// ResolveRuleURLCommit. This keeps regenerated sample testdata stable
+// (always blob/main) regardless of how the binary was built.
+var ruleURLRefOverride atomic.Pointer[string]
+
+// PinRuleURLRef forces ResolveRuleURLCommit to return ref instead of
+// deriving the value from BuildCommit. The pin is concurrency-safe:
+// callers set it before scan goroutines start, but the atomic guarantees
+// correctness under -race.
+func PinRuleURLRef(ref string) {
+	ruleURLRefOverride.Store(&ref)
+}
+
+// ResetRuleURLRef clears any override set by PinRuleURLRef, restoring
+// the default BuildCommit-based behavior. Exported for test cleanup.
+func ResetRuleURLRef() {
+	ruleURLRefOverride.Store(nil)
 }
 
 // ResolveRuleURLCommit returns the commit ref used in generated rule
-// deep-link URLs. A canonical 40-char lowercase hex BuildCommit, injected
-// at link time by production builds, yields that pinned commit. Any other
-// BuildCommit value yields ""; callers should fall back to "main" to
-// produce a working URL rather than suppressing it.
+// deep-link URLs. When an explicit pin has been set via PinRuleURLRef
+// that value wins unconditionally. Otherwise a canonical 40-char
+// lowercase hex BuildCommit, injected at link time by production builds,
+// yields that pinned commit. Any other BuildCommit value yields "";
+// callers should fall back to "main" to produce a working URL rather
+// than suppressing it.
 func ResolveRuleURLCommit() string {
+	if p := ruleURLRefOverride.Load(); p != nil {
+		return *p
+	}
 	if isFortyHexLower(BuildCommit) {
 		return BuildCommit
 	}
 	return ""
-}
-
-// resolveCommitStrictFrom is the seam used by ResolveCommitStrict tests.
-func resolveCommitStrictFrom(vcsRev, buildCommit string) (string, error) {
-	resolved := pickCommit(vcsRev, buildCommit)
-	if !isFortyHexLower(resolved) {
-		return "", fmt.Errorf("release commit unresolved: %q is not a 40-character lowercase hex SHA", resolved)
-	}
-	return resolved, nil
-}
-
-// readVCSRevision returns the `vcs.revision` build-info setting if
-// present, otherwise the empty string. It never panics.
-func readVCSRevision() string {
-	info, ok := debug.ReadBuildInfo()
-	if !ok {
-		return ""
-	}
-	for _, s := range info.Settings {
-		if s.Key == "vcs.revision" {
-			return s.Value
-		}
-	}
-	return ""
-}
-
-// pickCommit applies the priority chain: VCS revision, then BuildCommit,
-// then "main". Each candidate must satisfy isFortyHexLower to be accepted;
-// any other value is treated as absent.
-func pickCommit(vcsRev, buildCommit string) string {
-	if isFortyHexLower(vcsRev) {
-		return vcsRev
-	}
-	if isFortyHexLower(buildCommit) {
-		return buildCommit
-	}
-	return "main"
 }
 
 // isFortyHexLower reports whether s is exactly 40 chars of [0-9a-f].

@@ -39,12 +39,7 @@ func ExtractZlib(ctx context.Context, d string, f string) error {
 
 	// Enforce a byte and ratio ceiling against the single decompressed stream.
 	// InputBytes seeds the ratio denominator from the compressed file size.
-	maxBytes, maxRatio := resolveArchiveCaps(ctx)
-	counter := &file.ArchiveCounter{
-		MaxBytes:   maxBytes,
-		MaxRatio:   maxRatio,
-		InputBytes: fi.Size(),
-	}
+	counter := newArchiveCounter(ctx, fi.Size())
 
 	zf, err := os.Open(f) // #nosec G304 -- archive path resolved and validated by caller before extraction
 	if err != nil {
@@ -80,10 +75,6 @@ func ExtractZlib(ctx context.Context, d string, f string) error {
 		n, err := zr.Read(buf)
 		if n > 0 {
 			written += int64(n)
-			if written > file.MaxBytes {
-				return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", file.MaxBytes, target)
-			}
-
 			if capErr := counter.Add(n); capErr != nil {
 				return fmt.Errorf("zlib extraction aborted on %s: %w", target, capErr)
 			}

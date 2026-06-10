@@ -24,10 +24,6 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-// resolveCommit is the strict-resolver hook used by Refresh; tests override
-// it to exercise the propagation path without mutating package globals.
-var resolveCommit = release.ResolveCommitStrict
-
 // Config holds the configuration for refreshing sample test data.
 type Config struct {
 	Concurrency  int
@@ -261,11 +257,9 @@ func Refresh(ctx context.Context, rc Config, logger *clog.Logger) error {
 		return ctx.Err()
 	}
 
-	// Refresh embeds the resolved commit SHA into fixture URLs; the "main"
-	// fallback is unacceptable in persistent test data.
-	if _, err := resolveCommit(); err != nil {
-		return fmt.Errorf("refresh requires a resolved commit SHA: %w", err)
-	}
+	// Pin rule URLs to "main" so regenerated goldens never drift with the
+	// building binary's stamped commit.
+	release.PinRuleURLRef("main")
 
 	// Check if UPX is present which is required for certain refreshes
 	if _, err := programkind.UPXInstalled(); err != nil {
