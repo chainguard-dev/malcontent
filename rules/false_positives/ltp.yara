@@ -11,6 +11,19 @@ rule ltp_dirtypipe_override: override {
     all of them
 }
 
+rule ltp_af_alg08_override: override {
+  meta:
+    description                                                      = "testcases/bin/af_alg08"
+    SIGNATURE_BASE_EXPL_LNX_Copy_Fail_Artefacts_CVE_2026_31431_Apr26 = "harmless"
+
+  strings:
+    $af_alg = "af_alg08.c"
+    $ltp    = "LTPROOT                  Prefix for installed LTP (default: /opt/ltp)"
+
+  condition:
+    all of them
+}
+
 rule ltp_runsched_override: override {
   meta:
     description                                   = "testcases/bin/run_sched_cliserv.sh"

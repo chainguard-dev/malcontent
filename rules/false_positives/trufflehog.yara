@@ -1,11 +1,12 @@
 rule trufflehog_override: override {
   meta:
-    description            = "github.com/trufflesecurity/trufflehog"
-    suspected_data_stealer = "medium"
-    discord_bot            = "medium"
-    iplookup_website       = "medium"
-    download_sites         = "medium"
-    file_io_uploader       = "medium"
+    description              = "github.com/trufflesecurity/trufflehog"
+    suspected_data_stealer   = "medium"
+    discord_bot              = "medium"
+    iplookup_website         = "medium"
+    download_sites           = "medium"
+    file_io_uploader         = "medium"
+    binary_url_with_question = "medium"
 
   strings:
     $ref = "github.com/trufflesecurity/trufflehog"
