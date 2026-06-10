@@ -12,6 +12,7 @@ import (
 	"testing"
 
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/release"
 )
 
 func TestDiscoverTestData(t *testing.T) {
@@ -250,6 +251,59 @@ func TestRefreshValidationErrors(t *testing.T) {
 	}
 }
 
+func TestRefreshPinsRuleURLToMain(t *testing.T) {
+	// not parallel: mutates package globals
+	origBuild := release.BuildCommit
+	t.Cleanup(func() {
+		release.BuildCommit = origBuild
+		release.ResetRuleURLRef()
+	})
+
+	// Simulate a release binary with a stamped commit.
+	release.BuildCommit = "fedcba9876543210fedcba9876543210fedcba98"
+	release.ResetRuleURLRef()
+
+	// Before Refresh, the stamped commit is returned.
+	if got := release.ResolveRuleURLCommit(); got != release.BuildCommit {
+		t.Fatalf("before Refresh: ResolveRuleURLCommit() = %q, want %q", got, release.BuildCommit)
+	}
+
+	ctx := context.Background()
+	logger := clog.FromContext(ctx)
+
+	// Use an empty SamplesPath to make Refresh fail fast AFTER the pin.
+	cfg := Config{
+		TestDataPath: t.TempDir(),
+		Concurrency:  1,
+	}
+
+	_ = Refresh(ctx, cfg, logger)
+
+	// After Refresh (even partial), rule URLs must resolve to "main".
+	if got := release.ResolveRuleURLCommit(); got != "main" {
+		t.Errorf("after Refresh: ResolveRuleURLCommit() = %q, want %q", got, "main")
+	}
+}
+
+func TestWithoutRefreshStampedCommitUsed(t *testing.T) {
+	// not parallel: mutates package globals
+	origBuild := release.BuildCommit
+	t.Cleanup(func() {
+		release.BuildCommit = origBuild
+		release.ResetRuleURLRef()
+	})
+
+	const sha = "fedcba9876543210fedcba9876543210fedcba98"
+	release.BuildCommit = sha
+	release.ResetRuleURLRef()
+
+	// Without Refresh (i.e., a normal release binary), the stamped
+	// BuildCommit is returned for rule URLs.
+	if got := release.ResolveRuleURLCommit(); got != sha {
+		t.Errorf("ResolveRuleURLCommit() = %q, want %q", got, sha)
+	}
+}
+
 func TestRefreshCanceledContext(t *testing.T) {
 	t.Parallel()
 	ctx, cancel := context.WithCancel(context.Background())
@@ -426,7 +480,7 @@ func TestExecuteRefreshClosesFilesOnCancel(t *testing.T) {
 	for i, f := range files {
 		_, err := f.Write([]byte("should fail"))
 		if err == nil {
-			t.Errorf("file %d (%s) is still open after cancelled executeRefresh", i, f.Name())
+			t.Errorf("file %d (%s) is still open after canceled executeRefresh", i, f.Name())
 		}
 	}
 }

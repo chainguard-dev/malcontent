@@ -139,7 +139,9 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	if c.Scan && risk < threshold && !c.QuantityIncreasesRisk {
 		fr := &malcontent.FileReport{Skipped: "overall risk too low for scan", Path: path}
 		if isArchive {
-			os.RemoveAll(path)
+			if rmErr := os.RemoveAll(path); rmErr != nil {
+				logger.Warnf("remove skipped archive entry %s: %v", path, rmErr)
+			}
 		}
 		return fr, nil
 	}
@@ -149,6 +151,7 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 	buf := readPool.Get(min(size, file.ReadBuffer)) //nolint:nilaway // the buffer pool is initialized in init()
 	defer readPool.Put(buf)
 
+	// #nosec G304 -- path originates from findFilesRecursively over caller-supplied scan paths or archive temp dirs already validated by ValidateResolvedPath/IsValidPath during extraction
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -349,7 +352,7 @@ func handleScanPath(ctx context.Context, scanPath string, c malcontent.Config, r
 		c.Renderer.Scanning(ctx, scanPath)
 	}
 
-	scanInfo, err := prepareScanPath(ctx, scanPath, c.OCI, c.OCIAuth, c.MaxImageSize, logger)
+	scanInfo, err := prepareScanPath(ctx, scanPath, c, logger)
 	if err != nil {
 		return fmt.Errorf("failed to prepare scan path: %w", err)
 	}
@@ -370,7 +373,7 @@ func handleScanPath(ctx context.Context, scanPath string, c malcontent.Config, r
 	return processPaths(ctx, paths, scanInfo, c, r, matchChan, matchOnce, logger)
 }
 
-func prepareScanPath(ctx context.Context, scanPath string, isOCI, useAuth bool, maxImageSize int64, logger *clog.Logger) (scanPathInfo, error) {
+func prepareScanPath(ctx context.Context, scanPath string, c malcontent.Config, logger *clog.Logger) (scanPathInfo, error) {
 	if ctx.Err() != nil {
 		return scanPathInfo{}, ctx.Err()
 	}
@@ -380,12 +383,12 @@ func prepareScanPath(ctx context.Context, scanPath string, isOCI, useAuth bool, 
 		effectivePath: scanPath,
 	}
 
-	if !isOCI {
+	if !c.OCI {
 		return info, nil
 	}
 
 	info.imageURI = scanPath
-	ociPath, err := archive.OCI(ctx, info.imageURI, useAuth, maxImageSize)
+	ociPath, err := archive.OCIWithConfig(ctx, info.imageURI, &c)
 	if err != nil {
 		return info, fmt.Errorf("failed to prepare OCI image for scanning: %w", err)
 	}
@@ -472,7 +475,15 @@ func processPaths(ctx context.Context, paths []string, scanInfo scanPathInfo, c 
 }
 
 func getMaxConcurrency(configured int) int {
-	return max(1, configured)
+	procs := runtime.GOMAXPROCS(0)
+	if configured <= 0 {
+		return 1
+	}
+	if configured > procs {
+		clog.Warnf("--jobs %d capped at %d: scanner concurrency is bound by GOMAXPROCS, so higher values do not increase throughput", configured, procs)
+		return procs
+	}
+	return configured
 }
 
 func setupMatchHandler(ctx context.Context, matchChan chan matchResult, c malcontent.Config, cancel context.CancelFunc, logger *clog.Logger) func() {
@@ -764,6 +775,11 @@ func processFile(ctx context.Context, c malcontent.Config, ruleFS []fs.FS, path 
 
 // Scan YARA scans a data source, applying output filters if necessary.
 func Scan(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) {
+	// Attach the Config to ctx so downstream archive extractors (e.g.
+	// ExtractZip's resolveArchiveCaps) observe per-scan caps such as
+	// MaxArchiveBytes; without this the extractor falls back to package
+	// defaults and ErrArchiveBytesCap can never fire for caller-tuned limits.
+	ctx = malcontent.ContextWithConfig(ctx, &c)
 	scanCtx, cancel := context.WithCancel(ctx)
 	defer cancel()
 

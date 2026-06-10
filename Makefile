@@ -19,6 +19,7 @@ LINT_ROOT := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 CPPFLAGS ?= "-I$(LINT_ROOT)/out/include"
 LDFLAGS :=
 PKGCONF_PATH ?= "$(LINT_ROOT)/out/lib/pkgconfig"
+
 ifeq ($(LINT_OS),Darwin)
 	LDFLAGS="-L$(LINT_ROOT)/out/lib -Wl,-no_warn_duplicate_libraries,-rpath,$(LINT_ROOT)/out/lib,-lyara_x_capi"
 else ifeq ($(LINT_OS),Linux)
@@ -162,6 +163,31 @@ test:
 	PKG_CONFIG_PATH=$(PKGCONF_PATH) \
 	go test -race ./pkg/...
 
+# aggregated quality gate: vet, formatter, linter chain, and the test
+# suite. `make test` is invoked (not bare `go test`) because the
+# repository's cgo link step requires the LDFLAGS/CPPFLAGS/PKG_CONFIG_PATH
+# env injection the `test` target supplies.
+.PHONY: verify
+verify:
+	CGO_LDFLAGS=$(LDFLAGS) \
+	CGO_CPPFLAGS=$(CPPFLAGS) \
+	PKG_CONFIG_PATH=$(PKGCONF_PATH) \
+	go vet ./...
+	CGO_LDFLAGS=$(LDFLAGS) \
+	CGO_CPPFLAGS=$(CPPFLAGS) \
+	PKG_CONFIG_PATH=$(PKGCONF_PATH) \
+	gosec ./...
+	gofumpt -w .
+	$(MAKE) _lint
+	$(MAKE) test
+
+.PHONY: gosec
+gosec:
+	CGO_LDFLAGS=$(LDFLAGS) \
+	CGO_CPPFLAGS=$(CPPFLAGS) \
+	PKG_CONFIG_PATH=$(PKGCONF_PATH) \
+	gosec ./...
+
 FUZZ_TIME ?= 10s
 .PHONY: fuzz
 fuzz:
@@ -218,13 +244,16 @@ out/mal.coverage:
 	PKG_CONFIG_PATH=$(PKGCONF_PATH) \
 	go test -coverprofile $@ -race ./pkg/... -coverpkg ./pkg/...
 
+INTEGRATION_PARALLEL_FLAGS ?= $(if $(CI),,-p 1 -parallel 2)
+
 # integration tests only
 .PHONY: integration
 integration: out/$(SAMPLES_REPO)/.decompressed-$(SAMPLES_COMMIT)
+	MALCONTENT_UPX_PATH=$(shell which upx) \
 	CGO_LDFLAGS=$(LDFLAGS) \
 	CGO_CPPFLAGS=$(CPPFLAGS) \
 	PKG_CONFIG_PATH=$(PKGCONF_PATH) \
-	go test -race -timeout 0 ./tests/...
+	go test -race -timeout 0 $(INTEGRATION_PARALLEL_FLAGS) ./tests/...
 
 .PHONY: bench
 bench: out/$(SAMPLES_REPO)/.decompressed-$(SAMPLES_COMMIT)

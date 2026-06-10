@@ -206,6 +206,9 @@ func FuzzIsValidUPX(f *testing.F) {
 	f.Add([]byte("not upx"), "/tmp/test")
 	f.Add([]byte{0x7f, 0x45, 0x4c, 0x46, 'U', 'P', 'X', '!'}, "/tmp/elf_upx")
 	f.Add([]byte("UPX!extra"), "/tmp/test")
+	f.Add([]byte("UPX!"), "/usr/bin/upx")
+	f.Add([]byte("UPX!"), "relative/upx")
+	f.Add([]byte("UPX!"), "/tmp/../etc/upx")
 
 	f.Fuzz(func(t *testing.T, data []byte, path string) {
 		if len(data) > maxFuzzSize {
@@ -237,5 +240,58 @@ func FuzzIsValidUPX(f *testing.F) {
 
 		_ = valid
 		_ = err
+	})
+}
+
+// FuzzValidateUPXPath drives the unexported validateUPXPath, which vets the
+// MALCONTENT_UPX_PATH operator-trust override and the automatic-discovery
+// path. FuzzIsValidUPX exercises the file-content magic check; this target
+// exercises the distinct path-trust validation. Invariants under test: the
+// function never panics on arbitrary input; an empty or non-absolute path is
+// always rejected; and a returned path (when no error) is always absolute.
+func FuzzValidateUPXPath(f *testing.F) {
+	tmpDir, err := os.MkdirTemp("", "fuzz-upxpath-")
+	if err != nil {
+		f.Fatal(err)
+	}
+	f.Cleanup(func() { os.RemoveAll(tmpDir) })
+
+	safe := filepath.Join(tmpDir, "upx")
+	if err := os.WriteFile(safe, []byte("UPX!"), 0o755); err != nil {
+		f.Fatal(err)
+	}
+	worldWritable := filepath.Join(tmpDir, "ww")
+	if err := os.WriteFile(worldWritable, []byte("UPX!"), 0o777); err != nil {
+		f.Fatal(err)
+	}
+
+	f.Add(safe, true)
+	f.Add(safe, false)
+	f.Add(worldWritable, true)
+	f.Add(tmpDir, true)
+	f.Add("", true)
+	f.Add("upx", true)
+	f.Add("./upx", true)
+	f.Add("/usr/bin/upx", false)
+	f.Add("/tmp/../etc/passwd", true)
+	f.Add(filepath.Join(tmpDir, "..", "upx"), true)
+	f.Add("/nonexistent/upx", true)
+
+	f.Fuzz(func(t *testing.T, path string, operatorSupplied bool) {
+		if len(path) > 4096 {
+			return
+		}
+
+		got, err := validateUPXPath(path, operatorSupplied)
+
+		if path == "" && err == nil {
+			t.Errorf("validateUPXPath(%q, %v) accepted an empty path", path, operatorSupplied)
+		}
+		if path != "" && !filepath.IsAbs(path) && err == nil {
+			t.Errorf("validateUPXPath(%q, %v) accepted a non-absolute path", path, operatorSupplied)
+		}
+		if err == nil && !filepath.IsAbs(got) {
+			t.Errorf("validateUPXPath(%q, %v) returned non-absolute path %q", path, operatorSupplied, got)
+		}
 	})
 }

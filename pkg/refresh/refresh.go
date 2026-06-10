@@ -17,6 +17,7 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/action"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
+	"github.com/chainguard-dev/malcontent/pkg/release"
 	"github.com/chainguard-dev/malcontent/pkg/render"
 	"github.com/chainguard-dev/malcontent/rules"
 	thirdparty "github.com/chainguard-dev/malcontent/third_party"
@@ -114,7 +115,7 @@ func prepareRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 	}
 
 	for data, sample := range discovered {
-		outFile, err := os.OpenFile(data, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600)
+		outFile, err := os.OpenFile(data, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600) // #nosec G304 -- refresh operates on testdata roots controlled by the test harness
 		if err != nil {
 			return nil, fmt.Errorf("create output file %s: %w", data, err)
 		}
@@ -130,7 +131,7 @@ func prepareRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 
 		r, err := render.New(format, outFile)
 		if err != nil {
-			outFile.Close()
+			_ = outFile.Close()
 			return nil, fmt.Errorf("create renderer for %s: %w", sample, err)
 		}
 
@@ -139,7 +140,7 @@ func prepareRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 		rfs := []fs.FS{rules.FS, thirdparty.FS}
 		yrs, err := action.CachedRules(ctx, rfs)
 		if err != nil {
-			outFile.Close()
+			_ = outFile.Close()
 			return nil, err
 		}
 
@@ -186,7 +187,7 @@ func prepareRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 func closeTestDataFiles(testData []TestData) {
 	for _, td := range testData {
 		if td.OutFile != nil {
-			td.OutFile.Close()
+			_ = td.OutFile.Close()
 		}
 	}
 }
@@ -255,6 +256,10 @@ func Refresh(ctx context.Context, rc Config, logger *clog.Logger) error {
 	if ctx.Err() != nil {
 		return ctx.Err()
 	}
+
+	// Pin rule URLs to "main" so regenerated goldens never drift with the
+	// building binary's stamped commit.
+	release.PinRuleURLRef("main")
 
 	// Check if UPX is present which is required for certain refreshes
 	if _, err := programkind.UPXInstalled(); err != nil {

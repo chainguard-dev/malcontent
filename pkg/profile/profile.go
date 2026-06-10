@@ -135,12 +135,12 @@ func (p *Profiler) writeHeapSnapshot() {
 	filename := filepath.Join(p.config.OutputDir,
 		fmt.Sprintf("%s_mem_%d.pprof", p.config.FilePrefix, timestamp))
 
-	f, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+	f, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600) // #nosec G304 -- pprof output path configured at process startup
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to create heap profile: %v\n", err)
 		return
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	if err := pprof.WriteHeapProfile(f); err != nil {
 		fmt.Fprintf(os.Stderr, "failed to write heap profile: %v\n", err)
@@ -210,7 +210,7 @@ func (p *Profiler) Stop() {
 
 		for _, f := range []*os.File{p.cpuFile, p.memFile, p.traceFile, p.goroutFile} {
 			if f != nil {
-				f.Close()
+				_ = f.Close()
 			}
 		}
 

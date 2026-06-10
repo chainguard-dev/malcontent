@@ -205,6 +205,8 @@ func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent
 		return nil, ctx.Err()
 	}
 
+	ctx = malcontent.ContextWithConfig(ctx, &c)
+
 	if len(c.ScanPaths) != 2 {
 		return nil, fmt.Errorf("diff mode requires 2 paths, you passed in %d path(s)", len(c.ScanPaths))
 	}
@@ -220,11 +222,11 @@ func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent
 	)
 
 	if c.OCI {
-		srcPath, err = archive.OCI(ctx, srcPath, c.OCIAuth, c.MaxImageSize)
+		srcPath, err = archive.OCIWithConfig(ctx, srcPath, &c)
 		if err != nil {
 			return nil, fmt.Errorf("failed to prepare scan path: %w", err)
 		}
-		destPath, err = archive.OCI(ctx, destPath, c.OCIAuth, c.MaxImageSize)
+		destPath, err = archive.OCIWithConfig(ctx, destPath, &c)
 		if err != nil {
 			return nil, fmt.Errorf("failed to prepare scan path: %w", err)
 		}
@@ -246,7 +248,7 @@ func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent
 	switch c.Report {
 	case true:
 		isReport = true
-		srcFile, err := os.Open(srcPath)
+		srcFile, err := os.Open(srcPath) // #nosec G304 -- scan/diff target path supplied by user CLI flag; reading the path is the operation's purpose
 		if err != nil {
 			return nil, err
 		}
@@ -276,7 +278,7 @@ func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent
 		srcResult.tmpRoot = report.ExtractTmpRoot(srcResult.files)
 		srcResult.base = filepath.Base(srcPath)
 
-		destFile, err := os.Open(destPath)
+		destFile, err := os.Open(destPath) // #nosec G304 -- scan/diff target path supplied by user CLI flag; reading the path is the operation's purpose
 		if err != nil {
 			return nil, err
 		}

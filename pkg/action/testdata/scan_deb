@@ -26,7 +26,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/evasion/file/prefix/prefix.yara#static_hidden_path",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/evasion/file/prefix/prefix.yara#L15",
                     "ID": "evasion/file/prefix",
                     "RuleName": "static_hidden_path"
                 },
@@ -38,7 +38,7 @@
                     ],
                     "RiskScore": 0,
                     "RiskLevel": "NONE",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/directory/directory-list.yara#opendir_readdir",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/directory/directory-list.yara#L1",
                     "ID": "fs/directory/list",
                     "RuleName": "opendir_readdir"
                 },
@@ -50,7 +50,7 @@
                     ],
                     "RiskScore": 0,
                     "RiskLevel": "NONE",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-open.yara#file_open",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-open.yara#L1",
                     "ID": "fs/file/open",
                     "RuleName": "file_open"
                 },
@@ -61,7 +61,7 @@
                     ],
                     "RiskScore": 0,
                     "RiskLevel": "NONE",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-stat.yara#stat",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-stat.yara#L1",
                     "ID": "fs/file/stat",
                     "RuleName": "stat"
                 },
@@ -72,7 +72,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/link-read.yara#readlink",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/link-read.yara#L1",
                     "ReferenceURL": "https://man7.org/linux/man-pages/man2/readlink.2.html",
                     "ID": "fs/link_read",
                     "RuleName": "readlink"
@@ -84,7 +84,7 @@
                     ],
                     "RiskScore": 0,
                     "RiskLevel": "NONE",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/lib64.yara#elf_lib_dir_refs",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/lib64.yara#L1",
                     "ID": "fs/path/lib64",
                     "RuleName": "elf_lib_dir_refs"
                 },
@@ -95,7 +95,7 @@
                     ],
                     "RiskScore": 0,
                     "RiskLevel": "NONE",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/os/fd/read.yara#fread",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/os/fd/read.yara#L14",
                     "ReferenceURL": "https://man7.org/linux/man-pages/man3/fread.3p.html",
                     "ID": "os/fd/read",
                     "RuleName": "fread"
@@ -107,7 +107,7 @@
                     ],
                     "RiskScore": 0,
                     "RiskLevel": "NONE",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/os/fd/write.yara#fwrite",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/os/fd/write.yara#L16",
                     "ReferenceURL": "https://man7.org/linux/man-pages/man3/fwrite.3p.html",
                     "ID": "os/fd/write",
                     "RuleName": "fwrite"
@@ -119,7 +119,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/process/multithreaded.yara#pthread_create",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/process/multithreaded.yara#L1",
                     "ReferenceURL": "https://man7.org/linux/man-pages/man3/pthread_create.3.html",
                     "ID": "process/multithreaded",
                     "RuleName": "pthread_create"
@@ -131,7 +131,7 @@
                     ],
                     "RiskScore": 0,
                     "RiskLevel": "NONE",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/process/pthreads.yara#pthreads",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/process/pthreads.yara#L1",
                     "ReferenceURL": "https://en.wikipedia.org/wiki/Pthreads",
                     "ID": "process/pthreads",
                     "RuleName": "pthreads"
@@ -160,7 +160,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/evasion/file/prefix/prefix.yara#static_hidden_path",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/evasion/file/prefix/prefix.yara#L15",
                     "ID": "evasion/file/prefix",
                     "RuleName": "static_hidden_path"
                 },
@@ -171,7 +171,7 @@
                     ],
                     "RiskScore": 0,
                     "RiskLevel": "NONE",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-access-check.yara#access",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-access-check.yara#L14",
                     "ID": "fs/file/access_check",
                     "RuleName": "access"
                 },
@@ -183,7 +183,7 @@
                     ],
                     "RiskScore": 0,
                     "RiskLevel": "NONE",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-open.yara#file_open",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-open.yara#L1",
                     "ID": "fs/file/open",
                     "RuleName": "file_open"
                 },
@@ -194,7 +194,7 @@
                     ],
                     "RiskScore": 0,
                     "RiskLevel": "NONE",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/lib64.yara#elf_lib_dir_refs",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/lib64.yara#L1",
                     "ID": "fs/path/lib64",
                     "RuleName": "elf_lib_dir_refs"
                 },
@@ -205,7 +205,7 @@
                     ],
                     "RiskScore": 0,
                     "RiskLevel": "NONE",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/os/fd/write.yara#fwrite",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/os/fd/write.yara#L16",
                     "ReferenceURL": "https://man7.org/linux/man-pages/man3/fwrite.3p.html",
                     "ID": "os/fd/write",
                     "RuleName": "fwrite"

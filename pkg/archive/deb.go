@@ -19,12 +19,7 @@ import (
 
 // ExtractDeb extracts .deb packages.
 func ExtractDeb(ctx context.Context, d, f string) (retErr error) {
-	// Recover from panics in third-party deb parsing library.
-	defer func() {
-		if r := recover(); r != nil {
-			retErr = fmt.Errorf("recovered from panic during deb extraction: %v", r)
-		}
-	}()
+	defer recoverExtractor(ctx, "deb", f, &retErr)
 	if ctx.Err() != nil {
 		return ctx.Err()
 	}
@@ -32,17 +27,27 @@ func ExtractDeb(ctx context.Context, d, f string) (retErr error) {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting deb")
 
-	fd, err := os.Open(f)
+	fd, err := os.Open(f) // #nosec G304 -- archive path resolved and validated by caller before extraction
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
 	defer fd.Close()
+
+	fi, err := fd.Stat()
+	if err != nil {
+		return fmt.Errorf("failed to stat file: %w", err)
+	}
 
 	df, err := deb.Load(fd, f)
 	if err != nil {
 		return fmt.Errorf("failed to load file: %w", err)
 	}
 	defer df.Close()
+
+	// Shared counter across every tar member of the deb data archive enforces a
+	// uniform byte and ratio ceiling. InputBytes seeds the ratio denominator
+	// from the deb file size.
+	counter := newArchiveCounter(ctx, fi.Size())
 
 	for {
 		header, err := df.Data.Next()
@@ -73,7 +78,7 @@ func ExtractDeb(ctx context.Context, d, f string) (retErr error) {
 				return fmt.Errorf("failed to extract directory: %w", err)
 			}
 		case tar.TypeReg:
-			if err := handleFile(target, df.Data); err != nil {
+			if err := handleFile(target, df.Data, counter); err != nil {
 				return fmt.Errorf("failed to extract file: %w", err)
 			}
 		case tar.TypeSymlink:

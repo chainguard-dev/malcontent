@@ -13,9 +13,12 @@ const maxFuzzSize = 10 * 1024 * 1024
 func FuzzGetContents(f *testing.F) {
 	f.Add([]byte{})
 	f.Add([]byte("hello"))
-	f.Add(make([]byte, 4096))   // DefaultPoolBuffer
-	f.Add(make([]byte, 65536))  // ExtractBuffer/ReadBuffer
-	f.Add(make([]byte, 131072)) // MaxPoolBuffer boundary
+	f.Add(make([]byte, 4096))                // DefaultPoolBuffer
+	f.Add(make([]byte, 65536))               // ExtractBuffer/ReadBuffer
+	f.Add(make([]byte, 131072))              // MaxPoolBuffer boundary
+	f.Add(make([]byte, smallFileMaxBytes))   // small/medium size-class boundary
+	f.Add(make([]byte, smallFileMaxBytes+1)) // first byte of medium class
+	f.Add(make([]byte, smallFileMaxBytes-1)) // last byte of small class
 
 	f.Fuzz(func(t *testing.T, data []byte) {
 		if len(data) > maxFuzzSize {

@@ -37,6 +37,10 @@ func ExtractZstd(ctx context.Context, d string, f string) error {
 	buf := archivePool.Get(file.ExtractBuffer) //nolint:nilaway // the buffer pool is created in archive.go
 	defer archivePool.Put(buf)
 
+	// Enforce a byte and ratio ceiling against the single decompressed stream.
+	// InputBytes seeds the ratio denominator from the compressed file size.
+	counter := newArchiveCounter(ctx, fi.Size())
+
 	uncompressed := strings.TrimSuffix(filepath.Base(f), ".zstd")
 	uncompressed = strings.TrimSuffix(uncompressed, ".zst")
 	target := filepath.Join(d, filepath.Base(filepath.Dir(f)), uncompressed)
@@ -49,13 +53,13 @@ func ExtractZstd(ctx context.Context, d string, f string) error {
 		return fmt.Errorf("failed to create directory for decomrpessed zstd file: %w", err)
 	}
 
-	out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+	out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600) // #nosec G304 -- target validated by IsValidPath against sandbox dir d
 	if err != nil {
 		return fmt.Errorf("failed to create decompressed zstd file: %w", err)
 	}
 	defer out.Close()
 
-	zstdFile, err := os.Open(f)
+	zstdFile, err := os.Open(f) // #nosec G304 -- archive path resolved and validated by caller before extraction
 	if err != nil {
 		return fmt.Errorf("failed to open zstd file: %w", err)
 	}
@@ -76,8 +80,8 @@ func ExtractZstd(ctx context.Context, d string, f string) error {
 		n, err := zr.Read(buf)
 		if n > 0 {
 			written += int64(n)
-			if written > file.MaxBytes {
-				return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", file.MaxBytes, target)
+			if capErr := counter.Add(n); capErr != nil {
+				return fmt.Errorf("zstd extraction aborted on %s: %w", target, capErr)
 			}
 			if _, writeErr := out.Write(buf[:n]); writeErr != nil {
 				return fmt.Errorf("failed to write file contents: %w", writeErr)

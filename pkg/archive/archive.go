@@ -10,10 +10,12 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"math"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
+	"sync"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/file"
@@ -21,6 +23,7 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/pool"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 	"github.com/puzpuzpuz/xsync/v4"
+	"golang.org/x/sync/semaphore"
 )
 
 var archivePool, tarPool, zipPool *pool.BufferPool
@@ -30,6 +33,51 @@ func init() {
 	archivePool = pool.NewBufferPool(runtime.GOMAXPROCS(0))
 	tarPool = pool.NewBufferPool(runtime.GOMAXPROCS(0))
 	zipPool = pool.NewBufferPool(runtime.GOMAXPROCS(0) * 2)
+}
+
+// effectiveConcurrencyFor returns min(configured, gomaxprocs, quota) with a
+// floor of 1. quotaOK=false disables the cgroup arm.
+func effectiveConcurrencyFor(quotaCPUs int, quotaOK bool, gomaxprocs, configured int) int {
+	n := max(1, configured)
+	if g := max(1, gomaxprocs); g < n {
+		n = g
+	}
+	if quotaOK {
+		if q := max(1, quotaCPUs); q < n {
+			n = q
+		}
+	}
+	return n
+}
+
+// EffectiveMaxConcurrency clamps the operator-configured concurrency to the
+// minimum of itself, runtime.GOMAXPROCS(0), and the cgroup CPU quota.
+func EffectiveMaxConcurrency(configured int) int {
+	q, ok := CPUQuota()
+	return effectiveConcurrencyFor(q, ok, runtime.GOMAXPROCS(0), configured)
+}
+
+var extractionSemaphoreOnce = sync.OnceValue(func() *semaphore.Weighted {
+	return semaphore.NewWeighted(int64(EffectiveMaxConcurrency(runtime.GOMAXPROCS(0))))
+})
+
+// extractionSemaphore is the process-wide weighted semaphore that bounds the
+// number of concurrent extraction goroutines across every archive type.
+func extractionSemaphore() *semaphore.Weighted {
+	return extractionSemaphoreOnce()
+}
+
+// newArchiveCounter resolves the effective byte and ratio caps from the
+// context-attached Config and returns a ready-to-use ArchiveCounter seeded
+// with inputBytes as the ratio denominator. This centralizes the three-line
+// resolve-and-construct pattern shared by every extractor.
+func newArchiveCounter(ctx context.Context, inputBytes int64) *file.ArchiveCounter {
+	maxBytes, maxRatio := resolveArchiveCaps(ctx)
+	return &file.ArchiveCounter{
+		MaxBytes:   maxBytes,
+		MaxRatio:   maxRatio,
+		InputBytes: inputBytes,
+	}
 }
 
 // ValidateResolvedPath checks that the target path still resides within the extraction directory
@@ -113,7 +161,8 @@ func IsValidPath(target, dir string) bool {
 	}
 }
 
-func extractNestedArchive(ctx context.Context, c malcontent.Config, d string, f string, extracted *xsync.Map[string, bool], logger *clog.Logger, depth int) error {
+func extractNestedArchive(ctx context.Context, c malcontent.Config, d string, f string, extracted *xsync.Map[string, bool], logger *clog.Logger, depth int) (err error) {
+	defer recoverExtractor(ctx, "nested", filepath.Join(d, f), &err)
 	if ctx.Err() != nil {
 		return ctx.Err()
 	}
@@ -259,7 +308,10 @@ func ExtractArchiveToTempDir(ctx context.Context, c malcontent.Config, path stri
 	if extract == nil {
 		return "", fmt.Errorf("unsupported archive type: %s", path)
 	}
-	err = extract(ctx, tmpDir, path)
+	err = func() (extractErr error) {
+		defer recoverExtractor(ctx, "top-level", path, &extractErr)
+		return extract(ctx, tmpDir, path)
+	}()
 	if err != nil {
 		return "", fmt.Errorf("failed to extract %s: %w", path, err)
 	}
@@ -332,8 +384,9 @@ func handleDirectory(target string) error {
 	return nil
 }
 
-// handleFile extracts valid files within .deb or .tar archives.
-func handleFile(target string, tr *tar.Reader) error {
+// handleFile extracts valid files within .deb or .tar archives. A nil
+// counter disables byte and ratio accounting.
+func handleFile(target string, tr *tar.Reader, counter *file.ArchiveCounter) error {
 	buf := tarPool.Get(file.ExtractBuffer) //nolint:nilaway // the buffer pool is created above
 	defer tarPool.Put(buf)
 
@@ -341,21 +394,43 @@ func handleFile(target string, tr *tar.Reader) error {
 		return fmt.Errorf("failed to create parent directory: %w", err)
 	}
 
-	out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+	out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600) // #nosec G304 -- target path validated by IsValidPath before open
 	if err != nil {
 		return fmt.Errorf("failed to create file: %w", err)
 	}
-	defer out.Close()
+	defer func() { _ = out.Close() }()
 
-	written, err := io.CopyBuffer(out, io.LimitReader(tr, file.MaxBytes), buf)
+	// Bound the read to the remaining archive budget so that a single oversize
+	// member cannot exhaust the per-level byte cap. Read one byte past the
+	// remaining budget so a member sized exactly at the limit is
+	// distinguishable from a truncated oversize member. When the counter is
+	// nil (accounting disabled), Remaining returns MaxInt64; cap the limit to
+	// avoid int64 overflow on the +1.
+	rem := counter.Remaining()
+	readLimit := rem + 1
+	if rem == math.MaxInt64 {
+		readLimit = math.MaxInt64
+	}
+	written, err := io.CopyBuffer(out, io.LimitReader(tr, readLimit), buf)
 	if err != nil {
-		if (strings.Contains(err.Error(), "unexpected EOF") && written == 0) ||
-			!strings.Contains(err.Error(), "unexpected EOF") {
+		if (errors.Is(err, io.ErrUnexpectedEOF) && written == 0) ||
+			!errors.Is(err, io.ErrUnexpectedEOF) {
 			return fmt.Errorf("failed to copy file: %w", err)
 		}
 	}
-	if written >= file.MaxBytes {
-		return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", file.MaxBytes, target)
+
+	// Account for written bytes; chunk through int range in case io.CopyBuffer
+	// produced more than fits in a single int on a 32-bit platform.
+	for remaining := written; remaining > 0; {
+		chunk := remaining
+		const maxChunk = int64(1<<31 - 1)
+		if chunk > maxChunk {
+			chunk = maxChunk
+		}
+		if capErr := counter.Add(int(chunk)); capErr != nil {
+			return fmt.Errorf("tar extraction aborted on %s: %w", target, capErr)
+		}
+		remaining -= chunk
 	}
 
 	return nil
@@ -411,18 +486,18 @@ func handleSymlink(dir, linkPath, linkTarget string) error {
 
 	actualTarget, err := os.Readlink(fullPath)
 	if err != nil {
-		os.Remove(fullPath)
+		_ = os.Remove(fullPath)
 		return fmt.Errorf("failed to verify symlink target: %w", err)
 	}
 	if actualTarget != linkTarget {
-		os.Remove(fullPath)
+		_ = os.Remove(fullPath)
 		return fmt.Errorf("symlink target mismatch: expected %s, got %s", linkTarget, actualTarget)
 	}
 
 	// Post-creation validation using the resolved parent directory
 	actualResolved := filepath.Clean(filepath.Join(parentDir, actualTarget))
 	if !IsValidPath(actualResolved, resolvedDir) {
-		os.Remove(fullPath)
+		_ = os.Remove(fullPath)
 		return fmt.Errorf("symlink target escapes extraction directory after creation: %s -> %s", linkPath, actualTarget)
 	}
 
@@ -464,18 +539,18 @@ func handleHardlink(dir, linkPath, linkTarget string) error {
 
 	linkInfo, err := os.Stat(fullPath)
 	if err != nil {
-		os.Remove(fullPath)
+		_ = os.Remove(fullPath)
 		return fmt.Errorf("failed to stat hardlink after creation: %w", err)
 	}
 
 	targetInfo, err := os.Stat(targetPath)
 	if err != nil {
-		os.Remove(fullPath)
+		_ = os.Remove(fullPath)
 		return fmt.Errorf("failed to stat hardlink target after creation: %w", err)
 	}
 
 	if !os.SameFile(linkInfo, targetInfo) {
-		os.Remove(fullPath)
+		_ = os.Remove(fullPath)
 		return fmt.Errorf("hardlink validation failed: link and target are not the same file")
 	}
 

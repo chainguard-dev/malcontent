@@ -82,21 +82,21 @@ func actionRefresh(ctx context.Context) ([]TestData, error) {
 			return nil, fmt.Errorf("create output directory: %w", err)
 		}
 
-		outFile, err := os.OpenFile(output, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600)
+		outFile, err := os.OpenFile(output, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600) // #nosec G304 -- refresh operates on testdata roots controlled by the test harness
 		if err != nil {
 			return nil, fmt.Errorf("create output file %s: %w", output, err)
 		}
 
 		r, err := render.New(td.format, outFile)
 		if err != nil {
-			outFile.Close()
+			_ = outFile.Close()
 			return nil, fmt.Errorf("create renderer for %s: %w", output, err)
 		}
 
 		rfs := []fs.FS{rules.FS, thirdparty.FS}
 		yrs, err := action.CachedRules(ctx, rfs)
 		if err != nil {
-			outFile.Close()
+			_ = outFile.Close()
 			return nil, err
 		}
 

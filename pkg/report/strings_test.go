@@ -9,6 +9,8 @@ import (
 	"sync/atomic"
 	"testing"
 	"unsafe"
+
+	"github.com/puzpuzpuz/xsync/v4"
 )
 
 // Constants used across strings_test and fuzz_test.
@@ -25,6 +27,14 @@ func StringDataPointer(s string) uintptr {
 	return (*[2]uintptr)(unsafe.Pointer(&s))[0]
 }
 
+// newIsolatedPool returns a StringPool that does not share state with the
+// process-wide singleton. Tests asserting backing-array identity use it so
+// the assertion is unaffected by the singleton's bounded resets, which can
+// fire when other parallel tests intern large numbers of distinct strings.
+func newIsolatedPool() *StringPool {
+	return &StringPool{strings: xsync.NewMap[string, string]()}
+}
+
 func TestNewStringPool(t *testing.T) {
 	t.Parallel()
 	pool := NewStringPool()
@@ -35,7 +45,7 @@ func TestNewStringPool(t *testing.T) {
 
 func TestStringPoolInternBasic(t *testing.T) {
 	t.Parallel()
-	pool := NewStringPool()
+	pool := newIsolatedPool()
 
 	s1 := pool.Intern("hello")
 	if s1 != "hello" {
@@ -81,7 +91,7 @@ func TestStringPoolInternEmptyString(t *testing.T) {
 
 func TestStringPoolInternDynamicStrings(t *testing.T) {
 	t.Parallel()
-	pool := NewStringPool()
+	pool := newIsolatedPool()
 
 	base := "test"
 	d1 := base + "123"
@@ -111,6 +121,58 @@ func TestStringPoolClear(t *testing.T) {
 	s := pool.Intern("hello")
 	if s != "hello" {
 		t.Errorf("intern after clear returned %q, want %q", s, "hello")
+	}
+}
+
+// TestStringPoolBounded verifies the interned set does not grow without
+// bound: interning more distinct values than maxInternedStrings resets the
+// pool so its size stays within the cap rather than accumulating every
+// distinct string across the process lifetime. An isolated pool keeps the
+// count deterministic, independent of the shared singleton other parallel
+// tests exercise.
+func TestStringPoolBounded(t *testing.T) {
+	t.Parallel()
+	pool := newIsolatedPool()
+
+	const distinct = maxInternedStrings * 2
+	for i := range distinct {
+		s := pool.Intern(fmt.Sprintf("bounded-%d", i))
+		if want := fmt.Sprintf("bounded-%d", i); s != want {
+			t.Fatalf("intern returned %q for index %d, want %q", s, i, want)
+		}
+		// The clear fires after the entry that hits the cap is already
+		// stored, so the map momentarily holds maxInternedStrings entries
+		// before dropping to zero. Allow a small margin for concurrency
+		// artifacts in xsync.Map.Size().
+		if got := pool.strings.Size(); got > maxInternedStrings+1 {
+			t.Fatalf("pool size %d exceeded cap %d at index %d", got, maxInternedStrings, i)
+		}
+	}
+
+	// Interning twice the cap in distinct values must not retain them all.
+	if got := pool.strings.Size(); got >= distinct {
+		t.Fatalf("pool size %d did not stay bounded below %d distinct strings", got, distinct)
+	}
+}
+
+// TestStringPoolBoundedAcrossCycles verifies that repeated batches of
+// distinct strings keep the interned set bounded rather than accumulating
+// every string seen across batches.
+func TestStringPoolBoundedAcrossCycles(t *testing.T) {
+	t.Parallel()
+	pool := newIsolatedPool()
+
+	const (
+		cycles   = 4
+		perCycle = maxInternedStrings
+	)
+	for c := range cycles {
+		for j := range perCycle {
+			pool.Intern(fmt.Sprintf("cycle-%d-%d", c, j))
+		}
+		if got := pool.strings.Size(); got > maxInternedStrings+1 {
+			t.Fatalf("after cycle %d, pool size %d exceeded cap %d", c, got, maxInternedStrings)
+		}
 	}
 }
 
@@ -145,7 +207,7 @@ func TestStringPoolConcurrent(t *testing.T) {
 // concurrent interning returns the same pointer for identical strings.
 func TestStringPoolConcurrentSamePointers(t *testing.T) {
 	t.Parallel()
-	pool := NewStringPool()
+	pool := newIsolatedPool()
 
 	const testString = "concurrent-test-string"
 
@@ -186,7 +248,7 @@ func TestStringPoolAtomic(t *testing.T) {
 	t.Parallel()
 
 	for iter := range numIterations {
-		pool := NewStringPool()
+		pool := newIsolatedPool()
 		testStr := fmt.Sprintf("race-test-%d", iter)
 
 		results := make([]string, numGoroutines)
@@ -259,7 +321,7 @@ func TestStringPoolRaceCondition(t *testing.T) {
 // reduces memory usage by sharing backing arrays.
 func TestStringPoolMemoryDeduplication(t *testing.T) {
 	t.Parallel()
-	pool := NewStringPool()
+	pool := newIsolatedPool()
 
 	const testString = "this is a test string for deduplication"
 
@@ -406,5 +468,70 @@ func BenchmarkContainsUnprintableInvalid(b *testing.B) {
 	data := []byte("This has a null\x00byte")
 	for b.Loop() {
 		containsUnprintable(data)
+	}
+}
+
+// TestNewStringPoolSingleton verifies NewStringPool returns the same
+// process-wide instance on successive calls.
+func TestNewStringPoolSingleton(t *testing.T) {
+	t.Parallel()
+
+	p1 := NewStringPool()
+	p2 := NewStringPool()
+	if p1 != p2 {
+		t.Errorf("expected pointer-equal pools, got distinct instances: %p vs %p", p1, p2)
+	}
+}
+
+// TestNewStringPoolSingletonParallel verifies that concurrent callers
+// of NewStringPool all observe the same pointer — the once-value init
+// is race-free under contention.
+func TestNewStringPoolSingletonParallel(t *testing.T) {
+	t.Parallel()
+
+	const parallelism = 256
+	pointers := make([]*StringPool, parallelism)
+
+	var wg sync.WaitGroup
+	wg.Add(parallelism)
+	start := make(chan struct{})
+	for i := range parallelism {
+		wg.Go(func() {
+			defer wg.Done()
+			<-start
+			pointers[i] = NewStringPool()
+		})
+	}
+	close(start)
+	wg.Wait()
+
+	first := pointers[0]
+	for i, p := range pointers {
+		if p != first {
+			t.Errorf("goroutine %d observed pool %p, want %p", i, p, first)
+		}
+	}
+}
+
+// TestNewStringPoolSingletonSharesState verifies that two references
+// returned by NewStringPool see the same interned strings — proves
+// the underlying state is shared, not merely the pointer.
+func TestNewStringPoolSingletonSharesState(t *testing.T) {
+	t.Parallel()
+
+	p1 := NewStringPool()
+	p2 := NewStringPool()
+
+	// Distinct heap allocations of the same bytes so identity is
+	// established by the pool, not by the literal pool of the linker.
+	a := string([]byte("singleton-shared-state-marker"))
+	b := string([]byte("singleton-shared-state-marker"))
+
+	s1 := p1.Intern(a)
+	s2 := p2.Intern(b)
+
+	if StringDataPointer(s1) != StringDataPointer(s2) {
+		t.Errorf("interning the same value through two NewStringPool() references returned different backing pointers: %v vs %v",
+			StringDataPointer(s1), StringDataPointer(s2))
 	}
 }

@@ -60,7 +60,11 @@ func ExtractGzip(ctx context.Context, d string, f string) error {
 	buf := archivePool.Get(file.ExtractBuffer) //nolint:nilaway // the buffer pool is created in archive.go
 	defer archivePool.Put(buf)
 
-	gf, err := os.Open(f)
+	// Enforce a byte and ratio ceiling against the single decompressed stream.
+	// InputBytes seeds the ratio denominator from the compressed file size.
+	counter := newArchiveCounter(ctx, fi.Size())
+
+	gf, err := os.Open(f) // #nosec G304 -- archive path resolved and validated by caller before extraction
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
@@ -78,7 +82,7 @@ func ExtractGzip(ctx context.Context, d string, f string) error {
 	}
 	defer gr.Close()
 
-	out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+	out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600) // #nosec G304 -- target validated by IsValidPath against sandbox dir d
 	if err != nil {
 		return fmt.Errorf("failed to create extracted file: %w", err)
 	}
@@ -93,8 +97,8 @@ func ExtractGzip(ctx context.Context, d string, f string) error {
 		n, err := gr.Read(buf)
 		if n > 0 {
 			written += int64(n)
-			if written > file.MaxBytes {
-				return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", file.MaxBytes, target)
+			if capErr := counter.Add(n); capErr != nil {
+				return fmt.Errorf("gzip extraction aborted on %s: %w", target, capErr)
 			}
 
 			if _, writeErr := out.Write(buf[:n]); writeErr != nil {

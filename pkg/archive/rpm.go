@@ -21,13 +21,15 @@ import (
 	"github.com/ulikunitz/xz"
 )
 
-// extractFileFromCPIO extracts a single file from a CPIO archive.
-func extractFileFromCPIO(ctx context.Context, cr *cpio.Reader, target string, buf []byte) error {
+// extractFileFromCPIO extracts a single file from a CPIO archive. The counter
+// accumulates uncompressed bytes across every member so the aggregate byte and
+// ratio caps span the whole payload; a nil counter disables accounting.
+func extractFileFromCPIO(ctx context.Context, cr *cpio.Reader, target string, buf []byte, counter *file.ArchiveCounter) error {
 	if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
 		return fmt.Errorf("failed to create parent directory: %w", err)
 	}
 
-	out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+	out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600) // #nosec G304 -- target validated by IsValidPath + ValidateResolvedPath against sandbox dir before reaching this helper
 	if err != nil {
 		return fmt.Errorf("failed to create file: %w", err)
 	}
@@ -42,8 +44,8 @@ func extractFileFromCPIO(ctx context.Context, cr *cpio.Reader, target string, bu
 		n, err := cr.Read(buf)
 		if n > 0 {
 			written += int64(n)
-			if written > file.MaxBytes {
-				return fmt.Errorf("file exceeds maximum allowed size (%d bytes): %s", file.MaxBytes, target)
+			if capErr := counter.Add(n); capErr != nil {
+				return fmt.Errorf("rpm extraction aborted on %s: %w", target, capErr)
 			}
 			if _, writeErr := out.Write(buf[:n]); writeErr != nil {
 				return fmt.Errorf("failed to write file contents: %w", writeErr)
@@ -64,12 +66,7 @@ func extractFileFromCPIO(ctx context.Context, cr *cpio.Reader, target string, bu
 
 // extractRPM extracts .rpm packages.
 func ExtractRPM(ctx context.Context, d, f string) (retErr error) {
-	// Recover from panics in third-party RPM parsing library (cavaliergopher/rpm).
-	defer func() {
-		if r := recover(); r != nil {
-			retErr = fmt.Errorf("recovered from panic during RPM extraction: %v", r)
-		}
-	}()
+	defer recoverExtractor(ctx, "rpm", f, &retErr)
 	if ctx.Err() != nil {
 		return ctx.Err()
 	}
@@ -77,7 +74,7 @@ func ExtractRPM(ctx context.Context, d, f string) (retErr error) {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting rpm")
 
-	rpmFile, err := os.Open(f)
+	rpmFile, err := os.Open(f) // #nosec G304 -- archive path resolved and validated by caller before extraction
 	if err != nil {
 		return fmt.Errorf("failed to open RPM file: %w", err)
 	}
@@ -93,6 +90,10 @@ func ExtractRPM(ctx context.Context, d, f string) (retErr error) {
 
 	buf := archivePool.Get(file.ExtractBuffer) //nolint:nilaway // the buffer pool is created in archive.go
 	defer archivePool.Put(buf)
+
+	// Shared counter across every CPIO member enforces a uniform byte and ratio
+	// ceiling. InputBytes seeds the ratio denominator from the RPM file size.
+	counter := newArchiveCounter(ctx, fi.Size())
 
 	pkg, err := rpm.Read(rpmFile)
 	if err != nil {
@@ -192,7 +193,7 @@ func ExtractRPM(ctx context.Context, d, f string) (retErr error) {
 			continue
 		}
 
-		if err := extractFileFromCPIO(ctx, cr, target, buf); err != nil {
+		if err := extractFileFromCPIO(ctx, cr, target, buf, counter); err != nil {
 			return err
 		}
 	}

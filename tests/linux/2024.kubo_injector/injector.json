@@ -19,7 +19,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/elf/multiple.yara#multiple_elf",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/elf/multiple.yara#L3",
                     "ID": "anti-static/elf/multiple",
                     "RuleName": "multiple_elf"
                 },
@@ -30,7 +30,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/url.yara#binary_with_url",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/url.yara#L91",
                     "ID": "c2/addr/url",
                     "RuleName": "binary_with_url"
                 },
@@ -42,7 +42,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/arch.yara#arch_ref",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/arch.yara#L1",
                     "ID": "c2/tool_transfer/arch",
                     "RuleName": "arch_ref"
                 },
@@ -54,7 +54,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/os.yara#os_ref",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/os.yara#L1",
                     "ID": "c2/tool_transfer/os",
                     "RuleName": "os_ref"
                 },
@@ -69,7 +69,7 @@
                     ],
                     "RiskScore": 3,
                     "RiskLevel": "HIGH",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/evasion/process_injection/process-inject.yara#library_injector",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/evasion/process_injection/process-inject.yara#L1",
                     "ID": "evasion/process_injection/process_inject",
                     "RuleName": "library_injector"
                 },
@@ -82,7 +82,7 @@
                     ],
                     "RiskScore": 3,
                     "RiskLevel": "HIGH",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/evasion/process_injection/ptrace.yara#ptrace_injector_unknown",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/evasion/process_injection/ptrace.yara#L26",
                     "ID": "evasion/process_injection/ptrace",
                     "RuleName": "ptrace_injector_unknown"
                 },
@@ -93,7 +93,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/exec/dylib/symbol-address.yara#dlsym",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/exec/dylib/symbol-address.yara#L1",
                     "ReferenceURL": "https://man7.org/linux/man-pages/man3/dlsym.3.html",
                     "ID": "exec/dylib/symbol_address",
                     "RuleName": "dlsym"
@@ -105,7 +105,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/exec/program/program-background.yara#waitpid",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/exec/program/program-background.yara#L1",
                     "ReferenceURL": "https://linux.die.net/man/2/waitpid",
                     "ID": "exec/program/background",
                     "RuleName": "waitpid"
@@ -117,7 +117,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/link-read.yara#readlink",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/link-read.yara#L1",
                     "ReferenceURL": "https://man7.org/linux/man-pages/man2/readlink.2.html",
                     "ID": "fs/link_read",
                     "RuleName": "readlink"
@@ -131,7 +131,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/proc/arbitrary-pid.yara#proc_arbitrary",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/proc/arbitrary-pid.yara#L1",
                     "ID": "fs/proc/arbitrary_pid",
                     "RuleName": "proc_arbitrary"
                 },
@@ -142,7 +142,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/proc/pid-maps.yara#proc_maps",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/proc/pid-maps.yara#L1",
                     "ID": "fs/proc/pid_maps",
                     "RuleName": "proc_maps"
                 },
@@ -153,7 +153,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/symlink-resolve.yara#realpath",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/symlink-resolve.yara#L1",
                     "ReferenceURL": "https://man7.org/linux/man-pages/man3/realpath.3.html",
                     "ID": "fs/symlink_resolve",
                     "RuleName": "realpath"
@@ -167,7 +167,7 @@
                     ],
                     "RiskScore": 3,
                     "RiskLevel": "HIGH",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/impact/exploit/overflow-shellcode.yara#exploit",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/impact/exploit/overflow-shellcode.yara#L1",
                     "ID": "impact/exploit/overflow_shellcode",
                     "RuleName": "exploit"
                 },
@@ -182,7 +182,7 @@
                     ],
                     "RiskScore": 4,
                     "RiskLevel": "CRITICAL",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/malware/family/kubo_injector.yara#kubo",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/malware/family/kubo_injector.yara#L1",
                     "ReferenceURL": "https://github.com/kubo/injector",
                     "ID": "malware/family/kubo_injector",
                     "RuleName": "kubo"
@@ -194,7 +194,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/url/embedded.yara#https_url",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/url/embedded.yara#L12",
                     "ID": "net/url/embedded",
                     "RuleName": "https_url"
                 },
@@ -205,7 +205,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/os/kernel/seccomp.yara#seccomp",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/os/kernel/seccomp.yara#L1",
                     "ReferenceURL": "https://man7.org/linux/man-pages/man2/seccomp.2.html",
                     "ID": "os/kernel/seccomp",
                     "RuleName": "seccomp"

@@ -58,7 +58,7 @@ func (r TerminalBrief) File(ctx context.Context, fr *malcontent.FileReport) erro
 			continue
 		}
 
-		color.New(color.FgHiBlack).Fprint(r.w, ":")
+		_, _ = color.New(color.FgHiBlack).Fprint(r.w, ":")
 		e = color.RGB(255, 255, 255).Sprint(e)
 
 		// Two-line output for long evidence strings

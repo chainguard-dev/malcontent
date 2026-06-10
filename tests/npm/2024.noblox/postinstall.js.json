@@ -16,7 +16,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/obfuscation/bool.yara#js_while_true_obfuscation",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/obfuscation/bool.yara#L1",
                     "ID": "anti-static/obfuscation/bool",
                     "RuleName": "js_while_true_obfuscation"
                 },
@@ -1815,7 +1815,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/obfuscation/hex.yara#excessive_hex_refs",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/obfuscation/hex.yara#L1",
                     "ID": "anti-static/obfuscation/hex",
                     "RuleName": "excessive_hex_refs"
                 },
@@ -2048,7 +2048,7 @@
                     ],
                     "RiskScore": 3,
                     "RiskLevel": "HIGH",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/obfuscation/js.yara#js_hex_obfuscation",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/obfuscation/js.yara#L142",
                     "ID": "anti-static/obfuscation/js",
                     "RuleName": "js_hex_obfuscation"
                 },
@@ -2211,7 +2211,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/obfuscation/math.yara#sketchy_math_conversions",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/obfuscation/math.yara#L44",
                     "ID": "anti-static/obfuscation/math",
                     "RuleName": "sketchy_math_conversions"
                 },
@@ -2223,7 +2223,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/data/encoding/int.yara#js_parseInt_Math",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/data/encoding/int.yara#L12",
                     "ID": "data/encoding/int",
                     "RuleName": "js_parseInt_Math"
                 },
@@ -2234,7 +2234,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/directory/directory-create.yara#mkdir",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/directory/directory-create.yara#L1",
                     "ReferenceURL": "https://man7.org/linux/man-pages/man2/mkdir.2.html",
                     "ID": "fs/directory/create",
                     "RuleName": "mkdir"
@@ -2246,7 +2246,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/windows_root.yara#windows_path",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/windows_root.yara#L1",
                     "ID": "fs/path/windows_root",
                     "RuleName": "windows_path"
                 },
@@ -2259,7 +2259,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/post.yara#http_post",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/post.yara#L1",
                     "ID": "net/http/post",
                     "RuleName": "http_post"
                 },
@@ -2270,7 +2270,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/webhook.yara#webhook",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/webhook.yara#L1",
                     "ID": "net/http/webhook",
                     "RuleName": "webhook"
                 },
@@ -2281,7 +2281,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/sus/exclamation.yara#exclamations",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/sus/exclamation.yara#L1",
                     "ID": "sus/exclamation",
                     "RuleName": "exclamations"
                 }

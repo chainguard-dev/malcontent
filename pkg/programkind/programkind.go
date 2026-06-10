@@ -228,23 +228,108 @@ func GetExt(path string) string {
 	return ext
 }
 
-var ErrUPXNotFound = errors.New("UPX executable not found")
+var (
+	// ErrUPXNotFound reports that no usable UPX binary was discovered on the
+	// automatic discovery path (MALCONTENT_UPX_PATH unset).
+	ErrUPXNotFound = errors.New("UPX executable not found")
+	// ErrUPXPathInvalid reports that an operator-supplied MALCONTENT_UPX_PATH
+	// failed validation. The wrapped error names the specific reason.
+	ErrUPXPathInvalid = errors.New("MALCONTENT_UPX_PATH is invalid")
+)
 
 const defaultUPXPath = "/usr/bin/upx"
 
-// UPXInstalled returns the resolved path to the UPX binary, or an error if not found.
-func UPXInstalled() (string, error) {
-	upxPath := cmp.Or(os.Getenv("MALCONTENT_UPX_PATH"), defaultUPXPath)
+// upxAllowedPrefixes lists directories from which a UPX binary may be loaded
+// during automatic discovery (MALCONTENT_UPX_PATH unset). An operator who sets
+// MALCONTENT_UPX_PATH explicitly bypasses this allowlist; their path is trusted
+// after the per-path safety checks in validateUPXPath.
+var upxAllowedPrefixes = []string{
+	"/usr/bin/",
+	"/usr/local/bin/",
+	"/opt/homebrew/bin/",
+}
 
-	fi, err := os.Stat(upxPath)
-	if err != nil {
-		if errors.Is(err, fs.ErrNotExist) {
-			return "", ErrUPXNotFound
-		}
-		return "", fmt.Errorf("failed to check for UPX executable: %w", err)
+// Homebrew Cellar paths are versioned (e.g. /opt/homebrew/Cellar/upx/5.1.1/bin/upx),
+// so the resolved path is matched by prefix rather than exact parent directory.
+var upxAllowedResolvedPrefixes = []string{
+	"/opt/homebrew/Cellar/upx/",
+}
+
+// validateUPXPath resolves and vets a candidate UPX binary path.
+//
+// Every candidate must be an absolute path that resolves cleanly through
+// EvalSymlinks to a regular, executable file that is not group- or
+// world-writable.
+//
+// When operatorSupplied is true (MALCONTENT_UPX_PATH was set), the resolved
+// path is trusted regardless of its directory: the operator has made an
+// explicit trust assertion. When operatorSupplied is false (automatic
+// discovery via the default path), the resolved path must additionally live
+// directly under one of the well-known UPX install prefixes.
+func validateUPXPath(p string, operatorSupplied bool) (string, error) {
+	if p == "" {
+		return "", errors.New("empty upx path")
 	}
-	if fi.Mode()&0o111 != 0o111 {
-		return "", fmt.Errorf("provided UPX binary is not executable")
+	if !filepath.IsAbs(p) {
+		return "", fmt.Errorf("upx path must be absolute: %q", p)
+	}
+	cleaned := filepath.Clean(p)
+	resolved, err := filepath.EvalSymlinks(cleaned)
+	if err != nil {
+		return "", fmt.Errorf("upx path resolve failed: %w", err)
+	}
+
+	fi, err := os.Lstat(resolved)
+	if err != nil {
+		return "", fmt.Errorf("upx path stat failed: %w", err)
+	}
+	if !fi.Mode().IsRegular() {
+		return "", fmt.Errorf("upx path is not a regular file: %q", resolved)
+	}
+	if fi.Mode()&0o111 == 0 {
+		return "", fmt.Errorf("upx path is not executable: %q", resolved)
+	}
+	if fi.Mode()&0o022 != 0 {
+		return "", fmt.Errorf("upx path is group- or world-writable: %q", resolved)
+	}
+
+	if operatorSupplied {
+		return resolved, nil
+	}
+
+	parent := filepath.Dir(resolved) + "/"
+	if slices.Contains(upxAllowedPrefixes, parent) {
+		return resolved, nil
+	}
+	for _, prefix := range upxAllowedResolvedPrefixes {
+		if strings.HasPrefix(resolved, prefix) && strings.HasSuffix(parent, "/bin/") {
+			return resolved, nil
+		}
+	}
+	return "", fmt.Errorf("upx path %q not in allowlist [%s, %s]", resolved, strings.Join(upxAllowedPrefixes, ", "), strings.Join(upxAllowedResolvedPrefixes, ", "))
+}
+
+// UPXInstalled returns the resolved path to the UPX binary, or an error if not found.
+//
+// When MALCONTENT_UPX_PATH is set, it is treated as an explicit operator trust
+// assertion: the path bypasses the directory allowlist but must still pass the
+// per-path safety checks, and any failure is surfaced as a specific
+// ErrUPXPathInvalid reason rather than a generic "not found".
+func UPXInstalled() (string, error) {
+	operatorPath := os.Getenv("MALCONTENT_UPX_PATH")
+	operatorSupplied := operatorPath != ""
+	candidate := cmp.Or(operatorPath, defaultUPXPath)
+
+	upxPath, err := validateUPXPath(candidate, operatorSupplied)
+	if err != nil {
+		if operatorSupplied {
+			// The operator asked for a specific binary; tell them why it was
+			// rejected instead of hiding the reason behind "not found".
+			return "", fmt.Errorf("%w: %w", ErrUPXPathInvalid, err)
+		}
+		// Automatic discovery failed; extractors skip the UPX path. Do not
+		// surface attacker-controlled details further.
+		return "", ErrUPXNotFound
 	}
 
 	return upxPath, nil
@@ -274,7 +359,7 @@ func IsValidUPX(ctx context.Context, fc []byte, path string) (bool, error) {
 		return false, err
 	}
 
-	cmd := exec.CommandContext(ctx, upxPath, "-l", "-f", "--", absPath)
+	cmd := exec.CommandContext(ctx, upxPath, "-l", "-f", "--", absPath) // #nosec G204 -- invokes pinned upx binary with validated absolute path arg
 	output, err := cmd.CombinedOutput()
 
 	if err != nil && (bytes.Contains(output, []byte("NotPackedException")) ||
@@ -403,11 +488,11 @@ func File(ctx context.Context, path string) (*FileType, error) {
 		return nil, nil
 	}
 
-	f, err := os.Open(path)
+	f, err := os.Open(path) // #nosec G304 -- scan target supplied by user; reading the path is the function's purpose
 	if err != nil {
 		return nil, fmt.Errorf("open: %w", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	// initialize the header pool after we've successfully opened the file
 	initializeHeaderPool()

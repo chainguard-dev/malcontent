@@ -6,12 +6,15 @@ package action
 import (
 	"context"
 	"errors"
+	"io"
 	"io/fs"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
@@ -297,13 +300,52 @@ func TestExitIfHitOrMiss(t *testing.T) {
 	}
 }
 
+func TestExitIfHitOrMiss_NilNilContract(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name      string
+		frs       *xsync.Map[string, *malcontent.FileReport]
+		scanPath  string
+		errIfHit  bool
+		errIfMiss bool
+	}{
+		{
+			name:      "empty map returns nil report and nil error",
+			frs:       xsync.NewMap[string, *malcontent.FileReport](),
+			scanPath:  "/tmp/test",
+			errIfHit:  false,
+			errIfMiss: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			fr, err := exitIfHitOrMiss(tt.frs, tt.scanPath, tt.errIfHit, tt.errIfMiss)
+			if fr != nil {
+				t.Errorf("expected fr == nil, got %+v", fr)
+			}
+			if err != nil {
+				t.Errorf("expected err == nil, got %v", err)
+			}
+		})
+	}
+}
+
 func TestGetMaxConcurrency(t *testing.T) {
 	t.Parallel()
+	procs := runtime.GOMAXPROCS(0)
 	tests := []struct {
 		input int
 		want  int
 	}{
-		{0, 1}, {-1, 1}, {-100, 1}, {1, 1}, {4, 4}, {128, 128},
+		{0, 1},
+		{-1, 1},
+		{-100, 1},
+		{1, 1},
+		{min(4, procs), min(4, procs)},
+		{128, procs},
 	}
 	for _, tt := range tests {
 		got := getMaxConcurrency(tt.input)
@@ -312,6 +354,9 @@ func TestGetMaxConcurrency(t *testing.T) {
 		}
 		if got < 1 {
 			t.Errorf("getMaxConcurrency(%d) = %d, must be >= 1", tt.input, got)
+		}
+		if got > procs {
+			t.Errorf("getMaxConcurrency(%d) = %d, exceeds GOMAXPROCS %d", tt.input, got, procs)
 		}
 	}
 }
@@ -421,4 +466,64 @@ func TestHandleFileReportError(t *testing.T) {
 			t.Fatal("expected error")
 		}
 	})
+}
+
+// TestSetupMatchHandler_DrainOnCancel verifies that the returned wait closure
+// from setupMatchHandler returns within a bounded time after cancel() is
+// invoked, even when no match has been delivered through matchChan.
+func TestSetupMatchHandler_DrainOnCancel(t *testing.T) {
+	t.Parallel()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	t.Cleanup(cancel)
+
+	logger := clog.New(slog.NewTextHandler(io.Discard, nil))
+	matchChan := make(chan matchResult, 1)
+	cfg := malcontent.Config{}
+
+	wait := setupMatchHandler(ctx, matchChan, cfg, cancel, logger)
+
+	cancel()
+
+	done := make(chan struct{})
+	go func() {
+		wait()
+		close(done)
+	}()
+
+	select {
+	case <-done:
+	case <-time.After(2 * time.Second):
+		t.Fatal("setupMatchHandler wait did not return within 2s after cancel")
+	}
+}
+
+// TestSetupMatchHandler_DrainOnMatch verifies that the returned wait closure
+// from setupMatchHandler joins the renderer goroutine after a single match
+// is delivered through matchChan.
+func TestSetupMatchHandler_DrainOnMatch(t *testing.T) {
+	t.Parallel()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	t.Cleanup(cancel)
+
+	logger := clog.New(slog.NewTextHandler(io.Discard, nil))
+	matchChan := make(chan matchResult, 1)
+	cfg := malcontent.Config{}
+
+	wait := setupMatchHandler(ctx, matchChan, cfg, cancel, logger)
+
+	matchChan <- matchResult{fr: nil, err: nil}
+
+	done := make(chan struct{})
+	go func() {
+		wait()
+		close(done)
+	}()
+
+	select {
+	case <-done:
+	case <-time.After(2 * time.Second):
+		t.Fatal("setupMatchHandler wait did not return within 2s after match delivery")
+	}
 }

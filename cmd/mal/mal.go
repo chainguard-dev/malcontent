@@ -25,6 +25,7 @@ import (
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/action"
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/profile"
 	"github.com/chainguard-dev/malcontent/pkg/refresh"
 	"github.com/chainguard-dev/malcontent/pkg/render"
@@ -51,6 +52,7 @@ var (
 	diffImageFlag             bool
 	diffReportFlag            bool
 	exitExtractionFlag        bool
+	exitExtractorPanicFlag    bool
 	exitFirstHitFlag          bool
 	exitFirstMissFlag         bool
 	fileRiskChangeFlag        bool
@@ -59,6 +61,8 @@ var (
 	ignoreSelfFlag            bool
 	ignoreTagsFlag            string
 	includeDataFilesFlag      bool
+	maxArchiveBytesFlag       int64
+	maxArchiveRatioFlag       float64
 	maxDepthFlag              int
 	maxImageSizeFlag          int64
 	maxScanFilesFlag          int
@@ -68,6 +72,14 @@ var (
 	minRiskFlag               string
 	ociAuthFlag               bool
 	ociFlag                   bool
+	ociKeepalivePolicyFlag    string
+	ociKeepaliveSecondsFlag   int
+	ociPerHostSlotsFlag       int
+	ociProxyOptInFlag         bool
+	ociPullTimeoutFlag        int
+	ociRetryMaxAttemptsFlag   int
+	ociRetryMaxWindowFlag     int
+	caBundleFlag              string
 	outputFlag                string
 	profileFlag               bool
 	quantityIncreasesRiskFlag bool
@@ -145,7 +157,7 @@ func main() {
 		After: func(_ context.Context, _ *cli.Command) error {
 			// Close our output file (or stdout) after commands have run
 			defer func() {
-				outFile.Close()
+				_ = outFile.Close()
 			}()
 
 			// Stop profiling if command was executed with that flag
@@ -220,7 +232,7 @@ func main() {
 			}
 
 			if outputFlag != "" {
-				outFile, err = os.OpenFile(outputFlag, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600)
+				outFile, err = os.OpenFile(outputFlag, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600) // #nosec G304 -- CLI flag values are user-supplied paths intended for the operation
 				if err != nil {
 					returnCode = ExitInputOutput
 					return ctx, err
@@ -254,25 +266,36 @@ func main() {
 			concurrency := max(1, concurrencyFlag)
 
 			mc = malcontent.Config{
-				Concurrency:           concurrency,
-				ExitExtraction:        exitExtractionFlag,
-				ExitFirstHit:          exitFirstHitFlag,
-				ExitFirstMiss:         exitFirstMissFlag,
-				IgnoreSelf:            ignoreSelfFlag,
-				IgnoreTags:            ignoreTags,
-				IncludeDataFiles:      includeDataFiles,
-				MaxDepth:              maxDepthFlag,
-				MaxImageSize:          maxImageSizeFlag,
-				MaxScanFiles:          maxScanFilesFlag,
-				MinFileRisk:           minFileRisk,
-				MinRisk:               minRisk,
-				OCIAuth:               ociAuthFlag,
-				OCI:                   ociFlag,
-				QuantityIncreasesRisk: quantityIncreasesRiskFlag,
-				Renderer:              renderer,
-				RuleCategories:        ruleCategoriesFlag,
-				Rules:                 yrs,
-				Stats:                 statsFlag,
+				Concurrency:              concurrency,
+				ExitExtraction:           exitExtractionFlag,
+				ExitOnExtractorPanic:     exitExtractorPanicFlag,
+				ExitFirstHit:             exitFirstHitFlag,
+				ExitFirstMiss:            exitFirstMissFlag,
+				IgnoreSelf:               ignoreSelfFlag,
+				IgnoreTags:               ignoreTags,
+				IncludeDataFiles:         includeDataFiles,
+				MaxArchiveBytes:          maxArchiveBytesFlag,
+				MaxArchiveRatio:          maxArchiveRatioFlag,
+				MaxDepth:                 maxDepthFlag,
+				MaxImageSize:             maxImageSizeFlag,
+				MaxScanFiles:             maxScanFilesFlag,
+				MinFileRisk:              minFileRisk,
+				MinRisk:                  minRisk,
+				OCIAuth:                  ociAuthFlag,
+				OCI:                      ociFlag,
+				OCICABundlePath:          caBundleFlag,
+				OCIKeepalivePolicy:       malcontent.KeepalivePolicy(ociKeepalivePolicyFlag),
+				OCIKeepaliveSeconds:      ociKeepaliveSecondsFlag,
+				OCIPerHostSlots:          ociPerHostSlotsFlag,
+				OCIProxyOptIn:            ociProxyOptInFlag,
+				OCIPullTimeoutSeconds:    ociPullTimeoutFlag,
+				OCIRetryMaxAttempts:      ociRetryMaxAttemptsFlag,
+				OCIRetryMaxWindowSeconds: ociRetryMaxWindowFlag,
+				QuantityIncreasesRisk:    quantityIncreasesRiskFlag,
+				Renderer:                 renderer,
+				RuleCategories:           ruleCategoriesFlag,
+				Rules:                    yrs,
+				Stats:                    statsFlag,
 			}
 
 			// always trim macOS' /private prefix
@@ -280,6 +303,7 @@ func main() {
 				mc.TrimPrefixes = append(mc.TrimPrefixes, "/private")
 			}
 
+			ctx = malcontent.ContextWithConfig(ctx, &mc)
 			return ctx, nil
 		},
 		// Global flags shared between commands
@@ -296,6 +320,13 @@ func main() {
 				Value:       false,
 				Usage:       "Exit when encountering file extraction errors",
 				Destination: &exitExtractionFlag,
+				Local:       false,
+			},
+			&cli.BoolFlag{
+				Name:        "exit-on-extractor-panic",
+				Value:       false,
+				Usage:       "Terminate the process when an archive extractor panics instead of logging and continuing",
+				Destination: &exitExtractorPanicFlag,
 				Local:       false,
 			},
 			&cli.BoolFlag{
@@ -344,7 +375,7 @@ func main() {
 				Name:        "jobs",
 				Aliases:     []string{"j"},
 				Value:       runtime.NumCPU(),
-				Usage:       "Concurrently scan files within target scan paths",
+				Usage:       "Concurrently scan files within target scan paths (effectively capped at GOMAXPROCS; higher values do not increase throughput)",
 				Destination: &concurrencyFlag,
 				Local:       false,
 			},
@@ -367,6 +398,20 @@ func main() {
 				Value:       1 << 34, // ~16 GB
 				Usage:       "Maximum OCI image size in bytes (0 or -1 for unlimited)",
 				Destination: &maxImageSizeFlag,
+				Local:       false,
+			},
+			&cli.Int64Flag{
+				Name:        "max-archive-bytes",
+				Value:       file.DefaultMaxArchiveBytes,
+				Usage:       "Maximum total uncompressed bytes produced by archive extraction (0 for the built-in default)",
+				Destination: &maxArchiveBytesFlag,
+				Local:       false,
+			},
+			&cli.FloatFlag{
+				Name:        "max-archive-ratio",
+				Value:       file.DefaultMaxArchiveRatio,
+				Usage:       "Maximum uncompressed:compressed expansion ratio for archive extraction (0 or less for the built-in default)",
+				Destination: &maxArchiveRatioFlag,
 				Local:       false,
 			},
 			&cli.IntFlag{
@@ -400,8 +445,64 @@ func main() {
 			&cli.BoolFlag{
 				Name:        "oci-auth",
 				Value:       false,
-				Usage:       "Use Docker Keychain authentication to pull images (warning: may leak credentials to malicious registries!)",
+				Usage:       "Authenticate OCI pulls with MALCONTENT_REGISTRY_USER/PASS, scoped to the registry in MALCONTENT_REGISTRY_HOST",
 				Destination: &ociAuthFlag,
+				Local:       false,
+			},
+			&cli.StringFlag{
+				Name:        "ca-bundle",
+				Value:       "system",
+				Usage:       "OCI registry CA bundle: system (default; use OS trust store) or absolute path to a PEM bundle",
+				Destination: &caBundleFlag,
+				Local:       false,
+			},
+			&cli.IntFlag{
+				Name:        "oci-pull-timeout-seconds",
+				Value:       600, // OCI registry response-header timeout in seconds
+				Usage:       "OCI registry response-header timeout in seconds (<=0 uses the built-in default)",
+				Destination: &ociPullTimeoutFlag,
+				Local:       false,
+			},
+			&cli.IntFlag{
+				Name:        "oci-retry-max-attempts",
+				Value:       3, // OCI pull retry attempt ceiling
+				Usage:       "Maximum OCI registry pull retry attempts (<=0 uses the built-in default)",
+				Destination: &ociRetryMaxAttemptsFlag,
+				Local:       false,
+			},
+			&cli.IntFlag{
+				Name:        "oci-retry-max-window-seconds",
+				Value:       60, // OCI pull retry backoff window in seconds
+				Usage:       "Maximum OCI registry pull retry backoff window in seconds (<=0 uses the built-in default)",
+				Destination: &ociRetryMaxWindowFlag,
+				Local:       false,
+			},
+			&cli.IntFlag{
+				Name:        "oci-per-host-slots",
+				Value:       4, // concurrent OCI pull slots per registry host
+				Usage:       "Maximum concurrent OCI pulls per registry host (<=0 uses the built-in default)",
+				Destination: &ociPerHostSlotsFlag,
+				Local:       false,
+			},
+			&cli.StringFlag{
+				Name:        "oci-keepalive-policy",
+				Value:       string(malcontent.KeepalivePolicyExplicitlyEnabled),
+				Usage:       "OCI transport keepalive policy (enabled, disabled, go-default)",
+				Destination: &ociKeepalivePolicyFlag,
+				Local:       false,
+			},
+			&cli.IntFlag{
+				Name:        "oci-keepalive-seconds",
+				Value:       30, // OCI transport idle-connection timeout in seconds
+				Usage:       "OCI transport idle-connection timeout in seconds when keepalive policy is enabled",
+				Destination: &ociKeepaliveSecondsFlag,
+				Local:       false,
+			},
+			&cli.BoolFlag{
+				Name:        "oci-proxy-opt-in",
+				Value:       false,
+				Usage:       "Honor HTTP(S)_PROXY environment variables for OCI registry traffic",
+				Destination: &ociProxyOptInFlag,
 				Local:       false,
 			},
 			&cli.StringFlag{
@@ -708,6 +809,7 @@ func handleContext(cancel context.CancelFunc, logger *clog.Logger) {
 
 	// Force exit after timeout
 	time.AfterFunc(10*time.Second, func() {
+		logger.Warn("force exit: drain timeout exceeded, unrendered matches may be discarded", slog.Duration("timeout", 10*time.Second))
 		logger.Error("forced exit after timeout")
 		os.Exit(1)
 	})

@@ -53,7 +53,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-behavior/random_behavior.yara#random",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-behavior/random_behavior.yara#L69",
                     "ID": "anti-behavior/random_behavior",
                     "RuleName": "random"
                 },
@@ -67,7 +67,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/ip.yara#ip_port_mention",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/ip.yara#L96",
                     "ID": "c2/addr/ip",
                     "RuleName": "ip_port_mention"
                 },
@@ -78,7 +78,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/url.yara#binary_with_url",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/url.yara#L91",
                     "ID": "c2/addr/url",
                     "RuleName": "binary_with_url"
                 },
@@ -91,7 +91,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/arch.yara#arch_ref",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/arch.yara#L1",
                     "ID": "c2/tool_transfer/arch",
                     "RuleName": "arch_ref"
                 },
@@ -104,7 +104,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/os.yara#multiple_os_ref",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/tool_transfer/os.yara#L21",
                     "ID": "c2/tool_transfer/os",
                     "RuleName": "multiple_os_ref"
                 },
@@ -115,7 +115,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/collect/archives/zip.yara#zip",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/collect/archives/zip.yara#L1",
                     "ID": "collect/archives/zip",
                     "RuleName": "zip"
                 },
@@ -127,7 +127,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/credential/password/password.yara#password",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/credential/password/password.yara#L1",
                     "ID": "credential/password",
                     "RuleName": "password"
                 },
@@ -138,7 +138,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/credential/ssl/private_key.yara#private_key_val",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/credential/ssl/private_key.yara#L1",
                     "ID": "credential/ssl/private_key",
                     "RuleName": "private_key_val"
                 },
@@ -149,7 +149,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/crypto/aes.yara#crypto_aes",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/crypto/aes.yara#L1",
                     "ID": "crypto/aes",
                     "RuleName": "crypto_aes"
                 },
@@ -160,7 +160,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/crypto/ecdsa.yara#crypto_ecdsa",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/crypto/ecdsa.yara#L1",
                     "ID": "crypto/ecdsa",
                     "RuleName": "crypto_ecdsa"
                 },
@@ -172,7 +172,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/crypto/public_key.yara#public_key",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/crypto/public_key.yara#L1",
                     "ID": "crypto/public_key",
                     "RuleName": "public_key"
                 },
@@ -183,7 +183,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/crypto/tls.yara#tls",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/crypto/tls.yara#L1",
                     "ID": "crypto/tls",
                     "RuleName": "tls"
                 },
@@ -194,7 +194,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/data/compression/gzip.yara#gzip",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/data/compression/gzip.yara#L1",
                     "ReferenceURL": "https://www.gnu.org/software/gzip/",
                     "ID": "data/compression/gzip",
                     "RuleName": "gzip"
@@ -206,7 +206,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/data/encoding/base64.yara#b64",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/data/encoding/base64.yara#L1",
                     "ID": "data/encoding/base64",
                     "RuleName": "b64"
                 },
@@ -217,7 +217,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/discover/system/cpu.yara#processor_count",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/discover/system/cpu.yara#L27",
                     "ReferenceURL": "https://man7.org/linux/man-pages/man3/get_nprocs.3.html",
                     "ID": "discover/system/cpu",
                     "RuleName": "processor_count"
@@ -229,7 +229,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/discover/system/hostname.yara#gethostname",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/discover/system/hostname.yara#L1",
                     "ReferenceURL": "https://man7.org/linux/man-pages/man2/sethostname.2.html",
                     "ID": "discover/system/hostname",
                     "RuleName": "gethostname"
@@ -241,7 +241,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/discover/system/platform.yara#uname",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/discover/system/platform.yara#L1",
                     "ReferenceURL": "https://man7.org/linux/man-pages/man1/uname.1.html",
                     "ID": "discover/system/platform",
                     "RuleName": "uname"
@@ -254,7 +254,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/exec/cmd/pipe.yara#popen_go",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/exec/cmd/pipe.yara#L21",
                     "ReferenceURL": "https://linux.die.net/man/3/popen",
                     "ID": "exec/cmd/pipe",
                     "RuleName": "popen_go"
@@ -268,7 +268,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/exec/plugin/plugin.yara#plugin",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/exec/plugin/plugin.yara#L1",
                     "ID": "exec/plugin",
                     "RuleName": "plugin"
                 },
@@ -280,7 +280,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/exec/program/program.yara#exec_cmd_run",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/exec/program/program.yara#L35",
                     "ID": "exec/program",
                     "RuleName": "exec_cmd_run"
                 },
@@ -291,7 +291,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/directory/directory-create.yara#mkdir",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/directory/directory-create.yara#L1",
                     "ReferenceURL": "https://man7.org/linux/man-pages/man2/mkdir.2.html",
                     "ID": "fs/directory/create",
                     "RuleName": "mkdir"
@@ -303,7 +303,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/directory/directory-remove.yara#rmdir",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/directory/directory-remove.yara#L1",
                     "ID": "fs/directory/remove",
                     "RuleName": "rmdir"
                 },
@@ -314,7 +314,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-copy.yara#file_copy_cp",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-copy.yara#L12",
                     "ID": "fs/file/copy",
                     "RuleName": "file_copy_cp"
                 },
@@ -325,7 +325,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-delete.yara#unlink",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-delete.yara#L1",
                     "ReferenceURL": "https://man7.org/linux/man-pages/man2/unlink.2.html",
                     "ID": "fs/file/delete",
                     "RuleName": "unlink"
@@ -337,7 +337,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-open.yara#java_open",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-open.yara#L28",
                     "ID": "fs/file/open",
                     "RuleName": "java_open"
                 },
@@ -349,7 +349,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-read.yara#go_file_read",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/file/file-read.yara#L1",
                     "ID": "fs/file/read",
                     "RuleName": "go_file_read"
                 },
@@ -360,7 +360,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/link-read.yara#readlink",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/link-read.yara#L1",
                     "ReferenceURL": "https://man7.org/linux/man-pages/man2/readlink.2.html",
                     "ID": "fs/link_read",
                     "RuleName": "readlink"
@@ -372,7 +372,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/lock-update.yara#flock",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/lock-update.yara#L1",
                     "ID": "fs/lock_update",
                     "RuleName": "flock"
                 },
@@ -391,7 +391,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/etc.yara#etc_path",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/etc.yara#L1",
                     "ID": "fs/path/etc",
                     "RuleName": "etc_path"
                 },
@@ -402,7 +402,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/etc-hosts.yara#etc_hosts",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/etc-hosts.yara#L1",
                     "ID": "fs/path/etc_hosts",
                     "RuleName": "etc_hosts"
                 },
@@ -413,7 +413,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/etc-resolv.conf.yara#etc_resolv_conf",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/etc-resolv.conf.yara#L1",
                     "ID": "fs/path/etc_resolv.conf",
                     "RuleName": "etc_resolv_conf"
                 },
@@ -441,7 +441,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/users.yara#home_path_users",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/users.yara#L1",
                     "ID": "fs/path/users",
                     "RuleName": "home_path_users"
                 },
@@ -454,7 +454,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/var.yara#var_path",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/var.yara#L1",
                     "ID": "fs/path/var",
                     "RuleName": "var_path"
                 },
@@ -465,7 +465,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/permission/permission-chown.yara#Chown",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/permission/permission-chown.yara#L43",
                     "ID": "fs/permission/chown",
                     "RuleName": "Chown"
                 },
@@ -477,7 +477,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/permission/permission-modify.yara#chmod",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/permission/permission-modify.yara#L1",
                     "ReferenceURL": "https://linux.die.net/man/1/chmod",
                     "ID": "fs/permission/modify",
                     "RuleName": "chmod"
@@ -491,7 +491,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/dns/dns.yara#go_dns_refs",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/dns/dns.yara#L1",
                     "ID": "net/dns",
                     "RuleName": "go_dns_refs"
                 },
@@ -502,7 +502,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/dns/dns-servers.yara#go_dns_refs_local",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/dns/dns-servers.yara#L1",
                     "ID": "net/dns/servers",
                     "RuleName": "go_dns_refs_local"
                 },
@@ -514,7 +514,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/dns/dns-txt.yara#dns_txt",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/dns/dns-txt.yara#L1",
                     "ID": "net/dns/txt",
                     "RuleName": "dns_txt"
                 },
@@ -526,7 +526,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/http.yara#http",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/http.yara#L1",
                     "ID": "net/http",
                     "RuleName": "http"
                 },
@@ -537,7 +537,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/auth.yara#http_auth",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/auth.yara#L1",
                     "ID": "net/http/auth",
                     "RuleName": "http_auth"
                 },
@@ -550,7 +550,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/post.yara#http_post",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/post.yara#L1",
                     "ID": "net/http/post",
                     "RuleName": "http_post"
                 },
@@ -562,7 +562,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/proxy.yara#http_proxy_env",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/proxy.yara#L25",
                     "ReferenceURL": "https://www.ibm.com/docs/en/ste/11.0.0?topic=node-proxy-configuration-using-environment-variables",
                     "ID": "net/http/proxy",
                     "RuleName": "http_proxy_env"
@@ -574,7 +574,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/http-request.yara#http_request",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/http-request.yara#L1",
                     "ID": "net/http/request",
                     "RuleName": "http_request"
                 },
@@ -585,7 +585,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/ip/addr.yara#ip_addr",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/ip/addr.yara#L1",
                     "ID": "net/ip/addr",
                     "RuleName": "ip_addr"
                 },
@@ -596,7 +596,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/ip/host_port.yara#host_port_ref",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/ip/host_port.yara#L15",
                     "ID": "net/ip/host_port",
                     "RuleName": "host_port_ref"
                 },
@@ -607,7 +607,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/ip/ip-parse.yara#ip_go",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/ip/ip-parse.yara#L25",
                     "ID": "net/ip/parse",
                     "RuleName": "ip_go"
                 },
@@ -618,7 +618,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/ip/ip-resolve.yara#gethostbyaddr",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/ip/ip-resolve.yara#L1",
                     "ReferenceURL": "https://linux.die.net/man/3/gethostbyaddr",
                     "ID": "net/ip/resolve",
                     "RuleName": "gethostbyaddr"
@@ -630,7 +630,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/resolve/hostname-resolve.yara#go_resolve",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/resolve/hostname-resolve.yara#L64",
                     "ID": "net/resolve/hostname",
                     "RuleName": "go_resolve"
                 },
@@ -642,7 +642,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/socket/socket-listen.yara#listen",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/socket/socket-listen.yara#L1",
                     "ID": "net/socket/listen",
                     "RuleName": "listen"
                 },
@@ -653,7 +653,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/socket/socket-local_addr.yara#getsockname",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/socket/socket-local_addr.yara#L1",
                     "ReferenceURL": "https://man7.org/linux/man-pages/man2/getsockname.2.html",
                     "ID": "net/socket/local_addr",
                     "RuleName": "getsockname"
@@ -665,7 +665,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/socket/socket-options-set.yara#go_setsockopt_int",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/socket/socket-options-set.yara#L14",
                     "ID": "net/socket/options_set",
                     "RuleName": "go_setsockopt_int"
                 },
@@ -676,7 +676,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/socket/socket-peer-address.yara#getpeername",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/socket/socket-peer-address.yara#L1",
                     "ReferenceURL": "https://man7.org/linux/man-pages/man2/getpeername.2.html",
                     "ID": "net/socket/peer_address",
                     "RuleName": "getpeername"
@@ -688,7 +688,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/socket/socket-receive.yara#recvmsg",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/socket/socket-receive.yara#L1",
                     "ReferenceURL": "https://linux.die.net/man/2/recvmsg",
                     "ID": "net/socket/receive",
                     "RuleName": "recvmsg"
@@ -700,7 +700,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/socket/socket-send.yara#sendmsg",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/socket/socket-send.yara#L1",
                     "ReferenceURL": "https://linux.die.net/man/2/sendmsg",
                     "ID": "net/socket/send",
                     "RuleName": "sendmsg"
@@ -712,7 +712,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/tcp/connect.yara#connect_tcp",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/tcp/connect.yara#L1",
                     "ID": "net/tcp/connect",
                     "RuleName": "connect_tcp"
                 },
@@ -723,7 +723,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/udp/udp-receive.yara#udp_listen",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/udp/udp-receive.yara#L1",
                     "ID": "net/udp/receive",
                     "RuleName": "udp_listen"
                 },
@@ -735,7 +735,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/udp/udp-send.yara#udp_send",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/udp/udp-send.yara#L1",
                     "ID": "net/udp/send",
                     "RuleName": "udp_send"
                 },
@@ -746,7 +746,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/url/embedded.yara#http_url",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/url/embedded.yara#L24",
                     "ID": "net/url/embedded",
                     "RuleName": "http_url"
                 },
@@ -757,7 +757,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/url/parse.yara#url_handle",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/url/parse.yara#L1",
                     "ID": "net/url/parse",
                     "RuleName": "url_handle"
                 },
@@ -768,7 +768,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/url/request.yara#requests_urls",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/url/request.yara#L1",
                     "ID": "net/url/request",
                     "RuleName": "requests_urls"
                 },
@@ -780,7 +780,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/os/fd/sendfile.yara#sendfile",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/os/fd/sendfile.yara#L1",
                     "ReferenceURL": "https://man7.org/linux/man-pages/man2/sendfile.2.html",
                     "ID": "os/fd/sendfile",
                     "RuleName": "sendfile"
@@ -792,7 +792,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/os/kernel/netlink.yara#netlink",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/os/kernel/netlink.yara#L1",
                     "ID": "os/kernel/netlink",
                     "RuleName": "netlink"
                 },
@@ -803,7 +803,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/persist/daemon/daemon.yara#daemon",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/persist/daemon/daemon.yara#L1",
                     "ID": "persist/daemon",
                     "RuleName": "daemon"
                 },
@@ -817,7 +817,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/persist/pid_file.yara#pid_file",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/persist/pid_file.yara#L1",
                     "ID": "persist/pid_file",
                     "RuleName": "pid_file"
                 },
@@ -828,7 +828,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/process/groups-set.yara#setgroups",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/process/groups-set.yara#L1",
                     "ID": "process/groups_set",
                     "RuleName": "setgroups"
                 }
@@ -851,7 +851,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-behavior/random_behavior.yara#random",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-behavior/random_behavior.yara#L69",
                     "ID": "anti-behavior/random_behavior",
                     "RuleName": "random"
                 },
@@ -864,7 +864,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/packer/upx.yara#upx",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-static/packer/upx.yara#L1",
                     "ID": "anti-static/packer/upx",
                     "RuleName": "upx"
                 },
@@ -876,7 +876,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/dns/dns-txt.yara#dns_txt",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/dns/dns-txt.yara#L1",
                     "ID": "net/dns/txt",
                     "RuleName": "dns_txt"
                 },
@@ -888,7 +888,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/http.yara#http",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/http.yara#L1",
                     "ID": "net/http",
                     "RuleName": "http"
                 },
@@ -901,7 +901,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/post.yara#http_post",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/http/post.yara#L1",
                     "ID": "net/http/post",
                     "RuleName": "http_post"
                 },
@@ -912,7 +912,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/url/embedded.yara#http_url",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/url/embedded.yara#L24",
                     "ID": "net/url/embedded",
                     "RuleName": "http_url"
                 }
@@ -932,7 +932,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/false_positives/trino_upx.yara#trino_upx_override",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/false_positives/trino_upx.yara#L1",
                     "ID": "false-positives/trino_upx",
                     "RuleName": "trino_upx_override",
                     "Override": [
@@ -954,7 +954,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/false_positives/trino_upx.yara#trino_upx_override",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/false_positives/trino_upx.yara#L1",
                     "ID": "false-positives/trino_upx",
                     "RuleName": "trino_upx_override",
                     "Override": [
@@ -976,7 +976,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/false_positives/trino_upx.yara#trino_upx_override",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/false_positives/trino_upx.yara#L1",
                     "ID": "false-positives/trino_upx",
                     "RuleName": "trino_upx_override",
                     "Override": [
@@ -998,7 +998,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/false_positives/trino_upx.yara#trino_upx_override",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/false_positives/trino_upx.yara#L1",
                     "ID": "false-positives/trino_upx",
                     "RuleName": "trino_upx_override",
                     "Override": [
