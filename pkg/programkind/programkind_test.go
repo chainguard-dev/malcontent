@@ -63,12 +63,36 @@ func TestPath(t *testing.T) {
 		{"composer-2.7.7", nil},
 		{"file.tar.gz", &FileType{MIME: "", Ext: "tar.gz"}},
 		{"archive.gz", &FileType{MIME: "", Ext: "gz"}},
+		{"webapp.war", &FileType{MIME: "", Ext: "war"}},
+		{"enterprise.ear", &FileType{MIME: "", Ext: "ear"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.in, func(t *testing.T) {
 			got := Path(tt.in)
 			if diff := cmp.Diff(got, tt.want); diff != "" {
 				t.Errorf("Path(%s) = %v, want %v, diff: %s", tt.in, got, tt.want, diff)
+			}
+		})
+	}
+}
+
+func TestIsSupportedArchive(t *testing.T) {
+	tests := []struct {
+		name string
+		path string
+		want bool
+	}{
+		{"jar is a supported archive", "app.jar", true},
+		{"war is a supported archive", "webapp.war", true},
+		{"ear is a supported archive", "enterprise.ear", true},
+		{"class is not an archive", "Main.class", false},
+		{"docx is not a supported archive", "report.docx", false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			if got := IsSupportedArchive(t.Context(), tt.path); got != tt.want {
+				t.Errorf("IsSupportedArchive(%q) = %v, want %v", tt.path, got, tt.want)
 			}
 		})
 	}

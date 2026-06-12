@@ -361,7 +361,7 @@ func ExtractionMethod(ext string) func(context.Context, string, string) error {
 		return ExtractTar
 	case ".gz", ".gzip":
 		return ExtractGzip
-	case ".jar", ".zip", ".whl":
+	case ".ear", ".jar", ".war", ".whl", ".zip":
 		return ExtractZip
 	case ".bz2", ".bzip2":
 		return ExtractBz2

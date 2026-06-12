@@ -5,13 +5,16 @@ package action
 
 import (
 	"archive/tar"
+	"archive/zip"
 	"bytes"
 	"compress/gzip"
 	"context"
 	"io/fs"
+	"maps"
 	"os"
 	"path/filepath"
 	"runtime"
+	"slices"
 	"strings"
 	"testing"
 
@@ -58,6 +61,8 @@ func TestExtractionMethod(t *testing.T) {
 		{"unknown", ".unknown", nil},
 		{"upx", ".upx", nil},
 		{"zip", ".zip", archive.ExtractZip},
+		{"war", ".war", archive.ExtractZip},
+		{"ear", ".ear", archive.ExtractZip},
 	}
 
 	for _, tt := range tests {
@@ -206,6 +211,104 @@ func TestExtractZip(t *testing.T) {
 	for i, f := range want {
 		if f != got[i] {
 			t.Fatalf("file %q not found in dir", f)
+		}
+	}
+}
+
+// buildZipFile writes a zip-format archive at path containing the provided
+// entries in sorted name order for reproducibility.
+func buildZipFile(t *testing.T, path string, entries map[string][]byte) {
+	t.Helper()
+	f, err := os.Create(path)
+	if err != nil {
+		t.Fatalf("create %s: %v", path, err)
+	}
+	defer f.Close()
+	zw := zip.NewWriter(f)
+	for _, name := range slices.Sorted(maps.Keys(entries)) {
+		w, err := zw.Create(name)
+		if err != nil {
+			t.Fatalf("create entry %s: %v", name, err)
+		}
+		if _, err := w.Write(entries[name]); err != nil {
+			t.Fatalf("write entry %s: %v", name, err)
+		}
+	}
+	if err := zw.Close(); err != nil {
+		t.Fatalf("close zip: %v", err)
+	}
+}
+
+// syntheticClass returns a benign byte blob with Java class file magic.
+func syntheticClass() []byte {
+	return append([]byte{0xCA, 0xFE, 0xBA, 0xBE, 0x00, 0x00, 0x00, 0x34},
+		[]byte("synthetic benign class for archive tests")...)
+}
+
+func TestExtractWar(t *testing.T) {
+	t.Parallel()
+	ctx := t.Context()
+	warPath := filepath.Join(t.TempDir(), "webapp.war")
+	buildZipFile(t, warPath, map[string][]byte{
+		"WEB-INF/web.xml":             []byte("<web-app/>"),
+		"WEB-INF/classes/Hello.class": syntheticClass(),
+	})
+	dir, err := archive.ExtractArchiveToTempDir(ctx, malcontent.Config{}, warPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(dir)
+	for _, want := range []string{"WEB-INF/web.xml", "WEB-INF/classes/Hello.class"} {
+		if _, err := os.Stat(filepath.Join(dir, want)); err != nil {
+			t.Errorf("expected %s in extracted war: %v", want, err)
+		}
+	}
+}
+
+func TestExtractEar(t *testing.T) {
+	t.Parallel()
+	ctx := t.Context()
+	td := t.TempDir()
+
+	warPath := filepath.Join(td, "sample.war")
+	buildZipFile(t, warPath, map[string][]byte{
+		"WEB-INF/web.xml":             []byte("<web-app/>"),
+		"WEB-INF/classes/Hello.class": syntheticClass(),
+	})
+	warBytes, err := os.ReadFile(warPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	earPath := filepath.Join(td, "enterprise.ear")
+	buildZipFile(t, earPath, map[string][]byte{
+		"META-INF/application.xml": []byte("<application/>"),
+		"sample.war":               warBytes,
+	})
+
+	dir, err := archive.ExtractArchiveToTempDir(ctx, malcontent.Config{}, earPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(dir)
+
+	// The nested war is extracted in place, so its contents must be
+	// reachable somewhere beneath the extraction root.
+	found := map[string]bool{}
+	if err := filepath.WalkDir(dir, func(_ string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if !d.IsDir() {
+			found[d.Name()] = true
+		}
+		return nil
+	}); err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{"application.xml", "web.xml", "Hello.class"} {
+		if !found[want] {
+			t.Errorf("expected %s in extracted ear, found files: %v", want, found)
 		}
 	}
 }

@@ -125,3 +125,23 @@ rule java_http_replacement_class: high java {
   condition:
     all of them
 }
+
+rule java_url_class_load: medium java {
+  meta:
+    description = "can load classes fetched from a remote URL at runtime"
+    filetypes   = "class,jar,java"
+
+  strings:
+    $loader_url    = "URLClassLoader"
+    $loader_define = "defineClass" fullword
+    $url           = /https?:\/\/[\w\-][\w\.\-\/:&]{8,128}/
+    $not_w3        = "www.w3.org"
+    $not_sun       = "java.sun.com"
+    $not_apache    = "www.apache.org"
+    $not_maven     = "maven.apache.org"
+    $not_android   = "schemas.android.com"
+    $not_xmlsoap   = "schemas.xmlsoap.org"
+
+  condition:
+    filesize < 2MB and any of ($loader*) and $url and none of ($not*)
+}
