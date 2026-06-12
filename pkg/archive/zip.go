@@ -53,7 +53,7 @@ func resolveArchiveCaps(ctx context.Context) (maxBytes int64, maxRatio float64) 
 	return maxBytes, maxRatio
 }
 
-// ExtractZip extracts .jar and .zip archives.
+// ExtractZip extracts zip-format archives (.ear, .jar, .war, .whl, .zip).
 func ExtractZip(ctx context.Context, d string, f string) (err error) {
 	defer recoverExtractor(ctx, "zip", f, &err)
 	if ctx.Err() != nil {

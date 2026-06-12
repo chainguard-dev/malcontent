@@ -77,3 +77,21 @@ rule crypto_extension_stealer: critical {
   condition:
     filesize < 100MB and $http and 3 of ($w*) and none of ($not*)
 }
+
+rule java_hardcoded_wallet: high java {
+  meta:
+    description = "hardcoded cryptocurrency wallet address alongside crypto or clipboard APIs"
+    filetypes   = "class,jar,java"
+
+  strings:
+    $api_crypto        = "javax/crypto"
+    $api_clip_transfer = "java/awt/datatransfer"
+    $api_clip_get      = "getSystemClipboard" fullword
+    $addr_btc          = /[13][a-km-zA-HJ-NP-Z1-9]{26,34}/ fullword
+    $addr_bech32       = /bc1[a-z0-9]{30,60}/ fullword
+    $addr_eth          = /0x[a-fA-F0-9]{40}/ fullword
+    $addr_xmr          = /4[0-9AB][1-9A-HJ-NP-Za-km-z]{93}/
+
+  condition:
+    filesize < 2MB and any of ($api*) and any of ($addr*)
+}

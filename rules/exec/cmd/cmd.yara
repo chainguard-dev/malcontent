@@ -64,3 +64,18 @@ rule java_exec: medium {
   condition:
     filesize < 2MB and all of them
 }
+
+rule java_reflect_exec: medium java {
+  meta:
+    description = "invokes process execution through reflection"
+    filetypes   = "class,jar,java"
+
+  strings:
+    $reflect      = "java/lang/reflect/Method"
+    $invoke       = "invoke" fullword
+    $exec_runtime = "getRuntime" fullword
+    $exec_builder = "ProcessBuilder"
+
+  condition:
+    filesize < 2MB and $reflect and $invoke and any of ($exec*)
+}

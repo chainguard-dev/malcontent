@@ -754,7 +754,7 @@ func TestRuleLineIndex_BuildsForAllRules(t *testing.T) {
 	if len(discovered) == 0 {
 		t.Fatalf("walk found zero rules; the embed must contain at least one")
 	}
-	const upperBound = 2200
+	const upperBound = 2300
 	if len(discovered) > upperBound {
 		t.Fatalf("walk found %d rules, exceeds upper bound %d", len(discovered), upperBound)
 	}

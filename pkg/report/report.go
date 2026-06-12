@@ -603,12 +603,35 @@ func TrimPrefixes(path string, prefixes []string) string {
 	return path
 }
 
+// extAliases maps a detected file extension to additional filetypes that
+// rules may be scoped to. Compiled Java bytecode is usually scanned as a
+// bare .class file after archive extraction, so rules scoped to jar or
+// java sources must also apply to it.
+var extAliases = map[string][]string{
+	"class": {"jar", "java"},
+}
+
+// extMatchesFiletypes reports whether a detected file extension matches a
+// rule's comma-separated filetypes scoping, either verbatim or through an
+// extension alias.
+func extMatchesFiletypes(filetypes string, ext string) bool {
+	types := strings.Split(filetypes, ",")
+	if slices.Contains(types, ext) {
+		return true
+	}
+	for _, alias := range extAliases[ext] {
+		if slices.Contains(types, alias) {
+			return true
+		}
+	}
+	return false
+}
+
 // fileMatchesRules checks the scanned file's type against a rule's defined filetypes.
 func fileMatchesRule(meta []yarax.Metadata, ext string) bool {
 	for _, m := range meta {
 		if m.Identifier() == "filetypes" {
-			filetypes := strings.Split(fmt.Sprintf("%s", m.Value()), ",")
-			return slices.Contains(filetypes, ext)
+			return extMatchesFiletypes(fmt.Sprintf("%s", m.Value()), ext)
 		}
 	}
 	// Rules without filetype metadata are universal
