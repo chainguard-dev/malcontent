@@ -75,7 +75,8 @@ rule pip_installer_socket: critical {
   strings:
     $ref = /pip.{1,5}install.{1,4}socket/
 
-    $not_langchain_comment1 = "\"Please install it with `pip install websocket-client`.\""
+    $not_websocket_client = "pip install websocket-client"
+    $not_websockets       = "pip install websockets"
 
   condition:
     $ref and none of ($not*)
