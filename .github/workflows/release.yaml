@@ -29,7 +29,7 @@ jobs:
             github.com:443
             octo-sts.dev:443
             release-assets.githubusercontent.com:443
-      - uses: chainguard-dev/actions/setup-gitsign@9978bf17926f53444b5eff45479954d94ec12e32 # main
+      - uses: chainguard-dev/actions/setup-gitsign@e1c4977ad9cb32b12c5b222ec0134a22bec60bd5 # main
       - name: Set up Octo-STS
         uses: octo-sts/action@f603d3be9d8dd9871a265776e625a27b00effe05 # v1.1.1
         id: octo-sts
