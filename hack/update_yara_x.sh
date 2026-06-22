@@ -99,10 +99,11 @@ PLATFORMS=(
 WORK_DIR=$(mktemp -d)
 trap 'rm -rf "${WORK_DIR}"' EXIT
 
+ARCHIVE_EXT=".tar.gz"
 echo "==> Downloading release archives..."
 gh release download "${RELEASE_TAG}" \
     --repo "${YARA_X_GH_REPO}" \
-    --pattern "yara-x-${RELEASE_TAG}-*.gz" \
+    --pattern "yara-x-${RELEASE_TAG}-*${ARCHIVE_EXT}" \
     --dir "${WORK_DIR}"
 
 DARWIN_ARM64_SHA=""
@@ -111,7 +112,7 @@ LINUX_ARM64_SHA=""
 LINUX_X86_SHA=""
 
 for platform in "${PLATFORMS[@]}"; do
-    archive="yara-x-${RELEASE_TAG}-${platform}.gz"
+    archive="yara-x-${RELEASE_TAG}-${platform}${ARCHIVE_EXT}"
     filepath="${WORK_DIR}/${archive}"
     if [[ ! -f "${filepath}" ]]; then
         echo "ERROR: Expected asset ${archive} not found in release ${RELEASE_TAG}"
