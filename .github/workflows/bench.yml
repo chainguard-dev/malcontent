@@ -16,7 +16,7 @@ on:
 
 env:
   GO_RELEASE: "go-1.26"
-  YARA_X_RELEASE: "1.18.0"
+  YARA_X_RELEASE: "1.19.0"
   BENCHSTAT_VERSION: "v0.0.0-20260512194132-3cf34090a3db"
 
 permissions: {}
