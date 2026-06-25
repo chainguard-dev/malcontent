@@ -11,7 +11,7 @@ on:
 env:
   CGO_ENABLED: "1"
   GO_RELEASE: "go-1.26"
-  YARA_X_RELEASE: "1.18.0"
+  YARA_X_RELEASE: "1.19.0"
 
 permissions: {}
 
