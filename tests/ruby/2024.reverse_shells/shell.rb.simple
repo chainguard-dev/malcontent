@@ -1,4 +1,5 @@
 # ruby/2024.reverse_shells/shell.rb: high
+3P/guarddog/capability_process_spawn: low
 exec/cmd/pipe: medium
 fs/path/usr_bin: low
 impact/remote_access/listen_shell: high

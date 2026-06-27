@@ -1,4 +1,6 @@
 # npm/2025.shai-hulud/package.json: high
+3P/guarddog/capability_process_hooks: low
+3P/guarddog/threat_process_hooks: medium
 exfil: medium
 exfil/npm: high
 fs/file/read: low

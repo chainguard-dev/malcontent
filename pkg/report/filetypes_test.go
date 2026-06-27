@@ -39,10 +39,73 @@ func TestExtMatchesFiletypes(t *testing.T) {
 
 func TestFileMatchesRuleUniversal(t *testing.T) {
 	t.Parallel()
-	// Rules without filetypes metadata apply to every extension.
+	// Rules without filetypes/path metadata apply to every extension.
 	for _, ext := range []string{"", "class", "elf", "py"} {
-		if !fileMatchesRule(nil, ext) {
+		if !fileMatchesRule(nil, ext, "some/path."+ext) {
 			t.Errorf("fileMatchesRule(nil, %q) = false, want true", ext)
 		}
+	}
+}
+
+func TestPathMatchesGlobs(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name     string
+		patterns string
+		path     string
+		want     bool
+	}{
+		// Extension globs (the common third-party path_include case).
+		{"py extension matches nested path", "*.py,*.pyx,*.pyi,*.pth", "/tmp/x/evil.py", true},
+		{"py extension matches bare basename", "*.py", "evil.py", true},
+		{"py extension does not match txt", "*.py,*.pyx", "/tmp/x/evil.txt", false},
+		{"js among many extensions", "*.py,*.js,*.ts,*.mjs", "pkg/index.mjs", true},
+		// Filename globs.
+		{"package.json anywhere", "*/package.json,package.json", "/tmp/pkg/package.json", true},
+		{"bare package.json basename", "package.json", "package.json", true},
+		{"setup.py via star-slash", "*/setup.py", "proj/setup.py", true},
+		{"setup.py not a suffix of mysetup.py", "setup.py", "proj/mysetup.py", false},
+		{"Rakefile exact basename", "extconf.rb,*/extconf.rb,Rakefile,*/Rakefile", "gem/Rakefile", true},
+		// Directory-prefix globs (path_exclude usage).
+		{"dist directory excluded", "dist/*,build/*,vendor/*,node_modules/*", "/repo/dist/app.js", true},
+		{"node_modules nested", "node_modules/*", "/repo/node_modules/pkg/index.js", true},
+		{"not in excluded dir", "dist/*,build/*", "/repo/src/app.js", false},
+		// Case-insensitive extension matching.
+		{"uppercase extension still matches", "*.js", "/repo/Evil.JS", true},
+		{"mixed-case filename still matches", "setup.py", "/proj/SETUP.PY", true},
+		// Edge cases.
+		{"empty pattern list never matches", "", "/repo/app.py", false},
+		{"whitespace around patterns tolerated", " *.py , *.go ", "/repo/main.go", true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			if got := pathMatchesGlobs(tt.patterns, tt.path); got != tt.want {
+				t.Errorf("pathMatchesGlobs(%q, %q) = %v, want %v", tt.patterns, tt.path, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestGlobExtensions(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name     string
+		patterns string
+		want     string
+	}{
+		{"plain extension globs", "*.py,*.pyx,*.pyi", "py,pyx,pyi"},
+		{"path-shaped globs ignored", "*/package.json,package.json,dist/*", ""},
+		{"mixed extracts only bare extensions", "*.py,*/setup.py,*.go", "py,go"},
+		{"whitespace tolerated", " *.js , *.ts ", "js,ts"},
+		{"empty input", "", ""},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			if got := globExtensions(tt.patterns); got != tt.want {
+				t.Errorf("globExtensions(%q) = %q, want %q", tt.patterns, got, tt.want)
+			}
+		})
 	}
 }

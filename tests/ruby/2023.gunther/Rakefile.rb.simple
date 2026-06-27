@@ -1,4 +1,6 @@
 # ruby/2023.gunther/Rakefile.rb: critical
+3P/guarddog/capability_network_outbound: low
+3P/guarddog/threat_network_exfiltration: medium
 c2/addr/ip: high
 c2/tool_transfer/os: low
 data/base64/encode: medium

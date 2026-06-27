@@ -1,4 +1,6 @@
 # python/clean/matplotlib/_backend_tk.py: medium
+3P/guarddog/capability_process_schedule: medium
+3P/guarddog/threat_network_exfiltration: medium
 anti-static/obfuscation/bitwise: low
 c2/tool_transfer/os: medium
 discover/system/platform: medium

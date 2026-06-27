@@ -1,4 +1,8 @@
 # python/2024.krypton_ddos/b2d4cc2ecf9919bf84ce9ce83bb6b99b68a78181c1976a4f72526c3085096f99.py: critical
+3P/guarddog/capability_filesystem_read: low
+3P/guarddog/capability_network_download: low
+3P/guarddog/capability_network_outbound: low
+3P/guarddog/threat_runtime_obfuscation_general: medium
 anti-behavior/random_behavior: low
 anti-static/obfuscation/python: medium
 c2/addr/ip: medium

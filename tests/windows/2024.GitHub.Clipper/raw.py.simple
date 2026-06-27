@@ -1,4 +1,7 @@
 # windows/2024.GitHub.Clipper/raw.py: critical
+3P/guarddog/capability_network_download: low
+3P/guarddog/capability_network_outbound: low
+3P/guarddog/capability_process_spawn: low
 c2/addr/discord: medium
 c2/addr/url: high
 c2/tool_transfer/download: high

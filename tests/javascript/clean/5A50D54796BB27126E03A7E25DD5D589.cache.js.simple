@@ -1,4 +1,13 @@
 # javascript/clean/5A50D54796BB27126E03A7E25DD5D589.cache.js: medium
+3P/guarddog/capability_filesystem_read: low
+3P/guarddog/capability_network_lolbas: low
+3P/guarddog/capability_process_spawn: low
+3P/guarddog/capability_runtime_clipboard: low
+3P/guarddog/threat_filesystem_read: medium
+3P/guarddog/threat_process_download_exec: medium
+3P/guarddog/threat_process_injection_dll: medium
+3P/guarddog/threat_process_memory: medium
+3P/guarddog/threat_runtime_keylogging: medium
 anti-behavior/random_behavior: low
 anti-static/obfuscation/js: medium
 anti-static/obfuscation/math: medium
