@@ -42,7 +42,7 @@ jobs:
         run: |
           apk update
           apk add bash curl findutils gcc gh git gnutar "${GO_RELEASE}" make nodejs perl pkgconf upx xz "yara-x~${YARA_X_RELEASE}"
-      - uses: chainguard-dev/actions/setup-gitsign@e1c4977ad9cb32b12c5b222ec0134a22bec60bd5 # main
+      - uses: chainguard-dev/actions/setup-gitsign@f0be69916b439d0fcced2451b23d0f27cd46d545 # main
       - name: Set up Octo-STS
         uses: octo-sts/action@f603d3be9d8dd9871a265776e625a27b00effe05 # v1.1.1
         id: octo-sts
@@ -63,7 +63,7 @@ jobs:
           echo "cache=$(go env GOCACHE)" >> "$GITHUB_OUTPUT"
 
       - name: Cache Go dependencies
-        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ${{ steps.go-env.outputs.modcache }}
@@ -76,7 +76,7 @@ jobs:
         run: echo "commit=$(grep '^SAMPLES_COMMIT' Makefile | head -1 | cut -d'=' -f2 | tr -d ' ?')" >> "$GITHUB_OUTPUT"
 
       - name: Cache malcontent samples
-        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: out/chainguard-sandbox/malcontent-samples
           key: samples-${{ steps.samples.outputs.commit }}

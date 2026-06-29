@@ -51,7 +51,7 @@ jobs:
           persist-credentials: false
       - name: Cache yara-x-capi installation
         id: yara-x-capi
-        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: yara-x-install
           key: yara-x-capi-v${{ env.YARA_X_RELEASE }}-${{ runner.os }}
@@ -72,7 +72,7 @@ jobs:
           toolchain: stable
       - name: Cache Rust dependencies
         if: steps.yara-x-capi.outputs.cache-hit != 'true'
-        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ~/.cargo/registry/

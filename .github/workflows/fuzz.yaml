@@ -143,7 +143,7 @@ jobs:
           echo "cache=$(go env GOCACHE)" >> "${GITHUB_OUTPUT}"
 
       - name: Cache Go dependencies
-        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ${{ steps.go-env.outputs.modcache }}
@@ -158,7 +158,7 @@ jobs:
 
       - name: Cache malcontent samples
         if: contains(matrix.target.package, 'programkind')
-        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: out/chainguard-sandbox/malcontent-samples
           key: samples-${{ steps.samples.outputs.commit }}
