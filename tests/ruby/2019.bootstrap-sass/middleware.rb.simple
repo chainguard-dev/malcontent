@@ -1,4 +1,6 @@
 # ruby/2019.bootstrap-sass/middleware.rb: high
+3P/guarddog/capability_process_spawn: low
+3P/guarddog/threat_runtime_obfuscation: medium
 anti-static/base64/eval: high
 data/base64/decode: medium
 net/http: low

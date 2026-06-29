@@ -6,6 +6,7 @@ This directory contains YARA rules from other open-source projects
 
 * [bartblaze](yara/bartblaze): <https://github.com/bartblaze/Yara-rules> (MIT)
 * [elastic](yara/elastic): <https://github.com/elastic/protections-artifacts> (ESL 2.0)
+* [guarddog](yara/guarddog): <https://github.com/DataDog/guarddog> (Apache 2.0)
 * [huntress](yara/huntress): <https://github.com/huntresslabs/threat-intel> (MIT)
 * [InQuest-VT](yara/InQuest-VT): <https://github.com/InQuest/yara-rules-vt> (MIT)
 * [JPCERT](yara/JPCERT): <https://github.com/JPCERTCC/jpcert-yara> (BSD-3)

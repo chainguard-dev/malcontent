@@ -1,4 +1,12 @@
 # python/clean/hopper/setup.py: medium
+3P/guarddog/capability_filesystem_read: low
+3P/guarddog/capability_network_download: low
+3P/guarddog/capability_network_outbound: low
+3P/guarddog/capability_process_spawn: low
+3P/guarddog/threat_process_download_exec: medium
+3P/guarddog/threat_process_hooks: medium
+3P/guarddog/threat_setup_imports: medium
+3P/guarddog/threat_setup_network_in_install: medium
 c2/tool_transfer/arch: low
 c2/tool_transfer/download: medium
 c2/tool_transfer/os: medium

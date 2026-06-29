@@ -1,4 +1,7 @@
 # python/clean/magic_trace/magic_trace.py: medium
+3P/guarddog/capability_filesystem_read: low
+3P/guarddog/capability_process_spawn: low
+3P/guarddog/threat_process_download_exec: medium
 c2/tool_transfer/python: medium
 exec/imports/python: low
 exec/program: medium

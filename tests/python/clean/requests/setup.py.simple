@@ -1,4 +1,7 @@
 # python/clean/requests/setup.py: medium
+3P/guarddog/capability_filesystem_read: low
+3P/guarddog/capability_process_spawn: low
+3P/guarddog/threat_process_hooks: medium
 c2/tool_transfer/download: medium
 exec/imports/python: low
 exec/program: medium

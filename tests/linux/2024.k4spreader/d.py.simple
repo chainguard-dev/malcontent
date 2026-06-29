@@ -1,4 +1,5 @@
 # linux/2024.k4spreader/d.py: critical
+3P/guarddog/threat_network_exfiltration: medium
 c2/addr/ip: high
 c2/tool_transfer/dropper: high
 c2/tool_transfer/http_ip_temp: critical

@@ -1,4 +1,6 @@
 # python/2022.aowdjpawojd-0.0.0/aowdjpawojd/__init__.py: critical
+3P/guarddog/capability_process_spawn: low
+3P/guarddog/threat_runtime_obfuscation_chr: medium
 anti-static/obfuscation/hex: medium
 anti-static/obfuscation/python: high
 anti-static/packer/blankobf: critical

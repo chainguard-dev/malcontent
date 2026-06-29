@@ -1,4 +1,7 @@
 # python/2021.DiscordSafety/setup.py: critical
+3P/guarddog/capability_filesystem_browser: medium
+3P/guarddog/capability_process_spawn: low
+3P/guarddog/threat_setup_imports: medium
 anti-static/obfuscation/hex: medium
 anti-static/obfuscation/python: critical
 anti-static/unmarshal/marshal: high
