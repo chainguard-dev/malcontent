@@ -1,4 +1,5 @@
 # python/2024.d3duct1v/s2.py: critical
+3P/guarddog/capability_filesystem_read: low
 crypto/fernet: medium
 fs/directory/traverse: medium
 fs/file/open: low

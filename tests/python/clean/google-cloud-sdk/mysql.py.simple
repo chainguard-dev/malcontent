@@ -1,4 +1,6 @@
 # python/clean/google-cloud-sdk/mysql.py: medium
+3P/guarddog/capability_filesystem_read: low
+3P/guarddog/threat_filesystem_autostart: medium
 collect/databases/mysql: medium
 credential/password: low
 exec/imports/python: low

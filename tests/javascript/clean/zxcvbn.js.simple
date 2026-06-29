@@ -1,4 +1,7 @@
 # javascript/clean/zxcvbn.js: medium
+3P/guarddog/capability_filesystem_write_executable: medium
+3P/guarddog/capability_process_spawn: low
+3P/guarddog/threat_runtime_keylogging: medium
 anti-behavior/random_behavior: low
 anti-static/obfuscation/math: medium
 anti-static/xor/functions: medium

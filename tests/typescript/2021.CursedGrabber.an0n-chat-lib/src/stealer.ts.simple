@@ -1,4 +1,8 @@
 # typescript/2021.CursedGrabber.an0n-chat-lib/src/stealer.ts: critical
+3P/guarddog/capability_filesystem_browser: medium
+3P/guarddog/capability_filesystem_read: low
+3P/guarddog/threat_filesystem_read: medium
+3P/guarddog/threat_network_exfil_messenger: medium
 c2/addr/discord: medium
 c2/tool_transfer/os: low
 collect/databases/leveldb: medium

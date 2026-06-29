@@ -14,6 +14,43 @@
             ],
             "Behaviors": [
                 {
+                    "Description": "Detects filesystem read capabilities",
+                    "MatchStrings": [
+                        ".read("
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/third_party/yara/guarddog/capability-filesystem-read.yar#capability_filesystem_read",
+                    "RuleAuthor": "GuardDog Team, Datadog",
+                    "ID": "3P/guarddog/capability_filesystem_read",
+                    "RuleName": "capability_filesystem_read"
+                },
+                {
+                    "Description": "Detects process execution and spawning",
+                    "MatchStrings": [
+                        "os.system("
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/third_party/yara/guarddog/capability-process-spawn.yar#capability_process_spawn",
+                    "RuleAuthor": "GuardDog Team, Datadog",
+                    "ID": "3P/guarddog/capability_process_spawn",
+                    "RuleName": "capability_process_spawn"
+                },
+                {
+                    "Description": "Detects download-and-execute patterns: fetching a remote file then executing it",
+                    "MatchStrings": [
+                        "sys.executable} -m pip install",
+                        "os.system(f'start"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/third_party/yara/guarddog/threat-process-download-exec.yar#threat_process_download_exec",
+                    "RuleAuthor": "GuardDog Team, Datadog",
+                    "ID": "3P/guarddog/threat_process_download_exec",
+                    "RuleName": "threat_process_download_exec"
+                },
+                {
                     "Description": "references a specific operating system",
                     "MatchStrings": [
                         "https://",

@@ -1,4 +1,9 @@
 # python/clean/pyparsing/sparser.py: medium
+3P/guarddog/capability_filesystem_read: low
+3P/guarddog/capability_network_download: low
+3P/guarddog/capability_network_outbound: low
+3P/guarddog/capability_process_spawn: low
+3P/guarddog/threat_process_download_exec: medium
 data/compression/bzip2: low
 data/compression/gzip: low
 exec/cmd/pipe: medium

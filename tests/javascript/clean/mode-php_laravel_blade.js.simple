@@ -1,4 +1,6 @@
 # javascript/clean/mode-php_laravel_blade.js: medium
+3P/guarddog/capability_network_lolbas: low
+3P/guarddog/capability_process_spawn: low
 anti-behavior/random_behavior: low
 anti-static/obfuscation/math: medium
 c2/addr/ip: medium

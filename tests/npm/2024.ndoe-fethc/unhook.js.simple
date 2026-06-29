@@ -1,4 +1,8 @@
 # npm/2024.ndoe-fethc/unhook.js: critical
+3P/guarddog/capability_filesystem_read: low
+3P/guarddog/capability_network_download: low
+3P/guarddog/capability_network_outbound: low
+3P/guarddog/threat_filesystem_read: medium
 anti-behavior/random_behavior: low
 credential/ssl/key: high
 credential/ssl/private_key: low

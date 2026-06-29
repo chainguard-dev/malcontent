@@ -169,8 +169,11 @@ func thirdPartyKey(path string, rule string) string {
 		}
 	}
 
-	// Max 3 words in the rule name (source is separate)
-	if len(keepWords) > 3 {
+	// Max 3 words in the rule name (source is separate), except for sources
+	// whose rule identifiers are already concise and meaningful (e.g. GuardDog),
+	// where truncation would collapse distinct rules (..._base64exec, ..._chr,
+	// ...) into one key and lose findings during dedup.
+	if len(keepWords) > 3 && !severityDrivenSources[subDirLower] {
 		keepWords = keepWords[0:3]
 	}
 
@@ -627,14 +630,106 @@ func extMatchesFiletypes(filetypes string, ext string) bool {
 	return false
 }
 
-// fileMatchesRules checks the scanned file's type against a rule's defined filetypes.
-func fileMatchesRule(meta []yarax.Metadata, ext string) bool {
-	for _, m := range meta {
-		if m.Identifier() == "filetypes" {
-			return extMatchesFiletypes(fmt.Sprintf("%s", m.Value()), ext)
+// globCache memoizes compiled path-glob regexps keyed by their source pattern.
+// The set of distinct path_include/path_exclude values across the rule corpus
+// is small, so this keeps fileMatchesRule allocation-free on the hot path.
+var globCache sync.Map // map[string]*regexp.Regexp
+
+// compileGlob translates a single third-party path glob (e.g. a GuardDog
+// path_include entry) into an anchored, case-insensitive regexp. '*' matches
+// any run of characters (including path separators) and the pattern is anchored
+// to the start of the path or to a '/' boundary, so "*.py" matches "a/b/c.py",
+// "*/setup.py" matches "pkg/setup.py", "setup.py" matches ".../setup.py" but
+// not ".../mysetup.py", and "dist/*" matches ".../dist/x.js". Matching is
+// case-insensitive so "*.js" still matches "Evil.JS". The escaped pattern
+// always compiles, so MustCompile is safe.
+func compileGlob(pattern string) *regexp.Regexp {
+	if v, ok := globCache.Load(pattern); ok {
+		re, _ := v.(*regexp.Regexp)
+		return re
+	}
+	parts := strings.Split(pattern, "*")
+	for i, part := range parts {
+		parts[i] = regexp.QuoteMeta(part)
+	}
+	re := regexp.MustCompile(`(?i)(?:^|/)` + strings.Join(parts, `.*`) + `$`)
+	globCache.Store(pattern, re)
+	return re
+}
+
+// pathMatchesGlobs reports whether path matches any of the comma-separated glob
+// patterns (third-party path_include/path_exclude syntax).
+func pathMatchesGlobs(patterns string, path string) bool {
+	path = filepath.ToSlash(path)
+	for p := range strings.SplitSeq(patterns, ",") {
+		p = strings.TrimSpace(p)
+		if p == "" {
+			continue
+		}
+		if compileGlob(p).MatchString(path) {
+			return true
 		}
 	}
-	// Rules without filetype metadata are universal
+	return false
+}
+
+// globExtensions extracts the bare file extensions from "*.ext" entries in a
+// comma-separated path-glob list, ignoring path-shaped globs ("*/setup.py",
+// "dist/*"). The result is a filetypes-style list usable with
+// extMatchesFiletypes, so a path_include can also be satisfied by the detected
+// file type when the path itself lacks the expected extension.
+func globExtensions(patterns string) string {
+	var exts []string
+	for p := range strings.SplitSeq(patterns, ",") {
+		p = strings.TrimSpace(p)
+		if rest, ok := strings.CutPrefix(p, "*."); ok && rest != "" && !strings.ContainsAny(rest, "/*") {
+			exts = append(exts, rest)
+		}
+	}
+	return strings.Join(exts, ",")
+}
+
+// fileMatchesRule checks a scanned file against a rule's type/path scoping
+// metadata: malcontent's "filetypes" (an extension list) and the third-party
+// "path_include"/"path_exclude" keys (comma-separated path globs, e.g. from
+// GuardDog). A rule that declares none of these applies to every file.
+func fileMatchesRule(meta []yarax.Metadata, ext string, path string) bool {
+	var filetypes, pathInclude, pathExclude string
+	var hasFiletypes, hasInclude, hasExclude bool
+	for _, m := range meta {
+		switch m.Identifier() {
+		case "filetypes":
+			filetypes, hasFiletypes = fmt.Sprintf("%s", m.Value()), true
+		case "path_include":
+			pathInclude, hasInclude = fmt.Sprintf("%s", m.Value()), true
+		case "path_exclude":
+			pathExclude, hasExclude = fmt.Sprintf("%s", m.Value()), true
+		}
+	}
+
+	// Path globs are only meaningful when we have a path; a pathless (in-memory)
+	// scan leaves them unevaluated so the rule stays universal.
+	if path != "" {
+		if hasExclude && pathMatchesGlobs(pathExclude, path) {
+			return false
+		}
+		// A path_include rule applies when the path matches, or when the
+		// detected file type matches one of its "*.ext" globs (covering
+		// extensionless files whose type malcontent identified by content).
+		if hasInclude && !pathMatchesGlobs(pathInclude, path) &&
+			(ext == "" || !extMatchesFiletypes(globExtensions(pathInclude), ext)) {
+			return false
+		}
+	}
+
+	if hasFiletypes {
+		// An undetected file type is treated as universal, preserving the
+		// behavior from before the path-glob keys were introduced.
+		if ext == "" {
+			return true
+		}
+		return extMatchesFiletypes(filetypes, ext)
+	}
 	return true
 }
 
@@ -717,18 +812,23 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 	// Store match rules in a map for future override operations
 	mrsMap := createMatchRulesMap(mrs, matchCount)
 
+	fileExt := ""
+	if kind != nil {
+		fileExt = kind.Ext
+	}
+
 	for _, m := range mrs.MatchingRules() {
 		if all(m.Identifier() == NAME, ignoreSelf) {
 			ignoreMalcontent = true
 		}
 
-		if kind != nil && kind.Ext != "" && !fileMatchesRule(m.Metadata(), kind.Ext) {
+		if !fileMatchesRule(m.Metadata(), fileExt, displayPath) {
 			continue
 		}
 
 		override := slices.Contains(m.Tags(), "override")
 
-		risk = behaviorRisk(m.Namespace(), m.Identifier(), m.Tags())
+		risk = matchRisk(m)
 		overallRiskScore = max(overallRiskScore, risk)
 		riskCounts[risk]++
 
@@ -948,6 +1048,12 @@ func parseMetadata(m *yarax.Rule, b *malcontent.Behavior, fr *malcontent.FileRep
 			}
 		case "filetypes":
 			continue
+		case "severity", "path_include", "path_exclude", "identifies", "mitre_tactics", "specificity", "sophistication", "max_hits":
+			// Third-party scoping/classification metadata (e.g. GuardDog).
+			// severity is applied via matchRisk and path_include/path_exclude
+			// via fileMatchesRule; the rest are informational and must not be
+			// treated as override directives.
+			continue
 		// If we find a match in the map for the metadata key after exhausting known keys, that's the rule to override
 		// Store this rule (the override) in the fr.Overrides behavior slice
 		// If an override rule is not overriding a valid rule, set `valid` to false so we can
@@ -1051,15 +1157,28 @@ func all(conditions ...bool) bool {
 	return true
 }
 
-// HighestMatchRisk returns the highest risk score from a slice of MatchRules.
-func HighestMatchRisk(mrs *yarax.ScanResults) int {
+// HighestMatchRisk returns the highest risk score among the rules that actually
+// apply to the scanned file. It mirrors Generate's scoping: rules excluded by a
+// file's type or path globs (fileMatchesRule) are not counted, so the value
+// used as the scan-mode skipMatch threshold cannot be inflated by a rule that
+// Generate would drop. kind/path/expath/c match the arguments passed to Generate.
+func HighestMatchRisk(mrs *yarax.ScanResults, kind *programkind.FileType, path string, expath string, c malcontent.Config) int {
 	if len(mrs.MatchingRules()) == 0 {
 		return 0
 	}
 
+	displayPath := trimDisplayPath(path, expath, c)
+	ext := ""
+	if kind != nil {
+		ext = kind.Ext
+	}
+
 	var highestRisk int
 	for _, m := range mrs.MatchingRules() {
-		risk := behaviorRisk(m.Namespace(), m.Identifier(), m.Tags())
+		if !fileMatchesRule(m.Metadata(), ext, displayPath) {
+			continue
+		}
+		risk := matchRisk(m)
 		highestRisk = max(highestRisk, risk)
 	}
 	return highestRisk

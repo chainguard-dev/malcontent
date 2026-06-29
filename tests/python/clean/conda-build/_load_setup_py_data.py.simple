@@ -1,4 +1,6 @@
 # python/clean/conda-build/_load_setup_py_data.py: medium
+3P/guarddog/capability_filesystem_read: low
+3P/guarddog/capability_process_spawn: low
 exec/imports/python: low
 exec/remote_commands/code_eval: medium
 fs/file/exists: low

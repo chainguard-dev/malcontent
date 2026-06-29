@@ -1,4 +1,10 @@
 # python/clean/jaraco/__init__.py: medium
+3P/guarddog/capability_filesystem_delete: low
+3P/guarddog/capability_filesystem_read: low
+3P/guarddog/capability_filesystem_write_executable: medium
+3P/guarddog/capability_network_download: low
+3P/guarddog/capability_network_outbound: low
+3P/guarddog/capability_process_spawn: low
 c2/tool_transfer/os: low
 c2/tool_transfer/python: medium
 discover/system/platform: medium
