@@ -1,4 +1,7 @@
 # ruby/2019.rest-client/request.rb: critical
+3P/guarddog/capability_process_spawn: low
+3P/guarddog/threat_network_exfiltration: medium
+3P/guarddog/threat_network_outbound_shady_links: medium
 c2/tool_transfer/download: high
 impact/remote_access/remote_eval: critical
 net/url/embedded: low

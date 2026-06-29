@@ -1,4 +1,6 @@
 # ruby/2024.gtfo/rsocket.rb: high
+3P/guarddog/capability_network_outbound: low
+3P/guarddog/capability_process_spawn: low
 exec/cmd/pipe: medium
 impact/remote_access/reverse_shell: high
 net/tcp/connect: medium

@@ -1,5 +1,8 @@
 # linux/2024.PAN-OS.Upstyle/update.py: critical
 3P/YARAForge/volexity_py_upstyle: critical
+3P/guarddog/capability_filesystem_delete: low
+3P/guarddog/capability_process_spawn: low
+3P/guarddog/threat_runtime_obfuscation: medium
 anti-static/base64/eval: high
 anti-static/base64/function_names: critical
 data/base64/decode: medium

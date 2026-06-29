@@ -1,4 +1,6 @@
 # python/clean/hatch/migrate.py: medium
+3P/guarddog/capability_filesystem_read: low
+3P/guarddog/capability_process_spawn: low
 discover/system/environment: medium
 exec/imports/python: low
 exec/program: medium

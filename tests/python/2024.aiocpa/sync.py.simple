@@ -1,4 +1,6 @@
 # python/2024.aiocpa/sync.py: critical
+3P/guarddog/capability_process_spawn: low
+3P/guarddog/threat_runtime_loader: medium
 anti-static/base64/eval: critical
 data/base64/decode: medium
 data/compression/zlib: low

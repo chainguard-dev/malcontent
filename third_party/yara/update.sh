@@ -17,9 +17,9 @@ IFS=$'\n\t'
 # a dependency, run this script, copy the computed hash printed in the abort
 # message, and append a new pinned entry below.
 #
-# yara-forge-rules-full.zip @ release tag 20260621
+# yara-forge-rules-full.zip @ release tag 20260628
 # shellcheck disable=SC2034  # referenced indirectly via ${!pin_var}
-YARAFORGE_FULL_ZIP_SHA256_20260621="67d2f19fb6c174e532013f0ec13256aac267a9cd1276f648e0ec9a2241b50b8f"
+YARAFORGE_FULL_ZIP_SHA256_20260628="34a56cb7e8d5a897b33fc3cb1703652cb420274b3801d54a4c4fc98d80f34c58"
 
 # sha256_of computes the sha256 of a file using the platform-appropriate tool.
 # Prints only the hex digest to stdout.
@@ -128,6 +128,38 @@ function fixup_rules() {
 	done
 }
 
+# inline_includes flattens YARA `include "file"` directives in-place by
+# splicing the referenced file's contents into each rule file. Included
+# (shared) rules are rewritten to `private` so they act as building blocks
+# without producing standalone matches in reports.
+#
+# malcontent compiles its embedded rules from memory (go:embed), where YARA's
+# filesystem-based include resolution is unavailable, so includes must be
+# flattened at vendoring time. See:
+# https://virustotal.github.io/yara-x/docs/writing_rules/including-files/
+function inline_includes() {
+	local dir=$1
+	local yar
+	for yar in "${dir}"/*.yar; do
+		[[ -e "${yar}" ]] || continue
+		INLINE_DIR="${dir}" perl -i -ne '
+			if (/^\s*include\s+"([^"]+)"/) {
+				my $inc = $1;
+				open(my $fh, "<", "$ENV{INLINE_DIR}/$inc")
+					or die "inline_includes: cannot open $ENV{INLINE_DIR}/$inc: $!";
+				while (my $line = <$fh>) {
+					# Mark top-level (shared) rule declarations private.
+					$line =~ s/^rule\s/private rule /;
+					print $line;
+				}
+				close($fh);
+			} else {
+				print;
+			}
+		' "${yar}"
+	done
+}
+
 # update_dep updates a dependency to the latest release
 function update_dep() {
 	local kind=$1
@@ -184,6 +216,24 @@ function update_dep() {
 	  rel=$(git_clone https://github.com/elastic/protections-artifacts.git "${tmpdir}")
 		find "${tmpdir}" \( -name "*.yar*" -o -name "*LICENSE*" \) -print -exec cp {} "${kind}" \;
 	  ;;
+	guarddog)
+		# GuardDog ships its YARA source-code rules on the v3 branch (no release
+		# tag carries them yet); revisit this pin once v3 is tagged or merged.
+		git clone --depth 1 --branch v3 https://github.com/DataDog/guarddog.git "${tmpdir}/repo"
+		rel=$(git -C "${tmpdir}/repo" rev-parse HEAD)
+		local src="${tmpdir}/repo/guarddog/analyzer/sourcecode"
+		cp "${src}"/*.yar "${kind}"/
+		# .meta sidecars hold shared private rules; copy them only if present
+		# (guard the glob so `set -e` does not abort if upstream drops them).
+		if compgen -G "${src}/*.meta" >/dev/null; then
+			cp "${src}"/*.meta "${kind}"/
+		fi
+		cp "${tmpdir}/repo/LICENSE" "${tmpdir}/repo/NOTICE" "${kind}"/
+		# Flatten `include` directives, then drop the now-inlined .meta files so
+		# they are not embedded or compiled on their own.
+		inline_includes "${kind}"
+		rm -f "${kind}"/*.meta
+		;;
 	*)
 		echo "unknown kind: ${kind}"
 		exit 2

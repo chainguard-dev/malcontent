@@ -1,6 +1,7 @@
 # linux/2023.Kinsing/install.sh: critical
 3P/YARAForge/signature_payload_f5: critical
 3P/elastic/kinsing: critical
+3P/guarddog/threat_process_cryptomining: medium
 anti-static/base64/exec: high
 c2/addr/ip: high
 c2/tool_transfer/arch: low

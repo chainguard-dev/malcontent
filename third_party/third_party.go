@@ -11,5 +11,5 @@ import "embed"
 // The manifests are not currently verified by any automated workflow and are
 // not consumed at runtime.
 //
-//go:embed yara/*/*.yar yara/*/*.yara yara/*/*/*.yar yara/*/*/*.yara yara/*/RELEASE yara/*/LICENSE* yara/*/README*
+//go:embed yara/*/*.yar yara/*/*.yara yara/*/*/*.yar yara/*/*/*.yara yara/*/RELEASE yara/*/LICENSE* yara/*/README* yara/*/NOTICE*
 var FS embed.FS

@@ -1,4 +1,6 @@
 # javascript/clean/frequency_lists.js: medium
+3P/guarddog/capability_filesystem_write_executable: medium
+3P/guarddog/threat_runtime_keylogging: medium
 anti-behavior/random_behavior: low
 anti-static/xor/functions: medium
 c2/tool_transfer/dropper: medium

@@ -1,4 +1,7 @@
 # javascript/clean/highlight.esm.js: medium
+3P/guarddog/capability_network_lolbas: low
+3P/guarddog/capability_process_spawn: low
+3P/guarddog/threat_runtime_obfuscation_unicode: medium
 anti-behavior/random_behavior: low
 anti-static/obfuscation/js: medium
 anti-static/obfuscation/math: medium

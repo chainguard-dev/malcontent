@@ -1,4 +1,8 @@
 # javascript/2022.an-instance.99.10.9/index.js: critical
+3P/guarddog/capability_network_download: low
+3P/guarddog/capability_network_outbound: low
+3P/guarddog/threat_network_exfil_sysinfo: medium
+3P/guarddog/threat_runtime_system_info: low
 anti-static/obfuscation/math: medium
 data/encoding/int: low
 data/encoding/json_encode: low

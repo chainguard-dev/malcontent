@@ -1,4 +1,7 @@
 # npm/2024.helmet-validate.axios/config.js: medium
+3P/guarddog/capability_network_download: low
+3P/guarddog/capability_network_outbound: low
+3P/guarddog/capability_process_spawn: low
 exec/remote_commands/code_eval: medium
 net/http: low
 net/http/request: low

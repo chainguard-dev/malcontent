@@ -1,4 +1,9 @@
 # npm/2024.distube-fast/postinstall.js: critical
+3P/guarddog/capability_filesystem_delete: low
+3P/guarddog/capability_network_download: low
+3P/guarddog/capability_network_outbound: low
+3P/guarddog/capability_process_spawn: low
+3P/guarddog/threat_network_exfiltration: medium
 c2/addr/ip: medium
 c2/tool_transfer/exe_url: critical
 c2/tool_transfer/js: critical

@@ -1,4 +1,5 @@
 # ruby/2024.reverse_shells/rsocket_open.rb: high
+3P/guarddog/capability_network_outbound: low
 exec/shell/exec: medium
 impact/remote_access/reverse_shell: high
 net/tcp/connect: medium

@@ -1,4 +1,8 @@
 # javascript/clean/scripts.c88fecd373e21509.js: medium
+3P/guarddog/capability_network_download: low
+3P/guarddog/capability_network_outbound: low
+3P/guarddog/capability_process_spawn: low
+3P/guarddog/threat_process_download_exec: medium
 anti-behavior/random_behavior: low
 anti-static/obfuscation/js: medium
 anti-static/obfuscation/math: medium

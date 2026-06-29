@@ -1,4 +1,7 @@
 # npm/2024.next-react-notify/tocall.js: critical
+3P/guarddog/capability_filesystem_delete: low
+3P/guarddog/capability_process_spawn: low
+3P/guarddog/threat_network_exfiltration: medium
 c2/addr/ip: high
 c2/addr/url: high
 c2/tool_transfer/os: low

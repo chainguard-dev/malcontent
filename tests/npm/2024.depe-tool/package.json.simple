@@ -1,4 +1,7 @@
 # npm/2024.depe-tool/package.json: critical
+3P/guarddog/capability_process_hooks: low
+3P/guarddog/threat_npm_preinstall_script: medium
+3P/guarddog/threat_process_hooks: medium
 data/encoding/json_decode: low
 exec/cmd/npm_preinstall: high
 exec/remote_commands/code_eval: critical

@@ -1,4 +1,5 @@
 # python/2024.coloredtxt/unhex.py: critical
+3P/guarddog/capability_process_spawn: low
 anti-static/obfuscation/hex: high
 data/encoding/base64: low
 exec/imports/python: high

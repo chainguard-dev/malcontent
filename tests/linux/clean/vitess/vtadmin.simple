@@ -1,4 +1,5 @@
 # linux/clean/vitess/vtadmin: medium
+3P/guarddog/threat_process_cryptomining: medium
 anti-behavior/random_behavior: low
 anti-static/obfuscation/obfuscate: low
 anti-static/obfuscation/syscall: medium
