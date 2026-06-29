@@ -8,9 +8,11 @@ updates:
     directory: "/"
     schedule:
       interval: daily
-    open-pull-requests-limit: 5
+    cooldown:
+      default-days: 3
+    open-pull-requests-limit: 10
     groups:
-      all:
+      gomod:
         update-types:
           - "minor"
           - "patch"
@@ -19,9 +21,11 @@ updates:
     directory: "/"
     schedule:
       interval: daily
-    open-pull-requests-limit: 5
+    cooldown:
+      default-days: 3
+    open-pull-requests-limit: 10
     groups:
-      all:
+      actions:
         update-types:
           - "minor"
           - "patch"
