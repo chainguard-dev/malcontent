@@ -1,6 +1,13 @@
 # python/2023.JokerSpy/shared.dat: critical
 3P/JPCERT/crypthunter_jsdownloader: critical
 3P/JPCERT/crypthunter_pythonsimplerat: critical
+3P/guarddog/capability_filesystem_delete: low
+3P/guarddog/capability_filesystem_read: low
+3P/guarddog/capability_network_outbound: low
+3P/guarddog/capability_process_spawn: low
+3P/guarddog/threat_network_exfil_sysinfo: medium
+3P/guarddog/threat_process_spawn_silent: low
+3P/guarddog/threat_runtime_system_info: low
 anti-behavior/random_behavior: low
 anti-static/obfuscation/python: high
 c2/tool_transfer/python: high

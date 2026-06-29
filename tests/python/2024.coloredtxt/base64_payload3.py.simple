@@ -1,4 +1,7 @@
 # python/2024.coloredtxt/base64_payload3.py: critical
+3P/guarddog/capability_filesystem_read: low
+3P/guarddog/capability_process_spawn: low
+3P/guarddog/threat_process_download_exec: medium
 c2/addr/url: high
 c2/tool_transfer/python: high
 data/base64/decode: medium

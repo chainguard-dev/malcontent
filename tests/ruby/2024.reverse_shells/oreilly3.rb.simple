@@ -1,4 +1,5 @@
 # ruby/2024.reverse_shells/oreilly3.rb: high
+3P/guarddog/capability_network_outbound: low
 c2/addr/ip: medium
 exec/shell/exec: medium
 impact/remote_access/reverse_shell: high

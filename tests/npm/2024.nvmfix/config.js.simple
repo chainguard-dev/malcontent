@@ -1,4 +1,5 @@
 # npm/2024.nvmfix/config.js: high
+3P/guarddog/capability_process_spawn: low
 anti-static/obfuscation/hex: medium
 anti-static/obfuscation/js: high
 anti-static/obfuscation/math: medium

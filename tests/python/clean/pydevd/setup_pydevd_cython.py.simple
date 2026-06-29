@@ -1,4 +1,6 @@
 # python/clean/pydevd/setup_pydevd_cython.py: medium
+3P/guarddog/capability_filesystem_delete: low
+3P/guarddog/capability_filesystem_read: low
 discover/system/platform: medium
 exec/imports/python: low
 fs/directory/list: low

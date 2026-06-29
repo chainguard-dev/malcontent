@@ -1,4 +1,10 @@
 # linux/clean/kibana/securitySolution.chunk.22.js: medium
+3P/guarddog/capability_filesystem_write_executable: medium
+3P/guarddog/threat_network_exfiltration: medium
+3P/guarddog/threat_network_outbound_shady_links: medium
+3P/guarddog/threat_process_cryptomining: medium
+3P/guarddog/threat_process_memory: medium
+3P/guarddog/threat_runtime_keylogging: medium
 anti-behavior/random_behavior: low
 c2/addr/url: low
 c2/discovery/dyndns: medium

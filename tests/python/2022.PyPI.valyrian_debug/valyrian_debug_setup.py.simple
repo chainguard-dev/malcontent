@@ -1,4 +1,10 @@
 # python/2022.PyPI.valyrian_debug/valyrian_debug_setup.py: critical
+3P/guarddog/capability_filesystem_read: low
+3P/guarddog/capability_network_lolbas: low
+3P/guarddog/capability_process_spawn: low
+3P/guarddog/threat_network_outbound_shady_links: medium
+3P/guarddog/threat_process_download_exec: medium
+3P/guarddog/threat_process_sysinfo: medium
 c2/tool_transfer/os: medium
 c2/tool_transfer/python: critical
 discover/ip/public: high

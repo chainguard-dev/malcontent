@@ -1,4 +1,10 @@
 # python/2023.axderz-1.0.4/setup.py: critical
+3P/guarddog/capability_filesystem_read: low
+3P/guarddog/capability_process_hooks: low
+3P/guarddog/capability_process_spawn: low
+3P/guarddog/threat_filesystem_read: medium
+3P/guarddog/threat_process_download_exec: medium
+3P/guarddog/threat_setup_imports: medium
 c2/tool_transfer/download: high
 c2/tool_transfer/os: medium
 c2/tool_transfer/python: critical
