@@ -427,7 +427,6 @@ func handleDir(ctx context.Context, c malcontent.Config, src, dest ScanResult, d
 	// Collect all entries for deterministic sorting
 	// The reconcile package uses concurrency, so initial order is non-deterministic
 	type diffEntry struct {
-		status   files.Status
 		entry    files.Entry
 		sortKey  string
 		srcPath  string
@@ -435,9 +434,9 @@ func handleDir(ctx context.Context, c malcontent.Config, src, dest ScanResult, d
 	}
 
 	entries := make([]diffEntry, 0, len(result.E))
-	for status, entry := range result.All() {
+	for entry := range result.All() {
 		var sortKey, srcPath, destPath string
-		switch status {
+		switch entry.Status {
 		case files.Unchanged, files.Updated:
 			srcPath = srcPaths[entry.Old]
 			destPath = destPaths[entry.New]
@@ -449,7 +448,7 @@ func handleDir(ctx context.Context, c malcontent.Config, src, dest ScanResult, d
 			destPath = destPaths[entry.New]
 			sortKey = destPath
 		}
-		entries = append(entries, diffEntry{status, entry, sortKey, srcPath, destPath})
+		entries = append(entries, diffEntry{entry, sortKey, srcPath, destPath})
 	}
 
 	// Sort entries by path for deterministic output
@@ -458,7 +457,7 @@ func handleDir(ctx context.Context, c malcontent.Config, src, dest ScanResult, d
 	})
 
 	for _, e := range entries {
-		switch e.status {
+		switch e.entry.Status {
 		case files.Unchanged, files.Updated:
 			srcFr := srcFiles[e.srcPath]
 			destFr := destFiles[e.destPath]
@@ -470,7 +469,7 @@ func handleDir(ctx context.Context, c malcontent.Config, src, dest ScanResult, d
 			rpath := formatReportKey(src, srcFr, isReport)
 			apath := formatReportKey(dest, destFr, isReport)
 			// Determine whether this is a move (Updated) vs change (Unchanged)
-			isMoved := e.status == files.Updated
+			isMoved := e.entry.Status == files.Updated
 			fileDiff(ctx, c, srcFr, destFr, rpath, apath, d, src, dest, archiveOrImage, isReport, isMoved)
 
 		case files.Removed:
