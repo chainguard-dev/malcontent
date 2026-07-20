@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
+	"github.com/chainguard-dev/malcontent/pkg/report"
 	"github.com/fatih/color"
 	"golang.org/x/term"
 )
@@ -52,13 +53,13 @@ func riskInColor(level string) string {
 
 func riskColor(level string, text string) string {
 	switch level {
-	case "LOW":
+	case report.LevelLOW:
 		return color.HiCyanString(text)
-	case "MEDIUM", "MED":
+	case report.LevelMEDIUM, "MED":
 		return color.HiYellowString(text)
-	case "HIGH":
+	case report.LevelHIGH:
 		return color.HiRedString(text)
-	case "CRITICAL", "CRIT":
+	case report.LevelCRITICAL, levelCRIT:
 		return color.HiMagentaString(text)
 	default:
 		return color.WhiteString(text)
@@ -67,11 +68,11 @@ func riskColor(level string, text string) string {
 
 func ShortRisk(s string) string {
 	switch s {
-	case "CRITICAL":
-		return "CRIT"
-	case "MEDIUM":
+	case report.LevelCRITICAL:
+		return levelCRIT
+	case report.LevelMEDIUM:
 		return "MED"
-	case "HIGH", "LOW", "NONE":
+	case report.LevelHIGH, report.LevelLOW, report.LevelNONE:
 		return s
 	default:
 		return s
@@ -334,7 +335,7 @@ func renderFileSummary(ctx context.Context, fr *malcontent.FileReport, w io.Writ
 		// namespace readout
 		if len(previousNsRiskScore) > 0 && riskScore != previousNsRiskScore[ns] {
 			previousRiskLevel := riskLevels[previousNsRiskScore[ns]]
-			if previousRiskLevel == "NONE" {
+			if previousRiskLevel == report.LevelNONE {
 				diff = color.HiGreenString("+")
 			}
 
@@ -344,7 +345,7 @@ func renderFileSummary(ctx context.Context, fr *malcontent.FileReport, w io.Writ
 			if riskScore < previousNsRiskScore[ns] {
 				nsIcon = color.HiGreenString("▼")
 			}
-			if riskLevel == "NONE" {
+			if riskLevel == report.LevelNONE {
 				diff = color.HiRedString("-")
 			}
 

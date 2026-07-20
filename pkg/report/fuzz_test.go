@@ -501,14 +501,14 @@ func FuzzThirdPartyKey(f *testing.F) {
 func FuzzBehaviorRisk(f *testing.F) {
 	f.Add("evasion/bypass.yara", "rule_name", "high")
 	f.Add("yara/JPCERT/rule", "rule", "")
-	f.Add("combo/mixed", "test", "critical")
+	f.Add("combo/mixed", testJunkWord, "critical")
 	f.Add("yara/YARAForge/ELASTIC_Linux_Trojan", "ELASTIC_Linux_Trojan", "low")
 	f.Add("net/http/client.yara", "client", "medium")
 	f.Add("yara/elastic/generic_rule", "generic_rule", "")
 	f.Add("yara/huntress/keyword_tool", "keyword_tool", "")
 	f.Add("exec/shell/bash", "bash", "harmless,critical")
 	f.Add("", "", "")
-	f.Add("yara/bartblaze/test", "test", "ignore")
+	f.Add("yara/bartblaze/test", testJunkWord, "ignore")
 
 	f.Fuzz(func(t *testing.T, ns, rule, tagStr string) {
 		var tags []string

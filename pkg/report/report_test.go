@@ -846,26 +846,26 @@ func TestIgnoreMatch(t *testing.T) {
 		},
 		{
 			name:       "tag should be ignored",
-			tags:       []string{"harmless", "common"},
-			ignoreTags: map[string]bool{"harmless": true},
+			tags:       []string{tagHarmless, "common"},
+			ignoreTags: map[string]bool{tagHarmless: true},
 			want:       true,
 		},
 		{
 			name:       "multiple tags one ignored",
-			tags:       []string{"suspicious", "harmless"},
-			ignoreTags: map[string]bool{"harmless": true, "benign": true},
+			tags:       []string{"suspicious", tagHarmless},
+			ignoreTags: map[string]bool{tagHarmless: true, "benign": true},
 			want:       true,
 		},
 		{
 			name:       "no matching ignore tags",
 			tags:       []string{"malware", "critical"},
-			ignoreTags: map[string]bool{"harmless": true, "benign": true},
+			ignoreTags: map[string]bool{tagHarmless: true, "benign": true},
 			want:       false,
 		},
 		{
 			name:       "empty tags",
 			tags:       []string{},
-			ignoreTags: map[string]bool{"harmless": true},
+			ignoreTags: map[string]bool{tagHarmless: true},
 			want:       false,
 		},
 	}
@@ -1159,7 +1159,7 @@ func TestHandleOverrides(t *testing.T) {
 	t.Run("override non-existent rule no crash", func(t *testing.T) {
 		t.Parallel()
 		original := []*malcontent.Behavior{
-			{RuleName: "real", RiskScore: MEDIUM, RiskLevel: "MEDIUM", ID: "id1"},
+			{RuleName: "real", RiskScore: MEDIUM, RiskLevel: LevelMEDIUM, ID: "id1"},
 		}
 		override := []*malcontent.Behavior{
 			{RuleName: "bad_override", RiskScore: LOW, RiskLevel: "LOW", Override: []string{"nonexistent"}},
@@ -1176,8 +1176,8 @@ func TestHandleOverrides(t *testing.T) {
 		t.Parallel()
 		original := []*malcontent.Behavior{
 			{RuleName: "low", RiskScore: LOW, RiskLevel: "LOW", ID: "id1"},
-			{RuleName: "med", RiskScore: MEDIUM, RiskLevel: "MEDIUM", ID: "id2"},
-			{RuleName: "high", RiskScore: HIGH, RiskLevel: "HIGH", ID: "id3"},
+			{RuleName: "med", RiskScore: MEDIUM, RiskLevel: LevelMEDIUM, ID: "id2"},
+			{RuleName: "high", RiskScore: HIGH, RiskLevel: LevelHIGH, ID: "id3"},
 		}
 		result := handleOverrides(original, nil, MEDIUM, false, false)
 		for _, b := range result {
@@ -1220,8 +1220,8 @@ func TestHandleOverrides(t *testing.T) {
 	t.Run("override removes itself from map", func(t *testing.T) {
 		t.Parallel()
 		original := []*malcontent.Behavior{
-			{RuleName: "real", RiskScore: HIGH, RiskLevel: "HIGH", ID: "id1"},
-			{RuleName: "override_rule", RiskScore: MEDIUM, RiskLevel: "MEDIUM", ID: "id2"},
+			{RuleName: "real", RiskScore: HIGH, RiskLevel: LevelHIGH, ID: "id1"},
+			{RuleName: "override_rule", RiskScore: MEDIUM, RiskLevel: LevelMEDIUM, ID: "id2"},
 		}
 		override := []*malcontent.Behavior{
 			{RuleName: "override_rule", RiskScore: LOW, RiskLevel: "LOW", Override: []string{"real"}},
@@ -1237,7 +1237,7 @@ func TestHandleOverrides(t *testing.T) {
 	t.Run("override that lowers below minScore filters behavior", func(t *testing.T) {
 		t.Parallel()
 		original := []*malcontent.Behavior{
-			{RuleName: "target", RiskScore: HIGH, RiskLevel: "HIGH", ID: "id1"},
+			{RuleName: "target", RiskScore: HIGH, RiskLevel: LevelHIGH, ID: "id1"},
 		}
 		override := []*malcontent.Behavior{
 			{RuleName: "downgrade", RiskScore: HARMLESS, RiskLevel: "NONE", Override: []string{"target"}},
@@ -1251,9 +1251,9 @@ func TestHandleOverrides(t *testing.T) {
 	t.Run("override with multiple targets", func(t *testing.T) {
 		t.Parallel()
 		original := []*malcontent.Behavior{
-			{RuleName: "a", RiskScore: HIGH, RiskLevel: "HIGH", ID: "id1"},
-			{RuleName: "b", RiskScore: HIGH, RiskLevel: "HIGH", ID: "id2"},
-			{RuleName: "c", RiskScore: MEDIUM, RiskLevel: "MEDIUM", ID: "id3"},
+			{RuleName: "a", RiskScore: HIGH, RiskLevel: LevelHIGH, ID: "id1"},
+			{RuleName: "b", RiskScore: HIGH, RiskLevel: LevelHIGH, ID: "id2"},
+			{RuleName: "c", RiskScore: MEDIUM, RiskLevel: LevelMEDIUM, ID: "id3"},
 		}
 		override := []*malcontent.Behavior{
 			{RuleName: "multi", RiskScore: LOW, RiskLevel: "LOW", Override: []string{"a", "b"}},
@@ -1275,7 +1275,7 @@ func TestHandleOverrides(t *testing.T) {
 		for i := range 20 {
 			original[i] = &malcontent.Behavior{
 				RuleName:  "rule_" + strings.Repeat("a", i+1),
-				RiskScore: HIGH, RiskLevel: "HIGH",
+				RiskScore: HIGH, RiskLevel: LevelHIGH,
 				ID: "id_" + strings.Repeat("a", i+1),
 			}
 		}

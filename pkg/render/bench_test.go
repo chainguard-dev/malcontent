@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
+	"github.com/chainguard-dev/malcontent/pkg/report"
 	"github.com/puzpuzpuz/xsync/v4"
 )
 
@@ -20,7 +21,7 @@ func benchFileReport(path string, behaviorCount int) *malcontent.FileReport {
 		SHA256:    "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
 		Size:      4096,
 		RiskScore: 3,
-		RiskLevel: "HIGH",
+		RiskLevel: report.LevelHIGH,
 		Behaviors: make([]*malcontent.Behavior, 0, behaviorCount),
 	}
 	for i := range behaviorCount {
@@ -29,7 +30,7 @@ func benchFileReport(path string, behaviorCount int) *malcontent.FileReport {
 			Description:  "synthetic behavior description for render bench",
 			MatchStrings: []string{"alpha", "beta", "gamma"},
 			RiskScore:    3,
-			RiskLevel:    "HIGH",
+			RiskLevel:    report.LevelHIGH,
 			RuleName:     fmt.Sprintf("rule_%d", i),
 		})
 	}

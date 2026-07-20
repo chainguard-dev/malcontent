@@ -24,6 +24,16 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+const (
+	formatJSON     = "json"
+	formatMarkdown = "markdown"
+	formatSimple   = "simple"
+
+	sampleDylib      = "macOS/2023.3CX/libffmpeg.dylib"
+	sampleDirtyDylib = "macOS/2023.3CX/libffmpeg.dirty.dylib"
+	sampleCleanLS    = "macOS/clean/ls"
+)
+
 // Config holds the configuration for refreshing sample test data.
 type Config struct {
 	Concurrency  int
@@ -124,9 +134,9 @@ func prepareRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 		format := strings.TrimPrefix(ext, ".")
 		switch format {
 		case "sdiff":
-			format = "simple"
+			format = formatSimple
 		case "mdiff", "md":
-			format = "markdown"
+			format = formatMarkdown
 		}
 
 		r, err := render.New(format, outFile)

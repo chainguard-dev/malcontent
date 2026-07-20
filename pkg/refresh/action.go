@@ -27,37 +27,37 @@ type actionData struct {
 // actionSampleData contains paths and formats for test data in pkg/action.
 var actionTestData = []actionData{
 	{
-		format:     "json",
+		format:     formatJSON,
 		scanPath:   "pkg/action/testdata/static.tar.xz",
 		outputPath: "pkg/action/testdata/scan_oci",
 	},
 	{
-		format:     "json",
+		format:     formatJSON,
 		scanPath:   "pkg/action/testdata/apko_nested.tar.gz",
 		outputPath: "pkg/action/testdata/scan_archive",
 	},
 	{
-		format:     "json",
+		format:     formatJSON,
 		scanPath:   "pkg/action/testdata/conflict.zip",
 		outputPath: "pkg/action/testdata/scan_conflict",
 	},
 	{
-		format:     "json",
+		format:     formatJSON,
 		scanPath:   "pkg/action/testdata/yara.deb",
 		outputPath: "pkg/action/testdata/scan_deb",
 	},
 	{
-		format:     "json",
+		format:     formatJSON,
 		scanPath:   "pkg/action/testdata/yara.rpm",
 		outputPath: "pkg/action/testdata/scan_rpm",
 	},
 	{
-		format:     "json",
+		format:     formatJSON,
 		scanPath:   "pkg/action/testdata/yara.tar.zlib",
 		outputPath: "pkg/action/testdata/scan_zlib",
 	},
 	{
-		format:     "json",
+		format:     formatJSON,
 		scanPath:   "pkg/action/testdata/yara.tar.zst",
 		outputPath: "pkg/action/testdata/scan_zstd",
 	},

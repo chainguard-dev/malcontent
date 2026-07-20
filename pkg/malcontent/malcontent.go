@@ -42,8 +42,14 @@ type Config struct {
 	FileRiskChange       bool
 	FileRiskIncrease     bool
 	IgnoreSelf           bool
-	IgnoreTags           []string
-	IncludeDataFiles     bool
+	// IgnoreRules is a list of filepath.Match glob patterns matched against
+	// YARA rule identifiers. Matching rules are removed from the report
+	// *before* risk accumulation, so an excluded rule contributes nothing
+	// to the file's overall risk score. Matching is on the rule identifier
+	// only (not tags, namespace, or description).
+	IgnoreRules      []string
+	IgnoreTags       []string
+	IncludeDataFiles bool
 	// MaxArchiveBytes caps the total uncompressed bytes produced by archive
 	// extraction. Zero means use file.DefaultMaxArchiveBytes.
 	MaxArchiveBytes int64

@@ -301,9 +301,9 @@ func FuzzNew(f *testing.F) {
 	f.Add("markdown")
 	f.Add("yaml")
 	f.Add("json")
-	f.Add("simple")
-	f.Add("strings")
-	f.Add("interactive")
+	f.Add(formatSimple)
+	f.Add(formatStrings)
+	f.Add(formatInteractive)
 	f.Add("auto")
 	f.Add("")
 	// Unknown / adversarial
@@ -316,11 +316,11 @@ func FuzzNew(f *testing.F) {
 	known := map[string]bool{
 		"": true, "auto": true, "terminal": true, "terminal_brief": true,
 		"markdown": true, "yaml": true, "json": true,
-		"simple": true, "strings": true, "interactive": true,
+		formatSimple: true, formatStrings: true, formatInteractive: true,
 	}
 
 	f.Fuzz(func(t *testing.T, kind string) {
-		if kind == "interactive" {
+		if kind == formatInteractive {
 			t.Skip() // this renderer causes test output artifacts
 		}
 

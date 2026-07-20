@@ -31,28 +31,29 @@ import (
 	"strings"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
+	"github.com/chainguard-dev/malcontent/pkg/report"
 	"github.com/fatih/color"
 )
 
 // Map to handle RiskScore -> RiskLevel conversions.
 var riskLevels = map[int]string{
-	0: "NONE",     // harmless: common to all executables, no system impact
-	1: "LOW",      // undefined: low impact, common to good and bad executables
-	2: "MEDIUM",   // notable: may have impact, but common
-	3: "HIGH",     // suspicious: uncommon, but could be legit
-	4: "CRITICAL", // critical: certainly malware
+	0: report.LevelNONE,     // harmless: common to all executables, no system impact
+	1: report.LevelLOW,      // undefined: low impact, common to good and bad executables
+	2: report.LevelMEDIUM,   // notable: may have impact, but common
+	3: report.LevelHIGH,     // suspicious: uncommon, but could be legit
+	4: report.LevelCRITICAL, // critical: certainly malware
 }
 
 func briefRiskColor(level string) string {
 	switch level {
-	case "LOW":
-		return color.HiGreenString("LOW")
-	case "MEDIUM", "MED":
+	case report.LevelLOW:
+		return color.HiGreenString(report.LevelLOW)
+	case report.LevelMEDIUM, "MED":
 		return color.HiYellowString("MED")
-	case "HIGH":
-		return color.HiRedString("HIGH")
-	case "CRITICAL", "CRIT":
-		return color.HiMagentaString("CRIT")
+	case report.LevelHIGH:
+		return color.HiRedString(report.LevelHIGH)
+	case report.LevelCRITICAL, levelCRIT:
+		return color.HiMagentaString(levelCRIT)
 	default:
 		return color.WhiteString(level)
 	}
