@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
+	"github.com/chainguard-dev/malcontent/pkg/report"
 	"github.com/charmbracelet/lipgloss"
 )
 
@@ -45,11 +46,11 @@ var (
 			MarginLeft(6)
 
 	riskColors = map[string]lipgloss.Color{
-		"NONE":     lipgloss.Color("15"),
-		"LOW":      lipgloss.Color("69"),
-		"MEDIUM":   lipgloss.Color("221"),
-		"HIGH":     lipgloss.Color("196"),
-		"CRITICAL": lipgloss.Color("201"),
+		report.LevelNONE:     lipgloss.Color("15"),
+		report.LevelLOW:      lipgloss.Color("69"),
+		report.LevelMEDIUM:   lipgloss.Color("221"),
+		report.LevelHIGH:     lipgloss.Color("196"),
+		report.LevelCRITICAL: lipgloss.Color("201"),
 	}
 
 	headerStyle = lipgloss.NewStyle().

@@ -10,6 +10,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
+	"github.com/chainguard-dev/malcontent/pkg/report"
 	"github.com/puzpuzpuz/xsync/v4"
 )
 
@@ -28,9 +29,9 @@ func TestNew(t *testing.T) {
 		{"markdown", "markdown", false, false},
 		{"yaml", "yaml", false, false},
 		{"json", "json", false, false},
-		{"simple", "simple", false, false},
-		{"strings", "strings", false, false},
-		{"interactive", "interactive", false, false},
+		{formatSimple, formatSimple, false, false},
+		{formatStrings, formatStrings, false, false},
+		{formatInteractive, formatInteractive, false, false},
 		{"unknown renderer", "unknown", true, true},
 		{"invalid renderer", "invalid-type", true, true},
 	}
@@ -39,7 +40,7 @@ func TestNew(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			if tt.kind == "interactive" {
+			if tt.kind == formatInteractive {
 				t.Skip() // this renderer causes test output artifacts
 			}
 
@@ -317,11 +318,11 @@ func TestShortRisk(t *testing.T) {
 		input string
 		want  string
 	}{
-		{"CRITICAL", "CRIT"},
-		{"MEDIUM", "MED"},
-		{"HIGH", "HIGH"},
-		{"LOW", "LOW"},
-		{"NONE", "NONE"},
+		{report.LevelCRITICAL, levelCRIT},
+		{report.LevelMEDIUM, "MED"},
+		{report.LevelHIGH, report.LevelHIGH},
+		{report.LevelLOW, report.LevelLOW},
+		{report.LevelNONE, report.LevelNONE},
 		{"", ""},
 		{"unknown", "unknown"},
 		{"HALLO", "HALLO"},
@@ -401,7 +402,7 @@ func TestSplitRuleID(t *testing.T) {
 	}{
 		{"ns/resource/technique", "ns", "resource/technique"},
 		{"a/b", "a", "b"},
-		{"simple", "simple", ""},
+		{formatSimple, formatSimple, ""},
 		{"", "", ""},
 		{"a/b/c/d", "a", "b/c/d"},
 		{"/something", "", "something"},
@@ -528,7 +529,7 @@ func TestPlural(t *testing.T) {
 		{"rule", 0, "rule"},
 		{"rule", 1, "rule"},
 		{"rule", 2, "rules"},
-		{"string", 100, "strings"},
+		{"string", 100, formatStrings},
 		{"item", -1, "item"},
 	}
 
@@ -558,7 +559,7 @@ func TestRiskStatistics(t *testing.T) {
 	t.Run("single file non-scan", func(t *testing.T) {
 		t.Parallel()
 		files := xsync.NewMap[string, *malcontent.FileReport]()
-		files.Store("/bin/ls", &malcontent.FileReport{Path: "/bin/ls", RiskScore: 2, RiskLevel: "MEDIUM"})
+		files.Store("/bin/ls", &malcontent.FileReport{Path: "/bin/ls", RiskScore: 2, RiskLevel: report.LevelMEDIUM})
 		stats, totalRisks, processed, skipped := RiskStatistics(&malcontent.Config{}, files)
 		if processed != 1 || totalRisks != 1 || skipped != 0 {
 			t.Errorf("single file: processed=%d totalRisks=%d skipped=%d", processed, totalRisks, skipped)

@@ -13,6 +13,15 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 )
 
+const (
+	formatSimple      = "simple"
+	formatStrings     = "strings"
+	formatInteractive = "interactive"
+
+	// levelCRIT is the abbreviated form of report.LevelCRITICAL used in narrow output.
+	levelCRIT = "CRIT"
+)
+
 // Report stores a JSON- or YAML-friendly representation of File Reports.
 type Report struct {
 	Diff   *malcontent.DiffReport            `json:",omitempty" yaml:",omitempty"`
@@ -70,11 +79,11 @@ func New(kind string, w io.Writer) (malcontent.Renderer, error) {
 		return NewYAML(w), nil
 	case "json":
 		return NewJSON(w), nil
-	case "simple":
+	case formatSimple:
 		return NewSimple(w), nil
-	case "strings":
+	case formatStrings:
 		return NewStringMatches(w), nil
-	case "interactive":
+	case formatInteractive:
 		t := NewInteractive(w)
 		t.Start()
 		return t, nil

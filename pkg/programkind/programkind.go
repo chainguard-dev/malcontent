@@ -50,6 +50,11 @@ var ArchiveMap = map[string]bool{
 	".zstd":   true,
 }
 
+const (
+	mimeOctetStream = "application/octet-stream"
+	mimeShellScript = "text/x-shellscript"
+)
+
 // file extension to MIME type, if it's a good scanning target.
 var supportedKind = map[string]string{
 	"7z":      "application/x-7z-compressed",
@@ -58,21 +63,21 @@ var supportedKind = map[string]string{
 	"bash":    "application/x-bsh",
 	"bat":     "application/bat",
 	"beam":    "application/x-erlang-binary",
-	"bin":     "application/octet-stream",
+	"bin":     mimeOctetStream,
 	"c":       "text/x-c",
 	"cc":      "text/x-c",
 	"class":   "application/java-vm",
-	"com":     "application/octet-stream",
+	"com":     mimeOctetStream,
 	"cpp":     "text/x-c",
 	"cron":    "text/x-cron",
 	"crontab": "text/x-crontab",
 	"csh":     "application/x-csh",
 	"cxx":     "text/x-c",
 	"dic":     "",
-	"dll":     "application/octet-stream",
+	"dll":     mimeOctetStream,
 	"dylib":   "application/x-sharedlib",
 	"elf":     "application/x-elf",
-	"exe":     "application/octet-stream",
+	"exe":     mimeOctetStream,
 	"expect":  "text/x-expect",
 	"fish":    "text/x-fish",
 	"go":      "text/x-go",
@@ -90,7 +95,7 @@ var supportedKind = map[string]string{
 	"macho":   "application/x-mach-binary",
 	"mm":      "text/x-objectivec",
 	"md":      "",
-	"o":       "application/octet-stream",
+	"o":       mimeOctetStream,
 	"pdf":     "",
 	"pe":      "application/vnd.microsoft.portable-executable",
 	"php":     "text/x-php",
@@ -106,7 +111,7 @@ var supportedKind = map[string]string{
 	"scptd":   "application/x-applescript",
 	"script":  "text/x-generic-script",
 	"service": "text/x-systemd",
-	"sh":      "text/x-shellscript",
+	"sh":      mimeShellScript,
 	"so":      "application/x-sharedlib",
 	"sqlite":  "",
 	"texi":    "",
@@ -403,7 +408,7 @@ func makeFileType(path string, ext string, mime string) *FileType {
 	case mime == "application/x-sharedlib" && !strings.Contains(path, ".so"):
 		return Path(".elf")
 	// fix mimetype bug that detects certain .js files as shellscript
-	case mime == "text/x-shellscript" && strings.Contains(path, ".js"):
+	case mime == mimeShellScript && strings.Contains(path, ".js"):
 		return Path(".js")
 	// treat all other MIME types as valid
 	case containsValue(mime, defaultMIME):
@@ -537,7 +542,7 @@ func File(ctx context.Context, path string) (*FileType, error) {
 	// return nil (e.g., valid JSON or YAML files that we want to treat as data files by default)
 	case pathExtKnown:
 		return nil, nil
-	case mime == "application/octet-stream" && len(pathExt) >= 2:
+	case mime == mimeOctetStream && len(pathExt) >= 2:
 		return nil, nil
 	case strings.Contains(mime, "text/plain") && isLikelyManPage(path):
 		return nil, nil

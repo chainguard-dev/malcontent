@@ -13,6 +13,9 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
+// scriptPath is a test fixture path that resolves to a generic script.
+const scriptPath = "script"
+
 func TestFile(t *testing.T) {
 	tests := []struct {
 		in   string
@@ -22,10 +25,10 @@ func TestFile(t *testing.T) {
 		{"ls", &FileType{MIME: "application/x-elf", Ext: "elf"}},
 		{"tiny", &FileType{MIME: "application/x-elf", Ext: "elf"}},
 		{"libpam.so.0", &FileType{MIME: "application/x-sharedlib", Ext: "so"}},
-		{"test.sh", &FileType{MIME: "text/x-shellscript", Ext: "sh"}},
-		{"snmpd", &FileType{MIME: "text/x-shellscript", Ext: "sh"}},
-		{"shell_no_ext", &FileType{MIME: "text/x-shellscript", Ext: "sh"}},
-		{"shell_patterns", &FileType{MIME: "text/x-shellscript", Ext: "sh"}},
+		{"test.sh", &FileType{MIME: mimeShellScript, Ext: "sh"}},
+		{"snmpd", &FileType{MIME: mimeShellScript, Ext: "sh"}},
+		{"shell_no_ext", &FileType{MIME: mimeShellScript, Ext: "sh"}},
+		{"shell_patterns", &FileType{MIME: mimeShellScript, Ext: "sh"}},
 		{"test.pl", &FileType{MIME: "text/x-perl", Ext: "pl"}},
 		{"peclcmd", &FileType{MIME: "text/x-php", Ext: "php"}},
 		{"test.vbs", &FileType{MIME: "text/x-vbscript", Ext: "vbs"}},
@@ -53,7 +56,7 @@ func TestPath(t *testing.T) {
 		want *FileType
 	}{
 		{"applescript.scpt", &FileType{MIME: "application/x-applescript", Ext: "scpt"}},
-		{"./shell.sh", &FileType{MIME: "text/x-shellscript", Ext: "sh"}},
+		{"./shell.sh", &FileType{MIME: mimeShellScript, Ext: "sh"}},
 		{"ls", nil},
 		{"/etc/systemd/system/launcher.service", &FileType{MIME: "text/x-systemd", Ext: "service"}},
 		{"yarn-package.json", &FileType{MIME: "application/json", Ext: "json"}},
@@ -324,19 +327,19 @@ func TestIsLikelyShellScript(t *testing.T) {
 		{
 			name:    "bash shebang",
 			content: "#!/bin/bash\necho hello",
-			path:    "script",
+			path:    scriptPath,
 			want:    true,
 		},
 		{
 			name:    "sh shebang",
 			content: "#!/bin/sh\ntest",
-			path:    "script",
+			path:    scriptPath,
 			want:    true,
 		},
 		{
 			name:    "env bash shebang",
 			content: "#!/usr/bin/env bash\necho hello",
-			path:    "script",
+			path:    scriptPath,
 			want:    true,
 		},
 		{
@@ -360,13 +363,13 @@ func TestIsLikelyShellScript(t *testing.T) {
 		{
 			name:    "multiple shell patterns",
 			content: "set -e\nexport PATH=/bin\nif [ -f test ]; then\necho test\nfi\n",
-			path:    "script",
+			path:    scriptPath,
 			want:    true,
 		},
 		{
 			name:    "command substitution and parameter expansion",
 			content: "VAR=$(cat file)\necho ${VAR}\n",
-			path:    "script",
+			path:    scriptPath,
 			want:    true,
 		},
 		{

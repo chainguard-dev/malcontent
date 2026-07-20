@@ -41,14 +41,34 @@ const (
 	CRITICAL
 )
 
+// String forms of the risk levels. Kept as package-level constants so
+// callers (production and tests) can reference the same source of truth
+// without repeating the literal.
+const (
+	LevelNONE     = "NONE"
+	LevelLOW      = "LOW"
+	LevelMEDIUM   = "MEDIUM"
+	LevelHIGH     = "HIGH"
+	LevelCRITICAL = "CRITICAL"
+)
+
+// Well-known rule-tag and file-extension literals treated specially by
+// the report pipeline. Grouped here so callers avoid repeating the raw
+// string across files.
+const (
+	tagHarmless  = "harmless" // YARA tag treated as HARMLESS risk in Levels
+	extClass     = "class"    // Java bytecode extension, aliased to jar/java
+	testJunkWord = "test"     // filtered from the head of long third-party rule names
+)
+
 // Map to handle RiskScore -> RiskLevel conversions.
 var RiskLevels = map[int]string{
-	INVALID:  "NONE",     // inalid: unmodified initial value which should not happen
-	HARMLESS: "NONE",     // harmless: common to all executables, no system impact
-	LOW:      "LOW",      // undefined: low impact, common to good and bad executables
-	MEDIUM:   "MEDIUM",   // notable: may have impact, but common
-	HIGH:     "HIGH",     // suspicious: uncommon, but could be legit
-	CRITICAL: "CRITICAL", // critical: certainly malware
+	INVALID:  LevelNONE,     // invalid: unmodified initial value which should not happen
+	HARMLESS: LevelNONE,     // harmless: common to all executables, no system impact
+	LOW:      LevelLOW,      // undefined: low impact, common to good and bad executables
+	MEDIUM:   LevelMEDIUM,   // notable: may have impact, but common
+	HIGH:     LevelHIGH,     // suspicious: uncommon, but could be legit
+	CRITICAL: LevelCRITICAL, // critical: certainly malware
 }
 
 // yaraForge has some very, very long rule names.
@@ -102,7 +122,7 @@ var (
 var Levels = map[string]int{
 	"ignore":     INVALID,
 	"none":       INVALID,
-	"harmless":   HARMLESS,
+	tagHarmless:  HARMLESS,
 	"low":        LOW,
 	"notable":    MEDIUM,
 	"medium":     MEDIUM,
@@ -154,8 +174,8 @@ func thirdPartyKey(path string, rule string) string {
 		}
 	}
 
-	// Additionally filter "test" from the beginning if there are other words
-	if len(keepWords) > 1 && keepWords[0] == "test" {
+	// Additionally filter testJunkWord from the beginning if there are other words
+	if len(keepWords) > 1 && keepWords[0] == testJunkWord {
 		keepWords = keepWords[1:]
 	}
 
@@ -611,7 +631,8 @@ func TrimPrefixes(path string, prefixes []string) string {
 // bare .class file after archive extraction, so rules scoped to jar or
 // java sources must also apply to it.
 var extAliases = map[string][]string{
-	"class": {"jar", "java"},
+	//nolint:goconst // "jar" and "java" are file-extension literals; the test suite exercises them as data and does not benefit from a named constant.
+	extClass: {"jar", "java"},
 }
 
 // extMatchesFiletypes reports whether a detected file extension matches a
@@ -823,6 +844,13 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 		}
 
 		if !fileMatchesRule(m.Metadata(), fileExt, displayPath) {
+			continue
+		}
+
+		// Rule-level exclusion: filter *before* risk accumulation so an
+		// excluded rule contributes nothing to the file's overall risk
+		// score. Matching is on the rule identifier only.
+		if ruleExcluded(m.Identifier(), c.IgnoreRules) {
 			continue
 		}
 

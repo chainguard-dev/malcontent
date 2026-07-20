@@ -43,12 +43,18 @@ LINTERS :=
 FIXERS :=
 
 GOLANGCI_LINT_CONFIG := $(LINT_ROOT)/.golangci.yml
-GOLANGCI_LINT_VERSION ?= v2.10.1
+GOLANGCI_LINT_VERSION ?= v2.12.2
+GOLANGCI_LINT_INSTALL_REF := 35b2189782a6a059489289257e6523550167cb64
+GOLANGCI_LINT_INSTALL_SHA256 := d32d3534af96cfd59546a084d22b213e8a47541cada5013aa8a84c4fa2589905
+SHA256_CMD := $(shell command -v sha256sum || echo "shasum -a 256")
 GOLANGCI_LINT_BIN := $(LINT_ROOT)/out/linters/golangci-lint-$(GOLANGCI_LINT_VERSION)-$(LINT_ARCH)
 $(GOLANGCI_LINT_BIN):
 	mkdir -p $(LINT_ROOT)/out/linters
 	rm -rf $(LINT_ROOT)/out/linters/golangci-lint-*
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(LINT_ROOT)/out/linters $(GOLANGCI_LINT_VERSION)
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/$(GOLANGCI_LINT_INSTALL_REF)/install.sh -o $(LINT_ROOT)/out/linters/install-golangci-lint.sh
+	printf '%s  %s\n' "$(GOLANGCI_LINT_INSTALL_SHA256)" "$(LINT_ROOT)/out/linters/install-golangci-lint.sh" | $(SHA256_CMD) -c -
+	sh $(LINT_ROOT)/out/linters/install-golangci-lint.sh -b $(LINT_ROOT)/out/linters $(GOLANGCI_LINT_VERSION)
+	rm -f $(LINT_ROOT)/out/linters/install-golangci-lint.sh
 	mv $(LINT_ROOT)/out/linters/golangci-lint $@
 
 YARA_X_REPO ?= virusTotal/yara-x

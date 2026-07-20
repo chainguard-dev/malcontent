@@ -29,6 +29,7 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/profile"
 	"github.com/chainguard-dev/malcontent/pkg/refresh"
 	"github.com/chainguard-dev/malcontent/pkg/render"
+	"github.com/chainguard-dev/malcontent/pkg/report"
 	"github.com/chainguard-dev/malcontent/rules"
 	thirdparty "github.com/chainguard-dev/malcontent/third_party"
 
@@ -58,6 +59,7 @@ var (
 	fileRiskChangeFlag        bool
 	fileRiskIncreaseFlag      bool
 	formatFlag                string
+	ignoreRulesFlag           string
 	ignoreSelfFlag            bool
 	ignoreTagsFlag            string
 	includeDataFilesFlag      bool
@@ -185,6 +187,12 @@ func main() {
 			}
 
 			ignoreTags := strings.Split(ignoreTagsFlag, ",")
+			ignoreRules := splitAndTrimCSV(ignoreRulesFlag)
+			if err := report.ValidateIgnoreRules(ignoreRules); err != nil {
+				log.Errorf("%v", err)
+				returnCode = ExitInvalidArgument
+				return ctx, err
+			}
 			includeDataFiles := includeDataFilesFlag
 
 			minRisk, exists := riskMap[minRiskFlag]
@@ -224,6 +232,7 @@ func main() {
 			}
 
 			if allFlag {
+				ignoreRules = nil
 				ignoreSelfFlag = false
 				ignoreTags = []string{}
 				includeDataFiles = true
@@ -271,6 +280,7 @@ func main() {
 				ExitOnExtractorPanic:     exitExtractorPanicFlag,
 				ExitFirstHit:             exitFirstHitFlag,
 				ExitFirstMiss:            exitFirstMissFlag,
+				IgnoreRules:              ignoreRules,
 				IgnoreSelf:               ignoreSelfFlag,
 				IgnoreTags:               ignoreTags,
 				IncludeDataFiles:         includeDataFiles,
@@ -348,6 +358,13 @@ func main() {
 				Value:       "auto",
 				Usage:       "Output format (interactive, json, markdown, simple, strings, terminal, yaml)",
 				Destination: &formatFlag,
+				Local:       false,
+			},
+			&cli.StringFlag{
+				Name:        "ignore-rules",
+				Value:       "",
+				Usage:       "YARA rule names to ignore (comma-separated; supports filepath.Match globs, e.g. 'py_lib_alias_val,py_lib_*'). Ignored rules are removed from the report before overall risk is computed.",
+				Destination: &ignoreRulesFlag,
 				Local:       false,
 			},
 			&cli.BoolFlag{
@@ -796,6 +813,27 @@ func main() {
 
 		showError(err)
 	}
+}
+
+// splitAndTrimCSV parses a comma-separated flag value into a []string with
+// whitespace-trimmed, non-empty entries. Returns nil for an empty input so
+// downstream code (which treats nil and empty as identical no-ops) can
+// distinguish "flag unset" cases without extra ceremony.
+func splitAndTrimCSV(s string) []string {
+	if strings.TrimSpace(s) == "" {
+		return nil
+	}
+	parts := strings.Split(s, ",")
+	out := make([]string, 0, len(parts))
+	for _, p := range parts {
+		if p = strings.TrimSpace(p); p != "" {
+			out = append(out, p)
+		}
+	}
+	if len(out) == 0 {
+		return nil
+	}
+	return out
 }
 
 // handleContext gracefully handles context cancellations.

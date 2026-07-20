@@ -129,15 +129,15 @@ func Statistics(c *malcontent.Config, r *malcontent.Report) error {
 		level := ShortRisk(report.RiskLevels[stat.Key])
 		color := ""
 		switch level {
-		case "NONE":
+		case report.LevelNONE:
 			color = "\033[0m"
-		case "LOW":
+		case report.LevelLOW:
 			color = "\033[32m"
 		case "MED":
 			color = "\033[33m"
-		case "HIGH":
+		case report.LevelHIGH:
 			color = "\033[31m"
-		case "CRIT":
+		case levelCRIT:
 			color = "\033[35m"
 		}
 		fmt.Printf("%s%-12s %10.2f%s %d/%d\033[0m\n", color, fmt.Sprintf("%d/%s", stat.Key, ShortRisk(level)), stat.Value, "%", stat.Count, stat.Total)

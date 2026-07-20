@@ -60,6 +60,7 @@ GLOBAL OPTIONS:
    --exit-first-miss           Exit with error if scan source has no matching capabilities
    --exit-first-hit            Exit with error if scan source has matching capabilities
    --format string             Output format (interactive, json, markdown, simple, strings, terminal, yaml) (default: "auto")
+   --ignore-rules string       YARA rule names to ignore (comma-separated; supports filepath.Match globs, e.g. "py_lib_alias_val,py_lib_*")
    --ignore-self               Ignore the malcontent binary
    --ignore-tags string        Rule tags to ignore (default: "false_positive,ignore")
    --include-data-files        Include files that are detected as non-program (binary or source) files
