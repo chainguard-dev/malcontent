@@ -33,6 +33,8 @@ rule crypto_stealer_names: critical {
     $not_clef1       = "These data types are defined in the channel between clef and the UILedger"
     $not_clef2       = "The `transaction` (on input into clef) can have either `data` or `input`"
     $not_geth_site   = "https://geth.ethereum.org"
+    $not_grobid1     = "Jebtsundamba Khutughtu"
+    $not_grobid2     = "Iridium Satellite LLC"
     $gpt_tokenizer1  = "GPTTokenizer"
     $gpt_tokenizer2  = "GPT-4"
     $gpt_tokenizer3  = "const bpe = c0.concat();"

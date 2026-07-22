@@ -8,6 +8,9 @@ rule cg: override {
     hidden_short_path_temp         = "low"
     ssh_backdoor                   = "low"
     exploit_attempt                = "low"
+    esxcli_caller                  = "low"
+    cmd_dev_null_quoted            = "low"
+    cmd_dev_null                   = "low"
 
   strings:
     // Go module-path anchors for the CLI binary

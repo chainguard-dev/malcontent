@@ -18,15 +18,15 @@ rule security_solution_plugin: override {
     masscan             = "low"
     reverse_shell       = "low"
     grayware_sites      = "low"
-    http_url_with_exe   = "Low"
+    http_url_with_exe   = "low"
     exotic_tld          = "low"
     download_sites      = "low"
-    description         = "securitySolution.chunk.9.js, securitySolution.chunk.22.js"
+    description         = "securitySolution.chunk.*.js"
 
   strings:
     $license           = "Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V."
     $license2          = "Licensed under the Elastic License 2.0"
-    $jsonp             = "window.securitySolution_bundle_jsonpfunction"
+    $jsonp             = "securitySolution_bundle_jsonpfunction"
     $security_solution = "securitySolution"
     $xpac              = "xpac"
 

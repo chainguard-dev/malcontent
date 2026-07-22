@@ -23,3 +23,16 @@ rule knative_eventing_ingress: override {
   condition:
     filesize < 100MB and all of them
 }
+
+rule knative_serving_controller: override {
+  meta:
+    description            = "knative-serving controller binary"
+    BlackTech_TSCookie_elf = "harmless"
+
+  strings:
+    $serving_module     = "knative.dev/serving"
+    $controller_command = "knative.dev/serving/cmd/controller"
+
+  condition:
+    filesize < 200MB and all of them
+}

@@ -10,6 +10,7 @@ rule powershell_byte_xor: critical windows {
     $not_docs      = " https://docs.microsoft.com"
     $not_verbs     = "-cnotcontains"
     $not_elastic   = "\"Suspicious Windows Powershell Arguments\""
+    $not_ansible   = "#AnsibleRequires -CSharpUtil Ansible."
 
   condition:
     filesize < 16KB and $xor and any of ($ps*) and none of ($not*)

@@ -7,6 +7,7 @@ rule trufflehog_override: override {
     download_sites           = "medium"
     file_io_uploader         = "medium"
     binary_url_with_question = "medium"
+    ipinfo_and_bash          = "medium"
 
   strings:
     $ref = "github.com/trufflesecurity/trufflehog"

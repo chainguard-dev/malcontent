@@ -54,6 +54,19 @@ rule ansible_collection_ci_workflow: override {
     filesize < 4096 and all of them
 }
 
+rule ansible_nox_prepare: override {
+  meta:
+    description       = "nox-prepare.sh from Ansible collections CI test scripts"
+    pip_installer_url = "low"
+
+  strings:
+    $antsibull_nox = "ansible-community/antsibull-nox"
+    $nox_env       = "ANTSIBULL_NOX_IGNORE_INSTALLED_COLLECTIONS"
+
+  condition:
+    filesize < 4096 and all of them
+}
+
 rule ansible_test_entrypoint: override {
   meta:
     description                                        = "entrypoint.ps1 from ansible-test target setup"
