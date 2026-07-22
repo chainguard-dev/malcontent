@@ -7,5 +7,5 @@ rule omni_ja: override {
     $firefox = "firefox"
 
   condition:
-    filesize < 50MB and #firefox > 3000
+    filesize < 60MB and #firefox > 3000
 }

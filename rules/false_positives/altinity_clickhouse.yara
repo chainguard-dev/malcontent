@@ -5,7 +5,7 @@ rule altinity_clickhouse_keeper_debug: override {
 
   strings:
     $keeper_dispatcher = "_GLOBAL__sub_I_KeeperDispatcher.cpp"
-    $keeper_resource   = "gkeeper_resource_embedded_xmlData"
+    $keeper_entry      = "_Z25mainEntryClickHouseKeeperiPPc"
 
   condition:
     filesize < 15728640 and all of them

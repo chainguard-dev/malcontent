@@ -172,7 +172,7 @@
                     ],
                     "RiskScore": 4,
                     "RiskLevel": "CRITICAL",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/exfil/stealer/wallet.yara#L49",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/exfil/stealer/wallet.yara#L51",
                     "ID": "exfil/stealer/wallet",
                     "RuleName": "crypto_extension_stealer"
                 },

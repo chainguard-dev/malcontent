@@ -28,6 +28,18 @@ rule fetch_command: override {
     filesize < 1024 and (hash.sha256(0, filesize) == "316d9c447de581287bf6912947999327360677eae7c51cd62b708f664198f032")
 }
 
+rule safe_zip_test_fixture: override {
+  meta:
+    description                 = "invalid-unexpected-large.zip test fixture in GitLab safe_zip gem"
+    ELCEEF_Zombie_Malformed_ZIP = "harmless"
+
+  strings:
+    $index_html = "public/index.html"
+
+  condition:
+    filesize < 512 and $index_html and hash.sha256(0, filesize) == "95ac6cc55c46c7670b2dacbcbaf5ec738a7d414494ee65fe9d0ff49d5adfb17c"
+}
+
 rule vscode_extension: override {
   meta:
     description                  = "browser.js"

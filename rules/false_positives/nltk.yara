@@ -5,7 +5,7 @@ rule nltk_test_pathsec: override {
 
   strings:
     $ssrf_test       = "test_ssrf_ip_obfuscation"
-    $nltk_pathsec    = "nltk.pathsec"
+    $nltk_pathsec    = "from nltk import pathsec"
     $nltk_downloader = "nltk.downloader"
 
   condition:
