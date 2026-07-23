@@ -1,5 +1,11 @@
 # windows/2024.aspdasdksa2/creal.pyc: critical
 3P/elastic/infostealer_wallets: critical
+3P/guarddog/capability_filesystem_browser: medium
+3P/guarddog/threat_filesystem_read: medium
+3P/guarddog/threat_network_exfil_messenger: medium
+3P/guarddog/threat_network_exfiltration: medium
+3P/guarddog/threat_network_outbound_shady_links: medium
+3P/guarddog/threat_runtime_keylogging: medium
 anti-behavior/blocklist/hostname: critical
 anti-behavior/blocklist/mac_addr: critical
 anti-behavior/blocklist/user: high
@@ -17,6 +23,7 @@ credential/browser/chromium_master_password: high
 credential/gaming/minecraft: medium
 credential/password: low
 crypto/aes: low
+data/base64/decode: medium
 data/encoding/base64: low
 discover/ip/geo: high
 discover/ip/public: high

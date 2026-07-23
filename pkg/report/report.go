@@ -58,6 +58,7 @@ const (
 const (
 	tagHarmless  = "harmless" // YARA tag treated as HARMLESS risk in Levels
 	extClass     = "class"    // Java bytecode extension, aliased to jar/java
+	extPyc       = "pyc"      // Python bytecode extension, aliased to py
 	testJunkWord = "test"     // filtered from the head of long third-party rule names
 )
 
@@ -629,10 +630,13 @@ func TrimPrefixes(path string, prefixes []string) string {
 // extAliases maps a detected file extension to additional filetypes that
 // rules may be scoped to. Compiled Java bytecode is usually scanned as a
 // bare .class file after archive extraction, so rules scoped to jar or
-// java sources must also apply to it.
+// java sources must also apply to it. Likewise, compiled Python bytecode
+// is detected by content as pyc regardless of the file's extension, so
+// rules scoped to py sources must also apply to it.
 var extAliases = map[string][]string{
-	//nolint:goconst // "jar" and "java" are file-extension literals; the test suite exercises them as data and does not benefit from a named constant.
+	//nolint:goconst // "jar", "java", and "py" are file-extension literals; the test suite exercises them as data and does not benefit from a named constant.
 	extClass: {"jar", "java"},
+	extPyc:   {"py"},
 }
 
 // extMatchesFiletypes reports whether a detected file extension matches a
