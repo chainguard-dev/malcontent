@@ -108,8 +108,12 @@ LINTERS += yara-x-fmt
 yara-x-fmt: $(YARA_X_BIN)
 	find rules -type f -name "*.yara" -execdir "$(YARA_X_BIN)" fmt {} \;
 
+# Suppress only text_as_hex: the hex patterns are deliberate. Rules are embedded in
+# the binary, so a plaintext malware signature in the shipped executable makes macOS
+# Gatekeeper/XProtect flag malcontent itself. Every other warning surfaces, and a
+# bare -w here would disable all of them.
 yara-x-compile: $(YARA_X_BIN)
-	"$(YARA_X_BIN)" compile --path-as-namespace -w rules/
+	"$(YARA_X_BIN)" compile --path-as-namespace --disable-warnings=text_as_hex rules/
 
 .PHONY: _lint $(LINTERS)
 _lint: $(LINTERS)

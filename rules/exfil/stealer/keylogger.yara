@@ -5,8 +5,8 @@ rule keylogger_discord_telegram: high {
   strings:
     $http_Discord  = "Discord"
     $http_Telegram = "Telegram"
-    $http_discord  = "Discord"
-    $http_telegram = "Telegram"
+    $http_discord  = "discord"
+    $http_telegram = "telegram"
     $k_keylogger   = "keylogger"
     $k_Keylogger   = "Keylogger"
 

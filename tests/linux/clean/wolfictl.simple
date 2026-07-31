@@ -30,6 +30,7 @@ crypto/cipher: medium
 crypto/decrypt: low
 crypto/ecdsa: low
 crypto/ed25519: low
+crypto/encrypt: medium
 crypto/openssl: medium
 crypto/public_key: low
 crypto/tls: low
@@ -71,6 +72,7 @@ evasion/bypass_security/macos/xprotect: medium
 evasion/file/location/dev_shm: medium
 evasion/file/location/system_directory: medium
 evasion/file/prefix: medium
+evasion/hide_artifacts/pivot_root: medium
 exec/cmd: medium
 exec/cmd/pipe: medium
 exec/conditional/LANG: low
@@ -105,9 +107,11 @@ fs/loopback: medium
 fs/mount: low
 fs/node_create: low
 fs/path/bin_su: low
+fs/path/dev: medium
 fs/path/etc: low
 fs/path/etc_hosts: medium
 fs/path/etc_resolv.conf: low
+fs/path/home: low
 fs/path/home_config: low
 fs/path/root: medium
 fs/path/users: medium
@@ -140,6 +144,7 @@ net/dns: low
 net/dns/reverse: medium
 net/dns/servers: low
 net/dns/txt: low
+net/download: medium
 net/download/fetch: medium
 net/http: low
 net/http/2: low

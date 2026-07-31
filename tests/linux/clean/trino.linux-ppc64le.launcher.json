@@ -67,7 +67,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/ip.yara#L111",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/ip.yara#L119",
                     "ID": "c2/addr/ip",
                     "RuleName": "ip_port_mention"
                 },
@@ -375,6 +375,21 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/lock-update.yara#L1",
                     "ID": "fs/lock_update",
                     "RuleName": "flock"
+                },
+                {
+                    "Description": "path reference within /dev",
+                    "MatchStrings": [
+                        "/dev/stderrunreachabl",
+                        "/dev/stdout/dev/stder",
+                        "/dev/urandomECDSA-SHA",
+                        "/dev/stdin",
+                        "/dev/null"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/dev.yara#L1",
+                    "ID": "fs/path/dev",
+                    "RuleName": "dev_path"
                 },
                 {
                     "Description": "path reference within /etc",

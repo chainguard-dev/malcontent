@@ -140,7 +140,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/ip.yara#L111",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/ip.yara#L119",
                     "ID": "c2/addr/ip",
                     "RuleName": "ip_port_mention"
                 },
@@ -377,6 +377,40 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/crypto/elliptic.yara#L1",
                     "ID": "crypto/elliptic",
                     "RuleName": "elliptic"
+                },
+                {
+                    "Description": "encrypts data",
+                    "MatchStrings": [
+                        "e scalarunknown EncryptedKey version un",
+                        "ryption functionEncryptedKey checksum i",
+                        "wn SymmetricallyEncrypted versionconsum",
+                        "getSymmetricallyEncryptedAeadInstance",
+                        "own SymmetricKeyEncrypted versionssh",
+                        "d PSK binderQUICEncryptionLevel",
+                        "getEncryptedKeyAeadInstanc",
+                        "FlagEncryptCommunications",
+                        "t32SymmetricallyEncrypted",
+                        "AddEncryptionSubkey",
+                        "IsEncryptedPEMBlock",
+                        "addEncryptionSubkey",
+                        "EncryptPrivateKeys",
+                        "FlagEncryptStorage",
+                        "EncryptWithConfig",
+                        "EncryptionConfig",
+                        "EncryptPKCS1v15",
+                        "NewCBCEncrypter",
+                        "NewCFBEncrypter",
+                        "AEADEncrypted",
+                        "EncryptTicket",
+                        "EncryptionKey",
+                        "cbcEncrypter",
+                        "CanEncrypt"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/crypto/encrypt.yara#L1",
+                    "ID": "crypto/encrypt",
+                    "RuleName": "encrypt"
                 },
                 {
                     "Description": "references a 'public key'",
@@ -1236,6 +1270,25 @@
                     "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/bin-su.yara#L1",
                     "ID": "fs/path/bin_su",
                     "RuleName": "bin_su"
+                },
+                {
+                    "Description": "path reference within /dev",
+                    "MatchStrings": [
+                        "/dev/lib/var.apkkeysQ",
+                        "/dev/nullcyclonedxdir",
+                        "/dev/randomsbom-index",
+                        "/dev/stderrassistQueu",
+                        "/dev/stdinnotifyListp",
+                        "/dev/stdout/dev/stder",
+                        "/dev/urandom/dev/cons",
+                        "/dev/zero/dev/nullcyc",
+                        "/dev/consolechmod"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/dev.yara#L1",
+                    "ID": "fs/path/dev",
+                    "RuleName": "dev_path"
                 },
                 {
                     "Description": "References /dev/null",
@@ -2578,7 +2631,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/sus/exclamation.yara#L1",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/sus/exclamation.yara#L3",
                     "ID": "sus/exclamation",
                     "RuleName": "exclamations"
                 }

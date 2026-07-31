@@ -13,7 +13,10 @@ rule base64_shell_decode: medium {
     $not_example       = "base64 --decode | keybase"
 
   condition:
-    any of ($base64*) and none of ($not*)
+    // "base64 --decode | keybase" contains no other accepted spelling, so it can
+    // only excuse a $base64_decode match: the remaining spellings still fire on
+    // their own, and a "base64 --decode" beyond the keybase line still counts.
+    any of ($base64_d, $base64_d_b64, $base64_D, $base64_D_b64, $base64_decode_b64, $base64_re) or #base64_decode > #not_example
 }
 
 rule base64_shell_encode: medium {

@@ -11,6 +11,7 @@ evasion/hijack_execution/LD_LIBRARY_PATH: low
 evasion/logging/dev_log: medium
 exec/shell/exec: medium
 fs/directory/create: low
+fs/path/dev: medium
 fs/path/etc: low
 fs/path/etc_initd: medium
 fs/path/etc_resolv.conf: low

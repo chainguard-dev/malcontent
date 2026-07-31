@@ -26,6 +26,7 @@ crypto/cipher: medium
 crypto/decrypt: low
 crypto/ecdsa: low
 crypto/ed25519: low
+crypto/encrypt: medium
 crypto/openssl: medium
 crypto/public_key: low
 crypto/rc4: medium
@@ -93,6 +94,7 @@ fs/link_read: low
 fs/lock_update: low
 fs/mount: low
 fs/mounts_read: medium
+fs/path/dev: medium
 fs/path/etc: low
 fs/path/etc_hosts: medium
 fs/path/etc_resolv.conf: low
@@ -130,6 +132,7 @@ mem/anonymous_file: medium
 net/dns/over_https: medium
 net/dns/servers: low
 net/dns/txt: low
+net/download: medium
 net/http: low
 net/http/2: low
 net/http/accept: medium

@@ -22,6 +22,7 @@ fs/file/delete: low
 fs/file/times_set: low
 fs/file/truncate: low
 fs/link_read: low
+fs/path/dev: medium
 fs/path/etc: low
 fs/path/tmp: medium
 fs/path/usr_bin: low

@@ -13,6 +13,7 @@ credential/ssl/private_key: low
 crypto/aes: low
 crypto/decrypt: low
 crypto/ed25519: low
+crypto/encrypt: medium
 crypto/gost89: low
 crypto/openssl: medium
 crypto/public_key: low
@@ -47,6 +48,7 @@ fs/file/truncate: low
 fs/link_read: low
 fs/mount: low
 fs/mounts_read: medium
+fs/path/dev: medium
 fs/path/etc: low
 fs/path/etc_hosts: medium
 fs/path/etc_resolv.conf: low

@@ -35,6 +35,7 @@ fs/directory/create: low
 fs/file/copy: medium
 fs/file/delete: low
 fs/link_read: low
+fs/path/dev: medium
 fs/path/etc: low
 fs/path/tmp: medium
 fs/path/usr_bin: low

@@ -2,7 +2,7 @@
 
 | RISK | KEY | DESCRIPTION | EVIDENCE |
 |:--|:--|:--|:--|
-| MEDIUM | [c2/addr/ip](https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/ip.yara#L111) | mentions an IP and port | [Port](https://github.com/search?q=Port&type=code)<br>[IP](https://github.com/search?q=IP&type=code) |
+| MEDIUM | [c2/addr/ip](https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/ip.yara#L119) | mentions an IP and port | [Port](https://github.com/search?q=Port&type=code)<br>[IP](https://github.com/search?q=IP&type=code) |
 | MEDIUM | [discover/multiple](https://github.com/chainguard-dev/malcontent/blob/main/rules/discover/multiple.yara#L1) | collects system and network information | [ipv4=addr](https://github.com/search?q=ipv4%3Daddr&type=code)<br>[ipv6=addr](https://github.com/search?q=ipv6%3Daddr&type=code)<br>[id](https://github.com/search?q=id&type=code) |
 | MEDIUM | [discover/network/interface_list](https://github.com/chainguard-dev/malcontent/blob/main/rules/discover/network/interface-list.yara#L1) | list network interfaces | [freeifaddrs](https://github.com/search?q=freeifaddrs&type=code)<br>[getifaddrs](https://github.com/search?q=getifaddrs&type=code) |
 | MEDIUM | [net/ip/addr](https://github.com/chainguard-dev/malcontent/blob/main/rules/net/ip/addr.yara#L1) | mentions an 'IP address' | [IP address](https://github.com/search?q=IP+address&type=code) |

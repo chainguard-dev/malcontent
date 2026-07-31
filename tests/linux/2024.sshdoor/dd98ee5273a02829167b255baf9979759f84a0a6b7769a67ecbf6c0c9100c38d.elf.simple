@@ -12,6 +12,7 @@ credential/ssh/d: medium
 credential/ssl/private_key: low
 crypto/aes: low
 crypto/ed25519: low
+crypto/encrypt: medium
 crypto/openssl: medium
 crypto/public_key: low
 data/compression/zlib: low
@@ -46,6 +47,7 @@ fs/file/times_set: medium
 fs/file/truncate: low
 fs/link_read: low
 fs/lock_update: low
+fs/path/dev: medium
 fs/path/etc: low
 fs/path/etc_hosts: medium
 fs/path/relative: medium

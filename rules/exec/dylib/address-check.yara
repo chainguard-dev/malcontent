@@ -4,8 +4,7 @@ rule dladdr {
     description = "determine if address belongs to a shared library"
 
   strings:
-    $ref  = "dladdr" fullword
-    $ref2 = "dladdr" fullword
+    $ref = "dladdr" fullword
 
   condition:
     any of them

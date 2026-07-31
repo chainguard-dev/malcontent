@@ -7,7 +7,6 @@ rule common_ip_blocklist: high {
     $ = "109.145.173.169" fullword
     $ = "109.74.154.90" fullword
     $ = "109.74.154.91" fullword
-    $ = "109.74.154.91" fullword
     $ = "109.74.154.92" fullword
     $ = "178.239.165.70" fullword
     $ = "188.105.91.116" fullword

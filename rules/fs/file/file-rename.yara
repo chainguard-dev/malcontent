@@ -18,10 +18,11 @@ rule explicit_rename: low {
 
   strings:
     $rename      = "os.rename" fullword
+    // one spelling covers both idioms: the JS/Node fs.renameFile helper and the
+    // Objective-C NSFileManager renameFile: selector
     $rename_file = "renameFile" fullword
     $move_file   = "MoveFile"
     $ruby        = "File.rename"
-    $objc        = "renameFile" fullword
     $go          = "os.Rename" fullword
 
   condition:

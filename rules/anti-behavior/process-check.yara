@@ -27,6 +27,10 @@ rule linux_monitors: high linux {
     filetypes   = "elf"
 
   strings:
+    // "ps" belongs to this group only. It was also listed as an $x* monitor, which
+    // let one match satisfy both "any of ($p*)" and one of the three required
+    // monitors, so the threshold really only asked for two monitors beyond ps --
+    // and bare "ps" occurs in a large share of ordinary binaries.
     $pgrep = "pgrep" fullword
     $ps    = "ps" fullword
 
@@ -41,7 +45,6 @@ rule linux_monitors: high linux {
     $x_dstat   = "dstat" fullword
     $x_nmon    = "nmon" fullword
     $x_vmstat  = "vmstat" fullword
-    $x_ps      = "ps" fullword
 
     $not_renice     = "renice" fullword
     $not_ddrescue   = "ddrescue" fullword

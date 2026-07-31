@@ -16,6 +16,7 @@ exec/dylib/iterate: low
 exec/dylib/symbol_address: medium
 fs/link_read: low
 fs/mount: low
+fs/path/dev: medium
 fs/path/etc: low
 fs/path/home_config: low
 fs/proc/self_cgroup: medium

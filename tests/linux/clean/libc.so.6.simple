@@ -54,6 +54,7 @@ fs/link_read: low
 fs/lock_update: low
 fs/mount: low
 fs/mounts_read: medium
+fs/path/dev: medium
 fs/path/etc: low
 fs/path/etc_hosts: medium
 fs/path/etc_resolv.conf: low

@@ -34,7 +34,6 @@ rule pam_password_exfil_file: high {
     $path_pass3            = /\/(var|tmp|etc|lib|bin|opt|usr|root|Users|Library|dev)[\w\/]{0,32}\/login[\.\w\-]{0,8}/
     $path_pass4            = /\/(var|tmp|etc|lib|opt|root|Users|Library|dev)[\w\/]{0,32}\/pass[\.\w\-]{0,8}/
     $path_pass5            = /\/(var|tmp|etc|lib|bin|opt|usr|root|Users|Library|dev)[\w\/]{0,32}\/sshpass[\.\w\-]{0,8}/
-    $path_pass6            = /\/(var|tmp|etc|lib|bin|opt|usr|root|Users|Library|dev)[\w\/]{0,32}\/login[\.\w\-]{0,8}/
 
   condition:
     filesize < 1MB and uint32(0) == 1179403647 and all of ($req*) and any of ($o*) and any of ($path*)

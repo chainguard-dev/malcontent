@@ -48,6 +48,7 @@ fs/file/rename: low
 fs/file/times_set: low
 fs/link_read: low
 fs/lock_update: low
+fs/path/dev: medium
 fs/path/etc: low
 fs/path/etc_hosts: medium
 fs/path/etc_resolv.conf: low

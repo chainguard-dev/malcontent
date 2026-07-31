@@ -22,6 +22,7 @@ exec/shell/exec: medium
 fs/attributes/chattr: high
 fs/file/copy: medium
 fs/file/delete: low
+fs/path/dev: medium
 fs/path/etc: low
 fs/path/var: low
 fs/path/var_profile: medium

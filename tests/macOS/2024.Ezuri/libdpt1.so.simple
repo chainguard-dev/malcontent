@@ -12,6 +12,7 @@ exec/plugin: low
 exec/program: medium
 fs/file/open: low
 fs/file/read: low
+fs/path/dev: medium
 fs/path/etc: low
 fs/path/users: medium
 fs/permission/chown: medium

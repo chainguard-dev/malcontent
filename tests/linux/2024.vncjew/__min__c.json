@@ -69,7 +69,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/ip.yara#L111",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/ip.yara#L119",
                     "ID": "c2/addr/ip",
                     "RuleName": "ip_port_mention"
                 },
@@ -476,6 +476,22 @@
                     "ReferenceURL": "https://man7.org/linux/man-pages/man2/readlink.2.html",
                     "ID": "fs/link_read",
                     "RuleName": "readlink"
+                },
+                {
+                    "Description": "path reference within /dev",
+                    "MatchStrings": [
+                        "/dev/null0.0.0.0/8200",
+                        "/dev/stderr/dev/stdou",
+                        "/dev/stdin/etc/hosts/",
+                        "/dev/stdout/etc/passw",
+                        "/dev/urandom127.0.0.1",
+                        "/dev/uraM9"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/fs/path/dev.yara#L1",
+                    "ID": "fs/path/dev",
+                    "RuleName": "dev_path"
                 },
                 {
                     "Description": "path reference within /etc",

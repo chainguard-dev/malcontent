@@ -42,6 +42,7 @@ exfil/stealer/pam: high
 fs/directory/create: low
 fs/file/delete: low
 fs/file/make_executable: high
+fs/path/dev: medium
 fs/path/etc: low
 fs/path/etc_hosts: medium
 fs/path/etc_resolv.conf: low
