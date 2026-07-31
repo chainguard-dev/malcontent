@@ -13,7 +13,7 @@ rule php_image_include: critical {
     $not_symfony2 = "<a href=\"https://symfony.com/doc/<?= Symfony\\Component\\HttpKernel\\Kernel::VERSION; ?>/index.html\">"
 
   condition:
-    filesize < 5242880 and all of them and none of ($not*)
+    filesize < 5242880 and $php and $include and none of ($not*)
 }
 
 rule php_in_image: critical {

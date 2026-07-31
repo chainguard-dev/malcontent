@@ -6,9 +6,12 @@ rule js_eval: medium {
     filetypes   = "js,ts"
 
   strings:
-    $val       = /eval\([\.\+ _a-zA-Z\"\'\(\,\)]{1,32}/ fullword
-    $val2      = "eval(this.toString());"
-    $not_empty = "eval()"
+    $val  = /eval\([\.\+ _a-zA-Z\"\'\(\,]{1,32}/ fullword
+    $val2 = "eval(this.toString());"
+
+    // both are verbatim PHP reference material (manual signature, php-src macro)
+    $not_php_signature = "eval(string $code)"
+    $not_php_internal  = "eval(INTERNAL_FUNCTION_PARAM_PASSTHRU"
 
   condition:
     filesize < 1MB and any of ($val*) and none of ($not*)
@@ -79,7 +82,7 @@ rule js_eval_obfuscated_fromChar: high {
     $not_elastic2 = "* Licensed under the Elastic License 2.0; you may not use this file except in compliance with the Elastic License 2.0. */"
 
   condition:
-    filesize < 5MB and all of them and math.abs(@eval - @ref) > 384 and none of ($not*)
+    filesize < 5MB and $eval and $ref and math.abs(@eval - @ref) > 384 and none of ($not*)
 }
 
 rule js_anonymous_function: medium {
@@ -188,7 +191,10 @@ rule python_exec_complex: high {
     $not_versioneer = "exec(VERSIONEER.decode(), globals())"
 
   condition:
-    filesize < 512KB and $exec and none of ($not*)
+    // $not_pyparser and $not_versioneer are each themselves an $exec match, so
+    // count past them instead of exempting the whole file; "function(" is too
+    // broad to count against and stays an absolute negation.
+    filesize < 512KB and $exec and #exec > #not_pyparser + #not_versioneer and not $not_javascript
 }
 
 rule python_exec_fernet: critical {

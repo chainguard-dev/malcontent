@@ -164,5 +164,8 @@ rule base64_python_functions: critical {
     $not_js5         = "throw" base64
 
   condition:
-    2 of ($f*) and none of ($not*)
+    // The $not_js strings are single JavaScript tokens: one of them inside a
+    // base64 blob proves nothing, but two together mean the blob decodes to JS
+    // rather than Python, so require a pair before suppressing.
+    2 of ($f*) and not 2 of ($not*)
 }

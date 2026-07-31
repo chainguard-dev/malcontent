@@ -63,5 +63,8 @@ rule pam_get_item: high {
     $not_SSH2_MSG_KEXINIT = "SSH2_MSG_KEXINIT"
 
   condition:
-    $ref and $sshd and none of ($not*)
+    // the two negations together fingerprint a genuine OpenSSH sshd (version
+    // banner plus kex protocol constant); either one alone shows up in unrelated
+    // binaries, so only the pair should exempt a file
+    $ref and $sshd and not all of ($not*)
 }

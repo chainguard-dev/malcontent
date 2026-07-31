@@ -3,12 +3,13 @@ rule pcap_user: medium {
     description = "uses libpcap, a packet capture library"
 
   strings:
-    $p_pcap_       = "pcap_"
-    $p_PCAP_       = "PCAP_"
-    $p__pcap       = "_pcap"
+    // anchored on a non-identifier byte so an unrelated symbol that merely ends
+    // in "pcap" ("usb_pcap_data", "keepcap_word", "CAP_SETPCAP") is not a hit
+    $p_pcap_       = /[^\w]pcap_[a-z]/
+    $p_PCAP_       = /[^\w]PCAP_[A-Z]/
+    $p__pcap       = "_pcap" fullword
     $p_pcapfile    = "pcapfile"
     $not_dhcp      = "dhcp"
-    $not_pcap      = "_pcap_"
     $not_dhclient  = "dhclient"
     $not_tcpdump   = "tcpdump"
     $not_wireshark = "wireshark"

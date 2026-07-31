@@ -53,12 +53,18 @@ rule chmod_dangerous_exec: high exfil {
     $not_chmod_1777  = "chmod 1777"
     $not_chmod_01777 = "chmod 01777"
     $not_chromium    = "CHROMIUM_TIMESTAMP"
-    $not_var_tmp     = "chmod 0777 /var/tmp" fullword
+    $not_var_tmp     = "chmod 0777 /var/tmp"
     $not_extutils    = "chmod 0777, [.foo.bar] doesn't work on VMS"
     $not_sonarqube   = "Setting loose POSIX file permissions is security-sensitive"
 
   condition:
-    filesize < 50MB and any of ($r*) and none of ($not*)
+    // The four chmod exclusions are spellings $ref itself matches (its
+    // [\-\w ]{0,4} run swallows the 1777/01777/0777 variants), so counting them
+    // off leaves any additional chmod 777 site visible instead of silencing the
+    // whole file. The remaining two are unrelated build/scanner markers.
+    filesize < 50MB and any of ($r*) and
+    #ref + #ruby + #r_python > #not_chmod_1777 + #not_chmod_01777 + #not_var_tmp + #not_extutils and
+    none of ($not_chromium, $not_sonarqube)
 }
 
 rule chmod_group_writeable: high exfil {
@@ -72,10 +78,15 @@ rule chmod_group_writeable: high exfil {
     $not_chmod_1777  = "chmod 1770"
     $not_chmod_01777 = "chmod 01770"
     $not_chromium    = "CHROMIUM_TIMESTAMP"
-    $not_var_tmp     = "chmod 0770 /var/tmp" fullword
+    $not_var_tmp     = "chmod 0770 /var/tmp"
     $not_extutils    = "chmod 0770, [.foo.bar] doesn't work on VMS"
     $not_sonarqube   = "Setting loose POSIX file permissions is security-sensitive"
 
   condition:
-    filesize < 50MB and any of ($r*) and none of ($not*)
+    // Same shape as chmod_dangerous_exec: the four chmod exclusions are
+    // spellings $ref already matches, so count them off rather than letting one
+    // benign chmod 770 line silence every other one in the file.
+    filesize < 50MB and any of ($r*) and
+    #ref + #r_python + #ruby > #not_chmod_1777 + #not_chmod_01777 + #not_var_tmp + #not_extutils and
+    none of ($not_chromium, $not_sonarqube)
 }

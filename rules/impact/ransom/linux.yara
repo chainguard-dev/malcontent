@@ -64,7 +64,10 @@ rule linux_syscalls: high {
     $not_getifaddrs = "getifaddrs" fullword
 
   condition:
-    filesize < 1MB and uint32(0) == 1179403647 and $f_readdir and 85 % of ($f*) and any of ($e*) and none of ($not*)
+    // the $not set is generic libc surface, and an encrypter can legitimately pull
+    // in one or two of these (strtol for argv, dlopen for a plugin), so require
+    // three unrelated libc facilities before writing the file off as general-purpose
+    filesize < 1MB and uint32(0) == 1179403647 and $f_readdir and 85 % of ($f*) and any of ($e*) and not 3 of ($not*)
 }
 
 rule conti_alike: high posix {

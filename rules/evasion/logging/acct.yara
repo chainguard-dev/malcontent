@@ -9,6 +9,9 @@ rule acct {
     // from /etc/services
     $not_radius = "radius-acct" fullword
 
+  // $ref matches inside "radius-acct" as well, so compare occurrence counts
+  // rather than presence, and never treat the exclusion as evidence.
+
   condition:
-    any of them
+    $ref and #ref > #not_radius
 }

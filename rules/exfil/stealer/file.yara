@@ -40,12 +40,16 @@ rule office_crypt_archive: high {
     $not_xlsx_equal     = "xlsx="
     $not_private        = "/System/Library/PrivateFrameworks/"
     $not_program        = "@(#)PROGRAM:"
-    $not_saving         = "saving"
+    // $not_saving, $not_filetypes and $not_aifc are fullword: unanchored they
+    // also matched inside unrelated words - "Space-saving" in an embedded PCI
+    // string table suppressed the rule on a file that carried no mimetype
+    // table at all
+    $not_saving         = "saving" fullword
     $not_audio_exits    = "audio_extensions"
-    $not_filetypes      = "filetypes"
+    $not_filetypes      = "filetypes" fullword
     $not_author_javadoc = "@author"
     $not_mime           = "application/vnd."
-    $not_aifc           = "aifc"
+    $not_aifc           = "aifc" fullword
 
   condition:
     filesize < 104857600 and ($e_xlsx or $e_docx) and 7 of ($e_*) and any of ($o_*) and none of ($not*)
@@ -76,6 +80,9 @@ rule sensitive_extensions: high {
     $e_conf   = "conf" fullword
     $e_json   = "json" fullword
 
+    // three-letter tokens that also belong to the sensitive extension list
+    // this rule is built from; on their own they say nothing, so require two
+    // before treating the match as a generic file-type table
     $not_elf = "elf" fullword
     $not_zip = "dmg" fullword
     $not_pkg = "pkg" fullword
@@ -84,7 +91,7 @@ rule sensitive_extensions: high {
     $f_opendir = "opendir"
 
   condition:
-    any of ($f*) and 85 % of ($e*) and none of ($not*)
+    any of ($f*) and 85 % of ($e*) and not 2 of ($not*)
 
 }
 

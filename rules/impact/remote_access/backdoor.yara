@@ -15,14 +15,20 @@ rule backdoor: medium {
     description = "References a 'backdoor'"
 
   strings:
-    $ref = /[\/a-zA-Z\-_ \']{0,16}[bB]ackdoor[\/a-zA-Z\-_ ]{0,48}/
+    // anchored on "[bB]ackdoor": a leading variable-width class makes the engine
+    // report one match per possible prefix length, which would inflate #ref below
+    $ref = /[bB]ackdoor[\/a-zA-Z\-_ ]{0,48}/
 
     $not_vcpu    = "VCPUInfoBackdoor"
     $not_vmware  = "gGuestBackdoorOps"
     $not_comment = "# backdoor:"
 
   condition:
-    filesize < 40MB and any of them and not wordlist and none of ($not*)
+    // $ref matches inside each accepted spelling (VCPUInfoBackdoor,
+    // gGuestBackdoorOps, "# backdoor:"), one match apiece, so require a reference
+    // beyond them instead of letting any one of them disarm the rule; the reference
+    // is named explicitly because `them` would include the $not strings
+    filesize < 40MB and #ref > #not_vcpu + #not_vmware + #not_comment and not wordlist
 }
 
 rule backdoor_shell: high {
@@ -66,7 +72,11 @@ rule backdoor_high: high {
     $not_falco_backdoor_insert = "backdoor method for inserting special events"
 
   condition:
-    filesize < 10MB and any of ($lower*) and none of ($not*)
+    // the two $not strings are overlapping halves of one falco comment line and each
+    // covers the same "backdoor method" that $lower_sufifx matches, so dominate the
+    // larger of the two counts rather than their sum; $lower_prefix cannot match
+    // inside either string, so it stands on its own
+    filesize < 10MB and ($lower_prefix or (#lower_sufifx > #not_falco_dev_null and #lower_sufifx > #not_falco_backdoor_insert))
 }
 
 rule backdoor_caps: high {

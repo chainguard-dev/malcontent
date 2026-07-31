@@ -35,6 +35,7 @@ exec/shell/pipe_sh: medium
 exec/system_controls/apparmor: high
 exec/system_controls/stop: low
 exec/system_controls/systemd: medium
+exfil/stealer/ssh: medium
 fs/attributes/chattr: high
 fs/directory/create: low
 fs/file/delete: medium

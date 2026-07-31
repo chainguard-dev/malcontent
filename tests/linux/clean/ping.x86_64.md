@@ -2,7 +2,7 @@
 
 | RISK | KEY | DESCRIPTION | EVIDENCE |
 |:--|:--|:--|:--|
-| MEDIUM | [c2/addr/ip](https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/ip.yara#L96) | mentions an IP and port | [Port](https://github.com/search?q=Port&type=code)<br>[IP](https://github.com/search?q=IP&type=code) |
+| MEDIUM | [c2/addr/ip](https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/ip.yara#L111) | mentions an IP and port | [Port](https://github.com/search?q=Port&type=code)<br>[IP](https://github.com/search?q=IP&type=code) |
 | MEDIUM | [discover/multiple](https://github.com/chainguard-dev/malcontent/blob/main/rules/discover/multiple.yara#L1) | collects system and network information | [ipv4=addr](https://github.com/search?q=ipv4%3Daddr&type=code)<br>[ipv6=addr](https://github.com/search?q=ipv6%3Daddr&type=code)<br>[id](https://github.com/search?q=id&type=code) |
 | MEDIUM | [discover/network/interface_list](https://github.com/chainguard-dev/malcontent/blob/main/rules/discover/network/interface-list.yara#L1) | list network interfaces | [freeifaddrs](https://github.com/search?q=freeifaddrs&type=code)<br>[getifaddrs](https://github.com/search?q=getifaddrs&type=code) |
 | MEDIUM | [net/ip/addr](https://github.com/chainguard-dev/malcontent/blob/main/rules/net/ip/addr.yara#L1) | mentions an 'IP address' | [IP address](https://github.com/search?q=IP+address&type=code) |
@@ -10,7 +10,7 @@
 | MEDIUM | [net/ip/parse](https://github.com/chainguard-dev/malcontent/blob/main/rules/net/ip/ip-parse.yara#L13) | parses IP address (IPv4 or IPv6) | [inet_pton](https://github.com/search?q=inet_pton&type=code) |
 | MEDIUM | [net/ip/string](https://github.com/chainguard-dev/malcontent/blob/main/rules/net/ip/ip-string.yara#L1) | [converts IP address from byte to string](https://linux.die.net/man/3/inet_ntoa) | [inet_ntoa](https://github.com/search?q=inet_ntoa&type=code)<br>[inet_ntop](https://github.com/search?q=inet_ntop&type=code) |
 | MEDIUM | [net/socket/raw](https://github.com/chainguard-dev/malcontent/blob/main/rules/net/socket/raw.yara#L1) | [send raw and/or malformed IP packets](https://man7.org/linux/man-pages/man7/raw.7.html) | [raw socket](https://github.com/search?q=raw+socket&type=code)<br>[SOCK_RAW](https://github.com/search?q=SOCK_RAW&type=code) |
-| LOW | [anti-behavior/random_behavior](https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-behavior/random_behavior.yara#L69) | uses a random number generator | [getrandom](https://github.com/search?q=getrandom&type=code) |
+| LOW | [anti-behavior/random_behavior](https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-behavior/random_behavior.yara#L75) | uses a random number generator | [getrandom](https://github.com/search?q=getrandom&type=code) |
 | LOW | [discover/network/interface](https://github.com/chainguard-dev/malcontent/blob/main/rules/discover/network/interface.yara#L1) | get network interfaces by name or index | [if_nametoindex](https://github.com/search?q=if_nametoindex&type=code) |
 | LOW | [net/ip/multicast_send](https://github.com/chainguard-dev/malcontent/blob/main/rules/net/ip/ip-multicast-send.yara#L1) | [send data to multiple nodes simultaneously](https://en.wikipedia.org/wiki/IP_multicast) | [multicast](https://github.com/search?q=multicast&type=code) |
 | LOW | [net/ip/send_unicast](https://github.com/chainguard-dev/malcontent/blob/main/rules/net/ip/ip-send-unicast.yara#L1) | send data to the internet | [unicast](https://github.com/search?q=unicast&type=code) |

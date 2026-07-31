@@ -8,5 +8,8 @@ rule cxFreeze_Python_executable: high {
     $not_importlib = "tool like cx_Freeze"
 
   condition:
-    filesize < 10485760 and $cxfreeze and none of ($not*)
+    // "tool like cx_Freeze" contains $cxfreeze, so prose about the packer used
+    // to silence a real cx_Freeze marker; require an occurrence the prose does
+    // not account for.
+    filesize < 10485760 and $cxfreeze and #cxfreeze > #not_importlib
 }

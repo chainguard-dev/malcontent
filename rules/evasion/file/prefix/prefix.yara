@@ -57,10 +57,16 @@ rule hidden_short_path_system: high {
     $not_X11             = "/tmp/.X11-unix"
     $not_XIM             = "/tmp/.XIM-unix"
     $not_cpp             = "/tmp/.cpp.err"
-    $not_pwd             = "/etc/.pwd.lock"
+
+    // The other exclusions above name paths $crit cannot match (/tmp is not in
+    // its directory list), but $crit does match "/etc/.pwd" inside glibc's lock
+    // file, so its presence used to excuse every other short hidden system path
+    // in the file. Count it instead of checking for it: fire only on a $crit
+    // match the lock file does not account for.
+    $notsub_pwd = "/etc/.pwd.lock"
 
   condition:
-    $crit and none of ($not*)
+    $crit and none of ($not_*) and #crit > #notsub_pwd
 }
 
 rule hidden_shell_script: high {

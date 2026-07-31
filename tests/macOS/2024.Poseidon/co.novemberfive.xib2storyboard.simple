@@ -7,5 +7,6 @@ fs/file/open: low
 impact/ui/dock_hide: high
 malware/family/poseidon_stealer: high
 net/http: low
+net/url/embedded: low
 net/url/parse: low
 net/url/request: medium

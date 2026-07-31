@@ -62,11 +62,15 @@ rule setuptools_cmd_exec: high {
     $not_comment           = "Editable install to a prefix should be discoverable."
     $not_egg_info_requires = "os.path.join(egg_info_dir, 'requires.txt')"
     $not_requests          = "'Documentation': 'https://requests.readthedocs.io'"
-    $not_sdist_publish     = "python setup.py sdist bdist_wheel"
-    $not_twine_upload      = "twine upload dist/*"
+
+    // These two lines are the back-to-back publish block of requests' setup.py.
+    // Either command on its own is a one-liner malware readily copies in as
+    // camouflage, so the pair is required as a set rather than member-by-member.
+    $notgrp_publish_sdist = "python setup.py sdist bdist_wheel"
+    $notgrp_publish_twine = "twine upload dist/*"
 
   condition:
-    remote_access_pythonSetup and any of ($f*) and none of ($not*)
+    remote_access_pythonSetup and any of ($f*) and none of ($not_*) and not all of ($notgrp_publish*)
 }
 
 rule setuptools_cmd_exec_start: critical {
@@ -103,10 +107,16 @@ rule setuptools_eval_high: high {
 
   strings:
     $f_eval         = /eval\([\"\'\/\w\,\.\ \-\)\(]{1,64}\)/ fullword
-    $not_namespaced = /eval\([\w\.\(\)\"\/\']{4,16}, [a-z]{1,6}[,\)]/
+    $not_namespaced = /eval\([\w\.\(\)\"\/\']{4,16}, [a-z]{1,6}[,\)]/ fullword
+
+  // $not_namespaced describes a narrower spelling of the very eval() calls
+  // $f_eval finds, so its presence only accounts for one of them. Compare
+  // occurrence counts: fire only on an eval() no namespaced call accounts for.
+  // $not_namespaced carries $f_eval's fullword so the two agree on where a call
+  // starts and the counts stay comparable.
 
   condition:
-    remote_access_pythonSetup and any of ($f*) and none of ($not*)
+    remote_access_pythonSetup and $f_eval and #f_eval > #not_namespaced
 }
 
 rule setuptools_exec: medium {
@@ -135,14 +145,19 @@ rule setuptools_exec_high: high {
     $not_google          = /# Copyright [1-2][0-9]{3} Google Inc/
     $not_idna            = "A library to support the Internationalised Domain Names in Applications"
     $not_idna2           = "(IDNA) protocol as specified in RFC 5890 et.al."
-    $not_pyspark_exec    = "exec(open(\"pyspark/version.py\").read())"
     $not_pyspark_ioerror = "\"Failed to load PySpark version file for packaging. You must be in Spark's python dir.\""
     $not_requests        = "'Documentation': 'https://requests.readthedocs.io'"
     $not_test_egg_class  = "class TestEggInfo"
-    $not_namespaced      = /exec\([\w\.\(\)\"\/\']{4,16}, [a-z]{1,6}[,\)]/
+
+    // $f_exec matches inside both of these, so their presence only accounts for
+    // one exec() call each rather than excusing the whole file. They are counted
+    // below instead of being checked for presence, and $notsub_namespaced
+    // carries $f_exec's fullword so the two agree on where a call starts.
+    $notsub_pyspark_exec = "exec(open(\"pyspark/version.py\").read())"
+    $notsub_namespaced   = /exec\([\w\.\(\)\"\/\']{4,16}, [a-z]{1,6}[,\)]/ fullword
 
   condition:
-    remote_access_pythonSetup and any of ($f*) and none of ($not*)
+    remote_access_pythonSetup and $f_exec and none of ($not_*) and #f_exec > #notsub_namespaced + #notsub_pyspark_exec
 }
 
 rule setuptools_b64decode: suspicious {

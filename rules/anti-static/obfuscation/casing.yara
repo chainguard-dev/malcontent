@@ -24,8 +24,12 @@ rule set_variable_variable_casing: high windows {
     $not4 = "set-Variable"
     $not5 = "Set-variable"
 
+  // $ref matches each accepted spelling too, so a file can hold both an accepted
+  // spelling and an obfuscated one. Compare occurrence counts rather than
+  // presence: fire only on a $ref hit no accepted spelling accounts for.
+
   condition:
-    filesize < 1MB and $ref and none of ($not*)
+    filesize < 1MB and $ref and #ref > #not + #not2 + #not3 + #not4 + #not5
 }
 
 rule set_item_variable_casing: high windows {
@@ -41,8 +45,10 @@ rule set_item_variable_casing: high windows {
     $not4 = "set-Item"
     $not5 = "Set-item"
 
+  // See set_variable_variable_casing: compare occurrence counts, not presence.
+
   condition:
-    filesize < 1MB and $ref and none of ($not*)
+    filesize < 1MB and $ref and #ref > #not + #not2 + #not3 + #not4 + #not5
 }
 
 rule string_variable_casing: high windows {
@@ -56,8 +62,10 @@ rule string_variable_casing: high windows {
     $not2 = "[STRING]"
     $not3 = "[String]"
 
+  // See set_variable_variable_casing: compare occurrence counts, not presence.
+
   condition:
-    filesize < 1MB and $ref and none of ($not*)
+    filesize < 1MB and $ref and #ref > #not + #not2 + #not3
 }
 
 rule length_casing: medium windows {
@@ -67,12 +75,16 @@ rule length_casing: medium windows {
 
   strings:
     $ref  = /\.[Ll][Ee][Nn][Gg][Tt][Hh]/
-    $not  = "Length"
-    $not2 = "length"
-    $not3 = "LENGTH"
+    $not  = ".Length"
+    $not2 = ".length"
+    $not3 = ".LENGTH"
+
+  // See set_variable_variable_casing: compare occurrence counts, not presence.
+  // The $not literals carry the leading "." so each accepted spelling lands on
+  // the same offset as a $ref match, making the counts line up 1:1.
 
   condition:
-    filesize < 1MB and $ref and none of ($not*)
+    filesize < 1MB and $ref and #ref > #not + #not2 + #not3
 }
 
 rule pshome_casing: high windows {
@@ -82,12 +94,16 @@ rule pshome_casing: high windows {
 
   strings:
     $ref  = /[Pp][Ss][Hh][Oo][Mm][Ee]/ fullword
-    $not  = "PSHOME"
-    $not2 = "pshome"
-    $not3 = "Pshome"
+    $not  = "PSHOME" fullword
+    $not2 = "pshome" fullword
+    $not3 = "Pshome" fullword
+
+  // See set_variable_variable_casing: compare occurrence counts, not presence.
+  // The $not literals repeat the $ref `fullword` modifier so they cannot match
+  // inside a longer identifier where $ref does not, keeping the counts 1:1.
 
   condition:
-    filesize < 1MB and $ref and none of ($not*)
+    filesize < 1MB and $ref and #ref > #not + #not2 + #not3
 }
 
 rule variable_casing: high windows {
@@ -97,12 +113,16 @@ rule variable_casing: high windows {
 
   strings:
     $ref  = /[Vv][Aa][Rr][Ii][Aa][Bb][Ll][Ee]/ fullword
-    $not  = "variable"
-    $not2 = "Variable"
-    $not3 = "VARIABLE"
+    $not  = "variable" fullword
+    $not2 = "Variable" fullword
+    $not3 = "VARIABLE" fullword
+
+  // See set_variable_variable_casing: compare occurrence counts, not presence.
+  // The $not literals repeat the $ref `fullword` modifier so they cannot match
+  // inside a longer identifier where $ref does not, keeping the counts 1:1.
 
   condition:
-    filesize < 1MB and $ref and none of ($not*)
+    filesize < 1MB and $ref and #ref > #not + #not2 + #not3
 }
 
 rule pshome_multiple_casing: critical windows {
@@ -112,12 +132,14 @@ rule pshome_multiple_casing: critical windows {
 
   strings:
     $ref  = /[Pp][Ss][Hh][Oo][Mm][Ee]/ fullword
-    $not  = "PSHOME"
-    $not2 = "pshome"
-    $not3 = "Pshome"
+    $not  = "PSHOME" fullword
+    $not2 = "pshome" fullword
+    $not3 = "Pshome" fullword
+
+  // See pshome_casing: `fullword` on both sides, then compare occurrence counts.
 
   condition:
-    filesize < 1MB and ($ref and none of ($not*)) and (string_variable_casing or set_item_variable_casing or length_casing)
+    filesize < 1MB and ($ref and #ref > #not + #not2 + #not3) and (string_variable_casing or set_item_variable_casing or length_casing)
 }
 
 rule string_multiple_casing: critical windows {
@@ -131,6 +153,8 @@ rule string_multiple_casing: critical windows {
     $not2 = "[STRING]"
     $not3 = "[String]"
 
+  // See set_variable_variable_casing: compare occurrence counts, not presence.
+
   condition:
-    filesize < 1MB and ($ref and none of ($not*)) and (string_variable_casing or set_item_variable_casing or length_casing or set_variable_variable_casing)
+    filesize < 1MB and ($ref and #ref > #not + #not2 + #not3) and (string_variable_casing or set_item_variable_casing or length_casing or set_variable_variable_casing)
 }

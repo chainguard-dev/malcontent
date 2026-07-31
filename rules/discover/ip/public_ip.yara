@@ -20,7 +20,7 @@ rule iplookup_website: high {
     $not_pypi_index = "testpack-id-lb001"
 
   condition:
-    filesize < 250MB and any of them and none of ($not*)
+    filesize < 250MB and any of ($ipify, $wtfismyip, $iplogger, $getjsonip, $ipconfig_me, $icanhazip, $grabify, $ident_me, $showip_net, $ifconfig_io, $ifconfig_co, $ipinfo, $check_ip) and none of ($not*)
 }
 
 rule v6_ipinfo_website: override {
@@ -67,7 +67,7 @@ rule iplookup_website_base64: critical {
     $not_cookiemonster = /github.com\/iangcarroll\/cookiemonster@v.*\/pkg\/monster\/wordlist.go/
 
   condition:
-    any of them and none of ($not*)
+    any of ($check_ip, $getjsonip_b, $ipify_b, $ipinfo_b, $iplogger_b, $wtfismyip_b) and none of ($not*)
 }
 
 rule iplookup_website_xor: critical {

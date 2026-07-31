@@ -15,11 +15,12 @@ rule proc_d_exe: medium {
     description = "accesses underlying executable of other processes"
 
   strings:
-    $digit      = "/proc/%d/exe" fullword
-    $not_cgroup = "cgroup" fullword
-    $not_tool   = /[Uu]sage:/ fullword
+    $digit    = "/proc/%d/exe" fullword
+    $not_tool = /[Uu]sage:/ fullword
 
   condition:
+    // the help-text marker is the only conclusive CLI-tool signal here; a bare
+    // "cgroup" mention used to exempt the file on its own, which is trivial to add
     $digit and none of ($not*)
 }
 

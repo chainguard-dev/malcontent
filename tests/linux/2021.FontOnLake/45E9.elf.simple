@@ -29,6 +29,7 @@ discover/user/USER: low
 evasion/file/location/x11_unix: medium
 evasion/file/prefix: medium
 evasion/file/prefix/proc: high
+evasion/file/prefix/tmp: high
 evasion/logging/acct: low
 evasion/logging/dmesg: high
 evasion/logging/failed_logins: medium

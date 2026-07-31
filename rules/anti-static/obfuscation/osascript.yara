@@ -12,5 +12,8 @@ rule compiled_osascript: medium {
     $not_captureone    = "captureone"
 
   condition:
-    filesize < 1048576 and all of ($s_*) and none of ($not*)
+    // The whole $not set was added at once for a single Capture One compiled AppleScript;
+    // "saving" and "display alert" are ordinary AppleScript vocabulary on their own, so
+    // require the complete set before suppressing.
+    filesize < 1048576 and all of ($s_*) and not all of ($not*)
 }

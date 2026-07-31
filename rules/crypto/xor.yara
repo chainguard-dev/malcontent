@@ -14,5 +14,7 @@ rule xor_decode_encode: high {
     $not_qemu = "Opcode_xor_encode"
 
   condition:
-    any of ($x*) and none of ($not*)
+    // $not_qemu is a qemu-xtensa symbol name that contains "xor_encode", so it can only
+    // excuse a $x_encode_ match -- every other spelling still counts on its own.
+    any of ($x_decode, $x_encode, $x_file, $x_decode_, $x_file_, $x_crypt) or ($x_encode_ and not $not_qemu)
 }

@@ -75,10 +75,13 @@ rule dynamic_require: high {
   strings:
     $import  = "import" fullword
     $ref     = /require\(\w{2,16}\(.{0,64}\)/
-    $not_str = "require(str("
+    $not_str = /require\(str\(.{0,64}\)/
 
   condition:
-    $import and $ref and none of ($not*)
+    // $not_str is $ref with the wrapper pinned to the one accepted spelling, so
+    // the two count 1:1 per occurrence: require a require() call whose wrapper
+    // is something other than str().
+    $import and $ref and #ref > #not_str
 }
 
 rule dynamic_require_decoded: critical {
@@ -310,7 +313,10 @@ rule rename_os: high {
     $not_gos        = "import os as gos"
 
   condition:
-    filesize < 65535 and $ref and none of ($not*)
+    // $ref generalises both accepted spellings and matches once per
+    // "import os as " occurrence, so counts line up 1:1: require an alias other
+    // than _os or gos.
+    filesize < 65535 and $ref and #ref > #not_underscore + #not_gos
 }
 
 rule rename_marshal: critical {
@@ -333,15 +339,18 @@ rule rename_base64: critical {
   strings:
     $ref = /import base64 as \w{0,64}/
 
+    // These four only appear together, in numcodecs/base64.py. Two of them are
+    // bare generic comments, so the set is required as a whole.
     $not_numcodecs1 = "Codec providing base64 compression via the Python standard library."
     $not_numcodecs2 = "codec_id = \"base64\""
     $not_numcodecs3 = "# normalise inputs"
     $not_numcodecs4 = "# do compression"
+
     $not_open_clip1 = "class ResampledShards2(IterableDataset)"
     $not_open_clip2 = "class SyntheticDataset(Dataset)"
 
   condition:
-    filesize < 10MB and all of them and none of ($not*)
+    filesize < 10MB and $ref and none of ($not_open_clip*) and not all of ($not_numcodecs*)
 }
 
 rule rename_zlib: high {
@@ -569,5 +578,5 @@ rule bloated_hex_python: high {
     $not_highlight = "highlight"
 
   condition:
-    filesize > 512KB and filesize < 10MB and 90 % of ($f*) and none of ($not*)
+    filesize > 512KB and filesize < 10MB and 90 % of ($f*) and not all of ($not*)
 }

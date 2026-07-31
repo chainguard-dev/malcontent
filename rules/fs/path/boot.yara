@@ -20,5 +20,8 @@ rule elf_boot_path: medium {
     $not_include_path = "_PATH_UNIX" fullword
 
   condition:
-    uint32(0) == 1179403647 and $ref and none of ($not*)
+    // $ref matches "/boot/vmlinux-%s" in full, one match per occurrence, so require a
+    // /boot path beyond that accepted spelling; _PATH_UNIX marks a <paths.h> consumer
+    // regardless of which /boot path is present, so it stays an absolute suppressor
+    uint32(0) == 1179403647 and #ref > #not_kern and not $not_include_path
 }

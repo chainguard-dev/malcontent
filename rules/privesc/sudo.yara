@@ -8,5 +8,5 @@ rule sudo: medium {
     $not_sudo_paths = "github.com/hashicorp/vault/api.sudoPaths"
 
   condition:
-    $raw or $cmd_val and none of ($not*)
+    ($raw or $cmd_val) and none of ($not*)
 }

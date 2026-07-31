@@ -7,11 +7,18 @@ rule activity_monitor_checker: high macos {
     $ps             = "ps" fullword
     $pgrep          = "pgrep" fullword
     $am             = "Activity Monitor" fullword
-    $not_macos_text = "macOS Activity Monitor"
+    $not_macos_text = "macOS Activity Monitor" fullword
     $not_path       = "/Applications/Utilities/Activity Monitor.app"
 
+  // $am matches inside both accepted spellings, so their mere presence hid a
+  // separate bare "Activity Monitor" pgrep target elsewhere in the file. Compare
+  // occurrence counts instead: fire only on an "Activity Monitor" that neither
+  // accepted spelling accounts for. $not_macos_text carries $am's fullword so
+  // both agree on where the token ends; $not_path needs none because $am is
+  // always bounded by "/" and "." inside it.
+
   condition:
-    filesize < 100MB and $am and any of ($p*) and none of ($not*)
+    filesize < 100MB and $am and any of ($p*) and #am > #not_macos_text + #not_path
 }
 
 rule linux_monitors: high linux {

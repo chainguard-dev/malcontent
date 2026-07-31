@@ -27,6 +27,11 @@ rule hidden_x11_unexpected: high {
     $not_libx11      = "libX11.so.6"
     $not_XAUTHORITY  = "XAUTHORITY"
 
+  // $x11 matches inside $not_X (the ordinary socket name), so referencing the
+  // normal socket used to exempt every other path under /tmp/.X11-unix. Discount
+  // $not_X by occurrence count instead; the other markers are each conclusive on
+  // their own and stay presence checks.
+
   condition:
-    filesize < 10MB and $x11 and none of ($not*)
+    filesize < 10MB and $x11 and #x11 > #not_X and none of ($not_usr_share, $not_X11Gray, $not_etc, $not_X11R6, $not_XForwarding, $not_libx11, $not_XAUTHORITY)
 }

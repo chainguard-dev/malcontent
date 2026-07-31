@@ -6,8 +6,11 @@ rule kallsyms_lookup: high {
     filetypes = "c,elf,so"
 
   strings:
-    $ref           = "kallsyms_lookup_name" fullword
-    $not_bpf       = "BPF_FUNC_kallsyms_lookup_name"
+    // fullword treats "_" as a delimiter, so it matched inside
+    // BPF_FUNC_kallsyms_lookup_name and bpf_kallsyms_lookup_name; requiring a
+    // non-word byte on each side keeps only standalone references, which makes
+    // the old BPF_FUNC exclusion unnecessary.
+    $ref           = /[^\w]kallsyms_lookup_name[^\w]/
     $not_linux_src = "GPL-2.0 WITH Linux"
     $not_include   = "#define "
 

@@ -17,11 +17,14 @@ rule php_obfuscation: high {
     $o_too_many_chr      = /(chr\([\d]+\)\.){8}/
     $o_var_as_func       = /\$_(GET|POST|COOKIE|REQUEST|SERVER)\s*\[[^\]]+\]\s*\(/
 
+    // together these two mark an embedded minified JavaScript bundle;
+    // "function(){" on its own turns up in almost any JS and should not
+    // disable the rule, so the pair is required as a set
     $not_php_function         = "function(){"
     $not_php_string_prototype = "String.prototype" fullword
 
   condition:
-    filesize < 5242880 and $php and any of ($o*) and none of ($not*)
+    filesize < 5242880 and $php and any of ($o*) and not all of ($not*)
 }
 
 rule php_hex_functions: high {

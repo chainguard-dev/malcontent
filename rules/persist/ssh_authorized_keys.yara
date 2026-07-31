@@ -9,8 +9,14 @@ rule ssh_authorized_key_val: medium {
     $not_ssh_client = "SSH_AUTH_SOCK"
     $not_example    = "/home/user/.ssh/authorized_keys"
 
+  // Both $ssh strings occur inside $not_example, so one documentation path used to
+  // exempt every other mention in the file. Compare occurrence counts instead:
+  // fire only when a .ssh and an authorized_keys hit remain that the example
+  // paths do not account for. $not_ssh_client marks an SSH client/agent and stays
+  // a plain presence check.
+
   condition:
-    all of ($ssh*) and none of ($not*)
+    all of ($ssh*) and #ssh_ > #not_example and #ssh2 > #not_example and not $not_ssh_client
 }
 
 rule ssh_authorized_key_append: critical {
@@ -28,8 +34,12 @@ rule ssh_authorized_key_append: critical {
     $not_example     = "/home/user/.ssh/authorized_keys"
     $not_example_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDCsTcryUl51Q2VSEHqDRNmceUFo55ZtcIwxl2QITbN1RREti5ml/VTytC0yeBOvnZA4x4CFpdw/lCDPk0yrH9Ei5vVkXmOrExdTlT3qI7YaAzj1tUVlBd4S6LX1F7y6VLActvdHuDDuXZXzCDd/97420jrDfWZqJMlUK/EmCE5ParCeHIRIvmBxcEnGfFIsw8xQZl0HphxWOtJil8qsUWSdMyCiJYYQpMoMliO99X40AUc4/AlsyPyT5ddbKk08YrZ+rKDVHF7o29rh4vi5MmHkVgVQHKiKybWlHq+b71gIAUQk9wrJxD+dqt4igrmDSpIjfjwnd+l5UIn5fJSO5DYV4YT/4hwK7OKmuo7OFHD0WyY5YnkYEMtFgzemnRBdE8ulcT60DQpVgRMXFWHvhyCWy0L6sgj1QWDZlLpvsIvNfHsyhKFMG1frLnMt/nP0+YCcfg+v1JYeCKjeoJxB8DWcRBsjzItY0CGmzP8UYZiYKl/2u+2TgFS5r7NWH11bxoUzjKdaa1NLw+ieA8GlBFfCbfWe6YVB9ggUte4VtYFMZGxOjS2bAiYtfgTKFJv+XqORAwExG6+G2eDxIDyo80/OA9IG7Xv/jwQr7D6KDjDuULFcN/iTxuttoKrHeYz1hf5ZQlBdllwJHYx6fK2g8kha6r2JIQKocvsAXiiONqSfw== hello@world.com"
 
+  // Same as ssh_authorized_key_val, plus $ssh_rsa matches inside $not_example_key,
+  // so the sample key in documentation used to exempt any real key alongside it.
+  // Each $not literal is discounted only against the strings it contains.
+
   condition:
-    all of ($ssh*) and $append and none of ($not*)
+    all of ($ssh*) and $append and #ssh_ > #not_example and #ssh2 > #not_example and #ssh_rsa > #not_example_key and not $not_ssh_client
 }
 
 rule root_authorized_keys: high {

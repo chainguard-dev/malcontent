@@ -38,6 +38,7 @@ exec/cmd/pipe: medium
 exec/plugin: low
 exec/system_controls/systemd: medium
 exfil/discord: critical
+exfil/stealer/pam: high
 fs/directory/create: low
 fs/file/delete: low
 fs/file/make_executable: high

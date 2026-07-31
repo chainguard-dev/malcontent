@@ -7,7 +7,7 @@ rule keychain_unlock: medium macos {
     $ref = "KeychainUnlock"
 
   condition:
-    filesize < 100MB and any of them
+    filesize < 100MB and any of ($ref)
 }
 
 rule keychain_unlock_high: high macos {

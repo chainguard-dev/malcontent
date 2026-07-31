@@ -32,7 +32,6 @@ fs/permission/modify: medium
 fs/tempdir: low
 net/download: medium
 net/http: low
-net/url/embedded: low
 net/url/parse: low
 os/env/get: low
 os/kernel/dispatch_semaphore: low

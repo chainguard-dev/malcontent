@@ -6,4 +6,3 @@ exec/shell/exec: medium
 malware/family/amos: critical
 net/http: low
 net/http/post: medium
-net/url/embedded: low

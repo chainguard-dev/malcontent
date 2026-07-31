@@ -67,7 +67,6 @@ exec/script/osa: medium
 exec/shell/SHELL: low
 exec/shell/TERM: low
 exec/shell/background_sleep: medium
-exec/system_controls/stop: low
 exec/system_controls/systemd: low
 exfil/office_file_ext: medium
 fs/directory/create: low

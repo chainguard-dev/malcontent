@@ -107,17 +107,18 @@ rule binary_calls_fetch_tool: high {
     filetypes   = "elf,macho"
 
   strings:
-    $t_curl_O  = /[a-z]url [-\w ]{0,8}-[oOk] [ \w\:\/\-\.\"]{0,32}/
-    $t_wget    = /wget [ \w\:\/\-\.\"]{4,32}/
-    $t_curl_qk = /[a-z]url [-\w ]{0,16} -(-silent|q) -(-insecure|k) [ \w\:\/\-\.\"]{0,32}/
-    $t_curl_kq = /[a-z]url [-\w ]{0,16} -(-insecure|k) -(-silent|q) [ \w\:\/\-\.]{0,32}/
-    $t_tftp    = /tftp [ \w\:\/\-\.\"]{0,32}/
-
-    $not_tftp     = "Illegal TFTP operation"
-    $not_tftp_err = "tftp error"
+    $t_curl_O    = /[a-z]url [-\w ]{0,8}-[oOk] [ \w\:\/\-\.\"]{0,32}/
+    $t_wget      = /wget [ \w\:\/\-\.\"]{4,32}/
+    $t_curl_qk   = /[a-z]url [-\w ]{0,16} -(-silent|q) -(-insecure|k) [ \w\:\/\-\.\"]{0,32}/
+    $t_curl_kq   = /[a-z]url [-\w ]{0,16} -(-insecure|k) -(-silent|q) [ \w\:\/\-\.]{0,32}/
+    // "tftp <word>" also matched the diagnostics "tftp error msg" and "tftp rrq
+    // file", which is what the whole-file exemptions here used to cover; require a
+    // real flag or host argument so a log string no longer excuses curl and wget
+    $t_tftp_flag = /tftp -[a-z] [ \w\:\/\-\.\"]{0,32}/
+    $t_tftp_host = /tftp ([0-9]{1,3}\.){3}[0-9]{1,3}[ \w\:\/\-\.\"]{0,32}/
 
   condition:
-    filesize < 10MB and (fetch_elf or fetch_macho) and any of ($t*) and none of ($not*)
+    filesize < 10MB and (fetch_elf or fetch_macho) and any of ($t*)
 }
 
 rule curl_agent_val: high {
@@ -160,7 +161,9 @@ rule high_fetch_command_val: high {
     description = "high-risk fetch command"
 
   strings:
-    $c_curl_d                     = /curl [\- \w]{0,16}-[dOok][\/\- \w\%\(\{\}\'\"\)\$\:\.]{0,128}/
+    // the option list is spelled out so that -[dOok] cannot bind to the second dash
+    // of a long flag such as --dump-header, --key or --output
+    $c_curl_d                     = /curl (-[a-zA-Z] |--[\w\-]{2,24} |[\w\.\:\/]{1,32} ){0,4}-[dOok][\/\- \w\%\(\{\}\'\"\)\$\:\.]{0,128}/
     $c_curl_insecure              = /curl [\- \w]{0,128}--insecure[\/\- \w\%\(\{\}\'\"\)\$\:\.]{0,128}/
     $c_kinda_curl_silent_insecure = "--silent --insecure"
     $c_kinda_curl_silent_k        = "-k --insecure"
@@ -170,11 +173,7 @@ rule high_fetch_command_val: high {
     $not_oh_my_zsh                = "oh-my-zsh-master"
     $not_localhost                = "https://localhost"
     $not_127_0_0_1                = "https://127.0.0.1"
-    $not_dump_header              = "curl --silent --dump-header"
-    $not_silent_key               = "curl --silent --key"
-    $not_s_key                    = "curl -s --key"
     $not_local                    = "curl -ks https://localhost"
-    $not_continue                 = "--continue-at"
     $not_pciid                    = "https://pci-ids.ucw.cz"
 
     $x_chmod      = "chmod" fullword

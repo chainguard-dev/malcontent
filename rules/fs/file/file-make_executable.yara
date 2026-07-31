@@ -22,8 +22,13 @@ rule chmod_executable_binary: high {
     $val3        = /chmod {1,4}-R {1,4}[04]{0,1}7[75][075] [ \$\@\w\/\.]{2,64}/
     $not_example = "try 'chmod +x'"
 
+  // $val matches the "chmod +x" inside the "try 'chmod +x'" advice string, so its
+  // presence would otherwise disable the rule for the whole binary. That string
+  // accounts for exactly one $val match (and no $val2/$val3), so compare
+  // occurrence counts and fire on any chmod it does not explain.
+
   condition:
-    filesize < 20MB and (uint32(0) == 1179403647 or uint32(0) == 4277009102 or uint32(0) == 3472551422 or uint32(0) == 4277009103 or uint32(0) == 3489328638 or uint32(0) == 3405691582 or uint32(0) == 3199925962) and any of ($val*) and none of ($not*)
+    filesize < 20MB and (uint32(0) == 1179403647 or uint32(0) == 4277009102 or uint32(0) == 3472551422 or uint32(0) == 4277009103 or uint32(0) == 3489328638 or uint32(0) == 3405691582 or uint32(0) == 3199925962) and any of ($val*) and #val + #val2 + #val3 > #not_example
 }
 
 rule less_serious_chmod: override {

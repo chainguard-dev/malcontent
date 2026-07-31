@@ -13,5 +13,8 @@ rule http_port_443: high {
     $not_unit_test  = "unit test"
 
   condition:
-    $http_443 and none of ($not*)
+    // the four placeholder URLs are themselves $http_443 matches, so count past
+    // them rather than exempting the file; the test markers match no URL and stay
+    // absolute negations
+    $http_443 and #http_443 > #not_example + #not_localhost + #not_foo + #not_empty and none of ($not_test, $not_slash_test, $not_unit_test)
 }

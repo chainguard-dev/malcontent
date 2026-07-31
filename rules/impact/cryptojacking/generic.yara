@@ -29,5 +29,5 @@ rule danger_crypto_miner: high {
     $not_pypi_index = "testpack-id-lb001"
 
   condition:
-    filesize < 10485760 and 2 of them and none of ($not*)
+    filesize < 10485760 and 2 of ($c3pool, $crypto_pool, $f2pool, $hashvault, $monero_hash, $monero_pool, $monero_mms, $xmrpool, $normalhashing, $stratum, $stratum_ssl, $stratum_tcp, $stratup_tls, $xmrig, $support_xmr, $MONERO, $donate_level, $tls_fingerprint, $miner_name, $miner_url, $cryptonight, $minergate) and none of ($not*)
 }

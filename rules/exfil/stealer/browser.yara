@@ -67,11 +67,16 @@ rule multiple_browser_refs: high {
     $not_google_chrome_software = "The Google Chrome software"
     $not_bugzilla               = "https://bugzilla.mozilla.org"
     $not_ff_js                  = "Firefox can even throw an error"
-    $not_generated_comment      = "// This file is generated"
-    $not_generated_file         = "/utils/generate_types/index.js"
+    $notgrp_playwright_comment  = "// This file is generated"
+    $notgrp_playwright_file     = "/utils/generate_types/index.js"
+
+  // The two $notgrp_playwright strings only identify Playwright's generated type
+  // definitions when they appear together - "// This file is generated" says nothing
+  // on its own - so they are required as a pair. The $not_* strings are each
+  // conclusive alone and stay presence checks.
 
   condition:
-    filesize < 20MB and 3 of ($name*) and 3 of ($fs*) and none of ($not*)
+    filesize < 20MB and 3 of ($name*) and 3 of ($fs*) and none of ($not_*) and not all of ($notgrp_playwright*)
 }
 
 rule userdata_browser_archiver: medium {
@@ -106,12 +111,17 @@ rule userdata_browser_archiver: medium {
     $not_google_chrome_software = "The Google Chrome software"
     $not_bugzilla               = "https://bugzilla.mozilla.org"
     $not_ff_js                  = "Firefox can even throw an error"
-    $not_generated_comment      = "// This file is generated"
-    $not_generated_file         = "/utils/generate_types/index.js"
-    $not_no_user_data           = "No User Data"
+    $notgrp_playwright_comment  = "// This file is generated"
+    $notgrp_playwright_file     = "/utils/generate_types/index.js"
+    $notcount_no_user_data      = "No User Data" fullword
+
+  // See multiple_browser_refs for the $notgrp_playwright pair. $d_state also matches
+  // inside $notcount_no_user_data, so that phrase both satisfied the $d clause and
+  // exempted the whole rule; it is now discounted from $d_state by occurrence count
+  // only. Both carry fullword so one phrase yields exactly one match on each side.
 
   condition:
-    filesize < 20MB and any of ($d*) and any of ($h*) and any of ($z*) and 4 of ($b*) and none of ($not*)
+    filesize < 20MB and (any of ($d_config, $d_app_support) or #d_state > #notcount_no_user_data) and any of ($h*) and any of ($z*) and 4 of ($b*) and none of ($not_*) and not all of ($notgrp_playwright*)
 }
 
 rule smaller_userdata_browser_archiver: high {
@@ -146,11 +156,13 @@ rule smaller_userdata_browser_archiver: high {
     $not_google_chrome_software = "The Google Chrome software"
     $not_bugzilla               = "https://bugzilla.mozilla.org"
     $not_ff_js                  = "Firefox can even throw an error"
-    $not_generated_comment      = "// This file is generated"
-    $not_generated_file         = "/utils/generate_types/index.js"
+    $notgrp_playwright_comment  = "// This file is generated"
+    $notgrp_playwright_file     = "/utils/generate_types/index.js"
+
+  // See multiple_browser_refs: the $notgrp_playwright pair is required together.
 
   condition:
-    filesize < 64KB and any of ($d*) and any of ($h*) and any of ($z*) and 3 of ($b*) and none of ($not*)
+    filesize < 64KB and any of ($d*) and any of ($h*) and any of ($z*) and 3 of ($b*) and none of ($not_*) and not all of ($notgrp_playwright*)
 }
 
 rule chrome_encrypted_cookies: critical {

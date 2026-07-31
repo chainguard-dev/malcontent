@@ -30,7 +30,7 @@ rule find_generic_password: high macos {
     description = "Looks up a password from the Keychain"
 
   strings:
-    $ref                 = /find-generic-passsword[ \-\w\']{0,32}/
+    $ref                 = /find-generic-password[ \-\w\']{0,32}/
     $not_ctkcard         = "/System/Library/Frameworks/CryptoTokenKit.framework/ctkcard"
     $not_elastic_author  = "\"author\": [\n    \"Elastic\"\n  ]"
     $not_elastic_license = "\"license\": \"Elastic License v2\""
@@ -44,7 +44,7 @@ rule find_internet_password: high macos {
     description = "Looks up an internet password from the Keychain"
 
   strings:
-    $ref                 = /find-internet-passsword[ \-\w\']{0,32}/
+    $ref                 = /find-internet-password[ \-\w\']{0,32}/
     $not_ctkcard         = "/System/Library/Frameworks/CryptoTokenKit.framework/ctkcard"
     $not_elastic_author  = "\"author\": [\n    \"Elastic\"\n  ]"
     $not_elastic_license = "\"license\": \"Elastic License v2\""

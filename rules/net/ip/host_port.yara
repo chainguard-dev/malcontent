@@ -69,6 +69,8 @@ rule hardcoded_host_port_over_10k: high {
     $host_domain_tld     = /[a-z]{3,64}\.[a-z]{3,64}\.[a-z]{2,3}:\d{4,5}/ fullword
     $host_domain_sld_tld = /[a-z]{3,64}\.[a-z]{3,64}\.[a-z]{2,3}\.[a-z]{2,3}:\d{4,5}/ fullword
 
+    // Accepted host:port spellings: every one of these is something the $h
+    // regexes generalise, so they are compared by count rather than membership.
     $not_roughtime_cloudflare = "roughtime.cloudflare.com:2003"
     $not_roughtime_google     = "sandbox.google.com:2002"
     $not_foo_bar              = "foo.bar:"
@@ -76,12 +78,25 @@ rule hardcoded_host_port_over_10k: high {
     $not_mygateway            = "mygateway.com:"
     $not_mymachine            = "mymachine.com:"
     $not_ruby_http            = "http://hypnotoad.org:1234?hail=all"
-    $not_test_parse           = "test_parse"
-    $not_slash_test           = "/test" fullword
-    $not_test_message         = "test_message"
-    $not_unit_test            = "unit test"
     $not_example_registry     = "registry.com:5000"
 
+    // Test-context markers: not host:port spellings, so no $h count can offset
+    // them and they stay membership tests.
+    $not_test_parse   = "test_parse"
+    $not_slash_test   = "/test" fullword
+    $not_test_message = "test_message"
+    $not_unit_test    = "unit test"
+
   condition:
-    any of ($h*) and none of ($not*)
+    // The three $h regexes are nested generalisations of the same host:port shape,
+    // so a single accepted occurrence can match all three at different offsets
+    // (e.g. "roughtime.cloudflare.com:2003" matches $host_domain_tld and also
+    // $h_domain_tld on "cloudflare.com:2003"). Each accepted spelling is therefore
+    // charged three matches, which keeps the comparison from ever under-suppressing.
+    any of ($h*) and
+    #h_domain_tld + #host_domain_tld + #host_domain_sld_tld >
+    3 * (#not_roughtime_cloudflare + #not_roughtime_google + #not_foo_bar +
+      #not_example_com + #not_mygateway + #not_mymachine + #not_ruby_http +
+      #not_example_registry) and
+    none of ($not_test_parse, $not_slash_test, $not_test_message, $not_unit_test)
 }

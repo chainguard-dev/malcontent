@@ -2,6 +2,7 @@
 3P/YARAForge/signature_ext_webshell: high
 3P/YARAForge/signature_webshell_php: critical
 c2/addr/url: medium
+c2/tool_transfer/github: medium
 credential/password: low
 data/embedded/base64_url: medium
 data/embedded/html: medium

@@ -13,5 +13,10 @@ rule kill_and_remove: medium {
     $not_tempdir    = "rm -rf \"$TEMPDIR\""
 
   condition:
-    1 of ($rm*) and 1 of ($k*) and none of ($not*)
+    // "rm -rf" is a literal prefix of the accepted `rm -rf "$TEMPDIR"` cleanup
+    // line, so count that spelling off instead of letting it hide every other
+    // rm -rf in the file. $not_shell_help is unrelated and stays independent.
+    (#rm_f > 0 or #rm_Rf > 0 or #rm_rf > #not_tempdir) and
+    1 of ($k*) and
+    none of ($not_shell_help)
 }

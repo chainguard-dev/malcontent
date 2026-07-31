@@ -4,11 +4,13 @@ rule _reboot: harmless {
     description = "reboot system"
 
   strings:
-    $ref        = "_reboot" fullword
-    $not_master = "master_reboot"
+    // "_reboot" fullword cannot match inside "master_reboot" - the preceding "r" is
+    // a word character - so the $not for it only ever silenced files that also held
+    // a real _reboot reference
+    $ref = "_reboot" fullword
 
   condition:
-    $ref and none of ($not*)
+    $ref
 }
 
 rule kexec_load {

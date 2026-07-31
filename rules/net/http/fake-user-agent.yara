@@ -3,16 +3,21 @@ rule fake_user_agent_msie: high {
     description = "pretends to be MSIE"
 
   strings:
-    $u_MSIE         = /compatible; MSIE[ \;\(\)\w]{0,32}/
-    $u_msie         = /compatible; msie[ \;\(\)\w]{0,32}/
-    $u_msie2        = /MSIE 9.0\{/
+    $u_MSIE  = /compatible; MSIE[ \;\(\)\w]{0,32}/
+    $u_msie  = /compatible; msie[ \;\(\)\w]{0,32}/
+    $u_msie2 = /MSIE 9.0\{/
+
+    $notgrp_devlist_pixel = "Pixel 5"
+    $notgrp_devlist_ipad  = "iPad Mini"
+
     $not_access_log = "\"GET http://"
-    $not_pixel      = "Pixel 5"
-    $not_ipad       = "iPad Mini"
     $not_firefox    = "Firefox"
 
   condition:
-    any of ($u_*) and none of ($not_*)
+    // $notgrp_devlist_* are two entries of a browser device-emulation list and
+    // only identify that list when both are present: "iPad Mini" also turns up in
+    // unrelated JSON data. The remaining two strings are conclusive on their own.
+    any of ($u_*) and none of ($not_*) and not all of ($notgrp_devlist*)
 }
 
 rule fake_windows_user_agent: high {
@@ -20,15 +25,20 @@ rule fake_windows_user_agent: high {
     description = "pretends to be a Windows browser"
 
   strings:
-    $u_Win64        = /Windows NT 10.0; Win64/
-    $u_WinNT        = /Mozilla\/5.0 \(Windows NT/
+    $u_Win64 = /Windows NT 10.0; Win64/
+    $u_WinNT = /Mozilla\/5.0 \(Windows NT/
+
+    $notgrp_devlist_pixel = "Pixel 5"
+    $notgrp_devlist_ipad  = "iPad Mini"
+
     $not_access_log = "\"GET http://"
-    $not_pixel      = "Pixel 5"
-    $not_ipad       = "iPad Mini"
     $not_firefox    = "Firefox"
 
   condition:
-    any of ($u_*) and none of ($not_*)
+    // Same device-emulation list as fake_user_agent_msie: suppress only when both
+    // entries are present. $not_firefox stays independent because a genuine
+    // Firefox-on-Windows agent carries both $u_WinNT and "Firefox".
+    any of ($u_*) and none of ($not_*) and not all of ($notgrp_devlist*)
 }
 
 rule fake_user_agent_khtml_val: high {

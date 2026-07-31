@@ -31,6 +31,11 @@ rule chmod_executable_shell_binary: high {
     $not_example = "try 'chmod +x'"
     $not_make    = "chmod a+x $@"
 
+  // $chmod matches the "chmod +x" inside "try 'chmod +x'" and the "chmod a+x $@"
+  // Makefile recipe, so either string would otherwise disable the rule for the
+  // whole binary. Each accounts for exactly one $chmod match (and no $chmod2), so
+  // compare occurrence counts and fire on any chmod they do not explain.
+
   condition:
-    filesize < 10MB and (uint32(0) == 1179403647 or uint32(0) == 4277009102 or uint32(0) == 3472551422 or uint32(0) == 4277009103 or uint32(0) == 3489328638 or uint32(0) == 3405691582 or uint32(0) == 3199925962) and any of ($chmod*) and any of ($http*) and none of ($not*)
+    filesize < 10MB and (uint32(0) == 1179403647 or uint32(0) == 4277009102 or uint32(0) == 3472551422 or uint32(0) == 4277009103 or uint32(0) == 3489328638 or uint32(0) == 3405691582 or uint32(0) == 3199925962) and any of ($chmod*) and any of ($http*) and #chmod + #chmod2 > #not_example + #not_make
 }

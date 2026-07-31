@@ -23,7 +23,9 @@ rule tool_chmod_relative_run: medium {
     $not_comment_curl = "# curl "
 
   condition:
-    filesize < 1MB and all of ($f*) and none of ($not*)
+    // $f_curl also matches the curl call inside the "# curl " comment, so count
+    // past the commented examples instead of exempting the whole script
+    filesize < 1MB and all of ($f*) and #f_curl > #not_comment_curl
 }
 
 rule fetch_tar_run: high {
@@ -75,17 +77,17 @@ rule tool_tor_chmod_relative_run: high {
   strings:
     $tor2web   = "tor2web"
     $tor2socks = "tor2socks"
-    $tor_onion = ".onion"
+    // a bare ".onion" also matches Go's "listen.onionndots" net string table, which
+    // is why a whole-file exemption used to be needed here; require a real hostname
+    $tor_onion = /\w\.onion\W/
 
     $cd        = /cd {1,2}[\/\$][\w\/]{0,16}/
     $curl      = /(curl|wget) [\-\w \$\@\{\w\/\.\:]{0,96}/
     $chmod     = /chmod [\+\-\w \$\@\{\w\/\.]{0,64}/
     $dot_slash = /\.\/[a-z]{1,2}[a-z\.\/\- ]{0,32}/ fullword
 
-    $not_go = "listen.onionndots"
-
   condition:
-    filesize < 10MB and any of ($tor*) and $cd and $curl and $chmod and $dot_slash and filesize < 1MB and none of ($not*)
+    filesize < 10MB and any of ($tor*) and $cd and $curl and $chmod and $dot_slash and filesize < 1MB
 }
 
 rule dev_null_rm: medium {

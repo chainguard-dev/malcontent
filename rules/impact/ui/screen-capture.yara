@@ -3,13 +3,14 @@ rule macos_screencapture_caller: high {
     description = "captures screenshots via the 'screencapture' command"
 
   strings:
-    $screencap           = "screencapture"
-    $not_program         = "@(#)PROGRAM:"
-    $not_apple           = "Copyright Apple Computer Inc"
-    $not_private         = "/System/Library/PrivateFrameworks/"
-    $not_screencaptureui = "screencaptureui.app"
-    $not_signal          = "_availability_version_check"
-    $not_pypi_index      = "testpack-id-lb001"
+    // fullword keeps this off Apple's own screencaptureui, which the bare
+    // substring matched inside "screencaptureui.app"
+    $screencap      = "screencapture" fullword
+    $not_program    = "@(#)PROGRAM:"
+    $not_apple      = "Copyright Apple Computer Inc"
+    $not_private    = "/System/Library/PrivateFrameworks/"
+    $not_signal     = "_availability_version_check"
+    $not_pypi_index = "testpack-id-lb001"
 
   condition:
     $screencap and none of ($not_*)

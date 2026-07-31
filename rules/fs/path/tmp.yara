@@ -21,14 +21,21 @@ rule weird_tmp_path_not_hidden: medium {
     $not_movie           = "/tmp/myTestMovie.m4"
     $not_usage           = "usage: "
     $not_invalid         = "invalid command option"
-    $not_brother         = "/tmp/BroH9"
     $not_compdef         = "#compdef"
     $not_c1              = "/tmp/CaptureOne"
-    $not_openra          = "/tmp/R8"
     $not_private_literal = "private-literal"
     $not_apple           = "Apple Inc"
     $not_sandbox         = "andbox profile"
 
+    // Unlike the exclusions above, these two are themselves odd /tmp paths that
+    // the references match, so naming one used to excuse every other odd /tmp
+    // path in the file. They are counted instead of checked for presence.
+    // $tmp_digits matches both, while $tmp_short only matches "/tmp/R8" (the
+    // Brother path has too many characters before its digit), so each reference
+    // is compared against just the accepted paths it can match.
+    $notsub_brother = "/tmp/BroH9"
+    $notsub_openra  = "/tmp/R8"
+
   condition:
-    any of ($t*) and none of ($not*)
+    none of ($not_*) and (#tmp_digits > #notsub_brother + #notsub_openra or #tmp_short > #notsub_openra)
 }

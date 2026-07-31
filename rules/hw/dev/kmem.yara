@@ -7,10 +7,13 @@ rule kmem: high bsd {
     $val = "/dev/kmem"
 
     // entries from include/paths.h
-    $not_cshell = "_PATH_CSHELL" fullword
-    $not_rwho   = "_PATH_RWHODIR" fullword
-    $not_lsof   = "lsof" fullword
+    $notpaths_cshell = "_PATH_CSHELL" fullword
+    $notpaths_rwho   = "_PATH_RWHODIR" fullword
+
+    $not_lsof = "lsof" fullword
 
   condition:
-    $val and none of ($not*)
+    // the two _PATH_ macros only identify a copy of include/paths.h when they
+    // appear together, so require the whole pair; "lsof" is conclusive alone.
+    $val and not $not_lsof and not all of ($notpaths*)
 }

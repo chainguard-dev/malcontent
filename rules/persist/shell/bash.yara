@@ -32,7 +32,9 @@ rule bash_persist_persistent: high {
     $not_tcshrc = ".tcshrc"
 
   condition:
-    3 of them and none of ($not*)
+    // count only the startup-file references: "them" would also count the $not
+    // strings, which the guard below already forces to zero
+    3 of ($ref*) and none of ($not*)
 
 }
 
@@ -61,5 +63,8 @@ rule bash_logout_persist: high {
     $not_tcshrc  = ".tcshrc"
 
   condition:
-    filesize < 2097152 and any of ($ref*) and none of ($not*)
+    // ".bash_logout" is a substring of the pristine skel header "# ~/.bash_logout",
+    // so counting past the header keeps the untouched file quiet while a trojaned
+    // copy that adds a second reference still fires
+    filesize < 2097152 and $ref and #ref > #not_comment and none of ($not_bash, $not_clear, $not_csh, $not_tcshrc)
 }

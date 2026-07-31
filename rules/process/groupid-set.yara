@@ -7,10 +7,15 @@ rule setgid {
   strings:
     $ref    = "setgid" fullword
     $not_go = "_syscall.libc_setgid_trampoline"
-    $not_ls = "file that is setgid"
+
+    // $ref matches inside coreutils' "file that is setgid" help text, so ls's own
+    // documentation used to excuse every other setgid reference in the file.
+    // Count it instead of checking for it: fire only on a setgid reference the
+    // help text does not account for.
+    $notsub_ls = "file that is setgid"
 
   condition:
-    $ref and none of ($not*)
+    $ref and none of ($not_*) and #ref > #notsub_ls
 }
 
 rule setegid {

@@ -8,5 +8,7 @@ rule var_hidden: high {
     $not_updated = "/var/.updated" fullword
 
   condition:
-    $ref and none of ($not*)
+    // $ref matches "/var/.updated" itself, so count past it: a file that only
+    // names that stamp file stays quiet, one naming another hidden /var path fires
+    $ref and #ref > #not_updated
 }

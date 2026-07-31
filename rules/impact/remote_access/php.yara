@@ -119,17 +119,22 @@ rule php_eval_gzinflate_base64_backdoor: critical {
     $f_gzinflate     = "gzinflate("
     $f_base64_decode = "base64_decode"
 
-    $not_js          = " ?? "
-    $not_js2         = " === "
-    $not_js3         = "const"
-    $not_js4         = "this."
-    $not_js5         = "throw"
+    $notgrp_js1 = " ?? "
+    $notgrp_js2 = " === "
+    $notgrp_js3 = "const"
+    $notgrp_js4 = "this."
+    $notgrp_js5 = "throw"
+
     $not_mongosh_php = { 3C 3F 70 68 70 00 00 00 01 0C 51 61 03 00 00 00 02 00 00 00 3F 3E }
     $not_php         = "PHP_FLOAT_DIG" fullword
     $not_workaround  = "/* workaround for chrome bug "
 
   condition:
-    filesize < 64KB and all of ($f*) and none of ($not*)
+    // $notgrp_js* are JavaScript tokens that jointly say "this file is JS, not PHP".
+    // Each one is also legal PHP, so a single "throw" must not disable the rule; the
+    // PHP syntax-mode JS files in the corpus carry three of the five, so require
+    // that many before suppressing. The other three strings are conclusive alone.
+    filesize < 64KB and all of ($f*) and none of ($not_*) and not 3 of ($notgrp_js*)
 }
 
 rule php_obfuscated_with_hex_characters: high {
@@ -219,7 +224,7 @@ rule php_system_manipulation: high {
     $not_workaround = "/* workaround for chrome bug "
 
   condition:
-    filesize < 64KB and $php and 80 % of them and none of ($not*)
+    filesize < 64KB and $php and 8 of ($php, $chdir, $mkdir, $system, $fopen, $fwrite, $posix_getpwuid, $symlink) and none of ($not*)
 }
 
 rule php_system_hex: critical {

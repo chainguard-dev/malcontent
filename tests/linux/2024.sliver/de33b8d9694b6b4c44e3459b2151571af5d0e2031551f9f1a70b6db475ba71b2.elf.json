@@ -43,7 +43,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-behavior/random_behavior.yara#L69",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-behavior/random_behavior.yara#L75",
                     "ID": "anti-behavior/random_behavior",
                     "RuleName": "random"
                 },
@@ -54,7 +54,7 @@
                     ],
                     "RiskScore": 3,
                     "RiskLevel": "HIGH",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/ip.yara#L73",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/ip.yara#L84",
                     "ID": "c2/addr/ip",
                     "RuleName": "hardcoded_ip_port"
                 },
@@ -65,7 +65,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/url.yara#L91",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/c2/addr/url.yara#L107",
                     "ID": "c2/addr/url",
                     "RuleName": "binary_with_url"
                 },
@@ -506,7 +506,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/url/embedded.yara#L24",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/url/embedded.yara#L27",
                     "ID": "net/url/embedded",
                     "RuleName": "http_url"
                 },
@@ -541,7 +541,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-behavior/random_behavior.yara#L69",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/anti-behavior/random_behavior.yara#L75",
                     "ID": "anti-behavior/random_behavior",
                     "RuleName": "random"
                 },
@@ -657,7 +657,7 @@
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/url/embedded.yara#L24",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/net/url/embedded.yara#L27",
                     "ID": "net/url/embedded",
                     "RuleName": "http_url"
                 }

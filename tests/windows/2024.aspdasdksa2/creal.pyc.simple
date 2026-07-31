@@ -14,6 +14,7 @@ c2/addr/discord: medium
 c2/addr/telegram: medium
 c2/tool_transfer/arch: low
 c2/tool_transfer/download: high
+c2/tool_transfer/github: medium
 c2/tool_transfer/os: low
 collect/archives/zip: medium
 collect/databases/leveldb: medium

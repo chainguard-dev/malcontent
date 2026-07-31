@@ -19,7 +19,7 @@ rule xmrig: high {
     $not_pypi_index = "testpack-id-lb001"
 
   condition:
-    any of them and none of ($not*)
+    any of ($ref, $ref2) and none of ($not*)
 }
 
 rule xmrdrop: critical {

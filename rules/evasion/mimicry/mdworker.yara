@@ -19,5 +19,8 @@ rule mdworker_high: high {
     $not_proj    = "PROJECT:Spotlight"
 
   condition:
-    $ref and none of ($not*)
+    // The two $not strings are the two halves of one Apple Spotlight version
+    // stamp, so only their conjunction identifies the real binary; either half
+    // alone is copyable padding.
+    $ref and not all of ($not*)
 }

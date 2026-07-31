@@ -23,29 +23,36 @@ rule crypto_stealer_names: critical {
     $w_exodus_2 = "aholpfdial"
     $w_coinomi  = "Coinomi"
 
-    $not_cats        = /\"cats\": \[[^]]{0,64}/
-    $not_description = /\"description\": "([^"]{0,64})"/
-    $not_dom         = /\"dom\": "([^"]{0,64})"/
-    $not_icon        = /\"icon\": "([^"]{0,64})"/
-    $not_js          = /\"js\": \{[^}]{0,64}/
-    $not_scriptsrc   = /\"scriptSrc\": "([^"]{0,64})"/
-    $not_website     = /\"website\": "([^"]{0,64})"/
-    $not_clef1       = "These data types are defined in the channel between clef and the UILedger"
-    $not_clef2       = "The `transaction` (on input into clef) can have either `data` or `input`"
-    $not_geth_site   = "https://geth.ethereum.org"
-    $not_grobid1     = "Jebtsundamba Khutughtu"
-    $not_grobid2     = "Iridium Satellite LLC"
-    $gpt_tokenizer1  = "GPTTokenizer"
-    $gpt_tokenizer2  = "GPT-4"
-    $gpt_tokenizer3  = "const bpe = c0.concat();"
-    $gpt_tokenizer4  = "const bpe = c0.concat(c1);"
-    $gpt_tokenizer5  = "export default bpe;"
-    $bpe_tokenizer1  = "cl100k_base"
-    $bpe_tokenizer2  = "o200k_base"
-    $bpe_tokenizer3  = "p50k_base"
+    $notgrp_wap_cats        = /\"cats\": \[[^]]{0,64}/
+    $notgrp_wap_description = /\"description\": "([^"]{0,64})"/
+    $notgrp_wap_dom         = /\"dom\": "([^"]{0,64})"/
+    $notgrp_wap_icon        = /\"icon\": "([^"]{0,64})"/
+    $notgrp_wap_js          = /\"js\": \{[^}]{0,64}/
+    $notgrp_wap_scriptsrc   = /\"scriptSrc\": "([^"]{0,64})"/
+    $notgrp_wap_website     = /\"website\": "([^"]{0,64})"/
+
+    $not_clef1     = "These data types are defined in the channel between clef and the UILedger"
+    $not_clef2     = "The `transaction` (on input into clef) can have either `data` or `input`"
+    $not_geth_site = "https://geth.ethereum.org"
+    $not_grobid1   = "Jebtsundamba Khutughtu"
+    $not_grobid2   = "Iridium Satellite LLC"
+
+    $gpt_tokenizer1 = "GPTTokenizer"
+    $gpt_tokenizer2 = "GPT-4"
+    $gpt_tokenizer3 = "const bpe = c0.concat();"
+    $gpt_tokenizer4 = "const bpe = c0.concat(c1);"
+    $gpt_tokenizer5 = "export default bpe;"
+
+    $bpe_tokenizer1 = "cl100k_base"
+    $bpe_tokenizer2 = "o200k_base"
+    $bpe_tokenizer3 = "p50k_base"
 
   condition:
-    filesize < 100MB and $http and 2 of ($w*) and none of ($not*) and none of ($gpt_tokenizer*) and none of ($bpe_tokenizer*)
+    // The $notgrp_wap_* strings are Wappalyzer technologies.json field names; each one
+    // matches ordinary JSON on its own, so only the complete set identifies that file.
+    // $gpt_tokenizer3/4 are alternate spellings of the same generated line and cannot
+    // co-occur, so require two of the five rather than all of them.
+    filesize < 100MB and $http and 2 of ($w*) and not all of ($notgrp_wap_*) and none of ($not_*) and not 2 of ($gpt_tokenizer*) and none of ($bpe_tokenizer*)
 }
 
 rule crypto_extension_stealer: critical {
@@ -77,7 +84,9 @@ rule crypto_extension_stealer: critical {
     $not_website     = /\"website\": "([^"]{0,64})"/
 
   condition:
-    filesize < 100MB and $http and 3 of ($w*) and none of ($not*)
+    // The whole $not set is the Wappalyzer technologies.json field-name list; each field
+    // matches ordinary JSON alone, so require the complete set before suppressing.
+    filesize < 100MB and $http and 3 of ($w*) and not all of ($not*)
 }
 
 rule java_hardcoded_wallet: high java {

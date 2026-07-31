@@ -13,7 +13,11 @@ private rule indicator_blocking_pythonSetup {
     $not_distutils     = "from distutils.errors import"
 
   condition:
-    filesize < 131072 and $setup and any of ($i*) and none of ($not*)
+    // ">>> setup(", "setup(**config.todict()" and "\"setup(name=" each contain a
+    // literal "setup(", so compare counts: a doctest or quoted example cancels
+    // only its own occurrence and a real setup() call still registers. The two
+    // import markers are not "setup(" matches and stay membership tests.
+    filesize < 131072 and #setup > #not_setup_example + #not_setup_todict + #not_setup_quoted and any of ($i*) and none of ($not_import_quoted, $not_distutils)
 }
 
 rule py_no_fail: medium {
