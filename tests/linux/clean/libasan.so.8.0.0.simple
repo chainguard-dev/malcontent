@@ -48,6 +48,7 @@ fs/lock_update: low
 fs/mount: low
 fs/mounts_read: medium
 fs/node_create: low
+fs/path/dev: medium
 fs/path/from_cookie: low
 fs/permission/chown: low
 fs/permission/modify: medium

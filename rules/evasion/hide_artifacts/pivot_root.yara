@@ -9,5 +9,9 @@ rule pivot_root: medium {
     $not_pivot = "no_pivot_root"
 
   condition:
-    $ref and none of ($not*)
+    // fullword treats _ as a delimiter, so $ref also matches inside the accepted
+    // "no_pivot_root" spelling. Counting instead requires a pivot_root occurrence
+    // that "no_pivot_root" does not account for: each accepted spelling cancels
+    // exactly the one $ref match it contains.
+    #ref > #not_pivot
 }

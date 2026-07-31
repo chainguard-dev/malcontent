@@ -30,6 +30,7 @@ fs/directory/create: low
 fs/directory/list: low
 fs/directory/remove: low
 fs/file/delete: low
+fs/path/dev: medium
 fs/path/etc: low
 fs/path/users: medium
 fs/tempdir/TEMP: low

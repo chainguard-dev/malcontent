@@ -31,6 +31,7 @@ crypto/cipher: medium
 crypto/decrypt: low
 crypto/ecdsa: low
 crypto/ed25519: low
+crypto/encrypt: medium
 crypto/openssl: medium
 crypto/public_key: low
 crypto/tls: low
@@ -110,6 +111,7 @@ fs/lock_update: low
 fs/loopback: medium
 fs/mount: low
 fs/node_create: low
+fs/path/dev: medium
 fs/path/etc: low
 fs/path/etc_hosts: medium
 fs/path/etc_resolv.conf: low
@@ -146,6 +148,7 @@ net/dns: low
 net/dns/reverse: medium
 net/dns/servers: low
 net/dns/txt: low
+net/download: medium
 net/download/fetch: medium
 net/http: low
 net/http/2: low

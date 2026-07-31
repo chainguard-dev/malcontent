@@ -24,7 +24,10 @@ rule rm_f_hardcoded_tmp_path: medium posix {
     $not_apt = "/var/lib/apt/lists"
 
   condition:
-    $ref and none of ($not*)
+    // $ref stops at the first whitespace, so each of its matches covers at most one
+    // "/var/lib/apt/lists"; a $ref count above the apt tally therefore means the file
+    // deletes something the apt-cache cleanup does not account for
+    $ref and #ref > #not_apt
 }
 
 rule del: medium windows {

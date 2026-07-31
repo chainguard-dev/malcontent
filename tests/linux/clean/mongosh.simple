@@ -101,8 +101,10 @@ fs/file/write: low
 fs/link_read: low
 fs/lock_update: low
 fs/mount: low
+fs/path/dev: medium
 fs/path/etc: low
 fs/path/file_url: low
+fs/path/home: low
 fs/path/home_library: low
 fs/path/tmp: medium
 fs/path/usr_bin: low

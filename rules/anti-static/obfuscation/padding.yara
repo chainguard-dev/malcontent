@@ -39,10 +39,14 @@ rule obfuscation_base64_str_replace: medium {
     $d = /\wb\was\we\w6\w4/
     $e = /\wb\wa\ws\we6\w4/
     $f = /\wb\wa\ws\we\w64/
+    // $g/$h/$i enumerate where the quote-splitting falls in "base64". A fourth
+    // entry here repeated $g's value verbatim, which under `any of them` could never
+    // match anything $g did not already match, so it is dropped rather than guessed
+    // at -- inventing the split position it was meant to cover would be a new
+    // signature, not a de-duplication.
     $g = "'bas'.'e'.'6'.'4"
     $h = "'ba'.'se'.'6'.'4"
     $i = "'b'.'ase'.'6'.'4"
-    $j = "'bas'.'e'.'6'.'4"
 
   condition:
     any of them

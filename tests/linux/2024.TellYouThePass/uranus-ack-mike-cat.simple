@@ -12,6 +12,7 @@ crypto/aes: low
 crypto/decrypt: low
 crypto/ecdsa: low
 crypto/ed25519: low
+crypto/encrypt: medium
 crypto/public_key: low
 crypto/rc4: low
 data/encoding/base64: low
@@ -42,6 +43,7 @@ fs/file/make_executable: high
 fs/file/open: low
 fs/file/read: low
 fs/file/write: low
+fs/path/dev: medium
 fs/path/etc: low
 fs/path/etc_hosts: medium
 fs/path/etc_initd: medium

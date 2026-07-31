@@ -8,6 +8,7 @@ exec/shell/exec: medium
 exec/tty/vhangup: low
 fs/file/delete: low
 fs/file/times_set: medium
+fs/path/dev: medium
 fs/path/usr_bin: low
 fs/path/usr_local: medium
 fs/path/var: low

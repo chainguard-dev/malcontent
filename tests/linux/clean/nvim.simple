@@ -41,6 +41,7 @@ fs/link_read: low
 fs/lock_update: low
 fs/mount: low
 fs/path/boot: medium
+fs/path/dev: medium
 fs/path/etc: low
 fs/path/etc_hosts: medium
 fs/path/home: low

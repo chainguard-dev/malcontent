@@ -8,6 +8,7 @@ credential/ssl/private_key: low
 crypto/aes: low
 crypto/cipher: medium
 crypto/decrypt: low
+crypto/encrypt: medium
 crypto/public_key: low
 crypto/tls: low
 crypto/uuid: medium

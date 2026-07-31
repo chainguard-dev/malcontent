@@ -118,11 +118,13 @@ rule unsigned_bitwise_math: medium {
     $function = "function("
     $charAt   = /charAt\([a-zA-Z]/
 
-    $left  = /[a-z]\>\>\>\d{1,3}/
-    $right = /[a-z]\>\>\>\d{1,3}/
+    // counts unsigned right shifts by a literal amount. $left and $right used to
+    // hold this same value, so their counts were always equal and the two-sided
+    // test only ever tested one of them.
+    $shift = /[a-z]\>\>\>\d{1,3}/
 
   condition:
-    filesize < 5MB and $function and $charAt and (#left > 5 or #right > 5)
+    filesize < 5MB and $function and $charAt and #shift > 5
 }
 
 rule unsigned_bitwise_math_excess: high {
@@ -135,8 +137,8 @@ rule unsigned_bitwise_math_excess: high {
     $function = "function("
     $charAt   = /charAt\([a-zA-Z]/
 
-    $left  = /[a-z]\>\>\>\d{1,3}/
-    $right = /[a-z]\>\>\>\d{1,3}/
+    // see unsigned_bitwise_math above: one pattern, counted once
+    $shift = /[a-z]\>\>\>\d{1,3}/
 
     $not_elastic1 = "/*! Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one or more contributor license agreements."
     $not_elastic2 = "* Licensed under the Elastic License 2.0; you may not use this file except in compliance with the Elastic License 2.0. */"
@@ -144,7 +146,7 @@ rule unsigned_bitwise_math_excess: high {
     $not_wso2is   = "(self.webpackChunk_wso2is_console=self.webpackChunk_wso2is_console||[])"
 
   condition:
-    filesize < 5MB and $function and $charAt and (#left > 50 or #right > 50) and none of ($not*)
+    filesize < 5MB and $function and $charAt and #shift > 50 and none of ($not*)
 }
 
 rule charAtBitwise: high {

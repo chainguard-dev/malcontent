@@ -3,6 +3,7 @@
 anti-behavior/random_behavior: low
 anti-behavior/vm_check: medium
 anti-static/elf/entropy: high
+anti-static/obfuscation/obfuscate: low
 anti-static/obfuscation/syscall: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
@@ -23,6 +24,7 @@ crypto/cipher: medium
 crypto/decrypt: low
 crypto/ecdsa: low
 crypto/ed25519: low
+crypto/encrypt: medium
 crypto/public_key: low
 crypto/tls: low
 data/compression/bzip2: low
@@ -91,6 +93,7 @@ fs/link_create: low
 fs/link_read: low
 fs/mount: low
 fs/path/bin_su: low
+fs/path/dev: medium
 fs/path/etc: low
 fs/path/etc_hosts: medium
 fs/path/etc_resolv.conf: low
@@ -126,6 +129,7 @@ net/dns/over_https: medium
 net/dns/reverse: medium
 net/dns/servers: low
 net/dns/txt: low
+net/download: medium
 net/http: low
 net/http/2: low
 net/http/accept: medium

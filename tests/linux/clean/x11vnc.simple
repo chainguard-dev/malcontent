@@ -13,6 +13,7 @@ credential/ssh/d: medium
 credential/ssl/private_key: low
 crypto/aes: low
 crypto/decrypt: low
+crypto/encrypt: medium
 crypto/openssl: medium
 crypto/public_key: low
 crypto/rc4: low
@@ -49,6 +50,7 @@ fs/file/times_set: medium
 fs/link_read: low
 fs/node_create: low
 fs/path/bin_su: low
+fs/path/dev: medium
 fs/path/etc: low
 fs/path/home: low
 fs/path/home_library: low
@@ -71,6 +73,7 @@ impact/ui/screensaver: medium
 impact/ui/x11_auth: medium
 impact/ui/xsession: medium
 lateral/scan/tool: medium
+net/download: medium
 net/http: low
 net/http/post: medium
 net/http/request: low

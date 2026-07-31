@@ -12,7 +12,6 @@ rule obfuscated_caller_base64_str_replace: critical {
     $g = "'bas'.'e'.'6'.'4"
     $h = "'ba'.'se'.'6'.'4"
     $i = "'b'.'ase'.'6'.'4"
-    $j = "'bas'.'e'.'6'.'4"
 
     $not_unrelated1 = "libcublas_"
 
@@ -21,5 +20,5 @@ rule obfuscated_caller_base64_str_replace: critical {
   // exclusion string alone if the guard were ever loosened.
 
   condition:
-    any of ($a, $b, $c, $d, $e, $f, $g, $h, $i, $j) and none of ($not*)
+    any of ($a, $b, $c, $d, $e, $f, $g, $h, $i) and none of ($not*)
 }

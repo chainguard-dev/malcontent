@@ -56,11 +56,16 @@ rule sketchy_math_conversions: medium {
     $xor1 = /\d{2,16}\^\w{1,8}/
     $xor2 = /\w{1,8}\^\d{2,16}/
 
-    $complex_math_add = /[\(\[][\w\d\s\+\-\*\/\^]+\+[\w\d\s\+\-\*\/\^]+[\)\]]/
-    $complex_math_sub = /[\(\[][\w\d\s\+\-\*\/\^]+\-[\w\d\s\+\-\*\/\^]+[\)\]]/
-    $complex_math_mul = /[\(\[][\w\d\s\+\-\*\/\^]+\*[\w\d\s\+\-\*\/\^]+[\)\]]/
-    $complex_math_div = /[\(\[][\w\d\s\+\-\*\/\^]+\/[\w\d\s\+\-\*\/\^]+[\)\]]/
-    $complex_math_pow = /[\(\[][\w\d\s\+\-\*\/\^]+\^[\w\d\s\+\-\*\/\^]+[\)\]]/
+    // The operand runs are bounded rather than open-ended: an unbounded repeat over
+    // this wide a class makes the engine scan forward across newlines to the end of
+    // the buffer from every bracket in the file, which dominated the cost of the
+    // whole ruleset. 64 characters per operand is far longer than the obfuscated
+    // arithmetic this targets, and the bound leaves the corpus match set unchanged.
+    $complex_math_add = /[\(\[][\w\d\s\+\-\*\/\^]{1,64}\+[\w\d\s\+\-\*\/\^]{1,64}[\)\]]/
+    $complex_math_sub = /[\(\[][\w\d\s\+\-\*\/\^]{1,64}\-[\w\d\s\+\-\*\/\^]{1,64}[\)\]]/
+    $complex_math_mul = /[\(\[][\w\d\s\+\-\*\/\^]{1,64}\*[\w\d\s\+\-\*\/\^]{1,64}[\)\]]/
+    $complex_math_div = /[\(\[][\w\d\s\+\-\*\/\^]{1,64}\/[\w\d\s\+\-\*\/\^]{1,64}[\)\]]/
+    $complex_math_pow = /[\(\[][\w\d\s\+\-\*\/\^]{1,64}\^[\w\d\s\+\-\*\/\^]{1,64}[\)\]]/
 
   condition:
     filesize < 1MB and

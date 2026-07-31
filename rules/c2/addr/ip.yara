@@ -78,7 +78,15 @@ rule http_hardcoded_ip: high exfil {
     $not_placeholder2 = "placeholder:\"e.g. http://138.68.74.142:7860\""
 
   condition:
-    $ipv4 and none of ($not*)
+    // Every known-good URL here is itself an instance of the text $ipv4
+    // generalises, so naming one of them excused every other hardcoded-IP URL in
+    // the file. Counting instead requires an $ipv4 match the accepted URLs do not
+    // account for. Each $not begins at most one $ipv4 match, so the sum can only
+    // overshoot: the truncated forms ($not_100, $not_11, $not_192, $not_169) can
+    // cost a match they never produced, and $not_metadata starts with $not_169 so
+    // that address is charged twice. Overshooting leaves the suppression stronger,
+    // never weaker.
+    #ipv4 > #not_metadata + #not_100 + #not_11 + #not_192 + #not_169 + #not_aria + #not_placeholder1 + #not_placeholder2
 }
 
 rule hardcoded_ip_port: high {

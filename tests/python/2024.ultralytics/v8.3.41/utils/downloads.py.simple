@@ -25,6 +25,7 @@ fs/file/delete: low
 fs/file/exists: low
 fs/file/open: low
 fs/permission/modify: high
+net/download: medium
 net/download/fetch: medium
 net/http: low
 net/ip/host_port: high

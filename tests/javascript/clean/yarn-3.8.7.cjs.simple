@@ -59,6 +59,7 @@ fs/link_read: low
 fs/lock_update: low
 fs/mount: low
 fs/node_create: low
+fs/path/dev: medium
 fs/path/home: low
 fs/path/usr_bin: low
 fs/permission/chown: low
@@ -66,6 +67,7 @@ fs/permission/modify: medium
 fs/symlink_resolve: low
 impact/remote_access/reverse_shell: medium
 net/dns/txt: low
+net/download: medium
 net/http: low
 net/http/accept: medium
 net/http/auth: low

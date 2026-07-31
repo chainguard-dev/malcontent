@@ -12,6 +12,7 @@ fs/directory/remove: low
 fs/file/delete: low
 fs/file/open: low
 fs/file/read: low
+fs/path/dev: medium
 fs/path/etc: low
 fs/path/home: low
 fs/permission/chown: medium

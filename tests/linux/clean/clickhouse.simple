@@ -110,6 +110,7 @@ fs/lock_update: low
 fs/mount: low
 fs/mounts_read: medium
 fs/node_create: low
+fs/path/dev: medium
 fs/path/etc: low
 fs/path/etc_hosts: medium
 fs/path/etc_resolv.conf: low
@@ -148,6 +149,7 @@ net/dns/over_https: medium
 net/dns/reverse: medium
 net/dns/servers: low
 net/dns/txt: low
+net/download: medium
 net/download/fetch: medium
 net/email/exotic_addr: medium
 net/http: low

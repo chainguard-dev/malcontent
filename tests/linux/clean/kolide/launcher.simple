@@ -19,6 +19,7 @@ crypto/cipher: medium
 crypto/decrypt: low
 crypto/ecdsa: low
 crypto/ed25519: low
+crypto/encrypt: medium
 crypto/public_key: low
 crypto/tls: low
 data/compression/gzip: low
@@ -62,9 +63,11 @@ fs/link_read: low
 fs/lock_update: low
 fs/mount: low
 fs/path/boot: medium
+fs/path/dev: medium
 fs/path/etc: low
 fs/path/etc_hosts: medium
 fs/path/etc_resolv.conf: low
+fs/path/home: low
 fs/path/home_config: low
 fs/path/tmp: medium
 fs/path/usr_bin: low

@@ -3441,7 +3441,7 @@
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
-                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/sus/exclamation.yara#L1",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/sus/exclamation.yara#L3",
                     "ID": "sus/exclamation",
                     "RuleName": "exclamations"
                 }
