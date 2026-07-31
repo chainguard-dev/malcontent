@@ -45,19 +45,21 @@ rule crontab_entry: high {
     $repeat_root          = "* * * * root"
     $repeat_daily         = "@daily"
 
-    $not_cron_date    = "CronDate"
-    $not_minute       = "Minute"
-    $not_minutes      = "minutes"
-    $not_days         = "Days in month"
-    $not_day_of_week  = "dayOfWeek"
-    $not_day_of_month = "dayOfMonth"
+    $notgrp_cron_date         = "CronDate"
+    $notgrp_cron_minute       = "Minute"
+    $notgrp_cron_minutes      = "minutes"
+    $notgrp_cron_days         = "Days in month"
+    $notgrp_cron_day_of_week  = "dayOfWeek"
+    $notgrp_cron_day_of_month = "dayOfMonth"
 
     $not_wolfi1 = "# As wolfi-baselayout does provide /var/spool/cron already, and we can not create this"
     $not_wolfi2 = "# directory in the package, we need to create the cron file in the post-install scriptlet."
     $not_wolfi3 = "# Since scriptlets don't run in apko, this is for the `apk add` command only."
 
   condition:
-    filesize < 6KB and $crontab and any of ($repeat*) and none of ($not*)
+    // The $notgrp_cron_* strings are the field names of a JavaScript cron-expression
+    // library and only identify it as a set -- "Minute" and "minutes" say nothing alone.
+    filesize < 6KB and $crontab and any of ($repeat*) and not all of ($notgrp_cron_*) and none of ($not_*)
 }
 
 rule crontab_danger_path: high {

@@ -7,10 +7,16 @@ rule dev_mem: medium linux {
     $val        = "/dev/mem"
     $not_cshell = "_PATH_CSHELL" fullword
     $not_rwho   = "_PATH_RWHODIR" fullword
-    $not_no     = "no /dev/mem" fullword
+    // fullword dropped so this count tracks $val exactly: in a binary with packed
+    // string data the error text can be followed by a word character, which would
+    // hide the $not while $val still matched
+    $not_no     = "no /dev/mem"
 
   condition:
-    filesize < 10MB and uint32(0) == 1179403647 and $val and none of ($not*)
+    // "/dev/mem" is a substring of the "no /dev/mem" error string, so count that
+    // accepted spelling out instead of letting it disarm the rule; the two <paths.h>
+    // macros only identify a paths.h consumer when both are present
+    filesize < 10MB and uint32(0) == 1179403647 and #val > #not_no and not all of ($not_cshell, $not_rwho)
 }
 
 rule comsvcs_minidump: high windows {

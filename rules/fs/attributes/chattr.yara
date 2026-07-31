@@ -20,7 +20,10 @@ rule chattr_immutable_caller_high: high {
     $not_dev = "chattr -i /sys"
 
   condition:
-    $chattr and none of ($not*)
+    // $chattr also matches inside "chattr -i /sys", so that one accepted line
+    // used to silence every other chattr -i target in the same file; require a
+    // match it does not account for.
+    $chattr and #chattr > #not_dev
 }
 
 rule chattr_immutable_caller_recursive: high {

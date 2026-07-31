@@ -9,7 +9,7 @@ discover/user/HOME: low
 evasion/file/location/HOME: medium
 evasion/file/prefix: medium
 evasion/file/prefix/lib: high
-evasion/hijack_execution/etc_ld.so.preload: medium
+evasion/hijack_execution/etc_ld.so.preload: high
 evasion/indicator_blocking/process: high
 evasion/logging/acct: low
 evasion/logging/hide_shell_history: high

@@ -38,6 +38,11 @@ rule base64_shell_double_encode: critical {
     $not_gpgme   = "if (!base64 || base64 == -1) /* Make sure that we really have a string.  */"
     $not_unix_rb = "echo '%<base64>s' | base64 --decode > %<file>s"
 
+  // $ref matches once inside each accepted line ("base64 || base64" in gpgme,
+  // "%<base64>s' | base64" in the Ruby template), so their presence used to
+  // excuse the whole file. Compare occurrence counts instead: fire only on a
+  // double-encode $ref match neither accepted line accounts for.
+
   condition:
-    any of them and none of ($not*)
+    $ref and #ref > #not_gpgme + #not_unix_rb
 }

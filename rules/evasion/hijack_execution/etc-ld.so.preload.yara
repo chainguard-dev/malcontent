@@ -14,13 +14,17 @@ rule etc_ld_preload_not_ld: high linux {
     description = "unexpected reference to /etc/ld.so.preload"
 
   strings:
-    $ref           = "/etc/ld.so.preload"
-    $not_env_aux   = "LD_SHOW_AUXV"
-    $not_env_hwcap = "LD_HWCAP_MASK"
-    $not_env_audit = "LD_AUDIT"
-    $not_cache     = "ld.so.cache"
-    $not_man       = "MAN_DISABLE_SECCOMP"
+    $ref     = "/etc/ld.so.preload"
+    $not_man = "MAN_DISABLE_SECCOMP"
+
+    $notld_aux   = "LD_SHOW_AUXV"
+    $notld_hwcap = "LD_HWCAP_MASK"
+    $notld_audit = "LD_AUDIT"
+    $notld_cache = "ld.so.cache"
 
   condition:
-    $ref and none of ($not*)
+    // the four loader strings together describe glibc's own ld.so; individually they
+    // are ordinary dynamic-linker vocabulary that rootkits use too, so require the
+    // complete set before suppressing
+    $ref and none of ($not_*) and not all of ($notld_*)
 }

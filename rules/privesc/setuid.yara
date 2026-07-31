@@ -9,10 +9,15 @@ rule setuid {
   strings:
     $ref    = "setuid" fullword
     $not_go = "_syscall.libc_setuid_trampoline"
-    $not_ls = "file that is setuid"
+
+    // $ref matches inside coreutils' "file that is setuid" help text, so ls's own
+    // documentation used to excuse every other setuid reference in the file.
+    // Count it instead of checking for it: fire only on a setuid reference the
+    // help text does not account for.
+    $notsub_ls = "file that is setuid"
 
   condition:
-    $ref and none of ($not*)
+    $ref and none of ($not_*) and #ref > #notsub_ls
 }
 
 rule seteuid {

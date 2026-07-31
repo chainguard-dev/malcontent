@@ -10,16 +10,22 @@ rule msxml2_http: critical {
     $not_fileapi2 = "git://github.com/mailru/FileAPI.git"
     $not_i18next1 = "i18nextHttpBackend"
     $not_i18next2 = "u[\"User-Agent\"]=\"i18next-http-backend (node/\".concat(S.process.version,\"; \")"
-    $not_yui1     = "Copyright (c) 2008, Yahoo! Inc. All rights reserved."
-    $not_yui2     = "http://developer.yahoo.net/yui/license.txt"
-    $not_yui3     = "version: 2.6.0"
-    $not_yui4     = "YAHOO.util.Connect={_msxml_progid:[\"Microsoft.XMLHTTP\",\"MSXML2.XMLHTTP.3.0\",\"MSXML2.XMLHTTP\"]"
-    $not_yui5     = "if(typeof YAHOO==\"undefined\"||!YAHOO){var YAHOO={};}YAHOO.namespace=function()"
-    $not_dojo1    = "dojotoolkit.org"
-    $not_dojo2    = "dojo.xd.js"
+
+    // The YUI 2.6.0 banner comment carries $not_yui1 + $not_yui2 + $not_yui3
+    // together and connection.js adds $not_yui4, so a real YUI drop always hits
+    // several of these. "version: 2.6.0" on its own is an ordinary version
+    // string, so require two YUI markers before suppressing.
+    $not_yui1 = "Copyright (c) 2008, Yahoo! Inc. All rights reserved."
+    $not_yui2 = "http://developer.yahoo.net/yui/license.txt"
+    $not_yui3 = "version: 2.6.0"
+    $not_yui4 = "YAHOO.util.Connect={_msxml_progid:[\"Microsoft.XMLHTTP\",\"MSXML2.XMLHTTP.3.0\",\"MSXML2.XMLHTTP\"]"
+    $not_yui5 = "if(typeof YAHOO==\"undefined\"||!YAHOO){var YAHOO={};}YAHOO.namespace=function()"
+
+    $not_dojo1 = "dojotoolkit.org"
+    $not_dojo2 = "dojo.xd.js"
 
   condition:
-    filesize < 128KB and $a and !a > 32 and none of ($not*)
+    filesize < 128KB and $a and !a > 32 and none of ($not_fileapi*, $not_i18next*, $not_dojo*) and not 2 of ($not_yui*)
 }
 
 rule obfuscation_base64_str_replace: medium {

@@ -33,6 +33,12 @@ rule pid_inspector_high: high {
     $not_duplicate_cmdline = "/proc/%d/cmdline"  // handled via proc_d_cmdline
     $not_duplicate_exe     = "/proc/%d/exe"  // handled via proc_d_exe
 
+  // $proc_cmdline/$proc_exe match the "%d" dedup strings verbatim, so a single
+  // "/proc/%d/exe" would otherwise disable the rule for the whole file. Compare
+  // occurrence counts per family instead: a family disqualifies the file only
+  // when every one of its matches is the dedup spelling. NetworkManager, systemd
+  // and /proc/cgroups stay independently conclusive.
+
   condition:
-    filesize < 104857600 and 3 of ($proc*) and none of ($not*)
+    filesize < 104857600 and 3 of ($proc*) and (#proc_cmdline > #not_duplicate_cmdline or #proc_cmdline == 0) and (#proc_exe > #not_duplicate_exe or #proc_exe == 0) and none of ($not_network_manager, $not_systemd, $not_cgroups)
 }

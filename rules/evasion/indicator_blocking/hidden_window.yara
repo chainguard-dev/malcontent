@@ -20,12 +20,17 @@ private rule hidden_window_pythonSetup {
 
     $not_setup_example = ">>> setup("
     $not_setup_todict  = "setup(**config.todict()"
-    $not_import_quoted = "\"from setuptools import setup"
     $not_setup_quoted  = "\"setup(name="
+
+    $not_import_quoted = "\"from setuptools import setup"
     $not_distutils     = "from distutils.errors import"
 
   condition:
-    filesize < 128KB and $setup and any of ($i*) in (0..1024) and none of ($not*)
+    // The three $not_setup_* strings are documented/quoted spellings that each
+    // contain one "setup(", so $setup matches them too and a single doctest line
+    // would otherwise mask a real setup() call. Compare occurrence counts instead
+    // of presence. The other two strings never contain "setup(" and stay absolute.
+    filesize < 128KB and $setup and any of ($i*) in (0..1024) and #setup > #not_setup_example + #not_setup_todict + #not_setup_quoted and none of ($not_import_quoted, $not_distutils)
 }
 
 rule subprocess_CREATE_NO_WINDOW_setuptools: high {

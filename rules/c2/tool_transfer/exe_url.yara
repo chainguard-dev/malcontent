@@ -8,7 +8,9 @@ rule http_url_with_exe: high {
     $not_elastic     = "\"license\": \"Elastic License v2\""
 
   condition:
-    any of ($exe*) and none of ($not*)
+    // the MongoDB docs link is itself an $exe_url match, so compare counts:
+    // it cancels its own occurrence and any other .exe endpoint still fires.
+    #exe_url > #not_mongodb_404 and not $not_elastic
 }
 
 rule http_ip_url_with_exe: critical {

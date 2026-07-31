@@ -40,7 +40,6 @@ discover/system/hostname: low
 discover/system/platform: medium
 discover/user/USER: low
 evasion/file/prefix: medium
-evasion/logging/acct: low
 exec/cmd: medium
 exec/cmd/pipe: medium
 exec/plugin: low

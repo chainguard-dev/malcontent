@@ -14,6 +14,11 @@ rule systemd_no_comments_or_documentation: medium {
     $ex_systemd         = "ExecStart=systemd-"
     $ex_output          = "StandardOutput="
 
+  // $execstart matches inside $ex_systemd, so a unit that launches one systemd- helper
+  // used to be exempt no matter what else it launched. Discount $ex_systemd by
+  // occurrence count; the rest of the set is unit structure that is documentation
+  // enough on its own, so those stay presence checks.
+
   condition:
-    filesize < 4KB and $execstart and none of ($ex_*)
+    filesize < 4KB and $execstart and #execstart > #ex_systemd and none of ($ex_comment, $ex_documentation, $ex_requires_socket, $ex_condition_path, $ex_after, $ex_output)
 }

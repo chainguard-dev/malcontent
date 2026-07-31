@@ -126,12 +126,15 @@ private rule tool_transfer_pythonSetup {
     $not_distutils     = "from distutils.errors import"
     $not_dir           = "dist-packages/setuptools"
     $not_fetch         = "fetch_distribution"
-    $not_hopper1       = "PACKAGE_NAME = \"flashattn-hopper\""
-    $not_hopper2       = "check_if_cuda_home_none(\"--fahopper\")"
-    $not_hopper3       = "name=\"flashattn_hopper_cuda\","
+
+    $nothopper_name = "PACKAGE_NAME = \"flashattn-hopper\""
+    $nothopper_cuda = "check_if_cuda_home_none(\"--fahopper\")"
+    $nothopper_ext  = "name=\"flashattn_hopper_cuda\","
 
   condition:
-    filesize < 128KB and $setup and any of ($i*) and none of ($not*)
+    // the three flash-attention markers only identify Dao-AILab's hopper/setup.py
+    // when they appear together; each setuptools/doc marker above stands alone
+    filesize < 128KB and $setup and any of ($i*) and none of ($not_*) and not all of ($nothopper*)
 }
 
 rule setuptools_fetcher: suspicious {
@@ -154,7 +157,9 @@ rule setuptools_fetch_run: critical {
     $not_hopper3 = "name=\"flashattn_hopper_cuda\","
 
   condition:
-    setuptools_fetcher and py_runner and none of ($not*)
+    // the three markers together are the hopper/setup.py fingerprint; copying just
+    // one of them into a hostile setup.py should not buy an exemption
+    setuptools_fetcher and py_runner and not all of ($not*)
 }
 
 rule setuptools_dropper: critical {

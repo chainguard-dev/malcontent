@@ -22,15 +22,22 @@ rule exotic_tld: high {
 
   strings:
     $http_exotic_tld = /https*:\/\/[\w\-\.]{1,128}\.(vip|red|cc|wtf|top|pw|ke|space|zw|bd|ke|am|sbs|date|pw|quest|cd|bid|xyz|cm|xxx|casino|online|poker|ua|icu)\//
-    $not_electron    = "ELECTRON_RUN_AS_NODE"
-    $not_nips        = "nips.cc"
-    $not_gov_bd      = ".gov.bd"
-    $not_eol         = "endoflife.date"
-    $not_whois       = "bdia.btcl.com.bd"
-    $not_arduino     = "arduino.cc"
+
+    $not_arduino = /https*:\/\/[\w\-\.]{0,128}arduino\.cc\//
+    $not_eol     = /https*:\/\/[\w\-\.]{0,128}endoflife\.date\//
+    $not_gov_bd  = /https*:\/\/[\w\-\.]{0,128}\.gov\.bd\//
+    $not_nips    = /https*:\/\/[\w\-\.]{0,128}nips\.cc\//
+    $not_whois   = /https*:\/\/[\w\-\.]{0,128}bdia\.btcl\.com\.bd\//
+
+    $not_electron = "ELECTRON_RUN_AS_NODE"
 
   condition:
-    filesize < 10MB and any of ($http*) and none of ($not_*)
+    // Every $not_* URL is a spelling $http_exotic_tld also matches, one match on each
+    // side per URL, so compare occurrence counts: one accepted hostname must not mask
+    // a second, unrelated exotic-TLD URL in the same file. The $not_* patterns carry
+    // the scheme the reference requires so a bare hostname mention cannot suppress.
+    // ELECTRON_RUN_AS_NODE names the bundling runtime, not a URL, and stays absolute.
+    filesize < 10MB and $http_exotic_tld and #http_exotic_tld > #not_arduino + #not_eol + #not_gov_bd + #not_nips + #not_whois and not $not_electron
 }
 
 rule post_exotic_tld: high {
@@ -40,15 +47,19 @@ rule post_exotic_tld: high {
   strings:
     $http_exotic_tld = /https*:\/\/[\w\-\.]{1,128}\.(vip|red|cc|wtf|top|pw|ke|space|zw|bd|ke|am|sbs|date|pw|quest|cd|bid|xyz|cm|xxx|casino|online|poker|ua|icu)\//
     $post            = /(post|POST)/ fullword
-    $not_electron    = "ELECTRON_RUN_AS_NODE"
-    $not_nips        = "nips.cc"
-    $not_gov_bd      = ".gov.bd"
-    $not_eol         = "endoflife.date"
-    $not_whois       = "bdia.btcl.com.bd"
-    $not_arduino     = "arduino.cc"
+
+    $not_arduino = /https*:\/\/[\w\-\.]{0,128}arduino\.cc\//
+    $not_eol     = /https*:\/\/[\w\-\.]{0,128}endoflife\.date\//
+    $not_gov_bd  = /https*:\/\/[\w\-\.]{0,128}\.gov\.bd\//
+    $not_nips    = /https*:\/\/[\w\-\.]{0,128}nips\.cc\//
+    $not_whois   = /https*:\/\/[\w\-\.]{0,128}bdia\.btcl\.com\.bd\//
+
+    $not_electron = "ELECTRON_RUN_AS_NODE"
 
   condition:
-    filesize < 10MB and $http_exotic_tld and $post and none of ($not_*) and math.abs(@http_exotic_tld - @post) <= 128
+    // Same accepted-URL set and counting rule as exotic_tld; the proximity term is
+    // unaffected because it only compares the first $http_exotic_tld offset to $post.
+    filesize < 10MB and $http_exotic_tld and $post and #http_exotic_tld > #not_arduino + #not_eol + #not_gov_bd + #not_nips + #not_whois and not $not_electron and math.abs(@http_exotic_tld - @post) <= 128
 }
 
 rule http_url_with_question: medium {
@@ -73,7 +84,12 @@ rule http_url_with_question: medium {
     $not_doku            = "/doku.php?"
 
   condition:
-    filesize < 256KB and any of ($f*) and $ref and none of ($not*)
+    // All four $not strings are fragments of a query-string URL that $ref matches, so
+    // each accepted URL contributes one $ref match and at least one $not match.
+    // Comparing counts means a single benign ".cgi?" endpoint no longer hides every
+    // other query URL in the file; an unrelated bare mention only makes the guard more
+    // conservative, never less.
+    filesize < 256KB and any of ($f*) and $ref and #ref > #not_cvs_sourceforge + #not_rev_head + #not_cgi + #not_doku
 }
 
 rule binary_with_malicious_url: critical {
@@ -114,7 +130,12 @@ rule binary_url_with_question: high {
     $not_mesibo      = "https://api.mesibo.com/api.php?"
 
   condition:
-    filesize < 150MB and elf_or_macho and $ref and none of ($not*)
+    // "index.php?title=" is a spelling of $ref itself, so count it instead of treating
+    // it as absolute: one Wikipedia article link must not hide a second query URL. The
+    // other three name the embedding project (a browser's search-provider table, a
+    // secret scanner's detector table) rather than a URL $ref matches, so they stay
+    // absolute.
+    filesize < 150MB and elf_or_macho and $ref and #ref > #not_wiki and none of ($not_wikipedia, $not_msdn, $not_codeproject, $not_mesibo)
 }
 
 rule script_url_with_question: high {
@@ -138,7 +159,9 @@ rule script_url_with_question: high {
     $not_wiki        = "index.php?title="
 
   condition:
-    filesize < 256KB and any of ($f*) and $ref and none of ($not*)
+    // See binary_url_with_question: count the one string that is a spelling of $ref and
+    // keep the project-identifying hostnames absolute.
+    filesize < 256KB and any of ($f*) and $ref and #ref > #not_wiki and none of ($not_wikipedia, $not_msdn, $not_codeproject)
 }
 
 rule url_code_as_chr_int: high {

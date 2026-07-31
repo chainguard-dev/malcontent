@@ -18,7 +18,7 @@ rule apparmor_stop: high {
     $not_DistUpgradeQuirks = "DistUpgradeQuirks" fullword
 
   condition:
-    $val and none of them
+    $val and none of ($not*)
 }
 
 rule disable_apparmor: high {

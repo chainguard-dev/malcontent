@@ -9,7 +9,7 @@ rule sleep_and_background: medium {
     $cmd_bg       = /\/[a-z]{1,128}\/[\w\/\- \.]{0,32} &[^&]/
     $cmd_bg_redir = "2>&1 &"
     $hash_bang    = "#!"
-    $not_perldyn  = "bin/parldyn"
+    $not_parldyn  = "bin/parldyn"
     $not_perlxsi  = "perlxsi"
     $not_electron = "ELECTRON_RUN_AS_NODE"
     $not_node     = "NODE_DEBUG_NATIVE"

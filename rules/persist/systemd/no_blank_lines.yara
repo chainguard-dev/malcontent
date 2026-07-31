@@ -9,5 +9,8 @@ rule systemd_no_blank_lines: high {
     $not_apport = "ExecStart=/usr/share/apport/apport"
 
   condition:
-    filesize < 4096 and $execstart and none of ($not*)
+    // $not_blank is the structural premise of the rule, so it stays an absolute
+    // negation; $not_apport contains "ExecStart" itself, so count past it and a
+    // trojaned apport unit with an extra ExecStart line still fires
+    filesize < 4096 and $execstart and not $not_blank and #execstart > #not_apport
 }

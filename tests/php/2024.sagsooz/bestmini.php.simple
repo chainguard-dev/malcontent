@@ -2,5 +2,6 @@
 3P/YARAForge/signature_ext_webshell: high
 3P/YARAForge/signature_webshell_php: critical
 anti-static/obfuscation/php: medium
+c2/tool_transfer/github: medium
 impact/remote_access/reverse_shell: high
 net/url/embedded: medium

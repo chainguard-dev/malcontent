@@ -43,9 +43,12 @@ rule py_crypto_urllib_multiprocessing: high {
     $f_libcrypto       = "libcrypto.so"
     $not_capa          = "capa.engine"
     $not_python        = "PYTHONDEBUG"
-    $not_tkinter       = "tkinter" fullword
-    $not_unittest      = "unittest" fullword
+
+    $notgrp_stdlib_tkinter  = "tkinter" fullword
+    $notgrp_stdlib_unittest = "unittest" fullword
 
   condition:
-    any of ($py*) and $import and 85 % of ($f*) and none of ($not*)
+    // "tkinter" and "unittest" only indicate a bundled CPython standard library when they
+    // appear together; either one on its own is just a module name.
+    any of ($py*) and $import and 85 % of ($f*) and not all of ($notgrp_stdlib_*) and none of ($not_*)
 }

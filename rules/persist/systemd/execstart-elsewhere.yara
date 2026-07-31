@@ -29,5 +29,8 @@ rule execstart_unexpected_dir_val: medium {
     $expected_usr        = "ExecStart=/usr"
 
   condition:
-    filesize < 102400 and $execstart and none of ($expected_*)
+    // $execstart matches each $expected_ prefix itself, one match per ExecStart line,
+    // so a unit with `ExecStart=/usr/bin/...` alongside `ExecStart=/tmp/x` was fully
+    // suppressed: require an ExecStart beyond the accepted ones
+    filesize < 102400 and #execstart > #expected_bin + #expected_etc_rc + #expected_etc_update + #expected_lib + #expected_lib_ufw + #expected_nix + #expected_sbin + #expected_usr
 }

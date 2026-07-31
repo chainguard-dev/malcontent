@@ -16,11 +16,15 @@ rule remote_eval: critical {
     $eval_urllib         = /eval\(urllib\.urlopen\([\(\)\"\'\-\w:\/\.]{0,64}\).read\(\)/
     $exec_urllib         = /exec\(urllib\.urlopen\([\(\)\"\'\-\w:\/\.]{0,64}\).read\(\)/
 
+    // Both class definitions only appear together, in open_clip's
+    // training data.py. "class SyntheticDataset(Dataset)" on its own is an
+    // ordinary torch dataset name any package can declare, so the pair is
+    // required as a set rather than member-by-member.
     $not_open_clip1 = "class ResampledShards2(IterableDataset)"
     $not_open_clip2 = "class SyntheticDataset(Dataset)"
 
   condition:
-    filesize < 65535 and $http and any of ($e*) and none of ($not*)
+    filesize < 65535 and $http and any of ($e*) and not all of ($not*)
 }
 
 rule remote_eval_close: high {
@@ -69,14 +73,18 @@ rule python_exec_near_get: high {
     filetypes   = "py"
 
   strings:
-    $f_exec        = "exec("
-    $f_requests    = /[a-z]{1,4}.get\(/ fullword
+    $f_exec     = "exec("
+    $f_requests = /[a-z]{1,4}.get\(/ fullword
+
+    // All three only appear together, in pyparsing's examples/sparser.py.
+    // "All of the heavy" is an ordinary English fragment, so the set is
+    // required as a whole rather than member-by-member.
     $not_pyparser  = "All of the heavy"
     $not_pyparser2 = "lifting is handled by pyparsing (http://pyparsing.sf.net)."
     $not_sparser   = "sparser.py [options] filename"
 
   condition:
-    all of ($f*) and math.abs(@f_requests - @f_exec) <= 32 and none of ($not*)
+    all of ($f*) and math.abs(@f_requests - @f_exec) <= 32 and not all of ($not*)
 }
 
 rule python_eval_near_get: high {
@@ -135,13 +143,25 @@ rule java_url_class_load: medium java {
     $loader_url    = "URLClassLoader"
     $loader_define = "defineClass" fullword
     $url           = /https?:\/\/[\w\-][\w\.\-\/:&]{8,128}/
-    $not_w3        = "www.w3.org"
-    $not_sun       = "java.sun.com"
-    $not_apache    = "www.apache.org"
-    $not_maven     = "maven.apache.org"
-    $not_android   = "schemas.android.com"
-    $not_xmlsoap   = "schemas.xmlsoap.org"
+
+    // a file that declares its own JavaScript defineClass() is not calling
+    // java.lang.ClassLoader.defineClass
+    $not_js_define = "function defineClass("
+
+    // XML namespace and schema hosts, scheme-anchored so that each one is
+    // counted at the same offset as the $url match it accounts for
+    $not_w3      = /https?:\/\/www\.w3\.org/
+    $not_sun     = /https?:\/\/java\.sun\.com/
+    $not_apache  = /https?:\/\/www\.apache\.org/
+    $not_maven   = /https?:\/\/maven\.apache\.org/
+    $not_android = /https?:\/\/schemas\.android\.com/
+    $not_xmlsoap = /https?:\/\/schemas\.xmlsoap\.org/
+
+  // $url also matches the boilerplate namespace URLs above, so presence-based
+  // suppression hides a JAR that carries both an XML namespace and a real
+  // class-load URL. Compare occurrence counts: fire only on a $url hit that no
+  // namespace host accounts for.
 
   condition:
-    filesize < 2MB and any of ($loader*) and $url and none of ($not*)
+    filesize < 2MB and any of ($loader*) and $url and not $not_js_define and #url > #not_w3 + #not_sun + #not_apache + #not_maven + #not_android + #not_xmlsoap
 }

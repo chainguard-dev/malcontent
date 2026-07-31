@@ -12,13 +12,20 @@ rule selinux_firewall: high linux {
     $not_ip6tables    = "NFTNL_RULE_TABLE"
     $not_iptables     = "iptables-restore"
     $not_iptables_nft = "iptables-nft"
-    $not_selinux_init = "SELINUX_INIT"
+    $not_selinux_init = "SELINUX_INIT" fullword
     $not_define       = "#define" fullword
     $not_netlink      = "NETLINK" fullword
     $not_containerd   = "containerd" fullword
 
   condition:
-    filesize < 1MB and $selinux and any of ($f*) and none of ($not*)
+    // $selinux matches SELINUX_INIT and $f_iptables matches the iptables-restore
+    // and iptables-nft tool names, so those are compared by count rather than
+    // membership; $not_selinux_init carries $selinux's fullword modifier so the
+    // two cannot drift. The remaining four are independent netfilter/container
+    // runtime fingerprints and stay membership tests.
+    filesize < 1MB and $selinux and #selinux > #not_selinux_init and
+    (#f_iptables > #not_iptables + #not_iptables_nft or $f_firewalld) and
+    none of ($not_ip6tables, $not_define, $not_netlink, $not_containerd)
 }
 
 private rule ufw_tool {

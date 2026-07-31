@@ -13,9 +13,12 @@ rule references_com_apple_preferences_file: medium {
     $not_speech_voice    = "speech.voice"
     $not_apple_inc       = "Apple Inc"
     $not_sandbox         = "andbox profile"
-    $not_postfix         = "com.apple.postfixsetup.plist"
     $not_private_literal = "private-literal"
 
+    $notcount_postfix = "com.apple.postfixsetup.plist"
+
   condition:
-    filesize < 157286400 and $com_apple_plist and none of ($not*)
+    // "com.apple.postfixsetup.plist" is itself a $com_apple_plist match, so count
+    // past it; the remaining markers are independent product fingerprints
+    filesize < 157286400 and #com_apple_plist > #notcount_postfix and none of ($not_*)
 }

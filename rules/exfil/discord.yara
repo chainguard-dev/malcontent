@@ -19,11 +19,16 @@ rule discord_bot: high {
     $l_oceanic         = /require\(("|')oceanic.js("|')\);/
     $l_discordphp      = "use Discord\\Discord;"
 
-    $not_pypi_index  = /\"index_date\":\"\d{4}-\d{2}\d{2}\"/
+    // the date regex was missing its second "-", so it never matched and the pair
+    // could not work as a joint fingerprint
+    $not_pypi_index  = /\"index_date\":\"\d{4}-\d{2}-\d{2}\"/
     $not_pypi_index2 = "\"package_names\""
 
   condition:
-    any of them and none of ($not*)
+    // the two $not strings only identify a PyPI index JSON dump together -
+    // "package_names" on its own is far too common to suppress on; the reference
+    // strings are selected explicitly because `them` would include the $not strings
+    (any of ($webhook*) or any of ($l_*)) and not all of ($not*)
 }
 
 private rule iplookup_website_value_copy: high {

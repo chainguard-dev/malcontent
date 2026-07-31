@@ -26,5 +26,5 @@
 | LOW | [os/env/get](https://github.com/chainguard-dev/malcontent/blob/main/rules/os/env/get.yara#L12) | Retrieve environment variables | [getenv](https://github.com/search?q=getenv&type=code) |
 | LOW | [os/fd/sendfile](https://github.com/chainguard-dev/malcontent/blob/main/rules/os/fd/sendfile.yara#L1) | [transfer data between file descriptors](https://man7.org/linux/man-pages/man2/sendfile.2.html) | [sendfile](https://github.com/search?q=sendfile&type=code) |
 | LOW | [privesc/setuid](https://github.com/chainguard-dev/malcontent/blob/main/rules/privesc/setuid.yara#L1) | [set real and effective user ID of current process](https://man7.org/linux/man-pages/man2/setuid.2.html) | [setuid](https://github.com/search?q=setuid&type=code) |
-| LOW | [process/groupid_set](https://github.com/chainguard-dev/malcontent/blob/main/rules/process/groupid-set.yara#L29) | set real and effective group ID of process | [setregid](https://github.com/search?q=setregid&type=code) |
+| LOW | [process/groupid_set](https://github.com/chainguard-dev/malcontent/blob/main/rules/process/groupid-set.yara#L34) | set real and effective group ID of process | [setregid](https://github.com/search?q=setregid&type=code) |
 

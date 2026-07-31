@@ -9,7 +9,7 @@ rule var_log_syslog: medium {
     $not_rsyslog_conf = "/etc/rsyslog.conf"
 
   condition:
-    filesize < 10MB and any of them
+    filesize < 10MB and any of ($ref*) and none of ($not*)
 }
 
 rule var_log_syslog_elf: high {

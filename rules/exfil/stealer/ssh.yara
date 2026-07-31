@@ -11,10 +11,22 @@ rule tar_ssh_net: medium {
     $z_tar    = "tar" fullword
     $z_xargs  = "xargs cat"
 
-    $not_auth_keys = ".ssh/authorized_keys"
+    // $h matches inside ".ssh/authorized_keys", so one authorized_keys reference
+    // used to excuse every other .ssh path in the file. Count it instead of
+    // checking for it: fire only on a .ssh reference authorized_keys does not
+    // account for.
+    $notsub_auth_keys = ".ssh/authorized_keys"
+
+    // A WAF ruleset enumerates every sensitive dotfile path as an LFI pattern, so
+    // it reads as a pile of .ssh references. These three keys only occur together
+    // in such a bundle and none of them means anything alone, so the set is
+    // required as a whole rather than member-by-member.
+    $notgrp_waf_version = "\"rules_version\""
+    $notgrp_waf_crs     = "crs_id"
+    $notgrp_waf_attack  = "attack_attempt"
 
   condition:
-    filesize < 10MB and $h and any of ($s*) and any of ($z*) and none of ($not*)
+    filesize < 10MB and $h and any of ($s*) and any of ($z*) and not all of ($notgrp_waf*) and #h > #notsub_auth_keys
 }
 
 rule curl_https_ssh: high {

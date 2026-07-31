@@ -74,9 +74,14 @@ rule shell_toucher: medium {
     description = "change file timestamps"
 
   strings:
-    $ref         = /touch [\$\%\w\-\_\.\/ ]{0,24}/ fullword
+    // the argument has to look like a path: a flag, slash, variable, percent or
+    // home reference. The old class allowed spaces and an empty argument, which
+    // matched English prose such as "touch history" or "touch devices"
+    $ref         = /touch [\w\_\.\"\']{0,24}[\-\/\$\%\~][\w\_\.\/\$\%\-\~\"\']{0,24}/ fullword
     $not_touch_a = "touch a"
 
   condition:
-    $ref and none of ($not*)
+    // "touch a" is the leading text of a $ref match such as "touch a/b", so
+    // subtract its count instead of letting it switch the rule off.
+    #ref > #not_touch_a
 }

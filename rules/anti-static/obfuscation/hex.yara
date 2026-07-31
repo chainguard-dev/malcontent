@@ -45,17 +45,20 @@ rule hex_parse_base64_high: high {
     filetypes   = "py"
 
   strings:
-    $lang_node         = /Buffer\.from\(\w{0,16}, {0,2}'hex'\)/
-    $lang_python       = /\.unhexlify\(/
-    $b_base64          = "base64"
-    $b_b64decode       = "b64decode"
-    $not_sha256        = "sha256" fullword
-    $not_sha512        = "sha512" fullword
-    $not_algorithms    = "algorithms" fullword
-    $not_python_base64 = "return binascii.unhexlify(s)"
+    $lang_node          = /Buffer\.from\(\w{0,16}, {0,2}'hex'\)/
+    $lang_python        = /\.unhexlify\(/
+    $b_base64           = "base64"
+    $b_b64decode        = "b64decode"
+    $nothash_sha256     = "sha256" fullword
+    $nothash_sha512     = "sha512" fullword
+    $nothash_algorithms = "algorithms" fullword
+    $not_python_base64  = "return binascii.unhexlify(s)"
 
   condition:
-    filesize < 32KB and any of ($lang*) and any of ($b*) and none of ($not*)
+    // the unhexlify line is verbatim CPython Lib/base64.py and rules the file
+    // out on its own; sha256/sha512/algorithms are generic tokens that only
+    // together describe a hashing helper, so all three must be present
+    filesize < 32KB and any of ($lang*) and any of ($b*) and not $not_python_base64 and not all of ($nothash*)
 }
 
 rule mega_string: high {

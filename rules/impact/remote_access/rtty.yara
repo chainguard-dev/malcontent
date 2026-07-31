@@ -9,6 +9,9 @@ rule rtty_webshell: critical {
     $pty       = "login_path" fullword
     $not_usage = "rtty version" fullword
 
+  // $not_usage marks the genuine rtty tool's version banner, so it must not be
+  // selectable as one of the three matches.
+
   condition:
-    filesize < 1MB and 3 of them
+    filesize < 1MB and all of ($socat, $bin_bash, $pty) and none of ($not*)
 }

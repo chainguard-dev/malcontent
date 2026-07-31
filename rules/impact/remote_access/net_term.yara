@@ -25,7 +25,9 @@ rule pseudoterminal_tunnel: high {
     $not_iot       = "iotsecuredtunnel"
 
   condition:
-    filesize < 100KB and any of ($p*) and any of ($t*) and none of ($not*)
+    // $t matches the AWS SDK operation name "iotsecuredtunnel" as a whole word, so
+    // count past that spelling instead of exempting the whole file
+    filesize < 100KB and any of ($p*) and (#t > #not_iot or $t2) and none of ($not_qemu, $not_unbounded)
 }
 
 rule tty_shell: high {

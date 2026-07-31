@@ -8,5 +8,5 @@ rule root_path_val: medium {
     $not_go_selinux = "SELINUXTYPE"
 
   condition:
-    any of them and none of ($not*)
+    any of ($root, $root2) and none of ($not*)
 }

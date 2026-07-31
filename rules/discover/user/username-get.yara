@@ -41,7 +41,13 @@ private rule user_pythonSetup {
     $not_distutils     = "from distutils.errors import"
 
   condition:
-    filesize < 128KB and $setup and any of ($i*) and none of ($not*)
+    // ">>> setup(", "setup(**config.todict()" and "\"setup(name=" all contain
+    // $setup, so a doctest or quoted example used to hide a real setup() call in
+    // the same file; count those spellings off instead. The other two exclusions
+    // do not contain "setup(" and stay independent.
+    filesize < 128KB and $setup and any of ($i*) and
+    #setup > #not_setup_example + #not_setup_todict + #not_setup_quoted and
+    none of ($not_import_quoted, $not_distutils)
 }
 
 rule pysetup_gets_login: high {

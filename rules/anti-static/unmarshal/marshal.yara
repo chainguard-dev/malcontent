@@ -8,7 +8,9 @@ private rule pySetup {
     $not_setuptools = "setuptools.command"
 
   condition:
-    filesize < 2097152 and $setup and any of ($i*) and none of ($not*)
+    // "setuptools" is a substring of "setuptools.command", so a single
+    // setuptools.command mention used to disable the whole rule; count past it
+    filesize < 2097152 and $setup and ($i_distutils or #i_setuptools > #not_setuptools)
 }
 
 rule unmarshal_py_marshal: medium {

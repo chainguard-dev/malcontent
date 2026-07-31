@@ -16,6 +16,10 @@ rule obfuscated_caller_base64_str_replace: critical {
 
     $not_unrelated1 = "libcublas_"
 
+  // "them" would include $not_unrelated1, so select the reference strings
+  // explicitly: with a wildcard quantifier over "them" the rule would fire on the
+  // exclusion string alone if the guard were ever loosened.
+
   condition:
-    any of them and none of ($not*)
+    any of ($a, $b, $c, $d, $e, $f, $g, $h, $i, $j) and none of ($not*)
 }

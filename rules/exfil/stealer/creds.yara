@@ -35,7 +35,13 @@ rule suspected_data_stealer: high {
     $not_gpt_tokenizer5 = "export default bpe;"
 
   condition:
-    (8 of them or 5 of ($s*)) and none of ($not*)
+    // "them" is replaced by an explicit reference selector so that relaxing the
+    // guard cannot let a $not string count toward the threshold. The five
+    // $not_gpt_tokenizer strings fingerprint one JS BPE module, but its two
+    // "const bpe = c0.concat" spellings are version variants that never co-occur,
+    // so at most four can match and three is the deciding count.
+    (8 of ($e*, $s*) or 5 of ($s*)) and not 3 of ($not_gpt_tokenizer*) and
+    none of ($not_chromium, $not_descriptive, $not_electron)
 }
 
 rule steal_creds: high {

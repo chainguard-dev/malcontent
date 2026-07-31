@@ -18,7 +18,13 @@ rule fake_kworker: critical linux {
     $not_psutil_comment3   = "root       22338   0.0    0.0B    0.0B         idle  02:04  00:00  kworker/1:2"
 
   condition:
-    filesize < 100MB and any of ($kworker*) and none of ($not*)
+    // the six literals on the right each carry their own "kworker/..." spelling,
+    // so each one they contribute is already accounted for by a $kworker1 match --
+    // require at least one kworker reference beyond what they explain. The
+    // bpftrace/f2fs markers contain no kworker spelling, so they stay absolute.
+    filesize < 100MB and any of ($kworker*) and
+    #kworker1 + #kworker2 > #not_bpftrace_comment1 + #not_dockworker + #not_rescue + #not_psutil_comment1 + #not_psutil_comment2 + #not_psutil_comment3 and
+    none of ($not_bpftrace_script, $not_f2fs_h1, $not_f2fs_h2, $not_f2fs_h3)
 }
 
 rule kworker: medium linux {
@@ -30,7 +36,10 @@ rule kworker: medium linux {
     $not_under_kworker = "_kworker"
 
   condition:
-    filesize < 1MB and any of ($k*) and none of ($not*)
+    // "kworker" fullword also matches inside "_kworker", so a file that only
+    // names the eBPF helper is fully explained by $not_under_kworker; require an
+    // unaccounted-for occurrence instead of suppressing outright.
+    filesize < 1MB and $kworker2 and #kworker2 > #not_under_kworker
 }
 
 rule fake_syslogd: critical {
@@ -54,7 +63,9 @@ rule fake_bash: high {
     $not_kong_template = "name: {{ template \"kong.fullname\" . }}-bash-wait-for-postgres"
 
   condition:
-    filesize < 8KB and $bash and none of ($not*)
+    // "-bash" fullword occurs inside the Kong Helm template literal, so count
+    // past it rather than exempting every file that ships that chart.
+    filesize < 8KB and $bash and #bash > #not_kong_template
 }
 
 rule fake_systemd: critical linux {

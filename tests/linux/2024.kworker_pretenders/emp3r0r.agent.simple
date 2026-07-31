@@ -75,6 +75,7 @@ exec/shell/arbitrary_command_dev_null: medium
 exec/shell/background_sleep: medium
 exec/shell/exec: medium
 exec/tty/open: medium
+exfil/stealer/file: high
 fs/directory/create: low
 fs/directory/list: low
 fs/directory/remove: low
@@ -84,7 +85,7 @@ fs/file/delete_forcibly: medium
 fs/file/open: low
 fs/file/read: low
 fs/file/rename: low
-fs/file/times_set: low
+fs/file/times_set: medium
 fs/file/write: low
 fs/link_create: low
 fs/link_read: low

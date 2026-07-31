@@ -25,6 +25,7 @@ fs/path/lib_dynamic: medium
 fs/permission/modify: medium
 fs/proc/cpuinfo: medium
 fs/proc/self_exe: medium
+impact/ransom/linux: high
 impact/remote_access/kill_rm: medium
 lateral/scan/tool: medium
 net/ip/string: medium

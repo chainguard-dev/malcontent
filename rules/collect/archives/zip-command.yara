@@ -9,5 +9,8 @@ rule executable_calls_zip: medium {
     $not_applet = "zip -r ../applet.zip"
 
   condition:
-    any of ($a*) and not $hash_bang in (0..2) and none of ($not*)
+    // "zip -r ../applet.zip" holds exactly one $a_zip_r match and no $a_zip_x, so
+    // subtracting its count keeps the applet packaging line excused while any
+    // additional zip invocation in the same file still fires
+    #a_zip_x + #a_zip_r > #not_applet and not $hash_bang in (0..2)
 }

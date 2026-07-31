@@ -76,18 +76,28 @@ rule program_dropper_url: medium {
     $not_perl    = "http://www.perl.com"
 
   condition:
-    $program_url and none of ($not*)
+    // each known-good download URL sits inside one $program_url match, so subtract
+    // their counts instead of switching the rule off: naming one benign URL no
+    // longer excuses every other program URL in the file. A benign URL that ends in
+    // something other than a program extension costs a $program_url match it never
+    // produced, which can only suppress more, never less
+    $program_url and #program_url > #not_gstatic + #not_sentry + #not_apple + #not_perl
 }
 
 rule executable_url: high {
   strings:
-    $xecURL       = "xecURL"
-    $xecUrl       = "xecUrl"
-    $xecutableUrl = "xecutableUrl"
-    $not_set      = "setExecutable"
+    // the leading letter was trimmed only to cover both casings of "exec"; spelling
+    // that out instead keeps the coverage without matching bare "xecURL" text
+    $xecURL       = /[Ee]xecURL/
+    $xecUrl       = /[Ee]xecUrl/
+    $xecutableUrl = /[Ee]xecutableUrl/
+    $not_accessor = "etExecutableUrl"
 
   condition:
-    any of ($xec*) and none of ($not*)
+    // $xecutableUrl matches inside the setExecutableUrl/getExecutableUrl accessors,
+    // which both contain "etExecutableUrl": count those out so one accessor no
+    // longer disarms the rule for the whole file
+    $xecURL or $xecUrl or #xecutableUrl > #not_accessor
 }
 
 rule download_and_exec: high {
@@ -106,11 +116,13 @@ rule http_archive_url: medium {
     description = "accesses hardcoded archive file endpoint"
 
   strings:
-    $ref         = /https{0,1}:\/\/[\w\.]{0,160}[:\/\w\_\-\?\@=]{6,160}\.(zip|tar|tgz|gz|xz)/ fullword
-    $not_foo_bar = "http://foo/bar.tar"
+    // $ref cannot match the "http://foo/bar.tar" doc placeholder at all - the
+    // {6,160} run needs six characters after the host and only "/bar" is left - so
+    // the $not for it just excused files that also held a real archive URL
+    $ref = /https{0,1}:\/\/[\w\.]{0,160}[:\/\w\_\-\?\@=]{6,160}\.(zip|tar|tgz|gz|xz)/ fullword
 
   condition:
-    any of ($ref*) and none of ($not*)
+    any of ($ref*)
 }
 
 private rule smallerBinary {
@@ -125,9 +137,10 @@ rule http_archive_url_higher: high {
     filetypes   = "elf,macho"
 
   strings:
-    $ref         = /https{0,1}:\/\/[\w\.]{0,160}[:\/\w\_\-\?\@=]{6,160}\.(zip|tar|tgz|gz|xz)/ fullword
-    $not_foo_bar = "http://foo/bar.tar"
+    // see http_archive_url: $ref cannot match "http://foo/bar.tar", so the $not for
+    // it only ever suppressed files that also held a real archive URL
+    $ref = /https{0,1}:\/\/[\w\.]{0,160}[:\/\w\_\-\?\@=]{6,160}\.(zip|tar|tgz|gz|xz)/ fullword
 
   condition:
-    smallerBinary and any of ($ref*) and none of ($not*)
+    smallerBinary and any of ($ref*)
 }

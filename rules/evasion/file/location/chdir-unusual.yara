@@ -78,8 +78,13 @@ rule cd_var_subdir: high {
 
     $not_var_log_packages = "cd /var/log/packages"
 
+  // "cd /var/log" is a literal prefix of the Slackware "cd /var/log/packages"
+  // line, so one such line would otherwise disable the whole rule for the file.
+  // Each /packages occurrence accounts for exactly one $d_var_log match, so
+  // compare occurrence counts; /var/run and /var/tmp are unaffected by it.
+
   condition:
-    any of ($d*) and none of ($not*)
+    (#d_var_log > #not_var_log_packages) or $d_var_run or $d_var_tmp
 }
 
 rule cd_val_obsessive: critical {

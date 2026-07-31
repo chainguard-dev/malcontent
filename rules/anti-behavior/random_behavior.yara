@@ -13,8 +13,14 @@ private rule random_behavior_pythonSetup {
     $not_setup_quoted  = "\"setup(name="
     $not_distutils     = "from distutils.errors import"
 
+  // "setup(" is a substring of the first, second and fourth suppressors, so a
+  // docstring example or quoted snippet hid a real setup() call in the same
+  // file. Compare occurrence counts for those three: fire on any setup( hit
+  // they do not account for. The other two carry no "setup(" of their own and
+  // stay presence-based.
+
   condition:
-    filesize < 128KB and $setup and any of ($i*) and none of ($not*)
+    filesize < 128KB and $setup and any of ($i*) and #setup > #not_setup_example + #not_setup_todict + #not_setup_quoted and none of ($not_import_quoted, $not_distutils)
 }
 
 rule setuptools_random: critical {

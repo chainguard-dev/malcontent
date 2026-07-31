@@ -7,7 +7,7 @@ rule github_raw_usercontent: medium {
     $not_node   = "NODE_DEBUG_NATIVE"
 
   condition:
-    $raw_github and $not_node
+    $raw_github and none of ($not*)
 }
 
 rule github_raw_user: medium {

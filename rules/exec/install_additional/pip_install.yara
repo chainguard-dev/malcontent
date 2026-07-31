@@ -64,7 +64,9 @@ rule pip_installer_url: critical {
     $not_mlflow_docker      = "from mlflow.environment_variables import MLFLOW_DOCKER_OPENJDK_VERSION"
 
   condition:
-    filesize < 8192 and $ref and none of ($not*) and (hash.sha256(0, filesize) != "f6a373322759ccc2736fb25d25d8c402dfe16b5d9a57cfccb1ca8cb136e09663")
+    // The three langchain strings are one docstring: comment2 is the bare
+    // generic "example : ", so only the whole set identifies that file.
+    filesize < 8192 and $ref and not all of ($not_langchain_comment*) and none of ($not_mlflow_docker) and (hash.sha256(0, filesize) != "f6a373322759ccc2736fb25d25d8c402dfe16b5d9a57cfccb1ca8cb136e09663")
 }
 
 rule pip_installer_socket: critical {
@@ -79,7 +81,9 @@ rule pip_installer_socket: critical {
     $not_websockets       = "pip install websockets"
 
   condition:
-    $ref and none of ($not*)
+    // $ref matches inside both accepted spellings once per occurrence, so the
+    // counts cancel 1:1: require a pip install of socket beyond websocket(s).
+    $ref and #ref > #not_websocket_client + #not_websockets
 }
 
 rule pip_installer_requests: high {
@@ -110,5 +114,5 @@ rule pip_installer_sus: high {
     $not_pypi_index = "testpack-id-lb001"
 
   condition:
-    pip_installer and 4 of them and none of ($not*)
+    pip_installer and 4 of ($crypto, $urllib, $zipfile, $base64, $json, $sqlite) and none of ($not*)
 }

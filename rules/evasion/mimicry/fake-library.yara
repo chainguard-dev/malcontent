@@ -32,5 +32,7 @@ rule libc_fake_number_val: high {
     $not_go_example = "libc.so.96.1"
 
   condition:
-    $ref and none of ($not*)
+    // $ref matches "libc.so.9" inside the "libc.so.96.1" example, one match per
+    // occurrence, so require a libc spelling beyond that accepted one
+    #ref > #not_go_example
 }

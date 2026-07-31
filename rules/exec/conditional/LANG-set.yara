@@ -9,5 +9,8 @@ rule exotic_export_lang: medium {
     $not_us      = "en_US.ISO-8859"
 
   condition:
-    $export_lang and not $hash_bang in (0..2) and none of ($not*)
+    // The $not values are accepted locales that appear inside an "export LANG=" of their
+    // own, so compare counts: an "export LANG=" beyond the accepted ones is what this rule
+    // is looking for, rather than exempting the whole file.
+    $export_lang and not $hash_bang in (0..2) and #export_lang > #not_c + #not_us
 }

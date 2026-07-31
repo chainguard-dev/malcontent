@@ -3,12 +3,18 @@ rule lockedFiles: medium {
     description = "References 'locked files'"
 
   strings:
-    $ref = /[\w\/\.]{0,24}lockedFiles/
+    $ref = /lockedFiles[\w\/\.]{0,24}/
 
     $not = "libc.lockedFiles"
 
+  // $ref matches inside the benign "libc.lockedFiles" symbol too, so its mere
+  // presence used to exempt the whole file. Compare occurrence counts instead:
+  // fire only on a $ref hit that "libc.lockedFiles" does not account for. The
+  // trailing (rather than leading) context keeps $ref at one match per
+  // occurrence, which the count comparison depends on.
+
   condition:
-    filesize < 10MB and $ref and none of ($not*)
+    filesize < 10MB and $ref and #ref > #not
 }
 
 rule lockedFileNames: medium {

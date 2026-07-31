@@ -20,5 +20,7 @@ rule etc_initd_short_file: high linux {
     $header   = "### BEGIN INIT INFO"
 
   condition:
-    filesize < 50MB and $ref and none of ($not*) and not $header in (1..128)
+    // $ref's [a-z]{1,3} matches the "rc" in "/etc/init.d/rc.d", so count past that
+    // literal instead of exempting the file outright
+    filesize < 50MB and $ref and #ref > #not_rcd and not $not_init and not $header in (1..128)
 }
