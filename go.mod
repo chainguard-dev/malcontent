@@ -16,13 +16,13 @@ require (
 	github.com/fatih/color v1.19.0
 	github.com/gabriel-vasile/mimetype v1.4.15
 	github.com/google/go-cmp v0.7.0
-	github.com/google/go-containerregistry v0.21.7
+	github.com/google/go-containerregistry v0.21.8
 	github.com/klauspost/compress v1.19.1
 	github.com/klauspost/pgzip v1.2.6
 	github.com/minio/sha256-simd v1.0.1
 	github.com/olekukonko/tablewriter v1.1.4
 	github.com/puzpuzpuz/xsync/v4 v4.5.0
-	github.com/shirou/gopsutil/v4 v4.26.6
+	github.com/shirou/gopsutil/v4 v4.26.7
 	github.com/ulikunitz/xz v0.5.16
 	github.com/urfave/cli/v3 v3.10.1
 	github.com/wk8/go-ordered-map/v2 v2.1.8
@@ -45,7 +45,7 @@ require (
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
 	github.com/docker/cli v29.6.2+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.9.8 // indirect
-	github.com/ebitengine/purego v0.10.1 // indirect
+	github.com/ebitengine/purego v0.10.2 // indirect
 	github.com/erikgeiser/coninput v0.0.0-20211004153227-1c3628e74d0f // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/goccy/go-json v0.10.6 // indirect
