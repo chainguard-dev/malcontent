@@ -16,8 +16,8 @@ require (
 	github.com/fatih/color v1.19.0
 	github.com/gabriel-vasile/mimetype v1.4.15
 	github.com/google/go-cmp v0.7.0
-	github.com/google/go-containerregistry v0.21.8
-	github.com/klauspost/compress v1.19.1
+	github.com/google/go-containerregistry v0.21.9
+	github.com/klauspost/compress v1.19.2
 	github.com/klauspost/pgzip v1.2.6
 	github.com/minio/sha256-simd v1.0.1
 	github.com/olekukonko/tablewriter v1.1.4
