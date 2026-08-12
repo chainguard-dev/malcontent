@@ -308,15 +308,31 @@ func ExtractArchiveToTempDir(ctx context.Context, c malcontent.Config, path stri
 	if extract == nil {
 		return "", fmt.Errorf("unsupported archive type: %s", path)
 	}
+	extractedFiles := xsync.NewMap[string, bool]()
+
 	err = func() (extractErr error) {
 		defer recoverExtractor(ctx, "top-level", path, &extractErr)
 		return extract(ctx, tmpDir, path)
 	}()
 	if err != nil {
-		return "", fmt.Errorf("failed to extract %s: %w", path, err)
-	}
+		if c.ExitExtraction {
+			cleanupTempDir(ctx, tmpDir)
+			return "", fmt.Errorf("failed to extract %s: %w", path, err)
+		}
 
-	extractedFiles := xsync.NewMap[string, bool]()
+		// Mirror the nested-archive path: an archive that cannot be fully
+		// extracted is retained so that it is scanned as an opaque file. Without
+		// this, anything the extractor could not account for leaves the corpus
+		// entirely and the scan reports nothing.
+		logger.Warnf("extraction failed for %s, retaining archive for scanning: %s", path, err)
+		retained, retainErr := retainArchive(tmpDir, path)
+		if retainErr != nil {
+			cleanupTempDir(ctx, tmpDir)
+			return "", fmt.Errorf("failed to retain unextractable archive %s: %w", path, retainErr)
+		}
+		// The retained archive must not be fed back into extraction below.
+		extractedFiles.Store(retained, true)
+	}
 
 	err = filepath.WalkDir(tmpDir, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
@@ -346,10 +362,73 @@ func ExtractArchiveToTempDir(ctx context.Context, c malcontent.Config, path stri
 		return nil
 	})
 	if err != nil {
+		cleanupTempDir(ctx, tmpDir)
 		return "", fmt.Errorf("failed to walk directory: %w", err)
 	}
 
 	return tmpDir, nil
+}
+
+// cleanupTempDir removes an extraction directory that will not be returned to
+// the caller, which would otherwise have no handle with which to remove it.
+func cleanupTempDir(ctx context.Context, dir string) {
+	if err := os.RemoveAll(dir); err != nil {
+		clog.FromContext(ctx).Errorf("remove %s: %v", dir, err)
+	}
+}
+
+// retainArchive places an archive that could not be fully extracted into the
+// extraction directory so that it still reaches the scan corpus, returning its
+// name relative to that directory.
+func retainArchive(dir, path string) (string, error) {
+	name := filepath.Base(path)
+	target := filepath.Join(dir, name)
+	if !IsValidPath(target, dir) {
+		return "", fmt.Errorf("invalid retention path for %s", name)
+	}
+
+	// Extraction may already have written an entry under this name.
+	if _, err := os.Stat(target); err == nil {
+		tmp, err := os.CreateTemp(dir, name+"_*")
+		if err != nil {
+			return "", fmt.Errorf("failed to create retention file: %w", err)
+		}
+		defer tmp.Close()
+		if err := copyArchiveContents(tmp, path); err != nil {
+			return "", err
+		}
+		return filepath.Base(tmp.Name()), nil
+	}
+
+	// A hard link avoids duplicating a potentially large archive on disk.
+	// It cannot cross filesystems, so fall back to a copy.
+	if err := os.Link(path, target); err == nil {
+		return name, nil
+	}
+
+	dst, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600) // #nosec G304 -- target validated by IsValidPath against extraction dir
+	if err != nil {
+		return "", fmt.Errorf("failed to create retention file: %w", err)
+	}
+	defer dst.Close()
+
+	if err := copyArchiveContents(dst, path); err != nil {
+		return "", err
+	}
+	return name, nil
+}
+
+func copyArchiveContents(dst io.Writer, path string) error {
+	src, err := os.Open(path) // #nosec G304 -- archive path supplied by the caller and already opened by the extractor
+	if err != nil {
+		return fmt.Errorf("failed to open archive for retention: %w", err)
+	}
+	defer src.Close()
+
+	if _, err := io.Copy(dst, src); err != nil {
+		return fmt.Errorf("failed to copy archive for retention: %w", err)
+	}
+	return nil
 }
 
 func ExtractionMethod(ext string) func(context.Context, string, string) error {

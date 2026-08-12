@@ -73,7 +73,9 @@ func ExtractTar(ctx context.Context, d string, f string) (err error) {
 		return fmt.Errorf("failed to seek to start: %w", err)
 	}
 
-	var tr *tar.Reader
+	// stream is the byte stream the tar reader consumes, retained so that the
+	// region past the end-of-archive marker can be audited once extraction ends.
+	var stream io.Reader
 	switch {
 	case strings.Contains(f, ".apk") || (isTGZ && isGzip):
 		gzStream, err := gzip.NewReader(tf)
@@ -81,13 +83,13 @@ func ExtractTar(ctx context.Context, d string, f string) (err error) {
 			return fmt.Errorf("failed to create gzip reader: %w", err)
 		}
 		defer gzStream.Close()
-		tr = tar.NewReader(gzStream)
+		stream = gzStream
 	case strings.Contains(filename, ".tar.xz"):
 		xzStream, err := xz.NewReader(tf)
 		if err != nil {
 			return fmt.Errorf("failed to create xz reader: %w", err)
 		}
-		tr = tar.NewReader(xzStream)
+		stream = xzStream
 	case strings.Contains(filename, ".xz"):
 		xzStream, err := xz.NewReader(tf)
 		if err != nil {
@@ -172,8 +174,16 @@ func ExtractTar(ctx context.Context, d string, f string) (err error) {
 		}
 		return nil
 	default:
-		tr = tar.NewReader(tf)
+		stream = tf
 	}
+
+	// The auditor observes exactly the bytes the tar reader consumes, so it can
+	// account for the regions archive/tar discards without re-reading the file.
+	// Wrapping in a TeeReader also hides the underlying io.Seeker, which forces
+	// archive/tar to read over skipped entry data and padding rather than seek
+	// past it, so those bytes reach the auditor too.
+	auditor := newTarAuditor()
+	tr := tar.NewReader(io.TeeReader(stream, auditor))
 
 	sem := extractionSemaphore()
 	for {
@@ -223,11 +233,47 @@ func ExtractTar(ctx context.Context, d string, f string) (err error) {
 				if err := handleHardlink(d, clean, header.Linkname); err != nil {
 					return fmt.Errorf("failed to create hardlink: %w", err)
 				}
+			default:
+				// Entries carrying data under a typeflag this switch does not
+				// name (tar.TypeCont and unrecognized flags among them) would
+				// otherwise be skipped, leaving their content out of the scan
+				// corpus while the archive is deleted as fully extracted.
+				if header.Size > 0 && !isTarHeaderOnlyType(header.Typeflag) {
+					if err := handleFile(target, tr, counter); err != nil {
+						return fmt.Errorf("failed to extract file: %w", err)
+					}
+				}
 			}
 			return nil
 		}(); err != nil {
 			return err
 		}
+	}
+
+	// archive/tar stops at the end-of-archive marker, so bytes appended past it
+	// are never read. Drain them through the auditor: a payload hidden there
+	// would otherwise be discarded along with the archive.
+	if err := auditTarTrailer(stream, auditor); err != nil {
+		return fmt.Errorf("%w in %s: %w", ErrUnaccountedBytes, filename, err)
+	}
+
+	if err := auditor.err(); err != nil {
+		return fmt.Errorf("%w in %s: %w", ErrUnaccountedBytes, filename, err)
+	}
+
+	return nil
+}
+
+// auditTarTrailer feeds everything past the end-of-archive marker to the auditor.
+func auditTarTrailer(stream io.Reader, auditor *tarAuditor) error {
+	n, err := io.Copy(auditor, io.LimitReader(stream, maxTrailerAudit+1))
+	if err != nil {
+		// A decompressor rejecting what follows its stream is itself evidence of
+		// content that no entry accounted for.
+		return fmt.Errorf("reading past end-of-archive marker: %w", err)
+	}
+	if n > maxTrailerAudit {
+		return fmt.Errorf("trailing region exceeds the %d byte audit limit", maxTrailerAudit)
 	}
 	return nil
 }
