@@ -644,10 +644,28 @@ func TestScanInvalidArchiveIgnore(t *testing.T) {
 		t.Fatalf("full: %v", err)
 	}
 
-	got := out.String()
-	want := "{}\n"
-	if diff := cmp.Diff(want, got); diff != "" {
-		t.Errorf("output mismatch: (-want +got):\n%s", diff)
+	// An archive that cannot be extracted is retained and scanned as an opaque
+	// file rather than dropped from the corpus, so that a payload the extractor
+	// could not reach is still subject to the rules. Assert on the paths present
+	// instead of a golden document, since the findings themselves track
+	// third-party rule updates.
+	scanned := map[string]bool{}
+	res.Files.Range(func(path string, _ *malcontent.FileReport) bool {
+		scanned[path] = true
+		return true
+	})
+
+	for _, want := range []string{"17419.zip", "joblib_0.9.4.dev0_compressed_cache_size_pickle_py35_np19.gz"} {
+		found := false
+		for path := range scanned {
+			if strings.Contains(path, want) {
+				found = true
+				break
+			}
+		}
+		if !found {
+			t.Errorf("retained archive %s absent from scan results; got paths %v", want, slices.Sorted(maps.Keys(scanned)))
+		}
 	}
 }
 
