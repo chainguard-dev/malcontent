@@ -143,6 +143,11 @@ func ExtractZip(ctx context.Context, d string, f string) (err error) {
 	if err := g.Wait(); err != nil {
 		return fmt.Errorf("extraction failed: %w", err)
 	}
+
+	if err := zipUnaccountedBytes(f, fi.Size()); err != nil {
+		return fmt.Errorf("%w in %s: %w", ErrUnaccountedBytes, filepath.Base(f), err)
+	}
+
 	return nil
 }
 
