@@ -24,7 +24,7 @@ require (
 	github.com/puzpuzpuz/xsync/v4 v4.5.0
 	github.com/shirou/gopsutil/v4 v4.26.7
 	github.com/ulikunitz/xz v0.5.16
-	github.com/urfave/cli/v3 v3.10.1
+	github.com/urfave/cli/v3 v3.11.0
 	github.com/wk8/go-ordered-map/v2 v2.1.8
 	go.uber.org/goleak v1.3.0
 	golang.org/x/sync v0.22.0
