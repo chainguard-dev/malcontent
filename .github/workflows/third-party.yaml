@@ -42,7 +42,7 @@ jobs:
         run: |
           apk update
           apk add bash curl findutils gcc gh git gnutar "${GO_RELEASE}" make nodejs perl pkgconf upx xz "yara-x~${YARA_X_RELEASE}"
-      - uses: chainguard-dev/actions/setup-gitsign@0ffab11a71c1b7bd68ddf94665a8ec88b116223d # main
+      - uses: chainguard-dev/actions/setup-gitsign@a9d4aa7202a63f8a6b8f81bb1570a0ca54460ac5 # main
       - name: Set up Octo-STS
         uses: octo-sts/action@f603d3be9d8dd9871a265776e625a27b00effe05 # v1.1.1
         id: octo-sts
