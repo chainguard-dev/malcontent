@@ -12,18 +12,29 @@ rule fake_kworker: critical linux {
     $not_f2fs_h1           = "* fs/f2fs/f2fs.h"
     $not_f2fs_h2           = "#ifndef _LINUX_F2FS_H"
     $not_f2fs_h3           = "#define _LINUX_F2FS_H"
+    // kernel/workqueue.c's own worker-naming format strings, which every
+    // uncompressed Linux kernel image carries. $not_rescue was already here;
+    // these three are its siblings from the same source file, so a genuine
+    // kernel is now fully explained rather than one quarter explained.
     $not_rescue            = "kworker/R-%s"
+    $not_kworker_fmt       = "kworker/%d:%d%s"
+    $not_kworker_unbound   = "kworker/u%d:%d"
+    $not_kworker_dying     = "kworker/dying"
     $not_psutil_comment1   = "root           4   0.0    0.0B    0.0B   -20   idle  Mar27  00:00  kworker/0:0H"
     $not_psutil_comment2   = "root       20414   0.0    0.0B    0.0B         idle  Apr04  00:00  kworker/4:2"
     $not_psutil_comment3   = "root       22338   0.0    0.0B    0.0B         idle  02:04  00:00  kworker/1:2"
 
   condition:
-    // the six literals on the right each carry their own "kworker/..." spelling,
+    // the literals on the right each carry their own "kworker/..." spelling,
     // so each one they contribute is already accounted for by a $kworker1 match --
     // require at least one kworker reference beyond what they explain. The
     // bpftrace/f2fs markers contain no kworker spelling, so they stay absolute.
+    //
+    // Counted rather than suppressed, deliberately: a sample carrying the
+    // kernel's format strings AND a rendered name like "[kworker/0:0]" still
+    // exceeds the exclusions and still fires.
     filesize < 100MB and any of ($kworker*) and
-    #kworker1 + #kworker2 > #not_bpftrace_comment1 + #not_dockworker + #not_rescue + #not_psutil_comment1 + #not_psutil_comment2 + #not_psutil_comment3 and
+    #kworker1 + #kworker2 > #not_bpftrace_comment1 + #not_dockworker + #not_rescue + #not_kworker_fmt + #not_kworker_unbound + #not_kworker_dying + #not_psutil_comment1 + #not_psutil_comment2 + #not_psutil_comment3 and
     none of ($not_bpftrace_script, $not_f2fs_h1, $not_f2fs_h2, $not_f2fs_h3)
 }
 
