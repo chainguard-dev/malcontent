@@ -43,9 +43,9 @@ LINTERS :=
 FIXERS :=
 
 GOLANGCI_LINT_CONFIG := $(LINT_ROOT)/.golangci.yml
-GOLANGCI_LINT_VERSION ?= v2.13.1
-GOLANGCI_LINT_INSTALL_REF := 35b2189782a6a059489289257e6523550167cb64
-GOLANGCI_LINT_INSTALL_SHA256 := d32d3534af96cfd59546a084d22b213e8a47541cada5013aa8a84c4fa2589905
+GOLANGCI_LINT_VERSION ?= v2.13.2
+GOLANGCI_LINT_INSTALL_REF := 27774aaf853a4fd21f1dd5e69439459dc1b26e68
+GOLANGCI_LINT_INSTALL_SHA256 := 1022ddb4d87ed252350ed03fc9677e250a4ae95cc6bcd4658c2a20a8a23d390f
 SHA256_CMD := $(shell command -v sha256sum || echo "shasum -a 256")
 GOLANGCI_LINT_BIN := $(LINT_ROOT)/out/linters/golangci-lint-$(GOLANGCI_LINT_VERSION)-$(LINT_ARCH)
 $(GOLANGCI_LINT_BIN):
@@ -171,6 +171,14 @@ install-yara-x: out/$(YARA_X_REPO)/.git/commit-$(YARA_X_COMMIT)
 update-deps:
 	go get -u ./...
 	go mod tidy
+
+# re-pin developer tools, e.g. `make update-golangci-lint VERSION=v2.13.2`
+# or `make update-crane VERSION=v0.22.1`
+.PHONY: update-golangci-lint update-crane
+update-golangci-lint:
+	hack/update_tool.sh golangci-lint "$(VERSION)"
+update-crane:
+	hack/update_tool.sh crane "$(VERSION)"
 
 # unit tests only
 .PHONY: test
