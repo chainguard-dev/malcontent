@@ -15,7 +15,7 @@ rule Windows_VulnDriver_AgileRiskManagement_66938a5b {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 41 67 69 6C 65 20 52 69 73 6B 20 4D 61 6E 61 67 65 6D 65 6E 74 20 4C 4C 43 }
-        $str1 = "Mnemosyne_x64.pdb"
+        $str1 = /Mnemosyne_x64\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }

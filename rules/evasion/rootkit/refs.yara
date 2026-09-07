@@ -27,10 +27,10 @@ rule rootkit_high: high {
     description = "references a 'rootkit'"
 
   strings:
-    $s_rootkit     = "rootkit" fullword
-    $s_Rootkit     = "Rootkit" fullword
-    $not_phishing  = "phishing" fullword
-    $not_keylogger = "keylogger" fullword
+    $s_rootkit     = /rootkit/ fullword
+    $s_Rootkit     = /Rootkit/ fullword
+    $not_phishing  = /phishing/ fullword
+    $not_keylogger = /keylogger/ fullword
 
   condition:
     filesize < 10MB and any of ($s*) and none of ($not*)

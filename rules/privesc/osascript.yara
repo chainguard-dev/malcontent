@@ -19,10 +19,10 @@ rule osascript_fake_password: critical {
     filetypes   = "scpt,scptd"
 
   strings:
-    $osascript = "osascript"
-    $hidden    = "hidden answer"
-    $assword   = "assword"
-    $sudo      = "sudo"
+    $osascript = /osascript/
+    $hidden    = /hidden answer/
+    $assword   = /assword/
+    $sudo      = /sudo/
 
   condition:
     filesize < 10MB and all of them

@@ -43,9 +43,9 @@ LINTERS :=
 FIXERS :=
 
 GOLANGCI_LINT_CONFIG := $(LINT_ROOT)/.golangci.yml
-GOLANGCI_LINT_VERSION ?= v2.12.2
-GOLANGCI_LINT_INSTALL_REF := 35b2189782a6a059489289257e6523550167cb64
-GOLANGCI_LINT_INSTALL_SHA256 := d32d3534af96cfd59546a084d22b213e8a47541cada5013aa8a84c4fa2589905
+GOLANGCI_LINT_VERSION ?= v2.13.2
+GOLANGCI_LINT_INSTALL_REF := 27774aaf853a4fd21f1dd5e69439459dc1b26e68
+GOLANGCI_LINT_INSTALL_SHA256 := 1022ddb4d87ed252350ed03fc9677e250a4ae95cc6bcd4658c2a20a8a23d390f
 SHA256_CMD := $(shell command -v sha256sum || echo "shasum -a 256")
 GOLANGCI_LINT_BIN := $(LINT_ROOT)/out/linters/golangci-lint-$(GOLANGCI_LINT_VERSION)-$(LINT_ARCH)
 $(GOLANGCI_LINT_BIN):
@@ -58,22 +58,22 @@ $(GOLANGCI_LINT_BIN):
 	mv $(LINT_ROOT)/out/linters/golangci-lint $@
 
 YARA_X_REPO ?= virusTotal/yara-x
-YARA_X_VERSION ?= v1.19.0
-YARA_X_COMMIT ?= fe40349ea12c5ccb89aae9f304b979c4fb410f66
+YARA_X_VERSION ?= v1.20.0
+YARA_X_COMMIT ?= 60ad06971467029e77967e59d580cbbe85a1474d
 YARA_X_SHA :=
 ifeq ($(LINT_OS),Darwin)
 	ifeq ($(shell uname -m),arm64)
 		LINT_ARCH = aarch64
-		YARA_X_SHA = b6e62d6388412a86655340513ccfd7ac9ea5e98868e870dd4a4c029909ebf87b
+		YARA_X_SHA = 33685a589133c5112611c06b66a14f759c8788347dc438795ec895b214e2897a
 	else
-		YARA_X_SHA = 2c9b9778890d2e2bb10faf0ce21087e6cf012793ba90bb611cdc0b06e18b44e8
+		YARA_X_SHA = 4d06b46eea0231897a4e3561148a95d5895f74286f6dfe5f9da90e0e4fd36007
 	endif
 else ifeq ($(LINT_OS),Linux)
 	ifneq ($(filter $(shell uname -m),aarch64 arm64),)
 		LINT_ARCH = aarch64
-		YARA_X_SHA = 20443fc16081c68f7a2ca070feb84ae33a89c7dc726851bf050690e55937db77
+		YARA_X_SHA = c1d6f63a6fe55c17b5ddbfcb89d34599b737226a683ee492b12d92d1d541f304
 	else
-		YARA_X_SHA = a97d78189e3548797ac45b7b4a5fd8975783861875c594f772ec9b8bb5fa4d72
+		YARA_X_SHA = cabb8df46492fff59c51261302c71ed9cb2cef393d3f0ca560801a34a8e24cbe
 	endif
 endif
 YARA_X_BIN := $(LINT_ROOT)/out/linters/yr-$(YARA_X_VERSION)-$(LINT_ARCH)
@@ -114,6 +114,13 @@ yara-x-fmt: $(YARA_X_BIN)
 # bare -w here would disable all of them.
 yara-x-compile: $(YARA_X_BIN)
 	"$(YARA_X_BIN)" compile --path-as-namespace --disable-warnings=text_as_hex rules/
+
+# rewrite text patterns of filesize- or header-constrained first-party rules as
+# literal regexps (see hack/literal_regexps.pl); third_party/yara/update.sh does
+# the same for third-party rules
+.PHONY: literal-regexps
+literal-regexps:
+	find rules -type f -name "*.yara" -print0 | xargs -0 perl hack/literal_regexps.pl
 
 .PHONY: _lint $(LINTERS)
 _lint: $(LINTERS)
@@ -164,6 +171,14 @@ install-yara-x: out/$(YARA_X_REPO)/.git/commit-$(YARA_X_COMMIT)
 update-deps:
 	go get -u ./...
 	go mod tidy
+
+# re-pin developer tools, e.g. `make update-golangci-lint VERSION=v2.13.2`
+# or `make update-crane VERSION=v0.22.1`
+.PHONY: update-golangci-lint update-crane
+update-golangci-lint:
+	hack/update_tool.sh golangci-lint "$(VERSION)"
+update-crane:
+	hack/update_tool.sh crane "$(VERSION)"
 
 # unit tests only
 .PHONY: test
@@ -336,7 +351,7 @@ refresh-sample-testdata: out/$(SAMPLES_REPO)/.decompressed-$(SAMPLES_COMMIT) out
 	MALCONTENT_UPX_PATH=$(shell which upx) ./out/mal refresh
 
 ARCH ?= $(shell uname -m)
-CRANE_VERSION=v0.21.0
+CRANE_VERSION=v0.22.1
 out/crane-$(ARCH)-$(CRANE_VERSION):
 	mkdir -p out
 	GOBIN=$(CURDIR)/out go install github.com/google/go-containerregistry/cmd/crane@$(CRANE_VERSION)

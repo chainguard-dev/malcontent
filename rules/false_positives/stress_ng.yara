@@ -9,9 +9,9 @@ rule stress_ng: override {
     proc_s_cmdline    = "medium"
 
   strings:
-    $stress_version = "stress-ng-version"
-    $stress_dev_shm = "/dev/shm/stress-dev-shm-"
-    $stressor       = "stressor" fullword
+    $stress_version = /stress-ng-version/
+    $stress_dev_shm = /\/dev\/shm\/stress-dev-shm-/
+    $stressor       = /stressor/ fullword
 
   condition:
     filesize < 25MB and all of them

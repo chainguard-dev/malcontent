@@ -15,7 +15,7 @@ rule Windows_VulnDriver_OMRON_137bb027 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 4F 4D 52 4F 4E 20 43 6F 72 70 6F 72 61 74 69 6F 6E }
-        $str1 = "FH-EtherCAT_DIO.pdb"
+        $str1 = /FH-EtherCAT_DIO\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }

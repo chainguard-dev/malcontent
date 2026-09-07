@@ -21,7 +21,7 @@ rule world_writeable_dirs_chmod: high {
     $tmp_dev_shm    = /\/dev\/shm[\w\.\/]{0,32}/
     $tmp_dev_mqueue = /\/dev\/mqueue[\w\.\/]{0,32}/
     $tmp_var_tmp    = /\/var\/tmp[\w\.\/]{0,32}/
-    $chmod          = "chmod" fullword
+    $chmod          = /chmod/ fullword
 
   condition:
     filesize < 256KB and $chmod and 3 of ($tmp*)

@@ -18,21 +18,21 @@ meta:
 
 strings:
 	//PDB
-	$pdb = "I:\\Repository2\\test\\Project21\\event\\Release\\event.pdb"
+	$pdb = /I:\\Repository2\\test\\Project21\\event\\Release\\event\.pdb/
 	
 	//Mutants
-	$mut1 = "Global\\A6A161D8-150E-46A1-B7EC-18E4CB58C6D2" ascii wide
-	$mut2 = "Global\\D80D9D78-BCDA-482C-98F2-C38991A8CA3" ascii wide
-	$mut3 = "Global\\8D13D07B-A758-456A-A215-0518F1268C2A" ascii wide
+	$mut1 = /Global\\A6A161D8-150E-46A1-B7EC-18E4CB58C6D2/ ascii wide
+	$mut2 = /Global\\D80D9D78-BCDA-482C-98F2-C38991A8CA3/ ascii wide
+	$mut3 = /Global\\8D13D07B-A758-456A-A215-0518F1268C2A/ ascii wide
 	
 	//Launch
-	$browser1 = "main -c rbrowser chrome" ascii wide
-	$browser2 = "main -c rbrowser msedge" ascii wide
+	$browser1 = /main -c rbrowser chrome/ ascii wide
+	$browser2 = /main -c rbrowser msedge/ ascii wide
 	
 	//Service names
-	$svc1 = "WimsysUpdaterService" ascii wide
-	$svc2 = "WimsysService" ascii wide
-	$svc3 = "WimsysServiceX64" ascii wide
+	$svc1 = /WimsysUpdaterService/ ascii wide
+	$svc2 = /WimsysService/ ascii wide
+	$svc3 = /WimsysServiceX64/ ascii wide
 	
 	/*
 	pvVar1 = (void *)0x0;

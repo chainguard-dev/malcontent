@@ -17,8 +17,8 @@ rule Windows_VulnDriver_Comodo_3446897d {
         $subject_name = { 06 03 55 04 03 [2] 43 6F 6D 6F 64 6F 20 53 65 63 75 72 69 74 79 20 53 6F 6C 75 74 69 6F 6E 73 2C 20 49 6E 63 2E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 4B 00 69 00 6C 00 6C 00 53 00 77 00 69 00 74 00 63 00 68 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x03][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x04-\x04][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\xb5]|[\x00-\xe0][\xb6-\xb6])|[\x04-\x04][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x30][\x00-\x00][\xe1-\xe1][\xb6-\xb6]|[\x04-\x04][\x00-\x00][\x01-\x01][\x00-\x00][\x31-\x31][\x00-\x00][\xe1-\xe1][\xb6-\xb6])/
-        $str1 = "KillSwitch.pdb"
-        $str2 = "KillSwitch" wide
+        $str1 = /KillSwitch\.pdb/
+        $str2 = /KillSwitch/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2
 }

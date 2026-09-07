@@ -19,10 +19,10 @@ rule OLEfile_in_CAD_FAS_LSP
     strings:
         $acad = {41 43 31}
         $fas = {0D 0A 20 46 41 53 34 2D 46 49 4C 45 20 3B 20 44 6F 20 6E 6F 74 20 63 68 61 6E 67 65 20 69 74 21}
-        $lsp1 = "lspfilelist"
-        $lsp2 = "setq"
-        $lsp3 = ".lsp"
-        $lsp4 = "acad.mnl"
+        $lsp1 = /lspfilelist/
+        $lsp2 = /setq/
+        $lsp3 = /\.lsp/
+        $lsp4 = /acad\.mnl/
         $ole = {D0 CF 11 E0}
 
     condition:

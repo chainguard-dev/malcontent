@@ -15,7 +15,7 @@ rule Windows_VulnDriver_Exacq_79453d61 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 45 78 61 63 71 20 54 65 63 68 6E 6F 6C 6F 67 69 65 73 2C 20 49 6E 63 2E }
-        $str1 = "WinioSys.pdb"
+        $str1 = /WinioSys\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }

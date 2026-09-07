@@ -2,10 +2,10 @@ import "math"
 
 private rule pySetup {
   strings:
-    $i_distutils    = "from distutils.core import setup"
-    $i_setuptools   = "setuptools"
-    $setup          = "setup("
-    $not_setuptools = "setuptools.command"
+    $i_distutils    = /from distutils\.core import setup/
+    $i_setuptools   = /setuptools/
+    $setup          = /setup\(/
+    $not_setuptools = /setuptools\.command/
 
   condition:
     // "setuptools" is a substring of "setuptools.command", so a single
@@ -19,7 +19,7 @@ rule unmarshal_py_marshal: medium {
     filetypes   = "py"
 
   strings:
-    $ref = "import marshal"
+    $ref = /import marshal/
 
   condition:
     filesize < 128KB and any of them

@@ -18,14 +18,14 @@ rule hidden_x11_unexpected: high {
   strings:
     $x11 = /\/tmp\/\.X11-unix\/[\.\w\%\$\{\}\/\-]{1,16}/
 
-    $not_usr_share   = "/usr/share/X11"
-    $not_X11Gray     = "X11Gray"
-    $not_etc         = "/etc/X11/"
-    $not_X11R6       = "X11R6/share"
-    $not_XForwarding = "X11 forwarding"
-    $not_X           = "/tmp/.X11-unix/X" fullword
-    $not_libx11      = "libX11.so.6"
-    $not_XAUTHORITY  = "XAUTHORITY"
+    $not_usr_share   = /\/usr\/share\/X11/
+    $not_X11Gray     = /X11Gray/
+    $not_etc         = /\/etc\/X11\//
+    $not_X11R6       = /X11R6\/share/
+    $not_XForwarding = /X11 forwarding/
+    $not_X           = /\/tmp\/\.X11-unix\/X/ fullword
+    $not_libx11      = /libX11\.so\.6/
+    $not_XAUTHORITY  = /XAUTHORITY/
 
   // $x11 matches inside $not_X (the ordinary socket name), so referencing the
   // normal socket used to exempt every other path under /tmp/.X11-unix. Discount

@@ -39,7 +39,7 @@ rule cha_cha_tests: override linux {
     kernel_module_loader_ko = "medium"
 
   strings:
-    $test = "insmod test_cipher.ko size"
+    $test = /insmod test_cipher\.ko size/
 
   condition:
     filesize < 2KB and any of them

@@ -6,9 +6,9 @@ rule linux_kernel_module_getdents64: critical linux {
     filetypes = "elf,so"
 
   strings:
-    $getdents64 = "getdents64"
-    $kprobe     = "register_kprobe"
-    $kallsyms   = "kallsyms_lookup_name"
+    $getdents64 = /getdents64/
+    $kprobe     = /register_kprobe/
+    $kallsyms   = /kallsyms_lookup_name/
 
   condition:
     filesize < 1MB and $getdents64 and any of ($k*)
@@ -20,8 +20,8 @@ rule linux_kernel_module_orig: high linux {
     filetypes   = "elf,so"
 
   strings:
-    $getdents64 = "orig_getdents64"
-    $orig_kill  = "orig_kill"
+    $getdents64 = /orig_getdents64/
+    $orig_kill  = /orig_kill/
 
   condition:
     filesize < 1MB and all of them
@@ -46,11 +46,11 @@ rule lkm_dirent: high {
     filetypes = "so"
 
   strings:
-    $l_dirent     = "linux_dirent"
-    $linux        = "Linux"
-    $not_syscalls = "#define _LINUX_SYSCALLS_H"
-    $not_itimer   = "__kernel_old_itimerval"
-    $not_internal = "internal_getdents"
+    $l_dirent     = /linux_dirent/
+    $linux        = /Linux/
+    $not_syscalls = /#define _LINUX_SYSCALLS_H/
+    $not_itimer   = /__kernel_old_itimerval/
+    $not_internal = /internal_getdents/
 
   condition:
     filesize < 2MB and all of ($l*) and none of ($not*)
@@ -62,7 +62,7 @@ rule unhide: high {
 
   strings:
     $hiding_self = /\w{0,2}[Hh]iding self/ fullword
-    $o_getdents  = "getdents"
+    $o_getdents  = /getdents/
 
   condition:
     filesize < 256KB and uint32(0) == 1179403647 and all of them

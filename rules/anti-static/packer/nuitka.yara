@@ -6,8 +6,8 @@ rule nuitka: critical {
     filetypes   = "py"
 
   strings:
-    $old = "onefile_%PID%_%TIME%"
-    $new = "{TEMP}/onefile_{PID}_{TIME}"
+    $old = /onefile_%PID%_%TIME%/
+    $new = /\{TEMP\}\/onefile_\{PID\}_\{TIME\}/
 
   condition:
     filesize < 25MB and any of them and math.entropy(0, filesize) > 7

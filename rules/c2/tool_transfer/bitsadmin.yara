@@ -3,7 +3,7 @@ rule bitsadmin: medium {
     description = "mentions 'bitsadmin', often used for file transfers"
 
   strings:
-    $bitsadmin = "bitsadmin" fullword
+    $bitsadmin = /bitsadmin/ fullword
 
   condition:
     filesize < 250KB and all of them
@@ -14,9 +14,9 @@ rule bitsadmin_transfer: high {
     description = "transfers files via 'bitsadmin'"
 
   strings:
-    $bitsadmin = "bitsadmin"
-    $transfer  = "transfer"
-    $wscript   = "wscript"
+    $bitsadmin = /bitsadmin/
+    $transfer  = /transfer/
+    $wscript   = /wscript/
 
   condition:
     filesize < 250KB and all of them

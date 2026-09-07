@@ -4,9 +4,9 @@ rule kibana_powershell_evasion_rule: override {
     win_defender_exclusion = "low"
 
   strings:
-    $elastic = "Elastic"
-    $eql     = "\"language\": \"eql\""
-    $name    = "Windows Defender Exclusions Added via PowerShell"
+    $elastic = /Elastic/
+    $eql     = /"language": "eql"/
+    $name    = /Windows Defender Exclusions Added via PowerShell/
 
   condition:
     filesize < 8KB and all of them
@@ -24,11 +24,11 @@ rule security_solution_plugin: override {
     description         = "securitySolution.chunk.*.js"
 
   strings:
-    $license           = "Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V."
-    $license2          = "Licensed under the Elastic License 2.0"
-    $jsonp             = "securitySolution_bundle_jsonpfunction"
-    $security_solution = "securitySolution"
-    $xpac              = "xpac"
+    $license           = /Copyright Elasticsearch B\.V\. and\/or licensed to Elasticsearch B\.V\./
+    $license2          = /Licensed under the Elastic License 2\.0/
+    $jsonp             = /securitySolution_bundle_jsonpfunction/
+    $security_solution = /securitySolution/
+    $xpac              = /xpac/
 
   condition:
     filesize < 5MB and all of ($license*) and $security_solution and ($jsonp or $xpac)
@@ -42,8 +42,8 @@ rule security_solution_prepackaged_rules_index: override {
     ssh_backdoor    = "low"
 
   strings:
-    $elastic_copyright = "Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V."
-    $raw_rules         = "exports.rawRules"
+    $elastic_copyright = /Copyright Elasticsearch B\.V\. and\/or licensed to Elasticsearch B\.V\./
+    $raw_rules         = /exports\.rawRules/
 
   condition:
     filesize < 200KB and all of them
@@ -64,14 +64,14 @@ rule security_detection_engine: override {
     hidden_short_path_system                    = "low"
 
   strings:
-    $attr1   = "rule_id"
-    $attr2   = "query"
-    $attr3   = "required_fields"
-    $attr4   = "risk_score"
-    $attr5   = "severity"
-    $attr6   = "type"
-    $elastic = "Elastic"
-    $rule    = "security-rule"
+    $attr1   = /rule_id/
+    $attr2   = /query/
+    $attr3   = /required_fields/
+    $attr4   = /risk_score/
+    $attr5   = /severity/
+    $attr6   = /type/
+    $elastic = /Elastic/
+    $rule    = /security-rule/
 
   condition:
     filesize < 32KB and 68 % of ($attr*) and $elastic and $rule

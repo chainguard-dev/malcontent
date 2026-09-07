@@ -15,7 +15,7 @@ rule Windows_VulnDriver_Moyea_6c89a73e {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 53 68 65 6E 7A 68 65 6E 20 4D 6F 79 65 61 20 53 6F 66 74 77 61 72 65 }
-        $str1 = "phymem.pdb"
+        $str1 = /phymem\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $str1
 }

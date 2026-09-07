@@ -4,7 +4,7 @@ rule systemd_short_description {
     filetypes   = "service"
 
   strings:
-    $execstart  = "ExecStart="
+    $execstart  = /ExecStart=/
     $short_desc = /Description=\w{,4}/ fullword
 
   condition:

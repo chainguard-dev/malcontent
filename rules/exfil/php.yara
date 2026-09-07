@@ -4,9 +4,9 @@ rule python_sysinfo_http: high {
     filetypes   = "php"
 
   strings:
-    $r_user     = "getpass.getuser"
-    $r_hostname = "socket.gethostname"
-    $r_platform = "platform.platform"
+    $r_user     = /getpass\.getuser/
+    $r_hostname = /socket\.gethostname/
+    $r_platform = /platform\.platform/
     $u          = /[\w\.]{0,16}urlopen/
 
   condition:

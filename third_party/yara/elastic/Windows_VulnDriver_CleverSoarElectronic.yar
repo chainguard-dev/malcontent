@@ -15,7 +15,7 @@ rule Windows_VulnDriver_CleverSoarElectronic_ab08be6d {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 43 6C 65 76 65 72 53 6F 61 72 20 45 6C 65 63 74 72 6F 6E 69 63 20 54 65 63 68 6E 6F 6C 6F 67 79 20 43 6F 2E 2C 20 4C 74 64 2E }
-        $str1 = "MyDriver1.pdb"
+        $str1 = /MyDriver1\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }

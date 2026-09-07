@@ -15,9 +15,9 @@ rule Windows_VulnDriver_Intel_2aa495f2 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 49 6E 74 65 6C 28 52 29 20 53 6F 66 74 77 61 72 65 20 50 72 6F 64 75 63 74 73 }
-        $str1 = "sepdrv3_1.pdb"
-        $str2 = "IOCTL_GET_CHIPSET_DEVICE_ID"
-        $str3 = "IOCTL_EM_CONFIG_NEXT_UNC"
+        $str1 = /sepdrv3_1\.pdb/
+        $str2 = /IOCTL_GET_CHIPSET_DEVICE_ID/
+        $str3 = /IOCTL_EM_CONFIG_NEXT_UNC/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1 and $str2 and $str3
 }
@@ -39,7 +39,7 @@ rule Windows_VulnDriver_Intel_84f3973f {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 49 6E 74 65 6C 28 52 29 20 53 6F 66 74 77 61 72 65 20 44 65 76 65 6C 6F 70 6D 65 6E 74 20 50 72 6F 64 75 63 74 73 }
-        $str1 = "sepdrv3_15.pdb"
+        $str1 = /sepdrv3_15\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }
@@ -63,9 +63,9 @@ rule Windows_VulnDriver_Intel_387d311e {
         $subject_name = { 06 03 55 04 03 [2] 49 6E 74 65 6C 20 43 6F 72 70 6F 72 61 74 69 6F 6E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 69 00 51 00 56 00 57 00 36 00 34 00 2E 00 53 00 59 00 53 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x02][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x03-\x03][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x03][\x00-\x00][\x00-\x00][\x00-\x00]|[\x03-\x03][\x00-\x00][\x01-\x01][\x00-\x00][\x04-\x04][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "iqvw64.pdb"
-        $str2 = "Intel(R) iQVW64.SYS" wide
-        $str3 = "Intel(R) Network Adapter Diagnostic Driver" wide
+        $str1 = /iqvw64\.pdb/
+        $str2 = /Intel\(R\) iQVW64\.SYS/ wide
+        $str3 = /Intel\(R\) Network Adapter Diagnostic Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -89,9 +89,9 @@ rule Windows_VulnDriver_Intel_3975501f {
         $subject_name = { 06 03 55 04 03 [2] 49 6E 74 65 6C 28 52 29 20 49 4E 54 45 4C 4E 44 31 36 31 37 53 32 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 69 00 51 00 56 00 57 00 36 00 34 00 2E 00 53 00 59 00 53 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x02][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x03-\x03][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x01][\x00-\x00]|[\x03-\x03][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x0f][\x00-\x00][\x02-\x02][\x00-\x00]|[\x03-\x03][\x00-\x00][\x01-\x01][\x00-\x00][\x10-\x10][\x00-\x00][\x02-\x02][\x00-\x00])/
-        $str1 = "iqvw64e.pdb"
-        $str2 = "Intel(R) iQVW64.SYS" wide
-        $str3 = "Intel(R) Network Adapter Diagnostic Driver" wide
+        $str1 = /iqvw64e\.pdb/
+        $str2 = /Intel\(R\) iQVW64\.SYS/ wide
+        $str3 = /Intel\(R\) Network Adapter Diagnostic Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -113,7 +113,7 @@ rule Windows_VulnDriver_Intel_89f8af9a {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 49 6E 74 65 6C 20 43 6F 72 70 6F 72 61 74 69 6F 6E }
-        $str1 = "sepdrv3_15.pdb"
+        $str1 = /sepdrv3_15\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }
@@ -137,8 +137,8 @@ rule Windows_VulnDriver_Intel_8ae31e4f {
         $subject_name = { 06 03 55 04 03 [2] 49 6E 74 65 6C 20 43 6F 72 70 6F 72 61 74 69 6F 6E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 73 00 74 00 64 00 63 00 64 00 72 00 76 00 36 00 34 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x02-\x02][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "stdcdrv64.pdb"
-        $str2 = "SelfTest Data Collector" wide
+        $str1 = /stdcdrv64\.pdb/
+        $str2 = /SelfTest Data Collector/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2
 }
@@ -160,7 +160,7 @@ rule Windows_VulnDriver_Intel_1373ed9e {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 49 6E 74 65 6C 20 43 6F 72 70 6F 72 61 74 69 6F 6E }
-        $str1 = "EnergyDriver.pdb"
+        $str1 = /EnergyDriver\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }
@@ -184,9 +184,9 @@ rule Windows_VulnDriver_Intel_221a6d31 {
         $subject_name = { 06 03 55 04 03 [2] 49 6E 74 65 6C 28 52 29 20 54 6F 6F 6C 73 20 61 6E 64 20 54 65 63 68 6E 6F 6C 6F 67 69 65 73 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 73 00 74 00 64 00 63 00 64 00 72 00 76 00 78 00 70 00 36 00 34 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00])/
-        $str1 = "stdcdrvxp64.pdb"
-        $str2 = "SelfTest Data Collector Driver for Windows x64" wide
-        $str3 = "SelfTest Data Collector Driver" wide
+        $str1 = /stdcdrvxp64\.pdb/
+        $str2 = /SelfTest Data Collector Driver for Windows x64/ wide
+        $str3 = /SelfTest Data Collector Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -210,9 +210,9 @@ rule Windows_VulnDriver_Intel_ddc245ff {
         $subject_name = { 06 03 55 04 03 [2] 49 6E 74 65 6C 20 43 6F 72 70 6F 72 61 74 69 6F 6E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 69 00 51 00 56 00 57 00 36 00 34 00 2E 00 53 00 59 00 53 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x02][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x03-\x03][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x06][\x00-\x00][\x00-\x00][\x00-\x00]|[\x03-\x03][\x00-\x00][\x01-\x01][\x00-\x00][\x07-\x07][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "iqvw64e.pdb"
-        $str2 = "Intel(R) iQVW64.SYS" wide
-        $str3 = "Intel(R) Network Adapter Diagnostic Driver" wide
+        $str1 = /iqvw64e\.pdb/
+        $str2 = /Intel\(R\) iQVW64\.SYS/ wide
+        $str3 = /Intel\(R\) Network Adapter Diagnostic Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -234,9 +234,9 @@ rule Windows_VulnDriver_Intel_ae20e083 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 49 6E 74 65 6C 28 52 29 20 53 6F 66 74 77 61 72 65 20 50 72 6F 64 75 63 74 73 }
-        $str1 = "sepdrv3_10.pdb"
-        $str2 = "IOCTL_GET_CHIPSET_DEVICE_ID"
-        $str3 = "IOCTL_WRITE_PCI_CONFIG"
+        $str1 = /sepdrv3_10\.pdb/
+        $str2 = /IOCTL_GET_CHIPSET_DEVICE_ID/
+        $str3 = /IOCTL_WRITE_PCI_CONFIG/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1 and $str2 and $str3
 }
@@ -260,9 +260,9 @@ rule Windows_VulnDriver_Intel_9035e9c7 {
         $subject_name = { 06 03 55 04 03 [2] 49 6E 74 65 6C 28 52 29 20 49 4E 54 45 4C 4E 44 31 36 31 37 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 69 00 51 00 56 00 57 00 36 00 34 00 2E 00 53 00 59 00 53 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x02][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x03-\x03][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x01][\x00-\x00]|[\x03-\x03][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x0c][\x00-\x00][\x02-\x02][\x00-\x00]|[\x03-\x03][\x00-\x00][\x01-\x01][\x00-\x00][\x0d-\x0d][\x00-\x00][\x02-\x02][\x00-\x00])/
-        $str1 = "iqvw64e.pdb"
-        $str2 = "Intel(R) iQVW64.SYS" wide
-        $str3 = "Intel(R) Network Adapter Diagnostic Driver" wide
+        $str1 = /iqvw64e\.pdb/
+        $str2 = /Intel\(R\) iQVW64\.SYS/ wide
+        $str3 = /Intel\(R\) Network Adapter Diagnostic Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -286,9 +286,9 @@ rule Windows_VulnDriver_Intel_273ec308 {
         $subject_name = { 06 03 55 04 03 [2] 49 6E 74 65 6C 28 52 29 20 49 4E 54 45 4C 4E 50 47 31 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 69 00 51 00 56 00 57 00 36 00 34 00 2E 00 53 00 59 00 53 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x02][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x03-\x03][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x01][\x00-\x00]|[\x03-\x03][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x06][\x00-\x00][\x02-\x02][\x00-\x00]|[\x03-\x03][\x00-\x00][\x01-\x01][\x00-\x00][\x07-\x07][\x00-\x00][\x02-\x02][\x00-\x00])/
-        $str1 = "iqvw64e.pdb"
-        $str2 = "Intel(R) iQVW64.SYS" wide
-        $str3 = "Intel(R) Network Adapter Diagnostic Driver" wide
+        $str1 = /iqvw64e\.pdb/
+        $str2 = /Intel\(R\) iQVW64\.SYS/ wide
+        $str3 = /Intel\(R\) Network Adapter Diagnostic Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -310,9 +310,9 @@ rule Windows_VulnDriver_Intel_2909f4e6 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 53 45 4D 41 20 53 6F 66 74 77 61 72 65 }
-        $str1 = "semav6msr64.pdb"
-        $str2 = "IOCTL_SEMAV6MSR64_CLEAR_ONE"
-        $str3 = "IOCTL_SEMAV6MSR64_WRITE_ONE"
+        $str1 = /semav6msr64\.pdb/
+        $str2 = /IOCTL_SEMAV6MSR64_CLEAR_ONE/
+        $str3 = /IOCTL_SEMAV6MSR64_WRITE_ONE/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1 and $str2 and $str3
 }
@@ -336,9 +336,9 @@ rule Windows_VulnDriver_Intel_a465883c {
         $subject_name = { 06 03 55 04 03 [2] 49 6E 74 65 6C 28 52 29 20 54 6F 6F 6C 73 20 61 6E 64 20 54 65 63 68 6E 6F 6C 6F 67 69 65 73 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 73 00 74 00 64 00 63 00 64 00 72 00 76 00 77 00 73 00 36 00 34 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00])/
-        $str1 = "stdcdrvws64.pdb"
-        $str2 = "SelfTest Data Collector Driver for Windows 7 x64" wide
-        $str3 = "SelfTest Data Collector Driver" wide
+        $str1 = /stdcdrvws64\.pdb/
+        $str2 = /SelfTest Data Collector Driver for Windows 7 x64/ wide
+        $str3 = /SelfTest Data Collector Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -362,9 +362,9 @@ rule Windows_VulnDriver_Intel_62b53d25 {
         $subject_name = { 06 03 55 04 03 [2] 4E 44 5F 51 56 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 69 00 51 00 56 00 57 00 36 00 34 00 2E 00 53 00 59 00 53 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x02][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x03-\x03][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x01][\x00-\x00]|[\x03-\x03][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x11][\x00-\x00][\x02-\x02][\x00-\x00]|[\x03-\x03][\x00-\x00][\x01-\x01][\x00-\x00][\x12-\x12][\x00-\x00][\x02-\x02][\x00-\x00])/
-        $str1 = "iqvw64e.pdb"
-        $str2 = "Intel(R) iQVW64.SYS" wide
-        $str3 = "Intel(R) Network Adapter Diagnostic Driver" wide
+        $str1 = /iqvw64e\.pdb/
+        $str2 = /Intel\(R\) iQVW64\.SYS/ wide
+        $str3 = /Intel\(R\) Network Adapter Diagnostic Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -386,7 +386,7 @@ rule Windows_VulnDriver_Intel_25452a88 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 50 41 49 50 54 41 43 20 20 44 72 69 76 65 72 }
-        $str1 = "pmxdrv32e.pdb"
+        $str1 = /pmxdrv32e\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }
@@ -410,9 +410,9 @@ rule Windows_VulnDriver_Intel_7bff0772 {
         $subject_name = { 06 03 55 04 03 [2] 49 6E 74 65 6C 20 43 6F 72 70 6F 72 61 74 69 6F 6E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 4B 00 66 00 65 00 43 00 6F 00 44 00 72 00 76 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x08][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x07][\x00-\x00][\x09-\x09][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x08-\x08][\x00-\x00][\x09-\x09][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x03][\x00-\x00]|[\x08-\x08][\x00-\x00][\x09-\x09][\x00-\x00][\x00-\x3a][\x00-\x00][\x04-\x04][\x00-\x00]|[\x08-\x08][\x00-\x00][\x09-\x09][\x00-\x00][\x3b-\x3b][\x00-\x00][\x04-\x04][\x00-\x00])/
-        $str1 = "KfeCo11x64.pdb"
-        $str2 = "Killer Traffic Control" wide
-        $str3 = "Killer Traffic Control Callout Driver" wide
+        $str1 = /KfeCo11x64\.pdb/
+        $str2 = /Killer Traffic Control/ wide
+        $str3 = /Killer Traffic Control Callout Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -434,9 +434,9 @@ rule Windows_VulnDriver_Intel_e36207b2 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 49 6E 74 65 6C 28 52 29 20 43 6F 64 65 20 53 69 67 6E 69 6E 67 20 45 78 74 65 72 6E 61 6C }
-        $str1 = "semav6msr64.pdb"
-        $str2 = "IOCTL_SEMAV6MSR64_CLEAR_ONE"
-        $str3 = "IOCTL_SEMAV6MSR64_WRITE_ONE"
+        $str1 = /semav6msr64\.pdb/
+        $str2 = /IOCTL_SEMAV6MSR64_CLEAR_ONE/
+        $str3 = /IOCTL_SEMAV6MSR64_WRITE_ONE/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1 and $str2 and $str3
 }
@@ -460,9 +460,9 @@ rule Windows_VulnDriver_Intel_44575eec {
         $subject_name = { 06 03 55 04 03 [2] 47 45 20 49 6E 74 65 6C 6C 69 67 65 6E 74 20 50 6C 61 74 66 6F 72 6D 73 20 43 61 6E 61 64 61 20 43 6F 6D 70 61 6E 79 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 47 00 45 00 44 00 65 00 76 00 44 00 72 00 76 00 2E 00 53 00 59 00 53 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x08][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x31][\x00-\x00][\x09-\x09][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x32-\x32][\x00-\x00][\x09-\x09][\x00-\x00]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x1c]|[\x00-\xfc][\x1d-\x1d])[\x00-\x00][\x00-\x00]|[\x32-\x32][\x00-\x00][\x09-\x09][\x00-\x00][\xfd-\xfd][\x1d-\x1d][\x00-\x00][\x00-\x00])/
-        $str1 = "GEDevDrv.pdb"
-        $str2 = "Proficy Machine Edition" wide
-        $str3 = "GE Device Driver" wide
+        $str1 = /GEDevDrv\.pdb/
+        $str2 = /Proficy Machine Edition/ wide
+        $str3 = /GE Device Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -484,7 +484,7 @@ rule Windows_VulnDriver_Intel_52c8eb58 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 49 6E 74 65 6C 20 43 6F 72 70 6F 72 61 74 69 6F 6E 20 2D 20 45 6D 62 65 64 64 65 64 20 53 75 62 73 79 73 74 65 6D 73 20 61 6E 64 20 49 50 20 42 6C 6F 63 6B 73 20 47 72 6F 75 70 }
-        $str1 = "IoAccess.pdb"
+        $str1 = /IoAccess\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $str1
 }
@@ -508,9 +508,9 @@ rule Windows_VulnDriver_Intel_1abb0887 {
         $subject_name = { 06 03 55 04 03 [2] 49 6E 74 65 6C 20 43 6F 72 70 6F 72 61 74 69 6F 6E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 69 00 4F 00 43 00 64 00 72 00 76 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x05][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x04][\x00-\x00][\x06-\x06][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x05-\x05][\x00-\x00][\x06-\x06][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00]|[\x05-\x05][\x00-\x00][\x06-\x06][\x00-\x00][\x00-\x1e][\x00-\x00][\x01-\x01][\x00-\x00]|[\x05-\x05][\x00-\x00][\x06-\x06][\x00-\x00][\x1f-\x1f][\x00-\x00][\x01-\x01][\x00-\x00])/
-        $str1 = "iocbios2.pdb"
-        $str2 = "Intel(R) Extreme Tuning Utility" wide
-        $str3 = "Intel(R) Overclocking Device Driver" wide
+        $str1 = /iocbios2\.pdb/
+        $str2 = /Intel\(R\) Extreme Tuning Utility/ wide
+        $str3 = /Intel\(R\) Overclocking Device Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -532,7 +532,7 @@ rule Windows_VulnDriver_Intel_b78de5ce {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 49 6E 74 65 6C 28 52 29 20 53 6F 66 74 77 61 72 65 20 50 72 6F 64 75 63 74 73 }
-        $str1 = "sepdrv3_15.pdb"
+        $str1 = /sepdrv3_15\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }
@@ -556,9 +556,9 @@ rule Windows_VulnDriver_Intel_c7f862f6 {
         $subject_name = { 06 03 55 04 03 [2] 49 6E 74 65 6C 28 52 29 20 49 6E 74 65 6C 20 4E 65 74 77 6F 72 6B 20 44 72 69 76 65 72 73 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 69 00 51 00 56 00 57 00 36 00 34 00 2E 00 53 00 59 00 53 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x02][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x03-\x03][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00]|[\x03-\x03][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00])/
-        $str1 = "iqvw64e.pdb"
-        $str2 = "Intel(R) iQVW64.SYS" wide
-        $str3 = "Intel(R) Network Adapter Diagnostic Driver" wide
+        $str1 = /iqvw64e\.pdb/
+        $str2 = /Intel\(R\) iQVW64\.SYS/ wide
+        $str3 = /Intel\(R\) Network Adapter Diagnostic Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -582,8 +582,8 @@ rule Windows_VulnDriver_Intel_944c2a6d {
         $subject_name = { 06 03 55 04 03 [2] 49 6E 74 65 6C 28 52 29 20 45 6D 62 65 64 64 65 64 20 53 75 62 73 79 73 74 65 6D 73 20 61 6E 64 20 49 50 20 42 6C 6F 63 6B 73 20 47 72 6F 75 70 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 70 00 6D 00 78 00 64 00 72 00 76 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x02]|[\x00-\xea][\x03-\x03])[\x00-\x00][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\xeb-\xeb][\x03-\x03][\x00-\x00][\x00-\x00])/
-        $str1 = "pmxdrv.pdb"
-        $str2 = "Intel(R) Management Engine Tools Driver" wide
+        $str1 = /pmxdrv\.pdb/
+        $str2 = /Intel\(R\) Management Engine Tools Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2
 }
@@ -605,7 +605,7 @@ rule Windows_VulnDriver_Intel_7d47fd3f {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 4D 69 63 72 6F 73 6F 66 74 20 57 69 6E 64 6F 77 73 20 48 61 72 64 77 61 72 65 20 43 6F 6D 70 61 74 69 62 69 6C 69 74 79 20 50 75 62 6C 69 73 68 65 72 }
-        $str1 = "E:\\Intel-Power-Gadget\\EnergyDriver\\x64\\Release\\EnergyDriver.pdb"
+        $str1 = /E:\\Intel-Power-Gadget\\EnergyDriver\\x64\\Release\\EnergyDriver\.pdb/
         $serial = { 33 00 00 00 18 A7 C6 4E DA 38 3A 9F 79 00 00 00 00 00 18 }
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1 and $serial

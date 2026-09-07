@@ -19,7 +19,7 @@ rule Windows_VulnDriver_IoBitUnlocker_defb90fd {
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 [1-4] 49 00 4F 00 62 00 69 00 74 00 55 00 6E 00 6C 00 6F 00 63 00 6B 00 65 00 72 00 2E 00 73 00 79 00 73 }
         $product_version = { 50 00 72 00 6F 00 64 00 75 00 63 00 74 00 56 00 65 00 72 00 73 00 69 00 6F 00 6E 00 [1-4] 31 00 2E 00 ( 30 | 31 | 32 | 33 ) 00 }
         $subject = { 06 03 55 04 0A [2] 49 4F 62 69 74 20 49 6E 66 6F 72 6D 61 74 69 6F 6E 20 54 65 63 68 6E 6F 6C 6F 67 79 }
-        $pdb_filename = "IObitUnlocker.pdb" fullword
+        $pdb_filename = /IObitUnlocker\.pdb/ fullword
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and (($original_file_name and $product_version) or ($subject and $pdb_filename))
 }

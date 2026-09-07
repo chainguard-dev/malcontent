@@ -13,7 +13,7 @@ rule Windows_VulnDriver_Fidpci_cb7f69b5 {
         license = "Elastic License v2"
         os = "windows"
     strings:
-        $str1 = "\\fidpcidrv64.pdb"
+        $str1 = /\\fidpcidrv64\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $str1
 }

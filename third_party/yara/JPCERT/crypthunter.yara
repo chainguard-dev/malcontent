@@ -20,9 +20,9 @@ rule CryptHunter_lnk_bitly {
         hash1 = "01b5cd525d18e28177924d8a7805c2010de6842b8ef430f29ed32b3e5d7d99a0"
 
       strings:
-        $a1 = "cmd.exe" wide ascii
-        $a2 = "mshta" wide ascii
-        $url1 = "https://bit.ly" wide ascii
+        $a1 = /cmd\.exe/ wide ascii
+        $a2 = /mshta/ wide ascii
+        $url1 = /https:\/\/bit\.ly/ wide ascii
 
       condition:
         (uint16(0) == 0x004c) and
@@ -233,18 +233,18 @@ rule CryptHunter_pythonDownloader {
         hash1 = "e0891a1bfa5980171599dc5fe31d15be0a6c79cc08ab8dc9f09ceec7a029cbdf"
 
     strings:
-        $str01 = "auto_interrupt_handle" ascii wide fullword
-        $str02 = "aW1wb3J0IHN0cmluZw0KaW1wb3J0IHJhbmRvbQ0" ascii wide fullword
+        $str01 = /auto_interrupt_handle/ ascii wide fullword
+        $str02 = /aW1wb3J0IHN0cmluZw0KaW1wb3J0IHJhbmRvbQ0/ ascii wide fullword
 
-        $rot13_01 = "clguba" ascii wide fullword
-        $rot13_02 = "log_handle_method" ascii wide fullword
-        $rot13_03 = "rot13" ascii wide fullword
-        $rot13_04 = "zfvrkrp" ascii wide fullword
-        $rot13_05 = "Jvaqbjf" ascii wide fullword
-        $rot13_06 = ".zfv" ascii wide fullword
-        $rot13_07 = "qrirybcpber" ascii wide fullword
-        $rot13_08 = "uggc://ncc." ascii wide fullword
-        $rot13_09 = "cat_file_header_ops" ascii wide fullword
+        $rot13_01 = /clguba/ ascii wide fullword
+        $rot13_02 = /log_handle_method/ ascii wide fullword
+        $rot13_03 = /rot13/ ascii wide fullword
+        $rot13_04 = /zfvrkrp/ ascii wide fullword
+        $rot13_05 = /Jvaqbjf/ ascii wide fullword
+        $rot13_06 = /\.zfv/ ascii wide fullword
+        $rot13_07 = /qrirybcpber/ ascii wide fullword
+        $rot13_08 = /uggc:\/\/ncc\./ ascii wide fullword
+        $rot13_09 = /cat_file_header_ops/ ascii wide fullword
 
     condition:
         (filesize > 10KB)
@@ -260,40 +260,40 @@ rule CryptHunter_pythonSimpleRAT {
         hash2 = "5fe1790667ee5085e73b054566d548eb4473c20cf962368dd53ba776e9642272"
 
     strings:
-        $domain01 = "www.git-hub.me" ascii wide fullword
-        $domain02 = "nivyga.com" ascii wide fullword
-        $domain03 = "tracking.nivyga.com" ascii wide fullword
-        $domain04 = "yukunmaoyi.com" ascii wide fullword
-        $domain05 = "gameofwarsite.com" ascii wide fullword
-        $domain06 = "togetherwatch.com" ascii wide fullword
-        $domain07 = "9d90-081d2f-vultr-los-angeles-boxul.teridions.net" ascii wide fullword
-        $domain08 = "8dae-77766a-vultr-los-angeles-egnyte-sj.d1.teridioncloud.net" ascii wide fullword
-        $domain09 = "www.jacarandas.top" ascii wide fullword
-        $domain10 = "cleargadgetwinners.top" ascii wide fullword
-        $domain11 = "ns1.smoothieking.info" ascii wide fullword
-        $domain12 = "ns2.smoothieking.info" ascii wide fullword
+        $domain01 = /www\.git-hub\.me/ ascii wide fullword
+        $domain02 = /nivyga\.com/ ascii wide fullword
+        $domain03 = /tracking\.nivyga\.com/ ascii wide fullword
+        $domain04 = /yukunmaoyi\.com/ ascii wide fullword
+        $domain05 = /gameofwarsite\.com/ ascii wide fullword
+        $domain06 = /togetherwatch\.com/ ascii wide fullword
+        $domain07 = /9d90-081d2f-vultr-los-angeles-boxul\.teridions\.net/ ascii wide fullword
+        $domain08 = /8dae-77766a-vultr-los-angeles-egnyte-sj\.d1\.teridioncloud\.net/ ascii wide fullword
+        $domain09 = /www\.jacarandas\.top/ ascii wide fullword
+        $domain10 = /cleargadgetwinners\.top/ ascii wide fullword
+        $domain11 = /ns1\.smoothieking\.info/ ascii wide fullword
+        $domain12 = /ns2\.smoothieking\.info/ ascii wide fullword
 
-        $str01 = "Jvaqbjf" ascii wide fullword
-        $str02 = "Yvahk" ascii wide fullword
-        $str03 = "Qnejva" ascii wide fullword
-        $str04 = "GITHUB_REQ" ascii wide fullword
-        $str05 = "GITHUB_RES" ascii wide fullword
-        $str06 = "BasicInfo" ascii wide fullword
-        $str07 = "CmdExec" ascii wide fullword
-        $str08 = "DownExec" ascii wide fullword
-        $str09 = "KillSelf" ascii wide fullword
-        $str10 = "pp -b /gzc/.VPR-havk/tvg" ascii wide fullword
-        $str11 = "/gzc/.VPR-havk/tvg" ascii wide fullword
-        $str12 = "NccyrNppbhag.gtm" ascii wide fullword
-        $str13 = "/GrzcHfre/NccyrNppbhagNffvfgnag.ncc" ascii wide fullword
-        $str14 = "Pheerag Gvzr" ascii wide fullword
-        $str15 = "Hfreanzr" ascii wide fullword
-        $str16 = "Ubfganzr" ascii wide fullword
-        $str17 = "BF Irefvba" ascii wide fullword
-        $str18 = "VQ_YVXR=qrovna" ascii wide fullword
-        $str19 = "VQ=qrovna" ascii wide fullword
-        $str20 = "/rgp/bf-eryrnfr" ascii wide fullword
-        $str21 = " -yafy -ycguernq -yerfbyi -fgq=tah99" ascii wide fullword
+        $str01 = /Jvaqbjf/ ascii wide fullword
+        $str02 = /Yvahk/ ascii wide fullword
+        $str03 = /Qnejva/ ascii wide fullword
+        $str04 = /GITHUB_REQ/ ascii wide fullword
+        $str05 = /GITHUB_RES/ ascii wide fullword
+        $str06 = /BasicInfo/ ascii wide fullword
+        $str07 = /CmdExec/ ascii wide fullword
+        $str08 = /DownExec/ ascii wide fullword
+        $str09 = /KillSelf/ ascii wide fullword
+        $str10 = /pp -b \/gzc\/\.VPR-havk\/tvg/ ascii wide fullword
+        $str11 = /\/gzc\/\.VPR-havk\/tvg/ ascii wide fullword
+        $str12 = /NccyrNppbhag\.gtm/ ascii wide fullword
+        $str13 = /\/GrzcHfre\/NccyrNppbhagNffvfgnag\.ncc/ ascii wide fullword
+        $str14 = /Pheerag Gvzr/ ascii wide fullword
+        $str15 = /Hfreanzr/ ascii wide fullword
+        $str16 = /Ubfganzr/ ascii wide fullword
+        $str17 = /BF Irefvba/ ascii wide fullword
+        $str18 = /VQ_YVXR=qrovna/ ascii wide fullword
+        $str19 = /VQ=qrovna/ ascii wide fullword
+        $str20 = /\/rgp\/bf-eryrnfr/ ascii wide fullword
+        $str21 = / -yafy -ycguernq -yerfbyi -fgq=tah99/ ascii wide fullword
 
     condition:
         (filesize > 1KB)
@@ -308,10 +308,10 @@ rule CryptHunter_jsDownloader {
         hash1 = "67a0f25a20954a353021bbdfdd531f7cc99c305c25fb03079f7abbc60e8a8081"
 
     strings:
-        $code01 = "UID + AgentType + SessionType + OS;" ascii wide fullword
-        $code02 = "received_data.toString().startsWith" ascii wide fullword
-        $str01 = "GITHUB_RES" ascii wide fullword
-        $str02 = "GITHUB_REQ" ascii wide fullword
+        $code01 = /UID \+ AgentType \+ SessionType \+ OS;/ ascii wide fullword
+        $code02 = /received_data\.toString\(\)\.startsWith/ ascii wide fullword
+        $str01 = /GITHUB_RES/ ascii wide fullword
+        $str02 = /GITHUB_REQ/ ascii wide fullword
 
     condition:
         (filesize > 1KB)
@@ -328,13 +328,13 @@ rule CryptHunter_JokerSpy_macos {
         hash = "d895075057e491b34b0f8c0392b44e43ade425d19eaaacea6ef8c5c9bd3487d8"
 
      strings:
-        $db = "/Library/Application Support/com.apple.TCC/TCC.db" ascii
-        $path = "/Users/joker/Downloads/Spy/XProtectCheck/XProtectCheck/" ascii
-        $msg1 = "The screen is currently LOCKED!" ascii
-        $msg2 = "Accessibility: YES" ascii
-        $msg3 = "ScreenRecording: YES" ascii
-        $msg4 = "FullDiskAccess: YES" ascii
-        $msg5 = "kMDItemDisplayName = *TCC.db" ascii
+        $db = /\/Library\/Application Support\/com\.apple\.TCC\/TCC\.db/ ascii
+        $path = /\/Users\/joker\/Downloads\/Spy\/XProtectCheck\/XProtectCheck\// ascii
+        $msg1 = /The screen is currently LOCKED!/ ascii
+        $msg2 = /Accessibility: YES/ ascii
+        $msg3 = /ScreenRecording: YES/ ascii
+        $msg4 = /FullDiskAccess: YES/ ascii
+        $msg5 = /kMDItemDisplayName = \*TCC\.db/ ascii
 
      condition:
        (uint32(0) == 0xfeedface or

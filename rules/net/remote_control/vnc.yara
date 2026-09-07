@@ -17,9 +17,9 @@ rule vnc_elf_subtle: medium {
     description = "uses VNC remote desktop protocol"
 
   strings:
-    $vnc_password = "5900"
-    $vnc_         = "vnc"
-    $VNC          = "VNC"
+    $vnc_password = /5900/
+    $vnc_         = /vnc/
+    $VNC          = /VNC/
 
   condition:
     filesize < 5MB and uint32(0) == 1179403647 and all of them

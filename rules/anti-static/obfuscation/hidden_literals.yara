@@ -3,7 +3,7 @@ rule hidden_literals: medium {
     description = "references hidden literals"
 
   strings:
-    $ref = "hidden_literals"
+    $ref = /hidden_literals/
 
   condition:
     filesize < 10MB and $ref

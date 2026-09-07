@@ -3,8 +3,8 @@ rule infected: medium {
     description = "References being 'infected'"
 
   strings:
-    $ref  = "infected"
-    $ref2 = "INFECTED"
+    $ref  = /infected/
+    $ref2 = /INFECTED/
 
   condition:
     filesize < 5MB and any of them
@@ -29,7 +29,7 @@ rule infection: medium {
     description = "References 'infection'"
 
   strings:
-    $ref3 = "infection"
+    $ref3 = /infection/
 
   condition:
     filesize < 5MB and any of them

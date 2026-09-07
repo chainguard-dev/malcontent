@@ -3,7 +3,7 @@ rule wireshark: override {
     BlackTech_Hipid_str = "low"
 
   strings:
-    $wireshark = "wireshark"
+    $wireshark = /wireshark/
 
   condition:
     filesize < 200MB and #wireshark > 25

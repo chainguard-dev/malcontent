@@ -13,8 +13,8 @@ rule Windows_VulnDriver_RtCore_4eeb2ce5 {
         license = "Elastic License v2"
         os = "windows"
     strings:
-        $str1 = "\\Device\\RTCore64" wide fullword
-        $str2 = "Kaspersky Lab Anti-Rootkit Monitor Driver" wide fullword
+        $str1 = /\\Device\\RTCore64/ wide fullword
+        $str2 = /Kaspersky Lab Anti-Rootkit Monitor Driver/ wide fullword
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and uint32(uint32(0x3C) + 8) < 1713095596 and $str1 and not $str2
 }
@@ -36,7 +36,7 @@ rule Windows_VulnDriver_RtCore_b38e27a7 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 4D 49 43 52 4F 2D 53 54 41 52 20 49 4E 54 45 52 4E 41 54 49 4F 4E 41 4C 20 43 4F 2E 2C 20 4C 54 44 2E }
-        $str1 = "RTCore64.pdb"
+        $str1 = /RTCore64\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }
@@ -60,7 +60,7 @@ rule Windows_VulnDriver_RtCore_1b4e556a {
         $subject_name = { 06 03 55 04 03 [2] 4D 49 43 52 4F 2D 53 54 41 52 20 49 4E 54 45 52 4E 41 54 49 4F 4E 41 4C 20 43 4F 2E 2C 20 4C 54 44 2E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 4E 00 54 00 49 00 4F 00 4C 00 69 00 62 00 5F 00 58 00 36 00 34 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x01][\x00-\x00][\x00-\x00][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x02-\x02][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "NTIOLib.pdb"
+        $str1 = /NTIOLib\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1
 }
@@ -84,7 +84,7 @@ rule Windows_VulnDriver_RtCore_99fe40b2 {
         $subject_name = { 06 03 55 04 03 [2] 4D 49 43 52 4F 2D 53 54 41 52 20 49 4E 54 45 52 4E 41 54 49 4F 4E 41 4C 20 43 4F 2E 2C 20 4C 54 44 2E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 4E 00 54 00 49 00 4F 00 4C 00 69 00 62 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "NTIOLib.pdb"
+        $str1 = /NTIOLib\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1
 }
@@ -108,7 +108,7 @@ rule Windows_VulnDriver_RtCore_85687a1c {
         $subject_name = { 06 03 55 04 03 [2] 4D 49 43 52 4F 2D 53 54 41 52 20 49 4E 54 45 52 4E 41 54 49 4F 4E 41 4C 20 43 4F 2E 2C 20 4C 54 44 2E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 4E 00 54 00 49 00 4F 00 4C 00 69 00 62 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x02][\x00-\x00][\x00-\x00][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x03-\x03][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "NTIOLib.pdb"
+        $str1 = /NTIOLib\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1
 }
@@ -132,7 +132,7 @@ rule Windows_VulnDriver_RtCore_6fb16ce5 {
         $subject_name = { 06 03 55 04 03 [2] 4D 69 63 72 6F 2D 53 74 61 72 20 49 6E 74 27 6C 20 43 6F 2E 20 4C 74 64 2E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 4E 00 54 00 49 00 4F 00 4C 00 69 00 62 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "NTIOLib.pdb"
+        $str1 = /NTIOLib\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1
 }
@@ -154,7 +154,7 @@ rule Windows_VulnDriver_RtCore_729f70d7 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 4D 49 43 52 4F 2D 53 54 41 52 20 49 4E 54 45 52 4E 41 54 49 4F 4E 41 4C 20 43 4F 2E 2C 20 4C 54 44 2E }
-        $str1 = "RTCoreMini64.pdb"
+        $str1 = /RTCoreMini64\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }

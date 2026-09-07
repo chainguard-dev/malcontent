@@ -7,11 +7,11 @@ rule malware_MalDocinPDF {
       hash3 = "5b677d297fb862c2d223973697479ee53a91d03073b14556f421b3d74f136b9d"
 
     strings:
-        $docfile2 = "<w:WordDocument>" ascii nocase
-        $xlsfile2 = "<x:ExcelWorkbook>" ascii nocase
-        $mhtfile0 = "mime" ascii nocase
-        $mhtfile1 = "content-location:" ascii nocase
-        $mhtfile2 = "content-type:" ascii nocase
+        $docfile2 = /<w:WordDocument>/ ascii nocase
+        $xlsfile2 = /<x:ExcelWorkbook>/ ascii nocase
+        $mhtfile0 = /mime/ ascii nocase
+        $mhtfile1 = /content-location:/ ascii nocase
+        $mhtfile2 = /content-type:/ ascii nocase
      condition:
         (uint32(0) == 0x46445025) and
         (1 of ($mhtfile*)) and

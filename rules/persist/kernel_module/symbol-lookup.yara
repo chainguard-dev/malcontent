@@ -11,8 +11,8 @@ rule kallsyms_lookup: high {
     // non-word byte on each side keeps only standalone references, which makes
     // the old BPF_FUNC exclusion unnecessary.
     $ref           = /[^\w]kallsyms_lookup_name[^\w]/
-    $not_linux_src = "GPL-2.0 WITH Linux"
-    $not_include   = "#define "
+    $not_linux_src = /GPL-2\.0 WITH Linux/
+    $not_include   = /#define /
 
   condition:
     filesize < 1MB and $ref and none of ($not*)
@@ -36,7 +36,7 @@ rule bpftrace: medium {
     filetypes   = "c,elf,so"
 
   strings:
-    $ref2 = "BPFTRACE" fullword
+    $ref2 = /BPFTRACE/ fullword
 
   condition:
     filesize < 2MB and any of them
@@ -51,8 +51,8 @@ rule bpf: override {
     proc_d_cmdline  = "medium"
 
   strings:
-    $ref  = "BPF" fullword
-    $ref2 = "LIBBPF" fullword
+    $ref  = /BPF/ fullword
+    $ref2 = /LIBBPF/ fullword
 
   condition:
     filesize < 2MB and any of them

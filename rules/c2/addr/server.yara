@@ -18,19 +18,19 @@ rule server_addr_small: medium {
     description = "may execute a shell and communicate with a server"
 
   strings:
-    $serverAddr       = "serverAddr"
-    $server_addr      = "server_addr"
-    $server_connected = "connected to server"
-    $exec             = "exec"
-    $sh               = "/bin/sh" fullword
-    $sh_bash          = "/bin/bash" fullword
-    $sh_zsh           = "/bin/zsh" fullword
-    $sh_script        = "ShellScript"
-    $sh_exec          = "ExecShell"
-    $sh_cmd           = "cmd.exe"
-    $sh_powershell    = "powershell.exe"
+    $serverAddr       = /serverAddr/
+    $server_addr      = /server_addr/
+    $server_connected = /connected to server/
+    $exec             = /exec/
+    $sh               = /\/bin\/sh/ fullword
+    $sh_bash          = /\/bin\/bash/ fullword
+    $sh_zsh           = /\/bin\/zsh/ fullword
+    $sh_script        = /ShellScript/
+    $sh_exec          = /ExecShell/
+    $sh_cmd           = /cmd\.exe/
+    $sh_powershell    = /powershell\.exe/
 
-    $hash_bang = "#!"
+    $hash_bang = /#!/
 
   condition:
     filesize < 1MB and any of ($server*) and $exec and any of ($sh*) and not $hash_bang in (0..3)

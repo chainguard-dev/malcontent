@@ -25,9 +25,9 @@ rule crontab_writer: medium {
     description = "May use crontab to persist"
 
   strings:
-    $c_crontab_e      = "crontab -"
-    $c_var_spool_cron = "/var/spool/cron"
-    $not_usage        = "usage: cron"
+    $c_crontab_e      = /crontab -/
+    $c_var_spool_cron = /\/var\/spool\/cron/
+    $not_usage        = /usage: cron/
 
   condition:
     filesize < 52428800 and any of ($c*) and none of ($not*)
@@ -38,23 +38,23 @@ rule crontab_entry: high {
     description = "Uses crontab to persist"
 
   strings:
-    $crontab              = "crontab"
+    $crontab              = /crontab/
     $repeat_every_minutes = /\*\/\d \* \* \* \*/
-    $repeat_every_minute  = "* * * * *"
+    $repeat_every_minute  = /\* \* \* \* \*/
     $repeat_hourly        = /\d \* \* \* \*/
-    $repeat_root          = "* * * * root"
-    $repeat_daily         = "@daily"
+    $repeat_root          = /\* \* \* \* root/
+    $repeat_daily         = /@daily/
 
-    $notgrp_cron_date         = "CronDate"
-    $notgrp_cron_minute       = "Minute"
-    $notgrp_cron_minutes      = "minutes"
-    $notgrp_cron_days         = "Days in month"
-    $notgrp_cron_day_of_week  = "dayOfWeek"
-    $notgrp_cron_day_of_month = "dayOfMonth"
+    $notgrp_cron_date         = /CronDate/
+    $notgrp_cron_minute       = /Minute/
+    $notgrp_cron_minutes      = /minutes/
+    $notgrp_cron_days         = /Days in month/
+    $notgrp_cron_day_of_week  = /dayOfWeek/
+    $notgrp_cron_day_of_month = /dayOfMonth/
 
-    $not_wolfi1 = "# As wolfi-baselayout does provide /var/spool/cron already, and we can not create this"
-    $not_wolfi2 = "# directory in the package, we need to create the cron file in the post-install scriptlet."
-    $not_wolfi3 = "# Since scriptlets don't run in apko, this is for the `apk add` command only."
+    $not_wolfi1 = /# As wolfi-baselayout does provide \/var\/spool\/cron already, and we can not create this/
+    $not_wolfi2 = /# directory in the package, we need to create the cron file in the post-install scriptlet\./
+    $not_wolfi3 = /# Since scriptlets don't run in apko, this is for the `apk add` command only\./
 
   condition:
     // The $notgrp_cron_* strings are the field names of a JavaScript cron-expression

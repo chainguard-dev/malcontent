@@ -21,8 +21,8 @@ rule ansible_report_coverage: override {
     pip_installer_url = "low"
 
   strings:
-    $coverage  = "ansible-test coverage xml"
-    $pipelines = "Generate code coverage reports for uploading to Azure Pipelines"
+    $coverage  = /ansible-test coverage xml/
+    $pipelines = /Generate code coverage reports for uploading to Azure Pipelines/
 
   condition:
     filesize < 2048 and all of them
@@ -34,8 +34,8 @@ rule ansible_shippable_ci: override {
     pip_installer_url = "low"
 
   strings:
-    $shippable    = "SHIPPABLE_BUILD_ID"
-    $ansible_test = "ansible-test env --dump"
+    $shippable    = /SHIPPABLE_BUILD_ID/
+    $ansible_test = /ansible-test env --dump/
 
   condition:
     filesize < 8192 and all of them
@@ -47,8 +47,8 @@ rule ansible_collection_ci_workflow: override {
     pip_installer_url = "low"
 
   strings:
-    $ansible_core = "Install ansible-core"
-    $test_deps    = "ansible-lint docker flake8 molecule"
+    $ansible_core = /Install ansible-core/
+    $test_deps    = /ansible-lint docker flake8 molecule/
 
   condition:
     filesize < 4096 and all of them
@@ -60,8 +60,8 @@ rule ansible_nox_prepare: override {
     pip_installer_url = "low"
 
   strings:
-    $antsibull_nox = "ansible-community/antsibull-nox"
-    $nox_env       = "ANTSIBULL_NOX_IGNORE_INSTALLED_COLLECTIONS"
+    $antsibull_nox = /ansible-community\/antsibull-nox/
+    $nox_env       = /ANTSIBULL_NOX_IGNORE_INSTALLED_COLLECTIONS/
 
   condition:
     filesize < 4096 and all of them
@@ -73,9 +73,9 @@ rule ansible_test_entrypoint: override {
     SIGNATURE_BASE_Suspicious_Powershell_Webdownload_1 = "harmless"
 
   strings:
-    $parser         = "System.Management.Automation.Language.Parser"
-    $manifest       = "FromBase64String('{{ MANIFEST }}')"
-    $getscriptblock = "GetScriptBlock()"
+    $parser         = /System\.Management\.Automation\.Language\.Parser/
+    $manifest       = /FromBase64String\('\{\{ MANIFEST \}\}'\)/
+    $getscriptblock = /GetScriptBlock\(\)/
 
   condition:
     filesize < 2048 and $parser and any of ($manifest, $getscriptblock)

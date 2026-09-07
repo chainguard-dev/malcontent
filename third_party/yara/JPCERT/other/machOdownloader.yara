@@ -7,9 +7,9 @@ rule malware_unknown_machOdownloader {
         hash = "3266e99f14079b55e428193d5b23aa60862fe784ac8b767c5a1d49dfe80afeeb "
 
      strings:
-        $str1 = "DiagPeersHelper" ascii
-        $str2 = "DiagnosticsPeer" ascii
-        $str3 = "ticsPeer/" ascii
+        $str1 = /DiagPeersHelper/ ascii
+        $str2 = /DiagnosticsPeer/ ascii
+        $str3 = /ticsPeer\// ascii
 
         /*
         48 B9 3F 72 65 73 70 6F 6E 73       mov     rcx, 736E6F707365723Fh

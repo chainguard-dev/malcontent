@@ -6,7 +6,7 @@ rule remote_eval: critical {
     filetypes   = "py,rb"
 
   strings:
-    $http                = "http"
+    $http                = /http/
     $eval_open_ruby      = /eval\(open[\(\)\"\'\-\w:\/\.]{0,64}/
     $eval_http_ruby      = /eval\(Net::HTTP.get.{0,4}[\(\)\"\'\-\w:\/\.]{0,64}/
     $exec_requests       = /exec\(requests\.get[\(\)\"\'\-\w:\/\.]{0,64}/
@@ -20,8 +20,8 @@ rule remote_eval: critical {
     // training data.py. "class SyntheticDataset(Dataset)" on its own is an
     // ordinary torch dataset name any package can declare, so the pair is
     // required as a set rather than member-by-member.
-    $not_open_clip1 = "class ResampledShards2(IterableDataset)"
-    $not_open_clip2 = "class SyntheticDataset(Dataset)"
+    $not_open_clip1 = /class ResampledShards2\(IterableDataset\)/
+    $not_open_clip2 = /class SyntheticDataset\(Dataset\)/
 
   condition:
     filesize < 65535 and $http and any of ($e*) and not all of ($not*)
@@ -33,8 +33,8 @@ rule remote_eval_close: high {
     filetypes   = "php"
 
   strings:
-    $php    = "<?php"
-    $eval   = "eval("
+    $php    = /<\?php/
+    $eval   = /eval\(/
     $header = /(GET|POST|COOKIE|cookie)/
 
   condition:
@@ -107,15 +107,15 @@ rule php_remote_exec: critical {
     filetypes   = "php"
 
   strings:
-    $php                 = "<?php"
+    $php                 = /<\?php/
     $f_execution         = /\b(popen|eval|assert|passthru|exec|include|system|pcntl_exec|shell_exec|base64_decode|`|array_map|ob_start|call_user_func(_array)?)\s*\(\s*(base64_decode|php:\/\/input|str_rot13|gz(inflate|uncompress)|getenv|pack|\\?\$_(GET|REQUEST|POST|COOKIE|SERVER))/ nocase
     $f_execution2        = /\b(array_filter|array_reduce|array_walk(_recursive)?|array_walk|assert_options|uasort|uksort|usort|preg_replace_callback|iterator_apply)\s*\(\s*[^,]+,\s*(base64_decode|php:\/\/input|str_rot13|gz(inflate|uncompress)|getenv|pack|\\?\$_(GET|REQUEST|POST|COOKIE|SERVER))/ nocase
     $f_execution3        = /\b(array_(diff|intersect)_u(key|assoc)|array_udiff)\s*\(\s*([^,]+\s*,?)+\s*(base64_decode|php:\/\/input|str_rot13|gz(inflate|uncompress)|getenv|pack|\\?\$_(GET|REQUEST|POST|COOKIE|SERVER))\s*\[[^]]+\]\s*\)+\s*;/ nocase
     $f_register_function = /register_[a-z]+_function\s*\(\s*['"]\s*(eval|assert|passthru|exec|include|system|shell_exec|`)/
-    $not_php             = "Copyright (c) The PHP Group"
-    $not_php2            = "This source file is subject to version 3.01 of the PHP license"
-    $not_php_domain      = "@php.net"
-    $not_php_id          = "/* $Id: bb422e41c0fe4303a4efb3f3657568b74c20cf96 $ */"
+    $not_php             = /Copyright \(c\) The PHP Group/
+    $not_php2            = /This source file is subject to version 3\.01 of the PHP license/
+    $not_php_domain      = /@php\.net/
+    $not_php_id          = /\/\* \$Id: bb422e41c0fe4303a4efb3f3657568b74c20cf96 \$ \*\//
 
   condition:
     filesize < 1048576 and $php and any of ($f*) and none of ($not*)
@@ -140,13 +140,13 @@ rule java_url_class_load: medium java {
     filetypes   = "class,jar,java"
 
   strings:
-    $loader_url    = "URLClassLoader"
-    $loader_define = "defineClass" fullword
+    $loader_url    = /URLClassLoader/
+    $loader_define = /defineClass/ fullword
     $url           = /https?:\/\/[\w\-][\w\.\-\/:&]{8,128}/
 
     // a file that declares its own JavaScript defineClass() is not calling
     // java.lang.ClassLoader.defineClass
-    $not_js_define = "function defineClass("
+    $not_js_define = /function defineClass\(/
 
     // XML namespace and schema hosts, scheme-anchored so that each one is
     // counted at the same offset as the $url match it accounts for

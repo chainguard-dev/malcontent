@@ -38,8 +38,8 @@ rule malware_vboxuserRAT {
       */
       $cmdfunc5 = { 73 68 65 6C 6C 5F 73 79 }
 
-      $cmdstr1 = "run_dll_from_memory" ascii
-      $cmdstr2 = "run_exe_from_memory" ascii
+      $cmdstr1 = /run_dll_from_memory/ ascii
+      $cmdstr2 = /run_exe_from_memory/ ascii
 
     condition:
       (uint16(0) == 0x5A4D) and

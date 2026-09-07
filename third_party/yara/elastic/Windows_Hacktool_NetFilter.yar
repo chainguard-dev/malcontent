@@ -13,7 +13,7 @@ rule Windows_Hacktool_NetFilter_e8243dae {
         license = "Elastic License v2"
         os = "windows"
     strings:
-        $str1 = "[NetFlt]:CTRL NDIS ModifyARP"
+        $str1 = /\[NetFlt\]:CTRL NDIS ModifyARP/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $str1
 }
@@ -33,7 +33,7 @@ rule Windows_Hacktool_NetFilter_dd576d28 {
         license = "Elastic License v2"
         os = "windows"
     strings:
-        $str1 = "\\NetProxyDriver.pdb"
+        $str1 = /\\NetProxyDriver\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $str1
 }
@@ -53,7 +53,7 @@ rule Windows_Hacktool_NetFilter_b4f2a520 {
         license = "Elastic License v2"
         os = "windows"
     strings:
-        $str1 = "\\netfilterdrv.pdb"
+        $str1 = /\\netfilterdrv\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $str1
 }
@@ -73,7 +73,7 @@ rule Windows_Hacktool_NetFilter_1cae6e26 {
         license = "Elastic License v2"
         os = "windows"
     strings:
-        $str1 = "\\Driver_Map.pdb"
+        $str1 = /\\Driver_Map\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $str1
 }

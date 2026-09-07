@@ -8,14 +8,14 @@ rule APT29_wellmess_pe {
         hash2 = "8749c1495af4fd73ccfc84b32f56f5e78549d81feefb0c1d1c3475a74345f6a8 "
 
       strings:
-        $botlib1 = "botlib.wellMess" ascii
-        $botlib2 = "botlib.Command" ascii
-        $botlib3 = "botlib.Download" ascii
-        $botlib4 = "botlib.AES_Encrypt" ascii
-        $dotnet1 = "WellMess" ascii
-        $dotnet2 = "<;head;><;title;>" ascii wide
-        $dotnet3 = "<;title;><;service;>" ascii wide
-        $dotnet4 = "AES_Encrypt" ascii
+        $botlib1 = /botlib\.wellMess/ ascii
+        $botlib2 = /botlib\.Command/ ascii
+        $botlib3 = /botlib\.Download/ ascii
+        $botlib4 = /botlib\.AES_Encrypt/ ascii
+        $dotnet1 = /WellMess/ ascii
+        $dotnet2 = /<;head;><;title;>/ ascii wide
+        $dotnet3 = /<;title;><;service;>/ ascii wide
+        $dotnet4 = /AES_Encrypt/ ascii
 
       condition: (uint16(0) == 0x5A4D) and (all of ($botlib*) or all of ($dotnet*))
 }
@@ -27,10 +27,10 @@ rule APT29_wellmess_elf {
         hash = "00654dd07721e7551641f90cba832e98c0acb030e2848e5efc0e1752c067ec07"
 
       strings:
-        $botlib1 = "botlib.wellMess" ascii
-        $botlib2 = "botlib.Command" ascii
-        $botlib3 = "botlib.Download" ascii
-        $botlib4 = "botlib.AES_Encrypt" ascii
+        $botlib1 = /botlib\.wellMess/ ascii
+        $botlib2 = /botlib\.Command/ ascii
+        $botlib3 = /botlib\.Download/ ascii
+        $botlib4 = /botlib\.AES_Encrypt/ ascii
 
       condition: (uint32(0) == 0x464C457F) and all of ($botlib*)
 }
@@ -45,12 +45,12 @@ rule APT29_csloader_code {
 
       strings:
         $size = { 41 B8 08 02 00 00 }
-        $process = "explorer.exe" wide
-        $resource1 = "docx" wide
-        $resource2 = "BIN" wide
-        $command1 = "C:\\Windows\\System32\\cmd.exe /C ping 8.8.8.8 -n 3  && del /F \"%s\"" wide
-        $command2 = "C:\\Windows\\System32\\cmd.exe /k ping 8.8.8.8 -n 3  && del /F \"%s\"" wide
-        $pdb = "C:\\Users\\jack\\viewer\\bin\\viewer.pdb" ascii
+        $process = /explorer\.exe/ wide
+        $resource1 = /docx/ wide
+        $resource2 = /BIN/ wide
+        $command1 = /C:\\Windows\\System32\\cmd\.exe \/C ping 8\.8\.8\.8 -n 3  && del \/F "%s"/ wide
+        $command2 = /C:\\Windows\\System32\\cmd\.exe \/k ping 8\.8\.8\.8 -n 3  && del \/F "%s"/ wide
+        $pdb = /C:\\Users\\jack\\viewer\\bin\\viewer\.pdb/ ascii
 
       condition:
         uint16(0) == 0x5A4D and
@@ -69,14 +69,14 @@ rule malware_cobaltstrike_workersdevloader {
      strings:
         $xorcode = { 41 8A 0C 10 80 F1 ?? 88 0A 48 FF C2 49 83 E9 01 }
         $jnk = { 48 3B 15 ?? ?? ?? 00 48 8D 05 ?? ?? FF FF 48 89 45 10 74 16 48 89 02 }
-        $str = "root\\cimv2" ascii
-        $folder = "{80C23C0F-1FE2-45D3-ACA0-4936A6875179}" ascii wide
-        $pdb = "G:\\viewer\\bin\\viewerlib.pdb" ascii wide
-        $opt1 = "--is_ready=" ascii wide
-        $opt2 = "--doc_path=" ascii wide
-        $opt3 = "--parent_path=" ascii wide
-        $opt4 = "--parent_id=" ascii wide
-        $opt5 = "--auto=" ascii wide
+        $str = /root\\cimv2/ ascii
+        $folder = /\{80C23C0F-1FE2-45D3-ACA0-4936A6875179\}/ ascii wide
+        $pdb = /G:\\viewer\\bin\\viewerlib\.pdb/ ascii wide
+        $opt1 = /--is_ready=/ ascii wide
+        $opt2 = /--doc_path=/ ascii wide
+        $opt3 = /--parent_path=/ ascii wide
+        $opt4 = /--parent_id=/ ascii wide
+        $opt5 = /--auto=/ ascii wide
 
      condition:
        uint16(0) == 0x5A4D and

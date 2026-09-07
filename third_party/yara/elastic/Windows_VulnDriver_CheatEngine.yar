@@ -15,7 +15,7 @@ rule Windows_VulnDriver_CheatEngine_94bb1403 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 43 68 65 61 74 20 45 6E 67 69 6E 65 }
-        $str1 = "DBK64.pdb"
+        $str1 = /DBK64\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }

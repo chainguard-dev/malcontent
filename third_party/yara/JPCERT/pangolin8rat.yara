@@ -84,8 +84,8 @@ rule malware_Pangolin8RAT {
 		$func3 = { 41 B8 08 02 00 00 E8 ?? ?? 03 00 BA 04 01 00 00 48 8D 4C 24 ?? FF 15 ?? ?? ?? 00 4C 8D 05 ?? ?? 08 00 BA 04 01 00 00 48 8D 4C 24 ?? E8 ?? EA 03 00 48 8D 4C 24 ?? FF 15 ?? ?? ?? 00 8B D0 48 8B CF FF 15 ?? ?? ?? 00 45 33 C9 48 C7 44 24 30 00 00 00 00 C7 44 24 28 80 00 00 00 48 8D 4C 24 ?? BA 00 00 00 80 C7 44 24 20 03 00 00 00 45 8D 41 01 FF 15 ?? ?? ?? 00 48 8B D8 48 85 C0 }
 
 		/* strings */
-        $str01 = "smcache.dat" ascii wide
-        $str04 = "file:///" ascii wide
+        $str01 = /smcache\.dat/ ascii wide
+        $str04 = /file:\/\/\// ascii wide
 
     condition:
         (uint16(0) == 0x5A4D)

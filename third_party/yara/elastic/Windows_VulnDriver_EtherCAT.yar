@@ -14,7 +14,7 @@ rule Windows_VulnDriver_EtherCAT_e5b6e70d {
         license = "Elastic License v2"
         os = "windows"
     strings:
-        $str1 = "c:\\fz-corera\\fz-corera.610\\fh-driver\\fh-ethercat_dio\\objchk_win7_x86\\i386\\FH-EtherCAT_DIO.pdb"
+        $str1 = /c:\\fz-corera\\fz-corera\.610\\fh-driver\\fh-ethercat_dio\\objchk_win7_x86\\i386\\FH-EtherCAT_DIO\.pdb/
         $seq1 = { BA 4E 00 00 00 B0 87 EE BA 4E 00 00 00 B0 87 EE BA 4E 00 00 00 B0 07 EE BA 4F 00 00 00 B0 07 EE BA 4E 00 00 00 }
         $seq2 = { 83 C1 24 8B 55 FC 89 8A 24 10 00 00 8B 45 FC 83 C0 24 8B 4D FC 89 81 28 10 00 00 8B 55 FC C7 82 2C 10 00 00 00 00 00 00 8B 45 FC }
     condition:

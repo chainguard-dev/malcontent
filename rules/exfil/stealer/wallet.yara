@@ -3,25 +3,25 @@ rule crypto_stealer_names: critical {
     description = "makes HTTPS connections and references multiple wallets by name"
 
   strings:
-    $http       = "http"
-    $w_mm       = "Metamask"
-    $w_bw       = "BraweWallet"
-    $w_bv       = "BraveWallet"
-    $w_r        = "Ronin"
-    $w_nw       = "NiftyWallet"
-    $w_cw       = "CloverWallet"
-    $w_ms       = "MonstraWallet"
-    $w_oa       = "OasisWallet"
-    $w_bn       = "BinanceChain"
-    $w_ir       = "Iridium"
-    $w_tl       = "TronLink"
-    $w_hycon    = "Hycon L"
+    $http       = /http/
+    $w_mm       = /Metamask/
+    $w_bw       = /BraweWallet/
+    $w_bv       = /BraveWallet/
+    $w_r        = /Ronin/
+    $w_nw       = /NiftyWallet/
+    $w_cw       = /CloverWallet/
+    $w_ms       = /MonstraWallet/
+    $w_oa       = /OasisWallet/
+    $w_bn       = /BinanceChain/
+    $w_ir       = /Iridium/
+    $w_tl       = /TronLink/
+    $w_hycon    = /Hycon L/
     $w_coin     = /Coinbas\w{0,32}/
     $w_wallet   = /[\w\/]{0,32}\/\.walle[\w\/]{0,16}/
-    $w_trezor   = "Trezor"
-    $w_exodus   = "Exodus"
-    $w_exodus_2 = "aholpfdial"
-    $w_coinomi  = "Coinomi"
+    $w_trezor   = /Trezor/
+    $w_exodus   = /Exodus/
+    $w_exodus_2 = /aholpfdial/
+    $w_coinomi  = /Coinomi/
 
     $notgrp_wap_cats        = /\"cats\": \[[^]]{0,64}/
     $notgrp_wap_description = /\"description\": "([^"]{0,64})"/
@@ -31,21 +31,21 @@ rule crypto_stealer_names: critical {
     $notgrp_wap_scriptsrc   = /\"scriptSrc\": "([^"]{0,64})"/
     $notgrp_wap_website     = /\"website\": "([^"]{0,64})"/
 
-    $not_clef1     = "These data types are defined in the channel between clef and the UILedger"
-    $not_clef2     = "The `transaction` (on input into clef) can have either `data` or `input`"
-    $not_geth_site = "https://geth.ethereum.org"
-    $not_grobid1   = "Jebtsundamba Khutughtu"
-    $not_grobid2   = "Iridium Satellite LLC"
+    $not_clef1     = /These data types are defined in the channel between clef and the UILedger/
+    $not_clef2     = /The `transaction` \(on input into clef\) can have either `data` or `input`/
+    $not_geth_site = /https:\/\/geth\.ethereum\.org/
+    $not_grobid1   = /Jebtsundamba Khutughtu/
+    $not_grobid2   = /Iridium Satellite LLC/
 
-    $gpt_tokenizer1 = "GPTTokenizer"
-    $gpt_tokenizer2 = "GPT-4"
-    $gpt_tokenizer3 = "const bpe = c0.concat();"
-    $gpt_tokenizer4 = "const bpe = c0.concat(c1);"
-    $gpt_tokenizer5 = "export default bpe;"
+    $gpt_tokenizer1 = /GPTTokenizer/
+    $gpt_tokenizer2 = /GPT-4/
+    $gpt_tokenizer3 = /const bpe = c0\.concat\(\);/
+    $gpt_tokenizer4 = /const bpe = c0\.concat\(c1\);/
+    $gpt_tokenizer5 = /export default bpe;/
 
-    $bpe_tokenizer1 = "cl100k_base"
-    $bpe_tokenizer2 = "o200k_base"
-    $bpe_tokenizer3 = "p50k_base"
+    $bpe_tokenizer1 = /cl100k_base/
+    $bpe_tokenizer2 = /o200k_base/
+    $bpe_tokenizer3 = /p50k_base/
 
   condition:
     // The $notgrp_wap_* strings are Wappalyzer technologies.json field names; each one
@@ -60,20 +60,20 @@ rule crypto_extension_stealer: critical {
     description = "makes HTTPS connections and references multiple Chrome crypto wallet extensions"
 
   strings:
-    $http = "http"
+    $http = /http/
 
-    $w_metamask1  = "nkbihfbeogae"
-    $w_metamask2  = "ejbalbakoplch"
-    $w_bnb        = "fhbohimaelbohp"
-    $w_coinbase   = "hnfanknocfeof"
-    $w_tronlink   = "ibnejdfjmmkpc"
-    $w_phantom    = "bfnaelmomeimh"
-    $w_coin98     = "aeachknmefph"
-    $w_crypto_com = "mccdpekplomjjkc"
-    $w_kaia       = "gpafnldhgmapag"
-    $w_rabby      = "ebolmdjonilk"
-    $w_argent     = "ohmabehhmhfoo"
-    $w_exodus     = "mihkjbmgjidlc"
+    $w_metamask1  = /nkbihfbeogae/
+    $w_metamask2  = /ejbalbakoplch/
+    $w_bnb        = /fhbohimaelbohp/
+    $w_coinbase   = /hnfanknocfeof/
+    $w_tronlink   = /ibnejdfjmmkpc/
+    $w_phantom    = /bfnaelmomeimh/
+    $w_coin98     = /aeachknmefph/
+    $w_crypto_com = /mccdpekplomjjkc/
+    $w_kaia       = /gpafnldhgmapag/
+    $w_rabby      = /ebolmdjonilk/
+    $w_argent     = /ohmabehhmhfoo/
+    $w_exodus     = /mihkjbmgjidlc/
 
     $not_cats        = /\"cats\": \[[^]]{0,64}/
     $not_description = /\"description\": "([^"]{0,64})"/
@@ -95,9 +95,9 @@ rule java_hardcoded_wallet: high java {
     filetypes   = "class,jar,java"
 
   strings:
-    $api_crypto        = "javax/crypto"
-    $api_clip_transfer = "java/awt/datatransfer"
-    $api_clip_get      = "getSystemClipboard" fullword
+    $api_crypto        = /javax\/crypto/
+    $api_clip_transfer = /java\/awt\/datatransfer/
+    $api_clip_get      = /getSystemClipboard/ fullword
     $addr_btc          = /[13][a-km-zA-HJ-NP-Z1-9]{26,34}/ fullword
     $addr_bech32       = /bc1[a-z0-9]{30,60}/ fullword
     $addr_eth          = /0x[a-fA-F0-9]{40}/ fullword

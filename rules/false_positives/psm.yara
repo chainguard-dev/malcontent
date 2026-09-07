@@ -4,7 +4,7 @@ rule psm: override macos {
     macos_cookies = "medium"
 
   strings:
-    $ref = "com.apple.psm" fullword
+    $ref = /com\.apple\.psm/ fullword
 
   condition:
     filesize < 400KB and filesize > 40KB and any of them

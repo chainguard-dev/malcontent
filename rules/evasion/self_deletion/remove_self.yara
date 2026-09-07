@@ -3,8 +3,8 @@ rule self_delete: high {
     description = "may delete itself to avoid detection"
 
   strings:
-    $self    = "RemoveSelfExecutable"
-    $syscall = "syscall.Unlink"
+    $self    = /RemoveSelfExecutable/
+    $syscall = /syscall\.Unlink/
 
   condition:
     filesize < 20MB and all of them

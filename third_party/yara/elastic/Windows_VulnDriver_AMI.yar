@@ -15,8 +15,8 @@ rule Windows_VulnDriver_AMI_2f77d45b {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 41 6D 65 72 69 63 61 6E 20 4D 65 67 61 74 72 65 6E 64 73 2C 20 49 6E 63 2E }
-        $str1 = "IOCTL_GENERICDRV_DEALLOC_BUFFER"
-        $str2 = "IOCTL_GENERICDRV_PHY_TO_VIRTUAL"
+        $str1 = /IOCTL_GENERICDRV_DEALLOC_BUFFER/
+        $str2 = /IOCTL_GENERICDRV_PHY_TO_VIRTUAL/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1 and $str2
 }

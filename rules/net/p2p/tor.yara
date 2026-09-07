@@ -4,15 +4,15 @@ rule tor_user: high {
     description = "Makes use of the TOR/.onion protocol"
 
   strings:
-    $t_tor_addr            = "_tor_addr"
-    $t_tor                 = "TOR Browser" nocase
-    $t_hidden_service_port = "HiddenServicePort" nocase
-    $t_go                  = "go-libtor"
-    $t_rust                = "libtor" fullword
-    $t_relay               = "relay.tor2socks."
-    $t_tor2web             = ".tor2web"
-    $not_drop              = "[.onion] drop policy"
-    $not_bug               = "Tor Browser bug" nocase
+    $t_tor_addr            = /_tor_addr/
+    $t_tor                 = /TOR Browser/ nocase
+    $t_hidden_service_port = /HiddenServicePort/ nocase
+    $t_go                  = /go-libtor/
+    $t_rust                = /libtor/ fullword
+    $t_relay               = /relay\.tor2socks\./
+    $t_tor2web             = /\.tor2web/
+    $not_drop              = /\[\.onion\] drop policy/
+    $not_bug               = /Tor Browser bug/ nocase
 
   // $t_tor matches inside $not_bug, so a single bug reference used to exempt the
   // other six markers as well. Only $t_tor is discounted, and by occurrence count

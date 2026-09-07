@@ -15,9 +15,9 @@ rule Windows_VulnDriver_WinHw_de58a926 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] E5 B9 BF E5 B7 9E E5 95 86 E7 A7 91 E4 BF A1 E6 81 AF E7 A7 91 E6 8A 80 E6 9C 89 E9 99 90 E5 85 AC E5 8F B8 }
-        $str1 = "WinHwDriverSys_x64.pdb"
-        $str2 = "IOCTL_WHD_GET_DRIVER_VERSION"
-        $str3 = "IOCTL_WHD_WRITE_PCI_CONFIG"
+        $str1 = /WinHwDriverSys_x64\.pdb/
+        $str2 = /IOCTL_WHD_GET_DRIVER_VERSION/
+        $str3 = /IOCTL_WHD_WRITE_PCI_CONFIG/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1 and $str2 and $str3
 }

@@ -5,9 +5,9 @@ rule sanity_sec_test: override {
     chmod_dangerous_exec = "medium"
 
   strings:
-    $function = "check_and_setup_lustre"
-    $lustre   = "lustre"
-    $source   = ". $LUSTRE/tests/test-framework.sh"
+    $function = /check_and_setup_lustre/
+    $lustre   = /lustre/
+    $source   = /\. \$LUSTRE\/tests\/test-framework\.sh/
     $test     = /test_\w+{1,3}/
 
   condition:
@@ -22,9 +22,9 @@ rule sanity_test: override {
     kill_unusual         = "medium"
 
   strings:
-    $function = "check_and_setup_lustre"
-    $lustre   = "lustre"
-    $regexp   = "proc_regexp=\"/{proc,sys}/{fs,sys,kernel/debug}/{lustre,lnet}/\""
+    $function = /check_and_setup_lustre/
+    $lustre   = /lustre/
+    $regexp   = /proc_regexp="\/\{proc,sys\}\/\{fs,sys,kernel\/debug\}\/\{lustre,lnet\}\/"/
     $test     = /test_\w+{1,3}/
 
   condition:
@@ -38,8 +38,8 @@ rule monitor_lustrefs: override {
     multiple_gcc_high = "medium"
 
   strings:
-    $monitor = "Monitor some file operations on a lustre fs"
-    $usage   = "LUSTRE_MOUNT_DIR"
+    $monitor = /Monitor some file operations on a lustre fs/
+    $usage   = /LUSTRE_MOUNT_DIR/
 
   condition:
     filesize < 100KB and all of them

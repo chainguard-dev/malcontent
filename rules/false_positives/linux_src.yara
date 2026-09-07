@@ -11,9 +11,9 @@ rule linux_test_script: override linux {
     description                  = "Linux test script"
 
   strings:
-    $gpl  = "# SPDX-License-Identifier: GPL-2.0"
-    $bash = "#!/bin/bash"
-    $sh   = "#!/bin/sh"
+    $gpl  = /# SPDX-License-Identifier: GPL-2\.0/
+    $bash = /#!\/bin\/bash/
+    $sh   = /#!\/bin\/sh/
 
   condition:
     filesize < 32KB and $gpl in (1..256) and ($bash in (0..8) or $sh in (0..8))

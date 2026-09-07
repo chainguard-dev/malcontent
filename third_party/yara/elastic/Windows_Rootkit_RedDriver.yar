@@ -16,7 +16,7 @@ rule Windows_Rootkit_RedDriver_afa0359e {
     strings:
         $subject_name = { 06 03 55 04 03 [2] E6 B9 96 E5 8D 97 E8 93 9D E9 80 94 E6 96 B9 E9 BC 8E E7 A7 91 E6 8A 80 E6 9C 89 E9 99 90 E5 85 AC E5 8F B8 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x06]|[\x00-\xe5][\x07-\x07])[\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x08][\x00-\x00][\xe6-\xe6][\x07-\x07][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x09-\x09][\x00-\x00][\xe6-\xe6][\x07-\x07][\x00-\xff][\x00-\xff][\x00-\x1b][\x00-\x00]|[\x09-\x09][\x00-\x00][\xe6-\xe6][\x07-\x07]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x05]|[\x00-\x6f][\x06-\x06])[\x1c-\x1c][\x00-\x00]|[\x09-\x09][\x00-\x00][\xe6-\xe6][\x07-\x07][\x70-\x70][\x06-\x06][\x1c-\x1c][\x00-\x00])/
-        $str1 = "FilDriverx64_win10.pdb"
+        $str1 = /FilDriverx64_win10\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $version and $str1
 }
@@ -39,8 +39,8 @@ rule Windows_Rootkit_RedDriver_d4f2aaba {
     strings:
         $subject_name = { 06 03 55 04 03 [2] 51 51 20 32 30 36 32 39 35 36 32 35 30 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x02][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x03-\x03][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "Driver.pdb"
-        $str2 = "Low-Level Driver" wide
+        $str1 = /Driver\.pdb/
+        $str2 = /Low-Level Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $version and $str1 and $str2
 }

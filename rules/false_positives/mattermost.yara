@@ -4,8 +4,8 @@ rule mm_client_js_map: override {
     casing_obfuscation = "medium"
 
   strings:
-    $mattermost = "mattermost"
-    $powershell = "PowerShell"
+    $mattermost = /mattermost/
+    $powershell = /PowerShell/
 
   condition:
     filesize < 20KB and all of them

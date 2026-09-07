@@ -71,6 +71,8 @@ git_clone() {
 	popd >/dev/null || exit 1
 }
 
+LITERAL_REGEXPS="$(cd "$(dirname "$0")/../.." && pwd)/hack/literal_regexps.pl"
+
 # fixup_rules fixes rules up, including lightly obfuscating them to avoid CrowdStrike/XProtect from matching malcontent
 function fixup_rules() {
 	perl -p -i -e 's#"/Library/Application Support\/Google/Chrome/Default/History"#/\\/Library\\/Application Support\\/Google\\/Chrome\\/Default\\/History\/#' "$@"
@@ -79,6 +81,10 @@ function fixup_rules() {
 	perl -p -i -e 's/ +$//;' "$@"
 	# VirusTotal-specific YARA
 	perl -p -i -e 's#and file_type contains \"\w+\"##;' "$@"
+	# yara-x 1.20.0 applies the filesize bounds and header constraints of the first
+	# rule that declares a text pattern to every rule sharing it. Literal regexps
+	# keep their constraints per rule.
+	perl "${LITERAL_REGEXPS}" "$@"
 	# Convert text strings to hex in rules that trigger CrowdStrike/XProtect on macOS.
 	# These rules contain malware signature strings that, when embedded in the mal binary
 	# via go:embed, cause endpoint protection to kill the process or delete the binary.

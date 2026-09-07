@@ -13,7 +13,7 @@ rule Windows_Trojan_ProtectS_9f6eaa90 {
         license = "Elastic License v2"
         os = "windows"
     strings:
-        $str1 = "\\ProtectS.pdb"
+        $str1 = /\\ProtectS\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $str1
 }

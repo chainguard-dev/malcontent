@@ -3,8 +3,8 @@ rule killall_NotificationCenter: high macos {
     description = "kills the macOS NotificationCenter"
 
   strings:
-    $killall = "killall" fullword
-    $nc      = "NotificationCenter" fullword
+    $killall = /killall/ fullword
+    $nc      = /NotificationCenter/ fullword
 
   condition:
     filesize < 1MB and all of them

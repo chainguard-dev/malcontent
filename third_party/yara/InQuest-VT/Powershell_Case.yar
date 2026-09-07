@@ -11,10 +11,10 @@ rule Powershell_Case
         samples        = "1c4972aaf29928e7d2e58ccdbfca23ad4f48c332cf7b63e8e55427ed0d2e7d6c"
 
 	strings:
-	$magic1 = "INQUEST-PII"
+	$magic1 = /INQUEST-PII/
 	        $ps_normal1 = /(powershell|POWERSHELL|Powershell|PowerShell|powerShell)/ fullword
         	$ps_normal2 = /(p.o.w.e.r.s.h.e.l.l|P.O.W.E.R.S.H.E.L.L|P.o.w.e.r.s.h.e.l.l|P.o.w.e.r.S.h.e.l.l|p.o.w.e.r.S.h.e.l.l)/ fullword
-	        $ps_wide1   = "powershell" fullword nocase
+	        $ps_wide1   = /powershell/ fullword nocase
         	$ps_wide2   = /p.o.w.e.r.s.h.e.l.l/ fullword nocase
 	condition:
 	        (($ps_wide1 and not $ps_normal1) or ($ps_wide2 and not $ps_normal2)) and not ($magic1 in (filesize-30 .. filesize))

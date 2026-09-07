@@ -4,8 +4,8 @@ rule cxFreeze_Python_executable: high {
     filetypes   = "py"
 
   strings:
-    $cxfreeze      = "cx_Freeze"
-    $not_importlib = "tool like cx_Freeze"
+    $cxfreeze      = /cx_Freeze/
+    $not_importlib = /tool like cx_Freeze/
 
   condition:
     // "tool like cx_Freeze" contains $cxfreeze, so prose about the packer used

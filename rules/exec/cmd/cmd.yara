@@ -18,7 +18,7 @@ rule ruby_exec: medium {
     filetypes   = "rb"
 
   strings:
-    $require = "require" fullword
+    $require = /require/ fullword
     $val     = /exec\(".{2,64}"\)/
 
   condition:
@@ -31,7 +31,7 @@ rule ruby_run_exe: high {
     filetypes   = "rb"
 
   strings:
-    $require = "require" fullword
+    $require = /require/ fullword
     $val     = /exec\(".{0,64}\.exe"\)/
 
   condition:
@@ -44,9 +44,9 @@ rule java_process_builder: medium {
     filetypes   = "jar,java"
 
   strings:
-    $lang    = "java/lang/Process"
-    $require = "ProcessBuilder"
-    $val     = "start" fullword
+    $lang    = /java\/lang\/Process/
+    $require = /ProcessBuilder/
+    $val     = /start/ fullword
 
   condition:
     filesize < 2MB and all of them
@@ -58,8 +58,8 @@ rule java_exec: medium {
     filetypes   = "jar,java"
 
   strings:
-    $lang = "java/lang/Runtime"
-    $val  = "exec" fullword
+    $lang = /java\/lang\/Runtime/
+    $val  = /exec/ fullword
 
   condition:
     filesize < 2MB and all of them
@@ -71,10 +71,10 @@ rule java_reflect_exec: medium java {
     filetypes   = "class,jar,java"
 
   strings:
-    $reflect      = "java/lang/reflect/Method"
-    $invoke       = "invoke" fullword
-    $exec_runtime = "getRuntime" fullword
-    $exec_builder = "ProcessBuilder"
+    $reflect      = /java\/lang\/reflect\/Method/
+    $invoke       = /invoke/ fullword
+    $exec_runtime = /getRuntime/ fullword
+    $exec_builder = /ProcessBuilder/
 
   condition:
     filesize < 2MB and $reflect and $invoke and any of ($exec*)

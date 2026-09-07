@@ -5,14 +5,14 @@ rule generic_obfuscated_perl: medium {
     filetypes = "pl"
 
   strings:
-    $unpack_nospace = "pack'" fullword
-    $unpack         = "pack '" fullword
-    $unpack_paren   = "pack(" fullword
-    $reverse        = "reverse "
-    $sub            = "sub "
-    $eval           = "eval{"
-    $not_unpack_a   = "unpack('aaaaaaaa'"
-    $not_unpack_i   = "unpack(\"i\","
+    $unpack_nospace = /pack'/ fullword
+    $unpack         = /pack '/ fullword
+    $unpack_paren   = /pack\(/ fullword
+    $reverse        = /reverse /
+    $sub            = /sub /
+    $eval           = /eval\{/
+    $not_unpack_a   = /unpack\('aaaaaaaa'/
+    $not_unpack_i   = /unpack\("i",/
 
   condition:
     filesize < 32KB and $eval and 3 of ($unpack_nospace, $unpack, $unpack_paren, $reverse, $sub, $eval) and none of ($not*)

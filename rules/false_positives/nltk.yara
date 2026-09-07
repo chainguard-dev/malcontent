@@ -4,9 +4,9 @@ rule nltk_test_pathsec: override {
     ELCEEF_Obfuscated_IP_Address_In_URL = "harmless"
 
   strings:
-    $ssrf_test       = "test_ssrf_ip_obfuscation"
-    $nltk_pathsec    = "from nltk import pathsec"
-    $nltk_downloader = "nltk.downloader"
+    $ssrf_test       = /test_ssrf_ip_obfuscation/
+    $nltk_pathsec    = /from nltk import pathsec/
+    $nltk_downloader = /nltk\.downloader/
 
   condition:
     filesize < 64KB and all of them

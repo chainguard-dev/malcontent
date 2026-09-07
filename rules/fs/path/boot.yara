@@ -16,8 +16,8 @@ rule elf_boot_path: medium {
 
   strings:
     $ref              = /\/boot\/[\%\w\.\-\/]{4,32}/ fullword
-    $not_kern         = "/boot/vmlinux-%s"
-    $not_include_path = "_PATH_UNIX" fullword
+    $not_kern         = /\/boot\/vmlinux-%s/
+    $not_include_path = /_PATH_UNIX/ fullword
 
   condition:
     // $ref matches "/boot/vmlinux-%s" in full, one match per occurrence, so require a

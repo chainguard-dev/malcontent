@@ -5,7 +5,7 @@ rule WScript: medium windows {
     description = "Accesses a Windows Scripting Host (WSH) object"
 
   strings:
-    $WScript = "WScript" fullword
+    $WScript = /WScript/ fullword
 
   condition:
     filesize < 2MB and any of them

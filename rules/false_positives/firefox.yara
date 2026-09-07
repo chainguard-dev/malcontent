@@ -4,7 +4,7 @@ rule omni_ja: override {
     SECUINFRA_SUS_Unsigned_APPX_MSIX_Installer_Feb23 = "harmless"
 
   strings:
-    $firefox = "firefox"
+    $firefox = /firefox/
 
   condition:
     filesize < 60MB and #firefox > 3000

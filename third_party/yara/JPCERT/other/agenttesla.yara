@@ -23,10 +23,10 @@ rule malware_Agenttesla_type2 {
 
 
           strings:
-            $type2db1 = "1.85 (Hash, version 2, native byte-order)" wide
-            $type2db2 = "Unknow database format" wide
-            $type2db3 = "SQLite format 3" wide
-            $type2db4 = "Berkelet DB" wide
+            $type2db1 = /1\.85 \(Hash, version 2, native byte-order\)/ wide
+            $type2db2 = /Unknow database format/ wide
+            $type2db3 = /SQLite format 3/ wide
+            $type2db4 = /Berkelet DB/ wide
 
           condition:
             (uint16(0) == 0x5A4D) and 3 of them

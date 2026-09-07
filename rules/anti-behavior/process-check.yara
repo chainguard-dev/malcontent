@@ -4,11 +4,11 @@ rule activity_monitor_checker: high macos {
     filetypes   = "macho"
 
   strings:
-    $ps             = "ps" fullword
-    $pgrep          = "pgrep" fullword
-    $am             = "Activity Monitor" fullword
-    $not_macos_text = "macOS Activity Monitor" fullword
-    $not_path       = "/Applications/Utilities/Activity Monitor.app"
+    $ps             = /ps/ fullword
+    $pgrep          = /pgrep/ fullword
+    $am             = /Activity Monitor/ fullword
+    $not_macos_text = /macOS Activity Monitor/ fullword
+    $not_path       = /\/Applications\/Utilities\/Activity Monitor\.app/
 
   // $am matches inside both accepted spellings, so their mere presence hid a
   // separate bare "Activity Monitor" pgrep target elsewhere in the file. Compare
@@ -31,24 +31,24 @@ rule linux_monitors: high linux {
     // let one match satisfy both "any of ($p*)" and one of the three required
     // monitors, so the threshold really only asked for two monitors beyond ps --
     // and bare "ps" occurs in a large share of ordinary binaries.
-    $pgrep = "pgrep" fullword
-    $ps    = "ps" fullword
+    $pgrep = /pgrep/ fullword
+    $ps    = /ps/ fullword
 
-    $x_top     = "top" fullword
-    $x_htop    = "htop" fullword
-    $x_atop    = "atop" fullword
-    $x_mate    = "mate-system-mon" fullword
-    $x_iostat  = "iostat" fullword
-    $x_mpstat  = "mpstat" fullword
-    $x_sar     = "sar" fullword
-    $x_glances = "glances" fullword
-    $x_dstat   = "dstat" fullword
-    $x_nmon    = "nmon" fullword
-    $x_vmstat  = "vmstat" fullword
+    $x_top     = /top/ fullword
+    $x_htop    = /htop/ fullword
+    $x_atop    = /atop/ fullword
+    $x_mate    = /mate-system-mon/ fullword
+    $x_iostat  = /iostat/ fullword
+    $x_mpstat  = /mpstat/ fullword
+    $x_sar     = /sar/ fullword
+    $x_glances = /glances/ fullword
+    $x_dstat   = /dstat/ fullword
+    $x_nmon    = /nmon/ fullword
+    $x_vmstat  = /vmstat/ fullword
 
-    $not_renice     = "renice" fullword
-    $not_ddrescue   = "ddrescue" fullword
-    $not_traceroute = "traceroute" fullword
+    $not_renice     = /renice/ fullword
+    $not_ddrescue   = /ddrescue/ fullword
+    $not_traceroute = /traceroute/ fullword
 
   condition:
     filesize < 100KB and any of ($p*) and 3 of ($x*) and none of ($not*)
@@ -60,9 +60,9 @@ rule anti_rootkit_hunter: high linux {
     filetypes   = "elf"
 
   strings:
-    $proc       = "/proc/"
-    $chkrootkit = "chkrootkit"
-    $lsrootkit  = "lsrootkit"
+    $proc       = /\/proc\//
+    $chkrootkit = /chkrootkit/
+    $lsrootkit  = /lsrootkit/
 
   condition:
     filesize < 10MB and all of them

@@ -16,9 +16,9 @@ rule Windows_VulnDriver_AceBase_f9ef7f72 {
     strings:
         $subject_name = { 06 03 55 04 03 [2] 48 49 47 48 20 4D 4F 52 41 4C 45 20 44 45 56 45 4C 4F 50 4D 45 4E 54 53 20 4C 49 4D 49 54 45 44 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x07]|[\x00-\x99][\x08-\x08])|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x17]|[\x00-\x48][\x18-\x18])[\x9a-\x9a][\x08-\x08]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x49-\x49][\x18-\x18][\x9a-\x9a][\x08-\x08])/
-        $str1 = "ACE-BASE.pdb"
-        $str2 = "Anti-Cheat Expert" wide
-        $str3 = "ACE-BASE64 NT Driver" wide
+        $str1 = /ACE-BASE\.pdb/
+        $str2 = /Anti-Cheat Expert/ wide
+        $str3 = /ACE-BASE64 NT Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $version and $str1 and $str2 and $str3
 }
@@ -41,9 +41,9 @@ rule Windows_VulnDriver_AceBase_01b4cde0 {
     strings:
         $subject_name = { 06 03 55 04 03 [2] 48 49 47 48 20 4D 4F 52 41 4C 45 20 44 45 56 45 4C 4F 50 4D 45 4E 54 53 20 4C 49 4D 49 54 45 44 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x08]|[\x00-\x01][\x09-\x09])|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x2c]|[\x00-\x27][\x2d-\x2d])[\x02-\x02][\x09-\x09]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x28-\x28][\x2d-\x2d][\x02-\x02][\x09-\x09])/
-        $str1 = "ACE-BASE.pdb"
-        $str2 = "Anti-Cheat Expert" wide
-        $str3 = "ACE-BASE64 NT Driver" wide
+        $str1 = /ACE-BASE\.pdb/
+        $str2 = /Anti-Cheat Expert/ wide
+        $str3 = /ACE-BASE64 NT Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $version and $str1 and $str2 and $str3
 }

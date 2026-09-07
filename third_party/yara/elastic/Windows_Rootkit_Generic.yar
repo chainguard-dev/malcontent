@@ -16,7 +16,7 @@ rule Windows_Rootkit_Generic_5b1586ea {
     strings:
         $subject_name = { 06 03 55 04 03 [2] 42 65 69 6A 69 6E 67 20 4A 6F 69 6E 48 6F 70 65 20 49 6D 61 67 65 20 54 65 63 68 6E 6F 6C 6F 67 79 20 4C 74 64 2E }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x06]|[\x00-\xe5][\x07-\x07])[\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x09][\x00-\x00][\xe6-\xe6][\x07-\x07][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x0a-\x0a][\x00-\x00][\xe6-\xe6][\x07-\x07][\x00-\xff][\x00-\xff][\x00-\x0a][\x00-\x00]|[\x0a-\x0a][\x00-\x00][\xe6-\xe6][\x07-\x07]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x02]|[\x00-\x9d][\x03-\x03])[\x0b-\x0b][\x00-\x00]|[\x0a-\x0a][\x00-\x00][\xe6-\xe6][\x07-\x07][\x9e-\x9e][\x03-\x03][\x0b-\x0b][\x00-\x00])/
-        $str1 = "FilDriverx64.pdb"
+        $str1 = /FilDriverx64\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $version and $str1
 }
@@ -38,7 +38,7 @@ rule Windows_Rootkit_Generic_e94ca533 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] E6 B9 96 E5 8D 97 E8 93 9D E9 80 94 E6 96 B9 E9 BC 8E E7 A7 91 E6 8A 80 E6 9C 89 E9 99 90 E5 85 AC E5 8F B8 }
-        $str1 = "RedDriver.pdb"
+        $str1 = /RedDriver\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }
@@ -60,7 +60,7 @@ rule Windows_Rootkit_Generic_aa10c0ad {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 5A 68 75 68 61 69 20 6C 69 61 6E 63 68 65 6E 67 20 54 65 63 68 6E 6F 6C 6F 67 79 20 43 6F 2E 2C 20 4C 74 64 2E }
-        $str1 = "KApcHelper.pdb"
+        $str1 = /KApcHelper\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }
@@ -82,7 +82,7 @@ rule Windows_Rootkit_Generic_dc7b1255 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 42 65 69 6A 69 6E 67 20 46 6F 75 6E 64 65 72 20 41 70 61 62 69 20 54 65 63 68 6E 6F 6C 6F 67 79 20 4C 69 6D 69 74 65 64 }
-        $str1 = "MDriver.pdb"
+        $str1 = /MDriver\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }
@@ -104,7 +104,7 @@ rule Windows_Rootkit_Generic_6a1fb6e5 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] E9 87 8D E5 BA 86 E8 B2 94 E8 B5 91 E8 B2 85 E8 BD AF E4 BB B6 E7 A7 91 E6 8A 80 E5 B7 A5 E4 BD 9C E5 AE A4 20 28 E7 8E 8B E7 9C 9F 29 }
-        $str1 = "project-ioctl.pdb"
+        $str1 = /project-ioctl\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }
@@ -126,7 +126,7 @@ rule Windows_Rootkit_Generic_06e4d47e {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 57 44 4B 54 65 73 74 43 65 72 74 20 61 6E 61 73 68 2C 31 33 33 32 33 31 32 38 30 36 35 34 30 30 38 37 32 37 }
-        $str1 = "Chaos-Rootkit.pdb"
+        $str1 = /Chaos-Rootkit\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }
@@ -148,7 +148,7 @@ rule Windows_Rootkit_Generic_d141ff75 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 57 44 4B 54 65 73 74 43 65 72 74 20 7A 65 7A 65 63 2C 31 33 32 39 36 31 33 36 30 37 39 35 37 31 33 38 36 38 }
-        $str1 = "Malicious.pdb"
+        $str1 = /Malicious\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }
@@ -170,8 +170,8 @@ rule Windows_Rootkit_Generic_3dd0612c {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 4D 69 63 72 6F 73 6F 66 74 20 57 69 6E 64 6F 77 73 20 48 61 72 64 77 61 72 65 20 43 6F 6D 70 61 74 69 62 69 6C 69 74 79 20 50 75 62 6C 69 73 68 65 72 }
-        $str1 = "Bro:[%S] Remot:[%s:%d] loP:[%d]->[%d]"
-        $str2 = "Add SignSize:%d SignCrc32:%x SignSize2:%d IsSearchFullFile:%d TimeDateStamp:%d"
+        $str1 = /Bro:\[%S\] Remot:\[%s:%d\] loP:\[%d\]->\[%d\]/
+        $str2 = /Add SignSize:%d SignCrc32:%x SignSize2:%d IsSearchFullFile:%d TimeDateStamp:%d/
         $seq1 = { 48 89 5C 24 08 48 89 6C 24 10 57 48 83 EC 20 8B F9 32 DB 48 8D 0D C6 77 00 00 E8 8D 31 00 00 48 8B 05 2A 78 00 00 48 8D 2D 23 78 00 00 }
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1 and $str2 and $seq1
@@ -195,7 +195,7 @@ rule Windows_Rootkit_Generic_27a16313 {
     strings:
         $seq1 = { 33 C0 48 89 44 24 20 66 89 44 24 28 0F 01 4C 24 20 48 8B 4C 24 22 48 85 C9 0F 84 D4 00 00 00 8B FE 49 BE 00 00 00 00 00 F0 FF FF 0F 1F 84 00 00 00 00 00 }
         $seq2 = { BA C0 AB 8E F3 48 8B CB E8 B7 F6 FF FF }
-        $str1 = "\\Device\\devhost" wide
+        $str1 = /\\Device\\devhost/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $seq1 and $seq2 and $str1
 }
@@ -217,7 +217,7 @@ rule Windows_Rootkit_Generic_6d746554 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 4D 69 63 72 6F 73 6F 66 74 20 57 69 6E 64 6F 77 73 20 48 61 72 64 77 61 72 65 20 43 6F 6D 70 61 74 69 62 69 6C 69 74 79 20 50 75 62 6C 69 73 68 65 72 }
-        $str1 = "F:\\Source Codes\\IceCubes-Driver\\x64\\Release\\Windows-Ice-Monitor.pdb"
+        $str1 = /F:\\Source Codes\\IceCubes-Driver\\x64\\Release\\Windows-Ice-Monitor\.pdb/
         $seq1 = { B8 4F EC C4 4E 41 F7 E0 C1 EA 05 0F B7 C2 6B C8 68 41 0F B7 C0 41 FF C0 66 2B C1 66 83 C0 62 66 41 31 01 4D 8D 49 02 41 83 F8 17 }
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1 and $seq1
@@ -238,8 +238,8 @@ rule Windows_Rootkit_Generic_740b1440 {
         license = "Elastic License v2"
         os = "windows"
     strings:
-        $str1 = "\\DosDevices\\isj2uaoX" wide
-        $str2 = "C:\\Intel\\x"
+        $str1 = /\\DosDevices\\isj2uaoX/ wide
+        $str2 = /C:\\Intel\\x/
         $seq1 = { 48 8D 50 30 48 F7 D8 48 1B C0 48 23 C2 48 3B 47 08 75 06 8B 47 10 89 43 08 48 8B 5C 24 30 32 C0 48 83 C4 20 }
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $str1 and $str2 and $seq1
@@ -262,8 +262,8 @@ rule Windows_Rootkit_Generic_7957ff72 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 4D 69 63 72 6F 73 6F 66 74 20 57 69 6E 64 6F 77 73 20 48 61 72 64 77 61 72 65 20 43 6F 6D 70 61 74 69 62 69 6C 69 74 79 20 50 75 62 6C 69 73 68 65 72 }
-        $str1 = "D:\\Projects\\StolenDriver\\KMDF\\bin\\Release\\watabe.pdb"
-        $str2 = "\\DosDevices\\safezone04" wide
+        $str1 = /D:\\Projects\\StolenDriver\\KMDF\\bin\\Release\\watabe\.pdb/
+        $str2 = /\\DosDevices\\safezone04/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1 and $str2
 }
@@ -285,8 +285,8 @@ rule Windows_Rootkit_Generic_53c58b40 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 4D 69 63 72 6F 73 6F 66 74 20 57 69 6E 64 6F 77 73 20 48 61 72 64 77 61 72 65 20 43 6F 6D 70 61 74 69 62 69 6C 69 74 79 20 50 75 62 6C 69 73 68 65 72 }
-        $str1 = "D:\\projects\\memdrv\\build\\x64\\Release\\memdrv.pdb"
-        $str2 = "\\Device\\Redirt" wide
+        $str1 = /D:\\projects\\memdrv\\build\\x64\\Release\\memdrv\.pdb/
+        $str2 = /\\Device\\Redirt/ wide
         $seq1 = { 41 8B C0 2D 0C A0 22 00 74 61 83 E8 04 74 55 83 E8 14 74 49 2D DC 3F 00 00 74 25 83 F8 20 74 16 }
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1 and $str2 and $seq1
@@ -309,8 +309,8 @@ rule Windows_Rootkit_Generic_a721bb54 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 4D 69 63 72 6F 73 6F 66 74 20 57 69 6E 64 6F 77 73 20 48 61 72 64 77 61 72 65 20 43 6F 6D 70 61 74 69 62 69 6C 69 74 79 20 50 75 62 6C 69 73 68 65 72 }
-        $str1 = "F:\\Source Codes\\Aspect-Driver-Rewrite\\x64\\Release\\Windows-Memory-Informer.pdb"
-        $str2 = "\\Driver\\MouClass" wide
+        $str1 = /F:\\Source Codes\\Aspect-Driver-Rewrite\\x64\\Release\\Windows-Memory-Informer\.pdb/
+        $str2 = /\\Driver\\MouClass/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1 and $str2
 }
@@ -332,7 +332,7 @@ rule Windows_Rootkit_Generic_d64a5561 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 57 44 4B 54 65 73 74 43 65 72 74 20 79 6F 75 73 73 2C 31 33 33 37 33 30 37 35 32 35 35 30 32 32 34 37 39 33 }
-        $str1 = "D:\\Games\\YoussiLovesPenis\\Kinkajou\\x64\\Release\\Kinkajou.pdb"
+        $str1 = /D:\\Games\\YoussiLovesPenis\\Kinkajou\\x64\\Release\\Kinkajou\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }
@@ -354,7 +354,7 @@ rule Windows_Rootkit_Generic_e4cb3338 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 4D 69 63 72 6F 73 6F 66 74 20 57 69 6E 64 6F 77 73 20 48 61 72 64 77 61 72 65 20 43 6F 6D 70 61 74 69 62 69 6C 69 74 79 20 50 75 62 6C 69 73 68 65 72 }
-        $str1 = "\\DosDevices\\%x" wide
+        $str1 = /\\DosDevices\\%x/ wide
         $seq1 = { 48 89 5C 24 08 57 48 83 EC 20 48 8B 05 87 22 00 00 48 8D 1D 78 22 00 00 48 8B F9 48 8D 0D 5E 22 00 00 48 3B C1 74 45 }
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1 and $seq1
@@ -378,8 +378,8 @@ rule Windows_Rootkit_Generic_16e8136e {
     strings:
         $subject_name = { 06 03 55 04 03 [2] 4D 69 63 72 6F 73 6F 66 74 20 57 69 6E 64 6F 77 73 20 48 61 72 64 77 61 72 65 20 43 6F 6D 70 61 74 69 62 69 6C 69 74 79 20 50 75 62 6C 69 73 68 65 72 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xf2][\x00-\x00]|[\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\xf3-\xf3][\x00-\x00])/
-        $str1 = "intigua_driver64.pdb"
-        $str2 = "Intigua Release Linux32" wide
+        $str1 = /intigua_driver64\.pdb/
+        $str2 = /Intigua Release Linux32/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $version and $str1 and $str2
 }
@@ -401,8 +401,8 @@ rule Windows_Rootkit_Generic_1ca756ee {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 57 44 4B 54 65 73 74 43 65 72 74 20 79 6F 2C 31 33 33 39 31 32 38 32 32 38 33 35 34 32 36 33 31 39 }
-        $str1 = "C:\\Users\\Public\\wtf.pdb"
-        $str2 = "\\DosDevices\\Kinkajou" wide
+        $str1 = /C:\\Users\\Public\\wtf\.pdb/
+        $str2 = /\\DosDevices\\Kinkajou/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1 and $str2
 }
@@ -424,7 +424,7 @@ rule Windows_Rootkit_Generic_e59bd290 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 4D 69 63 72 6F 73 6F 66 74 20 57 69 6E 64 6F 77 73 20 48 61 72 64 77 61 72 65 20 43 6F 6D 70 61 74 69 62 69 6C 69 74 79 20 50 75 62 6C 69 73 68 65 72 }
-        $str1 = "C:\\Users\\Blluettw -_-\\Downloads\\ioctl-main\\kprlRW\\x64\\Release\\kprl.pdb"
+        $str1 = /C:\\Users\\Blluettw -_-\\Downloads\\ioctl-main\\kprlRW\\x64\\Release\\kprl\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }
@@ -493,7 +493,7 @@ rule Windows_Rootkit_Generic_37cc75c1 {
     strings:
         $subject_name = { 06 03 55 04 03 [2] 46 45 49 20 58 49 41 4F }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "HalMakeBeep"
+        $str1 = /HalMakeBeep/
         $seq1 = { 51 F6 D6 F8 66 D3 C2 53 48 31 E3 48 0F B3 C3 48 89 C3 C0 DE 03 D2 C2 66 0F BB E2 F5 BA 01 00 00 00 48 0F BA E0 21 83 F9 07 }
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $version and $str1 and $seq1
@@ -538,7 +538,7 @@ rule Windows_Rootkit_Generic_2881653d {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 4D 69 63 72 6F 73 6F 66 74 20 57 69 6E 64 6F 77 73 20 48 61 72 64 77 61 72 65 20 43 6F 6D 70 61 74 69 62 69 6C 69 74 79 20 50 75 62 6C 69 73 68 65 72 }
-        $str1 = "e:\\repos\\pcm\\winmsrdriver\\win7\\objfre_win7_amd64\\amd64\\msr.pdb"
+        $str1 = /e:\\repos\\pcm\\winmsrdriver\\win7\\objfre_win7_amd64\\amd64\\msr\.pdb/
         $seq1 = { 48 89 5C 24 08 48 89 74 24 18 57 48 83 EC 60 48 8B 05 76 E0 FF FF 48 33 C4 48 89 44 24 58 48 8B 8A B8 00 00 00 33 DB 48 8B FA 48 3B CB 0F 84 DD 01 00 00 }
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1 and $seq1
@@ -654,8 +654,8 @@ rule Windows_Rootkit_Generic_b1ca6fd0 {
         license = "Elastic License v2"
         os = "windows"
     strings:
-        $str1 = "Z:\\NewProjects\\hide_tools\\objfre\\i386\\hidetools.pdb"
-        $str2 = "\\registry\\machine\\system\\CurrentControlSet\\Enum\\Root\\LEGACY_%ws" wide
+        $str1 = /Z:\\NewProjects\\hide_tools\\objfre\\i386\\hidetools\.pdb/
+        $str2 = /\\registry\\machine\\system\\CurrentControlSet\\Enum\\Root\\LEGACY_%ws/ wide
         $seq1 = { 8B 46 04 43 83 E8 08 43 FF 45 08 D1 E8 39 45 08 72 C7 03 76 04 EB A1 }
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $str1 and $str2 and $seq1
@@ -679,8 +679,8 @@ rule Windows_Rootkit_Generic_d5aa37d2 {
     strings:
         $subject_name = { 06 03 55 04 03 [2] 53 68 65 6E 7A 68 65 6E 20 49 6E 74 65 63 68 20 49 6E 64 65 73 69 67 6E 20 54 65 63 68 6E 6F 6C 6F 67 79 20 43 6F 2E 2C 20 4C 74 64 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x02][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x03-\x03][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "Driver.pdb"
-        $str2 = "Low-Level Driver" wide
+        $str1 = /Driver\.pdb/
+        $str2 = /Low-Level Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $version and $str1 and $str2
 }
@@ -703,8 +703,8 @@ rule Windows_Rootkit_Generic_fbced6b4 {
     strings:
         $subject_name = { 06 03 55 04 03 [2] 48 75 6E 61 6E 20 47 6F 6C 64 6D 69 6E 64 20 45 64 75 63 61 74 69 6F 6E 20 45 71 75 69 70 6D 65 6E 74 20 43 6F 2E 2C 20 4C 74 64 2E }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x02][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x03-\x03][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "Driver.pdb"
-        $str2 = "Low-Level Driver" wide
+        $str1 = /Driver\.pdb/
+        $str2 = /Low-Level Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $version and $str1 and $str2
 }
@@ -726,7 +726,7 @@ rule Windows_Rootkit_Generic_21251bf7 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 4D 69 63 72 6F 73 6F 66 74 20 57 69 6E 64 6F 77 73 20 48 61 72 64 77 61 72 65 20 43 6F 6D 70 61 74 69 62 69 6C 69 74 79 20 50 75 62 6C 69 73 68 65 72 }
-        $str1 = "INT-Base10.pdb"
+        $str1 = /INT-Base10\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }
@@ -749,7 +749,7 @@ rule Windows_Rootkit_Generic_8b068737 {
     strings:
         $subject_name = { 06 03 55 04 03 [2] 4D 69 63 72 6F 73 6F 66 74 20 57 69 6E 64 6F 77 73 20 48 61 72 64 77 61 72 65 20 43 6F 6D 70 61 74 69 62 69 6C 69 74 79 20 50 75 62 6C 69 73 68 65 72 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x05][\x00-\x00][\x02-\x02][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x06-\x06][\x00-\x00][\x02-\x02][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "Sense5 Driver" wide
+        $str1 = /Sense5 Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $version and $str1
 }
@@ -771,7 +771,7 @@ rule Windows_Rootkit_Generic_74a58b37 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] E4 B8 AD E5 85 B4 E9 80 9A E8 AE AF E8 82 A1 E4 BB BD E6 9C 89 E9 99 90 E5 85 AC E5 8F B8 }
-        $str1 = "rwdriver.pdb"
+        $str1 = /rwdriver\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }
@@ -794,7 +794,7 @@ rule Windows_Rootkit_Generic_fd0021b8 {
     strings:
         $subject_name = { 06 03 55 04 03 [2] 4D 69 63 72 6F 73 6F 66 74 20 57 69 6E 64 6F 77 73 20 48 61 72 64 77 61 72 65 20 43 6F 6D 70 61 74 69 62 69 6C 69 74 79 20 50 75 62 6C 69 73 68 65 72 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x04][\x00-\x00][\x02-\x02][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x05-\x05][\x00-\x00][\x02-\x02][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "Sense5 Driver" wide
+        $str1 = /Sense5 Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $version and $str1
 }
@@ -816,7 +816,7 @@ rule Windows_Rootkit_Generic_23507a9c {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 4D 69 63 72 6F 73 6F 66 74 20 57 69 6E 64 6F 77 73 20 48 61 72 64 77 61 72 65 20 43 6F 6D 70 61 74 69 62 69 6C 69 74 79 20 50 75 62 6C 69 73 68 65 72 }
-        $str1 = "\\code\\[2-5]fileopr\\objfre_win7_amd64\\amd64\\MyDriver.pdb"
+        $str1 = /\\code\\\[2-5\]fileopr\\objfre_win7_amd64\\amd64\\MyDriver\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }

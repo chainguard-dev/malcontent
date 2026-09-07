@@ -96,10 +96,10 @@ rule BlackTech_TSCookie_loader_pdb
         hash2 = "794f942c3298a43712f873cc20882d8138f75105fb151f99c5802f91f884ef04"
 
      strings:
-        $pdb1 = "D:\\[0]MyATS-TEMP-Loading-"
-        $pdb2 = "ATS-TEMP-Loader-"
-        $pdb3 = "MyFuckers\\MyFuckers_"
-        $pdb4 = "MyFuckersService8\\MyFuckers_"
+        $pdb1 = /D:\\\[0\]MyATS-TEMP-Loading-/
+        $pdb2 = /ATS-TEMP-Loader-/
+        $pdb3 = /MyFuckers\\MyFuckers_/
+        $pdb4 = /MyFuckersService8\\MyFuckers_/
 
      condition:
         uint16(0) == 0x5A4D and
@@ -132,7 +132,7 @@ rule BlackTech_IconDown_pe {
     strings:
         $dataheader1 = { 91 00 13 87 33 00 90 06 19 00 }
         $dataheader2 = { C6 [2-3] 91 88 [2-3] C6 [2-3] 13 C6 [2-3] 87 C6 [2-3] 33 88 [2-3] C6 [2-3] 90 C6 [2-3] 06 C6 [2-3] 19 }
-        $string1 = "/c %s" ascii
+        $string1 = /\/c %s/ ascii
         $string2 = /%s\\[A-X]{1,3}%[l]{0,1}X\.TMP/
 
     condition:
@@ -221,18 +221,18 @@ rule BlackTech_Flagprodownloader_str {
         hash = "e197c583f57e6c560b576278233e3ab050e38aa9424a5d95b172de66f9cfe970"
 
      strings:
-        $msg1 = "download...." ascii wide
-        $msg2 = "download1 finished!" ascii wide
-        $msg3 = "download2 finished!" ascii wide
-        $msg4 = "start get all pass!" ascii wide
-        $msg5 = "start get all pass 1!" ascii wide
-        $msg6 = "init Refresh...'" ascii wide
-        $msg7 = "busy stop..." ascii wide
-        $msg8 = "success!" ascii wide
-        $msg9 = "failed!" ascii wide
-        $msg10 = "~MYTEMP" ascii wide
-        $msg11 = "ExecYes" ascii wide
-        $msg12 = "flagpro=" ascii wide
+        $msg1 = /download\.\.\.\./ ascii wide
+        $msg2 = /download1 finished!/ ascii wide
+        $msg3 = /download2 finished!/ ascii wide
+        $msg4 = /start get all pass!/ ascii wide
+        $msg5 = /start get all pass 1!/ ascii wide
+        $msg6 = /init Refresh\.\.\.'/ ascii wide
+        $msg7 = /busy stop\.\.\./ ascii wide
+        $msg8 = /success!/ ascii wide
+        $msg9 = /failed!/ ascii wide
+        $msg10 = /~MYTEMP/ ascii wide
+        $msg11 = /ExecYes/ ascii wide
+        $msg12 = /flagpro=/ ascii wide
 
      condition:
        uint16(0) == 0x5A4D and
@@ -247,17 +247,17 @@ rule BlackTech_Gh0stTimes_str {
         hash = "01581f0b1818db4f2cdd9542fd8d663896dc043efb6a80a92aadfac59ddb7684"
 
      strings:
-        $msg1 = "new big loop connect %s %d ,sleep %d" ascii wide
-        $msg2 = "small loop connect %s %d ,sleep %d" ascii wide
-        $msg3 = "SockCon1=%d SockCon2=%d" ascii wide
-        $msg4 = "connect  %s %d ok" ascii wide
-        $msg5 = "connect failure %s %d" ascii wide
-        $msg6 = "CFileManager" ascii wide
-        $msg7 = "CKernelManager" ascii wide
-        $msg8 = "CManager" ascii wide
-        $msg9 = "CPortmapManager" ascii wide
-        $msg10 = "CShellManager" ascii wide
-        $msg11 = "CUltraPortmapManager" ascii wide
+        $msg1 = /new big loop connect %s %d ,sleep %d/ ascii wide
+        $msg2 = /small loop connect %s %d ,sleep %d/ ascii wide
+        $msg3 = /SockCon1=%d SockCon2=%d/ ascii wide
+        $msg4 = /connect  %s %d ok/ ascii wide
+        $msg5 = /connect failure %s %d/ ascii wide
+        $msg6 = /CFileManager/ ascii wide
+        $msg7 = /CKernelManager/ ascii wide
+        $msg8 = /CManager/ ascii wide
+        $msg9 = /CPortmapManager/ ascii wide
+        $msg10 = /CShellManager/ ascii wide
+        $msg11 = /CUltraPortmapManager/ ascii wide
         $b1 ={ C6 45 ?? DB C6 45 ?? 50 C6 45 ?? 62 }
             // mov     byte ptr [ebp+var_14], 0DBh ; 'ﾛ'
             // mov     byte ptr [ebp+var_14+1], 50h ; 'P'
@@ -293,16 +293,16 @@ rule BlackTech_Gh0stTimes_panel {
         hash = "18a696b09d0b7e41ad8ab6a05b84a3022f427382290ce58f079dec7b07e86165"
 
      strings:
-        $msg1 = "[server]Listen on %s:%d successful" ascii wide
-        $msg2 = "[client] connect to target %s ok" ascii wide
-        $msg3 = "WriteFile failure, Close anti-virus software and try again." ascii wide
-        $msg4 = "[server<-->client]begin portmap..." ascii wide
-        $msg5 = "This folder already contains the file named %s" ascii wide
-        $table1 = "CPortMapDlg" ascii wide
-        $table2 = "CSettingDlg" ascii wide
-        $table3 = "CShellDlg" ascii wide
-        $table4 = "CFileManagerDlg" ascii wide
-        $table5 = "CFileTransferModeDlg" ascii wide
+        $msg1 = /\[server\]Listen on %s:%d successful/ ascii wide
+        $msg2 = /\[client\] connect to target %s ok/ ascii wide
+        $msg3 = /WriteFile failure, Close anti-virus software and try again\./ ascii wide
+        $msg4 = /\[server<-->client\]begin portmap\.\.\./ ascii wide
+        $msg5 = /This folder already contains the file named %s/ ascii wide
+        $table1 = /CPortMapDlg/ ascii wide
+        $table2 = /CSettingDlg/ ascii wide
+        $table3 = /CShellDlg/ ascii wide
+        $table4 = /CFileManagerDlg/ ascii wide
+        $table5 = /CFileTransferModeDlg/ ascii wide
 
      condition:
        uint16(0) == 0x5A4D and
@@ -319,14 +319,14 @@ rule BlackTech_Bifrose_elf {
      strings:
         $msg1 = { 30 7C 00 31 7C 00 }
         $msg2 = { 35 2E 30 2E 30 2E 30 7C 00 }
-        $msg3 = "%c1%s%c3D%c4%u-%.2u-%.2u %.2u:%.2u" ascii
-        $msg4 = "%c2%s%c3%u%c4%u-%.2u-%.2u %.2u:%.2u" ascii
-        $msg5 = "RecvData 4 bytes header error!" ascii
-        $msg6 = "Deal with error! ret==0 goto error!" ascii
-        $msg7 = "send data over..." ascii
-        $msg8 = "cfgCount=%d" ascii
-        $msg9 = "%x : %s %d" ascii
-        $msg10 = "recvData timeout :%d" ascii
+        $msg3 = /%c1%s%c3D%c4%u-%\.2u-%\.2u %\.2u:%\.2u/ ascii
+        $msg4 = /%c2%s%c3%u%c4%u-%\.2u-%\.2u %\.2u:%\.2u/ ascii
+        $msg5 = /RecvData 4 bytes header error!/ ascii
+        $msg6 = /Deal with error! ret==0 goto error!/ ascii
+        $msg7 = /send data over\.\.\./ ascii
+        $msg8 = /cfgCount=%d/ ascii
+        $msg9 = /%x : %s %d/ ascii
+        $msg10 = /recvData timeout :%d/ ascii
 
      condition:
        uint32(0) == 0x464C457F and
@@ -341,13 +341,13 @@ rule BlackTech_BTSDoor_str {
         hash = "ee6ed35568c43fbb5fd510bc863742216bba54146c6ab5f17d9bfd6eacd0f796"
 
      strings:
-        $data1 = "Not implemented!" ascii wide
-        $data2 = "Win%d.%d.%d" ascii wide
-        $data3 = "CMD Error!" ascii wide
+        $data1 = /Not implemented!/ ascii wide
+        $data2 = /Win%d\.%d\.%d/ ascii wide
+        $data3 = /CMD Error!/ ascii wide
         $data4 = { 76 45 8B 9E 6F 00 00 00 45 76 8B 9E 6F 00 00 00 }
-        $pdb1 = "C:\\Users\\Tsai\\Desktop\\20180522windows_tro\\BTSWindows\\Serverx86.pdb" ascii
-        $pdb2 = "\\BTSWindows\\Serverx86.pdb" ascii
-        $pdb3 = "\\BTSWindows\\Serverx64.pdb" ascii
+        $pdb1 = /C:\\Users\\Tsai\\Desktop\\20180522windows_tro\\BTSWindows\\Serverx86\.pdb/ ascii
+        $pdb2 = /\\BTSWindows\\Serverx86\.pdb/ ascii
+        $pdb3 = /\\BTSWindows\\Serverx64\.pdb/ ascii
 
      condition:
        uint16(0) == 0x5A4D and
@@ -363,23 +363,23 @@ rule BlackTech_Hipid_str {
         hash = "9603b62268c2bbb06da5c99572c3dc2ec988c49c86db2abc391acf53c1cccceb"
 
      strings:
-        $msg1 = "[+] my_dns_query failed." ascii fullword
-        $msg2 = "[+] my_dns_query success." ascii fullword
-        $msg3 = "[+] connect to %s:%d failed." ascii fullword
-        $msg4 = "[+] connect to %s:%d success." ascii fullword
-        $msg5 = "cmd: %s" ascii fullword
-        $msg6 = "path: %s" ascii fullword
-        $msg7 = "has address" ascii fullword
-        $msg8 = "host %s" ascii fullword
+        $msg1 = /\[\+\] my_dns_query failed\./ ascii fullword
+        $msg2 = /\[\+\] my_dns_query success\./ ascii fullword
+        $msg3 = /\[\+\] connect to %s:%d failed\./ ascii fullword
+        $msg4 = /\[\+\] connect to %s:%d success\./ ascii fullword
+        $msg5 = /cmd: %s/ ascii fullword
+        $msg6 = /path: %s/ ascii fullword
+        $msg7 = /has address/ ascii fullword
+        $msg8 = /host %s/ ascii fullword
         $msg9 = {84 D2 (74 ?? |0F ?? ?? ?? 00 00) 80 FA 72 (74 ?? |0F ?? ?? ?? 00 00) 80 FA 77 (74 ?? |0F ?? ?? ?? 00 00) 80 FA 65 (74 ?? |0F ?? ?? ?? 00 00)}
-        $func1 = "exec_cmd_send_xor" ascii fullword
-        $func2 = "exec_cmd" ascii fullword
-        $func3 = "rc4_init" ascii fullword
-        $func4 = "my_dns_query" ascii fullword
-        $func5 = "rc4_key" ascii fullword
-        $func6 = "daemon_init" ascii fullword
-        $key1 = "pASSword699" ascii fullword
-        $key2 = "345asdflkasduf" ascii fullword
+        $func1 = /exec_cmd_send_xor/ ascii fullword
+        $func2 = /exec_cmd/ ascii fullword
+        $func3 = /rc4_init/ ascii fullword
+        $func4 = /my_dns_query/ ascii fullword
+        $func5 = /rc4_key/ ascii fullword
+        $func6 = /daemon_init/ ascii fullword
+        $key1 = /pASSword699/ ascii fullword
+        $key2 = /345asdflkasduf/ ascii fullword
 
      condition:
        uint32(0) == 0x464C457F and
@@ -394,8 +394,8 @@ rule BlackTech_SelfMakeLoader_str {
 
      strings:
         $s1 = { 73 65 6C 66 6D 61 6B 65 3? 41 70 70 }
-        $s2 = "fixmeconfig"
-        $s3 = "[+] config path:%s"
+        $s2 = /fixmeconfig/
+        $s3 = /\[\+\] config path:%s/
         $cmp_magic_num = { 81 7C ?? ?? (D0 D9 FE E1 | EE D8 FF E0) }
 
      condition:
@@ -425,13 +425,13 @@ rule BlackTech_SpiderRAT_str {
         hash = "C2B23689CA1C57F7B7B0C2FD95BFEF326D6A22C15089D35D31119B104978038B"
 
      strings:
-        $msg1 = "InternetSetOption m_ProxyUserName Error."
-        $msg2 = "InternetSetOption m_ProxyPassWord Error."
-        $msg3 = "pWork->HC->HttpSendMessage failed!"
-        $msg4 = "Recv_put error!"
-        $msg5 = "Send_put error!"
-        $msg6 = "Send Success - %d:%d"
-        $msg7 = "Recv Success - %d:%d"
+        $msg1 = /InternetSetOption m_ProxyUserName Error\./
+        $msg2 = /InternetSetOption m_ProxyPassWord Error\./
+        $msg3 = /pWork->HC->HttpSendMessage failed!/
+        $msg4 = /Recv_put error!/
+        $msg5 = /Send_put error!/
+        $msg6 = /Send Success - %d:%d/
+        $msg7 = /Recv Success - %d:%d/
 
      condition:
        uint16(0) == 0x5A4D and 5 of ($msg*)
@@ -467,7 +467,7 @@ rule malware_Kivars_Loader {
         reference = "https://sect.iij.ad.jp/blog/2025/10/blacktech-malware-kivars-2025/"
 
     strings:
-        $dll_name = "sericeMain.dll" ascii
+        $dll_name = /sericeMain\.dll/ ascii
         $custom_rc4 = {41 02 02 32 C1 41 88 02 EB ?? 41 32 0A [0-1] 02 CB 41 88 0A 49 FF C2}
 
     condition:

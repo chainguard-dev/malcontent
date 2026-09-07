@@ -15,10 +15,10 @@ rule MalScript_Tricks
         category = "INFO"
 
     strings:
-        $s1 = "window.moveTo -" nocase
-        $s2 = "window.resizeTo 0" nocase
-        $x1 = "window.moveTo(-" nocase
-        $x2 = "window.resizeTo(" nocase
+        $s1 = /window\.moveTo -/ nocase
+        $s2 = /window\.resizeTo 0/ nocase
+        $x1 = /window\.moveTo\(-/ nocase
+        $x2 = /window\.resizeTo\(/ nocase
 
     condition:
         filesize <50KB and ( all of ($s*) or all of ($x*) )

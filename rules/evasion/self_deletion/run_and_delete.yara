@@ -3,13 +3,13 @@ rule tiny_copy_run_delete: critical {
     description = "copy executable, run, and delete"
 
   strings:
-    $cp            = "cp -f"
+    $cp            = /cp -f/
     $rm            = /rm [\-\w ]{0,4}f[ \$\w\/\.]{0,32}/
-    $null          = "/dev/null"
-    $path_tmp      = "/tmp"
-    $path_bin      = "/bin"
-    $path_var      = "/var/"
-    $path_dev_shm  = "/dev/shm"
+    $null          = /\/dev\/null/
+    $path_tmp      = /\/tmp/
+    $path_bin      = /\/bin/
+    $path_var      = /\/var\//
+    $path_dev_shm  = /\/dev\/shm/
     $run_quoted    = /\"\$[\w\-\/\$]{1,12}\"/ fullword
     $run_dot_slash = /\.\/[\-\w\$]{1,12}/ fullword
     $run_absolute  = /&& \/[\w\/\.]{0,32}/ fullword
@@ -26,9 +26,9 @@ rule fetch_run_sleep_delete: critical {
     $url           = /https*:\/\/[\w][\w\.\/\-_\?=\@]{8,64}/
     $sleep         = /sleep \d{1,2}/ fullword
     $rm            = /rm [\-\w ]{0,4}f[ \$\w\/\.]{0,32}/
-    $path_tmp      = "/tmp"
-    $path_var      = "/var/"
-    $path_dev_shm  = "/dev/shm"
+    $path_tmp      = /\/tmp/
+    $path_var      = /\/var\//
+    $path_dev_shm  = /\/dev\/shm/
     $run_quoted    = /\"\$[\-\w\/\$]{1,12}\"/ fullword
     $run_dot_slash = /\.\/[\-\w\$]{1,12}/ fullword
 
@@ -61,8 +61,8 @@ rule python_setsid_remove: high {
 
   strings:
     $subprocess = /subprocess.\w{1,32}\([\"\'\/\w\ \-\)]{0,64}/
-    $setsid     = "os.setsid"
-    $remove     = "os.remove("
+    $setsid     = /os\.setsid/
+    $remove     = /os\.remove\(/
 
   condition:
     filesize < 1MB and all of them and run_delete_py_fetcher and @remove > @subprocess and @remove - @subprocess < 256

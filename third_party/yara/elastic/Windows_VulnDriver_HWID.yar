@@ -15,7 +15,7 @@ rule Windows_VulnDriver_HWID_45bff2d2 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 57 44 4B 54 65 73 74 43 65 72 74 20 4C 75 63 6B 79 53 74 72 69 6B 65 2C 31 33 32 36 30 36 34 35 38 38 33 39 36 38 38 32 38 39 }
-        $str1 = "hwid-shifter.pdb"
+        $str1 = /hwid-shifter\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }

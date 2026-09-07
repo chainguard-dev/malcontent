@@ -5,14 +5,14 @@ rule malware_lodeinfo_pdb {
 
 
      strings:
-		$pdb1 = "E:\\Production\\Tool-Developing\\"
-        $pdb2 = "E:\\Production\\Tool-Developing\\png_info\\Release\\png_info.pdb"
-        $func1 = "displayAsciiArt"
-        $func2 = "displayChunkNames"
-        $func3 = "displayFilterTypes"
-        $func4 = "displayPNGInfo"
-        $func5 = "get_shellcode"
-        $docCMG = "BBB975150319031903190319"
+		$pdb1 = /E:\\Production\\Tool-Developing\\/
+        $pdb2 = /E:\\Production\\Tool-Developing\\png_info\\Release\\png_info\.pdb/
+        $func1 = /displayAsciiArt/
+        $func2 = /displayChunkNames/
+        $func3 = /displayFilterTypes/
+        $func4 = /displayPNGInfo/
+        $func5 = /get_shellcode/
+        $docCMG = /BBB975150319031903190319/
      condition:
         (all of ($pdb*) or all of ($func*)) and uint16(0) == 0x5A4D or $docCMG
 }

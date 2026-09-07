@@ -18,15 +18,15 @@ rule IcedID_init_loader
         mitre_att = "S0483"
 
     strings:
-        $s1 = "{%0.8X-%0.4X-%0.4X-%0.4X-%0.4X%0.8X}" ascii wide
-        $s2 = "%0.2X%0.2X%0.2X%0.2X%0.2X%0.2X%0.8X" ascii wide
-        $s3 = "/image/?id=%0.2X%0.8X%0.8X%s" ascii wide
-        $x1 = "; _gat=" ascii wide
-        $x2 = "; _ga=" ascii wide
-        $x3 = "; _u=" ascii wide
-        $x4 = "; __io=" ascii wide
-        $x5 = "; _gid=" ascii wide
-        $x6 = "Cookie: __gads=" ascii wide
+        $s1 = /\{%0\.8X-%0\.4X-%0\.4X-%0\.4X-%0\.4X%0\.8X\}/ ascii wide
+        $s2 = /%0\.2X%0\.2X%0\.2X%0\.2X%0\.2X%0\.2X%0\.8X/ ascii wide
+        $s3 = /\/image\/\?id=%0\.2X%0\.8X%0\.8X%s/ ascii wide
+        $x1 = /; _gat=/ ascii wide
+        $x2 = /; _ga=/ ascii wide
+        $x3 = /; _u=/ ascii wide
+        $x4 = /; __io=/ ascii wide
+        $x5 = /; _gid=/ ascii wide
+        $x6 = /Cookie: __gads=/ ascii wide
 
     condition:
         int16(0) == 0x5a4d

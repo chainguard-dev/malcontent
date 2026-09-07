@@ -17,9 +17,9 @@ rule Windows_VulnDriver_Shield_3daabcad {
         $subject_name = { 06 03 55 04 03 [2] 4E 65 77 20 48 6F 72 69 7A 6F 6E 20 44 61 74 61 73 79 73 20 49 6E 63 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 53 00 68 00 69 00 65 00 6C 00 64 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x0c][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x0d-\x0d][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "Shield.pdb"
-        $str2 = "Reboot Restore Standard" wide
-        $str3 = "Shield disk filter driver" wide
+        $str1 = /Shield\.pdb/
+        $str2 = /Reboot Restore Standard/ wide
+        $str3 = /Shield disk filter driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -43,9 +43,9 @@ rule Windows_VulnDriver_Shield_89bb2993 {
         $subject_name = { 06 03 55 04 03 [2] 4E 65 77 20 48 6F 72 69 7A 6F 6E 20 44 61 74 61 73 79 73 20 49 6E 63 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 53 00 68 00 69 00 65 00 6C 00 64 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x0c][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x0d-\x0d][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "ShieldWP.pdb"
-        $str2 = "Reboot Restore Standard" wide
-        $str3 = "Shield disk filter driver" wide
+        $str1 = /ShieldWP\.pdb/
+        $str2 = /Reboot Restore Standard/ wide
+        $str3 = /Shield disk filter driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }

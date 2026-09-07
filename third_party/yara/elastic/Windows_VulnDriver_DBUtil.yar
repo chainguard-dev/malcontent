@@ -13,7 +13,7 @@ rule Windows_VulnDriver_DBUtil_ffe07c79 {
         license = "Elastic License v2"
         os = "windows"
     strings:
-        $str1 = "\\DBUtilDrv2_32.pdb"
+        $str1 = /\\DBUtilDrv2_32\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $str1
 }
@@ -33,7 +33,7 @@ rule Windows_VulnDriver_DBUtil_852ba283 {
         license = "Elastic License v2"
         os = "windows"
     strings:
-        $str1 = "\\DBUtilDrv2_64.pdb"
+        $str1 = /\\DBUtilDrv2_64\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $str1
 }

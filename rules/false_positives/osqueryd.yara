@@ -5,7 +5,7 @@ rule osqueryd: override {
     zsh_history  = "medium"
 
   strings:
-    $ref = "OSQUERY_WORKER" fullword
+    $ref = /OSQUERY_WORKER/ fullword
 
   condition:
     filesize < 100MB and any of them

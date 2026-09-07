@@ -102,10 +102,10 @@ rule executable_url: high {
 
 rule download_and_exec: high {
   strings:
-    $down_exec = "down-n-exec" fullword
-    $e_process = "process"
-    $e_Process = "Process"
-    $e_exec    = "exec"
+    $down_exec = /down-n-exec/ fullword
+    $e_process = /process/
+    $e_Process = /Process/
+    $e_exec    = /exec/
 
   condition:
     filesize < 2MB and $down_exec and any of ($e*)

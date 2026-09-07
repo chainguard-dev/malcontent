@@ -13,7 +13,7 @@ rule Windows_Trojan_Lurker_0ee51802 {
         license = "Elastic License v2"
         os = "windows"
     strings:
-        $str1 = "\\Device\\ZHWLurker0410" wide fullword
+        $str1 = /\\Device\\ZHWLurker0410/ wide fullword
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $str1
 }

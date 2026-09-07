@@ -18,8 +18,8 @@ rule Generic_Phishing_PDF
 
     strings:
         $pdf = {25504446}
-        $s1 = "<xmp:CreatorTool>RAD PDF</xmp:CreatorTool>"
-        $s2 = "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"DynaPDF"
+        $s1 = /<xmp:CreatorTool>RAD PDF<\/xmp:CreatorTool>/
+        $s2 = /<x:xmpmeta xmlns:x="adobe:ns:meta\/" x:xmptk="DynaPDF/
 
     condition:
         $pdf at 0 and all of ($s*)

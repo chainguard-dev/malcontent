@@ -4,8 +4,8 @@ rule versioneer_py: override {
     python_exec_near_enough_base64 = "medium"
 
   strings:
-    $script     = "versioneer.py"
-    $versioneer = "VERSIONEER"
+    $script     = /versioneer\.py/
+    $versioneer = /VERSIONEER/
 
   condition:
     filesize < 200KB and all of them

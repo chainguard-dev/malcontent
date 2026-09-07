@@ -15,7 +15,7 @@ rule Windows_VulnDriver_AomeiTech_88f10426 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 43 48 45 4E 47 44 55 20 41 4F 4D 45 49 20 54 65 63 68 20 43 6F 2E 2C 20 4C 74 64 2E }
-        $str1 = "ampa.pdb"
+        $str1 = /ampa\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }

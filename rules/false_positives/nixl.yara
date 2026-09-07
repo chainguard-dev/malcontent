@@ -6,8 +6,8 @@ rule lmcache_cuda_nixl: override {
     multiple_gcc_high = "low"
 
   strings:
-    $nixl_agent = "nixlAgent"
-    $nixl_lib   = "libnixl.so"
+    $nixl_agent = /nixlAgent/
+    $nixl_lib   = /libnixl\.so/
 
   condition:
     filesize < 200KB and all of them
@@ -21,8 +21,8 @@ rule nixl_object_test: override {
     multiple_gcc_high = "harmless"
 
   strings:
-    $nixl_storage = "NIXL Storage Test Pattern"
-    $nixl_source  = "nixl_object_test.cpp"
+    $nixl_storage = /NIXL Storage Test Pattern/
+    $nixl_source  = /nixl_object_test\.cpp/
 
   condition:
     filesize < 200KB and all of them
@@ -38,8 +38,8 @@ rule lmcache_nixl: override {
     multiple_gcc_high = "harmless"
 
   strings:
-    $nixl_cu12 = "nixl_cu12"
-    $libnixl   = "libnixl.so"
+    $nixl_cu12 = /nixl_cu12/
+    $libnixl   = /libnixl\.so/
 
   condition:
     filesize < 2MB and all of them

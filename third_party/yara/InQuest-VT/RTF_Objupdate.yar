@@ -13,7 +13,7 @@ rule RTF_Objupdate
 	strings:
 			
         $magic1= {7b 5c 72 74 (7B | 66)} // {\rtf{ or {\rt{
-        $upd = "\\objupdate" nocase
+        $upd = /\\objupdate/ nocase
 
 	condition:
 			

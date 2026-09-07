@@ -9,8 +9,8 @@ rule harvester_ui_plugin: override {
     charAtBitwise                = "low"
 
   strings:
-    $harvester_cluster = "harvester-common/getHarvesterClusterUrl"
-    $cattle_monitoring = "cattle-monitoring-system"
+    $harvester_cluster = /harvester-common\/getHarvesterClusterUrl/
+    $cattle_monitoring = /cattle-monitoring-system/
 
   condition:
     filesize < 4MB and all of them

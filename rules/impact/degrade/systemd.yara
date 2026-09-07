@@ -3,7 +3,7 @@ rule systemd_disabler: medium {
     description = "disables systemd services"
 
   strings:
-    $ref = "systemctl disable"
+    $ref = /systemctl disable/
 
   condition:
     filesize < 10MB and any of them
@@ -14,7 +14,7 @@ rule systemd_disabler_high: high {
     description = "disables arbitrary systemd services, hiding output"
 
   strings:
-    $ref = "systemctl disable %s 2>/dev/null"
+    $ref = /systemctl disable %s 2>\/dev\/null/
 
   condition:
     filesize < 10MB and any of them

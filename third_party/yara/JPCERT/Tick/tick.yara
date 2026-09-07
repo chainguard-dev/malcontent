@@ -5,11 +5,11 @@ rule tick_xxmm_parts {
         hash = "9374040a9e2f47f7037edaac19f21ff1ef6a999ff98c306504f89a37196074a2"
 
       strings:
-        $pdb1 = "C:\\Users\\123\\Desktop\\xxmm3\\"
-        $pdb2 = "C:\\Users\\123\\documents\\visual studio 2010\\Projects\\"
-        $pdb3 = "C:\\Users\\123\\Documents\\Visual Studio 2010\\Projects\\"
-        $sa = "IsLogAllAccess"
-        $sb = "allaccess.log"
+        $pdb1 = /C:\\Users\\123\\Desktop\\xxmm3\\/
+        $pdb2 = /C:\\Users\\123\\documents\\visual studio 2010\\Projects\\/
+        $pdb3 = /C:\\Users\\123\\Documents\\Visual Studio 2010\\Projects\\/
+        $sa = /IsLogAllAccess/
+        $sb = /allaccess\.log/
 
       condition:
         ($pdb1 or $pdb2 or $pdb3 or all of ($s*)) and uint16(0) == 0x5A4D and
@@ -232,9 +232,9 @@ rule tick_ABK_pdb {
       strings:
 //		    $pdb1 = "C:\\Users\\Frank\\Desktop\\"
 //        $pdb2 = "C:\\Users\\Frank\\Documents\\"
-        $pdb3 = "C:\\Users\\Frank\\Desktop\\ABK\\Release\\Hidder.pdb"
-        $pdb4 = "C:\\Users\\Frank\\Documents\\Visual Studio 2010\\Projects\\avenger\\Release\\avenger.pdb"
-        $pdb5 = "C:\\Users\\Frank\\Desktop\\ABK\\Release\\ABK.pdb"
+        $pdb3 = /C:\\Users\\Frank\\Desktop\\ABK\\Release\\Hidder\.pdb/
+        $pdb4 = /C:\\Users\\Frank\\Documents\\Visual Studio 2010\\Projects\\avenger\\Release\\avenger\.pdb/
+        $pdb5 = /C:\\Users\\Frank\\Desktop\\ABK\\Release\\ABK\.pdb/
 
       condition:
 //        ($pdb1 or $pdb2 or $pdb3 or $pdb4 or $pdb5) and uint16(0) == 0x5A4D
@@ -248,7 +248,7 @@ rule tick_ABK_downloader {
         hash = "5ae244a012951ab2089ad7dc70e564f90586c78ff08b93bb2861bb69edcdd5c5"
 
       strings:
-        $a1 = "PccNT.exe" wide
+        $a1 = /PccNT\.exe/ wide
         $bytecode = {	50 63 63 00 4e 54 2e 00 65 78 65 00 }
 
       condition:
@@ -266,7 +266,7 @@ rule tick_ABK_downloader_susp_ua {
 
 
       strings:
-        $UA= "Mozilla/4.0(compatible;MSIE8.0;WindowsNT6.0;Trident/4.0)"
+        $UA= /Mozilla\/4\.0\(compatible;MSIE8\.0;WindowsNT6\.0;Trident\/4\.0\)/
 
       condition:
         (uint16(0) == 0x5A4D) and

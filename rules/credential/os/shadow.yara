@@ -17,8 +17,8 @@ rule npm_etc_shadow: high {
 
   strings:
     $ref     = /\/{0,1}etc\/shadow/
-    $name    = "\"name\":"
-    $scripts = "\"scripts\":"
+    $name    = /"name":/
+    $scripts = /"scripts":/
 
   condition:
     filesize < 16KB and $ref and $name and $scripts
@@ -29,7 +29,7 @@ rule getspnam: low {
     description = "verifies passwords against /etc/shadow"
 
   strings:
-    $getspnam = "getspnam@" fullword
+    $getspnam = /getspnam@/ fullword
 
   condition:
     filesize < 1MB and any of them

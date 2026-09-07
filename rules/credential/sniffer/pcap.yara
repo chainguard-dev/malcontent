@@ -25,7 +25,7 @@ rule pcap_live: high {
     description = "small opaque packet sniffer"
 
   strings:
-    $pcap_live = "pcap_open_live"
+    $pcap_live = /pcap_open_live/
     $not_usage = /[uU]sage:/
 
   condition:

@@ -4,8 +4,8 @@ rule coolify_laravel_redis_lock: override {
     SIGNATURE_BASE_WEBSHELL_PHP_OBFUSC_3 = "harmless"
 
   strings:
-    $class    = "class PhpRedisLock extends RedisLock"
-    $lua_eval = "LuaScripts::releaseLock()"
+    $class    = /class PhpRedisLock extends RedisLock/
+    $lua_eval = /LuaScripts::releaseLock\(\)/
 
   condition:
     filesize < 2KB and all of them
@@ -17,8 +17,8 @@ rule coolify_laravel_invoke_closure: override {
     php_remote_exec = "harmless"
 
   strings:
-    $env_var      = "LARAVEL_INVOKABLE_CLOSURE"
-    $command_name = "invoke-serialized-closure"
+    $env_var      = /LARAVEL_INVOKABLE_CLOSURE/
+    $command_name = /invoke-serialized-closure/
 
   condition:
     filesize < 4KB and all of them
@@ -30,8 +30,8 @@ rule coolify_laravel_maintenance_mode: override {
     php_remote_exec = "harmless"
 
   strings:
-    $maintenance = "laravel_maintenance"
-    $hmac        = "hash_hmac('sha256'"
+    $maintenance = /laravel_maintenance/
+    $hmac        = /hash_hmac\('sha256'/
 
   condition:
     filesize < 4KB and all of them

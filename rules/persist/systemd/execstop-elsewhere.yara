@@ -6,10 +6,10 @@ rule execstop_elsewhere: medium {
 
   strings:
     $execstop     = /ExecStop=\/[\w\.\_\-]{2,64}/
-    $not_usr_bin  = "ExecStop=/usr/bin"
-    $not_usr_sbin = "ExecStop=/usr/sbin"
-    $not_bin      = "ExecStop=/bin"
-    $not_usr_lib  = "ExecStop=/usr/lib"
+    $not_usr_bin  = /ExecStop=\/usr\/bin/
+    $not_usr_sbin = /ExecStop=\/usr\/sbin/
+    $not_bin      = /ExecStop=\/bin/
+    $not_usr_lib  = /ExecStop=\/usr\/lib/
 
   condition:
     // $execstop generalises all four expected prefixes and matches each exactly

@@ -79,7 +79,7 @@ rule Windows_VulnDriver_Biostar_e0b6cf55 {
         license = "Elastic License v2"
         os = "windows"
     strings:
-        $str1 = "\\BS_RCIO.pdb"
+        $str1 = /\\BS_RCIO\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $str1
 }
@@ -101,7 +101,7 @@ rule Windows_VulnDriver_Biostar_b98e13a3 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 42 69 6F 73 74 61 72 20 4D 69 63 72 6F 74 65 63 68 20 49 6E 74 27 6C 20 43 6F 72 70 }
-        $str1 = "BS_RCIO.pdb"
+        $str1 = /BS_RCIO\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $str1
 }
@@ -125,9 +125,9 @@ rule Windows_VulnDriver_Biostar_f6f5933a {
         $subject_name = { 06 03 55 04 03 [2] 42 49 4F 53 54 41 52 20 4D 49 43 52 4F 54 45 43 48 20 49 4E 54 27 4C 20 43 4F 52 50 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 42 00 53 00 5F 00 49 00 32 00 63 00 49 00 6F 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x01-\x01][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "BS_I2cIo.pdb"
-        $str2 = "BIOSTAR I/O driver fle" wide
-        $str3 = "I/O Interface driver file" wide
+        $str1 = /BS_I2cIo\.pdb/
+        $str2 = /BIOSTAR I\/O driver fle/ wide
+        $str3 = /I\/O Interface driver file/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -149,7 +149,7 @@ rule Windows_VulnDriver_Biostar_083188de {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 42 49 4F 53 54 41 52 20 4D 49 43 52 4F 54 45 43 48 20 49 4E 54 27 4C 20 43 4F 52 50 }
-        $str1 = "BS_HWMIO.pdb"
+        $str1 = /BS_HWMIO\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }
@@ -171,7 +171,7 @@ rule Windows_VulnDriver_Biostar_5ba03dcb {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 42 49 4F 53 54 41 52 20 4D 49 43 52 4F 54 45 43 48 20 49 4E 54 27 4C 20 43 4F 52 50 }
-        $str1 = "BS_HWMIo.pdb"
+        $str1 = /BS_HWMIo\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }
@@ -195,9 +195,9 @@ rule Windows_VulnDriver_Biostar_afac269b {
         $subject_name = { 06 03 55 04 03 [2] 4D 69 63 72 6F 73 6F 66 74 20 57 69 6E 64 6F 77 73 20 48 61 72 64 77 61 72 65 20 43 6F 6D 70 61 74 69 62 69 6C 69 74 79 20 50 75 62 6C 69 73 68 65 72 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 42 00 53 00 5F 00 52 00 43 00 49 00 4F 00 36 00 34 00 5F 00 57 00 31 00 30 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x09][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x0a-\x0a][\x00-\x00][\x00-\xff][\x00-\xff]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x06]|[\x00-\x0d][\x07-\x07])|[\x00-\x00][\x00-\x00][\x0a-\x0a][\x00-\x00]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x07]|[\x00-\x97][\x08-\x08])[\x0e-\x0e][\x07-\x07]|[\x00-\x00][\x00-\x00][\x0a-\x0a][\x00-\x00][\x98-\x98][\x08-\x08][\x0e-\x0e][\x07-\x07])/
-        $str1 = "BS_RCIO64_W10.pdb"
-        $str2 = "BIOSTAR I/O driver" wide
-        $str3 = "I/O Interface driver file" wide
+        $str1 = /BS_RCIO64_W10\.pdb/
+        $str2 = /BIOSTAR I\/O driver/ wide
+        $str3 = /I\/O Interface driver file/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -219,9 +219,9 @@ rule Windows_VulnDriver_Biostar_881dc820 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 42 49 4F 53 54 41 52 20 4D 49 43 52 4F 54 45 43 48 20 49 4E 54 27 4C 20 43 4F 52 50 }
-        $str1 = "BS_Flash64.pdb"
-        $str2 = "\\Device\\BS_Flash64"
-        $str3 = "\\DosDevices\\BS_Flash64"
+        $str1 = /BS_Flash64\.pdb/
+        $str2 = /\\Device\\BS_Flash64/
+        $str3 = /\\DosDevices\\BS_Flash64/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1 and $str2 and $str3
 }
@@ -245,9 +245,9 @@ rule Windows_VulnDriver_Biostar_1b60af04 {
         $subject_name = { 06 03 55 04 03 [2] 4D 69 63 72 6F 73 6F 66 74 20 57 69 6E 64 6F 77 73 20 48 61 72 64 77 61 72 65 20 43 6F 6D 70 61 74 69 62 69 6C 69 74 79 20 50 75 62 6C 69 73 68 65 72 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 42 00 53 00 5F 00 52 00 56 00 53 00 49 00 4F 00 36 00 34 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x09][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x0a-\x0a][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "BS_RVSIO64.pdb"
-        $str2 = "BIOSTAR I/O driver" wide
-        $str3 = "I/O Interface driver file" wide
+        $str1 = /BS_RVSIO64\.pdb/
+        $str2 = /BIOSTAR I\/O driver/ wide
+        $str3 = /I\/O Interface driver file/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -269,7 +269,7 @@ rule Windows_VulnDriver_Biostar_3340ae10 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 42 49 4F 53 54 41 52 20 4D 49 43 52 4F 54 45 43 48 20 49 4E 54 27 4C 20 43 4F 52 50 }
-        $str1 = "BS_RCIO.pdb"
+        $str1 = /BS_RCIO\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }
@@ -293,9 +293,9 @@ rule Windows_VulnDriver_Biostar_dad1bbdb {
         $subject_name = { 06 03 55 04 03 [2] 42 49 4F 53 54 41 52 20 4D 49 43 52 4F 54 45 43 48 20 49 4E 54 27 4C 20 43 4F 52 50 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 42 00 53 00 5F 00 49 00 32 00 63 00 49 00 6F 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x01-\x01][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "BSMEMx64.pdb"
-        $str2 = "BIOSTAR I/O driver fle" wide
-        $str3 = "I/O Interface driver file" wide
+        $str1 = /BSMEMx64\.pdb/
+        $str2 = /BIOSTAR I\/O driver fle/ wide
+        $str3 = /I\/O Interface driver file/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }

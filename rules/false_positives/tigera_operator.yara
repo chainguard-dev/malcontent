@@ -12,8 +12,8 @@ rule tigera_operator: override {
     SIGNATURE_BASE_Webshell_Simple_Cmd                              = "harmless"
 
   strings:
-    $tigera_module = "github.com/tigera/operator"
-    $calico_api    = "github.com/tigera/api/pkg/apis/projectcalico"
+    $tigera_module = /github\.com\/tigera\/operator/
+    $calico_api    = /github\.com\/tigera\/api\/pkg\/apis\/projectcalico/
 
   condition:
     filesize < 250MB and all of them

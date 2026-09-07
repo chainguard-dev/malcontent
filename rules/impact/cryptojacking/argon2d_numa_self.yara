@@ -3,9 +3,9 @@ rule probably_a_miner: high {
     description = "probably a cryptocurrency miner"
 
   strings:
-    $argon     = "argon2d"
-    $proc_self = "/proc/self"
-    $numa      = "NUMA"
+    $argon     = /argon2d/
+    $proc_self = /\/proc\/self/
+    $numa      = /NUMA/
 
   condition:
     filesize < 10MB and all of them

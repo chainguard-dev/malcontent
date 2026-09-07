@@ -4,13 +4,13 @@ rule Malicious_MoveIt_Webshell {
         author = "Anthony Smith, Huntress"
 
     strings:
-        $aspTag = "<%@"
-        $misspelling = "azureAccout" wide ascii fullword
+        $aspTag = /<%@/
+        $misspelling = /azureAccout/ wide ascii fullword
         //Hard-coded misspelled azureAccout
-        $requestVariable1 = "X-siLock-Comment" wide ascii fullword
-        $requestVariable2 = "X-siLock-Step1" wide ascii fullword
-        $requestVariable3 = "X-siLock-Step2" wide ascii fullword
-        $requestVariable4 = "X-siLock-Step3" wide ascii fullword
+        $requestVariable1 = /X-siLock-Comment/ wide ascii fullword
+        $requestVariable2 = /X-siLock-Step1/ wide ascii fullword
+        $requestVariable3 = /X-siLock-Step2/ wide ascii fullword
+        $requestVariable4 = /X-siLock-Step3/ wide ascii fullword
         //Request variables are used to interact with multiple parts of the webshell
 
     condition:

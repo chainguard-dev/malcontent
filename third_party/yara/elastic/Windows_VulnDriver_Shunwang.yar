@@ -15,7 +15,7 @@ rule Windows_VulnDriver_Shunwang_af2d9593 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 48 61 6E 67 7A 68 6F 75 20 53 68 75 6E 77 61 6E 67 20 54 65 63 68 6E 6F 6C 6F 67 79 20 43 6F 2E 2C 4C 74 64 }
-        $str1 = "rentdrv.pdb"
+        $str1 = /rentdrv\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $str1
 }
@@ -37,7 +37,7 @@ rule Windows_VulnDriver_Shunwang_80761e67 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 48 61 6E 67 7A 68 6F 75 20 53 68 75 6E 77 61 6E 67 20 54 65 63 68 6E 6F 6C 6F 67 79 20 43 6F 2E 2C 4C 74 64 }
-        $str1 = "rentdrv_x64.pdb"
+        $str1 = /rentdrv_x64\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }

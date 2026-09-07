@@ -6,8 +6,8 @@ rule bitwarden_icons: override {
     xor_terms                  = "low"
 
   strings:
-    $namespace = "Bit.Icons.Services"
-    $psl       = "publicsuffix.org/list/public_suffix_list.dat"
+    $namespace = /Bit\.Icons\.Services/
+    $psl       = /publicsuffix\.org\/list\/public_suffix_list\.dat/
 
   condition:
     filesize < 500KB and all of them

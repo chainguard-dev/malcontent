@@ -13,7 +13,7 @@ rule Windows_Hacktool_BlackBone_2ff5ec38 {
         license = "Elastic License v2"
         os = "windows"
     strings:
-        $str1 = "BlackBone: %s: ZwCreateThreadEx hThread 0x%X"
+        $str1 = /BlackBone: %s: ZwCreateThreadEx hThread 0x%X/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $str1
 }

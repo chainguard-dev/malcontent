@@ -5,14 +5,14 @@ rule chmod_77x_dropper: critical {
 
   strings:
     $chmod  = /chmod [\-\w ]{0,3}77[750] [ \$\@\w\/\.]{0,64}/
-    $t_wget = "wget" fullword
-    $t_curl = "curl" fullword
-    $t_tftp = "tftp" fullword
+    $t_wget = /wget/ fullword
+    $t_curl = /curl/ fullword
+    $t_tftp = /tftp/ fullword
 
     $o_dotslash = /\.\/[\.\$\w]{0,16}/
     $o_rm       = /rm -[rR]{0,1}f/
-    $o_tmp      = "/tmp/"
-    $o_dev      = "/dev/"
+    $o_tmp      = /\/tmp\//
+    $o_dev      = /\/dev\//
 
   condition:
     filesize < 1KB and $chmod and any of ($t*) and any of ($o*)
@@ -26,10 +26,10 @@ rule chmod_executable_shell_binary: high {
   strings:
     $chmod       = /chmod [\-\w ]{0,4}\+[rw]{0,2}x[ \$\@\w\/\.]{0,64}/
     $chmod2      = /chmod [\-\w ]{0,4}\+[rw]{0,2}[75][ \$\@\w\/\.]{0,64}/
-    $http        = "http://"
-    $https       = "https://"
-    $not_example = "try 'chmod +x'"
-    $not_make    = "chmod a+x $@"
+    $http        = /http:\/\//
+    $https       = /https:\/\//
+    $not_example = /try 'chmod \+x'/
+    $not_make    = /chmod a\+x \$@/
 
   // $chmod matches the "chmod +x" inside "try 'chmod +x'" and the "chmod a+x $@"
   // Makefile recipe, so either string would otherwise disable the rule for the

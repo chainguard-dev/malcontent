@@ -3,7 +3,7 @@ rule decryptor: medium {
     description = "References 'decryptor'"
 
   strings:
-    $ref = "decryptor"
+    $ref = /decryptor/
 
   condition:
     filesize < 20MB and any of them

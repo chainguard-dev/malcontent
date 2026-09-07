@@ -13,7 +13,7 @@ rule Windows_VulnDriver_Gvci_f5a35359 {
         license = "Elastic License v2"
         os = "windows"
     strings:
-        $str1 = "\\GVCIDrv64.pdb"
+        $str1 = /\\GVCIDrv64\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $str1
 }

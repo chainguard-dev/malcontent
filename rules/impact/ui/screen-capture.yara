@@ -21,9 +21,9 @@ rule py_screen_capture: high {
     description = "takes screenshots from Python"
 
   strings:
-    $PIL       = "PIL" fullword
-    $ImageGrab = "ImageGrab" fullword
-    $import    = "import" fullword
+    $PIL       = /PIL/ fullword
+    $ImageGrab = /ImageGrab/ fullword
+    $import    = /import/ fullword
 
   condition:
     filesize < 1MB and all of them

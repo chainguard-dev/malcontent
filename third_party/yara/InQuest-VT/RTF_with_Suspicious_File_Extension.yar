@@ -12,7 +12,7 @@ rule RTF_with_Suspicious_File_Extension
 
 	strings:
 			// '{\rt' (note that full header is *NOT* required: '{\rtf1')
-        $magic = "{\\rt"
+        $magic = /\{\\rt/
 
         $objstuff = /\\obj(data|update)/
 

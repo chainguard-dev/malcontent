@@ -4,12 +4,12 @@ rule compiled_osascript: medium {
     filetypes   = "scpt,scptd"
 
   strings:
-    $s_sysoexec        = "sysoexecTEXT"
-    $s_aevtoapp        = "aevtoappnull"
-    $not_capture_one   = "Capture One"
-    $not_display_alert = "display alert"
-    $not_saving        = "saving"
-    $not_captureone    = "captureone"
+    $s_sysoexec        = /sysoexecTEXT/
+    $s_aevtoapp        = /aevtoappnull/
+    $not_capture_one   = /Capture One/
+    $not_display_alert = /display alert/
+    $not_saving        = /saving/
+    $not_captureone    = /captureone/
 
   condition:
     // The whole $not set was added at once for a single Capture One compiled AppleScript;

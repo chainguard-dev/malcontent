@@ -6,15 +6,15 @@ rule hardcoded_ip: medium {
     // strict: excludes 255.* and *.0.* *.1.*
     $sus_ipv4           = /((25[0-4]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[2-9])\.){3}(25[0-4]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[2-9])/ fullword
     $not_version        = /((25[0-4]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[2-9])\.){3}(25[0-4]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[2-9])[\.\-]/
-    $not_incr           = "10.11.12.13" fullword
-    $not_169            = "169.254.169.254" fullword
-    $not_ecs            = "169.254.170.2" fullword
-    $not_spyder         = "/search/spider"
-    $not_ruby           = "210.251.121.214" fullword
-    $not_1_2_3_4        = "1.2.3.4"
-    $not_root_servers_h = "128.63.2.53" fullword
-    $not_root_servers_i = "192.36.148.17" fullword
-    $not_send_att       = "3.2.5.7" fullword
+    $not_incr           = /10\.11\.12\.13/ fullword
+    $not_169            = /169\.254\.169\.254/ fullword
+    $not_ecs            = /169\.254\.170\.2/ fullword
+    $not_spyder         = /\/search\/spider/
+    $not_ruby           = /210\.251\.121\.214/ fullword
+    $not_1_2_3_4        = /1\.2\.3\.4/
+    $not_root_servers_h = /128\.63\.2\.53/ fullword
+    $not_root_servers_i = /192\.36\.148\.17/ fullword
+    $not_send_att       = /3\.2\.5\.7/ fullword
 
   condition:
     // The known-good addresses are themselves $sus_ipv4 matches, so subtract
@@ -40,18 +40,18 @@ rule bin_hardcoded_ip: high {
     // stricter version of what's above: excludes 255.* and *.0.* *.1.*, and 8.* (likely Google)
     $sus_ipv4              = /((25[0-4]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[2345679])\.){3}(25[0-4]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[2-9])/ fullword
     $not_version           = /((25[0-4]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[2-9])\.){3}(25[0-4]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[2-9])[\.\-]/
-    $not_169               = "169.254.169.254" fullword
-    $not_spyder            = "/search/spider"
-    $not_ruby              = "210.251.121.214" fullword
-    $not_1_2_3_4           = "1.2.3.4"
-    $not_root_servers_h    = "128.63.2.53" fullword
-    $not_root_servers_i    = "192.36.148.17" fullword
-    $not_123456789         = "123.45.67.89" fullword
-    $not_10_11_12_13       = "10.11.12.13" fullword
-    $not_libebt_among_init = "libebt_among_init"
-    $not_send_att          = "3.2.5.7" fullword
-    $not_192_168           = "192.168."
-    $not_2345              = "23.45.67.89" fullword
+    $not_169               = /169\.254\.169\.254/ fullword
+    $not_spyder            = /\/search\/spider/
+    $not_ruby              = /210\.251\.121\.214/ fullword
+    $not_1_2_3_4           = /1\.2\.3\.4/
+    $not_root_servers_h    = /128\.63\.2\.53/ fullword
+    $not_root_servers_i    = /192\.36\.148\.17/ fullword
+    $not_123456789         = /123\.45\.67\.89/ fullword
+    $not_10_11_12_13       = /10\.11\.12\.13/ fullword
+    $not_libebt_among_init = /libebt_among_init/
+    $not_send_att          = /3\.2\.5\.7/ fullword
+    $not_192_168           = /192\.168\./
+    $not_2345              = /23\.45\.67\.89/ fullword
 
   condition:
     // Same shape as hardcoded_ip: the eight complete known-good addresses are
@@ -68,14 +68,14 @@ rule http_hardcoded_ip: high exfil {
 
   strings:
     $ipv4             = /https*:\/\/([1-9][0-9]{1,2}\.){3}[1-9][0-9]{1,2}[:\/\w\-\?\.\=]{0,64}/
-    $not_metadata     = "http://169.254.169.254"
-    $not_100          = "http://100.100.100"
-    $not_11           = "http://11.11.11"
-    $not_192          = "http://192.168"
-    $not_169          = "http://169.254"
-    $not_aria         = "http://210.104.33.10/ARIA/"
-    $not_placeholder1 = "placeholder:\"e.g. https://192.168.99.200:443/api\""
-    $not_placeholder2 = "placeholder:\"e.g. http://138.68.74.142:7860\""
+    $not_metadata     = /http:\/\/169\.254\.169\.254/
+    $not_100          = /http:\/\/100\.100\.100/
+    $not_11           = /http:\/\/11\.11\.11/
+    $not_192          = /http:\/\/192\.168/
+    $not_169          = /http:\/\/169\.254/
+    $not_aria         = /http:\/\/210\.104\.33\.10\/ARIA\//
+    $not_placeholder1 = /placeholder:"e\.g\. https:\/\/192\.168\.99\.200:443\/api"/
+    $not_placeholder2 = /placeholder:"e\.g\. http:\/\/138\.68\.74\.142:7860"/
 
   condition:
     // Every known-good URL here is itself an instance of the text $ipv4

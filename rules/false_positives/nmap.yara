@@ -6,8 +6,8 @@ rule nmap_fingerprints: override {
     grayware_sites                              = "medium"
 
   strings:
-    $description = "---HTTP Fingerprint files"
-    $license     = "This file is released under the Nmap license"
+    $description = /---HTTP Fingerprint files/
+    $license     = /This file is released under the Nmap license/
     $fingerprint = /fingerprint.{0,32}/
 
   condition:
@@ -20,8 +20,8 @@ rule nping_bin: override {
     SEKOIA_Tool_Nping_Strings = "medium"
 
   strings:
-    $nping = "Usage: nping [Probe mode] [Options] {target specification}"
-    $site  = "https://nmap.org/nping"
+    $nping = /Usage: nping \[Probe mode\] \[Options\] \{target specification\}/
+    $site  = /https:\/\/nmap\.org\/nping/
 
   condition:
     filesize < 1MB and all of them

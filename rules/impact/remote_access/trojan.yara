@@ -26,7 +26,7 @@ rule trojan_ref_loaded: high {
     description = "References a loaded Trojan"
 
   strings:
-    $s_tr0jan = "Trojan run" fullword
+    $s_tr0jan = /Trojan run/ fullword
 
   condition:
     filesize < 1MB and any of ($s*)

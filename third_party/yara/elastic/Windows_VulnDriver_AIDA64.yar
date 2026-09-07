@@ -15,7 +15,7 @@ rule Windows_VulnDriver_AIDA64_9ea4f9f2 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 4C 41 56 41 4C 59 53 }
-        $str1 = "LLKD.pdb"
+        $str1 = /LLKD\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }
@@ -37,8 +37,8 @@ rule Windows_VulnDriver_AIDA64_85f0aea6 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 46 69 6E 61 6C 57 69 72 65 }
-        $str1 = "e:\\work\\visualc\\llkd\\driver.nt\\amd64\\LLKD.pdb"
-        $str2 = "\\DosDevices\\AIDA64Driver" wide
+        $str1 = /e:\\work\\visualc\\llkd\\driver\.nt\\amd64\\LLKD\.pdb/
+        $str2 = /\\DosDevices\\AIDA64Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1 and $str2
 }

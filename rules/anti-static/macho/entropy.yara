@@ -21,7 +21,7 @@ rule high_entropy_7_2: high {
 
   strings:
     // prevent bazel false positive
-    $bin_java = "bin/java"
+    $bin_java = /bin\/java/
 
   condition:
     smaller_macho and math.entropy(1, filesize) >= 7.2 and not $bin_java

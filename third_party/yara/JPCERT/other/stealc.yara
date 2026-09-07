@@ -21,9 +21,9 @@ rule malware_Stealc_str {
         }
         $anti_code1 = {6A 04 68 00 30 00 00 68 C0 41 C8 17 6A 00 FF 15}
         $anti_code2 = {90 8A C0 68 C0 9E E6 05 8B 45 ?? 50 E8}
-        $s1 = "- IP: IP?" ascii
-        $s2 = "- Country: ISO?" ascii
-        $s3 = "- Display Resolution:" ascii
+        $s1 = /- IP: IP\?/ ascii
+        $s2 = /- Country: ISO\?/ ascii
+        $s3 = /- Display Resolution:/ ascii
 
      condition:
        uint16(0) == 0x5A4D and
