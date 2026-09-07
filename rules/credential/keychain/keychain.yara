@@ -58,7 +58,7 @@ rule login_keychain: high macos {
     description = "may steal login keychain"
 
   strings:
-    $ref = "/Library/Keychains/login.keychain-db"
+    $ref = /\/Library\/Keychains\/login\.keychain-db/
 
   condition:
     filesize < 200MB and $ref
@@ -70,7 +70,7 @@ rule adobe_sam_login_keychain: override macos {
     login_keychain = "medium"
 
   strings:
-    $ref = "com.adobe.acc.sam-v2.dylib"
+    $ref = /com\.adobe\.acc\.sam-v2\.dylib/
 
   condition:
     filesize > 50MB and filesize < 100MB and $ref
@@ -82,8 +82,8 @@ rule login_keychain_eager_beaver: critical macos {
     ref         = "https://www.group-ib.com/blog/apt-lazarus-python-scripts/"
 
   strings:
-    $ref  = "logkc_db" fullword
-    $ref2 = "Keychains" fullword
+    $ref  = /logkc_db/ fullword
+    $ref2 = /Keychains/ fullword
 
   condition:
     filesize < 200MB and all of them

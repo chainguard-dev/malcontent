@@ -12,8 +12,8 @@ rule scap_security_guide_content: override {
     linux_server_stealer        = "low"
 
   strings:
-    $scap_sg = "from SCAP Security Guide"
-    $ssg_id  = ":ssg-"
+    $scap_sg = /from SCAP Security Guide/
+    $ssg_id  = /:ssg-/
 
   condition:
     filesize < 30MB and all of them

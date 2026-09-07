@@ -15,7 +15,7 @@ rule Windows_VulnDriver_GoFly_c2fde977 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] E5 8D 97 E4 BA AC E5 81 B2 E8 A8 80 E7 9D BF E7 BD 91 E7 BB 9C E7 A7 91 E6 8A 80 E6 9C 89 E9 99 90 E5 85 AC E5 8F B8 }
-        $str1 = "GoFly64.pdb"
+        $str1 = /GoFly64\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }

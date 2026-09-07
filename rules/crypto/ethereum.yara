@@ -4,7 +4,7 @@ rule ethereum: medium {
     filetypes   = "js,ts"
 
   strings:
-    $ethers = "require(\"ethers\");"
+    $ethers = /require\("ethers"\);/
 
   condition:
     filesize < 128KB and all of them

@@ -15,7 +15,7 @@ rule Windows_VulnDriver_PassMark_63fc2257 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 50 61 73 73 4D 61 72 6B 20 53 6F 66 74 77 61 72 65 20 50 74 79 20 4C 74 64 }
-        $str1 = "DirectIo32.pdb"
+        $str1 = /DirectIo32\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $str1
 }
@@ -37,7 +37,7 @@ rule Windows_VulnDriver_PassMark_183dd481 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 50 61 73 73 4D 61 72 6B 20 53 6F 66 74 77 61 72 65 20 50 74 79 20 4C 74 64 }
-        $str1 = "DirectIo.pdb"
+        $str1 = /DirectIo\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $str1
 }
@@ -59,7 +59,7 @@ rule Windows_VulnDriver_PassMark_1ff60e4b {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 50 61 73 73 4D 61 72 6B 20 53 6F 66 74 77 61 72 65 20 50 74 79 20 4C 74 64 }
-        $str1 = "DirectIo64.pdb"
+        $str1 = /DirectIo64\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }

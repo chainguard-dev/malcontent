@@ -15,7 +15,7 @@ rule Windows_VulnDriver_MatroxGraphics_f069d0ed {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 4D 61 74 72 6F 78 20 47 72 61 70 68 69 63 73 20 49 6E 63 2E }
-        $str1 = "MtxVxd.pdb"
+        $str1 = /MtxVxd\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }

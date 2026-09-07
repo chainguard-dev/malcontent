@@ -17,10 +17,10 @@ rule Windows_VulnDriver_ProcObsrvesx_9ab6880d {
         $subject_name = { 06 03 55 04 03 [2] 4D 69 63 72 6F 57 6F 72 6C 64 20 54 65 63 68 6E 6F 6C 6F 67 69 65 73 20 49 6E 63 2E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 50 00 72 00 6F 00 63 00 4F 00 62 00 73 00 72 00 76 00 65 00 73 00 78 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x03][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x04-\x04][\x00-\x00][\x00-\x30][\x00-\x00][\x00-\x00][\x00-\x00]|[\x00-\x00][\x00-\x00][\x04-\x04][\x00-\x00][\x31-\x31][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "procobsrvesx.pdb"
-        $str2 = "IOCTL_CLOSE_FILE_HANDLE_64"
-        $str3 = "eScan/eConceal" wide
-        $str4 = "ProcObsrvesx" wide
+        $str1 = /procobsrvesx\.pdb/
+        $str2 = /IOCTL_CLOSE_FILE_HANDLE_64/
+        $str3 = /eScan\/eConceal/ wide
+        $str4 = /ProcObsrvesx/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3 and $str4
 }

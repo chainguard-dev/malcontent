@@ -15,7 +15,7 @@ rule custom_path: low {
     description = "sets a custom PATH"
 
   strings:
-    $path = "PATH"
+    $path = /PATH/
     $ref1 = /[\/\w:\-]{0,64}\/sbin:\/bin[\/\w:\-]{0,64}/ fullword
     $ref2 = /[\/\w:\-]{0,64}\/bin:\/usr[\/\w:\-]{0,64}/ fullword
     $ref3 = /[\/\w:\-]{0,64}\/usr\/bin:\/sbin[\/\w:\-]{0,64}/ fullword

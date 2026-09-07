@@ -15,11 +15,11 @@ rule masscan_elf: high linux {
     description = "executes 'masscan', an asynchronous TCP port scanner"
 
   strings:
-    $ref        = "masscan" fullword
-    $run_exec   = "execve" fullword
-    $run_system = "system" fullword
-    $run_go     = "exec.(*Cmd).Run"
-    $not_nmap   = "nmap" fullword
+    $ref        = /masscan/ fullword
+    $run_exec   = /execve/ fullword
+    $run_system = /system/ fullword
+    $run_go     = /exec\.\(\*Cmd\)\.Run/
+    $not_nmap   = /nmap/ fullword
 
   condition:
     filesize < 10MB and uint32(0) == 1179403647 and $ref and any of ($run*) and none of ($not*)

@@ -46,7 +46,7 @@ rule init_module: medium linux {
     filetypes = "elf,ko,so"
 
   strings:
-    $ref = "init_module" fullword
+    $ref = /init_module/ fullword
 
   condition:
     filesize < 1MB and all of them

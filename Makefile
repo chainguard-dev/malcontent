@@ -115,6 +115,13 @@ yara-x-fmt: $(YARA_X_BIN)
 yara-x-compile: $(YARA_X_BIN)
 	"$(YARA_X_BIN)" compile --path-as-namespace --disable-warnings=text_as_hex rules/
 
+# rewrite text patterns of filesize- or header-constrained first-party rules as
+# literal regexps (see hack/literal_regexps.pl); third_party/yara/update.sh does
+# the same for third-party rules
+.PHONY: literal-regexps
+literal-regexps:
+	find rules -type f -name "*.yara" -print0 | xargs -0 perl hack/literal_regexps.pl
+
 .PHONY: _lint $(LINTERS)
 _lint: $(LINTERS)
 

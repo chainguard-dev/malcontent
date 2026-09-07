@@ -4,8 +4,8 @@ rule home_path: low {
 
   strings:
     $home       = /\/home\/[%\w\.\-\/]{0,64}/
-    $not_build  = "/home/build"
-    $not_runner = "/home/runner"
+    $not_build  = /\/home\/build/
+    $not_runner = /\/home\/runner/
 
   condition:
     // $home matches "/home/build" and "/home/runner" verbatim, so naming those two

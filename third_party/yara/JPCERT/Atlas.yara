@@ -9,10 +9,10 @@ rule malware_AtlasLoader {
         updated_date = "2026-02-09"
 
     strings:
-        $s1 = "RunPluin" ascii
-        $s2 = "AtlasPro" wide
-        $s3 = "AtlasInfo" ascii
-        $s4 = "MainDll.dll" ascii
+        $s1 = /RunPluin/ ascii
+        $s2 = /AtlasPro/ wide
+        $s3 = /AtlasInfo/ ascii
+        $s4 = /MainDll\.dll/ ascii
 
     condition:
         uint16(0) == 0x5a4d and

@@ -55,7 +55,7 @@ rule nodejs: medium {
     filetypes   = "js,ts"
 
   strings:
-    $resolve = "resolve4" fullword
+    $resolve = /resolve4/ fullword
 
   condition:
     filesize < 512KB and any of them

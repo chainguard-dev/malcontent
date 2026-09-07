@@ -32,8 +32,8 @@ rule hex_convert_from_base64: medium {
   strings:
     $lang_node   = /Buffer\.from\(\w{0,16}, {0,2}'hex'\)/
     $lang_python = /\.unhexlify\(/
-    $b_base64    = "base64"
-    $b_b64decode = "b64decode"
+    $b_base64    = /base64/
+    $b_b64decode = /b64decode/
 
   condition:
     filesize < 32KB and any of ($lang*) and any of ($b*)
@@ -47,12 +47,12 @@ rule hex_parse_base64_high: high {
   strings:
     $lang_node          = /Buffer\.from\(\w{0,16}, {0,2}'hex'\)/
     $lang_python        = /\.unhexlify\(/
-    $b_base64           = "base64"
-    $b_b64decode        = "b64decode"
-    $nothash_sha256     = "sha256" fullword
-    $nothash_sha512     = "sha512" fullword
-    $nothash_algorithms = "algorithms" fullword
-    $not_python_base64  = "return binascii.unhexlify(s)"
+    $b_base64           = /base64/
+    $b_b64decode        = /b64decode/
+    $nothash_sha256     = /sha256/ fullword
+    $nothash_sha512     = /sha512/ fullword
+    $nothash_algorithms = /algorithms/ fullword
+    $not_python_base64  = /return binascii\.unhexlify\(s\)/
 
   condition:
     // the unhexlify line is verbatim CPython Lib/base64.py and rules the file
@@ -67,7 +67,7 @@ rule mega_string: high {
     filetypes   = "py"
 
   strings:
-    $unhexlify            = "unhexlify"
+    $unhexlify            = /unhexlify/
     $hex_multiline_single = /= {0,2}'''[\/\da-fA-F]{1024}/
     $hex_multiline_double = /= {0,2}"""[\/\da-fA-F]{1024}/
     $hex_line_single      = /= '[\/\da-fA-F]{1024}/
@@ -83,7 +83,7 @@ rule xxd_p: medium {
     description = "uses the xxd command to generate hex"
 
   strings:
-    $xxd_p = "xxd -p"
+    $xxd_p = /xxd -p/
 
   condition:
     filesize < 128KB and any of them

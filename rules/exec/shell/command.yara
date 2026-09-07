@@ -46,7 +46,7 @@ rule php_shell_exec: medium php {
     filetypes = "php"
 
   strings:
-    $php = "<?php"
+    $php = /<\?php/
     $ref = /shell_exec[\(\$\w\)]{0,16}/
 
   condition:

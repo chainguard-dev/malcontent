@@ -17,9 +17,9 @@ rule Windows_VulnDriver_Avast_bdbb7f30 {
         $subject_name = { 06 03 55 04 03 [2] 41 56 41 53 54 20 53 6F 66 74 77 61 72 65 20 61 2E 73 2E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 6E 00 67 00 69 00 6F 00 64 00 72 00 69 00 76 00 65 00 72 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x09][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x0a-\x0a][\x00-\x00]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x03]|[\x00-\x65][\x04-\x04])[\x00-\x00][\x00-\x00]|[\x00-\x00][\x00-\x00][\x0a-\x0a][\x00-\x00][\x66-\x66][\x04-\x04][\x00-\x00][\x00-\x00])/
-        $str1 = "ngiodriver_x86.pdb"
-        $str2 = "avast! NG" wide
-        $str3 = "avast! NG setup helper driver" wide
+        $str1 = /ngiodriver_x86\.pdb/
+        $str2 = /avast! NG/ wide
+        $str3 = /avast! NG setup helper driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -43,9 +43,9 @@ rule Windows_VulnDriver_Avast_cc54c33c {
         $subject_name = { 06 03 55 04 03 [2] 41 76 61 73 74 20 53 6F 66 74 77 61 72 65 20 73 2E 72 2E 6F 2E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 61 00 73 00 77 00 41 00 72 00 50 00 6F 00 74 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x13][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x07][\x00-\x00][\x14-\x14][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x08-\x08][\x00-\x00][\x14-\x14][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x88][\x00-\x00]|[\x08-\x08][\x00-\x00][\x14-\x14][\x00-\x00][\x00-\x00][\x00-\x00][\x89-\x89][\x00-\x00])/
-        $str1 = "aswArPot.pdb"
-        $str2 = "Avast Antivirus " wide
-        $str3 = "Avast Anti Rootkit" wide
+        $str1 = /aswArPot\.pdb/
+        $str2 = /Avast Antivirus / wide
+        $str3 = /Avast Anti Rootkit/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -69,10 +69,10 @@ rule Windows_VulnDriver_Avast_2f69bce9 {
         $subject_name = { 06 03 55 04 03 [2] 41 56 47 20 4E 65 74 68 65 72 6C 61 6E 64 73 20 42 2E 56 2E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 61 00 73 00 77 00 53 00 50 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x11][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x04][\x00-\x00][\x12-\x12][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x05-\x05][\x00-\x00][\x12-\x12][\x00-\x00][\x00-\xff][\x00-\xff]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x0e]|[\x00-\x5a][\x0f-\x0f])|[\x05-\x05][\x00-\x00][\x12-\x12][\x00-\x00]([\x00-\xff][\x00-\x00]|[\x00-\x68][\x01-\x01])[\x5b-\x5b][\x0f-\x0f]|[\x05-\x05][\x00-\x00][\x12-\x12][\x00-\x00][\x69-\x69][\x01-\x01][\x5b-\x5b][\x0f-\x0f])/
-        $str1 = "aswSP.pdb"
-        $str2 = "IOCTL_ASWSP_START_REQUEST_AND_SET_RESULTS"
-        $str3 = "AVG Internet Security System " wide
-        $str4 = "AVG self protection module" wide
+        $str1 = /aswSP\.pdb/
+        $str2 = /IOCTL_ASWSP_START_REQUEST_AND_SET_RESULTS/
+        $str3 = /AVG Internet Security System / wide
+        $str4 = /AVG self protection module/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3 and $str4
 }
@@ -96,9 +96,9 @@ rule Windows_VulnDriver_Avast_556e7746 {
         $subject_name = { 06 03 55 04 03 [2] 41 56 47 20 4E 65 74 68 65 72 6C 61 6E 64 73 20 42 2E 56 2E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 61 00 73 00 77 00 41 00 72 00 50 00 6F 00 74 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x11][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x02][\x00-\x00][\x12-\x12][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x03-\x03][\x00-\x00][\x12-\x12][\x00-\x00][\x00-\xff][\x00-\xff]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x0e]|[\x00-\x13][\x0f-\x0f])|[\x03-\x03][\x00-\x00][\x12-\x12][\x00-\x00][\x00-\x00][\x00-\x00][\x14-\x14][\x0f-\x0f])/
-        $str1 = "aswArPot.pdb"
-        $str2 = "AVG Internet Security System " wide
-        $str3 = "AVG anti rootkit" wide
+        $str1 = /aswArPot\.pdb/
+        $str2 = /AVG Internet Security System / wide
+        $str3 = /AVG anti rootkit/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -122,9 +122,9 @@ rule Windows_VulnDriver_Avast_5cd9e6b9 {
         $subject_name = { 06 03 55 04 03 [2] 41 56 47 20 54 65 63 68 6E 6F 6C 6F 67 69 65 73 20 55 53 41 2C 20 4C 4C 43 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 61 00 73 00 77 00 41 00 72 00 50 00 6F 00 74 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x13][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x09][\x00-\x00][\x14-\x14][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x0a-\x0a][\x00-\x00][\x14-\x14][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xaa][\x00-\x00]|[\x0a-\x0a][\x00-\x00][\x14-\x14][\x00-\x00][\x00-\x00][\x00-\x00][\xab-\xab][\x00-\x00])/
-        $str1 = "aswArPot.pdb"
-        $str2 = "AVG Internet Security System " wide
-        $str3 = "AVG Anti Rootkit" wide
+        $str1 = /aswArPot\.pdb/
+        $str2 = /AVG Internet Security System / wide
+        $str3 = /AVG Anti Rootkit/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -148,9 +148,9 @@ rule Windows_VulnDriver_Avast_92cd6218 {
         $subject_name = { 06 03 55 04 03 [2] 41 56 41 53 54 20 53 6F 66 74 77 61 72 65 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 61 00 73 00 77 00 56 00 6D 00 6D 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x07][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x08-\x08][\x00-\x00][\x00-\xff][\x00-\xff]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x04]|[\x00-\xd8][\x05-\x05])|[\x00-\x00][\x00-\x00][\x08-\x08][\x00-\x00]([\x00-\xff][\x00-\x00]|[\x00-\x77][\x01-\x01])[\xd9-\xd9][\x05-\x05]|[\x00-\x00][\x00-\x00][\x08-\x08][\x00-\x00][\x78-\x78][\x01-\x01][\xd9-\xd9][\x05-\x05])/
-        $str1 = "aswVmm.pdb"
-        $str2 = "avast! Antivirus" wide
-        $str3 = "avast! VM Monitor" wide
+        $str1 = /aswVmm\.pdb/
+        $str2 = /avast! Antivirus/ wide
+        $str3 = /avast! VM Monitor/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -174,9 +174,9 @@ rule Windows_VulnDriver_Avast_46028c76 {
         $subject_name = { 06 03 55 04 03 [2] 41 56 41 53 54 20 53 6F 66 74 77 61 72 65 20 61 2E 73 2E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 6E 00 67 00 69 00 6F 00 64 00 72 00 69 00 76 00 65 00 72 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x0a][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x0b-\x0b][\x00-\x00]([\x00-\xff][\x00-\x00]|[\x00-\x69][\x01-\x01])[\x00-\x00][\x00-\x00]|[\x00-\x00][\x00-\x00][\x0b-\x0b][\x00-\x00][\x6a-\x6a][\x01-\x01][\x00-\x00][\x00-\x00])/
-        $str1 = "ngiodriver_x86.pdb"
-        $str2 = "Avast NG" wide
-        $str3 = "avast! NG setup helper driver" wide
+        $str1 = /ngiodriver_x86\.pdb/
+        $str2 = /Avast NG/ wide
+        $str3 = /avast! NG setup helper driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -200,9 +200,9 @@ rule Windows_VulnDriver_Avast_5af8af76 {
         $subject_name = { 06 03 55 04 03 [2] 41 76 61 73 74 20 53 6F 66 74 77 61 72 65 20 73 2E 72 2E 6F 2E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 61 00 73 00 77 00 41 00 72 00 50 00 6F 00 74 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x13][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x03][\x00-\x00][\x14-\x14][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x04-\x04][\x00-\x00][\x14-\x14][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x52][\x00-\x00]|[\x04-\x04][\x00-\x00][\x14-\x14][\x00-\x00][\x00-\x00][\x00-\x00][\x53-\x53][\x00-\x00])/
-        $str1 = "aswArPot.pdb"
-        $str2 = "Avast Antivirus " wide
-        $str3 = "Avast Anti Rootkit" wide
+        $str1 = /aswArPot\.pdb/
+        $str2 = /Avast Antivirus / wide
+        $str3 = /Avast Anti Rootkit/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -226,9 +226,9 @@ rule Windows_VulnDriver_Avast_447cc9f0 {
         $subject_name = { 06 03 55 04 03 [2] 41 56 47 20 54 65 63 68 6E 6F 6C 6F 67 69 65 73 20 43 5A 2C 20 73 2E 72 2E 6F 2E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 61 00 73 00 77 00 41 00 72 00 50 00 6F 00 74 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x10][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x08][\x00-\x00][\x11-\x11][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x09-\x09][\x00-\x00][\x11-\x11][\x00-\x00][\x00-\xff][\x00-\xff]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x0d]|[\x00-\xb0][\x0e-\x0e])|[\x09-\x09][\x00-\x00][\x11-\x11][\x00-\x00][\x00-\x00][\x00-\x00][\xb1-\xb1][\x0e-\x0e])/
-        $str1 = "aswArPot.pdb"
-        $str2 = "AVG Internet Security System " wide
-        $str3 = "AVG anti rootkit" wide
+        $str1 = /aswArPot\.pdb/
+        $str2 = /AVG Internet Security System / wide
+        $str3 = /AVG anti rootkit/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -252,9 +252,9 @@ rule Windows_VulnDriver_Avast_804c74f8 {
         $subject_name = { 06 03 55 04 03 [2] 41 56 47 20 54 65 63 68 6E 6F 6C 6F 67 69 65 73 20 55 53 41 2C 20 49 6E 63 2E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 61 00 73 00 77 00 41 00 72 00 50 00 6F 00 74 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x12][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x06][\x00-\x00][\x13-\x13][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x07-\x07][\x00-\x00][\x13-\x13][\x00-\x00][\x00-\xff][\x00-\xff]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x0f]|[\x00-\x95][\x10-\x10])|[\x07-\x07][\x00-\x00][\x13-\x13][\x00-\x00][\x00-\x00][\x00-\x00][\x96-\x96][\x10-\x10])/
-        $str1 = "aswArPot.pdb"
-        $str2 = "AVG Internet Security System " wide
-        $str3 = "AVG anti rootkit" wide
+        $str1 = /aswArPot\.pdb/
+        $str2 = /AVG Internet Security System / wide
+        $str3 = /AVG anti rootkit/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -278,9 +278,9 @@ rule Windows_VulnDriver_Avast_77ea1c4e {
         $subject_name = { 06 03 55 04 03 [2] 41 56 47 20 54 65 63 68 6E 6F 6C 6F 67 69 65 73 20 55 53 41 2C 20 49 6E 63 2E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 61 00 73 00 77 00 41 00 72 00 50 00 6F 00 74 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x12][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x01][\x00-\x00][\x13-\x13][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x02-\x02][\x00-\x00][\x13-\x13][\x00-\x00][\x00-\xff][\x00-\xff]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x0f]|[\x00-\x54][\x10-\x10])|[\x02-\x02][\x00-\x00][\x13-\x13][\x00-\x00][\x00-\x00][\x00-\x00][\x55-\x55][\x10-\x10])/
-        $str1 = "aswArPot.pdb"
-        $str2 = "AVG Internet Security System " wide
-        $str3 = "AVG anti rootkit" wide
+        $str1 = /aswArPot\.pdb/
+        $str2 = /AVG Internet Security System / wide
+        $str3 = /AVG anti rootkit/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -304,9 +304,9 @@ rule Windows_VulnDriver_Avast_0dde1c4e {
         $subject_name = { 06 03 55 04 03 [2] 41 56 41 53 54 20 53 6F 66 74 77 61 72 65 20 73 2E 72 2E 6F 2E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 61 00 73 00 77 00 41 00 72 00 50 00 6F 00 74 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x11][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x05][\x00-\x00][\x12-\x12][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x06-\x06][\x00-\x00][\x12-\x12][\x00-\x00][\x00-\xff][\x00-\xff]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x0e]|[\x00-\x8a][\x0f-\x0f])|[\x06-\x06][\x00-\x00][\x12-\x12][\x00-\x00][\x00-\x00][\x00-\x00][\x8b-\x8b][\x0f-\x0f])/
-        $str1 = "aswArPot.pdb"
-        $str2 = "Avast Antivirus " wide
-        $str3 = "Avast anti rootkit" wide
+        $str1 = /aswArPot\.pdb/
+        $str2 = /Avast Antivirus / wide
+        $str3 = /Avast anti rootkit/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -330,9 +330,9 @@ rule Windows_VulnDriver_Avast_dac4c6be {
         $subject_name = { 06 03 55 04 03 [2] 41 56 41 53 54 20 53 6F 66 74 77 61 72 65 20 73 2E 72 2E 6F 2E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 61 00 73 00 77 00 41 00 72 00 50 00 6F 00 74 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x12][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x06][\x00-\x00][\x13-\x13][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x07-\x07][\x00-\x00][\x13-\x13][\x00-\x00][\x00-\xff][\x00-\xff]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x0f]|[\x00-\x95][\x10-\x10])|[\x07-\x07][\x00-\x00][\x13-\x13][\x00-\x00][\x00-\x00][\x00-\x00][\x96-\x96][\x10-\x10])/
-        $str1 = "aswArPot.pdb"
-        $str2 = "Avast Antivirus " wide
-        $str3 = "Avast anti rootkit" wide
+        $str1 = /aswArPot\.pdb/
+        $str2 = /Avast Antivirus / wide
+        $str3 = /Avast anti rootkit/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -356,9 +356,9 @@ rule Windows_VulnDriver_Avast_c4f8f98f {
         $subject_name = { 06 03 55 04 03 [2] 41 56 41 53 54 20 53 6F 66 74 77 61 72 65 20 61 2E 73 2E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 6E 00 67 00 69 00 6F 00 64 00 72 00 69 00 76 00 65 00 72 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x09][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x0a-\x0a][\x00-\x00]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x03]|[\x00-\x65][\x04-\x04])[\x00-\x00][\x00-\x00]|[\x00-\x00][\x00-\x00][\x0a-\x0a][\x00-\x00][\x66-\x66][\x04-\x04][\x00-\x00][\x00-\x00])/
-        $str1 = "ngiodriver_x64.pdb"
-        $str2 = "avast! NG" wide
-        $str3 = "avast! NG setup helper driver" wide
+        $str1 = /ngiodriver_x64\.pdb/
+        $str2 = /avast! NG/ wide
+        $str3 = /avast! NG setup helper driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }

@@ -3,8 +3,8 @@ rule tcap: medium {
     description = "handles TCAP (Transaction Capabilities Application Part) messages"
 
   strings:
-    $send = "tcap"
-    $imsi = "imsi"
+    $send = /tcap/
+    $imsi = /imsi/
 
   condition:
     filesize < 2MB and all of them

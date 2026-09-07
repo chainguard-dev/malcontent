@@ -15,9 +15,9 @@ rule etc_initd_short_file: high linux {
 
   strings:
     $ref      = /etc\/init\.d\/[a-z]{1,3}/ fullword
-    $not_rcd  = "/etc/init.d/rc.d"
-    $not_init = "SCRIPTNAME=/etc/init.d/"
-    $header   = "### BEGIN INIT INFO"
+    $not_rcd  = /\/etc\/init\.d\/rc\.d/
+    $not_init = /SCRIPTNAME=\/etc\/init\.d\//
+    $header   = /### BEGIN INIT INFO/
 
   condition:
     // $ref's [a-z]{1,3} matches the "rc" in "/etc/init.d/rc.d", so count past that

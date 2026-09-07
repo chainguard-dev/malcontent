@@ -4,7 +4,7 @@ rule virtualbox_override: override {
     backdoor_caps = "low"
 
   strings:
-    $ref = "GROUP_DEV_VMM_BACKDOOR"
+    $ref = /GROUP_DEV_VMM_BACKDOOR/
 
   condition:
     filesize < 1MB and any of them

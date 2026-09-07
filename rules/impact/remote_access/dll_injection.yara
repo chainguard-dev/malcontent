@@ -17,8 +17,8 @@ rule dll_injection_js: critical {
     filetypes   = "js,ts"
 
   strings:
-    $f_child_proc = "require('child_process');"
-    $f_fs         = "require('fs');"
+    $f_child_proc = /require\('child_process'\);/
+    $f_fs         = /require\('fs'\);/
 
   condition:
     filesize < 32KB and dll_injection and any of ($f*)

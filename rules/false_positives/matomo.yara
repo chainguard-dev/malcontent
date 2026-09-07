@@ -4,8 +4,8 @@ rule matomo_filechecks: override {
     php_executor = "medium"
 
   strings:
-    $namespace = "namespace Piwik;"
-    $class     = "class Filechecks"
+    $namespace = /namespace Piwik;/
+    $class     = /class Filechecks/
 
   condition:
     filesize < 16KB and all of them
@@ -19,8 +19,8 @@ rule matomo_tracker: override {
     script_url_with_question = "low"
 
   strings:
-    $class = "class MatomoTracker"
-    $api   = "Matomo Tracking Web API"
+    $class = /class MatomoTracker/
+    $api   = /Matomo Tracking Web API/
 
   condition:
     filesize < 128KB and all of them
@@ -32,8 +32,8 @@ rule matomo_cpchart_data: override {
     php_at_eval = "medium"
 
   strings:
-    $namespace = "namespace CpChart;"
-    $license   = "pchart.net/license"
+    $namespace = /namespace CpChart;/
+    $license   = /pchart\.net\/license/
 
   condition:
     filesize < 64KB and all of them
@@ -46,8 +46,8 @@ rule matomo_tcpdf_barcodes: override {
     bidirectional_bitwise_math = "low"
 
   strings:
-    $project = "This file is part of TCPDF software library"
-    $file    = "tcpdf_barcodes_1d.php"
+    $project = /This file is part of TCPDF software library/
+    $file    = /tcpdf_barcodes_1d\.php/
 
   condition:
     filesize < 128KB and all of them

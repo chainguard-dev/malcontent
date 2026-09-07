@@ -13,7 +13,7 @@ rule Windows_VulnDriver_AsIo_5f9f29be {
         license = "Elastic License v2"
         os = "windows"
     strings:
-        $str1 = "\\AsIO.pdb"
+        $str1 = /\\AsIO\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $str1
 }

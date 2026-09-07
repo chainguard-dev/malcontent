@@ -21,17 +21,17 @@ rule character_obfuscation: medium {
     filetypes   = "js,ts"
 
   strings:
-    $a_char         = "charCodeAt"
-    $a_charAt       = "charAt"
-    $a_toString     = "toString"
-    $a_length       = "length"
-    $a_fromCharCode = "fromCharCode"
-    $a_shift        = "shift"
-    $a_push         = "push"
+    $a_char         = /charCodeAt/
+    $a_charAt       = /charAt/
+    $a_toString     = /toString/
+    $a_length       = /length/
+    $a_fromCharCode = /fromCharCode/
+    $a_shift        = /shift/
+    $a_push         = /push/
 
-    $const    = "const "
-    $function = "function("
-    $return   = "{return"
+    $const    = /const /
+    $function = /function\(/
+    $return   = /\{return/
 
   condition:
     filesize < 4MB and all of them
@@ -43,8 +43,8 @@ rule js_char_code_at_substitution: high {
     filetypes   = "js,ts"
 
   strings:
-    $charCodeAt = "charCodeAt" fullword
-    $index      = "fghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ012345"
+    $charCodeAt = /charCodeAt/ fullword
+    $index      = /fghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ012345/
 
   condition:
     filesize < 256KB and all of them
@@ -56,13 +56,13 @@ rule child_process: high {
     filetypes   = "js,ts"
 
   strings:
-    $f_const         = "const" fullword
-    $f_return        = "return" fullword
-    $f_var           = "var" fullword
-    $o_child_process = "child_process"
-    $o_decode        = "decode("
-    $o_tostring      = "toString("
-    $o_from          = ".from("
+    $f_const         = /const/ fullword
+    $f_return        = /return/ fullword
+    $f_var           = /var/ fullword
+    $o_child_process = /child_process/
+    $o_decode        = /decode\(/
+    $o_tostring      = /toString\(/
+    $o_from          = /\.from\(/
     $wtf_hex         = /\w{4,16}\<\-0x\d{2,4}/
 
   condition:
@@ -75,8 +75,8 @@ rule ebe: high {
     filetypes   = "js,ts"
 
   strings:
-    $function   = "function("
-    $charCodeAt = "charCodeAt"
+    $function   = /function\(/
+    $charCodeAt = /charCodeAt/
 
     $ref = /eBe\([-]?\d{1,3}\)/
 
@@ -90,8 +90,8 @@ rule ebe_generic: high {
     filetypes   = "js,ts"
 
   strings:
-    $function   = "function("
-    $charCodeAt = "charCodeAt"
+    $function   = /function\(/
+    $charCodeAt = /charCodeAt/
 
     $ref  = /\w\[\w{1,3}\(\d{1,3}\)\]=\w{1,3}\(\d{1,3}\),e\[\w{1,3}\(\d{1,3}\)\]/
     $ref2 = /\w\[\w{1,3}\(\d{1,3}\)\]\&\w{1,3}\(\d{1,3}\)\),\w\[\w{1,3}\(\d{1,3}\)\]/
@@ -119,9 +119,9 @@ rule js_const_func_obfuscation: medium {
     filetypes   = "js,ts"
 
   strings:
-    $const    = "const "
-    $function = "function("
-    $return   = "{return"
+    $const    = /const /
+    $function = /function\(/
+    $return   = /\{return/
 
   condition:
     filesize < 256KB and #const > 32 and #function > 48 and #return > 64
@@ -176,7 +176,7 @@ rule charCodeAtIncrement: medium {
     filetypes   = "js,ts"
 
   strings:
-    $function  = "function("
+    $function  = /function\(/
     $increment = /charCodeAt\(\+\+\w{0,4}\)/
 
   condition:
@@ -189,10 +189,10 @@ rule js_many_parseInt: high {
     filetypes   = "js,ts"
 
   strings:
-    $const    = "const "
-    $function = "function("
-    $return   = "{return"
-    $parseInt = "parseInt"
+    $const    = /const /
+    $function = /function\(/
+    $return   = /\{return/
+    $parseInt = /parseInt/
 
   condition:
     filesize < 256KB and #const > 16 and #function > 32 and #parseInt > 8 and #return > 32
@@ -328,9 +328,9 @@ rule high_entropy_charAt: medium {
     filetypes   = "js,ts"
 
   strings:
-    $           = "charAt("
-    $           = "substr("
-    $           = "join("
+    $           = /charAt\(/
+    $           = /substr\(/
+    $           = /join\(/
     $s_function = /function\s{0,2}\(/
     $s_for      = /for\s{0,2}\(/
 

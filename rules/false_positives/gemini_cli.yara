@@ -11,8 +11,8 @@ rule gemini_cli_third_party: override {
     bash_persist_persistent     = "low"
 
   strings:
-    $lighthouse = "lighthouse-devtools-mcp-bundle.js"
-    $entities   = "entities-nostats.json"
+    $lighthouse = /lighthouse-devtools-mcp-bundle\.js/
+    $entities   = /entities-nostats\.json/
 
   condition:
     filesize < 100MB and all of them

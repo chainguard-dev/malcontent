@@ -35,9 +35,9 @@ rule ren: medium windows {
     filetypes   = "exe,pe,ps1"
 
   strings:
-    $rename         = "rename"
-    $cmd_echo       = "echo off"
-    $cmd_powershell = "powershell"
+    $rename         = /rename/
+    $cmd_echo       = /echo off/
+    $cmd_powershell = /powershell/
 
   condition:
     filesize < 16KB and $rename and any of ($cmd*)

@@ -4,8 +4,8 @@ rule moodle_graphlib: override {
     php_at_eval = "low"
 
   strings:
-    $moodle_internal = "MOODLE_INTERNAL"
-    $graphlib_desc   = "Graph Class. PHP Class to draw line, point, bar, and area graphs"
+    $moodle_internal = /MOODLE_INTERNAL/
+    $graphlib_desc   = /Graph Class\. PHP Class to draw line, point, bar, and area graphs/
 
   condition:
     filesize < 100KB and all of them
@@ -18,8 +18,8 @@ rule moodle_tcpdf_barcodes: override {
     bidirectional_bitwise_math_php = "low"
 
   strings:
-    $tcpdf_package = "com.tecnick.tcpdf"
-    $tcpdf_author  = "Nicola Asuni - Tecnick.com LTD"
+    $tcpdf_package = /com\.tecnick\.tcpdf/
+    $tcpdf_author  = /Nicola Asuni - Tecnick\.com LTD/
 
   condition:
     filesize < 90KB and all of them

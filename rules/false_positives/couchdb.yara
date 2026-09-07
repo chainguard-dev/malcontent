@@ -7,8 +7,8 @@ rule couchdb_doc: override {
     chmod_group_writeable = "low"
 
   strings:
-    $apache_couchdb = "Apache CouchDB"
-    $man_header     = "APACHECOUCHDB"
+    $apache_couchdb = /Apache CouchDB/
+    $man_header     = /APACHECOUCHDB/
 
   condition:
     filesize > 500000 and filesize < 3000000 and all of them

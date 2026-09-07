@@ -4,7 +4,7 @@ rule obfuscate {
 
   strings:
     $obfuscate  = /obfuscate[\w]{0,32}/
-    $not_ticket = "obfuscatedTicket"
+    $not_ticket = /obfuscatedTicket/
 
   condition:
     // $obfuscate is a generalisation that also matches the accepted spelling

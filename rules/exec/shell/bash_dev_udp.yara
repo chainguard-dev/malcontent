@@ -14,10 +14,10 @@ rule bash_dev_udp_high: high exfil {
     description = "uses /dev/udp for network access (bash)"
 
   strings:
-    $ref                 = "/dev/udp"
-    $not_posixly_correct = "POSIXLY_CORRECT"
-    $not_dd              = "dd if=/dev/zero"
-    $not_echo            = "echo > /dev/udp"
+    $ref                 = /\/dev\/udp/
+    $not_posixly_correct = /POSIXLY_CORRECT/
+    $not_dd              = /dd if=\/dev\/zero/
+    $not_echo            = /echo > \/dev\/udp/
 
   // "/dev/udp" is a substring of $not_echo, so a script containing the benign
   // echo probe had every other /dev/udp use in it suppressed. Compare

@@ -17,8 +17,8 @@ rule Windows_VulnDriver_Lenovo_1058a5b1 {
         $subject_name = { 06 03 55 04 03 [2] 4C 65 6E 6F 76 6F 20 49 6E 66 6F 72 6D 61 74 69 6F 6E 20 50 72 6F 64 75 63 74 73 20 28 53 68 65 6E 7A 68 65 6E 29 20 43 6F 2E 2C 4C 74 64 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 4C 00 44 00 69 00 61 00 67 00 49 00 4F 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x05][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x06-\x06][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x01-\x01][\x00-\x00][\x06-\x06][\x00-\x00][\x00-\xff][\x00-\xff]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x1c]|[\x00-\xaf][\x1d-\x1d])|[\x01-\x01][\x00-\x00][\x06-\x06][\x00-\x00]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x3f]|[\x00-\x00][\x40-\x40])[\xb0-\xb0][\x1d-\x1d]|[\x01-\x01][\x00-\x00][\x06-\x06][\x00-\x00][\x01-\x01][\x40-\x40][\xb0-\xb0][\x1d-\x1d])/
-        $str1 = "ldiagio.pdb"
-        $str2 = "Windows (R) Win 7 DDK driver" wide
+        $str1 = /ldiagio\.pdb/
+        $str2 = /Windows \(R\) Win 7 DDK driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2
 }
@@ -42,8 +42,8 @@ rule Windows_VulnDriver_Lenovo_d6ba2871 {
         $subject_name = { 06 03 55 04 03 [2] 4C 45 4E 4F 56 4F }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 42 00 6F 00 6F 00 74 00 52 00 65 00 70 00 61 00 69 00 72 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x04][\x00-\x00][\x02-\x02][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x05-\x05][\x00-\x00][\x02-\x02][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x1d][\x00-\x00]|[\x05-\x05][\x00-\x00][\x02-\x02][\x00-\x00]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x2b]|[\x00-\x10][\x2c-\x2c])[\x1e-\x1e][\x00-\x00]|[\x05-\x05][\x00-\x00][\x02-\x02][\x00-\x00][\x11-\x11][\x2c-\x2c][\x1e-\x1e][\x00-\x00])/
-        $str1 = "BootRepair.pdb"
-        $str2 = "BootRepair" wide
+        $str1 = /BootRepair\.pdb/
+        $str2 = /BootRepair/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2
 }
@@ -66,8 +66,8 @@ rule Windows_VulnDriver_Lenovo_26b2c815 {
     strings:
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 4C 00 6E 00 76 00 4D 00 53 00 52 00 49 00 4F 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x02][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x03-\x03][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x01-\x01][\x00-\x00][\x03-\x03][\x00-\x00][\x00-\x23][\x00-\x00][\x00-\x00][\x00-\x00]|[\x01-\x01][\x00-\x00][\x03-\x03][\x00-\x00][\x24-\x24][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "LnvMSRIO.pdb"
-        $str2 = "Lenovo filter driver" wide
+        $str1 = /LnvMSRIO\.pdb/
+        $str2 = /Lenovo filter driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $original_file_name and $version and $str1 and $str2
 }
@@ -91,9 +91,9 @@ rule Windows_VulnDriver_Lenovo_88fa0718 {
         $subject_name = { 06 03 55 04 03 [2] 4C 65 6E 6F 76 6F }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 57 00 69 00 6E 00 52 00 69 00 6E 00 67 00 30 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x88]|[\x00-\x94][\x89-\x89])|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00][\x95-\x95][\x89-\x89])/
-        $str1 = "WinRing0.pdb"
-        $str2 = "Lenovo Display Control Center" wide
-        $str3 = "WinRing0" wide
+        $str1 = /WinRing0\.pdb/
+        $str2 = /Lenovo Display Control Center/ wide
+        $str3 = /WinRing0/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -115,9 +115,9 @@ rule Windows_VulnDriver_Lenovo_ed6235a3 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 4C 65 6E 6F 76 6F }
-        $str1 = "NetworkLocker_x64.pdb"
-        $str2 = "IOCTL_WORKLOCK_NTLKD"
-        $str3 = "IOCTL_WORKLOCK_NTLKE"
+        $str1 = /NetworkLocker_x64\.pdb/
+        $str2 = /IOCTL_WORKLOCK_NTLKD/
+        $str3 = /IOCTL_WORKLOCK_NTLKE/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1 and $str2 and $str3
 }

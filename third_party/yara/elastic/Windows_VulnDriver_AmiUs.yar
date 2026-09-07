@@ -15,7 +15,7 @@ rule Windows_VulnDriver_AmiUs_7d64ea79 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 41 4D 49 20 55 53 20 48 4F 4C 44 49 4E 47 53 20 49 4E 43 }
-        $str1 = "amifldrv64.pdb"
+        $str1 = /amifldrv64\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }

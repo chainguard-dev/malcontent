@@ -10,7 +10,7 @@ rule Microsoft_LNK_with_CMD_EXE_Reference
         labs_pivot     = "N/A"
         samples        = "15651b4516dc207148ad6d2cf098edc766dc06fc26c79d498305ddcb7c930eab"
     strings:
-    $c1 = "\\Windows\\System32\\cmd.exe" nocase ascii wide
+    $c1 = /\\Windows\\System32\\cmd\.exe/ nocase ascii wide
 
     $s1 = /cmd.exe[ \t]+\x2f[a-z][ \t]/ ascii wide nocase
     $s2 = { 00 25 00 53 00 79 00 73 00 74 00 65 00 6D 00 52
@@ -18,7 +18,7 @@ rule Microsoft_LNK_with_CMD_EXE_Reference
     00 74 00 65 00 6D 00 33 00 32 00 EF 01 2F 00 43
     00 20 00 22 00 63 00 6D 00 64 00 2E 00 65 00 78
     00 65 }
-    $s3 = "%comspec%" ascii wide nocase fullword
+    $s3 = /%comspec%/ ascii wide nocase fullword
 
     condition:
             ( uint32(0) == 0x0000004c and filesize < 4KB and $c1 and 1 of ($s*) )

@@ -10,10 +10,10 @@ rule snapd: override linux {
     filetypes             = "elf,so"
 
   strings:
-    $snapd_snapd = "SNAPD_SNAPD"
-    $snapd       = "snapcore/snapd"
-    $snapd_debug = "SNAPD_DEBUG"
-    $snap_name   = "SNAP_NAME" fullword
+    $snapd_snapd = /SNAPD_SNAPD/
+    $snapd       = /snapcore\/snapd/
+    $snapd_debug = /SNAPD_DEBUG/
+    $snap_name   = /SNAP_NAME/ fullword
 
   condition:
     filesize > 1MB and filesize < 30MB and uint32(0) == 1179403647 and any of them

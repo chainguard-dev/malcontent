@@ -7,11 +7,11 @@ rule malware_GETRdoor {
         updated_date = "2025-11-20"
 
     strings:
-        $s1 = "do_upload: file open failed" ascii
-        $s2 = "/bin/snifferd" ascii
-        $s3 = "tcp[(tcp[12]>>2):%d] = 0x%s" ascii
+        $s1 = /do_upload: file open failed/ ascii
+        $s2 = /\/bin\/snifferd/ ascii
+        $s3 = /tcp\[\(tcp\[12\]>>2\):%d\] = 0x%s/ ascii
         $s4 = {00 34 37 34 35 35 34 35 32 00} // 47455452
-        $s5 = "diagnose debug crashlog clear" ascii
+        $s5 = /diagnose debug crashlog clear/ ascii
         $s6 = {00 0A 30 78 30 30 30 30 00} // \n0x0000
 
     condition:
@@ -28,10 +28,10 @@ rule malware_PELdoor {
         updated_date = "2025-11-20"
 
     strings:
-        $s1 = "sxcdewqaz!@#" ascii
-        $s2 = ";7(Zu9YTsA7qQ#vw" ascii
-        $s3 = "/var/run/miglogd000.pid" ascii
-        $s4 = "/tmp/tmplog.tar" ascii
+        $s1 = /sxcdewqaz!@#/ ascii
+        $s2 = /;7\(Zu9YTsA7qQ#vw/ ascii
+        $s3 = /\/var\/run\/miglogd000\.pid/ ascii
+        $s4 = /\/tmp\/tmplog\.tar/ ascii
         $s5 = {66 3D FB 20 74 ?? 48 8B 45 ?? 0F B7 40 ?? 0F B7 C0 89 C7 E8 ?? ?? ?? ?? 66 3D 1D 02}
 
     condition:
@@ -48,10 +48,10 @@ rule malware_SHADYMARY {
         updated_date = "2025-11-20"
 
     strings:
-        $s1 = "/data2/libcrashpad.so" ascii
-        $s2 = "/bin/smit" ascii
-        $s3 = "injector return %d" ascii
-        $s4 = "injector__call_syscall" ascii
+        $s1 = /\/data2\/libcrashpad\.so/ ascii
+        $s2 = /\/bin\/smit/ ascii
+        $s3 = /injector return %d/ ascii
+        $s4 = /injector__call_syscall/ ascii
 
     condition:
         uint32(0) == 0x464C457F and

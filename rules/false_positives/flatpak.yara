@@ -4,7 +4,7 @@ rule flatpak: override {
     hidden_x11_unexpected = "medium"
 
   strings:
-    $flatpak = "FLATPAK_BINARY" fullword
+    $flatpak = /FLATPAK_BINARY/ fullword
 
   condition:
     filesize < 3MB and any of them

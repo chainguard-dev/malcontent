@@ -3,8 +3,9 @@ rule proc_s_exe: high {
     description = "accesses underlying executable of other processes"
 
   strings:
-    $string   = "/proc/%s/exe" fullword
-    $not_tool = /[Uu]sage:/ fullword
+    $string    = "/proc/%s/exe" fullword
+    $not_tool  = "usage:" fullword
+    $not_tool2 = "Usage:" fullword
 
   condition:
     $string and none of ($not*)
@@ -15,8 +16,9 @@ rule proc_d_exe: medium {
     description = "accesses underlying executable of other processes"
 
   strings:
-    $digit    = "/proc/%d/exe" fullword
-    $not_tool = /[Uu]sage:/ fullword
+    $digit     = "/proc/%d/exe" fullword
+    $not_tool  = "usage:" fullword
+    $not_tool2 = "Usage:" fullword
 
   condition:
     // the help-text marker is the only conclusive CLI-tool signal here; a bare
@@ -29,14 +31,14 @@ rule proc_d_exe_high: high {
     description = "accesses underlying executable of other processes"
 
   strings:
-    $ref = "/proc/%d/exe" fullword
+    $ref = /\/proc\/%d\/exe/ fullword
 
-    $o_sign      = "/etc/init.d"
-    $o_net_dev   = "/proc/net/dev"
-    $o_bash      = "/bin/bash"
-    $o_tty       = "/dev/tty"
-    $o_var_tmp   = "/var/tmp"
-    $o_osrelease = "/proc/sys/kernel/osrelease"
+    $o_sign      = /\/etc\/init\.d/
+    $o_net_dev   = /\/proc\/net\/dev/
+    $o_bash      = /\/bin\/bash/
+    $o_tty       = /\/dev\/tty/
+    $o_var_tmp   = /\/var\/tmp/
+    $o_osrelease = /\/proc\/sys\/kernel\/osrelease/
 
   condition:
     filesize < 5MB and $ref and any of ($o*)
@@ -58,7 +60,7 @@ rule legit_proc_exec: override {
     proc_exe = "medium"
 
   strings:
-    $string = "Fastfetch" fullword
+    $string = /Fastfetch/ fullword
 
   condition:
     filesize < 3MB and any of them

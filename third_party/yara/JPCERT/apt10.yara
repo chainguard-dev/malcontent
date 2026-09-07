@@ -209,7 +209,7 @@ rule APT10_ANEL_dll {
 
     strings:
 	$text_b = {3c 3e 44 3e 4c 3e 54 3e 5c 3e 64 3e 6c 3e 74 3e}
-        $text_s = "hprOBnaeloheSredDyrctbuo"
+        $text_s = /hprOBnaeloheSredDyrctbuo/
 
     condition:
         uint16(0) == 0x5a4d and
@@ -225,9 +225,9 @@ rule APT10_ANEL_lnk {
         hash = "1986ccf4d33b8dc291e7cbe73194a3e4cb617e37277ab93b7e320b6ea716f59d"
 
     strings:
-        $s1 = "$($env:APPDATA)+'\\Microsoft\\Templates\\'" ascii wide
-        $s2 = ".Length - 1)]);expand $" ascii wide
-        $s3 = "Invoke-Item -Path $docPath;Remove-Item -Path $cabPath -Force" ascii wide
+        $s1 = /\$\(\$env:APPDATA\)\+'\\Microsoft\\Templates\\'/ ascii wide
+        $s2 = /\.Length - 1\)\]\);expand \$/ ascii wide
+        $s3 = /Invoke-Item -Path \$docPath;Remove-Item -Path \$cabPath -Force/ ascii wide
         $cab_sig = {4D 53 43 46 00 00 00 00}
 
     condition:
@@ -242,10 +242,10 @@ rule APT10_ANEL_str {
         hash = "08533b6ba7801e6393be661190394eb0605cad465438fbc9806058ae8864468e"
 
     strings:
-        $s1 = "dll_size %Iu bytes, compress_size %Iu bytes, dllhash 0x%08x"
-        $s2 = "The file does not exist on this server!"
-        $s3 = "WARNING: loading PE file without .reloc section!"
-        $s4 = "x86 version supports x86 shellcode only!"
+        $s1 = /dll_size %Iu bytes, compress_size %Iu bytes, dllhash 0x%08x/
+        $s2 = /The file does not exist on this server!/
+        $s3 = /WARNING: loading PE file without \.reloc section!/
+        $s4 = /x86 version supports x86 shellcode only!/
 
     condition:
         uint16(0) == 0x5A4D and

@@ -15,7 +15,7 @@ rule Windows_VulnDriver_Yy_b8f7d8d3 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 59 59 20 49 6E 63 2E }
-        $str1 = "YYProtect.pdb"
+        $str1 = /YYProtect\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }

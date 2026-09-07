@@ -17,9 +17,9 @@ rule Windows_VulnDriver_Interface_4198ec94 {
         $subject_name = { 06 03 55 04 03 [2] 49 6E 74 65 72 66 61 63 65 20 43 6F 72 70 6F 72 61 74 69 6F 6E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 43 00 50 00 32 00 58 00 37 00 32 00 43 00 2E 00 53 00 59 00 53 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x02][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x1d][\x00-\x00][\x03-\x03][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x1e-\x1e][\x00-\x00][\x03-\x03][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x20][\x00-\x00]|[\x1e-\x1e][\x00-\x00][\x03-\x03][\x00-\x00][\x00-\x00][\x00-\x00][\x21-\x21][\x00-\x00])/
-        $str1 = "CP2X72C.pdb"
-        $str2 = "GPC-2X72C DIO-BM(PCI/C-PCI)" wide
-        $str3 = "GPC-2X72C I/O Module Device Driver" wide
+        $str1 = /CP2X72C\.pdb/
+        $str2 = /GPC-2X72C DIO-BM\(PCI\/C-PCI\)/ wide
+        $str3 = /GPC-2X72C I\/O Module Device Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -43,9 +43,9 @@ rule Windows_VulnDriver_Interface_61f02a08 {
         $subject_name = { 06 03 55 04 03 [2] 49 6E 74 65 72 66 61 63 65 20 43 6F 72 70 6F 72 61 74 69 6F 6E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 43 00 50 00 32 00 58 00 37 00 32 00 43 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x3c][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x3d-\x3d][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x13][\x00-\x00]|[\x3d-\x3d][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00][\x14-\x14][\x00-\x00])/
-        $str1 = "CP2X72C.pdb"
-        $str2 = "GPC-2X72C" wide
-        $str3 = "GPC-2X72C Kernel Device Driver(SYS) WindowsNT" wide
+        $str1 = /CP2X72C\.pdb/
+        $str2 = /GPC-2X72C/ wide
+        $str3 = /GPC-2X72C Kernel Device Driver\(SYS\) WindowsNT/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }

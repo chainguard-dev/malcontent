@@ -13,8 +13,8 @@ rule dev_path: medium {
     // a separate question from the counting fix below and needs its own review of
     // what it removes; see audit.md.
     $path        = /\/dev\/[\w\.\-\/]{1,16}/
-    $ignore_null = "/dev/null"
-    $ignore_shm  = "/dev/shm/"
+    $ignore_null = /\/dev\/null/
+    $ignore_shm  = /\/dev\/shm\//
 
   condition:
     // $path matches "/dev/null" and "/dev/shm/" themselves, and nearly every binary

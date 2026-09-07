@@ -5,9 +5,9 @@ rule librechat_anthropic_thinking: override {
     SIGNATURE_BASE_SUSP_Claude_Redacted_Thinking_Magic_String_Jan26_2 = "harmless"
 
   strings:
-    $anchor1  = "createContentAggregator"
-    $anchor2  = "_convertMessagesToAnthropicPayload"
-    $thinking = "ANTHROPIC_MAGIC_STRING_TRIGGER_REDACTED_THINKING_"
+    $anchor1  = /createContentAggregator/
+    $anchor2  = /_convertMessagesToAnthropicPayload/
+    $thinking = /ANTHROPIC_MAGIC_STRING_TRIGGER_REDACTED_THINKING_/
 
   condition:
     filesize < 200KB and $thinking and 1 of ($anchor*)
@@ -21,9 +21,9 @@ rule librechat_pdfjs_worker: override {
     xor_url     = "low"
 
   strings:
-    $anchor1 = "pdfjsVersion = "
-    $anchor2 = "pdfjsBuild = "
-    $anchor3 = "pdfjs_internal_editor_"
+    $anchor1 = /pdfjsVersion = /
+    $anchor2 = /pdfjsBuild = /
+    $anchor3 = /pdfjs_internal_editor_/
 
   condition:
     filesize < 3MB and all of them

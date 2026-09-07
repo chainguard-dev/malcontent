@@ -13,7 +13,7 @@ rule Windows_VulnDriver_MsIo_aa20a3c6 {
         license = "Elastic License v2"
         os = "windows"
     strings:
-        $str1 = "\\MsIo32.pdb"
+        $str1 = /\\MsIo32\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $str1
 }
@@ -33,7 +33,7 @@ rule Windows_VulnDriver_MsIo_ce0bda23 {
         license = "Elastic License v2"
         os = "windows"
     strings:
-        $str1 = "\\MsIo64.pdb"
+        $str1 = /\\MsIo64\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $str1
 }

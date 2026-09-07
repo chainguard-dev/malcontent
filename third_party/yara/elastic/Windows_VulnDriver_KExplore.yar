@@ -15,7 +15,7 @@ rule Windows_VulnDriver_KExplore_30925683 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 50 61 76 65 6C 20 59 6F 73 69 66 6F 76 69 63 68 }
-        $str1 = "KRegExp.pdb"
+        $str1 = /KRegExp\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }
@@ -37,7 +37,7 @@ rule Windows_VulnDriver_KExplore_929d04c4 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 50 61 76 65 6C 20 59 6F 73 69 66 6F 76 69 63 68 }
-        $str1 = "KObjExp.pdb"
+        $str1 = /KObjExp\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }
@@ -59,7 +59,7 @@ rule Windows_VulnDriver_KExplore_3fb07df2 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 50 61 76 65 6C 20 59 6F 73 69 66 6F 76 69 63 68 }
-        $str1 = "KExplore.pdb"
+        $str1 = /KExplore\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }
@@ -81,7 +81,7 @@ rule Windows_VulnDriver_KExplore_c14d7a55 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 57 44 4B 54 65 73 74 43 65 72 74 20 50 61 76 65 6C 2C 31 33 32 30 39 36 33 31 30 35 31 38 34 30 30 35 39 39 }
-        $str1 = "KObjExp.pdb"
+        $str1 = /KObjExp\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }

@@ -4,14 +4,14 @@ private rule random_behavior_pythonSetup {
   strings:
     $if_distutils  = /from distutils.core import .{0,32}setup/
     $if_setuptools = /from setuptools import .{0,32}setup/
-    $i_setuptools  = "import setuptools"
-    $setup         = "setup("
+    $i_setuptools  = /import setuptools/
+    $setup         = /setup\(/
 
-    $not_setup_example = ">>> setup("
-    $not_setup_todict  = "setup(**config.todict()"
-    $not_import_quoted = "\"from setuptools import setup"
-    $not_setup_quoted  = "\"setup(name="
-    $not_distutils     = "from distutils.errors import"
+    $not_setup_example = />>> setup\(/
+    $not_setup_todict  = /setup\(\*\*config\.todict\(\)/
+    $not_import_quoted = /"from setuptools import setup/
+    $not_setup_quoted  = /"setup\(name=/
+    $not_distutils     = /from distutils\.errors import/
 
   // "setup(" is a substring of the first, second and fourth suppressors, so a
   // docstring example or quoted snippet hid a real setup() call in the same
@@ -54,7 +54,7 @@ rule go_rand: medium {
     filetypes   = "go"
 
   strings:
-    $ref = "math/rand"
+    $ref = /math\/rand/
 
   condition:
     filesize < 100MB and any of them
@@ -66,7 +66,7 @@ rule rand_call: medium {
     filetypes   = "c,pl,php"
 
   strings:
-    $ref = "rand()"
+    $ref = /rand\(\)/
 
   condition:
     filesize < 1MB and any of them

@@ -4,7 +4,7 @@ rule netcat_exec_backdoor: high {
     description = "netcat backdoor"
 
   strings:
-    $nc_e = "nc -e "
+    $nc_e = /nc -e /
 
   condition:
     filesize < 10485760 and all of them
@@ -12,14 +12,14 @@ rule netcat_exec_backdoor: high {
 
 rule generic_perl_socket_exec {
   strings:
-    $perl         = "perl"
-    $socket_inet  = "IO::Socket::INET"
-    $socket       = "use Socket"
-    $and_exec     = "exec"
-    $and_system   = "system("
-    $and_backtick = "`;"
-    $not_nuclei   = "NUCLEI_TEMPLATES"
-    $not_kitten   = "KITTY_KITTEN_RUN_MODULE"
+    $perl         = /perl/
+    $socket_inet  = /IO::Socket::INET/
+    $socket       = /use Socket/
+    $and_exec     = /exec/
+    $and_system   = /system\(/
+    $and_backtick = /`;/
+    $not_nuclei   = /NUCLEI_TEMPLATES/
+    $not_kitten   = /KITTY_KITTEN_RUN_MODULE/
 
   condition:
     filesize < 1048576 and $perl and any of ($socket*) and any of ($and_*) and none of ($not_*)
@@ -57,17 +57,17 @@ rule pcap_shell_exec: high {
     filetypes = "elf,macho"
 
   strings:
-    $libpcap        = "libpcap"
-    $shell          = "shell" fullword
-    $sh             = "/bin/sh"
-    $sh_bash        = "/bin/bash"
-    $y_exec         = "exec" fullword
-    $y_execve       = "execve" fullword
-    $y_execvp       = "execvp" fullword
-    $y_system       = "system" fullword
-    $not_airportd   = "airportd"
-    $not_license    = "Alternate form in libpcap, which also omits the IN NO EVENT paragraph"
-    $not_pypi_index = "testpack-id-lb001"
+    $libpcap        = /libpcap/
+    $shell          = /shell/ fullword
+    $sh             = /\/bin\/sh/
+    $sh_bash        = /\/bin\/bash/
+    $y_exec         = /exec/ fullword
+    $y_execve       = /execve/ fullword
+    $y_execvp       = /execvp/ fullword
+    $y_system       = /system/ fullword
+    $not_airportd   = /airportd/
+    $not_license    = /Alternate form in libpcap, which also omits the IN NO EVENT paragraph/
+    $not_pypi_index = /testpack-id-lb001/
 
   condition:
     filesize < 10MB and filesize > 20KB and $libpcap and any of ($sh*) and any of ($y*) and none of ($not*)
@@ -94,11 +94,11 @@ rule dropshell: high {
     description = "provides remote shell access"
 
   strings:
-    $ = "dropshell" fullword
-    $ = "/bin/bash" fullword
-    $ = "execve" fullword
-    $ = "accept" fullword
-    $ = "inet_"
+    $ = /dropshell/ fullword
+    $ = /\/bin\/bash/ fullword
+    $ = /execve/ fullword
+    $ = /accept/ fullword
+    $ = /inet_/
 
   condition:
     filesize < 1MB and all of them

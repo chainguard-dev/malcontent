@@ -15,7 +15,7 @@ rule Windows_VulnDriver_IcpDas_24c997de {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 49 43 50 20 44 41 53 20 43 6F 2E 2C 20 4C 54 44 2E }
-        $str1 = "CardIo.pdb"
+        $str1 = /CardIo\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }

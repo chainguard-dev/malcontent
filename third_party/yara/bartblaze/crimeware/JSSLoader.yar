@@ -18,19 +18,19 @@ rule JSSLoader
         mitre_att = "S0648"
 
     strings:
-        $s1 = "desktop_file_list" ascii wide fullword
-        $s2 = "adinfo" ascii wide fullword
-        $s3 = "no_ad" ascii wide fullword
-        $s4 = "adinformation" ascii wide fullword
-        $s5 = "part_of_domain" ascii wide fullword
-        $s6 = "pc_domain" ascii wide fullword
-        $s7 = "pc_dns_host_name" ascii wide fullword
-        $s8 = "pc_model" ascii wide fullword
-        $x1 = "/?id=" ascii wide
-        $x2 = "failed start exe" ascii wide
-        $x3 = "Sending timer request failed, error code" ascii wide
-        $x4 = "Internet connection failed, error code" ascii wide
-        $x5 = "Sending initial request failed, error code" ascii wide
+        $s1 = /desktop_file_list/ ascii wide fullword
+        $s2 = /adinfo/ ascii wide fullword
+        $s3 = /no_ad/ ascii wide fullword
+        $s4 = /adinformation/ ascii wide fullword
+        $s5 = /part_of_domain/ ascii wide fullword
+        $s6 = /pc_domain/ ascii wide fullword
+        $s7 = /pc_dns_host_name/ ascii wide fullword
+        $s8 = /pc_model/ ascii wide fullword
+        $x1 = /\/\?id=/ ascii wide
+        $x2 = /failed start exe/ ascii wide
+        $x3 = /Sending timer request failed, error code/ ascii wide
+        $x4 = /Internet connection failed, error code/ ascii wide
+        $x5 = /Sending initial request failed, error code/ ascii wide
 
     condition:
         filesize <200KB and (all of ($s*) or 3 of ($x*))

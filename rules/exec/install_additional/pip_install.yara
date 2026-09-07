@@ -58,10 +58,10 @@ rule pip_installer_url: critical {
   strings:
     $ref = /pip.{1,5}install.{1,4}https{0,1}:\/\/.{0,64}/
 
-    $not_langchain_comment1 = "Please install the exllamav2 library with (cuda 12.1 is required)"
-    $not_langchain_comment2 = "example : "
-    $not_langchain_comment3 = "\"!python -m pip install https://github.com/turboderp/exllamav2/releases/download/v0.0.12/exllamav2-0.0.12+cu121-cp311-cp311-linux_x86_64.whl\""
-    $not_mlflow_docker      = "from mlflow.environment_variables import MLFLOW_DOCKER_OPENJDK_VERSION"
+    $not_langchain_comment1 = /Please install the exllamav2 library with \(cuda 12\.1 is required\)/
+    $not_langchain_comment2 = /example : /
+    $not_langchain_comment3 = /"!python -m pip install https:\/\/github\.com\/turboderp\/exllamav2\/releases\/download\/v0\.0\.12\/exllamav2-0\.0\.12\+cu121-cp311-cp311-linux_x86_64\.whl"/
+    $not_mlflow_docker      = /from mlflow\.environment_variables import MLFLOW_DOCKER_OPENJDK_VERSION/
 
   condition:
     // The three langchain strings are one docstring: comment2 is the bare

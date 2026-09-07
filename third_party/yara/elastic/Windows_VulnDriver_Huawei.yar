@@ -15,7 +15,7 @@ rule Windows_VulnDriver_Huawei_fbb14476 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 48 75 61 77 65 69 20 54 65 63 68 6E 6F 6C 6F 67 69 65 73 20 43 6F 2E 2C 20 4C 74 64 2E }
-        $str1 = "winio64.pdb"
+        $str1 = /winio64\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }
@@ -37,7 +37,7 @@ rule Windows_VulnDriver_Huawei_f7cd7337 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 48 75 61 77 65 69 20 54 65 63 68 6E 6F 6C 6F 67 69 65 73 20 43 6F 2E 2C 4C 74 64 2E }
-        $str1 = "Phymemx64.pdb"
+        $str1 = /Phymemx64\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }
@@ -61,9 +61,9 @@ rule Windows_VulnDriver_Huawei_c1edf9a4 {
         $subject_name = { 06 03 55 04 03 [2] 4D 69 63 72 6F 73 6F 66 74 20 57 69 6E 64 6F 77 73 20 48 61 72 64 77 61 72 65 20 43 6F 6D 70 61 74 69 62 69 6C 69 74 79 20 50 75 62 6C 69 73 68 65 72 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 48 00 57 00 41 00 75 00 69 00 64 00 6F 00 4F 00 73 00 32 00 45 00 63 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "HWAudioOs2Ec.pdb"
-        $str2 = "Huawei Audio Driver" wide
-        $str3 = "HWAuidoOs2Ec" wide
+        $str1 = /HWAudioOs2Ec\.pdb/
+        $str2 = /Huawei Audio Driver/ wide
+        $str3 = /HWAuidoOs2Ec/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -87,8 +87,8 @@ rule Windows_VulnDriver_Huawei_fcf62f24 {
         $subject_name = { 06 03 55 04 03 [2] 48 75 61 77 65 69 20 54 65 63 68 6E 6F 6C 6F 67 69 65 73 20 43 6F 2E 2C 4C 74 64 2E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 48 00 77 00 4F 00 73 00 32 00 45 00 63 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "HwOs2Ecx64.pdb"
-        $str2 = "Huawei MateBook" wide
+        $str1 = /HwOs2Ecx64\.pdb/
+        $str2 = /Huawei MateBook/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2
 }
@@ -112,8 +112,8 @@ rule Windows_VulnDriver_Huawei_651f0fbc {
         $subject_name = { 06 03 55 04 03 [2] 48 75 61 77 65 69 20 54 65 63 68 6E 6F 6C 6F 67 69 65 73 20 43 6F 2E 2C 20 4C 74 64 2E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 48 00 77 00 4F 00 73 00 32 00 45 00 63 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "HwOs2Ecx64.pdb"
-        $str2 = "Huawei MateBook" wide
+        $str1 = /HwOs2Ecx64\.pdb/
+        $str2 = /Huawei MateBook/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2
 }
@@ -136,11 +136,11 @@ rule Windows_VulnDriver_Huawei_66909102 {
     strings:
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 48 00 57 00 41 00 75 00 69 00 64 00 6F 00 4F 00 73 00 32 00 45 00 63 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "HWAudioOs2Ec.pdb"
-        $str2 = "IOCTL_SETTING_LOGO"
-        $str3 = "IOCTL_SETTING_PDB"
-        $str4 = "Huawei Audio Driver" wide
-        $str5 = "HWAuidoOs2Ec" wide
+        $str1 = /HWAudioOs2Ec\.pdb/
+        $str2 = /IOCTL_SETTING_LOGO/
+        $str3 = /IOCTL_SETTING_PDB/
+        $str4 = /Huawei Audio Driver/ wide
+        $str5 = /HWAuidoOs2Ec/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $original_file_name and $version and $str1 and $str2 and $str3 and $str4 and $str5
 }
@@ -164,10 +164,10 @@ rule Windows_VulnDriver_Huawei_de9f3338 {
         $subject_name = { 06 03 55 04 03 [2] 48 75 61 77 65 69 20 44 65 76 69 63 65 20 43 6F 2E 2C 20 4C 74 64 2E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 48 00 77 00 4F 00 73 00 32 00 45 00 63 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "HwOs2Ec10x64_C233.pdb"
-        $str2 = "IOCTL_SETTING_LOGO"
-        $str3 = "IOCTL_SETTING_PDB"
-        $str4 = "Huawei MateBook" wide
+        $str1 = /HwOs2Ec10x64_C233\.pdb/
+        $str2 = /IOCTL_SETTING_LOGO/
+        $str3 = /IOCTL_SETTING_PDB/
+        $str4 = /Huawei MateBook/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3 and $str4
 }

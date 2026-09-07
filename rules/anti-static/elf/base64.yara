@@ -17,7 +17,7 @@ rule elf_contains_base64_elf: critical {
     filetypes   = "elf"
 
   strings:
-    $elf_head = "f0VMRgI"
+    $elf_head = /f0VMRgI/
 
   condition:
     uint32(0) == 1179403647 and any of them

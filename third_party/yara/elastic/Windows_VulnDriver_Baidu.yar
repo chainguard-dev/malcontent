@@ -16,9 +16,9 @@ rule Windows_VulnDriver_Baidu_33e4d411 {
     strings:
         $subject_name = { 06 03 55 04 03 [2] E5 B1 B1 E8 A5 BF E8 8D A3 E5 8D 87 E6 BA 90 E7 A7 91 E8 B4 B8 E6 9C 89 E9 99 90 E5 85 AC E5 8F B8 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x04][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x05-\x05][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x02][\x00-\x00]|[\x00-\x00][\x00-\x00][\x05-\x05][\x00-\x00]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x48]|[\x00-\x6c][\x49-\x49])[\x03-\x03][\x00-\x00]|[\x00-\x00][\x00-\x00][\x05-\x05][\x00-\x00][\x6d-\x6d][\x49-\x49][\x03-\x03][\x00-\x00])/
-        $str1 = "BdApiUtil64.pdb"
-        $str2 = "Baidu Antivirus" wide
-        $str3 = "Baidu Antivirus BdApi Driver" wide
+        $str1 = /BdApiUtil64\.pdb/
+        $str2 = /Baidu Antivirus/ wide
+        $str3 = /Baidu Antivirus BdApi Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $version and $str1 and $str2 and $str3
 }
@@ -41,9 +41,9 @@ rule Windows_VulnDriver_Baidu_03175bb0 {
     strings:
         $subject_name = { 06 03 55 04 03 [2] 42 61 69 64 75 20 4F 6E 6C 69 6E 65 20 4E 65 74 77 6F 72 6B 20 54 65 63 68 6E 6F 6C 6F 67 79 20 28 42 65 69 6A 69 6E 67 29 43 6F 2E 2C 20 4C 74 64 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x04][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x03][\x00-\x00][\x05-\x05][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x04-\x04][\x00-\x00][\x05-\x05][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x02][\x00-\x00]|[\x04-\x04][\x00-\x00][\x05-\x05][\x00-\x00]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\xcf]|[\x00-\x1b][\xd0-\xd0])[\x03-\x03][\x00-\x00]|[\x04-\x04][\x00-\x00][\x05-\x05][\x00-\x00][\x1c-\x1c][\xd0-\xd0][\x03-\x03][\x00-\x00])/
-        $str1 = "BdApiUtil64.pdb"
-        $str2 = "Baidu Antivirus" wide
-        $str3 = "Baidu Antivirus BdApi Driver" wide
+        $str1 = /BdApiUtil64\.pdb/
+        $str2 = /Baidu Antivirus/ wide
+        $str3 = /Baidu Antivirus BdApi Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $version and $str1 and $str2 and $str3
 }
@@ -66,9 +66,9 @@ rule Windows_VulnDriver_Baidu_63b3f755 {
     strings:
         $subject_name = { 06 03 55 04 03 [2] 42 41 46 20 47 45 52 4D 41 4E 59 20 50 52 49 56 41 54 45 20 4C 49 4D 49 54 45 44 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x04][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x05-\x05][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x02][\x00-\x00]|[\x00-\x00][\x00-\x00][\x05-\x05][\x00-\x00]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x48]|[\x00-\x6c][\x49-\x49])[\x03-\x03][\x00-\x00]|[\x00-\x00][\x00-\x00][\x05-\x05][\x00-\x00][\x6d-\x6d][\x49-\x49][\x03-\x03][\x00-\x00])/
-        $str1 = "BdApiUtil64.pdb"
-        $str2 = "Baidu Antivirus" wide
-        $str3 = "Baidu Antivirus BdApi Driver" wide
+        $str1 = /BdApiUtil64\.pdb/
+        $str2 = /Baidu Antivirus/ wide
+        $str3 = /Baidu Antivirus BdApi Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $version and $str1 and $str2 and $str3
 }
@@ -91,9 +91,9 @@ rule Windows_VulnDriver_Baidu_a47d1415 {
     strings:
         $subject_name = { 06 03 55 04 03 [2] 50 61 72 74 6E 65 72 20 54 65 63 68 28 53 68 61 6E 67 68 61 69 29 43 6F 2E 2C 4C 74 64 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x04][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x05-\x05][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x02][\x00-\x00]|[\x00-\x00][\x00-\x00][\x05-\x05][\x00-\x00]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x48]|[\x00-\x6c][\x49-\x49])[\x03-\x03][\x00-\x00]|[\x00-\x00][\x00-\x00][\x05-\x05][\x00-\x00][\x6d-\x6d][\x49-\x49][\x03-\x03][\x00-\x00])/
-        $str1 = "BdApiUtil64.pdb"
-        $str2 = "Baidu Antivirus" wide
-        $str3 = "Baidu Antivirus BdApi Driver" wide
+        $str1 = /BdApiUtil64\.pdb/
+        $str2 = /Baidu Antivirus/ wide
+        $str3 = /Baidu Antivirus BdApi Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $version and $str1 and $str2 and $str3
 }
@@ -116,9 +116,9 @@ rule Windows_VulnDriver_Baidu_225408a6 {
     strings:
         $subject_name = { 06 03 55 04 03 [2] 42 61 69 64 75 20 4F 6E 6C 69 6E 65 20 4E 65 74 77 6F 72 6B 20 54 65 63 68 6E 6F 6C 6F 67 79 20 28 42 65 69 6A 69 6E 67 29 20 43 6F 2E 2C 4C 74 64 2E }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x04][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x03][\x00-\x00][\x05-\x05][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x04-\x04][\x00-\x00][\x05-\x05][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x02][\x00-\x00]|[\x04-\x04][\x00-\x00][\x05-\x05][\x00-\x00]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\xe7]|[\x00-\xb2][\xe8-\xe8])[\x03-\x03][\x00-\x00]|[\x04-\x04][\x00-\x00][\x05-\x05][\x00-\x00][\xb3-\xb3][\xe8-\xe8][\x03-\x03][\x00-\x00])/
-        $str1 = "BdApiUtil64.pdb"
-        $str2 = "Baidu Antivirus" wide
-        $str3 = "Baidu Antivirus BdApi Driver" wide
+        $str1 = /BdApiUtil64\.pdb/
+        $str2 = /Baidu Antivirus/ wide
+        $str3 = /Baidu Antivirus BdApi Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $version and $str1 and $str2 and $str3
 }

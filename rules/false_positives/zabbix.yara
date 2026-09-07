@@ -7,8 +7,8 @@ rule zabbix_binary: override {
     proc_d_cmdline  = "low"
 
   strings:
-    $vendor   = "Zabbix SIA"
-    $homepage = "Zabbix home page: <http"
+    $vendor   = /Zabbix SIA/
+    $homepage = /Zabbix home page: <http/
 
   condition:
     filesize < 10MB and all of them

@@ -14,10 +14,10 @@ rule ISO_exec
         category = "MALWARE"
 
 strings:
-       $ = "\\System32\\cmd.exe" ascii wide nocase
-       $ = "\\System32\\rundll32.exe" ascii wide nocase
-       $ = "OSTA Compressed Unicode" ascii wide
-       $ = "UDF Image Creator" ascii wide
+       $ = /\\System32\\cmd\.exe/ ascii wide nocase
+       $ = /\\System32\\rundll32\.exe/ ascii wide nocase
+       $ = /OSTA Compressed Unicode/ ascii wide
+       $ = /UDF Image Creator/ ascii wide
 
 condition:
        uint16(0) != 0x5a4d and 3 of them

@@ -23,14 +23,14 @@ rule possible_reverse_shell: medium {
     description = "references a reverse shell"
 
   strings:
-    $f_reverse = "reverse"
-    $f_socket  = "socket" fullword
-    $sh_bash   = "/bin/bash"
-    $sh        = "/bin/sh"
+    $f_reverse = /reverse/
+    $f_socket  = /socket/ fullword
+    $sh_bash   = /\/bin\/bash/
+    $sh        = /\/bin\/sh/
 
-    $not_elastic    = "\"license\": \"Elastic License v2\""
-    $not_uc2        = "ucs2reverse"
-    $not_pypi_index = "testpack-id-lb001"
+    $not_elastic    = /"license": "Elastic License v2"/
+    $not_uc2        = /ucs2reverse/
+    $not_pypi_index = /testpack-id-lb001/
 
   condition:
     filesize < 4MB and any of ($sh*) and all of ($f*) and none of ($not*)
@@ -41,8 +41,8 @@ rule mkfifo_netcat: critical {
     description = "creates a reverse shell using mkfifo and netcat"
 
   strings:
-    $mkfifo = "mkfifo" fullword
-    $sh_i   = "sh -i"
+    $mkfifo = /mkfifo/ fullword
+    $sh_i   = /sh -i/
     $nc     = /\| {0,2}nc /
 
   condition:
@@ -81,12 +81,12 @@ rule go_reverse_shell: high {
     description = "possible reverse shell written in Go"
 
   strings:
-    $sh_bash    = "/bin/bash"
-    $sh         = "/bin/sh"
-    $f_cmd_run  = "os/exec.(*Cmd).Run"
-    $f_net_conn = "net.(*conn).Write"
-    $f_stdin    = "os/exec.(*Cmd).childStdin"
-    $f_tcp      = "dialTCP"
+    $sh_bash    = /\/bin\/bash/
+    $sh         = /\/bin\/sh/
+    $f_cmd_run  = /os\/exec\.\(\*Cmd\)\.Run/
+    $f_net_conn = /net\.\(\*conn\)\.Write/
+    $f_stdin    = /os\/exec\.\(\*Cmd\)\.childStdin/
+    $f_tcp      = /dialTCP/
 
   condition:
     filesize < 4MB and any of ($sh*) and all of ($f*)
@@ -113,7 +113,7 @@ rule ruby_tcpsocket_popen: high {
     $socket      = /TCPSocket\.[\w]{2,8}/
     $popen       = /\.popen\w{0,2}\(["'\w \.\#\{\}]{0,64}/
     $gets        = /\w{1,16}\.gets/
-    $copy_stream = "IO.copy_stream"
+    $copy_stream = /IO\.copy_stream/
 
   condition:
     filesize < 64KB and all of them
@@ -126,8 +126,8 @@ rule ruby_sneaky_socket: high {
   strings:
     $socket  = /Socket\.new/
     $connect = /\w{1,8}\.connect/
-    $bin_sh  = "/bin/sh -i"
-    $fd      = "fd" fullword
+    $bin_sh  = /\/bin\/sh -i/
+    $fd      = /fd/ fullword
 
   condition:
     filesize < 64KB and all of them

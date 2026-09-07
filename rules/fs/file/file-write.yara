@@ -18,7 +18,7 @@ rule python_file_write {
 
   strings:
     $val = /open\([\"\'\w\.]{1,32}\, {0,2}["'][wa]["']\)/
-    $x   = "file.write("
+    $x   = /file\.write\(/
 
   condition:
     filesize < 1MB and any of them

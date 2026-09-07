@@ -10,10 +10,10 @@ rule Lazarus_BILDINGCAN_RC4 {
             // mov     edx, r10d
             // mov     r11d, 0C00h
             //nop     dword ptr [rax+00000000h]
-         $id = "T1B7D95256A2001E" ascii
+         $id = /T1B7D95256A2001E/ ascii
          $nop = { 66 66 66 66 0F 1F 84 00 00 00 00 }
-         $post = "id=%s%s&%s=%s&%s=%s&%s=" ascii
-         $command = "%s%sc \"%s > %s 2>&1" ascii
+         $post = /id=%s%s&%s=%s&%s=%s&%s=/ ascii
+         $command = /%s%sc "%s > %s 2>&1/ ascii
 
      condition:
          uint16(0) == 0x5a4d and 3 of them
@@ -27,7 +27,7 @@ rule Lazarus_BILDINGCAN_AES {
 
     strings:
         $AES = { 48 83 C3 04 30 43 FC 0F B6 44 1F FC 30 43 FD 0F B6 44 1F FD 30 43 FE 0F B6 44 1F FE 30 43 FF 48 FF C9 }
-        $pass = "RC2zWLyG50fPIPkQ" wide
+        $pass = /RC2zWLyG50fPIPkQ/ wide
         $nop = { 66 66 66 66 0F 1F 84 00 00 00 00 }
         $confsize = { 48 8D ?? ?? ?? ?? 00 BA F0 06 00 00 E8 }
         $buffsize = { 00 00 C7 ?? ?? ??  B8 8E 03 00 }
@@ -60,11 +60,11 @@ rule Lazarus_Torisma_strvest {
 
 
     strings:
-         $post1 = "ACTION=NEXTPAGE" ascii
-         $post2 = "ACTION=PREVPAGE" ascii
-         $post3 = "ACTION=VIEW" ascii
-         $post4 = "Your request has been accepted. ClientID" ascii
-         $password = "ff7172d9c888b7a88a7d77372112d772" ascii
+         $post1 = /ACTION=NEXTPAGE/ ascii
+         $post2 = /ACTION=PREVPAGE/ ascii
+         $post3 = /ACTION=VIEW/ ascii
+         $post4 = /Your request has been accepted\. ClientID/ ascii
+         $password = /ff7172d9c888b7a88a7d77372112d772/ ascii
          $vestt = { 4F 70 46 DA E1 8D F6 41 }
          $vestsbox = { 07 56 D2 37 3A F7 0A 52 }
          $vestrns = { 41 4B 1B DD 0D 65 72 EE }
@@ -80,9 +80,9 @@ rule Lazarus_LCPDot_strings {
 
 
     strings:
-         $ua = "Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko" wide
-         $class = "HotPlugin_class" wide
-         $post = "Cookie=Enable&CookieV=%d&Cookie_Time=64" ascii
+         $ua = /Mozilla\/5\.0 \(Windows NT 10\.0; WOW64; Trident\/7\.0; rv:11\.0\) like Gecko/ wide
+         $class = /HotPlugin_class/ wide
+         $post = /Cookie=Enable&CookieV=%d&Cookie_Time=64/ ascii
 
      condition:
          uint16(0) == 0x5a4d and all of them
@@ -263,7 +263,7 @@ rule Lazarus_packer_upxmems {
                                        // rol eax, 10h
                                        // xchg al, ah
         $code2 = { 81 FD 00 FB FF FF 83 D1 02 8D } // cmp ebp, FFFFFB00h    adc ecx, 2
-        $sig = "MEMS" ascii
+        $sig = /MEMS/ ascii
      condition:
         all of ($code*) and #sig >= 3 and uint32(0x98) == 0x534d454d
 }
@@ -328,20 +328,20 @@ rule Lazarus_Dtrack_code {
         hash = "467893f5e343563ed7c46a553953de751405828061811c7a13dbc0ced81648bb"
 
      strings:
-        $rc4key1 = "xwqmxykgy0s4"
-        $rc4key2 = "hufkcohxyjrm"
-        $rc4key3 = "fm5hkbfxyhd4"
-        $rc4key4 = "ihy3ggfgyohx"
-        $rc4key5 = "fwpbqyhcyf2k"
-        $rc4key6 = "rcmgmg3ny3pa"
-        $rc4key7 = "a30gjwdcypey"
-        $zippass1 = "dkwero38oerA^t@#"
-        $zippass2 = "z0r0f1@123"
-        $str1 = "Using Proxy"
-        $str2 = "Preconfig"
-        $str3 = "%02d.%02d.%04d - %02d:%02d:%02d:%03d :"
-        $str4 = "%02X:%02X:%02X:%02X:%02X:%02X"
-        $str5 = "%s\\%c.tmp"
+        $rc4key1 = /xwqmxykgy0s4/
+        $rc4key2 = /hufkcohxyjrm/
+        $rc4key3 = /fm5hkbfxyhd4/
+        $rc4key4 = /ihy3ggfgyohx/
+        $rc4key5 = /fwpbqyhcyf2k/
+        $rc4key6 = /rcmgmg3ny3pa/
+        $rc4key7 = /a30gjwdcypey/
+        $zippass1 = /dkwero38oerA\^t@#/
+        $zippass2 = /z0r0f1@123/
+        $str1 = /Using Proxy/
+        $str2 = /Preconfig/
+        $str3 = /%02d\.%02d\.%04d - %02d:%02d:%02d:%03d :/
+        $str4 = /%02X:%02X:%02X:%02X:%02X:%02X/
+        $str5 = /%s\\%c\.tmp/
         $code = { 81 ?? EB 03 00 00 89 ?? ?? ?? FF FF 83 ?? ?? ?? FF FF 14 0F 87 EA 00 00 00 }
 
      condition:
@@ -357,14 +357,14 @@ rule Lazarus_keylogger_str {
         hash = "e0567863b10e9b1ac805292d30626ea24b28ee12f3682a93d29120db3b77a40a"
 
      strings:
-        $mutex = "c2hvcGxpZnRlcg"
-        $path = "%APPDATA%\\\\Microsoft\\\\Camio\\\\"
-        $str = "[%02d/%02d/%d %02d:%02d:%02d]"
-        $table1 = "CppSQLite3Exception"
-        $table2 = "CppSQLite3Query"
-        $table3 = "CppSQLite3DB"
-        $table4 = "CDataLog"
-        $table5 = "CKeyLogger"
+        $mutex = /c2hvcGxpZnRlcg/
+        $path = /%APPDATA%\\\\Microsoft\\\\Camio\\\\/
+        $str = /\[%02d\/%02d\/%d %02d:%02d:%02d\]/
+        $table1 = /CppSQLite3Exception/
+        $table2 = /CppSQLite3Query/
+        $table3 = /CppSQLite3DB/
+        $table4 = /CDataLog/
+        $table5 = /CKeyLogger/
 
      condition:
        uint16(0) == 0x5A4D and
@@ -381,15 +381,15 @@ rule Lazarus_DreamJob_doc2021 {
 
 
      strings:
-        $peheadb64 = "dCBiZSBydW4gaW4gRE9TIG1vZGU"
-        $command1 = "cmd /c copy /b %systemroot%\\system32\\"
-        $command2 = "Select * from Win32_Process where name"
-        $command3 = "cmd /c explorer.exe /root"
-        $command4 = "-decode"
-        $command5 = "c:\\Drivers"
-        $command6 = "explorer.exe"
-        $command7 = "cmd /c md"
-        $command8 = "cmd /c del"
+        $peheadb64 = /dCBiZSBydW4gaW4gRE9TIG1vZGU/
+        $command1 = /cmd \/c copy \/b %systemroot%\\system32\\/
+        $command2 = /Select \* from Win32_Process where name/
+        $command3 = /cmd \/c explorer\.exe \/root/
+        $command4 = /-decode/
+        $command5 = /c:\\Drivers/
+        $command6 = /explorer\.exe/
+        $command7 = /cmd \/c md/
+        $command8 = /cmd \/c del/
 
      condition:
        uint16(0) == 0xCFD0 and
@@ -420,8 +420,8 @@ rule Lazarus_obfuscate_string {
 
     strings:
         $str1 = { 2D 41 72 67 75 6D 65 6E 74 4C 69 73 74 20 27 5C 22 00 }
-        $str2 = "%^&|," wide
-        $str3 = "SeDebugPrivilege" wide
+        $str2 = /%\^&\|,/ wide
+        $str3 = /SeDebugPrivilege/ wide
 
     condition:
         uint16(0) == 0x5a4d and
@@ -437,26 +437,26 @@ rule Lazarus_VSingle_github {
         hash = "2eb16dbc1097a590f07787ab285a013f5fe235287cb4fb948d4f9cce9efa5dbc"
 
      strings:
-        $str1 = "Arcan3" ascii wide fullword
-        $str2 = "Wr0te" ascii wide fullword
-        $str3 = "luxuryboy" ascii wide fullword
-        $str4 = "pnpgather" ascii wide fullword
-        $str5 = "happyv1m" ascii wide fullword
-        $str6 = "laz3rpik" ascii wide fullword
-        $str7 = "d0ta" ascii wide fullword
-        $str8 = "Dronek" ascii wide fullword
-        $str9 = "Panda3" ascii wide fullword
-        $str10 = "cpsponso" ascii wide fullword
-        $str11 = "ggo0dlluck" ascii wide fullword
-        $str12 = "gar3ia" ascii wide fullword
-        $str13 = "wo0d" ascii wide fullword
-        $str14 = "tr3e" ascii wide fullword
-        $str15 = "l0ve" ascii wide fullword
-        $str16 = "v0siej" ascii wide fullword
-        $str17 = "e0vvsje" ascii wide fullword
-        $str18 = "polaris" ascii wide fullword
-        $str19 = "grav1ty" ascii wide fullword
-        $str20 = "w1inter" ascii wide fullword
+        $str1 = /Arcan3/ ascii wide fullword
+        $str2 = /Wr0te/ ascii wide fullword
+        $str3 = /luxuryboy/ ascii wide fullword
+        $str4 = /pnpgather/ ascii wide fullword
+        $str5 = /happyv1m/ ascii wide fullword
+        $str6 = /laz3rpik/ ascii wide fullword
+        $str7 = /d0ta/ ascii wide fullword
+        $str8 = /Dronek/ ascii wide fullword
+        $str9 = /Panda3/ ascii wide fullword
+        $str10 = /cpsponso/ ascii wide fullword
+        $str11 = /ggo0dlluck/ ascii wide fullword
+        $str12 = /gar3ia/ ascii wide fullword
+        $str13 = /wo0d/ ascii wide fullword
+        $str14 = /tr3e/ ascii wide fullword
+        $str15 = /l0ve/ ascii wide fullword
+        $str16 = /v0siej/ ascii wide fullword
+        $str17 = /e0vvsje/ ascii wide fullword
+        $str18 = /polaris/ ascii wide fullword
+        $str19 = /grav1ty/ ascii wide fullword
+        $str20 = /w1inter/ ascii wide fullword
 
      condition:
        (uint32(0) == 0x464C457F and
@@ -506,10 +506,10 @@ rule Lazarus_msi_str {
 	
     strings:
         $magic = /^\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1\x00\x00\x00/
-        $s1 = "New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes 1) -RepetitionDuration (New-TimeSpan -Days 300)" ascii wide
-        $s2 = "New-ScheduledTaskAction -Execute \"c:\\windows\\system32\\pcalua.exe" ascii wide
-        $s3 = "function sendbi(pd)" ascii wide
-        $s4 = "\\n\\n\"+g_mac()+\"\\n\\n\"+g_proc()" ascii wide
+        $s1 = /New-ScheduledTaskTrigger -Once -At \(Get-Date\) -RepetitionInterval \(New-TimeSpan -Minutes 1\) -RepetitionDuration \(New-TimeSpan -Days 300\)/ ascii wide
+        $s2 = /New-ScheduledTaskAction -Execute "c:\\windows\\system32\\pcalua\.exe/ ascii wide
+        $s3 = /function sendbi\(pd\)/ ascii wide
+        $s4 = /\\n\\n"\+g_mac\(\)\+"\\n\\n"\+g_proc\(\)/ ascii wide
 
      condition:
        $magic at 0 and 2 of ($s*)
@@ -524,7 +524,7 @@ rule Lazarus_downloader_code {
      strings:
         $jmp = { 53 31 c0 50 50 50 50 50 C7 ?? ?? 00 00 00 00 EB 00 }
         $count = { 00 00 EB 00 B8 FF 59 62 02 3B 05 ?? ?? ?? 00 }
-        $api = "InitOnceExecuteOnce" ascii
+        $api = /InitOnceExecuteOnce/ ascii
 
      condition:
        uint16(0) == 0x5A4D and
@@ -540,16 +540,16 @@ rule Lazarus_magicpoint_code {
         hash = "6f11c52f01e5696b1ac0faf6c19b0b439ba6f48f1f9851e34f0fa582b09dfa48"
 
      strings:
-        $strPost1 = "mpVI=%s" ascii
-		  $strPost2 = "mpCMD=%s&mpVID=%s" ascii
-		  $strPost3 = "mpVCR=%s&mpID=%s" ascii
-        $strMsg1 = "Error creating pipe" ascii
-        $strMsg2 = "Error creating process" ascii
-        $strFormat = "%c%c%c%s%c%s" ascii
-		  $strUA = "Mozilla/88.0" ascii
-	     $strMutex = "LGMUQTW" ascii
-		  $strData = "xz36" ascii
-		  $strcmd = "cmd.exe /c %s" ascii
+        $strPost1 = /mpVI=%s/ ascii
+		  $strPost2 = /mpCMD=%s&mpVID=%s/ ascii
+		  $strPost3 = /mpVCR=%s&mpID=%s/ ascii
+        $strMsg1 = /Error creating pipe/ ascii
+        $strMsg2 = /Error creating process/ ascii
+        $strFormat = /%c%c%c%s%c%s/ ascii
+		  $strUA = /Mozilla\/88\.0/ ascii
+	     $strMutex = /LGMUQTW/ ascii
+		  $strData = /xz36/ ascii
+		  $strcmd = /cmd\.exe \/c %s/ ascii
 
      condition:
        uint16(0) == 0x5A4D and
@@ -564,12 +564,12 @@ rule lazarus_dbgsymbols_str{
          hash = "50869d2a713acf406e160d6cde3b442fafe7cfe1221f936f3f28c4b9650a66e9" 
 
        strings:
-         $str1 = "getsymbol" nocase
-         $str2 = "dbgsymbol.com" wide
-         $str3 = "c:\\symbols" wide
-         $str4 = "symchk.exe /r /if %s /s SRV*%s*%s" wide
-         $str5 = "Symbol Download Finished!" wide
-	      $filename = "symbolcheck.dll" wide
+         $str1 = /getsymbol/ nocase
+         $str2 = /dbgsymbol\.com/ wide
+         $str3 = /c:\\symbols/ wide
+         $str4 = /symchk\.exe \/r \/if %s \/s SRV\*%s\*%s/ wide
+         $str5 = /Symbol Download Finished!/ wide
+	      $filename = /symbolcheck\.dll/ wide
 
        condition:
          uint16(0) == 0x5A4D and
@@ -589,10 +589,10 @@ rule Lazarus_npmLoader_dll {
         $jnkcode = { 66 66 66 66 ?? ?? ?? ?? 00 00 00 00 00 }
         $enccode1 = { 81 E2 FF 03 00 00 41 81 E1 FF 03 00 00 81 E7 FF 03 00 00 81 E1 FF 03 00 00 }
         $enccode2 = { 48 33 D1 8B C1 41 C1 CA 0A C1 C0 09 81 E2 FF 03 00 00 44 33 D0 }
-        $pdb1 = "F:\\workspace\\CBG\\Loader\\npmLoaderDll\\x64\\Release\\npmLoaderDll.pdb" ascii wide
-        $pdb2 = "F:\\workspace\\CBG\\npmLoaderDll\\x64\\Release\\npmLoaderDll.pdb" ascii wide
-        $pdb3 = "D:\\workspace\\CBG\\Windows\\Loader\\npmLoaderDll\\x64\\Release\\npmLoaderDll.pdb" ascii wide
-        $pdb4 = "npmLoaderDll\\x64\\Release\\npmLoaderDll.pdb" ascii wide
+        $pdb1 = /F:\\workspace\\CBG\\Loader\\npmLoaderDll\\x64\\Release\\npmLoaderDll\.pdb/ ascii wide
+        $pdb2 = /F:\\workspace\\CBG\\npmLoaderDll\\x64\\Release\\npmLoaderDll\.pdb/ ascii wide
+        $pdb3 = /D:\\workspace\\CBG\\Windows\\Loader\\npmLoaderDll\\x64\\Release\\npmLoaderDll\.pdb/ ascii wide
+        $pdb4 = /npmLoaderDll\\x64\\Release\\npmLoaderDll\.pdb/ ascii wide
 
      condition:
        uint16(0) == 0x5A4D and

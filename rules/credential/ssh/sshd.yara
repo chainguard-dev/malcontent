@@ -37,8 +37,8 @@ rule sshd_proc: high {
     description = "Mentions SSHD proces"
 
   strings:
-    $ref  = "sshdproc"
-    $ref2 = "sshd_proc"
+    $ref  = /sshdproc/
+    $ref2 = /sshd_proc/
 
   condition:
     filesize < 1MB and any of them

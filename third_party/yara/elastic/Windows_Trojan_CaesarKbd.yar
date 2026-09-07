@@ -13,7 +13,7 @@ rule Windows_Trojan_CaesarKbd_32bb198b {
         license = "Elastic License v2"
         os = "windows"
     strings:
-        $str1 = "CaesarKbd_IOCtrl"
+        $str1 = /CaesarKbd_IOCtrl/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $str1
 }

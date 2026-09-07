@@ -9,9 +9,9 @@ rule vmtools: override {
     readdir_dlsym_interceptor = "medium"
 
   strings:
-    $vmtools   = "VMTools" fullword
-    $vmsupport = "VMSUPPORT" fullword
-    $vmware    = "VMware" fullword
+    $vmtools   = /VMTools/ fullword
+    $vmsupport = /VMSUPPORT/ fullword
+    $vmware    = /VMware/ fullword
 
   condition:
     filesize < 1MB and uint32(0) == 1179403647 and any of them

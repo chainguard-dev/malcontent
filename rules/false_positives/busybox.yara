@@ -3,9 +3,9 @@ rule is_busybox: low {
     description = "busybox binary"
 
   strings:
-    $ref  = "Usage: busybox" fullword
-    $ref2 = "BusyBox is copyrighted" fullword
-    $re3  = "is a multi-call binary that" fullword
+    $ref  = /Usage: busybox/ fullword
+    $ref2 = /BusyBox is copyrighted/ fullword
+    $re3  = /is a multi-call binary that/ fullword
 
   condition:
     filesize < 3MB and all of them

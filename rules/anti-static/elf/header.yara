@@ -42,10 +42,10 @@ rule high_entropy_header: high {
     filetypes   = "elf"
 
   strings:
-    $not_pyinst = "pyi-bootloader-ignore-signals"
-    $not_go     = "syscall_linux.go"
-    $not_go2    = "vdso_linux.go"
-    $not_module = ".module_license" fullword
+    $not_pyinst = /pyi-bootloader-ignore-signals/
+    $not_go     = /syscall_linux\.go/
+    $not_go2    = /vdso_linux\.go/
+    $not_module = /\.module_license/ fullword
 
   condition:
     uint32(0) == 1179403647 and elf.type == elf.ET_EXEC and math.entropy(1200, 4096) > 7 and none of ($not*)

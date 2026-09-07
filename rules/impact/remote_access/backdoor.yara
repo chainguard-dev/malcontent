@@ -1,10 +1,10 @@
 private rule wordlist {
   strings:
-    $scorpion = "scorpion"
-    $superman = "superman"
-    $porsche  = "porsche"
-    $cardinal = "cardinal"
-    $wombat   = "wombat"
+    $scorpion = /scorpion/
+    $superman = /superman/
+    $porsche  = /porsche/
+    $cardinal = /cardinal/
+    $wombat   = /wombat/
 
   condition:
     filesize < 100MB and 3 of them
@@ -19,9 +19,9 @@ rule backdoor: medium {
     // report one match per possible prefix length, which would inflate #ref below
     $ref = /[bB]ackdoor[\/a-zA-Z\-_ ]{0,48}/
 
-    $not_vcpu    = "VCPUInfoBackdoor"
-    $not_vmware  = "gGuestBackdoorOps"
-    $not_comment = "# backdoor:"
+    $not_vcpu    = /VCPUInfoBackdoor/
+    $not_vmware  = /gGuestBackdoorOps/
+    $not_comment = /# backdoor:/
 
   condition:
     // $ref matches inside each accepted spelling (VCPUInfoBackdoor,
@@ -47,14 +47,14 @@ rule backdoor_likely: high {
     description = "References a 'backdoor', uses sensitive Linux functions"
 
   strings:
-    $backdoor                     = "backdoor" fullword
-    $f_ld_preload                 = "LD_PRELOAD" fullword
-    $f_icmp                       = "ICMP" fullword
-    $f_preload                    = "/etc/ld.so.preload"
-    $f_sshd                       = "sshd" fullword
-    $f_readdir64                  = "readdir64" fullword
-    $not_BackdoorChannel_Fallback = "BackdoorChannel_Fallback"
-    $not_pypi_index               = "testpack-id-lb001"
+    $backdoor                     = /backdoor/ fullword
+    $f_ld_preload                 = /LD_PRELOAD/ fullword
+    $f_icmp                       = /ICMP/ fullword
+    $f_preload                    = /\/etc\/ld\.so\.preload/
+    $f_sshd                       = /sshd/ fullword
+    $f_readdir64                  = /readdir64/ fullword
+    $not_BackdoorChannel_Fallback = /BackdoorChannel_Fallback/
+    $not_pypi_index               = /testpack-id-lb001/
 
   condition:
     filesize < 10MB and $backdoor and any of ($f*) and none of ($not*)
@@ -68,8 +68,8 @@ rule backdoor_high: high {
     $lower_prefix = /(hidden|hide|icmp|pam|ssh|sshd)[ _]backdoor/
     $lower_sufifx = /backdoor[_ ](task|process|up|method|user|shell|login|pass)/
 
-    $not_falco_dev_null        = "/dev/null is a backdoor method"
-    $not_falco_backdoor_insert = "backdoor method for inserting special events"
+    $not_falco_dev_null        = /\/dev\/null is a backdoor method/
+    $not_falco_backdoor_insert = /backdoor method for inserting special events/
 
   condition:
     // the two $not strings are overlapping halves of one falco comment line and each
@@ -169,11 +169,11 @@ rule minecraft_load_fetch_class_backdoor: critical {
     filetypes   = "jar,java"
 
   strings:
-    $minecraft   = "minecraft"
-    $replace     = "loadReplacementClass"
+    $minecraft   = /minecraft/
+    $replace     = /loadReplacementClass/
     $url         = /https*:\/\/\w{1}[\w\.\/\&]{8,64}/
-    $classLoader = "ClassLoader"
-    $write       = "write"
+    $classLoader = /ClassLoader/
+    $write       = /write/
 
   condition:
     filesize < 2MB and all of them

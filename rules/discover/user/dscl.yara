@@ -4,8 +4,8 @@ rule dscl_caller: medium {
 
   strings:
     $dscl_local     = /dscl +\. +-\w{1,128}/
-    $dsenableroot   = "dsenableroot"
-    $not_read_users = "dscl . -read /Users/"
+    $dsenableroot   = /dsenableroot/
+    $not_read_users = /dscl \. -read \/Users\//
 
   // $dscl_local also matches the benign "dscl . -read /Users/" spelling, so one
   // directory read used to suppress every other dscl invocation in the same

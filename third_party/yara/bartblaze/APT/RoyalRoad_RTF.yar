@@ -19,9 +19,9 @@ rule RoyalRoad_RTF
 
 
     strings:
-        $rtf = "{\\rt"
-        $RR1 = "5C746D705C382E74" nocase
-        $RR2 = "5C417070446174615C4C6F63616C5C54656D705C382E74" nocase
+        $rtf = /\{\\rt/
+        $RR1 = /5C746D705C382E74/ nocase
+        $RR2 = /5C417070446174615C4C6F63616C5C54656D705C382E74/ nocase
 
     condition:
         $rtf at 0 and any of ($RR*)

@@ -17,8 +17,8 @@ rule Windows_VulnDriver_CSAgent_a9947237 {
         $subject_name = { 06 03 55 04 03 [2] E9 95 BF E6 B2 99 E6 81 92 E7 A5 A5 E4 BF A1 E6 81 AF E6 8A 80 E6 9C AF E6 9C 89 E9 99 90 E5 85 AC E5 8F B8 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 43 00 53 00 41 00 67 00 65 00 6E 00 74 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x05][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x21][\x00-\x00][\x06-\x06][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x22-\x22][\x00-\x00][\x06-\x06][\x00-\x00][\x00-\xff][\x00-\xff]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x38]|[\x00-\xd5][\x39-\x39])|[\x22-\x22][\x00-\x00][\x06-\x06][\x00-\x00][\x00-\x00][\x00-\x00][\xd6-\xd6][\x39-\x39])/
-        $str1 = "CrowdStrike Falcon Sensor" wide
-        $str2 = "CrowdStrike Falcon Sensor Driver" wide
+        $str1 = /CrowdStrike Falcon Sensor/ wide
+        $str2 = /CrowdStrike Falcon Sensor Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2
 }
@@ -42,8 +42,8 @@ rule Windows_VulnDriver_CSAgent_0e7710bf {
         $subject_name = { 06 03 55 04 03 [2] 46 75 7A 68 6F 75 20 44 69 6E 67 78 69 6E 20 54 72 61 64 65 20 43 6F 2E 2C 20 4C 74 64 2E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 43 00 53 00 41 00 67 00 65 00 6E 00 74 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x05][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x21][\x00-\x00][\x06-\x06][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x22-\x22][\x00-\x00][\x06-\x06][\x00-\x00][\x00-\xff][\x00-\xff]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x38]|[\x00-\xd5][\x39-\x39])|[\x22-\x22][\x00-\x00][\x06-\x06][\x00-\x00][\x00-\x00][\x00-\x00][\xd6-\xd6][\x39-\x39])/
-        $str1 = "CrowdStrike Falcon Sensor" wide
-        $str2 = "CrowdStrike Falcon Sensor Driver" wide
+        $str1 = /CrowdStrike Falcon Sensor/ wide
+        $str2 = /CrowdStrike Falcon Sensor Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2
 }
@@ -67,8 +67,8 @@ rule Windows_VulnDriver_CSAgent_08e01875 {
         $subject_name = { 06 03 55 04 03 [2] 46 45 49 20 58 49 41 4F }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 43 00 53 00 41 00 67 00 65 00 6E 00 74 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x05][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x21][\x00-\x00][\x06-\x06][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x22-\x22][\x00-\x00][\x06-\x06][\x00-\x00][\x00-\xff][\x00-\xff]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x38]|[\x00-\xd5][\x39-\x39])|[\x22-\x22][\x00-\x00][\x06-\x06][\x00-\x00][\x00-\x00][\x00-\x00][\xd6-\xd6][\x39-\x39])/
-        $str1 = "CrowdStrike Falcon Sensor" wide
-        $str2 = "CrowdStrike Falcon Sensor Driver" wide
+        $str1 = /CrowdStrike Falcon Sensor/ wide
+        $str2 = /CrowdStrike Falcon Sensor Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2
 }
@@ -92,8 +92,8 @@ rule Windows_VulnDriver_CSAgent_3f6d93e7 {
         $subject_name = { 06 03 55 04 03 [2] E6 96 B0 E7 96 86 E4 BA BF E4 BA 8B E8 81 94 E7 BD 91 E7 BB 9C E7 A7 91 E6 8A 80 E6 9C 89 E9 99 90 E5 85 AC E5 8F B8 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 43 00 53 00 41 00 67 00 65 00 6E 00 74 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x05][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x21][\x00-\x00][\x06-\x06][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x22-\x22][\x00-\x00][\x06-\x06][\x00-\x00][\x00-\xff][\x00-\xff]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x38]|[\x00-\xd5][\x39-\x39])|[\x22-\x22][\x00-\x00][\x06-\x06][\x00-\x00][\x00-\x00][\x00-\x00][\xd6-\xd6][\x39-\x39])/
-        $str1 = "CrowdStrike Falcon Sensor" wide
-        $str2 = "CrowdStrike Falcon Sensor Driver" wide
+        $str1 = /CrowdStrike Falcon Sensor/ wide
+        $str2 = /CrowdStrike Falcon Sensor Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2
 }
@@ -117,9 +117,9 @@ rule Windows_VulnDriver_CSAgent_6a60b5bb {
         $subject_name = { 06 03 55 04 03 [2] 53 68 65 6E 7A 68 65 6E 20 79 75 6E 64 69 61 6E 20 54 65 63 68 6E 6F 6C 6F 67 79 20 43 6F 2E 2C 20 4C 74 64 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 43 00 53 00 41 00 67 00 65 00 6E 00 74 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x05][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x21][\x00-\x00][\x06-\x06][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x22-\x22][\x00-\x00][\x06-\x06][\x00-\x00][\x00-\xff][\x00-\xff]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x38]|[\x00-\xd5][\x39-\x39])|[\x22-\x22][\x00-\x00][\x06-\x06][\x00-\x00][\x00-\x00][\x00-\x00][\xd6-\xd6][\x39-\x39])/
-        $str1 = "pVVIOoBMRFmpaxPTpRhQmuJdkV.pdb"
-        $str2 = "CrowdStrike Falcon Sensor" wide
-        $str3 = "CrowdStrike Falcon Sensor Driver" wide
+        $str1 = /pVVIOoBMRFmpaxPTpRhQmuJdkV\.pdb/
+        $str2 = /CrowdStrike Falcon Sensor/ wide
+        $str3 = /CrowdStrike Falcon Sensor Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }

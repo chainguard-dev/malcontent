@@ -6,7 +6,7 @@ rule multiple_elf: medium {
     filetypes   = "elf"
 
   strings:
-    $elf_head = "\x7fELF"
+    $elf_head = /\x7fELF/
 
   condition:
     uint32(0) == 1179403647 and #elf_head > 1

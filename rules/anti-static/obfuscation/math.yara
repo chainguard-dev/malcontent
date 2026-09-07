@@ -47,8 +47,8 @@ rule sketchy_math_conversions: medium {
     filetypes   = "js,ts"
 
   strings:
-    $f_parseInt     = "parseInt"
-    $f_fromCharCode = "fromCharCode"
+    $f_parseInt     = /parseInt/
+    $f_fromCharCode = /fromCharCode/
 
     $math1 = /\d{2,16}[\+\-\*\/]\w{1,8}/
     $math2 = /\w{1,8}[\+\-\*\/]\d{2,16}/

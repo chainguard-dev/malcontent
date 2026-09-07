@@ -20,7 +20,7 @@ rule chmod_executable_binary: high {
     $val         = /chmod [\-\w ]{0,4}\+[rw]{0,2}x[ \$\@\w\/\.]{0,64}/
     $val2        = /chmod [\-\w ]{0,4}\+[rw]{0,2}[75][ \$\@\w\/\.]{0,64}/
     $val3        = /chmod {1,4}-R {1,4}[04]{0,1}7[75][075] [ \$\@\w\/\.]{2,64}/
-    $not_example = "try 'chmod +x'"
+    $not_example = /try 'chmod \+x'/
 
   // $val matches the "chmod +x" inside the "try 'chmod +x'" advice string, so its
   // presence would otherwise disable the rule for the whole binary. That string

@@ -13,8 +13,8 @@ rule Windows_VulnDriver_RentDrv_b6711b6b {
         license = "Elastic License v2"
         os = "windows"
     strings:
-        $str1 = "rentdrv_x64.pdb"
-        $str2 = "KillProcess"
+        $str1 = /rentdrv_x64\.pdb/
+        $str2 = /KillProcess/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and all of them
 }

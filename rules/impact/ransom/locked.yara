@@ -5,7 +5,7 @@ rule lockedFiles: medium {
   strings:
     $ref = /lockedFiles[\w\/\.]{0,24}/
 
-    $not = "libc.lockedFiles"
+    $not = /libc\.lockedFiles/
 
   // $ref matches inside the benign "libc.lockedFiles" symbol too, so its mere
   // presence used to exempt the whole file. Compare occurrence counts instead:
@@ -33,9 +33,9 @@ rule locked: high {
     description = "claims system has been locked"
 
   strings:
-    $ = "Your system has been locked"
+    $ = /Your system has been locked/
     $ = /Do not try .{0,16} remove this lock/
-    $ = "PC IS LOCKED"
+    $ = /PC IS LOCKED/
     $ = /YOUR \w\{2-12\} IS LOCKED/
 
   condition:

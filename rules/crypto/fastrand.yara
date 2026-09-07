@@ -4,7 +4,7 @@ rule uses_pseudo_rng: medium {
     filetypes   = "elf,go,macho"
 
   strings:
-    $ethers = "valyala/fastrand"
+    $ethers = /valyala\/fastrand/
 
   condition:
     filesize < 10MB and all of them

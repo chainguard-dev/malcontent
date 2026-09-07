@@ -7,11 +7,11 @@ rule js_eval: medium {
 
   strings:
     $val  = /eval\([\.\+ _a-zA-Z\"\'\(\,]{1,32}/ fullword
-    $val2 = "eval(this.toString());"
+    $val2 = /eval\(this\.toString\(\)\);/
 
     // both are verbatim PHP reference material (manual signature, php-src macro)
-    $not_php_signature = "eval(string $code)"
-    $not_php_internal  = "eval(INTERNAL_FUNCTION_PARAM_PASSTHRU"
+    $not_php_signature = /eval\(string \$code\)/
+    $not_php_internal  = /eval\(INTERNAL_FUNCTION_PARAM_PASSTHRU/
 
   condition:
     filesize < 1MB and any of ($val*) and none of ($not*)
@@ -63,7 +63,7 @@ rule js_eval_near_enough_fromChar: medium {
 
   strings:
     $eval    = /[\s\{]eval\(/
-    $decrypt = "String.fromCharCode"
+    $decrypt = /String\.fromCharCode/
 
   condition:
     filesize < 5MB and all of them and math.abs(@eval - @decrypt) > 384
@@ -78,8 +78,8 @@ rule js_eval_obfuscated_fromChar: high {
     $eval = /[\s\{]eval\(/
     $ref  = /fromCharCode\(\w{0,16}\s{0,2}[\-\+\*\^]{0,2}\w{0,16}/
 
-    $not_elastic1 = "/*! Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one or more contributor license agreements."
-    $not_elastic2 = "* Licensed under the Elastic License 2.0; you may not use this file except in compliance with the Elastic License 2.0. */"
+    $not_elastic1 = /\/\*! Copyright Elasticsearch B\.V\. and\/or licensed to Elasticsearch B\.V\. under one or more contributor license agreements\./
+    $not_elastic2 = /\* Licensed under the Elastic License 2\.0; you may not use this file except in compliance with the Elastic License 2\.0\. \*\//
 
   condition:
     filesize < 5MB and $eval and $ref and math.abs(@eval - @ref) > 384 and none of ($not*)
@@ -104,13 +104,13 @@ rule python_exec: medium {
     filetypes   = "py"
 
   strings:
-    $f_import = "import" fullword
-    $f_join   = ".join("
-    $f_chr    = "chr("
-    $f_int    = "int("
+    $f_import = /import/ fullword
+    $f_join   = /\.join\(/
+    $f_chr    = /chr\(/
+    $f_int    = /int\(/
     $f_for    = /for [a-z] in /
     $val      = /exec\([\w\ \"\'\.\(\)\[\]]{1,64}/ fullword
-    $empty    = "exec()"
+    $empty    = /exec\(\)/
 
   condition:
     filesize < 1MB and any of ($f*) and $val and not $empty
@@ -186,9 +186,9 @@ rule python_exec_complex: high {
 
   strings:
     $exec           = /exec\([\w\. =]{1,32}\(.{0,8192}\)\)/ fullword
-    $not_javascript = "function("
-    $not_pyparser   = "exec(compile(open(self.parsedef).read(), self.parsedef, 'exec'))"
-    $not_versioneer = "exec(VERSIONEER.decode(), globals())"
+    $not_javascript = /function\(/
+    $not_pyparser   = /exec\(compile\(open\(self\.parsedef\)\.read\(\), self\.parsedef, 'exec'\)\)/
+    $not_versioneer = /exec\(VERSIONEER\.decode\(\), globals\(\)\)/
 
   condition:
     // $not_pyparser and $not_versioneer are each themselves an $exec match, so

@@ -10,7 +10,7 @@ rule trufflehog_override: override {
     ipinfo_and_bash          = "medium"
 
   strings:
-    $ref = "github.com/trufflesecurity/trufflehog"
+    $ref = /github\.com\/trufflesecurity\/trufflehog/
 
   condition:
     filesize > 50MB and filesize < 200MB and any of them

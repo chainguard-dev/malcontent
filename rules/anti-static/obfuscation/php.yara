@@ -6,9 +6,9 @@ rule php_obfuscation: high {
     filetypes = "php"
 
   strings:
-    $php                 = "<?php"
+    $php                 = /<\?php/
     $o_crit_func_comment = /(eval|preg_replace|system|assert|passthru|(pcntl_)?exec|shell_exec|call_user_func(_array)?)\/\*[^\*]*\*\/\(/
-    $o_b374k             = "'ev'.'al'"
+    $o_b374k             = /'ev'\.'al'/
     $o_align             = /(\$\w+=[^;]*)*;\$\w+=@?\$\w+\(/
     $o_weevely3          = /\$\w=\$[a-zA-Z]\('',\$\w\);\$\w\(\);/
     $o_c99_launcher      = /;\$\w+\(\$\w+(,\s?\$\w+)+\);/
@@ -20,8 +20,8 @@ rule php_obfuscation: high {
     // together these two mark an embedded minified JavaScript bundle;
     // "function(){" on its own turns up in almost any JS and should not
     // disable the rule, so the pair is required as a set
-    $not_php_function         = "function(){"
-    $not_php_string_prototype = "String.prototype" fullword
+    $not_php_function         = /function\(\)\{/
+    $not_php_string_prototype = /String\.prototype/ fullword
 
   condition:
     filesize < 5242880 and $php and any of ($o*) and not all of ($not*)
@@ -56,7 +56,7 @@ rule php_non_printable: medium {
 
   strings:
     $ref = /(function|return|base64_decode).{,64}[^\x09-\x0d\x20-\x7E]{3}/
-    $php = "<?php"
+    $php = /<\?php/
 
   condition:
     filesize < 5242880 and all of them
@@ -70,7 +70,7 @@ rule php_oneliner: medium {
     filetypes = "php"
 
   strings:
-    $php        = "<?php"
+    $php        = /<\?php/
     $o_oneliner = /(<\?php|[;{}])[ \t]*@?(eval|preg_replace|system|assert|passthru|(pcntl_)?exec|shell_exec|call_user_func(_array)?)\s*\(/
 
   condition:
@@ -84,13 +84,13 @@ rule small_reversed_function_names: critical {
     filetypes   = "php"
 
   strings:
-    $php             = "<?php"
-    $create_function = "create_function"
-    $r_system        = "metsys"
-    $r_passthru      = "urhtssap"
-    $r_include       = "edulcni"
-    $r_shell_execute = "etucexe_llehs"
-    $r_base64_decode = "edoced_46esab"
+    $php             = /<\?php/
+    $create_function = /create_function/
+    $r_system        = /metsys/
+    $r_passthru      = /urhtssap/
+    $r_include       = /edulcni/
+    $r_shell_execute = /etucexe_llehs/
+    $r_base64_decode = /edoced_46esab/
 
   condition:
     filesize < 64KB and $php and $create_function and any of ($r*)
@@ -102,7 +102,7 @@ rule php_str_replace_obfuscation: high {
     filetypes   = "php"
 
   strings:
-    $str_replace        = "str_replace"
+    $str_replace        = /str_replace/
     $o_dynamic_single   = /\$\w {0,2}= \$\w\(/
     $o_single_concat    = /\$\w . \$\w . \$\w ./
     $o_single_set       = /\$\w = \w\(\)\;/
@@ -119,7 +119,7 @@ rule php_obfuscated_concat: medium {
     filetypes   = "php"
 
   strings:
-    $php    = "<?php"
+    $php    = /<\?php/
     $concat = /\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\./
 
   condition:
@@ -133,7 +133,7 @@ rule php_obfuscated_concat_long: high {
     filetypes   = "php"
 
   strings:
-    $php    = "<?php"
+    $php    = /<\?php/
     $concat = /\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\./
 
   condition:
@@ -146,7 +146,7 @@ rule obfuscated_concat_multiple: critical {
     filetypes   = "php"
 
   strings:
-    $php    = "<?php"
+    $php    = /<\?php/
     $concat = /\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\.\$[A-Za-z0-9]{0,4}\[[0-9]+\]\./
 
   condition:
@@ -185,7 +185,7 @@ rule strrev_multiple: medium {
     filetypes   = "php"
 
   strings:
-    $ref  = "strrev("
+    $ref  = /strrev\(/
     $ref2 = /strrev\(['"].{0,256}['"]\)/
 
   condition:

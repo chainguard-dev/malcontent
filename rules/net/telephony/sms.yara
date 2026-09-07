@@ -3,8 +3,8 @@ rule send_sms: medium {
     description = "sends SMS messages"
 
   strings:
-    $send = "send sms"
-    $imsi = "imsi"
+    $send = /send sms/
+    $imsi = /imsi/
 
   condition:
     filesize < 2MB and all of them
@@ -15,8 +15,8 @@ rule recv_sms: medium {
     description = "receives SMS messages"
 
   strings:
-    $send = "recv sms"
-    $imsi = "imsi"
+    $send = /recv sms/
+    $imsi = /imsi/
 
   condition:
     filesize < 2MB and all of them

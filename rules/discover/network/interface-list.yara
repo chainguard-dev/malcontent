@@ -19,13 +19,13 @@ rule getifaddrs_avoid_debug: high {
     description = "list network interfaces, avoids debugging"
 
   strings:
-    $getifaddrs    = "getifaddrs" fullword
-    $gethostbyname = "gethostbyname"
-    $LD_DEBUG      = "LD_DEBUG"
-    $LD_PROFILE    = "LD_PROFILE"
-    $not_busybox   = "BusyBox" fullword
-    $not_snapd     = "SNAPD" fullword
-    $not_rtld      = "RTLD_NEXT"
+    $getifaddrs    = /getifaddrs/ fullword
+    $gethostbyname = /gethostbyname/
+    $LD_DEBUG      = /LD_DEBUG/
+    $LD_PROFILE    = /LD_PROFILE/
+    $not_busybox   = /BusyBox/ fullword
+    $not_snapd     = /SNAPD/ fullword
+    $not_rtld      = /RTLD_NEXT/
 
   condition:
     filesize < 10MB and all of ($get*) and all of ($LD*) and none of ($not*)

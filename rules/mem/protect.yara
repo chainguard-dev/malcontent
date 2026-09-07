@@ -15,10 +15,10 @@ rule virtualprotect_py_crazy: high windows {
     filetypes   = "py"
 
   strings:
-    $ref      = "ctypes.windll.kernel32.VirtualProtect" fullword
-    $f_encode = "encode("
-    $f_decode = "decode("
-    $f_b64    = "b64decode("
+    $ref      = /ctypes\.windll\.kernel32\.VirtualProtect/ fullword
+    $f_encode = /encode\(/
+    $f_decode = /decode\(/
+    $f_b64    = /b64decode\(/
 
   condition:
     filesize < 1MB and $ref and any of ($f*)

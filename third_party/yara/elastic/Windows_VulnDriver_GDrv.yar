@@ -39,9 +39,9 @@ rule Windows_VulnDriver_GDrv_c3ec08da {
         $subject_name = { 06 03 55 04 03 [2] 47 49 47 41 2D 42 59 54 45 20 54 65 63 68 6E 6F 6C 6F 67 79 20 43 6F 2E 2C 20 4C 74 64 2E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 67 00 64 00 72 00 76 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x01-\x01][\x00-\x00][\x01-\x01][\x00-\x00])/
-        $str1 = "gdrv86.pdb"
-        $str2 = "GIGA-BYTE Software driver" wide
-        $str3 = "GIGA-BYTE NonPnP Driver" wide
+        $str1 = /gdrv86\.pdb/
+        $str2 = /GIGA-BYTE Software driver/ wide
+        $str3 = /GIGA-BYTE NonPnP Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -65,9 +65,9 @@ rule Windows_VulnDriver_GDrv_62f80d5b {
         $subject_name = { 06 03 55 04 03 [2] 47 69 67 61 2D 42 79 74 65 20 54 65 63 68 6E 6F 6C 6F 67 79 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 67 00 64 00 72 00 76 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x04][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x01][\x00-\x00][\x05-\x05][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x02-\x02][\x00-\x00][\x05-\x05][\x00-\x00][\x00-\xff][\x00-\xff]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x0d]|[\x00-\xcd][\x0e-\x0e])|[\x02-\x02][\x00-\x00][\x05-\x05][\x00-\x00]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x06]|[\x00-\x25][\x07-\x07])[\xce-\xce][\x0e-\x0e]|[\x02-\x02][\x00-\x00][\x05-\x05][\x00-\x00][\x26-\x26][\x07-\x07][\xce-\xce][\x0e-\x0e])/
-        $str1 = "gdrv64.pdb"
-        $str2 = "Windows (R) Server 2003 DDK driver" wide
-        $str3 = "GIGABYTE Tools" wide
+        $str1 = /gdrv64\.pdb/
+        $str2 = /Windows \(R\) Server 2003 DDK driver/ wide
+        $str3 = /GIGABYTE Tools/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -91,9 +91,9 @@ rule Windows_VulnDriver_GDrv_a51f996c {
         $subject_name = { 06 03 55 04 03 [2] 47 49 47 41 2D 42 59 54 45 20 54 45 43 48 4E 4F 4C 4F 47 59 20 43 4F 2E 2C 20 4C 54 44 2E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 67 00 64 00 72 00 76 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x04][\x00-\x00][\x00-\x00][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x05-\x05][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "gdrv.pdb"
-        $str2 = "GIGA-BYTE Software driver" wide
-        $str3 = "GIGA-BYTE NonPnP Driver" wide
+        $str1 = /gdrv\.pdb/
+        $str2 = /GIGA-BYTE Software driver/ wide
+        $str3 = /GIGA-BYTE NonPnP Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -115,7 +115,7 @@ rule Windows_VulnDriver_GDrv_1178a4d2 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 47 69 67 61 2D 42 79 74 65 20 54 65 63 68 6E 6F 6C 6F 67 79 }
-        $str1 = "GPCIDrv64.pdb"
+        $str1 = /GPCIDrv64\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }
@@ -139,9 +139,9 @@ rule Windows_VulnDriver_GDrv_62355c4a {
         $subject_name = { 06 03 55 04 03 [2] E4 B8 8A E6 B5 B7 E7 AC 91 E8 81 98 E7 BD 91 E7 BB 9C E7 A7 91 E6 8A 80 E6 9C 89 E9 99 90 E5 85 AC E5 8F B8 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 67 00 64 00 72 00 76 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x04][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x01][\x00-\x00][\x05-\x05][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x02-\x02][\x00-\x00][\x05-\x05][\x00-\x00][\x00-\xff][\x00-\xff]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x0d]|[\x00-\xcd][\x0e-\x0e])|[\x02-\x02][\x00-\x00][\x05-\x05][\x00-\x00]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x06]|[\x00-\x25][\x07-\x07])[\xce-\xce][\x0e-\x0e]|[\x02-\x02][\x00-\x00][\x05-\x05][\x00-\x00][\x26-\x26][\x07-\x07][\xce-\xce][\x0e-\x0e])/
-        $str1 = "gdrv64.pdb"
-        $str2 = "Windows (R) Server 2003 DDK driver" wide
-        $str3 = "GIGABYTE Tools" wide
+        $str1 = /gdrv64\.pdb/
+        $str2 = /Windows \(R\) Server 2003 DDK driver/ wide
+        $str3 = /GIGABYTE Tools/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -165,9 +165,9 @@ rule Windows_VulnDriver_GDrv_34ceb7f6 {
         $subject_name = { 06 03 55 04 03 [2] 47 49 47 41 2D 42 59 54 45 20 54 65 63 68 6E 6F 6C 6F 67 79 20 43 6F 2E 2C 20 4C 74 64 2E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 67 00 64 00 72 00 76 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x01-\x01][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x01][\x00-\x00][\x00-\x00][\x00-\x00]|[\x01-\x01][\x00-\x00][\x01-\x01][\x00-\x00][\x02-\x02][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "gdrv.pdb"
-        $str2 = "GIGA-BYTE Software driver" wide
-        $str3 = "GIGA-BYTE NonPnP Driver" wide
+        $str1 = /gdrv\.pdb/
+        $str2 = /GIGA-BYTE Software driver/ wide
+        $str3 = /GIGA-BYTE NonPnP Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -191,9 +191,9 @@ rule Windows_VulnDriver_GDrv_3cda6b4b {
         $subject_name = { 06 03 55 04 03 [2] 47 49 47 41 2D 42 59 54 45 20 54 65 63 68 6E 6F 6C 6F 67 79 20 43 6F 2E 2C 20 4C 74 64 2E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 67 00 64 00 72 00 76 00 33 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x01-\x01][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x03][\x00-\x00][\x00-\x00][\x00-\x00]|[\x01-\x01][\x00-\x00][\x01-\x01][\x00-\x00][\x04-\x04][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "gdrv.pdb"
-        $str2 = "GIGA-BYTE Software Driver" wide
-        $str3 = "GIGA-BYTE Nonpnp Driver" wide
+        $str1 = /gdrv\.pdb/
+        $str2 = /GIGA-BYTE Software Driver/ wide
+        $str3 = /GIGA-BYTE Nonpnp Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -217,9 +217,9 @@ rule Windows_VulnDriver_GDrv_363fa432 {
         $subject_name = { 06 03 55 04 03 [2] 47 69 67 61 2D 42 79 74 65 20 54 65 63 68 6E 6F 6C 6F 67 79 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 67 00 64 00 72 00 76 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x04][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x05-\x05][\x00-\x00][\x00-\xff][\x00-\xff]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x07]|[\x00-\x92][\x08-\x08])|[\x00-\x00][\x00-\x00][\x05-\x05][\x00-\x00]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x05]|[\x00-\x53][\x06-\x06])[\x93-\x93][\x08-\x08]|[\x00-\x00][\x00-\x00][\x05-\x05][\x00-\x00][\x54-\x54][\x06-\x06][\x93-\x93][\x08-\x08])/
-        $str1 = "gdrv.pdb"
-        $str2 = "Windows (R) 2000 DDK driver" wide
-        $str3 = "GIGABYTE Tools" wide
+        $str1 = /gdrv\.pdb/
+        $str2 = /Windows \(R\) 2000 DDK driver/ wide
+        $str3 = /GIGABYTE Tools/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -241,7 +241,7 @@ rule Windows_VulnDriver_GDrv_8a7ef0e8 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 47 49 47 41 2D 42 59 54 45 20 54 65 63 68 6E 6F 6C 6F 67 79 20 43 6F 2E 2C 20 4C 74 64 2E }
-        $str1 = "GVCIDrv64.pdb"
+        $str1 = /GVCIDrv64\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }
@@ -265,8 +265,8 @@ rule Windows_VulnDriver_GDrv_989a396f {
         $subject_name = { 06 03 55 04 03 [2] 47 49 47 41 2D 42 59 54 45 20 54 45 43 48 4E 4F 4C 4F 47 59 20 43 4F 2E 2C 20 4C 54 44 2E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 67 00 64 00 72 00 76 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "gdrv64.pdb"
-        $str2 = "GIGA-BYTE NonPNP Driver" wide
+        $str1 = /gdrv64\.pdb/
+        $str2 = /GIGA-BYTE NonPNP Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2
 }
@@ -289,9 +289,9 @@ rule Windows_VulnDriver_GDrv_877e895e {
     strings:
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 67 00 64 00 72 00 76 00 33 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x01-\x01][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x03][\x00-\x00][\x00-\x00][\x00-\x00]|[\x01-\x01][\x00-\x00][\x01-\x01][\x00-\x00][\x04-\x04][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "gdrv.pdb"
-        $str2 = "GIGA-BYTE Software Driver" wide
-        $str3 = "GIGA-BYTE Nonpnp Driver" wide
+        $str1 = /gdrv\.pdb/
+        $str2 = /GIGA-BYTE Software Driver/ wide
+        $str3 = /GIGA-BYTE Nonpnp Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $original_file_name and $version and $str1 and $str2 and $str3
 }

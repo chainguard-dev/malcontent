@@ -5,7 +5,7 @@ rule py_kramer_packer: critical python {
     filetypes   = "py"
 
   strings:
-    $ = "Source Generated with Decompyle++"
+    $ = /Source Generated with Decompyle\+\+/
     $ = /_{1,16} = eval\(getattr\(__import__\(bytes\(\[/
 
   condition:

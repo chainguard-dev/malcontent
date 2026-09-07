@@ -11,11 +11,11 @@ rule EPPlus_OOXML_Document
         samples        = "f4bd263fa5a0ab82ea20fe6789f2e514a4644dc24fcc4c22af05266d0574c675"
 
 	strings:
-		$opc = "[Content_Types].xml"
-        $ooxml = "xl/workbook.xml"
-        $vba = "xl/vbaProject.bin"
-        $meta1 = "docProps/core.xml"
-        $meta2 = "docProps/app.xml"
+		$opc = /\[Content_Types\]\.xml/
+        $ooxml = /xl\/workbook\.xml/
+        $vba = /xl\/vbaProject\.bin/
+        $meta1 = /docProps\/core\.xml/
+        $meta2 = /docProps\/app\.xml/
         $timestamp = {50 4B 03 04 ?? ?? ?? ?? ?? ?? 00 00 21 00}
 	condition:
 		uint32be(0) == 0x504B0304

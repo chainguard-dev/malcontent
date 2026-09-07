@@ -38,8 +38,8 @@ rule ActiveXObject_obfuscated_fromCharCode: high windows {
     description = "Invokes obfuscated ActiveX object"
 
   strings:
-    $activex  = "ActiveXObject("
-    $fromchar = "fromCharCode("
+    $activex  = /ActiveXObject\(/
+    $fromchar = /fromCharCode\(/
 
   condition:
     filesize < 128KB and all of them and math.abs(@activex - @fromchar) > 64

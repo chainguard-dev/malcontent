@@ -5,7 +5,7 @@ rule malware_DOPLUGS {
         hash = "2a6015505c83113ff89d8a4be66301a3e6245a41"
     
     strings:
-        $data1 = "CLSID" ascii wide
+        $data1 = /CLSID/ ascii wide
         /* Decode API Name
         8b 14 24:       MOV EDX,dword ptr [ESP]
         8a 5c 14 10:    MOV BL,byte ptr [ESP + EDX*0x1 + 0x10]
@@ -41,7 +41,7 @@ rule malware_DOPLUGSLoader {
         hash = "c7e9c45b18c8ab355f1c07879cce5a3e58620dd7"
 
     strings:
-        $data1 = "NimMain" ascii wide
+        $data1 = /NimMain/ ascii wide
         /* RC4 Decrypt
         8b b4 b5 e8 fb ff ff:   MOV   ESI, dword ptr [EBP+ESI*0x4 + 0xfffffbe8]
         0f b6 44 3b 08:         MOVZX EAX, byte ptr[EBX + EDI*0x1 + 0x8]

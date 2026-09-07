@@ -4,8 +4,8 @@ rule redocly_cli_faker_data: override {
     crypto_stealer_names = "harmless"
 
   strings:
-    $faker    = "@faker-js/faker"
-    $periodic = "atomicNumber"
+    $faker    = /@faker-js\/faker/
+    $periodic = /atomicNumber/
 
   condition:
     filesize < 5MB and all of them

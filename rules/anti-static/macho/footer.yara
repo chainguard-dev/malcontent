@@ -12,7 +12,7 @@ rule high_entropy_trailer: high {
     filetypes   = "macho"
 
   strings:
-    $page_zero = "_PAGEZERO"
+    $page_zero = /_PAGEZERO/
 
   condition:
     filesize < 10MB and anti_static_macho and $page_zero and math.entropy(filesize - 1024, filesize - 1) >= 4

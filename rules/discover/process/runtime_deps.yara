@@ -18,9 +18,9 @@ rule sus_dylib_tls_get_addr: high {
     description = "suspicious runtime dependency resolution"
 
   strings:
-    $val               = "__tls_get_addr" fullword
-    $not_trampoline    = "__interceptor_trampoline"
-    $not_glibc_private = "GLIBC_PRIVATE"
+    $val               = /__tls_get_addr/ fullword
+    $not_trampoline    = /__interceptor_trampoline/
+    $not_glibc_private = /GLIBC_PRIVATE/
 
   condition:
     filesize < 500KB and elf.type == elf.ET_DYN and $val and none of ($not*) and math.entropy(1, filesize) >= 6

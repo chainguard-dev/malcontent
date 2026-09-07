@@ -38,8 +38,8 @@ rule py_dropper: medium {
     filetypes   = "py"
 
   strings:
-    $open  = "open("
-    $write = "write("
+    $open  = /open\(/
+    $write = /write\(/
 
   condition:
     filesize < 16384 and $open and $write and py_fetcher and py_runner
@@ -51,18 +51,18 @@ rule py_arch_dropper: medium {
     filetypes   = "py"
 
   strings:
-    $os_Linux    = "Linux" fullword
-    $os_macOS    = "macOS" fullword
-    $os_platform = "platform.system()"
+    $os_Linux    = /Linux/ fullword
+    $os_macOS    = /macOS/ fullword
+    $os_platform = /platform\.system\(\)/
 
-    $arch_arm64   = "arm64" fullword
-    $arch_x86     = "x86" fullword
-    $arch_amd64   = "amd64" fullword
-    $arch_machine = "platform.machine()"
+    $arch_arm64   = /arm64/ fullword
+    $arch_x86     = /x86/ fullword
+    $arch_amd64   = /amd64/ fullword
+    $arch_machine = /platform\.machine\(\)/
 
-    $download = "download" fullword
+    $download = /download/ fullword
 
-    $exec_run = "run" fullword
+    $exec_run = /run/ fullword
 
   condition:
     filesize < 1MB and any of ($os*) and any of ($arch*) and any of ($download*) and (any of ($exec*) or py_runner)
@@ -74,10 +74,10 @@ rule py_dropper_obfuscated: high {
     filetypes   = "py"
 
   strings:
-    $open      = "open("
-    $write     = "write("
-    $ob_base64 = "b64decode"
-    $ob_codecs = "codecs.decode"
+    $open      = /open\(/
+    $write     = /write\(/
+    $ob_base64 = /b64decode/
+    $ob_codecs = /codecs\.decode/
 
   condition:
     filesize < 16000 and $open and $write and any of ($ob_*) and py_fetcher and py_runner
@@ -89,8 +89,8 @@ rule py_dropper_tiny: high {
     filetypes   = "py"
 
   strings:
-    $open  = "open("
-    $write = "write("
+    $open  = /open\(/
+    $write = /write\(/
 
   condition:
     filesize < 900 and $open and $write and py_fetcher and py_runner
@@ -102,11 +102,11 @@ rule py_dropper_chmod: high {
     filetypes   = "py"
 
   strings:
-    $chmod    = "chmod"
-    $val_x    = "+x"
-    $val_exec = "755"
-    $val_rwx  = "777"
-    $val_770  = "770"
+    $chmod    = /chmod/
+    $val_x    = /\+x/
+    $val_exec = /755/
+    $val_rwx  = /777/
+    $val_770  = /770/
 
   condition:
     filesize < 1MB and py_fetcher and py_runner and $chmod and any of ($val*)
@@ -116,20 +116,20 @@ private rule tool_transfer_pythonSetup {
   strings:
     $if_distutils  = /from distutils.core import .{0,32}setup/
     $if_setuptools = /from setuptools import .{0,32}setup/
-    $i_setuptools  = "import setuptools"
-    $setup         = "setup("
+    $i_setuptools  = /import setuptools/
+    $setup         = /setup\(/
 
-    $not_setup_example = ">>> setup("
-    $not_setup_todict  = "setup(**config.todict()"
-    $not_import_quoted = "\"from setuptools import setup"
-    $not_setup_quoted  = "\"setup(name="
-    $not_distutils     = "from distutils.errors import"
-    $not_dir           = "dist-packages/setuptools"
-    $not_fetch         = "fetch_distribution"
+    $not_setup_example = />>> setup\(/
+    $not_setup_todict  = /setup\(\*\*config\.todict\(\)/
+    $not_import_quoted = /"from setuptools import setup/
+    $not_setup_quoted  = /"setup\(name=/
+    $not_distutils     = /from distutils\.errors import/
+    $not_dir           = /dist-packages\/setuptools/
+    $not_fetch         = /fetch_distribution/
 
-    $nothopper_name = "PACKAGE_NAME = \"flashattn-hopper\""
-    $nothopper_cuda = "check_if_cuda_home_none(\"--fahopper\")"
-    $nothopper_ext  = "name=\"flashattn_hopper_cuda\","
+    $nothopper_name = /PACKAGE_NAME = "flashattn-hopper"/
+    $nothopper_cuda = /check_if_cuda_home_none\("--fahopper"\)/
+    $nothopper_ext  = /name="flashattn_hopper_cuda",/
 
   condition:
     // the three flash-attention markers only identify Dao-AILab's hopper/setup.py
@@ -177,14 +177,14 @@ rule dropper_imports: high {
     filetypes   = "py"
 
   strings:
-    $http         = "http"
-    $import       = "import" fullword
-    $l_base64     = "base64" fullword
-    $l_platform   = "platform" fullword
-    $l_os         = "os" fullword
-    $l_subprocess = "subprocess" fullword
-    $l_sys        = "sys" fullword
-    $l_requests   = "requests" fullword
+    $http         = /http/
+    $import       = /import/ fullword
+    $l_base64     = /base64/ fullword
+    $l_platform   = /platform/ fullword
+    $l_os         = /os/ fullword
+    $l_subprocess = /subprocess/ fullword
+    $l_sys        = /sys/ fullword
+    $l_requests   = /requests/ fullword
 
   condition:
     filesize < 4000 and $http and $import and 5 of ($l*)

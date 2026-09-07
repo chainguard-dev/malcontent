@@ -15,9 +15,9 @@ rule Windows_VulnDriver_Binalyze_b487a1d3 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 42 69 6E 61 6C 79 7A 65 20 4C 4C 43 }
-        $str1 = "irec64.pdb"
-        $str2 = "IOCTL_CREATE_OBJECT_DIRECTORY_SNAPSHOT_RESPONSE"
-        $str3 = "IOCTL_CREATE_OBJECT_DIRECTORY_SNAPSHOT_REQUEST"
+        $str1 = /irec64\.pdb/
+        $str2 = /IOCTL_CREATE_OBJECT_DIRECTORY_SNAPSHOT_RESPONSE/
+        $str3 = /IOCTL_CREATE_OBJECT_DIRECTORY_SNAPSHOT_REQUEST/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1 and $str2 and $str3
 }

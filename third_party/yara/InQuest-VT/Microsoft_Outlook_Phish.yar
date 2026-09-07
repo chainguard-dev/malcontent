@@ -9,7 +9,7 @@ rule Microsoft_Outlook_Phish
 
     strings:
         $ole_marker      = /^\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1/
-        $phish_marker_00 = "eval(atob(atob("
+        $phish_marker_00 = /eval\(atob\(atob\(/
 
         /* Generated via https://labs.inquest.net/tools/yara/b64-regexp-generator */
         /* [eE]nter [pP]assword */

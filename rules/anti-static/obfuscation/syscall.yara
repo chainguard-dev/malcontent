@@ -4,8 +4,8 @@ rule syscall: medium {
     filetypes   = "rb"
 
   strings:
-    $ruby    = "ruby" fullword
-    $require = "require" fullword
+    $ruby    = /ruby/ fullword
+    $require = /require/ fullword
     $syscall = /syscall \d{1,3}/
 
   condition:

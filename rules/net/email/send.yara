@@ -15,9 +15,9 @@ rule SMTPClient_Send_creds: high windows {
     description = "sends e-mail with a hardcoded credentials"
 
   strings:
-    $send = "SMTPClient.Send("
-    $smtp = "System.Net.Mail.SmtpClient("
-    $cred = "NetworkCredential"
+    $send = /SMTPClient\.Send\(/
+    $smtp = /System\.Net\.Mail\.SmtpClient\(/
+    $cred = /NetworkCredential/
 
   condition:
     filesize < 128KB and any of them

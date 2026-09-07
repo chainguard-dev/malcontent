@@ -39,9 +39,9 @@ rule Windows_VulnDriver_Cpuz_3b6e8aa2 {
         $subject_name = { 06 03 55 04 03 [2] 43 50 55 49 44 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 63 00 70 00 75 00 7A 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x02][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x05][\x00-\x00][\x03-\x03][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x06-\x06][\x00-\x00][\x03-\x03][\x00-\x00])/
-        $str1 = "cpuz136_x64.pdb"
-        $str2 = "CPUID service" wide
-        $str3 = "CPUID Driver" wide
+        $str1 = /cpuz136_x64\.pdb/
+        $str2 = /CPUID service/ wide
+        $str3 = /CPUID Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -65,9 +65,9 @@ rule Windows_VulnDriver_Cpuz_7d66353e {
         $subject_name = { 06 03 55 04 03 [2] 43 50 55 49 44 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 63 00 70 00 75 00 7A 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x02][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x04][\x00-\x00][\x03-\x03][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x05-\x05][\x00-\x00][\x03-\x03][\x00-\x00])/
-        $str1 = "cpuz135_x32.pdb"
-        $str2 = "CPUID service" wide
-        $str3 = "CPUID Driver" wide
+        $str1 = /cpuz135_x32\.pdb/
+        $str2 = /CPUID service/ wide
+        $str3 = /CPUID Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -91,9 +91,9 @@ rule Windows_VulnDriver_Cpuz_d4d18c14 {
         $subject_name = { 06 03 55 04 03 [2] 43 50 55 49 44 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 63 00 70 00 75 00 7A 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x03][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00][\x04-\x04][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x01-\x01][\x00-\x00][\x04-\x04][\x00-\x00])/
-        $str1 = "cpuz141_x32.pdb"
-        $str2 = "CPUID service" wide
-        $str3 = "CPUID Driver" wide
+        $str1 = /cpuz141_x32\.pdb/
+        $str2 = /CPUID service/ wide
+        $str3 = /CPUID Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -117,9 +117,9 @@ rule Windows_VulnDriver_Cpuz_519f80a9 {
         $subject_name = { 06 03 55 04 03 [2] 43 50 55 49 44 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 63 00 70 00 75 00 7A 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x03][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x02][\x00-\x00][\x04-\x04][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x03-\x03][\x00-\x00][\x04-\x04][\x00-\x00])/
-        $str1 = "cpuz143_x32.pdb"
-        $str2 = "CPUID service" wide
-        $str3 = "CPUID Driver" wide
+        $str1 = /cpuz143_x32\.pdb/
+        $str2 = /CPUID service/ wide
+        $str3 = /CPUID Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -143,9 +143,9 @@ rule Windows_VulnDriver_Cpuz_6f2e7aae {
         $subject_name = { 06 03 55 04 03 [2] 43 50 55 49 44 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 63 00 70 00 75 00 7A 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x02][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x02][\x00-\x00][\x03-\x03][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x03-\x03][\x00-\x00][\x03-\x03][\x00-\x00])/
-        $str1 = "cpuz133_x64.pdb"
-        $str2 = "Windows (R) Win 7 DDK driver" wide
-        $str3 = "CPUID Driver" wide
+        $str1 = /cpuz133_x64\.pdb/
+        $str2 = /Windows \(R\) Win 7 DDK driver/ wide
+        $str3 = /CPUID Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -169,9 +169,9 @@ rule Windows_VulnDriver_Cpuz_b3dd0b88 {
         $subject_name = { 06 03 55 04 03 [2] 43 50 55 49 44 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 63 00 70 00 75 00 7A 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x03][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00][\x04-\x04][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x01-\x01][\x00-\x00][\x04-\x04][\x00-\x00])/
-        $str1 = "cpuz141_x64.pdb"
-        $str2 = "CPUID service" wide
-        $str3 = "CPUID Driver" wide
+        $str1 = /cpuz141_x64\.pdb/
+        $str2 = /CPUID service/ wide
+        $str3 = /CPUID Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -195,9 +195,9 @@ rule Windows_VulnDriver_Cpuz_b254e88d {
         $subject_name = { 06 03 55 04 03 [2] 43 50 55 49 44 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 63 00 70 00 75 00 7A 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x02][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x07][\x00-\x00][\x03-\x03][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x08-\x08][\x00-\x00][\x03-\x03][\x00-\x00])/
-        $str1 = "cpuz138_x64.pdb"
-        $str2 = "CPUID service" wide
-        $str3 = "CPUID Driver" wide
+        $str1 = /cpuz138_x64\.pdb/
+        $str2 = /CPUID service/ wide
+        $str3 = /CPUID Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -221,9 +221,9 @@ rule Windows_VulnDriver_Cpuz_6c3a225d {
         $subject_name = { 06 03 55 04 03 [2] 43 50 55 49 44 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 63 00 70 00 75 00 7A 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x02][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x05][\x00-\x00][\x03-\x03][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x06-\x06][\x00-\x00][\x03-\x03][\x00-\x00])/
-        $str1 = "cpuz136_x32.pdb"
-        $str2 = "CPUID service" wide
-        $str3 = "CPUID Driver" wide
+        $str1 = /cpuz136_x32\.pdb/
+        $str2 = /CPUID service/ wide
+        $str3 = /CPUID Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -247,9 +247,9 @@ rule Windows_VulnDriver_Cpuz_34844564 {
         $subject_name = { 06 03 55 04 03 [2] 43 50 55 49 44 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 63 00 70 00 75 00 7A 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x02][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x02][\x00-\x00][\x03-\x03][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x03-\x03][\x00-\x00][\x03-\x03][\x00-\x00])/
-        $str1 = "cpuz133_x32.pdb"
-        $str2 = "Windows (R) Win 7 DDK driver" wide
-        $str3 = "CPUID Driver" wide
+        $str1 = /cpuz133_x32\.pdb/
+        $str2 = /Windows \(R\) Win 7 DDK driver/ wide
+        $str3 = /CPUID Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -272,9 +272,9 @@ rule Windows_VulnDriver_Cpuz_7ebc5b10 {
     strings:
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 63 00 70 00 75 00 7A 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x01][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x07][\x00-\x00][\x02-\x02][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x08-\x08][\x00-\x00][\x02-\x02][\x00-\x00])/
-        $str1 = "cpuz_x64.pdb"
-        $str2 = "Windows (R) Server 2003 DDK driver" wide
-        $str3 = "CPUID Driver" wide
+        $str1 = /cpuz_x64\.pdb/
+        $str2 = /Windows \(R\) Server 2003 DDK driver/ wide
+        $str3 = /CPUID Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -298,9 +298,9 @@ rule Windows_VulnDriver_Cpuz_e441b19d {
         $subject_name = { 06 03 55 04 03 [2] 43 50 55 49 44 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 63 00 70 00 75 00 7A 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x02][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x07][\x00-\x00][\x03-\x03][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x08-\x08][\x00-\x00][\x03-\x03][\x00-\x00])/
-        $str1 = "cpuz138_ia64.pdb"
-        $str2 = "CPUID service" wide
-        $str3 = "CPUID Driver" wide
+        $str1 = /cpuz138_ia64\.pdb/
+        $str2 = /CPUID service/ wide
+        $str3 = /CPUID Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -324,9 +324,9 @@ rule Windows_VulnDriver_Cpuz_8e4b0e76 {
         $subject_name = { 06 03 55 04 03 [2] 43 50 55 49 44 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 63 00 70 00 75 00 7A 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x03][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x02][\x00-\x00][\x04-\x04][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x03-\x03][\x00-\x00][\x04-\x04][\x00-\x00])/
-        $str1 = "cpuz143_x64.pdb"
-        $str2 = "CPUID service" wide
-        $str3 = "CPUID Driver" wide
+        $str1 = /cpuz143_x64\.pdb/
+        $str2 = /CPUID service/ wide
+        $str3 = /CPUID Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -349,9 +349,9 @@ rule Windows_VulnDriver_Cpuz_b8fd8dd1 {
     strings:
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 63 00 70 00 75 00 7A 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x02][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x01][\x00-\x00][\x03-\x03][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x02-\x02][\x00-\x00][\x03-\x03][\x00-\x00])/
-        $str1 = "cpuz132_x64.pdb"
-        $str2 = "Windows (R) Codename Longhorn DDK driver" wide
-        $str3 = "CPUID Driver" wide
+        $str1 = /cpuz132_x64\.pdb/
+        $str2 = /Windows \(R\) Codename Longhorn DDK driver/ wide
+        $str3 = /CPUID Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -375,9 +375,9 @@ rule Windows_VulnDriver_Cpuz_a9665f44 {
         $subject_name = { 06 03 55 04 03 [2] 43 50 55 49 44 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 63 00 70 00 75 00 7A 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x03][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00][\x04-\x04][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x01-\x01][\x00-\x00][\x04-\x04][\x00-\x00])/
-        $str1 = "cpuz141_ia64.pdb"
-        $str2 = "CPUID service" wide
-        $str3 = "CPUID Driver" wide
+        $str1 = /cpuz141_ia64\.pdb/
+        $str2 = /CPUID service/ wide
+        $str3 = /CPUID Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -401,9 +401,9 @@ rule Windows_VulnDriver_Cpuz_3a5a156e {
         $subject_name = { 06 03 55 04 03 [2] 43 50 55 49 44 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 63 00 70 00 75 00 7A 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x03][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00][\x04-\x04][\x00-\x00])/
-        $str1 = "cpuz140_x32.pdb"
-        $str2 = "CPUID service" wide
-        $str3 = "CPUID Driver" wide
+        $str1 = /cpuz140_x32\.pdb/
+        $str2 = /CPUID service/ wide
+        $str3 = /CPUID Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -426,9 +426,9 @@ rule Windows_VulnDriver_Cpuz_aa1951e3 {
     strings:
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 63 00 70 00 75 00 7A 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x02][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x04][\x00-\x00][\x03-\x03][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x05-\x05][\x00-\x00][\x03-\x03][\x00-\x00])/
-        $str1 = "cpuz135_x64.pdb"
-        $str2 = "CPUID service" wide
-        $str3 = "CPUID Driver" wide
+        $str1 = /cpuz135_x64\.pdb/
+        $str2 = /CPUID service/ wide
+        $str3 = /CPUID Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -452,9 +452,9 @@ rule Windows_VulnDriver_Cpuz_f529c070 {
         $subject_name = { 06 03 55 04 03 [2] 43 50 55 49 44 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 63 00 70 00 75 00 7A 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x03][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x02][\x00-\x00][\x04-\x04][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x03-\x03][\x00-\x00][\x04-\x04][\x00-\x00])/
-        $str1 = "cpuz143_ia64.pdb"
-        $str2 = "CPUID service" wide
-        $str3 = "CPUID Driver" wide
+        $str1 = /cpuz143_ia64\.pdb/
+        $str2 = /CPUID service/ wide
+        $str3 = /CPUID Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -478,9 +478,9 @@ rule Windows_VulnDriver_Cpuz_49ca1882 {
         $subject_name = { 06 03 55 04 03 [2] 4D 69 63 72 6F 73 6F 66 74 20 57 69 6E 64 6F 77 73 20 48 61 72 64 77 61 72 65 20 43 6F 6D 70 61 74 69 62 69 6C 69 74 79 20 50 75 62 6C 69 73 68 65 72 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 63 00 70 00 75 00 7A 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x04][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x06][\x00-\x00][\x05-\x05][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x07-\x07][\x00-\x00][\x05-\x05][\x00-\x00])/
-        $str1 = "cpuz157_x64.pdb"
-        $str2 = "CPUID service" wide
-        $str3 = "CPUID Driver" wide
+        $str1 = /cpuz157_x64\.pdb/
+        $str2 = /CPUID service/ wide
+        $str3 = /CPUID Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -504,9 +504,9 @@ rule Windows_VulnDriver_Cpuz_2ab29868 {
         $subject_name = { 06 03 55 04 03 [2] 43 50 55 49 44 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 63 00 70 00 75 00 7A 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x02][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x03][\x00-\x00][\x03-\x03][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x04-\x04][\x00-\x00][\x03-\x03][\x00-\x00])/
-        $str1 = "cpuz134_ia64.pdb"
-        $str2 = "Windows (R) Win 7 DDK driver" wide
-        $str3 = "CPUID Driver" wide
+        $str1 = /cpuz134_ia64\.pdb/
+        $str2 = /Windows \(R\) Win 7 DDK driver/ wide
+        $str3 = /CPUID Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -530,9 +530,9 @@ rule Windows_VulnDriver_Cpuz_143ae678 {
         $subject_name = { 06 03 55 04 03 [2] 43 50 55 49 44 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 63 00 70 00 75 00 7A 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x02][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x04][\x00-\x00][\x03-\x03][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x05-\x05][\x00-\x00][\x03-\x03][\x00-\x00])/
-        $str1 = "cpuz135_ia64.pdb"
-        $str2 = "CPUID service" wide
-        $str3 = "CPUID Driver" wide
+        $str1 = /cpuz135_ia64\.pdb/
+        $str2 = /CPUID service/ wide
+        $str3 = /CPUID Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -556,9 +556,9 @@ rule Windows_VulnDriver_Cpuz_4a8299b2 {
         $subject_name = { 06 03 55 04 03 [2] 43 50 55 49 44 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 63 00 70 00 75 00 7A 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x02][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x06][\x00-\x00][\x03-\x03][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x07-\x07][\x00-\x00][\x03-\x03][\x00-\x00])/
-        $str1 = "cpuz137_ia64.pdb"
-        $str2 = "CPUID service" wide
-        $str3 = "CPUID Driver" wide
+        $str1 = /cpuz137_ia64\.pdb/
+        $str2 = /CPUID service/ wide
+        $str3 = /CPUID Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -582,9 +582,9 @@ rule Windows_VulnDriver_Cpuz_44c90af4 {
         $subject_name = { 06 03 55 04 03 [2] 43 50 55 49 44 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 63 00 70 00 75 00 7A 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x02][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x08][\x00-\x00][\x03-\x03][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x09-\x09][\x00-\x00][\x03-\x03][\x00-\x00])/
-        $str1 = "cpuz139_x32.pdb"
-        $str2 = "CPUID service" wide
-        $str3 = "CPUID Driver" wide
+        $str1 = /cpuz139_x32\.pdb/
+        $str2 = /CPUID service/ wide
+        $str3 = /CPUID Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -608,9 +608,9 @@ rule Windows_VulnDriver_Cpuz_ed492f4c {
         $subject_name = { 06 03 55 04 03 [2] 43 50 55 49 44 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 63 00 70 00 75 00 7A 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x02][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x08][\x00-\x00][\x03-\x03][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x09-\x09][\x00-\x00][\x03-\x03][\x00-\x00])/
-        $str1 = "cpuz139_ia64.pdb"
-        $str2 = "CPUID service" wide
-        $str3 = "CPUID Driver" wide
+        $str1 = /cpuz139_ia64\.pdb/
+        $str2 = /CPUID service/ wide
+        $str3 = /CPUID Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -634,9 +634,9 @@ rule Windows_VulnDriver_Cpuz_64edb9e0 {
         $subject_name = { 06 03 55 04 03 [2] 43 50 55 49 44 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 63 00 70 00 75 00 7A 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x03][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00][\x04-\x04][\x00-\x00])/
-        $str1 = "cpuz140_ia64.pdb"
-        $str2 = "CPUID service" wide
-        $str3 = "CPUID Driver" wide
+        $str1 = /cpuz140_ia64\.pdb/
+        $str2 = /CPUID service/ wide
+        $str3 = /CPUID Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -660,9 +660,9 @@ rule Windows_VulnDriver_Cpuz_41285e2e {
         $subject_name = { 06 03 55 04 03 [2] 42 65 69 6A 69 6E 67 20 47 69 67 61 62 69 74 20 54 69 6D 65 73 20 54 65 63 68 6E 6F 6C 6F 67 79 20 43 6F 2E 2C 20 4C 74 64 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 63 00 70 00 75 00 7A 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x02][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00][\x03-\x03][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x01-\x01][\x00-\x00][\x03-\x03][\x00-\x00])/
-        $str1 = "cpuz_x32.pdb"
-        $str2 = "Windows (R) Codename Longhorn DDK driver" wide
-        $str3 = "CPUID Driver" wide
+        $str1 = /cpuz_x32\.pdb/
+        $str2 = /Windows \(R\) Codename Longhorn DDK driver/ wide
+        $str3 = /CPUID Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -685,9 +685,9 @@ rule Windows_VulnDriver_Cpuz_7af21541 {
     strings:
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 63 00 70 00 75 00 7A 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x02][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00][\x03-\x03][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x01-\x01][\x00-\x00][\x03-\x03][\x00-\x00])/
-        $str1 = "cpuz_x64.pdb"
-        $str2 = "Windows (R) Codename Longhorn DDK driver" wide
-        $str3 = "CPUID Driver" wide
+        $str1 = /cpuz_x64\.pdb/
+        $str2 = /Windows \(R\) Codename Longhorn DDK driver/ wide
+        $str3 = /CPUID Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -711,9 +711,9 @@ rule Windows_VulnDriver_Cpuz_1599e387 {
         $subject_name = { 06 03 55 04 03 [2] 43 50 55 49 44 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 63 00 70 00 75 00 7A 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x02][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x08][\x00-\x00][\x03-\x03][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x09-\x09][\x00-\x00][\x03-\x03][\x00-\x00])/
-        $str1 = "cpuz139_x64.pdb"
-        $str2 = "CPUID service" wide
-        $str3 = "CPUID Driver" wide
+        $str1 = /cpuz139_x64\.pdb/
+        $str2 = /CPUID service/ wide
+        $str3 = /CPUID Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -737,9 +737,9 @@ rule Windows_VulnDriver_Cpuz_74794ce0 {
         $subject_name = { 06 03 55 04 03 [2] 43 50 55 49 44 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 63 00 70 00 75 00 7A 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x02][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x01][\x00-\x00][\x03-\x03][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x02-\x02][\x00-\x00][\x03-\x03][\x00-\x00])/
-        $str1 = "cpuz132_x32.pdb"
-        $str2 = "Windows (R) Codename Longhorn DDK driver" wide
-        $str3 = "CPUID Driver" wide
+        $str1 = /cpuz132_x32\.pdb/
+        $str2 = /Windows \(R\) Codename Longhorn DDK driver/ wide
+        $str3 = /CPUID Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -763,9 +763,9 @@ rule Windows_VulnDriver_Cpuz_e0562333 {
         $subject_name = { 06 03 55 04 03 [2] 43 50 55 49 44 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 63 00 70 00 75 00 7A 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x03][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00][\x04-\x04][\x00-\x00])/
-        $str1 = "cpuz140_x64.pdb"
-        $str2 = "CPUID service" wide
-        $str3 = "CPUID Driver" wide
+        $str1 = /cpuz140_x64\.pdb/
+        $str2 = /CPUID service/ wide
+        $str3 = /CPUID Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -789,9 +789,9 @@ rule Windows_VulnDriver_Cpuz_0a6d2276 {
         $subject_name = { 06 03 55 04 03 [2] 43 50 55 49 44 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 63 00 70 00 75 00 7A 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x02][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x07][\x00-\x00][\x03-\x03][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x08-\x08][\x00-\x00][\x03-\x03][\x00-\x00])/
-        $str1 = "cpuz138_x32.pdb"
-        $str2 = "CPUID service" wide
-        $str3 = "CPUID Driver" wide
+        $str1 = /cpuz138_x32\.pdb/
+        $str2 = /CPUID service/ wide
+        $str3 = /CPUID Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -815,9 +815,9 @@ rule Windows_VulnDriver_Cpuz_4e4da707 {
         $subject_name = { 06 03 55 04 03 [2] 43 50 55 49 44 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 63 00 70 00 75 00 7A 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x02][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x05][\x00-\x00][\x03-\x03][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x06-\x06][\x00-\x00][\x03-\x03][\x00-\x00])/
-        $str1 = "cpuz136_ia64.pdb"
-        $str2 = "CPUID service" wide
-        $str3 = "CPUID Driver" wide
+        $str1 = /cpuz136_ia64\.pdb/
+        $str2 = /CPUID service/ wide
+        $str3 = /CPUID Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -840,9 +840,9 @@ rule Windows_VulnDriver_Cpuz_a002946b {
     strings:
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 63 00 70 00 75 00 7A 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x02][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x03][\x00-\x00][\x03-\x03][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x04-\x04][\x00-\x00][\x03-\x03][\x00-\x00])/
-        $str1 = "cpuz134_x64.pdb"
-        $str2 = "Windows (R) Win 7 DDK driver" wide
-        $str3 = "CPUID Driver" wide
+        $str1 = /cpuz134_x64\.pdb/
+        $str2 = /Windows \(R\) Win 7 DDK driver/ wide
+        $str3 = /CPUID Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -866,9 +866,9 @@ rule Windows_VulnDriver_Cpuz_44cdfd67 {
         $subject_name = { 06 03 55 04 03 [2] 43 50 55 49 44 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 63 00 70 00 75 00 7A 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x01][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x05][\x00-\x00][\x02-\x02][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x06-\x06][\x00-\x00][\x02-\x02][\x00-\x00])/
-        $str1 = "cpuz.pdb"
-        $str2 = "Windows (R) Server 2003 DDK driver" wide
-        $str3 = "CPU-Z Driver" wide
+        $str1 = /cpuz\.pdb/
+        $str2 = /Windows \(R\) Server 2003 DDK driver/ wide
+        $str3 = /CPU-Z Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -892,9 +892,9 @@ rule Windows_VulnDriver_Cpuz_eff7b3e3 {
         $subject_name = { 06 03 55 04 03 [2] 43 50 55 49 44 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 63 00 70 00 75 00 7A 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x02][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x03][\x00-\x00][\x03-\x03][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x04-\x04][\x00-\x00][\x03-\x03][\x00-\x00])/
-        $str1 = "cpuz134_x32.pdb"
-        $str2 = "Windows (R) Win 7 DDK driver" wide
-        $str3 = "CPUID Driver" wide
+        $str1 = /cpuz134_x32\.pdb/
+        $str2 = /Windows \(R\) Win 7 DDK driver/ wide
+        $str3 = /CPUID Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -918,9 +918,9 @@ rule Windows_VulnDriver_Cpuz_c60eacc6 {
         $subject_name = { 06 03 55 04 03 [2] 43 50 55 49 44 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 63 00 70 00 75 00 7A 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x02][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x06][\x00-\x00][\x03-\x03][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x07-\x07][\x00-\x00][\x03-\x03][\x00-\x00])/
-        $str1 = "cpuz137_x32.pdb"
-        $str2 = "CPUID service" wide
-        $str3 = "CPUID Driver" wide
+        $str1 = /cpuz137_x32\.pdb/
+        $str2 = /CPUID service/ wide
+        $str3 = /CPUID Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -944,9 +944,9 @@ rule Windows_VulnDriver_Cpuz_146d4870 {
         $subject_name = { 06 03 55 04 03 [2] 43 50 55 49 44 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 63 00 70 00 75 00 7A 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x01][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x05][\x00-\x00][\x02-\x02][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x06-\x06][\x00-\x00][\x02-\x02][\x00-\x00])/
-        $str1 = "cpuz.pdb"
-        $str2 = "Windows (R) Codename Longhorn DDK driver" wide
-        $str3 = "CPU-Z Driver" wide
+        $str1 = /cpuz\.pdb/
+        $str2 = /Windows \(R\) Codename Longhorn DDK driver/ wide
+        $str3 = /CPU-Z Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -969,9 +969,9 @@ rule Windows_VulnDriver_Cpuz_7f19df7b {
     strings:
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 44 00 54 00 4C 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x02][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x04][\x00-\x00][\x03-\x03][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x05-\x05][\x00-\x00][\x03-\x03][\x00-\x00])/
-        $str1 = "DTL134_x64.pdb"
-        $str2 = "DTL service" wide
-        $str3 = "DTL Driver" wide
+        $str1 = /DTL134_x64\.pdb/
+        $str2 = /DTL service/ wide
+        $str3 = /DTL Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $original_file_name and $version and $str1 and $str2 and $str3
 }

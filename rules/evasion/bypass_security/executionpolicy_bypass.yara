@@ -3,7 +3,7 @@ rule ps_executionpolicy_bypass: high {
     description = "bypasses PowerShell Execution Policy"
 
   strings:
-    $ref = "-ExecutionPolicy Bypass"
+    $ref = /-ExecutionPolicy Bypass/
 
   condition:
     filesize < 16KB and $ref
@@ -14,7 +14,7 @@ rule ps_executionpolicy_bypass_small_child: high {
     description = "Calls powerscript and bypasses PowerShell Execution Policy"
 
   strings:
-    $ref   = "-ExecutionPolicy Bypass"
+    $ref   = /-ExecutionPolicy Bypass/
     $child = /require\(['"]child_process['"]\);/
 
   condition:

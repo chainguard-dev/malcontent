@@ -5,8 +5,8 @@ rule timescaledb_docker_ha_post_init: override {
     bash_dev_tcp              = "low"
 
   strings:
-    $timescaledb_ext = "CREATE EXTENSION timescaledb"
-    $pgbackrest_api  = "pgBackRest API"
+    $timescaledb_ext = /CREATE EXTENSION timescaledb/
+    $pgbackrest_api  = /pgBackRest API/
 
   condition:
     filesize < 2048 and all of them

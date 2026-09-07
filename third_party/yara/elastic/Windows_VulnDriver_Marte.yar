@@ -15,7 +15,7 @@ rule Windows_VulnDriver_Marte_a0b03aa8 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 45 56 41 4E 47 45 4C 20 54 45 43 48 4E 4F 4C 4F 47 59 20 28 48 4B 29 20 4C 49 4D 49 54 45 44 }
-        $str1 = "nvflash.pdb"
+        $str1 = /nvflash\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }

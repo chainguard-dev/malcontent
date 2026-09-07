@@ -25,8 +25,8 @@ rule normal_elf_high_entropy_7_4: high {
     filetypes   = "elf"
 
   strings:
-    $not_whirlpool = "libgcrypt-grub/cipher/whirlpool.c"
-    $not_bazel     = "BazelLogHandler"
+    $not_whirlpool = /libgcrypt-grub\/cipher\/whirlpool\.c/
+    $not_bazel     = /BazelLogHandler/
 
   condition:
     filesize < 30MB and normal_elf and math.entropy(1, filesize) >= 7.4 and none of ($not*)

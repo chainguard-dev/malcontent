@@ -4,20 +4,20 @@ rule iplookup_website: high {
 
   strings:
     $ipify       = /ipify\.org{0,1}/
-    $wtfismyip   = "wtfismyip"
-    $iplogger    = "iplogger.org"
-    $getjsonip   = "getjsonip"
-    $ipconfig_me = "ifconfig.me"
-    $icanhazip   = "icanhazip"
-    $grabify     = "grabify.link"
-    $ident_me    = "ident.me" fullword
-    $showip_net  = "showip.net" fullword
-    $ifconfig_io = "ifconfig.io" fullword
-    $ifconfig_co = "ifconfig.co" fullword
-    $ipinfo      = "ipinfo.io"
-    $check_ip    = "checkip.amazonaws.com"
+    $wtfismyip   = /wtfismyip/
+    $iplogger    = /iplogger\.org/
+    $getjsonip   = /getjsonip/
+    $ipconfig_me = /ifconfig\.me/
+    $icanhazip   = /icanhazip/
+    $grabify     = /grabify\.link/
+    $ident_me    = /ident\.me/ fullword
+    $showip_net  = /showip\.net/ fullword
+    $ifconfig_io = /ifconfig\.io/ fullword
+    $ifconfig_co = /ifconfig\.co/ fullword
+    $ipinfo      = /ipinfo\.io/
+    $check_ip    = /checkip\.amazonaws\.com/
 
-    $not_pypi_index = "testpack-id-lb001"
+    $not_pypi_index = /testpack-id-lb001/
 
   condition:
     filesize < 250MB and any of ($ipify, $wtfismyip, $iplogger, $getjsonip, $ipconfig_me, $icanhazip, $grabify, $ident_me, $showip_net, $ifconfig_io, $ifconfig_co, $ipinfo, $check_ip) and none of ($not*)

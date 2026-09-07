@@ -15,7 +15,7 @@ rule Windows_VulnDriver_IdTech_a8be9539 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 49 44 20 54 45 43 48 }
-        $str1 = "msrhook.pdb"
+        $str1 = /msrhook\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $str1
 }
@@ -37,7 +37,7 @@ rule Windows_VulnDriver_IdTech_ac7ed394 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 49 44 20 54 65 63 68 }
-        $str1 = "msrhook.pdb"
+        $str1 = /msrhook\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }

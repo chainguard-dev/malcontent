@@ -3,36 +3,36 @@ rule suspected_data_stealer: high {
     description = "suspected data stealer"
 
   strings:
-    $e_atomic           = "Atomic" fullword
-    $e_bitcoin          = "Bitcoin" fullword
-    $e_chromium         = "Chromium"
-    $e_chrome           = "Chrome" fullword
-    $e_firefox          = "Firefox"
-    $e_openvpn          = "OpenVPN"
-    $s_bookmarks        = "Bookmarks"
-    $s_history          = "History"
-    $s_binance          = "Binance"
-    $s_discord          = "Discord"
-    $s_electrum         = "Electrum"
-    $s_electrum2        = "/.elect"
-    $s_exodus           = "Exodus"
-    $s_exodus_ext       = "aholpfdial"
-    $s_crypto           = "cfgodnhcel"
-    $s_obs              = "obs-studio"
-    $s_pidgin           = "Pidgin"
-    $s_snowflake        = "Snowflake"
-    $s_telegram         = "Telegram"
-    $s_zcash            = "Zcash"
-    $s_zip              = "zip -r"
-    $s_login            = "Login Data"
-    $not_chromium       = "RasterCHROMIUM"
-    $not_descriptive    = "Binance Pay is a contactless"
-    $not_electron       = "ELECTRON_RUN_AS_NODE"
-    $not_gpt_tokenizer1 = "GPTTokenizer"
-    $not_gpt_tokenizer2 = "GPT-4"
-    $not_gpt_tokenizer3 = "const bpe = c0.concat();"
-    $not_gpt_tokenizer4 = "const bpe = c0.concat(c1);"
-    $not_gpt_tokenizer5 = "export default bpe;"
+    $e_atomic           = /Atomic/ fullword
+    $e_bitcoin          = /Bitcoin/ fullword
+    $e_chromium         = /Chromium/
+    $e_chrome           = /Chrome/ fullword
+    $e_firefox          = /Firefox/
+    $e_openvpn          = /OpenVPN/
+    $s_bookmarks        = /Bookmarks/
+    $s_history          = /History/
+    $s_binance          = /Binance/
+    $s_discord          = /Discord/
+    $s_electrum         = /Electrum/
+    $s_electrum2        = /\/\.elect/
+    $s_exodus           = /Exodus/
+    $s_exodus_ext       = /aholpfdial/
+    $s_crypto           = /cfgodnhcel/
+    $s_obs              = /obs-studio/
+    $s_pidgin           = /Pidgin/
+    $s_snowflake        = /Snowflake/
+    $s_telegram         = /Telegram/
+    $s_zcash            = /Zcash/
+    $s_zip              = /zip -r/
+    $s_login            = /Login Data/
+    $not_chromium       = /RasterCHROMIUM/
+    $not_descriptive    = /Binance Pay is a contactless/
+    $not_electron       = /ELECTRON_RUN_AS_NODE/
+    $not_gpt_tokenizer1 = /GPTTokenizer/
+    $not_gpt_tokenizer2 = /GPT-4/
+    $not_gpt_tokenizer3 = /const bpe = c0\.concat\(\);/
+    $not_gpt_tokenizer4 = /const bpe = c0\.concat\(c1\);/
+    $not_gpt_tokenizer5 = /export default bpe;/
 
   condition:
     // "them" is replaced by an explicit reference selector so that relaxing the
@@ -76,12 +76,12 @@ rule STRRat_high: high {
     description = "steals multiple types of passwords"
 
   strings:
-    $p_pass         = "pass"
-    $p_keylogger    = "keylogger"
-    $browser_chrome = "chrome" fullword
-    $browser_ie     = "ie" fullword
-    $mail_foxmail   = "foxmail"
-    $mail_outlook   = "outlook"
+    $p_pass         = /pass/
+    $p_keylogger    = /keylogger/
+    $browser_chrome = /chrome/ fullword
+    $browser_ie     = /ie/ fullword
+    $mail_foxmail   = /foxmail/
+    $mail_outlook   = /outlook/
 
   condition:
     filesize < 128KB and any of ($p*) and any of ($browser*) and any of ($mail*)
@@ -92,12 +92,12 @@ rule STRRat_critical: critical {
     description = "steals multiple types of passwords"
 
   strings:
-    $p_pass         = "pass"
-    $p_keylogger    = "keylogger"
-    $browser_chrome = "chrome" fullword
-    $browser_ie     = "ie" fullword
-    $mail_foxmail   = "foxmail"
-    $mail_outlook   = "outlook"
+    $p_pass         = /pass/
+    $p_keylogger    = /keylogger/
+    $browser_chrome = /chrome/ fullword
+    $browser_ie     = /ie/ fullword
+    $mail_foxmail   = /foxmail/
+    $mail_outlook   = /outlook/
 
   condition:
     filesize < 128KB and all of ($p*) and any of ($browser*) and any of ($mail*)
@@ -109,14 +109,14 @@ rule RustEthereumSolanaStealer: critical {
     filetypes   = "rs"
 
   strings:
-    $base58           = "base58" nocase
-    $base58_alphabet  = "const BASE58_ALPHABET: &[u8] = b\"123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz\";"
-    $endpoint_sub1    = "mainnet"
-    $endpoint_sub2    = "solana-rpc-pool"
-    $endpoint_domain  = "workers.dev"
-    $regex_byte_array = "Regex::new(r#\"\\[(?:\\s*0x[0-9a-fA-F]{1,2}\\s*,?\\s*)+\\]|\\[(?:\\s*\\d{1,3}\\s*,?\\s*)+\\]\"#)?"
-    $regex_address    = "Regex::new(r#\"\"[1-9A-HJ-NP-Za-km-z]{32,44}\"\"#)?"
-    $regex_hex        = "Regex::new(r#\"\"0x[0-9a-fA-F]{64}\"\"#)?"
+    $base58           = /base58/ nocase
+    $base58_alphabet  = /const BASE58_ALPHABET: &\[u8\] = b"123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";/
+    $endpoint_sub1    = /mainnet/
+    $endpoint_sub2    = /solana-rpc-pool/
+    $endpoint_domain  = /workers\.dev/
+    $regex_byte_array = /Regex::new\(r#"\\\[\(\?:\\s\*0x\[0-9a-fA-F\]\{1,2\}\\s\*,\?\\s\*\)\+\\\]\|\\\[\(\?:\\s\*\\d\{1,3\}\\s\*,\?\\s\*\)\+\\\]"#\)\?/
+    $regex_address    = /Regex::new\(r#""\[1-9A-HJ-NP-Za-km-z\]\{32,44\}""#\)\?/
+    $regex_hex        = /Regex::new\(r#""0x\[0-9a-fA-F\]\{64\}""#\)\?/
 
   condition:
     filesize < 128KB and any of ($base58*) and all of ($endpoint*) and any of ($regex*)

@@ -15,9 +15,9 @@ rule Windows_VulnDriver_SliffDriver_5829b640 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 4D 69 63 72 6F 73 6F 66 74 20 57 69 6E 64 6F 77 73 20 48 61 72 64 77 61 72 65 20 43 6F 6D 70 61 74 69 62 69 6C 69 74 79 20 50 75 62 6C 69 73 68 65 72 }
-        $str1 = "C:\\Users\\rmvr\\source\\repos\\MyDriver1\\x64\\Release\\SliffDriver.pdb"
-        $str2 = "SLIFF_VD_IOCTL_GET_PCI_BAR"
-        $str3 = "SliffDriver Unloaded"
+        $str1 = /C:\\Users\\rmvr\\source\\repos\\MyDriver1\\x64\\Release\\SliffDriver\.pdb/
+        $str2 = /SLIFF_VD_IOCTL_GET_PCI_BAR/
+        $str3 = /SliffDriver Unloaded/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1 and $str2 and $str3
 }
@@ -39,9 +39,9 @@ rule Windows_VulnDriver_SliffDriver_97bec3fa {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 4D 69 63 72 6F 73 6F 66 74 20 57 69 6E 64 6F 77 73 20 48 61 72 64 77 61 72 65 20 43 6F 6D 70 61 74 69 62 69 6C 69 74 79 20 50 75 62 6C 69 73 68 65 72 }
-        $str1 = "sliff.pdb"
-        $str2 = "SliffDriver - version %s loaded"
-        $str3 = "\\DosDevices\\sliff" wide
+        $str1 = /sliff\.pdb/
+        $str2 = /SliffDriver - version %s loaded/
+        $str3 = /\\DosDevices\\sliff/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1 and $str2 and $str3
 }

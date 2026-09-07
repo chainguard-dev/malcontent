@@ -15,9 +15,9 @@ rule Windows_VulnDriver_ELAN_1fc53608 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 45 4C 41 4E 20 4D 69 63 72 6F 65 6C 65 63 74 72 6F 6E 69 63 73 20 43 6F 72 70 6F 72 61 74 69 6F 6E }
-        $str1 = "WinIo64.pdb"
-        $str2 = "IOCTL_WINIO_FREEALLOCPHYS"
-        $str3 = "IOCTL_WINIO_UNMAPPHYSADDR"
+        $str1 = /WinIo64\.pdb/
+        $str2 = /IOCTL_WINIO_FREEALLOCPHYS/
+        $str3 = /IOCTL_WINIO_UNMAPPHYSADDR/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1 and $str2 and $str3
 }

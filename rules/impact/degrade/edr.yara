@@ -3,15 +3,15 @@ rule win_kill_proc: medium windows {
     description = "may be able to bypass or kill EDR software"
 
   strings:
-    $f_gcp     = "GetCurrentProcess"
-    $f_gct     = "GetCurrentThread"
-    $f_time    = "GetSystemTimeAsFileTime"
-    $debug_pfp = "IsProcessorFeaturePresent"
-    $debug_qpc = "QueryPerformanceCounter"
-    $debug_idp = "IsDebuggerPresent"
-    $debug_uhf = "UnhandledExceptionFilter"
-    $kill_gmh  = "GetModuleHandle"
-    $kill_tp   = "TerminateProcess"
+    $f_gcp     = /GetCurrentProcess/
+    $f_gct     = /GetCurrentThread/
+    $f_time    = /GetSystemTimeAsFileTime/
+    $debug_pfp = /IsProcessorFeaturePresent/
+    $debug_qpc = /QueryPerformanceCounter/
+    $debug_idp = /IsDebuggerPresent/
+    $debug_uhf = /UnhandledExceptionFilter/
+    $kill_gmh  = /GetModuleHandle/
+    $kill_tp   = /TerminateProcess/
 
   condition:
     filesize < 1MB and all of ($kill*) and 3 of ($debug*) and 1 of ($f*)
@@ -23,8 +23,8 @@ rule win_edr_stopper: critical windows {
     filetypes   = "bat,exe,pe"
 
   strings:
-    $kind_malwarebytes = "alwarebytes"
-    $stop              = "stopservice"
+    $kind_malwarebytes = /alwarebytes/
+    $stop              = /stopservice/
 
   condition:
     filesize < 1MB and $stop and any of ($kind*)
@@ -47,7 +47,7 @@ rule linux_edr_stop: critical linux {
     description = "Stops EDR/Antivirus services"
 
   strings:
-    $aegis_stop = "/etc/init.d/aegis stop"
+    $aegis_stop = /\/etc\/init\.d\/aegis stop/
 
   condition:
     filesize < 1MB and any of them
@@ -70,10 +70,10 @@ rule linux_edr_kill: high linux {
     filetypes   = "bat,exe,pe"
 
   strings:
-    $kill           = "kill"
-    $kind_aliyundun = "AliYunDun" fullword
-    $kind_aegis_cli = "aegis_cli" fullword
-    $kind_quartz    = "aegis_quartz" fullword
+    $kill           = /kill/
+    $kind_aliyundun = /AliYunDun/ fullword
+    $kind_aegis_cli = /aegis_cli/ fullword
+    $kind_quartz    = /aegis_quartz/ fullword
 
   condition:
     filesize < 1MB and $kill and any of ($kind*)

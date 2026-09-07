@@ -16,11 +16,11 @@ rule process_hider: high {
     description = "possible rootkit designed to hide processes"
 
   strings:
-    $hide_process   = "hide_proc" fullword
-    $proc_hide      = "proc_hide" fullword
-    $process_hide   = "process_hide" fullword
-    $process_hiding = "process_hiding" fullword
-    $hidden_proc    = "hidden_proc" fullword
+    $hide_process   = /hide_proc/ fullword
+    $proc_hide      = /proc_hide/ fullword
+    $process_hide   = /process_hide/ fullword
+    $process_hiding = /process_hiding/ fullword
+    $hidden_proc    = /hidden_proc/ fullword
 
   condition:
     filesize < 250KB and any of them

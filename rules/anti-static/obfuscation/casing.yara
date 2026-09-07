@@ -18,11 +18,11 @@ rule set_variable_variable_casing: high windows {
 
   strings:
     $ref  = /[Ss][eE][tT]-[vV][aA][rR][iI][aA][bB][Ll][eE]/
-    $not  = "Set-Variable"
-    $not2 = "SET-VARIABLE"
-    $not3 = "set-variable"
-    $not4 = "set-Variable"
-    $not5 = "Set-variable"
+    $not  = /Set-Variable/
+    $not2 = /SET-VARIABLE/
+    $not3 = /set-variable/
+    $not4 = /set-Variable/
+    $not5 = /Set-variable/
 
   // $ref matches each accepted spelling too, so a file can hold both an accepted
   // spelling and an obfuscated one. Compare occurrence counts rather than
@@ -39,11 +39,11 @@ rule set_item_variable_casing: high windows {
 
   strings:
     $ref  = /[Ss][eE][tT]-[Ii][Tt][Ee][Mm]/
-    $not  = "Set-Item"
-    $not2 = "SET-ITEM"
-    $not3 = "set-item"
-    $not4 = "set-Item"
-    $not5 = "Set-item"
+    $not  = /Set-Item/
+    $not2 = /SET-ITEM/
+    $not3 = /set-item/
+    $not4 = /set-Item/
+    $not5 = /Set-item/
 
   // See set_variable_variable_casing: compare occurrence counts, not presence.
 
@@ -58,9 +58,9 @@ rule string_variable_casing: high windows {
 
   strings:
     $ref  = /\[[Ss][Tt][Rr][Ii][Nn][Gg]\]/
-    $not  = "[string]"
-    $not2 = "[STRING]"
-    $not3 = "[String]"
+    $not  = /\[string\]/
+    $not2 = /\[STRING\]/
+    $not3 = /\[String\]/
 
   // See set_variable_variable_casing: compare occurrence counts, not presence.
 
@@ -75,9 +75,9 @@ rule length_casing: medium windows {
 
   strings:
     $ref  = /\.[Ll][Ee][Nn][Gg][Tt][Hh]/
-    $not  = ".Length"
-    $not2 = ".length"
-    $not3 = ".LENGTH"
+    $not  = /\.Length/
+    $not2 = /\.length/
+    $not3 = /\.LENGTH/
 
   // See set_variable_variable_casing: compare occurrence counts, not presence.
   // The $not literals carry the leading "." so each accepted spelling lands on
@@ -93,10 +93,10 @@ rule pshome_casing: high windows {
     filetypes   = "ps1"
 
   strings:
-    $ref  = /[Pp][Ss][Hh][Oo][Mm][Ee]/ fullword
-    $not  = "PSHOME" fullword
-    $not2 = "pshome" fullword
-    $not3 = "Pshome" fullword
+    $ref  = /pshome/ nocase fullword
+    $not  = /PSHOME/ fullword
+    $not2 = /pshome/ fullword
+    $not3 = /Pshome/ fullword
 
   // See set_variable_variable_casing: compare occurrence counts, not presence.
   // The $not literals repeat the $ref `fullword` modifier so they cannot match
@@ -112,10 +112,10 @@ rule variable_casing: high windows {
     filetypes   = "ps1"
 
   strings:
-    $ref  = /[Vv][Aa][Rr][Ii][Aa][Bb][Ll][Ee]/ fullword
-    $not  = "variable" fullword
-    $not2 = "Variable" fullword
-    $not3 = "VARIABLE" fullword
+    $ref  = /variable/ nocase fullword
+    $not  = /variable/ fullword
+    $not2 = /Variable/ fullword
+    $not3 = /VARIABLE/ fullword
 
   // See set_variable_variable_casing: compare occurrence counts, not presence.
   // The $not literals repeat the $ref `fullword` modifier so they cannot match
@@ -131,10 +131,10 @@ rule pshome_multiple_casing: critical windows {
     filetypes   = "ps1"
 
   strings:
-    $ref  = /[Pp][Ss][Hh][Oo][Mm][Ee]/ fullword
-    $not  = "PSHOME" fullword
-    $not2 = "pshome" fullword
-    $not3 = "Pshome" fullword
+    $ref  = /pshome/ nocase fullword
+    $not  = /PSHOME/ fullword
+    $not2 = /pshome/ fullword
+    $not3 = /Pshome/ fullword
 
   // See pshome_casing: `fullword` on both sides, then compare occurrence counts.
 
@@ -149,9 +149,9 @@ rule string_multiple_casing: critical windows {
 
   strings:
     $ref  = /\[[Ss][Tt][Rr][Ii][Nn][Gg]\]/
-    $not  = "[string]"
-    $not2 = "[STRING]"
-    $not3 = "[String]"
+    $not  = /\[string\]/
+    $not2 = /\[STRING\]/
+    $not3 = /\[String\]/
 
   // See set_variable_variable_casing: compare occurrence counts, not presence.
 

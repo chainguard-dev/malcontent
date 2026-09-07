@@ -8,13 +8,13 @@ rule darkhotel_dotNetDownloader_strings {
 
 
       strings:
-        $pdb = "C:\\xingxing\\snowball\\Intl_Cmm_Inteface_Buld_vesion2.6\\IMGJPS.pdb" fullword nocase
-        $a1 = "4d1d3972223f623f36650c00633f247433244d5c" ascii fullword
-        $b1 = "snd1vPng" ascii fullword
-        $b2 = "sdMsg" ascii fullword
-        $b3 = "rqPstdTa" ascii fullword
-        $b4 = "D0w1ad" ascii fullword
-        $b5 = "U1dAL1" ascii fullword
+        $pdb = /C:\\xingxing\\snowball\\Intl_Cmm_Inteface_Buld_vesion2\.6\\IMGJPS\.pdb/ fullword nocase
+        $a1 = /4d1d3972223f623f36650c00633f247433244d5c/ ascii fullword
+        $b1 = /snd1vPng/ ascii fullword
+        $b2 = /sdMsg/ ascii fullword
+        $b3 = /rqPstdTa/ ascii fullword
+        $b4 = /D0w1ad/ ascii fullword
+        $b5 = /U1dAL1/ ascii fullword
 
       condition:
         (uint16(0) == 0x5A4D) and
@@ -34,11 +34,11 @@ rule darkhotel_lnk_strings {
 
 
       strings:
-        $hostname1 = "win-j1m3n7bfrbl" ascii fullword
-        $hostname2 = "win-fe8b6nec4ks" ascii fullword
-        $a1 = "cmd.exe" wide ascii
-        $a2 = "mshta.exe" wide ascii
-        $b1 = "TVqQAAMAAAAEAAAA" ascii
+        $hostname1 = /win-j1m3n7bfrbl/ ascii fullword
+        $hostname2 = /win-fe8b6nec4ks/ ascii fullword
+        $a1 = /cmd\.exe/ wide ascii
+        $a2 = /mshta\.exe/ wide ascii
+        $b1 = /TVqQAAMAAAAEAAAA/ ascii
 
       condition:
         (uint16(0) == 0x004C) and
@@ -55,10 +55,10 @@ rule darkhotel_srdfqm_strings {
 
 
     	strings:
-          $a1="BadStatusLine (%s)" ascii fullword
-          $a2="UnknownProtocol (%s)" ascii fullword
-          $a3="Request already issued" ascii fullword
-          $a4="\\Microsoft\\Network\\" ascii fullword
+          $a1=/BadStatusLine \(%s\)/ ascii fullword
+          $a2=/UnknownProtocol \(%s\)/ ascii fullword
+          $a3=/Request already issued/ ascii fullword
+          $a4=/\\Microsoft\\Network\\/ ascii fullword
 
     	condition:
           (uint16(0) == 0x5A4D) and
@@ -77,9 +77,9 @@ rule darkhotel_isyssdownloader_pdbs {
 
     strings:
         $b1 = {0F 84 [2-10] B8 AB AA AA 2A F7 ?? 8B C2 C1 ?? 1F 03 C2 [2-10] 03 D2 2B F2 46 83 ?? 01}
-        $pdb1="C:\\Code\\india_source\\80.83\\c_isyss\\Release\\isyss.pdb" ascii fullword
-        $pdb2 = "\\Release\\isyss.pdb" ascii wide
-        $pdb3="C:\\Code\\india_source\\" ascii wide
+        $pdb1=/C:\\Code\\india_source\\80\.83\\c_isyss\\Release\\isyss\.pdb/ ascii fullword
+        $pdb2 = /\\Release\\isyss\.pdb/ ascii wide
+        $pdb3=/C:\\Code\\india_source\\/ ascii wide
 
     condition:
         (uint16(0) == 0x5A4D) and

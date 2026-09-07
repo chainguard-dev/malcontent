@@ -5,8 +5,8 @@ rule pastebinit: override {
     download_sites            = "medium"
 
   strings:
-    $pb     = "pastebinit" fullword
-    $ubuntu = "ubuntu" fullword
+    $pb     = /pastebinit/ fullword
+    $ubuntu = /ubuntu/ fullword
 
   condition:
     filesize < 40KB and all of them

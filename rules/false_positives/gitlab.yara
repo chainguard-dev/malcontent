@@ -6,11 +6,11 @@ rule exec_regex: override {
     SEKOIA_Technique_Csv_Dde_Exec_Regex = "low"
 
   strings:
-    $example1 = "shared_examples 'excel sanitization' do"
-    $example2 = "'sanitizes dangerous characters at the beginning of a column'"
-    $example3 = "'does not sanitize safe symbols at the beginning of a column'"
-    $example4 = "'when dangerous characters are after a line break'"
-    $example5 = "'does not append single quote to description'"
+    $example1 = /shared_examples 'excel sanitization' do/
+    $example2 = /'sanitizes dangerous characters at the beginning of a column'/
+    $example3 = /'does not sanitize safe symbols at the beginning of a column'/
+    $example4 = /'when dangerous characters are after a line break'/
+    $example5 = /'does not append single quote to description'/
 
   condition:
     filesize < 8192 and all of them
@@ -34,7 +34,7 @@ rule safe_zip_test_fixture: override {
     ELCEEF_Zombie_Malformed_ZIP = "harmless"
 
   strings:
-    $index_html = "public/index.html"
+    $index_html = /public\/index\.html/
 
   condition:
     filesize < 512 and $index_html and hash.sha256(0, filesize) == "95ac6cc55c46c7670b2dacbcbaf5ec738a7d414494ee65fe9d0ff49d5adfb17c"
@@ -49,8 +49,8 @@ rule vscode_extension: override {
 
   strings:
     $secretEntry     = /\{description\:\".*\",id\:\".*\",regex\:.*,(secretGroup\:\d{1},){0,1}keywords\:\[.*\]\}/
-    $secretRedactor1 = "(\"SecretRedactor\")"
-    $secretRedactor2 = "[SecretRedactor]"
+    $secretRedactor1 = /\("SecretRedactor"\)/
+    $secretRedactor2 = /\[SecretRedactor\]/
 
   condition:
     filesize < 3MB and all of them

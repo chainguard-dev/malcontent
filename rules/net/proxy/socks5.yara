@@ -23,10 +23,10 @@ rule socks5_tunnel_server: high {
     description = "may implement a SOCKS5 tunneling proxy server"
 
   strings:
-    $server  = "Socks5Server"
-    $server2 = "SOCKS5Serve"
-    $tunnel  = "tunnel"
-    $tunnel2 = "Tunnel"
+    $server  = /Socks5Server/
+    $server2 = /SOCKS5Serve/
+    $tunnel  = /tunnel/
+    $tunnel2 = /Tunnel/
 
   condition:
     filesize < 20MB and any of ($s*) and any of ($t*)

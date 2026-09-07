@@ -6,7 +6,7 @@ rule usr_bin_execstop: medium {
 
   strings:
     $execstop = /ExecStop=\/usr\/bin\/[\w\.]{0,32}/
-    $finalrd  = "ExecStop=/usr/bin/finalrd"
+    $finalrd  = /ExecStop=\/usr\/bin\/finalrd/
 
   condition:
     filesize < 4KB and $execstop and not $finalrd

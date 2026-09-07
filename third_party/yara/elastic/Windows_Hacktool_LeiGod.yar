@@ -13,7 +13,7 @@ rule Windows_Hacktool_LeiGod_89397ebf {
         license = "Elastic License v2"
         os = "windows"
     strings:
-        $str1 = "\\Device\\CtrlLeiGod" wide fullword
+        $str1 = /\\Device\\CtrlLeiGod/ wide fullword
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $str1
 }
@@ -33,7 +33,7 @@ rule Windows_Hacktool_LeiGod_3f5c98c4 {
         license = "Elastic License v2"
         os = "windows"
     strings:
-        $str1 = "\\LgDCatcher.pdb"
+        $str1 = /\\LgDCatcher\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $str1
 }

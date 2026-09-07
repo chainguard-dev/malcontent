@@ -6,9 +6,9 @@ rule code_server_copilot: override {
     high_fetch_command_val       = "low"
 
   strings:
-    $copilot_chat = "copilot-chat"
-    $vscode_repo  = "github.com/microsoft/vscode-copilot-chat"
-    $dotnet       = "dotnet/install-scripts/main/src/dotnet-install"
+    $copilot_chat = /copilot-chat/
+    $vscode_repo  = /github\.com\/microsoft\/vscode-copilot-chat/
+    $dotnet       = /dotnet\/install-scripts\/main\/src\/dotnet-install/
 
   condition:
     filesize < 500KB and $copilot_chat and any of ($vscode_repo, $dotnet)

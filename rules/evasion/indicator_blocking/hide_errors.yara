@@ -10,7 +10,7 @@ rule php_suppressed_include: high {
     // Sass at-rule list "@extend|@include|@import", the Chroma lexer pattern
     // "(@include)( ", Doxygen's "@includelineno" and GraphQL's "@include(if:" --
     // which is all the generic "snippet"/"copyright" exclusions were papering over.
-    $php     = "<?php"
+    $php     = /<\?php/
     $include = /@[ \t]{0,2}include(_once){0,1}[ \t]{0,4}[\('"\$]/
 
   condition:

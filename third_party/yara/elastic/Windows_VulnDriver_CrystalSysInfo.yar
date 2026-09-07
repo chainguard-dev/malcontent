@@ -15,7 +15,7 @@ rule Windows_VulnDriver_CrystalSysInfo_81b6c47a {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] E9 A3 9E E4 BE 9D E8 AF BA E7 A7 91 E6 8A 80 EF BC 88 E8 8B 8F E5 B7 9E EF BC 89 E6 9C 89 E9 99 90 E5 85 AC E5 8F B8 }
-        $str1 = "SysInfoX64.pdb"
+        $str1 = /SysInfoX64\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }

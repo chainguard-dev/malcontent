@@ -4,10 +4,10 @@ rule sudo_editor: medium {
     filetypes   = "elf,macho,so"
 
   strings:
-    $etc_sudoers = "/etc/sudoers"
-    $nopasswd    = "NOPASSWD:"
-    $not_sample  = "sudoers man page"
-    $not_vim     = "VIMRUNTIME"
+    $etc_sudoers = /\/etc\/sudoers/
+    $nopasswd    = /NOPASSWD:/
+    $not_sample  = /sudoers man page/
+    $not_vim     = /VIMRUNTIME/
 
   condition:
     filesize < 5242880 and ($etc_sudoers or $nopasswd) and none of ($not*)
@@ -28,7 +28,7 @@ rule sudo_parser: override {
     filetypes        = "elf,macho,so"
 
   strings:
-    $parse = "sudo_parse"
+    $parse = /sudo_parse/
 
   condition:
     uint32(0) == 1179403647 and filesize < 10MB and all of them

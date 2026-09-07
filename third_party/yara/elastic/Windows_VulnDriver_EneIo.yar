@@ -13,7 +13,7 @@ rule Windows_VulnDriver_EneIo_6e01882f {
         license = "Elastic License v2"
         os = "windows"
     strings:
-        $str1 = "\\Release\\EneIo.pdb"
+        $str1 = /\\Release\\EneIo\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $str1
 }
@@ -35,7 +35,7 @@ rule Windows_VulnDriver_EneIo_20aedf92 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 45 4E 45 20 54 45 43 48 4E 4F 4C 4F 47 59 20 49 4E 43 2E }
-        $str1 = "EneIo.pdb"
+        $str1 = /EneIo\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }

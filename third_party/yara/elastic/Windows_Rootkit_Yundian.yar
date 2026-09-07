@@ -15,7 +15,7 @@ rule Windows_Rootkit_Yundian_d49a7777 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 53 68 65 6E 7A 68 65 6E 20 79 75 6E 64 69 61 6E 20 54 65 63 68 6E 6F 6C 6F 67 79 20 43 6F 2E 2C 20 4C 74 64 }
-        $str1 = "KILLER.pdb"
+        $str1 = /KILLER\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }
@@ -37,7 +37,7 @@ rule Windows_Rootkit_Yundian_dc01ab62 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 53 68 65 6E 7A 68 65 6E 20 79 75 6E 64 69 61 6E 20 54 65 63 68 6E 6F 6C 6F 67 79 20 43 6F 2E 2C 20 4C 74 64 }
-        $str1 = "MyDriver1.pdb"
+        $str1 = /MyDriver1\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }
