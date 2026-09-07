@@ -7,8 +7,8 @@ rule fastfetch_override: override {
     multiple_gcc_high = "medium"
 
   strings:
-    $fastfetch = "fastfetch/packages/%s.txt"
-    $repo      = "https://github.com/fastfetch-cli/fastfetch"
+    $fastfetch = /fastfetch\/packages\/%s\.txt/
+    $repo      = /https:\/\/github\.com\/fastfetch-cli\/fastfetch/
 
   condition:
     filesize < 5MB and any of them

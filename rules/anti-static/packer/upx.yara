@@ -19,9 +19,9 @@ rule upx_elf: high {
     filetype    = "upx"
 
   strings:
-    $proc_self      = "/proc/self/exe"
-    $prot_exec      = "PROT_EXEC|PROT_WRITE failed"
-    $not_upx_itself = "UPX comes with ABSOLUTELY NO WARRANTY"
+    $proc_self      = /\/proc\/self\/exe/
+    $prot_exec      = /PROT_EXEC\|PROT_WRITE failed/
+    $not_upx_itself = /UPX comes with ABSOLUTELY NO WARRANTY/
 
   condition:
     uint32(0) == 1179403647 and $prot_exec and $proc_self and none of ($not*)
@@ -33,8 +33,8 @@ rule upx_elf_tampered: critical {
     filetype    = "upx"
 
   strings:
-    $prot_exec = "PROT_EXEC|PROT_WRITE failed"
-    $upx       = "UPX!"
+    $prot_exec = /PROT_EXEC\|PROT_WRITE failed/
+    $upx       = /UPX!/
 
   condition:
     uint32(0) == 1179403647 and $prot_exec and not $upx

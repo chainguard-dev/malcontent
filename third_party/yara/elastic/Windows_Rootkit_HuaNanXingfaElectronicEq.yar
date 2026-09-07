@@ -15,7 +15,7 @@ rule Windows_Rootkit_HuaNanXingfaElectronicEq_45f0e147 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 53 68 65 6E 7A 68 65 6E 20 48 75 61 E2 80 99 6E 61 6E 20 58 69 6E 67 66 61 20 45 6C 65 63 74 72 6F 6E 69 63 20 45 71 75 69 70 6D 65 6E 74 20 46 69 72 6D }
-        $str1 = "nullout.pdb"
+        $str1 = /nullout\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }
@@ -37,7 +37,7 @@ rule Windows_Rootkit_HuaNanXingfaElectronicEq_f3f6d16c {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 53 68 65 6E 7A 68 65 6E 20 48 75 61 E2 80 99 6E 61 6E 20 58 69 6E 67 66 61 20 45 6C 65 63 74 72 6F 6E 69 63 20 45 71 75 69 70 6D 65 6E 74 20 46 69 72 6D }
-        $str1 = "xxxxxxxxx10.pdb"
+        $str1 = /xxxxxxxxx10\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }

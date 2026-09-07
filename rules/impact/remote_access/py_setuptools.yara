@@ -7,19 +7,19 @@ private rule remote_access_pythonSetup {
   strings:
     $if_distutils  = /from distutils.core import .{0,32}setup/
     $if_setuptools = /from setuptools import .{0,32}setup/
-    $i_setuptools  = "import setuptools"
-    $setup         = "setup("
+    $i_setuptools  = /import setuptools/
+    $setup         = /setup\(/
 
-    $not_setup_example = ">>> setup("
-    $not_setup_todict  = "setup(**config.todict()"
-    $not_import_quoted = "\"from setuptools import setup"
-    $not_setup_quoted  = "\"setup(name="
-    $not_distutils     = "from distutils.errors import"
-    $not_numba         = "https://github.com/numba/numba"
+    $not_setup_example = />>> setup\(/
+    $not_setup_todict  = /setup\(\*\*config\.todict\(\)/
+    $not_import_quoted = /"from setuptools import setup/
+    $not_setup_quoted  = /"setup\(name=/
+    $not_distutils     = /from distutils\.errors import/
+    $not_numba         = /https:\/\/github\.com\/numba\/numba/
 
-    $not_hopper1 = "PACKAGE_NAME = \"flashattn-hopper\""
-    $not_hopper2 = "check_if_cuda_home_none(\"--fahopper\")"
-    $not_hopper3 = "name=\"flashattn_hopper_cuda\","
+    $not_hopper1 = /PACKAGE_NAME = "flashattn-hopper"/
+    $not_hopper2 = /check_if_cuda_home_none\("--fahopper"\)/
+    $not_hopper3 = /name="flashattn_hopper_cuda",/
 
   condition:
     filesize < 131072 and $setup and any of ($i*) and none of ($not*)

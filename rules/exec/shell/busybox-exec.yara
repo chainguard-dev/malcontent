@@ -15,9 +15,9 @@ rule busybox_runner_high: high linux {
 
   strings:
     $ref                  = /\/bin\/busybox \w{4,16}[ \/\w\.]{0,64}/
-    $not_ixr              = "busybox ixr"
-    $notgrp_container_cg  = "cgroup" fullword
-    $notgrp_container_ctr = "container" fullword
+    $not_ixr              = /busybox ixr/
+    $notgrp_container_cg  = /cgroup/ fullword
+    $notgrp_container_ctr = /container/ fullword
 
   condition:
     // "cgroup" and "container" are generic words that only mark a container

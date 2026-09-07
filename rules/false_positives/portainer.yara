@@ -4,8 +4,8 @@ rule portainer: override {
     hacktool_chisel = "harmless"
 
   strings:
-    $portainer_module = "github.com/portainer/portainer"
-    $portainer_chisel = "github.com/portainer/portainer/api/chisel"
+    $portainer_module = /github\.com\/portainer\/portainer/
+    $portainer_chisel = /github\.com\/portainer\/portainer\/api\/chisel/
 
   condition:
     filesize < 200MB and all of them

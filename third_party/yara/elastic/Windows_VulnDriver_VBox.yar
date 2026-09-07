@@ -60,11 +60,11 @@ rule Windows_VulnDriver_VBox_c3e681e1 {
         $subject_name = { 06 03 55 04 03 [2] 56 65 6B 74 6F 72 20 54 31 33 20 53 65 63 75 72 69 74 79 20 53 65 72 76 69 63 65 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 56 00 42 00 6F 00 78 00 44 00 72 00 76 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x01][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x02-\x02][\x00-\x00][\x01-\x01][\x00-\x00]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x4a]|[\x00-\x1d][\x4b-\x4b])[\x00-\x00][\x00-\x00]|[\x02-\x02][\x00-\x00][\x01-\x01][\x00-\x00][\x1e-\x1e][\x4b-\x4b][\x00-\x00][\x00-\x00])/
-        $str1 = "VBoxDrv.pdb"
-        $str2 = "IOCTL_LOGGER_SETTINGS_SIZE_IN"
-        $str3 = "IOCTL_PAGE_ALLOC_EX_SIZE_IN"
-        $str4 = "RTMpOnPairIsConcurrentExecSupported"
-        $str5 = "RTTimerReleaseSystemGranularity"
+        $str1 = /VBoxDrv\.pdb/
+        $str2 = /IOCTL_LOGGER_SETTINGS_SIZE_IN/
+        $str3 = /IOCTL_PAGE_ALLOC_EX_SIZE_IN/
+        $str4 = /RTMpOnPairIsConcurrentExecSupported/
+        $str5 = /RTTimerReleaseSystemGranularity/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3 and $str4 and $str5
 }
@@ -88,11 +88,11 @@ rule Windows_VulnDriver_VBox_57255830 {
         $subject_name = { 06 03 55 04 03 [2] 56 65 6B 74 6F 72 20 54 31 33 20 54 65 63 68 6E 6F 6C 6F 67 79 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 56 00 42 00 6F 00 78 00 44 00 72 00 76 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x03][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x04-\x04][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x01][\x00-\x00]|[\x04-\x04][\x00-\x00][\x01-\x01][\x00-\x00]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x4a]|[\x00-\x1d][\x4b-\x4b])[\x02-\x02][\x00-\x00]|[\x04-\x04][\x00-\x00][\x01-\x01][\x00-\x00][\x1e-\x1e][\x4b-\x4b][\x02-\x02][\x00-\x00])/
-        $str1 = "VBoxDrv.pdb"
-        $str2 = "IOCTL_LOGGER_SETTINGS_SIZE_IN"
-        $str3 = "IOCTL_PAGE_ALLOC_EX_SIZE_IN"
-        $str4 = "RTMpOnPairIsConcurrentExecSupported"
-        $str5 = "RTTimerReleaseSystemGranularity"
+        $str1 = /VBoxDrv\.pdb/
+        $str2 = /IOCTL_LOGGER_SETTINGS_SIZE_IN/
+        $str3 = /IOCTL_PAGE_ALLOC_EX_SIZE_IN/
+        $str4 = /RTMpOnPairIsConcurrentExecSupported/
+        $str5 = /RTTimerReleaseSystemGranularity/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3 and $str4 and $str5
 }
@@ -116,10 +116,10 @@ rule Windows_VulnDriver_VBox_7ac976dd {
         $subject_name = { 06 03 55 04 03 [2] 49 6E 6E 6F 54 65 6B 20 53 79 73 74 65 6D 62 65 72 61 74 75 6E 67 20 47 6D 62 48 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 56 00 42 00 6F 00 78 00 55 00 53 00 42 00 4D 00 6F 00 6E 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "VBoxUSBMon.pdb"
-        $str2 = "\\Device\\USBPDO-%d"
-        $str3 = "AssertMsg1"
-        $str4 = "VirtualBox USB Monitor Driver" wide
+        $str1 = /VBoxUSBMon\.pdb/
+        $str2 = /\\Device\\USBPDO-%d/
+        $str3 = /AssertMsg1/
+        $str4 = /VirtualBox USB Monitor Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3 and $str4
 }
@@ -143,9 +143,9 @@ rule Windows_VulnDriver_VBox_d1d1ce96 {
         $subject_name = { 06 03 55 04 03 [2] 69 6E 6E 6F 74 65 6B 20 47 6D 62 48 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 56 00 42 00 6F 00 78 00 55 00 53 00 42 00 2E 00 53 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "VBoxUSB.pdb"
-        $str2 = "AssertMsg1"
-        $str3 = "VirtualBox USB driver" wide
+        $str1 = /VBoxUSB\.pdb/
+        $str2 = /AssertMsg1/
+        $str3 = /VirtualBox USB driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -167,11 +167,11 @@ rule Windows_VulnDriver_VBox_80a456c7 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 69 6E 6E 6F 74 65 6B 20 47 6D 62 48 }
-        $str1 = "VBoxDrv.pdb"
-        $str2 = "IOCTL_PAGE_ALLOC_SIZE_IN"
-        $str3 = "IOCTL_LOW_ALLOC_SIZE_IN"
-        $str4 = "RTLogSetDefaultInstanceThread"
-        $str5 = "RTSemEventMultiWaitNoResume"
+        $str1 = /VBoxDrv\.pdb/
+        $str2 = /IOCTL_PAGE_ALLOC_SIZE_IN/
+        $str3 = /IOCTL_LOW_ALLOC_SIZE_IN/
+        $str4 = /RTLogSetDefaultInstanceThread/
+        $str5 = /RTSemEventMultiWaitNoResume/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $str1 and $str2 and $str3 and $str4 and $str5
 }
@@ -195,11 +195,11 @@ rule Windows_VulnDriver_VBox_2b119c8d {
         $subject_name = { 06 03 55 04 03 [2] 53 75 6E 20 4D 69 63 72 6F 73 79 73 74 65 6D 73 2C 20 49 6E 63 2E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 56 00 42 00 6F 00 78 00 44 00 72 00 76 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x02][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x03-\x03][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "VBoxDrv.pdb"
-        $str2 = "IOCTL_LOGGER_SETTINGS_SIZE_IN"
-        $str3 = "IOCTL_PAGE_ALLOC_EX_SIZE_IN"
-        $str4 = "RTTimerReleaseSystemGranularity"
-        $str5 = "RTTimerRequestSystemGranularity"
+        $str1 = /VBoxDrv\.pdb/
+        $str2 = /IOCTL_LOGGER_SETTINGS_SIZE_IN/
+        $str3 = /IOCTL_PAGE_ALLOC_EX_SIZE_IN/
+        $str4 = /RTTimerReleaseSystemGranularity/
+        $str5 = /RTTimerRequestSystemGranularity/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3 and $str4 and $str5
 }
@@ -223,11 +223,11 @@ rule Windows_VulnDriver_VBox_d43f5fe3 {
         $subject_name = { 06 03 55 04 03 [2] 69 6E 6E 6F 74 65 6B 20 47 6D 62 48 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 56 00 42 00 6F 00 78 00 55 00 53 00 42 00 4D 00 6F 00 6E 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "VBoxUSBMon.pdb"
-        $str2 = "\\Device\\USBPDO-%d"
-        $str3 = "RTSpinlockAcquireNoInts"
-        $str4 = "RTSpinlockReleaseNoInts"
-        $str5 = "VirtualBox USB Monitor Driver" wide
+        $str1 = /VBoxUSBMon\.pdb/
+        $str2 = /\\Device\\USBPDO-%d/
+        $str3 = /RTSpinlockAcquireNoInts/
+        $str4 = /RTSpinlockReleaseNoInts/
+        $str5 = /VirtualBox USB Monitor Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3 and $str4 and $str5
 }
@@ -251,11 +251,11 @@ rule Windows_VulnDriver_VBox_f4df8195 {
         $subject_name = { 06 03 55 04 03 [2] 49 6E 6E 6F 54 65 6B 20 53 79 73 74 65 6D 62 65 72 61 74 75 6E 67 20 47 6D 62 48 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 76 00 62 00 6F 00 78 00 67 00 75 00 65 00 73 00 74 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x04][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x05-\x05][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "VBoxGuest.pdb"
-        $str2 = "RTSemFastMutexDestroy"
-        $str3 = "RTSemFastMutexRelease"
-        $str4 = "VirtualBox Guest Additions" wide
-        $str5 = "VirtualBox Guest Driver" wide
+        $str1 = /VBoxGuest\.pdb/
+        $str2 = /RTSemFastMutexDestroy/
+        $str3 = /RTSemFastMutexRelease/
+        $str4 = /VirtualBox Guest Additions/ wide
+        $str5 = /VirtualBox Guest Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3 and $str4 and $str5
 }
@@ -279,9 +279,9 @@ rule Windows_VulnDriver_VBox_139ce083 {
         $subject_name = { 06 03 55 04 03 [2] 49 6E 6E 6F 54 65 6B 20 53 79 73 74 65 6D 62 65 72 61 74 75 6E 67 20 47 6D 62 48 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 56 00 42 00 6F 00 78 00 54 00 41 00 50 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x07][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x08-\x08][\x00-\x00][\x00-\x01][\x00-\x00][\x00-\x00][\x00-\x00]|[\x00-\x00][\x00-\x00][\x08-\x08][\x00-\x00][\x02-\x02][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "VBoxTAP.pdb"
-        $str2 = "\\DosDevices\\Global\\"
-        $str3 = "VirtualBox Host Interface Networking Driver" wide
+        $str1 = /VBoxTAP\.pdb/
+        $str2 = /\\DosDevices\\Global\\/
+        $str3 = /VirtualBox Host Interface Networking Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -305,11 +305,11 @@ rule Windows_VulnDriver_VBox_29257e81 {
         $subject_name = { 06 03 55 04 03 [2] 48 75 69 70 69 6E 67 20 5A 68 6F 6E 67 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 56 00 42 00 6F 00 78 00 44 00 72 00 76 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x01][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x02-\x02][\x00-\x00][\x01-\x01][\x00-\x00]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x93]|[\x00-\x0f][\x94-\x94])[\x00-\x00][\x00-\x00]|[\x02-\x02][\x00-\x00][\x01-\x01][\x00-\x00][\x10-\x10][\x94-\x94][\x00-\x00][\x00-\x00])/
-        $str1 = "VBoxDrv.pdb"
-        $str2 = "IOCTL_LOGGER_SETTINGS_SIZE_IN"
-        $str3 = "IOCTL_PAGE_ALLOC_EX_SIZE_IN"
-        $str4 = "RTCrX509AlgorithmIdentifier_CompareDigestOidAndEncryptedDigestOid"
-        $str5 = "RTCrX509AlgorithmIdentifier_CombineEncryptionOidAndDigestOid"
+        $str1 = /VBoxDrv\.pdb/
+        $str2 = /IOCTL_LOGGER_SETTINGS_SIZE_IN/
+        $str3 = /IOCTL_PAGE_ALLOC_EX_SIZE_IN/
+        $str4 = /RTCrX509AlgorithmIdentifier_CompareDigestOidAndEncryptedDigestOid/
+        $str5 = /RTCrX509AlgorithmIdentifier_CombineEncryptionOidAndDigestOid/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3 and $str4 and $str5
 }
@@ -333,11 +333,11 @@ rule Windows_VulnDriver_VBox_af569000 {
         $subject_name = { 06 03 55 04 03 [2] 69 6E 6E 6F 74 65 6B 20 47 6D 62 48 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 56 00 42 00 6F 00 78 00 4D 00 6F 00 75 00 73 00 65 00 4E 00 54 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x04][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x05-\x05][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x05][\x00-\x00]|[\x05-\x05][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00][\x06-\x06][\x00-\x00])/
-        $str1 = "VBoxMouseNT.pdb"
-        $str2 = "RTSemFastMutexDestroy"
-        $str3 = "RTSemFastMutexRelease"
-        $str4 = "VirtualBox Guest Additions" wide
-        $str5 = "VirtualBox i8042 Port Driver" wide
+        $str1 = /VBoxMouseNT\.pdb/
+        $str2 = /RTSemFastMutexDestroy/
+        $str3 = /RTSemFastMutexRelease/
+        $str4 = /VirtualBox Guest Additions/ wide
+        $str5 = /VirtualBox i8042 Port Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3 and $str4 and $str5
 }
@@ -361,9 +361,9 @@ rule Windows_VulnDriver_VBox_58185b47 {
         $subject_name = { 06 03 55 04 03 [2] 49 6E 6E 6F 54 65 6B 20 53 79 73 74 65 6D 62 65 72 61 74 75 6E 67 20 47 6D 62 48 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 56 00 42 00 6F 00 78 00 55 00 53 00 42 00 2E 00 53 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "VBoxUSB.pdb"
-        $str2 = "AssertMsg1"
-        $str3 = "VirtualBox USB driver" wide
+        $str1 = /VBoxUSB\.pdb/
+        $str2 = /AssertMsg1/
+        $str3 = /VirtualBox USB driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -387,9 +387,9 @@ rule Windows_VulnDriver_VBox_f7baf5ed {
         $subject_name = { 06 03 55 04 03 [2] 69 6E 6E 6F 74 65 6B 20 47 6D 62 48 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 56 00 42 00 6F 00 78 00 54 00 41 00 50 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x07][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x08-\x08][\x00-\x00][\x00-\x01][\x00-\x00][\x00-\x00][\x00-\x00]|[\x00-\x00][\x00-\x00][\x08-\x08][\x00-\x00][\x02-\x02][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "VBoxTAP.pdb"
-        $str2 = "\\DosDevices\\Global\\"
-        $str3 = "VirtualBox Host Interface Networking Driver" wide
+        $str1 = /VBoxTAP\.pdb/
+        $str2 = /\\DosDevices\\Global\\/
+        $str3 = /VirtualBox Host Interface Networking Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -413,11 +413,11 @@ rule Windows_VulnDriver_VBox_bfba155d {
         $subject_name = { 06 03 55 04 03 [2] 69 6E 6E 6F 74 65 6B 20 47 6D 62 48 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 76 00 62 00 6F 00 78 00 67 00 75 00 65 00 73 00 74 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x04][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x05-\x05][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x05][\x00-\x00]|[\x05-\x05][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\x00][\x00-\x00][\x06-\x06][\x00-\x00])/
-        $str1 = "VBoxGuestNT.pdb"
-        $str2 = "RTSemFastMutexDestroy"
-        $str3 = "RTSemFastMutexRelease"
-        $str4 = "VirtualBox Guest Additions" wide
-        $str5 = "VirtualBox Guest Driver" wide
+        $str1 = /VBoxGuestNT\.pdb/
+        $str2 = /RTSemFastMutexDestroy/
+        $str3 = /RTSemFastMutexRelease/
+        $str4 = /VirtualBox Guest Additions/ wide
+        $str5 = /VirtualBox Guest Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3 and $str4 and $str5
 }
@@ -441,11 +441,11 @@ rule Windows_VulnDriver_VBox_7d17e264 {
         $subject_name = { 06 03 55 04 03 [2] 4D 69 63 72 6F 73 6F 66 74 20 57 69 6E 64 6F 77 73 20 48 61 72 64 77 61 72 65 20 43 6F 6D 70 61 74 69 62 69 6C 69 74 79 20 50 75 62 6C 69 73 68 65 72 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 44 00 4E 00 44 00 72 00 76 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x03][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x02][\x00-\x00][\x04-\x04][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x03-\x03][\x00-\x00][\x04-\x04][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x0b][\x00-\x00]|[\x03-\x03][\x00-\x00][\x04-\x04][\x00-\x00][\x00-\x00][\x00-\x00][\x0c-\x0c][\x00-\x00])/
-        $str1 = "VBoxDrv.pdb"
-        $str2 = "IOCTL_LOGGER_SETTINGS_SIZE_IN"
-        $str3 = "IOCTL_PAGE_ALLOC_EX_SIZE_IN"
-        $str4 = "RTTimerReleaseSystemGranularity"
-        $str5 = "RTTimerRequestSystemGranularity"
+        $str1 = /VBoxDrv\.pdb/
+        $str2 = /IOCTL_LOGGER_SETTINGS_SIZE_IN/
+        $str3 = /IOCTL_PAGE_ALLOC_EX_SIZE_IN/
+        $str4 = /RTTimerReleaseSystemGranularity/
+        $str5 = /RTTimerRequestSystemGranularity/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3 and $str4 and $str5
 }

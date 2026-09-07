@@ -45,9 +45,9 @@ rule histfile_savehist_ld: high {
     description = "likely hides shell command history"
 
   strings:
-    $HISTFILE = "HISTFILE"
-    $SAVEHIST = "SAVEHIST"
-    $LD_DEBUG = "LD_DEBUG"
+    $HISTFILE = /HISTFILE/
+    $SAVEHIST = /SAVEHIST/
+    $LD_DEBUG = /LD_DEBUG/
 
   condition:
     filesize < 250KB and all of them

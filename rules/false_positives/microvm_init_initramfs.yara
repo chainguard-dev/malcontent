@@ -10,9 +10,9 @@ rule microvm_init_initramfs: override {
     suspected_data_stealer    = "low"
 
   strings:
-    $microvm_init = "microvm-init@local"
-    $virtio_init  = "9pnet_virtio"
-    $sshd_config  = "sshd_config.d/microvm-init.conf"
+    $microvm_init = /microvm-init@local/
+    $virtio_init  = /9pnet_virtio/
+    $sshd_config  = /sshd_config\.d\/microvm-init\.conf/
 
   condition:
     filesize < 300MB and $microvm_init and any of ($virtio_init, $sshd_config)

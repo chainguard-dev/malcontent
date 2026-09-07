@@ -15,7 +15,7 @@ rule Windows_VulnDriver_DitMco_31fabc5e {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 44 49 54 2D 4D 43 4F 20 49 6E 74 65 72 6E 61 74 69 6F 6E 61 6C 20 43 6F 72 70 6F 72 61 74 69 6F 6E }
-        $str1 = "DITPIO.pdb"
+        $str1 = /DITPIO\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }

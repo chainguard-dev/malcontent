@@ -4,7 +4,7 @@ rule systemd_restart_always: medium {
     filetypes   = "service"
 
   strings:
-    $restart = "Restart=always"
+    $restart = /Restart=always/
 
   condition:
     filesize < 4096 and any of them

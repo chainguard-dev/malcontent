@@ -3,14 +3,14 @@ rule bash_persist: medium {
     description = "access bash startup files"
 
   strings:
-    $ref      = ".bash_profile"
-    $ref2     = ".profile" fullword
-    $ref3     = ".bashrc" fullword
-    $ref4     = ".bash_logout"
-    $ref5     = "/etc/profile"
-    $ref6     = "/etc/bashrc"
-    $ref7     = "/etc/bash"
-    $not_bash = "POSIXLY_CORRECT"
+    $ref      = /\.bash_profile/
+    $ref2     = /\.profile/ fullword
+    $ref3     = /\.bashrc/ fullword
+    $ref4     = /\.bash_logout/
+    $ref5     = /\/etc\/profile/
+    $ref6     = /\/etc\/bashrc/
+    $ref7     = /\/etc\/bash/
+    $not_bash = /POSIXLY_CORRECT/
 
   condition:
     filesize < 2097152 and any of ($ref*) and none of ($not*)
@@ -55,12 +55,12 @@ rule bash_logout_persist: high {
     description = "Writes to bash configuration files to persist"
 
   strings:
-    $ref         = ".bash_logout"
-    $not_bash    = "POSIXLY_CORRECT"
-    $not_comment = "# ~/.bash_logout"
-    $not_clear   = "/usr/bin/clear_console"
-    $not_csh     = ".cshrc"
-    $not_tcshrc  = ".tcshrc"
+    $ref         = /\.bash_logout/
+    $not_bash    = /POSIXLY_CORRECT/
+    $not_comment = /# ~\/\.bash_logout/
+    $not_clear   = /\/usr\/bin\/clear_console/
+    $not_csh     = /\.cshrc/
+    $not_tcshrc  = /\.tcshrc/
 
   condition:
     // ".bash_logout" is a substring of the pristine skel header "# ~/.bash_logout",

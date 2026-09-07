@@ -27,9 +27,9 @@ rule json_dumps: low {
     filetypes   = "py"
 
   strings:
-    $jsone   = "json" fullword
-    $marshal = "dumps" fullword
-    $import  = "import" fullword
+    $jsone   = /json/ fullword
+    $marshal = /dumps/ fullword
+    $import  = /import/ fullword
 
   condition:
     filesize < 8KB and all of them

@@ -17,8 +17,8 @@ rule Windows_VulnDriver_Gmer_4aa15040 {
         $subject_name = { 06 03 55 04 03 [2] 47 4D 45 52 45 4B 20 53 79 73 74 65 6D 79 20 4B 6F 6D 70 75 74 65 72 6F 77 65 20 50 72 7A 65 6D 79 73 6C 61 77 20 47 6D 65 72 65 6B }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 67 00 6D 00 65 00 72 00 36 00 34 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x02-\x02][\x00-\x00][\x00-\xff][\x00-\xff]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x1a]|[\x00-\x46][\x1b-\x1b])|[\x00-\x00][\x00-\x00][\x02-\x02][\x00-\x00][\x00-\x00][\x00-\x00][\x47-\x47][\x1b-\x1b])/
-        $str1 = "gmer64.pdb"
-        $str2 = "GMER Driver http://www.gmer.net" wide
+        $str1 = /gmer64\.pdb/
+        $str2 = /GMER Driver http:\/\/www\.gmer\.net/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2
 }
@@ -41,8 +41,8 @@ rule Windows_VulnDriver_Gmer_6c0971b9 {
     strings:
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 67 00 6D 00 65 00 72 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x0e][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x11]|[\x00-\xc8][\x12-\x12])[\x0f-\x0f][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\xc9-\xc9][\x12-\x12][\x0f-\x0f][\x00-\x00])/
-        $str1 = "gmer.pdb"
-        $str2 = "GMER Driver http://www.gmer.net" wide
+        $str1 = /gmer\.pdb/
+        $str2 = /GMER Driver http:\/\/www\.gmer\.net/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $original_file_name and $version and $str1 and $str2
 }
@@ -65,8 +65,8 @@ rule Windows_VulnDriver_Gmer_3f4f9c1a {
     strings:
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 67 00 6D 00 65 00 72 00 2E 00 73 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x0e][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x12]|[\x00-\x35][\x13-\x13])[\x0f-\x0f][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x36-\x36][\x13-\x13][\x0f-\x0f][\x00-\x00])/
-        $str1 = "gmer.pdb"
-        $str2 = "GMER Driver http://www.gmer.net" wide
+        $str1 = /gmer\.pdb/
+        $str2 = /GMER Driver http:\/\/www\.gmer\.net/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $original_file_name and $version and $str1 and $str2
 }

@@ -31,7 +31,7 @@ rule go_pty: medium {
     ref         = "https://github.com/creack/pty"
 
   strings:
-    $ref = "creack/pty"
+    $ref = /creack\/pty/
 
   condition:
     filesize < 10MB and any of them
@@ -43,13 +43,13 @@ rule go_pty_socket: high {
     ref         = "https://github.com/creack/pty"
 
   strings:
-    $ref = "creack/pty"
-    $o2  = "socket" fullword
-    $o3  = "secret" fullword
+    $ref = /creack\/pty/
+    $o2  = /socket/ fullword
+    $o3  = /secret/ fullword
 
-    $bin_sh   = "/bin/sh"
-    $bin_bash = "/bin/bash"
-    $bin_zsh  = "/bin/zsh"
+    $bin_sh   = /\/bin\/sh/
+    $bin_bash = /\/bin\/bash/
+    $bin_zsh  = /\/bin\/zsh/
 
   condition:
     filesize < 10MB and $ref and any of ($o*) and any of ($bin*)

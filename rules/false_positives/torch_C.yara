@@ -5,8 +5,8 @@ rule torch_C_cpython: override {
     upx_antiunpack_elf64 = "harmless"
 
   strings:
-    $torch_stub   = "torch/csrc/stub.c"
-    $libtorch_dep = "libtorch_python.so"
+    $torch_stub   = /torch\/csrc\/stub\.c/
+    $libtorch_dep = /libtorch_python\.so/
 
   condition:
     filesize < 500MB and all of them

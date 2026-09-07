@@ -28,8 +28,8 @@ rule java_native_library_load: medium java {
     filetypes   = "class,jar,java"
 
   strings:
-    $system  = "java/lang/System"
-    $load    = "loadLibrary" fullword
+    $system  = /java\/lang\/System/
+    $load    = /loadLibrary/ fullword
     $so_lib  = /lib[\w\-]{2,32}\.so/
     $so_path = /\/[\w\-\.\/]{1,64}\.so/
 

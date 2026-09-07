@@ -17,9 +17,9 @@ rule sshd_backdoor_private_key: critical {
     description = "sshd contains hardcoded private key"
 
   strings:
-    $begin = "-----BEGIN RSA PRIVATE KEY-----"
+    $begin = /-----BEGIN RSA PRIVATE KEY-----/
     $key   = /MIIE[\w\+]{0,64}/
-    $sshd  = "usage: sshd"
+    $sshd  = /usage: sshd/
 
   condition:
     filesize < 5MB and all of them

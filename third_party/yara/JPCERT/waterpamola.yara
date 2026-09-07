@@ -20,12 +20,12 @@ rule WaterPamola_webshell_str {
         hash = "a619f1ff0c6a5c8fc26871b9c0492ca331a9f84c66fa7479d0069b7e3b22ba31"
 
      strings:
-        $str1 = "$password"
-        $str2 = "$register_key"
-        $str3 = "$check_copyright"
-        $str4 = "$global_version"
-        $str5 = "Language and charset conversion settings"
-        $str6 = "This is a necessary key"
+        $str1 = /\$password/
+        $str2 = /\$register_key/
+        $str3 = /\$check_copyright/
+        $str4 = /\$global_version/
+        $str5 = /Language and charset conversion settings/
+        $str6 = /This is a necessary key/
 
      condition:
        uint32(0) == 0x68703F3C and all of them
@@ -60,12 +60,12 @@ rule WaterPamola_webshell_eval {
         hash = "9fc3b3e59fbded4329a9401855d2576a1f2d76c429a0b9c8ea7c9752cd7e8378"
 
      strings:
-        $encode1 = "IEBldmF"
-        $encode2 = "F6ciddKTs="
-        $encode3 = "CRfUE9TVF"
-        $str1 = "@package Page"
-        $str2 = " str_replace"
-        $str3 = "$vbl"
+        $encode1 = /IEBldmF/
+        $encode2 = /F6ciddKTs=/
+        $encode3 = /CRfUE9TVF/
+        $str1 = /@package Page/
+        $str2 = / str_replace/
+        $str3 = /\$vbl/
 
      condition:
         uint32(0) == 0x68703F3C and 4 of them
@@ -77,12 +77,12 @@ rule WaterPamola_cookieswebshell_php {
         author = "JPCERT/CC Incident Response Group"
 
     strings:
-        $func1 = "@$_POST['cookie'];"
-        $func2 = "explode(\"|\", $cookie);"
-        $func3 = "openssl_pkey_get_public"
-        $func4 = "openssl_public_decrypt"
-        $func5 = "@create_function"
-        $pubkey1 = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCPYZ72hGKjj5T+NBa7Y18yuRBC"
+        $func1 = /@\$_POST\['cookie'\];/
+        $func2 = /explode\("\|", \$cookie\);/
+        $func3 = /openssl_pkey_get_public/
+        $func4 = /openssl_public_decrypt/
+        $func5 = /@create_function/
+        $pubkey1 = /MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCPYZ72hGKjj5T\+NBa7Y18yuRBC/
 
     condition:
         uint32(0) == 0x68703F3C and (4 of ($func*) or 1 of ($pubkey*))
@@ -94,7 +94,7 @@ rule WaterPamola_includewebshell_php {
         author = "JPCERT/CC Incident Response Group"
 
     strings:
-        $func1 = "@INCLUDE_ONCE($_FILES['only_pcd']['tmp_name']);"
+        $func1 = /@INCLUDE_ONCE\(\$_FILES\['only_pcd'\]\['tmp_name'\]\);/
 
     condition:
         uint32(0) == 0x68703F3C and all of them
@@ -121,10 +121,10 @@ rule WaterPamola_phpstealer_encode {
         author = "JPCERT/CC Incident Response Group"
 
      strings:
-        $func1 = "header(\"Access-Control-Allow-Origin: *\");"
-        $func2 = "$ip=@$_SERVER['HTTP_CF_CONNECTING_IP'];"
-        $func3 = "@$errlogs=fopen(pack('H*'"
-        $func4 = "@$write=fwrite($errlogs,$mode);"
+        $func1 = /header\("Access-Control-Allow-Origin: \*"\);/
+        $func2 = /\$ip=@\$_SERVER\['HTTP_CF_CONNECTING_IP'\];/
+        $func3 = /@\$errlogs=fopen\(pack\('H\*'/
+        $func4 = /@\$write=fwrite\(\$errlogs,\$mode\);/
 
      condition:
        uint32(0) == 0x68703F3C and all of them

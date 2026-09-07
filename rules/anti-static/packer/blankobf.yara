@@ -4,7 +4,7 @@ rule blankOBF: critical {
     filetypes   = "py"
 
   strings:
-    $obfus  = "Obfuscated with BlankOBF"
+    $obfus  = /Obfuscated with BlankOBF/
     $eval   = /_{1,32}=eval\(\"\\x\d{1,3}/
     $decode = /_{1,32}=_{1,32}.decode\(\)/
     $return = /return \(_{1,32},_{1,32}\)/

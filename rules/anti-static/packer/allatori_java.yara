@@ -4,7 +4,7 @@ rule allatori: high {
     filetypes   = "java"
 
   strings:
-    $demo = "ALLATORI"
+    $demo = /ALLATORI/
 
   condition:
     filesize < 1MB and any of them
@@ -16,7 +16,7 @@ rule allatori_demo: critical {
     filetypes   = "java"
 
   strings:
-    $demo = "ALLATORIxDEMO"
+    $demo = /ALLATORIxDEMO/
 
   condition:
     filesize < 1MB and any of them

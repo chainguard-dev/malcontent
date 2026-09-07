@@ -4,9 +4,9 @@ rule systemd_no_blank_lines: high {
     filetypes = "service"
 
   strings:
-    $execstart  = "ExecStart"
-    $not_blank  = "\n\n"
-    $not_apport = "ExecStart=/usr/share/apport/apport"
+    $execstart  = /ExecStart/
+    $not_blank  = /\n\n/
+    $not_apport = /ExecStart=\/usr\/share\/apport\/apport/
 
   condition:
     // $not_blank is the structural premise of the rule, so it stays an absolute

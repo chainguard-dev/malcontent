@@ -15,7 +15,7 @@ rule Windows_Rootkit_RuidongtiandiInfoTech_35ac45b0 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 42 65 69 6A 69 6E 67 20 52 75 69 64 6F 6E 67 74 69 61 6E 64 69 20 49 6E 66 6F 2E 54 65 63 68 2E 43 6F 2E 2C 4C 74 64 2E }
-        $str1 = "KApcHelper.pdb"
+        $str1 = /KApcHelper\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }

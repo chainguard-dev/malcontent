@@ -15,7 +15,7 @@ rule Windows_VulnDriver_PartnerTech_47712e65 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 50 61 72 74 6E 65 72 20 54 65 63 68 20 43 6F 72 70 6F 72 61 74 69 6F 6E }
-        $str1 = "WinIO64D.pdb"
+        $str1 = /WinIO64D\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }
@@ -37,7 +37,7 @@ rule Windows_VulnDriver_PartnerTech_3dd0e5d1 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 50 61 72 74 6E 65 72 20 54 65 63 68 28 53 68 61 6E 67 68 61 69 29 43 6F 2E 2C 4C 74 64 }
-        $str1 = "WINIODrv.pdb"
+        $str1 = /WINIODrv\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $str1
 }
@@ -59,9 +59,9 @@ rule Windows_VulnDriver_PartnerTech_1880f0c4 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 50 61 72 74 6E 65 72 20 54 65 63 68 28 53 68 61 6E 67 68 61 69 29 43 6F 2E 2C 4C 74 64 }
-        $str1 = "WinIo.pdb"
-        $str2 = "IOCTL_WINIO_DISABLEDIRECTIO"
-        $str3 = "IOCTL_WINIO_ENABLEDIRECTIO"
+        $str1 = /WinIo\.pdb/
+        $str2 = /IOCTL_WINIO_DISABLEDIRECTIO/
+        $str3 = /IOCTL_WINIO_ENABLEDIRECTIO/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $str1 and $str2 and $str3
 }
@@ -83,7 +83,7 @@ rule Windows_VulnDriver_PartnerTech_fcaf8fe7 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 50 61 72 74 6E 65 72 20 54 65 63 68 28 53 68 61 6E 67 68 61 69 29 43 6F 2E 2C 4C 74 64 }
-        $str1 = "WinIo64C.pdb"
+        $str1 = /WinIo64C\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }
@@ -105,9 +105,9 @@ rule Windows_VulnDriver_PartnerTech_640abd1f {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 50 61 72 74 6E 65 72 20 54 65 63 68 28 53 68 61 6E 67 68 61 69 29 43 6F 2E 2C 4C 74 64 }
-        $str1 = "WinIo.pdb"
-        $str2 = "IOCTL_WINIO_UNMAPPHYSADDR"
-        $str3 = "IOCTL_WINIO_MAPPHYSTOLIN"
+        $str1 = /WinIo\.pdb/
+        $str2 = /IOCTL_WINIO_UNMAPPHYSADDR/
+        $str3 = /IOCTL_WINIO_MAPPHYSTOLIN/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1 and $str2 and $str3
 }

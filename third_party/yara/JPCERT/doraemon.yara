@@ -18,7 +18,7 @@ rule malware_Doraemon {
       $doubleNum1 = {9A 99 99 99 99 99 F1 3F}
 	
       /* strings */
-      $str1 = "Doraemon.dll" fullword ascii
+      $str1 = /Doraemon\.dll/ fullword ascii
 
     condition:
 	  (uint16(0) == 0x5A4D)

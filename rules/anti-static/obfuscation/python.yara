@@ -191,19 +191,19 @@ rule fernet_base64: high {
     filetypes   = "py"
 
   strings:
-    $fernet     = "Fernet" fullword
-    $fernet2    = "fernet" fullword
-    $bdecode_64 = "b64decode" fullword
-    $bdecode_32 = "b32decode" fullword
-    $o1         = "decode()"
-    $o2         = "decompress("
-    $o4         = "bytes.fromhex"
-    $o5         = "decrypt("
-    $o6         = "exec("
-    $o7         = "eval("
+    $fernet     = /Fernet/ fullword
+    $fernet2    = /fernet/ fullword
+    $bdecode_64 = /b64decode/ fullword
+    $bdecode_32 = /b32decode/ fullword
+    $o1         = /decode\(\)/
+    $o2         = /decompress\(/
+    $o4         = /bytes\.fromhex/
+    $o5         = /decrypt\(/
+    $o6         = /exec\(/
+    $o7         = /eval\(/
 
-    $not_utils         = "from cryptography import utils"
-    $not_fernet_itself = "class Fernet"
+    $not_utils         = /from cryptography import utils/
+    $not_fernet_itself = /class Fernet/
 
   condition:
     filesize < 2MB and any of ($fernet*) and any of ($bdecode*) and any of ($o*) and none of ($not*)
@@ -215,14 +215,14 @@ rule python_hex_decimal: high {
     filetypes   = "py"
 
   strings:
-    $f_return = "return"
-    $f_decode = "decode("
-    $f_eval   = "eval("
-    $f_exec   = "exec("
+    $f_return = /return/
+    $f_decode = /decode\(/
+    $f_eval   = /eval\(/
+    $f_exec   = /exec\(/
 
     $trash = /\\x{0,1}\d{1,3}\\/
 
-    $not_testing_t = "*testing.T" fullword
+    $not_testing_t = /\*testing\.T/ fullword
 
   condition:
     filesize < 10MB and any of ($f*) and #trash in (filesize - 1024..filesize) > 100 and none of ($not*)
@@ -234,7 +234,7 @@ rule dumb_int_compares: high {
     filetypes   = "py"
 
   strings:
-    $import              = "import" fullword
+    $import              = /import/ fullword
     $decode_or_b64decode = /if \d{2,16} == \d{2,16}/
 
   condition:
@@ -258,7 +258,7 @@ rule multi_decode_3: high {
     filetypes   = "py"
 
   strings:
-    $return              = "return"
+    $return              = /return/
     $decode_or_b64decode = /\.[b64]{0,3}decode\(.{0,256}\.[b64]{0,3}decode\(.{0,256}\.[b64]{0,3}decode/
 
   condition:
@@ -271,7 +271,7 @@ rule multi_decode: medium {
     filetypes   = "py"
 
   strings:
-    $return              = "return"
+    $return              = /return/
     $decode_or_b64decode = /\.[b64]{0,3}decode\(.{0,32}\.[b64]{0,3}decode\(/
 
   condition:
@@ -309,8 +309,8 @@ rule rename_os: high {
 
   strings:
     $ref            = /import os as \w{0,64}/
-    $not_underscore = "import os as _os"
-    $not_gos        = "import os as gos"
+    $not_underscore = /import os as _os/
+    $not_gos        = /import os as gos/
 
   condition:
     // $ref generalises both accepted spellings and matches once per
@@ -341,13 +341,13 @@ rule rename_base64: critical {
 
     // These four only appear together, in numcodecs/base64.py. Two of them are
     // bare generic comments, so the set is required as a whole.
-    $not_numcodecs1 = "Codec providing base64 compression via the Python standard library."
-    $not_numcodecs2 = "codec_id = \"base64\""
-    $not_numcodecs3 = "# normalise inputs"
-    $not_numcodecs4 = "# do compression"
+    $not_numcodecs1 = /Codec providing base64 compression via the Python standard library\./
+    $not_numcodecs2 = /codec_id = "base64"/
+    $not_numcodecs3 = /# normalise inputs/
+    $not_numcodecs4 = /# do compression/
 
-    $not_open_clip1 = "class ResampledShards2(IterableDataset)"
-    $not_open_clip2 = "class SyntheticDataset(Dataset)"
+    $not_open_clip1 = /class ResampledShards2\(IterableDataset\)/
+    $not_open_clip2 = /class SyntheticDataset\(Dataset\)/
 
   condition:
     filesize < 10MB and $ref and none of ($not_open_clip*) and not all of ($not_numcodecs*)
@@ -395,12 +395,12 @@ rule lambda_funk: high {
     filetypes   = "py"
 
   strings:
-    $ = "__builtins__.__dict__"
-    $ = "(lambda"
-    $ = ".decode(bytes("
-    $ = "b64decode("
-    $ = ".decompress("
-    $ = ".decode('utf-8'))"
+    $ = /__builtins__\.__dict__/
+    $ = /\(lambda/
+    $ = /\.decode\(bytes\(/
+    $ = /b64decode\(/
+    $ = /\.decompress\(/
+    $ = /\.decode\('utf-8'\)\)/
 
   condition:
     filesize < 10MB and 80 % of them
@@ -412,12 +412,12 @@ rule lambda_funk_high: high {
     filetypes   = "py"
 
   strings:
-    $ = "__builtins__.__dict__"
-    $ = "(lambda"
-    $ = ".decode(bytes("
-    $ = "b64decode("
-    $ = ".decompress("
-    $ = ".decode('utf-8'))"
+    $ = /__builtins__\.__dict__/
+    $ = /\(lambda/
+    $ = /\.decode\(bytes\(/
+    $ = /b64decode\(/
+    $ = /\.decompress\(/
+    $ = /\.decode\('utf-8'\)\)/
 
   condition:
     filesize < 10MB and all of them
@@ -445,14 +445,14 @@ rule decompress_base64_entropy: high {
     filetypes   = "py"
 
   strings:
-    $k_lzma         = "lzma"
-    $k_gzip         = "gzip"
-    $k_zlib         = "zlib"
-    $f_bytes        = "bytes("
-    $f_decode       = "decode("
-    $f_decompress   = "decompress("
-    $f_eval         = "eval("
-    $f_exec         = "exec("
+    $k_lzma         = /lzma/
+    $k_gzip         = /gzip/
+    $k_zlib         = /zlib/
+    $f_bytes        = /bytes\(/
+    $f_decode       = /decode\(/
+    $f_decompress   = /decompress\(/
+    $f_eval         = /eval\(/
+    $f_exec         = /exec\(/
     $b64decode_long = /b64decode\(\"[\+\=\w\/]{96}/
 
   condition:
@@ -526,8 +526,8 @@ rule urllib_as_int_array: critical {
     description = "hides urllib code as an array of integers"
 
   strings:
-    $urllib_dot  = "117,114,108,108,105,98,46"
-    $urllib_dot2 = "117, 114, 108, 108, 105, 98, 46"
+    $urllib_dot  = /117,114,108,108,105,98,46/
+    $urllib_dot2 = /117, 114, 108, 108, 105, 98, 46/
 
   condition:
     filesize < 10MB and any of them
@@ -539,14 +539,14 @@ rule import_manipulator: critical {
     filetypes   = "py"
 
   strings:
-    $import  = "__import__("
-    $getattr = "getattr("
-    $setattr = "setattr("
-    $update  = "update("
+    $import  = /__import__\(/
+    $getattr = /getattr\(/
+    $setattr = /setattr\(/
+    $update  = /update\(/
     $chr     = /chr\(\w{1,8}\)/
-    $globals = "globals"
-    $dict    = "__dict__"
-    $def     = "def "
+    $globals = /globals/
+    $dict    = /__dict__/
+    $def     = /def /
 
   condition:
     // a91160135598f3decc8ca9f9b019dcc5e1d73e79ebe639548cd9ee9e6d007ea6 is the sha256 hash
@@ -563,19 +563,19 @@ rule bloated_hex_python: high {
     filetypes   = "py"
 
   strings:
-    $f_unhexlify = "unhexlify" fullword
-    $f_join      = "join("
-    $f_split     = "split" fullword
-    $f_lambda    = "lambda" fullword
-    $f_ord       = "ord" fullword
-    $f_def       = "def" fullword
-    $f_decode    = "decode" fullword
-    $f_exec      = "exec" fullword
-    $f_eval      = "eval"
-    $f_alphabet  = "abcdefghijkl"
+    $f_unhexlify = /unhexlify/ fullword
+    $f_join      = /join\(/
+    $f_split     = /split/ fullword
+    $f_lambda    = /lambda/ fullword
+    $f_ord       = /ord/ fullword
+    $f_def       = /def/ fullword
+    $f_decode    = /decode/ fullword
+    $f_exec      = /exec/ fullword
+    $f_eval      = /eval/
+    $f_alphabet  = /abcdefghijkl/
 
-    $not_js        = "function("
-    $not_highlight = "highlight"
+    $not_js        = /function\(/
+    $not_highlight = /highlight/
 
   condition:
     filesize > 512KB and filesize < 10MB and 90 % of ($f*) and not all of ($not*)

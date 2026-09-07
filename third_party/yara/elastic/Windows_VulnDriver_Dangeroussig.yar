@@ -16,7 +16,7 @@ rule Windows_VulnDriver_Dangeroussig_af5a7b25 {
     strings:
         $subject_name = { 06 03 55 04 03 [2] E5 8C 97 E4 BA AC E8 9E 8D E6 B1 87 E7 94 BB E6 96 B9 E7 A7 91 E6 8A 80 E6 9C 89 E9 99 90 E5 85 AC E5 8F B8 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x09][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x0a-\x0a][\x00-\x00][\x00-\x01][\x00-\x00][\x00-\x00][\x00-\x00]|[\x00-\x00][\x00-\x00][\x0a-\x0a][\x00-\x00][\x02-\x02][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "NetFlt.pdb"
+        $str1 = /NetFlt\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $version and $str1
 }

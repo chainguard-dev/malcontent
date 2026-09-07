@@ -15,8 +15,8 @@ rule Windows_VulnDriver_IBM_7be3f2be {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 49 42 4D 20 50 6F 6C 73 6B 61 20 53 70 2E 20 7A 20 6F 2E 6F 2E }
-        $str1 = "CITMDRV_IA64.pdb"
-        $str2 = "IOCTL_MAP_MEM"
+        $str1 = /CITMDRV_IA64\.pdb/
+        $str2 = /IOCTL_MAP_MEM/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1 and $str2
 }
@@ -38,8 +38,8 @@ rule Windows_VulnDriver_IBM_b11e0995 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 49 42 4D 20 50 6F 6C 73 6B 61 20 53 70 2E 20 7A 20 6F 2E 6F 2E }
-        $str1 = "CITMDRV_AMD64.pdb"
-        $str2 = "IOCTL_MAP_MEM"
+        $str1 = /CITMDRV_AMD64\.pdb/
+        $str2 = /IOCTL_MAP_MEM/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1 and $str2
 }
@@ -61,7 +61,7 @@ rule Windows_VulnDriver_IBM_496c3bda {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 49 42 4D }
-        $str1 = "sysconp.pdb"
+        $str1 = /sysconp\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }

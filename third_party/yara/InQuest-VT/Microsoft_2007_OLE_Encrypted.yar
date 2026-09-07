@@ -13,9 +13,9 @@ rule Microsoft_2007_OLE_Encrypted
 	strings:
 		$ole_marker     = /^\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1/
 
-        $enc_marker1    = "EncryptedPackage" nocase ascii wide
-        $enc_marker2    = "StrongEncryptionDataSpace" nocase ascii wide
-        $enc_marker3    = "<encryption xmlns="
+        $enc_marker1    = /EncryptedPackage/ nocase ascii wide
+        $enc_marker2    = /StrongEncryptionDataSpace/ nocase ascii wide
+        $enc_marker3    = /<encryption xmlns=/
 	condition:
 			$ole_marker at 0 and all of ($enc_marker*)
 }

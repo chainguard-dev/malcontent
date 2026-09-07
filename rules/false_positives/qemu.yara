@@ -5,8 +5,8 @@ rule qemu: override {
     ESET_Moose_2   = "harmless"
 
   strings:
-    $module  = "QEMU_MODULE"
-    $aligned = "QEMU_IS_ALIGNED"
+    $module  = /QEMU_MODULE/
+    $aligned = /QEMU_IS_ALIGNED/
 
   condition:
     filesize < 30MB and any of them

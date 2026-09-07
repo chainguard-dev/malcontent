@@ -17,8 +17,8 @@ rule knative_eventing_ingress: override {
     SIGNATURE_BASE_APT_MAL_LNX_Kobalos = "harmless"
 
   strings:
-    $knative_eventing = "knative.dev/eventing"
-    $ingress_module   = "knative.dev/eventing/cmd/broker/ingress"
+    $knative_eventing = /knative\.dev\/eventing/
+    $ingress_module   = /knative\.dev\/eventing\/cmd\/broker\/ingress/
 
   condition:
     filesize < 100MB and all of them
@@ -30,8 +30,8 @@ rule knative_serving_controller: override {
     BlackTech_TSCookie_elf = "harmless"
 
   strings:
-    $serving_module     = "knative.dev/serving"
-    $controller_command = "knative.dev/serving/cmd/controller"
+    $serving_module     = /knative\.dev\/serving/
+    $controller_command = /knative\.dev\/serving\/cmd\/controller/
 
   condition:
     filesize < 200MB and all of them

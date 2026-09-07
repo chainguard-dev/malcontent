@@ -13,7 +13,7 @@ rule Windows_Hacktool_ProcessHacker_3d01069e {
         license = "Elastic License v2"
         os = "windows"
     strings:
-        $original_file_name = "OriginalFilename\x00kprocesshacker.sys" wide fullword
+        $original_file_name = /OriginalFilename\x00kprocesshacker\.sys/ wide fullword
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $original_file_name
 }

@@ -4,7 +4,7 @@ rule security: override macos {
     security_dump_keychain = "medium"
 
   strings:
-    $ref = "@(#)PROGRAM:security"
+    $ref = /@\(#\)PROGRAM:security/
 
   condition:
     filesize > 200KB and filesize < 800KB and any of them

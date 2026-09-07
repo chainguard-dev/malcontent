@@ -634,7 +634,6 @@ func TrimPrefixes(path string, prefixes []string) string {
 // is detected by content as pyc regardless of the file's extension, so
 // rules scoped to py sources must also apply to it.
 var extAliases = map[string][]string{
-	//nolint:goconst // "jar", "java", and "py" are file-extension literals; the test suite exercises them as data and does not benefit from a named constant.
 	extClass: {"jar", "java"},
 	extPyc:   {"py"},
 }

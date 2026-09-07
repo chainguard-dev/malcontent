@@ -15,9 +15,9 @@ rule Windows_VulnDriver_Hailuck_feaee52b {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 53 68 65 6E 5A 68 65 6E 20 48 61 69 6C 75 63 6B 20 43 6F 2E 2C 4C 74 64 2E }
-        $str1 = "WinIo.pdb"
-        $str2 = "IOCTL_WINIO_UNMAPPHYSADDR"
-        $str3 = "IOCTL_WINIO_MAPPHYSTOLIN"
+        $str1 = /WinIo\.pdb/
+        $str2 = /IOCTL_WINIO_UNMAPPHYSADDR/
+        $str3 = /IOCTL_WINIO_MAPPHYSTOLIN/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1 and $str2 and $str3
 }

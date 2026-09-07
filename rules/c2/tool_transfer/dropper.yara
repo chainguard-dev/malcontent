@@ -25,8 +25,8 @@ rule download_and_execute: high {
     description = "may download and execute a program"
 
   strings:
-    $ref  = "download_and_execute"
-    $ref2 = "download_and_exec"
+    $ref  = /download_and_execute/
+    $ref2 = /download_and_exec/
 
   condition:
     filesize < 1MB and any of them

@@ -13,7 +13,7 @@ rule Windows_VulnDriver_PoisonX_79e368e7 {
         license = "Elastic License v2"
         os = "windows"
     strings:
-        $pdb = "D:\\Build\\PoisonX\\Hide\\x64\\Release\\Hide.pdb" ascii fullword
+        $pdb = /D:\\Build\\PoisonX\\Hide\\x64\\Release\\Hide\.pdb/ ascii fullword
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $pdb
 }

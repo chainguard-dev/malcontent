@@ -21,7 +21,7 @@ rule rm_f_hardcoded_tmp_path: medium posix {
 
   strings:
     $ref     = /rm +\-[a-zA-Z]{,1}f[a-zA-Z]{,1} \/(tmp|var|dev)\/[\w\/\.\-\%]{0,64}/
-    $not_apt = "/var/lib/apt/lists"
+    $not_apt = /\/var\/lib\/apt\/lists/
 
   condition:
     // $ref stops at the first whitespace, so each of its matches covers at most one
@@ -35,9 +35,9 @@ rule del: medium windows {
     description = "deletes files"
 
   strings:
-    $del            = "del "
-    $cmd_echo       = "echo off"
-    $cmd_powershell = "powershell"
+    $del            = /del /
+    $cmd_echo       = /echo off/
+    $cmd_powershell = /powershell/
 
   condition:
     filesize < 16KB and $del and any of ($cmd*)

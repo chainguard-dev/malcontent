@@ -5,17 +5,17 @@ rule systemd_not_in_dependency_tree: medium {
     filetypes = "service"
 
   strings:
-    $execstart        = "ExecStart="
+    $execstart        = /ExecStart=/
     $expect_after     = /After=\w/
     $expect_before    = /Before=\w{1,128}/
     $expect_requires  = /Requires=\w/
-    $expect_condition = "ConditionPath"
-    $expect_oneshot   = "Type=oneshot"
-    $expect_default   = "DefaultDependencies=no"
-    $expect_env       = "EnvironmentFile="
-    $expect_bus       = "BusName="
-    $expect_idle      = "Type=idle"
-    $ex_systemd       = "ExecStart=systemd-"
+    $expect_condition = /ConditionPath/
+    $expect_oneshot   = /Type=oneshot/
+    $expect_default   = /DefaultDependencies=no/
+    $expect_env       = /EnvironmentFile=/
+    $expect_bus       = /BusName=/
+    $expect_idle      = /Type=idle/
+    $ex_systemd       = /ExecStart=systemd-/
 
   condition:
     // $execstart matches inside $ex_systemd, so a unit that launches one systemd- helper
@@ -29,7 +29,7 @@ rule type_forking_not_in_dep_tree: high {
     description = "forking service that nothing relies on"
 
   strings:
-    $forking       = "Type=forking"
+    $forking       = /Type=forking/
     $expect_after  = /After=\w/
     $expect_before = /Before=\w{1,128}/
 

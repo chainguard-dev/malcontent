@@ -4,8 +4,8 @@ rule renovate_mise_registry: override {
     hacktool_chisel = "harmless"
 
   strings:
-    $mise_plugins = "mise-plugins/vfox-1password"
-    $zprint       = "kkinnear/zprint"
+    $mise_plugins = /mise-plugins\/vfox-1password/
+    $zprint       = /kkinnear\/zprint/
 
   condition:
     filesize < 300KB and all of them

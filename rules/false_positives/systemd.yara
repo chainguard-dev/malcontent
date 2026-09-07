@@ -11,12 +11,12 @@ rule systemd: override {
     filetypes                             = "elf,so"
 
   strings:
-    $log_level = "SYSTEMD_LOG_LEVEL"
-    $exec_pid  = "SYSTEMD_EXEC_PID"
-    $cgroup    = "SYSTEMD_CGROUP"
-    $sysv_path = "SYSTEMD_SYSVRCND_PATH"
-    $analyze   = "SYSTEMD_ANALYZE_DEBUG"
-    $unit      = "SYSTEMD_UNIT_PATH"
+    $log_level = /SYSTEMD_LOG_LEVEL/
+    $exec_pid  = /SYSTEMD_EXEC_PID/
+    $cgroup    = /SYSTEMD_CGROUP/
+    $sysv_path = /SYSTEMD_SYSVRCND_PATH/
+    $analyze   = /SYSTEMD_ANALYZE_DEBUG/
+    $unit      = /SYSTEMD_UNIT_PATH/
 
   condition:
     filesize < 3MB and any of them

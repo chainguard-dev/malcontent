@@ -4,7 +4,7 @@ rule grub_boot_images: override {
     single_load_rwe = "medium"
 
   strings:
-    $grub = "GRUB"
+    $grub = /GRUB/
 
   condition:
     filesize < 64KB and $grub
@@ -16,8 +16,8 @@ rule grub_cdboot_image: override {
     single_load_rwe = "medium"
 
   strings:
-    $cdrom_fail = "cdrom read fails"
-    $no_boot    = "no boot info"
+    $cdrom_fail = /cdrom read fails/
+    $no_boot    = /no boot info/
 
   condition:
     filesize < 8KB and all of them
@@ -29,8 +29,8 @@ rule grub_diskboot_image: override {
     single_load_rwe = "medium"
 
   strings:
-    $blocklist    = "blocklist_default_start"
-    $notification = "notification_string"
+    $blocklist    = /blocklist_default_start/
+    $notification = /notification_string/
 
   condition:
     filesize < 8KB and all of them
@@ -42,8 +42,8 @@ rule grub_lnxboot_image: override {
     single_load_rwe = "medium"
 
   strings:
-    $move_mem = "move memory fails"
-    $setup    = "setup_sects"
+    $move_mem = /move memory fails/
+    $setup    = /setup_sects/
 
   condition:
     filesize < 8KB and all of them

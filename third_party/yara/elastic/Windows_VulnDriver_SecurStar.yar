@@ -15,11 +15,11 @@ rule Windows_VulnDriver_SecurStar_35bd6206 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 53 65 63 75 72 53 74 61 72 20 47 6D 62 48 }
-        $str1 = "Dcr.pdb"
-        $str2 = "IOCTL_STORAGE_GET_DEVICE_NUMBER"
-        $str3 = "IOCTL_VOLUME_ONLINE"
-        $str4 = "\\Device\\KeyboardClass"
-        $str5 = "\\Device\\MountPointManager"
+        $str1 = /Dcr\.pdb/
+        $str2 = /IOCTL_STORAGE_GET_DEVICE_NUMBER/
+        $str3 = /IOCTL_VOLUME_ONLINE/
+        $str4 = /\\Device\\KeyboardClass/
+        $str5 = /\\Device\\MountPointManager/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1 and $str2 and $str3 and $str4 and $str5
 }

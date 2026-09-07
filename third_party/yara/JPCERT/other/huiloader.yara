@@ -12,7 +12,7 @@ rule malware_HUILoader_code {
         $xor2 = { 80 30 20 }
         $xor3 = { 80 34 30 20 }
         $add = { 83 C? 32 }
-        $fui = "HUIHWASDIHWEIUDHDSFSFEFWEFEWFDSGEFERWGWEEFWFWEWD" ascii wide
+        $fui = /HUIHWASDIHWEIUDHDSFSFEFWEFEWFDSGEFERWGWEEFWFWEWD/ ascii wide
 
     condition:
        uint16(0) == 0x5A4D and

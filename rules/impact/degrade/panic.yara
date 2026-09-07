@@ -4,7 +4,7 @@ rule raise_hard_error: medium windows {
     filetypes   = "exe,pe,py"
 
   strings:
-    $crash = "NtRaiseHardError" fullword
+    $crash = /NtRaiseHardError/ fullword
 
   condition:
     filesize < 1MB and any of them

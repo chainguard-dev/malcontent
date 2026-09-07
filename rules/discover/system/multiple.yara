@@ -44,22 +44,22 @@ rule hostinfo_collector_npm: critical {
     filetypes   = "js,ts"
 
   strings:
-    $f_userInfo = "os.userInfo()"
-    $f_homedir  = "os.homedir()"
+    $f_userInfo = /os\.userInfo\(\)/
+    $f_homedir  = /os\.homedir\(\)/
 
     $a_ipify       = /ipify\.org{0,1}/
-    $a_wtfismyip   = "wtfismyip"
-    $a_iplogger    = "iplogger.org"
-    $a_getjsonip   = "getjsonip"
-    $a_ipconfig_me = "ifconfig.me"
-    $a_icanhazip   = "icanhazip"
-    $a_grabify     = "grabify.link"
-    $a_ident_me    = "ident.me" fullword
-    $a_showip_net  = "showip.net" fullword
-    $a_ifconfig_io = "ifconfig.io" fullword
-    $a_ifconfig_co = "ifconfig.co" fullword
-    $a_ipinfo      = "ipinfo.io"
-    $a_check_ip    = "checkip.amazonaws.com"
+    $a_wtfismyip   = /wtfismyip/
+    $a_iplogger    = /iplogger\.org/
+    $a_getjsonip   = /getjsonip/
+    $a_ipconfig_me = /ifconfig\.me/
+    $a_icanhazip   = /icanhazip/
+    $a_grabify     = /grabify\.link/
+    $a_ident_me    = /ident\.me/ fullword
+    $a_showip_net  = /showip\.net/ fullword
+    $a_ifconfig_io = /ifconfig\.io/ fullword
+    $a_ifconfig_co = /ifconfig\.co/ fullword
+    $a_ipinfo      = /ipinfo\.io/
+    $a_check_ip    = /checkip\.amazonaws\.com/
 
   condition:
     filesize < 512KB and 2 of ($f*) and any of ($a*)

@@ -4,9 +4,9 @@ rule train_transports_local: override {
     SIGNATURE_BASE_Powershell_Susp_Parameter_Combo = "high"
 
   strings:
-    $author1    = "# author: Dominik Richter"
-    $author2    = "# author: Christoph Hartmann"
-    $transports = "module Train::Transports"
+    $author1    = /# author: Dominik Richter/
+    $author2    = /# author: Christoph Hartmann/
+    $transports = /module Train::Transports/
 
   condition:
     filesize < 50KB and all of them

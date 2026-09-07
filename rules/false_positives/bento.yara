@@ -4,8 +4,8 @@ rule bento_bin: override {
     CAPE_Nitrogenloader = "harmless"
 
   strings:
-    $go_module = "github.com/warpstreamlabs/bento/cmd/bento"
-    $go_pkg    = "github.com/warpstreamlabs/bento/public/service"
+    $go_module = /github\.com\/warpstreamlabs\/bento\/cmd\/bento/
+    $go_pkg    = /github\.com\/warpstreamlabs\/bento\/public\/service/
 
   condition:
     filesize > 200MB and filesize < 300MB and all of them

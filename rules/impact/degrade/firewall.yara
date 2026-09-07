@@ -9,13 +9,13 @@ rule selinux_firewall: high linux {
     $selinux          = /SELINUX[=\w]{0,32}/ fullword
     $f_iptables       = /iptables[ -\\w]{0,32}/
     $f_firewalld      = /[\w ]{0,32}firewalld/
-    $not_ip6tables    = "NFTNL_RULE_TABLE"
-    $not_iptables     = "iptables-restore"
-    $not_iptables_nft = "iptables-nft"
-    $not_selinux_init = "SELINUX_INIT" fullword
-    $not_define       = "#define" fullword
-    $not_netlink      = "NETLINK" fullword
-    $not_containerd   = "containerd" fullword
+    $not_ip6tables    = /NFTNL_RULE_TABLE/
+    $not_iptables     = /iptables-restore/
+    $not_iptables_nft = /iptables-nft/
+    $not_selinux_init = /SELINUX_INIT/ fullword
+    $not_define       = /#define/ fullword
+    $not_netlink      = /NETLINK/ fullword
+    $not_containerd   = /containerd/ fullword
 
   condition:
     // $selinux matches SELINUX_INIT and $f_iptables matches the iptables-restore
@@ -30,11 +30,11 @@ rule selinux_firewall: high linux {
 
 private rule ufw_tool {
   strings:
-    $not_route         = "route-insert"
-    $not_statusverbose = "statusverbose"
-    $not_enables_the   = "enables the"
-    $not_enable_the    = "enable the"
-    $not_enable        = "ufw enable"
+    $not_route         = /route-insert/
+    $not_statusverbose = /statusverbose/
+    $not_enables_the   = /enables the/
+    $not_enable_the    = /enable the/
+    $not_enable        = /ufw enable/
 
   condition:
     filesize < 256KB and any of them
@@ -56,10 +56,10 @@ rule firewall_iptables_disable: high {
     description = "disables iptables firewall"
 
   strings:
-    $input   = "iptables -P INPUT ACCEPT"
-    $output  = "iptables -P OUTPUT ACCEPT"
-    $forward = "iptables -P FORWARD ACCEPT"
-    $flush   = "iptables -F"
+    $input   = /iptables -P INPUT ACCEPT/
+    $output  = /iptables -P OUTPUT ACCEPT/
+    $forward = /iptables -P FORWARD ACCEPT/
+    $flush   = /iptables -F/
 
   condition:
     filesize < 1MB and 3 of them
@@ -84,11 +84,11 @@ rule netsh_firewall_split: high windows {
     description = "adds exception to Windows netsh firewall"
 
   strings:
-    $netsh          = "netsh"
-    $firewall       = "firewall"
-    $firewall2      = "advfirewall"
-    $allowedprogram = "allowedprogram"
-    $ENABLE         = "ENABLE"
+    $netsh          = /netsh/
+    $firewall       = /firewall/
+    $firewall2      = /advfirewall/
+    $allowedprogram = /allowedprogram/
+    $ENABLE         = /ENABLE/
 
   condition:
     filesize < 5MB and $netsh and any of ($firewall*) and $allowedprogram and $ENABLE

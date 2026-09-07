@@ -4,8 +4,8 @@ rule pyobfuscate: high {
     filetypes   = "py"
 
   strings:
-    $def         = "def" fullword
-    $pyobfuscate = "pyobfuscate" fullword
+    $def         = /def/ fullword
+    $pyobfuscate = /pyobfuscate/ fullword
 
   condition:
     filesize < 1MB and all of them

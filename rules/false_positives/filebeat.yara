@@ -5,10 +5,10 @@ rule misp_mdjson: override {
     rootkit_high = "low"
 
   strings:
-    $attribute = "Attribute"
-    $event     = "Event"
-    $galaxy    = "Galaxy"
-    $shadow    = "ShadowAttribute"
+    $attribute = /Attribute/
+    $event     = /Event/
+    $galaxy    = /Galaxy/
+    $shadow    = /ShadowAttribute/
 
   condition:
     filesize < 128KB and all of them
@@ -20,8 +20,8 @@ rule filebeat: override {
     BlackTech_TSCookie_elf = "harmless"
 
   strings:
-    $beats_module = "github.com/elastic/beats/v7"
-    $filebeat     = "github.com/elastic/beats/v7/x-pack/filebeat"
+    $beats_module = /github\.com\/elastic\/beats\/v7/
+    $filebeat     = /github\.com\/elastic\/beats\/v7\/x-pack\/filebeat/
 
   condition:
     filesize < 300MB and all of them

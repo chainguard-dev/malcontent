@@ -13,8 +13,8 @@ rule Windows_VulnDriver_Zam_928812a7 {
         license = "Elastic License v2"
         os = "windows"
     strings:
-        $pdb_64 = "AntiMalware\\bin\\zam64.pdb"
-        $pdb_32 = "AntiMalware\\bin\\zam32.pdb"
+        $pdb_64 = /AntiMalware\\bin\\zam64\.pdb/
+        $pdb_32 = /AntiMalware\\bin\\zam32\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and any of ($pdb_*)
 }
@@ -36,7 +36,7 @@ rule Windows_VulnDriver_Zam_7c86d260 {
     strings:
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 5A 00 41 00 4D 00 2E 00 65 00 78 00 65 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}(([\x00-\x00][\x00-\x00])([\x00-\x03][\x00-\x00])([\x00-\x00][\x00-\x00])([\x00-\x00][\x00-\x00])|([\x00-\xff][\x00-\xff])([\x00-\x02][\x00-\x00])([\x00-\xff][\x00-\xff])([\x00-\xff][\x00-\xff]))/
-        $s1 = "Advanced Malware Protection" wide fullword
+        $s1 = /Advanced Malware Protection/ wide fullword
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $original_file_name and $version and $s1
 }
@@ -59,9 +59,9 @@ rule Windows_VulnDriver_Zam_8865a090 {
     strings:
         $subject_name = { 06 03 55 04 03 [2] 59 6F 6E 67 6A 69 20 5A 61 69 68 75 69 20 45 2D 63 6F 6D 6D 65 72 63 65 20 43 6F 2E 2C 20 4C 74 64 2E }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}[\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00]/
-        $str1 = "zam64.pdb"
-        $str2 = "IOCTL_CHECK_DRIVER_DISPATCH_ROUTINES"
-        $str3 = "IOCTL_FIX_CRITICAL_KERNEL_FUNCTIONS"
+        $str1 = /zam64\.pdb/
+        $str2 = /IOCTL_CHECK_DRIVER_DISPATCH_ROUTINES/
+        $str3 = /IOCTL_FIX_CRITICAL_KERNEL_FUNCTIONS/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $version and $str1 and $str2 and $str3
 }
@@ -84,9 +84,9 @@ rule Windows_VulnDriver_Zam_9dcc58d1 {
     strings:
         $subject_name = { 06 03 55 04 03 [2] 43 6C 65 76 65 72 53 6F 61 72 20 45 6C 65 63 74 72 6F 6E 69 63 20 54 65 63 68 6E 6F 6C 6F 67 79 20 43 6F 2E 2C 20 4C 74 64 2E }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}[\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00]/
-        $str1 = "zam64.pdb"
-        $str2 = "IOCTL_CHECK_DRIVER_DISPATCH_ROUTINES"
-        $str3 = "IOCTL_FIX_CRITICAL_KERNEL_FUNCTIONS"
+        $str1 = /zam64\.pdb/
+        $str2 = /IOCTL_CHECK_DRIVER_DISPATCH_ROUTINES/
+        $str3 = /IOCTL_FIX_CRITICAL_KERNEL_FUNCTIONS/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $version and $str1 and $str2 and $str3
 }
@@ -109,9 +109,9 @@ rule Windows_VulnDriver_Zam_061934b9 {
     strings:
         $subject_name = { 06 03 55 04 03 [2] 4F 70 65 6E 20 53 6F 75 72 63 65 20 44 65 76 65 6C 6F 70 65 72 2C 20 41 6E 71 69 20 54 61 6F }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}[\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00]/
-        $str1 = "zam64.pdb"
-        $str2 = "IOCTL_CHECK_DRIVER_DISPATCH_ROUTINES"
-        $str3 = "IOCTL_FIX_CRITICAL_KERNEL_FUNCTIONS"
+        $str1 = /zam64\.pdb/
+        $str2 = /IOCTL_CHECK_DRIVER_DISPATCH_ROUTINES/
+        $str3 = /IOCTL_FIX_CRITICAL_KERNEL_FUNCTIONS/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $version and $str1 and $str2 and $str3
 }
@@ -134,9 +134,9 @@ rule Windows_VulnDriver_Zam_f503bf43 {
     strings:
         $subject_name = { 06 03 55 04 03 [2] 4F 70 65 6E 20 53 6F 75 72 63 65 20 44 65 76 65 6C 6F 70 65 72 2C 20 4D 65 69 20 44 6F 6E 67 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}[\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00]/
-        $str1 = "zam64.pdb"
-        $str2 = "IOCTL_CHECK_DRIVER_DISPATCH_ROUTINES"
-        $str3 = "IOCTL_FIX_CRITICAL_KERNEL_FUNCTIONS"
+        $str1 = /zam64\.pdb/
+        $str2 = /IOCTL_CHECK_DRIVER_DISPATCH_ROUTINES/
+        $str3 = /IOCTL_FIX_CRITICAL_KERNEL_FUNCTIONS/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $version and $str1 and $str2 and $str3
 }
@@ -159,9 +159,9 @@ rule Windows_VulnDriver_Zam_592fae36 {
     strings:
         $subject_name = { 06 03 55 04 03 [2] 4F 70 65 6E 20 53 6F 75 72 63 65 20 44 65 76 65 6C 6F 70 65 72 2C 20 E6 A2 85 20 E8 91 A3 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}[\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00]/
-        $str1 = "zam64.pdb"
-        $str2 = "IOCTL_CHECK_DRIVER_DISPATCH_ROUTINES"
-        $str3 = "IOCTL_FIX_CRITICAL_KERNEL_FUNCTIONS"
+        $str1 = /zam64\.pdb/
+        $str2 = /IOCTL_CHECK_DRIVER_DISPATCH_ROUTINES/
+        $str3 = /IOCTL_FIX_CRITICAL_KERNEL_FUNCTIONS/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $version and $str1 and $str2 and $str3
 }
@@ -185,9 +185,9 @@ rule Windows_VulnDriver_Zam_316a045d {
         $subject_name = { 06 03 55 04 03 [2] 5A 65 6D 61 6E 61 20 4C 74 64 2E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 5A 00 41 00 4D 00 2E 00 65 00 78 00 65 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x49][\x00-\x00][\x02-\x02][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x4a-\x4a][\x00-\x00][\x02-\x02][\x00-\x00]([\x00-\xff][\x00-\x00]|[\x00-\x02][\x01-\x01])[\x00-\x00][\x00-\x00]|[\x4a-\x4a][\x00-\x00][\x02-\x02][\x00-\x00][\x03-\x03][\x01-\x01][\x00-\x00][\x00-\x00])/
-        $str1 = "zam64.pdb"
-        $str2 = "IOCTL_CHECK_DRIVER_DISPATCH_ROUTINES"
-        $str3 = "IOCTL_FIX_CRITICAL_KERNEL_FUNCTIONS"
+        $str1 = /zam64\.pdb/
+        $str2 = /IOCTL_CHECK_DRIVER_DISPATCH_ROUTINES/
+        $str3 = /IOCTL_FIX_CRITICAL_KERNEL_FUNCTIONS/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2 and $str3
 }
@@ -210,9 +210,9 @@ rule Windows_VulnDriver_Zam_d0430420 {
     strings:
         $subject_name = { 06 03 55 04 03 [2] 4F 70 65 6E 20 53 6F 75 72 63 65 20 44 65 76 65 6C 6F 70 65 72 2C 20 47 75 69 20 48 75 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}[\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00]/
-        $str1 = "zam64.pdb"
-        $str2 = "IOCTL_CHECK_DRIVER_DISPATCH_ROUTINES"
-        $str3 = "IOCTL_FIX_CRITICAL_KERNEL_FUNCTIONS"
+        $str1 = /zam64\.pdb/
+        $str2 = /IOCTL_CHECK_DRIVER_DISPATCH_ROUTINES/
+        $str3 = /IOCTL_FIX_CRITICAL_KERNEL_FUNCTIONS/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $version and $str1 and $str2 and $str3
 }
@@ -235,9 +235,9 @@ rule Windows_VulnDriver_Zam_c46a5120 {
     strings:
         $subject_name = { 06 03 55 04 03 [2] 4F 70 65 6E 20 53 6F 75 72 63 65 20 44 65 76 65 6C 6F 70 65 72 2C 20 4A 69 61 77 75 20 57 61 6E 67 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}[\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00]/
-        $str1 = "zam64.pdb"
-        $str2 = "IOCTL_CHECK_DRIVER_DISPATCH_ROUTINES"
-        $str3 = "IOCTL_FIX_CRITICAL_KERNEL_FUNCTIONS"
+        $str1 = /zam64\.pdb/
+        $str2 = /IOCTL_CHECK_DRIVER_DISPATCH_ROUTINES/
+        $str3 = /IOCTL_FIX_CRITICAL_KERNEL_FUNCTIONS/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $version and $str1 and $str2 and $str3
 }
@@ -260,10 +260,10 @@ rule Windows_VulnDriver_Zam_5f89a617 {
     strings:
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 5A 00 41 00 4D 00 2E 00 65 00 78 00 65 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x02][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x03-\x03][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00])/
-        $str1 = "zam64.pdb"
-        $str2 = "IOCTL_CHECK_DRIVER_DISPATCH_ROUTINES"
-        $str3 = "IOCTL_FIX_CRITICAL_KERNEL_FUNCTIONS"
-        $str4 = "Advanced Malware Protection" wide
+        $str1 = /zam64\.pdb/
+        $str2 = /IOCTL_CHECK_DRIVER_DISPATCH_ROUTINES/
+        $str3 = /IOCTL_FIX_CRITICAL_KERNEL_FUNCTIONS/
+        $str4 = /Advanced Malware Protection/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $original_file_name and $version and $str1 and $str2 and $str3 and $str4
 }
@@ -286,9 +286,9 @@ rule Windows_VulnDriver_Zam_cffca6e7 {
     strings:
         $subject_name = { 06 03 55 04 03 [2] 5A 65 6D 61 6E 61 20 4C 74 64 2E }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}[\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00]/
-        $str1 = "zam32.pdb"
-        $str2 = "IOCTL_CHECK_DRIVER_DISPATCH_ROUTINES"
-        $str3 = "IOCTL_FIX_CRITICAL_KERNEL_FUNCTIONS"
+        $str1 = /zam32\.pdb/
+        $str2 = /IOCTL_CHECK_DRIVER_DISPATCH_ROUTINES/
+        $str3 = /IOCTL_FIX_CRITICAL_KERNEL_FUNCTIONS/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $version and $str1 and $str2 and $str3
 }
@@ -311,7 +311,7 @@ rule Windows_VulnDriver_Zam_0fddb921 {
     strings:
         $subject_name = { 06 03 55 04 03 [2] 5A 65 6D 61 6E 61 20 4C 74 64 2E }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x0a][\x00-\x00][\x02-\x02][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x0b-\x0b][\x00-\x00][\x02-\x02][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00]|[\x0b-\x0b][\x00-\x00][\x02-\x02][\x00-\x00]([\x00-\xff][\x00-\x00]|[\x00-\xfd][\x01-\x01])[\x01-\x01][\x00-\x00]|[\x0b-\x0b][\x00-\x00][\x02-\x02][\x00-\x00][\xfe-\xfe][\x01-\x01][\x01-\x01][\x00-\x00])/
-        $str1 = "zam64.pdb"
+        $str1 = /zam64\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $version and $str1
 }
@@ -334,9 +334,9 @@ rule Windows_VulnDriver_Zam_5e44a46c {
     strings:
         $subject_name = { 06 03 55 04 03 [2] E4 B8 AD E8 88 B9 E9 87 8D E5 B7 A5 E6 B1 89 E5 85 89 E7 A7 91 E6 8A 80 E8 82 A1 E4 BB BD E6 9C 89 E9 99 90 E5 85 AC E5 8F B8 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}[\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00][\x00-\x00]/
-        $str1 = "zam64.pdb"
-        $str2 = "IOCTL_CHECK_DRIVER_DISPATCH_ROUTINES"
-        $str3 = "IOCTL_FIX_CRITICAL_KERNEL_FUNCTIONS"
+        $str1 = /zam64\.pdb/
+        $str2 = /IOCTL_CHECK_DRIVER_DISPATCH_ROUTINES/
+        $str3 = /IOCTL_FIX_CRITICAL_KERNEL_FUNCTIONS/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $version and $str1 and $str2 and $str3
 }

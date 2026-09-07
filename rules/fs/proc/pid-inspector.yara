@@ -27,11 +27,11 @@ rule pid_inspector_high: high {
     $proc_cgroup           = /\/proc\/[\%\@]\w{1,3}\/cgroup/
     $proc_auxv             = /\/proc\/[\%\@]\w{1,3}\/auxv/
     $proc_uid_map          = /\/proc\/[\%\@]\w{1,3}\/uid_map/
-    $not_network_manager   = "org.freedesktop.NetworkManager"
-    $not_systemd           = "SYSTEMD_MACHINE_ID_PATH"
-    $not_cgroups           = "/proc/cgroups"
-    $not_duplicate_cmdline = "/proc/%d/cmdline"  // handled via proc_d_cmdline
-    $not_duplicate_exe     = "/proc/%d/exe"  // handled via proc_d_exe
+    $not_network_manager   = /org\.freedesktop\.NetworkManager/
+    $not_systemd           = /SYSTEMD_MACHINE_ID_PATH/
+    $not_cgroups           = /\/proc\/cgroups/
+    $not_duplicate_cmdline = /\/proc\/%d\/cmdline/  // handled via proc_d_cmdline
+    $not_duplicate_exe     = /\/proc\/%d\/exe/  // handled via proc_d_exe
 
   // $proc_cmdline/$proc_exe match the "%d" dedup strings verbatim, so a single
   // "/proc/%d/exe" would otherwise disable the rule for the whole file. Compare

@@ -13,7 +13,7 @@ rule Windows_VulnDriver_GlckIo_39c4abd4 {
         license = "Elastic License v2"
         os = "windows"
     strings:
-        $str1 = "\\GLCKIO2.pdb"
+        $str1 = /\\GLCKIO2\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $str1
 }
@@ -33,7 +33,7 @@ rule Windows_VulnDriver_GlckIo_68d5afbb {
         license = "Elastic License v2"
         os = "windows"
     strings:
-        $str1 = "[GLKIO2] Cannot resolve ZwQueryInformationProcess"
+        $str1 = /\[GLKIO2\] Cannot resolve ZwQueryInformationProcess/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $str1
 }

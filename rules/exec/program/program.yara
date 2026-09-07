@@ -54,7 +54,7 @@ rule perl_system: medium {
 
   strings:
     $system = /system\([\"\'\w\ \-\)\/]{0,64}/
-    $perl   = "perl" fullword
+    $perl   = /perl/ fullword
 
   condition:
     filesize < 65535 and $perl and $system
@@ -67,7 +67,7 @@ rule ruby_system: medium {
   strings:
     $f_system = /system\(.{1,32}\)/ fullword
     $f_exec   = /exec\(.{1,32}\)/ fullword
-    $require  = "require" fullword
+    $require  = /require/ fullword
 
   condition:
     filesize < 65535 and $require and any of ($f*)

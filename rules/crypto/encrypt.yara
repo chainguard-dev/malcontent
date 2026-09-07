@@ -6,7 +6,7 @@ rule encrypt: medium {
     $encrypt = /[\w ]{0,16}Encrypt[\w ]{0,16}/
     $ref     = /Encrypt[\w]{0,16}/
 
-    $not_encrypted = "Encrypted"
+    $not_encrypted = /Encrypted/
 
   condition:
     // "Encrypted" is itself an instance of the text $encrypt generalises, so that

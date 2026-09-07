@@ -11,7 +11,7 @@ rule npm_dropper: critical {
     $npm_postinstall = /"postinstall":/
     $fetch           = /"(curl|wget) /
     $url             = /https{0,1}:\/\/[\w][\w\.\/\-_\?=\@]{8,64}/
-    $chmod           = "chmod"
+    $chmod           = /chmod/
 
   condition:
     filesize < 16384 and 2 of ($npm*) and $fetch and $url and $chmod

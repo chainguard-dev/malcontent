@@ -97,9 +97,9 @@ rule PurpleFox_Dropper
     strings:
         $doc = {D0 CF 11 E0}
         $cab = {4D 53 43 46}
-        $s1 = "sysupdate.log" ascii wide
-        $s2 = "winupdate32.log" ascii wide
-        $s3 = "winupdate64.log" ascii wide
+        $s1 = /sysupdate\.log/ ascii wide
+        $s2 = /winupdate32\.log/ ascii wide
+        $s3 = /winupdate64\.log/ ascii wide
 
     condition:
         ($doc at 0 and all of ($s*)) or ($cab at 0 and all of ($s*))

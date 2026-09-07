@@ -4,13 +4,13 @@ rule powershell_byte_xor: critical windows {
     filetypes   = "ps1"
 
   strings:
-    $ps_powershell = "powershell"
-    $ps_bytes      = "[System.IO.File]"
-    $xor           = "-bxor" fullword
-    $not_docs      = " https://docs.microsoft.com"
-    $not_verbs     = "-cnotcontains"
-    $not_elastic   = "\"Suspicious Windows Powershell Arguments\""
-    $not_ansible   = "#AnsibleRequires -CSharpUtil Ansible."
+    $ps_powershell = /powershell/
+    $ps_bytes      = /\[System\.IO\.File\]/
+    $xor           = /-bxor/ fullword
+    $not_docs      = / https:\/\/docs\.microsoft\.com/
+    $not_verbs     = /-cnotcontains/
+    $not_elastic   = /"Suspicious Windows Powershell Arguments"/
+    $not_ansible   = /#AnsibleRequires -CSharpUtil Ansible\./
 
   condition:
     filesize < 16KB and $xor and any of ($ps*) and none of ($not*)
@@ -23,7 +23,7 @@ rule powershell_compact: medium windows {
     filetypes   = "ps1"
 
   strings:
-    $InokeExpression = ");iex" ascii wide nocase
+    $InokeExpression = /\);iex/ ascii wide nocase
 
   condition:
     filesize < 16777216 and any of them
@@ -49,7 +49,7 @@ rule powershell_format: high {
     filetypes   = "ps1"
 
   strings:
-    $ref = "}{0}\"-f " ascii wide
+    $ref = /\}\{0\}"-f / ascii wide
 
   condition:
     filesize < 16777216 and any of them

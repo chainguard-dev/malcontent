@@ -6,8 +6,8 @@ rule dotstatsuite_data_explorer_tests: override {
     js_eval                 = "low"
 
   strings:
-    $testid_selector = "testidSelector"
-    $change_vibe     = "changeVibe"
+    $testid_selector = /testidSelector/
+    $change_vibe     = /changeVibe/
 
   condition:
     filesize < 16KB and all of them

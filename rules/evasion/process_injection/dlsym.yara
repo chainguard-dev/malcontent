@@ -3,7 +3,7 @@ rule locate_dlsym: high link {
     description = "searches for dynamic library symbols"
 
   strings:
-    $locate_dlsym = "locate_dlsym"
+    $locate_dlsym = /locate_dlsym/
     $libpam_sym   = /\w{0,8}libpam_sym\w{0,8}/
     $libdl_sym    = /\w{0,8}libdl_sym\w{0,8}/
 

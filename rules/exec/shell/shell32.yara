@@ -4,7 +4,7 @@ rule shell32_ShellExecuteW: high windows {
     filetypes   = "py,pyc"
 
   strings:
-    $shell = "shell32.ShellExecuteW"
+    $shell = /shell32\.ShellExecuteW/
 
   condition:
     filesize < 52428800 and any of them

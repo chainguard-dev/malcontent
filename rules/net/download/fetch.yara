@@ -47,7 +47,7 @@ rule curl_xxd: high {
     description = "Invokes curl and generates hex codes"
 
   strings:
-    $ref = "xxd -p"
+    $ref = /xxd -p/
 
   condition:
     filesize < 8KB and curl_value and $ref
@@ -165,24 +165,24 @@ rule high_fetch_command_val: high {
     // of a long flag such as --dump-header, --key or --output
     $c_curl_d                     = /curl (-[a-zA-Z] |--[\w\-]{2,24} |[\w\.\:\/]{1,32} ){0,4}-[dOok][\/\- \w\%\(\{\}\'\"\)\$\:\.]{0,128}/
     $c_curl_insecure              = /curl [\- \w]{0,128}--insecure[\/\- \w\%\(\{\}\'\"\)\$\:\.]{0,128}/
-    $c_kinda_curl_silent_insecure = "--silent --insecure"
-    $c_kinda_curl_silent_k        = "-k --insecure"
-    $c_kinda_curl_k_q             = "-k -q"
+    $c_kinda_curl_silent_insecure = /--silent --insecure/
+    $c_kinda_curl_silent_k        = /-k --insecure/
+    $c_kinda_curl_k_q             = /-k -q/
     $c_wget_insecure              = /wget --no-check-certificate[\/\- \w\%\(\{\}\'\"\)\$\:]{0,128}/
-    $not_curl_response_code       = "%{response_code}"
-    $not_oh_my_zsh                = "oh-my-zsh-master"
-    $not_localhost                = "https://localhost"
-    $not_127_0_0_1                = "https://127.0.0.1"
-    $not_local                    = "curl -ks https://localhost"
-    $not_pciid                    = "https://pci-ids.ucw.cz"
+    $not_curl_response_code       = /%\{response_code\}/
+    $not_oh_my_zsh                = /oh-my-zsh-master/
+    $not_localhost                = /https:\/\/localhost/
+    $not_127_0_0_1                = /https:\/\/127\.0\.0\.1/
+    $not_local                    = /curl -ks https:\/\/localhost/
+    $not_pciid                    = /https:\/\/pci-ids\.ucw\.cz/
 
-    $x_chmod      = "chmod" fullword
-    $x_Chmod      = "Chmod" fullword
-    $not_elastic1 = "/*! Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one or more contributor license agreements."
-    $not_elastic2 = "* Licensed under the Elastic License 2.0; you may not use this file except in compliance with the Elastic License 2.0. */"
-    $x_exe        = ".exe"
-    $x_rename     = "rename"
-    $x_rundll32   = "rundll32"
+    $x_chmod      = /chmod/ fullword
+    $x_Chmod      = /Chmod/ fullword
+    $not_elastic1 = /\/\*! Copyright Elasticsearch B\.V\. and\/or licensed to Elasticsearch B\.V\. under one or more contributor license agreements\./
+    $not_elastic2 = /\* Licensed under the Elastic License 2\.0; you may not use this file except in compliance with the Elastic License 2\.0\. \*\//
+    $x_exe        = /\.exe/
+    $x_rename     = /rename/
+    $x_rundll32   = /rundll32/
 
   condition:
     filesize < 1MB and any of ($c*) and any of ($x*) and none of ($not*)

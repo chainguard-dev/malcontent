@@ -5,8 +5,8 @@ rule malware_Voldemort_lnk {
         hash = "c913edc6ea2a6aeb6e963c38bb8b8e1496ac44c5a0663887e3948c9320a8dcfc"
 
     strings:
-        $s1 = "\\python.exe \\\\" ascii wide
-        $s2 = "@SSL\\" ascii wide
+        $s1 = /\\python\.exe \\\\/ ascii wide
+        $s2 = /@SSL\\/ ascii wide
 	    $s3 = {2E 00 70 00 79 00 00 00 08 00 2E 00 5C 00 31 00 2E 00 70 00 64 00 66 00}
 
     condition:
@@ -37,11 +37,11 @@ rule malware_Voldemort_str {
         hash = "fa383eac2bf9ad3ef889e6118a28aa57a8a8e6b5224ecdf78dcffc5225ee4e1f"
 
     strings:
-        $s1 = "sheets.googleapis.com" wide
-        $s2 = "/drive/v3/files/%s?key=%s&alt=media" wide
-        $s3 = "/v4/spreadsheets/%s/values/%s!A%d:A%d" wide
-        $s4 = "client_id=%s&client_secret=%s&refresh_token=%s&grant_type=refresh_token" ascii
-        $s5 = "Voldemort_gdrive_c.dll" ascii
+        $s1 = /sheets\.googleapis\.com/ wide
+        $s2 = /\/drive\/v3\/files\/%s\?key=%s&alt=media/ wide
+        $s3 = /\/v4\/spreadsheets\/%s\/values\/%s!A%d:A%d/ wide
+        $s4 = /client_id=%s&client_secret=%s&refresh_token=%s&grant_type=refresh_token/ ascii
+        $s5 = /Voldemort_gdrive_c\.dll/ ascii
 
     condition:
         uint16(0) == 0x5A4D and

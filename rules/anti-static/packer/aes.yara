@@ -12,9 +12,9 @@ rule go_aes: high {
     filetypes   = "elf,macho"
 
   strings:
-    $aes     = "crypto/aes"
-    $go      = "go:buildid"
-    $decrypt = "NewCFBDecrypter"
+    $aes     = /crypto\/aes/
+    $go      = /go:buildid/
+    $decrypt = /NewCFBDecrypter/
 
   condition:
     smallBinary and math.entropy(1, filesize) >= 7 and all of them

@@ -17,8 +17,8 @@ rule Windows_VulnDriver_ComputerZ_154a8ae4 {
         $subject_name = { 06 03 55 04 03 [2] 51 69 68 6F 6F 20 33 36 30 20 53 6F 66 74 77 61 72 65 20 28 42 65 69 6A 69 6E 67 29 20 43 6F 6D 70 61 6E 79 20 4C 69 6D 69 74 65 64 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 43 00 6F 00 6D 00 70 00 75 00 74 00 65 00 72 00 5A 00 2E 00 53 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x05][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x06-\x06][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x0f][\x00-\x00]|[\x06-\x06][\x00-\x00][\x01-\x01][\x00-\x00]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x02]|[\x00-\xf6][\x03-\x03])[\x10-\x10][\x00-\x00]|[\x06-\x06][\x00-\x00][\x01-\x01][\x00-\x00][\xf7-\xf7][\x03-\x03][\x10-\x10][\x00-\x00])/
-        $str1 = "ComputerZ.pdb"
-        $str2 = "Ludashi System Driver" wide
+        $str1 = /ComputerZ\.pdb/
+        $str2 = /Ludashi System Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2
 }
@@ -41,8 +41,8 @@ rule Windows_VulnDriver_ComputerZ_b116b7cc {
     strings:
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 43 00 6F 00 6D 00 70 00 75 00 74 00 65 00 72 00 5A 00 2E 00 53 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x05][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x06-\x06][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x0a][\x00-\x00]|[\x06-\x06][\x00-\x00][\x01-\x01][\x00-\x00]([\x00-\xff][\x00-\x00]|[\x00-\x9e][\x01-\x01])[\x0b-\x0b][\x00-\x00]|[\x06-\x06][\x00-\x00][\x01-\x01][\x00-\x00][\x9f-\x9f][\x01-\x01][\x0b-\x0b][\x00-\x00])/
-        $str1 = "ComputerZ.pdb"
-        $str2 = "Ludashi System Driver" wide
+        $str1 = /ComputerZ\.pdb/
+        $str2 = /Ludashi System Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $original_file_name and $version and $str1 and $str2
 }
@@ -66,8 +66,8 @@ rule Windows_VulnDriver_ComputerZ_155921eb {
         $subject_name = { 06 03 55 04 03 [2] E6 88 90 E9 83 BD E5 A5 87 E9 B2 81 E7 A7 91 E6 8A 80 E6 9C 89 E9 99 90 E5 85 AC E5 8F B8 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 43 00 6F 00 6D 00 70 00 75 00 74 00 65 00 72 00 5A 00 2E 00 53 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x02]|[\x00-\xfb][\x03-\x03])[\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\xfc-\xfc][\x03-\x03][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x03]|[\x00-\x05][\x04-\x04])|[\xfc-\xfc][\x03-\x03][\x01-\x01][\x00-\x00]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x03]|[\x00-\xc0][\x04-\x04])[\x06-\x06][\x04-\x04]|[\xfc-\xfc][\x03-\x03][\x01-\x01][\x00-\x00][\xc1-\xc1][\x04-\x04][\x06-\x06][\x04-\x04])/
-        $str1 = "ComputerZ.pdb"
-        $str2 = "Ludashi System Driver" wide
+        $str1 = /ComputerZ\.pdb/
+        $str2 = /Ludashi System Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2
 }
@@ -91,8 +91,8 @@ rule Windows_VulnDriver_ComputerZ_61b8c6a0 {
         $subject_name = { 06 03 55 04 03 [2] 51 49 48 55 20 33 36 30 20 53 4F 46 54 57 41 52 45 20 43 4F 2E 20 4C 49 4D 49 54 45 44 }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 43 00 6F 00 6D 00 70 00 75 00 74 00 65 00 72 00 5A 00 2E 00 53 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x05][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x06-\x06][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x0e][\x00-\x00]|[\x06-\x06][\x00-\x00][\x01-\x01][\x00-\x00]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x03]|[\x00-\x14][\x04-\x04])[\x0f-\x0f][\x00-\x00]|[\x06-\x06][\x00-\x00][\x01-\x01][\x00-\x00][\x15-\x15][\x04-\x04][\x0f-\x0f][\x00-\x00])/
-        $str1 = "ComputerZ.pdb"
-        $str2 = "Ludashi System Driver" wide
+        $str1 = /ComputerZ\.pdb/
+        $str2 = /Ludashi System Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2
 }
@@ -116,8 +116,8 @@ rule Windows_VulnDriver_ComputerZ_046781f2 {
         $subject_name = { 06 03 55 04 03 [2] 43 68 65 6E 67 64 75 20 43 65 73 68 69 20 54 65 63 68 6E 6F 6C 6F 67 79 20 43 6F 2E 2C 20 4C 74 64 2E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 43 00 6F 00 6D 00 70 00 75 00 74 00 65 00 72 00 5A 00 2E 00 53 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x01-\x01][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x08][\x00-\x00]|[\x01-\x01][\x00-\x00][\x01-\x01][\x00-\x00]([\x00-\xff][\x00-\x00]|[\x00-\x9f][\x01-\x01])[\x09-\x09][\x00-\x00]|[\x01-\x01][\x00-\x00][\x01-\x01][\x00-\x00][\xa0-\xa0][\x01-\x01][\x09-\x09][\x00-\x00])/
-        $str1 = "ComputerZ.pdb"
-        $str2 = "Zwuqi System Driver" wide
+        $str1 = /ComputerZ\.pdb/
+        $str2 = /Zwuqi System Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $original_file_name and $version and $str1 and $str2
 }
@@ -140,8 +140,8 @@ rule Windows_VulnDriver_ComputerZ_f05e48b8 {
     strings:
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 43 00 6F 00 6D 00 70 00 75 00 74 00 65 00 72 00 5A 00 2E 00 53 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x07][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x02]|[\x00-\x31][\x03-\x03])[\x08-\x08][\x00-\x00]|[\x00-\x00][\x00-\x00][\x01-\x01][\x00-\x00][\x32-\x32][\x03-\x03][\x08-\x08][\x00-\x00])/
-        $str1 = "ComputerZ.pdb"
-        $str2 = "ComputerZ System Driver" wide
+        $str1 = /ComputerZ\.pdb/
+        $str2 = /ComputerZ System Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $original_file_name and $version and $str1 and $str2
 }
@@ -165,8 +165,8 @@ rule Windows_VulnDriver_ComputerZ_11525146 {
         $subject_name = { 06 03 55 04 03 [2] 43 68 65 6E 67 64 75 20 51 69 6C 75 20 54 65 63 68 6E 6F 6C 6F 67 79 20 43 6F 2E 20 4C 74 64 2E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 43 00 6F 00 6D 00 70 00 75 00 74 00 65 00 72 00 5A 00 2E 00 53 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x02]|[\x00-\xfa][\x03-\x03])[\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\xfb-\xfb][\x03-\x03][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x03]|[\x00-\x00][\x04-\x04])|[\xfb-\xfb][\x03-\x03][\x01-\x01][\x00-\x00]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x02]|[\x00-\x95][\x03-\x03])[\x01-\x01][\x04-\x04]|[\xfb-\xfb][\x03-\x03][\x01-\x01][\x00-\x00][\x96-\x96][\x03-\x03][\x01-\x01][\x04-\x04])/
-        $str1 = "ComputerZ.pdb"
-        $str2 = "Ludashi System Driver" wide
+        $str1 = /ComputerZ\.pdb/
+        $str2 = /Ludashi System Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2
 }
@@ -190,8 +190,8 @@ rule Windows_VulnDriver_ComputerZ_f21d6a86 {
         $subject_name = { 06 03 55 04 03 [2] 33 36 30 2E 63 6E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 43 00 6F 00 6D 00 70 00 75 00 74 00 65 00 72 00 5A 00 2E 00 53 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x05][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x06-\x06][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x0b][\x00-\x00]|[\x06-\x06][\x00-\x00][\x01-\x01][\x00-\x00]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x02]|[\x00-\xf9][\x03-\x03])[\x0c-\x0c][\x00-\x00]|[\x06-\x06][\x00-\x00][\x01-\x01][\x00-\x00][\xfa-\xfa][\x03-\x03][\x0c-\x0c][\x00-\x00])/
-        $str1 = "ComputerZ.pdb"
-        $str2 = "Ludashi System Driver" wide
+        $str1 = /ComputerZ\.pdb/
+        $str2 = /Ludashi System Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2
 }
@@ -215,8 +215,8 @@ rule Windows_VulnDriver_ComputerZ_571e2e0a {
         $subject_name = { 06 03 55 04 03 [2] 43 68 65 6E 67 64 75 20 51 69 79 69 6E 67 20 54 65 63 68 6E 6F 6C 6F 67 79 20 43 6F 2E 2C 4C 74 64 2E }
         $original_file_name = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 43 00 6F 00 6D 00 70 00 75 00 74 00 65 00 72 00 5A 00 2E 00 53 00 79 00 73 00 00 00 }
         $version = /V\x00S\x00_\x00V\x00E\x00R\x00S\x00I\x00O\x00N\x00_\x00I\x00N\x00F\x00O\x00\x00\x00{0,4}\xbd\x04\xef\xfe[\x00-\xff]{4}([\x00-\xff][\x00-\xff][\x00-\x00][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x00-\x05][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\xff][\x00-\xff]|[\x06-\x06][\x00-\x00][\x01-\x01][\x00-\x00][\x00-\xff][\x00-\xff][\x00-\x0a][\x00-\x00]|[\x06-\x06][\x00-\x00][\x01-\x01][\x00-\x00]([\x00-\xff][\x00-\x00]|[\x00-\xff][\x01-\x02]|[\x00-\xef][\x03-\x03])[\x0b-\x0b][\x00-\x00]|[\x06-\x06][\x00-\x00][\x01-\x01][\x00-\x00][\xf0-\xf0][\x03-\x03][\x0b-\x0b][\x00-\x00])/
-        $str1 = "ComputerZ.pdb"
-        $str2 = "Ludashi System Driver" wide
+        $str1 = /ComputerZ\.pdb/
+        $str2 = /Ludashi System Driver/ wide
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $original_file_name and $version and $str1 and $str2
 }

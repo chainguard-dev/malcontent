@@ -18,10 +18,10 @@ rule small_opaque_archaic_gcc: high linux {
 
   strings:
     $gcc_v4           = /GCC: \([\w \.\-\~]{1,128}\) 4\.\d{1,16}\.\d{1,128}/
-    $fork             = "fork"
-    $not_nacl         = "NACLVERBOSITY"
-    $not_usage        = "usage" fullword
-    $not_Usage        = "Usage" fullword
+    $fork             = /fork/
+    $not_nacl         = /NACLVERBOSITY/
+    $not_usage        = /usage/ fullword
+    $not_Usage        = /Usage/ fullword
     $word_with_spaces = /[a-z]{4,16} [a-z]{2,16} [a-z]{4,16}/ fullword
 
   condition:

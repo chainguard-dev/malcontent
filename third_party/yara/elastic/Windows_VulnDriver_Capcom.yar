@@ -37,7 +37,7 @@ rule Windows_VulnDriver_Capcom_53997b9d {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 4E 41 4D 43 4F 20 42 41 4E 44 41 49 20 4F 6E 6C 69 6E 65 20 49 6E 63 2E }
-        $str1 = "<<<Obsolete>>"
+        $str1 = /<<<Obsolete>>/
         $seq1 = { 0F B7 0A 66 41 C1 E1 02 44 8B D1 66 44 03 CF 41 C1 EA 06 41 8D 42 FF 83 F8 02 77 56 41 32 C9 66 33 C0 40 2A CF 41 2A CA 66 83 E1 3F 66 83 F9 0A 73 05 8D 41 30 EB 09 }
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1 and $seq1

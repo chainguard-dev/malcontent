@@ -15,7 +15,7 @@ rule Windows_VulnDriver_NetEaseNetwork_7d9418a8 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 4E 65 74 45 61 73 65 28 48 61 6E 67 7A 68 6F 75 29 20 4E 65 74 77 6F 72 6B 20 43 6F 2E 20 4C 74 64 2E }
-        $str1 = "WinRing0.pdb"
+        $str1 = /WinRing0\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $str1
 }
@@ -37,7 +37,7 @@ rule Windows_VulnDriver_NetEaseNetwork_713f63c1 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 4E 65 74 45 61 73 65 28 48 61 6E 67 7A 68 6F 75 29 20 4E 65 74 77 6F 72 6B 20 43 6F 2E 20 4C 74 64 2E }
-        $str1 = "WinRing0x64.pdb"
+        $str1 = /WinRing0x64\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }

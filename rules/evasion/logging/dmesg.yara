@@ -3,10 +3,10 @@ rule dmesg_clear: high linux {
     description = "clears the kernel log ring buffer"
 
   strings:
-    $ = "dmesg -C" fullword
-    $ = "dmesg -c" fullword
-    $ = "dmesg --clear" fullword
-    $ = "dmesg --read-clear" fullword
+    $ = /dmesg -C/ fullword
+    $ = /dmesg -c/ fullword
+    $ = /dmesg --clear/ fullword
+    $ = /dmesg --read-clear/ fullword
 
   condition:
     filesize < 100MB and any of them

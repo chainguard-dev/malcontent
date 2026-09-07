@@ -15,9 +15,9 @@ rule Windows_VulnDriver_Pegatron_f411086c {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 50 45 47 41 54 52 4F 4E 20 43 4F 52 50 4F 52 41 54 49 4F 4E }
-        $str1 = "TdeIo64.pdb"
-        $str2 = "IOCTL_INDEXIO_WRITE_DWORD"
-        $str3 = "IOCTL_INDEXIO_READ_DWORD"
+        $str1 = /TdeIo64\.pdb/
+        $str2 = /IOCTL_INDEXIO_WRITE_DWORD/
+        $str3 = /IOCTL_INDEXIO_READ_DWORD/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1 and $str2 and $str3
 }
@@ -39,9 +39,9 @@ rule Windows_VulnDriver_Pegatron_cb69cf04 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 50 45 47 41 54 52 4F 4E 20 43 4F 52 50 4F 52 41 54 49 4F 4E }
-        $str1 = "TdeIo.pdb"
-        $str2 = "IOCTL_INDEXIO_WRITE_DWORD"
-        $str3 = "IOCTL_INDEX_DATA_IO_WRITE"
+        $str1 = /TdeIo\.pdb/
+        $str2 = /IOCTL_INDEXIO_WRITE_DWORD/
+        $str3 = /IOCTL_INDEX_DATA_IO_WRITE/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1 and $str2 and $str3
 }

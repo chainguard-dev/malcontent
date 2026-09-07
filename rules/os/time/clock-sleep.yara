@@ -16,7 +16,7 @@ rule setInterval: medium {
     description = "uses setInterval to wait"
 
   strings:
-    $setInterval = "setInterval("
+    $setInterval = /setInterval\(/
 
   condition:
     filesize < 1MB and any of them

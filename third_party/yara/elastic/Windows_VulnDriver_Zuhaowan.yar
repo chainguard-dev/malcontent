@@ -15,7 +15,7 @@ rule Windows_VulnDriver_Zuhaowan_64dd3300 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] E5 AE 89 E5 BE BD E7 9C 81 E5 88 80 E9 94 8B E7 BD 91 E7 BB 9C E7 A7 91 E6 8A 80 E6 9C 89 E9 99 90 E5 85 AC E5 8F B8 }
-        $str1 = "ProtectS.pdb"
+        $str1 = /ProtectS\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }

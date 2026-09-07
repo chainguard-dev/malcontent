@@ -4,7 +4,7 @@ rule js_echo_off: high {
     filetypes   = "js,ts"
 
   strings:
-    $ref   = "@echo off"
+    $ref   = /@echo off/
     $child = /require\(['"]child_process['"]\);/
 
   condition:

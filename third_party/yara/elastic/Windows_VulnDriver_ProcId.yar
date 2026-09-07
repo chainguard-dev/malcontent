@@ -13,7 +13,7 @@ rule Windows_VulnDriver_ProcId_86605fa9 {
         license = "Elastic License v2"
         os = "windows"
     strings:
-        $str1 = "\\piddrv64.pdb"
+        $str1 = /\\piddrv64\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $str1
 }

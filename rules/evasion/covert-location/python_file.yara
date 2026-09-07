@@ -4,7 +4,7 @@ rule python_reads_itself: high {
     filetype    = "py"
 
   strings:
-    $ref = "open(__file__," fullword
+    $ref = /open\(__file__,/ fullword
 
   condition:
     filesize < 1MB and any of them

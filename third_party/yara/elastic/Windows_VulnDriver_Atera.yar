@@ -15,7 +15,7 @@ rule Windows_VulnDriver_Atera_3b915e6a {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 41 74 65 72 61 20 4E 65 74 77 6F 72 6B 73 20 4C 74 64 }
-        $str1 = "WinRing0x64.pdb"
+        $str1 = /WinRing0x64\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }

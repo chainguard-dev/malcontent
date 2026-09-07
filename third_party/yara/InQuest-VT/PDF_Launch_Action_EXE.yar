@@ -25,8 +25,8 @@ rule PDF_Launch_Action_EXE
 
         */
 
-        $magic01 = "INQUEST-PP=pdfparser"
-        $magic02 = "%PDF"
+        $magic01 = /INQUEST-PP=pdfparser/
+        $magic02 = /%PDF/
 
         $re1 = /\x2fType[ \t\r\n]*\x2fAction/ nocase wide ascii
         $re2 = /obj[^\x3c\x3e]+<<[^\x3e]*\x2fS[ \t\r\n]*\x2fLaunch[^\x3c\x3e]*<<[^\x3e]*\x2fF[ \t\r\n]*\x28[^\x29]+\.exe[^\x29]*\x29/ nocase wide ascii

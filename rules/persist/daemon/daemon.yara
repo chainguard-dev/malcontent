@@ -4,7 +4,8 @@ rule daemon: medium {
 
   strings:
     $ref  = /[\w\-]{0,8}[dD]aemon/
-    $ref2 = /[dD]aemonize/ fullword
+    $ref2 = /daemonize/ fullword
+    $ref3 = /Daemonize/ fullword
     $word = /[dD]aemon/
 
     $not_flush = /[fF]lushDaemon/
@@ -15,7 +16,7 @@ rule daemon: medium {
     // optional [\w\-]{0,8} prefix and reports one match per prefix length - nine for
     // a single "newFlushDaemon" - so it cannot be counted directly; count the bare
     // word instead. Each klog symbol contributes exactly one, so fire only on a
-    // daemon reference klog does not account for. $ref2 stands on its own: klog has
-    // no "daemonize".
-    filesize < 20MB and ($ref2 or ($ref and #word > #not_flush))
+    // daemon reference klog does not account for. $ref2 and $ref3 stand on their
+    // own: klog has no "daemonize".
+    filesize < 20MB and (any of ($ref2, $ref3) or ($ref and #word > #not_flush))
 }

@@ -14,15 +14,15 @@ rule apt29_dll_may2022 :  SVR G0016 apt29 NOBELIUM UNC2452 Russia
         sample_reference = "https://www.joesandbox.com/analysis/621068/0/html"
         mitre_group      = "https://attack.mitre.org/groups/G0016/"
 	strings:
-            $a1 = ".mp3" ascii wide nocase
-            $a2 = "blank.pdf" ascii wide nocase
-            $a3 = "Rock" ascii wide nocase
-            $a4 = "vcruntime140.dll" ascii wide nocase
+            $a1 = /\.mp3/ ascii wide nocase
+            $a2 = /blank\.pdf/ ascii wide nocase
+            $a3 = /Rock/ ascii wide nocase
+            $a4 = /vcruntime140\.dll/ ascii wide nocase
 
-            $b1 = "RcvAddQueuedResolution" ascii wide nocase
-            $b2 = "RcvResolution" ascii wide nocase
-            $b3 = "AdobeAcroSup" ascii wide nocase
-            $b4 = "AcroSup" ascii wide nocase
+            $b1 = /RcvAddQueuedResolution/ ascii wide nocase
+            $b2 = /RcvResolution/ ascii wide nocase
+            $b3 = /AdobeAcroSup/ ascii wide nocase
+            $b4 = /AcroSup/ ascii wide nocase
 	condition:
 		uint16(0) == 0x5a4d and ((filesize < 800KB) and all of ($a*) and any of ($b*))
 }

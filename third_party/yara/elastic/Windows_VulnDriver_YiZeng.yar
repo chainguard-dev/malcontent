@@ -15,7 +15,7 @@ rule Windows_VulnDriver_YiZeng_a14e301e {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 59 49 20 5A 45 4E 47 }
-        $str1 = "nullout.pdb"
+        $str1 = /nullout\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }

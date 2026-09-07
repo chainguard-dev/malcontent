@@ -17,11 +17,11 @@ rule macos_hardware_profiler: medium {
     description = "Gathers hardware information"
 
   strings:
-    $p_system_profiler  = "system_profiler SPHardwareDataType"
-    $p_ioreg            = "ioreg -"
-    $p_hw_model         = "hw.model"
-    $p_machineid        = "machineid.ID"
-    $p_machineid_github = "github.com/denisbrodbeck/machineid"
+    $p_system_profiler  = /system_profiler SPHardwareDataType/
+    $p_ioreg            = /ioreg -/
+    $p_hw_model         = /hw\.model/
+    $p_machineid        = /machineid\.ID/
+    $p_machineid_github = /github\.com\/denisbrodbeck\/machineid/
 
   condition:
     filesize < 157286400 and any of ($p_*)

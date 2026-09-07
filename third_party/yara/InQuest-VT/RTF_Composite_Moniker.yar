@@ -11,11 +11,11 @@ rule RTF_Composite_Moniker
         samples        = "bbec59b5557a9836306dd487294bac62227be2f0e7b56c3aeccd6415bfff82a6"
 
 	strings:
-			$magic_rtf = "{\\rt" nocase
-        $st1 = "0903000000000000C000000000000046" nocase // Composite Moniker
-        $st2 = "0303000000000000C000000000000046" nocase // File Moniker
-        $st3 = "C6AFABEC197FD211978E0000F8757E2A" nocase // "new" Moniker
-        $st4 = "01004F006C0065" nocase // "\x01Ole"
+			$magic_rtf = /\{\\rt/ nocase
+        $st1 = /0903000000000000C000000000000046/ nocase // Composite Moniker
+        $st2 = /0303000000000000C000000000000046/ nocase // File Moniker
+        $st3 = /C6AFABEC197FD211978E0000F8757E2A/ nocase // "new" Moniker
+        $st4 = /01004F006C0065/ nocase // "\x01Ole"
 	condition:
 			$magic_rtf at 0 and all of ( $st* )
 }

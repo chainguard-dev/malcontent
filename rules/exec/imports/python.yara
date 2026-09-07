@@ -17,9 +17,9 @@ rule python_code_as_chr_int: critical {
     filetypes   = "py"
 
   strings:
-    $import       = "import" fullword
-    $int_no_space = "105,109,112,111,114,116,32"
-    $int_space    = "105, 109, 112, 111, 114, 116, 32"
+    $import       = /import/ fullword
+    $int_no_space = /105,109,112,111,114,116,32/
+    $int_space    = /105, 109, 112, 111, 114, 116, 32/
 
   condition:
     filesize < 1MB and $import and any of ($int*)
@@ -91,8 +91,8 @@ rule zipimport: medium {
     filetypes   = "py"
 
   strings:
-    $zipimporter = "zipimporter"
-    $load_module = "load_module"
+    $zipimporter = /zipimporter/
+    $load_module = /load_module/
 
   condition:
     filesize < 4MB and all of them
@@ -104,12 +104,12 @@ rule zipimport_obfuscated: high {
     filetypes   = "py"
 
   strings:
-    $must_import      = "import" fullword
-    $must_zipimporter = "zipimporter"
-    $must_load_module = "load_module"
-    $decompress       = "decompress"
-    $decode           = "decode"
-    $decrypt          = "decrypt"
+    $must_import      = /import/ fullword
+    $must_zipimporter = /zipimporter/
+    $must_load_module = /load_module/
+    $decompress       = /decompress/
+    $decode           = /decode/
+    $decrypt          = /decrypt/
 
   condition:
     filesize < 4MB and all of ($must*) and any of ($de*)

@@ -15,7 +15,7 @@ rule Windows_VulnDriver_IndParkShiSuanKeJi_692a1584 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 53 75 7A 68 6F 75 20 49 6E 64 2E 20 50 61 72 6B 20 53 68 69 53 75 61 6E 4B 65 4A 69 20 43 6F 2E 2C 20 4C 74 64 2E }
-        $str1 = "PhyDMACC.pdb"
+        $str1 = /PhyDMACC\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and $subject_name and $str1
 }

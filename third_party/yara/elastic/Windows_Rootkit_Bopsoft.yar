@@ -15,7 +15,7 @@ rule Windows_Rootkit_Bopsoft_923591e2 {
         os = "windows"
     strings:
         $subject_name = { 06 03 55 04 03 [2] 42 6F 70 73 6F 66 74 }
-        $str1 = "MemoryTest.pdb"
+        $str1 = /MemoryTest\.pdb/
     condition:
         int16(uint32(0x3C) + 0x5c) == 0x0001 and int16(uint32(0x3C) + 0x18) == 0x020b and $subject_name and $str1
 }

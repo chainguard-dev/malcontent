@@ -6,8 +6,8 @@ rule wazuh_policy_monitoring: override {
     rootkit                  = "low"
 
   strings:
-    $wazuh_dashboard   = "wazuh-dashboard"
-    $policy_monitoring = "policy-monitoring"
+    $wazuh_dashboard   = /wazuh-dashboard/
+    $policy_monitoring = /policy-monitoring/
 
   condition:
     filesize < 5MB and all of them
@@ -26,9 +26,9 @@ rule wazuh_mitre_db: override {
     hacktool_mimikatz                                      = "low"
 
   strings:
-    $mitre_attack_pattern = "attack-pattern--"
-    $mitre_detection      = "mitre_detection"
-    $create_technique     = "CREATE TABLE technique"
+    $mitre_attack_pattern = /attack-pattern--/
+    $mitre_detection      = /mitre_detection/
+    $create_technique     = /CREATE TABLE technique/
 
   condition:
     filesize > 10MB and filesize < 20MB and all of them
@@ -43,11 +43,11 @@ rule wazuh_agentd: override {
     load_agent_with_payload = "low"
 
   strings:
-    $wazuh_agentd = "wazuh-agentd" fullword
-    $libwazuhext  = "libwazuhext.so"
-    $ossec_conf   = "etc/ossec.conf"
-    $wazuh_home   = "Wazuh home directory: %s"
-    $reload_agent = "reloadAgent" fullword
+    $wazuh_agentd = /wazuh-agentd/ fullword
+    $libwazuhext  = /libwazuhext\.so/
+    $ossec_conf   = /etc\/ossec\.conf/
+    $wazuh_home   = /Wazuh home directory: %s/
+    $reload_agent = /reloadAgent/ fullword
 
   condition:
     filesize < 2MB and all of them
@@ -63,11 +63,11 @@ rule wazuh_syscheckd: override {
     curl_easy_exfil     = "low"
 
   strings:
-    $libwazuhext   = "libwazuhext.so"
-    $wazuh_db_lost = "Connection with wazuh-db lost. Reconnecting."
-    $docker_mod    = "wazuh-modulesd:docker-listener"
-    $cti_api       = "https://cti.wazuh.com/api/v1/catalog/"
-    $audit_rules   = "/etc/audit/rules.d/audit_rules_wazuh.rules"
+    $libwazuhext   = /libwazuhext\.so/
+    $wazuh_db_lost = /Connection with wazuh-db lost\. Reconnecting\./
+    $docker_mod    = /wazuh-modulesd:docker-listener/
+    $cti_api       = /https:\/\/cti\.wazuh\.com\/api\/v1\/catalog\//
+    $audit_rules   = /\/etc\/audit\/rules\.d\/audit_rules_wazuh\.rules/
 
   condition:
     filesize < 2MB and all of them

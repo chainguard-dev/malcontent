@@ -71,21 +71,21 @@ rule hardcoded_host_port_over_10k: high {
 
     // Accepted host:port spellings: every one of these is something the $h
     // regexes generalise, so they are compared by count rather than membership.
-    $not_roughtime_cloudflare = "roughtime.cloudflare.com:2003"
-    $not_roughtime_google     = "sandbox.google.com:2002"
-    $not_foo_bar              = "foo.bar:"
-    $not_example_com          = "example.com:"
-    $not_mygateway            = "mygateway.com:"
-    $not_mymachine            = "mymachine.com:"
-    $not_ruby_http            = "http://hypnotoad.org:1234?hail=all"
-    $not_example_registry     = "registry.com:5000"
+    $not_roughtime_cloudflare = /roughtime\.cloudflare\.com:2003/
+    $not_roughtime_google     = /sandbox\.google\.com:2002/
+    $not_foo_bar              = /foo\.bar:/
+    $not_example_com          = /example\.com:/
+    $not_mygateway            = /mygateway\.com:/
+    $not_mymachine            = /mymachine\.com:/
+    $not_ruby_http            = /http:\/\/hypnotoad\.org:1234\?hail=all/
+    $not_example_registry     = /registry\.com:5000/
 
     // Test-context markers: not host:port spellings, so no $h count can offset
     // them and they stay membership tests.
-    $not_test_parse   = "test_parse"
-    $not_slash_test   = "/test" fullword
-    $not_test_message = "test_message"
-    $not_unit_test    = "unit test"
+    $not_test_parse   = /test_parse/
+    $not_slash_test   = /\/test/ fullword
+    $not_test_message = /test_message/
+    $not_unit_test    = /unit test/
 
   condition:
     // The three $h regexes are nested generalisations of the same host:port shape,

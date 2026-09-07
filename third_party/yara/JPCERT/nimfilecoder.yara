@@ -5,8 +5,8 @@ rule malware_NimFilecoder {
       hash1 = "9a10ead4b8971b830daf1d0b7151462fb6cc379087b65b3013c756db3ce87118"
 
     strings:
-      $str1 = ":wtfbbq" ascii wide
-      $lib  = "clr.nim"  ascii wide
+      $str1 = /:wtfbbq/ ascii wide
+      $lib  = /clr\.nim/  ascii wide
 
     condition:
       uint16(0) == 0x5A4D and all of them
@@ -33,16 +33,16 @@ rule malware_NimFilecoder02 {
       $Func5 = { 81 E? F0 F0 F0 F0 }
 
       /* stirngs */
-      $s0 = "io.nim" fullword ascii
-      $s1 = "os.nim" fullword ascii
-      $s2 = "fatal.nim" fullword ascii
-      $s3 = "GetCommandLineW" fullword ascii
-      $s4 = "PathFileExistsW" fullword ascii
-      $s5 = "libgcc_s_dw2-1.dll" fullword ascii
-      $s6 = "GetModuleFileNameW" fullword ascii
-      $s7 = "IsEqualGUID" fullword ascii
-      $s8 = "[GC] cannot register thread local variable" fullword ascii
-      $s9 = "streams.nim" fullword ascii
+      $s0 = /io\.nim/ fullword ascii
+      $s1 = /os\.nim/ fullword ascii
+      $s2 = /fatal\.nim/ fullword ascii
+      $s3 = /GetCommandLineW/ fullword ascii
+      $s4 = /PathFileExistsW/ fullword ascii
+      $s5 = /libgcc_s_dw2-1\.dll/ fullword ascii
+      $s6 = /GetModuleFileNameW/ fullword ascii
+      $s7 = /IsEqualGUID/ fullword ascii
+      $s8 = /\[GC\] cannot register thread local variable/ fullword ascii
+      $s9 = /streams\.nim/ fullword ascii
 
     condition:
       uint16(0) == 0x5A4D and

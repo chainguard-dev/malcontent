@@ -13,7 +13,7 @@ rule Windows_VulnDriver_CCProtect_0d3ee86f {
         license = "Elastic License v2"
         os = "windows"
     strings:
-        $pdb = "\\CcProtect.pdb"
+        $pdb = /\\CcProtect\.pdb/
         $original_filename = { 4F 00 72 00 69 00 67 00 69 00 6E 00 61 00 6C 00 46 00 69 00 6C 00 65 00 6E 00 61 00 6D 00 65 00 00 00 43 00 63 00 50 00 72 00 6F 00 74 00 65 00 63 00 74 00 2E 00 73 00 79 00 73 00 00 }
         $file_version = { 46 00 69 00 6C 00 65 00 56 00 65 00 72 00 73 00 69 00 6F 00 6E 00 00 00 00 00 31 00 2E 00 ( 30 | 31 | 32 | 33 ) 00 3? 00 00 00 }
     condition:

@@ -8,7 +8,7 @@ rule malware_SNOWLIGHT_loader {
         reference = "https://sect.iij.ad.jp/blog/2025/11/unc5174-windows-snowlight-in-2025/"
 
     strings:
-        $s1 = "Global\\MicrosoftEdgeUpdate" wide
+        $s1 = /Global\\MicrosoftEdgeUpdate/ wide
         $s2 = {41 74 6C 54 68 75 6E 6B  5F 44 61 74 61 54 6F 43 00} // AtlThunk_DataToC
         $decode = {81 34 08 77 57 82 66 83 C0 04 3B C6 7C}
 
@@ -27,9 +27,9 @@ rule malware_SNOWLIGHT_ELF {
         reference = "https://sect.iij.ad.jp/blog/2025/11/unc5174-windows-snowlight-in-2025/"
 
     strings:
-        $s1 = "/tmp/log_de.log" ascii
-        $s2 = "GET /?a=%s&h=%s&t=%s&p=%d HTTP/1.1" ascii
-        $s3 = "[kworker/0:2]" ascii
+        $s1 = /\/tmp\/log_de\.log/ ascii
+        $s2 = /GET \/\?a=%s&h=%s&t=%s&p=%d HTTP\/1\.1/ ascii
+        $s3 = /\[kworker\/0:2\]/ ascii
         $decode = {80 30 99 48 FF C0 89 C6 29 EE 39 CE 7C}
 
     condition:

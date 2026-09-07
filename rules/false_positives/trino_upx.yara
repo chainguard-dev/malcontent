@@ -7,14 +7,14 @@ rule trino_upx_override: override {
     obfuscated_elf              = "medium"
 
   strings:
-    $ = "Go buildinf"
-    $ = "p\tgiNub.com/fdih/"
-    $ = "kTixuOsFBOtGYSTLRLWK6G"
-    $ = "wnwmwkwbqc"
-    $ = "zYna%i%qj%"
-    $ = "kUNKNOWN:$"
-    $ = "q\tcCuXMaxlebo"
-    $ = "lmRnTEOIt"
+    $ = /Go buildinf/
+    $ = /p\tgiNub\.com\/fdih\//
+    $ = /kTixuOsFBOtGYSTLRLWK6G/
+    $ = /wnwmwkwbqc/
+    $ = /zYna%i%qj%/
+    $ = /kUNKNOWN:\$/
+    $ = /q\tcCuXMaxlebo/
+    $ = /lmRnTEOIt/
 
   condition:
     filesize > 1MB and filesize < 3MB and 85 % of them

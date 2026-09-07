@@ -20,7 +20,7 @@ rule tool_chmod_relative_run: medium {
     $f_chmod     = /chmod [\+\-\w \$\@\{\w\/\.]{0,64}/
     $f_dot_slash = /\.\/[a-z\$]{1,2}[a-z\.\/\- ]{0,32}/ fullword
 
-    $not_comment_curl = "# curl "
+    $not_comment_curl = /# curl /
 
   condition:
     // $f_curl also matches the curl call inside the "# curl " comment, so count
@@ -75,8 +75,8 @@ rule tool_tor_chmod_relative_run: high {
     filetypes   = "bash,sh,zsh"
 
   strings:
-    $tor2web   = "tor2web"
-    $tor2socks = "tor2socks"
+    $tor2web   = /tor2web/
+    $tor2socks = /tor2socks/
     // a bare ".onion" also matches Go's "listen.onionndots" net string table, which
     // is why a whole-file exemption used to be needed here; require a real hostname
     $tor_onion = /\w\.onion\W/
@@ -159,13 +159,13 @@ rule possible_dropper: high {
   strings:
     $http          = /https{0,1}:\/\/[\.\w\/\?\=\-]{1,64}/
     $tool_curl_o   = /(curl|wget) [\w\.\- :\"\/]{0,64}-\w{0,2}[oO][\w\.\- :\"\/]{0,64}/
-    $tool_lwp      = "lwp-download"
-    $cmd_bash      = "bash" fullword
+    $tool_lwp      = /lwp-download/
+    $cmd_bash      = /bash/ fullword
     $cmd_dot_slash = /\.\/[\.\w]{1,16}/ fullword
-    $cmd_rm        = "rm" fullword
-    $cmd_sleep     = "sleep" fullword
-    $cmd_echo      = "echo" fullword
-    $chmod         = "chmod" fullword
+    $cmd_rm        = /rm/ fullword
+    $cmd_sleep     = /sleep/ fullword
+    $cmd_echo      = /echo/ fullword
+    $chmod         = /chmod/ fullword
 
   condition:
     filesize < 1KB and any of ($http*) and $chmod and any of ($tool*) and any of ($cmd*)
@@ -189,18 +189,18 @@ rule obsessive_dropper: high {
     filetypes   = "bash,sh,zsh"
 
   strings:
-    $http          = "http://"
-    $https         = "https://"
-    $tool_curl_s   = "curl -"
-    $tool_wget_q   = "wget" fullword
-    $tool_lwp      = "lwp-download" fullword
-    $tool_tftp     = "tftp" fullword
-    $cmd_bash      = "bash" fullword
+    $http          = /http:\/\//
+    $https         = /https:\/\//
+    $tool_curl_s   = /curl -/
+    $tool_wget_q   = /wget/ fullword
+    $tool_lwp      = /lwp-download/ fullword
+    $tool_tftp     = /tftp/ fullword
+    $cmd_bash      = /bash/ fullword
     $cmd_dot_slash = /\.\/[\.\w]{1,16}/ fullword
-    $cmd_rm        = "rm" fullword
-    $cmd_sleep     = "sleep" fullword
-    $cmd_echo      = "echo" fullword
-    $cmd_chmod     = "chmod" fullword
+    $cmd_rm        = /rm/ fullword
+    $cmd_sleep     = /sleep/ fullword
+    $cmd_echo      = /echo/ fullword
+    $cmd_chmod     = /chmod/ fullword
 
   condition:
     filesize < 1500 and any of ($http*) and 2 of ($tool*) and any of ($cmd*)

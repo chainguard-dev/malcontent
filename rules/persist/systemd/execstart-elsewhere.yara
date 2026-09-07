@@ -19,14 +19,14 @@ rule execstart_unexpected_dir_val: medium {
 
   strings:
     $execstart           = /ExecStart=\/[\w\/]{1,128}/
-    $expected_bin        = "ExecStart=/bin"
-    $expected_etc_rc     = "ExecStart=/etc/rc"
-    $expected_etc_update = "ExecStart=/etc/update"
-    $expected_lib        = "ExecStart=/run"
-    $expected_lib_ufw    = "ExecStart=/lib/"
-    $expected_nix        = "ExecStart=/nix"
-    $expected_sbin       = "ExecStart=/sbin"
-    $expected_usr        = "ExecStart=/usr"
+    $expected_bin        = /ExecStart=\/bin/
+    $expected_etc_rc     = /ExecStart=\/etc\/rc/
+    $expected_etc_update = /ExecStart=\/etc\/update/
+    $expected_lib        = /ExecStart=\/run/
+    $expected_lib_ufw    = /ExecStart=\/lib\//
+    $expected_nix        = /ExecStart=\/nix/
+    $expected_sbin       = /ExecStart=\/sbin/
+    $expected_usr        = /ExecStart=\/usr/
 
   condition:
     // $execstart matches each $expected_ prefix itself, one match per ExecStart line,

@@ -3,56 +3,56 @@ rule office_crypt_archive: high {
     description = "Accesses Ofice documents, encrypts and archives"
 
   strings:
-    $e_csv              = "csv" fullword
-    $e_doc              = "doc" fullword
-    $e_docm             = "docm" fullword
-    $e_docx             = "docx" fullword
-    $e_eml              = "eml" fullword
-    $e_mov              = "mov" fullword
-    $e_rtf              = "rtf" fullword
-    $e_numbers          = "numbers" fullword
-    $e_pages            = "pages" fullword
-    $e_pdf              = "pdf" fullword
-    $e_ppam             = "ppam" fullword
-    $e_ppt              = "ppt" fullword
-    $e_pst              = "pst" fullword
-    $e_xls              = "xls" fullword
-    $e_xlsx             = "xlsx" fullword
-    $e_txt              = "txt" fullword
-    $o_AES              = "AES"
-    $o_base64           = "base64"
-    $o_bash             = "/bin/bash"
-    $o_cipher           = "cipher"
-    $o_decrypt          = "decrypt"
-    $o_documents        = "Documents"
-    $o_encryptData      = "encryptData"
-    $o_encrypt          = "Encrypt"
-    $o_glob2            = "*.ppt"
-    $o_glob             = "glob"
-    $o_ioreg            = "ioreg -"
-    $o_keychain         = "Keychain"
-    $o_socks5           = "socks5"
-    $o_unzip            = "unzip"
-    $o_upload           = "upload" nocase
-    $o_zip              = "zipFile"
-    $not_kitty          = "KITTY_KITTEN"
-    $not_prism          = "Prism.languages.xlsx"
-    $not_xlsx_equal     = "xlsx="
-    $not_private        = "/System/Library/PrivateFrameworks/"
-    $not_program        = "@(#)PROGRAM:"
+    $e_csv              = /csv/ fullword
+    $e_doc              = /doc/ fullword
+    $e_docm             = /docm/ fullword
+    $x_docx             = /docx/ fullword
+    $e_eml              = /eml/ fullword
+    $e_mov              = /mov/ fullword
+    $e_rtf              = /rtf/ fullword
+    $e_numbers          = /numbers/ fullword
+    $e_pages            = /pages/ fullword
+    $e_pdf              = /pdf/ fullword
+    $e_ppam             = /ppam/ fullword
+    $e_ppt              = /ppt/ fullword
+    $e_pst              = /pst/ fullword
+    $e_xls              = /xls/ fullword
+    $x_xlsx             = /xlsx/ fullword
+    $e_txt              = /txt/ fullword
+    $o_AES              = /AES/
+    $o_base64           = /base64/
+    $o_bash             = /\/bin\/bash/
+    $o_cipher           = /cipher/
+    $o_decrypt          = /decrypt/
+    $o_documents        = /Documents/
+    $o_encryptData      = /encryptData/
+    $o_encrypt          = /Encrypt/
+    $o_glob2            = /\*\.ppt/
+    $o_glob             = /glob/
+    $o_ioreg            = /ioreg -/
+    $o_keychain         = /Keychain/
+    $o_socks5           = /socks5/
+    $o_unzip            = /unzip/
+    $o_upload           = /upload/ nocase
+    $o_zip              = /zipFile/
+    $not_kitty          = /KITTY_KITTEN/
+    $not_prism          = /Prism\.languages\.xlsx/
+    $not_xlsx_equal     = /xlsx=/
+    $not_private        = /\/System\/Library\/PrivateFrameworks\//
+    $not_program        = /@\(#\)PROGRAM:/
     // $not_saving, $not_filetypes and $not_aifc are fullword: unanchored they
     // also matched inside unrelated words - "Space-saving" in an embedded PCI
     // string table suppressed the rule on a file that carried no mimetype
     // table at all
-    $not_saving         = "saving" fullword
-    $not_audio_exits    = "audio_extensions"
-    $not_filetypes      = "filetypes" fullword
-    $not_author_javadoc = "@author"
-    $not_mime           = "application/vnd."
-    $not_aifc           = "aifc" fullword
+    $not_saving         = /saving/ fullword
+    $not_audio_exits    = /audio_extensions/
+    $not_filetypes      = /filetypes/ fullword
+    $not_author_javadoc = /@author/
+    $not_mime           = /application\/vnd\./
+    $not_aifc           = /aifc/ fullword
 
   condition:
-    filesize < 104857600 and ($e_xlsx or $e_docx) and 7 of ($e_*) and any of ($o_*) and none of ($not*)
+    filesize < 104857600 and any of ($x_*) and 7 of ($e_*, $x_*) and any of ($o_*) and none of ($not*)
 }
 
 rule sensitive_extensions: high {
@@ -100,12 +100,12 @@ rule curl_easy_exfil: high {
     description = "possible filesystem exfiltration via curl_easy_init"
 
   strings:
-    $curl    = "curl_easy_init" fullword
-    $opendir = "opendir" fullword
-    $readdir = "readdir" fullword
-    $socket  = "socket" fullword
-    $open    = "open" fullword
-    $read    = "read" fullword
+    $curl    = /curl_easy_init/ fullword
+    $opendir = /opendir/ fullword
+    $readdir = /readdir/ fullword
+    $socket  = /socket/ fullword
+    $open    = /open/ fullword
+    $read    = /read/ fullword
 
   condition:
     filesize < 1MB and all of them

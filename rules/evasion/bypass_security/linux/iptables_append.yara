@@ -16,9 +16,9 @@ rule iptables_append_broken: medium linux {
     description = "Appends rules to a iptables chain"
 
   strings:
-    $iptables = "iptables" fullword
-    $A        = "-A"
-    $INPUT    = "INPUT"
+    $iptables = /iptables/ fullword
+    $A        = /-A/
+    $INPUT    = /INPUT/
 
   condition:
     filesize < 5MB and all of them

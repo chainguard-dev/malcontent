@@ -3,8 +3,8 @@ rule cookies: medium {
     description = "may access cookies"
 
   strings:
-    $Cookies = "Cookies"
-    $cookies = "cookies"
+    $Cookies = /Cookies/
+    $cookies = /cookies/
 
   condition:
     filesize < 128KB and any of them
@@ -37,38 +37,38 @@ rule multiple_browser_refs: high {
     description = "Makes references to multiple browser credentials"
 
   strings:
-    $fs_config             = ".config" fullword
-    $fs_app_support        = "Application Support"
-    $fs_app_support_slash  = "Application\\ Support"
-    $fs_chrome             = "Google/Chrome"
-    $fs_chrome_local_state = "Chrome/Local State"
-    $fs_chrome_userdata    = "Chrome/User Data"
-    $fs_cookies            = "Cookies"
-    $fs_cookies_sqlite     = "cookies.sqlite"
-    $fs_firefox            = "Mozilla/Firefox"
-    $fs_firefox_profiles   = "Firefox/Profiles"
-    $fs_form_history       = "formhistory.sqlite"
-    $fs_moz_cookies        = "moz_cookies"
-    $fs_places_sqlite      = "places.sqlite"
-    $fs_roaming            = "Roaming/"
-    $fs_user_data          = "User Data"
-    $name_brave            = "Brave-Browser"
-    $name_brave_software   = "BraveSoftw"
-    $name_chrome           = "Google Chrome"
-    $name_opera_gx         = "Opera" fullword
-    $name_firefox          = "Firefox"
-    $name_opera            = "Opera Software"
-    $name_yandex           = "YandexBrowser"
+    $fs_config             = /\.config/ fullword
+    $fs_app_support        = /Application Support/
+    $fs_app_support_slash  = /Application\\ Support/
+    $fs_chrome             = /Google\/Chrome/
+    $fs_chrome_local_state = /Chrome\/Local State/
+    $fs_chrome_userdata    = /Chrome\/User Data/
+    $fs_cookies            = /Cookies/
+    $fs_cookies_sqlite     = /cookies\.sqlite/
+    $fs_firefox            = /Mozilla\/Firefox/
+    $fs_firefox_profiles   = /Firefox\/Profiles/
+    $fs_form_history       = /formhistory\.sqlite/
+    $fs_moz_cookies        = /moz_cookies/
+    $fs_places_sqlite      = /places\.sqlite/
+    $fs_roaming            = /Roaming\//
+    $fs_user_data          = /User Data/
+    $name_brave            = /Brave-Browser/
+    $name_brave_software   = /BraveSoftw/
+    $name_chrome           = /Google Chrome/
+    $name_opera_gx         = /Opera/ fullword
+    $name_firefox          = /Firefox/
+    $name_opera            = /Opera Software/
+    $name_yandex           = /YandexBrowser/
 
-    $not_chromium               = "ChromiumBrowser"
-    $not_chromium_comment       = "When this is enabled, Chromium can use"
-    $not_chromium_issues        = "https://issues.chromium.org/"
-    $not_google                 = "developed by Google"
-    $not_google_chrome_software = "The Google Chrome software"
-    $not_bugzilla               = "https://bugzilla.mozilla.org"
-    $not_ff_js                  = "Firefox can even throw an error"
-    $notgrp_playwright_comment  = "// This file is generated"
-    $notgrp_playwright_file     = "/utils/generate_types/index.js"
+    $not_chromium               = /ChromiumBrowser/
+    $not_chromium_comment       = /When this is enabled, Chromium can use/
+    $not_chromium_issues        = /https:\/\/issues\.chromium\.org\//
+    $not_google                 = /developed by Google/
+    $not_google_chrome_software = /The Google Chrome software/
+    $not_bugzilla               = /https:\/\/bugzilla\.mozilla\.org/
+    $not_ff_js                  = /Firefox can even throw an error/
+    $notgrp_playwright_comment  = /\/\/ This file is generated/
+    $notgrp_playwright_file     = /\/utils\/generate_types\/index\.js/
 
   // The two $notgrp_playwright strings only identify Playwright's generated type
   // definitions when they appear together - "// This file is generated" says nothing
@@ -84,36 +84,36 @@ rule userdata_browser_archiver: medium {
     description = "Uses HTTP, archives, and references multiple browsers"
 
   strings:
-    $d_config      = ".config" fullword
-    $d_app_support = "Application Support" fullword
-    $d_state       = "User Data" fullword
-    $h_http        = "http" fullword
-    $h_https       = "https" fullword
-    $h_POST        = "POST" fullword
-    $h_discord     = "Discord" fullword
-    $z_zip         = "zip" fullword
-    $z_ZIP         = "ZIP" fullword
-    $z_ditto       = "ditto" fullword
-    $z_tar         = "tar" fullword
-    $z_store       = "assasans/storage" fullword
-    $b_Yandex      = "Yandex"
-    $b_Brave       = "Brave"
-    $b_Firefox     = "Firefox"
-    $b_Safari      = "Safari"
-    $b_Chrome      = "Chrome"
-    $b_moz         = "Roaming/Moz"
-    $b_Opera       = "Opera" fullword
+    $d_config      = /\.config/ fullword
+    $d_app_support = /Application Support/ fullword
+    $d_state       = /User Data/ fullword
+    $h_http        = /http/ fullword
+    $h_https       = /https/ fullword
+    $h_POST        = /POST/ fullword
+    $h_discord     = /Discord/ fullword
+    $z_zip         = /zip/ fullword
+    $z_ZIP         = /ZIP/ fullword
+    $z_ditto       = /ditto/ fullword
+    $z_tar         = /tar/ fullword
+    $z_store       = /assasans\/storage/ fullword
+    $b_Yandex      = /Yandex/
+    $b_Brave       = /Brave/
+    $b_Firefox     = /Firefox/
+    $b_Safari      = /Safari/
+    $b_Chrome      = /Chrome/
+    $b_moz         = /Roaming\/Moz/
+    $b_Opera       = /Opera/ fullword
 
-    $not_chromium               = "ChromiumBrowser"
-    $not_chromium_comment       = "When this is enabled, Chromium can use"
-    $not_chromium_issues        = "https://issues.chromium.org/"
-    $not_google                 = "developed by Google"
-    $not_google_chrome_software = "The Google Chrome software"
-    $not_bugzilla               = "https://bugzilla.mozilla.org"
-    $not_ff_js                  = "Firefox can even throw an error"
-    $notgrp_playwright_comment  = "// This file is generated"
-    $notgrp_playwright_file     = "/utils/generate_types/index.js"
-    $notcount_no_user_data      = "No User Data" fullword
+    $not_chromium               = /ChromiumBrowser/
+    $not_chromium_comment       = /When this is enabled, Chromium can use/
+    $not_chromium_issues        = /https:\/\/issues\.chromium\.org\//
+    $not_google                 = /developed by Google/
+    $not_google_chrome_software = /The Google Chrome software/
+    $not_bugzilla               = /https:\/\/bugzilla\.mozilla\.org/
+    $not_ff_js                  = /Firefox can even throw an error/
+    $notgrp_playwright_comment  = /\/\/ This file is generated/
+    $notgrp_playwright_file     = /\/utils\/generate_types\/index\.js/
+    $notcount_no_user_data      = /No User Data/ fullword
 
   // See multiple_browser_refs for the $notgrp_playwright pair. $d_state also matches
   // inside $notcount_no_user_data, so that phrase both satisfied the $d clause and
@@ -129,35 +129,35 @@ rule smaller_userdata_browser_archiver: high {
     description = "Uses HTTP, archives, and references multiple browsers"
 
   strings:
-    $d_config      = ".config" fullword
-    $d_app_support = "Application Support" fullword
-    $d_state       = "User Data" fullword
-    $h_http        = "http" fullword
-    $h_https       = "https" fullword
-    $h_POST        = "POST" fullword
-    $h_discord     = "Discord" fullword
-    $z_zip         = "zip" fullword
-    $z_ZIP         = "ZIP" fullword
-    $z_ditto       = "ditto" fullword
-    $z_tar         = "tar" fullword
-    $z_store       = "assasans/storage" fullword
-    $b_Yandex      = "Yandex"
-    $b_Brave       = "Brave"
-    $b_Firefox     = "Firefox"
-    $b_Safari      = "Safari"
-    $b_Chrome      = "Chrome"
-    $b_moz         = "Roaming/Moz"
-    $b_Opera       = "Opera"
+    $d_config      = /\.config/ fullword
+    $d_app_support = /Application Support/ fullword
+    $d_state       = /User Data/ fullword
+    $h_http        = /http/ fullword
+    $h_https       = /https/ fullword
+    $h_POST        = /POST/ fullword
+    $h_discord     = /Discord/ fullword
+    $z_zip         = /zip/ fullword
+    $z_ZIP         = /ZIP/ fullword
+    $z_ditto       = /ditto/ fullword
+    $z_tar         = /tar/ fullword
+    $z_store       = /assasans\/storage/ fullword
+    $b_Yandex      = /Yandex/
+    $b_Brave       = /Brave/
+    $b_Firefox     = /Firefox/
+    $b_Safari      = /Safari/
+    $b_Chrome      = /Chrome/
+    $b_moz         = /Roaming\/Moz/
+    $b_Opera       = /Opera/
 
-    $not_chromium               = "ChromiumBrowser"
-    $not_chromium_comment       = "When this is enabled, Chromium can use"
-    $not_chromium_issues        = "https://issues.chromium.org/"
-    $not_google                 = "developed by Google"
-    $not_google_chrome_software = "The Google Chrome software"
-    $not_bugzilla               = "https://bugzilla.mozilla.org"
-    $not_ff_js                  = "Firefox can even throw an error"
-    $notgrp_playwright_comment  = "// This file is generated"
-    $notgrp_playwright_file     = "/utils/generate_types/index.js"
+    $not_chromium               = /ChromiumBrowser/
+    $not_chromium_comment       = /When this is enabled, Chromium can use/
+    $not_chromium_issues        = /https:\/\/issues\.chromium\.org\//
+    $not_google                 = /developed by Google/
+    $not_google_chrome_software = /The Google Chrome software/
+    $not_bugzilla               = /https:\/\/bugzilla\.mozilla\.org/
+    $not_ff_js                  = /Firefox can even throw an error/
+    $notgrp_playwright_comment  = /\/\/ This file is generated/
+    $notgrp_playwright_file     = /\/utils\/generate_types\/index\.js/
 
   // See multiple_browser_refs: the $notgrp_playwright pair is required together.
 
@@ -181,14 +181,14 @@ rule leveldb_exfil: high {
     description = "Reads values from browser leveldb files"
 
   strings:
-    $h_urlopen = "urlopen"
-    $h_https   = "https://"
-    $leveldb   = "leveldb" fullword
-    $b_Yandox  = "Yandex"
-    $b_Discord = "Discord"
-    $b_Chrome  = "Google Chrome"
-    $b_Opera   = "Opera"
-    $b_Brave   = "Brave"
+    $h_urlopen = /urlopen/
+    $h_https   = /https:\/\//
+    $leveldb   = /leveldb/ fullword
+    $b_Yandox  = /Yandex/
+    $b_Discord = /Discord/
+    $b_Chrome  = /Google Chrome/
+    $b_Opera   = /Opera/
+    $b_Brave   = /Brave/
 
   condition:
     filesize < 3MB and $leveldb and any of ($h*) and 3 of ($b*)
@@ -199,9 +199,9 @@ rule select_chrome_obviously: high {
     description = "Steals data from the Chrome Browser"
 
   strings:
-    $chrome  = "steal_chrome"
-    $cookie  = "cookie"
-    $cookie2 = "Cookie"
+    $chrome  = /steal_chrome/
+    $cookie  = /cookie/
+    $cookie2 = /Cookie/
 
   condition:
     filesize < 1MB and $chrome and any of ($cook*)
@@ -212,11 +212,11 @@ rule sqlite3_chrome_cookies: high {
     description = "Reads Chrome Browser cookies"
 
   strings:
-    $Chrome       = "Chrome"
-    $Google       = "Google"
-    $Cookies      = "Cookies"
-    $sqlite3_up   = "SQLite3"
-    $sqlite3_down = "sqlite3"
+    $Chrome       = /Chrome/
+    $Google       = /Google/
+    $Cookies      = /Cookies/
+    $sqlite3_up   = /SQLite3/
+    $sqlite3_down = /sqlite3/
 
   condition:
     filesize < 128KB and all of them
@@ -227,7 +227,7 @@ rule select_chrome_cookies: high {
     description = "Reads Chrome Browser cookies"
 
   strings:
-    $Chrome = "Chrome"
+    $Chrome = /Chrome/
     $select = /SELECT \* FROM .{0,1}cookies/
 
   condition:
@@ -239,11 +239,11 @@ rule sqlite3_chrome_logins: high {
     description = "Reads Chrome Browser logins"
 
   strings:
-    $Chrome       = "Chrome"
-    $Google       = "Google"
-    $login_data   = "Login Data"
-    $sqlite3_up   = "SQLite3"
-    $sqlite3_down = "sqlite3"
+    $Chrome       = /Chrome/
+    $Google       = /Google/
+    $login_data   = /Login Data/
+    $sqlite3_up   = /SQLite3/
+    $sqlite3_down = /sqlite3/
 
   condition:
     filesize < 128KB and all of them
@@ -254,7 +254,7 @@ rule select_chrome_logins: high {
     description = "Reads Chrome Browser logins"
 
   strings:
-    $Chrome = "Chrome"
+    $Chrome = /Chrome/
     $select = /SELECT \* FROM .{0,1}logins/
 
   condition:
@@ -266,8 +266,8 @@ rule cookie_crawler: high {
     description = "crawls directories looking for application cookies"
 
   strings:
-    $crawlCookies = "crawlCookies"
-    $appdata      = "appData"
+    $crawlCookies = /crawlCookies/
+    $appdata      = /appData/
 
   condition:
     filesize < 1MB and all of them

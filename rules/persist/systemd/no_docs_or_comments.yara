@@ -5,14 +5,14 @@ rule systemd_no_comments_or_documentation: medium {
     filetypes   = "service"
 
   strings:
-    $execstart          = "ExecStart="
-    $ex_comment         = "# "
-    $ex_documentation   = "Documentation="
+    $execstart          = /ExecStart=/
+    $ex_comment         = /# /
+    $ex_documentation   = /Documentation=/
     $ex_requires_socket = /Requires=.{0,64}socket/
-    $ex_condition_path  = "Condition"
-    $ex_after           = "After="
-    $ex_systemd         = "ExecStart=systemd-"
-    $ex_output          = "StandardOutput="
+    $ex_condition_path  = /Condition/
+    $ex_after           = /After=/
+    $ex_systemd         = /ExecStart=systemd-/
+    $ex_output          = /StandardOutput=/
 
   // $execstart matches inside $ex_systemd, so a unit that launches one systemd- helper
   // used to be exempt no matter what else it launched. Discount $ex_systemd by

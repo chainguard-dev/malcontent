@@ -5,10 +5,10 @@ rule ezuri: critical {
     filetypes   = "elf,macho"
 
   strings:
-    $runFromMemory = "main.runFromMemory" fullword
-    $aesDesc       = "main.aesDec" fullword
-    $ezuri         = "ezuri" fullword
-    $main_iv       = "_main.iv" fullword
+    $runFromMemory = /main\.runFromMemory/ fullword
+    $aesDesc       = /main\.aesDec/ fullword
+    $ezuri         = /ezuri/ fullword
+    $main_iv       = /_main\.iv/ fullword
 
   condition:
     filesize > 50KB and filesize < 5MB and 2 of them

@@ -30,8 +30,8 @@ rule requests_post: medium {
     filetype    = "py"
 
   strings:
-    $requests = "import requests"
-    $post     = ".post("
+    $requests = /import requests/
+    $post     = /\.post\(/
 
   condition:
     filesize < 4MB and all of them
@@ -43,8 +43,8 @@ rule axios_post: medium {
     filetype    = "js,ts"
 
   strings:
-    $axios = "axios" fullword
-    $post  = ".post("
+    $axios = /axios/ fullword
+    $post  = /\.post\(/
 
   condition:
     filesize < 4MB and all of them
