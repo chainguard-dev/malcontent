@@ -19,10 +19,10 @@ rule Libcef_Backdoor
 
     strings:
         $s1 = "Could not get process list."
-        $s2 = "Please send the document now." 
-        $s3 = "Failed to create pipe." 
-        $s4 = "Failed to start process." 
-        $s5 = "Command executed but returned no output." 
+        $s2 = "Please send the document now."
+        $s3 = "Failed to create pipe."
+        $s4 = "Failed to start process."
+        $s5 = "Command executed but returned no output."
 		$s6 = "Screenshot taken."
 		$s7 = "Please send a document, not text."
 

@@ -22,11 +22,11 @@ strings:
     $str_1 = /%s%sc %s >%s 2>&1/ ascii wide
     $str_2 = /%s%sc %s 2>%s/ ascii wide
     $str_3 = /%s:info/ ascii wide
-    
+
     //D:\02.data\03.atk-tools\engine\niki\httpSpy\..\bin\httpSpy.pdb
     $pdb_full = /\\02\.data\\03\.atk-tools\\/
     $pdb_httpspy = /\\bin\\httpSpy\.pdb/
-        
+
     $code = {0f 57 c0 4? 89 7? ?? 33 c0 c7 4? ?? 68 00 00 00 0f 11 4? ?? c7 4? ?? 01 00 00 00 66 4? 89 7? 00 0f 11 4? ?? 4? 89 4? ?? 0f 11 4? ?? c7 44 ?? ?? 53 71 80 60 0f 11 4? ?? c7 44 ?? ?? 71 79 7c 5c 0f 11 4? ?? c7 44 ?? ?? 6d 80 74 63 0f 11 4? ?? 88 44 ?? ?? 0f 11 4? ?? 0f 1f 44 00 00}
 
 condition:

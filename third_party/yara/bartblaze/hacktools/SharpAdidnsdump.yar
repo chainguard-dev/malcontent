@@ -25,11 +25,11 @@ rule SharpAdidnsdump
         $str_d = "IPHostEntry"
         $str_e = "GetHostEntry"
         $str_f = "DirectoryEntry"
-        
+
         $clear_a = "Error retriving data"
         $clear_b = "dNSTombstoned"
         $clear_c = "Running enumeration against"
-        
+
         $SharpAdidnsdump = "SharpAdidnsdump" fullword
 
     condition:

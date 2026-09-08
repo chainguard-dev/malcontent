@@ -434,7 +434,7 @@ rule BlackTech_SpiderRAT_str {
         $msg7 = /Recv Success - %d:%d/
 
      condition:
-       uint16(0) == 0x5A4D and 5 of ($msg*) 
+       uint16(0) == 0x5A4D and 5 of ($msg*)
 }
 
 rule BlackTech_AresPYDoor_str {

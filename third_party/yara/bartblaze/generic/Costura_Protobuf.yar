@@ -19,7 +19,7 @@ rule Costura_Protobuf
 
 strings:
     $comp = "costura.protobuf-net.dll.compressed" ascii wide fullword
-    
+
 condition:
     dotnet.is_dotnet and $comp
 }

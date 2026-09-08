@@ -3,7 +3,7 @@ rule malware_DOPLUGS {
         description = "DOPLUGS"
         author = "JPCERT/CC Incident Response Group"
         hash = "2a6015505c83113ff89d8a4be66301a3e6245a41"
-    
+
     strings:
         $data1 = /CLSID/ ascii wide
         /* Decode API Name
@@ -19,7 +19,7 @@ rule malware_DOPLUGS {
         88 4c 14 10:    MOV byte ptr [ESP + EDX*0x1 + 0x10],CL
         */
         $enc1 = {8B 14 24 8A 5C 14 10 8B 0C 24 88 DF F6 D7 20 CF F6 D1 20 D9 08 F9 88 4C 14 10 8B 0C 24 41 EB}
-        
+
         /* Decode API Name
         8b 14 24:       MOV EDX, dword ptr [ESP]
         89 d0:          MOV EAX, EDX
@@ -29,7 +29,7 @@ rule malware_DOPLUGS {
         08 c2:          OR  DL , ??
         */
         $enc2 = {8B 14 24 89 D0 80 E2 ?? F6 D0 24 ?? 08 ??}
-    
+
     condition:
         uint16(0) == 0x5A4D and all of them
 }
@@ -46,7 +46,7 @@ rule malware_DOPLUGSLoader {
         8b b4 b5 e8 fb ff ff:   MOV   ESI, dword ptr [EBP+ESI*0x4 + 0xfffffbe8]
         0f b6 44 3b 08:         MOVZX EAX, byte ptr[EBX + EDI*0x1 + 0x8]
         31 f0:                  XOR   EAX, ESI
-        3d ff 00 00 00:         CMP   EAX, 0xff        
+        3d ff 00 00 00:         CMP   EAX, 0xff
         */
         $enc = {8b b4 b5 e8 fb ff ff 0f b6 44 3b 08 31 f0 3d ff 00 00 00}
 

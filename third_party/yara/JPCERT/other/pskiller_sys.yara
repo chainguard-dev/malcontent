@@ -9,27 +9,27 @@ rule malware_PSKiller_sys {
 
     strings:
       /* strings */
-      $str01 = /hmpalert\.exe/ fullword ascii     
-      $str02 = /savservice\.exe/ fullword ascii   
+      $str01 = /hmpalert\.exe/ fullword ascii
+      $str02 = /savservice\.exe/ fullword ascii
       $str03 = /savadminservice\.exe/ fullword ascii
       $str04 = /sophoscleanm64\.exe/ fullword ascii
-      $str05 = /sdcservice\.exe/ fullword ascii   
-      $str06 = /sophos ui\.exe/ fullword ascii    
-      $str07 = /savapi\.exe/ fullword ascii       
-      $str08 = /sedservice\.exe/ fullword ascii   
-      $str09 = /sspservice\.exe/ fullword ascii   
+      $str05 = /sdcservice\.exe/ fullword ascii
+      $str06 = /sophos ui\.exe/ fullword ascii
+      $str07 = /savapi\.exe/ fullword ascii
+      $str08 = /sedservice\.exe/ fullword ascii
+      $str09 = /sspservice\.exe/ fullword ascii
       $str10 = /sophosfimservice\.exe/ fullword ascii
       $str11 = /sophosfilescanner\.exe/ fullword ascii
-      $str12 = /sophosfs\.exe/ fullword ascii     
-      $str13 = /sophoshealth\.exe/ fullword ascii 
-      $str14 = /mcsagent\.exe/ fullword ascii     
-      $str15 = /mcsclient\.exe/ fullword ascii    
+      $str12 = /sophosfs\.exe/ fullword ascii
+      $str13 = /sophoshealth\.exe/ fullword ascii
+      $str14 = /mcsagent\.exe/ fullword ascii
+      $str15 = /mcsclient\.exe/ fullword ascii
       $str16 = /sophosntpservice\.exe/ fullword ascii
       $str17 = /sophossafestore64\.exe/ fullword ascii
-      $str18 = /alsvc\.exe/ fullword ascii        
-      $str19 = /swc_service\.exe/ fullword ascii  
-      $str20 = /swi_fc\.exe/ fullword ascii       
-      $str21 = /swi_filter\.exe/ fullword ascii   
+      $str18 = /alsvc\.exe/ fullword ascii
+      $str19 = /swc_service\.exe/ fullword ascii
+      $str20 = /swi_fc\.exe/ fullword ascii
+      $str21 = /swi_filter\.exe/ fullword ascii
       $str22 = /swi_service\.exe/ fullword ascii
       $str33 = /vmwp/ fullword ascii
       $str34 = /virtualbox/ fullword ascii

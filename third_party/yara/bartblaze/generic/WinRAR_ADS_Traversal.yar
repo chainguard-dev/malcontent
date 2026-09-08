@@ -23,7 +23,7 @@ rule WinRAR_ADS_Traversal
         $vbs = /vbs/ ascii wide nocase
         $js = /js/ ascii wide nocase
         $exe = /exe/ ascii wide nocase
- 
+
     condition:
         $rar at 0 and $ads_traversal
         and not $zone_identifier

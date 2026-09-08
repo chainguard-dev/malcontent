@@ -75,6 +75,11 @@ LITERAL_REGEXPS="$(cd "$(dirname "$0")/../.." && pwd)/hack/literal_regexps.pl"
 
 # fixup_rules fixes rules up, including lightly obfuscating them to avoid CrowdStrike/XProtect from matching malcontent
 function fixup_rules() {
+	# A bare `perl -i` reads stdin, so refuse to run without files.
+	if [[ $# -eq 0 ]]; then
+		echo "fixup_rules: no rule files given" >&2
+		return 1
+	fi
 	perl -p -i -e 's#"/Library/Application Support\/Google/Chrome/Default/History"#/\\/Library\\/Application Support\\/Google\\/Chrome\\/Default\\/History\/#' "$@"
 	perl -p -i -e 's#\/([a-z]{31})([a-z])\/#\/$1\[$2\]\/#;' "$@"
 	# trailing spaces
@@ -246,7 +251,14 @@ function update_dep() {
 		;;
 	esac
 
-	fixup_rules "${kind}"/*.yar*
+	# Some sources (bartblaze, JPCERT, TTC-CERT) keep rules in subdirectories,
+	# so collect them recursively rather than globbing the top level.
+	local file
+	local -a rule_files=()
+	while IFS= read -r -d '' file; do
+		rule_files+=("${file}")
+	done < <(find "${kind}" -type f -name '*.yar*' -print0 | sort -z)
+	fixup_rules "${rule_files[@]}"
 	echo "${rel}" > "${kind}"/RELEASE
 	echo "updated ${kind} to ${rel}"
 }

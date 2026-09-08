@@ -23,13 +23,13 @@ rule IIS_Backdoor
         $str_cmd = "cmd.exe"
         $str_cookie = "sets-cookie"
         $str_dll = "IIS_Server_dll"
-        
+
         $pdb_part = "\\david8866\\Desktop\\toolsnew\\"
         $pdb_full = "C:\\Users\\david8866\\Desktop\\toolsnew\\backdoor\\IIS-backdoor\\method1-module\\module-backdoor\\IIS-module-cmd\\IIS_Server_dll.pdb"
 
     condition:
         ($iis_module and 2 of ($str_*)) or
-        any of ($pdb_*) or 
-        dotnet.guids[0]=="05b57f52-968e-4f0f-a3e7-dd0bc7376fc5" or 
+        any of ($pdb_*) or
+        dotnet.guids[0]=="05b57f52-968e-4f0f-a3e7-dd0bc7376fc5" or
         dotnet.guids[0]=="3fda4aa9-6fc1-473f-9048-7edc058c4f65"
 }
