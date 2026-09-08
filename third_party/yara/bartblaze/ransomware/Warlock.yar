@@ -24,7 +24,7 @@ rule Warlock
         $str_email = "Email Support:"
         $str_contact = "You can contact us in email or qtox."
         $str_decrypt = "How to decrypt my data.log"
-        
+
         $ext = ".x2anylock" fullword
         $pdb_part_work = "\\work\\tools\\ai\\ak47\\"
         $pdb_part_end = "\\My7zdllhijacked.pdb"

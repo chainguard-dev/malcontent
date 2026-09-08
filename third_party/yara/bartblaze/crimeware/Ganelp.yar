@@ -15,7 +15,7 @@ rule Ganelp
         category = "MALWARE"
         malware = "GANELP"
         malware_type = "WORM"
-        
+
 
     strings:
         $ = "regardez cette photo :D %s" ascii wide

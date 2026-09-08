@@ -27,7 +27,7 @@ rule EE_Loader
               CVar4 = local_118c;
 			*/
 			$load = { c7 4? ?? 52 45 53 2e 6a f5 c7 4? ?? 52 43 00 00 89 8? ?? ?? ?? ??  } //RES.RC
-    
+
 	condition:
 		all of them
 }	

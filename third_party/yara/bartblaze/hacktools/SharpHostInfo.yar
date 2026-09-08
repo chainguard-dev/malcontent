@@ -22,9 +22,9 @@ rule SharpHostInfo
         $str_b = "[!] Error:"
         $str_c = "manuf.json" fullword
         $str_d = "Detect target:"
-        $str_e = "Detect Service:" 
+        $str_e = "Detect Service:"
         $str_f = "Detect thead:"
-        $str_g = "Detect timeout:" 
+        $str_g = "Detect timeout:"
         $str_h = "The parsed detection target is empty"
         $str_i = "An exception occurred while reading the file list!"
         $str_j = "ParsingSocketStremResponse"

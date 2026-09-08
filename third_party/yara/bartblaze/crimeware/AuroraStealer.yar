@@ -14,7 +14,7 @@ meta:
 	category = "MALWARE"
 	malware = "Aurora Stealer"
 	reference = " https://malpedia.caad.fkie.fraunhofer.de/details/win.aurora_stealer"
-  
+
 strings:
 	$ = "main.base64Decode" ascii wide
 	$ = "main.base64Encode" ascii wide

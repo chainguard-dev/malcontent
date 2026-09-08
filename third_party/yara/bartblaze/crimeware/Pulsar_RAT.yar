@@ -16,13 +16,13 @@ meta:
 	reference = "https://malpedia.caad.fkie.fraunhofer.de/details/win.pulsar_rat"
 
 strings:
-	$ = "costura.pulsar" 
-	$ = "Pulsar.Common" 
-	$ = "Pulsar.Client" 
+	$ = "costura.pulsar"
+	$ = "Pulsar.Common"
+	$ = "Pulsar.Client"
 	$ = "Pulsar Client" ascii wide
 	$ = "Pulsar HVNC Progress UI" ascii wide
 	$ = "PulsarDesktop" ascii wide
-	$ = "PulsarMessagePackSerializer" 
+	$ = "PulsarMessagePackSerializer"
 
 condition:
 	2 of them

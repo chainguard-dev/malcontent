@@ -3,7 +3,7 @@ rule malware_SeaSpy_str {
         description = "malware SeaSpy"
         author = "JPCERT/CC Incident Response Group"
         hash = "3f26a13f023ad0dcd7f2aa4e7771bba74910ee227b4b36ff72edc5f07336f115"
-        hash = "5e3c128749f7ae4616a4620e0b53c0e5381724a790bba8314acb502ce7334df2" 
+        hash = "5e3c128749f7ae4616a4620e0b53c0e5381724a790bba8314acb502ce7334df2"
 
      strings:
         $msg1 = /<Network-Interface> <Listen-Port>/ ascii fullword

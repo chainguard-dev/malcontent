@@ -43,9 +43,9 @@ rule malware_vboxuserRAT {
 
     condition:
       (uint16(0) == 0x5A4D) and
-      (uint32(uint32(0x3c)) == 0x00004550) and 
-      (filesize > 3MB) and 
-      (filesize < 10MB) and 
+      (uint32(uint32(0x3c)) == 0x00004550) and
+      (filesize > 3MB) and
+      (filesize < 10MB) and
       (3 of ($cmdfunc*)) and
       (1 of ($cmdstr*))
 }

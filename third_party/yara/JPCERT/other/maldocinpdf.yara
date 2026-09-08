@@ -15,6 +15,6 @@ rule malware_MalDocinPDF {
      condition:
         (uint32(0) == 0x46445025) and
         (1 of ($mhtfile*)) and
-        ( (1 of ($docfile*)) or 
+        ( (1 of ($docfile*)) or
           (1 of ($xlsfile*)) )
 }

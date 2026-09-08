@@ -21,7 +21,7 @@ rule Autumn_Backdoor_Loader
     strings:
         $pdb_dev = "\\Dev\\ApplicationDllHijacking\\"
         $pdb_user = "\\Users\\LG02\\Desktop\\???\\"
-    
+
     condition:
         any of them
 }

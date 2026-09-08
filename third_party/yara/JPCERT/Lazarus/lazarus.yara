@@ -561,7 +561,7 @@ rule lazarus_dbgsymbols_str{
        meta:
          description = "Exploit tools in Lazarus"
          author = "JPCERT/CC Incident Response Group"
-         hash = "50869d2a713acf406e160d6cde3b442fafe7cfe1221f936f3f28c4b9650a66e9" 
+         hash = "50869d2a713acf406e160d6cde3b442fafe7cfe1221f936f3f28c4b9650a66e9"
 
        strings:
          $str1 = /getsymbol/ nocase

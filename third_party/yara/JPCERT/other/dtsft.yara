@@ -30,7 +30,7 @@ rule malware_DtSftDriverLoader {
         C1 E9 08                            shr     ecx, 8
         33 0C 9D ?? ?? ?? ??                xor     ecx, KEY_GEN[ebx*4]
         42                                  inc     edx
-        3B D0                               cmp     edx, eax             
+        3B D0                               cmp     edx, eax
         */
         $func0 = { 0F BE 1C 16 33 D9 81 E3 FF 00 00 00 C1 E9 08 33 0C 9D ?? ?? ?? ?? 42 3B D0 }
 

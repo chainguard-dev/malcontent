@@ -13,7 +13,7 @@ rule RoyalRoad_RTF
         author = "@bartblaze"
         description = "Identifies RoyalRoad RTF, used by multiple China-nexus APT groups."
         category = "MALWARE"
-        malware = "ROYALROAD"        
+        malware = "ROYALROAD"
         malware_type = "EXPLOITKIT"
         reference = "https://nao-sec.org/2020/01/an-overhead-view-of-the-royal-road.html"
 

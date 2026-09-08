@@ -65,7 +65,7 @@ rule malware_spider_phpwebshell {
         $s2 = "<li><a href=\"?s=k\" id=\"t_10\" onclick=\"switchTab('t_10')\" target=\"main\"> Linux" ascii
         $s3 = "if($_COOKIE['admin_spiderpass'] != md5($password))" ascii
         $s4 = "case \"b\" : Guama_b(); break;" ascii
-        
+
      condition:
        2 of them
 }

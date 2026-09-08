@@ -33,7 +33,7 @@ rule malware_unknown_machOdownloader {
         */
         $func2 = { E8 [4] C7 84 05 [4] 27 20 2D 43 C7 84 05 [4] 43 20 27 00 48 89 DF 4C 89 E6 E8 33 04 00 00 }
 
-     condition: 
+     condition:
         (uint32(0) == 0xfeedface or /* 32 bit */
          uint32(0) == 0xcefaedfe or /* NXSwapInt(MH_MAGIC */
          uint32(0) == 0xfeedfacf or /* 64 bit */

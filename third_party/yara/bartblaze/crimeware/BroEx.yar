@@ -45,6 +45,6 @@ strings:
 	$str_decode = {4? 53 4? 83 ec 20 4? 33 c0 4? c7 41 18 07 00 00 00 4? 8b d9 4? 89 41 10 66 4? 89 01 66 4? 39 02 74 11 4? 83 c8 ff}
 
 condition:
-	uint16(0) == 0x5a4d and ($pdb or 2 of ($mut*) or all of ($browser*) 
+	uint16(0) == 0x5a4d and ($pdb or 2 of ($mut*) or all of ($browser*)
 	or 2 of ($svc*) or (any of ($mut*, $browser*, $svc*) and $str_decode))
 }

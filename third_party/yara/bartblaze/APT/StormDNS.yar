@@ -27,7 +27,7 @@ rule StormDNS
         $str_g = "fragment_received"
         $str_h = "result_received"
         $str_i = "s%st%04zup%04zu"
-        
+
         $pdb_part = "\\work\\tools\\ak47c2\\"
         $pdb_full = "C:\\Users\\Administrator\\Desktop\\work\\tools\\ak47c2\\dnsclinet-c\\dnsclient\\x64\\Release\\dnsclient.pdb"
 

@@ -96,7 +96,7 @@ rule malware_sqroot_cat {
    meta:
      description = "cat plugin downloaded by sqroot"
      author = "JPCERT/CC Incident Response Group"
-     
+
    strings:
      $s1 = /Catcher start/ wide
      $s2 = /Catcher exit/ wide
@@ -113,7 +113,7 @@ rule malware_sqroot_snapshot {
    meta:
      description = "snapshot plugin downloaded by sqroot"
      author = "JPCERT/CC Incident Response Group"
-     
+
    strings:
      $s1 = /e:\\vsprojects\\crataegus\\snaptik\\maz\\miniz\.c/ wide
      $s2 = /%s-%02d%02d_%02d%02d%02d\.maz/ wide
@@ -123,7 +123,7 @@ rule malware_sqroot_snapshot {
      $s6 = /cf_mptmb/ wide
      $s7 = /cf_pakdir/ wide
      $s8 = /DoGdiCapture/ ascii
-     
+
    condition:
      uint16(0) == 0x5A4D and
      uint32(uint32(0x3c)) == 0x00004550 and
@@ -134,7 +134,7 @@ rule malware_sqroot_keylogger {
    meta:
      description = "keylog plugin downloaded by sqroot"
      author = "JPCERT/CC Incident Response Group"
-     
+
    strings:
      $s1 = /record-%04d%02d%02d-%02d%02d%02d\.ini/ ascii
      $s2 = /g_hKeyLogMsgLoopThread exit/ ascii
@@ -151,7 +151,7 @@ rule malware_sqroot_pluginloader {
    meta:
      description = "plugin loader downloaded by sqroot"
      author = "JPCERT/CC Incident Response Group"
-     
+
    strings:
      $a1 = /Active\(\) found/ ascii
      $a2 = /Active:Thread created!/ ascii
@@ -162,7 +162,7 @@ rule malware_sqroot_pluginloader {
      $c1 = /SignalS1/ ascii
      $c2 = /SignalS2/ ascii
      $c3 = /SignalS3/ ascii
-     
+
    condition:
      uint16(0) == 0x5A4D and
      uint32(uint32(0x3c)) == 0x00004550 and
@@ -173,11 +173,11 @@ rule malware_sqroot_coreloader {
    meta:
      description = "loader downloaded by sqroot"
      author = "JPCERT/CC Incident Response Group"
-     
+
    strings:
      $query = /%s\?hid=%s&uid=%s&cid=%x/ ascii
      $decode_routine = {8A 8A ?? ?? ?? ?? 02 C1 32 C1 2A C1 0F B6 8E ?? ?? ?? ?? 88 86 ?? ?? ?? ?? 8D 46 ?? 99 F7 FF 8A 82 ?? ?? ?? ?? 02 C8 32 C8 2A C8 88 8E ?? ?? ?? ?? 83 C6 02 81 FE 0A 04 00 00}
-     
+
    condition:
      uint16(0) == 0x5A4D and
      uint32(uint32(0x3c)) == 0x00004550 and
@@ -188,7 +188,7 @@ rule malware_sqroot_corerat {
    meta:
      description = "RAT downloaded by sqroot"
      author = "JPCERT/CC Incident Response Group"
-     
+
    strings:
      $a1 = /openfile %s error!/ ascii
      $a2 = /remote file error!/ ascii
@@ -197,7 +197,7 @@ rule malware_sqroot_corerat {
      $a5 = /%s\|%s\|%s\|%s\|%s\|%s\|%d\|%s\|/ ascii
      $b1 = {68 24 11 00 00 E8}
      $b2 = {C7 03 37 11 00 00}
-     
+
    condition:
      uint16(0) == 0x5A4D and
      uint32(uint32(0x3c)) == 0x00004550 and

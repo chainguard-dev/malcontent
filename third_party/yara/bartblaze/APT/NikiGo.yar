@@ -27,7 +27,7 @@ strings:
 
     $pdb_src = /C:\/Users\/niki\/go\/src\/niki\/auxiliary\/engine-binder\/main\.go/ ascii wide
     $pdb_path = /\/Users\/niki\/go\/src\/niki\/auxiliary\/engine-binder\// ascii wide
-    
+
 condition:
     uint16(0) == 0x5A4D and $go and (
     all of ($func*) or

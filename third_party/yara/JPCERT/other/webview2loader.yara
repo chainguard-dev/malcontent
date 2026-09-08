@@ -25,8 +25,8 @@ rule malware_webview2loader {
 
      condition:
       (uint16(0) == 0x5A4D) and
-      (uint32(uint32(0x3c)) == 0x00004550) and 
-      (all of ($vmdetect*)) and 
+      (uint32(uint32(0x3c)) == 0x00004550) and
+      (all of ($vmdetect*)) and
       (all of ($xorfunc*)) and
       pe.imports("Wininet.dll", "InternetCrackUrlW")
 }

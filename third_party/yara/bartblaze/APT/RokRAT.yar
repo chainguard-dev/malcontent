@@ -15,7 +15,7 @@ meta:
 	reference = "https://malpedia.caad.fkie.fraunhofer.de/details/win.rokrat"
 
 strings:
-	$new_pe = {0f b6 03 8d 4b 05 03 c8 89 4? ?? 8b 44 18 01 89 4? ?? 8d ?? 98 f4 ff ff 50 68 ?? ?? ?? ?? ff 15 ?? ?? ?? ?? 8d ?? 98 f4 ff ff 4f 8a 
+	$new_pe = {0f b6 03 8d 4b 05 03 c8 89 4? ?? 8b 44 18 01 89 4? ?? 8d ?? 98 f4 ff ff 50 68 ?? ?? ?? ?? ff 15 ?? ?? ?? ?? 8d ?? 98 f4 ff ff 4f 8a
 	4? ?? 47 84 c0 75 ?? 8b 5? ?? be ?? ?? ?? ?? 33 c0 8b c8 a5 a5 a5 a5 a4 8b 7? ?? 85 d2 74 ?? 8a 26 8a 04 31 32 c4 34 ?? 88 04 31 41 3b ca}
 
 	$str_1 = "%s%04X%04X.tmp" ascii wide
@@ -35,7 +35,7 @@ strings:
 	$comms_7 = "Content-Type: voice/mp3" ascii wide
 
 condition:
-	$new_pe or 
-	4 of ($str_*) or 
+	$new_pe or
+	4 of ($str_*) or
 	(6 of ($comms_*) and 2 of ($str_*))
 }

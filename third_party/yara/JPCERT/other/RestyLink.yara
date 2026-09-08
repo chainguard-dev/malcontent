@@ -63,16 +63,16 @@ rule restylink_Secur32_dll_downloader {
         author = "AutoYara4ELFsig"
         rule_usage = "Hunting"
         hash = "107426B7B30D613E694F9153B415037C4E8194B7E7C96F0760EB59DE8F349809"
-    
+
     strings:
         /* Function Address: 0x1800011b0 : mal_main
-        41 B8 00 20 00 00                   mov     r8d, 2000h            
-        48 8B D3                            mov     rdx, rbx              
-        49 8B CE                            mov     rcx, r14              
-        FF D6                               call    rsi                   
-        B9 64 00 00 00                      mov     ecx, 64h ; 'd'        
-        FF D7                               call    rdi                   
-        48 81 C3 00 20 00 00                add     rbx, 2000h            
+        41 B8 00 20 00 00                   mov     r8d, 2000h
+        48 8B D3                            mov     rdx, rbx
+        49 8B CE                            mov     rcx, r14
+        FF D6                               call    rsi
+        B9 64 00 00 00                      mov     ecx, 64h ; 'd'
+        FF D7                               call    rdi
+        48 81 C3 00 20 00 00                add     rbx, 2000h
         */
         $func0 = { 41 B8 00 20 00 00 48 8B D3 49 8B CE FF D6 B9 64 00 00 00 FF D7 48 81 C3 00 20 00 00 }
 
@@ -86,7 +86,7 @@ rule restylink_Secur32_dll_downloader {
         FF C8                   dec     eax
         0D 00 FF FF FF          or      eax, 0FFFFFF00h
         FF C0                   inc     eax
-        48 63 C8                movsxd  rcx, eax         
+        48 63 C8                movsxd  rcx, eax
         */
         $func1 = { 44 8B C7 BB A3 00 00 00 0F 1F 80 00 00 00 00 FF C0 25 FF 00 00 80 7D 09 FF C8 0D 00 FF FF FF FF C0 48 63 C8 }
 

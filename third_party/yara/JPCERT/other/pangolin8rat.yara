@@ -4,29 +4,29 @@ rule malware_Pangolin8RAT {
         description = "Hunt GobLoaderScript"
         author = "JPCERT/CC Incident Response Group"
         hash = "F95441B1CD6399887E99DBE6AA0CEB0CA907E8175192E71F8F1A4CCA49E8FC82"
-    
+
     strings:
         /* Function Address: 0x7ff6887e5bf0 : wrap_get_filesize
-        57                                  push    rdi                   
-        41 56                               push    r14                   
-        41 57                               push    r15                   
-        48 83 EC 20                         sub     rsp, 20h              
+        57                                  push    rdi
+        41 56                               push    r14
+        41 57                               push    r15
+        48 83 EC 20                         sub     rsp, 20h
         49 C7 C0 FF FF FF FF                mov     r8, 0FFFFFFFFFFFFFFFFh
-        4C 8B FA                            mov     r15, rdx              
-        49 8B D8                            mov     rbx, r8               
-        48 8B F9                            mov     rdi, rcx              
-        66 90                               xchg    ax, ax                
-        48 FF C3                            inc     rbx                   
+        4C 8B FA                            mov     r15, rdx
+        49 8B D8                            mov     rbx, r8
+        48 8B F9                            mov     rdi, rcx
+        66 90                               xchg    ax, ax
+        48 FF C3                            inc     rbx
         */
         $func0 = { 57 41 56 41 57 48 83 EC 20 49 C7 C0 FF FF FF FF 4C 8B FA 49 8B D8 48 8B F9 66 90 48 FF C3 }
 
         /* Function Address: 0x7ff6887e6380 : concat_strings
         48 BB FE FF FF FF FF FF FF 7F       mov     rbx, 7FFFFFFFFFFFFFFEh
-        48 8B C3                            mov     rax, rbx              
-        4D 8B E9                            mov     r13, r9               
-        49 2B C6                            sub     rax, r14              
-        48 8B F1                            mov     rsi, rcx              
-        48 3B C2                            cmp     rax, rdx              
+        48 8B C3                            mov     rax, rbx
+        4D 8B E9                            mov     r13, r9
+        49 2B C6                            sub     rax, r14
+        48 8B F1                            mov     rsi, rcx
+        48 3B C2                            cmp     rax, rdx
         */
         $func1 = { 48 BB FE FF FF FF FF FF FF 7F 48 8B C3 4D 8B E9 49 2B C6 48 8B F1 48 3B C2 }
 
