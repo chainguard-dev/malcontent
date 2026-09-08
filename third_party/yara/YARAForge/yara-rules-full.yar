@@ -253318,22 +253318,22 @@ rule SEKOIA_Infostealer_Mac_Realst : FILE
 		classification = "TLP:CLEAR"
 
 	strings:
-		$str00 = { 72 65 61 6C 73 74 40 }
-		$str01 = { 49 50 3A }
-		$str02 = { 4F 53 3A }
-		$str03 = { 50 43 20 50 41 53 53 57 4F 52 44 3A }
-		$str04 = { 43 6F 6F 6B 69 65 73 3A }
-		$str05 = { 57 61 6C 6C 65 74 73 3A }
-		$str06 = { 41 70 70 73 3A }
-		$str07 = { 55 53 45 52 4E 41 4D 45 3A 20 5D }
-		$str08 = { 46 49 4C 45 4E 41 4D 45 3A }
-		$str09 = { 6D 75 6C 74 69 70 61 72 74 2F 66 6F 72 6D 2D 64 61 74 61 3B 20 62 6F 75 6E 64 61 72 79 3D }
-		$str10 = { 73 72 63 2F 62 72 6F 77 73 65 72 73 2F 66 69 72 65 66 6F 78 2F 6D 6F 64 75 6C 65 73 2F 64 65 63 72 79 70 74 6F 72 73 2E 72 73 }
-		$str11 = { 7B 22 65 76 65 6E 74 5F 69 64 22 3A 22 }
-		$str12 = { 2E 2E 62 72 6F 77 73 65 72 73 2E 2E 66 69 72 65 66 6F 78 2E 2E 6D 6F 64 75 6C 65 73 2E 2E 64 61 74 61 5F 73 74 65 61 6C 65 72 73 2E 2E }
-		$str13 = { 2E 2E 62 72 6F 77 73 65 72 73 2E 2E 63 68 72 6F 6D 69 75 6D 2E 2E 6D 6F 64 75 6C 65 73 2E 2E 6B 65 79 5F 73 74 65 61 6C 65 72 73 2E 2E }
-		$str14 = { 2E 2E 62 72 6F 77 73 65 72 73 2E 2E 66 69 72 65 66 6F 78 2E 2E 6D 6F 64 75 6C 65 73 2E 2E 64 65 63 72 79 70 74 6F 72 73 2E 2E }
-		$str15 = { 75 72 6C 3A 20 2C 20 6C 6F 67 69 6E 3A 20 2C 20 70 61 73 73 77 6F 72 64 3A }
+		$str00 = /realst@/ ascii
+		$str01 = /IP:/ ascii
+		$str02 = /OS:/ ascii
+		$str03 = /PC PASSWORD:/ ascii
+		$str04 = /Cookies:/ ascii
+		$str05 = /Wallets:/ ascii
+		$str06 = /Apps:/ ascii
+		$str07 = /USERNAME: \]/ ascii
+		$str08 = /FILENAME:/ ascii
+		$str09 = /multipart\/form-data; boundary=/ ascii
+		$str10 = /src\/browsers\/firefox\/modules\/decryptors\.rs/ ascii
+		$str11 = /\{"event_id":"/ ascii
+		$str12 = /\.\.browsers\.\.firefox\.\.modules\.\.data_stealers\.\./ ascii
+		$str13 = /\.\.browsers\.\.chromium\.\.modules\.\.key_stealers\.\./ ascii
+		$str14 = /\.\.browsers\.\.firefox\.\.modules\.\.decryptors\.\./ ascii
+		$str15 = /url: , login: , password:/ ascii
 
 	condition:
 		( uint32( 0 ) == 0xfeedface or uint32( 0 ) == 0xcefaedfe or uint32( 0 ) == 0xfeedfacf or uint32( 0 ) == 0xcffaedfe or uint32( 0 ) == 0xcafebabe or uint32( 0 ) == 0xbebafeca ) and 13 of ( $str* )
