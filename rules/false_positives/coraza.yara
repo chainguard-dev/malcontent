@@ -15,8 +15,9 @@ rule coraza_coreruleset_override: override {
     $coraza1 = "# Enable Coraza, attaching it to every transaction. Use detection"
     $coraza2 = "# Allow Coraza to access request bodies. If you don't, Coraza"
     $coraza3 = "# Coraza blocked the content. But the next, commented example contains"
+    $coraza4 = "location must be private to Coraza. You don't want other users on"
     $import  = "github.com/corazawaf/coraza-coreruleset/v4"
 
   condition:
-    all of them
+    $import and 2 of ($coraza*)
 }

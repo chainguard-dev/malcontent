@@ -9,6 +9,7 @@ rule grype_offline_db: override {
     polkit_pkexec_exploit           = "harmless"
     metasploit_payload              = "harmless"
     systemctl_botnet_client         = "harmless"
+    http_hardcoded_ip_dev_shm       = "harmless"
 
   strings:
     $grype    = /grype/
