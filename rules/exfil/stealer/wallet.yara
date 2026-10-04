@@ -46,6 +46,7 @@ rule crypto_stealer_names: critical {
     $bpe_tokenizer1 = /cl100k_base/
     $bpe_tokenizer2 = /o200k_base/
     $bpe_tokenizer3 = /p50k_base/
+    $bpe_tokenizer4 = /r50k_base/
 
   condition:
     // The $notgrp_wap_* strings are Wappalyzer technologies.json field names; each one

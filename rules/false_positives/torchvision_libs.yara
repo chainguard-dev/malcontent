@@ -27,3 +27,16 @@ rule libwebp_override: override {
   condition:
     all of them
 }
+
+rule libjpeg_turbo_override: override {
+  meta:
+    description          = "libjpeg-*.so.8 bundled in torchcodec.libs"
+    upx_antiunpack_elf64 = "harmless"
+
+  strings:
+    $turbo_ver = /libjpeg-turbo version/
+    $jpeg_err  = /JPEG parameter struct mismatch/
+
+  condition:
+    filesize < 2MB and all of them
+}

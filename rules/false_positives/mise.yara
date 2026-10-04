@@ -9,5 +9,5 @@ rule mise: override {
     $mise_config = /~\/\.config\/mise\/config\.toml/
 
   condition:
-    filesize > 50MB and filesize < 150MB and all of them
+    filesize > 50MB and filesize < 200MB and all of them
 }

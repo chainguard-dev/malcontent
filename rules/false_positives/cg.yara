@@ -1,16 +1,18 @@
 rule cg: override {
   meta:
-    description                    = "internal platform CLI binary"
-    rename_system_binary           = "low"
-    powershell_encoded_command_val = "low"
-    slack_leveldb                  = "low"
-    curl_python_pipe               = "low"
-    hidden_short_path_temp         = "low"
-    ssh_backdoor                   = "low"
-    exploit_attempt                = "low"
-    esxcli_caller                  = "low"
-    cmd_dev_null_quoted            = "low"
-    cmd_dev_null                   = "low"
+    description                                   = "internal platform CLI binary"
+    rename_system_binary                          = "low"
+    powershell_encoded_command_val                = "low"
+    slack_leveldb                                 = "low"
+    curl_python_pipe                              = "low"
+    hidden_short_path_temp                        = "low"
+    ssh_backdoor                                  = "low"
+    exploit_attempt                               = "low"
+    esxcli_caller                                 = "low"
+    cmd_dev_null_quoted                           = "low"
+    cmd_dev_null                                  = "low"
+    http_hardcoded_ip_dev_shm                     = "low"
+    COD3NYM_SUSP_RLO_Exe_Extension_Spoofing_Jan24 = "harmless"
 
   strings:
     // Go module-path anchors for the CLI binary

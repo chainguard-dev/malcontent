@@ -2,7 +2,8 @@ rule systemd: override {
   meta:
     description                           = "systemd"
     world_writeable_dirs_chmod            = "low"
-    hidden_short_path                     = "low"
+    hidden_short_path_temp                = "low"
+    hidden_short_path_system              = "low"
     dev_shm_file                          = "low"
     selinux_firewall                      = "medium"
     linux_critical_system_paths_small_elf = "medium"

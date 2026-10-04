@@ -8,5 +8,5 @@ rule altinity_clickhouse_keeper_debug: override {
     $keeper_entry      = /_Z25mainEntryClickHouseKeeperiPPc/
 
   condition:
-    filesize < 15728640 and all of them
+    filesize < 200MB and all of them
 }

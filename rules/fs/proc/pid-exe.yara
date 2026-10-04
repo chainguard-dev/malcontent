@@ -57,7 +57,8 @@ rule proc_py_exe: high {
 
 rule legit_proc_exec: override {
   meta:
-    proc_exe = "medium"
+    proc_s_exe      = "medium"
+    proc_d_exe_high = "medium"
 
   strings:
     $string = /Fastfetch/ fullword

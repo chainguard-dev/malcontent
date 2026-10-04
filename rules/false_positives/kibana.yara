@@ -76,3 +76,33 @@ rule security_detection_engine: override {
   condition:
     filesize < 32KB and 68 % of ($attr*) and $elastic and $rule
 }
+
+rule kibana_suricata_config: override {
+  meta:
+    description       = "lazy_suricata_lib_configuration.*.js"
+    exotic_tld        = "low"
+    download_sites    = "low"
+    grayware_sites    = "low"
+    http_url_with_exe = "low"
+    reverse_shell     = "low"
+
+  strings:
+    $kibana_bundle   = /rspackChunkkibana_bundle/
+    $emergingthreats = /emergingthreats/
+
+  condition:
+    filesize < 2MB and all of them
+}
+
+rule kibana_just_bash_worker: override {
+  meta:
+    description                           = "just-bash/dist worker bundles"
+    SIGNATURE_BASE_EXPL_SUSP_JS_POC_Dec25 = "harmless"
+
+  strings:
+    $worker_security = /WorkerSecurityViolationError/
+    $defense         = /defense-in-depth measure and indicates a bug in just-bash/
+
+  condition:
+    filesize < 200KB and all of them
+}

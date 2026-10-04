@@ -1,7 +1,7 @@
 rule ignore_sudo: override linux {
   meta:
     description      = "sudo"
-    proc_c_exe       = "medium"
+    proc_s_exe       = "medium"
     small_elf_sudoer = "medium"
     proc_d_exe_high  = "medium"
 
@@ -11,4 +11,21 @@ rule ignore_sudo: override linux {
 
   condition:
     any of them
+}
+
+rule sudo_changelog: override {
+  meta:
+    description          = "/usr/share/doc/sudo/ChangeLog"
+    cd_bin               = "low"
+    lib_subdir           = "low"
+    pam_get_item         = "low"
+    etc_initd_short_file = "low"
+    ruby_setuid_0        = "low"
+
+  strings:
+    $sudo_maintainer = /Todd\.Miller@sudo\.ws/
+    $sudo_plugin     = /sudo_plugin/
+
+  condition:
+    filesize < 200KB and all of them
 }

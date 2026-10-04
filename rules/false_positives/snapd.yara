@@ -1,11 +1,10 @@
 rule snapd: override linux {
   meta:
     description           = "snapd"
-    nohup                 = "medium"
+    elf_nohup             = "medium"
     dev_mem               = "medium"
     dev_mmc               = "medium"
     busybox_runner        = "medium"
-    system_log_references = "medium"
     hidden_x11_unexpected = "medium"
     filetypes             = "elf,so"
 

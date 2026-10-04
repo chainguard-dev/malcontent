@@ -1,13 +1,15 @@
 rule file_context: override {
   meta:
-    description         = "file_contexts.bin"
-    dev_shm_file        = "medium"
-    dev_shm_hidden      = "medium"
-    hidden_pid_file     = "medium"
-    kmem                = "medium"
-    linux_multi_persist = "medium"
-    sshd_path_value     = "medium"
-    var_tmp_path_hidden = "medium"
+    description           = "file_contexts.bin"
+    dev_shm_file          = "medium"
+    dev_shm_hidden        = "medium"
+    etc_ld_preload_not_ld = "medium"
+    hidden_pid_file       = "medium"
+    kmem                  = "medium"
+    linux_multi_persist   = "medium"
+    sshd_path_value       = "medium"
+    var_hidden            = "medium"
+    var_tmp_path_hidden   = "medium"
 
   strings:
     $selinux  = /selinux/

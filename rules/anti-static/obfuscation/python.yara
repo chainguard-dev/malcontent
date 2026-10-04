@@ -349,8 +349,23 @@ rule rename_base64: critical {
     $not_open_clip1 = /class ResampledShards2\(IterableDataset\)/
     $not_open_clip2 = /class SyntheticDataset\(Dataset\)/
 
+    // Each of these contains exactly one $ref match and is counted against it:
+    // a submodule named base64 (oslo_serialization), the PEP 484 re-export
+    // self-alias (testcontainers), and namespaced aliases in kfp's generated
+    // component code and a NeMo Gym pytest file.
+    $not_from_pkg = /from [\w\.]{1,64} import base64 as \w{1,64}/
+    $not_reexport = /(^|\n)[ \t]{0,16}import base64 as base64[ \t]*\r?\n/
+    $not_kfp      = /import base64 as __kfp_b64/
+    $not_nemo_gym = /import base64 as _b64  # noqa: E402  \(kept local to the audio_path tests\)/
+
+    $not_pysaml2_1 = /This module provides methods for symmetric cryptography\./
+    $not_pysaml2_2 = /from \.errors import SymmetricCryptographyError/
+
+    $not_strawberry1 = /from strawberry\.schema\.types import base_scalars/
+    $not_strawberry2 = /DEFAULT_SCALAR_REGISTRY/
+
   condition:
-    filesize < 10MB and $ref and none of ($not_open_clip*) and not all of ($not_numcodecs*)
+    filesize < 10MB and $ref and #ref > #not_from_pkg + #not_reexport + #not_kfp + #not_nemo_gym and none of ($not_open_clip*) and not all of ($not_numcodecs*) and not all of ($not_pysaml2*) and not all of ($not_strawberry*)
 }
 
 rule rename_zlib: high {
