@@ -20,14 +20,15 @@ import (
 // Routing every severity-bearing rule through severityFromMeta would silently
 // downgrade those curated signatures. Add a source here only once its severity
 // metadata is meant to drive malcontent's risk score.
-var severityDrivenSources = map[string]bool{
-	"guarddog": true,
+var severityDrivenSources = map[string]struct{}{
+	"guarddog": {},
 }
 
 // isSeverityDriven reports whether a rule's namespace belongs to a source whose
 // declared "severity" metadata should drive its risk score.
 func isSeverityDriven(ns string) bool {
-	return severityDrivenSources[nsSecondSegment(ns)]
+	_, ok := severityDrivenSources[nsSecondSegment(ns)]
+	return ok
 }
 
 // thirdPartyRiskOverrides re-weights individual severity-driven third-party

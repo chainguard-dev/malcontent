@@ -749,7 +749,7 @@ func TestArchiveCounter_FractionalRatio(t *testing.T) {
 				return
 			}
 			if lastErr != nil {
-				t.Fatalf("expected no error, got %v", lastErr)
+				t.Fatalf("Add() error: got = %v, want = nil", lastErr)
 			}
 		})
 	}

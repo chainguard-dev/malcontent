@@ -186,8 +186,7 @@ func TestNewConfig(t *testing.T) {
 
 func TestRefreshValidationErrors(t *testing.T) {
 	t.Parallel()
-	ctx := context.Background()
-	logger := clog.FromContext(ctx)
+	logger := clog.FromContext(t.Context())
 
 	tests := []struct {
 		name   string
@@ -243,7 +242,7 @@ func TestRefreshValidationErrors(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			cfg := tt.setup()
-			err := Refresh(ctx, cfg, logger)
+			err := Refresh(t.Context(), cfg, logger)
 			if err == nil {
 				t.Error("Refresh() should return error for invalid config")
 			}
@@ -268,7 +267,7 @@ func TestRefreshPinsRuleURLToMain(t *testing.T) {
 		t.Fatalf("before Refresh: ResolveRuleURLCommit() = %q, want %q", got, release.BuildCommit)
 	}
 
-	ctx := context.Background()
+	ctx := t.Context()
 	logger := clog.FromContext(ctx)
 
 	// Use an empty SamplesPath to make Refresh fail fast AFTER the pin.
@@ -306,7 +305,7 @@ func TestWithoutRefreshStampedCommitUsed(t *testing.T) {
 
 func TestRefreshCanceledContext(t *testing.T) {
 	t.Parallel()
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(t.Context())
 	cancel() // Cancel immediately
 
 	samplesDir := t.TempDir()
@@ -327,7 +326,7 @@ func TestRefreshCanceledContext(t *testing.T) {
 
 func TestPrepareRefreshCanceledContext(t *testing.T) {
 	t.Parallel()
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(t.Context())
 	cancel() // Cancel immediately
 
 	samplesDir := t.TempDir()
@@ -347,7 +346,7 @@ func TestPrepareRefreshCanceledContext(t *testing.T) {
 
 func TestExecuteRefreshCanceledContext(t *testing.T) {
 	t.Parallel()
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(t.Context())
 	cancel() // Cancel immediately
 
 	cfg := Config{
@@ -366,7 +365,7 @@ func TestExecuteRefreshCanceledContext(t *testing.T) {
 
 func TestExecuteRefreshEmptyTestData(t *testing.T) {
 	t.Parallel()
-	ctx := context.Background()
+	ctx := t.Context()
 
 	cfg := Config{
 		SamplesPath:  t.TempDir(),
@@ -384,7 +383,7 @@ func TestExecuteRefreshEmptyTestData(t *testing.T) {
 
 func TestConfigConcurrencyDefault(t *testing.T) {
 	t.Parallel()
-	ctx := context.Background()
+	ctx := t.Context()
 	samplesDir := t.TempDir()
 	testDataDir := t.TempDir()
 
@@ -465,7 +464,7 @@ func TestExecuteRefreshClosesFilesOnCancel(t *testing.T) {
 	}
 
 	// Cancel context before calling executeRefresh
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(t.Context())
 	cancel()
 
 	logger := clog.FromContext(ctx)
@@ -473,7 +472,7 @@ func TestExecuteRefreshClosesFilesOnCancel(t *testing.T) {
 
 	err := executeRefresh(ctx, cfg, testData, logger)
 	if !errors.Is(err, context.Canceled) {
-		t.Fatalf("expected context.Canceled, got: %v", err)
+		t.Fatalf("executeRefresh() error: got = %v, want = %v", err, context.Canceled)
 	}
 
 	// Verify all files were closed by the early-return path

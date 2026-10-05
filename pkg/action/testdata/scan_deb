@@ -1,6 +1,6 @@
 {
     "Files": {
-        "/usr/bin/yara": {
+        "testdata/yara.deb ∴ /usr/bin/yara": {
             "Path": "testdata/yara.deb ∴ /usr/bin/yara",
             "SHA256": "38008bfab3807e83de4d9301669334f763cb91c860cfce4e51e8e1761da7a890",
             "Size": 41864,
@@ -140,7 +140,7 @@
             "RiskScore": 2,
             "RiskLevel": "MEDIUM"
         },
-        "/usr/bin/yarac": {
+        "testdata/yara.deb ∴ /usr/bin/yarac": {
             "Path": "testdata/yara.deb ∴ /usr/bin/yarac",
             "SHA256": "e94cecc024c584ebfd08cb1dd4242533ab90dbc6a71a357ba5df21792923818a",
             "Size": 23672,

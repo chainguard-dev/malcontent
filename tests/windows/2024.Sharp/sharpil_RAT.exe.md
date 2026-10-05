@@ -1,4 +1,4 @@
-## windows/2024.Sharp/sharpil_RAT.exe [😈 CRITICAL]
+## windows/2024.Sharp/sharpil\_RAT.exe [😈 CRITICAL]
 
 | RISK | KEY | DESCRIPTION | EVIDENCE |
 |:--|:--|:--|:--|

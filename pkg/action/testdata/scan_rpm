@@ -1,6 +1,6 @@
 {
     "Files": {
-        "/usr/bin/yara": {
+        "testdata/yara.rpm ∴ /usr/bin/yara": {
             "Path": "testdata/yara.rpm ∴ /usr/bin/yara",
             "SHA256": "ea5195a25d5dc1ba9ba4e9bfa04995adc816b810d249ae0997590402bb5d9d15",
             "Size": 540912,
@@ -291,7 +291,7 @@
             "RiskScore": 2,
             "RiskLevel": "MEDIUM"
         },
-        "/usr/bin/yarac": {
+        "testdata/yara.rpm ∴ /usr/bin/yarac": {
             "Path": "testdata/yara.rpm ∴ /usr/bin/yarac",
             "SHA256": "f9255c7ad436d3794750d010f10ad12f120d7969e7a5fc2d71413a6e4f5bf67c",
             "Size": 20352,
@@ -343,7 +343,7 @@
             "RiskScore": 0,
             "RiskLevel": "NONE"
         },
-        "/usr/lib64/libyara.so.10.0.0": {
+        "testdata/yara.rpm ∴ /usr/lib64/libyara.so.10.0.0": {
             "Path": "testdata/yara.rpm ∴ /usr/lib64/libyara.so.10.0.0",
             "SHA256": "06cd11736ee1842b13837dd6a43ec431f1d77a0c125e2154fb0e0569c3e931fb",
             "Size": 538840,

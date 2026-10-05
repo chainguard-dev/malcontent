@@ -163,43 +163,45 @@ func TestExtractNestedArchiveWithSubdirectory(t *testing.T) {
 	}
 }
 
-// TestExtractNestedArchiveCollision verifies that extractNestedArchive handles
-// name collisions by falling back to os.MkdirTemp when the deterministic path
-// already exists.
+// TestExtractNestedArchiveCollision verifies that an archive whose extraction
+// directory name is taken, as by data beside data.gz, is extracted into the
+// first free numbered directory, so that extracted paths match on every run.
 func TestExtractNestedArchiveCollision(t *testing.T) {
 	t.Parallel()
 
-	tmpDir, err := os.MkdirTemp("", "nested-collision-test-*")
-	if err != nil {
-		t.Fatalf("failed to create temp dir: %v", err)
-	}
-	defer os.RemoveAll(tmpDir)
-
-	// Create a file that will collide with the extraction directory name.
-	// When extracting "apko.gz", the extraction dir would be "apko" — create
-	// that as a file first to force the collision path.
-	collisionPath := filepath.Join(tmpDir, "apko")
-	if err := os.WriteFile(collisionPath, []byte("existing"), 0o600); err != nil {
-		t.Fatalf("failed to create collision file: %v", err)
+	tests := []struct {
+		name    string
+		taken   []string
+		wantDir string
+	}{
+		{name: "taken name uses the first numbered directory", taken: []string{"data"}, wantDir: "data_1"},
+		{name: "taken numbered names are skipped", taken: []string{"data", "data_1"}, wantDir: "data_2"},
 	}
 
-	srcData, err := os.ReadFile("../../pkg/action/testdata/apko.gz")
-	if err != nil {
-		t.Fatalf("failed to read test archive: %v", err)
-	}
-	archivePath := filepath.Join(tmpDir, "apko.gz")
-	if err := os.WriteFile(archivePath, srcData, 0o600); err != nil {
-		t.Fatalf("failed to write archive: %v", err)
-	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			dir := t.TempDir()
+			for _, name := range tt.taken {
+				if err := os.WriteFile(filepath.Join(dir, name), []byte("existing "+name), 0o600); err != nil {
+					t.Fatal(err)
+				}
+			}
+			if err := os.WriteFile(filepath.Join(dir, "data.gz"), gzipBytes(t, []byte("gz payload")), 0o600); err != nil {
+				t.Fatal(err)
+			}
 
-	ctx := t.Context()
-	logger := clog.FromContext(ctx)
-	cfg := malcontent.Config{}
-	extracted := xsync.NewMap[string, bool]()
+			ctx := t.Context()
+			if err := extractNestedArchive(ctx, malcontent.Config{}, dir, "data.gz", xsync.NewMap[string, bool](), clog.FromContext(ctx), 1); err != nil {
+				t.Fatalf("extractNestedArchive: %v", err)
+			}
 
-	err = extractNestedArchive(ctx, cfg, tmpDir, "apko.gz", extracted, logger, 1)
-	if err != nil {
-		t.Fatalf("extractNestedArchive with collision failed: %v", err)
+			pkgsWantFile(t, filepath.Join(dir, tt.wantDir, "data"), "gz payload")
+			for _, name := range tt.taken {
+				pkgsWantFile(t, filepath.Join(dir, name), "existing "+name)
+			}
+			pkgsWantAbsent(t, filepath.Join(dir, "data.gz"))
+		})
 	}
 }
 

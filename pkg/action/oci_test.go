@@ -5,7 +5,6 @@ package action
 
 import (
 	"bytes"
-	"context"
 	"io/fs"
 	"runtime"
 	"testing"
@@ -20,7 +19,7 @@ import (
 
 func TestOCI(t *testing.T) {
 	t.Parallel()
-	ctx := context.Background()
+	ctx := t.Context()
 	clog.FromContext(ctx).With("test", "scan_oci")
 
 	var out bytes.Buffer

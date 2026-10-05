@@ -4,6 +4,7 @@
 package action
 
 import (
+	"cmp"
 	"context"
 	"fmt"
 	"log/slog"
@@ -11,7 +12,6 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
-	"sort"
 	"strings"
 
 	"github.com/chainguard-dev/clog"
@@ -31,89 +31,98 @@ type ScanResult struct {
 	err      error
 	tmpRoot  string
 	imageURI string
+	// isArchive is set when the scan path is itself an archive, whose entries
+	// are keyed by their path within it.
+	isArchive bool
 }
 
-// relPath returns the cleanest possible relative path between a source path and files within said path.
-func relPath(from string, fr *malcontent.FileReport, isArchive bool, isImage bool) (string, string, error) {
-	var (
-		base, rel string
-		err       error
-	)
+// relPath returns the key that pairs fr with its counterpart in the other scan,
+// and the base that prefixes its report key. Entries of an archive scan are keyed
+// by their path within the archive; other files by their path below the scan root.
+func relPath(from string, fr *malcontent.FileReport, isArchive bool) (string, string, error) {
+	base, err := filepath.Abs(from)
+	if err != nil {
+		return "", "", err
+	}
+	if isArchive {
+		return archiveEntryPath(fr), base, nil
+	}
 
-	switch {
-	case isArchive:
-		fromRoot := fr.ArchiveRoot
-		base = fr.FullPath
-		// trim archiveRoot from fullPath
-		archiveFile := strings.TrimPrefix(fr.FullPath, fr.ArchiveRoot)
-		rel, err = filepath.Rel(fromRoot, archiveFile)
-		if err != nil {
-			return "", "", err
-		}
-	case isImage:
-		from = fr.Path
-		if strings.Contains(fr.Path, "∴") {
-			parts := strings.Split(fr.Path, "∴")
-			if len(parts) > 0 {
-				from = strings.TrimSpace(parts[0])
-			}
-		}
-		base, err = filepath.Abs(from)
-		if err != nil {
-			return "", "", err
-		}
-		info, err := os.Stat(from)
-		if err != nil {
-			return "", "", err
-		}
-		dir := filepath.Dir(from)
-		var fromRoot string
-		if info.IsDir() {
-			fromRoot, err = filepath.EvalSymlinks(from)
-		} else {
-			fromRoot, err = filepath.EvalSymlinks(dir)
-		}
-		if err != nil {
-			return "", "", err
-		}
-		if fromRoot == "." {
-			fromRoot = from
-		}
-		rel, err = filepath.Rel(fromRoot, from)
-		if err != nil {
-			return "", "", err
-		}
-	default:
-		base, err = filepath.Abs(from)
-		if err != nil {
-			return "", "", err
-		}
-		info, err := os.Stat(from)
-		if err != nil {
-			return "", "", err
-		}
-		dir := filepath.Dir(from)
-		// Evaluate symlinks to cover edge cases like macOS' /private/tmp -> /tmp symlink
-		// Also, remove any filenames to correctly determine the relative path
-		// Using "." and "." will show as modifications for completely unrelated files and paths
-		var fromRoot string
-		if info.IsDir() {
-			fromRoot, err = filepath.EvalSymlinks(from)
-		} else {
-			fromRoot, err = filepath.EvalSymlinks(dir)
-		}
-		if err != nil {
-			return "", "", err
-		}
-		if fromRoot == "." {
-			fromRoot = from
-		}
-		rel, err = filepath.Rel(fromRoot, fr.Path)
-		if err != nil {
-			return "", "", err
-		}
+	info, err := os.Stat(from)
+	if err != nil {
+		return "", "", err
+	}
+	// Remove any file name so a single file is keyed by its name: keying
+	// both sides as "." would pair completely unrelated files and paths.
+	root := from
+	if !info.IsDir() {
+		root = filepath.Dir(from)
+	}
+	fromRoot, err := filepath.EvalSymlinks(root)
+	if err != nil {
+		return "", "", err
+	}
+	target := fr.Path
+	if !pathWithin(target, fromRoot) {
+		// The path is spelled through a symlinked directory (e.g. macOS' /tmp -> /private/tmp),
+		// so resolve both sides the same way before comparing them.
+		fromRoot, target = resolvePath(fromRoot), resolvePath(target)
+	}
+	rel, err := filepath.Rel(fromRoot, target)
+	if err != nil {
+		return "", "", err
 	}
 	return rel, base, nil
+}
+
+// archiveEntryPath returns the path of fr within its archive, with a leading slash.
+// It depends only on where the entry sits below its own extraction root, so the
+// same entry yields the same path in every scan.
+func archiveEntryPath(fr *malcontent.FileReport) string {
+	if fr.ArchiveRoot != "" && fr.FullPath != "" {
+		root, full := fr.ArchiveRoot, fr.FullPath
+		if !pathWithin(full, root) {
+			root, full = resolvePath(root), resolvePath(full)
+		}
+		if rel, err := filepath.Rel(root, full); err == nil && filepath.IsLocal(rel) {
+			return "/" + filepath.ToSlash(rel)
+		}
+	}
+	// Entries without behaviors carry only their display path: "<archive> ∴ <entry>".
+	if _, entry, ok := strings.Cut(fr.Path, " ∴ "); ok {
+		return entry
+	}
+	return fr.Path
+}
+
+// pathWithin reports whether p is root or lies below it, comparing the paths as written.
+func pathWithin(p, root string) bool {
+	if root == "." {
+		return filepath.IsLocal(p)
+	}
+	rest, ok := strings.CutPrefix(p, root)
+	if !ok {
+		return false
+	}
+	sep := string(filepath.Separator)
+	return rest == "" || strings.HasPrefix(rest, sep) || strings.HasSuffix(root, sep)
+}
+
+// resolvePath returns the absolute form of p with symlinks resolved in its longest
+// existing prefix, so paths below a removed temporary directory resolve consistently.
+func resolvePath(p string) string {
+	abs, err := filepath.Abs(p)
+	if err != nil {
+		return filepath.Clean(p)
+	}
+	for dir := abs; ; dir = filepath.Dir(dir) {
+		if resolved, err := filepath.EvalSymlinks(dir); err == nil {
+			return filepath.Join(resolved, abs[len(dir):])
+		}
+		if filepath.Dir(dir) == dir {
+			return abs
+		}
+	}
 }
 
 // selectPrimaryFile selects a single file from a map of file reports in a deterministic way.
@@ -147,7 +156,9 @@ func isUPXBackup(path string, f map[string]*malcontent.FileReport) bool {
 	return exists
 }
 
-func relFileReport(ctx context.Context, c malcontent.Config, fromPath string, isImage bool) (map[string]*malcontent.FileReport, string, error) {
+// relFileReport scans fromPath and keys each file report by relPath.
+// isArchive reports whether fromPath is itself an archive.
+func relFileReport(ctx context.Context, c malcontent.Config, fromPath string, isArchive bool) (map[string]*malcontent.FileReport, string, error) {
 	if ctx.Err() != nil {
 		return nil, "", ctx.Err()
 	}
@@ -175,12 +186,11 @@ func relFileReport(ctx context.Context, c malcontent.Config, fromPath string, is
 			return true
 		}
 
-		isArchive := fr.ArchiveRoot != ""
 		if fr.Skipped != "" {
 			return true
 		}
 
-		rel, b, err := relPath(fromPath, fr, isArchive, isImage)
+		rel, b, err := relPath(fromPath, fr, isArchive)
 		if err != nil {
 			rangeErr = err
 			return false
@@ -195,6 +205,10 @@ func relFileReport(ctx context.Context, c malcontent.Config, fromPath string, is
 
 	if rangeErr != nil {
 		return nil, "", rangeErr
+	}
+	// Range stops early once ctx is canceled, leaving the map incomplete.
+	if err := ctx.Err(); err != nil {
+		return nil, "", err
 	}
 
 	return fromRelPath, base, nil
@@ -222,14 +236,18 @@ func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent
 	)
 
 	if c.OCI {
+		// Scanning with c.OCI unset skips the scanner's own cleanup of extracted images.
+		logger := clog.FromContext(ctx)
 		srcPath, err = archive.OCIWithConfig(ctx, srcPath, &c)
 		if err != nil {
 			return nil, fmt.Errorf("failed to prepare scan path: %w", err)
 		}
+		defer cleanupOCIPath(srcPath, logger)
 		destPath, err = archive.OCIWithConfig(ctx, destPath, &c)
 		if err != nil {
 			return nil, fmt.Errorf("failed to prepare scan path: %w", err)
 		}
+		defer cleanupOCIPath(destPath, logger)
 		isImage, c.OCI = true, false
 	}
 
@@ -270,7 +288,9 @@ func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent
 		readPool.Put(buf)
 
 		srcFiles, err := report.Load(src)
-		srcResult.err = err
+		if err != nil {
+			return nil, fmt.Errorf("load source report: %w", err)
+		}
 		srcResult.files = srcFiles.FileReports
 
 		// Extract image URI and temp root from the report's file paths
@@ -300,7 +320,9 @@ func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent
 		readPool.Put(buf)
 
 		destFiles, err := report.Load(dst)
-		destResult.err = err
+		if err != nil {
+			return nil, fmt.Errorf("load destination report: %w", err)
+		}
 		destResult.files = destFiles.FileReports
 
 		// Extract image URI and temp root from the report's file paths
@@ -309,11 +331,13 @@ func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent
 	default:
 		var g errgroup.Group
 
+		// Scanned paths have their symlinks resolved, so an image's extraction
+		// root must be resolved too before it is trimmed from them.
 		g.Go(func() error {
-			files, base, err := relFileReport(ctx, c, srcPath, isImage)
-			res := ScanResult{files: files, base: base, err: err}
+			files, base, err := relFileReport(ctx, c, srcPath, srcIsArchive)
+			res := ScanResult{files: files, base: base, err: err, isArchive: srcIsArchive}
 			if isImage {
-				res.imageURI, res.tmpRoot = c.ScanPaths[0], srcPath
+				res.imageURI, res.tmpRoot = c.ScanPaths[0], resolvePath(srcPath)
 			}
 			srcCh <- res
 			return err
@@ -325,10 +349,10 @@ func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent
 		}
 
 		g.Go(func() error {
-			files, base, err := relFileReport(ctx, c, destPath, isImage)
-			res := ScanResult{files: files, base: base, err: err}
+			files, base, err := relFileReport(ctx, c, destPath, destIsArchive)
+			res := ScanResult{files: files, base: base, err: err, isArchive: destIsArchive}
 			if isImage {
-				res.imageURI, res.tmpRoot = c.ScanPaths[1], destPath
+				res.imageURI, res.tmpRoot = c.ScanPaths[1], resolvePath(destPath)
 			}
 			destCh <- res
 			return err
@@ -373,10 +397,15 @@ func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent
 		srcFile := selectPrimaryFile(srcResult.files)
 		destFile := selectPrimaryFile(destResult.files)
 		if srcFile != nil && destFile != nil {
-			removed := formatKey(srcResult, CleanPath(srcFile.Path, srcResult.tmpRoot))
-			added := formatKey(destResult, CleanPath(destFile.Path, destResult.tmpRoot))
+			removed := formatReportKey(srcResult, srcFile, false)
+			added := formatReportKey(destResult, destFile, false)
 			fileDiff(ctx, c, srcFile, destFile, removed, added, d, srcResult, destResult, archiveOrImage, isReport, false)
 		}
+	}
+
+	// Diffing stops early once ctx is canceled, leaving the report incomplete.
+	if err := ctx.Err(); err != nil {
+		return nil, fmt.Errorf("diff canceled: %w", err)
 	}
 
 	return &malcontent.Report{Diff: d}, nil
@@ -513,10 +542,14 @@ func extractPath(rel string, fr *malcontent.FileReport, res ScanResult, archiveO
 
 // formatReportKey returns a formatted key for diff report entries.
 func formatReportKey(res ScanResult, fr *malcontent.FileReport, isReport bool) string {
-	if isReport {
+	switch {
+	case isReport:
 		return report.FormatReportKey(fr.Path, res.tmpRoot, res.imageURI)
+	case res.isArchive:
+		return formatKey(res, archiveEntryPath(fr))
+	default:
+		return formatKey(res, CleanPath(fr.Path, res.tmpRoot))
 	}
-	return formatKey(res, CleanPath(fr.Path, res.tmpRoot))
 }
 
 // fileDiff handles files that exist in both source and destination.
@@ -526,7 +559,7 @@ func fileDiff(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileR
 	}
 
 	if fr.RiskScore < c.MinFileRisk && tr.RiskScore < c.MinFileRisk {
-		clog.FromContext(ctx).Info("diff does not meet min trigger level", slog.Any("path", tr.Path))
+		clog.InfoContext(ctx, "diff does not meet min trigger level", slog.Any("path", tr.Path))
 		return
 	}
 
@@ -580,8 +613,8 @@ func fileDiff(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileR
 	}
 
 	// Sort behaviors by ID for deterministic output
-	sort.Slice(abs.Behaviors, func(i, j int) bool {
-		return abs.Behaviors[i].ID < abs.Behaviors[j].ID
+	slices.SortFunc(abs.Behaviors, func(a, b *malcontent.Behavior) int {
+		return cmp.Compare(a.ID, b.ID)
 	})
 
 	if isReport {
@@ -590,11 +623,10 @@ func fileDiff(ctx context.Context, c malcontent.Config, fr, tr *malcontent.FileR
 			abs.PreviousPath = report.FormatReportKey(abs.PreviousPath, src.tmpRoot, src.imageURI)
 		}
 	} else if archiveOrImage {
-		abs.Path = CleanPath(abs.Path, "/private")
-		abs.Path = formatKey(dest, CleanPath(abs.Path, dest.tmpRoot))
+		// The report keys already name each file by its path within the archive or image.
+		abs.Path = apath
 		if isMoved {
-			abs.PreviousPath = CleanPath(abs.PreviousPath, "/private")
-			abs.PreviousPath = formatKey(src, CleanPath(abs.PreviousPath, src.tmpRoot))
+			abs.PreviousPath = rpath
 		}
 	}
 
@@ -648,8 +680,8 @@ func parseBehaviorID(id string) behavior {
 }
 
 // extractBehaviors extracts unique components at the specified sensitivity level from behaviors.
-func extractBehaviors(behaviors []*malcontent.Behavior, sensitivity int) map[string]bool {
-	components := make(map[string]bool)
+func extractBehaviors(behaviors []*malcontent.Behavior, sensitivity int) map[string]struct{} {
+	components := make(map[string]struct{})
 
 	for _, b := range behaviors {
 		if b == nil {
@@ -661,18 +693,18 @@ func extractBehaviors(behaviors []*malcontent.Behavior, sensitivity int) map[str
 		switch sensitivity {
 		case OBJECTIVE:
 			if bc.objective != "" {
-				components[bc.objective] = true
+				components[bc.objective] = struct{}{}
 			}
 		case RESOURCE:
 			if bc.objective != "" && bc.resource != "" {
 				key := fmt.Sprintf("%s/%s", bc.objective, bc.resource)
-				components[key] = true
+				components[key] = struct{}{}
 			} else if bc.objective != "" {
-				components[bc.objective] = true
+				components[bc.objective] = struct{}{}
 			}
 		case TECHNIQUE:
 			if b.ID != "" {
-				components[b.ID] = true
+				components[b.ID] = struct{}{}
 			}
 		}
 	}
@@ -686,13 +718,13 @@ func behaviorsChanged(fr, tr *malcontent.FileReport, sensitivity int) bool {
 	db := extractBehaviors(tr.Behaviors, sensitivity)
 
 	for bc := range db {
-		if !sb[bc] {
+		if _, ok := sb[bc]; !ok {
 			return true
 		}
 	}
 
 	for bc := range sb {
-		if !db[bc] {
+		if _, ok := db[bc]; !ok {
 			return true
 		}
 	}
@@ -721,31 +753,31 @@ func filterDiff(ctx context.Context, c malcontent.Config, fr, tr *malcontent.Fil
 		return false
 	case c.Sensitivity == TECHNIQUE:
 		if !behaviorsChanged(fr, tr, TECHNIQUE) {
-			clog.FromContext(ctx).Info("dropping result because no technique-level changes detected",
+			clog.InfoContext(ctx, "dropping result because no technique-level changes detected",
 				slog.Any("paths", fmt.Sprintf("%s -> %s", fr.Path, tr.Path)))
 			return true
 		}
 		return false
 	case c.Sensitivity == RESOURCE:
 		if !behaviorsChanged(fr, tr, RESOURCE) {
-			clog.FromContext(ctx).Info("dropping result because no resource-level changes detected",
+			clog.InfoContext(ctx, "dropping result because no resource-level changes detected",
 				slog.Any("paths", fmt.Sprintf("%s -> %s", fr.Path, tr.Path)))
 			return true
 		}
 		return false
 	case c.Sensitivity == OBJECTIVE:
 		if !behaviorsChanged(fr, tr, OBJECTIVE) {
-			clog.FromContext(ctx).Info("dropping result because no objective-level changes detected",
+			clog.InfoContext(ctx, "dropping result because no objective-level changes detected",
 				slog.Any("paths", fmt.Sprintf("%s -> %s", fr.Path, tr.Path)))
 			return true
 		}
 		return false
 	case change && equalRisk:
-		clog.FromContext(ctx).Info("dropping result because diff scores were the same",
+		clog.InfoContext(ctx, "dropping result because diff scores were the same",
 			slog.Any("paths", fmt.Sprintf("%s (%d) %s (%d)", fr.Path, fr.RiskScore, tr.Path, tr.RiskScore)))
 		return true
 	case c.FileRiskIncrease && lessRisk:
-		clog.FromContext(ctx).Info("dropping result because old score was the same or higher than the new score",
+		clog.InfoContext(ctx, "dropping result because old score was the same or higher than the new score",
 			slog.Any("paths ", fmt.Sprintf("%s (%d) %s (%d)", fr.Path, fr.RiskScore, tr.Path, tr.RiskScore)))
 		return true
 	default:

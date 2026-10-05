@@ -4,7 +4,6 @@
 package compile
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"io/fs"
@@ -25,7 +24,7 @@ func getAllRuleFS() []fs.FS {
 // clearRulesCache removes any existing cached rules.
 func clearRulesCache(t *testing.T, fss []fs.FS) {
 	t.Helper()
-	ctx := context.Background()
+	ctx := t.Context()
 
 	cacheDir, err := getCacheDir()
 	if err != nil {
@@ -47,7 +46,7 @@ func clearRulesCache(t *testing.T, fss []fs.FS) {
 // clearRulesCacheB is the benchmark version of clearRulesCache.
 func clearRulesCacheB(b *testing.B, fss []fs.FS) {
 	b.Helper()
-	ctx := context.Background()
+	ctx := b.Context()
 
 	cacheDir, err := getCacheDir()
 	if err != nil {
@@ -68,7 +67,7 @@ func clearRulesCacheB(b *testing.B, fss []fs.FS) {
 
 func TestRecursive(t *testing.T) {
 	t.Parallel()
-	ctx := context.Background()
+	ctx := t.Context()
 
 	rules, err := Recursive(ctx, getAllRuleFS())
 	if err != nil {
@@ -76,13 +75,13 @@ func TestRecursive(t *testing.T) {
 	}
 
 	if rules == nil {
-		t.Fatal("Expected compiled rules, got nil")
+		t.Fatal("Recursive() rules: got = nil, want = compiled rules")
 	}
 }
 
 func TestGetRulesHash(t *testing.T) {
 	t.Parallel()
-	ctx := context.Background()
+	ctx := t.Context()
 
 	fss := getAllRuleFS()
 	hash1, err := getRulesHash(ctx, fss)
@@ -91,7 +90,7 @@ func TestGetRulesHash(t *testing.T) {
 	}
 
 	if hash1 == "" {
-		t.Fatal("Expected non-empty hash")
+		t.Fatal("getRulesHash(): got = empty, want = a non-empty hash")
 	}
 
 	hash2, err := getRulesHash(ctx, fss)
@@ -100,7 +99,7 @@ func TestGetRulesHash(t *testing.T) {
 	}
 
 	if hash1 != hash2 {
-		t.Fatalf("Expected consistent hash, got %s and %s", hash1, hash2)
+		t.Fatalf("second getRulesHash(): got = %s, want = %s", hash2, hash1)
 	}
 
 	t.Logf("Rules hash: %s", hash1)
@@ -108,7 +107,7 @@ func TestGetRulesHash(t *testing.T) {
 
 func TestCacheOperations(t *testing.T) {
 	t.Parallel()
-	ctx := context.Background()
+	ctx := t.Context()
 
 	tempDir := t.TempDir()
 
@@ -134,19 +133,19 @@ func TestCacheOperations(t *testing.T) {
 	}
 
 	if cachedRules == nil {
-		t.Fatal("Expected loaded rules, got nil")
+		t.Fatal("loadCachedRules() rules: got = nil, want = loaded rules")
 	}
 
 	nonExistentFile := filepath.Join(tempDir, "does-not-exist.cache")
 	_, err = loadCachedRules(nonExistentFile)
 	if err == nil {
-		t.Fatal("Expected error when loading non-existent cache file")
+		t.Fatal("loadCachedRules(missing file) error: got = nil, want = non-nil")
 	}
 }
 
 func TestRecursiveCached(t *testing.T) {
 	t.Parallel()
-	ctx := context.Background()
+	ctx := t.Context()
 
 	fss := getAllRuleFS()
 
@@ -161,7 +160,7 @@ func TestRecursiveCached(t *testing.T) {
 	}
 
 	if rules1 == nil {
-		t.Fatal("Expected compiled rules from first call")
+		t.Fatal("first RecursiveCached() rules: got = nil, want = compiled rules")
 	}
 
 	t.Logf("First compilation (cache miss) took: %v", duration1)
@@ -175,7 +174,7 @@ func TestRecursiveCached(t *testing.T) {
 	}
 
 	if rules2 == nil {
-		t.Fatal("Expected compiled rules from second call")
+		t.Fatal("second RecursiveCached() rules: got = nil, want = compiled rules")
 	}
 
 	t.Logf("Second compilation (cache hit) took: %v", duration2)
@@ -187,14 +186,14 @@ func TestRecursiveCached(t *testing.T) {
 		t.Logf("Cache speedup: %.1fx faster", speedup)
 
 		if speedup < 3.0 {
-			t.Errorf("Expected significant speedup, got only %.1fx", speedup)
+			t.Errorf("cache speedup: got = %.1fx, want >= 3.0x", speedup)
 		}
 	}
 }
 
 func TestRecursiveCachedFallback(t *testing.T) {
 	t.Parallel()
-	ctx := context.Background()
+	ctx := t.Context()
 
 	rules, err := RecursiveCached(ctx, getAllRuleFS())
 	if err != nil {
@@ -202,7 +201,7 @@ func TestRecursiveCachedFallback(t *testing.T) {
 	}
 
 	if rules == nil {
-		t.Fatal("Expected rules from compilation")
+		t.Fatal("RecursiveCached() rules: got = nil, want = compiled rules")
 	}
 }
 
@@ -220,7 +219,7 @@ func TestGetCacheDir(t *testing.T) {
 	}
 
 	if cacheDir != expectedDir {
-		t.Fatalf("Expected cache dir %s, got %s", expectedDir, cacheDir)
+		t.Fatalf("getCacheDir(): got = %s, want = %s", cacheDir, expectedDir)
 	}
 
 	info, err := os.Stat(cacheDir)
@@ -237,7 +236,7 @@ func TestGetCacheDir(t *testing.T) {
 
 func TestCacheFileSize(t *testing.T) {
 	t.Parallel()
-	ctx := context.Background()
+	ctx := t.Context()
 
 	tempDir := t.TempDir()
 
@@ -275,7 +274,7 @@ func TestCacheFileSize(t *testing.T) {
 
 func TestCacheIntegrity_SidecarRoundtrip(t *testing.T) {
 	t.Parallel()
-	ctx := context.Background()
+	ctx := t.Context()
 
 	tempDir := t.TempDir()
 	rules, err := Recursive(ctx, getAllRuleFS())
@@ -315,7 +314,7 @@ func TestCacheIntegrity_SidecarRoundtrip(t *testing.T) {
 	// no rules, whether the byte change is caught while deserializing or by the
 	// post-deserialization digest comparison.
 	if got, err := loadCachedRules(cacheFile); err == nil {
-		t.Fatal("expected error after tamper, got nil")
+		t.Fatal("loadCachedRules() after tamper error: got = nil, want = non-nil")
 	} else if got != nil {
 		t.Fatal("tampered cache must not return rules")
 	}
@@ -324,13 +323,13 @@ func TestCacheIntegrity_SidecarRoundtrip(t *testing.T) {
 		t.Fatalf("remove sidecar: %v", err)
 	}
 	if _, err := loadCachedRules(cacheFile); err == nil {
-		t.Fatal("expected missing-sidecar error, got nil")
+		t.Fatal("loadCachedRules() without sidecar error: got = nil, want = non-nil")
 	}
 }
 
 func TestLoadCachedRules_DigestMismatchRejected(t *testing.T) {
 	t.Parallel()
-	ctx := context.Background()
+	ctx := t.Context()
 
 	tempDir := t.TempDir()
 	rules, err := Recursive(ctx, getAllRuleFS())
@@ -357,13 +356,13 @@ func TestLoadCachedRules_DigestMismatchRejected(t *testing.T) {
 
 	got, err := loadCachedRules(cacheFile)
 	if err == nil {
-		t.Fatal("expected digest mismatch error, got nil")
+		t.Fatal("loadCachedRules() with a wrong digest error: got = nil, want = non-nil")
 	}
 	if got != nil {
 		t.Fatal("rules that failed integrity verification must not be returned")
 	}
 	if !strings.Contains(err.Error(), "integrity mismatch") {
-		t.Fatalf("expected integrity mismatch error, got: %v", err)
+		t.Fatalf("loadCachedRules() error: got = %v, want an integrity mismatch", err)
 	}
 }
 
@@ -395,19 +394,19 @@ func TestSweepStaleTempFiles(t *testing.T) {
 
 	for _, p := range []string{staleCache, staleSidecar} {
 		if _, err := os.Stat(p); !errors.Is(err, fs.ErrNotExist) {
-			t.Errorf("expected stale temp %s removed, stat err: %v", p, err)
+			t.Errorf("stale temp %s stat error: got = %v, want = %v", p, err, fs.ErrNotExist)
 		}
 	}
 	for _, p := range []string{freshCache, liveCache, liveSidecar} {
 		if _, err := os.Stat(p); err != nil {
-			t.Errorf("expected %s preserved, stat err: %v", p, err)
+			t.Errorf("preserved %s stat error: got = %v, want = nil", p, err)
 		}
 	}
 }
 
 // BenchmarkRecursive benchmarks uncached rule compilation.
 func BenchmarkRecursive(b *testing.B) {
-	ctx := context.Background()
+	ctx := b.Context()
 	fss := getAllRuleFS()
 
 	for b.Loop() {
@@ -423,7 +422,7 @@ func BenchmarkRecursive(b *testing.B) {
 
 // BenchmarkRecursiveCachedFirstRun benchmarks the first run (cache miss).
 func BenchmarkRecursiveCachedFirstRun(b *testing.B) {
-	ctx := context.Background()
+	ctx := b.Context()
 	fss := getAllRuleFS()
 
 	for b.Loop() {
@@ -439,7 +438,7 @@ func BenchmarkRecursiveCachedFirstRun(b *testing.B) {
 
 // BenchmarkRecursiveCachedSubsequentRuns benchmarks subsequent runs (cache hit).
 func BenchmarkRecursiveCachedSubsequentRuns(b *testing.B) {
-	ctx := context.Background()
+	ctx := b.Context()
 	fss := getAllRuleFS()
 
 	_, err := RecursiveCached(ctx, fss)
@@ -460,7 +459,7 @@ func BenchmarkRecursiveCachedSubsequentRuns(b *testing.B) {
 
 // BenchmarkGetRulesHash benchmarks hash calculation performance.
 func BenchmarkGetRulesHash(b *testing.B) {
-	ctx := context.Background()
+	ctx := b.Context()
 	realFS := getAllRuleFS()
 
 	for b.Loop() {
@@ -476,7 +475,7 @@ func BenchmarkGetRulesHash(b *testing.B) {
 
 // BenchmarkCacheOperations benchmarks save/load operations.
 func BenchmarkCacheOperations(b *testing.B) {
-	ctx := context.Background()
+	ctx := b.Context()
 	fss := getAllRuleFS()
 
 	rules, err := Recursive(ctx, fss)
@@ -517,7 +516,7 @@ func BenchmarkCacheOperations(b *testing.B) {
 
 // BenchmarkCompareCompilation compares compilation methods.
 func BenchmarkCompareCompilation(b *testing.B) {
-	ctx := context.Background()
+	ctx := b.Context()
 	fss := getAllRuleFS()
 
 	b.Run("Uncached", func(b *testing.B) {

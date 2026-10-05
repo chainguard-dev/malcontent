@@ -34,7 +34,7 @@ func (r Simple) File(ctx context.Context, fr *malcontent.FileReport) error {
 	}
 
 	if len(fr.Behaviors) > 0 {
-		fmt.Fprintf(r.w, "# %s: %s\n", fr.Path, strings.ToLower(fr.RiskLevel))
+		fmt.Fprintf(r.w, "# %s: %s\n", sanitizeTerminal(fr.Path), strings.ToLower(fr.RiskLevel))
 	}
 
 	for _, b := range fr.Behaviors {
@@ -58,7 +58,7 @@ func (r Simple) Full(ctx context.Context, _ *malcontent.Config, rep *malcontent.
 			continue
 		}
 
-		fmt.Fprintf(r.w, "--- missing: %s\n", removed.Key)
+		fmt.Fprintf(r.w, "--- missing: %s\n", sanitizeTerminal(removed.Key))
 
 		for _, b := range removed.Value.Behaviors {
 			fmt.Fprintf(r.w, "-%s\n", b.ID)
@@ -70,7 +70,7 @@ func (r Simple) Full(ctx context.Context, _ *malcontent.Config, rep *malcontent.
 			continue
 		}
 
-		fmt.Fprintf(r.w, "+++ added: %s\n", added.Key)
+		fmt.Fprintf(r.w, "+++ added: %s\n", sanitizeTerminal(added.Key))
 
 		for _, b := range added.Value.Behaviors {
 			fmt.Fprintf(r.w, "+%s\n", b.ID)
@@ -102,9 +102,9 @@ func (r Simple) Full(ctx context.Context, _ *malcontent.Config, rep *malcontent.
 		}
 
 		if modified.Value.PreviousPath != "" {
-			fmt.Fprintf(r.w, ">>> moved (%d added, %d removed): %s -> %s\n", added, removed, modified.Value.PreviousPath, modified.Value.Path)
+			fmt.Fprintf(r.w, ">>> moved (%d added, %d removed): %s -> %s\n", added, removed, sanitizeTerminal(modified.Value.PreviousPath), sanitizeTerminal(modified.Value.Path))
 		} else {
-			fmt.Fprintf(r.w, "*** changed (%d added, %d removed): %s\n", added, removed, modified.Value.Path)
+			fmt.Fprintf(r.w, "*** changed (%d added, %d removed): %s\n", added, removed, sanitizeTerminal(modified.Value.Path))
 		}
 
 		for _, b := range modified.Value.Behaviors {

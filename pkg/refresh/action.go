@@ -75,21 +75,25 @@ func actionRefresh(ctx context.Context) ([]TestData, error) {
 		scan := td.scanPath
 
 		if _, err := os.Stat(scan); err != nil {
+			closeTestDataFiles(testData)
 			return nil, fmt.Errorf("special case input file not found: %s: %w", scan, err)
 		}
 
 		if err := os.MkdirAll(filepath.Dir(output), 0o700); err != nil {
+			closeTestDataFiles(testData)
 			return nil, fmt.Errorf("create output directory: %w", err)
 		}
 
 		outFile, err := os.OpenFile(output, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600) // #nosec G304 -- refresh operates on testdata roots controlled by the test harness
 		if err != nil {
+			closeTestDataFiles(testData)
 			return nil, fmt.Errorf("create output file %s: %w", output, err)
 		}
 
 		r, err := render.New(td.format, outFile)
 		if err != nil {
 			_ = outFile.Close()
+			closeTestDataFiles(testData)
 			return nil, fmt.Errorf("create renderer for %s: %w", output, err)
 		}
 
@@ -97,6 +101,7 @@ func actionRefresh(ctx context.Context) ([]TestData, error) {
 		yrs, err := action.CachedRules(ctx, rfs)
 		if err != nil {
 			_ = outFile.Close()
+			closeTestDataFiles(testData)
 			return nil, err
 		}
 

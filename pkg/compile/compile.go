@@ -28,65 +28,65 @@ import (
 var FS = rules.FS
 
 // badRules are noisy 3rd party rules to silently disable.
-var badRules = map[string]bool{
+var badRules = map[string]struct{}{
 	// YARAForge
-	"GCTI_Sliver_Implant_32Bit":                           true,
-	"GODMODERULES_IDDQD_God_Mode_Rule":                    true,
-	"MALPEDIA_Win_Unidentified_107_Auto":                  true,
-	"SIGNATURE_BASE_SUSP_PS1_JAB_Pattern_Jun22_1":         true,
-	"ELCEEF_HTML_Smuggling_A":                             true,
-	"DELIVRTO_SUSP_HTML_WASM_Smuggling":                   true,
-	"SIGNATURE_BASE_FVEY_Shadowbroker_Auct_Dez16_Strings": true,
-	"ELASTIC_Macos_Creddump_Keychainaccess_535C1511":      true,
-	"SIGNATURE_BASE_Reconcommands_In_File":                true,
-	"SIGNATURE_BASE_Apt_CN_Tetrisplugins_JS":              true,
-	"CAPE_Sparkrat":                                       true,
-	"SECUINFRA_SUSP_Powershell_Base64_Decode":             true,
-	"SIGNATURE_BASE_SUSP_ELF_LNX_UPX_Compressed_File":     true,
-	"DELIVRTO_SUSP_SVG_Foreignobject_Nov24":               true,
-	"CAPE_Eternalromance":                                 true,
-	"CAPE_Formhookb":                                      true,
-	"TELEKOM_SECURITY_Cn_Utf8_Windows_Terminal":           true,
-	"CAPE_Nitrogenloaderconfig":                           true,
+	"GCTI_Sliver_Implant_32Bit":                           {},
+	"GODMODERULES_IDDQD_God_Mode_Rule":                    {},
+	"MALPEDIA_Win_Unidentified_107_Auto":                  {},
+	"SIGNATURE_BASE_SUSP_PS1_JAB_Pattern_Jun22_1":         {},
+	"ELCEEF_HTML_Smuggling_A":                             {},
+	"DELIVRTO_SUSP_HTML_WASM_Smuggling":                   {},
+	"SIGNATURE_BASE_FVEY_Shadowbroker_Auct_Dez16_Strings": {},
+	"ELASTIC_Macos_Creddump_Keychainaccess_535C1511":      {},
+	"SIGNATURE_BASE_Reconcommands_In_File":                {},
+	"SIGNATURE_BASE_Apt_CN_Tetrisplugins_JS":              {},
+	"CAPE_Sparkrat":                                       {},
+	"SECUINFRA_SUSP_Powershell_Base64_Decode":             {},
+	"SIGNATURE_BASE_SUSP_ELF_LNX_UPX_Compressed_File":     {},
+	"DELIVRTO_SUSP_SVG_Foreignobject_Nov24":               {},
+	"CAPE_Eternalromance":                                 {},
+	"CAPE_Formhookb":                                      {},
+	"TELEKOM_SECURITY_Cn_Utf8_Windows_Terminal":           {},
+	"CAPE_Nitrogenloaderconfig":                           {},
 	// ThreatHunting Keywords (some duplicates)
-	"Adobe_XMP_Identifier":                       true,
-	"Antivirus_Signature_signature_keyword":      true,
-	"blackcat_ransomware_offensive_tool_keyword": true,
-	"Dinjector_offensive_tool_keyword":           true,
-	"empire_offensive_tool_keyword":              true,
-	"github_greyware_tool_keyword":               true,
-	"koadic_offensive_tool_keyword":              true,
-	"mythic_offensive_tool_keyword":              true,
-	"netcat_greyware_tool_keyword":               true,
-	"nmap_greyware_tool_keyword":                 true,
-	"portscan_offensive_tool_keyword":            true,
-	"scp_greyware_tool_keyword":                  true,
-	"sftp_greyware_tool_keyword":                 true,
-	"ssh_greyware_tool_keyword":                  true,
-	"usbpcap_offensive_tool_keyword":             true,
-	"viperc2_offensive_tool_keyword":             true,
-	"vsftpd_greyware_tool_keyword":               true,
-	"wfuzz_offensive_tool_keyword":               true,
-	"whoami_greyware_tool_keyword":               true,
-	"wireshark_greyware_tool_keyword":            true,
-	"mimikatz_offensive_tool_keyword":            true,
+	"Adobe_XMP_Identifier":                       {},
+	"Antivirus_Signature_signature_keyword":      {},
+	"blackcat_ransomware_offensive_tool_keyword": {},
+	"Dinjector_offensive_tool_keyword":           {},
+	"empire_offensive_tool_keyword":              {},
+	"github_greyware_tool_keyword":               {},
+	"koadic_offensive_tool_keyword":              {},
+	"mythic_offensive_tool_keyword":              {},
+	"netcat_greyware_tool_keyword":               {},
+	"nmap_greyware_tool_keyword":                 {},
+	"portscan_offensive_tool_keyword":            {},
+	"scp_greyware_tool_keyword":                  {},
+	"sftp_greyware_tool_keyword":                 {},
+	"ssh_greyware_tool_keyword":                  {},
+	"usbpcap_offensive_tool_keyword":             {},
+	"viperc2_offensive_tool_keyword":             {},
+	"vsftpd_greyware_tool_keyword":               {},
+	"wfuzz_offensive_tool_keyword":               {},
+	"whoami_greyware_tool_keyword":               {},
+	"wireshark_greyware_tool_keyword":            {},
+	"mimikatz_offensive_tool_keyword":            {},
 	// Inquest
-	"Microsoft_Excel_Hidden_Macrosheet": true,
-	"Adobe_Type_1_Font":                 true,
+	"Microsoft_Excel_Hidden_Macrosheet": {},
+	"Adobe_Type_1_Font":                 {},
 	// YARA VT
-	"Base64_Encoded_URL":   true,
-	"Windows_API_Function": true,
+	"Base64_Encoded_URL":   {},
+	"Windows_API_Function": {},
 	// TTC-CERT
-	"cve_202230190_html_payload": true,
+	"cve_202230190_html_payload": {},
 	// JPCERT
-	"malware_PlugX_config":   true,
-	"malware_shellcode_hash": true,
+	"malware_PlugX_config":   {},
+	"malware_shellcode_hash": {},
 	// bartblaze
-	"Rclone":                        true,
-	"Extract_MachineKey_SharePoint": true,
+	"Rclone":                        {},
+	"Extract_MachineKey_SharePoint": {},
 	// Rules that are incompatible with yara-x (unescaped braces in regex strings)
-	"RTF_Header_Obfuscation":    true,
-	"RTF_File_Malformed_Header": true,
+	"RTF_Header_Obfuscation":    {},
+	"RTF_File_Malformed_Header": {},
 }
 
 // rulesWithWarnings determines what to do with rules that have known warnings: true=keep, false=disable.
@@ -141,11 +141,9 @@ var (
 // getRulesToRemove returns a consolidated list of rules to remove from a rule string.
 func getRulesToRemove() []string {
 	rr := make([]string, 0)
-	// Add rules from badRules map that are marked true
-	for rule, remove := range badRules {
-		if remove {
-			rr = append(rr, rule)
-		}
+	// Add every rule from the badRules set
+	for rule := range badRules {
+		rr = append(rr, rule)
 	}
 	// Add rules from rulesWithWarnings map that are marked false
 	for rule, keep := range rulesWithWarnings {
@@ -491,6 +489,14 @@ func getRulesHash(ctx context.Context, fss []fs.FS) (string, error) {
 	return fmt.Sprintf("%x", hasher.Sum(nil)), nil
 }
 
+// logDebug and logWarn emit the rule cache's log records through the default
+// slog logger. They are variables so tests can record the messages without
+// replacing the process-wide logger.
+var (
+	logDebug = slog.Debug
+	logWarn  = slog.Warn
+)
+
 // RecursiveCached compiles rules with persistent disk caching to avoid penalizing successive executions with repeated rule compilations.
 func RecursiveCached(ctx context.Context, fss []fs.FS) (*yarax.Rules, error) {
 	if ctx.Err() != nil {
@@ -509,20 +515,20 @@ func RecursiveCached(ctx context.Context, fss []fs.FS) (*yarax.Rules, error) {
 
 	cacheFile := filepath.Join(cacheDir, fmt.Sprintf("rules-%s.cache", hash))
 	if cachedRules, loadErr := loadCachedRules(cacheFile); loadErr == nil {
-		slog.Debug("Loaded rules from cache", "file", cacheFile)
+		logDebug("Loaded rules from cache", "file", cacheFile)
 		return cachedRules, nil
 	}
 
-	slog.Debug("Cache miss, compiling rules", "file", cacheFile)
+	logDebug("Cache miss, compiling rules", "file", cacheFile)
 	compiledRules, err := Recursive(ctx, fss)
 	if err != nil {
 		return nil, fmt.Errorf("compile: %w", err)
 	}
 
 	if saveErr := saveCachedRules(compiledRules, cacheFile); saveErr != nil {
-		slog.Warn("Failed to save rules to cache", "error", saveErr)
+		logWarn("Failed to save rules to cache", "error", saveErr)
 	} else {
-		slog.Debug("Saved rules to cache", "file", cacheFile)
+		logDebug("Saved rules to cache", "file", cacheFile)
 	}
 
 	return compiledRules, nil

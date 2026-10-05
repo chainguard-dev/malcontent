@@ -101,7 +101,7 @@ func TestExtractionMultiple(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.path, func(t *testing.T) {
 			t.Parallel()
-			ctx := context.Background()
+			ctx := t.Context()
 
 			dir, err := archive.ExtractArchiveToTempDir(ctx, malcontent.Config{}, tt.path)
 			if err != nil {
@@ -130,7 +130,7 @@ func TestExtractionMultiple(t *testing.T) {
 
 func TestExtractTar(t *testing.T) {
 	t.Parallel()
-	ctx := context.Background()
+	ctx := t.Context()
 	dir, err := archive.ExtractArchiveToTempDir(ctx, malcontent.Config{}, filepath.Join("testdata", "apko.tar.gz"))
 	if err != nil {
 		t.Fatal(err)
@@ -159,7 +159,7 @@ func TestExtractTar(t *testing.T) {
 
 func TestExtractGzip(t *testing.T) {
 	t.Parallel()
-	ctx := context.Background()
+	ctx := t.Context()
 	dir, err := archive.ExtractArchiveToTempDir(ctx, malcontent.Config{}, filepath.Join("testdata", "apko.gz"))
 	if err != nil {
 		t.Fatal(err)
@@ -188,7 +188,7 @@ func TestExtractGzip(t *testing.T) {
 
 func TestExtractZip(t *testing.T) {
 	t.Parallel()
-	ctx := context.Background()
+	ctx := t.Context()
 	dir, err := archive.ExtractArchiveToTempDir(ctx, malcontent.Config{}, filepath.Join("testdata", "apko.zip"))
 	if err != nil {
 		t.Fatal(err)
@@ -260,7 +260,7 @@ func TestExtractWar(t *testing.T) {
 	defer os.RemoveAll(dir)
 	for _, want := range []string{"WEB-INF/web.xml", "WEB-INF/classes/Hello.class"} {
 		if _, err := os.Stat(filepath.Join(dir, want)); err != nil {
-			t.Errorf("expected %s in extracted war: %v", want, err)
+			t.Errorf("stat %s in extracted war: got = %v, want = nil", want, err)
 		}
 	}
 }
@@ -294,28 +294,28 @@ func TestExtractEar(t *testing.T) {
 
 	// The nested war is extracted in place, so its contents must be
 	// reachable somewhere beneath the extraction root.
-	found := map[string]bool{}
+	found := map[string]struct{}{}
 	if err := filepath.WalkDir(dir, func(_ string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 		if !d.IsDir() {
-			found[d.Name()] = true
+			found[d.Name()] = struct{}{}
 		}
 		return nil
 	}); err != nil {
 		t.Fatal(err)
 	}
 	for _, want := range []string{"application.xml", "web.xml", "Hello.class"} {
-		if !found[want] {
-			t.Errorf("expected %s in extracted ear, found files: %v", want, found)
+		if _, ok := found[want]; !ok {
+			t.Errorf("extracted ear files: got = %v, want %s among them", slices.Sorted(maps.Keys(found)), want)
 		}
 	}
 }
 
 func TestExtractNestedArchive(t *testing.T) {
 	t.Parallel()
-	ctx := context.Background()
+	ctx := t.Context()
 	dir, err := archive.ExtractArchiveToTempDir(ctx, malcontent.Config{}, filepath.Join("testdata", "apko_nested.tar.gz"))
 	if err != nil {
 		t.Fatal(err)
@@ -344,7 +344,7 @@ func TestExtractNestedArchive(t *testing.T) {
 
 func TestScanArchive(t *testing.T) {
 	t.Parallel()
-	ctx := context.Background()
+	ctx := t.Context()
 	clog.FromContext(ctx).With("test", "scan_archive")
 
 	var out bytes.Buffer
@@ -388,7 +388,7 @@ func TestScanArchive(t *testing.T) {
 
 func TestScanDeb(t *testing.T) {
 	t.Parallel()
-	ctx := context.Background()
+	ctx := t.Context()
 	clog.FromContext(ctx).With("test", "scan_archive")
 
 	var out bytes.Buffer
@@ -432,7 +432,7 @@ func TestScanDeb(t *testing.T) {
 
 func TestScanRPM(t *testing.T) {
 	t.Parallel()
-	ctx := context.Background()
+	ctx := t.Context()
 	clog.FromContext(ctx).With("test", "scan_archive")
 
 	var out bytes.Buffer
@@ -476,7 +476,7 @@ func TestScanRPM(t *testing.T) {
 
 func TestScanZlib(t *testing.T) {
 	t.Parallel()
-	ctx := context.Background()
+	ctx := t.Context()
 	clog.FromContext(ctx).With("test", "scan_archive")
 
 	var out bytes.Buffer
@@ -520,7 +520,7 @@ func TestScanZlib(t *testing.T) {
 
 func TestScanZstd(t *testing.T) {
 	t.Parallel()
-	ctx := context.Background()
+	ctx := t.Context()
 	clog.FromContext(ctx).With("test", "scan_archive")
 
 	var out bytes.Buffer
@@ -571,7 +571,7 @@ func extractError(e error) error {
 
 func TestScanInvalidArchive(t *testing.T) {
 	t.Parallel()
-	ctx := context.Background()
+	ctx := t.Context()
 	clog.FromContext(ctx).With("test", "scan_invalid_archive")
 
 	var out bytes.Buffer
@@ -608,7 +608,7 @@ func TestScanInvalidArchive(t *testing.T) {
 
 func TestScanInvalidArchiveIgnore(t *testing.T) {
 	t.Parallel()
-	ctx := context.Background()
+	ctx := t.Context()
 	clog.FromContext(ctx).With("test", "scan_invalid_archive_ignore")
 
 	var out bytes.Buffer
@@ -649,9 +649,9 @@ func TestScanInvalidArchiveIgnore(t *testing.T) {
 	// could not reach is still subject to the rules. Assert on the paths present
 	// instead of a golden document, since the findings themselves track
 	// third-party rule updates.
-	scanned := map[string]bool{}
+	scanned := map[string]struct{}{}
 	res.Files.Range(func(path string, _ *malcontent.FileReport) bool {
-		scanned[path] = true
+		scanned[path] = struct{}{}
 		return true
 	})
 
@@ -664,14 +664,14 @@ func TestScanInvalidArchiveIgnore(t *testing.T) {
 			}
 		}
 		if !found {
-			t.Errorf("retained archive %s absent from scan results; got paths %v", want, slices.Sorted(maps.Keys(scanned)))
+			t.Errorf("scanned paths: got = %v, want one naming retained archive %s", slices.Sorted(maps.Keys(scanned)), want)
 		}
 	}
 }
 
 func TestScanConflictingArchiveFiles(t *testing.T) {
 	t.Parallel()
-	ctx := context.Background()
+	ctx := t.Context()
 	clog.FromContext(ctx).With("test", "scan_conflicting_archive_files")
 
 	var out bytes.Buffer
@@ -770,7 +770,7 @@ func TestNestedFailureRetention(t *testing.T) {
 
 	outerArchive := createBrokenNestedArchive(t, tmpDir)
 
-	ctx := context.Background()
+	ctx := t.Context()
 	cfg := malcontent.Config{ExitExtraction: false}
 
 	extractDir, err := archive.ExtractArchiveToTempDir(ctx, cfg, outerArchive)
@@ -811,7 +811,7 @@ func TestNestedFailureRetentionError(t *testing.T) {
 
 	outerArchive := createBrokenNestedArchive(t, tmpDir)
 
-	ctx := context.Background()
+	ctx := t.Context()
 	cfg := malcontent.Config{ExitExtraction: true}
 
 	extractDir, err := archive.ExtractArchiveToTempDir(ctx, cfg, outerArchive)

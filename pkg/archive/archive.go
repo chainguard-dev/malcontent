@@ -14,6 +14,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -22,6 +23,7 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/pool"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
+	"github.com/minio/sha256-simd"
 	"github.com/puzpuzpuz/xsync/v4"
 	"golang.org/x/sync/semaphore"
 )
@@ -257,141 +259,353 @@ func IsValidPath(target, dir string) bool {
 	}
 }
 
-func extractNestedArchive(ctx context.Context, c malcontent.Config, d string, f string, extracted *xsync.Map[string, bool], logger *clog.Logger, depth int) (err error) {
-	defer recoverExtractor(ctx, "nested", filepath.Join(d, f), &err)
-	if ctx.Err() != nil {
-		return ctx.Err()
-	}
+// maxNestingDepth is the safety bound on nested extraction when
+// Config.MaxDepth leaves the depth unlimited (zero or negative). An archive
+// that holds a copy of itself is stopped sooner, by content digest; this bound
+// stops archives built to nest without end through distinct copies.
+const maxNestingDepth = 64
 
-	// Check depth limit (0 or -1 means unlimited, positive values are limits)
-	if c.MaxDepth > 0 && depth > c.MaxDepth {
-		return fmt.Errorf("current depth of %d exceeds limit of %d which may be an indicator of compromise", depth, c.MaxDepth)
+// nestingLimit returns the deepest nesting level extraction may reach: the
+// configured MaxDepth, or maxNestingDepth when MaxDepth leaves it unlimited.
+func nestingLimit(maxDepth int) int {
+	if maxDepth > 0 {
+		return maxDepth
 	}
+	return maxNestingDepth
+}
 
-	attempted, err := extractNestedFile(ctx, c, d, f, extracted, logger)
-	if err != nil || !attempted {
+// ancestry is the chain of SHA-256 digests of the archives that contain a
+// nested archive, innermost first. A nil *ancestry is an empty chain.
+type ancestry struct {
+	digest [sha256.Size]byte
+	parent *ancestry
+}
+
+// contains reports whether digest belongs to any archive in the chain.
+func (a *ancestry) contains(digest [sha256.Size]byte) bool {
+	for ; a != nil; a = a.parent {
+		if a.digest == digest {
+			return true
+		}
+	}
+	return false
+}
+
+// nestedCandidate is an archive awaiting nested extraction: its path relative
+// to the extraction root, its nesting level, and the archives containing it.
+type nestedCandidate struct {
+	rel       string
+	depth     int
+	ancestors *ancestry
+}
+
+// nestedTree records what one extraction tree has processed: the paths,
+// relative to the extraction root, that need no further extraction, and the
+// digest of the scanned archive at its root, which contains every archive in
+// the tree. It is not safe for concurrent use.
+type nestedTree struct {
+	extracted *xsync.Map[string, bool]
+	root      *ancestry
+}
+
+func newNestedTree(extracted *xsync.Map[string, bool]) *nestedTree {
+	return &nestedTree{extracted: extracted}
+}
+
+// contentDigest returns the SHA-256 digest of everything r yields.
+func contentDigest(r io.Reader) ([sha256.Size]byte, error) {
+	var sum [sha256.Size]byte
+	h := sha256.New()
+	if _, err := io.Copy(h, r); err != nil {
+		return sum, fmt.Errorf("failed to hash archive: %w", err)
+	}
+	copy(sum[:], h.Sum(nil))
+	return sum, nil
+}
+
+// setRoot records the archive at path, which lies outside the extraction
+// directory, as the one containing every archive in the tree.
+func (tree *nestedTree) setRoot(path string) error {
+	f, err := os.Open(path) // #nosec G304 -- archive path supplied by the caller, which extracts it next
+	if err != nil {
+		return fmt.Errorf("failed to open archive for hashing: %w", err)
+	}
+	defer f.Close()
+
+	digest, err := contentDigest(f)
+	if err != nil {
 		return err
 	}
+	tree.root = &ancestry{digest: digest}
+	return nil
+}
 
-	entries, err := os.ReadDir(d)
+// archiveDigest returns the SHA-256 digest of name beneath root.
+func archiveDigest(root *os.Root, name string) ([sha256.Size]byte, error) {
+	f, err := root.Open(name)
 	if err != nil {
-		return fmt.Errorf("failed to read directory after extraction: %w", err)
+		return [sha256.Size]byte{}, fmt.Errorf("failed to open archive for hashing: %w", err)
 	}
+	defer f.Close()
+	return contentDigest(f)
+}
 
-	for _, entry := range entries {
+// extractNestedArchive extracts f, relative to d, found at nesting level
+// depth, and then every archive within what that extraction produced, each one
+// level deeper. Only the directories that extraction creates are searched for
+// further archives, so each archive is examined once however deeply it nests.
+func extractNestedArchive(ctx context.Context, c malcontent.Config, d string, f string, extracted *xsync.Map[string, bool], logger *clog.Logger, depth int) error {
+	return newNestedTree(extracted).extract(ctx, c, d, f, logger, depth)
+}
+
+// extract is extractNestedArchive within an extraction tree that may already
+// hold extracted archives.
+func (tree *nestedTree) extract(ctx context.Context, c malcontent.Config, d string, f string, logger *clog.Logger, depth int) (err error) {
+	defer recoverExtractor(ctx, "nested", filepath.Join(d, f), &err)
+
+	limit := nestingLimit(c.MaxDepth)
+	queue := []nestedCandidate{{rel: f, depth: depth, ancestors: tree.root}}
+	for len(queue) > 0 {
 		if ctx.Err() != nil {
 			return ctx.Err()
 		}
-		rel := entry.Name()
-		if _, alreadyProcessed := extracted.Load(rel); !alreadyProcessed {
-			if err := extractNestedArchive(ctx, c, d, rel, extracted, logger, depth+1); err != nil {
-				return fmt.Errorf("process nested file %s: %w", rel, err)
-			}
+		next := queue[0]
+		queue = queue[1:]
+
+		dir, lineage, err := tree.extractFile(ctx, c, d, next, limit, logger)
+		if err != nil {
+			return nestedError(f, next.rel, err)
+		}
+		if dir == "" {
+			continue
+		}
+
+		found, err := nestedArchiveCandidates(d, dir)
+		if err != nil {
+			return fmt.Errorf("failed to read directory after extraction: %w", err)
+		}
+		for _, rel := range found {
+			queue = append(queue, nestedCandidate{rel: rel, depth: next.depth + 1, ancestors: lineage})
 		}
 	}
 	return nil
 }
 
-// extractNestedFile extracts f, relative to d, when it is a regular file
-// holding an archive, and reports whether extraction was attempted. The Root
-// it opens on d is closed before the caller recurses, so nesting does not
-// hold a descriptor per level.
-func extractNestedFile(ctx context.Context, c malcontent.Config, d string, f string, extracted *xsync.Map[string, bool], logger *clog.Logger) (bool, error) {
+// nestedError names the failing archive rel when it was found inside f rather
+// than being f itself. Archives found inside f lie beneath the directory f was
+// extracted into, so their paths never equal f.
+func nestedError(f, rel string, err error) error {
+	if rel == f {
+		return err
+	}
+	return fmt.Errorf("process nested file %s: %w", rel, err)
+}
+
+// nestedArchiveCandidates returns the regular files beneath dir, as paths
+// relative to root. Every one is a candidate, because UPX binaries and zlib
+// streams are recognized by content rather than by name. WalkDir does not
+// follow symlinks, so the search stays within dir.
+func nestedArchiveCandidates(root, dir string) ([]string, error) {
+	var found []string
+	err := filepath.WalkDir(dir, func(path string, entry fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if !entry.Type().IsRegular() {
+			return nil
+		}
+		rel, err := filepath.Rel(root, path)
+		if err != nil {
+			return fmt.Errorf("filepath.Rel: %w", err)
+		}
+		found = append(found, rel)
+		return nil
+	})
+	return found, err
+}
+
+// extractFile extracts the candidate, relative to d, when it is a non-empty
+// regular file holding an archive that lies within the nesting limit and is
+// not byte-identical to an archive containing it. It returns the directory it
+// extracted into, or "" when it did not attempt extraction, along with the
+// chain of archives containing whatever that directory holds. The directory is
+// returned even when extraction failed and the archive was retained, because
+// whatever was extracted before the failure is still scanned. The Root it
+// opens on d is closed before the caller searches that directory, so nesting
+// does not hold a descriptor per level.
+func (tree *nestedTree) extractFile(ctx context.Context, c malcontent.Config, d string, candidate nestedCandidate, limit int, logger *clog.Logger) (string, *ancestry, error) {
+	f := candidate.rel
 	root, err := os.OpenRoot(d)
 	if err != nil {
-		return false, fmt.Errorf("failed to open extraction directory: %w", err)
+		return "", nil, fmt.Errorf("failed to open extraction directory: %w", err)
 	}
 	defer root.Close()
 
 	fullPath := filepath.Join(d, f)
 	fi, err := root.Lstat(f)
 	if errors.Is(err, fs.ErrNotExist) {
-		return false, nil
+		return "", nil, nil
 	}
 	if err != nil {
-		return false, fmt.Errorf("failed to stat file: %w", err)
+		return "", nil, fmt.Errorf("failed to stat file: %w", err)
 	}
 
 	// Never follow a symlink: its target may lie outside the extraction
 	// directory, and a link to an archive inside it is extracted on its own.
-	if !fi.Mode().IsRegular() {
-		return false, nil
+	// An empty file holds nothing to extract, so it skips the type check.
+	if !fi.Mode().IsRegular() || fi.Size() == 0 {
+		return "", nil, nil
 	}
 
-	if _, isExtracted := extracted.Load(f); isExtracted {
-		return false, nil
+	if _, isExtracted := tree.extracted.Load(f); isExtracted {
+		return "", nil, nil
 	}
 
 	isArchive := false
 	ft, err := programkind.File(ctx, fullPath)
 	if err != nil {
-		return false, fmt.Errorf("failed to determine file type: %w", err)
+		return "", nil, fmt.Errorf("failed to determine file type: %w", err)
 	}
 
+	_, archiveExt := programkind.ArchiveMap[programkind.GetExt(f)]
 	switch {
 	case ft != nil && ft.MIME == "application/x-upx":
 		isArchive = true
 	case ft != nil && ft.MIME == "application/zlib":
 		isArchive = true
-	case programkind.ArchiveMap[programkind.GetExt(f)]:
+	case isGzipType(ft):
+		isArchive = true
+	case archiveExt:
 		isArchive = true
 	}
 
 	if !isArchive {
-		return false, nil
+		return "", nil, nil
 	}
 
 	var extract func(context.Context, string, string) error
+	keepOriginal := false
 	switch {
 	case ft != nil && ft.MIME == "application/x-upx":
-		extract = ExtractUPX
+		// The packed binary stays beside its unpacked copy, so that findings
+		// on the packing itself are still reported.
+		extract, keepOriginal = ExtractUPX, true
 	case ft != nil && ft.MIME == "application/zlib":
 		extract = ExtractZlib
 	default:
-		extract = ExtractionMethod(programkind.GetExt(fullPath))
+		extract = extractorFor(programkind.GetExt(fullPath), ft)
 	}
 
 	if extract == nil {
-		return false, nil
+		return "", nil, nil
 	}
 
-	archiveName := strings.TrimSuffix(f, programkind.GetExt(f))
-	archivePath := filepath.Join(d, archiveName)
-	// Some packages may have archives and files with colliding names
-	// e.g., demo_page.css and demo_page.css.gz
-	// the former is the uncompressed version of the latter
-	// if we encounter this, use os.MkdirTemp to create a unique directory.
-	// Root has no MkdirTemp, but the parent is a directory found by walking d,
-	// so no symlink can redirect it.
-	if _, err := root.Lstat(archiveName); err == nil {
-		logger.Debugf("duplicate file name already exists, modifying directory name for %s", archivePath)
-		var mkErr error
-		archivePath, mkErr = os.MkdirTemp(filepath.Dir(archivePath), filepath.Base(archivePath)+"_*")
-		if mkErr != nil {
-			return false, fmt.Errorf("failed to create unique extraction directory: %w", mkErr)
+	if candidate.depth > limit {
+		err := fmt.Errorf("current depth of %d exceeds limit of %d which may be an indicator of compromise", candidate.depth, limit)
+		if c.ExitExtraction {
+			return "", nil, err
 		}
-	} else if err := root.MkdirAll(archiveName, 0o700); err != nil {
-		return false, fmt.Errorf("failed to create extraction directory: %w", err)
+		// Failing here would discard everything extracted above this
+		// archive. Keep it, and leave this archive to be scanned as a file.
+		logger.Warnf("not extracting %s, scanning it as it is: %v", f, err)
+		tree.extracted.Store(f, true)
+		return "", nil, nil
 	}
+
+	// An archive identical to one that contains it would yield another copy
+	// of itself each time it is extracted, without end. It stays in place and
+	// is scanned as it is. Identical archives elsewhere in the tree are still
+	// extracted, so that findings are reported at each location.
+	digest, err := archiveDigest(root, f)
+	if err != nil {
+		return "", nil, err
+	}
+	if candidate.ancestors.contains(digest) {
+		logger.Warnf("not extracting %s, scanning it as it is: identical to an archive containing it, which may be an indicator of compromise", f)
+		tree.extracted.Store(f, true)
+		return "", nil, nil
+	}
+	lineage := &ancestry{digest: digest, parent: candidate.ancestors}
+
+	dirName, err := makeExtractionDir(root, strings.TrimSuffix(f, programkind.GetExt(f)))
+	if err != nil {
+		return "", nil, err
+	}
+	archivePath := filepath.Join(d, dirName)
 
 	err = extract(ctx, archivePath, fullPath)
 	if err != nil {
 		if c.ExitExtraction {
-			return false, fmt.Errorf("failed to extract archive: %w", err)
+			return "", nil, fmt.Errorf("failed to extract archive: %w", err)
 		}
 		logger.Warnf("extraction failed for %s, retaining archive for scanning: %s", f, err.Error())
+		tree.extracted.Store(f, true)
+		// Remove succeeds only on an empty directory. When the extractor wrote
+		// nothing, the retained archive is all that is left behind, and there
+		// is nothing to search for further archives.
+		if root.Remove(dirName) == nil {
+			return "", nil, nil
+		}
+		return archivePath, lineage, nil
 	}
 
-	extracted.Store(f, true)
+	tree.extracted.Store(f, true)
 
-	// only attempt to remove the archive file if we don't encounter an extraction error
 	// any archives which cannot be extracted will be scanned like non-archive files
-	if err == nil {
+	if !keepOriginal {
 		if err := root.Remove(f); err != nil {
-			return false, fmt.Errorf("failed to remove archive file: %w", err)
+			return "", nil, fmt.Errorf("failed to remove archive file: %w", err)
 		}
 	}
-	return true, nil
+	return archivePath, lineage, nil
+}
+
+// isGzipType reports whether ft is a gzip stream detected by content.
+func isGzipType(ft *programkind.FileType) bool {
+	if ft == nil {
+		return false
+	}
+	_, ok := GzMIME[ft.MIME]
+	return ok
+}
+
+// extractorFor returns the extractor for a file with extension ext and
+// detected type ft. The extension decides when it names an archive, so that a
+// gzip-compressed tar is unpacked as a tar; otherwise a gzip stream detected
+// by content is decompressed whatever its name.
+func extractorFor(ext string, ft *programkind.FileType) func(context.Context, string, string) error {
+	if extract := ExtractionMethod(ext); extract != nil {
+		return extract
+	}
+	if isGzipType(ft) {
+		return ExtractGzip
+	}
+	return nil
+}
+
+// makeExtractionDir creates the directory name beneath root and returns the
+// name it created. Some packages hold an archive beside a file of the name it
+// would extract to, such as demo_page.css.gz beside demo_page.css; when name
+// is taken, the first free one of name_1, name_2, and so on is used instead,
+// so that extracted paths, and the reports keyed by them, match on every run.
+func makeExtractionDir(root *os.Root, name string) (string, error) {
+	if _, err := root.Lstat(name); errors.Is(err, fs.ErrNotExist) {
+		if err := root.MkdirAll(name, 0o700); err != nil {
+			return "", fmt.Errorf("failed to create extraction directory: %w", err)
+		}
+		return name, nil
+	}
+	for i := range maxCollisionNames {
+		candidate := name + "_" + strconv.Itoa(i+1)
+		err := root.Mkdir(candidate, 0o700)
+		if err == nil {
+			return candidate, nil
+		}
+		if !errors.Is(err, fs.ErrExist) {
+			return "", fmt.Errorf("failed to create extraction directory: %w", err)
+		}
+	}
+	return "", fmt.Errorf("no unused extraction directory name derived from %s", name)
 }
 
 // extractArchiveToTempDir creates a temporary directory and extracts the archive file for scanning.
@@ -401,12 +615,6 @@ func ExtractArchiveToTempDir(ctx context.Context, c malcontent.Config, path stri
 	}
 
 	logger := clog.FromContext(ctx).With("path", path)
-	logger.Debug("creating temp dir")
-
-	tmpDir, err := os.MkdirTemp("", filepath.Base(path))
-	if err != nil {
-		return "", fmt.Errorf("failed to create temp dir: %w", err)
-	}
 
 	var extract func(context.Context, string, string) error
 	// Check for zlib-compressed files first and use the zlib-specific function
@@ -421,13 +629,27 @@ func ExtractArchiveToTempDir(ctx context.Context, c malcontent.Config, path stri
 	case ft != nil && ft.MIME == "application/x-upx":
 		extract = ExtractUPX
 	default:
-		extract = ExtractionMethod(programkind.GetExt(path))
+		extract = extractorFor(programkind.GetExt(path), ft)
 	}
 
 	if extract == nil {
 		return "", fmt.Errorf("unsupported archive type: %s", path)
 	}
-	extractedFiles := xsync.NewMap[string, bool]()
+
+	// The scanned archive contains every archive in the tree, so a copy of it
+	// nested inside itself is scanned as it is rather than extracted again.
+	tree := newNestedTree(xsync.NewMap[string, bool]())
+	if err := tree.setRoot(path); err != nil {
+		return "", err
+	}
+
+	// The directory is created only once extraction is certain to be
+	// attempted, so the early returns above leave nothing behind.
+	logger.Debug("creating temp dir")
+	tmpDir, err := os.MkdirTemp("", filepath.Base(path))
+	if err != nil {
+		return "", fmt.Errorf("failed to create temp dir: %w", err)
+	}
 
 	err = func() (extractErr error) {
 		defer recoverExtractor(ctx, "top-level", path, &extractErr)
@@ -450,19 +672,20 @@ func ExtractArchiveToTempDir(ctx context.Context, c malcontent.Config, path stri
 			return "", fmt.Errorf("failed to retain unextractable archive %s: %w", path, retainErr)
 		}
 		// The retained archive must not be fed back into extraction below.
-		extractedFiles.Store(retained, true)
+		tree.extracted.Store(retained, true)
 	}
 
+	// WalkDir reads a directory's entries before visiting them, so it never
+	// reaches the directories that nested extraction creates beside each
+	// archive; the tree searches those itself.
 	err = filepath.WalkDir(tmpDir, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 
-		if d.IsDir() {
-			return nil
-		}
-
-		if path == tmpDir {
+		// Every regular file is a candidate, because UPX binaries and zlib
+		// streams are recognized by content rather than by name.
+		if !d.Type().IsRegular() {
 			return nil
 		}
 
@@ -470,15 +693,7 @@ func ExtractArchiveToTempDir(ctx context.Context, c malcontent.Config, path stri
 		if err != nil {
 			return fmt.Errorf("filepath.Rel: %w", err)
 		}
-
-		ext := programkind.GetExt(path)
-		if _, ok := programkind.ArchiveMap[ext]; ok {
-			if err := extractNestedArchive(ctx, c, tmpDir, rel, extractedFiles, logger, 1); err != nil {
-				return err
-			}
-		}
-
-		return nil
+		return tree.extract(ctx, c, tmpDir, rel, logger, 1)
 	})
 	if err != nil {
 		cleanupTempDir(ctx, tmpDir)

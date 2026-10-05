@@ -48,13 +48,17 @@ func ExtractBz2(ctx context.Context, d, f string) error {
 	}
 	defer tf.Close()
 
-	// Set offset to the file origin regardless of type
-	_, err = tf.Seek(0, io.SeekStart)
-	if err != nil {
-		return fmt.Errorf("failed to seek to start: %w", err)
-	}
+	// pbzip2 decodes on background goroutines that block on an internal pipe
+	// until every decompressed byte has been read. Canceling and reading once
+	// more makes the reader close that pipe and wait for them, so returning
+	// early (a cap, cancellation, or write error) does not leave them blocked.
+	bzCtx, cancel := context.WithCancel(ctx)
+	br := bzip2.NewReader(bzCtx, tf)
+	defer func() {
+		cancel()
+		_, _ = br.Read(nil)
+	}()
 
-	br := bzip2.NewReader(ctx, tf)
 	uncompressed := strings.TrimSuffix(filepath.Base(f), ".bz2")
 	uncompressed = strings.TrimSuffix(uncompressed, ".bzip2")
 	name := filepath.Join(filepath.Base(filepath.Dir(f)), uncompressed)
@@ -75,15 +79,13 @@ func ExtractBz2(ctx context.Context, d, f string) error {
 	}
 	defer out.Close()
 
-	var written int64
 	for {
-		if written > 0 && written%file.ExtractBuffer == 0 && ctx.Err() != nil {
-			return ctx.Err()
+		if err := ctx.Err(); err != nil {
+			return err
 		}
 
 		n, err := br.Read(buf)
 		if n > 0 {
-			written += int64(n)
 			if capErr := counter.Add(n); capErr != nil {
 				return fmt.Errorf("bz2 extraction aborted on %s: %w", target, capErr)
 			}

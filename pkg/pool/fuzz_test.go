@@ -4,7 +4,6 @@
 package pool
 
 import (
-	"context"
 	"io/fs"
 	"sync"
 	"testing"
@@ -55,7 +54,7 @@ func getCompiledRules(t *testing.T) *yarax.Rules {
 	t.Helper()
 	compiledOnce.Do(func() {
 		fss := []fs.FS{rules.FS, thirdparty.FS}
-		yrs, err := compile.Recursive(context.Background(), fss)
+		yrs, err := compile.Recursive(t.Context(), fss)
 		if err != nil {
 			return
 		}

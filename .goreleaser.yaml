@@ -7,7 +7,7 @@ before:
 builds:
   - id: malcontent-build
     binary: malcontent
-    main: ./
+    main: ./cmd/mal
     goos:
       - darwin
       - linux
