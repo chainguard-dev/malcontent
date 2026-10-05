@@ -18,13 +18,13 @@ require (
 	github.com/google/go-cmp v0.7.0
 	github.com/google/go-containerregistry v0.22.1
 	github.com/klauspost/compress v1.20.1
-	github.com/klauspost/pgzip v1.2.6
+	github.com/klauspost/pgzip v1.2.7
 	github.com/minio/sha256-simd v1.0.1
 	github.com/olekukonko/tablewriter v1.1.5
 	github.com/puzpuzpuz/xsync/v4 v4.5.0
 	github.com/shirou/gopsutil/v4 v4.26.9
 	github.com/ulikunitz/xz v0.5.17
-	github.com/urfave/cli/v3 v3.13.0
+	github.com/urfave/cli/v3 v3.14.0
 	github.com/wk8/go-ordered-map/v2 v2.1.8
 	go.uber.org/goleak v1.3.0
 	golang.org/x/sync v0.23.0
