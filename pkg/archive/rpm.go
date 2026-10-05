@@ -24,14 +24,10 @@ import (
 // extractFileFromCPIO extracts a single file from a CPIO archive. The counter
 // accumulates uncompressed bytes across every member so the aggregate byte and
 // ratio caps span the whole payload; a nil counter disables accounting.
-func extractFileFromCPIO(ctx context.Context, cr *cpio.Reader, target string, buf []byte, counter *file.ArchiveCounter) error {
-	if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
-		return fmt.Errorf("failed to create parent directory: %w", err)
-	}
-
-	out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600) // #nosec G304 -- target validated by IsValidPath + ValidateResolvedPath against sandbox dir before reaching this helper
+func extractFileFromCPIO(ctx context.Context, cr *cpio.Reader, root *os.Root, name string, buf []byte, counter *file.ArchiveCounter) error {
+	out, err := createFile(root, name)
 	if err != nil {
-		return fmt.Errorf("failed to create file: %w", err)
+		return err
 	}
 	defer out.Close()
 
@@ -45,7 +41,7 @@ func extractFileFromCPIO(ctx context.Context, cr *cpio.Reader, target string, bu
 		if n > 0 {
 			written += int64(n)
 			if capErr := counter.Add(n); capErr != nil {
-				return fmt.Errorf("rpm extraction aborted on %s: %w", target, capErr)
+				return fmt.Errorf("rpm extraction aborted on %s: %w", name, capErr)
 			}
 			if _, writeErr := out.Write(buf[:n]); writeErr != nil {
 				return fmt.Errorf("failed to write file contents: %w", writeErr)
@@ -94,6 +90,12 @@ func ExtractRPM(ctx context.Context, d, f string) (retErr error) {
 	// Shared counter across every CPIO member enforces a uniform byte and ratio
 	// ceiling. InputBytes seeds the ratio denominator from the RPM file size.
 	counter := newArchiveCounter(ctx, fi.Size())
+
+	root, err := openRoot(d)
+	if err != nil {
+		return err
+	}
+	defer root.Close()
 
 	pkg, err := rpm.Read(rpmFile)
 	if err != nil {
@@ -160,29 +162,25 @@ func ExtractRPM(ctx context.Context, d, f string) (retErr error) {
 			return fmt.Errorf("invalid file path: %s", target)
 		}
 
-		if err := ValidateResolvedPath(target, d, clean); err != nil {
-			return err
-		}
-
 		// https://github.com/cavaliergopher/cpio/blob/main/header.go#L24
 		const modeTypeMask = 0o170000
 		fileType := header.Mode & modeTypeMask
 
 		switch fileType {
 		case cpio.TypeDir:
-			if err := os.MkdirAll(target, 0o700); err != nil {
+			if err := root.MkdirAll(clean, 0o700); err != nil {
 				return fmt.Errorf("failed to create directory: %w", err)
 			}
 			continue
 		case cpio.TypeSymlink:
-			if err := handleSymlink(d, clean, header.Linkname); err != nil {
+			if err := handleSymlink(root, clean, header.Linkname); err != nil {
 				return fmt.Errorf("failed to create symlink: %w", err)
 			}
 			continue
 		case cpio.TypeReg:
 			if header.Links > 1 {
 				if existingPath, ok := inodeMap[header.Inode]; ok {
-					if err := handleHardlink(d, clean, existingPath); err != nil {
+					if err := handleHardlink(root, clean, existingPath); err != nil {
 						return fmt.Errorf("failed to create hardlink: %w", err)
 					}
 					continue
@@ -193,7 +191,7 @@ func ExtractRPM(ctx context.Context, d, f string) (retErr error) {
 			continue
 		}
 
-		if err := extractFileFromCPIO(ctx, cr, target, buf, counter); err != nil {
+		if err := extractFileFromCPIO(ctx, cr, root, clean, buf, counter); err != nil {
 			return err
 		}
 	}

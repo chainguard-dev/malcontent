@@ -88,9 +88,11 @@ func ExtractZip(ctx context.Context, d string, f string) (err error) {
 	}
 	defer read.Close()
 
-	if err := os.MkdirAll(d, 0o700); err != nil {
-		return fmt.Errorf("failed to create extraction directory: %w", err)
+	root, err := openRoot(d)
+	if err != nil {
+		return err
 	}
+	defer root.Close()
 
 	for _, zf := range read.File {
 		if zf.Mode().IsDir() {
@@ -106,7 +108,7 @@ func ExtractZip(ctx context.Context, d string, f string) (err error) {
 				continue
 			}
 
-			if err := os.MkdirAll(target, 0o700); err != nil {
+			if err := root.MkdirAll(clean, 0o700); err != nil {
 				return fmt.Errorf("failed to create directory structure: %w", err)
 			}
 		}
@@ -123,8 +125,16 @@ func ExtractZip(ctx context.Context, d string, f string) (err error) {
 	// finite cap.
 	counter := newArchiveCounter(ctx, fi.Size())
 
+	var symlinks []*zip.File
 	for _, zf := range read.File {
 		if zf.Mode().IsDir() {
+			continue
+		}
+		// Symlinks are created one at a time after every other entry so that
+		// no concurrent write can change what a link resolves to while it is
+		// validated.
+		if zf.Mode()&os.ModeSymlink != 0 {
+			symlinks = append(symlinks, zf)
 			continue
 		}
 		g.Go(func() (err error) {
@@ -136,12 +146,18 @@ func ExtractZip(ctx context.Context, d string, f string) (err error) {
 				return err
 			}
 			defer sem.Release(1)
-			return extractFile(gCtx, zf, d, logger, counter)
+			return extractFile(gCtx, zf, root, logger, counter)
 		})
 	}
 
 	if err := g.Wait(); err != nil {
 		return fmt.Errorf("extraction failed: %w", err)
+	}
+
+	for _, zf := range symlinks {
+		if err := extractFile(ctx, zf, root, logger, counter); err != nil {
+			return fmt.Errorf("extraction failed: %w", err)
+		}
 	}
 
 	if err := zipUnaccountedBytes(f, fi.Size()); err != nil {
@@ -151,7 +167,7 @@ func ExtractZip(ctx context.Context, d string, f string) (err error) {
 	return nil
 }
 
-func extractFile(ctx context.Context, zf *zip.File, destDir string, logger *clog.Logger, counter *file.ArchiveCounter) error {
+func extractFile(ctx context.Context, zf *zip.File, root *os.Root, logger *clog.Logger, counter *file.ArchiveCounter) error {
 	if ctx.Err() != nil {
 		return ctx.Err()
 	}
@@ -159,10 +175,12 @@ func extractFile(ctx context.Context, zf *zip.File, destDir string, logger *clog
 	// macOS will encounter issues with paths like META-INF/LICENSE and META-INF/license/foo
 	// this case insensitivity will break scans, so rename files that collide with existing directories
 	if runtime.GOOS == "darwin" {
-		if _, err := os.Stat(filepath.Join(destDir, zf.Name)); err == nil {
-			uniqueDir, mkErr := os.MkdirTemp(filepath.Join(destDir, filepath.Dir(zf.Name)), filepath.Base(zf.Name)+"_*")
+		// Root has no MkdirTemp; Stat through it first so that the plain path
+		// passed to os.MkdirTemp is known to lie beneath the root.
+		if _, err := root.Stat(zf.Name); err == nil {
+			uniqueDir, mkErr := os.MkdirTemp(filepath.Join(root.Name(), filepath.Dir(zf.Name)), filepath.Base(zf.Name)+"_*")
 			if mkErr == nil {
-				rel, relErr := filepath.Rel(destDir, uniqueDir)
+				rel, relErr := filepath.Rel(root.Name(), uniqueDir)
 				if relErr == nil {
 					zf.Name = rel
 				}
@@ -176,14 +194,9 @@ func extractFile(ctx context.Context, zf *zip.File, destDir string, logger *clog
 		return nil
 	}
 
-	target := filepath.Join(destDir, clean)
-	if !IsValidPath(target, destDir) {
+	target := filepath.Join(root.Name(), clean)
+	if !IsValidPath(target, root.Name()) {
 		logger.Warnf("skipping file path outside extraction directory: %s", target)
-		return nil
-	}
-
-	if err := ValidateResolvedPath(target, destDir, clean); err != nil {
-		logger.Warnf("skipping path with symlink traversal: %s", target)
 		return nil
 	}
 
@@ -200,7 +213,7 @@ func extractFile(ctx context.Context, zf *zip.File, destDir string, logger *clog
 			return fmt.Errorf("failed to read symlink target: %w", err)
 		}
 
-		if err := handleSymlink(destDir, clean, string(linkTarget)); err != nil {
+		if err := handleSymlink(root, clean, string(linkTarget)); err != nil {
 			return fmt.Errorf("failed to create symlink: %w", err)
 		}
 		return nil
@@ -209,24 +222,15 @@ func extractFile(ctx context.Context, zf *zip.File, destDir string, logger *clog
 	buf := zipPool.Get(file.ZipBuffer) //nolint:nilaway // the buffer pool is created in archive.go
 	defer zipPool.Put(buf)
 
-	if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
-		return fmt.Errorf("failed to create directory structure: %w", err)
-	}
-
 	src, err := zf.Open()
 	if err != nil {
 		return fmt.Errorf("failed to open archived file: %w", err)
 	}
 	defer src.Close()
 
-	// Verify target is not a symlink before opening (defense against TOCTOU in concurrent extraction)
-	if fi, err := os.Lstat(target); err == nil && fi.Mode()&os.ModeSymlink != 0 {
-		return fmt.Errorf("refusing to overwrite symlink at target path: %s", target)
-	}
-
-	dst, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600) // #nosec G304 -- target validated by IsValidPath + ValidateResolvedPath against extraction dir destDir; symlink overwrite refused above
+	dst, err := createFile(root, clean)
 	if err != nil {
-		return fmt.Errorf("failed to create destination file: %w", err)
+		return err
 	}
 	defer dst.Close()
 

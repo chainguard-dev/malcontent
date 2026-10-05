@@ -71,10 +71,17 @@ func ExtractGzip(ctx context.Context, d string, f string) error {
 	defer gf.Close()
 
 	base := filepath.Base(f)
-	target := filepath.Join(d, base[:len(base)-len(filepath.Ext(base))])
+	name := base[:len(base)-len(filepath.Ext(base))]
+	target := filepath.Join(d, name)
 	if !IsValidPath(target, d) {
 		return fmt.Errorf("invalid file path: %s", target)
 	}
+
+	root, err := openRoot(d)
+	if err != nil {
+		return err
+	}
+	defer root.Close()
 
 	gr, err := gzip.NewReader(gf)
 	if err != nil {
@@ -82,7 +89,7 @@ func ExtractGzip(ctx context.Context, d string, f string) error {
 	}
 	defer gr.Close()
 
-	out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600) // #nosec G304 -- target validated by IsValidPath against sandbox dir d
+	out, err := createFile(root, name)
 	if err != nil {
 		return fmt.Errorf("failed to create extracted file: %w", err)
 	}

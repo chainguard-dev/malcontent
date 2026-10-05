@@ -32,7 +32,7 @@ func TestRecoverExtractor_PanicCaughtMarkedSkipped(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			err := callWithPanic(tc.panicWith, tc.kind)
 			if err == nil {
-				t.Fatal("expected error from recovered panic, got nil")
+				t.Fatal("err: got = nil, want = error from recovered panic")
 			}
 			if !strings.Contains(err.Error(), "panic") {
 				t.Errorf("err should mention panic; got: %v", err)
@@ -47,7 +47,7 @@ func TestRecoverExtractor_PanicCaughtMarkedSkipped(t *testing.T) {
 func TestRecoverExtractor_NoPanicNoOp(t *testing.T) {
 	err := callWithoutPanic()
 	if err != nil {
-		t.Fatalf("expected nil from no-panic path, got %v", err)
+		t.Fatalf("err from no-panic path: got = %v, want = nil", err)
 	}
 }
 
@@ -57,7 +57,7 @@ func TestRecoverExtractor_NoPanicNoOp(t *testing.T) {
 func TestRecoverExtractor_ErrorsIsErrExtractorPanic(t *testing.T) {
 	err := callWithPanic("boom", "zip")
 	if err == nil {
-		t.Fatal("expected error from recovered panic, got nil")
+		t.Fatal("err: got = nil, want = error from recovered panic")
 	}
 	if !errors.Is(err, ErrExtractorPanic) {
 		t.Fatalf("errors.Is(err, ErrExtractorPanic) = false; got err=%v", err)
@@ -70,11 +70,11 @@ func TestRecoverExtractor_ErrorsIsErrExtractorPanic(t *testing.T) {
 func TestRecoverExtractor_StructuredLogFields(t *testing.T) {
 	var buf bytes.Buffer
 	handler := slog.NewJSONHandler(&buf, nil)
-	ctx := clog.WithLogger(context.Background(), clog.New(handler))
+	ctx := clog.WithLogger(t.Context(), clog.New(handler))
 
 	err := callWithPanicCtx(ctx, "boom", "zip")
 	if err == nil {
-		t.Fatal("expected error from recovered panic, got nil")
+		t.Fatal("err: got = nil, want = error from recovered panic")
 	}
 
 	out := buf.String()
@@ -85,7 +85,7 @@ func TestRecoverExtractor_StructuredLogFields(t *testing.T) {
 		`"panic_message":"boom"`,
 	} {
 		if !strings.Contains(out, want) {
-			t.Errorf("expected log to contain %q; got: %s", want, out)
+			t.Errorf("log: got = %s, want = output containing %q", out, want)
 		}
 	}
 
@@ -111,7 +111,7 @@ func TestRecoverExtractor_StructuredLogFields(t *testing.T) {
 func TestRecoverExtractor_ExitOnPanic_DefaultFalse(t *testing.T) {
 	err := callWithPanic("boom", "zip")
 	if err == nil {
-		t.Fatal("expected error from recovered panic, got nil")
+		t.Fatal("err: got = nil, want = error from recovered panic")
 	}
 	// Reaching this line is the assertion: the test binary is still running.
 }
@@ -158,7 +158,7 @@ func callWithPanicCfg(ctx context.Context, p any, kind, path string) (err error)
 func newConfigCtx(t *testing.T) (context.Context, *malcontent.Config) {
 	t.Helper()
 	cfg := &malcontent.Config{}
-	ctx := malcontent.ContextWithConfig(context.Background(), cfg)
+	ctx := malcontent.ContextWithConfig(t.Context(), cfg)
 	return ctx, cfg
 }
 
@@ -166,9 +166,9 @@ func newConfigCtx(t *testing.T) (context.Context, *malcontent.Config) {
 // recovery wraps ErrExtractorPanic (not a plain fmt.Errorf) and honors
 // ExitOnExtractorPanic control through the shared recoverExtractor path.
 func TestRecoverExtractor_DebUsesRecoverExtractor(t *testing.T) {
-	err := callWithPanicCfg(context.Background(), "deb-boom", "deb", "/synthetic/deb.deb")
+	err := callWithPanicCfg(t.Context(), "deb-boom", "deb", "/synthetic/deb.deb")
 	if err == nil {
-		t.Fatal("expected error from recovered panic, got nil")
+		t.Fatal("err: got = nil, want = error from recovered panic")
 	}
 	if !errors.Is(err, ErrExtractorPanic) {
 		t.Fatalf("deb recovery error should wrap ErrExtractorPanic; got %v", err)
@@ -181,9 +181,9 @@ func TestRecoverExtractor_DebUsesRecoverExtractor(t *testing.T) {
 // TestRecoverExtractor_RpmUsesRecoverExtractor verifies that ExtractRPM's panic
 // recovery wraps ErrExtractorPanic.
 func TestRecoverExtractor_RpmUsesRecoverExtractor(t *testing.T) {
-	err := callWithPanicCfg(context.Background(), "rpm-boom", "rpm", "/synthetic/pkg.rpm")
+	err := callWithPanicCfg(t.Context(), "rpm-boom", "rpm", "/synthetic/pkg.rpm")
 	if err == nil {
-		t.Fatal("expected error from recovered panic, got nil")
+		t.Fatal("err: got = nil, want = error from recovered panic")
 	}
 	if !errors.Is(err, ErrExtractorPanic) {
 		t.Fatalf("rpm recovery error should wrap ErrExtractorPanic; got %v", err)
@@ -197,9 +197,9 @@ func TestRecoverExtractor_RpmUsesRecoverExtractor(t *testing.T) {
 // extract dispatch in ExtractArchiveToTempDir wraps panics with
 // recoverExtractor and surfaces ErrExtractorPanic.
 func TestRecoverExtractor_TopLevelDispatchWrapped(t *testing.T) {
-	err := callWithPanicCfg(context.Background(), "top-level-boom", "top-level", "/synthetic/top.gz")
+	err := callWithPanicCfg(t.Context(), "top-level-boom", "top-level", "/synthetic/top.gz")
 	if err == nil {
-		t.Fatal("expected error from recovered panic, got nil")
+		t.Fatal("err: got = nil, want = error from recovered panic")
 	}
 	if !errors.Is(err, ErrExtractorPanic) {
 		t.Fatalf("top-level recovery error should wrap ErrExtractorPanic; got %v", err)
@@ -217,7 +217,7 @@ func TestRecoverExtractor_ConcurrentPanicsAllRecover(t *testing.T) {
 		go func(p string) {
 			defer wg.Done()
 			if err := callWithPanicCfg(ctx, "boom", "zip", p); err == nil {
-				t.Errorf("expected error from recovered panic for %q, got nil", p)
+				t.Errorf("err for %q: got = nil, want = error from recovered panic", p)
 			}
 		}(path)
 	}

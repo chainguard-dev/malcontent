@@ -6,7 +6,6 @@ package archive
 import (
 	"archive/tar"
 	"bytes"
-	"context"
 	"os"
 	"path/filepath"
 	"testing"
@@ -45,12 +44,12 @@ func TestSymlinkExtraction(t *testing.T) {
 			}
 			defer os.RemoveAll(tmpDir)
 
-			ctx := context.Background()
+			ctx := t.Context()
 			err = ExtractTar(ctx, tmpDir, tt.tarFile)
 
 			if tt.wantErr {
 				if err == nil {
-					t.Error("expected error, got nil")
+					t.Error("err: got = nil, want = error")
 				}
 			} else {
 				if err != nil {
@@ -81,7 +80,7 @@ func TestValidateResolvedPath(t *testing.T) {
 	// A normal file path within the extraction dir should pass
 	target := filepath.Join(subDir, "file.txt")
 	if err := ValidateResolvedPath(target, tmpDir, "subdir/file.txt"); err != nil {
-		t.Errorf("expected no error for valid path, got: %v", err)
+		t.Errorf("valid path: got = %v, want = nil", err)
 	}
 
 	// Create a symlink that points outside the extraction directory
@@ -93,7 +92,7 @@ func TestValidateResolvedPath(t *testing.T) {
 	// A path whose parent resolves outside the dir should fail
 	targetViaEscape := filepath.Join(escapingLink, "somefile")
 	if err := ValidateResolvedPath(targetViaEscape, tmpDir, "escape/somefile"); err == nil {
-		t.Error("expected error for path traversal via symlink, got nil")
+		t.Error("path traversal via symlink: got = nil, want = error")
 	}
 
 	// Create a symlink that points to a directory within the extraction dir
@@ -105,13 +104,20 @@ func TestValidateResolvedPath(t *testing.T) {
 	// A path whose parent resolves within the dir should pass
 	targetViaInternal := filepath.Join(internalLink, "file.txt")
 	if err := ValidateResolvedPath(targetViaInternal, tmpDir, "internal_link/file.txt"); err != nil {
-		t.Errorf("expected no error for valid symlink path, got: %v", err)
+		t.Errorf("valid symlink path: got = %v, want = nil", err)
 	}
 
-	// A path with a nonexistent parent should pass (EvalSymlinks fails, returns nil)
+	// A path with a nonexistent parent inside the dir should pass
 	nonexistent := filepath.Join(tmpDir, "nonexistent", "file.txt")
 	if err := ValidateResolvedPath(nonexistent, tmpDir, "nonexistent/file.txt"); err != nil {
-		t.Errorf("expected no error for nonexistent parent, got: %v", err)
+		t.Errorf("nonexistent parent: got = %v, want = nil", err)
+	}
+
+	// A nonexistent parent beneath a symlink that leaves the dir should fail,
+	// since creating the parent would create it outside the dir
+	newDirViaEscape := filepath.Join(escapingLink, "malcontent-nonexistent", "file.txt")
+	if err := ValidateResolvedPath(newDirViaEscape, tmpDir, "escape/malcontent-nonexistent/file.txt"); err == nil {
+		t.Error("nonexistent parent beneath escaping symlink: got = nil, want = error")
 	}
 }
 
@@ -145,7 +151,7 @@ func TestExtractNestedArchiveWithSubdirectory(t *testing.T) {
 		t.Fatalf("failed to write nested archive: %v", err)
 	}
 
-	ctx := context.Background()
+	ctx := t.Context()
 	logger := clog.FromContext(ctx)
 	cfg := malcontent.Config{}
 	extracted := xsync.NewMap[string, bool]()
@@ -186,7 +192,7 @@ func TestExtractNestedArchiveCollision(t *testing.T) {
 		t.Fatalf("failed to write archive: %v", err)
 	}
 
-	ctx := context.Background()
+	ctx := t.Context()
 	logger := clog.FromContext(ctx)
 	cfg := malcontent.Config{}
 	extracted := xsync.NewMap[string, bool]()
@@ -229,7 +235,7 @@ func TestDanglingSymlinkExtraction(t *testing.T) {
 	defer os.RemoveAll(tmpDir)
 
 	// Extraction should succeed
-	if err := ExtractTar(context.Background(), tmpDir, tmpFile.Name()); err != nil {
+	if err := ExtractTar(t.Context(), tmpDir, tmpFile.Name()); err != nil {
 		t.Fatalf("ExtractTar failed on dangling symlink: %v", err)
 	}
 
@@ -257,13 +263,23 @@ func TestHandleSymlink(t *testing.T) {
 	defer os.RemoveAll(tmpDir)
 
 	// A symlink location which escapes should be rejected
-	err = handleSymlink(tmpDir, "../escape", "target")
+	root := openTestRoot(t, tmpDir)
+
+	err = handleSymlink(root, "../escape", "target")
 	if err == nil {
-		t.Error("expected error for symlink location escaping directory")
+		t.Error("symlink location escaping directory: got = nil, want = error")
+	}
+
+	// The extraction directory itself cannot be replaced by a symlink
+	if err := handleSymlink(root, ".", "target"); err == nil {
+		t.Error("symlink at extraction directory: got = nil, want = error")
+	}
+	if fi, err := os.Lstat(tmpDir); err != nil || !fi.IsDir() {
+		t.Errorf("extraction directory: got = %v (err %v), want = directory", fi, err)
 	}
 
 	// Absolute symlink targets are skipped (no error, no symlink created)
-	err = handleSymlink(tmpDir, "abs_link", "/some/absolute/target")
+	err = handleSymlink(root, "abs_link", "/some/absolute/target")
 	if err != nil {
 		t.Errorf("unexpected error for absolute symlink target: %v", err)
 	}
@@ -272,9 +288,9 @@ func TestHandleSymlink(t *testing.T) {
 	}
 
 	// A relative symlink target which escapes should be rejected
-	err = handleSymlink(tmpDir, "escape_link", "../../etc/passwd")
+	err = handleSymlink(root, "escape_link", "../../etc/passwd")
 	if err == nil {
-		t.Error("expected error for relative symlink target escaping directory")
+		t.Error("relative symlink target escaping directory: got = nil, want = error")
 	}
 
 	// Write a file we can create a valid symlink for
@@ -284,7 +300,7 @@ func TestHandleSymlink(t *testing.T) {
 	}
 
 	// A valid relative symlink should succeed
-	err = handleSymlink(tmpDir, "valid_link", "realfile.txt")
+	err = handleSymlink(root, "valid_link", "realfile.txt")
 	if err != nil {
 		t.Errorf("unexpected error for valid symlink: %v", err)
 	}

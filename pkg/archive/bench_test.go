@@ -87,6 +87,7 @@ func BenchmarkHandleFile(b *testing.B) {
 	}
 	raw := buf.Bytes()
 	dir := b.TempDir()
+	root := openTestRoot(b, dir)
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -96,7 +97,7 @@ func BenchmarkHandleFile(b *testing.B) {
 		}
 		target := filepath.Join(dir, "payload")
 		counter := &file.ArchiveCounter{MaxBytes: file.DefaultMaxArchiveBytes}
-		if err := handleFile(target, tr, counter); err != nil {
+		if err := handleFile(root, "payload", tr, counter); err != nil {
 			b.Fatalf("handleFile: %v", err)
 		}
 		_ = os.Remove(target)

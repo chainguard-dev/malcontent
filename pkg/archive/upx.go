@@ -118,7 +118,13 @@ func ExtractUPX(ctx context.Context, d, f string) (err error) {
 	// as every other extractor.
 	copyLimit, _ := resolveArchiveCaps(ctx)
 
-	dst, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600) // #nosec G304 -- target derived from absTarget computed under sandbox dir
+	root, err := openRoot(d)
+	if err != nil {
+		return err
+	}
+	defer root.Close()
+
+	dst, err := createFile(root, base)
 	if err != nil {
 		return fmt.Errorf("failed to open target: %w", err)
 	}
@@ -151,13 +157,13 @@ func ExtractUPX(ctx context.Context, d, f string) (err error) {
 	cmd.Stderr = errBuf
 
 	if err := cmd.Run(); err != nil {
-		_ = os.Remove(absTarget)
+		_ = root.Remove(base)
 		return fmt.Errorf("failed to decompress upx file: %w (stderr: %q)", err, errBuf.String())
 	}
 
 	combined := out.String() + errBuf.String()
 	if !strings.Contains(combined, "Decompressed") && !strings.Contains(combined, "Unpacked") {
-		_ = os.Remove(absTarget)
+		_ = root.Remove(base)
 		return fmt.Errorf("upx decompression might have failed")
 	}
 

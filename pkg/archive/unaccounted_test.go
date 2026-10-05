@@ -8,7 +8,6 @@ import (
 	"archive/zip"
 	"bytes"
 	"compress/gzip"
-	"context"
 	"errors"
 	"fmt"
 	"io/fs"
@@ -181,7 +180,7 @@ func TestExtractTarUnaccountedBytes(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			src := writeTemp(t, tt.filename, tt.data)
-			err := ExtractTar(context.Background(), t.TempDir(), src)
+			err := ExtractTar(t.Context(), t.TempDir(), src)
 			if got := errors.Is(err, ErrUnaccountedBytes); got != tt.wantUnacct {
 				t.Errorf("ErrUnaccountedBytes = %v (err %v), want %v", got, err, tt.wantUnacct)
 			}
@@ -211,7 +210,7 @@ func TestExtractTarDataBearingTypeflag(t *testing.T) {
 
 			src := writeTemp(t, "typeflag.tar", raw)
 			out := t.TempDir()
-			if err := ExtractTar(context.Background(), out, src); err != nil {
+			if err := ExtractTar(t.Context(), out, src); err != nil {
 				t.Fatalf("ExtractTar: %v", err)
 			}
 			if !corpusContains(t, out, testPayload) {
@@ -234,7 +233,7 @@ func TestExtractTarRealArchives(t *testing.T) {
 			if _, err := os.Stat(src); err != nil {
 				t.Skipf("fixture unavailable: %v", err)
 			}
-			if err := ExtractTar(context.Background(), t.TempDir(), src); err != nil {
+			if err := ExtractTar(t.Context(), t.TempDir(), src); err != nil {
 				t.Errorf("ExtractTar(%s) = %v, want nil", src, err)
 			}
 		})
@@ -274,7 +273,7 @@ func TestExtractZipUnaccountedBytes(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			src := writeTemp(t, "archive.zip", tt.data)
-			err := ExtractZip(context.Background(), t.TempDir(), src)
+			err := ExtractZip(t.Context(), t.TempDir(), src)
 			if got := errors.Is(err, ErrUnaccountedBytes); got != tt.wantUnacct {
 				t.Errorf("ErrUnaccountedBytes = %v (err %v), want %v", got, err, tt.wantUnacct)
 			}
@@ -330,7 +329,7 @@ func TestNestedArchiveWithTrailingDataRetained(t *testing.T) {
 	}
 
 	src := writeTemp(t, "outer.tar.gz", outer.Bytes())
-	root, err := ExtractArchiveToTempDir(context.Background(), malcontent.Config{}, src)
+	root, err := ExtractArchiveToTempDir(t.Context(), malcontent.Config{}, src)
 	if err != nil {
 		t.Fatalf("ExtractArchiveToTempDir: %v", err)
 	}
@@ -372,7 +371,7 @@ func TestTopLevelArchiveRetainedOnFailure(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			src := writeTemp(t, tt.filename, tt.data)
 
-			root, err := ExtractArchiveToTempDir(context.Background(), malcontent.Config{}, src)
+			root, err := ExtractArchiveToTempDir(t.Context(), malcontent.Config{}, src)
 			if err != nil {
 				t.Fatalf("ExtractArchiveToTempDir: %v", err)
 			}
@@ -383,7 +382,7 @@ func TestTopLevelArchiveRetainedOnFailure(t *testing.T) {
 			}
 
 			// ExitExtraction opts into hard failure instead of retention.
-			strict, err := ExtractArchiveToTempDir(context.Background(), malcontent.Config{ExitExtraction: true}, src)
+			strict, err := ExtractArchiveToTempDir(t.Context(), malcontent.Config{ExitExtraction: true}, src)
 			if err == nil {
 				os.RemoveAll(strict)
 				t.Error("ExtractArchiveToTempDir with ExitExtraction = nil error, want failure")

@@ -81,15 +81,16 @@ func newArchiveCounter(ctx context.Context, inputBytes int64) *file.ArchiveCount
 }
 
 // ValidateResolvedPath checks that the target path still resides within the extraction directory
-// after resolving symlinks in its parent directory.
+// after resolving symlinks in every existing component of its parent directory. Components that
+// do not exist yet are created as real directories, so they cannot redirect the path.
 func ValidateResolvedPath(target, dir, clean string) error {
-	resolvedParent, ok := evalSymlinks(filepath.Dir(target))
-	if !ok {
-		return nil
+	resolvedParent, err := resolveExisting(filepath.Dir(target))
+	if err != nil {
+		return fmt.Errorf("failed to resolve parent directory of %s: %w", clean, err)
 	}
-	resolvedDir, ok := evalSymlinks(dir)
-	if !ok {
-		return nil
+	resolvedDir, err := resolveExisting(dir)
+	if err != nil {
+		return fmt.Errorf("failed to resolve extraction directory: %w", err)
 	}
 	resolvedTarget := filepath.Join(resolvedParent, filepath.Base(target))
 	if !IsValidPath(resolvedTarget, resolvedDir) {
@@ -98,14 +99,109 @@ func ValidateResolvedPath(target, dir, clean string) error {
 	return nil
 }
 
-// evalSymlinks resolves symlinks in the given path, returning the resolved path
-// and true on success, or an empty string and false if resolution fails.
-func evalSymlinks(path string) (string, bool) {
-	resolved, err := filepath.EvalSymlinks(path)
-	if err != nil {
-		return "", false
+// resolveExisting resolves symlinks in the longest existing prefix of path and
+// appends the remaining, not yet created, elements unchanged.
+func resolveExisting(path string) (string, error) {
+	suffix := ""
+	for p := filepath.Clean(path); ; p = filepath.Dir(p) {
+		resolved, err := filepath.EvalSymlinks(p)
+		switch {
+		case err == nil:
+			return filepath.Join(resolved, suffix), nil
+		case !errors.Is(err, fs.ErrNotExist) || filepath.Dir(p) == p:
+			return "", err
+		}
+		suffix = filepath.Join(filepath.Base(p), suffix)
 	}
-	return resolved, true
+}
+
+// depthWithin reports how many directories path lies beneath root, and false
+// if path is outside root.
+func depthWithin(path, root string) (int, bool) {
+	rel, err := filepath.Rel(root, path)
+	switch {
+	case err != nil, rel == "..", strings.HasPrefix(rel, ".."+string(filepath.Separator)):
+		return 0, false
+	case rel == ".":
+		return 0, true
+	default:
+		return strings.Count(rel, string(filepath.Separator)) + 1, true
+	}
+}
+
+// leadingParents counts the ".." elements that begin a cleaned relative path.
+// filepath.Clean leaves ".." only at the start of a relative path.
+func leadingParents(clean string) int {
+	n := 0
+	for elem := range strings.SplitSeq(clean, string(filepath.Separator)) {
+		if elem != ".." {
+			break
+		}
+		n++
+	}
+	return n
+}
+
+// openRoot opens dir, creating it if needed. Every file operation made through
+// the returned Root stays beneath dir, even when it follows a symlink that the
+// archive being extracted planted.
+func openRoot(dir string) (*os.Root, error) {
+	if err := os.MkdirAll(dir, 0o700); err != nil {
+		return nil, fmt.Errorf("failed to create extraction directory: %w", err)
+	}
+	root, err := os.OpenRoot(dir)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open extraction directory: %w", err)
+	}
+	return root, nil
+}
+
+// rootRelative joins name to the root directory as filepath.Join does and
+// returns the result relative to root, rejecting names that leave it.
+func rootRelative(root *os.Root, name string) (string, error) {
+	full := filepath.Join(root.Name(), name)
+	if !IsValidPath(full, root.Name()) {
+		return "", fmt.Errorf("path outside extraction directory: %s", name)
+	}
+	return filepath.Rel(root.Name(), full)
+}
+
+// createFile creates or truncates name beneath root along with its parent
+// directories. A symlink at name is replaced rather than followed.
+func createFile(root *os.Root, name string) (*os.File, error) {
+	// Each Root call walks every path element, so try the common case, a new
+	// file in an existing directory, first. An exclusive create never follows
+	// a symlink.
+	out, err := root.OpenFile(name, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600)
+	if errors.Is(err, fs.ErrNotExist) {
+		if err := root.MkdirAll(filepath.Dir(name), 0o700); err != nil {
+			return nil, fmt.Errorf("failed to create parent directory: %w", err)
+		}
+		out, err = root.OpenFile(name, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600)
+	}
+	if errors.Is(err, fs.ErrExist) {
+		if err := removeSymlink(root, name); err != nil {
+			return nil, err
+		}
+		out, err = root.OpenFile(name, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to create file: %w", err)
+	}
+	return out, nil
+}
+
+// removeSymlink removes a symlink at name so that a write replaces the link
+// rather than following it.
+func removeSymlink(root *os.Root, name string) error {
+	fi, err := root.Lstat(name)
+	if err != nil || fi.Mode()&os.ModeSymlink == 0 {
+		return nil //nolint:nilerr // nothing to remove; opening name reports any real failure
+	}
+	if err := root.Remove(name); err != nil {
+		return fmt.Errorf("failed to remove existing symlink: %w", err)
+	}
+	return nil
 }
 
 // symlinkEscapesDir checks whether a symlink at target resolves outside dir.
@@ -172,88 +268,9 @@ func extractNestedArchive(ctx context.Context, c malcontent.Config, d string, f 
 		return fmt.Errorf("current depth of %d exceeds limit of %d which may be an indicator of compromise", depth, c.MaxDepth)
 	}
 
-	fullPath := filepath.Join(d, f)
-	fi, err := os.Stat(fullPath)
-	if errors.Is(err, fs.ErrNotExist) {
-		return nil
-	}
-	if err != nil {
-		return fmt.Errorf("failed to stat file: %w", err)
-	}
-
-	if fi.IsDir() {
-		return nil
-	}
-
-	if _, isExtracted := extracted.Load(f); isExtracted {
-		return nil
-	}
-
-	isArchive := false
-	ft, err := programkind.File(ctx, fullPath)
-	if err != nil {
-		return fmt.Errorf("failed to determine file type: %w", err)
-	}
-
-	switch {
-	case ft != nil && ft.MIME == "application/x-upx":
-		isArchive = true
-	case ft != nil && ft.MIME == "application/zlib":
-		isArchive = true
-	case programkind.ArchiveMap[programkind.GetExt(f)]:
-		isArchive = true
-	}
-
-	if !isArchive {
-		return nil
-	}
-
-	var extract func(context.Context, string, string) error
-	switch {
-	case ft != nil && ft.MIME == "application/x-upx":
-		extract = ExtractUPX
-	case ft != nil && ft.MIME == "application/zlib":
-		extract = ExtractZlib
-	default:
-		extract = ExtractionMethod(programkind.GetExt(fullPath))
-	}
-
-	if extract == nil {
-		return nil
-	}
-
-	archivePath := filepath.Join(d, strings.TrimSuffix(f, programkind.GetExt(f)))
-	// Some packages may have archives and files with colliding names
-	// e.g., demo_page.css and demo_page.css.gz
-	// the former is the uncompressed version of the latter
-	// if we encounter this, use os.MkdirTemp to create a unique directory
-	if _, err := os.Stat(archivePath); err == nil {
-		logger.Debugf("duplicate file name already exists, modifying directory name for %s", archivePath)
-		var mkErr error
-		archivePath, mkErr = os.MkdirTemp(filepath.Dir(archivePath), filepath.Base(archivePath)+"_*")
-		if mkErr != nil {
-			return fmt.Errorf("failed to create unique extraction directory: %w", mkErr)
-		}
-	} else if err := os.MkdirAll(archivePath, 0o700); err != nil {
-		return fmt.Errorf("failed to create extraction directory: %w", err)
-	}
-
-	err = extract(ctx, archivePath, fullPath)
-	if err != nil {
-		if c.ExitExtraction {
-			return fmt.Errorf("failed to extract archive: %w", err)
-		}
-		logger.Warnf("extraction failed for %s, retaining archive for scanning: %s", f, err.Error())
-	}
-
-	extracted.Store(f, true)
-
-	// only attempt to remove the archive file if we don't encounter an extraction error
-	// any archives which cannot be extracted will be scanned like non-archive files
-	if err == nil {
-		if err := os.Remove(fullPath); err != nil {
-			return fmt.Errorf("failed to remove archive file: %w", err)
-		}
+	attempted, err := extractNestedFile(ctx, c, d, f, extracted, logger)
+	if err != nil || !attempted {
+		return err
 	}
 
 	entries, err := os.ReadDir(d)
@@ -273,6 +290,108 @@ func extractNestedArchive(ctx context.Context, c malcontent.Config, d string, f 
 		}
 	}
 	return nil
+}
+
+// extractNestedFile extracts f, relative to d, when it is a regular file
+// holding an archive, and reports whether extraction was attempted. The Root
+// it opens on d is closed before the caller recurses, so nesting does not
+// hold a descriptor per level.
+func extractNestedFile(ctx context.Context, c malcontent.Config, d string, f string, extracted *xsync.Map[string, bool], logger *clog.Logger) (bool, error) {
+	root, err := os.OpenRoot(d)
+	if err != nil {
+		return false, fmt.Errorf("failed to open extraction directory: %w", err)
+	}
+	defer root.Close()
+
+	fullPath := filepath.Join(d, f)
+	fi, err := root.Lstat(f)
+	if errors.Is(err, fs.ErrNotExist) {
+		return false, nil
+	}
+	if err != nil {
+		return false, fmt.Errorf("failed to stat file: %w", err)
+	}
+
+	// Never follow a symlink: its target may lie outside the extraction
+	// directory, and a link to an archive inside it is extracted on its own.
+	if !fi.Mode().IsRegular() {
+		return false, nil
+	}
+
+	if _, isExtracted := extracted.Load(f); isExtracted {
+		return false, nil
+	}
+
+	isArchive := false
+	ft, err := programkind.File(ctx, fullPath)
+	if err != nil {
+		return false, fmt.Errorf("failed to determine file type: %w", err)
+	}
+
+	switch {
+	case ft != nil && ft.MIME == "application/x-upx":
+		isArchive = true
+	case ft != nil && ft.MIME == "application/zlib":
+		isArchive = true
+	case programkind.ArchiveMap[programkind.GetExt(f)]:
+		isArchive = true
+	}
+
+	if !isArchive {
+		return false, nil
+	}
+
+	var extract func(context.Context, string, string) error
+	switch {
+	case ft != nil && ft.MIME == "application/x-upx":
+		extract = ExtractUPX
+	case ft != nil && ft.MIME == "application/zlib":
+		extract = ExtractZlib
+	default:
+		extract = ExtractionMethod(programkind.GetExt(fullPath))
+	}
+
+	if extract == nil {
+		return false, nil
+	}
+
+	archiveName := strings.TrimSuffix(f, programkind.GetExt(f))
+	archivePath := filepath.Join(d, archiveName)
+	// Some packages may have archives and files with colliding names
+	// e.g., demo_page.css and demo_page.css.gz
+	// the former is the uncompressed version of the latter
+	// if we encounter this, use os.MkdirTemp to create a unique directory.
+	// Root has no MkdirTemp, but the parent is a directory found by walking d,
+	// so no symlink can redirect it.
+	if _, err := root.Lstat(archiveName); err == nil {
+		logger.Debugf("duplicate file name already exists, modifying directory name for %s", archivePath)
+		var mkErr error
+		archivePath, mkErr = os.MkdirTemp(filepath.Dir(archivePath), filepath.Base(archivePath)+"_*")
+		if mkErr != nil {
+			return false, fmt.Errorf("failed to create unique extraction directory: %w", mkErr)
+		}
+	} else if err := root.MkdirAll(archiveName, 0o700); err != nil {
+		return false, fmt.Errorf("failed to create extraction directory: %w", err)
+	}
+
+	err = extract(ctx, archivePath, fullPath)
+	if err != nil {
+		if c.ExitExtraction {
+			return false, fmt.Errorf("failed to extract archive: %w", err)
+		}
+		logger.Warnf("extraction failed for %s, retaining archive for scanning: %s", f, err.Error())
+	}
+
+	extracted.Store(f, true)
+
+	// only attempt to remove the archive file if we don't encounter an extraction error
+	// any archives which cannot be extracted will be scanned like non-archive files
+	if err == nil {
+		if err := root.Remove(f); err != nil {
+			return false, fmt.Errorf("failed to remove archive file: %w", err)
+		}
+	}
+	return true, nil
 }
 
 // extractArchiveToTempDir creates a temporary directory and extracts the archive file for scanning.
@@ -373,7 +492,7 @@ func ExtractArchiveToTempDir(ctx context.Context, c malcontent.Config, path stri
 // the caller, which would otherwise have no handle with which to remove it.
 func cleanupTempDir(ctx context.Context, dir string) {
 	if err := os.RemoveAll(dir); err != nil {
-		clog.FromContext(ctx).Errorf("remove %s: %v", dir, err)
+		clog.ErrorContextf(ctx, "remove %s: %v", dir, err)
 	}
 }
 
@@ -387,8 +506,16 @@ func retainArchive(dir, path string) (string, error) {
 		return "", fmt.Errorf("invalid retention path for %s", name)
 	}
 
-	// Extraction may already have written an entry under this name.
-	if _, err := os.Stat(target); err == nil {
+	root, err := os.OpenRoot(dir)
+	if err != nil {
+		return "", fmt.Errorf("failed to open extraction directory: %w", err)
+	}
+	defer root.Close()
+
+	// Extraction may already have written an entry under this name. Root has
+	// no CreateTemp or cross-root Link, but name is a single element directly
+	// beneath dir, so neither can follow a symlink.
+	if _, err := root.Lstat(name); err == nil {
 		tmp, err := os.CreateTemp(dir, name+"_*")
 		if err != nil {
 			return "", fmt.Errorf("failed to create retention file: %w", err)
@@ -406,7 +533,7 @@ func retainArchive(dir, path string) (string, error) {
 		return name, nil
 	}
 
-	dst, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600) // #nosec G304 -- target validated by IsValidPath against extraction dir
+	dst, err := root.OpenFile(name, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600)
 	if err != nil {
 		return "", fmt.Errorf("failed to create retention file: %w", err)
 	}
@@ -456,8 +583,8 @@ func ExtractionMethod(ext string) func(context.Context, string, string) error {
 }
 
 // handleDirectory extracts valid directories within .deb or .tar archives.
-func handleDirectory(target string) error {
-	if err := os.MkdirAll(target, 0o700); err != nil {
+func handleDirectory(root *os.Root, name string) error {
+	if err := root.MkdirAll(name, 0o700); err != nil {
 		return fmt.Errorf("failed to create directory: %w", err)
 	}
 	return nil
@@ -465,17 +592,13 @@ func handleDirectory(target string) error {
 
 // handleFile extracts valid files within .deb or .tar archives. A nil
 // counter disables byte and ratio accounting.
-func handleFile(target string, tr *tar.Reader, counter *file.ArchiveCounter) error {
+func handleFile(root *os.Root, name string, tr *tar.Reader, counter *file.ArchiveCounter) error {
 	buf := tarPool.Get(file.ExtractBuffer) //nolint:nilaway // the buffer pool is created above
 	defer tarPool.Put(buf)
 
-	if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
-		return fmt.Errorf("failed to create parent directory: %w", err)
-	}
-
-	out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600) // #nosec G304 -- target path validated by IsValidPath before open
+	out, err := createFile(root, name)
 	if err != nil {
-		return fmt.Errorf("failed to create file: %w", err)
+		return err
 	}
 	defer func() { _ = out.Close() }()
 
@@ -507,7 +630,7 @@ func handleFile(target string, tr *tar.Reader, counter *file.ArchiveCounter) err
 			chunk = maxChunk
 		}
 		if capErr := counter.Add(int(chunk)); capErr != nil {
-			return fmt.Errorf("tar extraction aborted on %s: %w", target, capErr)
+			return fmt.Errorf("tar extraction aborted on %s: %w", name, capErr)
 		}
 		remaining -= chunk
 	}
@@ -516,14 +639,23 @@ func handleFile(target string, tr *tar.Reader, counter *file.ArchiveCounter) err
 }
 
 // handleSymlink creates valid symlinks when extracting .deb or .tar archives.
-// linkPath is where the symlink will be created (relative to dir).
+// linkPath is where the symlink will be created (relative to root).
 // linkTarget is what the symlink points to.
-func handleSymlink(dir, linkPath, linkTarget string) error {
-	fullPath := filepath.Join(dir, linkPath)
-
-	// Validate symlink location is within extraction directory
-	if !IsValidPath(fullPath, dir) {
-		return fmt.Errorf("symlink location outside extraction directory: %s", fullPath)
+//
+// The kernel follows any symlink it meets while resolving a target, so "a/.."
+// need not lead back to the directory holding "a", and validating the target
+// lexically is unsound. Instead, the link is created with the cleaned target,
+// whose only ".." elements lead it, and those may not climb above root from the
+// directory that really holds the link. A link created this way resolves within
+// root regardless of which other links exist now or are created later, so it
+// is safe to follow even for code that does not use os.Root.
+func handleSymlink(root *os.Root, linkPath, linkTarget string) error {
+	name, err := rootRelative(root, linkPath)
+	if err != nil {
+		return fmt.Errorf("symlink location outside extraction directory: %w", err)
+	}
+	if name == "." {
+		return fmt.Errorf("symlink location is the extraction directory: %s", linkPath)
 	}
 
 	// Skip absolute symlink targets
@@ -531,52 +663,60 @@ func handleSymlink(dir, linkPath, linkTarget string) error {
 		return nil
 	}
 
-	parentDir := filepath.Dir(fullPath)
-	resolvedDir := dir
-	if rp, err := filepath.EvalSymlinks(parentDir); err == nil {
-		parentDir = rp
-		if rd, err := filepath.EvalSymlinks(dir); err == nil {
-			resolvedDir = rd
-		}
-	}
-
-	// Validate relative symlink target resolves within extraction directory
-	// using the actual (resolved) parent directory
-	resolvedTarget := filepath.Clean(filepath.Join(parentDir, linkTarget))
-	if !IsValidPath(resolvedTarget, resolvedDir) {
-		return fmt.Errorf("symlink target escapes extraction directory: %s -> %s", linkPath, linkTarget)
-	}
-
-	// Ensure parent directory exists
-	if err := os.MkdirAll(filepath.Dir(fullPath), 0o700); err != nil {
+	if err := root.MkdirAll(filepath.Dir(name), 0o700); err != nil {
 		return fmt.Errorf("failed to create parent directory for symlink: %w", err)
 	}
 
+	// Root cannot report where a path really leads, so measure the depth of
+	// the link's parent directory from its fully resolved path.
+	parentDir, err := filepath.EvalSymlinks(filepath.Join(root.Name(), filepath.Dir(name)))
+	if err != nil {
+		return fmt.Errorf("failed to resolve symlink parent directory: %w", err)
+	}
+	resolvedDir, err := filepath.EvalSymlinks(root.Name())
+	if err != nil {
+		return fmt.Errorf("failed to resolve extraction directory: %w", err)
+	}
+	depth, ok := depthWithin(parentDir, resolvedDir)
+	if !ok {
+		return fmt.Errorf("symlink location outside extraction directory: %s", linkPath)
+	}
+
+	target := filepath.Clean(linkTarget)
+	if leadingParents(target) > depth {
+		return fmt.Errorf("symlink target escapes extraction directory: %s -> %s", linkPath, linkTarget)
+	}
+
+	// Create the link in the directory whose depth was just measured.
+	loc, err := filepath.Rel(resolvedDir, filepath.Join(parentDir, filepath.Base(name)))
+	if err != nil {
+		return fmt.Errorf("failed to locate symlink: %w", err)
+	}
+
 	// Remove existing symlinks
-	if _, err := os.Lstat(fullPath); err == nil {
-		if err := os.Remove(fullPath); err != nil {
+	if _, err := root.Lstat(loc); err == nil {
+		if err := root.Remove(loc); err != nil {
 			return fmt.Errorf("failed to remove existing symlink: %w", err)
 		}
 	}
 
-	if err := os.Symlink(linkTarget, fullPath); err != nil {
+	if err := root.Symlink(target, loc); err != nil {
 		return fmt.Errorf("failed to create symlink: %w", err)
 	}
 
-	actualTarget, err := os.Readlink(fullPath)
+	actualTarget, err := root.Readlink(loc)
 	if err != nil {
-		_ = os.Remove(fullPath)
+		_ = root.Remove(loc)
 		return fmt.Errorf("failed to verify symlink target: %w", err)
 	}
-	if actualTarget != linkTarget {
-		_ = os.Remove(fullPath)
-		return fmt.Errorf("symlink target mismatch: expected %s, got %s", linkTarget, actualTarget)
+	if actualTarget != target {
+		_ = root.Remove(loc)
+		return fmt.Errorf("symlink target mismatch: expected %s, got %s", target, actualTarget)
 	}
 
-	// Post-creation validation using the resolved parent directory
-	actualResolved := filepath.Clean(filepath.Join(parentDir, actualTarget))
-	if !IsValidPath(actualResolved, resolvedDir) {
-		_ = os.Remove(fullPath)
+	// Post-creation validation resolving every component of the link
+	if resolved, err := filepath.EvalSymlinks(filepath.Join(resolvedDir, loc)); err == nil && !IsValidPath(resolved, resolvedDir) {
+		_ = root.Remove(loc)
 		return fmt.Errorf("symlink target escapes extraction directory after creation: %s -> %s", linkPath, actualTarget)
 	}
 
@@ -584,54 +724,56 @@ func handleSymlink(dir, linkPath, linkTarget string) error {
 }
 
 // handleHardlink creates valid hardlinks when extracting .deb or .tar archives.
-// linkPath is where the hardlink will be created (relative to dir).
-// linkTarget is the existing file the hardlink points to (relative to dir).
-func handleHardlink(dir, linkPath, linkTarget string) error {
-	fullPath := filepath.Join(dir, linkPath)
-	targetPath := filepath.Join(dir, linkTarget)
-
-	if !IsValidPath(fullPath, dir) {
-		return fmt.Errorf("hardlink location outside extraction directory: %s", fullPath)
+// linkPath is where the hardlink will be created (relative to root).
+// linkTarget is the existing file the hardlink points to (relative to root).
+func handleHardlink(root *os.Root, linkPath, linkTarget string) error {
+	newname, err := rootRelative(root, linkPath)
+	if err != nil {
+		return fmt.Errorf("hardlink location outside extraction directory: %w", err)
+	}
+	oldname, err := rootRelative(root, linkTarget)
+	if err != nil {
+		return fmt.Errorf("hardlink target outside extraction directory: %w", err)
+	}
+	if newname == oldname {
+		return nil
 	}
 
-	if !IsValidPath(targetPath, dir) {
-		return fmt.Errorf("hardlink target outside extraction directory: %s", targetPath)
+	fi, err := root.Lstat(oldname)
+	if errors.Is(err, fs.ErrNotExist) {
+		return nil
+	}
+	if err != nil {
+		return fmt.Errorf("failed to stat hardlink target: %w", err)
 	}
 
-	if err := os.MkdirAll(filepath.Dir(fullPath), 0o700); err != nil {
-		return fmt.Errorf("failed to create parent directory for hardlink: %w", err)
+	// A hardlink to a symlink is a second symlink whose target resolves from
+	// its own location, so recreate it as one and validate it there.
+	if fi.Mode()&os.ModeSymlink != 0 {
+		symlinkTarget, err := root.Readlink(oldname)
+		if err != nil {
+			return fmt.Errorf("failed to read hardlink target: %w", err)
+		}
+		return handleSymlink(root, newname, symlinkTarget)
 	}
 
-	// Remove existing file/link at the path
-	if _, err := os.Lstat(fullPath); err == nil {
-		if err := os.Remove(fullPath); err != nil {
+	// Each Root call walks every path element, so link first and create the
+	// parent or remove an existing entry only when the link fails for that.
+	err = root.Link(oldname, newname)
+	if errors.Is(err, fs.ErrNotExist) {
+		if err := root.MkdirAll(filepath.Dir(newname), 0o700); err != nil {
+			return fmt.Errorf("failed to create parent directory for hardlink: %w", err)
+		}
+		err = root.Link(oldname, newname)
+	}
+	if errors.Is(err, fs.ErrExist) {
+		if err := root.Remove(newname); err != nil {
 			return fmt.Errorf("failed to remove existing file for hardlink: %w", err)
 		}
+		err = root.Link(oldname, newname)
 	}
-
-	if err := os.Link(targetPath, fullPath); err != nil {
-		if errors.Is(err, fs.ErrNotExist) {
-			return nil
-		}
+	if err != nil {
 		return fmt.Errorf("failed to create hardlink: %w", err)
 	}
-
-	linkInfo, err := os.Stat(fullPath)
-	if err != nil {
-		_ = os.Remove(fullPath)
-		return fmt.Errorf("failed to stat hardlink after creation: %w", err)
-	}
-
-	targetInfo, err := os.Stat(targetPath)
-	if err != nil {
-		_ = os.Remove(fullPath)
-		return fmt.Errorf("failed to stat hardlink target after creation: %w", err)
-	}
-
-	if !os.SameFile(linkInfo, targetInfo) {
-		_ = os.Remove(fullPath)
-		return fmt.Errorf("hardlink validation failed: link and target are not the same file")
-	}
-
 	return nil
 }

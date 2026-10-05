@@ -30,7 +30,7 @@ func CPUQuota() (int, bool) {
 // readCgroupV2 parses the "<quota> <period>" form. The literal "max" in the
 // quota slot disables the ceiling.
 func readCgroupV2(path string) (int, bool) {
-	raw, err := os.ReadFile(path)
+	raw, err := os.ReadFile(path) // #nosec G304 -- path is a fixed cgroup file; tests substitute fixtures
 	if err != nil {
 		return 0, false
 	}
@@ -65,7 +65,7 @@ func readCgroupV1(quotaPath, periodPath string) (int, bool) {
 }
 
 func readIntFile(path string) (int64, bool) {
-	raw, err := os.ReadFile(path)
+	raw, err := os.ReadFile(path) // #nosec G304 -- path is a fixed cgroup file; tests substitute fixtures
 	if err != nil {
 		return 0, false
 	}

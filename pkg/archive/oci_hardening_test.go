@@ -7,7 +7,6 @@ import (
 	"archive/tar"
 	"bytes"
 	"compress/gzip"
-	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -124,61 +123,63 @@ func digestOf(b []byte) string {
 }
 
 func (h *hostileRegistry) handler() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		current := atomic.AddInt32(&h.inFlight, 1)
-		for {
-			peak := atomic.LoadInt32(&h.peakInFlight)
-			if current <= peak || atomic.CompareAndSwapInt32(&h.peakInFlight, peak, current) {
-				break
-			}
-		}
-		defer atomic.AddInt32(&h.inFlight, -1)
+	return http.HandlerFunc(h.serveHTTP)
+}
 
-		if auth := r.Header.Get("Authorization"); auth != "" {
-			a := auth
-			h.authHeaderSeen.Store(&a)
+func (h *hostileRegistry) serveHTTP(w http.ResponseWriter, r *http.Request) {
+	current := atomic.AddInt32(&h.inFlight, 1)
+	for {
+		peak := atomic.LoadInt32(&h.peakInFlight)
+		if current <= peak || atomic.CompareAndSwapInt32(&h.peakInFlight, peak, current) {
+			break
 		}
+	}
+	defer atomic.AddInt32(&h.inFlight, -1)
 
-		switch {
-		case r.URL.Path == "/v2/":
-			w.WriteHeader(http.StatusOK)
+	if auth := r.Header.Get("Authorization"); auth != "" {
+		a := auth
+		h.authHeaderSeen.Store(&a)
+	}
+
+	switch {
+	case r.URL.Path == "/v2/":
+		w.WriteHeader(http.StatusOK)
+		return
+	case strings.HasPrefix(r.URL.Path, "/v2/") && strings.Contains(r.URL.Path, "/manifests/"):
+		hit := atomic.AddInt32(&h.manifestHits, 1)
+		if h.always503 {
+			w.WriteHeader(http.StatusServiceUnavailable)
 			return
-		case strings.HasPrefix(r.URL.Path, "/v2/") && strings.Contains(r.URL.Path, "/manifests/"):
-			hit := atomic.AddInt32(&h.manifestHits, 1)
-			if h.always503 {
-				w.WriteHeader(http.StatusServiceUnavailable)
-				return
-			}
-			if h.transient408 > 0 && hit <= h.transient408 {
-				w.WriteHeader(http.StatusRequestTimeout)
-				return
-			}
-			if h.manifestDelay > 0 {
-				select {
-				case <-time.After(h.manifestDelay):
-				case <-r.Context().Done():
-					return
-				}
-			}
-			w.Header().Set("Content-Type", "application/vnd.docker.distribution.manifest.v2+json")
-			w.Header().Set("Docker-Content-Digest", digestOf(h.manifestJSON))
-			w.WriteHeader(http.StatusOK)
-			_, _ = w.Write(h.manifestJSON)
-		case strings.HasPrefix(r.URL.Path, "/v2/") && strings.Contains(r.URL.Path, "/blobs/"):
-			atomic.AddInt32(&h.blobHits, 1)
-			if strings.HasSuffix(r.URL.Path, h.configDigest) {
-				_, _ = w.Write(h.configBlob)
-				return
-			}
-			if strings.HasSuffix(r.URL.Path, h.layerDigest) {
-				_, _ = w.Write(h.layerBlob)
-				return
-			}
-			w.WriteHeader(http.StatusNotFound)
-		default:
-			w.WriteHeader(http.StatusNotFound)
 		}
-	})
+		if h.transient408 > 0 && hit <= h.transient408 {
+			w.WriteHeader(http.StatusRequestTimeout)
+			return
+		}
+		if h.manifestDelay > 0 {
+			select {
+			case <-time.After(h.manifestDelay):
+			case <-r.Context().Done():
+				return
+			}
+		}
+		w.Header().Set("Content-Type", "application/vnd.docker.distribution.manifest.v2+json")
+		w.Header().Set("Docker-Content-Digest", digestOf(h.manifestJSON))
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write(h.manifestJSON)
+	case strings.HasPrefix(r.URL.Path, "/v2/") && strings.Contains(r.URL.Path, "/blobs/"):
+		atomic.AddInt32(&h.blobHits, 1)
+		if strings.HasSuffix(r.URL.Path, h.configDigest) {
+			_, _ = w.Write(h.configBlob)
+			return
+		}
+		if strings.HasSuffix(r.URL.Path, h.layerDigest) {
+			_, _ = w.Write(h.layerBlob)
+			return
+		}
+		w.WriteHeader(http.StatusNotFound)
+	default:
+		w.WriteHeader(http.StatusNotFound)
+	}
 }
 
 // hostPort strips the scheme from an httptest.Server URL so it can be used as the
@@ -217,10 +218,10 @@ func TestOCIHardening_PullTimeout_HangAborted(t *testing.T) {
 	}
 
 	start := time.Now()
-	_, err := OCIWithConfig(context.Background(), hostPort(t, srv.URL)+"/foo:bar", c)
+	_, err := OCIWithConfig(t.Context(), hostPort(t, srv.URL)+"/foo:bar", c)
 	elapsed := time.Since(start)
 	if err == nil {
-		t.Fatalf("expected timeout error, got nil")
+		t.Fatalf("err: got = nil, want = timeout error")
 	}
 	if elapsed > 7*time.Second {
 		t.Fatalf("timeout did not abort within slack: elapsed=%s", elapsed)
@@ -242,16 +243,16 @@ func TestOCIHardening_Retry_Infinite503Aborted(t *testing.T) {
 	}
 
 	start := time.Now()
-	_, err := OCIWithConfig(context.Background(), hostPort(t, srv.URL)+"/foo:bar", c)
+	_, err := OCIWithConfig(t.Context(), hostPort(t, srv.URL)+"/foo:bar", c)
 	elapsed := time.Since(start)
 	if err == nil {
-		t.Fatalf("expected retry-exhausted error, got nil")
+		t.Fatalf("err: got = nil, want = retry-exhausted error")
 	}
 	if elapsed > 10*time.Second {
 		t.Fatalf("retry budget did not bound: elapsed=%s", elapsed)
 	}
 	if atomic.LoadInt32(&reg.manifestHits) == 0 {
-		t.Fatalf("expected at least one manifest hit, got 0")
+		t.Fatalf("manifest hits: got = 0, want > 0")
 	}
 }
 
@@ -269,13 +270,13 @@ func TestOCIHardening_Retry_408RequestTimeout_Retried(t *testing.T) {
 		OCIPerHostSlots:          2,
 	}
 
-	_, err := OCIWithConfig(context.Background(), hostPort(t, srv.URL)+"/foo:bar", c)
+	_, err := OCIWithConfig(t.Context(), hostPort(t, srv.URL)+"/foo:bar", c)
 	if err != nil && strings.Contains(err.Error(), "408") {
 		t.Fatalf("408 was not retried: %v", err)
 	}
 	hits := atomic.LoadInt32(&reg.manifestHits)
 	if hits <= reg.transient408 {
-		t.Fatalf("expected more than %d manifest hits after 408 retries, got %d", reg.transient408, hits)
+		t.Fatalf("manifest hits after 408 retries: got = %d, want > %d", hits, reg.transient408)
 	}
 }
 
@@ -300,7 +301,7 @@ func TestOCIHardening_PerHostConcurrency_CapEnforced(t *testing.T) {
 		go func(i int) {
 			defer wg.Done()
 			ref := fmt.Sprintf("%s/foo:bar%d", host, i)
-			_, _ = OCIWithConfig(context.Background(), ref, c)
+			_, _ = OCIWithConfig(t.Context(), ref, c)
 		}(i)
 	}
 	wg.Wait()
@@ -328,10 +329,10 @@ func TestOCIHardening_Keepalive_Explicit(t *testing.T) {
 		t.Fatalf("unexpected RoundTripper type %T", rt)
 	}
 	if tr.IdleConnTimeout <= 0 {
-		t.Fatalf("expected IdleConnTimeout > 0 with keepalive enabled, got %s", tr.IdleConnTimeout)
+		t.Fatalf("IdleConnTimeout with keepalive enabled: got = %s, want > 0", tr.IdleConnTimeout)
 	}
 	if tr.DisableKeepAlives {
-		t.Fatalf("expected DisableKeepAlives=false with keepalive enabled")
+		t.Fatalf("DisableKeepAlives with keepalive enabled: got = true, want = false")
 	}
 
 	cfg.keepalivePolicy = malcontent.KeepalivePolicyExplicitlyDisabled
@@ -342,7 +343,7 @@ func TestOCIHardening_Keepalive_Explicit(t *testing.T) {
 	}
 	tr2 := rt2.(*http.Transport)
 	if !tr2.DisableKeepAlives {
-		t.Fatalf("expected DisableKeepAlives=true with policy=disabled")
+		t.Fatalf("DisableKeepAlives with policy=disabled: got = false, want = true")
 	}
 }
 
@@ -370,7 +371,7 @@ func TestOCIHardening_Keepalive_ExplicitlyEnabledZeroSeconds_FallsBackToDefault(
 		t.Fatalf("IdleConnTimeout = %s, want %s (should fall back to default)", tr.IdleConnTimeout, want)
 	}
 	if tr.DisableKeepAlives {
-		t.Fatalf("expected DisableKeepAlives=false")
+		t.Fatalf("DisableKeepAlives: got = true, want = false")
 	}
 }
 
@@ -391,7 +392,7 @@ func TestOCIHardening_ProxyPolicy_HTTPSProxyBypassedByDefault(t *testing.T) {
 		OCIProxyOptIn:            false,
 	}
 
-	_, err := OCIWithConfig(context.Background(), hostPort(t, srv.URL)+"/foo:bar", c)
+	_, err := OCIWithConfig(t.Context(), hostPort(t, srv.URL)+"/foo:bar", c)
 	if err != nil {
 		// The extraction may fail downstream, but the pull itself must reach the test server.
 		if atomic.LoadInt32(&reg.manifestHits) == 0 {
@@ -399,7 +400,7 @@ func TestOCIHardening_ProxyPolicy_HTTPSProxyBypassedByDefault(t *testing.T) {
 		}
 	}
 	if atomic.LoadInt32(&reg.manifestHits) == 0 {
-		t.Fatalf("expected manifest hits with proxy bypass")
+		t.Fatalf("manifest hits with proxy bypass: got = 0, want > 0")
 	}
 }
 
@@ -418,12 +419,12 @@ func TestOCIHardening_SizePreflight_OversizedAbortedBeforeBodyFetch(t *testing.T
 		MaxImageSize:             1 << 16, // 64 KiB
 	}
 
-	_, err := OCIWithConfig(context.Background(), hostPort(t, srv.URL)+"/foo:bar", c)
+	_, err := OCIWithConfig(t.Context(), hostPort(t, srv.URL)+"/foo:bar", c)
 	if err == nil {
-		t.Fatalf("expected size-preflight rejection, got nil")
+		t.Fatalf("err: got = nil, want = size-preflight rejection")
 	}
 	if !strings.Contains(err.Error(), "exceeds maximum allowed size") {
-		t.Fatalf("expected size error, got %v", err)
+		t.Fatalf("err: got = %v, want = size error", err)
 	}
 	if got := atomic.LoadInt32(&reg.blobHits); got != 0 {
 		t.Fatalf("size preflight should have aborted before blob fetch, got %d blob hits", got)
@@ -490,11 +491,11 @@ func TestEnvKeychain_CredsOnlyForExpectedHost(t *testing.T) {
 			}
 			if tt.wantAnonymous {
 				if auth != authn.Anonymous {
-					t.Fatalf("expected Anonymous authenticator, got %T", auth)
+					t.Fatalf("authenticator: got = %T, want = Anonymous", auth)
 				}
 			} else {
 				if auth == authn.Anonymous {
-					t.Fatalf("expected Basic authenticator, got Anonymous")
+					t.Fatalf("authenticator: got = Anonymous, want = Basic")
 				}
 			}
 		})
@@ -533,7 +534,7 @@ func TestOCIHardening_Keychain_AmbientDefaultRejected(t *testing.T) {
 			OCIRetryMaxWindowSeconds: 5,
 			OCIPerHostSlots:          2,
 		}
-		_, _ = OCIWithConfig(context.Background(), hostPort(t, srv.URL)+"/foo:bar", c)
+		_, _ = OCIWithConfig(t.Context(), hostPort(t, srv.URL)+"/foo:bar", c)
 		if seen := reg.authHeaderSeen.Load(); seen != nil {
 			t.Fatalf("unexpected Authorization header when OCIAuth=false: %q", *seen)
 		}
@@ -554,7 +555,7 @@ func TestOCIHardening_Keychain_AmbientDefaultRejected(t *testing.T) {
 			OCIRetryMaxWindowSeconds: 5,
 			OCIPerHostSlots:          2,
 		}
-		_, _ = OCIWithConfig(context.Background(), hostPort(t, srv.URL)+"/foo:bar", c)
+		_, _ = OCIWithConfig(t.Context(), hostPort(t, srv.URL)+"/foo:bar", c)
 		if seen := reg.authHeaderSeen.Load(); seen != nil {
 			t.Fatalf("docker-config ambient auth should be rejected, but saw header %q", *seen)
 		}
@@ -578,13 +579,13 @@ func TestOCIHardening_Keychain_AmbientDefaultRejected(t *testing.T) {
 			OCIRetryMaxWindowSeconds: 5,
 			OCIPerHostSlots:          2,
 		}
-		_, _ = OCIWithConfig(context.Background(), hostPort(t, srv.URL)+"/foo:bar", c)
+		_, _ = OCIWithConfig(t.Context(), hostPort(t, srv.URL)+"/foo:bar", c)
 		seen := reg.authHeaderSeen.Load()
 		if seen == nil {
-			t.Fatalf("expected Authorization header when env creds set, saw none")
+			t.Fatalf("Authorization header with env creds set: got = none, want = Basic auth")
 		}
 		if !strings.HasPrefix(*seen, "Basic ") {
-			t.Fatalf("expected Basic auth, got %q", *seen)
+			t.Fatalf("Authorization header: got = %q, want = Basic auth", *seen)
 		}
 	})
 }

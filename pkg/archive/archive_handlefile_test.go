@@ -45,7 +45,7 @@ func TestHandleFile_NilCounter(t *testing.T) {
 	tr := makeTarStream(t, "a.txt", body)
 	target := filepath.Join(dir, "a.txt")
 
-	if err := handleFile(target, tr, nil); err != nil {
+	if err := handleFile(openTestRoot(t, dir), "a.txt", tr, nil); err != nil {
 		t.Fatalf("handleFile(nil counter): %v", err)
 	}
 	got, err := os.ReadFile(target)
@@ -64,10 +64,9 @@ func TestHandleFile_WithCounter(t *testing.T) {
 	dir := t.TempDir()
 	body := []byte("hello-counter")
 	tr := makeTarStream(t, "b.txt", body)
-	target := filepath.Join(dir, "b.txt")
 
 	counter := &file.ArchiveCounter{}
-	if err := handleFile(target, tr, counter); err != nil {
+	if err := handleFile(openTestRoot(t, dir), "b.txt", tr, counter); err != nil {
 		t.Fatalf("handleFile(counter): %v", err)
 	}
 	if got := counter.Total.Load(); got != int64(len(body)) {
@@ -94,7 +93,7 @@ func TestHandleFile_ArchiveBudgetBoundsPerMemberWrite(t *testing.T) {
 	target := filepath.Join(dir, "oversize.bin")
 
 	counter := &file.ArchiveCounter{MaxBytes: archiveCap, InputBytes: 1 << 20}
-	err := handleFile(target, tr, counter)
+	err := handleFile(openTestRoot(t, dir), "oversize.bin", tr, counter)
 	if err == nil {
 		t.Fatalf("handleFile succeeded; want error for member exceeding archive cap")
 	}
@@ -129,7 +128,7 @@ func TestHandleFile_MemberWithinBudgetExtractsFully(t *testing.T) {
 	target := filepath.Join(dir, "within_budget.bin")
 
 	counter := &file.ArchiveCounter{MaxBytes: budget, InputBytes: 1 << 20}
-	if err := handleFile(target, tr, counter); err != nil {
+	if err := handleFile(openTestRoot(t, dir), "within_budget.bin", tr, counter); err != nil {
 		t.Fatalf("handleFile returned error for member within budget: %v", err)
 	}
 
@@ -160,10 +159,9 @@ func TestHandleFile_MemberExceedsBudgetErrors(t *testing.T) {
 	dir := t.TempDir()
 	body := make([]byte, memberSize)
 	tr := makeTarStream(t, "over_budget.bin", body)
-	target := filepath.Join(dir, "over_budget.bin")
 
 	counter := &file.ArchiveCounter{MaxBytes: budget, InputBytes: 1 << 20}
-	err := handleFile(target, tr, counter)
+	err := handleFile(openTestRoot(t, dir), "over_budget.bin", tr, counter)
 	if err == nil {
 		t.Fatal("handleFile succeeded; want error for member exceeding counter budget")
 	}

@@ -7,7 +7,6 @@ import (
 	"archive/tar"
 	"bytes"
 	"compress/gzip"
-	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -93,30 +92,32 @@ func sizedDigestOf(b []byte) string {
 }
 
 func (h *sizedManifestRegistry) handler() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		switch {
-		case r.URL.Path == "/v2/":
-			w.WriteHeader(http.StatusOK)
-		case strings.Contains(r.URL.Path, "/manifests/"):
-			w.Header().Set("Content-Type", "application/vnd.docker.distribution.manifest.v2+json")
-			w.Header().Set("Docker-Content-Digest", sizedDigestOf(h.manifestJSON))
-			w.WriteHeader(http.StatusOK)
-			_, _ = w.Write(h.manifestJSON)
-		case strings.Contains(r.URL.Path, "/blobs/"):
-			atomic.AddInt32(&h.blobHits, 1)
-			if strings.HasSuffix(r.URL.Path, h.configDigest) {
-				_, _ = w.Write(h.configBlob)
-				return
-			}
-			if strings.HasSuffix(r.URL.Path, h.layerDigest) {
-				_, _ = w.Write(h.layerBlob)
-				return
-			}
-			w.WriteHeader(http.StatusNotFound)
-		default:
-			w.WriteHeader(http.StatusNotFound)
+	return http.HandlerFunc(h.serveHTTP)
+}
+
+func (h *sizedManifestRegistry) serveHTTP(w http.ResponseWriter, r *http.Request) {
+	switch {
+	case r.URL.Path == "/v2/":
+		w.WriteHeader(http.StatusOK)
+	case strings.Contains(r.URL.Path, "/manifests/"):
+		w.Header().Set("Content-Type", "application/vnd.docker.distribution.manifest.v2+json")
+		w.Header().Set("Docker-Content-Digest", sizedDigestOf(h.manifestJSON))
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write(h.manifestJSON)
+	case strings.Contains(r.URL.Path, "/blobs/"):
+		atomic.AddInt32(&h.blobHits, 1)
+		if strings.HasSuffix(r.URL.Path, h.configDigest) {
+			_, _ = w.Write(h.configBlob)
+			return
 		}
-	})
+		if strings.HasSuffix(r.URL.Path, h.layerDigest) {
+			_, _ = w.Write(h.layerBlob)
+			return
+		}
+		w.WriteHeader(http.StatusNotFound)
+	default:
+		w.WriteHeader(http.StatusNotFound)
+	}
 }
 
 // TestOCIHardening_SizePreflight_HostileDescriptorsRejected proves the
@@ -149,12 +150,12 @@ func TestOCIHardening_SizePreflight_HostileDescriptorsRejected(t *testing.T) {
 				MaxImageSize:             1 << 16, // 64 KiB
 			}
 
-			_, err := OCIWithConfig(context.Background(), hostPort(t, srv.URL)+"/foo:bar", c)
+			_, err := OCIWithConfig(t.Context(), hostPort(t, srv.URL)+"/foo:bar", c)
 			if err == nil {
-				t.Fatal("expected hostile-descriptor rejection, got nil")
+				t.Fatal("err: got = nil, want = hostile-descriptor rejection")
 			}
 			if !strings.Contains(err.Error(), "exceeds maximum allowed size") {
-				t.Fatalf("expected size error, got %v", err)
+				t.Fatalf("err: got = %v, want = size error", err)
 			}
 			if got := atomic.LoadInt32(&reg.blobHits); got != 0 {
 				t.Fatalf("preflight should abort before blob fetch, got %d blob hits", got)

@@ -52,6 +52,12 @@ func ExtractTar(ctx context.Context, d string, f string) (err error) {
 	// package defaults so zero-config callers still receive a finite cap.
 	counter := newArchiveCounter(ctx, fi.Size())
 
+	root, err := openRoot(d)
+	if err != nil {
+		return err
+	}
+	defer root.Close()
+
 	filename := filepath.Base(f)
 	tf, err := os.Open(f) // #nosec G304 -- archive path resolved and validated by caller before extraction
 	if err != nil {
@@ -96,14 +102,10 @@ func ExtractTar(ctx context.Context, d string, f string) (err error) {
 			return fmt.Errorf("failed to create xz reader: %w", err)
 		}
 		uncompressed := strings.TrimSuffix(filepath.Base(f), ".xz")
-		target := filepath.Join(d, filepath.Base(filepath.Dir(f)), uncompressed)
-		if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
-			return fmt.Errorf("failed to create directory for file: %w", err)
-		}
-
-		out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600) // #nosec G304 -- target path computed under sandbox dir d, parent dir created with 0700
+		target := filepath.Join(filepath.Base(filepath.Dir(f)), uncompressed)
+		out, err := createFile(root, target)
 		if err != nil {
-			return fmt.Errorf("failed to create file: %w", err)
+			return err
 		}
 		defer out.Close()
 
@@ -136,13 +138,10 @@ func ExtractTar(ctx context.Context, d string, f string) (err error) {
 	case strings.Contains(filename, ".tar.bz2") || strings.Contains(filename, ".tbz"):
 		br := bzip2.NewReader(ctx, tf)
 		uncompressed := strings.TrimSuffix(filepath.Base(f), programkind.GetExt(filename))
-		target := filepath.Join(d, filepath.Base(filepath.Dir(f)), uncompressed)
-		if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
-			return fmt.Errorf("failed to create directory for file: %w", err)
-		}
-		out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600) // #nosec G304 -- target path computed under sandbox dir d, parent dir created with 0700
+		target := filepath.Join(filepath.Base(filepath.Dir(f)), uncompressed)
+		out, err := createFile(root, target)
 		if err != nil {
-			return fmt.Errorf("failed to create file: %w", err)
+			return err
 		}
 		defer out.Close()
 
@@ -207,10 +206,6 @@ func ExtractTar(ctx context.Context, d string, f string) (err error) {
 			return fmt.Errorf("invalid file path: %s", target)
 		}
 
-		if err := ValidateResolvedPath(target, d, clean); err != nil {
-			return err
-		}
-
 		if err := func() error {
 			if err := sem.Acquire(ctx, 1); err != nil {
 				return err
@@ -218,19 +213,19 @@ func ExtractTar(ctx context.Context, d string, f string) (err error) {
 			defer sem.Release(1)
 			switch header.Typeflag {
 			case tar.TypeDir:
-				if err := handleDirectory(target); err != nil {
+				if err := handleDirectory(root, clean); err != nil {
 					return fmt.Errorf("failed to extract directory: %w", err)
 				}
 			case tar.TypeReg:
-				if err := handleFile(target, tr, counter); err != nil {
+				if err := handleFile(root, clean, tr, counter); err != nil {
 					return fmt.Errorf("failed to extract file: %w", err)
 				}
 			case tar.TypeSymlink:
-				if err := handleSymlink(d, clean, header.Linkname); err != nil {
+				if err := handleSymlink(root, clean, header.Linkname); err != nil {
 					return fmt.Errorf("failed to create symlink: %w", err)
 				}
 			case tar.TypeLink:
-				if err := handleHardlink(d, clean, header.Linkname); err != nil {
+				if err := handleHardlink(root, clean, header.Linkname); err != nil {
 					return fmt.Errorf("failed to create hardlink: %w", err)
 				}
 			default:
@@ -239,7 +234,7 @@ func ExtractTar(ctx context.Context, d string, f string) (err error) {
 				// otherwise be skipped, leaving their content out of the scan
 				// corpus while the archive is deleted as fully extracted.
 				if header.Size > 0 && !isTarHeaderOnlyType(header.Typeflag) {
-					if err := handleFile(target, tr, counter); err != nil {
+					if err := handleFile(root, clean, tr, counter); err != nil {
 						return fmt.Errorf("failed to extract file: %w", err)
 					}
 				}

@@ -43,17 +43,20 @@ func ExtractZstd(ctx context.Context, d string, f string) error {
 
 	uncompressed := strings.TrimSuffix(filepath.Base(f), ".zstd")
 	uncompressed = strings.TrimSuffix(uncompressed, ".zst")
-	target := filepath.Join(d, filepath.Base(filepath.Dir(f)), uncompressed)
+	name := filepath.Join(filepath.Base(filepath.Dir(f)), uncompressed)
+	target := filepath.Join(d, name)
 
 	if !IsValidPath(target, d) {
 		return fmt.Errorf("invalid zstd decompression file path: %s", target)
 	}
 
-	if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
-		return fmt.Errorf("failed to create directory for decomrpessed zstd file: %w", err)
+	root, err := openRoot(d)
+	if err != nil {
+		return err
 	}
+	defer root.Close()
 
-	out, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600) // #nosec G304 -- target validated by IsValidPath against sandbox dir d
+	out, err := createFile(root, name)
 	if err != nil {
 		return fmt.Errorf("failed to create decompressed zstd file: %w", err)
 	}

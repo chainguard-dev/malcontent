@@ -4,7 +4,6 @@
 package archive
 
 import (
-	"context"
 	"errors"
 	"os"
 	"path/filepath"
@@ -56,7 +55,7 @@ func TestExtractZip_WorkerPanicRecovered(t *testing.T) {
 	zipPath := writeSingleEntryZip(t, tmp)
 	dst := filepath.Join(tmp, "out")
 
-	err := ExtractZip(context.Background(), dst, zipPath)
+	err := ExtractZip(t.Context(), dst, zipPath)
 	if err == nil {
 		t.Fatal("ExtractZip succeeded; want recovered worker panic error")
 	}

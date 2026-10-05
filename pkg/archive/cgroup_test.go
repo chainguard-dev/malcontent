@@ -7,7 +7,6 @@ import (
 	"context"
 	"runtime"
 	"sync"
-	"sync/atomic"
 	"testing"
 	"time"
 )
@@ -125,7 +124,7 @@ func TestGlobalExtractionSemaphoreUnblocks(t *testing.T) {
 
 	weight := 2
 	sem := newExtractionSemaphoreForTest(weight)
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
 	defer cancel()
 
 	// Fill the semaphore to capacity.
@@ -135,43 +134,33 @@ func TestGlobalExtractionSemaphoreUnblocks(t *testing.T) {
 		}
 	}
 
-	// The (cap+1)th must block until a release.
-	blocked := make(chan struct{})
+	// A full semaphore admits no further permit.
+	if sem.TryAcquire(1) {
+		t.Fatal("(cap+1)th Acquire: got = acquired, want = blocked while semaphore full")
+	}
+
+	// A waiting acquirer proceeds once a permit is released.
 	acquired := make(chan struct{})
-	var acqOK atomic.Bool
 	var wg sync.WaitGroup
+	t.Cleanup(wg.Wait)
 	wg.Go(func() {
-		close(blocked)
 		if err := sem.Acquire(ctx, 1); err != nil {
 			return
 		}
-		acqOK.Store(true)
 		close(acquired)
 		sem.Release(1)
 	})
 
-	<-blocked
-	select {
-	case <-acquired:
-		t.Fatal("(cap+1)th Acquire did not block when semaphore full")
-	case <-time.After(50 * time.Millisecond):
-	}
-
 	sem.Release(1)
 
 	select {
 	case <-acquired:
-	case <-time.After(2 * time.Second):
-		t.Fatal("(cap+1)th Acquire did not unblock after Release")
-	}
-
-	if !acqOK.Load() {
-		t.Fatal("blocked acquirer did not record successful acquisition")
+	case <-ctx.Done():
+		t.Fatal("(cap+1)th Acquire: got = still blocked, want = unblocked after Release")
 	}
 
 	// Drain remaining permit.
 	sem.Release(1)
-	wg.Wait()
 }
 
 func TestExtractionSemaphoreLazyInit(t *testing.T) {

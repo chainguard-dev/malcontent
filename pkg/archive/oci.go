@@ -120,7 +120,7 @@ func resolveOCITransportConfig(ctx context.Context, c *malcontent.Config) ociTra
 	// malcontent.KeepalivePolicyGoDefault explicitly to suppress this.
 	if cfg.keepalivePolicy == "" && cfg.keepaliveSeconds == 0 {
 		keepaliveUnsetWarnOnce.Do(func() {
-			clog.FromContext(ctx).Warn(
+			clog.WarnContext(ctx,
 				"OCIKeepalivePolicy is unset; defaulting to ExplicitlyEnabled+30s — pass malcontent.KeepalivePolicyGoDefault to suppress this warning",
 				"default_seconds", defaultOCIKeepaliveSeconds,
 			)
@@ -170,7 +170,7 @@ func buildScopedKeychain(ctx context.Context, useAuth bool) authn.Keychain {
 	pass := strings.TrimSpace(os.Getenv(registryPassEnv))
 	if user == "" || pass == "" {
 		authMissingWarnOnce.Do(func() {
-			clog.FromContext(ctx).Warn(
+			clog.WarnContext(ctx,
 				"OCI auth requested but MALCONTENT_REGISTRY_USER/MALCONTENT_REGISTRY_PASS are not set; ambient docker credentials are no longer used — proceeding anonymously",
 			)
 		})

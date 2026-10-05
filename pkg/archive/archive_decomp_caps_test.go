@@ -6,9 +6,7 @@ package archive
 import (
 	"archive/tar"
 	"bytes"
-	"context"
 	"errors"
-	"path/filepath"
 	"testing"
 
 	"github.com/cavaliergopher/cpio"
@@ -48,12 +46,11 @@ func TestExtractFileFromCPIO_AggregateCap(t *testing.T) {
 	dir := t.TempDir()
 	body := make([]byte, 4096)
 	cr := makeCPIOStream(t, "payload.bin", body)
-	target := filepath.Join(dir, "payload.bin")
 
 	buf := make([]byte, file.ExtractBuffer)
 	counter := &file.ArchiveCounter{MaxBytes: 1024, InputBytes: 1 << 20}
 
-	err := extractFileFromCPIO(context.Background(), cr, target, buf, counter)
+	err := extractFileFromCPIO(t.Context(), cr, openTestRoot(t, dir), "payload.bin", buf, counter)
 	if err == nil {
 		t.Fatalf("extractFileFromCPIO succeeded; want ErrArchiveBytesCap")
 	}
@@ -92,16 +89,16 @@ func makeTarMember(t *testing.T, name string, body []byte) *tar.Reader {
 func TestHandleFile_AggregateCap(t *testing.T) {
 	t.Parallel()
 
-	dir := t.TempDir()
+	root := openTestRoot(t, t.TempDir())
 	counter := &file.ArchiveCounter{MaxBytes: 1500, InputBytes: 1 << 20}
 
 	first := makeTarMember(t, "a.bin", make([]byte, 1024))
-	if err := handleFile(filepath.Join(dir, "a.bin"), first, counter); err != nil {
+	if err := handleFile(root, "a.bin", first, counter); err != nil {
 		t.Fatalf("first member: unexpected error %v", err)
 	}
 
 	second := makeTarMember(t, "b.bin", make([]byte, 1024))
-	err := handleFile(filepath.Join(dir, "b.bin"), second, counter)
+	err := handleFile(root, "b.bin", second, counter)
 	if err == nil {
 		t.Fatalf("second member succeeded; want ErrArchiveBytesCap")
 	}

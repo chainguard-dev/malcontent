@@ -70,12 +70,12 @@ func TestUPX_NotInstalledRendersAsSkipped(t *testing.T) {
 	t.Setenv("MALCONTENT_UPX_PATH", "/nonexistent/path/to/upx")
 
 	tmpDir := t.TempDir()
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
 	defer cancel()
 
 	err := ExtractUPX(ctx, tmpDir, "/nonexistent/file")
 	if err == nil {
-		t.Fatal("expected error when UPX is not installed; got nil")
+		t.Fatal("err without UPX installed: got = nil, want = error")
 	}
 	// Any "not found" / stat error path is acceptable; we only require
 	// that the call surfaces the absence rather than swallowing it.
@@ -202,7 +202,7 @@ func TestCopyBoundedToSandbox_LimitEnforced(t *testing.T) {
 			n, err := copyBoundedToSandbox(&dst, src, tc.limit)
 			if tc.wantErr {
 				if err == nil {
-					t.Fatal("expected error, got nil")
+					t.Fatal("err: got = nil, want = error")
 				}
 				return
 			}

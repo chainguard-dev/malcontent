@@ -49,6 +49,12 @@ func ExtractDeb(ctx context.Context, d, f string) (retErr error) {
 	// from the deb file size.
 	counter := newArchiveCounter(ctx, fi.Size())
 
+	root, err := openRoot(d)
+	if err != nil {
+		return err
+	}
+	defer root.Close()
+
 	for {
 		header, err := df.Data.Next()
 		if errors.Is(err, io.EOF) {
@@ -68,25 +74,21 @@ func ExtractDeb(ctx context.Context, d, f string) (retErr error) {
 			return fmt.Errorf("invalid file path: %s", target)
 		}
 
-		if err := ValidateResolvedPath(target, d, clean); err != nil {
-			return err
-		}
-
 		switch header.Typeflag {
 		case tar.TypeDir:
-			if err := handleDirectory(target); err != nil {
+			if err := handleDirectory(root, clean); err != nil {
 				return fmt.Errorf("failed to extract directory: %w", err)
 			}
 		case tar.TypeReg:
-			if err := handleFile(target, df.Data, counter); err != nil {
+			if err := handleFile(root, clean, df.Data, counter); err != nil {
 				return fmt.Errorf("failed to extract file: %w", err)
 			}
 		case tar.TypeSymlink:
-			if err := handleSymlink(d, clean, header.Linkname); err != nil {
+			if err := handleSymlink(root, clean, header.Linkname); err != nil {
 				return fmt.Errorf("failed to create symlink: %w", err)
 			}
 		case tar.TypeLink:
-			if err := handleHardlink(d, clean, header.Linkname); err != nil {
+			if err := handleHardlink(root, clean, header.Linkname); err != nil {
 				return fmt.Errorf("failed to create hardlink: %w", err)
 			}
 		}

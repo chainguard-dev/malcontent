@@ -42,7 +42,7 @@ func recoverExtractor(ctx context.Context, kind, path string, err *error) {
 	if r == nil {
 		return
 	}
-	clog.FromContext(ctx).Warn(
+	clog.WarnContext(ctx,
 		"extractor panic recovered",
 		"archive_kind", kind,
 		"input_path_sha256", sha256OfPath(path),

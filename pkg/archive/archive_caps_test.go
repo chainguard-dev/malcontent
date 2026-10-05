@@ -5,7 +5,6 @@ package archive
 
 import (
 	"compress/gzip"
-	"context"
 	"errors"
 	"os"
 	"path/filepath"
@@ -138,7 +137,7 @@ func TestArchiveRatioCap_HitsLimit(t *testing.T) {
 			}
 			if tc.wantErr {
 				if lastErr == nil {
-					t.Fatalf("expected ErrArchiveRatioCap; got nil")
+					t.Fatalf("err: got = nil, want = ErrArchiveRatioCap")
 				}
 				if !errors.Is(lastErr, file.ErrArchiveRatioCap) {
 					t.Fatalf("want ErrArchiveRatioCap, got %v", lastErr)
@@ -146,7 +145,7 @@ func TestArchiveRatioCap_HitsLimit(t *testing.T) {
 				return
 			}
 			if lastErr != nil {
-				t.Fatalf("expected no error, got %v", lastErr)
+				t.Fatalf("err: got = %v, want = nil", lastErr)
 			}
 		})
 	}
@@ -265,7 +264,7 @@ func TestExtractZip_DefaultBytesCap_Fires(t *testing.T) {
 	}
 
 	dst := filepath.Join(tmp, "out")
-	err = ExtractZip(context.Background(), dst, zipPath)
+	err = ExtractZip(t.Context(), dst, zipPath)
 	if err == nil {
 		t.Fatalf("ExtractZip succeeded; want ErrArchiveBytesCap")
 	}
@@ -303,7 +302,7 @@ func TestExtractGzip_RatioCap_Fires(t *testing.T) {
 	}
 
 	cfg := &malcontent.Config{MaxArchiveRatio: 2}
-	ctx := malcontent.ContextWithConfig(context.Background(), cfg)
+	ctx := malcontent.ContextWithConfig(t.Context(), cfg)
 
 	dst := filepath.Join(tmp, "out")
 	if err := os.MkdirAll(dst, 0o700); err != nil {
@@ -323,7 +322,7 @@ func TestExtractGzip_RatioCap_Fires(t *testing.T) {
 func TestResolveArchiveCaps_DefaultsWhenNoConfig(t *testing.T) {
 	t.Parallel()
 
-	gotBytes, gotRatio := resolveArchiveCaps(context.Background())
+	gotBytes, gotRatio := resolveArchiveCaps(t.Context())
 	if gotBytes != defaultMaxArchiveBytes {
 		t.Fatalf("maxBytes = %d; want %d", gotBytes, defaultMaxArchiveBytes)
 	}
@@ -376,7 +375,7 @@ func TestResolveArchiveCaps_ConfigOverrides(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			ctx := malcontent.ContextWithConfig(context.Background(), tc.cfg)
+			ctx := malcontent.ContextWithConfig(t.Context(), tc.cfg)
 			gotBytes, gotRatio := resolveArchiveCaps(ctx)
 			if gotBytes != tc.wantBytes {
 				t.Fatalf("maxBytes = %d; want %d", gotBytes, tc.wantBytes)
