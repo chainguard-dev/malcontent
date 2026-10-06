@@ -1,0 +1,161 @@
+╭────────────────────────────────────────────────────────────────────────────────────╮
+│ /usr/bin/tool  CRITICAL                                                            │
+│                                                                                    │
+│   MALWARE FAMILY  CRITICAL                                                         │
+│     •  CRIT  family names a family                                                 │
+│                                                                                    │
+│   anti-static  HIGH                                                                │
+│     •  HIGH  obfuscation/hex hex-encoded payload                                   │
+│             AB                                                                     │
+│             evil\x1b[2Jpayload\ttab                                                │
+│             naïve 😈 rtl                                                           │
+│                                                                                    │
+│   collection  MEDIUM                                                               │
+│     •  MED  files collects files                                                   │
+│             glob                                                                   │
+│                                                                                    │
+│   command & control  HIGH                                                          │
+│     •  HIGH  addr/url contains a hardcoded URL. Often benign                       │
+│             https://example.com/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa │
+│             aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa │
+│             aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa           │
+│             http://x.example/a|b                                                   │
+│                                                                                    │
+│   execution  CRITICAL                                                              │
+│     •  CRIT  shell runs shell commands, by Bob                                     │
+│             /bin/sh                                                                │
+│             sh -c                                                                  │
+│             $sh_var                                                                │
+│                                                                                    │
+│   filesystem  MEDIUM                                                               │
+│     •  LOW  file/read reads files                                                  │
+│     •  MED  file/write writes files, by Dee                                        │
+│             fwrite                                                                 │
+│             fopen                                                                  │
+│                                                                                    │
+│   hardware                                                                         │
+│     •  EXTREME  cpu reads cpu info                                                 │
+│             cpuinfo                                                                │
+│                                                                                    │
+│   networking  MEDIUM                                                               │
+│     •  MED  socket/connect connects to a remote host, by Alice                     │
+│             AF_INET                                                                │
+│     •  LOW  dns resolves names                                                     │
+│             gethostbyname                                                          │
+│                                                                                    │
+│   nonamespace  NONE                                                                │
+│     •  NONE   no slash in the ID                                                   │
+│             abcd                                                                   │
+│             abcde                                                                  │
+│                                                                                    │
+│   operating-system  NONE                                                           │
+│     •    env/get calls getenv                                                      │
+│             setenv                                                                 │
+│                                                                                    │
+│   suspicious text  MEDIUM                                                          │
+│     •  MED  text by Carol                                                          │
+│             password                                                               │
+│             credential                                                             │
+│                                                                                    │
+╰────────────────────────────────────────────────────────────────────────────────────╯
+
+╭──────────────────────────────────────────────╮
+│ /tmp/naïve 😈\x1b]0;title\a\\backslash  LOW  │
+│                                              │
+│   filesystem  LOW                            │
+│     •  LOW  write writes files               │
+│             fopen                            │
+│                                              │
+╰──────────────────────────────────────────────╯
+
+╭───────────────╮
+│ /bin/empty    │
+│               │
+╰───────────────╯
+
+╭─────────────────────────────────────────────────────────╮
+│ /opt/escapes  MEDIUM                                    │
+│                                                         │
+│   evasion  MEDIUM                                       │
+│     •  MED  sweep-0-1 plain description                 │
+│     •  MED  sweep-0-2 plain description                 │
+│     •  MED  sweep-0-3 plain description                 │
+│             qqq                                         │
+│     •  MED  sweep-0-4 plain description                 │
+│             qqqq                                        │
+│     •  MED  sweep-1-1 ends in a partial escape [          │
+│             1mq                                         │
+│     •  MED  sweep-1-2 ends in a partial escape [          │
+│             1mqq                                        │
+│     •  MED  sweep-1-3 ends in a partial escape [          │
+│             1mqqq                                       │
+│     •  MED  sweep-1-4 ends in a partial escape [          │
+│             1mqqqq                                      │
+│     •  MED  sweep-2-1 ends in an escape byte             │
+│             [0mq                                        │
+│     •  MED  sweep-2-2 ends in an escape byte             │
+│             [0mqq                                       │
+│     •  MED  sweep-2-3 ends in an escape byte             │
+│             [0mqqq                                      │
+│     •  MED  sweep-2-4 ends in an escape byte             │
+│             [0mqqqq                                     │
+│     •  MED  sweep-3-1 has a whole escape red and column │
+│             2;3Gq                                       │
+│     •  MED  sweep-3-2 has a whole escape red and column │
+│             2;3Gqq                                      │
+│     •  MED  sweep-3-3 has a whole escape red and column │
+│             2;3Gqqq                                     │
+│     •  MED  sweep-3-4 has a whole escape red and column │
+│             2;3Gqqqq                                    │
+│                                                         │
+╰─────────────────────────────────────────────────────────╯
+
+╭────────────────────────────────────────────────────────────────────────────────────╮
+│ Changed (2 added, 3 removed): /mod/changed  HIGH                                   │
+│                                                                                    │
+│   command & control  NONE                                                          │
+│ -  NONE  beacon beacons                                                            │
+│                                                                                    │
+│   cryptography  NONE                                                               │
+│ +  MED  aes uses AES                                                               │
+│                                                                                    │
+│   execution  NONE  →  HIGH                                                         │
+│ +  HIGH  shell runs a shell, by Dee                                                │
+│             /bin/sh                                                                │
+│             evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidenc │
+│             e-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evide │
+│             nce-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evi │
+│             dence-evidence-evidence-evidence-evidence-evidence-evidence-           │
+│                                                                                    │
+│   filesystem  LOW  →  NONE                                                         │
+│ -  LOW  read reads files                                                           │
+│                                                                                    │
+│   networking  LOW                                                                  │
+│                                                                                    │
+╰────────────────────────────────────────────────────────────────────────────────────╯
+
+╭──────────────────────────────────────────────────────╮
+│ Changed (1 added, 0 removed): /mod/new-name  MEDIUM  │
+│                                                      │
+│   cryptography  MEDIUM                               │
+│ +  MED  rc4 uses RC4                                 │
+│             rc4_init                                 │
+│                                                      │
+╰──────────────────────────────────────────────────────╯
+
+╭────────────────────────────╮
+│ /mod/same  LOW             │
+│                            │
+│   networking  LOW          │
+│     •  LOW  listen listens │
+│                            │
+╰────────────────────────────╯
+
+╭──────────────────────────────────────────────────╮
+│ Changed (0 added, 1 removed): /mod/lowered  LOW  │
+│                                                  │
+│   networking  HIGH  →  LOW                       │
+│ -  HIGH  connect connects                        │
+│                                                  │
+╰──────────────────────────────────────────────────╯
+

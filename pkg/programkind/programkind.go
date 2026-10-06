@@ -15,17 +15,20 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
-	"runtime"
 	"slices"
 	"strconv"
 	"strings"
-	"sync"
+	"sync/atomic"
 
 	"github.com/chainguard-dev/malcontent/pkg/file"
-	"github.com/chainguard-dev/malcontent/pkg/pool"
 	"github.com/gabriel-vasile/mimetype"
 )
+
+func init() {
+	// A limit of 0 lets mimetype examine the whole input, which improves
+	// magic type detection. The limit is process-wide, so it is set once.
+	mimetype.SetLimit(0)
+}
 
 // Supported archive extensions.
 var ArchiveMap = map[string]struct{}{
@@ -58,6 +61,7 @@ var ArchiveMap = map[string]struct{}{
 const (
 	mimeGzip        = "application/gzip"
 	mimeOctetStream = "application/octet-stream"
+	mimeUPX         = "application/x-upx"
 	mimeZlib        = "application/zlib"
 	mimeShellScript = "text/x-shellscript"
 )
@@ -124,7 +128,7 @@ var supportedKind = map[string]string{
 	"texi":    "",
 	"ts":      "application/typescript",
 	"txt":     "",
-	"upx":     "application/x-upx",
+	"upx":     mimeUPX,
 	"vbs":     "text/x-vbscript",
 	"vim":     "text/x-vim",
 	"xml":     "",
@@ -149,10 +153,11 @@ var (
 		"executable",
 		"text/x-",
 	}
-	elfMagic       = []byte{0x7f, 'E', 'L', 'F'} // ELF magic bytes
-	gzipMagic      = []byte{0x1f, 0x8b, 0x08}    // gzip magic bytes and the deflate method
-	headerPool     *pool.BufferPool
-	initializeOnce sync.Once
+	elfMagic  = []byte{0x7f, 'E', 'L', 'F'} // ELF magic bytes
+	gzipMagic = []byte{0x1f, 0x8b, 0x08}    // gzip magic bytes and the deflate method
+	// detectLimit is how many leading bytes of a file Detect examines,
+	// matching how much File reads.
+	detectLimit = file.MaxBytes
 	// supported NPM JSON extensions or file names we want to avoid classifying as data files.
 	npmJSON = []string{
 		".js.map",
@@ -197,46 +202,51 @@ var (
 		[]byte("#!/usr/bin/env sh"),
 		[]byte("#!/usr/bin/env zsh"),
 	}
-	versionRegex = regexp.MustCompile(`\d+\.\d+\.\d+$`)
 )
 
 // IsSupportedArchive returns whether a path can be processed by our archive extractor.
 // UPX files are an edge case since they may or may not even have an extension that can be referenced.
 func IsSupportedArchive(ctx context.Context, path string) bool {
-	if _, isValidArchive := ArchiveMap[GetExt(path)]; isValidArchive {
+	if hasArchiveExt(path) {
 		return true
 	}
 	// Content that File recognizes as UPX-packed, gzip, or zlib is extracted
 	// whatever the file is named.
-	if ft, err := File(ctx, path); err == nil && ft != nil {
-		if ft.MIME == "application/x-upx" || ft.MIME == mimeGzip || ft.MIME == mimeZlib {
-			return true
-		}
-	}
-	return false
+	ft, err := File(ctx, path)
+	return err == nil && isArchiveKind(ft)
 }
 
-// getExt returns the extension of a file path
+// IsSupportedArchiveKind reports whether a file at path whose detected kind is
+// ft is handled by the archive extractor. For any regular file File can read,
+// IsSupportedArchive(ctx, path) == IsSupportedArchiveKind(path, kind from File).
+func IsSupportedArchiveKind(path string, ft *FileType) bool {
+	return hasArchiveExt(path) || isArchiveKind(ft)
+}
+
+// hasArchiveExt reports whether path's extension names a supported archive.
+func hasArchiveExt(path string) bool {
+	_, ok := ArchiveMap[GetExt(path)]
+	return ok
+}
+
+// isArchiveKind reports whether ft is content the archive extractor handles
+// whatever the file is named.
+func isArchiveKind(ft *FileType) bool {
+	return ft != nil && (ft.MIME == mimeUPX || ft.MIME == mimeGzip || ft.MIME == mimeZlib)
+}
+
+// GetExt returns the extension of a file path
 // and attempts to avoid including fragments of filenames with other dots before the extension.
 func GetExt(path string) string {
-	base := filepath.Base(path)
+	// Handle files with version numbers in the name,
+	// e.g. composer-2.7.7 has no extension rather than .7
+	base := stripVersionSuffix(filepath.Base(path))
 
-	// Handle files with version numbers in the name
-	// e.g. file1.2.3.tar.gz -> .tar.gz
-	base = versionRegex.ReplaceAllString(base, "")
-
+	// ext begins at the last dot in base. When base has no dot, ext is empty
+	// and the search below finds none, so the result is empty too.
 	ext := filepath.Ext(base)
-	if ext == "" {
-		return ""
-	}
-
-	lastDot := strings.LastIndex(base, ".")
-	if lastDot == -1 {
-		return ext
-	}
-
-	prevDot := strings.LastIndex(base[:lastDot], ".")
-	if prevDot != -1 {
+	lastDot := len(base) - len(ext)
+	if prevDot := strings.LastIndexByte(base[:lastDot], '.'); prevDot != -1 {
 		subExt := base[prevDot:]
 		if _, ok := ArchiveMap[subExt]; ok {
 			return subExt
@@ -244,6 +254,35 @@ func GetExt(path string) string {
 	}
 
 	return ext
+}
+
+// stripVersionSuffix removes a trailing version number of the form N.N.N,
+// where each N is one or more ASCII digits, from s: 1.2.3.4.5 becomes 1.2.,
+// and the whole leading digit run goes, so a12.34.56 becomes a.
+func stripVersionSuffix(s string) string {
+	end := len(s)
+	// The last two digit runs must each be preceded by a dot.
+	for range 2 {
+		start := digitRunStart(s, end)
+		if start == end || start == 0 || s[start-1] != '.' {
+			return s
+		}
+		end = start - 1
+	}
+	start := digitRunStart(s, end)
+	if start == end {
+		return s
+	}
+	return s[:start]
+}
+
+// digitRunStart returns the index where the run of ASCII digits ending at
+// s[end-1] begins, or end when s[end-1] is not a digit.
+func digitRunStart(s string, end int) int {
+	for end > 0 && s[end-1] >= '0' && s[end-1] <= '9' {
+		end--
+	}
+	return end
 }
 
 var (
@@ -327,14 +366,40 @@ func validateUPXPath(p string, operatorSupplied bool) (string, error) {
 	return "", fmt.Errorf("upx path %q not in allowlist [%s, %s]", resolved, strings.Join(upxAllowedPrefixes, ", "), strings.Join(upxAllowedResolvedPrefixes, ", "))
 }
 
+// upxLookup is the outcome of locating the UPX binary for one value of
+// MALCONTENT_UPX_PATH.
+type upxLookup struct {
+	env  string
+	path string
+	err  error
+}
+
+// upxCache holds the most recent lookup, so the binary is resolved and vetted
+// once per MALCONTENT_UPX_PATH value rather than for every suspected UPX
+// file. Keying on the value lets a changed setting take effect.
+var upxCache atomic.Pointer[upxLookup]
+
 // UPXInstalled returns the resolved path to the UPX binary, or an error if not found.
 //
 // When MALCONTENT_UPX_PATH is set, it is treated as an explicit operator trust
 // assertion: the path bypasses the directory allowlist but must still pass the
 // per-path safety checks, and any failure is surfaced as a specific
 // ErrUPXPathInvalid reason rather than a generic "not found".
+//
+// The result is cached until MALCONTENT_UPX_PATH changes.
 func UPXInstalled() (string, error) {
-	operatorPath := os.Getenv("MALCONTENT_UPX_PATH")
+	env := os.Getenv("MALCONTENT_UPX_PATH")
+	if c := upxCache.Load(); c != nil && c.env == env {
+		return c.path, c.err
+	}
+	path, err := findUPX(env)
+	upxCache.Store(&upxLookup{env: env, path: path, err: err})
+	return path, err
+}
+
+// findUPX resolves and vets the UPX binary named by operatorPath, the value of
+// MALCONTENT_UPX_PATH, or the default path when it is empty.
+func findUPX(operatorPath string) (string, error) {
 	operatorSupplied := operatorPath != ""
 	candidate := cmp.Or(operatorPath, defaultUPXPath)
 
@@ -391,42 +456,43 @@ func IsValidUPX(ctx context.Context, fc []byte, path string) (bool, error) {
 func makeFileType(path string, ext string, mime string) *FileType {
 	ext = strings.TrimPrefix(ext, ".")
 
-	// Archives are supported
-	if _, ok := ArchiveMap[ext]; ok {
-		return &FileType{Ext: ext, MIME: mime}
-	}
+	// Archives are supported. ArchiveMap keys keep their leading dot, so only
+	// the path's extension, never the trimmed ext, can match one.
 	if _, ok := ArchiveMap[GetExt(path)]; ok {
 		return &FileType{Ext: ext, MIME: mime}
 	}
 
-	switch {
 	// by default, JSON files will not have a defined MIME type,
 	// but we want to specifically target the NPM ecosystem
 	// using --all or --include-data-files will override these distinctions
-	case containsSuffix(path, npmJSON):
+	if containsSuffix(path, npmJSON) {
 		return &FileType{Ext: ext, MIME: "application/json"}
+	}
 	// by default, YAML files will also not have a defined MIME type,
 	// but we want to specifically target the NPM ecosystem
 	// using --all or --include-data-files will override these distinctions
-	case containsSuffix(path, npmYAML):
+	if containsSuffix(path, npmYAML) {
 		return &FileType{Ext: ext, MIME: "application/x-yaml"}
+	}
 	// the ordering of this statement is important
-	// placing it first would prevent the preceding JSON/YAML statemments from taking effect
-	case supportedKind[ext] == "":
-		return nil
-	// the follwing statements are not at risk of being preempted by the preceding statement
-	// fix mimetype bug that defaults elf binaries to x-sharedlib
-	case mime == "application/x-sharedlib" && !strings.Contains(path, ".so"):
-		return Path(".elf")
-	// fix mimetype bug that detects certain .js files as shellscript
-	case mime == mimeShellScript && strings.Contains(path, ".js"):
-		return Path(".js")
-	// treat all other MIME types as valid
-	case containsValue(mime, defaultMIME):
-		return &FileType{Ext: ext, MIME: mime}
-	default:
+	// placing it first would prevent the preceding JSON/YAML statements from taking effect
+	if supportedKind[ext] == "" {
 		return nil
 	}
+	// the following statements are not at risk of being preempted by the preceding statement
+	// fix mimetype bug that defaults elf binaries to x-sharedlib
+	if mime == "application/x-sharedlib" && !strings.Contains(path, ".so") {
+		return Path(".elf")
+	}
+	// fix mimetype bug that detects certain .js files as shellscript
+	if mime == mimeShellScript && strings.Contains(path, ".js") {
+		return Path(".js")
+	}
+	// treat all other MIME types as valid
+	if containsValue(mime, defaultMIME) {
+		return &FileType{Ext: ext, MIME: mime}
+	}
+	return nil
 }
 
 // isLikelyShellScript determines if a file's content resembles a shell script
@@ -442,11 +508,10 @@ func isLikelyShellScript(fc []byte, path string) bool {
 		return true
 	}
 
+	// The "profile" suffix also covers .bash_profile and .zsh_profile.
 	if strings.HasSuffix(path, "profile") ||
 		strings.HasSuffix(path, ".bashrc") ||
-		strings.HasSuffix(path, ".bash_profile") ||
-		strings.HasSuffix(path, ".zshrc") ||
-		strings.HasSuffix(path, ".zsh_profile") {
+		strings.HasSuffix(path, ".zshrc") {
 		return true
 	}
 
@@ -475,9 +540,10 @@ func isLikelyManPage(path string) bool {
 }
 
 // Bounds on the work spent confirming a zlib header: at most zlibProbeInput
-// bytes of the stream are inflated, stopping after zlibProbeOutput bytes.
+// bytes (64 KiB) of the stream are inflated, stopping after zlibProbeOutput
+// bytes.
 const (
-	zlibProbeInput  = 64 * 1024
+	zlibProbeInput  = 64 << 10
 	zlibProbeOutput = 512
 )
 
@@ -500,11 +566,12 @@ func isZlibStream(fc []byte) bool {
 		return false
 	}
 
+	// Closing a zlib reader only records that it is closed; there is nothing
+	// to release, so zr is not closed.
 	zr, err := zlib.NewReader(bytes.NewReader(fc[:min(len(fc), zlibProbeInput)]))
 	if err != nil {
 		return false
 	}
-	defer func() { _ = zr.Close() }()
 
 	n, err := io.CopyN(io.Discard, zr, zlibProbeOutput)
 	if errors.Is(err, io.ErrUnexpectedEOF) {
@@ -543,7 +610,7 @@ func File(ctx context.Context, path string) (*FileType, error) {
 	}
 
 	// ignore directories, irregular files, and empty files
-	if st.IsDir() || st.Mode().Type() == fs.ModeIrregular || st.Size() == 0 {
+	if !st.Mode().IsRegular() || st.Size() == 0 {
 		return nil, nil
 	}
 
@@ -551,86 +618,90 @@ func File(ctx context.Context, path string) (*FileType, error) {
 	if err != nil {
 		return nil, fmt.Errorf("open: %w", err)
 	}
-	defer func() { _ = f.Close() }()
-
-	// initialize the header pool after we've successfully opened the file
-	initializeHeaderPool()
-
-	// create a buffer sized to the minimum of the file's size or the default ReadBuffer
-	buf := headerPool.Get(min(st.Size(), file.ReadBuffer)) //nolint:nilaway // the buffer pool is created above
-	defer headerPool.Put(buf)
-
-	fc, err := file.GetContents(f, buf)
+	fc, err := file.ReadContents(f, st.Size())
+	// The contents stay valid after the file is closed.
+	_ = f.Close()
 	if err != nil {
 		return nil, fmt.Errorf("file contents: %w", err)
 	}
+	defer func() { _ = fc.Close() }()
+
+	return Detect(ctx, path, fc.Bytes()), nil
+}
+
+// Detect returns the kind of the file at path whose contents are fc: exactly
+// what File returns for a regular, non-empty file with those contents. Like
+// File, it examines at most the first file.MaxBytes of fc, and it may run the
+// UPX binary against path when fc holds the UPX marker.
+func Detect(ctx context.Context, path string, fc []byte) *FileType {
+	fc = fc[:min(int64(len(fc)), detectLimit)]
 
 	// handle UPX files first since mimetype.Detect does not support them
 	// and will likely misidentify them
 	if isUPX, err := IsValidUPX(ctx, fc, path); err == nil && isUPX {
-		return Path(".upx"), nil
+		return Path(".upx")
 	}
 
 	// gzip content is an archive whatever the file is named; this is the
 	// same type a .gz name yields
 	if bytes.HasPrefix(fc, gzipMagic) {
-		return &FileType{Ext: "gz", MIME: mimeGzip}, nil
+		return &FileType{Ext: "gz", MIME: mimeGzip}
 	}
 
-	// default strategy: mimetype (no limit for improved magic type detection)
-	mimetype.SetLimit(0) // a limit of 0 means the whole input file will be used
+	// default strategy: mimetype, examining the whole input (see init)
 	mtype := mimetype.Detect(fc)
 	ext, mime := mtype.Extension(), mtype.String()
 	if ft := makeFileType(path, ext, mime); ft != nil {
-		return ft, nil
+		return ft
 	}
 
 	// fallback strategy: path (extension, mostly)
-	if mtype := Path(path); mtype != nil {
-		return mtype, nil
+	if ft := Path(path); ft != nil {
+		return ft
 	}
 
 	pathExt := strings.TrimPrefix(GetExt(path), ".")
 
-	_, pathExtKnown := supportedKind[pathExt]
-
-	// Content-based detection for files with no recognized extension or mimetype
-	switch {
-	// if we track an extension in our supportedKind map and the files's type is still nil,
+	// Content-based detection for files with no recognized extension or mimetype.
+	// If we track an extension in our supportedKind map and the file's type is still nil,
 	// return nil (e.g., valid JSON or YAML files that we want to treat as data files by default)
-	case pathExtKnown:
-		return nil, nil
-	case mime == mimeOctetStream && len(pathExt) >= 2:
-		return nil, nil
-	case strings.Contains(mime, "text/plain") && isLikelyManPage(path):
-		return nil, nil
-	case bytes.HasPrefix(fc, elfMagic):
-		return Path(".elf"), nil
-	case bytes.Contains(fc, []byte("<?php")):
-		return Path(".php"), nil
-	case bytes.HasPrefix(fc, []byte("import ")):
-		return Path(".py"), nil
-	case bytes.Contains(fc, []byte(" = require(")):
-		return Path(".js"), nil
-	case isLikelyShellScript(fc, path):
-		return Path(".sh"), nil
-	case bytes.HasPrefix(fc, []byte("#!")):
-		return Path(".script"), nil
-	case bytes.Contains(fc, []byte("#include <")):
-		return Path(".c"), nil
-	case bytes.Contains(fc, []byte("BEAMAtU8")):
-		return Path(".beam"), nil
-	case isZlibStream(fc):
-		return Path(".Z"), nil
-	default:
-		return nil, nil
+	if _, known := supportedKind[pathExt]; known {
+		return nil
 	}
-}
-
-func initializeHeaderPool() {
-	initializeOnce.Do(func() {
-		headerPool = pool.NewBufferPool(runtime.GOMAXPROCS(0))
-	})
+	if mime == mimeOctetStream && len(pathExt) >= 2 {
+		return nil
+	}
+	if strings.Contains(mime, "text/plain") && isLikelyManPage(path) {
+		return nil
+	}
+	if bytes.HasPrefix(fc, elfMagic) {
+		return Path(".elf")
+	}
+	if bytes.Contains(fc, []byte("<?php")) {
+		return Path(".php")
+	}
+	if bytes.HasPrefix(fc, []byte("import ")) {
+		return Path(".py")
+	}
+	if bytes.Contains(fc, []byte(" = require(")) {
+		return Path(".js")
+	}
+	if isLikelyShellScript(fc, path) {
+		return Path(".sh")
+	}
+	if bytes.HasPrefix(fc, []byte("#!")) {
+		return Path(".script")
+	}
+	if bytes.Contains(fc, []byte("#include <")) {
+		return Path(".c")
+	}
+	if bytes.Contains(fc, []byte("BEAMAtU8")) {
+		return Path(".beam")
+	}
+	if isZlibStream(fc) {
+		return Path(".Z")
+	}
+	return nil
 }
 
 // Path returns a filetype based strictly on file path.

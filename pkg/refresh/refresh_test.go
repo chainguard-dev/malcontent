@@ -6,6 +6,7 @@ package refresh
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -14,6 +15,35 @@ import (
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/release"
 )
+
+// TestMain points the home and user cache directories at a temporary
+// directory, so the rules a refresh compiles are never read from or written to
+// the real user cache.
+func TestMain(m *testing.M) {
+	os.Exit(refreshRunIsolated(m))
+}
+
+// refreshRunIsolated runs the tests with HOME and XDG_CACHE_HOME inside a
+// temporary directory that it removes afterward, and returns the exit code.
+func refreshRunIsolated(m *testing.M) int {
+	home, err := os.MkdirTemp("", "refresh-test-home-")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "create temporary home: %v\n", err)
+		return 1
+	}
+	defer func() { _ = os.RemoveAll(home) }()
+
+	for _, env := range [][2]string{
+		{"HOME", home},
+		{"XDG_CACHE_HOME", filepath.Join(home, ".cache")},
+	} {
+		if err := os.Setenv(env[0], env[1]); err != nil {
+			fmt.Fprintf(os.Stderr, "set %s: %v\n", env[0], err)
+			return 1
+		}
+	}
+	return m.Run()
+}
 
 func TestDiscoverTestData(t *testing.T) {
 	t.Parallel()
@@ -303,24 +333,32 @@ func TestWithoutRefreshStampedCommitUsed(t *testing.T) {
 	}
 }
 
-func TestRefreshCanceledContext(t *testing.T) {
-	t.Parallel()
-	ctx, cancel := context.WithCancel(t.Context())
-	cancel() // Cancel immediately
+func TestRefreshCanceledLeavesRuleURLUnpinned(t *testing.T) {
+	// Not parallel: mutates package globals.
+	origBuild := release.BuildCommit
+	t.Cleanup(func() {
+		release.BuildCommit = origBuild
+		release.ResetRuleURLRef()
+	})
 
-	samplesDir := t.TempDir()
-	testDataDir := t.TempDir()
-	logger := clog.FromContext(ctx)
+	const sha = "fedcba9876543210fedcba9876543210fedcba98"
+	release.BuildCommit = sha
+	release.ResetRuleURLRef()
+
+	ctx, cancel := context.WithCancel(t.Context())
+	cancel()
 
 	cfg := Config{
-		SamplesPath:  samplesDir,
-		TestDataPath: testDataDir,
+		SamplesPath:  t.TempDir(),
+		TestDataPath: t.TempDir(),
 		Concurrency:  1,
 	}
-
-	err := Refresh(ctx, cfg, logger)
-	if !errors.Is(err, context.Canceled) {
-		t.Errorf("Refresh() with canceled context error = %v, want %v", err, context.Canceled)
+	if err := Refresh(ctx, cfg, clog.FromContext(t.Context())); !errors.Is(err, context.Canceled) {
+		t.Errorf("Refresh() with canceled context error: got = %v, want = %v", err, context.Canceled)
+	}
+	// A canceled refresh returns before it changes any process state.
+	if got := release.ResolveRuleURLCommit(); got != sha {
+		t.Errorf("rule URL commit after a canceled Refresh: got = %q, want = %q", got, sha)
 	}
 }
 
@@ -378,36 +416,6 @@ func TestExecuteRefreshEmptyTestData(t *testing.T) {
 	err := executeRefresh(ctx, cfg, []TestData{}, logger)
 	if err != nil {
 		t.Errorf("executeRefresh() with empty test data error = %v", err)
-	}
-}
-
-func TestConfigConcurrencyDefault(t *testing.T) {
-	t.Parallel()
-	ctx := t.Context()
-	samplesDir := t.TempDir()
-	testDataDir := t.TempDir()
-
-	// Create minimal valid setup
-	if err := os.MkdirAll(samplesDir, 0o755); err != nil {
-		t.Fatalf("failed to create samples dir: %v", err)
-	}
-
-	logger := clog.FromContext(ctx)
-
-	cfg := Config{
-		SamplesPath:  samplesDir,
-		TestDataPath: testDataDir,
-		Concurrency:  0, // Should default to 1
-	}
-
-	// This will fail due to UPX requirement, but we can verify concurrency is set
-	err := Refresh(ctx, cfg, logger)
-
-	// We expect an error (likely UPX not installed or no test data)
-	// but just verify the function handles concurrency=0
-	if err == nil {
-		// Unexpected success, but that's ok for this test
-		t.Log("Refresh succeeded (unexpected but acceptable)")
 	}
 }
 

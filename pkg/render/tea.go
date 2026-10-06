@@ -37,11 +37,10 @@ var (
 			Foreground(lipgloss.Color("211")).
 			MarginLeft(2)
 
+	// Inline rendering keeps the footer on one line and applies no margins.
 	statusStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.AdaptiveColor{Light: "#666666", Dark: "#999999"}).
-			MarginLeft(2).
-			MaxHeight(1).
-			Inline(true) // Force inline rendering
+			Inline(true)
 
 	viewportStyle = lipgloss.NewStyle().
 			BorderStyle(lipgloss.RoundedBorder()).
@@ -105,10 +104,7 @@ func (m mainModel) Init() tea.Cmd {
 }
 
 func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var (
-		cmd  tea.Cmd
-		cmds []tea.Cmd
-	)
+	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
@@ -133,16 +129,12 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, cmd
 
 	case resultUpdateMsg:
-		newContent := msg.content
-		if len(m.content) > 0 {
-			newContent = "\n" + newContent
-		}
-
-		if strings.Contains(newContent, ": permission denied") ||
-			strings.Contains(newContent, "skipped") {
-			m.errors = append(m.errors, strings.TrimSpace(newContent))
+		content := strings.TrimSpace(msg.content)
+		if strings.Contains(content, ": permission denied") ||
+			strings.Contains(content, "skipped") {
+			m.errors = append(m.errors, content)
 		} else {
-			m.content = append(m.content, strings.TrimSpace(newContent))
+			m.content = append(m.content, content)
 			if msg.isResult {
 				m.resultCount++
 			}
@@ -214,11 +206,7 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	m.viewport, cmd = m.viewport.Update(msg)
-	if cmd != nil {
-		cmds = append(cmds, cmd)
-	}
-
-	return m, tea.Batch(cmds...)
+	return m, cmd
 }
 
 func (m *mainModel) performSearch() {
@@ -359,32 +347,31 @@ func (r *Interactive) File(ctx context.Context, fr *malcontent.FileReport) error
 		return ctx.Err()
 	}
 
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
 	if fr == nil {
 		return nil
 	}
 
+	// Render before taking the lock, so concurrent File calls render in
+	// parallel and only their messages are sent one at a time.
 	var content string
-	switch {
-	case fr.Skipped != "":
-		content = fmt.Sprintf("skipped %s: %s", sanitizeTerminal(fr.Path), sanitizeTerminal(fr.Skipped))
-	case len(fr.Behaviors) > 0:
+	if fr.Skipped != "" {
+		content = "skipped " + sanitizeTerminal(fr.Path) + ": " + sanitizeTerminal(fr.Skipped)
+	} else if len(fr.Behaviors) > 0 {
 		var builder strings.Builder
-		renderFileSummaryTea(ctx, fr, &builder, tableConfig{
-			Title: fmt.Sprintf("%s %s", sanitizeTerminal(fr.Path), darkBrackets(riskInColor(fr.RiskLevel))),
-		})
+		renderFileSummaryTea(ctx, fr, &builder)
 		content = strings.TrimSpace(builder.String())
 	}
 
-	if content != "" {
-		r.program.Send(resultUpdateMsg{
-			content:  content,
-			isResult: len(fr.Behaviors) > 0,
-		})
+	if content == "" {
+		return nil
 	}
 
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	r.program.Send(resultUpdateMsg{
+		content:  content,
+		isResult: len(fr.Behaviors) > 0,
+	})
 	return nil
 }
 
@@ -405,12 +392,10 @@ func (r *Interactive) Full(ctx context.Context, _ *malcontent.Config, rep *malco
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	processFile := func(fr *malcontent.FileReport, prefix string) {
+	processFile := func(fr *malcontent.FileReport) {
 		if fr != nil {
 			var builder strings.Builder
-			renderFileSummaryTea(ctx, fr, &builder, tableConfig{
-				Title: fmt.Sprintf("%s: %s", prefix, sanitizeTerminal(fr.Path)),
-			})
+			renderFileSummaryTea(ctx, fr, &builder)
 			content := strings.TrimSpace(builder.String())
 			r.program.Send(resultUpdateMsg{
 				content:  content,
@@ -426,7 +411,7 @@ func (r *Interactive) Full(ctx context.Context, _ *malcontent.Config, rep *malco
 				continue
 			}
 
-			processFile(removed.Value, "Removed")
+			processFile(removed.Value)
 		}
 
 		for added := rep.Diff.Added.Oldest(); added != nil; added = added.Next() {
@@ -434,7 +419,7 @@ func (r *Interactive) Full(ctx context.Context, _ *malcontent.Config, rep *malco
 				continue
 			}
 
-			processFile(added.Value, "Added")
+			processFile(added.Value)
 		}
 
 		for modified := rep.Diff.Modified.Oldest(); modified != nil; modified = modified.Next() {
@@ -445,7 +430,7 @@ func (r *Interactive) Full(ctx context.Context, _ *malcontent.Config, rep *malco
 				continue
 			}
 
-			processFile(modified.Value, "Modified")
+			processFile(modified.Value)
 		}
 	}
 

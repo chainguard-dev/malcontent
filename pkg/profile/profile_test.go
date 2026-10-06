@@ -10,15 +10,15 @@ import (
 )
 
 func TestProfile(t *testing.T) {
-	t.Parallel()
+	// Not parallel: the CPU profiler and the execution tracer are
+	// process-wide, and the default output directory is relative to a
+	// temporary working directory.
+	t.Chdir(t.TempDir())
 	p, err := StartProfiling(t.Context(), DefaultConfig())
 	if err != nil {
 		t.Fatalf("failed to start profiling: %v", err)
 	}
-	defer func() {
-		p.Stop()
-		os.RemoveAll("profiles")
-	}()
+	defer p.Stop()
 
 	files, err := os.ReadDir("profiles")
 	if err != nil {

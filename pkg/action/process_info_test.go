@@ -8,15 +8,18 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"math"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"reflect"
 	"runtime"
 	"slices"
 	"strings"
 	"testing"
 
+	"github.com/shirou/gopsutil/v4/common"
 	"github.com/shirou/gopsutil/v4/process"
 )
 
@@ -138,7 +141,7 @@ func TestProcessInfoChildProcess(t *testing.T) {
 				t.Fatalf("NewProcessWithContext(%d): %v", pid, err)
 			}
 
-			pi, err := processInfo(t.Context(), p)
+			pi, err := processInfo(t.Context(), pid, p)
 			if err != nil {
 				t.Fatalf("processInfo: got error = %v, want nil", err)
 			}
@@ -215,7 +218,7 @@ func TestProcessInfoSingleArgumentCommandLine(t *testing.T) {
 		t.Fatalf("NewProcessWithContext(%d): %v", pid, err)
 	}
 
-	pi, err := processInfo(t.Context(), p)
+	pi, err := processInfo(t.Context(), pid, p)
 	if err != nil {
 		t.Fatalf("processInfo: got error = %v, want nil", err)
 	}
@@ -251,7 +254,7 @@ func TestProcessInfoExitingProcess(t *testing.T) {
 		t.Skipf("shell has not released its command line yet: got = (%q, %v)", cmdline, err)
 	}
 
-	pi, err := processInfo(t.Context(), p)
+	pi, err := processInfo(t.Context(), pid, p)
 	if pi != nil {
 		t.Errorf("processInfo: got = %+v, want nil", pi)
 	}
@@ -268,7 +271,7 @@ func TestProcessInfoSkipsLinuxKernelThreads(t *testing.T) {
 	}
 	// PID 2 is kthreadd, the parent of every kernel thread; it is skipped
 	// whether or not it is visible in this PID namespace.
-	pi, err := processInfo(t.Context(), &process.Process{Pid: 2})
+	pi, err := processInfo(t.Context(), 2, &process.Process{Pid: 2})
 	if err != nil || pi != nil {
 		t.Errorf("processInfo(pid 2): got = (%v, %v), want = (nil, nil)", pi, err)
 	}
@@ -283,7 +286,7 @@ func TestProcessInfoMissingProcess(t *testing.T) {
 		scanPath = fmt.Sprintf("/proc/%d/exe", pid)
 	}
 
-	pi, err := processInfo(t.Context(), &process.Process{Pid: pid})
+	pi, err := processInfo(t.Context(), pid, &process.Process{Pid: pid})
 	if pi != nil {
 		t.Errorf("processInfo: got = %+v, want nil", pi)
 	}
@@ -345,5 +348,195 @@ func TestActiveProcessesIncludesCurrentProcess(t *testing.T) {
 	}
 	if !slices.IsSortedFunc(ps, func(a, b *ProcessInfo) int { return strings.Compare(a.ScanPath, b.ScanPath) }) {
 		t.Errorf("ActiveProcesses: got entries out of ScanPath order, want sorted")
+	}
+}
+
+// errProcessTestLookup is the error processTestSource returns for data it
+// does not hold.
+var errProcessTestLookup = errors.New("lookup failed")
+
+// processTestSource reports fixed process data. An empty name or executable,
+// or a nil command line, fails that lookup.
+type processTestSource struct {
+	name    string
+	ppid    int32
+	ppidErr error
+	cmdline []string
+	exe     string
+}
+
+func (p processTestSource) Name() (string, error) {
+	if p.name == "" {
+		return "", errProcessTestLookup
+	}
+	return p.name, nil
+}
+
+func (p processTestSource) PpidWithContext(context.Context) (int32, error) {
+	return p.ppid, p.ppidErr
+}
+
+func (p processTestSource) CmdlineSliceWithContext(context.Context) ([]string, error) {
+	if p.cmdline == nil {
+		return nil, errProcessTestLookup
+	}
+	return p.cmdline, nil
+}
+
+func (p processTestSource) Exe() (string, error) {
+	if p.exe == "" {
+		return "", errProcessTestLookup
+	}
+	return p.exe, nil
+}
+
+func TestProcessInfoFromProcessData(t *testing.T) {
+	t.Parallel()
+	dir := t.TempDir()
+	exe := scanTestWriteFile(t, filepath.Join(dir, "tool"), []byte("#!/bin/sh\n"))
+	missing := filepath.Join(dir, "removed-tool")
+	self := int32(os.Getpid())
+	// No platform assigns PIDs this large, so it has no procfs entry.
+	const absent int32 = math.MaxInt32
+	linux := runtime.GOOS == "linux"
+	absentAlias := ""
+	if linux {
+		absentAlias = fmt.Sprintf("/proc/%d/exe", absent)
+	}
+	// kernelThread is what processInfo returns for a kernel thread off Linux,
+	// where kernel threads are not skipped.
+	kernelThread := func(pid, ppid int32) *ProcessInfo {
+		if linux {
+			return nil
+		}
+		return &ProcessInfo{PID: pid, PPID: ppid, Name: "kthread", ScanPath: exe}
+	}
+
+	tests := []struct {
+		name      string
+		pid       int32
+		src       processTestSource
+		linuxOnly bool
+		want      *ProcessInfo
+		wantErr   string
+	}{
+		{
+			name: "executable that can be stat'd is scanned",
+			pid:  100,
+			src:  processTestSource{name: "tool", ppid: 1, cmdline: []string{exe, "-v"}, exe: exe},
+			want: &ProcessInfo{PID: 100, PPID: 1, Name: "tool", ScanPath: exe, AdvertisedPath: exe, CmdLine: []string{exe, "-v"}},
+		},
+		{
+			name: "relative argv0 is not advertised",
+			pid:  100,
+			src:  processTestSource{name: "tool", ppid: 1, cmdline: []string{"tool"}, exe: exe},
+			want: &ProcessInfo{PID: 100, PPID: 1, Name: "tool", ScanPath: exe, CmdLine: []string{"tool"}},
+		},
+		{
+			name: "failed name lookup is reported as unknown",
+			pid:  100,
+			src:  processTestSource{ppid: 1, exe: exe},
+			want: &ProcessInfo{PID: 100, PPID: 1, Name: "<unknown>", ScanPath: exe},
+		},
+		{
+			name: "failed parent lookup records parent -1",
+			pid:  100,
+			src:  processTestSource{name: "tool", ppidErr: errProcessTestLookup, exe: exe},
+			want: &ProcessInfo{PID: 100, PPID: -1, Name: "tool", ScanPath: exe},
+		},
+		{
+			name: "child of init is kept",
+			pid:  100,
+			src:  processTestSource{name: "kthread", ppid: 1, exe: exe},
+			want: &ProcessInfo{PID: 100, PPID: 1, Name: "kthread", ScanPath: exe},
+		},
+		{
+			name: "child of kthreadd is skipped on Linux",
+			pid:  100,
+			src:  processTestSource{name: "kthread", ppid: 2, exe: exe},
+			want: kernelThread(100, 2),
+		},
+		{
+			name: "kthreadd is skipped on Linux",
+			pid:  2,
+			src:  processTestSource{name: "kthread", ppid: 0, exe: exe},
+			want: kernelThread(2, 0),
+		},
+		{
+			name:      "executable that cannot be stat'd falls back to the procfs alias",
+			pid:       self,
+			src:       processTestSource{name: "tool", ppid: 1, exe: missing},
+			linuxOnly: true,
+			want:      &ProcessInfo{PID: self, PPID: 1, Name: "tool", ScanPath: fmt.Sprintf("/proc/%d/exe", self)},
+		},
+		{
+			name: "advertised path is scanned when nothing else can be stat'd",
+			pid:  absent,
+			src:  processTestSource{name: "tool", ppid: 1, cmdline: []string{exe}, exe: missing},
+			want: &ProcessInfo{PID: absent, PPID: 1, Name: "tool", ScanPath: exe, AdvertisedPath: exe, CmdLine: []string{exe}},
+		},
+		{
+			name:    "advertised path that cannot be stat'd is named in the error",
+			pid:     absent,
+			src:     processTestSource{name: "tool", ppid: 1, cmdline: []string{missing}},
+			wantErr: fmt.Sprintf("tool[%d]: unable to stat %q or %q", absent, absentAlias, missing),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			if tt.linuxOnly && !linux {
+				t.Skip("the procfs alias exists only on Linux")
+			}
+			got, err := processInfo(t.Context(), tt.pid, tt.src)
+			gotErr := ""
+			if err != nil {
+				gotErr = err.Error()
+			}
+			if gotErr != tt.wantErr {
+				t.Errorf("error: got = %q, want = %q", gotErr, tt.wantErr)
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("processInfo: got = %+v, want = %+v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestActiveProcessesProcessTable(t *testing.T) {
+	t.Parallel()
+	if runtime.GOOS != "linux" {
+		t.Skip("the process table location can be set only on Linux")
+	}
+	tests := []struct {
+		name    string
+		create  bool
+		wantErr error
+	}{
+		{name: "missing process table reports the listing failure", wantErr: fs.ErrNotExist},
+		{name: "empty process table lists no processes", create: true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			table := filepath.Join(t.TempDir(), "proc")
+			if tt.create {
+				if err := os.Mkdir(table, 0o700); err != nil {
+					t.Fatalf("mkdir: %v", err)
+				}
+			}
+			ctx := context.WithValue(t.Context(), common.EnvKey, common.EnvMap{common.HostProcEnvKey: table})
+			ps, err := ActiveProcesses(ctx)
+			if !errors.Is(err, tt.wantErr) {
+				t.Errorf("ActiveProcesses error: got = %v, want = %v", err, tt.wantErr)
+			}
+			if len(ps) != 0 {
+				t.Errorf("ActiveProcesses: got %d processes, want none", len(ps))
+			}
+			if tt.wantErr != nil && ps != nil {
+				t.Errorf("ActiveProcesses: got = %v, want nil on failure", ps)
+			}
+		})
 	}
 }

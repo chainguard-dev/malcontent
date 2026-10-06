@@ -19,10 +19,8 @@ import (
 // comma-separated flag values that may contain accidental blank tokens.
 func ValidateIgnoreRules(patterns []string) error {
 	for _, p := range patterns {
+		// A blank entry trims to the empty pattern, which is valid.
 		p = strings.TrimSpace(p)
-		if p == "" {
-			continue
-		}
 		if _, err := filepath.Match(p, ""); err != nil {
 			return fmt.Errorf("invalid --ignore-rules pattern %q: %w", p, err)
 		}
@@ -46,11 +44,8 @@ func ruleExcluded(name string, patterns []string) bool {
 		if p == "" {
 			continue
 		}
-		ok, err := filepath.Match(p, name)
-		if err != nil {
-			continue
-		}
-		if ok {
+		// filepath.Match reports no match along with a pattern's parse error.
+		if ok, _ := filepath.Match(p, name); ok {
 			return true
 		}
 	}

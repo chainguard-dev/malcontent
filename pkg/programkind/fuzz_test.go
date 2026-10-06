@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/chainguard-dev/malcontent/pkg/file"
+	"github.com/google/go-cmp/cmp"
 )
 
 // maxFuzzSize is the maximum input size for fuzz tests to stay well under
@@ -41,8 +42,7 @@ func FuzzFile(f *testing.F) {
 		}
 
 		if fp, readErr := os.Open(path); readErr == nil {
-			buf := make([]byte, file.ExtractBuffer)
-			if data, contentsErr := file.GetContents(fp, buf); contentsErr == nil {
+			if data, contentsErr := file.GetContents(fp); contentsErr == nil {
 				f.Add(data, filepath.Base(path))
 			}
 			fp.Close()
@@ -87,13 +87,17 @@ func FuzzFile(f *testing.F) {
 		}
 		tmpFile.Close()
 
-		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		ctx, cancel := context.WithTimeout(t.Context(), 30*time.Second)
 		defer cancel()
 
 		ft, err := File(ctx, tmpFile.Name())
 
-		_ = ft
-		_ = err
+		// Detecting the bytes directly must agree with detecting the file.
+		if err == nil && len(data) > 0 {
+			if diff := cmp.Diff(ft, Detect(ctx, tmpFile.Name(), data)); diff != "" {
+				t.Errorf("Detect(%q) differs from File (-File +Detect):\n%s", tmpFile.Name(), diff)
+			}
+		}
 
 		if ft != nil {
 			if len(ft.MIME) > 1000 {
@@ -156,11 +160,45 @@ func FuzzGetExt(f *testing.F) {
 	f.Add("file_1.0.0.tar.gz")
 	f.Add("file.a.b.c")
 
+	f.Add("composer-2.7.7")
+	f.Add("a12.34.56")
+	f.Add("1.2.3.4.5")
+	f.Add("pkg-1.2.3.tar.gz")
+
 	f.Fuzz(func(t *testing.T, path string) {
+		if len(path) > 4096 {
+			return
+		}
 		ext := GetExt(path)
 
 		if ext != "" && ext[0] != '.' {
 			t.Fatalf("extension doesn't start with dot: %q", ext)
+		}
+		if want := getExtOracle(path); ext != want {
+			t.Errorf("GetExt(%q): got = %q, want = %q (regular expression)", path, ext, want)
+		}
+	})
+}
+
+// FuzzStripVersionSuffix checks stripVersionSuffix against the regular
+// expression it replaces.
+func FuzzStripVersionSuffix(f *testing.F) {
+	f.Add("")
+	f.Add("1.2.3")
+	f.Add("composer-2.7.7")
+	f.Add("a12.34.56")
+	f.Add("1.2.3.4.5")
+	f.Add("1..2.3")
+	f.Add("1.2.3\n")
+	f.Add("١.٢.٣")
+	f.Add("\xff1.2.3")
+
+	f.Fuzz(func(t *testing.T, s string) {
+		if len(s) > 4096 {
+			return
+		}
+		if got, want := stripVersionSuffix(s), versionSuffixOracle.ReplaceAllString(s, ""); got != want {
+			t.Errorf("stripVersionSuffix(%q): got = %q, want = %q", s, got, want)
 		}
 	})
 }
@@ -184,7 +222,7 @@ func FuzzIsSupportedArchive(f *testing.F) {
 			return
 		}
 
-		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		ctx, cancel := context.WithTimeout(t.Context(), 2*time.Second)
 		defer cancel()
 
 		result := IsSupportedArchive(ctx, path)
@@ -223,7 +261,7 @@ func FuzzIsValidUPX(f *testing.F) {
 			return
 		}
 
-		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		ctx, cancel := context.WithTimeout(t.Context(), 3*time.Second)
 		defer cancel()
 
 		valid, err := IsValidUPX(ctx, data, path)

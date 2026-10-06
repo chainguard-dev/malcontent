@@ -113,7 +113,7 @@ yara-x-fmt: $(YARA_X_BIN)
 # Gatekeeper/XProtect flag malcontent itself. Every other warning surfaces, and a
 # bare -w here would disable all of them.
 yara-x-compile: $(YARA_X_BIN)
-	"$(YARA_X_BIN)" compile --path-as-namespace --disable-warnings=text_as_hex rules/
+	"$(YARA_X_BIN)" compile --path-as-namespace --disable-warnings=text_as_hex --define 'file_sha256=""' rules/
 
 # rewrite text patterns of filesize- or header-constrained first-party rules as
 # literal regexps (see hack/literal_regexps.pl); third_party/yara/update.sh does

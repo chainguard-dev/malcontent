@@ -4,17 +4,59 @@
 package render
 
 import (
+	"bytes"
 	"context"
+	"errors"
+	"fmt"
 	"regexp"
 	"strings"
 	"testing"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/fatih/color"
+	"github.com/puzpuzpuz/xsync/v4"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
+// renderNumberedFiles returns a scan report with n files keyed /f/0000
+// upward, along with the same reports in a map.
+func renderNumberedFiles(n int) (*malcontent.Report, map[string]*malcontent.FileReport) {
+	files := xsync.NewMap[string, *malcontent.FileReport]()
+	byKey := make(map[string]*malcontent.FileReport, n)
+	for i := range n {
+		key := fmt.Sprintf("/f/%04d", i)
+		fr := &malcontent.FileReport{Path: key, Size: int64(i), RiskScore: i % 5, RiskLevel: riskLevels[i%5]}
+		files.Store(key, fr)
+		byKey[key] = fr
+	}
+	return &malcontent.Report{Files: files}, byKey
+}
+
 var renderANSIRe = regexp.MustCompile(`\x1b\[[0-9;?]*[A-Za-z]`)
+
+// errRenderWrite is the error renderWriteLog returns for a failed write.
+var errRenderWrite = errors.New("write failed")
+
+// renderWriteLog records each Write call. When failAt is above zero, the
+// call with that number fails with errRenderWrite. It is not safe for
+// concurrent use.
+type renderWriteLog struct {
+	writes [][]byte
+	failAt int
+}
+
+func (w *renderWriteLog) Write(p []byte) (int, error) {
+	w.writes = append(w.writes, bytes.Clone(p))
+	if len(w.writes) == w.failAt {
+		return 0, errRenderWrite
+	}
+	return len(p), nil
+}
+
+// String returns everything written, including a failed write.
+func (w *renderWriteLog) String() string {
+	return string(bytes.Join(w.writes, nil))
+}
 
 // renderStripANSI removes terminal escape sequences so assertions see only visible text.
 func renderStripANSI(s string) string {

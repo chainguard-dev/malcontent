@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"strings"
 	"testing"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
@@ -14,6 +15,38 @@ import (
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 	"gopkg.in/yaml.v3"
 )
+
+func TestYAMLStreamsIn64KiBWrites(t *testing.T) {
+	t.Parallel()
+	// Three thousand files make a document of several hundred KiB.
+	const files = 3000
+	rep, _ := renderNumberedFiles(files)
+	w := &renderWriteLog{}
+	if err := NewYAML(w).Full(t.Context(), nil, rep); err != nil {
+		t.Fatalf("Full: got err = %v, want = nil", err)
+	}
+	if len(w.writes) < 3 {
+		t.Fatalf("writes: got = %d, want at least 3", len(w.writes))
+	}
+	// Every write but the last carries a full 64 KiB buffer.
+	for i, p := range w.writes[:len(w.writes)-1] {
+		if len(p) != 64<<10 {
+			t.Errorf("write %d: got = %d bytes, want = %d", i+1, len(p), 64<<10)
+		}
+	}
+	out := w.String()
+	// The document ends with the encoder's newline and one more.
+	if !strings.HasSuffix(out, "\n\n") || strings.HasSuffix(out, "\n\n\n") {
+		t.Errorf("document end: got = %q, want two newlines", out[max(0, len(out)-8):])
+	}
+	var got Report
+	if err := yaml.Unmarshal([]byte(out), &got); err != nil {
+		t.Fatalf("decode: got err = %v, want = nil", err)
+	}
+	if len(got.Files) != files {
+		t.Errorf("files: got = %d, want = %d", len(got.Files), files)
+	}
+}
 
 func TestYAMLRendererEmpty(t *testing.T) {
 	t.Parallel()

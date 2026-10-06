@@ -4,12 +4,14 @@
 package action
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io/fs"
 	"maps"
 	"os"
 	"path/filepath"
+	"runtime"
 	"slices"
 	"testing"
 
@@ -240,6 +242,16 @@ func TestArchiveEntryPath(t *testing.T) {
 			want: "/bin/tool",
 		},
 		{
+			name: "entry with a root but no full path uses the path after the separator",
+			fr:   &malcontent.FileReport{ArchiveRoot: "/", Path: "/scan/a.tar ∴ /bin/tool"},
+			want: "/bin/tool",
+		},
+		{
+			name: "entry with a full path but no root uses the path after the separator",
+			fr:   &malcontent.FileReport{FullPath: "bin/other", Path: "/scan/a.tar ∴ /bin/tool"},
+			want: "/bin/tool",
+		},
+		{
 			name: "entry outside its extraction root uses the path after the separator",
 			fr:   &malcontent.FileReport{ArchiveRoot: "/mal-test-missing-root/x", FullPath: "/mal-test-other-root/bin/tool", Path: "/scan/a.tar ∴ /bin/tool"},
 			want: "/bin/tool",
@@ -435,6 +447,7 @@ func TestExtractBehaviors(t *testing.T) {
 		{ID: "c2/addr/ip"},
 		{ID: "exfil"},
 		{ID: ""},
+		{ID: "/addr"},
 		{ID: "anti-static/base64/eval"},
 	}
 
@@ -449,14 +462,14 @@ func TestExtractBehaviors(t *testing.T) {
 			want:        map[string]struct{}{"anti-static": {}, "c2": {}, "exfil": {}},
 		},
 		{
-			name:        "resource level keeps objective and resource, or the objective alone",
+			name:        "resource level keeps objective and resource, or the objective alone, and needs an objective",
 			sensitivity: RESOURCE,
 			want:        map[string]struct{}{"anti-static/base64": {}, "c2/addr": {}, "exfil": {}},
 		},
 		{
 			name:        "technique level keeps full non-empty IDs",
 			sensitivity: TECHNIQUE,
-			want:        map[string]struct{}{"anti-static/base64/eval": {}, "c2/addr/ip": {}, "exfil": {}},
+			want:        map[string]struct{}{"anti-static/base64/eval": {}, "c2/addr/ip": {}, "exfil": {}, "/addr": {}},
 		},
 		{
 			name:        "risk-change level extracts nothing",
@@ -547,6 +560,13 @@ func TestExtractPath(t *testing.T) {
 			path:     "cgr.dev/org/img:1 ∴ /usr/bin/app",
 			isReport: true,
 			want:     "/usr/bin/app",
+		},
+		{
+			name:     "report path with nested separators keeps everything after the first",
+			rel:      "unused",
+			path:     "cgr.dev/org/img:1 ∴ /lib/pkg.tar ∴ /bin/app",
+			isReport: true,
+			want:     "/lib/pkg.tar ∴ /bin/app",
 		},
 		{
 			name:     "report path under a temp root is trimmed",
@@ -1004,4 +1024,107 @@ func TestHandleDirArchiveAndImageKeys(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestHandleDirOrdersModifiedByDestinationPath(t *testing.T) {
+	t.Parallel()
+	// The versioned library moves past its unchanged sibling:
+	// lib/libfoo.so.1 sorts before lib/libfoo.so.10, but lib/libfoo.so.2
+	// sorts after it.
+	src := map[string]*malcontent.FileReport{
+		"lib/libfoo.so.1":  {Path: "/old/lib/libfoo.so.1"},
+		"lib/libfoo.so.10": {Path: "/old/lib/libfoo.so.10"},
+	}
+	dest := map[string]*malcontent.FileReport{
+		"lib/libfoo.so.10": {Path: "/new/lib/libfoo.so.10"},
+		"lib/libfoo.so.2":  {Path: "/new/lib/libfoo.so.2"},
+	}
+	d := runHandleDir(t, malcontent.Config{}, src, dest)
+	if want := []string{"/new/lib/libfoo.so.10", "/new/lib/libfoo.so.2"}; !slices.Equal(diffTestKeys(d.Modified), want) {
+		t.Errorf("Modified keys: got = %q, want = %q", diffTestKeys(d.Modified), want)
+	}
+	moved, ok := d.Modified.Get("/new/lib/libfoo.so.2")
+	if !ok || moved.PreviousPath != "/old/lib/libfoo.so.1" {
+		t.Errorf("moved library: got = %+v, want it paired with /old/lib/libfoo.so.1", moved)
+	}
+}
+
+func TestDiffStepsStopOnCanceledContext(t *testing.T) {
+	t.Parallel()
+	ctx, cancel := context.WithCancel(t.Context())
+	cancel()
+	pair := func() (*malcontent.FileReport, *malcontent.FileReport) {
+		return &malcontent.FileReport{Path: "/old/bin/app", RiskScore: 2}, &malcontent.FileReport{Path: "/new/bin/app", RiskScore: 2}
+	}
+
+	t.Run("handleDir records nothing", func(t *testing.T) {
+		t.Parallel()
+		fr, tr := pair()
+		src := ScanResult{files: map[string]*malcontent.FileReport{"bin/app": fr, "bin/gone": {Path: "/old/bin/gone"}}}
+		dest := ScanResult{files: map[string]*malcontent.FileReport{"bin/app": tr, "bin/new": {Path: "/new/bin/new"}}}
+		d := newDiffReportForTest()
+		handleDir(ctx, malcontent.Config{}, src, dest, d, false, false)
+		if n := d.Added.Len() + d.Removed.Len() + d.Modified.Len(); n != 0 {
+			t.Errorf("entries: got = %d, want = 0", n)
+		}
+	})
+	t.Run("fileDiff records nothing", func(t *testing.T) {
+		t.Parallel()
+		fr, tr := pair()
+		d := newDiffReportForTest()
+		fileDiff(ctx, malcontent.Config{}, fr, tr, fr.Path, tr.Path, d, ScanResult{}, ScanResult{}, false, false, false)
+		if n := d.Modified.Len(); n != 0 {
+			t.Errorf("modified entries: got = %d, want = 0", n)
+		}
+	})
+	t.Run("filterDiff drops nothing", func(t *testing.T) {
+		t.Parallel()
+		fr, tr := pair()
+		if filterDiff(ctx, malcontent.Config{FileRiskChange: true}, fr, tr) {
+			t.Errorf("filterDiff: got = true, want = false")
+		}
+	})
+}
+
+// TestPathHelpersWithoutWorkingDirectory covers relative paths that cannot be
+// made absolute because the working directory was removed.
+func TestPathHelpersWithoutWorkingDirectory(t *testing.T) {
+	// Not parallel: changes and removes the working directory.
+	if runtime.GOOS != "linux" {
+		t.Skip("relies on Linux failing to name a removed working directory")
+	}
+	gone := filepath.Join(t.TempDir(), "gone")
+	if err := os.Mkdir(gone, 0o700); err != nil {
+		t.Fatalf("Mkdir(%q): %v", gone, err)
+	}
+	t.Chdir(gone)
+	if err := os.Remove(gone); err != nil {
+		t.Fatalf("Remove(%q): %v", gone, err)
+	}
+	if wd, err := os.Getwd(); err == nil {
+		t.Fatalf("fixture precondition: Getwd after removal: got = %q, want an error", wd)
+	}
+	root := filepath.Join(t.TempDir(), "root")
+	entry := filepath.Join(root, "bin", "tool")
+
+	t.Run("relPath reports the failure for an archive scan path", func(t *testing.T) {
+		if _, _, err := relPath("pkg.tar", &malcontent.FileReport{Path: "pkg.tar ∴ /bin/tool"}, true); err == nil {
+			t.Errorf("relPath error: got = nil, want the working directory failure")
+		}
+	})
+	t.Run("resolvePath cleans a path it cannot make absolute", func(t *testing.T) {
+		if got, want := resolvePath("lib/../bin/tool"), filepath.Join("bin", "tool"); got != want {
+			t.Errorf("resolvePath: got = %q, want = %q", got, want)
+		}
+	})
+	t.Run("archivePaths reports the failure for a relative entry path", func(t *testing.T) {
+		if _, _, err := archivePaths(&malcontent.FileReport{}, malcontent.Config{}, filepath.Join("bin", "tool"), "/scans/pkg.tar", root); err == nil {
+			t.Errorf("archivePaths error: got = nil, want the working directory failure")
+		}
+	})
+	t.Run("archivePaths reports the failure for a relative archive root", func(t *testing.T) {
+		if _, _, err := archivePaths(&malcontent.FileReport{}, malcontent.Config{}, entry, "/scans/pkg.tar", "root"); err == nil {
+			t.Errorf("archivePaths error: got = nil, want the working directory failure")
+		}
+	})
 }

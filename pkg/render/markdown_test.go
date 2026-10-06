@@ -164,19 +164,28 @@ func TestMarkdownFullReturnsTableErrors(t *testing.T) {
 		{ID: "exec/shell", RiskScore: 3, RiskLevel: report.LevelHIGH, DiffAdded: true},
 		{ID: "fs/read", RiskScore: 1, RiskLevel: report.LevelLOW, DiffRemoved: true},
 	}}
+	addedOnly := &malcontent.FileReport{Path: "/mod/added", RiskScore: 3, RiskLevel: report.LevelHIGH, PreviousRiskScore: 3, PreviousRiskLevel: report.LevelHIGH, Behaviors: []*malcontent.Behavior{
+		{ID: "exec/shell", RiskScore: 3, RiskLevel: report.LevelHIGH, DiffAdded: true},
+	}}
 	tool := func() *malcontent.FileReport {
 		return &malcontent.FileReport{Path: "/tool", RiskScore: 3, RiskLevel: report.LevelHIGH, Behaviors: []*malcontent.Behavior{{ID: "net/connect", RiskScore: 3}}}
 	}
-	// allowed counts the cancellation checks that pass: one in Full, then one per table rendered.
+	changedTitle := "## Changed (1 added, 1 removed): /mod/changed [" + riskEmoji(0) + "  → " + riskEmoji(3) + " HIGH]\n\n"
+	newTable := "### 1 new behavior\n\n" + markdownTableHeader + "| +HIGH | **[exec/shell]()** | | |\n\n"
+	// allowed counts the cancellation checks that pass: one in Full, then one
+	// per table rendered. The part of a section rendered before the failed
+	// table is still written.
 	tests := []struct {
 		name    string
 		diff    *malcontent.DiffReport
 		allowed int
+		want    string
 	}{
 		{name: "deleted file table", diff: renderDiff([]*malcontent.FileReport{tool()}, nil, nil), allowed: 1},
 		{name: "added file table", diff: renderDiff(nil, []*malcontent.FileReport{tool()}, nil), allowed: 1},
-		{name: "new behaviors table", diff: renderDiff(nil, nil, []*malcontent.FileReport{changed}), allowed: 1},
-		{name: "removed behaviors table", diff: renderDiff(nil, nil, []*malcontent.FileReport{changed}), allowed: 2},
+		{name: "new behaviors table", diff: renderDiff(nil, nil, []*malcontent.FileReport{changed}), allowed: 1, want: changedTitle},
+		{name: "new behaviors table of a file without removals", diff: renderDiff(nil, nil, []*malcontent.FileReport{addedOnly}), allowed: 1, want: "## Changed (1 added, 0 removed): /mod/added\n\n"},
+		{name: "removed behaviors table", diff: renderDiff(nil, nil, []*malcontent.FileReport{changed}), allowed: 2, want: changedTitle + newTable},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -186,6 +195,9 @@ func TestMarkdownFullReturnsTableErrors(t *testing.T) {
 			err := NewMarkdown(&buf).Full(ctx, &malcontent.Config{}, &malcontent.Report{Diff: tt.diff})
 			if !errors.Is(err, context.Canceled) {
 				t.Errorf("Full error: got = %v, want = %v", err, context.Canceled)
+			}
+			if got := buf.String(); got != tt.want {
+				t.Errorf("Full output:\ngot  = %q\nwant = %q", got, tt.want)
 			}
 		})
 	}
@@ -385,6 +397,11 @@ func TestMatchFragmentLinkMarkdown(t *testing.T) {
 			name:  "backslash, pipe, and line ending cannot end the link or the table cell",
 			input: "https://a.example/x\\]|y\nz",
 			want:  `[https:&#8203;//a.example/x\\\]\|y%0Az](<https://a.example/x%5C]%7Cy%0Az>)`,
+		},
+		{
+			name:  "URL control characters and delete are percent-encoded",
+			input: "https://a.example/\x1f\x7f",
+			want:  `[https:&#8203;//a.example/%1F%7F](<https://a.example/%1F%7F>)`,
 		},
 		{
 			name:  "URL text cannot add emphasis or strikethrough",

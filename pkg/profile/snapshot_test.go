@@ -65,6 +65,11 @@ func TestWriteHeapSnapshot(t *testing.T) {
 		if !bytes.HasPrefix(data, []byte{0x1f, 0x8b}) {
 			t.Errorf("heap snapshot header: got = % x, want = 1f 8b", data[:min(len(data), 2)])
 		}
+		// Neither the snapshot nor the directory handle used to create it
+		// stays open.
+		if n := profileOpenFilesUnder(t, dir); n != 0 {
+			t.Errorf("files left open in the output directory: got = %d, want = 0", n)
+		}
 	})
 
 	t.Run("reports a missing output directory", func(t *testing.T) {

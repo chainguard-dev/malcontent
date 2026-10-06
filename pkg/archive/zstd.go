@@ -13,7 +13,6 @@ import (
 	"strings"
 
 	"github.com/chainguard-dev/clog"
-	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/klauspost/compress/zstd"
 )
 
@@ -34,8 +33,8 @@ func ExtractZstd(ctx context.Context, d string, f string) error {
 		return nil
 	}
 
-	buf := archivePool.Get(file.ExtractBuffer) //nolint:nilaway // the buffer pool is created in archive.go
-	defer archivePool.Put(buf)
+	buf := extractPool.Get()
+	defer extractPool.Put(buf)
 
 	// Enforce a byte and ratio ceiling against the single decompressed stream.
 	// InputBytes seeds the ratio denominator from the compressed file size.
@@ -68,7 +67,7 @@ func ExtractZstd(ctx context.Context, d string, f string) error {
 	}
 	defer zstdFile.Close()
 
-	zr, err := zstd.NewReader(zstdFile)
+	zr, err := zstd.NewReader(bufferInput(zstdFile))
 	if err != nil {
 		return fmt.Errorf("failed to open zstd file %s: %w", f, err)
 	}

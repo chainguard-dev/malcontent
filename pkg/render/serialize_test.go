@@ -72,3 +72,58 @@ func TestSerializedRenderersIncludeStatsOnlyWhenRequested(t *testing.T) {
 		}
 	}
 }
+
+func TestSerializedRenderersStopCollectingWhenCanceled(t *testing.T) {
+	t.Parallel()
+	formats := []struct {
+		name        string
+		newRenderer func(io.Writer) malcontent.Renderer
+		decode      func([]byte, *Report) error
+	}{
+		{
+			name:        "json",
+			newRenderer: func(w io.Writer) malcontent.Renderer { return NewJSON(w) },
+			decode:      func(b []byte, r *Report) error { return json.Unmarshal(b, r) },
+		},
+		{
+			name:        "yaml",
+			newRenderer: func(w io.Writer) malcontent.Renderer { return NewYAML(w) },
+			decode:      func(b []byte, r *Report) error { return yaml.Unmarshal(b, r) },
+		},
+	}
+	for _, f := range formats {
+		t.Run(f.name, func(t *testing.T) {
+			t.Parallel()
+			files := xsync.NewMap[string, *malcontent.FileReport]()
+			reports := make([]*malcontent.FileReport, 0, 3)
+			for _, path := range []string{"/bin/a", "/bin/b", "/bin/c"} {
+				fr := &malcontent.FileReport{Path: path, FullPath: "/root" + path, RiskScore: 1}
+				reports = append(reports, fr)
+				files.Store(path, fr)
+			}
+			// Full checks the context once, then once per report, so the
+			// second report finds it canceled.
+			ctx := &markdownCountdownCtx{Context: t.Context(), allowed: 2}
+			var buf bytes.Buffer
+			if err := f.newRenderer(&buf).Full(ctx, nil, &malcontent.Report{Files: files}); err != nil {
+				t.Fatalf("Full: got err = %v, want = nil", err)
+			}
+			var got Report
+			if err := f.decode(buf.Bytes(), &got); err != nil {
+				t.Fatalf("decode: got err = %v, want = nil", err)
+			}
+			if len(got.Files) != 1 {
+				t.Errorf("files written: got = %d, want = 1", len(got.Files))
+			}
+			sanitized := 0
+			for _, fr := range reports {
+				if fr.FullPath == "" {
+					sanitized++
+				}
+			}
+			if sanitized != 1 {
+				t.Errorf("reports sanitized: got = %d, want = 1", sanitized)
+			}
+		})
+	}
+}

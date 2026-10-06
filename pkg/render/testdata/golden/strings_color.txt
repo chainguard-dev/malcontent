@@ -1,0 +1,72 @@
+Matches for [92m/usr/bin/tool[0m [90m[[0m[95mCRIT[0m[90m][0m [90m([0m[92m12[0m [92mrules[0m[90m)[0m:
+[96mcollect[0m [90m[[0m[93mMED[0m[90m][0m [90m([0m[92m1[0m [92mstring[0m[90m)[0m: 
+[90m- [0mglob
+[96mcpu[0m [90m[[0m[37m[0m[90m][0m [90m([0m[92m1[0m [92mstring[0m[90m)[0m: 
+[90m- [0mcpuinfo
+[96mdns[0m [90m[[0m[92mLOW[0m[90m][0m [90m([0m[92m1[0m [92mstring[0m[90m)[0m: 
+[90m- [0mgethostbyname
+[96menv[0m [90m[[0m[37m[0m[90m][0m [90m([0m[92m2[0m [92mstrings[0m[90m)[0m: 
+[90m- [0mgetenv[90m
+- [0msetenv
+[96mfamily[0m [90m[[0m[95mCRIT[0m[90m][0m [90m([0m[92m1[0m [92mstring[0m[90m)[0m: 
+[90m- [0mfamily
+[96mhex[0m [90m[[0m[91mHIGH[0m[90m][0m [90m([0m[92m3[0m [92mstrings[0m[90m)[0m: 
+[90m- [0m\\x41\\x42[90m
+- [0mevil\x1b[2Jpayload\ttab[90m
+- [0mnaïve 😈 rtl
+[96mnet_connect[0m [90m[[0m[93mMED[0m[90m][0m [90m([0m[92m3[0m [92mstrings[0m[90m)[0m: 
+[90m- [0mconnect[90m
+- [0mAF_INET[90m
+- [0mab
+[96mnons[0m [90m[[0m[37mNONE[0m[90m][0m [90m([0m[92m2[0m [92mstrings[0m[90m)[0m: 
+[90m- [0mabcd[90m
+- [0mabcde
+[96mshell[0m [90m[[0m[95mCRIT[0m[90m][0m [90m([0m[92m3[0m [92mstrings[0m[90m)[0m: 
+[90m- [0m/bin/sh[90m
+- [0msh -c[90m
+- [0m$sh_var
+[96msus[0m [90m[[0m[93mMED[0m[90m][0m [90m([0m[92m2[0m [92mstrings[0m[90m)[0m: 
+[90m- [0mpassword[90m
+- [0mcredential
+[96murl[0m [90m[[0m[91mHIGH[0m[90m][0m [90m([0m[92m2[0m [92mstrings[0m[90m)[0m: 
+[90m- [0mhttps://example.com/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa[90m
+- [0mhttp://x.example/a|b
+[96mwrite[0m [90m[[0m[93mMED[0m[90m][0m [90m([0m[92m2[0m [92mstrings[0m[90m)[0m: 
+[90m- [0mfwrite[90m
+- [0mfopen
+Matches for [92m/tmp/naïve 😈\x1b]0;title\a\\backslash[0m [90m[[0m[92mLOW[0m[90m][0m [90m([0m[92m1[0m [92mrule[0m[90m)[0m:
+[96mwrite[0m [90m[[0m[92mLOW[0m[90m][0m [90m([0m[92m1[0m [92mstring[0m[90m)[0m: 
+[90m- [0mfopen
+Matches for [92m/opt/escapes[0m [90m[[0m[93mMED[0m[90m][0m [90m([0m[92m16[0m [92mrules[0m[90m)[0m:
+[96msweep_0_1[0m [90m[[0m[93mMED[0m[90m][0m [90m([0m[92m1[0m [92mstring[0m[90m)[0m: 
+[90m- [0mq
+[96msweep_0_2[0m [90m[[0m[93mMED[0m[90m][0m [90m([0m[92m1[0m [92mstring[0m[90m)[0m: 
+[90m- [0mqq
+[96msweep_0_3[0m [90m[[0m[93mMED[0m[90m][0m [90m([0m[92m1[0m [92mstring[0m[90m)[0m: 
+[90m- [0mqqq
+[96msweep_0_4[0m [90m[[0m[93mMED[0m[90m][0m [90m([0m[92m1[0m [92mstring[0m[90m)[0m: 
+[90m- [0mqqqq
+[96msweep_1_1[0m [90m[[0m[93mMED[0m[90m][0m [90m([0m[92m1[0m [92mstring[0m[90m)[0m: 
+[90m- [0m1mq
+[96msweep_1_2[0m [90m[[0m[93mMED[0m[90m][0m [90m([0m[92m1[0m [92mstring[0m[90m)[0m: 
+[90m- [0m1mqq
+[96msweep_1_3[0m [90m[[0m[93mMED[0m[90m][0m [90m([0m[92m1[0m [92mstring[0m[90m)[0m: 
+[90m- [0m1mqqq
+[96msweep_1_4[0m [90m[[0m[93mMED[0m[90m][0m [90m([0m[92m1[0m [92mstring[0m[90m)[0m: 
+[90m- [0m1mqqqq
+[96msweep_2_1[0m [90m[[0m[93mMED[0m[90m][0m [90m([0m[92m1[0m [92mstring[0m[90m)[0m: 
+[90m- [0m[0mq
+[96msweep_2_2[0m [90m[[0m[93mMED[0m[90m][0m [90m([0m[92m1[0m [92mstring[0m[90m)[0m: 
+[90m- [0m[0mqq
+[96msweep_2_3[0m [90m[[0m[93mMED[0m[90m][0m [90m([0m[92m1[0m [92mstring[0m[90m)[0m: 
+[90m- [0m[0mqqq
+[96msweep_2_4[0m [90m[[0m[93mMED[0m[90m][0m [90m([0m[92m1[0m [92mstring[0m[90m)[0m: 
+[90m- [0m[0mqqqq
+[96msweep_3_1[0m [90m[[0m[93mMED[0m[90m][0m [90m([0m[92m1[0m [92mstring[0m[90m)[0m: 
+[90m- [0m2;3Gq
+[96msweep_3_2[0m [90m[[0m[93mMED[0m[90m][0m [90m([0m[92m1[0m [92mstring[0m[90m)[0m: 
+[90m- [0m2;3Gqq
+[96msweep_3_3[0m [90m[[0m[93mMED[0m[90m][0m [90m([0m[92m1[0m [92mstring[0m[90m)[0m: 
+[90m- [0m2;3Gqqq
+[96msweep_3_4[0m [90m[[0m[93mMED[0m[90m][0m [90m([0m[92m1[0m [92mstring[0m[90m)[0m: 
+[90m- [0m2;3Gqqqq

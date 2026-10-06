@@ -9,14 +9,49 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"sync/atomic"
 	"testing"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
+	"github.com/chainguard-dev/malcontent/pkg/programkind"
 	"github.com/chainguard-dev/malcontent/pkg/report"
 )
+
+func TestScanSniffedReadsFileNotReadOnce(t *testing.T) {
+	t.Parallel()
+	yrs, rfs := scanTestRules(t)
+	path := scanTestWriteFile(t, filepath.Join(t.TempDir(), "app", "package.json"), readTestFile(t, scanTestNPMFixture))
+	c := malcontent.Config{Rules: yrs, RuleFS: rfs}
+	want, err := scanSinglePath(t.Context(), c, path, rfs, path, "", nil)
+	if err != nil {
+		t.Fatalf("scanSinglePath: %v", err)
+	}
+	if want == nil || len(want.Behaviors) == 0 {
+		t.Fatalf("fixture precondition: got report %+v, want behaviors", want)
+	}
+
+	fi, err := os.Stat(path)
+	if err != nil {
+		t.Fatalf("stat: %v", err)
+	}
+	kind, err := programkind.File(t.Context(), path)
+	if err != nil {
+		t.Fatalf("detect: %v", err)
+	}
+	// A sniff result without contents stands for a file that could not be
+	// read once, as when it became readable only after sniffFile ran. It is
+	// scanned and reported from reads by path.
+	got, err := scanSniffed(t.Context(), c, path, &sniffed{fi: fi, kind: kind}, rfs, path, "", nil)
+	if err != nil {
+		t.Fatalf("scanSniffed: %v", err)
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("report:\ngot  = %+v\nwant = %+v", got, want)
+	}
+}
 
 func TestScanSinglePathMaxScanFiles(t *testing.T) {
 	t.Parallel()
@@ -384,5 +419,76 @@ func TestScanSinglePathReportGenerationFailure(t *testing.T) {
 	}
 	if !errors.Is(err, context.Canceled) {
 		t.Errorf("error: got = %v, want = %v", err, context.Canceled)
+	}
+}
+
+func TestScanStepsReportCanceledContext(t *testing.T) {
+	t.Parallel()
+	yrs, rfs := scanTestRules(t)
+	// The bundled rules do not match the script, so a scan that went ahead
+	// would skip it as low risk rather than fail.
+	path := scanTestWriteFile(t, filepath.Join(t.TempDir(), "locale.sh"), []byte(scanTestLocaleScript))
+	c := malcontent.Config{Rules: yrs, RuleFS: rfs, Scan: true}
+	ctx, cancel := context.WithCancel(t.Context())
+	cancel()
+
+	tests := []struct {
+		name string
+		run  func() error
+	}{
+		{name: "single file scan", run: func() error {
+			_, err := scanSinglePath(ctx, c, path, rfs, path, "", nil)
+			return err
+		}},
+		{name: "recursive scan without paths", run: func() error {
+			_, err := recursiveScan(ctx, malcontent.Config{Rules: yrs})
+			return err
+		}},
+		{name: "scan path preparation", run: func() error {
+			_, err := prepareScanPath(ctx, path, c, clog.FromContext(ctx))
+			return err
+		}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			if err := tt.run(); !errors.Is(err, context.Canceled) {
+				t.Errorf("error: got = %v, want = %v", err, context.Canceled)
+			}
+		})
+	}
+}
+
+func TestScanSinglePathUnreadableFileFailsTheScan(t *testing.T) {
+	t.Parallel()
+	if os.Geteuid() == 0 {
+		t.Skip("file permissions do not restrict root")
+	}
+	yrs, rfs := scanTestRules(t)
+	path := scanTestWriteFile(t, filepath.Join(t.TempDir(), "locale.sh"), []byte(scanTestLocaleScript))
+	if err := os.Chmod(path, 0); err != nil {
+		t.Fatalf("chmod %s: %v", path, err)
+	}
+
+	tests := []struct {
+		name string
+		scan bool
+	}{
+		{name: "analyze reports the scan failure"},
+		{name: "scan reports the scan failure rather than a low-risk skip", scan: true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			logger, _ := scanTestLogger()
+			c := malcontent.Config{IncludeDataFiles: true, Rules: yrs, RuleFS: rfs, Scan: tt.scan}
+			fr, err := scanSinglePath(clog.WithLogger(t.Context(), logger), c, path, rfs, path, "", nil)
+			if err == nil {
+				t.Errorf("error: got = nil, want the scanner's read failure")
+			}
+			if fr != nil {
+				t.Errorf("FileReport: got = %+v, want = nil", fr)
+			}
+		})
 	}
 }

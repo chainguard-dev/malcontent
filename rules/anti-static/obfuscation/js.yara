@@ -371,12 +371,12 @@ rule charAt_multiple_suspicious: medium {
 
     $susp1 = /["'][a-zA-Z0-9]{32,}["']/
     $susp2 = /["'][!@#$%^&*(){}\[\]]{8,}["']/
-    $susp3 = /["'][0-9a-fA-F]{32,}["']/
+    // quoted hex strings, a subset of $susp1, are counted in the condition
     $susp4 = /["'][a-zA-Z0-9+\/=]{50,}["']/
 
   condition:
     2 of ($charAt, $substr, $join) and
-    #susp1 + #susp2 + #susp3 + #susp4 > 3
+    (#susp1 + #susp2 + #susp4 > 3 or for (4 - #susp1 - #susp2 - #susp4) i in (1..3): (for all j in (@susp1[i] + 1..@susp1[i] + !susp1[i] - 2): ((uint8(j) >= 0x30 and uint8(j) <= 0x39) or ((uint8(j) | 0x20) >= 0x61 and (uint8(j) | 0x20) <= 0x66))))
 }
 
 rule obfuscated_require: high {

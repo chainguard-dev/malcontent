@@ -5,5 +5,6 @@
 // compiles every .yara and .yar file in the given filesystems, dropping noisy
 // third-party rules first; RecursiveCached does the same but reuses a compiled
 // rule set saved in the user cache directory, guarded by a SHA-256 integrity
-// sidecar and keyed by the rule sources and the yara-x version.
+// sidecar and keyed by the rule sources and the yara-x version. It also
+// removes compiled rule sets that no run has loaded for several days.
 package compile

@@ -11,7 +11,9 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 )
 
-var tempDirPattern = regexp.MustCompile(`^(/(?:var/folders|tmp|private/var/folders|private/tmp)/[^/]+/[^/]+/T/[^/]+)`)
+// tempDirPattern matches the temporary directory root at the start of a path
+// extracted under macOS or /tmp.
+var tempDirPattern = regexp.MustCompile(`^/(?:var/folders|tmp|private/var/folders|private/tmp)/[^/]+/[^/]+/T/[^/]+`)
 
 func Load(data []byte) (malcontent.ScanResult, error) {
 	var report malcontent.ScanResult
@@ -40,12 +42,13 @@ func ExtractImageURI(files map[string]*malcontent.FileReport) string {
 // ExtractTmpRoot extracts the temporary directory root from paths in a report.
 func ExtractTmpRoot(files map[string]*malcontent.FileReport) string {
 	for _, fr := range files {
-		if fr == nil || fr.Path == "" {
+		if fr == nil {
 			continue
 		}
 
-		if matches := tempDirPattern.FindStringSubmatch(fr.Path); len(matches) > 1 {
-			return matches[1]
+		// An empty path has no root.
+		if root := tempDirPattern.FindString(fr.Path); root != "" {
+			return root
 		}
 	}
 
@@ -64,15 +67,10 @@ func CleanReportPath(path, tmpRoot, imageURI string) string {
 		return path
 	}
 
-	// Remove temp directory prefix if present
-	if tmpRoot != "" && strings.HasPrefix(path, tmpRoot) {
-		path = strings.TrimPrefix(path, tmpRoot)
-	}
-
-	// Also try to remove any remaining temp dir pattern
-	if matches := tempDirPattern.FindStringSubmatch(path); len(matches) > 1 {
-		path = strings.TrimPrefix(path, matches[1])
-	}
+	// Remove the temp directory prefix if present, then any remaining temp
+	// dir root
+	path = strings.TrimPrefix(path, tmpRoot)
+	path = strings.TrimPrefix(path, tempDirPattern.FindString(path))
 
 	// Ensure path starts with / (unless it has an imageURI prefix)
 	if !strings.HasPrefix(path, "/") && (imageURI == "" || !strings.HasPrefix(path, imageURI)) {
@@ -92,15 +90,8 @@ func FormatReportKey(path, tmpRoot, imageURI string) string {
 		return path
 	}
 
-	clean := path
-
-	if tmpRoot != "" && strings.HasPrefix(clean, tmpRoot) {
-		clean = strings.TrimPrefix(clean, tmpRoot)
-	}
-
-	if matches := tempDirPattern.FindStringSubmatch(clean); len(matches) > 1 {
-		clean = strings.TrimPrefix(clean, matches[1])
-	}
+	clean := strings.TrimPrefix(path, tmpRoot)
+	clean = strings.TrimPrefix(clean, tempDirPattern.FindString(clean))
 
 	if !strings.HasPrefix(clean, "/") {
 		clean = "/" + clean

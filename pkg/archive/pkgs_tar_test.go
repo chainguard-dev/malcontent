@@ -423,7 +423,7 @@ func TestAuditTarTrailerLimit(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := auditTarTrailer(bytes.NewReader(make([]byte, tt.trailer)), newTarAuditor())
+			err := auditTarTrailer(bytes.NewReader(make([]byte, tt.trailer)), newTarAuditor(), make([]byte, 16))
 			if got := err != nil; got != tt.wantErr {
 				t.Errorf("auditTarTrailer error: got = %v, want error = %v", err, tt.wantErr)
 			}

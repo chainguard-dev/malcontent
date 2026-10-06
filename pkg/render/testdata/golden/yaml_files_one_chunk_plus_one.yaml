@@ -1,0 +1,690 @@
+files:
+    /many/file-0001:
+        path: /many/file-0001
+        sha256: "0000000000000000000000000000000000000000000000000000000000000001"
+        size: 1
+        behaviors:
+            - description: does something & more <here>
+              matchstrings:
+                - match-1-0
+              riskscore: 0
+              risklevel: NONE
+              ruleurl: https://r/0
+              id: ns0/behavior-0
+        riskscore: 1
+        risklevel: LOW
+    /many/file-0002:
+        path: /many/file-0002
+        sha256: "0000000000000000000000000000000000000000000000000000000000000002"
+        size: 2
+        behaviors:
+            - description: does something & more <here>
+              matchstrings:
+                - match-2-0
+              riskscore: 0
+              risklevel: NONE
+              ruleurl: https://r/0
+              id: ns0/behavior-0
+            - description: does something & more <here>
+              matchstrings:
+                - match-2-1
+              riskscore: 1
+              risklevel: LOW
+              ruleurl: https://r/1
+              id: ns1/behavior-1
+        riskscore: 2
+        risklevel: MEDIUM
+    /many/file-0003<&>:
+        path: /many/file-0003<&>
+        sha256: "0000000000000000000000000000000000000000000000000000000000000003"
+        size: 3
+        behaviors:
+            - description: does something & more <here>
+              matchstrings:
+                - match-3-0
+              riskscore: 0
+              risklevel: NONE
+              ruleurl: https://r/0
+              id: ns0/behavior-0
+            - description: does something & more <here>
+              matchstrings:
+                - match-3-1
+              riskscore: 1
+              risklevel: LOW
+              ruleurl: https://r/1
+              id: ns1/behavior-1
+            - description: does something & more <here>
+              matchstrings:
+                - match-3-2
+              riskscore: 2
+              risklevel: MEDIUM
+              ruleurl: https://r/2
+              id: ns2/behavior-2
+        riskscore: 3
+        risklevel: HIGH
+    /many/file-0004:
+        path: /many/file-0004
+        sha256: "0000000000000000000000000000000000000000000000000000000000000004"
+        size: 4
+        behaviors:
+            - description: does something & more <here>
+              matchstrings:
+                - match-4-0
+              riskscore: 0
+              risklevel: NONE
+              ruleurl: https://r/0
+              id: ns0/behavior-0
+            - description: does something & more <here>
+              matchstrings:
+                - match-4-1
+              riskscore: 1
+              risklevel: LOW
+              ruleurl: https://r/1
+              id: ns1/behavior-1
+            - description: does something & more <here>
+              matchstrings:
+                - match-4-2
+              riskscore: 2
+              risklevel: MEDIUM
+              ruleurl: https://r/2
+              id: ns2/behavior-2
+            - description: does something & more <here>
+              matchstrings:
+                - match-4-3
+              riskscore: 3
+              risklevel: HIGH
+              ruleurl: https://r/3
+              id: ns0/behavior-3
+        riskscore: 4
+        risklevel: CRITICAL
+    /many/file-0005:
+        path: /many/file-0005
+        sha256: "0000000000000000000000000000000000000000000000000000000000000005"
+        size: 5
+        behaviors:
+            - description: does something & more <here>
+              matchstrings:
+                - match-5-0
+              riskscore: 0
+              risklevel: NONE
+              ruleurl: https://r/0
+              id: ns0/behavior-0
+            - description: does something & more <here>
+              matchstrings:
+                - match-5-1
+              riskscore: 1
+              risklevel: LOW
+              ruleurl: https://r/1
+              id: ns1/behavior-1
+            - description: does something & more <here>
+              matchstrings:
+                - match-5-2
+              riskscore: 2
+              risklevel: MEDIUM
+              ruleurl: https://r/2
+              id: ns2/behavior-2
+            - description: does something & more <here>
+              matchstrings:
+                - match-5-3
+              riskscore: 3
+              risklevel: HIGH
+              ruleurl: https://r/3
+              id: ns0/behavior-3
+            - description: does something & more <here>
+              matchstrings:
+                - match-5-4
+              riskscore: 4
+              risklevel: CRITICAL
+              ruleurl: https://r/4
+              id: ns1/behavior-4
+        riskscore: 0
+        risklevel: NONE
+    /many/file-0006:
+        path: /many/file-0006
+        sha256: "0000000000000000000000000000000000000000000000000000000000000006"
+        size: 6
+        riskscore: 1
+        risklevel: LOW
+    ? '/many/file-0007         "quoted"'
+    :   path: '/many/file-0007             "quoted"'
+        sha256: "0000000000000000000000000000000000000000000000000000000000000007"
+        size: 7
+        behaviors:
+            - description: does something & more <here>
+              matchstrings:
+                - match-7-0
+              riskscore: 0
+              risklevel: NONE
+              ruleurl: https://r/0
+              id: ns0/behavior-0
+        riskscore: 2
+        risklevel: MEDIUM
+    /many/file-0008:
+        path: /many/file-0008
+        sha256: "0000000000000000000000000000000000000000000000000000000000000008"
+        size: 8
+        behaviors:
+            - description: does something & more <here>
+              matchstrings:
+                - match-8-0
+              riskscore: 0
+              risklevel: NONE
+              ruleurl: https://r/0
+              id: ns0/behavior-0
+            - description: does something & more <here>
+              matchstrings:
+                - match-8-1
+              riskscore: 1
+              risklevel: LOW
+              ruleurl: https://r/1
+              id: ns1/behavior-1
+        riskscore: 3
+        risklevel: HIGH
+    /many/file-0009:
+        path: /many/file-0009
+        sha256: "0000000000000000000000000000000000000000000000000000000000000009"
+        size: 9
+        behaviors:
+            - description: does something & more <here>
+              matchstrings:
+                - match-9-0
+              riskscore: 0
+              risklevel: NONE
+              ruleurl: https://r/0
+              id: ns0/behavior-0
+            - description: does something & more <here>
+              matchstrings:
+                - match-9-1
+              riskscore: 1
+              risklevel: LOW
+              ruleurl: https://r/1
+              id: ns1/behavior-1
+            - description: does something & more <here>
+              matchstrings:
+                - match-9-2
+              riskscore: 2
+              risklevel: MEDIUM
+              ruleurl: https://r/2
+              id: ns2/behavior-2
+        riskscore: 4
+        risklevel: CRITICAL
+    /many/file-0010:
+        path: /many/file-0010
+        sha256: 000000000000000000000000000000000000000000000000000000000000000a
+        size: 10
+        behaviors:
+            - description: does something & more <here>
+              matchstrings:
+                - match-10-0
+              riskscore: 0
+              risklevel: NONE
+              ruleurl: https://r/0
+              id: ns0/behavior-0
+            - description: does something & more <here>
+              matchstrings:
+                - match-10-1
+              riskscore: 1
+              risklevel: LOW
+              ruleurl: https://r/1
+              id: ns1/behavior-1
+            - description: does something & more <here>
+              matchstrings:
+                - match-10-2
+              riskscore: 2
+              risklevel: MEDIUM
+              ruleurl: https://r/2
+              id: ns2/behavior-2
+            - description: does something & more <here>
+              matchstrings:
+                - match-10-3
+              riskscore: 3
+              risklevel: HIGH
+              ruleurl: https://r/3
+              id: ns0/behavior-3
+        riskscore: 0
+        risklevel: NONE
+    /many/file-0012:
+        path: /many/file-0012
+        sha256: 000000000000000000000000000000000000000000000000000000000000000c
+        size: 12
+        riskscore: 2
+        risklevel: MEDIUM
+    /many/file-0013<&>:
+        path: /many/file-0013<&>
+        sha256: 000000000000000000000000000000000000000000000000000000000000000d
+        size: 13
+        behaviors:
+            - description: does something & more <here>
+              matchstrings:
+                - match-13-0
+              riskscore: 0
+              risklevel: NONE
+              ruleurl: https://r/0
+              id: ns0/behavior-0
+        riskscore: 3
+        risklevel: HIGH
+    /many/file-0014:
+        path: /many/file-0014
+        sha256: 000000000000000000000000000000000000000000000000000000000000000e
+        size: 14
+        behaviors:
+            - description: does something & more <here>
+              matchstrings:
+                - match-14-0
+              riskscore: 0
+              risklevel: NONE
+              ruleurl: https://r/0
+              id: ns0/behavior-0
+            - description: does something & more <here>
+              matchstrings:
+                - match-14-1
+              riskscore: 1
+              risklevel: LOW
+              ruleurl: https://r/1
+              id: ns1/behavior-1
+        riskscore: 4
+        risklevel: CRITICAL
+    /many/file-0015:
+        path: /many/file-0015
+        sha256: 000000000000000000000000000000000000000000000000000000000000000f
+        size: 15
+        behaviors:
+            - description: does something & more <here>
+              matchstrings:
+                - match-15-0
+              riskscore: 0
+              risklevel: NONE
+              ruleurl: https://r/0
+              id: ns0/behavior-0
+            - description: does something & more <here>
+              matchstrings:
+                - match-15-1
+              riskscore: 1
+              risklevel: LOW
+              ruleurl: https://r/1
+              id: ns1/behavior-1
+            - description: does something & more <here>
+              matchstrings:
+                - match-15-2
+              riskscore: 2
+              risklevel: MEDIUM
+              ruleurl: https://r/2
+              id: ns2/behavior-2
+        riskscore: 0
+        risklevel: NONE
+    /many/file-0016:
+        path: /many/file-0016
+        sha256: "0000000000000000000000000000000000000000000000000000000000000010"
+        size: 16
+        behaviors:
+            - description: does something & more <here>
+              matchstrings:
+                - match-16-0
+              riskscore: 0
+              risklevel: NONE
+              ruleurl: https://r/0
+              id: ns0/behavior-0
+            - description: does something & more <here>
+              matchstrings:
+                - match-16-1
+              riskscore: 1
+              risklevel: LOW
+              ruleurl: https://r/1
+              id: ns1/behavior-1
+            - description: does something & more <here>
+              matchstrings:
+                - match-16-2
+              riskscore: 2
+              risklevel: MEDIUM
+              ruleurl: https://r/2
+              id: ns2/behavior-2
+            - description: does something & more <here>
+              matchstrings:
+                - match-16-3
+              riskscore: 3
+              risklevel: HIGH
+              ruleurl: https://r/3
+              id: ns0/behavior-3
+        riskscore: 1
+        risklevel: LOW
+    ? '/many/file-0017         "quoted"'
+    :   path: '/many/file-0017             "quoted"'
+        sha256: "0000000000000000000000000000000000000000000000000000000000000011"
+        size: 17
+        behaviors:
+            - description: does something & more <here>
+              matchstrings:
+                - match-17-0
+              riskscore: 0
+              risklevel: NONE
+              ruleurl: https://r/0
+              id: ns0/behavior-0
+            - description: does something & more <here>
+              matchstrings:
+                - match-17-1
+              riskscore: 1
+              risklevel: LOW
+              ruleurl: https://r/1
+              id: ns1/behavior-1
+            - description: does something & more <here>
+              matchstrings:
+                - match-17-2
+              riskscore: 2
+              risklevel: MEDIUM
+              ruleurl: https://r/2
+              id: ns2/behavior-2
+            - description: does something & more <here>
+              matchstrings:
+                - match-17-3
+              riskscore: 3
+              risklevel: HIGH
+              ruleurl: https://r/3
+              id: ns0/behavior-3
+            - description: does something & more <here>
+              matchstrings:
+                - match-17-4
+              riskscore: 4
+              risklevel: CRITICAL
+              ruleurl: https://r/4
+              id: ns1/behavior-4
+        riskscore: 2
+        risklevel: MEDIUM
+    /many/file-0018:
+        path: /many/file-0018
+        sha256: "0000000000000000000000000000000000000000000000000000000000000012"
+        size: 18
+        riskscore: 3
+        risklevel: HIGH
+    /many/file-0019:
+        path: /many/file-0019
+        sha256: "0000000000000000000000000000000000000000000000000000000000000013"
+        size: 19
+        behaviors:
+            - description: does something & more <here>
+              matchstrings:
+                - match-19-0
+              riskscore: 0
+              risklevel: NONE
+              ruleurl: https://r/0
+              id: ns0/behavior-0
+        riskscore: 4
+        risklevel: CRITICAL
+    /many/file-0020:
+        path: /many/file-0020
+        sha256: "0000000000000000000000000000000000000000000000000000000000000014"
+        size: 20
+        behaviors:
+            - description: does something & more <here>
+              matchstrings:
+                - match-20-0
+              riskscore: 0
+              risklevel: NONE
+              ruleurl: https://r/0
+              id: ns0/behavior-0
+            - description: does something & more <here>
+              matchstrings:
+                - match-20-1
+              riskscore: 1
+              risklevel: LOW
+              ruleurl: https://r/1
+              id: ns1/behavior-1
+        riskscore: 0
+        risklevel: NONE
+    /many/file-0021:
+        path: /many/file-0021
+        sha256: "0000000000000000000000000000000000000000000000000000000000000015"
+        size: 21
+        behaviors:
+            - description: does something & more <here>
+              matchstrings:
+                - match-21-0
+              riskscore: 0
+              risklevel: NONE
+              ruleurl: https://r/0
+              id: ns0/behavior-0
+            - description: does something & more <here>
+              matchstrings:
+                - match-21-1
+              riskscore: 1
+              risklevel: LOW
+              ruleurl: https://r/1
+              id: ns1/behavior-1
+            - description: does something & more <here>
+              matchstrings:
+                - match-21-2
+              riskscore: 2
+              risklevel: MEDIUM
+              ruleurl: https://r/2
+              id: ns2/behavior-2
+        riskscore: 1
+        risklevel: LOW
+    /many/file-0023<&>:
+        path: /many/file-0023<&>
+        sha256: "0000000000000000000000000000000000000000000000000000000000000017"
+        size: 23
+        behaviors:
+            - description: does something & more <here>
+              matchstrings:
+                - match-23-0
+              riskscore: 0
+              risklevel: NONE
+              ruleurl: https://r/0
+              id: ns0/behavior-0
+            - description: does something & more <here>
+              matchstrings:
+                - match-23-1
+              riskscore: 1
+              risklevel: LOW
+              ruleurl: https://r/1
+              id: ns1/behavior-1
+            - description: does something & more <here>
+              matchstrings:
+                - match-23-2
+              riskscore: 2
+              risklevel: MEDIUM
+              ruleurl: https://r/2
+              id: ns2/behavior-2
+            - description: does something & more <here>
+              matchstrings:
+                - match-23-3
+              riskscore: 3
+              risklevel: HIGH
+              ruleurl: https://r/3
+              id: ns0/behavior-3
+            - description: does something & more <here>
+              matchstrings:
+                - match-23-4
+              riskscore: 4
+              risklevel: CRITICAL
+              ruleurl: https://r/4
+              id: ns1/behavior-4
+        riskscore: 3
+        risklevel: HIGH
+    /many/file-0024:
+        path: /many/file-0024
+        sha256: "0000000000000000000000000000000000000000000000000000000000000018"
+        size: 24
+        riskscore: 4
+        risklevel: CRITICAL
+    /many/file-0025:
+        path: /many/file-0025
+        sha256: "0000000000000000000000000000000000000000000000000000000000000019"
+        size: 25
+        behaviors:
+            - description: does something & more <here>
+              matchstrings:
+                - match-25-0
+              riskscore: 0
+              risklevel: NONE
+              ruleurl: https://r/0
+              id: ns0/behavior-0
+        riskscore: 0
+        risklevel: NONE
+    /many/file-0026:
+        path: /many/file-0026
+        sha256: 000000000000000000000000000000000000000000000000000000000000001a
+        size: 26
+        behaviors:
+            - description: does something & more <here>
+              matchstrings:
+                - match-26-0
+              riskscore: 0
+              risklevel: NONE
+              ruleurl: https://r/0
+              id: ns0/behavior-0
+            - description: does something & more <here>
+              matchstrings:
+                - match-26-1
+              riskscore: 1
+              risklevel: LOW
+              ruleurl: https://r/1
+              id: ns1/behavior-1
+        riskscore: 1
+        risklevel: LOW
+    ? '/many/file-0027         "quoted"'
+    :   path: '/many/file-0027             "quoted"'
+        sha256: 000000000000000000000000000000000000000000000000000000000000001b
+        size: 27
+        behaviors:
+            - description: does something & more <here>
+              matchstrings:
+                - match-27-0
+              riskscore: 0
+              risklevel: NONE
+              ruleurl: https://r/0
+              id: ns0/behavior-0
+            - description: does something & more <here>
+              matchstrings:
+                - match-27-1
+              riskscore: 1
+              risklevel: LOW
+              ruleurl: https://r/1
+              id: ns1/behavior-1
+            - description: does something & more <here>
+              matchstrings:
+                - match-27-2
+              riskscore: 2
+              risklevel: MEDIUM
+              ruleurl: https://r/2
+              id: ns2/behavior-2
+        riskscore: 2
+        risklevel: MEDIUM
+    /many/file-0028:
+        path: /many/file-0028
+        sha256: 000000000000000000000000000000000000000000000000000000000000001c
+        size: 28
+        behaviors:
+            - description: does something & more <here>
+              matchstrings:
+                - match-28-0
+              riskscore: 0
+              risklevel: NONE
+              ruleurl: https://r/0
+              id: ns0/behavior-0
+            - description: does something & more <here>
+              matchstrings:
+                - match-28-1
+              riskscore: 1
+              risklevel: LOW
+              ruleurl: https://r/1
+              id: ns1/behavior-1
+            - description: does something & more <here>
+              matchstrings:
+                - match-28-2
+              riskscore: 2
+              risklevel: MEDIUM
+              ruleurl: https://r/2
+              id: ns2/behavior-2
+            - description: does something & more <here>
+              matchstrings:
+                - match-28-3
+              riskscore: 3
+              risklevel: HIGH
+              ruleurl: https://r/3
+              id: ns0/behavior-3
+        riskscore: 3
+        risklevel: HIGH
+    /many/file-0029:
+        path: /many/file-0029
+        sha256: 000000000000000000000000000000000000000000000000000000000000001d
+        size: 29
+        behaviors:
+            - description: does something & more <here>
+              matchstrings:
+                - match-29-0
+              riskscore: 0
+              risklevel: NONE
+              ruleurl: https://r/0
+              id: ns0/behavior-0
+            - description: does something & more <here>
+              matchstrings:
+                - match-29-1
+              riskscore: 1
+              risklevel: LOW
+              ruleurl: https://r/1
+              id: ns1/behavior-1
+            - description: does something & more <here>
+              matchstrings:
+                - match-29-2
+              riskscore: 2
+              risklevel: MEDIUM
+              ruleurl: https://r/2
+              id: ns2/behavior-2
+            - description: does something & more <here>
+              matchstrings:
+                - match-29-3
+              riskscore: 3
+              risklevel: HIGH
+              ruleurl: https://r/3
+              id: ns0/behavior-3
+            - description: does something & more <here>
+              matchstrings:
+                - match-29-4
+              riskscore: 4
+              risklevel: CRITICAL
+              ruleurl: https://r/4
+              id: ns1/behavior-4
+        riskscore: 4
+        risklevel: CRITICAL
+    /many/file-0030:
+        path: /many/file-0030
+        sha256: 000000000000000000000000000000000000000000000000000000000000001e
+        size: 30
+        riskscore: 0
+        risklevel: NONE
+    /many/file-0031:
+        path: /many/file-0031
+        sha256: 000000000000000000000000000000000000000000000000000000000000001f
+        size: 31
+        behaviors:
+            - description: does something & more <here>
+              matchstrings:
+                - match-31-0
+              riskscore: 0
+              risklevel: NONE
+              ruleurl: https://r/0
+              id: ns0/behavior-0
+        riskscore: 1
+        risklevel: LOW
+    /many/file-0032:
+        path: /many/file-0032
+        sha256: "0000000000000000000000000000000000000000000000000000000000000020"
+        size: 32
+        behaviors:
+            - description: does something & more <here>
+              matchstrings:
+                - match-32-0
+              riskscore: 0
+              risklevel: NONE
+              ruleurl: https://r/0
+              id: ns0/behavior-0
+            - description: does something & more <here>
+              matchstrings:
+                - match-32-1
+              riskscore: 1
+              risklevel: LOW
+              ruleurl: https://r/1
+              id: ns1/behavior-1
+        riskscore: 2
+        risklevel: MEDIUM
+

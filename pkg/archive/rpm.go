@@ -84,8 +84,8 @@ func ExtractRPM(ctx context.Context, d, f string) (retErr error) {
 		return nil
 	}
 
-	buf := archivePool.Get(file.ExtractBuffer) //nolint:nilaway // the buffer pool is created in archive.go
-	defer archivePool.Put(buf)
+	buf := extractPool.Get()
+	defer extractPool.Put(buf)
 
 	// Shared counter across every CPIO member enforces a uniform byte and ratio
 	// ceiling. InputBytes seeds the ratio denominator from the RPM file size.
@@ -115,23 +115,27 @@ func ExtractRPM(ctx context.Context, d, f string) (retErr error) {
 		return fmt.Errorf("failed to seek to payload: %w", err)
 	}
 
+	// Only the payload decompressor reads the file from here, so its input is
+	// buffered. rpm.Read stays unbuffered: it assumes each read of a header
+	// field returns the whole field, and it must leave the file at the payload.
+	payload := bufferInput(rpmFile)
 	var cr *cpio.Reader
 	switch compression := pkg.PayloadCompression(); compression {
 	case "gzip":
-		gzStream, err := gzip.NewReader(rpmFile)
+		gzStream, err := gzip.NewReader(payload)
 		if err != nil {
 			return fmt.Errorf("failed to create gzip reader: %w", err)
 		}
 		defer gzStream.Close()
 		cr = cpio.NewReader(gzStream)
 	case "xz":
-		xzStream, err := xz.NewReader(rpmFile)
+		xzStream, err := xz.NewReader(payload)
 		if err != nil {
 			return fmt.Errorf("failed to create xz reader: %w", err)
 		}
 		cr = cpio.NewReader(xzStream)
 	case "zstd":
-		zstdStream, err := zstd.NewReader(rpmFile)
+		zstdStream, err := zstd.NewReader(payload)
 		if err != nil {
 			return fmt.Errorf("failed to create zstd reader: %w", err)
 		}

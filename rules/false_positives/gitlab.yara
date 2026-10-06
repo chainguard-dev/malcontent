@@ -25,7 +25,7 @@ rule fetch_command: override {
     possible_dropper       = "harmless"
 
   condition:
-    filesize < 1024 and (hash.sha256(0, filesize) == "316d9c447de581287bf6912947999327360677eae7c51cd62b708f664198f032")
+    filesize < 1024 and (file_sha256 == "316d9c447de581287bf6912947999327360677eae7c51cd62b708f664198f032")
 }
 
 rule safe_zip_test_fixture: override {
@@ -37,7 +37,7 @@ rule safe_zip_test_fixture: override {
     $index_html = /public\/index\.html/
 
   condition:
-    filesize < 512 and $index_html and hash.sha256(0, filesize) == "95ac6cc55c46c7670b2dacbcbaf5ec738a7d414494ee65fe9d0ff49d5adfb17c"
+    filesize < 512 and $index_html and file_sha256 == "95ac6cc55c46c7670b2dacbcbaf5ec738a7d414494ee65fe9d0ff49d5adfb17c"
 }
 
 rule vscode_extension: override {

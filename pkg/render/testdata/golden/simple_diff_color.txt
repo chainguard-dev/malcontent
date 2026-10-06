@@ -1,0 +1,15 @@
+--- missing: /old/tool
+-net/connect
+-fs/read
++++ added: /new/tool\x1b[2J
++fs/write
+*** changed (2 added, 3 removed): /mod/changed
++exec/shell
+-fs/read
+-crypto/aes
++crypto/aes
+-c2/beacon
+>>> moved (1 added, 0 removed): /mod/old-name -> /mod/new-name
++crypto/rc4
+*** changed (0 added, 1 removed): /mod/lowered
+-net/connect

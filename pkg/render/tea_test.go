@@ -7,10 +7,12 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"slices"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -335,6 +337,13 @@ func TestMainModelSearchEdgeCases(t *testing.T) {
 			wantLines: 1,
 			wantText:  "quiet mode",
 		},
+		{
+			name:      "escape clears the search term and restores all results",
+			results:   []string{"alpha one", "beta two", "gamma three"},
+			keys:      []tea.KeyMsg{teaRunes("/"), teaRunes("a"), teaRunes("l"), {Type: tea.KeyEsc}},
+			wantLines: 3,
+			wantText:  "gamma three",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -357,8 +366,73 @@ func TestMainModelHeaderWithoutRoomForGap(t *testing.T) {
 	t.Parallel()
 	m, _ := teaUpdate(t, newMainModel(), tea.WindowSizeMsg{Width: 20, Height: 30})
 	header, _, _ := strings.Cut(renderStripANSI(m.View()), "\n")
-	if want := "malcontent scan results↑/↓: scroll"; !strings.Contains(header, want) {
-		t.Errorf("header in a narrow window: got = %q, want it to contain %q", header, want)
+	// The title keeps its two-column margin; the controls follow it directly.
+	if want := "  malcontent scan results↑/↓: scroll • /: search • q: quit"; header != want {
+		t.Errorf("header in a narrow window: got = %q, want = %q", header, want)
+	}
+}
+
+func TestMainModelViewLayout(t *testing.T) {
+	t.Parallel()
+	ready := teaReadyModel(t, "first finding")
+	scanning, _ := teaUpdate(t, ready, scanUpdateMsg{path: "/bin/scanning-now"})
+	searching := teaKeys(t, ready, teaRunes("/"), teaRunes("f"), teaRunes("i"))
+	tests := []struct {
+		name string
+		m    mainModel
+		// status is the line between the header and the viewport, if any.
+		status string
+	}{
+		{name: "results only", m: ready},
+		{name: "scan status on its own line", m: scanning, status: "Scanning: /bin/scanning-now"},
+		{name: "search prompt on its own line", m: searching, status: " Search:  fi█"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			lines := strings.Split(renderStripANSI(tt.m.View()), "\n")
+			top := 1
+			if tt.status != "" {
+				top = 2
+				// The spinner leads the scan status, so only its end is fixed.
+				if got := lines[1]; got != tt.status && !strings.HasSuffix(got, " "+tt.status) {
+					t.Errorf("status line: got = %q, want = %q", got, tt.status)
+				}
+			}
+			if len(lines) < top+3 {
+				t.Fatalf("view lines: got = %q, want the viewport after line %d", lines, top)
+			}
+			// The viewport has a border, one blank line of padding, and two
+			// columns of padding before its content.
+			if !strings.HasPrefix(lines[top], "╭─") {
+				t.Errorf("viewport top: got = %q, want a border", lines[top])
+			}
+			if got := teaTrimBox(lines[top+1]); got != "" {
+				t.Errorf("viewport padding line: got = %q, want = blank", got)
+			}
+			if got, want := teaTrimBox(lines[top+2]), "│  first finding"; got != want {
+				t.Errorf("viewport content line: got = %q, want = %q", got, want)
+			}
+		})
+	}
+}
+
+func TestMainModelEnterReappliesSearch(t *testing.T) {
+	t.Parallel()
+	m := teaReadyModel(t, "alpha one", "beta two", "gamma three")
+	m = teaKeys(t, m, teaRunes("/"), teaRunes("a"), teaRunes("l"))
+	// A result that arrives during a search shows every result again.
+	m, _ = teaUpdate(t, m, resultUpdateMsg{content: "delta four", isResult: true})
+	if n := m.viewport.TotalLineCount(); n != 4 {
+		t.Fatalf("viewport lines after a new result: got = %d, want = 4", n)
+	}
+	// Enter filters them again: the match and the line after it.
+	m = teaKeys(t, m, tea.KeyMsg{Type: tea.KeyEnter})
+	if n := m.viewport.TotalLineCount(); n != 2 {
+		t.Errorf("viewport lines after enter: got = %d, want = 2", n)
+	}
+	if got := teaVisible(m); !strings.Contains(got, "alpha one") || strings.Contains(got, "delta four") {
+		t.Errorf("viewport after enter: got = %q, want alpha one without delta four", got)
 	}
 }
 
@@ -453,5 +527,294 @@ func TestInteractiveAcceptsReports(t *testing.T) {
 				t.Errorf("Full: got err = %v, want = nil", err)
 			}
 		})
+	}
+}
+
+// teaMark is a message a test sends after others to learn when the program
+// has handled everything sent before it.
+type teaMark struct{}
+
+// teaRecorder is a program model that forwards the messages an Interactive
+// sends to msgs. It ends the program when the scan completes, once release
+// closes if release is not nil.
+type teaRecorder struct {
+	msgs    chan<- tea.Msg
+	release <-chan struct{}
+}
+
+func (m teaRecorder) Init() tea.Cmd { return nil }
+
+func (m teaRecorder) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg.(type) {
+	case scanUpdateMsg, resultUpdateMsg, teaMark:
+		m.msgs <- msg
+	case scanCompleteMsg:
+		m.msgs <- msg
+		if m.release != nil {
+			<-m.release
+		}
+		return m, tea.Quit
+	}
+	return m, nil
+}
+
+func (m teaRecorder) View() string { return "" }
+
+// teaLockedWriter collects what a program writes from several goroutines.
+type teaLockedWriter struct {
+	mu  sync.Mutex
+	buf bytes.Buffer
+}
+
+func (w *teaLockedWriter) Write(p []byte) (int, error) {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	return w.buf.Write(p)
+}
+
+func (w *teaLockedWriter) String() string {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	return w.buf.String()
+}
+
+// teaRecording starts an Interactive whose program runs rec without a
+// terminal: it reads no input and writes to out. When the test ends, the
+// program is stopped unless Full already ended it.
+func teaRecording(t *testing.T, rec teaRecorder, out io.Writer) *Interactive {
+	t.Helper()
+	r := &Interactive{
+		writer:  io.Discard,
+		program: tea.NewProgram(rec, tea.WithInput(nil), tea.WithOutput(out), tea.WithoutSignalHandler()),
+	}
+	r.Start()
+	t.Cleanup(func() {
+		r.program.Quit()
+		r.wg.Wait()
+	})
+	return r
+}
+
+// teaReceived sends a mark through r's program and returns the messages the
+// program handled before it, in order.
+func teaReceived(r *Interactive, msgs <-chan tea.Msg) []tea.Msg {
+	r.program.Send(teaMark{})
+	var got []tea.Msg
+	for msg := range msgs {
+		if _, ok := msg.(teaMark); ok {
+			break
+		}
+		got = append(got, msg)
+	}
+	return got
+}
+
+// teaDrained returns the messages left in msgs after the program has ended.
+func teaDrained(msgs <-chan tea.Msg) []tea.Msg {
+	var got []tea.Msg
+	for {
+		select {
+		case msg := <-msgs:
+			got = append(got, msg)
+		default:
+			return got
+		}
+	}
+}
+
+// teaResult returns the message an Interactive sends for fr's summary.
+func teaResult(t *testing.T, fr *malcontent.FileReport) resultUpdateMsg {
+	t.Helper()
+	var b strings.Builder
+	renderFileSummaryTea(t.Context(), fr, &b)
+	return resultUpdateMsg{content: strings.TrimSpace(b.String()), isResult: true}
+}
+
+// teaCaptureStderr returns what run writes to os.Stderr. It swaps os.Stderr,
+// so callers must not run in parallel.
+func teaCaptureStderr(t *testing.T, run func()) string {
+	t.Helper()
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatalf("os.Pipe: got err = %v, want = nil", err)
+	}
+	stderr := os.Stderr
+	t.Cleanup(func() { os.Stderr = stderr })
+	os.Stderr = w
+	run()
+	os.Stderr = stderr
+	if err := w.Close(); err != nil {
+		t.Fatalf("close pipe writer: got err = %v, want = nil", err)
+	}
+	out, err := io.ReadAll(r)
+	if err != nil {
+		t.Fatalf("read pipe: got err = %v, want = nil", err)
+	}
+	if err := r.Close(); err != nil {
+		t.Fatalf("close pipe reader: got err = %v, want = nil", err)
+	}
+	return string(out)
+}
+
+// Start writes to os.Stderr, so this test swaps it and must not run in parallel.
+func TestInteractiveStartReportsRunErrors(t *testing.T) {
+	tests := []struct {
+		name       string
+		canceled   bool
+		wantPrefix string
+	}{
+		{name: "program that quits prints nothing"},
+		{name: "program that fails prints its error", canceled: true, wantPrefix: "Error running program: program was killed"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			opts := []tea.ProgramOption{tea.WithInput(nil), tea.WithOutput(io.Discard), tea.WithoutSignalHandler()}
+			if tt.canceled {
+				// A program whose context is already canceled stops at once with an error.
+				opts = append(opts, tea.WithContext(renderCanceledContext(t)))
+			}
+			r := &Interactive{writer: io.Discard, program: tea.NewProgram(teaRecorder{msgs: make(chan tea.Msg, 1)}, opts...)}
+			got := teaCaptureStderr(t, func() {
+				r.Start()
+				if !tt.canceled {
+					r.program.Quit()
+				}
+				r.wg.Wait()
+			})
+			if tt.wantPrefix == "" {
+				if got != "" {
+					t.Errorf("stderr: got = %q, want = empty", got)
+				}
+				return
+			}
+			if !strings.HasPrefix(got, tt.wantPrefix) || !strings.HasSuffix(got, "\n") {
+				t.Errorf("stderr: got = %q, want one line starting with %q", got, tt.wantPrefix)
+			}
+		})
+	}
+}
+
+func TestInteractiveScanningSendsThePath(t *testing.T) {
+	t.Parallel()
+	msgs := make(chan tea.Msg, 16)
+	r := teaRecording(t, teaRecorder{msgs: msgs}, io.Discard)
+	r.Scanning(renderCanceledContext(t), "/bin/canceled")
+	r.Scanning(t.Context(), "/bin/live")
+	want := []tea.Msg{scanUpdateMsg{path: "/bin/live"}}
+	if got := teaReceived(r, msgs); !slices.Equal(got, want) {
+		t.Errorf("messages: got = %v, want = %v", got, want)
+	}
+}
+
+func TestInteractiveFileSendsResults(t *testing.T) {
+	t.Parallel()
+	tool := &malcontent.FileReport{Path: "/bin/tool", RiskScore: 3, RiskLevel: report.LevelHIGH, Behaviors: []*malcontent.Behavior{
+		{ID: "net/connect", Description: "connects", RiskScore: 3, RiskLevel: report.LevelHIGH},
+	}}
+	tests := []struct {
+		name string
+		fr   *malcontent.FileReport
+		want []tea.Msg
+	}{
+		{name: "missing report sends nothing"},
+		{name: "report without behaviors sends nothing", fr: &malcontent.FileReport{Path: "/bin/empty"}},
+		{name: "skipped report is sent as a skip, not a result", fr: &malcontent.FileReport{Path: "/bin/skip\x1b", Skipped: "data\tfile"}, want: []tea.Msg{resultUpdateMsg{content: `skipped /bin/skip\x1b: data\tfile`}}},
+		{name: "report with one behavior is sent as a result", fr: tool, want: []tea.Msg{teaResult(t, tool)}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			msgs := make(chan tea.Msg, 16)
+			r := teaRecording(t, teaRecorder{msgs: msgs}, io.Discard)
+			if err := r.File(t.Context(), tt.fr); err != nil {
+				t.Fatalf("File: got err = %v, want = nil", err)
+			}
+			if got := teaReceived(r, msgs); !slices.Equal(got, tt.want) {
+				t.Errorf("messages: got = %v, want = %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestInteractiveFullSendsChangedFiles(t *testing.T) {
+	t.Parallel()
+	file := func(path string, n int, added, removed bool) *malcontent.FileReport {
+		fr := &malcontent.FileReport{Path: path, RiskScore: 2, RiskLevel: report.LevelMEDIUM}
+		for i := range n {
+			fr.Behaviors = append(fr.Behaviors, &malcontent.Behavior{
+				ID:          fmt.Sprintf("net/b%d", i),
+				Description: "does things",
+				RiskScore:   2,
+				RiskLevel:   report.LevelMEDIUM,
+				DiffAdded:   added,
+				DiffRemoved: removed,
+			})
+		}
+		return fr
+	}
+	removedOne, removedTwo := file("/old/one", 1, false, false), file("/old/two", 2, false, false)
+	addedOne := file("/new/one", 1, false, false)
+	modRemoved, modAdded := file("/mod/removed", 1, false, true), file("/mod/added", 1, true, false)
+	// Files that must be skipped come first in each section, so skipping one
+	// must not end its section.
+	diff := renderDiff(
+		[]*malcontent.FileReport{file("/old/empty", 0, false, false), removedOne, removedTwo},
+		[]*malcontent.FileReport{file("/new/empty", 0, false, false), addedOne},
+		[]*malcontent.FileReport{file("/mod/same", 2, false, false), modRemoved, modAdded},
+	)
+	tests := []struct {
+		name string
+		rep  *malcontent.Report
+		want []tea.Msg
+	}{
+		{name: "missing report only completes the scan", want: []tea.Msg{scanCompleteMsg{}}},
+		{name: "report without a diff only completes the scan", rep: &malcontent.Report{}, want: []tea.Msg{scanCompleteMsg{}}},
+		{name: "diff sends each file whose behaviors changed", rep: &malcontent.Report{Diff: diff}, want: []tea.Msg{
+			teaResult(t, removedOne), teaResult(t, removedTwo), teaResult(t, addedOne), teaResult(t, modRemoved), teaResult(t, modAdded), scanCompleteMsg{},
+		}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			msgs := make(chan tea.Msg, 16)
+			r := teaRecording(t, teaRecorder{msgs: msgs}, io.Discard)
+			if err := r.Full(t.Context(), &malcontent.Config{}, tt.rep); err != nil {
+				t.Fatalf("Full: got err = %v, want = nil", err)
+			}
+			// Full returns after the program has ended, so every message is in.
+			if got := teaDrained(msgs); !slices.Equal(got, tt.want) {
+				t.Errorf("messages: got = %v, want = %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestInteractiveFullWaitsForTheProgram(t *testing.T) {
+	t.Parallel()
+	msgs := make(chan tea.Msg, 16)
+	release := make(chan struct{})
+	out := &teaLockedWriter{}
+	r := teaRecording(t, teaRecorder{msgs: msgs, release: release}, out)
+	// Cleanups run last first, so this lets the program end before the
+	// recording's cleanup waits for it.
+	releaseProgram := sync.OnceFunc(func() { close(release) })
+	t.Cleanup(releaseProgram)
+
+	done := make(chan error, 1)
+	go func() { done <- r.Full(t.Context(), &malcontent.Config{}, nil) }()
+	// The program holds on to the completion message until it is released.
+	for msg := range msgs {
+		if _, ok := msg.(scanCompleteMsg); ok {
+			break
+		}
+	}
+	releaseProgram()
+	if err := <-done; err != nil {
+		t.Fatalf("Full: got err = %v, want = nil", err)
+	}
+	// Showing the cursor again is part of restoring the terminal, the last
+	// thing the program does before it returns.
+	if got := out.String(); !strings.Contains(got, "\x1b[?25h") {
+		t.Errorf("program output when Full returned: got = %q, want the cursor shown again", got)
 	}
 }

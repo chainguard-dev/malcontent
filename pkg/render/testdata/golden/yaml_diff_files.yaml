@@ -1,0 +1,493 @@
+diff:
+    added:
+        "/new/tool\e[2J":
+            path: "/new/tool\e[2J"
+            sha256: ""
+            size: 0
+            behaviors:
+                - description: writes files
+                  matchstrings:
+                    - evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-
+                  riskscore: 2
+                  risklevel: MEDIUM
+                  ruleurl: https://r/write
+                  id: fs/write
+            riskscore: 2
+            risklevel: MEDIUM
+    removed:
+        /old/empty:
+            path: /old/empty
+            sha256: ""
+            size: 0
+            riskscore: 0
+        /old/tool:
+            path: /old/tool
+            sha256: ""
+            size: 0
+            behaviors:
+                - description: connects
+                  matchstrings:
+                    - AF_INET
+                  riskscore: 3
+                  risklevel: HIGH
+                  ruleurl: https://r/connect
+                  id: net/connect
+                - description: reads files
+                  riskscore: 1
+                  risklevel: LOW
+                  ruleurl: https://r/read
+                  id: fs/read
+            riskscore: 3
+            risklevel: HIGH
+    modified:
+        /mod/changed:
+            path: /mod/changed
+            sha256: ""
+            size: 0
+            behaviors:
+                - description: binds a port
+                  riskscore: 1
+                  risklevel: LOW
+                  ruleurl: https://r/bind
+                  id: net/bind
+                - description: runs a shell - quickly
+                  matchstrings:
+                    - /bin/sh
+                    - evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-
+                  riskscore: 3
+                  risklevel: HIGH
+                  ruleurl: https://r/shell
+                  ruleauthor: Dee
+                  diffadded: true
+                  id: exec/shell
+                - description: reads files
+                  matchstrings:
+                    - fopen
+                  riskscore: 1
+                  risklevel: LOW
+                  ruleurl: https://r/read
+                  diffremoved: true
+                  id: fs/read
+                - description: uses AES
+                  riskscore: 2
+                  risklevel: MEDIUM
+                  ruleurl: https://r/aes
+                  diffadded: true
+                  diffremoved: true
+                  id: crypto/aes
+                - description: beacons
+                  riskscore: 0
+                  risklevel: NONE
+                  ruleurl: https://r/beacon
+                  diffremoved: true
+                  id: c2/beacon
+            previousriskscore: 1
+            previousrisklevel: LOW
+            riskscore: 3
+            risklevel: HIGH
+        /mod/new-name:
+            path: /mod/new-name
+            sha256: ""
+            size: 0
+            behaviors:
+                - description: uses RC4
+                  matchstrings:
+                    - rc4_init
+                  riskscore: 2
+                  risklevel: MEDIUM
+                  ruleurl: https://r/rc4
+                  diffadded: true
+                  id: crypto/rc4
+            previouspath: /mod/old-name
+            previousriskscore: 2
+            previousrisklevel: MEDIUM
+            riskscore: 2
+            risklevel: MEDIUM
+        /mod/same:
+            path: /mod/same
+            sha256: ""
+            size: 0
+            behaviors:
+                - description: listens
+                  riskscore: 1
+                  risklevel: LOW
+                  ruleurl: https://r/listen
+                  id: net/listen
+            riskscore: 1
+            risklevel: LOW
+        /mod/lowered:
+            path: /mod/lowered
+            sha256: ""
+            size: 0
+            behaviors:
+                - description: connects
+                  riskscore: 3
+                  risklevel: HIGH
+                  ruleurl: https://r/connect
+                  diffremoved: true
+                  id: net/connect
+                - description: binds a port
+                  riskscore: 1
+                  risklevel: LOW
+                  ruleurl: https://r/bind
+                  id: net/bind
+            previousriskscore: 3
+            previousrisklevel: HIGH
+            riskscore: 1
+            risklevel: LOW
+files:
+    "":
+        path: /empty-key
+        sha256: ""
+        size: 0
+        behaviors:
+            - description: connects
+              matchstrings:
+                - <b>&
+                - ' '
+              riskscore: 2
+              risklevel: MEDIUM
+              id: net/connect
+        riskscore: 2
+        risklevel: MEDIUM
+    /bin/empty:
+        path: /bin/empty
+        sha256: ""
+        size: 0
+        riskscore: 0
+    /opt/escapes:
+        path: /opt/escapes
+        sha256: ""
+        size: 0
+        behaviors:
+            - description: plain description
+              matchstrings:
+                - q
+              riskscore: 2
+              risklevel: MEDIUM
+              id: evasion/sweep-0-1
+              rulename: sweep_0_1
+            - description: plain description
+              matchstrings:
+                - qq
+              riskscore: 2
+              risklevel: MEDIUM
+              id: evasion/sweep-0-2
+              rulename: sweep_0_2
+            - description: plain description
+              matchstrings:
+                - qqq
+              riskscore: 2
+              risklevel: MEDIUM
+              id: evasion/sweep-0-3
+              rulename: sweep_0_3
+            - description: plain description
+              matchstrings:
+                - qqqq
+              riskscore: 2
+              risklevel: MEDIUM
+              id: evasion/sweep-0-4
+              rulename: sweep_0_4
+            - description: "ends in a partial escape \e["
+              matchstrings:
+                - 1mq
+              riskscore: 2
+              risklevel: MEDIUM
+              id: evasion/sweep-1-1
+              rulename: sweep_1_1
+            - description: "ends in a partial escape \e["
+              matchstrings:
+                - 1mqq
+              riskscore: 2
+              risklevel: MEDIUM
+              id: evasion/sweep-1-2
+              rulename: sweep_1_2
+            - description: "ends in a partial escape \e["
+              matchstrings:
+                - 1mqqq
+              riskscore: 2
+              risklevel: MEDIUM
+              id: evasion/sweep-1-3
+              rulename: sweep_1_3
+            - description: "ends in a partial escape \e["
+              matchstrings:
+                - 1mqqqq
+              riskscore: 2
+              risklevel: MEDIUM
+              id: evasion/sweep-1-4
+              rulename: sweep_1_4
+            - description: "ends in an escape byte \e"
+              matchstrings:
+                - '[0mq'
+              riskscore: 2
+              risklevel: MEDIUM
+              id: evasion/sweep-2-1
+              rulename: sweep_2_1
+            - description: "ends in an escape byte \e"
+              matchstrings:
+                - '[0mqq'
+              riskscore: 2
+              risklevel: MEDIUM
+              id: evasion/sweep-2-2
+              rulename: sweep_2_2
+            - description: "ends in an escape byte \e"
+              matchstrings:
+                - '[0mqqq'
+              riskscore: 2
+              risklevel: MEDIUM
+              id: evasion/sweep-2-3
+              rulename: sweep_2_3
+            - description: "ends in an escape byte \e"
+              matchstrings:
+                - '[0mqqqq'
+              riskscore: 2
+              risklevel: MEDIUM
+              id: evasion/sweep-2-4
+              rulename: sweep_2_4
+            - description: "has a whole escape \e[31mred\e[0m and \e[10Gcolumn"
+              matchstrings:
+                - 2;3Gq
+              riskscore: 2
+              risklevel: MEDIUM
+              id: evasion/sweep-3-1
+              rulename: sweep_3_1
+            - description: "has a whole escape \e[31mred\e[0m and \e[10Gcolumn"
+              matchstrings:
+                - 2;3Gqq
+              riskscore: 2
+              risklevel: MEDIUM
+              id: evasion/sweep-3-2
+              rulename: sweep_3_2
+            - description: "has a whole escape \e[31mred\e[0m and \e[10Gcolumn"
+              matchstrings:
+                - 2;3Gqqq
+              riskscore: 2
+              risklevel: MEDIUM
+              id: evasion/sweep-3-3
+              rulename: sweep_3_3
+            - description: "has a whole escape \e[31mred\e[0m and \e[10Gcolumn"
+              matchstrings:
+                - 2;3Gqqqq
+              riskscore: 2
+              risklevel: MEDIUM
+              id: evasion/sweep-3-4
+              rulename: sweep_3_4
+        riskscore: 2
+        risklevel: MEDIUM
+    "/tmp/naïve \U0001F608\e]0;title\a\\backslash":
+        path: "/tmp/naïve \U0001F608\e]0;title\a\\backslash"
+        sha256: ""
+        size: 0
+        behaviors:
+            - description: writes files
+              matchstrings:
+                - fopen
+              riskscore: 1
+              risklevel: LOW
+              id: fs/write
+              rulename: write
+        riskscore: 1
+        risklevel: LOW
+    /usr/bin/tool:
+        path: /usr/bin/tool
+        sha256: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+        size: 4096
+        meta:
+            arch: amd64
+            format: elf
+        syscalls:
+            - connect
+            - execve
+        behaviors:
+            - description: connects to a remote host - via TCP
+              matchstrings:
+                - connect
+                - AF_INET
+                - ab
+              riskscore: 2
+              risklevel: MEDIUM
+              ruleurl: https://r/connect
+              ruleauthor: Alice
+              id: net/socket/connect
+              rulename: net_connect
+            - description: contains a hardcoded URL. Often benign
+              matchstrings:
+                - https://example.com/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                - http://x.example/a|b
+              riskscore: 3
+              risklevel: HIGH
+              referenceurl: https://ref.example/url
+              id: c2/addr/url
+              rulename: url
+            - description: runs shell commands
+              matchstrings:
+                - /bin/sh
+                - sh -c
+                - $sh_var
+              riskscore: 4
+              risklevel: CRITICAL
+              ruleauthor: Bob
+              ruleauthorurl: https://bob.example
+              id: exec/shell
+              rulename: shell
+            - description: reads files
+              riskscore: 1
+              risklevel: LOW
+              id: fs/file/read
+              rulename: read
+            - description: hex-encoded payload
+              matchstrings:
+                - \x41\x42
+                - "evil\e[2Jpayload\ttab"
+                - "naïve \U0001F608 ‮rtl"
+              riskscore: 3
+              risklevel: HIGH
+              id: anti-static/obfuscation/hex
+              rulename: hex
+            - matchstrings:
+                - password
+                - credential
+              riskscore: 2
+              risklevel: MEDIUM
+              ruleauthor: Carol
+              id: sus/text
+              rulename: sus
+            - description: no slash in the ID
+              matchstrings:
+                - abcd
+                - abcde
+              riskscore: 0
+              risklevel: NONE
+              id: nonamespace
+              rulename: nons
+            - description: reads cpu info
+              matchstrings:
+                - cpuinfo
+              riskscore: 5
+              risklevel: EXTREME
+              id: hw/cpu
+              rulename: cpu
+            - description: calls getenv
+              matchstrings:
+                - getenv
+                - setenv
+              riskscore: -1
+              id: os/env/get
+              rulename: env
+            - description: resolves names
+              matchstrings:
+                - gethostbyname
+              riskscore: 1
+              risklevel: LOW
+              id: net/dns
+              rulename: dns
+            - description: collects files
+              matchstrings:
+                - glob
+              riskscore: 2
+              risklevel: MED
+              id: collect/files
+              rulename: collect
+            - description: names a family
+              matchstrings:
+                - family
+              riskscore: 4
+              risklevel: CRIT
+              id: malware/family
+              rulename: family
+            - description: writes files - often
+              matchstrings:
+                - fwrite
+                - fopen
+              riskscore: 2
+              risklevel: MEDIUM
+              ruleauthor: Dee
+              id: fs/file/write
+              rulename: write
+        riskscore: 4
+        risklevel: CRITICAL
+    <script>&amp;:
+        path: /html
+        sha256: ""
+        size: 0
+        behaviors:
+            - description: connects
+              matchstrings:
+                - <b>&
+                - ' '
+              riskscore: 2
+              risklevel: MEDIUM
+              id: net/connect
+        riskscore: 2
+        risklevel: MEDIUM
+    �invalid�:
+        path: /invalid
+        sha256: ""
+        size: 0
+        behaviors:
+            - description: connects
+              matchstrings:
+                - <b>&
+                - ' '
+              riskscore: 2
+              risklevel: MEDIUM
+              id: net/connect
+        riskscore: 2
+        risklevel: MEDIUM
+    bidikey:
+        path: /bidi
+        sha256: ""
+        size: 0
+        behaviors:
+            - description: connects
+              matchstrings:
+                - <b>&
+                - ' '
+              riskscore: 2
+              risklevel: MEDIUM
+              id: net/connect
+        riskscore: 2
+        risklevel: MEDIUM
+    dup:
+        path: /dup
+        sha256: ""
+        size: 0
+        behaviors:
+            - description: connects
+              matchstrings:
+                - <b>&
+                - ' '
+              riskscore: 2
+              risklevel: MEDIUM
+              id: net/connect
+        riskscore: 2
+        risklevel: MEDIUM
+    "quote\"back\\slash\ttab":
+        path: /escapes
+        sha256: ""
+        size: 0
+        behaviors:
+            - description: connects
+              matchstrings:
+                - <b>&
+                - ' '
+              riskscore: 2
+              risklevel: MEDIUM
+              id: net/connect
+        riskscore: 2
+        risklevel: MEDIUM
+    trimmed:
+        path: /trimmed
+        sha256: ""
+        size: 0
+        behaviors:
+            - description: connects
+              matchstrings:
+                - <b>&
+                - ' '
+              riskscore: 2
+              risklevel: MEDIUM
+              id: net/connect
+        riskscore: 2
+        risklevel: MEDIUM
+

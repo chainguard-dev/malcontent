@@ -5,39 +5,53 @@ package pool
 
 import (
 	"io/fs"
+	"runtime"
+	"slices"
 	"sync"
 	"testing"
 
 	yarax "github.com/VirusTotal/yara-x/go"
 	"github.com/chainguard-dev/malcontent/pkg/compile"
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/rules"
 	thirdparty "github.com/chainguard-dev/malcontent/third_party"
 )
 
+// FuzzBufferPoolConcurrent checks that concurrent holders never share a
+// buffer: each fills the buffer it holds with its own mark, yields, and
+// verifies that no other holder wrote to it before returning it.
 func FuzzBufferPoolConcurrent(f *testing.F) {
-	f.Add(int64(0), 4)
-	f.Add(int64(4096), 8)
-	f.Add(int64(65536), 2)
-	f.Add(int64(131072), 16)
-	f.Add(int64(1), 1)
+	f.Add(4, 8)
+	f.Add(1, 1)
+	f.Add(16, 2)
+	f.Add(32, 16)
 
-	f.Fuzz(func(t *testing.T, size int64, goroutines int) {
-		if size < 0 || size > 1024*1024 || goroutines < 1 || goroutines > 32 {
+	f.Fuzz(func(t *testing.T, goroutines, rounds int) {
+		if goroutines < 1 || goroutines > 32 || rounds < 1 || rounds > 64 {
 			return
 		}
 
-		bp := NewBufferPool(goroutines)
+		var bp BufferPool
 		var wg sync.WaitGroup
-		wg.Add(goroutines)
-
-		for range goroutines {
+		for id := range goroutines {
+			mark := byte(id)
 			wg.Go(func() {
-				defer wg.Done()
-				buf := bp.Get(size)
-				if int64(len(buf)) < size {
-					t.Errorf("buffer too small: got %d, want >= %d", len(buf), size)
+				for range rounds {
+					buf := bp.Get()
+					if len(buf) != int(file.ExtractBuffer) {
+						t.Errorf("buffer length: got = %d, want = %d", len(buf), file.ExtractBuffer)
+						return
+					}
+					for i := range buf {
+						buf[i] = mark
+					}
+					runtime.Gosched()
+					if i := slices.IndexFunc(buf, func(b byte) bool { return b != mark }); i >= 0 {
+						t.Errorf("byte %d of a held buffer: got = %d, want = %d", i, buf[i], mark)
+						return
+					}
+					bp.Put(buf)
 				}
-				bp.Put(buf)
 			})
 		}
 		wg.Wait()
@@ -86,11 +100,8 @@ func FuzzScannerPoolConcurrent(f *testing.F) {
 		defer sp.Close()
 
 		var wg sync.WaitGroup
-		wg.Add(goroutines)
-
 		for range goroutines {
 			wg.Go(func() {
-				defer wg.Done()
 				scanner := sp.Get(yrs)
 				if scanner == nil {
 					t.Error("Get returned nil scanner")

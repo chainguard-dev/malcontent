@@ -47,7 +47,18 @@ func findFilesRecursively(ctx context.Context, rootPath string) ([]string, error
 				logger.Debugf("error: %s: %s", path, err)
 				return nil
 			}
-			if info.IsDir() || strings.Contains(path, "/.git/") {
+			if info.IsDir() {
+				// Nothing below a .git directory is reported, so skip it
+				// rather than walking it. The exception is a .git directory
+				// named by the bare relative path ".git", as when walking
+				// ".": its entries lack the "/.git/" checked below, so they
+				// are reported.
+				if info.Name() == ".git" && path != ".git" {
+					return fs.SkipDir
+				}
+				return nil
+			}
+			if strings.Contains(path, "/.git/") {
 				return nil
 			}
 
@@ -66,10 +77,6 @@ func findFilesRecursively(ctx context.Context, rootPath string) ([]string, error
 // It only removes the prefix if it's at a directory boundary to avoid
 // partial matches (e.g., "/tmp/extract" should not match "/tmp/extract2/file").
 func CleanPath(path string, prefix string) string {
-	if prefix == "" {
-		return formatPath(path)
-	}
-
 	// Check if path starts with prefix
 	if !strings.HasPrefix(path, prefix) {
 		return formatPath(path)

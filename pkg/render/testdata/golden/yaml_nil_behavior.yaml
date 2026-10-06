@@ -1,0 +1,14 @@
+files:
+    /bin/nil:
+        path: /bin/nil
+        sha256: ""
+        size: 0
+        behaviors:
+            - null
+            - riskscore: 1
+              risklevel: LOW
+              id: net/connect
+            - null
+        riskscore: 1
+        risklevel: LOW
+

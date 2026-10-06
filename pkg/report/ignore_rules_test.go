@@ -70,6 +70,7 @@ func TestRuleExcluded(t *testing.T) {
 		{name: "empty pattern skipped", rule: "any", patterns: []string{"", "any"}, want: true},
 		{name: "whitespace pattern skipped", rule: "any", patterns: []string{"   ", "any"}, want: true},
 		{name: "trimmed pattern matches", rule: "py_lib_alias_val", patterns: []string{"  py_lib_alias_val  "}, want: true},
+		{name: "blank pattern does not exclude an empty name", rule: "", patterns: []string{" "}, want: false},
 	}
 
 	for _, tt := range tests {

@@ -4,6 +4,7 @@
 package render
 
 import (
+	"bytes"
 	"cmp"
 	"context"
 	"fmt"
@@ -37,16 +38,18 @@ var markdownTextEntities = map[byte]string{
 // left-aligned separator row.
 const markdownTableHeader = "| RISK | KEY | DESCRIPTION | EVIDENCE |\n|:--|:--|:--|:--|\n"
 
+// Markdown renders each file's behaviors as a GFM table. It is safe for
+// concurrent use: each File call writes its output with a single Write.
 type Markdown struct {
-	w io.Writer
+	out blockWriter
 }
 
-func NewMarkdown(w io.Writer) Markdown {
-	return Markdown{w: w}
+func NewMarkdown(w io.Writer) *Markdown {
+	return &Markdown{out: blockWriter{w: w}}
 }
 
 func mdRisk(score int, level string) string {
-	return fmt.Sprintf("%s %s", riskEmoji(score), level)
+	return riskEmoji(score) + " " + level
 }
 
 // escapeMarkdownCell makes untrusted s literal inside a GFM table cell. Control
@@ -65,17 +68,25 @@ func escapeMarkdownCell(s, special string, entities map[byte]string) string {
 			b.WriteString(entity)
 			continue
 		}
-		switch {
-		case c < 0x20 || c == 0x7f:
-			fmt.Fprintf(&b, "%%%02X", c)
-		case strings.IndexByte(special, c) >= 0:
-			b.WriteByte('\\')
-			b.WriteByte(c)
-		default:
-			b.WriteByte(c)
+		if c < 0x20 || c == 0x7f {
+			writePercent(&b, c)
+			continue
 		}
+		if strings.IndexByte(special, c) >= 0 {
+			b.WriteByte('\\')
+		}
+		b.WriteByte(c)
 	}
 	return b.String()
+}
+
+// writePercent writes c percent-encoded, as %XX. Writing through fmt would
+// move b to the heap.
+func writePercent(b *strings.Builder, c byte) {
+	const digits = "0123456789ABCDEF"
+	b.WriteByte('%')
+	b.WriteByte(digits[c>>4])
+	b.WriteByte(digits[c&0x0f])
 }
 
 // sanitizeMarkdown escapes untrusted s, such as a scanned file path or evidence,
@@ -120,8 +131,7 @@ func matchFragmentLink(s string) string {
 		return markdownURLLink(s)
 	}
 
-	safe := sanitizeMarkdown(s)
-	return fmt.Sprintf("[%s](https://github.com/search?q=%s&type=code)", safe, url.QueryEscape(s))
+	return "[" + sanitizeMarkdown(s) + "](https://github.com/search?q=" + url.QueryEscape(s) + "&type=code)"
 }
 
 // markdownURLLink links an untrusted URL to itself. The destination uses the
@@ -135,32 +145,36 @@ func markdownURLLink(s string) string {
 	dest.Grow(len(s))
 	for i := range len(s) {
 		c := s[i]
-		switch {
-		case c < 0x20 || c == 0x7f || strings.IndexByte(`<>\|`, c) >= 0:
-			fmt.Fprintf(&dest, "%%%02X", c)
-		case c == '&':
-			dest.WriteString(`\&`)
-		default:
-			dest.WriteByte(c)
+		if c < 0x20 || c == 0x7f || strings.IndexByte(`<>\|`, c) >= 0 {
+			writePercent(&dest, c)
+			continue
 		}
+		if c == '&' {
+			dest.WriteByte('\\')
+		}
+		dest.WriteByte(c)
 	}
-	return fmt.Sprintf("[%s](<%s>)", sanitizeMarkdown(s), dest.String())
+	return "[" + sanitizeMarkdown(s) + "](<" + dest.String() + ">)"
 }
 
-func (r Markdown) Name() string { return "Markdown" }
+func (r *Markdown) Name() string { return "Markdown" }
 
-func (r Markdown) Scanning(_ context.Context, _ string) {}
+func (r *Markdown) Scanning(_ context.Context, _ string) {}
 
-func (r Markdown) File(ctx context.Context, fr *malcontent.FileReport) error {
-	if fr.Skipped == "" && len(fr.Behaviors) > 0 {
-		if err := markdownTable(ctx, fr, r.w, tableConfig{Title: fmt.Sprintf("## %s [%s]", sanitizeMarkdown(fr.Path), mdRisk(fr.RiskScore, fr.RiskLevel))}); err != nil {
-			return err
-		}
+func (r *Markdown) File(ctx context.Context, fr *malcontent.FileReport) error {
+	if fr.Skipped != "" || len(fr.Behaviors) == 0 {
+		return nil
 	}
-	return nil
+
+	b := getBuffer()
+	defer putBuffer(b)
+	if err := markdownTable(ctx, fr, b, tableConfig{Title: "## " + sanitizeMarkdown(fr.Path) + " [" + mdRisk(fr.RiskScore, fr.RiskLevel) + "]"}); err != nil {
+		return err
+	}
+	return r.out.write(b.Bytes())
 }
 
-func (r Markdown) Full(ctx context.Context, _ *malcontent.Config, rep *malcontent.Report) error {
+func (r *Markdown) Full(ctx context.Context, _ *malcontent.Config, rep *malcontent.Report) error {
 	if ctx.Err() != nil {
 		return ctx.Err()
 	}
@@ -169,43 +183,57 @@ func (r Markdown) Full(ctx context.Context, _ *malcontent.Config, rep *malconten
 		return nil
 	}
 
-	for removed := rep.Diff.Removed.Oldest(); removed != nil; removed = removed.Next() {
+	b := getBuffer()
+	defer putBuffer(b)
+	// writeDiff writes each section once it is complete, so b holds output
+	// only when a table fails partway through a section. Write that start,
+	// so the output matches writing each piece as it is rendered, and return
+	// the table's error.
+	if err := r.writeDiff(ctx, rep.Diff, b); err != nil {
+		_ = r.out.flush(b)
+		return err
+	}
+	return nil
+}
+
+// writeDiff renders the sections of d into b and writes each file's section
+// once it is complete.
+func (r *Markdown) writeDiff(ctx context.Context, d *malcontent.DiffReport, b *bytes.Buffer) error {
+	for removed := d.Removed.Oldest(); removed != nil; removed = removed.Next() {
 		if len(removed.Value.Behaviors) == 0 {
 			continue
 		}
 
-		if err := markdownTable(ctx, removed.Value, r.w, tableConfig{Title: fmt.Sprintf("## Deleted: %s [%s]", sanitizeMarkdown(removed.Key), mdRisk(removed.Value.RiskScore, removed.Value.RiskLevel)), DiffRemoved: true}); err != nil {
+		if err := markdownTable(ctx, removed.Value, b, tableConfig{Title: "## Deleted: " + sanitizeMarkdown(removed.Key) + " [" + mdRisk(removed.Value.RiskScore, removed.Value.RiskLevel) + "]", DiffRemoved: true}); err != nil {
+			return err
+		}
+		if err := r.out.flush(b); err != nil {
 			return err
 		}
 	}
 
-	for added := rep.Diff.Added.Oldest(); added != nil; added = added.Next() {
+	for added := d.Added.Oldest(); added != nil; added = added.Next() {
 		if len(added.Value.Behaviors) == 0 {
 			continue
 		}
 
-		if err := markdownTable(ctx, added.Value, r.w, tableConfig{Title: fmt.Sprintf("## Added: %s [%s]", sanitizeMarkdown(added.Key), mdRisk(added.Value.RiskScore, added.Value.RiskLevel)), DiffAdded: true}); err != nil {
+		if err := markdownTable(ctx, added.Value, b, tableConfig{Title: "## Added: " + sanitizeMarkdown(added.Key) + " [" + mdRisk(added.Value.RiskScore, added.Value.RiskLevel) + "]", DiffAdded: true}); err != nil {
+			return err
+		}
+		if err := r.out.flush(b); err != nil {
 			return err
 		}
 	}
 
-	for modified := rep.Diff.Modified.Oldest(); modified != nil; modified = modified.Next() {
-		if len(modified.Value.Behaviors) == 0 {
-			continue
-		}
-
+	for modified := d.Modified.Oldest(); modified != nil; modified = modified.Next() {
 		added := 0
 		removed := 0
-		noDiff := 0
-		for _, b := range modified.Value.Behaviors {
-			if b.DiffAdded {
+		for _, bh := range modified.Value.Behaviors {
+			if bh.DiffAdded {
 				added++
 			}
-			if b.DiffRemoved {
+			if bh.DiffRemoved {
 				removed++
-			}
-			if !b.DiffAdded && !b.DiffRemoved {
-				noDiff++
 			}
 		}
 
@@ -214,10 +242,9 @@ func (r Markdown) Full(ctx context.Context, _ *malcontent.Config, rep *malconten
 		}
 
 		var title string
-		switch {
-		case modified.Value.PreviousPath != "":
+		if modified.Value.PreviousPath != "" {
 			title = fmt.Sprintf("## Moved (%d added, %d removed): %s -> %s", added, removed, sanitizeMarkdown(modified.Value.PreviousPath), sanitizeMarkdown(modified.Value.Path))
-		default:
+		} else {
 			title = fmt.Sprintf("## Changed (%d added, %d removed): %s", added, removed, sanitizeMarkdown(modified.Value.Path))
 		}
 
@@ -228,9 +255,8 @@ func (r Markdown) Full(ctx context.Context, _ *malcontent.Config, rep *malconten
 				mdRisk(modified.Value.RiskScore, modified.Value.RiskLevel))
 		}
 
-		if len(modified.Value.Behaviors) > 0 {
-			fmt.Fprint(r.w, title+"\n\n")
-		}
+		b.WriteString(title)
+		b.WriteString("\n\n")
 
 		// We split the added/removed up in Markdown to address readability feedback. Unfortunately,
 		// this means we hide "existing" behaviors, which causes context to suffer. We should evaluate an
@@ -244,7 +270,7 @@ func (r Markdown) Full(ctx context.Context, _ *malcontent.Config, rep *malconten
 			if count > 1 {
 				noun = "behaviors"
 			}
-			if err := markdownTable(ctx, modified.Value, r.w, tableConfig{
+			if err := markdownTable(ctx, modified.Value, b, tableConfig{
 				Title:        fmt.Sprintf("### %d %s %s", count, qual, noun),
 				SkipRemoved:  true,
 				SkipExisting: true,
@@ -261,7 +287,7 @@ func (r Markdown) Full(ctx context.Context, _ *malcontent.Config, rep *malconten
 			if count > 1 {
 				noun = "behaviors"
 			}
-			if err := markdownTable(ctx, modified.Value, r.w, tableConfig{
+			if err := markdownTable(ctx, modified.Value, b, tableConfig{
 				Title:        fmt.Sprintf("### %d %s %s", count, qual, noun),
 				SkipAdded:    true,
 				SkipExisting: true,
@@ -271,14 +297,16 @@ func (r Markdown) Full(ctx context.Context, _ *malcontent.Config, rep *malconten
 			}
 		}
 
-		if noDiff > 0 {
-			continue
+		if err := r.out.flush(b); err != nil {
+			return err
 		}
 	}
 	return nil
 }
 
-func markdownTable(ctx context.Context, fr *malcontent.FileReport, w io.Writer, rc tableConfig) error {
+// markdownTable writes fr's behaviors to b as a GFM table under rc.Title,
+// highest risk first, keeping the rows that rc selects.
+func markdownTable(ctx context.Context, fr *malcontent.FileReport, b *bytes.Buffer, rc tableConfig) error {
 	if ctx.Err() != nil {
 		return ctx.Err()
 	}
@@ -287,113 +315,125 @@ func markdownTable(ctx context.Context, fr *malcontent.FileReport, w io.Writer, 
 		return nil
 	}
 
-	kbs := make([]KeyedBehavior, 0, len(fr.Behaviors))
-	for _, b := range fr.Behaviors {
-		kbs = append(kbs, KeyedBehavior{Key: b.ID, Behavior: b})
-	}
-
-	if len(kbs) == 0 {
+	if len(fr.Behaviors) == 0 {
 		if fr.PreviousRelPath != "" && rc.Title != "" {
-			fmt.Fprintf(w, "%s\n\n", rc.Title)
+			b.WriteString(rc.Title)
+			b.WriteString("\n\n")
 		}
 		return nil
 	}
 
 	if rc.Title != "" {
-		fmt.Fprintf(w, "%s\n\n", rc.Title)
+		b.WriteString(rc.Title)
+		b.WriteString("\n\n")
+	}
+
+	kbs := make([]KeyedBehavior, 0, len(fr.Behaviors))
+	for _, bh := range fr.Behaviors {
+		kbs = append(kbs, KeyedBehavior{Key: bh.ID, Behavior: bh})
 	}
 
 	// Highest risk first, then by key.
-	slices.SortFunc(kbs, func(a, b KeyedBehavior) int {
+	slices.SortFunc(kbs, func(x, y KeyedBehavior) int {
 		return cmp.Or(
-			cmp.Compare(b.Behavior.RiskScore, a.Behavior.RiskScore),
-			cmp.Compare(a.Key, b.Key),
+			cmp.Compare(y.Behavior.RiskScore, x.Behavior.RiskScore),
+			cmp.Compare(x.Key, y.Key),
 		)
 	})
 
-	rows := make([][]string, 0, len(kbs))
+	// Each cell gets exactly one space of padding on each side and is
+	// otherwise written as given, so link destinations and other cell content
+	// are never altered.
+	b.WriteString(markdownTableHeader)
 	for _, k := range kbs {
-		desc := k.Behavior.Description
-		before, _, found := strings.Cut(desc, ". ")
-		if found {
-			desc = before
-		}
+		bh := k.Behavior
+		risk := bh.RiskLevel
 
-		if k.Behavior.ReferenceURL != "" {
-			desc = fmt.Sprintf("[%s](%s)", desc, k.Behavior.ReferenceURL)
-		}
-
-		if k.Behavior.RuleAuthor != "" {
-			author := k.Behavior.RuleAuthor
-			if k.Behavior.RuleAuthorURL != "" {
-				author = fmt.Sprintf("[%s](%s)", author, k.Behavior.RuleAuthorURL)
-			}
-
-			if desc != "" {
-				desc = fmt.Sprintf("%s, by %s", desc, author)
-			} else {
-				desc = fmt.Sprintf("by %s", author)
-			}
-		}
-
-		risk := k.Behavior.RiskLevel
-
-		if rc.SkipExisting && !k.Behavior.DiffAdded && !k.Behavior.DiffRemoved {
+		if rc.SkipExisting && !bh.DiffAdded && !bh.DiffRemoved {
 			continue
 		}
 
-		if (!k.Behavior.DiffRemoved && !k.Behavior.DiffAdded) || rc.NoDiff {
+		if (!bh.DiffRemoved && !bh.DiffAdded) || rc.NoDiff {
 			if rc.SkipNoDiff {
 				continue
 			}
 		}
 
-		if k.Behavior.DiffAdded || rc.DiffAdded {
+		if bh.DiffAdded || rc.DiffAdded {
 			if rc.SkipAdded {
 				continue
 			}
-			risk = fmt.Sprintf("+%s", risk)
+			risk = "+" + risk
 		}
-		if k.Behavior.DiffRemoved || rc.DiffRemoved {
+		if bh.DiffRemoved || rc.DiffRemoved {
 			if rc.SkipRemoved {
 				continue
 			}
-			risk = fmt.Sprintf("-%s", risk)
+			risk = "-" + risk
 		}
 
-		key := fmt.Sprintf("[%s](%s)", k.Key, k.Behavior.RuleURL)
+		key := "[" + k.Key + "](" + bh.RuleURL + ")"
 		if strings.HasPrefix(risk, "+") {
-			key = fmt.Sprintf("**%s**", key)
+			key = "**" + key + "**"
 		}
 
-		matchLinks := make([]string, 0, len(k.Behavior.MatchStrings))
-		for _, m := range k.Behavior.MatchStrings {
-			matchLinks = append(matchLinks, matchFragmentLink(m))
-		}
-		evidence := strings.Join(matchLinks, "<br>")
-		rows = append(rows, []string{risk, key, desc, evidence})
-	}
-
-	writeMarkdownTable(w, rows)
-	return nil
-}
-
-// writeMarkdownTable writes rows as a GFM table followed by a blank line. Each
-// cell gets exactly one space of padding on each side and is otherwise written
-// as given, so link destinations and other cell content are never altered.
-func writeMarkdownTable(w io.Writer, rows [][]string) {
-	var b strings.Builder
-	b.WriteString(markdownTableHeader)
-	for _, row := range rows {
 		b.WriteByte('|')
-		for _, cell := range row {
-			if cell = strings.TrimSpace(cell); cell != "" {
-				b.WriteString(" " + cell)
-			}
-			b.WriteString(" |")
-		}
+		writeMarkdownCell(b, risk)
+		writeMarkdownCell(b, key)
+		writeMarkdownCell(b, markdownDescription(bh))
+		writeMarkdownCell(b, markdownEvidence(bh.MatchStrings))
 		b.WriteByte('\n')
 	}
 	b.WriteByte('\n')
-	fmt.Fprint(w, b.String())
+	return nil
+}
+
+// markdownDescription returns the first sentence of bh's description, linked
+// to its reference and followed by its author.
+func markdownDescription(bh *malcontent.Behavior) string {
+	desc, _, _ := strings.Cut(bh.Description, ". ")
+
+	if bh.ReferenceURL != "" {
+		desc = "[" + desc + "](" + bh.ReferenceURL + ")"
+	}
+
+	if bh.RuleAuthor != "" {
+		author := bh.RuleAuthor
+		if bh.RuleAuthorURL != "" {
+			author = "[" + author + "](" + bh.RuleAuthorURL + ")"
+		}
+
+		if desc != "" {
+			desc += ", by " + author
+		} else {
+			desc = "by " + author
+		}
+	}
+	return desc
+}
+
+// markdownEvidence returns the links for matched strings, separated by line
+// breaks. A single link is returned as is, without copying it.
+func markdownEvidence(ms []string) string {
+	if len(ms) == 1 {
+		return matchFragmentLink(ms[0])
+	}
+	var b strings.Builder
+	for i, m := range ms {
+		if i > 0 {
+			b.WriteString("<br>")
+		}
+		b.WriteString(matchFragmentLink(m))
+	}
+	return b.String()
+}
+
+// writeMarkdownCell writes cell, without surrounding white space, and the
+// separator that ends it. An empty cell is a single space.
+func writeMarkdownCell(b *bytes.Buffer, cell string) {
+	if cell = strings.TrimSpace(cell); cell != "" {
+		b.WriteByte(' ')
+		b.WriteString(cell)
+	}
+	b.WriteString(" |")
 }

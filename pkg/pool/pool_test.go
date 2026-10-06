@@ -4,7 +4,6 @@
 package pool
 
 import (
-	"math"
 	"runtime"
 	"sync"
 	"testing"
@@ -13,163 +12,97 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/file"
 )
 
-func TestNewBufferPool(t *testing.T) {
-	t.Parallel()
-	tests := []struct {
-		name  string
-		count int
-	}{
-		{"zero count", 0},
-		{"single buffer", 1},
-		{"multiple buffers", 5},
-		{"many buffers", 20},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			bp := NewBufferPool(tt.count)
-			if bp == nil {
-				t.Fatal("NewBufferPool returned nil")
-			}
-
-			// Verify we can get buffers
-			buf := bp.Get(file.DefaultPoolBuffer)
-			if buf == nil {
-				t.Error("Get returned nil buffer")
-			}
-			if cap(buf) < int(file.DefaultPoolBuffer) {
-				t.Errorf("buffer capacity = %d, want >= %d", cap(buf), file.DefaultPoolBuffer)
-			}
-		})
-	}
-}
-
-func TestBufferPoolGet(t *testing.T) {
-	t.Parallel()
-	bp := NewBufferPool(2)
-
-	tests := []struct {
-		name     string
-		size     int64
-		wantSize int64
-	}{
-		{"negative size", -1, 1},
-		{"zero size", 0, 1},
-		{"small size", 100, 100},
-		{"default size", file.DefaultPoolBuffer, file.DefaultPoolBuffer},
-		{"large size", file.MaxPoolBuffer, file.MaxPoolBuffer},
-		{"very large size", file.MaxPoolBuffer * 2, file.MaxPoolBuffer * 2},
-		{"max int64", math.MaxInt64, 1},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			buf := bp.Get(tt.size)
-			if buf == nil {
-				t.Fatal("Get returned nil")
-			}
-
-			if int64(len(buf)) != tt.wantSize {
-				t.Errorf("buffer length = %d, want %d", len(buf), tt.wantSize)
-			}
-
-			if int64(cap(buf)) < tt.wantSize {
-				t.Errorf("buffer capacity = %d, want >= %d", cap(buf), tt.wantSize)
-			}
-
-			// Return buffer to pool
-			bp.Put(buf)
-		})
-	}
-}
-
-func TestBufferPoolGetExceedsCapacity(t *testing.T) {
-	t.Parallel()
-	bp := NewBufferPool(1)
-
-	// Get a small buffer
-	buf1 := bp.Get(1024)
-	if len(buf1) != 1024 {
-		t.Fatalf("first Get returned buffer of length %d, want 1024", len(buf1))
-	}
-
-	// Return it
-	bp.Put(buf1)
-
-	// Request a larger buffer - should get new buffer since capacity is insufficient
-	buf2 := bp.Get(file.MaxPoolBuffer * 2)
-	if len(buf2) != int(file.MaxPoolBuffer*2) {
-		t.Errorf("second Get returned buffer of length %d, want %d", len(buf2), file.MaxPoolBuffer*2)
-	}
-}
-
-func TestBufferPoolPut(t *testing.T) {
-	t.Parallel()
-	bp := NewBufferPool(2)
-
-	t.Run("put nil buffer", func(t *testing.T) {
-		t.Parallel()
-		// Should not panic
-		bp.Put(nil)
-	})
-
-	t.Run("put normal buffer", func(t *testing.T) {
-		t.Parallel()
-		buf := bp.Get(file.DefaultPoolBuffer)
-		// Modify buffer
-		for i := range buf {
-			buf[i] = byte(i % 256)
-		}
-
+// poolReturns reports whether bp hands back the buffer starting at &want[0]
+// from Get after buf is Put. sync.Pool may discard any single Put (the race
+// detector does so at random), so a retained buffer is detected by retrying,
+// while a dropped buffer never comes back and Get allocates a distinct one.
+func poolReturns(bp *BufferPool, buf, want []byte) bool {
+	for range 64 {
 		bp.Put(buf)
-
-		// Get buffer again and verify it was cleared
-		buf2 := bp.Get(file.DefaultPoolBuffer)
-		for i := range buf2 {
-			if buf2[i] != 0 {
-				t.Errorf("buffer not cleared at index %d: got %d, want 0", i, buf2[i])
-				break
-			}
+		if got := bp.Get(); &got[0] == &want[0] {
+			return true
 		}
-	})
-
-	t.Run("put buffer exceeding max pool size", func(t *testing.T) {
-		t.Parallel()
-		// Create a very large buffer
-		largeBuf := make([]byte, file.MaxPoolBuffer*2)
-		bp.Put(largeBuf)
-
-		// Get a normal buffer - should not get the large one back
-		buf := bp.Get(file.DefaultPoolBuffer)
-		if cap(buf) > int(file.MaxPoolBuffer*2) {
-			t.Error("got unexpectedly large buffer from pool")
-		}
-	})
+	}
+	return false
 }
 
-func TestBufferPoolConcurrency(t *testing.T) {
+func TestBufferPoolGetLength(t *testing.T) {
 	t.Parallel()
-	bp := NewBufferPool(5)
-	var wg sync.WaitGroup
-	iterations := 100
+	want := int(file.ExtractBuffer)
 
-	// Run multiple goroutines getting and putting buffers
-	for range 10 {
-		wg.Go(func() {
-			for range iterations {
-				buf := bp.Get(file.DefaultPoolBuffer)
-				// Simulate work
-				for k := range buf {
-					buf[k] = byte(k % 256)
-				}
-				bp.Put(buf)
+	var bp BufferPool
+	first := bp.Get()
+	if len(first) != want || cap(first) != want {
+		t.Errorf("new buffer: got len = %d, cap = %d, want = %d", len(first), cap(first), want)
+	}
+	if !poolReturns(&bp, first[:1], first) {
+		t.Fatal("pooled buffer: got = never reused, want = reused")
+	}
+	again := bp.Get()
+	if len(again) != want || cap(again) != want {
+		t.Errorf("reused buffer: got len = %d, cap = %d, want = %d", len(again), cap(again), want)
+	}
+}
+
+func TestBufferPoolPutRetention(t *testing.T) {
+	t.Parallel()
+	size := int(file.ExtractBuffer)
+
+	tests := []struct {
+		name string
+		// buf returns the slice to Put, given a buffer from Get.
+		buf        func(got []byte) []byte
+		wantReused bool
+	}{
+		{name: "buffer from Get is reused", buf: func(got []byte) []byte { return got }, wantReused: true},
+		{name: "buffer resliced from its start is reused", buf: func(got []byte) []byte { return got[:10] }, wantReused: true},
+		{name: "empty reslice from its start is reused", buf: func(got []byte) []byte { return got[:0] }, wantReused: true},
+		{name: "buffer resliced past its start is dropped", buf: func(got []byte) []byte { return got[1:] }},
+		{name: "smaller foreign buffer is dropped", buf: func([]byte) []byte { return make([]byte, size-1) }},
+		{name: "larger foreign buffer is dropped", buf: func([]byte) []byte { return make([]byte, size+1) }},
+		{name: "larger capacity behind a full-length slice is dropped", buf: func([]byte) []byte { return make([]byte, size, size+1) }},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			var bp BufferPool
+			buf := tt.buf(bp.Get())
+			want := buf[:cap(buf)]
+			if got := poolReturns(&bp, buf, want); got != tt.wantReused {
+				t.Errorf("buffer reused: got = %v, want = %v", got, tt.wantReused)
 			}
 		})
 	}
+}
 
-	wg.Wait()
+func TestBufferPoolPutIgnoresNil(t *testing.T) {
+	t.Parallel()
+	var bp BufferPool
+	bp.Put(nil)
+	if got := len(bp.Get()); got != int(file.ExtractBuffer) {
+		t.Errorf("buffer after Put(nil): got len = %d, want = %d", got, file.ExtractBuffer)
+	}
+}
+
+// TestBufferPoolKeepsContents pins that the pool never clears a buffer.
+// Callers overwrite a buffer before reading it, so clearing would only cost
+// time.
+func TestBufferPoolKeepsContents(t *testing.T) {
+	t.Parallel()
+	var bp BufferPool
+	buf := bp.Get()
+	for i := range buf {
+		buf[i] = byte(i%251 + 1)
+	}
+	if !poolReturns(&bp, buf, buf) {
+		t.Fatal("pooled buffer: got = never reused, want = reused")
+	}
+	for i, b := range buf {
+		if want := byte(i%251 + 1); b != want {
+			t.Fatalf("byte %d after reuse: got = %d, want = %d", i, b, want)
+		}
+	}
 }
 
 func TestNewScannerPool(t *testing.T) {
@@ -335,32 +268,36 @@ func TestScannerPoolPut(t *testing.T) {
 	})
 }
 
-func TestScannerPoolClose(t *testing.T) {
+func TestScannerPoolCloseDestroysScanners(t *testing.T) {
 	t.Parallel()
-	compiler, err := yarax.NewCompiler()
+	rules, err := yarax.Compile("rule pool_close { condition: true }")
 	if err != nil {
-		t.Fatalf("failed to create compiler: %v", err)
+		t.Fatalf("compile test rule: %v", err)
 	}
-
-	err = compiler.AddSource(`
-		rule test_rule {
-			strings:
-				$a = "test"
-			condition:
-				$a
-		}
-	`)
-	if err != nil {
-		t.Fatalf("failed to add rule: %v", err)
-	}
-
-	rules := compiler.Build()
-	defer rules.Destroy()
+	t.Cleanup(rules.Destroy)
 
 	sp := NewScannerPool(rules, 2)
+	held := make([]*yarax.Scanner, 0, cap(sp.scanners))
+	for range cap(sp.scanners) {
+		held = append(held, sp.Get(rules))
+	}
+	for i, scanner := range held {
+		if _, err := scanner.Scan([]byte("data")); err != nil {
+			t.Fatalf("scan with scanner %d before Close: got err = %v, want = nil", i, err)
+		}
+		sp.Put(scanner)
+	}
 
 	sp.Close()
-	sp.Close() // Should not panic
+	sp.Close() // A second Close does nothing.
+
+	// A destroyed scanner has no native scanner left, so scanning with it
+	// fails instead of matching.
+	for i, scanner := range held {
+		if _, err := scanner.Scan([]byte("data")); err == nil {
+			t.Errorf("scan with scanner %d after Close: got err = nil, want = error from a destroyed scanner", i)
+		}
+	}
 }
 
 func TestScannerPoolConcurrency(t *testing.T) {
@@ -402,92 +339,6 @@ func TestScannerPoolConcurrency(t *testing.T) {
 	}
 
 	wg.Wait()
-}
-
-func TestBufferPoolGetReusesSufficientCapacity(t *testing.T) {
-	t.Parallel()
-	tests := []struct {
-		name      string
-		size      int64
-		wantReuse bool
-	}{
-		{"request below pooled capacity reuses the buffer", 16, true},
-		{"request equal to pooled capacity reuses the buffer", 64, true},
-		{"request above pooled capacity allocates a new buffer", 65, false},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			pooled := make([]byte, 8, 64)
-			bp := &BufferPool{}
-			bp.pool.New = func() any { return &pooled }
-
-			got := bp.Get(tt.size)
-			if int64(len(got)) != tt.size {
-				t.Fatalf("buffer length: got = %d, want = %d", len(got), tt.size)
-			}
-			if reused := &got[0] == &pooled[0]; reused != tt.wantReuse {
-				t.Errorf("reused pooled buffer: got = %v, want = %v", reused, tt.wantReuse)
-			}
-		})
-	}
-}
-
-func TestBufferPoolPutClearsCallerBuffer(t *testing.T) {
-	t.Parallel()
-	bp := NewBufferPool(0)
-	buf := []byte{1, 2, 3, 4}
-
-	bp.Put(buf)
-
-	for i, b := range buf {
-		if b != 0 {
-			t.Errorf("buf[%d]: got = %d, want = 0", i, b)
-		}
-	}
-}
-
-func TestBufferPoolPutRetainsBuffersUpToMaxPoolBuffer(t *testing.T) {
-	t.Parallel()
-	tests := []struct {
-		name       string
-		capacity   int64
-		wantPooled bool
-	}{
-		{"default capacity is retained", file.DefaultPoolBuffer, true},
-		{"capacity equal to MaxPoolBuffer is retained", file.MaxPoolBuffer, true},
-		{"capacity above MaxPoolBuffer is dropped", file.MaxPoolBuffer + 1, false},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			bp := &BufferPool{}
-			bp.pool.New = func() any {
-				fresh := make([]byte, 1)
-				return &fresh
-			}
-
-			if got := smallPoolReturnsBuffer(bp, make([]byte, tt.capacity)); got != tt.wantPooled {
-				t.Errorf("buffer retained by pool: got = %v, want = %v", got, tt.wantPooled)
-			}
-		})
-	}
-}
-
-// smallPoolReturnsBuffer reports whether bp hands buf back from Get after Put.
-// sync.Pool may discard any single Put (the race detector does so at random),
-// so a retained buffer is detected by retrying, while a dropped buffer never
-// comes back and the New fallback supplies a distinct one each time.
-func smallPoolReturnsBuffer(bp *BufferPool, buf []byte) bool {
-	for range 64 {
-		bp.Put(buf)
-		if got := bp.Get(1); &got[0] == &buf[0] {
-			return true
-		}
-	}
-	return false
 }
 
 func TestScannerPoolGetDrawsFromPool(t *testing.T) {

@@ -13,7 +13,6 @@ import (
 	"path/filepath"
 
 	"github.com/chainguard-dev/clog"
-	"github.com/chainguard-dev/malcontent/pkg/file"
 )
 
 // extractZlib extracts extension-agnostic zlib-compressed files.
@@ -34,8 +33,8 @@ func ExtractZlib(ctx context.Context, d string, f string) error {
 		return nil
 	}
 
-	buf := archivePool.Get(file.ExtractBuffer) //nolint:nilaway // the buffer pool is created in archive.go
-	defer archivePool.Put(buf)
+	buf := extractPool.Get()
+	defer extractPool.Put(buf)
 
 	// Enforce a byte and ratio ceiling against the single decompressed stream.
 	// InputBytes seeds the ratio denominator from the compressed file size.
@@ -61,7 +60,7 @@ func ExtractZlib(ctx context.Context, d string, f string) error {
 	}
 	defer root.Close()
 
-	zr, err := zlib.NewReader(zf)
+	zr, err := zlib.NewReader(bufferInput(zf))
 	if err != nil {
 		return fmt.Errorf("failed to create zlib reader: %w", err)
 	}

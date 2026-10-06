@@ -13,7 +13,6 @@ import (
 	"strings"
 
 	"github.com/chainguard-dev/clog"
-	"github.com/chainguard-dev/malcontent/pkg/file"
 	bzip2 "github.com/cosnicolaou/pbzip2"
 )
 
@@ -35,8 +34,8 @@ func ExtractBz2(ctx context.Context, d, f string) error {
 		return nil
 	}
 
-	buf := archivePool.Get(file.ExtractBuffer) //nolint:nilaway // the buffer pool is created in archive.go
-	defer archivePool.Put(buf)
+	buf := extractPool.Get()
+	defer extractPool.Put(buf)
 
 	// Enforce a byte and ratio ceiling against the single decompressed stream.
 	// InputBytes seeds the ratio denominator from the compressed file size.

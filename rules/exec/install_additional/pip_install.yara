@@ -66,7 +66,7 @@ rule pip_installer_url: critical {
   condition:
     // The three langchain strings are one docstring: comment2 is the bare
     // generic "example : ", so only the whole set identifies that file.
-    filesize < 8192 and $ref and not all of ($not_langchain_comment*) and none of ($not_mlflow_docker) and (hash.sha256(0, filesize) != "f6a373322759ccc2736fb25d25d8c402dfe16b5d9a57cfccb1ca8cb136e09663")
+    filesize < 8192 and $ref and not all of ($not_langchain_comment*) and none of ($not_mlflow_docker) and (file_sha256 != "f6a373322759ccc2736fb25d25d8c402dfe16b5d9a57cfccb1ca8cb136e09663")
 }
 
 rule pip_installer_socket: critical {

@@ -11,234 +11,259 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"testing/iotest"
 )
+
+// errRead stands in for an I/O error partway through a read.
+var errRead = errors.New("read failed")
+
+// deterministicBytes returns n bytes filled with a non-trivial repeating
+// pattern so test assertions catch silent truncation or duplication.
+func deterministicBytes(n int) []byte {
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = byte((i*31 + 7) & 0xff)
+	}
+	return b
+}
+
+// writeTemp writes content to a new file under tb.TempDir and returns its
+// path.
+func writeTemp(tb testing.TB, content []byte) string {
+	tb.Helper()
+	p := filepath.Join(tb.TempDir(), "f")
+	if err := os.WriteFile(p, content, 0o600); err != nil {
+		tb.Fatalf("WriteFile(%q): %v", p, err)
+	}
+	return p
+}
+
+// openTemp writes content to a new file and returns it open for reading. The
+// file is closed when the test ends.
+func openTemp(tb testing.TB, content []byte) *os.File {
+	tb.Helper()
+	p := writeTemp(tb, content)
+	f, err := os.Open(p) // #nosec G304 -- test fixture under tb.TempDir
+	if err != nil {
+		tb.Fatalf("Open(%q): %v", p, err)
+	}
+	tb.Cleanup(func() { _ = f.Close() })
+	return f
+}
 
 func TestGetContents(t *testing.T) {
 	t.Parallel()
+	marked := append([]byte("START"), deterministicBytes(10<<20)...)
 	tests := []struct {
-		name        string
-		content     []byte
-		bufSize     int64
-		wantErr     bool
-		wantLen     int
-		wantContent []byte
+		name    string
+		content []byte
 	}{
-		{
-			name:        "empty file",
-			content:     []byte{},
-			bufSize:     DefaultPoolBuffer,
-			wantErr:     false,
-			wantLen:     0,
-			wantContent: []byte{},
-		},
-		{
-			name:        "small file",
-			content:     []byte("hello world"),
-			bufSize:     DefaultPoolBuffer,
-			wantErr:     false,
-			wantLen:     11,
-			wantContent: []byte("hello world"),
-		},
-		{
-			name:        "file with buffer size 1KB",
-			content:     make([]byte, 1024),
-			bufSize:     1024,
-			wantErr:     false,
-			wantLen:     1024,
-			wantContent: make([]byte, 1024),
-		},
-		{
-			name:        "file larger than buffer",
-			content:     make([]byte, 8192),
-			bufSize:     DefaultPoolBuffer,
-			wantErr:     false,
-			wantLen:     8192,
-			wantContent: make([]byte, 8192),
-		},
-		{
-			name:        "file at ReadBuffer size",
-			content:     make([]byte, ReadBuffer),
-			bufSize:     ReadBuffer,
-			wantErr:     false,
-			wantLen:     int(ReadBuffer),
-			wantContent: make([]byte, ReadBuffer),
-		},
-		{
-			name:        "file with ExtractBuffer size",
-			content:     make([]byte, ExtractBuffer),
-			bufSize:     ExtractBuffer,
-			wantErr:     false,
-			wantLen:     int(ExtractBuffer),
-			wantContent: make([]byte, ExtractBuffer),
-		},
-		{
-			name:        "file with MaxPoolBuffer size",
-			content:     make([]byte, MaxPoolBuffer),
-			bufSize:     MaxPoolBuffer,
-			wantErr:     false,
-			wantLen:     int(MaxPoolBuffer),
-			wantContent: make([]byte, MaxPoolBuffer),
-		},
-		{
-			name:        "file with null bytes",
-			content:     []byte{0, 1, 2, 0, 3, 4, 0},
-			bufSize:     DefaultPoolBuffer,
-			wantErr:     false,
-			wantLen:     7,
-			wantContent: []byte{0, 1, 2, 0, 3, 4, 0},
-		},
-		{
-			name:        "file with unicode content",
-			content:     []byte("Hello 世界 🌍"),
-			bufSize:     DefaultPoolBuffer,
-			wantErr:     false,
-			wantLen:     17,
-			wantContent: []byte("Hello 世界 🌍"),
-		},
-		{
-			name:        "small buffer still works",
-			content:     []byte("test content"),
-			bufSize:     4,
-			wantErr:     false,
-			wantLen:     12,
-			wantContent: []byte("test content"),
-		},
+		{"empty file", []byte{}},
+		{"small file", []byte("hello world")},
+		{"1 KiB file", make([]byte, 1024)},
+		{"8 KiB file", deterministicBytes(8192)},
+		{"64 KiB file", make([]byte, 64<<10)},
+		{"file one byte past 64 KiB", deterministicBytes(64<<10 + 1)},
+		{"128 KiB file", make([]byte, 128<<10)},
+		{"file with null bytes", []byte{0, 1, 2, 0, 3, 4, 0}},
+		{"file with unicode content", []byte("Hello 世界 🌍")},
+		{"1 MiB file", deterministicBytes(1 << 20)},
+		{"10 MiB file with a leading marker", marked},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			tmpDir := t.TempDir()
-			tmpFile := filepath.Join(tmpDir, "testfile")
-
-			if err := os.WriteFile(tmpFile, tt.content, 0o644); err != nil {
-				t.Fatalf("failed to create test file: %v", err)
-			}
-
-			f, err := os.Open(tmpFile)
+			got, err := GetContents(openTemp(t, tt.content))
 			if err != nil {
-				t.Fatalf("failed to open test file: %v", err)
+				t.Fatalf("GetContents() error: got = %v, want = nil", err)
 			}
-			defer f.Close()
-
-			buf := make([]byte, tt.bufSize)
-
-			got, err := GetContents(f, buf)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("GetContents() error = %v, wantErr %v", err, tt.wantErr)
-				return
+			if len(got) != len(tt.content) {
+				t.Errorf("GetContents() length: got = %d, want = %d", len(got), len(tt.content))
 			}
-
-			if len(got) != tt.wantLen {
-				t.Errorf("GetContents() returned %d bytes, want %d", len(got), tt.wantLen)
-			}
-
-			if !bytes.Equal(got, tt.wantContent) {
-				t.Errorf("GetContents() content mismatch")
+			if !bytes.Equal(got, tt.content) {
+				t.Errorf("GetContents() content: got = %d bytes differing from the %d written", len(got), len(tt.content))
 			}
 		})
 	}
 }
 
+func TestGetContentsSparseFile(t *testing.T) {
+	t.Parallel()
+	const size = int64(17 << 20)
+	p := writeTemp(t, nil)
+	if err := os.Truncate(p, size); err != nil {
+		t.Fatalf("Truncate(%q): %v", p, err)
+	}
+	f, err := os.Open(p) // #nosec G304 -- test fixture under t.TempDir
+	if err != nil {
+		t.Fatalf("Open(%q): %v", p, err)
+	}
+	defer f.Close()
+
+	got, err := GetContents(f)
+	if err != nil {
+		t.Fatalf("GetContents() error: got = %v, want = nil", err)
+	}
+	if int64(len(got)) != size {
+		t.Errorf("GetContents() length: got = %d, want = %d", len(got), size)
+	}
+}
+
+func TestGetContentsReadsFromTheCurrentOffset(t *testing.T) {
+	t.Parallel()
+	content := deterministicBytes(4096)
+	f := openTemp(t, content)
+	if _, err := f.Seek(100, io.SeekStart); err != nil {
+		t.Fatalf("Seek: %v", err)
+	}
+
+	got, err := GetContents(f)
+	if err != nil {
+		t.Fatalf("GetContents() error: got = %v, want = nil", err)
+	}
+	if !bytes.Equal(got, content[100:]) {
+		t.Errorf("GetContents() content: got = %d bytes, want = the last %d bytes", len(got), len(content)-100)
+	}
+}
+
 func TestGetContentsClosedFile(t *testing.T) {
 	t.Parallel()
-	tmpDir := t.TempDir()
-	tmpFile := filepath.Join(tmpDir, "testfile")
-
-	if err := os.WriteFile(tmpFile, []byte("test"), 0o644); err != nil {
-		t.Fatalf("failed to create test file: %v", err)
-	}
-
-	f, err := os.Open(tmpFile)
+	f, err := os.Open(writeTemp(t, []byte("test")))
 	if err != nil {
-		t.Fatalf("failed to open test file: %v", err)
+		t.Fatalf("Open: %v", err)
+	}
+	if err := f.Close(); err != nil {
+		t.Fatalf("Close: %v", err)
 	}
 
-	f.Close()
-
-	buf := make([]byte, DefaultPoolBuffer)
-	_, err = GetContents(f, buf)
-	if err == nil {
-		t.Error("GetContents() should error on closed file, got nil error")
+	if _, err := GetContents(f); err == nil {
+		t.Errorf("GetContents() error on a closed file: got = nil, want = an error")
 	}
 }
 
-func TestGetContentsMaxBytesLimit(t *testing.T) {
+func TestGetContentsNonRegular(t *testing.T) {
 	t.Parallel()
-	tmpDir := t.TempDir()
-	tmpFile := filepath.Join(tmpDir, "largefile")
-
-	f, err := os.Create(tmpFile)
+	// A pipe is not a regular file, so it is read to EOF rather than by its
+	// Stat size.
+	r, w, err := os.Pipe()
 	if err != nil {
-		t.Fatalf("failed to create test file: %v", err)
+		t.Fatalf("Pipe: %v", err)
 	}
+	defer r.Close()
 
-	testPattern := []byte("START")
-	if _, err := f.Write(testPattern); err != nil {
-		f.Close()
-		t.Fatalf("failed to write to test file: %v", err)
-	}
+	payload := []byte("non-regular payload")
+	go func() {
+		_, _ = w.Write(payload)
+		_ = w.Close()
+	}()
 
-	chunkSize := 1024 * 1024
-	chunk := make([]byte, chunkSize)
-	for i := range chunk {
-		chunk[i] = byte(i % 256)
-	}
-
-	for range 10 {
-		if _, err := f.Write(chunk); err != nil {
-			f.Close()
-			t.Fatalf("failed to write chunk: %v", err)
-		}
-	}
-
-	f.Close()
-
-	f, err = os.Open(tmpFile)
+	got, err := GetContents(r)
 	if err != nil {
-		t.Fatalf("failed to open test file: %v", err)
+		t.Fatalf("GetContents() error on a pipe: got = %v, want = nil", err)
 	}
-	defer f.Close()
-
-	buf := make([]byte, ExtractBuffer)
-	got, err := GetContents(f, buf)
-	if err != nil {
-		t.Fatalf("GetContents() error = %v", err)
-	}
-
-	expectedSize := 5 + (10 * chunkSize)
-	if len(got) != expectedSize {
-		t.Errorf("GetContents() read %d bytes, want %d", len(got), expectedSize)
-	}
-
-	if string(got[:5]) != "START" {
-		t.Errorf("GetContents() start pattern = %q, want %q", got[:5], "START")
+	if !bytes.Equal(got, payload) {
+		t.Errorf("GetContents() on a pipe: got = %q, want = %q", got, payload)
 	}
 }
 
-func TestGetContentsNilBuffer(t *testing.T) {
+// TestReadUpTo drives the sized read behind GetContents with a stat size that
+// disagrees with the content, as when a file grows or shrinks between Stat and
+// the read, and with a limit small enough to reach.
+func TestReadUpTo(t *testing.T) {
 	t.Parallel()
-	tmpDir := t.TempDir()
-	tmpFile := filepath.Join(tmpDir, "testfile")
-
-	if err := os.WriteFile(tmpFile, []byte("test content"), 0o644); err != nil {
-		t.Fatalf("failed to create test file: %v", err)
+	content := deterministicBytes(100)
+	tests := []struct {
+		name    string
+		content []byte
+		size    int64
+		limit   int64
+		want    []byte
+	}{
+		{"size matches the content", content, 100, 1000, content},
+		{"content grew after stat", content, 40, 1000, content},
+		{"content grew by one byte after stat", content, 99, 1000, content},
+		{"content grew from an empty stat", content, 0, 1000, content},
+		{"content shrank after stat", content[:40], 100, 1000, content[:40]},
+		{"content emptied after stat", nil, 100, 1000, []byte{}},
+		{"negative stat size", content, -1, 1000, content},
+		{"content past the limit is not read", content, 100, 64, content[:64]},
+		{"growth past the limit is not read", content, 10, 64, content[:64]},
+		{"stat size past the limit", content, 1000, 64, content[:64]},
+		{"stat size exactly at the limit", content, 64, 64, content[:64]},
+		{"content one byte short of the limit", content[:63], 63, 64, content[:63]},
 	}
 
-	f, err := os.Open(tmpFile)
-	if err != nil {
-		t.Fatalf("failed to open test file: %v", err)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got, err := readUpTo(bytes.NewReader(tt.content), tt.size, tt.limit)
+			if err != nil {
+				t.Fatalf("readUpTo() error: got = %v, want = nil", err)
+			}
+			if !bytes.Equal(got, tt.want) {
+				t.Errorf("readUpTo() content: got = %d bytes, want = %d bytes", len(got), len(tt.want))
+			}
+		})
 	}
-	defer f.Close()
+}
 
-	got, err := GetContents(f, nil)
-	if err != nil {
-		t.Fatalf("GetContents() with nil buffer error = %v", err)
+func TestReadLengths(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name      string
+		size      int64
+		limit     int64
+		wantSize  int64
+		wantFirst int64
+	}{
+		{"size under the limit", 100, 1000, 100, 101},
+		{"empty size", 0, 1000, 0, 1},
+		{"negative size counts as empty", -1, 1000, 0, 1},
+		{"size one under the limit", 63, 64, 63, 64},
+		{"size at the limit", 64, 64, 64, 64},
+		{"size past the limit", 1000, 64, 64, 64},
+		{"largest int64 size", math.MaxInt64, 64, 64, 64},
 	}
 
-	want := []byte("test content")
-	if !bytes.Equal(got, want) {
-		t.Errorf("GetContents() = %q, want %q", got, want)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			gotSize, gotFirst := readLengths(tt.size, tt.limit)
+			if gotSize != tt.wantSize {
+				t.Errorf("readLengths(%d, %d) size: got = %d, want = %d", tt.size, tt.limit, gotSize, tt.wantSize)
+			}
+			if gotFirst != tt.wantFirst {
+				t.Errorf("readLengths(%d, %d) first read: got = %d, want = %d", tt.size, tt.limit, gotFirst, tt.wantFirst)
+			}
+		})
+	}
+}
+
+func TestReadUpToReadErrors(t *testing.T) {
+	t.Parallel()
+	content := deterministicBytes(100)
+	tests := []struct {
+		name string
+		r    io.Reader
+		size int64
+	}{
+		{"error before any byte", iotest.ErrReader(errRead), 100},
+		{"error before the stat size", io.MultiReader(bytes.NewReader(content[:10]), iotest.ErrReader(errRead)), 100},
+		{"error while reading growth past the stat size", io.MultiReader(bytes.NewReader(content), iotest.ErrReader(errRead)), 10},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got, err := readUpTo(tt.r, tt.size, MaxBytes)
+			if !errors.Is(err, errRead) {
+				t.Errorf("readUpTo() error: got = %v, want = %v", err, errRead)
+			}
+			if got != nil {
+				t.Errorf("readUpTo() content on error: got = %d bytes, want = nil", len(got))
+			}
+		})
 	}
 }
 
@@ -293,6 +318,14 @@ func TestArchiveCounter_RatioOverflowGuard(t *testing.T) {
 	})
 }
 
+func TestArchiveCounter_NilAddIsNoOp(t *testing.T) {
+	t.Parallel()
+	var c *ArchiveCounter
+	if err := c.Add(math.MaxInt); err != nil {
+		t.Errorf("Add() on a nil counter: got = %v, want = nil", err)
+	}
+}
+
 func TestArchiveCounter_AddZeroBytes(t *testing.T) {
 	t.Parallel()
 	c := &ArchiveCounter{MaxBytes: 100, MaxRatio: 10, InputBytes: 50}
@@ -308,376 +341,26 @@ func TestConstants(t *testing.T) {
 		got  int64
 		want int64
 	}{
-		{"DefaultPoolBuffer", DefaultPoolBuffer, 4 * 1024},
 		{"ExtractBuffer", ExtractBuffer, 64 * 1024},
-		{"MaxPoolBuffer", MaxPoolBuffer, 128 * 1024},
 		{"MaxBytes", MaxBytes, 1 << 32},
-		{"ReadBuffer", ReadBuffer, 64 * 1024},
-		{"ZipBuffer", ZipBuffer, 2 * 1024},
+		{"DefaultMaxArchiveBytes", DefaultMaxArchiveBytes, 32 << 30},
+		{"mapThreshold", mapThreshold, 32_000_000},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			if tt.got != tt.want {
-				t.Errorf("%s = %d, want %d", tt.name, tt.got, tt.want)
+				t.Errorf("%s: got = %d, want = %d", tt.name, tt.got, tt.want)
 			}
 		})
 	}
-}
-
-// writeTempFile materializes the supplied bytes to disk and returns an open
-// read handle. Callers own closing the returned file.
-func writeTempFile(t *testing.T, content []byte) *os.File {
-	t.Helper()
-	tmp := filepath.Join(t.TempDir(), "f")
-	if err := os.WriteFile(tmp, content, 0o644); err != nil {
-		t.Fatalf("WriteFile: %v", err)
-	}
-	f, err := os.Open(tmp)
-	if err != nil {
-		t.Fatalf("Open: %v", err)
-	}
-	return f
-}
-
-// deterministicBytes returns n bytes filled with a non-trivial repeating
-// pattern so test assertions catch silent truncation or duplication.
-func deterministicBytes(n int) []byte {
-	b := make([]byte, n)
-	for i := range b {
-		b[i] = byte((i*31 + 7) & 0xff)
-	}
-	return b
-}
-
-func TestGetContentsSmallFile(t *testing.T) {
-	t.Parallel()
-	content := deterministicBytes(8 * 1024)
-	f := writeTempFile(t, content)
-	defer f.Close()
-
-	buf := make([]byte, DefaultPoolBuffer)
-	got, err := GetContents(f, buf)
-	if err != nil {
-		t.Fatalf("GetContents: %v", err)
-	}
-	if !bytes.Equal(got, content) {
-		t.Fatalf("content mismatch: got %d bytes, want %d", len(got), len(content))
-	}
-	cls := sizeClass(int64(len(content)))
-	if cls != sizeClassSmall {
-		t.Fatalf("sizeClass(%d) = %v, want sizeClassSmall", len(content), cls)
-	}
-}
-
-func TestGetContentsMediumFile(t *testing.T) {
-	t.Parallel()
-	content := deterministicBytes(1 << 20) // 1 MiB
-	f := writeTempFile(t, content)
-	defer f.Close()
-
-	buf := make([]byte, ExtractBuffer)
-	got, err := GetContents(f, buf)
-	if err != nil {
-		t.Fatalf("GetContents: %v", err)
-	}
-	if !bytes.Equal(got, content) {
-		t.Fatalf("content mismatch: got %d bytes, want %d", len(got), len(content))
-	}
-	cls := sizeClass(int64(len(content)))
-	if cls != sizeClassMedium {
-		t.Fatalf("sizeClass(%d) = %v, want sizeClassMedium", len(content), cls)
-	}
-}
-
-func TestGetContentsLargeFile(t *testing.T) {
-	t.Parallel()
-	const size = int64(17 * 1024 * 1024) // 17 MiB, sparse
-	tmp := filepath.Join(t.TempDir(), "large")
-	wf, err := os.Create(tmp)
-	if err != nil {
-		t.Fatalf("Create: %v", err)
-	}
-	if err := wf.Truncate(size); err != nil {
-		wf.Close()
-		t.Fatalf("Truncate: %v", err)
-	}
-	wf.Close()
-
-	f, err := os.Open(tmp)
-	if err != nil {
-		t.Fatalf("Open: %v", err)
-	}
-	defer f.Close()
-
-	buf := make([]byte, ExtractBuffer)
-	got, err := GetContents(f, buf)
-	if err != nil {
-		t.Fatalf("GetContents: %v", err)
-	}
-	if int64(len(got)) != size {
-		t.Fatalf("len(got) = %d, want %d", len(got), size)
-	}
-	cls := sizeClass(size)
-	if cls != sizeClassLarge {
-		t.Fatalf("sizeClass(%d) = %v, want sizeClassLarge", size, cls)
-	}
-}
-
-func TestGetContentsBoundaryAt64KiB(t *testing.T) {
-	t.Parallel()
-	// Boundary case: exactly at the small-file ceiling. The classifier uses an
-	// inclusive upper bound for small so this file must be classed small.
-	content := deterministicBytes(int(smallFileMaxBytes))
-	f := writeTempFile(t, content)
-	defer f.Close()
-
-	buf := make([]byte, ExtractBuffer)
-	got, err := GetContents(f, buf)
-	if err != nil {
-		t.Fatalf("GetContents: %v", err)
-	}
-	if !bytes.Equal(got, content) {
-		t.Fatalf("content mismatch at small boundary")
-	}
-	if sizeClass(smallFileMaxBytes) != sizeClassSmall {
-		t.Fatalf("sizeClass(smallFileMaxBytes) != sizeClassSmall")
-	}
-	// One byte past the small ceiling must promote to medium.
-	if sizeClass(smallFileMaxBytes+1) != sizeClassMedium {
-		t.Fatalf("sizeClass(smallFileMaxBytes+1) != sizeClassMedium")
-	}
-}
-
-func TestGetContentsBoundaryAt16MiB(t *testing.T) {
-	t.Parallel()
-	// Boundary case at the medium-file ceiling. Use a sparse temp file to
-	// avoid materializing 16 MiB of test data in memory.
-	tmp := filepath.Join(t.TempDir(), "boundary")
-	wf, err := os.Create(tmp)
-	if err != nil {
-		t.Fatalf("Create: %v", err)
-	}
-	if err := wf.Truncate(mediumFileMaxBytes); err != nil {
-		wf.Close()
-		t.Fatalf("Truncate: %v", err)
-	}
-	wf.Close()
-
-	f, err := os.Open(tmp)
-	if err != nil {
-		t.Fatalf("Open: %v", err)
-	}
-	defer f.Close()
-
-	buf := make([]byte, ExtractBuffer)
-	got, err := GetContents(f, buf)
-	if err != nil {
-		t.Fatalf("GetContents: %v", err)
-	}
-	if int64(len(got)) != mediumFileMaxBytes {
-		t.Fatalf("len(got) = %d, want %d", len(got), mediumFileMaxBytes)
-	}
-	if sizeClass(mediumFileMaxBytes) != sizeClassMedium {
-		t.Fatalf("sizeClass(mediumFileMaxBytes) != sizeClassMedium")
-	}
-	if sizeClass(mediumFileMaxBytes+1) != sizeClassLarge {
-		t.Fatalf("sizeClass(mediumFileMaxBytes+1) != sizeClassLarge")
-	}
-}
-
-func TestGetContentsNonRegular(t *testing.T) {
-	t.Parallel()
-	// A pipe is non-regular and f.Stat reports a non-regular mode. The
-	// dispatch must fall through to the streaming read path and still return
-	// the correct bytes.
-	r, w, err := os.Pipe()
-	if err != nil {
-		t.Fatalf("Pipe: %v", err)
-	}
-	defer r.Close()
-
-	payload := []byte("non-regular payload")
-	go func() {
-		_, _ = w.Write(payload)
-		w.Close()
-	}()
-
-	buf := make([]byte, DefaultPoolBuffer)
-	got, err := GetContents(r, buf)
-	if err != nil {
-		t.Fatalf("GetContents on pipe: %v", err)
-	}
-	if !bytes.Equal(got, payload) {
-		t.Fatalf("got %q, want %q", got, payload)
-	}
-}
-
-func TestGetContentsEmpty(t *testing.T) {
-	t.Parallel()
-	f := writeTempFile(t, nil)
-	defer f.Close()
-
-	buf := make([]byte, DefaultPoolBuffer)
-	got, err := GetContents(f, buf)
-	if err != nil {
-		t.Fatalf("GetContents: %v", err)
-	}
-	if len(got) != 0 {
-		t.Fatalf("len(got) = %d, want 0", len(got))
-	}
-	if sizeClass(0) != sizeClassSmall {
-		t.Fatalf("sizeClass(0) != sizeClassSmall")
-	}
-}
-
-func TestSizeClassClassification(t *testing.T) {
-	t.Parallel()
-	tests := []struct {
-		name string
-		n    int64
-		want sizeClassEnum
-	}{
-		{"zero", 0, sizeClassSmall},
-		{"one byte", 1, sizeClassSmall},
-		{"small mid-range", 32 * 1024, sizeClassSmall},
-		{"small boundary", smallFileMaxBytes, sizeClassSmall},
-		{"medium just above small", smallFileMaxBytes + 1, sizeClassMedium},
-		{"medium mid-range", 4 * 1024 * 1024, sizeClassMedium},
-		{"medium boundary", mediumFileMaxBytes, sizeClassMedium},
-		{"large just above medium", mediumFileMaxBytes + 1, sizeClassLarge},
-		{"large at MaxBytes", MaxBytes, sizeClassLarge},
-		{"large above MaxBytes", MaxBytes + 1, sizeClassLarge},
-		{"negative minus one routes to large", -1, sizeClassLarge},
-		{"negative large routes to large", -1000, sizeClassLarge},
-		{"negative MinInt64 routes to large", math.MinInt64, sizeClassLarge},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			if got := sizeClass(tt.n); got != tt.want {
-				t.Errorf("sizeClass(%d) = %v, want %v", tt.n, got, tt.want)
-			}
-		})
-	}
-}
-
-// TestReadSmallFileMatchesReadAll asserts readSmallFile returns bytes
-// identical to io.ReadAll(io.LimitReader(...)) across the small-file size
-// range, including the empty, sub-buffer, and exact-ceiling cases. The size
-// hint is supplied honestly here (it equals the on-disk length).
-func TestReadSmallFileMatchesReadAll(t *testing.T) {
-	t.Parallel()
-	sizes := []struct {
-		name string
-		n    int
-	}{
-		{"empty", 0},
-		{"tiny_below_512", 200},
-		{"one_byte", 1},
-		{"mid_8KiB", 8 * 1024},
-		{"exact_ceiling_64KiB", int(smallFileMaxBytes)},
-	}
-	for _, sz := range sizes {
-		t.Run(sz.name, func(t *testing.T) {
-			t.Parallel()
-			content := deterministicBytes(sz.n)
-
-			ref := writeTempFile(t, content)
-			defer ref.Close()
-			want, err := io.ReadAll(io.LimitReader(ref, smallFileMaxBytes))
-			if err != nil {
-				t.Fatalf("reference ReadAll: %v", err)
-			}
-
-			f := writeTempFile(t, content)
-			defer f.Close()
-			info, err := f.Stat()
-			if err != nil {
-				t.Fatalf("Stat: %v", err)
-			}
-			got, _, err := readSmallFile(f, info.Size())
-			if err != nil {
-				t.Fatalf("readSmallFile: %v", err)
-			}
-			if !bytes.Equal(got, want) {
-				t.Fatalf("content mismatch: got %d bytes, want %d", len(got), len(want))
-			}
-			if len(got) != len(want) {
-				t.Fatalf("length mismatch: got %d, want %d", len(got), len(want))
-			}
-		})
-	}
-}
-
-// TestReadSmallFileStaleSizeHint feeds readSmallFile a size hint that
-// disagrees with the file's actual length in both directions. The hint must
-// only presize the buffer; the returned bytes must reflect the real on-disk
-// content with no truncation and no zero-padding.
-func TestReadSmallFileStaleSizeHint(t *testing.T) {
-	t.Parallel()
-	tests := []struct {
-		name string
-		// actual on-disk length
-		actual int
-		// stale hint passed to readSmallFile
-		hint int64
-	}{
-		{"hint_larger_than_actual", 1024, 32 * 1024},
-		{"hint_smaller_than_actual", 8 * 1024, 16},
-		{"hint_zero_nonempty_file", 4 * 1024, 0},
-		{"hint_negative", 4 * 1024, -1},
-		{"hint_above_ceiling_small_file", 1024, smallFileMaxBytes * 4},
-		{"hint_at_ceiling_actual_empty", 0, smallFileMaxBytes},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			content := deterministicBytes(tt.actual)
-			f := writeTempFile(t, content)
-			defer f.Close()
-
-			got, _, err := readSmallFile(f, tt.hint)
-			if err != nil {
-				t.Fatalf("readSmallFile: %v", err)
-			}
-			if !bytes.Equal(got, content) {
-				t.Fatalf("content mismatch with stale hint: got %d bytes, want %d", len(got), len(content))
-			}
-		})
-	}
-}
-
-// TestReadSmallFileCapsAtCeiling confirms readSmallFile never returns more
-// than smallFileMaxBytes even when both the file and the hint exceed it, and
-// that the LimitReader cap matches io.ReadAll's cap behavior exactly.
-func TestReadSmallFileCapsAtCeiling(t *testing.T) {
-	t.Parallel()
-	// File larger than the small ceiling; the stat-driven dispatch would not
-	// route this to readSmallFile, but the helper must still honor its own cap
-	// defensively when the size hint is wrong.
-	content := deterministicBytes(int(smallFileMaxBytes) + 4096)
-
-	ref := writeTempFile(t, content)
-	defer ref.Close()
-	want, err := io.ReadAll(io.LimitReader(ref, smallFileMaxBytes))
-	if err != nil {
-		t.Fatalf("reference ReadAll: %v", err)
-	}
-
-	f := writeTempFile(t, content)
-	defer f.Close()
-	got, _, err := readSmallFile(f, int64(len(content)))
-	if err != nil {
-		t.Fatalf("readSmallFile: %v", err)
-	}
-	if int64(len(got)) != smallFileMaxBytes {
-		t.Fatalf("len(got) = %d, want %d", len(got), smallFileMaxBytes)
-	}
-	if !bytes.Equal(got, want) {
-		t.Fatalf("capped content mismatch vs io.ReadAll")
-	}
+	t.Run("DefaultMaxArchiveRatio", func(t *testing.T) {
+		t.Parallel()
+		if got, want := DefaultMaxArchiveRatio, 100.0; got != want {
+			t.Errorf("DefaultMaxArchiveRatio: got = %v, want = %v", got, want)
+		}
+	})
 }
 
 // TestArchiveCounter_FractionalRatio exercises ArchiveCounter.Add with
@@ -775,6 +458,22 @@ func TestArchiveCounter_Remaining(t *testing.T) {
 			want:    math.MaxInt64,
 		},
 		{
+			name:    "negative MaxBytes returns MaxInt64",
+			counter: &ArchiveCounter{MaxBytes: -1},
+			want:    math.MaxInt64,
+		},
+		{
+			name:    "one-byte budget available",
+			counter: &ArchiveCounter{MaxBytes: 1},
+			want:    1,
+		},
+		{
+			name:    "one-byte budget consumed",
+			counter: &ArchiveCounter{MaxBytes: 1},
+			preAdd:  1,
+			want:    0,
+		},
+		{
 			name:    "full budget available",
 			counter: &ArchiveCounter{MaxBytes: 1000},
 			want:    1000,
@@ -808,39 +507,5 @@ func TestArchiveCounter_Remaining(t *testing.T) {
 				t.Errorf("Remaining() = %d, want %d", got, tt.want)
 			}
 		})
-	}
-}
-
-// TestGetContents_SmallFileSpillThrough verifies that a file stat'd as small
-// that grew past the small ceiling between stat and read is not silently
-// truncated but instead spills to the large read path.
-func TestGetContents_SmallFileSpillThrough(t *testing.T) {
-	t.Parallel()
-
-	tmp := filepath.Join(t.TempDir(), "growing")
-	// Write content larger than smallFileMaxBytes (64 KiB).
-	size := int(smallFileMaxBytes) + 4096
-	content := deterministicBytes(size)
-	if err := os.WriteFile(tmp, content, 0o644); err != nil {
-		t.Fatalf("WriteFile: %v", err)
-	}
-
-	f, err := os.Open(tmp)
-	if err != nil {
-		t.Fatalf("Open: %v", err)
-	}
-	defer f.Close()
-
-	buf := make([]byte, ExtractBuffer)
-	got, err := GetContents(f, buf)
-	if err != nil {
-		t.Fatalf("GetContents: %v", err)
-	}
-
-	if len(got) != size {
-		t.Fatalf("GetContents returned %d bytes, want %d (truncation detected)", len(got), size)
-	}
-	if !bytes.Equal(got, content) {
-		t.Fatalf("content mismatch after spill-through")
 	}
 }

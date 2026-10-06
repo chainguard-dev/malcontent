@@ -102,10 +102,6 @@ func newConfig(rc Config) *malcontent.Config {
 func prepareRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 	var testData []TestData
 
-	if ctx.Err() != nil {
-		return nil, ctx.Err()
-	}
-
 	actions, err := actionRefresh(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("retrieve action tasks: %w", err)
@@ -192,7 +188,9 @@ func executeRefresh(ctx context.Context, c Config, testData []TestData, logger *
 	completed := 0
 	total := len(testData)
 
-	g.SetLimit(c.Concurrency)
+	// A limit of zero admits no goroutines, so a non-positive concurrency
+	// runs the tasks one at a time rather than blocking forever.
+	g.SetLimit(max(c.Concurrency, 1))
 	for _, data := range testData {
 		g.Go(func() error {
 			if data.OutFile != nil {
@@ -257,9 +255,6 @@ func Refresh(ctx context.Context, rc Config, logger *clog.Logger) error {
 	}
 	if rc.TestDataPath == "" {
 		return fmt.Errorf("test data location required")
-	}
-	if rc.Concurrency < 1 {
-		rc.Concurrency = 1
 	}
 
 	// Ensure samples directory exists

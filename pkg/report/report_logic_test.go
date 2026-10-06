@@ -4,12 +4,50 @@
 package report
 
 import (
+	"bufio"
+	"bytes"
+	"errors"
+	"fmt"
+	"io/fs"
+	"log/slog"
+	"maps"
 	"reflect"
 	"slices"
+	"strings"
 	"testing"
+	"testing/fstest"
 
+	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 )
+
+// TestConstants pins values that reports and rules depend on: risk scores
+// appear in every report, and malcontent's own rules carry the metadata key.
+func TestConstants(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name string
+		got  any
+		want any
+	}{
+		{"INVALID", INVALID, -1},
+		{"HARMLESS", HARMLESS, 0},
+		{"LOW", LOW, 1},
+		{"MEDIUM", MEDIUM, 2},
+		{"HIGH", HIGH, 3},
+		{"CRITICAL", CRITICAL, 4},
+		{"NAME", NAME, "malcontent"},
+		{"malcontentMetaKey", malcontentMetaKey, "__malcontent__"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			if tt.got != tt.want {
+				t.Errorf("%s: got = %v, want = %v", tt.name, tt.got, tt.want)
+			}
+		})
+	}
+}
 
 func TestContainsFoldASCII(t *testing.T) {
 	t.Parallel()
@@ -89,6 +127,8 @@ func TestThirdPartyKeyFallbackWord(t *testing.T) {
 		{"all words filtered keeps first word that is not the source", "yara/elastic/rules.yar", "Elastic_Generic_Malware", "3P/elastic/generic"},
 		{"fallback skips empty words", "yara/vendor/rules.yar", "_Generic_", "3P/vendor/generic"},
 		{"fallback skips source name and trailing date", "yara/vendor/rules.yar", "Vendor_jan12", "3P/vendor"},
+		{"fallback keeps the first word", "yara/vendor/rules.yar", "Generic_Malware", "3P/vendor/generic"},
+		{"rule name of only a hex key keeps just the source", "yara/vendor/rules.yar", "E4A1982B", "3P/vendor"},
 		{"severity-driven source keeps every word", "yara/guarddog/rules.yar", "threat_runtime_obfuscation_chr", "3P/guarddog/threat_runtime_obfuscation_chr"},
 	}
 	for _, tt := range tests {
@@ -115,6 +155,7 @@ func TestThirdPartyKeyNamespaceShape(t *testing.T) {
 		{"empty word between words is skipped", "yara/vendor/rules.yar", "Alpha__Beta", "3P/vendor/alpha_beta"},
 		{"three kept words stay whole", "yara/vendor/rules.yar", "Alpha_Beta_Gamma", "3P/vendor/alpha_beta_gamma"},
 		{"four kept words are cut to three", "yara/vendor/rules.yar", "Alpha_Beta_Gamma_Delta", "3P/vendor/alpha_beta_gamma"},
+		{"only the first signature in the source is renamed", "yara/signature-signature/rules.yar", "Some_Rule", "3P/sig_base-signature/some_rule"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -253,6 +294,15 @@ func TestLongestUniqueContainment(t *testing.T) {
 	}
 	wide := string(all)
 
+	// Keys with NUL keep the suffix array result. With every byte value
+	// present, "b\x00a" occurs across the separator between "ab" and "ac"
+	// and counts as contained, although no single key holds it. The key with
+	// NUL is not the last one, so the NUL check must cover every key.
+	spanning := make([]byte, 0, 255)
+	for c := 1; c < 256; c++ {
+		spanning = append(spanning, byte(c))
+	}
+
 	tests := []struct {
 		name string
 		raw  []string
@@ -263,11 +313,12 @@ func TestLongestUniqueContainment(t *testing.T) {
 		{"match starting on a separator byte is not containment", []string{"c", wide, "\x00c"}, []string{wide, "\x00c"}},
 		{"separator match for a key after the first is not containment", []string{"c", wide, "\x00c", "\x00a"}, []string{wide, "\x00a", "\x00c"}},
 		{"only empty strings yield nil", []string{"", ""}, nil},
+		{"match across a separator counts when every byte value occurs", []string{"ab", "ac", "b\x00a", string(spanning)}, []string{string(spanning), "ac"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			if got := longestUnique(tt.raw); !reflect.DeepEqual(got, tt.want) {
+			if got := longestUnique(slices.Clone(tt.raw)); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("longestUnique(%q): got = %q, want = %q", tt.raw, got, tt.want)
 			}
 		})
@@ -283,14 +334,18 @@ func TestMatchStrings(t *testing.T) {
 		want     []string
 	}{
 		{"nil input yields nil", "rule", nil, nil},
+		{"empty input yields nil", "rule", []string{}, nil},
 		{"blank matches are dropped", "rule", []string{"  ", "", "abc"}, []string{"abc"}},
 		{"substrings collapse into the longest match", "rule", []string{" curl ", "curl -k", "curl"}, []string{"curl -k"}},
 		{"base64 rule names prefix each match", "base64_payload", []string{"aGk="}, []string{"base64_payload::aGk="}},
+		{"matches that render empty yield an empty list", "rule", []string{"   ", ""}, []string{}},
+		{"repeated matches render once", "rule", []string{"b", "a", "b", "a"}, []string{"a", "b"}},
+		{"matches that render alike collapse", "rule", []string{" a", "a ", "a"}, []string{"a"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			if got := matchStrings(tt.ruleName, tt.ms); !reflect.DeepEqual(got, tt.want) {
+			if got := matchStrings(tt.ruleName, slices.Clone(tt.ms)); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("matchStrings(%q, %q): got = %q, want = %q", tt.ruleName, tt.ms, got, tt.want)
 			}
 		})
@@ -376,7 +431,7 @@ func TestUpgradeRiskMiBBoundaries(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			if got := upgradeRisk(t.Context(), HIGH, map[int]int{HIGH: tt.highCount}, tt.size); got != tt.want {
+			if got := upgradeRisk(t.Context(), HIGH, tt.highCount, tt.size); got != tt.want {
 				t.Errorf("upgradeRisk(HIGH, %d highs, %d bytes): got = %v, want = %v", tt.highCount, tt.size, got, tt.want)
 			}
 		})
@@ -427,6 +482,7 @@ func TestUpdateBehaviorTies(t *testing.T) {
 		wantRule string
 		wantDesc string
 		wantRisk int
+		wantIdx  int
 	}{
 		{
 			name:     "equal risk keeps the existing entry",
@@ -435,6 +491,7 @@ func TestUpdateBehaviorTies(t *testing.T) {
 			wantRule: "first",
 			wantDesc: "a long description",
 			wantRisk: MEDIUM,
+			wantIdx:  -1,
 		},
 		{
 			name:     "equal risk and equal-length description keeps existing text",
@@ -443,6 +500,7 @@ func TestUpdateBehaviorTies(t *testing.T) {
 			wantRule: "first",
 			wantDesc: "aaaa",
 			wantRisk: MEDIUM,
+			wantIdx:  -1,
 		},
 		{
 			name:     "equal risk adopts a longer description",
@@ -451,6 +509,7 @@ func TestUpdateBehaviorTies(t *testing.T) {
 			wantRule: "first",
 			wantDesc: "much longer",
 			wantRisk: MEDIUM,
+			wantIdx:  -1,
 		},
 		{
 			name:     "lower risk does not lend its longer description",
@@ -459,6 +518,7 @@ func TestUpdateBehaviorTies(t *testing.T) {
 			wantRule: "first",
 			wantDesc: "short",
 			wantRisk: HIGH,
+			wantIdx:  -1,
 		},
 		{
 			name:     "higher risk replaces the entry",
@@ -467,6 +527,7 @@ func TestUpdateBehaviorTies(t *testing.T) {
 			wantRule: "second",
 			wantDesc: "short",
 			wantRisk: HIGH,
+			wantIdx:  0,
 		},
 	}
 	for _, tt := range tests {
@@ -474,7 +535,9 @@ func TestUpdateBehaviorTies(t *testing.T) {
 			t.Parallel()
 			existing, incoming := tt.existing, tt.incoming
 			fr := &malcontent.FileReport{Behaviors: []*malcontent.Behavior{&existing}}
-			updateBehavior(fr, &incoming, "k", nil)
+			if got := updateBehaviorIndexed(fr, &incoming, "k"); got != tt.wantIdx {
+				t.Errorf("index: got = %d, want = %d", got, tt.wantIdx)
+			}
 			if len(fr.Behaviors) != 1 {
 				t.Fatalf("behaviors: got = %d, want = 1", len(fr.Behaviors))
 			}
@@ -618,6 +681,180 @@ func TestTrimDisplayPath(t *testing.T) {
 			t.Parallel()
 			if got := trimDisplayPath(tt.path, tt.expath, tt.c); got != tt.want {
 				t.Errorf("trimDisplayPath(%q, %q): got = %q, want = %q", tt.path, tt.expath, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestBuildIgnoreMap(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name string
+		tags []string
+		want map[string]struct{}
+	}{
+		{"no tags build no set", nil, nil},
+		{"an empty tag list builds no set", []string{}, nil},
+		{"tags build a set", []string{"low", "noisy", "low"}, map[string]struct{}{"low": {}, "noisy": {}}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			if got := buildIgnoreMap(tt.tags); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("buildIgnoreMap(%q): got = %#v, want = %#v", tt.tags, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestUpgradeRiskLogsUpgrade(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name      string
+		highCount int
+		want      bool
+		wantLog   string
+	}{
+		{"upgrade is logged", 2, true, "upgrading risk to critical: high=2, size=310"},
+		{"kept risk is not logged", 1, false, ""},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			var buf bytes.Buffer
+			logger := clog.New(slog.NewTextHandler(&buf, &slog.HandlerOptions{Level: slog.LevelDebug}))
+			ctx := clog.WithLogger(t.Context(), logger)
+			if got := upgradeRisk(ctx, HIGH, tt.highCount, 310); got != tt.want {
+				t.Errorf("upgradeRisk: got = %v, want = %v", got, tt.want)
+			}
+			logged := buf.String()
+			if tt.wantLog == "" && logged != "" {
+				t.Errorf("log: got = %q, want nothing", logged)
+			}
+			if !strings.Contains(logged, tt.wantLog) {
+				t.Errorf("log: got = %q, want it to contain %q", logged, tt.wantLog)
+			}
+		})
+	}
+}
+
+// errUnreadable is the error failingFS reports.
+var errUnreadable = errors.New("unreadable")
+
+// failingFS is fsys with one name that cannot be opened.
+type failingFS struct {
+	fsys fs.FS
+	name string
+}
+
+func (f failingFS) Open(name string) (fs.File, error) {
+	if name == f.name {
+		return nil, &fs.PathError{Op: "open", Path: name, Err: errUnreadable}
+	}
+	return f.fsys.Open(name)
+}
+
+// ruleDeclarations returns n rule declarations, one per line.
+func ruleDeclarations(n int) string {
+	var sb strings.Builder
+	for i := range n {
+		fmt.Fprintf(&sb, "rule r%d\n", i)
+	}
+	return sb.String()
+}
+
+func TestBuildRuleLineIndex(t *testing.T) {
+	t.Parallel()
+	// The longest line, newline included, that the index reads.
+	const maxLine = 1024 * 1024
+	file := func(s string) *fstest.MapFile { return &fstest.MapFile{Data: []byte(s)} }
+	tests := []struct {
+		name    string
+		fsys    fs.FS
+		want    map[string]int
+		wantLen int
+		wantErr error
+		wantMsg string
+	}{
+		{
+			name: "declarations in rule files map to their lines",
+			fsys: fstest.MapFS{
+				"a/one.yara":          file("rule first {\n  condition: true\n}\n\nrule second: tag {\n  condition: true\n}\n"),
+				"a/two.yar":           file("// rule commented\n  rule indented\nrule third\n"),
+				"a/notes.txt":         file("rule in_a_text_file\n"),
+				"rules.yara/one.yara": file("rule in_a_directory_named_like_a_rule_file\n"),
+			},
+			want: map[string]int{
+				"a/one.yara:first":  1,
+				"a/one.yara:second": 5,
+				"a/two.yar:third":   3,
+				"rules.yara/one.yara:in_a_directory_named_like_a_rule_file": 1,
+			},
+		},
+		{
+			name: "a repeated declaration keeps its first line",
+			fsys: fstest.MapFS{"dup.yara": file("rule same\nrule same\nrule after\n")},
+			want: map[string]int{"dup.yara:same": 1, "dup.yara:after": 3},
+		},
+		{
+			name: "a line of the longest length is read",
+			fsys: fstest.MapFS{"long.yara": file(strings.Repeat("x", maxLine-1) + "\nrule after_long_line\n")},
+			want: map[string]int{"long.yara:after_long_line": 2},
+		},
+		{
+			name:    "a longer line fails",
+			fsys:    fstest.MapFS{"long.yara": file(strings.Repeat("x", maxLine) + "\nrule after_long_line\n")},
+			wantErr: bufio.ErrTooLong,
+		},
+		{
+			name:    "the most declarations the index holds are indexed",
+			fsys:    fstest.MapFS{"many.yara": file(ruleDeclarations(4096))},
+			wantLen: 4096,
+		},
+		{
+			name:    "one declaration more fails",
+			fsys:    fstest.MapFS{"many.yara": file(ruleDeclarations(4097))},
+			wantMsg: "rule index exceeds cap 4096",
+		},
+		{
+			name:    "an unreadable rule file fails",
+			fsys:    failingFS{fsys: fstest.MapFS{"bad.yara": file("rule bad\n")}, name: "bad.yara"},
+			wantErr: errUnreadable,
+			wantMsg: "read bad.yara: open bad.yara: unreadable",
+		},
+		{
+			name:    "an unreadable directory fails",
+			fsys:    failingFS{fsys: fstest.MapFS{"sub/rule.yara": file("rule sub\n")}, name: "sub"},
+			wantErr: errUnreadable,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			idx, err := buildRuleLineIndex(tt.fsys)
+			if tt.wantErr != nil || tt.wantMsg != "" {
+				if err == nil {
+					t.Fatal("error: got = nil, want an error")
+				}
+				if tt.wantErr != nil && !errors.Is(err, tt.wantErr) {
+					t.Errorf("error: got = %v, want one wrapping %v", err, tt.wantErr)
+				}
+				if tt.wantMsg != "" && err.Error() != tt.wantMsg {
+					t.Errorf("error message: got = %q, want = %q", err.Error(), tt.wantMsg)
+				}
+				if idx != nil {
+					t.Errorf("index: got = %d entries, want = nil", len(idx))
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("error: got = %v, want = nil", err)
+			}
+			if tt.want != nil && !maps.Equal(idx, tt.want) {
+				t.Errorf("index: got = %v, want = %v", idx, tt.want)
+			}
+			if tt.wantLen != 0 && len(idx) != tt.wantLen {
+				t.Errorf("index entries: got = %d, want = %d", len(idx), tt.wantLen)
 			}
 		})
 	}

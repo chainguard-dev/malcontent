@@ -6,6 +6,7 @@ package programkind
 import (
 	"os"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"strings"
 	"testing"
@@ -62,6 +63,9 @@ func TestPath(t *testing.T) {
 		{"yarn-package.json", &FileType{MIME: "application/json", Ext: "json"}},
 		{"/home/yeti/.hidden/package.json", &FileType{MIME: "application/json", Ext: "json"}},
 		{"unknown.json", nil},
+		{"/srv/app/pnpm-lock.yaml", &FileType{MIME: "application/x-yaml", Ext: "yaml"}},
+		{"/srv/app/yarn.lock", &FileType{MIME: "application/x-yaml", Ext: "lock"}},
+		{"config.yaml", nil},
 		{"script.vbs", &FileType{MIME: "text/x-vbscript", Ext: "vbs"}},
 		{"composer-2.7.7", nil},
 		{"file.tar.gz", &FileType{MIME: "", Ext: "tar.gz"}},
@@ -292,6 +296,80 @@ func TestGetExt(t *testing.T) {
 	}
 }
 
+// versionSuffixOracle is the regular expression GetExt once used to strip a
+// trailing version number; stripVersionSuffix must agree with it.
+var versionSuffixOracle = regexp.MustCompile(`\d+\.\d+\.\d+$`)
+
+// getExtOracle is GetExt as it was written with versionSuffixOracle.
+func getExtOracle(path string) string {
+	base := versionSuffixOracle.ReplaceAllString(filepath.Base(path), "")
+	ext := filepath.Ext(base)
+	if ext == "" {
+		return ""
+	}
+	before, _, ok := strings.CutLast(base, ".")
+	if !ok {
+		return ext
+	}
+	if prevDot := strings.LastIndex(before, "."); prevDot != -1 {
+		if _, ok := ArchiveMap[base[prevDot:]]; ok {
+			return base[prevDot:]
+		}
+	}
+	return ext
+}
+
+func TestStripVersionSuffix(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		in   string
+		want string
+	}{
+		{"", ""},
+		{"1.2.3", ""},
+		{"composer-2.7.7", "composer-"},
+		{"v1.2.3", "v"},
+		{".1.2.3", "."},
+		{"x.10.200.3000", "x."},
+		// The match starts at the leftmost digit that can begin it.
+		{"a12.34.56", "a"},
+		{"1.2.3.4.5", "1.2."},
+		{"1.2.3.tar.4.5.6", "1.2.3.tar."},
+		{"app-1.2.3.tar.gz", "app-1.2.3.tar.gz"},
+		{"libssl.so.1.1", "libssl.so.1.1"},
+		{"12.34.56.tar", "12.34.56.tar"},
+		{"1..2.3", "1..2.3"},
+		{"1.2.", "1.2."},
+		{".2.3", ".2.3"},
+		{"1.2.3\n", "1.2.3\n"},
+		{"tool-1.2.9", "tool-"},
+		// Two digit runs are not a version, even when the first begins the name.
+		{"2.3", "2.3"},
+		// Digit runs must be separated by dots.
+		{"release-2024-01-02", "release-2024-01-02"},
+		{"1.2_3", "1.2_3"},
+		// Only ASCII digits count.
+		{"١.٢.٣", "١.٢.٣"},
+		{"tool-١.2.3", "tool-١.2.3"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.in, func(t *testing.T) {
+			t.Parallel()
+			got := stripVersionSuffix(tt.in)
+			if got != tt.want {
+				t.Errorf("stripVersionSuffix(%q): got = %q, want = %q", tt.in, got, tt.want)
+			}
+			if oracle := versionSuffixOracle.ReplaceAllString(tt.in, ""); got != oracle {
+				t.Errorf("stripVersionSuffix(%q): got = %q, want = %q (regular expression)", tt.in, got, oracle)
+			}
+			path := "/opt/" + tt.in
+			if got, want := GetExt(path), getExtOracle(path); got != want {
+				t.Errorf("GetExt(%q): got = %q, want = %q (regular expression)", path, got, want)
+			}
+		})
+	}
+}
+
 func TestGetExtArchiveMapCoverage(t *testing.T) {
 	for ext := range ArchiveMap {
 		t.Run(ext, func(t *testing.T) {
@@ -431,33 +509,48 @@ func TestIsLikelyShellScript(t *testing.T) {
 }
 
 func TestValidateUPXPath(t *testing.T) {
+	missing := filepath.Join(t.TempDir(), "missing-upx")
 	tests := []struct {
 		name             string
 		path             string
 		operatorSupplied bool
 		wantErr          bool
-		skipFn           func(t *testing.T)
+		// wantReason, when set, must appear in the error, which operators
+		// see through ErrUPXPathInvalid.
+		wantReason string
+		skipFn     func(t *testing.T)
 	}{
 		{
-			name:    "empty_path_rejected",
-			path:    "",
-			wantErr: true,
+			name:       "empty_path_rejected",
+			path:       "",
+			wantErr:    true,
+			wantReason: "empty upx path",
 		},
 		{
-			name:    "relative_path_rejected",
-			path:    "upx",
-			wantErr: true,
+			name:       "relative_path_rejected",
+			path:       "upx",
+			wantErr:    true,
+			wantReason: "must be absolute",
 		},
 		{
-			name:    "relative_dotslash_rejected",
-			path:    "./bin/upx",
-			wantErr: true,
+			name:       "relative_dotslash_rejected",
+			path:       "./bin/upx",
+			wantErr:    true,
+			wantReason: "must be absolute",
 		},
 		{
 			name:             "operator_relative_path_rejected",
 			path:             "upx",
 			operatorSupplied: true,
 			wantErr:          true,
+			wantReason:       "must be absolute",
+		},
+		{
+			name:             "operator_missing_path_rejected",
+			path:             missing,
+			operatorSupplied: true,
+			wantErr:          true,
+			wantReason:       "resolve failed",
 		},
 		{
 			name:    "non_allowlisted_absolute_rejected",
@@ -491,6 +584,10 @@ func TestValidateUPXPath(t *testing.T) {
 			if tt.wantErr {
 				if err == nil {
 					t.Errorf("validateUPXPath(%q, %v) = %q, want error", tt.path, tt.operatorSupplied, got)
+					return
+				}
+				if !strings.Contains(err.Error(), tt.wantReason) {
+					t.Errorf("validateUPXPath(%q, %v) error: got = %v, want a reason containing %q", tt.path, tt.operatorSupplied, err, tt.wantReason)
 				}
 				return
 			}
@@ -615,5 +712,59 @@ func TestValidateUPXPathSymlinkOutsideAllowlistRejected(t *testing.T) {
 	}
 	if _, err := validateUPXPath(link, false); err == nil {
 		t.Errorf("validateUPXPath(%q, false) = nil error, want rejection (resolved path outside allowlist)", link)
+	}
+}
+
+// installExecutable writes an executable at rel beneath root, creating its
+// directories, and returns its path.
+func installExecutable(t *testing.T, root, rel string) string {
+	t.Helper()
+	dir := filepath.Join(root, filepath.Dir(rel))
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		t.Fatalf("MkdirAll(%q): %v", dir, err)
+	}
+	return writeExecutable(t, dir, filepath.Base(rel), 0o755)
+}
+
+func TestValidateUPXPathDiscoveryAllowlists(t *testing.T) {
+	// Not parallel: it points the discovery allowlists, which stand in for
+	// /usr/bin and the Homebrew Cellar, at a temporary tree.
+	if runtime.GOOS == "windows" {
+		t.Skip("POSIX permission bits required for the UPX path checks")
+	}
+	root, err := filepath.EvalSymlinks(t.TempDir())
+	if err != nil {
+		t.Fatalf("EvalSymlinks: %v", err)
+	}
+	prevPrefixes, prevResolved := upxAllowedPrefixes, upxAllowedResolvedPrefixes
+	upxAllowedPrefixes = []string{filepath.Join(root, "usr", "bin") + "/"}
+	upxAllowedResolvedPrefixes = []string{filepath.Join(root, "Cellar", "upx") + "/"}
+	t.Cleanup(func() { upxAllowedPrefixes, upxAllowedResolvedPrefixes = prevPrefixes, prevResolved })
+
+	tests := []struct {
+		name    string
+		rel     string
+		wantErr bool
+	}{
+		{"binary directly in an allowed directory", "usr/bin/upx", false},
+		{"binary in a subdirectory of an allowed directory", "usr/bin/sub/upx", true},
+		{"versioned Cellar binary", "Cellar/upx/5.1.1/bin/upx", false},
+		{"Cellar binary outside a bin directory", "Cellar/upx/5.1.1/libexec/upx", true},
+		{"bin directory of another Cellar formula", "Cellar/other/5.1.1/bin/upx", true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p := installExecutable(t, root, tt.rel)
+			got, err := validateUPXPath(p, false)
+			if tt.wantErr {
+				if err == nil {
+					t.Errorf("validateUPXPath(%q, false): got = %q, want an allowlist error", p, got)
+				}
+				return
+			}
+			if err != nil || got != p {
+				t.Errorf("validateUPXPath(%q, false): got = %q, %v, want = %q, nil", p, got, err, p)
+			}
+		})
 	}
 }

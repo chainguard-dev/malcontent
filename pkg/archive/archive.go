@@ -28,14 +28,8 @@ import (
 	"golang.org/x/sync/semaphore"
 )
 
-var archivePool, tarPool, zipPool *pool.BufferPool
-
-func init() {
-	// Initialize pools for direct use in one location
-	archivePool = pool.NewBufferPool(runtime.GOMAXPROCS(0))
-	tarPool = pool.NewBufferPool(runtime.GOMAXPROCS(0))
-	zipPool = pool.NewBufferPool(runtime.GOMAXPROCS(0) * 2)
-}
+// extractPool supplies the copy buffer of every extractor.
+var extractPool pool.BufferPool
 
 // effectiveConcurrencyFor returns min(configured, gomaxprocs, quota) with a
 // floor of 1. quotaOK=false disables the cgroup arm.
@@ -302,7 +296,8 @@ type nestedCandidate struct {
 // nestedTree records what one extraction tree has processed: the paths,
 // relative to the extraction root, that need no further extraction, and the
 // digest of the scanned archive at its root, which contains every archive in
-// the tree. It is not safe for concurrent use.
+// the tree. root is set before extraction starts, and extracted is safe for
+// concurrent use, so archives may be extracted concurrently.
 type nestedTree struct {
 	extracted *xsync.Map[string, bool]
 	root      *ancestry
@@ -461,13 +456,35 @@ func (tree *nestedTree) extractFile(ctx context.Context, c malcontent.Config, d 
 		return "", nil, nil
 	}
 
-	isArchive := false
 	ft, err := programkind.File(ctx, fullPath)
 	if err != nil {
 		return "", nil, fmt.Errorf("failed to determine file type: %w", err)
 	}
 
-	_, archiveExt := programkind.ArchiveMap[programkind.GetExt(f)]
+	n, ok := nestedArchive(f, ft)
+	if !ok {
+		return "", nil, nil
+	}
+
+	dir, lineage, _, err := tree.extractNested(ctx, c, root, d, n, candidate.depth, candidate.ancestors, limit, logger, func() ([sha256.Size]byte, error) {
+		return archiveDigest(root, f)
+	})
+	return dir, lineage, err
+}
+
+// nested is a file holding an archive that nested extraction unpacks.
+type nested struct {
+	rel     string
+	extract func(context.Context, string, string) error
+	// keep leaves the archive beside what it unpacks to.
+	keep bool
+}
+
+// nestedArchive returns how to unpack rel, a file whose detected kind is ft,
+// or false when it holds no archive that extraction handles.
+func nestedArchive(rel string, ft *programkind.FileType) (nested, bool) {
+	isArchive := false
+	_, archiveExt := programkind.ArchiveMap[programkind.GetExt(rel)]
 	switch {
 	case ft != nil && ft.MIME == "application/x-upx":
 		isArchive = true
@@ -480,63 +497,75 @@ func (tree *nestedTree) extractFile(ctx context.Context, c malcontent.Config, d 
 	}
 
 	if !isArchive {
-		return "", nil, nil
+		return nested{}, false
 	}
 
-	var extract func(context.Context, string, string) error
-	keepOriginal := false
+	n := nested{rel: rel}
 	switch {
 	case ft != nil && ft.MIME == "application/x-upx":
 		// The packed binary stays beside its unpacked copy, so that findings
 		// on the packing itself are still reported.
-		extract, keepOriginal = ExtractUPX, true
+		n.extract, n.keep = ExtractUPX, true
 	case ft != nil && ft.MIME == "application/zlib":
-		extract = ExtractZlib
+		n.extract = ExtractZlib
 	default:
-		extract = extractorFor(programkind.GetExt(fullPath), ft)
+		n.extract = extractorFor(programkind.GetExt(rel), ft)
 	}
 
-	if extract == nil {
-		return "", nil, nil
+	if n.extract == nil {
+		return nested{}, false
 	}
+	return n, true
+}
 
-	if candidate.depth > limit {
-		err := fmt.Errorf("current depth of %d exceeds limit of %d which may be an indicator of compromise", candidate.depth, limit)
+// extractNested unpacks n, relative to d, whose Root is root, found at
+// nesting level depth within the archives ancestors, when it lies within the
+// nesting limit and is not byte-identical to an archive containing it.
+// digestOf returns the SHA-256 digest of n's content. extractNested returns
+// the directory it extracted into, or "" when there is nothing to search, the
+// chain of archives containing whatever that directory holds, and whether n
+// itself stays in the tree, to be scanned as a file.
+func (tree *nestedTree) extractNested(ctx context.Context, c malcontent.Config, root *os.Root, d string, n nested, depth int, ancestors *ancestry, limit int, logger *clog.Logger, digestOf func() ([sha256.Size]byte, error)) (string, *ancestry, bool, error) {
+	f := n.rel
+	fullPath := filepath.Join(d, f)
+
+	if depth > limit {
+		err := fmt.Errorf("current depth of %d exceeds limit of %d which may be an indicator of compromise", depth, limit)
 		if c.ExitExtraction {
-			return "", nil, err
+			return "", nil, false, err
 		}
 		// Failing here would discard everything extracted above this
 		// archive. Keep it, and leave this archive to be scanned as a file.
 		logger.Warnf("not extracting %s, scanning it as it is: %v", f, err)
 		tree.extracted.Store(f, true)
-		return "", nil, nil
+		return "", nil, true, nil
 	}
 
 	// An archive identical to one that contains it would yield another copy
 	// of itself each time it is extracted, without end. It stays in place and
 	// is scanned as it is. Identical archives elsewhere in the tree are still
 	// extracted, so that findings are reported at each location.
-	digest, err := archiveDigest(root, f)
+	digest, err := digestOf()
 	if err != nil {
-		return "", nil, err
+		return "", nil, false, err
 	}
-	if candidate.ancestors.contains(digest) {
+	if ancestors.contains(digest) {
 		logger.Warnf("not extracting %s, scanning it as it is: identical to an archive containing it, which may be an indicator of compromise", f)
 		tree.extracted.Store(f, true)
-		return "", nil, nil
+		return "", nil, true, nil
 	}
-	lineage := &ancestry{digest: digest, parent: candidate.ancestors}
+	lineage := &ancestry{digest: digest, parent: ancestors}
 
 	dirName, err := makeExtractionDir(root, strings.TrimSuffix(f, programkind.GetExt(f)))
 	if err != nil {
-		return "", nil, err
+		return "", nil, false, err
 	}
 	archivePath := filepath.Join(d, dirName)
 
-	err = extract(ctx, archivePath, fullPath)
+	err = n.extract(ctx, archivePath, fullPath)
 	if err != nil {
 		if c.ExitExtraction {
-			return "", nil, fmt.Errorf("failed to extract archive: %w", err)
+			return "", nil, false, fmt.Errorf("failed to extract archive: %w", err)
 		}
 		logger.Warnf("extraction failed for %s, retaining archive for scanning: %s", f, err.Error())
 		tree.extracted.Store(f, true)
@@ -544,20 +573,21 @@ func (tree *nestedTree) extractFile(ctx context.Context, c malcontent.Config, d 
 		// nothing, the retained archive is all that is left behind, and there
 		// is nothing to search for further archives.
 		if root.Remove(dirName) == nil {
-			return "", nil, nil
+			return "", nil, true, nil
 		}
-		return archivePath, lineage, nil
+		return archivePath, lineage, true, nil
 	}
 
 	tree.extracted.Store(f, true)
 
 	// any archives which cannot be extracted will be scanned like non-archive files
-	if !keepOriginal {
-		if err := root.Remove(f); err != nil {
-			return "", nil, fmt.Errorf("failed to remove archive file: %w", err)
-		}
+	if n.keep {
+		return archivePath, lineage, true, nil
 	}
-	return archivePath, lineage, nil
+	if err := root.Remove(f); err != nil {
+		return "", nil, false, fmt.Errorf("failed to remove archive file: %w", err)
+	}
+	return archivePath, lineage, false, nil
 }
 
 // isGzipType reports whether ft is a gzip stream detected by content.
@@ -574,11 +604,12 @@ func isGzipType(ft *programkind.FileType) bool {
 // gzip-compressed tar is unpacked as a tar; otherwise a gzip stream detected
 // by content is decompressed whatever its name.
 func extractorFor(ext string, ft *programkind.FileType) func(context.Context, string, string) error {
-	if extract := ExtractionMethod(ext); extract != nil {
+	known := func() *programkind.FileType { return ft }
+	if extract := extractionMethodWithKind(ext, known); extract != nil {
 		return extract
 	}
 	if isGzipType(ft) {
-		return ExtractGzip
+		return func(ctx context.Context, d, f string) error { return extractGzipWithKind(ctx, d, f, known) }
 	}
 	return nil
 }
@@ -608,77 +639,18 @@ func makeExtractionDir(root *os.Root, name string) (string, error) {
 	return "", fmt.Errorf("no unused extraction directory name derived from %s", name)
 }
 
-// extractArchiveToTempDir creates a temporary directory and extracts the archive file for scanning.
+// ExtractArchiveToTempDir creates a temporary directory and extracts the
+// archive file, and every archive nested within it, for scanning.
 func ExtractArchiveToTempDir(ctx context.Context, c malcontent.Config, path string) (string, error) {
-	if ctx.Err() != nil {
-		return "", ctx.Err()
-	}
-
-	logger := clog.FromContext(ctx).With("path", path)
-
-	var extract func(context.Context, string, string) error
-	// Check for zlib-compressed files first and use the zlib-specific function
-	ft, err := programkind.File(ctx, path)
+	t, err := OpenTree(ctx, c, path)
 	if err != nil {
-		return "", fmt.Errorf("failed to determine file type: %w", err)
-	}
-
-	switch {
-	case ft != nil && ft.MIME == "application/zlib":
-		extract = ExtractZlib
-	case ft != nil && ft.MIME == "application/x-upx":
-		extract = ExtractUPX
-	default:
-		extract = extractorFor(programkind.GetExt(path), ft)
-	}
-
-	if extract == nil {
-		return "", fmt.Errorf("unsupported archive type: %s", path)
-	}
-
-	// The scanned archive contains every archive in the tree, so a copy of it
-	// nested inside itself is scanned as it is rather than extracted again.
-	tree := newNestedTree(xsync.NewMap[string, bool]())
-	if err := tree.setRoot(path); err != nil {
 		return "", err
-	}
-
-	// The directory is created only once extraction is certain to be
-	// attempted, so the early returns above leave nothing behind.
-	logger.Debug("creating temp dir")
-	tmpDir, err := os.MkdirTemp("", filepath.Base(path))
-	if err != nil {
-		return "", fmt.Errorf("failed to create temp dir: %w", err)
-	}
-
-	err = func() (extractErr error) {
-		defer recoverExtractor(ctx, "top-level", path, &extractErr)
-		return extract(ctx, tmpDir, path)
-	}()
-	if err != nil {
-		if c.ExitExtraction {
-			cleanupTempDir(ctx, tmpDir)
-			return "", fmt.Errorf("failed to extract %s: %w", path, err)
-		}
-
-		// Mirror the nested-archive path: an archive that cannot be fully
-		// extracted is retained so that it is scanned as an opaque file. Without
-		// this, anything the extractor could not account for leaves the corpus
-		// entirely and the scan reports nothing.
-		logger.Warnf("extraction failed for %s, retaining archive for scanning: %s", path, err)
-		retained, retainErr := retainArchive(tmpDir, path)
-		if retainErr != nil {
-			cleanupTempDir(ctx, tmpDir)
-			return "", fmt.Errorf("failed to retain unextractable archive %s: %w", path, retainErr)
-		}
-		// The retained archive must not be fed back into extraction below.
-		tree.extracted.Store(retained, true)
 	}
 
 	// WalkDir reads a directory's entries before visiting them, so it never
 	// reaches the directories that nested extraction creates beside each
 	// archive; the tree searches those itself.
-	err = filepath.WalkDir(tmpDir, func(path string, d os.DirEntry, err error) error {
+	err = filepath.WalkDir(t.dir, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -689,18 +661,18 @@ func ExtractArchiveToTempDir(ctx context.Context, c malcontent.Config, path stri
 			return nil
 		}
 
-		rel, err := filepath.Rel(tmpDir, path)
+		rel, err := filepath.Rel(t.dir, path)
 		if err != nil {
 			return fmt.Errorf("filepath.Rel: %w", err)
 		}
-		return tree.extract(ctx, c, tmpDir, rel, logger, 1)
+		return t.tree.extract(ctx, c, t.dir, rel, t.logger, 1)
 	})
 	if err != nil {
-		cleanupTempDir(ctx, tmpDir)
+		cleanupTempDir(ctx, t.dir)
 		return "", fmt.Errorf("failed to walk directory: %w", err)
 	}
 
-	return tmpDir, nil
+	return t.dir, nil
 }
 
 // cleanupTempDir removes an extraction directory that will not be returned to
@@ -774,16 +746,33 @@ func copyArchiveContents(dst io.Writer, path string) error {
 }
 
 func ExtractionMethod(ext string) func(context.Context, string, string) error {
+	return extractionMethodWithKind(ext, nil)
+}
+
+// extractionMethodWithKind is ExtractionMethod for an archive whose detected type,
+// when known, fileType reports, so that the extractor does not read the
+// archive again to detect it. A nil fileType leaves detection to the
+// extractor.
+func extractionMethodWithKind(ext string, fileType func() *programkind.FileType) func(context.Context, string, string) error {
 	// The ordering of these statements is important, especially for extensions
 	// that are substrings of other extensions (e.g., `.gz` and `.tar.gz` or `.tgz`)
 	switch ext {
 	// New cases should go below this line so that the lengthier tar extensions are evaluated first
 	case ".apk", ".gem", ".tar", ".tar.bz2", ".tar.gz", ".tgz", ".tar.xz", ".tbz", ".xz":
-		return ExtractTar
+		if fileType == nil {
+			return ExtractTar
+		}
+		return func(ctx context.Context, d, f string) error { return extractTarWithKind(ctx, d, f, fileType) }
 	case ".gz", ".gzip":
-		return ExtractGzip
+		if fileType == nil {
+			return ExtractGzip
+		}
+		return func(ctx context.Context, d, f string) error { return extractGzipWithKind(ctx, d, f, fileType) }
 	case ".ear", ".jar", ".war", ".whl", ".zip":
-		return ExtractZip
+		if fileType == nil {
+			return ExtractZip
+		}
+		return func(ctx context.Context, d, f string) error { return extractZipWithKind(ctx, d, f, fileType) }
 	case ".bz2", ".bzip2":
 		return ExtractBz2
 	case ".zst", ".zstd":
@@ -808,8 +797,8 @@ func handleDirectory(root *os.Root, name string) error {
 // handleFile extracts valid files within .deb or .tar archives. A nil
 // counter disables byte and ratio accounting.
 func handleFile(root *os.Root, name string, tr *tar.Reader, counter *file.ArchiveCounter) error {
-	buf := tarPool.Get(file.ExtractBuffer) //nolint:nilaway // the buffer pool is created above
-	defer tarPool.Put(buf)
+	buf := extractPool.Get()
+	defer extractPool.Put(buf)
 
 	out, err := createFile(root, name)
 	if err != nil {
@@ -828,7 +817,9 @@ func handleFile(root *os.Root, name string, tr *tar.Reader, counter *file.Archiv
 	if rem == math.MaxInt64 {
 		readLimit = math.MaxInt64
 	}
-	written, err := io.CopyBuffer(out, io.LimitReader(tr, readLimit), buf)
+	// os.File.ReadFrom would ignore buf for a tar source and allocate its own
+	// buffer per entry, so out is hidden behind a plain Writer.
+	written, err := io.CopyBuffer(struct{ io.Writer }{out}, io.LimitReader(tr, readLimit), buf)
 	if err != nil {
 		if (errors.Is(err, io.ErrUnexpectedEOF) && written == 0) ||
 			!errors.Is(err, io.ErrUnexpectedEOF) {

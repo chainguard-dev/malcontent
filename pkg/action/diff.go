@@ -22,13 +22,11 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/report"
 	"github.com/egibs/reconcile/pkg/files"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
-	"golang.org/x/sync/errgroup"
 )
 
 type ScanResult struct {
 	files    map[string]*malcontent.FileReport
 	base     string
-	err      error
 	tmpRoot  string
 	imageURI string
 	// isArchive is set when the scan path is itself an archive, whose entries
@@ -134,13 +132,11 @@ func selectPrimaryFile(f map[string]*malcontent.FileReport) *malcontent.FileRepo
 	}
 
 	keys := slices.Sorted(maps.Keys(f))
-
-	if i := slices.IndexFunc(keys, func(k string) bool {
-		return !strings.HasSuffix(k, ".~")
-	}); i >= 0 {
-		return f[keys[i]]
+	for _, k := range keys {
+		if !strings.HasSuffix(k, ".~") {
+			return f[k]
+		}
 	}
-
 	return f[keys[0]]
 }
 
@@ -251,13 +247,6 @@ func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent
 		isImage, c.OCI = true, false
 	}
 
-	srcCh, destCh := make(chan ScanResult, 1), make(chan ScanResult, 1)
-
-	defer func() {
-		close(srcCh)
-		close(destCh)
-	}()
-
 	srcIsArchive, destIsArchive := programkind.IsSupportedArchive(ctx, srcPath), programkind.IsSupportedArchive(ctx, destPath)
 	srcResult, destResult := ScanResult{}, ScanResult{}
 
@@ -272,20 +261,10 @@ func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent
 		}
 		defer srcFile.Close()
 
-		st, err := srcFile.Stat()
+		src, err := file.GetContents(srcFile)
 		if err != nil {
 			return nil, err
 		}
-
-		// create a buffer sized to the minimum of the file's size or the default ReadBuffer
-		// only do so if we actually need to retrieve the file's contents
-		buf := readPool.Get(min(st.Size(), file.ReadBuffer)) //nolint:nilaway // the buffer pool is created above
-
-		src, err := file.GetContents(srcFile, buf)
-		if err != nil {
-			return nil, err
-		}
-		readPool.Put(buf)
 
 		srcFiles, err := report.Load(src)
 		if err != nil {
@@ -296,7 +275,6 @@ func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent
 		// Extract image URI and temp root from the report's file paths
 		srcResult.imageURI = report.ExtractImageURI(srcResult.files)
 		srcResult.tmpRoot = report.ExtractTmpRoot(srcResult.files)
-		srcResult.base = filepath.Base(srcPath)
 
 		destFile, err := os.Open(destPath) // #nosec G304 -- scan/diff target path supplied by user CLI flag; reading the path is the operation's purpose
 		if err != nil {
@@ -304,20 +282,10 @@ func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent
 		}
 		defer destFile.Close()
 
-		st, err = destFile.Stat()
+		dst, err := file.GetContents(destFile)
 		if err != nil {
 			return nil, err
 		}
-
-		// create a buffer sized to the minimum of the file's size or the default ReadBuffer
-		// only do so if we actually need to retrieve the file's contents
-		buf = readPool.Get(min(st.Size(), file.ReadBuffer)) //nolint:nilaway // the buffer pool is created above
-
-		dst, err := file.GetContents(destFile, buf)
-		if err != nil {
-			return nil, err
-		}
-		readPool.Put(buf)
 
 		destFiles, err := report.Load(dst)
 		if err != nil {
@@ -329,42 +297,11 @@ func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent
 		destResult.imageURI = report.ExtractImageURI(destResult.files)
 		destResult.tmpRoot = report.ExtractTmpRoot(destResult.files)
 	default:
-		var g errgroup.Group
-
-		// Scanned paths have their symlinks resolved, so an image's extraction
-		// root must be resolved too before it is trimmed from them.
-		g.Go(func() error {
-			files, base, err := relFileReport(ctx, c, srcPath, srcIsArchive)
-			res := ScanResult{files: files, base: base, err: err, isArchive: srcIsArchive}
-			if isImage {
-				res.imageURI, res.tmpRoot = c.ScanPaths[0], resolvePath(srcPath)
-			}
-			srcCh <- res
-			return err
-		})
-
-		srcResult = <-srcCh
-		if srcResult.err != nil {
-			return nil, fmt.Errorf("source scan error: %w", srcResult.err)
+		if srcResult, err = diffScan(ctx, c, srcPath, c.ScanPaths[0], srcIsArchive, isImage); err != nil {
+			return nil, fmt.Errorf("source scan error: %w", err)
 		}
-
-		g.Go(func() error {
-			files, base, err := relFileReport(ctx, c, destPath, destIsArchive)
-			res := ScanResult{files: files, base: base, err: err, isArchive: destIsArchive}
-			if isImage {
-				res.imageURI, res.tmpRoot = c.ScanPaths[1], resolvePath(destPath)
-			}
-			destCh <- res
-			return err
-		})
-
-		destResult = <-destCh
-		if destResult.err != nil {
-			return nil, fmt.Errorf("destination scan error: %w", destResult.err)
-		}
-
-		if err := g.Wait(); err != nil {
-			return nil, err
+		if destResult, err = diffScan(ctx, c, destPath, c.ScanPaths[1], destIsArchive, isImage); err != nil {
+			return nil, fmt.Errorf("destination scan error: %w", err)
 		}
 	}
 
@@ -388,7 +325,8 @@ func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent
 	// and employ add/delete for files that are not the same
 	// When scanning two files, do a 1:1 comparison and
 	// consider the source -> destination as a change rather than an add/delete
-	shouldHandleDir := ((srcInfo.IsDir() && destInfo.IsDir()) || (srcIsArchive && destIsArchive)) || isImage || isReport
+	// An image is scanned as the directory it is extracted to.
+	shouldHandleDir := ((srcInfo.IsDir() && destInfo.IsDir()) || (srcIsArchive && destIsArchive)) || isReport
 	archiveOrImage := (srcIsArchive && destIsArchive) || isImage
 
 	if shouldHandleDir {
@@ -409,6 +347,22 @@ func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent
 	}
 
 	return &malcontent.Report{Diff: d}, nil
+}
+
+// diffScan scans path, one side of a diff, keying its file reports by
+// relPath. For an image, imageURI names the image and path is the directory
+// it was extracted to; scanned paths have their symlinks resolved, so that
+// directory is resolved too before it is trimmed from them.
+func diffScan(ctx context.Context, c malcontent.Config, path, imageURI string, isArchive, isImage bool) (ScanResult, error) {
+	frs, base, err := relFileReport(ctx, c, path, isArchive)
+	if err != nil {
+		return ScanResult{}, err
+	}
+	res := ScanResult{files: frs, base: base, isArchive: isArchive}
+	if isImage {
+		res.imageURI, res.tmpRoot = imageURI, resolvePath(path)
+	}
+	return res, nil
 }
 
 // handleDir uses diff for O(n+m) file reconciliation with identity-based matching.
@@ -457,32 +411,26 @@ func handleDir(ctx context.Context, c malcontent.Config, src, dest ScanResult, d
 	// The reconcile package uses concurrency, so initial order is non-deterministic
 	type diffEntry struct {
 		entry    files.Entry
-		sortKey  string
 		srcPath  string
 		destPath string
 	}
 
 	entries := make([]diffEntry, 0, len(result.E))
 	for entry := range result.All() {
-		var sortKey, srcPath, destPath string
-		switch entry.Status {
-		case files.Unchanged, files.Updated:
+		var srcPath, destPath string
+		if entry.Status != files.Added {
 			srcPath = srcPaths[entry.Old]
-			destPath = destPaths[entry.New]
-			sortKey = destPath
-		case files.Removed:
-			srcPath = srcPaths[entry.Old]
-			sortKey = srcPath
-		case files.Added:
-			destPath = destPaths[entry.New]
-			sortKey = destPath
 		}
-		entries = append(entries, diffEntry{entry, sortKey, srcPath, destPath})
+		if entry.Status != files.Removed {
+			destPath = destPaths[entry.New]
+		}
+		entries = append(entries, diffEntry{entry, srcPath, destPath})
 	}
 
-	// Sort entries by path for deterministic output
+	// Sort entries by path for deterministic output: the destination path, or
+	// for a removed file, which has none, the source path.
 	slices.SortFunc(entries, func(a, b diffEntry) int {
-		return strings.Compare(a.sortKey, b.sortKey)
+		return strings.Compare(cmp.Or(a.destPath, a.srcPath), cmp.Or(b.destPath, b.srcPath))
 	})
 
 	for _, e := range entries {
@@ -490,11 +438,6 @@ func handleDir(ctx context.Context, c malcontent.Config, src, dest ScanResult, d
 		case files.Unchanged, files.Updated:
 			srcFr := srcFiles[e.srcPath]
 			destFr := destFiles[e.destPath]
-
-			if filterDiff(ctx, c, srcFr, destFr) {
-				continue
-			}
-
 			rpath := formatReportKey(src, srcFr, isReport)
 			apath := formatReportKey(dest, destFr, isReport)
 			// Determine whether this is a move (Updated) vs change (Unchanged)
@@ -523,12 +466,9 @@ func extractPath(rel string, fr *malcontent.FileReport, res ScanResult, archiveO
 	case isReport:
 		// For reports, paths may be formatted as "imageURI ∴ /path" or raw temp paths
 		path := fr.Path
-		if strings.Contains(path, "∴") {
-			// Extract just the file path after the separator
-			parts := strings.SplitN(path, "∴", 2)
-			if len(parts) == 2 {
-				return strings.TrimSpace(parts[len(parts)-1])
-			}
+		// Extract just the file path after the first separator
+		if _, after, ok := strings.Cut(path, "∴"); ok {
+			return strings.TrimSpace(after)
 		}
 		// Fall back to cleaning temp root if present
 		return report.CleanReportPath(path, res.tmpRoot, "")
@@ -659,23 +599,15 @@ const (
 
 // parseBehaviorID parses a behavior ID into its component parts.
 func parseBehaviorID(id string) behavior {
-	parts := strings.Split(id, "/")
-	bc := behavior{}
-
-	switch len(parts) {
-	case 1:
-		bc.objective = parts[0]
-	case 2:
-		bc.objective = parts[0]
+	// The technique keeps any deeper components.
+	parts := strings.SplitN(id, "/", 3)
+	bc := behavior{objective: parts[0]}
+	if len(parts) > 1 {
 		bc.resource = parts[1]
-	default:
-		if len(parts) >= 3 {
-			bc.objective = parts[0]
-			bc.resource = parts[1]
-			bc.technique = strings.Join(parts[2:], "/")
-		}
 	}
-
+	if len(parts) > 2 {
+		bc.technique = parts[2]
+	}
 	return bc
 }
 

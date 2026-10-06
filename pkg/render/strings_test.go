@@ -51,26 +51,34 @@ func TestStringMatchesFullRejectsDiffs(t *testing.T) {
 	}
 }
 
-func TestBriefRiskColorAbbreviatesLevels(t *testing.T) {
+func TestBriefRiskAbbreviatesLevels(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
-		level string
-		want  string
+		level     string
+		want      string
+		wantColor sgr
 	}{
-		{level: report.LevelLOW, want: "LOW"},
-		{level: report.LevelMEDIUM, want: "MED"},
-		{level: "MED", want: "MED"},
-		{level: report.LevelHIGH, want: "HIGH"},
-		{level: report.LevelCRITICAL, want: "CRIT"},
-		{level: "CRIT", want: "CRIT"},
-		{level: report.LevelNONE, want: "NONE"},
-		{level: "", want: ""},
+		{level: report.LevelLOW, want: "LOW", wantColor: colorPalette.hiGreen},
+		{level: report.LevelMEDIUM, want: "MED", wantColor: colorPalette.hiYellow},
+		{level: "MED", want: "MED", wantColor: colorPalette.hiYellow},
+		{level: report.LevelHIGH, want: "HIGH", wantColor: colorPalette.hiRed},
+		{level: report.LevelCRITICAL, want: "CRIT", wantColor: colorPalette.hiMagenta},
+		{level: "CRIT", want: "CRIT", wantColor: colorPalette.hiMagenta},
+		{level: report.LevelNONE, want: "NONE", wantColor: colorPalette.white},
+		{level: "", want: "", wantColor: colorPalette.white},
 	}
 	for _, tt := range tests {
 		t.Run("level_"+tt.level, func(t *testing.T) {
 			t.Parallel()
-			if got := renderStripANSI(briefRiskColor(tt.level)); got != tt.want {
-				t.Errorf("briefRiskColor(%q): got = %q, want = %q", tt.level, got, tt.want)
+			gotColor, got := colorPalette.briefRisk(tt.level)
+			if got != tt.want {
+				t.Errorf("briefRisk(%q) label: got = %q, want = %q", tt.level, got, tt.want)
+			}
+			if gotColor != tt.wantColor {
+				t.Errorf("briefRisk(%q) color: got = %q, want = %q", tt.level, gotColor.on, tt.wantColor.on)
+			}
+			if _, plain := plainPalette.briefRisk(tt.level); plain != tt.want {
+				t.Errorf("plain briefRisk(%q) label: got = %q, want = %q", tt.level, plain, tt.want)
 			}
 		})
 	}

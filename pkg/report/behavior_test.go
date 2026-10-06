@@ -12,6 +12,16 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 )
 
+// updateBehaviorIndexed calls updateBehavior with an index of fr.Behaviors
+// built for the call, for tests that start from a prepared report.
+func updateBehaviorIndexed(fr *malcontent.FileReport, b *malcontent.Behavior, key string) int {
+	idx := make(map[string]int, len(fr.Behaviors))
+	for i, existing := range fr.Behaviors {
+		idx[existing.ID] = i
+	}
+	return updateBehavior(fr, b, key, idx)
+}
+
 // makeBehaviors returns n distinct behaviors with stable, predictable IDs.
 func makeBehaviors(n int) []*malcontent.Behavior {
 	out := make([]*malcontent.Behavior, n)
@@ -35,8 +45,9 @@ func TestUpdateBehaviorOrderIndependent(t *testing.T) {
 
 	insert := func(order []*malcontent.Behavior) []*malcontent.Behavior {
 		fr := &malcontent.FileReport{}
+		idx := map[string]int{}
 		for _, b := range order {
-			updateBehavior(fr, b, b.ID, nil)
+			updateBehavior(fr, b, b.ID, idx)
 		}
 		slices.SortFunc(fr.Behaviors, func(a, b *malcontent.Behavior) int {
 			return cmp.Compare(a.ID, b.ID)
@@ -65,9 +76,10 @@ func TestUpdateBehaviorDedupKeepsHighestRisk(t *testing.T) {
 	t.Parallel()
 
 	fr := &malcontent.FileReport{}
-	updateBehavior(fr, &malcontent.Behavior{ID: "x", RiskScore: LOW, Description: "lo"}, "x", nil)
-	updateBehavior(fr, &malcontent.Behavior{ID: "x", RiskScore: CRITICAL, Description: "hi"}, "x", nil)
-	updateBehavior(fr, &malcontent.Behavior{ID: "x", RiskScore: MEDIUM, Description: "mid"}, "x", nil)
+	idx := map[string]int{}
+	updateBehavior(fr, &malcontent.Behavior{ID: "x", RiskScore: LOW, Description: "lo"}, "x", idx)
+	updateBehavior(fr, &malcontent.Behavior{ID: "x", RiskScore: CRITICAL, Description: "hi"}, "x", idx)
+	updateBehavior(fr, &malcontent.Behavior{ID: "x", RiskScore: MEDIUM, Description: "mid"}, "x", idx)
 
 	if got := len(fr.Behaviors); got != 1 {
 		t.Fatalf("entries after dedup: got = %d, want = 1", got)

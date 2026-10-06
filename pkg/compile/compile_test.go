@@ -462,6 +462,7 @@ func BenchmarkGetRulesHash(b *testing.B) {
 	ctx := b.Context()
 	realFS := getAllRuleFS()
 
+	b.ReportAllocs()
 	for b.Loop() {
 		hash, err := getRulesHash(ctx, realFS)
 		if err != nil {
@@ -502,6 +503,7 @@ func BenchmarkCacheOperations(b *testing.B) {
 	}
 
 	b.Run("Load", func(b *testing.B) {
+		b.ReportAllocs()
 		for b.Loop() {
 			loadedRules, err := loadCachedRules(cacheFile)
 			if err != nil {
@@ -510,8 +512,41 @@ func BenchmarkCacheOperations(b *testing.B) {
 			if loadedRules == nil {
 				b.Fatal("Expected loaded rules")
 			}
+			// Rules read from a cache carry no finalizer, so free each copy
+			// outside the timed region.
+			b.StopTimer()
+			loadedRules.Destroy()
+			b.StartTimer()
 		}
 	})
+}
+
+// BenchmarkRuleRemover measures dropping the disabled rules from every
+// embedded rule file, the preprocessing Recursive does on a cache miss.
+func BenchmarkRuleRemover(b *testing.B) {
+	files, err := listRuleFiles(getAllRuleFS())
+	if err != nil {
+		b.Fatalf("listRuleFiles(): %v", err)
+	}
+	sources := make([][]byte, 0, len(files))
+	var total int64
+	for _, f := range files {
+		data, err := fs.ReadFile(f.fsys, f.path)
+		if err != nil {
+			b.Fatalf("read %s: %v", f.path, err)
+		}
+		sources = append(sources, data)
+		total += int64(len(data))
+	}
+	r := defaultRuleRemover()
+
+	b.SetBytes(total)
+	b.ReportAllocs()
+	for b.Loop() {
+		for _, src := range sources {
+			_ = r.remove(src)
+		}
+	}
 }
 
 // BenchmarkCompareCompilation compares compilation methods.
