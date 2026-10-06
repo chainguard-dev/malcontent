@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"runtime"
 	"runtime/pprof"
 	"runtime/trace"
@@ -93,27 +92,39 @@ func StartProfiling(ctx context.Context, config *Config) (*Profiler, error) {
 func (p *Profiler) initializeProfiles() error {
 	var err error
 
-	p.cpuFile, err = os.OpenFile(filepath.Join(p.config.OutputDir, p.config.FilePrefix+"_cpu.pprof"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+	p.cpuFile, err = p.createInOutputDir(p.config.FilePrefix + "_cpu.pprof")
 	if err != nil {
 		return fmt.Errorf("failed to create CPU profile: %w", err)
 	}
 
-	p.memFile, err = os.OpenFile(filepath.Join(p.config.OutputDir, p.config.FilePrefix+"_mem_final.pprof"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+	p.memFile, err = p.createInOutputDir(p.config.FilePrefix + "_mem_final.pprof")
 	if err != nil {
 		return fmt.Errorf("failed to create memory profile: %w", err)
 	}
 
-	p.traceFile, err = os.OpenFile(filepath.Join(p.config.OutputDir, p.config.FilePrefix+"_trace.out"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+	p.traceFile, err = p.createInOutputDir(p.config.FilePrefix + "_trace.out")
 	if err != nil {
 		return fmt.Errorf("failed to create trace file: %w", err)
 	}
 
-	p.goroutFile, err = os.OpenFile(filepath.Join(p.config.OutputDir, p.config.FilePrefix+"_goroutines.txt"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+	p.goroutFile, err = p.createInOutputDir(p.config.FilePrefix + "_goroutines.txt")
 	if err != nil {
 		return fmt.Errorf("failed to create goroutine profile: %w", err)
 	}
 
 	return nil
+}
+
+// createInOutputDir creates or truncates name inside the configured output
+// directory. Opening it through an os.Root refuses a name that would resolve
+// outside that directory.
+func (p *Profiler) createInOutputDir(name string) (*os.File, error) {
+	root, err := os.OpenRoot(p.config.OutputDir)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = root.Close() }()
+	return root.OpenFile(name, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
 }
 
 func (p *Profiler) periodicHeapProfile() {
@@ -131,11 +142,7 @@ func (p *Profiler) periodicHeapProfile() {
 }
 
 func (p *Profiler) writeHeapSnapshot() {
-	timestamp := time.Now().UnixNano()
-	filename := filepath.Join(p.config.OutputDir,
-		fmt.Sprintf("%s_mem_%d.pprof", p.config.FilePrefix, timestamp))
-
-	f, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600) // #nosec G304 -- pprof output path configured at process startup
+	f, err := p.createInOutputDir(fmt.Sprintf("%s_mem_%d.pprof", p.config.FilePrefix, time.Now().UnixNano()))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to create heap profile: %v\n", err)
 		return
@@ -151,38 +158,49 @@ func (p *Profiler) profileGoroutines() {
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
 
-	const maxStackBuf = 64 * 1024 * 1024 // 64MB
 	buf := make([]byte, 1<<20)
 
 	for {
 		select {
 		case <-ticker.C:
-			buf = buf[:cap(buf)]
-			for i := 0; ; i++ {
-				n := runtime.Stack(buf, true)
-				if n < len(buf) {
-					buf = buf[:n]
-					break
-				}
-				if cap(buf)*2 > maxStackBuf {
-					buf = buf[:n]
-					break
-				}
-				buf = make([]byte, cap(buf)*2)
-			}
-
-			if _, err := fmt.Fprintf(p.goroutFile, "\n--- Goroutine dump at %s ---\n", time.Now().Format(time.RFC3339)); err != nil {
-				fmt.Fprintf(os.Stderr, "failed to write goroutine timestamp: %v\n", err)
-				continue
-			}
-
-			if _, err := p.goroutFile.Write(buf); err != nil {
-				fmt.Fprintf(os.Stderr, "failed to write goroutine dump: %v\n", err)
-			}
+			buf = p.writeGoroutineDump(buf, maxStackBuf)
 		case <-p.ctx.Done():
 			return
 		}
 	}
+}
+
+// maxStackBuf caps the buffer used to capture a goroutine dump.
+const maxStackBuf = 64 * 1024 * 1024 // 64MB
+
+// writeGoroutineDump appends a timestamped dump of every goroutine's stack to
+// the goroutine profile. buf is reused scratch space that doubles until the
+// dump fits or doubling would exceed limit, in which case the dump is cut at
+// the buffer's size. The possibly grown buffer is returned for the next dump.
+func (p *Profiler) writeGoroutineDump(buf []byte, limit int) []byte {
+	buf = buf[:cap(buf)]
+	for {
+		n := runtime.Stack(buf, true)
+		if n < len(buf) {
+			buf = buf[:n]
+			break
+		}
+		if cap(buf)*2 > limit {
+			buf = buf[:n]
+			break
+		}
+		buf = make([]byte, cap(buf)*2)
+	}
+
+	if _, err := fmt.Fprintf(p.goroutFile, "\n--- Goroutine dump at %s ---\n", time.Now().Format(time.RFC3339)); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to write goroutine timestamp: %v\n", err)
+		return buf
+	}
+
+	if _, err := p.goroutFile.Write(buf); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to write goroutine dump: %v\n", err)
+	}
+	return buf
 }
 
 func (p *Profiler) handleSignals() {

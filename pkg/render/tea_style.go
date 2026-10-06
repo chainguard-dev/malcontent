@@ -4,10 +4,11 @@
 package render
 
 import (
+	"cmp"
 	"context"
 	"fmt"
 	"io"
-	"sort"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -83,6 +84,8 @@ func cleanAndWrapEvidence(evidence string, width int) string {
 			// If unquoting fails, use original string
 			unquoted = line
 		}
+		// Unquoting can turn an escape spelled out in the sample into a raw control byte.
+		unquoted = sanitizeTerminal(unquoted)
 
 		if len(unquoted) > width {
 			wrapped := wrapLine(unquoted, width)
@@ -163,14 +166,15 @@ func renderFileSummaryTea(ctx context.Context, fr *malcontent.FileReport, w io.W
 	for ns := range byNamespace {
 		nss = append(nss, ns)
 	}
-	sort.Slice(nss, func(i, j int) bool {
-		return nsLongName(nss[i]) < nsLongName(nss[j])
+	slices.SortFunc(nss, func(a, b string) int {
+		return cmp.Compare(nsLongName(a), nsLongName(b))
 	})
 
 	// Build the complete content
 	var content strings.Builder
 
 	// File header with risk level
+	path := sanitizeTerminal(fr.Path)
 	pathStyle := headerStyle.
 		Foreground(riskColors[fr.RiskLevel])
 
@@ -180,17 +184,13 @@ func renderFileSummaryTea(ctx context.Context, fr *malcontent.FileReport, w io.W
 
 	header := lipgloss.JoinHorizontal(
 		lipgloss.Center,
-		pathStyle.Render(fr.Path),
+		pathStyle.Render(path),
 		" ",
 		riskBadge,
 	)
 
-	if added == 0 && removed == 0 {
-		return
-	}
-
 	if diffMode {
-		rc.Title = fmt.Sprintf("Changed (%d added, %d removed): %s", added, removed, fr.Path)
+		rc.Title = fmt.Sprintf("Changed (%d added, %d removed): %s", added, removed, path)
 		header = lipgloss.JoinHorizontal(
 			lipgloss.Center,
 			pathStyle.Render(rc.Title),

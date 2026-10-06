@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -128,7 +129,7 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.height = msg.Height
 
 	case scanUpdateMsg:
-		m.currentFile = msg.path
+		m.currentFile = sanitizeTerminal(msg.path)
 		return m, cmd
 
 	case resultUpdateMsg:
@@ -175,6 +176,8 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 
+		// Keys handled here are not forwarded to the viewport: it binds several
+		// of the same keys and would scroll a second time.
 		switch msg.String() {
 		case "q", "ctrl+c", "esc":
 			m.quitting = true
@@ -194,7 +197,11 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "/":
 			m.searchMode = true
 			m.searchTerm = ""
+		default:
+			m.viewport, cmd = m.viewport.Update(msg)
+			return m, cmd
 		}
+		return m, nil
 
 	case spinner.TickMsg:
 		var cmd tea.Cmd
@@ -362,11 +369,11 @@ func (r *Interactive) File(ctx context.Context, fr *malcontent.FileReport) error
 	var content string
 	switch {
 	case fr.Skipped != "":
-		content = fmt.Sprintf("skipped %s: %s", fr.Path, fr.Skipped)
+		content = fmt.Sprintf("skipped %s: %s", sanitizeTerminal(fr.Path), sanitizeTerminal(fr.Skipped))
 	case len(fr.Behaviors) > 0:
 		var builder strings.Builder
 		renderFileSummaryTea(ctx, fr, &builder, tableConfig{
-			Title: fmt.Sprintf("%s %s", fr.Path, darkBrackets(riskInColor(fr.RiskLevel))),
+			Title: fmt.Sprintf("%s %s", sanitizeTerminal(fr.Path), darkBrackets(riskInColor(fr.RiskLevel))),
 		})
 		content = strings.TrimSpace(builder.String())
 	}
@@ -402,7 +409,7 @@ func (r *Interactive) Full(ctx context.Context, _ *malcontent.Config, rep *malco
 		if fr != nil {
 			var builder strings.Builder
 			renderFileSummaryTea(ctx, fr, &builder, tableConfig{
-				Title: fmt.Sprintf("%s: %s", prefix, fr.Path),
+				Title: fmt.Sprintf("%s: %s", prefix, sanitizeTerminal(fr.Path)),
 			})
 			content := strings.TrimSpace(builder.String())
 			r.program.Send(resultUpdateMsg{
@@ -431,7 +438,10 @@ func (r *Interactive) Full(ctx context.Context, _ *malcontent.Config, rep *malco
 		}
 
 		for modified := rep.Diff.Modified.Oldest(); modified != nil; modified = modified.Next() {
-			if len(modified.Value.Behaviors) == 0 {
+			// Like the other renderers, only report modified files whose behaviors changed.
+			if !slices.ContainsFunc(modified.Value.Behaviors, func(b *malcontent.Behavior) bool {
+				return b.DiffAdded || b.DiffRemoved
+			}) {
 				continue
 			}
 

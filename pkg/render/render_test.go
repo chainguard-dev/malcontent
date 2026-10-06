@@ -48,23 +48,23 @@ func TestNew(t *testing.T) {
 			got, err := New(tt.kind, &buf)
 
 			if (err != nil) != tt.wantErr {
-				t.Errorf("New() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("New() error: got = %v, want error = %v", err, tt.wantErr)
 				return
 			}
 
 			if tt.wantNil && got != nil {
-				t.Errorf("New() expected nil renderer for invalid type, got %T", got)
+				t.Errorf("New() renderer for an invalid type: got = %T, want = nil", got)
 			}
 
 			if !tt.wantNil && got == nil {
-				t.Error("New() returned nil renderer for valid type")
+				t.Error("New() renderer for a valid type: got = nil, want = non-nil")
 			}
 
 			// Verify renderer name matches (except for invalid types)
 			if !tt.wantErr && got != nil {
 				name := got.Name()
 				if name == "" {
-					t.Error("renderer Name() returned empty string")
+					t.Error("Name(): got = \"\", want = non-empty")
 				}
 			}
 		})
@@ -102,7 +102,7 @@ func TestSerializedStatsNilReport(t *testing.T) {
 	t.Parallel()
 	stats := serializedStats(nil, nil)
 	if stats != nil {
-		t.Error("serializedStats with nil report should return nil")
+		t.Errorf("serializedStats(nil): got = %+v, want = nil", stats)
 	}
 }
 
@@ -173,7 +173,7 @@ func TestNewStringMatches(t *testing.T) {
 
 	name := renderer.Name()
 	if !strings.Contains(name, "String") {
-		t.Errorf("NewStringMatches().Name() = %q, expected to contain 'String'", name)
+		t.Errorf("NewStringMatches().Name(): got = %q, want it to contain %q", name, "String")
 	}
 }
 
@@ -237,9 +237,18 @@ func TestSanitizeMarkdown(t *testing.T) {
 		{"open paren escaped", "foo(bar", "foo\\(bar"},
 		{"close paren escaped", "foo)bar", "foo\\)bar"},
 		{"backtick escaped", "foo`bar", "foo\\`bar"},
-		{"markdown link fully escaped", "[click](http://evil.com)", "\\[click\\]\\(http://evil.com\\)"},
+		{"markdown link fully escaped", "[click](http://evil.com)", "\\[click\\]\\(http:&#8203;//evil.com\\)"},
 		{"nested brackets escaped", "[[nested]]", "\\[\\[nested\\]\\]"},
 		{"all special chars together", "[]()` ", "\\[\\]\\(\\)\\` "},
+		{"backslash escaped so it cannot escape the next character", `a\]`, `a\\\]`},
+		{"pipe escaped so it cannot split a table cell", "a|b", `a\|b`},
+		{"angle brackets escaped so they cannot open HTML", "<b>", `\<b\>`},
+		{"emphasis and strikethrough markers escaped", "*a* _b_ ~c~", `\*a\* \_b\_ \~c\~`},
+		{"math delimiter escaped", "$x$", `\$x\$`},
+		{"line endings percent-encoded", "a\r\nb", "a%0D%0Ab"},
+		{"mention, reference, and emoji characters are followed by a zero-width space", "@a #1 :x:", "@&#8203;a #&#8203;1 :&#8203;x:&#8203;"},
+		{"ampersand escaped before entities so spelled-out entities stay literal", "&#64; &amp;", "&amp;#&#8203;64; &amp;amp;"},
+		{"other punctuation unchanged", "a.b-c/d!e%f=g;h", "a.b-c/d!e%f=g;h"},
 		{"empty string", "", ""},
 	}
 
@@ -270,21 +279,21 @@ func TestSanitizeFileReport(t *testing.T) {
 		files := make(map[string]*malcontent.FileReport)
 		sanitizeFileReport("key\nwith-newline", fr, files)
 
-		if _, ok := files["key with-newline"]; !ok {
-			t.Error("expected sanitized key 'key with-newline'")
+		stored, ok := files["key with-newline"]
+		if !ok {
+			t.Fatalf("sanitized key %q: got = absent, want = present", "key with-newline")
 		}
-		stored := files["key with-newline"]
 		if stored.ArchiveRoot != "" {
-			t.Errorf("ArchiveRoot should be cleared, got %q", stored.ArchiveRoot)
+			t.Errorf("ArchiveRoot: got = %q, want = \"\"", stored.ArchiveRoot)
 		}
 		if stored.FullPath != "" {
-			t.Errorf("FullPath should be cleared, got %q", stored.FullPath)
+			t.Errorf("FullPath: got = %q, want = \"\"", stored.FullPath)
 		}
 		if stored.Path != "test path" {
-			t.Errorf("Path = %q, want %q", stored.Path, "test path")
+			t.Errorf("Path: got = %q, want = %q", stored.Path, "test path")
 		}
 		if stored.Behaviors[0].ID != "ns/technique with-newline" {
-			t.Errorf("Behavior ID = %q, want sanitized", stored.Behaviors[0].ID)
+			t.Errorf("Behavior ID: got = %q, want = %q", stored.Behaviors[0].ID, "ns/technique with-newline")
 		}
 	})
 
@@ -294,7 +303,7 @@ func TestSanitizeFileReport(t *testing.T) {
 		files := make(map[string]*malcontent.FileReport)
 		sanitizeFileReport("key", fr, files)
 		if len(files) != 0 {
-			t.Errorf("expected empty map for skipped file, got %d", len(files))
+			t.Errorf("stored files for a skipped report: got = %d, want = 0", len(files))
 		}
 	})
 
@@ -307,7 +316,7 @@ func TestSanitizeFileReport(t *testing.T) {
 		files := make(map[string]*malcontent.FileReport)
 		sanitizeFileReport("key", fr, files)
 		if len(files) != 1 {
-			t.Errorf("expected 1 file, got %d", len(files))
+			t.Errorf("stored files: got = %d, want = 1", len(files))
 		}
 	})
 }
@@ -487,25 +496,25 @@ func TestMatchFragmentLink(t *testing.T) {
 		{"dollar-prefixed becomes code span", "$xor_key", func(t *testing.T, got string) {
 			t.Helper()
 			if !strings.HasPrefix(got, "`") || !strings.HasSuffix(got, "`") {
-				t.Errorf("expected backtick code span, got %q", got)
+				t.Errorf("code span: got = %q, want backtick fences", got)
 			}
 		}},
 		{"https URL becomes markdown link", "https://evil.com/payload", func(t *testing.T, got string) {
 			t.Helper()
 			if !strings.Contains(got, "](") {
-				t.Errorf("expected markdown link, got %q", got)
+				t.Errorf("markdown link: got = %q, want a link", got)
 			}
 		}},
 		{"http URL becomes markdown link", "http://example.com", func(t *testing.T, got string) {
 			t.Helper()
 			if !strings.Contains(got, "](") {
-				t.Errorf("expected markdown link, got %q", got)
+				t.Errorf("markdown link: got = %q, want a link", got)
 			}
 		}},
 		{"plain string becomes GitHub search", "malicious_func", func(t *testing.T, got string) {
 			t.Helper()
 			if !strings.Contains(got, "github.com/search") {
-				t.Errorf("expected GitHub search link, got %q", got)
+				t.Errorf("GitHub search link: got = %q, want a github.com/search link", got)
 			}
 		}},
 	}
@@ -552,7 +561,7 @@ func TestRiskStatistics(t *testing.T) {
 		files := xsync.NewMap[string, *malcontent.FileReport]()
 		stats, totalRisks, processed, skipped := RiskStatistics(&malcontent.Config{}, files)
 		if len(stats) != 0 || totalRisks != 0 || processed != 0 || skipped != 0 {
-			t.Errorf("empty map: stats=%d totalRisks=%d processed=%d skipped=%d", len(stats), totalRisks, processed, skipped)
+			t.Errorf("empty map: got stats=%d totalRisks=%d processed=%d skipped=%d, want all 0", len(stats), totalRisks, processed, skipped)
 		}
 	})
 
@@ -562,10 +571,10 @@ func TestRiskStatistics(t *testing.T) {
 		files.Store("/bin/ls", &malcontent.FileReport{Path: "/bin/ls", RiskScore: 2, RiskLevel: report.LevelMEDIUM})
 		stats, totalRisks, processed, skipped := RiskStatistics(&malcontent.Config{}, files)
 		if processed != 1 || totalRisks != 1 || skipped != 0 {
-			t.Errorf("single file: processed=%d totalRisks=%d skipped=%d", processed, totalRisks, skipped)
+			t.Errorf("single file: got processed=%d totalRisks=%d skipped=%d, want = 1 1 0", processed, totalRisks, skipped)
 		}
 		if len(stats) != 1 || stats[0].Key != 2 {
-			t.Errorf("expected 1 stat with key=2, got %v", stats)
+			t.Errorf("stats: got = %+v, want one entry with key 2", stats)
 		}
 	})
 
@@ -576,7 +585,7 @@ func TestRiskStatistics(t *testing.T) {
 		files.Store("/bin/skip", &malcontent.FileReport{Path: "/bin/skip", Skipped: "data"})
 		_, totalRisks, processed, skipped := RiskStatistics(&malcontent.Config{}, files)
 		if processed != 2 || skipped != 1 || totalRisks != 1 {
-			t.Errorf("processed=%d skipped=%d totalRisks=%d", processed, skipped, totalRisks)
+			t.Errorf("totals: got processed=%d skipped=%d totalRisks=%d, want = 2 1 1", processed, skipped, totalRisks)
 		}
 	})
 
@@ -588,7 +597,7 @@ func TestRiskStatistics(t *testing.T) {
 		files.Store("/crit", &malcontent.FileReport{Path: "/crit", RiskScore: 4})
 		_, totalRisks, processed, skipped := RiskStatistics(&malcontent.Config{Scan: true}, files)
 		if processed != 3 || skipped != 1 || totalRisks != 2 {
-			t.Errorf("processed=%d skipped=%d totalRisks=%d", processed, skipped, totalRisks)
+			t.Errorf("totals: got processed=%d skipped=%d totalRisks=%d, want = 3 1 2", processed, skipped, totalRisks)
 		}
 	})
 }
@@ -601,7 +610,7 @@ func TestPkgStatistics(t *testing.T) {
 		files := xsync.NewMap[string, *malcontent.FileReport]()
 		stats, _, total := PkgStatistics(&malcontent.Config{}, files)
 		if len(stats) != 0 || total != 0 {
-			t.Errorf("empty: stats=%d total=%d", len(stats), total)
+			t.Errorf("empty map: got stats=%d total=%d, want both 0", len(stats), total)
 		}
 	})
 
@@ -614,10 +623,10 @@ func TestPkgStatistics(t *testing.T) {
 		})
 		stats, _, total := PkgStatistics(&malcontent.Config{}, files)
 		if total != 3 {
-			t.Errorf("expected 3 behaviors, got %d", total)
+			t.Errorf("total behaviors: got = %d, want = 3", total)
 		}
 		if len(stats) != 3 {
-			t.Errorf("expected 3 stat entries, got %d", len(stats))
+			t.Errorf("stat entries: got = %d, want = 3", len(stats))
 		}
 	})
 
@@ -628,7 +637,7 @@ func TestPkgStatistics(t *testing.T) {
 		files.Store("/skip", &malcontent.FileReport{Path: "/skip", Skipped: "reason", Behaviors: []*malcontent.Behavior{{ID: "bad"}}})
 		_, _, total := PkgStatistics(&malcontent.Config{}, files)
 		if total != 1 {
-			t.Errorf("expected 1 behavior, got %d", total)
+			t.Errorf("total behaviors: got = %d, want = 1", total)
 		}
 	})
 
@@ -639,10 +648,10 @@ func TestPkgStatistics(t *testing.T) {
 		files.Store("/b", &malcontent.FileReport{Path: "/b", Behaviors: []*malcontent.Behavior{{ID: "net/connect"}}})
 		stats, _, total := PkgStatistics(&malcontent.Config{}, files)
 		if total != 2 {
-			t.Errorf("expected 2 total, got %d", total)
+			t.Errorf("total behaviors: got = %d, want = 2", total)
 		}
 		if len(stats) != 1 || stats[0].Count != 2 {
-			t.Errorf("expected 1 entry with count 2, got %v", stats)
+			t.Errorf("stats: got = %+v, want one entry with count 2", stats)
 		}
 	})
 }

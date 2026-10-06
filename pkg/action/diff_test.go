@@ -37,7 +37,6 @@ func TestRelPath(t *testing.T) {
 		from      string
 		fr        *malcontent.FileReport
 		isArchive bool
-		isImage   bool
 		wantErr   bool
 		checkPath bool
 	}{
@@ -49,7 +48,6 @@ func TestRelPath(t *testing.T) {
 				FullPath: filepath.Join(tmpDir, "safe.txt"),
 			},
 			isArchive: false,
-			isImage:   false,
 			wantErr:   false,
 			checkPath: true,
 		},
@@ -61,7 +59,6 @@ func TestRelPath(t *testing.T) {
 				FullPath: filepath.Join(tmpDir, "..", "etc", "passwd"),
 			},
 			isArchive: false,
-			isImage:   false,
 			wantErr:   false, // relPath computes paths, validation is done by archive.IsValidPath
 			checkPath: true,
 		},
@@ -73,7 +70,6 @@ func TestRelPath(t *testing.T) {
 				FullPath: "/etc/passwd",
 			},
 			isArchive: false,
-			isImage:   false,
 			wantErr:   false,
 			checkPath: true,
 		},
@@ -86,19 +82,17 @@ func TestRelPath(t *testing.T) {
 				ArchiveRoot: archiveDir,
 			},
 			isArchive: true,
-			isImage:   false,
 			wantErr:   false,
 			checkPath: false,
 		},
 		{
-			name: "image path with separator",
+			name: "path with archive separator",
 			from: testFile,
 			fr: &malcontent.FileReport{
 				Path:     testFile + " ∴ /bin/app",
 				FullPath: testFile,
 			},
 			isArchive: false,
-			isImage:   true,
 			wantErr:   false,
 			checkPath: false,
 		},
@@ -107,7 +101,7 @@ func TestRelPath(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			base, rel, err := relPath(tt.from, tt.fr, tt.isArchive, tt.isImage)
+			base, rel, err := relPath(tt.from, tt.fr, tt.isArchive)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("relPath() error = %v, wantErr %v", err, tt.wantErr)
 				return

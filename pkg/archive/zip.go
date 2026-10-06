@@ -8,10 +8,14 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
+	"iter"
 	"os"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/file"
@@ -34,6 +38,17 @@ var zipMIME = map[string]struct{}{
 // (not a const) so tests can shrink the cap to a synthesizable bound; the
 // production value is file.DefaultMaxArchiveBytes (32 GiB).
 var defaultMaxArchiveBytes = file.DefaultMaxArchiveBytes
+
+// caseInsensitiveFS reports whether the extraction filesystem may fold case,
+// as macOS volumes do by default. There, entries such as META-INF/LICENSE and
+// META-INF/license/ name the same path, so ExtractZip assigns sibling names
+// to entries and directories whose path is already taken (see
+// zipFoldedPaths). It is a var so tests can enable the handling on any
+// platform.
+var caseInsensitiveFS = runtime.GOOS == "darwin"
+
+// maxCollisionNames bounds the sibling names tried for one entry.
+const maxCollisionNames = 1024
 
 // resolveArchiveCaps returns the effective byte and ratio caps for an archive
 // extraction. Caller-supplied Config values take precedence over defaults; a
@@ -94,6 +109,13 @@ func ExtractZip(ctx context.Context, d string, f string) (err error) {
 	}
 	defer root.Close()
 
+	// folded stays nil on case-sensitive filesystems, where every entry is
+	// written at the path it names.
+	var folded *zipFoldedPaths
+	if caseInsensitiveFS {
+		folded = newZipFoldedPaths(root)
+	}
+
 	for _, zf := range read.File {
 		if zf.Mode().IsDir() {
 			clean := filepath.Clean(filepath.ToSlash(zf.Name))
@@ -108,6 +130,12 @@ func ExtractZip(ctx context.Context, d string, f string) (err error) {
 				continue
 			}
 
+			if folded != nil {
+				if _, err := folded.dir(clean); err != nil {
+					return fmt.Errorf("failed to create directory structure: %w", err)
+				}
+				continue
+			}
 			if err := root.MkdirAll(clean, 0o700); err != nil {
 				return fmt.Errorf("failed to create directory structure: %w", err)
 			}
@@ -146,7 +174,7 @@ func ExtractZip(ctx context.Context, d string, f string) (err error) {
 				return err
 			}
 			defer sem.Release(1)
-			return extractFile(gCtx, zf, root, logger, counter)
+			return extractFile(gCtx, zf, root, logger, counter, folded)
 		})
 	}
 
@@ -155,7 +183,7 @@ func ExtractZip(ctx context.Context, d string, f string) (err error) {
 	}
 
 	for _, zf := range symlinks {
-		if err := extractFile(ctx, zf, root, logger, counter); err != nil {
+		if err := extractFile(ctx, zf, root, logger, counter, folded); err != nil {
 			return fmt.Errorf("extraction failed: %w", err)
 		}
 	}
@@ -167,25 +195,11 @@ func ExtractZip(ctx context.Context, d string, f string) (err error) {
 	return nil
 }
 
-func extractFile(ctx context.Context, zf *zip.File, root *os.Root, logger *clog.Logger, counter *file.ArchiveCounter) error {
+// extractFile writes one file or symlink entry beneath root. A nil folded
+// writes the entry at the path it names; otherwise folded assigns the path.
+func extractFile(ctx context.Context, zf *zip.File, root *os.Root, logger *clog.Logger, counter *file.ArchiveCounter, folded *zipFoldedPaths) error {
 	if ctx.Err() != nil {
 		return ctx.Err()
-	}
-
-	// macOS will encounter issues with paths like META-INF/LICENSE and META-INF/license/foo
-	// this case insensitivity will break scans, so rename files that collide with existing directories
-	if runtime.GOOS == "darwin" {
-		// Root has no MkdirTemp; Stat through it first so that the plain path
-		// passed to os.MkdirTemp is known to lie beneath the root.
-		if _, err := root.Stat(zf.Name); err == nil {
-			uniqueDir, mkErr := os.MkdirTemp(filepath.Join(root.Name(), filepath.Dir(zf.Name)), filepath.Base(zf.Name)+"_*")
-			if mkErr == nil {
-				rel, relErr := filepath.Rel(root.Name(), uniqueDir)
-				if relErr == nil {
-					zf.Name = rel
-				}
-			}
-		}
 	}
 
 	clean := filepath.Clean(filepath.ToSlash(zf.Name))
@@ -213,7 +227,14 @@ func extractFile(ctx context.Context, zf *zip.File, root *os.Root, logger *clog.
 			return fmt.Errorf("failed to read symlink target: %w", err)
 		}
 
-		if err := handleSymlink(root, clean, string(linkTarget)); err != nil {
+		name := clean
+		if folded != nil {
+			if name, err = folded.symlinkName(clean); err != nil {
+				return fmt.Errorf("failed to create symlink: %w", err)
+			}
+		}
+
+		if err := handleSymlink(root, name, string(linkTarget)); err != nil {
 			return fmt.Errorf("failed to create symlink: %w", err)
 		}
 		return nil
@@ -228,21 +249,28 @@ func extractFile(ctx context.Context, zf *zip.File, root *os.Root, logger *clog.
 	}
 	defer src.Close()
 
-	dst, err := createFile(root, clean)
+	var dst *os.File
+	name := clean
+	if folded != nil {
+		dst, name, err = folded.createFile(clean)
+	} else {
+		dst, err = createFile(root, clean)
+	}
 	if err != nil {
 		return err
 	}
 	defer dst.Close()
+	if name != clean {
+		logger.Debugf("writing %s as %s because the path is already taken", clean, name)
+	}
 
-	var written int64
 	for {
-		if written > 0 && written%file.ZipBuffer == 0 && ctx.Err() != nil {
-			return ctx.Err()
+		if err := ctx.Err(); err != nil {
+			return err
 		}
 
 		n, err := src.Read(buf)
 		if n > 0 {
-			written += int64(n)
 			if capErr := counter.Add(n); capErr != nil {
 				return fmt.Errorf("zip extraction aborted on %s: %w", target, capErr)
 			}
@@ -262,4 +290,137 @@ func extractFile(ctx context.Context, zf *zip.File, root *os.Root, logger *clog.
 	}
 
 	return nil
+}
+
+// zipFoldedPaths assigns output paths beneath root on a filesystem that folds
+// case, where differently cased entry names can claim the same path. A file
+// or symlink whose path is taken gets a sibling name. A directory whose path
+// holds anything other than a directory gets a new sibling directory, which
+// every entry beneath it then shares. All operations go through root.
+type zipFoldedPaths struct {
+	root *os.Root
+	mu   sync.Mutex
+	// dirs maps each directory, as entries name it and folded to lower case,
+	// to the directory created for it. Guarded by mu.
+	dirs map[string]string
+}
+
+func newZipFoldedPaths(root *os.Root) *zipFoldedPaths {
+	return &zipFoldedPaths{root: root, dirs: map[string]string{}}
+}
+
+// dir returns the directory created for name, a cleaned relative path,
+// creating it and any missing parents. Like root, it rejects absolute names,
+// which also guarantees that walking up the parents ends at ".".
+func (p *zipFoldedPaths) dir(name string) (string, error) {
+	if name == "." {
+		return name, nil
+	}
+	if !filepath.IsLocal(name) {
+		return "", fmt.Errorf("failed to create directory: path outside extraction directory: %s", name)
+	}
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	return p.dirLocked(name)
+}
+
+func (p *zipFoldedPaths) dirLocked(name string) (string, error) {
+	if name == "." {
+		return name, nil
+	}
+	key := strings.ToLower(name)
+	if got, ok := p.dirs[key]; ok {
+		return got, nil
+	}
+	parent, err := p.dirLocked(filepath.Dir(name))
+	if err != nil {
+		return "", err
+	}
+	want := filepath.Join(parent, filepath.Base(name))
+	for candidate := range zipCollisionNames(want) {
+		err := p.root.Mkdir(candidate, 0o700)
+		if errors.Is(err, fs.ErrExist) {
+			// Only the wanted name may be reused, and only when it is a real
+			// directory; a sibling must be new so renamed contents stay apart.
+			if candidate != want || !p.isDir(candidate) {
+				continue
+			}
+			err = nil
+		}
+		if err != nil {
+			return "", fmt.Errorf("failed to create directory: %w", err)
+		}
+		p.dirs[key] = candidate
+		return candidate, nil
+	}
+	return "", fmt.Errorf("failed to create directory: no unused name derived from %s", want)
+}
+
+func (p *zipFoldedPaths) isDir(name string) bool {
+	fi, err := p.root.Lstat(name)
+	return err == nil && fi.IsDir()
+}
+
+// createFile creates the file for name, a cleaned relative path, in the
+// directory created for its parent, under the first free name derived from
+// it, and returns the file and the name used. Exclusive creation keeps
+// concurrent workers from sharing a file and never follows a symlink.
+func (p *zipFoldedPaths) createFile(name string) (*os.File, string, error) {
+	parent, err := p.dir(filepath.Dir(name))
+	if err != nil {
+		return nil, "", err
+	}
+	for candidate := range zipCollisionNames(filepath.Join(parent, filepath.Base(name))) {
+		out, err := p.root.OpenFile(candidate, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600)
+		if err == nil {
+			return out, candidate, nil
+		}
+		if !errors.Is(err, fs.ErrExist) {
+			return nil, "", fmt.Errorf("failed to create file: %w", err)
+		}
+	}
+	return nil, "", fmt.Errorf("failed to create file: no unused name derived from %s", name)
+}
+
+// symlinkName returns the first free name derived from name, a cleaned
+// relative path, in the directory created for its parent. ExtractZip creates
+// symlinks one at a time after every other entry, so the name stays free
+// until the link is made.
+func (p *zipFoldedPaths) symlinkName(name string) (string, error) {
+	parent, err := p.dir(filepath.Dir(name))
+	if err != nil {
+		return "", err
+	}
+	for candidate := range zipCollisionNames(filepath.Join(parent, filepath.Base(name))) {
+		_, err := p.root.Lstat(candidate)
+		if errors.Is(err, fs.ErrNotExist) {
+			return candidate, nil
+		}
+		if err != nil {
+			return "", fmt.Errorf("failed to inspect %s: %w", candidate, err)
+		}
+	}
+	return "", fmt.Errorf("no unused name derived from %s", name)
+}
+
+// zipCollisionNames yields name and then up to maxCollisionNames sibling names
+// derived from it. Each suffix goes before the extension programkind reports,
+// so a renamed nested archive is still recognized by its name.
+func zipCollisionNames(name string) iter.Seq[string] {
+	return func(yield func(string) bool) {
+		if !yield(name) {
+			return
+		}
+		dir, base := filepath.Split(name)
+		ext := programkind.GetExt(base)
+		if len(ext) >= len(base) || !strings.HasSuffix(base, ext) {
+			ext = ""
+		}
+		stem := strings.TrimSuffix(base, ext)
+		for i := range maxCollisionNames {
+			if !yield(dir + stem + "_" + strconv.Itoa(i+1) + ext) {
+				return
+			}
+		}
+	}
 }

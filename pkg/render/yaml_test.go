@@ -20,7 +20,7 @@ func TestYAMLRendererEmpty(t *testing.T) {
 	var buf bytes.Buffer
 	renderer := NewYAML(&buf)
 
-	ctx := context.Background()
+	ctx := t.Context()
 	cfg := &malcontent.Config{}
 	report := &malcontent.Report{
 		Files: xsync.NewMap[string, *malcontent.FileReport](),
@@ -28,13 +28,13 @@ func TestYAMLRendererEmpty(t *testing.T) {
 
 	err := renderer.Full(ctx, cfg, report)
 	if err != nil {
-		t.Fatalf("Full() error = %v", err)
+		t.Fatalf("Full() error: got = %v, want = nil", err)
 	}
 
 	// Verify valid YAML was generated
 	var result map[string]any
 	if err := yaml.Unmarshal(buf.Bytes(), &result); err != nil {
-		t.Fatalf("Generated invalid YAML: %v", err)
+		t.Fatalf("decode output: got err = %v, want = nil", err)
 	}
 }
 
@@ -43,7 +43,7 @@ func TestYAMLRendererWithFiles(t *testing.T) {
 	var buf bytes.Buffer
 	renderer := NewYAML(&buf)
 
-	ctx := context.Background()
+	ctx := t.Context()
 	cfg := &malcontent.Config{}
 	report := &malcontent.Report{
 		Files: xsync.NewMap[string, *malcontent.FileReport](),
@@ -58,28 +58,28 @@ func TestYAMLRendererWithFiles(t *testing.T) {
 
 	err := renderer.Full(ctx, cfg, report)
 	if err != nil {
-		t.Fatalf("Full() error = %v", err)
+		t.Fatalf("Full() error: got = %v, want = nil", err)
 	}
 
 	// Parse and verify YAML
 	var result Report
 	if err := yaml.Unmarshal(buf.Bytes(), &result); err != nil {
-		t.Fatalf("Generated invalid YAML: %v", err)
+		t.Fatalf("decode output: got err = %v, want = nil", err)
 	}
 
 	if len(result.Files) != 1 {
-		t.Errorf("Expected 1 file, got %d", len(result.Files))
+		t.Errorf("files: got = %d, want = 1", len(result.Files))
 	}
 
 	if fr, ok := result.Files["/bin/ls"]; ok {
 		if fr.Path != "/bin/ls" {
-			t.Errorf("File path = %q, want %q", fr.Path, "/bin/ls")
+			t.Errorf("file path: got = %q, want = %q", fr.Path, "/bin/ls")
 		}
 		if fr.RiskScore != 1 {
-			t.Errorf("Risk score = %d, want 1", fr.RiskScore)
+			t.Errorf("risk score: got = %d, want = 1", fr.RiskScore)
 		}
 	} else {
-		t.Error("File /bin/ls not found in YAML output")
+		t.Error("file /bin/ls: got = absent, want = present")
 	}
 }
 
@@ -88,7 +88,7 @@ func TestYAMLRendererWithSkippedFiles(t *testing.T) {
 	var buf bytes.Buffer
 	renderer := NewYAML(&buf)
 
-	ctx := context.Background()
+	ctx := t.Context()
 	cfg := &malcontent.Config{}
 	report := &malcontent.Report{
 		Files: xsync.NewMap[string, *malcontent.FileReport](),
@@ -108,21 +108,21 @@ func TestYAMLRendererWithSkippedFiles(t *testing.T) {
 
 	err := renderer.Full(ctx, cfg, report)
 	if err != nil {
-		t.Fatalf("Full() error = %v", err)
+		t.Fatalf("Full() error: got = %v, want = nil", err)
 	}
 
 	var result Report
 	if err := yaml.Unmarshal(buf.Bytes(), &result); err != nil {
-		t.Fatalf("Generated invalid YAML: %v", err)
+		t.Fatalf("decode output: got err = %v, want = nil", err)
 	}
 
 	// Skipped files should be filtered out
 	if len(result.Files) != 1 {
-		t.Errorf("Expected 1 file (skipped should be filtered), got %d", len(result.Files))
+		t.Errorf("files excluding skipped: got = %d, want = 1", len(result.Files))
 	}
 
 	if _, ok := result.Files["/bin/skipped"]; ok {
-		t.Error("Skipped file should not appear in YAML output")
+		t.Error("skipped file: got = present, want = absent")
 	}
 }
 
@@ -131,17 +131,17 @@ func TestYAMLRendererNilReport(t *testing.T) {
 	var buf bytes.Buffer
 	renderer := NewYAML(&buf)
 
-	ctx := context.Background()
+	ctx := t.Context()
 	cfg := &malcontent.Config{}
 
 	err := renderer.Full(ctx, cfg, nil)
 	if err != nil {
-		t.Fatalf("Full() with nil report error = %v", err)
+		t.Fatalf("Full(nil report) error: got = %v, want = nil", err)
 	}
 
 	// Buffer should be empty for nil report
 	if buf.Len() != 0 {
-		t.Errorf("Expected empty output for nil report, got %d bytes", buf.Len())
+		t.Errorf("output for nil report: got = %d bytes, want = 0", buf.Len())
 	}
 }
 
@@ -150,7 +150,7 @@ func TestYAMLRendererCanceledContext(t *testing.T) {
 	var buf bytes.Buffer
 	renderer := NewYAML(&buf)
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(t.Context())
 	cancel() // Cancel immediately
 
 	cfg := &malcontent.Config{}
@@ -160,7 +160,7 @@ func TestYAMLRendererCanceledContext(t *testing.T) {
 
 	err := renderer.Full(ctx, cfg, report)
 	if !errors.Is(err, context.Canceled) {
-		t.Errorf("Full() with canceled context error = %v, want %v", err, context.Canceled)
+		t.Errorf("Full() with canceled context error: got = %v, want = %v", err, context.Canceled)
 	}
 }
 
@@ -169,7 +169,7 @@ func TestYAMLRendererWithStats(t *testing.T) {
 	var buf bytes.Buffer
 	renderer := NewYAML(&buf)
 
-	ctx := context.Background()
+	ctx := t.Context()
 	cfg := &malcontent.Config{Stats: true}
 	report := &malcontent.Report{
 		Files: xsync.NewMap[string, *malcontent.FileReport](),
@@ -188,17 +188,17 @@ func TestYAMLRendererWithStats(t *testing.T) {
 
 	err := renderer.Full(ctx, cfg, report)
 	if err != nil {
-		t.Fatalf("Full() error = %v", err)
+		t.Fatalf("Full() error: got = %v, want = nil", err)
 	}
 
 	var result Report
 	if err := yaml.Unmarshal(buf.Bytes(), &result); err != nil {
-		t.Fatalf("Generated invalid YAML: %v", err)
+		t.Fatalf("decode output: got err = %v, want = nil", err)
 	}
 
 	// Stats should be present when enabled
 	if result.Stats == nil {
-		t.Error("Expected stats in output when Stats=true")
+		t.Error("stats with Stats=true: got = absent, want = present")
 	}
 }
 
@@ -207,7 +207,7 @@ func TestYAMLRendererWithDiff(t *testing.T) {
 	var buf bytes.Buffer
 	renderer := NewYAML(&buf)
 
-	ctx := context.Background()
+	ctx := t.Context()
 	cfg := &malcontent.Config{Stats: true}
 	diff := &malcontent.DiffReport{
 		Added:    orderedmap.New[string, *malcontent.FileReport](),
@@ -224,22 +224,22 @@ func TestYAMLRendererWithDiff(t *testing.T) {
 
 	err := renderer.Full(ctx, cfg, report)
 	if err != nil {
-		t.Fatalf("Full() error = %v", err)
+		t.Fatalf("Full() error: got = %v, want = nil", err)
 	}
 
 	var result Report
 	if err := yaml.Unmarshal(buf.Bytes(), &result); err != nil {
-		t.Fatalf("Generated invalid YAML: %v", err)
+		t.Fatalf("decode output: got err = %v, want = nil", err)
 	}
 
 	// Diff should be present
 	if result.Diff == nil {
-		t.Error("Expected diff in output")
+		t.Error("diff: got = absent, want = present")
 	}
 
 	// Stats should not be present for diff reports
 	if result.Stats != nil {
-		t.Error("Stats should not be present in diff reports")
+		t.Error("stats in diff report: got = present, want = absent")
 	}
 }
 
@@ -249,10 +249,10 @@ func TestYAMLRendererScanningNoOp(t *testing.T) {
 	renderer := NewYAML(&buf)
 
 	// Scanning should be a no-op for YAML renderer
-	renderer.Scanning(context.Background(), "/some/path")
+	renderer.Scanning(t.Context(), "/some/path")
 
 	if buf.Len() != 0 {
-		t.Error("Scanning() should not write anything for YAML renderer")
+		t.Errorf("Scanning() output: got = %q, want = empty", buf.String())
 	}
 }
 
@@ -261,7 +261,7 @@ func TestYAMLRendererDiffWithNilFiles(t *testing.T) {
 	var buf bytes.Buffer
 	renderer := NewYAML(&buf)
 
-	ctx := context.Background()
+	ctx := t.Context()
 	cfg := &malcontent.Config{}
 	diff := &malcontent.DiffReport{
 		Added:    orderedmap.New[string, *malcontent.FileReport](),
@@ -274,16 +274,16 @@ func TestYAMLRendererDiffWithNilFiles(t *testing.T) {
 
 	err := renderer.Full(ctx, cfg, report)
 	if err != nil {
-		t.Fatalf("Full() error = %v", err)
+		t.Fatalf("Full() error: got = %v, want = nil", err)
 	}
 
 	var result Report
 	if err := yaml.Unmarshal(buf.Bytes(), &result); err != nil {
-		t.Fatalf("Generated invalid YAML: %v", err)
+		t.Fatalf("decode output: got err = %v, want = nil", err)
 	}
 
 	if result.Diff == nil {
-		t.Error("Expected diff in output")
+		t.Error("diff: got = absent, want = present")
 	}
 }
 
@@ -293,13 +293,13 @@ func TestYAMLRendererFileNoOp(t *testing.T) {
 	renderer := NewYAML(&buf)
 
 	fr := &malcontent.FileReport{Path: "/test"}
-	err := renderer.File(context.Background(), fr)
+	err := renderer.File(t.Context(), fr)
 	if err != nil {
-		t.Errorf("File() error = %v", err)
+		t.Errorf("File() error: got = %v, want = nil", err)
 	}
 
 	if buf.Len() != 0 {
-		t.Error("File() should not write anything for YAML renderer")
+		t.Errorf("File() output: got = %q, want = empty", buf.String())
 	}
 }
 
@@ -308,7 +308,7 @@ func TestYAMLRendererSpecialCharacters(t *testing.T) {
 	var buf bytes.Buffer
 	renderer := NewYAML(&buf)
 
-	ctx := context.Background()
+	ctx := t.Context()
 	cfg := &malcontent.Config{}
 	report := &malcontent.Report{
 		Files: xsync.NewMap[string, *malcontent.FileReport](),
@@ -322,13 +322,13 @@ func TestYAMLRendererSpecialCharacters(t *testing.T) {
 
 	err := renderer.Full(ctx, cfg, report)
 	if err != nil {
-		t.Fatalf("Full() error = %v", err)
+		t.Fatalf("Full() error: got = %v, want = nil", err)
 	}
 
 	// Should produce valid YAML despite special characters
 	var result Report
 	if err := yaml.Unmarshal(buf.Bytes(), &result); err != nil {
-		t.Fatalf("Failed to parse YAML with special characters: %v", err)
+		t.Fatalf("decode output with special characters: got err = %v, want = nil", err)
 	}
 }
 
@@ -337,7 +337,7 @@ func TestYAMLRendererMultipleFiles(t *testing.T) {
 	var buf bytes.Buffer
 	renderer := NewYAML(&buf)
 
-	ctx := context.Background()
+	ctx := t.Context()
 	cfg := &malcontent.Config{}
 	report := &malcontent.Report{
 		Files: xsync.NewMap[string, *malcontent.FileReport](),
@@ -354,15 +354,15 @@ func TestYAMLRendererMultipleFiles(t *testing.T) {
 
 	err := renderer.Full(ctx, cfg, report)
 	if err != nil {
-		t.Fatalf("Full() error = %v", err)
+		t.Fatalf("Full() error: got = %v, want = nil", err)
 	}
 
 	var result Report
 	if err := yaml.Unmarshal(buf.Bytes(), &result); err != nil {
-		t.Fatalf("Generated invalid YAML: %v", err)
+		t.Fatalf("decode output: got err = %v, want = nil", err)
 	}
 
 	if len(result.Files) != 5 {
-		t.Errorf("Expected 5 files, got %d", len(result.Files))
+		t.Errorf("files: got = %d, want = 5", len(result.Files))
 	}
 }

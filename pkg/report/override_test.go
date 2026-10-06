@@ -16,9 +16,9 @@ var thirdPartyRuleDecl = regexp.MustCompile(`(?m)^\s*(?:private\s+)?rule\s+(\w+)
 
 // embeddedThirdPartyRules returns the set of YARA rule identifiers defined
 // across the vendored third-party rule sets.
-func embeddedThirdPartyRules(t *testing.T) map[string]bool {
+func embeddedThirdPartyRules(t *testing.T) map[string]struct{} {
 	t.Helper()
-	names := map[string]bool{}
+	names := map[string]struct{}{}
 	err := fs.WalkDir(thirdparty.FS, "yara", func(path string, d fs.DirEntry, err error) error {
 		if err != nil || d.IsDir() {
 			return err
@@ -33,7 +33,7 @@ func embeddedThirdPartyRules(t *testing.T) map[string]bool {
 			return err
 		}
 		for _, m := range thirdPartyRuleDecl.FindAllStringSubmatch(string(b), -1) {
-			names[m[1]] = true
+			names[m[1]] = struct{}{}
 		}
 		return nil
 	})
@@ -79,7 +79,7 @@ func TestThirdPartyRiskOverrides(t *testing.T) {
 		if _, ok := RiskLevels[score]; !ok {
 			t.Errorf("thirdPartyRiskOverrides[%q] = %d is not a valid risk score", name, score)
 		}
-		if !rules[name] {
+		if _, ok := rules[name]; !ok {
 			t.Errorf("thirdPartyRiskOverrides references %q, which is not a vendored third-party rule (renamed or removed upstream?)", name)
 		}
 	}

@@ -4,7 +4,6 @@
 package render
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"testing"
@@ -50,7 +49,7 @@ func benchReport(fileCount, behaviorsPerFile int) *malcontent.Report {
 
 // BenchmarkTerminal_File renders one FileReport through the Terminal renderer.
 func BenchmarkTerminal_File(b *testing.B) {
-	ctx := context.Background()
+	ctx := b.Context()
 	r := NewTerminal(io.Discard)
 	fr := benchFileReport("/bin/synthetic", 8)
 	b.ReportAllocs()
@@ -63,7 +62,7 @@ func BenchmarkTerminal_File(b *testing.B) {
 
 // BenchmarkBrief_File renders one FileReport through the TerminalBrief renderer.
 func BenchmarkBrief_File(b *testing.B) {
-	ctx := context.Background()
+	ctx := b.Context()
 	r := NewTerminalBrief(io.Discard)
 	fr := benchFileReport("/bin/synthetic", 8)
 	b.ReportAllocs()
@@ -76,7 +75,7 @@ func BenchmarkBrief_File(b *testing.B) {
 
 // BenchmarkRender_LargeReport drives Terminal.File across a 100-file report.
 func BenchmarkRender_LargeReport(b *testing.B) {
-	ctx := context.Background()
+	ctx := b.Context()
 	r := NewTerminal(io.Discard)
 	rep := benchReport(100, 4)
 	b.ReportAllocs()

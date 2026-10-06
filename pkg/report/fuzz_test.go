@@ -4,7 +4,6 @@
 package report
 
 import (
-	"context"
 	"strings"
 	"sync"
 	"testing"
@@ -66,14 +65,14 @@ func FuzzLongestUnique(f *testing.F) {
 			}
 		}
 
-		inputMap := make(map[string]bool)
+		inputSet := make(map[string]struct{}, len(strs))
 		for _, s := range strs {
 			if s != "" {
-				inputMap[s] = true
+				inputSet[s] = struct{}{}
 			}
 		}
 		for _, s := range result {
-			if !inputMap[s] {
+			if _, ok := inputSet[s]; !ok {
 				t.Fatalf("result contains %q which was not in input", s)
 			}
 		}
@@ -378,12 +377,12 @@ func FuzzReportLoad(f *testing.F) {
 
 // FuzzHandleOverrides tests the handleOverrides function with fuzzed inputs.
 func FuzzHandleOverrides(f *testing.F) {
-	f.Add("rule_a", 3, "override_x", 1, "rule_a", 1, false, false)
-	f.Add("rule_a", 4, "override_x", 0, "rule_a", 0, true, true)
-	f.Add("rule_a", 2, "override_x", 3, "nonexistent", 1, false, false)
-	f.Add("", 0, "", 0, "", 0, false, false)
+	f.Add("rule_a", 3, "override_x", 1, "rule_a", 1, false)
+	f.Add("rule_a", 4, "override_x", 0, "rule_a", 0, true)
+	f.Add("rule_a", 2, "override_x", 3, "nonexistent", 1, false)
+	f.Add("", 0, "", 0, "", 0, false)
 
-	f.Fuzz(func(t *testing.T, origName string, origRisk int, overName string, overRisk int, overTarget string, minScore int, scan, qir bool) {
+	f.Fuzz(func(t *testing.T, origName string, origRisk int, overName string, overRisk int, overTarget string, minScore int, scan bool) {
 		// Clamp values to valid ranges
 		origRisk = max(origRisk%5, 0)
 		overRisk = max(overRisk%5, 0)
@@ -400,7 +399,7 @@ func FuzzHandleOverrides(f *testing.F) {
 			{RuleName: overName, RiskScore: overRisk, RiskLevel: RiskLevels[overRisk], Override: []string{overTarget}},
 		}
 
-		result := handleOverrides(original, override, minScore, scan, qir)
+		result := handleOverrides(original, override, minScore, scan)
 
 		// Result should never be longer than original
 		if len(result) > len(original) {
@@ -416,8 +415,8 @@ func FuzzHandleOverrides(f *testing.F) {
 
 		// All remaining behaviors should meet the filter criteria
 		for _, b := range result {
-			if scan && qir && b.RiskScore < HIGH {
-				t.Errorf("scan+QIR: behavior %q has score %d < HIGH", b.RuleName, b.RiskScore)
+			if scan && b.RiskScore < HIGH {
+				t.Errorf("scan: behavior %q has score %d < HIGH", b.RuleName, b.RiskScore)
 			}
 			if !scan && b.RiskScore < minScore {
 				t.Errorf("non-scan: behavior %q has score %d < minScore %d", b.RuleName, b.RiskScore, minScore)
@@ -556,9 +555,7 @@ func FuzzUpgradeRisk(f *testing.F) {
 		}
 
 		riskCounts := map[int]int{HIGH: highCount}
-		ctx := context.Background()
-
-		result := upgradeRisk(ctx, riskScore, riskCounts, size)
+		result := upgradeRisk(t.Context(), riskScore, riskCounts, size)
 
 		// upgradeRisk should never upgrade when riskScore != HIGH (3)
 		if riskScore != HIGH && result {

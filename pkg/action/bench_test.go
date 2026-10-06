@@ -45,7 +45,7 @@ func benchConfig(ctx context.Context, b *testing.B) (malcontent.Config, []fs.FS)
 
 // BenchmarkScanSinglePath measures scan of a tiny shell fixture end-to-end.
 func BenchmarkScanSinglePath(b *testing.B) {
-	ctx := context.Background()
+	ctx := b.Context()
 	cfg, rfs := benchConfig(ctx, b)
 	path := filepath.Join("testdata", "shell")
 	b.ReportAllocs()
@@ -57,7 +57,7 @@ func BenchmarkScanSinglePath(b *testing.B) {
 
 // BenchmarkProcessPath dispatches through the archive vs single-file branch.
 func BenchmarkProcessPath(b *testing.B) {
-	ctx := context.Background()
+	ctx := b.Context()
 	cfg, _ := benchConfig(ctx, b)
 	path := filepath.Join("testdata", "shell")
 	scanInfo := scanPathInfo{originalPath: path, effectivePath: path}
@@ -75,7 +75,7 @@ func BenchmarkProcessPath(b *testing.B) {
 
 // BenchmarkHandleSingleFile measures the single-file scan-and-store path.
 func BenchmarkHandleSingleFile(b *testing.B) {
-	ctx := context.Background()
+	ctx := b.Context()
 	cfg, _ := benchConfig(ctx, b)
 	path := filepath.Join("testdata", "shell")
 	scanInfo := scanPathInfo{originalPath: path, effectivePath: path}
@@ -93,7 +93,7 @@ func BenchmarkHandleSingleFile(b *testing.B) {
 
 // BenchmarkCachedRules measures the cached-rule retrieval fast path.
 func BenchmarkCachedRules(b *testing.B) {
-	ctx := context.Background()
+	ctx := b.Context()
 	rfs := benchRuleFS()
 	if _, err := CachedRules(ctx, rfs); err != nil {
 		b.Skipf("CachedRules unavailable (yara-x not built?): %v", err)

@@ -1,9 +1,7 @@
 // Copyright 2024 Chainguard, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-// malcontent returns information about a file's capabilities
-//
-//nolint:cyclop // ignore complexity of 40
+// malcontent returns information about a file's capabilities.
 package main
 
 import (
@@ -107,6 +105,15 @@ var riskMap = map[string]int{
 	"critical": 4,
 }
 
+// BuildVersion is the release version stamped at link time with
+// -ldflags "-X main.BuildVersion=<version>". When it is empty, the version
+// compiled into pkg/release is reported.
+var BuildVersion string
+
+// drainTimeout bounds how long in-flight work may drain after SIGINT or
+// SIGTERM before the process is forced to exit.
+const drainTimeout = 10 * time.Second
+
 func showError(err error) {
 	emoji := "💣"
 	if errors.Is(err, action.ErrMatchedCondition) {
@@ -114,6 +121,17 @@ func showError(err error) {
 	}
 
 	fmt.Fprintf(os.Stderr, "%s %s\n", emoji, err.Error())
+}
+
+// cliState holds what the CLI's Before, Action, and After stages share.
+type cliState struct {
+	log        *clog.Logger
+	logLevel   *slog.LevelVar
+	mc         malcontent.Config
+	outFile    *os.File
+	profiler   *profile.Profiler
+	renderer   malcontent.Renderer
+	returnCode int
 }
 
 func main() {
@@ -125,694 +143,724 @@ func main() {
 	logOpts := &slog.HandlerOptions{Level: logLevel, AddSource: true}
 	log := clog.New(slog.NewTextHandler(os.Stderr, logOpts))
 
-	// variables to share between stages
-	var (
-		mc       malcontent.Config
-		err      error
-		outFile  = os.Stdout
-		renderer malcontent.Renderer
-		res      *malcontent.Report
-		p        *profile.Profiler
-		ver      string
-	)
-
 	ctx, cancel := context.WithCancel(context.Background())
 	ctx = clog.WithLogger(ctx, log)
 	defer cancel()
 
-	go func() {
-		handleContext(cancel, log)
-	}()
+	go handleContext(cancel, log)
 
-	ver, err = release.Version()
+	st := &cliState{log: log, logLevel: logLevel, outFile: os.Stdout}
+	err := newApp(st).Run(ctx, os.Args)
+	returnCode = exitCode(st.returnCode, err)
 	if err != nil {
-		returnCode = ExitActionFailed
+		showError(err)
 	}
+}
 
-	app := &cli.Command{
+// exitCode maps the outcome of a CLI run to the process exit status. A
+// failure keeps the specific code its stage recorded and falls back to
+// ExitActionFailed when none was recorded; meeting an --exit-first-hit or
+// --exit-first-miss condition is not a failure.
+func exitCode(code int, err error) int {
+	switch {
+	case err == nil:
+		return code
+	case errors.Is(err, action.ErrMatchedCondition):
+		return ExitOK
+	case code == ExitOK:
+		return ExitActionFailed
+	default:
+		return code
+	}
+}
+
+// newApp builds the malcontent command tree; its stages share st.
+func newApp(st *cliState) *cli.Command {
+	return &cli.Command{
 		Name:                  "malcontent",
-		Version:               ver,
+		Version:               release.Version(BuildVersion),
 		Usage:                 "Detect malicious program behaviors",
 		UsageText:             "mal [GLOBAL FLAGS] <command> [COMMAND FLAGS] <path>",
 		EnableShellCompletion: true,
 		// Close the output file and stop profiling if appropriate
-		After: func(_ context.Context, _ *cli.Command) error {
-			// Close our output file (or stdout) after commands have run
-			defer func() {
-				_ = outFile.Close()
-			}()
-
-			// Stop profiling if command was executed with that flag
-			if profileFlag {
-				p.Stop()
-			}
-			return nil
-		},
+		After: st.after,
 		// Handle shared initialization (flag parsing, rule compilation, configuration)
-		Before: func(ctx context.Context, c *cli.Command) (context.Context, error) {
-			clog.FromContext(ctx).Info("malcontent starting")
-
-			if profileFlag {
-				var err error
-				p, err = profile.StartProfiling(ctx, profile.DefaultConfig())
-				if err != nil {
-					log.Error("profiling failed", slog.Any("error", err))
-					returnCode = ExitProfilerError
-					return ctx, nil
-				}
-			}
-
-			if verboseFlag {
-				logLevel.Set(slog.LevelDebug)
-			}
-
-			ignoreTags := strings.Split(ignoreTagsFlag, ",")
-			ignoreRules := splitAndTrimCSV(ignoreRulesFlag)
-			if err := report.ValidateIgnoreRules(ignoreRules); err != nil {
-				log.Errorf("%v", err)
-				returnCode = ExitInvalidArgument
-				return ctx, err
-			}
-			includeDataFiles := includeDataFilesFlag
-
-			minRisk, exists := riskMap[minRiskFlag]
-			if !exists {
-				log.Errorf("unknown risk: %q", minRiskFlag)
-				returnCode = ExitInvalidArgument
-				return ctx, nil
-			}
-
-			// Backwards compatibility
-			if minLevelFlag != -1 {
-				minRisk = minLevelFlag
-			}
-
-			minFileRisk, exists := riskMap[minFileRiskFlag]
-			if !exists {
-				log.Errorf("unknown risk: %q", minFileRiskFlag)
-				returnCode = ExitInvalidArgument
-				return ctx, nil
-			}
-
-			// Backwards compatibility
-			if minFileLevelFlag != -1 {
-				minFileRisk = minFileLevelFlag
-			}
-
-			// Add the default tags to ignore regardless of whether they're passed in or not
-			defaultIgnore := []string{
-				"false_positive",
-				"ignore",
-			}
-
-			for _, t := range defaultIgnore {
-				if !slices.Contains(ignoreTags, t) {
-					ignoreTags = append(ignoreTags, t)
-				}
-			}
-
-			if allFlag {
-				ignoreRules = nil
-				ignoreSelfFlag = false
-				ignoreTags = []string{}
-				includeDataFiles = true
-				minFileRisk = -1
-				minRisk = -1
-			}
-
-			if outputFlag != "" {
-				outFile, err = os.OpenFile(outputFlag, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600) // #nosec G304 -- CLI flag values are user-supplied paths intended for the operation
-				if err != nil {
-					returnCode = ExitInputOutput
-					return ctx, err
-				}
-			}
-
-			chosenFormat := formatFlag
-			if chosenFormat == "auto" {
-				chosenFormat = "terminal"
-				if slices.Contains(c.Args().Slice(), "scan") {
-					chosenFormat = "terminal_brief"
-				}
-			}
-
-			renderer, err = render.New(chosenFormat, outFile)
-			if err != nil {
-				returnCode = ExitInvalidArgument
-				return ctx, err
-			}
-
-			rfs := []fs.FS{rules.FS}
-			if thirdPartyFlag {
-				rfs = append(rfs, thirdparty.FS)
-			}
-
-			yrs, err := action.CachedRules(ctx, rfs)
-			if err != nil {
-				returnCode = ExitInvalidRules
-			}
-
-			concurrency := max(1, concurrencyFlag)
-
-			mc = malcontent.Config{
-				Concurrency:              concurrency,
-				ExitExtraction:           exitExtractionFlag,
-				ExitOnExtractorPanic:     exitExtractorPanicFlag,
-				ExitFirstHit:             exitFirstHitFlag,
-				ExitFirstMiss:            exitFirstMissFlag,
-				IgnoreRules:              ignoreRules,
-				IgnoreSelf:               ignoreSelfFlag,
-				IgnoreTags:               ignoreTags,
-				IncludeDataFiles:         includeDataFiles,
-				MaxArchiveBytes:          maxArchiveBytesFlag,
-				MaxArchiveRatio:          maxArchiveRatioFlag,
-				MaxDepth:                 maxDepthFlag,
-				MaxImageSize:             maxImageSizeFlag,
-				MaxScanFiles:             maxScanFilesFlag,
-				MinFileRisk:              minFileRisk,
-				MinRisk:                  minRisk,
-				OCIAuth:                  ociAuthFlag,
-				OCI:                      ociFlag,
-				OCICABundlePath:          caBundleFlag,
-				OCIKeepalivePolicy:       malcontent.KeepalivePolicy(ociKeepalivePolicyFlag),
-				OCIKeepaliveSeconds:      ociKeepaliveSecondsFlag,
-				OCIPerHostSlots:          ociPerHostSlotsFlag,
-				OCIProxyOptIn:            ociProxyOptInFlag,
-				OCIPullTimeoutSeconds:    ociPullTimeoutFlag,
-				OCIRetryMaxAttempts:      ociRetryMaxAttemptsFlag,
-				OCIRetryMaxWindowSeconds: ociRetryMaxWindowFlag,
-				QuantityIncreasesRisk:    quantityIncreasesRiskFlag,
-				Renderer:                 renderer,
-				RuleCategories:           ruleCategoriesFlag,
-				Rules:                    yrs,
-				Stats:                    statsFlag,
-			}
-
-			// always trim macOS' /private prefix
-			if runtime.GOOS == "darwin" {
-				mc.TrimPrefixes = append(mc.TrimPrefixes, "/private")
-			}
-
-			ctx = malcontent.ContextWithConfig(ctx, &mc)
-			return ctx, nil
-		},
+		Before: st.before,
 		// Global flags shared between commands
-		Flags: []cli.Flag{
-			&cli.BoolFlag{
-				Name:        "all",
-				Value:       false,
-				Usage:       "Ignore nothing within a provided scan path",
-				Destination: &allFlag,
-				Local:       false,
-			},
-			&cli.BoolFlag{
-				Name:        "exit-extraction",
-				Value:       false,
-				Usage:       "Exit when encountering file extraction errors",
-				Destination: &exitExtractionFlag,
-				Local:       false,
-			},
-			&cli.BoolFlag{
-				Name:        "exit-on-extractor-panic",
-				Value:       false,
-				Usage:       "Terminate the process when an archive extractor panics instead of logging and continuing",
-				Destination: &exitExtractorPanicFlag,
-				Local:       false,
-			},
-			&cli.BoolFlag{
-				Name:        "exit-first-miss",
-				Value:       false,
-				Usage:       "Exit with error if scan source has no matching capabilities",
-				Destination: &exitFirstMissFlag,
-				Local:       false,
-			},
-			&cli.BoolFlag{
-				Name:        "exit-first-hit",
-				Value:       false,
-				Usage:       "Exit with error if scan source has matching capabilities",
-				Destination: &exitFirstHitFlag,
-				Local:       false,
-			},
-			&cli.StringFlag{
-				Name:        "format",
-				Value:       "auto",
-				Usage:       "Output format (interactive, json, markdown, simple, strings, terminal, yaml)",
-				Destination: &formatFlag,
-				Local:       false,
-			},
-			&cli.StringFlag{
-				Name:        "ignore-rules",
-				Value:       "",
-				Usage:       "YARA rule names to ignore (comma-separated; supports filepath.Match globs, e.g. 'py_lib_alias_val,py_lib_*'). Ignored rules are removed from the report before overall risk is computed.",
-				Destination: &ignoreRulesFlag,
-				Local:       false,
-			},
-			&cli.BoolFlag{
-				Name:        "ignore-self",
-				Value:       true,
-				Usage:       "Ignore the malcontent binary",
-				Destination: &ignoreSelfFlag,
-				Local:       false,
-			},
-			&cli.StringFlag{
-				Name:        "ignore-tags",
-				Value:       "false_positive,ignore",
-				Usage:       "Rule tags to ignore",
-				Destination: &ignoreTagsFlag,
-				Local:       false,
-			},
-			&cli.BoolFlag{
-				Name:        "include-data-files",
-				Value:       false,
-				Usage:       "Include files that are detected as non-program (binary or source) files",
-				Destination: &includeDataFilesFlag,
-				Local:       false,
-			},
-			&cli.IntFlag{
-				Name:        "jobs",
-				Aliases:     []string{"j"},
-				Value:       runtime.NumCPU(),
-				Usage:       "Concurrently scan files within target scan paths (effectively capped at GOMAXPROCS; higher values do not increase throughput)",
-				Destination: &concurrencyFlag,
-				Local:       false,
-			},
-			&cli.IntFlag{
-				Name:        "max-depth",
-				Value:       32,
-				Usage:       "Maximum depth for archive extraction (0 or -1 for unlimited)",
-				Destination: &maxDepthFlag,
-				Local:       false,
-			},
-			&cli.IntFlag{
-				Name:        "max-files",
-				Value:       1 << 21, // ~2 million files
-				Usage:       "Maximum number of files to scan (0 or -1 for unlimited)",
-				Destination: &maxScanFilesFlag,
-				Local:       false,
-			},
-			&cli.Int64Flag{
-				Name:        "max-image-size",
-				Value:       1 << 34, // ~16 GB
-				Usage:       "Maximum OCI image size in bytes (0 or -1 for unlimited)",
-				Destination: &maxImageSizeFlag,
-				Local:       false,
-			},
-			&cli.Int64Flag{
-				Name:        "max-archive-bytes",
-				Value:       file.DefaultMaxArchiveBytes,
-				Usage:       "Maximum total uncompressed bytes produced by archive extraction (0 for the built-in default)",
-				Destination: &maxArchiveBytesFlag,
-				Local:       false,
-			},
-			&cli.FloatFlag{
-				Name:        "max-archive-ratio",
-				Value:       file.DefaultMaxArchiveRatio,
-				Usage:       "Maximum uncompressed:compressed expansion ratio for archive extraction (0 or less for the built-in default)",
-				Destination: &maxArchiveRatioFlag,
-				Local:       false,
-			},
-			&cli.IntFlag{
-				Name:        "min-file-level",
-				Value:       -1,
-				Usage:       "Obsoleted by --min-file-risk",
-				Destination: &minFileLevelFlag,
-				Local:       false,
-			},
-			&cli.StringFlag{
-				Name:        "min-file-risk",
-				Value:       "low",
-				Usage:       "Only show results for files which meet the given risk level (any, low, medium, high, critical)",
-				Destination: &minFileRiskFlag,
-				Local:       false,
-			},
-			&cli.IntFlag{
-				Name:        "min-level",
-				Value:       -1,
-				Usage:       "Obsoleted by --min-risk",
-				Destination: &minLevelFlag,
-				Local:       false,
-			},
-			&cli.StringFlag{
-				Name:        "min-risk",
-				Value:       "low",
-				Usage:       "Only show results which meet the given risk level (any, low, medium, high, critical)",
-				Destination: &minRiskFlag,
-				Local:       false,
-			},
-			&cli.BoolFlag{
-				Name:        "oci-auth",
-				Value:       false,
-				Usage:       "Authenticate OCI pulls with MALCONTENT_REGISTRY_USER/PASS, scoped to the registry in MALCONTENT_REGISTRY_HOST",
-				Destination: &ociAuthFlag,
-				Local:       false,
-			},
-			&cli.StringFlag{
-				Name:        "ca-bundle",
-				Value:       "system",
-				Usage:       "OCI registry CA bundle: system (default; use OS trust store) or absolute path to a PEM bundle",
-				Destination: &caBundleFlag,
-				Local:       false,
-			},
-			&cli.IntFlag{
-				Name:        "oci-pull-timeout-seconds",
-				Value:       600, // OCI registry response-header timeout in seconds
-				Usage:       "OCI registry response-header timeout in seconds (<=0 uses the built-in default)",
-				Destination: &ociPullTimeoutFlag,
-				Local:       false,
-			},
-			&cli.IntFlag{
-				Name:        "oci-retry-max-attempts",
-				Value:       3, // OCI pull retry attempt ceiling
-				Usage:       "Maximum OCI registry pull retry attempts (<=0 uses the built-in default)",
-				Destination: &ociRetryMaxAttemptsFlag,
-				Local:       false,
-			},
-			&cli.IntFlag{
-				Name:        "oci-retry-max-window-seconds",
-				Value:       60, // OCI pull retry backoff window in seconds
-				Usage:       "Maximum OCI registry pull retry backoff window in seconds (<=0 uses the built-in default)",
-				Destination: &ociRetryMaxWindowFlag,
-				Local:       false,
-			},
-			&cli.IntFlag{
-				Name:        "oci-per-host-slots",
-				Value:       4, // concurrent OCI pull slots per registry host
-				Usage:       "Maximum concurrent OCI pulls per registry host (<=0 uses the built-in default)",
-				Destination: &ociPerHostSlotsFlag,
-				Local:       false,
-			},
-			&cli.StringFlag{
-				Name:        "oci-keepalive-policy",
-				Value:       string(malcontent.KeepalivePolicyExplicitlyEnabled),
-				Usage:       "OCI transport keepalive policy (enabled, disabled, go-default)",
-				Destination: &ociKeepalivePolicyFlag,
-				Local:       false,
-			},
-			&cli.IntFlag{
-				Name:        "oci-keepalive-seconds",
-				Value:       30, // OCI transport idle-connection timeout in seconds
-				Usage:       "OCI transport idle-connection timeout in seconds when keepalive policy is enabled",
-				Destination: &ociKeepaliveSecondsFlag,
-				Local:       false,
-			},
-			&cli.BoolFlag{
-				Name:        "oci-proxy-opt-in",
-				Value:       false,
-				Usage:       "Honor HTTP(S)_PROXY environment variables for OCI registry traffic",
-				Destination: &ociProxyOptInFlag,
-				Local:       false,
-			},
-			&cli.StringFlag{
-				Name:        "output",
-				Aliases:     []string{"o"},
-				Value:       "",
-				Usage:       "Write output to specified file instead of stdout",
-				Destination: &outputFlag,
-				Local:       false,
-			},
-			&cli.BoolFlag{
-				Name:        "profile",
-				Aliases:     []string{"p"},
-				Value:       false,
-				Usage:       "Generate profile and trace files",
-				Destination: &profileFlag,
-				Local:       false,
-			},
-			&cli.BoolFlag{
-				Name:        "quantity-increases-risk",
-				Value:       true,
-				Usage:       "Increase file risk score based on behavior quantity",
-				Destination: &quantityIncreasesRiskFlag,
-				Local:       false,
-			},
-			&cli.StringSliceFlag{
-				Name:        "rule-category",
-				Value:       []string{},
-				Usage:       "Only show matches whose rule path starts with one of the given categories (e.g. exfil, exfil/stealer); repeatable, no-op when unset",
-				Destination: &ruleCategoriesFlag,
-				Local:       false,
-			},
-			&cli.BoolFlag{
-				Name:        "stats",
-				Aliases:     []string{"s"},
-				Value:       false,
-				Usage:       "Show scan statistics",
-				Destination: &statsFlag,
-				Local:       false,
-			},
-			&cli.BoolFlag{
-				Name:        "third-party",
-				Value:       true,
-				Usage:       "Include third-party rules which may have licensing restrictions",
-				Destination: &thirdPartyFlag,
-				Local:       false,
-			},
-			&cli.BoolFlag{
-				Name:        "verbose",
-				Value:       false,
-				Usage:       "Emit verbose logging messages to stderr",
-				Destination: &verboseFlag,
-				Local:       false,
-			},
-		},
+		Flags: globalFlags(),
 		Commands: []*cli.Command{
 			{
-				Name:  "analyze",
-				Usage: "fully interrogate a path",
-				Flags: []cli.Flag{
-					&cli.StringSliceFlag{
-						Name:    "image",
-						Aliases: []string{"i"},
-						Value:   []string{},
-						Usage:   "Scan one or more images",
-						Local:   true,
-					},
-					&cli.BoolFlag{
-						Name:  "processes",
-						Value: false,
-						Usage: "Scan the commands (paths) of running processes",
-						Local: true,
-					},
-				},
-				Action: func(ctx context.Context, c *cli.Command) error {
-					// Handle edge cases
-					// Set bc.OCI if the image flag is used
-					// Default to path scanning if neither flag is passed (images must be scanned via --image or -i)
-					switch {
-					case len(c.StringSlice("image")) > 0:
-						mc.OCI = true
-						mc.ScanPaths = c.StringSlice("image")
-					case len(c.StringSlice("image")) == 0 && !c.Bool("processes"):
-						mc.ScanPaths = c.Args().Slice()
-					case c.Bool("processes"):
-						mc.Processes = true
-					}
-
-					// When scanning processes, load all of the valid commands (paths)
-					// and store them as the ScanPaths
-					if mc.Processes {
-						ps, err := action.ActiveProcesses(ctx)
-						if err != nil {
-							returnCode = ExitActionFailed
-							return err
-						}
-						for _, p := range ps {
-							// in the future, we'll also want to attach process info directly
-							mc.ScanPaths = append(mc.ScanPaths, p.ScanPath)
-						}
-					}
-
-					res, err = action.Scan(ctx, mc)
-					if err != nil {
-						returnCode = ExitActionFailed
-						return err
-					}
-
-					err = renderer.Full(ctx, &mc, res)
-					if err != nil {
-						returnCode = ExitRenderFailed
-						return err
-					}
-
-					return nil
-				},
+				Name:   "analyze",
+				Usage:  "fully interrogate a path",
+				Flags:  targetFlags(),
+				Action: st.analyze,
+			},
+			diffCommand(st),
+			{
+				Name:   "refresh",
+				Usage:  "Refresh test data",
+				Action: st.refreshTestData,
 			},
 			{
-				Name:  "diff",
-				Usage: "scan and diff two paths",
-				Flags: []cli.Flag{
-					&cli.BoolFlag{
-						Name:        "file-risk-change",
-						Value:       false,
-						Usage:       "Only show diffs when file risk changes",
-						Destination: &fileRiskChangeFlag,
-						Local:       true,
-					},
-					&cli.BoolFlag{
-						Name:        "file-risk-increase",
-						Value:       false,
-						Usage:       "Only show diffs when file risk increases",
-						Destination: &fileRiskIncreaseFlag,
-						Local:       true,
-					},
-					&cli.BoolFlag{
-						Name:        "image",
-						Aliases:     []string{"i"},
-						Value:       false,
-						Usage:       "Scan an image",
-						Destination: &diffImageFlag,
-						Local:       true,
-					},
-					&cli.BoolFlag{
-						Name:        "report",
-						Aliases:     []string{"r"},
-						Value:       false,
-						Usage:       "Diff existing analyze/scan reports",
-						Destination: &diffReportFlag,
-						Local:       true,
-					},
-					&cli.IntFlag{
-						Name:        "sensitivity",
-						Aliases:     []string{"sens"},
-						Value:       5,
-						Usage:       "Control the sensitivity when diffing two files, paths, etc.",
-						Destination: &sensitivityFlag,
-						Local:       true,
-					},
-				},
-				Action: func(ctx context.Context, c *cli.Command) error {
-					sensitivity := c.Int("sensitivity")
-
-					switch {
-					case c.Bool("file-risk-change"), sensitivity == 1:
-						mc.FileRiskChange = true
-					case c.Bool("file-risk-increase"):
-						mc.FileRiskIncrease = true
-					default:
-					}
-
-					// Allow for images to be scanned with the file risk flags
-					if c.Bool("image") {
-						mc.OCI = true
-					}
-					if c.Bool("report") {
-						mc.Report = true
-					}
-
-					mc.Sensitivity = sensitivity
-					mc.ScanPaths = c.Args().Slice()
-
-					res, err = action.Diff(ctx, mc, log)
-					if err != nil {
-						returnCode = ExitActionFailed
-						return err
-					}
-
-					err = renderer.Full(ctx, &mc, res)
-					if err != nil {
-						returnCode = ExitRenderFailed
-						return err
-					}
-					return nil
-				},
-			},
-			{
-				Name:  "refresh",
-				Usage: "Refresh test data",
-				Action: func(_ context.Context, _ *cli.Command) error {
-					cfg := refresh.Config{
-						Concurrency:  runtime.NumCPU(),
-						SamplesPath:  "./out/chainguard-sandbox/malcontent-samples",
-						TestDataPath: "./tests",
-					}
-					if err := refresh.Refresh(ctx, cfg, log); err != nil {
-						returnCode = ExitInputOutput
-						return err
-					}
-					return nil
-				},
-			},
-			{
-				Name:  "scan",
-				Usage: "tersely scan a path and return findings of the highest severity",
-				Flags: []cli.Flag{
-					&cli.StringSliceFlag{
-						Name:    "image",
-						Aliases: []string{"i"},
-						Value:   []string{},
-						Usage:   "Scan one or more images",
-						Local:   true,
-					},
-					&cli.BoolFlag{
-						Name:  "processes",
-						Value: false,
-						Usage: "Scan the commands (paths) of running processes",
-						Local: true,
-					},
-				},
-				Action: func(ctx context.Context, c *cli.Command) error {
-					mc.Scan = true
-					// Handle edge cases
-					// Set bc.OCI if the image flag is used
-					// Default to path scanning if neither flag is passed (images must be scanned via --image or -i)
-					switch {
-					case len(c.StringSlice("image")) > 0:
-						mc.OCI = true
-						mc.ScanPaths = c.StringSlice("image")
-					case len(c.StringSlice("image")) == 0 && !c.Bool("processes"):
-						mc.ScanPaths = c.Args().Slice()
-					case c.Bool("processes"):
-						mc.Processes = true
-					}
-
-					// When scanning processes, load all of the valid commands (paths)
-					// and store them as the ScanPaths
-					if mc.Processes {
-						ps, err := action.ActiveProcesses(ctx)
-						if err != nil {
-							returnCode = ExitActionFailed
-							return fmt.Errorf("process paths: %w", err)
-						}
-						for _, p := range ps {
-							mc.ScanPaths = append(mc.ScanPaths, p.ScanPath)
-						}
-					}
-
-					res, err = action.Scan(ctx, mc)
-					if err != nil && renderer.Name() != "Interactive" {
-						returnCode = ExitActionFailed
-						return fmt.Errorf("scan: %w", err)
-					}
-
-					length := res.Files.Size()
-
-					err = renderer.Full(ctx, &mc, res)
-					if err != nil {
-						returnCode = ExitRenderFailed
-						return err
-					}
-
-					show := length > 0 && (mc.Renderer.Name() == "Simple" || strings.Contains(mc.Renderer.Name(), "Terminal"))
-					if show {
-						fmt.Fprintf(os.Stderr, "\n💡 For detailed analysis, try \"mal analyze <path>\"\n")
-					}
-
-					return nil
-				},
+				Name:   "scan",
+				Usage:  "tersely scan a path and return findings of the highest severity",
+				Flags:  targetFlags(),
+				Action: st.scan,
 			},
 		},
 	}
+}
 
-	if err := app.Run(ctx, os.Args); err != nil {
-		if returnCode != 0 {
-			returnCode = ExitActionFailed
-		}
-		if errors.Is(err, action.ErrMatchedCondition) {
-			returnCode = ExitOK
-		}
-
-		showError(err)
+// globalFlags returns the flags shared between commands.
+func globalFlags() []cli.Flag {
+	return []cli.Flag{
+		&cli.BoolFlag{
+			Name:        "all",
+			Value:       false,
+			Usage:       "Ignore nothing within a provided scan path",
+			Destination: &allFlag,
+			Local:       false,
+		},
+		&cli.BoolFlag{
+			Name:        "exit-extraction",
+			Value:       false,
+			Usage:       "Exit when encountering file extraction errors",
+			Destination: &exitExtractionFlag,
+			Local:       false,
+		},
+		&cli.BoolFlag{
+			Name:        "exit-on-extractor-panic",
+			Value:       false,
+			Usage:       "Terminate the process when an archive extractor panics instead of logging and continuing",
+			Destination: &exitExtractorPanicFlag,
+			Local:       false,
+		},
+		&cli.BoolFlag{
+			Name:        "exit-first-miss",
+			Value:       false,
+			Usage:       "Exit with error if scan source has no matching capabilities",
+			Destination: &exitFirstMissFlag,
+			Local:       false,
+		},
+		&cli.BoolFlag{
+			Name:        "exit-first-hit",
+			Value:       false,
+			Usage:       "Exit with error if scan source has matching capabilities",
+			Destination: &exitFirstHitFlag,
+			Local:       false,
+		},
+		&cli.StringFlag{
+			Name:        "format",
+			Value:       "auto",
+			Usage:       "Output format (interactive, json, markdown, simple, strings, terminal, yaml)",
+			Destination: &formatFlag,
+			Local:       false,
+		},
+		&cli.StringFlag{
+			Name:        "ignore-rules",
+			Value:       "",
+			Usage:       "YARA rule names to ignore (comma-separated; supports filepath.Match globs, e.g. 'py_lib_alias_val,py_lib_*'). Ignored rules are removed from the report before overall risk is computed.",
+			Destination: &ignoreRulesFlag,
+			Local:       false,
+		},
+		&cli.BoolFlag{
+			Name:        "ignore-self",
+			Value:       true,
+			Usage:       "Ignore the malcontent binary",
+			Destination: &ignoreSelfFlag,
+			Local:       false,
+		},
+		&cli.StringFlag{
+			Name:        "ignore-tags",
+			Value:       "false_positive,ignore",
+			Usage:       "Rule tags to ignore",
+			Destination: &ignoreTagsFlag,
+			Local:       false,
+		},
+		&cli.BoolFlag{
+			Name:        "include-data-files",
+			Value:       false,
+			Usage:       "Include files that are detected as non-program (binary or source) files",
+			Destination: &includeDataFilesFlag,
+			Local:       false,
+		},
+		&cli.IntFlag{
+			Name:        "jobs",
+			Aliases:     []string{"j"},
+			Value:       runtime.NumCPU(),
+			Usage:       "Concurrently scan files within target scan paths (effectively capped at GOMAXPROCS; higher values do not increase throughput)",
+			Destination: &concurrencyFlag,
+			Local:       false,
+		},
+		&cli.IntFlag{
+			Name:        "max-depth",
+			Value:       32,
+			Usage:       "Maximum depth for archive extraction (0 or -1 for unlimited)",
+			Destination: &maxDepthFlag,
+			Local:       false,
+		},
+		&cli.IntFlag{
+			Name:        "max-files",
+			Value:       1 << 21, // ~2 million files
+			Usage:       "Maximum number of files to scan (0 or -1 for unlimited)",
+			Destination: &maxScanFilesFlag,
+			Local:       false,
+		},
+		&cli.Int64Flag{
+			Name:        "max-image-size",
+			Value:       1 << 34, // ~16 GB
+			Usage:       "Maximum OCI image size in bytes (0 or -1 for unlimited)",
+			Destination: &maxImageSizeFlag,
+			Local:       false,
+		},
+		&cli.Int64Flag{
+			Name:        "max-archive-bytes",
+			Value:       file.DefaultMaxArchiveBytes,
+			Usage:       "Maximum total uncompressed bytes produced by archive extraction (0 for the built-in default)",
+			Destination: &maxArchiveBytesFlag,
+			Local:       false,
+		},
+		&cli.FloatFlag{
+			Name:        "max-archive-ratio",
+			Value:       file.DefaultMaxArchiveRatio,
+			Usage:       "Maximum uncompressed:compressed expansion ratio for archive extraction (0 or less for the built-in default)",
+			Destination: &maxArchiveRatioFlag,
+			Local:       false,
+		},
+		&cli.IntFlag{
+			Name:        "min-file-level",
+			Value:       -1,
+			Usage:       "Obsoleted by --min-file-risk",
+			Destination: &minFileLevelFlag,
+			Local:       false,
+		},
+		&cli.StringFlag{
+			Name:        "min-file-risk",
+			Value:       "low",
+			Usage:       "Only show results for files which meet the given risk level (any, low, medium, high, critical)",
+			Destination: &minFileRiskFlag,
+			Local:       false,
+		},
+		&cli.IntFlag{
+			Name:        "min-level",
+			Value:       -1,
+			Usage:       "Obsoleted by --min-risk",
+			Destination: &minLevelFlag,
+			Local:       false,
+		},
+		&cli.StringFlag{
+			Name:        "min-risk",
+			Value:       "low",
+			Usage:       "Only show results which meet the given risk level (any, low, medium, high, critical)",
+			Destination: &minRiskFlag,
+			Local:       false,
+		},
+		&cli.BoolFlag{
+			Name:        "oci-auth",
+			Value:       false,
+			Usage:       "Authenticate OCI pulls with MALCONTENT_REGISTRY_USER/PASS, scoped to the registry in MALCONTENT_REGISTRY_HOST",
+			Destination: &ociAuthFlag,
+			Local:       false,
+		},
+		&cli.StringFlag{
+			Name:        "ca-bundle",
+			Value:       "system",
+			Usage:       "OCI registry CA bundle: system (default; use OS trust store) or absolute path to a PEM bundle",
+			Destination: &caBundleFlag,
+			Local:       false,
+		},
+		&cli.IntFlag{
+			Name:        "oci-pull-timeout-seconds",
+			Value:       600, // OCI registry response-header timeout in seconds
+			Usage:       "OCI registry response-header timeout in seconds (<=0 uses the built-in default)",
+			Destination: &ociPullTimeoutFlag,
+			Local:       false,
+		},
+		&cli.IntFlag{
+			Name:        "oci-retry-max-attempts",
+			Value:       3, // OCI pull retry attempt ceiling
+			Usage:       "Maximum OCI registry pull retry attempts (<=0 uses the built-in default)",
+			Destination: &ociRetryMaxAttemptsFlag,
+			Local:       false,
+		},
+		&cli.IntFlag{
+			Name:        "oci-retry-max-window-seconds",
+			Value:       60, // OCI pull retry backoff window in seconds
+			Usage:       "Maximum OCI registry pull retry backoff window in seconds (<=0 uses the built-in default)",
+			Destination: &ociRetryMaxWindowFlag,
+			Local:       false,
+		},
+		&cli.IntFlag{
+			Name:        "oci-per-host-slots",
+			Value:       4, // concurrent OCI pull slots per registry host
+			Usage:       "Maximum concurrent OCI pulls per registry host (<=0 uses the built-in default)",
+			Destination: &ociPerHostSlotsFlag,
+			Local:       false,
+		},
+		&cli.StringFlag{
+			Name:        "oci-keepalive-policy",
+			Value:       string(malcontent.KeepalivePolicyExplicitlyEnabled),
+			Usage:       "OCI transport keepalive policy (enabled, disabled, go-default)",
+			Destination: &ociKeepalivePolicyFlag,
+			Local:       false,
+		},
+		&cli.IntFlag{
+			Name:        "oci-keepalive-seconds",
+			Value:       30, // OCI transport idle-connection timeout in seconds
+			Usage:       "OCI transport idle-connection timeout in seconds when keepalive policy is enabled",
+			Destination: &ociKeepaliveSecondsFlag,
+			Local:       false,
+		},
+		&cli.BoolFlag{
+			Name:        "oci-proxy-opt-in",
+			Value:       false,
+			Usage:       "Honor HTTP(S)_PROXY environment variables for OCI registry traffic",
+			Destination: &ociProxyOptInFlag,
+			Local:       false,
+		},
+		&cli.StringFlag{
+			Name:        "output",
+			Aliases:     []string{"o"},
+			Value:       "",
+			Usage:       "Write output to specified file instead of stdout",
+			Destination: &outputFlag,
+			Local:       false,
+		},
+		&cli.BoolFlag{
+			Name:        "profile",
+			Aliases:     []string{"p"},
+			Value:       false,
+			Usage:       "Generate profile and trace files",
+			Destination: &profileFlag,
+			Local:       false,
+		},
+		&cli.BoolFlag{
+			Name:        "quantity-increases-risk",
+			Value:       true,
+			Usage:       "Increase file risk score based on behavior quantity",
+			Destination: &quantityIncreasesRiskFlag,
+			Local:       false,
+		},
+		&cli.StringSliceFlag{
+			Name:        "rule-category",
+			Value:       []string{},
+			Usage:       "Only show matches whose rule path starts with one of the given categories (e.g. exfil, exfil/stealer); repeatable, no-op when unset",
+			Destination: &ruleCategoriesFlag,
+			Local:       false,
+		},
+		&cli.BoolFlag{
+			Name:        "stats",
+			Aliases:     []string{"s"},
+			Value:       false,
+			Usage:       "Show scan statistics",
+			Destination: &statsFlag,
+			Local:       false,
+		},
+		&cli.BoolFlag{
+			Name:        "third-party",
+			Value:       true,
+			Usage:       "Include third-party rules which may have licensing restrictions",
+			Destination: &thirdPartyFlag,
+			Local:       false,
+		},
+		&cli.BoolFlag{
+			Name:        "verbose",
+			Value:       false,
+			Usage:       "Emit verbose logging messages to stderr",
+			Destination: &verboseFlag,
+			Local:       false,
+		},
 	}
+}
+
+// targetFlags returns the scan target flags of the analyze and scan commands.
+func targetFlags() []cli.Flag {
+	return []cli.Flag{
+		&cli.StringSliceFlag{
+			Name:    "image",
+			Aliases: []string{"i"},
+			Value:   []string{},
+			Usage:   "Scan one or more images",
+			Local:   true,
+		},
+		&cli.BoolFlag{
+			Name:  "processes",
+			Value: false,
+			Usage: "Scan the commands (paths) of running processes",
+			Local: true,
+		},
+	}
+}
+
+// diffCommand returns the diff command, which scans and compares two paths.
+func diffCommand(st *cliState) *cli.Command {
+	return &cli.Command{
+		Name:  "diff",
+		Usage: "scan and diff two paths",
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:        "file-risk-change",
+				Value:       false,
+				Usage:       "Only show diffs when file risk changes",
+				Destination: &fileRiskChangeFlag,
+				Local:       true,
+			},
+			&cli.BoolFlag{
+				Name:        "file-risk-increase",
+				Value:       false,
+				Usage:       "Only show diffs when file risk increases",
+				Destination: &fileRiskIncreaseFlag,
+				Local:       true,
+			},
+			&cli.BoolFlag{
+				Name:        "image",
+				Aliases:     []string{"i"},
+				Value:       false,
+				Usage:       "Scan an image",
+				Destination: &diffImageFlag,
+				Local:       true,
+			},
+			&cli.BoolFlag{
+				Name:        "report",
+				Aliases:     []string{"r"},
+				Value:       false,
+				Usage:       "Diff existing analyze/scan reports",
+				Destination: &diffReportFlag,
+				Local:       true,
+			},
+			&cli.IntFlag{
+				Name:        "sensitivity",
+				Aliases:     []string{"sens"},
+				Value:       5,
+				Usage:       "Control the sensitivity when diffing two files, paths, etc.",
+				Destination: &sensitivityFlag,
+				Local:       true,
+			},
+		},
+		Action: st.diff,
+	}
+}
+
+// after closes the output file (or stdout) and stops profiling once the
+// selected command has run.
+func (st *cliState) after(_ context.Context, _ *cli.Command) error {
+	defer func() {
+		if st.outFile != nil {
+			_ = st.outFile.Close()
+		}
+	}()
+
+	if st.profiler != nil {
+		st.profiler.Stop()
+	}
+	return nil
+}
+
+// before handles the initialization shared between commands: it validates the
+// global flags and prepares the configuration, renderer, and rules.
+func (st *cliState) before(ctx context.Context, c *cli.Command) (context.Context, error) {
+	clog.InfoContext(ctx, "malcontent starting")
+
+	if profileFlag {
+		p, err := profile.StartProfiling(ctx, profile.DefaultConfig())
+		if err != nil {
+			st.log.Error("profiling failed", slog.Any("error", err))
+			st.returnCode = ExitProfilerError
+			return ctx, fmt.Errorf("start profiling: %w", err)
+		}
+		st.profiler = p
+	}
+
+	if verboseFlag {
+		st.logLevel.Set(slog.LevelDebug)
+	}
+
+	mc, err := configFromFlags()
+	if err != nil {
+		st.log.Errorf("%v", err)
+		st.returnCode = ExitInvalidArgument
+		return ctx, err
+	}
+
+	if outputFlag != "" {
+		f, err := os.OpenFile(outputFlag, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600) // #nosec G304 -- CLI flag values are user-supplied paths intended for the operation
+		if err != nil {
+			st.returnCode = ExitInputOutput
+			return ctx, err
+		}
+		st.outFile = f
+	}
+
+	renderer, err := render.New(resolveFormat(formatFlag, c.Args().Slice()), st.outFile)
+	if err != nil {
+		st.returnCode = ExitInvalidArgument
+		return ctx, err
+	}
+	st.renderer = renderer
+
+	yrs, err := action.CachedRules(ctx, ruleFS(thirdPartyFlag))
+	if err != nil {
+		st.returnCode = ExitInvalidRules
+		return ctx, fmt.Errorf("compile rules: %w", err)
+	}
+
+	mc.Renderer = renderer
+	mc.Rules = yrs
+	st.mc = mc
+	return malcontent.ContextWithConfig(ctx, &st.mc), nil
+}
+
+// configFromFlags validates the parsed global flags and assembles the scan
+// configuration they describe. The caller supplies the renderer and rules.
+func configFromFlags() (malcontent.Config, error) {
+	ignoreTags := strings.Split(ignoreTagsFlag, ",")
+	ignoreRules := splitAndTrimCSV(ignoreRulesFlag)
+	if err := report.ValidateIgnoreRules(ignoreRules); err != nil {
+		return malcontent.Config{}, err
+	}
+	ignoreSelf := ignoreSelfFlag
+	includeDataFiles := includeDataFilesFlag
+
+	minRisk, exists := riskMap[minRiskFlag]
+	if !exists {
+		return malcontent.Config{}, fmt.Errorf("unknown risk: %q", minRiskFlag)
+	}
+
+	// Backwards compatibility
+	if minLevelFlag != -1 {
+		minRisk = minLevelFlag
+	}
+
+	minFileRisk, exists := riskMap[minFileRiskFlag]
+	if !exists {
+		return malcontent.Config{}, fmt.Errorf("unknown risk: %q", minFileRiskFlag)
+	}
+
+	// Backwards compatibility
+	if minFileLevelFlag != -1 {
+		minFileRisk = minFileLevelFlag
+	}
+
+	// Add the default tags to ignore regardless of whether they're passed in or not
+	for _, t := range []string{"false_positive", "ignore"} {
+		if !slices.Contains(ignoreTags, t) {
+			ignoreTags = append(ignoreTags, t)
+		}
+	}
+
+	if allFlag {
+		ignoreRules = nil
+		ignoreSelf = false
+		ignoreTags = []string{}
+		includeDataFiles = true
+		minFileRisk = -1
+		minRisk = -1
+	}
+
+	mc := malcontent.Config{
+		Concurrency:              max(1, concurrencyFlag),
+		ExitExtraction:           exitExtractionFlag,
+		ExitOnExtractorPanic:     exitExtractorPanicFlag,
+		ExitFirstHit:             exitFirstHitFlag,
+		ExitFirstMiss:            exitFirstMissFlag,
+		IgnoreRules:              ignoreRules,
+		IgnoreSelf:               ignoreSelf,
+		IgnoreTags:               ignoreTags,
+		IncludeDataFiles:         includeDataFiles,
+		MaxArchiveBytes:          maxArchiveBytesFlag,
+		MaxArchiveRatio:          maxArchiveRatioFlag,
+		MaxDepth:                 maxDepthFlag,
+		MaxImageSize:             maxImageSizeFlag,
+		MaxScanFiles:             maxScanFilesFlag,
+		MinFileRisk:              minFileRisk,
+		MinRisk:                  minRisk,
+		OCIAuth:                  ociAuthFlag,
+		OCI:                      ociFlag,
+		OCICABundlePath:          caBundleFlag,
+		OCIKeepalivePolicy:       malcontent.KeepalivePolicy(ociKeepalivePolicyFlag),
+		OCIKeepaliveSeconds:      ociKeepaliveSecondsFlag,
+		OCIPerHostSlots:          ociPerHostSlotsFlag,
+		OCIProxyOptIn:            ociProxyOptInFlag,
+		OCIPullTimeoutSeconds:    ociPullTimeoutFlag,
+		OCIRetryMaxAttempts:      ociRetryMaxAttemptsFlag,
+		OCIRetryMaxWindowSeconds: ociRetryMaxWindowFlag,
+		QuantityIncreasesRisk:    quantityIncreasesRiskFlag,
+		RuleCategories:           ruleCategoriesFlag,
+		Stats:                    statsFlag,
+	}
+
+	// always trim macOS' /private prefix
+	if runtime.GOOS == "darwin" {
+		mc.TrimPrefixes = append(mc.TrimPrefixes, "/private")
+	}
+
+	return mc, nil
+}
+
+// resolveFormat turns the "auto" output format into the brief terminal
+// renderer for the scan command and the full terminal renderer otherwise.
+func resolveFormat(format string, args []string) string {
+	if format != "auto" {
+		return format
+	}
+	if slices.Contains(args, "scan") {
+		return "terminal_brief"
+	}
+	return "terminal"
+}
+
+// ruleFS returns the rule filesystems to compile, adding the third-party
+// rules when requested.
+func ruleFS(thirdParty bool) []fs.FS {
+	rfs := []fs.FS{rules.FS}
+	if thirdParty {
+		rfs = append(rfs, thirdparty.FS)
+	}
+	return rfs
+}
+
+// scanTargets applies the analyze and scan target flags to mc. Images select
+// OCI scanning (images must be scanned via --image or -i); otherwise the
+// path arguments are scanned unless --processes selects running processes.
+func scanTargets(mc *malcontent.Config, images []string, processes bool, args []string) {
+	switch {
+	case len(images) > 0:
+		mc.OCI = true
+		mc.ScanPaths = images
+	case !processes:
+		mc.ScanPaths = args
+	default:
+		mc.Processes = true
+	}
+}
+
+// addProcessPaths appends the commands (paths) of running processes to
+// mc.ScanPaths when process scanning is selected.
+func addProcessPaths(ctx context.Context, mc *malcontent.Config) error {
+	if !mc.Processes {
+		return nil
+	}
+	ps, err := action.ActiveProcesses(ctx)
+	if err != nil {
+		return err
+	}
+	for _, p := range ps {
+		// in the future, we'll also want to attach process info directly
+		mc.ScanPaths = append(mc.ScanPaths, p.ScanPath)
+	}
+	return nil
+}
+
+// analyze fully interrogates the selected targets and renders every finding.
+func (st *cliState) analyze(ctx context.Context, c *cli.Command) error {
+	scanTargets(&st.mc, c.StringSlice("image"), c.Bool("processes"), c.Args().Slice())
+	if err := addProcessPaths(ctx, &st.mc); err != nil {
+		st.returnCode = ExitActionFailed
+		return err
+	}
+
+	res, err := action.Scan(ctx, st.mc)
+	if err != nil {
+		st.returnCode = ExitActionFailed
+		return err
+	}
+
+	if err := st.renderer.Full(ctx, &st.mc, res); err != nil {
+		st.returnCode = ExitRenderFailed
+		return err
+	}
+	return nil
+}
+
+// diff scans two paths and renders the differences between them.
+func (st *cliState) diff(ctx context.Context, c *cli.Command) error {
+	sensitivity := c.Int("sensitivity")
+
+	switch {
+	case c.Bool("file-risk-change"), sensitivity == 1:
+		st.mc.FileRiskChange = true
+	case c.Bool("file-risk-increase"):
+		st.mc.FileRiskIncrease = true
+	default:
+	}
+
+	// Allow for images to be scanned with the file risk flags
+	if c.Bool("image") {
+		st.mc.OCI = true
+	}
+	if c.Bool("report") {
+		st.mc.Report = true
+	}
+
+	st.mc.Sensitivity = sensitivity
+	st.mc.ScanPaths = c.Args().Slice()
+
+	res, err := action.Diff(ctx, st.mc, st.log)
+	if err != nil {
+		st.returnCode = ExitActionFailed
+		return err
+	}
+
+	if err := st.renderer.Full(ctx, &st.mc, res); err != nil {
+		st.returnCode = ExitRenderFailed
+		return err
+	}
+	return nil
+}
+
+// refreshTestData regenerates the sample test data from the samples checkout.
+func (st *cliState) refreshTestData(ctx context.Context, _ *cli.Command) error {
+	cfg := refresh.Config{
+		Concurrency:  runtime.NumCPU(),
+		SamplesPath:  "./out/chainguard-sandbox/malcontent-samples",
+		TestDataPath: "./tests",
+	}
+	if err := refresh.Refresh(ctx, cfg, st.log); err != nil {
+		st.returnCode = ExitInputOutput
+		return err
+	}
+	return nil
+}
+
+// scan tersely scans the selected targets and renders the findings of the
+// highest severity.
+func (st *cliState) scan(ctx context.Context, c *cli.Command) error {
+	st.mc.Scan = true
+	scanTargets(&st.mc, c.StringSlice("image"), c.Bool("processes"), c.Args().Slice())
+	if err := addProcessPaths(ctx, &st.mc); err != nil {
+		st.returnCode = ExitActionFailed
+		return fmt.Errorf("process paths: %w", err)
+	}
+
+	// The interactive renderer shows whatever was scanned, so a scan error
+	// does not stop it.
+	res, err := action.Scan(ctx, st.mc)
+	if err != nil && st.renderer.Name() != "Interactive" {
+		st.returnCode = ExitActionFailed
+		return fmt.Errorf("scan: %w", err)
+	}
+
+	files := 0
+	if res != nil && res.Files != nil {
+		files = res.Files.Size()
+	}
+
+	if err := st.renderer.Full(ctx, &st.mc, res); err != nil {
+		st.returnCode = ExitRenderFailed
+		return err
+	}
+
+	if showAnalyzeHint(st.renderer.Name(), files) {
+		fmt.Fprintf(os.Stderr, "\n💡 For detailed analysis, try \"mal analyze <path>\"\n")
+	}
+
+	return nil
+}
+
+// showAnalyzeHint reports whether scan output should suggest running analyze:
+// only when files were reported and the renderer writes for a terminal reader.
+func showAnalyzeHint(renderer string, files int) bool {
+	return files > 0 && (renderer == "Simple" || strings.Contains(renderer, "Terminal"))
 }
 
 // splitAndTrimCSV parses a comma-separated flag value into a []string with
@@ -840,15 +888,20 @@ func splitAndTrimCSV(s string) []string {
 func handleContext(cancel context.CancelFunc, logger *clog.Logger) {
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
+	awaitShutdown(sigCh, cancel, logger, drainTimeout, os.Exit)
+}
 
+// awaitShutdown waits for a signal on sigCh, cancels in-flight work, and calls
+// exit(1) if the process is still running once timeout has passed.
+func awaitShutdown(sigCh <-chan os.Signal, cancel context.CancelFunc, logger *clog.Logger, timeout time.Duration, exit func(int)) {
 	sig := <-sigCh
 	logger.Debug("received signal", slog.Any("signal", sig))
 	cancel()
 
 	// Force exit after timeout
-	time.AfterFunc(10*time.Second, func() {
-		logger.Warn("force exit: drain timeout exceeded, unrendered matches may be discarded", slog.Duration("timeout", 10*time.Second))
+	time.AfterFunc(timeout, func() {
+		logger.Warn("force exit: drain timeout exceeded, unrendered matches may be discarded", slog.Duration("timeout", timeout))
 		logger.Error("forced exit after timeout")
-		os.Exit(1)
+		exit(1)
 	})
 }

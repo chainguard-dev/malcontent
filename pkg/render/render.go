@@ -4,9 +4,11 @@
 package render
 
 import (
+	"cmp"
 	"fmt"
 	"io"
-	"sort"
+	"slices"
+	"strconv"
 	"strings"
 	"unicode/utf8"
 
@@ -49,21 +51,58 @@ func sanitizeUTF8(s string) string {
 	}
 	// Strip BiDi override characters that can confuse visual display
 	s = strings.Map(func(r rune) rune {
-		switch {
-		case r >= 0x202A && r <= 0x202E: // LRE, RLE, PDF, LRO, RLO
+		if isBiDiControl(r) {
 			return -1
-		case r >= 0x2066 && r <= 0x2069: // LRI, RLI, FSI, PDI
-			return -1
-		case r == 0x200E || r == 0x200F: // LRM, RLM
-			return -1
-		default:
-			return r
 		}
+		return r
 	}, s)
 	// Replace newlines and carriage returns with spaces to avoid YAML complex key issues
 	s = strings.ReplaceAll(s, "\n", " ")
 	s = strings.ReplaceAll(s, "\r", " ")
 	return strings.TrimSpace(s)
+}
+
+// isBiDiControl reports whether r is a BiDi embedding, override, isolate, or
+// mark character, which can make displayed text read differently from its bytes.
+func isBiDiControl(r rune) bool {
+	switch {
+	case r >= 0x202A && r <= 0x202E: // LRE, RLE, PDF, LRO, RLO
+		return true
+	case r >= 0x2066 && r <= 0x2069: // LRI, RLI, FSI, PDI
+		return true
+	default:
+		return r == 0x200E || r == 0x200F // LRM, RLM
+	}
+}
+
+// sanitizeTerminal makes untrusted text from scanned files safe to print to a
+// terminal. Like sanitizeUTF8, it replaces invalid UTF-8 with U+FFFD and drops
+// BiDi controls. It also replaces C0 controls (including tab and newline), DEL,
+// and C1 controls, which terminals act on by moving the cursor, setting the
+// window title, or opening hyperlinks, with the visible escapes strconv.Quote
+// uses, such as \x1b, \r, and \u009b. A backslash becomes \\ so an escape
+// spelled out in the input reads differently from an escaped control
+// character. Other printable text is unchanged.
+func sanitizeTerminal(s string) string {
+	if !utf8.ValidString(s) {
+		s = strings.ToValidUTF8(s, string(utf8.RuneError))
+	}
+	var b strings.Builder
+	b.Grow(len(s))
+	for _, r := range s {
+		switch {
+		case isBiDiControl(r):
+			continue
+		case r == '\\':
+			b.WriteString(`\\`)
+		case r < 0x20 || r == 0x7f || (r >= 0x80 && r <= 0x9f):
+			q := strconv.QuoteRune(r)
+			b.WriteString(q[1 : len(q)-1])
+		default:
+			b.WriteRune(r)
+		}
+	}
+	return b.String()
 }
 
 // New returns a new Renderer.
@@ -135,12 +174,12 @@ func serializedStats(c *malcontent.Config, r *malcontent.Report) *Stats {
 	pkgStats, _, totalBehaviors := PkgStatistics(c, r.Files)
 	riskStats, totalRisks, processedFiles, skippedFiles := RiskStatistics(c, r.Files)
 
-	sort.Slice(pkgStats, func(i, j int) bool {
-		return pkgStats[i].Key < pkgStats[j].Key
+	slices.SortFunc(pkgStats, func(a, b malcontent.StrMetric) int {
+		return cmp.Compare(a.Key, b.Key)
 	})
 
-	sort.Slice(riskStats, func(i, j int) bool {
-		return riskStats[i].Key < riskStats[j].Key
+	slices.SortFunc(riskStats, func(a, b malcontent.IntMetric) int {
+		return cmp.Compare(a.Key, b.Key)
 	})
 
 	return &Stats{

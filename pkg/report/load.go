@@ -24,15 +24,14 @@ func Load(data []byte) (malcontent.ScanResult, error) {
 // ExtractImageURI extracts the image URI from paths in a report.
 func ExtractImageURI(files map[string]*malcontent.FileReport) string {
 	for _, fr := range files {
-		if fr == nil || fr.Path == "" {
+		if fr == nil || strings.HasPrefix(fr.Path, "/") {
 			continue
 		}
 
-		if strings.Contains(fr.Path, "∴") && !strings.HasPrefix(fr.Path, "/") {
-			parts := strings.SplitN(fr.Path, " ∴ ", 2)
-			if len(parts) >= 1 {
-				return strings.TrimSpace(parts[0])
-			}
+		// Only the " ∴ " separator malcontent writes marks an image URI. A
+		// file name that merely contains "∴" is not one.
+		if uri, _, ok := strings.Cut(fr.Path, " ∴ "); ok {
+			return strings.TrimSpace(uri)
 		}
 	}
 	return ""

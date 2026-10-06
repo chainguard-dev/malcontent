@@ -38,7 +38,7 @@ func TestValidateIgnoreRules(t *testing.T) {
 				t.Fatalf("ValidateIgnoreRules(%v) err = %v, wantErr = %v", tt.patterns, err, tt.wantErr)
 			}
 			if tt.wantErr && err != nil && !errors.Is(err, filepath.ErrBadPattern) {
-				t.Errorf("expected error to wrap filepath.ErrBadPattern, got %v", err)
+				t.Errorf("error wraps filepath.ErrBadPattern: got = %v, want = wrapped", err)
 			}
 		})
 	}
@@ -91,18 +91,18 @@ func TestRuleExcluded(t *testing.T) {
 // non-match and continues.
 func TestRuleExcluded_MalformedTreatedAsNoMatch(t *testing.T) {
 	t.Parallel()
-	// Sanity check: the pattern really is malformed.
+	// Quick check: the pattern really is malformed.
 	if _, err := filepath.Match("py_[abc", "py_a"); err == nil {
 		t.Fatal("test premise broken: filepath.Match no longer errors on unclosed class")
 	}
 	// A malformed pattern followed by a valid non-matching pattern must not
 	// cause ruleExcluded to return true (no silent match-all).
 	if ruleExcluded("py_a", []string{"py_[abc", "no_match"}) {
-		t.Errorf("expected no match, but ruleExcluded returned true on malformed pattern")
+		t.Error("ruleExcluded with a malformed pattern and a non-matching pattern: got = true, want = false")
 	}
 	// A malformed pattern followed by a valid matching pattern still matches.
 	if !ruleExcluded("py_a", []string{"py_[abc", "py_*"}) {
-		t.Errorf("expected match via later valid pattern, ruleExcluded returned false")
+		t.Error("ruleExcluded with a malformed pattern and a later matching pattern: got = false, want = true")
 	}
 }
 
@@ -112,9 +112,9 @@ func TestValidateIgnoreRules_ErrorMessage(t *testing.T) {
 	t.Parallel()
 	err := ValidateIgnoreRules([]string{"good", "bad_[abc"})
 	if err == nil {
-		t.Fatal("expected error, got nil")
+		t.Fatal("ValidateIgnoreRules error: got = nil, want = non-nil")
 	}
 	if !strings.Contains(err.Error(), "bad_[abc") {
-		t.Errorf("expected error to name the offending pattern, got: %v", err)
+		t.Errorf("error names the offending pattern: got = %v, want = message containing %q", err, "bad_[abc")
 	}
 }

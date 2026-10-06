@@ -1,6 +1,6 @@
 {
     "Files": {
-        "/trino.linux-ppc64le.launcher": {
+        "linux/clean/trino.linux-ppc64le.launcher ∴ /trino.linux-ppc64le.launcher": {
             "Path": "linux/clean/trino.linux-ppc64le.launcher ∴ /trino.linux-ppc64le.launcher",
             "SHA256": "ce8e09b09f0001402a66641329ad8077cd8b0e7ff047d9816555c10077ae140d",
             "Size": 3473560,
@@ -851,7 +851,7 @@
             "RiskScore": 2,
             "RiskLevel": "MEDIUM"
         },
-        "/trino.linux-ppc64le.launche~": {
+        "linux/clean/trino.linux-ppc64le.launcher ∴ /trino.linux-ppc64le.launche~": {
             "Path": "linux/clean/trino.linux-ppc64le.launcher ∴ /trino.linux-ppc64le.launche~",
             "SHA256": "b332b6c83764b0fab3347dfb0925bec3617fd3a414ff7498020db444136e0f6a",
             "Size": 1406908,
@@ -951,10 +951,7 @@
                     "ID": "false-positives/trino_upx",
                     "RuleName": "trino_upx_override",
                     "Override": [
-                        "upx",
-                        "high_entropy_header",
-                        "normal_elf_high_entropy_7_4",
-                        "obfuscated_elf"
+                        "upx"
                     ]
                 },
                 {
@@ -973,10 +970,7 @@
                     "ID": "false-positives/trino_upx",
                     "RuleName": "trino_upx_override",
                     "Override": [
-                        "upx",
-                        "high_entropy_header",
-                        "normal_elf_high_entropy_7_4",
-                        "obfuscated_elf"
+                        "high_entropy_header"
                     ]
                 },
                 {
@@ -995,10 +989,7 @@
                     "ID": "false-positives/trino_upx",
                     "RuleName": "trino_upx_override",
                     "Override": [
-                        "upx",
-                        "high_entropy_header",
-                        "normal_elf_high_entropy_7_4",
-                        "obfuscated_elf"
+                        "normal_elf_high_entropy_7_4"
                     ]
                 },
                 {
@@ -1017,9 +1008,6 @@
                     "ID": "false-positives/trino_upx",
                     "RuleName": "trino_upx_override",
                     "Override": [
-                        "upx",
-                        "high_entropy_header",
-                        "normal_elf_high_entropy_7_4",
                         "obfuscated_elf"
                     ]
                 }

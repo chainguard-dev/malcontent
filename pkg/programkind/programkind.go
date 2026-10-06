@@ -6,9 +6,11 @@ package programkind
 import (
 	"bytes"
 	"cmp"
+	"compress/zlib"
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"io/fs"
 	"os"
 	"os/exec"
@@ -26,39 +28,44 @@ import (
 )
 
 // Supported archive extensions.
-var ArchiveMap = map[string]bool{
-	".apk":    true,
-	".bz2":    true,
-	".bzip2":  true,
-	".deb":    true,
-	".ear":    true,
-	".gem":    true,
-	".gz":     true,
-	".jar":    true,
-	".rpm":    true,
-	".tar":    true,
-	".tar.gz": true,
-	".tar.xz": true,
-	".tgz":    true,
-	".upx":    true,
-	".war":    true,
-	".whl":    true,
-	".xz":     true,
-	".zip":    true,
-	".zlib":   true,
-	".zst":    true,
-	".zstd":   true,
+var ArchiveMap = map[string]struct{}{
+	".apk":     {},
+	".bz2":     {},
+	".bzip2":   {},
+	".deb":     {},
+	".ear":     {},
+	".gem":     {},
+	".gz":      {},
+	".gzip":    {},
+	".jar":     {},
+	".rpm":     {},
+	".tar":     {},
+	".tar.bz2": {},
+	".tar.gz":  {},
+	".tar.xz":  {},
+	".tbz":     {},
+	".tgz":     {},
+	".upx":     {},
+	".war":     {},
+	".whl":     {},
+	".xz":      {},
+	".zip":     {},
+	".zlib":    {},
+	".zst":     {},
+	".zstd":    {},
 }
 
 const (
+	mimeGzip        = "application/gzip"
 	mimeOctetStream = "application/octet-stream"
+	mimeZlib        = "application/zlib"
 	mimeShellScript = "text/x-shellscript"
 )
 
 // file extension to MIME type, if it's a good scanning target.
 var supportedKind = map[string]string{
 	"7z":      "application/x-7z-compressed",
-	"Z":       "application/zlib",
+	"Z":       mimeZlib,
 	"asm":     "",
 	"bash":    "application/x-bsh",
 	"bat":     "application/bat",
@@ -133,7 +140,9 @@ type FileType struct {
 }
 
 var (
-	ZMagic = []byte{0x78, 0x5E} // Z magic bytes
+	// ZMagic is the zlib header written at compression levels 2 through 5.
+	// File recognizes any valid zlib header; see isZlibStream.
+	ZMagic = []byte{0x78, 0x5E}
 	// default, partial MIME types we want to consider as valid by default.
 	defaultMIME = []string{
 		"application",
@@ -141,7 +150,7 @@ var (
 		"text/x-",
 	}
 	elfMagic       = []byte{0x7f, 'E', 'L', 'F'} // ELF magic bytes
-	gzipMagic      = []byte{0x1f, 0x8b}          // gZip magic bytes
+	gzipMagic      = []byte{0x1f, 0x8b, 0x08}    // gzip magic bytes and the deflate method
 	headerPool     *pool.BufferPool
 	initializeOnce sync.Once
 	// supported NPM JSON extensions or file names we want to avoid classifying as data files.
@@ -197,8 +206,10 @@ func IsSupportedArchive(ctx context.Context, path string) bool {
 	if _, isValidArchive := ArchiveMap[GetExt(path)]; isValidArchive {
 		return true
 	}
+	// Content that File recognizes as UPX-packed, gzip, or zlib is extracted
+	// whatever the file is named.
 	if ft, err := File(ctx, path); err == nil && ft != nil {
-		if ft.MIME == "application/x-upx" {
+		if ft.MIME == "application/x-upx" || ft.MIME == mimeGzip || ft.MIME == mimeZlib {
 			return true
 		}
 	}
@@ -286,7 +297,7 @@ func validateUPXPath(p string, operatorSupplied bool) (string, error) {
 		return "", fmt.Errorf("upx path resolve failed: %w", err)
 	}
 
-	fi, err := os.Lstat(resolved)
+	fi, err := os.Lstat(resolved) // #nosec G703 -- operator-supplied or discovered UPX path, made absolute, cleaned, and symlink-resolved above
 	if err != nil {
 		return "", fmt.Errorf("upx path stat failed: %w", err)
 	}
@@ -463,6 +474,47 @@ func isLikelyManPage(path string) bool {
 	return false
 }
 
+// Bounds on the work spent confirming a zlib header: at most zlibProbeInput
+// bytes of the stream are inflated, stopping after zlibProbeOutput bytes.
+const (
+	zlibProbeInput  = 64 * 1024
+	zlibProbeOutput = 512
+)
+
+// isZlibStream reports whether fc begins with a zlib stream (RFC 1950) at any
+// compression level. A valid two-byte header can occur by chance in other
+// data, so a candidate is confirmed by inflating a bounded prefix. Running out
+// of input after some data inflated is accepted because the prefix may cut the
+// stream short; header, checksum, and deflate data errors are not.
+func isZlibStream(fc []byte) bool {
+	if len(fc) < 2 {
+		return false
+	}
+	// Only deflate (method 8) with a window of at most 32 KiB, header check
+	// bits that divide by 31, and no preset dictionary can begin a zlib stream
+	// here. Checking these first keeps most files from allocating a
+	// decompressor; the dictionary flag must be checked regardless, because
+	// zlib.NewReader accepts a dictionary ID that matches an empty dictionary.
+	cmf, flg := fc[0], fc[1]
+	if cmf&0x0f != 8 || cmf>>4 > 7 || (uint16(cmf)<<8|uint16(flg))%31 != 0 || flg&0x20 != 0 {
+		return false
+	}
+
+	zr, err := zlib.NewReader(bytes.NewReader(fc[:min(len(fc), zlibProbeInput)]))
+	if err != nil {
+		return false
+	}
+	defer func() { _ = zr.Close() }()
+
+	n, err := io.CopyN(io.Discard, zr, zlibProbeOutput)
+	if errors.Is(err, io.ErrUnexpectedEOF) {
+		// A cut-short stream counts only once it has inflated some data; a
+		// bare header is no evidence of zlib.
+		return n > 0
+	}
+	return err == nil || errors.Is(err, io.EOF)
+}
+
 // containsSuffix determines whether a value contains any of the specified strings as a suffix.
 func containsSuffix(value string, slice []string) bool {
 	return slices.ContainsFunc(slice, func(s string) bool {
@@ -519,6 +571,12 @@ func File(ctx context.Context, path string) (*FileType, error) {
 		return Path(".upx"), nil
 	}
 
+	// gzip content is an archive whatever the file is named; this is the
+	// same type a .gz name yields
+	if bytes.HasPrefix(fc, gzipMagic) {
+		return &FileType{Ext: "gz", MIME: mimeGzip}, nil
+	}
+
 	// default strategy: mimetype (no limit for improved magic type detection)
 	mimetype.SetLimit(0) // a limit of 0 means the whole input file will be used
 	mtype := mimetype.Detect(fc)
@@ -562,9 +620,7 @@ func File(ctx context.Context, path string) (*FileType, error) {
 		return Path(".c"), nil
 	case bytes.Contains(fc, []byte("BEAMAtU8")):
 		return Path(".beam"), nil
-	case bytes.HasPrefix(fc, gzipMagic):
-		return Path(".gzip"), nil
-	case bytes.HasPrefix(fc, ZMagic):
+	case isZlibStream(fc):
 		return Path(".Z"), nil
 	default:
 		return nil, nil

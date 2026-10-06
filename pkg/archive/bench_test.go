@@ -49,8 +49,7 @@ func BenchmarkExtractArchiveToTempDir(b *testing.B) {
 	ctx := context.Background()
 	cfg := malcontent.Config{Concurrency: 1, MaxDepth: 2}
 	b.ReportAllocs()
-	b.ResetTimer()
-	for range b.N {
+	for b.Loop() {
 		dir, err := ExtractArchiveToTempDir(ctx, cfg, path)
 		if err != nil {
 			b.Fatalf("extract: %v", err)
@@ -64,8 +63,7 @@ func BenchmarkIsValidPath(b *testing.B) {
 	dir := "/tmp/extraction-root"
 	target := "/tmp/extraction-root/sub/dir/file.txt"
 	b.ReportAllocs()
-	b.ResetTimer()
-	for range b.N {
+	for b.Loop() {
 		_ = IsValidPath(target, dir)
 	}
 }
@@ -89,8 +87,7 @@ func BenchmarkHandleFile(b *testing.B) {
 	dir := b.TempDir()
 	root := openTestRoot(b, dir)
 	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		tr := tar.NewReader(bytes.NewReader(raw))
 		if _, err := tr.Next(); err != nil {
 			b.Fatalf("Next: %v", err)
@@ -108,8 +105,9 @@ func BenchmarkHandleFile(b *testing.B) {
 func BenchmarkExtractionMethod(b *testing.B) {
 	exts := []string{".tar.gz", ".zip", ".rpm", ".deb", ".zst", ".gz", ".bz2", ".xz", ".unknown"}
 	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	i := 0
+	for b.Loop() {
 		_ = ExtractionMethod(exts[i%len(exts)])
+		i++
 	}
 }

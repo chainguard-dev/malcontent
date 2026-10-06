@@ -4,8 +4,9 @@
 package render
 
 import (
+	"cmp"
 	"fmt"
-	"sort"
+	"slices"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/report"
@@ -57,8 +58,9 @@ func RiskStatistics(c *malcontent.Config, files *xsync.Map[string, *malcontent.F
 	for k, v := range riskStats {
 		stats = append(stats, malcontent.IntMetric{Key: k, Value: v, Count: len(riskMap[k]), Total: processedFiles})
 	}
-	sort.Slice(stats, func(i, j int) bool {
-		return stats[i].Value > stats[j].Value
+	// Descending by share.
+	slices.SortFunc(stats, func(a, b malcontent.IntMetric) int {
+		return cmp.Compare(b.Value, a.Value)
 	})
 
 	return stats, total(), processedFiles, skippedFiles
@@ -99,8 +101,9 @@ func PkgStatistics(_ *malcontent.Config, files *xsync.Map[string, *malcontent.Fi
 	for k, v := range pkg {
 		stats = append(stats, malcontent.StrMetric{Key: k, Value: v, Count: pkgMap[k], Total: numBehaviors})
 	}
-	sort.Slice(stats, func(i, j int) bool {
-		return stats[i].Value > stats[j].Value
+	// Descending by share.
+	slices.SortFunc(stats, func(a, b malcontent.StrMetric) int {
+		return cmp.Compare(b.Value, a.Value)
 	})
 	return stats, width, numBehaviors
 }

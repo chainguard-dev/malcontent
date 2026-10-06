@@ -21,9 +21,9 @@ import (
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/google/go-containerregistry/pkg/authn"
-	"github.com/google/go-containerregistry/pkg/crane"
 	"github.com/google/go-containerregistry/pkg/name"
 	v1 "github.com/google/go-containerregistry/pkg/v1"
+	"github.com/google/go-containerregistry/pkg/v1/mutate"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 	"github.com/google/go-containerregistry/pkg/v1/remote/transport"
 	"golang.org/x/sync/semaphore"
@@ -401,10 +401,6 @@ func prepareImage(ctx context.Context, c *malcontent.Config, d string) (string, 
 		if manifest.Config.Size < 0 || totalSize > maxImageSize-manifest.Config.Size {
 			return "", nil, fmt.Errorf("image size exceeds maximum allowed size (%d bytes)", maxImageSize)
 		}
-		totalSize += manifest.Config.Size
-		if totalSize > maxImageSize {
-			return "", nil, fmt.Errorf("image size (%d bytes) exceeds maximum allowed size (%d bytes)", totalSize, maxImageSize)
-		}
 	}
 
 	// Counting-writer abort as a secondary defense if the manifest understated the image size.
@@ -412,16 +408,44 @@ func prepareImage(ctx context.Context, c *malcontent.Config, d string) (string, 
 	if maxImageSize > 0 {
 		exportWriter = &limitedWriter{w: tmpFile, remaining: maxImageSize}
 	}
-	if err := crane.Export(image, exportWriter); err != nil {
+	if err := exportImage(image, exportWriter); err != nil {
 		return "", nil, fmt.Errorf("failed to export image: %w", err)
-	}
-	_, err = tmpFile.Seek(0, io.SeekStart)
-	if err != nil {
-		return "", nil, fmt.Errorf("failed to seek to start of temp file: %w", err)
 	}
 
 	success = true
 	return tmpDir, tmpFile, nil
+}
+
+// exportImage writes the flattened filesystem of img to w, as crane.Export
+// does, but closes the flattening stream on return. crane.Export never closes
+// it, so a write error from w (such as limitedWriter's cap) leaves the
+// mutate.Extract goroutine blocked on its pipe forever, holding the layer
+// stream open.
+func exportImage(img v1.Image, w io.Writer) error {
+	layers, err := img.Layers()
+	if err != nil {
+		return err
+	}
+	// As in crane.Export, a lone non-layer blob (e.g. an artifact) is copied verbatim.
+	if len(layers) == 1 {
+		mt, err := layers[0].MediaType()
+		if err != nil {
+			return err
+		}
+		if !mt.IsLayer() {
+			rc, err := layers[0].Uncompressed()
+			if err != nil {
+				return err
+			}
+			defer rc.Close()
+			_, err = io.Copy(w, rc)
+			return err
+		}
+	}
+	flat := mutate.Extract(img)
+	defer flat.Close()
+	_, err = io.Copy(w, flat)
+	return err
 }
 
 // OCI returns a directory with the extracted image directories/files in it.

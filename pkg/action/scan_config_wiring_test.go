@@ -6,7 +6,6 @@ package action
 import (
 	"archive/zip"
 	"bytes"
-	"context"
 	"errors"
 	"io/fs"
 	"os"
@@ -47,7 +46,7 @@ func buildPayloadZip(t *testing.T, zipPath string, size int) {
 }
 
 func TestScan_WiresMaxArchiveBytesFromConfig(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 
 	rfs := []fs.FS{rules.FS, thirdparty.FS}
 	yrs, err := CachedRules(ctx, rfs)
@@ -109,7 +108,7 @@ func TestScan_WiresOCICABundlePathFromConfig(t *testing.T) {
 		ScanPaths:       []string{"127.0.0.1:0/nonexistent:latest"},
 	}
 
-	_, scanErr := Scan(context.Background(), mc)
+	_, scanErr := Scan(t.Context(), mc)
 	if scanErr == nil {
 		t.Fatalf("Scan returned nil; want chain containing CA bundle absolute-path rejection")
 	}

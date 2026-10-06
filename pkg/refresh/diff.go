@@ -163,24 +163,29 @@ func diffRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 		dest := filepath.Join(rc.SamplesPath, td.destPath)
 
 		if _, err := os.Stat(src); err != nil {
+			closeTestDataFiles(testData)
 			return nil, fmt.Errorf("risk case base file not found: %s: %w", src, err)
 		}
 		if _, err := os.Stat(dest); err != nil {
+			closeTestDataFiles(testData)
 			return nil, fmt.Errorf("risk case compare file not found: %s: %w", dest, err)
 		}
 
 		if err := os.MkdirAll(filepath.Dir(output), 0o700); err != nil {
+			closeTestDataFiles(testData)
 			return nil, fmt.Errorf("create output directory: %w", err)
 		}
 
 		outFile, err := os.OpenFile(output, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600) // #nosec G304 -- refresh operates on testdata roots controlled by the test harness
 		if err != nil {
+			closeTestDataFiles(testData)
 			return nil, fmt.Errorf("create output file %s: %w", output, err)
 		}
 
 		renderer, err := render.New(td.format, outFile)
 		if err != nil {
 			_ = outFile.Close()
+			closeTestDataFiles(testData)
 			return nil, fmt.Errorf("create renderer for %s: %w", output, err)
 		}
 
@@ -198,6 +203,7 @@ func diffRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 		yrs, err := action.CachedRules(ctx, rfs)
 		if err != nil {
 			_ = outFile.Close()
+			closeTestDataFiles(testData)
 			return nil, err
 		}
 

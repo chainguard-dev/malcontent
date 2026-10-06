@@ -4,17 +4,13 @@
 package action
 
 import (
-	"context"
 	"errors"
-	"io"
 	"io/fs"
-	"log/slog"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
@@ -44,7 +40,7 @@ func countOpenFDs(t *testing.T) int {
 // TestScanSinglePathNoFDLeak verifies that early return paths in scanSinglePath
 // properly close file handles and don't leak file descriptors.
 func TestScanSinglePathNoFDLeak(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 
 	fdsBefore := countOpenFDs(t)
 	if fdsBefore == -1 {
@@ -95,7 +91,7 @@ func TestScanSinglePathNoFDLeak(t *testing.T) {
 // TestScanSinglePathNonExistentFile verifies that scanning a non-existent file
 // returns an error without leaking resources.
 func TestScanSinglePathNonExistentFile(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 
 	fdsBefore := countOpenFDs(t)
 	if fdsBefore == -1 {
@@ -117,7 +113,7 @@ func TestScanSinglePathNonExistentFile(t *testing.T) {
 	for range iterations {
 		_, err := scanSinglePath(ctx, cfg, "/nonexistent/path/to/file", rfs, "", "", nil)
 		if err == nil {
-			t.Error("expected error for non-existent file")
+			t.Error("error for a nonexistent file: got = nil, want = non-nil")
 		}
 	}
 
@@ -135,7 +131,7 @@ func TestScanSinglePathNonExistentFile(t *testing.T) {
 // TestScanRepeatedScansNoResourceExhaustion verifies that repeated scans
 // don't exhaust scanner pool or buffer pool resources.
 func TestScanRepeatedScansNoResourceExhaustion(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 
 	rfs := []fs.FS{rules.FS, thirdparty.FS}
 	yrs, err := CachedRules(ctx, rfs)
@@ -169,7 +165,7 @@ func TestScanRepeatedScansNoResourceExhaustion(t *testing.T) {
 }
 
 func TestNPMCredentialExfiltrationRule(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 
 	rfs := []fs.FS{rules.FS, thirdparty.FS}
 	yrs, err := CachedRules(ctx, rfs)
@@ -277,24 +273,24 @@ func TestExitIfHitOrMiss(t *testing.T) {
 
 			if tt.wantErr {
 				if err == nil {
-					t.Fatal("expected error")
+					t.Fatal("error: got = nil, want = non-nil")
 				}
 				if !errors.Is(err, ErrMatchedCondition) {
-					t.Errorf("expected ErrMatchedCondition, got: %v", err)
+					t.Errorf("error: got = %v, want = %v", err, ErrMatchedCondition)
 				}
 				if !strings.Contains(err.Error(), tt.scanPath) {
-					t.Errorf("error should contain scan path %q: %v", tt.scanPath, err)
+					t.Errorf("error: got = %v, want it to contain scan path %q", err, tt.scanPath)
 				}
 			} else if err != nil {
-				t.Errorf("expected nil error, got: %v", err)
+				t.Errorf("error: got = %v, want = nil", err)
 			}
 
 			if tt.wantFR {
 				if fr == nil {
-					t.Fatal("expected non-nil FileReport")
+					t.Fatal("FileReport: got = nil, want = non-nil")
 				}
 			} else if fr != nil {
-				t.Errorf("expected nil FileReport, got: %+v", fr)
+				t.Errorf("FileReport: got = %+v, want = nil", fr)
 			}
 		})
 	}
@@ -324,10 +320,10 @@ func TestExitIfHitOrMiss_NilNilContract(t *testing.T) {
 			t.Parallel()
 			fr, err := exitIfHitOrMiss(tt.frs, tt.scanPath, tt.errIfHit, tt.errIfMiss)
 			if fr != nil {
-				t.Errorf("expected fr == nil, got %+v", fr)
+				t.Errorf("FileReport: got = %+v, want = nil", fr)
 			}
 			if err != nil {
-				t.Errorf("expected err == nil, got %v", err)
+				t.Errorf("error: got = %v, want = nil", err)
 			}
 		})
 	}
@@ -418,16 +414,16 @@ func TestFileReportError(t *testing.T) {
 
 func TestHandleFileReportError(t *testing.T) {
 	t.Parallel()
-	logger := clog.FromContext(context.Background())
+	logger := clog.FromContext(t.Context())
 
 	t.Run("non-FileReportError returns error", func(t *testing.T) {
 		t.Parallel()
 		_, err := handleFileReportError(errors.New("plain"), "/bin/x", logger)
 		if err == nil {
-			t.Fatal("expected error")
+			t.Fatal("error: got = nil, want = non-nil")
 		}
 		if !strings.Contains(err.Error(), "/bin/x") {
-			t.Errorf("error should contain path: %v", err)
+			t.Errorf("error: got = %v, want it to contain the path", err)
 		}
 	})
 
@@ -436,13 +432,13 @@ func TestHandleFileReportError(t *testing.T) {
 		fre := NewFileReportError(errors.New("gen"), "/bin/x", TypeGenerateError)
 		fr, err := handleFileReportError(fre, "/bin/x", logger)
 		if err != nil {
-			t.Errorf("expected nil error, got: %v", err)
+			t.Errorf("error: got = %v, want = nil", err)
 		}
 		if fr == nil {
-			t.Fatal("expected FileReport")
+			t.Fatal("FileReport: got = nil, want = non-nil")
 		}
 		if fr.Skipped != errMsgGenerateFailed {
-			t.Errorf("Skipped = %q, want %q", fr.Skipped, errMsgGenerateFailed)
+			t.Errorf("Skipped: got = %q, want = %q", fr.Skipped, errMsgGenerateFailed)
 		}
 	})
 
@@ -451,10 +447,10 @@ func TestHandleFileReportError(t *testing.T) {
 		fre := NewFileReportError(errors.New("scan"), "/bin/x", TypeScanError)
 		fr, err := handleFileReportError(fre, "/bin/x", logger)
 		if err == nil {
-			t.Fatal("expected error")
+			t.Fatal("error: got = nil, want = non-nil")
 		}
 		if fr != nil {
-			t.Errorf("expected nil FileReport, got: %+v", fr)
+			t.Errorf("FileReport: got = %+v, want = nil", fr)
 		}
 	})
 
@@ -463,67 +459,7 @@ func TestHandleFileReportError(t *testing.T) {
 		fre := NewFileReportError(errors.New("unknown"), "/bin/x", TypeUnknown)
 		_, err := handleFileReportError(fre, "/bin/x", logger)
 		if err == nil {
-			t.Fatal("expected error")
+			t.Fatal("error: got = nil, want = non-nil")
 		}
 	})
-}
-
-// TestSetupMatchHandler_DrainOnCancel verifies that the returned wait closure
-// from setupMatchHandler returns within a bounded time after cancel() is
-// invoked, even when no match has been delivered through matchChan.
-func TestSetupMatchHandler_DrainOnCancel(t *testing.T) {
-	t.Parallel()
-
-	ctx, cancel := context.WithCancel(context.Background())
-	t.Cleanup(cancel)
-
-	logger := clog.New(slog.NewTextHandler(io.Discard, nil))
-	matchChan := make(chan matchResult, 1)
-	cfg := malcontent.Config{}
-
-	wait := setupMatchHandler(ctx, matchChan, cfg, cancel, logger)
-
-	cancel()
-
-	done := make(chan struct{})
-	go func() {
-		wait()
-		close(done)
-	}()
-
-	select {
-	case <-done:
-	case <-time.After(2 * time.Second):
-		t.Fatal("setupMatchHandler wait did not return within 2s after cancel")
-	}
-}
-
-// TestSetupMatchHandler_DrainOnMatch verifies that the returned wait closure
-// from setupMatchHandler joins the renderer goroutine after a single match
-// is delivered through matchChan.
-func TestSetupMatchHandler_DrainOnMatch(t *testing.T) {
-	t.Parallel()
-
-	ctx, cancel := context.WithCancel(context.Background())
-	t.Cleanup(cancel)
-
-	logger := clog.New(slog.NewTextHandler(io.Discard, nil))
-	matchChan := make(chan matchResult, 1)
-	cfg := malcontent.Config{}
-
-	wait := setupMatchHandler(ctx, matchChan, cfg, cancel, logger)
-
-	matchChan <- matchResult{fr: nil, err: nil}
-
-	done := make(chan struct{})
-	go func() {
-		wait()
-		close(done)
-	}()
-
-	select {
-	case <-done:
-	case <-time.After(2 * time.Second):
-		t.Fatal("setupMatchHandler wait did not return within 2s after match delivery")
-	}
 }

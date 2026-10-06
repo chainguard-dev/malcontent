@@ -44,17 +44,17 @@ func (r TerminalBrief) File(ctx context.Context, fr *malcontent.FileReport) erro
 	}
 
 	width := suggestedWidth()
-	fmt.Fprintf(r.w, "├─ %s %s\n", riskEmoji(fr.RiskScore), fr.Path)
+	fmt.Fprintf(r.w, "├─ %s %s\n", riskEmoji(fr.RiskScore), sanitizeTerminal(fr.Path))
 
 	for _, b := range fr.Behaviors {
 		content := fmt.Sprintf("│     %s %s — %s", riskColor(fr.RiskLevel, "•"), riskColor(fr.RiskLevel, b.ID), b.Description)
 		fmt.Fprint(r.w, content)
 
-		e := evidenceString(b.MatchStrings, b.Description)
+		e := sanitizeTerminal(evidenceString(b.MatchStrings, b.Description))
 
 		// no evidence to give
 		if e == "" {
-			fmt.Println(r.w, "")
+			fmt.Fprintln(r.w)
 			continue
 		}
 

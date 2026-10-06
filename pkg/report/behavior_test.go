@@ -4,8 +4,9 @@
 package report
 
 import (
+	"cmp"
 	"fmt"
-	"sort"
+	"slices"
 	"testing"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
@@ -37,8 +38,8 @@ func TestUpdateBehaviorOrderIndependent(t *testing.T) {
 		for _, b := range order {
 			updateBehavior(fr, b, b.ID, nil)
 		}
-		sort.Slice(fr.Behaviors, func(i, j int) bool {
-			return fr.Behaviors[i].ID < fr.Behaviors[j].ID
+		slices.SortFunc(fr.Behaviors, func(a, b *malcontent.Behavior) int {
+			return cmp.Compare(a.ID, b.ID)
 		})
 		return fr.Behaviors
 	}
@@ -69,10 +70,10 @@ func TestUpdateBehaviorDedupKeepsHighestRisk(t *testing.T) {
 	updateBehavior(fr, &malcontent.Behavior{ID: "x", RiskScore: MEDIUM, Description: "mid"}, "x", nil)
 
 	if got := len(fr.Behaviors); got != 1 {
-		t.Fatalf("expected 1 entry after dedup, got %d", got)
+		t.Fatalf("entries after dedup: got = %d, want = 1", got)
 	}
 	if fr.Behaviors[0].RiskScore != CRITICAL {
-		t.Errorf("expected CRITICAL retained, got %d", fr.Behaviors[0].RiskScore)
+		t.Errorf("RiskScore: got = %d, want = %d", fr.Behaviors[0].RiskScore, CRITICAL)
 	}
 }
 
@@ -86,7 +87,7 @@ func TestUpdateBehaviorLargeSetDistinct(t *testing.T) {
 		updateBehavior(fr, b, b.ID, idx)
 	}
 	if got := len(fr.Behaviors); got != n {
-		t.Fatalf("expected %d distinct behaviors, got %d", n, got)
+		t.Fatalf("distinct behaviors: got = %d, want = %d", got, n)
 	}
 }
 
