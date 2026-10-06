@@ -246,6 +246,8 @@ func TestSanitizeMarkdown(t *testing.T) {
 		{"emphasis and strikethrough markers escaped", "*a* _b_ ~c~", `\*a\* \_b\_ \~c\~`},
 		{"math delimiter escaped", "$x$", `\$x\$`},
 		{"line endings percent-encoded", "a\r\nb", "a%0D%0Ab"},
+		{"last C0 control percent-encoded", "a\x1fb", "a%1Fb"},
+		{"delete percent-encoded", "a\x7fb", "a%7Fb"},
 		{"mention, reference, and emoji characters are followed by a zero-width space", "@a #1 :x:", "@&#8203;a #&#8203;1 :&#8203;x:&#8203;"},
 		{"ampersand escaped before entities so spelled-out entities stay literal", "&#64; &amp;", "&amp;#&#8203;64; &amp;amp;"},
 		{"other punctuation unchanged", "a.b-c/d!e%f=g;h", "a.b-c/d!e%f=g;h"},
@@ -348,7 +350,7 @@ func TestShortRisk(t *testing.T) {
 	}
 }
 
-func TestTruncate(t *testing.T) {
+func TestTruncateLine(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name  string
@@ -362,14 +364,20 @@ func TestTruncate(t *testing.T) {
 		{"empty string", "", 10, ""},
 		{"one over limit", "abcd", 3, "ab…"},
 		{"long string", strings.Repeat("x", 200), 50, strings.Repeat("x", 49) + "…"},
+		{"multibyte characters count by byte", "│ab", 3, "\xe2\x94…"},
 	}
 
+	// Text before the line's start is never shortened or counted.
+	const before = "earlier output\n"
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got := truncate(tt.input, tt.limit)
-			if got != tt.want {
-				t.Errorf("truncate(%q, %d) = %q, want %q", tt.input, tt.limit, got, tt.want)
+			var b bytes.Buffer
+			b.WriteString(before)
+			b.WriteString(tt.input)
+			truncateLine(&b, len(before), tt.limit)
+			if got := b.String(); got != before+tt.want {
+				t.Errorf("truncateLine(%q, %d): got = %q, want = %q", tt.input, tt.limit, got, before+tt.want)
 			}
 		})
 	}
@@ -389,6 +397,14 @@ func TestAnsiLineLength(t *testing.T) {
 		{"ANSI with semicolons", "\x1b[1;31;42mtext\x1b[0m", 4},
 		{"cursor movement G", "\x1b[10Ghello", 5},
 		{"only ANSI no text", "\x1b[31m\x1b[0m", 0},
+		{"bracket without ESC is text", "a[31mb", 6},
+		{"ESC without bracket is text", "\x1b]31mz", 6},
+		{"ESC at the end is text", "ab\x1b", 3},
+		{"byte other than a digit or semicolon ends the parameters", "\x1b[1!mX", 6},
+		{"sequence cut off at the end is text", "\x1b[12", 4},
+		{"sequence cut off after its bracket is text", "\x1b[", 2},
+		{"reset without parameters", "\x1b[mab", 2},
+		{"reset without parameters at the end", "ab\x1b[m", 2},
 	}
 
 	for _, tt := range tests {

@@ -58,8 +58,7 @@ func readTestFile(path string) ([]byte, error) {
 		return nil, err
 	}
 	defer f.Close()
-	buf := make([]byte, file.ExtractBuffer)
-	return file.GetContents(f, buf)
+	return file.GetContents(f)
 }
 
 // FuzzExtractTar tests tar extraction with random inputs to find crashes,

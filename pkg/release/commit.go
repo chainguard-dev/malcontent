@@ -53,12 +53,11 @@ func isFortyHexLower(s string) bool {
 	if len(s) != 40 {
 		return false
 	}
-	for i := 0; i < len(s); i++ {
+	for i := range len(s) {
 		c := s[i]
-		switch {
-		case c >= '0' && c <= '9':
-		case c >= 'a' && c <= 'f':
-		default:
+		isDigit := c >= '0' && c <= '9'
+		isLowerHex := c >= 'a' && c <= 'f'
+		if !isDigit && !isLowerHex {
 			return false
 		}
 	}

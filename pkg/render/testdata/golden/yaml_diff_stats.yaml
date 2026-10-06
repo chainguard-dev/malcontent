@@ -1,0 +1,138 @@
+diff:
+    added:
+        "/new/tool\e[2J":
+            path: "/new/tool\e[2J"
+            sha256: ""
+            size: 0
+            behaviors:
+                - description: writes files
+                  matchstrings:
+                    - evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-
+                  riskscore: 2
+                  risklevel: MEDIUM
+                  ruleurl: https://r/write
+                  id: fs/write
+            riskscore: 2
+            risklevel: MEDIUM
+    removed:
+        /old/empty:
+            path: /old/empty
+            sha256: ""
+            size: 0
+            riskscore: 0
+        /old/tool:
+            path: /old/tool
+            sha256: ""
+            size: 0
+            behaviors:
+                - description: connects
+                  matchstrings:
+                    - AF_INET
+                  riskscore: 3
+                  risklevel: HIGH
+                  ruleurl: https://r/connect
+                  id: net/connect
+                - description: reads files
+                  riskscore: 1
+                  risklevel: LOW
+                  ruleurl: https://r/read
+                  id: fs/read
+            riskscore: 3
+            risklevel: HIGH
+    modified:
+        /mod/changed:
+            path: /mod/changed
+            sha256: ""
+            size: 0
+            behaviors:
+                - description: binds a port
+                  riskscore: 1
+                  risklevel: LOW
+                  ruleurl: https://r/bind
+                  id: net/bind
+                - description: runs a shell - quickly
+                  matchstrings:
+                    - /bin/sh
+                    - evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-
+                  riskscore: 3
+                  risklevel: HIGH
+                  ruleurl: https://r/shell
+                  ruleauthor: Dee
+                  diffadded: true
+                  id: exec/shell
+                - description: reads files
+                  matchstrings:
+                    - fopen
+                  riskscore: 1
+                  risklevel: LOW
+                  ruleurl: https://r/read
+                  diffremoved: true
+                  id: fs/read
+                - description: uses AES
+                  riskscore: 2
+                  risklevel: MEDIUM
+                  ruleurl: https://r/aes
+                  diffadded: true
+                  diffremoved: true
+                  id: crypto/aes
+                - description: beacons
+                  riskscore: 0
+                  risklevel: NONE
+                  ruleurl: https://r/beacon
+                  diffremoved: true
+                  id: c2/beacon
+            previousriskscore: 1
+            previousrisklevel: LOW
+            riskscore: 3
+            risklevel: HIGH
+        /mod/new-name:
+            path: /mod/new-name
+            sha256: ""
+            size: 0
+            behaviors:
+                - description: uses RC4
+                  matchstrings:
+                    - rc4_init
+                  riskscore: 2
+                  risklevel: MEDIUM
+                  ruleurl: https://r/rc4
+                  diffadded: true
+                  id: crypto/rc4
+            previouspath: /mod/old-name
+            previousriskscore: 2
+            previousrisklevel: MEDIUM
+            riskscore: 2
+            risklevel: MEDIUM
+        /mod/same:
+            path: /mod/same
+            sha256: ""
+            size: 0
+            behaviors:
+                - description: listens
+                  riskscore: 1
+                  risklevel: LOW
+                  ruleurl: https://r/listen
+                  id: net/listen
+            riskscore: 1
+            risklevel: LOW
+        /mod/lowered:
+            path: /mod/lowered
+            sha256: ""
+            size: 0
+            behaviors:
+                - description: connects
+                  riskscore: 3
+                  risklevel: HIGH
+                  ruleurl: https://r/connect
+                  diffremoved: true
+                  id: net/connect
+                - description: binds a port
+                  riskscore: 1
+                  risklevel: LOW
+                  ruleurl: https://r/bind
+                  id: net/bind
+            previousriskscore: 3
+            previousrisklevel: HIGH
+            riskscore: 1
+            risklevel: LOW
+

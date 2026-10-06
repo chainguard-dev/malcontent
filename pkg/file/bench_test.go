@@ -4,51 +4,113 @@
 package file
 
 import (
-	"bytes"
+	"fmt"
+	"io"
+	"math"
 	"os"
-	"path/filepath"
 	"testing"
 )
 
-// makeTempFile writes payload to a file under b.TempDir and returns the open
-// handle. The caller is responsible for closing the handle.
-func makeTempFile(b *testing.B, name string, payload []byte) *os.File {
-	b.Helper()
-	path := filepath.Join(b.TempDir(), name)
-	if err := os.WriteFile(path, payload, 0o600); err != nil {
-		b.Fatalf("write fixture: %v", err)
+// benchSizes spans small files through sizes past mapThreshold, comparing the
+// read and map strategies at each.
+var benchSizes = []int{4 << 10, 64 << 10, 512 << 10, 1 << 20, 4 << 20, 64 << 20}
+
+// sizeName formats n bytes as KiB or MiB.
+func sizeName(n int) string {
+	if n >= 1<<20 {
+		return fmt.Sprintf("%dMiB", n>>20)
 	}
-	f, err := os.Open(path) // #nosec G304 -- bench fixture under b.TempDir
-	if err != nil {
-		b.Fatalf("open fixture: %v", err)
-	}
-	return f
+	return fmt.Sprintf("%dKiB", n>>10)
 }
 
-// BenchmarkGetContents exercises the size-class dispatch across small,
-// medium, and over-medium inputs.
-func BenchmarkGetContents(b *testing.B) {
-	sizes := []struct {
-		name string
-		n    int
-	}{
-		{"small_4KiB", 4 * 1024},
-		{"medium_256KiB", 256 * 1024},
-		{"medium_4MiB", 4 * 1024 * 1024},
+// touchPages reads one byte from every 4 KiB page of b, as a scan would, so
+// that a mapping's page faults count against it.
+func touchPages(b []byte) byte {
+	var s byte
+	for i := 0; i < len(b); i += 4096 {
+		s ^= b[i]
 	}
-	for _, sz := range sizes {
-		b.Run(sz.name, func(b *testing.B) {
-			payload := bytes.Repeat([]byte("x"), sz.n)
-			f := makeTempFile(b, "bench.bin", payload)
-			defer f.Close()
-			buf := make([]byte, ReadBuffer)
-			b.ReportAllocs()
-			b.ResetTimer()
-			for range b.N {
-				if _, err := f.Seek(0, 0); err != nil {
-					b.Fatalf("seek: %v", err)
+	return s
+}
+
+// BenchmarkReadContents compares reading into a pooled buffer, mapping, and
+// ReadContents' own choice, which maps only above mapThreshold.
+func BenchmarkReadContents(b *testing.B) {
+	strategies := []struct {
+		name    string
+		mapOnly bool // the strategy needs memory mapping
+		read    func(*os.File, int64) (*Contents, error)
+	}{
+		{"read", false, func(f *os.File, size int64) (*Contents, error) {
+			if _, err := f.Seek(0, io.SeekStart); err != nil {
+				return nil, err
+			}
+			return readPooled(f, size, MaxBytes)
+		}},
+		{"map", true, func(f *os.File, _ int64) (*Contents, error) {
+			data, err := mapFile(f)
+			if err != nil {
+				return nil, err
+			}
+			return &Contents{data: data, mapped: true}, nil
+		}},
+		{"auto", false, func(f *os.File, size int64) (*Contents, error) {
+			if _, err := f.Seek(0, io.SeekStart); err != nil {
+				return nil, err
+			}
+			return ReadContents(f, size)
+		}},
+	}
+	for _, s := range strategies {
+		for _, n := range benchSizes {
+			b.Run(s.name+"/"+sizeName(n), func(b *testing.B) {
+				if s.mapOnly && !canMap {
+					b.Skip("files are not memory-mapped on this platform")
 				}
-				if _, err := GetContents(f, buf); err != nil {
+				f := openTemp(b, deterministicBytes(n))
+				b.SetBytes(int64(n))
+				b.ReportAllocs()
+				var sink byte
+				for b.Loop() {
+					c, err := s.read(f, int64(n))
+					if err != nil {
+						b.Fatalf("read: %v", err)
+					}
+					sink ^= touchPages(c.Bytes())
+					if err := c.Close(); err != nil {
+						b.Fatalf("Close: %v", err)
+					}
+				}
+				_ = sink
+			})
+		}
+	}
+}
+
+// BenchmarkPooledBuffer measures taking a read buffer from its pool and
+// returning it, the per-file cost of the pooled read path beyond the read.
+func BenchmarkPooledBuffer(b *testing.B) {
+	for _, n := range []int{4 << 10, 1 << 20, int(mapThreshold) + 1} {
+		b.Run(sizeName(n), func(b *testing.B) {
+			b.ReportAllocs()
+			for b.Loop() {
+				putBuffer(getBuffer(int64(n)))
+			}
+		})
+	}
+}
+
+func BenchmarkGetContents(b *testing.B) {
+	for _, n := range []int{4 << 10, 64 << 10, 1 << 20, 4 << 20} {
+		b.Run(sizeName(n), func(b *testing.B) {
+			f := openTemp(b, deterministicBytes(n))
+			b.SetBytes(int64(n))
+			b.ReportAllocs()
+			for b.Loop() {
+				if _, err := f.Seek(0, io.SeekStart); err != nil {
+					b.Fatalf("Seek: %v", err)
+				}
+				if _, err := GetContents(f); err != nil {
 					b.Fatalf("GetContents: %v", err)
 				}
 			}
@@ -56,70 +118,15 @@ func BenchmarkGetContents(b *testing.B) {
 	}
 }
 
-// BenchmarkReadSmallFile measures the small-file read path across the
-// representative sizes the small size-class covers. The size hint passed is
-// the true on-disk length, so the pre-grown buffer is sized in one shot.
-func BenchmarkReadSmallFile(b *testing.B) {
-	sizes := []struct {
-		name string
-		n    int
-	}{
-		{"1KiB", 1 * 1024},
-		{"8KiB", 8 * 1024},
-		{"64KiB", 64 * 1024},
-	}
-	for _, sz := range sizes {
-		b.Run(sz.name, func(b *testing.B) {
-			payload := bytes.Repeat([]byte("z"), sz.n)
-			f := makeTempFile(b, "bench.bin", payload)
-			defer f.Close()
-			info, err := f.Stat()
-			if err != nil {
-				b.Fatalf("stat: %v", err)
-			}
-			size := info.Size()
-			b.ReportAllocs()
-			b.ResetTimer()
-			for range b.N {
-				if _, err := f.Seek(0, 0); err != nil {
-					b.Fatalf("seek: %v", err)
-				}
-				if _, _, err := readSmallFile(f, size); err != nil {
-					b.Fatalf("readSmallFile: %v", err)
-				}
-			}
-		})
-	}
-}
-
 // BenchmarkArchiveCounterAdd measures the atomic-increment + cap-check fast
-// path under a fresh counter.
+// path under a fresh counter. The cap is set past any total the loop can
+// reach, so the check runs on every call without firing.
 func BenchmarkArchiveCounterAdd(b *testing.B) {
-	c := &ArchiveCounter{MaxBytes: DefaultMaxArchiveBytes}
+	c := &ArchiveCounter{MaxBytes: math.MaxInt64}
 	b.ReportAllocs()
-	b.ResetTimer()
-	for range b.N {
+	for b.Loop() {
 		if err := c.Add(1024); err != nil {
 			b.Fatalf("Add: %v", err)
-		}
-	}
-}
-
-// BenchmarkReadBuffered measures buffered streaming reads at the medium size
-// class.
-func BenchmarkReadBuffered(b *testing.B) {
-	payload := bytes.Repeat([]byte("y"), 1*1024*1024)
-	f := makeTempFile(b, "bench.bin", payload)
-	defer f.Close()
-	buf := make([]byte, ReadBuffer)
-	b.ReportAllocs()
-	b.ResetTimer()
-	for range b.N {
-		if _, err := f.Seek(0, 0); err != nil {
-			b.Fatalf("seek: %v", err)
-		}
-		if _, err := readBuffered(f, buf, mediumFileMaxBytes); err != nil {
-			b.Fatalf("readBuffered: %v", err)
 		}
 	}
 }

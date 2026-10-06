@@ -4,10 +4,13 @@
 package report
 
 import (
-	"sort"
+	"fmt"
+	"maps"
+	"slices"
 	"testing"
 
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/compile"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 
 	yarax "github.com/VirusTotal/yara-x/go"
@@ -19,38 +22,42 @@ import (
 // source file). Without distinct namespaces, updateBehavior would dedupe
 // all matches into a single entry keyed by the empty string, which is not
 // the behavior we want to test.
-func compileTestRules(t *testing.T, sources map[string]string) *yarax.Rules {
-	t.Helper()
-	c, err := yarax.NewCompiler()
+func compileTestRules(tb testing.TB, sources map[string]string) *yarax.Rules {
+	tb.Helper()
+	r, err := compileSources(sources)
 	if err != nil {
-		t.Fatalf("NewCompiler: %v", err)
+		tb.Fatal(err)
 	}
-	// Sort keys for a deterministic namespace-creation order so tests
-	// remain reproducible across Go versions.
-	names := make([]string, 0, len(sources))
-	for n := range sources {
-		names = append(names, n)
-	}
-	sort.Strings(names)
-	for _, ns := range names {
-		c.NewNamespace(ns)
-		if err := c.AddSource(sources[ns], yarax.WithOrigin(ns)); err != nil {
-			t.Fatalf("AddSource(%q): %v", ns, err)
-		}
-	}
-	r := c.Build()
-	t.Cleanup(func() { r.Destroy() })
+	tb.Cleanup(func() { r.Destroy() })
 	return r
 }
 
+// compileSources compiles each rule source into the namespace named by its
+// key. Namespaces are created in sorted order, so rules are declared in that
+// order and tests stay reproducible.
+func compileSources(sources map[string]string) (*yarax.Rules, error) {
+	// Bundled rules compare the digest the scanner sets in this global.
+	c, err := yarax.NewCompiler(yarax.Globals(map[string]any{compile.FileSHA256: ""}))
+	if err != nil {
+		return nil, fmt.Errorf("NewCompiler: %w", err)
+	}
+	for _, ns := range slices.Sorted(maps.Keys(sources)) {
+		c.NewNamespace(ns)
+		if err := c.AddSource(sources[ns], yarax.WithOrigin(ns)); err != nil {
+			return nil, fmt.Errorf("AddSource(%q): %w", ns, err)
+		}
+	}
+	return c.Build(), nil
+}
+
 // scan runs the compiled rules over a byte buffer and returns ScanResults.
-func scanBuf(t *testing.T, rules *yarax.Rules, data []byte) *yarax.ScanResults {
-	t.Helper()
+func scanBuf(tb testing.TB, rules *yarax.Rules, data []byte) *yarax.ScanResults {
+	tb.Helper()
 	scanner := yarax.NewScanner(rules)
-	t.Cleanup(func() { scanner.Destroy() })
+	tb.Cleanup(func() { scanner.Destroy() })
 	res, err := scanner.Scan(data)
 	if err != nil {
-		t.Fatalf("scan: %v", err)
+		tb.Fatalf("scan: %v", err)
 	}
 	return res
 }

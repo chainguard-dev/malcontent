@@ -17,14 +17,20 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 	bzip2 "github.com/cosnicolaou/pbzip2"
-	gzip "github.com/klauspost/pgzip"
 	"github.com/ulikunitz/xz"
+	"golang.org/x/sync/semaphore"
 )
 
-// extractTar extracts .apk and .tar* archives.
+// ExtractTar extracts .apk and .tar* archives.
+func ExtractTar(ctx context.Context, d string, f string) error {
+	return extractTarWithKind(ctx, d, f, detectFileType(ctx, f))
+}
+
+// extractTarWithKind is ExtractTar with the archive's detected type reported by
+// fileType, which it calls only when the type decides how to read the archive.
 //
-//nolint:cyclop,gocognit // ignore complexity of 42, 99 respectively
-func ExtractTar(ctx context.Context, d string, f string) (err error) {
+//nolint:cyclop // one branch per compression format and per read or write failure
+func extractTarWithKind(ctx context.Context, d, f string, fileType func() *programkind.FileType) (err error) {
 	defer recoverExtractor(ctx, "tar", f, &err)
 	if ctx.Err() != nil {
 		return ctx.Err()
@@ -43,8 +49,8 @@ func ExtractTar(ctx context.Context, d string, f string) (err error) {
 		return nil
 	}
 
-	buf := tarPool.Get(file.ExtractBuffer) //nolint:nilaway // the buffer pool is created in archive.go
-	defer tarPool.Put(buf)
+	buf := extractPool.Get()
+	defer extractPool.Put(buf)
 
 	// Shared counter across every member of the tar enforces a uniform byte
 	// and ratio ceiling. InputBytes seeds the ratio denominator. Caps prefer
@@ -70,12 +76,11 @@ func ExtractTar(ctx context.Context, d string, f string) (err error) {
 	// after the scanned archive, so testing the full path would read a plain
 	// tar nested in an .apk as gzip.
 	isTGZ := strings.Contains(filename, ".tar.gz") || strings.Contains(filename, ".tgz")
-	var isGzip bool
-	if ft, err := programkind.File(ctx, f); err == nil && ft != nil {
-		if _, ok := GzMIME[ft.MIME]; ok {
-			isGzip = true
-		}
-	}
+	isApk := strings.Contains(filename, ".apk")
+	// The detected type decides only whether a .tar.gz or .tgz name that is
+	// not an .apk is read as gzip, so detection, which reads the whole file,
+	// runs only for those names.
+	isGzip := isTGZ && !isApk && isGzipType(fileType())
 
 	// Set offset to the file origin regardless of type
 	_, err = tf.Seek(0, io.SeekStart)
@@ -85,23 +90,25 @@ func ExtractTar(ctx context.Context, d string, f string) (err error) {
 
 	// stream is the byte stream the tar reader consumes, retained so that the
 	// region past the end-of-archive marker can be audited once extraction ends.
+	// The decompressors read the archive through one buffer, and so does the
+	// tar reader when nothing decompresses it.
 	var stream io.Reader
 	switch {
-	case strings.Contains(filename, ".apk") || (isTGZ && isGzip):
-		gzStream, err := gzip.NewReader(tf)
+	case isApk || isGzip:
+		gzStream, err := newGzipReader(tf)
 		if err != nil {
 			return fmt.Errorf("failed to create gzip reader: %w", err)
 		}
 		defer gzStream.Close()
 		stream = gzStream
 	case strings.Contains(filename, ".tar.xz"):
-		xzStream, err := xz.NewReader(tf)
+		xzStream, err := xz.NewReader(bufferInput(tf))
 		if err != nil {
 			return fmt.Errorf("failed to create xz reader: %w", err)
 		}
 		stream = xzStream
 	case strings.Contains(filename, ".xz"):
-		xzStream, err := xz.NewReader(tf)
+		xzStream, err := xz.NewReader(bufferInput(tf))
 		if err != nil {
 			return fmt.Errorf("failed to create xz reader: %w", err)
 		}
@@ -141,7 +148,8 @@ func ExtractTar(ctx context.Context, d string, f string) (err error) {
 		// pbzip2 decodes on background goroutines that block on an internal
 		// pipe until every decompressed byte has been read. Canceling and
 		// reading once more makes the reader close that pipe and wait for
-		// them, so returning early does not leave them blocked.
+		// them, so returning early does not leave them blocked. It buffers
+		// its input itself, a whole bzip2 block at a time.
 		bzCtx, cancel := context.WithCancel(ctx)
 		br := bzip2.NewReader(bzCtx, tf)
 		defer func() {
@@ -191,7 +199,7 @@ func ExtractTar(ctx context.Context, d string, f string) (err error) {
 		}
 		return nil
 	default:
-		stream = tf
+		stream = bufferInput(tf)
 	}
 
 	// The auditor observes exactly the bytes the tar reader consumes, so it can
@@ -224,41 +232,7 @@ func ExtractTar(ctx context.Context, d string, f string) (err error) {
 			return fmt.Errorf("invalid file path: %s", target)
 		}
 
-		if err := func() error {
-			if err := sem.Acquire(ctx, 1); err != nil {
-				return err
-			}
-			defer sem.Release(1)
-			switch header.Typeflag {
-			case tar.TypeDir:
-				if err := handleDirectory(root, clean); err != nil {
-					return fmt.Errorf("failed to extract directory: %w", err)
-				}
-			case tar.TypeReg:
-				if err := handleFile(root, clean, tr, counter); err != nil {
-					return fmt.Errorf("failed to extract file: %w", err)
-				}
-			case tar.TypeSymlink:
-				if err := handleSymlink(root, clean, header.Linkname); err != nil {
-					return fmt.Errorf("failed to create symlink: %w", err)
-				}
-			case tar.TypeLink:
-				if err := handleHardlink(root, clean, header.Linkname); err != nil {
-					return fmt.Errorf("failed to create hardlink: %w", err)
-				}
-			default:
-				// Entries carrying data under a typeflag this switch does not
-				// name (tar.TypeCont and unrecognized flags among them) would
-				// otherwise be skipped, leaving their content out of the scan
-				// corpus while the archive is deleted as fully extracted.
-				if header.Size > 0 && !isTarHeaderOnlyType(header.Typeflag) {
-					if err := handleFile(root, clean, tr, counter); err != nil {
-						return fmt.Errorf("failed to extract file: %w", err)
-					}
-				}
-			}
-			return nil
-		}(); err != nil {
+		if err := extractTarEntry(ctx, sem, root, tr, header, clean, counter); err != nil {
 			return err
 		}
 	}
@@ -266,7 +240,7 @@ func ExtractTar(ctx context.Context, d string, f string) (err error) {
 	// archive/tar stops at the end-of-archive marker, so bytes appended past it
 	// are never read. Drain them through the auditor: a payload hidden there
 	// would otherwise be discarded along with the archive.
-	if err := auditTarTrailer(stream, auditor); err != nil {
+	if err := auditTarTrailer(stream, auditor, buf); err != nil {
 		return fmt.Errorf("%w in %s: %w", ErrUnaccountedBytes, filename, err)
 	}
 
@@ -277,9 +251,49 @@ func ExtractTar(ctx context.Context, d string, f string) (err error) {
 	return nil
 }
 
-// auditTarTrailer feeds everything past the end-of-archive marker to the auditor.
-func auditTarTrailer(stream io.Reader, auditor *tarAuditor) error {
-	n, err := io.Copy(auditor, io.LimitReader(stream, maxTrailerAudit+1))
+// extractTarEntry writes the entry that header describes beneath root as
+// clean, its cleaned name, reading any content from tr. It holds one slot of
+// sem while it writes.
+func extractTarEntry(ctx context.Context, sem *semaphore.Weighted, root *os.Root, tr *tar.Reader, header *tar.Header, clean string, counter *file.ArchiveCounter) error {
+	if err := sem.Acquire(ctx, 1); err != nil {
+		return err
+	}
+	defer sem.Release(1)
+	switch header.Typeflag {
+	case tar.TypeDir:
+		if err := handleDirectory(root, clean); err != nil {
+			return fmt.Errorf("failed to extract directory: %w", err)
+		}
+	case tar.TypeReg:
+		if err := handleFile(root, clean, tr, counter); err != nil {
+			return fmt.Errorf("failed to extract file: %w", err)
+		}
+	case tar.TypeSymlink:
+		if err := handleSymlink(root, clean, header.Linkname); err != nil {
+			return fmt.Errorf("failed to create symlink: %w", err)
+		}
+	case tar.TypeLink:
+		if err := handleHardlink(root, clean, header.Linkname); err != nil {
+			return fmt.Errorf("failed to create hardlink: %w", err)
+		}
+	default:
+		// Entries carrying data under a typeflag this switch does not name
+		// (tar.TypeCont and unrecognized flags among them) would otherwise be
+		// skipped, leaving their content out of the scan corpus while the
+		// archive is deleted as fully extracted.
+		if header.Size > 0 && !isTarHeaderOnlyType(header.Typeflag) {
+			if err := handleFile(root, clean, tr, counter); err != nil {
+				return fmt.Errorf("failed to extract file: %w", err)
+			}
+		}
+	}
+	return nil
+}
+
+// auditTarTrailer feeds everything past the end-of-archive marker to the
+// auditor, copying through buf.
+func auditTarTrailer(stream io.Reader, auditor *tarAuditor, buf []byte) error {
+	n, err := io.CopyBuffer(auditor, io.LimitReader(stream, maxTrailerAudit+1), buf)
 	if err != nil {
 		// A decompressor rejecting what follows its stream is itself evidence of
 		// content that no entry accounted for.

@@ -4,7 +4,9 @@
 package programkind
 
 import (
+	"bytes"
 	"errors"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -14,23 +16,6 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 )
-
-// TestFileLeavesGOMAXPROCSUnchanged comes first in the package's first test
-// file so that it makes the process's first File call, which builds the
-// shared header buffer pool; building that pool must not change the
-// scheduler's processor count. Later runs find the pool built and pass
-// trivially.
-func TestFileLeavesGOMAXPROCSUnchanged(t *testing.T) {
-	// Not parallel: it must run before any other test calls File.
-	want := runtime.GOMAXPROCS(0)
-	path := writeFixture(t, "probe.sh", []byte("#!/bin/sh\necho probe\n"))
-	if _, err := File(t.Context(), path); err != nil {
-		t.Fatalf("File(%q) error: %v", path, err)
-	}
-	if got := runtime.GOMAXPROCS(0); got != want {
-		t.Errorf("GOMAXPROCS after File: got = %d, want = %d", got, want)
-	}
-}
 
 // programkindOpenFilesUnder counts this process's open file descriptors that
 // refer to paths beneath dir. It reads /proc/self/fd and skips the test where
@@ -58,14 +43,104 @@ func programkindOpenFilesUnder(t *testing.T, dir string) int {
 
 func TestFileClosesTheFile(t *testing.T) {
 	t.Parallel()
-	path := writeFixture(t, "closed.sh", []byte("#!/bin/sh\necho closed\n"))
+	script := []byte("#!/bin/sh\necho closed\n")
+	tests := []struct {
+		name    string
+		content []byte
+	}{
+		{"small file", script},
+		// Several MiB, read into one of the larger pooled buffers.
+		{"large file", append(script, bytes.Repeat([]byte("echo large\n"), 4<<20/11)...)},
+	}
 
-	if _, err := File(t.Context(), path); err != nil {
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			path := writeFixture(t, "closed.sh", tt.content)
+			if _, err := File(t.Context(), path); err != nil {
+				t.Fatalf("File(%q) error: %v", path, err)
+			}
+			if n := programkindOpenFilesUnder(t, filepath.Dir(path)); n != 0 {
+				t.Errorf("open files after File: got = %d, want = 0", n)
+			}
+		})
+	}
+}
+
+func TestFileReleasesLargeFileMapping(t *testing.T) {
+	t.Parallel()
+	// Files larger than 32,000,000 bytes are memory-mapped for detection. A
+	// sparse file keeps the test from writing that much.
+	const size = 32_000_001
+	path := writeFixture(t, "large", []byte{0x7f, 'E', 'L', 'F'})
+	if err := os.Truncate(path, size); err != nil {
+		t.Fatalf("Truncate(%q, %d): %v", path, size, err)
+	}
+	resolved, err := filepath.EvalSymlinks(path)
+	if err != nil {
+		t.Fatalf("EvalSymlinks(%q): %v", path, err)
+	}
+
+	got, err := File(t.Context(), path)
+	if err != nil {
 		t.Fatalf("File(%q) error: %v", path, err)
 	}
-	if n := programkindOpenFilesUnder(t, filepath.Dir(path)); n != 0 {
-		t.Errorf("open files after File: got = %d, want = 0", n)
+	if diff := cmp.Diff(&FileType{Ext: "elf", MIME: "application/x-elf"}, got); diff != "" {
+		t.Errorf("File(%q) mismatch (-want +got):\n%s", path, diff)
 	}
+	maps, err := os.ReadFile("/proc/self/maps")
+	if err != nil {
+		t.Skipf("memory mappings are not listable: %v", err)
+	}
+	if strings.Contains(string(maps), resolved) {
+		t.Errorf("mapping of %q after File: got = present, want = absent", resolved)
+	}
+}
+
+func TestFileReportsUnreadableFiles(t *testing.T) {
+	t.Parallel()
+
+	t.Run("file without read permission", func(t *testing.T) {
+		t.Parallel()
+		path := writeFixture(t, "locked.sh", []byte("#!/bin/sh\necho locked\n"))
+		if err := os.Chmod(path, 0); err != nil {
+			t.Fatalf("Chmod(%q): %v", path, err)
+		}
+		if f, err := os.Open(path); err == nil {
+			_ = f.Close()
+			t.Skip("file permissions do not restrict this user")
+		}
+		got, err := File(t.Context(), path)
+		if !errors.Is(err, fs.ErrPermission) {
+			t.Errorf("File(%q) error: got = %v, want = %v", path, err, fs.ErrPermission)
+		}
+		if got != nil {
+			t.Errorf("File(%q): got = %+v, want = nil", path, got)
+		}
+	})
+
+	t.Run("regular file whose read fails", func(t *testing.T) {
+		t.Parallel()
+		// Linux reports a loopback interface's speed as a non-empty regular
+		// file whose read fails with EINVAL.
+		const path = "/sys/class/net/lo/speed"
+		st, err := os.Stat(path)
+		if err != nil || !st.Mode().IsRegular() || st.Size() == 0 {
+			t.Skipf("%s is not a non-empty regular file here: %v", path, err)
+		}
+		_, readErr := os.ReadFile(path)
+		var pathErr *fs.PathError
+		if !errors.As(readErr, &pathErr) || pathErr.Op != "read" {
+			t.Skipf("%s does not fail to read here: %v", path, readErr)
+		}
+		got, err := File(t.Context(), path)
+		if !errors.Is(err, pathErr.Err) {
+			t.Errorf("File(%q) error: got = %v, want = %v", path, err, pathErr.Err)
+		}
+		if got != nil {
+			t.Errorf("File(%q): got = %+v, want = nil", path, got)
+		}
+	})
 }
 
 // upxStub writes a shell script that stands in for the UPX binary and returns
@@ -90,14 +165,14 @@ func upxStub(t *testing.T, output string, code int) string {
 
 // writeFixture writes content to rel beneath a fresh temporary directory and
 // returns the full path.
-func writeFixture(t *testing.T, rel string, content []byte) string {
-	t.Helper()
-	p := filepath.Join(t.TempDir(), rel)
+func writeFixture(tb testing.TB, rel string, content []byte) string {
+	tb.Helper()
+	p := filepath.Join(tb.TempDir(), rel)
 	if err := os.MkdirAll(filepath.Dir(p), 0o700); err != nil {
-		t.Fatalf("MkdirAll(%q): %v", filepath.Dir(p), err)
+		tb.Fatalf("MkdirAll(%q): %v", filepath.Dir(p), err)
 	}
 	if err := os.WriteFile(p, content, 0o600); err != nil {
-		t.Fatalf("WriteFile(%q): %v", p, err)
+		tb.Fatalf("WriteFile(%q): %v", p, err)
 	}
 	return p
 }
@@ -150,6 +225,39 @@ func TestUPXInstalled(t *testing.T) {
 	})
 }
 
+func TestUPXInstalledCachesUntilThePathChanges(t *testing.T) {
+	// Not parallel: t.Setenv sets MALCONTENT_UPX_PATH for the whole process.
+	stub := upxStub(t, "", 0)
+	resolved, err := filepath.EvalSymlinks(stub)
+	if err != nil {
+		t.Fatalf("EvalSymlinks(%q): %v", stub, err)
+	}
+
+	t.Setenv("MALCONTENT_UPX_PATH", stub)
+	if got, err := UPXInstalled(); err != nil || got != resolved {
+		t.Fatalf("UPXInstalled(): got = %q, %v, want = %q, nil", got, err, resolved)
+	}
+
+	// A world-writable binary fails validation, but while the setting is
+	// unchanged the earlier result stands.
+	if err := os.Chmod(stub, 0o777); err != nil {
+		t.Fatalf("Chmod(%q): %v", stub, err)
+	}
+	if got, err := UPXInstalled(); err != nil || got != resolved {
+		t.Errorf("UPXInstalled() with the setting unchanged: got = %q, %v, want = %q, nil", got, err, resolved)
+	}
+
+	// Any change to the setting validates afresh, even a change back.
+	t.Setenv("MALCONTENT_UPX_PATH", "bin/upx")
+	if _, err := UPXInstalled(); !errors.Is(err, ErrUPXPathInvalid) {
+		t.Errorf("UPXInstalled() with a relative path: got = %v, want = %v", err, ErrUPXPathInvalid)
+	}
+	t.Setenv("MALCONTENT_UPX_PATH", stub)
+	if _, err := UPXInstalled(); !errors.Is(err, ErrUPXPathInvalid) {
+		t.Errorf("UPXInstalled() after the setting changed back: got = %v, want = %v", err, ErrUPXPathInvalid)
+	}
+}
+
 func TestIsValidUPX(t *testing.T) {
 	// Not parallel: subtests set MALCONTENT_UPX_PATH for the whole process.
 	packed := []byte("\x7fELF\x02\x01\x01\x00UPX!payload")
@@ -173,6 +281,7 @@ func TestIsValidUPX(t *testing.T) {
 		{"failed listing with the full not-packed message", packed, target, "upx: packed: NotPackedException: not packed by UPX", 2, false, false},
 		{"successful listing that mentions not packed", packed, target, "NotPackedException: not packed by UPX", 0, true, false},
 		{"file name beginning with a dash", packed, filepath.Join(dir, "-packed"), "", 0, false, true},
+		{"relative path beginning with a dash", packed, "-dir/packed", "", 0, false, true},
 		{"file name of 255 bytes", packed, filepath.Join(dir, strings.Repeat("a", 255)), "", 0, true, false},
 		{"file name of 256 bytes", packed, filepath.Join(dir, strings.Repeat("a", 256)), "", 0, false, true},
 	}
@@ -195,6 +304,28 @@ func TestIsValidUPX(t *testing.T) {
 		got, err := IsValidUPX(t.Context(), packed, target)
 		if !errors.Is(err, ErrUPXPathInvalid) {
 			t.Errorf("IsValidUPX() error: got = %v, want = %v", err, ErrUPXPathInvalid)
+		}
+		if got {
+			t.Errorf("IsValidUPX(): got = %v, want = false", got)
+		}
+	})
+
+	t.Run("relative path after the working directory is removed", func(t *testing.T) {
+		t.Setenv("MALCONTENT_UPX_PATH", upxStub(t, "", 0))
+		gone := filepath.Join(t.TempDir(), "gone")
+		if err := os.Mkdir(gone, 0o700); err != nil {
+			t.Fatalf("Mkdir(%q): %v", gone, err)
+		}
+		t.Chdir(gone)
+		if err := os.Remove(gone); err != nil {
+			t.Fatalf("Remove(%q): %v", gone, err)
+		}
+		if _, err := filepath.Abs("packed"); err == nil {
+			t.Skip("relative paths still resolve after the working directory is removed")
+		}
+		got, err := IsValidUPX(t.Context(), packed, "packed")
+		if err == nil {
+			t.Errorf("IsValidUPX() error: got = nil, want the path resolution error")
 		}
 		if got {
 			t.Errorf("IsValidUPX(): got = %v, want = false", got)
@@ -233,16 +364,23 @@ func TestFileAndIsSupportedArchiveDetectUPX(t *testing.T) {
 	}
 }
 
-func TestFileSkipsDirectoriesAndEmptyFiles(t *testing.T) {
+func TestFileSkipsPathsWithoutContent(t *testing.T) {
 	t.Parallel()
 	empty := writeFixture(t, "empty.sh", nil)
+	dir := filepath.Dir(empty)
+	dangling := filepath.Join(dir, "dangling.sh")
+	if err := os.Symlink(filepath.Join(dir, "missing-target.sh"), dangling); err != nil {
+		t.Fatalf("Symlink: %v", err)
+	}
 
 	tests := []struct {
 		name string
 		path string
 	}{
-		{"directory", filepath.Dir(empty)},
+		{"directory", dir},
 		{"empty file with a supported extension", empty},
+		{"path that does not exist", filepath.Join(dir, "missing.sh")},
+		{"symlink to a path that does not exist", dangling},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -273,6 +411,12 @@ func TestFileContentFallback(t *testing.T) {
 		{"binary data with a one-letter unknown extension is inspected", "blob.q", binaryPHP, &FileType{Ext: "php", MIME: "text/x-php"}},
 		{"plain text with an unknown extension is inspected", "loader.qz", requireJS, &FileType{Ext: "js", MIME: "application/javascript"}},
 		{"plain text man page is skipped", "usr/share/man/man1/loader.1", requireJS, nil},
+		{"binary data under a man page name is inspected", "usr/share/man/man1/blob.1", binaryPHP, &FileType{Ext: "php", MIME: "text/x-php"}},
+		{"text with a tracked data extension is skipped", "usage.md", []byte("# Usage\n\nconst fs = require('fs');\n"), nil},
+		{"Python import without an extension", "tool", []byte("import os\nprint(os.getcwd())\n"), &FileType{Ext: "py", MIME: "text/x-python"}},
+		{"unknown interpreter line without an extension", "tool", []byte("#!/opt/custom/interp\nrun\n"), &FileType{Ext: "script", MIME: "text/x-generic-script"}},
+		{"C include without an extension", "header", []byte("#include <stdio.h>\n"), &FileType{Ext: "c", MIME: "text/x-c"}},
+		{"Erlang BEAM without an extension", "module", []byte("FOR1\x00\x00\x00\x40BEAMAtU8\x00\x00\x00\x10"), &FileType{Ext: "beam", MIME: "application/x-erlang-binary"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -303,6 +447,7 @@ func TestMakeFileTypeMIMECorrections(t *testing.T) {
 		{"shell MIME with .js in the path is JavaScript", "dist/tool.js", "sh", mimeShellScript, &FileType{Ext: "js", MIME: "application/javascript"}},
 		{"shell MIME without .js in the path is kept", "bin/tool.sh", "sh", mimeShellScript, &FileType{Ext: "sh", MIME: mimeShellScript}},
 		{"extension without a tracked MIME is not a program", "notes.txt", "txt", "text/plain", nil},
+		{"data extension with an application MIME is not a program", "report.pdf", "pdf", "application/pdf", nil},
 		{"tracked extension with an application MIME is kept", "auto.scpt", "scpt", "application/x-applescript", &FileType{Ext: "scpt", MIME: "application/x-applescript"}},
 		{"tracked extension with an untracked MIME family is rejected", "image.sh", "sh", "image/png", nil},
 	}

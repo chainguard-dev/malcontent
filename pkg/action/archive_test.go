@@ -36,8 +36,7 @@ func readTestFile(t *testing.T, path string) []byte {
 		t.Fatalf("failed to open test file %s: %v", path, err)
 	}
 	defer f.Close()
-	buf := make([]byte, file.ExtractBuffer)
-	data, err := file.GetContents(f, buf)
+	data, err := file.GetContents(f)
 	if err != nil {
 		t.Fatalf("failed to read test file %s: %v", path, err)
 	}

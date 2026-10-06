@@ -327,7 +327,7 @@ func scanTestArchive(t *testing.T) string {
 	return path
 }
 
-func TestHandleArchiveFileExitConditions(t *testing.T) {
+func TestProcessPathArchiveExitConditions(t *testing.T) {
 	t.Parallel()
 	yrs, rfs := scanTestRules(t)
 	archivePath := scanTestArchive(t)
@@ -370,7 +370,7 @@ func TestHandleArchiveFileExitConditions(t *testing.T) {
 				TrimPrefixes:  tt.trim,
 			}
 
-			err := handleArchiveFile(t.Context(), archivePath, scanInfo, c, r, matchChan, &once, logger)
+			err := processPath(t.Context(), archivePath, scanInfo, c, r, matchChan, &once, logger)
 			if tt.wantErr {
 				if !errors.Is(err, ErrMatchedCondition) {
 					t.Fatalf("error: got = %v, want = %v", err, ErrMatchedCondition)
@@ -387,7 +387,7 @@ func TestHandleArchiveFileExitConditions(t *testing.T) {
 				return
 			}
 			if err != nil {
-				t.Fatalf("handleArchiveFile: %v", err)
+				t.Fatalf("processPath: %v", err)
 			}
 			if got := len(matchChan); got != 0 {
 				t.Errorf("sent matches: got = %d, want = 0", got)
@@ -406,7 +406,7 @@ func TestHandleArchiveFileExitConditions(t *testing.T) {
 	}
 }
 
-func TestHandleArchiveFileRendering(t *testing.T) {
+func TestProcessPathArchiveRendering(t *testing.T) {
 	t.Parallel()
 	yrs, rfs := scanTestRules(t)
 	archivePath := scanTestArchive(t)
@@ -416,8 +416,8 @@ func TestHandleArchiveFileRendering(t *testing.T) {
 
 	baseline := initializeReport(nil)
 	logger, _ := scanTestLogger()
-	if err := handleArchiveFile(t.Context(), archivePath, scanInfo, malcontent.Config{Rules: yrs, RuleFS: rfs}, baseline, make(chan matchResult, 1), &sync.Once{}, logger); err != nil {
-		t.Fatalf("handleArchiveFile: %v", err)
+	if err := processPath(t.Context(), archivePath, scanInfo, malcontent.Config{Rules: yrs, RuleFS: rfs}, baseline, make(chan matchResult, 1), &sync.Once{}, logger); err != nil {
+		t.Fatalf("processPath: %v", err)
 	}
 	hit, ok := baseline.Files.Load(wantKeys[1])
 	if !ok || len(hit.Behaviors) == 0 || hit.RiskScore < 1 {
@@ -458,8 +458,8 @@ func TestHandleArchiveFileRendering(t *testing.T) {
 				c.Renderer = nil
 			}
 
-			if err := handleArchiveFile(t.Context(), archivePath, scanInfo, c, r, make(chan matchResult, 1), &sync.Once{}, logger); err != nil {
-				t.Fatalf("handleArchiveFile: %v", err)
+			if err := processPath(t.Context(), archivePath, scanInfo, c, r, make(chan matchResult, 1), &sync.Once{}, logger); err != nil {
+				t.Fatalf("processPath: %v", err)
 			}
 			if got := scanTestKeys(r.Files); !slices.Equal(got, wantKeys) {
 				t.Errorf("stored keys: got = %v, want = %v", got, wantKeys)

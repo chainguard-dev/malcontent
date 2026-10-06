@@ -4,6 +4,8 @@
 package report
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"maps"
 	"reflect"
@@ -81,6 +83,13 @@ rule exc_dist {
     true
 }
 
+rule inc_setup {
+  meta:
+    path_include = "*/setup.py"
+  condition:
+    true
+}
+
 rule inc_js_exc_dist {
   meta:
     path_include = "*.js"
@@ -110,6 +119,8 @@ rule unscoped {
 		{"path_include accepts the detected type of an extensionless file", "inc_py", "py", "pkg/script", true},
 		{"path_include rejects another detected type of an extensionless file", "inc_py", "js", "pkg/script", false},
 		{"path_include is ignored without a path", "inc_py", "", "", true},
+		{"path_include without extension globs matches its path", "inc_setup", "", "pkg/setup.py", true},
+		{"path_include without extension globs rejects another path of an undetected type", "inc_setup", "", "pkg/mod.py", false},
 		{"path_exclude rejects a matching path", "exc_dist", "", "repo/dist/app.js", false},
 		{"path_exclude keeps another path", "exc_dist", "", "repo/src/app.js", true},
 		{"path_exclude is ignored without a path", "exc_dist", "", "", true},
@@ -124,8 +135,9 @@ rule unscoped {
 			if r == nil {
 				t.Fatalf("rule %q not compiled", tt.rule)
 			}
-			if got := fileMatchesRule(r.Metadata(), tt.ext, tt.path); got != tt.want {
-				t.Errorf("fileMatchesRule(%s, %q, %q): got = %v, want = %v", tt.rule, tt.ext, tt.path, got, tt.want)
+			scope := newRuleScope(r.Metadata())
+			if got := scope.matches(tt.ext, tt.path); got != tt.want {
+				t.Errorf("scope of %s matches(%q, %q): got = %v, want = %v", tt.rule, tt.ext, tt.path, got, tt.want)
 			}
 		})
 	}
@@ -155,6 +167,13 @@ rule author_plain {
 rule author_handle {
   meta:
     author = "@janedoe"
+  condition:
+    true
+}
+
+rule author_fediverse {
+  meta:
+    author = "@janedoe@infosec.exchange"
   condition:
     true
 }
@@ -226,7 +245,14 @@ rule self_marker_false {
     true
 }
 
-rule override_target {
+rule override_target: override {
+  meta:
+    target = "medium"
+  condition:
+    true
+}
+
+rule named_target {
   meta:
     target = "medium"
   condition:
@@ -238,7 +264,7 @@ rule other_target {
     true
 }
 
-rule override_mixed {
+rule override_mixed: override {
   meta:
     target       = "medium"
     other_target = "low"
@@ -246,7 +272,15 @@ rule override_mixed {
     true
 }
 
-rule override_scoped {
+rule override_missing_first: override {
+  meta:
+    missing_rule = "low"
+    target       = "medium"
+  condition:
+    true
+}
+
+rule override_scoped: override {
   meta:
     filetypes    = "py"
     severity     = "low"
@@ -265,26 +299,33 @@ rule unknown_keys {
 }
 `,
 	"yara/vendor/rules.yar": `
-rule vendor_override {
+rule vendor_override: override {
   meta:
     target = "low"
+  condition:
+    true
+}
+
+rule vendor_override_partial: override {
+  meta:
+    target       = "low"
+    missing_rule = "low"
   condition:
     true
 }
 `,
 }
 
-func TestParseMetadata(t *testing.T) {
+func TestReportBuilderBehavior(t *testing.T) {
 	t.Parallel()
 	rules := reportRulesByName(t, reportMetadataRulesSrc)
-	const generatedURL = "https://example.com/generated"
+	const ref = "v0.0.0-test"
 
-	// matching lists the identifiers present in the scan's match map; edit
-	// applies the expected changes to the starting behavior.
+	// matching lists the identifiers of the rules that matched the file; edit
+	// applies the expected changes to the behavior the rule starts from.
 	tests := []struct {
 		name           string
 		rule           string
-		override       bool
 		matching       []string
 		edit           func(b *malcontent.Behavior)
 		wantInvalid    bool
@@ -311,6 +352,11 @@ func TestParseMetadata(t *testing.T) {
 			name: "author handle loses its at sign",
 			rule: "author_handle",
 			edit: func(b *malcontent.Behavior) { b.RuleAuthor = "janedoe" },
+		},
+		{
+			name: "author handle keeps a later at sign",
+			rule: "author_fediverse",
+			edit: func(b *malcontent.Behavior) { b.RuleAuthor = "janedoe@infosec.exchange" },
 		},
 		{
 			name: "author with malformed URL is kept verbatim",
@@ -363,7 +409,6 @@ func TestParseMetadata(t *testing.T) {
 		{
 			name:     "override of a matching rule applies its severity",
 			rule:     "override_target",
-			override: true,
 			matching: []string{"target"},
 			edit: func(b *malcontent.Behavior) {
 				b.RiskScore = MEDIUM
@@ -377,7 +422,6 @@ func TestParseMetadata(t *testing.T) {
 			// Each target carries the severity of its own key.
 			name:     "override records each key with its own severity",
 			rule:     "override_mixed",
-			override: true,
 			matching: []string{"target", "other_target"},
 			edit: func(b *malcontent.Behavior) {
 				b.RiskScore = LOW
@@ -389,13 +433,23 @@ func TestParseMetadata(t *testing.T) {
 		{
 			name:        "override of a rule that did not match is invalid",
 			rule:        "override_target",
-			override:    true,
 			wantInvalid: true,
+		},
+		{
+			name:     "override naming a missing rule first still records a later matching rule",
+			rule:     "override_missing_first",
+			matching: []string{"target"},
+			edit: func(b *malcontent.Behavior) {
+				b.RiskScore = MEDIUM
+				b.RiskLevel = LevelMEDIUM
+				b.Override = []string{"target"}
+			},
+			wantInvalid: true,
+			wantTargets: map[string]int{"target": MEDIUM},
 		},
 		{
 			name:     "override skips scoping and severity keys",
 			rule:     "override_scoped",
-			override: true,
 			matching: []string{"target"},
 			edit: func(b *malcontent.Behavior) {
 				b.RiskScore = LOW
@@ -407,12 +461,17 @@ func TestParseMetadata(t *testing.T) {
 		{
 			name:     "third-party override is not applied",
 			rule:     "vendor_override",
-			override: true,
 			matching: []string{"target"},
 		},
 		{
+			name:        "third-party override naming a missing rule after a matching one is invalid",
+			rule:        "vendor_override_partial",
+			matching:    []string{"target"},
+			wantInvalid: true,
+		},
+		{
 			name:     "non-override rule naming a matching rule is not an override",
-			rule:     "override_target",
+			rule:     "named_target",
 			matching: []string{"target"},
 		},
 		{
@@ -427,20 +486,27 @@ func TestParseMetadata(t *testing.T) {
 			if r == nil {
 				t.Fatalf("rule %q not compiled", tt.rule)
 			}
-			mrsMap := make(map[string]*yarax.Rule, len(tt.matching))
+			matching := make([]*yarax.Rule, 0, len(tt.matching))
 			for _, n := range tt.matching {
-				mrsMap[n] = rules[n]
+				matching = append(matching, rules[n])
 			}
-			want := malcontent.Behavior{RuleName: tt.rule, RuleURL: generatedURL, RiskScore: HIGH, RiskLevel: LevelHIGH}
+			risk := matchRisk(r)
+			want := malcontent.Behavior{
+				ID:        generateKey(r.Namespace(), r.Identifier()),
+				RuleName:  tt.rule,
+				RuleURL:   generateRuleURL(ref, r.Namespace(), r.Identifier()),
+				RiskScore: risk,
+				RiskLevel: RiskLevels[risk],
+			}
 			if tt.edit != nil {
 				tt.edit(&want)
 			}
-			b := &malcontent.Behavior{RuleName: tt.rule, RuleURL: generatedURL, RiskScore: HIGH, RiskLevel: LevelHIGH}
-			fr := &malcontent.FileReport{}
-			var pledges, caps, syscalls []string
-			var overrides []overrideTarget
+			ri := newRuleInfo(r, ref, 0)
+			rb := newReportBuilder(&malcontent.FileReport{}, nil, matching)
 
-			valid := parseMetadata(r, b, fr, tt.override, mrsMap, &pledges, &caps, &syscalls, &overrides)
+			b, valid := rb.behavior(ri)
+			fr, overrides := rb.fr, rb.overrides
+			pledges, caps, syscalls := rb.pledges, rb.caps, rb.syscalls
 
 			if valid == tt.wantInvalid {
 				t.Errorf("valid: got = %v, want = %v", valid, !tt.wantInvalid)
@@ -516,6 +582,13 @@ rule gd_no_severity {
   condition:
     true
 }
+
+rule gd_level_word_in_another_key {
+  meta:
+    description = "low"
+  condition:
+    true
+}
 `,
 		"yara/elastic/rules.yar": `
 rule elastic_declared_low {
@@ -537,6 +610,7 @@ rule elastic_declared_low {
 		{"re-weighted rule uses the override table", "threat_process_cryptomining", MEDIUM},
 		{"unknown severity falls back to namespace risk", "gd_unknown_severity", HIGH},
 		{"missing severity falls back to namespace risk", "gd_no_severity", HIGH},
+		{"a level in another key is not a severity", "gd_level_word_in_another_key", HIGH},
 		{"severity is ignored for sources that do not opt in", "elastic_declared_low", CRITICAL},
 	}
 	for _, tt := range tests {
@@ -563,6 +637,7 @@ func TestHighestMatchRisk(t *testing.T) {
 		"c/scoped": reportRuleSrc("c_scoped_critical", "critical", `filetypes = "elf"`, "ccc"),
 	})
 	hit := scanBuf(t, rules, []byte("aaa bbb ccc"))
+	single := scanBuf(t, rules, []byte("bbb"))
 	miss := scanBuf(t, rules, []byte("zzz"))
 
 	tests := []struct {
@@ -575,6 +650,8 @@ func TestHighestMatchRisk(t *testing.T) {
 		{"scoped rules count for their file type", hit, &programkind.FileType{Ext: "elf"}, CRITICAL},
 		{"unknown file type keeps scoped rules", hit, nil, CRITICAL},
 		{"no matches yields zero", miss, &programkind.FileType{Ext: "elf"}, 0},
+		{"a single match counts", single, nil, MEDIUM},
+		{"missing scan results yield zero", nil, &programkind.FileType{Ext: "elf"}, 0},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -760,18 +837,21 @@ func TestGenerateIgnoreSelf(t *testing.T) {
 }`
 	self := map[string]string{"internal/malcontent": "rule malcontent: harmless {" + marked}
 	impostor := map[string]string{"other/impostor": "rule impostor: harmless {" + marked}
+	unmarked := map[string]string{"internal/malcontent": `rule malcontent: harmless { strings: $a = "selfmark" condition: $a }`}
 
 	tests := []struct {
-		name        string
-		sources     map[string]string
-		path        string
-		ignoreSelf  bool
-		wantSkipped string
+		name           string
+		sources        map[string]string
+		path           string
+		ignoreSelf     bool
+		wantSkipped    string
+		wantMalcontent bool
 	}{
-		{"malcontent rule on the mal binary is skipped", self, "/usr/local/bin/mal", true, "ignoring malcontent binary"},
-		{"disabled self-ignore keeps the mal binary", self, "/usr/local/bin/mal", false, ""},
-		{"malcontent rule on another binary is kept", self, "/usr/bin/ls", true, ""},
-		{"marker from a differently named rule does not skip", impostor, "/usr/local/bin/mal", true, ""},
+		{"malcontent rule on the mal binary is skipped", self, "/usr/local/bin/mal", true, "ignoring malcontent binary", true},
+		{"disabled self-ignore keeps the mal binary", self, "/usr/local/bin/mal", false, "", true},
+		{"malcontent rule on another binary is kept", self, "/usr/bin/ls", true, "", true},
+		{"marker from a differently named rule does not skip", impostor, "/usr/local/bin/mal", true, "", true},
+		{"malcontent rule without the marker does not skip", unmarked, "/usr/local/bin/mal", true, "", false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -780,8 +860,8 @@ func TestGenerateIgnoreSelf(t *testing.T) {
 			if fr.Skipped != tt.wantSkipped {
 				t.Errorf("Skipped: got = %q, want = %q", fr.Skipped, tt.wantSkipped)
 			}
-			if !fr.IsMalcontent {
-				t.Error("IsMalcontent: got = false, want = true")
+			if fr.IsMalcontent != tt.wantMalcontent {
+				t.Errorf("IsMalcontent: got = %v, want = %v", fr.IsMalcontent, tt.wantMalcontent)
 			}
 		})
 	}
@@ -989,4 +1069,149 @@ func TestGenerateOverrideSeverities(t *testing.T) {
 			}
 		})
 	}
+}
+
+// TestReportBuilderRenderTiming checks that add renders the match strings of
+// override rules at once, so override entries carry them, and leaves every
+// other behavior to finish, which renders only the behaviors that remain.
+func TestReportBuilderRenderTiming(t *testing.T) {
+	t.Parallel()
+	yrs := compileTestRules(t, map[string]string{
+		"render/target.yara": reportRuleSrc("render_target", "high", "", "TARGETMARK"),
+		"render/fp.yara":     reportRuleSrc("render_fp", "override", `render_target = "medium"`, "FPMARK"),
+	})
+	fc := []byte("TARGETMARK FPMARK")
+	matching := scanBuf(t, yrs, fc).MatchingRules()
+	infos := ruleInfosFor(nil)
+	rb := newReportBuilder(initFileReport("test/path", "cksum", int64(len(fc)), len(matching)), fc, matching)
+	for _, m := range matching {
+		rb.add(m, infos.get(m), nil)
+	}
+
+	added := make(map[string][]string, len(rb.fr.Behaviors))
+	for _, b := range rb.fr.Behaviors {
+		added[b.RuleName] = b.MatchStrings
+	}
+	if got, ok := added["render_target"]; !ok || got != nil {
+		t.Errorf("render_target MatchStrings after add: got = %q (present: %v), want = nil", got, ok)
+	}
+	if got, want := added["render_fp"], []string{"FPMARK"}; !slices.Equal(got, want) {
+		t.Errorf("render_fp MatchStrings after add: got = %q, want = %q", got, want)
+	}
+
+	fr := rb.finish(LOW, false)
+	if len(fr.Behaviors) != 1 {
+		t.Fatalf("behaviors after finish: got = %v, want only %q", reportSortedNames(fr), "render_target")
+	}
+	if b, want := fr.Behaviors[0], []string{"TARGETMARK"}; b.RuleName != "render_target" || b.RiskScore != MEDIUM || !slices.Equal(b.MatchStrings, want) {
+		t.Errorf("behavior after finish: got = %s/%d/%q, want = render_target/%d/%q", b.RuleName, b.RiskScore, b.MatchStrings, MEDIUM, want)
+	}
+	if len(fr.Overrides) != 1 || !slices.Equal(fr.Overrides[0].MatchStrings, []string{"FPMARK"}) {
+		t.Errorf("Overrides: got = %+v, want one entry with MatchStrings %q", fr.Overrides, []string{"FPMARK"})
+	}
+}
+
+// TestGenerateDedupRendersStoredRule checks that when rules share a behavior
+// ID, the behavior's match strings come from the rule whose behavior is kept.
+// Rules in one namespace share an ID.
+func TestGenerateDedupRendersStoredRule(t *testing.T) {
+	t.Parallel()
+	medium := reportRuleSrc("dup_medium", "medium", "", "MEDMARK")
+	high := reportRuleSrc("dup_high", "high", "", "HIGHMARK")
+	tests := []struct {
+		name string
+		src  string
+	}{
+		{"higher risk declared later replaces the behavior", medium + high},
+		{"lower risk declared later leaves the behavior", high + medium},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			yrs := compileTestRules(t, map[string]string{"dup/rules.yara": tt.src})
+			fc := []byte("MEDMARK HIGHMARK")
+			c := malcontent.Config{MinRisk: LOW, Rules: yrs}
+			fr, err := Generate(t.Context(), "test/path", scanBuf(t, yrs, fc), c, "", nil, fc, int64(len(fc)), "cksum", nil, 0)
+			if err != nil {
+				t.Fatalf("Generate: %v", err)
+			}
+			if len(fr.Behaviors) != 1 {
+				t.Fatalf("behaviors: got = %v, want only %q", reportSortedNames(fr), "dup_high")
+			}
+			if b, want := fr.Behaviors[0], []string{"HIGHMARK"}; b.RuleName != "dup_high" || b.RiskScore != HIGH || !slices.Equal(b.MatchStrings, want) {
+				t.Errorf("behavior: got = %s/%d/%q, want = dup_high/%d/%q", b.RuleName, b.RiskScore, b.MatchStrings, HIGH, want)
+			}
+		})
+	}
+}
+
+func TestGenerateScanMarksLowRiskFileSkipped(t *testing.T) {
+	t.Parallel()
+	rules := compileTestRules(t, map[string]string{
+		"medium/one": reportRuleSrc("medium_one", "medium", "", "aaa"),
+	})
+	fc := []byte("aaa")
+	mrs := scanBuf(t, rules, fc)
+
+	tests := []struct {
+		name        string
+		c           malcontent.Config
+		wantSkipped string
+		wantRisk    int
+		wantNames   []string
+	}{
+		{"scan skips a file below HIGH", malcontent.Config{Scan: true, MinRisk: LOW}, "overall risk too low for scan", 0, []string{}},
+		{"analyze keeps a file below HIGH", malcontent.Config{MinRisk: LOW}, "", MEDIUM, []string{"medium_one"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			highest := HighestMatchRisk(mrs, nil, "test/path", "", tt.c)
+			fr, err := Generate(t.Context(), "test/path", mrs, tt.c, "", nil, fc, int64(len(fc)), "cksum", nil, highest)
+			if err != nil {
+				t.Fatalf("Generate: %v", err)
+			}
+			if fr.Skipped != tt.wantSkipped {
+				t.Errorf("Skipped: got = %q, want = %q", fr.Skipped, tt.wantSkipped)
+			}
+			if fr.RiskScore != tt.wantRisk || fr.RiskLevel != RiskLevels[tt.wantRisk] {
+				t.Errorf("file risk: got = %d/%s, want = %d/%s", fr.RiskScore, fr.RiskLevel, tt.wantRisk, RiskLevels[tt.wantRisk])
+			}
+			if got := reportSortedNames(fr); !slices.Equal(got, tt.wantNames) {
+				t.Errorf("behaviors: got = %v, want = %v", got, tt.wantNames)
+			}
+		})
+	}
+}
+
+func TestGenerateRejectsInvalidInput(t *testing.T) {
+	t.Parallel()
+	rules := compileTestRules(t, map[string]string{"a/one": reportRuleSrc("one", "high", "", "aaa")})
+	fc := []byte("aaa")
+	mrs := scanBuf(t, rules, fc)
+	c := malcontent.Config{MinRisk: LOW}
+
+	t.Run("canceled context yields an empty report", func(t *testing.T) {
+		t.Parallel()
+		ctx, cancel := context.WithCancel(t.Context())
+		cancel()
+		fr, err := Generate(ctx, "test/path", mrs, c, "", nil, fc, int64(len(fc)), "cksum", nil, 0)
+		if !errors.Is(err, context.Canceled) {
+			t.Errorf("error: got = %v, want = %v", err, context.Canceled)
+		}
+		if fr == nil || !reflect.DeepEqual(*fr, malcontent.FileReport{}) {
+			t.Errorf("report: got = %+v, want an empty report", fr)
+		}
+	})
+
+	t.Run("missing scan results yield no report", func(t *testing.T) {
+		t.Parallel()
+		fr, err := Generate(t.Context(), "test/path", nil, c, "", nil, fc, int64(len(fc)), "cksum", nil, 0)
+		if err == nil {
+			t.Error("error: got = nil, want an error")
+		}
+		if fr != nil {
+			t.Errorf("report: got = %+v, want = nil", fr)
+		}
+	})
 }

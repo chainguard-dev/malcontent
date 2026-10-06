@@ -5,13 +5,81 @@ package render
 
 import (
 	"bytes"
+	"io"
+	"os"
 	"strings"
 	"testing"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/report"
+	"github.com/fatih/color"
 	"golang.org/x/term"
 )
+
+// The palette follows color.NoColor, so this test sets it and does not run
+// in parallel.
+func TestShortEvidenceMovesToItsOwnLineWithColor(t *testing.T) {
+	if os.Getenv("NO_COLOR") != "" {
+		t.Skip("NO_COLOR is set, so fatih/color writes no escape sequences")
+	}
+	saved := color.NoColor
+	t.Cleanup(func() { color.NoColor = saved })
+	color.NoColor = false
+
+	// Four bytes of evidence after a description wider than the terminal stay
+	// on the line without color, but not with it: the length once included
+	// the color sequences.
+	fr := func() *malcontent.FileReport {
+		return &malcontent.FileReport{
+			Path:      "/bin/x",
+			RiskScore: 1,
+			RiskLevel: report.LevelLOW,
+			Behaviors: []*malcontent.Behavior{
+				{ID: "net/connect", Description: strings.Repeat("d", 80), MatchStrings: []string{"abcd"}, RiskScore: 1, RiskLevel: report.LevelLOW},
+			},
+		}
+	}
+	tests := []struct {
+		name string
+		file func(io.Writer) error
+		// line is the index of the behavior line.
+		line     int
+		evidence string
+	}{
+		{
+			name:     "terminal",
+			file:     func(w io.Writer) error { return (&Terminal{out: blockWriter{w: w}, width: 75}).File(t.Context(), fr()) },
+			line:     2,
+			evidence: "│          abcd",
+		},
+		{
+			name: "terminal brief",
+			file: func(w io.Writer) error {
+				return (&TerminalBrief{out: blockWriter{w: w}, width: 75}).File(t.Context(), fr())
+			},
+			line:     1,
+			evidence: briefIndent + "abcd",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var buf bytes.Buffer
+			if err := tt.file(&buf); err != nil {
+				t.Fatalf("File: got err = %v, want = nil", err)
+			}
+			lines := strings.Split(renderStripANSI(buf.String()), "\n")
+			if len(lines) < tt.line+2 {
+				t.Fatalf("lines: got = %q, want at least %d", lines, tt.line+2)
+			}
+			if !strings.HasSuffix(lines[tt.line], ":") {
+				t.Errorf("behavior line: got = %q, want suffix %q", lines[tt.line], ":")
+			}
+			if got := lines[tt.line+1]; got != tt.evidence {
+				t.Errorf("evidence line: got = %q, want = %q", got, tt.evidence)
+			}
+		})
+	}
+}
 
 var (
 	// terminalNS prefixes unchanged namespace lines: the bar, a diff column, and a four-space indent.
@@ -20,11 +88,11 @@ var (
 	terminalBehavior = "│" + strings.Repeat(" ", 7)
 )
 
-// terminalSummary renders fr through renderFileSummary and returns the visible text.
-func terminalSummary(t *testing.T, fr *malcontent.FileReport, rc tableConfig) string {
+// terminalSummary renders fr under title through renderFileSummary and returns the visible text.
+func terminalSummary(t *testing.T, fr *malcontent.FileReport, title string) string {
 	t.Helper()
 	var buf bytes.Buffer
-	renderFileSummary(t.Context(), fr, &buf, rc)
+	renderFileSummary(t.Context(), &buf, fr, title, suggestedWidth())
 	return renderStripANSI(buf.String())
 }
 
@@ -199,7 +267,7 @@ func TestRenderFileSummaryDiffMode(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got := terminalSummary(t, tt.fr, tableConfig{Title: tt.title})
+			got := terminalSummary(t, tt.fr, tt.title)
 			if got != tt.want {
 				t.Errorf("renderFileSummary output:\ngot  = %q\nwant = %q", got, tt.want)
 			}
@@ -215,7 +283,7 @@ func TestRenderFileSummaryWritesNothing(t *testing.T) {
 		t.Parallel()
 		var buf bytes.Buffer
 		fr := &malcontent.FileReport{Path: "/bin/x", RiskScore: 3, RiskLevel: report.LevelHIGH, Behaviors: behaviors}
-		renderFileSummary(renderCanceledContext(t), fr, &buf, tableConfig{Title: "/bin/x"})
+		renderFileSummary(renderCanceledContext(t), &buf, fr, "/bin/x", suggestedWidth())
 		if buf.Len() != 0 {
 			t.Errorf("renderFileSummary output: got = %q, want = empty", buf.String())
 		}
@@ -223,7 +291,7 @@ func TestRenderFileSummaryWritesNothing(t *testing.T) {
 	t.Run("skipped report", func(t *testing.T) {
 		t.Parallel()
 		fr := &malcontent.FileReport{Path: "/bin/x", Skipped: "too large", Behaviors: behaviors}
-		if got := terminalSummary(t, fr, tableConfig{Title: "/bin/x"}); got != "" {
+		if got := terminalSummary(t, fr, "/bin/x"); got != "" {
 			t.Errorf("renderFileSummary output: got = %q, want = empty", got)
 		}
 	})
@@ -235,10 +303,51 @@ func TestRenderFileSummaryOrdersNamespacesByLongNameLength(t *testing.T) {
 	for _, id := range []string{"c2/a", "sus/b", "crypto/c", "net/d", "hw/e"} {
 		fr.Behaviors = append(fr.Behaviors, &malcontent.Behavior{ID: id, Description: "does things", RiskScore: 1, RiskLevel: report.LevelLOW})
 	}
-	got := terminalSummary(t, fr, tableConfig{Title: "/bin/x"})
+	got := terminalSummary(t, fr, "/bin/x")
 	want := []string{"≡ hardware [", "≡ networking [", "≡ cryptography [", "≡ suspicious text [", "≡ command & control ["}
 	if !renderIndexOrder(got, want...) {
 		t.Errorf("namespace order: got = %q, want order %q", got, want)
+	}
+}
+
+func TestRenderFileSummaryKeepsFirstAppearanceForEqualLengthNames(t *testing.T) {
+	t.Parallel()
+	// networking, filesystem, and collection all have ten bytes.
+	tests := []struct {
+		name string
+		ids  []string
+		want []string
+	}{
+		{
+			name: "networking first",
+			ids:  []string{"net/a", "fs/b", "collect/c", "net/d"},
+			want: []string{"≡ networking [", "a —", "d —", "≡ filesystem [", "b —", "≡ collection [", "c —"},
+		},
+		{
+			name: "collection first",
+			ids:  []string{"collect/c", "fs/b", "net/a"},
+			want: []string{"≡ collection [", "c —", "≡ filesystem [", "b —", "≡ networking [", "a —"},
+		},
+		{
+			name: "shorter name still leads",
+			ids:  []string{"net/a", "hw/e", "fs/b"},
+			want: []string{"≡ hardware [", "e —", "≡ networking [", "a —", "≡ filesystem [", "b —"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			fr := &malcontent.FileReport{Path: "/bin/x", RiskScore: 1, RiskLevel: report.LevelLOW}
+			for _, id := range tt.ids {
+				fr.Behaviors = append(fr.Behaviors, &malcontent.Behavior{ID: id, Description: "does things", RiskScore: 1, RiskLevel: report.LevelLOW})
+			}
+			// Render repeatedly: the order must not vary between calls.
+			for range 8 {
+				if got := terminalSummary(t, fr, "/bin/x"); !renderIndexOrder(got, tt.want...) {
+					t.Fatalf("namespace order: got = %q, want order %q", got, tt.want)
+				}
+			}
+		})
 	}
 }
 
@@ -257,7 +366,7 @@ func TestRenderFileSummaryEvidenceLayout(t *testing.T) {
 				{ID: "net/listen", Description: "listens", RiskScore: 1, RiskLevel: report.LevelLOW},
 			},
 		}
-		lines := strings.Split(terminalSummary(t, fr, tableConfig{Title: "/bin/x"}), "\n")
+		lines := strings.Split(terminalSummary(t, fr, "/bin/x"), "\n")
 		if len(lines) < 5 {
 			t.Fatalf("renderFileSummary lines: got = %q, want at least 5", lines)
 		}
@@ -322,5 +431,51 @@ func TestSuggestedWidth(t *testing.T) {
 	}
 	if !term.IsTerminal(0) && got != 160 {
 		t.Errorf("suggestedWidth without a terminal: got = %d, want = 160", got)
+	}
+}
+
+// TestPaletteMatchesColorLibrary checks that the captured escape sequences
+// write what fatih/color writes for the same attributes.
+func TestPaletteMatchesColorLibrary(t *testing.T) {
+	t.Parallel()
+	attrs := []struct {
+		name string
+		got  sgr
+		c    func() *color.Color
+	}{
+		{name: "plain", got: colorPalette.plain, c: func() *color.Color { return color.New() }},
+		{name: "hi black", got: colorPalette.hiBlack, c: func() *color.Color { return color.New(color.FgHiBlack) }},
+		{name: "hi red", got: colorPalette.hiRed, c: func() *color.Color { return color.New(color.FgHiRed) }},
+		{name: "hi green", got: colorPalette.hiGreen, c: func() *color.Color { return color.New(color.FgHiGreen) }},
+		{name: "hi yellow", got: colorPalette.hiYellow, c: func() *color.Color { return color.New(color.FgHiYellow) }},
+		{name: "hi magenta", got: colorPalette.hiMagenta, c: func() *color.Color { return color.New(color.FgHiMagenta) }},
+		{name: "hi cyan", got: colorPalette.hiCyan, c: func() *color.Color { return color.New(color.FgHiCyan) }},
+		{name: "hi white", got: colorPalette.hiWhite, c: func() *color.Color { return color.New(color.FgHiWhite) }},
+		{name: "white", got: colorPalette.white, c: func() *color.Color { return color.New(color.FgWhite) }},
+		{name: "evidence", got: colorPalette.evidence, c: func() *color.Color { return color.RGB(255, 255, 255) }},
+	}
+	const text = "text"
+	for _, a := range attrs {
+		t.Run(a.name, func(t *testing.T) {
+			t.Parallel()
+			c := a.c()
+			c.EnableColor()
+			if got, want := a.got.sprint(text), c.Sprint(text); got != want {
+				t.Errorf("sprint: got = %q, want = %q", got, want)
+			}
+			var b bytes.Buffer
+			if _, err := c.Fprint(&b, text); err != nil {
+				t.Fatalf("Fprint: got err = %v, want = nil", err)
+			}
+			if got, want := a.got.on+text+a.got.printOff, b.String(); got != want {
+				t.Errorf("Fprint form: got = %q, want = %q", got, want)
+			}
+			if a.got.on == "" {
+				t.Error("on: got = \"\", want = an escape sequence")
+			}
+		})
+	}
+	if plainPalette != (palette{}) {
+		t.Errorf("plainPalette: got = %+v, want = no escape sequences", plainPalette)
 	}
 }

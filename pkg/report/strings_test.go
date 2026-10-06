@@ -5,342 +5,48 @@ package report
 
 import (
 	"fmt"
-	"sync"
-	"sync/atomic"
+	"maps"
+	"math/rand/v2"
+	"reflect"
+	"slices"
+	"strings"
 	"testing"
-	"unsafe"
-
-	"github.com/puzpuzpuz/xsync/v4"
 )
 
-// Constants used across strings_test and fuzz_test.
-const (
-	numGoroutines = 1000
-	numIterations = 1000
-	numOps        = 1000
-	numCopies     = 1000
-)
-
-// StringDataPointer returns the pointer to the underlying data of a string.
-// Used for verifying that interned strings share the same backing array.
-func StringDataPointer(s string) uintptr {
-	return (*[2]uintptr)(unsafe.Pointer(&s))[0]
-}
-
-// newIsolatedPool returns a StringPool that does not share state with the
-// process-wide singleton. Tests asserting backing-array identity use it so
-// the assertion is unaffected by the singleton's bounded resets, which can
-// fire when other parallel tests intern large numbers of distinct strings.
-func newIsolatedPool() *StringPool {
-	return &StringPool{strings: xsync.NewMap[string, string]()}
-}
-
-func TestNewStringPool(t *testing.T) {
-	t.Parallel()
-	pool := NewStringPool()
-	if pool == nil {
-		t.Fatal("NewStringPool() returned nil")
+// longestUniqueReference computes longestUnique through the suffix array
+// alone, the path every input took before the pairwise search existed.
+func longestUniqueReference(raw []string) []string {
+	if len(raw) <= 1 {
+		return raw
 	}
-}
-
-func TestStringPoolInternBasic(t *testing.T) {
-	t.Parallel()
-	pool := newIsolatedPool()
-
-	s1 := pool.Intern("hello")
-	if s1 != "hello" {
-		t.Errorf("intern returned %q, want %q", s1, "hello")
-	}
-
-	s2 := pool.Intern("hello")
-	if s2 != "hello" {
-		t.Errorf("intern returned %q, want %q", s2, "hello")
-	}
-
-	if StringDataPointer(s1) != StringDataPointer(s2) {
-		t.Error("intern did not return the same string instance for identical strings")
-	}
-}
-
-func TestStringPoolInternDifferentStrings(t *testing.T) {
-	t.Parallel()
-	pool := NewStringPool()
-
-	s1 := pool.Intern("hello")
-	s2 := pool.Intern("world")
-
-	if s1 == s2 {
-		t.Error("different strings should not be equal")
-	}
-	if StringDataPointer(s1) == StringDataPointer(s2) {
-		t.Error("different strings should have different data pointers")
-	}
-}
-
-func TestStringPoolInternEmptyString(t *testing.T) {
-	t.Parallel()
-	pool := NewStringPool()
-
-	s1 := pool.Intern("")
-	s2 := pool.Intern("")
-
-	if s1 != "" || s2 != "" {
-		t.Error("empty string interning failed")
-	}
-}
-
-func TestStringPoolInternDynamicStrings(t *testing.T) {
-	t.Parallel()
-	pool := newIsolatedPool()
-
-	base := "test"
-	d1 := base + "123"
-	d2 := base + "123"
-
-	s1 := pool.Intern(d1)
-	s2 := pool.Intern(d2)
-
-	if s1 != "test123" || s2 != "test123" {
-		t.Errorf("dynamic string interning failed: s1=%q, s2=%q", s1, s2)
-	}
-
-	if StringDataPointer(s1) != StringDataPointer(s2) {
-		t.Error("dynamically created identical strings should share backing data after interning")
-	}
-}
-
-func TestStringPoolClear(t *testing.T) {
-	t.Parallel()
-	pool := NewStringPool()
-
-	_ = pool.Intern("hello")
-	_ = pool.Intern("world")
-
-	pool.clear()
-
-	s := pool.Intern("hello")
-	if s != "hello" {
-		t.Errorf("intern after clear returned %q, want %q", s, "hello")
-	}
-}
-
-// TestStringPoolBounded verifies the interned set does not grow without
-// bound: interning more distinct values than maxInternedStrings resets the
-// pool so its size stays within the cap rather than accumulating every
-// distinct string across the process lifetime. An isolated pool keeps the
-// count deterministic, independent of the shared singleton other parallel
-// tests exercise.
-func TestStringPoolBounded(t *testing.T) {
-	t.Parallel()
-	pool := newIsolatedPool()
-
-	const distinct = maxInternedStrings * 2
-	for i := range distinct {
-		s := pool.Intern(fmt.Sprintf("bounded-%d", i))
-		if want := fmt.Sprintf("bounded-%d", i); s != want {
-			t.Fatalf("intern returned %q for index %d, want %q", s, i, want)
-		}
-		// The clear fires after the entry that hits the cap is already
-		// stored, so the map momentarily holds maxInternedStrings entries
-		// before dropping to zero. Allow a small margin for concurrency
-		// artifacts in xsync.Map.Size().
-		if got := pool.strings.Size(); got > maxInternedStrings+1 {
-			t.Fatalf("pool size %d exceeded cap %d at index %d", got, maxInternedStrings, i)
+	set := make(map[string]struct{}, len(raw))
+	for _, s := range raw {
+		if s != "" {
+			set[s] = struct{}{}
 		}
 	}
-
-	// Interning twice the cap in distinct values must not retain them all.
-	if got := pool.strings.Size(); got >= distinct {
-		t.Fatalf("pool size %d did not stay bounded below %d distinct strings", got, distinct)
+	if len(set) == 0 {
+		return nil
 	}
+	return longestUniqueSuffixArray(slices.Sorted(maps.Keys(set)))
 }
 
-// TestStringPoolBoundedAcrossCycles verifies that repeated batches of
-// distinct strings keep the interned set bounded rather than accumulating
-// every string seen across batches.
-func TestStringPoolBoundedAcrossCycles(t *testing.T) {
-	t.Parallel()
-	pool := newIsolatedPool()
-
-	const (
-		cycles   = 4
-		perCycle = maxInternedStrings
-	)
-	for c := range cycles {
-		for j := range perCycle {
-			pool.Intern(fmt.Sprintf("cycle-%d-%d", c, j))
+// randomStrings returns n strings of up to maxLen bytes drawn from alphabet.
+func randomStrings(rng *rand.Rand, alphabet string, n, maxLen int) []string {
+	strs := make([]string, n)
+	for i := range strs {
+		b := make([]byte, rng.IntN(maxLen+1))
+		for j := range b {
+			b[j] = alphabet[rng.IntN(len(alphabet))]
 		}
-		if got := pool.strings.Size(); got > maxInternedStrings+1 {
-			t.Fatalf("after cycle %d, pool size %d exceeded cap %d", c, got, maxInternedStrings)
-		}
+		strs[i] = string(b)
 	}
-}
-
-// TestStringPoolConcurrent tests that the StringPool is safe for concurrent access.
-func TestStringPoolConcurrent(t *testing.T) {
-	t.Parallel()
-	pool := NewStringPool()
-
-	var wg sync.WaitGroup
-	wg.Add(numGoroutines)
-
-	strings := []string{"apple", "banana", "cherry", "date", "elderberry"}
-
-	for range numGoroutines {
-		wg.Go(func() {
-			defer wg.Done()
-			for range numIterations {
-				for _, s := range strings {
-					interned := pool.Intern(s)
-					if interned != s {
-						t.Errorf("intern returned %q, want %q", interned, s)
-					}
-				}
-			}
-		})
-	}
-
-	wg.Wait()
-}
-
-// TestStringPoolConcurrentSamePointers verifies that
-// concurrent interning returns the same pointer for identical strings.
-func TestStringPoolConcurrentSamePointers(t *testing.T) {
-	t.Parallel()
-	pool := newIsolatedPool()
-
-	const testString = "concurrent-test-string"
-
-	pointers := make(chan uintptr, numGoroutines)
-	var wg sync.WaitGroup
-	wg.Add(numGoroutines)
-
-	start := make(chan struct{})
-
-	for range numGoroutines {
-		wg.Go(func() {
-			defer wg.Done()
-			<-start
-			cpy := testString
-			interned := pool.Intern(cpy)
-			pointers <- StringDataPointer(interned)
-		})
-	}
-
-	close(start)
-	wg.Wait()
-	close(pointers)
-
-	var firstPtr uintptr
-	first := true
-	for ptr := range pointers {
-		if first {
-			firstPtr = ptr
-			first = false
-		} else if ptr != firstPtr {
-			t.Errorf("concurrent interning returned different pointers: %v vs %v", firstPtr, ptr)
-		}
-	}
-}
-
-// TestStringPoolAtomic tests that the interning is resistant to TOCTOU scenarios.
-func TestStringPoolAtomic(t *testing.T) {
-	t.Parallel()
-
-	for iter := range numIterations {
-		pool := newIsolatedPool()
-		testStr := fmt.Sprintf("race-test-%d", iter)
-
-		results := make([]string, numGoroutines)
-		var wg sync.WaitGroup
-		wg.Add(numGoroutines)
-
-		start := make(chan struct{})
-
-		for i := range numGoroutines {
-			wg.Go(func() {
-				defer wg.Done()
-				<-start
-				cpy := string([]byte(testStr))
-				results[i] = pool.Intern(cpy)
-			})
-		}
-
-		close(start)
-		wg.Wait()
-
-		firstPtr := StringDataPointer(results[0])
-		for i, s := range results {
-			if StringDataPointer(s) != firstPtr {
-				t.Errorf("iteration %d: goroutine %d got different pointer: %v vs %v",
-					iter, i, StringDataPointer(s), firstPtr)
-			}
-		}
-	}
-}
-
-// TestStringPoolRaceCondition leverages -race to verify safety.
-func TestStringPoolRaceCondition(t *testing.T) {
-	t.Parallel()
-	pool := NewStringPool()
-
-	var wg sync.WaitGroup
-
-	// Concurrent interning of identical strings
-	for range numGoroutines {
-		wg.Go(func() {
-			for range numOps {
-				pool.Intern("shared")
-			}
-		})
-	}
-
-	// Concurrent interning of unique strings
-	for i := range numGoroutines {
-		wg.Go(func() {
-			for j := range numOps {
-				pool.Intern(fmt.Sprintf("unique-%d-%d", i, j))
-			}
-		})
-	}
-
-	// Use a small number of goroutines to exercise the race detector without triggering
-	// resize contention in xsync.Map.
-	for range 10 {
-		wg.Go(func() {
-			for range numOps {
-				pool.clear()
-			}
-		})
-	}
-
-	wg.Wait()
-}
-
-// TestStringPoolMemoryDeduplication verifies that string interning
-// reduces memory usage by sharing backing arrays.
-func TestStringPoolMemoryDeduplication(t *testing.T) {
-	t.Parallel()
-	pool := newIsolatedPool()
-
-	const testString = "this is a test string for deduplication"
-
-	interned := make([]string, numCopies)
-	for i := range numCopies {
-		cpy := string([]byte(testString))
-		interned[i] = pool.Intern(cpy)
-	}
-
-	firstPtr := StringDataPointer(interned[0])
-	for i, s := range interned {
-		if StringDataPointer(s) != firstPtr {
-			t.Errorf("String %d has different backing data", i)
-		}
-	}
+	return strs
 }
 
 // TestContainsUnprintable tests the containsUnprintable function.
 func TestContainsUnprintable(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name  string
 		input []byte
@@ -370,91 +76,153 @@ func TestContainsUnprintable(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got := containsUnprintable(tt.input)
-			if got != tt.want {
-				t.Errorf("containsUnprintable(%v) = %v, want %v", tt.input, got, tt.want)
+			if got := containsUnprintable(tt.input); got != tt.want {
+				t.Errorf("containsUnprintable(%v): got = %v, want = %v", tt.input, got, tt.want)
+			}
+			if got := containsUnprintable(string(tt.input)); got != tt.want {
+				t.Errorf("containsUnprintable(%q): got = %v, want = %v", tt.input, got, tt.want)
 			}
 		})
 	}
 }
 
-// TestStringPoolConcurrentStress is a stress test for concurrent access.
-func TestStringPoolConcurrentStress(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping stress test in short mode")
-	}
+// TestMatchStringsResultIsIndependent verifies the result survives later
+// writes to the input, which Generate reuses for the next rule.
+func TestMatchStringsResultIsIndependent(t *testing.T) {
 	t.Parallel()
-
-	pool := NewStringPool()
-
-	var successCount atomic.Int64
-	var wg sync.WaitGroup
-	wg.Add(numGoroutines)
-
-	for i := range numGoroutines {
-		wg.Go(func() {
-			defer wg.Done()
-			for j := range numIterations {
-				if j%2 == 0 {
-					s := pool.Intern("shared-string")
-					if s == "shared-string" {
-						successCount.Add(1)
-					}
-				} else {
-					s := pool.Intern(fmt.Sprintf("unique-%d-%d", i, j))
-					if s != "" {
-						successCount.Add(1)
-					}
-				}
+	tests := []struct {
+		name string
+		ms   []string
+		want []string
+	}{
+		{"single match", []string{"abc"}, []string{"abc"}},
+		{"distinct matches", []string{"b", "a", "b"}, []string{"a", "b"}},
+		{"contained match", []string{"curl", "curl -k"}, []string{"curl -k"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			ms := slices.Clone(tt.ms)
+			got := matchStrings("rule", ms)
+			for i := range ms {
+				ms[i] = "overwritten"
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("matchStrings(%q) after reuse of its input: got = %q, want = %q", tt.ms, got, tt.want)
 			}
 		})
 	}
-
-	wg.Wait()
-
-	expectedCount := int64(numGoroutines * numIterations)
-	if successCount.Load() != expectedCount {
-		t.Errorf("successful operations: got = %d, want = %d", successCount.Load(), expectedCount)
-	}
 }
 
-func BenchmarkStringPoolInternSame(b *testing.B) {
-	pool := NewStringPool()
-	testStr := "benchmark-test-string"
-
-	// Pre-populate
-	pool.Intern(testStr)
-
-	for b.Loop() {
-		pool.Intern(testStr)
-	}
-}
-
-func BenchmarkStringPoolInternDifferent(b *testing.B) {
-	pool := NewStringPool()
-	strings := make([]string, 1000)
-	for i := range strings {
-		strings[i] = fmt.Sprintf("string-%d", i)
-	}
-
-	for b.Loop() {
-		for _, s := range strings {
-			pool.Intern(s)
+// TestLongestUniqueMatchesSuffixArray compares longestUnique with the suffix
+// array result over random inputs whose small alphabets make many strings
+// substrings of others. The sizes span both sides of maxLinearKeys, and NUL
+// bytes exercise the separator fallback.
+func TestLongestUniqueMatchesSuffixArray(t *testing.T) {
+	t.Parallel()
+	rng := rand.New(rand.NewPCG(1, 2))
+	alphabets := []string{"ab", "abc/._-", "\x00ab", "abcdefghijklmnopqrstuvwxyz0123456789 "}
+	for i := range 2000 {
+		raw := randomStrings(rng, alphabets[i%len(alphabets)], rng.IntN(2*maxLinearKeys+3), 12)
+		want := longestUniqueReference(slices.Clone(raw))
+		if got := longestUnique(slices.Clone(raw)); !reflect.DeepEqual(got, want) {
+			t.Fatalf("longestUnique(%q): got = %q, want = %q", raw, got, want)
 		}
 	}
 }
 
-func BenchmarkStringPoolInternConcurrent(b *testing.B) {
-	pool := NewStringPool()
-	strings := []string{"apple", "banana", "cherry", "date", "elderberry"}
-
-	b.RunParallel(func(pb *testing.PB) {
-		i := 0
-		for pb.Next() {
-			pool.Intern(strings[i%len(strings)])
-			i++
+// TestLongestUniqueLinearMatchesSuffixArray compares the two containment
+// searches directly on distinct NUL-free keys, including sets larger than
+// longestUnique hands to the pairwise search.
+func TestLongestUniqueLinearMatchesSuffixArray(t *testing.T) {
+	t.Parallel()
+	rng := rand.New(rand.NewPCG(3, 4))
+	alphabets := []string{"ab", "abc", "abcdefgh/._"}
+	for i := range 500 {
+		set := map[string]struct{}{}
+		for _, s := range randomStrings(rng, alphabets[i%len(alphabets)], rng.IntN(200)+1, 16) {
+			if s != "" {
+				set[s] = struct{}{}
+			}
 		}
-	})
+		if len(set) == 0 {
+			continue
+		}
+		lexical := slices.Sorted(maps.Keys(set))
+		byLength := slices.SortedFunc(maps.Keys(set), longestFirst)
+		want := longestUniqueSuffixArray(lexical)
+		if got := longestUniqueLinear(byLength); !reflect.DeepEqual(got, want) {
+			t.Fatalf("longestUniqueLinear(%q): got = %q, want = %q", lexical, got, want)
+		}
+	}
+}
+
+// benchmarkKeys returns n distinct strings shaped like matched text, 7 to 39
+// bytes long, about a quarter of them substrings of the string before them.
+func benchmarkKeys(n int) []string {
+	rng := rand.New(rand.NewPCG(uint64(n), 7))
+	const alphabet = "abcdefghijklmnopqrstuvwxyz0123456789/._-"
+	seen := make(map[string]struct{}, n)
+	keys := make([]string, 0, n)
+	for i := 0; len(keys) < n; i++ {
+		s := randomStrings(rng, alphabet, 1, 32)[0] + "padding"
+		if prev := len(keys) - 1; i%4 == 3 && prev >= 0 && len(keys[prev]) >= 8 {
+			half := len(keys[prev]) / 2
+			start := rng.IntN(half)
+			s = keys[prev][start : start+half]
+		}
+		if _, dup := seen[s]; dup {
+			continue
+		}
+		seen[s] = struct{}{}
+		keys = append(keys, s)
+	}
+	return keys
+}
+
+// BenchmarkLongestUniquePaths compares the pairwise and suffix array
+// containment searches at several set sizes, to place maxLinearKeys.
+func BenchmarkLongestUniquePaths(b *testing.B) {
+	for _, n := range []int{4, 16, 64, 128, 512} {
+		keys := benchmarkKeys(n)
+		byLength := slices.Clone(keys)
+		slices.SortFunc(byLength, longestFirst)
+		lexical := slices.Clone(keys)
+		slices.Sort(lexical)
+		buf := make([]string, n)
+
+		b.Run(fmt.Sprintf("linear/%d", n), func(b *testing.B) {
+			b.ReportAllocs()
+			for b.Loop() {
+				copy(buf, byLength)
+				longestUniqueLinear(buf)
+			}
+		})
+		b.Run(fmt.Sprintf("suffixarray/%d", n), func(b *testing.B) {
+			b.ReportAllocs()
+			for b.Loop() {
+				copy(buf, lexical)
+				longestUniqueSuffixArray(buf)
+			}
+		})
+	}
+}
+
+// BenchmarkMatchStrings measures rendering a rule's matches when a few
+// distinct strings repeat many times, as with a literal pattern in a large
+// file.
+func BenchmarkMatchStrings(b *testing.B) {
+	distinct := benchmarkKeys(8)
+	ms := make([]string, 1024)
+	for i := range ms {
+		ms[i] = distinct[i%len(distinct)]
+	}
+	buf := make([]string, len(ms))
+	b.ReportAllocs()
+	for b.Loop() {
+		copy(buf, ms)
+		matchStrings("rule", buf)
+	}
 }
 
 func BenchmarkContainsUnprintableValid(b *testing.B) {
@@ -471,67 +239,12 @@ func BenchmarkContainsUnprintableInvalid(b *testing.B) {
 	}
 }
 
-// TestNewStringPoolSingleton verifies NewStringPool returns the same
-// process-wide instance on successive calls.
-func TestNewStringPoolSingleton(t *testing.T) {
-	t.Parallel()
-
-	p1 := NewStringPool()
-	p2 := NewStringPool()
-	if p1 != p2 {
-		t.Errorf("second pool: got = %p, want = %p (the same instance)", p2, p1)
-	}
-}
-
-// TestNewStringPoolSingletonParallel verifies that concurrent callers
-// of NewStringPool all observe the same pointer — the once-value init
-// is race-free under contention.
-func TestNewStringPoolSingletonParallel(t *testing.T) {
-	t.Parallel()
-
-	const parallelism = 256
-	pointers := make([]*StringPool, parallelism)
-
-	var wg sync.WaitGroup
-	wg.Add(parallelism)
-	start := make(chan struct{})
-	for i := range parallelism {
-		wg.Go(func() {
-			defer wg.Done()
-			<-start
-			pointers[i] = NewStringPool()
-		})
-	}
-	close(start)
-	wg.Wait()
-
-	first := pointers[0]
-	for i, p := range pointers {
-		if p != first {
-			t.Errorf("goroutine %d observed pool %p, want %p", i, p, first)
-		}
-	}
-}
-
-// TestNewStringPoolSingletonSharesState verifies that two references
-// returned by NewStringPool see the same interned strings — proves
-// the underlying state is shared, not merely the pointer.
-func TestNewStringPoolSingletonSharesState(t *testing.T) {
-	t.Parallel()
-
-	p1 := NewStringPool()
-	p2 := NewStringPool()
-
-	// Distinct heap allocations of the same bytes so identity is
-	// established by the pool, not by the literal pool of the linker.
-	a := string([]byte("singleton-shared-state-marker"))
-	b := string([]byte("singleton-shared-state-marker"))
-
-	s1 := p1.Intern(a)
-	s2 := p2.Intern(b)
-
-	if StringDataPointer(s1) != StringDataPointer(s2) {
-		t.Errorf("interning the same value through two NewStringPool() references returned different backing pointers: %v vs %v",
-			StringDataPointer(s1), StringDataPointer(s2))
+// BenchmarkContainsUnprintableString measures the string form matchToString
+// uses, which must not copy its input.
+func BenchmarkContainsUnprintableString(b *testing.B) {
+	data := strings.Repeat("printable text ", 8)
+	b.ReportAllocs()
+	for b.Loop() {
+		containsUnprintable(data)
 	}
 }

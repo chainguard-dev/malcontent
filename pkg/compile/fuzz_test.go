@@ -19,7 +19,7 @@ import (
 // Go's 100MB fuzzer shared memory capacity and avoid OOM in parsers.
 const maxFuzzSize = 10 * 1024 * 1024
 
-// FuzzRemoveRulesExact tests the removeRules function with random inputs.
+// FuzzRemoveRulesExact tests rule removal with random inputs.
 func FuzzRemoveRulesExact(f *testing.F) {
 	for _, root := range getAllRuleFS() {
 		err := fs.WalkDir(root, ".", func(path string, d fs.DirEntry, err error) error {
@@ -88,15 +88,23 @@ rule keep_me { condition: true }
 			rules = strings.Split(rulesToRemove, ",")
 		}
 
-		result := removeRules(data, rules)
+		remover := newRuleRemover(rules)
+		result := remover.remove(data)
 
 		if len(result) > len(data) {
 			t.Fatalf("result length %d > input length %d", len(result), len(data))
 		}
 
+		// Searching only where a named rule can begin must not change the result.
+		if remover != nil {
+			if want := removeWithFullPatterns(remover, data); !bytes.Equal(result, want) {
+				t.Fatalf("remove(): got = %q, want = %q", result, want)
+			}
+		}
+
 		if len(rules) == 0 || (len(rules) == 1 && rules[0] == "") {
 			if string(result) != string(data) {
-				t.Error("removeRules with empty rule list modified data")
+				t.Error("rule removal with an empty rule list modified data")
 			}
 		}
 	})
@@ -179,7 +187,7 @@ func FuzzRecursiveCompile(f *testing.F) {
 	})
 }
 
-// FuzzRemoveRulesRegex tests removeRules with adversarial rule names containing
+// FuzzRemoveRulesRegex tests rule removal with adversarial rule names containing
 // regex-significant characters to ensure no ReDoS or panics.
 func FuzzRemoveRulesRegex(f *testing.F) {
 	// Normal rule names
@@ -210,17 +218,25 @@ func FuzzRemoveRulesRegex(f *testing.F) {
 			rules = strings.Split(rulesToRemove, ",")
 		}
 
-		result := removeRules(data, rules)
+		remover := newRuleRemover(rules)
+		result := remover.remove(data)
 
 		// Result should never be longer than input
 		if len(result) > len(data) {
 			t.Fatalf("result length %d > input length %d", len(result), len(data))
 		}
 
+		// Searching only where a named rule can begin must not change the result.
+		if remover != nil {
+			if want := removeWithFullPatterns(remover, data); !bytes.Equal(result, want) {
+				t.Fatalf("remove(): got = %q, want = %q", result, want)
+			}
+		}
+
 		// Empty rule list should not modify data
 		if len(rules) == 0 || (len(rules) == 1 && rules[0] == "") {
 			if string(result) != string(data) {
-				t.Error("removeRules with empty rule list modified data")
+				t.Error("rule removal with an empty rule list modified data")
 			}
 		}
 	})

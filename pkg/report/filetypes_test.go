@@ -3,7 +3,17 @@
 
 package report
 
-import "testing"
+import (
+	"path/filepath"
+	"strings"
+	"testing"
+)
+
+// pathMatchesGlobs reports whether path matches any entry of a comma-separated
+// glob list, the way a rule's path_include or path_exclude scope evaluates it.
+func pathMatchesGlobs(patterns string, path string) bool {
+	return matchesAny(compileGlobs(patterns), filepath.ToSlash(path))
+}
 
 func TestExtMatchesFiletypes(t *testing.T) {
 	t.Parallel()
@@ -34,8 +44,8 @@ func TestExtMatchesFiletypes(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			if got := extMatchesFiletypes(tt.filetypes, tt.ext); got != tt.want {
-				t.Errorf("extMatchesFiletypes(%q, %q) = %v, want %v", tt.filetypes, tt.ext, got, tt.want)
+			if got := extMatchesTypes(strings.Split(tt.filetypes, ","), tt.ext); got != tt.want {
+				t.Errorf("extMatchesTypes(%q, %q) = %v, want %v", tt.filetypes, tt.ext, got, tt.want)
 			}
 		})
 	}
@@ -44,9 +54,10 @@ func TestExtMatchesFiletypes(t *testing.T) {
 func TestFileMatchesRuleUniversal(t *testing.T) {
 	t.Parallel()
 	// Rules without filetypes/path metadata apply to every extension.
+	scope := newRuleScope(nil)
 	for _, ext := range []string{"", "class", "elf", "py"} {
-		if !fileMatchesRule(nil, ext, "some/path."+ext) {
-			t.Errorf("fileMatchesRule(nil, %q) = false, want true", ext)
+		if !scope.matches(ext, "some/path."+ext) {
+			t.Errorf("unscoped rule matches(%q) = false, want true", ext)
 		}
 	}
 }
@@ -103,6 +114,8 @@ func TestGlobExtensions(t *testing.T) {
 		{"mixed extracts only bare extensions", "*.py,*/setup.py,*.go", "py,go"},
 		{"whitespace tolerated", " *.js , *.ts ", "js,ts"},
 		{"empty input", "", ""},
+		{"bare star dot has no extension", "*.,*.py", "py"},
+		{"extension glob with a path or another star is ignored", "*.py/x,*.*,*.js", "js"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

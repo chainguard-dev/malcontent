@@ -12,15 +12,15 @@ import (
 )
 
 // gzipStream compresses payload into a gzip stream.
-func gzipStream(t *testing.T, payload []byte) []byte {
-	t.Helper()
+func gzipStream(tb testing.TB, payload []byte) []byte {
+	tb.Helper()
 	var b bytes.Buffer
 	zw := gzip.NewWriter(&b)
 	if _, err := zw.Write(payload); err != nil {
-		t.Fatalf("write gzip stream: %v", err)
+		tb.Fatalf("write gzip stream: %v", err)
 	}
 	if err := zw.Close(); err != nil {
-		t.Fatalf("close gzip stream: %v", err)
+		tb.Fatalf("close gzip stream: %v", err)
 	}
 	return b.Bytes()
 }

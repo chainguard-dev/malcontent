@@ -4,46 +4,78 @@
 package render
 
 import (
+	"bytes"
 	"context"
-	"fmt"
 	"io"
+	"strconv"
 	"strings"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
+	"github.com/chainguard-dev/malcontent/pkg/report"
 )
 
+// Simple renders one line per behavior with a lowercase risk level. It is
+// safe for concurrent use: each File call writes its output with a single
+// Write.
 type Simple struct {
-	w io.Writer
+	out blockWriter
 }
 
-func NewSimple(w io.Writer) Simple {
-	return Simple{w: w}
+func NewSimple(w io.Writer) *Simple {
+	return &Simple{out: blockWriter{w: w}}
 }
 
-func (r Simple) Name() string { return "Simple" }
+func (r *Simple) Name() string { return "Simple" }
 
-func (r Simple) Scanning(_ context.Context, _ string) {}
+func (r *Simple) Scanning(_ context.Context, _ string) {}
 
-func (r Simple) File(ctx context.Context, fr *malcontent.FileReport) error {
+func (r *Simple) File(ctx context.Context, fr *malcontent.FileReport) error {
 	if ctx.Err() != nil {
 		return ctx.Err()
 	}
 
-	if fr.Skipped != "" {
+	if fr.Skipped != "" || len(fr.Behaviors) == 0 {
 		return nil
 	}
 
-	if len(fr.Behaviors) > 0 {
-		fmt.Fprintf(r.w, "# %s: %s\n", sanitizeTerminal(fr.Path), strings.ToLower(fr.RiskLevel))
-	}
+	b := getBuffer()
+	defer putBuffer(b)
 
-	for _, b := range fr.Behaviors {
-		fmt.Fprintf(r.w, "%s: %s\n", b.ID, strings.ToLower(b.RiskLevel))
+	b.WriteString("# ")
+	b.WriteString(sanitizeTerminal(fr.Path))
+	b.WriteString(": ")
+	b.WriteString(lowerRisk(fr.RiskLevel))
+	b.WriteByte('\n')
+
+	for _, bh := range fr.Behaviors {
+		b.WriteString(bh.ID)
+		b.WriteString(": ")
+		b.WriteString(lowerRisk(bh.RiskLevel))
+		b.WriteByte('\n')
 	}
-	return nil
+	return r.out.write(b.Bytes())
 }
 
-func (r Simple) Full(ctx context.Context, _ *malcontent.Config, rep *malcontent.Report) error {
+// lowerRisk returns level in lowercase without allocating for the standard
+// risk levels.
+func lowerRisk(level string) string {
+	switch level {
+	case report.LevelCRITICAL:
+		return "critical"
+	case report.LevelHIGH:
+		return "high"
+	case report.LevelMEDIUM:
+		return "medium"
+	case report.LevelLOW:
+		return "low"
+	case report.LevelNONE:
+		return "none"
+	default:
+		return strings.ToLower(level)
+	}
+}
+
+func (r *Simple) Full(ctx context.Context, _ *malcontent.Config, rep *malcontent.Report) error {
 	if ctx.Err() != nil {
 		return ctx.Err()
 	}
@@ -53,15 +85,23 @@ func (r Simple) Full(ctx context.Context, _ *malcontent.Config, rep *malcontent.
 		return nil
 	}
 
+	b := getBuffer()
+	defer putBuffer(b)
+
 	for removed := rep.Diff.Removed.Oldest(); removed != nil; removed = removed.Next() {
 		if len(removed.Value.Behaviors) == 0 {
 			continue
 		}
 
-		fmt.Fprintf(r.w, "--- missing: %s\n", sanitizeTerminal(removed.Key))
+		b.WriteString("--- missing: ")
+		b.WriteString(sanitizeTerminal(removed.Key))
+		b.WriteByte('\n')
 
-		for _, b := range removed.Value.Behaviors {
-			fmt.Fprintf(r.w, "-%s\n", b.ID)
+		for _, bh := range removed.Value.Behaviors {
+			writeSimpleChange(b, '-', bh.ID)
+		}
+		if err := r.out.flush(b); err != nil {
+			return err
 		}
 	}
 
@@ -70,20 +110,25 @@ func (r Simple) Full(ctx context.Context, _ *malcontent.Config, rep *malcontent.
 			continue
 		}
 
-		fmt.Fprintf(r.w, "+++ added: %s\n", sanitizeTerminal(added.Key))
+		b.WriteString("+++ added: ")
+		b.WriteString(sanitizeTerminal(added.Key))
+		b.WriteByte('\n')
 
-		for _, b := range added.Value.Behaviors {
-			fmt.Fprintf(r.w, "+%s\n", b.ID)
+		for _, bh := range added.Value.Behaviors {
+			writeSimpleChange(b, '+', bh.ID)
+		}
+		if err := r.out.flush(b); err != nil {
+			return err
 		}
 	}
 
 	count := func(bs []*malcontent.Behavior) (int, int) {
 		var added, removed int
-		for _, b := range bs {
-			if b.DiffAdded {
+		for _, bh := range bs {
+			if bh.DiffAdded {
 				added++
 			}
-			if b.DiffRemoved {
+			if bh.DiffRemoved {
 				removed++
 			}
 		}
@@ -92,33 +137,51 @@ func (r Simple) Full(ctx context.Context, _ *malcontent.Config, rep *malcontent.
 	}
 
 	for modified := rep.Diff.Modified.Oldest(); modified != nil; modified = modified.Next() {
-		if len(modified.Value.Behaviors) == 0 {
-			continue
-		}
-
 		added, removed := count(modified.Value.Behaviors)
 		if added == 0 && removed == 0 {
 			continue
 		}
 
 		if modified.Value.PreviousPath != "" {
-			fmt.Fprintf(r.w, ">>> moved (%d added, %d removed): %s -> %s\n", added, removed, sanitizeTerminal(modified.Value.PreviousPath), sanitizeTerminal(modified.Value.Path))
+			b.WriteString(">>> moved (")
+			writeSimpleCounts(b, added, removed)
+			b.WriteString(sanitizeTerminal(modified.Value.PreviousPath))
+			b.WriteString(" -> ")
+			b.WriteString(sanitizeTerminal(modified.Value.Path))
 		} else {
-			fmt.Fprintf(r.w, "*** changed (%d added, %d removed): %s\n", added, removed, sanitizeTerminal(modified.Value.Path))
+			b.WriteString("*** changed (")
+			writeSimpleCounts(b, added, removed)
+			b.WriteString(sanitizeTerminal(modified.Value.Path))
 		}
+		b.WriteByte('\n')
 
-		for _, b := range modified.Value.Behaviors {
-			if !b.DiffRemoved && !b.DiffAdded {
-				continue
+		for _, bh := range modified.Value.Behaviors {
+			if bh.DiffRemoved {
+				writeSimpleChange(b, '-', bh.ID)
 			}
-			if b.DiffRemoved {
-				fmt.Fprintf(r.w, "-%s\n", b.ID)
+			if bh.DiffAdded {
+				writeSimpleChange(b, '+', bh.ID)
 			}
-			if b.DiffAdded {
-				fmt.Fprintf(r.w, "+%s\n", b.ID)
-			}
+		}
+		if err := r.out.flush(b); err != nil {
+			return err
 		}
 	}
 
 	return nil
+}
+
+// writeSimpleCounts writes "<added> added, <removed> removed): ".
+func writeSimpleCounts(b *bytes.Buffer, added, removed int) {
+	b.Write(strconv.AppendInt(b.AvailableBuffer(), int64(added), 10))
+	b.WriteString(" added, ")
+	b.Write(strconv.AppendInt(b.AvailableBuffer(), int64(removed), 10))
+	b.WriteString(" removed): ")
+}
+
+// writeSimpleChange writes a behavior ID marked added (+) or removed (-).
+func writeSimpleChange(b *bytes.Buffer, mark byte, id string) {
+	b.WriteByte(mark)
+	b.WriteString(id)
+	b.WriteByte('\n')
 }

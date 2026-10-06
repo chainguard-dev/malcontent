@@ -66,6 +66,11 @@ func TestScannerPoolReplacement(t *testing.T) {
 	t.Cleanup(func() { runtime.GOMAXPROCS(prevProcs) })
 
 	first := acquireScannerPool(bundled)
+	// A caller that saw other rules active before taking the lock keeps the
+	// pool built for its rules in the meantime.
+	if got := replaceScannerPool(bundled); got != first || first.retired.Load() {
+		t.Errorf("replacing a pool already built for the rules: got = %p (first retired %t), want = %p", got, first.retired.Load(), first)
+	}
 	if again := acquireScannerPool(bundled); again != first {
 		t.Errorf("pool for unchanged rules: got = %p, want = %p", again, first)
 	} else {

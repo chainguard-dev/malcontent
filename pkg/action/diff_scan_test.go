@@ -20,6 +20,7 @@ import (
 	"syscall"
 	"testing"
 
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/rules"
 	thirdparty "github.com/chainguard-dev/malcontent/third_party"
@@ -424,6 +425,17 @@ func TestDiffFiles(t *testing.T) {
 			},
 			wantChanged: false,
 		},
+		{
+			name: "empty destination file yields no modification",
+			setup: func(t *testing.T, root string) (string, string) {
+				t.Helper()
+				src, dest := filepath.Join(root, "old.sh"), filepath.Join(root, "empty.sh")
+				diffTestWriteFile(t, src, "#!/bin/sh\necho old\n")
+				diffTestWriteFile(t, dest, "")
+				return src, dest
+			},
+			wantChanged: false,
+		},
 	}
 
 	for _, tt := range tests {
@@ -700,8 +712,13 @@ func TestDiffReportErrors(t *testing.T) {
 	malformed := filepath.Join(root, "malformed.json")
 	diffTestWriteFile(t, malformed, "this is not a report")
 	missing := filepath.Join(root, "missing.json")
+	dir := filepath.Join(root, "dir.json")
+	if err := os.Mkdir(dir, 0o700); err != nil {
+		t.Fatalf("Mkdir(%q): %v", dir, err)
+	}
 
 	notExist := func(err error) bool { return errors.Is(err, fs.ErrNotExist) }
+	isDir := func(err error) bool { return errors.Is(err, syscall.EISDIR) }
 	syntaxErr := func(err error) bool {
 		var se *json.SyntaxError
 		return errors.As(err, &se)
@@ -717,6 +734,8 @@ func TestDiffReportErrors(t *testing.T) {
 		{name: "missing destination report", src: valid, dest: missing, match: notExist},
 		{name: "malformed source report", src: malformed, dest: valid, match: syntaxErr},
 		{name: "malformed destination report", src: valid, dest: malformed, match: syntaxErr},
+		{name: "unreadable source report", src: dir, dest: valid, match: isDir},
+		{name: "unreadable destination report", src: valid, dest: dir, match: isDir},
 	}
 
 	for _, tt := range tests {
@@ -742,6 +761,7 @@ func TestDiffErrors(t *testing.T) {
 	missing := filepath.Join(root, "missing")
 	canceled, cancel := context.WithCancel(t.Context())
 	cancel()
+	image := diffTestPushImages(t, map[string][]byte{"usr/bin/app": []byte("#!/bin/sh\necho app\n")})[0]
 
 	tests := []struct {
 		name     string
@@ -750,15 +770,18 @@ func TestDiffErrors(t *testing.T) {
 		oci      bool
 		wantIs   error
 		wantText string
+		wantRef  string // the image reference the error names
 	}{
 		{name: "canceled context", ctx: canceled, paths: []string{dir, dir}, wantIs: context.Canceled},
+		{name: "canceled context is reported before the paths are checked", ctx: canceled, wantIs: context.Canceled},
 		{name: "single path", paths: []string{dir}, wantText: "diff mode requires 2 paths"},
 		{name: "three paths", paths: []string{dir, dir, dir}, wantText: "diff mode requires 2 paths"},
 		{name: "missing source", paths: []string{missing, dir}, wantIs: fs.ErrNotExist},
 		{name: "missing destination", paths: []string{dir, missing}, wantIs: fs.ErrNotExist},
 		{name: "source scan failure", paths: []string{notDir, dir}, wantIs: syscall.ENOTDIR, wantText: "source scan error"},
 		{name: "destination scan failure", paths: []string{dir, notDir}, wantIs: syscall.ENOTDIR, wantText: "destination scan error"},
-		{name: "invalid source image reference", paths: []string{"invalid image ref", "another invalid ref"}, oci: true, wantText: "failed to prepare scan path"},
+		{name: "invalid source image reference", paths: []string{"invalid source image ref", "invalid destination image ref"}, oci: true, wantText: "failed to prepare scan path", wantRef: "invalid source image ref"},
+		{name: "invalid destination image reference", paths: []string{image, "invalid destination image ref"}, oci: true, wantText: "failed to prepare scan path", wantRef: "invalid destination image ref"},
 	}
 
 	for _, tt := range tests {
@@ -783,6 +806,75 @@ func TestDiffErrors(t *testing.T) {
 			}
 			if !strings.Contains(err.Error(), tt.wantText) {
 				t.Errorf("Diff error: got = %q, want text %q", err.Error(), tt.wantText)
+			}
+			if !strings.Contains(err.Error(), tt.wantRef) {
+				t.Errorf("Diff error: got = %q, want it to name %q", err.Error(), tt.wantRef)
+			}
+		})
+	}
+}
+
+func TestDiffWiresMaxArchiveBytesFromConfig(t *testing.T) {
+	t.Parallel()
+	root := diffTestTempDir(t)
+	src, dest := filepath.Join(root, "src.zip"), filepath.Join(root, "dest.zip")
+	buildPayloadZip(t, src, 4096)
+	buildPayloadZip(t, dest, 4096)
+
+	c := diffTestConfig(t)
+	c.ExitExtraction = true
+	c.MaxArchiveBytes = 64
+	c.ScanPaths = []string{src, dest}
+	res, err := Diff(t.Context(), c, nil)
+	if !errors.Is(err, file.ErrArchiveBytesCap) {
+		t.Fatalf("Diff error: got = %v, want = %v", err, file.ErrArchiveBytesCap)
+	}
+	if res != nil {
+		t.Errorf("Diff report on error: got = %v, want nil", res)
+	}
+}
+
+// TestDiffArchivesWithTrimPrefixes covers diffs whose display paths are
+// trimmed while their report keys are not, which tells the two apart.
+func TestDiffArchivesWithTrimPrefixes(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name       string
+		srcArchive bool // diff an archive, rather than a file, against the destination archive
+		wantKey    bool // the modified entry's Path is its report key, not its trimmed display path
+	}{
+		{name: "archives name modified entries by their report key", srcArchive: true, wantKey: true},
+		{name: "a file and an archive keep the destination entry's display path"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			root := diffTestTempDir(t)
+			src := filepath.Join(root, "src", "tool.sh")
+			dest := filepath.Join(root, "dest", "pkg.tar")
+			if tt.srcArchive {
+				src = filepath.Join(root, "src", "pkg.tar")
+				diffTestWriteTar(t, src, map[string]string{"bin/tool.sh": diffTestShellPayload("tool")})
+			} else {
+				diffTestWriteFile(t, src, diffTestShellPayload("tool"))
+			}
+			diffTestWriteTar(t, dest, map[string]string{"bin/tool.sh": diffTestShellPayload("tool v2")})
+
+			c := diffTestConfig(t)
+			c.TrimPrefixes = []string{root}
+			d := diffTestRun(t, c, src, dest)
+			key := dest + " ∴ /bin/tool.sh"
+			diffTestAssertKeys(t, d, nil, nil, []string{key})
+			mod, ok := d.Modified.Get(key)
+			if !ok {
+				t.Fatalf("Modified: got no entry for %q, want one", key)
+			}
+			want := filepath.Join("dest", "pkg.tar") + " ∴ /bin/tool.sh"
+			if tt.wantKey {
+				want = key
+			}
+			if mod.Path != want {
+				t.Errorf("Modified Path: got = %q, want = %q", mod.Path, want)
 			}
 		})
 	}

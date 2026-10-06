@@ -1,0 +1,491 @@
+{
+    "Files": {
+        "": {
+            "Path": "/empty-key",
+            "SHA256": "",
+            "Size": 0,
+            "Behaviors": [
+                {
+                    "Description": "connects",
+                    "MatchStrings": [
+                        "\u003cb\u003e\u0026",
+                        "\u2028"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "ID": "net/connect"
+                }
+            ],
+            "RiskScore": 2,
+            "RiskLevel": "MEDIUM"
+        },
+        "/bin/empty": {
+            "Path": "/bin/empty",
+            "SHA256": "",
+            "Size": 0,
+            "RiskScore": 0
+        },
+        "/opt/escapes": {
+            "Path": "/opt/escapes",
+            "SHA256": "",
+            "Size": 0,
+            "Behaviors": [
+                {
+                    "Description": "plain description",
+                    "MatchStrings": [
+                        "q"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "ID": "evasion/sweep-0-1",
+                    "RuleName": "sweep_0_1"
+                },
+                {
+                    "Description": "plain description",
+                    "MatchStrings": [
+                        "qq"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "ID": "evasion/sweep-0-2",
+                    "RuleName": "sweep_0_2"
+                },
+                {
+                    "Description": "plain description",
+                    "MatchStrings": [
+                        "qqq"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "ID": "evasion/sweep-0-3",
+                    "RuleName": "sweep_0_3"
+                },
+                {
+                    "Description": "plain description",
+                    "MatchStrings": [
+                        "qqqq"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "ID": "evasion/sweep-0-4",
+                    "RuleName": "sweep_0_4"
+                },
+                {
+                    "Description": "ends in a partial escape \u001b[",
+                    "MatchStrings": [
+                        "1mq"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "ID": "evasion/sweep-1-1",
+                    "RuleName": "sweep_1_1"
+                },
+                {
+                    "Description": "ends in a partial escape \u001b[",
+                    "MatchStrings": [
+                        "1mqq"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "ID": "evasion/sweep-1-2",
+                    "RuleName": "sweep_1_2"
+                },
+                {
+                    "Description": "ends in a partial escape \u001b[",
+                    "MatchStrings": [
+                        "1mqqq"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "ID": "evasion/sweep-1-3",
+                    "RuleName": "sweep_1_3"
+                },
+                {
+                    "Description": "ends in a partial escape \u001b[",
+                    "MatchStrings": [
+                        "1mqqqq"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "ID": "evasion/sweep-1-4",
+                    "RuleName": "sweep_1_4"
+                },
+                {
+                    "Description": "ends in an escape byte \u001b",
+                    "MatchStrings": [
+                        "[0mq"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "ID": "evasion/sweep-2-1",
+                    "RuleName": "sweep_2_1"
+                },
+                {
+                    "Description": "ends in an escape byte \u001b",
+                    "MatchStrings": [
+                        "[0mqq"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "ID": "evasion/sweep-2-2",
+                    "RuleName": "sweep_2_2"
+                },
+                {
+                    "Description": "ends in an escape byte \u001b",
+                    "MatchStrings": [
+                        "[0mqqq"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "ID": "evasion/sweep-2-3",
+                    "RuleName": "sweep_2_3"
+                },
+                {
+                    "Description": "ends in an escape byte \u001b",
+                    "MatchStrings": [
+                        "[0mqqqq"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "ID": "evasion/sweep-2-4",
+                    "RuleName": "sweep_2_4"
+                },
+                {
+                    "Description": "has a whole escape \u001b[31mred\u001b[0m and \u001b[10Gcolumn",
+                    "MatchStrings": [
+                        "2;3Gq"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "ID": "evasion/sweep-3-1",
+                    "RuleName": "sweep_3_1"
+                },
+                {
+                    "Description": "has a whole escape \u001b[31mred\u001b[0m and \u001b[10Gcolumn",
+                    "MatchStrings": [
+                        "2;3Gqq"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "ID": "evasion/sweep-3-2",
+                    "RuleName": "sweep_3_2"
+                },
+                {
+                    "Description": "has a whole escape \u001b[31mred\u001b[0m and \u001b[10Gcolumn",
+                    "MatchStrings": [
+                        "2;3Gqqq"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "ID": "evasion/sweep-3-3",
+                    "RuleName": "sweep_3_3"
+                },
+                {
+                    "Description": "has a whole escape \u001b[31mred\u001b[0m and \u001b[10Gcolumn",
+                    "MatchStrings": [
+                        "2;3Gqqqq"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "ID": "evasion/sweep-3-4",
+                    "RuleName": "sweep_3_4"
+                }
+            ],
+            "RiskScore": 2,
+            "RiskLevel": "MEDIUM"
+        },
+        "/tmp/naïve 😈\u001b]0;title\u0007\\backslash": {
+            "Path": "/tmp/naïve 😈\u001b]0;title\u0007\\backslash",
+            "SHA256": "",
+            "Size": 0,
+            "Behaviors": [
+                {
+                    "Description": "writes files",
+                    "MatchStrings": [
+                        "fopen"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "ID": "fs/write",
+                    "RuleName": "write"
+                }
+            ],
+            "RiskScore": 1,
+            "RiskLevel": "LOW"
+        },
+        "/usr/bin/tool": {
+            "Path": "/usr/bin/tool",
+            "SHA256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+            "Size": 4096,
+            "Meta": {
+                "arch": "amd64",
+                "format": "elf"
+            },
+            "Syscalls": [
+                "connect",
+                "execve"
+            ],
+            "Behaviors": [
+                {
+                    "Description": "connects to a remote host - via TCP",
+                    "MatchStrings": [
+                        "connect",
+                        "AF_INET",
+                        "ab"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://r/connect",
+                    "RuleAuthor": "Alice",
+                    "ID": "net/socket/connect",
+                    "RuleName": "net_connect"
+                },
+                {
+                    "Description": "contains a hardcoded URL. Often benign",
+                    "MatchStrings": [
+                        "https://example.com/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "http://x.example/a|b"
+                    ],
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH",
+                    "ReferenceURL": "https://ref.example/url",
+                    "ID": "c2/addr/url",
+                    "RuleName": "url"
+                },
+                {
+                    "Description": "runs shell commands",
+                    "MatchStrings": [
+                        "/bin/sh",
+                        "sh -c",
+                        "$sh_var"
+                    ],
+                    "RiskScore": 4,
+                    "RiskLevel": "CRITICAL",
+                    "RuleAuthor": "Bob",
+                    "RuleAuthorURL": "https://bob.example",
+                    "ID": "exec/shell",
+                    "RuleName": "shell"
+                },
+                {
+                    "Description": "reads files",
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "ID": "fs/file/read",
+                    "RuleName": "read"
+                },
+                {
+                    "Description": "hex-encoded payload",
+                    "MatchStrings": [
+                        "\\x41\\x42",
+                        "evil\u001b[2Jpayload\ttab",
+                        "naïve 😈 ‮rtl"
+                    ],
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH",
+                    "ID": "anti-static/obfuscation/hex",
+                    "RuleName": "hex"
+                },
+                {
+                    "MatchStrings": [
+                        "password",
+                        "credential"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleAuthor": "Carol",
+                    "ID": "sus/text",
+                    "RuleName": "sus"
+                },
+                {
+                    "Description": "no slash in the ID",
+                    "MatchStrings": [
+                        "abcd",
+                        "abcde"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "ID": "nonamespace",
+                    "RuleName": "nons"
+                },
+                {
+                    "Description": "reads cpu info",
+                    "MatchStrings": [
+                        "cpuinfo"
+                    ],
+                    "RiskScore": 5,
+                    "RiskLevel": "EXTREME",
+                    "ID": "hw/cpu",
+                    "RuleName": "cpu"
+                },
+                {
+                    "Description": "calls getenv",
+                    "MatchStrings": [
+                        "getenv",
+                        "setenv"
+                    ],
+                    "RiskScore": -1,
+                    "ID": "os/env/get",
+                    "RuleName": "env"
+                },
+                {
+                    "Description": "resolves names",
+                    "MatchStrings": [
+                        "gethostbyname"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "ID": "net/dns",
+                    "RuleName": "dns"
+                },
+                {
+                    "Description": "collects files",
+                    "MatchStrings": [
+                        "glob"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MED",
+                    "ID": "collect/files",
+                    "RuleName": "collect"
+                },
+                {
+                    "Description": "names a family",
+                    "MatchStrings": [
+                        "family"
+                    ],
+                    "RiskScore": 4,
+                    "RiskLevel": "CRIT",
+                    "ID": "malware/family",
+                    "RuleName": "family"
+                },
+                {
+                    "Description": "writes files - often",
+                    "MatchStrings": [
+                        "fwrite",
+                        "fopen"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleAuthor": "Dee",
+                    "ID": "fs/file/write",
+                    "RuleName": "write"
+                }
+            ],
+            "RiskScore": 4,
+            "RiskLevel": "CRITICAL"
+        },
+        "\u003cscript\u003e\u0026amp;": {
+            "Path": "/html",
+            "SHA256": "",
+            "Size": 0,
+            "Behaviors": [
+                {
+                    "Description": "connects",
+                    "MatchStrings": [
+                        "\u003cb\u003e\u0026",
+                        "\u2028"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "ID": "net/connect"
+                }
+            ],
+            "RiskScore": 2,
+            "RiskLevel": "MEDIUM"
+        },
+        "bidikey": {
+            "Path": "/bidi",
+            "SHA256": "",
+            "Size": 0,
+            "Behaviors": [
+                {
+                    "Description": "connects",
+                    "MatchStrings": [
+                        "\u003cb\u003e\u0026",
+                        "\u2028"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "ID": "net/connect"
+                }
+            ],
+            "RiskScore": 2,
+            "RiskLevel": "MEDIUM"
+        },
+        "dup": {
+            "Path": "/dup",
+            "SHA256": "",
+            "Size": 0,
+            "Behaviors": [
+                {
+                    "Description": "connects",
+                    "MatchStrings": [
+                        "\u003cb\u003e\u0026",
+                        "\u2028"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "ID": "net/connect"
+                }
+            ],
+            "RiskScore": 2,
+            "RiskLevel": "MEDIUM"
+        },
+        "quote\"back\\slash\ttab": {
+            "Path": "/escapes",
+            "SHA256": "",
+            "Size": 0,
+            "Behaviors": [
+                {
+                    "Description": "connects",
+                    "MatchStrings": [
+                        "\u003cb\u003e\u0026",
+                        "\u2028"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "ID": "net/connect"
+                }
+            ],
+            "RiskScore": 2,
+            "RiskLevel": "MEDIUM"
+        },
+        "trimmed": {
+            "Path": "/trimmed",
+            "SHA256": "",
+            "Size": 0,
+            "Behaviors": [
+                {
+                    "Description": "connects",
+                    "MatchStrings": [
+                        "\u003cb\u003e\u0026",
+                        "\u2028"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "ID": "net/connect"
+                }
+            ],
+            "RiskScore": 2,
+            "RiskLevel": "MEDIUM"
+        },
+        "�invalid�": {
+            "Path": "/invalid",
+            "SHA256": "",
+            "Size": 0,
+            "Behaviors": [
+                {
+                    "Description": "connects",
+                    "MatchStrings": [
+                        "\u003cb\u003e\u0026",
+                        "\u2028"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "ID": "net/connect"
+                }
+            ],
+            "RiskScore": 2,
+            "RiskLevel": "MEDIUM"
+        }
+    }
+}

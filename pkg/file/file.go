@@ -4,26 +4,22 @@
 package file
 
 import (
-	"bytes"
 	"errors"
 	"io"
 	"log/slog"
 	"math"
 	"os"
+	"slices"
 	"sync"
 	"sync/atomic"
 )
 
 // common values used across malcontent for extracting and reading files.
 const (
-	DefaultPoolBuffer      int64   = 4 * 1024   // 4KB
-	ExtractBuffer          int64   = 64 * 1024  // 64KB
-	MaxPoolBuffer          int64   = 128 * 1024 // 128KB
-	MaxBytes               int64   = 1 << 32    // 4096MB
-	ReadBuffer             int64   = 64 * 1024  // 64KB
-	ZipBuffer              int64   = 2 * 1024   // 2KB
-	DefaultMaxArchiveBytes int64   = 32 << 30   // 32GiB total uncompressed across all entries
-	DefaultMaxArchiveRatio float64 = 100        // uncompressed/input expansion ceiling
+	ExtractBuffer          int64   = 64 * 1024 // 64KB
+	MaxBytes               int64   = 1 << 32   // 4096MB
+	DefaultMaxArchiveBytes int64   = 32 << 30  // 32GiB total uncompressed across all entries
+	DefaultMaxArchiveRatio float64 = 100       // uncompressed/input expansion ceiling
 )
 
 // ErrArchiveBytesCap is returned by ArchiveCounter.Add once the running total
@@ -57,18 +53,15 @@ type ArchiveCounter struct {
 	warnOnce sync.Once
 }
 
-// Remaining returns the number of bytes still available under the byte cap.
-// A nil receiver or a zero MaxBytes (unlimited) returns MaxInt64 so callers
-// can unconditionally use min(Remaining(), otherLimit) without nil checks.
+// Remaining returns the number of bytes still available under the byte cap,
+// zero once Total reaches it. A nil receiver or a MaxBytes of zero or less
+// (unlimited) returns MaxInt64 so callers can unconditionally use
+// min(Remaining(), otherLimit) without nil checks.
 func (c *ArchiveCounter) Remaining() int64 {
 	if c == nil || c.MaxBytes <= 0 {
 		return math.MaxInt64
 	}
-	used := c.Total.Load()
-	if used >= c.MaxBytes {
-		return 0
-	}
-	return c.MaxBytes - used
+	return max(c.MaxBytes-c.Total.Load(), 0)
 }
 
 // Add records additional uncompressed bytes against the counter. A nil
@@ -109,111 +102,59 @@ func (c *ArchiveCounter) Add(n int) error {
 	return nil
 }
 
-// Size-class thresholds for the read dispatch. Files at or below
-// smallFileMaxBytes use a single-shot read; files at or below
-// mediumFileMaxBytes use a buffered copy backed by the caller's buffer;
-// anything larger streams through the same buffer up to MaxBytes.
-const (
-	smallFileMaxBytes  int64 = 64 * 1024        // 64 KiB
-	mediumFileMaxBytes int64 = 16 * 1024 * 1024 // 16 MiB
-)
-
-// sizeClassEnum tags the read strategy chosen for a given input size.
-type sizeClassEnum uint8
-
-const (
-	sizeClassSmall sizeClassEnum = iota
-	sizeClassMedium
-	sizeClassLarge
-)
-
-// sizeClass maps a byte count to a read-strategy bucket. Values at or below
-// smallFileMaxBytes are small; values at or below mediumFileMaxBytes are
-// medium; everything else is large. Negative or oversized values fall
-// through to large so the caller still receives a bounded, streaming read.
-func sizeClass(n int64) sizeClassEnum {
-	switch {
-	case n < 0:
-		return sizeClassLarge
-	case n <= smallFileMaxBytes:
-		return sizeClassSmall
-	case n <= mediumFileMaxBytes:
-		return sizeClassMedium
-	default:
-		return sizeClassLarge
-	}
-}
-
-// readSmallFile pulls the payload through a bytes.Buffer pre-grown to the
-// stat-reported size, capped at smallFileMaxBytes. The size is a capacity hint
-// only: io.Copy from the capped LimitReader supplies the actual content, so a
-// file that grew or shrank between stat and read is handled defensively. The
-// returned boolean is true when exactly smallFileMaxBytes were read, signaling
-// the file may have been truncated by the limit and the caller should spill
-// to a larger read path.
-func readSmallFile(f *os.File, sizeHint int64) ([]byte, bool, error) {
-	var b bytes.Buffer
-	if sizeHint > 0 {
-		if sizeHint > smallFileMaxBytes {
-			sizeHint = smallFileMaxBytes
-		}
-		b.Grow(int(sizeHint))
-	}
-	if _, err := io.Copy(&b, io.LimitReader(f, smallFileMaxBytes)); err != nil {
-		return nil, false, err
-	}
-	filled := int64(b.Len()) >= smallFileMaxBytes
-	return b.Bytes(), filled, nil
-}
-
-// readBuffered streams the input through the caller-supplied buffer up to
-// the supplied byte limit. Returned bytes are the buffer's contents at the
-// time of completion; the caller owns the slice.
-func readBuffered(f *os.File, buf []byte, limit int64) ([]byte, error) {
-	b := &bytes.Buffer{}
-	if _, err := io.CopyBuffer(b, io.LimitReader(f, limit), buf); err != nil {
-		return nil, err
-	}
-	return b.Bytes(), nil
-}
-
-// GetContents takes a file, reads its contents, and returns them as a slice of bytes.
-// If a file was stat'd as small but grew past the small ceiling between stat
-// and read, the read spills through to the large (up-to-MaxBytes) path so
-// content is never silently truncated.
-func GetContents(f *os.File, buf []byte) ([]byte, error) {
+// GetContents returns up to MaxBytes of f's contents, read from its current
+// offset, in a newly allocated slice of exactly that length. A regular file is
+// read into one allocation sized from Stat; a file that is not regular, or
+// cannot be stat'd, is read until EOF.
+func GetContents(f *os.File) ([]byte, error) {
 	info, err := f.Stat()
 	if err != nil || !info.Mode().IsRegular() {
-		return readBuffered(f, buf, MaxBytes)
+		return io.ReadAll(io.LimitReader(f, MaxBytes))
 	}
-	switch sizeClass(info.Size()) {
-	case sizeClassSmall:
-		data, filled, err := readSmallFile(f, info.Size())
-		if err != nil {
-			return nil, err
-		}
-		if filled {
-			// The file filled the small buffer -- it may have grown since
-			// stat. Seek back and fall through to the large read path.
-			if _, seekErr := f.Seek(0, io.SeekStart); seekErr != nil {
-				return nil, seekErr
-			}
-			return readBuffered(f, buf, MaxBytes)
-		}
-		return data, nil
-	case sizeClassMedium:
-		data, err := readBuffered(f, buf, mediumFileMaxBytes)
-		if err != nil {
-			return nil, err
-		}
-		if int64(len(data)) >= mediumFileMaxBytes {
-			if _, seekErr := f.Seek(0, io.SeekStart); seekErr != nil {
-				return nil, seekErr
-			}
-			return readBuffered(f, buf, MaxBytes)
-		}
-		return data, nil
-	default:
-		return readBuffered(f, buf, MaxBytes)
+	return readUpTo(f, info.Size(), MaxBytes)
+}
+
+// readUpTo returns up to limit bytes of r, expecting size bytes, in a single
+// allocation unless r holds more than size bytes.
+func readUpTo(r io.Reader, size, limit int64) ([]byte, error) {
+	size, want := readLengths(size, limit)
+	data, grew, err := fill(r, make([]byte, want), size)
+	if !grew {
+		return data, err
 	}
+	return readRest(r, data, limit)
+}
+
+// readLengths clamps the expected size to [0, limit] and returns it with the
+// length of the first read: one byte past size, so that growth since stat
+// shows up without another allocation, unless that would pass limit.
+func readLengths(size, limit int64) (int64, int64) {
+	size = min(max(size, 0), limit)
+	return size, min(size+1, limit)
+}
+
+// fill reads len(buf) bytes of r into buf, where len(buf) comes from
+// readLengths. It returns the bytes read and whether r holds more than size
+// bytes, in which case the rest is still unread; a failed read never reports
+// more. A short read means the source ended at or before size, as when a file
+// shrinks after stat.
+func fill(r io.Reader, buf []byte, size int64) ([]byte, bool, error) {
+	n, err := io.ReadFull(r, buf)
+	if errors.Is(err, io.EOF) || errors.Is(err, io.ErrUnexpectedEOF) {
+		return buf[:n], false, nil
+	}
+	if err != nil {
+		return nil, false, err
+	}
+	return buf, int64(n) > size, nil
+}
+
+// readRest returns a new slice holding data followed by the rest of r, up to
+// limit bytes in total.
+func readRest(r io.Reader, data []byte, limit int64) ([]byte, error) {
+	rest, err := io.ReadAll(io.LimitReader(r, limit-int64(len(data))))
+	if err != nil {
+		return nil, err
+	}
+	return slices.Concat(data, rest), nil
 }

@@ -69,7 +69,14 @@ func resolveArchiveCaps(ctx context.Context) (maxBytes int64, maxRatio float64) 
 }
 
 // ExtractZip extracts zip-format archives (.ear, .jar, .war, .whl, .zip).
-func ExtractZip(ctx context.Context, d string, f string) (err error) {
+func ExtractZip(ctx context.Context, d string, f string) error {
+	return extractZipWithKind(ctx, d, f, detectFileType(ctx, f))
+}
+
+// extractZipWithKind is ExtractZip with the archive's detected type reported by
+// fileType, so that a caller which already detected it need not read the
+// archive again.
+func extractZipWithKind(ctx context.Context, d, f string, fileType func() *programkind.FileType) (err error) {
 	defer recoverExtractor(ctx, "zip", f, &err)
 	if ctx.Err() != nil {
 		return ctx.Err()
@@ -87,10 +94,8 @@ func ExtractZip(ctx context.Context, d string, f string) (err error) {
 	}
 
 	var isZip bool
-	if ft, err := programkind.File(ctx, f); err == nil && ft != nil {
-		if _, ok := zipMIME[ft.MIME]; ok {
-			isZip = true
-		}
+	if ft := fileType(); ft != nil {
+		_, isZip = zipMIME[ft.MIME]
 	}
 
 	if !isZip {
@@ -102,6 +107,7 @@ func ExtractZip(ctx context.Context, d string, f string) (err error) {
 		return fmt.Errorf("failed to open zip file %s: %w", f, err)
 	}
 	defer read.Close()
+	read.RegisterDecompressor(zip.Deflate, newZipInflater)
 
 	root, err := openRoot(d)
 	if err != nil {
@@ -240,8 +246,8 @@ func extractFile(ctx context.Context, zf *zip.File, root *os.Root, logger *clog.
 		return nil
 	}
 
-	buf := zipPool.Get(file.ZipBuffer) //nolint:nilaway // the buffer pool is created in archive.go
-	defer zipPool.Put(buf)
+	buf := extractPool.Get()
+	defer extractPool.Put(buf)
 
 	src, err := zf.Open()
 	if err != nil {

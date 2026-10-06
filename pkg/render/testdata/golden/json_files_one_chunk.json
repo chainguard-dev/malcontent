@@ -1,0 +1,925 @@
+{
+    "Files": {
+        "/many/file-0001": {
+            "Path": "/many/file-0001",
+            "SHA256": "0000000000000000000000000000000000000000000000000000000000000001",
+            "Size": 1,
+            "Behaviors": [
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-1-0"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://r/0",
+                    "ID": "ns0/behavior-0"
+                }
+            ],
+            "RiskScore": 1,
+            "RiskLevel": "LOW"
+        },
+        "/many/file-0002": {
+            "Path": "/many/file-0002",
+            "SHA256": "0000000000000000000000000000000000000000000000000000000000000002",
+            "Size": 2,
+            "Behaviors": [
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-2-0"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://r/0",
+                    "ID": "ns0/behavior-0"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-2-1"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://r/1",
+                    "ID": "ns1/behavior-1"
+                }
+            ],
+            "RiskScore": 2,
+            "RiskLevel": "MEDIUM"
+        },
+        "/many/file-0003\u003c\u0026\u003e": {
+            "Path": "/many/file-0003\u003c\u0026\u003e",
+            "SHA256": "0000000000000000000000000000000000000000000000000000000000000003",
+            "Size": 3,
+            "Behaviors": [
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-3-0"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://r/0",
+                    "ID": "ns0/behavior-0"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-3-1"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://r/1",
+                    "ID": "ns1/behavior-1"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-3-2"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://r/2",
+                    "ID": "ns2/behavior-2"
+                }
+            ],
+            "RiskScore": 3,
+            "RiskLevel": "HIGH"
+        },
+        "/many/file-0004": {
+            "Path": "/many/file-0004",
+            "SHA256": "0000000000000000000000000000000000000000000000000000000000000004",
+            "Size": 4,
+            "Behaviors": [
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-4-0"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://r/0",
+                    "ID": "ns0/behavior-0"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-4-1"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://r/1",
+                    "ID": "ns1/behavior-1"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-4-2"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://r/2",
+                    "ID": "ns2/behavior-2"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-4-3"
+                    ],
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH",
+                    "RuleURL": "https://r/3",
+                    "ID": "ns0/behavior-3"
+                }
+            ],
+            "RiskScore": 4,
+            "RiskLevel": "CRITICAL"
+        },
+        "/many/file-0005": {
+            "Path": "/many/file-0005",
+            "SHA256": "0000000000000000000000000000000000000000000000000000000000000005",
+            "Size": 5,
+            "Behaviors": [
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-5-0"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://r/0",
+                    "ID": "ns0/behavior-0"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-5-1"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://r/1",
+                    "ID": "ns1/behavior-1"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-5-2"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://r/2",
+                    "ID": "ns2/behavior-2"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-5-3"
+                    ],
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH",
+                    "RuleURL": "https://r/3",
+                    "ID": "ns0/behavior-3"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-5-4"
+                    ],
+                    "RiskScore": 4,
+                    "RiskLevel": "CRITICAL",
+                    "RuleURL": "https://r/4",
+                    "ID": "ns1/behavior-4"
+                }
+            ],
+            "RiskScore": 0,
+            "RiskLevel": "NONE"
+        },
+        "/many/file-0006": {
+            "Path": "/many/file-0006",
+            "SHA256": "0000000000000000000000000000000000000000000000000000000000000006",
+            "Size": 6,
+            "RiskScore": 1,
+            "RiskLevel": "LOW"
+        },
+        "/many/file-0007\u2028\"quoted\"": {
+            "Path": "/many/file-0007\u2028\"quoted\"",
+            "SHA256": "0000000000000000000000000000000000000000000000000000000000000007",
+            "Size": 7,
+            "Behaviors": [
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-7-0"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://r/0",
+                    "ID": "ns0/behavior-0"
+                }
+            ],
+            "RiskScore": 2,
+            "RiskLevel": "MEDIUM"
+        },
+        "/many/file-0008": {
+            "Path": "/many/file-0008",
+            "SHA256": "0000000000000000000000000000000000000000000000000000000000000008",
+            "Size": 8,
+            "Behaviors": [
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-8-0"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://r/0",
+                    "ID": "ns0/behavior-0"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-8-1"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://r/1",
+                    "ID": "ns1/behavior-1"
+                }
+            ],
+            "RiskScore": 3,
+            "RiskLevel": "HIGH"
+        },
+        "/many/file-0009": {
+            "Path": "/many/file-0009",
+            "SHA256": "0000000000000000000000000000000000000000000000000000000000000009",
+            "Size": 9,
+            "Behaviors": [
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-9-0"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://r/0",
+                    "ID": "ns0/behavior-0"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-9-1"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://r/1",
+                    "ID": "ns1/behavior-1"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-9-2"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://r/2",
+                    "ID": "ns2/behavior-2"
+                }
+            ],
+            "RiskScore": 4,
+            "RiskLevel": "CRITICAL"
+        },
+        "/many/file-0010": {
+            "Path": "/many/file-0010",
+            "SHA256": "000000000000000000000000000000000000000000000000000000000000000a",
+            "Size": 10,
+            "Behaviors": [
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-10-0"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://r/0",
+                    "ID": "ns0/behavior-0"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-10-1"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://r/1",
+                    "ID": "ns1/behavior-1"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-10-2"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://r/2",
+                    "ID": "ns2/behavior-2"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-10-3"
+                    ],
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH",
+                    "RuleURL": "https://r/3",
+                    "ID": "ns0/behavior-3"
+                }
+            ],
+            "RiskScore": 0,
+            "RiskLevel": "NONE"
+        },
+        "/many/file-0012": {
+            "Path": "/many/file-0012",
+            "SHA256": "000000000000000000000000000000000000000000000000000000000000000c",
+            "Size": 12,
+            "RiskScore": 2,
+            "RiskLevel": "MEDIUM"
+        },
+        "/many/file-0013\u003c\u0026\u003e": {
+            "Path": "/many/file-0013\u003c\u0026\u003e",
+            "SHA256": "000000000000000000000000000000000000000000000000000000000000000d",
+            "Size": 13,
+            "Behaviors": [
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-13-0"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://r/0",
+                    "ID": "ns0/behavior-0"
+                }
+            ],
+            "RiskScore": 3,
+            "RiskLevel": "HIGH"
+        },
+        "/many/file-0014": {
+            "Path": "/many/file-0014",
+            "SHA256": "000000000000000000000000000000000000000000000000000000000000000e",
+            "Size": 14,
+            "Behaviors": [
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-14-0"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://r/0",
+                    "ID": "ns0/behavior-0"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-14-1"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://r/1",
+                    "ID": "ns1/behavior-1"
+                }
+            ],
+            "RiskScore": 4,
+            "RiskLevel": "CRITICAL"
+        },
+        "/many/file-0015": {
+            "Path": "/many/file-0015",
+            "SHA256": "000000000000000000000000000000000000000000000000000000000000000f",
+            "Size": 15,
+            "Behaviors": [
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-15-0"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://r/0",
+                    "ID": "ns0/behavior-0"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-15-1"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://r/1",
+                    "ID": "ns1/behavior-1"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-15-2"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://r/2",
+                    "ID": "ns2/behavior-2"
+                }
+            ],
+            "RiskScore": 0,
+            "RiskLevel": "NONE"
+        },
+        "/many/file-0016": {
+            "Path": "/many/file-0016",
+            "SHA256": "0000000000000000000000000000000000000000000000000000000000000010",
+            "Size": 16,
+            "Behaviors": [
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-16-0"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://r/0",
+                    "ID": "ns0/behavior-0"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-16-1"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://r/1",
+                    "ID": "ns1/behavior-1"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-16-2"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://r/2",
+                    "ID": "ns2/behavior-2"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-16-3"
+                    ],
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH",
+                    "RuleURL": "https://r/3",
+                    "ID": "ns0/behavior-3"
+                }
+            ],
+            "RiskScore": 1,
+            "RiskLevel": "LOW"
+        },
+        "/many/file-0017\u2028\"quoted\"": {
+            "Path": "/many/file-0017\u2028\"quoted\"",
+            "SHA256": "0000000000000000000000000000000000000000000000000000000000000011",
+            "Size": 17,
+            "Behaviors": [
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-17-0"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://r/0",
+                    "ID": "ns0/behavior-0"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-17-1"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://r/1",
+                    "ID": "ns1/behavior-1"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-17-2"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://r/2",
+                    "ID": "ns2/behavior-2"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-17-3"
+                    ],
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH",
+                    "RuleURL": "https://r/3",
+                    "ID": "ns0/behavior-3"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-17-4"
+                    ],
+                    "RiskScore": 4,
+                    "RiskLevel": "CRITICAL",
+                    "RuleURL": "https://r/4",
+                    "ID": "ns1/behavior-4"
+                }
+            ],
+            "RiskScore": 2,
+            "RiskLevel": "MEDIUM"
+        },
+        "/many/file-0018": {
+            "Path": "/many/file-0018",
+            "SHA256": "0000000000000000000000000000000000000000000000000000000000000012",
+            "Size": 18,
+            "RiskScore": 3,
+            "RiskLevel": "HIGH"
+        },
+        "/many/file-0019": {
+            "Path": "/many/file-0019",
+            "SHA256": "0000000000000000000000000000000000000000000000000000000000000013",
+            "Size": 19,
+            "Behaviors": [
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-19-0"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://r/0",
+                    "ID": "ns0/behavior-0"
+                }
+            ],
+            "RiskScore": 4,
+            "RiskLevel": "CRITICAL"
+        },
+        "/many/file-0020": {
+            "Path": "/many/file-0020",
+            "SHA256": "0000000000000000000000000000000000000000000000000000000000000014",
+            "Size": 20,
+            "Behaviors": [
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-20-0"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://r/0",
+                    "ID": "ns0/behavior-0"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-20-1"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://r/1",
+                    "ID": "ns1/behavior-1"
+                }
+            ],
+            "RiskScore": 0,
+            "RiskLevel": "NONE"
+        },
+        "/many/file-0021": {
+            "Path": "/many/file-0021",
+            "SHA256": "0000000000000000000000000000000000000000000000000000000000000015",
+            "Size": 21,
+            "Behaviors": [
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-21-0"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://r/0",
+                    "ID": "ns0/behavior-0"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-21-1"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://r/1",
+                    "ID": "ns1/behavior-1"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-21-2"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://r/2",
+                    "ID": "ns2/behavior-2"
+                }
+            ],
+            "RiskScore": 1,
+            "RiskLevel": "LOW"
+        },
+        "/many/file-0023\u003c\u0026\u003e": {
+            "Path": "/many/file-0023\u003c\u0026\u003e",
+            "SHA256": "0000000000000000000000000000000000000000000000000000000000000017",
+            "Size": 23,
+            "Behaviors": [
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-23-0"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://r/0",
+                    "ID": "ns0/behavior-0"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-23-1"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://r/1",
+                    "ID": "ns1/behavior-1"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-23-2"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://r/2",
+                    "ID": "ns2/behavior-2"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-23-3"
+                    ],
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH",
+                    "RuleURL": "https://r/3",
+                    "ID": "ns0/behavior-3"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-23-4"
+                    ],
+                    "RiskScore": 4,
+                    "RiskLevel": "CRITICAL",
+                    "RuleURL": "https://r/4",
+                    "ID": "ns1/behavior-4"
+                }
+            ],
+            "RiskScore": 3,
+            "RiskLevel": "HIGH"
+        },
+        "/many/file-0024": {
+            "Path": "/many/file-0024",
+            "SHA256": "0000000000000000000000000000000000000000000000000000000000000018",
+            "Size": 24,
+            "RiskScore": 4,
+            "RiskLevel": "CRITICAL"
+        },
+        "/many/file-0025": {
+            "Path": "/many/file-0025",
+            "SHA256": "0000000000000000000000000000000000000000000000000000000000000019",
+            "Size": 25,
+            "Behaviors": [
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-25-0"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://r/0",
+                    "ID": "ns0/behavior-0"
+                }
+            ],
+            "RiskScore": 0,
+            "RiskLevel": "NONE"
+        },
+        "/many/file-0026": {
+            "Path": "/many/file-0026",
+            "SHA256": "000000000000000000000000000000000000000000000000000000000000001a",
+            "Size": 26,
+            "Behaviors": [
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-26-0"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://r/0",
+                    "ID": "ns0/behavior-0"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-26-1"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://r/1",
+                    "ID": "ns1/behavior-1"
+                }
+            ],
+            "RiskScore": 1,
+            "RiskLevel": "LOW"
+        },
+        "/many/file-0027\u2028\"quoted\"": {
+            "Path": "/many/file-0027\u2028\"quoted\"",
+            "SHA256": "000000000000000000000000000000000000000000000000000000000000001b",
+            "Size": 27,
+            "Behaviors": [
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-27-0"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://r/0",
+                    "ID": "ns0/behavior-0"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-27-1"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://r/1",
+                    "ID": "ns1/behavior-1"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-27-2"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://r/2",
+                    "ID": "ns2/behavior-2"
+                }
+            ],
+            "RiskScore": 2,
+            "RiskLevel": "MEDIUM"
+        },
+        "/many/file-0028": {
+            "Path": "/many/file-0028",
+            "SHA256": "000000000000000000000000000000000000000000000000000000000000001c",
+            "Size": 28,
+            "Behaviors": [
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-28-0"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://r/0",
+                    "ID": "ns0/behavior-0"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-28-1"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://r/1",
+                    "ID": "ns1/behavior-1"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-28-2"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://r/2",
+                    "ID": "ns2/behavior-2"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-28-3"
+                    ],
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH",
+                    "RuleURL": "https://r/3",
+                    "ID": "ns0/behavior-3"
+                }
+            ],
+            "RiskScore": 3,
+            "RiskLevel": "HIGH"
+        },
+        "/many/file-0029": {
+            "Path": "/many/file-0029",
+            "SHA256": "000000000000000000000000000000000000000000000000000000000000001d",
+            "Size": 29,
+            "Behaviors": [
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-29-0"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://r/0",
+                    "ID": "ns0/behavior-0"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-29-1"
+                    ],
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "RuleURL": "https://r/1",
+                    "ID": "ns1/behavior-1"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-29-2"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://r/2",
+                    "ID": "ns2/behavior-2"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-29-3"
+                    ],
+                    "RiskScore": 3,
+                    "RiskLevel": "HIGH",
+                    "RuleURL": "https://r/3",
+                    "ID": "ns0/behavior-3"
+                },
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-29-4"
+                    ],
+                    "RiskScore": 4,
+                    "RiskLevel": "CRITICAL",
+                    "RuleURL": "https://r/4",
+                    "ID": "ns1/behavior-4"
+                }
+            ],
+            "RiskScore": 4,
+            "RiskLevel": "CRITICAL"
+        },
+        "/many/file-0030": {
+            "Path": "/many/file-0030",
+            "SHA256": "000000000000000000000000000000000000000000000000000000000000001e",
+            "Size": 30,
+            "RiskScore": 0,
+            "RiskLevel": "NONE"
+        },
+        "/many/file-0031": {
+            "Path": "/many/file-0031",
+            "SHA256": "000000000000000000000000000000000000000000000000000000000000001f",
+            "Size": 31,
+            "Behaviors": [
+                {
+                    "Description": "does something \u0026 more \u003chere\u003e",
+                    "MatchStrings": [
+                        "match-31-0"
+                    ],
+                    "RiskScore": 0,
+                    "RiskLevel": "NONE",
+                    "RuleURL": "https://r/0",
+                    "ID": "ns0/behavior-0"
+                }
+            ],
+            "RiskScore": 1,
+            "RiskLevel": "LOW"
+        }
+    }
+}

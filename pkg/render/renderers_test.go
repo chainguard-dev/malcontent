@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"strconv"
 	"strings"
@@ -95,6 +96,18 @@ func TestTextRenderersHonorCanceledContext(t *testing.T) {
 			var buf bytes.Buffer
 			rep := &malcontent.Report{Diff: renderDiff(nil, []*malcontent.FileReport{renderBehaviorReport()}, nil)}
 			err := r.newRenderer(&buf).Full(renderCanceledContext(t), &malcontent.Config{}, rep)
+			if !errors.Is(err, context.Canceled) {
+				t.Errorf("Full error: got = %v, want = %v", err, context.Canceled)
+			}
+			if buf.Len() != 0 {
+				t.Errorf("Full output: got = %q, want = empty", buf.String())
+			}
+		})
+		// The cancellation is reported even when there is nothing to render.
+		t.Run(r.name+"/Full without a report", func(t *testing.T) {
+			t.Parallel()
+			var buf bytes.Buffer
+			err := r.newRenderer(&buf).Full(renderCanceledContext(t), &malcontent.Config{}, nil)
 			if !errors.Is(err, context.Canceled) {
 				t.Errorf("Full error: got = %v, want = %v", err, context.Canceled)
 			}
@@ -195,5 +208,71 @@ func TestSanitizeUTF8BiDiRangeBoundaries(t *testing.T) {
 				t.Errorf("sanitizeUTF8(%q): got = %q, want = %q", in, got, want)
 			}
 		})
+	}
+}
+
+func TestFullStopsAtTheFirstFailedWrite(t *testing.T) {
+	t.Parallel()
+	behavior := func(id string, added bool) []*malcontent.Behavior {
+		return []*malcontent.Behavior{{ID: id, Description: "does things", RiskScore: 3, RiskLevel: report.LevelHIGH, DiffAdded: added}}
+	}
+	// diff has one deleted, one added, and one changed file: three sections.
+	diff := func() *malcontent.Report {
+		return &malcontent.Report{Diff: renderDiff(
+			[]*malcontent.FileReport{{Path: "/old/tool", RiskScore: 3, RiskLevel: report.LevelHIGH, Behaviors: behavior("net/connect", false)}},
+			[]*malcontent.FileReport{{Path: "/new/tool", RiskScore: 3, RiskLevel: report.LevelHIGH, Behaviors: behavior("fs/write", false)}},
+			[]*malcontent.FileReport{{Path: "/mod/tool", RiskScore: 3, RiskLevel: report.LevelHIGH, Behaviors: behavior("exec/shell", true)}},
+		)}
+	}
+	// scan has 33 small files: one more than a JSON chunk holds.
+	scan := func() *malcontent.Report {
+		files := xsync.NewMap[string, *malcontent.FileReport]()
+		for i := range 33 {
+			key := fmt.Sprintf("/f/%02d", i)
+			files.Store(key, &malcontent.FileReport{Path: key})
+		}
+		return &malcontent.Report{Files: files}
+	}
+	tests := []struct {
+		name   string
+		full   func(context.Context, io.Writer) error
+		writes int
+	}{
+		{name: "terminal writes each section", full: func(ctx context.Context, w io.Writer) error {
+			return NewTerminal(w).Full(ctx, &malcontent.Config{}, diff())
+		}, writes: 3},
+		{name: "simple writes each section", full: func(ctx context.Context, w io.Writer) error {
+			return NewSimple(w).Full(ctx, &malcontent.Config{}, diff())
+		}, writes: 3},
+		{name: "markdown writes each section", full: func(ctx context.Context, w io.Writer) error {
+			return NewMarkdown(w).Full(ctx, &malcontent.Config{}, diff())
+		}, writes: 3},
+		{name: "json writes the opening, two chunks, and the closing", full: func(ctx context.Context, w io.Writer) error { return NewJSON(w).Full(ctx, nil, scan()) }, writes: 4},
+		{name: "yaml writes its buffer once", full: func(ctx context.Context, w io.Writer) error { return NewYAML(w).Full(ctx, nil, scan()) }, writes: 1},
+	}
+	for _, tt := range tests {
+		// failAt 0 lets every write succeed.
+		for failAt := range tt.writes + 1 {
+			name := tt.name + "/every write succeeds"
+			if failAt > 0 {
+				name = fmt.Sprintf("%s/write %d fails", tt.name, failAt)
+			}
+			t.Run(name, func(t *testing.T) {
+				t.Parallel()
+				w := &renderWriteLog{failAt: failAt}
+				err := tt.full(t.Context(), w)
+				var wantErr error
+				wantWrites := tt.writes
+				if failAt > 0 {
+					wantErr, wantWrites = errRenderWrite, failAt
+				}
+				if !errors.Is(err, wantErr) {
+					t.Errorf("Full error: got = %v, want = %v", err, wantErr)
+				}
+				if len(w.writes) != wantWrites {
+					t.Errorf("writes: got = %d, want = %d", len(w.writes), wantWrites)
+				}
+			})
+		}
 	}
 }

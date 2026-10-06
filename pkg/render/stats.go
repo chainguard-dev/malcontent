@@ -4,8 +4,10 @@
 package render
 
 import (
+	"bytes"
 	"cmp"
 	"fmt"
+	"os"
 	"slices"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
@@ -14,10 +16,8 @@ import (
 )
 
 func RiskStatistics(c *malcontent.Config, files *xsync.Map[string, *malcontent.FileReport]) ([]malcontent.IntMetric, int, int, int) {
-	length := files.Size()
-
-	riskMap := make(map[int][]string, length)
-	riskStats := make(map[int]float64, length)
+	// Files counted at each risk score.
+	riskCounts := map[int]int{}
 
 	processedFiles := 0
 	skippedFiles := 0
@@ -30,40 +30,32 @@ func RiskStatistics(c *malcontent.Config, files *xsync.Map[string, *malcontent.F
 		switch {
 		case c.Scan:
 			if fr.RiskScore >= 3 {
-				riskMap[fr.RiskScore] = append(riskMap[fr.RiskScore], fr.Path)
+				riskCounts[fr.RiskScore]++
 			} else {
 				skippedFiles++
 			}
 		default:
 			if fr.Skipped == "" {
-				riskMap[fr.RiskScore] = append(riskMap[fr.RiskScore], fr.Path)
+				riskCounts[fr.RiskScore]++
 			} else {
 				skippedFiles++
 			}
 		}
-		for riskLevel := range riskMap {
-			riskStats[riskLevel] = (float64(len(riskMap[riskLevel])) / float64(processedFiles)) * 100
-		}
 		return true
 	})
 
-	stats := make([]malcontent.IntMetric, 0, len(riskStats))
-	total := func() int {
-		var t int
-		for _, v := range riskMap {
-			t += len(v)
-		}
-		return t
-	}
-	for k, v := range riskStats {
-		stats = append(stats, malcontent.IntMetric{Key: k, Value: v, Count: len(riskMap[k]), Total: processedFiles})
+	stats := make([]malcontent.IntMetric, 0, len(riskCounts))
+	total := 0
+	for k, n := range riskCounts {
+		total += n
+		stats = append(stats, malcontent.IntMetric{Key: k, Value: (float64(n) / float64(processedFiles)) * 100, Count: n, Total: processedFiles})
 	}
 	// Descending by share.
 	slices.SortFunc(stats, func(a, b malcontent.IntMetric) int {
 		return cmp.Compare(b.Value, a.Value)
 	})
 
-	return stats, total(), processedFiles, skippedFiles
+	return stats, total, processedFiles, skippedFiles
 }
 
 func PkgStatistics(_ *malcontent.Config, files *xsync.Map[string, *malcontent.FileReport]) ([]malcontent.StrMetric, int, int) {
@@ -90,12 +82,7 @@ func PkgStatistics(_ *malcontent.Config, files *xsync.Map[string, *malcontent.Fi
 
 	width := 10
 	for k := range pkg {
-		width = func(l int, w int) int {
-			if l > w {
-				return l
-			}
-			return w
-		}(len(k), width)
+		width = max(width, len(k))
 	}
 	stats := make([]malcontent.StrMetric, 0, len(pkg))
 	for k, v := range pkg {
@@ -117,17 +104,19 @@ func Statistics(c *malcontent.Config, r *malcontent.Report) error {
 	riskStats, totalRisks, processedFiles, skippedFiles := RiskStatistics(c, r.Files)
 	pkgStats, width, totalBehaviors := PkgStatistics(c, r.Files)
 
+	// Build the summary first and print it with one write.
+	var b bytes.Buffer
 	statsSymbol := "📊"
 	riskSymbol := "⚠️ "
 	pkgSymbol := "📦"
-	fmt.Printf("%s Statistics\n", statsSymbol)
-	fmt.Println("---")
-	fmt.Printf("\033[1;37m%-15s \033[1;37m%s\033[0m\n", "Files Scanned", fmt.Sprintf("%d (%d skipped)", processedFiles, skippedFiles))
-	fmt.Printf("\033[1;37m%-15s \033[1;37m%s\033[0m\n", "Total Risks", fmt.Sprintf("%d", totalRisks))
-	fmt.Println("---")
-	fmt.Printf("%s Risk Level Percentage\n", riskSymbol)
-	fmt.Println("---")
-	fmt.Printf("\033[1;37m%-12s  \033[1;37m%10s %s\033[0m\n", "Risk Level", "Percentage", "Count/Total")
+	fmt.Fprintf(&b, "%s Statistics\n", statsSymbol)
+	fmt.Fprintln(&b, "---")
+	fmt.Fprintf(&b, "\033[1;37m%-15s \033[1;37m%s\033[0m\n", "Files Scanned", fmt.Sprintf("%d (%d skipped)", processedFiles, skippedFiles))
+	fmt.Fprintf(&b, "\033[1;37m%-15s \033[1;37m%s\033[0m\n", "Total Risks", fmt.Sprintf("%d", totalRisks))
+	fmt.Fprintln(&b, "---")
+	fmt.Fprintf(&b, "%s Risk Level Percentage\n", riskSymbol)
+	fmt.Fprintln(&b, "---")
+	fmt.Fprintf(&b, "\033[1;37m%-12s  \033[1;37m%10s %s\033[0m\n", "Risk Level", "Percentage", "Count/Total")
 	for _, stat := range riskStats {
 		level := ShortRisk(report.RiskLevels[stat.Key])
 		color := ""
@@ -143,18 +132,19 @@ func Statistics(c *malcontent.Config, r *malcontent.Report) error {
 		case levelCRIT:
 			color = "\033[35m"
 		}
-		fmt.Printf("%s%-12s %10.2f%s %d/%d\033[0m\n", color, fmt.Sprintf("%d/%s", stat.Key, ShortRisk(level)), stat.Value, "%", stat.Count, stat.Total)
+		fmt.Fprintf(&b, "%s%-12s %10.2f%s %d/%d\033[0m\n", color, fmt.Sprintf("%d/%s", stat.Key, ShortRisk(level)), stat.Value, "%", stat.Count, stat.Total)
 	}
 
-	fmt.Println("---")
-	fmt.Printf("\033[1;37m%-12s \033[1;37m%10s\033[0m\n", "Number of behaviors", fmt.Sprintf("%d", totalBehaviors))
-	fmt.Println("---")
-	fmt.Printf("%s Package Behaviors\n", pkgSymbol)
-	fmt.Println("---")
-	fmt.Printf("\033[1;37m%-*s  \033[1;37m%10s %s\033[0m\n", width, "Namespace", "Percentage", "Count/Total")
+	fmt.Fprintln(&b, "---")
+	fmt.Fprintf(&b, "\033[1;37m%-12s \033[1;37m%10s\033[0m\n", "Number of behaviors", fmt.Sprintf("%d", totalBehaviors))
+	fmt.Fprintln(&b, "---")
+	fmt.Fprintf(&b, "%s Package Behaviors\n", pkgSymbol)
+	fmt.Fprintln(&b, "---")
+	fmt.Fprintf(&b, "\033[1;37m%-*s  \033[1;37m%10s %s\033[0m\n", width, "Namespace", "Percentage", "Count/Total")
 	for _, pkg := range pkgStats {
-		fmt.Printf("%-*s %10.2f%s %d/%d\n", width, pkg.Key, pkg.Value, "%", pkg.Count, pkg.Total)
+		fmt.Fprintf(&b, "%-*s %10.2f%s %d/%d\n", width, pkg.Key, pkg.Value, "%", pkg.Count, pkg.Total)
 	}
 
-	return nil
+	_, err := os.Stdout.Write(b.Bytes())
+	return err
 }

@@ -99,3 +99,35 @@ func TestValidateIgnoreRulesChecksPatternsAfterBlanks(t *testing.T) {
 		t.Errorf("ValidateIgnoreRules: got = %v, want an error wrapping %v", err, filepath.ErrBadPattern)
 	}
 }
+
+func TestValidateIgnoreRulesReportsTrimmedPattern(t *testing.T) {
+	t.Parallel()
+	const want = `invalid --ignore-rules pattern "bad_[abc": syntax error in pattern`
+	err := ValidateIgnoreRules([]string{"  bad_[abc  "})
+	if err == nil || err.Error() != want {
+		t.Errorf("ValidateIgnoreRules: got = %v, want = %s", err, want)
+	}
+}
+
+func TestCleanReportPathImageURI(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name     string
+		path     string
+		tmpRoot  string
+		imageURI string
+		want     string
+	}{
+		{"relative path without the image URI gets a leading slash", "bin/ls", "", "registry.io/app", "/bin/ls"},
+		{"path with the image URI is kept even when the temporary root prefixes it", "registry.io/app ∴ /bin/ls", "registry.io", "registry.io/app", "registry.io/app ∴ /bin/ls"},
+		{"path that starts with the image URI once trimmed gets no leading slash", "/scratch/app/main", "/scratch/", "app", "app/main"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			if got := CleanReportPath(tt.path, tt.tmpRoot, tt.imageURI); got != tt.want {
+				t.Errorf("CleanReportPath(%q, %q, %q): got = %q, want = %q", tt.path, tt.tmpRoot, tt.imageURI, got, tt.want)
+			}
+		})
+	}
+}

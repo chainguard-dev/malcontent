@@ -24,16 +24,16 @@
 package render
 
 import (
+	"bytes"
 	"cmp"
 	"context"
 	"fmt"
 	"io"
 	"slices"
-	"strings"
+	"strconv"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/report"
-	"github.com/fatih/color"
 )
 
 // Map to handle RiskScore -> RiskLevel conversions.
@@ -45,27 +45,15 @@ var riskLevels = map[int]string{
 	4: report.LevelCRITICAL, // critical: certainly malware
 }
 
-func briefRiskColor(level string) string {
-	switch level {
-	case report.LevelLOW:
-		return color.HiGreenString(report.LevelLOW)
-	case report.LevelMEDIUM, "MED":
-		return color.HiYellowString("MED")
-	case report.LevelHIGH:
-		return color.HiRedString(report.LevelHIGH)
-	case report.LevelCRITICAL, levelCRIT:
-		return color.HiMagentaString(levelCRIT)
-	default:
-		return color.WhiteString(level)
-	}
-}
-
+// StringMatches lists the strings each rule matched as the scan reports each
+// file. It is safe for concurrent use: each File call writes its output with
+// a single Write.
 type StringMatches struct {
-	w io.Writer
+	out blockWriter
 }
 
-func NewStringMatches(w io.Writer) StringMatches {
-	return StringMatches{w: w}
+func NewStringMatches(w io.Writer) *StringMatches {
+	return &StringMatches{out: blockWriter{w: w}}
 }
 
 type Match struct {
@@ -75,13 +63,13 @@ type Match struct {
 	Strings     []string
 }
 
-func (r StringMatches) Name() string { return "TerminalStrings" }
+func (r *StringMatches) Name() string { return "TerminalStrings" }
 
-func (r StringMatches) Scanning(_ context.Context, path string) {
-	fmt.Fprintf(r.w, "🔎 Scanning %q\n", path)
+func (r *StringMatches) Scanning(_ context.Context, path string) {
+	r.out.scanning(path)
 }
 
-func (r StringMatches) File(ctx context.Context, fr *malcontent.FileReport) error {
+func (r *StringMatches) File(ctx context.Context, fr *malcontent.FileReport) error {
 	if ctx.Err() != nil {
 		return ctx.Err()
 	}
@@ -90,36 +78,67 @@ func (r StringMatches) File(ctx context.Context, fr *malcontent.FileReport) erro
 		return nil
 	}
 
-	matches := []Match{}
+	matches := make([]Match, 0, len(fr.Behaviors))
 	slices.SortFunc(fr.Behaviors, func(a, b *malcontent.Behavior) int {
 		return cmp.Compare(a.RuleName, b.RuleName)
 	})
-	for _, b := range fr.Behaviors {
-		if len(b.MatchStrings) > 0 {
-			matched := make([]string, 0, len(b.MatchStrings))
-			for _, ms := range b.MatchStrings {
+	for _, bh := range fr.Behaviors {
+		if len(bh.MatchStrings) > 0 {
+			matched := make([]string, 0, len(bh.MatchStrings))
+			for _, ms := range bh.MatchStrings {
 				matched = append(matched, sanitizeTerminal(ms))
 			}
 			matches = append(matches, Match{
-				Risk:    b.RiskScore,
-				Rule:    b.RuleName,
+				Risk:    bh.RiskScore,
+				Rule:    bh.RuleName,
 				Strings: matched,
 			})
 		}
 	}
 
-	prefix := "Matches for"
-	rUnit := plural("rule", len(matches))
-	fmt.Fprintf(r.w, "%s %s %s%s%s %s%s %s%s:\n", prefix, color.HiGreenString(sanitizeTerminal(fr.Path)), color.HiBlackString("["), briefRiskColor(fr.RiskLevel), color.HiBlackString("]"), color.HiBlackString("("), color.HiGreenString(fmt.Sprintf("%d", len(matches))), color.HiGreenString(rUnit), color.HiBlackString(")"))
+	p := currentPalette()
+	b := getBuffer()
+	defer putBuffer(b)
+
+	b.WriteString("Matches for ")
+	p.hiGreen.wrap(b, sanitizeTerminal(fr.Path))
+	b.WriteByte(' ')
+	writeMatchCounts(b, p, fr.RiskLevel, len(matches), "rule")
+	b.WriteString(":\n")
 	for _, m := range matches {
-		sUnit := plural("string", len(m.Strings))
-		fmt.Fprintf(r.w, "%s %s%s%s %s%s %s%s: \n%s%s\n", color.HiCyanString(m.Rule), color.HiBlackString("["), briefRiskColor(riskLevels[m.Risk]), color.HiBlackString("]"), color.HiBlackString("("), color.HiGreenString(fmt.Sprintf("%d", len(m.Strings))), color.HiGreenString(sUnit), color.HiBlackString(")"), color.HiBlackString("- "), strings.Join(m.Strings, color.HiBlackString("\n- ")))
+		p.hiCyan.wrap(b, m.Rule)
+		b.WriteByte(' ')
+		writeMatchCounts(b, p, riskLevels[m.Risk], len(m.Strings), "string")
+		b.WriteString(": \n")
+		p.hiBlack.wrap(b, "- ")
+		for i, s := range m.Strings {
+			if i > 0 {
+				p.hiBlack.wrap(b, "\n- ")
+			}
+			b.WriteString(s)
+		}
+		b.WriteByte('\n')
 	}
 
-	return nil
+	return r.out.write(b.Bytes())
 }
 
-func (r StringMatches) Full(ctx context.Context, _ *malcontent.Config, rep *malcontent.Report) error {
+// writeMatchCounts writes a bracketed risk level followed by a count of noun
+// in parentheses, such as "[HIGH] (2 rules)".
+func writeMatchCounts(b *bytes.Buffer, p *palette, level string, n int, noun string) {
+	s, label := p.briefRisk(level)
+	p.hiBlack.wrap(b, "[")
+	s.wrap(b, label)
+	p.hiBlack.wrap(b, "]")
+	b.WriteByte(' ')
+	p.hiBlack.wrap(b, "(")
+	p.hiGreen.wrap(b, strconv.Itoa(n))
+	b.WriteByte(' ')
+	p.hiGreen.wrap(b, plural(noun, n))
+	p.hiBlack.wrap(b, ")")
+}
+
+func (r *StringMatches) Full(ctx context.Context, _ *malcontent.Config, rep *malcontent.Report) error {
 	if ctx.Err() != nil {
 		return ctx.Err()
 	}
@@ -136,7 +155,7 @@ func (r StringMatches) Full(ctx context.Context, _ *malcontent.Config, rep *malc
 // plural returns a pluralized string if the length of l is greater than 1.
 func plural(s string, l int) string {
 	if l > 1 {
-		return fmt.Sprintf("%ss", s)
+		return s + "s"
 	}
 	return s
 }

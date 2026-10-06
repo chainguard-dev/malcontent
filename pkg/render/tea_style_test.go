@@ -16,8 +16,57 @@ import (
 func teaSummary(t *testing.T, fr *malcontent.FileReport) string {
 	t.Helper()
 	var buf bytes.Buffer
-	renderFileSummaryTea(t.Context(), fr, &buf, tableConfig{Title: fr.Path})
+	renderFileSummaryTea(t.Context(), fr, &buf)
 	return renderSquash(buf.String())
+}
+
+// teaTrimBox removes a box's right border and the padding before it from a
+// line of visible text, keeping its left border and indentation. A line
+// that holds only borders and spaces becomes empty.
+func teaTrimBox(line string) string {
+	return strings.TrimRight(line, " │")
+}
+
+func TestRenderFileSummaryTeaLayout(t *testing.T) {
+	t.Parallel()
+	fr := &malcontent.FileReport{
+		Path:      "/bin/tool",
+		RiskScore: 3,
+		RiskLevel: report.LevelHIGH,
+		Behaviors: []*malcontent.Behavior{
+			{ID: "net/connect", Description: "connects", MatchStrings: []string{"AF_INET"}, RiskScore: 3, RiskLevel: report.LevelHIGH},
+		},
+	}
+	var buf bytes.Buffer
+	renderFileSummaryTea(t.Context(), fr, &buf)
+	lines := strings.Split(renderStripANSI(buf.String()), "\n")
+
+	// Inside a box padded by one space: the header with a padded risk badge,
+	// the namespace indented two spaces under a blank line, the behavior
+	// indented four, and the evidence six past its own six-space indent.
+	want := []string{
+		"│ /bin/tool  HIGH",
+		"",
+		"│   networking  HIGH",
+		"│     •  HIGH  connect connects",
+		"│             AF_INET",
+		"",
+	}
+	// The box adds its top and bottom borders, and two line breaks follow it.
+	if len(lines) != len(want)+4 {
+		t.Fatalf("lines: got = %d %q, want = %d", len(lines), lines, len(want)+4)
+	}
+	if !strings.HasPrefix(lines[0], "╭─") || !strings.HasPrefix(lines[len(want)+1], "╰─") {
+		t.Errorf("box borders: got = %q and %q, want a top and a bottom border", lines[0], lines[len(want)+1])
+	}
+	for i, w := range want {
+		if got := teaTrimBox(lines[i+1]); got != w {
+			t.Errorf("box line %d: got = %q, want = %q", i+1, got, w)
+		}
+	}
+	if tail := lines[len(want)+2:]; tail[0] != "" || tail[1] != "" {
+		t.Errorf("after the box: got = %q, want two empty lines", tail)
+	}
 }
 
 func TestWrapLine(t *testing.T) {
@@ -199,7 +248,7 @@ func TestRenderFileSummaryTeaWritesNothing(t *testing.T) {
 		t.Parallel()
 		var buf bytes.Buffer
 		fr := &malcontent.FileReport{Path: "/bin/x", RiskScore: 3, RiskLevel: report.LevelHIGH, Behaviors: behaviors}
-		renderFileSummaryTea(renderCanceledContext(t), fr, &buf, tableConfig{Title: "/bin/x"})
+		renderFileSummaryTea(renderCanceledContext(t), fr, &buf)
 		if buf.Len() != 0 {
 			t.Errorf("renderFileSummaryTea output: got = %q, want = empty", buf.String())
 		}
@@ -233,7 +282,7 @@ func TestRenderFileSummaryTeaWrapsLongEvidence(t *testing.T) {
 				Behaviors: []*malcontent.Behavior{{ID: "net/connect", Description: "connects", MatchStrings: []string{tt.evidence}, RiskScore: 3, RiskLevel: report.LevelHIGH}},
 			}
 			var buf bytes.Buffer
-			renderFileSummaryTea(t.Context(), fr, &buf, tableConfig{Title: fr.Path})
+			renderFileSummaryTea(t.Context(), fr, &buf)
 			got := renderStripANSI(buf.String())
 			longest, run := 0, 0
 			for _, r := range got {

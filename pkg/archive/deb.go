@@ -38,7 +38,7 @@ func ExtractDeb(ctx context.Context, d, f string) (retErr error) {
 		return fmt.Errorf("failed to stat file: %w", err)
 	}
 
-	df, err := deb.Load(fd, f)
+	df, err := deb.Load(newReadAheadReaderAt(fd), f)
 	if err != nil {
 		return fmt.Errorf("failed to load file: %w", err)
 	}

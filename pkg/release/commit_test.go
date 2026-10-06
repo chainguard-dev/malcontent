@@ -27,6 +27,9 @@ func TestIsFortyHexLower(t *testing.T) {
 		{name: "char just below zero rejected", in: "/123456789abcdef0123456789abcdef01234567", want: false},
 		{name: "char just above nine rejected", in: ":123456789abcdef0123456789abcdef01234567", want: false},
 		{name: "char just below a rejected", in: "`123456789abcdef0123456789abcdef01234567", want: false},
+		{name: "char just above f rejected after letters", in: "abcdefg123456789abcdef0123456789abcdef01", want: false},
+		{name: "non-hex last char after a letter rejected", in: "abcdef0123456789abcdef0123456789abcdef0g", want: false},
+		{name: "non-hex last char after a digit rejected", in: "0123456789abcdef0123456789abcdef0123456:", want: false},
 	}
 
 	for _, tc := range tests {

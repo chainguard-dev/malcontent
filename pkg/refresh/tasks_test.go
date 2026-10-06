@@ -18,6 +18,7 @@ import (
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/action"
+	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 	"github.com/chainguard-dev/malcontent/pkg/release"
 	"github.com/chainguard-dev/malcontent/pkg/render"
@@ -25,15 +26,21 @@ import (
 	thirdparty "github.com/chainguard-dev/malcontent/third_party"
 )
 
-// refreshTouch creates an empty file at path along with its parent directories.
-func refreshTouch(t *testing.T, path string) {
+// refreshWriteFile writes data to path, creating its parent directories.
+func refreshWriteFile(t *testing.T, path, data string) {
 	t.Helper()
 	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
 		t.Fatalf("MkdirAll(%q): %v", filepath.Dir(path), err)
 	}
-	if err := os.WriteFile(path, nil, 0o600); err != nil {
+	if err := os.WriteFile(path, []byte(data), 0o600); err != nil {
 		t.Fatalf("WriteFile(%q): %v", path, err)
 	}
+}
+
+// refreshTouch creates an empty file at path along with its parent directories.
+func refreshTouch(t *testing.T, path string) {
+	t.Helper()
+	refreshWriteFile(t, path, "")
 }
 
 // refreshActionInputs creates empty stand-ins for every pkg/action input
@@ -45,16 +52,144 @@ func refreshActionInputs(t *testing.T, root string) {
 	}
 }
 
-// refreshDiffSamples returns a samples directory holding empty stand-ins for
-// every diff source and destination. diffRefresh only checks that they exist.
-func refreshDiffSamples(t *testing.T) string {
+// refreshDiffInputs creates empty stand-ins for every diff source and
+// destination beneath root. diffRefresh only checks that they exist.
+func refreshDiffInputs(t *testing.T, root string) {
 	t.Helper()
-	root := t.TempDir()
 	for _, td := range diffTestData {
 		refreshTouch(t, filepath.Join(root, td.srcPath))
 		refreshTouch(t, filepath.Join(root, td.destPath))
 	}
+}
+
+// refreshDiffSamples returns a samples directory holding empty stand-ins for
+// every diff source and destination.
+func refreshDiffSamples(t *testing.T) string {
+	t.Helper()
+	root := t.TempDir()
+	refreshDiffInputs(t, root)
 	return root
+}
+
+// refreshAllInputs creates stand-ins for every pkg/action input beneath root,
+// for every diff sample beneath samples, and for the sample behind a
+// linux/clean/hello golden.
+func refreshAllInputs(t *testing.T, root, samples string) {
+	t.Helper()
+	refreshActionInputs(t, root)
+	refreshDiffInputs(t, samples)
+	refreshTouch(t, filepath.Join(samples, "linux/clean/hello"))
+}
+
+// refreshShellSample writes a small shell script to path and returns path.
+func refreshShellSample(t *testing.T, path string) string {
+	t.Helper()
+	refreshWriteFile(t, path, "#!/bin/sh\necho hello\n")
+	return path
+}
+
+// refreshUseActionTable replaces the pkg/action task table for the rest of
+// the test. Callers must not run in parallel.
+func refreshUseActionTable(t *testing.T, table []actionData) {
+	t.Helper()
+	orig := actionTestData
+	t.Cleanup(func() { actionTestData = orig })
+	actionTestData = table
+}
+
+// refreshUseDiffTable replaces the diff task table for the rest of the test.
+// Callers must not run in parallel.
+func refreshUseDiffTable(t *testing.T, table []diffData) {
+	t.Helper()
+	orig := diffTestData
+	t.Cleanup(func() { diffTestData = orig })
+	diffTestData = table
+}
+
+// refreshCancelingContext cancels itself the first time Err finds cond true.
+// Refresh notices cancellation through Err, so this cancels a refresh at a
+// chosen point in its work.
+type refreshCancelingContext struct {
+	context.Context
+	cancel context.CancelFunc
+	cond   func() bool
+}
+
+func (c refreshCancelingContext) Err() error {
+	if c.cond() {
+		c.cancel()
+	}
+	return c.Context.Err()
+}
+
+// refreshCancelWhen returns a context that is canceled once cond reports true
+// during a call to its Err method.
+func refreshCancelWhen(t *testing.T, cond func() bool) context.Context {
+	t.Helper()
+	ctx, cancel := context.WithCancel(t.Context())
+	t.Cleanup(cancel)
+	return refreshCancelingContext{Context: ctx, cancel: cancel, cond: cond}
+}
+
+// refreshCancelOnceExists returns a context that is canceled once path exists.
+func refreshCancelOnceExists(t *testing.T, path string) context.Context {
+	t.Helper()
+	return refreshCancelWhen(t, func() bool {
+		_, err := os.Stat(path)
+		return err == nil
+	})
+}
+
+// refreshRecorder is a renderer that records the report passed to Full and
+// returns fullErr from it.
+type refreshRecorder struct {
+	fullErr error
+	calls   int
+	report  *malcontent.Report
+}
+
+var _ malcontent.Renderer = (*refreshRecorder)(nil)
+
+func (r *refreshRecorder) Scanning(context.Context, string) {}
+
+func (r *refreshRecorder) File(context.Context, *malcontent.FileReport) error { return nil }
+
+func (r *refreshRecorder) Full(_ context.Context, _ *malcontent.Config, rep *malcontent.Report) error {
+	r.calls++
+	r.report = rep
+	return r.fullErr
+}
+
+func (r *refreshRecorder) Name() string { return "Recorder" }
+
+// refreshRecorderTask returns a refresh task over paths, one path to scan or
+// two to diff, that renders into rec.
+func refreshRecorderTask(t *testing.T, rec *refreshRecorder, paths ...string) TestData {
+	t.Helper()
+	yrs, err := action.CachedRules(t.Context(), []fs.FS{rules.FS, thirdparty.FS})
+	if err != nil {
+		t.Fatalf("CachedRules(): %v", err)
+	}
+	c := newConfig(Config{SamplesPath: filepath.Dir(paths[0])})
+	c.Renderer = rec
+	c.Rules = yrs
+	c.ScanPaths = paths
+	return TestData{Config: c, OutputPath: paths[len(paths)-1] + ".golden"}
+}
+
+// refreshCheckFailure checks that building refresh tasks returned no tasks and
+// an error containing wantErr and, when wantIs is set, matching wantIs.
+func refreshCheckFailure(t *testing.T, tasks []TestData, err error, wantErr string, wantIs error) {
+	t.Helper()
+	if err == nil || !strings.Contains(err.Error(), wantErr) {
+		t.Errorf("error: got = %v, want one containing %q", err, wantErr)
+	}
+	if wantIs != nil && !errors.Is(err, wantIs) {
+		t.Errorf("error: got = %v, want one matching %v", err, wantIs)
+	}
+	if tasks != nil {
+		t.Errorf("tasks: got = %d, want = nil", len(tasks))
+	}
 }
 
 // refreshFakeUPX returns a regular, owner-only executable file that passes the
@@ -267,6 +402,7 @@ func TestDiffRefreshBuildsDiffTasks(t *testing.T) {
 		{"risk increase filter", "macOS/2023.3CX/libffmpeg.decrease.mdiff", sampleDirtyDylib, sampleDylib, "Markdown", 1, 1, false, true},
 		{"simple renderer", "linux/2024.sbcl.market/sbcl.sdiff", "linux/2024.sbcl.market/sbcl.clean", "linux/2024.sbcl.market/sbcl.dirty", "Simple", 1, 1, false, false},
 		{"explicit file and overall thresholds", "macOS/clean/ls.sdiff.level_2", "linux/clean/ls.x86_64", sampleCleanLS, "Simple", 2, 2, false, false},
+		{"file threshold of two with default overall threshold", "macOS/clean/ls.sdiff.trigger_2", "linux/clean/ls.x86_64", sampleCleanLS, "Simple", 2, 1, false, false},
 		{"explicit file threshold with default overall threshold", "macOS/clean/ls.sdiff.trigger_3", "linux/clean/ls.x86_64", sampleCleanLS, "Simple", 3, 1, false, false},
 	}
 
@@ -618,15 +754,38 @@ func TestPrepareRefreshClosesOpenedOutputsOnError(t *testing.T) {
 	// Not parallel: actionRefresh resolves its inputs against the working
 	// directory.
 	tests := []struct {
-		name    string
-		setup   func(t *testing.T, goldens string)
+		name string
+		// setup creates the pkg/action inputs under root, the samples, and
+		// the goldens.
+		setup func(t *testing.T, root, samples, goldens string)
+		// ctx, when set, returns the context for the refresh.
+		ctx     func(t *testing.T, goldens string) context.Context
 		wantErr string
 		wantIs  error
 	}{
 		{
-			name: "golden that cannot be opened",
-			setup: func(t *testing.T, goldens string) {
+			name: "missing action input",
+			setup: func(t *testing.T, _, samples, _ string) {
 				t.Helper()
+				refreshDiffInputs(t, samples)
+			},
+			wantErr: "retrieve action tasks",
+			wantIs:  fs.ErrNotExist,
+		},
+		{
+			name: "missing diff sample after the action outputs opened",
+			setup: func(t *testing.T, root, _, _ string) {
+				t.Helper()
+				refreshActionInputs(t, root)
+			},
+			wantErr: "retrieve risk tasks",
+			wantIs:  fs.ErrNotExist,
+		},
+		{
+			name: "golden that cannot be opened",
+			setup: func(t *testing.T, root, samples, goldens string) {
+				t.Helper()
+				refreshAllInputs(t, root, samples)
 				// A golden that links into a missing directory is discovered
 				// but cannot be opened for writing.
 				golden := filepath.Join(goldens, "linux/clean/hello.simple")
@@ -642,11 +801,12 @@ func TestPrepareRefreshClosesOpenedOutputsOnError(t *testing.T) {
 		},
 		{
 			name: "test data directory that cannot be walked",
-			setup: func(t *testing.T, goldens string) {
+			setup: func(t *testing.T, root, samples, goldens string) {
 				t.Helper()
 				if os.Geteuid() == 0 {
 					t.Skip("root reads directories regardless of their permissions")
 				}
+				refreshAllInputs(t, root, samples)
 				locked := filepath.Join(goldens, "locked")
 				if err := os.Mkdir(locked, 0o700); err != nil {
 					t.Fatalf("Mkdir: %v", err)
@@ -659,29 +819,200 @@ func TestPrepareRefreshClosesOpenedOutputsOnError(t *testing.T) {
 			wantErr: "find test files",
 			wantIs:  fs.ErrPermission,
 		},
+		{
+			name: "canceled after opening a discovered golden",
+			setup: func(t *testing.T, root, samples, goldens string) {
+				t.Helper()
+				refreshAllInputs(t, root, samples)
+				refreshWriteFile(t, filepath.Join(goldens, "linux/clean/hello.simple"), "previous")
+			},
+			ctx: func(t *testing.T, goldens string) context.Context {
+				t.Helper()
+				// Opening a discovered golden truncates it, after every action
+				// and diff output is already open.
+				golden := filepath.Join(goldens, "linux/clean/hello.simple")
+				return refreshCancelWhen(t, func() bool {
+					fi, err := os.Stat(golden)
+					return err == nil && fi.Size() == 0
+				})
+			},
+			wantIs: context.Canceled,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Every action and diff output is open by the time discovery runs.
 			root := t.TempDir()
-			refreshActionInputs(t, root)
-			samples := refreshDiffSamples(t)
+			samples := t.TempDir()
 			goldens := t.TempDir()
-			refreshTouch(t, filepath.Join(samples, "linux/clean/hello"))
-			tt.setup(t, goldens)
+			tt.setup(t, root, samples, goldens)
 			t.Chdir(root)
+			ctx := t.Context()
+			if tt.ctx != nil {
+				ctx = tt.ctx(t, goldens)
+			}
 
-			tasks, err := prepareRefresh(t.Context(), Config{SamplesPath: samples, TestDataPath: goldens, Concurrency: 1})
-			if err == nil || !strings.Contains(err.Error(), tt.wantErr) || !errors.Is(err, tt.wantIs) {
-				t.Fatalf("prepareRefresh() error: got = %v, want one containing %q and matching %v", err, tt.wantErr, tt.wantIs)
-			}
-			if tasks != nil {
-				t.Errorf("prepareRefresh() tasks: got = %d, want = nil", len(tasks))
-			}
+			tasks, err := prepareRefresh(ctx, Config{SamplesPath: samples, TestDataPath: goldens, Concurrency: 1})
+			closeTestDataFiles(tasks)
+			refreshCheckFailure(t, tasks, err, tt.wantErr, tt.wantIs)
 			for _, dir := range []string{root, goldens} {
 				if n := refreshOpenFilesUnder(t, dir); n != 0 {
 					t.Errorf("open output files under %s after the error: got = %d, want = 0", dir, n)
+				}
+			}
+		})
+	}
+}
+
+func TestActionRefreshClosesOutputsWhenALaterTaskFails(t *testing.T) {
+	// Not parallel: each case replaces the pkg/action task table.
+	tests := []struct {
+		name string
+		// format and outDir configure the second task, which fails after the
+		// first task opened its output.
+		format string
+		outDir string
+		// blocked makes the second task's output directory a regular file.
+		blocked bool
+		// cancel cancels the refresh once the second task opened its output.
+		cancel  bool
+		wantErr string
+		wantIs  error
+	}{
+		{name: "output directory taken by a file", format: formatJSON, outDir: "blocked", blocked: true, wantErr: "create output directory"},
+		{name: "unknown output format", format: "unknown", outDir: "out", wantErr: "create renderer for"},
+		{name: "canceled after opening the output", format: formatJSON, outDir: "out", cancel: true, wantIs: context.Canceled},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			root := t.TempDir()
+			if n := refreshOpenFilesUnder(t, root); n != 0 {
+				t.Fatalf("open files before refresh: got = %d, want = 0", n)
+			}
+			first := actionData{format: formatJSON, scanPath: filepath.Join(root, "in", "first"), outputPath: filepath.Join(root, "out", "first")}
+			second := actionData{format: tt.format, scanPath: filepath.Join(root, "in", "second"), outputPath: filepath.Join(root, tt.outDir, "second")}
+			refreshTouch(t, first.scanPath)
+			refreshTouch(t, second.scanPath)
+			if tt.blocked {
+				refreshTouch(t, filepath.Dir(second.outputPath))
+			}
+			refreshUseActionTable(t, []actionData{first, second})
+			ctx := t.Context()
+			if tt.cancel {
+				ctx = refreshCancelOnceExists(t, second.outputPath)
+			}
+
+			tasks, err := actionRefresh(ctx)
+			closeTestDataFiles(tasks)
+			refreshCheckFailure(t, tasks, err, tt.wantErr, tt.wantIs)
+			if _, err := os.Stat(first.outputPath); err != nil {
+				t.Errorf("first output stat error: got = %v, want = nil", err)
+			}
+			if n := refreshOpenFilesUnder(t, root); n != 0 {
+				t.Errorf("open output files after the error: got = %d, want = 0", n)
+			}
+		})
+	}
+}
+
+func TestDiffRefreshClosesOutputsWhenALaterTaskFails(t *testing.T) {
+	// Not parallel: each case replaces the diff task table.
+	tests := []struct {
+		name string
+		// src, format, and outDir configure the second task, which fails
+		// after the first task opened its output.
+		src    string
+		format string
+		outDir string
+		// blocked makes the second task's output directory a regular file.
+		blocked bool
+		// cancel cancels the refresh once the second task opened its output.
+		cancel  bool
+		wantErr string
+		wantIs  error
+	}{
+		{name: "missing base sample", src: "missing", format: formatSimple, outDir: "second", wantErr: "risk case base file not found", wantIs: fs.ErrNotExist},
+		{name: "output directory taken by a file", src: "old", format: formatSimple, outDir: "blocked", blocked: true, wantErr: "create output directory"},
+		{name: "unknown output format", src: "old", format: "unknown", outDir: "second", wantErr: "create renderer for"},
+		{name: "canceled after opening the output", src: "old", format: formatSimple, outDir: "second", cancel: true, wantIs: context.Canceled},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			samples := t.TempDir()
+			goldens := t.TempDir()
+			if n := refreshOpenFilesUnder(t, goldens); n != 0 {
+				t.Fatalf("open files before refresh: got = %d, want = 0", n)
+			}
+			refreshTouch(t, filepath.Join(samples, "old"))
+			refreshTouch(t, filepath.Join(samples, "new"))
+			first := diffData{srcPath: "old", destPath: "new", format: formatSimple, outputPath: filepath.Join("first", "out.sdiff")}
+			second := diffData{srcPath: tt.src, destPath: "new", format: tt.format, outputPath: filepath.Join(tt.outDir, "out.sdiff")}
+			if tt.blocked {
+				refreshTouch(t, filepath.Join(goldens, tt.outDir))
+			}
+			refreshUseDiffTable(t, []diffData{first, second})
+			ctx := t.Context()
+			if tt.cancel {
+				ctx = refreshCancelOnceExists(t, filepath.Join(goldens, second.outputPath))
+			}
+
+			tasks, err := diffRefresh(ctx, Config{SamplesPath: samples, TestDataPath: goldens})
+			closeTestDataFiles(tasks)
+			refreshCheckFailure(t, tasks, err, tt.wantErr, tt.wantIs)
+			if _, err := os.Stat(filepath.Join(goldens, first.outputPath)); err != nil {
+				t.Errorf("first output stat error: got = %v, want = nil", err)
+			}
+			if n := refreshOpenFilesUnder(t, goldens); n != 0 {
+				t.Errorf("open output files after the error: got = %d, want = 0", n)
+			}
+		})
+	}
+}
+
+func TestCanceledRefreshLeavesOutputsUntouched(t *testing.T) {
+	// Not parallel: the task tables are replaced.
+	root := t.TempDir()
+	samples := t.TempDir()
+	goldens := t.TempDir()
+
+	scan := filepath.Join(root, "in", "scan")
+	actionOut := filepath.Join(root, "out", "scan")
+	refreshTouch(t, scan)
+	refreshUseActionTable(t, []actionData{{format: formatJSON, scanPath: scan, outputPath: actionOut}})
+
+	refreshTouch(t, filepath.Join(samples, "old"))
+	refreshTouch(t, filepath.Join(samples, "new"))
+	refreshUseDiffTable(t, []diffData{{srcPath: "old", destPath: "new", format: formatSimple, outputPath: "old.sdiff"}})
+
+	refreshTouch(t, filepath.Join(samples, "hello"))
+	outputs := []string{actionOut, filepath.Join(goldens, "old.sdiff"), filepath.Join(goldens, "hello.simple")}
+	for _, out := range outputs {
+		refreshWriteFile(t, out, "previous")
+	}
+
+	rc := Config{SamplesPath: samples, TestDataPath: goldens, Concurrency: 1}
+	tests := []struct {
+		name string
+		run  func(ctx context.Context) ([]TestData, error)
+	}{
+		{name: "action tasks", run: actionRefresh},
+		{name: "diff tasks", run: func(ctx context.Context) ([]TestData, error) { return diffRefresh(ctx, rc) }},
+		{name: "all tasks", run: func(ctx context.Context) ([]TestData, error) { return prepareRefresh(ctx, rc) }},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx, cancel := context.WithCancel(t.Context())
+			cancel()
+
+			tasks, err := tt.run(ctx)
+			closeTestDataFiles(tasks)
+			refreshCheckFailure(t, tasks, err, "", context.Canceled)
+			for _, out := range outputs {
+				if got, err := os.ReadFile(out); err != nil || string(got) != "previous" {
+					t.Errorf("%s after a canceled refresh: got = %q (read error %v), want = %q", out, got, err, "previous")
 				}
 			}
 		})
@@ -783,5 +1114,136 @@ func TestRefreshRunsWithNonPositiveConcurrency(t *testing.T) {
 		if n := refreshOpenFilesUnder(t, dir); n != 0 {
 			t.Errorf("open output files under %s after Refresh: got = %d, want = 0", dir, n)
 		}
+	}
+}
+
+func TestExecuteRefreshRoutesTasks(t *testing.T) {
+	t.Parallel()
+	dir := t.TempDir()
+	before := refreshShellSample(t, filepath.Join(dir, "before.sh"))
+	after := refreshShellSample(t, filepath.Join(dir, "after.sh"))
+
+	scanned, diffed := &refreshRecorder{}, &refreshRecorder{}
+	tasks := []TestData{
+		refreshRecorderTask(t, scanned, after),
+		refreshRecorderTask(t, diffed, before, after),
+	}
+	if err := executeRefresh(t.Context(), Config{Concurrency: 2}, tasks, clog.FromContext(t.Context())); err != nil {
+		t.Fatalf("executeRefresh() error: got = %v, want = nil", err)
+	}
+
+	tests := []struct {
+		name     string
+		rec      *refreshRecorder
+		wantDiff bool
+	}{
+		{name: "one path is scanned", rec: scanned},
+		{name: "two paths are diffed", rec: diffed, wantDiff: true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			if tt.rec.calls != 1 {
+				t.Fatalf("rendered reports: got = %d, want = 1", tt.rec.calls)
+			}
+			rep := tt.rec.report
+			if rep == nil {
+				t.Fatal("rendered report: got = nil, want = report")
+			}
+			// A diff reports changes; a scan reports per-file results.
+			if got := rep.Diff != nil; got != tt.wantDiff {
+				t.Errorf("report has diff: got = %v, want = %v", got, tt.wantDiff)
+			}
+			if got := rep.Files != nil; got == tt.wantDiff {
+				t.Errorf("report has file results: got = %v, want = %v", got, !tt.wantDiff)
+			}
+		})
+	}
+}
+
+func TestExecuteRefreshReportsTaskFailures(t *testing.T) {
+	t.Parallel()
+	dir := t.TempDir()
+	sample := refreshShellSample(t, filepath.Join(dir, "hello.sh"))
+	errRender := errors.New("render failed")
+
+	tests := []struct {
+		name string
+		// paths and report configure the task: two paths with report set
+		// diff two saved reports.
+		paths     []string
+		report    bool
+		fullErr   error
+		wantMsg   string
+		wantIs    error
+		wantCalls int
+	}{
+		{
+			name:    "diff of a missing report",
+			paths:   []string{filepath.Join(dir, "missing.json"), sample},
+			report:  true,
+			wantMsg: "refresh sample data for ",
+			wantIs:  fs.ErrNotExist,
+		},
+		{
+			name:      "render failure",
+			paths:     []string{sample},
+			fullErr:   errRender,
+			wantMsg:   "render results for ",
+			wantIs:    errRender,
+			wantCalls: 1,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			rec := &refreshRecorder{fullErr: tt.fullErr}
+			task := refreshRecorderTask(t, rec, tt.paths...)
+			task.Config.Report = tt.report
+
+			err := executeRefresh(t.Context(), Config{Concurrency: 1}, []TestData{task}, clog.FromContext(t.Context()))
+			if want := tt.wantMsg + task.OutputPath; err == nil || !strings.Contains(err.Error(), want) {
+				t.Errorf("executeRefresh() error: got = %v, want one containing %q", err, want)
+			}
+			if !errors.Is(err, tt.wantIs) {
+				t.Errorf("executeRefresh() error: got = %v, want one matching %v", err, tt.wantIs)
+			}
+			if rec.calls != tt.wantCalls {
+				t.Errorf("rendered reports: got = %d, want = %d", rec.calls, tt.wantCalls)
+			}
+		})
+	}
+}
+
+func TestExecuteRefreshRunsWithNonPositiveConcurrency(t *testing.T) {
+	t.Parallel()
+	// An errgroup limit of zero admits no goroutines, so a non-positive
+	// concurrency must still run every task instead of blocking forever.
+	sample := refreshShellSample(t, filepath.Join(t.TempDir(), "hello.sh"))
+
+	tests := []struct {
+		name        string
+		concurrency int
+	}{
+		{name: "negative concurrency", concurrency: -1},
+		{name: "zero concurrency", concurrency: 0},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			first, second := &refreshRecorder{}, &refreshRecorder{}
+			tasks := []TestData{refreshRecorderTask(t, first, sample), refreshRecorderTask(t, second, sample)}
+			if err := executeRefresh(t.Context(), Config{Concurrency: tt.concurrency}, tasks, clog.FromContext(t.Context())); err != nil {
+				t.Fatalf("executeRefresh() error: got = %v, want = nil", err)
+			}
+			for i, rec := range []*refreshRecorder{first, second} {
+				if rec.calls != 1 {
+					t.Errorf("task %d rendered reports: got = %d, want = 1", i, rec.calls)
+				}
+			}
+		})
 	}
 }

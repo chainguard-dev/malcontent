@@ -52,7 +52,7 @@ func TestLongestUnique(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			if got := longestUnique(tt.raw); !reflect.DeepEqual(got, tt.want) {
+			if got := longestUnique(slices.Clone(tt.raw)); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("longestUnique() = %v, want %v", got, tt.want)
 			}
 		})
@@ -70,8 +70,12 @@ func BenchmarkLongestUnique(b *testing.B) {
 		"cherrybanana",
 		"upload_content",
 	}
+	// longestUnique reorders its input, so each iteration starts from a copy.
+	buf := make([]string, len(raw))
+	b.ReportAllocs()
 	for b.Loop() {
-		longestUnique(raw)
+		copy(buf, raw)
+		longestUnique(buf)
 	}
 }
 
@@ -96,7 +100,7 @@ func TestUpgradeRisk(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			if got := upgradeRisk(t.Context(), tt.currentScore, tt.riskCounts, tt.size); got != tt.want {
+			if got := upgradeRisk(t.Context(), tt.currentScore, tt.riskCounts[HIGH], tt.size); got != tt.want {
 				t.Errorf("upgradeRisk(%d, %v, %v) = %v, want %v", tt.currentScore, tt.riskCounts, tt.size, got, tt.want)
 			}
 		})
@@ -135,7 +139,7 @@ func TestUpgradeRisk_BandPartition(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			if got := upgradeRisk(t.Context(), HIGH, tt.riskCounts, tt.size); got != tt.want {
+			if got := upgradeRisk(t.Context(), HIGH, tt.riskCounts[HIGH], tt.size); got != tt.want {
 				t.Errorf("upgradeRisk(HIGH, %v, %d) = %v, want %v", tt.riskCounts, tt.size, got, tt.want)
 			}
 		})
@@ -410,7 +414,7 @@ func TestApplyCriticalUpgrade(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			if got := applyCriticalUpgrade(t.Context(), tt.quantityIncreasesRisk, tt.riskCounts, tt.overallRiskScore, tt.size); got != tt.want {
+			if got := applyCriticalUpgrade(t.Context(), tt.quantityIncreasesRisk, tt.riskCounts[HIGH], tt.overallRiskScore, tt.size); got != tt.want {
 				t.Errorf("applyCriticalUpgrade(ctx, %v, %v, %d, %d) = %v, want %v", tt.quantityIncreasesRisk, tt.riskCounts, tt.overallRiskScore, tt.size, got, tt.want)
 			}
 		})
@@ -540,6 +544,18 @@ func TestGenerateKey(t *testing.T) {
 			rule: "test",
 			want: "namespace/resource/technique",
 		},
+		{
+			name: "resource inside the technique leaves a single underscore",
+			src:  "net/proxy/socks_proxy_client.yara",
+			rule: "socks_proxy",
+			want: "net/proxy/socks_client",
+		},
+		{
+			name: "removing the resource from the technique leaves no .yara behind",
+			src:  "ns/res/.yaresra",
+			rule: "test",
+			want: "ns/res",
+		},
 	}
 
 	for _, tt := range tests {
@@ -609,7 +625,7 @@ func TestGenerateRuleURL(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := generateRuleURL(tt.src, tt.rule)
+			got := generateRuleURL(release.ResolveRuleURLCommit(), tt.src, tt.rule)
 			if got != tt.want {
 				t.Errorf("generateRuleURL() = %q, want %q", got, tt.want)
 			}
@@ -688,7 +704,7 @@ func TestGenerateRuleURL_CommitPinned(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			withBuildCommit(t, tt.buildCommit)
-			got := generateRuleURL(tt.src, tt.rule)
+			got := generateRuleURL(release.ResolveRuleURLCommit(), tt.src, tt.rule)
 			if got != tt.want {
 				t.Errorf("generateRuleURL() = %q, want %q", got, tt.want)
 			}
@@ -798,7 +814,7 @@ func TestResolveCommit_PriorityChain(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			withBuildCommit(t, tt.buildCommit)
-			got := generateRuleURL("sus/leetspeak.yara", "one_three_three_seven")
+			got := generateRuleURL(release.ResolveRuleURLCommit(), "sus/leetspeak.yara", "one_three_three_seven")
 			if got != tt.want {
 				t.Errorf("generateRuleURL() = %q, want %q", got, tt.want)
 			}
@@ -822,7 +838,7 @@ func TestGenerateRuleURL_FallbackOnNonCanonical(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			withBuildCommit(t, tt.buildCommit)
-			got := generateRuleURL("sus/leetspeak.yara", "one_three_three_seven")
+			got := generateRuleURL(release.ResolveRuleURLCommit(), "sus/leetspeak.yara", "one_three_three_seven")
 			if got != tt.want {
 				t.Errorf("generateRuleURL() = %q, want %q", got, tt.want)
 			}
@@ -1101,6 +1117,24 @@ func TestTrimPrefixes(t *testing.T) {
 			prefixes: []string{"/tmp", "/samples"},
 			want:     "malware/test.bin",
 		},
+		{
+			name:     "empty prefix before a matching prefix",
+			path:     "/samples/malware/test.bin",
+			prefixes: []string{"", "/samples"},
+			want:     "malware/test.bin",
+		},
+		{
+			name:     "bare dot slash prefix before a matching prefix",
+			path:     "/samples/malware/test.bin",
+			prefixes: []string{"./", "/samples"},
+			want:     "malware/test.bin",
+		},
+		{
+			name:     "absolute prefix does not match a path with a doubled leading slash",
+			path:     "//samples/test.bin",
+			prefixes: []string{"/samples"},
+			want:     "//samples/test.bin",
+		},
 	}
 
 	for _, tt := range tests {
@@ -1298,7 +1332,9 @@ func TestUpdateBehavior(t *testing.T) {
 		fr := &malcontent.FileReport{
 			Behaviors: []*malcontent.Behavior{{ID: "existing", RiskScore: LOW}},
 		}
-		updateBehavior(fr, &malcontent.Behavior{ID: "new_id", RiskScore: MEDIUM, Description: "new"}, "new_id", nil)
+		if got := updateBehaviorIndexed(fr, &malcontent.Behavior{ID: "new_id", RiskScore: MEDIUM, Description: "new"}, "new_id"); got != 1 {
+			t.Errorf("index: got = %d, want = 1", got)
+		}
 		if len(fr.Behaviors) != 2 {
 			t.Fatalf("behaviors: got = %d, want = 2", len(fr.Behaviors))
 		}
@@ -1312,7 +1348,9 @@ func TestUpdateBehavior(t *testing.T) {
 		fr := &malcontent.FileReport{
 			Behaviors: []*malcontent.Behavior{{ID: "rule_a", RiskScore: LOW, Description: "original"}},
 		}
-		updateBehavior(fr, &malcontent.Behavior{ID: "rule_a", RiskScore: CRITICAL, Description: "upgraded"}, "rule_a", nil)
+		if got := updateBehaviorIndexed(fr, &malcontent.Behavior{ID: "rule_a", RiskScore: CRITICAL, Description: "upgraded"}, "rule_a"); got != 0 {
+			t.Errorf("index: got = %d, want = 0", got)
+		}
 		if len(fr.Behaviors) != 1 || fr.Behaviors[0].RiskScore != CRITICAL {
 			t.Errorf("behaviors: got = %+v, want = one CRITICAL entry", fr.Behaviors)
 		}
@@ -1323,7 +1361,9 @@ func TestUpdateBehavior(t *testing.T) {
 		fr := &malcontent.FileReport{
 			Behaviors: []*malcontent.Behavior{{ID: "rule_b", RiskScore: MEDIUM, Description: "short"}},
 		}
-		updateBehavior(fr, &malcontent.Behavior{ID: "rule_b", RiskScore: MEDIUM, Description: "a much longer description"}, "rule_b", nil)
+		if got := updateBehaviorIndexed(fr, &malcontent.Behavior{ID: "rule_b", RiskScore: MEDIUM, Description: "a much longer description"}, "rule_b"); got != -1 {
+			t.Errorf("index: got = %d, want = -1", got)
+		}
 		if fr.Behaviors[0].Description != "a much longer description" {
 			t.Errorf("Description: got = %q, want = %q", fr.Behaviors[0].Description, "a much longer description")
 		}
@@ -1337,7 +1377,9 @@ func TestUpdateBehavior(t *testing.T) {
 		fr := &malcontent.FileReport{
 			Behaviors: []*malcontent.Behavior{{ID: "rule_c", RiskScore: HIGH, Description: "original"}},
 		}
-		updateBehavior(fr, &malcontent.Behavior{ID: "rule_c", RiskScore: LOW, Description: "low"}, "rule_c", nil)
+		if got := updateBehaviorIndexed(fr, &malcontent.Behavior{ID: "rule_c", RiskScore: LOW, Description: "low"}, "rule_c"); got != -1 {
+			t.Errorf("index: got = %d, want = -1", got)
+		}
 		if fr.Behaviors[0].RiskScore != HIGH || fr.Behaviors[0].Description != "original" {
 			t.Errorf("behavior: got = score %d desc %q, want = score %d desc %q", fr.Behaviors[0].RiskScore, fr.Behaviors[0].Description, HIGH, "original")
 		}
@@ -1352,7 +1394,9 @@ func TestUpdateBehavior(t *testing.T) {
 				{ID: "third", RiskScore: LOW},
 			},
 		}
-		updateBehavior(fr, &malcontent.Behavior{ID: "target", RiskScore: CRITICAL}, "target", nil)
+		if got := updateBehaviorIndexed(fr, &malcontent.Behavior{ID: "target", RiskScore: CRITICAL}, "target"); got != 1 {
+			t.Errorf("index: got = %d, want = 1", got)
+		}
 		if len(fr.Behaviors) != 3 {
 			t.Fatalf("behaviors: got = %d, want = 3", len(fr.Behaviors))
 		}
@@ -1372,10 +1416,11 @@ func TestUpdateBehavior_Idempotence(t *testing.T) {
 		Behaviors: []*malcontent.Behavior{},
 	}
 	b := &malcontent.Behavior{ID: "same_key", RiskScore: MEDIUM, Description: "stable"}
+	idx := map[string]int{}
 
-	updateBehavior(fr, b, "same_key", nil)
-	updateBehavior(fr, b, "same_key", nil)
-	updateBehavior(fr, b, "same_key", nil)
+	updateBehavior(fr, b, "same_key", idx)
+	updateBehavior(fr, b, "same_key", idx)
+	updateBehavior(fr, b, "same_key", idx)
 
 	if len(fr.Behaviors) != 1 {
 		t.Errorf("behaviors after 3 identical updates: got = %d, want = 1", len(fr.Behaviors))

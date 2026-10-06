@@ -6,6 +6,7 @@ package render
 import (
 	"bytes"
 	"encoding/json"
+	"strconv"
 	"strings"
 	"testing"
 	"unicode/utf8"
@@ -244,6 +245,72 @@ func FuzzSanitizeUTF8(f *testing.F) {
 	})
 }
 
+// FuzzSanitizersAndLineLength tests properties of the sanitizers and the line
+// measure for any input. sanitizeTerminal leaves no control or BiDi character
+// and loses nothing else: unquoting its output as a Go string gives back the
+// input with invalid UTF-8 replaced and BiDi controls dropped. sanitizeUTF8
+// changes nothing on a second pass, nor in text that is valid, free of BiDi
+// controls and line breaks, and trimmed already. ansiLineLength counts no more
+// bytes than the input holds, agrees on strings and byte slices, and ignores a
+// complete SGR sequence after the input.
+func FuzzSanitizersAndLineLength(f *testing.F) {
+	f.Add("hello world")
+	f.Add("")
+	f.Add(" padded ")
+	f.Add(`back\slash`)
+	f.Add("\x1b[31mred\x1b[0m \x1b[10G \x1b[ \x1b")
+	f.Add("\x1b[1;2;3m\x1b[;m\x1b[G\x1b[0x")
+	f.Add("\xe2\x1b[0m\xf0\x9f\x1b[1m")
+	f.Add("\u202Abidi\u202E\u0085\u00a0")
+	f.Add("\t\v\f\x00\x7f\u009b")
+	f.Add("café 日本語 🎉")
+
+	f.Fuzz(func(t *testing.T, input string) {
+		valid := strings.Map(func(r rune) rune {
+			if isBiDiControl(r) {
+				return -1
+			}
+			return r
+		}, strings.ToValidUTF8(input, string(utf8.RuneError)))
+
+		shown := sanitizeTerminal(input)
+		if !utf8.ValidString(shown) {
+			t.Errorf("sanitizeTerminal(%q): got = %q, want valid UTF-8", input, shown)
+		}
+		for _, r := range shown {
+			if r < 0x20 || r == 0x7f || (r >= 0x80 && r <= 0x9f) || isBiDiControl(r) {
+				t.Errorf("sanitizeTerminal(%q): got %U in %q, want no control or BiDi character", input, r, shown)
+			}
+		}
+		unquoted, err := strconv.Unquote(`"` + strings.ReplaceAll(shown, `"`, `\"`) + `"`)
+		if err != nil {
+			t.Fatalf("Unquote(sanitizeTerminal(%q)): got err = %v, want = nil", input, err)
+		}
+		if unquoted != valid {
+			t.Errorf("sanitizeTerminal(%q) unquoted: got = %q, want = %q", input, unquoted, valid)
+		}
+
+		once := sanitizeUTF8(input)
+		if twice := sanitizeUTF8(once); twice != once {
+			t.Errorf("sanitizeUTF8(sanitizeUTF8(%q)): got = %q, want = %q", input, twice, once)
+		}
+		if valid == input && !strings.ContainsAny(input, "\n\r") && strings.TrimSpace(input) == input && once != input {
+			t.Errorf("sanitizeUTF8(%q): got = %q, want = %q", input, once, input)
+		}
+
+		n := ansiLineLength(input)
+		if n > len(input) {
+			t.Errorf("ansiLineLength(%q): got = %d, want <= %d", input, n, len(input))
+		}
+		if got := ansiLineLength([]byte(input)); got != n {
+			t.Errorf("ansiLineLength([]byte(%q)): got = %d, want = %d", input, got, n)
+		}
+		if got := ansiLineLength(input + "\x1b[0m"); got != n {
+			t.Errorf("ansiLineLength(%q): got = %d, want = %d", input+"\x1b[0m", got, n)
+		}
+	})
+}
+
 // FuzzSanitizeMarkdown tests that sanitizeMarkdown escapes all dangerous characters.
 func FuzzSanitizeMarkdown(f *testing.F) {
 	f.Add("hello world")
@@ -301,7 +368,8 @@ func FuzzSanitizeMarkdown(f *testing.F) {
 	})
 }
 
-// FuzzTruncate tests that truncate never panics and respects length bounds.
+// FuzzTruncate tests that truncateLine never panics, respects length bounds,
+// and leaves text before the line alone.
 func FuzzTruncate(f *testing.F) {
 	f.Add("hello", 10)
 	f.Add("hello", 3)
@@ -310,16 +378,31 @@ func FuzzTruncate(f *testing.F) {
 	f.Add("short", 5)
 	f.Add("a", 1)
 
+	const before = "│ earlier\n"
 	f.Fuzz(func(t *testing.T, input string, limit int) {
 		if limit < 1 || limit > 10000 {
 			return
 		}
 
-		result := truncate(input, limit)
+		var b bytes.Buffer
+		b.WriteString(before)
+		b.WriteString(input)
+		truncateLine(&b, len(before), limit)
+		out := b.String()
 
+		if !strings.HasPrefix(out, before) {
+			t.Fatalf("truncateLine(%q, %d) = %q, changed the text before the line", input, limit, out)
+		}
+		result := out[len(before):]
 		// Result length should never exceed input length + ellipsis overhead
 		if len(result) > len(input)+3 {
-			t.Errorf("truncate(%q, %d) = %q, too long", input, limit, result)
+			t.Errorf("truncateLine(%q, %d) = %q, too long", input, limit, result)
+		}
+		if len(input) <= limit && result != input {
+			t.Errorf("truncateLine(%q, %d) = %q, want the line unchanged", input, limit, result)
+		}
+		if len(input) > limit && result != input[:limit-1]+"…" {
+			t.Errorf("truncateLine(%q, %d) = %q, want %q", input, limit, result, input[:limit-1]+"…")
 		}
 	})
 }

@@ -134,3 +134,35 @@ func TestApplyCategoryFilterWithoutFiles(t *testing.T) {
 		})
 	}
 }
+
+func TestCategoryMatchingIgnoresEmptyCategories(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name string
+		id   string
+		cats []string
+		want bool
+	}{
+		{name: "empty rule ID does not match an empty category", id: "", cats: []string{""}},
+		{name: "rule ID with a leading slash does not match an empty category", id: "/exfil/foo", cats: []string{"", "net"}},
+		{name: "rule ID equal to a category matches", id: "exfil", cats: []string{"", "exfil"}, want: true},
+		{name: "rule ID below a category matches", id: "exfil/foo", cats: []string{"", "exfil"}, want: true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			if got := MatchesAnyCategory(tt.id, tt.cats); got != tt.want {
+				t.Errorf("MatchesAnyCategory(%q, %q): got = %v, want = %v", tt.id, tt.cats, got, tt.want)
+			}
+			kept, dropped := FilterBehaviorsByCategory([]*malcontent.Behavior{{ID: tt.id}}, tt.cats)
+			wantKept := 0
+			if tt.want {
+				wantKept = 1
+			}
+			if len(kept) != wantKept || dropped != 1-wantKept {
+				t.Errorf("FilterBehaviorsByCategory: got %d kept and %d dropped, want %d kept and %d dropped", len(kept), dropped, wantKept, 1-wantKept)
+			}
+		})
+	}
+}

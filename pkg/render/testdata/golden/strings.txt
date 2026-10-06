@@ -1,0 +1,72 @@
+Matches for /usr/bin/tool [CRIT] (12 rules):
+collect [MED] (1 string): 
+- glob
+cpu [] (1 string): 
+- cpuinfo
+dns [LOW] (1 string): 
+- gethostbyname
+env [] (2 strings): 
+- getenv
+- setenv
+family [CRIT] (1 string): 
+- family
+hex [HIGH] (3 strings): 
+- \\x41\\x42
+- evil\x1b[2Jpayload\ttab
+- naïve 😈 rtl
+net_connect [MED] (3 strings): 
+- connect
+- AF_INET
+- ab
+nons [NONE] (2 strings): 
+- abcd
+- abcde
+shell [CRIT] (3 strings): 
+- /bin/sh
+- sh -c
+- $sh_var
+sus [MED] (2 strings): 
+- password
+- credential
+url [HIGH] (2 strings): 
+- https://example.com/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+- http://x.example/a|b
+write [MED] (2 strings): 
+- fwrite
+- fopen
+Matches for /tmp/naïve 😈\x1b]0;title\a\\backslash [LOW] (1 rule):
+write [LOW] (1 string): 
+- fopen
+Matches for /opt/escapes [MED] (16 rules):
+sweep_0_1 [MED] (1 string): 
+- q
+sweep_0_2 [MED] (1 string): 
+- qq
+sweep_0_3 [MED] (1 string): 
+- qqq
+sweep_0_4 [MED] (1 string): 
+- qqqq
+sweep_1_1 [MED] (1 string): 
+- 1mq
+sweep_1_2 [MED] (1 string): 
+- 1mqq
+sweep_1_3 [MED] (1 string): 
+- 1mqqq
+sweep_1_4 [MED] (1 string): 
+- 1mqqqq
+sweep_2_1 [MED] (1 string): 
+- [0mq
+sweep_2_2 [MED] (1 string): 
+- [0mqq
+sweep_2_3 [MED] (1 string): 
+- [0mqqq
+sweep_2_4 [MED] (1 string): 
+- [0mqqqq
+sweep_3_1 [MED] (1 string): 
+- 2;3Gq
+sweep_3_2 [MED] (1 string): 
+- 2;3Gqq
+sweep_3_3 [MED] (1 string): 
+- 2;3Gqqq
+sweep_3_4 [MED] (1 string): 
+- 2;3Gqqqq

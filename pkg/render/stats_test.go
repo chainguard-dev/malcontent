@@ -187,6 +187,42 @@ func TestStatisticsWritesSummary(t *testing.T) {
 		"c/three" + strings.Repeat(" ", 9) + "20.00% 2/10\n" +
 		"d/four" + strings.Repeat(" ", 10) + "10.00% 1/10\n"
 
+	if got := statsCapture(t, files); got != want {
+		t.Errorf("Statistics output:\ngot  = %q\nwant = %q", got, want)
+	}
+}
+
+// Statistics prints to os.Stdout, so this test swaps it and must not run in parallel.
+func TestStatisticsWritesHarmlessFilesInTheDefaultColor(t *testing.T) {
+	files := xsync.NewMap[string, *malcontent.FileReport]()
+	files.Store("/none", &malcontent.FileReport{Path: "/none", RiskScore: 0, Behaviors: []*malcontent.Behavior{{ID: "a/b"}}})
+
+	want := "\U0001F4CA Statistics\n" +
+		"---\n" +
+		"\x1b[1;37mFiles Scanned   \x1b[1;37m1 (0 skipped)\x1b[0m\n" +
+		"\x1b[1;37mTotal Risks     \x1b[1;37m1\x1b[0m\n" +
+		"---\n" +
+		"⚠️  Risk Level Percentage\n" +
+		"---\n" +
+		"\x1b[1;37mRisk Level    \x1b[1;37mPercentage Count/Total\x1b[0m\n" +
+		"\x1b[0m0/NONE" + strings.Repeat(" ", 11) + "100.00% 1/1\x1b[0m\n" +
+		"---\n" +
+		"\x1b[1;37mNumber of behaviors \x1b[1;37m         1\x1b[0m\n" +
+		"---\n" +
+		"\U0001F4E6 Package Behaviors\n" +
+		"---\n" +
+		"\x1b[1;37mNamespace   \x1b[1;37mPercentage Count/Total\x1b[0m\n" +
+		"a/b" + strings.Repeat(" ", 12) + "100.00% 1/1\n"
+
+	if got := statsCapture(t, files); got != want {
+		t.Errorf("Statistics output:\ngot  = %q\nwant = %q", got, want)
+	}
+}
+
+// statsCapture returns what Statistics prints to os.Stdout for a report of
+// files. It swaps os.Stdout, so callers must not run in parallel.
+func statsCapture(t *testing.T, files *xsync.Map[string, *malcontent.FileReport]) string {
+	t.Helper()
 	r, w, err := os.Pipe()
 	if err != nil {
 		t.Fatalf("os.Pipe: got err = %v, want = nil", err)
@@ -206,11 +242,8 @@ func TestStatisticsWritesSummary(t *testing.T) {
 	if err := r.Close(); err != nil {
 		t.Fatalf("close pipe reader: got err = %v, want = nil", err)
 	}
-
 	if statsErr != nil {
 		t.Fatalf("Statistics: got err = %v, want = nil", statsErr)
 	}
-	if got := string(out); got != want {
-		t.Errorf("Statistics output:\ngot  = %q\nwant = %q", got, want)
-	}
+	return string(out)
 }

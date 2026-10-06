@@ -1,0 +1,20 @@
+{
+    "Files": {
+        "/bin/nil": {
+            "Path": "/bin/nil",
+            "SHA256": "",
+            "Size": 0,
+            "Behaviors": [
+                null,
+                {
+                    "RiskScore": 1,
+                    "RiskLevel": "LOW",
+                    "ID": "net/connect"
+                },
+                null
+            ],
+            "RiskScore": 1,
+            "RiskLevel": "LOW"
+        }
+    }
+}

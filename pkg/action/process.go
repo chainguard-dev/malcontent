@@ -39,7 +39,7 @@ func ActiveProcesses(ctx context.Context) ([]*ProcessInfo, error) {
 
 	found := map[string]*ProcessInfo{}
 	for _, p := range procs {
-		pi, err := processInfo(ctx, p)
+		pi, err := processInfo(ctx, p.Pid, p)
 		if err != nil {
 			clog.Warnf("skipping pid %d: %v", p.Pid, err)
 			continue
@@ -69,10 +69,21 @@ func canStat(path string) bool {
 	return err == nil
 }
 
-// processInfo returns information about a process tuned for scanning.
-func processInfo(ctx context.Context, p *process.Process) (*ProcessInfo, error) {
+// processSource is the process data that processInfo reads.
+type processSource interface {
+	Name() (string, error)
+	PpidWithContext(ctx context.Context) (int32, error)
+	CmdlineSliceWithContext(ctx context.Context) ([]string, error)
+	Exe() (string, error)
+}
+
+var _ processSource = (*process.Process)(nil)
+
+// processInfo returns information about process pid, whose data p reports,
+// tuned for scanning.
+func processInfo(ctx context.Context, pid int32, p processSource) (*ProcessInfo, error) {
 	pi := &ProcessInfo{
-		PID: p.Pid,
+		PID: pid,
 	}
 	name, err := p.Name()
 	if err != nil {
@@ -86,7 +97,7 @@ func processInfo(ctx context.Context, p *process.Process) (*ProcessInfo, error) 
 	}
 
 	// Skip Linux kernel threads that have no backing executable
-	if runtime.GOOS == "linux" && (p.Pid == 2 || parent == 2) {
+	if runtime.GOOS == "linux" && (pid == 2 || parent == 2) {
 		return nil, nil
 	}
 	pi.PPID = parent
@@ -110,7 +121,7 @@ func processInfo(ctx context.Context, p *process.Process) (*ProcessInfo, error) 
 
 	// fallback if p.Exe fails to be stattable
 	if runtime.GOOS == "linux" {
-		pi.ScanPath = fmt.Sprintf("/proc/%d/exe", p.Pid)
+		pi.ScanPath = fmt.Sprintf("/proc/%d/exe", pid)
 
 		if canStat(pi.ScanPath) {
 			return pi, nil

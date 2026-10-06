@@ -12,9 +12,7 @@ import (
 	"path/filepath"
 
 	"github.com/chainguard-dev/clog"
-	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
-	gzip "github.com/klauspost/pgzip"
 )
 
 var GzMIME = map[string]struct{}{
@@ -27,21 +25,21 @@ var GzMIME = map[string]struct{}{
 	"gzip/document":                 {},
 }
 
-// extractGzip extracts .gz archives.
+// ExtractGzip extracts .gz archives.
 func ExtractGzip(ctx context.Context, d string, f string) error {
+	return extractGzipWithKind(ctx, d, f, detectFileType(ctx, f))
+}
+
+// extractGzipWithKind is ExtractGzip with the file's detected type reported by
+// fileType, so that a caller which already detected it need not read the file
+// again.
+func extractGzipWithKind(ctx context.Context, d, f string, fileType func() *programkind.FileType) error {
 	if ctx.Err() != nil {
 		return ctx.Err()
 	}
 
 	// Check whether the provided file is a valid gzip archive
-	var isGzip bool
-	if ft, err := programkind.File(ctx, f); err == nil && ft != nil {
-		if _, ok := GzMIME[ft.MIME]; ok {
-			isGzip = true
-		}
-	}
-
-	if !isGzip {
+	if !isGzipType(fileType()) {
 		return fmt.Errorf("not a valid gzip archive: %s", f)
 	}
 
@@ -57,8 +55,8 @@ func ExtractGzip(ctx context.Context, d string, f string) error {
 		return nil
 	}
 
-	buf := archivePool.Get(file.ExtractBuffer) //nolint:nilaway // the buffer pool is created in archive.go
-	defer archivePool.Put(buf)
+	buf := extractPool.Get()
+	defer extractPool.Put(buf)
 
 	// Enforce a byte and ratio ceiling against the single decompressed stream.
 	// InputBytes seeds the ratio denominator from the compressed file size.
@@ -83,7 +81,7 @@ func ExtractGzip(ctx context.Context, d string, f string) error {
 	}
 	defer root.Close()
 
-	gr, err := gzip.NewReader(gf)
+	gr, err := newGzipReader(gf)
 	if err != nil {
 		return fmt.Errorf("failed to create gzip reader: %w", err)
 	}

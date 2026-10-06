@@ -46,6 +46,12 @@ type Stats struct {
 // and replaces newlines/carriage returns with spaces to prevent YAML serialization issues.
 // This ensures consistent handling across JSON and YAML serialization.
 func sanitizeUTF8(s string) string {
+	// Most strings are printable ASCII without surrounding spaces, which every
+	// step below returns unchanged. NUL is not printable, so excepting it
+	// excepts nothing more.
+	if isPlainASCII(s, 0) && (s == "" || (s[0] != ' ' && s[len(s)-1] != ' ')) {
+		return s
+	}
 	if !utf8.ValidString(s) {
 		s = strings.ToValidUTF8(s, string(utf8.RuneError))
 	}
@@ -62,17 +68,23 @@ func sanitizeUTF8(s string) string {
 	return strings.TrimSpace(s)
 }
 
+// isPlainASCII reports whether every byte of s is printable ASCII (0x20
+// through 0x7e) other than except.
+func isPlainASCII(s string, except byte) bool {
+	for i := range len(s) {
+		if c := s[i]; c < 0x20 || c > 0x7e || c == except {
+			return false
+		}
+	}
+	return true
+}
+
 // isBiDiControl reports whether r is a BiDi embedding, override, isolate, or
 // mark character, which can make displayed text read differently from its bytes.
 func isBiDiControl(r rune) bool {
-	switch {
-	case r >= 0x202A && r <= 0x202E: // LRE, RLE, PDF, LRO, RLO
-		return true
-	case r >= 0x2066 && r <= 0x2069: // LRI, RLI, FSI, PDI
-		return true
-	default:
-		return r == 0x200E || r == 0x200F // LRM, RLM
-	}
+	return (r >= 0x202A && r <= 0x202E) || // LRE, RLE, PDF, LRO, RLO
+		(r >= 0x2066 && r <= 0x2069) || // LRI, RLI, FSI, PDI
+		r == 0x200E || r == 0x200F // LRM, RLM
 }
 
 // sanitizeTerminal makes untrusted text from scanned files safe to print to a
@@ -84,23 +96,29 @@ func isBiDiControl(r rune) bool {
 // spelled out in the input reads differently from an escaped control
 // character. Other printable text is unchanged.
 func sanitizeTerminal(s string) string {
+	// Printable ASCII other than a backslash passes through unchanged.
+	if isPlainASCII(s, '\\') {
+		return s
+	}
 	if !utf8.ValidString(s) {
 		s = strings.ToValidUTF8(s, string(utf8.RuneError))
 	}
 	var b strings.Builder
 	b.Grow(len(s))
 	for _, r := range s {
-		switch {
-		case isBiDiControl(r):
+		if isBiDiControl(r) {
 			continue
-		case r == '\\':
+		}
+		if r == '\\' {
 			b.WriteString(`\\`)
-		case r < 0x20 || r == 0x7f || (r >= 0x80 && r <= 0x9f):
+			continue
+		}
+		if r < 0x20 || r == 0x7f || (r >= 0x80 && r <= 0x9f) {
 			q := strconv.QuoteRune(r)
 			b.WriteString(q[1 : len(q)-1])
-		default:
-			b.WriteRune(r)
+			continue
 		}
+		b.WriteRune(r)
 	}
 	return b.String()
 }
@@ -136,7 +154,13 @@ func sanitizeFileReport(path string, r *malcontent.FileReport, files map[string]
 	if r == nil || r.Skipped != "" {
 		return
 	}
+	sanitizeReport(r)
+	files[sanitizeUTF8(path)] = r
+}
 
+// sanitizeReport prepares r for serialization in place: it drops the
+// absolute paths and sanitizes the text fields that come from scanned files.
+func sanitizeReport(r *malcontent.FileReport) {
 	r.ArchiveRoot = ""
 	r.FullPath = ""
 	r.Path = sanitizeUTF8(r.Path)
@@ -147,8 +171,6 @@ func sanitizeFileReport(path string, r *malcontent.FileReport, files map[string]
 			b.Description = sanitizeUTF8(b.Description)
 		}
 	}
-
-	files[sanitizeUTF8(path)] = r
 }
 
 func riskEmoji(score int) string {

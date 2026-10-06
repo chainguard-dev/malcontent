@@ -4,20 +4,29 @@
 package compile
 
 import (
+	"bytes"
 	"context"
+	"encoding/binary"
+	"encoding/hex"
 	"fmt"
+	"hash"
 	"io"
 	"io/fs"
 	"log/slog"
 	"os"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"runtime/debug"
+	"slices"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"time"
 	"unicode/utf8"
 
 	"github.com/minio/sha256-simd"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/rules"
@@ -133,49 +142,168 @@ var rulesWithWarnings = map[string]bool{
 	"hardcoded_host_port_over_10k":          true,
 }
 
-var (
-	rulePattern    = regexp.MustCompile(`(?sm)^\s*rule\s+(%s)\s*(?::\s*[^\n{]+)?\s*{.*?^\s*}\s*$`)
-	newlinePattern = regexp.MustCompile(`\n{3,}`)
-)
+// rulePatternFormat matches a whole rule declaration; %s is the alternation
+// of rule names to match.
+const rulePatternFormat = `(?sm)^\s*rule\s+(%s)\s*(?::\s*[^\n{]+)?\s*{.*?^\s*}\s*$`
 
-// getRulesToRemove returns a consolidated list of rules to remove from a rule string.
+var newlinePattern = regexp.MustCompile(`\n{3,}`)
+
+// getRulesToRemove returns the sorted names of the rules to remove from rule sources.
 func getRulesToRemove() []string {
-	rr := make([]string, 0)
-	// Add every rule from the badRules set
+	rr := make([]string, 0, len(badRules)+len(rulesWithWarnings))
 	for rule := range badRules {
 		rr = append(rr, rule)
 	}
-	// Add rules from rulesWithWarnings map that are marked false
 	for rule, keep := range rulesWithWarnings {
 		if !keep {
 			rr = append(rr, rule)
 		}
 	}
+	slices.Sort(rr)
 	return rr
 }
 
-// removeRules removes rule matches from the file data.
-func removeRules(data []byte, rulesToRemove []string) []byte {
-	if len(rulesToRemove) == 0 {
+// ruleRemover deletes named rules from rule source text.
+type ruleRemover struct {
+	// declares matches the keyword and name that begin every match of rules.
+	// It starts with a literal, so the regexp engine finds it by substring
+	// search, while rules starts with ^\s* and must step through every byte.
+	declares *regexp.Regexp
+	rules    *regexp.Regexp
+}
+
+// newRuleRemover returns a remover for names, ignoring names that are not
+// valid UTF-8. It returns nil, which removes nothing, when no names remain.
+func newRuleRemover(names []string) *ruleRemover {
+	quoted := make([]string, 0, len(names))
+	for _, name := range names {
+		if utf8.ValidString(name) {
+			quoted = append(quoted, regexp.QuoteMeta(name))
+		}
+	}
+	if len(quoted) == 0 {
+		return nil
+	}
+	alternatives := strings.Join(quoted, "|")
+	return &ruleRemover{
+		declares: regexp.MustCompile(`rule\s+(?:` + alternatives + `)`),
+		rules:    regexp.MustCompile(fmt.Sprintf(rulePatternFormat, alternatives)),
+	}
+}
+
+// remove returns data without the named rules and with runs of three or more
+// newlines collapsed to two. It may return data itself.
+func (r *ruleRemover) remove(data []byte) []byte {
+	if r == nil {
 		return data
 	}
+	data = r.removeRuleMatches(data)
+	// Every match of newlinePattern contains three newlines, so skipping the
+	// replacement without them leaves the result unchanged.
+	if bytes.Contains(data, []byte("\n\n\n")) {
+		data = newlinePattern.ReplaceAll(data, []byte("\n\n"))
+	}
+	return data
+}
 
-	modified := data
-	ruleNames := make([]string, len(rulesToRemove))
-	for i, name := range rulesToRemove {
-		// we only ever include rules listed above in badRules and rulesWithWarnings
-		// but ignore any rule names that aren't valid UTF-8
-		if !utf8.ValidString(name) {
+// removeRuleMatches returns the same bytes as r.rules.ReplaceAll(data, nil)
+// without running r.rules over all of data.
+//
+// A match of r.rules starts at a line start, continues through whitespace
+// only, and then matches r.declares. So for each r.declares match, at kw, a
+// match of r.rules through kw can only begin at ruleMatchStart, and runs of
+// r.rules from there find exactly the matches ReplaceAll would, in order.
+// Each search starts at or after the end of the previous one, so the work
+// stays linear.
+func (r *ruleRemover) removeRuleMatches(data []byte) []byte {
+	var out []byte
+	removed := false
+	last, pos := 0, 0
+	for pos < len(data) {
+		loc := r.declares.FindIndex(data[pos:])
+		if loc == nil {
+			break
+		}
+		kw := pos + loc[0]
+		start, ok := ruleMatchStart(data, last, kw)
+		if !ok {
+			pos = kw + 1
 			continue
 		}
-		ruleNames[i] = regexp.QuoteMeta(name)
+		// start is a line start, so ^ holds at the front of data[start:]
+		// exactly as it does in data.
+		m := r.rules.FindIndex(data[start:])
+		if m == nil {
+			break
+		}
+		out = append(out, data[last:start+m[0]]...)
+		removed = true
+		last = start + m[1]
+		pos = last
 	}
-	pattern := regexp.MustCompile(fmt.Sprintf(
-		rulePattern.String(),
-		strings.Join(ruleNames, "|"),
-	))
-	modified = pattern.ReplaceAll(modified, []byte{})
-	return newlinePattern.ReplaceAll(modified, []byte("\n\n"))
+	if !removed {
+		return data
+	}
+	return append(out, data[last:]...)
+}
+
+// ruleMatchStart returns the earliest line start s, no earlier than last, for
+// which data[s:kw] is all whitespace. A match of the rules pattern whose rule
+// keyword sits at kw, found by a search that resumes at last, begins there.
+// ok is false when no such line start exists.
+func ruleMatchStart(data []byte, last, kw int) (s int, ok bool) {
+	q := kw
+	for q > last && isRegexpSpace(data[q-1]) {
+		q--
+	}
+	if q == 0 || data[q-1] == '\n' {
+		return q, true
+	}
+	if i := bytes.IndexByte(data[q:kw], '\n'); i >= 0 {
+		return q + i + 1, true
+	}
+	return 0, false
+}
+
+// isRegexpSpace reports whether c is in the regexp class \s, [\t\n\f\r ].
+func isRegexpSpace(c byte) bool {
+	switch c {
+	case '\t', '\n', '\f', '\r', ' ':
+		return true
+	}
+	return false
+}
+
+// defaultRuleRemover drops the disabled rules. It is built on first use, so
+// runs that load the compiled cache never compile its patterns.
+var defaultRuleRemover = sync.OnceValue(func() *ruleRemover {
+	return newRuleRemover(getRulesToRemove())
+})
+
+// isRuleFile reports whether path names a YARA rule source.
+func isRuleFile(path string) bool {
+	ext := filepath.Ext(path)
+	return ext == ".yara" || ext == ".yar"
+}
+
+// FileSHA256 names the global variable that holds the lowercase hex SHA-256
+// digest of the scanned content. Scanners set it before every scan, so rules
+// compare a file's digest without yara-x hashing the whole file again (the
+// scan already computes it, with hardware acceleration).
+const FileSHA256 = "file_sha256"
+
+// newCompiler returns a compiler with the options every bundled rule set is
+// built with.
+func newCompiler() (*yarax.Compiler, error) {
+	yxc, err := yarax.NewCompiler(
+		yarax.ConditionOptimization(true),
+		yarax.EnableIncludes(true),
+		yarax.Globals(map[string]any{FileSHA256: ""}),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("yarax compiler: %w", err)
+	}
+	return yxc, nil
 }
 
 func Recursive(ctx context.Context, fss []fs.FS) (*yarax.Rules, error) {
@@ -183,12 +311,12 @@ func Recursive(ctx context.Context, fss []fs.FS) (*yarax.Rules, error) {
 		return nil, ctx.Err()
 	}
 
-	yxc, err := yarax.NewCompiler(yarax.ConditionOptimization(true), yarax.EnableIncludes(true))
+	yxc, err := newCompiler()
 	if err != nil {
-		return nil, fmt.Errorf("yarax compiler: %w", err)
+		return nil, err
 	}
 
-	rulesToRemove := getRulesToRemove()
+	remover := defaultRuleRemover()
 
 	for _, root := range fss {
 		err = fs.WalkDir(root, ".", func(path string, d fs.DirEntry, err error) error {
@@ -204,13 +332,13 @@ func Recursive(ctx context.Context, fss []fs.FS) (*yarax.Rules, error) {
 				return nil
 			}
 
-			if filepath.Ext(path) == ".yara" || filepath.Ext(path) == ".yar" {
+			if isRuleFile(path) {
 				bs, err := fs.ReadFile(root, path)
 				if err != nil {
 					return fmt.Errorf("readfile: %w", err)
 				}
 
-				bs = removeRules(bs, rulesToRemove)
+				bs = remover.remove(bs)
 
 				yxc.NewNamespace(path)
 				if err := yxc.AddSource(string(bs), yarax.WithOrigin(path)); err != nil {
@@ -229,8 +357,9 @@ func Recursive(ctx context.Context, fss []fs.FS) (*yarax.Rules, error) {
 		return nil, err
 	}
 
-	errors := []string{}
-	for _, yce := range yxc.Errors() {
+	compileErrs := yxc.Errors()
+	errors := make([]string, 0, len(compileErrs))
+	for _, yce := range compileErrs {
 		clog.ErrorContext(ctx, "error", yce.Error())
 		errors = append(errors, yce.Text)
 	}
@@ -271,8 +400,27 @@ func getCacheDir() (string, error) {
 	return cacheDir, nil
 }
 
-// staleTempThreshold is the age past which an orphaned cache temp file is removed.
-const staleTempThreshold = 24 * time.Hour
+const (
+	// staleTempThreshold is the age past which an orphaned cache temp file is removed.
+	staleTempThreshold = 24 * time.Hour
+
+	// staleCacheThreshold is how long a compiled cache other than the current
+	// one may go unmodified before it is removed. Several malcontent builds,
+	// and runs with and without third-party rules, can share the cache
+	// directory, so only caches that no run has refreshed for this long go.
+	staleCacheThreshold = 72 * time.Hour
+	// cacheTouchInterval is how stale a loaded cache's modification time may
+	// get before loading refreshes it. A cache loaded within
+	// staleCacheThreshold-cacheTouchInterval is therefore never pruned.
+	cacheTouchInterval = 24 * time.Hour
+
+	cachePrefix   = "rules-"
+	cacheSuffix   = ".cache"
+	sidecarSuffix = ".sha256"
+
+	// cacheHashBufferSize is the read buffer for hashing a cache file.
+	cacheHashBufferSize = 256 << 10
+)
 
 // sweepStaleTempFiles removes orphaned cache temp files left behind when a
 // process is killed between os.CreateTemp and the atomic rename in saveCachedRules.
@@ -298,15 +446,17 @@ func sweepStaleTempFiles(cacheDir string) {
 	}
 }
 
-// loadCachedRules attempts to load rules from the local, compiled rules.
+// loadCachedRules loads rules saved by saveCachedRules and verifies them
+// against the integrity sidecar.
 //
-// The cache file is read in a single pass: a TeeReader feeds the same bytes to
-// the yara-x deserializer and to the SHA-256 hasher. The digest is compared
-// against the integrity sidecar after deserialization, and rules are returned
-// only when the digest matches the sidecar. A mismatch (or a missing sidecar)
-// surfaces as an error so the caller treats it as a cache miss and recompiles.
-//
-// Caches written before the sidecar landed will fail this integrity check and recompute.
+// yarax.ReadFrom copies its whole input through io.ReadAll before it
+// deserializes, so handing it a preloaded buffer would add a copy rather than
+// save one. Instead a second reader hashes the same open file concurrently.
+// Deserialization rebuilds the scanning engine and takes far longer than
+// hashing, so the integrity check adds almost no wall time, and both readers
+// see the same file even if the path is replaced meanwhile. Rules are returned
+// only when the digest matches the sidecar; a mismatch or a missing sidecar is
+// an error the caller treats as a cache miss.
 func loadCachedRules(cacheFile string) (*yarax.Rules, error) {
 	expected, err := readSidecarDigest(cacheFile)
 	if err != nil {
@@ -319,23 +469,41 @@ func loadCachedRules(cacheFile string) (*yarax.Rules, error) {
 	}
 	defer func() { _ = f.Close() }()
 
-	hasher := sha256.New()
-	compiledRules, err := yarax.ReadFrom(io.TeeReader(f, hasher))
+	fi, err := f.Stat()
+	if err != nil {
+		return nil, err
+	}
+
+	type digestResult struct {
+		sum string
+		err error
+	}
+	digest := make(chan digestResult, 1)
+	go func() {
+		h := sha256.New()
+		_, err := io.CopyBuffer(h, io.NewSectionReader(f, 0, fi.Size()), make([]byte, cacheHashBufferSize))
+		digest <- digestResult{sum: hex.EncodeToString(h.Sum(nil)), err: err}
+	}()
+
+	compiledRules, err := yarax.ReadFrom(io.NewSectionReader(f, 0, fi.Size()))
+	got := <-digest
 	if err != nil {
 		return nil, fmt.Errorf("read cached rules: %w", err)
 	}
-
-	actual := fmt.Sprintf("%x", hasher.Sum(nil))
-	if actual != expected {
-		return nil, fmt.Errorf("cache integrity mismatch: expected %s got %s", expected, actual)
+	if got.err != nil {
+		compiledRules.Destroy()
+		return nil, fmt.Errorf("hash cached rules: %w", got.err)
 	}
-
+	if got.sum != expected {
+		compiledRules.Destroy()
+		return nil, fmt.Errorf("cache integrity mismatch: expected %s got %s", expected, got.sum)
+	}
 	return compiledRules, nil
 }
 
 // readSidecarDigest returns the expected digest recorded in the cache integrity sidecar.
 func readSidecarDigest(cacheFile string) (string, error) {
-	sidecarPath := cacheFile + ".sha256"
+	sidecarPath := cacheFile + sidecarSuffix
 	expectedBytes, err := os.ReadFile(sidecarPath) // #nosec G304 -- sidecar path derived from cacheFile
 	if err != nil {
 		return "", fmt.Errorf("cache integrity sidecar missing: %w", err)
@@ -352,7 +520,9 @@ func saveCachedRules(compiledRules *yarax.Rules, cacheFile string) error {
 	}
 	tmpFile := f.Name()
 
-	if _, err := compiledRules.WriteTo(f); err != nil {
+	// Hash the bytes as they are written rather than reading the file back.
+	hasher := sha256.New()
+	if _, err := compiledRules.WriteTo(io.MultiWriter(f, hasher)); err != nil {
 		_ = f.Close()
 		_ = os.Remove(tmpFile)
 		return fmt.Errorf("write rules to cache: %w", err)
@@ -369,13 +539,7 @@ func saveCachedRules(compiledRules *yarax.Rules, cacheFile string) error {
 		return fmt.Errorf("close cache file: %w", err)
 	}
 
-	digest, err := hashFile(tmpFile)
-	if err != nil {
-		_ = os.Remove(tmpFile)
-		return fmt.Errorf("hash cache file: %w", err)
-	}
-
-	tmpSidecar, err := writeSidecarTemp(cacheDir, digest)
+	tmpSidecar, err := writeSidecarTemp(cacheDir, hex.EncodeToString(hasher.Sum(nil)))
 	if err != nil {
 		_ = os.Remove(tmpFile)
 		return fmt.Errorf("write sidecar: %w", err)
@@ -387,7 +551,7 @@ func saveCachedRules(compiledRules *yarax.Rules, cacheFile string) error {
 		_ = os.Remove(tmpSidecar)
 		return fmt.Errorf("rename cache file: %w", err)
 	}
-	if err := os.Rename(tmpSidecar, cacheFile+".sha256"); err != nil {
+	if err := os.Rename(tmpSidecar, cacheFile+sidecarSuffix); err != nil {
 		_ = os.Remove(tmpSidecar)
 		// Cache and sidecar must exist as an atomic pair; remove the orphaned cache file.
 		_ = os.Remove(cacheFile)
@@ -395,20 +559,6 @@ func saveCachedRules(compiledRules *yarax.Rules, cacheFile string) error {
 	}
 
 	return nil
-}
-
-// hashFile returns the lowercase hex sha256 digest of a file's contents.
-func hashFile(path string) (string, error) {
-	f, err := os.Open(path) // #nosec G304 -- path supplied by saveCachedRules from CreateTemp
-	if err != nil {
-		return "", err
-	}
-	defer func() { _ = f.Close() }()
-	hasher := sha256.New()
-	if _, err := io.Copy(hasher, f); err != nil {
-		return "", err
-	}
-	return fmt.Sprintf("%x", hasher.Sum(nil)), nil
 }
 
 // writeSidecarTemp creates a temporary sidecar file in dir containing digest + newline and returns its path.
@@ -450,43 +600,242 @@ func getYaraXVersion() string {
 	return "unknown"
 }
 
-// getRulesHash computes a hash of the rule sources for cache validation.
-// It includes the yara-x version to ensure cache invalidation when
-// yara-x is updated with incompatible serialization format changes.
+const (
+	// cacheKeyVersion names the cache key layout. Change it whenever the
+	// layout, the compiler options, or the source preprocessing in Recursive
+	// changes, so caches built the old way are not reused.
+	cacheKeyVersion = "malcontent-rules-v3"
+	// hashChunkSize splits large rule files into pieces hashed in parallel;
+	// a single third-party bundle holds most of the rule bytes.
+	hashChunkSize = 256 << 10
+	// hashBufferSize is each hashing worker's read buffer.
+	hashBufferSize = 16 << 10
+)
+
+// ruleFile is a rule source found by walking a rule filesystem.
+type ruleFile struct {
+	fsys fs.FS
+	path string
+	size int64
+}
+
+// fileChunk is a piece of a rule file hashed on its own. file indexes the
+// walk-ordered rule files, off is where the piece starts, and last marks the
+// final piece, which reads to the end of the file.
+type fileChunk struct {
+	file int
+	off  int64
+	last bool
+}
+
+// getRulesHash returns the cache key for the rule sources in fss.
+//
+// The key is the SHA-256 of the key layout version, the yara-x version (its
+// serialization format can change between releases), the names of the rules
+// Recursive removes, and, for every rule file in walk order, its path, its
+// size, and the SHA-256 of each of its hashChunkSize pieces. Variable-length
+// fields carry their length, so no two inputs encode alike. Pieces are hashed
+// concurrently but combined in walk order, so scheduling never changes the key.
 func getRulesHash(ctx context.Context, fss []fs.FS) (string, error) {
 	if ctx.Err() != nil {
 		return "", ctx.Err()
 	}
 
-	hasher := sha256.New()
+	files, err := listRuleFiles(fss)
+	if err != nil {
+		return "", err
+	}
+	chunks := chunkRuleFiles(files)
+	digests, err := hashChunks(ctx, files, chunks)
+	if err != nil {
+		return "", err
+	}
 
-	// Include yara-x version in hash to invalidate cache on version changes
-	hasher.Write([]byte(getYaraXVersion()))
+	h := sha256.New()
+	rec := appendField(nil, cacheKeyVersion)
+	rec = appendField(rec, getYaraXVersion())
+	removed := getRulesToRemove()
+	rec = binary.AppendVarint(rec, int64(len(removed)))
+	for _, name := range removed {
+		rec = appendField(rec, name)
+	}
+	h.Write(rec)
 
+	for i, c := range chunks {
+		rec = rec[:0]
+		if c.off == 0 {
+			rec = appendField(rec, files[c.file].path)
+			rec = binary.AppendVarint(rec, files[c.file].size)
+		}
+		rec = append(rec, digests[i][:]...)
+		h.Write(rec)
+	}
+	return hex.EncodeToString(h.Sum(nil)), nil
+}
+
+// appendField appends s to b behind its length so adjacent fields cannot run together.
+func appendField(b []byte, s string) []byte {
+	b = binary.AppendVarint(b, int64(len(s)))
+	return append(b, s...)
+}
+
+// listRuleFiles returns the rule sources in fss in the order Recursive compiles them.
+func listRuleFiles(fss []fs.FS) ([]ruleFile, error) {
+	var files []ruleFile
 	for _, fsys := range fss {
 		err := fs.WalkDir(fsys, ".", func(path string, d fs.DirEntry, err error) error {
 			if err != nil {
 				return err
 			}
-			if d.IsDir() {
+			if d.IsDir() || !isRuleFile(path) {
 				return nil
 			}
-			if filepath.Ext(path) == ".yara" || filepath.Ext(path) == ".yar" {
-				hasher.Write([]byte(path))
-				content, err := fs.ReadFile(fsys, path)
-				if err != nil {
-					return err
-				}
-				hasher.Write(content)
+			info, err := d.Info()
+			if err != nil {
+				return err
 			}
+			files = append(files, ruleFile{fsys: fsys, path: path, size: info.Size()})
 			return nil
 		})
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 	}
+	return files, nil
+}
 
-	return fmt.Sprintf("%x", hasher.Sum(nil)), nil
+// chunkRuleFiles splits each file into hashChunkSize pieces, in walk order.
+// Every file, even an empty one, has exactly one piece at offset zero.
+func chunkRuleFiles(files []ruleFile) []fileChunk {
+	chunks := make([]fileChunk, 0, len(files))
+	for i, f := range files {
+		for off := int64(0); ; off += hashChunkSize {
+			last := off+hashChunkSize >= f.size
+			chunks = append(chunks, fileChunk{file: i, off: off, last: last})
+			if last {
+				break
+			}
+		}
+	}
+	return chunks
+}
+
+// hashChunks returns the SHA-256 of every chunk. Up to GOMAXPROCS workers
+// claim chunks in turn, each reusing one hasher and one read buffer.
+func hashChunks(ctx context.Context, files []ruleFile, chunks []fileChunk) ([][sha256.Size]byte, error) {
+	digests := make([][sha256.Size]byte, len(chunks))
+	var next atomic.Int64
+	g, ctx := errgroup.WithContext(ctx)
+	for range min(runtime.GOMAXPROCS(0), len(chunks)) {
+		g.Go(func() error {
+			h := sha256.New()
+			buf := make([]byte, hashBufferSize)
+			for i := next.Add(1) - 1; i < int64(len(chunks)); i = next.Add(1) - 1 {
+				if err := ctx.Err(); err != nil {
+					return err
+				}
+				c := chunks[i]
+				if err := digestChunk(h, buf, files[c.file], c); err != nil {
+					return err
+				}
+				// Sum appends into the slot's own 32-byte backing array.
+				h.Sum(digests[i][:0])
+			}
+			return nil
+		})
+	}
+	if err := g.Wait(); err != nil {
+		return nil, err
+	}
+	return digests, nil
+}
+
+// digestChunk resets h and feeds it chunk c of rf through buf. Streaming
+// avoids fs.ReadFile, which copies each embedded file into a new allocation.
+func digestChunk(h hash.Hash, buf []byte, rf ruleFile, c fileChunk) error {
+	f, err := rf.fsys.Open(rf.path)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = f.Close() }()
+
+	if c.off > 0 {
+		if err := seekTo(f, c.off); err != nil {
+			return fmt.Errorf("seek %s: %w", rf.path, err)
+		}
+	}
+	var r io.Reader = f
+	if !c.last {
+		r = &io.LimitedReader{R: f, N: hashChunkSize}
+	}
+	h.Reset()
+	_, err = io.CopyBuffer(h, r, buf)
+	return err
+}
+
+// seekTo moves f to off, reading forward when f cannot seek.
+func seekTo(f fs.File, off int64) error {
+	if s, ok := f.(io.Seeker); ok {
+		_, err := s.Seek(off, io.SeekStart)
+		return err
+	}
+	_, err := io.CopyN(io.Discard, f, off)
+	return err
+}
+
+// refreshCacheTime marks cacheFile as in use so that other malcontent builds
+// sharing the cache directory do not prune it. It rewrites the modification
+// time at most once per cacheTouchInterval and ignores errors.
+func refreshCacheTime(cacheFile string, now time.Time) {
+	fi, err := os.Stat(cacheFile)
+	if err != nil || now.Sub(fi.ModTime()) < cacheTouchInterval {
+		return
+	}
+	_ = os.Chtimes(cacheFile, now, now)
+}
+
+// pruneStaleCaches removes compiled caches other than current, along with
+// their integrity sidecars, once no run has refreshed them for
+// staleCacheThreshold. It is best-effort: pruning only reclaims space, so
+// errors are ignored. Temp files are left to sweepStaleTempFiles.
+func pruneStaleCaches(cacheDir, current string, now time.Time) {
+	entries, err := os.ReadDir(cacheDir)
+	if err != nil {
+		return
+	}
+	cutoff := now.Add(-staleCacheThreshold)
+	keep := filepath.Base(current)
+	for _, e := range entries {
+		name := e.Name()
+		cache, isSidecar := strings.CutSuffix(name, sidecarSuffix)
+		if cache == keep || !isCacheName(cache) || !e.Type().IsRegular() {
+			continue
+		}
+		fi, err := e.Info()
+		if err != nil || !fi.ModTime().Before(cutoff) {
+			continue
+		}
+		// Loading refreshes only the cache's modification time, so a sidecar
+		// stays as long as its cache is in use.
+		if isSidecar && modifiedSince(filepath.Join(cacheDir, cache), cutoff) {
+			continue
+		}
+		path := filepath.Join(cacheDir, name)
+		if err := os.Remove(path); err == nil {
+			logDebug("Removed stale rule cache", "file", path)
+		}
+	}
+}
+
+// isCacheName reports whether name has the form of a compiled cache file name.
+func isCacheName(name string) bool {
+	return strings.HasPrefix(name, cachePrefix) && strings.HasSuffix(name, cacheSuffix)
+}
+
+// modifiedSince reports whether path exists and was modified at or after t.
+func modifiedSince(path string, t time.Time) bool {
+	fi, err := os.Lstat(path)
+	return err == nil && !fi.ModTime().Before(t)
 }
 
 // logDebug and logWarn emit the rule cache's log records through the default
@@ -508,14 +857,17 @@ func RecursiveCached(ctx context.Context, fss []fs.FS) (*yarax.Rules, error) {
 		return Recursive(ctx, fss)
 	}
 
-	hash, hashErr := getRulesHash(ctx, fss)
+	key, hashErr := getRulesHash(ctx, fss)
 	if hashErr != nil {
 		return Recursive(ctx, fss)
 	}
 
-	cacheFile := filepath.Join(cacheDir, fmt.Sprintf("rules-%s.cache", hash))
+	cacheFile := filepath.Join(cacheDir, cachePrefix+key+cacheSuffix)
 	if cachedRules, loadErr := loadCachedRules(cacheFile); loadErr == nil {
 		logDebug("Loaded rules from cache", "file", cacheFile)
+		now := time.Now()
+		refreshCacheTime(cacheFile, now)
+		pruneStaleCaches(cacheDir, cacheFile, now)
 		return cachedRules, nil
 	}
 
@@ -525,6 +877,8 @@ func RecursiveCached(ctx context.Context, fss []fs.FS) (*yarax.Rules, error) {
 		return nil, fmt.Errorf("compile: %w", err)
 	}
 
+	// Prune first so space held by idle caches is free for the new one.
+	pruneStaleCaches(cacheDir, cacheFile, time.Now())
 	if saveErr := saveCachedRules(compiledRules, cacheFile); saveErr != nil {
 		logWarn("Failed to save rules to cache", "error", saveErr)
 	} else {

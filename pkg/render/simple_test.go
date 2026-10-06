@@ -5,11 +5,36 @@ package render
 
 import (
 	"bytes"
+	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/report"
 )
+
+func TestSimpleFullWritesCountsInDecimal(t *testing.T) {
+	t.Parallel()
+	behaviors := make([]*malcontent.Behavior, 0, 20)
+	var want strings.Builder
+	want.WriteString("*** changed (10 added, 10 removed): /mod/big\n")
+	for i := range 10 {
+		behaviors = append(behaviors,
+			&malcontent.Behavior{ID: fmt.Sprintf("add/%d", i), DiffAdded: true},
+			&malcontent.Behavior{ID: fmt.Sprintf("rem/%d", i), DiffRemoved: true},
+		)
+		fmt.Fprintf(&want, "+add/%d\n-rem/%d\n", i, i)
+	}
+	rep := &malcontent.Report{Diff: renderDiff(nil, nil, []*malcontent.FileReport{{Path: "/mod/big", Behaviors: behaviors}})}
+
+	var buf bytes.Buffer
+	if err := NewSimple(&buf).Full(t.Context(), &malcontent.Config{}, rep); err != nil {
+		t.Fatalf("Full: got err = %v, want = nil", err)
+	}
+	if got := buf.String(); got != want.String() {
+		t.Errorf("Full output:\ngot  = %q\nwant = %q", got, want.String())
+	}
+}
 
 func TestSimpleFileListsBehaviorsWithLowercaseRisk(t *testing.T) {
 	t.Parallel()

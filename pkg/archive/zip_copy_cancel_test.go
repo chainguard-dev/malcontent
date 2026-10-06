@@ -43,7 +43,7 @@ func (c *zipCountdownCtx) Err() error {
 func TestZipExtractFileCancellationPolling(t *testing.T) {
 	t.Parallel()
 
-	chunk := int(file.ZipBuffer)
+	chunk := int(file.ExtractBuffer)
 	// live counts the Err calls that report no cancellation: the first is made
 	// before the entry is opened, then one before each read. The output file
 	// must hold a prefix of the entry between minLen and maxLen bytes long.

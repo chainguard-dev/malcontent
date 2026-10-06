@@ -1,0 +1,31 @@
+├─ 🛑 [91mDeleted: /old/tool [90m[[0m[91mHIGH[0m[90m][0m[0m
+│     ≡ networking [90m[[0m[91mHIGH[0m[90m][0m
+│[m       [91m🛑 connect[0m — connects[0m[90m:[0m[m [38;2;255;255;255mAF_INET[0;22;0;0;0m[m
+│     ≡ filesystem [90m[[0m[96mLOW[0m[90m][0m
+│[m       [96m🔵 read[0m — reads files[m
+│
+├─ 🟡 [93mAdded: /new/tool\x1b[2J [90m[[0m[93mMEDIUM[0m[90m][0m[0m
+│     ≡ filesystem [90m[[0m[93mMEDIUM[0m[90m][0m
+│[m       [93m🟡 write[0m — writes files[0m[90m:[0m[m
+│          [38;2;255;255;255mevidence-evidence-evidence-evidence-eviden…[m
+│
+├─ 🛑 [91mChanged (2 added, 3 removed): /mod/changed[0m [90m[[0m[96mLOW[0m [97m→[0m [91mHIGH[0m[90m][0m
+│[92m+[0m    [93m▲[0m execution [90m[[0m[37mNONE[0m → [91mHIGH[0m[90m][0m
+│[92m+      🛑 shell — runs a shell, by Dee[0m[90m:[0m[92m
+│+         [38;2;255;255;255m/bin/sh, evidence-evidence-evidence-eviden…[0m
+│     ≡ networking [90m[[0m[96mLOW[0m[90m][0m
+│     ≡ filesystem [90m[[0m[96mLOW[0m[90m][0m
+│[91m-      🔵 read — reads files[0m
+│[92m+[0m    [93m▲[0m cryptography [90m[[0m[37mNONE[0m → [93mMEDIUM[0m[90m][0m
+│[91m-      🟡 aes — uses AES[0m
+│     ≡ command & control [90m[[0m[37mNONE[0m[90m][0m
+│[91m-      🔵 beacon — beacons[0m
+│
+├─ 🟡 [93mMoved (1 added, 0 removed): /mod/old-name -> /mod/new-name[0m
+│     ≡ cryptography [90m[[0m[93mMEDIUM[0m[90m][0m
+│[92m+      🟡 rc4 — uses RC4[0m[90m:[0m[92m [38;2;255;255;255mrc4_init[0;22;0;0;0m[0m
+│
+├─ 🔵 [96mChanged (0 added, 1 removed): /mod/lowered[0m [90m[[0m[91mHIGH[0m [97m→[0m [96mLOW[0m[90m][0m
+│     ≡ networking [90m[[0m[91mHIGH[0m[90m][0m
+│[91m-      🛑 connect — connects[0m
+│

@@ -1,0 +1,31 @@
+├─ 🛑 Deleted: /old/tool [HIGH]
+│     ≡ networking [HIGH]
+│       🛑 connect — connects: AF_INET
+│     ≡ filesystem [LOW]
+│       🔵 read — reads files
+│
+├─ 🟡 Added: /new/tool\x1b[2J [MEDIUM]
+│     ≡ filesystem [MEDIUM]
+│       🟡 write — writes files:
+│          evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-ev…
+│
+├─ 🛑 Changed (2 added, 3 removed): /mod/changed [LOW → HIGH]
+│+    ▲ execution [NONE → HIGH]
+│+      🛑 shell — runs a shell, by Dee:
+│+         /bin/sh, evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-ev…
+│     ≡ networking [LOW]
+│     ≡ filesystem [LOW]
+│-      🔵 read — reads files
+│+    ▲ cryptography [NONE → MEDIUM]
+│-      🟡 aes — uses AES
+│     ≡ command & control [NONE]
+│-      🔵 beacon — beacons
+│
+├─ 🟡 Moved (1 added, 0 removed): /mod/old-name -> /mod/new-name
+│     ≡ cryptography [MEDIUM]
+│+      🟡 rc4 — uses RC4: rc4_init
+│
+├─ 🔵 Changed (0 added, 1 removed): /mod/lowered [HIGH → LOW]
+│     ≡ networking [HIGH]
+│-      🛑 connect — connects
+│

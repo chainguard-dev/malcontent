@@ -6,6 +6,7 @@ package profile
 import (
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"os/signal"
 	"runtime"
@@ -39,28 +40,27 @@ type Profiler struct {
 	traceFile  *os.File
 	goroutFile *os.File
 	closeOnce  sync.Once
-	stopChan   chan struct{}
+	workers    sync.WaitGroup
 	ctx        context.Context
 	cancel     context.CancelFunc
 }
 
-// StartProfiling beings profiling CPU, goroutines, and memory.
+// StartProfiling begins profiling CPU, goroutines, and memory.
 func StartProfiling(ctx context.Context, config *Config) (*Profiler, error) {
 	if config == nil {
 		config = DefaultConfig()
 	}
 
+	if err := os.MkdirAll(config.OutputDir, 0o700); err != nil {
+		return nil, fmt.Errorf("failed to create profile directory: %w", err)
+	}
+
 	ctx, cancel := context.WithCancel(ctx)
 
 	p := &Profiler{
-		config:   config,
-		stopChan: make(chan struct{}),
-		ctx:      ctx,
-		cancel:   cancel,
-	}
-
-	if err := os.MkdirAll(config.OutputDir, 0o700); err != nil {
-		return nil, fmt.Errorf("failed to create profile directory: %w", err)
+		config: config,
+		ctx:    ctx,
+		cancel: cancel,
 	}
 
 	if err := p.initializeProfiles(); err != nil {
@@ -78,13 +78,17 @@ func StartProfiling(ctx context.Context, config *Config) (*Profiler, error) {
 		return nil, fmt.Errorf("failed to start trace: %w", err)
 	}
 
-	go p.profileGoroutines()
+	p.workers.Go(p.profileGoroutines)
 
 	if config.SampleInterval > 0 {
-		go p.periodicHeapProfile()
+		p.workers.Go(p.periodicHeapProfile)
 	}
 
-	go p.handleSignals()
+	// Registering before StartProfiling returns means a signal that arrives
+	// right afterward still stops the profiler.
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+	go p.handleSignals(sigChan)
 
 	return p, nil
 }
@@ -127,6 +131,8 @@ func (p *Profiler) createInOutputDir(name string) (*os.File, error) {
 	return root.OpenFile(name, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
 }
 
+// periodicHeapProfile writes a heap snapshot every sample interval until the
+// profiler stops. It runs in p.workers.
 func (p *Profiler) periodicHeapProfile() {
 	ticker := time.NewTicker(p.config.SampleInterval)
 	defer ticker.Stop()
@@ -149,11 +155,19 @@ func (p *Profiler) writeHeapSnapshot() {
 	}
 	defer func() { _ = f.Close() }()
 
-	if err := pprof.WriteHeapProfile(f); err != nil {
-		fmt.Fprintf(os.Stderr, "failed to write heap profile: %v\n", err)
+	writeHeapProfile(f, "heap profile")
+}
+
+// writeHeapProfile writes the current heap profile to w and reports a failure
+// on standard error, naming the profile as what.
+func writeHeapProfile(w io.Writer, what string) {
+	if err := pprof.WriteHeapProfile(w); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to write %s: %v\n", what, err)
 	}
 }
 
+// profileGoroutines appends a goroutine dump to the goroutine profile every
+// five seconds until the profiler stops. It runs in p.workers.
 func (p *Profiler) profileGoroutines() {
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
@@ -163,7 +177,7 @@ func (p *Profiler) profileGoroutines() {
 	for {
 		select {
 		case <-ticker.C:
-			buf = p.writeGoroutineDump(buf, maxStackBuf)
+			buf = writeGoroutineDump(p.goroutFile, buf, maxStackBuf)
 		case <-p.ctx.Done():
 			return
 		}
@@ -171,13 +185,13 @@ func (p *Profiler) profileGoroutines() {
 }
 
 // maxStackBuf caps the buffer used to capture a goroutine dump.
-const maxStackBuf = 64 * 1024 * 1024 // 64MB
+const maxStackBuf = 64 << 20 // 64 MiB
 
 // writeGoroutineDump appends a timestamped dump of every goroutine's stack to
-// the goroutine profile. buf is reused scratch space that doubles until the
-// dump fits or doubling would exceed limit, in which case the dump is cut at
-// the buffer's size. The possibly grown buffer is returned for the next dump.
-func (p *Profiler) writeGoroutineDump(buf []byte, limit int) []byte {
+// w. buf is reused scratch space that doubles until the dump fits or doubling
+// would exceed limit, in which case the dump is cut at the buffer's size. The
+// possibly grown buffer is returned for the next dump.
+func writeGoroutineDump(w io.Writer, buf []byte, limit int) []byte {
 	buf = buf[:cap(buf)]
 	for {
 		n := runtime.Stack(buf, true)
@@ -185,28 +199,25 @@ func (p *Profiler) writeGoroutineDump(buf []byte, limit int) []byte {
 			buf = buf[:n]
 			break
 		}
+		// runtime.Stack filled the whole buffer.
 		if cap(buf)*2 > limit {
-			buf = buf[:n]
 			break
 		}
 		buf = make([]byte, cap(buf)*2)
 	}
 
-	if _, err := fmt.Fprintf(p.goroutFile, "\n--- Goroutine dump at %s ---\n", time.Now().Format(time.RFC3339)); err != nil {
+	if _, err := fmt.Fprintf(w, "\n--- Goroutine dump at %s ---\n", time.Now().Format(time.RFC3339)); err != nil {
 		fmt.Fprintf(os.Stderr, "failed to write goroutine timestamp: %v\n", err)
 		return buf
 	}
 
-	if _, err := p.goroutFile.Write(buf); err != nil {
+	if _, err := w.Write(buf); err != nil {
 		fmt.Fprintf(os.Stderr, "failed to write goroutine dump: %v\n", err)
 	}
 	return buf
 }
 
-func (p *Profiler) handleSignals() {
-	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
-
+func (p *Profiler) handleSignals(sigChan <-chan os.Signal) {
 	select {
 	case <-sigChan:
 		p.Stop()
@@ -215,14 +226,17 @@ func (p *Profiler) handleSignals() {
 	}
 }
 
+// Stop ends profiling. It waits for the goroutine dump and heap snapshot
+// goroutines to exit, so neither writes to a file after it is closed, then
+// writes the final heap profile and closes every profile file. Calls after
+// the first do nothing.
 func (p *Profiler) Stop() {
 	p.closeOnce.Do(func() {
 		p.cancel()
+		p.workers.Wait()
 		pprof.StopCPUProfile()
 
-		if err := pprof.WriteHeapProfile(p.memFile); err != nil {
-			fmt.Fprintf(os.Stderr, "failed to write final heap profile: %v\n", err)
-		}
+		writeHeapProfile(p.memFile, "final heap profile")
 
 		trace.Stop()
 
@@ -231,7 +245,5 @@ func (p *Profiler) Stop() {
 				_ = f.Close()
 			}
 		}
-
-		close(p.stopChan)
 	})
 }

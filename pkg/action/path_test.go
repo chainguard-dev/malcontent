@@ -8,6 +8,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 )
@@ -282,6 +283,86 @@ func TestFindFilesRecursivelyDeepNesting(t *testing.T) {
 	}
 }
 
+// pathTestRepo creates a repository layout under dir: a source file, a .git
+// directory with nested entries, and a nested repository's .git directory.
+func pathTestRepo(t *testing.T, dir string) {
+	t.Helper()
+	for _, name := range []string{
+		"main.go",
+		filepath.Join(".git", "config"),
+		filepath.Join(".git", "objects", "ab", "cd"),
+		filepath.Join("sub", ".git", "config"),
+	} {
+		scanTestWriteFile(t, filepath.Join(dir, name), []byte("x"))
+	}
+}
+
+func TestFindFilesRecursivelyGitDirectories(t *testing.T) {
+	t.Parallel()
+	// Walks report paths below the root with symlinks resolved.
+	base, err := filepath.EvalSymlinks(t.TempDir())
+	if err != nil {
+		t.Fatalf("resolve temporary directory: %v", err)
+	}
+	repo := filepath.Join(base, "repo")
+	pathTestRepo(t, repo)
+
+	tests := []struct {
+		name string
+		root string
+		want []string
+	}{
+		{name: "repository reports only files outside .git directories", root: repo, want: []string{filepath.Join(repo, "main.go")}},
+		{name: "a .git directory as the root reports nothing", root: filepath.Join(repo, ".git")},
+		{name: "a directory inside .git as the root reports nothing", root: filepath.Join(repo, ".git", "objects")},
+		{name: "a file inside .git as the root reports nothing", root: filepath.Join(repo, ".git", "config")},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got, err := findFilesRecursively(t.Context(), tt.root)
+			if err != nil {
+				t.Fatalf("findFilesRecursively: %v", err)
+			}
+			if !slices.Equal(got, tt.want) {
+				t.Errorf("files: got = %q, want = %q", got, tt.want)
+			}
+		})
+	}
+}
+
+// TestFindFilesRecursivelyRelativeGitDirectory covers walks from relative
+// roots, whose top-level .git directory is named ".git" rather than
+// ".../.git", so its entries are reported.
+func TestFindFilesRecursivelyRelativeGitDirectory(t *testing.T) {
+	// Not parallel: changes the working directory.
+	dir := t.TempDir()
+	pathTestRepo(t, dir)
+	t.Chdir(dir)
+
+	gitFiles := []string{filepath.Join(".git", "config"), filepath.Join(".git", "objects", "ab", "cd")}
+	tests := []struct {
+		name string
+		root string
+		want []string
+	}{
+		{name: "the working directory reports its top-level .git entries", root: ".", want: append(slices.Clone(gitFiles), "main.go")},
+		{name: "a relative .git root reports its entries", root: ".git", want: gitFiles},
+		{name: "a nested .git directory reports nothing", root: filepath.Join("sub", ".git")},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := findFilesRecursively(t.Context(), tt.root)
+			if err != nil {
+				t.Fatalf("findFilesRecursively: %v", err)
+			}
+			if !slices.Equal(got, tt.want) {
+				t.Errorf("files: got = %q, want = %q", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestCleanPath(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
@@ -325,6 +406,36 @@ func TestCleanPath(t *testing.T) {
 			path:   "/tmp/extract2/bin/ls",
 			prefix: "/tmp/extract",
 			want:   "/tmp/extract2/bin/ls",
+		},
+		{
+			name:   "windows prefix removed at a backslash boundary",
+			path:   "C:\\tmp\\extract\\bin\\ls",
+			prefix: "C:\\tmp\\extract",
+			want:   "/bin/ls",
+		},
+		{
+			name:   "windows partial prefix match is not stripped",
+			path:   "C:\\tmp\\extract2\\bin\\ls",
+			prefix: "C:\\tmp\\extract",
+			want:   "C:/tmp/extract2/bin/ls",
+		},
+		{
+			name:   "path equal to the prefix is emptied",
+			path:   "/tmp/extract",
+			prefix: "/tmp/extract",
+			want:   "",
+		},
+		{
+			name:   "relative path with an empty prefix",
+			path:   "bin\\ls",
+			prefix: "",
+			want:   "bin/ls",
+		},
+		{
+			name:   "empty path and prefix",
+			path:   "",
+			prefix: "",
+			want:   "",
 		},
 	}
 

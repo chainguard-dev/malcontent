@@ -1,0 +1,185 @@
+{
+    "Diff": {
+        "Added": {
+            "/new/tool\u001b[2J": {
+                "Path": "/new/tool\u001b[2J",
+                "SHA256": "",
+                "Size": 0,
+                "Behaviors": [
+                    {
+                        "Description": "writes files",
+                        "MatchStrings": [
+                            "evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-"
+                        ],
+                        "RiskScore": 2,
+                        "RiskLevel": "MEDIUM",
+                        "RuleURL": "https://r/write",
+                        "ID": "fs/write"
+                    }
+                ],
+                "RiskScore": 2,
+                "RiskLevel": "MEDIUM"
+            }
+        },
+        "Removed": {
+            "/old/empty": {
+                "Path": "/old/empty",
+                "SHA256": "",
+                "Size": 0,
+                "RiskScore": 0
+            },
+            "/old/tool": {
+                "Path": "/old/tool",
+                "SHA256": "",
+                "Size": 0,
+                "Behaviors": [
+                    {
+                        "Description": "connects",
+                        "MatchStrings": [
+                            "AF_INET"
+                        ],
+                        "RiskScore": 3,
+                        "RiskLevel": "HIGH",
+                        "RuleURL": "https://r/connect",
+                        "ID": "net/connect"
+                    },
+                    {
+                        "Description": "reads files",
+                        "RiskScore": 1,
+                        "RiskLevel": "LOW",
+                        "RuleURL": "https://r/read",
+                        "ID": "fs/read"
+                    }
+                ],
+                "RiskScore": 3,
+                "RiskLevel": "HIGH"
+            }
+        },
+        "Modified": {
+            "/mod/changed": {
+                "Path": "/mod/changed",
+                "SHA256": "",
+                "Size": 0,
+                "Behaviors": [
+                    {
+                        "Description": "binds a port",
+                        "RiskScore": 1,
+                        "RiskLevel": "LOW",
+                        "RuleURL": "https://r/bind",
+                        "ID": "net/bind"
+                    },
+                    {
+                        "Description": "runs a shell - quickly",
+                        "MatchStrings": [
+                            "/bin/sh",
+                            "evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-"
+                        ],
+                        "RiskScore": 3,
+                        "RiskLevel": "HIGH",
+                        "RuleURL": "https://r/shell",
+                        "RuleAuthor": "Dee",
+                        "DiffAdded": true,
+                        "ID": "exec/shell"
+                    },
+                    {
+                        "Description": "reads files",
+                        "MatchStrings": [
+                            "fopen"
+                        ],
+                        "RiskScore": 1,
+                        "RiskLevel": "LOW",
+                        "RuleURL": "https://r/read",
+                        "DiffRemoved": true,
+                        "ID": "fs/read"
+                    },
+                    {
+                        "Description": "uses AES",
+                        "RiskScore": 2,
+                        "RiskLevel": "MEDIUM",
+                        "RuleURL": "https://r/aes",
+                        "DiffAdded": true,
+                        "DiffRemoved": true,
+                        "ID": "crypto/aes"
+                    },
+                    {
+                        "Description": "beacons",
+                        "RiskScore": 0,
+                        "RiskLevel": "NONE",
+                        "RuleURL": "https://r/beacon",
+                        "DiffRemoved": true,
+                        "ID": "c2/beacon"
+                    }
+                ],
+                "PreviousRiskScore": 1,
+                "PreviousRiskLevel": "LOW",
+                "RiskScore": 3,
+                "RiskLevel": "HIGH"
+            },
+            "/mod/new-name": {
+                "Path": "/mod/new-name",
+                "SHA256": "",
+                "Size": 0,
+                "Behaviors": [
+                    {
+                        "Description": "uses RC4",
+                        "MatchStrings": [
+                            "rc4_init"
+                        ],
+                        "RiskScore": 2,
+                        "RiskLevel": "MEDIUM",
+                        "RuleURL": "https://r/rc4",
+                        "DiffAdded": true,
+                        "ID": "crypto/rc4"
+                    }
+                ],
+                "PreviousPath": "/mod/old-name",
+                "PreviousRiskScore": 2,
+                "PreviousRiskLevel": "MEDIUM",
+                "RiskScore": 2,
+                "RiskLevel": "MEDIUM"
+            },
+            "/mod/same": {
+                "Path": "/mod/same",
+                "SHA256": "",
+                "Size": 0,
+                "Behaviors": [
+                    {
+                        "Description": "listens",
+                        "RiskScore": 1,
+                        "RiskLevel": "LOW",
+                        "RuleURL": "https://r/listen",
+                        "ID": "net/listen"
+                    }
+                ],
+                "RiskScore": 1,
+                "RiskLevel": "LOW"
+            },
+            "/mod/lowered": {
+                "Path": "/mod/lowered",
+                "SHA256": "",
+                "Size": 0,
+                "Behaviors": [
+                    {
+                        "Description": "connects",
+                        "RiskScore": 3,
+                        "RiskLevel": "HIGH",
+                        "RuleURL": "https://r/connect",
+                        "DiffRemoved": true,
+                        "ID": "net/connect"
+                    },
+                    {
+                        "Description": "binds a port",
+                        "RiskScore": 1,
+                        "RiskLevel": "LOW",
+                        "RuleURL": "https://r/bind",
+                        "ID": "net/bind"
+                    }
+                ],
+                "PreviousRiskScore": 3,
+                "PreviousRiskLevel": "HIGH",
+                "RiskScore": 1,
+                "RiskLevel": "LOW"
+            }
+        }
+    }
+}

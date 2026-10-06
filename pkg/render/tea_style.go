@@ -65,6 +65,9 @@ var (
 
 	diffRemovedStyle = lipgloss.NewStyle().
 				Foreground(lipgloss.Color("196"))
+
+	riskChangeStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("244"))
 )
 
 // cleanAndWrapEvidence handles evidence strings, including those with escape sequences.
@@ -85,50 +88,33 @@ func cleanAndWrapEvidence(evidence string, width int) string {
 			unquoted = line
 		}
 		// Unquoting can turn an escape spelled out in the sample into a raw control byte.
-		unquoted = sanitizeTerminal(unquoted)
-
-		if len(unquoted) > width {
-			wrapped := wrapLine(unquoted, width)
-			result.WriteString(wrapped)
-		} else {
-			result.WriteString(unquoted)
-		}
+		result.WriteString(wrapLine(sanitizeTerminal(unquoted), width))
 	}
 
 	return result.String()
 }
 
-// wrapLine wraps a single line of text.
+// wrapLine breaks text into lines of width bytes, indenting each
+// continuation line. Text that fits is returned as is, without copying it.
 func wrapLine(text string, width int) string {
 	if len(text) <= width {
 		return text
 	}
 
 	var result strings.Builder
-	remaining := text
-	firstLine := true
-
-	for len(remaining) > 0 {
-		if !firstLine {
-			result.WriteString("\n      ") // indent continuation lines
-		}
-
-		chunk := remaining
-		if len(remaining) > width {
-			chunk = remaining[:width]
-			remaining = remaining[width:]
-		} else {
-			remaining = ""
-		}
-
-		result.WriteString(chunk)
-		firstLine = false
+	for len(text) > width {
+		result.WriteString(text[:width])
+		result.WriteString("\n      ")
+		text = text[width:]
 	}
-
+	result.WriteString(text)
 	return result.String()
 }
 
-func renderFileSummaryTea(ctx context.Context, fr *malcontent.FileReport, w io.Writer, rc tableConfig) {
+// renderFileSummaryTea writes fr's behaviors, grouped by namespace, in a box
+// for the interactive viewer. A file with added or removed behaviors gets a
+// title that counts them.
+func renderFileSummaryTea(ctx context.Context, fr *malcontent.FileReport, w io.Writer) {
 	if ctx.Err() != nil || fr.Skipped != "" {
 		return
 	}
@@ -149,8 +135,8 @@ func renderFileSummaryTea(ctx context.Context, fr *malcontent.FileReport, w io.W
 			previousNsRiskScore[ns] = b.RiskScore
 		}
 		byNamespace[ns] = append(byNamespace[ns], b)
-		if !b.DiffRemoved && b.RiskScore > nsRiskScore[ns] {
-			nsRiskScore[ns] = b.RiskScore
+		if !b.DiffRemoved {
+			nsRiskScore[ns] = max(nsRiskScore[ns], b.RiskScore)
 		}
 
 		if b.DiffAdded {
@@ -190,10 +176,10 @@ func renderFileSummaryTea(ctx context.Context, fr *malcontent.FileReport, w io.W
 	)
 
 	if diffMode {
-		rc.Title = fmt.Sprintf("Changed (%d added, %d removed): %s", added, removed, path)
+		title := fmt.Sprintf("Changed (%d added, %d removed): %s", added, removed, path)
 		header = lipgloss.JoinHorizontal(
 			lipgloss.Center,
-			pathStyle.Render(rc.Title),
+			pathStyle.Render(title),
 			" ",
 			riskBadge,
 		)
@@ -212,17 +198,12 @@ func renderFileSummaryTea(ctx context.Context, fr *malcontent.FileReport, w io.W
 		nsHeader := nsLongName(ns)
 		if len(previousNsRiskScore) > 0 && riskScore != previousNsRiskScore[ns] {
 			previousRiskLevel := riskLevels[previousNsRiskScore[ns]]
-			riskChangeStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("244"))
-			nsHeader = fmt.Sprintf("%s %s",
-				nsHeader,
-				riskChangeStyle.Render(fmt.Sprintf("%s → %s",
-					riskBadgeStyle.Foreground(riskColors[previousRiskLevel]).Render(previousRiskLevel),
-					riskBadgeStyle.Foreground(riskColors[riskLevel]).Render(riskLevel))))
+			transition := riskBadgeStyle.Foreground(riskColors[previousRiskLevel]).Render(previousRiskLevel) +
+				" → " +
+				riskBadgeStyle.Foreground(riskColors[riskLevel]).Render(riskLevel)
+			nsHeader += " " + riskChangeStyle.Render(transition)
 		} else {
-			badgeStyle := riskBadgeStyle.Foreground(riskColors[riskLevel]).Render(riskLevel)
-			nsHeader = fmt.Sprintf("%s %s",
-				nsHeader,
-				badgeStyle)
+			nsHeader += " " + riskBadgeStyle.Foreground(riskColors[riskLevel]).Render(riskLevel)
 		}
 
 		nsStyle := namespaceStyle.Foreground(riskColors[riskLevel]).Render(nsHeader)
@@ -231,23 +212,12 @@ func renderFileSummaryTea(ctx context.Context, fr *malcontent.FileReport, w io.W
 
 		// Render behaviors
 		for _, b := range bs {
-			_, rest := splitRuleID(b.ID)
-			e := evidenceString(b.MatchStrings, b.Description)
-			desc, _, _ := strings.Cut(b.Description, " - ")
-
-			if b.RuleAuthor != "" {
-				if desc != "" {
-					desc = fmt.Sprintf("%s, by %s", desc, b.RuleAuthor)
-				} else {
-					desc = fmt.Sprintf("by %s", b.RuleAuthor)
-				}
-			}
-
 			// Style behavior based on risk level and diff status
 			baseStyle := behaviorStyle.
 				Foreground(riskColors[b.RiskLevel])
 
 			bullet := "•"
+			showEvidence := true
 
 			if diffMode {
 				switch {
@@ -257,9 +227,24 @@ func renderFileSummaryTea(ctx context.Context, fr *malcontent.FileReport, w io.W
 				case b.DiffRemoved:
 					bullet = "-"
 					baseStyle = diffRemovedStyle
-					e = ""
+					showEvidence = false
 				default:
 					continue
+				}
+			}
+
+			_, rest := splitRuleID(b.ID)
+			var e string
+			if showEvidence {
+				e = evidenceString(b.MatchStrings, b.Description)
+			}
+			desc, _, _ := strings.Cut(b.Description, " - ")
+
+			if b.RuleAuthor != "" {
+				if desc != "" {
+					desc += ", by " + b.RuleAuthor
+				} else {
+					desc = "by " + b.RuleAuthor
 				}
 			}
 
@@ -268,11 +253,7 @@ func renderFileSummaryTea(ctx context.Context, fr *malcontent.FileReport, w io.W
 				Foreground(riskColors[b.RiskLevel]).
 				Render(ShortRisk(b.RiskLevel))
 
-			content.WriteString(baseStyle.Render(fmt.Sprintf("%s %s %s %s",
-				bullet,
-				behaviorRisk,
-				rest,
-				desc)))
+			content.WriteString(baseStyle.Render(bullet + " " + behaviorRisk + " " + rest + " " + desc))
 			content.WriteString("\n")
 
 			// Add evidence if present

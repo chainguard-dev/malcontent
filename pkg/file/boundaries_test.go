@@ -4,7 +4,6 @@
 package file
 
 import (
-	"bytes"
 	"errors"
 	"slices"
 	"strings"
@@ -48,7 +47,13 @@ func TestArchiveCounter_CapBoundaries(t *testing.T) {
 	}{
 		{"total equal to MaxBytes is allowed", 100, 0, 0, []int{60, 40}, nil},
 		{"one byte over MaxBytes is rejected", 100, 0, 0, []int{100, 1}, ErrArchiveBytesCap},
+		{"total equal to a one-byte MaxBytes is allowed", 1, 0, 0, []int{1}, nil},
+		{"one byte over a one-byte MaxBytes is rejected", 1, 0, 0, []int{1, 1}, ErrArchiveBytesCap},
+		{"negative MaxBytes disables the byte cap", -1, 0, 0, []int{1 << 20}, nil},
 		{"zero InputBytes disables the ratio cap", 0, 2, 0, []int{1 << 20}, nil},
+		{"negative InputBytes disables the ratio cap", 0, 2, -1, []int{1 << 20}, nil},
+		{"total at the ratio threshold of a one-byte input is allowed", 0, 2, 1, []int{2}, nil},
+		{"one byte past the ratio threshold of a one-byte input is rejected", 0, 2, 1, []int{2, 1}, ErrArchiveRatioCap},
 	}
 
 	for _, tt := range tests {
@@ -97,55 +102,5 @@ func TestArchiveCounter_WarnsWhenRatioCapCannotFire(t *testing.T) {
 				t.Errorf("ratio cap warning logged: got = %v, want = %v (warnings %q)", warned, tt.wantWarn, got)
 			}
 		})
-	}
-}
-
-func TestReadSmallFileReportsCeilingReached(t *testing.T) {
-	t.Parallel()
-	tests := []struct {
-		name string
-		size int
-		want bool
-	}{
-		{"empty file", 0, false},
-		{"one byte below the ceiling", int(smallFileMaxBytes) - 1, false},
-		{"exactly the ceiling", int(smallFileMaxBytes), true},
-		{"above the ceiling", int(smallFileMaxBytes) + 1, true},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			f := writeTempFile(t, deterministicBytes(tt.size))
-			defer f.Close()
-
-			_, filled, err := readSmallFile(f, int64(tt.size))
-			if err != nil {
-				t.Fatalf("readSmallFile: %v", err)
-			}
-			if filled != tt.want {
-				t.Errorf("filled: got = %v, want = %v", filled, tt.want)
-			}
-		})
-	}
-}
-
-func TestReadSmallFileBoundsPreallocation(t *testing.T) {
-	t.Parallel()
-	// A stale size hint far above the small ceiling must not pre-allocate
-	// beyond it; the hint only presizes the buffer.
-	content := deterministicBytes(10)
-	f := writeTempFile(t, content)
-	defer f.Close()
-
-	got, _, err := readSmallFile(f, 4<<20)
-	if err != nil {
-		t.Fatalf("readSmallFile: %v", err)
-	}
-	if !bytes.Equal(got, content) {
-		t.Fatalf("content: got %d bytes, want %d", len(got), len(content))
-	}
-	if limit := 1 << 20; cap(got) >= limit {
-		t.Errorf("buffer capacity: got = %d, want < %d", cap(got), limit)
 	}
 }

@@ -9,22 +9,17 @@ import (
 	"cmp"
 	"context"
 	"fmt"
-	"index/suffixarray"
 	"io/fs"
-	"maps"
-	"math"
 	"net/url"
 	"path/filepath"
 	"regexp"
 	"slices"
-	"sort"
 	"strings"
 	"sync"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
-	"github.com/chainguard-dev/malcontent/pkg/release"
 	"github.com/chainguard-dev/malcontent/rules"
 
 	yarax "github.com/VirusTotal/yara-x/go"
@@ -139,29 +134,22 @@ var Levels = map[string]int{
 }
 
 func thirdPartyKey(path string, rule string) string {
-	// include the directory
-	_, afterYara, found := strings.Cut(path, "yara/")
-	if !found {
-		return ""
-	}
+	// include the directory; a path without "yara/" leaves afterYara empty,
+	// which has no subdirectory
+	_, afterYara, _ := strings.Cut(path, "yara/")
 	subDir, _, found := strings.Cut(afterYara, "/")
 	if !found || subDir == "" || strings.Contains(subDir, ".yara") {
 		return ""
 	}
 
 	// ELASTIC_Linux_Trojan_Gafgyt_E4A1982B
-	// Start with words from the rule name, not including subDir yet
+	// Start with words from the rule name, not including subDir yet. Split
+	// always returns at least one word.
 	words := strings.Split(strings.ToLower(rule), "_")
 
-	var lastWord string
-	// creating a slice with subDir initially should usually ensure this is at least one,
-	// but the subDir assignment may not result in a non-empty string
-	if len(words) > 0 {
-		// strip off the last word if it's a hex key or hash of any length
-		lastWord = words[len(words)-1]
-		if isHexWord(lastWord) {
-			words = words[0 : len(words)-1]
-		}
+	// strip off the last word if it's a hex key or hash of any length
+	if isHexWord(words[len(words)-1]) {
+		words = words[:len(words)-1]
 	}
 
 	keepWords := make([]string, 0, len(words))
@@ -198,8 +186,8 @@ func thirdPartyKey(path string, rule string) string {
 	// whose rule identifiers are already concise and meaningful (e.g. GuardDog),
 	// where truncation would collapse distinct rules (..._base64exec, ..._chr,
 	// ...) into one key and lose findings during dedup.
-	if _, keepAll := severityDrivenSources[subDirLower]; len(keepWords) > 3 && !keepAll {
-		keepWords = keepWords[0:3]
+	if _, keepAll := severityDrivenSources[subDirLower]; !keepAll {
+		keepWords = keepWords[:min(len(keepWords), 3)]
 	}
 
 	// Fix name for https://github.com/Neo23x0/signature-base within YARAForge
@@ -245,16 +233,11 @@ func generateKey(src string, rule string) string {
 		// namespaces can have dashes, like 'anti-static'
 		dirParts[0] = strings.ReplaceAll(dirParts[0], "_", "-")
 
-		var rsrc, tech string
-		// we need at least two parts to pull out resources and technique (potentially one in the same)
-		if len(dirParts) >= 2 {
-			rsrc = dirParts[len(dirParts)-2]
-			tech = dirParts[len(dirParts)-1]
-			tech = strings.ReplaceAll(tech, rsrc, "")
-			tech = strings.ReplaceAll(tech, "__", "_")
-			tech = strings.Trim(tech, "_")
-			dirParts[len(dirParts)-1] = tech
-		}
+		// the last two parts are the resource and the technique (potentially one in the same)
+		rsrc := dirParts[len(dirParts)-2]
+		tech := strings.ReplaceAll(dirParts[len(dirParts)-1], rsrc, "")
+		tech = strings.ReplaceAll(tech, "__", "_")
+		dirParts[len(dirParts)-1] = strings.Trim(tech, "_")
 	}
 
 	result := strings.TrimRight(strings.Join(dirParts, "/"), "/")
@@ -274,23 +257,20 @@ const (
 	// is in the low thousands; the cap is a safety margin that guards
 	// against pathological embed contents.
 	ruleIndexMaxEntries = 4096
-	// ruleMaxLines caps the line counter to avoid signed-int overflow on
-	// hostile inputs. No real rule file approaches this.
-	ruleMaxLines = math.MaxInt32
 )
 
 var (
 	ruleLineIndexOnce sync.Once
-	ruleLineIndex     map[string]int
-	errRuleLineIndex  error
+	// ruleLineIndex stays nil, indexing nothing, when it fails to build.
+	ruleLineIndex map[string]int
 )
 
-// buildRuleLineIndex walks the embedded rules.FS exactly once, mapping
-// "<src>:<rule_name>" to the 1-based line of its declaration. The result
-// is cached in ruleLineIndex; subsequent callers read the map directly.
-func buildRuleLineIndex() (map[string]int, error) {
+// buildRuleLineIndex walks fsys, mapping "<src>:<rule_name>" to the 1-based
+// line of each rule declaration in its .yara and .yar files. ruleLine builds
+// it from the embedded rules.FS exactly once and caches it in ruleLineIndex.
+func buildRuleLineIndex(fsys fs.FS) (map[string]int, error) {
 	idx := make(map[string]int, 2048)
-	err := fs.WalkDir(rules.FS, ".", func(path string, d fs.DirEntry, walkErr error) error {
+	err := fs.WalkDir(fsys, ".", func(path string, d fs.DirEntry, walkErr error) error {
 		if walkErr != nil {
 			return walkErr
 		}
@@ -301,7 +281,7 @@ func buildRuleLineIndex() (map[string]int, error) {
 		if ext != ".yara" && ext != ".yar" {
 			return nil
 		}
-		bs, err := fs.ReadFile(rules.FS, path)
+		bs, err := fs.ReadFile(fsys, path)
 		if err != nil {
 			return fmt.Errorf("read %s: %w", path, err)
 		}
@@ -310,9 +290,6 @@ func buildRuleLineIndex() (map[string]int, error) {
 		scanner.Buffer(make([]byte, 64*1024), 1024*1024)
 		lineNo := 0
 		for scanner.Scan() {
-			if lineNo == ruleMaxLines {
-				return fmt.Errorf("%s: exceeds line cap", path)
-			}
 			lineNo++
 			line := scanner.Bytes()
 			m := ruleDeclRE.FindSubmatch(line)
@@ -342,17 +319,16 @@ func buildRuleLineIndex() (map[string]int, error) {
 // indexed or when the index failed to build.
 func ruleLine(src, rule string) (int, bool) {
 	ruleLineIndexOnce.Do(func() {
-		ruleLineIndex, errRuleLineIndex = buildRuleLineIndex()
+		ruleLineIndex, _ = buildRuleLineIndex(rules.FS)
 	})
-	if errRuleLineIndex != nil || ruleLineIndex == nil {
-		return 0, false
-	}
 	line, ok := ruleLineIndex[src+":"+rule]
 	return line, ok
 }
 
-func generateRuleURL(src string, rule string) string {
-	ref := release.ResolveRuleURLCommit()
+// generateRuleURL returns the GitHub URL of rule's declaration in src at the
+// git ref, which release.ResolveRuleURLCommit supplies. An empty ref means the
+// main branch.
+func generateRuleURL(ref string, src string, rule string) string {
 	if ref == "" {
 		ref = "main"
 	}
@@ -382,42 +358,30 @@ func ignoreMatch(tags []string, ignoreTags map[string]struct{}) bool {
 // of ns, or "" if ns has fewer than two '/'-separated segments. The
 // result is a sub-slice of the input; no allocation is performed.
 func nsSecondSegment(ns string) string {
-	_, rest, ok := strings.Cut(ns, "/")
-	if !ok {
-		return ""
-	}
-	if seg, _, ok := strings.Cut(rest, "/"); ok {
-		return seg
-	}
-	return rest
+	// Without a '/', rest is empty, and so is its first segment.
+	_, rest, _ := strings.Cut(ns, "/")
+	seg, _, _ := strings.Cut(rest, "/")
+	return seg
 }
 
 // containsFoldASCII reports whether haystack contains needle under ASCII
 // case folding, without allocating. needle must already be lowercase
 // ASCII; all bytes outside [A-Z] match exactly.
 func containsFoldASCII(haystack, needle string) bool {
-	if len(needle) == 0 {
-		return true
-	}
-	if len(haystack) < len(needle) {
-		return false
-	}
-	last := len(haystack) - len(needle)
-	for i := 0; i <= last; i++ {
-		match := true
-		for j := 0; j < len(needle); j++ {
+	// A needle longer than haystack has no start position, and an empty
+	// needle matches at the first one.
+next:
+	for i := range len(haystack) - len(needle) + 1 {
+		for j := range len(needle) {
 			c := haystack[i+j]
 			if c >= 'A' && c <= 'Z' {
 				c += 'a' - 'A'
 			}
 			if c != needle[j] {
-				match = false
-				break
+				continue next
 			}
 		}
-		if match {
-			return true
-		}
+		return true
 	}
 	return false
 }
@@ -454,137 +418,6 @@ func behaviorRisk(ns string, rule string, tags []string) int {
 	return risk
 }
 
-func longestUnique(raw []string) []string {
-	if len(raw) <= 1 {
-		return raw
-	}
-
-	unique := make(map[string]struct{}, len(raw))
-	for _, s := range raw {
-		if s != "" {
-			unique[s] = struct{}{}
-		}
-	}
-
-	if len(unique) == 0 {
-		return nil
-	}
-
-	keys := slices.Sorted(maps.Keys(unique))
-
-	// Find a byte value not present in any string to use as separator
-	sep := findSeparator(keys)
-
-	totalLen := 0
-	for _, s := range keys {
-		totalLen += len(s) + 1
-	}
-	combined := make([]byte, 0, totalLen)
-	offsets := make([]int, len(keys))
-	for i, s := range keys {
-		offsets[i] = len(combined)
-		combined = append(combined, s...)
-		combined = append(combined, sep)
-	}
-
-	sa := suffixarray.New(combined)
-
-	parentOf := func(pos int) int {
-		idx := sort.Search(len(offsets), func(i int) bool {
-			return offsets[i] > pos
-		}) - 1
-		if idx < 0 || pos >= offsets[idx]+len(keys[idx]) {
-			return -1
-		}
-		return idx
-	}
-
-	longest := make([]string, 0, len(keys))
-	for i, k := range keys {
-		positions := sa.Lookup([]byte(k), -1)
-		contained := false
-		for _, pos := range positions {
-			if p := parentOf(pos); p >= 0 && p != i {
-				contained = true
-				break
-			}
-		}
-		if !contained {
-			longest = append(longest, k)
-		}
-	}
-
-	slices.SortFunc(longest, func(a, b string) int {
-		if diff := len(b) - len(a); diff != 0 {
-			return diff
-		}
-		return strings.Compare(a, b)
-	})
-	return longest
-}
-
-// findSeparator returns a byte value not present in any of the input strings.
-func findSeparator(strs []string) byte {
-	var used [256]bool
-	for _, s := range strs {
-		for _, b := range []byte(s) {
-			used[b] = true
-		}
-	}
-	for b := range used {
-		if !used[b] {
-			return byte(b)
-		}
-	}
-	return 0
-}
-
-func matchToString(ruleName string, m string) string {
-	if containsUnprintable([]byte(m)) {
-		return ruleName
-	}
-
-	switch {
-	case strings.Contains(ruleName, "base64"),
-		strings.Contains(ruleName, "xor"):
-		var sb strings.Builder
-		sb.Grow(len(ruleName) + 2 + len(m))
-		sb.WriteString(ruleName)
-		sb.WriteString("::")
-		sb.WriteString(m)
-		return sb.String()
-	case strings.Contains(ruleName, "xml_key_val"):
-		return strings.TrimSpace(strings.ReplaceAll(
-			strings.ReplaceAll(m, "<key>", ""),
-			"</key>", "",
-		))
-	}
-	return strings.TrimSpace(m)
-}
-
-// extract match strings.
-func matchStrings(ruleName string, ms []string) []string {
-	if len(ms) == 0 {
-		return nil
-	}
-
-	// Create a thread-safe copy of the input
-	safe := make([]string, len(ms))
-	copy(safe, ms)
-
-	raw := make([]string, 0, len(safe))
-
-	// Process strings while keeping thread safety
-	for _, m := range safe {
-		str := matchToString(ruleName, m)
-		if str != "" {
-			raw = append(raw, str)
-		}
-	}
-
-	return longestUnique(raw)
-}
-
 // fixURL fixes badly formed URLs.
 func fixURL(s string) string {
 	// YARAforge forgets to encode spaces, but encodes everything else
@@ -595,8 +428,7 @@ func fixURL(s string) string {
 func mungeDescription(s string) string {
 	// in: Detection patterns for the tool 'Nsight RMM' taken from the ThreatHunting-Keywords github project
 	// out: references "Nsight RMM" tool
-	m := threatHuntingKeywordRe.FindStringSubmatch(s)
-	if len(m) > 0 {
+	if m := threatHuntingKeywordRe.FindStringSubmatch(s); m != nil {
 		return fmt.Sprintf("references %q tool", m[1])
 	}
 	return s
@@ -606,179 +438,44 @@ func mungeDescription(s string) string {
 // This function will only be used via the refresh package.
 func TrimPrefixes(path string, prefixes []string) string {
 	for _, prefix := range prefixes {
-		switch prefix {
-		case "":
-			continue
-		case "/private":
+		if prefix == "/private" {
 			return strings.TrimPrefix(path, prefix)
-		default:
-			// Strip ./ prefix
-			prefix = strings.TrimPrefix(prefix, "./")
-			if prefix == "" {
-				continue
-			}
+		}
 
-			// Try matching as-is first (handles both relative and absolute)
-			if trimmed, ok := strings.CutPrefix(path, prefix); ok {
+		// Strip ./ prefix; an empty prefix trims nothing
+		prefix = strings.TrimPrefix(prefix, "./")
+		if prefix == "" {
+			continue
+		}
+
+		// Try matching as-is first (handles both relative and absolute)
+		if trimmed, ok := strings.CutPrefix(path, prefix); ok {
+			return strings.TrimPrefix(trimmed, string(filepath.Separator))
+		}
+
+		// If prefix is relative but path is absolute, try with leading /
+		if rest, abs := strings.CutPrefix(path, "/"); abs && !strings.HasPrefix(prefix, "/") {
+			if trimmed, ok := strings.CutPrefix(rest, prefix); ok {
 				return strings.TrimPrefix(trimmed, string(filepath.Separator))
-			}
-
-			// If prefix is relative but path is absolute, try with leading /
-			if !strings.HasPrefix(prefix, "/") && strings.HasPrefix(path, "/") {
-				if trimmed, ok := strings.CutPrefix(path, "/"+prefix); ok {
-					return strings.TrimPrefix(trimmed, string(filepath.Separator))
-				}
 			}
 		}
 	}
 	return path
 }
 
-// extAliases maps a detected file extension to additional filetypes that
-// rules may be scoped to. Compiled Java bytecode is usually scanned as a
-// bare .class file after archive extraction, so rules scoped to jar or
-// java sources must also apply to it. Likewise, compiled Python bytecode
-// is detected by content as pyc regardless of the file's extension, so
-// rules scoped to py sources must also apply to it.
-var extAliases = map[string][]string{
-	extClass: {"jar", "java"},
-	extPyc:   {"py"},
-}
-
-// extMatchesFiletypes reports whether a detected file extension matches a
-// rule's comma-separated filetypes scoping, either verbatim or through an
-// extension alias.
-func extMatchesFiletypes(filetypes string, ext string) bool {
-	types := strings.Split(filetypes, ",")
-	if slices.Contains(types, ext) {
-		return true
-	}
-	for _, alias := range extAliases[ext] {
-		if slices.Contains(types, alias) {
-			return true
-		}
-	}
-	return false
-}
-
-// globCache memoizes compiled path-glob regexps keyed by their source pattern.
-// The set of distinct path_include/path_exclude values across the rule corpus
-// is small, so this keeps fileMatchesRule allocation-free on the hot path.
-var globCache sync.Map // map[string]*regexp.Regexp
-
-// compileGlob translates a single third-party path glob (e.g. a GuardDog
-// path_include entry) into an anchored, case-insensitive regexp. '*' matches
-// any run of characters (including path separators) and the pattern is anchored
-// to the start of the path or to a '/' boundary, so "*.py" matches "a/b/c.py",
-// "*/setup.py" matches "pkg/setup.py", "setup.py" matches ".../setup.py" but
-// not ".../mysetup.py", and "dist/*" matches ".../dist/x.js". Matching is
-// case-insensitive so "*.js" still matches "Evil.JS". The escaped pattern
-// always compiles, so MustCompile is safe.
-func compileGlob(pattern string) *regexp.Regexp {
-	if v, ok := globCache.Load(pattern); ok {
-		re, _ := v.(*regexp.Regexp)
-		return re
-	}
-	parts := strings.Split(pattern, "*")
-	for i, part := range parts {
-		parts[i] = regexp.QuoteMeta(part)
-	}
-	re := regexp.MustCompile(`(?i)(?:^|/)` + strings.Join(parts, `.*`) + `$`)
-	globCache.Store(pattern, re)
-	return re
-}
-
-// pathMatchesGlobs reports whether path matches any of the comma-separated glob
-// patterns (third-party path_include/path_exclude syntax).
-func pathMatchesGlobs(patterns string, path string) bool {
-	path = filepath.ToSlash(path)
-	for p := range strings.SplitSeq(patterns, ",") {
-		p = strings.TrimSpace(p)
-		if p == "" {
-			continue
-		}
-		if compileGlob(p).MatchString(path) {
-			return true
-		}
-	}
-	return false
-}
-
-// globExtensions extracts the bare file extensions from "*.ext" entries in a
-// comma-separated path-glob list, ignoring path-shaped globs ("*/setup.py",
-// "dist/*"). The result is a filetypes-style list usable with
-// extMatchesFiletypes, so a path_include can also be satisfied by the detected
-// file type when the path itself lacks the expected extension.
-func globExtensions(patterns string) string {
-	var exts []string
-	for p := range strings.SplitSeq(patterns, ",") {
-		p = strings.TrimSpace(p)
-		if rest, ok := strings.CutPrefix(p, "*."); ok && rest != "" && !strings.ContainsAny(rest, "/*") {
-			exts = append(exts, rest)
-		}
-	}
-	return strings.Join(exts, ",")
-}
-
-// fileMatchesRule checks a scanned file against a rule's type/path scoping
-// metadata: malcontent's "filetypes" (an extension list) and the third-party
-// "path_include"/"path_exclude" keys (comma-separated path globs, e.g. from
-// GuardDog). A rule that declares none of these applies to every file.
-func fileMatchesRule(meta []yarax.Metadata, ext string, path string) bool {
-	var filetypes, pathInclude, pathExclude string
-	var hasFiletypes, hasInclude, hasExclude bool
-	for _, m := range meta {
-		switch m.Identifier() {
-		case "filetypes":
-			filetypes, hasFiletypes = fmt.Sprintf("%s", m.Value()), true
-		case "path_include":
-			pathInclude, hasInclude = fmt.Sprintf("%s", m.Value()), true
-		case "path_exclude":
-			pathExclude, hasExclude = fmt.Sprintf("%s", m.Value()), true
-		}
-	}
-
-	// Path globs are only meaningful when we have a path; a pathless (in-memory)
-	// scan leaves them unevaluated so the rule stays universal.
-	if path != "" {
-		if hasExclude && pathMatchesGlobs(pathExclude, path) {
-			return false
-		}
-		// A path_include rule applies when the path matches, or when the
-		// detected file type matches one of its "*.ext" globs (covering
-		// extensionless files whose type malcontent identified by content).
-		if hasInclude && !pathMatchesGlobs(pathInclude, path) &&
-			(ext == "" || !extMatchesFiletypes(globExtensions(pathInclude), ext)) {
-			return false
-		}
-	}
-
-	if hasFiletypes {
-		// An undetected file type is treated as universal, preserving the
-		// behavior from before the path-glob keys were introduced.
-		if ext == "" {
-			return true
-		}
-		return extMatchesFiletypes(filetypes, ext)
-	}
-	return true
-}
-
 // skipMatch determines whether to avoid processing a rule match.
 func skipMatch(ignoreMalcontent, override, scan bool, risk, threshold, highestRisk int) bool {
-	switch {
-	case risk == INVALID:
-		return true
-	// The malcontent rule is classified as harmless
-	// A !ignoreMalcontent condition will prevent the rule from being filtered
-	case !scan && risk < threshold && !ignoreMalcontent && !override:
-		return true
-	// If running a scan as opposed to an analyze,
-	// drop any matches that fall below the highest risk
-	case scan && risk < highestRisk && !ignoreMalcontent && !override:
+	if risk == INVALID {
 		return true
 	}
-	return false
+	// The malcontent rule is classified as harmless
+	// A !ignoreMalcontent condition will prevent the rule from being filtered
+	if !scan && risk < threshold && !ignoreMalcontent && !override {
+		return true
+	}
+	// If running a scan as opposed to an analyze,
+	// drop any matches that fall below the highest risk
+	return scan && risk < highestRisk && !ignoreMalcontent && !override
 }
 
 // skipScanFile determines whether a scanned file should
@@ -792,12 +489,9 @@ func skipScanFile(scan bool, overallRiskScore int) bool {
 
 // applyCriticalUpgrade evaluates whether to apply a risk increase
 // depending on c.QuantityIncreasesRisk, the file's high behavior count, and the file's size.
-func applyCriticalUpgrade(ctx context.Context, quantityIncreasesRisk bool, riskCounts map[int]int, overallRiskScore int, size int64) bool {
+func applyCriticalUpgrade(ctx context.Context, quantityIncreasesRisk bool, highCount int, overallRiskScore int, size int64) bool {
 	// If something has a lot of high, it's probably critical
-	if quantityIncreasesRisk && upgradeRisk(ctx, overallRiskScore, riskCounts, size) {
-		return true
-	}
-	return false
+	return quantityIncreasesRisk && upgradeRisk(ctx, overallRiskScore, highCount, size)
 }
 
 // isMalcontent determines whether the scanned file is the malcontent binary itself
@@ -809,6 +503,14 @@ func isMalcontent(path string) bool {
 	return false
 }
 
+// Generate builds the report for the file at path from its scan results mrs
+// and its contents fc. When c.Rules is the rule set that produced mrs, matches
+// are processed in the rules' declaration order, so the report does not depend
+// on which scanner produced mrs, and per-rule work is cached across calls.
+// With a nil c.Rules, matches are processed in the order mrs lists them and
+// nothing is cached. highestRisk is HighestMatchRisk's result and is only read
+// for scans (c.Scan). Generate only reads mrs, so goroutines may share it, and
+// the report does not refer to fc once Generate returns.
 func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcontent.Config, expath string, _ *clog.Logger, fc []byte, size int64, checksum string, kind *programkind.FileType, highestRisk int) (*malcontent.FileReport, error) {
 	if ctx.Err() != nil {
 		return &malcontent.FileReport{}, ctx.Err()
@@ -817,44 +519,56 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 	if mrs == nil {
 		return nil, fmt.Errorf("scan failed")
 	}
+	return buildReport(ctx, path, mrs.MatchingRules(), c, expath, fc, size, checksum, kind, highestRisk)
+}
 
-	ignoreTags := c.IgnoreTags
-	minScore := c.MinRisk
-	ignoreSelf := c.IgnoreSelf
+// GenerateRules is Generate for the rules that scans of the file at path
+// matched, which may come from several rule sets, such as rule sets divided by
+// scope, with any rule matched by more than one scan listed once. With c.Rules
+// set, every listed rule needs a declaration index, from SetRuleOrder or from
+// c.Rules itself. GenerateRules only reads the rules.
+func GenerateRules(ctx context.Context, path string, matching []*yarax.Rule, c malcontent.Config, expath string, _ *clog.Logger, fc []byte, size int64, checksum string, kind *programkind.FileType, highestRisk int) (*malcontent.FileReport, error) {
+	if ctx.Err() != nil {
+		return &malcontent.FileReport{}, ctx.Err()
+	}
+	return buildReport(ctx, path, matching, c, expath, fc, size, checksum, kind, highestRisk)
+}
 
-	ignore := buildIgnoreMap(ignoreTags)
-
+func buildReport(ctx context.Context, path string, matching []*yarax.Rule, c malcontent.Config, expath string, fc []byte, size int64, checksum string, kind *programkind.FileType, highestRisk int) (*malcontent.FileReport, error) {
 	displayPath := trimDisplayPath(path, expath, c)
-
-	matchCount := len(mrs.MatchingRules())
-	fr := initFileReport(displayPath, checksum, size, matchCount)
-
-	pledges := make([]string, 0, 4)
-	caps := make([]string, 0, 4)
-	syscalls := make([]string, 0, 8)
-
-	ignoreMalcontent := false
-	key := ""
-	overallRiskScore := 0
-	risk := 0
-	riskCounts := make(map[int]int, 0)
-	behaviorIdx := make(map[string]int, matchCount)
-	var overrides []overrideTarget
-
-	// Store match rules in a map for future override operations
-	mrsMap := createMatchRulesMap(mrs, matchCount)
-
+	slashPath := filepath.ToSlash(displayPath)
 	fileExt := ""
 	if kind != nil {
 		fileExt = kind.Ext
 	}
 
-	for _, m := range mrs.MatchingRules() {
-		if all(m.Identifier() == NAME, ignoreSelf) {
+	infos := ruleInfosFor(c.Rules)
+	matches := make([]ruleMatch, len(matching))
+	for i, m := range matching {
+		matches[i] = ruleMatch{rule: m, info: infos.get(m)}
+	}
+	// A reused scanner reports matches in an order that depends on its earlier
+	// scans, and the report depends on the order (ties, overrides, the
+	// malcontent rule), so walk them in declaration order when it is known.
+	// The copy keeps mrs untouched for other readers.
+	if infos.ordered() {
+		slices.SortStableFunc(matches, func(a, b ruleMatch) int {
+			return cmp.Compare(a.info.order, b.info.order)
+		})
+	}
+
+	ignore := buildIgnoreMap(c.IgnoreTags)
+	rb := newReportBuilder(initFileReport(displayPath, checksum, size, len(matching)), fc, matching)
+
+	ignoreMalcontent := false
+	highCount := 0
+	for _, rm := range matches {
+		m, ri := rm.rule, rm.info
+		if c.IgnoreSelf && m.Identifier() == NAME {
 			ignoreMalcontent = true
 		}
 
-		if !fileMatchesRule(m.Metadata(), fileExt, displayPath) {
+		if !ri.scope.matches(fileExt, slashPath) {
 			continue
 		}
 
@@ -865,67 +579,24 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 			continue
 		}
 
-		override := slices.Contains(m.Tags(), "override")
+		if ri.risk == HIGH {
+			highCount++
+		}
 
-		risk = matchRisk(m)
-		overallRiskScore = max(overallRiskScore, risk)
-		riskCounts[risk]++
-
-		if skipMatch(ignoreMalcontent, override, c.Scan, risk, minScore, highestRisk) {
+		if skipMatch(ignoreMalcontent, ri.override, c.Scan, ri.risk, c.MinRisk, highestRisk) {
 			continue
 		}
 
-		key = generateKey(m.Namespace(), m.Identifier())
-		ruleURL := generateRuleURL(m.Namespace(), m.Identifier())
-
-		matchedStrings := processMatchedStrings(fc, m)
-
-		b := buildBehavior(m, matchedStrings, key, ruleURL, risk)
-
-		// if the rule has an override tag but is not overriding a valid rule,
-		// ignore this match rule so that we don't show errant false positive rules in reports
-		if !parseMetadata(m, b, fr, override, mrsMap, &pledges, &caps, &syscalls, &overrides) {
-			continue
-		}
-
-		// Fix YARA Forge rules that record their author URL as reference URLs.
-		// An empty reference is a prefix of every URL, so it must not count.
-		if b.ReferenceURL != "" && strings.HasPrefix(b.RuleURL, b.ReferenceURL) {
-			b.RuleAuthorURL = b.ReferenceURL
-			b.ReferenceURL = ""
-		}
-
-		// Meta names are weird and unfortunate, depending on whether they hold a value
-		if strings.HasPrefix(key, "meta/") {
-			k := strings.ReplaceAll(filepath.Dir(key), "meta/", "")
-			v := filepath.Base(key)
-
-			fr.Meta[k] = v
-			continue
-		}
-
-		if ignoreMatch(m.Tags(), ignore) {
-			fr.FilteredBehaviors++
-			continue
-		}
-
-		// If the rule does not have a description, make one up based on the rule name
-		if b.Description == "" {
-			b.Description = strings.ReplaceAll(m.Identifier(), "_", " ")
-		}
-
-		updateBehavior(fr, b, key, behaviorIdx)
+		rb.add(m, ri, ignore)
 	}
 
-	// Update the behaviors to account for overrides
-	fr.Overrides = append(fr.Overrides, overrideEntries(overrides)...)
-	fr.Behaviors = handleOverrides(fr.Behaviors, fr.Overrides, minScore, c.Scan)
+	fr := rb.finish(c.MinRisk, c.Scan)
 
 	// Adjust the overall risk if we deviated from overallRiskScore
 	// Scans will still need to drop <= medium results
-	overallRiskScore = highestBehaviorRisk(fr)
+	overallRiskScore := highestBehaviorRisk(fr)
 
-	if applyCriticalUpgrade(ctx, c.QuantityIncreasesRisk, riskCounts, overallRiskScore, size) {
+	if applyCriticalUpgrade(ctx, c.QuantityIncreasesRisk, highCount, overallRiskScore, size) {
 		overallRiskScore = CRITICAL
 	}
 
@@ -933,16 +604,11 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 		fr.Skipped = "overall risk too low for scan"
 	}
 
-	if all(ignoreSelf, fr.IsMalcontent, ignoreMalcontent, isMalcontent(path)) {
+	// ignoreMalcontent is only set when c.IgnoreSelf is.
+	if fr.IsMalcontent && ignoreMalcontent && isMalcontent(path) {
 		fr.Skipped = "ignoring malcontent binary"
 	}
 
-	slices.Sort(pledges)
-	slices.Sort(syscalls)
-	slices.Sort(caps)
-	fr.Pledge = slices.Compact(pledges)
-	fr.Syscalls = slices.Compact(syscalls)
-	fr.Capabilities = slices.Compact(caps)
 	fr.RiskScore = overallRiskScore
 	fr.RiskLevel = RiskLevels[fr.RiskScore]
 
@@ -954,7 +620,167 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 	return fr, nil
 }
 
+// ruleMatch pairs a matching rule with its ruleInfo.
+type ruleMatch struct {
+	rule *yarax.Rule
+	info *ruleInfo
+}
+
+// reportBuilder accumulates one file's report from the rules that matched it.
+type reportBuilder struct {
+	fr *malcontent.FileReport
+	fc []byte
+	// matching lists every rule that matched the file. matched indexes their
+	// identifiers once an override rule needs to look one up.
+	matching []*yarax.Rule
+	matched  map[string]struct{}
+	// behaviorIdx maps each behavior ID to its index in fr.Behaviors, and
+	// sources holds the rule behind the behavior at each index.
+	behaviorIdx map[string]int
+	sources     []*yarax.Rule
+	overrides   []overrideTarget
+	pledges     []string
+	caps        []string
+	syscalls    []string
+	// scratch collects one rule's matched strings at a time.
+	scratch []string
+}
+
+func newReportBuilder(fr *malcontent.FileReport, fc []byte, matching []*yarax.Rule) reportBuilder {
+	return reportBuilder{
+		fr:          fr,
+		fc:          fc,
+		matching:    matching,
+		behaviorIdx: make(map[string]int, len(matching)),
+		sources:     make([]*yarax.Rule, 0, len(matching)),
+		pledges:     []string{},
+		caps:        []string{},
+		syscalls:    []string{},
+	}
+}
+
+// add records a match of rule m, described by ri, as a behavior unless the
+// rule annotates the file instead or carries a tag in ignore.
+func (rb *reportBuilder) add(m *yarax.Rule, ri *ruleInfo, ignore map[string]struct{}) {
+	b, valid := rb.behavior(ri)
+	if len(b.Override) > 0 {
+		// Override entries copy b even when it is dropped below.
+		b.MatchStrings = rb.render(m)
+	}
+
+	// if the rule has an override tag but is not overriding a valid rule,
+	// ignore this match rule so that we don't show errant false positive rules in reports
+	if !valid {
+		return
+	}
+
+	// Fix YARA Forge rules that record their author URL as reference URLs.
+	// An empty reference is a prefix of every URL, so it must not count.
+	if b.ReferenceURL != "" && strings.HasPrefix(b.RuleURL, b.ReferenceURL) {
+		b.RuleAuthorURL = b.ReferenceURL
+		b.ReferenceURL = ""
+	}
+
+	// Meta names are weird and unfortunate, depending on whether they hold a value
+	if ri.isMeta {
+		rb.fr.Meta[ri.metaKey] = ri.metaValue
+		return
+	}
+
+	if ignoreMatch(m.Tags(), ignore) {
+		rb.fr.FilteredBehaviors++
+		return
+	}
+
+	// If the rule does not have a description, make one up based on the rule name
+	if b.Description == "" {
+		b.Description = ri.fallbackDescription
+	}
+
+	if i := updateBehavior(rb.fr, b, b.ID, rb.behaviorIdx); i == len(rb.sources) {
+		rb.sources = append(rb.sources, m)
+	} else if i >= 0 {
+		rb.sources[i] = m
+	}
+}
+
+// behavior returns the behavior ri describes, with the effect of an override
+// rule's directives on this file, and records the file attributes the rule
+// declares. It reports false for an override rule that names a rule that did
+// not match the file.
+func (rb *reportBuilder) behavior(ri *ruleInfo) (*malcontent.Behavior, bool) {
+	b := new(malcontent.Behavior)
+	*b = ri.behavior
+
+	valid := true
+	for _, t := range ri.targets {
+		if !rb.isMatching(t.rule) {
+			valid = false
+			continue
+		}
+		if ri.thirdParty {
+			continue
+		}
+		b.RiskLevel = RiskLevels[t.score]
+		b.RiskScore = t.score
+		b.Override = append(b.Override, t.rule)
+		rb.overrides = append(rb.overrides, overrideTarget{rule: b, target: t.rule, score: t.score})
+	}
+
+	if ri.isMalcontent {
+		rb.fr.IsMalcontent = true
+	}
+	rb.pledges = append(rb.pledges, ri.pledges...)
+	rb.caps = append(rb.caps, ri.caps...)
+	rb.syscalls = append(rb.syscalls, ri.syscalls...)
+	return b, valid
+}
+
+// isMatching reports whether a rule with identifier id matched the file.
+func (rb *reportBuilder) isMatching(id string) bool {
+	if rb.matched == nil {
+		rb.matched = make(map[string]struct{}, len(rb.matching))
+		for _, m := range rb.matching {
+			rb.matched[m.Identifier()] = struct{}{}
+		}
+	}
+	_, ok := rb.matched[id]
+	return ok
+}
+
+// render returns the match strings for a behavior of rule m.
+func (rb *reportBuilder) render(m *yarax.Rule) []string {
+	rb.scratch = appendMatchedStrings(rb.scratch[:0], rb.fc, m)
+	return matchStrings(m.Identifier(), rb.scratch)
+}
+
+// finish applies the recorded overrides and returns the report. Match strings
+// are rendered only for the behaviors that remain, since rendering is the
+// costliest step and scans drop most behaviors.
+func (rb *reportBuilder) finish(minScore int, scan bool) *malcontent.FileReport {
+	fr := rb.fr
+	fr.Overrides = overrideEntries(rb.overrides)
+	fr.Behaviors = handleOverrides(fr.Behaviors, fr.Overrides, minScore, scan)
+	for _, b := range fr.Behaviors {
+		// add rendered the strings of override rules already.
+		if len(b.Override) == 0 {
+			b.MatchStrings = rb.render(rb.sources[rb.behaviorIdx[b.ID]])
+		}
+	}
+
+	slices.Sort(rb.pledges)
+	slices.Sort(rb.syscalls)
+	slices.Sort(rb.caps)
+	fr.Pledge = slices.Compact(rb.pledges)
+	fr.Syscalls = slices.Compact(rb.syscalls)
+	fr.Capabilities = slices.Compact(rb.caps)
+	return fr
+}
+
 func buildIgnoreMap(ignoreTags []string) map[string]struct{} {
+	if len(ignoreTags) == 0 {
+		return nil
+	}
 	ignore := make(map[string]struct{}, len(ignoreTags))
 	for _, t := range ignoreTags {
 		ignore[t] = struct{}{}
@@ -967,10 +793,7 @@ func trimDisplayPath(path string, expath string, c malcontent.Config) string {
 	if c.OCI {
 		displayPath = strings.TrimPrefix(path, expath)
 	}
-	if len(c.TrimPrefixes) > 0 {
-		displayPath = TrimPrefixes(displayPath, c.TrimPrefixes)
-	}
-	return displayPath
+	return TrimPrefixes(displayPath, c.TrimPrefixes)
 }
 
 func initFileReport(path string, checksum string, size int64, matchCount int) *malcontent.FileReport {
@@ -978,45 +801,8 @@ func initFileReport(path string, checksum string, size int64, matchCount int) *m
 		Path:      path,
 		SHA256:    checksum,
 		Size:      size,
-		Meta:      make(map[string]string, matchCount),
+		Meta:      map[string]string{},
 		Behaviors: make([]*malcontent.Behavior, 0, matchCount),
-		Overrides: make([]*malcontent.Behavior, 0, matchCount/10),
-	}
-}
-
-func createMatchRulesMap(mrs *yarax.ScanResults, matchCount int) map[string]*yarax.Rule {
-	mrsMap := make(map[string]*yarax.Rule, matchCount)
-	for _, m := range mrs.MatchingRules() {
-		mrsMap[m.Identifier()] = m
-	}
-	return mrsMap
-}
-
-func processMatchedStrings(fc []byte, m *yarax.Rule) []string {
-	totalMatches := 0
-	for _, p := range m.Patterns() {
-		totalMatches += len(p.Matches())
-	}
-
-	matches := make([]yarax.Match, 0, totalMatches)
-	for _, p := range m.Patterns() {
-		matches = append(matches, p.Matches()...)
-	}
-
-	processor := newMatchProcessor(fc, matches, m.Patterns())
-	matchedStrings := processor.process()
-	processor.clearFileContent()
-	return matchedStrings
-}
-
-func buildBehavior(m *yarax.Rule, matchedStrings []string, key string, ruleURL string, risk int) *malcontent.Behavior {
-	return &malcontent.Behavior{
-		ID:           key,
-		MatchStrings: matchStrings(m.Identifier(), matchedStrings),
-		RiskLevel:    RiskLevels[risk],
-		RiskScore:    risk,
-		RuleName:     m.Identifier(),
-		RuleURL:      ruleURL,
 	}
 }
 
@@ -1045,217 +831,103 @@ func overrideEntries(targets []overrideTarget) []*malcontent.Behavior {
 	return entries
 }
 
-func parseMetadata(m *yarax.Rule, b *malcontent.Behavior, fr *malcontent.FileReport, override bool, mrsMap map[string]*yarax.Rule, pledges *[]string, caps *[]string, syscalls *[]string, overrides *[]overrideTarget) bool {
-	k := ""
-	v := ""
-
-	// valid represents whether a rule's metadata contains a legitimate override
-	// or is otherwise valid for the matching rule
-	valid := true
-
-	for _, meta := range m.Metadata() {
-		k = meta.Identifier()
-		v = fmt.Sprintf("%s", meta.Value())
-		// Empty data is unusual, so just ignore it.
-		if k == "" || v == "" {
-			continue
-		}
-
-		switch k {
-		case "author":
-			b.RuleAuthor = v
-			m := authorWithURLRe.FindStringSubmatch(v)
-			if len(m) > 0 && isValidURL(m[2]) {
-				b.RuleAuthor = m[1]
-				b.RuleAuthorURL = m[2]
-			}
-			// If author is in @username format, strip @ to avoid constantly pinging them on GitHub
-			if strings.HasPrefix(b.RuleAuthor, "@") {
-				b.RuleAuthor = strings.Replace(b.RuleAuthor, "@", "", 1)
-			}
-		case "author_url":
-			b.RuleAuthorURL = v
-		case fmt.Sprintf("__%s__", NAME):
-			if v == "true" {
-				fr.IsMalcontent = true
-			}
-		case "license":
-			b.RuleLicense = v
-		case "license_url":
-			b.RuleLicenseURL = v
-		case "description", "threat_name", "name":
-			desc := mungeDescription(v)
-			if len(desc) > len(b.Description) {
-				b.Description = desc
-			}
-		case "ref", "reference":
-			u := fixURL(v)
-			if isValidURL(u) {
-				b.ReferenceURL = u
-			}
-		case "source_url":
-			// YARAforge forgets to encode spaces
-			b.RuleURL = fixURL(v)
-		case "pledge":
-			// pledges should not be nil when we get here, but guard against it
-			if pledges != nil {
-				*pledges = append(*pledges, v)
-			}
-		case "syscall":
-			// syscalls should not be nil when we get here, but guard against it
-			if syscalls != nil {
-				calls := strings.Split(v, ",")
-				*syscalls = append(*syscalls, calls...)
-			}
-		case "cap":
-			// caps should not be nil when we get here, but guard against it
-			if caps != nil {
-				*caps = append(*caps, v)
-			}
-		case "filetypes":
-			continue
-		case "severity", "path_include", "path_exclude", "identifies", "mitre_tactics", "specificity", "sophistication", "max_hits":
-			// Third-party scoping/classification metadata (e.g. GuardDog).
-			// severity is applied via matchRisk and path_include/path_exclude
-			// via fileMatchesRule; the rest are informational and must not be
-			// treated as override directives.
-			continue
-		// If we find a match in the map for the metadata key after exhausting known keys, that's the rule to override
-		// Record the target and its own severity in overrides
-		// If an override rule is not overriding a valid rule, set `valid` to false so we can
-		// skip the parent rule match in the report
-		default:
-			_, exists := mrsMap[k]
-			switch {
-			case exists && override:
-				if thirdParty(m.Namespace()) {
-					continue
-				}
-				var overrideSev int
-				if sev, ok := Levels[v]; ok {
-					overrideSev = sev
-				}
-				b.RiskLevel = RiskLevels[overrideSev]
-				b.RiskScore = overrideSev
-				b.Override = append(b.Override, k)
-				// overrides should not be nil when we get here, but guard against it
-				if overrides != nil {
-					*overrides = append(*overrides, overrideTarget{rule: b, target: k, score: overrideSev})
-				}
-			case !exists && override:
-				valid = false
-				continue
-			}
-		}
-	}
-
-	return valid
-}
-
-// updateBehavior dedupes by key against fr.Behaviors using an index map
-// so insertion is O(1) amortized. When idx is nil (call sites outside
-// the accumulation loop), a transient index is reconstructed from the
-// current Behaviors slice; production hot paths must pass a reusable
-// map to keep the operation O(1). When the same key has already been
-// seen, the entry with the higher RiskScore wins (in-place replace at
-// the existing slot); when the score is equal-or-greater than the
-// current entry, the longer description wins. The slice itself is not
-// sorted here; the caller is responsible for any finalize-time sort.
-func updateBehavior(fr *malcontent.FileReport, b *malcontent.Behavior, key string, idx map[string]int) {
-	if idx == nil {
-		idx = make(map[string]int, len(fr.Behaviors)+8)
-		for i, existing := range fr.Behaviors {
-			idx[existing.ID] = i
-		}
-	}
-
+// updateBehavior dedupes by key against fr.Behaviors using idx, which maps
+// each key to its index in fr.Behaviors, so insertion is O(1) amortized.
+// When the same key has already been seen, the entry with the higher
+// RiskScore wins (in-place replace at the existing slot); when the score
+// is equal-or-greater than the current entry, the longer description
+// wins. The slice itself is not sorted here; the caller is responsible
+// for any finalize-time sort. It returns the index b now occupies in
+// fr.Behaviors, or -1 when b was not stored.
+func updateBehavior(fr *malcontent.FileReport, b *malcontent.Behavior, key string, idx map[string]int) int {
 	i, ok := idx[key]
 	if !ok {
 		fr.Behaviors = append(fr.Behaviors, b)
 		idx[key] = len(fr.Behaviors) - 1
-		return
+		return len(fr.Behaviors) - 1
 	}
 
 	existing := fr.Behaviors[i]
 	if existing.RiskScore < b.RiskScore {
 		fr.Behaviors[i] = b
-		return
+		return i
 	}
 	if len(existing.Description) < len(b.Description) && existing.RiskScore <= b.RiskScore {
 		existing.Description = b.Description
 	}
+	return -1
 }
 
-// upgradeRisk determines whether to upgrade risk based on finding density.
-func upgradeRisk(ctx context.Context, riskScore int, riskCounts map[int]int, size int64) bool {
+// upgradeRisk determines whether to upgrade risk based on finding density,
+// given the number of HIGH findings.
+func upgradeRisk(ctx context.Context, riskScore int, highCount int, size int64) bool {
 	if riskScore != HIGH {
 		return false
 	}
-	highCount := riskCounts[HIGH]
-	sizeMB := size / 1024 / 1024
 
-	var upgrade bool
-	switch {
-	case size < 1024:
-		// small scripts, tiny ELF binaries
-		upgrade = highCount > 1
-	case sizeMB < 2:
-		// include most UPX binaries
-		upgrade = highCount > 2
-	case sizeMB < 4:
-		upgrade = highCount > 3
-	case sizeMB < 10:
-		upgrade = highCount > 4
-	default:
-		upgrade = highCount > 5
-	}
-
+	upgrade := highCount > highLimit(size)
 	if upgrade {
 		clog.DebugContextf(ctx, "upgrading risk to critical: high=%d, size=%d", highCount, size)
 	}
 	return upgrade
 }
 
-// all returns a single boolean based on a slice of booleans.
-func all(conditions ...bool) bool {
-	for _, condition := range conditions {
-		if !condition {
-			return false
-		}
+// highLimit returns how many HIGH findings a file of size bytes may hold
+// before upgradeRisk raises its risk to CRITICAL. Larger files may hold more.
+func highLimit(size int64) int {
+	if size < 1024 {
+		// small scripts, tiny ELF binaries
+		return 1
 	}
-	return true
+	sizeMB := size / 1024 / 1024
+	if sizeMB < 2 {
+		// include most UPX binaries
+		return 2
+	}
+	if sizeMB < 4 {
+		return 3
+	}
+	if sizeMB < 10 {
+		return 4
+	}
+	return 5
 }
 
 // HighestMatchRisk returns the highest risk score among the rules that actually
 // apply to the scanned file. It mirrors Generate's scoping: rules excluded by a
-// file's type or path globs (fileMatchesRule) are not counted, so the value
-// used as the scan-mode skipMatch threshold cannot be inflated by a rule that
-// Generate would drop. kind/path/expath/c match the arguments passed to Generate.
+// file's type or path globs are not counted, so the value used as the
+// scan-mode skipMatch threshold cannot be inflated by a rule that Generate
+// would drop. kind/path/expath/c match the arguments passed to Generate, and
+// c.Rules enables the same per-rule caching.
 func HighestMatchRisk(mrs *yarax.ScanResults, kind *programkind.FileType, path string, expath string, c malcontent.Config) int {
-	if len(mrs.MatchingRules()) == 0 {
+	if mrs == nil {
 		return 0
 	}
+	return HighestMatchRiskRules(mrs.MatchingRules(), kind, path, expath, c)
+}
 
-	displayPath := trimDisplayPath(path, expath, c)
+// HighestMatchRiskRules is HighestMatchRisk for the rules that scans of the
+// file matched, as GenerateRules receives them.
+func HighestMatchRiskRules(matching []*yarax.Rule, kind *programkind.FileType, path string, expath string, c malcontent.Config) int {
+	slashPath := filepath.ToSlash(trimDisplayPath(path, expath, c))
 	ext := ""
 	if kind != nil {
 		ext = kind.Ext
 	}
 
+	infos := ruleInfosFor(c.Rules)
 	var highestRisk int
-	for _, m := range mrs.MatchingRules() {
-		if !fileMatchesRule(m.Metadata(), ext, displayPath) {
-			continue
+	for _, m := range matching {
+		if ri := infos.get(m); ri.scope.matches(ext, slashPath) {
+			highestRisk = max(highestRisk, ri.risk)
 		}
-		risk := matchRisk(m)
-		highestRisk = max(highestRisk, risk)
 	}
 	return highestRisk
 }
 
 // highestBehaviorRisk returns the highest risk score from a slice of FileReport Behaviors.
 func highestBehaviorRisk(fr *malcontent.FileReport) int {
-	if fr == nil || len(fr.Behaviors) == 0 {
+	if fr == nil {
 		return 0
 	}
 
