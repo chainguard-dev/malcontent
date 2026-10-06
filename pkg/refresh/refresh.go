@@ -113,6 +113,7 @@ func prepareRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 
 	diffs, err := diffRefresh(ctx, rc)
 	if err != nil {
+		closeTestDataFiles(actions)
 		return nil, fmt.Errorf("retrieve risk tasks: %w", err)
 	}
 
@@ -121,27 +122,28 @@ func prepareRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 
 	discovered, err := discoverTestData(rc)
 	if err != nil {
+		closeTestDataFiles(testData)
 		return nil, fmt.Errorf("find test files: %w", err)
 	}
 
+	// Diff goldens (.mdiff, .sdiff) need per-case options, so diffTestData
+	// lists them explicitly; discovery only yields single-sample scan goldens.
 	for data, sample := range discovered {
 		outFile, err := os.OpenFile(data, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600) // #nosec G304 -- refresh operates on testdata roots controlled by the test harness
 		if err != nil {
+			closeTestDataFiles(testData)
 			return nil, fmt.Errorf("create output file %s: %w", data, err)
 		}
 
-		ext := filepath.Ext(data)
-		format := strings.TrimPrefix(ext, ".")
-		switch format {
-		case "sdiff":
-			format = formatSimple
-		case "mdiff", "md":
+		format := strings.TrimPrefix(filepath.Ext(data), ".")
+		if format == "md" {
 			format = formatMarkdown
 		}
 
 		r, err := render.New(format, outFile)
 		if err != nil {
 			_ = outFile.Close()
+			closeTestDataFiles(testData)
 			return nil, fmt.Errorf("create renderer for %s: %w", sample, err)
 		}
 
@@ -151,43 +153,18 @@ func prepareRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 		yrs, err := action.CachedRules(ctx, rfs)
 		if err != nil {
 			_ = outFile.Close()
+			closeTestDataFiles(testData)
 			return nil, err
 		}
 
 		c.Renderer = r
 		c.Rules = yrs
-
-		if strings.HasSuffix(data, ".mdiff") || strings.HasSuffix(data, ".sdiff") {
-			dirPath := filepath.Dir(sample)
-			files, err := os.ReadDir(dirPath)
-			if err != nil {
-				return nil, fmt.Errorf("read directory %s: %w", dirPath, err)
-			}
-
-			var diffFiles []string
-			baseName := filepath.Base(sample)
-			for _, f := range files {
-				if strings.Contains(f.Name(), strings.TrimSuffix(baseName, filepath.Ext(baseName))) {
-					diffFiles = append(diffFiles, filepath.Join(dirPath, f.Name()))
-				}
-			}
-
-			if len(diffFiles) == 2 {
-				c.ScanPaths = diffFiles
-				testData = append(testData, TestData{
-					Config:     c,
-					OutFile:    outFile,
-					OutputPath: data,
-				})
-			}
-		} else {
-			c.ScanPaths = []string{sample}
-			testData = append(testData, TestData{
-				Config:     c,
-				OutFile:    outFile,
-				OutputPath: data,
-			})
-		}
+		c.ScanPaths = []string{sample}
+		testData = append(testData, TestData{
+			Config:     c,
+			OutFile:    outFile,
+			OutputPath: data,
+		})
 	}
 
 	return testData, nil

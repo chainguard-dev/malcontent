@@ -126,7 +126,7 @@ func FuzzFindFilesRecursively(f *testing.F) {
 			os.Symlink(target, filepath.Join(tmpDir, "link_to_dir"))
 		}
 
-		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		ctx, cancel := context.WithTimeout(t.Context(), 3*time.Second)
 		defer cancel()
 
 		files, err := findFilesRecursively(ctx, tmpDir)

@@ -4,7 +4,6 @@
 package profile
 
 import (
-	"context"
 	"os"
 	"strings"
 	"testing"
@@ -12,8 +11,7 @@ import (
 
 func TestProfile(t *testing.T) {
 	t.Parallel()
-	ctx := context.Background()
-	p, err := StartProfiling(ctx, DefaultConfig())
+	p, err := StartProfiling(t.Context(), DefaultConfig())
 	if err != nil {
 		t.Fatalf("failed to start profiling: %v", err)
 	}

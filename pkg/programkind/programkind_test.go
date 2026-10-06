@@ -43,8 +43,8 @@ func TestFile(t *testing.T) {
 			if err != nil {
 				t.Errorf("File(%s) returned error: %v", tt.in, err)
 			}
-			if diff := cmp.Diff(got, tt.want); diff != "" {
-				t.Errorf("File(%s) = %v, want %v, diff: %s", tt.in, got, tt.want, diff)
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("File(%s) mismatch (-want +got):\n%s", tt.in, diff)
 			}
 		})
 	}
@@ -72,30 +72,41 @@ func TestPath(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.in, func(t *testing.T) {
 			got := Path(tt.in)
-			if diff := cmp.Diff(got, tt.want); diff != "" {
-				t.Errorf("Path(%s) = %v, want %v, diff: %s", tt.in, got, tt.want, diff)
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("Path(%s) mismatch (-want +got):\n%s", tt.in, diff)
 			}
 		})
 	}
 }
 
 func TestIsSupportedArchive(t *testing.T) {
+	// Rows with content are written to a temporary file named by path; the
+	// others name a file that does not exist, so only the name decides.
 	tests := []struct {
-		name string
-		path string
-		want bool
+		name    string
+		path    string
+		content []byte
+		want    bool
 	}{
-		{"jar is a supported archive", "app.jar", true},
-		{"war is a supported archive", "webapp.war", true},
-		{"ear is a supported archive", "enterprise.ear", true},
-		{"class is not an archive", "Main.class", false},
-		{"docx is not a supported archive", "report.docx", false},
+		{"jar is a supported archive", "app.jar", nil, true},
+		{"war is a supported archive", "webapp.war", nil, true},
+		{"ear is a supported archive", "enterprise.ear", nil, true},
+		{"gzip is a supported archive", "logs.gzip", nil, true},
+		{"class is not an archive", "Main.class", nil, false},
+		{"docx is not a supported archive", "report.docx", nil, false},
+		{"extensionless gzip content is a supported archive", "payload", gzipStream(t, []byte("gzip payload\n")), true},
+		{"extensionless zlib content is a supported archive", "payload", zlibStream(t, zlibPayload, 6), true},
+		{"extensionless plain text is not an archive", "notes", []byte("plain text notes\n"), false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			if got := IsSupportedArchive(t.Context(), tt.path); got != tt.want {
-				t.Errorf("IsSupportedArchive(%q) = %v, want %v", tt.path, got, tt.want)
+			path := tt.path
+			if tt.content != nil {
+				path = writeFixture(t, tt.path, tt.content)
+			}
+			if got := IsSupportedArchive(t.Context(), path); got != tt.want {
+				t.Errorf("IsSupportedArchive(%q): got = %v, want = %v", path, got, tt.want)
 			}
 		})
 	}
@@ -394,6 +405,18 @@ func TestIsLikelyShellScript(t *testing.T) {
 			name:    "empty file",
 			content: "",
 			path:    "empty",
+			want:    false,
+		},
+		{
+			name:    "single shell pattern is not enough",
+			content: "echo $(date)",
+			path:    "file",
+			want:    false,
+		},
+		{
+			name:    "man page with a shell shebang",
+			content: "#!/bin/sh\nset -e\n",
+			path:    "usr/share/man/man1/tool.1",
 			want:    false,
 		},
 	}

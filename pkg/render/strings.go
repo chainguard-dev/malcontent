@@ -24,10 +24,11 @@
 package render
 
 import (
+	"cmp"
 	"context"
 	"fmt"
 	"io"
-	"sort"
+	"slices"
 	"strings"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
@@ -90,22 +91,26 @@ func (r StringMatches) File(ctx context.Context, fr *malcontent.FileReport) erro
 	}
 
 	matches := []Match{}
-	sort.Slice(fr.Behaviors, func(i, j int) bool {
-		return fr.Behaviors[i].RuleName < fr.Behaviors[j].RuleName
+	slices.SortFunc(fr.Behaviors, func(a, b *malcontent.Behavior) int {
+		return cmp.Compare(a.RuleName, b.RuleName)
 	})
 	for _, b := range fr.Behaviors {
 		if len(b.MatchStrings) > 0 {
+			matched := make([]string, 0, len(b.MatchStrings))
+			for _, ms := range b.MatchStrings {
+				matched = append(matched, sanitizeTerminal(ms))
+			}
 			matches = append(matches, Match{
 				Risk:    b.RiskScore,
 				Rule:    b.RuleName,
-				Strings: b.MatchStrings,
+				Strings: matched,
 			})
 		}
 	}
 
 	prefix := "Matches for"
 	rUnit := plural("rule", len(matches))
-	fmt.Fprintf(r.w, "%s %s %s%s%s %s%s %s%s:\n", prefix, color.HiGreenString(fr.Path), color.HiBlackString("["), briefRiskColor(fr.RiskLevel), color.HiBlackString("]"), color.HiBlackString("("), color.HiGreenString(fmt.Sprintf("%d", len(matches))), color.HiGreenString(rUnit), color.HiBlackString(")"))
+	fmt.Fprintf(r.w, "%s %s %s%s%s %s%s %s%s:\n", prefix, color.HiGreenString(sanitizeTerminal(fr.Path)), color.HiBlackString("["), briefRiskColor(fr.RiskLevel), color.HiBlackString("]"), color.HiBlackString("("), color.HiGreenString(fmt.Sprintf("%d", len(matches))), color.HiGreenString(rUnit), color.HiBlackString(")"))
 	for _, m := range matches {
 		sUnit := plural("string", len(m.Strings))
 		fmt.Fprintf(r.w, "%s %s%s%s %s%s %s%s: \n%s%s\n", color.HiCyanString(m.Rule), color.HiBlackString("["), briefRiskColor(riskLevels[m.Risk]), color.HiBlackString("]"), color.HiBlackString("("), color.HiGreenString(fmt.Sprintf("%d", len(m.Strings))), color.HiGreenString(sUnit), color.HiBlackString(")"), color.HiBlackString("- "), strings.Join(m.Strings, color.HiBlackString("\n- ")))

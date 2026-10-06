@@ -65,7 +65,11 @@ func ExtractTar(ctx context.Context, d string, f string) (err error) {
 	}
 	defer tf.Close()
 
-	isTGZ := strings.Contains(f, ".tar.gz") || strings.Contains(f, ".tgz")
+	// Only the archive's own name selects its compression. Directories on its
+	// path may carry archive names too, such as the temporary directory named
+	// after the scanned archive, so testing the full path would read a plain
+	// tar nested in an .apk as gzip.
+	isTGZ := strings.Contains(filename, ".tar.gz") || strings.Contains(filename, ".tgz")
 	var isGzip bool
 	if ft, err := programkind.File(ctx, f); err == nil && ft != nil {
 		if _, ok := GzMIME[ft.MIME]; ok {
@@ -83,7 +87,7 @@ func ExtractTar(ctx context.Context, d string, f string) (err error) {
 	// region past the end-of-archive marker can be audited once extraction ends.
 	var stream io.Reader
 	switch {
-	case strings.Contains(f, ".apk") || (isTGZ && isGzip):
+	case strings.Contains(filename, ".apk") || (isTGZ && isGzip):
 		gzStream, err := gzip.NewReader(tf)
 		if err != nil {
 			return fmt.Errorf("failed to create gzip reader: %w", err)
@@ -109,15 +113,13 @@ func ExtractTar(ctx context.Context, d string, f string) (err error) {
 		}
 		defer out.Close()
 
-		var written int64
 		for {
-			if written > 0 && written%file.ExtractBuffer == 0 && ctx.Err() != nil {
-				return ctx.Err()
+			if err := ctx.Err(); err != nil {
+				return err
 			}
 
 			n, err := xzStream.Read(buf)
 			if n > 0 {
-				written += int64(n)
 				if capErr := counter.Add(n); capErr != nil {
 					return fmt.Errorf("xz extraction aborted on %s: %w", target, capErr)
 				}
@@ -136,8 +138,24 @@ func ExtractTar(ctx context.Context, d string, f string) (err error) {
 		}
 		return nil
 	case strings.Contains(filename, ".tar.bz2") || strings.Contains(filename, ".tbz"):
-		br := bzip2.NewReader(ctx, tf)
-		uncompressed := strings.TrimSuffix(filepath.Base(f), programkind.GetExt(filename))
+		// pbzip2 decodes on background goroutines that block on an internal
+		// pipe until every decompressed byte has been read. Canceling and
+		// reading once more makes the reader close that pipe and wait for
+		// them, so returning early does not leave them blocked.
+		bzCtx, cancel := context.WithCancel(ctx)
+		br := bzip2.NewReader(bzCtx, tf)
+		defer func() {
+			cancel()
+			_, _ = br.Read(nil)
+		}()
+		// The decompressed stream is a tar, so name it as one: nested
+		// extraction recognizes a tar by its name, and would otherwise leave
+		// its members unextracted.
+		ext := programkind.GetExt(filename)
+		uncompressed := strings.TrimSuffix(filepath.Base(f), ext)
+		if ext == ".tar.bz2" || strings.HasPrefix(ext, ".tbz") {
+			uncompressed += ".tar"
+		}
 		target := filepath.Join(filepath.Base(filepath.Dir(f)), uncompressed)
 		out, err := createFile(root, target)
 		if err != nil {
@@ -145,15 +163,15 @@ func ExtractTar(ctx context.Context, d string, f string) (err error) {
 		}
 		defer out.Close()
 
-		var written int64
+		// Check before every read, since a pbzip2 read returns at most the
+		// rest of one decoded block and need not fill the buffer.
 		for {
-			if written > 0 && written%file.ExtractBuffer == 0 && ctx.Err() != nil {
-				return ctx.Err()
+			if err := ctx.Err(); err != nil {
+				return err
 			}
 
 			n, err := br.Read(buf)
 			if n > 0 {
-				written += int64(n)
 				if capErr := counter.Add(n); capErr != nil {
 					return fmt.Errorf("bz2 extraction aborted on %s: %w", target, capErr)
 				}

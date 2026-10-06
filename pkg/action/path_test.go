@@ -82,7 +82,7 @@ func TestFindFilesRecursively(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			ctx := context.Background()
+			ctx := t.Context()
 			got, err := findFilesRecursively(ctx, tt.rootPath)
 
 			if (err != nil) != tt.wantErr {
@@ -121,7 +121,7 @@ func TestFindFilesRecursivelySymlinks(t *testing.T) {
 		t.Skipf("failed to create symlink (may not be supported): %v", err)
 	}
 
-	ctx := context.Background()
+	ctx := t.Context()
 	files, err := findFilesRecursively(ctx, tmpDir)
 	if err != nil {
 		t.Fatalf("findFilesRecursively() error = %v", err)
@@ -129,7 +129,7 @@ func TestFindFilesRecursivelySymlinks(t *testing.T) {
 
 	// Should find only the target file, not the symlink (L51-53 in path.go)
 	if len(files) != 1 {
-		t.Errorf("Expected 1 file, got %d: %v", len(files), files)
+		t.Errorf("files found: got = %d (%v), want = 1", len(files), files)
 	}
 }
 
@@ -154,7 +154,7 @@ func TestFindFilesRecursivelySymlinkRoot(t *testing.T) {
 		t.Skipf("failed to create symlink (may not be supported): %v", err)
 	}
 
-	ctx := context.Background()
+	ctx := t.Context()
 	files, err := findFilesRecursively(ctx, linkDir)
 	if err != nil {
 		t.Fatalf("findFilesRecursively() error = %v", err)
@@ -162,7 +162,7 @@ func TestFindFilesRecursivelySymlinkRoot(t *testing.T) {
 
 	// Should follow the symlink at the root and find the file
 	if len(files) != 1 {
-		t.Errorf("Expected 1 file through symlinked root, got %d: %v", len(files), files)
+		t.Errorf("files found through symlinked root: got = %d (%v), want = 1", len(files), files)
 	}
 }
 
@@ -176,7 +176,7 @@ func TestFindFilesRecursivelyCanceledContext(t *testing.T) {
 		t.Fatalf("failed to create test file: %v", err)
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(t.Context())
 	cancel() // Cancel immediately
 
 	_, err := findFilesRecursively(ctx, tmpDir)
@@ -217,7 +217,7 @@ func TestFindFilesRecursivelyPermissionDenied(t *testing.T) {
 	}
 	defer os.Chmod(restrictedDir, 0o755) // Restore permissions for cleanup
 
-	ctx := context.Background()
+	ctx := t.Context()
 	files, err := findFilesRecursively(ctx, tmpDir)
 	// Should not return error, just skip restricted directory
 	if err != nil {
@@ -241,7 +241,7 @@ func TestFindFilesRecursivelyEmptyDirectory(t *testing.T) {
 	t.Parallel()
 	tmpDir := t.TempDir()
 
-	ctx := context.Background()
+	ctx := t.Context()
 	files, err := findFilesRecursively(ctx, tmpDir)
 	if err != nil {
 		t.Fatalf("findFilesRecursively() error = %v", err)
@@ -271,7 +271,7 @@ func TestFindFilesRecursivelyDeepNesting(t *testing.T) {
 		t.Fatalf("failed to create deep file: %v", err)
 	}
 
-	ctx := context.Background()
+	ctx := t.Context()
 	files, err := findFilesRecursively(ctx, tmpDir)
 	if err != nil {
 		t.Fatalf("findFilesRecursively() error = %v", err)

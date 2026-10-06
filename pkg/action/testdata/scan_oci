@@ -1,6 +1,6 @@
 {
     "Files": {
-        "/etc/profile": {
+        "testdata/static.tar.xz ∴ /etc/profile": {
             "Path": "testdata/static.tar.xz ∴ /etc/profile",
             "SHA256": "8adf547453fe02fdc92e90424bffea4130bf88cc772a492b74912fb50a85c467",
             "Size": 534,
@@ -64,7 +64,7 @@
             "RiskScore": 2,
             "RiskLevel": "MEDIUM"
         },
-        "/etc/profile.d/locale.sh": {
+        "testdata/static.tar.xz ∴ /etc/profile.d/locale.sh": {
             "Path": "testdata/static.tar.xz ∴ /etc/profile.d/locale.sh",
             "SHA256": "",
             "Size": 0,

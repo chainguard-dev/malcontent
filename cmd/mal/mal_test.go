@@ -12,118 +12,41 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-// hardenedConfigFlags returns the subset of the global flag set that exposes the
-// hardened configuration fields: the archive caps, the extractor-panic switch,
-// and the OCI transport knobs. Each flag mirrors the production definition in
-// mal.go exactly (name, default Value, and the package-level Destination pointer)
-// so that parsing through urfave/cli populates the same variables the real Before
-// hook reads.
-func hardenedConfigFlags() []cli.Flag {
-	return []cli.Flag{
-		&cli.BoolFlag{
-			Name:        "exit-on-extractor-panic",
-			Value:       false,
-			Destination: &exitExtractorPanicFlag,
-		},
-		&cli.Int64Flag{
-			Name:        "max-archive-bytes",
-			Value:       file.DefaultMaxArchiveBytes,
-			Destination: &maxArchiveBytesFlag,
-		},
-		&cli.FloatFlag{
-			Name:        "max-archive-ratio",
-			Value:       file.DefaultMaxArchiveRatio,
-			Destination: &maxArchiveRatioFlag,
-		},
-		&cli.IntFlag{
-			Name:        "oci-pull-timeout-seconds",
-			Value:       600,
-			Destination: &ociPullTimeoutFlag,
-		},
-		&cli.IntFlag{
-			Name:        "oci-retry-max-attempts",
-			Value:       3,
-			Destination: &ociRetryMaxAttemptsFlag,
-		},
-		&cli.IntFlag{
-			Name:        "oci-retry-max-window-seconds",
-			Value:       60,
-			Destination: &ociRetryMaxWindowFlag,
-		},
-		&cli.IntFlag{
-			Name:        "oci-per-host-slots",
-			Value:       4,
-			Destination: &ociPerHostSlotsFlag,
-		},
-		&cli.StringFlag{
-			Name:        "oci-keepalive-policy",
-			Value:       string(malcontent.KeepalivePolicyExplicitlyEnabled),
-			Destination: &ociKeepalivePolicyFlag,
-		},
-		&cli.IntFlag{
-			Name:        "oci-keepalive-seconds",
-			Value:       30,
-			Destination: &ociKeepaliveSecondsFlag,
-		},
-		&cli.BoolFlag{
-			Name:        "oci-proxy-opt-in",
-			Value:       false,
-			Destination: &ociProxyOptInFlag,
-		},
-	}
-}
-
-// configFromFlags lands the parsed flag variables into a malcontent.Config using
-// the same field assignments mal.go's Before hook performs. Keeping this in step
-// with mal.go is the contract the wiring test guards.
-func configFromFlags() malcontent.Config {
-	return malcontent.Config{
-		ExitOnExtractorPanic:     exitExtractorPanicFlag,
-		MaxArchiveBytes:          maxArchiveBytesFlag,
-		MaxArchiveRatio:          maxArchiveRatioFlag,
-		OCICABundlePath:          caBundleFlag,
-		OCIKeepalivePolicy:       malcontent.KeepalivePolicy(ociKeepalivePolicyFlag),
-		OCIKeepaliveSeconds:      ociKeepaliveSecondsFlag,
-		OCIPerHostSlots:          ociPerHostSlotsFlag,
-		OCIProxyOptIn:            ociProxyOptInFlag,
-		OCIPullTimeoutSeconds:    ociPullTimeoutFlag,
-		OCIRetryMaxAttempts:      ociRetryMaxAttemptsFlag,
-		OCIRetryMaxWindowSeconds: ociRetryMaxWindowFlag,
-	}
-}
-
-// parseGlobals drives urfave/cli over the hardened config flags so that the real
-// Destination wiring populates the package-level flag variables, then returns
-// the resulting Config. The Action is a no-op terminal so no scan (and no
-// CGO/YARA work) runs; only flag parsing is exercised.
-func parseGlobals(t *testing.T, args []string) malcontent.Config {
+// parseFlags drives urfave/cli over the production global flags so that
+// their Destination wiring populates the package-level flag variables. Every
+// flag not named in args is reset to its default. The scan Action is a no-op,
+// so no rules are compiled and nothing is scanned.
+func parseFlags(t *testing.T, args []string) {
 	t.Helper()
-
-	caBundleFlag = "system"
 
 	cmd := &cli.Command{
 		Name:  "mal",
-		Flags: hardenedConfigFlags(),
+		Flags: globalFlags(),
 		Commands: []*cli.Command{
 			{
-				Name: "scan",
-				Flags: []cli.Flag{
-					&cli.StringFlag{
-						Name:        "ca-bundle",
-						Value:       "system",
-						Destination: &caBundleFlag,
-					},
-				},
+				Name:   "scan",
+				Flags:  targetFlags(),
 				Action: func(_ context.Context, _ *cli.Command) error { return nil },
 			},
 		},
 	}
 
-	if err := cmd.Run(context.Background(), args); err != nil {
+	if err := cmd.Run(t.Context(), args); err != nil {
 		t.Fatalf("cmd.Run(%v): unexpected error: %v", args, err)
 	}
+}
 
-	return configFromFlags()
+// parseGlobals parses args with parseFlags and returns the Config that
+// configFromFlags assembles from the resulting flag variables.
+func parseGlobals(t *testing.T, args []string) malcontent.Config {
+	t.Helper()
+
+	parseFlags(t, args)
+	cfg, err := configFromFlags()
+	if err != nil {
+		t.Fatalf("configFromFlags() after %v: unexpected error: %v", args, err)
+	}
+	return cfg
 }
 
 func TestGlobalFlagDefaults(t *testing.T) {

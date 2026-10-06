@@ -191,7 +191,7 @@ func FuzzIsSupportedArchive(f *testing.F) {
 
 		// If the extension is in ArchiveMap, result must be true
 		ext := GetExt(path)
-		if ArchiveMap[ext] && !result {
+		if _, archive := ArchiveMap[ext]; archive && !result {
 			t.Errorf("IsSupportedArchive(%q) = false, but ext %q is in ArchiveMap", path, ext)
 		}
 

@@ -6,9 +6,11 @@ package action
 import (
 	"bytes"
 	"io/fs"
+	"maps"
 	"os"
 	"path/filepath"
 	"runtime"
+	"slices"
 	"testing"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
@@ -36,7 +38,7 @@ func classBlob(tokens ...string) []byte {
 
 // scanRuleNames scans a path and returns the set of matched rule names per
 // file base name.
-func scanRuleNames(t *testing.T, scanPath string) map[string]map[string]bool {
+func scanRuleNames(t *testing.T, scanPath string) map[string]map[string]struct{} {
 	t.Helper()
 	ctx := t.Context()
 
@@ -66,14 +68,14 @@ func scanRuleNames(t *testing.T, scanPath string) map[string]map[string]bool {
 		t.Fatal(err)
 	}
 
-	got := map[string]map[string]bool{}
+	got := map[string]map[string]struct{}{}
 	res.Files.Range(func(key string, fr *malcontent.FileReport) bool {
 		if fr == nil {
 			return true
 		}
-		names := make(map[string]bool, len(fr.Behaviors))
+		names := make(map[string]struct{}, len(fr.Behaviors))
 		for _, b := range fr.Behaviors {
-			names[b.RuleName] = true
+			names[b.RuleName] = struct{}{}
 		}
 		got[filepath.Base(key)] = names
 		return true
@@ -139,13 +141,13 @@ func TestJavaRulesOnClassFiles(t *testing.T) {
 			t.Parallel()
 			names := got[tt.file]
 			for _, rule := range tt.present {
-				if !names[rule] {
-					t.Errorf("%s: expected rule %q to fire, got %v", tt.file, rule, names)
+				if _, ok := names[rule]; !ok {
+					t.Errorf("%s rules: got = %v, want %q among them", tt.file, slices.Sorted(maps.Keys(names)), rule)
 				}
 			}
 			for _, rule := range tt.absent {
-				if names[rule] {
-					t.Errorf("%s: expected rule %q not to fire, got %v", tt.file, rule, names)
+				if _, ok := names[rule]; ok {
+					t.Errorf("%s rules: got = %v, want %q absent", tt.file, slices.Sorted(maps.Keys(names)), rule)
 				}
 			}
 		})
@@ -168,13 +170,13 @@ func TestJavaRulesInWar(t *testing.T) {
 
 	got := scanRuleNames(t, warPath)
 
-	union := map[string]bool{}
+	union := map[string]struct{}{}
 	for _, names := range got {
 		for name := range names {
-			union[name] = true
+			union[name] = struct{}{}
 		}
 	}
-	if !union["java_exec"] {
-		t.Errorf("expected java_exec to fire on class inside war, matched rules: %v", union)
+	if _, ok := union["java_exec"]; !ok {
+		t.Errorf("rules matched inside war: got = %v, want java_exec among them", slices.Sorted(maps.Keys(union)))
 	}
 }

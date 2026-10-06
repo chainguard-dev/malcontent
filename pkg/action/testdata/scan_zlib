@@ -1,6 +1,6 @@
 {
     "Files": {
-        "/yara/usr/bin/yara": {
+        "testdata/yara.tar.zlib ∴ /yara/usr/bin/yara": {
             "Path": "testdata/yara.tar.zlib ∴ /yara/usr/bin/yara",
             "SHA256": "37bbc08c4ea807eaa16504f8a92b400753ec4c7d27ed4855c3f26b13bb322fa4",
             "Size": 670240,
@@ -269,7 +269,7 @@
             "RiskScore": 2,
             "RiskLevel": "MEDIUM"
         },
-        "/yara/usr/bin/yarac": {
+        "testdata/yara.tar.zlib ∴ /yara/usr/bin/yarac": {
             "Path": "testdata/yara.tar.zlib ∴ /yara/usr/bin/yarac",
             "SHA256": "b4c074502a9a917b5d7dbb410dc5ad50a13513795341ef1dfdd8eba14aed763c",
             "Size": 27432,
@@ -332,7 +332,7 @@
             "RiskScore": 0,
             "RiskLevel": "NONE"
         },
-        "/yara/usr/lib/libyara.so.10": {
+        "testdata/yara.tar.zlib ∴ /yara/usr/lib/libyara.so.10": {
             "Path": "testdata/yara.tar.zlib ∴ /yara/usr/lib/libyara.so.10",
             "SHA256": "f6847188e9644a59361874f508baf1ae22398d58ad00cb613388c203a26524c1",
             "Size": 647872,
@@ -517,7 +517,7 @@
             "RiskScore": 2,
             "RiskLevel": "MEDIUM"
         },
-        "/yara/usr/lib/libyara.so.10.0.0": {
+        "testdata/yara.tar.zlib ∴ /yara/usr/lib/libyara.so.10.0.0": {
             "Path": "testdata/yara.tar.zlib ∴ /yara/usr/lib/libyara.so.10.0.0",
             "SHA256": "f6847188e9644a59361874f508baf1ae22398d58ad00cb613388c203a26524c1",
             "Size": 647872,

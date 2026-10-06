@@ -176,10 +176,13 @@ func TestExtractImageURI(t *testing.T) {
 
 func TestExtractTmpRoot(t *testing.T) {
 	t.Parallel()
+	// oneOf lists the acceptable results when several files match, because
+	// map iteration order decides which match is returned.
 	tests := []struct {
 		name  string
 		files map[string]*malcontent.FileReport
 		want  string
+		oneOf []string
 	}{
 		{
 			name:  "empty files",
@@ -241,7 +244,7 @@ func TestExtractTmpRoot(t *testing.T) {
 				"key1": {Path: "/tmp/aaa/bbb/T/ccc/file1"},
 				"key2": {Path: "/tmp/xxx/yyy/T/zzz/file2"},
 			},
-			want: "", // map iteration order is non-deterministic, will check separately
+			oneOf: []string{"/tmp/aaa/bbb/T/ccc", "/tmp/xxx/yyy/T/zzz"},
 		},
 	}
 
@@ -250,12 +253,9 @@ func TestExtractTmpRoot(t *testing.T) {
 			t.Parallel()
 			got := ExtractTmpRoot(tt.files)
 
-			// edge case: multiple files test (map iteration is non-deterministic)
-			if tt.name == "multiple files returns one match" {
-				validResults := []string{"/tmp/aaa/bbb/T/ccc", "/tmp/xxx/yyy/T/zzz"}
-				isValid := slices.Contains(validResults, got)
-				if !isValid {
-					t.Errorf("ExtractTmpRoot() = %q, want one of %v", got, validResults)
+			if len(tt.oneOf) > 0 {
+				if !slices.Contains(tt.oneOf, got) {
+					t.Errorf("ExtractTmpRoot() = %q, want one of %v", got, tt.oneOf)
 				}
 				return
 			}

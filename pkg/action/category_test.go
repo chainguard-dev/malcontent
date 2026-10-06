@@ -4,6 +4,7 @@
 package action
 
 import (
+	"slices"
 	"testing"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
@@ -76,7 +77,7 @@ func TestFilterBehaviorsByCategory_Single(t *testing.T) {
 		t.Fatalf("len(got) = %d, want 2", len(got))
 	}
 	if got[0].ID != "exfil/stealer/foo" || got[1].ID != "exfil/discord" {
-		t.Errorf("unexpected ids: %v, %v", got[0].ID, got[1].ID)
+		t.Errorf("IDs: got = [%s %s], want = [exfil/stealer/foo exfil/discord]", got[0].ID, got[1].ID)
 	}
 }
 
@@ -130,15 +131,36 @@ func TestFilterBehaviorsByCategory_NeverAdds(t *testing.T) {
 		if len(got) > len(bs) {
 			t.Errorf("filter added behaviors for cats=%v: len(got)=%d > len(in)=%d", cats, len(got), len(bs))
 		}
-		seen := map[*malcontent.Behavior]bool{}
+		seen := map[*malcontent.Behavior]struct{}{}
 		for _, b := range bs {
-			seen[b] = true
+			seen[b] = struct{}{}
 		}
 		for _, b := range got {
-			if !seen[b] {
+			if _, ok := seen[b]; !ok {
 				t.Errorf("filter produced behavior not in input for cats=%v", cats)
 			}
 		}
+	}
+}
+
+func TestFilterBehaviorsByCategory_SkipsNilEntries(t *testing.T) {
+	t.Parallel()
+	bs := []*malcontent.Behavior{
+		{ID: "exfil/stealer/foo"},
+		nil,
+		{ID: "net/http/get"},
+		{ID: "exfil/discord"},
+	}
+	got, dropped := FilterBehaviorsByCategory(bs, []string{"exfil"})
+	if dropped != 1 {
+		t.Errorf("dropped: got = %d, want = 1", dropped)
+	}
+	ids := make([]string, 0, len(got))
+	for _, b := range got {
+		ids = append(ids, b.ID)
+	}
+	if want := []string{"exfil/stealer/foo", "exfil/discord"}; !slices.Equal(ids, want) {
+		t.Errorf("kept IDs: got = %q, want = %q", ids, want)
 	}
 }
 
@@ -170,11 +192,11 @@ func TestApplyCategoryFilter_DropsEmptyFiles(t *testing.T) {
 	ApplyCategoryFilter(r, []string{"exfil"})
 
 	if _, ok := r.Files.Load("/a"); ok {
-		t.Errorf("expected /a to be removed (no exfil behaviors)")
+		t.Errorf("/a present after filtering for exfil: got = true, want = false")
 	}
 	bRep, ok := r.Files.Load("/b")
 	if !ok {
-		t.Fatalf("expected /b to remain")
+		t.Fatalf("/b present after filtering for exfil: got = false, want = true")
 	}
 	if len(bRep.Behaviors) != 1 || bRep.Behaviors[0].ID != "exfil/stealer/foo" {
 		t.Errorf("/b behaviors = %v, want [exfil/stealer/foo]", bRep.Behaviors)
@@ -197,7 +219,7 @@ func TestApplyCategoryFilter_PreservesOthers(t *testing.T) {
 
 	xRep, ok := r.Files.Load("/x")
 	if !ok {
-		t.Fatalf("expected /x to remain")
+		t.Fatalf("/x present after filtering: got = false, want = true")
 	}
 	if len(xRep.Behaviors) != 1 || xRep.Behaviors[0].ID != "exfil/stealer/foo" {
 		t.Errorf("/x behaviors = %v, want only exfil/stealer/foo", xRep.Behaviors)
@@ -221,7 +243,7 @@ func TestApplyCategoryFilter_NoOpWhenUnset(t *testing.T) {
 
 	xRep, ok := r.Files.Load("/x")
 	if !ok {
-		t.Fatalf("expected /x to remain")
+		t.Fatalf("/x present after filtering: got = false, want = true")
 	}
 	if len(xRep.Behaviors) != 2 {
 		t.Errorf("/x behaviors len = %d, want 2 (unchanged)", len(xRep.Behaviors))

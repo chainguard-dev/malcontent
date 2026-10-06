@@ -4,7 +4,6 @@
 package action
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -72,7 +71,7 @@ func BenchmarkBehaviorsChanged(b *testing.B) {
 
 // BenchmarkFilterDiff exercises the diff-filter predicate at the ALL sensitivity.
 func BenchmarkFilterDiff(b *testing.B) {
-	ctx := context.Background()
+	ctx := b.Context()
 	c := malcontent.Config{Sensitivity: ALL}
 	src := &malcontent.FileReport{RiskScore: 2, Behaviors: benchBehaviors(16)}
 	dest := &malcontent.FileReport{RiskScore: 3, Behaviors: benchBehaviors(17)}

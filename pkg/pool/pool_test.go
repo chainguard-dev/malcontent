@@ -195,15 +195,18 @@ func TestNewScannerPool(t *testing.T) {
 	rules := compiler.Build()
 	t.Cleanup(func() { rules.Destroy() })
 
+	procs := runtime.GOMAXPROCS(0)
 	tests := []struct {
 		name  string
 		count int
+		want  int
 	}{
-		{"single scanner", 1},
-		{"multiple scanners", 4},
-		{"moderate number of scanners", 16},
-		{"large number of scanners", 1024},
-		{"unreasonable number of scanners", 65535},
+		{"negative count holds one scanner", -1, 1},
+		{"zero count holds one scanner", 0, 1},
+		{"single scanner", 1, 1},
+		{"count at GOMAXPROCS is kept", procs, procs},
+		{"count above GOMAXPROCS is capped", procs + 1, procs},
+		{"unreasonable count is capped", 65535, procs},
 	}
 
 	for _, tt := range tests {
@@ -214,6 +217,10 @@ func TestNewScannerPool(t *testing.T) {
 				t.Fatal("NewScannerPool returned nil")
 			}
 			defer sp.Close()
+
+			if got := len(sp.scanners); got != tt.want {
+				t.Errorf("pool size: got = %d, want = %d", got, tt.want)
+			}
 
 			scanner := sp.Get(rules)
 			if scanner == nil {
@@ -395,4 +402,111 @@ func TestScannerPoolConcurrency(t *testing.T) {
 	}
 
 	wg.Wait()
+}
+
+func TestBufferPoolGetReusesSufficientCapacity(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name      string
+		size      int64
+		wantReuse bool
+	}{
+		{"request below pooled capacity reuses the buffer", 16, true},
+		{"request equal to pooled capacity reuses the buffer", 64, true},
+		{"request above pooled capacity allocates a new buffer", 65, false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			pooled := make([]byte, 8, 64)
+			bp := &BufferPool{}
+			bp.pool.New = func() any { return &pooled }
+
+			got := bp.Get(tt.size)
+			if int64(len(got)) != tt.size {
+				t.Fatalf("buffer length: got = %d, want = %d", len(got), tt.size)
+			}
+			if reused := &got[0] == &pooled[0]; reused != tt.wantReuse {
+				t.Errorf("reused pooled buffer: got = %v, want = %v", reused, tt.wantReuse)
+			}
+		})
+	}
+}
+
+func TestBufferPoolPutClearsCallerBuffer(t *testing.T) {
+	t.Parallel()
+	bp := NewBufferPool(0)
+	buf := []byte{1, 2, 3, 4}
+
+	bp.Put(buf)
+
+	for i, b := range buf {
+		if b != 0 {
+			t.Errorf("buf[%d]: got = %d, want = 0", i, b)
+		}
+	}
+}
+
+func TestBufferPoolPutRetainsBuffersUpToMaxPoolBuffer(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name       string
+		capacity   int64
+		wantPooled bool
+	}{
+		{"default capacity is retained", file.DefaultPoolBuffer, true},
+		{"capacity equal to MaxPoolBuffer is retained", file.MaxPoolBuffer, true},
+		{"capacity above MaxPoolBuffer is dropped", file.MaxPoolBuffer + 1, false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			bp := &BufferPool{}
+			bp.pool.New = func() any {
+				fresh := make([]byte, 1)
+				return &fresh
+			}
+
+			if got := smallPoolReturnsBuffer(bp, make([]byte, tt.capacity)); got != tt.wantPooled {
+				t.Errorf("buffer retained by pool: got = %v, want = %v", got, tt.wantPooled)
+			}
+		})
+	}
+}
+
+// smallPoolReturnsBuffer reports whether bp hands buf back from Get after Put.
+// sync.Pool may discard any single Put (the race detector does so at random),
+// so a retained buffer is detected by retrying, while a dropped buffer never
+// comes back and the New fallback supplies a distinct one each time.
+func smallPoolReturnsBuffer(bp *BufferPool, buf []byte) bool {
+	for range 64 {
+		bp.Put(buf)
+		if got := bp.Get(1); &got[0] == &buf[0] {
+			return true
+		}
+	}
+	return false
+}
+
+func TestScannerPoolGetDrawsFromPool(t *testing.T) {
+	t.Parallel()
+	rules, err := yarax.Compile("rule pool_draw { condition: true }")
+	if err != nil {
+		t.Fatalf("compile test rule: %v", err)
+	}
+	t.Cleanup(rules.Destroy)
+
+	sp := NewScannerPool(rules, 1)
+	defer sp.Close()
+
+	scanner := sp.Get(rules)
+	if got := len(sp.scanners); got != 0 {
+		t.Errorf("pooled scanners after Get: got = %d, want = 0", got)
+	}
+	sp.Put(scanner)
+	if got := len(sp.scanners); got != 1 {
+		t.Errorf("pooled scanners after Put: got = %d, want = 1", got)
+	}
 }

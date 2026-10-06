@@ -36,6 +36,10 @@ var ErrArchiveBytesCap = errors.New("archive total uncompressed bytes exceeded")
 // of uncompressed bytes exceeds InputBytes * MaxRatio.
 var ErrArchiveRatioCap = errors.New("archive expansion ratio exceeded")
 
+// logWarn emits warnings through the default slog logger. It is a variable so
+// tests can record the messages without replacing the process-wide logger.
+var logWarn = slog.Warn
+
 // ArchiveCounter accumulates uncompressed bytes written by an extractor and
 // enforces a byte cap and an expansion-ratio cap. A zero value disables a
 // cap; a nil receiver disables accounting entirely so callers may opt out.
@@ -85,12 +89,14 @@ func (c *ArchiveCounter) Add(n int) error {
 	// operator-supplied caps. "Would overflow" is treated as "ratio cap
 	// inactive" and logged once so operators can see the unbounded condition.
 	// The bytes cap above still applies. InputBytes > 0 is already gated so the
-	// threshold is well defined.
+	// threshold is well defined. math.MaxInt64 converts to 2^63 as a float64,
+	// and no int64 total can exceed a threshold of 2^63 or more, so that
+	// boundary already leaves the cap inactive.
 	if c.MaxRatio > 0 && c.InputBytes > 0 {
 		threshold := c.MaxRatio * float64(c.InputBytes)
-		if threshold > math.MaxInt64 {
+		if threshold >= math.MaxInt64 {
 			c.warnOnce.Do(func() {
-				slog.Default().Warn(
+				logWarn(
 					"archive ratio cap disabled — MaxRatio*InputBytes overflows int64",
 					"input_bytes", c.InputBytes,
 					"max_ratio", c.MaxRatio,

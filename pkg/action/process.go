@@ -4,11 +4,12 @@
 package action
 
 import (
+	"cmp"
 	"context"
 	"fmt"
 	"os"
 	"runtime"
-	"sort"
+	"slices"
 	"strings"
 
 	"github.com/chainguard-dev/clog"
@@ -55,8 +56,8 @@ func ActiveProcesses(ctx context.Context) ([]*ProcessInfo, error) {
 		ps = append(ps, v)
 	}
 
-	sort.Slice(ps, func(i, j int) bool {
-		return ps[i].ScanPath < ps[j].ScanPath
+	slices.SortFunc(ps, func(a, b *ProcessInfo) int {
+		return cmp.Compare(a.ScanPath, b.ScanPath)
 	})
 
 	return ps, nil

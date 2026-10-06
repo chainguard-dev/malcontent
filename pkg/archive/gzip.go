@@ -95,15 +95,13 @@ func ExtractGzip(ctx context.Context, d string, f string) error {
 	}
 	defer out.Close()
 
-	var written int64
 	for {
-		if written > 0 && written%file.ExtractBuffer == 0 && ctx.Err() != nil {
-			return ctx.Err()
+		if err := ctx.Err(); err != nil {
+			return err
 		}
 
 		n, err := gr.Read(buf)
 		if n > 0 {
-			written += int64(n)
 			if capErr := counter.Add(n); capErr != nil {
 				return fmt.Errorf("gzip extraction aborted on %s: %w", target, capErr)
 			}

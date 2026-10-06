@@ -414,7 +414,7 @@ func TestStringPoolConcurrentStress(t *testing.T) {
 
 	expectedCount := int64(numGoroutines * numIterations)
 	if successCount.Load() != expectedCount {
-		t.Errorf("Expected %d successful operations, got %d", expectedCount, successCount.Load())
+		t.Errorf("successful operations: got = %d, want = %d", successCount.Load(), expectedCount)
 	}
 }
 
@@ -479,7 +479,7 @@ func TestNewStringPoolSingleton(t *testing.T) {
 	p1 := NewStringPool()
 	p2 := NewStringPool()
 	if p1 != p2 {
-		t.Errorf("expected pointer-equal pools, got distinct instances: %p vs %p", p1, p2)
+		t.Errorf("second pool: got = %p, want = %p (the same instance)", p2, p1)
 	}
 }
 

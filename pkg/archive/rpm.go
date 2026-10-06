@@ -31,15 +31,15 @@ func extractFileFromCPIO(ctx context.Context, cr *cpio.Reader, root *os.Root, na
 	}
 	defer out.Close()
 
-	var written int64
+	// Check before every read, since a read returns whatever the payload
+	// decompressor yields and need not fill the buffer.
 	for {
-		if written > 0 && written%file.ExtractBuffer == 0 && ctx.Err() != nil {
-			return ctx.Err()
+		if err := ctx.Err(); err != nil {
+			return err
 		}
 
 		n, err := cr.Read(buf)
 		if n > 0 {
-			written += int64(n)
 			if capErr := counter.Add(n); capErr != nil {
 				return fmt.Errorf("rpm extraction aborted on %s: %w", name, capErr)
 			}
@@ -183,7 +183,12 @@ func ExtractRPM(ctx context.Context, d, f string) (retErr error) {
 					if err := handleHardlink(root, clean, existingPath); err != nil {
 						return fmt.Errorf("failed to create hardlink: %w", err)
 					}
-					continue
+					// newc writers store a hard link set's content with its last
+					// member and leave the earlier members empty, so content that
+					// arrives here is written through the link to reach them all.
+					if header.Size == 0 {
+						continue
+					}
 				}
 				inodeMap[header.Inode] = clean
 			}

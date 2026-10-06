@@ -5,7 +5,6 @@ package render
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"strings"
 	"testing"
@@ -34,22 +33,22 @@ func FuzzRenderDifferential(f *testing.F) {
 
 	// YAML special values that cannot round-trip as map keys due to
 	// YAML 1.1 merge key and implicit typing (boolean, null) semantics.
-	yamlIgnore := map[string]bool{
-		"<<": true, "~": true,
-		"null": true, "Null": true, "NULL": true,
-		"true": true, "True": true, "TRUE": true,
-		"false": true, "False": true, "FALSE": true,
-		"yes": true, "Yes": true, "YES": true,
-		"no": true, "No": true, "NO": true,
-		"on": true, "On": true, "ON": true,
-		"off": true, "Off": true, "OFF": true,
-		"y": true, "Y": true,
-		"n": true, "N": true,
+	yamlIgnore := map[string]struct{}{
+		"<<": {}, "~": {},
+		"null": {}, "Null": {}, "NULL": {},
+		"true": {}, "True": {}, "TRUE": {},
+		"false": {}, "False": {}, "FALSE": {},
+		"yes": {}, "Yes": {}, "YES": {},
+		"no": {}, "No": {}, "NO": {},
+		"on": {}, "On": {}, "ON": {},
+		"off": {}, "Off": {}, "OFF": {},
+		"y": {}, "Y": {},
+		"n": {}, "N": {},
 	}
 
 	f.Fuzz(func(t *testing.T, riskLevel int8, filePath, behaviorName, behaviorDesc string, hasDiff bool) {
 		filePath = sanitizeUTF8(filePath)
-		if filePath == "" || yamlIgnore[filePath] {
+		if _, ignored := yamlIgnore[filePath]; filePath == "" || ignored {
 			return
 		}
 
@@ -85,7 +84,7 @@ func FuzzRenderDifferential(f *testing.F) {
 			}
 		}
 
-		ctx := context.Background()
+		ctx := t.Context()
 		cfg := &malcontent.Config{Stats: !hasDiff} // Stats only when no diff
 
 		var jsonBuf bytes.Buffer
@@ -254,18 +253,50 @@ func FuzzSanitizeMarkdown(f *testing.F) {
 	f.Add("")
 	f.Add("no special chars")
 	f.Add("[]()` all of them")
+	f.Add(`a\]b\\|c<d>*e_f~g$h`)
+	f.Add("line\r\nbreak\x00")
+	f.Add("@user org/repo#12 :smile: &#64; &amp;")
 
+	const zeroWidthSpace = "&#8203;"
 	f.Fuzz(func(t *testing.T, input string) {
 		result := sanitizeMarkdown(input)
 
-		// No unescaped brackets/parens/backticks should remain
-		// Every [ ] ( ) ` in the result should be preceded by \
-		for i, r := range result {
-			if r == '[' || r == ']' || r == '(' || r == ')' || r == '`' {
-				if i == 0 || result[i-1] != '\\' {
-					t.Errorf("unescaped %c at position %d in %q (from %q)", r, i, result, input)
+		// A special byte is escaped only when an odd number of backslashes
+		// precedes it; every other byte must follow an even number. Each '@',
+		// '#', and ':' is followed by a zero-width space reference, and every
+		// other '&' starts "&amp;".
+		run := 0
+		for i := 0; i < len(result); i++ {
+			c := result[i]
+			switch {
+			case c == '\\':
+				run++
+				continue
+			case c < 0x20 || c == 0x7f:
+				t.Fatalf("control byte %#x at position %d in %q (from %q)", c, i, result, input)
+			case c == '@' || c == '#' || c == ':':
+				if !strings.HasPrefix(result[i+1:], zeroWidthSpace) {
+					t.Fatalf("%q at position %d lacks a zero-width space in %q (from %q)", c, i, result, input)
 				}
+				if run%2 != 0 {
+					t.Errorf("%q at position %d follows %d backslashes in %q (from %q)", c, i, run, result, input)
+				}
+				i += len(zeroWidthSpace)
+			case c == '&':
+				if !strings.HasPrefix(result[i:], "&amp;") {
+					t.Fatalf("bare & at position %d in %q (from %q)", i, result, input)
+				}
+				if run%2 != 0 {
+					t.Errorf("& at position %d follows %d backslashes in %q (from %q)", i, run, result, input)
+				}
+				i += len("&amp;") - 1
+			case (strings.IndexByte(markdownTextSpecial, c) >= 0) != (run%2 == 1):
+				t.Errorf("byte %q at position %d follows %d backslashes in %q (from %q)", c, i, run, result, input)
 			}
+			run = 0
+		}
+		if run%2 != 0 {
+			t.Errorf("trailing unescaped backslash in %q (from %q)", result, input)
 		}
 	})
 }
@@ -313,10 +344,10 @@ func FuzzNew(f *testing.F) {
 	f.Add(strings.Repeat("x", 1000))
 	f.Add("\x00\x01\x02")
 
-	known := map[string]bool{
-		"": true, "auto": true, "terminal": true, "terminal_brief": true,
-		"markdown": true, "yaml": true, "json": true,
-		formatSimple: true, formatStrings: true, formatInteractive: true,
+	known := map[string]struct{}{
+		"": {}, "auto": {}, "terminal": {}, "terminal_brief": {},
+		"markdown": {}, "yaml": {}, "json": {},
+		formatSimple: {}, formatStrings: {}, formatInteractive: {},
 	}
 
 	f.Fuzz(func(t *testing.T, kind string) {
@@ -327,15 +358,15 @@ func FuzzNew(f *testing.F) {
 		var buf bytes.Buffer
 		renderer, err := New(kind, &buf)
 
-		if known[kind] {
+		if _, ok := known[kind]; ok {
 			if err != nil {
-				t.Errorf("New(%q) returned unexpected error: %v", kind, err)
+				t.Errorf("New(%q) error: got = %v, want = nil", kind, err)
 			}
 			if renderer == nil {
-				t.Errorf("New(%q) returned nil renderer for known kind", kind)
+				t.Errorf("New(%q) renderer: got = nil, want = non-nil for a known kind", kind)
 			}
 		} else if err == nil {
-			t.Errorf("New(%q) should return error for unknown kind", kind)
+			t.Errorf("New(%q) error: got = nil, want = error for an unknown kind", kind)
 		}
 	})
 }

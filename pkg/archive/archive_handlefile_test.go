@@ -147,6 +147,58 @@ func TestHandleFile_MemberWithinBudgetExtractsFully(t *testing.T) {
 	}
 }
 
+// TestHandleFile_TruncatedMember covers a member whose content ends before
+// the size its header declares: content that did arrive is kept, while a
+// member with no content at all is an error.
+func TestHandleFile_TruncatedMember(t *testing.T) {
+	t.Parallel()
+
+	body := bytes.Repeat([]byte("truncated "), 10)
+	tests := []struct {
+		name    string
+		present int
+		wantErr bool
+	}{
+		{name: "partial content is kept", present: 10, wantErr: false},
+		{name: "missing content is an error", present: 0, wantErr: true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			var buf bytes.Buffer
+			tw := tar.NewWriter(&buf)
+			hdr := &tar.Header{Name: "cut.bin", Mode: 0o600, Size: int64(len(body)), Typeflag: tar.TypeReg}
+			if err := tw.WriteHeader(hdr); err != nil {
+				t.Fatalf("WriteHeader: %v", err)
+			}
+			if _, err := tw.Write(body); err != nil {
+				t.Fatalf("Write: %v", err)
+			}
+			tr := tar.NewReader(bytes.NewReader(buf.Bytes()[:tarBlockSize+tt.present]))
+			if _, err := tr.Next(); err != nil {
+				t.Fatalf("Next: %v", err)
+			}
+			dir := t.TempDir()
+
+			err := handleFile(openTestRoot(t, dir), "cut.bin", tr, nil)
+			if got := err != nil; got != tt.wantErr {
+				t.Fatalf("handleFile error: got = %v, want error = %v", err, tt.wantErr)
+			}
+			if tt.wantErr {
+				return
+			}
+			got, err := os.ReadFile(filepath.Join(dir, "cut.bin"))
+			if err != nil {
+				t.Fatal(err)
+			}
+			if want := body[:tt.present]; !bytes.Equal(got, want) {
+				t.Errorf("extracted content: got = %q, want = %q", got, want)
+			}
+		})
+	}
+}
+
 // TestHandleFile_MemberExceedsBudgetErrors is the negative counterpart: a
 // member that exceeds the counter budget produces the ErrArchiveBytesCap
 // sentinel.

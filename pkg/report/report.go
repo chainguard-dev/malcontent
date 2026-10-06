@@ -6,6 +6,7 @@ package report
 import (
 	"bufio"
 	"bytes"
+	"cmp"
 	"context"
 	"fmt"
 	"index/suffixarray"
@@ -17,7 +18,6 @@ import (
 	"regexp"
 	"slices"
 	"sort"
-	"strconv"
 	"strings"
 	"sync"
 
@@ -73,50 +73,54 @@ var RiskLevels = map[int]string{
 }
 
 // yaraForge has some very, very long rule names.
-var yaraForgeJunkWords = map[string]bool{
-	".yara":             true,
-	"0":                 true,
-	"1":                 true,
-	"2":                 true,
-	"apt":               true,
-	"artefacts":         true,
-	"artifacts":         true,
-	"base":              true,
-	"big":               true,
-	"controller":        true,
-	"dynamic":           true,
-	"encoded":           true,
-	"exe":               true,
-	"forensic":          true,
-	"forensicartifacts": true,
-	"generic":           true,
-	"greyware":          true,
-	"hunting":           true,
-	"indicator":         true,
-	"keyword":           true,
-	"linux":             true,
-	"lnx":               true,
-	"m":                 true,
-	"mac":               true,
-	"macos":             true,
-	"mal":               true,
-	"malware":           true,
-	"offensive":         true,
-	"osx":               true,
-	"sig":               true,
-	"small":             true,
-	"suspicious":        true,
-	"tool":              true,
-	"trojan":            true,
-	"unix":              true,
-	"YARAForge":         true,
+var yaraForgeJunkWords = map[string]struct{}{
+	".yara":             {},
+	"0":                 {},
+	"1":                 {},
+	"2":                 {},
+	"apt":               {},
+	"artefacts":         {},
+	"artifacts":         {},
+	"base":              {},
+	"big":               {},
+	"controller":        {},
+	"dynamic":           {},
+	"encoded":           {},
+	"exe":               {},
+	"forensic":          {},
+	"forensicartifacts": {},
+	"generic":           {},
+	"greyware":          {},
+	"hunting":           {},
+	"indicator":         {},
+	"keyword":           {},
+	"linux":             {},
+	"lnx":               {},
+	"m":                 {},
+	"mac":               {},
+	"macos":             {},
+	"mal":               {},
+	"malware":           {},
+	"offensive":         {},
+	"osx":               {},
+	"sig":               {},
+	"small":             {},
+	"suspicious":        {},
+	"tool":              {},
+	"trojan":            {},
+	"unix":              {},
+	"YARAForge":         {},
 }
 
 // authorWithURLRe matches "Arnim Rupp (https://github.com/ruppde)"
 var (
 	authorWithURLRe        = regexp.MustCompile(`(.*?) \((http.*)\)`)
 	threatHuntingKeywordRe = regexp.MustCompile(`Detection patterns for the tool '(.*)' taken from the ThreatHunting-Keywords github project`)
-	dateRe                 = regexp.MustCompile(`[a-z]{3}\d{1,2}`)
+	// dateRe matches a whole rule-name word that is a month followed by a day
+	// or two-digit year, a four-digit year, or a year and month (jun17,
+	// may2022, apr202004). It is anchored so words that merely contain three
+	// letters and a digit, such as base64exec or gen2, are kept.
+	dateRe = regexp.MustCompile(`^(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)(?:\d{1,2}|\d{4}|\d{6})$`)
 )
 
 // Map to handle RiskLevel -> RiskScore conversions.
@@ -153,9 +157,9 @@ func thirdPartyKey(path string, rule string) string {
 	// creating a slice with subDir initially should usually ensure this is at least one,
 	// but the subDir assignment may not result in a non-empty string
 	if len(words) > 0 {
-		// strip off the last word if it's a hex key
+		// strip off the last word if it's a hex key or hash of any length
 		lastWord = words[len(words)-1]
-		if _, err := strconv.ParseUint(lastWord, 16, 64); err == nil {
+		if isHexWord(lastWord) {
 			words = words[0 : len(words)-1]
 		}
 	}
@@ -170,7 +174,7 @@ func thirdPartyKey(path string, rule string) string {
 		}
 
 		// Filter out junk words and the subdirectory name
-		if !yaraForgeJunkWords[w] && w != subDirLower {
+		if _, junk := yaraForgeJunkWords[w]; !junk && w != subDirLower {
 			keepWords = append(keepWords, w)
 		}
 	}
@@ -194,7 +198,7 @@ func thirdPartyKey(path string, rule string) string {
 	// whose rule identifiers are already concise and meaningful (e.g. GuardDog),
 	// where truncation would collapse distinct rules (..._base64exec, ..._chr,
 	// ...) into one key and lose findings during dedup.
-	if len(keepWords) > 3 && !severityDrivenSources[subDirLower] {
+	if _, keepAll := severityDrivenSources[subDirLower]; len(keepWords) > 3 && !keepAll {
 		keepWords = keepWords[0:3]
 	}
 
@@ -205,6 +209,12 @@ func thirdPartyKey(path string, rule string) string {
 	ruleName := keepWords
 
 	return strings.TrimRight(fmt.Sprintf("3P/%s/%s", src, strings.Join(ruleName, "_")), "/")
+}
+
+// isHexWord reports whether w is a non-empty run of lowercase hex digits, such
+// as the key, hash, or certificate serial that ends many third-party rule names.
+func isHexWord(w string) bool {
+	return w != "" && strings.Trim(w, "0123456789abcdef") == ""
 }
 
 // thirdParty reports whether a rule originates from a third-party feed.
@@ -359,9 +369,9 @@ func generateRuleURL(src string, rule string) string {
 	return fmt.Sprintf("https://github.com/chainguard-dev/malcontent/blob/%s/%s/%s#%s", ref, pathPrefix, src, rule)
 }
 
-func ignoreMatch(tags []string, ignoreTags map[string]bool) bool {
+func ignoreMatch(tags []string, ignoreTags map[string]struct{}) bool {
 	for _, t := range tags {
-		if ignoreTags[t] {
+		if _, ok := ignoreTags[t]; ok {
 			return true
 		}
 	}
@@ -584,10 +594,10 @@ func fixURL(s string) string {
 // mungeDescription shortens verbose descriptions.
 func mungeDescription(s string) string {
 	// in: Detection patterns for the tool 'Nsight RMM' taken from the ThreatHunting-Keywords github project
-	// out: references 'Nsight RMM'
+	// out: references "Nsight RMM" tool
 	m := threatHuntingKeywordRe.FindStringSubmatch(s)
 	if len(m) > 0 {
-		return fmt.Sprintf("references '%s' tool", m[1])
+		return fmt.Sprintf("references %q tool", m[1])
 	}
 	return s
 }
@@ -609,16 +619,13 @@ func TrimPrefixes(path string, prefixes []string) string {
 			}
 
 			// Try matching as-is first (handles both relative and absolute)
-			if strings.HasPrefix(path, prefix) {
-				trimmed := path[len(prefix):]
+			if trimmed, ok := strings.CutPrefix(path, prefix); ok {
 				return strings.TrimPrefix(trimmed, string(filepath.Separator))
 			}
 
 			// If prefix is relative but path is absolute, try with leading /
 			if !strings.HasPrefix(prefix, "/") && strings.HasPrefix(path, "/") {
-				absPrefix := "/" + prefix
-				if strings.HasPrefix(path, absPrefix) {
-					trimmed := path[len(absPrefix):]
+				if trimmed, ok := strings.CutPrefix(path, "/"+prefix); ok {
 					return strings.TrimPrefix(trimmed, string(filepath.Separator))
 				}
 			}
@@ -832,6 +839,7 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 	risk := 0
 	riskCounts := make(map[int]int, 0)
 	behaviorIdx := make(map[string]int, matchCount)
+	var overrides []overrideTarget
 
 	// Store match rules in a map for future override operations
 	mrsMap := createMatchRulesMap(mrs, matchCount)
@@ -876,12 +884,13 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 
 		// if the rule has an override tag but is not overriding a valid rule,
 		// ignore this match rule so that we don't show errant false positive rules in reports
-		if !parseMetadata(m, b, fr, override, mrsMap, &pledges, &caps, &syscalls) {
+		if !parseMetadata(m, b, fr, override, mrsMap, &pledges, &caps, &syscalls, &overrides) {
 			continue
 		}
 
-		// Fix YARA Forge rules that record their author URL as reference URLs
-		if strings.HasPrefix(b.RuleURL, b.ReferenceURL) {
+		// Fix YARA Forge rules that record their author URL as reference URLs.
+		// An empty reference is a prefix of every URL, so it must not count.
+		if b.ReferenceURL != "" && strings.HasPrefix(b.RuleURL, b.ReferenceURL) {
 			b.RuleAuthorURL = b.ReferenceURL
 			b.ReferenceURL = ""
 		}
@@ -909,7 +918,8 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 	}
 
 	// Update the behaviors to account for overrides
-	fr.Behaviors = handleOverrides(fr.Behaviors, fr.Overrides, minScore, c.Scan, c.QuantityIncreasesRisk)
+	fr.Overrides = append(fr.Overrides, overrideEntries(overrides)...)
+	fr.Behaviors = handleOverrides(fr.Behaviors, fr.Overrides, minScore, c.Scan)
 
 	// Adjust the overall risk if we deviated from overallRiskScore
 	// Scans will still need to drop <= medium results
@@ -937,17 +947,17 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 	fr.RiskLevel = RiskLevels[fr.RiskScore]
 
 	// Ensure that the behaviors are consistently sorted by ID
-	sort.Slice(fr.Behaviors, func(i, j int) bool {
-		return fr.Behaviors[i].ID < fr.Behaviors[j].ID
+	slices.SortFunc(fr.Behaviors, func(a, b *malcontent.Behavior) int {
+		return cmp.Compare(a.ID, b.ID)
 	})
 
 	return fr, nil
 }
 
-func buildIgnoreMap(ignoreTags []string) map[string]bool {
-	ignore := make(map[string]bool, len(ignoreTags))
+func buildIgnoreMap(ignoreTags []string) map[string]struct{} {
+	ignore := make(map[string]struct{}, len(ignoreTags))
 	for _, t := range ignoreTags {
-		ignore[t] = true
+		ignore[t] = struct{}{}
 	}
 	return ignore
 }
@@ -1010,7 +1020,32 @@ func buildBehavior(m *yarax.Rule, matchedStrings []string, key string, ruleURL s
 	}
 }
 
-func parseMetadata(m *yarax.Rule, b *malcontent.Behavior, fr *malcontent.FileReport, override bool, mrsMap map[string]*yarax.Rule, pledges *[]string, caps *[]string, syscalls *[]string) bool {
+// overrideTarget records one override directive: the override rule behind the
+// behavior rule sets the rule named target to score.
+type overrideTarget struct {
+	rule   *malcontent.Behavior
+	target string
+	score  int
+}
+
+// overrideEntries expands override directives into one behavior per target, so
+// each overridden rule receives the severity its own meta key declares rather
+// than the last severity the override rule listed. Callers build the entries
+// once every match is processed, so they carry the override rule's final
+// description and URLs.
+func overrideEntries(targets []overrideTarget) []*malcontent.Behavior {
+	entries := make([]*malcontent.Behavior, 0, len(targets))
+	for _, t := range targets {
+		e := *t.rule
+		e.Override = []string{t.target}
+		e.RiskScore = t.score
+		e.RiskLevel = RiskLevels[t.score]
+		entries = append(entries, &e)
+	}
+	return entries
+}
+
+func parseMetadata(m *yarax.Rule, b *malcontent.Behavior, fr *malcontent.FileReport, override bool, mrsMap map[string]*yarax.Rule, pledges *[]string, caps *[]string, syscalls *[]string, overrides *[]overrideTarget) bool {
 	k := ""
 	v := ""
 
@@ -1086,7 +1121,7 @@ func parseMetadata(m *yarax.Rule, b *malcontent.Behavior, fr *malcontent.FileRep
 			// treated as override directives.
 			continue
 		// If we find a match in the map for the metadata key after exhausting known keys, that's the rule to override
-		// Store this rule (the override) in the fr.Overrides behavior slice
+		// Record the target and its own severity in overrides
 		// If an override rule is not overriding a valid rule, set `valid` to false so we can
 		// skip the parent rule match in the report
 		default:
@@ -1103,7 +1138,10 @@ func parseMetadata(m *yarax.Rule, b *malcontent.Behavior, fr *malcontent.FileRep
 				b.RiskLevel = RiskLevels[overrideSev]
 				b.RiskScore = overrideSev
 				b.Override = append(b.Override, k)
-				fr.Overrides = append(fr.Overrides, b)
+				// overrides should not be nil when we get here, but guard against it
+				if overrides != nil {
+					*overrides = append(*overrides, overrideTarget{rule: b, target: k, score: overrideSev})
+				}
 			case !exists && override:
 				valid = false
 				continue
@@ -1230,7 +1268,8 @@ func highestBehaviorRisk(fr *malcontent.FileReport) int {
 }
 
 // handleOverrides modifies the behavior slice based on the contents of the override slice.
-func handleOverrides(original, override []*malcontent.Behavior, minScore int, scan, quantityIncreasesRisk bool) []*malcontent.Behavior {
+// When several entries target the same rule, the later entry wins.
+func handleOverrides(original, override []*malcontent.Behavior, minScore int, scan bool) []*malcontent.Behavior {
 	behaviorMap := make(map[string]*malcontent.Behavior, len(original))
 	for _, b := range original {
 		behaviorMap[b.RuleName] = b
@@ -1247,13 +1286,17 @@ func handleOverrides(original, override []*malcontent.Behavior, minScore int, sc
 		delete(behaviorMap, o.RuleName)
 	}
 
+	// Scans report only HIGH and above, the same floor Generate applies to the
+	// file risk. QuantityIncreasesRisk decides only whether many HIGH findings
+	// raise the file to CRITICAL, so it does not change which behaviors stay.
+	threshold := minScore
+	if scan {
+		threshold = HIGH
+	}
+
 	modified := make([]*malcontent.Behavior, 0, len(behaviorMap))
 	for _, b := range behaviorMap {
-		// if running a scan and using quantityIncreasesRisk,
-		// append every behavior so we can handle filtering correctly
-		if scan && quantityIncreasesRisk && b.RiskScore >= HIGH {
-			modified = append(modified, b)
-		} else if !scan && b.RiskScore >= minScore {
+		if b.RiskScore >= threshold {
 			modified = append(modified, b)
 		}
 	}

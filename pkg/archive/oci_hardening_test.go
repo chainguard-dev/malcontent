@@ -443,6 +443,8 @@ func TestEnvKeychain_CredsOnlyForExpectedHost(t *testing.T) {
 		host          string
 		resourceHost  string
 		wantAnonymous bool
+		wantUser      string
+		wantPass      string
 	}{
 		{
 			name:          "matching host returns creds",
@@ -451,6 +453,41 @@ func TestEnvKeychain_CredsOnlyForExpectedHost(t *testing.T) {
 			host:          "registry.example.com",
 			resourceHost:  "registry.example.com",
 			wantAnonymous: false,
+			wantUser:      "myuser",
+			wantPass:      "mypass",
+		},
+		{
+			name:         "surrounding whitespace is trimmed from creds and host",
+			user:         "  myuser ",
+			pass:         "\tmypass\n",
+			host:         " registry.example.com ",
+			resourceHost: "registry.example.com",
+			wantUser:     "myuser",
+			wantPass:     "mypass",
+		},
+		{
+			name:          "user without pass returns anonymous",
+			user:          "myuser",
+			pass:          "",
+			host:          "registry.example.com",
+			resourceHost:  "registry.example.com",
+			wantAnonymous: true,
+		},
+		{
+			name:          "pass without user returns anonymous",
+			user:          "",
+			pass:          "mypass",
+			host:          "registry.example.com",
+			resourceHost:  "registry.example.com",
+			wantAnonymous: true,
+		},
+		{
+			name:          "whitespace-only pass returns anonymous",
+			user:          "myuser",
+			pass:          " \t",
+			host:          "registry.example.com",
+			resourceHost:  "registry.example.com",
+			wantAnonymous: true,
 		},
 		{
 			name:          "mismatched host returns anonymous",
@@ -496,6 +533,13 @@ func TestEnvKeychain_CredsOnlyForExpectedHost(t *testing.T) {
 			} else {
 				if auth == authn.Anonymous {
 					t.Fatalf("authenticator: got = Anonymous, want = Basic")
+				}
+				cfg, err := auth.Authorization()
+				if err != nil {
+					t.Fatalf("Authorization: %v", err)
+				}
+				if cfg.Username != tt.wantUser || cfg.Password != tt.wantPass {
+					t.Fatalf("credentials: got = %q/%q, want = %q/%q", cfg.Username, cfg.Password, tt.wantUser, tt.wantPass)
 				}
 			}
 		})

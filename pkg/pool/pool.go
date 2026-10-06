@@ -77,8 +77,13 @@ type ScannerPool struct {
 	closeOnce sync.Once
 }
 
-// NewScannerPool creates a pool containing the specified number of yara-x scanners.
+// NewScannerPool creates a pool of yara-x scanners. count is clamped to
+// between one and runtime.GOMAXPROCS(0): an empty pool blocks Get forever,
+// scanning cannot run more concurrently than GOMAXPROCS, and each scanner
+// reserves memory mappings, so an oversized pool can exhaust the kernel's
+// mapping limit and abort the process.
 func NewScannerPool(yrs *yarax.Rules, count int) *ScannerPool {
+	count = min(max(count, 1), runtime.GOMAXPROCS(0))
 	sp := &ScannerPool{
 		scanners: make(chan *yarax.Scanner, count),
 		pinner:   &runtime.Pinner{},

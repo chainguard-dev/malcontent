@@ -157,16 +157,16 @@ func TestGenerate_IgnoreRules(t *testing.T) {
 			names := behaviorNames(fr)
 			for _, want := range tt.wantPresent {
 				if _, ok := names[want]; !ok {
-					t.Errorf("expected %q in Behaviors, absent (got %v)", want, names)
+					t.Errorf("%q in Behaviors: got = absent, want = present (names %v)", want, names)
 				}
 			}
 			for _, dontWant := range tt.wantAbsent {
 				if _, ok := names[dontWant]; ok {
-					t.Errorf("expected %q to be excluded from Behaviors, present", dontWant)
+					t.Errorf("%q in Behaviors: got = present, want = excluded", dontWant)
 				}
 			}
 			if tt.wantRiskZero && fr.RiskScore != 0 {
-				t.Errorf("expected RiskScore 0 after excluding all, got %d", fr.RiskScore)
+				t.Errorf("RiskScore after excluding all: got = %d, want = 0", fr.RiskScore)
 			}
 		})
 	}
@@ -209,7 +209,7 @@ func TestGenerate_IgnoreRules_RiskRecomputes(t *testing.T) {
 			baseline.RiskScore, filtered.RiskScore)
 	}
 	if filtered.RiskScore != MEDIUM {
-		t.Errorf("expected MEDIUM (%d) after excluding HIGH rule, got %d", MEDIUM, filtered.RiskScore)
+		t.Errorf("RiskScore after excluding the HIGH rule: got = %d, want = %d", filtered.RiskScore, MEDIUM)
 	}
 }
 
@@ -258,7 +258,7 @@ func TestGenerate_IgnoreRules_OverrideExcludingTarget(t *testing.T) {
 	}
 	names := behaviorNames(fr)
 	if _, present := names["base_high_rule"]; present {
-		t.Errorf("expected base_high_rule to be excluded, still present in %v", names)
+		t.Errorf("base_high_rule in Behaviors: got = present, want = excluded (names %v)", names)
 	}
 }
 
@@ -302,7 +302,7 @@ func TestGenerate_IgnoreRules_MatchesRuleNameNotFilename(t *testing.T) {
 	names := behaviorNames(fr)
 	for _, expect := range []string{"obfuscation_check", "wallet_stealer", "third_rule"} {
 		if _, ok := names[expect]; !ok {
-			t.Errorf("expected %q to survive (patterns match namespaces, not identifiers); got %v",
+			t.Errorf("%q in Behaviors: got = absent, want = present because patterns match identifiers, not namespaces (names %v)",
 				expect, names)
 		}
 	}
@@ -330,11 +330,11 @@ func TestGenerate_IgnoreRules_MatchesByNameEvenWhenNameDiffersFromFile(t *testin
 	}
 	names := behaviorNames(fr)
 	if _, present := names["wallet_stealer"]; present {
-		t.Errorf("expected wallet_stealer excluded by name, still present in %v", names)
+		t.Errorf("wallet_stealer in Behaviors: got = present, want = excluded by name (names %v)", names)
 	}
 	for _, expect := range []string{"obfuscation_check", "third_rule"} {
 		if _, ok := names[expect]; !ok {
-			t.Errorf("expected %q to survive; got %v", expect, names)
+			t.Errorf("%q in Behaviors: got = absent, want = present (names %v)", expect, names)
 		}
 	}
 }
@@ -461,9 +461,9 @@ func TestGenerate_IgnoreRules_OverrideExcludingOverride(t *testing.T) {
 		}
 	}
 	if base == nil {
-		t.Fatalf("expected base_high_rule in Behaviors, got %v", behaviorNames(fr))
+		t.Fatalf("base_high_rule in Behaviors: got = absent, want = present (names %v)", behaviorNames(fr))
 	}
 	if base.RiskScore != HIGH {
-		t.Errorf("expected base_high_rule to retain HIGH risk when override is excluded, got %d", base.RiskScore)
+		t.Errorf("base_high_rule RiskScore with its override excluded: got = %d, want = %d", base.RiskScore, HIGH)
 	}
 }

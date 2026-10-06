@@ -4,7 +4,6 @@
 package report
 
 import (
-	"context"
 	"io/fs"
 	"path/filepath"
 	"reflect"
@@ -97,7 +96,7 @@ func TestUpgradeRisk(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			if got := upgradeRisk(context.Background(), tt.currentScore, tt.riskCounts, tt.size); got != tt.want {
+			if got := upgradeRisk(t.Context(), tt.currentScore, tt.riskCounts, tt.size); got != tt.want {
 				t.Errorf("upgradeRisk(%d, %v, %v) = %v, want %v", tt.currentScore, tt.riskCounts, tt.size, got, tt.want)
 			}
 		})
@@ -136,7 +135,7 @@ func TestUpgradeRisk_BandPartition(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			if got := upgradeRisk(context.Background(), HIGH, tt.riskCounts, tt.size); got != tt.want {
+			if got := upgradeRisk(t.Context(), HIGH, tt.riskCounts, tt.size); got != tt.want {
 				t.Errorf("upgradeRisk(HIGH, %v, %d) = %v, want %v", tt.riskCounts, tt.size, got, tt.want)
 			}
 		})
@@ -411,7 +410,7 @@ func TestApplyCriticalUpgrade(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			if got := applyCriticalUpgrade(context.Background(), tt.quantityIncreasesRisk, tt.riskCounts, tt.overallRiskScore, tt.size); got != tt.want {
+			if got := applyCriticalUpgrade(t.Context(), tt.quantityIncreasesRisk, tt.riskCounts, tt.overallRiskScore, tt.size); got != tt.want {
 				t.Errorf("applyCriticalUpgrade(ctx, %v, %v, %d, %d) = %v, want %v", tt.quantityIncreasesRisk, tt.riskCounts, tt.overallRiskScore, tt.size, got, tt.want)
 			}
 		})
@@ -835,37 +834,37 @@ func TestIgnoreMatch(t *testing.T) {
 	tests := []struct {
 		name       string
 		tags       []string
-		ignoreTags map[string]bool
+		ignoreTags map[string]struct{}
 		want       bool
 	}{
 		{
 			name:       "no tags to ignore",
 			tags:       []string{"malware", "trojan"},
-			ignoreTags: map[string]bool{},
+			ignoreTags: map[string]struct{}{},
 			want:       false,
 		},
 		{
 			name:       "tag should be ignored",
 			tags:       []string{tagHarmless, "common"},
-			ignoreTags: map[string]bool{tagHarmless: true},
+			ignoreTags: map[string]struct{}{tagHarmless: {}},
 			want:       true,
 		},
 		{
 			name:       "multiple tags one ignored",
 			tags:       []string{"suspicious", tagHarmless},
-			ignoreTags: map[string]bool{tagHarmless: true, "benign": true},
+			ignoreTags: map[string]struct{}{tagHarmless: {}, "benign": {}},
 			want:       true,
 		},
 		{
 			name:       "no matching ignore tags",
 			tags:       []string{"malware", "critical"},
-			ignoreTags: map[string]bool{tagHarmless: true, "benign": true},
+			ignoreTags: map[string]struct{}{tagHarmless: {}, "benign": {}},
 			want:       false,
 		},
 		{
 			name:       "empty tags",
 			tags:       []string{},
-			ignoreTags: map[string]bool{tagHarmless: true},
+			ignoreTags: map[string]struct{}{tagHarmless: {}},
 			want:       false,
 		},
 	}
@@ -977,12 +976,17 @@ func TestMungeDescription(t *testing.T) {
 		{
 			name: "threat hunting keyword",
 			desc: "Detection patterns for the tool 'Nsight RMM' taken from the ThreatHunting-Keywords github project",
-			want: "references 'Nsight RMM' tool",
+			want: `references "Nsight RMM" tool`,
 		},
 		{
 			name: "another threat hunting pattern",
 			desc: "Detection patterns for the tool 'AnyDesk' taken from the ThreatHunting-Keywords github project",
-			want: "references 'AnyDesk' tool",
+			want: `references "AnyDesk" tool`,
+		},
+		{
+			name: "tool name with a quote, backslash, and tab is escaped",
+			desc: "Detection patterns for the tool 'a\"b\\c\td' taken from the ThreatHunting-Keywords github project",
+			want: `references "a\"b\\c\td" tool`,
 		},
 		{
 			name: "normal description unchanged",
@@ -1121,14 +1125,14 @@ func TestHandleOverrides(t *testing.T) {
 		override := []*malcontent.Behavior{
 			{RuleName: "override_dangerous", RiskScore: LOW, RiskLevel: "LOW", Override: []string{"dangerous"}},
 		}
-		result := handleOverrides(original, override, LOW, false, false)
+		result := handleOverrides(original, override, LOW, false)
 
 		for _, b := range result {
 			if b.RuleName == "override_dangerous" {
-				t.Error("override rule should be removed from result")
+				t.Error("override_dangerous in result: got = present, want = removed")
 			}
 			if b.RuleName == "dangerous" && b.RiskScore != LOW {
-				t.Errorf("expected dangerous lowered to LOW, got %d", b.RiskScore)
+				t.Errorf("dangerous RiskScore: got = %d, want = %d", b.RiskScore, LOW)
 			}
 		}
 	})
@@ -1141,18 +1145,18 @@ func TestHandleOverrides(t *testing.T) {
 		override := []*malcontent.Behavior{
 			{RuleName: "upgrade", RiskScore: CRITICAL, RiskLevel: "CRITICAL", Override: []string{"mild"}},
 		}
-		result := handleOverrides(original, override, LOW, false, false)
+		result := handleOverrides(original, override, LOW, false)
 		found := false
 		for _, b := range result {
 			if b.RuleName == "mild" {
 				found = true
 				if b.RiskScore != CRITICAL {
-					t.Errorf("expected mild raised to CRITICAL, got %d", b.RiskScore)
+					t.Errorf("mild RiskScore: got = %d, want = %d", b.RiskScore, CRITICAL)
 				}
 			}
 		}
 		if !found {
-			t.Error("mild should be in result")
+			t.Error("mild in result: got = absent, want = present")
 		}
 	})
 
@@ -1164,10 +1168,10 @@ func TestHandleOverrides(t *testing.T) {
 		override := []*malcontent.Behavior{
 			{RuleName: "bad_override", RiskScore: LOW, RiskLevel: "LOW", Override: []string{"nonexistent"}},
 		}
-		result := handleOverrides(original, override, LOW, false, false)
+		result := handleOverrides(original, override, LOW, false)
 		for _, b := range result {
 			if b.RuleName == "bad_override" {
-				t.Error("bad_override should not appear in result")
+				t.Error("bad_override in result: got = present, want = absent")
 			}
 		}
 	})
@@ -1179,18 +1183,18 @@ func TestHandleOverrides(t *testing.T) {
 			{RuleName: "med", RiskScore: MEDIUM, RiskLevel: LevelMEDIUM, ID: "id2"},
 			{RuleName: "high", RiskScore: HIGH, RiskLevel: LevelHIGH, ID: "id3"},
 		}
-		result := handleOverrides(original, nil, MEDIUM, false, false)
+		result := handleOverrides(original, nil, MEDIUM, false)
 		for _, b := range result {
 			if b.RiskScore < MEDIUM {
-				t.Errorf("%q with score %d should be filtered", b.RuleName, b.RiskScore)
+				t.Errorf("%q kept: got = %d, want >= %d", b.RuleName, b.RiskScore, MEDIUM)
 			}
 		}
 		if len(result) != 2 {
-			t.Errorf("expected 2 behaviors, got %d", len(result))
+			t.Errorf("behaviors: got = %d, want = 2", len(result))
 		}
 	})
 
-	t.Run("scan+quantityIncreasesRisk filters below HIGH", func(t *testing.T) {
+	t.Run("scan filters below HIGH", func(t *testing.T) {
 		t.Parallel()
 		original := []*malcontent.Behavior{
 			{RuleName: "low", RiskScore: LOW, ID: "id1"},
@@ -1198,22 +1202,22 @@ func TestHandleOverrides(t *testing.T) {
 			{RuleName: "high", RiskScore: HIGH, ID: "id3"},
 			{RuleName: "crit", RiskScore: CRITICAL, ID: "id4"},
 		}
-		result := handleOverrides(original, nil, LOW, true, true)
+		result := handleOverrides(original, nil, LOW, true)
 		for _, b := range result {
 			if b.RiskScore < HIGH {
-				t.Errorf("%q score %d should be filtered in scan+QIR", b.RuleName, b.RiskScore)
+				t.Errorf("scan kept %q: got = %d, want >= %d", b.RuleName, b.RiskScore, HIGH)
 			}
 		}
 		if len(result) != 2 {
-			t.Errorf("expected 2 behaviors, got %d", len(result))
+			t.Errorf("behaviors: got = %d, want = 2", len(result))
 		}
 	})
 
 	t.Run("empty slices", func(t *testing.T) {
 		t.Parallel()
-		result := handleOverrides(nil, nil, LOW, false, false)
+		result := handleOverrides(nil, nil, LOW, false)
 		if len(result) != 0 {
-			t.Errorf("expected empty, got %d", len(result))
+			t.Errorf("behaviors: got = %d, want = 0", len(result))
 		}
 	})
 
@@ -1226,10 +1230,10 @@ func TestHandleOverrides(t *testing.T) {
 		override := []*malcontent.Behavior{
 			{RuleName: "override_rule", RiskScore: LOW, RiskLevel: "LOW", Override: []string{"real"}},
 		}
-		result := handleOverrides(original, override, LOW, false, false)
+		result := handleOverrides(original, override, LOW, false)
 		for _, b := range result {
 			if b.RuleName == "override_rule" {
-				t.Error("override rule should be deleted")
+				t.Error("override_rule in result: got = present, want = deleted")
 			}
 		}
 	})
@@ -1242,9 +1246,9 @@ func TestHandleOverrides(t *testing.T) {
 		override := []*malcontent.Behavior{
 			{RuleName: "downgrade", RiskScore: HARMLESS, RiskLevel: "NONE", Override: []string{"target"}},
 		}
-		result := handleOverrides(original, override, MEDIUM, false, false)
+		result := handleOverrides(original, override, MEDIUM, false)
 		if len(result) != 0 {
-			t.Errorf("expected 0 after override lowered below minScore, got %d", len(result))
+			t.Errorf("behaviors after an override below minScore: got = %d, want = 0", len(result))
 		}
 	})
 
@@ -1258,13 +1262,13 @@ func TestHandleOverrides(t *testing.T) {
 		override := []*malcontent.Behavior{
 			{RuleName: "multi", RiskScore: LOW, RiskLevel: "LOW", Override: []string{"a", "b"}},
 		}
-		result := handleOverrides(original, override, LOW, false, false)
+		result := handleOverrides(original, override, LOW, false)
 		for _, b := range result {
 			if (b.RuleName == "a" || b.RuleName == "b") && b.RiskScore != LOW {
-				t.Errorf("%q should be overridden to LOW, got %d", b.RuleName, b.RiskScore)
+				t.Errorf("%q RiskScore: got = %d, want = %d", b.RuleName, b.RiskScore, LOW)
 			}
 			if b.RuleName == "c" && b.RiskScore != MEDIUM {
-				t.Errorf("c should be unchanged at MEDIUM, got %d", b.RiskScore)
+				t.Errorf("c RiskScore: got = %d, want = %d", b.RiskScore, MEDIUM)
 			}
 		}
 	})
@@ -1279,7 +1283,7 @@ func TestHandleOverrides(t *testing.T) {
 				ID: "id_" + strings.Repeat("a", i+1),
 			}
 		}
-		result := handleOverrides(original, nil, LOW, false, false)
+		result := handleOverrides(original, nil, LOW, false)
 		if len(result) > len(original) {
 			t.Errorf("result %d exceeds original %d", len(result), len(original))
 		}
@@ -1296,10 +1300,10 @@ func TestUpdateBehavior(t *testing.T) {
 		}
 		updateBehavior(fr, &malcontent.Behavior{ID: "new_id", RiskScore: MEDIUM, Description: "new"}, "new_id", nil)
 		if len(fr.Behaviors) != 2 {
-			t.Fatalf("expected 2, got %d", len(fr.Behaviors))
+			t.Fatalf("behaviors: got = %d, want = 2", len(fr.Behaviors))
 		}
 		if fr.Behaviors[1].ID != "new_id" {
-			t.Errorf("expected new_id at index 1, got %q", fr.Behaviors[1].ID)
+			t.Errorf("Behaviors[1].ID: got = %q, want = %q", fr.Behaviors[1].ID, "new_id")
 		}
 	})
 
@@ -1310,7 +1314,7 @@ func TestUpdateBehavior(t *testing.T) {
 		}
 		updateBehavior(fr, &malcontent.Behavior{ID: "rule_a", RiskScore: CRITICAL, Description: "upgraded"}, "rule_a", nil)
 		if len(fr.Behaviors) != 1 || fr.Behaviors[0].RiskScore != CRITICAL {
-			t.Errorf("expected CRITICAL replacement, got %+v", fr.Behaviors)
+			t.Errorf("behaviors: got = %+v, want = one CRITICAL entry", fr.Behaviors)
 		}
 	})
 
@@ -1321,10 +1325,10 @@ func TestUpdateBehavior(t *testing.T) {
 		}
 		updateBehavior(fr, &malcontent.Behavior{ID: "rule_b", RiskScore: MEDIUM, Description: "a much longer description"}, "rule_b", nil)
 		if fr.Behaviors[0].Description != "a much longer description" {
-			t.Errorf("description not updated: %q", fr.Behaviors[0].Description)
+			t.Errorf("Description: got = %q, want = %q", fr.Behaviors[0].Description, "a much longer description")
 		}
 		if fr.Behaviors[0].RiskScore != MEDIUM {
-			t.Errorf("risk should stay MEDIUM, got %d", fr.Behaviors[0].RiskScore)
+			t.Errorf("RiskScore: got = %d, want = %d", fr.Behaviors[0].RiskScore, MEDIUM)
 		}
 	})
 
@@ -1335,7 +1339,7 @@ func TestUpdateBehavior(t *testing.T) {
 		}
 		updateBehavior(fr, &malcontent.Behavior{ID: "rule_c", RiskScore: LOW, Description: "low"}, "rule_c", nil)
 		if fr.Behaviors[0].RiskScore != HIGH || fr.Behaviors[0].Description != "original" {
-			t.Errorf("should be unchanged, got score=%d desc=%q", fr.Behaviors[0].RiskScore, fr.Behaviors[0].Description)
+			t.Errorf("behavior: got = score %d desc %q, want = score %d desc %q", fr.Behaviors[0].RiskScore, fr.Behaviors[0].Description, HIGH, "original")
 		}
 	})
 
@@ -1350,13 +1354,13 @@ func TestUpdateBehavior(t *testing.T) {
 		}
 		updateBehavior(fr, &malcontent.Behavior{ID: "target", RiskScore: CRITICAL}, "target", nil)
 		if len(fr.Behaviors) != 3 {
-			t.Fatalf("expected 3, got %d", len(fr.Behaviors))
+			t.Fatalf("behaviors: got = %d, want = 3", len(fr.Behaviors))
 		}
 		if fr.Behaviors[1].RiskScore != CRITICAL {
-			t.Errorf("index 1 should be CRITICAL, got %d", fr.Behaviors[1].RiskScore)
+			t.Errorf("Behaviors[1].RiskScore: got = %d, want = %d", fr.Behaviors[1].RiskScore, CRITICAL)
 		}
 		if fr.Behaviors[0].ID != "first" || fr.Behaviors[2].ID != "third" {
-			t.Error("neighbors should be undisturbed")
+			t.Errorf("neighbor IDs: got = %q, %q, want = %q, %q", fr.Behaviors[0].ID, fr.Behaviors[2].ID, "first", "third")
 		}
 	})
 }
@@ -1374,7 +1378,7 @@ func TestUpdateBehavior_Idempotence(t *testing.T) {
 	updateBehavior(fr, b, "same_key", nil)
 
 	if len(fr.Behaviors) != 1 {
-		t.Errorf("expected 1 behavior after 3 identical updates, got %d", len(fr.Behaviors))
+		t.Errorf("behaviors after 3 identical updates: got = %d, want = 1", len(fr.Behaviors))
 	}
 }
 
@@ -1441,7 +1445,7 @@ func TestFindSeparator(t *testing.T) {
 	t.Run("empty input returns 0", func(t *testing.T) {
 		t.Parallel()
 		if got := findSeparator(nil); got != 0 {
-			t.Errorf("expected 0, got %d", got)
+			t.Errorf("findSeparator: got = %d, want = 0", got)
 		}
 	})
 
@@ -1449,7 +1453,7 @@ func TestFindSeparator(t *testing.T) {
 		t.Parallel()
 		got := findSeparator([]string{string([]byte{0})})
 		if got != 1 {
-			t.Errorf("expected 1, got %d", got)
+			t.Errorf("findSeparator: got = %d, want = 1", got)
 		}
 	})
 
@@ -1463,7 +1467,7 @@ func TestFindSeparator(t *testing.T) {
 			b = append(b, byte(i))
 		}
 		if got := findSeparator([]string{string(b)}); got != 42 {
-			t.Errorf("expected 42, got %d", got)
+			t.Errorf("findSeparator: got = %d, want = 42", got)
 		}
 	})
 
@@ -1474,7 +1478,7 @@ func TestFindSeparator(t *testing.T) {
 			b[i] = byte(i)
 		}
 		if got := findSeparator([]string{string(b)}); got != 0 {
-			t.Errorf("expected 0 fallback, got %d", got)
+			t.Errorf("findSeparator fallback: got = %d, want = 0", got)
 		}
 	})
 
@@ -1485,7 +1489,7 @@ func TestFindSeparator(t *testing.T) {
 			strs[i] = string([]byte{byte(i)})
 		}
 		if got := findSeparator(strs); got != 10 {
-			t.Errorf("expected 10, got %d", got)
+			t.Errorf("findSeparator: got = %d, want = 10", got)
 		}
 	})
 }
