@@ -15,6 +15,7 @@ import (
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/action"
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 	"github.com/chainguard-dev/malcontent/pkg/release"
@@ -53,10 +54,22 @@ type TestData struct {
 func discoverTestData(rc Config) (map[string]string, error) {
 	testFiles := make(map[string]string)
 
-	err := filepath.WalkDir(rc.TestDataPath, func(path string, info os.DirEntry, err error) error {
+	testData, err := os.OpenRoot(rc.TestDataPath)
+	if err != nil {
+		return nil, fmt.Errorf("walk test data directory: %w", err)
+	}
+	defer testData.Close()
+	samples, err := os.OpenRoot(rc.SamplesPath)
+	if err != nil {
+		return nil, fmt.Errorf("open samples directory: %w", err)
+	}
+	defer samples.Close()
+
+	err = file.WalkDir(testData, ".", func(rel string, info fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
+		path := filepath.Join(rc.TestDataPath, filepath.FromSlash(rel))
 
 		if info.IsDir() || strings.Contains(path, "pkg/action/testdata") {
 			return nil
@@ -65,16 +78,9 @@ func discoverTestData(rc Config) (map[string]string, error) {
 		ext := filepath.Ext(path)
 		switch ext {
 		case ".simple", ".md", ".json":
-			relPath, err := filepath.Rel(rc.TestDataPath, path)
-			if err != nil {
-				return fmt.Errorf("get relative path: %w", err)
-			}
-
-			samplePath := strings.TrimSuffix(relPath, ext)
-			fullSamplePath := filepath.Join(rc.SamplesPath, samplePath)
-
-			if _, err := os.Stat(fullSamplePath); err == nil {
-				testFiles[path] = fullSamplePath
+			samplePath := strings.TrimSuffix(filepath.FromSlash(rel), ext)
+			if _, err := samples.Stat(samplePath); err == nil {
+				testFiles[path] = filepath.Join(rc.SamplesPath, samplePath)
 			}
 		}
 		return nil
@@ -125,7 +131,7 @@ func prepareRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 	// Diff goldens (.mdiff, .sdiff) need per-case options, so diffTestData
 	// lists them explicitly; discovery only yields single-sample scan goldens.
 	for data, sample := range discovered {
-		outFile, err := os.OpenFile(data, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600) // #nosec G304 -- refresh operates on testdata roots controlled by the test harness
+		outFile, err := file.OpenFile(data, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600)
 		if err != nil {
 			closeTestDataFiles(testData)
 			return nil, fmt.Errorf("create output file %s: %w", data, err)
@@ -259,7 +265,7 @@ func Refresh(ctx context.Context, rc Config, logger *clog.Logger) error {
 
 	// Ensure samples directory exists
 	// When running make refresh-sample-testdata this will be handled automatically
-	if info, err := os.Stat(rc.SamplesPath); err != nil {
+	if info, err := file.Stat(rc.SamplesPath); err != nil {
 		return fmt.Errorf("sample directory not found: %w", err)
 	} else if !info.IsDir() {
 		return fmt.Errorf("sample path is not a directory")

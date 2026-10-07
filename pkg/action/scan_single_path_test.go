@@ -15,15 +15,31 @@ import (
 	"testing"
 
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 	"github.com/chainguard-dev/malcontent/pkg/report"
 )
 
+// singlePathTestLock removes every permission from name beneath dir, so that
+// it cannot be read.
+func singlePathTestLock(t *testing.T, dir, name string) {
+	t.Helper()
+	root, err := os.OpenRoot(dir)
+	if err != nil {
+		t.Fatalf("open %s: %v", dir, err)
+	}
+	defer root.Close()
+	if err := root.Chmod(name, 0); err != nil {
+		t.Fatalf("chmod %s: %v", filepath.Join(dir, name), err)
+	}
+}
+
 func TestScanSniffedReadsFileNotReadOnce(t *testing.T) {
 	t.Parallel()
 	yrs, rfs := scanTestRules(t)
-	path := scanTestWriteFile(t, filepath.Join(t.TempDir(), "app", "package.json"), readTestFile(t, scanTestNPMFixture))
+	dir := filepath.Join(t.TempDir(), "app")
+	path := scanTestWriteFile(t, filepath.Join(dir, "package.json"), readTestFile(t, scanTestNPMFixture))
 	c := malcontent.Config{Rules: yrs, RuleFS: rfs}
 	want, err := scanSinglePath(t.Context(), c, path, rfs, path, "", nil)
 	if err != nil {
@@ -33,7 +49,12 @@ func TestScanSniffedReadsFileNotReadOnce(t *testing.T) {
 		t.Fatalf("fixture precondition: got report %+v, want behaviors", want)
 	}
 
-	fi, err := os.Stat(path)
+	root, err := os.OpenRoot(dir)
+	if err != nil {
+		t.Fatalf("open root: %v", err)
+	}
+	defer root.Close()
+	fi, err := root.Stat("package.json")
 	if err != nil {
 		t.Fatalf("stat: %v", err)
 	}
@@ -43,8 +64,8 @@ func TestScanSniffedReadsFileNotReadOnce(t *testing.T) {
 	}
 	// A sniff result without contents stands for a file that could not be
 	// read once, as when it became readable only after sniffFile ran. It is
-	// scanned and reported from reads by path.
-	got, err := scanSniffed(t.Context(), c, path, &sniffed{fi: fi, kind: kind}, rfs, path, "", nil)
+	// read when it is scanned.
+	got, err := scanSniffed(t.Context(), c, path, &sniffed{fi: fi, kind: kind, root: root, name: "package.json"}, rfs, path, "", nil)
 	if err != nil {
 		t.Fatalf("scanSniffed: %v", err)
 	}
@@ -93,7 +114,7 @@ func TestScanSinglePathMaxScanFiles(t *testing.T) {
 			if got, want := count.Load(), tt.counted+1; got != want {
 				t.Errorf("file count: got = %d, want = %d", got, want)
 			}
-			_, statErr := os.Stat(path)
+			_, statErr := file.StatIn(root, "locale.sh")
 			wantRemoved := tt.inArchive && tt.wantSkipped
 			if got := errors.Is(statErr, fs.ErrNotExist); got != wantRemoved {
 				t.Errorf("entry removed: got = %t, want = %t", got, wantRemoved)
@@ -150,7 +171,7 @@ func TestScanSinglePathScanRiskThreshold(t *testing.T) {
 			if gotEarlySkip != tt.wantEarlySkip {
 				t.Errorf("skipped before report generation: got = %t (Skipped = %q), want = %t", gotEarlySkip, fr.Skipped, tt.wantEarlySkip)
 			}
-			_, statErr := os.Stat(path)
+			_, statErr := file.StatIn(root, filepath.Join("app", "package.json"))
 			wantRemoved := tt.inArchive && tt.wantEarlySkip
 			if got := errors.Is(statErr, fs.ErrNotExist); got != wantRemoved {
 				t.Errorf("entry removed: got = %t, want = %t", got, wantRemoved)
@@ -179,14 +200,13 @@ func TestScanSinglePathTypeDetectionFailureLog(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			path := scanTestWriteFile(t, filepath.Join(t.TempDir(), "locale.sh"), []byte(scanTestLocaleScript))
+			dir := t.TempDir()
+			path := scanTestWriteFile(t, filepath.Join(dir, "locale.sh"), []byte(scanTestLocaleScript))
 			if tt.unreadable {
 				if os.Geteuid() == 0 {
 					t.Skip("file permissions do not restrict root")
 				}
-				if err := os.Chmod(path, 0); err != nil {
-					t.Fatalf("chmod %s: %v", path, err)
-				}
+				singlePathTestLock(t, dir, "locale.sh")
 			}
 			c := malcontent.Config{Rules: yrs, RuleFS: rfs}
 			if tt.interactive {
@@ -357,7 +377,7 @@ func TestScanSinglePathZeroSizedFile(t *testing.T) {
 			if got := fr.Skipped == zeroSized; got != tt.wantZero {
 				t.Errorf("skipped as zero-sized: got = %t (Skipped = %q), want = %t", got, fr.Skipped, tt.wantZero)
 			}
-			_, statErr := os.Stat(path)
+			_, statErr := file.StatIn(root, "file")
 			if got := errors.Is(statErr, fs.ErrNotExist); got != tt.inArchive {
 				t.Errorf("file removed: got = %t, want = %t", got, tt.inArchive)
 			}
@@ -465,10 +485,9 @@ func TestScanSinglePathUnreadableFileFailsTheScan(t *testing.T) {
 		t.Skip("file permissions do not restrict root")
 	}
 	yrs, rfs := scanTestRules(t)
-	path := scanTestWriteFile(t, filepath.Join(t.TempDir(), "locale.sh"), []byte(scanTestLocaleScript))
-	if err := os.Chmod(path, 0); err != nil {
-		t.Fatalf("chmod %s: %v", path, err)
-	}
+	dir := t.TempDir()
+	path := scanTestWriteFile(t, filepath.Join(dir, "locale.sh"), []byte(scanTestLocaleScript))
+	singlePathTestLock(t, dir, "locale.sh")
 
 	tests := []struct {
 		name string
@@ -484,11 +503,38 @@ func TestScanSinglePathUnreadableFileFailsTheScan(t *testing.T) {
 			c := malcontent.Config{IncludeDataFiles: true, Rules: yrs, RuleFS: rfs, Scan: tt.scan}
 			fr, err := scanSinglePath(clog.WithLogger(t.Context(), logger), c, path, rfs, path, "", nil)
 			if err == nil {
-				t.Errorf("error: got = nil, want the scanner's read failure")
+				t.Errorf("error: got = nil, want the read failure")
 			}
 			if fr != nil {
 				t.Errorf("FileReport: got = %+v, want = nil", fr)
 			}
 		})
+	}
+}
+
+func TestScanSinglePathInUnreadableDirectory(t *testing.T) {
+	t.Parallel()
+	if os.Geteuid() == 0 {
+		t.Skip("directory permissions do not restrict root")
+	}
+	yrs, rfs := scanTestRules(t)
+	dir := t.TempDir()
+	path := scanTestWriteFile(t, filepath.Join(dir, "sub", "locale.sh"), []byte(scanTestLocaleScript))
+	root, err := os.OpenRoot(dir)
+	if err != nil {
+		t.Fatalf("open root: %v", err)
+	}
+	t.Cleanup(func() { _ = root.Close() })
+	// Searchable but not readable: the file's path resolves, but no root can
+	// be opened on its directory.
+	if err := root.Chmod("sub", 0o300); err != nil {
+		t.Fatalf("chmod: %v", err)
+	}
+	t.Cleanup(func() { _ = root.Chmod("sub", 0o700) })
+
+	c := malcontent.Config{IncludeDataFiles: true, Rules: yrs, RuleFS: rfs}
+	fr, err := scanSinglePath(t.Context(), c, path, rfs, path, "", nil)
+	if !errors.Is(err, fs.ErrPermission) || fr != nil {
+		t.Errorf("scanSinglePath: got = (%+v, %v), want = (nil, %v)", fr, err, fs.ErrPermission)
 	}
 }

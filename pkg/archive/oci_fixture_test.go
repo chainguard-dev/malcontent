@@ -9,12 +9,12 @@ import (
 	"compress/gzip"
 	"context"
 	"encoding/json"
+	"io/fs"
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"path"
-	"path/filepath"
 	"slices"
 	"strings"
 	"sync"
@@ -205,7 +205,12 @@ func ociTestConfig(maxImageSize int64) *malcontent.Config {
 // fixture body, and nothing else (in particular, not the exported tarball).
 func ociAssertHelloExtracted(t *testing.T, dir string) {
 	t.Helper()
-	entries, err := os.ReadDir(dir)
+	r, err := os.OpenRoot(dir)
+	if err != nil {
+		t.Fatalf("open extraction dir: %v", err)
+	}
+	defer r.Close()
+	entries, err := fs.ReadDir(r.FS(), ".")
 	if err != nil {
 		t.Fatalf("read extraction dir: %v", err)
 	}
@@ -216,7 +221,7 @@ func ociAssertHelloExtracted(t *testing.T, dir string) {
 	if want := []string{ociHelloName}; !slices.Equal(names, want) {
 		t.Fatalf("extracted entries: got = %v, want = %v", names, want)
 	}
-	got, err := os.ReadFile(filepath.Join(dir, ociHelloName))
+	got, err := r.ReadFile(ociHelloName)
 	if err != nil {
 		t.Fatalf("read %s: %v", ociHelloName, err)
 	}

@@ -8,11 +8,11 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/klauspost/compress/zstd"
 )
 
@@ -25,7 +25,7 @@ func ExtractZstd(ctx context.Context, d string, f string) error {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting zstd")
 
-	fi, err := os.Stat(f)
+	fi, err := file.Stat(f)
 	if err != nil {
 		return fmt.Errorf("failed to stat zstd file %s: %w", f, err)
 	}
@@ -61,7 +61,7 @@ func ExtractZstd(ctx context.Context, d string, f string) error {
 	}
 	defer out.Close()
 
-	zstdFile, err := os.Open(f) // #nosec G304 -- archive path resolved and validated by caller before extraction
+	zstdFile, err := file.Open(f)
 	if err != nil {
 		return fmt.Errorf("failed to open zstd file: %w", err)
 	}

@@ -14,6 +14,7 @@ import (
 	"os/signal"
 	"runtime"
 	"slices"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -583,10 +584,10 @@ func (st *cliState) before(ctx context.Context, c *cli.Command) (context.Context
 	}
 
 	if outputFlag != "" {
-		f, err := os.OpenFile(outputFlag, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600) // #nosec G304 -- CLI flag values are user-supplied paths intended for the operation
+		f, err := openOutput(outputFlag)
 		if err != nil {
 			st.returnCode = ExitInputOutput
-			return ctx, err
+			return ctx, fmt.Errorf("open output file %s: %w", outputFlag, err)
 		}
 		st.outFile = f
 	}
@@ -904,4 +905,39 @@ func awaitShutdown(sigCh <-chan os.Signal, cancel context.CancelFunc, logger *cl
 		logger.Error("forced exit after timeout")
 		exit(1)
 	})
+}
+
+// openOutput opens the --output file through a root on its directory. A path
+// that names an inherited descriptor, such as /dev/stdout or the /dev/fd/N of
+// a pipe, names no file a root can reach, so the output goes to that
+// descriptor.
+func openOutput(path string) (*os.File, error) {
+	if fd, ok := inheritedOutput(path); ok {
+		return os.NewFile(fd, path), nil
+	}
+	return file.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600)
+}
+
+// inheritedOutput returns the descriptor that path names when it is
+// /dev/stdout, /dev/stderr, /dev/fd/N, or /proc/self/fd/N.
+func inheritedOutput(path string) (uintptr, bool) {
+	if runtime.GOOS == "windows" {
+		return 0, false
+	}
+	switch path {
+	case "/dev/stdout":
+		return 1, true
+	case "/dev/stderr":
+		return 2, true
+	}
+	for _, prefix := range []string{"/dev/fd/", "/proc/self/fd/"} {
+		if n, ok := strings.CutPrefix(path, prefix); ok {
+			fd, err := strconv.ParseUint(n, 10, 31)
+			if err != nil {
+				return 0, false
+			}
+			return uintptr(fd), true
+		}
+	}
+	return 0, false
 }

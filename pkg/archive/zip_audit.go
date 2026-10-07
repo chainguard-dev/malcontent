@@ -9,7 +9,8 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"os"
+
+	"github.com/chainguard-dev/malcontent/pkg/file"
 )
 
 const (
@@ -43,7 +44,7 @@ func zipUnaccountedBytes(path string, size int64) error {
 
 	tailLen := min(int64(zipEOCDLen+zipMaxCommentLen), size)
 
-	fh, err := os.Open(path) // #nosec G304 -- archive path resolved and validated by caller before extraction
+	fh, err := file.Open(path)
 	if err != nil {
 		// The extractor already read this file, so auditing is best-effort.
 		return nil

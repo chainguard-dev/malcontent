@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	zip "github.com/klauspost/compress/zip"
 )
 
@@ -17,7 +18,7 @@ import (
 func writeSingleEntryZip(t *testing.T, dir string) string {
 	t.Helper()
 	zipPath := filepath.Join(dir, "worker.zip")
-	zf, err := os.OpenFile(zipPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+	zf, err := file.OpenFileIn(dir, "worker.zip", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
 	if err != nil {
 		t.Fatalf("create zip: %v", err)
 	}

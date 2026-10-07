@@ -7,7 +7,6 @@ import (
 	"bytes"
 	"io/fs"
 	"maps"
-	"os"
 	"path/filepath"
 	"reflect"
 	"slices"
@@ -15,6 +14,7 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 	"github.com/chainguard-dev/malcontent/rules"
@@ -197,7 +197,7 @@ func scriptFixture() reportFixture {
 func reportFixtures(tb testing.TB) []reportFixture {
 	tb.Helper()
 	read := func(name string) []byte {
-		data, err := os.ReadFile(filepath.Join("..", "programkind", "testdata", name))
+		data, err := file.ReadFileIn(filepath.Join("..", "programkind", "testdata"), name)
 		if err != nil {
 			tb.Fatalf("read fixture %s: %v", name, err)
 		}

@@ -15,6 +15,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/report"
 	"github.com/fatih/color"
@@ -43,18 +44,19 @@ const (
 // the file instead.
 func checkGolden(t *testing.T, name string, got []byte) {
 	t.Helper()
-	path := filepath.Join("testdata", "golden", name)
+	dir := filepath.Join("testdata", "golden")
+	path := filepath.Join(dir, name)
 	if *updateGoldens {
-		if err := os.MkdirAll(filepath.Dir(path), 0o750); err != nil {
-			t.Fatalf("MkdirAll(%q): got err = %v, want = nil", filepath.Dir(path), err)
+		if err := file.MkdirAllIn(".", dir, 0o750); err != nil {
+			t.Fatalf("MkdirAll(%q): got err = %v, want = nil", dir, err)
 		}
-		if err := os.WriteFile(path, got, 0o600); err != nil {
+		if err := file.WriteFileIn(dir, name, got, 0o600); err != nil {
 			t.Fatalf("WriteFile(%q): got err = %v, want = nil", path, err)
 		}
 		return
 	}
 
-	want, err := os.ReadFile(path)
+	want, err := file.ReadFileIn(dir, name)
 	if err != nil {
 		t.Fatalf("ReadFile(%q): got err = %v, want = nil; run the test with -update to create it", path, err)
 	}

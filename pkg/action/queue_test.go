@@ -21,9 +21,12 @@ import (
 	"testing"
 
 	"github.com/chainguard-dev/malcontent/pkg/archive"
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/minio/sha256-simd"
 	"github.com/puzpuzpuz/xsync/v4"
+
+	yarax "github.com/VirusTotal/yara-x/go"
 )
 
 // queueTestEntry is one file of a generated archive.
@@ -107,11 +110,11 @@ func queueTestExtractedKeys(t *testing.T, c malcontent.Config, path string) []st
 	if err != nil {
 		t.Fatalf("ExtractArchiveToTempDir: %v", err)
 	}
-	t.Cleanup(func() { _ = os.RemoveAll(dir) })
+	t.Cleanup(func() { _ = file.RemoveAllIn(filepath.Dir(dir), filepath.Base(dir)) })
 	root := resolveDir(dir)
-	files, err := findFilesRecursively(t.Context(), root)
+	files, err := walkTestPaths(t.Context(), t, root)
 	if err != nil {
-		t.Fatalf("findFilesRecursively: %v", err)
+		t.Fatalf("walkScanPath: %v", err)
 	}
 	keys := make([]string, 0, len(files))
 	for _, f := range files {
@@ -251,15 +254,28 @@ func TestTaskHeapOrdersLargestFirst(t *testing.T) {
 	}
 }
 
+// queueTestWalkRoot opens the walk root of dir, which walks report paths
+// beneath, and closes it when the test ends.
+func queueTestWalkRoot(t *testing.T, dir string) *walkRoot {
+	t.Helper()
+	w, _, err := openWalkRoot(dir)
+	if err != nil {
+		t.Fatalf("openWalkRoot: %v", err)
+	}
+	t.Cleanup(w.close)
+	return w
+}
+
 func TestWalkedFilesRecordsSizes(t *testing.T) {
 	t.Parallel()
-	dir := t.TempDir()
+	// Walks report paths with symlinks resolved.
+	dir := diffTestTempDir(t)
 	small := scanTestWriteFile(t, filepath.Join(dir, "small"), []byte("ab"))
 	large := scanTestWriteFile(t, filepath.Join(dir, "large"), bytes.Repeat([]byte("x"), 100))
 	missing := filepath.Join(dir, "missing")
 
-	got := walkedFiles([]string{small, large, missing})
-	want := []walkedFile{{small, 2}, {large, 100}, {missing, 0}}
+	got := walkedFiles(queueTestWalkRoot(t, dir), []string{small, large, missing})
+	want := []walkedFile{{small, "small", 2, true}, {large, "large", 100, true}, {missing, "missing", 0, false}}
 	if !slices.Equal(got, want) {
 		t.Errorf("walked files: got = %v, want = %v", got, want)
 	}
@@ -268,14 +284,15 @@ func TestWalkedFilesRecordsSizes(t *testing.T) {
 func TestRunQueueReturnsTheFirstFailure(t *testing.T) {
 	t.Parallel()
 	yrs, rfs := scanTestRules(t)
-	dir := t.TempDir()
+	dir := diffTestTempDir(t)
 	clean := scanTestWriteFile(t, filepath.Join(dir, "locale.sh"), []byte(scanTestLocaleScript))
 	missing := filepath.Join(dir, "vanished.sh")
 
 	logger, _ := scanTestLogger()
 	r := initializeReport(nil)
 	c := malcontent.Config{Concurrency: 1, Rules: yrs, RuleFS: rfs}
-	err := runQueue(t.Context(), walkedFiles([]string{clean, missing}), 1, scanPathInfo{originalPath: dir, effectivePath: dir}, c, r, make(chan matchResult, 1), &sync.Once{}, logger)
+	w := queueTestWalkRoot(t, dir)
+	err := runQueue(t.Context(), w, walkedFiles(w, []string{clean, missing}), 1, scanPathInfo{originalPath: dir, effectivePath: dir}, c, r, make(chan matchResult, 1), &sync.Once{}, logger)
 	if err == nil || !strings.Contains(err.Error(), "vanished.sh") {
 		t.Fatalf("error: got = %v, want one naming vanished.sh", err)
 	}
@@ -284,7 +301,7 @@ func TestRunQueueReturnsTheFirstFailure(t *testing.T) {
 func TestRunQueueStopsWhenCanceled(t *testing.T) {
 	t.Parallel()
 	yrs, rfs := scanTestRules(t)
-	dir := t.TempDir()
+	dir := diffTestTempDir(t)
 	names := []string{"a.sh", "b.sh", "c.sh"}
 	paths := make([]string, 0, len(names))
 	for _, name := range names {
@@ -296,7 +313,8 @@ func TestRunQueueStopsWhenCanceled(t *testing.T) {
 	logger, _ := scanTestLogger()
 	r := initializeReport(nil)
 	c := malcontent.Config{Concurrency: 2, Rules: yrs, RuleFS: rfs}
-	if err := runQueue(ctx, walkedFiles(paths), 2, scanPathInfo{originalPath: dir, effectivePath: dir}, c, r, make(chan matchResult, 1), &sync.Once{}, logger); err != nil {
+	w := queueTestWalkRoot(t, dir)
+	if err := runQueue(ctx, w, walkedFiles(w, paths), 2, scanPathInfo{originalPath: dir, effectivePath: dir}, c, r, make(chan matchResult, 1), &sync.Once{}, logger); err != nil {
 		t.Fatalf("runQueue: got = %v, want = nil", err)
 	}
 	if got := r.Files.Size(); got != 0 {
@@ -348,11 +366,19 @@ func queueTestOpenArchive(t *testing.T, c malcontent.Config, path string) (*arch
 	if err != nil {
 		t.Fatalf("Files: %v", err)
 	}
+	tmpRoot := resolveDir(tree.Dir())
+	root, err := os.OpenRoot(tmpRoot)
+	if err != nil {
+		t.Fatalf("OpenRoot: %v", err)
+	}
+	t.Cleanup(func() { _ = root.Close() })
 	a := &archiveScan{
 		path:        path,
 		displayPath: path,
 		tree:        tree,
-		tmpRoot:     resolveDir(tree.Dir()),
+		tmpRoot:     tmpRoot,
+		root:        root,
+		dirs:        file.NewDirRoots(root, maxIdleDirRoots),
 		frs:         xsync.NewMap[string, *malcontent.FileReport](),
 	}
 	return a, files
@@ -365,12 +391,11 @@ func queueTestBatch(t *testing.T, a *archiveScan, files []archive.TreeFile) *tre
 	b := &treeBatch{files: files, found: make([]*foundArchive, len(files)), depth: 1, lineage: a.tree.Root()}
 	b.pending.Store(int64(len(files)))
 	for i, f := range files {
-		path := filepath.Join(a.tmpRoot, f.Rel)
-		fi, err := os.Stat(path)
+		fi, err := a.root.Stat(f.Rel)
 		if err != nil {
 			t.Fatalf("stat: %v", err)
 		}
-		s := sniffFile(t.Context(), path, fi)
+		s := sniffFile(t.Context(), a.root, f.Rel, filepath.Join(a.tmpRoot, f.Rel), fi)
 		if n, ok := a.tree.Nested(f.Rel, fi.Size(), s.kind); ok {
 			b.found[i] = &foundArchive{n: n, digest: sha256.Sum256(s.content.Bytes())}
 		}
@@ -448,7 +473,7 @@ func TestRunGroupSkipsExtractionAfterStopOrFailure(t *testing.T) {
 			a.pending.Store(2)
 
 			q.runGroup(a, &extractGroup{batch: b, files: []int{0}})
-			_, err := os.Stat(filepath.Join(a.tmpRoot, "inner"))
+			_, err := a.root.Stat("inner")
 			if got, want := err == nil, tt.wantTasks > 0; got != want {
 				t.Errorf("extraction directory created: got = %t, want = %t", got, want)
 			}
@@ -507,12 +532,12 @@ func TestRunEntryRecordsArchiveFailures(t *testing.T) {
 			}
 			target := filepath.Join(a.tmpRoot, files[0].Rel)
 			if tt.remove {
-				if err := os.Remove(target); err != nil {
+				if err := a.root.Remove(files[0].Rel); err != nil {
 					t.Fatalf("remove: %v", err)
 				}
 			}
 			if tt.lock {
-				if err := os.Chmod(target, 0); err != nil {
+				if err := a.root.Chmod(files[0].Rel, 0); err != nil {
 					t.Fatalf("chmod: %v", err)
 				}
 			}
@@ -713,9 +738,14 @@ func TestCompleteArchiveRendersAfterRemovingItsTree(t *testing.T) {
 	marker := scanTestMarkerRules(t)
 	dir := t.TempDir()
 	tmp := filepath.Join(dir, "tmp")
-	if err := os.Mkdir(tmp, 0o700); err != nil {
+	if err := file.MkdirAllIn(dir, "tmp", 0o700); err != nil {
 		t.Fatalf("mkdir: %v", err)
 	}
+	tmpRoot, err := os.OpenRoot(tmp)
+	if err != nil {
+		t.Fatalf("open %s: %v", tmp, err)
+	}
+	t.Cleanup(func() { _ = tmpRoot.Close() })
 	path := scanTestWriteFile(t, filepath.Join(dir, "pkg.tar.gz"), queueTestTarGz(t,
 		queueTestEntry{"marker.sh", []byte("#!/bin/sh\necho scan-test-marker\n")},
 	))
@@ -723,7 +753,7 @@ func TestCompleteArchiveRendersAfterRemovingItsTree(t *testing.T) {
 
 	var leftovers []string
 	renderer := &scanTestRenderer{onFile: func(context.Context) {
-		entries, err := os.ReadDir(tmp)
+		entries, err := fs.ReadDir(tmpRoot.FS(), ".")
 		if err != nil {
 			t.Errorf("ReadDir(%q): %v", tmp, err)
 		}
@@ -769,7 +799,7 @@ func TestRunQueueArchiveTroubles(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			dir := t.TempDir()
+			dir := diffTestTempDir(t)
 			bad := filepath.Join(dir, "bad.tar.gz")
 			paths := []string{bad}
 			if tt.corrupt {
@@ -781,7 +811,8 @@ func TestRunQueueArchiveTroubles(t *testing.T) {
 			logger, _ := scanTestLogger()
 			r := initializeReport(nil)
 			c := malcontent.Config{Concurrency: 1, ExitExtraction: tt.corrupt, Rules: yrs, RuleFS: rfs}
-			err := runQueue(t.Context(), walkedFiles(paths), 1, scanPathInfo{originalPath: dir, effectivePath: dir}, c, r, make(chan matchResult, 1), &sync.Once{}, logger)
+			w := queueTestWalkRoot(t, dir)
+			err := runQueue(t.Context(), w, walkedFiles(w, paths), 1, scanPathInfo{originalPath: dir, effectivePath: dir}, c, r, make(chan matchResult, 1), &sync.Once{}, logger)
 			if tt.wantErr == "" && err != nil {
 				t.Errorf("runQueue: got = %v, want = nil", err)
 			}
@@ -792,5 +823,78 @@ func TestRunQueueArchiveTroubles(t *testing.T) {
 				t.Errorf("reports: got = %d (%q), want = 0", got, scanTestKeys(r.Files))
 			}
 		})
+	}
+}
+
+func TestScanQueueAcquireSlot(t *testing.T) {
+	t.Parallel()
+	canceled, cancel := context.WithCancel(t.Context())
+	cancel()
+	full := make(chan struct{}, 1)
+	full <- struct{}{}
+	tests := []struct {
+		name  string
+		ctx   context.Context
+		slots chan struct{}
+		// held is how many slots are taken while the task runs, and after its
+		// release.
+		held, after int
+	}{
+		{name: "queue without shared slots runs its task", ctx: t.Context()},
+		{name: "free slot is held until released", ctx: t.Context(), slots: make(chan struct{}, 2), held: 1, after: 0},
+		{name: "task of an ended scan runs without taking a slot", ctx: canceled, slots: full, held: 1, after: 1},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			q := &scanQueue{ctx: tt.ctx, slots: tt.slots}
+			release := q.acquireSlot()
+			if got := len(tt.slots); got != tt.held {
+				t.Errorf("slots taken while running: got = %d, want = %d", got, tt.held)
+			}
+			release()
+			if got := len(tt.slots); got != tt.after {
+				t.Errorf("slots taken after release: got = %d, want = %d", got, tt.after)
+			}
+		})
+	}
+}
+
+func TestScanHoldsAWorkerSlotForEachScan(t *testing.T) {
+	// Not parallel: replaces scanBytes.
+	ctx := withWorkerSlots(t.Context(), 1)
+	slots := workerSlotsFrom(ctx)
+	var (
+		mu     sync.Mutex
+		scans  int
+		unheld int
+	)
+	orig := scanBytes
+	scanBytes = func(yrs *yarax.Rules, fc []byte, sum [sha256.Size]byte) (*yarax.ScanResults, error) {
+		mu.Lock()
+		scans++
+		if len(slots) != 1 {
+			unheld++
+		}
+		mu.Unlock()
+		return orig(yrs, fc, sum)
+	}
+	t.Cleanup(func() { scanBytes = orig })
+
+	root := diffTestTempDir(t)
+	for _, name := range []string{"a.sh", "b.sh", "c.sh"} {
+		diffTestWriteFile(t, filepath.Join(root, name), diffTestShellPayload(name))
+	}
+	c := diffTestConfig(t)
+	c.Concurrency = 4
+	c.ScanPaths = []string{root}
+	if _, err := Scan(ctx, c); err != nil {
+		t.Fatalf("Scan: got error = %v, want nil", err)
+	}
+	if scans == 0 {
+		t.Fatal("scans: got = 0, want some")
+	}
+	if unheld != 0 {
+		t.Errorf("scans without the one worker slot held: got = %d of %d, want = 0", unheld, scans)
 	}
 }

@@ -8,6 +8,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"golang.org/x/sys/unix"
 )
 
@@ -15,7 +16,7 @@ import (
 // terminal end. It skips the test where pseudo-terminals are unavailable.
 func ptyTerminal(t *testing.T, cols uint16) *os.File {
 	t.Helper()
-	ptmx, err := os.OpenFile("/dev/ptmx", os.O_RDWR|unix.O_NOCTTY, 0)
+	ptmx, err := file.OpenFileIn("/dev", "ptmx", os.O_RDWR|unix.O_NOCTTY, 0)
 	if err != nil {
 		t.Skipf("open /dev/ptmx: %v", err)
 	}
@@ -27,7 +28,7 @@ func ptyTerminal(t *testing.T, cols uint16) *os.File {
 	if err != nil {
 		t.Skipf("number the pseudo-terminal: %v", err)
 	}
-	pts, err := os.OpenFile(fmt.Sprintf("/dev/pts/%d", n), os.O_RDWR|unix.O_NOCTTY, 0)
+	pts, err := file.OpenFileIn("/dev/pts", fmt.Sprint(n), os.O_RDWR|unix.O_NOCTTY, 0)
 	if err != nil {
 		t.Skipf("open the pseudo-terminal: %v", err)
 	}
@@ -82,7 +83,7 @@ func TestSuggestedWidthFollowsTheTerminal(t *testing.T) {
 		})
 	}
 	t.Run("standard input that is not a terminal", func(t *testing.T) {
-		f, err := os.Open(os.DevNull)
+		f, err := file.Open(os.DevNull)
 		if err != nil {
 			t.Fatalf("open %s: got err = %v, want = nil", os.DevNull, err)
 		}

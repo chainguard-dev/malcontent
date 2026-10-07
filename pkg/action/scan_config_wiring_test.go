@@ -26,7 +26,7 @@ import (
 func buildPayloadZip(t *testing.T, zipPath string, size int) {
 	t.Helper()
 
-	zf, err := os.OpenFile(zipPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+	zf, err := file.OpenFileIn(filepath.Dir(zipPath), filepath.Base(zipPath), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
 	if err != nil {
 		t.Fatalf("create zip: %v", err)
 	}

@@ -6,31 +6,34 @@
 package archive
 
 import (
-	"os"
 	"strconv"
 	"strings"
+
+	"github.com/chainguard-dev/malcontent/pkg/file"
 )
 
+// cgroupDir holds the cgroup CPU limit files, named relative to it.
 const (
-	cgroupV2CPUMaxPath    = "/sys/fs/cgroup/cpu.max"
-	cgroupV1CPUQuotaPath  = "/sys/fs/cgroup/cpu/cpu.cfs_quota_us"
-	cgroupV1CPUPeriodPath = "/sys/fs/cgroup/cpu/cpu.cfs_period_us"
+	cgroupDir             = "/sys/fs/cgroup"
+	cgroupV2CPUMaxName    = "cpu.max"
+	cgroupV1CPUQuotaName  = "cpu/cpu.cfs_quota_us"
+	cgroupV1CPUPeriodName = "cpu/cpu.cfs_period_us"
 )
 
 // CPUQuota returns the cgroup-derived CPU ceiling for this process, expressed
 // as a count of logical CPUs (ceil(quota/period), floored at 1). The second
 // return is false when no cgroup ceiling applies.
 func CPUQuota() (int, bool) {
-	if n, ok := readCgroupV2(cgroupV2CPUMaxPath); ok {
+	if n, ok := readCgroupV2(cgroupDir, cgroupV2CPUMaxName); ok {
 		return n, true
 	}
-	return readCgroupV1(cgroupV1CPUQuotaPath, cgroupV1CPUPeriodPath)
+	return readCgroupV1(cgroupDir, cgroupV1CPUQuotaName, cgroupV1CPUPeriodName)
 }
 
-// readCgroupV2 parses the "<quota> <period>" form. The literal "max" in the
-// quota slot disables the ceiling.
-func readCgroupV2(path string) (int, bool) {
-	raw, err := os.ReadFile(path) // #nosec G304 -- path is a fixed cgroup file; tests substitute fixtures
+// readCgroupV2 parses the "<quota> <period>" form of name beneath dir. The
+// literal "max" in the quota slot disables the ceiling.
+func readCgroupV2(dir, name string) (int, bool) {
+	raw, err := file.ReadFileIn(dir, name)
 	if err != nil {
 		return 0, false
 	}
@@ -52,20 +55,23 @@ func readCgroupV2(path string) (int, bool) {
 	return ceilDiv(quota, period), true
 }
 
-func readCgroupV1(quotaPath, periodPath string) (int, bool) {
-	quota, ok := readIntFile(quotaPath)
+// readCgroupV1 divides the quota in quotaName by the period in periodName,
+// both beneath dir.
+func readCgroupV1(dir, quotaName, periodName string) (int, bool) {
+	quota, ok := readIntFile(dir, quotaName)
 	if !ok || quota <= 0 {
 		return 0, false
 	}
-	period, ok := readIntFile(periodPath)
+	period, ok := readIntFile(dir, periodName)
 	if !ok || period <= 0 {
 		return 0, false
 	}
 	return ceilDiv(quota, period), true
 }
 
-func readIntFile(path string) (int64, bool) {
-	raw, err := os.ReadFile(path) // #nosec G304 -- path is a fixed cgroup file; tests substitute fixtures
+// readIntFile parses the integer held in name beneath dir.
+func readIntFile(dir, name string) (int64, bool) {
+	raw, err := file.ReadFileIn(dir, name)
 	if err != nil {
 		return 0, false
 	}

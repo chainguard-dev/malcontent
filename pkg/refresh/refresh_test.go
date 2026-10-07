@@ -13,6 +13,7 @@ import (
 	"testing"
 
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/release"
 )
 
@@ -31,7 +32,7 @@ func refreshRunIsolated(m *testing.M) int {
 		fmt.Fprintf(os.Stderr, "create temporary home: %v\n", err)
 		return 1
 	}
-	defer func() { _ = os.RemoveAll(home) }()
+	defer func() { _ = file.RemoveAllIn(filepath.Dir(home), filepath.Base(home)) }()
 
 	for _, env := range [][2]string{
 		{"HOME", home},
@@ -58,13 +59,12 @@ func TestDiscoverTestData(t *testing.T) {
 		"sample3.py",
 	}
 
+	sampleRoot := refreshRoot(t, samplesDir)
 	for _, sf := range sampleFiles {
-		fullPath := filepath.Join(samplesDir, sf)
-		dir := filepath.Dir(fullPath)
-		if err := os.MkdirAll(dir, 0o755); err != nil {
+		if err := sampleRoot.MkdirAll(filepath.Dir(sf), 0o755); err != nil {
 			t.Fatalf("failed to create sample directory: %v", err)
 		}
-		if err := os.WriteFile(fullPath, []byte("sample content"), 0o644); err != nil {
+		if err := sampleRoot.WriteFile(sf, []byte("sample content"), 0o644); err != nil {
 			t.Fatalf("failed to create sample file: %v", err)
 		}
 	}
@@ -77,24 +77,22 @@ func TestDiscoverTestData(t *testing.T) {
 		"orphan.simple", // No corresponding sample
 	}
 
+	dataRoot := refreshRoot(t, testDataDir)
 	for _, tdf := range testDataFiles {
-		fullPath := filepath.Join(testDataDir, tdf)
-		dir := filepath.Dir(fullPath)
-		if err := os.MkdirAll(dir, 0o755); err != nil {
+		if err := dataRoot.MkdirAll(filepath.Dir(tdf), 0o755); err != nil {
 			t.Fatalf("failed to create test data directory: %v", err)
 		}
-		if err := os.WriteFile(fullPath, []byte("test data"), 0o644); err != nil {
+		if err := dataRoot.WriteFile(tdf, []byte("test data"), 0o644); err != nil {
 			t.Fatalf("failed to create test data file: %v", err)
 		}
 	}
 
 	// Create a file that should be skipped (pkg/action/testdata)
-	skipDir := filepath.Join(testDataDir, "pkg/action/testdata")
-	if err := os.MkdirAll(skipDir, 0o755); err != nil {
+	skipDir := "pkg/action/testdata"
+	if err := dataRoot.MkdirAll(skipDir, 0o755); err != nil {
 		t.Fatalf("failed to create skip directory: %v", err)
 	}
-	skipFile := filepath.Join(skipDir, "skip.simple")
-	if err := os.WriteFile(skipFile, []byte("skip"), 0o644); err != nil {
+	if err := dataRoot.WriteFile(filepath.Join(skipDir, "skip.simple"), []byte("skip"), 0o644); err != nil {
 		t.Fatalf("failed to create skip file: %v", err)
 	}
 
@@ -170,6 +168,12 @@ func TestDiscoverTestDataNonExistentPath(t *testing.T) {
 	_, err := discoverTestData(rc)
 	if err == nil {
 		t.Error("discoverTestData() with non-existent path should return error")
+	}
+
+	// A missing samples directory is reported too.
+	rc = Config{SamplesPath: nonExistentPath, TestDataPath: samplesDir}
+	if _, err := discoverTestData(rc); err == nil || !strings.Contains(err.Error(), "open samples directory") {
+		t.Errorf("discoverTestData() with a missing samples directory: got err = %v, want it reported", err)
 	}
 }
 
@@ -256,7 +260,7 @@ func TestRefreshValidationErrors(t *testing.T) {
 			setup: func() Config {
 				tmpDir := t.TempDir()
 				filePath := filepath.Join(tmpDir, "file.txt")
-				if err := os.WriteFile(filePath, []byte("test"), 0o644); err != nil {
+				if err := file.WriteFileIn(tmpDir, "file.txt", []byte("test"), 0o644); err != nil {
 					t.Fatalf("failed to create file: %v", err)
 				}
 				return Config{
@@ -421,13 +425,13 @@ func TestExecuteRefreshEmptyTestData(t *testing.T) {
 
 func TestCloseTestDataFiles(t *testing.T) {
 	t.Parallel()
-	tmpDir := t.TempDir()
+	tmp := refreshRoot(t, t.TempDir())
 
 	// Open several files and build TestData entries
 	testData := make([]TestData, 0, 4)
 	files := make([]*os.File, 0, 3)
 	for i := range 3 {
-		f, err := os.CreateTemp(tmpDir, "close-test-*")
+		f, _, err := file.CreateTemp(tmp, "close-test-*")
 		if err != nil {
 			t.Fatalf("failed to create temp file %d: %v", i, err)
 		}
@@ -454,13 +458,13 @@ func TestCloseTestDataFiles(t *testing.T) {
 
 func TestExecuteRefreshClosesFilesOnCancel(t *testing.T) {
 	t.Parallel()
-	tmpDir := t.TempDir()
+	tmp := refreshRoot(t, t.TempDir())
 
 	// Create open files for TestData
 	testData := make([]TestData, 0, 3)
 	files := make([]*os.File, 0, 3)
 	for i := range 3 {
-		f, err := os.CreateTemp(tmpDir, "cancel-test-*")
+		f, _, err := file.CreateTemp(tmp, "cancel-test-*")
 		if err != nil {
 			t.Fatalf("failed to create temp file %d: %v", i, err)
 		}
@@ -495,7 +499,7 @@ func TestExecuteRefreshClosesFilesOnCancel(t *testing.T) {
 // Helper functions
 
 func fileExists(path string) bool {
-	_, err := os.Stat(path)
+	_, err := file.StatIn(filepath.Dir(path), filepath.Base(path))
 	return err == nil
 }
 
@@ -505,23 +509,21 @@ func TestDiscoverTestDataVariousExtensions(t *testing.T) {
 	testDataDir := t.TempDir()
 
 	// Create sample
-	sample := filepath.Join(samplesDir, "test.bin")
-	if err := os.WriteFile(sample, []byte("sample"), 0o644); err != nil {
+	if err := file.WriteFileIn(samplesDir, "test.bin", []byte("sample"), 0o644); err != nil {
 		t.Fatalf("failed to create sample: %v", err)
 	}
 
 	// Create test data files with different extensions
+	dataRoot := refreshRoot(t, testDataDir)
 	extensions := []string{".simple", ".md", ".json"}
 	for _, ext := range extensions {
-		testFile := filepath.Join(testDataDir, "test.bin"+ext)
-		if err := os.WriteFile(testFile, []byte("test"), 0o644); err != nil {
+		if err := dataRoot.WriteFile("test.bin"+ext, []byte("test"), 0o644); err != nil {
 			t.Fatalf("failed to create test file: %v", err)
 		}
 	}
 
 	// Create a file with unsupported extension (should be ignored)
-	unsupported := filepath.Join(testDataDir, "test.bin.txt")
-	if err := os.WriteFile(unsupported, []byte("unsupported"), 0o644); err != nil {
+	if err := dataRoot.WriteFile("test.bin.txt", []byte("unsupported"), 0o644); err != nil {
 		t.Fatalf("failed to create unsupported file: %v", err)
 	}
 

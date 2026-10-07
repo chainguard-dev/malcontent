@@ -4,8 +4,9 @@
 package programkind
 
 import (
-	"os"
 	"testing"
+
+	"github.com/chainguard-dev/malcontent/pkg/file"
 )
 
 // benchInput is a file name and its contents for the detection benchmarks.
@@ -19,16 +20,16 @@ type benchInput struct {
 // the kind.
 func benchInputs(b *testing.B) []benchInput {
 	b.Helper()
-	read := func(path string) []byte {
-		data, err := os.ReadFile(path)
+	read := func(name string) []byte {
+		data, err := file.ReadFileIn("testdata", name)
 		if err != nil {
-			b.Fatalf("ReadFile(%q): %v", path, err)
+			b.Fatalf("ReadFile(%q): %v", name, err)
 		}
 		return data
 	}
 	return []benchInput{
-		{"ls", read("testdata/ls")},
-		{"test.sh", read("testdata/test.sh")},
+		{"ls", read("ls")},
+		{"test.sh", read("test.sh")},
 		{"data.json", jsonDocument()},
 		{"bundle.zip", zipArchive(b)},
 		{"payload.gz", gzipStream(b, jsonDocument())},

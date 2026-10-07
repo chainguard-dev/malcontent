@@ -11,6 +11,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/google/go-cmp/cmp"
 )
 
@@ -568,7 +569,7 @@ func TestValidateUPXPath(t *testing.T) {
 			wantErr: false,
 			skipFn: func(t *testing.T) {
 				t.Helper()
-				if _, err := os.Stat("/usr/bin/upx"); err != nil {
+				if _, err := file.Stat("/usr/bin/upx"); err != nil {
 					t.Skip("/usr/bin/upx not present on test host")
 				}
 			},
@@ -605,13 +606,14 @@ func TestValidateUPXPath(t *testing.T) {
 // returns its path.
 func writeExecutable(t *testing.T, dir, name string, mode os.FileMode) string {
 	t.Helper()
+	r := programkindRoot(t, dir)
 	p := filepath.Join(dir, name)
-	if err := os.WriteFile(p, []byte("#!/bin/sh\nexit 0\n"), mode); err != nil {
+	if err := r.WriteFile(name, []byte("#!/bin/sh\nexit 0\n"), mode); err != nil {
 		t.Fatalf("WriteFile(%q): %v", p, err)
 	}
 	// WriteFile honors umask; force the exact mode so the writable-bit cases
 	// are deterministic.
-	if err := os.Chmod(p, mode); err != nil {
+	if err := r.Chmod(name, mode); err != nil {
 		t.Fatalf("Chmod(%q): %v", p, err)
 	}
 	return p
@@ -707,7 +709,7 @@ func TestValidateUPXPathSymlinkOutsideAllowlistRejected(t *testing.T) {
 	dir := t.TempDir()
 	target := writeExecutable(t, dir, "fake-upx", 0o755)
 	link := filepath.Join(dir, "upx-link")
-	if err := os.Symlink(target, link); err != nil {
+	if err := programkindRoot(t, dir).Symlink(target, "upx-link"); err != nil {
 		t.Fatalf("Symlink: %v", err)
 	}
 	if _, err := validateUPXPath(link, false); err == nil {
@@ -720,7 +722,7 @@ func TestValidateUPXPathSymlinkOutsideAllowlistRejected(t *testing.T) {
 func installExecutable(t *testing.T, root, rel string) string {
 	t.Helper()
 	dir := filepath.Join(root, filepath.Dir(rel))
-	if err := os.MkdirAll(dir, 0o755); err != nil {
+	if err := file.MkdirAllIn(root, filepath.Dir(rel), 0o755); err != nil {
 		t.Fatalf("MkdirAll(%q): %v", dir, err)
 	}
 	return writeExecutable(t, dir, filepath.Base(rel), 0o755)

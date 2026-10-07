@@ -336,7 +336,7 @@ func validateUPXPath(p string, operatorSupplied bool) (string, error) {
 		return "", fmt.Errorf("upx path resolve failed: %w", err)
 	}
 
-	fi, err := os.Lstat(resolved) // #nosec G703 -- operator-supplied or discovered UPX path, made absolute, cleaned, and symlink-resolved above
+	fi, err := file.LstatIn(filepath.Dir(resolved), filepath.Base(resolved))
 	if err != nil {
 		return "", fmt.Errorf("upx path stat failed: %w", err)
 	}
@@ -599,26 +599,29 @@ func containsValue(value string, slice []string) bool {
 // File detects what kind of program this file might be.
 func File(ctx context.Context, path string) (*FileType, error) {
 	// Follow symlinks and return cleanly if the target does not exist
-	_, err := filepath.EvalSymlinks(path)
+	resolved, err := filepath.EvalSymlinks(path)
 	if errors.Is(err, fs.ErrNotExist) {
 		return nil, nil
 	}
-
-	st, err := os.Stat(path)
 	if err != nil {
 		return nil, fmt.Errorf("stat: %w", err)
 	}
 
-	// ignore directories, irregular files, and empty files
-	if !st.Mode().IsRegular() || st.Size() == 0 {
+	// A resolved path ending in one of these names is a directory, which is
+	// ignored.
+	name := filepath.Base(resolved)
+	switch name {
+	case ".", "..", string(filepath.Separator):
 		return nil, nil
 	}
 
-	f, err := os.Open(path) // #nosec G304 -- scan target supplied by user; reading the path is the function's purpose
-	if err != nil {
-		return nil, fmt.Errorf("open: %w", err)
+	// Only a regular, non-empty file is opened; anything else yields no file
+	// and the error, if examining it failed.
+	f, size, err := openContent(filepath.Dir(resolved), name)
+	if f == nil {
+		return nil, err
 	}
-	fc, err := file.ReadContents(f, st.Size())
+	fc, err := file.ReadContents(f, size)
 	// The contents stay valid after the file is closed.
 	_ = f.Close()
 	if err != nil {
@@ -627,6 +630,33 @@ func File(ctx context.Context, path string) (*FileType, error) {
 	defer func() { _ = fc.Close() }()
 
 	return Detect(ctx, path, fc.Bytes()), nil
+}
+
+// openContent opens name beneath dir, through a root on dir, when it is a
+// regular, non-empty file and returns it with its size. Anything else yields
+// no file and no error.
+func openContent(dir, name string) (*os.File, int64, error) {
+	root, err := os.OpenRoot(dir)
+	if err != nil {
+		return nil, 0, fmt.Errorf("stat: %w", err)
+	}
+	defer func() { _ = root.Close() }()
+
+	st, err := root.Stat(name)
+	if err != nil {
+		return nil, 0, fmt.Errorf("stat: %w", err)
+	}
+
+	// ignore directories, irregular files, and empty files
+	if !st.Mode().IsRegular() || st.Size() == 0 {
+		return nil, 0, nil
+	}
+
+	f, err := root.Open(name)
+	if err != nil {
+		return nil, 0, fmt.Errorf("open: %w", err)
+	}
+	return f, st.Size(), nil
 }
 
 // Detect returns the kind of the file at path whose contents are fc: exactly

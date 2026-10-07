@@ -15,6 +15,8 @@ import (
 	"sync"
 	"syscall"
 	"time"
+
+	"github.com/chainguard-dev/malcontent/pkg/file"
 )
 
 // Config holds the configuration for profiling.
@@ -51,7 +53,7 @@ func StartProfiling(ctx context.Context, config *Config) (*Profiler, error) {
 		config = DefaultConfig()
 	}
 
-	if err := os.MkdirAll(config.OutputDir, 0o700); err != nil {
+	if err := file.MkdirAll(config.OutputDir, 0o700); err != nil {
 		return nil, fmt.Errorf("failed to create profile directory: %w", err)
 	}
 

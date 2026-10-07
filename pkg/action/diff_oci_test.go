@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http/httptest"
-	"os"
 	"strings"
 	"testing"
 
@@ -66,7 +65,7 @@ func TestDiffImages(t *testing.T) {
 		}
 	}
 
-	entries, err := os.ReadDir(tmpReal)
+	entries, err := scanTestReadDir(tmpReal)
 	if err != nil {
 		t.Fatalf("ReadDir(%q): %v", tmpReal, err)
 	}

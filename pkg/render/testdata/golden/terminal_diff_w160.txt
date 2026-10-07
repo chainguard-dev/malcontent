@@ -14,9 +14,9 @@
 │+      🛑 shell — runs a shell, by Dee:
 │+         /bin/sh, evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-evidence-ev…
 │     ≡ networking [LOW]
-│     ≡ filesystem [LOW]
+│-    ▼ filesystem [LOW → NONE]
 │-      🔵 read — reads files
-│+    ▲ cryptography [NONE → MEDIUM]
+│     ≡ cryptography [NONE]
 │-      🟡 aes — uses AES
 │     ≡ command & control [NONE]
 │-      🔵 beacon — beacons
@@ -26,6 +26,6 @@
 │+      🟡 rc4 — uses RC4: rc4_init
 │
 ├─ 🔵 Changed (0 added, 1 removed): /mod/lowered [HIGH → LOW]
-│     ≡ networking [HIGH]
+│     ▼ networking [HIGH → LOW]
 │-      🛑 connect — connects
 │

@@ -9,10 +9,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"os"
 	"path/filepath"
 
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/file"
 )
 
 // extractZlib extracts extension-agnostic zlib-compressed files.
@@ -25,7 +25,7 @@ func ExtractZlib(ctx context.Context, d string, f string) error {
 	logger.Debugf("extracting zlib")
 
 	// Check if the file is valid
-	fi, err := os.Stat(f)
+	fi, err := file.Stat(f)
 	if err != nil {
 		return fmt.Errorf("failed to stat file: %w", err)
 	}
@@ -40,7 +40,7 @@ func ExtractZlib(ctx context.Context, d string, f string) error {
 	// InputBytes seeds the ratio denominator from the compressed file size.
 	counter := newArchiveCounter(ctx, fi.Size())
 
-	zf, err := os.Open(f) // #nosec G304 -- archive path resolved and validated by caller before extraction
+	zf, err := file.Open(f)
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
 	}

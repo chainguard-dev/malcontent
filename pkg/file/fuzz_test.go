@@ -6,7 +6,6 @@ package file
 import (
 	"bytes"
 	"os"
-	"path/filepath"
 	"testing"
 )
 
@@ -16,11 +15,11 @@ const maxFuzzSize = 10 * 1024 * 1024
 // the input when the file cannot be created.
 func fuzzFile(t *testing.T, data []byte) *os.File {
 	t.Helper()
-	p := filepath.Join(t.TempDir(), "f")
-	if err := os.WriteFile(p, data, 0o600); err != nil {
+	dir := t.TempDir()
+	if err := WriteFileIn(dir, "f", data, 0o600); err != nil {
 		t.Skip()
 	}
-	f, err := os.Open(p)
+	f, err := OpenIn(dir, "f")
 	if err != nil {
 		t.Skip()
 	}

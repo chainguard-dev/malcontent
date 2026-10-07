@@ -10,6 +10,8 @@ import (
 	"sort"
 	"strings"
 	"testing"
+
+	"github.com/chainguard-dev/malcontent/pkg/file"
 )
 
 func isYaraRule(name string) bool {
@@ -20,7 +22,7 @@ func TestEmbedCoversAllYaraRulesOnDisk(t *testing.T) {
 	t.Parallel()
 
 	const root = "yara"
-	if _, err := os.Stat(root); err != nil {
+	if _, err := file.StatIn(".", root); err != nil {
 		if os.IsNotExist(err) {
 			t.Skipf("on-disk %q not present (source tree unavailable); skipping", root)
 		}
@@ -28,10 +30,16 @@ func TestEmbedCoversAllYaraRulesOnDisk(t *testing.T) {
 	}
 
 	disk := map[string]struct{}{}
-	if err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
+	dir, err := os.OpenRoot(root)
+	if err != nil {
+		t.Fatalf("open %q: %v", root, err)
+	}
+	defer dir.Close()
+	if err := fs.WalkDir(dir.FS(), ".", func(rel string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
+		path := filepath.Join(root, filepath.FromSlash(rel))
 		if d.IsDir() {
 			return nil
 		}

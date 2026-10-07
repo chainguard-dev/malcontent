@@ -6,12 +6,14 @@ package archive
 import (
 	"archive/tar"
 	"context"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"slices"
 	"strings"
 	"testing"
 
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 	"github.com/minio/sha256-simd"
@@ -99,7 +101,7 @@ func TestTreeExtractsNestedArchivesOnRequest(t *testing.T) {
 	if _, ok := tree.Nested("inner.zip", int64(len(inner)), nil); ok {
 		t.Errorf("Nested(inner.zip) after extraction: got an archive, want none")
 	}
-	if _, err := os.Stat(filepath.Join(tree.Dir(), "inner.zip")); !os.IsNotExist(err) {
+	if _, err := file.StatIn(tree.Dir(), "inner.zip"); !os.IsNotExist(err) {
 		t.Errorf("inner.zip after extraction: got stat error %v, want it removed", err)
 	}
 }
@@ -107,7 +109,7 @@ func TestTreeExtractsNestedArchivesOnRequest(t *testing.T) {
 func TestTreeKeepsArchivesItDoesNotExtract(t *testing.T) {
 	t.Parallel()
 	path, inner := treeTestArchive(t)
-	outer, err := os.ReadFile(path)
+	outer, err := file.ReadFileIn(filepath.Dir(path), filepath.Base(path))
 	if err != nil {
 		t.Fatalf("read archive: %v", err)
 	}
@@ -135,7 +137,7 @@ func TestTreeKeepsArchivesItDoesNotExtract(t *testing.T) {
 			if !tree.Extracted("inner.zip") {
 				t.Errorf("Extracted(inner.zip): got = false, want = true")
 			}
-			if _, err := os.Stat(filepath.Join(tree.Dir(), "inner.zip")); err != nil {
+			if _, err := file.StatIn(tree.Dir(), "inner.zip"); err != nil {
 				t.Errorf("inner.zip: got stat error %v, want it kept", err)
 			}
 		})
@@ -161,7 +163,7 @@ func TestTreeExtractNestedErrors(t *testing.T) {
 		if err := tree.Close(); err != nil {
 			t.Fatalf("Close: %v", err)
 		}
-		if _, err := os.Stat(tree.Dir()); !os.IsNotExist(err) {
+		if _, err := file.StatIn(filepath.Dir(tree.Dir()), filepath.Base(tree.Dir())); !os.IsNotExist(err) {
 			t.Fatalf("directory after Close: got stat error %v, want it removed", err)
 		}
 		if _, _, _, err := tree.ExtractNested(decCtx(t), n, 1, tree.Root(), sha256.Sum256(inner)); err == nil || !strings.Contains(err.Error(), "failed to open extraction directory") {
@@ -174,7 +176,7 @@ func TestTreeFiles(t *testing.T) {
 	t.Parallel()
 	path, _ := treeTestArchive(t)
 	tree := openTestTree(t, malcontent.Config{}, path)
-	if err := os.Symlink("a.txt", filepath.Join(tree.Dir(), "link.txt")); err != nil {
+	if err := openTestRoot(t, tree.Dir()).Symlink("a.txt", "link.txt"); err != nil {
 		t.Fatalf("symlink: %v", err)
 	}
 	files, err := tree.Files(tree.Dir())
@@ -247,7 +249,7 @@ func TestOpenTreeLeavesNoDirectoryOnFailure(t *testing.T) {
 	if _, err := OpenTree(decCtx(t), malcontent.Config{ExitExtraction: true}, path); err == nil {
 		t.Fatalf("OpenTree: got nil error, want one")
 	}
-	entries, err := os.ReadDir(tmp)
+	entries, err := fs.ReadDir(openTestRoot(t, tmp).FS(), ".")
 	if err != nil {
 		t.Fatalf("ReadDir: %v", err)
 	}

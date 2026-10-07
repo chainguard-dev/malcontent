@@ -129,42 +129,34 @@ func (sr *scopedRules) set(ctx context.Context, key string, indices []int) (*yar
 	return set.rules, set.err
 }
 
-// with runs scan with one of the set's scanners.
-func (set *scopedSet) with(scan func(*yarax.Scanner) (*yarax.ScanResults, error)) (*yarax.ScanResults, error) {
+// with runs scan with one of the set's scanners, which is destroyed
+// afterward rather than kept when discard is set.
+func (set *scopedSet) with(discard bool, scan func(*yarax.Scanner) (*yarax.ScanResults, error)) (*yarax.ScanResults, error) {
 	scanner, ok := set.scanners.Get().(*yarax.Scanner)
 	if !ok {
 		scanner = yarax.NewScanner(set.rules)
 	}
-	defer set.scanners.Put(scanner)
+	defer func() {
+		if discard {
+			destroyScanner(scanner)
+			return
+		}
+		set.scanners.Put(scanner)
+	}()
 	return scan(scanner)
 }
 
-// forHeader returns the rule sets for the header of fc, the contents of the
-// file being scanned, or, when its contents are unknown, every header's.
-func (sr *scopedRules) forHeader(fc []byte, known bool) ([]*yarax.Rules, error) {
-	if known {
-		if len(fc) < 2 {
-			return nil, nil
-		}
-		h, ok := sr.split.ByHeader[[2]byte(fc)]
-		if !ok {
-			return nil, nil
-		}
-		rules, err := loadHeader(h)
-		if err != nil {
-			return nil, err
-		}
-		return []*yarax.Rules{rules}, nil
+// forHeader returns the rule set for the header of fc, the contents of the
+// file being scanned, or nil when no rules require its header.
+func (sr *scopedRules) forHeader(fc []byte) (*yarax.Rules, error) {
+	if len(fc) < 2 {
+		return nil, nil
 	}
-	out := make([]*yarax.Rules, 0, len(sr.split.ByHeader))
-	for _, h := range sr.split.ByHeader {
-		rules, err := loadHeader(h)
-		if err != nil {
-			return nil, err
-		}
-		out = append(out, rules)
+	h, ok := sr.split.ByHeader[[2]byte(fc)]
+	if !ok {
+		return nil, nil
 	}
-	return out, nil
+	return loadHeader(h)
 }
 
 // loadHeader returns the rule set of h, with scanners kept for reuse.

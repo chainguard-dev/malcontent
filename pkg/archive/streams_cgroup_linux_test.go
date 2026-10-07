@@ -9,20 +9,25 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/chainguard-dev/malcontent/pkg/file"
 )
 
-// streamsCgroupFile writes content to dir/name, or leaves it absent when
-// missing is set, and returns the path.
-func streamsCgroupFile(t *testing.T, dir, name, content string, missing bool) string {
+// streamsCgroupFile writes content to name beneath dir, creating its parent
+// directories, or leaves it absent when missing is set.
+func streamsCgroupFile(t *testing.T, dir, name, content string, missing bool) {
 	t.Helper()
-	p := filepath.Join(dir, name)
 	if missing {
-		return p
+		return
 	}
-	if err := os.WriteFile(p, []byte(content), 0o600); err != nil {
-		t.Fatalf("write %s: %v", p, err)
+	if parent := filepath.Dir(name); parent != "." {
+		if err := file.MkdirAllIn(dir, parent, 0o700); err != nil {
+			t.Fatalf("create %s: %v", parent, err)
+		}
 	}
-	return p
+	if err := file.WriteFileIn(dir, name, []byte(content), 0o600); err != nil {
+		t.Fatalf("write %s: %v", name, err)
+	}
 }
 
 func TestReadCgroupV2CPUMax(t *testing.T) {
@@ -54,8 +59,9 @@ func TestReadCgroupV2CPUMax(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			p := streamsCgroupFile(t, t.TempDir(), "cpu.max", tc.content, tc.missing)
-			gotN, gotOK := readCgroupV2(p)
+			dir := t.TempDir()
+			streamsCgroupFile(t, dir, cgroupV2CPUMaxName, tc.content, tc.missing)
+			gotN, gotOK := readCgroupV2(dir, cgroupV2CPUMaxName)
 			if gotN != tc.wantN || gotOK != tc.wantOK {
 				t.Errorf("readCgroupV2(%q): got = (%d, %t), want = (%d, %t)", tc.content, gotN, gotOK, tc.wantN, tc.wantOK)
 			}
@@ -90,9 +96,9 @@ func TestReadCgroupV1CPUQuota(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			dir := t.TempDir()
-			quotaPath := streamsCgroupFile(t, dir, "cpu.cfs_quota_us", tc.quota, tc.quotaMissing)
-			periodPath := streamsCgroupFile(t, dir, "cpu.cfs_period_us", tc.period, tc.periodMissing)
-			gotN, gotOK := readCgroupV1(quotaPath, periodPath)
+			streamsCgroupFile(t, dir, cgroupV1CPUQuotaName, tc.quota, tc.quotaMissing)
+			streamsCgroupFile(t, dir, cgroupV1CPUPeriodName, tc.period, tc.periodMissing)
+			gotN, gotOK := readCgroupV1(dir, cgroupV1CPUQuotaName, cgroupV1CPUPeriodName)
 			if gotN != tc.wantN || gotOK != tc.wantOK {
 				t.Errorf("readCgroupV1(%q, %q): got = (%d, %t), want = (%d, %t)", tc.quota, tc.period, gotN, gotOK, tc.wantN, tc.wantOK)
 			}
@@ -119,10 +125,49 @@ func TestReadIntFile(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			p := streamsCgroupFile(t, t.TempDir(), "value", tc.content, tc.missing)
-			got, gotOK := readIntFile(p)
+			dir := t.TempDir()
+			streamsCgroupFile(t, dir, "value", tc.content, tc.missing)
+			got, gotOK := readIntFile(dir, "value")
 			if got != tc.want || gotOK != tc.wantOK {
 				t.Errorf("readIntFile(%q): got = (%d, %t), want = (%d, %t)", tc.content, got, gotOK, tc.want, tc.wantOK)
+			}
+		})
+	}
+}
+
+// TestReadIntFileStaysInDir checks that a name, or a symlink, leading outside
+// the directory is not read, even when the file it reaches holds an integer.
+func TestReadIntFileStaysInDir(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		read string
+	}{
+		{name: "parent reference is refused", read: filepath.Join("..", "value")},
+		{name: "symlink leading outside is refused", read: "link"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			base := t.TempDir()
+			streamsCgroupFile(t, base, "value", "12345", false)
+			if err := file.MkdirAllIn(base, "cgroup", 0o700); err != nil {
+				t.Fatalf("create cgroup: %v", err)
+			}
+			dir := filepath.Join(base, "cgroup")
+			r, err := os.OpenRoot(dir)
+			if err != nil {
+				t.Fatalf("open cgroup: %v", err)
+			}
+			defer r.Close()
+			if err := r.Symlink(filepath.Join("..", "value"), "link"); err != nil {
+				t.Fatalf("symlink: %v", err)
+			}
+
+			got, gotOK := readIntFile(dir, tt.read)
+			if got != 0 || gotOK {
+				t.Errorf("readIntFile(%q): got = (%d, %t), want = (0, false)", tt.read, got, gotOK)
 			}
 		})
 	}

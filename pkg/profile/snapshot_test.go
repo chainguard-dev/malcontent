@@ -12,6 +12,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/chainguard-dev/malcontent/pkg/file"
 )
 
 // captureStderr runs fn with os.Stderr redirected to a pipe and returns what
@@ -58,7 +60,7 @@ func TestWriteHeapSnapshot(t *testing.T) {
 		if len(matches) != 1 {
 			t.Fatalf("heap snapshots: got = %d, want = 1", len(matches))
 		}
-		data, err := os.ReadFile(matches[0])
+		data, err := file.ReadFileIn(dir, filepath.Base(matches[0]))
 		if err != nil {
 			t.Fatalf("read heap snapshot: %v", err)
 		}
@@ -80,7 +82,7 @@ func TestWriteHeapSnapshot(t *testing.T) {
 		if stderr := captureStderr(t, p.writeHeapSnapshot); !strings.Contains(stderr, want) {
 			t.Errorf("stderr: got = %q, want it to contain %q", stderr, want)
 		}
-		if _, err := os.Stat(dir); !errors.Is(err, fs.ErrNotExist) {
+		if _, err := file.StatIn(filepath.Dir(dir), filepath.Base(dir)); !errors.Is(err, fs.ErrNotExist) {
 			t.Errorf("output directory stat error: got = %v, want = %v", err, fs.ErrNotExist)
 		}
 	})

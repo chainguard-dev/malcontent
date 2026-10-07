@@ -17,6 +17,7 @@ import (
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/archive"
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 	"github.com/minio/sha256-simd"
@@ -25,18 +26,27 @@ import (
 
 // walkedFile is a file found by walking a scan path, with its size.
 type walkedFile struct {
-	path string
-	size int64
+	path    string
+	name    string // path beneath the walk root
+	size    int64
+	regular bool // a regular file when walked
 }
 
-// walkedFiles pairs each path with its size, which orders the queue. A path
-// that cannot be examined sorts last; scanning reports its error.
-func walkedFiles(paths []string) []walkedFile {
+// walkedFiles pairs each path, found by walking beneath w, with its name
+// there and its size, which orders the queue. A path that cannot be examined
+// sorts last; scanning reports its error.
+func walkedFiles(w *walkRoot, paths []string) []walkedFile {
 	files := make([]walkedFile, len(paths))
 	for i, p := range paths {
 		files[i].path = p
-		if fi, err := os.Lstat(p); err == nil {
+		name, err := w.name(p)
+		if err != nil {
+			continue
+		}
+		files[i].name = name
+		if fi, err := w.root.Lstat(name); err == nil {
 			files[i].size = fi.Size()
+			files[i].regular = fi.Mode().IsRegular()
 		}
 	}
 	return files
@@ -45,11 +55,13 @@ func walkedFiles(paths []string) []walkedFile {
 // task is one unit of scan work: a file found by walking a scan path, or a
 // file inside an archive being scanned.
 type task struct {
-	path  string
-	size  int64
-	arc   *archiveScan  // nil for a walked file
-	entry treeEntry     // archive files only
-	group *extractGroup // set for the extraction of nested archives
+	path    string
+	name    string // a walked file's path beneath the walk root
+	size    int64
+	regular bool          // a walked file that was regular when walked
+	arc     *archiveScan  // nil for a walked file
+	entry   treeEntry     // archive files only
+	group   *extractGroup // set for the extraction of nested archives
 }
 
 // treeEntry places a file in its archive's tree. A nil batch marks a file
@@ -99,8 +111,11 @@ type archiveScan struct {
 	displayPath string
 	tree        *archive.Tree
 	// tmpRoot is the tree's directory with symlinks resolved, which scanned
-	// paths, and so the reports' paths, are below.
+	// paths, and so the reports' paths, are below; root reaches the files
+	// beneath it.
 	tmpRoot   string
+	root      *os.Root
+	dirs      *file.DirRoots
 	frs       *xsync.Map[string, *malcontent.FileReport]
 	fileCount atomic.Int64
 	// pending counts queued tasks and in-progress work; the archive is
@@ -162,6 +177,12 @@ type scanQueue struct {
 	matchChan chan matchResult
 	matchOnce *sync.Once
 	logger    *clog.Logger
+	// walk reaches the walked files.
+	walk *walkRoot
+
+	// slots, when set, are shared with other scans running at the same time;
+	// a worker holds one while it runs a task.
+	slots chan struct{}
 
 	mu      sync.Mutex
 	wake    *sync.Cond
@@ -176,7 +197,7 @@ type scanQueue struct {
 
 // runQueue scans files with up to workers concurrent workers and returns the
 // first error that ends the scan.
-func runQueue(ctx context.Context, files []walkedFile, workers int, scanInfo scanPathInfo, c malcontent.Config, r *malcontent.Report, matchChan chan matchResult, matchOnce *sync.Once, logger *clog.Logger) error {
+func runQueue(ctx context.Context, w *walkRoot, files []walkedFile, workers int, scanInfo scanPathInfo, c malcontent.Config, r *malcontent.Report, matchChan chan matchResult, matchOnce *sync.Once, logger *clog.Logger) error {
 	slices.SortStableFunc(files, func(a, b walkedFile) int {
 		return cmp.Compare(b.size, a.size)
 	})
@@ -192,6 +213,8 @@ func runQueue(ctx context.Context, files []walkedFile, workers int, scanInfo sca
 		matchChan: matchChan,
 		matchOnce: matchOnce,
 		logger:    logger,
+		walk:      w,
+		slots:     workerSlotsFrom(ctx),
 		walked:    files,
 		open:      map[*archiveScan]struct{}{},
 	}
@@ -220,13 +243,44 @@ func (q *scanQueue) work() {
 		if !ok {
 			return
 		}
+		release := q.acquireSlot()
 		q.run(t)
+		release()
 		q.mu.Lock()
 		q.busy--
 		if q.busy == 0 {
 			q.wake.Broadcast()
 		}
 		q.mu.Unlock()
+	}
+}
+
+type workerSlotsCtxKey struct{}
+
+// withWorkerSlots returns ctx carrying n worker slots. The scans started under
+// it together run at most n tasks at once, as one scan with n workers would.
+func withWorkerSlots(ctx context.Context, n int) context.Context {
+	return context.WithValue(ctx, workerSlotsCtxKey{}, make(chan struct{}, n))
+}
+
+// workerSlotsFrom returns the worker slots ctx carries, or nil.
+func workerSlotsFrom(ctx context.Context) chan struct{} {
+	slots, _ := ctx.Value(workerSlotsCtxKey{}).(chan struct{})
+	return slots
+}
+
+// acquireSlot waits for a shared worker slot, when the queue has them, and
+// returns the function that gives it back. Once the scan ends, the task runs
+// without one: it returns early, and still settles its archive's accounting.
+func (q *scanQueue) acquireSlot() func() {
+	if q.slots == nil {
+		return func() {}
+	}
+	select {
+	case q.slots <- struct{}{}:
+		return func() { <-q.slots }
+	case <-q.ctx.Done():
+		return func() {}
 	}
 }
 
@@ -247,7 +301,7 @@ func (q *scanQueue) take() (task, bool) {
 			q.walked[q.next] = walkedFile{}
 			q.next++
 			q.busy++
-			return task{path: w.path, size: w.size}, true
+			return task{path: w.path, name: w.name, size: w.size, regular: w.regular}, true
 		case q.busy == 0:
 			q.stopped = true
 			q.wake.Broadcast()
@@ -295,15 +349,15 @@ func (q *scanQueue) run(t task) {
 		q.runEntry(t)
 		return
 	}
-	if err := q.runWalked(t.path); err != nil {
+	if err := q.runWalked(t); err != nil {
 		q.fail(err)
 	}
 }
 
-// runWalked processes a file found by the walk, as processPath does, except
-// that archives are extracted into the queue.
-func (q *scanQueue) runWalked(path string) error {
-	ctx := q.ctx
+// runWalked processes t, a file found by the walk, as processPath does,
+// except that archives are extracted into the queue.
+func (q *scanQueue) runWalked(t task) error {
+	ctx, path := q.ctx, t.path
 	if ctx.Err() != nil {
 		return nil
 	}
@@ -312,11 +366,16 @@ func (q *scanQueue) runWalked(path string) error {
 		return q.openArchive(path)
 	}
 
-	fi, err := os.Stat(path)
+	r, name, release, err := q.walk.dirs.Parent(t.name)
 	if err != nil {
 		return handleSingleFile(ctx, path, q.scanInfo, q.c, q.r, q.matchChan, q.matchOnce, q.logger)
 	}
-	s := sniffFile(ctx, path, fi)
+	s, err := sniffEntry(ctx, r, name, path, t.regular)
+	if err != nil {
+		release()
+		return handleSingleFile(ctx, path, q.scanInfo, q.c, q.r, q.matchChan, q.matchOnce, q.logger)
+	}
+	s.release = release
 	defer s.close()
 	if programkind.IsSupportedArchiveKind(path, s.kind) {
 		s.close()
@@ -339,12 +398,22 @@ func (q *scanQueue) openArchive(path string) error {
 	if err != nil {
 		return q.archiveError(path, fmt.Errorf("extract to temp: %w", err))
 	}
+	tmpRoot := resolveDir(tree.Dir())
+	root, err := os.OpenRoot(tmpRoot)
+	if err != nil {
+		if cerr := tree.Close(); cerr != nil {
+			q.logger.Errorf("remove %s: %v", tree.Dir(), cerr)
+		}
+		return q.archiveError(path, fmt.Errorf("extract to temp: %w", err))
+	}
 
 	a := &archiveScan{
 		path:        path,
 		displayPath: displayPath,
 		tree:        tree,
-		tmpRoot:     resolveDir(tree.Dir()),
+		tmpRoot:     tmpRoot,
+		root:        root,
+		dirs:        file.NewDirRoots(root, maxIdleDirRoots),
 		frs:         xsync.NewMap[string, *malcontent.FileReport](),
 	}
 	q.mu.Lock()
@@ -414,12 +483,19 @@ func (q *scanQueue) runEntry(t task) {
 		return
 	}
 
-	fi, err := os.Stat(t.path)
+	r, name, release, err := a.dirs.Parent(e.rel)
 	if err != nil {
 		a.fail(err)
 		return
 	}
-	s := sniffFile(q.ctx, t.path, fi)
+	// The tree holds only regular files.
+	s, err := sniffEntry(q.ctx, r, name, t.path, true)
+	if err != nil {
+		release()
+		a.fail(err)
+		return
+	}
+	s.release = release
 	defer s.close()
 	// A skipped file stays until the archive is complete: a nested archive
 	// beside it is named after the entries its directory holds.
@@ -432,7 +508,7 @@ func (q *scanQueue) runEntry(t task) {
 			a.fail(q.nestedError(e.batch, e.rel, fmt.Errorf("failed to determine file type: %w", s.err)))
 			return
 		}
-		if n, ok := a.tree.Nested(e.rel, fi.Size(), s.kind); ok {
+		if n, ok := a.tree.Nested(e.rel, s.fi.Size(), s.kind); ok {
 			e.batch.found[e.idx] = &foundArchive{n: n, digest: sha256.Sum256(s.content.Bytes())}
 			return
 		}
@@ -596,6 +672,8 @@ func (q *scanQueue) removeTree(a *archiveScan) {
 	if !ok {
 		return
 	}
+	a.dirs.Close()
+	_ = a.root.Close()
 	if err := a.tree.Close(); err != nil {
 		q.logger.Errorf("remove %s: %v", a.tree.Dir(), err)
 	}

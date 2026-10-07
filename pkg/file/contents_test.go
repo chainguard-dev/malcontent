@@ -123,7 +123,8 @@ func TestReadContentsClosedFile(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			f, err := os.Open(writeTemp(t, deterministicBytes(int(tt.size))))
+			p := writeTemp(t, deterministicBytes(int(tt.size)))
+			f, err := OpenIn(filepath.Dir(p), filepath.Base(p))
 			if err != nil {
 				t.Fatalf("Open: %v", err)
 			}
@@ -255,7 +256,7 @@ func TestContentsNil(t *testing.T) {
 // It skips the test where that file is unavailable.
 func mappedPaths(t *testing.T, path string) bool {
 	t.Helper()
-	maps, err := os.ReadFile("/proc/self/maps")
+	maps, err := ReadFileIn("/proc/self", "maps")
 	if err != nil {
 		t.Skipf("memory mappings are not listable: %v", err)
 	}
@@ -273,7 +274,7 @@ func TestContentsCloseUnmaps(t *testing.T) {
 	if err != nil {
 		t.Fatalf("EvalSymlinks(%q): %v", p, err)
 	}
-	f, err := os.Open(p)
+	f, err := OpenIn(filepath.Dir(p), filepath.Base(p))
 	if err != nil {
 		t.Fatalf("Open(%q): %v", p, err)
 	}
@@ -365,7 +366,7 @@ func TestMapFileRejectsUnmappableFiles(t *testing.T) {
 // openDir opens dir for reading. The directory is closed when the test ends.
 func openDir(t *testing.T, dir string) *os.File {
 	t.Helper()
-	f, err := os.Open(dir)
+	f, err := OpenIn(dir, ".")
 	if err != nil {
 		t.Fatalf("Open(%q): %v", dir, err)
 	}

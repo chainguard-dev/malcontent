@@ -6,7 +6,7 @@ package archive
 import (
 	"bytes"
 	"context"
-	"os"
+	"io/fs"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -22,16 +22,16 @@ import (
 // FuzzValidateResolvedPath tests path validation via the ValidateResolvedPath function
 // to ensure it doesn't panic on any inputs and correctly detects path traversal attempts.
 func FuzzValidateResolvedPath(f *testing.F) {
-	tmpDir, err := os.MkdirTemp("", "fuzz-validate-")
-	if err != nil {
-		f.Fatal(err)
-	}
-	defer os.RemoveAll(tmpDir)
+	tmpDir := f.TempDir()
 
 	// Create a subdirectory and file for valid paths
 	subDir := filepath.Join(tmpDir, "sub")
-	os.MkdirAll(subDir, 0o755)
-	os.WriteFile(filepath.Join(subDir, "file.txt"), []byte("test"), 0o644)
+	if err := file.MkdirAllIn(tmpDir, "sub", 0o755); err != nil {
+		f.Fatal(err)
+	}
+	if err := file.WriteFileIn(subDir, "file.txt", []byte("test"), 0o644); err != nil {
+		f.Fatal(err)
+	}
 
 	f.Add(filepath.Join(subDir, "file.txt"), tmpDir, filepath.Join(subDir, "file.txt"))
 	f.Add(filepath.Join(tmpDir, "..", "etc", "passwd"), tmpDir, "/etc/passwd")
@@ -53,12 +53,23 @@ const maxFuzzSize = 10 * 1024 * 1024
 
 // readTestFile reads a file using file.GetContents for consistency with production code.
 func readTestFile(path string) ([]byte, error) {
-	f, err := os.Open(path)
+	f, err := file.Open(path)
 	if err != nil {
 		return nil, err
 	}
 	defer f.Close()
 	return file.GetContents(f)
+}
+
+// writeFuzzInput writes data as name in a new temp directory and returns its
+// path.
+func writeFuzzInput(t *testing.T, name string, data []byte) string {
+	t.Helper()
+	dir := t.TempDir()
+	if err := file.WriteFileIn(dir, name, data, 0o600); err != nil {
+		t.Skip("failed to write fuzz input")
+	}
+	return filepath.Join(dir, name)
 }
 
 // FuzzExtractTar tests tar extraction with random inputs to find crashes,
@@ -88,31 +99,15 @@ func FuzzExtractTar(f *testing.F) {
 		if len(data) > maxFuzzSize {
 			return
 		}
-		tmpFile, err := os.CreateTemp("", "fuzz-tar-*.tar.gz")
-		if err != nil {
-			t.Skip("failed to create temp file")
-		}
-		defer os.Remove(tmpFile.Name())
-
-		if _, err := tmpFile.Write(data); err != nil {
-			t.Skip("failed to write to temp file")
-		}
-		tmpFile.Close()
-
-		tmpDir, err := os.MkdirTemp("", "fuzz-extract-*")
-		if err != nil {
-			t.Skip("failed to create temp dir")
-		}
-		defer os.RemoveAll(tmpDir)
+		src := writeFuzzInput(t, "fuzz-tar.tar.gz", data)
+		tmpDir := t.TempDir()
 
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
-		_ = ExtractTar(ctx, tmpDir, tmpFile.Name())
+		_ = ExtractTar(ctx, tmpDir, src)
 
-		err = filepath.WalkDir(tmpDir, func(path string, _ os.DirEntry, err error) error {
-			if err != nil {
-				return err
-			}
+		err := walkTree(tmpDir, ".", func(rel string, _ fs.DirEntry) error {
+			path := filepath.Join(tmpDir, rel)
 			if !IsValidPath(path, tmpDir) {
 				t.Fatalf("path traversal detected: %s is outside %s", path, tmpDir)
 			}
@@ -146,31 +141,15 @@ func FuzzExtractZip(f *testing.F) {
 		if len(data) > maxFuzzSize {
 			return
 		}
-		tmpFile, err := os.CreateTemp("", "fuzz-zip-*.zip")
-		if err != nil {
-			t.Skip("failed to create temp file")
-		}
-		defer os.Remove(tmpFile.Name())
-
-		if _, err := tmpFile.Write(data); err != nil {
-			t.Skip("failed to write to temp file")
-		}
-		tmpFile.Close()
-
-		tmpDir, err := os.MkdirTemp("", "fuzz-extract-*")
-		if err != nil {
-			t.Skip("failed to create temp dir")
-		}
-		defer os.RemoveAll(tmpDir)
+		src := writeFuzzInput(t, "fuzz-zip.zip", data)
+		tmpDir := t.TempDir()
 
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
-		_ = ExtractZip(ctx, tmpDir, tmpFile.Name())
+		_ = ExtractZip(ctx, tmpDir, src)
 
-		err = filepath.WalkDir(tmpDir, func(path string, _ os.DirEntry, err error) error {
-			if err != nil {
-				return err
-			}
+		err := walkTree(tmpDir, ".", func(rel string, _ fs.DirEntry) error {
+			path := filepath.Join(tmpDir, rel)
 			if !IsValidPath(path, tmpDir) {
 				t.Fatalf("path traversal detected: %s is outside %s", path, tmpDir)
 			}
@@ -242,28 +221,17 @@ func FuzzExtractArchive(f *testing.F) {
 			return
 		}
 
-		tmpFile, err := os.CreateTemp("", "fuzz-archive-*"+ext)
-		if err != nil {
-			t.Skip("failed to create temp file")
-		}
-		defer os.Remove(tmpFile.Name())
-
-		if _, err := tmpFile.Write(data); err != nil {
-			t.Skip("failed to write to temp file")
-		}
-		tmpFile.Close()
+		src := writeFuzzInput(t, "fuzz-archive"+ext, data)
 
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 		cfg := malcontent.Config{}
-		extractedDir, err := ExtractArchiveToTempDir(ctx, cfg, tmpFile.Name())
+		extractedDir, err := ExtractArchiveToTempDir(ctx, cfg, src)
 		if err == nil && extractedDir != "" {
-			defer os.RemoveAll(extractedDir)
+			defer file.RemoveAllIn(filepath.Dir(extractedDir), filepath.Base(extractedDir))
 
-			walkErr := filepath.WalkDir(extractedDir, func(path string, _ os.DirEntry, err error) error {
-				if err != nil {
-					return err
-				}
+			walkErr := walkTree(extractedDir, ".", func(rel string, _ fs.DirEntry) error {
+				path := filepath.Join(extractedDir, rel)
 				if !IsValidPath(path, extractedDir) {
 					t.Fatalf("path traversal detected: %s is outside %s", path, extractedDir)
 				}
@@ -278,11 +246,7 @@ func FuzzExtractArchive(f *testing.F) {
 
 // FuzzIsValidPath tests path validation via the IsValidPath function.
 func FuzzIsValidPath(f *testing.F) {
-	tmpDir, err := os.MkdirTemp("", "fuzz-path-")
-	if err != nil {
-		f.Fatal(err)
-	}
-	defer os.RemoveAll(tmpDir)
+	tmpDir := f.TempDir()
 
 	f.Add(tmpDir, filepath.Join(tmpDir, "safe.txt"))
 	f.Add(tmpDir, filepath.Join(tmpDir, "..", "etc", "passwd"))
@@ -339,33 +303,17 @@ func FuzzExtractGzip(f *testing.F) {
 		if len(data) > maxFuzzSize {
 			return
 		}
-		tmpFile, err := os.CreateTemp("", "fuzz-gz-*.gz")
-		if err != nil {
-			t.Skip()
-		}
-		defer os.Remove(tmpFile.Name())
-
-		if _, err := tmpFile.Write(data); err != nil {
-			t.Skip()
-		}
-		tmpFile.Close()
-
-		tmpDir, err := os.MkdirTemp("", "fuzz-extract-*")
-		if err != nil {
-			t.Skip()
-		}
-		defer os.RemoveAll(tmpDir)
+		src := writeFuzzInput(t, "fuzz-gz.gz", data)
+		tmpDir := t.TempDir()
 
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 
-		_ = ExtractGzip(ctx, tmpDir, tmpFile.Name())
+		_ = ExtractGzip(ctx, tmpDir, src)
 
 		// Verify no path traversal
-		filepath.WalkDir(tmpDir, func(path string, _ os.DirEntry, err error) error {
-			if err != nil {
-				return err
-			}
+		walkTree(tmpDir, ".", func(rel string, _ fs.DirEntry) error {
+			path := filepath.Join(tmpDir, rel)
 			if !IsValidPath(path, tmpDir) {
 				t.Fatalf("path traversal: %s outside %s", path, tmpDir)
 			}
@@ -386,32 +334,16 @@ func FuzzExtractBz2(f *testing.F) {
 		if len(data) > maxFuzzSize {
 			return
 		}
-		tmpFile, err := os.CreateTemp("", "fuzz-bz2-*.bz2")
-		if err != nil {
-			t.Skip()
-		}
-		defer os.Remove(tmpFile.Name())
-
-		if _, err := tmpFile.Write(data); err != nil {
-			t.Skip()
-		}
-		tmpFile.Close()
-
-		tmpDir, err := os.MkdirTemp("", "fuzz-extract-*")
-		if err != nil {
-			t.Skip()
-		}
-		defer os.RemoveAll(tmpDir)
+		src := writeFuzzInput(t, "fuzz-bz2.bz2", data)
+		tmpDir := t.TempDir()
 
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 
-		_ = ExtractBz2(ctx, tmpDir, tmpFile.Name())
+		_ = ExtractBz2(ctx, tmpDir, src)
 
-		filepath.WalkDir(tmpDir, func(path string, _ os.DirEntry, err error) error {
-			if err != nil {
-				return err
-			}
+		walkTree(tmpDir, ".", func(rel string, _ fs.DirEntry) error {
+			path := filepath.Join(tmpDir, rel)
 			if !IsValidPath(path, tmpDir) {
 				t.Fatalf("path traversal: %s outside %s", path, tmpDir)
 			}
@@ -441,32 +373,16 @@ func FuzzExtractZstd(f *testing.F) {
 		if len(data) > maxFuzzSize {
 			return
 		}
-		tmpFile, err := os.CreateTemp("", "fuzz-zst-*.zst")
-		if err != nil {
-			t.Skip()
-		}
-		defer os.Remove(tmpFile.Name())
-
-		if _, err := tmpFile.Write(data); err != nil {
-			t.Skip()
-		}
-		tmpFile.Close()
-
-		tmpDir, err := os.MkdirTemp("", "fuzz-extract-*")
-		if err != nil {
-			t.Skip()
-		}
-		defer os.RemoveAll(tmpDir)
+		src := writeFuzzInput(t, "fuzz-zst.zst", data)
+		tmpDir := t.TempDir()
 
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 
-		_ = ExtractZstd(ctx, tmpDir, tmpFile.Name())
+		_ = ExtractZstd(ctx, tmpDir, src)
 
-		filepath.WalkDir(tmpDir, func(path string, _ os.DirEntry, err error) error {
-			if err != nil {
-				return err
-			}
+		walkTree(tmpDir, ".", func(rel string, _ fs.DirEntry) error {
+			path := filepath.Join(tmpDir, rel)
 			if !IsValidPath(path, tmpDir) {
 				t.Fatalf("path traversal: %s outside %s", path, tmpDir)
 			}
@@ -498,32 +414,16 @@ func FuzzExtractZlib(f *testing.F) {
 		if len(data) > maxFuzzSize {
 			return
 		}
-		tmpFile, err := os.CreateTemp("", "fuzz-zlib-*.zlib")
-		if err != nil {
-			t.Skip()
-		}
-		defer os.Remove(tmpFile.Name())
-
-		if _, err := tmpFile.Write(data); err != nil {
-			t.Skip()
-		}
-		tmpFile.Close()
-
-		tmpDir, err := os.MkdirTemp("", "fuzz-extract-*")
-		if err != nil {
-			t.Skip()
-		}
-		defer os.RemoveAll(tmpDir)
+		src := writeFuzzInput(t, "fuzz-zlib.zlib", data)
+		tmpDir := t.TempDir()
 
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 
-		_ = ExtractZlib(ctx, tmpDir, tmpFile.Name())
+		_ = ExtractZlib(ctx, tmpDir, src)
 
-		filepath.WalkDir(tmpDir, func(path string, _ os.DirEntry, err error) error {
-			if err != nil {
-				return err
-			}
+		walkTree(tmpDir, ".", func(rel string, _ fs.DirEntry) error {
+			path := filepath.Join(tmpDir, rel)
 			if !IsValidPath(path, tmpDir) {
 				t.Fatalf("path traversal: %s outside %s", path, tmpDir)
 			}
@@ -555,32 +455,16 @@ func FuzzExtractRPM(f *testing.F) {
 			return
 		}
 
-		tmpFile, err := os.CreateTemp("", "fuzz-rpm-*.rpm")
-		if err != nil {
-			t.Skip()
-		}
-		defer os.Remove(tmpFile.Name())
-
-		if _, err := tmpFile.Write(data); err != nil {
-			t.Skip()
-		}
-		tmpFile.Close()
-
-		tmpDir, err := os.MkdirTemp("", "fuzz-extract-*")
-		if err != nil {
-			t.Skip()
-		}
-		defer os.RemoveAll(tmpDir)
+		src := writeFuzzInput(t, "fuzz-rpm.rpm", data)
+		tmpDir := t.TempDir()
 
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 
-		_ = ExtractRPM(ctx, tmpDir, tmpFile.Name())
+		_ = ExtractRPM(ctx, tmpDir, src)
 
-		filepath.WalkDir(tmpDir, func(path string, _ os.DirEntry, err error) error {
-			if err != nil {
-				return err
-			}
+		walkTree(tmpDir, ".", func(rel string, _ fs.DirEntry) error {
+			path := filepath.Join(tmpDir, rel)
 			if !IsValidPath(path, tmpDir) {
 				t.Fatalf("path traversal: %s outside %s", path, tmpDir)
 			}
@@ -609,32 +493,16 @@ func FuzzExtractDeb(f *testing.F) {
 		if len(data) > maxFuzzSize {
 			return
 		}
-		tmpFile, err := os.CreateTemp("", "fuzz-deb-*.deb")
-		if err != nil {
-			t.Skip()
-		}
-		defer os.Remove(tmpFile.Name())
-
-		if _, err := tmpFile.Write(data); err != nil {
-			t.Skip()
-		}
-		tmpFile.Close()
-
-		tmpDir, err := os.MkdirTemp("", "fuzz-extract-*")
-		if err != nil {
-			t.Skip()
-		}
-		defer os.RemoveAll(tmpDir)
+		src := writeFuzzInput(t, "fuzz-deb.deb", data)
+		tmpDir := t.TempDir()
 
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 
-		_ = ExtractDeb(ctx, tmpDir, tmpFile.Name())
+		_ = ExtractDeb(ctx, tmpDir, src)
 
-		filepath.WalkDir(tmpDir, func(path string, _ os.DirEntry, err error) error {
-			if err != nil {
-				return err
-			}
+		walkTree(tmpDir, ".", func(rel string, _ fs.DirEntry) error {
+			path := filepath.Join(tmpDir, rel)
 			if !IsValidPath(path, tmpDir) {
 				t.Fatalf("path traversal: %s outside %s", path, tmpDir)
 			}
@@ -653,32 +521,16 @@ func FuzzExtractUPX(f *testing.F) {
 		if len(data) > maxFuzzSize {
 			return
 		}
-		tmpFile, err := os.CreateTemp("", "fuzz-upx-*")
-		if err != nil {
-			t.Skip()
-		}
-		defer os.Remove(tmpFile.Name())
-
-		if _, err := tmpFile.Write(data); err != nil {
-			t.Skip()
-		}
-		tmpFile.Close()
-
-		tmpDir, err := os.MkdirTemp("", "fuzz-extract-*")
-		if err != nil {
-			t.Skip()
-		}
-		defer os.RemoveAll(tmpDir)
+		src := writeFuzzInput(t, "fuzz-upx", data)
+		tmpDir := t.TempDir()
 
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 
-		_ = ExtractUPX(ctx, tmpDir, tmpFile.Name())
+		_ = ExtractUPX(ctx, tmpDir, src)
 
-		filepath.WalkDir(tmpDir, func(path string, _ os.DirEntry, err error) error {
-			if err != nil {
-				return err
-			}
+		walkTree(tmpDir, ".", func(rel string, _ fs.DirEntry) error {
+			path := filepath.Join(tmpDir, rel)
 			if !IsValidPath(path, tmpDir) {
 				t.Fatalf("path traversal: %s outside %s", path, tmpDir)
 			}
@@ -709,13 +561,8 @@ func FuzzExtractNestedArchive(f *testing.F) {
 			return
 		}
 
-		tmpDir, err := os.MkdirTemp("", "fuzz-nested-*")
-		if err != nil {
-			t.Skip()
-		}
-		defer os.RemoveAll(tmpDir)
-
-		if err := os.WriteFile(filepath.Join(tmpDir, filename), data, 0o644); err != nil {
+		tmpDir := t.TempDir()
+		if err := file.WriteFileIn(tmpDir, filename, data, 0o644); err != nil {
 			t.Skip()
 		}
 
@@ -753,30 +600,18 @@ func FuzzOCI(f *testing.F) {
 			return
 		}
 
-		tmpDir, err := os.MkdirTemp("", "fuzz-oci-*")
-		if err != nil {
+		tmpDir := t.TempDir()
+		if err := file.WriteFileIn(tmpDir, "fuzz-oci.tar", data, 0o600); err != nil {
 			t.Skip()
 		}
-		defer os.RemoveAll(tmpDir)
-
-		tmpFile, err := os.CreateTemp(tmpDir, "fuzz-oci-*.tar")
-		if err != nil {
-			t.Skip()
-		}
-		if _, err := tmpFile.Write(data); err != nil {
-			t.Skip()
-		}
-		tmpFile.Close()
 
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
-		_ = ExtractTar(ctx, tmpDir, tmpFile.Name())
+		_ = ExtractTar(ctx, tmpDir, filepath.Join(tmpDir, "fuzz-oci.tar"))
 
-		filepath.WalkDir(tmpDir, func(path string, _ os.DirEntry, err error) error {
-			if err != nil {
-				return err
-			}
+		walkTree(tmpDir, ".", func(rel string, _ fs.DirEntry) error {
+			path := filepath.Join(tmpDir, rel)
 			if !IsValidPath(path, tmpDir) {
 				t.Fatalf("path traversal: %s outside %s", path, tmpDir)
 			}

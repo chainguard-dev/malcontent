@@ -9,13 +9,13 @@ import (
 	"errors"
 	"io"
 	"io/fs"
-	"os"
 	"path/filepath"
 	"runtime"
 	"slices"
 	"strings"
 	"testing"
 
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	zip "github.com/klauspost/compress/zip"
 )
 
@@ -30,7 +30,7 @@ type zipSpecEntry struct {
 // zipSpecWrite writes entries, in order, to a zip archive at path.
 func zipSpecWrite(t *testing.T, path string, method uint16, entries []zipSpecEntry) {
 	t.Helper()
-	if err := os.WriteFile(path, zipSpecBytes(t, method, entries), 0o600); err != nil {
+	if err := file.WriteFileIn(filepath.Dir(path), filepath.Base(path), zipSpecBytes(t, method, entries), 0o600); err != nil {
 		t.Fatalf("write archive: %v", err)
 	}
 }
@@ -63,20 +63,16 @@ func zipSpecBytes(t *testing.T, method uint16, entries []zipSpecEntry) []byte {
 // in "/", symlinks read "name -> target", and regular files appear by name.
 func zipSpecTree(t *testing.T, dir string) []string {
 	t.Helper()
+	r := openTestRoot(t, dir)
 	var got []string
-	err := filepath.WalkDir(dir, func(p string, d fs.DirEntry, err error) error {
+	err := fs.WalkDir(r.FS(), ".", func(rel string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
-		rel, err := filepath.Rel(dir, p)
-		if err != nil {
-			return err
-		}
-		rel = filepath.ToSlash(rel)
 		switch {
 		case rel == ".":
 		case d.Type()&fs.ModeSymlink != 0:
-			target, err := os.Readlink(p)
+			target, err := r.Readlink(rel)
 			if err != nil {
 				return err
 			}
@@ -159,7 +155,8 @@ func TestExtractZipEntryOrderAndSafety(t *testing.T) {
 				t.Fatalf("ExtractZip error: got = %v, want = nil", err)
 			}
 
-			siblings, err := os.ReadDir(parent)
+			pr := openTestRoot(t, parent)
+			siblings, err := fs.ReadDir(pr.FS(), ".")
 			if err != nil {
 				t.Fatalf("read parent: %v", err)
 			}
@@ -178,7 +175,7 @@ func TestExtractZipEntryOrderAndSafety(t *testing.T) {
 				t.Errorf("extracted tree: got = %q, want = %q", got, tt.wantTree)
 			}
 			for name, want := range tt.wantFiles {
-				data, err := os.ReadFile(filepath.Join(d, name))
+				data, err := pr.ReadFile(filepath.Join("out", name))
 				if err != nil {
 					t.Errorf("read %s: %v", name, err)
 					continue
@@ -225,7 +222,7 @@ func TestExtractZipAgainOverwritesFiles(t *testing.T) {
 		t.Errorf("extracted tree: got = %q, want = %q", got, wantTree)
 	}
 	for name, want := range map[string]string{"top.txt": "new", "sub/inner.txt": "newer"} {
-		data, err := os.ReadFile(filepath.Join(d, name))
+		data, err := file.ReadFileIn(d, name)
 		if err != nil {
 			t.Fatalf("read %s: %v", name, err)
 		}
@@ -259,8 +256,9 @@ func TestExtractZipRejectsNonZipContent(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			src := filepath.Join(t.TempDir(), "payload")
-			if err := os.WriteFile(src, tt.data, 0o600); err != nil {
+			dir := t.TempDir()
+			src := filepath.Join(dir, "payload")
+			if err := file.WriteFileIn(dir, "payload", tt.data, 0o600); err != nil {
 				t.Fatalf("write input: %v", err)
 			}
 			err := ExtractZip(t.Context(), t.TempDir(), src)

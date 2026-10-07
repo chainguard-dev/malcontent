@@ -13,6 +13,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	thirdparty "github.com/chainguard-dev/malcontent/third_party"
 )
 
@@ -26,19 +27,18 @@ func clearRulesCache(t *testing.T, fss []fs.FS) {
 	t.Helper()
 	ctx := t.Context()
 
-	cacheDir, err := getCacheDir()
+	cache, err := openCacheDir()
 	if err != nil {
 		t.Fatalf("Failed to get cache directory: %v", err)
 	}
+	defer func() { _ = cache.Close() }()
 
 	hash, err := getRulesHash(ctx, fss)
 	if err != nil {
 		t.Fatalf("Failed to get rules hash: %v", err)
 	}
 
-	cacheFile := filepath.Join(cacheDir, fmt.Sprintf("rules-%s.cache", hash))
-
-	if err := os.Remove(cacheFile); err != nil && !errors.Is(err, fs.ErrNotExist) {
+	if err := cache.Remove(fmt.Sprintf("rules-%s.cache", hash)); err != nil && !errors.Is(err, fs.ErrNotExist) {
 		t.Fatalf("Failed to remove cache file: %v", err)
 	}
 }
@@ -48,19 +48,18 @@ func clearRulesCacheB(b *testing.B, fss []fs.FS) {
 	b.Helper()
 	ctx := b.Context()
 
-	cacheDir, err := getCacheDir()
+	cache, err := openCacheDir()
 	if err != nil {
 		b.Fatalf("Failed to get cache directory: %v", err)
 	}
+	defer func() { _ = cache.Close() }()
 
 	hash, err := getRulesHash(ctx, fss)
 	if err != nil {
 		b.Fatalf("Failed to get rules hash: %v", err)
 	}
 
-	cacheFile := filepath.Join(cacheDir, fmt.Sprintf("rules-%s.cache", hash))
-
-	if err := os.Remove(cacheFile); err != nil && !errors.Is(err, fs.ErrNotExist) {
+	if err := cache.Remove(fmt.Sprintf("rules-%s.cache", hash)); err != nil && !errors.Is(err, fs.ErrNotExist) {
 		b.Fatalf("Failed to remove cache file: %v", err)
 	}
 }
@@ -109,25 +108,25 @@ func TestCacheOperations(t *testing.T) {
 	t.Parallel()
 	ctx := t.Context()
 
-	tempDir := t.TempDir()
+	cache := compileOpenRoot(t, t.TempDir())
 
 	originalRules, err := Recursive(ctx, getAllRuleFS())
 	if err != nil {
 		t.Fatalf("Initial compilation failed: %v", err)
 	}
 
-	cacheFile := filepath.Join(tempDir, "test-rules.cache")
+	cacheName := "test-rules.cache"
 
-	err = saveCachedRules(originalRules, cacheFile)
+	err = saveCachedRules(cache, cacheName, originalRules)
 	if err != nil {
 		t.Fatalf("Failed to save rules to cache: %v", err)
 	}
 
-	if _, err := os.Stat(cacheFile); errors.Is(err, fs.ErrNotExist) {
+	if _, err := cache.Stat(cacheName); errors.Is(err, fs.ErrNotExist) {
 		t.Fatal("Cache file was not created")
 	}
 
-	cachedRules, err := loadCachedRules(cacheFile)
+	cachedRules, err := loadCachedRules(cache, cacheName)
 	if err != nil {
 		t.Fatalf("Failed to load rules from cache: %v", err)
 	}
@@ -136,8 +135,7 @@ func TestCacheOperations(t *testing.T) {
 		t.Fatal("loadCachedRules() rules: got = nil, want = loaded rules")
 	}
 
-	nonExistentFile := filepath.Join(tempDir, "does-not-exist.cache")
-	_, err = loadCachedRules(nonExistentFile)
+	_, err = loadCachedRules(cache, "does-not-exist.cache")
 	if err == nil {
 		t.Fatal("loadCachedRules(missing file) error: got = nil, want = non-nil")
 	}
@@ -205,12 +203,13 @@ func TestRecursiveCachedFallback(t *testing.T) {
 	}
 }
 
-func TestGetCacheDir(t *testing.T) {
+func TestOpenCacheDir(t *testing.T) {
 	t.Parallel()
-	cacheDir, err := getCacheDir()
+	cache, err := openCacheDir()
 	if err != nil {
-		t.Fatalf("getCacheDir failed: %v", err)
+		t.Fatalf("openCacheDir failed: %v", err)
 	}
+	defer func() { _ = cache.Close() }()
 	var expectedDir string
 	if userCacheDir, err := os.UserCacheDir(); err == nil {
 		expectedDir = filepath.Join(userCacheDir, "malcontent")
@@ -218,11 +217,11 @@ func TestGetCacheDir(t *testing.T) {
 		expectedDir = filepath.Join(os.TempDir(), "malcontent-cache")
 	}
 
-	if cacheDir != expectedDir {
-		t.Fatalf("getCacheDir(): got = %s, want = %s", cacheDir, expectedDir)
+	if got := cache.Name(); got != expectedDir {
+		t.Fatalf("openCacheDir() name: got = %s, want = %s", got, expectedDir)
 	}
 
-	info, err := os.Stat(cacheDir)
+	info, err := file.Stat(expectedDir)
 	if err != nil {
 		t.Fatalf("Cache directory does not exist: %v", err)
 	}
@@ -231,14 +230,14 @@ func TestGetCacheDir(t *testing.T) {
 		t.Fatal("Cache path is not a directory")
 	}
 
-	t.Logf("Cache directory: %s", cacheDir)
+	t.Logf("Cache directory: %s", expectedDir)
 }
 
 func TestCacheFileSize(t *testing.T) {
 	t.Parallel()
 	ctx := t.Context()
 
-	tempDir := t.TempDir()
+	cache := compileOpenRoot(t, t.TempDir())
 
 	fss := getAllRuleFS()
 	rules, err := Recursive(ctx, fss)
@@ -251,13 +250,13 @@ func TestCacheFileSize(t *testing.T) {
 		t.Fatalf("Hash calculation failed: %v", err)
 	}
 
-	cacheFile := filepath.Join(tempDir, "rules-"+hash+".cache")
-	err = saveCachedRules(rules, cacheFile)
+	cacheName := "rules-" + hash + ".cache"
+	err = saveCachedRules(cache, cacheName, rules)
 	if err != nil {
 		t.Fatalf("Failed to save to cache: %v", err)
 	}
 
-	fi, err := os.Stat(cacheFile)
+	fi, err := cache.Stat(cacheName)
 	if err != nil {
 		t.Fatalf("Failed to stat cache file: %v", err)
 	}
@@ -268,7 +267,7 @@ func TestCacheFileSize(t *testing.T) {
 		t.Fatalf("Cache file seems too small: %d bytes", fi.Size())
 	}
 
-	t.Logf("Cache file: %s", cacheFile)
+	t.Logf("Cache file: %s", filepath.Join(cache.Name(), cacheName))
 	t.Logf("Cache file size: %d bytes (%.2f MB)", fi.Size(), float64(fi.Size())/1024/1024)
 }
 
@@ -276,29 +275,29 @@ func TestCacheIntegrity_SidecarRoundtrip(t *testing.T) {
 	t.Parallel()
 	ctx := t.Context()
 
-	tempDir := t.TempDir()
+	cache := compileOpenRoot(t, t.TempDir())
 	rules, err := Recursive(ctx, getAllRuleFS())
 	if err != nil {
 		t.Fatalf("Recursive failed: %v", err)
 	}
 
-	cacheFile := filepath.Join(tempDir, "integrity.cache")
-	if err := saveCachedRules(rules, cacheFile); err != nil {
+	cacheName := "integrity.cache"
+	if err := saveCachedRules(cache, cacheName, rules); err != nil {
 		t.Fatalf("saveCachedRules failed: %v", err)
 	}
 
-	if _, err := os.Stat(cacheFile); err != nil {
+	if _, err := cache.Stat(cacheName); err != nil {
 		t.Fatalf("cache file missing: %v", err)
 	}
-	if _, err := os.Stat(cacheFile + ".sha256"); err != nil {
+	if _, err := cache.Stat(cacheName + ".sha256"); err != nil {
 		t.Fatalf("sidecar missing: %v", err)
 	}
 
-	if _, err := loadCachedRules(cacheFile); err != nil {
+	if _, err := loadCachedRules(cache, cacheName); err != nil {
 		t.Fatalf("loadCachedRules failed before tamper: %v", err)
 	}
 
-	bs, err := os.ReadFile(cacheFile)
+	bs, err := cache.ReadFile(cacheName)
 	if err != nil {
 		t.Fatalf("read cache: %v", err)
 	}
@@ -306,23 +305,23 @@ func TestCacheIntegrity_SidecarRoundtrip(t *testing.T) {
 		t.Fatal("cache file is empty; cannot tamper")
 	}
 	bs[0] ^= 0xff
-	if err := os.WriteFile(cacheFile, bs, 0o600); err != nil {
+	if err := cache.WriteFile(cacheName, bs, 0o600); err != nil {
 		t.Fatalf("tamper write: %v", err)
 	}
 
 	// Corruption must be rejected: a tampered cache yields a non-nil error and
 	// no rules, whether the byte change is caught while deserializing or by the
 	// post-deserialization digest comparison.
-	if got, err := loadCachedRules(cacheFile); err == nil {
+	if got, err := loadCachedRules(cache, cacheName); err == nil {
 		t.Fatal("loadCachedRules() after tamper error: got = nil, want = non-nil")
 	} else if got != nil {
 		t.Fatal("tampered cache must not return rules")
 	}
 
-	if err := os.Remove(cacheFile + ".sha256"); err != nil {
+	if err := cache.Remove(cacheName + ".sha256"); err != nil {
 		t.Fatalf("remove sidecar: %v", err)
 	}
-	if _, err := loadCachedRules(cacheFile); err == nil {
+	if _, err := loadCachedRules(cache, cacheName); err == nil {
 		t.Fatal("loadCachedRules() without sidecar error: got = nil, want = non-nil")
 	}
 }
@@ -331,30 +330,30 @@ func TestLoadCachedRules_DigestMismatchRejected(t *testing.T) {
 	t.Parallel()
 	ctx := t.Context()
 
-	tempDir := t.TempDir()
+	cache := compileOpenRoot(t, t.TempDir())
 	rules, err := Recursive(ctx, getAllRuleFS())
 	if err != nil {
 		t.Fatalf("Recursive failed: %v", err)
 	}
 
-	cacheFile := filepath.Join(tempDir, "mismatch.cache")
-	if err := saveCachedRules(rules, cacheFile); err != nil {
+	cacheName := "mismatch.cache"
+	if err := saveCachedRules(cache, cacheName, rules); err != nil {
 		t.Fatalf("saveCachedRules failed: %v", err)
 	}
 
 	// A deserializable cache file paired with a wrong sidecar digest exercises
 	// the verify-after-deserialize comparison: ReadFrom succeeds, then the
 	// computed digest disagrees with the sidecar and the rules are rejected.
-	if _, err := loadCachedRules(cacheFile); err != nil {
+	if _, err := loadCachedRules(cache, cacheName); err != nil {
 		t.Fatalf("loadCachedRules failed before sidecar tamper: %v", err)
 	}
 
 	wrongDigest := strings.Repeat("0", 64)
-	if err := os.WriteFile(cacheFile+".sha256", []byte(wrongDigest+"\n"), 0o600); err != nil {
+	if err := cache.WriteFile(cacheName+".sha256", []byte(wrongDigest+"\n"), 0o600); err != nil {
 		t.Fatalf("write tampered sidecar: %v", err)
 	}
 
-	got, err := loadCachedRules(cacheFile)
+	got, err := loadCachedRules(cache, cacheName)
 	if err == nil {
 		t.Fatal("loadCachedRules() with a wrong digest error: got = nil, want = non-nil")
 	}
@@ -369,36 +368,36 @@ func TestLoadCachedRules_DigestMismatchRejected(t *testing.T) {
 func TestSweepStaleTempFiles(t *testing.T) {
 	t.Parallel()
 
-	cacheDir := t.TempDir()
+	cache := compileOpenRoot(t, t.TempDir())
 
-	staleCache := filepath.Join(cacheDir, ".rules-stale.cache.tmp")
-	staleSidecar := filepath.Join(cacheDir, ".rules-stale.sha256.tmp")
-	freshCache := filepath.Join(cacheDir, ".rules-fresh.cache.tmp")
-	liveCache := filepath.Join(cacheDir, "rules-abc123.cache")
-	liveSidecar := filepath.Join(cacheDir, "rules-abc123.cache.sha256")
+	staleCache := ".rules-stale.cache.tmp"
+	staleSidecar := ".rules-stale.sha256.tmp"
+	freshCache := ".rules-fresh.cache.tmp"
+	liveCache := "rules-abc123.cache"
+	liveSidecar := "rules-abc123.cache.sha256"
 
 	for _, p := range []string{staleCache, staleSidecar, freshCache, liveCache, liveSidecar} {
-		if err := os.WriteFile(p, []byte("x"), 0o600); err != nil {
+		if err := cache.WriteFile(p, []byte("x"), 0o600); err != nil {
 			t.Fatalf("write %s: %v", p, err)
 		}
 	}
 
 	old := time.Now().Add(-48 * time.Hour)
 	for _, p := range []string{staleCache, staleSidecar, liveCache, liveSidecar} {
-		if err := os.Chtimes(p, old, old); err != nil {
+		if err := cache.Chtimes(p, old, old); err != nil {
 			t.Fatalf("chtimes %s: %v", p, err)
 		}
 	}
 
-	sweepStaleTempFiles(cacheDir)
+	sweepStaleTempFiles(cache)
 
 	for _, p := range []string{staleCache, staleSidecar} {
-		if _, err := os.Stat(p); !errors.Is(err, fs.ErrNotExist) {
+		if _, err := cache.Stat(p); !errors.Is(err, fs.ErrNotExist) {
 			t.Errorf("stale temp %s stat error: got = %v, want = %v", p, err, fs.ErrNotExist)
 		}
 	}
 	for _, p := range []string{freshCache, liveCache, liveSidecar} {
-		if _, err := os.Stat(p); err != nil {
+		if _, err := cache.Stat(p); err != nil {
 			t.Errorf("preserved %s stat error: got = %v, want = nil", p, err)
 		}
 	}
@@ -484,20 +483,20 @@ func BenchmarkCacheOperations(b *testing.B) {
 		b.Fatalf("Initial compilation failed: %v", err)
 	}
 
-	tempDir := b.TempDir()
-	cacheFile := filepath.Join(tempDir, "benchmark-rules.cache")
+	cache := compileOpenRoot(b, b.TempDir())
+	cacheName := "benchmark-rules.cache"
 
 	b.Run("Save", func(b *testing.B) {
 		for i := 0; b.Loop(); i++ {
-			testFile := filepath.Join(tempDir, "test-"+string(rune('a'+i%26))+".cache")
-			err := saveCachedRules(rules, testFile)
+			testName := "test-" + string(rune('a'+i%26)) + ".cache"
+			err := saveCachedRules(cache, testName, rules)
 			if err != nil {
 				b.Fatalf("Failed to save rules: %v", err)
 			}
 		}
 	})
 
-	err = saveCachedRules(rules, cacheFile)
+	err = saveCachedRules(cache, cacheName, rules)
 	if err != nil {
 		b.Fatalf("Failed to save rules for load benchmark: %v", err)
 	}
@@ -505,7 +504,7 @@ func BenchmarkCacheOperations(b *testing.B) {
 	b.Run("Load", func(b *testing.B) {
 		b.ReportAllocs()
 		for b.Loop() {
-			loadedRules, err := loadCachedRules(cacheFile)
+			loadedRules, err := loadCachedRules(cache, cacheName)
 			if err != nil {
 				b.Fatalf("Failed to load rules: %v", err)
 			}

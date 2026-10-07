@@ -7,11 +7,11 @@ import (
 	"bytes"
 	"encoding/binary"
 	"io"
-	"os"
 	"path/filepath"
 	"slices"
 	"testing"
 
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	zip "github.com/klauspost/compress/zip"
 )
 
@@ -82,8 +82,9 @@ func TestZipUnaccountedBytesRegions(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			path := filepath.Join(t.TempDir(), "audit.zip")
-			if err := os.WriteFile(path, tt.data, 0o600); err != nil {
+			dir := t.TempDir()
+			path := filepath.Join(dir, "audit.zip")
+			if err := file.WriteFileIn(dir, "audit.zip", tt.data, 0o600); err != nil {
 				t.Fatalf("write fixture: %v", err)
 			}
 			got := ""

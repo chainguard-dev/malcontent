@@ -15,7 +15,6 @@ import (
 	"io/fs"
 	"math/big"
 	"net/http"
-	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -257,13 +256,14 @@ func TestBuildTransport_TimeoutsAndProxy(t *testing.T) {
 func TestBuildTransport_CABundle(t *testing.T) {
 	t.Parallel()
 	dir := t.TempDir()
+	root := openTestRoot(t, dir)
 	bundlePEM, wantPool := ociTestCA(t)
 	valid := filepath.Join(dir, "ca.pem")
-	if err := os.WriteFile(valid, bundlePEM, 0o600); err != nil {
+	if err := root.WriteFile("ca.pem", bundlePEM, 0o600); err != nil {
 		t.Fatalf("write CA bundle: %v", err)
 	}
 	garbage := filepath.Join(dir, "garbage.pem")
-	if err := os.WriteFile(garbage, []byte("not a certificate\n"), 0o600); err != nil {
+	if err := root.WriteFile("garbage.pem", []byte("not a certificate\n"), 0o600); err != nil {
 		t.Fatalf("write garbage bundle: %v", err)
 	}
 

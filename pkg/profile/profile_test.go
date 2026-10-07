@@ -4,6 +4,7 @@
 package profile
 
 import (
+	"io/fs"
 	"os"
 	"strings"
 	"testing"
@@ -20,7 +21,12 @@ func TestProfile(t *testing.T) {
 	}
 	defer p.Stop()
 
-	files, err := os.ReadDir("profiles")
+	profiles, err := os.OpenRoot("profiles")
+	if err != nil {
+		t.Fatalf("failed to read profiles directory: %v", err)
+	}
+	defer profiles.Close()
+	files, err := fs.ReadDir(profiles.FS(), ".")
 	if err != nil {
 		t.Fatalf("failed to read profiles directory: %v", err)
 	}

@@ -9,7 +9,6 @@ import (
 	"errors"
 	"io/fs"
 	"math"
-	"os"
 	"path/filepath"
 	"testing"
 
@@ -90,12 +89,12 @@ func TestZipExtractFileCancellationPolling(t *testing.T) {
 			defer root.Close()
 
 			ctx := &zipCountdownCtx{Context: t.Context(), live: tt.live}
-			err = extractFile(ctx, rc.File[0], root, clog.FromContext(t.Context()), &file.ArchiveCounter{}, nil)
+			err = extractFile(ctx, rc.File[0], testEntryRoots(t, root), clog.FromContext(t.Context()), &file.ArchiveCounter{}, nil)
 			if !errors.Is(err, tt.wantErr) {
 				t.Fatalf("extractFile error: got = %v, want = %v", err, tt.wantErr)
 			}
 
-			got, err := os.ReadFile(filepath.Join(root.Name(), "data.bin"))
+			got, err := root.ReadFile("data.bin")
 			if tt.noFile {
 				if !errors.Is(err, fs.ErrNotExist) {
 					t.Errorf("output file: got err = %v, want = %v", err, fs.ErrNotExist)

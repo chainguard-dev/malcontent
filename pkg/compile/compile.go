@@ -29,6 +29,7 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/rules"
 
 	yarax "github.com/VirusTotal/yara-x/go"
@@ -371,8 +372,9 @@ func Recursive(ctx context.Context, fss []fs.FS) (*yarax.Rules, error) {
 	return yxc.Build(), nil
 }
 
-// getCacheDir returns the directory for storing compiled rules.
-func getCacheDir() (string, error) {
+// openCacheDir creates the directory for storing compiled rules if needed
+// and returns a root on it. The caller closes the root.
+func openCacheDir() (*os.Root, error) {
 	var cacheDir string
 
 	if userCacheDir, err := os.UserCacheDir(); err == nil {
@@ -381,23 +383,30 @@ func getCacheDir() (string, error) {
 		cacheDir = filepath.Join(os.TempDir(), "malcontent-cache")
 	}
 
-	if err := os.MkdirAll(cacheDir, 0o700); err != nil {
-		return "", fmt.Errorf("create cache dir: %w", err)
+	if err := file.MkdirAll(cacheDir, 0o700); err != nil {
+		return nil, fmt.Errorf("create cache dir: %w", err)
+	}
+
+	cache, err := os.OpenRoot(cacheDir)
+	if err != nil {
+		return nil, fmt.Errorf("open cache dir: %w", err)
 	}
 
 	// Verify the cache directory has safe permissions to prevent cache poisoning
 	// via pre-created directories with permissive permissions
-	fi, err := os.Stat(cacheDir)
+	fi, err := cache.Stat(".")
 	if err != nil {
-		return "", fmt.Errorf("stat cache dir: %w", err)
+		_ = cache.Close()
+		return nil, fmt.Errorf("stat cache dir: %w", err)
 	}
 	if fi.Mode().Perm()&0o077 != 0 {
-		return "", fmt.Errorf("cache directory %s has unsafe permissions %o (expected 0700)", cacheDir, fi.Mode().Perm())
+		_ = cache.Close()
+		return nil, fmt.Errorf("cache directory %s has unsafe permissions %o (expected 0700)", cacheDir, fi.Mode().Perm())
 	}
 
-	sweepStaleTempFiles(cacheDir)
+	sweepStaleTempFiles(cache)
 
-	return cacheDir, nil
+	return cache, nil
 }
 
 const (
@@ -422,32 +431,33 @@ const (
 	cacheHashBufferSize = 256 << 10
 )
 
-// sweepStaleTempFiles removes orphaned cache temp files left behind when a
-// process is killed between os.CreateTemp and the atomic rename in saveCachedRules.
+// sweepStaleTempFiles removes orphaned temp files from the cache, left behind
+// when a process is killed between creating a temp file and the atomic rename
+// in saveCachedRules.
 //
 // It matches both the rules and sidecar temp suffixes (.rules-*.cache.tmp and
 // .rules-*.sha256.tmp) via the shared .rules-*.tmp pattern, which never matches
 // the live cache (rules-*.cache) or sidecar (rules-*.cache.sha256) files. The
 // sweep is best-effort: errors are ignored and never block or fail compilation.
-func sweepStaleTempFiles(cacheDir string) {
-	matches, err := filepath.Glob(filepath.Join(cacheDir, ".rules-*.tmp"))
+func sweepStaleTempFiles(cache *os.Root) {
+	matches, err := fs.Glob(cache.FS(), ".rules-*.tmp")
 	if err != nil {
 		return
 	}
 	cutoff := time.Now().Add(-staleTempThreshold)
-	for _, path := range matches {
-		fi, err := os.Stat(path)
+	for _, name := range matches {
+		fi, err := cache.Stat(name)
 		if err != nil {
 			continue
 		}
 		if fi.ModTime().Before(cutoff) {
-			_ = os.Remove(path)
+			_ = cache.Remove(name)
 		}
 	}
 }
 
-// loadCachedRules loads rules saved by saveCachedRules and verifies them
-// against the integrity sidecar.
+// loadCachedRules loads the rules that saveCachedRules saved as name in cache
+// and verifies them against the integrity sidecar.
 //
 // yarax.ReadFrom copies its whole input through io.ReadAll before it
 // deserializes, so handing it a preloaded buffer would add a copy rather than
@@ -457,13 +467,13 @@ func sweepStaleTempFiles(cacheDir string) {
 // see the same file even if the path is replaced meanwhile. Rules are returned
 // only when the digest matches the sidecar; a mismatch or a missing sidecar is
 // an error the caller treats as a cache miss.
-func loadCachedRules(cacheFile string) (*yarax.Rules, error) {
-	expected, err := readSidecarDigest(cacheFile)
+func loadCachedRules(cache *os.Root, name string) (*yarax.Rules, error) {
+	expected, err := readSidecarDigest(cache, name)
 	if err != nil {
 		return nil, err
 	}
 
-	f, err := os.Open(cacheFile) // #nosec G304 -- rule cache path derived from getRulesHash + cache dir permission gate
+	f, err := cache.Open(name)
 	if err != nil {
 		return nil, err
 	}
@@ -501,88 +511,85 @@ func loadCachedRules(cacheFile string) (*yarax.Rules, error) {
 	return compiledRules, nil
 }
 
-// readSidecarDigest returns the expected digest recorded in the cache integrity sidecar.
-func readSidecarDigest(cacheFile string) (string, error) {
-	sidecarPath := cacheFile + sidecarSuffix
-	expectedBytes, err := os.ReadFile(sidecarPath) // #nosec G304 -- sidecar path derived from cacheFile
+// readSidecarDigest returns the expected digest recorded in the integrity
+// sidecar of the cache file name in cache.
+func readSidecarDigest(cache *os.Root, name string) (string, error) {
+	expectedBytes, err := cache.ReadFile(name + sidecarSuffix)
 	if err != nil {
 		return "", fmt.Errorf("cache integrity sidecar missing: %w", err)
 	}
 	return strings.TrimSpace(string(expectedBytes)), nil
 }
 
-// saveCachedRules saves rules to a local file.
-func saveCachedRules(compiledRules *yarax.Rules, cacheFile string) error {
-	cacheDir := filepath.Dir(cacheFile)
-	f, err := os.CreateTemp(cacheDir, ".rules-*.cache.tmp")
+// saveCachedRules saves rules as name in cache.
+func saveCachedRules(cache *os.Root, name string, compiledRules *yarax.Rules) error {
+	f, tmpFile, err := file.CreateTemp(cache, ".rules-*.cache.tmp")
 	if err != nil {
 		return fmt.Errorf("create cache file: %w", err)
 	}
-	tmpFile := f.Name()
 
 	// Hash the bytes as they are written rather than reading the file back.
 	hasher := sha256.New()
 	if _, err := compiledRules.WriteTo(io.MultiWriter(f, hasher)); err != nil {
 		_ = f.Close()
-		_ = os.Remove(tmpFile)
+		_ = cache.Remove(tmpFile)
 		return fmt.Errorf("write rules to cache: %w", err)
 	}
 
 	if err := f.Sync(); err != nil {
 		_ = f.Close()
-		_ = os.Remove(tmpFile)
+		_ = cache.Remove(tmpFile)
 		return fmt.Errorf("sync cache file: %w", err)
 	}
 
 	if err := f.Close(); err != nil {
-		_ = os.Remove(tmpFile)
+		_ = cache.Remove(tmpFile)
 		return fmt.Errorf("close cache file: %w", err)
 	}
 
-	tmpSidecar, err := writeSidecarTemp(cacheDir, hex.EncodeToString(hasher.Sum(nil)))
+	tmpSidecar, err := writeSidecarTemp(cache, hex.EncodeToString(hasher.Sum(nil)))
 	if err != nil {
-		_ = os.Remove(tmpFile)
+		_ = cache.Remove(tmpFile)
 		return fmt.Errorf("write sidecar: %w", err)
 	}
 
 	// Rename cache before sidecar so a partial state surfaces as a cache miss in loadCachedRules.
-	if err := os.Rename(tmpFile, cacheFile); err != nil {
-		_ = os.Remove(tmpFile)
-		_ = os.Remove(tmpSidecar)
+	if err := cache.Rename(tmpFile, name); err != nil {
+		_ = cache.Remove(tmpFile)
+		_ = cache.Remove(tmpSidecar)
 		return fmt.Errorf("rename cache file: %w", err)
 	}
-	if err := os.Rename(tmpSidecar, cacheFile+sidecarSuffix); err != nil {
-		_ = os.Remove(tmpSidecar)
+	if err := cache.Rename(tmpSidecar, name+sidecarSuffix); err != nil {
+		_ = cache.Remove(tmpSidecar)
 		// Cache and sidecar must exist as an atomic pair; remove the orphaned cache file.
-		_ = os.Remove(cacheFile)
+		_ = cache.Remove(name)
 		return fmt.Errorf("rename sidecar file: %w", err)
 	}
 
 	return nil
 }
 
-// writeSidecarTemp creates a temporary sidecar file in dir containing digest + newline and returns its path.
-func writeSidecarTemp(dir, digest string) (string, error) {
-	sf, err := os.CreateTemp(dir, ".rules-*.sha256.tmp")
+// writeSidecarTemp creates a temporary sidecar file in cache containing digest + newline and returns its name.
+func writeSidecarTemp(cache *os.Root, digest string) (string, error) {
+	sf, tmpName, err := file.CreateTemp(cache, ".rules-*.sha256.tmp")
 	if err != nil {
 		return "", err
 	}
-	tmpPath := sf.Name()
 	if _, err := sf.WriteString(digest + "\n"); err != nil {
 		_ = sf.Close()
-		_ = os.Remove(tmpPath)
+		_ = cache.Remove(tmpName)
 		return "", err
 	}
 	if err := sf.Sync(); err != nil {
 		_ = sf.Close()
-		_ = os.Remove(tmpPath)
+		_ = cache.Remove(tmpName)
 		return "", err
 	}
 	if err := sf.Close(); err != nil {
-		_ = os.Remove(tmpPath)
+		_ = cache.Remove(tmpName)
 		return "", err
 	}
-	return tmpPath, nil
+	return tmpName, nil
 }
 
 // getYaraXVersion returns the yara-x module version from build info.
@@ -783,32 +790,32 @@ func seekTo(f fs.File, off int64) error {
 	return err
 }
 
-// refreshCacheTime marks cacheFile as in use so that other malcontent builds
-// sharing the cache directory do not prune it. It rewrites the modification
-// time at most once per cacheTouchInterval and ignores errors.
-func refreshCacheTime(cacheFile string, now time.Time) {
-	fi, err := os.Stat(cacheFile)
+// refreshCacheTime marks the cache file name in cache as in use so that other
+// malcontent builds sharing the cache directory do not prune it. It rewrites
+// the modification time at most once per cacheTouchInterval and ignores
+// errors.
+func refreshCacheTime(cache *os.Root, name string, now time.Time) {
+	fi, err := cache.Stat(name)
 	if err != nil || now.Sub(fi.ModTime()) < cacheTouchInterval {
 		return
 	}
-	_ = os.Chtimes(cacheFile, now, now)
+	_ = cache.Chtimes(name, now, now)
 }
 
-// pruneStaleCaches removes compiled caches other than current, along with
-// their integrity sidecars, once no run has refreshed them for
-// staleCacheThreshold. It is best-effort: pruning only reclaims space, so
-// errors are ignored. Temp files are left to sweepStaleTempFiles.
-func pruneStaleCaches(cacheDir, current string, now time.Time) {
-	entries, err := os.ReadDir(cacheDir)
+// pruneStaleCaches removes compiled caches in cache other than the one named
+// current, along with their integrity sidecars, once no run has refreshed
+// them for staleCacheThreshold. It is best-effort: pruning only reclaims
+// space, so errors are ignored. Temp files are left to sweepStaleTempFiles.
+func pruneStaleCaches(cache *os.Root, current string, now time.Time) {
+	entries, err := fs.ReadDir(cache.FS(), ".")
 	if err != nil {
 		return
 	}
 	cutoff := now.Add(-staleCacheThreshold)
-	keep := filepath.Base(current)
 	for _, e := range entries {
 		name := e.Name()
-		cache, isSidecar := strings.CutSuffix(name, sidecarSuffix)
-		if cache == keep || !isCacheName(cache) || !e.Type().IsRegular() {
+		cacheName, isSidecar := strings.CutSuffix(name, sidecarSuffix)
+		if cacheName == current || !isCacheName(cacheName) || !e.Type().IsRegular() {
 			continue
 		}
 		fi, err := e.Info()
@@ -817,12 +824,11 @@ func pruneStaleCaches(cacheDir, current string, now time.Time) {
 		}
 		// Loading refreshes only the cache's modification time, so a sidecar
 		// stays as long as its cache is in use.
-		if isSidecar && modifiedSince(filepath.Join(cacheDir, cache), cutoff) {
+		if isSidecar && modifiedSince(cache, cacheName, cutoff) {
 			continue
 		}
-		path := filepath.Join(cacheDir, name)
-		if err := os.Remove(path); err == nil {
-			logDebug("Removed stale rule cache", "file", path)
+		if err := cache.Remove(name); err == nil {
+			logDebug("Removed stale rule cache", "file", filepath.Join(cache.Name(), name))
 		}
 	}
 }
@@ -832,9 +838,10 @@ func isCacheName(name string) bool {
 	return strings.HasPrefix(name, cachePrefix) && strings.HasSuffix(name, cacheSuffix)
 }
 
-// modifiedSince reports whether path exists and was modified at or after t.
-func modifiedSince(path string, t time.Time) bool {
-	fi, err := os.Lstat(path)
+// modifiedSince reports whether name exists in cache and was modified at or
+// after t.
+func modifiedSince(cache *os.Root, name string, t time.Time) bool {
+	fi, err := cache.Lstat(name)
 	return err == nil && !fi.ModTime().Before(t)
 }
 
@@ -852,22 +859,24 @@ func RecursiveCached(ctx context.Context, fss []fs.FS) (*yarax.Rules, error) {
 		return nil, ctx.Err()
 	}
 
-	cacheDir, cacheErr := getCacheDir()
+	cache, cacheErr := openCacheDir()
 	if cacheErr != nil {
 		return Recursive(ctx, fss)
 	}
+	defer func() { _ = cache.Close() }()
 
 	key, hashErr := getRulesHash(ctx, fss)
 	if hashErr != nil {
 		return Recursive(ctx, fss)
 	}
 
-	cacheFile := filepath.Join(cacheDir, cachePrefix+key+cacheSuffix)
-	if cachedRules, loadErr := loadCachedRules(cacheFile); loadErr == nil {
+	cacheName := cachePrefix + key + cacheSuffix
+	cacheFile := filepath.Join(cache.Name(), cacheName)
+	if cachedRules, loadErr := loadCachedRules(cache, cacheName); loadErr == nil {
 		logDebug("Loaded rules from cache", "file", cacheFile)
 		now := time.Now()
-		refreshCacheTime(cacheFile, now)
-		pruneStaleCaches(cacheDir, cacheFile, now)
+		refreshCacheTime(cache, cacheName, now)
+		pruneStaleCaches(cache, cacheName, now)
 		return cachedRules, nil
 	}
 
@@ -878,8 +887,8 @@ func RecursiveCached(ctx context.Context, fss []fs.FS) (*yarax.Rules, error) {
 	}
 
 	// Prune first so space held by idle caches is free for the new one.
-	pruneStaleCaches(cacheDir, cacheFile, time.Now())
-	if saveErr := saveCachedRules(compiledRules, cacheFile); saveErr != nil {
+	pruneStaleCaches(cache, cacheName, time.Now())
+	if saveErr := saveCachedRules(cache, cacheName, compiledRules); saveErr != nil {
 		logWarn("Failed to save rules to cache", "error", saveErr)
 	} else {
 		logDebug("Saved rules to cache", "file", cacheFile)

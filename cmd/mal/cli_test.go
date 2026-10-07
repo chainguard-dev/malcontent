@@ -25,6 +25,7 @@ import (
 	yarax "github.com/VirusTotal/yara-x/go"
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/action"
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 	"github.com/chainguard-dev/malcontent/pkg/release"
@@ -58,7 +59,7 @@ func (r *fakeRenderer) Name() string { return r.name }
 // file in a temporary directory instead of stdout.
 func newTestState(t *testing.T) *cliState {
 	t.Helper()
-	out, err := os.Create(filepath.Join(t.TempDir(), "stdout"))
+	out, err := file.OpenFileIn(t.TempDir(), "stdout", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0o600)
 	if err != nil {
 		t.Fatalf("create output file: %v", err)
 	}
@@ -109,8 +110,9 @@ func scanReadyState(t *testing.T, r *fakeRenderer) *cliState {
 // returns its path.
 func writeScript(t *testing.T, name string) string {
 	t.Helper()
-	p := filepath.Join(t.TempDir(), name)
-	if err := os.WriteFile(p, []byte("#!/bin/sh\necho hello\n"), 0o600); err != nil {
+	dir := t.TempDir()
+	p := filepath.Join(dir, name)
+	if err := file.WriteFileIn(dir, name, []byte("#!/bin/sh\necho hello\n"), 0o600); err != nil {
 		t.Fatalf("write %s: %v", p, err)
 	}
 	return p
@@ -531,7 +533,7 @@ func TestBeforeReportsProfilerFailure(t *testing.T) {
 	dir := t.TempDir()
 	t.Chdir(dir)
 	// A regular file where the profile directory belongs makes profiling fail.
-	if err := os.WriteFile(filepath.Join(dir, "profiles"), nil, 0o600); err != nil {
+	if err := file.WriteFileIn(dir, "profiles", nil, 0o600); err != nil {
 		t.Fatalf("write profiles file: %v", err)
 	}
 
@@ -553,7 +555,8 @@ func TestAnalyzeRendersRequestedReport(t *testing.T) {
 	// stage compiles the full rule set (served from the user cache when warm),
 	// and the scan target is an empty temporary directory.
 	target := t.TempDir()
-	report := filepath.Join(t.TempDir(), "report.json")
+	reportDir := t.TempDir()
+	report := filepath.Join(reportDir, "report.json")
 	st := newTestState(t)
 	args := []string{
 		"mal", "--format", "json", "--output", report, "--verbose",
@@ -583,7 +586,7 @@ func TestAnalyzeRendersRequestedReport(t *testing.T) {
 		t.Errorf("log level: got = %v, want = %v", got, slog.LevelDebug)
 	}
 
-	data, err := os.ReadFile(report)
+	data, err := file.ReadFileIn(reportDir, "report.json")
 	if err != nil {
 		t.Fatalf("read report: %v", err)
 	}

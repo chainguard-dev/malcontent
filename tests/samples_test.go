@@ -21,6 +21,7 @@ import (
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/clog/slogtest"
 	"github.com/chainguard-dev/malcontent/pkg/action"
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/render"
 	"github.com/chainguard-dev/malcontent/rules"
@@ -49,7 +50,7 @@ func init() {
 	fmt.Printf(">>> test data dir: %s\n", testDataDir)
 	fmt.Printf(">>> sample data dir: %s\n", sampleDir)
 
-	if _, err := os.Stat(sampleDir); err != nil {
+	if _, err := file.Stat(sampleDir); err != nil {
 		fmt.Printf("samples directory %q does not exist - please use 'make integration' or git clone https://github.com/chainguard-sandbox/malcontent-samples appropriately. This path may be overridden by --sample_dir", sampleDir)
 		os.Exit(1)
 	}
@@ -61,13 +62,26 @@ func init() {
 	}
 }
 
+// openRoot opens a root on dir that stays open until t and its subtests
+// finish.
+func openRoot(t *testing.T, dir string) *os.Root {
+	t.Helper()
+	r, err := os.OpenRoot(dir)
+	if err != nil {
+		t.Fatalf("open %s: %v", dir, err)
+	}
+	t.Cleanup(func() { _ = r.Close() })
+	return r
+}
+
 func TestJSON(t *testing.T) {
 	t.Parallel()
 	ctx := slogtest.Context(t)
 	clog.FromContext(ctx).With("test", "TestJSON")
 
-	fileSystem := os.DirFS(testDataDir)
+	fileSystem := openRoot(t, testDataDir).FS()
 	os.Chdir(sampleDir)
+	corpus := openRoot(t, ".")
 
 	fs.WalkDir(fileSystem, ".", func(path string, _ fs.DirEntry, err error) error {
 		if err != nil {
@@ -82,7 +96,7 @@ func TestJSON(t *testing.T) {
 		binPath := name
 
 		// must be a non-test JSON
-		if _, err := os.Stat(binPath); err != nil {
+		if _, err := corpus.Stat(binPath); err != nil {
 			if errors.Is(err, os.ErrNotExist) {
 				return nil
 			}
@@ -146,8 +160,9 @@ func TestJSONStats(t *testing.T) {
 	ctx := slogtest.Context(t)
 	clog.FromContext(ctx).With("test", "TestJSON")
 
-	fileSystem := os.DirFS(testDataDir)
+	fileSystem := openRoot(t, testDataDir).FS()
 	os.Chdir(sampleDir)
+	corpus := openRoot(t, ".")
 
 	fs.WalkDir(fileSystem, ".", func(path string, _ fs.DirEntry, err error) error {
 		if err != nil {
@@ -162,7 +177,7 @@ func TestJSONStats(t *testing.T) {
 		binPath := name
 
 		// must be a non-test JSON
-		if _, err := os.Stat(binPath); err != nil {
+		if _, err := corpus.Stat(binPath); err != nil {
 			if errors.Is(err, os.ErrNotExist) {
 				return nil
 			}
@@ -226,8 +241,9 @@ func TestSimple(t *testing.T) {
 	ctx := slogtest.Context(t)
 	clog.FromContext(ctx).With("test", "simple")
 
-	fileSystem := os.DirFS(testDataDir)
+	fileSystem := openRoot(t, testDataDir).FS()
 	os.Chdir(sampleDir)
+	corpus := openRoot(t, ".")
 
 	fs.WalkDir(fileSystem, ".", func(path string, _ fs.DirEntry, err error) error {
 		if err != nil {
@@ -244,8 +260,8 @@ func TestSimple(t *testing.T) {
 			t.Parallel()
 			binPath := name
 			binDir := filepath.Dir(binPath)
-			if _, err := os.Stat(binPath); err != nil {
-				t.Fatalf("test program missing: %s\ncontents of %s: %v", binPath, binDir, testInputs(binDir))
+			if _, err := corpus.Stat(binPath); err != nil {
+				t.Fatalf("test program missing: %s\ncontents of %s: %v", binPath, binDir, testInputs(corpus, binDir))
 			}
 
 			td, err := fs.ReadFile(fileSystem, testPath)
@@ -305,7 +321,7 @@ func TestDiff(t *testing.T) {
 	ctx := slogtest.Context(t)
 	clog.FromContext(ctx).With("test", "diff")
 
-	fileSystem := os.DirFS(testDataDir)
+	fileSystem := openRoot(t, testDataDir).FS()
 	os.Chdir(sampleDir)
 
 	tests := []struct {
@@ -377,7 +393,7 @@ func TestDiffFileChange(t *testing.T) {
 	ctx := slogtest.Context(t)
 	clog.FromContext(ctx).With("test", "diff")
 
-	fileSystem := os.DirFS(testDataDir)
+	fileSystem := openRoot(t, testDataDir).FS()
 	os.Chdir(sampleDir)
 
 	tests := []struct {
@@ -445,7 +461,7 @@ func TestDiffFileIncrease(t *testing.T) {
 	ctx := slogtest.Context(t)
 	clog.FromContext(ctx).With("test", "diff")
 
-	fileSystem := os.DirFS(testDataDir)
+	fileSystem := openRoot(t, testDataDir).FS()
 	os.Chdir(sampleDir)
 
 	tests := []struct {
@@ -518,9 +534,9 @@ func reduceMarkdown(s string) string {
 	return s
 }
 
-// test error helper to list files.
-func testInputs(path string) string {
-	fss, err := os.ReadDir(path)
+// test error helper to list the files beneath path in corpus.
+func testInputs(corpus *os.Root, path string) string {
+	fss, err := fs.ReadDir(corpus.FS(), path)
 	if err != nil {
 		return err.Error()
 	}
@@ -544,8 +560,9 @@ func TestMarkdown(t *testing.T) {
 	ctx := slogtest.Context(t)
 	clog.FromContext(ctx).With("test", "TestMarkDown")
 
-	fileSystem := os.DirFS(testDataDir)
+	fileSystem := openRoot(t, testDataDir).FS()
 	os.Chdir(sampleDir)
+	corpus := openRoot(t, ".")
 
 	fs.WalkDir(fileSystem, ".", func(path string, _ fs.DirEntry, err error) error {
 		if err != nil {
@@ -560,8 +577,8 @@ func TestMarkdown(t *testing.T) {
 			t.Parallel()
 			binPath := name
 			binDir := filepath.Dir(binPath)
-			if _, err := os.Stat(binPath); err != nil {
-				t.Fatalf("test program missing: %s\ncontents of %s: %v", binPath, binDir, testInputs(binDir))
+			if _, err := corpus.Stat(binPath); err != nil {
+				t.Fatalf("test program missing: %s\ncontents of %s: %v", binPath, binDir, testInputs(corpus, binDir))
 			}
 
 			testPath := path

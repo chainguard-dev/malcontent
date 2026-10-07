@@ -11,7 +11,6 @@ import (
 	"io"
 	"io/fs"
 	"math"
-	"os"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -221,9 +220,10 @@ func TestExtractRPMInputs(t *testing.T) {
 				ctx, cancel = context.WithCancel(ctx)
 				cancel()
 			}
-			src := filepath.Join(t.TempDir(), "pkg.rpm")
+			dir := t.TempDir()
+			src := filepath.Join(dir, "pkg.rpm")
 			if tt.data != nil {
-				if err := os.WriteFile(src, tt.data, 0o600); err != nil {
+				if err := file.WriteFileIn(dir, "pkg.rpm", tt.data, 0o600); err != nil {
 					t.Fatal(err)
 				}
 			}
@@ -232,7 +232,7 @@ func TestExtractRPMInputs(t *testing.T) {
 			if err := ExtractRPM(ctx, out, src); !errors.Is(err, tt.wantErr) {
 				t.Fatalf("ExtractRPM error: got = %v, want = %v", err, tt.wantErr)
 			}
-			entries, err := os.ReadDir(out)
+			entries, err := fs.ReadDir(openTestRoot(t, out).FS(), ".")
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -371,15 +371,15 @@ func TestExtractFileFromCPIOCancellation(t *testing.T) {
 			if _, err := cr.Next(); err != nil {
 				t.Fatalf("cpio Next: %v", err)
 			}
-			dir := t.TempDir()
+			root := openTestRoot(t, t.TempDir())
 			ctx := &pkgsCountdownContext{Context: t.Context(), allow: tt.allow}
 			buf := make([]byte, file.ExtractBuffer)
 
-			err := extractFileFromCPIO(ctx, cr, openTestRoot(t, dir), "big.bin", buf, nil)
+			err := extractFileFromCPIO(ctx, cr, testEntryRoots(t, root), "big.bin", buf, nil)
 			if !errors.Is(err, tt.wantErr) {
 				t.Fatalf("extractFileFromCPIO error: got = %v, want = %v", err, tt.wantErr)
 			}
-			fi, err := os.Stat(filepath.Join(dir, "big.bin"))
+			fi, err := root.Stat("big.bin")
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -403,7 +403,7 @@ func TestExtractFileFromCPIOSingleByteReads(t *testing.T) {
 	}
 	dir := t.TempDir()
 
-	if err := extractFileFromCPIO(t.Context(), cr, openTestRoot(t, dir), "small.bin", make([]byte, file.ExtractBuffer), nil); err != nil {
+	if err := extractFileFromCPIO(t.Context(), cr, testEntryRoots(t, openTestRoot(t, dir)), "small.bin", make([]byte, file.ExtractBuffer), nil); err != nil {
 		t.Fatalf("extractFileFromCPIO: %v", err)
 	}
 	pkgsWantFile(t, filepath.Join(dir, "small.bin"), body)

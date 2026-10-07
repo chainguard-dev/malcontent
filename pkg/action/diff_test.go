@@ -4,7 +4,6 @@
 package action
 
 import (
-	"os"
 	"path/filepath"
 	"testing"
 
@@ -15,20 +14,21 @@ import (
 func TestRelPath(t *testing.T) {
 	t.Parallel()
 	tmpDir := t.TempDir()
+	root := scanTestOpenRoot(t, tmpDir)
 
 	// Create test file structure
 	testFile := filepath.Join(tmpDir, "test.txt")
-	if err := os.WriteFile(testFile, []byte("test"), 0o644); err != nil {
+	if err := root.WriteFile("test.txt", []byte("test"), 0o644); err != nil {
 		t.Fatalf("failed to create test file: %v", err)
 	}
 
 	// Create archive directory structure
 	archiveDir := filepath.Join(tmpDir, "archive")
-	if err := os.MkdirAll(archiveDir, 0o755); err != nil {
+	if err := root.MkdirAll("archive", 0o755); err != nil {
 		t.Fatalf("failed to create archive dir: %v", err)
 	}
 	archiveFile := filepath.Join(archiveDir, "file")
-	if err := os.WriteFile(archiveFile, []byte("archive content"), 0o644); err != nil {
+	if err := root.WriteFile(filepath.Join("archive", "file"), []byte("archive content"), 0o644); err != nil {
 		t.Fatalf("failed to create archive file: %v", err)
 	}
 

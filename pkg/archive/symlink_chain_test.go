@@ -16,6 +16,7 @@ import (
 	"testing"
 
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/puzpuzpuz/xsync/v4"
 )
@@ -29,6 +30,14 @@ func openTestRoot(tb testing.TB, dir string) *os.Root {
 	}
 	tb.Cleanup(func() { _ = root.Close() })
 	return root
+}
+
+// testEntryRoots returns entry roots on root, closed when the test ends.
+func testEntryRoots(tb testing.TB, root *os.Root) *entryRoots {
+	tb.Helper()
+	er := newEntryRoots(root)
+	tb.Cleanup(er.close)
+	return er
 }
 
 type tarEntry struct {
@@ -62,11 +71,11 @@ func writeTar(t *testing.T, entries []tarEntry) string {
 	if err := tw.Close(); err != nil {
 		t.Fatalf("close tar: %v", err)
 	}
-	p := filepath.Join(t.TempDir(), "evil.tar")
-	if err := os.WriteFile(p, buf.Bytes(), 0o600); err != nil {
+	dir := t.TempDir()
+	if err := file.WriteFileIn(dir, "evil.tar", buf.Bytes(), 0o600); err != nil {
 		t.Fatalf("write tar: %v", err)
 	}
-	return p
+	return filepath.Join(dir, "evil.tar")
 }
 
 // climbChain returns entries whose final link, "yN", lexically resolves to the
@@ -110,17 +119,19 @@ func assertContained(t *testing.T, root string) {
 	if err != nil {
 		t.Fatalf("resolve root: %v", err)
 	}
-	err = filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
+	r := openTestRoot(t, root)
+	err = fs.WalkDir(r.FS(), ".", func(name string, d fs.DirEntry, err error) error {
 		if err != nil || d.Type()&fs.ModeSymlink == 0 {
 			return err
 		}
+		path := filepath.Join(root, name)
 		resolved, err := filepath.EvalSymlinks(path)
 		if err != nil {
 			return nil //nolint:nilerr // dangling and looping links are not followed
 		}
 		rel, err := filepath.Rel(resolvedRoot, resolved)
 		if err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
-			target, _ := os.Readlink(path)
+			target, _ := r.Readlink(name)
 			t.Errorf("symlink %s -> %s resolves outside the extraction directory: %s", path, target, resolved)
 		}
 		return nil
@@ -184,7 +195,7 @@ func TestSymlinkChainEscape(t *testing.T) {
 				return append(climbChain(), tarEntry{name: viaChain(t, outside) + "/newdir/file.txt", typeflag: tar.TypeReg, body: "pwned"})
 			},
 			leaked: func(_ *testing.T, outside, _ string) bool {
-				_, err := os.Lstat(filepath.Join(outside, "newdir"))
+				_, err := file.LstatIn(outside, "newdir")
 				return err == nil
 			},
 		},
@@ -198,7 +209,7 @@ func TestSymlinkChainEscape(t *testing.T) {
 				)
 			},
 			leaked: func(_ *testing.T, outside, _ string) bool {
-				_, err := os.Lstat(filepath.Join(outside, "dangling.txt"))
+				_, err := file.LstatIn(outside, "dangling.txt")
 				return err == nil
 			},
 		},
@@ -210,11 +221,11 @@ func TestSymlinkChainEscape(t *testing.T) {
 			},
 			leaked: func(t *testing.T, outside, extractDir string) bool {
 				t.Helper()
-				secret, err := os.Stat(filepath.Join(outside, "secret.txt"))
+				secret, err := file.StatIn(outside, "secret.txt")
 				if err != nil {
 					t.Fatalf("stat secret: %v", err)
 				}
-				hard, err := os.Stat(filepath.Join(extractDir, "hard"))
+				hard, err := file.StatIn(extractDir, "hard")
 				return err == nil && os.SameFile(secret, hard)
 			},
 		},
@@ -228,12 +239,13 @@ func TestSymlinkChainEscape(t *testing.T) {
 			base := t.TempDir()
 			outside := filepath.Join(base, "outside")
 			extractDir := filepath.Join(base, "extract")
-			for _, d := range []string{outside, extractDir} {
-				if err := os.Mkdir(d, 0o700); err != nil {
+			r := openTestRoot(t, base)
+			for _, d := range []string{"outside", "extract"} {
+				if err := r.Mkdir(d, 0o700); err != nil {
 					t.Fatal(err)
 				}
 			}
-			if err := os.WriteFile(filepath.Join(outside, "secret.txt"), []byte("secret"), 0o600); err != nil {
+			if err := r.WriteFile(filepath.Join("outside", "secret.txt"), []byte("secret"), 0o600); err != nil {
 				t.Fatal(err)
 			}
 
@@ -269,7 +281,7 @@ func TestNestedArchiveSymlinkDisclosure(t *testing.T) {
 	if err := zw.Close(); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(secretZip, zbuf.Bytes(), 0o600); err != nil {
+	if err := file.WriteFileIn(secretDir, "backup.zip", zbuf.Bytes(), 0o600); err != nil {
 		t.Fatal(err)
 	}
 
@@ -283,19 +295,20 @@ func TestNestedArchiveSymlinkDisclosure(t *testing.T) {
 	if err != nil {
 		return
 	}
-	defer os.RemoveAll(dir)
+	defer file.RemoveAllIn(filepath.Dir(dir), filepath.Base(dir))
 
 	assertContained(t, dir)
-	err = filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
+	r := openTestRoot(t, dir)
+	err = fs.WalkDir(r.FS(), ".", func(name string, d fs.DirEntry, err error) error {
 		if err != nil || !d.Type().IsRegular() {
 			return err
 		}
-		data, err := os.ReadFile(path)
+		data, err := r.ReadFile(name)
 		if err != nil {
 			return err
 		}
 		if bytes.Contains(data, []byte(marker)) {
-			t.Errorf("host archive contents disclosed at %s", path)
+			t.Errorf("host archive contents disclosed at %s", filepath.Join(dir, name))
 		}
 		return nil
 	})
@@ -309,17 +322,19 @@ func TestNestedArchiveSymlinkDisclosure(t *testing.T) {
 func TestExtractNestedArchiveSkipsSymlinks(t *testing.T) {
 	t.Parallel()
 
-	srcData, err := os.ReadFile("../../pkg/action/testdata/apko.gz")
+	srcData, err := file.ReadFileIn("../../pkg/action/testdata", "apko.gz")
 	if err != nil {
 		t.Fatalf("failed to read test archive: %v", err)
 	}
-	outside := filepath.Join(t.TempDir(), "apko.gz")
-	if err := os.WriteFile(outside, srcData, 0o600); err != nil {
+	outsideDir := t.TempDir()
+	outside := filepath.Join(outsideDir, "apko.gz")
+	if err := file.WriteFileIn(outsideDir, "apko.gz", srcData, 0o600); err != nil {
 		t.Fatal(err)
 	}
 
 	dir := t.TempDir()
-	if err := os.Symlink(outside, filepath.Join(dir, "link.gz")); err != nil {
+	r := openTestRoot(t, dir)
+	if err := r.Symlink(outside, "link.gz"); err != nil {
 		t.Fatal(err)
 	}
 
@@ -329,13 +344,13 @@ func TestExtractNestedArchiveSkipsSymlinks(t *testing.T) {
 		t.Fatalf("extractNestedArchive: %v", err)
 	}
 
-	if _, err := os.Lstat(filepath.Join(dir, "link")); !errors.Is(err, fs.ErrNotExist) {
+	if _, err := r.Lstat("link"); !errors.Is(err, fs.ErrNotExist) {
 		t.Errorf("symlinked archive was extracted (lstat err: %v)", err)
 	}
-	if _, err := os.Lstat(filepath.Join(dir, "link.gz")); err != nil {
+	if _, err := r.Lstat("link.gz"); err != nil {
 		t.Errorf("symlink should be left in place: %v", err)
 	}
-	if _, err := os.Stat(outside); err != nil {
+	if _, err := file.StatIn(outsideDir, "apko.gz"); err != nil {
 		t.Errorf("link target should be untouched: %v", err)
 	}
 }
@@ -349,8 +364,9 @@ func TestZipSymlinkChainEscape(t *testing.T) {
 	base := t.TempDir()
 	outside := filepath.Join(base, "outside")
 	extractDir := filepath.Join(base, "extract")
-	for _, d := range []string{outside, extractDir} {
-		if err := os.Mkdir(d, 0o700); err != nil {
+	r := openTestRoot(t, base)
+	for _, d := range []string{"outside", "extract"} {
+		if err := r.Mkdir(d, 0o700); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -376,8 +392,9 @@ func TestZipSymlinkChainEscape(t *testing.T) {
 	if err := zw.Close(); err != nil {
 		t.Fatal(err)
 	}
-	zipPath := filepath.Join(t.TempDir(), "evil.zip")
-	if err := os.WriteFile(zipPath, zbuf.Bytes(), 0o600); err != nil {
+	zipDir := t.TempDir()
+	zipPath := filepath.Join(zipDir, "evil.zip")
+	if err := file.WriteFileIn(zipDir, "evil.zip", zbuf.Bytes(), 0o600); err != nil {
 		t.Fatal(err)
 	}
 
@@ -472,8 +489,9 @@ func TestSymlinkLayoutPreserved(t *testing.T) {
 				t.Fatalf("ExtractTar: %v", err)
 			}
 			assertContained(t, dir)
+			r := openTestRoot(t, dir)
 			for path, want := range tt.want {
-				got, err := os.ReadFile(filepath.Join(dir, path))
+				got, err := r.ReadFile(path)
 				if err != nil {
 					t.Errorf("read %s: %v", path, err)
 					continue
@@ -483,12 +501,12 @@ func TestSymlinkLayoutPreserved(t *testing.T) {
 				}
 			}
 			for _, path := range tt.regular {
-				fi, err := os.Lstat(filepath.Join(dir, path))
+				fi, err := r.Lstat(path)
 				if err != nil || !fi.Mode().IsRegular() {
 					t.Errorf("%s is not a regular file (err: %v)", path, err)
 				}
 			}
-			if _, err := os.Lstat(filepath.Join(dir, "other.txt")); !errors.Is(err, fs.ErrNotExist) {
+			if _, err := r.Lstat("other.txt"); !errors.Is(err, fs.ErrNotExist) {
 				t.Errorf("write followed a replaced symlink (lstat err: %v)", err)
 			}
 		})

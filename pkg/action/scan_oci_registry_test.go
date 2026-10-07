@@ -7,7 +7,6 @@ import (
 	"errors"
 	"log/slog"
 	"net/http/httptest"
-	"os"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -46,12 +45,13 @@ func TestScanOCIImageRemovesExtractedImage(t *testing.T) {
 		"etc/profile.d/locale.sh": []byte(scanTestLocaleScript),
 	})
 	base := t.TempDir()
+	baseRoot := scanTestOpenRoot(t, base)
 	tmp := filepath.Join(base, "tmp-real")
-	if err := os.Mkdir(tmp, 0o700); err != nil {
+	if err := baseRoot.Mkdir("tmp-real", 0o700); err != nil {
 		t.Fatalf("create %s: %v", tmp, err)
 	}
 	link := filepath.Join(base, "tmp-link")
-	if err := os.Symlink(tmp, link); err != nil {
+	if err := baseRoot.Symlink(tmp, "tmp-link"); err != nil {
 		t.Fatalf("symlink %s: %v", link, err)
 	}
 	t.Setenv("TMPDIR", link)
@@ -78,7 +78,7 @@ func TestScanOCIImageRemovesExtractedImage(t *testing.T) {
 		t.Errorf("report paths: got = %v, want = %v", paths, want)
 	}
 
-	entries, err := os.ReadDir(tmp)
+	entries, err := scanTestReadDir(tmp)
 	if err != nil {
 		t.Fatalf("read %s: %v", tmp, err)
 	}

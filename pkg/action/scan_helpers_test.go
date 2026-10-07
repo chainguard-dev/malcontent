@@ -16,6 +16,7 @@ import (
 
 	yarax "github.com/VirusTotal/yara-x/go"
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 	"github.com/chainguard-dev/malcontent/pkg/report"
@@ -122,13 +123,51 @@ func (r *scanTestRenderer) rendered() []*malcontent.FileReport {
 // returns path.
 func scanTestWriteFile(t *testing.T, path string, data []byte) string {
 	t.Helper()
-	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
-		t.Fatalf("create %s: %v", filepath.Dir(path), err)
+	dir := filepath.Dir(path)
+	if err := file.MkdirAll(dir, 0o700); err != nil {
+		t.Fatalf("create %s: %v", dir, err)
 	}
-	if err := os.WriteFile(path, data, 0o600); err != nil {
+	if err := file.WriteFileIn(dir, filepath.Base(path), data, 0o600); err != nil {
 		t.Fatalf("write %s: %v", path, err)
 	}
 	return path
+}
+
+// scanTestOpenRoot opens dir as an os.Root that is closed when tb finishes.
+func scanTestOpenRoot(tb testing.TB, dir string) *os.Root {
+	tb.Helper()
+	root, err := os.OpenRoot(dir)
+	if err != nil {
+		tb.Fatalf("open root %s: %v", dir, err)
+	}
+	tb.Cleanup(func() { _ = root.Close() })
+	return root
+}
+
+// scanTestReadDir returns the entries of dir, sorted by name, read through a
+// root on dir.
+func scanTestReadDir(dir string) ([]fs.DirEntry, error) {
+	root, err := os.OpenRoot(dir)
+	if err != nil {
+		return nil, err
+	}
+	defer root.Close()
+	return fs.ReadDir(root.FS(), ".")
+}
+
+// scanTestSniff sniffs the file at path through a root on its directory. The
+// root stays open, and the contents read, until the test ends.
+func scanTestSniff(t *testing.T, path string) *sniffed {
+	t.Helper()
+	root := scanTestOpenRoot(t, filepath.Dir(path))
+	name := filepath.Base(path)
+	fi, err := root.Stat(name)
+	if err != nil {
+		t.Fatalf("stat %s: %v", path, err)
+	}
+	s := sniffFile(t.Context(), root, name, path, fi)
+	t.Cleanup(s.close)
+	return s
 }
 
 // scanTestHighestRisk returns the highest rule risk that scanSinglePath
@@ -139,9 +178,13 @@ func scanTestHighestRisk(t *testing.T, yrs *yarax.Rules, path, archiveRoot strin
 	if err != nil {
 		t.Fatalf("detect file type of %s: %v", path, err)
 	}
+	fc, err := file.ReadFileIn(filepath.Dir(path), filepath.Base(path))
+	if err != nil {
+		t.Fatalf("read %s: %v", path, err)
+	}
 	scanner := yarax.NewScanner(yrs)
 	defer scanner.Destroy()
-	mrs, err := scanner.ScanFile(path)
+	mrs, err := scanner.Scan(fc)
 	if err != nil {
 		t.Fatalf("scan %s: %v", path, err)
 	}
@@ -209,7 +252,8 @@ func scanTestMatchReport(risk int, ids ...string) *malcontent.FileReport {
 // returns what fn wrote. Callers must not run in parallel.
 func scanTestCaptureStdout(t *testing.T, fn func()) string {
 	t.Helper()
-	f, err := os.CreateTemp(t.TempDir(), "stdout-*")
+	root := scanTestOpenRoot(t, t.TempDir())
+	f, name, err := file.CreateTemp(root, "stdout-*")
 	if err != nil {
 		t.Fatalf("create stdout capture: %v", err)
 	}
@@ -222,9 +266,21 @@ func scanTestCaptureStdout(t *testing.T, fn func()) string {
 	if err := f.Close(); err != nil {
 		t.Fatalf("close stdout capture: %v", err)
 	}
-	out, err := os.ReadFile(f.Name())
+	out, err := root.ReadFile(name)
 	if err != nil {
 		t.Fatalf("read stdout capture: %v", err)
 	}
 	return string(out)
+}
+
+// processTestPaths runs processPaths over paths, files found beneath
+// scanInfo.effectivePath, through a walk root on it.
+func processTestPaths(t *testing.T, paths []string, scanInfo scanPathInfo, c malcontent.Config, r *malcontent.Report, matchChan chan matchResult, once *sync.Once, logger *clog.Logger) error {
+	t.Helper()
+	w, _, err := openWalkRoot(scanInfo.effectivePath)
+	if err != nil {
+		t.Fatalf("openWalkRoot(%q): %v", scanInfo.effectivePath, err)
+	}
+	defer w.close()
+	return processPaths(t.Context(), w, walkedFiles(w, paths), scanInfo, c, r, matchChan, once, logger)
 }

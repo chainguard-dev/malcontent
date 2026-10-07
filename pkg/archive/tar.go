@@ -9,7 +9,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -40,7 +39,7 @@ func extractTarWithKind(ctx context.Context, d, f string, fileType func() *progr
 	logger.Debug("extracting tar")
 
 	// Check if the file is valid
-	fi, err := os.Stat(f)
+	fi, err := file.Stat(f)
 	if err != nil {
 		return fmt.Errorf("failed to stat file: %w", err)
 	}
@@ -65,7 +64,7 @@ func extractTarWithKind(ctx context.Context, d, f string, fileType func() *progr
 	defer root.Close()
 
 	filename := filepath.Base(f)
-	tf, err := os.Open(f) // #nosec G304 -- archive path resolved and validated by caller before extraction
+	tf, err := file.Open(f)
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
@@ -211,6 +210,8 @@ func extractTarWithKind(ctx context.Context, d, f string, fileType func() *progr
 	tr := tar.NewReader(io.TeeReader(stream, auditor))
 
 	sem := extractionSemaphore()
+	er := newEntryRoots(root)
+	defer er.close()
 	for {
 		header, err := tr.Next()
 
@@ -228,11 +229,11 @@ func extractTarWithKind(ctx context.Context, d, f string, fileType func() *progr
 		}
 
 		target := filepath.Join(d, clean)
-		if !IsValidPath(target, d) {
+		if !er.validPath(target, d) {
 			return fmt.Errorf("invalid file path: %s", target)
 		}
 
-		if err := extractTarEntry(ctx, sem, root, tr, header, clean, counter); err != nil {
+		if err := extractTarEntry(ctx, sem, er, tr, header, clean, counter); err != nil {
 			return err
 		}
 	}
@@ -251,29 +252,32 @@ func extractTarWithKind(ctx context.Context, d, f string, fileType func() *progr
 	return nil
 }
 
-// extractTarEntry writes the entry that header describes beneath root as
-// clean, its cleaned name, reading any content from tr. It holds one slot of
-// sem while it writes.
-func extractTarEntry(ctx context.Context, sem *semaphore.Weighted, root *os.Root, tr *tar.Reader, header *tar.Header, clean string, counter *file.ArchiveCounter) error {
+// extractTarEntry writes the entry that header describes beneath er's root
+// as clean, its cleaned name, reading any content from tr. It holds one slot
+// of sem while it writes.
+func extractTarEntry(ctx context.Context, sem *semaphore.Weighted, er *entryRoots, tr *tar.Reader, header *tar.Header, clean string, counter *file.ArchiveCounter) error {
 	if err := sem.Acquire(ctx, 1); err != nil {
 		return err
 	}
 	defer sem.Release(1)
 	switch header.Typeflag {
 	case tar.TypeDir:
-		if err := handleDirectory(root, clean); err != nil {
+		if err := handleDirectory(er.root, clean); err != nil {
 			return fmt.Errorf("failed to extract directory: %w", err)
 		}
 	case tar.TypeReg:
-		if err := handleFile(root, clean, tr, counter); err != nil {
+		if err := handleFile(er, clean, tr, counter); err != nil {
 			return fmt.Errorf("failed to extract file: %w", err)
 		}
 	case tar.TypeSymlink:
-		if err := handleSymlink(root, clean, header.Linkname); err != nil {
+		// Links may replace an entry that other names led through.
+		defer er.close()
+		if err := handleSymlink(er.root, clean, header.Linkname); err != nil {
 			return fmt.Errorf("failed to create symlink: %w", err)
 		}
 	case tar.TypeLink:
-		if err := handleHardlink(root, clean, header.Linkname); err != nil {
+		defer er.close()
+		if err := handleHardlink(er.root, clean, header.Linkname); err != nil {
 			return fmt.Errorf("failed to create hardlink: %w", err)
 		}
 	default:
@@ -282,7 +286,7 @@ func extractTarEntry(ctx context.Context, sem *semaphore.Weighted, root *os.Root
 		// skipped, leaving their content out of the scan corpus while the
 		// archive is deleted as fully extracted.
 		if header.Size > 0 && !isTarHeaderOnlyType(header.Typeflag) {
-			if err := handleFile(root, clean, tr, counter); err != nil {
+			if err := handleFile(er, clean, tr, counter); err != nil {
 				return fmt.Errorf("failed to extract file: %w", err)
 			}
 		}

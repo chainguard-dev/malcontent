@@ -240,7 +240,7 @@ func TestExtractZip_DefaultBytesCap_Fires(t *testing.T) {
 
 	tmp := t.TempDir()
 	zipPath := filepath.Join(tmp, "oversize.zip")
-	zf, err := os.OpenFile(zipPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+	zf, err := file.OpenFileIn(tmp, "oversize.zip", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
 	if err != nil {
 		t.Fatalf("create zip: %v", err)
 	}
@@ -283,8 +283,9 @@ func TestExtractGzip_RatioCap_Fires(t *testing.T) {
 	const payload = 64 * 1024
 
 	tmp := t.TempDir()
+	root := openTestRoot(t, tmp)
 	gzPath := filepath.Join(tmp, "bomb.gz")
-	gf, err := os.OpenFile(gzPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+	gf, err := root.OpenFile("bomb.gz", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
 	if err != nil {
 		t.Fatalf("create gz: %v", err)
 	}
@@ -305,7 +306,7 @@ func TestExtractGzip_RatioCap_Fires(t *testing.T) {
 	ctx := malcontent.ContextWithConfig(t.Context(), cfg)
 
 	dst := filepath.Join(tmp, "out")
-	if err := os.MkdirAll(dst, 0o700); err != nil {
+	if err := root.MkdirAll("out", 0o700); err != nil {
 		t.Fatalf("mkdir dst: %v", err)
 	}
 	err = ExtractGzip(ctx, dst, gzPath)

@@ -19,6 +19,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/shirou/gopsutil/v4/common"
 	"github.com/shirou/gopsutil/v4/process"
 )
@@ -73,12 +74,12 @@ func startProcessInfoHelper(t *testing.T, argv0 string) *exec.Cmd {
 // the test when either path cannot be stat'd.
 func processTestSameFile(t *testing.T, a, b string) bool {
 	t.Helper()
-	ai, err := os.Stat(a)
+	ai, err := file.Stat(a)
 	if err != nil {
 		t.Errorf("stat %q: %v", a, err)
 		return false
 	}
-	bi, err := os.Stat(b)
+	bi, err := file.Stat(b)
 	if err != nil {
 		t.Errorf("stat %q: %v", b, err)
 		return false
@@ -90,7 +91,7 @@ func TestCanStat(t *testing.T) {
 	t.Parallel()
 	dir := t.TempDir()
 	present := filepath.Join(dir, "present")
-	if err := os.WriteFile(present, []byte("x"), 0o600); err != nil {
+	if err := file.WriteFileIn(dir, "present", []byte("x"), 0o600); err != nil {
 		t.Fatalf("WriteFile: %v", err)
 	}
 
@@ -185,7 +186,7 @@ func startProcessTestShell(t *testing.T) (*exec.Cmd, io.WriteCloser, io.ReadClos
 	if runtime.GOOS != "linux" {
 		t.Skip("relies on Linux process accounting for a directly executed shell")
 	}
-	if _, err := os.Stat(processTestShell); err != nil {
+	if _, err := file.Stat(processTestShell); err != nil {
 		t.Skipf("%s unavailable: %v", processTestShell, err)
 	}
 	cmd := exec.Command(processTestShell)
@@ -318,7 +319,7 @@ func TestActiveProcessesIncludesCurrentProcess(t *testing.T) {
 	if err != nil {
 		t.Fatalf("os.Executable: %v", err)
 	}
-	exeInfo, err := os.Stat(exe)
+	exeInfo, err := file.Stat(exe)
 	if err != nil {
 		t.Fatalf("stat %q: %v", exe, err)
 	}
@@ -339,7 +340,7 @@ func TestActiveProcessesIncludesCurrentProcess(t *testing.T) {
 		}
 		seen[p.ScanPath] = struct{}{}
 		// Other processes may exit after being listed, so a failed stat is not an error here.
-		if fi, err := os.Stat(p.ScanPath); err == nil && os.SameFile(fi, exeInfo) {
+		if fi, err := file.Stat(p.ScanPath); err == nil && os.SameFile(fi, exeInfo) {
 			found = true
 		}
 	}
@@ -520,9 +521,10 @@ func TestActiveProcessesProcessTable(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			table := filepath.Join(t.TempDir(), "proc")
+			dir := t.TempDir()
+			table := filepath.Join(dir, "proc")
 			if tt.create {
-				if err := os.Mkdir(table, 0o700); err != nil {
+				if err := file.MkdirAllIn(dir, "proc", 0o700); err != nil {
 					t.Fatalf("mkdir: %v", err)
 				}
 			}

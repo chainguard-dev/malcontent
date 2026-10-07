@@ -331,7 +331,7 @@ type nsGroup struct {
 	long string // nsLongName(ns)
 	// index is the namespace's position in order of first appearance.
 	index int
-	// risk is the highest risk score of the namespace's behaviors, or 0.
+	// risk is the highest risk score of its behaviors that were not just removed, or 0.
 	risk int
 	// prevRisk is the highest risk score of its behaviors that were not just added, or 0.
 	prevRisk int
@@ -366,7 +366,9 @@ func writeSummaryBody(b *bytes.Buffer, p *palette, fr *malcontent.FileReport, wi
 			grp.prevRisk = bh.RiskScore
 			anyPrevious = true
 		}
-		grp.risk = max(grp.risk, bh.RiskScore)
+		if !bh.DiffRemoved {
+			grp.risk = max(grp.risk, bh.RiskScore)
+		}
 	}
 
 	slices.SortStableFunc(groups, func(x, y nsGroup) int {
@@ -393,16 +395,21 @@ func writeNamespaceLine(b *bytes.Buffer, p *palette, g *nsGroup, anyPrevious boo
 	var diffStyle, iconStyle sgr
 	diff, icon := " ", "≡"
 
-	// A namespace's risk counts every behavior, removed ones included, so it
-	// never falls below its previous risk: a change is always a rise, to a
-	// level above NONE.
 	changed := anyPrevious && g.risk != g.prevRisk
 	var previousLevel string
 	if changed {
 		previousLevel = riskLevels[g.prevRisk]
 		iconStyle, icon = p.hiYellow, "▲"
-		if previousLevel == report.LevelNONE {
+		if g.risk < g.prevRisk {
+			iconStyle, icon = p.hiGreen, "▼"
+		}
+		// A namespace whose risk rises from NONE is marked added, and one whose
+		// risk falls to NONE, removed.
+		switch {
+		case previousLevel == report.LevelNONE:
 			diffStyle, diff = p.hiGreen, "+"
+		case level == report.LevelNONE:
+			diffStyle, diff = p.hiRed, "-"
 		}
 	}
 

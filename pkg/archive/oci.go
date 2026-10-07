@@ -19,6 +19,7 @@ import (
 	"time"
 
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/google/go-containerregistry/pkg/authn"
 	"github.com/google/go-containerregistry/pkg/name"
@@ -199,7 +200,7 @@ func buildTransport(cfg ociTransportConfig) (http.RoundTripper, error) {
 		if !filepath.IsAbs(cfg.caBundlePath) {
 			return nil, fmt.Errorf("--ca-bundle path must be absolute, got %q", cfg.caBundlePath)
 		}
-		pem, err := os.ReadFile(cfg.caBundlePath)
+		pem, err := file.ReadFile(cfg.caBundlePath)
 		if err != nil {
 			return nil, fmt.Errorf("read CA bundle %s: %w", cfg.caBundlePath, err)
 		}
@@ -337,11 +338,17 @@ func prepareImage(ctx context.Context, c *malcontent.Config, d string) (string, 
 	success := false
 	defer func() {
 		if !success {
-			_ = os.RemoveAll(tmpDir)
+			_ = file.RemoveAllIn(filepath.Dir(tmpDir), filepath.Base(tmpDir))
 		}
 	}()
 
-	tmpFile, err := os.CreateTemp(tmpDir, fmt.Sprintf("%s.tar", sanitizeRefName(filepath.Base(d))))
+	root, err := os.OpenRoot(tmpDir)
+	if err != nil {
+		return "", nil, fmt.Errorf("failed to open temp dir: %w", err)
+	}
+	defer root.Close()
+
+	tmpFile, _, err := file.CreateTemp(root, fmt.Sprintf("%s.tar", sanitizeRefName(filepath.Base(d))))
 	if err != nil {
 		return "", nil, fmt.Errorf("failed to create temp file: %w", err)
 	}
@@ -469,13 +476,24 @@ func OCIWithConfig(ctx context.Context, path string, c *malcontent.Config) (stri
 	defer tmpFile.Close()
 
 	if err := ExtractTar(ctx, tmpDir, tmpFile.Name()); err != nil {
-		_ = os.RemoveAll(tmpDir)
+		_ = file.RemoveAllIn(filepath.Dir(tmpDir), filepath.Base(tmpDir))
 		return "", fmt.Errorf("extract image: %w", err)
 	}
 	// remove the temporary tarball after we extract it
 	// otherwise we scan the tarball
 	// in addition to its contents which produces odd results
-	defer os.Remove(tmpFile.Name())
+	defer removeTarball(tmpDir, filepath.Base(tmpFile.Name()))
 
 	return tmpDir, nil
+}
+
+// removeTarball removes the exported image tarball from dir, the temporary
+// directory that holds it.
+func removeTarball(dir, tarball string) {
+	root, err := os.OpenRoot(dir)
+	if err != nil {
+		return
+	}
+	defer root.Close()
+	_ = root.Remove(tarball)
 }

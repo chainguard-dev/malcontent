@@ -8,6 +8,7 @@ import (
 	"context"
 	"errors"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -17,6 +18,8 @@ import (
 	"testing"
 	"testing/synctest"
 	"time"
+
+	"github.com/chainguard-dev/malcontent/pkg/file"
 )
 
 func TestDefaultConfig(t *testing.T) {
@@ -48,7 +51,7 @@ func checkStopped(t *testing.T, p *Profiler, dir, prefix string) {
 		}
 	}
 
-	heap, err := os.ReadFile(p.memFile.Name())
+	heap, err := file.ReadFileIn(filepath.Dir(p.memFile.Name()), filepath.Base(p.memFile.Name()))
 	if err != nil {
 		t.Fatalf("read final heap profile: %v", err)
 	}
@@ -158,7 +161,7 @@ func TestStartProfilingHeapSnapshots(t *testing.T) {
 				t.Fatalf("heap snapshots taken: got = %v (%d files), want = %v", got, len(matches), tt.want)
 			}
 			for _, m := range matches {
-				data, err := os.ReadFile(m)
+				data, err := file.ReadFileIn(dir, filepath.Base(m))
 				if err != nil {
 					t.Fatalf("read heap snapshot: %v", err)
 				}
@@ -260,7 +263,7 @@ func TestStopReportsFinalHeapProfileFailure(t *testing.T) {
 func TestStopWaitsForBackgroundWork(t *testing.T) {
 	// Not parallel: Stop stops the process-wide CPU profiler and tracer.
 	synctest.Test(t, func(t *testing.T) {
-		mem, err := os.Create(filepath.Join(t.TempDir(), "mem.pprof"))
+		mem, err := file.OpenFileIn(t.TempDir(), "mem.pprof", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0o600)
 		if err != nil {
 			t.Fatalf("create memory profile: %v", err)
 		}
@@ -304,8 +307,9 @@ func TestStopWaitsForBackgroundWork(t *testing.T) {
 func TestProfileGoroutinesInterval(t *testing.T) {
 	t.Parallel()
 	synctest.Test(t, func(t *testing.T) {
-		path := filepath.Join(t.TempDir(), "goroutines.txt")
-		f, err := os.Create(path)
+		dir := t.TempDir()
+		path := filepath.Join(dir, "goroutines.txt")
+		f, err := file.OpenFileIn(dir, "goroutines.txt", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0o600)
 		if err != nil {
 			t.Fatalf("create %s: %v", path, err)
 		}
@@ -328,7 +332,7 @@ func TestProfileGoroutinesInterval(t *testing.T) {
 		}
 		for _, s := range steps {
 			synctest.Sleep(s.advance)
-			data, err := os.ReadFile(path)
+			data, err := file.ReadFileIn(dir, "goroutines.txt")
 			if err != nil {
 				t.Fatalf("read %s: %v", path, err)
 			}
@@ -457,7 +461,12 @@ func TestWriteGoroutineDump(t *testing.T) {
 // test where that is unavailable.
 func profileOpenFilesUnder(t *testing.T, dir string) int {
 	t.Helper()
-	entries, err := os.ReadDir("/proc/self/fd")
+	fds, err := os.OpenRoot("/proc/self/fd")
+	if err != nil {
+		t.Skipf("open file descriptors are not listable: %v", err)
+	}
+	defer fds.Close()
+	entries, err := fs.ReadDir(fds.FS(), ".")
 	if err != nil {
 		t.Skipf("open file descriptors are not listable: %v", err)
 	}
@@ -468,7 +477,7 @@ func profileOpenFilesUnder(t *testing.T, dir string) int {
 	prefix := resolved + string(filepath.Separator)
 	n := 0
 	for _, e := range entries {
-		target, err := os.Readlink(filepath.Join("/proc/self/fd", e.Name()))
+		target, err := fds.Readlink(e.Name())
 		if err == nil && (target == resolved || strings.HasPrefix(target, prefix)) {
 			n++
 		}
@@ -481,7 +490,7 @@ func profileOpenFilesUnder(t *testing.T, dir string) int {
 func occupy(name string) func(t *testing.T, dir string) {
 	return func(t *testing.T, dir string) {
 		t.Helper()
-		if err := os.Mkdir(filepath.Join(dir, name), 0o700); err != nil {
+		if err := file.MkdirAllIn(dir, name, 0o700); err != nil {
 			t.Fatalf("mkdir %s: %v", name, err)
 		}
 	}
@@ -501,7 +510,7 @@ func TestStartProfilingCleansUpAfterFailure(t *testing.T) {
 			setup: func(t *testing.T, dir string) {
 				t.Helper()
 				// A regular file where a parent directory belongs.
-				if err := os.WriteFile(filepath.Join(dir, "blocked"), nil, 0o600); err != nil {
+				if err := file.WriteFileIn(dir, "blocked", nil, 0o600); err != nil {
 					t.Fatalf("write blocking file: %v", err)
 				}
 			},

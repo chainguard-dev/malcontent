@@ -10,6 +10,7 @@ import (
 	"io/fs"
 	"os"
 	"sync/atomic"
+	"syscall"
 
 	"github.com/chainguard-dev/malcontent/pkg/compile"
 	"github.com/chainguard-dev/malcontent/pkg/file"
@@ -28,32 +29,57 @@ type sniffed struct {
 	content *file.Contents // nil when the file is empty, not regular, or unreadable
 	kind    *programkind.FileType
 	err     error // the error programkind.File would return for the file
+	// root and name reach the file again: root bounds the file, the scan
+	// path or an archive's extraction directory, and name is its path there.
+	root *os.Root
+	name string
+	// release ends the use of root, when the caller set it.
+	release func()
+	// unbudget gives back the share of the scan memory budget the file holds
+	// from the moment its contents are read until it is closed.
+	unbudget func()
 	// keepSkipped leaves a skipped archive file in place for the caller to
 	// remove, rather than removing it as soon as it is skipped.
 	keepSkipped bool
 }
 
-// sniffFile reads the file at path, whose Stat result is fi, and detects its
-// kind as programkind.File does. Empty files are not read, and files that are
-// not regular are left to programkind.File.
-func sniffFile(ctx context.Context, path string, fi fs.FileInfo) *sniffed {
-	s := &sniffed{fi: fi}
-	switch {
-	case fi.Size() == 0:
-		return s
-	case !fi.Mode().IsRegular():
-		s.kind, s.err = programkind.File(ctx, path)
-		return s
+// sniffEntry sniffs the file name beneath root, at path, as sniffFile does.
+// A file that was regular when found, as regular reports, is opened before it
+// is examined, without blocking, so that a FIFO put in its place cannot stall
+// the scan; anything else, or a file that cannot be opened that way or is no
+// longer regular, is examined first. The error is that of examining it.
+func sniffEntry(ctx context.Context, root *os.Root, name, path string, regular bool) (*sniffed, error) {
+	if regular {
+		if s := sniffOpen(ctx, root, name, path); s != nil {
+			return s, nil
+		}
 	}
+	fi, err := root.Stat(name)
+	if err != nil {
+		return nil, err
+	}
+	return sniffFile(ctx, root, name, path, fi), nil
+}
 
-	f, err := os.Open(path) // #nosec G304 -- path originates from findFilesRecursively over caller-supplied scan paths or archive temp dirs already validated during extraction
+// sniffOpen sniffs the file name beneath root, at path, as sniffFile does,
+// opening it first. It returns nil when the file cannot be opened or is not
+// regular.
+func sniffOpen(ctx context.Context, root *os.Root, name, path string) *sniffed {
+	f, err := root.OpenFile(name, os.O_RDONLY|syscall.O_NONBLOCK, 0)
 	if err != nil {
-		s.err = fmt.Errorf("open: %w", err)
+		return nil
+	}
+	defer f.Close()
+	fi, err := f.Stat()
+	if err != nil || !fi.Mode().IsRegular() {
+		return nil
+	}
+	s := &sniffed{fi: fi, root: root, name: name}
+	if fi.Size() == 0 {
 		return s
 	}
-	s.content, err = file.ReadContents(f, fi.Size())
-	_ = f.Close()
-	if err != nil {
+	s.admit(ctx)
+	if s.content, err = file.ReadContents(f, fi.Size()); err != nil {
 		s.err = fmt.Errorf("file contents: %w", err)
 		return s
 	}
@@ -61,10 +87,70 @@ func sniffFile(ctx context.Context, path string, fi fs.FileInfo) *sniffed {
 	return s
 }
 
-// close releases the file's contents. It is safe to call on nil.
+// sniffFile reads the file name beneath root, at path, whose Stat result is
+// fi, and detects its kind as programkind.File does. Empty files are not
+// read, and files that are not regular are left to programkind.File.
+func sniffFile(ctx context.Context, root *os.Root, name, path string, fi fs.FileInfo) *sniffed {
+	s := &sniffed{fi: fi, root: root, name: name}
+	switch {
+	case fi.Size() == 0:
+		return s
+	case !fi.Mode().IsRegular():
+		s.kind, s.err = programkind.File(ctx, path)
+		return s
+	}
+	if err := s.load(ctx); err != nil {
+		s.err = err
+		return s
+	}
+	s.kind = programkind.Detect(ctx, path, capContents(s.content.Bytes()))
+	return s
+}
+
+// admit waits until the file's scan fits the scan memory budget, unless it
+// already holds its share. Reading the contents before then would let many
+// workers hold large files while they wait.
+func (s *sniffed) admit(ctx context.Context) {
+	if s.unbudget == nil {
+		s.unbudget = scanMemoryFrom(ctx).acquire(ctx, s.fi.Size())
+	}
+}
+
+// load reads the file's contents, unless they are already read.
+func (s *sniffed) load(ctx context.Context) error {
+	if s.content != nil {
+		return nil
+	}
+	if !s.fi.Mode().IsRegular() {
+		return fmt.Errorf("open: not a regular file: %s", s.fi.Mode().Type())
+	}
+	s.admit(ctx)
+	f, err := s.root.Open(s.name)
+	if err != nil {
+		return fmt.Errorf("open: %w", err)
+	}
+	s.content, err = file.ReadContents(f, s.fi.Size())
+	_ = f.Close()
+	if err != nil {
+		return fmt.Errorf("file contents: %w", err)
+	}
+	return nil
+}
+
+// close releases the file's contents, root, and share of the scan memory
+// budget. It is safe to call on nil, and more than once.
 func (s *sniffed) close() {
-	if s != nil {
-		_ = s.content.Close()
+	if s == nil {
+		return
+	}
+	_ = s.content.Close()
+	if s.release != nil {
+		s.release()
+		s.release = nil
+	}
+	if s.unbudget != nil {
+		s.unbudget()
+		s.unbudget = nil
 	}
 }
 
@@ -74,18 +160,8 @@ func capContents(b []byte) []byte {
 	return b[:min(int64(len(b)), file.MaxBytes)]
 }
 
-// readCapped returns up to file.MaxBytes of the file at path.
-func readCapped(path string) ([]byte, error) {
-	f, err := os.Open(path) // #nosec G304 -- see sniffFile
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-	return file.GetContents(f)
-}
-
 // resultCacheBudget bounds the approximate memory, in bytes, that cached scan
-// results may hold during one scan.
+// results may hold during one scan, or both scans of a diff.
 const resultCacheBudget int64 = 256 << 20
 
 // resultKey identifies scanned content by its SHA-256 digest and length, for
@@ -97,10 +173,11 @@ type resultKey struct {
 }
 
 // resultCache holds the yara-x results of content already scanned during one
-// scan, so that identical content, such as a module zip and its extracted
-// tree, or a library repeated across packages, is scanned once. Results
-// depend only on the bytes scanned, and report generation treats them as
-// read-only, so one result serves every path with that content.
+// scan, or both scans of a diff, so that identical content, such as a module
+// zip and its extracted tree, a library repeated across packages, or a file
+// two versions share, is scanned once. Results depend only on the bytes
+// scanned, and report generation treats them as read-only, so one result
+// serves every path with that content.
 type resultCache struct {
 	m      *xsync.Map[resultKey, *yarax.ScanResults]
 	budget atomic.Int64
@@ -209,7 +286,7 @@ func scanContent(ctx context.Context, yrs *yarax.Rules, fc []byte, sum [sha256.S
 // scanBytes scans fc, whose SHA-256 digest is sum, with a scanner for yrs.
 // It is a variable so that tests can observe how often content is scanned.
 var scanBytes = func(yrs *yarax.Rules, fc []byte, sum [sha256.Size]byte) (*yarax.ScanResults, error) {
-	return withScanner(yrs, func(s *yarax.Scanner) (*yarax.ScanResults, error) {
+	return withScanner(yrs, int64(len(fc)), func(s *yarax.Scanner) (*yarax.ScanResults, error) {
 		setFileSHA256(s, hex.EncodeToString(sum[:]))
 		return s.Scan(fc)
 	})
@@ -222,15 +299,32 @@ func setFileSHA256(s *yarax.Scanner, digest string) {
 	_ = s.SetGlobal(compile.FileSHA256, digest)
 }
 
-// withScanner runs scan with a scanner for yrs, holding the scanner only for
-// the duration of the call.
-func withScanner(yrs *yarax.Rules, scan func(*yarax.Scanner) (*yarax.ScanResults, error)) (*yarax.ScanResults, error) {
+// withScanner runs scan, of size bytes, with a scanner for yrs, holding the
+// scanner only for the duration of the call. A scanner keeps the memory of
+// its last scan until it scans again, so after a scan of largeScan bytes or
+// more it is destroyed, and the memory freed, rather than kept.
+func withScanner(yrs *yarax.Rules, size int64, scan func(*yarax.Scanner) (*yarax.ScanResults, error)) (*yarax.ScanResults, error) {
+	discard := size >= largeScan
 	if set, ok := scopedSets.Load(yrs); ok {
-		return set.with(scan)
+		return set.with(discard, scan)
 	}
 	sp := acquireScannerPool(yrs)
 	defer sp.release()
 	scanner := sp.scanners.Get(yrs)
-	defer sp.scanners.Put(scanner)
+	defer func() {
+		if discard {
+			destroyScanner(scanner)
+			scanner = yarax.NewScanner(yrs)
+		}
+		sp.scanners.Put(scanner)
+	}()
 	return scan(scanner)
+}
+
+// destroyScanner frees a scanner and returns the memory it held to the
+// operating system. It is a variable so that tests can observe which
+// scanners are destroyed.
+var destroyScanner = func(s *yarax.Scanner) {
+	s.Destroy()
+	releaseFreeMemory()
 }

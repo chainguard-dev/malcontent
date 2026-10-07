@@ -9,11 +9,11 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/egibs/go-debian/deb"
 )
 
@@ -27,7 +27,7 @@ func ExtractDeb(ctx context.Context, d, f string) (retErr error) {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting deb")
 
-	fd, err := os.Open(f) // #nosec G304 -- archive path resolved and validated by caller before extraction
+	fd, err := file.Open(f)
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
@@ -54,6 +54,8 @@ func ExtractDeb(ctx context.Context, d, f string) (retErr error) {
 		return err
 	}
 	defer root.Close()
+	er := newEntryRoots(root)
+	defer er.close()
 
 	for {
 		header, err := df.Data.Next()
@@ -70,7 +72,7 @@ func ExtractDeb(ctx context.Context, d, f string) (retErr error) {
 		}
 
 		target := filepath.Join(d, clean)
-		if !IsValidPath(target, d) {
+		if !er.validPath(target, d) {
 			return fmt.Errorf("invalid file path: %s", target)
 		}
 
@@ -80,15 +82,20 @@ func ExtractDeb(ctx context.Context, d, f string) (retErr error) {
 				return fmt.Errorf("failed to extract directory: %w", err)
 			}
 		case tar.TypeReg:
-			if err := handleFile(root, clean, df.Data, counter); err != nil {
+			if err := handleFile(er, clean, df.Data, counter); err != nil {
 				return fmt.Errorf("failed to extract file: %w", err)
 			}
 		case tar.TypeSymlink:
-			if err := handleSymlink(root, clean, header.Linkname); err != nil {
+			// Links may replace an entry that other names led through.
+			err := handleSymlink(root, clean, header.Linkname)
+			er.close()
+			if err != nil {
 				return fmt.Errorf("failed to create symlink: %w", err)
 			}
 		case tar.TypeLink:
-			if err := handleHardlink(root, clean, header.Linkname); err != nil {
+			err := handleHardlink(root, clean, header.Linkname)
+			er.close()
+			if err != nil {
 				return fmt.Errorf("failed to create hardlink: %w", err)
 			}
 		}
