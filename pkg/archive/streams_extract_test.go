@@ -12,7 +12,6 @@ import (
 	"errors"
 	"io/fs"
 	"maps"
-	"os"
 	"path/filepath"
 	"slices"
 	"sync/atomic"
@@ -149,12 +148,13 @@ func streamsZstd(t *testing.T, data []byte) []byte {
 // bz2 and zstd keep the "src" parent directory name in their output path.
 func streamsWriteSource(t *testing.T, name string, data []byte) string {
 	t.Helper()
-	dir := filepath.Join(t.TempDir(), "src")
-	if err := os.MkdirAll(dir, 0o700); err != nil {
+	base := t.TempDir()
+	dir := filepath.Join(base, "src")
+	if err := file.MkdirAllIn(base, "src", 0o700); err != nil {
 		t.Fatalf("mkdir %s: %v", dir, err)
 	}
 	p := filepath.Join(dir, name)
-	if err := os.WriteFile(p, data, 0o600); err != nil {
+	if err := file.WriteFileIn(dir, name, data, 0o600); err != nil {
 		t.Fatalf("write %s: %v", p, err)
 	}
 	return p
@@ -164,23 +164,20 @@ func streamsWriteSource(t *testing.T, name string, data []byte) string {
 // path, to its contents.
 func streamsTree(t *testing.T, dir string) map[string][]byte {
 	t.Helper()
+	r := openTestRoot(t, dir)
 	got := map[string][]byte{}
-	err := filepath.WalkDir(dir, func(p string, d fs.DirEntry, walkErr error) error {
+	err := fs.WalkDir(r.FS(), ".", func(rel string, d fs.DirEntry, walkErr error) error {
 		if walkErr != nil {
 			return walkErr
 		}
 		if !d.Type().IsRegular() {
 			return nil
 		}
-		rel, err := filepath.Rel(dir, p)
+		data, err := r.ReadFile(rel)
 		if err != nil {
 			return err
 		}
-		data, err := os.ReadFile(p)
-		if err != nil {
-			return err
-		}
-		got[filepath.ToSlash(rel)] = data
+		got[rel] = data
 		return nil
 	})
 	if err != nil {
@@ -562,14 +559,15 @@ func TestStreamExtractorsHonorCanceledContextAtEntry(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			src := streamsWriteSource(t, tc.srcName, tc.src)
-			dst := filepath.Join(t.TempDir(), "out")
+			base := t.TempDir()
+			dst := filepath.Join(base, "out")
 			ctx, cancel := context.WithCancel(t.Context())
 			cancel()
 			err := tc.extract(ctx, dst, src)
 			if !errors.Is(err, context.Canceled) {
 				t.Fatalf("extract error: got = %v, want = %v", err, context.Canceled)
 			}
-			if _, err := os.Stat(dst); !errors.Is(err, fs.ErrNotExist) {
+			if _, err := file.StatIn(base, "out"); !errors.Is(err, fs.ErrNotExist) {
 				t.Errorf("destination stat error: got = %v, want = %v", err, fs.ErrNotExist)
 			}
 		})
@@ -594,12 +592,13 @@ func TestStreamExtractorsSkipEmptyInput(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			src := streamsWriteSource(t, tc.srcName, nil)
-			dst := filepath.Join(t.TempDir(), "out")
+			base := t.TempDir()
+			dst := filepath.Join(base, "out")
 			err := tc.extract(streamsCtx(t, streamsNoByteCap), dst, src)
 			if (err != nil) != tc.wantErr {
 				t.Fatalf("extract error: got = %v, want error = %t", err, tc.wantErr)
 			}
-			if _, err := os.Stat(dst); !errors.Is(err, fs.ErrNotExist) {
+			if _, err := file.StatIn(base, "out"); !errors.Is(err, fs.ErrNotExist) {
 				t.Errorf("destination stat error: got = %v, want = %v", err, fs.ErrNotExist)
 			}
 		})
@@ -664,8 +663,9 @@ func TestStreamExtractorsReportDestinationErrors(t *testing.T) {
 		t.Run(f.name+" destination below a regular file cannot be created", func(t *testing.T) {
 			t.Parallel()
 			src := streamsWriteSource(t, f.srcName, f.src)
-			blocker := filepath.Join(t.TempDir(), "blocker")
-			if err := os.WriteFile(blocker, []byte("not a directory"), 0o600); err != nil {
+			base := t.TempDir()
+			blocker := filepath.Join(base, "blocker")
+			if err := file.WriteFileIn(base, "blocker", []byte("not a directory"), 0o600); err != nil {
 				t.Fatalf("write %s: %v", blocker, err)
 			}
 			err := f.extract(streamsCtx(t, streamsNoByteCap), filepath.Join(blocker, "out"), src)
@@ -677,7 +677,7 @@ func TestStreamExtractorsReportDestinationErrors(t *testing.T) {
 			t.Parallel()
 			src := streamsWriteSource(t, f.srcName, f.src)
 			dst := t.TempDir()
-			if err := os.MkdirAll(filepath.Join(dst, f.outRel), 0o700); err != nil {
+			if err := file.MkdirAllIn(dst, f.outRel, 0o700); err != nil {
 				t.Fatalf("mkdir %s: %v", f.outRel, err)
 			}
 			err := f.extract(streamsCtx(t, streamsNoByteCap), dst, src)

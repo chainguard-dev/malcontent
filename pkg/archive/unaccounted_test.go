@@ -11,12 +11,12 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
-	"os"
 	"path/filepath"
 	"slices"
 	"strings"
 	"testing"
 
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 )
 
@@ -85,22 +85,23 @@ func gzipBytes(t *testing.T, b []byte) []byte {
 
 func writeTemp(t *testing.T, name string, data []byte) string {
 	t.Helper()
-	p := filepath.Join(t.TempDir(), name)
-	if err := os.WriteFile(p, data, 0o600); err != nil {
+	dir := t.TempDir()
+	if err := file.WriteFileIn(dir, name, data, 0o600); err != nil {
 		t.Fatal(err)
 	}
-	return p
+	return filepath.Join(dir, name)
 }
 
 // corpusContains reports whether any extracted file holds the payload marker.
 func corpusContains(t *testing.T, root, marker string) bool {
 	t.Helper()
+	r := openTestRoot(t, root)
 	found := false
-	if err := filepath.WalkDir(root, func(p string, d fs.DirEntry, err error) error {
+	if err := fs.WalkDir(r.FS(), ".", func(p string, d fs.DirEntry, err error) error {
 		if err != nil || d.IsDir() {
 			return nil //nolint:nilerr // unreadable entries simply cannot hold the marker
 		}
-		data, readErr := os.ReadFile(p) // #nosec G304 -- test-controlled extraction dir
+		data, readErr := r.ReadFile(p)
 		if readErr == nil && bytes.Contains(data, []byte(marker)) {
 			found = true
 		}
@@ -230,7 +231,7 @@ func TestExtractTarRealArchives(t *testing.T) {
 		"testdata/symlink_valid.tar",
 	} {
 		t.Run(filepath.Base(src), func(t *testing.T) {
-			if _, err := os.Stat(src); err != nil {
+			if _, err := file.Stat(src); err != nil {
 				t.Skipf("fixture unavailable: %v", err)
 			}
 			if err := ExtractTar(t.Context(), t.TempDir(), src); err != nil {
@@ -333,7 +334,7 @@ func TestNestedArchiveWithTrailingDataRetained(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ExtractArchiveToTempDir: %v", err)
 	}
-	defer os.RemoveAll(root)
+	defer file.RemoveAllIn(filepath.Dir(root), filepath.Base(root))
 
 	if !corpusContains(t, root, testPayload) {
 		t.Error("hidden payload escaped the scan corpus")
@@ -375,7 +376,7 @@ func TestTopLevelArchiveRetainedOnFailure(t *testing.T) {
 			if err != nil {
 				t.Fatalf("ExtractArchiveToTempDir: %v", err)
 			}
-			defer os.RemoveAll(root)
+			defer file.RemoveAllIn(filepath.Dir(root), filepath.Base(root))
 
 			if !corpusContains(t, root, testPayload) {
 				t.Error("payload escaped the scan corpus")
@@ -384,7 +385,7 @@ func TestTopLevelArchiveRetainedOnFailure(t *testing.T) {
 			// ExitExtraction opts into hard failure instead of retention.
 			strict, err := ExtractArchiveToTempDir(t.Context(), malcontent.Config{ExitExtraction: true}, src)
 			if err == nil {
-				os.RemoveAll(strict)
+				_ = file.RemoveAllIn(filepath.Dir(strict), filepath.Base(strict))
 				t.Error("ExtractArchiveToTempDir with ExitExtraction = nil error, want failure")
 			}
 		})

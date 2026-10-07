@@ -142,7 +142,11 @@ func leadingParents(clean string) int {
 // the returned Root stays beneath dir, even when it follows a symlink that the
 // archive being extracted planted.
 func openRoot(dir string) (*os.Root, error) {
-	if err := os.MkdirAll(dir, 0o700); err != nil {
+	// The directory almost always exists already.
+	if root, err := os.OpenRoot(dir); err == nil {
+		return root, nil
+	}
+	if err := file.MkdirAll(dir, 0o700); err != nil {
 		return nil, fmt.Errorf("failed to create extraction directory: %w", err)
 	}
 	root, err := os.OpenRoot(dir)
@@ -200,9 +204,18 @@ func removeSymlink(root *os.Root, name string) error {
 	return nil
 }
 
-// symlinkEscapesDir checks whether a symlink at target resolves outside dir.
-func symlinkEscapesDir(target, dir string) bool {
-	fi, err := os.Lstat(target)
+// lstatPath returns the FileInfo of path without following a final symlink.
+// Symlinks on the way to its parent directory are followed to reach it, so a
+// parent that leads outside an extraction directory still has its link
+// examined.
+func lstatPath(path string) (fs.FileInfo, error) {
+	return file.LstatIn(filepath.Dir(path), filepath.Base(path))
+}
+
+// symlinkEscapesDir checks whether a symlink at target, examined with lstat,
+// resolves outside dir.
+func symlinkEscapesDir(target, dir string, lstat func(string) (fs.FileInfo, error)) bool {
+	fi, err := lstat(target)
 	if err != nil || fi.Mode()&os.ModeSymlink == 0 {
 		return false
 	}
@@ -225,8 +238,13 @@ func symlinkEscapesDir(target, dir string) bool {
 	return rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator))
 }
 
-// isValidPath checks if the target file is within the given directory.
+// IsValidPath checks if the target file is within the given directory.
 func IsValidPath(target, dir string) bool {
+	return pathWithin(target, dir, lstatPath)
+}
+
+// pathWithin is IsValidPath examining a symlink at target with lstat.
+func pathWithin(target, dir string, lstat func(string) (fs.FileInfo, error)) bool {
 	if strings.Contains(target, "\x00") || strings.Contains(dir, "\x00") {
 		return false
 	}
@@ -234,7 +252,7 @@ func IsValidPath(target, dir string) bool {
 	cleanTarget := filepath.Clean(target)
 	cleanDir := filepath.Clean(dir)
 
-	if symlinkEscapesDir(cleanTarget, cleanDir) {
+	if symlinkEscapesDir(cleanTarget, cleanDir, lstat) {
 		return false
 	}
 
@@ -321,7 +339,7 @@ func contentDigest(r io.Reader) ([sha256.Size]byte, error) {
 // setRoot records the archive at path, which lies outside the extraction
 // directory, as the one containing every archive in the tree.
 func (tree *nestedTree) setRoot(path string) error {
-	f, err := os.Open(path) // #nosec G304 -- archive path supplied by the caller, which extracts it next
+	f, err := file.Open(path)
 	if err != nil {
 		return fmt.Errorf("failed to open archive for hashing: %w", err)
 	}
@@ -401,19 +419,15 @@ func nestedError(f, rel string, err error) error {
 // streams are recognized by content rather than by name. WalkDir does not
 // follow symlinks, so the search stays within dir.
 func nestedArchiveCandidates(root, dir string) ([]string, error) {
+	sub, err := filepath.Rel(root, dir)
+	if err != nil {
+		return nil, fmt.Errorf("filepath.Rel: %w", err)
+	}
 	var found []string
-	err := filepath.WalkDir(dir, func(path string, entry fs.DirEntry, err error) error {
-		if err != nil {
-			return err
+	err = walkTree(root, sub, func(rel string, entry fs.DirEntry) error {
+		if entry.Type().IsRegular() {
+			found = append(found, rel)
 		}
-		if !entry.Type().IsRegular() {
-			return nil
-		}
-		rel, err := filepath.Rel(root, path)
-		if err != nil {
-			return fmt.Errorf("filepath.Rel: %w", err)
-		}
-		found = append(found, rel)
 		return nil
 	})
 	return found, err
@@ -650,20 +664,11 @@ func ExtractArchiveToTempDir(ctx context.Context, c malcontent.Config, path stri
 	// WalkDir reads a directory's entries before visiting them, so it never
 	// reaches the directories that nested extraction creates beside each
 	// archive; the tree searches those itself.
-	err = filepath.WalkDir(t.dir, func(path string, d os.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-
+	err = walkTree(t.dir, ".", func(rel string, d fs.DirEntry) error {
 		// Every regular file is a candidate, because UPX binaries and zlib
 		// streams are recognized by content rather than by name.
 		if !d.Type().IsRegular() {
 			return nil
-		}
-
-		rel, err := filepath.Rel(t.dir, path)
-		if err != nil {
-			return fmt.Errorf("filepath.Rel: %w", err)
 		}
 		return t.tree.extract(ctx, c, t.dir, rel, t.logger, 1)
 	})
@@ -675,10 +680,28 @@ func ExtractArchiveToTempDir(ctx context.Context, c malcontent.Config, path stri
 	return t.dir, nil
 }
 
+// walkTree calls fn, in lexical order, with every entry beneath sub, a
+// directory relative to dir, read through a root on dir, and its path
+// relative to dir. Like filepath.WalkDir, it reads a directory's entries
+// before visiting them and does not follow symlinks.
+func walkTree(dir, sub string, fn func(rel string, d fs.DirEntry) error) error {
+	r, err := os.OpenRoot(dir)
+	if err != nil {
+		return err
+	}
+	defer r.Close()
+	return file.WalkDir(r, filepath.ToSlash(sub), func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		return fn(filepath.FromSlash(path), d)
+	})
+}
+
 // cleanupTempDir removes an extraction directory that will not be returned to
 // the caller, which would otherwise have no handle with which to remove it.
 func cleanupTempDir(ctx context.Context, dir string) {
-	if err := os.RemoveAll(dir); err != nil {
+	if err := file.RemoveAllIn(filepath.Dir(dir), filepath.Base(dir)); err != nil {
 		clog.ErrorContextf(ctx, "remove %s: %v", dir, err)
 	}
 }
@@ -699,11 +722,11 @@ func retainArchive(dir, path string) (string, error) {
 	}
 	defer root.Close()
 
-	// Extraction may already have written an entry under this name. Root has
-	// no CreateTemp or cross-root Link, but name is a single element directly
-	// beneath dir, so neither can follow a symlink.
+	// The archive lies outside dir, so it is copied in rather than linked.
+	// Extraction may already have written an entry under this name, in which
+	// case the copy takes a new one beside it.
 	if _, err := root.Lstat(name); err == nil {
-		tmp, err := os.CreateTemp(dir, name+"_*")
+		tmp, tmpName, err := file.CreateTemp(root, name+"_*")
 		if err != nil {
 			return "", fmt.Errorf("failed to create retention file: %w", err)
 		}
@@ -711,13 +734,7 @@ func retainArchive(dir, path string) (string, error) {
 		if err := copyArchiveContents(tmp, path); err != nil {
 			return "", err
 		}
-		return filepath.Base(tmp.Name()), nil
-	}
-
-	// A hard link avoids duplicating a potentially large archive on disk.
-	// It cannot cross filesystems, so fall back to a copy.
-	if err := os.Link(path, target); err == nil {
-		return name, nil
+		return tmpName, nil
 	}
 
 	dst, err := root.OpenFile(name, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600)
@@ -733,7 +750,7 @@ func retainArchive(dir, path string) (string, error) {
 }
 
 func copyArchiveContents(dst io.Writer, path string) error {
-	src, err := os.Open(path) // #nosec G304 -- archive path supplied by the caller and already opened by the extractor
+	src, err := file.Open(path)
 	if err != nil {
 		return fmt.Errorf("failed to open archive for retention: %w", err)
 	}
@@ -796,11 +813,11 @@ func handleDirectory(root *os.Root, name string) error {
 
 // handleFile extracts valid files within .deb or .tar archives. A nil
 // counter disables byte and ratio accounting.
-func handleFile(root *os.Root, name string, tr *tar.Reader, counter *file.ArchiveCounter) error {
+func handleFile(er *entryRoots, name string, tr *tar.Reader, counter *file.ArchiveCounter) error {
 	buf := extractPool.Get()
 	defer extractPool.Put(buf)
 
-	out, err := createFile(root, name)
+	out, err := er.createFile(name)
 	if err != nil {
 		return err
 	}

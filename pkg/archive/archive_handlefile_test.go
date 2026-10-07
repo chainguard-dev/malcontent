@@ -7,8 +7,6 @@ import (
 	"archive/tar"
 	"bytes"
 	"errors"
-	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/chainguard-dev/malcontent/pkg/file"
@@ -43,12 +41,12 @@ func TestHandleFile_NilCounter(t *testing.T) {
 	dir := t.TempDir()
 	body := []byte("hello-nil")
 	tr := makeTarStream(t, "a.txt", body)
-	target := filepath.Join(dir, "a.txt")
+	root := openTestRoot(t, dir)
 
-	if err := handleFile(openTestRoot(t, dir), "a.txt", tr, nil); err != nil {
+	if err := handleFile(testEntryRoots(t, root), "a.txt", tr, nil); err != nil {
 		t.Fatalf("handleFile(nil counter): %v", err)
 	}
-	got, err := os.ReadFile(target)
+	got, err := root.ReadFile("a.txt")
 	if err != nil {
 		t.Fatalf("ReadFile: %v", err)
 	}
@@ -66,7 +64,7 @@ func TestHandleFile_WithCounter(t *testing.T) {
 	tr := makeTarStream(t, "b.txt", body)
 
 	counter := &file.ArchiveCounter{}
-	if err := handleFile(openTestRoot(t, dir), "b.txt", tr, counter); err != nil {
+	if err := handleFile(testEntryRoots(t, openTestRoot(t, dir)), "b.txt", tr, counter); err != nil {
 		t.Fatalf("handleFile(counter): %v", err)
 	}
 	if got := counter.Total.Load(); got != int64(len(body)) {
@@ -90,16 +88,16 @@ func TestHandleFile_ArchiveBudgetBoundsPerMemberWrite(t *testing.T) {
 		body[i] = byte(i % 256)
 	}
 	tr := makeTarStream(t, "oversize.bin", body)
-	target := filepath.Join(dir, "oversize.bin")
+	root := openTestRoot(t, dir)
 
 	counter := &file.ArchiveCounter{MaxBytes: archiveCap, InputBytes: 1 << 20}
-	err := handleFile(openTestRoot(t, dir), "oversize.bin", tr, counter)
+	err := handleFile(testEntryRoots(t, root), "oversize.bin", tr, counter)
 	if err == nil {
 		t.Fatalf("handleFile succeeded; want error for member exceeding archive cap")
 	}
 
 	// The written file on disk must not contain the full member body.
-	data, readErr := os.ReadFile(target)
+	data, readErr := root.ReadFile("oversize.bin")
 	if readErr != nil {
 		// File may not exist if we aborted before any write; that is acceptable.
 		return
@@ -125,14 +123,14 @@ func TestHandleFile_MemberWithinBudgetExtractsFully(t *testing.T) {
 		body[i] = byte(i % 251) // non-trivial pattern to detect truncation
 	}
 	tr := makeTarStream(t, "within_budget.bin", body)
-	target := filepath.Join(dir, "within_budget.bin")
+	root := openTestRoot(t, dir)
 
 	counter := &file.ArchiveCounter{MaxBytes: budget, InputBytes: 1 << 20}
-	if err := handleFile(openTestRoot(t, dir), "within_budget.bin", tr, counter); err != nil {
+	if err := handleFile(testEntryRoots(t, root), "within_budget.bin", tr, counter); err != nil {
 		t.Fatalf("handleFile returned error for member within budget: %v", err)
 	}
 
-	got, err := os.ReadFile(target)
+	got, err := root.ReadFile("within_budget.bin")
 	if err != nil {
 		t.Fatalf("ReadFile: %v", err)
 	}
@@ -179,16 +177,16 @@ func TestHandleFile_TruncatedMember(t *testing.T) {
 			if _, err := tr.Next(); err != nil {
 				t.Fatalf("Next: %v", err)
 			}
-			dir := t.TempDir()
+			root := openTestRoot(t, t.TempDir())
 
-			err := handleFile(openTestRoot(t, dir), "cut.bin", tr, nil)
+			err := handleFile(testEntryRoots(t, root), "cut.bin", tr, nil)
 			if got := err != nil; got != tt.wantErr {
 				t.Fatalf("handleFile error: got = %v, want error = %v", err, tt.wantErr)
 			}
 			if tt.wantErr {
 				return
 			}
-			got, err := os.ReadFile(filepath.Join(dir, "cut.bin"))
+			got, err := root.ReadFile("cut.bin")
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -213,7 +211,7 @@ func TestHandleFile_MemberExceedsBudgetErrors(t *testing.T) {
 	tr := makeTarStream(t, "over_budget.bin", body)
 
 	counter := &file.ArchiveCounter{MaxBytes: budget, InputBytes: 1 << 20}
-	err := handleFile(openTestRoot(t, dir), "over_budget.bin", tr, counter)
+	err := handleFile(testEntryRoots(t, openTestRoot(t, dir)), "over_budget.bin", tr, counter)
 	if err == nil {
 		t.Fatal("handleFile succeeded; want error for member exceeding counter budget")
 	}

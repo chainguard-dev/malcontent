@@ -7,7 +7,6 @@ import (
 	"bytes"
 	"io/fs"
 	"maps"
-	"os"
 	"path/filepath"
 	"runtime"
 	"slices"
@@ -106,8 +105,9 @@ func TestJavaRulesOnClassFiles(t *testing.T) {
 		"UrlBenign.class":   classBlob("URLClassLoader", "http://www.w3.org/2001/XMLSchema", filler),
 		"Benign.class":      classBlob("java/lang/Object", "toString", "hello world", filler),
 	}
+	root := scanTestOpenRoot(t, td)
 	for name, content := range fixtures {
-		if err := os.WriteFile(filepath.Join(td, name), content, 0o600); err != nil {
+		if err := root.WriteFile(name, content, 0o600); err != nil {
 			t.Fatalf("write fixture %s: %v", name, err)
 		}
 	}

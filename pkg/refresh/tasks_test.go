@@ -18,6 +18,7 @@ import (
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/action"
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 	"github.com/chainguard-dev/malcontent/pkg/release"
@@ -29,12 +30,24 @@ import (
 // refreshWriteFile writes data to path, creating its parent directories.
 func refreshWriteFile(t *testing.T, path, data string) {
 	t.Helper()
-	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
-		t.Fatalf("MkdirAll(%q): %v", filepath.Dir(path), err)
+	dir := filepath.Dir(path)
+	if err := file.MkdirAll(dir, 0o700); err != nil {
+		t.Fatalf("MkdirAll(%q): %v", dir, err)
 	}
-	if err := os.WriteFile(path, []byte(data), 0o600); err != nil {
+	if err := file.WriteFileIn(dir, filepath.Base(path), []byte(data), 0o600); err != nil {
 		t.Fatalf("WriteFile(%q): %v", path, err)
 	}
+}
+
+// refreshRoot opens a root on dir that stays open until the test ends.
+func refreshRoot(t *testing.T, dir string) *os.Root {
+	t.Helper()
+	r, err := os.OpenRoot(dir)
+	if err != nil {
+		t.Fatalf("OpenRoot(%q): %v", dir, err)
+	}
+	t.Cleanup(func() { _ = r.Close() })
+	return r
 }
 
 // refreshTouch creates an empty file at path along with its parent directories.
@@ -131,11 +144,12 @@ func refreshCancelWhen(t *testing.T, cond func() bool) context.Context {
 	return refreshCancelingContext{Context: ctx, cancel: cancel, cond: cond}
 }
 
-// refreshCancelOnceExists returns a context that is canceled once path exists.
-func refreshCancelOnceExists(t *testing.T, path string) context.Context {
+// refreshCancelOnceExists returns a context that is canceled once name exists
+// beneath dir.
+func refreshCancelOnceExists(t *testing.T, dir, name string) context.Context {
 	t.Helper()
 	return refreshCancelWhen(t, func() bool {
-		_, err := os.Stat(path)
+		_, err := file.StatIn(dir, name)
 		return err == nil
 	})
 }
@@ -199,11 +213,13 @@ func refreshFakeUPX(t *testing.T) string {
 	if runtime.GOOS == "windows" {
 		t.Skip("POSIX permission bits required for the UPX path checks")
 	}
-	p := filepath.Join(t.TempDir(), "upx")
-	if err := os.WriteFile(p, []byte("#!/bin/sh\nexit 0\n"), 0o700); err != nil {
+	dir := t.TempDir()
+	r := refreshRoot(t, dir)
+	p := filepath.Join(dir, "upx")
+	if err := r.WriteFile("upx", []byte("#!/bin/sh\nexit 0\n"), 0o700); err != nil {
 		t.Fatalf("WriteFile(%q): %v", p, err)
 	}
-	if err := os.Chmod(p, 0o700); err != nil {
+	if err := r.Chmod("upx", 0o700); err != nil {
 		t.Fatalf("Chmod(%q): %v", p, err)
 	}
 	return p
@@ -229,7 +245,7 @@ func TestDiscoverTestDataSkipsDirectoriesAndActionTestdata(t *testing.T) {
 	refreshTouch(t, filepath.Join(goldens, "linux/sample.simple"))
 	refreshTouch(t, filepath.Join(goldens, "pkg/action/testdata/skipped.json"))
 	// A directory whose name carries a golden extension is not a golden file.
-	if err := os.MkdirAll(filepath.Join(goldens, "bundle.json"), 0o700); err != nil {
+	if err := file.MkdirAllIn(goldens, "bundle.json", 0o700); err != nil {
 		t.Fatalf("MkdirAll: %v", err)
 	}
 
@@ -349,7 +365,7 @@ func TestActionRefreshBuildsScanTasks(t *testing.T) {
 		if task.OutFile == nil {
 			t.Errorf("task %d output file: got = nil, want = open file", i)
 		}
-		if _, err := os.Stat(want.outputPath); err != nil {
+		if _, err := file.StatIn(root, want.outputPath); err != nil {
 			t.Errorf("task %d output stat error: got = %v, want = nil", i, err)
 		}
 		c := task.Config
@@ -416,7 +432,7 @@ func TestDiffRefreshBuildsDiffTasks(t *testing.T) {
 			if task.OutFile == nil {
 				t.Error("output file: got = nil, want = open file")
 			}
-			if _, err := os.Stat(task.OutputPath); err != nil {
+			if _, err := file.StatIn(goldens, tt.output); err != nil {
 				t.Errorf("output stat error: got = %v, want = nil", err)
 			}
 			c := task.Config
@@ -546,11 +562,11 @@ func TestExecuteRefreshRendersAndClosesOutput(t *testing.T) {
 	t.Parallel()
 	dir := t.TempDir()
 	sample := filepath.Join(dir, "hello.sh")
-	if err := os.WriteFile(sample, []byte("#!/bin/sh\necho hello\n"), 0o600); err != nil {
+	if err := file.WriteFileIn(dir, "hello.sh", []byte("#!/bin/sh\necho hello\n"), 0o600); err != nil {
 		t.Fatalf("WriteFile(%q): %v", sample, err)
 	}
 	outPath := sample + ".simple"
-	out, err := os.Create(outPath)
+	out, err := file.OpenFileIn(dir, "hello.sh.simple", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0o600)
 	if err != nil {
 		t.Fatalf("Create(%q): %v", outPath, err)
 	}
@@ -583,7 +599,12 @@ func TestExecuteRefreshRendersAndClosesOutput(t *testing.T) {
 // is unavailable.
 func refreshOpenFilesUnder(t *testing.T, dir string) int {
 	t.Helper()
-	entries, err := os.ReadDir("/proc/self/fd")
+	fds, err := os.OpenRoot("/proc/self/fd")
+	if err != nil {
+		t.Skipf("open file descriptors are not listable: %v", err)
+	}
+	defer fds.Close()
+	entries, err := fs.ReadDir(fds.FS(), ".")
 	if err != nil {
 		t.Skipf("open file descriptors are not listable: %v", err)
 	}
@@ -594,7 +615,7 @@ func refreshOpenFilesUnder(t *testing.T, dir string) int {
 	prefix := resolved + string(filepath.Separator)
 	n := 0
 	for _, e := range entries {
-		target, err := os.Readlink(filepath.Join("/proc/self/fd", e.Name()))
+		target, err := fds.Readlink(e.Name())
 		if err == nil && strings.HasPrefix(target, prefix) {
 			n++
 		}
@@ -609,16 +630,12 @@ func TestDiffTestDataCoversEveryDiffGolden(t *testing.T) {
 	// golden.
 	root := filepath.Join("..", "..", "tests")
 	var got []string
-	err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
+	err := fs.WalkDir(refreshRoot(t, root).FS(), ".", func(rel string, d fs.DirEntry, err error) error {
 		if err != nil || d.IsDir() {
 			return err
 		}
 		if name := d.Name(); strings.Contains(name, ".mdiff") || strings.Contains(name, ".sdiff") {
-			rel, err := filepath.Rel(root, path)
-			if err != nil {
-				return err
-			}
-			got = append(got, filepath.ToSlash(rel))
+			got = append(got, rel)
 		}
 		return nil
 	})
@@ -665,7 +682,7 @@ func TestDiffRefreshClosesOpenedOutputsOnError(t *testing.T) {
 				}
 				// The second case cannot open its output after the first case
 				// opened its own.
-				if err := os.MkdirAll(filepath.Join(goldens, diffTestData[1].outputPath), 0o700); err != nil {
+				if err := file.MkdirAllIn(goldens, diffTestData[1].outputPath, 0o700); err != nil {
 					t.Fatalf("MkdirAll: %v", err)
 				}
 			},
@@ -718,7 +735,7 @@ func TestActionRefreshClosesOpenedOutputsOnError(t *testing.T) {
 			setup: func(t *testing.T, root string) {
 				t.Helper()
 				refreshActionInputs(t, root)
-				if err := os.MkdirAll(filepath.Join(root, actionTestData[1].outputPath), 0o700); err != nil {
+				if err := file.MkdirAllIn(root, actionTestData[1].outputPath, 0o700); err != nil {
 					t.Fatalf("MkdirAll: %v", err)
 				}
 			},
@@ -788,11 +805,11 @@ func TestPrepareRefreshClosesOpenedOutputsOnError(t *testing.T) {
 				refreshAllInputs(t, root, samples)
 				// A golden that links into a missing directory is discovered
 				// but cannot be opened for writing.
-				golden := filepath.Join(goldens, "linux/clean/hello.simple")
-				if err := os.MkdirAll(filepath.Dir(golden), 0o700); err != nil {
+				r := refreshRoot(t, goldens)
+				if err := r.MkdirAll("linux/clean", 0o700); err != nil {
 					t.Fatalf("MkdirAll: %v", err)
 				}
-				if err := os.Symlink(filepath.Join(goldens, "missing", "hello.simple"), golden); err != nil {
+				if err := r.Symlink(filepath.Join("missing", "hello.simple"), "linux/clean/hello.simple"); err != nil {
 					t.Skipf("symlinks unavailable: %v", err)
 				}
 			},
@@ -807,14 +824,14 @@ func TestPrepareRefreshClosesOpenedOutputsOnError(t *testing.T) {
 					t.Skip("root reads directories regardless of their permissions")
 				}
 				refreshAllInputs(t, root, samples)
-				locked := filepath.Join(goldens, "locked")
-				if err := os.Mkdir(locked, 0o700); err != nil {
+				r := refreshRoot(t, goldens)
+				if err := r.Mkdir("locked", 0o700); err != nil {
 					t.Fatalf("Mkdir: %v", err)
 				}
-				if err := os.Chmod(locked, 0); err != nil {
+				if err := r.Chmod("locked", 0); err != nil {
 					t.Fatalf("Chmod: %v", err)
 				}
-				t.Cleanup(func() { _ = os.Chmod(locked, 0o700) })
+				t.Cleanup(func() { _ = r.Chmod("locked", 0o700) })
 			},
 			wantErr: "find test files",
 			wantIs:  fs.ErrPermission,
@@ -830,9 +847,8 @@ func TestPrepareRefreshClosesOpenedOutputsOnError(t *testing.T) {
 				t.Helper()
 				// Opening a discovered golden truncates it, after every action
 				// and diff output is already open.
-				golden := filepath.Join(goldens, "linux/clean/hello.simple")
 				return refreshCancelWhen(t, func() bool {
-					fi, err := os.Stat(golden)
+					fi, err := file.StatIn(goldens, "linux/clean/hello.simple")
 					return err == nil && fi.Size() == 0
 				})
 			},
@@ -900,13 +916,13 @@ func TestActionRefreshClosesOutputsWhenALaterTaskFails(t *testing.T) {
 			refreshUseActionTable(t, []actionData{first, second})
 			ctx := t.Context()
 			if tt.cancel {
-				ctx = refreshCancelOnceExists(t, second.outputPath)
+				ctx = refreshCancelOnceExists(t, root, filepath.Join(tt.outDir, "second"))
 			}
 
 			tasks, err := actionRefresh(ctx)
 			closeTestDataFiles(tasks)
 			refreshCheckFailure(t, tasks, err, tt.wantErr, tt.wantIs)
-			if _, err := os.Stat(first.outputPath); err != nil {
+			if _, err := file.StatIn(root, filepath.Join("out", "first")); err != nil {
 				t.Errorf("first output stat error: got = %v, want = nil", err)
 			}
 			if n := refreshOpenFilesUnder(t, root); n != 0 {
@@ -955,13 +971,13 @@ func TestDiffRefreshClosesOutputsWhenALaterTaskFails(t *testing.T) {
 			refreshUseDiffTable(t, []diffData{first, second})
 			ctx := t.Context()
 			if tt.cancel {
-				ctx = refreshCancelOnceExists(t, filepath.Join(goldens, second.outputPath))
+				ctx = refreshCancelOnceExists(t, goldens, second.outputPath)
 			}
 
 			tasks, err := diffRefresh(ctx, Config{SamplesPath: samples, TestDataPath: goldens})
 			closeTestDataFiles(tasks)
 			refreshCheckFailure(t, tasks, err, tt.wantErr, tt.wantIs)
-			if _, err := os.Stat(filepath.Join(goldens, first.outputPath)); err != nil {
+			if _, err := file.StatIn(goldens, first.outputPath); err != nil {
 				t.Errorf("first output stat error: got = %v, want = nil", err)
 			}
 			if n := refreshOpenFilesUnder(t, goldens); n != 0 {
@@ -1011,7 +1027,7 @@ func TestCanceledRefreshLeavesOutputsUntouched(t *testing.T) {
 			closeTestDataFiles(tasks)
 			refreshCheckFailure(t, tasks, err, "", context.Canceled)
 			for _, out := range outputs {
-				if got, err := os.ReadFile(out); err != nil || string(got) != "previous" {
+				if got, err := file.ReadFileIn(filepath.Dir(out), filepath.Base(out)); err != nil || string(got) != "previous" {
 					t.Errorf("%s after a canceled refresh: got = %q (read error %v), want = %q", out, got, err, "previous")
 				}
 			}
@@ -1057,11 +1073,11 @@ func TestExecuteRefreshReportsProgress(t *testing.T) {
 	tasks := make([]TestData, 0, 2)
 	for _, name := range []string{"first.sh", "second.sh"} {
 		sample := filepath.Join(dir, name)
-		if err := os.WriteFile(sample, []byte("#!/bin/sh\necho hello\n"), 0o600); err != nil {
+		if err := file.WriteFileIn(dir, name, []byte("#!/bin/sh\necho hello\n"), 0o600); err != nil {
 			t.Fatalf("WriteFile(%q): %v", sample, err)
 		}
 		outPath := sample + ".simple"
-		out, err := os.Create(outPath)
+		out, err := file.OpenFileIn(dir, name+".simple", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0o600)
 		if err != nil {
 			t.Fatalf("Create(%q): %v", outPath, err)
 		}

@@ -6,7 +6,6 @@ package action
 import (
 	"errors"
 	"io/fs"
-	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -25,12 +24,12 @@ func countOpenFDs(t *testing.T) int {
 	t.Helper()
 
 	// Linux: count entries in /proc/self/fd
-	if entries, err := os.ReadDir("/proc/self/fd"); err == nil {
+	if entries, err := scanTestReadDir("/proc/self/fd"); err == nil {
 		return len(entries)
 	}
 
 	// macOS: count entries in /dev/fd
-	if entries, err := os.ReadDir("/dev/fd"); err == nil {
+	if entries, err := scanTestReadDir("/dev/fd"); err == nil {
 		return len(entries)
 	}
 

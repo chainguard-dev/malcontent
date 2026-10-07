@@ -10,9 +10,11 @@ import (
 	"io/fs"
 	"math/rand/v2"
 	"os"
+	"path/filepath"
 	"sync/atomic"
 	"testing"
 
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/klauspost/compress/zstd"
 	"github.com/ulikunitz/xz"
 )
@@ -83,7 +85,7 @@ func pkgsNoise(n int) []byte {
 // pkgsWantFile fails unless path holds exactly want.
 func pkgsWantFile(t *testing.T, path, want string) {
 	t.Helper()
-	got, err := os.ReadFile(path)
+	got, err := file.ReadFileIn(filepath.Dir(path), filepath.Base(path))
 	if err != nil {
 		t.Errorf("read %s: %v", path, err)
 		return
@@ -96,7 +98,7 @@ func pkgsWantFile(t *testing.T, path, want string) {
 // pkgsWantAbsent fails if anything exists at path.
 func pkgsWantAbsent(t *testing.T, path string) {
 	t.Helper()
-	if _, err := os.Lstat(path); !errors.Is(err, fs.ErrNotExist) {
+	if _, err := file.LstatIn(filepath.Dir(path), filepath.Base(path)); !errors.Is(err, fs.ErrNotExist) {
 		t.Errorf("lstat %s: got = %v, want = %v", path, err, fs.ErrNotExist)
 	}
 }
@@ -104,7 +106,13 @@ func pkgsWantAbsent(t *testing.T, path string) {
 // pkgsWantSymlink fails unless path is a symlink whose target is want.
 func pkgsWantSymlink(t *testing.T, path, want string) {
 	t.Helper()
-	got, err := os.Readlink(path)
+	r, err := os.OpenRoot(filepath.Dir(path))
+	if err != nil {
+		t.Errorf("readlink %s: %v", path, err)
+		return
+	}
+	defer r.Close()
+	got, err := r.Readlink(filepath.Base(path))
 	if err != nil {
 		t.Errorf("readlink %s: %v", path, err)
 		return
@@ -117,12 +125,12 @@ func pkgsWantSymlink(t *testing.T, path, want string) {
 // pkgsWantSameFile fails unless a and b are hard links to one file.
 func pkgsWantSameFile(t *testing.T, a, b string) {
 	t.Helper()
-	fa, err := os.Stat(a)
+	fa, err := file.StatIn(filepath.Dir(a), filepath.Base(a))
 	if err != nil {
 		t.Errorf("stat %s: %v", a, err)
 		return
 	}
-	fb, err := os.Stat(b)
+	fb, err := file.StatIn(filepath.Dir(b), filepath.Base(b))
 	if err != nil {
 		t.Errorf("stat %s: %v", b, err)
 		return

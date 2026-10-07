@@ -90,6 +90,9 @@ function fixup_rules() {
 	# rule that declares a text pattern to every rule sharing it. Literal regexps
 	# keep their constraints per rule.
 	perl "${LITERAL_REGEXPS}" "$@"
+	# Compare file_sha256, the digest malcontent computes for every scanned
+	# file, rather than hashing the whole file again with the hash module.
+	perl -p -i -e 's/\bhash\.sha256\s*\(\s*0\s*,\s*filesize\s*\)/file_sha256/g' "$@"
 	# Convert text strings to hex in rules that trigger CrowdStrike/XProtect on macOS.
 	# These rules contain malware signature strings that, when embedded in the mal binary
 	# via go:embed, cause endpoint protection to kill the process or delete the binary.

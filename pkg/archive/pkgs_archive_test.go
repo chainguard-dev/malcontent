@@ -13,7 +13,6 @@ import (
 	"fmt"
 	"io/fs"
 	"log/slog"
-	"os"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -21,6 +20,7 @@ import (
 	"testing"
 
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/puzpuzpuz/xsync/v4"
 )
@@ -32,8 +32,9 @@ func TestIsValidPathContainment(t *testing.T) {
 	dir := filepath.Join(base, "extract")
 	outside := filepath.Join(base, "outside")
 	inside := filepath.Join(dir, "sub")
-	for _, d := range []string{outside, inside} {
-		if err := os.MkdirAll(d, 0o700); err != nil {
+	r := openTestRoot(t, base)
+	for _, d := range []string{"outside", filepath.Join("extract", "sub")} {
+		if err := r.MkdirAll(d, 0o700); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -43,7 +44,7 @@ func TestIsValidPathContainment(t *testing.T) {
 		"in":       inside,
 		"dangling": filepath.Join(dir, "missing"),
 	} {
-		if err := os.Symlink(target, filepath.Join(dir, name)); err != nil {
+		if err := r.Symlink(target, filepath.Join("extract", name)); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -80,7 +81,7 @@ func TestValidateResolvedPathParents(t *testing.T) {
 	t.Parallel()
 
 	dir := t.TempDir()
-	if err := os.WriteFile(filepath.Join(dir, "file.txt"), []byte("file"), 0o600); err != nil {
+	if err := file.WriteFileIn(dir, "file.txt", []byte("file"), 0o600); err != nil {
 		t.Fatal(err)
 	}
 
@@ -110,16 +111,15 @@ func TestCreateFileExistingEntries(t *testing.T) {
 	t.Run("regular file is truncated in place", func(t *testing.T) {
 		t.Parallel()
 		dir := t.TempDir()
-		path := filepath.Join(dir, "f")
-		twin := filepath.Join(dir, "twin")
-		if err := os.WriteFile(path, []byte("old content, longer than the new"), 0o600); err != nil {
+		r := openTestRoot(t, dir)
+		if err := r.WriteFile("f", []byte("old content, longer than the new"), 0o600); err != nil {
 			t.Fatal(err)
 		}
-		if err := os.Link(path, twin); err != nil {
+		if err := r.Link("f", "twin"); err != nil {
 			t.Fatal(err)
 		}
 
-		out, err := createFile(openTestRoot(t, dir), "f")
+		out, err := createFile(r, "f")
 		if err != nil {
 			t.Fatalf("createFile: %v", err)
 		}
@@ -130,23 +130,23 @@ func TestCreateFileExistingEntries(t *testing.T) {
 			t.Fatal(err)
 		}
 		// Writing through the existing inode reaches every link to it.
-		pkgsWantFile(t, twin, "new")
+		pkgsWantFile(t, filepath.Join(dir, "twin"), "new")
 	})
 
 	t.Run("directory is left in place", func(t *testing.T) {
 		t.Parallel()
 		dir := t.TempDir()
-		path := filepath.Join(dir, "d")
-		if err := os.Mkdir(path, 0o700); err != nil {
+		r := openTestRoot(t, dir)
+		if err := r.Mkdir("d", 0o700); err != nil {
 			t.Fatal(err)
 		}
 
-		out, err := createFile(openTestRoot(t, dir), "d")
+		out, err := createFile(r, "d")
 		if err == nil {
 			_ = out.Close()
 			t.Fatal("createFile on a directory: got = nil error, want = error")
 		}
-		if fi, err := os.Lstat(path); err != nil || !fi.IsDir() {
+		if fi, err := r.Lstat("d"); err != nil || !fi.IsDir() {
 			t.Errorf("entry after createFile: got = %v (err %v), want = directory", fi, err)
 		}
 	})
@@ -167,21 +167,21 @@ func TestHandleSymlinkReplacesExistingEntry(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			dir := t.TempDir()
-			path := filepath.Join(dir, "l")
+			r := openTestRoot(t, dir)
 			var err error
 			if tt.symlink {
-				err = os.Symlink("old.txt", path)
+				err = r.Symlink("old.txt", "l")
 			} else {
-				err = os.WriteFile(path, []byte("old"), 0o600)
+				err = r.WriteFile("l", []byte("old"), 0o600)
 			}
 			if err != nil {
 				t.Fatal(err)
 			}
 
-			if err := handleSymlink(openTestRoot(t, dir), "l", "new.txt"); err != nil {
+			if err := handleSymlink(r, "l", "new.txt"); err != nil {
 				t.Fatalf("handleSymlink: %v", err)
 			}
-			pkgsWantSymlink(t, path, "new.txt")
+			pkgsWantSymlink(t, filepath.Join(dir, "l"), "new.txt")
 		})
 	}
 }
@@ -210,7 +210,7 @@ func TestRetainArchive(t *testing.T) {
 		t.Parallel()
 		src := writeTemp(t, "pkg.tar", []byte(archiveBody))
 		dir := t.TempDir()
-		if err := os.WriteFile(filepath.Join(dir, "pkg.tar"), []byte("extracted entry"), 0o600); err != nil {
+		if err := file.WriteFileIn(dir, "pkg.tar", []byte("extracted entry"), 0o600); err != nil {
 			t.Fatal(err)
 		}
 
@@ -237,7 +237,7 @@ func TestRetainArchive(t *testing.T) {
 			t.Parallel()
 			dir := t.TempDir()
 			if existing {
-				if err := os.WriteFile(filepath.Join(dir, "missing.tar"), []byte("extracted entry"), 0o600); err != nil {
+				if err := file.WriteFileIn(dir, "missing.tar", []byte("extracted entry"), 0o600); err != nil {
 					t.Fatal(err)
 				}
 			}
@@ -280,7 +280,7 @@ func TestExtractNestedArchiveDepthLimit(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			dir := t.TempDir()
-			if err := os.WriteFile(filepath.Join(dir, "a.tar"), archive, 0o600); err != nil {
+			if err := file.WriteFileIn(dir, "a.tar", archive, 0o600); err != nil {
 				t.Fatal(err)
 			}
 			ctx := t.Context()
@@ -307,7 +307,7 @@ func TestExtractNestedArchiveDepthLimit(t *testing.T) {
 func TestExtractNestedArchiveContents(t *testing.T) {
 	t.Parallel()
 
-	outer, err := os.ReadFile(writeTar(t, []tarEntry{
+	outer, err := file.ReadFile(writeTar(t, []tarEntry{
 		{name: "from-outer.txt", typeflag: tar.TypeReg, body: "outer content"},
 		{name: "inner.tar", typeflag: tar.TypeReg, body: string(tarWithEntry(t, "from-inner.txt", "inner content"))},
 	}))
@@ -331,7 +331,7 @@ func TestExtractNestedArchiveContents(t *testing.T) {
 			t.Parallel()
 			dir := t.TempDir()
 			for name, data := range map[string][]byte{"outer.tar": outer, "sibling.tar": sibling} {
-				if err := os.WriteFile(filepath.Join(dir, name), data, 0o600); err != nil {
+				if err := file.WriteFileIn(dir, name, data, 0o600); err != nil {
 					t.Fatal(err)
 				}
 			}
@@ -402,7 +402,7 @@ func TestExtractNestedArchiveNestingDepth(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			dir := t.TempDir()
-			if err := os.WriteFile(filepath.Join(dir, "n.tar"), pkgsNestedTars(t, tt.layers), 0o600); err != nil {
+			if err := file.WriteFileIn(dir, "n.tar", pkgsNestedTars(t, tt.layers), 0o600); err != nil {
 				t.Fatal(err)
 			}
 			ctx := t.Context()
@@ -417,7 +417,7 @@ func TestExtractNestedArchiveNestingDepth(t *testing.T) {
 			}
 			// The first level past the limit is left in place as a file.
 			kept := filepath.Join(pkgsNestedPath(dir, tt.extracted), "n.tar")
-			if fi, err := os.Lstat(kept); err != nil || !fi.Mode().IsRegular() {
+			if fi, err := file.LstatIn(filepath.Dir(kept), filepath.Base(kept)); err != nil || !fi.Mode().IsRegular() {
 				t.Errorf("archive past the limit: got = %v (err %v), want = regular file at %s", fi, err, kept)
 			}
 			pkgsWantAbsent(t, pkgsNestedPath(dir, tt.extracted+1))
@@ -435,7 +435,7 @@ func TestExtractArchiveToTempDirDepthLimit(t *testing.T) {
 	// The scanned archive is level 0; its n.tar entry is level 1.
 	deep := pkgsNestedTars(t, 1)
 	levels := tarWithEntry(t, "n.tar", string(tarWithEntry(t, "n.tar", string(deep))))
-	scanned, err := os.ReadFile(writeTar(t, []tarEntry{
+	scanned, err := file.ReadFile(writeTar(t, []tarEntry{
 		{name: "top.txt", typeflag: tar.TypeReg, body: "top content"},
 		{name: "n.tar", typeflag: tar.TypeReg, body: string(levels)},
 	}))
@@ -458,7 +458,7 @@ func TestExtractArchiveToTempDirDepthLimit(t *testing.T) {
 			t.Parallel()
 			dir, err := ExtractArchiveToTempDir(t.Context(), malcontent.Config{MaxDepth: 2, ExitExtraction: tt.exitOnFailure}, src)
 			if dir != "" {
-				t.Cleanup(func() { _ = os.RemoveAll(dir) })
+				t.Cleanup(func() { _ = file.RemoveAllIn(filepath.Dir(dir), filepath.Base(dir)) })
 			}
 			if got := err != nil; got != tt.wantErr {
 				t.Fatalf("ExtractArchiveToTempDir error: got = %v, want error = %v", err, tt.wantErr)
@@ -483,7 +483,7 @@ func TestNestedArchiveIdenticalCopies(t *testing.T) {
 
 	inner := tarWithEntry(t, "payload.txt", "repeated payload")
 	holder := tarWithEntry(t, "copy.tar", string(inner))
-	outer, err := os.ReadFile(writeTar(t, []tarEntry{
+	outer, err := file.ReadFile(writeTar(t, []tarEntry{
 		{name: "a.tar", typeflag: tar.TypeReg, body: string(inner)},
 		{name: "b.tar", typeflag: tar.TypeReg, body: string(holder)},
 		{name: "c/dep.tar", typeflag: tar.TypeReg, body: string(inner)},
@@ -503,7 +503,7 @@ func TestNestedArchiveIdenticalCopies(t *testing.T) {
 			extract: func(t *testing.T) string {
 				t.Helper()
 				dir := t.TempDir()
-				if err := os.WriteFile(filepath.Join(dir, "outer.tar"), outer, 0o600); err != nil {
+				if err := file.WriteFileIn(dir, "outer.tar", outer, 0o600); err != nil {
 					t.Fatal(err)
 				}
 				ctx := t.Context()
@@ -523,7 +523,7 @@ func TestNestedArchiveIdenticalCopies(t *testing.T) {
 				if err != nil {
 					t.Fatalf("ExtractArchiveToTempDir: %v", err)
 				}
-				t.Cleanup(func() { _ = os.RemoveAll(dir) })
+				t.Cleanup(func() { _ = file.RemoveAllIn(filepath.Dir(dir), filepath.Base(dir)) })
 				return dir
 			},
 		},
@@ -555,7 +555,7 @@ func TestNestedArchiveCopyOfAncestor(t *testing.T) {
 	inner := tarWithEntry(t, "payload.txt", "ancestor payload")
 	// Entries are examined in name order, so the copy in a.tar is passed over
 	// before the archives after it are extracted.
-	outer, err := os.ReadFile(writeTar(t, []tarEntry{
+	outer, err := file.ReadFile(writeTar(t, []tarEntry{
 		{name: "a.tar", typeflag: tar.TypeReg, body: string(inner)},
 		{name: "b.tar", typeflag: tar.TypeReg, body: string(tarWithEntry(t, "copy.tar", string(inner)))},
 		{name: "c.tar", typeflag: tar.TypeReg, body: string(tarWithEntry(t, "note.txt", "side content"))},
@@ -564,7 +564,7 @@ func TestNestedArchiveCopyOfAncestor(t *testing.T) {
 		t.Fatal(err)
 	}
 	dir := t.TempDir()
-	if err := os.WriteFile(filepath.Join(dir, "outer.tar"), outer, 0o600); err != nil {
+	if err := file.WriteFileIn(dir, "outer.tar", outer, 0o600); err != nil {
 		t.Fatal(err)
 	}
 
@@ -596,7 +596,7 @@ func TestNestedArchiveCopyOfAncestor(t *testing.T) {
 func TestExtractNestedArchiveReportsEachArchivePastLimit(t *testing.T) {
 	t.Parallel()
 
-	outer, err := os.ReadFile(writeTar(t, []tarEntry{
+	outer, err := file.ReadFile(writeTar(t, []tarEntry{
 		{name: "x.tar", typeflag: tar.TypeReg, body: string(tarWithEntry(t, "x.txt", "x content"))},
 		{name: "y.tar", typeflag: tar.TypeReg, body: string(tarWithEntry(t, "y.txt", "y content"))},
 	}))
@@ -604,7 +604,7 @@ func TestExtractNestedArchiveReportsEachArchivePastLimit(t *testing.T) {
 		t.Fatal(err)
 	}
 	dir := t.TempDir()
-	if err := os.WriteFile(filepath.Join(dir, "outer.tar"), outer, 0o600); err != nil {
+	if err := file.WriteFileIn(dir, "outer.tar", outer, 0o600); err != nil {
 		t.Fatal(err)
 	}
 	var logs bytes.Buffer
@@ -617,7 +617,7 @@ func TestExtractNestedArchiveReportsEachArchivePastLimit(t *testing.T) {
 	}
 
 	for _, rel := range []string{filepath.Join("outer", "x.tar"), filepath.Join("outer", "y.tar")} {
-		if fi, err := os.Lstat(filepath.Join(dir, rel)); err != nil || !fi.Mode().IsRegular() {
+		if fi, err := file.LstatIn(dir, rel); err != nil || !fi.Mode().IsRegular() {
 			t.Errorf("%s: got = %v (err %v), want = regular file left in place", rel, fi, err)
 		}
 		if _, ok := extracted.Load(rel); !ok {
@@ -658,7 +658,7 @@ func TestExtractNestedArchiveFailureNamesArchive(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			dir := t.TempDir()
-			if err := os.WriteFile(filepath.Join(dir, tt.file), tt.data, 0o600); err != nil {
+			if err := file.WriteFileIn(dir, tt.file, tt.data, 0o600); err != nil {
 				t.Fatal(err)
 			}
 			ctx := t.Context()
@@ -689,10 +689,10 @@ func TestExtractArchiveToTempDirUnsupportedLeavesNothing(t *testing.T) {
 
 	dir, err := ExtractArchiveToTempDir(t.Context(), malcontent.Config{}, src)
 	if err == nil {
-		_ = os.RemoveAll(dir)
+		_ = file.RemoveAllIn(filepath.Dir(dir), filepath.Base(dir))
 		t.Fatal("ExtractArchiveToTempDir error: got = nil, want = unsupported archive type")
 	}
-	entries, err := os.ReadDir(tmp)
+	entries, err := fs.ReadDir(openTestRoot(t, tmp).FS(), ".")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -708,7 +708,7 @@ func TestExtractNestedArchiveWithoutExtractor(t *testing.T) {
 
 	const content = "not compressed at all"
 	dir := t.TempDir()
-	if err := os.WriteFile(filepath.Join(dir, "data.zlib"), []byte(content), 0o600); err != nil {
+	if err := file.WriteFileIn(dir, "data.zlib", []byte(content), 0o600); err != nil {
 		t.Fatal(err)
 	}
 	ctx := t.Context()
@@ -730,7 +730,7 @@ func TestExtractArchiveToTempDirNestedArchive(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ExtractArchiveToTempDir: %v", err)
 	}
-	t.Cleanup(func() { _ = os.RemoveAll(dir) })
+	t.Cleanup(func() { _ = file.RemoveAllIn(filepath.Dir(dir), filepath.Base(dir)) })
 
 	pkgsWantFile(t, filepath.Join(dir, "inner", "payload.txt"), "nested payload")
 	pkgsWantAbsent(t, filepath.Join(dir, "inner.tar"))
@@ -756,7 +756,7 @@ func TestExtractArchiveToTempDirDeepNesting(t *testing.T) {
 	}
 	mid := gzipBytes(t, tarWithEntry(t, "inner.zip", zbuf.String()))
 
-	sameNames, err := os.ReadFile(writeTar(t, []tarEntry{
+	sameNames, err := file.ReadFile(writeTar(t, []tarEntry{
 		{name: "x/inner.tar", typeflag: tar.TypeReg, body: string(tarWithEntry(t, "x.txt", "x content"))},
 		{name: "y/inner.tar", typeflag: tar.TypeReg, body: string(tarWithEntry(t, "y.txt", "y content"))},
 	}))
@@ -791,7 +791,7 @@ func TestExtractArchiveToTempDirDeepNesting(t *testing.T) {
 			if err != nil {
 				t.Fatalf("ExtractArchiveToTempDir: %v", err)
 			}
-			t.Cleanup(func() { _ = os.RemoveAll(dir) })
+			t.Cleanup(func() { _ = file.RemoveAllIn(filepath.Dir(dir), filepath.Base(dir)) })
 
 			for rel, want := range tt.want {
 				pkgsWantFile(t, filepath.Join(dir, filepath.FromSlash(rel)), want)
@@ -827,7 +827,7 @@ func TestExtractArchiveToTempDirZlibWithoutExtension(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ExtractArchiveToTempDir: %v", err)
 	}
-	t.Cleanup(func() { _ = os.RemoveAll(dir) })
+	t.Cleanup(func() { _ = file.RemoveAllIn(filepath.Dir(dir), filepath.Base(dir)) })
 
 	// blob itself occupies its stem, so it is extracted into blob_1.
 	pkgsWantFile(t, filepath.Join(dir, "blob_1", "blob"), payload)
@@ -851,7 +851,7 @@ func TestExtractArchiveToTempDirUPXMemberKept(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ExtractArchiveToTempDir: %v", err)
 	}
-	t.Cleanup(func() { _ = os.RemoveAll(dir) })
+	t.Cleanup(func() { _ = file.RemoveAllIn(filepath.Dir(dir), filepath.Base(dir)) })
 
 	pkgsWantFile(t, filepath.Join(dir, "tool"), packed)
 	// The stand-in leaves its input as it found it, so the unpacked copy
@@ -870,7 +870,7 @@ func TestExtractArchiveToTempDirLeavesOrdinaryFiles(t *testing.T) {
 		"empty.tar": "",
 		"notes.txt": "plain notes\n",
 	}
-	scanned, err := os.ReadFile(writeTar(t, []tarEntry{
+	scanned, err := file.ReadFile(writeTar(t, []tarEntry{
 		{name: "README", typeflag: tar.TypeReg, body: members["README"]},
 		{name: "empty.tar", typeflag: tar.TypeReg, body: members["empty.tar"]},
 		{name: "notes.txt", typeflag: tar.TypeReg, body: members["notes.txt"]},
@@ -883,9 +883,9 @@ func TestExtractArchiveToTempDirLeavesOrdinaryFiles(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ExtractArchiveToTempDir: %v", err)
 	}
-	t.Cleanup(func() { _ = os.RemoveAll(dir) })
+	t.Cleanup(func() { _ = file.RemoveAllIn(filepath.Dir(dir), filepath.Base(dir)) })
 
-	entries, err := os.ReadDir(dir)
+	entries, err := fs.ReadDir(openTestRoot(t, dir).FS(), ".")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -952,7 +952,7 @@ func TestExtractArchiveToTempDirZlibContent(t *testing.T) {
 			if err != nil {
 				t.Fatalf("ExtractArchiveToTempDir: %v", err)
 			}
-			t.Cleanup(func() { _ = os.RemoveAll(dir) })
+			t.Cleanup(func() { _ = file.RemoveAllIn(filepath.Dir(dir), filepath.Base(dir)) })
 
 			pkgsWantFile(t, filepath.Join(dir, tt.output), payload)
 			if tt.absent != "" {
@@ -983,7 +983,7 @@ func TestExtractArchiveToTempDirNestedFailure(t *testing.T) {
 			t.Parallel()
 			dir, err := ExtractArchiveToTempDir(t.Context(), malcontent.Config{ExitExtraction: tt.exitExtraction}, src)
 			if dir != "" {
-				t.Cleanup(func() { _ = os.RemoveAll(dir) })
+				t.Cleanup(func() { _ = file.RemoveAllIn(filepath.Dir(dir), filepath.Base(dir)) })
 			}
 			if got := err != nil; got != tt.wantErr {
 				t.Fatalf("ExtractArchiveToTempDir error: got = %v, want error = %v", err, tt.wantErr)
@@ -1120,19 +1120,21 @@ func TestHandleSymlinkRemovesLinkResolvingOutside(t *testing.T) {
 	base := t.TempDir()
 	outside := filepath.Join(base, "outside")
 	dir := filepath.Join(base, "extract")
-	for _, d := range []string{outside, dir} {
-		if err := os.Mkdir(d, 0o700); err != nil {
+	br := openTestRoot(t, base)
+	for _, d := range []string{"outside", "extract"} {
+		if err := br.Mkdir(d, 0o700); err != nil {
 			t.Fatal(err)
 		}
 	}
-	if err := os.WriteFile(filepath.Join(outside, "secret.txt"), []byte("secret"), 0o600); err != nil {
+	if err := br.WriteFile(filepath.Join("outside", "secret.txt"), []byte("secret"), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.Symlink(outside, filepath.Join(dir, "out")); err != nil {
+	r := openTestRoot(t, dir)
+	if err := r.Symlink(outside, "out"); err != nil {
 		t.Fatal(err)
 	}
 
-	if err := handleSymlink(openTestRoot(t, dir), "l", "out/secret.txt"); err == nil {
+	if err := handleSymlink(r, "l", "out/secret.txt"); err == nil {
 		t.Error("handleSymlink error: got = nil, want = link resolving outside the extraction directory")
 	}
 	pkgsWantAbsent(t, filepath.Join(dir, "l"))
@@ -1172,17 +1174,18 @@ func TestExtractArchiveToTempDirFatalFailureLeavesNothing(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		in := filepath.Join(inputs, fmt.Sprintf("outer%d.tar", i))
-		if err := os.WriteFile(in, tt.data, 0o600); err != nil {
+		name := fmt.Sprintf("outer%d.tar", i)
+		in := filepath.Join(inputs, name)
+		if err := file.WriteFileIn(inputs, name, tt.data, 0o600); err != nil {
 			t.Fatal(err)
 		}
 		t.Run(tt.name, func(t *testing.T) {
 			dir, err := ExtractArchiveToTempDir(t.Context(), malcontent.Config{ExitExtraction: true}, in)
 			if err == nil {
-				_ = os.RemoveAll(dir)
+				_ = file.RemoveAllIn(filepath.Dir(dir), filepath.Base(dir))
 				t.Fatal("ExtractArchiveToTempDir error: got = nil, want = extraction failure")
 			}
-			entries, err := os.ReadDir(tmp)
+			entries, err := fs.ReadDir(openTestRoot(t, tmp).FS(), ".")
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -1208,9 +1211,9 @@ func TestExtractArchiveToTempDirRetainedArchiveNotReexamined(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ExtractArchiveToTempDir: %v", err)
 	}
-	t.Cleanup(func() { _ = os.RemoveAll(dir) })
+	t.Cleanup(func() { _ = file.RemoveAllIn(filepath.Dir(dir), filepath.Base(dir)) })
 
-	if _, err := os.Lstat(filepath.Join(dir, "trailing.tar")); err != nil {
+	if _, err := file.LstatIn(dir, "trailing.tar"); err != nil {
 		t.Errorf("retained archive: got = %v, want = present", err)
 	}
 	if got := logs.String(); strings.Contains(got, "identical to an archive containing it") {
@@ -1327,7 +1330,7 @@ func TestExtractArchiveToTempDirGzipByContent(t *testing.T) {
 			if err != nil {
 				t.Fatalf("ExtractArchiveToTempDir: %v", err)
 			}
-			t.Cleanup(func() { _ = os.RemoveAll(dir) })
+			t.Cleanup(func() { _ = file.RemoveAllIn(filepath.Dir(dir), filepath.Base(dir)) })
 
 			for rel, want := range tt.want {
 				pkgsWantFile(t, filepath.Join(dir, filepath.FromSlash(rel)), want)

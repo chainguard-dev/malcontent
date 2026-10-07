@@ -10,10 +10,11 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
-	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/chainguard-dev/malcontent/pkg/file"
 )
 
 const (
@@ -25,7 +26,8 @@ const (
 // returns its path.
 func pkgsDeb(t *testing.T, entries []tarEntry) string {
 	t.Helper()
-	data, err := os.ReadFile(writeTar(t, entries))
+	tarPath := writeTar(t, entries)
+	data, err := file.ReadFileIn(filepath.Dir(tarPath), filepath.Base(tarPath))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -157,7 +159,7 @@ func TestExtractDebInputs(t *testing.T) {
 			if tt.wantMsg != "" && (err == nil || !strings.Contains(err.Error(), tt.wantMsg)) {
 				t.Fatalf("ExtractDeb error: got = %v, want = error containing %q", err, tt.wantMsg)
 			}
-			entries, err := os.ReadDir(out)
+			entries, err := fs.ReadDir(openTestRoot(t, out).FS(), ".")
 			if err != nil {
 				t.Fatal(err)
 			}

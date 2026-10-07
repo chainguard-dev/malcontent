@@ -235,12 +235,18 @@ func decZip(tb testing.TB, entries []decZipEntry) []byte {
 // single-stream extractors carry into their output path, and returns the path.
 func decWrite(tb testing.TB, name string, data []byte) string {
 	tb.Helper()
-	dir := filepath.Join(tb.TempDir(), "src")
-	if err := os.Mkdir(dir, 0o700); err != nil {
+	tmp := tb.TempDir()
+	r, err := os.OpenRoot(tmp)
+	if err != nil {
+		tb.Fatalf("open %s: %v", tmp, err)
+	}
+	defer r.Close()
+	dir := filepath.Join(tmp, "src")
+	if err := r.Mkdir("src", 0o700); err != nil {
 		tb.Fatalf("mkdir %s: %v", dir, err)
 	}
 	p := filepath.Join(dir, name)
-	if err := os.WriteFile(p, data, 0o600); err != nil {
+	if err := r.WriteFile(filepath.Join("src", name), data, 0o600); err != nil {
 		tb.Fatalf("write %s: %v", p, err)
 	}
 	return p
@@ -267,19 +273,30 @@ func decBenchEntries() []tarEntry {
 // same emptied directory on every iteration.
 func benchExtract(b *testing.B, extract func(context.Context, string, string) error, src string) {
 	b.Helper()
-	fi, err := os.Stat(src)
+	sr, err := os.OpenRoot(filepath.Dir(src))
+	if err != nil {
+		b.Fatalf("stat %s: %v", src, err)
+	}
+	defer sr.Close()
+	fi, err := sr.Stat(filepath.Base(src))
 	if err != nil {
 		b.Fatalf("stat %s: %v", src, err)
 	}
 	ctx := decCtx(b)
-	out := filepath.Join(b.TempDir(), "out")
+	tmp := b.TempDir()
+	r, err := os.OpenRoot(tmp)
+	if err != nil {
+		b.Fatalf("open %s: %v", tmp, err)
+	}
+	defer r.Close()
+	out := filepath.Join(tmp, "out")
 	b.SetBytes(fi.Size())
 	b.ReportAllocs()
 	for b.Loop() {
 		if err := extract(ctx, out, src); err != nil {
 			b.Fatalf("extract %s: %v", filepath.Base(src), err)
 		}
-		if err := os.RemoveAll(out); err != nil {
+		if err := r.RemoveAll("out"); err != nil {
 			b.Fatalf("remove %s: %v", out, err)
 		}
 	}
@@ -334,6 +351,12 @@ func BenchmarkExtractDecoders(b *testing.B) {
 // BenchmarkExtractFixtures measures extraction of the sample packages that the
 // action tests scan.
 func BenchmarkExtractFixtures(b *testing.B) {
+	dir := filepath.Join("..", "action", "testdata")
+	r, err := os.OpenRoot(dir)
+	if err != nil {
+		b.Skipf("fixtures %s missing: %v", dir, err)
+	}
+	defer r.Close()
 	cases := []struct {
 		file    string
 		extract func(context.Context, string, string) error
@@ -348,8 +371,8 @@ func BenchmarkExtractFixtures(b *testing.B) {
 	}
 	for _, c := range cases {
 		b.Run(c.file, func(b *testing.B) {
-			src := filepath.Join("..", "action", "testdata", c.file)
-			if _, err := os.Stat(src); err != nil {
+			src := filepath.Join(dir, c.file)
+			if _, err := r.Stat(c.file); err != nil {
 				b.Skipf("fixture %s missing: %v", src, err)
 			}
 			benchExtract(b, c.extract, copyFixtureToTempDir(b, src))

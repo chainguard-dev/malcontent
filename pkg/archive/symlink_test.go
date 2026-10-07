@@ -6,11 +6,13 @@ package archive
 import (
 	"archive/tar"
 	"bytes"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"testing"
 
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/puzpuzpuz/xsync/v4"
 )
@@ -42,7 +44,7 @@ func TestSymlinkExtraction(t *testing.T) {
 			if err != nil {
 				t.Fatalf("failed to create temp dir: %v", err)
 			}
-			defer os.RemoveAll(tmpDir)
+			defer file.RemoveAllIn(filepath.Dir(tmpDir), filepath.Base(tmpDir))
 
 			ctx := t.Context()
 			err = ExtractTar(ctx, tmpDir, tt.tarFile)
@@ -66,14 +68,15 @@ func TestValidateResolvedPath(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(tmpDir)
+	defer file.RemoveAllIn(filepath.Dir(tmpDir), filepath.Base(tmpDir))
+	r := openTestRoot(t, tmpDir)
 
 	// Create a subdirectory and a file inside the temp dir
 	subDir := filepath.Join(tmpDir, "subdir")
-	if err := os.MkdirAll(subDir, 0o700); err != nil {
+	if err := r.MkdirAll("subdir", 0o700); err != nil {
 		t.Fatalf("failed to create subdir: %v", err)
 	}
-	if err := os.WriteFile(filepath.Join(subDir, "file.txt"), []byte("test"), 0o600); err != nil {
+	if err := r.WriteFile(filepath.Join("subdir", "file.txt"), []byte("test"), 0o600); err != nil {
 		t.Fatalf("failed to create file: %v", err)
 	}
 
@@ -85,7 +88,7 @@ func TestValidateResolvedPath(t *testing.T) {
 
 	// Create a symlink that points outside the extraction directory
 	escapingLink := filepath.Join(tmpDir, "escape")
-	if err := os.Symlink("/tmp", escapingLink); err != nil {
+	if err := r.Symlink("/tmp", "escape"); err != nil {
 		t.Fatalf("failed to create escaping symlink: %v", err)
 	}
 
@@ -97,7 +100,7 @@ func TestValidateResolvedPath(t *testing.T) {
 
 	// Create a symlink that points to a directory within the extraction dir
 	internalLink := filepath.Join(tmpDir, "internal_link")
-	if err := os.Symlink(subDir, internalLink); err != nil {
+	if err := r.Symlink(subDir, "internal_link"); err != nil {
 		t.Fatalf("failed to create internal symlink: %v", err)
 	}
 
@@ -132,22 +135,21 @@ func TestExtractNestedArchiveWithSubdirectory(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(tmpDir)
+	defer file.RemoveAllIn(filepath.Dir(tmpDir), filepath.Base(tmpDir))
+	r := openTestRoot(t, tmpDir)
 
 	// Create a nested archive inside a subdirectory, simulating what happens
 	// when an archive contains another archive at a path like "subdir/inner.tar.gz"
-	subDir := filepath.Join(tmpDir, "subdir")
-	if err := os.MkdirAll(subDir, 0o700); err != nil {
+	if err := r.MkdirAll("subdir", 0o700); err != nil {
 		t.Fatalf("failed to create subdir: %v", err)
 	}
 
 	// Copy a real .gz test file into the subdirectory
-	srcData, err := os.ReadFile("../../pkg/action/testdata/apko.gz")
+	srcData, err := file.ReadFileIn("../../pkg/action/testdata", "apko.gz")
 	if err != nil {
 		t.Fatalf("failed to read test archive: %v", err)
 	}
-	nestedArchive := filepath.Join(subDir, "apko.gz")
-	if err := os.WriteFile(nestedArchive, srcData, 0o600); err != nil {
+	if err := r.WriteFile(filepath.Join("subdir", "apko.gz"), srcData, 0o600); err != nil {
 		t.Fatalf("failed to write nested archive: %v", err)
 	}
 
@@ -182,12 +184,13 @@ func TestExtractNestedArchiveCollision(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			dir := t.TempDir()
+			r := openTestRoot(t, dir)
 			for _, name := range tt.taken {
-				if err := os.WriteFile(filepath.Join(dir, name), []byte("existing "+name), 0o600); err != nil {
+				if err := r.WriteFile(name, []byte("existing "+name), 0o600); err != nil {
 					t.Fatal(err)
 				}
 			}
-			if err := os.WriteFile(filepath.Join(dir, "data.gz"), gzipBytes(t, []byte("gz payload")), 0o600); err != nil {
+			if err := r.WriteFile("data.gz", gzipBytes(t, []byte("gz payload")), 0o600); err != nil {
 				t.Fatal(err)
 			}
 
@@ -222,30 +225,22 @@ func TestDanglingSymlinkExtraction(t *testing.T) {
 	}
 	tw.Close()
 
-	tmpFile, err := os.CreateTemp("", "dangling-symlink-*.tar")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer os.Remove(tmpFile.Name())
-	tmpFile.Write(buf.Bytes())
-	tmpFile.Close()
+	tarPath := writeTemp(t, "dangling-symlink.tar", buf.Bytes())
 
 	tmpDir, err := os.MkdirTemp("", "dangling-symlink-extract-*")
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(tmpDir)
+	defer file.RemoveAllIn(filepath.Dir(tmpDir), filepath.Base(tmpDir))
 
 	// Extraction should succeed
-	if err := ExtractTar(t.Context(), tmpDir, tmpFile.Name()); err != nil {
+	if err := ExtractTar(t.Context(), tmpDir, tarPath); err != nil {
 		t.Fatalf("ExtractTar failed on dangling symlink: %v", err)
 	}
 
 	// Every extracted path must pass IsValidPath (this is what the fuzzer checks)
-	err = filepath.WalkDir(tmpDir, func(path string, _ os.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
+	err = walkTree(tmpDir, ".", func(rel string, _ fs.DirEntry) error {
+		path := filepath.Join(tmpDir, rel)
 		if !IsValidPath(path, tmpDir) {
 			t.Errorf("IsValidPath returned false for dangling symlink: %s", path)
 		}
@@ -262,7 +257,7 @@ func TestHandleSymlink(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(tmpDir)
+	defer file.RemoveAllIn(filepath.Dir(tmpDir), filepath.Base(tmpDir))
 
 	// A symlink location which escapes should be rejected
 	root := openTestRoot(t, tmpDir)
@@ -276,7 +271,7 @@ func TestHandleSymlink(t *testing.T) {
 	if err := handleSymlink(root, ".", "target"); err == nil {
 		t.Error("symlink at extraction directory: got = nil, want = error")
 	}
-	if fi, err := os.Lstat(tmpDir); err != nil || !fi.IsDir() {
+	if fi, err := file.LstatIn(filepath.Dir(tmpDir), filepath.Base(tmpDir)); err != nil || !fi.IsDir() {
 		t.Errorf("extraction directory: got = %v (err %v), want = directory", fi, err)
 	}
 
@@ -285,7 +280,7 @@ func TestHandleSymlink(t *testing.T) {
 	if err != nil {
 		t.Errorf("unexpected error for absolute symlink target: %v", err)
 	}
-	if _, err := os.Lstat(filepath.Join(tmpDir, "abs_link")); err == nil {
+	if _, err := root.Lstat("abs_link"); err == nil {
 		t.Error("absolute symlink should not have been created")
 	}
 
@@ -296,8 +291,7 @@ func TestHandleSymlink(t *testing.T) {
 	}
 
 	// Write a file we can create a valid symlink for
-	targetFile := filepath.Join(tmpDir, "realfile.txt")
-	if err := os.WriteFile(targetFile, []byte("test"), 0o600); err != nil {
+	if err := root.WriteFile("realfile.txt", []byte("test"), 0o600); err != nil {
 		t.Fatalf("failed to create target file: %v", err)
 	}
 
@@ -306,8 +300,7 @@ func TestHandleSymlink(t *testing.T) {
 	if err != nil {
 		t.Errorf("unexpected error for valid symlink: %v", err)
 	}
-	linkPath := filepath.Join(tmpDir, "valid_link")
-	if _, err := os.Lstat(linkPath); err != nil {
+	if _, err := root.Lstat("valid_link"); err != nil {
 		t.Errorf("valid symlink was not created: %v", err)
 	}
 }

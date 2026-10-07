@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io/fs"
 	"log/slog"
-	"os"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -36,12 +35,13 @@ func zipFoldCase(t *testing.T) {
 // beneath dir.
 func zipRegularContents(t *testing.T, dir string) []string {
 	t.Helper()
+	r := openTestRoot(t, dir)
 	var got []string
-	err := filepath.WalkDir(dir, func(p string, d fs.DirEntry, err error) error {
+	err := fs.WalkDir(r.FS(), ".", func(p string, d fs.DirEntry, err error) error {
 		if err != nil || !d.Type().IsRegular() {
 			return err
 		}
-		data, err := os.ReadFile(p)
+		data, err := r.ReadFile(p)
 		if err != nil {
 			return err
 		}
@@ -232,23 +232,23 @@ func TestExtractZipCaseFoldingCollisions(t *testing.T) {
 			zipSpecWrite(t, src, zip.Deflate, tt.entries)
 			parent := t.TempDir()
 			d := filepath.Join(parent, "out")
-			outside := filepath.Join(parent, "outside")
-			for _, dir := range []string{d, outside} {
-				if err := os.Mkdir(dir, 0o700); err != nil {
-					t.Fatalf("mkdir %s: %v", dir, err)
+			pr := openTestRoot(t, parent)
+			for _, dir := range []string{"out", "outside"} {
+				if err := pr.Mkdir(dir, 0o700); err != nil {
+					t.Fatalf("mkdir %s: %v", filepath.Join(parent, dir), err)
 				}
 			}
+			dr := openTestRoot(t, d)
 			for name, body := range tt.existing {
-				p := filepath.Join(d, name)
-				if err := os.MkdirAll(filepath.Dir(p), 0o700); err != nil {
+				if err := dr.MkdirAll(filepath.Dir(name), 0o700); err != nil {
 					t.Fatalf("mkdir for existing %s: %v", name, err)
 				}
-				if err := os.WriteFile(p, []byte(body), 0o600); err != nil {
+				if err := dr.WriteFile(name, []byte(body), 0o600); err != nil {
 					t.Fatalf("write existing %s: %v", name, err)
 				}
 			}
 			if tt.linkOut != "" {
-				if err := os.Symlink("../outside/missing", filepath.Join(d, tt.linkOut)); err != nil {
+				if err := dr.Symlink("../outside/missing", tt.linkOut); err != nil {
 					t.Fatalf("symlink %s: %v", tt.linkOut, err)
 				}
 			}
@@ -263,7 +263,7 @@ func TestExtractZipCaseFoldingCollisions(t *testing.T) {
 				}
 			}
 
-			if leaked, err := os.ReadDir(outside); err != nil || len(leaked) != 0 {
+			if leaked, err := fs.ReadDir(pr.FS(), "outside"); err != nil || len(leaked) != 0 {
 				t.Errorf("directory outside the root: got entries = %v (err %v), want = none", leaked, err)
 			}
 			got := zipSpecTree(t, d)
@@ -274,7 +274,7 @@ func TestExtractZipCaseFoldingCollisions(t *testing.T) {
 				t.Errorf("regular file contents: got = %q, want = %q", got, tt.wantContents)
 			}
 			for name, want := range tt.wantFiles {
-				data, err := os.ReadFile(filepath.Join(d, name))
+				data, err := dr.ReadFile(name)
 				if err != nil {
 					t.Errorf("read %s: %v", name, err)
 					continue
@@ -320,14 +320,14 @@ func TestZipExtractFileLogsRename(t *testing.T) {
 			}
 			defer root.Close()
 			if tt.existing {
-				if err := os.WriteFile(filepath.Join(root.Name(), "top.txt"), []byte("earlier"), 0o600); err != nil {
+				if err := root.WriteFile("top.txt", []byte("earlier"), 0o600); err != nil {
 					t.Fatalf("write existing file: %v", err)
 				}
 			}
 
 			var logs bytes.Buffer
 			logger := clog.New(slog.NewTextHandler(&logs, &slog.HandlerOptions{Level: slog.LevelDebug}))
-			if err := extractFile(t.Context(), rc.File[0], root, logger, &file.ArchiveCounter{}, newZipFoldedPaths(root)); err != nil {
+			if err := extractFile(t.Context(), rc.File[0], testEntryRoots(t, root), logger, &file.ArchiveCounter{}, newZipFoldedPaths(root)); err != nil {
 				t.Fatalf("extractFile error: got = %v, want = nil", err)
 			}
 
@@ -352,7 +352,7 @@ func TestZipFoldedPathsShareRenamedDirectory(t *testing.T) {
 		t.Fatalf("openRoot: %v", err)
 	}
 	defer root.Close()
-	if err := os.WriteFile(filepath.Join(root.Name(), "shared"), []byte("file"), 0o600); err != nil {
+	if err := root.WriteFile("shared", []byte("file"), 0o600); err != nil {
 		t.Fatalf("write existing file: %v", err)
 	}
 
@@ -380,7 +380,7 @@ func TestZipFoldedPathsShareRenamedDirectory(t *testing.T) {
 			t.Errorf("createFile(shared/sub/f%d.txt) name: got = %q, want = %q", i, names[i], want)
 		}
 	}
-	entries, err := os.ReadDir(root.Name())
+	entries, err := fs.ReadDir(root.FS(), ".")
 	if err != nil {
 		t.Fatalf("read root: %v", err)
 	}

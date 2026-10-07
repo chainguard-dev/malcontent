@@ -8,11 +8,12 @@ import (
 	"compress/gzip"
 	"errors"
 	"fmt"
-	"os"
+	"path/filepath"
 	"slices"
 	"strings"
 	"testing"
 
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/google/go-containerregistry/pkg/v1/types"
 	"go.uber.org/goleak"
 )
@@ -150,7 +151,7 @@ func TestOCIWithConfig_ImageSizeLimitBoundaries(t *testing.T) {
 			_, ref := ociServe(t, reg)
 			dir, err := OCIWithConfig(t.Context(), ref, ociTestConfig(tc.limit))
 			if dir != "" {
-				t.Cleanup(func() { _ = os.RemoveAll(dir) })
+				t.Cleanup(func() { _ = file.RemoveAllIn(filepath.Dir(dir), filepath.Base(dir)) })
 			}
 			if tc.wantExtracted {
 				if err != nil {
@@ -189,7 +190,7 @@ func TestOCIWithConfig_OversizedExportStopsWithoutLeaks(t *testing.T) {
 
 	dir, err := OCIWithConfig(t.Context(), ref, ociTestConfig(64<<10))
 	if err == nil {
-		_ = os.RemoveAll(dir)
+		_ = file.RemoveAllIn(filepath.Dir(dir), filepath.Base(dir))
 		t.Fatalf("error: got = nil, want = %q", ociExportLimitErr)
 	}
 	if !strings.Contains(err.Error(), ociExportLimitErr) {
@@ -224,7 +225,7 @@ func TestOCIWithConfig_SingleArtifactBlobExportedVerbatim(t *testing.T) {
 			_, ref := ociServe(t, reg)
 			dir, err := OCIWithConfig(t.Context(), ref, ociTestConfig(0))
 			if dir != "" {
-				t.Cleanup(func() { _ = os.RemoveAll(dir) })
+				t.Cleanup(func() { _ = file.RemoveAllIn(filepath.Dir(dir), filepath.Base(dir)) })
 			}
 			if tc.wantErrIs == nil {
 				if err != nil {
@@ -237,5 +238,14 @@ func TestOCIWithConfig_SingleArtifactBlobExportedVerbatim(t *testing.T) {
 				t.Errorf("error: got = %v, want wrapping %v", err, tc.wantErrIs)
 			}
 		})
+	}
+}
+
+// removeOCIDir removes dir, a directory OCIWithConfig returned, when the test
+// ends.
+func removeOCIDir(t *testing.T, dir string) {
+	t.Helper()
+	if dir != "" {
+		t.Cleanup(func() { _ = file.RemoveAllIn(filepath.Dir(dir), filepath.Base(dir)) })
 	}
 }

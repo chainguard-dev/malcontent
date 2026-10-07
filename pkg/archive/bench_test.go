@@ -19,13 +19,14 @@ import (
 // copyFixtureToTempDir copies a fixture file under b.TempDir for isolated reads.
 func copyFixtureToTempDir(b *testing.B, src string) string {
 	b.Helper()
-	in, err := os.Open(src)
+	in, err := file.Open(src)
 	if err != nil {
 		b.Fatalf("open fixture: %v", err)
 	}
 	defer in.Close()
-	dst := filepath.Join(b.TempDir(), filepath.Base(src))
-	out, err := os.Create(dst)
+	tmp := b.TempDir()
+	dst := filepath.Join(tmp, filepath.Base(src))
+	out, err := file.OpenFileIn(tmp, filepath.Base(src), os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0o600)
 	if err != nil {
 		b.Fatalf("create copy: %v", err)
 	}
@@ -42,7 +43,7 @@ func copyFixtureToTempDir(b *testing.B, src string) string {
 // BenchmarkExtractArchiveToTempDir measures end-to-end xz tarball extraction.
 func BenchmarkExtractArchiveToTempDir(b *testing.B) {
 	src := filepath.Join("..", "action", "testdata", "static.tar.xz")
-	if _, err := os.Stat(src); err != nil {
+	if _, err := file.Stat(src); err != nil {
 		b.Skipf("fixture %s missing: %v", src, err)
 	}
 	path := copyFixtureToTempDir(b, src)
@@ -54,7 +55,7 @@ func BenchmarkExtractArchiveToTempDir(b *testing.B) {
 		if err != nil {
 			b.Fatalf("extract: %v", err)
 		}
-		_ = os.RemoveAll(dir)
+		_ = file.RemoveAllIn(filepath.Dir(dir), filepath.Base(dir))
 	}
 }
 
@@ -86,18 +87,18 @@ func BenchmarkHandleFile(b *testing.B) {
 	raw := buf.Bytes()
 	dir := b.TempDir()
 	root := openTestRoot(b, dir)
+	er := testEntryRoots(b, root)
 	b.ReportAllocs()
 	for b.Loop() {
 		tr := tar.NewReader(bytes.NewReader(raw))
 		if _, err := tr.Next(); err != nil {
 			b.Fatalf("Next: %v", err)
 		}
-		target := filepath.Join(dir, "payload")
 		counter := &file.ArchiveCounter{MaxBytes: file.DefaultMaxArchiveBytes}
-		if err := handleFile(root, "payload", tr, counter); err != nil {
+		if err := handleFile(er, "payload", tr, counter); err != nil {
 			b.Fatalf("handleFile: %v", err)
 		}
-		_ = os.Remove(target)
+		_ = root.Remove("payload")
 	}
 }
 

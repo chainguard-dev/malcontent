@@ -208,8 +208,9 @@ func TestRenderFileSummaryDiffMode(t *testing.T) {
 		}
 	}
 	// Unchanged behaviors are hidden, removed ones lose their evidence, and a
-	// namespace whose risk rose shows the transition.
-	changedBody := terminalNS + "≡ execution [MEDIUM]\n" +
+	// namespace whose risk changed shows the transition. A namespace whose
+	// behaviors were all removed falls to NONE.
+	changedBody := "│-    ▼ execution [MEDIUM → NONE]\n" +
 		"│-      " + riskEmoji(2) + " shell — runs a shell\n" +
 		terminalNS + "▲ networking [LOW → HIGH]\n" +
 		"│+      " + riskEmoji(3) + " connect — connects: AF_INET\n" +
@@ -228,6 +229,41 @@ func TestRenderFileSummaryDiffMode(t *testing.T) {
 			fr:    changed(),
 			title: "Changed (2 added, 1 removed): /bin/mod [MEDIUM → HIGH]",
 			want:  "├─ " + riskEmoji(3) + " Changed (2 added, 1 removed): /bin/mod [MEDIUM → HIGH]\n" + changedBody,
+		},
+		{
+			name: "namespace whose highest-risk behavior was removed shows the fall",
+			fr: &malcontent.FileReport{
+				Path:      "/bin/mod",
+				RiskScore: 1,
+				RiskLevel: report.LevelLOW,
+				Behaviors: []*malcontent.Behavior{
+					{ID: "net/bind", Description: "binds a port", RiskScore: 1, RiskLevel: report.LevelLOW},
+					{ID: "net/connect", Description: "connects", MatchStrings: []string{"AF_INET"}, RiskScore: 3, RiskLevel: report.LevelHIGH, DiffRemoved: true},
+				},
+			},
+			title: "Changed (0 added, 1 removed): /bin/mod [HIGH → LOW]",
+			want: "├─ " + riskEmoji(1) + " Changed (0 added, 1 removed): /bin/mod [HIGH → LOW]\n" +
+				terminalNS + "▼ networking [HIGH → LOW]\n" +
+				"│-      " + riskEmoji(3) + " connect — connects\n" +
+				"│\n",
+		},
+		{
+			name: "namespace trading a behavior for one of equal risk shows no transition",
+			fr: &malcontent.FileReport{
+				Path:      "/bin/mod",
+				RiskScore: 2,
+				RiskLevel: report.LevelMEDIUM,
+				Behaviors: []*malcontent.Behavior{
+					{ID: "crypto/aes", Description: "uses AES", RiskScore: 2, RiskLevel: report.LevelMEDIUM, DiffAdded: true},
+					{ID: "crypto/rc4", Description: "uses RC4", RiskScore: 2, RiskLevel: report.LevelMEDIUM, DiffRemoved: true},
+				},
+			},
+			title: "Changed (1 added, 1 removed): /bin/mod",
+			want: "├─ " + riskEmoji(2) + " Changed (1 added, 1 removed): /bin/mod\n" +
+				terminalNS + "≡ cryptography [MEDIUM]\n" +
+				"│+      " + riskEmoji(2) + " aes — uses AES\n" +
+				"│-      " + riskEmoji(2) + " rc4 — uses RC4\n" +
+				"│\n",
 		},
 		{
 			name: "file with only added behaviors shows namespace risk without a transition",

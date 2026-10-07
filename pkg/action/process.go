@@ -7,12 +7,12 @@ import (
 	"cmp"
 	"context"
 	"fmt"
-	"os"
 	"runtime"
 	"slices"
 	"strings"
 
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/shirou/gopsutil/v4/process"
 )
 
@@ -65,7 +65,7 @@ func ActiveProcesses(ctx context.Context) ([]*ProcessInfo, error) {
 
 // canStat checks if stat() works on a given path.
 func canStat(path string) bool {
-	_, err := os.Stat(path)
+	_, err := file.Stat(path)
 	return err == nil
 }
 

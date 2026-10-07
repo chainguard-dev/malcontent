@@ -21,6 +21,7 @@ import (
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/archive"
 	"github.com/chainguard-dev/malcontent/pkg/compile"
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/pool"
 	"github.com/chainguard-dev/malcontent/pkg/render"
@@ -116,11 +117,20 @@ func scanSinglePath(ctx context.Context, c malcontent.Config, path string, ruleF
 		return &malcontent.FileReport{}, ctx.Err()
 	}
 
-	fi, err := os.Stat(path)
+	dir, name, err := file.Split(path)
 	if err != nil {
 		return nil, err
 	}
-	s := sniffFile(ctx, path, fi)
+	root, err := os.OpenRoot(dir)
+	if err != nil {
+		return nil, err
+	}
+	defer root.Close()
+	fi, err := root.Stat(name)
+	if err != nil {
+		return nil, err
+	}
+	s := sniffFile(ctx, root, name, path, fi)
 	defer s.close()
 	return scanSniffed(ctx, c, path, s, ruleFS, absPath, archiveRoot, fileCount)
 }
@@ -135,7 +145,7 @@ func scanSniffed(ctx context.Context, c malcontent.Config, path string, s *sniff
 	skip := func(reason string) (*malcontent.FileReport, error) {
 		// Immediately remove skipped files within archives
 		if isArchive && !s.keepSkipped {
-			if err := os.RemoveAll(path); err != nil {
+			if err := s.root.RemoveAll(s.name); err != nil {
 				logger.Warnf("remove skipped archive entry %s: %v", path, err)
 			}
 		}
@@ -180,14 +190,14 @@ func scanSniffed(ctx context.Context, c malcontent.Config, path string, s *sniff
 	// Report generation caches per-rule data for the rule set it is given.
 	c.Rules = yrs
 
-	var (
-		fc  []byte
-		sum [sha256.Size]byte
-	)
-	if s.content != nil {
-		fc = s.content.Bytes()
-		sum = sha256.Sum256(capContents(fc))
+	// Sniffing leaves files it could not read unread; they are read now, so
+	// that every file is scanned from its contents.
+	if err := s.load(ctx); err != nil {
+		logger.Debug("skipping", slog.Any("error", err))
+		return nil, err
 	}
+	fc := s.content.Bytes()
+	sum := sha256.Sum256(capContents(fc))
 	matching, err := scanFile(ctx, c, s, path, archiveRoot, fc, sum)
 	if err != nil {
 		logger.Debug("skipping", slog.Any("error", err))
@@ -204,12 +214,6 @@ func scanSniffed(ctx context.Context, c malcontent.Config, path string, s *sniff
 		}
 	}
 
-	if s.content == nil {
-		if fc, err = readCapped(path); err != nil {
-			return nil, err
-		}
-		sum = sha256.Sum256(fc)
-	}
 	fr, err := report.GenerateRules(ctx, path, matching, c, archiveRoot, logger, capContents(fc), size, hex.EncodeToString(sum[:]), kind, risk)
 	if err != nil {
 		return nil, NewFileReportError(err, path, TypeGenerateError)
@@ -239,20 +243,11 @@ func scanSniffed(ctx context.Context, c malcontent.Config, path string, s *sniff
 // scanFile returns the rules that match the file s describes: the matches of
 // c.Rules and, when c.Rules comes with rules set aside, of the scoped rules
 // that apply to the file and the rules for its header. fc and sum are the
-// file's contents and their digest when s holds them.
+// file's contents and their capped digest.
 func scanFile(ctx context.Context, c malcontent.Config, s *sniffed, path, archiveRoot string, fc []byte, sum [sha256.Size]byte) ([]*yarax.Rule, error) {
-	scanWith := func(rules *yarax.Rules) (*yarax.ScanResults, error) {
-		if s.content != nil {
-			return scanContent(ctx, rules, fc, sum)
-		}
-		// Files that could not be read once, or are not regular, are
-		// scanned by path as before.
-		return withScanner(rules, func(scanner *yarax.Scanner) (*yarax.ScanResults, error) {
-			setFileSHA256(scanner, "")
-			return scanner.ScanFile(path)
-		})
-	}
-	mrs, err := scanWith(c.Rules)
+	// The file holds its share of the scan memory budget since its contents
+	// were read.
+	mrs, err := scanContent(ctx, c.Rules, fc, sum)
 	if err != nil {
 		return nil, err
 	}
@@ -271,17 +266,19 @@ func scanFile(ctx context.Context, c malcontent.Config, s *sniffed, path, archiv
 		}
 		sets = append(sets, rules)
 	}
-	headers, err := sr.forHeader(fc, s.content != nil)
+	header, err := sr.forHeader(fc)
 	if err != nil {
 		return nil, err
 	}
-	sets = append(sets, headers...)
+	if header != nil {
+		sets = append(sets, header)
+	}
 	if len(sets) == 0 {
 		return mrs.MatchingRules(), nil
 	}
 	others := make([]*yarax.ScanResults, 0, len(sets))
 	for _, rules := range sets {
-		res, err := scanWith(rules)
+		res, err := scanContent(ctx, rules, fc, sum)
 		if err != nil {
 			return nil, err
 		}
@@ -379,6 +376,9 @@ func CachedRules(ctx context.Context, fss []fs.FS) (*yarax.Rules, error) {
 	if ctx.Err() != nil {
 		return nil, ctx.Err()
 	}
+	// Scans keep directories open; making room for them while the rules
+	// load keeps the descriptor table from growing during the scan.
+	file.ReserveDescriptors()
 
 	if rules := compiledRuleCache.Load(); rules != nil {
 		return rules, nil
@@ -444,7 +444,10 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 	r := initializeReport(c.IgnoreTags)
 	matchChan := make(chan matchResult, 1)
 	var matchOnce sync.Once
-	ctx = withResultCache(ctx)
+	// A diff attaches one cache for both of its scans.
+	if resultCacheFrom(ctx) == nil {
+		ctx = withResultCache(ctx)
+	}
 
 	for _, scanPath := range c.ScanPaths {
 		if err := handleScanPath(ctx, scanPath, c, r, matchChan, &matchOnce, logger); err != nil {
@@ -482,7 +485,7 @@ func handleScanPath(ctx context.Context, scanPath string, c malcontent.Config, r
 		defer cleanupOCIPath(scanInfo.ociExtractPath, logger)
 	}
 
-	paths, err := findFilesRecursively(ctx, scanInfo.effectivePath)
+	w, files, err := walkScanPath(ctx, scanInfo.effectivePath)
 	if err != nil {
 		if len(c.ScanPaths) == 1 {
 			return fmt.Errorf("find: %w", err)
@@ -490,8 +493,9 @@ func handleScanPath(ctx context.Context, scanPath string, c malcontent.Config, r
 		logger.Errorf("find failed: %v", err)
 		return nil
 	}
+	defer w.close()
 
-	return processPaths(ctx, paths, scanInfo, c, r, matchChan, matchOnce, logger)
+	return processPaths(ctx, w, files, scanInfo, c, r, matchChan, matchOnce, logger)
 }
 
 func prepareScanPath(ctx context.Context, scanPath string, c malcontent.Config, logger *clog.Logger) (scanPathInfo, error) {
@@ -531,7 +535,7 @@ func resolveDir(dir string) string {
 	return dir
 }
 
-func processPaths(ctx context.Context, paths []string, scanInfo scanPathInfo, c malcontent.Config, r *malcontent.Report, matchChan chan matchResult, matchOnce *sync.Once, logger *clog.Logger) error {
+func processPaths(ctx context.Context, w *walkRoot, files []walkedFile, scanInfo scanPathInfo, c malcontent.Config, r *malcontent.Report, matchChan chan matchResult, matchOnce *sync.Once, logger *clog.Logger) error {
 	if ctx.Err() != nil {
 		return ctx.Err()
 	}
@@ -543,11 +547,7 @@ func processPaths(ctx context.Context, paths []string, scanInfo scanPathInfo, c 
 		dest = &malcontent.Report{Files: xsync.NewMap[string, *malcontent.FileReport](), Diff: r.Diff, Filter: r.Filter}
 	}
 
-	// Release the path strings once they are queued.
-	files := walkedFiles(paths)
-	clear(paths)
-
-	err := runQueue(ctx, files, getMaxConcurrency(c.Concurrency), scanInfo, c, dest, matchChan, matchOnce, logger)
+	err := runQueue(ctx, w, files, getMaxConcurrency(c.Concurrency), scanInfo, c, dest, matchChan, matchOnce, logger)
 
 	if c.OCI {
 		dest.Files.Range(func(key string, fr *malcontent.FileReport) bool {
@@ -638,7 +638,12 @@ func processPath(ctx context.Context, path string, scanInfo scanPathInfo, c malc
 	if ctx.Err() != nil {
 		return ctx.Err()
 	}
-	return runQueue(ctx, walkedFiles([]string{path}), getMaxConcurrency(c.Concurrency), scanInfo, c, r, matchChan, matchOnce, logger)
+	w, _, err := openWalkRoot(path)
+	if err != nil {
+		return handleSingleFile(ctx, path, scanInfo, c, r, matchChan, matchOnce, logger)
+	}
+	defer w.close()
+	return runQueue(ctx, w, walkedFiles(w, []string{path}), getMaxConcurrency(c.Concurrency), scanInfo, c, r, matchChan, matchOnce, logger)
 }
 
 func handleSingleFile(ctx context.Context, path string, scanInfo scanPathInfo, c malcontent.Config, r *malcontent.Report, matchChan chan matchResult, matchOnce *sync.Once, logger *clog.Logger) error {
@@ -712,7 +717,7 @@ func archiveEntryKey(archivePath, entry string, trimPrefixes []string) string {
 }
 
 func cleanupOCIPath(path string, logger *clog.Logger) {
-	if err := os.RemoveAll(path); err != nil {
+	if err := file.RemoveAllIn(filepath.Dir(path), filepath.Base(path)); err != nil {
 		logger.Errorf("remove %s: %v", path, err)
 	}
 }

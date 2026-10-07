@@ -9,7 +9,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -24,8 +23,8 @@ import (
 // extractFileFromCPIO extracts a single file from a CPIO archive. The counter
 // accumulates uncompressed bytes across every member so the aggregate byte and
 // ratio caps span the whole payload; a nil counter disables accounting.
-func extractFileFromCPIO(ctx context.Context, cr *cpio.Reader, root *os.Root, name string, buf []byte, counter *file.ArchiveCounter) error {
-	out, err := createFile(root, name)
+func extractFileFromCPIO(ctx context.Context, cr *cpio.Reader, er *entryRoots, name string, buf []byte, counter *file.ArchiveCounter) error {
+	out, err := er.createFile(name)
 	if err != nil {
 		return err
 	}
@@ -70,7 +69,7 @@ func ExtractRPM(ctx context.Context, d, f string) (retErr error) {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting rpm")
 
-	rpmFile, err := os.Open(f) // #nosec G304 -- archive path resolved and validated by caller before extraction
+	rpmFile, err := file.Open(f)
 	if err != nil {
 		return fmt.Errorf("failed to open RPM file: %w", err)
 	}
@@ -96,6 +95,8 @@ func ExtractRPM(ctx context.Context, d, f string) (retErr error) {
 		return err
 	}
 	defer root.Close()
+	er := newEntryRoots(root)
+	defer er.close()
 
 	pkg, err := rpm.Read(rpmFile)
 	if err != nil {
@@ -162,7 +163,7 @@ func ExtractRPM(ctx context.Context, d, f string) (retErr error) {
 		}
 
 		target := filepath.Join(d, clean)
-		if !IsValidPath(target, d) {
+		if !er.validPath(target, d) {
 			return fmt.Errorf("invalid file path: %s", target)
 		}
 
@@ -177,14 +178,19 @@ func ExtractRPM(ctx context.Context, d, f string) (retErr error) {
 			}
 			continue
 		case cpio.TypeSymlink:
-			if err := handleSymlink(root, clean, header.Linkname); err != nil {
+			// Links may replace an entry that other names led through.
+			err := handleSymlink(root, clean, header.Linkname)
+			er.close()
+			if err != nil {
 				return fmt.Errorf("failed to create symlink: %w", err)
 			}
 			continue
 		case cpio.TypeReg:
 			if header.Links > 1 {
 				if existingPath, ok := inodeMap[header.Inode]; ok {
-					if err := handleHardlink(root, clean, existingPath); err != nil {
+					err := handleHardlink(root, clean, existingPath)
+					er.close()
+					if err != nil {
 						return fmt.Errorf("failed to create hardlink: %w", err)
 					}
 					// newc writers store a hard link set's content with its last
@@ -200,7 +206,7 @@ func ExtractRPM(ctx context.Context, d, f string) (retErr error) {
 			continue
 		}
 
-		if err := extractFileFromCPIO(ctx, cr, root, clean, buf, counter); err != nil {
+		if err := extractFileFromCPIO(ctx, cr, er, clean, buf, counter); err != nil {
 			return err
 		}
 	}

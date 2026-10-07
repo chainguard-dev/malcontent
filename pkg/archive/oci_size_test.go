@@ -150,7 +150,8 @@ func TestOCIHardening_SizePreflight_HostileDescriptorsRejected(t *testing.T) {
 				MaxImageSize:             1 << 16, // 64 KiB
 			}
 
-			_, err := OCIWithConfig(t.Context(), hostPort(t, srv.URL)+"/foo:bar", c)
+			dir, err := OCIWithConfig(t.Context(), hostPort(t, srv.URL)+"/foo:bar", c)
+			removeOCIDir(t, dir)
 			if err == nil {
 				t.Fatal("err: got = nil, want = hostile-descriptor rejection")
 			}

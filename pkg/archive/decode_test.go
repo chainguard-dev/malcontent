@@ -13,13 +13,13 @@ import (
 	"fmt"
 	"io"
 	"maps"
-	"os"
 	"path/filepath"
 	"slices"
 	"strings"
 	"testing"
 	"testing/iotest"
 
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 	kflate "github.com/klauspost/compress/flate"
 	zip "github.com/klauspost/compress/zip"
@@ -310,7 +310,8 @@ func TestReadAheadReaderAtMatchesFile(t *testing.T) {
 	t.Parallel()
 
 	size := 3*inputBufferSize + 1234
-	f, err := os.Open(writeTemp(t, "data.bin", pkgsNoise(size)))
+	src := writeTemp(t, "data.bin", pkgsNoise(size))
+	f, err := file.OpenIn(filepath.Dir(src), filepath.Base(src))
 	if err != nil {
 		t.Fatal(err)
 	}

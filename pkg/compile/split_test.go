@@ -4,6 +4,8 @@
 package compile
 
 import (
+	"context"
+	"errors"
 	"io/fs"
 	"maps"
 	"os"
@@ -12,6 +14,7 @@ import (
 	"strings"
 	"testing"
 	"testing/fstest"
+	"time"
 
 	yarax "github.com/VirusTotal/yara-x/go"
 )
@@ -457,7 +460,8 @@ func TestRecursiveSplitCached(t *testing.T) {
 	if err != nil {
 		t.Fatalf("first RecursiveSplitCached: %v", err)
 	}
-	cached, err := filepath.Glob(filepath.Join(root, "malcontent", cachePrefix+splitVersion+"*"))
+	cache := compileOpenRoot(t, filepath.Join(root, "malcontent"))
+	cached, err := fs.Glob(cache.FS(), cachePrefix+splitVersion+"*")
 	if err != nil {
 		t.Fatalf("glob: %v", err)
 	}
@@ -494,7 +498,7 @@ func TestRecursiveSplitCached(t *testing.T) {
 	// A corrupt manifest is a cache miss; the split is rebuilt.
 	for _, p := range cached {
 		if strings.HasSuffix(p, ".manifest"+cacheSuffix) {
-			if err := os.WriteFile(p, []byte("corrupt"), 0o600); err != nil {
+			if err := cache.WriteFile(p, []byte("corrupt"), 0o600); err != nil {
 				t.Fatalf("corrupt manifest: %v", err)
 			}
 		}
@@ -505,6 +509,220 @@ func TestRecursiveSplitCached(t *testing.T) {
 	}
 	if !maps.Equal(first.Order, third.Order) {
 		t.Errorf("rebuilt split order: got = %v, want = %v", third.Order, first.Order)
+	}
+}
+
+func TestCompileScopedCachesSets(t *testing.T) {
+	// Not parallel: t.Setenv redirects the user cache directory.
+	root := t.TempDir()
+	t.Setenv("XDG_CACHE_HOME", root)
+	t.Setenv("HOME", root)
+	indices := []int{0, 1, 2}
+	data := []byte("eval(atob( exec(base64 helper-marker needed-marker")
+	scopedCaches := func(cache *os.Root) []string {
+		t.Helper()
+		names, err := fs.Glob(cache.FS(), cachePrefix+splitVersion+"*.scoped-*")
+		if err != nil {
+			t.Fatalf("glob: %v", err)
+		}
+		return names
+	}
+
+	// A split compiled without the cache keeps nothing.
+	plain, err := RecursiveSplit(t.Context(), []fs.FS{splitTestFS})
+	if err != nil {
+		t.Fatalf("RecursiveSplit: %v", err)
+	}
+	fresh, err := plain.CompileScoped(t.Context(), indices)
+	if err != nil {
+		t.Fatalf("CompileScoped without the cache: %v", err)
+	}
+	want := splitMatches(t, data, fresh)
+
+	first, err := RecursiveSplitCached(t.Context(), []fs.FS{splitTestFS})
+	if err != nil {
+		t.Fatalf("RecursiveSplitCached: %v", err)
+	}
+	cache := compileOpenRoot(t, filepath.Join(root, "malcontent"))
+	if got, err := fs.Glob(cache.FS(), "*scoped*"); err != nil || len(got) != 0 {
+		t.Fatalf("scoped caches before CompileScoped: got = (%v, %v), want none", got, err)
+	}
+	compiled, err := first.CompileScoped(t.Context(), indices)
+	if err != nil {
+		t.Fatalf("CompileScoped: %v", err)
+	}
+	if got := splitMatches(t, data, compiled); !slices.Equal(got, want) {
+		t.Errorf("compiled matches: got = %v, want = %v", got, want)
+	}
+	names := scopedCaches(cache)
+	if len(names) != 2 {
+		t.Fatalf("scoped caches: got = %v, want the set and its sidecar", names)
+	}
+	name := slices.MinFunc(names, func(a, b string) int { return len(a) - len(b) })
+	saved, err := cache.Stat(name)
+	if err != nil {
+		t.Fatalf("stat %s: %v", name, err)
+	}
+
+	// A later run loads the set rather than compiling and saving it again.
+	second, err := RecursiveSplitCached(t.Context(), []fs.FS{splitTestFS})
+	if err != nil {
+		t.Fatalf("second RecursiveSplitCached: %v", err)
+	}
+	loaded, err := second.CompileScoped(t.Context(), indices)
+	if err != nil {
+		t.Fatalf("CompileScoped from the cache: %v", err)
+	}
+	if got := splitMatches(t, data, loaded); !slices.Equal(got, want) {
+		t.Errorf("loaded matches: got = %v, want = %v", got, want)
+	}
+	if fi, err := cache.Stat(name); err != nil || !os.SameFile(fi, saved) {
+		t.Errorf("scoped cache after loading: got = (%v, %v), want the saved file unchanged", fi, err)
+	}
+
+	// Loading a set marks it in use, so that pruning keeps it.
+	aged := time.Now().Add(-cacheTouchInterval - time.Hour)
+	if err := cache.Chtimes(name, aged, aged); err != nil {
+		t.Fatalf("chtimes %s: %v", name, err)
+	}
+	if _, err := second.CompileScoped(t.Context(), indices); err != nil {
+		t.Fatalf("CompileScoped from the cache: %v", err)
+	}
+	if fi, err := cache.Stat(name); err != nil || time.Since(fi.ModTime()) >= cacheTouchInterval {
+		t.Errorf("scoped cache after loading it again: got = (%v, %v), want it marked in use", fi, err)
+	}
+
+	// A selection that fails to compile is an error, cached or not.
+	canceled, cancel := context.WithCancel(t.Context())
+	cancel()
+	for _, s := range []*Split{plain, second} {
+		if rules, err := s.CompileScoped(canceled, []int{1}); err == nil {
+			t.Errorf("CompileScoped with a canceled context: got = (%v, nil), want an error", rules)
+		}
+	}
+
+	// A corrupt set is a cache miss: it is compiled and saved again.
+	if err := cache.WriteFile(name, []byte("corrupt"), 0o600); err != nil {
+		t.Fatalf("corrupt %s: %v", name, err)
+	}
+	rebuilt, err := second.CompileScoped(t.Context(), indices)
+	if err != nil {
+		t.Fatalf("CompileScoped after corruption: %v", err)
+	}
+	if got := splitMatches(t, data, rebuilt); !slices.Equal(got, want) {
+		t.Errorf("rebuilt matches: got = %v, want = %v", got, want)
+	}
+
+	// Another selection has its own cache.
+	if _, err := second.CompileScoped(t.Context(), []int{0}); err != nil {
+		t.Fatalf("CompileScoped of another selection: %v", err)
+	}
+	if got := scopedCaches(cache); len(got) != 4 {
+		t.Errorf("scoped caches for two selections: got = %v, want two sets and their sidecars", got)
+	}
+}
+
+func TestCompileScopedWithoutAUsableCache(t *testing.T) {
+	// Not parallel: t.Setenv redirects the user cache directory.
+	cache := compileIsolateCache(t)
+	s, err := RecursiveSplitCached(t.Context(), []fs.FS{splitTestFS})
+	if err != nil {
+		t.Fatalf("RecursiveSplitCached: %v", err)
+	}
+	data := []byte("eval(atob( exec(base64 helper-marker needed-marker")
+	want, err := (&Split{files: s.files, Scoped: s.Scoped}).CompileScoped(t.Context(), []int{0, 1})
+	if err != nil {
+		t.Fatalf("CompileScoped without the cache: %v", err)
+	}
+
+	// A cache others can read is refused: the set is compiled and not saved.
+	if err := cache.Chmod(".", 0o755); err != nil {
+		t.Fatalf("chmod: %v", err)
+	}
+	t.Cleanup(func() { _ = cache.Chmod(".", 0o700) })
+	got, err := s.CompileScoped(t.Context(), []int{0, 1})
+	if err != nil {
+		t.Fatalf("CompileScoped with an unsafe cache: %v", err)
+	}
+	if g, w := splitMatches(t, data, got), splitMatches(t, data, want); !slices.Equal(g, w) {
+		t.Errorf("matches: got = %v, want = %v", g, w)
+	}
+	if names, err := fs.Glob(cache.FS(), "*scoped*"); err != nil || len(names) != 0 {
+		t.Errorf("scoped caches in an unsafe cache: got = (%v, %v), want none", names, err)
+	}
+}
+
+func TestCompileScopedWarnsWhenItCannotSave(t *testing.T) {
+	// Not parallel: t.Setenv redirects the user cache directory, and the log
+	// functions are package variables.
+	if os.Geteuid() == 0 {
+		t.Skip("directory permissions do not restrict root")
+	}
+	cache := compileIsolateCache(t)
+	s, err := RecursiveSplitCached(t.Context(), []fs.FS{splitTestFS})
+	if err != nil {
+		t.Fatalf("RecursiveSplitCached: %v", err)
+	}
+	if err := cache.Chmod(".", 0o500); err != nil {
+		t.Fatalf("chmod: %v", err)
+	}
+	t.Cleanup(func() { _ = cache.Chmod(".", 0o700) })
+	logs := compileRecordLogs(t)
+	if _, err := s.CompileScoped(t.Context(), []int{0}); err != nil {
+		t.Fatalf("CompileScoped with a read-only cache: %v", err)
+	}
+	if !logs.has("WARN Failed to save scoped rules to cache") {
+		t.Errorf("logs: got = %q, want a warning that the set was not saved", logs)
+	}
+}
+
+func TestRecursiveSplitCachedPrunesAndRefreshesCaches(t *testing.T) {
+	// Not parallel: t.Setenv redirects the user cache directory.
+	cache := compileIsolateCache(t)
+	old := time.Now().Add(-staleCacheThreshold - time.Hour)
+	stale := func(name string) {
+		t.Helper()
+		if err := cache.WriteFile(name, []byte("x"), 0o600); err != nil {
+			t.Fatalf("write %s: %v", name, err)
+		}
+		if err := cache.Chtimes(name, old, old); err != nil {
+			t.Fatalf("chtimes %s: %v", name, err)
+		}
+	}
+	gone := func(name, when string) {
+		t.Helper()
+		if _, err := cache.Lstat(name); !errors.Is(err, fs.ErrNotExist) {
+			t.Errorf("stale %s %s: got err = %v, want it removed", name, when, err)
+		}
+	}
+
+	// Compiling prunes caches no run has used for long.
+	stale("rules-stale1.cache")
+	if _, err := RecursiveSplitCached(t.Context(), []fs.FS{splitTestFS}); err != nil {
+		t.Fatalf("RecursiveSplitCached: %v", err)
+	}
+	gone("rules-stale1.cache", "after compiling")
+	names, err := fs.Glob(cache.FS(), cachePrefix+splitVersion+"*"+cacheSuffix)
+	if err != nil || len(names) != 2 {
+		t.Fatalf("split caches: got = (%v, %v), want the rules and the manifest", names, err)
+	}
+
+	// Loading prunes them too, and marks the split's own caches in use.
+	stale("rules-stale2.cache")
+	aged := time.Now().Add(-cacheTouchInterval - time.Hour)
+	for _, name := range names {
+		if err := cache.Chtimes(name, aged, aged); err != nil {
+			t.Fatalf("chtimes %s: %v", name, err)
+		}
+	}
+	if _, err := RecursiveSplitCached(t.Context(), []fs.FS{splitTestFS}); err != nil {
+		t.Fatalf("second RecursiveSplitCached: %v", err)
+	}
+	gone("rules-stale2.cache", "after loading")
+	for _, name := range names {
+		if fi, err := cache.Stat(name); err != nil || time.Since(fi.ModTime()) >= cacheTouchInterval {
+			t.Errorf("%s after loading: got = (%v, %v), want it marked in use", name, fi, err)
+		}
 	}
 }
 
@@ -525,5 +743,98 @@ func TestSplitFromManifestRejectsOutOfRangeIndices(t *testing.T) {
 				t.Errorf("splitFromManifest: got nil error, want one")
 			}
 		})
+	}
+}
+
+// BenchmarkCompileScoped compares compiling the scoped rules of the bundled
+// rule set with loading them from the cache, as a later run does.
+func BenchmarkCompileScoped(b *testing.B) {
+	root := b.TempDir()
+	b.Setenv("XDG_CACHE_HOME", root)
+	b.Setenv("HOME", root)
+	s, err := RecursiveSplitCached(b.Context(), getAllRuleFS())
+	if err != nil {
+		b.Fatalf("RecursiveSplitCached: %v", err)
+	}
+	indices := make([]int, 0, len(s.Scoped))
+	for i := range s.Scoped {
+		if i%4 == 0 {
+			indices = append(indices, i)
+		}
+	}
+	// Fill the cache, as an earlier run would.
+	if _, err := s.CompileScoped(b.Context(), indices); err != nil {
+		b.Fatalf("CompileScoped: %v", err)
+	}
+	uncached := *s
+	uncached.cacheName = ""
+	for _, tt := range []struct {
+		name  string
+		split *Split
+	}{{name: "compile", split: &uncached}, {name: "cached", split: s}} {
+		b.Run(tt.name, func(b *testing.B) {
+			for b.Loop() {
+				rules, err := tt.split.CompileScoped(b.Context(), indices)
+				if err != nil {
+					b.Fatalf("CompileScoped: %v", err)
+				}
+				rules.Destroy()
+			}
+		})
+	}
+}
+
+func TestSaveVerifiedCleansUp(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name      string
+		blocked   string // created as a directory so that renaming onto it fails
+		wantErr   string
+		wantSaved bool
+	}{
+		{name: "saved", wantSaved: true},
+		{name: "path taken by a directory", blocked: "data.cache", wantErr: "rename cache file"},
+		{name: "sidecar path taken by a directory", blocked: "data.cache" + sidecarSuffix, wantErr: "rename sidecar file"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			cache := compileOpenRoot(t, t.TempDir())
+			if tt.blocked != "" {
+				if err := cache.Mkdir(tt.blocked, 0o700); err != nil {
+					t.Fatalf("mkdir %s: %v", tt.blocked, err)
+				}
+			}
+			err := saveVerified(cache, "data.cache", []byte("data"))
+			if (err == nil) != (tt.wantErr == "") || (err != nil && !strings.Contains(err.Error(), tt.wantErr)) {
+				t.Fatalf("saveVerified: got err = %v, want one containing %q", err, tt.wantErr)
+			}
+			if leftovers, err := fs.Glob(cache.FS(), ".rules-*.tmp"); err != nil || len(leftovers) != 0 {
+				t.Errorf("temp files left behind: got = (%v, %v), want none", leftovers, err)
+			}
+			got, err := loadVerified(cache, "data.cache")
+			if saved := err == nil && string(got) == "data"; saved != tt.wantSaved {
+				t.Errorf("loadVerified after saving: got = (%q, %v), want saved = %v", got, err, tt.wantSaved)
+			}
+			if fi, err := cache.Lstat("data.cache"); tt.blocked == "data.cache"+sidecarSuffix && err == nil && fi.Mode().IsRegular() {
+				t.Error("data without its sidecar: got it left behind, want it removed")
+			}
+		})
+	}
+}
+
+func TestLoadVerifiedRejectsDataThatDoesNotMatchItsDigest(t *testing.T) {
+	t.Parallel()
+	cache := compileOpenRoot(t, t.TempDir())
+	if err := saveVerified(cache, "data.cache", []byte("data")); err != nil {
+		t.Fatalf("saveVerified: %v", err)
+	}
+	// Well-formed data saved under another name, swapped in without its
+	// sidecar.
+	if err := cache.WriteFile("data.cache", []byte("other"), 0o600); err != nil {
+		t.Fatalf("write: %v", err)
+	}
+	if got, err := loadVerified(cache, "data.cache"); err == nil {
+		t.Errorf("loadVerified of swapped data: got = (%q, nil), want an error", got)
 	}
 }

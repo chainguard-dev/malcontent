@@ -14,15 +14,32 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/google/go-cmp/cmp"
 )
+
+// programkindRoot opens a root on dir that stays open until the test ends.
+func programkindRoot(tb testing.TB, dir string) *os.Root {
+	tb.Helper()
+	r, err := os.OpenRoot(dir)
+	if err != nil {
+		tb.Fatalf("OpenRoot(%q): %v", dir, err)
+	}
+	tb.Cleanup(func() { _ = r.Close() })
+	return r
+}
 
 // programkindOpenFilesUnder counts this process's open file descriptors that
 // refer to paths beneath dir. It reads /proc/self/fd and skips the test where
 // that is unavailable.
 func programkindOpenFilesUnder(t *testing.T, dir string) int {
 	t.Helper()
-	entries, err := os.ReadDir("/proc/self/fd")
+	fds, err := os.OpenRoot("/proc/self/fd")
+	if err != nil {
+		t.Skipf("open file descriptors are not listable: %v", err)
+	}
+	defer fds.Close()
+	entries, err := fs.ReadDir(fds.FS(), ".")
 	if err != nil {
 		t.Skipf("open file descriptors are not listable: %v", err)
 	}
@@ -33,7 +50,7 @@ func programkindOpenFilesUnder(t *testing.T, dir string) int {
 	prefix := resolved + string(filepath.Separator)
 	n := 0
 	for _, e := range entries {
-		target, err := os.Readlink(filepath.Join("/proc/self/fd", e.Name()))
+		target, err := fds.Readlink(e.Name())
 		if err == nil && strings.HasPrefix(target, prefix) {
 			n++
 		}
@@ -73,7 +90,13 @@ func TestFileReleasesLargeFileMapping(t *testing.T) {
 	// sparse file keeps the test from writing that much.
 	const size = 32_000_001
 	path := writeFixture(t, "large", []byte{0x7f, 'E', 'L', 'F'})
-	if err := os.Truncate(path, size); err != nil {
+	w, err := file.OpenFileIn(filepath.Dir(path), filepath.Base(path), os.O_WRONLY, 0)
+	if err != nil {
+		t.Fatalf("Open(%q) for writing: %v", path, err)
+	}
+	err = w.Truncate(size)
+	_ = w.Close()
+	if err != nil {
 		t.Fatalf("Truncate(%q, %d): %v", path, size, err)
 	}
 	resolved, err := filepath.EvalSymlinks(path)
@@ -88,7 +111,7 @@ func TestFileReleasesLargeFileMapping(t *testing.T) {
 	if diff := cmp.Diff(&FileType{Ext: "elf", MIME: "application/x-elf"}, got); diff != "" {
 		t.Errorf("File(%q) mismatch (-want +got):\n%s", path, diff)
 	}
-	maps, err := os.ReadFile("/proc/self/maps")
+	maps, err := file.ReadFileIn("/proc/self", "maps")
 	if err != nil {
 		t.Skipf("memory mappings are not listable: %v", err)
 	}
@@ -103,10 +126,11 @@ func TestFileReportsUnreadableFiles(t *testing.T) {
 	t.Run("file without read permission", func(t *testing.T) {
 		t.Parallel()
 		path := writeFixture(t, "locked.sh", []byte("#!/bin/sh\necho locked\n"))
-		if err := os.Chmod(path, 0); err != nil {
+		r := programkindRoot(t, filepath.Dir(path))
+		if err := r.Chmod("locked.sh", 0); err != nil {
 			t.Fatalf("Chmod(%q): %v", path, err)
 		}
-		if f, err := os.Open(path); err == nil {
+		if f, err := r.Open("locked.sh"); err == nil {
 			_ = f.Close()
 			t.Skip("file permissions do not restrict this user")
 		}
@@ -124,11 +148,11 @@ func TestFileReportsUnreadableFiles(t *testing.T) {
 		// Linux reports a loopback interface's speed as a non-empty regular
 		// file whose read fails with EINVAL.
 		const path = "/sys/class/net/lo/speed"
-		st, err := os.Stat(path)
+		st, err := file.Stat(path)
 		if err != nil || !st.Mode().IsRegular() || st.Size() == 0 {
 			t.Skipf("%s is not a non-empty regular file here: %v", path, err)
 		}
-		_, readErr := os.ReadFile(path)
+		_, readErr := file.ReadFile(path)
 		var pathErr *fs.PathError
 		if !errors.As(readErr, &pathErr) || pathErr.Op != "read" {
 			t.Skipf("%s does not fail to read here: %v", path, readErr)
@@ -152,12 +176,14 @@ func upxStub(t *testing.T, output string, code int) string {
 	if runtime.GOOS == "windows" {
 		t.Skip("UPX stub requires a POSIX shell")
 	}
-	p := filepath.Join(t.TempDir(), "upx")
+	dir := t.TempDir()
+	r := programkindRoot(t, dir)
+	p := filepath.Join(dir, "upx")
 	script := "#!/bin/sh\necho '" + output + "'\nexit " + strconv.Itoa(code) + "\n"
-	if err := os.WriteFile(p, []byte(script), 0o700); err != nil {
+	if err := r.WriteFile("upx", []byte(script), 0o700); err != nil {
 		t.Fatalf("WriteFile(%q): %v", p, err)
 	}
-	if err := os.Chmod(p, 0o700); err != nil {
+	if err := r.Chmod("upx", 0o700); err != nil {
 		t.Fatalf("Chmod(%q): %v", p, err)
 	}
 	return p
@@ -167,11 +193,12 @@ func upxStub(t *testing.T, output string, code int) string {
 // returns the full path.
 func writeFixture(tb testing.TB, rel string, content []byte) string {
 	tb.Helper()
-	p := filepath.Join(tb.TempDir(), rel)
-	if err := os.MkdirAll(filepath.Dir(p), 0o700); err != nil {
+	dir := tb.TempDir()
+	p := filepath.Join(dir, rel)
+	if err := file.MkdirAllIn(dir, filepath.Dir(rel), 0o700); err != nil {
 		tb.Fatalf("MkdirAll(%q): %v", filepath.Dir(p), err)
 	}
-	if err := os.WriteFile(p, content, 0o600); err != nil {
+	if err := file.WriteFileIn(dir, rel, content, 0o600); err != nil {
 		tb.Fatalf("WriteFile(%q): %v", p, err)
 	}
 	return p
@@ -240,7 +267,7 @@ func TestUPXInstalledCachesUntilThePathChanges(t *testing.T) {
 
 	// A world-writable binary fails validation, but while the setting is
 	// unchanged the earlier result stands.
-	if err := os.Chmod(stub, 0o777); err != nil {
+	if err := programkindRoot(t, filepath.Dir(stub)).Chmod(filepath.Base(stub), 0o777); err != nil {
 		t.Fatalf("Chmod(%q): %v", stub, err)
 	}
 	if got, err := UPXInstalled(); err != nil || got != resolved {
@@ -312,12 +339,14 @@ func TestIsValidUPX(t *testing.T) {
 
 	t.Run("relative path after the working directory is removed", func(t *testing.T) {
 		t.Setenv("MALCONTENT_UPX_PATH", upxStub(t, "", 0))
-		gone := filepath.Join(t.TempDir(), "gone")
-		if err := os.Mkdir(gone, 0o700); err != nil {
+		parent := t.TempDir()
+		r := programkindRoot(t, parent)
+		gone := filepath.Join(parent, "gone")
+		if err := r.Mkdir("gone", 0o700); err != nil {
 			t.Fatalf("Mkdir(%q): %v", gone, err)
 		}
 		t.Chdir(gone)
-		if err := os.Remove(gone); err != nil {
+		if err := r.Remove("gone"); err != nil {
 			t.Fatalf("Remove(%q): %v", gone, err)
 		}
 		if _, err := filepath.Abs("packed"); err == nil {
@@ -369,7 +398,7 @@ func TestFileSkipsPathsWithoutContent(t *testing.T) {
 	empty := writeFixture(t, "empty.sh", nil)
 	dir := filepath.Dir(empty)
 	dangling := filepath.Join(dir, "dangling.sh")
-	if err := os.Symlink(filepath.Join(dir, "missing-target.sh"), dangling); err != nil {
+	if err := programkindRoot(t, dir).Symlink(filepath.Join(dir, "missing-target.sh"), "dangling.sh"); err != nil {
 		t.Fatalf("Symlink: %v", err)
 	}
 
@@ -490,8 +519,9 @@ func TestValidateUPXPathDiscoveryRejectsArbitraryBinDirectory(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("POSIX permission bits required for the UPX path checks")
 	}
-	binDir := filepath.Join(t.TempDir(), "bin")
-	if err := os.MkdirAll(binDir, 0o755); err != nil {
+	tmp := t.TempDir()
+	binDir := filepath.Join(tmp, "bin")
+	if err := file.MkdirAllIn(tmp, "bin", 0o755); err != nil {
 		t.Fatalf("MkdirAll(%q): %v", binDir, err)
 	}
 	bin := writeExecutable(t, binDir, "upx", 0o755)

@@ -8,11 +8,11 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	bzip2 "github.com/cosnicolaou/pbzip2"
 )
 
@@ -26,7 +26,7 @@ func ExtractBz2(ctx context.Context, d, f string) error {
 	logger.Debug("extracting bzip2 file")
 
 	// Check if the file is valid
-	fi, err := os.Stat(f)
+	fi, err := file.Stat(f)
 	if err != nil {
 		return fmt.Errorf("failed to stat file: %w", err)
 	}
@@ -41,7 +41,7 @@ func ExtractBz2(ctx context.Context, d, f string) error {
 	// InputBytes seeds the ratio denominator from the compressed file size.
 	counter := newArchiveCounter(ctx, fi.Size())
 
-	tf, err := os.Open(f) // #nosec G304 -- archive path resolved and validated by caller before extraction
+	tf, err := file.Open(f)
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
 	}

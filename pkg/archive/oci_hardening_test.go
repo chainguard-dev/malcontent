@@ -14,14 +14,13 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"os"
-	"path/filepath"
 	"strings"
 	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
 
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/google/go-containerregistry/pkg/authn"
 )
@@ -218,7 +217,8 @@ func TestOCIHardening_PullTimeout_HangAborted(t *testing.T) {
 	}
 
 	start := time.Now()
-	_, err := OCIWithConfig(t.Context(), hostPort(t, srv.URL)+"/foo:bar", c)
+	dir, err := OCIWithConfig(t.Context(), hostPort(t, srv.URL)+"/foo:bar", c)
+	removeOCIDir(t, dir)
 	elapsed := time.Since(start)
 	if err == nil {
 		t.Fatalf("err: got = nil, want = timeout error")
@@ -243,7 +243,8 @@ func TestOCIHardening_Retry_Infinite503Aborted(t *testing.T) {
 	}
 
 	start := time.Now()
-	_, err := OCIWithConfig(t.Context(), hostPort(t, srv.URL)+"/foo:bar", c)
+	dir, err := OCIWithConfig(t.Context(), hostPort(t, srv.URL)+"/foo:bar", c)
+	removeOCIDir(t, dir)
 	elapsed := time.Since(start)
 	if err == nil {
 		t.Fatalf("err: got = nil, want = retry-exhausted error")
@@ -270,7 +271,8 @@ func TestOCIHardening_Retry_408RequestTimeout_Retried(t *testing.T) {
 		OCIPerHostSlots:          2,
 	}
 
-	_, err := OCIWithConfig(t.Context(), hostPort(t, srv.URL)+"/foo:bar", c)
+	dir, err := OCIWithConfig(t.Context(), hostPort(t, srv.URL)+"/foo:bar", c)
+	removeOCIDir(t, dir)
 	if err != nil && strings.Contains(err.Error(), "408") {
 		t.Fatalf("408 was not retried: %v", err)
 	}
@@ -301,7 +303,8 @@ func TestOCIHardening_PerHostConcurrency_CapEnforced(t *testing.T) {
 		go func(i int) {
 			defer wg.Done()
 			ref := fmt.Sprintf("%s/foo:bar%d", host, i)
-			_, _ = OCIWithConfig(t.Context(), ref, c)
+			dir, _ := OCIWithConfig(t.Context(), ref, c)
+			removeOCIDir(t, dir)
 		}(i)
 	}
 	wg.Wait()
@@ -392,7 +395,8 @@ func TestOCIHardening_ProxyPolicy_HTTPSProxyBypassedByDefault(t *testing.T) {
 		OCIProxyOptIn:            false,
 	}
 
-	_, err := OCIWithConfig(t.Context(), hostPort(t, srv.URL)+"/foo:bar", c)
+	dir, err := OCIWithConfig(t.Context(), hostPort(t, srv.URL)+"/foo:bar", c)
+	removeOCIDir(t, dir)
 	if err != nil {
 		// The extraction may fail downstream, but the pull itself must reach the test server.
 		if atomic.LoadInt32(&reg.manifestHits) == 0 {
@@ -419,7 +423,8 @@ func TestOCIHardening_SizePreflight_OversizedAbortedBeforeBodyFetch(t *testing.T
 		MaxImageSize:             1 << 16, // 64 KiB
 	}
 
-	_, err := OCIWithConfig(t.Context(), hostPort(t, srv.URL)+"/foo:bar", c)
+	dir, err := OCIWithConfig(t.Context(), hostPort(t, srv.URL)+"/foo:bar", c)
+	removeOCIDir(t, dir)
 	if err == nil {
 		t.Fatalf("err: got = nil, want = size-preflight rejection")
 	}
@@ -559,7 +564,7 @@ func TestOCIHardening_Keychain_AmbientDefaultRejected(t *testing.T) {
 
 	// Stand up a docker-config file pointing at the test server.
 	dockerCfgDir := t.TempDir()
-	if err := os.WriteFile(filepath.Join(dockerCfgDir, "config.json"),
+	if err := file.WriteFileIn(dockerCfgDir, "config.json",
 		[]byte(`{"auths":{"127.0.0.1":{"auth":"dXNlcjpwYXNz"}}}`), 0o644); err != nil {
 		t.Fatalf("write docker config: %v", err)
 	}
@@ -578,7 +583,8 @@ func TestOCIHardening_Keychain_AmbientDefaultRejected(t *testing.T) {
 			OCIRetryMaxWindowSeconds: 5,
 			OCIPerHostSlots:          2,
 		}
-		_, _ = OCIWithConfig(t.Context(), hostPort(t, srv.URL)+"/foo:bar", c)
+		dir, _ := OCIWithConfig(t.Context(), hostPort(t, srv.URL)+"/foo:bar", c)
+		removeOCIDir(t, dir)
 		if seen := reg.authHeaderSeen.Load(); seen != nil {
 			t.Fatalf("unexpected Authorization header when OCIAuth=false: %q", *seen)
 		}
@@ -599,7 +605,8 @@ func TestOCIHardening_Keychain_AmbientDefaultRejected(t *testing.T) {
 			OCIRetryMaxWindowSeconds: 5,
 			OCIPerHostSlots:          2,
 		}
-		_, _ = OCIWithConfig(t.Context(), hostPort(t, srv.URL)+"/foo:bar", c)
+		dir, _ := OCIWithConfig(t.Context(), hostPort(t, srv.URL)+"/foo:bar", c)
+		removeOCIDir(t, dir)
 		if seen := reg.authHeaderSeen.Load(); seen != nil {
 			t.Fatalf("docker-config ambient auth should be rejected, but saw header %q", *seen)
 		}
@@ -623,7 +630,8 @@ func TestOCIHardening_Keychain_AmbientDefaultRejected(t *testing.T) {
 			OCIRetryMaxWindowSeconds: 5,
 			OCIPerHostSlots:          2,
 		}
-		_, _ = OCIWithConfig(t.Context(), hostPort(t, srv.URL)+"/foo:bar", c)
+		dir, _ := OCIWithConfig(t.Context(), hostPort(t, srv.URL)+"/foo:bar", c)
+		removeOCIDir(t, dir)
 		seen := reg.authHeaderSeen.Load()
 		if seen == nil {
 			t.Fatalf("Authorization header with env creds set: got = none, want = Basic auth")

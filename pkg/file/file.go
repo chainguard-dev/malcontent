@@ -64,6 +64,23 @@ func (c *ArchiveCounter) Remaining() int64 {
 	return max(c.MaxBytes-c.Total.Load(), 0)
 }
 
+// Available returns how many more bytes Add accepts before either cap fails
+// it: the smaller of Remaining and what the ratio cap leaves. A nil receiver,
+// or a counter with no active cap, returns MaxInt64.
+func (c *ArchiveCounter) Available() int64 {
+	avail := c.Remaining()
+	if c == nil || c.MaxRatio <= 0 || c.InputBytes <= 0 {
+		return avail
+	}
+	// Add fails once the total exceeds the threshold, so a total up to the
+	// threshold rounded down is accepted.
+	threshold := c.MaxRatio * float64(c.InputBytes)
+	if threshold >= math.MaxInt64 {
+		return avail
+	}
+	return min(avail, max(int64(threshold)-c.Total.Load(), 0))
+}
+
 // Add records additional uncompressed bytes against the counter. A nil
 // receiver is a documented no-op so call sites can pass a nil counter to opt
 // out without nil-checking. The byte-cap and ratio-cap guards are evaluated

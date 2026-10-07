@@ -25,6 +25,8 @@ import (
 	"github.com/minio/sha256-simd"
 	"golang.org/x/sync/errgroup"
 
+	"github.com/chainguard-dev/malcontent/pkg/file"
+
 	yarax "github.com/VirusTotal/yara-x/go"
 )
 
@@ -76,6 +78,9 @@ type Split struct {
 	ByHeader map[[2]byte]*HeaderRules
 
 	files []splitFile
+	// cacheName names the cache file of Universal when the split is cached;
+	// CompileScoped caches the sets it compiles beside it.
+	cacheName string
 }
 
 // HeaderRules is the rule set of the rules that require one header. A set
@@ -649,8 +654,49 @@ func unquote(s string) string {
 }
 
 // CompileScoped compiles the scoped rules at the given indices of s.Scoped,
-// with the rules they refer to, into a rule set.
+// with the rules they refer to, into a rule set. A split from
+// RecursiveSplitCached keeps the sets it compiles in the cache, so that later
+// runs load them instead.
 func (s *Split) CompileScoped(ctx context.Context, indices []int) (*yarax.Rules, error) {
+	name := s.scopedCacheName(indices)
+	if name == "" {
+		return s.compileSelected(ctx, indices)
+	}
+	cache, err := openCacheDir()
+	if err != nil {
+		return s.compileSelected(ctx, indices)
+	}
+	defer func() { _ = cache.Close() }()
+	if rules, err := loadCachedRules(cache, name); err == nil {
+		refreshCacheTime(cache, name, time.Now())
+		return rules, nil
+	}
+	rules, err := s.compileSelected(ctx, indices)
+	if err != nil {
+		return nil, err
+	}
+	if err := saveCachedRules(cache, name, rules); err != nil {
+		logWarn("Failed to save scoped rules to cache", "error", err)
+	}
+	return rules, nil
+}
+
+// scopedCacheName returns the name of the cache file of the scoped rules at
+// indices, beside the split's own, or "" when the split is not cached.
+func (s *Split) scopedCacheName(indices []int) string {
+	if s.cacheName == "" {
+		return ""
+	}
+	h := sha256.New()
+	for _, i := range indices {
+		_ = binary.Write(h, binary.LittleEndian, int64(i))
+	}
+	return strings.TrimSuffix(s.cacheName, cacheSuffix) + ".scoped-" + hex.EncodeToString(h.Sum(nil)) + cacheSuffix
+}
+
+// compileSelected compiles the scoped rules at indices, as CompileScoped does
+// without the cache.
+func (s *Split) compileSelected(ctx context.Context, indices []int) (*yarax.Rules, error) {
 	want := make([]map[int]struct{}, len(s.files))
 	for _, i := range indices {
 		sr := s.Scoped[i]
@@ -678,7 +724,7 @@ func include(want []map[int]struct{}, files []splitFile, fi, ri int) {
 
 // compileFiles compiles, in order, the rules of files that keep accepts, each
 // file in its own namespace with the imports its kept rules use.
-func compileFiles(ctx context.Context, files []splitFile, keep func(file, rule int) bool) (*yarax.Rules, error) {
+func compileFiles(ctx context.Context, files []splitFile, keep func(fi, ri int) bool) (*yarax.Rules, error) {
 	yxc, err := newCompiler()
 	if err != nil {
 		return nil, err
@@ -832,23 +878,26 @@ func RecursiveSplitCached(ctx context.Context, fss []fs.FS) (*Split, error) {
 	if ctx.Err() != nil {
 		return nil, ctx.Err()
 	}
-	cacheDir, err := getCacheDir()
+	cache, err := openCacheDir()
 	if err != nil {
 		return RecursiveSplit(ctx, fss)
 	}
+	defer func() { _ = cache.Close() }()
 	key, err := getRulesHash(ctx, fss)
 	if err != nil {
 		return RecursiveSplit(ctx, fss)
 	}
 
-	cacheFile := filepath.Join(cacheDir, cachePrefix+splitVersion+key+cacheSuffix)
-	manifestFile := filepath.Join(cacheDir, cachePrefix+splitVersion+key+".manifest"+cacheSuffix)
-	if s, err := loadSplit(cacheFile, manifestFile); err == nil {
+	cacheName := cachePrefix + splitVersion + key + cacheSuffix
+	manifestName := cachePrefix + splitVersion + key + ".manifest" + cacheSuffix
+	cacheFile := filepath.Join(cache.Name(), cacheName)
+	if s, err := loadSplit(cache, cacheName, manifestName); err == nil {
 		logDebug("Loaded split rules from cache", "file", cacheFile)
 		now := time.Now()
-		refreshCacheTime(cacheFile, now)
-		refreshCacheTime(manifestFile, now)
-		pruneStaleCaches(cacheDir, cacheFile, now)
+		refreshCacheTime(cache, cacheName, now)
+		refreshCacheTime(cache, manifestName, now)
+		pruneStaleCaches(cache, cacheName, now)
+		s.cacheName = cacheName
 		return s, nil
 	}
 
@@ -857,16 +906,18 @@ func RecursiveSplitCached(ctx context.Context, fss []fs.FS) (*Split, error) {
 	if err != nil {
 		return nil, err
 	}
-	pruneStaleCaches(cacheDir, cacheFile, time.Now())
-	if err := saveSplit(s, cacheFile, manifestFile); err != nil {
+	pruneStaleCaches(cache, cacheName, time.Now())
+	if err := saveSplit(cache, s, cacheName, manifestName); err != nil {
 		logWarn("Failed to save split rules to cache", "error", err)
+		return s, nil
 	}
+	s.cacheName = cacheName
 	return s, nil
 }
 
-// loadSplit loads a Split saved by saveSplit.
-func loadSplit(cacheFile, manifestFile string) (*Split, error) {
-	data, err := loadVerified(manifestFile)
+// loadSplit loads a Split that saveSplit saved in cache.
+func loadSplit(cache *os.Root, cacheName, manifestName string) (*Split, error) {
+	data, err := loadVerified(cache, manifestName)
 	if err != nil {
 		return nil, err
 	}
@@ -874,7 +925,7 @@ func loadSplit(cacheFile, manifestFile string) (*Split, error) {
 	if err := gob.NewDecoder(bytes.NewReader(data)).Decode(&m); err != nil {
 		return nil, fmt.Errorf("decode manifest: %w", err)
 	}
-	universal, err := loadCachedRules(cacheFile)
+	universal, err := loadCachedRules(cache, cacheName)
 	if err != nil {
 		return nil, err
 	}
@@ -886,11 +937,11 @@ func loadSplit(cacheFile, manifestFile string) (*Split, error) {
 	return s, nil
 }
 
-// saveSplit writes the universal rules and the manifest of s, each with its
-// digest sidecar. The manifest is written last, so a partial save surfaces as
-// a cache miss.
-func saveSplit(s *Split, cacheFile, manifestFile string) error {
-	if err := saveCachedRules(s.Universal, cacheFile); err != nil {
+// saveSplit writes the universal rules and the manifest of s to cache, each
+// with its digest sidecar. The manifest is written last, so a partial save
+// surfaces as a cache miss.
+func saveSplit(cache *os.Root, s *Split, cacheName, manifestName string) error {
+	if err := saveCachedRules(cache, cacheName, s.Universal); err != nil {
 		return err
 	}
 	m, err := s.manifest()
@@ -901,58 +952,56 @@ func saveSplit(s *Split, cacheFile, manifestFile string) error {
 	if err := gob.NewEncoder(&buf).Encode(m); err != nil {
 		return fmt.Errorf("encode manifest: %w", err)
 	}
-	return saveVerified(manifestFile, buf.Bytes())
+	return saveVerified(cache, manifestName, buf.Bytes())
 }
 
-// loadVerified reads path and checks it against its digest sidecar.
-func loadVerified(path string) ([]byte, error) {
-	data, err := os.ReadFile(path) // #nosec G304 -- path is built from the private cache directory and a content hash
+// loadVerified reads name in cache and checks it against its digest sidecar.
+func loadVerified(cache *os.Root, name string) ([]byte, error) {
+	data, err := cache.ReadFile(name)
 	if err != nil {
 		return nil, err
 	}
-	want, err := readSidecarDigest(path)
+	want, err := readSidecarDigest(cache, name)
 	if err != nil {
 		return nil, err
 	}
 	sum := sha256.Sum256(data)
 	if hex.EncodeToString(sum[:]) != want {
-		return nil, fmt.Errorf("digest mismatch for %s", path)
+		return nil, fmt.Errorf("digest mismatch for %s", filepath.Join(cache.Name(), name))
 	}
 	return data, nil
 }
 
-// saveVerified writes data to path, with its digest sidecar, through
-// temporary files renamed into place.
-func saveVerified(path string, data []byte) error {
-	dir := filepath.Dir(path)
-	f, err := os.CreateTemp(dir, ".rules-*.cache.tmp")
+// saveVerified writes data to name in cache, with its digest sidecar,
+// through temporary files renamed into place.
+func saveVerified(cache *os.Root, name string, data []byte) error {
+	f, tmp, err := file.CreateTemp(cache, ".rules-*.cache.tmp")
 	if err != nil {
 		return fmt.Errorf("create cache file: %w", err)
 	}
-	tmp := f.Name()
 	if _, err := f.Write(data); err != nil {
 		_ = f.Close()
-		_ = os.Remove(tmp)
+		_ = cache.Remove(tmp)
 		return fmt.Errorf("write cache file: %w", err)
 	}
 	if err := f.Close(); err != nil {
-		_ = os.Remove(tmp)
+		_ = cache.Remove(tmp)
 		return fmt.Errorf("close cache file: %w", err)
 	}
 	sum := sha256.Sum256(data)
-	tmpSidecar, err := writeSidecarTemp(dir, hex.EncodeToString(sum[:]))
+	tmpSidecar, err := writeSidecarTemp(cache, hex.EncodeToString(sum[:]))
 	if err != nil {
-		_ = os.Remove(tmp)
+		_ = cache.Remove(tmp)
 		return fmt.Errorf("write sidecar: %w", err)
 	}
-	if err := os.Rename(tmp, path); err != nil {
-		_ = os.Remove(tmp)
-		_ = os.Remove(tmpSidecar)
+	if err := cache.Rename(tmp, name); err != nil {
+		_ = cache.Remove(tmp)
+		_ = cache.Remove(tmpSidecar)
 		return fmt.Errorf("rename cache file: %w", err)
 	}
-	if err := os.Rename(tmpSidecar, path+sidecarSuffix); err != nil {
-		_ = os.Remove(tmpSidecar)
-		_ = os.Remove(path)
+	if err := cache.Rename(tmpSidecar, name+sidecarSuffix); err != nil {
+		_ = cache.Remove(tmpSidecar)
+		_ = cache.Remove(name)
 		return fmt.Errorf("rename sidecar file: %w", err)
 	}
 	return nil

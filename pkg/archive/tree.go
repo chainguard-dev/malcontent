@@ -141,13 +141,13 @@ func OpenTree(ctx context.Context, c malcontent.Config, path string) (*Tree, err
 // archive is read once for both.
 func sniffArchive(ctx context.Context, path string) (*programkind.FileType, [sha256.Size]byte, error) {
 	var digest [sha256.Size]byte
-	fi, err := os.Stat(path)
+	fi, err := file.Stat(path)
 	if err != nil || !fi.Mode().IsRegular() || fi.Size() == 0 {
 		ft, err := programkind.File(ctx, path)
 		if err != nil {
 			return nil, digest, fmt.Errorf("failed to determine file type: %w", err)
 		}
-		f, err := os.Open(path) // #nosec G304 -- archive path supplied by the caller, which extracts it next
+		f, err := file.Open(path)
 		if err != nil {
 			return nil, digest, fmt.Errorf("failed to open archive for hashing: %w", err)
 		}
@@ -156,7 +156,7 @@ func sniffArchive(ctx context.Context, path string) (*programkind.FileType, [sha
 		return ft, digest, err
 	}
 
-	f, err := os.Open(path) // #nosec G304 -- archive path supplied by the caller, which extracts it next
+	f, err := file.Open(path)
 	if err != nil {
 		return nil, digest, fmt.Errorf("failed to determine file type: open: %w", err)
 	}
@@ -184,23 +184,20 @@ func (t *Tree) Root() Lineage {
 
 // Close removes the tree's directory.
 func (t *Tree) Close() error {
-	return os.RemoveAll(t.dir)
+	return file.RemoveAllIn(filepath.Dir(t.dir), filepath.Base(t.dir))
 }
 
 // Files returns the regular files beneath dir, the tree's directory or one
 // that ExtractNested returned, in lexical order.
 func (t *Tree) Files(dir string) ([]TreeFile, error) {
+	sub, err := filepath.Rel(t.dir, dir)
+	if err != nil {
+		return nil, fmt.Errorf("filepath.Rel: %w", err)
+	}
 	var files []TreeFile
-	err := filepath.WalkDir(dir, func(path string, entry fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
+	err = walkTree(t.dir, sub, func(rel string, entry fs.DirEntry) error {
 		if !entry.Type().IsRegular() {
 			return nil
-		}
-		rel, err := filepath.Rel(t.dir, path)
-		if err != nil {
-			return fmt.Errorf("filepath.Rel: %w", err)
 		}
 		fi, err := entry.Info()
 		if err != nil {

@@ -9,8 +9,8 @@ import (
 	"context"
 	"encoding/hex"
 	"errors"
+	"io/fs"
 	"math"
-	"os"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -49,7 +49,7 @@ func pkgsSingleFileOutput(out, src, name string) string {
 func TestExtractTarStreamSelection(t *testing.T) {
 	t.Parallel()
 
-	plain, err := os.ReadFile(writeTar(t, []tarEntry{
+	plain, err := file.ReadFile(writeTar(t, []tarEntry{
 		{name: "first.txt", typeflag: tar.TypeReg, body: "first"},
 		{name: "second.txt", typeflag: tar.TypeReg, body: "second"},
 	}))
@@ -87,7 +87,7 @@ func TestExtractTarSkipsEntries(t *testing.T) {
 	const traversal = "path is absolute or contains a relative path traversal"
 	endMarker := make([]byte, 2*tarBlockSize)
 	member := func(name string) []byte {
-		b, err := os.ReadFile(writeTar(t, []tarEntry{{name: name, typeflag: tar.TypeReg, body: "evil"}}))
+		b, err := file.ReadFile(writeTar(t, []tarEntry{{name: name, typeflag: tar.TypeReg, body: "evil"}}))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -168,7 +168,8 @@ func TestExtractTarSingleFileStreams(t *testing.T) {
 			if err := ExtractTar(t.Context(), out, src); err != nil {
 				t.Fatalf("ExtractTar: %v", err)
 			}
-			got, err := os.ReadFile(pkgsSingleFileOutput(out, src, tt.output))
+			p := pkgsSingleFileOutput(out, src, tt.output)
+			got, err := file.ReadFileIn(filepath.Dir(p), filepath.Base(p))
 			if err != nil {
 				t.Fatalf("read decompressed file: %v", err)
 			}
@@ -192,7 +193,7 @@ func TestExtractArchiveToTempDirApkNestedTar(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ExtractArchiveToTempDir: %v", err)
 	}
-	t.Cleanup(func() { _ = os.RemoveAll(dir) })
+	t.Cleanup(func() { _ = file.RemoveAllIn(filepath.Dir(dir), filepath.Base(dir)) })
 
 	pkgsWantFile(t, filepath.Join(dir, "inner", "member.txt"), "apk member")
 	pkgsWantAbsent(t, filepath.Join(dir, "inner.tar"))
@@ -205,7 +206,7 @@ func TestExtractArchiveToTempDirApkNestedTar(t *testing.T) {
 func TestExtractArchiveToTempDirBzip2Tar(t *testing.T) {
 	t.Parallel()
 
-	tbz, err := os.ReadFile(filepath.Join("testdata", "single.tbz"))
+	tbz, err := file.ReadFileIn("testdata", "single.tbz")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -239,7 +240,7 @@ func TestExtractArchiveToTempDirBzip2Tar(t *testing.T) {
 			if err != nil {
 				t.Fatalf("ExtractArchiveToTempDir: %v", err)
 			}
-			t.Cleanup(func() { _ = os.RemoveAll(dir) })
+			t.Cleanup(func() { _ = file.RemoveAllIn(filepath.Dir(dir), filepath.Base(dir)) })
 
 			// The decompressed tar lands in a directory named for the one
 			// holding the compressed tar, and is extracted beside itself.
@@ -338,7 +339,8 @@ func TestExtractTarXZCancellation(t *testing.T) {
 			if err := ExtractTar(ctx, out, src); !errors.Is(err, tt.wantErr) {
 				t.Fatalf("ExtractTar error: got = %v, want = %v", err, tt.wantErr)
 			}
-			fi, err := os.Stat(pkgsSingleFileOutput(out, src, "big"))
+			p := pkgsSingleFileOutput(out, src, "big")
+			fi, err := file.StatIn(filepath.Dir(p), filepath.Base(p))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -392,7 +394,8 @@ func TestExtractTarBz2EarlyReturn(t *testing.T) {
 			if err := ExtractTar(ctx, out, src); !errors.Is(err, tt.wantErr) {
 				t.Fatalf("ExtractTar error: got = %v, want = %v", err, tt.wantErr)
 			}
-			fi, err := os.Stat(pkgsSingleFileOutput(out, src, "zeros.tar"))
+			p := pkgsSingleFileOutput(out, src, "zeros.tar")
+			fi, err := file.StatIn(filepath.Dir(p), filepath.Base(p))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -444,7 +447,7 @@ func TestExtractTarEmptyInput(t *testing.T) {
 			if err := ExtractTar(t.Context(), out, writeTemp(t, name, nil)); err != nil {
 				t.Fatalf("ExtractTar error: got = %v, want = nil", err)
 			}
-			entries, err := os.ReadDir(out)
+			entries, err := fs.ReadDir(openTestRoot(t, out).FS(), ".")
 			if err != nil {
 				t.Fatal(err)
 			}

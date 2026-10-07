@@ -9,10 +9,10 @@ import (
 	"fmt"
 	"log/slog"
 	"maps"
-	"os"
 	"path/filepath"
 	"slices"
 	"strings"
+	"sync"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/archive"
@@ -46,7 +46,7 @@ func relPath(from string, fr *malcontent.FileReport, isArchive bool) (string, st
 		return archiveEntryPath(fr), base, nil
 	}
 
-	info, err := os.Stat(from)
+	info, err := file.Stat(from)
 	if err != nil {
 		return "", "", err
 	}
@@ -255,7 +255,7 @@ func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent
 	switch c.Report {
 	case true:
 		isReport = true
-		srcFile, err := os.Open(srcPath) // #nosec G304 -- scan/diff target path supplied by user CLI flag; reading the path is the operation's purpose
+		srcFile, err := file.Open(srcPath)
 		if err != nil {
 			return nil, err
 		}
@@ -276,7 +276,7 @@ func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent
 		srcResult.imageURI = report.ExtractImageURI(srcResult.files)
 		srcResult.tmpRoot = report.ExtractTmpRoot(srcResult.files)
 
-		destFile, err := os.Open(destPath) // #nosec G304 -- scan/diff target path supplied by user CLI flag; reading the path is the operation's purpose
+		destFile, err := file.Open(destPath)
 		if err != nil {
 			return nil, err
 		}
@@ -297,11 +297,8 @@ func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent
 		destResult.imageURI = report.ExtractImageURI(destResult.files)
 		destResult.tmpRoot = report.ExtractTmpRoot(destResult.files)
 	default:
-		if srcResult, err = diffScan(ctx, c, srcPath, c.ScanPaths[0], srcIsArchive, isImage); err != nil {
-			return nil, fmt.Errorf("source scan error: %w", err)
-		}
-		if destResult, err = diffScan(ctx, c, destPath, c.ScanPaths[1], destIsArchive, isImage); err != nil {
-			return nil, fmt.Errorf("destination scan error: %w", err)
+		if srcResult, destResult, err = diffScans(ctx, c, srcPath, destPath, srcIsArchive, destIsArchive, isImage); err != nil {
+			return nil, err
 		}
 	}
 
@@ -311,12 +308,12 @@ func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent
 		Modified: orderedmap.New[string, *malcontent.FileReport](),
 	}
 
-	srcInfo, err := os.Stat(srcPath)
+	srcInfo, err := file.Stat(srcPath)
 	if err != nil {
 		return nil, err
 	}
 
-	destInfo, err := os.Stat(destPath)
+	destInfo, err := file.Stat(destPath)
 	if err != nil {
 		return nil, err
 	}
@@ -347,6 +344,43 @@ func Diff(ctx context.Context, c malcontent.Config, _ *clog.Logger) (*malcontent
 	}
 
 	return &malcontent.Report{Diff: d}, nil
+}
+
+// diffScans scans both sides of a diff at once. A failure of the source is
+// reported even when the destination also fails, as when the source was
+// scanned first, and it ends the destination scan.
+func diffScans(ctx context.Context, c malcontent.Config, srcPath, destPath string, srcIsArchive, destIsArchive, isImage bool) (ScanResult, ScanResult, error) {
+	ctx = diffScanContext(ctx, c)
+	destCtx, cancelDest := context.WithCancel(ctx)
+	defer cancelDest()
+
+	var (
+		dest    ScanResult
+		destErr error
+		wg      sync.WaitGroup
+	)
+	wg.Go(func() {
+		dest, destErr = diffScan(destCtx, c, destPath, c.ScanPaths[1], destIsArchive, isImage)
+	})
+	src, err := diffScan(ctx, c, srcPath, c.ScanPaths[0], srcIsArchive, isImage)
+	if err != nil {
+		cancelDest()
+		wg.Wait()
+		return ScanResult{}, ScanResult{}, fmt.Errorf("source scan error: %w", err)
+	}
+	wg.Wait()
+	if destErr != nil {
+		return ScanResult{}, ScanResult{}, fmt.Errorf("destination scan error: %w", destErr)
+	}
+	return src, dest, nil
+}
+
+// diffScanContext returns ctx carrying what the two scans of a diff share: a
+// result cache, so that content they have in common, such as the files a new
+// version leaves unchanged, is scanned once, and the worker slots of one scan,
+// so that together they use no more workers than one.
+func diffScanContext(ctx context.Context, c malcontent.Config) context.Context {
+	return withWorkerSlots(withResultCache(ctx), getMaxConcurrency(c.Concurrency))
 }
 
 // diffScan scans path, one side of a diff, keying its file reports by

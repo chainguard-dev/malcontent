@@ -12,6 +12,7 @@ import (
 	"runtime"
 
 	"github.com/chainguard-dev/malcontent/pkg/action"
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/render"
 	"github.com/chainguard-dev/malcontent/rules"
@@ -160,21 +161,21 @@ func diffRefresh(ctx context.Context, rc Config) ([]TestData, error) {
 		src := filepath.Join(rc.SamplesPath, td.srcPath)
 		dest := filepath.Join(rc.SamplesPath, td.destPath)
 
-		if _, err := os.Stat(src); err != nil {
+		if _, err := file.Stat(src); err != nil {
 			closeTestDataFiles(testData)
 			return nil, fmt.Errorf("risk case base file not found: %s: %w", src, err)
 		}
-		if _, err := os.Stat(dest); err != nil {
+		if _, err := file.Stat(dest); err != nil {
 			closeTestDataFiles(testData)
 			return nil, fmt.Errorf("risk case compare file not found: %s: %w", dest, err)
 		}
 
-		if err := os.MkdirAll(filepath.Dir(output), 0o700); err != nil {
+		if err := file.MkdirAll(filepath.Dir(output), 0o700); err != nil {
 			closeTestDataFiles(testData)
 			return nil, fmt.Errorf("create output directory: %w", err)
 		}
 
-		outFile, err := os.OpenFile(output, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600) // #nosec G304 -- refresh operates on testdata roots controlled by the test harness
+		outFile, err := file.OpenFile(output, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600)
 		if err != nil {
 			closeTestDataFiles(testData)
 			return nil, fmt.Errorf("create output file %s: %w", output, err)

@@ -31,7 +31,7 @@ import (
 // readTestFile reads a file using file.GetContents for consistency with production code.
 func readTestFile(t *testing.T, path string) []byte {
 	t.Helper()
-	f, err := os.Open(path)
+	f, err := file.Open(path)
 	if err != nil {
 		t.Fatalf("failed to open test file %s: %v", path, err)
 	}
@@ -41,6 +41,21 @@ func readTestFile(t *testing.T, path string) []byte {
 		t.Fatalf("failed to read test file %s: %v", path, err)
 	}
 	return data
+}
+
+// archiveTestReadDir returns the entries of dir sorted by name.
+func archiveTestReadDir(t *testing.T, dir string) []fs.DirEntry {
+	t.Helper()
+	root, err := os.OpenRoot(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer root.Close()
+	entries, err := fs.ReadDir(root.FS(), ".")
+	if err != nil {
+		t.Fatal(err)
+	}
+	return entries
 }
 
 func TestExtractionMethod(t *testing.T) {
@@ -106,11 +121,8 @@ func TestExtractionMultiple(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			defer os.RemoveAll(dir)
-			dirFiles, err := os.ReadDir(dir)
-			if err != nil {
-				t.Fatal(err)
-			}
+			defer file.RemoveAllIn(filepath.Dir(dir), filepath.Base(dir))
+			dirFiles := archiveTestReadDir(t, dir)
 			if len(dirFiles) != len(tt.want) {
 				t.Fatalf("unexpected number of files in dir: %d", len(dirFiles))
 			}
@@ -134,14 +146,11 @@ func TestExtractTar(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(dir)
+	defer file.RemoveAllIn(filepath.Dir(dir), filepath.Base(dir))
 	want := []string{
 		"apko_0.13.2_linux_arm64",
 	}
-	dirFiles, err := os.ReadDir(dir)
-	if err != nil {
-		t.Fatal(err)
-	}
+	dirFiles := archiveTestReadDir(t, dir)
 	if len(dirFiles) != len(want) {
 		t.Fatalf("unexpected number of files in dir: %d", len(dirFiles))
 	}
@@ -163,14 +172,11 @@ func TestExtractGzip(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(dir)
+	defer file.RemoveAllIn(filepath.Dir(dir), filepath.Base(dir))
 	want := []string{
 		"apko",
 	}
-	dirFiles, err := os.ReadDir(dir)
-	if err != nil {
-		t.Fatal(err)
-	}
+	dirFiles := archiveTestReadDir(t, dir)
 	if len(dirFiles) != len(want) {
 		t.Fatalf("unexpected number of files in dir: %d", len(dirFiles))
 	}
@@ -192,14 +198,11 @@ func TestExtractZip(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(dir)
+	defer file.RemoveAllIn(filepath.Dir(dir), filepath.Base(dir))
 	want := []string{
 		"apko_0.13.2_linux_arm64",
 	}
-	dirFiles, err := os.ReadDir(dir)
-	if err != nil {
-		t.Fatal(err)
-	}
+	dirFiles := archiveTestReadDir(t, dir)
 	if len(dirFiles) != len(want) {
 		t.Fatalf("unexpected number of files in dir: %d", len(dirFiles))
 	}
@@ -218,7 +221,7 @@ func TestExtractZip(t *testing.T) {
 // entries in sorted name order for reproducibility.
 func buildZipFile(t *testing.T, path string, entries map[string][]byte) {
 	t.Helper()
-	f, err := os.Create(path)
+	f, err := file.OpenFileIn(filepath.Dir(path), filepath.Base(path), os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0o644)
 	if err != nil {
 		t.Fatalf("create %s: %v", path, err)
 	}
@@ -256,9 +259,9 @@ func TestExtractWar(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(dir)
+	defer file.RemoveAllIn(filepath.Dir(dir), filepath.Base(dir))
 	for _, want := range []string{"WEB-INF/web.xml", "WEB-INF/classes/Hello.class"} {
-		if _, err := os.Stat(filepath.Join(dir, want)); err != nil {
+		if _, err := file.StatIn(dir, want); err != nil {
 			t.Errorf("stat %s in extracted war: got = %v, want = nil", want, err)
 		}
 	}
@@ -274,7 +277,7 @@ func TestExtractEar(t *testing.T) {
 		"WEB-INF/web.xml":             []byte("<web-app/>"),
 		"WEB-INF/classes/Hello.class": syntheticClass(),
 	})
-	warBytes, err := os.ReadFile(warPath)
+	warBytes, err := file.ReadFileIn(td, "sample.war")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -289,12 +292,12 @@ func TestExtractEar(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(dir)
+	defer file.RemoveAllIn(filepath.Dir(dir), filepath.Base(dir))
 
 	// The nested war is extracted in place, so its contents must be
 	// reachable somewhere beneath the extraction root.
 	found := map[string]struct{}{}
-	if err := filepath.WalkDir(dir, func(_ string, d fs.DirEntry, err error) error {
+	if err := archiveTestWalk(t, dir, func(_ string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -319,14 +322,11 @@ func TestExtractNestedArchive(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(dir)
+	defer file.RemoveAllIn(filepath.Dir(dir), filepath.Base(dir))
 	want := []string{
 		"apko_0.13.2_linux_arm64",
 	}
-	dirFiles, err := os.ReadDir(dir)
-	if err != nil {
-		t.Fatal(err)
-	}
+	dirFiles := archiveTestReadDir(t, dir)
 	if len(dirFiles) != len(want) {
 		t.Fatalf("unexpected number of files in dir: %d", len(dirFiles))
 	}
@@ -720,7 +720,7 @@ func createBrokenNestedArchive(t *testing.T, dir string) string {
 	t.Helper()
 
 	outPath := filepath.Join(dir, "outer.tar.gz")
-	f, err := os.Create(outPath)
+	f, err := file.OpenFileIn(dir, "outer.tar.gz", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0o644)
 	if err != nil {
 		t.Fatalf("failed to create outer archive: %v", err)
 	}
@@ -765,7 +765,7 @@ func TestNestedFailureRetention(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(tmpDir)
+	defer file.RemoveAllIn(filepath.Dir(tmpDir), filepath.Base(tmpDir))
 
 	outerArchive := createBrokenNestedArchive(t, tmpDir)
 
@@ -776,11 +776,11 @@ func TestNestedFailureRetention(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ExtractArchiveToTempDir should not fail with ExitExtraction=false, got: %v", err)
 	}
-	defer os.RemoveAll(extractDir)
+	defer file.RemoveAllIn(filepath.Dir(extractDir), filepath.Base(extractDir))
 
 	// The nested archive file must still exist so it can be scanned as a regular file
 	found := false
-	err = filepath.WalkDir(extractDir, func(_ string, d os.DirEntry, err error) error {
+	err = archiveTestWalk(t, extractDir, func(_ string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -806,7 +806,7 @@ func TestNestedFailureRetentionError(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(tmpDir)
+	defer file.RemoveAllIn(filepath.Dir(tmpDir), filepath.Base(tmpDir))
 
 	outerArchive := createBrokenNestedArchive(t, tmpDir)
 
@@ -815,7 +815,7 @@ func TestNestedFailureRetentionError(t *testing.T) {
 
 	extractDir, err := archive.ExtractArchiveToTempDir(ctx, cfg, outerArchive)
 	if extractDir != "" {
-		defer os.RemoveAll(extractDir)
+		defer file.RemoveAllIn(filepath.Dir(extractDir), filepath.Base(extractDir))
 	}
 	if err == nil {
 		t.Fatal("ExtractArchiveToTempDir should return error with ExitExtraction=true for nested archives which cannot be extracted")
@@ -827,7 +827,7 @@ func TestIsValidPath(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create temp base directory: %v", err)
 	}
-	defer os.RemoveAll(tmpRoot)
+	defer file.RemoveAllIn(filepath.Dir(tmpRoot), filepath.Base(tmpRoot))
 
 	tempSubDir, err := os.MkdirTemp(tmpRoot, "isValidPathSub-*")
 	if err != nil {
@@ -898,4 +898,15 @@ func TestIsValidPath(t *testing.T) {
 			}
 		})
 	}
+}
+
+// archiveTestWalk walks dir through a root on it, as fs.WalkDir does.
+func archiveTestWalk(t *testing.T, dir string, fn fs.WalkDirFunc) error {
+	t.Helper()
+	root, err := os.OpenRoot(dir)
+	if err != nil {
+		return err
+	}
+	defer root.Close()
+	return fs.WalkDir(root.FS(), ".", fn)
 }

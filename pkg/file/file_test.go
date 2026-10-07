@@ -31,8 +31,9 @@ func deterministicBytes(n int) []byte {
 // path.
 func writeTemp(tb testing.TB, content []byte) string {
 	tb.Helper()
-	p := filepath.Join(tb.TempDir(), "f")
-	if err := os.WriteFile(p, content, 0o600); err != nil {
+	dir := tb.TempDir()
+	p := filepath.Join(dir, "f")
+	if err := WriteFileIn(dir, "f", content, 0o600); err != nil {
 		tb.Fatalf("WriteFile(%q): %v", p, err)
 	}
 	return p
@@ -43,7 +44,7 @@ func writeTemp(tb testing.TB, content []byte) string {
 func openTemp(tb testing.TB, content []byte) *os.File {
 	tb.Helper()
 	p := writeTemp(tb, content)
-	f, err := os.Open(p) // #nosec G304 -- test fixture under tb.TempDir
+	f, err := OpenIn(filepath.Dir(p), filepath.Base(p))
 	if err != nil {
 		tb.Fatalf("Open(%q): %v", p, err)
 	}
@@ -92,10 +93,17 @@ func TestGetContentsSparseFile(t *testing.T) {
 	t.Parallel()
 	const size = int64(17 << 20)
 	p := writeTemp(t, nil)
-	if err := os.Truncate(p, size); err != nil {
+	dir, name := filepath.Dir(p), filepath.Base(p)
+	w, err := OpenFileIn(dir, name, os.O_WRONLY, 0)
+	if err != nil {
+		t.Fatalf("Open(%q) for writing: %v", p, err)
+	}
+	err = w.Truncate(size)
+	_ = w.Close()
+	if err != nil {
 		t.Fatalf("Truncate(%q): %v", p, err)
 	}
-	f, err := os.Open(p) // #nosec G304 -- test fixture under t.TempDir
+	f, err := OpenIn(dir, name)
 	if err != nil {
 		t.Fatalf("Open(%q): %v", p, err)
 	}
@@ -129,7 +137,8 @@ func TestGetContentsReadsFromTheCurrentOffset(t *testing.T) {
 
 func TestGetContentsClosedFile(t *testing.T) {
 	t.Parallel()
-	f, err := os.Open(writeTemp(t, []byte("test")))
+	p := writeTemp(t, []byte("test"))
+	f, err := OpenIn(filepath.Dir(p), filepath.Base(p))
 	if err != nil {
 		t.Fatalf("Open: %v", err)
 	}
@@ -505,6 +514,52 @@ func TestArchiveCounter_Remaining(t *testing.T) {
 			}
 			if got := tt.counter.Remaining(); got != tt.want {
 				t.Errorf("Remaining() = %d, want %d", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestArchiveCounter_Available(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name    string
+		counter *ArchiveCounter
+		preAdd  int
+		want    int64
+	}{
+		{name: "nil counter accepts any amount", counter: nil, want: math.MaxInt64},
+		{name: "counter without caps accepts any amount", counter: &ArchiveCounter{}, want: math.MaxInt64},
+		{name: "byte cap alone bounds what is left", counter: &ArchiveCounter{MaxBytes: 1000}, preAdd: 600, want: 400},
+		{name: "ratio cap alone bounds what is left", counter: &ArchiveCounter{MaxRatio: 10, InputBytes: 100}, preAdd: 300, want: 700},
+		{name: "fractional ratio threshold rounds down", counter: &ArchiveCounter{MaxRatio: 1.5, InputBytes: 3}, want: 4},
+		{name: "ratio cap below the byte cap wins", counter: &ArchiveCounter{MaxBytes: 5000, MaxRatio: 10, InputBytes: 100}, want: 1000},
+		{name: "byte cap below the ratio cap wins", counter: &ArchiveCounter{MaxBytes: 500, MaxRatio: 10, InputBytes: 100}, want: 500},
+		{name: "ratio cap without input size is inactive", counter: &ArchiveCounter{MaxBytes: 500, MaxRatio: 10}, want: 500},
+		{name: "ratio cap without a ratio is inactive", counter: &ArchiveCounter{MaxBytes: 500, InputBytes: 100}, want: 500},
+		{name: "overdrawn ratio cap leaves nothing", counter: &ArchiveCounter{MaxRatio: 1, InputBytes: 100}, preAdd: 150, want: 0},
+		{name: "ratio threshold beyond int64 leaves the byte cap", counter: &ArchiveCounter{MaxBytes: 500, MaxRatio: math.MaxFloat64, InputBytes: 2}, want: 500},
+		{name: "ratio threshold of exactly 2^63 is no cap however much was added", counter: &ArchiveCounter{MaxRatio: 1 << 62, InputBytes: 2}, preAdd: 10, want: math.MaxInt64},
+		{name: "ratio cap of a one-byte input", counter: &ArchiveCounter{MaxRatio: 10, InputBytes: 1}, want: 10},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			if tt.preAdd > 0 {
+				_ = tt.counter.Add(tt.preAdd)
+			}
+			got := tt.counter.Available()
+			if got != tt.want {
+				t.Fatalf("Available(): got = %d, want = %d", got, tt.want)
+			}
+			// Exactly what is available can be added; one byte more fails.
+			if got == 0 || got == math.MaxInt64 || got > 1<<20 {
+				return
+			}
+			if err := tt.counter.Add(int(got)); err != nil {
+				t.Errorf("Add(%d) of what is available: got err = %v, want = nil", got, err)
+			}
+			if err := tt.counter.Add(1); err == nil {
+				t.Error("Add(1) past what is available: got err = nil, want a cap error")
 			}
 		})
 	}

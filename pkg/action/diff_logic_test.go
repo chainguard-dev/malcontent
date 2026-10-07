@@ -15,6 +15,7 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
@@ -41,10 +42,11 @@ func diffTestTempDir(t *testing.T) string {
 
 func diffTestWriteFile(t *testing.T, path, content string) {
 	t.Helper()
-	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
-		t.Fatalf("MkdirAll(%q): %v", filepath.Dir(path), err)
+	dir := filepath.Dir(path)
+	if err := file.MkdirAll(dir, 0o755); err != nil {
+		t.Fatalf("MkdirAll(%q): %v", dir, err)
 	}
-	if err := os.WriteFile(path, []byte(content), 0o600); err != nil {
+	if err := file.WriteFileIn(dir, filepath.Base(path), []byte(content), 0o600); err != nil {
 		t.Fatalf("WriteFile(%q): %v", path, err)
 	}
 }
@@ -53,12 +55,13 @@ func diffTestWriteFile(t *testing.T, path, content string) {
 // inside a fresh temporary directory.
 func diffTestSymlinkedDir(t *testing.T) (string, string) {
 	t.Helper()
-	root := diffTestTempDir(t)
-	realDir, linkDir := filepath.Join(root, "real"), filepath.Join(root, "link")
-	if err := os.MkdirAll(realDir, 0o755); err != nil {
+	dir := diffTestTempDir(t)
+	realDir, linkDir := filepath.Join(dir, "real"), filepath.Join(dir, "link")
+	root := scanTestOpenRoot(t, dir)
+	if err := root.MkdirAll("real", 0o755); err != nil {
 		t.Fatalf("MkdirAll(%q): %v", realDir, err)
 	}
-	if err := os.Symlink(realDir, linkDir); err != nil {
+	if err := root.Symlink(realDir, "link"); err != nil {
 		t.Fatalf("Symlink(%q, %q): %v", realDir, linkDir, err)
 	}
 	return realDir, linkDir
@@ -1093,12 +1096,14 @@ func TestPathHelpersWithoutWorkingDirectory(t *testing.T) {
 	if runtime.GOOS != "linux" {
 		t.Skip("relies on Linux failing to name a removed working directory")
 	}
-	gone := filepath.Join(t.TempDir(), "gone")
-	if err := os.Mkdir(gone, 0o700); err != nil {
+	tmp := t.TempDir()
+	gone := filepath.Join(tmp, "gone")
+	tmpRoot := scanTestOpenRoot(t, tmp)
+	if err := tmpRoot.Mkdir("gone", 0o700); err != nil {
 		t.Fatalf("Mkdir(%q): %v", gone, err)
 	}
 	t.Chdir(gone)
-	if err := os.Remove(gone); err != nil {
+	if err := tmpRoot.Remove("gone"); err != nil {
 		t.Fatalf("Remove(%q): %v", gone, err)
 	}
 	if wd, err := os.Getwd(); err == nil {

@@ -7,13 +7,13 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
-	"os"
 	"path/filepath"
 	"slices"
 	"strings"
 	"sync"
 	"testing"
 
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/puzpuzpuz/xsync/v4"
 )
@@ -521,13 +521,14 @@ func TestKeepOnlyMatch(t *testing.T) {
 
 func TestCleanupOCIPathRemovesExtractedImage(t *testing.T) {
 	t.Parallel()
-	dir := filepath.Join(t.TempDir(), "image")
+	tmp := t.TempDir()
+	dir := filepath.Join(tmp, "image")
 	scanTestWriteFile(t, filepath.Join(dir, "etc", "profile.d", "locale.sh"), []byte(scanTestLocaleScript))
 	logger, logs := scanTestLogger()
 
 	cleanupOCIPath(dir, logger)
 
-	if _, err := os.Stat(dir); !errors.Is(err, fs.ErrNotExist) {
+	if _, err := file.StatIn(tmp, "image"); !errors.Is(err, fs.ErrNotExist) {
 		t.Errorf("stat extracted image: got = %v, want = %v", err, fs.ErrNotExist)
 	}
 	if got := logs.String(); got != "" {
@@ -628,7 +629,7 @@ func TestProcessPathsEvaluatesOCIImageAsWhole(t *testing.T) {
 				RuleFS:        rfs,
 			}
 
-			err := processPaths(t.Context(), slices.Clone(tt.paths), scanInfo, c, r, matchChan, &once, logger)
+			err := processTestPaths(t, slices.Clone(tt.paths), scanInfo, c, r, matchChan, &once, logger)
 			if got := errors.Is(err, ErrMatchedCondition); got != tt.wantErr {
 				t.Fatalf("ends the scan: got = %t (error %v), want = %t", got, err, tt.wantErr)
 			}
@@ -666,13 +667,9 @@ func TestProcessPathsExitMatchIsTheOnlyResult(t *testing.T) {
 			c := malcontent.Config{Concurrency: 1, ExitFirstHit: true, Renderer: rnd, RuleCategories: tt.categories, Rules: yrs, RuleFS: rfs}
 
 			paths := []string{fx.clean, fx.hit}
-			err := processPaths(t.Context(), paths, scanPathInfo{originalPath: fx.root, effectivePath: fx.root}, c, r, matchChan, &once, logger)
+			err := processTestPaths(t, paths, scanPathInfo{originalPath: fx.root, effectivePath: fx.root}, c, r, matchChan, &once, logger)
 			if !errors.Is(err, ErrMatchedCondition) {
 				t.Fatalf("error: got = %v, want = %v", err, ErrMatchedCondition)
-			}
-			// processPaths releases the path strings it was handed.
-			if want := []string{"", ""}; !slices.Equal(paths, want) {
-				t.Errorf("paths after processing: got = %q, want = %q", paths, want)
 			}
 			if got, want := scanTestKeys(r.Files), []string{fx.hit}; !slices.Equal(got, want) {
 				t.Fatalf("stored keys: got = %v, want = %v", got, want)
@@ -686,5 +683,22 @@ func TestProcessPathsExitMatchIsTheOnlyResult(t *testing.T) {
 				t.Errorf("rendered reports: got = %d, want match rendered once = %t", len(got), tt.wantRendered)
 			}
 		})
+	}
+}
+
+func TestProcessPathScansAPathWithoutAWalkRootAsASingleFile(t *testing.T) {
+	t.Parallel()
+	yrs, rfs := scanTestRules(t)
+	path := filepath.Join(t.TempDir(), "missing")
+	scanInfo := scanPathInfo{originalPath: path, effectivePath: path}
+	c := malcontent.Config{Rules: yrs, RuleFS: rfs}
+	logger, _ := scanTestLogger()
+
+	want := initializeReport(nil)
+	wantErr := handleSingleFile(t.Context(), path, scanInfo, c, want, make(chan matchResult, 1), &sync.Once{}, logger)
+	got := initializeReport(nil)
+	err := processPath(t.Context(), path, scanInfo, c, got, make(chan matchResult, 1), &sync.Once{}, logger)
+	if fmt.Sprint(err) != fmt.Sprint(wantErr) || got.Files.Size() != want.Files.Size() {
+		t.Errorf("processPath(%q): got = (%d reports, %v), want = (%d, %v)", path, got.Files.Size(), err, want.Files.Size(), wantErr)
 	}
 }

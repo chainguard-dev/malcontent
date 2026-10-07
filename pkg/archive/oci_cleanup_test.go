@@ -5,6 +5,7 @@ package archive
 
 import (
 	"compress/gzip"
+	"io/fs"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -108,7 +109,12 @@ func TestOCIWithConfig_TempStateReleased(t *testing.T) {
 			} else if err == nil || !strings.Contains(err.Error(), tc.wantErr) {
 				t.Fatalf("error: got = %v, want containing %q", err, tc.wantErr)
 			}
-			entries, err := os.ReadDir(root)
+			tmpRoot, err := os.OpenRoot(root)
+			if err != nil {
+				t.Fatalf("open temp root: %v", err)
+			}
+			entries, err := fs.ReadDir(tmpRoot.FS(), ".")
+			_ = tmpRoot.Close()
 			if err != nil {
 				t.Fatalf("read temp root: %v", err)
 			}
@@ -135,7 +141,12 @@ func TestOCIWithConfig_TempStateReleased(t *testing.T) {
 // lie under root. ok is false where /proc/self/fd is unavailable.
 func ociOpenFilesUnder(t *testing.T, root string) ([]string, bool) {
 	t.Helper()
-	fds, err := os.ReadDir("/proc/self/fd")
+	fdDir, err := os.OpenRoot("/proc/self/fd")
+	if err != nil {
+		return nil, false
+	}
+	defer fdDir.Close()
+	fds, err := fs.ReadDir(fdDir.FS(), ".")
 	if err != nil {
 		return nil, false
 	}
@@ -145,7 +156,7 @@ func ociOpenFilesUnder(t *testing.T, root string) ([]string, bool) {
 	}
 	var open []string
 	for _, fd := range fds {
-		target, err := os.Readlink(filepath.Join("/proc/self/fd", fd.Name()))
+		target, err := fdDir.Readlink(fd.Name())
 		if err != nil {
 			continue // closed after the listing, e.g. the listing's own descriptor
 		}

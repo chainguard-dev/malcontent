@@ -18,6 +18,7 @@ import (
 	"testing/fstest"
 
 	"github.com/chainguard-dev/malcontent/pkg/compile"
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 	"github.com/minio/sha256-simd"
@@ -380,34 +381,40 @@ func TestResultCostCountsRulesAndMatches(t *testing.T) {
 func TestSniffFileMatchesProgramkindFile(t *testing.T) {
 	t.Parallel()
 	dir := t.TempDir()
-	script := scanTestWriteFile(t, filepath.Join(dir, "run"), []byte("#!/bin/sh\necho hi\n"))
-	empty := scanTestWriteFile(t, filepath.Join(dir, "empty.sh"), nil)
-	data := scanTestWriteFile(t, filepath.Join(dir, "notes.txt"), []byte("plain words\n"))
-	sub := filepath.Join(dir, "sub")
-	if err := os.Mkdir(sub, 0o700); err != nil {
+	scanTestWriteFile(t, filepath.Join(dir, "run"), []byte("#!/bin/sh\necho hi\n"))
+	scanTestWriteFile(t, filepath.Join(dir, "empty.sh"), nil)
+	scanTestWriteFile(t, filepath.Join(dir, "notes.txt"), []byte("plain words\n"))
+	root, err := os.OpenRoot(dir)
+	if err != nil {
+		t.Fatalf("open root: %v", err)
+	}
+	// Subtests run in parallel after this function returns.
+	t.Cleanup(func() { _ = root.Close() })
+	if err := root.Mkdir("sub", 0o700); err != nil {
 		t.Fatalf("mkdir: %v", err)
 	}
 
 	tests := []struct {
 		name        string
-		path        string
+		file        string // beneath dir
 		wantContent bool
 	}{
-		{name: "script is read and detected", path: script, wantContent: true},
-		{name: "data file is read and detected as nothing", path: data, wantContent: true},
-		{name: "empty file is not read", path: empty},
-		{name: "directory is left to programkind.File", path: sub},
+		{name: "script is read and detected", file: "run", wantContent: true},
+		{name: "data file is read and detected as nothing", file: "notes.txt", wantContent: true},
+		{name: "empty file is not read", file: "empty.sh"},
+		{name: "directory is left to programkind.File", file: "sub"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			fi, err := os.Stat(tt.path)
+			path := filepath.Join(dir, tt.file)
+			fi, err := root.Stat(tt.file)
 			if err != nil {
 				t.Fatalf("stat: %v", err)
 			}
-			s := sniffFile(t.Context(), tt.path, fi)
+			s := sniffFile(t.Context(), root, tt.file, path, fi)
 			defer s.close()
-			want, wantErr := programkind.File(t.Context(), tt.path)
+			want, wantErr := programkind.File(t.Context(), path)
 			if fi.Size() == 0 {
 				want, wantErr = nil, nil
 			}
@@ -418,7 +425,7 @@ func TestSniffFileMatchesProgramkindFile(t *testing.T) {
 				t.Errorf("read: got = %t, want = %t", got, tt.wantContent)
 			}
 			if tt.wantContent {
-				b, _ := os.ReadFile(tt.path)
+				b, _ := root.ReadFile(tt.file)
 				if string(s.content.Bytes()) != string(b) {
 					t.Errorf("contents: got = %q, want = %q", s.content.Bytes(), b)
 				}
@@ -434,28 +441,29 @@ func TestSniffFileMatchesProgramkindFile(t *testing.T) {
 
 func TestSniffFileFileChangedAfterStat(t *testing.T) {
 	t.Parallel()
-	// replace stats a file of the given kind at path, then replaces it with
-	// one of the other kind, returning the stale stat result.
-	replace := func(t *testing.T, path string, dirFirst bool) fs.FileInfo {
+	// replace stats a file of the given kind at name beneath root, then
+	// replaces it with one of the other kind, returning the stale stat result.
+	replace := func(t *testing.T, root *os.Root, name string, dirFirst bool) fs.FileInfo {
 		t.Helper()
+		path := filepath.Join(root.Name(), name)
 		if dirFirst {
 			scanTestWriteFile(t, filepath.Join(path, "entry"), []byte("x"))
 		} else {
 			scanTestWriteFile(t, path, []byte("#!/bin/sh\necho hi\n"))
 		}
-		fi, err := os.Stat(path)
+		fi, err := root.Stat(name)
 		if err != nil {
 			t.Fatalf("stat: %v", err)
 		}
 		if fi.Size() == 0 {
 			t.Fatalf("fixture precondition: got a zero size for %q, want a size", path)
 		}
-		if err := os.RemoveAll(path); err != nil {
+		if err := root.RemoveAll(name); err != nil {
 			t.Fatalf("remove: %v", err)
 		}
 		if dirFirst {
 			scanTestWriteFile(t, path, []byte("#!/bin/sh\necho hi\n"))
-		} else if err := os.Mkdir(path, 0o700); err != nil {
+		} else if err := root.Mkdir(name, 0o700); err != nil {
 			t.Fatalf("mkdir: %v", err)
 		}
 		return fi
@@ -478,17 +486,24 @@ func TestSniffFileFileChangedAfterStat(t *testing.T) {
 			if tt.lockParent && os.Geteuid() == 0 {
 				t.Skip("root reaches files regardless of permissions")
 			}
-			parent := filepath.Join(t.TempDir(), "parent")
-			path := filepath.Join(parent, "target")
-			fi := replace(t, path, tt.dirFirst)
+			base := t.TempDir()
+			root, err := os.OpenRoot(base)
+			if err != nil {
+				t.Fatalf("open root: %v", err)
+			}
+			// Closed after the parent's permissions are restored.
+			t.Cleanup(func() { _ = root.Close() })
+			name := filepath.Join("parent", "target")
+			path := filepath.Join(base, name)
+			fi := replace(t, root, name, tt.dirFirst)
 			if tt.lockParent {
-				if err := os.Chmod(parent, 0); err != nil {
+				if err := root.Chmod("parent", 0); err != nil {
 					t.Fatalf("chmod: %v", err)
 				}
-				t.Cleanup(func() { _ = os.Chmod(parent, 0o700) })
+				t.Cleanup(func() { _ = root.Chmod("parent", 0o700) })
 			}
 
-			s := sniffFile(t.Context(), path, fi)
+			s := sniffFile(t.Context(), root, name, path, fi)
 			defer s.close()
 			if !errors.Is(s.err, tt.wantErr) {
 				t.Errorf("error: got = %v, want = %v", s.err, tt.wantErr)
@@ -509,49 +524,26 @@ func TestSniffFileFileChangedAfterStat(t *testing.T) {
 	}
 }
 
-func TestReadCapped(t *testing.T) {
-	t.Parallel()
-	dir := t.TempDir()
-	data := []byte("#!/bin/sh\necho hi\n")
-	present := scanTestWriteFile(t, filepath.Join(dir, "run.sh"), data)
-
-	tests := []struct {
-		name    string
-		path    string
-		want    []byte
-		wantErr error
-	}{
-		{name: "existing file returns its contents", path: present, want: data},
-		{name: "missing file reports that it does not exist", path: filepath.Join(dir, "absent"), wantErr: fs.ErrNotExist},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			got, err := readCapped(tt.path)
-			if !errors.Is(err, tt.wantErr) {
-				t.Errorf("error: got = %v, want = %v", err, tt.wantErr)
-			}
-			if string(got) != string(tt.want) {
-				t.Errorf("contents: got = %q, want = %q", got, tt.want)
-			}
-		})
-	}
-}
-
 func TestSniffFileReportsUnreadableFile(t *testing.T) {
 	t.Parallel()
 	if os.Geteuid() == 0 {
 		t.Skip("root reads files regardless of permissions")
 	}
-	path := scanTestWriteFile(t, filepath.Join(t.TempDir(), "locked.sh"), []byte("#!/bin/sh\n"))
-	if err := os.Chmod(path, 0); err != nil {
+	dir := t.TempDir()
+	path := scanTestWriteFile(t, filepath.Join(dir, "locked.sh"), []byte("#!/bin/sh\n"))
+	root, err := os.OpenRoot(dir)
+	if err != nil {
+		t.Fatalf("open root: %v", err)
+	}
+	defer root.Close()
+	if err := root.Chmod("locked.sh", 0); err != nil {
 		t.Fatalf("chmod: %v", err)
 	}
-	fi, err := os.Stat(path)
+	fi, err := root.Stat("locked.sh")
 	if err != nil {
 		t.Fatalf("stat: %v", err)
 	}
-	s := sniffFile(t.Context(), path, fi)
+	s := sniffFile(t.Context(), root, "locked.sh", path, fi)
 	defer s.close()
 	if !errors.Is(s.err, fs.ErrPermission) || s.content != nil || s.kind != nil {
 		t.Errorf("sniff: got kind %+v, content %v, err %v; want a permission error from open and nothing read", s.kind, s.content != nil, s.err)
@@ -596,21 +588,26 @@ func TestScanContentSetsFileSHA256(t *testing.T) {
 		}
 	}
 
-	// A scan by path, used for files that could not be read once, must not
-	// inherit the digest the scanner was given for the previous file.
+	// A scan without a digest must not inherit the digest the scanner was
+	// given for the previous file.
 	if _, err := scanContent(t.Context(), yrs, hello, digest); err != nil {
 		t.Fatalf("scan: %v", err)
 	}
-	other := scanTestWriteFile(t, filepath.Join(t.TempDir(), "other"), []byte("other\n"))
-	mrs, err := withScanner(yrs, func(s *yarax.Scanner) (*yarax.ScanResults, error) {
+	dir := t.TempDir()
+	scanTestWriteFile(t, filepath.Join(dir, "other"), []byte("other\n"))
+	other, err := file.ReadFileIn(dir, "other")
+	if err != nil {
+		t.Fatalf("read: %v", err)
+	}
+	mrs, err := withScanner(yrs, int64(len(other)), func(s *yarax.Scanner) (*yarax.ScanResults, error) {
 		setFileSHA256(s, "")
-		return s.ScanFile(other)
+		return s.Scan(other)
 	})
 	if err != nil {
-		t.Fatalf("scan by path: %v", err)
+		t.Fatalf("scan without a digest: %v", err)
 	}
 	if matched(mrs) {
-		t.Errorf("scan by path after a matching scan: got a match, want none")
+		t.Errorf("scan without a digest after a matching scan: got a match, want none")
 	}
 }
 
@@ -623,19 +620,24 @@ func TestScanFileScansContentsReadOnce(t *testing.T) {
 	if err != nil {
 		t.Fatalf("compile: %v", err)
 	}
-	path := scanTestWriteFile(t, filepath.Join(t.TempDir(), "hello"), hello)
-	fi, err := os.Stat(path)
+	dir := t.TempDir()
+	path := scanTestWriteFile(t, filepath.Join(dir, "hello"), hello)
+	root, err := os.OpenRoot(dir)
+	if err != nil {
+		t.Fatalf("open root: %v", err)
+	}
+	defer root.Close()
+	fi, err := root.Stat("hello")
 	if err != nil {
 		t.Fatalf("stat: %v", err)
 	}
-	s := sniffFile(t.Context(), path, fi)
+	s := sniffFile(t.Context(), root, "hello", path, fi)
 	defer s.close()
 	if s.content == nil {
 		t.Fatalf("fixture precondition: got no contents read, want %q", hello)
 	}
 
-	// The contents are scanned with their digest, which a scan by path does
-	// not supply.
+	// The contents are scanned with their digest.
 	fc := s.content.Bytes()
 	matching, err := scanFile(t.Context(), malcontent.Config{Rules: yrs}, s, path, "", fc, sha256.Sum256(capContents(fc)))
 	if err != nil {
@@ -647,5 +649,16 @@ func TestScanFileScansContentsReadOnce(t *testing.T) {
 	}
 	if want := []string{"digest_match"}; !slices.Equal(got, want) {
 		t.Errorf("matching rules: got = %q, want = %q", got, want)
+	}
+}
+
+func TestSniffedCloseReleasesItsRootOnce(t *testing.T) {
+	t.Parallel()
+	releases := 0
+	s := &sniffed{release: func() { releases++ }}
+	s.close()
+	s.close()
+	if releases != 1 {
+		t.Errorf("releases: got = %d, want = 1", releases)
 	}
 }

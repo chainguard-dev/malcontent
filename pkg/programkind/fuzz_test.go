@@ -6,6 +6,7 @@ package programkind
 import (
 	"bytes"
 	"context"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -20,12 +21,17 @@ import (
 // Go's 100MB fuzzer shared memory capacity and avoid OOM in parsers.
 const maxFuzzSize = 10 * 1024 * 1024
 
-// FuzzFile tests file type detection with random inputs.
-func FuzzFile(f *testing.F) {
-	const maxSeedSize int64 = maxFuzzSize
+// addSampleSeeds adds each sample of at most maxFuzzSize bytes in the sample
+// corpus to the seed corpus as its contents and file name.
+func addSampleSeeds(f *testing.F) error {
+	f.Helper()
+	samples, err := os.OpenRoot("../../out/chainguard-sandbox/malcontent-samples")
+	if err != nil {
+		return err
+	}
+	defer samples.Close()
 
-	samplesDir := "../../out/chainguard-sandbox/malcontent-samples"
-	err := filepath.WalkDir(samplesDir, func(path string, d os.DirEntry, _ error) error {
+	return fs.WalkDir(samples.FS(), ".", func(path string, d fs.DirEntry, _ error) error {
 		if d == nil || d.IsDir() {
 			return nil
 		}
@@ -37,11 +43,11 @@ func FuzzFile(f *testing.F) {
 		if infoErr != nil {
 			return infoErr
 		}
-		if info.Size() > maxSeedSize {
+		if info.Size() > maxFuzzSize {
 			return nil
 		}
 
-		if fp, readErr := os.Open(path); readErr == nil {
+		if fp, readErr := samples.Open(path); readErr == nil {
 			if data, contentsErr := file.GetContents(fp); contentsErr == nil {
 				f.Add(data, filepath.Base(path))
 			}
@@ -49,7 +55,11 @@ func FuzzFile(f *testing.F) {
 		}
 		return nil
 	})
-	if err != nil {
+}
+
+// FuzzFile tests file type detection with random inputs.
+func FuzzFile(f *testing.F) {
+	if err := addSampleSeeds(f); err != nil {
 		f.Logf("Could not walk samples directory: %v", err)
 	}
 
@@ -68,6 +78,8 @@ func FuzzFile(f *testing.F) {
 	f.Add([]byte{0xff, 0xff, 0xff, 0xff}, "ones")                     // all ones
 	f.Add([]byte("UPX!"), "test.upx")                                 // UPX magic
 
+	tmp := programkindRoot(f, f.TempDir())
+
 	f.Fuzz(func(t *testing.T, data []byte, filename string) {
 		if len(data) > maxFuzzSize {
 			return
@@ -76,11 +88,11 @@ func FuzzFile(f *testing.F) {
 			return
 		}
 
-		tmpFile, err := os.CreateTemp("", "fuzz-file-*-"+filepath.Base(filename))
+		tmpFile, name, err := file.CreateTemp(tmp, "fuzz-file-*-"+filepath.Base(filename))
 		if err != nil {
 			t.Skip("failed to create temp file")
 		}
-		defer os.Remove(tmpFile.Name())
+		defer func() { _ = tmp.Remove(name) }()
 
 		if _, err := tmpFile.Write(data); err != nil {
 			t.Skip("failed to write to temp file")
@@ -292,14 +304,15 @@ func FuzzValidateUPXPath(f *testing.F) {
 	if err != nil {
 		f.Fatal(err)
 	}
-	f.Cleanup(func() { os.RemoveAll(tmpDir) })
+	f.Cleanup(func() { _ = file.RemoveAllIn(filepath.Dir(tmpDir), filepath.Base(tmpDir)) })
+	r := programkindRoot(f, tmpDir)
 
 	safe := filepath.Join(tmpDir, "upx")
-	if err := os.WriteFile(safe, []byte("UPX!"), 0o755); err != nil {
+	if err := r.WriteFile("upx", []byte("UPX!"), 0o755); err != nil {
 		f.Fatal(err)
 	}
 	worldWritable := filepath.Join(tmpDir, "ww")
-	if err := os.WriteFile(worldWritable, []byte("UPX!"), 0o777); err != nil {
+	if err := r.WriteFile("ww", []byte("UPX!"), 0o777); err != nil {
 		f.Fatal(err)
 	}
 

@@ -6,7 +6,6 @@ package action
 import (
 	"errors"
 	"io/fs"
-	"os"
 	"path/filepath"
 	"reflect"
 	"slices"
@@ -185,37 +184,41 @@ func TestScopedRulesForHeader(t *testing.T) {
 	if err != nil {
 		t.Fatalf("RecursiveSplit: %v", err)
 	}
+	mz, ok := split.ByHeader[[2]byte{'M', 'Z'}]
+	if !ok {
+		t.Fatal("fixture precondition: got no rules for the MZ header, want some")
+	}
+	mzRules, err := mz.Load()
+	if err != nil {
+		t.Fatalf("load the rules for the MZ header: %v", err)
+	}
 	sr := newScopedRules(split)
 	tests := []struct {
-		name  string
-		fc    []byte
-		known bool
-		want  int
+		name string
+		fc   []byte
+		want *yarax.Rules
 	}{
-		{name: "a PE file gets the rules for its header", fc: []byte("MZ\x90\x00"), known: true, want: 1},
-		{name: "a file of just the header gets the rules for it", fc: []byte("MZ"), known: true, want: 1},
-		{name: "a file with another header gets none", fc: []byte("#!/bin/sh"), known: true, want: 0},
-		{name: "a file shorter than a header gets none", fc: []byte("M"), known: true, want: 0},
-		{name: "an empty file gets none", fc: nil, known: true, want: 0},
-		{name: "unknown contents get every header's rules", fc: nil, known: false, want: len(split.ByHeader)},
-	}
-	if len(split.ByHeader) == 0 {
-		t.Fatal("fixture precondition: got no rules by header, want some")
+		{name: "a PE file gets the rules for its header", fc: []byte("MZ\x90\x00"), want: mzRules},
+		{name: "a file of just the header gets the rules for it", fc: []byte("MZ"), want: mzRules},
+		{name: "a file with another header gets none", fc: []byte("#!/bin/sh")},
+		{name: "a file shorter than a header gets none", fc: []byte("M")},
+		{name: "an empty file gets none", fc: nil},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			sets, err := sr.forHeader(tt.fc, tt.known)
+			got, err := sr.forHeader(tt.fc)
 			if err != nil {
 				t.Fatalf("forHeader: %v", err)
 			}
-			if len(sets) != tt.want {
-				t.Errorf("forHeader: got %d rule sets, want %d", len(sets), tt.want)
+			if got != tt.want {
+				t.Errorf("forHeader: got rule set = %p, want = %p", got, tt.want)
 			}
-			for _, rules := range sets {
-				if _, ok := scopedSets.Load(rules); !ok {
-					t.Errorf("forHeader: rule set has no scanners kept for it")
-				}
+			if got == nil {
+				return
+			}
+			if _, ok := scopedSets.Load(got); !ok {
+				t.Errorf("forHeader: rule set has no scanners kept for it")
 			}
 		})
 	}
@@ -226,22 +229,21 @@ func TestScopedRulesForHeaderLoadFailure(t *testing.T) {
 	// A header rule set without serialized rules fails to load.
 	sr := newScopedRules(&compile.Split{ByHeader: map[[2]byte]*compile.HeaderRules{{'M', 'Z'}: {}}})
 	tests := []struct {
-		name  string
-		fc    []byte
-		known bool
+		name string
+		fc   []byte
 	}{
-		{name: "a file with the header reports the failure", fc: []byte("MZ\x90\x00"), known: true},
-		{name: "unknown contents report the failure", known: false},
+		{name: "a file with the header reports the failure", fc: []byte("MZ\x90\x00")},
+		{name: "a file of just the header reports the failure", fc: []byte("MZ")},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			sets, err := sr.forHeader(tt.fc, tt.known)
+			rules, err := sr.forHeader(tt.fc)
 			if err == nil {
 				t.Errorf("forHeader error: got nil, want the load failure")
 			}
-			if sets != nil {
-				t.Errorf("forHeader: got %d rule sets, want none", len(sets))
+			if rules != nil {
+				t.Errorf("forHeader: got rule set = %p, want none", rules)
 			}
 		})
 	}
@@ -414,12 +416,7 @@ func TestScanFileReportsHeaderLoadFailure(t *testing.T) {
 	registerSplit(&compile.Split{Universal: universal, ByHeader: map[[2]byte]*compile.HeaderRules{{'M', 'Z'}: {}}})
 	fc := []byte("MZ\x90\x00 scan-test-marker")
 	path := scanTestWriteFile(t, filepath.Join(t.TempDir(), "tool.exe"), fc)
-	fi, err := os.Stat(path)
-	if err != nil {
-		t.Fatalf("stat: %v", err)
-	}
-	s := sniffFile(t.Context(), path, fi)
-	defer s.close()
+	s := scanTestSniff(t, path)
 
 	matching, err := scanFile(t.Context(), malcontent.Config{Rules: universal}, s, path, "", s.content.Bytes(), sha256.Sum256(fc))
 	if err == nil {
@@ -447,12 +444,7 @@ func TestScanFileReportsScopedScanFailure(t *testing.T) {
 	})
 	fc := []byte("MZ\x90\x00 cmd.exe /c curl -fsSL | sh\n")
 	path := scanTestWriteFile(t, filepath.Join(t.TempDir(), "tool.exe"), fc)
-	fi, err := os.Stat(path)
-	if err != nil {
-		t.Fatalf("stat: %v", err)
-	}
-	s := sniffFile(t.Context(), path, fi)
-	defer s.close()
+	s := scanTestSniff(t, path)
 
 	matching, err := scanFile(t.Context(), malcontent.Config{Rules: split.Universal}, s, path, "", s.content.Bytes(), sha256.Sum256(fc))
 	if !errors.Is(err, errScan) {

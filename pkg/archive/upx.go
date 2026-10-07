@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 )
 
@@ -85,7 +86,7 @@ func ExtractUPX(ctx context.Context, d, f string) (err error) {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting upx")
 
-	if _, err := os.Stat(f); err != nil {
+	if _, err := file.Stat(f); err != nil {
 		return fmt.Errorf("failed to stat file: %w", err)
 	}
 
@@ -107,7 +108,7 @@ func ExtractUPX(ctx context.Context, d, f string) (err error) {
 		return fmt.Errorf("failed to get absolute path: %w", err)
 	}
 
-	src, err := os.Open(f) // #nosec G304 -- source path resolved and validated by caller before extraction
+	src, err := file.Open(f)
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
@@ -145,7 +146,7 @@ func ExtractUPX(ctx context.Context, d, f string) (err error) {
 	if err != nil {
 		return fmt.Errorf("upx sandbox tmpdir: %w", err)
 	}
-	defer func() { _ = os.RemoveAll(sandbox) }()
+	defer func() { _ = file.RemoveAllIn(filepath.Dir(sandbox), filepath.Base(sandbox)) }()
 
 	cctx, cancel := context.WithTimeout(ctx, upxTimeout)
 	defer cancel()

@@ -8,11 +8,11 @@ import (
 	"bytes"
 	"fmt"
 	"io/fs"
-	"os"
 	"path/filepath"
 	"slices"
 	"testing"
 
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/google/go-cmp/cmp"
 )
 
@@ -90,10 +90,11 @@ type detectFixture struct {
 func detectFixtures(t *testing.T) []detectFixture {
 	t.Helper()
 	fixtures := make([]detectFixture, 0, 64)
-	err := filepath.WalkDir("testdata", func(path string, d fs.DirEntry, err error) error {
+	err := fs.WalkDir(programkindRoot(t, "testdata").FS(), ".", func(rel string, d fs.DirEntry, err error) error {
 		if err != nil || d.IsDir() {
 			return err
 		}
+		path := filepath.Join("testdata", filepath.FromSlash(rel))
 		info, err := d.Info()
 		if err != nil {
 			return err
@@ -145,12 +146,13 @@ func detectFixtures(t *testing.T) []detectFixture {
 		{"large/big", largeBinary},
 	}
 	dir := t.TempDir()
+	r := programkindRoot(t, dir)
 	for _, g := range generated {
 		p := filepath.Join(dir, g.rel)
-		if err := os.MkdirAll(filepath.Dir(p), 0o700); err != nil {
+		if err := r.MkdirAll(filepath.Dir(g.rel), 0o700); err != nil {
 			t.Fatalf("MkdirAll(%q): %v", filepath.Dir(p), err)
 		}
-		if err := os.WriteFile(p, g.content, 0o600); err != nil {
+		if err := r.WriteFile(g.rel, g.content, 0o600); err != nil {
 			t.Fatalf("WriteFile(%q): %v", p, err)
 		}
 		fixtures = append(fixtures, detectFixture{name: g.rel, path: p})
@@ -168,7 +170,7 @@ func TestDetectMatchesFile(t *testing.T) {
 			if err != nil {
 				t.Fatalf("File(%q) error: %v", path, err)
 			}
-			fc, err := os.ReadFile(path)
+			fc, err := file.ReadFile(path)
 			if err != nil {
 				t.Fatalf("ReadFile(%q): %v", path, err)
 			}

@@ -11,8 +11,8 @@ import (
 	"errors"
 	"io/fs"
 	"maps"
-	"os"
 	"path/filepath"
+	"runtime"
 	"slices"
 	"strings"
 	"sync"
@@ -24,6 +24,9 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/rules"
 	thirdparty "github.com/chainguard-dev/malcontent/third_party"
+	"github.com/minio/sha256-simd"
+
+	yarax "github.com/VirusTotal/yara-x/go"
 )
 
 // diffTestConfig returns a Config backed by the bundled rules. Scans must use
@@ -585,7 +588,7 @@ func TestDiffArchivesWithSymlinkedTempDir(t *testing.T) {
 		}
 	}
 
-	entries, err := os.ReadDir(tmpReal)
+	entries, err := scanTestReadDir(tmpReal)
 	if err != nil {
 		t.Fatalf("ReadDir(%q): %v", tmpReal, err)
 	}
@@ -713,8 +716,8 @@ func TestDiffReportErrors(t *testing.T) {
 	diffTestWriteFile(t, malformed, "this is not a report")
 	missing := filepath.Join(root, "missing.json")
 	dir := filepath.Join(root, "dir.json")
-	if err := os.Mkdir(dir, 0o700); err != nil {
-		t.Fatalf("Mkdir(%q): %v", dir, err)
+	if err := file.MkdirAllIn(root, "dir.json", 0o700); err != nil {
+		t.Fatalf("MkdirAll(%q): %v", dir, err)
 	}
 
 	notExist := func(err error) bool { return errors.Is(err, fs.ErrNotExist) }
@@ -759,6 +762,8 @@ func TestDiffErrors(t *testing.T) {
 	diffTestWriteFile(t, filepath.Join(dir, "a.sh"), "#!/bin/sh\necho a\n")
 	notDir := filepath.Join(dir, "a.sh", "child")
 	missing := filepath.Join(root, "missing")
+	// A destination that fails too, with a different error.
+	missingChild := filepath.Join(dir, "missing", "child")
 	canceled, cancel := context.WithCancel(t.Context())
 	cancel()
 	image := diffTestPushImages(t, map[string][]byte{"usr/bin/app": []byte("#!/bin/sh\necho app\n")})[0]
@@ -780,6 +785,7 @@ func TestDiffErrors(t *testing.T) {
 		{name: "missing destination", paths: []string{dir, missing}, wantIs: fs.ErrNotExist},
 		{name: "source scan failure", paths: []string{notDir, dir}, wantIs: syscall.ENOTDIR, wantText: "source scan error"},
 		{name: "destination scan failure", paths: []string{dir, notDir}, wantIs: syscall.ENOTDIR, wantText: "destination scan error"},
+		{name: "source scan failure outranks a destination scan failure", paths: []string{notDir, missingChild}, wantIs: syscall.ENOTDIR, wantText: "source scan error"},
 		{name: "invalid source image reference", paths: []string{"invalid source image ref", "invalid destination image ref"}, oci: true, wantText: "failed to prepare scan path", wantRef: "invalid source image ref"},
 		{name: "invalid destination image reference", paths: []string{image, "invalid destination image ref"}, oci: true, wantText: "failed to prepare scan path", wantRef: "invalid destination image ref"},
 	}
@@ -875,6 +881,112 @@ func TestDiffArchivesWithTrimPrefixes(t *testing.T) {
 			}
 			if mod.Path != want {
 				t.Errorf("Modified Path: got = %q, want = %q", mod.Path, want)
+			}
+		})
+	}
+}
+
+// recordScans replaces scanBytes for the duration of the test with one that
+// counts the scans of each content under each rule set.
+func recordScans(t *testing.T) func() map[resultKey]int {
+	t.Helper()
+	orig := scanBytes
+	var mu sync.Mutex
+	scans := map[resultKey]int{}
+	scanBytes = func(yrs *yarax.Rules, fc []byte, sum [sha256.Size]byte) (*yarax.ScanResults, error) {
+		mu.Lock()
+		scans[resultKey{rules: yrs, sum: sum, size: int64(len(fc))}]++
+		mu.Unlock()
+		return orig(yrs, fc, sum)
+	}
+	t.Cleanup(func() { scanBytes = orig })
+	return func() map[resultKey]int {
+		mu.Lock()
+		defer mu.Unlock()
+		return maps.Clone(scans)
+	}
+}
+
+func TestScanAndDiffScanIdenticalContentOnce(t *testing.T) {
+	// Not parallel: replaces scanBytes.
+	same, before, after := diffTestShellPayload("same"), diffTestShellPayload("before"), diffTestShellPayload("after")
+	tests := []struct {
+		name string
+		run  func(t *testing.T, c malcontent.Config, root string)
+		// want lists every content scanned.
+		want []string
+	}{
+		{
+			name: "scan of identical files",
+			run: func(t *testing.T, c malcontent.Config, root string) {
+				t.Helper()
+				diffTestWriteFile(t, filepath.Join(root, "a.sh"), same)
+				diffTestWriteFile(t, filepath.Join(root, "copy", "a.sh"), same)
+				c.ScanPaths = []string{root}
+				if _, err := Scan(t.Context(), c); err != nil {
+					t.Fatalf("Scan: got error = %v, want nil", err)
+				}
+			},
+			want: []string{same},
+		},
+		{
+			name: "diff of an unchanged and a changed file",
+			run: func(t *testing.T, c malcontent.Config, root string) {
+				t.Helper()
+				src, dest := filepath.Join(root, "src"), filepath.Join(root, "dest")
+				diffTestWriteFile(t, filepath.Join(src, "same.sh"), same)
+				diffTestWriteFile(t, filepath.Join(dest, "same.sh"), same)
+				diffTestWriteFile(t, filepath.Join(src, "changed.sh"), before)
+				diffTestWriteFile(t, filepath.Join(dest, "changed.sh"), after)
+				diffTestRun(t, c, src, dest)
+			},
+			want: []string{same, before, after},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			scans := recordScans(t)
+			tt.run(t, diffTestConfig(t), diffTestTempDir(t))
+
+			got := map[[sha256.Size]byte]struct{}{}
+			for key, n := range scans() {
+				got[key.sum] = struct{}{}
+				if n != 1 {
+					t.Errorf("scans of %x by one rule set: got = %d, want = 1", key.sum[:4], n)
+				}
+			}
+			want := map[[sha256.Size]byte]struct{}{}
+			for _, content := range tt.want {
+				want[sha256.Sum256([]byte(content))] = struct{}{}
+			}
+			if !maps.Equal(got, want) {
+				t.Errorf("contents scanned: got = %d distinct, want = %d (%q)", len(got), len(want), tt.want)
+			}
+		})
+	}
+}
+
+func TestDiffScanContext(t *testing.T) {
+	t.Parallel()
+	procs := runtime.GOMAXPROCS(0)
+	tests := []struct {
+		name        string
+		concurrency int
+		wantSlots   int
+	}{
+		{name: "unset concurrency shares one worker", concurrency: 0, wantSlots: 1},
+		{name: "configured concurrency is shared by both scans", concurrency: 1, wantSlots: 1},
+		{name: "concurrency above GOMAXPROCS is capped as for one scan", concurrency: procs + 1, wantSlots: procs},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			ctx := diffScanContext(t.Context(), malcontent.Config{Concurrency: tt.concurrency})
+			if resultCacheFrom(ctx) == nil {
+				t.Error("result cache: got = nil, want one for both scans")
+			}
+			if got := cap(workerSlotsFrom(ctx)); got != tt.wantSlots {
+				t.Errorf("worker slots: got = %d, want = %d", got, tt.wantSlots)
 			}
 		})
 	}

@@ -11,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/puzpuzpuz/xsync/v4"
 )
@@ -98,38 +99,42 @@ func FuzzFindFilesRecursively(f *testing.F) {
 		if err != nil {
 			t.Skip()
 		}
-		defer os.RemoveAll(tmpDir)
+		defer file.RemoveAllIn(filepath.Dir(tmpDir), filepath.Base(tmpDir))
+		root, err := os.OpenRoot(tmpDir)
+		if err != nil {
+			t.Skip()
+		}
+		defer root.Close()
 
 		// Create subdirectories
 		for i := range numDirs {
-			subDir := filepath.Join(tmpDir, "dir"+string(rune('a'+i)))
-			os.MkdirAll(subDir, 0o755)
+			subDir := "dir" + string(rune('a'+i))
+			root.MkdirAll(subDir, 0o755)
 			// Put a file in each subdir
-			os.WriteFile(filepath.Join(subDir, "file.txt"), []byte("data"), 0o644)
+			root.WriteFile(filepath.Join(subDir, "file.txt"), []byte("data"), 0o644)
 		}
 
 		// Create files at root
 		for i := range numFiles {
-			os.WriteFile(filepath.Join(tmpDir, "file"+string(rune('0'+i))+".txt"), []byte("data"), 0o644)
+			root.WriteFile("file"+string(rune('0'+i))+".txt", []byte("data"), 0o644)
 		}
 
 		// Optionally create a .git directory (should be excluded from results)
 		if createGitDir {
-			gitDir := filepath.Join(tmpDir, ".git")
-			os.MkdirAll(gitDir, 0o755)
-			os.WriteFile(filepath.Join(gitDir, "config"), []byte("gitconfig"), 0o644)
+			root.MkdirAll(".git", 0o755)
+			root.WriteFile(filepath.Join(".git", "config"), []byte("gitconfig"), 0o644)
 		}
 
 		// Optionally create a symlink (symlinked dirs should be excluded)
 		if createSymlink && numDirs > 0 {
 			target := filepath.Join(tmpDir, "dir"+string(rune('a')))
-			os.Symlink(target, filepath.Join(tmpDir, "link_to_dir"))
+			root.Symlink(target, "link_to_dir")
 		}
 
 		ctx, cancel := context.WithTimeout(t.Context(), 3*time.Second)
 		defer cancel()
 
-		files, err := findFilesRecursively(ctx, tmpDir)
+		files, err := walkTestPaths(ctx, t, tmpDir)
 		if err != nil {
 			return // errors are OK (e.g., permission issues)
 		}

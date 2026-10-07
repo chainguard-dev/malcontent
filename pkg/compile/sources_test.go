@@ -19,6 +19,8 @@ import (
 	"testing/fstest"
 	"time"
 
+	"github.com/chainguard-dev/malcontent/pkg/file"
+
 	yarax "github.com/VirusTotal/yara-x/go"
 )
 
@@ -29,22 +31,35 @@ func (compileDeniedFS) Open(name string) (fs.File, error) {
 	return nil, &fs.PathError{Op: "open", Path: name, Err: fs.ErrPermission}
 }
 
+// compileOpenRoot opens dir as a root that is closed when the test ends.
+func compileOpenRoot(tb testing.TB, dir string) *os.Root {
+	tb.Helper()
+	r, err := os.OpenRoot(dir)
+	if err != nil {
+		tb.Fatalf("OpenRoot(%q): %v", dir, err)
+	}
+	tb.Cleanup(func() { _ = r.Close() })
+	return r
+}
+
 // compileIsolateCache points the user cache directory at a fresh temporary
-// directory and returns the malcontent cache directory beneath it.
-func compileIsolateCache(t *testing.T) string {
+// directory and returns a root on the malcontent cache directory beneath it,
+// closed when the test ends.
+func compileIsolateCache(t *testing.T) *os.Root {
 	t.Helper()
 	root := t.TempDir()
 	t.Setenv("XDG_CACHE_HOME", root)
 	t.Setenv("HOME", root)
 
-	dir, err := getCacheDir()
+	cache, err := openCacheDir()
 	if err != nil {
-		t.Fatalf("getCacheDir(): %v", err)
+		t.Fatalf("openCacheDir(): %v", err)
 	}
-	if !strings.HasPrefix(dir, root) {
-		t.Skipf("user cache directory %q is outside the test root on %s", dir, runtime.GOOS)
+	t.Cleanup(func() { _ = cache.Close() })
+	if !strings.HasPrefix(cache.Name(), root) {
+		t.Skipf("user cache directory %q is outside the test root on %s", cache.Name(), runtime.GOOS)
 	}
-	return dir
+	return cache
 }
 
 // compileLogRecorder holds the messages RecursiveCached logged, each prefixed
@@ -355,7 +370,7 @@ func TestGetRulesHashIndependentOfWorkerCount(t *testing.T) {
 func TestPruneStaleCaches(t *testing.T) {
 	t.Parallel()
 	const day = 24 * time.Hour
-	dir := t.TempDir()
+	cache := compileOpenRoot(t, t.TempDir())
 	now := time.Now()
 
 	files := []struct {
@@ -380,28 +395,27 @@ func TestPruneStaleCaches(t *testing.T) {
 		{name: "rules-dir.cache", age: 30 * day, isDir: true, wantKept: true},
 	}
 	for _, f := range files {
-		p := filepath.Join(dir, f.name)
 		var err error
 		if f.isDir {
-			err = os.Mkdir(p, 0o700)
+			err = cache.Mkdir(f.name, 0o700)
 		} else {
-			err = os.WriteFile(p, []byte("x"), 0o600)
+			err = cache.WriteFile(f.name, []byte("x"), 0o600)
 		}
 		if err != nil {
 			t.Fatalf("create %s: %v", f.name, err)
 		}
 		mtime := now.Add(-f.age)
-		if err := os.Chtimes(p, mtime, mtime); err != nil {
+		if err := cache.Chtimes(f.name, mtime, mtime); err != nil {
 			t.Fatalf("chtimes %s: %v", f.name, err)
 		}
 	}
 
-	pruneStaleCaches(dir, filepath.Join(dir, "rules-current.cache"), now)
+	pruneStaleCaches(cache, "rules-current.cache", now)
 
 	for _, f := range files {
 		t.Run(f.name, func(t *testing.T) {
 			t.Parallel()
-			_, err := os.Lstat(filepath.Join(dir, f.name))
+			_, err := cache.Lstat(f.name)
 			if kept := err == nil; kept != f.wantKept {
 				t.Errorf("%s kept: got = %v, want = %v (lstat error %v)", f.name, kept, f.wantKept, err)
 			}
@@ -426,18 +440,19 @@ func TestRefreshCacheTime(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			p := filepath.Join(t.TempDir(), "rules-x.cache")
-			if err := os.WriteFile(p, []byte("x"), 0o600); err != nil {
+			cache := compileOpenRoot(t, t.TempDir())
+			p := "rules-x.cache"
+			if err := cache.WriteFile(p, []byte("x"), 0o600); err != nil {
 				t.Fatalf("write %s: %v", p, err)
 			}
 			mtime := now.Add(-tt.age)
-			if err := os.Chtimes(p, mtime, mtime); err != nil {
+			if err := cache.Chtimes(p, mtime, mtime); err != nil {
 				t.Fatalf("chtimes %s: %v", p, err)
 			}
 
-			refreshCacheTime(p, now)
+			refreshCacheTime(cache, p, now)
 
-			fi, err := os.Stat(p)
+			fi, err := cache.Stat(p)
 			if err != nil {
 				t.Fatalf("stat %s: %v", p, err)
 			}
@@ -453,9 +468,10 @@ func TestRefreshCacheTime(t *testing.T) {
 
 	t.Run("missing cache is not created", func(t *testing.T) {
 		t.Parallel()
-		p := filepath.Join(t.TempDir(), "rules-missing.cache")
-		refreshCacheTime(p, now)
-		if _, err := os.Lstat(p); !errors.Is(err, fs.ErrNotExist) {
+		cache := compileOpenRoot(t, t.TempDir())
+		p := "rules-missing.cache"
+		refreshCacheTime(cache, p, now)
+		if _, err := cache.Lstat(p); !errors.Is(err, fs.ErrNotExist) {
 			t.Errorf("missing cache lstat error: got = %v, want = %v", err, fs.ErrNotExist)
 		}
 	})
@@ -463,17 +479,17 @@ func TestRefreshCacheTime(t *testing.T) {
 
 func TestRecursiveCachedPrunesAndRefreshesCaches(t *testing.T) {
 	// Not parallel: t.Setenv redirects the user cache directory.
-	cacheDir := compileIsolateCache(t)
+	cache := compileIsolateCache(t)
 	fss := []fs.FS{fstest.MapFS{"prune.yara": {Data: []byte("rule prune_cache { condition: true }")}}}
-	current := filepath.Join(cacheDir, "rules-"+compileHashOf(t, fss[0])+".cache")
+	current := "rules-" + compileHashOf(t, fss[0]) + ".cache"
 
-	stale := filepath.Join(cacheDir, "rules-stale.cache")
+	stale := "rules-stale.cache"
 	old := time.Now().Add(-staleCacheThreshold - time.Hour)
 	for _, p := range []string{stale, stale + ".sha256"} {
-		if err := os.WriteFile(p, []byte("x"), 0o600); err != nil {
+		if err := cache.WriteFile(p, []byte("x"), 0o600); err != nil {
 			t.Fatalf("write %s: %v", p, err)
 		}
-		if err := os.Chtimes(p, old, old); err != nil {
+		if err := cache.Chtimes(p, old, old); err != nil {
 			t.Fatalf("chtimes %s: %v", p, err)
 		}
 	}
@@ -485,18 +501,18 @@ func TestRecursiveCachedPrunesAndRefreshesCaches(t *testing.T) {
 	first.Destroy()
 
 	for _, p := range []string{stale, stale + ".sha256"} {
-		if _, err := os.Lstat(p); !errors.Is(err, fs.ErrNotExist) {
-			t.Errorf("stale %s lstat error: got = %v, want = %v", filepath.Base(p), err, fs.ErrNotExist)
+		if _, err := cache.Lstat(p); !errors.Is(err, fs.ErrNotExist) {
+			t.Errorf("stale %s lstat error: got = %v, want = %v", p, err, fs.ErrNotExist)
 		}
 	}
 	for _, p := range []string{current, current + ".sha256"} {
-		if _, err := os.Lstat(p); err != nil {
-			t.Errorf("current %s lstat error: got = %v, want = nil", filepath.Base(p), err)
+		if _, err := cache.Lstat(p); err != nil {
+			t.Errorf("current %s lstat error: got = %v, want = nil", p, err)
 		}
 	}
 
 	aged := time.Now().Add(-cacheTouchInterval - time.Hour)
-	if err := os.Chtimes(current, aged, aged); err != nil {
+	if err := cache.Chtimes(current, aged, aged); err != nil {
 		t.Fatalf("chtimes %s: %v", current, err)
 	}
 	second, err := RecursiveCached(t.Context(), fss)
@@ -505,7 +521,7 @@ func TestRecursiveCachedPrunesAndRefreshesCaches(t *testing.T) {
 	}
 	second.Destroy()
 
-	fi, err := os.Stat(current)
+	fi, err := cache.Stat(current)
 	if err != nil {
 		t.Fatalf("stat %s: %v", current, err)
 	}
@@ -645,11 +661,11 @@ rule miss { condition: false }
 	}
 	defer compiled.Destroy()
 
-	cacheFile := filepath.Join(t.TempDir(), "rules.cache")
-	if err := saveCachedRules(compiled, cacheFile); err != nil {
+	cache := compileOpenRoot(t, t.TempDir())
+	if err := saveCachedRules(cache, "rules.cache", compiled); err != nil {
 		t.Fatalf("saveCachedRules(): %v", err)
 	}
-	loaded, err := loadCachedRules(cacheFile)
+	loaded, err := loadCachedRules(cache, "rules.cache")
 	if err != nil {
 		t.Fatalf("loadCachedRules(): %v", err)
 	}
@@ -682,7 +698,7 @@ rule miss { condition: false }
 
 func TestGetYaraXVersionMatchesGoMod(t *testing.T) {
 	t.Parallel()
-	data, err := os.ReadFile(filepath.Join("..", "..", "go.mod"))
+	data, err := file.ReadFileIn(filepath.Join("..", ".."), "go.mod")
 	if err != nil {
 		t.Fatalf("read go.mod: %v", err)
 	}
@@ -705,29 +721,29 @@ func TestGetYaraXVersionMatchesGoMod(t *testing.T) {
 
 func TestSweepStaleTempFilesSkipsUnreadableEntries(t *testing.T) {
 	t.Parallel()
-	cacheDir := t.TempDir()
+	cache := compileOpenRoot(t, t.TempDir())
 
 	// Glob returns matches in sorted order, so the dangling link is visited
 	// before the stale temp file.
-	dangling := filepath.Join(cacheDir, ".rules-0-dangling.tmp")
-	if err := os.Symlink(filepath.Join(cacheDir, "missing-target"), dangling); err != nil {
+	dangling := ".rules-0-dangling.tmp"
+	if err := cache.Symlink("missing-target", dangling); err != nil {
 		t.Skipf("symlinks unavailable: %v", err)
 	}
-	stale := filepath.Join(cacheDir, ".rules-stale.cache.tmp")
-	if err := os.WriteFile(stale, []byte("x"), 0o600); err != nil {
+	stale := ".rules-stale.cache.tmp"
+	if err := cache.WriteFile(stale, []byte("x"), 0o600); err != nil {
 		t.Fatalf("write %s: %v", stale, err)
 	}
 	old := time.Now().Add(-48 * time.Hour)
-	if err := os.Chtimes(stale, old, old); err != nil {
+	if err := cache.Chtimes(stale, old, old); err != nil {
 		t.Fatalf("chtimes %s: %v", stale, err)
 	}
 
-	sweepStaleTempFiles(cacheDir)
+	sweepStaleTempFiles(cache)
 
-	if _, err := os.Stat(stale); !errors.Is(err, fs.ErrNotExist) {
+	if _, err := cache.Stat(stale); !errors.Is(err, fs.ErrNotExist) {
 		t.Errorf("stale temp file stat error: got = %v, want = %v", err, fs.ErrNotExist)
 	}
-	if _, err := os.Lstat(dangling); err != nil {
+	if _, err := cache.Lstat(dangling); err != nil {
 		t.Errorf("dangling link lstat error: got = %v, want = nil", err)
 	}
 }
@@ -735,7 +751,7 @@ func TestSweepStaleTempFilesSkipsUnreadableEntries(t *testing.T) {
 func TestRecursiveCachedStoresAndReusesRules(t *testing.T) {
 	// Not parallel: t.Setenv redirects the user cache directory and the
 	// package log functions are swapped for a recorder.
-	cacheDir := compileIsolateCache(t)
+	cache := compileIsolateCache(t)
 	logs := compileRecordLogs(t)
 	fss := []fs.FS{fstest.MapFS{"cache.yara": {Data: []byte("rule cached { condition: true }")}}}
 
@@ -743,7 +759,7 @@ func TestRecursiveCachedStoresAndReusesRules(t *testing.T) {
 	if err != nil {
 		t.Fatalf("getRulesHash(): %v", err)
 	}
-	cacheFile := filepath.Join(cacheDir, "rules-"+hash+".cache")
+	cacheName := "rules-" + hash + ".cache"
 
 	first, err := RecursiveCached(t.Context(), fss)
 	if err != nil || first == nil {
@@ -751,9 +767,9 @@ func TestRecursiveCachedStoresAndReusesRules(t *testing.T) {
 	}
 	first.Destroy()
 
-	for _, p := range []string{cacheFile, cacheFile + ".sha256"} {
-		if _, err := os.Stat(p); err != nil {
-			t.Errorf("cache artifact %s stat error: got = %v, want = nil", filepath.Base(p), err)
+	for _, p := range []string{cacheName, cacheName + ".sha256"} {
+		if _, err := cache.Stat(p); err != nil {
+			t.Errorf("cache artifact %s stat error: got = %v, want = nil", p, err)
 		}
 	}
 	if !logs.has("DEBUG Saved rules to cache") || logs.has("WARN Failed to save rules to cache") {
@@ -778,11 +794,11 @@ func TestRecursiveCachedCompilesWhenCacheIsUnwritable(t *testing.T) {
 	if os.Geteuid() == 0 {
 		t.Skip("root bypasses directory write permissions")
 	}
-	cacheDir := compileIsolateCache(t)
-	if err := os.Chmod(cacheDir, 0o500); err != nil {
-		t.Fatalf("chmod %s: %v", cacheDir, err)
+	cache := compileIsolateCache(t)
+	if err := cache.Chmod(".", 0o500); err != nil {
+		t.Fatalf("chmod %s: %v", cache.Name(), err)
 	}
-	t.Cleanup(func() { _ = os.Chmod(cacheDir, 0o700) })
+	t.Cleanup(func() { _ = cache.Chmod(".", 0o700) })
 	logs := compileRecordLogs(t)
 	fss := []fs.FS{fstest.MapFS{"readonly.yara": {Data: []byte("rule readonly_cache { condition: true }")}}}
 
@@ -802,7 +818,12 @@ func TestRecursiveCachedCompilesWhenCacheIsUnwritable(t *testing.T) {
 // is unavailable.
 func compileOpenFilesUnder(t *testing.T, dir string) int {
 	t.Helper()
-	entries, err := os.ReadDir("/proc/self/fd")
+	fds, err := os.OpenRoot("/proc/self/fd")
+	if err != nil {
+		t.Skipf("open file descriptors are not listable: %v", err)
+	}
+	defer func() { _ = fds.Close() }()
+	entries, err := fs.ReadDir(fds.FS(), ".")
 	if err != nil {
 		t.Skipf("open file descriptors are not listable: %v", err)
 	}
@@ -813,7 +834,7 @@ func compileOpenFilesUnder(t *testing.T, dir string) int {
 	prefix := resolved + string(filepath.Separator)
 	n := 0
 	for _, e := range entries {
-		target, err := os.Readlink(filepath.Join("/proc/self/fd", e.Name()))
+		target, err := fds.Readlink(e.Name())
 		if err == nil && strings.HasPrefix(target, prefix) {
 			n++
 		}
@@ -862,12 +883,12 @@ func TestRecursiveSkipsDirectoriesNamedLikeRules(t *testing.T) {
 
 func TestLoadCachedRulesMissingCacheFile(t *testing.T) {
 	t.Parallel()
-	cacheFile := filepath.Join(t.TempDir(), "rules.cache")
-	if err := os.WriteFile(cacheFile+".sha256", []byte(strings.Repeat("0", 64)+"\n"), 0o600); err != nil {
+	cache := compileOpenRoot(t, t.TempDir())
+	if err := cache.WriteFile("rules.cache.sha256", []byte(strings.Repeat("0", 64)+"\n"), 0o600); err != nil {
 		t.Fatalf("write sidecar: %v", err)
 	}
 
-	got, err := loadCachedRules(cacheFile)
+	got, err := loadCachedRules(cache, "rules.cache")
 	if !errors.Is(err, fs.ErrNotExist) {
 		t.Errorf("loadCachedRules() error: got = %v, want = %v", err, fs.ErrNotExist)
 	}
@@ -880,8 +901,8 @@ func TestSaveCachedRulesCleansUp(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name string
-		// blocked names a path, relative to the cache file, that is created as
-		// a directory so renaming onto it fails; empty for none.
+		// blocked names a path, relative to the cache directory, that is
+		// created as a directory so renaming onto it fails; empty for none.
 		blocked   string
 		wantErr   string
 		wantCache bool
@@ -899,14 +920,15 @@ func TestSaveCachedRulesCleansUp(t *testing.T) {
 				t.Fatalf("compile test rule: %v", err)
 			}
 			dir := t.TempDir()
-			cacheFile := filepath.Join(dir, "rules.cache")
+			cache := compileOpenRoot(t, dir)
+			cacheName := "rules.cache"
 			if tt.blocked != "" {
-				if err := os.Mkdir(filepath.Join(dir, tt.blocked), 0o700); err != nil {
+				if err := cache.Mkdir(tt.blocked, 0o700); err != nil {
 					t.Fatalf("mkdir %s: %v", tt.blocked, err)
 				}
 			}
 
-			err = saveCachedRules(yrs, cacheFile)
+			err = saveCachedRules(cache, cacheName, yrs)
 			if tt.wantErr == "" {
 				if err != nil {
 					t.Fatalf("saveCachedRules() error: got = %v, want = nil", err)
@@ -915,7 +937,7 @@ func TestSaveCachedRulesCleansUp(t *testing.T) {
 				t.Fatalf("saveCachedRules() error: got = %v, want one containing %q", err, tt.wantErr)
 			}
 
-			leftovers, err := filepath.Glob(filepath.Join(dir, ".rules-*.tmp"))
+			leftovers, err := fs.Glob(cache.FS(), ".rules-*.tmp")
 			if err != nil {
 				t.Fatalf("glob temp files: %v", err)
 			}
@@ -923,7 +945,7 @@ func TestSaveCachedRulesCleansUp(t *testing.T) {
 				t.Errorf("temp files left behind: got = %v, want none", leftovers)
 			}
 
-			fi, err := os.Lstat(cacheFile)
+			fi, err := cache.Lstat(cacheName)
 			gotCache := err == nil && fi.Mode().IsRegular()
 			if gotCache != tt.wantCache {
 				t.Errorf("cache file present: got = %v, want = %v (stat error %v)", gotCache, tt.wantCache, err)
@@ -950,14 +972,15 @@ func TestRecursiveCachedFallsBackWhenCacheDirIsUnsafe(t *testing.T) {
 	// A cache directory others can read is refused, so compilation must fall
 	// back to an uncached build and write no cache anywhere.
 	cacheDir := filepath.Join(userCache, "malcontent")
-	if err := os.MkdirAll(cacheDir, 0o700); err != nil {
+	if err := file.MkdirAll(cacheDir, 0o700); err != nil {
 		t.Fatalf("MkdirAll(%q): %v", cacheDir, err)
 	}
-	if err := os.Chmod(cacheDir, 0o755); err != nil {
+	if err := compileOpenRoot(t, cacheDir).Chmod(".", 0o755); err != nil {
 		t.Fatalf("Chmod(%q): %v", cacheDir, err)
 	}
-	if _, err := getCacheDir(); err == nil {
-		t.Fatal("getCacheDir() error: got = nil, want an unsafe permissions error")
+	if cache, err := openCacheDir(); err == nil {
+		_ = cache.Close()
+		t.Fatal("openCacheDir() error: got = nil, want an unsafe permissions error")
 	}
 	work := t.TempDir()
 	t.Chdir(work)
@@ -969,7 +992,7 @@ func TestRecursiveCachedFallsBackWhenCacheDirIsUnsafe(t *testing.T) {
 	}
 
 	for _, dir := range []string{work, cacheDir} {
-		entries, err := os.ReadDir(dir)
+		entries, err := fs.ReadDir(compileOpenRoot(t, dir).FS(), ".")
 		if err != nil {
 			t.Fatalf("ReadDir(%q): %v", dir, err)
 		}

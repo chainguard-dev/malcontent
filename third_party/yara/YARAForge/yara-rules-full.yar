@@ -60474,7 +60474,7 @@ rule R3C0NST_ATM_Malware_Dispenserxfs : FILE
 		$PDB = /C:\\_bkittest\\dispenser\\Release_noToken\\dispenserXFS\.pdb/ nocase ascii wide
 
 	condition:
-		(hash.sha256 ( 0 , filesize ) == "867991ade335186baa19a227e3a044c8321a6cef96c23c98eef21fe6b87edf6a" ) or ( uint16( 0 ) == 0x5A4D and 1 of them )
+		(file_sha256 == "867991ade335186baa19a227e3a044c8321a6cef96c23c98eef21fe6b87edf6a" ) or ( uint16( 0 ) == 0x5A4D and 1 of them )
 }
 rule R3C0NST_ATM_Malware_NVISOSPIT : FILE
 {
@@ -60821,7 +60821,7 @@ rule R3C0NST_ATM_Malware_Atmspitter : FILE
 		$Service = /Congratulations! You are very skilled in reverse engineering!/ nocase ascii
 
 	condition:
-		(hash.sha256 ( 0 , filesize ) == "4035d977202b44666885f9781ac8755c799350a03838ff782eb730c0d7069958" ) or ( $Code_Bytes and $Service )
+		(file_sha256 == "4035d977202b44666885f9781ac8755c799350a03838ff782eb730c0d7069958" ) or ( $Code_Bytes and $Service )
 }
 
 rule R3C0NST_ATM_Malware_Ploutusi : FILE

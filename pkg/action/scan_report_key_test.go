@@ -5,13 +5,13 @@ package action
 
 import (
 	"errors"
-	"os"
 	"path/filepath"
 	"slices"
 	"strings"
 	"sync"
 	"testing"
 
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 )
 
@@ -103,7 +103,7 @@ func TestScanArchiveEntryKeysAreDistinct(t *testing.T) {
 
 	buildZipFile(t, filepath.Join(root, "a.zip"), scanTestEntries(t))
 	buildZipFile(t, filepath.Join(root, "b.zip"), scanTestEntries(t))
-	if err := os.Mkdir(filepath.Join(root, "sub"), 0o700); err != nil {
+	if err := file.MkdirAllIn(root, "sub", 0o700); err != nil {
 		t.Fatalf("create sub: %v", err)
 	}
 	buildZipFile(t, filepath.Join(root, "sub", "a.zip"), scanTestEntries(t))
@@ -169,12 +169,13 @@ func TestScanArchiveEntryPathsWithSymlinkedTempDir(t *testing.T) {
 	}
 	archivePath := filepath.Join(base, "bundle.zip")
 	buildZipFile(t, archivePath, scanTestEntries(t))
+	baseRoot := scanTestOpenRoot(t, base)
 	realTmp := filepath.Join(base, "tmp-real")
-	if err := os.Mkdir(realTmp, 0o700); err != nil {
+	if err := baseRoot.Mkdir("tmp-real", 0o700); err != nil {
 		t.Fatalf("create %s: %v", realTmp, err)
 	}
 	linkTmp := filepath.Join(base, "tmp-link")
-	if err := os.Symlink(realTmp, linkTmp); err != nil {
+	if err := baseRoot.Symlink(realTmp, "tmp-link"); err != nil {
 		t.Fatalf("symlink %s: %v", linkTmp, err)
 	}
 	t.Setenv("TMPDIR", linkTmp)
@@ -199,7 +200,7 @@ func TestScanArchiveEntryPathsWithSymlinkedTempDir(t *testing.T) {
 		return true
 	})
 
-	left, err := os.ReadDir(realTmp)
+	left, err := scanTestReadDir(realTmp)
 	if err != nil {
 		t.Fatalf("read %s: %v", realTmp, err)
 	}
@@ -224,7 +225,7 @@ func TestProcessPathsEvaluatesEachOCIImageOnItsOwn(t *testing.T) {
 	c := malcontent.Config{Concurrency: 2, ExitFirstMiss: true, OCI: true, Rules: yrs, RuleFS: rfs}
 
 	first := scanPathInfo{originalPath: firstImage, effectivePath: fx.root, ociExtractPath: fx.root, imageURI: firstImage}
-	if err := processPaths(t.Context(), []string{fx.hit, fx.clean}, first, c, r, matchChan, &once, logger); err != nil {
+	if err := processTestPaths(t, []string{fx.hit, fx.clean}, first, c, r, matchChan, &once, logger); err != nil {
 		t.Fatalf("image with a hit under exit-first-miss: got = %v, want = nil", err)
 	}
 	if got, want := scanTestKeys(r.Files), []string{firstImage + " ∴ /app/locale.sh", firstImage + " ∴ /app/package.json"}; !slices.Equal(got, want) {
@@ -232,7 +233,7 @@ func TestProcessPathsEvaluatesEachOCIImageOnItsOwn(t *testing.T) {
 	}
 
 	second := scanPathInfo{originalPath: secondImage, effectivePath: cleanRoot, ociExtractPath: cleanRoot, imageURI: secondImage}
-	err := processPaths(t.Context(), []string{clean}, second, c, r, matchChan, &once, logger)
+	err := processTestPaths(t, []string{clean}, second, c, r, matchChan, &once, logger)
 	if !errors.Is(err, ErrMatchedCondition) {
 		t.Fatalf("image without hits after one with hits: got = %v, want = %v", err, ErrMatchedCondition)
 	}

@@ -8,13 +8,13 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 	"syscall"
 	"testing"
 
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 )
 
@@ -68,8 +68,9 @@ func upxStandIn(t *testing.T, stdout, stderr string, code int) string {
 // the test when the temporary directory does not allow executing files.
 func upxStandInScript(t *testing.T, script string) string {
 	t.Helper()
-	p := filepath.Join(t.TempDir(), "upx")
-	if err := os.WriteFile(p, []byte(script), 0o700); err != nil {
+	dir := t.TempDir()
+	p := filepath.Join(dir, "upx")
+	if err := file.WriteFileIn(dir, "upx", []byte(script), 0o700); err != nil {
 		t.Fatalf("write upx stand-in: %v", err)
 	}
 	if err := exec.CommandContext(t.Context(), p).Run(); errors.Is(err, fs.ErrPermission) {
@@ -133,21 +134,24 @@ func TestExtractUPXOperatorBinary(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Setenv("MALCONTENT_UPX_PATH", upxStandIn(t, tt.stdout, tt.stderr, tt.code))
 
-			src := filepath.Join(t.TempDir(), tt.fileName)
+			srcDir := t.TempDir()
+			src := filepath.Join(srcDir, tt.fileName)
 			if !tt.missing {
-				if err := os.WriteFile(src, []byte(upxStandInPayload), 0o600); err != nil {
+				if err := file.WriteFileIn(srcDir, tt.fileName, []byte(upxStandInPayload), 0o600); err != nil {
 					t.Fatalf("write input: %v", err)
 				}
 			}
-			d := filepath.Join(t.TempDir(), "out")
-			target := filepath.Join(d, tt.fileName)
+			// target names the copied input relative to base.
+			base := t.TempDir()
+			d := filepath.Join(base, "out")
+			target := filepath.Join("out", tt.fileName)
 
 			err := ExtractUPX(t.Context(), d, src)
 			if len(tt.wantErr) == 0 {
 				if err != nil {
 					t.Fatalf("ExtractUPX error: got = %v, want = nil", err)
 				}
-				got, readErr := os.ReadFile(target)
+				got, readErr := file.ReadFileIn(base, target)
 				if readErr != nil {
 					t.Fatalf("read target: %v", readErr)
 				}
@@ -168,7 +172,7 @@ func TestExtractUPXOperatorBinary(t *testing.T) {
 			if tt.wantErrIs != nil && !errors.Is(err, tt.wantErrIs) {
 				t.Errorf("ExtractUPX error: got = %v, want = wrapping %v", err, tt.wantErrIs)
 			}
-			if _, statErr := os.Lstat(target); !errors.Is(statErr, fs.ErrNotExist) {
+			if _, statErr := file.LstatIn(base, target); !errors.Is(statErr, fs.ErrNotExist) {
 				t.Errorf("target after failure: got stat err = %v, want = %v", statErr, fs.ErrNotExist)
 			}
 		})
@@ -181,18 +185,20 @@ func TestExtractUPXRealBinaryRejectsUnpackedInput(t *testing.T) {
 		t.Skipf("upx unavailable: %v", err)
 	}
 
-	src := filepath.Join(t.TempDir(), "plain.bin")
-	if err := os.WriteFile(src, []byte("plain text that upx never packed\n"), 0o600); err != nil {
+	srcDir := t.TempDir()
+	src := filepath.Join(srcDir, "plain.bin")
+	if err := file.WriteFileIn(srcDir, "plain.bin", []byte("plain text that upx never packed\n"), 0o600); err != nil {
 		t.Fatalf("write input: %v", err)
 	}
-	d := filepath.Join(t.TempDir(), "out")
+	base := t.TempDir()
+	d := filepath.Join(base, "out")
 
 	const want = "failed to decompress upx file"
 	err := ExtractUPX(t.Context(), d, src)
 	if err == nil || !strings.Contains(err.Error(), want) {
 		t.Fatalf("ExtractUPX error: got = %v, want = containing %q", err, want)
 	}
-	if _, statErr := os.Lstat(filepath.Join(d, "plain.bin")); !errors.Is(statErr, fs.ErrNotExist) {
+	if _, statErr := file.LstatIn(base, filepath.Join("out", "plain.bin")); !errors.Is(statErr, fs.ErrNotExist) {
 		t.Errorf("target after failure: got stat err = %v, want = %v", statErr, fs.ErrNotExist)
 	}
 }
@@ -235,18 +241,20 @@ func TestUPXCopyBoundedToSandboxLimits(t *testing.T) {
 // sandbox directory, which is gone once ExtractUPX returns. Setting the
 // environment rules out t.Parallel.
 func TestExtractUPXRunsInRemovedSandbox(t *testing.T) {
-	record := filepath.Join(t.TempDir(), "cwd")
+	recordDir := t.TempDir()
+	record := filepath.Join(recordDir, "cwd")
 	t.Setenv("MALCONTENT_UPX_PATH", upxStandInScript(t, fmt.Sprintf("#!/bin/sh\npwd > %q\necho 'Unpacked 1 file.'\n", record)))
 
-	src := filepath.Join(t.TempDir(), "sample.bin")
-	if err := os.WriteFile(src, []byte(upxStandInPayload), 0o600); err != nil {
+	srcDir := t.TempDir()
+	src := filepath.Join(srcDir, "sample.bin")
+	if err := file.WriteFileIn(srcDir, "sample.bin", []byte(upxStandInPayload), 0o600); err != nil {
 		t.Fatalf("write input: %v", err)
 	}
 	if err := ExtractUPX(t.Context(), filepath.Join(t.TempDir(), "out"), src); err != nil {
 		t.Fatalf("ExtractUPX error: got = %v, want = nil", err)
 	}
 
-	data, err := os.ReadFile(record)
+	data, err := file.ReadFileIn(recordDir, "cwd")
 	if err != nil {
 		t.Fatalf("read recorded working directory: %v", err)
 	}
@@ -254,7 +262,7 @@ func TestExtractUPXRunsInRemovedSandbox(t *testing.T) {
 	if !strings.HasPrefix(filepath.Base(cwd), "mal-upx-") {
 		t.Errorf("upx working directory: got = %q, want = a mal-upx-* sandbox", cwd)
 	}
-	if _, err := os.Stat(cwd); !errors.Is(err, fs.ErrNotExist) {
+	if _, err := file.Stat(cwd); !errors.Is(err, fs.ErrNotExist) {
 		t.Errorf("sandbox after return: got stat err = %v, want = %v", err, fs.ErrNotExist)
 	}
 }
@@ -290,18 +298,20 @@ func TestExtractUPXSetupFailures(t *testing.T) {
 			}
 			t.Setenv("MALCONTENT_UPX_PATH", upx)
 
-			src := filepath.Join(t.TempDir(), "sample.bin")
-			if err := os.WriteFile(src, []byte(upxStandInPayload), 0o600); err != nil {
+			srcDir := t.TempDir()
+			src := filepath.Join(srcDir, "sample.bin")
+			if err := file.WriteFileIn(srcDir, "sample.bin", []byte(upxStandInPayload), 0o600); err != nil {
 				t.Fatalf("write input: %v", err)
 			}
-			d := filepath.Join(t.TempDir(), "out")
+			// out is the destination's name in base.
+			base, out := t.TempDir(), "out"
 			if tt.destUnderFile {
-				blocker := filepath.Join(t.TempDir(), "blocker")
-				if err := os.WriteFile(blocker, nil, 0o600); err != nil {
+				if err := file.WriteFileIn(base, "blocker", nil, 0o600); err != nil {
 					t.Fatalf("write blocker: %v", err)
 				}
-				d = filepath.Join(blocker, "out")
+				out = filepath.Join("blocker", "out")
 			}
+			d := filepath.Join(base, out)
 
 			err := ExtractUPX(t.Context(), d, src)
 			if err == nil || !strings.Contains(err.Error(), tt.wantErr) {
@@ -313,7 +323,7 @@ func TestExtractUPXSetupFailures(t *testing.T) {
 			if tt.wantErrIs != nil && !errors.Is(err, tt.wantErrIs) {
 				t.Errorf("ExtractUPX error: got = %v, want = wrapping %v", err, tt.wantErrIs)
 			}
-			if _, statErr := os.Lstat(d); !errors.Is(statErr, fs.ErrNotExist) && !errors.Is(statErr, syscall.ENOTDIR) {
+			if _, statErr := file.LstatIn(base, out); !errors.Is(statErr, fs.ErrNotExist) && !errors.Is(statErr, syscall.ENOTDIR) {
 				t.Errorf("destination after failure: got stat err = %v, want = not created", statErr)
 			}
 		})

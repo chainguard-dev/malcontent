@@ -8,10 +8,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"os"
 	"path/filepath"
 
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 )
 
@@ -47,7 +47,7 @@ func extractGzipWithKind(ctx context.Context, d, f string, fileType func() *prog
 	logger.Debug("extracting gzip")
 
 	// Check if the file is valid
-	fi, err := os.Stat(f)
+	fi, err := file.Stat(f)
 	if err != nil {
 		return fmt.Errorf("failed to stat file: %w", err)
 	}
@@ -62,7 +62,7 @@ func extractGzipWithKind(ctx context.Context, d, f string, fileType func() *prog
 	// InputBytes seeds the ratio denominator from the compressed file size.
 	counter := newArchiveCounter(ctx, fi.Size())
 
-	gf, err := os.Open(f) // #nosec G304 -- archive path resolved and validated by caller before extraction
+	gf, err := file.Open(f)
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
