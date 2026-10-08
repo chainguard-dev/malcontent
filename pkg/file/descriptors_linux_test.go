@@ -53,8 +53,10 @@ func openDescriptors(t *testing.T) []int64 {
 	return fds
 }
 
+// TestGrowDescriptorTable lists the process's descriptors, so it does not run
+// in parallel: TestReserveDescriptorsHoldsTwiceTheIdleRootBudget briefly holds
+// a copy above the table size this test starts from.
 func TestGrowDescriptorTable(t *testing.T) {
-	t.Parallel()
 	want := 4 * descriptorTableSize(t)
 	if want > openFileLimit() {
 		t.Skipf("growing the table to %d descriptors exceeds the limit of %d", want, openFileLimit())
