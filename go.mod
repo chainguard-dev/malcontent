@@ -26,9 +26,9 @@ require (
 	github.com/urfave/cli/v3 v3.14.0
 	github.com/wk8/go-ordered-map/v2 v2.1.8
 	go.uber.org/goleak v1.3.0
-	golang.org/x/sync v0.23.0
-	golang.org/x/sys v0.48.0
-	golang.org/x/term v0.46.0
+	golang.org/x/sync v0.24.0
+	golang.org/x/sys v0.49.0
+	golang.org/x/term v0.47.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
