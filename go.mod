@@ -17,7 +17,7 @@ require (
 	github.com/gabriel-vasile/mimetype v1.4.15
 	github.com/google/go-cmp v0.7.0
 	github.com/google/go-containerregistry v0.22.1
-	github.com/klauspost/compress v1.20.1
+	github.com/klauspost/compress v1.20.3
 	github.com/klauspost/pgzip v1.2.7
 	github.com/minio/sha256-simd v1.0.1
 	github.com/puzpuzpuz/xsync/v4 v4.5.0
