@@ -4,23 +4,39 @@
 package report
 
 import (
+	"bytes"
 	"encoding/json"
 	"regexp"
 	"strings"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
+	"gopkg.in/yaml.v3"
 )
 
 // tempDirPattern matches the temporary directory root at the start of a path
 // extracted under macOS or /tmp.
 var tempDirPattern = regexp.MustCompile(`^/(?:var/folders|tmp|private/var/folders|private/tmp)/[^/]+/[^/]+/T/[^/]+`)
 
+// Load parses a report written by the JSON or YAML renderer. Input that is
+// neither keeps the JSON error.
 func Load(data []byte) (malcontent.ScanResult, error) {
 	var report malcontent.ScanResult
-	if err := json.Unmarshal(data, &report); err != nil {
+	err := json.Unmarshal(data, &report)
+	if err == nil {
+		return report, nil
+	}
+	// A JSON report is an object, so only other input can be a YAML one,
+	// which the YAML renderer writes with its file reports under "files".
+	if trimmed := bytes.TrimSpace(data); len(trimmed) == 0 || trimmed[0] == '{' {
 		return report, err
 	}
-	return report, nil
+	var yr struct {
+		Files map[string]*malcontent.FileReport `yaml:"files"`
+	}
+	if yaml.Unmarshal(data, &yr) != nil || yr.Files == nil {
+		return report, err
+	}
+	return malcontent.ScanResult{FileReports: yr.Files}, nil
 }
 
 // ExtractImageURI extracts the image URI from paths in a report.
