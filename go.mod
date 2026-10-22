@@ -14,7 +14,7 @@ require (
 	github.com/egibs/go-debian v0.19.3
 	github.com/egibs/reconcile v1.0.0
 	github.com/fatih/color v1.19.0
-	github.com/gabriel-vasile/mimetype v1.4.15
+	github.com/gabriel-vasile/mimetype v1.4.16
 	github.com/google/go-cmp v0.7.0
 	github.com/google/go-containerregistry v0.22.1
 	github.com/klauspost/compress v1.20.3
