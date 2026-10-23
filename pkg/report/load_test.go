@@ -99,6 +99,42 @@ func TestLoad(t *testing.T) {
 	}
 }
 
+func TestLoadYAML(t *testing.T) {
+	t.Parallel()
+	// The shape the YAML renderer writes: lowercase keys, files under "files".
+	data := []byte(`files:
+    /usr/bin/curl:
+        path: /usr/bin/curl
+        riskscore: 2
+        risklevel: MEDIUM
+        behaviors:
+            - description: Makes HTTP requests
+              riskscore: 2
+              id: net/http
+`)
+	got, err := Load(data)
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	fr, ok := got.FileReports["/usr/bin/curl"]
+	if !ok {
+		t.Fatalf("Load() files = %v, want /usr/bin/curl", got.FileReports)
+	}
+	if fr.Path != "/usr/bin/curl" || fr.RiskScore != 2 || fr.RiskLevel != "MEDIUM" {
+		t.Errorf("Load() file = %+v, want path /usr/bin/curl, risk 2 MEDIUM", fr)
+	}
+	if len(fr.Behaviors) != 1 || fr.Behaviors[0].ID != "net/http" || fr.Behaviors[0].RiskScore != 2 {
+		t.Errorf("Load() behaviors = %+v, want one net/http behavior with risk 2", fr.Behaviors)
+	}
+
+	// YAML that holds no file reports is not a report.
+	for _, data := range []string{"this is not a report", "files:\n", "stats:\n    total: 1\n", "- a\n- b\n"} {
+		if _, err := Load([]byte(data)); err == nil {
+			t.Errorf("Load(%q) error = nil, want an error", data)
+		}
+	}
+}
+
 func TestExtractImageURI(t *testing.T) {
 	t.Parallel()
 	tests := []struct {

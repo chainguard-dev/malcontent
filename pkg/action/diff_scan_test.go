@@ -22,9 +22,11 @@ import (
 
 	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
+	"github.com/chainguard-dev/malcontent/pkg/render"
 	"github.com/chainguard-dev/malcontent/rules"
 	thirdparty "github.com/chainguard-dev/malcontent/third_party"
 	"github.com/minio/sha256-simd"
+	"github.com/puzpuzpuz/xsync/v4"
 
 	yarax "github.com/VirusTotal/yara-x/go"
 )
@@ -705,6 +707,45 @@ func TestDiffReports(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestDiffYAMLReports(t *testing.T) {
+	t.Parallel()
+	root := diffTestTempDir(t)
+	write := func(name string, frs map[string]*malcontent.FileReport) string {
+		files := xsync.NewMap[string, *malcontent.FileReport]()
+		for k, fr := range frs {
+			files.Store(k, fr)
+		}
+		var out bytes.Buffer
+		r, err := render.New("yaml", &out)
+		if err != nil {
+			t.Fatalf("render.New: %v", err)
+		}
+		if err := r.Full(t.Context(), nil, &malcontent.Report{Files: files}); err != nil {
+			t.Fatalf("Full: %v", err)
+		}
+		path := filepath.Join(root, name)
+		diffTestWriteFile(t, path, out.String())
+		return path
+	}
+	src := write("src.yaml", map[string]*malcontent.FileReport{
+		"/app/same": {Path: "/app/same", RiskScore: 1, Behaviors: []*malcontent.Behavior{{ID: "net/socket/listen"}}},
+		"/app/gone": {Path: "/app/gone", RiskScore: 1},
+	})
+	dest := write("dest.yaml", map[string]*malcontent.FileReport{
+		"/app/same": {Path: "/app/same", RiskScore: 3, Behaviors: []*malcontent.Behavior{{ID: "net/socket/listen"}, {ID: "exec/shell/command"}}},
+		"/app/new":  {Path: "/app/new", RiskScore: 2},
+	})
+
+	res, err := Diff(t.Context(), malcontent.Config{Report: true, ScanPaths: []string{src, dest}}, nil)
+	if err != nil {
+		t.Fatalf("Diff: got error = %v, want nil", err)
+	}
+	if res == nil || res.Diff == nil {
+		t.Fatalf("Diff: got = %v, want a report with a diff", res)
+	}
+	diffTestAssertKeys(t, res.Diff, []string{"/app/gone"}, []string{"/app/new"}, []string{"/app/same"})
 }
 
 func TestDiffReportErrors(t *testing.T) {
