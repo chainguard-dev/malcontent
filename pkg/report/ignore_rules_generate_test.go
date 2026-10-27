@@ -36,10 +36,10 @@ func compileTestRules(tb testing.TB, sources map[string]string) *yarax.Rules {
 // key. Namespaces are created in sorted order, so rules are declared in that
 // order and tests stay reproducible.
 func compileSources(sources map[string]string) (*yarax.Rules, error) {
-	// Bundled rules compare the digest the scanner sets in this global.
-	c, err := yarax.NewCompiler(yarax.Globals(map[string]any{compile.FileSHA256: ""}))
+	// Bundled rules read globals that only the production compiler defines.
+	c, err := compile.NewCompiler()
 	if err != nil {
-		return nil, fmt.Errorf("NewCompiler: %w", err)
+		return nil, err
 	}
 	for _, ns := range slices.Sorted(maps.Keys(sources)) {
 		c.NewNamespace(ns)

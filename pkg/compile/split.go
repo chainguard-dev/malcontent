@@ -738,7 +738,7 @@ func compileFiles(ctx context.Context, files []splitFile, keep func(fi, ri int) 
 // compileFilesWarnings is compileFiles, returning the compiler warnings
 // instead of logging them.
 func compileFilesWarnings(ctx context.Context, files []splitFile, keep func(fi, ri int) bool) (*yarax.Rules, []ruleWarning, error) {
-	yxc, err := newCompiler()
+	yxc, err := NewCompiler()
 	if err != nil {
 		return nil, nil, err
 	}
