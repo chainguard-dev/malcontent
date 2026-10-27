@@ -13,6 +13,7 @@ import (
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 
 	yarax "github.com/VirusTotal/yara-x/go"
+	"github.com/chainguard-dev/malcontent/internal/yrx"
 )
 
 // compileDiffTestRules mirrors pkg/report's helper: compile a set of YARA
@@ -36,8 +37,8 @@ func compileDiffTestRules(t *testing.T, sources map[string]string) *yarax.Rules 
 			t.Fatalf("AddSource(%q): %v", ns, err)
 		}
 	}
-	r := c.Build()
-	t.Cleanup(func() { r.Destroy() })
+	r := yrx.Build(c)
+	t.Cleanup(func() { yrx.Destroy(r) })
 	return r
 }
 

@@ -29,6 +29,7 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/internal/yrx"
 	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/rules"
 
@@ -375,7 +376,7 @@ func Recursive(ctx context.Context, fss []fs.FS) (*yarax.Rules, error) {
 		return nil, fmt.Errorf("compile errors encountered: %v", errors)
 	}
 
-	return yxc.Build(), nil
+	return yrx.Build(yxc), nil
 }
 
 // openCacheDir creates the directory for storing compiled rules if needed
@@ -501,17 +502,17 @@ func loadCachedRules(cache *os.Root, name string) (*yarax.Rules, error) {
 		digest <- digestResult{sum: hex.EncodeToString(h.Sum(nil)), err: err}
 	}()
 
-	compiledRules, err := yarax.ReadFrom(io.NewSectionReader(f, 0, fi.Size()))
+	compiledRules, err := yrx.ReadFrom(io.NewSectionReader(f, 0, fi.Size()))
 	got := <-digest
 	if err != nil {
 		return nil, fmt.Errorf("read cached rules: %w", err)
 	}
 	if got.err != nil {
-		compiledRules.Destroy()
+		yrx.Destroy(compiledRules)
 		return nil, fmt.Errorf("hash cached rules: %w", got.err)
 	}
 	if got.sum != expected {
-		compiledRules.Destroy()
+		yrx.Destroy(compiledRules)
 		return nil, fmt.Errorf("cache integrity mismatch: expected %s got %s", expected, got.sum)
 	}
 	return compiledRules, nil

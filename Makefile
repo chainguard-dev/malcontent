@@ -186,7 +186,7 @@ test:
 	CGO_LDFLAGS=$(LDFLAGS) \
 	CGO_CPPFLAGS=$(CPPFLAGS) \
 	PKG_CONFIG_PATH=$(PKGCONF_PATH) \
-	go test -race ./pkg/...
+	go test -race ./pkg/... ./internal/...
 
 # aggregated quality gate: vet, formatter, linter chain, and the test
 # suite. `make test` is invoked (not bare `go test`) because the
@@ -267,7 +267,7 @@ out/mal.coverage:
 	CGO_LDFLAGS=$(LDFLAGS) \
 	CGO_CPPFLAGS=$(CPPFLAGS) \
 	PKG_CONFIG_PATH=$(PKGCONF_PATH) \
-	go test -coverprofile $@ -race ./pkg/... -coverpkg ./pkg/...
+	go test -coverprofile $@ -race ./pkg/... ./internal/... -coverpkg ./pkg/...,./internal/...
 
 INTEGRATION_PARALLEL_FLAGS ?= $(if $(CI),,-p 1 -parallel 2)
 

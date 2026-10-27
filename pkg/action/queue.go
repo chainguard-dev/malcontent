@@ -363,7 +363,7 @@ func (q *scanQueue) runWalked(t task) error {
 	}
 
 	if _, ok := programkind.ArchiveMap[programkind.GetExt(path)]; ok {
-		return q.openArchive(path)
+		return q.openArchive(path, t.name)
 	}
 
 	r, name, release, err := q.walk.dirs.Parent(t.name)
@@ -379,14 +379,14 @@ func (q *scanQueue) runWalked(t task) error {
 	defer s.close()
 	if programkind.IsSupportedArchiveKind(path, s.kind) {
 		s.close()
-		return q.openArchive(path)
+		return q.openArchive(path, t.name)
 	}
 	return handleSniffedFile(ctx, path, s, q.scanInfo, q.c, q.r, q.matchChan, q.matchOnce, q.logger)
 }
 
-// openArchive extracts the archive at path and queues the files extraction
-// produced.
-func (q *scanQueue) openArchive(path string) error {
+// openArchive extracts the archive at path, name beneath the walk root, and
+// queues the files extraction produced.
+func (q *scanQueue) openArchive(path, name string) error {
 	// Reports name an archive inside an OCI image by the image and its path
 	// within it rather than by the temporary extraction path.
 	displayPath := path
@@ -394,7 +394,7 @@ func (q *scanQueue) openArchive(path string) error {
 		displayPath = fmt.Sprintf("%s ∴ %s", q.scanInfo.imageURI, CleanPath(path, q.scanInfo.ociExtractPath))
 	}
 
-	tree, err := archive.OpenTree(q.ctx, q.c, path)
+	tree, err := q.openTree(path, name)
 	if err != nil {
 		return q.archiveError(path, fmt.Errorf("extract to temp: %w", err))
 	}
@@ -430,6 +430,18 @@ func (q *scanQueue) openArchive(path string) error {
 	}
 	q.release(a)
 	return nil
+}
+
+// openTree extracts the archive at path, name beneath the walk root, reading
+// it through the root on its directory, so that an archive at a path too long
+// to hand the operating system whole is still extracted.
+func (q *scanQueue) openTree(path, name string) (*archive.Tree, error) {
+	r, base, release, err := q.walk.dirs.Parent(name)
+	if err != nil {
+		return archive.OpenTree(q.ctx, q.c, path)
+	}
+	defer release()
+	return archive.OpenTreeIn(q.ctx, q.c, r, base, path)
 }
 
 // archiveError reports an archive that could not be processed. Like the rest

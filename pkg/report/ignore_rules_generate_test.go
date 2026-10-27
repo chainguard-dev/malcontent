@@ -14,6 +14,7 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 
 	yarax "github.com/VirusTotal/yara-x/go"
+	"github.com/chainguard-dev/malcontent/internal/yrx"
 )
 
 // compileTestRules compiles a set of YARA rule sources, each in its own
@@ -28,7 +29,7 @@ func compileTestRules(tb testing.TB, sources map[string]string) *yarax.Rules {
 	if err != nil {
 		tb.Fatal(err)
 	}
-	tb.Cleanup(func() { r.Destroy() })
+	tb.Cleanup(func() { yrx.Destroy(r) })
 	return r
 }
 
@@ -47,7 +48,7 @@ func compileSources(sources map[string]string) (*yarax.Rules, error) {
 			return nil, fmt.Errorf("AddSource(%q): %w", ns, err)
 		}
 	}
-	return c.Build(), nil
+	return yrx.Build(c), nil
 }
 
 // scan runs the compiled rules over a byte buffer and returns ScanResults.

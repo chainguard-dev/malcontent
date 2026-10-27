@@ -470,7 +470,7 @@ func (tree *nestedTree) extractFile(ctx context.Context, c malcontent.Config, d 
 		return "", nil, nil
 	}
 
-	ft, err := programkind.File(ctx, fullPath)
+	ft, err := detectIn(ctx, root, f, fullPath, fi.Size())
 	if err != nil {
 		return "", nil, fmt.Errorf("failed to determine file type: %w", err)
 	}
@@ -541,7 +541,6 @@ func nestedArchive(rel string, ft *programkind.FileType) (nested, bool) {
 // itself stays in the tree, to be scanned as a file.
 func (tree *nestedTree) extractNested(ctx context.Context, c malcontent.Config, root *os.Root, d string, n nested, depth int, ancestors *ancestry, limit int, logger *clog.Logger, digestOf func() ([sha256.Size]byte, error)) (string, *ancestry, bool, error) {
 	f := n.rel
-	fullPath := filepath.Join(d, f)
 
 	if depth > limit {
 		err := fmt.Errorf("current depth of %d exceeds limit of %d which may be an indicator of compromise", depth, limit)
@@ -576,7 +575,7 @@ func (tree *nestedTree) extractNested(ctx context.Context, c malcontent.Config, 
 	}
 	archivePath := filepath.Join(d, dirName)
 
-	err = n.extract(ctx, archivePath, fullPath)
+	err = extractIn(ctx, root, d, n.extract, f, dirName)
 	if err != nil {
 		if c.ExitExtraction {
 			return "", nil, false, fmt.Errorf("failed to extract archive: %w", err)

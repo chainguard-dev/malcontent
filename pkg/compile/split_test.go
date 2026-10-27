@@ -16,6 +16,7 @@ import (
 	"time"
 
 	yarax "github.com/VirusTotal/yara-x/go"
+	"github.com/chainguard-dev/malcontent/internal/yrx"
 )
 
 // splitTestFS holds rules covering every reason a scoped rule stays
@@ -771,7 +772,7 @@ func BenchmarkCompileScoped(b *testing.B) {
 				if err != nil {
 					b.Fatalf("CompileScoped: %v", err)
 				}
-				rules.Destroy()
+				yrx.Destroy(rules)
 			}
 		})
 	}
