@@ -5,6 +5,7 @@
 package main
 
 import (
+	"cmp"
 	"context"
 	"errors"
 	"fmt"
@@ -37,13 +38,16 @@ import (
 
 // Exit codes based on diff(1) and https://man.freebsd.org/cgi/man.cgi?errno(2)
 var (
-	ExitOK              = 0
-	ExitActionFailed    = 2
-	ExitProfilerError   = 3
-	ExitInputOutput     = 5
-	ExitRenderFailed    = 11
-	ExitInvalidRules    = 14
-	ExitInvalidArgument = 22
+	ExitOK = 0
+	// ExitMatchedCondition reports that an --exit-first-hit or
+	// --exit-first-miss condition was met.
+	ExitMatchedCondition = 1
+	ExitActionFailed     = 2
+	ExitProfilerError    = 3
+	ExitInputOutput      = 5
+	ExitRenderFailed     = 11
+	ExitInvalidRules     = 14
+	ExitInvalidArgument  = 22
 )
 
 var (
@@ -71,12 +75,15 @@ var (
 	minFileRiskFlag           string
 	minLevelFlag              int
 	minRiskFlag               string
+	ociAllowInsecureAuthFlag  bool
 	ociAuthFlag               bool
 	ociFlag                   bool
 	ociKeepalivePolicyFlag    string
 	ociKeepaliveSecondsFlag   int
 	ociPerHostSlotsFlag       int
+	ociPlatformFlag           string
 	ociProxyOptInFlag         bool
+	ociPullDeadlineFlag       int
 	ociPullTimeoutFlag        int
 	ociRetryMaxAttemptsFlag   int
 	ociRetryMaxWindowFlag     int
@@ -115,13 +122,32 @@ var BuildVersion string
 // SIGTERM before the process is forced to exit.
 const drainTimeout = 10 * time.Second
 
+// errInterrupted marks a run that SIGINT or SIGTERM cut short, whose output
+// may be incomplete.
+var errInterrupted = errors.New("interrupted")
+
+// errNoScanPath reports an analyze or scan command given nothing to scan.
+var errNoScanPath = errors.New("no path to scan")
+
+// errInteractiveOutput reports --format interactive with --output.
+var errInteractiveOutput = errors.New("--format interactive cannot write to --output")
+
+// formatInteractive names the renderer that draws to the terminal.
+const formatInteractive = "interactive"
+
 func showError(err error) {
 	emoji := "💣"
-	if errors.Is(err, action.ErrMatchedCondition) {
+	if conditionMet(err) {
 		emoji = "👋"
 	}
 
 	fmt.Fprintf(os.Stderr, "%s %s\n", emoji, err.Error())
+}
+
+// conditionMet reports whether err records only that an --exit-first-hit or
+// --exit-first-miss condition was met, which is not a failure.
+func conditionMet(err error) bool {
+	return errors.Is(err, action.ErrMatchedCondition) && !errors.Is(err, errInterrupted)
 }
 
 // cliState holds what the CLI's Before, Action, and After stages share.
@@ -133,12 +159,18 @@ type cliState struct {
 	profiler   *profile.Profiler
 	renderer   malcontent.Renderer
 	returnCode int
+	// usageErr is a command-line error that urfave/cli reports to a callback
+	// instead of returning it.
+	usageErr error
 }
 
 func main() {
-	returnCode := ExitOK
-	defer func() { os.Exit(returnCode) }()
+	os.Exit(run())
+}
 
+// run runs the CLI and returns the process exit status. A panic escapes it,
+// so the runtime prints the trace and exits with status 2.
+func run() int {
 	logLevel := new(slog.LevelVar)
 	logLevel.Set(slog.LevelError)
 	logOpts := &slog.HandlerOptions{Level: logLevel, AddSource: true}
@@ -151,27 +183,44 @@ func main() {
 	go handleContext(cancel, log)
 
 	st := &cliState{log: log, logLevel: logLevel, outFile: os.Stdout}
-	err := newApp(st).Run(ctx, os.Args)
-	returnCode = exitCode(st.returnCode, err)
+	return st.execute(ctx, os.Args)
+}
+
+// execute runs the command tree with args, reports any error, and returns the
+// exit status. Only the signal handler cancels ctx before execute returns, so
+// a canceled ctx means a signal interrupted the run, which never succeeds.
+func (st *cliState) execute(ctx context.Context, args []string) int {
+	err := errors.Join(newApp(st).Run(ctx, args), st.usageErr)
+	if ctx.Err() != nil {
+		err = errors.Join(err, errInterrupted)
+	}
+	st.releaseTerminal()
 	if err != nil {
 		showError(err)
+	}
+	return exitCode(st.returnCode, err)
+}
+
+// releaseTerminal ends the interactive display, if one is running, so that
+// errors reach the normal screen instead of the alternate one.
+func (st *cliState) releaseTerminal() {
+	if s, ok := st.renderer.(interface{ Stop() }); ok {
+		s.Stop()
 	}
 }
 
 // exitCode maps the outcome of a CLI run to the process exit status. A
 // failure keeps the specific code its stage recorded and falls back to
 // ExitActionFailed when none was recorded; meeting an --exit-first-hit or
-// --exit-first-miss condition is not a failure.
+// --exit-first-miss condition is not a failure and has its own status.
 func exitCode(code int, err error) int {
 	switch {
 	case err == nil:
 		return code
-	case errors.Is(err, action.ErrMatchedCondition):
-		return ExitOK
-	case code == ExitOK:
-		return ExitActionFailed
+	case conditionMet(err):
+		return ExitMatchedCondition
 	default:
-		return code
+		return cmp.Or(code, ExitActionFailed)
 	}
 }
 
@@ -187,26 +236,34 @@ func newApp(st *cliState) *cli.Command {
 		After: st.after,
 		// Handle shared initialization (flag parsing, rule compilation, configuration)
 		Before: st.before,
+		// Errors return to execute, which maps them to exit statuses, rather
+		// than urfave/cli exiting the process itself.
+		ExitErrHandler:  func(context.Context, *cli.Command, error) {},
+		OnUsageError:    st.usageError,
+		CommandNotFound: st.commandNotFound,
 		// Global flags shared between commands
 		Flags: globalFlags(),
 		Commands: []*cli.Command{
 			{
-				Name:   "analyze",
-				Usage:  "fully interrogate a path",
-				Flags:  targetFlags(),
-				Action: st.analyze,
+				Name:         "analyze",
+				Usage:        "fully interrogate a path",
+				Flags:        targetFlags(),
+				Action:       st.analyze,
+				OnUsageError: st.usageError,
 			},
 			diffCommand(st),
 			{
-				Name:   "refresh",
-				Usage:  "Refresh test data",
-				Action: st.refreshTestData,
+				Name:         "refresh",
+				Usage:        "Refresh test data",
+				Action:       st.refreshTestData,
+				OnUsageError: st.usageError,
 			},
 			{
-				Name:   "scan",
-				Usage:  "tersely scan a path and return findings of the highest severity",
-				Flags:  targetFlags(),
-				Action: st.scan,
+				Name:         "scan",
+				Usage:        "tersely scan a path and return findings of the highest severity",
+				Flags:        targetFlags(),
+				Action:       st.scan,
+				OnUsageError: st.usageError,
 			},
 		},
 	}
@@ -239,14 +296,14 @@ func globalFlags() []cli.Flag {
 		&cli.BoolFlag{
 			Name:        "exit-first-miss",
 			Value:       false,
-			Usage:       "Exit with error if scan source has no matching capabilities",
+			Usage:       "Exit with status 1 if scan source has no matching capabilities",
 			Destination: &exitFirstMissFlag,
 			Local:       false,
 		},
 		&cli.BoolFlag{
 			Name:        "exit-first-hit",
 			Value:       false,
-			Usage:       "Exit with error if scan source has matching capabilities",
+			Usage:       "Exit with status 1 if scan source has matching capabilities",
 			Destination: &exitFirstHitFlag,
 			Local:       false,
 		},
@@ -317,7 +374,7 @@ func globalFlags() []cli.Flag {
 		&cli.Int64Flag{
 			Name:        "max-archive-bytes",
 			Value:       file.DefaultMaxArchiveBytes,
-			Usage:       "Maximum total uncompressed bytes produced by archive extraction (0 for the built-in default)",
+			Usage:       "Maximum total uncompressed bytes produced by extracting an archive and every archive nested in it, counting 4 KiB for each entry besides its content (0 for the built-in default)",
 			Destination: &maxArchiveBytesFlag,
 			Local:       false,
 		},
@@ -417,6 +474,27 @@ func globalFlags() []cli.Flag {
 			Value:       false,
 			Usage:       "Honor HTTP(S)_PROXY environment variables for OCI registry traffic",
 			Destination: &ociProxyOptInFlag,
+			Local:       false,
+		},
+		&cli.BoolFlag{
+			Name:        "oci-allow-insecure-auth",
+			Value:       false,
+			Usage:       "Allow --oci-auth credentials to be sent to a registry over plain HTTP",
+			Destination: &ociAllowInsecureAuthFlag,
+			Local:       false,
+		},
+		&cli.IntFlag{
+			Name:        "oci-pull-deadline-seconds",
+			Value:       3600, // bound on a whole image pull and extraction
+			Usage:       "Maximum seconds for a whole OCI image pull and extraction (0 for no deadline)",
+			Destination: &ociPullDeadlineFlag,
+			Local:       false,
+		},
+		&cli.StringFlag{
+			Name:        "platform",
+			Value:       "",
+			Usage:       "OCI image index platforms to scan as comma-separated os/arch[/variant] (default: all)",
+			Destination: &ociPlatformFlag,
 			Local:       false,
 		},
 		&cli.StringFlag{
@@ -538,21 +616,36 @@ func diffCommand(st *cliState) *cli.Command {
 				Local:       true,
 			},
 		},
-		Action: st.diff,
+		Action:       st.diff,
+		OnUsageError: st.usageError,
 	}
 }
 
-// after closes the output file (or stdout) and stops profiling once the
-// selected command has run.
-func (st *cliState) after(_ context.Context, _ *cli.Command) error {
-	defer func() {
-		if st.outFile != nil {
-			_ = st.outFile.Close()
-		}
-	}()
+// usageError records a command line that urfave/cli could not parse.
+func (st *cliState) usageError(_ context.Context, _ *cli.Command, err error, _ bool) error {
+	st.returnCode = ExitInvalidArgument
+	return fmt.Errorf("incorrect usage: %w", err)
+}
 
+// commandNotFound records a help topic that names no command.
+func (st *cliState) commandNotFound(_ context.Context, _ *cli.Command, name string) {
+	st.returnCode = ExitInvalidArgument
+	st.usageErr = fmt.Errorf("no help topic for %q", name)
+}
+
+// after stops profiling and closes the output file (or stdout) once the
+// selected command has run. A failed close can lose output already written,
+// so it fails a run that otherwise succeeded.
+func (st *cliState) after(_ context.Context, _ *cli.Command) error {
 	if st.profiler != nil {
 		st.profiler.Stop()
+	}
+	if st.outFile == nil {
+		return nil
+	}
+	if err := st.outFile.Close(); err != nil {
+		st.returnCode = cmp.Or(st.returnCode, ExitInputOutput)
+		return fmt.Errorf("close output: %w", err)
 	}
 	return nil
 }
@@ -561,6 +654,18 @@ func (st *cliState) after(_ context.Context, _ *cli.Command) error {
 // global flags and prepares the configuration, renderer, and rules.
 func (st *cliState) before(ctx context.Context, c *cli.Command) (context.Context, error) {
 	clog.InfoContext(ctx, "malcontent starting")
+
+	// Help, shown without a command or by the help command, needs no setup.
+	// An unknown command is rejected before setup truncates the output file.
+	name := c.Args().First()
+	sub := c.Command(name)
+	switch {
+	case name != "" && sub == nil:
+		st.returnCode = ExitInvalidArgument
+		return ctx, fmt.Errorf("unknown command %q", name)
+	case sub == nil || sub.Name == "help":
+		return ctx, nil
+	}
 
 	if profileFlag {
 		p, err := profile.StartProfiling(ctx, profile.DefaultConfig())
@@ -577,10 +682,20 @@ func (st *cliState) before(ctx context.Context, c *cli.Command) (context.Context
 	}
 
 	mc, err := configFromFlags()
+	if err == nil && sub.Name == "diff" {
+		err = checkSensitivity(sub.Int("sensitivity"))
+	}
 	if err != nil {
 		st.log.Errorf("%v", err)
 		st.returnCode = ExitInvalidArgument
 		return ctx, err
+	}
+
+	format := resolveFormat(formatFlag, c.Args().Slice())
+	// The interactive viewer draws to a terminal, which a file is not.
+	if format == formatInteractive && outputFlag != "" {
+		st.returnCode = ExitInvalidArgument
+		return ctx, errInteractiveOutput
 	}
 
 	if outputFlag != "" {
@@ -592,7 +707,7 @@ func (st *cliState) before(ctx context.Context, c *cli.Command) (context.Context
 		st.outFile = f
 	}
 
-	renderer, err := render.New(resolveFormat(formatFlag, c.Args().Slice()), st.outFile)
+	renderer, err := render.New(format, st.outFile)
 	if err != nil {
 		st.returnCode = ExitInvalidArgument
 		return ctx, err
@@ -605,6 +720,7 @@ func (st *cliState) before(ctx context.Context, c *cli.Command) (context.Context
 		return ctx, fmt.Errorf("compile rules: %w", err)
 	}
 
+	mc.Output = st.outFile
 	mc.Renderer = renderer
 	mc.Rules = yrs
 	st.mc = mc
@@ -675,13 +791,16 @@ func configFromFlags() (malcontent.Config, error) {
 		MaxScanFiles:             maxScanFilesFlag,
 		MinFileRisk:              minFileRisk,
 		MinRisk:                  minRisk,
+		OCIAllowInsecureAuth:     ociAllowInsecureAuthFlag,
 		OCIAuth:                  ociAuthFlag,
 		OCI:                      ociFlag,
 		OCICABundlePath:          caBundleFlag,
 		OCIKeepalivePolicy:       malcontent.KeepalivePolicy(ociKeepalivePolicyFlag),
 		OCIKeepaliveSeconds:      ociKeepaliveSecondsFlag,
 		OCIPerHostSlots:          ociPerHostSlotsFlag,
+		OCIPlatforms:             splitAndTrimCSV(ociPlatformFlag),
 		OCIProxyOptIn:            ociProxyOptInFlag,
+		OCIPullDeadlineSeconds:   ociPullDeadlineFlag,
 		OCIPullTimeoutSeconds:    ociPullTimeoutFlag,
 		OCIRetryMaxAttempts:      ociRetryMaxAttemptsFlag,
 		OCIRetryMaxWindowSeconds: ociRetryMaxWindowFlag,
@@ -715,6 +834,14 @@ func ruleFS(thirdParty bool) []fs.FS {
 	return rfs
 }
 
+// checkSensitivity rejects a diff --sensitivity outside 1 through 5.
+func checkSensitivity(sensitivity int) error {
+	if sensitivity < 1 || sensitivity > 5 {
+		return fmt.Errorf("--sensitivity must be 1 through 5, got %d", sensitivity)
+	}
+	return nil
+}
+
 // scanTargets applies the analyze and scan target flags to mc. Images select
 // OCI scanning (images must be scanned via --image or -i); otherwise the
 // path arguments are scanned unless --processes selects running processes.
@@ -728,6 +855,67 @@ func scanTargets(mc *malcontent.Config, images []string, processes bool, args []
 	default:
 		mc.Processes = true
 	}
+}
+
+// checkScanPaths checks the paths that analyze and scan were given, unless
+// they scan images or processes. It returns the exit status and error for
+// the first path that cannot be scanned, or for no path at all.
+func checkScanPaths(mc *malcontent.Config) (int, error) {
+	if mc.OCI || mc.Processes {
+		return ExitOK, nil
+	}
+	if len(mc.ScanPaths) == 0 {
+		return ExitInvalidArgument, errNoScanPath
+	}
+	for _, p := range mc.ScanPaths {
+		if code, err := checkScanPath(p); err != nil {
+			return code, err
+		}
+	}
+	return ExitOK, nil
+}
+
+// checkScanPath reports a missing path as an invalid argument, and a path
+// that cannot be examined or opened as an input or output failure. A symlink
+// to a missing target, as a -compat package holds, and a /proc path are left
+// to the scan, which passes over them. So is anything but a directory or a
+// regular file, which opening could block on.
+func checkScanPath(path string) (int, error) {
+	if strings.HasPrefix(path, "/proc/") {
+		return ExitOK, nil
+	}
+	fi, err := os.Lstat(path)
+	switch {
+	case errors.Is(err, fs.ErrNotExist):
+		return ExitInvalidArgument, fmt.Errorf("scan path %q: %w", path, fs.ErrNotExist)
+	case err != nil:
+		return ExitInputOutput, fmt.Errorf("scan path %q: %w", path, err)
+	}
+	if fi.Mode()&fs.ModeSymlink != 0 {
+		fi, err = os.Stat(path)
+		switch {
+		case errors.Is(err, fs.ErrNotExist):
+			return ExitOK, nil
+		case err != nil:
+			return ExitInputOutput, fmt.Errorf("scan path %q: %w", path, err)
+		}
+	}
+	if !fi.IsDir() && !fi.Mode().IsRegular() {
+		return ExitOK, nil
+	}
+	f, err := file.Open(path)
+	if err != nil {
+		return ExitInputOutput, fmt.Errorf("scan path %q: %w", path, err)
+	}
+	_ = f.Close()
+	return ExitOK, nil
+}
+
+// rendersFailedScan reports whether the report of a scan that ended with err
+// is still rendered: the report of a met exit condition holds the file that
+// met it, and the interactive renderer shows whatever was scanned.
+func (st *cliState) rendersFailedScan(err error) bool {
+	return errors.Is(err, action.ErrMatchedCondition) || st.renderer.Name() == "Interactive"
 }
 
 // addProcessPaths appends the commands (paths) of running processes to
@@ -750,20 +938,28 @@ func addProcessPaths(ctx context.Context, mc *malcontent.Config) error {
 // analyze fully interrogates the selected targets and renders every finding.
 func (st *cliState) analyze(ctx context.Context, c *cli.Command) error {
 	scanTargets(&st.mc, c.StringSlice("image"), c.Bool("processes"), c.Args().Slice())
+	if code, err := checkScanPaths(&st.mc); err != nil {
+		st.returnCode = code
+		return err
+	}
 	if err := addProcessPaths(ctx, &st.mc); err != nil {
 		st.returnCode = ExitActionFailed
 		return err
 	}
 
-	res, err := action.Scan(ctx, st.mc)
-	if err != nil {
+	res, scanErr := action.Scan(ctx, st.mc)
+	if scanErr != nil && !st.rendersFailedScan(scanErr) {
 		st.returnCode = ExitActionFailed
-		return err
+		return scanErr
 	}
 
 	if err := st.renderer.Full(ctx, &st.mc, res); err != nil {
 		st.returnCode = ExitRenderFailed
 		return err
+	}
+	if scanErr != nil {
+		st.returnCode = ExitActionFailed
+		return scanErr
 	}
 	return nil
 }
@@ -790,6 +986,10 @@ func (st *cliState) diff(ctx context.Context, c *cli.Command) error {
 
 	st.mc.Sensitivity = sensitivity
 	st.mc.ScanPaths = c.Args().Slice()
+	if n := len(st.mc.ScanPaths); n != 2 {
+		st.returnCode = ExitInvalidArgument
+		return fmt.Errorf("diff requires 2 paths, got %d", n)
+	}
 
 	res, err := action.Diff(ctx, st.mc, st.log)
 	if err != nil {
@@ -823,17 +1023,19 @@ func (st *cliState) refreshTestData(ctx context.Context, _ *cli.Command) error {
 func (st *cliState) scan(ctx context.Context, c *cli.Command) error {
 	st.mc.Scan = true
 	scanTargets(&st.mc, c.StringSlice("image"), c.Bool("processes"), c.Args().Slice())
+	if code, err := checkScanPaths(&st.mc); err != nil {
+		st.returnCode = code
+		return err
+	}
 	if err := addProcessPaths(ctx, &st.mc); err != nil {
 		st.returnCode = ExitActionFailed
 		return fmt.Errorf("process paths: %w", err)
 	}
 
-	// The interactive renderer shows whatever was scanned, so a scan error
-	// does not stop it.
-	res, err := action.Scan(ctx, st.mc)
-	if err != nil && st.renderer.Name() != "Interactive" {
+	res, scanErr := action.Scan(ctx, st.mc)
+	if scanErr != nil && !st.rendersFailedScan(scanErr) {
 		st.returnCode = ExitActionFailed
-		return fmt.Errorf("scan: %w", err)
+		return fmt.Errorf("scan: %w", scanErr)
 	}
 
 	files := 0
@@ -844,6 +1046,10 @@ func (st *cliState) scan(ctx context.Context, c *cli.Command) error {
 	if err := st.renderer.Full(ctx, &st.mc, res); err != nil {
 		st.returnCode = ExitRenderFailed
 		return err
+	}
+	if scanErr != nil {
+		st.returnCode = ExitActionFailed
+		return fmt.Errorf("scan: %w", scanErr)
 	}
 
 	if showAnalyzeHint(st.renderer.Name(), files) {
@@ -884,13 +1090,16 @@ func splitAndTrimCSV(s string) []string {
 func handleContext(cancel context.CancelFunc, logger *clog.Logger) {
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
-	awaitShutdown(sigCh, cancel, logger, drainTimeout, os.Exit)
+	awaitShutdown(sigCh, cancel, logger, drainTimeout, os.Exit, signal.Stop)
 }
 
 // awaitShutdown waits for a signal on sigCh, cancels in-flight work, and calls
-// exit(1) if the process is still running once timeout has passed.
-func awaitShutdown(sigCh <-chan os.Signal, cancel context.CancelFunc, logger *clog.Logger, timeout time.Duration, exit func(int)) {
+// exit(1) if the process is still running once timeout has passed. It calls
+// stop, signal.Stop in production, to stop relaying signals to sigCh, so a
+// second one ends the process at once.
+func awaitShutdown(sigCh chan os.Signal, cancel context.CancelFunc, logger *clog.Logger, timeout time.Duration, exit func(int), stop func(chan<- os.Signal)) {
 	sig := <-sigCh
+	stop(sigCh)
 	logger.Debug("received signal", slog.Any("signal", sig))
 	cancel()
 

@@ -605,7 +605,7 @@
                     "RuleName": "ip_addr"
                 },
                 {
-                    "Description": "connects to an arbitrary hostname:port",
+                    "Description": "connects to an arbitrary host:port",
                     "MatchStrings": [
                         "hostunknown port"
                     ],
@@ -936,9 +936,11 @@
             "RiskLevel": "MEDIUM",
             "Overrides": [
                 {
-                    "Description": "https://trino.io/ - UPX encrypted and crazy",
+                    "Description": "https://trino.io/ - UPX packed, with high-entropy sections",
                     "MatchStrings": [
                         "kTixuOsFBOtGYSTLRLWK6G",
+                        "p\\tgiNub.com/fdih/",
+                        "q\\tcCuXMaxlebo",
                         "Go buildinf",
                         "kUNKNOWN:$",
                         "wnwmwkwbqc",
@@ -955,9 +957,11 @@
                     ]
                 },
                 {
-                    "Description": "https://trino.io/ - UPX encrypted and crazy",
+                    "Description": "https://trino.io/ - UPX packed, with high-entropy sections",
                     "MatchStrings": [
                         "kTixuOsFBOtGYSTLRLWK6G",
+                        "p\\tgiNub.com/fdih/",
+                        "q\\tcCuXMaxlebo",
                         "Go buildinf",
                         "kUNKNOWN:$",
                         "wnwmwkwbqc",
@@ -974,9 +978,11 @@
                     ]
                 },
                 {
-                    "Description": "https://trino.io/ - UPX encrypted and crazy",
+                    "Description": "https://trino.io/ - UPX packed, with high-entropy sections",
                     "MatchStrings": [
                         "kTixuOsFBOtGYSTLRLWK6G",
+                        "p\\tgiNub.com/fdih/",
+                        "q\\tcCuXMaxlebo",
                         "Go buildinf",
                         "kUNKNOWN:$",
                         "wnwmwkwbqc",
@@ -993,9 +999,11 @@
                     ]
                 },
                 {
-                    "Description": "https://trino.io/ - UPX encrypted and crazy",
+                    "Description": "https://trino.io/ - UPX packed, with high-entropy sections",
                     "MatchStrings": [
                         "kTixuOsFBOtGYSTLRLWK6G",
+                        "p\\tgiNub.com/fdih/",
+                        "q\\tcCuXMaxlebo",
                         "Go buildinf",
                         "kUNKNOWN:$",
                         "wnwmwkwbqc",

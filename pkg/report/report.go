@@ -8,9 +8,13 @@ import (
 	"bytes"
 	"cmp"
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
+	"io"
 	"io/fs"
 	"net/url"
+	"os"
 	"path/filepath"
 	"regexp"
 	"slices"
@@ -18,6 +22,7 @@ import (
 	"sync"
 
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 	"github.com/chainguard-dev/malcontent/rules"
@@ -482,21 +487,6 @@ func DisplayPath(path string, prefixes []string) string {
 	return path
 }
 
-// skipMatch determines whether to avoid processing a rule match.
-func skipMatch(ignoreMalcontent, override, scan bool, risk, threshold, highestRisk int) bool {
-	if risk == INVALID {
-		return true
-	}
-	// The malcontent rule is classified as harmless
-	// A !ignoreMalcontent condition will prevent the rule from being filtered
-	if !scan && risk < threshold && !ignoreMalcontent && !override {
-		return true
-	}
-	// If running a scan as opposed to an analyze,
-	// drop any matches that fall below the highest risk
-	return scan && risk < highestRisk && !ignoreMalcontent && !override
-}
-
 // skipScanFile determines whether a scanned file should
 // be ignored when running a scan and the file's risk is below HIGH.
 func skipScanFile(scan bool, overallRiskScore int) bool {
@@ -513,13 +503,42 @@ func applyCriticalUpgrade(ctx context.Context, quantityIncreasesRisk bool, highC
 	return quantityIncreasesRisk && upgradeRisk(ctx, overallRiskScore, highCount, size)
 }
 
-// isMalcontent determines whether the scanned file is the malcontent binary itself
-// which causes false positives and is generally better to ignore entirely.
-func isMalcontent(path string) bool {
-	if strings.ToLower(filepath.Base(path)) == NAME || strings.ToLower(filepath.Base(path)) == "mal" {
-		return true
+// selfSHA256 returns the hex SHA-256 of the running executable, or "" when it
+// cannot be read, in which case no file is taken for malcontent itself. It is
+// computed once, and only when a file matches malcontent's own rule.
+var selfSHA256 = sync.OnceValue(func() string {
+	sum, err := executableSHA256()
+	if err != nil {
+		logWarn("Cannot hash the malcontent executable; it is reported like any other file", "error", err)
+		return ""
 	}
-	return false
+	return sum
+})
+
+// executableSHA256 returns the hex SHA-256 of the running executable.
+func executableSHA256() (string, error) {
+	exe, err := os.Executable()
+	if err != nil {
+		return "", err
+	}
+	f, err := file.Open(exe)
+	if err != nil {
+		return "", err
+	}
+	defer f.Close()
+	h := sha256.New()
+	if _, err := io.Copy(h, f); err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(h.Sum(nil)), nil
+}
+
+// isSelf reports whether checksum, the hex SHA-256 of a scanned file, is that
+// of the running malcontent executable. A name or embedded strings alone
+// never identify malcontent, since any file can carry them.
+func isSelf(checksum string) bool {
+	self := selfSHA256()
+	return self != "" && checksum == self
 }
 
 // Generate builds the report for the file at path from its scan results mrs
@@ -527,10 +546,12 @@ func isMalcontent(path string) bool {
 // are processed in the rules' declaration order, so the report does not depend
 // on which scanner produced mrs, and per-rule work is cached across calls.
 // With a nil c.Rules, matches are processed in the order mrs lists them and
-// nothing is cached. highestRisk is HighestMatchRisk's result and is only read
-// for scans (c.Scan). Generate only reads mrs, so goroutines may share it, and
-// the report does not refer to fc once Generate returns.
-func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcontent.Config, expath string, _ *clog.Logger, fc []byte, size int64, checksum string, kind *programkind.FileType, highestRisk int) (*malcontent.FileReport, error) {
+// nothing is cached. The final argument is ignored and kept for existing
+// callers: scans filter behaviors once overrides and ignored rules and tags
+// apply, so no risk computed beforehand decides what they keep. Generate only
+// reads mrs, so goroutines may share it, and the report does not refer to fc
+// once Generate returns.
+func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcontent.Config, expath string, fc []byte, size int64, checksum string, kind *programkind.FileType) (*malcontent.FileReport, error) {
 	if ctx.Err() != nil {
 		return &malcontent.FileReport{}, ctx.Err()
 	}
@@ -538,7 +559,7 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 	if mrs == nil {
 		return nil, fmt.Errorf("scan failed")
 	}
-	return buildReport(ctx, path, mrs.MatchingRules(), c, expath, fc, size, checksum, kind, highestRisk)
+	return buildReport(ctx, path, mrs.MatchingRules(), c, expath, fc, size, checksum, kind)
 }
 
 // GenerateRules is Generate for the rules that scans of the file at path
@@ -546,75 +567,30 @@ func Generate(ctx context.Context, path string, mrs *yarax.ScanResults, c malcon
 // scope, with any rule matched by more than one scan listed once. With c.Rules
 // set, every listed rule needs a declaration index, from SetRuleOrder or from
 // c.Rules itself. GenerateRules only reads the rules.
-func GenerateRules(ctx context.Context, path string, matching []*yarax.Rule, c malcontent.Config, expath string, _ *clog.Logger, fc []byte, size int64, checksum string, kind *programkind.FileType, highestRisk int) (*malcontent.FileReport, error) {
+func GenerateRules(ctx context.Context, path string, matching []*yarax.Rule, c malcontent.Config, expath string, fc []byte, size int64, checksum string, kind *programkind.FileType) (*malcontent.FileReport, error) {
 	if ctx.Err() != nil {
 		return &malcontent.FileReport{}, ctx.Err()
 	}
-	return buildReport(ctx, path, matching, c, expath, fc, size, checksum, kind, highestRisk)
+	return buildReport(ctx, path, matching, c, expath, fc, size, checksum, kind)
 }
 
-func buildReport(ctx context.Context, path string, matching []*yarax.Rule, c malcontent.Config, expath string, fc []byte, size int64, checksum string, kind *programkind.FileType, highestRisk int) (*malcontent.FileReport, error) {
+func buildReport(ctx context.Context, path string, matching []*yarax.Rule, c malcontent.Config, expath string, fc []byte, size int64, checksum string, kind *programkind.FileType) (*malcontent.FileReport, error) {
 	displayPath := trimDisplayPath(path, expath, c)
-	slashPath := filepath.ToSlash(displayPath)
-	fileExt := ""
-	if kind != nil {
-		fileExt = kind.Ext
-	}
-
-	infos := ruleInfosFor(c.Rules)
-	matches := make([]ruleMatch, len(matching))
-	for i, m := range matching {
-		matches[i] = ruleMatch{rule: m, info: infos.get(m)}
-	}
-	// A reused scanner reports matches in an order that depends on its earlier
-	// scans, and the report depends on the order (ties, overrides, the
-	// malcontent rule), so walk them in declaration order when it is known.
-	// The copy keeps mrs untouched for other readers.
-	if infos.ordered() {
-		slices.SortStableFunc(matches, func(a, b ruleMatch) int {
-			return cmp.Compare(a.info.order, b.info.order)
-		})
-	}
-
-	ignore := buildIgnoreMap(c.IgnoreTags)
 	rb := newReportBuilder(initFileReport(displayPath, checksum, size, len(matching)), fc, matching)
+	rb.classify(c, kind, filepath.ToSlash(displayPath))
+	rb.resolve(buildIgnoreMap(c.IgnoreTags))
+	fr := rb.finish(c)
 
-	ignoreMalcontent := false
+	// The quantity upgrade counts the HIGH behaviors the report shows, after
+	// overrides, ignored rules and tags, and the merging of rules that share a
+	// behavior.
+	overallRiskScore := highestBehaviorRisk(fr)
 	highCount := 0
-	for _, rm := range matches {
-		m, ri := rm.rule, rm.info
-		if c.IgnoreSelf && m.Identifier() == NAME {
-			ignoreMalcontent = true
-		}
-
-		if !ri.scope.matches(fileExt, slashPath) {
-			continue
-		}
-
-		// Rule-level exclusion: filter *before* risk accumulation so an
-		// excluded rule contributes nothing to the file's overall risk
-		// score. Matching is on the rule identifier only.
-		if ruleExcluded(m.Identifier(), c.IgnoreRules) {
-			continue
-		}
-
-		if ri.risk == HIGH {
+	for _, b := range fr.Behaviors {
+		if b.RiskScore == HIGH {
 			highCount++
 		}
-
-		if skipMatch(ignoreMalcontent, ri.override, c.Scan, ri.risk, c.MinRisk, highestRisk) {
-			continue
-		}
-
-		rb.add(m, ri, ignore)
 	}
-
-	fr := rb.finish(c.MinRisk, c.Scan)
-
-	// Adjust the overall risk if we deviated from overallRiskScore
-	// Scans will still need to drop <= medium results
-	overallRiskScore := highestBehaviorRisk(fr)
-
 	if applyCriticalUpgrade(ctx, c.QuantityIncreasesRisk, highCount, overallRiskScore, size) {
 		overallRiskScore = CRITICAL
 	}
@@ -623,8 +599,7 @@ func buildReport(ctx context.Context, path string, matching []*yarax.Rule, c mal
 		fr.Skipped = "overall risk too low for scan"
 	}
 
-	// ignoreMalcontent is only set when c.IgnoreSelf is.
-	if fr.IsMalcontent && ignoreMalcontent && isMalcontent(path) {
+	if c.IgnoreSelf && fr.IsMalcontent && isSelf(checksum) {
 		fr.Skipped = "ignoring malcontent binary"
 	}
 
@@ -646,6 +621,10 @@ type ruleMatch struct {
 }
 
 // reportBuilder accumulates one file's report from the rules that matched it.
+// classify picks the matches that apply to the file and records the override
+// directives among them, resolve gives each match its risk once overrides
+// apply and merges matches into behaviors, and finish filters and renders
+// them.
 type reportBuilder struct {
 	fr *malcontent.FileReport
 	fc []byte
@@ -653,14 +632,22 @@ type reportBuilder struct {
 	// identifiers once an override rule needs to look one up.
 	matching []*yarax.Rule
 	matched  map[string]struct{}
+	// applicable lists, in processing order, the matches of rules that apply
+	// to the file: in scope, not excluded by name, and not tagged to be
+	// ignored outright.
+	applicable []ruleMatch
+	// assigned maps each rule identifier that an applicable override rule
+	// names, and that matched, to the risk the last such override assigns.
+	assigned  map[string]int
+	overrides []overrideTarget
+	// risks holds the risk of each applicable match once overrides apply,
+	// and ignore the tags whose rules the report leaves out.
+	risks  []int
+	ignore map[string]struct{}
 	// behaviorIdx maps each behavior ID to its index in fr.Behaviors, and
 	// sources holds the rule behind the behavior at each index.
 	behaviorIdx map[string]int
 	sources     []*yarax.Rule
-	overrides   []overrideTarget
-	pledges     []string
-	caps        []string
-	syscalls    []string
 	// scratch collects one rule's matched strings at a time.
 	scratch []string
 }
@@ -672,87 +659,65 @@ func newReportBuilder(fr *malcontent.FileReport, fc []byte, matching []*yarax.Ru
 		matching:    matching,
 		behaviorIdx: make(map[string]int, len(matching)),
 		sources:     make([]*yarax.Rule, 0, len(matching)),
-		pledges:     []string{},
-		caps:        []string{},
-		syscalls:    []string{},
 	}
 }
 
-// add records a match of rule m, described by ri, as a behavior unless the
-// rule annotates the file instead or carries a tag in ignore.
-func (rb *reportBuilder) add(m *yarax.Rule, ri *ruleInfo, ignore map[string]struct{}) {
-	b, valid := rb.behavior(ri)
-	if len(b.Override) > 0 {
-		// Override entries copy b even when it is dropped below.
-		b.MatchStrings = rb.render(m)
-	}
-
-	// if the rule has an override tag but is not overriding a valid rule,
-	// ignore this match rule so that we don't show errant false positive rules in reports
-	if !valid {
-		return
-	}
-
-	// Fix YARA Forge rules that record their author URL as reference URLs.
-	// An empty reference is a prefix of every URL, so it must not count.
-	if b.ReferenceURL != "" && strings.HasPrefix(b.RuleURL, b.ReferenceURL) {
-		b.RuleAuthorURL = b.ReferenceURL
-		b.ReferenceURL = ""
-	}
-
-	// Meta names are weird and unfortunate, depending on whether they hold a value
-	if ri.isMeta {
-		rb.fr.Meta[ri.metaKey] = ri.metaValue
-		return
-	}
-
-	if ignoreMatch(m.Tags(), ignore) {
-		rb.fr.FilteredBehaviors++
-		return
-	}
-
-	// If the rule does not have a description, make one up based on the rule name
-	if b.Description == "" {
-		b.Description = ri.fallbackDescription
-	}
-
-	if i := updateBehavior(rb.fr, b, b.ID, rb.behaviorIdx); i == len(rb.sources) {
-		rb.sources = append(rb.sources, m)
-	} else if i >= 0 {
-		rb.sources[i] = m
-	}
+// overrideTarget records one override directive: the override rule source
+// sets the rule named target to score.
+type overrideTarget struct {
+	source ruleMatch
+	target string
+	score  int
 }
 
-// behavior returns the behavior ri describes, with the effect of an override
-// rule's directives on this file, and records the file attributes the rule
-// declares. It reports false for an override rule that names a rule that did
-// not match the file.
-func (rb *reportBuilder) behavior(ri *ruleInfo) (*malcontent.Behavior, bool) {
-	b := new(malcontent.Behavior)
-	*b = ri.behavior
-
-	valid := true
-	for _, t := range ri.targets {
-		if !rb.isMatching(t.rule) {
-			valid = false
-			continue
-		}
-		if ri.thirdParty {
-			continue
-		}
-		b.RiskLevel = RiskLevels[t.score]
-		b.RiskScore = t.score
-		b.Override = append(b.Override, t.rule)
-		rb.overrides = append(rb.overrides, overrideTarget{rule: b, target: t.rule, score: t.score})
+// classify keeps the matches of rules that apply to a file of the detected
+// kind at the slash-separated path, in declaration order when c.Rules gives
+// it, and records the override directives among them.
+func (rb *reportBuilder) classify(c malcontent.Config, kind *programkind.FileType, slashPath string) {
+	ext := ""
+	if kind != nil {
+		ext = kind.Ext
+	}
+	infos := ruleInfosFor(c.Rules)
+	matches := make([]ruleMatch, len(rb.matching))
+	for i, m := range rb.matching {
+		matches[i] = ruleMatch{rule: m, info: infos.get(m)}
+	}
+	// A reused scanner reports matches in an order that depends on its earlier
+	// scans, and the report depends on the order (ties and repeated override
+	// directives), so walk them in declaration order when it is known.
+	if infos.ordered() {
+		slices.SortStableFunc(matches, func(a, b ruleMatch) int {
+			return cmp.Compare(a.info.order, b.info.order)
+		})
 	}
 
-	if ri.isMalcontent {
-		rb.fr.IsMalcontent = true
+	rb.applicable = matches[:0]
+	for _, rm := range matches {
+		ri := rm.info
+		// Rule-level exclusion comes before anything else, so an excluded
+		// rule contributes nothing to the file's risk. Matching is on the
+		// rule identifier only.
+		if ri.risk == INVALID || !ri.scope.matches(ext, slashPath) || ruleExcluded(rm.rule.Identifier(), c.IgnoreRules) {
+			continue
+		}
+		if ri.isMalcontent {
+			rb.fr.IsMalcontent = true
+		}
+		rb.applicable = append(rb.applicable, rm)
+		// Only first-party override rules have targets. A target that did not
+		// match the file has nothing to override.
+		for _, t := range ri.targets {
+			if !rb.isMatching(t.rule) {
+				continue
+			}
+			if rb.assigned == nil {
+				rb.assigned = map[string]int{}
+			}
+			rb.assigned[t.rule] = t.score
+			rb.overrides = append(rb.overrides, overrideTarget{source: rm, target: t.rule, score: t.score})
+		}
 	}
-	rb.pledges = append(rb.pledges, ri.pledges...)
-	rb.caps = append(rb.caps, ri.caps...)
-	rb.syscalls = append(rb.syscalls, ri.syscalls...)
-	return b, valid
 }
 
 // isMatching reports whether a rule with identifier id matched the file.
@@ -767,33 +732,127 @@ func (rb *reportBuilder) isMatching(id string) bool {
 	return ok
 }
 
-// render returns the match strings for a behavior of rule m.
-func (rb *reportBuilder) render(m *yarax.Rule) []string {
+// resolve gives each applicable match its risk once overrides apply, then
+// merges the matches into behaviors by ID, so that an override decides which
+// rule represents a behavior rather than only rescoring the rule that would
+// have. Override rules, meta/ rules, and rules carrying a tag in ignore add
+// no behavior.
+func (rb *reportBuilder) resolve(ignore map[string]struct{}) {
+	rb.ignore = ignore
+	rb.risks = make([]int, len(rb.applicable))
+	for i, rm := range rb.applicable {
+		ri := rm.info
+		risk, ok := rb.assigned[ri.behavior.RuleName]
+		if !ok {
+			risk = ri.risk
+		}
+		rb.risks[i] = risk
+		if ri.override || ri.isMeta || ignoreMatch(ri.tags, ignore) {
+			continue
+		}
+		b := new(malcontent.Behavior)
+		*b = ri.behavior
+		b.RiskScore = risk
+		b.RiskLevel = RiskLevels[risk]
+		if i := updateBehavior(rb.fr, b, b.ID, rb.behaviorIdx); i == len(rb.sources) {
+			rb.sources = append(rb.sources, rm.rule)
+		} else if i >= 0 {
+			rb.sources[i] = rm.rule
+		}
+	}
+}
+
+// reportFloor returns the lowest risk a behavior needs to stay in the report:
+// c.MinRisk, or for scans, which report only the riskiest behaviors, the
+// highest behavior risk but never below HIGH.
+func reportFloor(c malcontent.Config, highest int) int {
+	if c.Scan {
+		return max(HIGH, highest)
+	}
+	return c.MinRisk
+}
+
+// finish drops the behaviors below the report's floor, renders the match
+// strings of those that remain, records the file attributes and metadata
+// that rules meeting the floor declare, and returns the report. Rendering is
+// the costliest step, and scans drop most behaviors, so it comes last.
+func (rb *reportBuilder) finish(c malcontent.Config) *malcontent.FileReport {
+	fr := rb.fr
+	floor := reportFloor(c, highestBehaviorRisk(fr))
+
+	kept, sources := fr.Behaviors[:0], rb.sources[:0]
+	for i, b := range fr.Behaviors {
+		if b.RiskScore >= floor {
+			kept = append(kept, b)
+			sources = append(sources, rb.sources[i])
+		}
+	}
+	fr.Behaviors, rb.sources = kept, sources
+	for i, b := range fr.Behaviors {
+		b.MatchStrings, b.MatchStringsOmitted = rb.render(rb.sources[i])
+	}
+
+	pledges, caps, syscalls := []string{}, []string{}, []string{}
+	for i, rm := range rb.applicable {
+		ri := rm.info
+		// Override rules keep their attributes whatever risk they carry.
+		if !ri.override && rb.risks[i] < floor {
+			continue
+		}
+		switch {
+		case ri.override:
+		case ri.isMeta:
+			// Meta names are weird and unfortunate, depending on whether they hold a value
+			fr.Meta[ri.metaKey] = ri.metaValue
+		case ignoreMatch(ri.tags, rb.ignore):
+			fr.FilteredBehaviors++
+		}
+		pledges = append(pledges, ri.pledges...)
+		caps = append(caps, ri.caps...)
+		syscalls = append(syscalls, ri.syscalls...)
+	}
+	slices.Sort(pledges)
+	slices.Sort(syscalls)
+	slices.Sort(caps)
+	fr.Pledge = slices.Compact(pledges)
+	fr.Syscalls = slices.Compact(syscalls)
+	fr.Capabilities = slices.Compact(caps)
+
+	fr.Overrides = rb.overrideEntries()
+	return fr
+}
+
+// render returns the match strings for a behavior of rule m and how many
+// more it left out.
+func (rb *reportBuilder) render(m *yarax.Rule) ([]string, int) {
 	rb.scratch = appendMatchedStrings(rb.scratch[:0], rb.fc, m)
 	return matchStrings(m.Identifier(), rb.scratch)
 }
 
-// finish applies the recorded overrides and returns the report. Match strings
-// are rendered only for the behaviors that remain, since rendering is the
-// costliest step and scans drop most behaviors.
-func (rb *reportBuilder) finish(minScore int, scan bool) *malcontent.FileReport {
-	fr := rb.fr
-	fr.Overrides = overrideEntries(rb.overrides)
-	fr.Behaviors = handleOverrides(fr.Behaviors, fr.Overrides, minScore, scan)
-	for _, b := range fr.Behaviors {
-		// add rendered the strings of override rules already.
-		if len(b.Override) == 0 {
-			b.MatchStrings = rb.render(rb.sources[rb.behaviorIdx[b.ID]])
+// overrideEntries expands override directives into one behavior per target, so
+// each overridden rule receives the severity its own meta key declares rather
+// than the last severity the override rule listed. Each entry carries the
+// override rule's description, URLs, and match strings.
+func (rb *reportBuilder) overrideEntries() []*malcontent.Behavior {
+	entries := make([]*malcontent.Behavior, 0, len(rb.overrides))
+	var rendered *yarax.Rule
+	var strs []string
+	var omitted int
+	for _, t := range rb.overrides {
+		// Directives of one override rule are adjacent, so each override
+		// rule's strings are rendered once.
+		if t.source.rule != rendered {
+			rendered = t.source.rule
+			strs, omitted = rb.render(t.source.rule)
 		}
+		e := t.source.info.behavior
+		e.Override = []string{t.target}
+		e.RiskScore = t.score
+		e.RiskLevel = RiskLevels[t.score]
+		e.MatchStrings, e.MatchStringsOmitted = strs, omitted
+		entries = append(entries, &e)
 	}
-
-	slices.Sort(rb.pledges)
-	slices.Sort(rb.syscalls)
-	slices.Sort(rb.caps)
-	fr.Pledge = slices.Compact(rb.pledges)
-	fr.Syscalls = slices.Compact(rb.syscalls)
-	fr.Capabilities = slices.Compact(rb.caps)
-	return fr
+	return entries
 }
 
 func buildIgnoreMap(ignoreTags []string) map[string]struct{} {
@@ -825,39 +884,15 @@ func initFileReport(path string, checksum string, size int64, matchCount int) *m
 	}
 }
 
-// overrideTarget records one override directive: the override rule behind the
-// behavior rule sets the rule named target to score.
-type overrideTarget struct {
-	rule   *malcontent.Behavior
-	target string
-	score  int
-}
-
-// overrideEntries expands override directives into one behavior per target, so
-// each overridden rule receives the severity its own meta key declares rather
-// than the last severity the override rule listed. Callers build the entries
-// once every match is processed, so they carry the override rule's final
-// description and URLs.
-func overrideEntries(targets []overrideTarget) []*malcontent.Behavior {
-	entries := make([]*malcontent.Behavior, 0, len(targets))
-	for _, t := range targets {
-		e := *t.rule
-		e.Override = []string{t.target}
-		e.RiskScore = t.score
-		e.RiskLevel = RiskLevels[t.score]
-		entries = append(entries, &e)
-	}
-	return entries
-}
-
 // updateBehavior dedupes by key against fr.Behaviors using idx, which maps
 // each key to its index in fr.Behaviors, so insertion is O(1) amortized.
 // When the same key has already been seen, the entry with the higher
-// RiskScore wins (in-place replace at the existing slot); when the score
-// is equal-or-greater than the current entry, the longer description
-// wins. The slice itself is not sorted here; the caller is responsible
-// for any finalize-time sort. It returns the index b now occupies in
-// fr.Behaviors, or -1 when b was not stored.
+// RiskScore wins (in-place replace at the existing slot), and among equal
+// scores the existing entry stays. An entry keeps its own description, so
+// the description always belongs to the rule the behavior names. The slice
+// itself is not sorted here; the caller is responsible for any finalize-time
+// sort. It returns the index b now occupies in fr.Behaviors, or -1 when b was
+// not stored.
 func updateBehavior(fr *malcontent.FileReport, b *malcontent.Behavior, key string, idx map[string]int) int {
 	i, ok := idx[key]
 	if !ok {
@@ -866,13 +901,9 @@ func updateBehavior(fr *malcontent.FileReport, b *malcontent.Behavior, key strin
 		return len(fr.Behaviors) - 1
 	}
 
-	existing := fr.Behaviors[i]
-	if existing.RiskScore < b.RiskScore {
+	if fr.Behaviors[i].RiskScore < b.RiskScore {
 		fr.Behaviors[i] = b
 		return i
-	}
-	if len(existing.Description) < len(b.Description) && existing.RiskScore <= b.RiskScore {
-		existing.Description = b.Description
 	}
 	return -1
 }
@@ -912,12 +943,13 @@ func highLimit(size int64) int {
 	return 5
 }
 
-// HighestMatchRisk returns the highest risk score among the rules that actually
-// apply to the scanned file. It mirrors Generate's scoping: rules excluded by a
-// file's type or path globs are not counted, so the value used as the
-// scan-mode skipMatch threshold cannot be inflated by a rule that Generate
-// would drop. kind/path/expath/c match the arguments passed to Generate, and
-// c.Rules enables the same per-rule caching.
+// HighestMatchRisk returns the highest risk among the behaviors Generate
+// would build for the scanned file before it filters them: rules out of scope
+// for the file's type or path, rules excluded by name, and rules carrying an
+// ignored tag do not count, and overridden rules count at the risk their
+// override assigns. A scan may skip a file whose highest risk is below HIGH
+// without building its report. kind/path/expath/c match the arguments passed
+// to Generate, and c.Rules enables the same per-rule caching.
 func HighestMatchRisk(mrs *yarax.ScanResults, kind *programkind.FileType, path string, expath string, c malcontent.Config) int {
 	if mrs == nil {
 		return 0
@@ -928,20 +960,10 @@ func HighestMatchRisk(mrs *yarax.ScanResults, kind *programkind.FileType, path s
 // HighestMatchRiskRules is HighestMatchRisk for the rules that scans of the
 // file matched, as GenerateRules receives them.
 func HighestMatchRiskRules(matching []*yarax.Rule, kind *programkind.FileType, path string, expath string, c malcontent.Config) int {
-	slashPath := filepath.ToSlash(trimDisplayPath(path, expath, c))
-	ext := ""
-	if kind != nil {
-		ext = kind.Ext
-	}
-
-	infos := ruleInfosFor(c.Rules)
-	var highestRisk int
-	for _, m := range matching {
-		if ri := infos.get(m); ri.scope.matches(ext, slashPath) {
-			highestRisk = max(highestRisk, ri.risk)
-		}
-	}
-	return highestRisk
+	rb := newReportBuilder(&malcontent.FileReport{}, nil, matching)
+	rb.classify(c, kind, filepath.ToSlash(trimDisplayPath(path, expath, c)))
+	rb.resolve(buildIgnoreMap(c.IgnoreTags))
+	return highestBehaviorRisk(rb.fr)
 }
 
 // highestBehaviorRisk returns the highest risk score from a slice of FileReport Behaviors.
@@ -956,41 +978,4 @@ func highestBehaviorRisk(fr *malcontent.FileReport) int {
 	}
 
 	return highestRisk
-}
-
-// handleOverrides modifies the behavior slice based on the contents of the override slice.
-// When several entries target the same rule, the later entry wins.
-func handleOverrides(original, override []*malcontent.Behavior, minScore int, scan bool) []*malcontent.Behavior {
-	behaviorMap := make(map[string]*malcontent.Behavior, len(original))
-	for _, b := range original {
-		behaviorMap[b.RuleName] = b
-	}
-
-	for _, o := range override {
-		for _, ob := range o.Override {
-			if b, exists := behaviorMap[ob]; exists {
-				b.RiskLevel = o.RiskLevel
-				b.RiskScore = o.RiskScore
-			}
-		}
-		// Delete the override rule from the behavior map
-		delete(behaviorMap, o.RuleName)
-	}
-
-	// Scans report only HIGH and above, the same floor Generate applies to the
-	// file risk. QuantityIncreasesRisk decides only whether many HIGH findings
-	// raise the file to CRITICAL, so it does not change which behaviors stay.
-	threshold := minScore
-	if scan {
-		threshold = HIGH
-	}
-
-	modified := make([]*malcontent.Behavior, 0, len(behaviorMap))
-	for _, b := range behaviorMap {
-		if b.RiskScore >= threshold {
-			modified = append(modified, b)
-		}
-	}
-
-	return modified
 }

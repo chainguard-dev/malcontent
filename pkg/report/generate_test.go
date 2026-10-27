@@ -30,8 +30,8 @@ var realRuleDirs = []string{"discover", "exec", "fs", "net", "os", "process"}
 // fixtureRuleSources cover report paths the real rules rarely reach: override
 // rules that apply, that name a rule absent from the file, or both; a meta/
 // rule; a YARA Forge style reference; malcontent's marker and capability
-// metadata; unprintable matches; and rule names that change how matches
-// render.
+// metadata; unprintable matches, which render escaped; and rule names that
+// change how matches render.
 var fixtureRuleSources = map[string]string{
 	"test/fixture/target.yara": `
 rule fixture_target: high {
@@ -232,17 +232,12 @@ var generateCases = []struct {
 	{"scan without quantity risk", malcontent.Config{Scan: true, MinRisk: HIGH}},
 }
 
-// generateReport returns the report the scan pipeline builds for fx: it runs
-// HighestMatchRisk for scans, then Generate. It reports failures with Errorf
-// so goroutines may call it.
+// generateReport returns the report Generate builds for fx. It reports
+// failures with Errorf so goroutines may call it.
 func generateReport(tb testing.TB, fx reportFixture, mrs *yarax.ScanResults, c malcontent.Config) *malcontent.FileReport {
 	tb.Helper()
 	const expath = "/usr"
-	highest := 0
-	if c.Scan {
-		highest = HighestMatchRisk(mrs, fx.kind, fx.path, expath, c)
-	}
-	fr, err := Generate(tb.Context(), fx.path, mrs, c, expath, nil, fx.data, int64(len(fx.data)), "cksum", fx.kind, highest)
+	fr, err := Generate(tb.Context(), fx.path, mrs, c, expath, fx.data, int64(len(fx.data)), "cksum", fx.kind)
 	if err != nil {
 		tb.Errorf("Generate(%s): %v", fx.name, err)
 	}
@@ -332,7 +327,7 @@ func TestGenerateFixtureCoverage(t *testing.T) {
 		t.Errorf("fixture_forge author: got = %q, %q, %q, want = %q, %q, %q", b.RuleAuthor, b.RuleAuthorURL, b.ReferenceURL, "fixture", "https://github.com/fixture", "")
 	}
 	for rule, want := range map[string][]string{
-		"fixture_xor_binary":  {"fixture_xor_binary::FIXTURE_XOR", "fixture_xor_binary::$h", "fixture_xor_binary::$t"},
+		"fixture_xor_binary":  {`fixture_xor_binary::\x00\x01\x02\x03`, "fixture_xor_binary::FIXTURE_XOR"},
 		"fixture_xml_key_val": {"FIXTURE_KEY"},
 	} {
 		if b := byRule[rule]; b == nil {
@@ -387,11 +382,11 @@ func TestGenerateSharedResultsConcurrently(t *testing.T) {
 	wg.Wait()
 }
 
-// orderRuleSources declare rules whose processing order changes a report:
-// two namespaces that share a behavior ID at equal risk, two override rules
-// that set one target to different severities, and malcontent's own rule,
-// which keeps later low-risk rules (and their syscalls) when IgnoreSelf is
-// set. Namespaces are declared in sorted order.
+// orderRuleSources declare rules whose processing order could change a
+// report: two namespaces that share a behavior ID at equal risk, two override
+// rules that set one target to different severities, and malcontent's own
+// rule between low-risk rules that declare syscalls. Namespaces are declared
+// in sorted order.
 var orderRuleSources = map[string]string{
 	"order/a.yara":        `rule order_early_low: low { meta: syscall = "early" strings: $a = "ORDER_EARLY" condition: $a }`,
 	"order/shared":        `rule order_shared_first: medium { strings: $a = "ORDER_SHARED" condition: $a }`,
@@ -444,21 +439,22 @@ func TestGenerateFollowsDeclarationOrder(t *testing.T) {
 		t.Errorf("report from reused scanner:\ngot  = %+v\nwant = %+v", got, want)
 	}
 
-	// Declaration order keeps the first of two equal-risk behaviors with the
-	// longer description, lets the later override win, and keeps only the
-	// low-risk rule declared after malcontent's own.
+	// Declaration order keeps the first of two equal-risk behaviors with its
+	// own description and lets the later override win. Malcontent's own rule
+	// changes nothing about the rules declared after it, so neither low-risk
+	// rule meets the minimum risk.
 	byID := make(map[string]*malcontent.Behavior, len(want.Behaviors))
 	for _, b := range want.Behaviors {
 		byID[b.ID] = b
 	}
-	if b := byID["order/shared"]; b == nil || b.RuleName != "order_shared_first" || b.Description != "a description longer than the first" {
-		t.Errorf("order/shared behavior: got = %+v, want rule %q with the longer description", b, "order_shared_first")
+	if b := byID["order/shared"]; b == nil || b.RuleName != "order_shared_first" || b.Description != "order shared first" {
+		t.Errorf("order/shared behavior: got = %+v, want rule %q with its own description", b, "order_shared_first")
 	}
 	if b := byID["order/target"]; b == nil || b.RiskScore != MEDIUM {
 		t.Errorf("order/target behavior: got = %+v, want RiskScore %d", b, MEDIUM)
 	}
-	if got, want := want.Syscalls, []string{"late"}; !slices.Equal(got, want) {
-		t.Errorf("Syscalls: got = %v, want = %v", got, want)
+	if got := want.Syscalls; len(got) != 0 {
+		t.Errorf("Syscalls: got = %v, want none", got)
 	}
 }
 
@@ -526,16 +522,12 @@ func BenchmarkGenerate(b *testing.B) {
 			{"analyze-uncached", malcontent.Config{MinRisk: LOW}},
 			{"scan", malcontent.Config{Scan: true, MinRisk: LOW, QuantityIncreasesRisk: true, Rules: yrs}},
 		} {
-			highest := 0
-			if bc.c.Scan {
-				highest = HighestMatchRisk(mrs, fx.kind, fx.path, "", bc.c)
-			}
 			size := int64(len(fx.data))
 			b.Run(fx.name+"/"+bc.name, func(b *testing.B) {
 				b.ReportAllocs()
 				b.ReportMetric(float64(len(mrs.MatchingRules())), "rules")
 				for b.Loop() {
-					if _, err := Generate(b.Context(), fx.path, mrs, bc.c, "", nil, fx.data, size, "cksum", fx.kind, highest); err != nil {
+					if _, err := Generate(b.Context(), fx.path, mrs, bc.c, "", fx.data, size, "cksum", fx.kind); err != nil {
 						b.Fatal(err)
 					}
 				}

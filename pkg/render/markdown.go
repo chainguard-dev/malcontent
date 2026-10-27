@@ -12,6 +12,7 @@ import (
 	"net/url"
 	"slices"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 )
@@ -48,34 +49,53 @@ func NewMarkdown(w io.Writer) *Markdown {
 	return &Markdown{out: blockWriter{w: w}}
 }
 
+// mdRisk returns the emoji for score and level, escaped by sanitizeMarkdown.
 func mdRisk(score int, level string) string {
-	return riskEmoji(score) + " " + level
+	return riskEmoji(score) + " " + sanitizeMarkdown(level)
 }
 
-// escapeMarkdownCell makes untrusted s literal inside a GFM table cell. Control
-// characters, including line endings that would end the table row, become %XX,
-// bytes in entities become their replacement, and every byte listed in special
+// escapeMarkdownCell makes untrusted s literal inside a GFM table cell. Invalid
+// UTF-8 becomes U+FFFD and BiDi controls are dropped, as sanitizeUTF8 does.
+// Control characters, including line endings that would end the table row,
+// DEL, and the C1 controls, become their UTF-8 bytes as %XX; ASCII bytes in
+// entities become their replacement, and every ASCII byte listed in special
 // gets a backslash prefix. Text and link text pass markdownTextSpecial and
 // markdownTextEntities. Code spans, where neither backslash escapes nor
 // entities apply, pass only "|" and no entities, because GFM tables split cells
 // on an unescaped pipe even inside a code span and remove the backslash again.
 func escapeMarkdownCell(s, special string, entities map[byte]string) string {
+	if !utf8.ValidString(s) {
+		s = strings.ToValidUTF8(s, string(utf8.RuneError))
+	}
 	var b strings.Builder
 	b.Grow(len(s))
-	for i := range len(s) {
-		c := s[i]
-		if entity, ok := entities[c]; ok {
-			b.WriteString(entity)
-			continue
+	// Once runes from utf8.RuneSelf up are handled, each rune is the one
+	// byte at its offset.
+	for i, r := range s {
+		switch {
+		case r >= utf8.RuneSelf:
+			if isBiDiControl(r) {
+				continue
+			}
+			if r <= 0x9f {
+				// A C1 control is two bytes in UTF-8.
+				var enc [2]byte
+				utf8.EncodeRune(enc[:], r)
+				writePercent(&b, enc[0])
+				writePercent(&b, enc[1])
+				continue
+			}
+			b.WriteRune(r)
+		case entities[s[i]] != "":
+			b.WriteString(entities[s[i]])
+		case r < 0x20 || r == 0x7f:
+			writePercent(&b, s[i])
+		default:
+			if strings.IndexByte(special, s[i]) >= 0 {
+				b.WriteByte('\\')
+			}
+			b.WriteByte(s[i])
 		}
-		if c < 0x20 || c == 0x7f {
-			writePercent(&b, c)
-			continue
-		}
-		if strings.IndexByte(special, c) >= 0 {
-			b.WriteByte('\\')
-		}
-		b.WriteByte(c)
 	}
 	return b.String()
 }
@@ -127,25 +147,47 @@ func matchFragmentLink(s string) string {
 		return markdownCodeSpan(s)
 	}
 
-	if strings.HasPrefix(s, "https:") || strings.HasPrefix(s, "http://") {
+	if isWebURL(s) {
 		return markdownURLLink(s)
 	}
 
 	return "[" + sanitizeMarkdown(s) + "](https://github.com/search?q=" + url.QueryEscape(s) + "&type=code)"
 }
 
-// markdownURLLink links an untrusted URL to itself. The destination uses the
-// angle-bracket form, which accepts spaces and parentheses, and percent-encodes
-// the bytes that would still end the destination, the link, or the table cell:
-// control characters (including line endings), '<', '>', '\', and '|'. '&' gets
-// a backslash so an entity spelled out in the URL is not decoded. The visible
-// text is escaped with sanitizeMarkdown.
+// isWebURL reports whether s starts like an http or https URL, the only kind
+// the Markdown renderer links to.
+func isWebURL(s string) bool {
+	return strings.HasPrefix(s, "https:") || strings.HasPrefix(s, "http://")
+}
+
+// markdownLink links untrusted text to an untrusted URL, as markdownURLLink
+// does. A URL that isWebURL rejects, such as an empty or javascript: URL,
+// leaves the text unlinked, escaped with sanitizeMarkdown.
+func markdownLink(text, u string) string {
+	if !isWebURL(u) {
+		return sanitizeMarkdown(text)
+	}
+	return linkMarkdown(text, u)
+}
+
+// markdownURLLink links an untrusted URL to itself.
 func markdownURLLink(s string) string {
+	return linkMarkdown(s, s)
+}
+
+// linkMarkdown links untrusted text to the untrusted URL u. The text is
+// escaped with sanitizeMarkdown. The destination uses the angle-bracket form,
+// which accepts spaces and parentheses, and percent-encodes the bytes that
+// would still end the destination, the link, or the table cell, or that a
+// terminal showing the Markdown could act on: control characters (including
+// line endings), every byte above 0x7e, '<', '>', '\', and '|'. '&' gets a
+// backslash so an entity spelled out in the URL is not decoded.
+func linkMarkdown(text, u string) string {
 	var dest strings.Builder
-	dest.Grow(len(s))
-	for i := range len(s) {
-		c := s[i]
-		if c < 0x20 || c == 0x7f || strings.IndexByte(`<>\|`, c) >= 0 {
+	dest.Grow(len(u))
+	for i := range len(u) {
+		c := u[i]
+		if c < 0x20 || c >= 0x7f || strings.IndexByte(`<>\|`, c) >= 0 {
 			writePercent(&dest, c)
 			continue
 		}
@@ -154,7 +196,7 @@ func markdownURLLink(s string) string {
 		}
 		dest.WriteByte(c)
 	}
-	return "[" + sanitizeMarkdown(s) + "](<" + dest.String() + ">)"
+	return "[" + sanitizeMarkdown(text) + "](<" + dest.String() + ">)"
 }
 
 func (r *Markdown) Name() string { return "Markdown" }
@@ -226,28 +268,12 @@ func (r *Markdown) writeDiff(ctx context.Context, d *malcontent.DiffReport, b *b
 	}
 
 	for modified := d.Modified.Oldest(); modified != nil; modified = modified.Next() {
-		added := 0
-		removed := 0
-		for _, bh := range modified.Value.Behaviors {
-			if bh.DiffAdded {
-				added++
-			}
-			if bh.DiffRemoved {
-				removed++
-			}
-		}
-
+		added, removed := diffCounts(modified.Value.Behaviors)
 		if added == 0 && removed == 0 {
 			continue
 		}
 
-		var title string
-		if modified.Value.PreviousPath != "" {
-			title = fmt.Sprintf("## Moved (%d added, %d removed): %s -> %s", added, removed, sanitizeMarkdown(modified.Value.PreviousPath), sanitizeMarkdown(modified.Value.Path))
-		} else {
-			title = fmt.Sprintf("## Changed (%d added, %d removed): %s", added, removed, sanitizeMarkdown(modified.Value.Path))
-		}
-
+		title := "## " + diffTitle(modified.Value, added, removed, sanitizeMarkdown)
 		if modified.Value.RiskScore != modified.Value.PreviousRiskScore {
 			title = fmt.Sprintf("%s [%s → %s]",
 				title,
@@ -333,8 +359,9 @@ func markdownTable(ctx context.Context, fr *malcontent.FileReport, b *bytes.Buff
 		kbs = append(kbs, KeyedBehavior{Key: bh.ID, Behavior: bh})
 	}
 
-	// Highest risk first, then by key.
-	slices.SortFunc(kbs, func(x, y KeyedBehavior) int {
+	// Highest risk first, then by key. Rows that tie keep their order, so
+	// duplicate keys cannot reorder from one run to the next.
+	slices.SortStableFunc(kbs, func(x, y KeyedBehavior) int {
 		return cmp.Or(
 			cmp.Compare(y.Behavior.RiskScore, x.Behavior.RiskScore),
 			cmp.Compare(x.Key, y.Key),
@@ -347,7 +374,7 @@ func markdownTable(ctx context.Context, fr *malcontent.FileReport, b *bytes.Buff
 	b.WriteString(markdownTableHeader)
 	for _, k := range kbs {
 		bh := k.Behavior
-		risk := bh.RiskLevel
+		var marks string
 
 		if rc.SkipExisting && !bh.DiffAdded && !bh.DiffRemoved {
 			continue
@@ -363,22 +390,22 @@ func markdownTable(ctx context.Context, fr *malcontent.FileReport, b *bytes.Buff
 			if rc.SkipAdded {
 				continue
 			}
-			risk = "+" + risk
+			marks = "+"
 		}
 		if bh.DiffRemoved || rc.DiffRemoved {
 			if rc.SkipRemoved {
 				continue
 			}
-			risk = "-" + risk
+			marks = "-" + marks
 		}
 
-		key := "[" + k.Key + "](" + bh.RuleURL + ")"
-		if strings.HasPrefix(risk, "+") {
+		key := markdownLink(k.Key, bh.RuleURL)
+		if marks == "+" {
 			key = "**" + key + "**"
 		}
 
 		b.WriteByte('|')
-		writeMarkdownCell(b, risk)
+		writeMarkdownCell(b, marks+sanitizeMarkdown(bh.RiskLevel))
 		writeMarkdownCell(b, key)
 		writeMarkdownCell(b, markdownDescription(bh))
 		writeMarkdownCell(b, markdownEvidence(bh.MatchStrings))
@@ -389,20 +416,13 @@ func markdownTable(ctx context.Context, fr *malcontent.FileReport, b *bytes.Buff
 }
 
 // markdownDescription returns the first sentence of bh's description, linked
-// to its reference and followed by its author.
+// to its reference and followed by its author, each escaped by markdownLink.
 func markdownDescription(bh *malcontent.Behavior) string {
 	desc, _, _ := strings.Cut(bh.Description, ". ")
-
-	if bh.ReferenceURL != "" {
-		desc = "[" + desc + "](" + bh.ReferenceURL + ")"
-	}
+	desc = markdownLink(desc, bh.ReferenceURL)
 
 	if bh.RuleAuthor != "" {
-		author := bh.RuleAuthor
-		if bh.RuleAuthorURL != "" {
-			author = "[" + author + "](" + bh.RuleAuthorURL + ")"
-		}
-
+		author := markdownLink(bh.RuleAuthor, bh.RuleAuthorURL)
 		if desc != "" {
 			desc += ", by " + author
 		} else {

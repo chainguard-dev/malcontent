@@ -18,7 +18,7 @@ fs/link_read: low
 fs/path/dev: medium
 fs/path/tmp: medium
 fs/path/var: low
-fs/permission/modify: low
+fs/permission/modify: medium
 fs/proc/self_exe: medium
 fs/symlink_resolve: low
 fs/tempdir/TEMP: low

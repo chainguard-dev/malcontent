@@ -7,10 +7,10 @@ import (
 	"bytes"
 	"cmp"
 	"context"
-	"fmt"
 	"io"
 	"slices"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/report"
@@ -55,8 +55,9 @@ func darkBrackets(s string) string {
 	return hb.on + "[" + hb.off + s + hb.on + "]" + hb.off
 }
 
+// riskInColor returns level, escaped by sanitizeTerminal, in its own color.
 func riskInColor(level string) string {
-	return riskColor(level, level)
+	return riskColor(level, sanitizeTerminal(level))
 }
 
 func riskColor(level string, text string) string {
@@ -99,7 +100,7 @@ func (r *Terminal) File(ctx context.Context, fr *malcontent.FileReport) error {
 	b.WriteString(sanitizeTerminal(fr.Path))
 	b.WriteByte(' ')
 	p.hiBlack.wrap(b, "[")
-	p.risk(fr.RiskLevel).wrap(b, fr.RiskLevel)
+	p.risk(fr.RiskLevel).wrap(b, sanitizeTerminal(fr.RiskLevel))
 	p.hiBlack.wrap(b, "]")
 	b.WriteByte('\n')
 	writeSummaryBody(b, p, fr, r.width)
@@ -120,59 +121,47 @@ func (r *Terminal) Full(ctx context.Context, _ *malcontent.Config, rep *malconte
 	b := getBuffer()
 	defer putBuffer(b)
 
-	for removed := rep.Diff.Removed.Oldest(); removed != nil; removed = removed.Next() {
-		if len(removed.Value.Behaviors) == 0 {
-			continue
-		}
-
-		title := fmt.Sprintf(riskColor(removed.Value.RiskLevel, "Deleted: %s %s"), sanitizeTerminal(removed.Key), darkBrackets(riskInColor(removed.Value.RiskLevel)))
-		renderFileSummary(ctx, b, removed.Value, title, r.width)
-		if err := r.out.flush(b); err != nil {
+	// write renders fr under title and writes it, stopping when ctx is canceled.
+	write := func(fr *malcontent.FileReport, title string) error {
+		if err := renderFileSummary(ctx, b, fr, title, r.width); err != nil {
 			return err
+		}
+		return r.out.flush(b)
+	}
+
+	for _, section := range []struct {
+		files *malcontent.OrderedFileReports
+		label string
+	}{{rep.Diff.Removed, "Deleted: "}, {rep.Diff.Added, "Added: "}} {
+		for p := section.files.Oldest(); p != nil; p = p.Next() {
+			fr := p.Value
+			if len(fr.Behaviors) == 0 {
+				continue
+			}
+			title := riskColor(fr.RiskLevel, section.label+sanitizeTerminal(p.Key)+" "+darkBrackets(riskInColor(fr.RiskLevel)))
+			if err := write(fr, title); err != nil {
+				return err
+			}
 		}
 	}
 
-	for added := rep.Diff.Added.Oldest(); added != nil; added = added.Next() {
-		if len(added.Value.Behaviors) == 0 {
-			continue
-		}
-
-		title := fmt.Sprintf(riskColor(added.Value.RiskLevel, "Added: %s %s"), sanitizeTerminal(added.Key), darkBrackets(riskInColor(added.Value.RiskLevel)))
-		renderFileSummary(ctx, b, added.Value, title, r.width)
-		if err := r.out.flush(b); err != nil {
-			return err
-		}
-	}
-
-	for modified := rep.Diff.Modified.Oldest(); modified != nil; modified = modified.Next() {
-		// Count added and removed behaviors
-		var added, removed int
-		for _, bh := range modified.Value.Behaviors {
-			if bh.DiffAdded {
-				added++
-			}
-			if bh.DiffRemoved {
-				removed++
-			}
-		}
-
+	for p := rep.Diff.Modified.Oldest(); p != nil; p = p.Next() {
+		fr := p.Value
+		added, removed := diffCounts(fr.Behaviors)
 		if added == 0 && removed == 0 {
 			continue
 		}
 
-		var title string
-		if modified.Value.PreviousPath != "" {
-			title = fmt.Sprintf(riskColor(modified.Value.PreviousRiskLevel, "Moved (%d added, %d removed): %s -> %s"), added, removed, sanitizeTerminal(modified.Value.PreviousPath), sanitizeTerminal(modified.Value.Path))
-		} else {
-			title = fmt.Sprintf(riskColor(modified.Value.RiskLevel, "Changed (%d added, %d removed): %s"), added, removed, sanitizeTerminal(modified.Value.Path))
+		// A moved file's title takes the color of its previous risk.
+		level := fr.RiskLevel
+		if fr.PreviousPath != "" {
+			level = fr.PreviousRiskLevel
 		}
-		if modified.Value.RiskScore != modified.Value.PreviousRiskScore {
-			title = fmt.Sprintf("%s %s", title,
-				darkBrackets(fmt.Sprintf("%s %s %s", riskInColor(modified.Value.PreviousRiskLevel), currentPalette().hiWhite.sprint("→"), riskInColor(modified.Value.RiskLevel))))
+		title := riskColor(level, diffTitle(fr, added, removed, sanitizeTerminal))
+		if fr.RiskScore != fr.PreviousRiskScore {
+			title += " " + darkBrackets(riskInColor(fr.PreviousRiskLevel)+" "+currentPalette().hiWhite.sprint("→")+" "+riskInColor(fr.RiskLevel))
 		}
-
-		renderFileSummary(ctx, b, modified.Value, title, r.width)
-		if err := r.out.flush(b); err != nil {
+		if err := write(fr, title); err != nil {
 			return err
 		}
 	}
@@ -262,13 +251,18 @@ func suggestedWidth() int {
 }
 
 // truncateLine shortens the line b holds from start to its end when it is
-// longer than width bytes: it keeps the first width-1 bytes and appends an
-// ellipsis.
+// longer than width bytes: it keeps at most the first width-1 bytes, ending
+// on a character boundary, and appends an ellipsis.
 func truncateLine(b *bytes.Buffer, start, width int) {
-	if b.Len()-start > width {
-		b.Truncate(start + width - 1)
-		b.WriteString("…")
+	if b.Len()-start <= width {
+		return
 	}
+	cut := start + width - 1
+	for cut > start && !utf8.RuneStart(b.Bytes()[cut]) {
+		cut--
+	}
+	b.Truncate(cut)
+	b.WriteString("…")
 }
 
 // ansiLineLength determines the length of a line, even if it has ANSI codes:
@@ -306,16 +300,22 @@ func lineLength(b *bytes.Buffer, start, end int, parts ...string) int {
 	return n
 }
 
-// renderFileSummary renders fr under title, which the caller builds, including any diff counts and risk transition.
-func renderFileSummary(ctx context.Context, b *bytes.Buffer, fr *malcontent.FileReport, title string, width int) {
-	if ctx.Err() != nil || fr.Skipped != "" {
-		return
+// renderFileSummary renders fr under title, which the caller builds, including
+// any diff counts and risk transition. It writes nothing for a skipped report
+// and returns the context's error, writing nothing, when ctx is canceled.
+func renderFileSummary(ctx context.Context, b *bytes.Buffer, fr *malcontent.FileReport, title string, width int) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	if fr.Skipped != "" {
+		return nil
 	}
 
 	writeSummaryHeader(b, fr.RiskScore)
 	b.WriteString(title)
 	b.WriteByte('\n')
 	writeSummaryBody(b, currentPalette(), fr, width)
+	return nil
 }
 
 // writeSummaryHeader starts the first line of a file summary, up to its title.
@@ -327,48 +327,50 @@ func writeSummaryHeader(b *bytes.Buffer, riskScore int) {
 
 // nsGroup holds what a file summary prints for one namespace.
 type nsGroup struct {
-	ns   string
-	long string // nsLongName(ns)
+	ns string
+	// long is nsLongName(ns), escaped by sanitizeTerminal.
+	long string
 	// index is the namespace's position in order of first appearance.
 	index int
-	// risk is the highest risk score of its behaviors that were not just removed, or 0.
+	// risk is the highest risk score of the behaviors listed under it, or 0.
 	risk int
-	// prevRisk is the highest risk score of its behaviors that were not just added, or 0.
-	prevRisk int
 }
 
-// writeSummaryBody writes fr's behaviors grouped by namespace, then the
-// closing bar. Namespaces print in order of the length of their long names;
-// those whose long names are the same length print in the order they first
-// appear.
+// listedBehavior reports whether a file summary lists bh. A diff lists only
+// added and removed behaviors; other summaries list every behavior.
+func listedBehavior(bh *malcontent.Behavior, diffMode bool) bool {
+	return !diffMode || bh.DiffAdded || bh.DiffRemoved
+}
+
+// isDiffMode reports whether any of bs is marked added or removed, which
+// makes a file summary show a diff.
+func isDiffMode(bs []*malcontent.Behavior) bool {
+	return slices.ContainsFunc(bs, func(bh *malcontent.Behavior) bool { return bh.DiffAdded || bh.DiffRemoved })
+}
+
+// writeSummaryBody writes fr's listed behaviors grouped by namespace, then
+// the closing bar. Namespaces print in order of the length of their long
+// names; those whose long names are the same length print in the order they
+// first appear. A namespace with no listed behaviors is left out.
 func writeSummaryBody(b *bytes.Buffer, p *palette, fr *malcontent.FileReport, width int) {
+	diffMode := isDiffMode(fr.Behaviors)
 	groups := make([]nsGroup, 0, 16)
+	// groupOf holds the group of each behavior, or -1 for one not listed.
 	groupOf := make([]int, 0, 64)
-	diffMode := false
-	// anyPrevious records whether any namespace has a previous risk above 0;
-	// only then can a namespace line show a risk transition.
-	anyPrevious := false
 
 	for _, bh := range fr.Behaviors {
+		if !listedBehavior(bh, diffMode) {
+			groupOf = append(groupOf, -1)
+			continue
+		}
 		ns, _ := splitRuleID(bh.ID)
 		g := slices.IndexFunc(groups, func(x nsGroup) bool { return x.ns == ns })
 		if g < 0 {
 			g = len(groups)
-			groups = append(groups, nsGroup{ns: ns, long: nsLongName(ns), index: g})
+			groups = append(groups, nsGroup{ns: ns, long: sanitizeTerminal(nsLongName(ns)), index: g})
 		}
 		groupOf = append(groupOf, g)
-
-		if bh.DiffAdded || bh.DiffRemoved {
-			diffMode = true
-		}
-		grp := &groups[g]
-		if !bh.DiffAdded && bh.RiskScore > grp.prevRisk {
-			grp.prevRisk = bh.RiskScore
-			anyPrevious = true
-		}
-		if !bh.DiffRemoved {
-			grp.risk = max(grp.risk, bh.RiskScore)
-		}
+		groups[g].risk = max(groups[g].risk, bh.RiskScore)
 	}
 
 	slices.SortStableFunc(groups, func(x, y nsGroup) int {
@@ -377,7 +379,7 @@ func writeSummaryBody(b *bytes.Buffer, p *palette, fr *malcontent.FileReport, wi
 
 	for i := range groups {
 		g := &groups[i]
-		writeNamespaceLine(b, p, g, anyPrevious)
+		writeNamespaceLine(b, p, g)
 		for j, bh := range fr.Behaviors {
 			if groupOf[j] == g.index {
 				writeBehaviorLine(b, p, bh, diffMode, width)
@@ -388,50 +390,22 @@ func writeSummaryBody(b *bytes.Buffer, p *palette, fr *malcontent.FileReport, wi
 }
 
 // writeNamespaceLine writes the line that introduces a namespace: its long
-// name and risk level, and how the risk changed when it did.
-func writeNamespaceLine(b *bytes.Buffer, p *palette, g *nsGroup, anyPrevious bool) {
+// name and the highest risk level among the behaviors listed under it. A
+// diff lists only the behaviors that changed, so the line shows no change of
+// the namespace's risk.
+func writeNamespaceLine(b *bytes.Buffer, p *palette, g *nsGroup) {
 	level := riskLevels[g.risk]
-	// The zero sgr writes the diff marker and the icon without escape sequences.
-	var diffStyle, iconStyle sgr
-	diff, icon := " ", "≡"
-
-	changed := anyPrevious && g.risk != g.prevRisk
-	var previousLevel string
-	if changed {
-		previousLevel = riskLevels[g.prevRisk]
-		iconStyle, icon = p.hiYellow, "▲"
-		if g.risk < g.prevRisk {
-			iconStyle, icon = p.hiGreen, "▼"
-		}
-		// A namespace whose risk rises from NONE is marked added, and one whose
-		// risk falls to NONE, removed.
-		switch {
-		case previousLevel == report.LevelNONE:
-			diffStyle, diff = p.hiGreen, "+"
-		case level == report.LevelNONE:
-			diffStyle, diff = p.hiRed, "-"
-		}
-	}
-
-	b.WriteString("│")
-	diffStyle.wrap(b, diff)
-	b.WriteString("    ")
-	iconStyle.wrap(b, icon)
-	b.WriteByte(' ')
+	b.WriteString("│     ≡ ")
 	b.WriteString(g.long)
 	b.WriteByte(' ')
 	p.hiBlack.wrap(b, "[")
-	if changed {
-		p.risk(previousLevel).wrap(b, previousLevel)
-		b.WriteString(" → ")
-	}
 	p.risk(level).wrap(b, level)
 	p.hiBlack.wrap(b, "]")
 	b.WriteByte('\n')
 }
 
-// writeBehaviorLine writes one behavior and its evidence. In diff mode it
-// writes only added and removed behaviors and drops the evidence of removed
+// writeBehaviorLine writes one listed behavior and its evidence. In diff mode
+// it marks the behavior added or removed and drops the evidence of removed
 // ones. Evidence that would reach width moves to a line of its own, truncated
 // to width.
 func writeBehaviorLine(b *bytes.Buffer, p *palette, bh *malcontent.Behavior, diffMode bool, width int) {
@@ -444,9 +418,6 @@ func writeBehaviorLine(b *bytes.Buffer, p *palette, bh *malcontent.Behavior, dif
 		if bh.DiffRemoved {
 			pc, diff = p.hiRed, "-"
 		}
-		if !bh.DiffAdded && !bh.DiffRemoved {
-			return
-		}
 	}
 
 	// Outside diff mode no behavior is marked removed.
@@ -456,7 +427,9 @@ func writeBehaviorLine(b *bytes.Buffer, p *palette, bh *malcontent.Behavior, dif
 	}
 
 	_, rest := splitRuleID(bh.ID)
+	rest = sanitizeTerminal(rest)
 	desc, _, _ := strings.Cut(bh.Description, " - ")
+	desc = sanitizeTerminal(desc)
 	bullet := riskEmoji(bh.RiskScore)
 
 	b.WriteString("│")
@@ -480,7 +453,7 @@ func writeBehaviorLine(b *bytes.Buffer, p *palette, bh *malcontent.Behavior, dif
 	b.WriteString(desc)
 	if bh.RuleAuthor != "" {
 		b.WriteString(", by ")
-		b.WriteString(bh.RuleAuthor)
+		b.WriteString(sanitizeTerminal(bh.RuleAuthor))
 	}
 	end := b.Len()
 

@@ -129,10 +129,10 @@ func goldenScanReports(sweep int) []*malcontent.FileReport {
 
 // goldenEscapeSweep returns a report with a behavior for every evidence
 // length from 1 to longest bytes under each of several descriptions. Some
-// descriptions end with an incomplete escape sequence the evidence can
-// complete, so line measurement must treat the description and the evidence
-// as one line. Sweeping past the widest of goldenWidths reaches every point
-// where evidence moves to a line of its own or gets truncated.
+// descriptions hold whole or partial escape sequences, which reach the
+// output escaped and so cannot combine with evidence that would complete
+// them. Sweeping past the widest of goldenWidths reaches every point where
+// evidence moves to a line of its own or gets truncated.
 func goldenEscapeSweep(longest int) *malcontent.FileReport {
 	fr := &malcontent.FileReport{Path: "/opt/escapes", RiskScore: 2, RiskLevel: report.LevelMEDIUM}
 	variants := []struct{ desc, lead string }{
@@ -210,9 +210,8 @@ func goldenNilBehaviorReport() *malcontent.Report {
 
 // goldenScanReport returns a fresh scan report whose keys need sanitizing or
 // escaping, along with an empty key, a nil report, and a skipped report. Two
-// keys become equal once sanitized. The serializers keep whichever of their
-// reports they range over last, and the range order of the map changes from
-// run to run, so both reports hold the same content.
+// keys become equal once sanitized. The serializers keep both reports, the
+// second under a suffixed key.
 func goldenScanReport() *malcontent.Report {
 	files := xsync.NewMap[string, *malcontent.FileReport]()
 	for _, fr := range goldenScanReports(goldenShortSweep) {
@@ -395,11 +394,11 @@ func TestInteractiveSummaryMatchesGolden(t *testing.T) {
 	t.Parallel()
 	var b bytes.Buffer
 	for _, fr := range goldenScanReports(goldenShortSweep) {
-		renderFileSummaryTea(t.Context(), fr, &b)
+		teaRender(t.Context(), fr, &b)
 	}
 	diff := goldenDiffReport().Diff
 	for m := diff.Modified.Oldest(); m != nil; m = m.Next() {
-		renderFileSummaryTea(t.Context(), m.Value, &b)
+		teaRender(t.Context(), m.Value, &b)
 	}
 	checkGolden(t, "interactive_summary.txt", []byte(renderStripANSI(b.String())))
 }

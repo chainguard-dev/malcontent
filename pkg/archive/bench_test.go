@@ -88,14 +88,15 @@ func BenchmarkHandleFile(b *testing.B) {
 	dir := b.TempDir()
 	root := openTestRoot(b, dir)
 	er := testEntryRoots(b, root)
+	p := newEntryPaths(er)
 	b.ReportAllocs()
 	for b.Loop() {
 		tr := tar.NewReader(bytes.NewReader(raw))
 		if _, err := tr.Next(); err != nil {
 			b.Fatalf("Next: %v", err)
 		}
-		counter := &file.ArchiveCounter{MaxBytes: file.DefaultMaxArchiveBytes}
-		if err := handleFile(er, "payload", tr, counter); err != nil {
+		counter := testBudget(file.DefaultMaxArchiveBytes)
+		if err := handleFile(p, "payload", tr, counter); err != nil {
 			b.Fatalf("handleFile: %v", err)
 		}
 		_ = root.Remove("payload")

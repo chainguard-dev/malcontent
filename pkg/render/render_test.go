@@ -5,6 +5,7 @@ package render
 
 import (
 	"bytes"
+	"slices"
 	"strings"
 	"testing"
 	"unicode/utf8"
@@ -199,6 +200,10 @@ func TestSanitizeUTF8(t *testing.T) {
 		{"BiDi PDI stripped", "hello\u2069world", "helloworld"},
 		{"LRM stripped", "hello\u200Eworld", "helloworld"},
 		{"RLM stripped", "hello\u200Fworld", "helloworld"},
+		// U+061C ARABIC LETTER MARK, written as its UTF-8 bytes.
+		{"ALM stripped", "hello\xd8\x9cworld", "helloworld"},
+		// U+200B ZERO WIDTH SPACE is not a BiDi control.
+		{"zero-width space kept", "hello\xe2\x80\x8bworld", "hello\xe2\x80\x8bworld"},
 		{"multiple BiDi chars stripped", "\u202A\u202B\u200Ehello\u2066\u2067", "hello"},
 		{"BiDi-only string becomes empty", "\u202A\u202B\u202C", ""},
 		{"newline replaced with space", "line1\nline2", "line1 line2"},
@@ -265,47 +270,35 @@ func TestSanitizeMarkdown(t *testing.T) {
 	}
 }
 
-func TestSanitizeFileReport(t *testing.T) {
+func TestSanitizeReport(t *testing.T) {
 	t.Parallel()
 
-	t.Run("normal file report stored and sanitized", func(t *testing.T) {
+	t.Run("text fields are sanitized and absolute paths dropped", func(t *testing.T) {
 		t.Parallel()
 		fr := &malcontent.FileReport{
-			Path:        "test\npath",
-			ArchiveRoot: "/archive/root",
-			FullPath:    "/full/path",
+			Path:            "test\npath",
+			PreviousPath:    "old\rpath",
+			PreviousRelPath: " rel\xffpath ",
+			ArchiveRoot:     "/archive/root",
+			FullPath:        "/full/path",
 			Behaviors: []*malcontent.Behavior{
-				{ID: "ns/technique\nwith-newline", Description: "desc\u202Awith-bidi"},
+				{ID: "ns/technique\nwith-newline", Description: "desc\xe2\x80\xaawith-bidi"},
 			},
 		}
-		files := make(map[string]*malcontent.FileReport)
-		sanitizeFileReport("key\nwith-newline", fr, files)
-
-		stored, ok := files["key with-newline"]
-		if !ok {
-			t.Fatalf("sanitized key %q: got = absent, want = present", "key with-newline")
+		sanitizeReport(fr)
+		want := &malcontent.FileReport{
+			Path:            "test path",
+			PreviousPath:    "old path",
+			PreviousRelPath: "rel\xef\xbf\xbdpath",
+			Behaviors: []*malcontent.Behavior{
+				{ID: "ns/technique with-newline", Description: "descwith-bidi"},
+			},
 		}
-		if stored.ArchiveRoot != "" {
-			t.Errorf("ArchiveRoot: got = %q, want = \"\"", stored.ArchiveRoot)
+		if fr.Path != want.Path || fr.PreviousPath != want.PreviousPath || fr.PreviousRelPath != want.PreviousRelPath || fr.ArchiveRoot != "" || fr.FullPath != "" {
+			t.Errorf("report: got = %+v, want = %+v", fr, want)
 		}
-		if stored.FullPath != "" {
-			t.Errorf("FullPath: got = %q, want = \"\"", stored.FullPath)
-		}
-		if stored.Path != "test path" {
-			t.Errorf("Path: got = %q, want = %q", stored.Path, "test path")
-		}
-		if stored.Behaviors[0].ID != "ns/technique with-newline" {
-			t.Errorf("Behavior ID: got = %q, want = %q", stored.Behaviors[0].ID, "ns/technique with-newline")
-		}
-	})
-
-	t.Run("skipped file not stored", func(t *testing.T) {
-		t.Parallel()
-		fr := &malcontent.FileReport{Path: "path", Skipped: "data file"}
-		files := make(map[string]*malcontent.FileReport)
-		sanitizeFileReport("key", fr, files)
-		if len(files) != 0 {
-			t.Errorf("stored files for a skipped report: got = %d, want = 0", len(files))
+		if got, w := fr.Behaviors[0], want.Behaviors[0]; got.ID != w.ID || got.Description != w.Description {
+			t.Errorf("behavior: got = %+v, want = %+v", fr.Behaviors[0], want.Behaviors[0])
 		}
 	})
 
@@ -313,14 +306,38 @@ func TestSanitizeFileReport(t *testing.T) {
 		t.Parallel()
 		fr := &malcontent.FileReport{
 			Path:      "path",
-			Behaviors: []*malcontent.Behavior{nil, {ID: "valid"}, nil},
+			Behaviors: []*malcontent.Behavior{nil, {ID: "valid\n"}, nil},
 		}
-		files := make(map[string]*malcontent.FileReport)
-		sanitizeFileReport("key", fr, files)
-		if len(files) != 1 {
-			t.Errorf("stored files: got = %d, want = 1", len(files))
+		sanitizeReport(fr)
+		if fr.Behaviors[1].ID != "valid" {
+			t.Errorf("behavior ID: got = %q, want = %q", fr.Behaviors[1].ID, "valid")
 		}
 	})
+}
+
+func TestUniqueKeys(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name string
+		raw  []string
+		want []string
+	}{
+		{name: "empty", raw: nil, want: []string{}},
+		{name: "distinct keys are only sanitized", raw: []string{"/a\n", "/b"}, want: []string{"/a", "/b"}},
+		{name: "key sanitizing leaves alone keeps it even when listed later", raw: []string{"/a\n", "/a"}, want: []string{"/a (2)", "/a"}},
+		{name: "first of several changed keys keeps it", raw: []string{"/a\n", "/a\r", "/a "}, want: []string{"/a", "/a (2)", "/a (3)"}},
+		{name: "suffix skips a key already in use", raw: []string{"/a", "/a (2)", "/a\n"}, want: []string{"/a", "/a (2)", "/a (3)"}},
+		{name: "suffix skips a key that sanitizes to one in use", raw: []string{"/a", "/a\n", "/a (2)\n"}, want: []string{"/a", "/a (3)", "/a (2)"}},
+		{name: "groups number their suffixes apart", raw: []string{"/a", "/b", "/a\n", "/b\n"}, want: []string{"/a", "/b", "/a (2)", "/b (2)"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			if got := uniqueKeys(tt.raw); !slices.Equal(got, tt.want) {
+				t.Errorf("uniqueKeys(%q): got = %q, want = %q", tt.raw, got, tt.want)
+			}
+		})
+	}
 }
 
 func TestShortRisk(t *testing.T) {
@@ -364,7 +381,10 @@ func TestTruncateLine(t *testing.T) {
 		{"empty string", "", 10, ""},
 		{"one over limit", "abcd", 3, "ab…"},
 		{"long string", strings.Repeat("x", 200), 50, strings.Repeat("x", 49) + "…"},
-		{"multibyte characters count by byte", "│ab", 3, "\xe2\x94…"},
+		{"multibyte characters count by byte", "ab│cd", 6, "ab│…"},
+		{"character cut at the limit is dropped whole", "│ab", 3, "…"},
+		{"two-byte character cut at the limit is dropped whole", "aéb", 3, "a…"},
+		{"character that ends at the limit is kept", "aébc", 4, "aé…"},
 	}
 
 	// Text before the line's start is never shortened or counted.

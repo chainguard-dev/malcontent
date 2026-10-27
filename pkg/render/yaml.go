@@ -9,7 +9,7 @@ import (
 	"io"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
-	"gopkg.in/yaml.v3"
+	"go.yaml.in/yaml/v3"
 )
 
 // yamlBufferSize is the size of the buffer between the YAML encoder, which
@@ -45,18 +45,23 @@ func (r YAML) Full(ctx context.Context, c *malcontent.Config, rep *malcontent.Re
 		return nil
 	}
 
+	files, err := sanitizedFiles(ctx, rep.Files)
+	if err != nil {
+		return err
+	}
+	diff, err := sanitizedDiff(ctx, rep.Diff)
+	if err != nil {
+		return err
+	}
+
 	// Make the xsync.Map YAML-friendly. Without files, Files stays nil, which
 	// is omitted just as an empty map is.
-	yr := Report{Diff: rep.Diff}
-	if rep.Files != nil {
-		yr.Files = make(map[string]*malcontent.FileReport, rep.Files.Size())
-		rep.Files.Range(func(key string, fr *malcontent.FileReport) bool {
-			if ctx.Err() != nil {
-				return false
-			}
-			sanitizeFileReport(key, fr, yr.Files)
-			return true
-		})
+	yr := Report{Diff: diff}
+	if len(files) > 0 {
+		yr.Files = make(map[string]*malcontent.FileReport, len(files))
+		for _, e := range files {
+			yr.Files[e.key] = e.fr
+		}
 	}
 
 	if c != nil && c.Stats && yr.Diff == nil {

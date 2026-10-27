@@ -15,7 +15,6 @@ import (
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/puzpuzpuz/xsync/v4"
-	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
 // jsonRequireSame fails when got differs from want, showing where they part.
@@ -165,26 +164,28 @@ func TestJSONReturnsEncodingErrors(t *testing.T) {
 	}
 }
 
-func TestSanitizedFilesKeepOneReportPerKey(t *testing.T) {
+func TestSanitizedFilesKeepEveryReportInKeyOrder(t *testing.T) {
 	t.Parallel()
 	files := xsync.NewMap[string, *malcontent.FileReport]()
-	// The last two keys are equal once sanitized and sort last.
-	for _, key := range []string{"zz\n", "a", "zz "} {
-		files.Store(key, &malcontent.FileReport{Path: "/p"})
+	// "zz\n" and "zz " are equal once sanitized; the suffixed key sorts after "zz-".
+	for _, key := range []string{"zz\n", "a", "zz ", "zz-", "/skipped"} {
+		fr := &malcontent.FileReport{Path: key}
+		if key == "/skipped" {
+			fr.Skipped = "data file"
+		}
+		files.Store(key, fr)
 	}
-	got := sanitizedFiles(t.Context(), files)
+	files.Store("/missing", nil)
+	got, err := sanitizedFiles(t.Context(), files)
+	if err != nil {
+		t.Fatalf("sanitizedFiles: got err = %v, want = nil", err)
+	}
 	keys := make([]string, 0, len(got))
 	for _, e := range got {
-		keys = append(keys, e.key)
+		keys = append(keys, e.key+"="+e.fr.Path)
 	}
-	if want := []string{"a", "zz"}; !slices.Equal(keys, want) {
+	if want := []string{"a=a", "zz=zz", "zz (2)=zz", "zz-=zz-"}; !slices.Equal(keys, want) {
 		t.Errorf("keys: got = %q, want = %q", keys, want)
-	}
-	// A dropped report must not stay reachable past the end of the result.
-	for i, e := range got[len(got):cap(got)] {
-		if e.fr != nil {
-			t.Errorf("entry %d past the end: got = %+v, want = cleared", len(got)+i, e)
-		}
 	}
 }
 
@@ -383,9 +384,9 @@ func TestJSONRendererWithDiff(t *testing.T) {
 	ctx := t.Context()
 	cfg := &malcontent.Config{Stats: true}
 	diff := &malcontent.DiffReport{
-		Added:    orderedmap.New[string, *malcontent.FileReport](),
-		Removed:  orderedmap.New[string, *malcontent.FileReport](),
-		Modified: orderedmap.New[string, *malcontent.FileReport](),
+		Added:    new(malcontent.OrderedFileReports),
+		Removed:  new(malcontent.OrderedFileReports),
+		Modified: new(malcontent.OrderedFileReports),
 	}
 	diff.Added.Set("/bin/added", &malcontent.FileReport{Path: "/bin/added", RiskScore: 2})
 	diff.Removed.Set("/bin/removed", &malcontent.FileReport{Path: "/bin/removed", RiskScore: 1})
@@ -437,9 +438,9 @@ func TestJSONRendererDiffWithNilFiles(t *testing.T) {
 	ctx := t.Context()
 	cfg := &malcontent.Config{}
 	diff := &malcontent.DiffReport{
-		Added:    orderedmap.New[string, *malcontent.FileReport](),
-		Removed:  orderedmap.New[string, *malcontent.FileReport](),
-		Modified: orderedmap.New[string, *malcontent.FileReport](),
+		Added:    new(malcontent.OrderedFileReports),
+		Removed:  new(malcontent.OrderedFileReports),
+		Modified: new(malcontent.OrderedFileReports),
 	}
 	diff.Added.Set("/bin/added", &malcontent.FileReport{Path: "/bin/added", RiskScore: 2})
 	// Mirror what action.Diff() actually returns: Diff set, Files nil
@@ -502,5 +503,58 @@ func TestJSONRendererSpecialCharacters(t *testing.T) {
 	var result Report
 	if err := json.Unmarshal(buf.Bytes(), &result); err != nil {
 		t.Fatalf("decode output with special characters: got err = %v, want = nil", err)
+	}
+}
+
+func TestJSONEscapesDeleteAndC1Controls(t *testing.T) {
+	t.Parallel()
+	// encoding/json writes DEL and the C1 controls (U+0080 to U+009F) as raw
+	// bytes, which a terminal showing the output may act on.
+	tests := []struct {
+		name  string
+		match string
+		want  string
+	}{
+		{name: "delete", match: "a\x7fb", want: `"a\u007fb"`},
+		{name: "first C1 control", match: "a\xc2\x80b", want: `"a\u0080b"`},
+		{name: "control sequence introducer", match: "a\xc2\x9b2J", want: `"a\u009b2J"`},
+		{name: "last C1 control", match: "a\xc2\x9fb", want: `"a\u009fb"`},
+		{name: "no-break space after the C1 controls stays", match: "a\xc2\xa0b", want: "\"a\xc2\xa0b\""},
+		{name: "other two-byte characters stay", match: "é\xc3\x80", want: "\"é\xc3\x80\""},
+		{name: "spelled-out escape stays literal", match: `\u009b`, want: `"\\u009b"`},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			fr := func() *malcontent.FileReport {
+				return &malcontent.FileReport{Path: "/p" + tt.match, Behaviors: []*malcontent.Behavior{{ID: "net/x", MatchStrings: []string{tt.match}}}}
+			}
+			files := xsync.NewMap[string, *malcontent.FileReport]()
+			files.Store("/p"+tt.match, fr())
+			reports := []struct {
+				name string
+				rep  *malcontent.Report
+			}{
+				{name: "scan", rep: &malcontent.Report{Files: files}},
+				{name: "diff", rep: &malcontent.Report{Diff: renderDiff(nil, []*malcontent.FileReport{fr()}, nil)}},
+			}
+			for _, r := range reports {
+				var buf bytes.Buffer
+				if err := NewJSON(&buf).Full(t.Context(), nil, r.rep); err != nil {
+					t.Fatalf("%s Full: got err = %v, want = nil", r.name, err)
+				}
+				out := buf.Bytes()
+				if !bytes.Contains(out, []byte(tt.want)) {
+					t.Errorf("%s output: got = %q, want it to contain %q", r.name, out, tt.want)
+				}
+				if bytes.IndexByte(out, 0x7f) >= 0 || bytes.Contains(out, []byte("\xc2\x9b")) || bytes.Contains(out, []byte("\xc2\x80")) || bytes.Contains(out, []byte("\xc2\x9f")) {
+					t.Errorf("%s output: got a raw DEL or C1 control in %q, want = escaped", r.name, out)
+				}
+				var got Report
+				if err := json.Unmarshal(out, &got); err != nil {
+					t.Fatalf("%s decode: got err = %v, want = nil", r.name, err)
+				}
+			}
+		})
 	}
 }

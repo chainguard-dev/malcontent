@@ -7,10 +7,8 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/report"
-	orderedmap "github.com/wk8/go-ordered-map/v2"
 
 	yarax "github.com/VirusTotal/yara-x/go"
 	"github.com/chainguard-dev/malcontent/internal/yrx"
@@ -60,7 +58,7 @@ func scanDiffBuf(t *testing.T, rules *yarax.Rules, data []byte) *yarax.ScanResul
 func generateFileReport(t *testing.T, rules *yarax.Rules, path string, fc []byte, c malcontent.Config) *malcontent.FileReport {
 	t.Helper()
 	mrs := scanDiffBuf(t, rules, fc)
-	fr, err := report.Generate(t.Context(), path, mrs, c, "", clog.New(nil), fc, int64(len(fc)), "cksum", nil, 0)
+	fr, err := report.Generate(t.Context(), path, mrs, c, "", fc, int64(len(fc)), "cksum", nil)
 	if err != nil {
 		t.Fatalf("Generate(%q): %v", path, err)
 	}
@@ -113,7 +111,9 @@ func runHandleDir(t *testing.T, c malcontent.Config, srcFiles, destFiles map[str
 	d := newDiffReportForTest()
 	src := ScanResult{files: srcFiles}
 	dest := ScanResult{files: destFiles}
-	handleDir(t.Context(), c, src, dest, d, false, false)
+	if err := handleDir(t.Context(), c, src, dest, d, false, false); err != nil {
+		t.Fatalf("handleDir: %v", err)
+	}
 	return d
 }
 
@@ -121,9 +121,9 @@ func newDiffReportForTest() *malcontent.DiffReport {
 	// Mirror the DiffReport construction inside Diff itself so test-run
 	// shape matches production exactly.
 	return &malcontent.DiffReport{
-		Added:    orderedmap.New[string, *malcontent.FileReport](),
-		Removed:  orderedmap.New[string, *malcontent.FileReport](),
-		Modified: orderedmap.New[string, *malcontent.FileReport](),
+		Added:    new(malcontent.OrderedFileReports),
+		Removed:  new(malcontent.OrderedFileReports),
+		Modified: new(malcontent.OrderedFileReports),
 	}
 }
 

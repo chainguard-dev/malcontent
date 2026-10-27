@@ -5,19 +5,17 @@ package archive
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"path/filepath"
 	"strings"
 
 	"github.com/chainguard-dev/clog"
-	"github.com/chainguard-dev/malcontent/pkg/file"
-	bzip2 "github.com/cosnicolaou/pbzip2"
 )
 
-// Extract Bz2 extracts bzip2 files.
-func ExtractBz2(ctx context.Context, d, f string) error {
+// ExtractBz2 extracts bzip2 files.
+func ExtractBz2(ctx context.Context, d, f string) (err error) {
+	defer recoverExtractor(ctx, "bz2", f, &err)
 	if ctx.Err() != nil {
 		return ctx.Err()
 	}
@@ -25,11 +23,11 @@ func ExtractBz2(ctx context.Context, d, f string) error {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting bzip2 file")
 
-	// Check if the file is valid
-	fi, err := file.Stat(f)
+	tf, fi, err := openRegular(f)
 	if err != nil {
-		return fmt.Errorf("failed to stat file: %w", err)
+		return fmt.Errorf("failed to open file: %w", err)
 	}
+	defer tf.Close()
 	if fi.Size() == 0 {
 		return nil
 	}
@@ -41,29 +39,12 @@ func ExtractBz2(ctx context.Context, d, f string) error {
 	// InputBytes seeds the ratio denominator from the compressed file size.
 	counter := newArchiveCounter(ctx, fi.Size())
 
-	tf, err := file.Open(f)
-	if err != nil {
-		return fmt.Errorf("failed to open file: %w", err)
-	}
-	defer tf.Close()
-
-	// pbzip2 decodes on background goroutines that block on an internal pipe
-	// until every decompressed byte has been read. Canceling and reading once
-	// more makes the reader close that pipe and wait for them, so returning
-	// early (a cap, cancellation, or write error) does not leave them blocked.
-	bzCtx, cancel := context.WithCancel(ctx)
-	br := bzip2.NewReader(bzCtx, tf)
-	defer func() {
-		cancel()
-		_, _ = br.Read(nil)
-	}()
-
 	uncompressed := strings.TrimSuffix(filepath.Base(f), ".bz2")
 	uncompressed = strings.TrimSuffix(uncompressed, ".bzip2")
 	name := filepath.Join(filepath.Base(filepath.Dir(f)), uncompressed)
 	target := filepath.Join(d, name)
 	if !IsValidPath(target, d) {
-		return fmt.Errorf("invalid file path: %s", target)
+		return fmt.Errorf("invalid file path: %q", target)
 	}
 
 	root, err := openRoot(d)
@@ -72,35 +53,8 @@ func ExtractBz2(ctx context.Context, d, f string) error {
 	}
 	defer root.Close()
 
-	out, err := createFile(root, name)
-	if err != nil {
-		return err
-	}
-	defer out.Close()
-
-	for {
-		if err := ctx.Err(); err != nil {
-			return err
-		}
-
-		n, err := br.Read(buf)
-		if n > 0 {
-			if capErr := counter.Add(n); capErr != nil {
-				return fmt.Errorf("bz2 extraction aborted on %s: %w", target, capErr)
-			}
-			if _, writeErr := out.Write(buf[:n]); writeErr != nil {
-				return fmt.Errorf("failed to write file contents: %w", writeErr)
-			}
-		}
-
-		if errors.Is(err, io.EOF) {
-			break
-		}
-
-		if err != nil {
-			return fmt.Errorf("failed to read file contents: %w", err)
-		}
-	}
-
-	return nil
+	return decompressTo(ctx, root, name, counter, buf, func() (io.Reader, func(), error) {
+		br := newBzip2Reader(ctx, io.NewSectionReader(tf, 0, fi.Size()))
+		return br, func() { _ = br.Close() }, nil
+	})
 }

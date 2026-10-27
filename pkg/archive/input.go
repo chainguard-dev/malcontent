@@ -9,7 +9,6 @@ import (
 	"sync"
 
 	"github.com/chainguard-dev/malcontent/pkg/file"
-	gzip "github.com/klauspost/pgzip"
 )
 
 // inputBufferSize is the read size for compressed archive input.
@@ -33,11 +32,6 @@ const (
 	gzipBlockSize = 256 << 10
 	gzipBlocks    = 4
 )
-
-// newGzipReader returns a pgzip reader of r, buffered by bufferInput.
-func newGzipReader(r io.Reader) (*gzip.Reader, error) {
-	return gzip.NewReaderN(bufferInput(r), gzipBlockSize, gzipBlocks)
-}
 
 // readAheadReaderAt serves ReadAt calls from a window of the underlying reader
 // that it refills a window at a time. go-debian decompresses .deb members

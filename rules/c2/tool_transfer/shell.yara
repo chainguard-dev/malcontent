@@ -60,7 +60,7 @@ rule helm_test_env: override {
   meta:
     description                  = "helm_test_env"
     tool_chmod_relative_run_tiny = "medium"
-    filetypes                    = "application/x-sh,application/x-zsh"
+    filetypes                    = "bash,sh,zsh"
 
   strings:
     $helm_curl = "curl -L https://get.helm.sh"
@@ -92,7 +92,7 @@ rule tool_tor_chmod_relative_run: high {
 
 rule dev_null_rm: medium {
   meta:
-    filetypes = "application/x-sh,application/x-zsh"
+    filetypes = "bash,sh,zsh"
 
   strings:
     $dev_null_rm = /[ \w\.\/\&\-%]{0,32}\/dev\/null\;rm[ \w\/\&\.\-\%]{0,32}/
@@ -103,7 +103,7 @@ rule dev_null_rm: medium {
 
 rule sleep_rm: medium {
   meta:
-    filetypes = "application/x-sh,application/x-zsh"
+    filetypes = "bash,sh,zsh"
 
   strings:
     $dev_null_rm = /sleep;rm[ \w\/\&\.\-\%]{0,32}/
@@ -114,7 +114,7 @@ rule sleep_rm: medium {
 
 rule nohup_bash_background: high {
   meta:
-    filetypes = "application/x-sh,application/x-zsh"
+    filetypes = "bash,sh,zsh"
 
   strings:
     $ref = /nohup bash [\%\w\/\\>]{0,64} &/

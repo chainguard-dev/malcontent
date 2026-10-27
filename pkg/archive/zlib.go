@@ -6,17 +6,18 @@ package archive
 import (
 	"compress/zlib"
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"path/filepath"
 
 	"github.com/chainguard-dev/clog"
-	"github.com/chainguard-dev/malcontent/pkg/file"
 )
 
-// extractZlib extracts extension-agnostic zlib-compressed files.
-func ExtractZlib(ctx context.Context, d string, f string) error {
+// ExtractZlib extracts extension-agnostic zlib-compressed files. Input left
+// after the zlib stream ends is reported as ErrUnaccountedBytes, so that the
+// file is retained and scanned as it is.
+func ExtractZlib(ctx context.Context, d string, f string) (err error) {
+	defer recoverExtractor(ctx, "zlib", f, &err)
 	if ctx.Err() != nil {
 		return ctx.Err()
 	}
@@ -24,11 +25,11 @@ func ExtractZlib(ctx context.Context, d string, f string) error {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debugf("extracting zlib")
 
-	// Check if the file is valid
-	fi, err := file.Stat(f)
+	zf, fi, err := openRegular(f)
 	if err != nil {
-		return fmt.Errorf("failed to stat file: %w", err)
+		return fmt.Errorf("failed to open file: %w", err)
 	}
+	defer zf.Close()
 	if fi.Size() == 0 {
 		return nil
 	}
@@ -40,18 +41,12 @@ func ExtractZlib(ctx context.Context, d string, f string) error {
 	// InputBytes seeds the ratio denominator from the compressed file size.
 	counter := newArchiveCounter(ctx, fi.Size())
 
-	zf, err := file.Open(f)
-	if err != nil {
-		return fmt.Errorf("failed to open file: %w", err)
-	}
-	defer zf.Close()
-
 	base := filepath.Base(f)
 	name := base[:len(base)-len(filepath.Ext(base))]
 	target := filepath.Join(d, name)
 
 	if !IsValidPath(target, d) {
-		return fmt.Errorf("invalid zlib decompression file path: %s", target)
+		return fmt.Errorf("invalid zlib decompression file path: %q", target)
 	}
 
 	root, err := openRoot(d)
@@ -60,42 +55,29 @@ func ExtractZlib(ctx context.Context, d string, f string) error {
 	}
 	defer root.Close()
 
-	zr, err := zlib.NewReader(bufferInput(zf))
+	// compress/flate reads its input a byte at a time through the buffer, so
+	// whatever the buffer holds once the stream ends follows the stream.
+	input := bufferInput(io.NewSectionReader(zf, 0, fi.Size()))
+	zr, err := zlib.NewReader(input)
 	if err != nil {
 		return fmt.Errorf("failed to create zlib reader: %w", err)
 	}
 	defer zr.Close()
 
+	if err := counter.Entry(); err != nil {
+		return fmt.Errorf("zlib extraction aborted on %q: %w", target, err)
+	}
 	out, err := createFile(root, name)
 	if err != nil {
 		return fmt.Errorf("failed to create extracted file: %w", err)
 	}
 	defer out.Close()
 
-	for {
-		if err := ctx.Err(); err != nil {
-			return err
-		}
-
-		n, err := zr.Read(buf)
-		if n > 0 {
-			if capErr := counter.Add(n); capErr != nil {
-				return fmt.Errorf("zlib extraction aborted on %s: %w", target, capErr)
-			}
-
-			if _, writeErr := out.Write(buf[:n]); writeErr != nil {
-				return fmt.Errorf("failed to write file contents: %w", writeErr)
-			}
-		}
-
-		if errors.Is(err, io.EOF) {
-			break
-		}
-
-		if err != nil {
-			return fmt.Errorf("failed to read file contents: %w", err)
-		}
+	if err := copyCounted(ctx, out, zr, counter, buf, target); err != nil {
+		return err
 	}
-
+	if _, err := input.Peek(1); err == nil {
+		return fmt.Errorf("%w in %q: data follows the zlib stream", ErrUnaccountedBytes, base)
+	}
 	return nil
 }

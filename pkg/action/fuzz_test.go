@@ -32,14 +32,14 @@ func FuzzCleanPath(f *testing.F) {
 	f.Fuzz(func(t *testing.T, path, prefix string) {
 		result := CleanPath(path, prefix)
 
-		// Result never contains backslashes (normalized to /)
-		if strings.Contains(result, "\\") {
-			t.Errorf("CleanPath(%q, %q) = %q, contains backslash", path, prefix, result)
+		// Result never contains the platform's separator other than "/".
+		if filepath.Separator != '/' && strings.ContainsRune(result, filepath.Separator) {
+			t.Errorf("CleanPath(%q, %q) = %q, contains a separator", path, prefix, result)
 		}
 
 		// If prefix is empty, result is formatPath(input)
 		if prefix == "" {
-			want := strings.ReplaceAll(path, "\\", "/")
+			want := filepath.ToSlash(path)
 			if result != want {
 				t.Errorf("CleanPath(%q, \"\") = %q, want %q", path, result, want)
 			}
@@ -61,7 +61,7 @@ func FuzzExitIfHitOrMiss(f *testing.F) {
 		}
 
 		// nil map always returns nil, nil
-		fr, err := exitIfHitOrMiss(nil, scanPath, errIfHit, errIfMiss)
+		fr, err := exitIfHitOrMiss(nil, scanPath, errIfHit, errIfMiss, 0)
 		if fr != nil || err != nil {
 			t.Fatal("nil map should return nil, nil")
 		}
@@ -74,7 +74,7 @@ func FuzzExitIfHitOrMiss(f *testing.F) {
 		}
 		m.Store("file", &malcontent.FileReport{Path: "file", Behaviors: behaviors})
 
-		fr2, err2 := exitIfHitOrMiss(m, scanPath, false, false)
+		fr2, err2 := exitIfHitOrMiss(m, scanPath, false, false, 0)
 		if fr2 != nil || err2 != nil {
 			t.Fatal("both flags false should return nil, nil")
 		}
@@ -119,10 +119,12 @@ func FuzzFindFilesRecursively(f *testing.F) {
 			root.WriteFile("file"+string(rune('0'+i))+".txt", []byte("data"), 0o644)
 		}
 
-		// Optionally create a .git directory (should be excluded from results)
+		// Optionally create a .git directory, whose object store is excluded
+		// from results
 		if createGitDir {
-			root.MkdirAll(".git", 0o755)
+			root.MkdirAll(filepath.Join(".git", "objects"), 0o755)
 			root.WriteFile(filepath.Join(".git", "config"), []byte("gitconfig"), 0o644)
+			root.WriteFile(filepath.Join(".git", "objects", "ab"), []byte("object"), 0o644)
 		}
 
 		// Optionally create a symlink (symlinked dirs should be excluded)
@@ -139,10 +141,10 @@ func FuzzFindFilesRecursively(f *testing.F) {
 			return // errors are OK (e.g., permission issues)
 		}
 
-		// Invariant: no .git files in results
+		// Invariant: no git objects in results
 		for _, f := range files {
-			if strings.Contains(f, "/.git/") {
-				t.Errorf("found .git file in results: %q", f)
+			if strings.Contains(f, filepath.Join(".git", "objects")) {
+				t.Errorf("found git object in results: %q", f)
 			}
 		}
 	})

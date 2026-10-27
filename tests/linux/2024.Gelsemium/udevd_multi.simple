@@ -64,6 +64,7 @@ net/ip/host_port: medium
 net/ip/parse: medium
 net/ip/string: medium
 net/proxy/tunnel: medium
+net/proxy/tunnel_create: medium
 net/resolve/hostname: low
 net/socket/listen: medium
 net/socket/local_addr: low

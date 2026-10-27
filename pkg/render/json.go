@@ -57,7 +57,14 @@ func (r JSON) Full(ctx context.Context, c *malcontent.Config, rep *malcontent.Re
 		return nil
 	}
 
-	files := sanitizedFiles(ctx, rep.Files)
+	files, err := sanitizedFiles(ctx, rep.Files)
+	if err != nil {
+		return err
+	}
+	diff, err := sanitizedDiff(ctx, rep.Diff)
+	if err != nil {
+		return err
+	}
 
 	var stats *Stats
 	if c != nil && c.Stats && rep.Diff == nil {
@@ -74,8 +81,8 @@ func (r JSON) Full(ctx context.Context, c *malcontent.Config, rep *malcontent.Re
 
 	var doc jsonObject
 	head.WriteByte('{')
-	if rep.Diff != nil {
-		if err := doc.member(head, "Diff", rep.Diff); err != nil {
+	if diff != nil {
+		if err := doc.member(head, "Diff", diff); err != nil {
 			return err
 		}
 	}
@@ -97,25 +104,27 @@ func (r JSON) Full(ctx context.Context, c *malcontent.Config, rep *malcontent.Re
 	if err := writeJSONFiles(r.w, files); err != nil {
 		return err
 	}
-	_, err := r.w.Write(tail.Bytes())
+	_, err = r.w.Write(tail.Bytes())
 	return err
 }
 
 // fileEntry is one member of the "Files" object.
 type fileEntry struct {
 	key string
+	// raw is the key before sanitizing.
+	raw string
 	fr  *malcontent.FileReport
-	// order is the position of the report in Range order.
-	order int
 }
 
 // sanitizedFiles returns the reports in files that the "Files" object holds,
 // sanitized in place and sorted by key, which is the order json.Marshal gives
-// map keys. Reports whose keys are equal once sanitized keep only the one
-// ranged over last, as storing them in a map would.
-func sanitizedFiles(ctx context.Context, files *xsync.Map[string, *malcontent.FileReport]) []fileEntry {
+// map keys. Keys that are equal once sanitized are made distinct by
+// uniqueKeys over the raw keys in sorted order, so every report is kept and
+// the keys do not depend on the order of the map. It returns the context's
+// error when ctx is canceled before every report is collected.
+func sanitizedFiles(ctx context.Context, files *xsync.Map[string, *malcontent.FileReport]) ([]fileEntry, error) {
 	if files == nil {
-		return nil
+		return nil, nil
 	}
 
 	entries := make([]fileEntry, 0, files.Size())
@@ -127,22 +136,34 @@ func sanitizedFiles(ctx context.Context, files *xsync.Map[string, *malcontent.Fi
 			return true
 		}
 		sanitizeReport(fr)
-		entries = append(entries, fileEntry{key: sanitizeUTF8(key), fr: fr, order: len(entries)})
+		entries = append(entries, fileEntry{key: sanitizeUTF8(key), raw: key, fr: fr})
 		return true
 	})
-
-	slices.SortFunc(entries, func(a, b fileEntry) int {
-		return cmp.Or(strings.Compare(a.key, b.key), cmp.Compare(a.order, b.order))
-	})
-	kept := entries[:0]
-	for i, e := range entries {
-		if i+1 < len(entries) && entries[i+1].key == e.key {
-			continue
-		}
-		kept = append(kept, e)
+	if err := ctx.Err(); err != nil {
+		return nil, err
 	}
-	clear(entries[len(kept):])
-	return kept
+
+	byKey := func(a, b fileEntry) int {
+		return cmp.Or(strings.Compare(a.key, b.key), strings.Compare(a.raw, b.raw))
+	}
+	slices.SortFunc(entries, byKey)
+	// Sorting puts keys that are equal once sanitized next to each other.
+	collide := false
+	for i := 1; i < len(entries) && !collide; i++ {
+		collide = entries[i].key == entries[i-1].key
+	}
+	if !collide {
+		return entries, nil
+	}
+	raw := make([]string, len(entries))
+	for i, e := range entries {
+		raw[i] = e.raw
+	}
+	for i, k := range uniqueKeys(raw) {
+		entries[i].key = k
+	}
+	slices.SortFunc(entries, byKey)
+	return entries, nil
 }
 
 // jsonChunk holds consecutive members of the "Files" object, encoded.
@@ -225,13 +246,54 @@ func encodeJSONFiles(b *bytes.Buffer, files []fileEntry, first bool) error {
 }
 
 // encodeJSON appends v to b, encoded by enc, without the newline Encode ends
-// it with. enc must write to b.
+// it with, and with DEL and the C1 controls escaped by escapeJSONControls.
+// enc must write to b.
 func encodeJSON(enc *json.Encoder, b *bytes.Buffer, v any) error {
+	start := b.Len()
 	if err := enc.Encode(v); err != nil {
 		return err
 	}
 	b.Truncate(b.Len() - 1)
+	escapeJSONControls(b, start)
 	return nil
+}
+
+// escapeJSONControls rewrites DEL and the C1 controls, U+0080 through U+009F,
+// in the JSON text b holds from start as \u007f through \u009f. encoding/json
+// writes them raw, and a terminal showing the output may act on them. JSON
+// text is ASCII outside its strings and encoding/json writes valid UTF-8, so
+// every byte 0x7f and every 0xc2 lead byte followed by 0x80 through 0x9f is a
+// character inside a string, and the escape decodes to the same text.
+func escapeJSONControls(b *bytes.Buffer, start int) {
+	text := b.Bytes()[start:]
+	first := len(text)
+	if i := bytes.IndexByte(text, 0x7f); i >= 0 {
+		first = i
+	}
+	if i := bytes.IndexByte(text[:first], 0xc2); i >= 0 {
+		first = i
+	}
+	if first == len(text) {
+		return
+	}
+
+	const hex = "0123456789abcdef"
+	escaped := make([]byte, 0, len(text)-first+16)
+	for i := first; i < len(text); i++ {
+		c := text[i]
+		switch {
+		case c == 0x7f:
+		case c == 0xc2 && i+1 < len(text) && text[i+1] >= 0x80 && text[i+1] <= 0x9f:
+			i++
+			c = text[i]
+		default:
+			escaped = append(escaped, c)
+			continue
+		}
+		escaped = append(escaped, '\\', 'u', '0', '0', hex[c>>4], hex[c&0x0f])
+	}
+	b.Truncate(start + first)
+	b.Write(escaped)
 }
 
 // jsonObject writes members of the top-level object with the separators and

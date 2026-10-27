@@ -10,7 +10,6 @@ import (
 
 	yarax "github.com/VirusTotal/yara-x/go"
 	"github.com/puzpuzpuz/xsync/v4"
-	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
 // KeepalivePolicy selects how the OCI HTTP transport configures keepalives.
@@ -63,7 +62,7 @@ type Config struct {
 	MinRisk         int
 	OCI             bool
 	OCIAuth         bool
-	// OCI transport hardening fields. Zero values trigger sane defaults inside prepareImage; configure via With... setters or environment.
+	// OCI transport hardening fields. Zero values trigger sane defaults inside archive.OCIWithConfig; configure via With... setters or environment.
 	OCIPullTimeoutSeconds    int
 	OCIRetryMaxAttempts      int
 	OCIRetryMaxWindowSeconds int
@@ -72,6 +71,9 @@ type Config struct {
 	OCIKeepaliveSeconds      int
 	OCIProxyOptIn            bool
 	OCICABundlePath          string
+	OCIAllowInsecureAuth     bool     // permit registry credentials over plain HTTP
+	OCIPlatforms             []string // index platforms as os/arch[/variant]; empty selects all
+	OCIPullDeadlineSeconds   int      // bound on a whole pull and extraction; <= 0 is none
 	Output                   io.Writer
 	Processes                bool
 	QuantityIncreasesRisk    bool
@@ -107,8 +109,11 @@ type Behavior struct {
 	Description string `json:",omitempty" yaml:",omitempty"`
 	// MatchStrings are all strings found relating to this behavior
 	MatchStrings []string `json:",omitempty" yaml:",omitempty"`
-	RiskScore    int
-	RiskLevel    string `json:",omitempty" yaml:",omitempty"`
+	// MatchStringsOmitted counts the match strings left out of MatchStrings
+	// beyond its cap.
+	MatchStringsOmitted int `json:",omitempty" yaml:",omitempty"`
+	RiskScore           int
+	RiskLevel           string `json:",omitempty" yaml:",omitempty"`
 
 	RuleURL      string `json:",omitempty" yaml:",omitempty"`
 	ReferenceURL string `json:",omitempty" yaml:",omitempty"`
@@ -168,13 +173,13 @@ type FileReport struct {
 }
 
 type DiffReport struct {
-	Added    *orderedmap.OrderedMap[string, *FileReport] `json:",omitempty" yaml:",omitempty"`
-	Removed  *orderedmap.OrderedMap[string, *FileReport] `json:",omitempty" yaml:",omitempty"`
-	Modified *orderedmap.OrderedMap[string, *FileReport] `json:",omitempty" yaml:",omitempty"`
+	Added    *OrderedFileReports `json:",omitempty" yaml:",omitempty"`
+	Removed  *OrderedFileReports `json:",omitempty" yaml:",omitempty"`
+	Modified *OrderedFileReports `json:",omitempty" yaml:",omitempty"`
 }
 
 type ScanResult struct {
-	FileReports map[string]*FileReport `json:"Files,omitempty" yaml:"Files,omitempty"`
+	FileReports map[string]*FileReport `json:"Files,omitempty" yaml:"files,omitempty"`
 }
 
 type Report struct {

@@ -11,14 +11,61 @@ import (
 	"io/fs"
 	"log/slog"
 	"os"
+	"path"
 	"path/filepath"
 	"slices"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"testing"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/file"
 )
+
+// walkScanPath opens and walks rootPath as a scan does and returns its walk
+// root and the files the walk finds, in the order a sequential walk visits
+// them. A scan path that yields nothing yields no walk root.
+func walkScanPath(ctx context.Context, rootPath string) (*walkRoot, []walkedFile, error) {
+	if ctx.Err() != nil {
+		return nil, nil, ctx.Err()
+	}
+	w, start, err := openScanPath(ctx, rootPath)
+	if err != nil || w == nil {
+		return nil, nil, err
+	}
+	var mu sync.Mutex
+	var files []walkedFile
+	walkInto(ctx, w, start, func(f walkedFile) {
+		mu.Lock()
+		defer mu.Unlock()
+		files = append(files, f)
+	})
+	slices.SortFunc(files, func(a, b walkedFile) int { return walkOrder(a.name, b.name) })
+	return w, files, nil
+}
+
+// walkOrder compares two paths in the order a depth-first walk in lexical
+// order visits them: element by element, a directory before what it holds.
+func walkOrder(a, b string) int {
+	for {
+		ah, at, amore := strings.Cut(a, string(filepath.Separator))
+		bh, bt, bmore := strings.Cut(b, string(filepath.Separator))
+		if c := strings.Compare(ah, bh); c != 0 || !amore || !bmore {
+			if c != 0 {
+				return c
+			}
+			switch {
+			case amore:
+				return 1
+			case bmore:
+				return -1
+			}
+			return 0
+		}
+		a, b = at, bt
+	}
+}
 
 // walkTestPaths returns the paths walkScanPath finds beneath rootPath.
 func walkTestPaths(ctx context.Context, t *testing.T, rootPath string) ([]string, error) {
@@ -64,12 +111,15 @@ func TestWalkScanPath(t *testing.T) {
 		}
 	}
 
-	// Create a .git directory that should be ignored
-	if err := root.MkdirAll(".git", 0o755); err != nil {
+	// A .git directory's config is scanned; its object store is not.
+	if err := root.MkdirAll(filepath.Join(".git", "objects"), 0o755); err != nil {
 		t.Fatalf("failed to create .git directory: %v", err)
 	}
 	if err := root.WriteFile(filepath.Join(".git", "config"), []byte("git config"), 0o644); err != nil {
 		t.Fatalf("failed to create git file: %v", err)
+	}
+	if err := root.WriteFile(filepath.Join(".git", "objects", "ab"), []byte("object"), 0o644); err != nil {
+		t.Fatalf("failed to create git object: %v", err)
 	}
 
 	tests := []struct {
@@ -81,7 +131,7 @@ func TestWalkScanPath(t *testing.T) {
 		{
 			name:      "scan all files",
 			rootPath:  tmpDir,
-			wantCount: len(files), // Should find all files but not .git files
+			wantCount: len(files) + 1, // every file and .git/config, but no git object
 			wantErr:   false,
 		},
 		{
@@ -97,10 +147,9 @@ func TestWalkScanPath(t *testing.T) {
 			wantErr:   false,
 		},
 		{
-			name:      "non-existent path",
-			rootPath:  filepath.Join(tmpDir, "nonexistent"),
-			wantCount: 0,
-			wantErr:   false, // Should return nil, nil for non-existent symlinks
+			name:     "non-existent path",
+			rootPath: filepath.Join(tmpDir, "nonexistent"),
+			wantErr:  true,
 		},
 	}
 
@@ -120,10 +169,10 @@ func TestWalkScanPath(t *testing.T) {
 				t.Logf("Files found: %v", got)
 			}
 
-			// Verify no .git files are included
+			// Verify no git objects are included
 			for _, f := range got {
-				if strings.Contains(f, "/.git/") {
-					t.Errorf("walkScanPath() included .git file: %s", f)
+				if strings.Contains(f, string(filepath.Separator)+"objects"+string(filepath.Separator)) {
+					t.Errorf("walkScanPath() included a git object: %s", f)
 				}
 			}
 		})
@@ -273,7 +322,9 @@ func TestWalkScanPathPermissionDenied(t *testing.T) {
 	if !slices.Equal(files, want) {
 		t.Errorf("walkScanPath() = %q, want %q", files, want)
 	}
-	if want := "error: " + filepath.Join(tmpDir, "restricted") + ":"; !strings.Contains(logs.String(), want) {
+	// The directory the walk could not read is reported as a warning, which
+	// a default log level shows.
+	if want := "level=WARN msg=\"skipping " + filepath.Join(tmpDir, "restricted") + ":"; !strings.Contains(logs.String(), want) {
 		t.Errorf("logs: got = %q, want them to contain %q", logs.String(), want)
 	}
 
@@ -330,19 +381,26 @@ func TestWalkScanPathDeepNesting(t *testing.T) {
 }
 
 // pathTestRepo creates a repository layout under dir: a source file, a .git
-// directory with nested entries, and a nested repository's .git directory.
+// directory with a hook, config, loose objects, and a pack, and a nested
+// repository's .git directory.
 func pathTestRepo(t *testing.T, dir string) {
 	t.Helper()
 	for _, name := range []string{
 		"main.go",
 		filepath.Join(".git", "config"),
+		filepath.Join(".git", "hooks", "pre-commit"),
 		filepath.Join(".git", "objects", "ab", "cd"),
+		filepath.Join(".git", "objects", "pack", "pack-1.pack"),
 		filepath.Join("sub", ".git", "config"),
+		filepath.Join("sub", ".git", "objects", "ef", "01"),
 	} {
 		scanTestWriteFile(t, filepath.Join(dir, name), []byte("x"))
 	}
 }
 
+// TestWalkScanPathGitDirectories checks that walks pass over only the object
+// stores of git repositories, whatever spells the scan path: the hooks and
+// config of .git directories are scanned.
 func TestWalkScanPathGitDirectories(t *testing.T) {
 	t.Parallel()
 	// Walks report paths below the root with symlinks resolved.
@@ -352,16 +410,27 @@ func TestWalkScanPathGitDirectories(t *testing.T) {
 	}
 	repo := filepath.Join(base, "repo")
 	pathTestRepo(t, repo)
+	git := filepath.Join(repo, ".git")
 
 	tests := []struct {
 		name string
 		root string
 		want []string
 	}{
-		{name: "repository reports only files outside .git directories", root: repo, want: []string{filepath.Join(repo, "main.go")}},
-		{name: "a .git directory as the root reports nothing", root: filepath.Join(repo, ".git")},
-		{name: "a directory inside .git as the root reports nothing", root: filepath.Join(repo, ".git", "objects")},
-		{name: "a file inside .git as the root reports nothing", root: filepath.Join(repo, ".git", "config")},
+		{
+			name: "a repository reports everything but its object stores",
+			root: repo,
+			want: []string{
+				filepath.Join(git, "config"),
+				filepath.Join(git, "hooks", "pre-commit"),
+				filepath.Join(repo, "main.go"),
+				filepath.Join(repo, "sub", ".git", "config"),
+			},
+		},
+		{name: "a .git directory as the root reports its hooks and config", root: git, want: []string{filepath.Join(git, "config"), filepath.Join(git, "hooks", "pre-commit")}},
+		{name: "a hooks directory as the root reports its hooks", root: filepath.Join(git, "hooks"), want: []string{filepath.Join(git, "hooks", "pre-commit")}},
+		{name: "a hook as the root reports itself", root: filepath.Join(git, "hooks", "pre-commit"), want: []string{filepath.Join(git, "hooks", "pre-commit")}},
+		{name: "an object store named as the root is walked", root: filepath.Join(git, "objects"), want: []string{filepath.Join(git, "objects", "ab", "cd"), filepath.Join(git, "objects", "pack", "pack-1.pack")}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -377,24 +446,23 @@ func TestWalkScanPathGitDirectories(t *testing.T) {
 	}
 }
 
-// TestFindFilesRecursivelyRelativeGitDirectory covers walks from relative
-// roots, whose top-level .git directory is named ".git" rather than
-// ".../.git", so its entries are reported.
+// TestWalkScanPathRelativeGitDirectory covers walks from relative roots,
+// which treat .git directories as absolute roots do.
 func TestWalkScanPathRelativeGitDirectory(t *testing.T) {
 	// Not parallel: changes the working directory.
 	dir := t.TempDir()
 	pathTestRepo(t, dir)
 	t.Chdir(dir)
 
-	gitFiles := []string{filepath.Join(".git", "config"), filepath.Join(".git", "objects", "ab", "cd")}
+	gitFiles := []string{filepath.Join(".git", "config"), filepath.Join(".git", "hooks", "pre-commit")}
 	tests := []struct {
 		name string
 		root string
 		want []string
 	}{
-		{name: "the working directory reports its top-level .git entries", root: ".", want: append(slices.Clone(gitFiles), "main.go")},
-		{name: "a relative .git root reports its entries", root: ".git", want: gitFiles},
-		{name: "a nested .git directory reports nothing", root: filepath.Join("sub", ".git")},
+		{name: "the working directory reports everything but object stores", root: ".", want: append(slices.Clone(gitFiles), "main.go", filepath.Join("sub", ".git", "config"))},
+		{name: "a relative .git root reports its hooks and config", root: ".git", want: gitFiles},
+		{name: "a nested .git directory reports its config", root: filepath.Join("sub", ".git"), want: []string{filepath.Join("sub", ".git", "config")}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -407,6 +475,15 @@ func TestWalkScanPathRelativeGitDirectory(t *testing.T) {
 			}
 		})
 	}
+}
+
+// pathTestSlashed returns windows on Windows, whose separator is a
+// backslash, and other elsewhere, where a backslash belongs to a name.
+func pathTestSlashed(windows, other string) string {
+	if filepath.Separator == '\\' {
+		return windows
+	}
+	return other
 }
 
 func TestCleanPath(t *testing.T) {
@@ -442,10 +519,10 @@ func TestCleanPath(t *testing.T) {
 			want:   "",
 		},
 		{
-			name:   "windows path",
+			name:   "windows path keeps its backslashes as names except on Windows",
 			path:   "C:\\Users\\test\\file.txt",
 			prefix: "",
-			want:   "C:/Users/test/file.txt",
+			want:   pathTestSlashed("C:/Users/test/file.txt", "C:\\Users\\test\\file.txt"),
 		},
 		{
 			name:   "partial prefix match - no strip",
@@ -454,16 +531,16 @@ func TestCleanPath(t *testing.T) {
 			want:   "/tmp/extract2/bin/ls",
 		},
 		{
-			name:   "windows prefix removed at a backslash boundary",
+			name:   "windows prefix removed at a backslash boundary on Windows only",
 			path:   "C:\\tmp\\extract\\bin\\ls",
 			prefix: "C:\\tmp\\extract",
-			want:   "/bin/ls",
+			want:   pathTestSlashed("/bin/ls", "C:\\tmp\\extract\\bin\\ls"),
 		},
 		{
 			name:   "windows partial prefix match is not stripped",
 			path:   "C:\\tmp\\extract2\\bin\\ls",
 			prefix: "C:\\tmp\\extract",
-			want:   "C:/tmp/extract2/bin/ls",
+			want:   pathTestSlashed("C:/tmp/extract2/bin/ls", "C:\\tmp\\extract2\\bin\\ls"),
 		},
 		{
 			name:   "path equal to the prefix is emptied",
@@ -475,7 +552,7 @@ func TestCleanPath(t *testing.T) {
 			name:   "relative path with an empty prefix",
 			path:   "bin\\ls",
 			prefix: "",
-			want:   "bin/ls",
+			want:   pathTestSlashed("bin/ls", "bin\\ls"),
 		},
 		{
 			name:   "empty path and prefix",
@@ -509,14 +586,14 @@ func TestFormatPath(t *testing.T) {
 			want: "/usr/bin/ls",
 		},
 		{
-			name: "windows path converted",
+			name: "windows path converted on Windows only",
 			path: "C:\\Users\\test\\file.txt",
-			want: "C:/Users/test/file.txt",
+			want: pathTestSlashed("C:/Users/test/file.txt", "C:\\Users\\test\\file.txt"),
 		},
 		{
 			name: "mixed separators",
 			path: "/tmp\\test/file\\name.txt",
-			want: "/tmp/test/file/name.txt",
+			want: pathTestSlashed("/tmp/test/file/name.txt", "/tmp\\test/file\\name.txt"),
 		},
 		{
 			name: "empty path",
@@ -526,7 +603,7 @@ func TestFormatPath(t *testing.T) {
 		{
 			name: "only backslashes",
 			path: "\\\\\\",
-			want: "///",
+			want: pathTestSlashed("///", "\\\\\\"),
 		},
 	}
 
@@ -555,8 +632,11 @@ func TestWalkScanPathMatchesASequentialWalk(t *testing.T) {
 	// Enough directories, at several depths, that many are read at once.
 	for i := range 300 {
 		name := filepath.Join(fmt.Sprintf("d%d", i%7), fmt.Sprintf("e%d", i%31), fmt.Sprintf("f%03d", i))
-		if i%50 == 0 {
-			name = filepath.Join(fmt.Sprintf("d%d", i%7), ".git", fmt.Sprintf("objects%d", i))
+		switch i % 50 {
+		case 0:
+			name = filepath.Join(fmt.Sprintf("d%d", i%7), ".git", "objects", fmt.Sprintf("o%d", i))
+		case 25:
+			name = filepath.Join(fmt.Sprintf("d%d", i%7), ".git", "hooks", fmt.Sprintf("h%d", i))
 		}
 		if err := root.MkdirAll(filepath.Dir(name), 0o700); err != nil {
 			t.Fatalf("mkdir: %v", err)
@@ -579,7 +659,7 @@ func TestWalkScanPathMatchesASequentialWalk(t *testing.T) {
 		switch {
 		case err != nil:
 			return err
-		case d.IsDir() && d.Name() == ".git":
+		case d.IsDir() && d.Name() == "objects" && path.Base(path.Dir(name)) == ".git":
 			return fs.SkipDir
 		case d.IsDir() || d.Type()&fs.ModeSymlink != 0:
 			return nil
@@ -645,16 +725,28 @@ func TestWalkScanPathUnreadableScanPath(t *testing.T) {
 	}
 	t.Cleanup(func() { _ = root.Chmod("searchable", 0o700) })
 
-	for _, path := range []string{filepath.Join(dir, "searchable"), filepath.Join(dir, "searchable", "file")} {
-		ctx, logs := walkTestLogs(t)
-		w, files, err := walkScanPath(ctx, path)
-		w.close()
-		if w != nil || files != nil || err != nil {
-			t.Errorf("walkScanPath(%q): got = (%v, %v, %v), want nothing, as for any entry the walk cannot read", path, w, files, err)
-		}
-		if want := "error: " + path + ":"; !strings.Contains(logs.String(), want) {
-			t.Errorf("logs of %q: got = %q, want them to contain %q", path, logs.String(), want)
-		}
+	tests := []struct {
+		name   string
+		path   string
+		wantIs error
+	}{
+		{name: "a directory that cannot be read is an error", path: filepath.Join(dir, "searchable"), wantIs: fs.ErrPermission},
+		{name: "a file in a directory that cannot be read is an error", path: filepath.Join(dir, "searchable", "file"), wantIs: fs.ErrPermission},
+		{name: "a scan path that does not exist is an error", path: filepath.Join(dir, "missing"), wantIs: fs.ErrNotExist},
+		{name: "a scan path below a missing directory is an error", path: filepath.Join(dir, "missing", "file"), wantIs: fs.ErrNotExist},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			w, files, err := walkScanPath(t.Context(), tt.path)
+			w.close()
+			if w != nil || files != nil || !errors.Is(err, tt.wantIs) {
+				t.Errorf("walkScanPath(%q): got = (%v, %v, %v), want an error wrapping %v", tt.path, w, files, err, tt.wantIs)
+			}
+			if err != nil && !strings.Contains(err.Error(), tt.path) {
+				t.Errorf("error: got = %q, want it to name %q", err.Error(), tt.path)
+			}
+		})
 	}
 }
 
@@ -682,12 +774,55 @@ func TestWalkScanPathDanglingSymlinkRoot(t *testing.T) {
 func TestWalkScanPathUnresolvableProcLink(t *testing.T) {
 	t.Parallel()
 	// Another user's process: its executable link cannot be read.
-	path := "/proc/1/exe"
-	if _, err := filepath.EvalSymlinks(path); err == nil || errors.Is(err, fs.ErrNotExist) {
-		t.Skipf("%s resolves here or is missing (%v)", path, err)
+	link := "/proc/1/exe"
+	if _, err := filepath.EvalSymlinks(link); err == nil || errors.Is(err, fs.ErrNotExist) {
+		t.Skipf("%s resolves here or is missing (%v)", link, err)
 	}
-	w, files, err := walkScanPath(t.Context(), path)
+	w, files, err := walkScanPath(t.Context(), link)
 	if w != nil || files != nil || err != nil {
-		t.Errorf("walkScanPath(%q): got = (%v, %v, %v), want nothing", path, w, files, err)
+		t.Errorf("walkScanPath(%q): got = (%v, %v, %v), want nothing", link, w, files, err)
+	}
+}
+
+// TestWalkScanPathStopsWhenCanceled checks that a walk stops soon after its
+// context ends rather than visiting the rest of the tree.
+func TestWalkScanPathStopsWhenCanceled(t *testing.T) {
+	// Not parallel: sets walkFileHook.
+	dir := t.TempDir()
+	const files = 300
+	for i := range files {
+		scanTestWriteFile(t, filepath.Join(dir, fmt.Sprintf("d%02d", i%20), fmt.Sprintf("f%03d", i)), []byte("x"))
+	}
+
+	tests := []struct {
+		name     string
+		cancelAt int // the file at which the context ends; 0 never ends it
+		wantAll  bool
+	}{
+		{name: "a walk whose context ends stops early", cancelAt: 1},
+		{name: "a walk whose context lasts visits every file", wantAll: true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx, cancel := context.WithCancel(t.Context())
+			defer cancel()
+			var visited atomic.Int64
+			walkFileHook = func() {
+				if visited.Add(1) == int64(tt.cancelAt) {
+					cancel()
+				}
+			}
+			t.Cleanup(func() { walkFileHook = nil })
+			w, start, err := openScanPath(ctx, dir)
+			if err != nil {
+				t.Fatalf("openScanPath: %v", err)
+			}
+			defer w.close()
+			walkInto(ctx, w, start, func(walkedFile) {})
+			// Each of the walk's goroutines may finish the entry it holds.
+			if got := visited.Load() == files; got != tt.wantAll {
+				t.Errorf("files visited: got = %d of %d, want all = %t", visited.Load(), files, tt.wantAll)
+			}
+		})
 	}
 }

@@ -12,20 +12,19 @@ import (
 	"testing"
 
 	"github.com/chainguard-dev/clog"
-	"github.com/chainguard-dev/malcontent/pkg/file"
 	zip "github.com/klauspost/compress/zip"
 )
 
 func TestSplitByCaps(t *testing.T) {
 	t.Parallel()
-	entry := func(name string, size uint64) *zip.File {
-		return &zip.File{Name: name, UncompressedSize64: size}
+	entry := func(name string, size uint64) zipEntry {
+		return zipEntry{zf: &zip.File{Name: name, UncompressedSize64: size}, name: name, path: name}
 	}
-	entries := []*zip.File{entry("e", 5), entry("a", 1), entry("b", 3), entry("c", 3), entry("z", 0)}
-	names := func(files []*zip.File) []string {
+	entries := []zipEntry{entry("e", 5), entry("a", 1), entry("b", 3), entry("c", 3), entry("z", 0)}
+	names := func(files []zipEntry) []string {
 		out := make([]string, len(files))
 		for i, f := range files {
-			out[i] = f.Name
+			out[i] = f.name
 		}
 		return out
 	}
@@ -72,8 +71,12 @@ func TestExtractEntriesStopsForACanceledContext(t *testing.T) {
 	defer rc.Close()
 	ctx, cancel := context.WithCancel(t.Context())
 	cancel()
-	er := testEntryRoots(t, openTestRoot(t, dir))
-	err = extractEntries(ctx, rc.File, src, er, clog.FromContext(t.Context()), &file.ArchiveCounter{}, nil)
+	x := &zipExtraction{ctx: ctx, logger: clog.FromContext(t.Context()), paths: testPaths(t, openTestRoot(t, dir)), budget: testBudget(0)}
+	entries := make([]zipEntry, len(rc.File))
+	for i, zf := range rc.File {
+		entries[i] = zipEntry{zf: zf, name: zf.Name, path: zf.Name}
+	}
+	err = errors.Join(extractEntries(ctx, entries, src, x)...)
 	if !errors.Is(err, context.Canceled) {
 		t.Errorf("extractEntries: got err = %v, want = %v", err, context.Canceled)
 	}
@@ -85,7 +88,7 @@ func TestExtractZipReportsAnUnreadableArchive(t *testing.T) {
 	// central directory to read.
 	src := writeTemp(t, "broken.zip", []byte("PK\x03\x04\x14\x00\x00\x00\x08\x00truncated"))
 	err := ExtractZip(t.Context(), t.TempDir(), src)
-	if err == nil || !strings.Contains(err.Error(), "failed to open zip file") {
+	if err == nil || !strings.Contains(err.Error(), "not a valid zip archive") {
 		t.Errorf("ExtractZip: got err = %v, want the archive reported as unreadable", err)
 	}
 }

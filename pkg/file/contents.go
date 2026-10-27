@@ -12,11 +12,10 @@ import (
 	"sync"
 )
 
-// mapThreshold is the size, in bytes, above which ReadContents memory-maps a
+// mapThreshold is the size, in bytes, above which MapContents memory-maps a
 // file. yara-x's Scanner.ScanFile (v1.21.0, Scanner::load_file) maps exactly
-// the files larger than 32,000,000 bytes and reads smaller ones, so mapping
-// the same files keeps the exposure to a file truncated while mapped, which
-// faults on access, what it was. Smaller files are read into pooled buffers.
+// the files larger than 32,000,000 bytes and reads smaller ones. Smaller
+// files are read into pooled buffers.
 const mapThreshold int64 = 32_000_000
 
 // errNotMappable reports a file that mapFile leaves to the read path: one that
@@ -26,8 +25,7 @@ var errNotMappable = errors.New("file cannot be memory-mapped")
 
 // maxPoolShift bounds pooled read buffers at 1<<maxPoolShift bytes (32 MiB),
 // enough for every file at or below mapThreshold plus the byte read past it.
-// Larger reads, which happen only when a file grows after stat or cannot be
-// mapped, allocate directly.
+// Larger reads allocate directly, so their memory goes back to the heap.
 const maxPoolShift = 25
 
 // bufferPools holds read buffers by size class: bufferPools[k] holds buffers
@@ -44,19 +42,27 @@ type Contents struct {
 }
 
 // ReadContents returns the full contents of f, a regular file opened for
-// reading whose Stat size is size (> 0). f may be closed as soon as it
-// returns.
+// reading whose Stat size is size (> 0), read from f's current offset (so f
+// should be freshly opened) until EOF, up to MaxBytes, which picks up growth
+// since size was taken. f may be closed as soon as it returns.
 //
-// Files larger than 32,000,000 bytes are memory-mapped whole, at their length
-// when mapped, where the platform supports it. Smaller files, and files that
-// cannot be mapped, are read from f's current offset (so f should be freshly
-// opened) until EOF, up to MaxBytes, which picks up growth since size was
-// taken.
+// The contents are a copy, never a mapping: a file malcontent does not own
+// may be truncated while its contents are in use, and touching a mapped page
+// past the new end of a file faults and ends the process. Copying a file
+// costs memory equal to its size until Close; callers bound that cost.
 func ReadContents(f *os.File, size int64) (*Contents, error) {
+	return readPooled(f, size, MaxBytes)
+}
+
+// MapContents is ReadContents for a file malcontent owns, such as one it
+// extracted from an archive, which nothing else truncates. Files larger than
+// 32,000,000 bytes are memory-mapped whole, at their length when mapped,
+// where the platform supports it; the rest are read.
+func MapContents(f *os.File, size int64) (*Contents, error) {
 	return loadContents(f, size, mapThreshold)
 }
 
-// loadContents is ReadContents with the mapping threshold as a parameter:
+// loadContents is MapContents with the mapping threshold as a parameter:
 // files whose size is above mapAbove are mapped where possible.
 func loadContents(f *os.File, size, mapAbove int64) (*Contents, error) {
 	if size > mapAbove {

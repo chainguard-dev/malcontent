@@ -183,6 +183,13 @@ function update_dep() {
 	tmpdir="$(mktemp -d)"
 
 	mkdir -p "${kind}" || true
+	# Drop the rules vendored last time, so rules that upstream renamed, moved,
+	# or deleted do not linger beside the fresh copies and compile twice. The
+	# fixups below run again on the fresh copies, and files this script does
+	# not vendor, such as SHA256SUMS, stay. git restores the old rules if the
+	# fetch fails.
+	find "${kind}" -type f -name "*.yar*" -delete
+	find "${kind}" -mindepth 1 -type d -empty -delete
 
 	case $kind in
 	YARAForge)

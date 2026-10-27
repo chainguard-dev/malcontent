@@ -5,6 +5,7 @@ package action
 
 import (
 	"context"
+	"crypto/sha256"
 	"io/fs"
 	"math"
 	"path/filepath"
@@ -16,7 +17,6 @@ import (
 
 	"github.com/chainguard-dev/malcontent/pkg/compile"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
-	"github.com/minio/sha256-simd"
 
 	yarax "github.com/VirusTotal/yara-x/go"
 )
@@ -273,7 +273,7 @@ func TestSniffedHoldsMemoryShareUntilClosed(t *testing.T) {
 	path := scanTestWriteFile(t, filepath.Join(dir, "large.bin"), make([]byte, largeScan))
 	ctx := withScanMemory(t.Context(), 1<<20)
 	m := scanMemoryFrom(ctx)
-	s, err := sniffEntry(ctx, scanTestOpenRoot(t, dir), "large.bin", path, true)
+	s, err := sniffEntry(ctx, scanTestOpenRoot(t, dir), "large.bin", path, true, false)
 	if err != nil {
 		t.Fatalf("sniffEntry: %v", err)
 	}

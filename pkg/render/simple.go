@@ -48,7 +48,7 @@ func (r *Simple) File(ctx context.Context, fr *malcontent.FileReport) error {
 	b.WriteByte('\n')
 
 	for _, bh := range fr.Behaviors {
-		b.WriteString(bh.ID)
+		b.WriteString(sanitizeTerminal(bh.ID))
 		b.WriteString(": ")
 		b.WriteString(lowerRisk(bh.RiskLevel))
 		b.WriteByte('\n')
@@ -56,8 +56,8 @@ func (r *Simple) File(ctx context.Context, fr *malcontent.FileReport) error {
 	return r.out.write(b.Bytes())
 }
 
-// lowerRisk returns level in lowercase without allocating for the standard
-// risk levels.
+// lowerRisk returns level in lowercase, escaped by sanitizeTerminal, without
+// allocating for the standard risk levels.
 func lowerRisk(level string) string {
 	switch level {
 	case report.LevelCRITICAL:
@@ -71,7 +71,7 @@ func lowerRisk(level string) string {
 	case report.LevelNONE:
 		return "none"
 	default:
-		return strings.ToLower(level)
+		return sanitizeTerminal(strings.ToLower(level))
 	}
 }
 
@@ -122,22 +122,8 @@ func (r *Simple) Full(ctx context.Context, _ *malcontent.Config, rep *malcontent
 		}
 	}
 
-	count := func(bs []*malcontent.Behavior) (int, int) {
-		var added, removed int
-		for _, bh := range bs {
-			if bh.DiffAdded {
-				added++
-			}
-			if bh.DiffRemoved {
-				removed++
-			}
-		}
-
-		return added, removed
-	}
-
 	for modified := rep.Diff.Modified.Oldest(); modified != nil; modified = modified.Next() {
-		added, removed := count(modified.Value.Behaviors)
+		added, removed := diffCounts(modified.Value.Behaviors)
 		if added == 0 && removed == 0 {
 			continue
 		}
@@ -179,9 +165,10 @@ func writeSimpleCounts(b *bytes.Buffer, added, removed int) {
 	b.WriteString(" removed): ")
 }
 
-// writeSimpleChange writes a behavior ID marked added (+) or removed (-).
+// writeSimpleChange writes a behavior ID, escaped by sanitizeTerminal, marked
+// added (+) or removed (-).
 func writeSimpleChange(b *bytes.Buffer, mark byte, id string) {
 	b.WriteByte(mark)
-	b.WriteString(id)
+	b.WriteString(sanitizeTerminal(id))
 	b.WriteByte('\n')
 }

@@ -444,13 +444,13 @@ func TestSymlinkLayoutPreserved(t *testing.T) {
 			want: map[string]string{"a/hard": "real"},
 		},
 		{
-			name: "later regular entry replaces an earlier one",
+			name: "later regular entry takes a sibling name",
 			entries: []tarEntry{
 				{name: "dup.txt", typeflag: tar.TypeReg, body: "first, longer body"},
 				{name: "dup.txt", typeflag: tar.TypeReg, body: "second"},
 			},
-			want:    map[string]string{"dup.txt": "second"},
-			regular: []string{"dup.txt"},
+			want:    map[string]string{"dup.txt": "first, longer body", "dup_1.txt": "second"},
+			regular: []string{"dup.txt", "dup_1.txt"},
 		},
 		{
 			name: "hardlink to itself keeps the file",
@@ -461,23 +461,23 @@ func TestSymlinkLayoutPreserved(t *testing.T) {
 			want: map[string]string{"self.txt": "self"},
 		},
 		{
-			name: "hardlink replaces an existing entry in a new directory",
+			name: "hardlink named like an existing entry takes a sibling name",
 			entries: []tarEntry{
 				{name: "src.txt", typeflag: tar.TypeReg, body: "src"},
 				{name: "a/b/dst.txt", typeflag: tar.TypeLink, linkname: "src.txt"},
 				{name: "old.txt", typeflag: tar.TypeReg, body: "old"},
 				{name: "old.txt", typeflag: tar.TypeLink, linkname: "src.txt"},
 			},
-			want: map[string]string{"a/b/dst.txt": "src", "old.txt": "src"},
+			want: map[string]string{"a/b/dst.txt": "src", "old.txt": "old", "old_1.txt": "src"},
 		},
 		{
-			name: "regular file replaces an existing symlink",
+			name: "regular file named like a symlink takes a sibling name",
 			entries: []tarEntry{
 				{name: "f", typeflag: tar.TypeSymlink, linkname: "other.txt"},
-				{name: "f", typeflag: tar.TypeReg, body: "replaced"},
+				{name: "f", typeflag: tar.TypeReg, body: "kept"},
 			},
-			want:    map[string]string{"f": "replaced"},
-			regular: []string{"f"},
+			want:    map[string]string{"f_1": "kept"},
+			regular: []string{"f_1"},
 		},
 	}
 

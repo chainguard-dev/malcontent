@@ -109,30 +109,33 @@ func TestMainModelWindowSize(t *testing.T) {
 func TestMainModelResultUpdates(t *testing.T) {
 	t.Parallel()
 	m := teaReadyModel(t)
+	// Only the error flag sets a message apart; the words in a result, which
+	// can come from a file name or a matched string, do not.
 	updates := []resultUpdateMsg{
 		{content: "first finding", isResult: true},
 		{content: "  context line  ", isResult: false},
-		{content: "skipped /tmp/x: data file", isResult: false},
+		{content: "skipped /tmp/x: data file", isError: true},
+		{content: "/opt/skipped-tests/dropper", isResult: true},
 		{content: "open /root: permission denied", isResult: true},
 	}
 	for _, u := range updates {
 		m, _ = teaUpdate(t, m, u)
 	}
 
-	if want := []string{"first finding", "context line"}; !slices.Equal(m.content, want) {
+	if want := []string{"first finding", "context line", "/opt/skipped-tests/dropper", "open /root: permission denied"}; !slices.Equal(m.content, want) {
 		t.Errorf("content: got = %q, want = %q", m.content, want)
 	}
-	if want := []string{"skipped /tmp/x: data file", "open /root: permission denied"}; !slices.Equal(m.errors, want) {
+	if want := []string{"skipped /tmp/x: data file"}; !slices.Equal(m.errors, want) {
 		t.Errorf("errors: got = %q, want = %q", m.errors, want)
 	}
-	if m.resultCount != 1 {
-		t.Errorf("result count: got = %d, want = 1", m.resultCount)
+	if m.resultCount != 3 {
+		t.Errorf("result count: got = %d, want = 3", m.resultCount)
 	}
-	if got := m.viewport.TotalLineCount(); got != 2 {
-		t.Errorf("viewport lines: got = %d, want = 2", got)
+	if got := m.viewport.TotalLineCount(); got != 4 {
+		t.Errorf("viewport lines: got = %d, want = 4", got)
 	}
-	if got := renderStripANSI(m.View()); !strings.Contains(got, "Found 1 results") {
-		t.Errorf("footer: got = %q, want = Found 1 results", got)
+	if got := renderStripANSI(m.View()); !strings.Contains(got, "Found 3 results") {
+		t.Errorf("footer: got = %q, want = Found 3 results", got)
 	}
 }
 
@@ -336,6 +339,40 @@ func TestMainModelSearchEdgeCases(t *testing.T) {
 			wantTerm:  "q",
 			wantLines: 1,
 			wantText:  "quiet mode",
+		},
+		{
+			// U+023A lowercases to U+2C65, a byte longer.
+			name:      "text whose lowercase is longer does not end the viewer",
+			results:   []string{"\xc8\xba\xc8\xba\xc8\xbaabc"},
+			keys:      []tea.KeyMsg{teaRunes("/"), teaRunes("a"), teaRunes("b"), teaRunes("c")},
+			wantTerm:  "abc",
+			wantLines: 1,
+			wantText:  "\xc8\xba\xc8\xba\xc8\xbaabc",
+		},
+		{
+			// U+212A KELVIN SIGN lowercases to k, two bytes shorter.
+			name:      "text whose lowercase is shorter keeps its characters whole",
+			results:   []string{"\xe2\x84\xaa\xe2\x84\xaa\xe2\x84\xaaabc"},
+			keys:      []tea.KeyMsg{teaRunes("/"), teaRunes("a"), teaRunes("b"), teaRunes("c")},
+			wantTerm:  "abc",
+			wantLines: 1,
+			wantText:  "\xe2\x84\xaa\xe2\x84\xaa\xe2\x84\xaaabc",
+		},
+		{
+			name:      "search ignores text inside escape sequences",
+			results:   []string{"\x1b[38;5;196mevil\x1b[0m"},
+			keys:      []tea.KeyMsg{teaRunes("/"), teaRunes("3"), teaRunes("8")},
+			wantTerm:  "38",
+			wantLines: 1,
+			wantText:  "No matches found for: 38",
+		},
+		{
+			name:      "search finds text between escape sequences",
+			results:   []string{"\x1b[38;5;196mevil\x1b[0m", "other"},
+			keys:      []tea.KeyMsg{teaRunes("/"), teaRunes("e"), teaRunes("v")},
+			wantTerm:  "ev",
+			wantLines: 2,
+			wantText:  "evil",
 		},
 		{
 			name:      "escape clears the search term and restores all results",
@@ -622,75 +659,60 @@ func teaDrained(msgs <-chan tea.Msg) []tea.Msg {
 	}
 }
 
-// teaResult returns the message an Interactive sends for fr's summary.
-func teaResult(t *testing.T, fr *malcontent.FileReport) resultUpdateMsg {
+// teaResult returns the message an Interactive sends for fr's summary under header.
+func teaResult(t *testing.T, fr *malcontent.FileReport, header string) resultUpdateMsg {
 	t.Helper()
 	var b strings.Builder
-	renderFileSummaryTea(t.Context(), fr, &b)
+	renderFileSummaryTea(t.Context(), fr, header, &b)
 	return resultUpdateMsg{content: strings.TrimSpace(b.String()), isResult: true}
 }
 
-// teaCaptureStderr returns what run writes to os.Stderr. It swaps os.Stderr,
-// so callers must not run in parallel.
-func teaCaptureStderr(t *testing.T, run func()) string {
-	t.Helper()
-	r, w, err := os.Pipe()
-	if err != nil {
-		t.Fatalf("os.Pipe: got err = %v, want = nil", err)
-	}
-	stderr := os.Stderr
-	t.Cleanup(func() { os.Stderr = stderr })
-	os.Stderr = w
-	run()
-	os.Stderr = stderr
-	if err := w.Close(); err != nil {
-		t.Fatalf("close pipe writer: got err = %v, want = nil", err)
-	}
-	out, err := io.ReadAll(r)
-	if err != nil {
-		t.Fatalf("read pipe: got err = %v, want = nil", err)
-	}
-	if err := r.Close(); err != nil {
-		t.Fatalf("close pipe reader: got err = %v, want = nil", err)
-	}
-	return string(out)
-}
-
-// Start writes to os.Stderr, so this test swaps it and must not run in parallel.
-func TestInteractiveStartReportsRunErrors(t *testing.T) {
+func TestInteractiveFullReturnsTheViewerError(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
-		name       string
-		canceled   bool
-		wantPrefix string
+		name     string
+		canceled bool
+		wantErr  error
 	}{
-		{name: "program that quits prints nothing"},
-		{name: "program that fails prints its error", canceled: true, wantPrefix: "Error running program: program was killed"},
+		{name: "viewer that quits returns nil"},
+		{name: "viewer that fails returns its error", canceled: true, wantErr: tea.ErrProgramKilled},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			opts := []tea.ProgramOption{tea.WithInput(nil), tea.WithOutput(io.Discard), tea.WithoutSignalHandler()}
 			if tt.canceled {
 				// A program whose context is already canceled stops at once with an error.
 				opts = append(opts, tea.WithContext(renderCanceledContext(t)))
 			}
-			r := &Interactive{writer: io.Discard, program: tea.NewProgram(teaRecorder{msgs: make(chan tea.Msg, 1)}, opts...)}
-			got := teaCaptureStderr(t, func() {
-				r.Start()
-				if !tt.canceled {
-					r.program.Quit()
-				}
-				r.wg.Wait()
-			})
-			if tt.wantPrefix == "" {
-				if got != "" {
-					t.Errorf("stderr: got = %q, want = empty", got)
-				}
-				return
-			}
-			if !strings.HasPrefix(got, tt.wantPrefix) || !strings.HasSuffix(got, "\n") {
-				t.Errorf("stderr: got = %q, want one line starting with %q", got, tt.wantPrefix)
+			r := &Interactive{writer: io.Discard, program: tea.NewProgram(teaRecorder{msgs: make(chan tea.Msg, 4)}, opts...)}
+			r.Start()
+			err := r.Full(t.Context(), &malcontent.Config{}, nil)
+			if (tt.wantErr == nil && err != nil) || !errors.Is(err, tt.wantErr) {
+				t.Errorf("Full error: got = %v, want = %v", err, tt.wantErr)
 			}
 		})
+	}
+}
+
+func TestInteractiveStopEndsTheViewer(t *testing.T) {
+	t.Parallel()
+	out := &teaLockedWriter{}
+	r := &Interactive{
+		writer:  io.Discard,
+		program: tea.NewProgram(teaRecorder{msgs: make(chan tea.Msg, 4)}, tea.WithInput(nil), tea.WithOutput(out), tea.WithoutSignalHandler()),
+	}
+	r.Start()
+	r.Stop()
+	// Showing the cursor again is part of restoring the terminal, the last
+	// thing the program does before it returns.
+	if got := out.String(); !strings.Contains(got, "\x1b[?25h") {
+		t.Errorf("program output when Stop returned: got = %q, want the cursor shown again", got)
+	}
+	// Once the viewer has ended, Stop and Full return without waiting for it.
+	r.Stop()
+	if err := r.Full(t.Context(), &malcontent.Config{}, nil); err != nil {
+		t.Errorf("Full after Stop: got err = %v, want = nil", err)
 	}
 }
 
@@ -718,8 +740,8 @@ func TestInteractiveFileSendsResults(t *testing.T) {
 	}{
 		{name: "missing report sends nothing"},
 		{name: "report without behaviors sends nothing", fr: &malcontent.FileReport{Path: "/bin/empty"}},
-		{name: "skipped report is sent as a skip, not a result", fr: &malcontent.FileReport{Path: "/bin/skip\x1b", Skipped: "data\tfile"}, want: []tea.Msg{resultUpdateMsg{content: `skipped /bin/skip\x1b: data\tfile`}}},
-		{name: "report with one behavior is sent as a result", fr: tool, want: []tea.Msg{teaResult(t, tool)}},
+		{name: "skipped report is sent as a skip, not a result", fr: &malcontent.FileReport{Path: "/bin/skip\x1b", Skipped: "data\tfile"}, want: []tea.Msg{resultUpdateMsg{content: `skipped /bin/skip\x1b: data\tfile`, isError: true}}},
+		{name: "report with one behavior is sent as a result", fr: tool, want: []tea.Msg{teaResult(t, tool, teaScanHeader(tool))}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -770,7 +792,9 @@ func TestInteractiveFullSendsChangedFiles(t *testing.T) {
 		{name: "missing report only completes the scan", want: []tea.Msg{scanCompleteMsg{}}},
 		{name: "report without a diff only completes the scan", rep: &malcontent.Report{}, want: []tea.Msg{scanCompleteMsg{}}},
 		{name: "diff sends each file whose behaviors changed", rep: &malcontent.Report{Diff: diff}, want: []tea.Msg{
-			teaResult(t, removedOne), teaResult(t, removedTwo), teaResult(t, addedOne), teaResult(t, modRemoved), teaResult(t, modAdded), scanCompleteMsg{},
+			teaResult(t, removedOne, teaHeader("Deleted: /old/one", report.LevelMEDIUM)), teaResult(t, removedTwo, teaHeader("Deleted: /old/two", report.LevelMEDIUM)),
+			teaResult(t, addedOne, teaHeader("Added: /new/one", report.LevelMEDIUM)), teaResult(t, modRemoved, teaDiffHeader(modRemoved, 0, 1)), teaResult(t, modAdded, teaDiffHeader(modAdded, 1, 0)),
+			scanCompleteMsg{},
 		}},
 	}
 	for _, tt := range tests {
@@ -786,6 +810,48 @@ func TestInteractiveFullSendsChangedFiles(t *testing.T) {
 				t.Errorf("messages: got = %v, want = %v", got, tt.want)
 			}
 		})
+	}
+}
+
+func TestInteractiveFullTitlesDiffFiles(t *testing.T) {
+	t.Parallel()
+	behavior := func(added bool) []*malcontent.Behavior {
+		return []*malcontent.Behavior{{ID: "net/connect", Description: "connects", RiskScore: 3, RiskLevel: report.LevelHIGH, DiffAdded: added}}
+	}
+	diff := renderDiff(
+		[]*malcontent.FileReport{{Path: "/old/tool\x1b[2J", RiskScore: 3, RiskLevel: report.LevelHIGH, Behaviors: behavior(false)}},
+		[]*malcontent.FileReport{{Path: "/new/tool", RiskScore: 2, RiskLevel: report.LevelMEDIUM, Behaviors: behavior(false)}},
+		[]*malcontent.FileReport{
+			{Path: "/mod/new-name", PreviousPath: "/mod/old-name", RiskScore: 3, RiskLevel: report.LevelHIGH, PreviousRiskScore: 2, PreviousRiskLevel: report.LevelMEDIUM, Behaviors: behavior(true)},
+			{Path: "/mod/same-risk", RiskScore: 3, RiskLevel: report.LevelHIGH, PreviousRiskScore: 3, PreviousRiskLevel: report.LevelHIGH, Behaviors: behavior(true)},
+		},
+	)
+	msgs := make(chan tea.Msg, 16)
+	r := teaRecording(t, teaRecorder{msgs: msgs}, io.Discard)
+	if err := r.Full(t.Context(), &malcontent.Config{}, &malcontent.Report{Diff: diff}); err != nil {
+		t.Fatalf("Full: got err = %v, want = nil", err)
+	}
+	var got []string
+	for _, msg := range teaDrained(msgs) {
+		if res, ok := msg.(resultUpdateMsg); ok {
+			got = append(got, renderSquash(res.content))
+		}
+	}
+	// Deleted and added files are told apart, and a moved file shows its
+	// previous path and its risk change.
+	want := []string{
+		`│ Deleted: /old/tool\x1b[2J HIGH │`,
+		"│ Added: /new/tool MEDIUM │",
+		"│ Moved (1 added, 0 removed): /mod/old-name -> /mod/new-name MEDIUM → HIGH │",
+		"│ Changed (1 added, 0 removed): /mod/same-risk HIGH │",
+	}
+	if len(got) != len(want) {
+		t.Fatalf("results: got = %q, want %d", got, len(want))
+	}
+	for i, title := range want {
+		if !strings.Contains(got[i], title) {
+			t.Errorf("result %d: got = %q, want title %q", i, got[i], title)
+		}
 	}
 }
 

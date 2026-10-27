@@ -586,7 +586,7 @@ func TestStreamExtractorsSkipEmptyInput(t *testing.T) {
 		{name: "bz2 empty file yields no output", extract: ExtractBz2, srcName: "empty.bz2"},
 		{name: "zstd empty file yields no output", extract: ExtractZstd, srcName: "empty.zst"},
 		{name: "zlib empty file yields no output", extract: ExtractZlib, srcName: "empty.zlib"},
-		{name: "gzip empty file is not a gzip archive", extract: ExtractGzip, srcName: "empty.gz", wantErr: true},
+		{name: "gzip empty file extracts to nothing", extract: ExtractGzip, srcName: "empty.gz"},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -707,14 +707,16 @@ func TestStreamExtractorsEnforceByteCap(t *testing.T) {
 		maxBytes int64
 		wantErr  error
 	}{
-		{name: "gzip output equal to the cap succeeds", extract: ExtractGzip, srcName: "payload.txt.gz", src: gz, maxBytes: size},
-		{name: "gzip output one byte over the cap fails", extract: ExtractGzip, srcName: "payload.txt.gz", src: gz, maxBytes: size - 1, wantErr: file.ErrArchiveBytesCap},
-		{name: "bz2 output equal to the cap succeeds", extract: ExtractBz2, srcName: "payload.txt.bz2", src: bz, maxBytes: bzSize},
-		{name: "bz2 output one byte over the cap fails", extract: ExtractBz2, srcName: "payload.txt.bz2", src: bz, maxBytes: bzSize - 1, wantErr: file.ErrArchiveBytesCap},
-		{name: "zstd output equal to the cap succeeds", extract: ExtractZstd, srcName: "payload.txt.zst", src: zst, maxBytes: size},
-		{name: "zstd output one byte over the cap fails", extract: ExtractZstd, srcName: "payload.txt.zst", src: zst, maxBytes: size - 1, wantErr: file.ErrArchiveBytesCap},
-		{name: "zlib output equal to the cap succeeds", extract: ExtractZlib, srcName: "payload.txt.zlib", src: zl, maxBytes: size},
-		{name: "zlib output one byte over the cap fails", extract: ExtractZlib, srcName: "payload.txt.zlib", src: zl, maxBytes: size - 1, wantErr: file.ErrArchiveBytesCap},
+		// The output file's fixed cost counts against the cap besides its
+		// content.
+		{name: "gzip output equal to the cap succeeds", extract: ExtractGzip, srcName: "payload.txt.gz", src: gz, maxBytes: size + entryCost},
+		{name: "gzip output one byte over the cap fails", extract: ExtractGzip, srcName: "payload.txt.gz", src: gz, maxBytes: size + entryCost - 1, wantErr: file.ErrArchiveBytesCap},
+		{name: "bz2 output equal to the cap succeeds", extract: ExtractBz2, srcName: "payload.txt.bz2", src: bz, maxBytes: bzSize + entryCost},
+		{name: "bz2 output one byte over the cap fails", extract: ExtractBz2, srcName: "payload.txt.bz2", src: bz, maxBytes: bzSize + entryCost - 1, wantErr: file.ErrArchiveBytesCap},
+		{name: "zstd output equal to the cap succeeds", extract: ExtractZstd, srcName: "payload.txt.zst", src: zst, maxBytes: size + entryCost},
+		{name: "zstd output one byte over the cap fails", extract: ExtractZstd, srcName: "payload.txt.zst", src: zst, maxBytes: size + entryCost - 1, wantErr: file.ErrArchiveBytesCap},
+		{name: "zlib output equal to the cap succeeds", extract: ExtractZlib, srcName: "payload.txt.zlib", src: zl, maxBytes: size + entryCost},
+		{name: "zlib output one byte over the cap fails", extract: ExtractZlib, srcName: "payload.txt.zlib", src: zl, maxBytes: size + entryCost - 1, wantErr: file.ErrArchiveBytesCap},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {

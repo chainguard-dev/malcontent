@@ -44,6 +44,7 @@ net/ip/host_port: medium
 net/ip/parse: medium
 net/ip/string: medium
 net/proxy/tunnel: medium
+net/proxy/tunnel_create: medium
 net/resolve/hostname: low
 net/resolve/hostport_parse: low
 net/socket/connect: medium

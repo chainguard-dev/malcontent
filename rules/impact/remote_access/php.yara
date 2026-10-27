@@ -274,7 +274,7 @@ rule php_eval_get_contents: high {
 rule php_is_jpeg: critical {
   meta:
     description = "PHP script embedded within JPEG file"
-    filetypes   = "jpg,jpeg,php"
+    filetypes   = "php"
 
   strings:
     $jfif        = /JFIF/

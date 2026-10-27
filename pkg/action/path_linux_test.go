@@ -80,11 +80,15 @@ func TestRunQueueReleasesDescriptors(t *testing.T) {
 	if err := runQueue(t.Context(), w, walkedFiles(w, paths), 4, scanInfo, c, r, make(chan matchResult, 1), &sync.Once{}, logger); err != nil {
 		t.Fatalf("runQueue: %v", err)
 	}
-	// A file in a subdirectory that vanished before it was scanned fails
-	// the scan, and still releases its directory.
+	// A file in a subdirectory that vanished before it was scanned is
+	// reported as skipped, and still releases its directory.
 	vanished := filepath.Join(dir, "d1", "vanished.sh")
-	if err := runQueue(t.Context(), w, walkedFiles(w, []string{vanished}), 1, scanInfo, c, initializeReport(nil), make(chan matchResult, 1), &sync.Once{}, logger); err == nil {
-		t.Fatal("runQueue of a vanished file: got nil error, want its failure")
+	vr := initializeReport(nil)
+	if err := runQueue(t.Context(), w, walkedFiles(w, []string{vanished}), 1, scanInfo, c, vr, make(chan matchResult, 1), &sync.Once{}, logger); err != nil {
+		t.Fatalf("runQueue of a vanished file: got = %v, want it skipped", err)
+	}
+	if fr, ok := vr.Files.Load(vanished); !ok || fr.Skipped == "" {
+		t.Fatalf("report of the vanished file: got = %+v, want it skipped", fr)
 	}
 	w.close()
 	if r.Files.Size() < 6 {

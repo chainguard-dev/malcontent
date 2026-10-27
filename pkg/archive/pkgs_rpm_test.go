@@ -125,11 +125,6 @@ func TestExtractRPMPayloads(t *testing.T) {
 func TestExtractRPMRejectsMalformedPackages(t *testing.T) {
 	t.Parallel()
 
-	member := func(name string, mode cpio.FileMode, body string) []byte {
-		entries := []pkgsCPIOEntry{{name: name, mode: mode, body: body}}
-		return pkgsRPM(pkgsCPIOFormat, pkgsGzip, pkgsCompress(t, pkgsGzip, pkgsCPIO(t, entries)))
-	}
-
 	tests := []struct {
 		name    string
 		data    []byte
@@ -148,7 +143,7 @@ func TestExtractRPMRejectsMalformedPackages(t *testing.T) {
 		},
 		{
 			name:    "payload compression without a decoder",
-			data:    pkgsRPM(pkgsCPIOFormat, "bzip2", pkgsCPIO(t, pkgsRPMLayout())),
+			data:    pkgsRPM(pkgsCPIOFormat, "lzip", pkgsCPIO(t, pkgsRPMLayout())),
 			wantErr: "unsupported compression format",
 		},
 		{
@@ -160,23 +155,6 @@ func TestExtractRPMRejectsMalformedPackages(t *testing.T) {
 			name:    "xz payload that is not xz",
 			data:    pkgsRPM(pkgsCPIOFormat, pkgsXZ, []byte("not an xz stream")),
 			wantErr: "failed to create xz reader",
-		},
-		{
-			name:    "absolute member path",
-			data:    member("/etc/evil", cpio.TypeReg|0o644, "evil"),
-			wantErr: "path is absolute",
-			absent:  filepath.Join("etc", "evil"),
-		},
-		{
-			name:    "member path climbing out of the directory",
-			data:    member("../evil", cpio.TypeReg|0o644, "evil"),
-			wantErr: "relative path traversal",
-		},
-		{
-			name:    "symlink escaping the directory",
-			data:    member("./esc", cpio.TypeSymlink|0o777, "../../outside"),
-			wantErr: "failed to create symlink",
-			absent:  "esc",
 		},
 	}
 
@@ -375,7 +353,7 @@ func TestExtractFileFromCPIOCancellation(t *testing.T) {
 			ctx := &pkgsCountdownContext{Context: t.Context(), allow: tt.allow}
 			buf := make([]byte, file.ExtractBuffer)
 
-			err := extractFileFromCPIO(ctx, cr, testEntryRoots(t, root), "big.bin", buf, nil)
+			err := extractFileFromCPIO(ctx, cr, testPaths(t, root), "big.bin", buf, nil)
 			if !errors.Is(err, tt.wantErr) {
 				t.Fatalf("extractFileFromCPIO error: got = %v, want = %v", err, tt.wantErr)
 			}
@@ -403,7 +381,7 @@ func TestExtractFileFromCPIOSingleByteReads(t *testing.T) {
 	}
 	dir := t.TempDir()
 
-	if err := extractFileFromCPIO(t.Context(), cr, testEntryRoots(t, openTestRoot(t, dir)), "small.bin", make([]byte, file.ExtractBuffer), nil); err != nil {
+	if err := extractFileFromCPIO(t.Context(), cr, testPaths(t, openTestRoot(t, dir)), "small.bin", make([]byte, file.ExtractBuffer), nil); err != nil {
 		t.Fatalf("extractFileFromCPIO: %v", err)
 	}
 	pkgsWantFile(t, filepath.Join(dir, "small.bin"), body)

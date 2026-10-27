@@ -15,7 +15,6 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/fatih/color"
 	"github.com/puzpuzpuz/xsync/v4"
-	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
 // renderNumberedFiles returns a scan report with n files keyed /f/0000
@@ -89,9 +88,9 @@ func renderCanceledContext(t *testing.T) context.Context {
 // renderDiff builds a DiffReport keyed by each report's Path, preserving order.
 func renderDiff(removed, added, modified []*malcontent.FileReport) *malcontent.DiffReport {
 	d := &malcontent.DiffReport{
-		Removed:  orderedmap.New[string, *malcontent.FileReport](),
-		Added:    orderedmap.New[string, *malcontent.FileReport](),
-		Modified: orderedmap.New[string, *malcontent.FileReport](),
+		Removed:  new(malcontent.OrderedFileReports),
+		Added:    new(malcontent.OrderedFileReports),
+		Modified: new(malcontent.OrderedFileReports),
 	}
 	for _, fr := range removed {
 		d.Removed.Set(fr.Path, fr)

@@ -518,6 +518,57 @@ func TestEnvKeychain_CredsOnlyForExpectedHost(t *testing.T) {
 			resourceHost:  "registry.example.com",
 			wantAnonymous: true,
 		},
+		{
+			name:         "docker.io host matches the normalized Docker Hub registry",
+			user:         "myuser",
+			pass:         "mypass",
+			host:         "docker.io",
+			resourceHost: "index.docker.io",
+			wantUser:     "myuser",
+			wantPass:     "mypass",
+		},
+		{
+			name:         "registry-1.docker.io references match a Docker Hub host",
+			user:         "myuser",
+			pass:         "mypass",
+			host:         "index.docker.io",
+			resourceHost: "registry-1.docker.io",
+			wantUser:     "myuser",
+			wantPass:     "mypass",
+		},
+		{
+			name:         "host case and the default HTTPS port do not matter",
+			user:         "myuser",
+			pass:         "mypass",
+			host:         "Registry.Example.com",
+			resourceHost: "registry.example.com:443",
+			wantUser:     "myuser",
+			wantPass:     "mypass",
+		},
+		{
+			name:          "a different port returns anonymous",
+			user:          "myuser",
+			pass:          "mypass",
+			host:          "registry.example.com",
+			resourceHost:  "registry.example.com:5000",
+			wantAnonymous: true,
+		},
+		{
+			name:          "a host that only ends with the expected host returns anonymous",
+			user:          "myuser",
+			pass:          "mypass",
+			host:          "example.com",
+			resourceHost:  "evil-example.com",
+			wantAnonymous: true,
+		},
+		{
+			name:          "a Docker Hub look-alike returns anonymous",
+			user:          "myuser",
+			pass:          "mypass",
+			host:          "docker.io",
+			resourceHost:  "docker.io.attacker.com",
+			wantAnonymous: true,
+		},
 	}
 
 	for _, tt := range tests {
@@ -623,8 +674,10 @@ func TestOCIHardening_Keychain_AmbientDefaultRejected(t *testing.T) {
 		// Set the expected registry host to the test server's host:port.
 		t.Setenv(registryHostEnv, hostPort(t, srv.URL))
 
+		// The test server speaks plain HTTP, so sending credentials needs the opt-in.
 		c := &malcontent.Config{
 			OCIAuth:                  true,
+			OCIAllowInsecureAuth:     true,
 			OCIPullTimeoutSeconds:    5,
 			OCIRetryMaxAttempts:      1,
 			OCIRetryMaxWindowSeconds: 5,

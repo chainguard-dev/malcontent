@@ -10,6 +10,7 @@ import (
 	"math"
 	"os"
 	"path/filepath"
+	"runtime/debug"
 	"strings"
 	"testing"
 	"testing/iotest"
@@ -78,33 +79,67 @@ func TestLoadContents(t *testing.T) {
 	}
 }
 
-// TestReadContents checks that files well below the 32,000,000-byte
-// threshold, the size above which yara-x maps files, are read rather than
-// mapped.
+// TestReadContents checks that ReadContents reads every file, however large,
+// and MapContents maps those past mapThreshold where the platform can. A file
+// malcontent does not own may be truncated while its contents are in use,
+// which faults on access to a mapping but not to a copy.
 func TestReadContents(t *testing.T) {
 	t.Parallel()
+	large := int(mapThreshold) + 1
 	tests := []struct {
-		name string
-		size int
+		name       string
+		size       int
+		mapOwned   bool
+		wantMapped bool
 	}{
-		{"small file", 4096},
-		{"file of several MiB", 4 << 20},
+		{name: "a small file is read", size: 4096},
+		{name: "a file of several MiB is read", size: 4 << 20},
+		{name: "a file past the mapping threshold is read", size: large},
+		{name: "an owned small file is read", size: 4096, mapOwned: true},
+		{name: "an owned file past the mapping threshold is mapped", size: large, mapOwned: true, wantMapped: canMap},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			content := deterministicBytes(tt.size)
-			c, err := ReadContents(openTemp(t, content), int64(tt.size))
+			path := writeTemp(t, content)
+			f, err := OpenIn(filepath.Dir(path), filepath.Base(path))
 			if err != nil {
-				t.Fatalf("ReadContents() error: got = %v, want = nil", err)
+				t.Fatalf("open: %v", err)
+			}
+			read := ReadContents
+			if tt.mapOwned {
+				read = MapContents
+			}
+			c, err := read(f, int64(tt.size))
+			_ = f.Close()
+			if err != nil {
+				t.Fatalf("read: got = %v, want = nil", err)
 			}
 			defer c.Close()
 			if got := c.Bytes(); !bytes.Equal(got, content) {
 				t.Errorf("Bytes(): got = %d bytes, want = the %d bytes on disk", len(got), len(content))
 			}
-			if c.mapped {
-				t.Errorf("mapped: got = true, want = false")
+			if c.mapped != tt.wantMapped {
+				t.Errorf("mapped: got = %t, want = %t", c.mapped, tt.wantMapped)
+			}
+			if tt.wantMapped {
+				return
+			}
+			// Contents that were read survive the file's truncation.
+			if err := os.Truncate(path, 0); err != nil {
+				t.Fatalf("truncate: %v", err)
+			}
+			defer debug.SetPanicOnFault(debug.SetPanicOnFault(true))
+			defer func() {
+				if r := recover(); r != nil {
+					t.Errorf("reading contents after truncation: got fault %v, want the bytes read", r)
+				}
+			}()
+			b := c.Bytes()
+			if got, want := b[len(b)-1], content[len(content)-1]; got != want {
+				t.Errorf("last byte after truncation: got = %d, want = %d", got, want)
 			}
 		})
 	}

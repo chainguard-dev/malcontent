@@ -4,8 +4,11 @@
 package action
 
 import (
+	"cmp"
 	"context"
+	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"io/fs"
 	"os"
@@ -15,7 +18,6 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/compile"
 	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
-	"github.com/minio/sha256-simd"
 	"github.com/puzpuzpuz/xsync/v4"
 
 	yarax "github.com/VirusTotal/yara-x/go"
@@ -31,6 +33,7 @@ type sniffed struct {
 	err     error // the error programkind.File would return for the file
 	// root and name reach the file again: root bounds the file, the scan
 	// path or an archive's extraction directory, and name is its path there.
+	// root is nil for a file read from an open file, such as a process's.
 	root *os.Root
 	name string
 	// release ends the use of root, when the caller set it.
@@ -47,10 +50,12 @@ type sniffed struct {
 // A file that was regular when found, as regular reports, is opened before it
 // is examined, without blocking, so that a FIFO put in its place cannot stall
 // the scan; anything else, or a file that cannot be opened that way or is no
-// longer regular, is examined first. The error is that of examining it.
-func sniffEntry(ctx context.Context, root *os.Root, name, path string, regular bool) (*sniffed, error) {
+// longer regular, is examined first. The error is that of examining it. The
+// contents of a file malcontent owns, as owned reports, may be mapped;
+// anyone may truncate any other file while it is scanned.
+func sniffEntry(ctx context.Context, root *os.Root, name, path string, regular, owned bool) (*sniffed, error) {
 	if regular {
-		if s := sniffOpen(ctx, root, name, path); s != nil {
+		if s := sniffOpen(ctx, root, name, path, owned); s != nil {
 			return s, nil
 		}
 	}
@@ -61,30 +66,46 @@ func sniffEntry(ctx context.Context, root *os.Root, name, path string, regular b
 	return sniffFile(ctx, root, name, path, fi), nil
 }
 
-// sniffOpen sniffs the file name beneath root, at path, as sniffFile does,
+// sniffOpen sniffs the file name beneath root, at path, as sniffFrom does,
 // opening it first. It returns nil when the file cannot be opened or is not
 // regular.
-func sniffOpen(ctx context.Context, root *os.Root, name, path string) *sniffed {
+func sniffOpen(ctx context.Context, root *os.Root, name, path string, owned bool) *sniffed {
 	f, err := root.OpenFile(name, os.O_RDONLY|syscall.O_NONBLOCK, 0)
 	if err != nil {
 		return nil
 	}
 	defer f.Close()
-	fi, err := f.Stat()
-	if err != nil || !fi.Mode().IsRegular() {
+	s, ok := sniffFrom(ctx, f, path, owned)
+	if !ok {
 		return nil
 	}
-	s := &sniffed{fi: fi, root: root, name: name}
+	s.root, s.name = root, name
+	return s
+}
+
+// sniffFrom sniffs f, the open file at path, as sniffFile does, and reports
+// false when f is not a regular file. f may be closed once it returns. The
+// contents of a file malcontent owns, as owned reports, may be mapped.
+func sniffFrom(ctx context.Context, f *os.File, path string, owned bool) (*sniffed, bool) {
+	fi, err := f.Stat()
+	if err != nil || !fi.Mode().IsRegular() {
+		return nil, false
+	}
+	s := &sniffed{fi: fi}
 	if fi.Size() == 0 {
-		return s
+		return s, true
 	}
 	s.admit(ctx)
-	if s.content, err = file.ReadContents(f, fi.Size()); err != nil {
+	read := file.ReadContents
+	if owned {
+		read = file.MapContents
+	}
+	if s.content, err = read(f, fi.Size()); err != nil {
 		s.err = fmt.Errorf("file contents: %w", err)
-		return s
+		return s, true
 	}
 	s.kind = programkind.Detect(ctx, path, capContents(s.content.Bytes()))
-	return s
+	return s, true
 }
 
 // sniffFile reads the file name beneath root, at path, whose Stat result is
@@ -123,6 +144,11 @@ func (s *sniffed) load(ctx context.Context) error {
 	}
 	if !s.fi.Mode().IsRegular() {
 		return fmt.Errorf("open: not a regular file: %s", s.fi.Mode().Type())
+	}
+	if s.root == nil {
+		// A file read from an open file, such as a process's executable,
+		// has no name to open again.
+		return cmp.Or(s.err, errors.New("open: file cannot be opened again"))
 	}
 	s.admit(ctx)
 	f, err := s.root.Open(s.name)

@@ -6,6 +6,7 @@ package archive
 import (
 	"archive/tar"
 	"context"
+	"crypto/sha256"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -16,7 +17,6 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
-	"github.com/minio/sha256-simd"
 )
 
 // treeTestArchive writes a .tar.gz holding a text file, an empty file named
@@ -205,7 +205,7 @@ func TestOpenTree(t *testing.T) {
 	}{
 		{name: "a file that is not an archive", file: "notes.txt", data: []byte("plain text\n"), wantErr: "unsupported archive type"},
 		{name: "a corrupt archive is retained", file: "broken.tar.gz", data: []byte("\x1f\x8b\x08\x00not gzip data at all"), retained: "broken.tar.gz"},
-		{name: "an empty archive extracts to nothing", file: "empty.tar.gz", data: nil},
+		{name: "an empty archive is retained as it is", file: "empty.tar.gz", data: nil, retained: "empty.tar.gz"},
 		{name: "a corrupt archive fails when extraction errors exit", file: "broken.tar.gz", data: []byte("\x1f\x8b\x08\x00not gzip data at all"), c: malcontent.Config{ExitExtraction: true}, wantErr: "failed to extract"},
 	}
 	for _, tt := range tests {

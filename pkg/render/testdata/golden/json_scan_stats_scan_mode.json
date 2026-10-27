@@ -430,6 +430,25 @@
             "RiskScore": 2,
             "RiskLevel": "MEDIUM"
         },
+        "dup (2)": {
+            "Path": "/dup",
+            "SHA256": "",
+            "Size": 0,
+            "Behaviors": [
+                {
+                    "Description": "connects",
+                    "MatchStrings": [
+                        "\u003cb\u003e\u0026",
+                        "\u2028"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "ID": "net/connect"
+                }
+            ],
+            "RiskScore": 2,
+            "RiskLevel": "MEDIUM"
+        },
         "quote\"back\\slash\ttab": {
             "Path": "/escapes",
             "SHA256": "",

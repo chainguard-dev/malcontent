@@ -160,11 +160,13 @@ func detectIn(ctx context.Context, root *os.Root, name, path string, size int64)
 	if err != nil {
 		return nil, err
 	}
-	fc, err := file.ReadContents(f, size)
-	_ = f.Close()
-	if err != nil {
+	defer f.Close()
+	var ft *programkind.FileType
+	if err := file.InspectContents(f, size, func(b []byte) error {
+		ft = programkind.Detect(ctx, path, b)
+		return nil
+	}); err != nil {
 		return nil, fmt.Errorf("file contents: %w", err)
 	}
-	defer func() { _ = fc.Close() }()
-	return programkind.Detect(ctx, path, fc.Bytes()), nil
+	return ft, nil
 }

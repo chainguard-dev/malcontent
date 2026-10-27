@@ -4,12 +4,14 @@
 package action
 
 import (
+	"crypto/sha256"
 	"encoding/hex"
 	"errors"
 	"io/fs"
 	"os"
 	"path/filepath"
 	"reflect"
+	"runtime/debug"
 	"slices"
 	"sync"
 	"sync/atomic"
@@ -21,7 +23,6 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
-	"github.com/minio/sha256-simd"
 
 	yarax "github.com/VirusTotal/yara-x/go"
 )
@@ -660,5 +661,52 @@ func TestSniffedCloseReleasesItsRootOnce(t *testing.T) {
 	s.close()
 	if releases != 1 {
 		t.Errorf("releases: got = %d, want = 1", releases)
+	}
+}
+
+// TestSniffEntryReadsFilesItDoesNotOwn checks that the contents of a walked
+// file, which anyone may truncate while it is scanned, are a copy that
+// survives truncation, however large the file.
+func TestSniffEntryReadsFilesItDoesNotOwn(t *testing.T) {
+	t.Parallel()
+	// Larger than the size above which owned files are mapped.
+	const size = 32_000_001
+
+	tests := []struct {
+		name    string
+		regular bool // the file was regular when walked, so it is opened first
+	}{
+		{name: "a large file opened first is read", regular: true},
+		{name: "a large file examined first is read"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			dir := t.TempDir()
+			data := make([]byte, size)
+			data[size-1] = 0x5a
+			path := scanTestWriteFile(t, filepath.Join(dir, "large.bin"), data)
+			s, err := sniffEntry(t.Context(), scanTestOpenRoot(t, dir), "large.bin", path, tt.regular, false)
+			if err != nil {
+				t.Fatalf("sniffEntry: %v", err)
+			}
+			defer s.close()
+			if err := s.load(t.Context()); err != nil {
+				t.Fatalf("load: %v", err)
+			}
+			if err := os.Truncate(path, 0); err != nil {
+				t.Fatalf("truncate: %v", err)
+			}
+			defer debug.SetPanicOnFault(debug.SetPanicOnFault(true))
+			defer func() {
+				if r := recover(); r != nil {
+					t.Errorf("reading contents after truncation: got fault %v, want the bytes read", r)
+				}
+			}()
+			b := s.content.Bytes()
+			if got := b[len(b)-1]; got != 0x5a {
+				t.Errorf("last byte after truncation: got = %#x, want = 0x5a", got)
+			}
+		})
 	}
 }

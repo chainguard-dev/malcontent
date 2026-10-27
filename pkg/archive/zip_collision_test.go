@@ -15,7 +15,6 @@ import (
 	"testing"
 
 	"github.com/chainguard-dev/clog"
-	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	zip "github.com/klauspost/compress/zip"
 	"github.com/puzpuzpuz/xsync/v4"
@@ -103,11 +102,11 @@ func TestExtractZipCaseFoldingCollisions(t *testing.T) {
 			wantContents: []string{"first", "second"},
 		},
 		{
-			name:         "symlink entry whose path holds a file is created under a sibling name",
+			name:         "symlink entry whose path holds a file is written as a file under a sibling name",
 			entries:      []zipSpecEntry{{name: "data.txt", body: "payload"}, {name: "other.txt", body: "other"}, {name: "data.txt", body: "other.txt", mode: symlinkMode}},
-			wantTree:     []string{"data.txt", "data_1.txt -> other.txt", "other.txt"},
-			wantFiles:    map[string]string{"data.txt": "payload", "data_1.txt": "other"},
-			wantContents: []string{"other", "payload"},
+			wantTree:     []string{"data.txt", "data_1.txt", "other.txt"},
+			wantFiles:    map[string]string{"data.txt": "payload", "data_1.txt": "other.txt"},
+			wantContents: []string{"other", "other.txt", "payload"},
 		},
 		{
 			name:         "file already in the destination is kept and the entry gets a sibling name",
@@ -134,13 +133,14 @@ func TestExtractZipCaseFoldingCollisions(t *testing.T) {
 			wantContents: []string{"beneath"},
 		},
 		{
-			// Symlinks are created after every file, so the file always
-			// claims the path before the link needs it as a directory.
+			// Paths are assigned in archive order, so the file claims the path
+			// before the entry beneath it needs it as a directory. A symlink
+			// entry is written as a file holding its target.
 			name:         "directory needed after a file of the same name is created under a sibling name",
 			entries:      []zipSpecEntry{{name: "docs/guide", body: "guide"}, {name: "docs/other.txt", body: "other"}, {name: "docs/guide/link", body: "../other.txt", mode: symlinkMode}},
-			wantTree:     []string{"docs/", "docs/guide", "docs/guide_1/", "docs/guide_1/link -> ../other.txt", "docs/other.txt"},
-			wantFiles:    map[string]string{"docs/guide": "guide", "docs/guide_1/link": "other"},
-			wantContents: []string{"guide", "other"},
+			wantTree:     []string{"docs/", "docs/guide", "docs/guide_1/", "docs/guide_1/link", "docs/other.txt"},
+			wantFiles:    map[string]string{"docs/guide": "guide", "docs/guide_1/link": "../other.txt"},
+			wantContents: []string{"../other.txt", "guide", "other"},
 		},
 		{
 			name: "every entry beneath a directory whose path holds a file shares one sibling directory",
@@ -158,7 +158,7 @@ func TestExtractZipCaseFoldingCollisions(t *testing.T) {
 				"META-INF/license_1/",
 				"META-INF/license_1/a.txt",
 				"META-INF/license_1/c.txt",
-				"META-INF/license_1/link -> a.txt",
+				"META-INF/license_1/link",
 				"META-INF/license_1/sub/",
 				"META-INF/license_1/sub/b.txt",
 				"META-INF/license_1/sub2/",
@@ -168,9 +168,9 @@ func TestExtractZipCaseFoldingCollisions(t *testing.T) {
 				"META-INF/license_1/a.txt":     "a",
 				"META-INF/license_1/sub/b.txt": "b",
 				"META-INF/license_1/c.txt":     "c",
-				"META-INF/license_1/link":      "a",
+				"META-INF/license_1/link":      "a.txt",
 			},
-			wantContents: []string{"a", "b", "c", "earlier"},
+			wantContents: []string{"a", "a.txt", "b", "c", "earlier"},
 		},
 		{
 			name:     "renamed directory never merges into an existing sibling directory",
@@ -295,40 +295,24 @@ func TestZipExtractFileLogsRename(t *testing.T) {
 
 	const taken = "because the path is already taken"
 	tests := []struct {
-		name     string
-		existing bool
-		wantLog  string
+		name    string
+		entries []zipSpecEntry
+		wantLog string
 	}{
-		{name: "entry whose path is taken is logged with its new name", existing: true, wantLog: "writing top.txt as top_1.txt " + taken},
-		{name: "entry written at its own path is not logged as renamed", existing: false},
+		{name: "entry whose path is taken is logged with its new name", entries: []zipSpecEntry{{name: "top.txt", body: "earlier"}, {name: "top.txt", body: "new"}}, wantLog: `extracting zip entry \"top.txt\" as \"top_1.txt\" ` + taken},
+		{name: "entry written at its own path is not logged as renamed", entries: []zipSpecEntry{{name: "top.txt", body: "new"}}},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			src := filepath.Join(t.TempDir(), "entry.zip")
-			zipSpecWrite(t, src, zip.Deflate, []zipSpecEntry{{name: "top.txt", body: "new"}})
-			rc, err := zip.OpenReader(src)
-			if err != nil {
-				t.Fatalf("OpenReader: %v", err)
-			}
-			defer rc.Close()
-
-			root, err := openRoot(filepath.Join(t.TempDir(), "out"))
-			if err != nil {
-				t.Fatalf("openRoot: %v", err)
-			}
-			defer root.Close()
-			if tt.existing {
-				if err := root.WriteFile("top.txt", []byte("earlier"), 0o600); err != nil {
-					t.Fatalf("write existing file: %v", err)
-				}
-			}
+			zipSpecWrite(t, src, zip.Deflate, tt.entries)
 
 			var logs bytes.Buffer
 			logger := clog.New(slog.NewTextHandler(&logs, &slog.HandlerOptions{Level: slog.LevelDebug}))
-			if err := extractFile(t.Context(), rc.File[0], testEntryRoots(t, root), logger, &file.ArchiveCounter{}, newZipFoldedPaths(root)); err != nil {
-				t.Fatalf("extractFile error: got = %v, want = nil", err)
+			if err := ExtractZip(clog.WithLogger(t.Context(), logger), filepath.Join(t.TempDir(), "out"), src); err != nil {
+				t.Fatalf("ExtractZip error: got = %v, want = nil", err)
 			}
 
 			got := logs.String()
@@ -357,7 +341,7 @@ func TestZipFoldedPathsShareRenamedDirectory(t *testing.T) {
 	}
 
 	const workers = 32
-	paths := newZipFoldedPaths(root)
+	paths := testPaths(t, root)
 	names := make([]string, workers)
 	errs := make([]error, workers)
 	var wg sync.WaitGroup
@@ -403,7 +387,8 @@ func TestZipFoldedPathsDirectoryCase(t *testing.T) {
 		t.Fatalf("openRoot: %v", err)
 	}
 	defer root.Close()
-	paths := newZipFoldedPaths(root)
+	paths := testPaths(t, root)
+	paths.fold = true
 
 	// Each step depends on the directories the previous steps created.
 	steps := []struct {
@@ -448,7 +433,7 @@ func TestZipCollisionNames(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got := slices.Collect(zipCollisionNames(tt.in))
+			got := slices.Collect(collisionNames(tt.in))
 			if len(got) != maxCollisionNames+1 {
 				t.Fatalf("name count: got = %d, want = %d", len(got), maxCollisionNames+1)
 			}
@@ -476,7 +461,7 @@ func TestZipCollisionNamesStopsEarly(t *testing.T) {
 
 	for _, want := range []int{1, 2} {
 		got := 0
-		for range zipCollisionNames("a.txt") {
+		for range collisionNames("a.txt") {
 			got++
 			if got == want {
 				break

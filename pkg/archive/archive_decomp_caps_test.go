@@ -48,9 +48,9 @@ func TestExtractFileFromCPIO_AggregateCap(t *testing.T) {
 	cr := makeCPIOStream(t, "payload.bin", body)
 
 	buf := make([]byte, file.ExtractBuffer)
-	counter := &file.ArchiveCounter{MaxBytes: 1024, InputBytes: 1 << 20}
+	counter := testBudget(1024)
 
-	err := extractFileFromCPIO(t.Context(), cr, testEntryRoots(t, openTestRoot(t, dir)), "payload.bin", buf, counter)
+	err := extractFileFromCPIO(t.Context(), cr, testPaths(t, openTestRoot(t, dir)), "payload.bin", buf, counter)
 	if err == nil {
 		t.Fatalf("extractFileFromCPIO succeeded; want ErrArchiveBytesCap")
 	}
@@ -90,15 +90,15 @@ func TestHandleFile_AggregateCap(t *testing.T) {
 	t.Parallel()
 
 	root := openTestRoot(t, t.TempDir())
-	counter := &file.ArchiveCounter{MaxBytes: 1500, InputBytes: 1 << 20}
+	counter := testBudget(1500)
 
 	first := makeTarMember(t, "a.bin", make([]byte, 1024))
-	if err := handleFile(testEntryRoots(t, root), "a.bin", first, counter); err != nil {
+	if err := handleFile(testPaths(t, root), "a.bin", first, counter); err != nil {
 		t.Fatalf("first member: unexpected error %v", err)
 	}
 
 	second := makeTarMember(t, "b.bin", make([]byte, 1024))
-	err := handleFile(testEntryRoots(t, root), "b.bin", second, counter)
+	err := handleFile(testPaths(t, root), "b.bin", second, counter)
 	if err == nil {
 		t.Fatalf("second member succeeded; want ErrArchiveBytesCap")
 	}

@@ -6,14 +6,17 @@ package archive
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"math"
 	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/google/go-containerregistry/pkg/authn"
 	"github.com/google/go-containerregistry/pkg/name"
+	"github.com/google/go-containerregistry/pkg/registry"
 	"github.com/google/go-containerregistry/pkg/v1/remote/transport"
 )
 
@@ -158,6 +161,123 @@ func TestPullWithRetry_NoBudgetMakesNoRequest(t *testing.T) {
 			if got := len(reg.manifestRequests()); got != 0 {
 				t.Errorf("manifest requests: got = %d, want = 0", got)
 			}
+		})
+	}
+}
+
+// TestOCIWithConfig_RetryAttemptsAreTheTotal checks that the attempt budget is
+// the number of requests made, with no retry layer of go-containerregistry's
+// own multiplying it.
+func TestOCIWithConfig_RetryAttemptsAreTheTotal(t *testing.T) {
+	t.Parallel()
+	for _, attempts := range []int{1, 3} {
+		t.Run(fmt.Sprintf("%d attempts make %d manifest requests", attempts, attempts), func(t *testing.T) {
+			t.Parallel()
+			reg := &ociFixtureRegistry{manifestStatus: http.StatusServiceUnavailable}
+			_, ref := ociServe(t, reg)
+			c := ociTestConfig(0)
+			c.OCIRetryMaxAttempts = attempts
+			dir, err := OCIWithConfig(t.Context(), ref, c)
+			removeOCIDir(t, dir)
+			if err == nil {
+				t.Fatal("error: got = nil, want = retry exhausted")
+			}
+			if got := len(reg.manifestRequests()); got != attempts {
+				t.Errorf("manifest requests: got = %d, want = %d", got, attempts)
+			}
+		})
+	}
+}
+
+// ociSlowBlobs serves an in-process registry whose blob responses are delayed:
+// by headerDelay before the status line, and by bodyDelay between the flushed
+// headers and the body.
+func ociSlowBlobs(t *testing.T, headerDelay, bodyDelay time.Duration) string {
+	t.Helper()
+	inner := registry.New(registry.Logger(slog.NewLogLogger(slog.DiscardHandler, slog.LevelInfo)))
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet && strings.Contains(r.URL.Path, "/blobs/") {
+			if !ociSleep(r, headerDelay) {
+				return
+			}
+			w = &ociSlowBodyWriter{ResponseWriter: w, r: r, delay: bodyDelay}
+		}
+		inner.ServeHTTP(w, r)
+	}))
+	t.Cleanup(srv.Close)
+	return hostPort(t, srv.URL)
+}
+
+// ociSleep waits d or until the request ends, reporting whether d elapsed.
+func ociSleep(r *http.Request, d time.Duration) bool {
+	if d <= 0 {
+		return true
+	}
+	select {
+	case <-time.After(d):
+		return true
+	case <-r.Context().Done():
+		return false
+	}
+}
+
+// ociSlowBodyWriter flushes the response headers, then waits before the body.
+type ociSlowBodyWriter struct {
+	http.ResponseWriter
+	r       *http.Request
+	delay   time.Duration
+	started bool
+}
+
+func (w *ociSlowBodyWriter) Write(p []byte) (int, error) {
+	if !w.started {
+		w.started = true
+		if f, ok := w.ResponseWriter.(http.Flusher); ok {
+			f.Flush()
+		}
+		if !ociSleep(w.r, w.delay) {
+			return 0, w.r.Context().Err()
+		}
+	}
+	return w.ResponseWriter.Write(p)
+}
+
+func TestOCIWithConfig_PullTimeoutAndDeadline(t *testing.T) {
+	t.Parallel()
+	cases := []struct {
+		name        string
+		headerDelay time.Duration
+		bodyDelay   time.Duration
+		timeout     int // response-header timeout
+		deadline    int // whole-pull deadline
+		wantErr     string
+	}{
+		{name: "a slow body after prompt headers outlives the header timeout", bodyDelay: 1500 * time.Millisecond, timeout: 1},
+		{name: "late response headers hit the header timeout", headerDelay: 3 * time.Second, timeout: 1, wantErr: "timeout awaiting response headers"},
+		{name: "the pull deadline bounds a slow transfer", bodyDelay: 3 * time.Second, timeout: 30, deadline: 1, wantErr: "deadline exceeded"},
+		{name: "a pull inside its deadline succeeds", timeout: 30, deadline: 30},
+	}
+	for i, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			host := ociSlowBlobs(t, tc.headerDelay, tc.bodyDelay)
+			ref := fmt.Sprintf("%s/slow:case%d", host, i)
+			ociPushImage(t, ref, ociTestImage(t, []ociTestEntry{{name: "ok.txt", body: "ok"}}))
+			c := ociTestConfig(0)
+			c.OCIPullTimeoutSeconds = tc.timeout
+			c.OCIPullDeadlineSeconds = tc.deadline
+			dir, err := OCIWithConfig(t.Context(), ref, c)
+			removeOCIDir(t, dir)
+			if tc.wantErr != "" {
+				if err == nil || !strings.Contains(err.Error(), tc.wantErr) {
+					t.Fatalf("error: got = %v, want containing %q", err, tc.wantErr)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("OCIWithConfig: %v", err)
+			}
+			ociAssertTree(t, dir, map[string]string{"ok.txt": "file:ok"})
 		})
 	}
 }

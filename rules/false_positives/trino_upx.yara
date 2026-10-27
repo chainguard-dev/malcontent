@@ -1,7 +1,8 @@
 rule trino_upx_override: override {
   meta:
-    description                 = "https://trino.io/ - UPX encrypted and crazy"
+    description                 = "https://trino.io/ - UPX packed, with high-entropy sections"
     upx                         = "medium"
+    upx_elf                     = "medium"
     high_entropy_header         = "medium"
     normal_elf_high_entropy_7_4 = "medium"
     obfuscated_elf              = "medium"

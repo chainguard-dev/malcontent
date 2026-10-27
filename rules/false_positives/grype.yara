@@ -1,6 +1,6 @@
 rule grype_offline_db: override {
   meta:
-    descriptions                    = "vulnerability.db"
+    description                     = "vulnerability.db"
     SIGNATURE_BASE_Hacktool_Samples = "harmless"
     SIGNATURE_BASE_Sql_Php_Php      = "harmless"
     Windows_Trojan_Jupyter_56152e31 = "harmless"

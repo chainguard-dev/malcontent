@@ -13,7 +13,7 @@ exfil/stealer/pam: critical
 fs/link_read: low
 fs/path/tmp: medium
 fs/path/usr_bin: low
-fs/permission/modify: low
+fs/permission/modify: medium
 fs/proc/arbitrary_pid: medium
 fs/proc/pid_status: medium
 fs/proc/self_cmdline: medium

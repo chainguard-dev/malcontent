@@ -57,8 +57,8 @@ malcontent is at its best analyzing programs that run on Linux. Still, it also p
 GLOBAL OPTIONS:
    --all                       Ignore nothing within a provided scan path
    --exit-extraction           Exit when encountering file extraction errors
-   --exit-first-miss           Exit with error if scan source has no matching capabilities
-   --exit-first-hit            Exit with error if scan source has matching capabilities
+   --exit-first-miss           Exit with status 1 if scan source has no matching capabilities
+   --exit-first-hit            Exit with status 1 if scan source has matching capabilities
    --format string             Output format (interactive, json, markdown, simple, strings, terminal, yaml) (default: "auto")
    --ignore-rules string       YARA rule names to ignore (comma-separated; supports filepath.Match globs, e.g. "py_lib_alias_val,py_lib_*")
    --ignore-self               Ignore the malcontent binary
@@ -72,8 +72,11 @@ GLOBAL OPTIONS:
    --min-file-risk string      Only show results for files which meet the given risk level (any, low, medium, high, critical) (default: "low")
    --min-level int             Obsoleted by --min-risk (default: -1)
    --min-risk string           Only show results which meet the given risk level (any, low, medium, high, critical) (default: "low")
+   --oci-allow-insecure-auth   Allow --oci-auth credentials to be sent to a registry over plain HTTP
    --oci-auth                  Authenticate OCI pulls with MALCONTENT_REGISTRY_USER/PASS, scoped to the registry in MALCONTENT_REGISTRY_HOST
+   --oci-pull-deadline-seconds int  Maximum seconds for a whole OCI image pull and extraction (0 for no deadline) (default: 3600)
    --output string, -o string  Write output to specified file instead of stdout
+   --platform string           OCI image index platforms to scan as comma-separated os/arch[/variant] (default: all)
    --profile, -p               Generate profile and trace files
    --quantity-increases-risk   Increase file risk score based on behavior quantity
    --stats, -s                 Show scan statistics
@@ -84,8 +87,13 @@ GLOBAL OPTIONS:
 ```
 
 > Malcontent defaults to anonymous OCI pulls. Authentication is opt-in via `--oci-auth`, which reads Basic credentials from the `MALCONTENT_REGISTRY_USER` and `MALCONTENT_REGISTRY_PASS` environment variables. The ambient Docker keychain (`~/.docker/config.json`) is intentionally never used.  
-> Credentials are scoped to a single registry: they are sent only when the image's registry host matches `MALCONTENT_REGISTRY_HOST` exactly, and malcontent falls back to anonymous pulls for any other registry, so private credentials are never presented to an unexpected (potentially malicious) registry.  
-> Registry hosts are normalized by `google/go-containerregistry`, so set `MALCONTENT_REGISTRY_HOST=index.docker.io` (not `docker.io`) when authenticating to Docker Hub.
+> Credentials are scoped to a single registry: they are sent only when the image's registry host matches `MALCONTENT_REGISTRY_HOST`, and malcontent falls back to anonymous pulls (with a warning) for any other registry, so private credentials are never presented to an unexpected (potentially malicious) registry.  
+> Hosts are compared without regard to case or a `:443` suffix, and `docker.io`, `index.docker.io`, and `registry-1.docker.io` all name Docker Hub.  
+> `google/go-containerregistry` falls back to plain HTTP for `localhost` and private IP registries; malcontent refuses to send credentials over it unless `--oci-allow-insecure-auth` is set.
+
+> An image's filesystem is extracted as a container runtime assembles it from the layers, so files that an upper layer deletes are not scanned.  
+> Every platform of a multi-platform image is scanned, each under a directory named for its platform such as `linux-arm64-v8`; `--platform` narrows the selection, and a single selected platform is scanned at the image root.  
+> The image config's `Env`, `Entrypoint`, and `Cmd` are scanned as a shell script named `malcontent-image-config.sh` at the image root (`malcontent-image-config.N.sh` if the image has a file of that name).
 
 ## Modes
 

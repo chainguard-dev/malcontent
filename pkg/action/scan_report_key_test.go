@@ -31,7 +31,8 @@ func TestArchiveEntryKey(t *testing.T) {
 		{name: "archive path is trimmed once", archive: "a/a/x.zip", entry: "/main.sh", trim: []string{"a"}, want: "a/x.zip ∴ /main.sh"},
 		{name: "unmatched trim prefix leaves the archive path", archive: "/scan/a.zip", entry: "/main.sh", trim: []string{"/other"}, want: "/scan/a.zip ∴ /main.sh"},
 		{name: "macOS private prefix is dropped as in display paths", archive: "/private/var/a.zip", entry: "/main.sh", want: "/var/a.zip ∴ /main.sh"},
-		{name: "backslashes in the entry path become slashes", archive: "a.zip", entry: `\app\main.sh`, want: "a.zip ∴ /app/main.sh"},
+		{name: "backslashes in the entry path become slashes only where they separate", archive: "a.zip", entry: `\app\main.sh`, want: pathTestSlashed("a.zip ∴ /app/main.sh", `a.zip ∴ \app\main.sh`)},
+		{name: "an entry named with a backslash keeps it", archive: "a.zip", entry: `/app/a\b`, want: pathTestSlashed("a.zip ∴ /app/a/b", `a.zip ∴ /app/a\b`)},
 		{name: "archive inside an OCI image is named by the image", archive: scanTestImageURI + " ∴ /usr/lib/a.jar", entry: "/A.class", want: scanTestImageURI + " ∴ /usr/lib/a.jar ∴ /A.class"},
 	}
 	for _, tt := range tests {
@@ -244,5 +245,42 @@ func TestProcessPathsEvaluatesEachOCIImageOnItsOwn(t *testing.T) {
 	}
 	if got := r.Files.Size(); got != 0 {
 		t.Errorf("reports after a miss: got = %d, want = 0", got)
+	}
+}
+
+// TestScanKeepsBackslashNamesDistinct checks that a file whose name holds a
+// backslash, which only Windows takes for a separator, keeps a key of its
+// own beside the file at the path the backslash would stand for.
+func TestScanKeepsBackslashNamesDistinct(t *testing.T) {
+	t.Parallel()
+	if filepath.Separator == '\\' {
+		t.Skip("a backslash separates names here")
+	}
+	yrs, rfs := scanTestRules(t)
+	dir := diffTestTempDir(t)
+	tests := []struct {
+		name  string
+		files []string
+	}{
+		{name: `"a\b" and "a/b" keep two keys`, files: []string{`a\b.sh`, "a/b.sh"}},
+		{name: `a name with a backslash alone keeps it`, files: []string{`c\d.sh`}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			root := filepath.Join(dir, strings.NewReplacer(`\`, "_", "/", "_", `"`, "", " ", "_").Replace(tt.name))
+			want := make([]string, 0, len(tt.files))
+			for _, name := range tt.files {
+				want = append(want, scanTestWriteFile(t, filepath.Join(root, name), []byte(diffTestShellPayload(name))))
+			}
+			c := malcontent.Config{Concurrency: 1, Rules: yrs, RuleFS: rfs, ScanPaths: []string{root}}
+			r, err := Scan(t.Context(), c)
+			if err != nil {
+				t.Fatalf("Scan: %v", err)
+			}
+			if got := scanTestKeys(r.Files); !slices.Equal(got, slices.Sorted(slices.Values(want))) {
+				t.Errorf("report keys: got = %q, want = %q", got, want)
+			}
+		})
 	}
 }

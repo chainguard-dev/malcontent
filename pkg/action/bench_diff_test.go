@@ -5,6 +5,7 @@ package action
 
 import (
 	"fmt"
+	"slices"
 	"testing"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
@@ -66,6 +67,26 @@ func BenchmarkBehaviorsChanged(b *testing.B) {
 	b.ResetTimer()
 	for range b.N {
 		_ = behaviorsChanged(src, dest, RESOURCE)
+	}
+}
+
+// BenchmarkAlignRoots measures pairing two trees of 100,000 files scanned
+// from different roots, the case that pays for choosing the roots.
+func BenchmarkAlignRoots(b *testing.B) {
+	const n = 100_000
+	src, dest := make([]string, 0, n), make([]string, 0, n)
+	srcFiles, destFiles := make(map[string]*malcontent.FileReport, n), make(map[string]*malcontent.FileReport, n)
+	for i := range n {
+		rel := fmt.Sprintf("usr/lib/pkg%03d/mod%06d.so", i%500, i)
+		src, dest = append(src, "/build/old/"+rel), append(dest, "/build/new/"+rel)
+		srcFiles[src[i]], destFiles[dest[i]] = &malcontent.FileReport{}, &malcontent.FileReport{}
+	}
+	slices.Sort(src)
+	slices.Sort(dest)
+	b.ReportAllocs()
+	b.ResetTimer()
+	for range b.N {
+		_, _ = alignRoots(src, dest, srcFiles, destFiles)
 	}
 }
 

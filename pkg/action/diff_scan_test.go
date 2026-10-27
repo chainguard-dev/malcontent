@@ -7,6 +7,7 @@ import (
 	"archive/tar"
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"encoding/json"
 	"errors"
 	"io/fs"
@@ -25,7 +26,6 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/render"
 	"github.com/chainguard-dev/malcontent/rules"
 	thirdparty "github.com/chainguard-dev/malcontent/third_party"
-	"github.com/minio/sha256-simd"
 	"github.com/puzpuzpuz/xsync/v4"
 
 	yarax "github.com/VirusTotal/yara-x/go"
@@ -396,19 +396,6 @@ func TestDiffFiles(t *testing.T) {
 			wantPrevRel: "old.sh",
 		},
 		{
-			name: "directory and file compare the first primary file one to one",
-			setup: func(t *testing.T, root string) (string, string) {
-				t.Helper()
-				srcDir, dest := filepath.Join(root, "src"), filepath.Join(root, "c.sh")
-				diffTestWriteFile(t, filepath.Join(srcDir, "b.sh"), "#!/bin/sh\necho b\n")
-				diffTestWriteFile(t, filepath.Join(srcDir, "a.sh"), "#!/bin/sh\necho a\n")
-				diffTestWriteFile(t, dest, "#!/bin/sh\necho c\n")
-				return srcDir, dest
-			},
-			wantChanged: true,
-			wantPrevRel: "a.sh",
-		},
-		{
 			name: "archive and file compare one to one without archive formatting",
 			setup: func(t *testing.T, root string) (string, string) {
 				t.Helper()
@@ -619,10 +606,33 @@ func TestDiffDirectoriesWithNestedArchives(t *testing.T) {
 	diffTestAssertKeys(t, d, nil, nil, []string{prefix + "/bin/other.sh", prefix + "/bin/tool.sh"})
 }
 
+// diffTestReport returns report entries keyed by their paths, each with the
+// given risk and, when ids are given, those behaviors.
+func diffTestReport(risk int, ids []string, paths ...string) map[string]*malcontent.FileReport {
+	frs := make(map[string]*malcontent.FileReport, len(paths))
+	for _, p := range paths {
+		fr := &malcontent.FileReport{Path: p, RiskScore: risk}
+		for _, id := range ids {
+			fr.Behaviors = append(fr.Behaviors, &malcontent.Behavior{ID: id})
+		}
+		frs[p] = fr
+	}
+	return frs
+}
+
 func TestDiffReports(t *testing.T) {
 	t.Parallel()
+	shell := []string{"exec/shell/command"}
+	merge := func(ms ...map[string]*malcontent.FileReport) map[string]*malcontent.FileReport {
+		out := map[string]*malcontent.FileReport{}
+		for _, m := range ms {
+			maps.Copy(out, m)
+		}
+		return out
+	}
 	tests := []struct {
 		name         string
+		c            malcontent.Config
 		src, dest    map[string]*malcontent.FileReport
 		wantRemoved  []string
 		wantAdded    []string
@@ -663,16 +673,93 @@ func TestDiffReports(t *testing.T) {
 			wantModified: []string{"/usr/bin/app"},
 		},
 		{
+			// The renderers write an empty key, for a file named by a trim
+			// prefix equal to its path, with an equally empty path.
 			name: "entries with empty keys are skipped on both sides",
 			src: map[string]*malcontent.FileReport{
-				"":        {Path: "/app/unnamed-src", RiskScore: 1},
+				"":        {Path: "", RiskScore: 1},
 				"/app/ok": {Path: "/app/ok", RiskScore: 1},
 			},
 			dest: map[string]*malcontent.FileReport{
-				"":        {Path: "/app/unnamed-dest", RiskScore: 1},
+				"":        {Path: "", RiskScore: 1},
 				"/app/ok": {Path: "/app/ok", RiskScore: 2},
 			},
 			wantModified: []string{"/app/ok"},
+		},
+		{
+			name: "archive members in one directory keep their archive paths",
+			src: merge(diffTestReport(1, []string{"a/a/a"}, "/r/a.jar ∴ /META-INF/MANIFEST.MF"),
+				diffTestReport(3, []string{"b/b/b"}, "/r/b.jar ∴ /META-INF/MANIFEST.MF")),
+			dest: merge(diffTestReport(1, []string{"a/a/a"}, "/r/a.jar ∴ /META-INF/MANIFEST.MF"),
+				diffTestReport(4, []string{"b/b/b", "c/c/c"}, "/r/b.jar ∴ /META-INF/MANIFEST.MF")),
+			wantModified: []string{"/r/a.jar ∴ /META-INF/MANIFEST.MF", "/r/b.jar ∴ /META-INF/MANIFEST.MF"},
+		},
+		{
+			name:         "archive members of a relative scan path keep their archive paths",
+			src:          diffTestReport(1, shell, "v1/bin/app", "v1/a.tar ∴ /x", "v1/b.tar ∴ /y"),
+			dest:         diffTestReport(2, shell, "v1/bin/app", "v1/a.tar ∴ /x", "v1/b.tar ∴ /y"),
+			wantModified: []string{"/v1/a.tar ∴ /x", "/v1/b.tar ∴ /y", "/v1/bin/app"},
+		},
+		{
+			name:         "archive reports pair by the path within the archive",
+			src:          merge(diffTestReport(1, shell, "/s/pkg-1.0.tar ∴ /bin/tool", "/s/pkg-1.0.tar ∴ /bin/gone")),
+			dest:         merge(diffTestReport(2, shell, "/s/pkg-1.1.tar ∴ /bin/tool"), diffTestReport(1, shell, "/s/pkg-1.1.tar ∴ /bin/new")),
+			wantRemoved:  []string{"/s/pkg-1.0.tar ∴ /bin/gone"},
+			wantAdded:    []string{"/s/pkg-1.1.tar ∴ /bin/new"},
+			wantModified: []string{"/s/pkg-1.1.tar ∴ /bin/tool"},
+		},
+		{
+			name: "image files without findings pair by their path below the temporary root",
+			src: merge(diffTestReport(1, shell, "cgr.dev/org/img:1 ∴ /usr/bin/app"),
+				diffTestReport(0, nil, "/tmp/a1/b1/T/mal1/usr/bin/plain")),
+			dest: merge(diffTestReport(2, shell, "cgr.dev/org/img:2 ∴ /usr/bin/app"),
+				diffTestReport(0, nil, "/tmp/a2/b2/T/mal2/usr/bin/plain")),
+			wantModified: []string{"cgr.dev/org/img:2 ∴ /usr/bin/app", "cgr.dev/org/img:2 ∴ /usr/bin/plain"},
+		},
+		{
+			name:         "reports from different scan roots pair by their paths below the roots",
+			src:          diffTestReport(1, shell, "/build/old/bin/app", "/build/old/bin/gone"),
+			dest:         merge(diffTestReport(3, shell, "/build/new/bin/app"), diffTestReport(2, shell, "/build/new/bin/new")),
+			wantRemoved:  []string{"/build/old/bin/gone"},
+			wantAdded:    []string{"/build/new/bin/new"},
+			wantModified: []string{"/build/new/bin/app"},
+		},
+		{
+			name:         "a different scan root that gains a top-level directory pairs below the roots",
+			src:          diffTestReport(1, shell, "/build/old/bin/app", "/build/old/bin/tool"),
+			dest:         diffTestReport(2, shell, "/build/new/bin/app", "/build/new/bin/tool", "/build/new/lib/new"),
+			wantAdded:    []string{"/build/new/lib/new"},
+			wantModified: []string{"/build/new/bin/app", "/build/new/bin/tool"},
+		},
+		{
+			name:         "the same scan root pairs in place when a directory is added",
+			src:          diffTestReport(1, shell, "/app/bin/a"),
+			dest:         merge(diffTestReport(2, shell, "/app/bin/a"), diffTestReport(1, shell, "/app/lib/b")),
+			wantAdded:    []string{"/app/lib/b"},
+			wantModified: []string{"/app/bin/a"},
+		},
+		{
+			name:        "unrelated reports stay apart",
+			src:         diffTestReport(1, shell, "/old/a", "/old/b"),
+			dest:        diffTestReport(1, shell, "/new/c", "/new/d"),
+			wantRemoved: []string{"/old/a", "/old/b"},
+			wantAdded:   []string{"/new/c", "/new/d"},
+		},
+		{
+			name:         "single-file reports compare one to one",
+			src:          diffTestReport(1, shell, "/build/old/app-v1"),
+			dest:         diffTestReport(3, shell, "/build/new/app-v2"),
+			wantModified: []string{"/build/new/app-v2"},
+		},
+		{
+			name: "minimum file risk applies to added and removed files",
+			c:    malcontent.Config{MinFileRisk: 3},
+			src: merge(diffTestReport(1, shell, "/app/same", "/app/gone"),
+				diffTestReport(3, shell, "/app/gone-high")),
+			dest: merge(diffTestReport(2, shell, "/app/same"), diffTestReport(1, shell, "/app/new"),
+				diffTestReport(3, shell, "/app/new-high")),
+			wantRemoved: []string{"/app/gone-high"},
+			wantAdded:   []string{"/app/new-high"},
 		},
 	}
 
@@ -684,7 +771,9 @@ func TestDiffReports(t *testing.T) {
 			diffTestWriteReport(t, src, tt.src)
 			diffTestWriteReport(t, dest, tt.dest)
 
-			res, err := Diff(t.Context(), malcontent.Config{Report: true, ScanPaths: []string{src, dest}}, nil)
+			c := tt.c
+			c.Report, c.ScanPaths = true, []string{src, dest}
+			res, err := Diff(t.Context(), c, nil)
 			if err != nil {
 				t.Fatalf("Diff: got error = %v, want nil", err)
 			}
@@ -760,12 +849,34 @@ func TestDiffReportErrors(t *testing.T) {
 	if err := file.MkdirAllIn(root, "dir.json", 0o700); err != nil {
 		t.Fatalf("MkdirAll(%q): %v", dir, err)
 	}
+	// Damaged reports: an entry with no file report, and a file both
+	// reports hold whose source copy has an empty behavior.
+	emptyEntry := filepath.Join(root, "empty-entry.yaml")
+	diffTestWriteFile(t, emptyEntry, "files:\n    /a:\n")
+	holdsA := filepath.Join(root, "holds-a.json")
+	diffTestWriteFile(t, holdsA, `{"Files":{"/a":{"Path":"/a","Behaviors":[{"ID":"net/http"}]}}}`)
+	emptyBehavior := filepath.Join(root, "empty-behavior.json")
+	diffTestWriteFile(t, emptyBehavior, `{"Files":{"/a":{"Path":"/a","Behaviors":[{"ID":"net/http"},null]}}}`)
+	// Two entries whose paths name the same file: pairing either one with
+	// its counterpart would hide the other.
+	ambiguous := filepath.Join(root, "ambiguous.json")
+	diffTestWriteReport(t, ambiguous, diffTestReport(1, nil, "usr/bin/app", "/usr/bin/app"))
 
 	notExist := func(err error) bool { return errors.Is(err, fs.ErrNotExist) }
 	isDir := func(err error) bool { return errors.Is(err, syscall.EISDIR) }
 	syntaxErr := func(err error) bool {
 		var se *json.SyntaxError
 		return errors.As(err, &se)
+	}
+	sameKey := func(side string) func(error) bool {
+		return func(err error) bool {
+			return strings.HasPrefix(err.Error(), side) && strings.Contains(err.Error(), "/usr/bin/app and usr/bin/app")
+		}
+	}
+	damaged := func(side string) func(error) bool {
+		return func(err error) bool {
+			return strings.HasPrefix(err.Error(), "load "+side+" report") && strings.Contains(err.Error(), `"/a"`)
+		}
 	}
 
 	tests := []struct {
@@ -780,6 +891,12 @@ func TestDiffReportErrors(t *testing.T) {
 		{name: "malformed destination report", src: valid, dest: malformed, match: syntaxErr},
 		{name: "unreadable source report", src: dir, dest: valid, match: isDir},
 		{name: "unreadable destination report", src: valid, dest: dir, match: isDir},
+		{name: "empty source entry", src: emptyEntry, dest: valid, match: damaged("source")},
+		{name: "empty destination entry", src: valid, dest: emptyEntry, match: damaged("destination")},
+		{name: "empty behavior in a file both reports hold", src: emptyBehavior, dest: holdsA, match: damaged("source")},
+		{name: "empty behavior in the destination copy of a file both reports hold", src: holdsA, dest: emptyBehavior, match: damaged("destination")},
+		{name: "source entries that name the same file", src: ambiguous, dest: valid, match: sameKey("source")},
+		{name: "destination entries that name the same file", src: valid, dest: ambiguous, match: sameKey("destination")},
 	}
 
 	for _, tt := range tests {
@@ -793,6 +910,330 @@ func TestDiffReportErrors(t *testing.T) {
 				t.Errorf("Diff report on error: got = %v, want nil", res)
 			}
 		})
+	}
+}
+
+func TestDiffSensitivityRange(t *testing.T) {
+	t.Parallel()
+	root := diffTestTempDir(t)
+	src, dest := filepath.Join(root, "src.json"), filepath.Join(root, "dest.json")
+	diffTestWriteReport(t, src, diffTestReport(1, []string{"net/socket/listen"}, "/app/a"))
+	diffTestWriteReport(t, dest, diffTestReport(2, []string{"exec/shell/command"}, "/app/a"))
+
+	tests := []struct {
+		name        string
+		sensitivity int
+		wantErr     bool
+	}{
+		{name: "unset sensitivity is the default", sensitivity: 0},
+		{name: "lowest sensitivity", sensitivity: CHANGE},
+		{name: "highest sensitivity", sensitivity: ALL},
+		{name: "negative sensitivity", sensitivity: -1, wantErr: true},
+		{name: "sensitivity above the highest", sensitivity: ALL + 1, wantErr: true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			c := malcontent.Config{Report: true, Sensitivity: tt.sensitivity, ScanPaths: []string{src, dest}}
+			res, err := Diff(t.Context(), c, nil)
+			if !tt.wantErr {
+				if err != nil {
+					t.Errorf("Diff: got error = %v, want nil", err)
+				}
+				return
+			}
+			if err == nil || !strings.Contains(err.Error(), "sensitivity") || res != nil {
+				t.Errorf("Diff: got = (%v, %v), want a sensitivity error", res, err)
+			}
+		})
+	}
+}
+
+// TestDiffMinFileRisk covers the minimum file risk, which drops a pair only
+// when both sides fall below it, and drops added and removed files below it.
+func TestDiffMinFileRisk(t *testing.T) {
+	t.Parallel()
+	// A shell script that does nothing has no findings; one without an
+	// extension or interpreter line is a data file, which the scan skips.
+	const clean = "true\n"
+	flagged := diffTestShellPayload("flagged")
+	tests := []struct {
+		name                     string
+		src, dest                map[string]string
+		files                    bool // diff the two app.sh files rather than their directories
+		removed, added, modified []string
+	}{
+		{
+			name:     "directory file that gains findings is modified",
+			src:      map[string]string{"app.sh": clean},
+			dest:     map[string]string{"app.sh": flagged},
+			modified: []string{"app.sh"},
+		},
+		{
+			name:     "directory file that loses findings is modified",
+			src:      map[string]string{"app.sh": flagged},
+			dest:     map[string]string{"app.sh": clean},
+			modified: []string{"app.sh"},
+		},
+		{
+			name: "directory file without findings on either side is left out",
+			src:  map[string]string{"app.sh": clean},
+			dest: map[string]string{"app.sh": clean + clean},
+		},
+		{
+			name:    "added and removed files without findings are left out",
+			src:     map[string]string{"gone.sh": clean, "gone-flagged.sh": flagged},
+			dest:    map[string]string{"new.sh": clean, "new-flagged.sh": flagged},
+			removed: []string{"gone-flagged.sh"},
+			added:   []string{"new-flagged.sh"},
+		},
+		{
+			name:     "file that gains findings is modified",
+			src:      map[string]string{"app.sh": clean},
+			dest:     map[string]string{"app.sh": flagged},
+			files:    true,
+			modified: []string{"app.sh"},
+		},
+		{
+			name:  "file without findings on either side is left out",
+			src:   map[string]string{"app.sh": clean},
+			dest:  map[string]string{"app.sh": clean + clean},
+			files: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			root := diffTestTempDir(t)
+			src, dest := filepath.Join(root, "src"), filepath.Join(root, "dest")
+			for name, body := range tt.src {
+				diffTestWriteFile(t, filepath.Join(src, name), body)
+			}
+			for name, body := range tt.dest {
+				diffTestWriteFile(t, filepath.Join(dest, name), body)
+			}
+			keys := func(dir string, names []string) []string {
+				out := make([]string, 0, len(names))
+				for _, n := range names {
+					out = append(out, dir+" ∴ "+filepath.Join(dir, n))
+				}
+				return out
+			}
+			removed, added, modified := keys(src, tt.removed), keys(dest, tt.added), keys(dest, tt.modified)
+			if tt.files {
+				src, dest = filepath.Join(src, "app.sh"), filepath.Join(dest, "app.sh")
+				if tt.modified != nil {
+					modified = []string{dest + " ∴ " + dest}
+				}
+			}
+			c := diffTestConfig(t)
+			c.MinFileRisk = 1 // the CLI default, --min-file-risk=low
+			diffTestAssertKeys(t, diffTestRun(t, c, src, dest), removed, added, modified)
+		})
+	}
+}
+
+// TestDiffMixedKinds covers directories, archives, and files diffed against
+// one another: every diff that involves a tree reconciles by path.
+func TestDiffMixedKinds(t *testing.T) {
+	t.Parallel()
+	tree := map[string]string{"a/first": diffTestShellPayload("first"), "z/evil": diffTestShellPayload("evil")}
+	newTree := map[string]string{"a/first": diffTestShellPayload("first"), "m/new": diffTestShellPayload("new"), "z/evil": diffTestShellPayload("evil v2")}
+	writeDir := func(t *testing.T, dir string, files map[string]string) string {
+		t.Helper()
+		for name, body := range files {
+			diffTestWriteFile(t, filepath.Join(dir, name), body)
+		}
+		return dir
+	}
+	writeTar := func(t *testing.T, path string, files map[string]string) string {
+		t.Helper()
+		diffTestWriteTar(t, path, files)
+		return path
+	}
+	dirKey := func(dir, name string) string { return dir + " ∴ " + filepath.Join(dir, name) }
+	tarKey := func(path, name string) string { return path + " ∴ /" + name }
+
+	tests := []struct {
+		name  string
+		setup func(t *testing.T, root string) (src, dest string, removed, added, modified []string)
+	}{
+		{
+			name: "directory against an archive reconciles every file",
+			setup: func(t *testing.T, root string) (string, string, []string, []string, []string) {
+				t.Helper()
+				src := writeDir(t, filepath.Join(root, "src"), tree)
+				dest := writeTar(t, filepath.Join(root, "dest.tar"), newTree)
+				return src, dest, nil, []string{tarKey(dest, "m/new")}, []string{tarKey(dest, "a/first"), tarKey(dest, "z/evil")}
+			},
+		},
+		{
+			name: "archive against a directory reconciles every file",
+			setup: func(t *testing.T, root string) (string, string, []string, []string, []string) {
+				t.Helper()
+				src := writeTar(t, filepath.Join(root, "src.tar"), newTree)
+				dest := writeDir(t, filepath.Join(root, "dest"), tree)
+				return src, dest, []string{tarKey(src, "m/new")}, nil, []string{dirKey(dest, "a/first"), dirKey(dest, "z/evil")}
+			},
+		},
+		{
+			name: "file against a directory pairs by name",
+			setup: func(t *testing.T, root string) (string, string, []string, []string, []string) {
+				t.Helper()
+				src := filepath.Join(root, "old", "app.sh")
+				diffTestWriteFile(t, src, diffTestShellPayload("app"))
+				dest := writeDir(t, filepath.Join(root, "dest"), map[string]string{"app.sh": diffTestShellPayload("app v2"), "lib.sh": diffTestShellPayload("lib")})
+				return src, dest, nil, []string{dirKey(dest, "lib.sh")}, []string{dirKey(dest, "app.sh")}
+			},
+		},
+		{
+			name: "directory against a file of another name stays apart",
+			setup: func(t *testing.T, root string) (string, string, []string, []string, []string) {
+				t.Helper()
+				src := writeDir(t, filepath.Join(root, "src"), map[string]string{"a.sh": diffTestShellPayload("a"), "b.sh": diffTestShellPayload("b")})
+				dest := filepath.Join(root, "c.sh")
+				diffTestWriteFile(t, dest, diffTestShellPayload("c"))
+				return src, dest, []string{dirKey(src, "a.sh"), dirKey(src, "b.sh")}, []string{dest + " ∴ " + dest}, nil
+			},
+		},
+		{
+			name: "file against an archive of several files pairs by name",
+			setup: func(t *testing.T, root string) (string, string, []string, []string, []string) {
+				t.Helper()
+				src := filepath.Join(root, "old", "tool.sh")
+				diffTestWriteFile(t, src, diffTestShellPayload("tool"))
+				dest := writeTar(t, filepath.Join(root, "pkg.tar"), map[string]string{"bin/tool.sh": diffTestShellPayload("tool v2"), "bin/other.sh": diffTestShellPayload("other")})
+				return src, dest, nil, []string{tarKey(dest, "bin/other.sh")}, []string{tarKey(dest, "bin/tool.sh")}
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			src, dest, removed, added, modified := tt.setup(t, diffTestTempDir(t))
+			d := diffTestRun(t, diffTestConfig(t), src, dest)
+			diffTestAssertKeys(t, d, removed, added, modified)
+		})
+	}
+}
+
+// TestDiffTreesFromDifferentRoots covers trees that share no path, which pair
+// below the deepest directories holding each side, and trees that share a
+// path, which pair in place.
+func TestDiffTreesFromDifferentRoots(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name               string
+		src, dest          map[string]string
+		archives           bool
+		removed, added     []string // paths below the scan roots
+		modified, previous []string // destination paths, and the source paths they moved from
+	}{
+		{
+			name:     "archives with versioned top-level directories pair below them",
+			src:      map[string]string{"pkg-1.0/bin/app": diffTestShellPayload("v1"), "pkg-1.0/lib/util.sh": diffTestShellPayload("util")},
+			dest:     map[string]string{"pkg-1.1/bin/app": diffTestShellPayload("v2"), "pkg-1.1/lib/util.sh": diffTestShellPayload("util v2")},
+			archives: true,
+			modified: []string{"pkg-1.1/bin/app", "pkg-1.1/lib/util.sh"},
+			previous: []string{"pkg-1.0/bin/app", "pkg-1.0/lib/util.sh"},
+		},
+		{
+			name:     "an archive that adds a top-level directory pairs in place",
+			src:      map[string]string{"bin/app": diffTestShellPayload("v1")},
+			dest:     map[string]string{"bin/app": diffTestShellPayload("v2"), "lib/new.sh": diffTestShellPayload("new")},
+			archives: true,
+			added:    []string{"lib/new.sh"},
+			modified: []string{"bin/app"},
+			previous: []string{""},
+		},
+		{
+			name:     "a directory that adds a top-level directory pairs in place",
+			src:      map[string]string{"bin/app": diffTestShellPayload("v1")},
+			dest:     map[string]string{"bin/app": diffTestShellPayload("v2"), "lib/new.sh": diffTestShellPayload("new")},
+			added:    []string{"lib/new.sh"},
+			modified: []string{"bin/app"},
+			previous: []string{""},
+		},
+		{
+			name:     "a directory whose files all move below a new directory pairs below it",
+			src:      map[string]string{"bin/app": diffTestShellPayload("v1"), "etc/conf.sh": diffTestShellPayload("conf")},
+			dest:     map[string]string{"opt/bin/app": diffTestShellPayload("v2"), "opt/etc/conf.sh": diffTestShellPayload("conf v2")},
+			modified: []string{"opt/bin/app", "opt/etc/conf.sh"},
+			previous: []string{"bin/app", "etc/conf.sh"},
+		},
+		{
+			name:    "directories with no names in common stay apart",
+			src:     map[string]string{"a/one.sh": diffTestShellPayload("one")},
+			dest:    map[string]string{"b/two.sh": diffTestShellPayload("two")},
+			removed: []string{"a/one.sh"},
+			added:   []string{"b/two.sh"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			root := diffTestTempDir(t)
+			src, dest := filepath.Join(root, "src"), filepath.Join(root, "dest")
+			key := func(base, name string) string { return base + " ∴ " + filepath.Join(base, name) }
+			if tt.archives {
+				src, dest = src+".tar", dest+".tar"
+				diffTestWriteTar(t, src, tt.src)
+				diffTestWriteTar(t, dest, tt.dest)
+				key = func(base, name string) string { return base + " ∴ /" + name }
+			} else {
+				for name, body := range tt.src {
+					diffTestWriteFile(t, filepath.Join(src, name), body)
+				}
+				for name, body := range tt.dest {
+					diffTestWriteFile(t, filepath.Join(dest, name), body)
+				}
+			}
+			keys := func(base string, names []string) []string {
+				out := make([]string, 0, len(names))
+				for _, n := range names {
+					out = append(out, key(base, n))
+				}
+				return out
+			}
+
+			d := diffTestRun(t, diffTestConfig(t), src, dest)
+			diffTestAssertKeys(t, d, keys(src, tt.removed), keys(dest, tt.added), keys(dest, tt.modified))
+			for i, name := range tt.modified {
+				mod, ok := d.Modified.Get(key(dest, name))
+				if !ok {
+					continue
+				}
+				var want string
+				switch {
+				case tt.previous[i] == "":
+				case tt.archives:
+					want = key(src, tt.previous[i])
+				default:
+					want = filepath.Join(src, tt.previous[i])
+				}
+				if mod.PreviousPath != want {
+					t.Errorf("PreviousPath of %s: got = %q, want = %q", name, mod.PreviousPath, want)
+				}
+			}
+		})
+	}
+}
+
+func TestDiffDirectoriesWithTrimPrefixes(t *testing.T) {
+	t.Parallel()
+	root := diffTestTempDir(t)
+	src, dest := filepath.Join(root, "src"), filepath.Join(root, "dest")
+	diffTestWriteFile(t, filepath.Join(src, "bin", "app"), diffTestShellPayload("v1"))
+	diffTestWriteFile(t, filepath.Join(dest, "bin", "app"), diffTestShellPayload("v2"))
+	diffTestWriteFile(t, filepath.Join(dest, "bin", "new"), diffTestShellPayload("new"))
+
+	c := diffTestConfig(t)
+	c.TrimPrefixes = []string{root + "/"}
+	d := diffTestRun(t, c, src, dest)
+	// Keys keep the scan roots; file paths are trimmed for display.
+	diffTestAssertKeys(t, d, nil, []string{dest + " ∴ dest/bin/new"}, []string{dest + " ∴ dest/bin/app"})
+	if mod, ok := d.Modified.Get(dest + " ∴ dest/bin/app"); ok && mod.Path != "dest/bin/app" {
+		t.Errorf("Modified Path: got = %q, want = %q", mod.Path, "dest/bin/app")
 	}
 }
 

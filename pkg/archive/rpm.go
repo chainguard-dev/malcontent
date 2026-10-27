@@ -9,57 +9,35 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/cavaliergopher/cpio"
 	"github.com/cavaliergopher/rpm"
 	"github.com/chainguard-dev/clog"
-	"github.com/chainguard-dev/malcontent/pkg/file"
-	"github.com/klauspost/compress/zstd"
-	"github.com/ulikunitz/xz"
 )
 
-// extractFileFromCPIO extracts a single file from a CPIO archive. The counter
-// accumulates uncompressed bytes across every member so the aggregate byte and
-// ratio caps span the whole payload; a nil counter disables accounting.
-func extractFileFromCPIO(ctx context.Context, cr *cpio.Reader, er *entryRoots, name string, buf []byte, counter *file.ArchiveCounter) error {
-	out, err := er.createFile(name)
+// extractFileFromCPIO writes the content of the current cpio member as a new
+// file for name, at the path p assigns it. The counter accumulates
+// uncompressed bytes across every member so the aggregate byte and ratio caps
+// span the whole payload; a nil counter disables accounting.
+func extractFileFromCPIO(ctx context.Context, cr *cpio.Reader, p *entryPaths, name string, buf []byte, counter *budget) error {
+	out, _, err := p.createFile(name)
 	if err != nil {
 		return err
 	}
 	defer out.Close()
-
-	// Check before every read, since a read returns whatever the payload
-	// decompressor yields and need not fill the buffer.
-	for {
-		if err := ctx.Err(); err != nil {
-			return err
-		}
-
-		n, err := cr.Read(buf)
-		if n > 0 {
-			if capErr := counter.Add(n); capErr != nil {
-				return fmt.Errorf("rpm extraction aborted on %s: %w", name, capErr)
-			}
-			if _, writeErr := out.Write(buf[:n]); writeErr != nil {
-				return fmt.Errorf("failed to write file contents: %w", writeErr)
-			}
-		}
-
-		if errors.Is(err, io.EOF) {
-			break
-		}
-
-		if err != nil {
-			return fmt.Errorf("failed to read file contents: %w", err)
-		}
-	}
-
-	return nil
+	return copyCounted(ctx, out, cr, counter, buf, name)
 }
 
-// extractRPM extracts .rpm packages.
+// rpmLink identifies a hard link set in an RPM payload: the device and inode
+// numbers its members share.
+type rpmLink struct {
+	dev   int
+	inode int64
+}
+
+// ExtractRPM extracts .rpm packages.
 func ExtractRPM(ctx context.Context, d, f string) (retErr error) {
 	defer recoverExtractor(ctx, "rpm", f, &retErr)
 	if ctx.Err() != nil {
@@ -69,16 +47,12 @@ func ExtractRPM(ctx context.Context, d, f string) (retErr error) {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting rpm")
 
-	rpmFile, err := file.Open(f)
+	rpmFile, fi, err := openRegular(f)
 	if err != nil {
 		return fmt.Errorf("failed to open RPM file: %w", err)
 	}
 	defer rpmFile.Close()
 
-	fi, err := rpmFile.Stat()
-	if err != nil {
-		return fmt.Errorf("failed to stat RPM file: %w", err)
-	}
 	if fi.Size() == 0 {
 		return nil
 	}
@@ -95,16 +69,17 @@ func ExtractRPM(ctx context.Context, d, f string) (retErr error) {
 		return err
 	}
 	defer root.Close()
-	er := newEntryRoots(root)
-	defer er.close()
+	x := newTarExtraction(ctx, root, counter, buf)
+	defer x.close()
 
 	pkg, err := rpm.Read(rpmFile)
 	if err != nil {
 		return fmt.Errorf("failed to read RPM package headers: %w", err)
 	}
 
-	if format := pkg.PayloadFormat(); format != "cpio" {
-		return fmt.Errorf("unsupported payload format: %s", format)
+	// rpm(8) reads a payload whose format tag is absent as cpio.
+	if format := pkg.PayloadFormat(); format != "cpio" && format != "" {
+		return fmt.Errorf("unsupported payload format: %q", format)
 	}
 
 	payloadOffset, err := rpmFile.Seek(0, io.SeekCurrent)
@@ -112,104 +87,168 @@ func ExtractRPM(ctx context.Context, d, f string) (retErr error) {
 		return fmt.Errorf("failed to get payload offset: %w", err)
 	}
 
-	if _, err := rpmFile.Seek(payloadOffset, io.SeekStart); err != nil {
-		return fmt.Errorf("failed to seek to payload: %w", err)
+	payload, done, err := rpmPayload(ctx, pkg.PayloadCompression(), rpmFile, payloadOffset, fi.Size()-payloadOffset)
+	if err != nil {
+		return err
 	}
+	defer done()
 
-	// Only the payload decompressor reads the file from here, so its input is
-	// buffered. rpm.Read stays unbuffered: it assumes each read of a header
-	// field returns the whole field, and it must leave the file at the payload.
-	payload := bufferInput(rpmFile)
-	var cr *cpio.Reader
-	switch compression := pkg.PayloadCompression(); compression {
-	case "gzip":
-		gzStream, err := gzip.NewReader(payload)
+	err = extractCPIO(x, cpio.NewReader(payload))
+	return errors.Join(err, x.finish("."))
+}
+
+// rpmPayload returns the decompressed payload that starts at offset in
+// rpmFile and runs for size bytes, decompressed as the compressor tag says,
+// and the function that releases its decoder. As rpm(8) does, it reads a
+// payload whose compressor tag is empty as gzip.
+func rpmPayload(ctx context.Context, compression string, rpmFile *os.File, offset, size int64) (io.Reader, func(), error) {
+	section := io.NewSectionReader(rpmFile, offset, size)
+	// rpm.Read stays unbuffered: it assumes each read of a header field
+	// returns the whole field. Only the payload decompressor reads from here,
+	// so its input is buffered.
+	switch compression {
+	case "gzip", "":
+		gzStream, err := gzip.NewReader(bufferInput(section))
 		if err != nil {
-			return fmt.Errorf("failed to create gzip reader: %w", err)
+			return nil, nil, fmt.Errorf("failed to create gzip reader: %w", err)
 		}
-		defer gzStream.Close()
-		cr = cpio.NewReader(gzStream)
+		return gzStream, func() { _ = gzStream.Close() }, nil
 	case "xz":
-		xzStream, err := xz.NewReader(payload)
+		xzStream, err := newXZReader(section, size)
 		if err != nil {
-			return fmt.Errorf("failed to create xz reader: %w", err)
+			return nil, nil, fmt.Errorf("failed to create xz reader: %w", err)
 		}
-		cr = cpio.NewReader(xzStream)
+		return xzStream, func() {}, nil
 	case "zstd":
-		zstdStream, err := zstd.NewReader(payload)
+		zstdStream, err := newZstdReader(bufferInput(section))
 		if err != nil {
-			return fmt.Errorf("failed to create zstd reader: %w", err)
+			return nil, nil, fmt.Errorf("failed to create zstd reader: %w", err)
 		}
-		defer zstdStream.Close()
-		cr = cpio.NewReader(zstdStream)
+		return zstdStream, zstdStream.Close, nil
+	case "bzip2":
+		br := newBzip2Reader(ctx, section)
+		return br, func() { _ = br.Close() }, nil
+	case "lzma":
+		lzmaStream, err := newLZMAReader(section)
+		if err != nil {
+			return nil, nil, fmt.Errorf("failed to create lzma reader: %w", err)
+		}
+		return lzmaStream, func() {}, nil
 	default:
-		return fmt.Errorf("unsupported compression format: %s", compression)
+		return nil, nil, fmt.Errorf("unsupported compression format: %q", compression)
 	}
+}
 
-	inodeMap := make(map[int64]string)
-
+// extractCPIO writes the members of the cpio archive cr beneath x's root. A
+// member that cannot be written is logged and skipped, as tar entries are.
+func extractCPIO(x *tarExtraction, cr *cpio.Reader) error {
+	links := map[rpmLink]string{}
 	for {
-		header, err := cr.Next()
-		if errors.Is(err, io.EOF) || errors.Is(err, io.ErrUnexpectedEOF) {
-			break
-		}
-		if err != nil {
-			return fmt.Errorf("failed to read cpio header: %w", err)
-		}
-
-		clean := filepath.Clean(header.Name)
-		if filepath.IsAbs(clean) || strings.Contains(clean, "../") {
-			return fmt.Errorf("path is absolute or contains a relative path traversal: %s", clean)
-		}
-
-		target := filepath.Join(d, clean)
-		if !er.validPath(target, d) {
-			return fmt.Errorf("invalid file path: %s", target)
-		}
-
-		// https://github.com/cavaliergopher/cpio/blob/main/header.go#L24
-		const modeTypeMask = 0o170000
-		fileType := header.Mode & modeTypeMask
-
-		switch fileType {
-		case cpio.TypeDir:
-			if err := root.MkdirAll(clean, 0o700); err != nil {
-				return fmt.Errorf("failed to create directory: %w", err)
-			}
-			continue
-		case cpio.TypeSymlink:
-			// Links may replace an entry that other names led through.
-			err := handleSymlink(root, clean, header.Linkname)
-			er.close()
-			if err != nil {
-				return fmt.Errorf("failed to create symlink: %w", err)
-			}
-			continue
-		case cpio.TypeReg:
-			if header.Links > 1 {
-				if existingPath, ok := inodeMap[header.Inode]; ok {
-					err := handleHardlink(root, clean, existingPath)
-					er.close()
-					if err != nil {
-						return fmt.Errorf("failed to create hardlink: %w", err)
-					}
-					// newc writers store a hard link set's content with its last
-					// member and leave the earlier members empty, so content that
-					// arrives here is written through the link to reach them all.
-					if header.Size == 0 {
-						continue
-					}
-				}
-				inodeMap[header.Inode] = clean
-			}
-		default:
-			continue
-		}
-
-		if err := extractFileFromCPIO(ctx, cr, er, clean, buf, counter); err != nil {
+		if err := x.ctx.Err(); err != nil {
 			return err
 		}
+		header, err := cr.Next()
+		if errors.Is(err, io.EOF) {
+			return nil
+		}
+		if err != nil {
+			// A payload that ends inside a header is truncated, and is never
+			// treated as a clean end.
+			return fmt.Errorf("failed to read cpio header: %w", err)
+		}
+		if err := x.budget.Entry(); err != nil {
+			return fmt.Errorf("rpm extraction aborted on %q: %w", header.Name, err)
+		}
+		content, err := extractCPIOMember(x, cr, header, links)
+		if err == nil {
+			continue
+		}
+		if fatalExtractionError(x.ctx, err) {
+			return err
+		}
+		x.logger.Warnf("skipping cpio member %q: %v", header.Name, err)
+		if content {
+			x.lost = append(x.lost, fmt.Errorf("cpio member %q: %w", header.Name, err))
+		}
+	}
+}
+
+// extractCPIOMember writes one cpio member, reporting whether it carried
+// content.
+func extractCPIOMember(x *tarExtraction, cr *cpio.Reader, header *cpio.Header, links map[rpmLink]string) (bool, error) {
+	// https://github.com/cavaliergopher/cpio/blob/main/header.go#L24
+	const modeTypeMask = 0o170000
+	fileType := header.Mode & modeTypeMask
+
+	clean, changed := fileEntryName(header.Name)
+	if fileType == cpio.TypeDir {
+		clean, changed = entryName(header.Name)
+	}
+	if changed {
+		x.logger.Warnf("extracting cpio member %q as %q", header.Name, clean)
 	}
 
-	return nil
+	switch fileType {
+	case cpio.TypeDir:
+		_, err := x.paths.dir(clean)
+		return false, err
+	case cpio.TypeSymlink:
+		_, err := x.paths.symlink(clean, header.Linkname)
+		// A new link can change where names beneath it lead.
+		x.paths.er.close()
+		return false, err
+	case cpio.TypeReg:
+		if header.Links > 1 {
+			return true, extractCPIOLink(x, cr, header, clean, links)
+		}
+	default:
+		// A member of any other type that carries data, as a member whose
+		// mode names no type might, is written as a file.
+		if header.Size == 0 {
+			return false, nil
+		}
+	}
+	return true, extractFileFromCPIO(x.ctx, cr, x.paths, clean, x.buf, x.budget)
+}
+
+// extractCPIOLink writes a member of a hard link set. newc writers store a
+// set's content with its last member and leave the earlier members empty, so
+// a member links to the earlier one and writes any content it carries through
+// the link, reaching them all, but only while the earlier member is empty. A
+// member whose set already has content, as when two unrelated members claim
+// one inode, is written as a file of its own, so that neither content
+// replaces the other.
+func extractCPIOLink(x *tarExtraction, cr *cpio.Reader, header *cpio.Header, name string, links map[rpmLink]string) error {
+	key := rpmLink{dev: header.DeviceID, inode: header.Inode}
+	existing, ok := links[key]
+	if !ok {
+		out, assigned, err := x.paths.createFile(name)
+		if err != nil {
+			return err
+		}
+		defer out.Close()
+		links[key] = assigned
+		return copyCounted(x.ctx, out, cr, x.budget, x.buf, name)
+	}
+
+	fi, err := x.paths.er.root.Lstat(existing)
+	if err != nil || (header.Size > 0 && fi.Size() > 0) {
+		return extractFileFromCPIO(x.ctx, cr, x.paths, name, x.buf, x.budget)
+	}
+	assigned, err := x.paths.link(name, existing)
+	x.paths.er.close()
+	if err != nil {
+		return err
+	}
+	if header.Size == 0 {
+		return nil
+	}
+	// The set's files are empty, so the content goes through the link to
+	// every member.
+	out, err := x.paths.er.root.OpenFile(assigned, os.O_WRONLY|os.O_TRUNC, 0)
+	if err != nil {
+		return fmt.Errorf("failed to open hard link %q: %w", filepath.Base(assigned), err)
+	}
+	defer out.Close()
+	return copyCounted(x.ctx, out, cr, x.budget, x.buf, name)
 }

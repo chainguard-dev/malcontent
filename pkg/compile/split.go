@@ -6,6 +6,7 @@ package compile
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"encoding/binary"
 	"encoding/gob"
 	"encoding/hex"
@@ -22,7 +23,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/minio/sha256-simd"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/chainguard-dev/malcontent/internal/yrx"
@@ -724,36 +724,36 @@ func include(want []map[int]struct{}, files []splitFile, fi, ri int) {
 }
 
 // compileFiles compiles, in order, the rules of files that keep accepts, each
-// file in its own namespace with the imports its kept rules use.
+// file in its own namespace with the imports its kept rules use. It logs the
+// compiler warnings as Recursive does.
 func compileFiles(ctx context.Context, files []splitFile, keep func(fi, ri int) bool) (*yarax.Rules, error) {
-	yxc, err := newCompiler()
+	yrs, ws, err := compileFilesWarnings(ctx, files, keep)
 	if err != nil {
 		return nil, err
+	}
+	logRuleWarnings(ws, rulesWithWarnings)
+	return yrs, nil
+}
+
+// compileFilesWarnings is compileFiles, returning the compiler warnings
+// instead of logging them.
+func compileFilesWarnings(ctx context.Context, files []splitFile, keep func(fi, ri int) bool) (*yarax.Rules, []ruleWarning, error) {
+	yxc, err := newCompiler()
+	if err != nil {
+		return nil, nil, err
 	}
 	var src bytes.Buffer
 	for fi, f := range files {
 		if ctx.Err() != nil {
-			return nil, ctx.Err()
+			return nil, nil, ctx.Err()
 		}
-		src.Reset()
-		for ri, r := range f.rules {
-			if keep(fi, ri) {
-				src.WriteString(r.text)
-			}
-		}
-		if src.Len() == 0 {
+		text := keptSource(&src, fi, f, keep)
+		if text == "" {
 			continue
 		}
-		body := src.String()
-		var head strings.Builder
-		for _, imp := range f.imports {
-			if strings.Contains(body, imp+".") {
-				fmt.Fprintf(&head, "import %q\n", imp)
-			}
-		}
 		yxc.NewNamespace(f.namespace)
-		if err := yxc.AddSource(head.String()+body, yarax.WithOrigin(f.namespace)); err != nil {
-			return nil, fmt.Errorf("failed to parse %s: %v", f.namespace, err)
+		if err := yxc.AddSource(text, yarax.WithOrigin(f.namespace)); err != nil {
+			return nil, nil, fmt.Errorf("failed to parse %s: %v", f.namespace, err)
 		}
 	}
 	if errs := yxc.Errors(); len(errs) > 0 {
@@ -761,9 +761,41 @@ func compileFiles(ctx context.Context, files []splitFile, keep func(fi, ri int) 
 		for i, e := range errs {
 			texts[i] = e.Text
 		}
-		return nil, fmt.Errorf("compile errors encountered: %v", texts)
+		return nil, nil, fmt.Errorf("compile errors encountered: %v", texts)
 	}
-	return yrx.Build(yxc), nil
+	// Warnings are rare, so the source of a namespace that has them is
+	// composed again rather than kept for every namespace.
+	ws := attributeWarnings(yxc.Warnings(), func(origin string) []byte {
+		fi := slices.IndexFunc(files, func(f splitFile) bool { return f.namespace == origin })
+		if fi < 0 {
+			return nil
+		}
+		return []byte(keptSource(&src, fi, files[fi], keep))
+	})
+	return yrx.Build(yxc), ws, nil
+}
+
+// keptSource returns the source compiled for file fi: the rules of f that
+// keep accepts, behind the imports they use. It returns "" when keep accepts
+// none. buf is scratch space.
+func keptSource(buf *bytes.Buffer, fi int, f splitFile, keep func(fi, ri int) bool) string {
+	buf.Reset()
+	for ri, r := range f.rules {
+		if keep(fi, ri) {
+			buf.WriteString(r.text)
+		}
+	}
+	if buf.Len() == 0 {
+		return ""
+	}
+	body := buf.String()
+	var head strings.Builder
+	for _, imp := range f.imports {
+		if strings.Contains(body, imp+".") {
+			fmt.Fprintf(&head, "import %q\n", imp)
+		}
+	}
+	return head.String() + body
 }
 
 // splitVersion names the layout of a Split's cache files. Change it whenever

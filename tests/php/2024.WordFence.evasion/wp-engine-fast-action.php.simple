@@ -1,4 +1,4 @@
-# php/2024.WordFence.evasion/wp-engine-fast-action.php: critical
+# php/2024.WordFence.evasion/wp-engine-fast-action.php: high
 anti-static/obfuscation/php: high
 data/embedded/base64: medium
 data/encoding/reverse: low

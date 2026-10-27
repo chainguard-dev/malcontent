@@ -18,11 +18,10 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/report"
-	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
 // diffTestKeys returns the keys of a diff report section in insertion order.
-func diffTestKeys(m *orderedmap.OrderedMap[string, *malcontent.FileReport]) []string {
+func diffTestKeys(m *malcontent.OrderedFileReports) []string {
 	keys := make([]string, 0, m.Len())
 	for pair := m.Oldest(); pair != nil; pair = pair.Next() {
 		keys = append(keys, pair.Key)
@@ -387,10 +386,19 @@ func TestSelectPrimaryFilePrefersNonBackup(t *testing.T) {
 		{
 			name: "backup sorting first is passed over for the primary file",
 			files: map[string]*malcontent.FileReport{
+				"/a.~":  {Path: "/a.~"},
+				"/a.zz": {Path: "/a.zz"},
+				"/a.z":  {Path: "/a.z"},
+			},
+			want: "/a.z",
+		},
+		{
+			name: "name like a backup without its original is a primary file",
+			files: map[string]*malcontent.FileReport{
 				"/a.~": {Path: "/a.~"},
 				"/b":   {Path: "/b"},
 			},
-			want: "/b",
+			want: "/a.~",
 		},
 		{
 			name: "several primary files selects the first in sorted order",
@@ -535,7 +543,17 @@ func TestFilterDiffSensitivity(t *testing.T) {
 		{name: "sensitivity 4 drops identical behaviors despite a risk change", c: malcontent.Config{Sensitivity: 4}, src: withRisk(2, base), dest: withRisk(3, base), want: true},
 		{name: "sensitivity 4 keeps an added technique", c: malcontent.Config{Sensitivity: 4}, src: withRisk(2, base), dest: withRisk(2, base, "anti-static/base64/exec"), want: false},
 		{name: "sensitivity 4 keeps a removed technique", c: malcontent.Config{Sensitivity: 4}, src: withRisk(2, base, "anti-static/base64/exec"), dest: withRisk(2, base), want: false},
-		{name: "sensitivity 5 keeps identical files even with the risk-change flag", c: malcontent.Config{Sensitivity: 5, FileRiskChange: true}, src: withRisk(2, base), dest: withRisk(2, base), want: false},
+		{name: "sensitivity 5 keeps identical files", c: malcontent.Config{Sensitivity: 5}, src: withRisk(2, base), dest: withRisk(2, base), want: false},
+		// The CLI passes sensitivity 5 unless told otherwise, so the risk
+		// flags apply at every sensitivity.
+		{name: "sensitivity 5 with the risk-change flag drops unchanged risk", c: malcontent.Config{Sensitivity: 5, FileRiskChange: true}, src: withRisk(2, base), dest: withRisk(2, base), want: true},
+		{name: "sensitivity 5 with the risk-change flag keeps changed risk", c: malcontent.Config{Sensitivity: 5, FileRiskChange: true}, src: withRisk(2, base), dest: withRisk(1, base), want: false},
+		{name: "sensitivity 5 with the risk-increase flag drops decreased risk", c: malcontent.Config{Sensitivity: 5, FileRiskIncrease: true}, src: withRisk(3, base), dest: withRisk(1, "fs/file/read"), want: true},
+		{name: "sensitivity 5 with the risk-increase flag keeps increased risk", c: malcontent.Config{Sensitivity: 5, FileRiskIncrease: true}, src: withRisk(1, base), dest: withRisk(3, base), want: false},
+		{name: "sensitivity 4 with the risk-increase flag drops decreased risk despite a new technique", c: malcontent.Config{Sensitivity: 4, FileRiskIncrease: true}, src: withRisk(3, base), dest: withRisk(2, base, "anti-static/base64/exec"), want: true},
+		{name: "sensitivity 2 with the risk-change flag drops unchanged risk despite a new objective", c: malcontent.Config{Sensitivity: 2, FileRiskChange: true}, src: withRisk(2, base), dest: withRisk(2, "c2/base64/eval"), want: true},
+		{name: "sensitivity 3 with the risk-change flag keeps changed risk and a new resource", c: malcontent.Config{Sensitivity: 3, FileRiskChange: true}, src: withRisk(2, base), dest: withRisk(3, "anti-static/hex/eval"), want: false},
+		{name: "sensitivity 3 with the risk-change flag drops changed risk without a new resource", c: malcontent.Config{Sensitivity: 3, FileRiskChange: true}, src: withRisk(2, base), dest: withRisk(3, base), want: true},
 		{name: "risk-change flag drops unchanged risk", c: malcontent.Config{FileRiskChange: true}, src: withRisk(2, base), dest: withRisk(2, base), want: true},
 		{name: "risk-change flag keeps changed risk", c: malcontent.Config{FileRiskChange: true}, src: withRisk(2, base), dest: withRisk(1, base), want: false},
 		{name: "risk-increase flag drops unchanged risk", c: malcontent.Config{FileRiskIncrease: true}, src: withRisk(2, base), dest: withRisk(2, base), want: true},
@@ -555,32 +573,57 @@ func TestFilterDiffSensitivity(t *testing.T) {
 
 func TestExtractPath(t *testing.T) {
 	t.Parallel()
+	const image = "cgr.dev/org/img:1"
 	tests := []struct {
-		name           string
-		rel            string
-		path           string
-		res            ScanResult
-		archiveOrImage bool
-		isReport       bool
-		want           string
+		name     string
+		rel      string
+		path     string
+		res      ScanResult
+		isReport bool
+		want     string
 	}{
 		{
-			name:     "report path with an image separator keeps the in-image path",
-			rel:      "unused",
-			path:     "cgr.dev/org/img:1 ∴ /usr/bin/app",
+			name:     "report path in the report's image keeps the in-image path",
+			path:     image + " ∴ /usr/bin/app",
+			res:      ScanResult{imageURI: image},
 			isReport: true,
 			want:     "/usr/bin/app",
 		},
 		{
-			name:     "report path with nested separators keeps everything after the first",
-			rel:      "unused",
-			path:     "cgr.dev/org/img:1 ∴ /lib/pkg.tar ∴ /bin/app",
+			name:     "report path with nested separators keeps everything after the image",
+			path:     image + " ∴ /lib/pkg.tar ∴ /bin/app",
+			res:      ScanResult{imageURI: image},
 			isReport: true,
 			want:     "/lib/pkg.tar ∴ /bin/app",
 		},
 		{
+			name:     "report path of an archive member without a target keeps the archive path",
+			path:     "/r/a.jar ∴ /META-INF/MANIFEST.MF",
+			isReport: true,
+			want:     "/r/a.jar ∴ /META-INF/MANIFEST.MF",
+		},
+		{
+			name:     "report path in another archive than the target keeps the archive path",
+			path:     "/r/b.jar ∴ /x",
+			res:      ScanResult{imageURI: "/r/a.jar"},
+			isReport: true,
+			want:     "/r/b.jar ∴ /x",
+		},
+		{
+			name:     "report path naming the target without the separator is not trimmed",
+			path:     "/r/a.jar.sig",
+			res:      ScanResult{imageURI: "/r/a.jar"},
+			isReport: true,
+			want:     "/r/a.jar.sig",
+		},
+		{
+			name:     "report file name containing the separator character is kept whole",
+			path:     "/app/a∴b",
+			isReport: true,
+			want:     "/app/a∴b",
+		},
+		{
 			name:     "report path under a temp root is trimmed",
-			rel:      "unused",
 			path:     "/tmp/mal-1/usr/bin/app",
 			res:      ScanResult{tmpRoot: "/tmp/mal-1"},
 			isReport: true,
@@ -588,43 +631,318 @@ func TestExtractPath(t *testing.T) {
 		},
 		{
 			name:     "relative report path gains a leading slash",
-			rel:      "unused",
 			path:     "usr/bin/app",
 			isReport: true,
 			want:     "/usr/bin/app",
 		},
 		{
-			name:           "archive path under the temp root is trimmed",
-			rel:            "bin/app",
-			path:           "/tmp/extract/bin/app",
-			res:            ScanResult{tmpRoot: "/tmp/extract"},
-			archiveOrImage: true,
-			want:           "/bin/app",
+			name: "image file keys by its path below the extraction root",
+			rel:  "usr/bin/app",
+			path: "/tmp/extract/usr/bin/app",
+			res:  ScanResult{tmpRoot: "/tmp/extract", imageURI: image},
+			want: "/usr/bin/app",
 		},
 		{
-			name:           "archive path without a temp root keeps the relative path",
-			rel:            "bin/app",
-			path:           "/scan/bin/app",
-			archiveOrImage: true,
-			want:           "bin/app",
+			name: "image file keys by its path below the extraction root when its display path is trimmed",
+			rel:  "usr/bin/app",
+			path: "usr/bin/app",
+			res:  ScanResult{tmpRoot: "/tmp/extract", imageURI: image},
+			want: "/usr/bin/app",
 		},
 		{
-			name: "plain path ignores the temp root",
+			name: "archive entry keeps its path within the archive",
+			rel:  "/bin/app",
+			path: "/scan/pkg.tar ∴ /bin/app",
+			res:  ScanResult{isArchive: true},
+			want: "/bin/app",
+		},
+		{
+			name: "directory file gains a leading slash so it pairs with an archive entry",
 			rel:  "bin/app",
-			path: "/tmp/extract/bin/app",
-			res:  ScanResult{tmpRoot: "/tmp/extract"},
-			want: "bin/app",
+			path: "/scan/bin/app",
+			want: "/bin/app",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got := extractPath(tt.rel, &malcontent.FileReport{Path: tt.path}, tt.res, tt.archiveOrImage, tt.isReport)
+			got := extractPath(tt.rel, &malcontent.FileReport{Path: tt.path}, tt.res, tt.isReport)
 			if got != tt.want {
 				t.Errorf("extractPath: got = %q, want = %q", got, tt.want)
 			}
 		})
+	}
+}
+
+func TestReportTarget(t *testing.T) {
+	t.Parallel()
+	entry := func(path string, ids ...string) *malcontent.FileReport {
+		fr := &malcontent.FileReport{Path: path}
+		for _, id := range ids {
+			fr.Behaviors = append(fr.Behaviors, &malcontent.Behavior{ID: id})
+		}
+		return fr
+	}
+	tests := []struct {
+		name  string
+		files []*malcontent.FileReport
+		want  string
+	}{
+		{name: "image report names its image", files: []*malcontent.FileReport{entry("cgr.dev/org/img:1 ∴ /a", "x/y/z"), entry("cgr.dev/org/img:1 ∴ /b")}, want: "cgr.dev/org/img:1"},
+		{name: "archive report with absolute paths names its archive", files: []*malcontent.FileReport{entry("/r/a.tar ∴ /x", "x/y/z")}, want: "/r/a.tar"},
+		{name: "image file without findings at a temporary path does not count against the image", files: []*malcontent.FileReport{entry("cgr.dev/org/img:1 ∴ /a", "x/y/z"), entry("/tmp/a/b/T/c/usr/bin/plain")}, want: "cgr.dev/org/img:1"},
+		{name: "archives in one directory name no target", files: []*malcontent.FileReport{entry("/r/a.jar ∴ /x", "x/y/z"), entry("/r/b.jar ∴ /x", "x/y/z")}},
+		{name: "file with findings outside the archive names no target", files: []*malcontent.FileReport{entry("v1/a.tar ∴ /x", "x/y/z"), entry("v1/bin/app", "x/y/z")}},
+		{name: "report without archive members names no target", files: []*malcontent.FileReport{entry("/app/a", "x/y/z")}},
+		{name: "file name containing the separator character names no target", files: []*malcontent.FileReport{entry("/app/a∴b", "x/y/z")}},
+		{name: "empty report names no target"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			files := make(map[string]*malcontent.FileReport, len(tt.files))
+			for _, fr := range tt.files {
+				files[fr.Path] = fr
+			}
+			if got := reportTarget(files); got != tt.want {
+				t.Errorf("reportTarget: got = %q, want = %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestDiffTrees(t *testing.T) {
+	t.Parallel()
+	one := ScanResult{files: map[string]*malcontent.FileReport{"/app": {}, "/app.~": {}}}
+	two := ScanResult{files: map[string]*malcontent.FileReport{"/app": {}, "/lib": {}}}
+	tests := []struct {
+		name                        string
+		srcIsDir, destIsDir         bool
+		srcIsArchive, destIsArchive bool
+		isReport                    bool
+		src, dest                   ScanResult
+		want                        bool
+	}{
+		{name: "two files compare one to one", src: one, dest: one},
+		{name: "two directories are trees", srcIsDir: true, destIsDir: true, src: two, dest: two, want: true},
+		{name: "a directory and a file are trees", srcIsDir: true, src: two, dest: one, want: true},
+		{name: "a file and a directory are trees", destIsDir: true, src: one, dest: two, want: true},
+		{name: "two archives are trees", srcIsArchive: true, destIsArchive: true, src: one, dest: one, want: true},
+		{name: "a directory and an archive are trees", srcIsDir: true, destIsArchive: true, src: two, dest: one, want: true},
+		{name: "an archive of one file and a file compare one to one", srcIsArchive: true, src: one, dest: one},
+		{name: "a file and an archive of several files are trees", destIsArchive: true, src: one, dest: two, want: true},
+		{name: "an empty archive and a file are trees", srcIsArchive: true, src: ScanResult{}, dest: one, want: true},
+		{name: "reports of one file compare one to one", isReport: true, src: one, dest: one},
+		{name: "a report of several files is a tree", isReport: true, src: one, dest: two, want: true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			if got := diffTrees(tt.srcIsDir, tt.destIsDir, tt.srcIsArchive, tt.destIsArchive, tt.isReport, tt.src, tt.dest); got != tt.want {
+				t.Errorf("diffTrees: got = %v, want = %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestAlignRoots(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name              string
+		src, dest         []string // sorted keys
+		wantSrc, wantDest []string
+	}{
+		{
+			name: "different roots trim to the paths below them",
+			src:  []string{"/build/old/bin/a", "/build/old/lib/b"}, dest: []string{"/build/new/bin/a", "/build/new/lib/c"},
+			wantSrc: []string{"bin/a", "lib/b"}, wantDest: []string{"bin/a", "lib/c"},
+		},
+		{
+			name: "a destination whose files lie in one directory gains it",
+			src:  []string{"/build/old/bin/a", "/build/old/lib/b"}, dest: []string{"/build/new/bin/a"},
+			wantSrc: []string{"bin/a", "lib/b"}, wantDest: []string{"bin/a"},
+		},
+		{
+			name: "a source whose files lie in one directory gains it",
+			src:  []string{"/build/old/bin/a"}, dest: []string{"/build/new/bin/a", "/build/new/lib/b"},
+			wantSrc: []string{"bin/a"}, wantDest: []string{"bin/a", "lib/b"},
+		},
+		{
+			name: "archive members align by the archive that holds them",
+			src:  []string{"/r1/a.jar ∴ /x"}, dest: []string{"/r2/a.jar ∴ /x"},
+			wantSrc: []string{"a.jar ∴ /x"}, wantDest: []string{"a.jar ∴ /x"},
+		},
+		{
+			name: "a shared key keeps every key",
+			src:  []string{"/app/bin/a"}, dest: []string{"/app/bin/a", "/app/lib/b"},
+			wantSrc: []string{"/app/bin/a"}, wantDest: []string{"/app/bin/a", "/app/lib/b"},
+		},
+		{
+			name: "trees that no roots pair keep every key",
+			src:  []string{"/old/a", "/old/b"}, dest: []string{"/new/c", "/new/d"},
+			wantSrc: []string{"/old/a", "/old/b"}, wantDest: []string{"/new/c", "/new/d"},
+		},
+		{
+			name:    "an empty side keeps every key",
+			src:     []string{"/old/a"},
+			wantSrc: []string{"/old/a"},
+		},
+	}
+	set := func(keys []string) map[string]*malcontent.FileReport {
+		m := make(map[string]*malcontent.FileReport, len(keys))
+		for _, k := range keys {
+			m[k] = &malcontent.FileReport{Path: k}
+		}
+		return m
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			gotSrc, gotDest := alignRoots(tt.src, tt.dest, set(tt.src), set(tt.dest))
+			if !slices.Equal(gotSrc, tt.wantSrc) || !slices.Equal(gotDest, tt.wantDest) {
+				t.Errorf("alignRoots: got = (%q, %q), want = (%q, %q)", gotSrc, gotDest, tt.wantSrc, tt.wantDest)
+			}
+		})
+	}
+}
+
+func TestHandleDirAlignsReportRoots(t *testing.T) {
+	t.Parallel()
+	reportOf := func(paths ...string) ScanResult {
+		files := make(map[string]*malcontent.FileReport, len(paths))
+		for _, p := range paths {
+			files[p] = &malcontent.FileReport{Path: p, RiskScore: 1}
+		}
+		return ScanResult{files: files}
+	}
+	type modified struct{ key, previous string }
+	tests := []struct {
+		name           string
+		src, dest      ScanResult
+		removed, added []string
+		modified       []modified
+	}{
+		{
+			name:     "different roots pair below them and record where each file was",
+			src:      reportOf("/build/old/bin/a", "/build/old/lib/b"),
+			dest:     reportOf("/build/new/bin/a", "/build/new/lib/b"),
+			modified: []modified{{"/build/new/bin/a", "/build/old/bin/a"}, {"/build/new/lib/b", "/build/old/lib/b"}},
+		},
+		{
+			name:     "different roots where the destination adds a top-level directory",
+			src:      reportOf("/build/old/bin/a"),
+			dest:     reportOf("/build/new/bin/a", "/build/new/lib/b"),
+			added:    []string{"/build/new/lib/b"},
+			modified: []modified{{"/build/new/bin/a", "/build/old/bin/a"}},
+		},
+		{
+			name:     "the same root where the destination adds a directory pairs in place",
+			src:      reportOf("/app/bin/a"),
+			dest:     reportOf("/app/bin/a", "/app/lib/b"),
+			added:    []string{"/app/lib/b"},
+			modified: []modified{{"/app/bin/a", ""}},
+		},
+		{
+			name:    "the same root with every file renamed stays apart",
+			src:     reportOf("/app/a"),
+			dest:    reportOf("/app/b", "/app/c"),
+			removed: []string{"/app/a"},
+			added:   []string{"/app/b", "/app/c"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			d := newDiffReportForTest()
+			if err := handleDir(t.Context(), malcontent.Config{}, tt.src, tt.dest, d, false, true); err != nil {
+				t.Fatalf("handleDir: %v", err)
+			}
+			if got := diffTestKeys(d.Removed); !slices.Equal(got, tt.removed) {
+				t.Errorf("Removed keys: got = %q, want = %q", got, tt.removed)
+			}
+			if got := diffTestKeys(d.Added); !slices.Equal(got, tt.added) {
+				t.Errorf("Added keys: got = %q, want = %q", got, tt.added)
+			}
+			var got []modified
+			for pair := d.Modified.Oldest(); pair != nil; pair = pair.Next() {
+				got = append(got, modified{pair.Key, pair.Value.PreviousPath})
+			}
+			if !slices.Equal(got, tt.modified) {
+				t.Errorf("Modified: got = %+v, want = %+v", got, tt.modified)
+			}
+		})
+	}
+}
+
+func TestHandleDirRejectsSharedKeys(t *testing.T) {
+	t.Parallel()
+	const tmpRoot = "/tmp/a/b/T/mal1"
+	frs := func(paths ...string) map[string]*malcontent.FileReport {
+		m := make(map[string]*malcontent.FileReport, len(paths))
+		for _, p := range paths {
+			m[p] = &malcontent.FileReport{Path: p, RiskScore: 1}
+		}
+		return m
+	}
+	tests := []struct {
+		name     string
+		src      ScanResult
+		isReport bool
+		wantErr  string
+	}{
+		{
+			name:     "image entry and a temporary path that name the same file",
+			src:      ScanResult{imageURI: "img", tmpRoot: tmpRoot, files: frs("img ∴ /usr/bin/app", tmpRoot+"/usr/bin/app")},
+			isReport: true,
+			wantErr:  `source: ambiguous diff: ` + tmpRoot + `/usr/bin/app and img ∴ /usr/bin/app share the key "/usr/bin/app"`,
+		},
+		{
+			name:     "relative and absolute report paths that name the same file",
+			src:      ScanResult{files: frs("usr/bin/app", "/usr/bin/app", "/usr/bin/other")},
+			isReport: true,
+			wantErr:  `source: ambiguous diff: /usr/bin/app and usr/bin/app share the key "/usr/bin/app"`,
+		},
+		{
+			name:    "scan keys that clean to the same key",
+			src:     ScanResult{files: map[string]*malcontent.FileReport{"bin/app": {Path: "/a/bin/app"}, "/bin/app": {Path: "/b/bin/app"}}},
+			wantErr: `source: ambiguous diff: /a/bin/app and /b/bin/app share the key "/bin/app"`,
+		},
+		{
+			name:     "distinct report paths",
+			src:      ScanResult{files: frs("/usr/bin/app", "/usr/bin/other")},
+			isReport: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			d := newDiffReportForTest()
+			dest := ScanResult{files: frs("/usr/bin/app")}
+			err := handleDir(t.Context(), malcontent.Config{}, tt.src, dest, d, false, tt.isReport)
+			if got := fmt.Sprint(err); (err != nil || tt.wantErr != "") && got != tt.wantErr {
+				t.Errorf("handleDir error: got = %v, want = %q", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestHandleDirMinFileRisk(t *testing.T) {
+	t.Parallel()
+	src := map[string]*malcontent.FileReport{
+		"bin/gone":      {Path: "/old/bin/gone", RiskScore: 1},
+		"bin/gone-high": {Path: "/old/bin/gone-high", RiskScore: 2},
+		"bin/same":      {Path: "/old/bin/same"},
+	}
+	dest := map[string]*malcontent.FileReport{
+		"bin/new":      {Path: "/new/bin/new", RiskScore: 1},
+		"bin/new-high": {Path: "/new/bin/new-high", RiskScore: 3},
+		"bin/same":     {Path: "/new/bin/same", RiskScore: 2},
+	}
+	d := runHandleDir(t, malcontent.Config{MinFileRisk: 2}, src, dest)
+	diffTestAssertKeys(t, d, []string{"/old/bin/gone-high"}, []string{"/new/bin/new-high"}, []string{"/new/bin/same"})
+	if mod, ok := d.Modified.Get("/new/bin/same"); ok && mod.PreviousRiskLevel != report.LevelNONE {
+		t.Errorf("PreviousRiskLevel of a file without findings: got = %q, want = %q", mod.PreviousRiskLevel, report.LevelNONE)
 	}
 }
 
@@ -1018,7 +1336,9 @@ func TestHandleDirArchiveAndImageKeys(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			d := newDiffReportForTest()
-			handleDir(t.Context(), malcontent.Config{}, tt.src, tt.dest, d, true, false)
+			if err := handleDir(t.Context(), malcontent.Config{}, tt.src, tt.dest, d, true, false); err != nil {
+				t.Fatalf("handleDir: %v", err)
+			}
 			if got := diffTestKeys(d.Removed); !slices.Equal(got, tt.wantRemoved) {
 				t.Errorf("Removed keys: got = %q, want = %q", got, tt.wantRemoved)
 			}
@@ -1073,7 +1393,9 @@ func TestDiffStepsStopOnCanceledContext(t *testing.T) {
 		src := ScanResult{files: map[string]*malcontent.FileReport{"bin/app": fr, "bin/gone": {Path: "/old/bin/gone"}}}
 		dest := ScanResult{files: map[string]*malcontent.FileReport{"bin/app": tr, "bin/new": {Path: "/new/bin/new"}}}
 		d := newDiffReportForTest()
-		handleDir(ctx, malcontent.Config{}, src, dest, d, false, false)
+		if err := handleDir(ctx, malcontent.Config{}, src, dest, d, false, false); !errors.Is(err, context.Canceled) {
+			t.Errorf("handleDir: got error = %v, want = %v", err, context.Canceled)
+		}
 		if n := d.Added.Len() + d.Removed.Len() + d.Modified.Len(); n != 0 {
 			t.Errorf("entries: got = %d, want = 0", n)
 		}

@@ -11,19 +11,24 @@ import (
 	"compress/zlib"
 	"container/heap"
 	"context"
+	"crypto/sha256"
 	"errors"
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
 	"slices"
+	"strconv"
 	"strings"
 	"sync"
+	"syscall"
 	"testing"
+	"time"
 
+	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/archive"
 	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
-	"github.com/minio/sha256-simd"
 	"github.com/puzpuzpuz/xsync/v4"
 
 	yarax "github.com/VirusTotal/yara-x/go"
@@ -281,20 +286,30 @@ func TestWalkedFilesRecordsSizes(t *testing.T) {
 	}
 }
 
-func TestRunQueueReturnsTheFirstFailure(t *testing.T) {
+func TestRunQueueRecordsFilesThatCannotBeScanned(t *testing.T) {
 	t.Parallel()
 	yrs, rfs := scanTestRules(t)
 	dir := diffTestTempDir(t)
 	clean := scanTestWriteFile(t, filepath.Join(dir, "locale.sh"), []byte(scanTestLocaleScript))
 	missing := filepath.Join(dir, "vanished.sh")
 
-	logger, _ := scanTestLogger()
+	logger, logs := scanTestLogger()
 	r := initializeReport(nil)
 	c := malcontent.Config{Concurrency: 1, Rules: yrs, RuleFS: rfs}
 	w := queueTestWalkRoot(t, dir)
 	err := runQueue(t.Context(), w, walkedFiles(w, []string{clean, missing}), 1, scanPathInfo{originalPath: dir, effectivePath: dir}, c, r, make(chan matchResult, 1), &sync.Once{}, logger)
-	if err == nil || !strings.Contains(err.Error(), "vanished.sh") {
-		t.Fatalf("error: got = %v, want one naming vanished.sh", err)
+	if err != nil {
+		t.Fatalf("runQueue: got = %v, want the scan to go on past the file it cannot scan", err)
+	}
+	fr, ok := r.Files.Load(missing)
+	if !ok || !strings.HasPrefix(fr.Skipped, errMsgScanFailed+": ") {
+		t.Errorf("report of the vanished file: got = %+v, want one skipped as %q", fr, errMsgScanFailed)
+	}
+	if fr, ok := r.Files.Load(clean); !ok || fr.Skipped != "" {
+		t.Errorf("report of the readable file: got = %+v, want it scanned", fr)
+	}
+	if !strings.Contains(logs.String(), "vanished.sh") {
+		t.Errorf("logs: got = %q, want the failure logged", logs.String())
 	}
 }
 
@@ -490,30 +505,38 @@ func TestRunEntryRecordsArchiveFailures(t *testing.T) {
 	data := queueTestTarGz(t, queueTestEntry{"run.sh", []byte("#!/bin/sh\necho hi\n")})
 
 	tests := []struct {
-		name        string
-		remove      bool // remove the extracted file before it is examined
-		lock        bool // make the extracted file unreadable before it is examined
-		kept        bool // examine the file as one nested extraction left in place
-		includeData bool
-		wantIs      error
-		wantPrefix  string
+		name           string
+		remove         bool // remove the extracted file before it is examined
+		lock           bool // make the extracted file unreadable before it is examined
+		kept           bool // examine the file as one nested extraction left in place
+		includeData    bool
+		exitExtraction bool
+		wantIs         error  // the error the archive fails with, or the skipped file names
+		wantPrefix     string // the start of the archive's failure; empty when the file is skipped
 	}{
 		{
-			name:   "an extracted file that is gone fails the archive",
+			name:   "an extracted file that is gone is skipped and the archive goes on",
 			remove: true,
 			wantIs: fs.ErrNotExist,
 		},
 		{
-			name:       "an extracted file whose type cannot be determined fails the archive",
-			lock:       true,
-			wantIs:     fs.ErrPermission,
-			wantPrefix: "extract to temp: failed to walk directory: failed to determine file type: ",
+			name:   "an extracted file whose type cannot be determined is skipped and the archive goes on",
+			lock:   true,
+			wantIs: fs.ErrPermission,
 		},
 		{
-			name:        "a file left by nested extraction that cannot be scanned fails the archive",
+			name:        "a file left by nested extraction that cannot be scanned is skipped and the archive goes on",
 			lock:        true,
 			kept:        true,
 			includeData: true,
+			wantIs:      fs.ErrPermission,
+		},
+		{
+			name:           "with extraction errors ending the scan, a file whose type cannot be determined fails the archive",
+			lock:           true,
+			exitExtraction: true,
+			wantIs:         fs.ErrPermission,
+			wantPrefix:     "extract to temp: failed to walk directory: failed to determine file type: ",
 		},
 	}
 	for _, tt := range tests {
@@ -522,7 +545,7 @@ func TestRunEntryRecordsArchiveFailures(t *testing.T) {
 			if tt.lock && os.Geteuid() == 0 {
 				t.Skip("file permissions do not restrict root")
 			}
-			c := malcontent.Config{IncludeDataFiles: tt.includeData, Rules: yrs, RuleFS: rfs}
+			c := malcontent.Config{ExitExtraction: tt.exitExtraction, IncludeDataFiles: tt.includeData, Rules: yrs, RuleFS: rfs}
 			path := scanTestWriteFile(t, filepath.Join(t.TempDir(), "a.tar.gz"), data)
 			q := queueTestQueue(t, c, false)
 			a, files := queueTestOpenArchive(t, c, path)
@@ -546,17 +569,29 @@ func TestRunEntryRecordsArchiveFailures(t *testing.T) {
 
 			q.runEntry(task{path: target, size: files[0].Size, arc: a, entry: e})
 			err := a.failed()
-			if err == nil {
-				t.Fatalf("archive failure: got = nil, want an error")
+			if tt.wantPrefix != "" {
+				if !errors.Is(err, tt.wantIs) || !strings.HasPrefix(err.Error(), tt.wantPrefix) {
+					t.Errorf("archive failure: got = %v, want an error wrapping %v beginning %q", err, tt.wantIs, tt.wantPrefix)
+				}
+				if got := a.frs.Size(); got != 0 {
+					t.Errorf("reports kept: got = %d, want = 0", got)
+				}
+				return
 			}
-			if tt.wantIs != nil && !errors.Is(err, tt.wantIs) {
-				t.Errorf("archive failure: got = %v, want errors.Is %v", err, tt.wantIs)
+			if err != nil {
+				t.Errorf("archive failure: got = %v, want none", err)
 			}
-			if !strings.HasPrefix(err.Error(), tt.wantPrefix) {
-				t.Errorf("archive failure: got = %q, want prefix %q", err.Error(), tt.wantPrefix)
+			entry := strings.TrimPrefix(target, a.tmpRoot)
+			fr, ok := a.frs.Load(entry)
+			if !ok || !strings.HasPrefix(fr.Skipped, errMsgScanFailed+": ") {
+				t.Fatalf("report of %s: got = %+v, want one skipped as %q", entry, fr, errMsgScanFailed)
 			}
-			if got := a.frs.Size(); got != 0 {
-				t.Errorf("reports kept: got = %d, want = 0", got)
+			want := syscall.ENOENT.Error()
+			if errors.Is(tt.wantIs, fs.ErrPermission) {
+				want = syscall.EACCES.Error()
+			}
+			if !strings.Contains(fr.Skipped, want) {
+				t.Errorf("skipped reason: got = %q, want it to name %q", fr.Skipped, want)
 			}
 		})
 	}
@@ -583,7 +618,7 @@ func TestProcessPathReportsNestedExtractionFailures(t *testing.T) {
 		{
 			name:       "an archive that fails inside a nested archive is named as a nested file",
 			data:       queueTestTarGz(t, queueTestEntry{"l1.tar.gz", queueTestTarGz(t, queueTestEntry{"bad.tar.gz", corrupt})}),
-			wantPrefix: "extract to temp: failed to walk directory: process nested file " + filepath.Join("l1", "bad.tar.gz") + ": failed to extract archive: ",
+			wantPrefix: "extract to temp: failed to walk directory: process nested file " + strconv.Quote(filepath.Join("l1", "bad.tar.gz")) + ": failed to extract archive: ",
 		},
 	}
 	for _, tt := range tests {
@@ -789,12 +824,13 @@ func TestRunQueueArchiveTroubles(t *testing.T) {
 	yrs, rfs := scanTestRules(t)
 
 	tests := []struct {
-		name    string
-		corrupt bool   // write the archive with content that does not extract, beside a script; otherwise it is missing
-		wantErr string // text the error names; empty for no error
+		name        string
+		corrupt     bool   // write the archive with content that does not extract, beside a script; otherwise it is missing
+		wantErr     string // text the error names; empty for no error
+		wantSkipped bool   // the archive is reported as skipped
 	}{
 		{name: "an archive that fails to extract ends the scan before later files", corrupt: true, wantErr: "bad.tar.gz"},
-		{name: "an archive gone since the walk is skipped"},
+		{name: "an archive gone since the walk is reported as skipped", wantSkipped: true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -819,8 +855,14 @@ func TestRunQueueArchiveTroubles(t *testing.T) {
 			if tt.wantErr != "" && (err == nil || !strings.Contains(err.Error(), tt.wantErr)) {
 				t.Errorf("runQueue: got = %v, want an error naming %s", err, tt.wantErr)
 			}
-			if got := r.Files.Size(); got != 0 {
-				t.Errorf("reports: got = %d (%q), want = 0", got, scanTestKeys(r.Files))
+			if !tt.wantSkipped {
+				if got := r.Files.Size(); got != 0 {
+					t.Errorf("reports: got = %d (%q), want = 0", got, scanTestKeys(r.Files))
+				}
+				return
+			}
+			if fr, ok := r.Files.Load(bad); !ok || !strings.HasPrefix(fr.Skipped, errMsgScanFailed) || r.Files.Size() != 1 {
+				t.Errorf("reports: got = %q (%+v), want only the archive, skipped", scanTestKeys(r.Files), fr)
 			}
 		})
 	}
@@ -896,5 +938,297 @@ func TestScanHoldsAWorkerSlotForEachScan(t *testing.T) {
 	}
 	if unheld != 0 {
 		t.Errorf("scans without the one worker slot held: got = %d of %d, want = 0", unheld, scans)
+	}
+}
+
+// queueTestBehaviors returns the number of behaviors r reports in all.
+func queueTestBehaviors(r *malcontent.Report) int {
+	n := 0
+	r.Files.Range(func(_ string, fr *malcontent.FileReport) bool {
+		n += len(fr.Behaviors)
+		return true
+	})
+	return n
+}
+
+// queueTestHook sets walkFileHook to hook until the test ends.
+func queueTestHook(t *testing.T, hook func()) {
+	t.Helper()
+	walkFileHook = hook
+	t.Cleanup(func() { walkFileHook = nil })
+}
+
+// TestScanContinuesPastFilesThatCannotBeScanned checks that a file the scan
+// cannot read is reported as skipped while every other file is scanned.
+func TestScanContinuesPastFilesThatCannotBeScanned(t *testing.T) {
+	// Not parallel: sets walkFileHook.
+	yrs, rfs := scanTestRules(t)
+
+	tests := []struct {
+		name        string
+		vanish      bool // delete the file after the walk finds it
+		lock        bool // make the file unreadable
+		includeData bool
+		wantSkipped string // the start of the troubled file's skipped reason
+	}{
+		{name: "a file deleted after the walk is skipped", vanish: true, wantSkipped: errMsgScanFailed + ": "},
+		{name: "an unreadable file is skipped with data files included", lock: true, includeData: true, wantSkipped: errMsgScanFailed + ": "},
+		{name: "an unreadable file is skipped as data otherwise", lock: true, wantSkipped: "data file or empty"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.lock && os.Geteuid() == 0 {
+				t.Skip("file permissions do not restrict root")
+			}
+			dir := diffTestTempDir(t)
+			// Larger than the flagged script, so it is scanned first.
+			trouble := scanTestWriteFile(t, filepath.Join(dir, "a_trouble.sh"), []byte(scanTestLocaleScript+strings.Repeat("# pad\n", 500)))
+			flagged := scanTestWriteFile(t, filepath.Join(dir, "b_flagged.sh"), []byte(diffTestShellPayload("flagged")))
+			if tt.lock {
+				singlePathTestLock(t, dir, filepath.Base(trouble))
+				t.Cleanup(func() { _ = os.Chmod(trouble, 0o600) })
+			}
+			var once sync.Once
+			queueTestHook(t, func() {
+				if tt.vanish {
+					once.Do(func() { _ = os.Remove(trouble) })
+				}
+			})
+			logger, _ := scanTestLogger()
+			c := malcontent.Config{Concurrency: 1, IncludeDataFiles: tt.includeData, Rules: yrs, RuleFS: rfs, ScanPaths: []string{dir}}
+
+			r, err := Scan(clog.WithLogger(t.Context(), logger), c)
+			if err != nil {
+				t.Fatalf("Scan: got = %v, want the scan to go on", err)
+			}
+			if fr, ok := r.Files.Load(trouble); !ok || !strings.HasPrefix(fr.Skipped, tt.wantSkipped) {
+				t.Errorf("report of %s: got = %+v, want one skipped as %q", trouble, fr, tt.wantSkipped)
+			}
+			if fr, ok := r.Files.Load(flagged); !ok || len(fr.Behaviors) == 0 {
+				t.Errorf("report of %s: got = %+v, want its behaviors", flagged, fr)
+			}
+		})
+	}
+}
+
+// TestScanFilesNamedLikeArchivesThatDoNotExtract checks that a file named
+// like an archive is scanned as a file when extraction fails or yields
+// nothing, so that naming a script like an archive does not hide it.
+func TestScanFilesNamedLikeArchivesThatDoNotExtract(t *testing.T) {
+	t.Parallel()
+	yrs, rfs := scanTestRules(t)
+	script := []byte(diffTestShellPayload("named like an archive"))
+
+	tests := []struct {
+		name     string
+		file     string
+		data     []byte
+		wantKeys func(path string) []string
+	}{
+		{name: "a short script named .tar is scanned", file: "payload.tar", data: script},
+		{name: "a short script named .tgz is scanned", file: "payload.tgz", data: script},
+		{name: "a short script named .tar.gz is scanned", file: "payload.tar.gz", data: script},
+		{name: "a short script named .gem is scanned", file: "payload.gem", data: script},
+		{name: "a script named .upx is scanned", file: "payload.upx", data: script},
+		{name: "a script named .zlib is scanned", file: "payload.zlib", data: script},
+		{
+			name: "an archive that extracts is scanned for what it holds",
+			file: "payload.tar.gz",
+			data: queueTestTarGz(t, queueTestEntry{"run.sh", script}),
+			wantKeys: func(path string) []string {
+				return []string{archiveEntryKey(path, "/run.sh", nil)}
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			path := scanTestWriteFile(t, filepath.Join(diffTestTempDir(t), tt.file), tt.data)
+			logger, _ := scanTestLogger()
+			c := malcontent.Config{Concurrency: 1, Rules: yrs, RuleFS: rfs, ScanPaths: []string{path}}
+			r, err := Scan(clog.WithLogger(t.Context(), logger), c)
+			if err != nil {
+				t.Fatalf("Scan: %v", err)
+			}
+			// A file that is no archive is scanned as itself, either as a
+			// walked file or as the one file its extraction tree retains.
+			want := [][]string{{path}, {archiveEntryKey(path, "/"+tt.file, nil)}}
+			if tt.wantKeys != nil {
+				want = [][]string{tt.wantKeys(path)}
+			}
+			got := scanTestKeys(r.Files)
+			if !slices.ContainsFunc(want, func(keys []string) bool { return slices.Equal(got, keys) }) {
+				t.Errorf("report keys: got = %q, want one of %q", got, want)
+			}
+			if queueTestBehaviors(r) == 0 {
+				t.Errorf("behaviors: got none, want the script's")
+			}
+		})
+	}
+}
+
+// TestScanArchiveGitDirectories checks that inside an archive, as in a
+// walked tree, only the object stores of git repositories are passed over.
+func TestScanArchiveGitDirectories(t *testing.T) {
+	t.Parallel()
+	yrs, rfs := scanTestRules(t)
+	script := []byte(diffTestShellPayload("git"))
+
+	tests := []struct {
+		name     string
+		entry    string
+		wantKept bool
+	}{
+		{name: "a hook below .git is scanned", entry: "pkg/.git/hooks/post-checkout", wantKept: true},
+		{name: "a file below a directory named .git is scanned", entry: "pkg/.git/run.sh", wantKept: true},
+		{name: "a loose object below .git is passed over", entry: "pkg/.git/objects/ab/cdef"},
+		{name: "a pack below .git is passed over", entry: "pkg/.git/objects/pack/pack-1.pack"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			path := scanTestWriteFile(t, filepath.Join(diffTestTempDir(t), "repo.tar.gz"), queueTestTarGz(t, queueTestEntry{tt.entry, script}))
+			c := malcontent.Config{Concurrency: 1, Rules: yrs, RuleFS: rfs, ScanPaths: []string{path}}
+			r, err := Scan(t.Context(), c)
+			if err != nil {
+				t.Fatalf("Scan: %v", err)
+			}
+			if got := queueTestBehaviors(r) > 0; got != tt.wantKept {
+				t.Errorf("entry %s scanned: got = %t (keys %q), want = %t", tt.entry, got, scanTestKeys(r.Files), tt.wantKept)
+			}
+		})
+	}
+}
+
+// TestScanDoesNotFollowASymlinkSwappedInAfterTheWalk checks that a walked
+// file replaced by a symlink before it is scanned is not read through the
+// symlink, which could lead out of the scan path.
+func TestScanDoesNotFollowASymlinkSwappedInAfterTheWalk(t *testing.T) {
+	// Not parallel: sets walkFileHook.
+	yrs, rfs := scanTestRules(t)
+	base := diffTestTempDir(t)
+	outside := scanTestWriteFile(t, filepath.Join(base, "outside", "secret.sh"), []byte(diffTestShellPayload("outside")))
+	root := filepath.Join(base, "root")
+	victim := scanTestWriteFile(t, filepath.Join(root, "a.sh"), []byte(scanTestLocaleScript))
+	other := scanTestWriteFile(t, filepath.Join(root, "b.sh"), []byte(diffTestShellPayload("inside")))
+	var once sync.Once
+	queueTestHook(t, func() {
+		once.Do(func() {
+			_ = os.Remove(victim)
+			_ = os.Symlink(outside, victim)
+		})
+	})
+	logger, _ := scanTestLogger()
+	c := malcontent.Config{Concurrency: 1, Rules: yrs, RuleFS: rfs, ScanPaths: []string{root}}
+
+	r, err := Scan(clog.WithLogger(t.Context(), logger), c)
+	if err != nil {
+		t.Fatalf("Scan: %v", err)
+	}
+	if fr, ok := r.Files.Load(victim); !ok || len(fr.Behaviors) > 0 || fr.Skipped == "" {
+		t.Errorf("report of %s: got = %+v, want it skipped rather than read through the symlink", victim, fr)
+	}
+	if fr, ok := r.Files.Load(other); !ok || len(fr.Behaviors) == 0 {
+		t.Errorf("report of %s: got = %+v, want its behaviors", other, fr)
+	}
+}
+
+// TestScanTargetsStreamWalkedFiles checks that workers scan walked files
+// while the walk goes on once walkStartBatch files wait.
+func TestScanTargetsStreamWalkedFiles(t *testing.T) {
+	// Not parallel: sets walkStartBatch, walkFileHook, and scanBytes.
+	yrs, rfs := scanTestRules(t)
+	dir := diffTestTempDir(t)
+	for i := range 20 {
+		scanTestWriteFile(t, filepath.Join(dir, fmt.Sprintf("f%02d.sh", i)), fmt.Appendf(nil, "%s# %d\n", scanTestLocaleScript, i))
+	}
+	prevBatch := walkStartBatch
+	walkStartBatch = 2
+	t.Cleanup(func() { walkStartBatch = prevBatch })
+	scanned := make(chan struct{})
+	var scannedOnce sync.Once
+	orig := scanBytes
+	scanBytes = func(yrs *yarax.Rules, fc []byte, sum [sha256.Size]byte) (*yarax.ScanResults, error) {
+		scannedOnce.Do(func() { close(scanned) })
+		return orig(yrs, fc, sum)
+	}
+	t.Cleanup(func() { scanBytes = orig })
+	var visited int
+	streamed := false
+	queueTestHook(t, func() {
+		// The walk waits, partway through, for a worker to scan a file it
+		// found already.
+		if visited++; visited == 10 {
+			select {
+			case <-scanned:
+				streamed = true
+			case <-time.After(10 * time.Second):
+			}
+		}
+	})
+	c := malcontent.Config{Concurrency: 2, Rules: yrs, RuleFS: rfs, ScanPaths: []string{dir}}
+	r, err := Scan(t.Context(), c)
+	if err != nil {
+		t.Fatalf("Scan: %v", err)
+	}
+	if !streamed {
+		t.Errorf("a file was scanned before the walk ended: got = false, want = true")
+	}
+	if got := r.Files.Size(); got != 20 {
+		t.Errorf("reports: got = %d, want = 20", got)
+	}
+}
+
+// TestScanMaxFilesBoundsEveryFile checks that --max-files bounds the files a
+// scan scans, walked or inside archives, and that 0 sets no bound.
+func TestScanMaxFilesBoundsEveryFile(t *testing.T) {
+	t.Parallel()
+	yrs, rfs := scanTestRules(t)
+
+	tests := []struct {
+		name        string
+		maxFiles    int
+		archive     bool // the files are inside one archive
+		wantScanned int
+	}{
+		{name: "walked files past the bound are skipped", maxFiles: 1, wantScanned: 1},
+		{name: "archive files past the bound are skipped", maxFiles: 2, archive: true, wantScanned: 2},
+		{name: "a zero bound scans every file", wantScanned: 3},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			dir := diffTestTempDir(t)
+			entries := make([]queueTestEntry, 0, 3)
+			for _, name := range []string{"a.sh", "b.sh", "c.sh"} {
+				entries = append(entries, queueTestEntry{name, []byte(diffTestShellPayload(name))})
+			}
+			if tt.archive {
+				scanTestWriteFile(t, filepath.Join(dir, "bundle.tar.gz"), queueTestTarGz(t, entries...))
+			} else {
+				for _, e := range entries {
+					scanTestWriteFile(t, filepath.Join(dir, e.name), e.data)
+				}
+			}
+			logger, _ := scanTestLogger()
+			c := malcontent.Config{Concurrency: 2, MaxScanFiles: tt.maxFiles, Rules: yrs, RuleFS: rfs, ScanPaths: []string{dir}}
+			r, err := Scan(clog.WithLogger(t.Context(), logger), c)
+			if err != nil {
+				t.Fatalf("Scan: %v", err)
+			}
+			scanned, bounded := 0, 0
+			r.Files.Range(func(_ string, fr *malcontent.FileReport) bool {
+				switch fr.Skipped {
+				case "":
+					scanned++
+				case "max file count exceeded":
+					bounded++
+				}
+				return true
+			})
+			if scanned != tt.wantScanned || scanned+bounded != 3 {
+				t.Errorf("files: got %d scanned and %d skipped for the bound, want %d scanned of 3", scanned, bounded, tt.wantScanned)
+			}
+		})
 	}
 }

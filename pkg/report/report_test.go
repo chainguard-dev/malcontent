@@ -5,11 +5,13 @@ package report
 
 import (
 	"io/fs"
+	"maps"
 	"path/filepath"
 	"reflect"
 	"slices"
 	"strings"
 	"testing"
+	"testing/fstest"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/release"
@@ -141,139 +143,6 @@ func TestUpgradeRisk_BandPartition(t *testing.T) {
 			t.Parallel()
 			if got := upgradeRisk(t.Context(), HIGH, tt.riskCounts[HIGH], tt.size); got != tt.want {
 				t.Errorf("upgradeRisk(HIGH, %v, %d) = %v, want %v", tt.riskCounts, tt.size, got, tt.want)
-			}
-		})
-	}
-}
-
-func TestSkipMatch(t *testing.T) {
-	tests := []struct {
-		name             string
-		ignoreMalcontent bool
-		override         bool
-		scan             bool
-		risk             int
-		threshold        int
-		highestRisk      int
-		want             bool
-	}{
-		{
-			name:             "unmodified risk edge case",
-			ignoreMalcontent: false,
-			override:         false,
-			scan:             false,
-			risk:             -1,
-			threshold:        1,
-			highestRisk:      1,
-			want:             true,
-		},
-		{
-			name:             "ordinary analyze",
-			ignoreMalcontent: false,
-			override:         false,
-			scan:             false,
-			risk:             2,
-			threshold:        1,
-			highestRisk:      1,
-			want:             false,
-		},
-		{
-			name:             "ordinary scan with HIGH threshold",
-			ignoreMalcontent: false,
-			override:         false,
-			scan:             true,
-			risk:             2,
-			threshold:        3,
-			highestRisk:      3,
-			want:             true,
-		},
-		{
-			name:             "ordinary scan with HIGH risk and HIGH threshold",
-			ignoreMalcontent: false,
-			override:         false,
-			scan:             true,
-			risk:             3,
-			threshold:        3,
-			highestRisk:      3,
-			want:             false,
-		},
-		{
-			name:             "ordinary scan with HIGH risk and CRITICAL threshold",
-			ignoreMalcontent: false,
-			override:         false,
-			scan:             true,
-			risk:             3,
-			threshold:        4,
-			highestRisk:      4,
-			want:             true,
-		},
-		{
-			name:             "ordinary scan with CRITICAL risk and CRITICAL threshold",
-			ignoreMalcontent: false,
-			override:         false,
-			scan:             true,
-			risk:             4,
-			threshold:        4,
-			highestRisk:      4,
-			want:             false,
-		},
-		{
-			name:             "ordinary analyze with override to downgrade severity",
-			ignoreMalcontent: false,
-			override:         true,
-			scan:             false,
-			risk:             2,
-			threshold:        1,
-			highestRisk:      4,
-			want:             false,
-		},
-		{
-			name:             "analyze with override to upgrade severity",
-			ignoreMalcontent: false,
-			override:         true,
-			scan:             true,
-			risk:             4,
-			threshold:        1,
-			highestRisk:      2,
-			want:             false,
-		},
-		{
-			name:             "scan with override to upgrade severity",
-			ignoreMalcontent: false,
-			override:         true,
-			scan:             true,
-			risk:             4,
-			threshold:        3,
-			highestRisk:      3,
-			want:             false,
-		},
-		{
-			name:             "scan with override to downgrade severity",
-			ignoreMalcontent: false,
-			override:         true,
-			scan:             true,
-			risk:             2,
-			threshold:        3,
-			highestRisk:      3,
-			want:             false,
-		},
-		{
-			name:             "scan with override to upgrade severity",
-			ignoreMalcontent: false,
-			override:         true,
-			scan:             true,
-			risk:             4,
-			threshold:        3,
-			highestRisk:      3,
-			want:             false,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			if got := skipMatch(tt.ignoreMalcontent, tt.override, tt.scan, tt.risk, tt.threshold, tt.highestRisk); got != tt.want {
-				t.Errorf("skipMatch(%v, %v, %v, %d, %d, %d) = %v, want %v", tt.ignoreMalcontent, tt.override, tt.scan, tt.risk, tt.threshold, tt.highestRisk, got, tt.want)
 			}
 		})
 	}
@@ -421,26 +290,23 @@ func TestApplyCriticalUpgrade(t *testing.T) {
 	}
 }
 
-func TestIsMalcontent(t *testing.T) {
+func TestIsSelf(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
-		name string
-		path string
-		want bool
+		name     string
+		checksum string
+		want     bool
 	}{
-		{"unrelated file", "/usr/bin/foo", false},
-		{"make out/mal", "out/mal", true},
-		{"installed binary", "/usr/local/bin/mal", true},
-		{"NAME", "malcontent", true},
-		{"NAME uppercase", "MALCONTENT", true},
-		{"installation to opt with NAME", "opt/malcontent", true},
-		{"binary name uppercase", "out/MAL", true},
+		{"the running executable's digest is malcontent", runningBinarySHA256(t), true},
+		{"another digest is not", strings.Repeat("0", 64), false},
+		{"a placeholder digest is not", "cksum", false},
+		{"an empty digest is not", "", false},
 	}
-
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			if got := isMalcontent(tt.path); got != tt.want {
-				t.Errorf("isMalcontent(%s) = %v, want %v", tt.path, got, tt.want)
+			if got := isSelf(tt.checksum); got != tt.want {
+				t.Errorf("isSelf(%q): got = %v, want = %v", tt.checksum, got, tt.want)
 			}
 		})
 	}
@@ -563,6 +429,60 @@ func TestGenerateKey(t *testing.T) {
 			got := generateKey(tt.src, tt.rule)
 			if got != tt.want {
 				t.Errorf("generateKey() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+// sharedKeys returns, for each behavior ID that more than one rule file in
+// fsys produces, the files that produce it. Every rule of a first-party file
+// shares the file's ID, so files that share an ID merge their behaviors.
+func sharedKeys(t *testing.T, fsys fs.FS) map[string][]string {
+	t.Helper()
+	byKey := map[string][]string{}
+	err := fs.WalkDir(fsys, ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() || filepath.Ext(path) != ".yara" {
+			return err
+		}
+		key := generateKey(path, "rule")
+		byKey[key] = append(byKey[key], path)
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("walk rules: %v", err)
+	}
+	maps.DeleteFunc(byKey, func(_ string, files []string) bool { return len(files) < 2 })
+	return byKey
+}
+
+func TestGenerateKeyUniquePerRuleFile(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name string
+		fsys fs.FS
+		want map[string][]string
+	}{
+		{
+			name: "files whose names reduce to one ID are reported",
+			fsys: fstest.MapFS{
+				"net/ip/ip-spoof.yara": {},
+				"net/ip/spoof.yara":    {},
+				"net/ip/addr.yara":     {},
+			},
+			want: map[string][]string{"net/ip/spoof": {"net/ip/ip-spoof.yara", "net/ip/spoof.yara"}},
+		},
+		{
+			name: "files with distinct IDs report nothing",
+			fsys: fstest.MapFS{"net/ip/spoof-tool.yara": {}, "net/ip/spoof.yara": {}},
+			want: map[string][]string{},
+		},
+		{name: "the bundled rules give every file its own ID", fsys: rules.FS, want: map[string][]string{}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			if got := sharedKeys(t, tt.fsys); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("shared behavior IDs: got = %v, want = %v", got, tt.want)
 			}
 		})
 	}
@@ -1155,183 +1075,6 @@ func TestDisplayPath(t *testing.T) {
 	}
 }
 
-func TestHandleOverrides(t *testing.T) {
-	t.Parallel()
-
-	t.Run("override lowers risk", func(t *testing.T) {
-		t.Parallel()
-		original := []*malcontent.Behavior{
-			{RuleName: "dangerous", RiskScore: CRITICAL, RiskLevel: "CRITICAL", ID: "id1"},
-			{RuleName: "safe", RiskScore: LOW, RiskLevel: "LOW", ID: "id2"},
-		}
-		override := []*malcontent.Behavior{
-			{RuleName: "override_dangerous", RiskScore: LOW, RiskLevel: "LOW", Override: []string{"dangerous"}},
-		}
-		result := handleOverrides(original, override, LOW, false)
-
-		for _, b := range result {
-			if b.RuleName == "override_dangerous" {
-				t.Error("override_dangerous in result: got = present, want = removed")
-			}
-			if b.RuleName == "dangerous" && b.RiskScore != LOW {
-				t.Errorf("dangerous RiskScore: got = %d, want = %d", b.RiskScore, LOW)
-			}
-		}
-	})
-
-	t.Run("override raises risk", func(t *testing.T) {
-		t.Parallel()
-		original := []*malcontent.Behavior{
-			{RuleName: "mild", RiskScore: LOW, RiskLevel: "LOW", ID: "id1"},
-		}
-		override := []*malcontent.Behavior{
-			{RuleName: "upgrade", RiskScore: CRITICAL, RiskLevel: "CRITICAL", Override: []string{"mild"}},
-		}
-		result := handleOverrides(original, override, LOW, false)
-		found := false
-		for _, b := range result {
-			if b.RuleName == "mild" {
-				found = true
-				if b.RiskScore != CRITICAL {
-					t.Errorf("mild RiskScore: got = %d, want = %d", b.RiskScore, CRITICAL)
-				}
-			}
-		}
-		if !found {
-			t.Error("mild in result: got = absent, want = present")
-		}
-	})
-
-	t.Run("override non-existent rule no crash", func(t *testing.T) {
-		t.Parallel()
-		original := []*malcontent.Behavior{
-			{RuleName: "real", RiskScore: MEDIUM, RiskLevel: LevelMEDIUM, ID: "id1"},
-		}
-		override := []*malcontent.Behavior{
-			{RuleName: "bad_override", RiskScore: LOW, RiskLevel: "LOW", Override: []string{"nonexistent"}},
-		}
-		result := handleOverrides(original, override, LOW, false)
-		for _, b := range result {
-			if b.RuleName == "bad_override" {
-				t.Error("bad_override in result: got = present, want = absent")
-			}
-		}
-	})
-
-	t.Run("filtering by minScore non-scan", func(t *testing.T) {
-		t.Parallel()
-		original := []*malcontent.Behavior{
-			{RuleName: "low", RiskScore: LOW, RiskLevel: "LOW", ID: "id1"},
-			{RuleName: "med", RiskScore: MEDIUM, RiskLevel: LevelMEDIUM, ID: "id2"},
-			{RuleName: "high", RiskScore: HIGH, RiskLevel: LevelHIGH, ID: "id3"},
-		}
-		result := handleOverrides(original, nil, MEDIUM, false)
-		for _, b := range result {
-			if b.RiskScore < MEDIUM {
-				t.Errorf("%q kept: got = %d, want >= %d", b.RuleName, b.RiskScore, MEDIUM)
-			}
-		}
-		if len(result) != 2 {
-			t.Errorf("behaviors: got = %d, want = 2", len(result))
-		}
-	})
-
-	t.Run("scan filters below HIGH", func(t *testing.T) {
-		t.Parallel()
-		original := []*malcontent.Behavior{
-			{RuleName: "low", RiskScore: LOW, ID: "id1"},
-			{RuleName: "med", RiskScore: MEDIUM, ID: "id2"},
-			{RuleName: "high", RiskScore: HIGH, ID: "id3"},
-			{RuleName: "crit", RiskScore: CRITICAL, ID: "id4"},
-		}
-		result := handleOverrides(original, nil, LOW, true)
-		for _, b := range result {
-			if b.RiskScore < HIGH {
-				t.Errorf("scan kept %q: got = %d, want >= %d", b.RuleName, b.RiskScore, HIGH)
-			}
-		}
-		if len(result) != 2 {
-			t.Errorf("behaviors: got = %d, want = 2", len(result))
-		}
-	})
-
-	t.Run("empty slices", func(t *testing.T) {
-		t.Parallel()
-		result := handleOverrides(nil, nil, LOW, false)
-		if len(result) != 0 {
-			t.Errorf("behaviors: got = %d, want = 0", len(result))
-		}
-	})
-
-	t.Run("override removes itself from map", func(t *testing.T) {
-		t.Parallel()
-		original := []*malcontent.Behavior{
-			{RuleName: "real", RiskScore: HIGH, RiskLevel: LevelHIGH, ID: "id1"},
-			{RuleName: "override_rule", RiskScore: MEDIUM, RiskLevel: LevelMEDIUM, ID: "id2"},
-		}
-		override := []*malcontent.Behavior{
-			{RuleName: "override_rule", RiskScore: LOW, RiskLevel: "LOW", Override: []string{"real"}},
-		}
-		result := handleOverrides(original, override, LOW, false)
-		for _, b := range result {
-			if b.RuleName == "override_rule" {
-				t.Error("override_rule in result: got = present, want = deleted")
-			}
-		}
-	})
-
-	t.Run("override that lowers below minScore filters behavior", func(t *testing.T) {
-		t.Parallel()
-		original := []*malcontent.Behavior{
-			{RuleName: "target", RiskScore: HIGH, RiskLevel: LevelHIGH, ID: "id1"},
-		}
-		override := []*malcontent.Behavior{
-			{RuleName: "downgrade", RiskScore: HARMLESS, RiskLevel: "NONE", Override: []string{"target"}},
-		}
-		result := handleOverrides(original, override, MEDIUM, false)
-		if len(result) != 0 {
-			t.Errorf("behaviors after an override below minScore: got = %d, want = 0", len(result))
-		}
-	})
-
-	t.Run("override with multiple targets", func(t *testing.T) {
-		t.Parallel()
-		original := []*malcontent.Behavior{
-			{RuleName: "a", RiskScore: HIGH, RiskLevel: LevelHIGH, ID: "id1"},
-			{RuleName: "b", RiskScore: HIGH, RiskLevel: LevelHIGH, ID: "id2"},
-			{RuleName: "c", RiskScore: MEDIUM, RiskLevel: LevelMEDIUM, ID: "id3"},
-		}
-		override := []*malcontent.Behavior{
-			{RuleName: "multi", RiskScore: LOW, RiskLevel: "LOW", Override: []string{"a", "b"}},
-		}
-		result := handleOverrides(original, override, LOW, false)
-		for _, b := range result {
-			if (b.RuleName == "a" || b.RuleName == "b") && b.RiskScore != LOW {
-				t.Errorf("%q RiskScore: got = %d, want = %d", b.RuleName, b.RiskScore, LOW)
-			}
-			if b.RuleName == "c" && b.RiskScore != MEDIUM {
-				t.Errorf("c RiskScore: got = %d, want = %d", b.RiskScore, MEDIUM)
-			}
-		}
-	})
-
-	t.Run("result never longer than original", func(t *testing.T) {
-		t.Parallel()
-		original := make([]*malcontent.Behavior, 20)
-		for i := range 20 {
-			original[i] = &malcontent.Behavior{
-				RuleName:  "rule_" + strings.Repeat("a", i+1),
-				RiskScore: HIGH, RiskLevel: LevelHIGH,
-				ID: "id_" + strings.Repeat("a", i+1),
-			}
-		}
-		result := handleOverrides(original, nil, LOW, false)
-		if len(result) > len(original) {
-			t.Errorf("result %d exceeds original %d", len(result), len(original))
-		}
-	})
-}
-
 func TestUpdateBehavior(t *testing.T) {
 	t.Parallel()
 
@@ -1364,7 +1107,7 @@ func TestUpdateBehavior(t *testing.T) {
 		}
 	})
 
-	t.Run("same risk longer description updates", func(t *testing.T) {
+	t.Run("same risk keeps the existing description", func(t *testing.T) {
 		t.Parallel()
 		fr := &malcontent.FileReport{
 			Behaviors: []*malcontent.Behavior{{ID: "rule_b", RiskScore: MEDIUM, Description: "short"}},
@@ -1372,8 +1115,8 @@ func TestUpdateBehavior(t *testing.T) {
 		if got := updateBehaviorIndexed(fr, &malcontent.Behavior{ID: "rule_b", RiskScore: MEDIUM, Description: "a much longer description"}, "rule_b"); got != -1 {
 			t.Errorf("index: got = %d, want = -1", got)
 		}
-		if fr.Behaviors[0].Description != "a much longer description" {
-			t.Errorf("Description: got = %q, want = %q", fr.Behaviors[0].Description, "a much longer description")
+		if fr.Behaviors[0].Description != "short" {
+			t.Errorf("Description: got = %q, want = %q", fr.Behaviors[0].Description, "short")
 		}
 		if fr.Behaviors[0].RiskScore != MEDIUM {
 			t.Errorf("RiskScore: got = %d, want = %d", fr.Behaviors[0].RiskScore, MEDIUM)
@@ -1471,13 +1214,14 @@ func TestMatchToString(t *testing.T) {
 		match    string
 		want     string
 	}{
-		{"unprintable returns ruleName", "rule", "\x01\x02\x03", "rule"},
+		{"escaped bytes are kept", "rule", `\x01\x02\x03`, `\x01\x02\x03`},
 		{"base64 uses :: format", "base64_encode", "payload", "base64_encode::payload"},
 		{"xor uses :: format", "xor_key", "data", "xor_key::data"},
+		{"xor prefixes escaped bytes", "xor_key", `\x00\x01`, `xor_key::\x00\x01`},
 		{"xml_key_val strips tags", "xml_key_val_test", "<key>test</key>", "test"},
 		{"normal trims", "normal", "  match  ", "match"},
 		{"empty match trimmed", "rule", "   ", ""},
-		{"tab is unprintable", "rule", "\ttabs", "rule"},
+		{"escaped tab is kept", "rule", `\ttabs`, `\ttabs`},
 		{"spaces only trimmed", "rule", "   spaces   ", "spaces"},
 	}
 

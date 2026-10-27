@@ -5,6 +5,7 @@ package action
 
 import (
 	"context"
+	"crypto/sha256"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -12,8 +13,9 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"reflect"
 	"runtime"
-	"sort"
+	"slices"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -26,7 +28,6 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/pool"
 	"github.com/chainguard-dev/malcontent/pkg/render"
 	"github.com/chainguard-dev/malcontent/pkg/report"
-	"github.com/minio/sha256-simd"
 	"github.com/puzpuzpuz/xsync/v4"
 
 	yarax "github.com/VirusTotal/yara-x/go"
@@ -38,11 +39,25 @@ func interactive(c malcontent.Config) bool {
 
 var (
 	activeScannerPool   atomic.Pointer[rulesScannerPool] // activeScannerPool holds scanners for the most recently scanned rule set.
-	compiledRuleCache   atomic.Pointer[yarax.Rules]      // compiledRuleCache are a cache of previously compiled rules.
+	lastRuleSet         atomic.Pointer[ruleSet]          // lastRuleSet is the rule set CachedRules returned most recently.
+	ruleSets            []*ruleSet                       // ruleSets are the rule sets CachedRules compiled, oldest first; compileMu guards it.
 	compileMu           sync.Mutex                       // compileMu ensures that one caller at a time compiles rules.
 	ErrMatchedCondition = errors.New("matched exit criteria")
 	scannerPoolMu       sync.Mutex // scannerPoolMu serializes replacing activeScannerPool.
+	// errRules wraps the failure to compile the rule set, which ends a scan
+	// rather than skipping one file.
+	errRules = errors.New("rules")
 )
+
+// ruleSet is a rule set CachedRules compiled and the rule sources it came
+// from.
+type ruleSet struct {
+	fss   []fs.FS
+	rules *yarax.Rules
+}
+
+// maxRuleSets bounds the rule sets CachedRules keeps compiled.
+const maxRuleSets = 4
 
 // rulesScannerPool is a scanner pool built for one compiled rule set. Once
 // replaced by a pool for other rules, it closes when its last borrower
@@ -184,7 +199,7 @@ func scanSniffed(ctx context.Context, c malcontent.Config, path string, s *sniff
 	if yrs == nil {
 		var err error
 		if yrs, err = CachedRules(ctx, ruleFS); err != nil {
-			return nil, fmt.Errorf("rules: %w", err)
+			return nil, fmt.Errorf("%w: %w", errRules, err)
 		}
 	}
 	// Report generation caches per-rule data for the rule set it is given.
@@ -204,17 +219,19 @@ func scanSniffed(ctx context.Context, c malcontent.Config, path string, s *sniff
 		return nil, err
 	}
 
-	// If running a scan, only generate reports for mrs that satisfy the risk threshold of 3
-	// This is a short-circuit that avoids any report generation logic
+	// A scan without the quantity upgrade skips a file whose highest risk,
+	// once overrides and ignored rules and tags apply, stays below what it
+	// reports, before building the report. With the upgrade, many HIGH
+	// behaviors can raise a file, so every report is built.
 	risk := 0
-	if c.Scan {
+	if c.Scan && !c.QuantityIncreasesRisk {
 		risk = report.HighestMatchRiskRules(matching, kind, path, archiveRoot, c)
-		if risk < max(report.HIGH, c.MinFileRisk, c.MinRisk) && !c.QuantityIncreasesRisk {
+		if risk < max(report.HIGH, c.MinFileRisk, c.MinRisk) {
 			return skip("overall risk too low for scan")
 		}
 	}
 
-	fr, err := report.GenerateRules(ctx, path, matching, c, archiveRoot, logger, capContents(fc), size, hex.EncodeToString(sum[:]), kind, risk)
+	fr, err := report.GenerateRules(ctx, path, matching, c, archiveRoot, capContents(fc), size, hex.EncodeToString(sum[:]), kind)
 	if err != nil {
 		return nil, NewFileReportError(err, path, TypeGenerateError)
 	}
@@ -315,58 +332,73 @@ func archivePaths(fr *malcontent.FileReport, c malcontent.Config, path, absPath,
 	return absPath, clean, nil
 }
 
-// exitIfHitOrMiss generates the right error if a match is encountered.
-func exitIfHitOrMiss(frs *xsync.Map[string, *malcontent.FileReport], scanPath string, errIfHit bool, errIfMiss bool) (*malcontent.FileReport, error) {
-	var (
-		bList []string
-		bMap  = xsync.NewMap[string, bool]()
-		count int
-		match *malcontent.FileReport
-	)
+// exitIfHitOrMiss applies the exit criteria to frs, the filtered reports of
+// the files of scanPath, as a whole: a hit is a scanned file with behaviors
+// at or above minFileRisk, and a miss is a scan path without one. It returns
+// the error that ends the scan when they are met, with the first hit for a
+// hit.
+func exitIfHitOrMiss(frs *xsync.Map[string, *malcontent.FileReport], scanPath string, errIfHit bool, errIfMiss bool, minFileRisk int) (*malcontent.FileReport, error) {
 	if frs == nil {
 		return nil, nil
 	}
-
-	filesScanned := 0
-
+	var scanned int
+	var match *malcontent.FileReport
 	frs.Range(func(_ string, fr *malcontent.FileReport) bool {
 		if fr == nil || fr.Skipped != "" {
 			return true
 		}
-
-		filesScanned++
-		if len(fr.Behaviors) > 0 && match == nil {
+		scanned++
+		if match == nil && isHit(fr, minFileRisk) {
 			match = fr
 		}
-
-		for _, b := range fr.Behaviors {
-			count++
-			bMap.Store(b.ID, true)
-		}
-
 		return true
 	})
-
-	bMap.Range(func(key string, _ bool) bool {
-		bList = append(bList, key)
-		return true
-	})
-	sort.Strings(bList)
-
-	if filesScanned == 0 {
+	switch {
+	case scanned == 0:
 		return nil, nil
-	}
-
-	if errIfHit && count != 0 {
+	case errIfHit && match != nil:
 		return match, fmt.Errorf("%s %w", scanPath, ErrMatchedCondition)
-	}
-
-	if errIfMiss && count == 0 {
+	case errIfMiss && match == nil:
 		return nil, fmt.Errorf("%s %w", scanPath, ErrMatchedCondition)
 	}
 	return nil, nil
 }
 
+// isHit reports whether fr, a filtered report, survives --min-file-risk with
+// behaviors to show.
+func isHit(fr *malcontent.FileReport, minFileRisk int) bool {
+	return len(fr.Behaviors) > 0 && fr.RiskScore >= minFileRisk
+}
+
+// meetExitCriteria applies the exit criteria to fr, the filtered report of
+// one scanned file, which the error names as path: a hit is a file with
+// behaviors at or above --min-file-risk, and a miss any other scanned file.
+// A file that meets them is queued as the match, a hit with its report, and
+// the error that ends the scan is returned. An OCI image is judged as a
+// whole instead.
+func meetExitCriteria(fr *malcontent.FileReport, path string, c malcontent.Config, matchChan chan matchResult, matchOnce *sync.Once) error {
+	if c.OCI || (!c.ExitFirstHit && !c.ExitFirstMiss) || fr == nil || fr.Skipped != "" {
+		return nil
+	}
+	var match *malcontent.FileReport
+	hit := isHit(fr, c.MinFileRisk)
+	switch {
+	case c.ExitFirstHit && hit:
+		match = fr
+	case c.ExitFirstMiss && !hit:
+	default:
+		return nil
+	}
+	err := fmt.Errorf("%s %w", path, ErrMatchedCondition)
+	matchOnce.Do(func() {
+		matchChan <- matchResult{fr: match, err: err}
+	})
+	return err
+}
+
+// CachedRules returns the rules in fss, compiled once per process for each
+// set of rule sources: a call with the same sources returns the same rule
+// set, and a call with other sources compiles them.
 func CachedRules(ctx context.Context, fss []fs.FS) (*yarax.Rules, error) {
 	if ctx.Err() != nil {
 		return nil, ctx.Err()
@@ -375,14 +407,15 @@ func CachedRules(ctx context.Context, fss []fs.FS) (*yarax.Rules, error) {
 	// load keeps the descriptor table from growing during the scan.
 	file.ReserveDescriptors()
 
-	if rules := compiledRuleCache.Load(); rules != nil {
-		return rules, nil
+	if rs := lastRuleSet.Load(); rs != nil && sameRuleSources(rs.fss, fss) {
+		return rs.rules, nil
 	}
 
 	compileMu.Lock()
 	defer compileMu.Unlock()
-	if rules := compiledRuleCache.Load(); rules != nil {
-		return rules, nil
+	if i := slices.IndexFunc(ruleSets, func(rs *ruleSet) bool { return sameRuleSources(rs.fss, fss) }); i >= 0 {
+		lastRuleSet.Store(ruleSets[i])
+		return ruleSets[i].rules, nil
 	}
 	// A failed or canceled compile is not cached, so the next call tries
 	// again.
@@ -390,8 +423,40 @@ func CachedRules(ctx context.Context, fss []fs.FS) (*yarax.Rules, error) {
 	if err != nil {
 		return nil, err
 	}
-	compiledRuleCache.Store(yrs)
+	rs := &ruleSet{fss: slices.Clone(fss), rules: yrs}
+	ruleSets = append(ruleSets[max(len(ruleSets)-maxRuleSets+1, 0):], rs)
+	lastRuleSet.Store(rs)
 	return yrs, nil
+}
+
+// sameRuleSources reports whether a and b name the same rule sources, in the
+// same order.
+func sameRuleSources(a, b []fs.FS) bool {
+	return slices.EqualFunc(a, b, sameFS)
+}
+
+// sameFS reports whether a and b are the same filesystem: equal values, such
+// as embedded filesystems or os.DirFS directories, or the same map or
+// pointer, such as one fstest.MapFS. Filesystems of other types never match,
+// so their rules are compiled on every call.
+func sameFS(a, b fs.FS) bool {
+	ta, tb := reflect.TypeOf(a), reflect.TypeOf(b)
+	switch {
+	case ta != tb:
+		return false
+	case ta == nil:
+		return true
+	case ta.Comparable():
+		return a == b
+	}
+	switch va, vb := reflect.ValueOf(a), reflect.ValueOf(b); va.Kind() {
+	case reflect.Map, reflect.Pointer, reflect.Func, reflect.Chan, reflect.UnsafePointer:
+		return va.Pointer() == vb.Pointer()
+	case reflect.Slice:
+		return va.Pointer() == vb.Pointer() && va.Len() == vb.Len()
+	default:
+		return false
+	}
 }
 
 // compileRules compiles the rules in fss divided by scope, so that each file
@@ -427,6 +492,9 @@ type scanPathInfo struct {
 	effectivePath  string
 	ociExtractPath string
 	imageURI       string
+	// key, when set, is the report key of the file the scan path names,
+	// such as a process's executable named by its path and pid.
+	key string
 }
 
 // recursiveScan recursively YARA scans the configured paths - handling archives and OCI images.
@@ -444,12 +512,63 @@ func recursiveScan(ctx context.Context, c malcontent.Config) (*malcontent.Report
 		ctx = withResultCache(ctx)
 	}
 
-	for _, scanPath := range c.ScanPaths {
-		if err := handleScanPath(ctx, scanPath, c, r, matchChan, &matchOnce, logger); err != nil {
-			return r, err
+	// Each OCI image is pulled, scanned, and judged by the exit criteria on
+	// its own.
+	if c.OCI {
+		for _, scanPath := range c.ScanPaths {
+			if err := handleScanPath(ctx, scanPath, c, r, matchChan, &matchOnce, logger); err != nil {
+				return r, err
+			}
+		}
+		return r, nil
+	}
+
+	targets, err := resolveTargets(ctx, c.ScanPaths)
+	if err != nil {
+		return r, err
+	}
+	if c.Renderer != nil {
+		for _, tg := range targets {
+			c.Renderer.Scanning(ctx, tg.label())
 		}
 	}
-	return r, nil
+	// Every scan path feeds one queue, so that many small scan paths, such
+	// as the executables of running processes, are scanned concurrently.
+	return r, collectPaths(ctx, scanPathInfo{}, c, r, matchChan, logger, func(dest *malcontent.Report) error {
+		return scanTargets(ctx, targets, getMaxConcurrency(c.Concurrency), c, dest, matchChan, &matchOnce, logger)
+	})
+}
+
+// resolveTargets returns the scan target of each scan path, checking first
+// that each can be scanned: a scan path that does not exist, or cannot be
+// opened, fails the scan before anything is scanned. Dangling symlinks, and
+// /proc paths of processes that have exited, are left out.
+func resolveTargets(ctx context.Context, paths []string) ([]*scanTarget, error) {
+	targets := make([]*scanTarget, 0, len(paths))
+	for _, p := range paths {
+		info := scanPathInfo{originalPath: p, effectivePath: p}
+		if proc, ok := procTargetFor(p); ok {
+			if proc == nil {
+				clog.DebugContextf(ctx, "skipping %s: the process has exited", p)
+				continue
+			}
+			info.key = proc.key
+			targets = append(targets, &scanTarget{info: info, proc: proc})
+			continue
+		}
+		// The walk opens the scan path again once it reaches it, so that
+		// many scan paths do not hold descriptors while they wait.
+		w, _, err := openScanPath(ctx, p)
+		if err != nil {
+			return nil, err
+		}
+		if w == nil {
+			continue
+		}
+		w.close()
+		targets = append(targets, &scanTarget{info: info})
+	}
+	return targets, nil
 }
 
 func initializeReport(ignoreTags []string) *malcontent.Report {
@@ -462,6 +581,7 @@ func initializeReport(ignoreTags []string) *malcontent.Report {
 	return r
 }
 
+// handleScanPath pulls and scans scanPath, an OCI image.
 func handleScanPath(ctx context.Context, scanPath string, c malcontent.Config, r *malcontent.Report, matchChan chan matchResult, matchOnce *sync.Once, logger *clog.Logger) error {
 	if ctx.Err() != nil {
 		return ctx.Err()
@@ -480,17 +600,10 @@ func handleScanPath(ctx context.Context, scanPath string, c malcontent.Config, r
 		defer cleanupOCIPath(scanInfo.ociExtractPath, logger)
 	}
 
-	w, files, err := walkScanPath(ctx, scanInfo.effectivePath)
-	if err != nil {
-		if len(c.ScanPaths) == 1 {
-			return fmt.Errorf("find: %w", err)
-		}
-		logger.Errorf("find failed: %v", err)
-		return nil
-	}
-	defer w.close()
-
-	return processPaths(ctx, w, files, scanInfo, c, r, matchChan, matchOnce, logger)
+	targets := []*scanTarget{{info: scanInfo}}
+	return collectPaths(ctx, scanInfo, c, r, matchChan, logger, func(dest *malcontent.Report) error {
+		return scanTargets(ctx, targets, getMaxConcurrency(c.Concurrency), c, dest, matchChan, matchOnce, logger)
+	})
 }
 
 func prepareScanPath(ctx context.Context, scanPath string, c malcontent.Config, logger *clog.Logger) (scanPathInfo, error) {
@@ -530,19 +643,30 @@ func resolveDir(dir string) string {
 	return dir
 }
 
+// processPaths scans files, found beneath w by walking the scan path
+// scanInfo describes, into r.
 func processPaths(ctx context.Context, w *walkRoot, files []walkedFile, scanInfo scanPathInfo, c malcontent.Config, r *malcontent.Report, matchChan chan matchResult, matchOnce *sync.Once, logger *clog.Logger) error {
+	return collectPaths(ctx, scanInfo, c, r, matchChan, logger, func(dest *malcontent.Report) error {
+		return runQueue(ctx, w, files, getMaxConcurrency(c.Concurrency), scanInfo, c, dest, matchChan, matchOnce, logger)
+	})
+}
+
+// collectPaths runs scan, which records reports in the report it is given,
+// and settles its outcome in r: a queued exit-criteria match, the context's
+// end, or scan's error. An OCI image's files are collected apart from those
+// of earlier scan paths, then merged, since exit criteria apply to an image
+// as a whole.
+func collectPaths(ctx context.Context, scanInfo scanPathInfo, c malcontent.Config, r *malcontent.Report, matchChan chan matchResult, logger *clog.Logger, scan func(*malcontent.Report) error) error {
 	if ctx.Err() != nil {
 		return ctx.Err()
 	}
 
-	// Exit criteria apply to an OCI image as a whole, so its files are
-	// collected apart from those of earlier scan paths, then merged.
 	dest := r
 	if c.OCI {
 		dest = &malcontent.Report{Files: xsync.NewMap[string, *malcontent.FileReport](), Diff: r.Diff, Filter: r.Filter}
 	}
 
-	err := runQueue(ctx, w, files, getMaxConcurrency(c.Concurrency), scanInfo, c, dest, matchChan, matchOnce, logger)
+	err := scan(dest)
 
 	if c.OCI {
 		dest.Files.Range(func(key string, fr *malcontent.FileReport) bool {
@@ -556,7 +680,6 @@ func processPaths(ctx context.Context, w *walkRoot, files []walkedFile, scanInfo
 	// cancellation it causes.
 	if m, ok := queuedMatch(matchChan); ok {
 		if m.fr != nil {
-			TrimFileReport(m.fr, c.RuleCategories)
 			renderMatch(ctx, m.fr, c, logger)
 		}
 		return keepOnlyMatch(r, m)
@@ -642,42 +765,39 @@ func processPath(ctx context.Context, path string, scanInfo scanPathInfo, c malc
 }
 
 func handleSingleFile(ctx context.Context, path string, scanInfo scanPathInfo, c malcontent.Config, r *malcontent.Report, matchChan chan matchResult, matchOnce *sync.Once, logger *clog.Logger) error {
-	return handleSniffedFile(ctx, path, nil, scanInfo, c, r, matchChan, matchOnce, logger)
+	return handleSniffedFile(ctx, path, nil, scanInfo, c, r, matchChan, matchOnce, logger, nil)
 }
 
 // handleSniffedFile is handleSingleFile for a file that s, when not nil,
-// already read.
-func handleSniffedFile(ctx context.Context, path string, s *sniffed, scanInfo scanPathInfo, c malcontent.Config, r *malcontent.Report, matchChan chan matchResult, matchOnce *sync.Once, logger *clog.Logger) error {
+// already read, counting it in fileCount, when set, against --max-files. A
+// file that cannot be scanned is recorded as skipped; the error returned
+// ends the scan.
+func handleSniffedFile(ctx context.Context, path string, s *sniffed, scanInfo scanPathInfo, c malcontent.Config, r *malcontent.Report, matchChan chan matchResult, matchOnce *sync.Once, logger *clog.Logger, fileCount *atomic.Int64) error {
 	trimPath := ""
 	if c.OCI {
 		scanInfo.effectivePath = scanInfo.imageURI
 		trimPath = scanInfo.ociExtractPath
 	}
 
-	fr, err := processFile(ctx, c, c.RuleFS, path, s, scanInfo.effectivePath, trimPath, logger, nil)
-	if err != nil && !interactive(c) {
-		r.Files.Store(fileKey(path, scanInfo, c), &malcontent.FileReport{})
+	fr, err := processFile(ctx, c, c.RuleFS, path, s, scanInfo.effectivePath, trimPath, logger, fileCount)
+	if err != nil {
 		return fmt.Errorf("process: %w", err)
 	}
 	if fr == nil {
 		return nil
 	}
 
-	if !c.OCI && (c.ExitFirstHit || c.ExitFirstMiss) {
-		frMap := xsync.NewMap[string, *malcontent.FileReport]()
-		frMap.Store(path, fr)
-		match, err := exitIfHitOrMiss(frMap, path, c.ExitFirstHit, c.ExitFirstMiss)
-		if err != nil {
-			matchOnce.Do(func() {
-				matchChan <- matchResult{fr: match, err: err}
-			})
-			return err
-		}
+	key := fileKey(path, scanInfo, c)
+	if scanInfo.key != "" {
+		fr.Path = key
+	}
+	// The exit criteria judge what the filters leave of the file.
+	TrimFileReport(fr, c.RuleCategories)
+	if err := meetExitCriteria(fr, path, c, matchChan, matchOnce); err != nil {
+		return err
 	}
 
-	TrimFileReport(fr, c.RuleCategories)
-
-	r.Files.Store(fileKey(path, scanInfo, c), fr)
+	r.Files.Store(key, fr)
 	if c.Renderer != nil && r.Diff == nil && fr.RiskScore >= c.MinFileRisk && len(fr.Behaviors) > 0 {
 		if err := c.Renderer.File(ctx, fr); err != nil {
 			return fmt.Errorf("render: %w", err)
@@ -687,11 +807,14 @@ func handleSniffedFile(ctx context.Context, path string, s *sniffed, scanInfo sc
 }
 
 // fileKey returns the report key of a file that is not inside an archive: its
-// path or, for an OCI image file, the image and the file's path within it. It
-// matches the file's display path.
+// path, the key of a scan path that names one, or, for an OCI image file, the
+// image and the file's path within it. It matches the file's display path.
 func fileKey(path string, scanInfo scanPathInfo, c malcontent.Config) string {
-	if c.OCI {
+	switch {
+	case c.OCI:
 		return archiveEntryKey(scanInfo.imageURI, CleanPath(path, scanInfo.ociExtractPath), c.TrimPrefixes)
+	case scanInfo.key != "":
+		return report.DisplayPath(scanInfo.key, c.TrimPrefixes)
 	}
 	return report.DisplayPath(path, c.TrimPrefixes)
 }
@@ -715,38 +838,38 @@ func cleanupOCIPath(path string, logger *clog.Logger) {
 // Image files are rendered as they are scanned, so the match is not rendered
 // again.
 func handleOCIResults(imageURI string, image *xsync.Map[string, *malcontent.FileReport], r *malcontent.Report, c malcontent.Config) error {
-	match, err := exitIfHitOrMiss(image, imageURI, c.ExitFirstHit, c.ExitFirstMiss)
+	match, err := exitIfHitOrMiss(image, imageURI, c.ExitFirstHit, c.ExitFirstMiss, c.MinFileRisk)
 	if err != nil {
 		return keepOnlyMatch(r, matchResult{fr: match, err: err})
 	}
 	return nil
 }
 
-// handleFileReportError returns the appropriate FileReport and error depending on the type of error.
+// handleFileReportError returns the report of the file at path, which err
+// kept from being scanned: a skipped report naming the failure, logged, so
+// that the scan goes on. The errors that end a scan, its context's end and a
+// rule set that does not compile, are returned instead.
 func handleFileReportError(err error, path string, logger *clog.Logger) (*malcontent.FileReport, error) {
-	var fileErr *FileReportError
-	if !errors.As(err, &fileErr) {
-		return nil, fmt.Errorf("failed to handle error for path %s: error type not FileReportError: %w", path, err)
+	if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) || errors.Is(err, errRules) {
+		return nil, err
 	}
+	logger.Errorf("unable to scan %s: %v", path, err)
+	return &malcontent.FileReport{Path: path, Skipped: skipReason(err)}, nil
+}
 
-	switch fileErr.Type() {
-	case TypeUnknown:
-		return nil, fmt.Errorf("unknown error occurred while scanning path %s: %w", path, err)
-	case TypeScanError:
-		logger.Errorf("scan path: %v", err)
-		return nil, fmt.Errorf("scan failed for path %s: %w", path, err)
-	case TypeGenerateError:
-		return &malcontent.FileReport{
-			Path:    path,
-			Skipped: errMsgGenerateFailed,
-		}, nil
-	default:
-		return nil, fmt.Errorf("unhandled error type scanning path %s: %w", path, err)
+// skipReason returns the reason a report gives for a file that err kept from
+// being scanned.
+func skipReason(err error) string {
+	var fileErr *FileReportError
+	if errors.As(err, &fileErr) && fileErr.Type() == TypeGenerateError {
+		return errMsgGenerateFailed
 	}
+	return fmt.Sprintf("%s: %v", errMsgScanFailed, err)
 }
 
 // processFile scans a single output file, rendering live output if available.
-// s, when not nil, holds the file already read.
+// s, when not nil, holds the file already read. A file that cannot be
+// scanned yields a skipped report; the error returned ends the scan.
 func processFile(ctx context.Context, c malcontent.Config, ruleFS []fs.FS, path string, s *sniffed, scanPath string, archiveRoot string, logger *clog.Logger, fileCount *atomic.Int64) (*malcontent.FileReport, error) {
 	logger = logger.With("path", path)
 
@@ -757,14 +880,9 @@ func processFile(ctx context.Context, c malcontent.Config, ruleFS []fs.FS, path 
 	} else {
 		fr, err = scanSinglePath(ctx, c, path, ruleFS, scanPath, archiveRoot, fileCount)
 	}
-	if err != nil && !interactive(c) {
+	if err != nil {
 		return handleFileReportError(err, path, logger)
 	}
-
-	if fr == nil {
-		return nil, nil
-	}
-
 	return fr, nil
 }
 
@@ -785,7 +903,15 @@ func Scan(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) 
 	if errors.Is(err, context.DeadlineExceeded) {
 		return r, fmt.Errorf("scan operation timed out: %w", err)
 	}
-	if err != nil && !interactive(c) {
+	// A met exit condition ends the scan early. The report of the match is
+	// filtered like a finished one and returned with it.
+	var matchErr error
+	if errors.Is(err, ErrMatchedCondition) {
+		matchErr, err = err, nil
+	}
+	// The report so far is returned with the error, so that callers can
+	// show what was scanned before reporting why the scan ended.
+	if err != nil {
 		return r, err
 	}
 	if r == nil {
@@ -811,11 +937,11 @@ func Scan(ctx context.Context, c malcontent.Config) (*malcontent.Report, error) 
 
 	// Statistics print to stdout: skip them without a renderer, as the rest of
 	// the scan does, and for machine-readable output.
-	if scanCtx.Err() == nil && c.Stats && c.Renderer != nil && c.Renderer.Name() != "JSON" && c.Renderer.Name() != "YAML" {
+	if matchErr == nil && scanCtx.Err() == nil && c.Stats && c.Renderer != nil && c.Renderer.Name() != "JSON" && c.Renderer.Name() != "YAML" {
 		err = render.Statistics(&c, r)
 		if err != nil {
 			return r, fmt.Errorf("stats: %w", err)
 		}
 	}
-	return r, nil
+	return r, matchErr
 }

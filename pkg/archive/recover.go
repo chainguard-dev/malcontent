@@ -5,13 +5,13 @@ package archive
 
 import (
 	"context"
+	"crypto/sha256"
 	"encoding/hex"
 	"errors"
 	"fmt"
 	"os"
 
 	"github.com/chainguard-dev/clog"
-	"github.com/minio/sha256-simd"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 )
@@ -49,7 +49,7 @@ func recoverExtractor(ctx context.Context, kind, path string, err *error) {
 		"panic_message", fmt.Sprintf("%v", r),
 	)
 	if err != nil {
-		*err = fmt.Errorf("%w: extractor %s on %s: %v", ErrExtractorPanic, kind, path, r)
+		*err = fmt.Errorf("%w: extractor %s on %q: %v", ErrExtractorPanic, kind, path, r)
 	}
 	cfg := malcontent.ConfigFromContext(ctx)
 	// TODO: replace with mal_extractor_panic_total counter once pkg/metrics exists

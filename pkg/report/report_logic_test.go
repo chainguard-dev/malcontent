@@ -345,8 +345,40 @@ func TestMatchStrings(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			if got := matchStrings(tt.ruleName, slices.Clone(tt.ms)); !reflect.DeepEqual(got, tt.want) {
+			if got, _ := matchStrings(tt.ruleName, slices.Clone(tt.ms)); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("matchStrings(%q, %q): got = %q, want = %q", tt.ruleName, tt.ms, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestMatchStringsCapsCount(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name        string
+		n           int
+		wantKept    int
+		wantOmitted int
+	}{
+		{"a list under the cap is kept whole", maxMatchStrings - 1, maxMatchStrings - 1, 0},
+		{"a list at the cap is kept whole", maxMatchStrings, maxMatchStrings, 0},
+		{"a list over the cap records what it cut", maxMatchStrings + 5, maxMatchStrings, 5},
+		{"a list far over the cap records what it cut", 3 * maxMatchStrings, maxMatchStrings, 2 * maxMatchStrings},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			// Fixed-width, delimited strings never contain one another.
+			ms := make([]string, tt.n)
+			for i := range ms {
+				ms[i] = fmt.Sprintf("m%07dx", i)
+			}
+			kept, omitted := matchStrings("rule", ms)
+			if len(kept) != tt.wantKept {
+				t.Errorf("kept strings: got = %d, want = %d", len(kept), tt.wantKept)
+			}
+			if omitted != tt.wantOmitted {
+				t.Errorf("omitted strings: got = %d, want = %d", omitted, tt.wantOmitted)
 			}
 		})
 	}
@@ -438,36 +470,26 @@ func TestUpgradeRiskMiBBoundaries(t *testing.T) {
 	}
 }
 
-func TestSkipMatchThresholds(t *testing.T) {
+func TestReportFloor(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
-		name             string
-		ignoreMalcontent bool
-		override         bool
-		scan             bool
-		risk             int
-		threshold        int
-		highestRisk      int
-		want             bool
+		name    string
+		c       malcontent.Config
+		highest int
+		want    int
 	}{
-		{name: "invalid risk is dropped even for overrides", override: true, risk: INVALID, want: true},
-		{name: "analyze keeps a match at the threshold", risk: MEDIUM, threshold: MEDIUM},
-		{name: "analyze drops a match below the threshold", risk: LOW, threshold: MEDIUM, want: true},
-		{name: "analyze keeps a below-threshold match when malcontent is ignored", ignoreMalcontent: true, risk: LOW, threshold: MEDIUM},
-		{name: "analyze keeps a below-threshold override", override: true, risk: LOW, threshold: MEDIUM},
-		{name: "analyze ignores the highest risk", risk: MEDIUM, threshold: LOW, highestRisk: HIGH},
-		{name: "scan keeps a match at the highest risk", scan: true, risk: HIGH, highestRisk: HIGH},
-		{name: "scan drops a match below the highest risk", scan: true, risk: MEDIUM, highestRisk: HIGH, want: true},
-		{name: "scan ignores the analyze threshold", scan: true, risk: HIGH, threshold: CRITICAL, highestRisk: HIGH},
-		{name: "scan keeps a below-highest match when malcontent is ignored", ignoreMalcontent: true, scan: true, risk: MEDIUM, highestRisk: HIGH},
-		{name: "scan keeps a below-highest override", override: true, scan: true, risk: MEDIUM, highestRisk: HIGH},
+		{"analyze keeps behaviors at the minimum risk", malcontent.Config{MinRisk: MEDIUM}, CRITICAL, MEDIUM},
+		{"analyze with no minimum keeps harmless behaviors", malcontent.Config{MinRisk: HARMLESS}, HIGH, HARMLESS},
+		{"scan keeps only the highest behaviors", malcontent.Config{Scan: true}, CRITICAL, CRITICAL},
+		{"scan keeps HIGH behaviors when HIGH is the highest", malcontent.Config{Scan: true}, HIGH, HIGH},
+		{"scan never keeps behaviors below HIGH", malcontent.Config{Scan: true}, MEDIUM, HIGH},
+		{"scan ignores the analyze minimum", malcontent.Config{Scan: true, MinRisk: CRITICAL}, HIGH, HIGH},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			if got := skipMatch(tt.ignoreMalcontent, tt.override, tt.scan, tt.risk, tt.threshold, tt.highestRisk); got != tt.want {
-				t.Errorf("skipMatch(ignore=%v, override=%v, scan=%v, risk=%d, threshold=%d, highest=%d): got = %v, want = %v",
-					tt.ignoreMalcontent, tt.override, tt.scan, tt.risk, tt.threshold, tt.highestRisk, got, tt.want)
+			if got := reportFloor(tt.c, tt.highest); got != tt.want {
+				t.Errorf("reportFloor(scan=%v, minRisk=%d, highest=%d): got = %d, want = %d", tt.c.Scan, tt.c.MinRisk, tt.highest, got, tt.want)
 			}
 		})
 	}
@@ -503,11 +525,11 @@ func TestUpdateBehaviorTies(t *testing.T) {
 			wantIdx:  -1,
 		},
 		{
-			name:     "equal risk adopts a longer description",
+			name:     "equal risk keeps the existing description over a longer one",
 			existing: malcontent.Behavior{ID: "k", RuleName: "first", RiskScore: MEDIUM, Description: "short"},
 			incoming: malcontent.Behavior{ID: "k", RuleName: "second", RiskScore: MEDIUM, Description: "much longer"},
 			wantRule: "first",
-			wantDesc: "much longer",
+			wantDesc: "short",
 			wantRisk: MEDIUM,
 			wantIdx:  -1,
 		},
@@ -552,113 +574,6 @@ func TestUpdateBehaviorTies(t *testing.T) {
 				t.Errorf("RiskScore: got = %d, want = %d", got.RiskScore, tt.wantRisk)
 			}
 		})
-	}
-}
-
-func TestHandleOverridesThresholds(t *testing.T) {
-	t.Parallel()
-	tests := []struct {
-		name     string
-		scan     bool
-		minScore int
-		want     []string
-	}{
-		{"analyze keeps behaviors at or above minScore", false, MEDIUM, []string{"critical_rule", "high_rule", "medium_rule"}},
-		{"analyze drops behaviors below minScore", false, CRITICAL, []string{"critical_rule"}},
-		{"scan keeps HIGH and above under a low minScore", true, LOW, []string{"critical_rule", "high_rule"}},
-		{"scan keeps HIGH and above under a CRITICAL minScore", true, CRITICAL, []string{"critical_rule", "high_rule"}},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			original := []*malcontent.Behavior{
-				{ID: "a", RuleName: "medium_rule", RiskScore: MEDIUM, RiskLevel: LevelMEDIUM},
-				{ID: "b", RuleName: "high_rule", RiskScore: HIGH, RiskLevel: LevelHIGH},
-				{ID: "c", RuleName: "critical_rule", RiskScore: CRITICAL, RiskLevel: LevelCRITICAL},
-			}
-			var got []string
-			for _, b := range handleOverrides(original, nil, tt.minScore, tt.scan) {
-				got = append(got, b.RuleName)
-			}
-			slices.Sort(got)
-			if !slices.Equal(got, tt.want) {
-				t.Errorf("kept rules: got = %v, want = %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestHandleOverridesPerTargetSeverity(t *testing.T) {
-	t.Parallel()
-	entry := func(rule, target string, score int) *malcontent.Behavior {
-		return &malcontent.Behavior{RuleName: rule, RiskScore: score, RiskLevel: RiskLevels[score], Override: []string{target}}
-	}
-	tests := []struct {
-		name      string
-		overrides []*malcontent.Behavior
-		want      map[string]int
-	}{
-		{
-			name:      "single target is set to its severity",
-			overrides: []*malcontent.Behavior{entry("fp", "a", LOW)},
-			want:      map[string]int{"a": LOW, "b": HIGH, "c": HIGH},
-		},
-		{
-			name:      "entries from one rule keep separate severities",
-			overrides: []*malcontent.Behavior{entry("fp", "a", MEDIUM), entry("fp", "b", LOW)},
-			want:      map[string]int{"a": MEDIUM, "b": LOW, "c": HIGH},
-		},
-		{
-			name:      "later entry for a repeated target wins",
-			overrides: []*malcontent.Behavior{entry("fp1", "a", MEDIUM), entry("fp1", "b", LOW), entry("fp2", "a", HARMLESS)},
-			want:      map[string]int{"a": HARMLESS, "b": LOW, "c": HIGH},
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			original := []*malcontent.Behavior{
-				{ID: "a", RuleName: "a", RiskScore: HIGH, RiskLevel: LevelHIGH},
-				{ID: "b", RuleName: "b", RiskScore: HIGH, RiskLevel: LevelHIGH},
-				{ID: "c", RuleName: "c", RiskScore: HIGH, RiskLevel: LevelHIGH},
-			}
-			got := map[string]int{}
-			for _, b := range handleOverrides(original, tt.overrides, HARMLESS, false) {
-				got[b.RuleName] = b.RiskScore
-				if b.RiskLevel != RiskLevels[b.RiskScore] {
-					t.Errorf("%s RiskLevel: got = %q, want = %q", b.RuleName, b.RiskLevel, RiskLevels[b.RiskScore])
-				}
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("risk by rule: got = %v, want = %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestOverrideEntries(t *testing.T) {
-	t.Parallel()
-	rule := &malcontent.Behavior{
-		ID:          "false-positives/vendor",
-		RuleName:    "vendor_fp",
-		Description: "vendor tool",
-		RiskScore:   LOW,
-		RiskLevel:   LevelLOW,
-		Override:    []string{"a", "b"},
-	}
-	got := overrideEntries([]overrideTarget{
-		{rule: rule, target: "a", score: MEDIUM},
-		{rule: rule, target: "b", score: LOW},
-	})
-	want := []*malcontent.Behavior{
-		{ID: "false-positives/vendor", RuleName: "vendor_fp", Description: "vendor tool", RiskScore: MEDIUM, RiskLevel: LevelMEDIUM, Override: []string{"a"}},
-		{ID: "false-positives/vendor", RuleName: "vendor_fp", Description: "vendor tool", RiskScore: LOW, RiskLevel: LevelLOW, Override: []string{"b"}},
-	}
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("overrideEntries:\ngot  = %+v\nwant = %+v", got, want)
-	}
-	if !reflect.DeepEqual(rule.Override, []string{"a", "b"}) || rule.RiskScore != LOW {
-		t.Errorf("source behavior modified: got = %+v", *rule)
 	}
 }
 

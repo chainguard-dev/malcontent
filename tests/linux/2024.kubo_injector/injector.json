@@ -15,7 +15,7 @@
                 {
                     "Description": "multiple ELF binaries within an ELF binary",
                     "MatchStrings": [
-                        "$elf_head"
+                        "\\x7fELF"
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",

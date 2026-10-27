@@ -24,7 +24,7 @@
                 {
                     "Description": "multiple ELF binaries within an ELF binary",
                     "MatchStrings": [
-                        "$elf_head"
+                        "\\x7fELF"
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
@@ -46,7 +46,7 @@
                 {
                     "Description": "RC4 key scheduling algorithm",
                     "MatchStrings": [
-                        "$cmp_e_x_256"
+                        "\\x81\\xf9\\x00\\x01\\x00\\x00"
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
@@ -376,7 +376,7 @@
                 {
                     "Description": "RC4 key scheduling algorithm",
                     "MatchStrings": [
-                        "$cmp_e_x_256"
+                        "\\x81\\xf9\\x00\\x01\\x00\\x00"
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",

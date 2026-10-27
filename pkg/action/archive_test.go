@@ -9,6 +9,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	"context"
+	"flag"
 	"io/fs"
 	"maps"
 	"os"
@@ -29,6 +30,25 @@ import (
 )
 
 // readTestFile reads a file using file.GetContents for consistency with production code.
+// updateGoldens rewrites the golden files under testdata instead of comparing
+// output with them.
+var updateGoldens = flag.Bool("update", false, "rewrite the golden files under testdata")
+
+// compareGolden compares got with the golden file at path or, with -update,
+// rewrites that file to hold got.
+func compareGolden(t *testing.T, path, got string) {
+	t.Helper()
+	if *updateGoldens {
+		if err := file.WriteFileIn(filepath.Dir(path), filepath.Base(path), []byte(got), 0o600); err != nil {
+			t.Fatalf("update %s: %v", path, err)
+		}
+		return
+	}
+	if diff := cmp.Diff(string(readTestFile(t, path)), got); diff != "" {
+		t.Errorf("%s mismatch (-want +got); run the test with -update if the change is intended:\n%s", path, diff)
+	}
+}
+
 func readTestFile(t *testing.T, path string) []byte {
 	t.Helper()
 	f, err := file.Open(path)
@@ -106,8 +126,11 @@ func TestExtractionMultiple(t *testing.T) {
 				"apko",
 			},
 		}, {
+			// apko.zip holds only a directory, so the archive itself stays to be
+			// scanned beside what it extracts to.
 			path: filepath.Join("testdata", "apko.zip"),
 			want: []string{
+				"apko.zip",
 				"apko_0.13.2_linux_arm64",
 			},
 		},
@@ -199,7 +222,10 @@ func TestExtractZip(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer file.RemoveAllIn(filepath.Dir(dir), filepath.Base(dir))
+	// apko.zip holds only a directory, so the archive itself stays to be
+	// scanned beside what it extracts to.
 	want := []string{
+		"apko.zip",
 		"apko_0.13.2_linux_arm64",
 	}
 	dirFiles := archiveTestReadDir(t, dir)
@@ -377,12 +403,7 @@ func TestScanArchive(t *testing.T) {
 
 	got := out.String()
 
-	td := readTestFile(t, "testdata/scan_archive")
-	want := string(td)
-
-	if diff := cmp.Diff(want, got); diff != "" {
-		t.Errorf("output mismatch: (-want +got):\n%s", diff)
-	}
+	compareGolden(t, "testdata/scan_archive", got)
 }
 
 func TestScanDeb(t *testing.T) {
@@ -421,12 +442,7 @@ func TestScanDeb(t *testing.T) {
 
 	got := out.String()
 
-	td := readTestFile(t, "testdata/scan_deb")
-	want := string(td)
-
-	if diff := cmp.Diff(want, got); diff != "" {
-		t.Errorf("output mismatch: (-want +got):\n%s", diff)
-	}
+	compareGolden(t, "testdata/scan_deb", got)
 }
 
 func TestScanRPM(t *testing.T) {
@@ -465,12 +481,7 @@ func TestScanRPM(t *testing.T) {
 
 	got := out.String()
 
-	td := readTestFile(t, "testdata/scan_rpm")
-	want := string(td)
-
-	if diff := cmp.Diff(want, got); diff != "" {
-		t.Errorf("output mismatch: (-want +got):\n%s", diff)
-	}
+	compareGolden(t, "testdata/scan_rpm", got)
 }
 
 func TestScanZlib(t *testing.T) {
@@ -509,12 +520,7 @@ func TestScanZlib(t *testing.T) {
 
 	got := out.String()
 
-	td := readTestFile(t, "testdata/scan_zlib")
-	want := string(td)
-
-	if diff := cmp.Diff(want, got); diff != "" {
-		t.Errorf("output mismatch: (-want +got):\n%s", diff)
-	}
+	compareGolden(t, "testdata/scan_zlib", got)
 }
 
 func TestScanZstd(t *testing.T) {
@@ -553,12 +559,7 @@ func TestScanZstd(t *testing.T) {
 
 	got := out.String()
 
-	td := readTestFile(t, "testdata/scan_zstd")
-	want := string(td)
-
-	if diff := cmp.Diff(want, got); diff != "" {
-		t.Errorf("output mismatch: (-want +got):\n%s", diff)
-	}
+	compareGolden(t, "testdata/scan_zstd", got)
 }
 
 func extractError(e error) error {
@@ -706,12 +707,7 @@ func TestScanConflictingArchiveFiles(t *testing.T) {
 	}
 
 	got := out.String()
-	td := readTestFile(t, "testdata/scan_conflict")
-	want := string(td)
-
-	if diff := cmp.Diff(want, got); diff != "" {
-		t.Errorf("output mismatch: (-want +got):\n%s", diff)
-	}
+	compareGolden(t, "testdata/scan_conflict", got)
 }
 
 // createBrokenNestedArchive creates a tar.gz file containing a nested

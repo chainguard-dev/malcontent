@@ -7,6 +7,7 @@ package action
 
 import (
 	"math"
+	"path/filepath"
 	"testing"
 
 	"github.com/chainguard-dev/malcontent/pkg/file"
@@ -55,7 +56,7 @@ func TestCgroupMemoryLimit(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got, ok := cgroupMemoryLimit(cgroupTestDir(t, tt.v2, tt.v1))
+			got, ok := cgroupMemoryLimit(cgroupTestDir(t, tt.v2, tt.v1), nil)
 			if got != tt.want || ok != tt.wantOK {
 				t.Errorf("cgroupMemoryLimit: got = (%d, %v), want = (%d, %v)", got, ok, tt.want, tt.wantOK)
 			}
@@ -81,7 +82,7 @@ func TestMemoryLimitFrom(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			if got := memoryLimitFrom(tt.physical, cgroupTestDir(t, tt.cgroup, "")); got != tt.want {
+			if got := memoryLimitFrom(tt.physical, cgroupTestDir(t, tt.cgroup, ""), nil); got != tt.want {
 				t.Errorf("memoryLimitFrom: got = %d, want = %d", got, tt.want)
 			}
 		})
@@ -119,5 +120,82 @@ func TestMemoryLimitIsAtMostPhysicalMemory(t *testing.T) {
 	}
 	if got := memoryLimit(); got <= 0 || got > physical {
 		t.Errorf("memoryLimit: got = %d, want between 1 and %d", got, physical)
+	}
+}
+
+// TestCgroupMemoryLimitFollowsSelfCgroup checks that the limit is read from
+// the cgroup /proc/self/cgroup names and its ancestors, as for a systemd
+// service with MemoryMax or a container sharing the host's cgroup namespace,
+// rather than from the hierarchy's root alone.
+func TestCgroupMemoryLimitFollowsSelfCgroup(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name   string
+		self   string
+		files  map[string]string // cgroup files beneath the hierarchy, by path
+		want   int64
+		wantOK bool
+	}{
+		{
+			name:   "a service's own cgroup v2 limit",
+			self:   "0::/system.slice/mal.service\n",
+			files:  map[string]string{"system.slice/mal.service/memory.max": "1073741824\n"},
+			want:   1 << 30,
+			wantOK: true,
+		},
+		{
+			name: "the smallest limit among the cgroup and its ancestors",
+			self: "0::/kubepods/pod1/ctr\n",
+			files: map[string]string{
+				"kubepods/pod1/ctr/memory.max": "max\n",
+				"kubepods/pod1/memory.max":     "536870912\n",
+				"kubepods/memory.max":          "8589934592\n",
+			},
+			want:   512 << 20,
+			wantOK: true,
+		},
+		{
+			name:   "a cgroup v1 memory controller's limit",
+			self:   "12:cpu,cpuacct:/docker/abc\n7:memory:/docker/abc\n",
+			files:  map[string]string{"memory/docker/abc/memory.limit_in_bytes": "268435456\n"},
+			want:   256 << 20,
+			wantOK: true,
+		},
+		{
+			name:  "a cgroup without limits on the way up has none",
+			self:  "0::/user.slice/session.scope\n",
+			files: map[string]string{"user.slice/session.scope/memory.max": "max\n", "user.slice/memory.max": "max\n"},
+		},
+		{
+			name:   "a cgroup path outside the namespace's root reads the root",
+			self:   "0::/../../outside\n",
+			files:  map[string]string{"memory.max": "2147483648\n"},
+			want:   2 << 30,
+			wantOK: true,
+		},
+		{
+			name:   "without /proc/self/cgroup the hierarchy's root is read",
+			files:  map[string]string{"memory.max": "4294967296\n"},
+			want:   4 << 30,
+			wantOK: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			dir := t.TempDir()
+			for name, data := range tt.files {
+				if err := file.MkdirAllIn(dir, filepath.Dir(name), 0o700); err != nil {
+					t.Fatalf("mkdir: %v", err)
+				}
+				if err := file.WriteFileIn(dir, name, []byte(data), 0o600); err != nil {
+					t.Fatalf("write %s: %v", name, err)
+				}
+			}
+			got, ok := cgroupMemoryLimit(dir, []byte(tt.self))
+			if got != tt.want || ok != tt.wantOK {
+				t.Errorf("cgroupMemoryLimit: got = (%d, %t), want = (%d, %t)", got, ok, tt.want, tt.wantOK)
+			}
+		})
 	}
 }

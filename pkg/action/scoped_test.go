@@ -4,6 +4,8 @@
 package action
 
 import (
+	"context"
+	"crypto/sha256"
 	"errors"
 	"io/fs"
 	"path/filepath"
@@ -11,11 +13,11 @@ import (
 	"slices"
 	"testing"
 	"testing/fstest"
+	"time"
 
 	"github.com/chainguard-dev/malcontent/pkg/compile"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
-	"github.com/minio/sha256-simd"
 
 	yarax "github.com/VirusTotal/yara-x/go"
 )
@@ -455,5 +457,47 @@ func TestScanFileReportsScopedScanFailure(t *testing.T) {
 	}
 	if n := calls.Load(); n != 2 {
 		t.Errorf("scans: got = %d, want = 2", n)
+	}
+}
+
+// TestScopedSetRetriesAfterCanceledCompile checks that a scoped rule set
+// whose compile a context's end cut short is compiled again by the next scan
+// that needs it, while a finished compile is kept.
+func TestScopedSetRetriesAfterCanceledCompile(t *testing.T) {
+	t.Parallel()
+	split, err := compile.RecursiveSplit(t.Context(), []fs.FS{scopedTestFS})
+	if err != nil {
+		t.Fatalf("RecursiveSplit: %v", err)
+	}
+	if len(split.Scoped) == 0 {
+		t.Fatal("fixture precondition: the rules have no scoped rules")
+	}
+
+	tests := []struct {
+		name string
+		end  func(context.Context) (context.Context, context.CancelFunc)
+	}{
+		{name: "a canceled compile is compiled again", end: context.WithCancel},
+		{name: "a compile past its deadline is compiled again", end: func(ctx context.Context) (context.Context, context.CancelFunc) {
+			return context.WithDeadline(ctx, time.Unix(1, 0))
+		}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			sr := newScopedRules(split)
+			ended, cancel := tt.end(t.Context())
+			cancel()
+			if _, err := sr.set(ended, "key", []int{0}); err == nil {
+				t.Fatalf("set with an ended context: got no error, want the context's")
+			}
+			rules, err := sr.set(t.Context(), "key", []int{0})
+			if err != nil || rules == nil {
+				t.Fatalf("set after the ended compile: got = (%p, %v), want compiled rules", rules, err)
+			}
+			if again, err := sr.set(t.Context(), "key", []int{0}); err != nil || again != rules {
+				t.Errorf("set once compiled: got = (%p, %v), want the kept rules %p", again, err, rules)
+			}
+		})
 	}
 }

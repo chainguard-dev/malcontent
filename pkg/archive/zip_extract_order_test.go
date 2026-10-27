@@ -11,7 +11,6 @@ import (
 	"io"
 	"io/fs"
 	"path/filepath"
-	"runtime"
 	"slices"
 	"strings"
 	"testing"
@@ -105,14 +104,14 @@ func TestExtractZipEntryOrderAndSafety(t *testing.T) {
 		wantFiles map[string]string
 	}{
 		{
-			name:     "directory entry climbing out is skipped and later directories are created",
+			name:     "directory entry climbing out is created beneath the root",
 			entries:  []zipSpecEntry{{name: "../escape/"}, {name: "kept/"}},
-			wantTree: []string{"kept/"},
+			wantTree: []string{"escape/", "kept/"},
 		},
 		{
-			name:     "directory entry with a NUL byte is skipped and later directories are created",
+			name:     "directory entry with a NUL byte is cut at it",
 			entries:  []zipSpecEntry{{name: "bad\x00name/"}, {name: "kept/"}},
-			wantTree: []string{"kept/"},
+			wantTree: []string{"bad/", "kept/"},
 		},
 		{
 			name:      "file after a directory entry is extracted",
@@ -121,21 +120,18 @@ func TestExtractZipEntryOrderAndSafety(t *testing.T) {
 			wantFiles: map[string]string{"top.txt": "top"},
 		},
 		{
-			name:      "file after a symlink entry is extracted and the link resolves to it",
+			// Symlink entries are written as files holding their targets, as
+			// Python's zipfile writes them.
+			name:      "symlink entry is written as a file holding its target",
 			entries:   []zipSpecEntry{{name: "link", body: "top.txt", mode: symlinkMode}, {name: "top.txt", body: "top"}},
-			wantTree:  []string{"link -> top.txt", "top.txt"},
-			wantFiles: map[string]string{"top.txt": "top", "link": "top"},
+			wantTree:  []string{"link", "top.txt"},
+			wantFiles: map[string]string{"top.txt": "top", "link": "top.txt"},
 		},
 		{
-			name:      "nested symlink may climb back to the extraction root",
-			entries:   []zipSpecEntry{{name: "dir/link", body: "../top.txt", mode: symlinkMode}, {name: "top.txt", body: "top"}},
-			wantTree:  []string{"dir/", "dir/link -> ../top.txt", "top.txt"},
-			wantFiles: map[string]string{"dir/link": "top"},
-		},
-		{
-			name:    "symlink climbing above the extraction root fails the extraction",
-			entries: []zipSpecEntry{{name: "top.txt", body: "top"}, {name: "link", body: "../../outside", mode: symlinkMode}},
-			wantErr: "symlink target escapes extraction directory",
+			name:      "symlink entry climbing above the root is written as a file",
+			entries:   []zipSpecEntry{{name: "top.txt", body: "top"}, {name: "link", body: "../../outside", mode: symlinkMode}},
+			wantTree:  []string{"link", "top.txt"},
+			wantFiles: map[string]string{"link": "../../outside"},
 		},
 	}
 
@@ -189,31 +185,6 @@ func TestExtractZipEntryOrderAndSafety(t *testing.T) {
 	}
 }
 
-func TestZipEntryPath(t *testing.T) {
-	t.Parallel()
-	tests := []struct {
-		name string
-		want string
-	}{
-		{name: "dir/f.txt", want: "dir/f.txt"},
-		{name: "dir/", want: "dir"},
-		{name: "/abs/f.txt", want: "abs/f.txt"},
-		{name: "//abs//f.txt", want: "abs/f.txt"},
-		{name: "/abs/", want: "abs"},
-		{name: "/", want: "."},
-		{name: "", want: "."},
-		// A rooted name cannot climb above the root.
-		{name: "/../f.txt", want: "f.txt"},
-		// The caller skips names that climb out.
-		{name: "../f.txt", want: "../f.txt"},
-	}
-	for _, tt := range tests {
-		if got := zipEntryPath(tt.name); got != tt.want {
-			t.Errorf("zipEntryPath(%q): got = %q, want = %q", tt.name, got, tt.want)
-		}
-	}
-}
-
 // TestExtractZipAbsoluteNames extracts entries named by absolute paths with
 // and without the case-folding handling, since only one runs by default on
 // each platform. Tests that set caseInsensitiveFS must not call t.Parallel.
@@ -227,8 +198,8 @@ func TestExtractZipAbsoluteNames(t *testing.T) {
 		{name: "kept/f.txt", body: "f"},
 		{name: "top.txt", body: "top"},
 	}
-	want := []string{"abs/", "abs/evil.php", "double.php", "kept/", "kept/f.txt", "link -> top.txt", "top.txt"}
-	wantFiles := map[string]string{"abs/evil.php": "evil", "double.php": "double", "link": "top"}
+	want := []string{"abs/", "abs/evil.php", "double.php", "kept/", "kept/f.txt", "link", "top.txt"}
+	wantFiles := map[string]string{"abs/evil.php": "evil", "double.php": "double", "link": "top.txt"}
 	for _, fold := range []bool{false, true} {
 		t.Run(fmt.Sprintf("fold=%v", fold), func(t *testing.T) {
 			prev := caseInsensitiveFS
@@ -254,15 +225,11 @@ func TestExtractZipAbsoluteNames(t *testing.T) {
 	}
 }
 
-// TestExtractZipAgainOverwritesFiles extracts into a directory that already
-// holds the archive's paths, as a retried extraction does.
-func TestExtractZipAgainOverwritesFiles(t *testing.T) {
+// TestExtractZipAgainKeepsEarlierFiles extracts into a directory that
+// already holds the archive's paths, as a retried extraction does: entries
+// never replace what is there, but take sibling names.
+func TestExtractZipAgainKeepsEarlierFiles(t *testing.T) {
 	t.Parallel()
-	// The platform default decides whether entries overwrite in place, so this
-	// keys on the platform rather than on the switch.
-	if runtime.GOOS == "darwin" {
-		t.Skip("darwin writes entries whose path is taken under a sibling name")
-	}
 
 	srcDir := t.TempDir()
 	first := filepath.Join(srcDir, "first.zip")
@@ -282,20 +249,13 @@ func TestExtractZipAgainOverwritesFiles(t *testing.T) {
 			t.Fatalf("ExtractZip(%s) error: got = %v, want = nil", filepath.Base(src), err)
 		}
 	}
-
-	wantTree := []string{"sub/", "sub/inner.txt", "top.txt"}
-	if got := zipSpecTree(t, d); !slices.Equal(got, wantTree) {
-		t.Errorf("extracted tree: got = %q, want = %q", got, wantTree)
-	}
-	for name, want := range map[string]string{"top.txt": "new", "sub/inner.txt": "newer"} {
-		data, err := file.ReadFileIn(d, name)
-		if err != nil {
-			t.Fatalf("read %s: %v", name, err)
-		}
-		if string(data) != want {
-			t.Errorf("contents of %s: got = %q, want = %q", name, data, want)
-		}
-	}
+	wantTree(t, d, map[string]string{
+		"sub":             "/",
+		"sub/inner.txt":   "original inner",
+		"sub/inner_1.txt": "newer",
+		"top.txt":         "original contents",
+		"top_1.txt":       "new",
+	})
 }
 
 func TestExtractZipRejectsNonZipContent(t *testing.T) {

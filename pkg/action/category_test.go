@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
+	"github.com/chainguard-dev/malcontent/pkg/report"
 	"github.com/puzpuzpuz/xsync/v4"
 )
 
@@ -320,5 +321,72 @@ func TestFilterFileReportByCategory_ComposesWithMinRiskInputs(t *testing.T) {
 	}
 	if len(highOnly) != 1 || highOnly[0].ID != "exfil/discord" {
 		t.Errorf("intersection = %v, want only [exfil/discord]", highOnly)
+	}
+}
+
+// TestTrimFileReportRescores checks that the category filter sets a file's
+// risk from the behaviors it keeps, so that --min-file-risk and the exit
+// criteria judge what the report shows.
+func TestTrimFileReportRescores(t *testing.T) {
+	t.Parallel()
+	b := func(id string, risk int) *malcontent.Behavior { return &malcontent.Behavior{ID: id, RiskScore: risk} }
+	tests := []struct {
+		name       string
+		behaviors  []*malcontent.Behavior
+		risk       int // the file's risk before filtering
+		categories []string
+		wantRisk   int
+	}{
+		{
+			name:       "dropping the riskiest behavior lowers the file's risk",
+			behaviors:  []*malcontent.Behavior{b("exec/shell/exec", report.MEDIUM), b("net/download/fetch", report.HIGH)},
+			risk:       report.HIGH,
+			categories: []string{"exec"},
+			wantRisk:   report.MEDIUM,
+		},
+		{
+			name:       "keeping the riskiest behavior keeps the file's risk",
+			behaviors:  []*malcontent.Behavior{b("exec/shell/exec", report.MEDIUM), b("net/download/fetch", report.HIGH)},
+			risk:       report.HIGH,
+			categories: []string{"net"},
+			wantRisk:   report.HIGH,
+		},
+		{
+			name:       "a raise to CRITICAL for many HIGH behaviors stays while all are kept",
+			behaviors:  []*malcontent.Behavior{b("net/a", report.HIGH), b("net/b", report.HIGH), b("fs/c", report.LOW)},
+			risk:       report.CRITICAL,
+			categories: []string{"net"},
+			wantRisk:   report.CRITICAL,
+		},
+		{
+			name:       "a raise to CRITICAL for many HIGH behaviors goes when one is dropped",
+			behaviors:  []*malcontent.Behavior{b("net/a", report.HIGH), b("exec/b", report.HIGH)},
+			risk:       report.CRITICAL,
+			categories: []string{"net"},
+			wantRisk:   report.HIGH,
+		},
+		{
+			name:       "dropping every behavior leaves no risk",
+			behaviors:  []*malcontent.Behavior{b("net/a", report.HIGH)},
+			risk:       report.HIGH,
+			categories: []string{"exec"},
+			wantRisk:   report.HARMLESS,
+		},
+		{
+			name:      "no categories leave the risk alone",
+			behaviors: []*malcontent.Behavior{b("net/a", report.MEDIUM)},
+			risk:      report.HIGH,
+			wantRisk:  report.HIGH,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			fr := &malcontent.FileReport{Behaviors: tt.behaviors, RiskScore: tt.risk, RiskLevel: report.RiskLevels[tt.risk]}
+			TrimFileReport(fr, tt.categories)
+			if fr.RiskScore != tt.wantRisk || fr.RiskLevel != report.RiskLevels[tt.wantRisk] {
+				t.Errorf("risk: got = %d (%s), want = %d (%s)", fr.RiskScore, fr.RiskLevel, tt.wantRisk, report.RiskLevels[tt.wantRisk])
+			}
+		})
 	}
 }

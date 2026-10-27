@@ -462,6 +462,20 @@ files:
               id: net/connect
         riskscore: 2
         risklevel: MEDIUM
+    dup (2):
+        path: /dup
+        sha256: ""
+        size: 0
+        behaviors:
+            - description: connects
+              matchstrings:
+                - <b>&
+                - ' '
+              riskscore: 2
+              risklevel: MEDIUM
+              id: net/connect
+        riskscore: 2
+        risklevel: MEDIUM
     "quote\"back\\slash\ttab":
         path: /escapes
         sha256: ""

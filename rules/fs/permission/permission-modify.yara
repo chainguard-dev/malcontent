@@ -14,7 +14,7 @@ rule chmod: medium {
     any of them
 }
 
-rule fchmod: notamble {
+rule fchmod: medium {
   meta:
     description = "modifies file permissions"
     pledge      = "fattr"

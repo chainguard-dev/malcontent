@@ -119,7 +119,7 @@ func TestExtractUPXOperatorBinary(t *testing.T) {
 			stdout:    unpacked,
 			fileName:  "missing.bin",
 			missing:   true,
-			wantErr:   []string{"failed to stat file"},
+			wantErr:   []string{"failed to open file"},
 			wantErrIs: fs.ErrNotExist,
 		},
 		{
