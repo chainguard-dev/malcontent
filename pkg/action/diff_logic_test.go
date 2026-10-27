@@ -17,6 +17,7 @@ import (
 
 	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
+	"github.com/chainguard-dev/malcontent/pkg/report"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
 
@@ -29,15 +30,16 @@ func diffTestKeys(m *orderedmap.OrderedMap[string, *malcontent.FileReport]) []st
 	return keys
 }
 
-// diffTestTempDir returns a temporary directory with symlinks resolved, so the
-// paths a scan reports match the paths a test builds (macOS links /var to /private/var).
+// diffTestTempDir returns a temporary directory with symlinks resolved and
+// spelled as reports display it, so the paths a scan reports match the paths a
+// test builds (macOS links /var to /private/var).
 func diffTestTempDir(t *testing.T) string {
 	t.Helper()
 	dir, err := filepath.EvalSymlinks(t.TempDir())
 	if err != nil {
 		t.Fatalf("EvalSymlinks: %v", err)
 	}
-	return dir
+	return report.DisplayPath(dir, nil)
 }
 
 func diffTestWriteFile(t *testing.T, path, content string) {
@@ -55,7 +57,12 @@ func diffTestWriteFile(t *testing.T, path, content string) {
 // inside a fresh temporary directory.
 func diffTestSymlinkedDir(t *testing.T) (string, string) {
 	t.Helper()
-	dir := diffTestTempDir(t)
+	// Tests of symlink resolution compare against resolved paths, so the
+	// directory keeps its resolved spelling.
+	dir, err := filepath.EvalSymlinks(t.TempDir())
+	if err != nil {
+		t.Fatalf("EvalSymlinks: %v", err)
+	}
 	realDir, linkDir := filepath.Join(dir, "real"), filepath.Join(dir, "link")
 	root := scanTestOpenRoot(t, dir)
 	if err := root.MkdirAll("real", 0o755); err != nil {
@@ -179,8 +186,8 @@ func TestRelPathSymlinkedRoots(t *testing.T) {
 			if rel != tt.wantRel {
 				t.Errorf("rel: got = %q, want = %q", rel, tt.wantRel)
 			}
-			if base != tt.from {
-				t.Errorf("base: got = %q, want = %q", base, tt.from)
+			if want := report.DisplayPath(tt.from, nil); base != want {
+				t.Errorf("base: got = %q, want = %q", base, want)
 			}
 		})
 	}

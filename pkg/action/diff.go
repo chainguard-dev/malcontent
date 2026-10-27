@@ -42,6 +42,9 @@ func relPath(from string, fr *malcontent.FileReport, isArchive bool) (string, st
 	if err != nil {
 		return "", "", err
 	}
+	// The base prefixes keys whose entries are display paths, so it is
+	// spelled as they are.
+	base = report.DisplayPath(base, nil)
 	if isArchive {
 		return archiveEntryPath(fr), base, nil
 	}
@@ -385,8 +388,8 @@ func diffScanContext(ctx context.Context, c malcontent.Config) context.Context {
 
 // diffScan scans path, one side of a diff, keying its file reports by
 // relPath. For an image, imageURI names the image and path is the directory
-// it was extracted to; scanned paths have their symlinks resolved, so that
-// directory is resolved too before it is trimmed from them.
+// it was extracted to; it is trimmed from the display paths of the files
+// scanned there, so it is resolved and then spelled as they are.
 func diffScan(ctx context.Context, c malcontent.Config, path, imageURI string, isArchive, isImage bool) (ScanResult, error) {
 	frs, base, err := relFileReport(ctx, c, path, isArchive)
 	if err != nil {
@@ -394,7 +397,7 @@ func diffScan(ctx context.Context, c malcontent.Config, path, imageURI string, i
 	}
 	res := ScanResult{files: frs, base: base, isArchive: isArchive}
 	if isImage {
-		res.imageURI, res.tmpRoot = imageURI, resolvePath(path)
+		res.imageURI, res.tmpRoot = imageURI, report.DisplayPath(resolvePath(path), nil)
 	}
 	return res, nil
 }

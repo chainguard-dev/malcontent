@@ -279,8 +279,8 @@ func TestScanSinglePathReportPath(t *testing.T) {
 		},
 		{
 			name: "archive path loses the macOS /private prefix",
-			file: "package.json", content: npm, inArchive: true, absPath: "/private/scans/bundle.tgz",
-			wantBehaviors: true, want: "/scans/bundle.tgz ∴ /app/package.json",
+			file: "package.json", content: npm, inArchive: true, absPath: "/private/var/scans/bundle.tgz",
+			wantBehaviors: true, want: "/var/scans/bundle.tgz ∴ /app/package.json",
 		},
 		{
 			name: "archive entry without an archive path keeps the entry path",

@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	yarax "github.com/VirusTotal/yara-x/go"
+	"github.com/chainguard-dev/malcontent/internal/yrx"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 )
 
@@ -18,7 +19,7 @@ const scanTestMarkerRule = "scan_test_marker"
 // that matches files containing "scan-test-marker".
 func scanTestMarkerRules(t *testing.T) *yarax.Rules {
 	t.Helper()
-	yrs, err := yarax.Compile("rule " + scanTestMarkerRule + ": medium {\n  strings:\n    $a = \"scan-test-marker\"\n  condition:\n    $a\n}\n")
+	yrs, err := yrx.Compile("rule " + scanTestMarkerRule + ": medium {\n  strings:\n    $a = \"scan-test-marker\"\n  condition:\n    $a\n}\n")
 	if err != nil {
 		t.Fatalf("compile marker rules: %v", err)
 	}

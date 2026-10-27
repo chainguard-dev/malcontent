@@ -13,6 +13,7 @@ import (
 
 	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
+	"github.com/chainguard-dev/malcontent/pkg/report"
 )
 
 func TestArchiveEntryKey(t *testing.T) {
@@ -135,7 +136,7 @@ func TestScanArchiveEntryKeysAreDistinct(t *testing.T) {
 		{
 			name:      "archive given as the scan path is keyed by that path",
 			scanPaths: []string{filepath.Join(root, "a.zip")},
-			want:      []string{filepath.Join(root, "a.zip") + " ∴ /app/locale.sh", filepath.Join(root, "a.zip") + " ∴ /app/package.json"},
+			want:      []string{report.DisplayPath(filepath.Join(root, "a.zip"), nil) + " ∴ /app/locale.sh", report.DisplayPath(filepath.Join(root, "a.zip"), nil) + " ∴ /app/package.json"},
 		},
 	}
 	for _, tt := range tests {
@@ -186,7 +187,8 @@ func TestScanArchiveEntryPathsWithSymlinkedTempDir(t *testing.T) {
 		t.Fatalf("Scan: %v", err)
 	}
 
-	want := []string{archivePath + " ∴ /app/locale.sh", archivePath + " ∴ /app/package.json"}
+	displayed := report.DisplayPath(archivePath, nil)
+	want := []string{displayed + " ∴ /app/locale.sh", displayed + " ∴ /app/package.json"}
 	if got := scanTestKeys(r.Files); !slices.Equal(got, want) {
 		t.Errorf("report keys: got = %v, want = %v", got, want)
 	}

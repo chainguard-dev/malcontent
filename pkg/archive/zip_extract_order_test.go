@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	"errors"
+	"fmt"
 	"io"
 	"io/fs"
 	"path/filepath"
@@ -182,6 +183,71 @@ func TestExtractZipEntryOrderAndSafety(t *testing.T) {
 				}
 				if string(data) != want {
 					t.Errorf("contents of %s: got = %q, want = %q", name, data, want)
+				}
+			}
+		})
+	}
+}
+
+func TestZipEntryPath(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name string
+		want string
+	}{
+		{name: "dir/f.txt", want: "dir/f.txt"},
+		{name: "dir/", want: "dir"},
+		{name: "/abs/f.txt", want: "abs/f.txt"},
+		{name: "//abs//f.txt", want: "abs/f.txt"},
+		{name: "/abs/", want: "abs"},
+		{name: "/", want: "."},
+		{name: "", want: "."},
+		// A rooted name cannot climb above the root.
+		{name: "/../f.txt", want: "f.txt"},
+		// The caller skips names that climb out.
+		{name: "../f.txt", want: "../f.txt"},
+	}
+	for _, tt := range tests {
+		if got := zipEntryPath(tt.name); got != tt.want {
+			t.Errorf("zipEntryPath(%q): got = %q, want = %q", tt.name, got, tt.want)
+		}
+	}
+}
+
+// TestExtractZipAbsoluteNames extracts entries named by absolute paths with
+// and without the case-folding handling, since only one runs by default on
+// each platform. Tests that set caseInsensitiveFS must not call t.Parallel.
+func TestExtractZipAbsoluteNames(t *testing.T) {
+	entries := []zipSpecEntry{
+		{name: "/abs/"},
+		{name: "/abs/evil.php", body: "evil"},
+		{name: "//double.php", body: "double"},
+		{name: "/link", body: "top.txt", mode: fs.ModeSymlink | 0o777},
+		{name: "kept/"},
+		{name: "kept/f.txt", body: "f"},
+		{name: "top.txt", body: "top"},
+	}
+	want := []string{"abs/", "abs/evil.php", "double.php", "kept/", "kept/f.txt", "link -> top.txt", "top.txt"}
+	wantFiles := map[string]string{"abs/evil.php": "evil", "double.php": "double", "link": "top"}
+	for _, fold := range []bool{false, true} {
+		t.Run(fmt.Sprintf("fold=%v", fold), func(t *testing.T) {
+			prev := caseInsensitiveFS
+			caseInsensitiveFS = fold
+			t.Cleanup(func() { caseInsensitiveFS = prev })
+
+			src := filepath.Join(t.TempDir(), "abs.zip")
+			zipSpecWrite(t, src, zip.Deflate, entries)
+			d := filepath.Join(t.TempDir(), "out")
+			if err := ExtractZip(t.Context(), d, src); err != nil {
+				t.Fatalf("ExtractZip error: got = %v, want = nil", err)
+			}
+			if got := zipSpecTree(t, d); !slices.Equal(got, want) {
+				t.Errorf("extracted tree: got = %q, want = %q", got, want)
+			}
+			r := openTestRoot(t, d)
+			for name, want := range wantFiles {
+				if got, err := r.ReadFile(name); err != nil || string(got) != want {
+					t.Errorf("contents of %s: got = (%q, %v), want = (%q, nil)", name, got, err, want)
 				}
 			}
 		})

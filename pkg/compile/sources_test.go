@@ -22,6 +22,7 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/file"
 
 	yarax "github.com/VirusTotal/yara-x/go"
+	"github.com/chainguard-dev/malcontent/internal/yrx"
 )
 
 // compileDeniedFS is an fs.FS whose every Open fails with fs.ErrPermission.
@@ -147,7 +148,7 @@ func TestRecursiveReturnsFirstFilesystemError(t *testing.T) {
 		t.Errorf("Recursive() error: got = %v, want = %v", err, fs.ErrPermission)
 	}
 	if got != nil {
-		got.Destroy()
+		yrx.Destroy(got)
 		t.Error("Recursive() rules: got = non-nil, want = nil")
 	}
 }
@@ -498,7 +499,7 @@ func TestRecursiveCachedPrunesAndRefreshesCaches(t *testing.T) {
 	if err != nil || first == nil {
 		t.Fatalf("first RecursiveCached(): got rules = %v, error = %v, want rules and nil error", first, err)
 	}
-	first.Destroy()
+	yrx.Destroy(first)
 
 	for _, p := range []string{stale, stale + ".sha256"} {
 		if _, err := cache.Lstat(p); !errors.Is(err, fs.ErrNotExist) {
@@ -519,7 +520,7 @@ func TestRecursiveCachedPrunesAndRefreshesCaches(t *testing.T) {
 	if err != nil || second == nil {
 		t.Fatalf("second RecursiveCached(): got rules = %v, error = %v, want rules and nil error", second, err)
 	}
-	second.Destroy()
+	yrx.Destroy(second)
 
 	fi, err := cache.Stat(current)
 	if err != nil {
@@ -652,14 +653,14 @@ func TestRuleRemoverShortcutsMatchFullPatterns(t *testing.T) {
 
 func TestLoadCachedRulesMatchesCompiledRules(t *testing.T) {
 	t.Parallel()
-	compiled, err := yarax.Compile(`
+	compiled, err := yrx.Compile(`
 rule hit { strings: $s = "malcontent" condition: $s }
 rule miss { condition: false }
 `)
 	if err != nil {
 		t.Fatalf("compile test rules: %v", err)
 	}
-	defer compiled.Destroy()
+	defer yrx.Destroy(compiled)
 
 	cache := compileOpenRoot(t, t.TempDir())
 	if err := saveCachedRules(cache, "rules.cache", compiled); err != nil {
@@ -669,7 +670,7 @@ rule miss { condition: false }
 	if err != nil {
 		t.Fatalf("loadCachedRules(): %v", err)
 	}
-	defer loaded.Destroy()
+	defer yrx.Destroy(loaded)
 
 	matches := func(t *testing.T, yrs *yarax.Rules) []string {
 		t.Helper()
@@ -765,7 +766,7 @@ func TestRecursiveCachedStoresAndReusesRules(t *testing.T) {
 	if err != nil || first == nil {
 		t.Fatalf("first RecursiveCached(): got rules = %v, error = %v, want rules and nil error", first, err)
 	}
-	first.Destroy()
+	yrx.Destroy(first)
 
 	for _, p := range []string{cacheName, cacheName + ".sha256"} {
 		if _, err := cache.Stat(p); err != nil {
@@ -781,7 +782,7 @@ func TestRecursiveCachedStoresAndReusesRules(t *testing.T) {
 	if err != nil || second == nil {
 		t.Fatalf("second RecursiveCached(): got rules = %v, error = %v, want rules and nil error", second, err)
 	}
-	second.Destroy()
+	yrx.Destroy(second)
 
 	if !logs.has("DEBUG Loaded rules from cache") {
 		t.Errorf("cache hit log: got = %q, want a loaded-from-cache entry", logs)
@@ -806,7 +807,7 @@ func TestRecursiveCachedCompilesWhenCacheIsUnwritable(t *testing.T) {
 	if err != nil || got == nil {
 		t.Fatalf("RecursiveCached(): got rules = %v, error = %v, want rules and nil error", got, err)
 	}
-	got.Destroy()
+	yrx.Destroy(got)
 
 	if !logs.has("WARN Failed to save rules to cache") || logs.has("DEBUG Saved rules to cache") {
 		t.Errorf("cache save log: got = %q, want a save failure and no saved entry", logs)
@@ -915,7 +916,7 @@ func TestSaveCachedRulesCleansUp(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			yrs, err := yarax.Compile("rule cache_cleanup { condition: true }")
+			yrs, err := yrx.Compile("rule cache_cleanup { condition: true }")
 			if err != nil {
 				t.Fatalf("compile test rule: %v", err)
 			}

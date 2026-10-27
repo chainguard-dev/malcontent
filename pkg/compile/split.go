@@ -25,6 +25,7 @@ import (
 	"github.com/minio/sha256-simd"
 	"golang.org/x/sync/errgroup"
 
+	"github.com/chainguard-dev/malcontent/internal/yrx"
 	"github.com/chainguard-dev/malcontent/pkg/file"
 
 	yarax "github.com/VirusTotal/yara-x/go"
@@ -96,7 +97,7 @@ type HeaderRules struct {
 func (h *HeaderRules) Load() (*yarax.Rules, error) {
 	h.once.Do(func() {
 		if h.rules == nil {
-			h.rules, h.err = yarax.ReadFrom(bytes.NewReader(h.data))
+			h.rules, h.err = yrx.ReadFrom(bytes.NewReader(h.data))
 		}
 		h.data = nil
 	})
@@ -762,7 +763,7 @@ func compileFiles(ctx context.Context, files []splitFile, keep func(fi, ri int) 
 		}
 		return nil, fmt.Errorf("compile errors encountered: %v", texts)
 	}
-	return yxc.Build(), nil
+	return yrx.Build(yxc), nil
 }
 
 // splitVersion names the layout of a Split's cache files. Change it whenever
@@ -931,7 +932,7 @@ func loadSplit(cache *os.Root, cacheName, manifestName string) (*Split, error) {
 	}
 	s, err := splitFromManifest(universal, m)
 	if err != nil {
-		universal.Destroy()
+		yrx.Destroy(universal)
 		return nil, err
 	}
 	return s, nil

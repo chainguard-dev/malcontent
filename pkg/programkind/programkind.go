@@ -418,6 +418,31 @@ func findUPX(operatorPath string) (string, error) {
 	return upxPath, nil
 }
 
+// stageForUPX copies the file at path, which may be longer than the
+// operating system accepts whole, to a new temporary file and returns the
+// copy's path. The caller removes it.
+func stageForUPX(path string) (string, error) {
+	src, err := file.Open(path)
+	if err != nil {
+		return "", err
+	}
+	defer src.Close()
+	dst, err := os.CreateTemp("", "malcontent-upx-*")
+	if err != nil {
+		return "", err
+	}
+	if _, err := io.Copy(dst, src); err != nil {
+		_ = dst.Close()
+		_ = os.Remove(dst.Name())
+		return "", err
+	}
+	if err := dst.Close(); err != nil {
+		_ = os.Remove(dst.Name())
+		return "", err
+	}
+	return dst.Name(), nil
+}
+
 // IsValidUPX checks whether a suspected UPX-compressed file can be decompressed with UPX.
 func IsValidUPX(ctx context.Context, fc []byte, path string) (bool, error) {
 	if !bytes.Contains(fc, []byte("UPX!")) {
@@ -441,8 +466,19 @@ func IsValidUPX(ctx context.Context, fc []byte, path string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	// UPX opens the file by its path, which the operating system refuses past
+	// PATH_MAX, so a file at a longer path is checked through a short copy.
+	target := absPath
+	if len(absPath) > file.MaxDirectPath {
+		staged, err := stageForUPX(absPath)
+		if err != nil {
+			return false, err
+		}
+		defer func() { _ = os.Remove(staged) }()
+		target = staged
+	}
 
-	cmd := exec.CommandContext(ctx, upxPath, "-l", "-f", "--", absPath) // #nosec G204 -- invokes pinned upx binary with validated absolute path arg
+	cmd := exec.CommandContext(ctx, upxPath, "-l", "-f", "--", target) // #nosec G204 -- invokes pinned upx binary with a validated absolute path or a temporary copy
 	output, err := cmd.CombinedOutput()
 
 	if err != nil && (bytes.Contains(output, []byte("NotPackedException")) ||
@@ -636,7 +672,7 @@ func File(ctx context.Context, path string) (*FileType, error) {
 // regular, non-empty file and returns it with its size. Anything else yields
 // no file and no error.
 func openContent(dir, name string) (*os.File, int64, error) {
-	root, err := os.OpenRoot(dir)
+	root, err := file.OpenRoot(dir)
 	if err != nil {
 		return nil, 0, fmt.Errorf("stat: %w", err)
 	}

@@ -43,8 +43,8 @@ LINTERS :=
 FIXERS :=
 
 GOLANGCI_LINT_CONFIG := $(LINT_ROOT)/.golangci.yml
-GOLANGCI_LINT_VERSION ?= v2.14.0
-GOLANGCI_LINT_INSTALL_REF := 114493f9b3e7257d29e4130f2b4a4aadefbb6845
+GOLANGCI_LINT_VERSION ?= v2.15.0
+GOLANGCI_LINT_INSTALL_REF := 25c5369a93aacb8cccea0d46e1569ca4a194564d
 GOLANGCI_LINT_INSTALL_SHA256 := 1022ddb4d87ed252350ed03fc9677e250a4ae95cc6bcd4658c2a20a8a23d390f
 SHA256_CMD := $(shell command -v sha256sum || echo "shasum -a 256")
 GOLANGCI_LINT_BIN := $(LINT_ROOT)/out/linters/golangci-lint-$(GOLANGCI_LINT_VERSION)-$(LINT_ARCH)
@@ -58,22 +58,22 @@ $(GOLANGCI_LINT_BIN):
 	mv $(LINT_ROOT)/out/linters/golangci-lint $@
 
 YARA_X_REPO ?= virusTotal/yara-x
-YARA_X_VERSION ?= v1.21.0
-YARA_X_COMMIT ?= 7b2637d4655155fdfaf68177edadb9a39406ece0
+YARA_X_VERSION ?= v1.22.0
+YARA_X_COMMIT ?= e27597f2c05e13fe1c2bb459781aef8899afc485
 YARA_X_SHA :=
 ifeq ($(LINT_OS),Darwin)
 	ifeq ($(shell uname -m),arm64)
 		LINT_ARCH = aarch64
-		YARA_X_SHA = 03ba0bc33552b324e9efd77852875779cc63f6c18d6e7b53665cb91aad67451a
+		YARA_X_SHA = 79d596da5bf02205de63a1d7844a964daebc7293fa36fcb7da46c3e3c7567229
 	else
-		YARA_X_SHA = 7ff345762e3d0b01ab6344b893145c396d4102896a3a19efaab7f68b9e07eeb8
+		YARA_X_SHA = d059da4b91c7d7b43f6f50174a7739e3362b51f349f2ba8b33d46e3334bb3300
 	endif
 else ifeq ($(LINT_OS),Linux)
 	ifneq ($(filter $(shell uname -m),aarch64 arm64),)
 		LINT_ARCH = aarch64
-		YARA_X_SHA = 8d56947d82c7959a65fd4a7327d339d326649f6208c01c9f7fe7fd249e61c66a
+		YARA_X_SHA = b1b90f0686ae3e9f607c07b743fd96d6283d9ea5e2fd764919b8505de8b63d4e
 	else
-		YARA_X_SHA = 01585181e8979e36ac10ab123fcf8921cf8ba879bf942916413e091e18d64852
+		YARA_X_SHA = 7f470770b2c1a0d97f02298fc194978d999074d147d003d33dd62775761439db
 	endif
 endif
 YARA_X_BIN := $(LINT_ROOT)/out/linters/yr-$(YARA_X_VERSION)-$(LINT_ARCH)
@@ -186,7 +186,7 @@ test:
 	CGO_LDFLAGS=$(LDFLAGS) \
 	CGO_CPPFLAGS=$(CPPFLAGS) \
 	PKG_CONFIG_PATH=$(PKGCONF_PATH) \
-	go test -race ./pkg/...
+	go test -race ./pkg/... ./internal/...
 
 # aggregated quality gate: vet, formatter, linter chain, and the test
 # suite. `make test` is invoked (not bare `go test`) because the
@@ -201,7 +201,7 @@ verify:
 	CGO_LDFLAGS=$(LDFLAGS) \
 	CGO_CPPFLAGS=$(CPPFLAGS) \
 	PKG_CONFIG_PATH=$(PKGCONF_PATH) \
-	gosec ./...
+	gosec -exclude-generated ./...
 	gofumpt -w .
 	$(MAKE) _lint
 	$(MAKE) test
@@ -211,7 +211,7 @@ gosec:
 	CGO_LDFLAGS=$(LDFLAGS) \
 	CGO_CPPFLAGS=$(CPPFLAGS) \
 	PKG_CONFIG_PATH=$(PKGCONF_PATH) \
-	gosec ./...
+	gosec -exclude-generated ./...
 
 FUZZ_TIME ?= 10s
 .PHONY: fuzz
@@ -267,7 +267,7 @@ out/mal.coverage:
 	CGO_LDFLAGS=$(LDFLAGS) \
 	CGO_CPPFLAGS=$(CPPFLAGS) \
 	PKG_CONFIG_PATH=$(PKGCONF_PATH) \
-	go test -coverprofile $@ -race ./pkg/... -coverpkg ./pkg/...
+	go test -coverprofile $@ -race ./pkg/... ./internal/... -coverpkg ./pkg/...,./internal/...
 
 INTEGRATION_PARALLEL_FLAGS ?= $(if $(CI),,-p 1 -parallel 2)
 

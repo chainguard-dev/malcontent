@@ -231,10 +231,7 @@ func scanSniffed(ctx context.Context, c malcontent.Config, path string, s *sniff
 		if isArchive {
 			return &malcontent.FileReport{Path: fmt.Sprintf("%s ∴ %s", absPath, clean)}, nil
 		}
-		if len(c.TrimPrefixes) > 0 {
-			path = report.TrimPrefixes(path, c.TrimPrefixes)
-		}
-		return &malcontent.FileReport{Path: path}, nil
+		return &malcontent.FileReport{Path: report.DisplayPath(path, c.TrimPrefixes)}, nil
 	}
 
 	return fr, nil
@@ -301,14 +298,12 @@ func archivePaths(fr *malcontent.FileReport, c malcontent.Config, path, absPath,
 		return "", "", err
 	}
 
-	// handle macOS prefixing temporary directories with /private
-	absPath = CleanPath(absPath, "/private")
-	pathAbs = CleanPath(pathAbs, "/private")
-	archiveRootAbs = CleanPath(archiveRootAbs, "/private")
-	// Trim once here: both display paths reuse absPath.
-	if len(c.TrimPrefixes) > 0 {
-		absPath = report.TrimPrefixes(absPath, c.TrimPrefixes)
-	}
+	// Both display paths reuse absPath. The extracted file and the extraction
+	// directory are spelled alike, so that one is relative to the other
+	// however each was reached.
+	absPath = report.DisplayPath(formatPath(absPath), c.TrimPrefixes)
+	pathAbs = report.DisplayPath(formatPath(pathAbs), nil)
+	archiveRootAbs = report.DisplayPath(formatPath(archiveRootAbs), nil)
 
 	fr.ArchiveRoot = archiveRootAbs
 	fr.FullPath = pathAbs
@@ -698,10 +693,7 @@ func fileKey(path string, scanInfo scanPathInfo, c malcontent.Config) string {
 	if c.OCI {
 		return archiveEntryKey(scanInfo.imageURI, CleanPath(path, scanInfo.ociExtractPath), c.TrimPrefixes)
 	}
-	if len(c.TrimPrefixes) > 0 {
-		return report.TrimPrefixes(path, c.TrimPrefixes)
-	}
-	return path
+	return report.DisplayPath(path, c.TrimPrefixes)
 }
 
 // archiveEntryKey returns the report key of entry, a path within the archive
@@ -709,11 +701,7 @@ func fileKey(path string, scanInfo scanPathInfo, c malcontent.Config) string {
 // does, "<archive> ∴ <entry>", so entries that share a path in different
 // archives keep separate keys.
 func archiveEntryKey(archivePath, entry string, trimPrefixes []string) string {
-	archivePath = CleanPath(archivePath, "/private")
-	if len(trimPrefixes) > 0 {
-		archivePath = report.TrimPrefixes(archivePath, trimPrefixes)
-	}
-	return fmt.Sprintf("%s ∴ %s", archivePath, formatPath(entry))
+	return fmt.Sprintf("%s ∴ %s", report.DisplayPath(formatPath(archivePath), trimPrefixes), formatPath(entry))
 }
 
 func cleanupOCIPath(path string, logger *clog.Logger) {

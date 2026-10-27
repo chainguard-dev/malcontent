@@ -26,9 +26,49 @@ import (
 // functions named after their os counterparts take a caller-supplied path and
 // reach it through a root on its resolved directory (see Split).
 
+// MaxDirectPath is the longest path malcontent hands the operating system, or
+// a program it runs, whole. The operating system refuses paths past PATH_MAX:
+// 1,024 bytes on macOS and 4,096 on Linux. A longer path is reached through a
+// root on a prefix of it, or its file is staged at a short path. Below this
+// length, the names that code adds to a path keep it short enough everywhere.
+const MaxDirectPath = 512
+
+// OpenRoot opens a root on dir, as os.OpenRoot does. A dir longer than the
+// operating system accepts whole, past PATH_MAX, is opened through a root on
+// a prefix it accepts, which resolves the rest of dir an element at a time.
+// Symlinks in the rest are then followed only within that prefix.
+func OpenRoot(dir string) (*os.Root, error) {
+	r, err := os.OpenRoot(dir)
+	if !errors.Is(err, syscall.ENAMETOOLONG) {
+		return r, err
+	}
+	prefix, rest := splitLong(dir)
+	pr, err := os.OpenRoot(prefix)
+	if err != nil {
+		return nil, err
+	}
+	defer pr.Close()
+	return pr.OpenRoot(rest)
+}
+
+// splitLong splits dir, at a separator within its first MaxDirectPath bytes,
+// into a prefix the operating system accepts whole and the rest of dir
+// relative to it.
+func splitLong(dir string) (string, string) {
+	i := strings.LastIndexByte(dir[:min(len(dir), MaxDirectPath)], filepath.Separator)
+	switch {
+	case i > 0:
+		return dir[:i], dir[i+1:]
+	case i == 0:
+		return dir[:1], dir[1:]
+	default:
+		return ".", dir
+	}
+}
+
 // inRoot runs op with an os.Root on dir.
 func inRoot[T any](dir string, op func(*os.Root) (T, error)) (T, error) {
-	r, err := os.OpenRoot(dir)
+	r, err := OpenRoot(dir)
 	if err != nil {
 		var zero T
 		return zero, err
@@ -148,7 +188,7 @@ func openParent(path string) (*os.Root, string, bool) {
 	if dir == "" {
 		dir = "."
 	}
-	r, err := os.OpenRoot(dir)
+	r, err := OpenRoot(dir)
 	if err != nil {
 		return nil, "", false
 	}
@@ -190,7 +230,7 @@ func MkdirAll(path string, perm fs.FileMode) error {
 	}
 	var rest []string
 	for base := abs; ; base = filepath.Dir(base) {
-		r, err := os.OpenRoot(base)
+		r, err := OpenRoot(base)
 		if err == nil {
 			if len(rest) > 0 {
 				err = r.MkdirAll(filepath.Join(rest...), perm)
@@ -225,58 +265,6 @@ func CreateTemp(r *os.Root, pattern string) (*os.File, string, error) {
 	return nil, "", &fs.PathError{Op: "createtemp", Path: pattern, Err: fs.ErrExist}
 }
 
-// WalkDir walks the tree rooted at name beneath r as fs.WalkDir walks
-// r.FS(): in lexical order, calling fn with slash-separated paths, without
-// following symlinks below name, and with the same handling of errors,
-// fs.SkipDir, and fs.SkipAll. It opens each directory relative to its parent
-// rather than from r, so a directory costs one lookup however deep it lies.
-func WalkDir(r *os.Root, name string, fn fs.WalkDirFunc) error {
-	info, err := r.Stat(name)
-	if err != nil {
-		err = fn(name, nil, err)
-	} else {
-		err = walkEntry(r, name, name, fs.FileInfoToDirEntry(info), fn)
-	}
-	if errors.Is(err, fs.SkipDir) || errors.Is(err, fs.SkipAll) {
-		return nil
-	}
-	return err
-}
-
-// walkEntry walks the entry d, at path, opened by elem beneath parent.
-func walkEntry(parent *os.Root, elem, path string, d fs.DirEntry, fn fs.WalkDirFunc) error {
-	if err := fn(path, d, nil); err != nil || !d.IsDir() {
-		if errors.Is(err, fs.SkipDir) && d.IsDir() {
-			err = nil
-		}
-		return err
-	}
-
-	dir, err := parent.OpenRoot(elem)
-	var entries []fs.DirEntry
-	if err == nil {
-		defer dir.Close()
-		entries, err = ReadDir(dir)
-	}
-	if err != nil {
-		if err := fn(path, d, err); err != nil {
-			if errors.Is(err, fs.SkipDir) && d.IsDir() {
-				err = nil
-			}
-			return err
-		}
-	}
-	for _, e := range entries {
-		if err := walkEntry(dir, e.Name(), joinSlash(path, e.Name()), e, fn); err != nil {
-			if errors.Is(err, fs.SkipDir) {
-				break
-			}
-			return err
-		}
-	}
-	return nil
-}
-
 // ReadDir returns the entries of the directory r is on, sorted by name, as
 // fs.ReadDir does.
 func ReadDir(r *os.Root) ([]fs.DirEntry, error) {
@@ -288,13 +276,4 @@ func ReadDir(r *os.Root) ([]fs.DirEntry, error) {
 	entries, err := f.ReadDir(-1)
 	slices.SortFunc(entries, func(a, b fs.DirEntry) int { return strings.Compare(a.Name(), b.Name()) })
 	return entries, err
-}
-
-// joinSlash joins a slash-separated directory path and a name as fs.WalkDir
-// does.
-func joinSlash(dir, name string) string {
-	if dir == "." {
-		return name
-	}
-	return dir + "/" + name
 }

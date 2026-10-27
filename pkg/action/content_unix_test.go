@@ -36,13 +36,8 @@ func TestSniffEntryMatchesSniffFile(t *testing.T) {
 	if err := root.Chmod("locked.sh", 0); err != nil {
 		t.Fatalf("chmod: %v", err)
 	}
-	d, err := root.Open(".")
-	if err != nil {
-		t.Fatalf("open directory: %v", err)
-	}
-	err = unix.Mkfifoat(int(d.Fd()), "fifo", 0o600)
-	_ = d.Close()
-	if err != nil {
+	// Darwin lacks mkfifoat.
+	if err := unix.Mkfifo(filepath.Join(root.Name(), "fifo"), 0o600); err != nil {
 		t.Fatalf("mkfifo: %v", err)
 	}
 
@@ -101,13 +96,8 @@ func TestLoadDoesNotOpenFilesThatAreNotRegular(t *testing.T) {
 		t.Fatalf("open root: %v", err)
 	}
 	defer root.Close()
-	d, err := root.Open(".")
-	if err != nil {
-		t.Fatalf("open directory: %v", err)
-	}
-	err = unix.Mkfifoat(int(d.Fd()), "fifo", 0o600)
-	_ = d.Close()
-	if err != nil {
+	// Darwin lacks mkfifoat.
+	if err := unix.Mkfifo(filepath.Join(root.Name(), "fifo"), 0o600); err != nil {
 		t.Fatalf("mkfifo: %v", err)
 	}
 	fi, err := root.Stat("fifo")

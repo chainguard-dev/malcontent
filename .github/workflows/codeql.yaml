@@ -13,7 +13,7 @@ on:
 env:
   CGO_ENABLED: "1"
   CODEQL_EXTRACTOR_GO_BUILD_TRACING: "on"
-  YARA_X_RELEASE: "1.21.0"
+  YARA_X_RELEASE: "1.22.0"
 
 permissions: {}
 
@@ -27,7 +27,7 @@ jobs:
       packages: read
       security-events: write
     steps:
-      - uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+      - uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
         with:
           egress-policy: block
           allowed-endpoints: >
@@ -67,9 +67,9 @@ jobs:
           ref: refs/tags/v${{ env.YARA_X_RELEASE }}
       - name: Install Rust for yara-x-capi
         if: steps.yara-x-capi.outputs.cache-hit != 'true'
-        uses: dtolnay/rust-toolchain@e2a55d2ffb04f378e9626c28d38b36d230d1e12f # v1
-        with:
-          toolchain: stable
+        run: |
+          rustup toolchain install stable --profile minimal --no-self-update
+          rustup default stable
       - name: Cache Rust dependencies
         if: steps.yara-x-capi.outputs.cache-hit != 'true'
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -100,7 +100,7 @@ jobs:
           check-latest: true
           cache: true
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4.39.0
+        uses: github/codeql-action/init@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
         with:
           languages: go
           build-mode: manual
@@ -111,7 +111,7 @@ jobs:
           PKG_CONFIG_PATH: ${{ github.workspace }}/yara-x-install
           LD_LIBRARY_PATH: ${{ github.workspace }}/yara-x-install
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4.39.0
+        uses: github/codeql-action/analyze@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
         with:
           category: "/language:go"
   analyze-actions:
@@ -123,7 +123,7 @@ jobs:
       packages: read
       security-events: write
     steps:
-      - uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+      - uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
         with:
           egress-policy: block
           allowed-endpoints: >
@@ -144,11 +144,11 @@ jobs:
         with:
           persist-credentials: false
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4.39.0
+        uses: github/codeql-action/init@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
         with:
           languages: actions
           build-mode: none
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4.39.0
+        uses: github/codeql-action/analyze@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
         with:
           category: "/language:actions"

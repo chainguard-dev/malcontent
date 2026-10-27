@@ -13,6 +13,7 @@ linters:
     - errname
     - errorlint
     - exhaustive
+    - forbidigo
     - forcetypeassert
     - gocognit
     - goconst
@@ -58,6 +59,14 @@ linters:
       asserts: false
     exhaustive:
       default-signifies-exhaustive: true
+    forbidigo:
+      analyze-types: true
+      forbid:
+        # internal/yrx serializes the calls that register or release compiled
+        # rules, which deadlock on macOS when they run at once.
+        - pattern: ^yara_x\.(Compile|ReadFrom|Compiler\.Build|Rules\.Destroy)$
+          pkg: ^github\.com/VirusTotal/yara-x/go$
+          msg: use the internal/yrx function of the same name
     gocognit:
       # NOTE: This is a very high transitional threshold
       min-complexity: 98
@@ -155,6 +164,9 @@ linters:
           - cyclop
           - goconst
         path: (.+)_test\.go
+      - linters:
+          - forbidigo
+        path: internal/yrx/
     paths:
       - third_party$
       - builtin$

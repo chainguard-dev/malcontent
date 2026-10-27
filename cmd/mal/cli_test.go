@@ -24,6 +24,7 @@ import (
 
 	yarax "github.com/VirusTotal/yara-x/go"
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/internal/yrx"
 	"github.com/chainguard-dev/malcontent/pkg/action"
 	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
@@ -87,7 +88,7 @@ func testContext(t *testing.T, st *cliState, canceled bool) context.Context {
 // matches. Sharing one rule set lets the action package keep reusing its
 // scanner pool across tests instead of replacing it per test.
 var neverMatchingRules = sync.OnceValues(func() (*yarax.Rules, error) {
-	return yarax.Compile("rule mal_cli_test_never { condition: false }")
+	return yrx.Compile("rule mal_cli_test_never { condition: false }")
 })
 
 // scanReadyState returns CLI state prepared the way the Before stage leaves
@@ -328,7 +329,7 @@ func TestGlobalFlagRiskAndFilterDefaults(t *testing.T) {
 		{"MaxScanFiles", cfg.MaxScanFiles, 1 << 21},
 		{"MaxImageSize", cfg.MaxImageSize, int64(1 << 34)},
 		{"Stats", cfg.Stats, false},
-		{"darwin /private trim prefix", slices.Contains(cfg.TrimPrefixes, "/private"), runtime.GOOS == "darwin"},
+		{"TrimPrefixes", len(cfg.TrimPrefixes), 0},
 	}
 	for _, tt := range tests {
 		if tt.got != tt.want {
