@@ -9,7 +9,6 @@ import (
 	"io/fs"
 	"maps"
 	"os"
-	"path/filepath"
 	"slices"
 	"strings"
 	"testing"
@@ -452,15 +451,12 @@ func TestScopeMeta(t *testing.T) {
 
 func TestRecursiveSplitCached(t *testing.T) {
 	// Not parallel: t.Setenv redirects the user cache directory.
-	root := t.TempDir()
-	t.Setenv("XDG_CACHE_HOME", root)
-	t.Setenv("HOME", root)
+	cache := compileIsolateCache(t)
 
 	first, err := RecursiveSplitCached(t.Context(), []fs.FS{splitTestFS})
 	if err != nil {
 		t.Fatalf("first RecursiveSplitCached: %v", err)
 	}
-	cache := compileOpenRoot(t, filepath.Join(root, "malcontent"))
 	cached, err := fs.Glob(cache.FS(), cachePrefix+splitVersion+"*")
 	if err != nil {
 		t.Fatalf("glob: %v", err)
@@ -514,9 +510,7 @@ func TestRecursiveSplitCached(t *testing.T) {
 
 func TestCompileScopedCachesSets(t *testing.T) {
 	// Not parallel: t.Setenv redirects the user cache directory.
-	root := t.TempDir()
-	t.Setenv("XDG_CACHE_HOME", root)
-	t.Setenv("HOME", root)
+	cache := compileIsolateCache(t)
 	indices := []int{0, 1, 2}
 	data := []byte("eval(atob( exec(base64 helper-marker needed-marker")
 	scopedCaches := func(cache *os.Root) []string {
@@ -543,7 +537,6 @@ func TestCompileScopedCachesSets(t *testing.T) {
 	if err != nil {
 		t.Fatalf("RecursiveSplitCached: %v", err)
 	}
-	cache := compileOpenRoot(t, filepath.Join(root, "malcontent"))
 	if got, err := fs.Glob(cache.FS(), "*scoped*"); err != nil || len(got) != 0 {
 		t.Fatalf("scoped caches before CompileScoped: got = (%v, %v), want none", got, err)
 	}
