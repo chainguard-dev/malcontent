@@ -10,6 +10,7 @@ import (
 	"testing/fstest"
 
 	yarax "github.com/VirusTotal/yara-x/go"
+	"github.com/chainguard-dev/malcontent/internal/yrx"
 )
 
 // TestRecursiveLeavesEcosystemEmpty compiles rules that, as GuardDog's do,
@@ -26,7 +27,7 @@ rule no_ecosystem { strings: $pth = ".pth" condition: ecosystem == "" and $pth }
 	if err != nil {
 		t.Fatalf("Recursive: %v", err)
 	}
-	defer rules.Destroy()
+	defer yrx.Destroy(rules)
 	s := yarax.NewScanner(rules)
 	defer s.Destroy()
 	results, err := s.Scan([]byte("open(site.getsitepackages()[0] + '/evil.pth', 'w')"))

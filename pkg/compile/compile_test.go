@@ -13,6 +13,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/chainguard-dev/malcontent/internal/yrx"
 	"github.com/chainguard-dev/malcontent/pkg/file"
 	thirdparty "github.com/chainguard-dev/malcontent/third_party"
 )
@@ -514,7 +515,7 @@ func BenchmarkCacheOperations(b *testing.B) {
 			// Rules read from a cache carry no finalizer, so free each copy
 			// outside the timed region.
 			b.StopTimer()
-			loadedRules.Destroy()
+			yrx.Destroy(loadedRules)
 			b.StartTimer()
 		}
 	})

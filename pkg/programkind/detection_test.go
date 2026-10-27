@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"slices"
 	"strconv"
 	"strings"
 	"testing"
@@ -173,13 +174,21 @@ func TestFileReportsUnreadableFiles(t *testing.T) {
 // output must not contain single quotes.
 func upxStub(t *testing.T, output string, code int) string {
 	t.Helper()
+	return upxScriptStub(t, "echo '"+output+"'\nexit "+strconv.Itoa(code))
+}
+
+// upxScriptStub writes a shell script with body that stands in for the UPX
+// binary and returns its path. UPX's arguments are "-l", "-f", "--", and the
+// file, so body finds the file in $4.
+func upxScriptStub(t *testing.T, body string) string {
+	t.Helper()
 	if runtime.GOOS == "windows" {
 		t.Skip("UPX stub requires a POSIX shell")
 	}
 	dir := t.TempDir()
 	r := programkindRoot(t, dir)
 	p := filepath.Join(dir, "upx")
-	script := "#!/bin/sh\necho '" + output + "'\nexit " + strconv.Itoa(code) + "\n"
+	script := "#!/bin/sh\n" + body + "\n"
 	if err := r.WriteFile("upx", []byte(script), 0o700); err != nil {
 		t.Fatalf("WriteFile(%q): %v", p, err)
 	}
@@ -282,6 +291,35 @@ func TestUPXInstalledCachesUntilThePathChanges(t *testing.T) {
 	t.Setenv("MALCONTENT_UPX_PATH", stub)
 	if _, err := UPXInstalled(); !errors.Is(err, ErrUPXPathInvalid) {
 		t.Errorf("UPXInstalled() after the setting changed back: got = %v, want = %v", err, ErrUPXPathInvalid)
+	}
+}
+
+// TestIsValidUPXBeyondPathMax checks files at a path longer than PATH_MAX on
+// every platform, which UPX cannot open by that path. The stub, like UPX,
+// reports a file packed only when it opens the file and finds it packed, so
+// the answer must come from the file's own content.
+func TestIsValidUPXBeyondPathMax(t *testing.T) {
+	// Not parallel: sets MALCONTENT_UPX_PATH for the whole process.
+	t.Setenv("MALCONTENT_UPX_PATH", upxScriptStub(t, "grep -q 'UPX!' \"$4\" && exit 0\necho 'NotPackedException'\nexit 2"))
+	deep := filepath.Join(slices.Repeat([]string{strings.Repeat("d", 100)}, 42)...)
+	marked := []byte("\x7fELF\x02\x01\x01\x00UPX!payload")
+	tests := []struct {
+		name   string
+		onDisk []byte
+		want   bool
+	}{
+		{name: "packed file", onDisk: marked, want: true},
+		{name: "unpacked file", onDisk: []byte("\x7fELF\x02\x01\x01\x00payload"), want: false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			path := writeFixture(t, filepath.Join(deep, "bin"), tt.onDisk)
+			// The marker is in what Detect read either way, so UPX decides.
+			got, err := IsValidUPX(t.Context(), marked, path)
+			if err != nil || got != tt.want {
+				t.Errorf("IsValidUPX(): got = (%v, %v), want = (%v, nil)", got, err, tt.want)
+			}
+		})
 	}
 }
 

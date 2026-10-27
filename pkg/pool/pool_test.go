@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	yarax "github.com/VirusTotal/yara-x/go"
+	"github.com/chainguard-dev/malcontent/internal/yrx"
 	"github.com/chainguard-dev/malcontent/pkg/file"
 )
 
@@ -125,8 +126,8 @@ func TestNewScannerPool(t *testing.T) {
 		t.Fatalf("failed to add rule: %v", err)
 	}
 
-	rules := compiler.Build()
-	t.Cleanup(func() { rules.Destroy() })
+	rules := yrx.Build(compiler)
+	t.Cleanup(func() { yrx.Destroy(rules) })
 
 	procs := runtime.GOMAXPROCS(0)
 	tests := []struct {
@@ -183,8 +184,8 @@ func TestScannerPoolGet(t *testing.T) {
 		t.Fatalf("failed to add rule: %v", err)
 	}
 
-	rules := compiler.Build()
-	t.Cleanup(func() { rules.Destroy() })
+	rules := yrx.Build(compiler)
+	t.Cleanup(func() { yrx.Destroy(rules) })
 
 	t.Run("get from pool", func(t *testing.T) {
 		t.Parallel()
@@ -230,8 +231,8 @@ func TestScannerPoolPut(t *testing.T) {
 		t.Fatalf("failed to add rule: %v", err)
 	}
 
-	rules := compiler.Build()
-	t.Cleanup(func() { rules.Destroy() })
+	rules := yrx.Build(compiler)
+	t.Cleanup(func() { yrx.Destroy(rules) })
 
 	sp := NewScannerPool(rules, 2)
 	t.Cleanup(func() { sp.Close() })
@@ -270,11 +271,11 @@ func TestScannerPoolPut(t *testing.T) {
 
 func TestScannerPoolCloseDestroysScanners(t *testing.T) {
 	t.Parallel()
-	rules, err := yarax.Compile("rule pool_close { condition: true }")
+	rules, err := yrx.Compile("rule pool_close { condition: true }")
 	if err != nil {
 		t.Fatalf("compile test rule: %v", err)
 	}
-	t.Cleanup(rules.Destroy)
+	t.Cleanup(func() { yrx.Destroy(rules) })
 
 	sp := NewScannerPool(rules, 2)
 	held := make([]*yarax.Scanner, 0, cap(sp.scanners))
@@ -319,8 +320,8 @@ func TestScannerPoolConcurrency(t *testing.T) {
 		t.Fatalf("failed to add rule: %v", err)
 	}
 
-	rules := compiler.Build()
-	defer rules.Destroy()
+	rules := yrx.Build(compiler)
+	defer yrx.Destroy(rules)
 
 	sp := NewScannerPool(rules, 3)
 	defer sp.Close()
@@ -343,11 +344,11 @@ func TestScannerPoolConcurrency(t *testing.T) {
 
 func TestScannerPoolGetDrawsFromPool(t *testing.T) {
 	t.Parallel()
-	rules, err := yarax.Compile("rule pool_draw { condition: true }")
+	rules, err := yrx.Compile("rule pool_draw { condition: true }")
 	if err != nil {
 		t.Fatalf("compile test rule: %v", err)
 	}
-	t.Cleanup(rules.Destroy)
+	t.Cleanup(func() { yrx.Destroy(rules) })
 
 	sp := NewScannerPool(rules, 1)
 	defer sp.Close()

@@ -52,14 +52,10 @@ func walkScanPath(ctx context.Context, rootPath string) (*walkRoot, []walkedFile
 		logger.Debugf("error: %s: %s", root, err)
 		return nil, nil, nil
 	}
-	info, err := w.root.Stat(start)
-	if err != nil {
-		logger.Debugf("error: %s: %s", filepath.Join(w.base, start), err)
-		return w, nil, nil
-	}
+	// The walk reports a start it cannot examine as it reports any entry.
 	sw := &scanWalk{base: w.base, slots: make(chan struct{}, walkWorkers-1)}
 	var files []walkedFile
-	for _, f := range sw.visit(w.root, start, filepath.ToSlash(start), fs.FileInfoToDirEntry(info)) {
+	for _, f := range sw.walk(file.NewWalker(w.root, filepath.ToSlash(start))) {
 		if f.err != nil {
 			logger.Debugf("error: %s: %s", f.path, f.err)
 			continue
@@ -69,14 +65,20 @@ func walkScanPath(ctx context.Context, rootPath string) (*walkRoot, []walkedFile
 	return w, files, nil
 }
 
+// walkFileHook, when non-nil, is invoked as the walk of a scan path reaches
+// each file. It exists solely so tests can observe the walk at its deepest
+// point; production leaves it nil and the call is a no-op.
+var walkFileHook func()
+
 // walkWorkers bounds the directories a walk of a scan path reads at once.
 const walkWorkers = 16
 
-// scanWalk walks a scan path as file.WalkDir would, reading directories in
-// parallel and collecting what it finds in the order file.WalkDir visits it.
+// scanWalk walks a scan path as file.WalkDir would, handing directories to
+// other goroutines while slots allow and collecting what it finds in the
+// order file.WalkDir visits it.
 type scanWalk struct {
 	base string // the walk root's directory
-	// slots bounds the goroutines reading directories besides the caller's.
+	// slots bounds the goroutines walking directories besides the caller's.
 	slots chan struct{}
 }
 
@@ -87,62 +89,90 @@ type walkFound struct {
 	err  error
 }
 
-// visit returns what the entry d holds, as walkScanPath reports it: d is
-// elem beneath parent, and name, slash-separated, beneath the walk root.
-// Symlinks, and everything below a .git directory, are passed over.
-func (sw *scanWalk) visit(parent *os.Root, elem, name string, d fs.DirEntry) []walkFound {
-	path := filepath.Join(sw.base, filepath.FromSlash(name))
-	if !d.IsDir() {
-		// Ignore symlinked directories like regular directories
-		if strings.Contains(path, "/.git/") || d.Type()&fs.ModeSymlink != 0 {
-			return nil
-		}
-		f := walkedFile{path: path, name: filepath.FromSlash(name), regular: d.Type().IsRegular()}
-		// A directory read through a root has each entry's FileInfo.
-		if fi, err := d.Info(); err == nil {
-			f.size = fi.Size()
-		}
-		return []walkFound{{file: f}}
-	}
-	// Nothing below a .git directory is reported, so skip it rather than
-	// walking it. The exception is a .git directory named by the bare
-	// relative path ".git", as when walking ".": its entries lack the
-	// "/.git/" checked above, so they are reported.
-	if d.Name() == ".git" && path != ".git" {
-		return nil
-	}
+// walkPart is what a directory handed to another goroutine holds, and where
+// among the findings of the walk that handed it over it belongs.
+type walkPart struct {
+	at    int
+	found []walkFound
+}
 
-	dir, err := parent.OpenRoot(elem)
-	var entries []fs.DirEntry
-	if err == nil {
-		defer dir.Close()
-		entries, err = file.ReadDir(dir)
-	}
+// walk returns what w yields, as walkScanPath reports it, and closes w.
+// Symlinks, and everything below a .git directory, are passed over.
+func (sw *scanWalk) walk(w *file.Walker) []walkFound {
+	defer w.Close()
 	var found []walkFound
-	if err != nil {
-		found = append(found, walkFound{path: path, err: err})
-	}
-	parts := make([][]walkFound, len(entries))
+	var parts []*walkPart
 	var wg sync.WaitGroup
-	for i, e := range entries {
-		child := e.Name()
-		if name != "." {
-			child = name + "/" + child
-		}
-		if e.IsDir() && sw.tryAcquire() {
-			wg.Go(func() {
-				defer func() { <-sw.slots }()
-				parts[i] = sw.visit(dir, e.Name(), child, e)
-			})
+	for w.Next() {
+		name := w.Path()
+		path := filepath.Join(sw.base, filepath.FromSlash(name))
+		if err := w.Err(); err != nil {
+			found = append(found, walkFound{path: path, err: err})
 			continue
 		}
-		parts[i] = sw.visit(dir, e.Name(), child, e)
+		d := w.Entry()
+		if !d.IsDir() {
+			// Ignore symlinked directories like regular directories
+			if strings.Contains(path, "/.git/") || d.Type()&fs.ModeSymlink != 0 {
+				continue
+			}
+			if hook := walkFileHook; hook != nil {
+				hook()
+			}
+			f := walkedFile{path: path, name: filepath.FromSlash(name), regular: d.Type().IsRegular()}
+			// A directory read through a root has each entry's FileInfo.
+			if fi, err := d.Info(); err == nil {
+				f.size = fi.Size()
+			}
+			found = append(found, walkFound{file: f})
+			continue
+		}
+		// Nothing below a .git directory is reported, so skip it rather than
+		// walking it. The exception is a .git directory named by the bare
+		// relative path ".git", as when walking ".": its entries lack the
+		// "/.git/" checked above, so they are reported.
+		if d.Name() == ".git" && path != ".git" {
+			w.SkipDir()
+			continue
+		}
+		if !sw.tryAcquire() {
+			continue
+		}
+		dir, err := w.Detach()
+		if err != nil {
+			<-sw.slots
+			found = append(found, walkFound{path: path, err: err})
+			continue
+		}
+		p := &walkPart{at: len(found)}
+		parts = append(parts, p)
+		wg.Go(func() {
+			defer func() { <-sw.slots }()
+			p.found = sw.walk(file.NewDirWalker(dir, name, d))
+		})
 	}
 	wg.Wait()
-	for _, p := range parts {
-		found = append(found, p...)
+	return splice(found, parts)
+}
+
+// splice returns found with the findings of each part inserted where it
+// belongs.
+func splice(found []walkFound, parts []*walkPart) []walkFound {
+	if len(parts) == 0 {
+		return found
 	}
-	return found
+	n := len(found)
+	for _, p := range parts {
+		n += len(p.found)
+	}
+	out := make([]walkFound, 0, n)
+	prev := 0
+	for _, p := range parts {
+		out = append(out, found[prev:p.at]...)
+		out = append(out, p.found...)
+		prev = p.at
+	}
+	return append(out, found[prev:]...)
 }
 
 // tryAcquire takes a slot for another goroutine, when one is free.

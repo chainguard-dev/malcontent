@@ -24,6 +24,7 @@ import (
 
 	yarax "github.com/VirusTotal/yara-x/go"
 	"github.com/chainguard-dev/clog"
+	"github.com/chainguard-dev/malcontent/internal/yrx"
 	"github.com/chainguard-dev/malcontent/pkg/action"
 	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
@@ -87,7 +88,7 @@ func testContext(t *testing.T, st *cliState, canceled bool) context.Context {
 // matches. Sharing one rule set lets the action package keep reusing its
 // scanner pool across tests instead of replacing it per test.
 var neverMatchingRules = sync.OnceValues(func() (*yarax.Rules, error) {
-	return yarax.Compile("rule mal_cli_test_never { condition: false }")
+	return yrx.Compile("rule mal_cli_test_never { condition: false }")
 })
 
 // scanReadyState returns CLI state prepared the way the Before stage leaves
