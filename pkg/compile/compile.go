@@ -315,9 +315,11 @@ const FileSHA256 = "file_sha256"
 // ecosystem is given, and the conditions it gates never match.
 const guardDogEcosystem = "ecosystem"
 
-// newCompiler returns a compiler with the options every bundled rule set is
-// built with.
-func newCompiler() (*yarax.Compiler, error) {
+// NewCompiler returns a compiler with the options every bundled rule set is
+// built with, including the globals the bundled rules read. Code that compiles
+// bundled rules outside Recursive, such as tests, uses it so the rules compile
+// as they do in production.
+func NewCompiler() (*yarax.Compiler, error) {
 	yxc, err := yarax.NewCompiler(
 		yarax.ConditionOptimization(true),
 		yarax.EnableIncludes(true),
@@ -348,7 +350,7 @@ func compileRecursive(ctx context.Context, fss []fs.FS) (*yarax.Rules, []ruleWar
 		return nil, nil, ctx.Err()
 	}
 
-	yxc, err := newCompiler()
+	yxc, err := NewCompiler()
 	if err != nil {
 		return nil, nil, err
 	}

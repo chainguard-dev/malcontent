@@ -4,9 +4,11 @@
 package action
 
 import (
-	"sort"
+	"maps"
+	"slices"
 	"testing"
 
+	"github.com/chainguard-dev/malcontent/pkg/compile"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/report"
 
@@ -20,16 +22,11 @@ import (
 // pkg/compile/compile.go:Recursive.
 func compileDiffTestRules(t *testing.T, sources map[string]string) *yarax.Rules {
 	t.Helper()
-	c, err := yarax.NewCompiler()
+	c, err := compile.NewCompiler()
 	if err != nil {
 		t.Fatalf("NewCompiler: %v", err)
 	}
-	names := make([]string, 0, len(sources))
-	for n := range sources {
-		names = append(names, n)
-	}
-	sort.Strings(names)
-	for _, ns := range names {
+	for _, ns := range slices.Sorted(maps.Keys(sources)) {
 		c.NewNamespace(ns)
 		if err := c.AddSource(sources[ns], yarax.WithOrigin(ns)); err != nil {
 			t.Fatalf("AddSource(%q): %v", ns, err)
