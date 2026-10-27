@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
+	"github.com/chainguard-dev/malcontent/pkg/report"
 )
 
 // MatchesAnyCategory reports whether ruleID matches any of the supplied
@@ -53,9 +54,10 @@ func FilterBehaviorsByCategory(behaviors []*malcontent.Behavior, categories []st
 }
 
 // trimFileReportBehaviors applies the category filter to one FileReport
-// in place. It never drops the report itself — callers that want empty
-// reports removed must do so explicitly. Returns false only when the
-// report ended up with zero matching behaviors.
+// in place, and rescores it from the behaviors it keeps. It never drops the
+// report itself; callers that want empty reports removed must do so
+// explicitly. Returns false only when the report ended up with zero matching
+// behaviors.
 func trimFileReportBehaviors(fr *malcontent.FileReport, categories []string) bool {
 	if fr == nil || len(categories) == 0 {
 		return true
@@ -63,10 +65,45 @@ func trimFileReportBehaviors(fr *malcontent.FileReport, categories []string) boo
 	if fr.Skipped != "" {
 		return true
 	}
-	kept, dropped := FilterBehaviorsByCategory(fr.Behaviors, categories)
+	all := fr.Behaviors
+	kept, dropped := FilterBehaviorsByCategory(all, categories)
 	fr.Behaviors = kept
 	fr.FilteredBehaviors += dropped
+	if dropped > 0 {
+		rescore(fr, all)
+	}
 	return len(kept) > 0
+}
+
+// rescore sets the risk of fr, whose behaviors a filter cut down from all,
+// from the behaviors it keeps: the highest of their risks. A file that
+// report generation raised above its highest behavior, to CRITICAL for its
+// many HIGH behaviors, keeps that risk only while the filter kept every
+// behavior of HIGH risk or above that the raise counted.
+func rescore(fr *malcontent.FileReport, all []*malcontent.Behavior) {
+	highest := func(bs []*malcontent.Behavior) int {
+		risk := 0
+		for _, b := range bs {
+			if b != nil {
+				risk = max(risk, b.RiskScore)
+			}
+		}
+		return risk
+	}
+	high := func(bs []*malcontent.Behavior) int {
+		n := 0
+		for _, b := range bs {
+			if b != nil && b.RiskScore >= report.HIGH {
+				n++
+			}
+		}
+		return n
+	}
+	raised := fr.RiskScore > highest(all)
+	if !raised || high(fr.Behaviors) != high(all) {
+		fr.RiskScore = highest(fr.Behaviors)
+	}
+	fr.RiskLevel = report.RiskLevels[fr.RiskScore]
 }
 
 // TrimFileReport trims behaviors on a single FileReport to those matching

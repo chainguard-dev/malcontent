@@ -9,7 +9,6 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/compile"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 
@@ -158,7 +157,7 @@ func TestGenerate_IgnoreRules(t *testing.T) {
 				IgnoreRules: tt.ignoreRules,
 				MinRisk:     -1, // include harmless
 			}
-			fr, err := Generate(t.Context(), "test/path", mrs, c, "", clog.New(nil), fc, int64(len(fc)), "cksum", nil, 0)
+			fr, err := Generate(t.Context(), "test/path", mrs, c, "", fc, int64(len(fc)), "cksum", nil)
 			if err != nil {
 				t.Fatalf("Generate: %v", err)
 			}
@@ -192,9 +191,7 @@ func TestGenerate_IgnoreRules_RiskRecomputes(t *testing.T) {
 	mrs := scanBuf(t, rules, fc)
 
 	// Baseline: no exclusion, highest is HIGH from py_lib_other.
-	baseline, err := Generate(t.Context(), "test/path", mrs,
-		malcontent.Config{MinRisk: -1}, "", clog.New(nil),
-		fc, int64(len(fc)), "cksum", nil, 0)
+	baseline, err := Generate(t.Context(), "test/path", mrs, malcontent.Config{MinRisk: -1}, "", fc, int64(len(fc)), "cksum", nil)
 	if err != nil {
 		t.Fatalf("baseline Generate: %v", err)
 	}
@@ -203,12 +200,7 @@ func TestGenerate_IgnoreRules_RiskRecomputes(t *testing.T) {
 	}
 
 	// Exclude the HIGH rule; remaining are medium and low. Risk drops.
-	filtered, err := Generate(t.Context(), "test/path", mrs,
-		malcontent.Config{
-			IgnoreRules: []string{"py_lib_other"},
-			MinRisk:     -1,
-		}, "", clog.New(nil),
-		fc, int64(len(fc)), "cksum", nil, 0)
+	filtered, err := Generate(t.Context(), "test/path", mrs, malcontent.Config{IgnoreRules: []string{"py_lib_other"}, MinRisk: -1}, "", fc, int64(len(fc)), "cksum", nil)
 	if err != nil {
 		t.Fatalf("filtered Generate: %v", err)
 	}
@@ -255,12 +247,7 @@ func TestGenerate_IgnoreRules_OverrideExcludingTarget(t *testing.T) {
 
 	// Excluding the base rule the override targets: the override rule loses
 	// its subject. Must not panic; the report should not contain base_high_rule.
-	fr, err := Generate(t.Context(), "test/path", mrs,
-		malcontent.Config{
-			IgnoreRules: []string{"base_high_rule"},
-			MinRisk:     -1,
-		}, "", clog.New(nil),
-		fc, int64(len(fc)), "cksum", nil, 0)
+	fr, err := Generate(t.Context(), "test/path", mrs, malcontent.Config{IgnoreRules: []string{"base_high_rule"}, MinRisk: -1}, "", fc, int64(len(fc)), "cksum", nil)
 	if err != nil {
 		t.Fatalf("Generate: %v", err)
 	}
@@ -302,8 +289,7 @@ func TestGenerate_IgnoreRules_MatchesRuleNameNotFilename(t *testing.T) {
 		IgnoreRules: []string{"*python*", "python.yara", "python"},
 		MinRisk:     -1,
 	}
-	fr, err := Generate(t.Context(), "test/path", mrs, c, "", clog.New(nil),
-		fc, int64(len(fc)), "cksum", nil, 0)
+	fr, err := Generate(t.Context(), "test/path", mrs, c, "", fc, int64(len(fc)), "cksum", nil)
 	if err != nil {
 		t.Fatalf("Generate: %v", err)
 	}
@@ -331,8 +317,7 @@ func TestGenerate_IgnoreRules_MatchesByNameEvenWhenNameDiffersFromFile(t *testin
 		IgnoreRules: []string{"wallet_stealer"},
 		MinRisk:     -1,
 	}
-	fr, err := Generate(t.Context(), "test/path", mrs, c, "", clog.New(nil),
-		fc, int64(len(fc)), "cksum", nil, 0)
+	fr, err := Generate(t.Context(), "test/path", mrs, c, "", fc, int64(len(fc)), "cksum", nil)
 	if err != nil {
 		t.Fatalf("Generate: %v", err)
 	}
@@ -393,9 +378,7 @@ func TestGenerate_IgnoreRules_MultipleRulesInOneFileOnlyOneExcluded(t *testing.T
 	mrs := scanBuf(t, rules, fc)
 
 	// Baseline: without exclusion, the critical rule wins the dedup.
-	baseline, err := Generate(t.Context(), "test/path", mrs,
-		malcontent.Config{MinRisk: -1}, "", clog.New(nil),
-		fc, int64(len(fc)), "cksum", nil, 0)
+	baseline, err := Generate(t.Context(), "test/path", mrs, malcontent.Config{MinRisk: -1}, "", fc, int64(len(fc)), "cksum", nil)
 	if err != nil {
 		t.Fatalf("baseline Generate: %v", err)
 	}
@@ -411,12 +394,7 @@ func TestGenerate_IgnoreRules_MultipleRulesInOneFileOnlyOneExcluded(t *testing.T
 	// the new winner. This proves the exclusion decided on identifier —
 	// if it had matched by namespace "anti-static/obfuscation/python", it
 	// would have excluded all three rules.
-	filtered, err := Generate(t.Context(), "test/path", mrs,
-		malcontent.Config{
-			IgnoreRules: []string{"py_eval_marshal"},
-			MinRisk:     -1,
-		}, "", clog.New(nil),
-		fc, int64(len(fc)), "cksum", nil, 0)
+	filtered, err := Generate(t.Context(), "test/path", mrs, malcontent.Config{IgnoreRules: []string{"py_eval_marshal"}, MinRisk: -1}, "", fc, int64(len(fc)), "cksum", nil)
 	if err != nil {
 		t.Fatalf("filtered Generate: %v", err)
 	}
@@ -430,12 +408,7 @@ func TestGenerate_IgnoreRules_MultipleRulesInOneFileOnlyOneExcluded(t *testing.T
 	}
 
 	// Exclude the top two: py_lib_alias_val should be the sole survivor.
-	filtered2, err := Generate(t.Context(), "test/path", mrs,
-		malcontent.Config{
-			IgnoreRules: []string{"py_eval_marshal", "py_dynamic_require"},
-			MinRisk:     -1,
-		}, "", clog.New(nil),
-		fc, int64(len(fc)), "cksum", nil, 0)
+	filtered2, err := Generate(t.Context(), "test/path", mrs, malcontent.Config{IgnoreRules: []string{"py_eval_marshal", "py_dynamic_require"}, MinRisk: -1}, "", fc, int64(len(fc)), "cksum", nil)
 	if err != nil {
 		t.Fatalf("filtered2 Generate: %v", err)
 	}
@@ -452,12 +425,7 @@ func TestGenerate_IgnoreRules_OverrideExcludingOverride(t *testing.T) {
 
 	// Excluding the override rule itself: the base rule retains its
 	// original (HIGH) risk rather than being downgraded to LOW.
-	fr, err := Generate(t.Context(), "test/path", mrs,
-		malcontent.Config{
-			IgnoreRules: []string{"downgrade_it"},
-			MinRisk:     -1,
-		}, "", clog.New(nil),
-		fc, int64(len(fc)), "cksum", nil, 0)
+	fr, err := Generate(t.Context(), "test/path", mrs, malcontent.Config{IgnoreRules: []string{"downgrade_it"}, MinRisk: -1}, "", fc, int64(len(fc)), "cksum", nil)
 	if err != nil {
 		t.Fatalf("Generate: %v", err)
 	}

@@ -17,52 +17,40 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/file"
 )
 
-// walkScanPath walks rootPath, through the walk root it opens, and returns
-// that root and the files beneath it with their names and sizes. A symlink
-// given as rootPath is followed; symlinks beneath it, and everything below a
-// .git directory, are skipped, and entries that cannot be read are logged and
-// passed over. A missing rootPath yields no files and no walk root.
-func walkScanPath(ctx context.Context, rootPath string) (*walkRoot, []walkedFile, error) {
-	if ctx.Err() != nil {
-		return nil, nil, ctx.Err()
-	}
-
+// openScanPath opens the walk root of rootPath, following rootPath when it
+// is a symlink, and returns it with the name of rootPath beneath it. A scan
+// path that does not exist, or whose walk root cannot be opened, is an error
+// wrapping the cause, such as fs.ErrNotExist or fs.ErrPermission. A dangling
+// symlink, and a /proc path that cannot be resolved, as for a process that
+// has exited, yield no walk root and no error.
+func openScanPath(ctx context.Context, rootPath string) (*walkRoot, string, error) {
 	logger := clog.FromContext(ctx)
-
-	// Follow symlink if provided at the root
 	root, err := filepath.EvalSymlinks(rootPath)
 	if err != nil {
-		// If the target does not exist, log the error but return gracefully
-		// This is useful when scanning -compat packages
-		if errors.Is(err, fs.ErrNotExist) {
-			logger.Debugf("symlink target does not exist: %s", err.Error())
-			return nil, nil, nil
-		}
-		// A /proc/XXX/exe link that cannot be resolved is itself a symlink,
-		// which the walk would skip.
 		if strings.HasPrefix(rootPath, "/proc/") {
-			return nil, nil, nil
+			logger.Debugf("skipping %s: %v", rootPath, err)
+			return nil, "", nil
 		}
-		return nil, nil, fmt.Errorf("eval %q: %w", rootPath, err)
+		if errors.Is(err, fs.ErrNotExist) && danglingSymlink(rootPath) {
+			// Useful when scanning -compat packages, whose links point into
+			// packages that are not installed.
+			logger.Debugf("symlink target does not exist: %s", err.Error())
+			return nil, "", nil
+		}
+		return nil, "", fmt.Errorf("scan path %q: %w", rootPath, err)
 	}
-
 	w, start, err := openWalkRoot(root)
 	if err != nil {
-		// As with any entry the walk cannot read.
-		logger.Debugf("error: %s: %s", root, err)
-		return nil, nil, nil
+		return nil, "", fmt.Errorf("scan path %q: %w", rootPath, err)
 	}
-	// The walk reports a start it cannot examine as it reports any entry.
-	sw := &scanWalk{base: w.base, slots: make(chan struct{}, walkWorkers-1)}
-	var files []walkedFile
-	for _, f := range sw.walk(file.NewWalker(w.root, filepath.ToSlash(start))) {
-		if f.err != nil {
-			logger.Debugf("error: %s: %s", f.path, f.err)
-			continue
-		}
-		files = append(files, f.file)
-	}
-	return w, files, nil
+	return w, start, nil
+}
+
+// danglingSymlink reports whether path, which the caller found leads
+// nowhere, is a symlink.
+func danglingSymlink(path string) bool {
+	fi, err := os.Lstat(path)
+	return err == nil && fi.Mode()&fs.ModeSymlink != 0
 }
 
 // walkFileHook, when non-nil, is invoked as the walk of a scan path reaches
@@ -73,47 +61,54 @@ var walkFileHook func()
 // walkWorkers bounds the directories a walk of a scan path reads at once.
 const walkWorkers = 16
 
+// walkInto walks the tree rooted at start beneath w, from up to walkWorkers
+// goroutines, and calls emit, concurrently, with each file it finds, until
+// ctx ends. Symlinks below start are passed over, as are the object stores
+// of git repositories and the pseudo filesystems, such as proc and sysfs,
+// mounted below start. Entries that cannot be read are logged and passed
+// over.
+func walkInto(ctx context.Context, w *walkRoot, start string, emit func(walkedFile)) {
+	sw := &scanWalk{
+		ctx:    ctx,
+		logger: clog.FromContext(ctx),
+		base:   w.base,
+		slots:  make(chan struct{}, walkWorkers-1),
+		emit:   emit,
+	}
+	sw.walk(file.NewWalker(w.root, filepath.ToSlash(start)))
+}
+
 // scanWalk walks a scan path as file.WalkDir would, handing directories to
-// other goroutines while slots allow and collecting what it finds in the
-// order file.WalkDir visits it.
+// other goroutines while slots allow.
 type scanWalk struct {
-	base string // the walk root's directory
+	ctx    context.Context
+	logger *clog.Logger
+	base   string // the walk root's directory
 	// slots bounds the goroutines walking directories besides the caller's.
 	slots chan struct{}
+	emit  func(walkedFile)
 }
 
-// walkFound is a file a walk found, or an error to log for path.
-type walkFound struct {
-	file walkedFile
-	path string
-	err  error
-}
-
-// walkPart is what a directory handed to another goroutine holds, and where
-// among the findings of the walk that handed it over it belongs.
-type walkPart struct {
-	at    int
-	found []walkFound
-}
-
-// walk returns what w yields, as walkScanPath reports it, and closes w.
-// Symlinks, and everything below a .git directory, are passed over.
-func (sw *scanWalk) walk(w *file.Walker) []walkFound {
+// walk emits what w yields, as walkInto describes, and closes w.
+func (sw *scanWalk) walk(w *file.Walker) {
 	defer w.Close()
-	var found []walkFound
-	var parts []*walkPart
 	var wg sync.WaitGroup
+	defer wg.Wait()
+	w.SkipPseudoFilesystems()
 	for w.Next() {
+		if sw.ctx.Err() != nil {
+			return
+		}
 		name := w.Path()
 		path := filepath.Join(sw.base, filepath.FromSlash(name))
 		if err := w.Err(); err != nil {
-			found = append(found, walkFound{path: path, err: err})
+			sw.skipped(path, err)
 			continue
 		}
 		d := w.Entry()
 		if !d.IsDir() {
 			// Ignore symlinked directories like regular directories
-			if strings.Contains(path, "/.git/") || d.Type()&fs.ModeSymlink != 0 {
+			if d.Type()&fs.ModeSymlink != 0 {
 				continue
 			}
 			if hook := walkFileHook; hook != nil {
@@ -124,14 +119,10 @@ func (sw *scanWalk) walk(w *file.Walker) []walkFound {
 			if fi, err := d.Info(); err == nil {
 				f.size = fi.Size()
 			}
-			found = append(found, walkFound{file: f})
+			sw.emit(f)
 			continue
 		}
-		// Nothing below a .git directory is reported, so skip it rather than
-		// walking it. The exception is a .git directory named by the bare
-		// relative path ".git", as when walking ".": its entries lack the
-		// "/.git/" checked above, so they are reported.
-		if d.Name() == ".git" && path != ".git" {
+		if name != "." && gitObjects(path) {
 			w.SkipDir()
 			continue
 		}
@@ -141,38 +132,42 @@ func (sw *scanWalk) walk(w *file.Walker) []walkFound {
 		dir, err := w.Detach()
 		if err != nil {
 			<-sw.slots
-			found = append(found, walkFound{path: path, err: err})
+			sw.skipped(path, err)
 			continue
 		}
-		p := &walkPart{at: len(found)}
-		parts = append(parts, p)
 		wg.Go(func() {
 			defer func() { <-sw.slots }()
-			p.found = sw.walk(file.NewDirWalker(dir, name, d))
+			sw.walk(file.NewDirWalker(dir, name, d))
 		})
 	}
-	wg.Wait()
-	return splice(found, parts)
 }
 
-// splice returns found with the findings of each part inserted where it
-// belongs.
-func splice(found []walkFound, parts []*walkPart) []walkFound {
-	if len(parts) == 0 {
-		return found
+// skipped logs the entry at path that the walk passes over because of err.
+func (sw *scanWalk) skipped(path string, err error) {
+	if errors.Is(err, file.ErrPseudoFS) {
+		sw.logger.Debugf("skipping %s: %v", path, err)
+		return
 	}
-	n := len(found)
-	for _, p := range parts {
-		n += len(p.found)
+	sw.logger.Warnf("skipping %s: %v", path, err)
+}
+
+// gitObjects reports whether dir is the object store of a git repository: a
+// directory named objects in one named .git. Its loose objects and packs are
+// compressed repository content, which scanning would only extract; the rest
+// of .git, such as hooks and config, is scanned.
+func gitObjects(dir string) bool {
+	return filepath.Base(dir) == "objects" && filepath.Base(filepath.Dir(dir)) == ".git"
+}
+
+// inGitObjects reports whether rel, a path within an archive, lies in the
+// object store of a git repository the archive holds.
+func inGitObjects(rel string) bool {
+	for d := filepath.Dir(rel); d != "." && d != filepath.Dir(d); d = filepath.Dir(d) {
+		if gitObjects(d) {
+			return true
+		}
 	}
-	out := make([]walkFound, 0, n)
-	prev := 0
-	for _, p := range parts {
-		out = append(out, found[prev:p.at]...)
-		out = append(out, p.found...)
-		prev = p.at
-	}
-	return append(out, found[prev:]...)
+	return false
 }
 
 // tryAcquire takes a slot for another goroutine, when one is free.
@@ -201,7 +196,7 @@ func CleanPath(path string, prefix string) string {
 
 	// Only strip if the next character is a path separator (directory boundary)
 	remainder := path[len(prefix):]
-	if remainder[0] == '/' || remainder[0] == '\\' {
+	if os.IsPathSeparator(remainder[0]) {
 		return formatPath(remainder)
 	}
 
@@ -210,9 +205,12 @@ func CleanPath(path string, prefix string) string {
 	return formatPath(path)
 }
 
-// formatPath formats the path for display.
+// formatPath formats the path for display, with slashes between its
+// elements. Only the platform's separator is replaced: elsewhere a backslash
+// is part of a file's name, so files named `a\b` and `a/b` keep distinct
+// keys.
 func formatPath(path string) string {
-	return strings.ReplaceAll(path, "\\", "/")
+	return filepath.ToSlash(path)
 }
 
 // walkRoot is the root through which the files found by walking a scan path

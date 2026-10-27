@@ -20,46 +20,45 @@ import (
 
 const ociExportLimitErr = "export size exceeds maximum allowed size"
 
-func TestLimitedWriter_EnforcesCumulativeLimit(t *testing.T) {
+func TestOCIBudgetReader_EnforcesCumulativeLimits(t *testing.T) {
 	t.Parallel()
 	cases := []struct {
-		name      string
-		limit     int64
-		writes    []int
-		failAt    int // index of the first rejected write, or -1
-		wantBytes int
+		name         string
+		maxImageSize int64
+		maxArchive   int64
+		reads        []int
+		failAt       int // index of the first rejected read, or -1
+		wantErr      error
 	}{
-		{name: "writes that exactly fill the limit succeed", limit: 8, writes: []int{3, 5}, failAt: -1, wantBytes: 8},
-		{name: "a write past the remaining budget is rejected", limit: 8, writes: []int{3, 5, 1}, failAt: 2, wantBytes: 8},
-		{name: "a single write over the limit is rejected", limit: 8, writes: []int{9}, failAt: 0, wantBytes: 0},
-		{name: "repeated writes draw on one budget", limit: 8, writes: []int{4, 4, 4}, failAt: 2, wantBytes: 8},
-		{name: "an empty write fits an exhausted budget", limit: 0, writes: []int{0}, failAt: -1, wantBytes: 0},
+		{name: "reads that exactly fill the image limit succeed", maxImageSize: 8, reads: []int{3, 5}, failAt: -1},
+		{name: "a read past the image limit is rejected", maxImageSize: 8, reads: []int{3, 5, 1}, failAt: 2, wantErr: errImageTooLarge},
+		{name: "a single read over the image limit is rejected", maxImageSize: 8, reads: []int{9}, failAt: 0, wantErr: errImageTooLarge},
+		{name: "a read past the archive cap is rejected", maxArchive: 8, reads: []int{4, 4, 4}, failAt: 2, wantErr: file.ErrArchiveBytesCap},
+		{name: "a zero image limit is unlimited", reads: []int{1 << 20}, failAt: -1},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			var out bytes.Buffer
-			lw := &limitedWriter{w: &out, remaining: tc.limit}
-			for i, size := range tc.writes {
-				n, err := lw.Write(bytes.Repeat([]byte{'x'}, size))
+			var src bytes.Buffer
+			for _, n := range tc.reads {
+				src.Write(bytes.Repeat([]byte{'x'}, n))
+			}
+			budget := &ociBudget{maxImageSize: tc.maxImageSize, archive: &file.ArchiveCounter{MaxBytes: tc.maxArchive}}
+			r := &ociBudgetReader{r: &src, budget: budget}
+			for i, size := range tc.reads {
+				n, err := r.Read(make([]byte, size))
+				if n != size {
+					t.Errorf("read %d count: got = %d, want = %d", i, n, size)
+				}
 				if i == tc.failAt {
-					if err == nil || !strings.Contains(err.Error(), ociExportLimitErr) {
-						t.Errorf("write %d error: got = %v, want = %q", i, err, ociExportLimitErr)
+					if !errors.Is(err, tc.wantErr) {
+						t.Errorf("read %d error: got = %v, want wrapping %v", i, err, tc.wantErr)
 					}
-					if n != 0 {
-						t.Errorf("write %d count: got = %d, want = 0", i, n)
-					}
-					break
+					return
 				}
 				if err != nil {
-					t.Fatalf("write %d: %v", i, err)
+					t.Fatalf("read %d: %v", i, err)
 				}
-				if n != size {
-					t.Errorf("write %d count: got = %d, want = %d", i, n, size)
-				}
-			}
-			if out.Len() != tc.wantBytes {
-				t.Errorf("bytes passed through: got = %d, want = %d", out.Len(), tc.wantBytes)
 			}
 		})
 	}
@@ -236,6 +235,100 @@ func TestOCIWithConfig_SingleArtifactBlobExportedVerbatim(t *testing.T) {
 			}
 			if !errors.Is(err, tc.wantErrIs) {
 				t.Errorf("error: got = %v, want wrapping %v", err, tc.wantErrIs)
+			}
+		})
+	}
+}
+
+// TestOCIWithConfig_ReferenceDoesNotShapeExtraction checks that names in the
+// reference neither select a decompressor nor overflow a file name limit.
+func TestOCIWithConfig_ReferenceDoesNotShapeExtraction(t *testing.T) {
+	t.Parallel()
+	cases := []struct {
+		name string
+		repo string
+	}{
+		{name: "an .apk repository is not read as gzip", repo: "tools.apk:1"},
+		{name: "an .xz tag is not read as xz", repo: "tools:1.xz"},
+		{name: "a .tbz repository is not read as bzip2", repo: "tools.tbz:1"},
+		{name: "a .tar.gz repository is extracted", repo: "tools.tar.gz:1"},
+		{name: "a long repository and tag fit the temp names", repo: strings.Repeat("a", 180) + ":" + strings.Repeat("b", 100)},
+	}
+	host := ociTestRegistry(t)
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			ref := host + "/refs/" + tc.repo
+			ociPushImage(t, ref, ociTestImage(t, []ociTestEntry{{name: "ok.txt", body: "ok"}}))
+			dir, err := OCIWithConfig(t.Context(), ref, ociTestConfig(0))
+			removeOCIDir(t, dir)
+			if err != nil {
+				t.Fatalf("OCIWithConfig: %v", err)
+			}
+			if !strings.HasPrefix(filepath.Base(dir), "malcontent-oci-") {
+				t.Errorf("extraction directory: got = %q, want a malcontent-oci-* name", filepath.Base(dir))
+			}
+			ociAssertTree(t, dir, map[string]string{"ok.txt": "file:ok"})
+		})
+	}
+}
+
+// TestOCIWithConfig_HiddenBytesCountAgainstLimits checks that the size limits
+// count every byte decompressed from a layer, including content an upper layer
+// deletes, which is never written out.
+func TestOCIWithConfig_HiddenBytesCountAgainstLimits(t *testing.T) {
+	t.Parallel()
+	zeros := string(make([]byte, 1<<20))
+	cases := []struct {
+		name            string
+		layers          [][]ociTestEntry
+		maxImageSize    int64
+		maxArchiveBytes int64
+		wantErr         string
+		wantErrIs       error
+	}{
+		{
+			name:         "whited-out bytes count against the image size limit",
+			layers:       [][]ociTestEntry{{{name: "zeros.bin", body: zeros}}, {{name: ".wh.zeros.bin"}}},
+			maxImageSize: 64 << 10,
+			wantErr:      ociExportLimitErr,
+		},
+		{
+			name:            "whited-out bytes count against the archive byte cap",
+			layers:          [][]ociTestEntry{{{name: "zeros.bin", body: zeros}}, {{name: ".wh.zeros.bin"}}},
+			maxArchiveBytes: 64 << 10,
+			wantErrIs:       file.ErrArchiveBytesCap,
+		},
+		{
+			name:            "an image within both limits is extracted",
+			layers:          [][]ociTestEntry{{{name: "ok.txt", body: "ok"}}},
+			maxImageSize:    64 << 10,
+			maxArchiveBytes: 64 << 10,
+		},
+	}
+	host := ociTestRegistry(t)
+	for i, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			ref := fmt.Sprintf("%s/hidden:case%d", host, i)
+			ociPushImage(t, ref, ociTestImage(t, tc.layers...))
+			c := ociTestConfig(tc.maxImageSize)
+			c.MaxArchiveBytes = tc.maxArchiveBytes
+			dir, err := OCIWithConfig(t.Context(), ref, c)
+			removeOCIDir(t, dir)
+			switch {
+			case tc.wantErr != "":
+				if err == nil || !strings.Contains(err.Error(), tc.wantErr) {
+					t.Fatalf("error: got = %v, want containing %q", err, tc.wantErr)
+				}
+			case tc.wantErrIs != nil:
+				if !errors.Is(err, tc.wantErrIs) {
+					t.Fatalf("error: got = %v, want wrapping %v", err, tc.wantErrIs)
+				}
+			case err != nil:
+				t.Fatalf("OCIWithConfig: %v", err)
+			default:
+				ociAssertTree(t, dir, map[string]string{"ok.txt": "file:ok"})
 			}
 		})
 	}

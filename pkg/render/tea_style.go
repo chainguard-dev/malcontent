@@ -8,9 +8,11 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"maps"
 	"slices"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/report"
@@ -94,8 +96,10 @@ func cleanAndWrapEvidence(evidence string, width int) string {
 	return result.String()
 }
 
-// wrapLine breaks text into lines of width bytes, indenting each
-// continuation line. Text that fits is returned as is, without copying it.
+// wrapLine breaks text into lines of at most width bytes, ending each on a
+// character boundary, and indents each continuation line. A character longer
+// than width gets a line of its own. Text that fits is returned as is,
+// without copying it.
 func wrapLine(text string, width int) string {
 	if len(text) <= width {
 		return text
@@ -103,115 +107,99 @@ func wrapLine(text string, width int) string {
 
 	var result strings.Builder
 	for len(text) > width {
-		result.WriteString(text[:width])
+		n := width
+		for n > 0 && !utf8.RuneStart(text[n]) {
+			n--
+		}
+		if n == 0 {
+			_, n = utf8.DecodeRuneInString(text)
+		}
+		if n >= len(text) {
+			break
+		}
+		result.WriteString(text[:n])
 		result.WriteString("\n      ")
-		text = text[width:]
+		text = text[n:]
 	}
 	result.WriteString(text)
 	return result.String()
 }
 
-// renderFileSummaryTea writes fr's behaviors, grouped by namespace, in a box
-// for the interactive viewer. A file with added or removed behaviors gets a
-// title that counts them.
-func renderFileSummaryTea(ctx context.Context, fr *malcontent.FileReport, w io.Writer) {
+// teaBadge renders level, escaped by sanitizeTerminal, in its risk color.
+func teaBadge(level string) string {
+	return riskBadgeStyle.Foreground(riskColors[level]).Render(sanitizeTerminal(level))
+}
+
+// teaHeader renders the first line of a file summary: text, which the caller
+// escapes, in the color of level, then a badge for level.
+func teaHeader(text, level string) string {
+	return lipgloss.JoinHorizontal(lipgloss.Center, headerStyle.Foreground(riskColors[level]).Render(text), " ", teaBadge(level))
+}
+
+// teaScanHeader returns the header of a scanned file: its path and risk level.
+func teaScanHeader(fr *malcontent.FileReport) string {
+	return teaHeader(sanitizeTerminal(fr.Path), fr.RiskLevel)
+}
+
+// teaChangeHeader renders the first line of a file summary whose risk
+// changed: text in the color of level, then the change from previous to level.
+func teaChangeHeader(text, previous, level string) string {
+	change := riskChangeStyle.Render(teaBadge(previous) + " → " + teaBadge(level))
+	return lipgloss.JoinHorizontal(lipgloss.Center, headerStyle.Foreground(riskColors[level]).Render(text), " ", change)
+}
+
+// teaDiffHeader returns the header of a modified file in a diff, with its
+// diff counts, its previous path if it moved, and its risk change if any.
+func teaDiffHeader(fr *malcontent.FileReport, added, removed int) string {
+	title := diffTitle(fr, added, removed, sanitizeTerminal)
+	if fr.RiskScore != fr.PreviousRiskScore {
+		return teaChangeHeader(title, fr.PreviousRiskLevel, fr.RiskLevel)
+	}
+	return teaHeader(title, fr.RiskLevel)
+}
+
+// renderFileSummaryTea writes header, which the caller builds, and fr's
+// listed behaviors, grouped by namespace, in a box for the interactive
+// viewer. A diff lists only added and removed behaviors. Each namespace
+// shows the highest risk among the behaviors listed under it.
+func renderFileSummaryTea(ctx context.Context, fr *malcontent.FileReport, header string, w io.Writer) {
 	if ctx.Err() != nil || fr.Skipped != "" {
 		return
 	}
 
-	// Organize behaviors by namespace
+	// Organize the listed behaviors by namespace
+	diffMode := isDiffMode(fr.Behaviors)
 	byNamespace := map[string][]*malcontent.Behavior{}
 	nsRiskScore := map[string]int{}
-	previousNsRiskScore := map[string]int{}
-	diffMode := false
-
-	var added, removed int
 	for _, b := range fr.Behaviors {
+		if !listedBehavior(b, diffMode) {
+			continue
+		}
 		ns, _ := splitRuleID(b.ID)
-		if b.DiffAdded || b.DiffRemoved {
-			diffMode = true
-		}
-		if !b.DiffAdded && b.RiskScore > previousNsRiskScore[ns] {
-			previousNsRiskScore[ns] = b.RiskScore
-		}
 		byNamespace[ns] = append(byNamespace[ns], b)
-		if !b.DiffRemoved {
-			nsRiskScore[ns] = max(nsRiskScore[ns], b.RiskScore)
-		}
-
-		if b.DiffAdded {
-			added++
-		}
-		if b.DiffRemoved {
-			removed++
-		}
+		nsRiskScore[ns] = max(nsRiskScore[ns], b.RiskScore)
 	}
 
-	// Sort namespaces
-	nss := make([]string, 0, len(byNamespace))
-	for ns := range byNamespace {
-		nss = append(nss, ns)
-	}
-	slices.SortFunc(nss, func(a, b string) int {
-		return cmp.Compare(nsLongName(a), nsLongName(b))
+	// Sort namespaces by long name; distinct namespaces with the same long
+	// name keep a fixed order.
+	nss := slices.SortedFunc(maps.Keys(byNamespace), func(a, b string) int {
+		return cmp.Or(cmp.Compare(nsLongName(a), nsLongName(b)), cmp.Compare(a, b))
 	})
 
 	// Build the complete content
 	var content strings.Builder
-
-	// File header with risk level
-	path := sanitizeTerminal(fr.Path)
-	pathStyle := headerStyle.
-		Foreground(riskColors[fr.RiskLevel])
-
-	riskBadge := riskBadgeStyle.
-		Foreground(riskColors[fr.RiskLevel]).
-		Render(fr.RiskLevel)
-
-	header := lipgloss.JoinHorizontal(
-		lipgloss.Center,
-		pathStyle.Render(path),
-		" ",
-		riskBadge,
-	)
-
-	if diffMode {
-		title := fmt.Sprintf("Changed (%d added, %d removed): %s", added, removed, path)
-		header = lipgloss.JoinHorizontal(
-			lipgloss.Center,
-			pathStyle.Render(title),
-			" ",
-			riskBadge,
-		)
-	}
-
 	content.WriteString(header)
 	content.WriteString("\n")
 
 	// Render namespace sections
 	for _, ns := range nss {
-		bs := byNamespace[ns]
-		riskScore := nsRiskScore[ns]
-		riskLevel := riskLevels[riskScore]
-
-		// Namespace header
-		nsHeader := nsLongName(ns)
-		if len(previousNsRiskScore) > 0 && riskScore != previousNsRiskScore[ns] {
-			previousRiskLevel := riskLevels[previousNsRiskScore[ns]]
-			transition := riskBadgeStyle.Foreground(riskColors[previousRiskLevel]).Render(previousRiskLevel) +
-				" → " +
-				riskBadgeStyle.Foreground(riskColors[riskLevel]).Render(riskLevel)
-			nsHeader += " " + riskChangeStyle.Render(transition)
-		} else {
-			nsHeader += " " + riskBadgeStyle.Foreground(riskColors[riskLevel]).Render(riskLevel)
-		}
-
-		nsStyle := namespaceStyle.Foreground(riskColors[riskLevel]).Render(nsHeader)
-		content.WriteString(nsStyle)
+		riskLevel := riskLevels[nsRiskScore[ns]]
+		nsHeader := sanitizeTerminal(nsLongName(ns)) + " " + teaBadge(riskLevel)
+		content.WriteString(namespaceStyle.Foreground(riskColors[riskLevel]).Render(nsHeader))
 		content.WriteString("\n")
 
 		// Render behaviors
-		for _, b := range bs {
+		for _, b := range byNamespace[ns] {
 			// Style behavior based on risk level and diff status
 			baseStyle := behaviorStyle.
 				Foreground(riskColors[b.RiskLevel])
@@ -228,8 +216,6 @@ func renderFileSummaryTea(ctx context.Context, fr *malcontent.FileReport, w io.W
 					bullet = "-"
 					baseStyle = diffRemovedStyle
 					showEvidence = false
-				default:
-					continue
 				}
 			}
 
@@ -251,9 +237,9 @@ func renderFileSummaryTea(ctx context.Context, fr *malcontent.FileReport, w io.W
 			// Add risk level badge to behavior
 			behaviorRisk := riskBadgeStyle.
 				Foreground(riskColors[b.RiskLevel]).
-				Render(ShortRisk(b.RiskLevel))
+				Render(sanitizeTerminal(ShortRisk(b.RiskLevel)))
 
-			content.WriteString(baseStyle.Render(bullet + " " + behaviorRisk + " " + rest + " " + desc))
+			content.WriteString(baseStyle.Render(bullet + " " + behaviorRisk + " " + sanitizeTerminal(rest) + " " + sanitizeTerminal(desc)))
 			content.WriteString("\n")
 
 			// Add evidence if present

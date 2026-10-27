@@ -31,8 +31,9 @@ const (
 	ociHelloBody = "hello-malcontent"
 )
 
-// ociConfigBlob is a minimal image config. Export never fetches the config, so
-// tests may advertise any size for it without breaking extraction.
+// ociConfigBlob is a minimal image config. It sets no Env, Entrypoint, or Cmd,
+// so no config script is written, and a config that does not match its
+// descriptor only skips the script, so tests may advertise any size for it.
 var ociConfigBlob = []byte(`{"architecture":"amd64","os":"linux","rootfs":{"type":"layers","diff_ids":[]}}`)
 
 // ociFile is one regular file in a fixture tar.
@@ -202,7 +203,7 @@ func ociTestConfig(maxImageSize int64) *malcontent.Config {
 }
 
 // ociAssertHelloExtracted checks that dir holds exactly hello.txt with the
-// fixture body, and nothing else (in particular, not the exported tarball).
+// fixture body, and nothing else (in particular, no artifact copy).
 func ociAssertHelloExtracted(t *testing.T, dir string) {
 	t.Helper()
 	r, err := os.OpenRoot(dir)

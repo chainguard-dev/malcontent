@@ -5,6 +5,8 @@ package render
 
 import (
 	"bytes"
+	"context"
+	"io"
 	"strings"
 	"testing"
 
@@ -12,11 +14,22 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/report"
 )
 
-// teaSummary renders fr through renderFileSummaryTea and returns the visible text with whitespace collapsed.
+// teaRender writes fr's summary to w under the header the Interactive
+// renderer gives it: the diff header Full gives a modified file when fr has
+// added or removed behaviors, and the scan header File gives it otherwise.
+func teaRender(ctx context.Context, fr *malcontent.FileReport, w io.Writer) {
+	header := teaScanHeader(fr)
+	if added, removed := diffCounts(fr.Behaviors); added+removed > 0 {
+		header = teaDiffHeader(fr, added, removed)
+	}
+	renderFileSummaryTea(ctx, fr, header, w)
+}
+
+// teaSummary renders fr through teaRender and returns the visible text with whitespace collapsed.
 func teaSummary(t *testing.T, fr *malcontent.FileReport) string {
 	t.Helper()
 	var buf bytes.Buffer
-	renderFileSummaryTea(t.Context(), fr, &buf)
+	teaRender(t.Context(), fr, &buf)
 	return renderSquash(buf.String())
 }
 
@@ -38,7 +51,7 @@ func TestRenderFileSummaryTeaLayout(t *testing.T) {
 		},
 	}
 	var buf bytes.Buffer
-	renderFileSummaryTea(t.Context(), fr, &buf)
+	teaRender(t.Context(), fr, &buf)
 	lines := strings.Split(renderStripANSI(buf.String()), "\n")
 
 	// Inside a box padded by one space: the header with a padded risk badge,
@@ -81,6 +94,9 @@ func TestWrapLine(t *testing.T) {
 		{name: "exactly width is unchanged", text: "abcd", width: 4, want: "abcd"},
 		{name: "two full chunks", text: "abcdefgh", width: 4, want: "abcd\n      efgh"},
 		{name: "remainder on a final indented line", text: "abcdefghij", width: 4, want: "abcd\n      efgh\n      ij"},
+		{name: "character cut at the width moves to the next line", text: "abcéde", width: 4, want: "abc\n      éde"},
+		{name: "character that ends at the width stays", text: "abécdef", width: 4, want: "abé\n      cdef"},
+		{name: "character wider than the width still makes progress", text: "éé", width: 1, want: "é\n      é"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -160,11 +176,13 @@ func TestRenderFileSummaryTeaDiffMode(t *testing.T) {
 		absent []string
 	}{
 		{
-			name: "changed behaviors show transitions and hide unchanged ones",
+			name: "changed behaviors are listed under the highest risk among them",
 			fr: &malcontent.FileReport{
-				Path:      "/bin/mod",
-				RiskScore: 3,
-				RiskLevel: report.LevelHIGH,
+				Path:              "/bin/mod",
+				RiskScore:         3,
+				RiskLevel:         report.LevelHIGH,
+				PreviousRiskScore: 3,
+				PreviousRiskLevel: report.LevelHIGH,
 				Behaviors: []*malcontent.Behavior{
 					{ID: "net/bind", Description: "binds a port", RiskScore: 1, RiskLevel: report.LevelLOW},
 					{ID: "net/connect", Description: "connects", MatchStrings: []string{"AF_INET"}, RiskScore: 3, RiskLevel: report.LevelHIGH, DiffAdded: true},
@@ -174,20 +192,22 @@ func TestRenderFileSummaryTeaDiffMode(t *testing.T) {
 			},
 			want: []string{
 				"Changed (1 added, 1 removed): /bin/mod HIGH",
-				"execution HIGH → LOW",
+				"execution HIGH",
 				"- HIGH shell runs a shell",
-				"networking LOW → HIGH",
+				"networking HIGH",
 				"+ HIGH connect connects",
 				"AF_INET",
 			},
-			absent: []string{"/bin/sh", "binds a port", "calls system"},
+			absent: []string{"/bin/sh", "binds a port", "calls system", "→"},
 		},
 		{
 			name: "only added behaviors show namespace risk without a transition",
 			fr: &malcontent.FileReport{
-				Path:      "/bin/new",
-				RiskScore: 3,
-				RiskLevel: report.LevelHIGH,
+				Path:              "/bin/new",
+				RiskScore:         3,
+				RiskLevel:         report.LevelHIGH,
+				PreviousRiskScore: 3,
+				PreviousRiskLevel: report.LevelHIGH,
 				Behaviors: []*malcontent.Behavior{
 					{ID: "crypto/aes", Description: "uses AES", RiskScore: 3, RiskLevel: report.LevelHIGH, DiffAdded: true},
 				},
@@ -196,32 +216,51 @@ func TestRenderFileSummaryTeaDiffMode(t *testing.T) {
 			absent: []string{"→"},
 		},
 		{
-			name: "single namespace whose risk rose shows the transition",
+			name: "namespace ignores an unlisted behavior of lower risk",
 			fr: &malcontent.FileReport{
-				Path:      "/bin/one",
-				RiskScore: 3,
-				RiskLevel: report.LevelHIGH,
+				Path:              "/bin/one",
+				RiskScore:         3,
+				RiskLevel:         report.LevelHIGH,
+				PreviousRiskScore: 3,
+				PreviousRiskLevel: report.LevelHIGH,
 				Behaviors: []*malcontent.Behavior{
 					{ID: "net/bind", Description: "binds a port", RiskScore: 1, RiskLevel: report.LevelLOW},
 					{ID: "net/connect", Description: "connects", RiskScore: 3, RiskLevel: report.LevelHIGH, DiffAdded: true},
 				},
 			},
-			want:   []string{"Changed (1 added, 0 removed): /bin/one HIGH", "networking LOW → HIGH", "+ HIGH connect connects"},
-			absent: []string{"binds a port"},
+			want:   []string{"Changed (1 added, 0 removed): /bin/one HIGH", "networking HIGH", "+ HIGH connect connects"},
+			absent: []string{"binds a port", "→"},
 		},
 		{
-			name: "harmless unchanged behaviors do not mark other namespaces as changed",
+			name: "namespace with only unchanged behaviors is left out",
 			fr: &malcontent.FileReport{
-				Path:      "/bin/new",
-				RiskScore: 3,
-				RiskLevel: report.LevelHIGH,
+				Path:              "/bin/new",
+				RiskScore:         3,
+				RiskLevel:         report.LevelHIGH,
+				PreviousRiskScore: 3,
+				PreviousRiskLevel: report.LevelHIGH,
 				Behaviors: []*malcontent.Behavior{
 					{ID: "net/ping", Description: "pings hosts", RiskScore: 0, RiskLevel: report.LevelNONE},
 					{ID: "crypto/aes", Description: "uses AES", RiskScore: 3, RiskLevel: report.LevelHIGH, DiffAdded: true},
 				},
 			},
-			want:   []string{"Changed (1 added, 0 removed): /bin/new HIGH", "cryptography HIGH", "+ HIGH aes uses AES", "networking NONE"},
-			absent: []string{"→", "pings hosts"},
+			want:   []string{"Changed (1 added, 0 removed): /bin/new HIGH", "cryptography HIGH", "+ HIGH aes uses AES"},
+			absent: []string{"→", "pings hosts", "networking"},
+		},
+		{
+			name: "moved file shows its previous path and its risk change",
+			fr: &malcontent.FileReport{
+				Path:              "/bin/new",
+				PreviousPath:      "/bin/old",
+				RiskScore:         3,
+				RiskLevel:         report.LevelHIGH,
+				PreviousRiskScore: 1,
+				PreviousRiskLevel: report.LevelLOW,
+				Behaviors: []*malcontent.Behavior{
+					{ID: "crypto/aes", Description: "uses AES", RiskScore: 3, RiskLevel: report.LevelHIGH, DiffAdded: true},
+				},
+			},
+			want: []string{"Moved (1 added, 0 removed): /bin/old -> /bin/new LOW → HIGH", "cryptography HIGH"},
 		},
 	}
 	for _, tt := range tests {
@@ -248,7 +287,7 @@ func TestRenderFileSummaryTeaWritesNothing(t *testing.T) {
 		t.Parallel()
 		var buf bytes.Buffer
 		fr := &malcontent.FileReport{Path: "/bin/x", RiskScore: 3, RiskLevel: report.LevelHIGH, Behaviors: behaviors}
-		renderFileSummaryTea(renderCanceledContext(t), fr, &buf)
+		teaRender(renderCanceledContext(t), fr, &buf)
 		if buf.Len() != 0 {
 			t.Errorf("renderFileSummaryTea output: got = %q, want = empty", buf.String())
 		}
@@ -282,7 +321,7 @@ func TestRenderFileSummaryTeaWrapsLongEvidence(t *testing.T) {
 				Behaviors: []*malcontent.Behavior{{ID: "net/connect", Description: "connects", MatchStrings: []string{tt.evidence}, RiskScore: 3, RiskLevel: report.LevelHIGH}},
 			}
 			var buf bytes.Buffer
-			renderFileSummaryTea(t.Context(), fr, &buf)
+			teaRender(t.Context(), fr, &buf)
 			got := renderStripANSI(buf.String())
 			longest, run := 0, 0
 			for _, r := range got {

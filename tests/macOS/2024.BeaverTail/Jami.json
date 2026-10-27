@@ -101,7 +101,7 @@
                     "RuleName": "high_entropy_trailer"
                 },
                 {
-                    "Description": "hardcoded IP address within a URL",
+                    "Description": "ELF with hardcoded IP address",
                     "MatchStrings": [
                         "95.164.17.24"
                     ],

@@ -4,19 +4,27 @@
 package report
 
 import (
+	"fmt"
+	"io/fs"
 	"reflect"
 	"runtime"
+	"slices"
+	"strings"
 	"testing"
 
+	"github.com/chainguard-dev/malcontent/internal/yrx"
+	"github.com/chainguard-dev/malcontent/pkg/compile"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/release"
+	"github.com/chainguard-dev/malcontent/rules"
+	thirdparty "github.com/chainguard-dev/malcontent/third_party"
 
 	yarax "github.com/VirusTotal/yara-x/go"
 )
 
 func TestNewRuleInfo(t *testing.T) {
 	t.Parallel()
-	rules := reportRulesByName(t, map[string]string{
+	byName := reportRulesByName(t, map[string]string{
 		"meta/format/elf_binary.yara": reportRuleSrc("meta_rule", "", "", "aaa"),
 		"plain/rule.yara":             reportRuleSrc("plain_rule_name", "medium", "", "bbb"),
 		"fp/override.yara": `
@@ -41,30 +49,30 @@ rule named_rule {
 	})
 
 	tests := []struct {
-		name         string
-		rule         string
-		wantMeta     bool
-		wantMetaKey  string
-		wantMetaVal  string
-		wantFallback string
-		wantOverride bool
-		wantTargets  []overrideKey
+		name            string
+		rule            string
+		wantMeta        bool
+		wantMetaKey     string
+		wantMetaVal     string
+		wantDescription string
+		wantOverride    bool
+		wantTargets     []overrideKey
 	}{
-		{name: "meta rule describes the file", rule: "meta_rule", wantMeta: true, wantMetaKey: "format", wantMetaVal: "elf_binary", wantFallback: "meta rule"},
-		{name: "plain rule gets a description from its name", rule: "plain_rule_name", wantFallback: "plain rule name"},
+		{name: "meta rule describes the file", rule: "meta_rule", wantMeta: true, wantMetaKey: "format", wantMetaVal: "elf_binary", wantDescription: "meta rule"},
+		{name: "plain rule gets a description from its name", rule: "plain_rule_name", wantDescription: "plain rule name"},
 		{
-			name:         "override rule targets only unknown keys, scoring unknown levels as harmless",
-			rule:         "override_rule",
-			wantFallback: "override rule",
-			wantOverride: true,
-			wantTargets:  []overrideKey{{rule: "first", score: LOW}, {rule: "second", score: HARMLESS}},
+			name:            "override rule targets only unknown keys and skips unknown levels",
+			rule:            "override_rule",
+			wantDescription: "not a target",
+			wantOverride:    true,
+			wantTargets:     []overrideKey{{rule: "first", score: LOW}},
 		},
-		{name: "rule without the override tag targets nothing", rule: "named_rule", wantFallback: "named rule"},
+		{name: "rule without the override tag targets nothing", rule: "named_rule", wantDescription: "named rule"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			r := rules[tt.rule]
+			r := byName[tt.rule]
 			if r == nil {
 				t.Fatalf("rule %q not compiled", tt.rule)
 			}
@@ -75,8 +83,8 @@ rule named_rule {
 			if ri.isMeta != tt.wantMeta || ri.metaKey != tt.wantMetaKey || ri.metaValue != tt.wantMetaVal {
 				t.Errorf("meta: got = %v %q=%q, want = %v %q=%q", ri.isMeta, ri.metaKey, ri.metaValue, tt.wantMeta, tt.wantMetaKey, tt.wantMetaVal)
 			}
-			if ri.fallbackDescription != tt.wantFallback {
-				t.Errorf("fallbackDescription: got = %q, want = %q", ri.fallbackDescription, tt.wantFallback)
+			if ri.behavior.Description != tt.wantDescription {
+				t.Errorf("Description: got = %q, want = %q", ri.behavior.Description, tt.wantDescription)
 			}
 			if ri.override != tt.wantOverride {
 				t.Errorf("override: got = %v, want = %v", ri.override, tt.wantOverride)
@@ -155,7 +163,7 @@ func TestGenerateRuleURLFollowsRef(t *testing.T) {
 	mrs := scanBuf(t, yrs, fc)
 	for _, ref := range []string{"v1.0.0", "v2.0.0"} {
 		release.PinRuleURLRef(ref)
-		fr, err := Generate(t.Context(), "f", mrs, malcontent.Config{MinRisk: LOW, Rules: yrs}, "", nil, fc, int64(len(fc)), "cksum", nil, 0)
+		fr, err := Generate(t.Context(), "f", mrs, malcontent.Config{MinRisk: LOW, Rules: yrs}, "", fc, int64(len(fc)), "cksum", nil)
 		if err != nil {
 			t.Fatalf("Generate: %v", err)
 		}
@@ -217,4 +225,170 @@ func TestRuleInfoAllocations(t *testing.T) {
 		})
 	}
 	runtime.KeepAlive(yrs)
+}
+
+// problemRulesSrc declare rules whose tags or metadata reports cannot act on
+// as written, beside rules that are fine.
+var problemRulesSrc = map[string]string{
+	"exec/shell/tags.yara": `
+rule risk_tag: high { condition: true }
+rule platform_tags: medium linux windows macos override_free { condition: true }
+rule typo_tag: notamble { condition: true }
+rule case_tag: High { condition: true }
+rule untagged { condition: true }
+`,
+	"yara/vendor/rules.yar": `
+rule vendor_tag: apt29 notamble { condition: true }
+rule vendor_override: override {
+  meta:
+    some_rule = "hgih"
+  condition:
+    true
+}
+`,
+	"false_positives/fp.yara": `
+rule fp_good: override {
+  meta:
+    description = "fine"
+    target      = "harmless"
+  condition:
+    true
+}
+rule fp_bad_level: override {
+  meta:
+    target = "hgih"
+    other  = "medium"
+  condition:
+    true
+}
+rule fp_key_typo: override {
+  meta:
+    descriptions = "vulnerability.db"
+  condition:
+    true
+}
+`,
+	"scope/ft.yara": `
+rule ft_good {
+  meta:
+    filetypes = "elf,sh,jar,py,class,service"
+  condition:
+    true
+}
+rule ft_mime {
+  meta:
+    filetypes = "application/x-sh,zsh"
+  condition:
+    true
+}
+rule ft_image {
+  meta:
+    filetypes = "jpg,php"
+  condition:
+    true
+}
+rule ft_renamed {
+  meta:
+    filetypes = "dylib"
+  condition:
+    true
+}
+`,
+}
+
+func TestRuleInfoProblems(t *testing.T) {
+	t.Parallel()
+	byName := reportRulesByName(t, problemRulesSrc)
+	tests := []struct {
+		name        string
+		rule        string
+		want        []string
+		wantTargets []overrideKey
+	}{
+		{name: "a risk tag is fine", rule: "risk_tag"},
+		{name: "platform tags are fine but an unknown tag is reported", rule: "platform_tags", want: []string{`unknown tag "override_free"`}},
+		{name: "a misspelled risk tag is reported", rule: "typo_tag", want: []string{`unknown tag "notamble"`}},
+		{name: "a risk tag in the wrong case is reported", rule: "case_tag", want: []string{`unknown tag "High"`}},
+		{name: "an untagged rule is fine", rule: "untagged"},
+		{name: "third-party tags are free-form", rule: "vendor_tag"},
+		{name: "third-party override metadata is not a directive", rule: "vendor_override"},
+		{name: "an override with known levels is fine", rule: "fp_good", wantTargets: []overrideKey{{rule: "target", score: HARMLESS}}},
+		{
+			name:        "an override with an unknown level is reported and skipped",
+			rule:        "fp_bad_level",
+			want:        []string{`override of "target" has unknown risk level "hgih"`},
+			wantTargets: []overrideKey{{rule: "other", score: MEDIUM}},
+		},
+		{name: "a misspelled metadata key on an override is reported", rule: "fp_key_typo", want: []string{`override of "descriptions" has unknown risk level "vulnerability.db"`}},
+		{name: "known file types are fine", rule: "ft_good"},
+		{name: "a MIME type is not a file type", rule: "ft_mime", want: []string{`unknown filetypes entry "application/x-sh"`}},
+		{name: "a type malcontent never detects is reported", rule: "ft_image", want: []string{`unknown filetypes entry "jpg"`}},
+		{name: "an extension that detection renames is reported", rule: "ft_renamed", want: []string{`unknown filetypes entry "dylib"`}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			r := byName[tt.rule]
+			if r == nil {
+				t.Fatalf("rule %q not compiled", tt.rule)
+			}
+			ri := newRuleInfo(r, "", 0)
+			if !slices.Equal(ri.problems, tt.want) {
+				t.Errorf("problems: got = %q, want = %q", ri.problems, tt.want)
+			}
+			if !reflect.DeepEqual(ri.targets, tt.wantTargets) {
+				t.Errorf("targets: got = %+v, want = %+v", ri.targets, tt.wantTargets)
+			}
+		})
+	}
+}
+
+// TestNewRuleInfoWarnsAboutProblems checks that deriving a rule logs each of
+// its problems. Not parallel: it swaps the package's warning function.
+func TestNewRuleInfoWarnsAboutProblems(t *testing.T) {
+	byName := reportRulesByName(t, problemRulesSrc)
+	var got []string
+	prev := logWarn
+	logWarn = func(msg string, args ...any) {
+		parts := append(make([]string, 0, 1+len(args)), msg)
+		for _, a := range args {
+			parts = append(parts, fmt.Sprint(a))
+		}
+		got = append(got, strings.Join(parts, " "))
+	}
+	t.Cleanup(func() { logWarn = prev })
+
+	tests := []struct {
+		name string
+		rule string
+		want []string
+	}{
+		{"a rule without problems logs nothing", "risk_tag", nil},
+		{"each problem is logged with its rule", "fp_bad_level", []string{`Rule metadata problem rule false_positives/fp.yara:fp_bad_level problem override of "target" has unknown risk level "hgih"`}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got = nil
+			newRuleInfo(byName[tt.rule], "", 0)
+			if !slices.Equal(got, tt.want) {
+				t.Errorf("warnings: got = %q, want = %q", got, tt.want)
+			}
+		})
+	}
+}
+
+// TestRuleCorpusHasNoMetadataProblems keeps the bundled rules free of tags,
+// override levels, and file types that reports cannot act on.
+func TestRuleCorpusHasNoMetadataProblems(t *testing.T) {
+	t.Parallel()
+	yrs, err := compile.Recursive(t.Context(), []fs.FS{rules.FS, thirdparty.FS})
+	if err != nil {
+		t.Fatalf("compile rules: %v", err)
+	}
+	t.Cleanup(func() { yrx.Destroy(yrs) })
+	for _, r := range yrs.Slice() {
+		if ri := newRuleInfo(r, "", 0); len(ri.problems) > 0 {
+			t.Errorf("%s:%s: %q", r.Namespace(), r.Identifier(), ri.problems)
+		}
+	}
 }

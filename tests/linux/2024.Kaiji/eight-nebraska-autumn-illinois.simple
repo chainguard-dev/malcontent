@@ -87,7 +87,8 @@ net/ip/host_port: medium
 net/ip/multicast_send: low
 net/ip/parse: medium
 net/ip/resolve: low
-net/ip/spoof: high
+net/ip/spoof: medium
+net/ip/spoof_tool: high
 net/resolve/hostname: medium
 net/socket/listen: medium
 net/socket/local_addr: low

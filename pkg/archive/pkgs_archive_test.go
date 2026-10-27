@@ -15,6 +15,7 @@ import (
 	"log/slog"
 	"path/filepath"
 	"slices"
+	"strconv"
 	"strings"
 	"sync"
 	"testing"
@@ -108,7 +109,7 @@ func TestValidateResolvedPathParents(t *testing.T) {
 func TestCreateFileExistingEntries(t *testing.T) {
 	t.Parallel()
 
-	t.Run("regular file is truncated in place", func(t *testing.T) {
+	t.Run("regular file is replaced, leaving its hard links", func(t *testing.T) {
 		t.Parallel()
 		dir := t.TempDir()
 		r := openTestRoot(t, dir)
@@ -129,8 +130,10 @@ func TestCreateFileExistingEntries(t *testing.T) {
 		if err := out.Close(); err != nil {
 			t.Fatal(err)
 		}
-		// Writing through the existing inode reaches every link to it.
-		pkgsWantFile(t, filepath.Join(dir, "twin"), "new")
+		// The file is created anew, so the content of a hard link to the old
+		// one is never replaced through it.
+		pkgsWantFile(t, filepath.Join(dir, "f"), "new")
+		pkgsWantFile(t, filepath.Join(dir, "twin"), "old content, longer than the new")
 	})
 
 	t.Run("directory is left in place", func(t *testing.T) {
@@ -152,7 +155,7 @@ func TestCreateFileExistingEntries(t *testing.T) {
 	})
 }
 
-func TestHandleSymlinkReplacesExistingEntry(t *testing.T) {
+func TestHandleSymlinkNeverReplacesExistingEntry(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -178,10 +181,14 @@ func TestHandleSymlinkReplacesExistingEntry(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			if err := handleSymlink(r, "l", "new.txt"); err != nil {
-				t.Fatalf("handleSymlink: %v", err)
+			if err := handleSymlink(r, "l", "new.txt"); !errors.Is(err, fs.ErrExist) {
+				t.Fatalf("handleSymlink error: got = %v, want = %v", err, fs.ErrExist)
 			}
-			pkgsWantSymlink(t, filepath.Join(dir, "l"), "new.txt")
+			if tt.symlink {
+				pkgsWantSymlink(t, filepath.Join(dir, "l"), "old.txt")
+			} else {
+				pkgsWantFile(t, filepath.Join(dir, "l"), "old")
+			}
 		})
 	}
 }
@@ -650,7 +657,7 @@ func TestExtractNestedArchiveFailureNamesArchive(t *testing.T) {
 			name:       "failure of a nested archive names it",
 			file:       "outer.tar",
 			data:       tarWithEntry(t, "bad.tar", string(bad)),
-			wantPrefix: prefix + " " + filepath.Join("outer", "bad.tar"),
+			wantPrefix: prefix + " " + strconv.Quote(filepath.Join("outer", "bad.tar")),
 		},
 	}
 

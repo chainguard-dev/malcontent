@@ -1,10 +1,11 @@
-# linux/clean/vitess/vtclient: medium
+# linux/clean/vitess/vtclient ∴ /vtclient: medium
 anti-behavior/random_behavior: low
 anti-static/obfuscation/obfuscate: low
 anti-static/obfuscation/syscall: medium
 c2/addr/http_dynamic: medium
 c2/addr/ip: medium
 c2/addr/server: medium
+c2/addr/url: low
 c2/client: medium
 c2/discovery/ip_dns_resolver: medium
 c2/tool_transfer/arch: low
@@ -27,6 +28,7 @@ credential/ssl/private_key: low
 crypto/aes: low
 crypto/cipher: medium
 crypto/decrypt: low
+crypto/ecdsa: low
 crypto/ed25519: low
 crypto/encrypt: medium
 crypto/openssl: medium
@@ -60,6 +62,7 @@ evasion/file/location/var_run: medium
 evasion/file/prefix: medium
 evasion/logging/acct: low
 evasion/process_injection/readelf: medium
+exec/cmd/pipe: medium
 exec/plugin: low
 exec/program: medium
 exec/shell/background_sleep: medium
@@ -76,6 +79,7 @@ fs/file/copy: medium
 fs/file/delete: low
 fs/file/open: low
 fs/file/read: low
+fs/file/rename: low
 fs/file/times_set: medium
 fs/link_read: low
 fs/lock_update: low
@@ -123,9 +127,10 @@ net/ip/host_port: medium
 net/ip/icmp: medium
 net/ip/parse: medium
 net/ip/resolve: low
-net/resolve/hostname: low
+net/resolve/hostname: medium
 net/socket/listen: medium
 net/socket/local_addr: low
+net/socket/options_set: medium
 net/socket/peer_address: low
 net/socket/receive: low
 net/socket/send: low

@@ -10,6 +10,20 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 )
 
+// relPath returns the key of fr in a scan of from, and the base of its report
+// key, through the scan root a diff computes once per side.
+func relPath(from string, fr *malcontent.FileReport, isArchive bool) (string, string, error) {
+	root, err := newScanRoot(from, isArchive)
+	if err != nil {
+		return "", "", err
+	}
+	rel, err := root.rel(fr)
+	if err != nil {
+		return "", "", err
+	}
+	return rel, root.base, nil
+}
+
 // TestRelPath tests the relPath function which computes relative paths for diff operations.
 func TestRelPath(t *testing.T) {
 	t.Parallel()
@@ -101,7 +115,7 @@ func TestRelPath(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			base, rel, err := relPath(tt.from, tt.fr, tt.isArchive)
+			rel, base, err := relPath(tt.from, tt.fr, tt.isArchive)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("relPath() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -152,6 +166,54 @@ func TestIsUPXBackup(t *testing.T) {
 			files: map[string]*malcontent.FileReport{"/path/to/file": {}},
 			want:  false,
 		},
+		{
+			name:  "upx -k replaces the last character of a name with an extension",
+			path:  "/opt/trino.linux-amd64.launche~",
+			files: map[string]*malcontent.FileReport{"/opt/trino.linux-amd64.launcher": {}},
+			want:  true,
+		},
+		{
+			name:  "upx -k replaces a one-character extension",
+			path:  "/bin/a.~",
+			files: map[string]*malcontent.FileReport{"/bin/a.b": {}},
+			want:  true,
+		},
+		{
+			name:  "upx -k appends a tilde to a name ending in a dot",
+			path:  "/bin/app.~",
+			files: map[string]*malcontent.FileReport{"/bin/app.": {}},
+			want:  true,
+		},
+		{
+			name:  "archive entry backup pairs with its entry",
+			path:  "linux/trino.launcher ∴ /trino.launche~",
+			files: map[string]*malcontent.FileReport{"linux/trino.launcher ∴ /trino.launcher": {}},
+			want:  true,
+		},
+		{
+			name:  "replaced extension without the original file",
+			path:  "/opt/trino.linux-amd64.launche~",
+			files: map[string]*malcontent.FileReport{"/opt/trino.linux-amd64.launch": {}},
+			want:  false,
+		},
+		{
+			name:  "editor backup that appends a tilde to a name with an extension",
+			path:  "/etc/notes.txt~",
+			files: map[string]*malcontent.FileReport{"/etc/notes.txt": {}},
+			want:  false,
+		},
+		{
+			name:  "name ending in a tilde is not a backup of itself",
+			path:  "/etc/notes.tx~",
+			files: map[string]*malcontent.FileReport{"/etc/notes.tx~": {}},
+			want:  false,
+		},
+		{
+			name:  "extension only in a directory name",
+			path:  "/etc.d/app~",
+			files: map[string]*malcontent.FileReport{"/etc.d/apq": {}},
+			want:  false,
+		},
 	}
 
 	for _, tt := range tests {
@@ -191,6 +253,23 @@ func TestSelectPrimaryFile(t *testing.T) {
 				"/file":  {Path: "/file"},
 			},
 			want: "/file",
+		},
+		{
+			name: "upx -k backup of a name with an extension",
+			files: map[string]*malcontent.FileReport{
+				"/trino.linux-amd64.launche~": {Path: "/trino.linux-amd64.launche~"},
+				"/trino.linux-amd64.launcher": {Path: "/trino.linux-amd64.launcher"},
+			},
+			want: "/trino.linux-amd64.launcher",
+		},
+		{
+			// The tilde sorts before the last byte of the original name.
+			name: "upx -k backup that sorts before its original",
+			files: map[string]*malcontent.FileReport{
+				"/app.ex\xc3~":    {Path: "/app.ex\xc3~"},
+				"/app.ex\xc3\xa9": {Path: "/app.ex\xc3\xa9"},
+			},
+			want: "/app.ex\xc3\xa9",
 		},
 	}
 

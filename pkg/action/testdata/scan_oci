@@ -69,6 +69,12 @@
             "SHA256": "",
             "Size": 0,
             "RiskScore": 0
+        },
+        "testdata/static.tar.xz ∴ /lib/apk/db/scripts.tar": {
+            "Path": "testdata/static.tar.xz ∴ /lib/apk/db/scripts.tar",
+            "SHA256": "",
+            "Size": 0,
+            "RiskScore": 0
         }
     }
 }

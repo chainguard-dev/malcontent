@@ -86,9 +86,11 @@ func ExtractUPX(ctx context.Context, d, f string) (err error) {
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting upx")
 
-	if _, err := file.Stat(f); err != nil {
-		return fmt.Errorf("failed to stat file: %w", err)
+	src, fi, err := openRegular(f)
+	if err != nil {
+		return fmt.Errorf("failed to open file: %w", err)
 	}
+	defer func() { _ = src.Close() }()
 
 	base := filepath.Base(f)
 	if strings.HasPrefix(base, "-") {
@@ -100,7 +102,7 @@ func ExtractUPX(ctx context.Context, d, f string) (err error) {
 
 	target := filepath.Join(d, filepath.Base(f))
 	if !IsValidPath(target, d) {
-		return fmt.Errorf("invalid file path: %s", target)
+		return fmt.Errorf("invalid file path: %q", target)
 	}
 
 	absTarget, err := filepath.Abs(target)
@@ -108,16 +110,14 @@ func ExtractUPX(ctx context.Context, d, f string) (err error) {
 		return fmt.Errorf("failed to get absolute path: %w", err)
 	}
 
-	src, err := file.Open(f)
-	if err != nil {
-		return fmt.Errorf("failed to open file: %w", err)
+	// Honor operator-configured archive caps: the copy and the unpacked
+	// binary are charged to the byte cap the whole nested tree shares, as
+	// every other extractor's output is.
+	counter := newArchiveCounter(ctx, fi.Size())
+	if err := counter.Entry(); err != nil {
+		return fmt.Errorf("upx extraction aborted on %q: %w", base, err)
 	}
-	defer func() { _ = src.Close() }()
-
-	// Honor operator-configured archive caps: resolve the effective max-bytes
-	// from the context so UPX output is subject to the same per-level budget
-	// as every other extractor.
-	copyLimit, _ := resolveArchiveCaps(ctx)
+	copyLimit := max(counter.Remaining(), 1)
 
 	root, err := openRoot(d)
 	if err != nil {
@@ -129,9 +129,14 @@ func ExtractUPX(ctx context.Context, d, f string) (err error) {
 	if err != nil {
 		return fmt.Errorf("failed to open target: %w", err)
 	}
-	if _, err := copyBoundedToSandbox(dst, src, copyLimit); err != nil {
+	copied, err := copyBoundedToSandbox(dst, src, copyLimit)
+	if err != nil {
 		_ = dst.Close()
 		return fmt.Errorf("failed to write file: %w", err)
+	}
+	if err := counter.Add(int(min(copied, 1<<31-1))); err != nil {
+		_ = dst.Close()
+		return fmt.Errorf("upx extraction aborted on %q: %w", base, err)
 	}
 	if err := dst.Close(); err != nil {
 		return fmt.Errorf("failed to close target: %w", err)
@@ -166,6 +171,13 @@ func ExtractUPX(ctx context.Context, d, f string) (err error) {
 	if !strings.Contains(combined, "Decompressed") && !strings.Contains(combined, "Unpacked") {
 		_ = root.Remove(base)
 		return fmt.Errorf("upx decompression might have failed")
+	}
+
+	// UPX unpacks in place and keeps the packed copy beside it.
+	if unpacked, err := root.Stat(base); err == nil {
+		if err := errors.Join(counter.Entry(), counter.Add(int(min(unpacked.Size(), 1<<31-1)))); err != nil {
+			return fmt.Errorf("upx extraction aborted on %q: %w", base, err)
+		}
 	}
 
 	logger.Debug("successfully decompressed upx file", "output", combined, "target", absTarget)

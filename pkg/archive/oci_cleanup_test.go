@@ -19,8 +19,7 @@ import (
 
 // TestOCIWithConfig_TempStateReleased checks that every way an image pull can
 // end leaves nothing behind in the temp directory except the extraction
-// directory of a successful pull, and no open descriptor to the exported
-// tarball.
+// directory of a successful pull, and no open descriptor below it.
 //
 // Not parallel: points TMPDIR at a per-case directory.
 func TestOCIWithConfig_TempStateReleased(t *testing.T) {

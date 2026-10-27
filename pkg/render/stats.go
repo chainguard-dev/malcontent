@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"cmp"
 	"fmt"
+	"io"
 	"os"
 	"slices"
 
@@ -95,6 +96,9 @@ func PkgStatistics(_ *malcontent.Config, files *xsync.Map[string, *malcontent.Fi
 	return stats, width, numBehaviors
 }
 
+// Statistics writes a summary of the risk levels and behavior namespaces in
+// r to c.Output, the writer the report goes to, or to os.Stdout when c or
+// c.Output is nil.
 func Statistics(c *malcontent.Config, r *malcontent.Report) error {
 	// guard against nil reports
 	if r == nil {
@@ -145,6 +149,10 @@ func Statistics(c *malcontent.Config, r *malcontent.Report) error {
 		fmt.Fprintf(&b, "%-*s %10.2f%s %d/%d\n", width, pkg.Key, pkg.Value, "%", pkg.Count, pkg.Total)
 	}
 
-	_, err := os.Stdout.Write(b.Bytes())
+	w := io.Writer(os.Stdout)
+	if c != nil && c.Output != nil {
+		w = c.Output
+	}
+	_, err := w.Write(b.Bytes())
 	return err
 }

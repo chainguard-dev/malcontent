@@ -4,18 +4,26 @@
 package action
 
 import (
+	"context"
+	"crypto/sha256"
 	"errors"
+	"fmt"
 	"io/fs"
 	"path/filepath"
 	"runtime"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"testing"
+	"time"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/rules"
 	thirdparty "github.com/chainguard-dev/malcontent/third_party"
 	"github.com/puzpuzpuz/xsync/v4"
+
+	yarax "github.com/VirusTotal/yara-x/go"
 )
 
 // countOpenFDs returns the number of open file descriptors for the current process.
@@ -268,7 +276,7 @@ func TestExitIfHitOrMiss(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			fr, err := exitIfHitOrMiss(tt.frs, tt.scanPath, tt.errIfHit, tt.errIfMiss)
+			fr, err := exitIfHitOrMiss(tt.frs, tt.scanPath, tt.errIfHit, tt.errIfMiss, 0)
 
 			if tt.wantErr {
 				if err == nil {
@@ -317,7 +325,7 @@ func TestExitIfHitOrMiss_NilNilContract(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			fr, err := exitIfHitOrMiss(tt.frs, tt.scanPath, tt.errIfHit, tt.errIfMiss)
+			fr, err := exitIfHitOrMiss(tt.frs, tt.scanPath, tt.errIfHit, tt.errIfMiss, 0)
 			if fr != nil {
 				t.Errorf("FileReport: got = %+v, want = nil", fr)
 			}
@@ -415,50 +423,101 @@ func TestHandleFileReportError(t *testing.T) {
 	t.Parallel()
 	logger := clog.FromContext(t.Context())
 
-	t.Run("non-FileReportError returns error", func(t *testing.T) {
-		t.Parallel()
-		_, err := handleFileReportError(errors.New("plain"), "/bin/x", logger)
-		if err == nil {
-			t.Fatal("error: got = nil, want = non-nil")
-		}
-		if !strings.Contains(err.Error(), "/bin/x") {
-			t.Errorf("error: got = %v, want it to contain the path", err)
-		}
-	})
+	tests := []struct {
+		name        string
+		err         error
+		wantErr     error  // an error that ends the scan, returned as is
+		wantSkipped string // the skipped report's reason, which it begins with
+	}{
+		{name: "a plain error skips the file", err: errors.New("plain"), wantSkipped: errMsgScanFailed + ": plain"},
+		{name: "a scan error skips the file", err: NewFileReportError(errors.New("scan"), "/bin/x", TypeScanError), wantSkipped: errMsgScanFailed + ": "},
+		{name: "an unknown error skips the file", err: NewFileReportError(errors.New("unknown"), "/bin/x", TypeUnknown), wantSkipped: errMsgScanFailed + ": "},
+		{name: "a report that cannot be generated is skipped as such", err: NewFileReportError(errors.New("gen"), "/bin/x", TypeGenerateError), wantSkipped: errMsgGenerateFailed},
+		{name: "cancellation ends the scan", err: fmt.Errorf("wait: %w", context.Canceled), wantErr: context.Canceled},
+		{name: "a deadline ends the scan", err: context.DeadlineExceeded, wantErr: context.DeadlineExceeded},
+		{name: "rules that do not compile end the scan", err: fmt.Errorf("%w: %w", errRules, errors.New("syntax")), wantErr: errRules},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			fr, err := handleFileReportError(tt.err, "/bin/x", logger)
+			if tt.wantErr != nil {
+				if !errors.Is(err, tt.wantErr) || fr != nil {
+					t.Errorf("handleFileReportError: got = (%+v, %v), want = (nil, %v)", fr, err, tt.wantErr)
+				}
+				return
+			}
+			if err != nil || fr == nil {
+				t.Fatalf("handleFileReportError: got = (%+v, %v), want a skipped report", fr, err)
+			}
+			if fr.Path != "/bin/x" || !strings.HasPrefix(fr.Skipped, tt.wantSkipped) {
+				t.Errorf("report: got = %+v, want path /bin/x skipped as %q", fr, tt.wantSkipped)
+			}
+		})
+	}
+}
 
-	t.Run("TypeGenerateError returns FileReport with Skipped", func(t *testing.T) {
-		t.Parallel()
-		fre := NewFileReportError(errors.New("gen"), "/bin/x", TypeGenerateError)
-		fr, err := handleFileReportError(fre, "/bin/x", logger)
-		if err != nil {
-			t.Errorf("error: got = %v, want = nil", err)
-		}
-		if fr == nil {
-			t.Fatal("FileReport: got = nil, want = non-nil")
-		}
-		if fr.Skipped != errMsgGenerateFailed {
-			t.Errorf("Skipped: got = %q, want = %q", fr.Skipped, errMsgGenerateFailed)
-		}
-	})
+// TestScanRunsScanPathsConcurrently checks that many scan paths share one
+// queue, so that single-file scan paths, as --processes produces, are scanned
+// by every worker rather than one at a time.
+func TestScanRunsScanPathsConcurrently(t *testing.T) {
+	// Not parallel: replaces scanBytes.
+	if runtime.GOMAXPROCS(0) < 4 {
+		t.Skip("needs four workers")
+	}
+	yrs, rfs := scanTestRules(t)
+	dir := t.TempDir()
+	paths := make([]string, 8)
+	for i := range paths {
+		paths[i] = scanTestWriteFile(t, filepath.Join(dir, fmt.Sprintf("f%d.sh", i)), fmt.Appendf(nil, "%s# %d\n", scanTestLocaleScript, i))
+	}
+	orig := scanBytes
+	t.Cleanup(func() { scanBytes = orig })
 
-	t.Run("TypeScanError returns error", func(t *testing.T) {
-		t.Parallel()
-		fre := NewFileReportError(errors.New("scan"), "/bin/x", TypeScanError)
-		fr, err := handleFileReportError(fre, "/bin/x", logger)
-		if err == nil {
-			t.Fatal("error: got = nil, want = non-nil")
-		}
-		if fr != nil {
-			t.Errorf("FileReport: got = %+v, want = nil", fr)
-		}
-	})
-
-	t.Run("TypeUnknown returns error", func(t *testing.T) {
-		t.Parallel()
-		fre := NewFileReportError(errors.New("unknown"), "/bin/x", TypeUnknown)
-		_, err := handleFileReportError(fre, "/bin/x", logger)
-		if err == nil {
-			t.Fatal("error: got = nil, want = non-nil")
-		}
-	})
+	tests := []struct {
+		name      string
+		scanPaths []string
+	}{
+		{name: "one directory of eight files", scanPaths: []string{dir}},
+		{name: "eight file scan paths", scanPaths: paths},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Each scan waits until a second one is under way, so two workers
+			// overlap. A lone worker waits out the bound once, then the rest
+			// run, and the peak stays at one.
+			var active, peak atomic.Int64
+			overlap := make(chan struct{})
+			var opened sync.Once
+			scanBytes = func(yrs *yarax.Rules, fc []byte, sum [sha256.Size]byte) (*yarax.ScanResults, error) {
+				n := active.Add(1)
+				defer active.Add(-1)
+				for {
+					if p := peak.Load(); n <= p || peak.CompareAndSwap(p, n) {
+						break
+					}
+				}
+				if n >= 2 {
+					opened.Do(func() { close(overlap) })
+				}
+				select {
+				case <-overlap:
+				case <-time.After(10 * time.Second):
+					opened.Do(func() { close(overlap) })
+				}
+				return orig(yrs, fc, sum)
+			}
+			c := malcontent.Config{Concurrency: 4, Rules: yrs, RuleFS: rfs, ScanPaths: tt.scanPaths}
+			r, err := Scan(t.Context(), c)
+			if err != nil {
+				t.Fatalf("Scan: %v", err)
+			}
+			if got := r.Files.Size(); got != len(paths) {
+				t.Errorf("reports: got = %d, want = %d", got, len(paths))
+			}
+			if got := peak.Load(); got < 2 {
+				t.Errorf("concurrent scans: got = %d, want more than one of four workers busy", got)
+			}
+		})
+	}
 }

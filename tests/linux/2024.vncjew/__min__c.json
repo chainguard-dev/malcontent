@@ -230,8 +230,11 @@
                 {
                     "Description": "RC4 key scheduling algorithm",
                     "MatchStrings": [
-                        "$cmp_e_x_256",
-                        "$cmp_r_x_256"
+                        "H\\x81\\xf9\\x00\\x01\\x00\\x00",
+                        "H\\x81\\xfb\\x00\\x01\\x00\\x00",
+                        "H\\x81\\xff\\x00\\x01\\x00\\x00",
+                        "\\x81\\xfa\\x00\\x01\\x00\\x00",
+                        "\\x81\\xfe\\x00\\x01\\x00\\x00"
                     ],
                     "RiskScore": 1,
                     "RiskLevel": "LOW",
@@ -1021,7 +1024,7 @@
             ],
             "Behaviors": [
                 {
-                    "Description": "Linux ELF binary packed with UPX",
+                    "Description": "Binary is packed with UPX",
                     "MatchStrings": [
                         "This file is packed",
                         "executable packer",

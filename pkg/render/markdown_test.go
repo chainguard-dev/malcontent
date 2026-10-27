@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"strings"
 	"testing"
@@ -57,9 +58,9 @@ func TestMarkdownFile(t *testing.T) {
 	// Rows sort by descending risk; descriptions keep their first sentence and link references and authors.
 	rows := []string{
 		"| RISK | KEY | DESCRIPTION | EVIDENCE |",
-		"| HIGH | [net/connect](https://rules.example/connect) | [connects to hosts](https://ref.example/connect) | [AF\\_INET](https://github.com/search?q=AF_INET&type=code) |",
-		"| MEDIUM | [exec/shell](https://rules.example/shell) | by Bob | `$sh`<br>[/bin/sh](https://github.com/search?q=%2Fbin%2Fsh&type=code) |",
-		"| LOW | [fs/read](https://rules.example/read) | reads files, by [Alice](https://alice.example) |",
+		"| HIGH | [net/connect](<https://rules.example/connect>) | [connects to hosts](<https://ref.example/connect>) | [AF\\_INET](https://github.com/search?q=AF_INET&type=code) |",
+		"| MEDIUM | [exec/shell](<https://rules.example/shell>) | by Bob | `$sh`<br>[/bin/sh](https://github.com/search?q=%2Fbin%2Fsh&type=code) |",
+		"| LOW | [fs/read](<https://rules.example/read>) | reads files, by [Alice](<https://alice.example>) |",
 	}
 	if !renderIndexOrder(got, rows...) {
 		t.Errorf("File rows: got = %q, want rows in order %q", got, rows)
@@ -128,22 +129,22 @@ func TestMarkdownFullRendersDiffSections(t *testing.T) {
 
 	want := []string{
 		"## Deleted: /old/tool [" + riskEmoji(3) + " HIGH]\n\n",
-		"| -HIGH | [net/connect](https://r/connect) |",
+		"| -HIGH | [net/connect](<https://r/connect>) |",
 		"## Added: /new/tool [" + riskEmoji(2) + " MEDIUM]\n\n",
-		"| +MEDIUM | **[fs/write](https://r/write)** |",
+		"| +MEDIUM | **[fs/write](<https://r/write>)** |",
 		"## Changed (1 added, 2 removed): /mod/changed [" + riskEmoji(1) + " LOW → " + riskEmoji(3) + " HIGH]\n\n",
 		"### 1 new behavior\n\n",
-		"| +HIGH | **[exec/shell](https://r/shell)** |",
+		"| +HIGH | **[exec/shell](<https://r/shell>)** |",
 		"### 2 removed behaviors\n\n",
-		"| -MEDIUM | [fs/delete](https://r/delete) |",
-		"| -LOW | [fs/read](https://r/read) |",
+		"| -MEDIUM | [fs/delete](<https://r/delete>) |",
+		"| -LOW | [fs/read](<https://r/read>) |",
 		"## Moved (2 added, 0 removed): /mod/old-name -> /mod/new-name\n\n",
 		"### 2 new behaviors\n\n",
-		"| +MEDIUM | **[crypto/aes](https://r/aes)** |",
-		"| +MEDIUM | **[crypto/rc4](https://r/rc4)** |",
+		"| +MEDIUM | **[crypto/aes](<https://r/aes>)** |",
+		"| +MEDIUM | **[crypto/rc4](<https://r/rc4>)** |",
 		"## Changed (0 added, 1 removed): /mod/pruned\n\n",
 		"### 1 removed behavior\n\n",
-		"| -LOW | [os/env](https://r/env) |",
+		"| -LOW | [os/env](<https://r/env>) |",
 	}
 	if !renderIndexOrder(got, want...) {
 		t.Errorf("Full output: got = %q, want in order %q", got, want)
@@ -171,7 +172,7 @@ func TestMarkdownFullReturnsTableErrors(t *testing.T) {
 		return &malcontent.FileReport{Path: "/tool", RiskScore: 3, RiskLevel: report.LevelHIGH, Behaviors: []*malcontent.Behavior{{ID: "net/connect", RiskScore: 3}}}
 	}
 	changedTitle := "## Changed (1 added, 1 removed): /mod/changed [" + riskEmoji(0) + "  → " + riskEmoji(3) + " HIGH]\n\n"
-	newTable := "### 1 new behavior\n\n" + markdownTableHeader + "| +HIGH | **[exec/shell]()** | | |\n\n"
+	newTable := "### 1 new behavior\n\n" + markdownTableHeader + "| +HIGH | **exec/shell** | | |\n\n"
 	// allowed counts the cancellation checks that pass: one in Full, then one
 	// per table rendered. The part of a section rendered before the failed
 	// table is still written.
@@ -220,7 +221,7 @@ func TestMarkdownTableSortsByRiskThenKey(t *testing.T) {
 	if !strings.HasPrefix(got, "| RISK |") {
 		t.Errorf("markdownTable without title: got = %q, want table first", got)
 	}
-	want := []string{"[q/y]", "[a/b]", "[z/b]", "[m/x]", "[c/c]"}
+	want := []string{"| q/y |", "| a/b |", "| z/b |", "| m/x |", "| c/c |"}
 	if !renderIndexOrder(got, want...) {
 		t.Errorf("markdownTable order: got = %q, want order %q", got, want)
 	}
@@ -238,10 +239,10 @@ func TestMarkdownTableRowSelection(t *testing.T) {
 		}
 	}
 	const (
-		unchangedRow = "| CRITICAL | [net/unchanged](https://r/unchanged) |"
-		addedRow     = "| +HIGH | **[net/added](https://r/added)** |"
-		removedRow   = "| -MEDIUM | [net/removed](https://r/removed) |"
-		lastRow      = "| LOW | [net/zlast](https://r/zlast) |"
+		unchangedRow = "| CRITICAL | [net/unchanged](<https://r/unchanged>) |"
+		addedRow     = "| +HIGH | **[net/added](<https://r/added>)** |"
+		removedRow   = "| -MEDIUM | [net/removed](<https://r/removed>) |"
+		lastRow      = "| LOW | [net/zlast](<https://r/zlast>) |"
 	)
 	tests := []struct {
 		name    string
@@ -284,8 +285,8 @@ func TestMarkdownTableFileLevelDiffMarkers(t *testing.T) {
 		rc   tableConfig
 		want string
 	}{
-		{name: "added file marks every row added", rc: tableConfig{DiffAdded: true}, want: "| +HIGH | **[net/connect](https://r/connect)** |"},
-		{name: "removed file marks every row removed", rc: tableConfig{DiffRemoved: true}, want: "| -HIGH | [net/connect](https://r/connect) |"},
+		{name: "added file marks every row added", rc: tableConfig{DiffAdded: true}, want: "| +HIGH | **[net/connect](<https://r/connect>)** |"},
+		{name: "removed file marks every row removed", rc: tableConfig{DiffRemoved: true}, want: "| -HIGH | [net/connect](<https://r/connect>) |"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -569,8 +570,8 @@ func TestMarkdownTablePreservesCellContent(t *testing.T) {
 	}}
 	want := "| RISK | KEY | DESCRIPTION | EVIDENCE |\n" +
 		"|:--|:--|:--|:--|\n" +
-		"| LOW | [net/url](https://r/url) | keeps  two  spaces --- and dashes | [https:&#8203;//example.com/a---b  c](<https://example.com/a---b  c>) |\n" +
-		"| LOW | [net/zz](https://r/zz) | no evidence | |\n" +
+		"| LOW | [net/url](<https://r/url>) | keeps  two  spaces --- and dashes | [https:&#8203;//example.com/a---b  c](<https://example.com/a---b  c>) |\n" +
+		"| LOW | [net/zz](<https://r/zz>) | no evidence | |\n" +
 		"\n"
 
 	var buf bytes.Buffer
@@ -683,5 +684,190 @@ func TestMarkdownCodeSpanPadding(t *testing.T) {
 				t.Errorf("markdownCodeSpan(%q): got = %q, want = %q", tt.in, got, tt.want)
 			}
 		})
+	}
+}
+
+func TestMarkdownTableEscapesBehaviorFields(t *testing.T) {
+	t.Parallel()
+	plain := func() *malcontent.Behavior {
+		return &malcontent.Behavior{ID: "fs/read", Description: "reads files", RiskScore: 1, RiskLevel: report.LevelLOW, RuleURL: "https://r/read"}
+	}
+	tests := []struct {
+		name   string
+		modify func(bh *malcontent.Behavior)
+		want   string
+	}{
+		{
+			name:   "plain fields keep their text",
+			modify: func(*malcontent.Behavior) {},
+			want:   "| LOW | [fs/read](<https://r/read>) | reads files | |",
+		},
+		{
+			name:   "description cannot split cells, end the row, or open an HTML tag",
+			modify: func(bh *malcontent.Behavior) { bh.Description = "d | x\n| a | b | c | d |\n<img src=x>" },
+			want:   `| LOW | [fs/read](<https://r/read>) | d \| x%0A\| a \| b \| c \| d \|%0A\<img src=x\> | |`,
+		},
+		{
+			name:   "behavior ID cannot split the cell or close the link text",
+			modify: func(bh *malcontent.Behavior) { bh.ID = "fs/a|b](x)" },
+			want:   `| LOW | [fs/a\|b\]\(x\)](<https://r/read>) |`,
+		},
+		{
+			name:   "rule URL cannot close the destination and add a link",
+			modify: func(bh *malcontent.Behavior) { bh.RuleURL = "https://ok) [phish](https://evil.example>" },
+			want:   `| LOW | [fs/read](<https://ok) [phish](https://evil.example%3E>) |`,
+		},
+		{
+			name:   "rule URL that is not a web URL is not linked",
+			modify: func(bh *malcontent.Behavior) { bh.RuleURL = "javascript:alert(1)" },
+			want:   "| LOW | fs/read | reads files | |",
+		},
+		{
+			name:   "missing rule URL leaves the key unlinked",
+			modify: func(bh *malcontent.Behavior) { bh.RuleURL = "" },
+			want:   "| LOW | fs/read | reads files | |",
+		},
+		{
+			name:   "reference URL cannot open an HTML tag",
+			modify: func(bh *malcontent.Behavior) { bh.ReferenceURL = "https://ref/>)<img src=x>" },
+			want:   `| [reads files](<https://ref/%3E)%3Cimg src=x%3E>) |`,
+		},
+		{
+			name: "author and author URL are escaped",
+			modify: func(bh *malcontent.Behavior) {
+				bh.RuleAuthor = "@admin <b>|"
+				bh.RuleAuthorURL = "https://a/|x"
+			},
+			want: `| reads files, by [@&#8203;admin \<b\>\|](<https://a/%7Cx>) |`,
+		},
+		{
+			name:   "risk level cannot split the cell or open an HTML tag",
+			modify: func(bh *malcontent.Behavior) { bh.RiskLevel = "LOW|<b>\nx" },
+			want:   `| LOW\|\<b\>%0Ax | [fs/read](<https://r/read>) |`,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			bh := plain()
+			tt.modify(bh)
+			var buf bytes.Buffer
+			if err := markdownTable(t.Context(), &malcontent.FileReport{Path: "/bin/x", Behaviors: []*malcontent.Behavior{bh}}, &buf, tableConfig{}); err != nil {
+				t.Fatalf("markdownTable: got err = %v, want = nil", err)
+			}
+			lines := strings.Split(strings.TrimSuffix(buf.String(), "\n\n"), "\n")
+			if len(lines) != 3 {
+				t.Fatalf("table lines: got = %d, want = 3 (header, separator, one row) in %q", len(lines), buf.String())
+			}
+			row := lines[2]
+			if !strings.Contains(row, tt.want) {
+				t.Errorf("row: got = %q, want it to contain %q", row, tt.want)
+			}
+			// Four cells need five unescaped column separators.
+			if got := strings.Count(row, "|") - strings.Count(row, `\|`); got != 5 {
+				t.Errorf("column separators: got = %d, want = 5 in %q", got, row)
+			}
+		})
+	}
+}
+
+func TestMarkdownEscapesRiskLevelsInHeadings(t *testing.T) {
+	t.Parallel()
+	const evil = "HIGH\n<img src=x>"
+	const shown = `HIGH%0A\<img src=x\>`
+	fr := func() *malcontent.FileReport {
+		return &malcontent.FileReport{Path: "/bin/x", RiskScore: 3, RiskLevel: evil, PreviousRiskScore: 1, PreviousRiskLevel: evil, Behaviors: []*malcontent.Behavior{
+			{ID: "net/connect", RiskScore: 3, RiskLevel: report.LevelHIGH, DiffAdded: true},
+		}}
+	}
+	var scan, diff bytes.Buffer
+	if err := NewMarkdown(&scan).File(t.Context(), fr()); err != nil {
+		t.Fatalf("File: got err = %v, want = nil", err)
+	}
+	if err := NewMarkdown(&diff).Full(t.Context(), &malcontent.Config{}, &malcontent.Report{Diff: renderDiff([]*malcontent.FileReport{fr()}, nil, []*malcontent.FileReport{fr()})}); err != nil {
+		t.Fatalf("Full: got err = %v, want = nil", err)
+	}
+	tests := []struct {
+		name string
+		got  string
+		want string
+	}{
+		{name: "scan heading", got: scan.String(), want: "## /bin/x [" + riskEmoji(3) + " " + shown + "]\n"},
+		{name: "deleted heading", got: diff.String(), want: "## Deleted: /bin/x [" + riskEmoji(3) + " " + shown + "]\n"},
+		{name: "changed heading", got: diff.String(), want: "## Changed (1 added, 0 removed): /bin/x [" + riskEmoji(1) + " " + shown + " → " + riskEmoji(3) + " " + shown + "]\n"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			if !strings.Contains(tt.got, tt.want) {
+				t.Errorf("output: got = %q, want it to contain %q", tt.got, tt.want)
+			}
+			if strings.Count(tt.got, "<img") != strings.Count(tt.got, `\<img`) {
+				t.Errorf("output: got raw HTML in %q, want = escaped", tt.got)
+			}
+		})
+	}
+}
+
+func TestMarkdownEscapesNonASCIIControls(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name   string
+		escape func(string) string
+		in     string
+		want   string
+	}{
+		{name: "text C1 control is percent-encoded", escape: sanitizeMarkdown, in: "a\xc2\x9bb", want: "a%C2%9Bb"},
+		{name: "text BiDi override is dropped", escape: sanitizeMarkdown, in: "a\xe2\x80\xaeb", want: "ab"},
+		{name: "text Arabic letter mark is dropped", escape: sanitizeMarkdown, in: "a\xd8\x9cb", want: "ab"},
+		{name: "text invalid UTF-8 is replaced", escape: sanitizeMarkdown, in: "a\xff\xfeb", want: "a\xef\xbf\xbdb"},
+		{name: "text multibyte characters are unchanged", escape: sanitizeMarkdown, in: "naïve 文件 😈", want: "naïve 文件 😈"},
+		{name: "code span C1 control is percent-encoded", escape: markdownCodeSpan, in: "$a\xc2\x85b", want: "`$a%C2%85b`"},
+		{name: "code span BiDi override is dropped", escape: markdownCodeSpan, in: "$a\xe2\x81\xa6b", want: "`$ab`"},
+		{
+			name:   "URL BiDi override is dropped from the text and encoded in the destination",
+			escape: markdownURLLink,
+			in:     "https://a.example/\xe2\x80\xaefdp.exe",
+			want:   "[https:&#8203;//a.example/fdp.exe](<https://a.example/%E2%80%AEfdp.exe>)",
+		},
+		{
+			name:   "URL invalid UTF-8 is replaced in the text and encoded in the destination",
+			escape: markdownURLLink,
+			in:     "https://a.example/\xff",
+			want:   "[https:&#8203;//a.example/\xef\xbf\xbd](<https://a.example/%FF>)",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			if got := tt.escape(tt.in); got != tt.want {
+				t.Errorf("escape(%q): got = %q, want = %q", tt.in, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestMarkdownTableKeepsInputOrderOfEqualRows(t *testing.T) {
+	t.Parallel()
+	// Rows sharing a key and a risk score, among enough rows that sort
+	// elsewhere, leave an unstable sort free to reorder them.
+	const n = 64
+	fr := &malcontent.FileReport{Path: "/bin/x"}
+	want := make([]string, 0, n)
+	for i := range n {
+		if i%2 == 1 {
+			fr.Behaviors = append(fr.Behaviors, &malcontent.Behavior{ID: fmt.Sprintf("a/%02d", n-i), RiskScore: i % 4, RiskLevel: report.LevelLOW})
+			continue
+		}
+		desc := fmt.Sprintf("d%02d", i)
+		fr.Behaviors = append(fr.Behaviors, &malcontent.Behavior{ID: "net/dup", Description: desc, RiskScore: 2, RiskLevel: report.LevelMEDIUM})
+		want = append(want, "| "+desc+" |")
+	}
+	var buf bytes.Buffer
+	if err := markdownTable(t.Context(), fr, &buf, tableConfig{}); err != nil {
+		t.Fatalf("markdownTable: got err = %v, want = nil", err)
+	}
+	if !renderIndexOrder(buf.String(), want...) {
+		t.Errorf("markdownTable rows: got = %q, want descriptions in input order", buf.String())
 	}
 }

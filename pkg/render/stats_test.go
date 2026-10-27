@@ -4,10 +4,9 @@
 package render
 
 import (
+	"errors"
 	"fmt"
-	"io"
 	"math"
-	"os"
 	"slices"
 	"strings"
 	"testing"
@@ -98,6 +97,29 @@ func TestStatisticsNilReport(t *testing.T) {
 	}
 }
 
+func TestStatisticsWritesToTheConfiguredOutput(t *testing.T) {
+	t.Parallel()
+	files := xsync.NewMap[string, *malcontent.FileReport]()
+	files.Store("/none", &malcontent.FileReport{Path: "/none", Behaviors: []*malcontent.Behavior{{ID: "a/b"}}})
+	t.Run("summary goes to the output", func(t *testing.T) {
+		t.Parallel()
+		var buf strings.Builder
+		if err := Statistics(&malcontent.Config{Output: &buf}, &malcontent.Report{Files: files}); err != nil {
+			t.Fatalf("Statistics: got err = %v, want = nil", err)
+		}
+		if got := buf.String(); !strings.HasPrefix(got, "\U0001F4CA Statistics\n") || !strings.Contains(got, "a/b") {
+			t.Errorf("output: got = %q, want the summary", got)
+		}
+	})
+	t.Run("write error is returned", func(t *testing.T) {
+		t.Parallel()
+		w := &renderWriteLog{failAt: 1}
+		if err := Statistics(&malcontent.Config{Output: w}, &malcontent.Report{Files: files}); !errors.Is(err, errRenderWrite) {
+			t.Errorf("Statistics error: got = %v, want = %v", err, errRenderWrite)
+		}
+	})
+}
+
 func TestRiskStatisticsSharesInDescendingOrder(t *testing.T) {
 	t.Parallel()
 	files := xsync.NewMap[string, *malcontent.FileReport]()
@@ -149,8 +171,8 @@ func TestStatisticsIgnoreEmptyKeysAndNilReports(t *testing.T) {
 	}
 }
 
-// Statistics prints to os.Stdout, so this test swaps it and must not run in parallel.
 func TestStatisticsWritesSummary(t *testing.T) {
+	t.Parallel()
 	files := xsync.NewMap[string, *malcontent.FileReport]()
 	add := func(name string, score, n int, id string) {
 		for i := range n {
@@ -192,8 +214,8 @@ func TestStatisticsWritesSummary(t *testing.T) {
 	}
 }
 
-// Statistics prints to os.Stdout, so this test swaps it and must not run in parallel.
 func TestStatisticsWritesHarmlessFilesInTheDefaultColor(t *testing.T) {
+	t.Parallel()
 	files := xsync.NewMap[string, *malcontent.FileReport]()
 	files.Store("/none", &malcontent.FileReport{Path: "/none", RiskScore: 0, Behaviors: []*malcontent.Behavior{{ID: "a/b"}}})
 
@@ -219,31 +241,13 @@ func TestStatisticsWritesHarmlessFilesInTheDefaultColor(t *testing.T) {
 	}
 }
 
-// statsCapture returns what Statistics prints to os.Stdout for a report of
-// files. It swaps os.Stdout, so callers must not run in parallel.
+// statsCapture returns what Statistics writes to the configured output for
+// a report of files.
 func statsCapture(t *testing.T, files *xsync.Map[string, *malcontent.FileReport]) string {
 	t.Helper()
-	r, w, err := os.Pipe()
-	if err != nil {
-		t.Fatalf("os.Pipe: got err = %v, want = nil", err)
+	var out strings.Builder
+	if err := Statistics(&malcontent.Config{Output: &out}, &malcontent.Report{Files: files}); err != nil {
+		t.Fatalf("Statistics: got err = %v, want = nil", err)
 	}
-	stdout := os.Stdout
-	t.Cleanup(func() { os.Stdout = stdout })
-	os.Stdout = w
-	statsErr := Statistics(&malcontent.Config{}, &malcontent.Report{Files: files})
-	os.Stdout = stdout
-	if err := w.Close(); err != nil {
-		t.Fatalf("close pipe writer: got err = %v, want = nil", err)
-	}
-	out, err := io.ReadAll(r)
-	if err != nil {
-		t.Fatalf("read pipe: got err = %v, want = nil", err)
-	}
-	if err := r.Close(); err != nil {
-		t.Fatalf("close pipe reader: got err = %v, want = nil", err)
-	}
-	if statsErr != nil {
-		t.Fatalf("Statistics: got err = %v, want = nil", statsErr)
-	}
-	return string(out)
+	return out.String()
 }

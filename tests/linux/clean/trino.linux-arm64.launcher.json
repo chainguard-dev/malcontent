@@ -595,7 +595,7 @@
                     "RuleName": "ip_addr"
                 },
                 {
-                    "Description": "connects to an arbitrary hostname:port",
+                    "Description": "connects to an arbitrary host:port",
                     "MatchStrings": [
                         "hostunknown port"
                     ],
@@ -862,7 +862,7 @@
                     "RuleName": "random"
                 },
                 {
-                    "Description": "Linux ELF binary packed with UPX",
+                    "Description": "Binary is packed with UPX",
                     "MatchStrings": [
                         "This file is packed",
                         "executable packer",
@@ -947,9 +947,11 @@
             "RiskLevel": "MEDIUM",
             "Overrides": [
                 {
-                    "Description": "https://trino.io/ - UPX encrypted and crazy",
+                    "Description": "https://trino.io/ - UPX packed, with high-entropy sections",
                     "MatchStrings": [
                         "kTixuOsFBOtGYSTLRLWK6G",
+                        "p\\tgiNub.com/fdih/",
+                        "q\\tcCuXMaxlebo",
                         "Go buildinf",
                         "kUNKNOWN:$",
                         "wnwmwkwbqc",
@@ -966,9 +968,32 @@
                     ]
                 },
                 {
-                    "Description": "https://trino.io/ - UPX encrypted and crazy",
+                    "Description": "https://trino.io/ - UPX packed, with high-entropy sections",
                     "MatchStrings": [
                         "kTixuOsFBOtGYSTLRLWK6G",
+                        "p\\tgiNub.com/fdih/",
+                        "q\\tcCuXMaxlebo",
+                        "Go buildinf",
+                        "kUNKNOWN:$",
+                        "wnwmwkwbqc",
+                        "zYna%i%qj%",
+                        "lmRnTEOIt"
+                    ],
+                    "RiskScore": 2,
+                    "RiskLevel": "MEDIUM",
+                    "RuleURL": "https://github.com/chainguard-dev/malcontent/blob/main/rules/false_positives/trino_upx.yara#L1",
+                    "ID": "false-positives/trino_upx",
+                    "RuleName": "trino_upx_override",
+                    "Override": [
+                        "upx_elf"
+                    ]
+                },
+                {
+                    "Description": "https://trino.io/ - UPX packed, with high-entropy sections",
+                    "MatchStrings": [
+                        "kTixuOsFBOtGYSTLRLWK6G",
+                        "p\\tgiNub.com/fdih/",
+                        "q\\tcCuXMaxlebo",
                         "Go buildinf",
                         "kUNKNOWN:$",
                         "wnwmwkwbqc",
@@ -985,9 +1010,11 @@
                     ]
                 },
                 {
-                    "Description": "https://trino.io/ - UPX encrypted and crazy",
+                    "Description": "https://trino.io/ - UPX packed, with high-entropy sections",
                     "MatchStrings": [
                         "kTixuOsFBOtGYSTLRLWK6G",
+                        "p\\tgiNub.com/fdih/",
+                        "q\\tcCuXMaxlebo",
                         "Go buildinf",
                         "kUNKNOWN:$",
                         "wnwmwkwbqc",
@@ -1004,9 +1031,11 @@
                     ]
                 },
                 {
-                    "Description": "https://trino.io/ - UPX encrypted and crazy",
+                    "Description": "https://trino.io/ - UPX packed, with high-entropy sections",
                     "MatchStrings": [
                         "kTixuOsFBOtGYSTLRLWK6G",
+                        "p\\tgiNub.com/fdih/",
+                        "q\\tcCuXMaxlebo",
                         "Go buildinf",
                         "kUNKNOWN:$",
                         "wnwmwkwbqc",

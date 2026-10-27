@@ -64,7 +64,7 @@ func TestSniffEntryMatchesSniffFile(t *testing.T) {
 				t.Skip("root reads files regardless of permissions")
 			}
 			path := filepath.Join(dir, tt.file)
-			got, err := sniffEntry(t.Context(), root, tt.file, path, tt.regular)
+			got, err := sniffEntry(t.Context(), root, tt.file, path, tt.regular, false)
 			defer got.close()
 			fi, wantErr := root.Stat(tt.file)
 			if fmt.Sprint(err) != fmt.Sprint(wantErr) {

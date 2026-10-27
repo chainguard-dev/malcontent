@@ -83,13 +83,13 @@ func TestGenerateRulesMatchesGenerate(t *testing.T) {
 	mrs := scanBuf(t, rules, fc)
 	c := malcontent.Config{Rules: rules}
 
-	want, err := Generate(t.Context(), "/x/run.sh", mrs, c, "", nil, fc, int64(len(fc)), "sum", nil, 0)
+	want, err := Generate(t.Context(), "/x/run.sh", mrs, c, "", fc, int64(len(fc)), "sum", nil)
 	if err != nil {
 		t.Fatalf("Generate: %v", err)
 	}
 	matching := slices.Clone(mrs.MatchingRules())
 	rand.New(rand.NewPCG(1, 2)).Shuffle(len(matching), func(i, j int) { matching[i], matching[j] = matching[j], matching[i] })
-	got, err := GenerateRules(t.Context(), "/x/run.sh", matching, c, "", nil, fc, int64(len(fc)), "sum", nil, 0)
+	got, err := GenerateRules(t.Context(), "/x/run.sh", matching, c, "", fc, int64(len(fc)), "sum", nil)
 	if err != nil {
 		t.Fatalf("GenerateRules: %v", err)
 	}
@@ -105,7 +105,7 @@ func TestGenerateRulesStopsWhenCanceled(t *testing.T) {
 	t.Parallel()
 	ctx, cancel := context.WithCancel(t.Context())
 	cancel()
-	fr, err := GenerateRules(ctx, "/x/run.sh", nil, malcontent.Config{}, "", nil, nil, 0, "sum", nil, 0)
+	fr, err := GenerateRules(ctx, "/x/run.sh", nil, malcontent.Config{}, "", nil, 0, "sum", nil)
 	if !errors.Is(err, context.Canceled) {
 		t.Errorf("GenerateRules error: got = %v, want = %v", err, context.Canceled)
 	}
@@ -152,7 +152,7 @@ func TestSetRuleOrderOrdersRulesFromOtherSets(t *testing.T) {
 				i, ok := tt.order[identifier]
 				return i, ok
 			})
-			fr, err := GenerateRules(t.Context(), "/x/run.sh", matching, malcontent.Config{Rules: universal}, "", nil, fc, int64(len(fc)), "sum", nil, 0)
+			fr, err := GenerateRules(t.Context(), "/x/run.sh", matching, malcontent.Config{Rules: universal}, "", fc, int64(len(fc)), "sum", nil)
 			if err != nil {
 				t.Fatalf("GenerateRules: %v", err)
 			}

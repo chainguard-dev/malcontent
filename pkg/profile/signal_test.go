@@ -45,3 +45,44 @@ func TestStartProfilingStopsOnSignal(t *testing.T) {
 	p.Stop()
 	checkStopped(t, p, dir, "signal")
 }
+
+func TestHandleSignalsStopsRelayingSignals(t *testing.T) {
+	// Not parallel: the CPU profiler and the execution tracer are
+	// process-wide.
+	tests := []struct {
+		name string
+		// signal ends the profiler with a signal rather than Stop.
+		signal bool
+	}{
+		{"after the signal that stops the profiler", true},
+		{"after the profiler stops without a signal", false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p, err := StartProfiling(t.Context(), &Config{OutputDir: t.TempDir(), FilePrefix: "relay"})
+			if err != nil {
+				t.Fatalf("StartProfiling: %v", err)
+			}
+			t.Cleanup(p.Stop)
+			sigChan := make(chan os.Signal, 1)
+			var stopped []chan<- os.Signal
+			done := make(chan struct{})
+			go func() {
+				defer close(done)
+				p.handleSignals(sigChan, func(c chan<- os.Signal) { stopped = append(stopped, c) })
+			}()
+
+			if tt.signal {
+				sigChan <- syscall.SIGTERM
+			} else {
+				p.Stop()
+			}
+			<-done
+
+			// Stopping the relay leaves a later signal to its default action.
+			if len(stopped) != 1 || stopped[0] != chan<- os.Signal(sigChan) {
+				t.Errorf("signal relay stops: got = %v, want = one stop of the signal channel", stopped)
+			}
+		})
+	}
+}

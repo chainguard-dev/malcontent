@@ -8,6 +8,7 @@ import (
 	"cmp"
 	"compress/zlib"
 	"context"
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"io"
@@ -19,6 +20,7 @@ import (
 	"strconv"
 	"strings"
 	"sync/atomic"
+	"syscall"
 
 	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/gabriel-vasile/mimetype"
@@ -141,6 +143,37 @@ var supportedKind = map[string]string{
 type FileType struct {
 	Ext  string
 	MIME string
+	// Archive names an archive format found in content that Ext and MIME
+	// describe otherwise, such as "zip" for a script with a zip appended,
+	// as self-extracting installers and executable jars are built.
+	Archive string
+}
+
+// MIME types of the archives Detect recognizes by content whatever their
+// name.
+const (
+	mimeZip   = "application/zip"
+	mimeTar   = "application/x-tar"
+	mimeXZ    = "application/x-xz"
+	mimeBzip2 = "application/x-bzip2"
+	mimeZstd  = "application/zstd"
+	mimeRPM   = "application/x-rpm"
+	mimeDeb   = "application/vnd.debian.binary-package"
+)
+
+// contentArchiveMIME holds the MIME types of every kind of content the
+// archive extractor handles whatever the file is named.
+var contentArchiveMIME = map[string]struct{}{
+	mimeUPX:   {},
+	mimeGzip:  {},
+	mimeZlib:  {},
+	mimeZip:   {},
+	mimeTar:   {},
+	mimeXZ:    {},
+	mimeBzip2: {},
+	mimeZstd:  {},
+	mimeRPM:   {},
+	mimeDeb:   {},
 }
 
 var (
@@ -210,10 +243,17 @@ func IsSupportedArchive(ctx context.Context, path string) bool {
 	if hasArchiveExt(path) {
 		return true
 	}
-	// Content that File recognizes as UPX-packed, gzip, or zlib is extracted
-	// whatever the file is named.
+	// Content that File recognizes as an archive is extracted whatever the
+	// file is named.
 	ft, err := File(ctx, path)
 	return err == nil && isArchiveKind(ft)
+}
+
+// IsArchiveContent reports whether ft is content the archive extractor
+// handles whatever the file is named: an archive or compressed stream Detect
+// recognized by content, or content with an archive appended.
+func IsArchiveContent(ft *FileType) bool {
+	return isArchiveKind(ft)
 }
 
 // IsSupportedArchiveKind reports whether a file at path whose detected kind is
@@ -232,7 +272,11 @@ func hasArchiveExt(path string) bool {
 // isArchiveKind reports whether ft is content the archive extractor handles
 // whatever the file is named.
 func isArchiveKind(ft *FileType) bool {
-	return ft != nil && (ft.MIME == mimeUPX || ft.MIME == mimeGzip || ft.MIME == mimeZlib)
+	if ft == nil {
+		return false
+	}
+	_, ok := contentArchiveMIME[ft.MIME]
+	return ok || ft.Archive != ""
 }
 
 // GetExt returns the extension of a file path
@@ -657,15 +701,15 @@ func File(ctx context.Context, path string) (*FileType, error) {
 	if f == nil {
 		return nil, err
 	}
-	fc, err := file.ReadContents(f, size)
-	// The contents stay valid after the file is closed.
-	_ = f.Close()
-	if err != nil {
+	defer func() { _ = f.Close() }()
+	var ft *FileType
+	if err := file.InspectContents(f, size, func(b []byte) error {
+		ft = Detect(ctx, path, b)
+		return nil
+	}); err != nil {
 		return nil, fmt.Errorf("file contents: %w", err)
 	}
-	defer func() { _ = fc.Close() }()
-
-	return Detect(ctx, path, fc.Bytes()), nil
+	return ft, nil
 }
 
 // openContent opens name beneath dir, through a root on dir, when it is a
@@ -688,9 +732,17 @@ func openContent(dir, name string) (*os.File, int64, error) {
 		return nil, 0, nil
 	}
 
-	f, err := root.Open(name)
+	// The open does not block on a FIFO, and what was opened is examined
+	// again, so a file replaced after the check is never read unless it is
+	// still a regular file.
+	f, err := root.OpenFile(name, os.O_RDONLY|syscall.O_NONBLOCK, 0)
 	if err != nil {
 		return nil, 0, fmt.Errorf("open: %w", err)
+	}
+	st, err = f.Stat()
+	if err != nil || !st.Mode().IsRegular() || st.Size() == 0 {
+		_ = f.Close()
+		return nil, 0, nil
 	}
 	return f, st.Size(), nil
 }
@@ -698,10 +750,25 @@ func openContent(dir, name string) (*os.File, int64, error) {
 // Detect returns the kind of the file at path whose contents are fc: exactly
 // what File returns for a regular, non-empty file with those contents. Like
 // File, it examines at most the first file.MaxBytes of fc, and it may run the
-// UPX binary against path when fc holds the UPX marker.
+// UPX binary against path when fc holds the UPX marker. An archive or
+// compressed stream is recognized by content whatever the file is named, and
+// a script with a zip appended keeps its kind with Archive set to "zip".
 func Detect(ctx context.Context, path string, fc []byte) *FileType {
 	fc = fc[:min(int64(len(fc)), detectLimit)]
+	ft := detectContent(ctx, path, fc)
+	if bytes.HasPrefix(fc, []byte("#!")) && hasAppendedZip(fc) {
+		withZip := FileType{Ext: "script", MIME: "text/x-generic-script"}
+		if ft != nil {
+			withZip = *ft
+		}
+		withZip.Archive = "zip"
+		return &withZip
+	}
+	return ft
+}
 
+// detectContent is Detect for the kind of the content alone.
+func detectContent(ctx context.Context, path string, fc []byte) *FileType {
 	// handle UPX files first since mimetype.Detect does not support them
 	// and will likely misidentify them
 	if isUPX, err := IsValidUPX(ctx, fc, path); err == nil && isUPX {
@@ -718,6 +785,12 @@ func Detect(ctx context.Context, path string, fc []byte) *FileType {
 	mtype := mimetype.Detect(fc)
 	ext, mime := mtype.Extension(), mtype.String()
 	if ft := makeFileType(path, ext, mime); ft != nil {
+		return ft
+	}
+
+	// Archives are extracted whatever they are named, so that a zip named
+	// payload.dat or app.vsix is never skipped as a data file.
+	if ft := archiveContent(fc); ft != nil {
 		return ft
 	}
 
@@ -775,4 +848,88 @@ func Path(path string) *FileType {
 	ext := strings.TrimPrefix(GetExt(path), ".")
 	mime := supportedKind[ext]
 	return makeFileType(path, ext, mime)
+}
+
+// archiveContent returns the kind of fc when it begins as an archive the
+// archive extractor handles: a zip, tar, xz, bzip2, or zstd stream, an RPM, or
+// a Debian package.
+func archiveContent(fc []byte) *FileType {
+	switch {
+	case bytes.HasPrefix(fc, []byte("PK\x03\x04")):
+		return &FileType{Ext: "zip", MIME: mimeZip}
+	case bytes.HasPrefix(fc, []byte{0xfd, '7', 'z', 'X', 'Z', 0x00}):
+		return &FileType{Ext: "xz", MIME: mimeXZ}
+	case isBzip2(fc):
+		return &FileType{Ext: "bz2", MIME: mimeBzip2}
+	case bytes.HasPrefix(fc, []byte{0x28, 0xb5, 0x2f, 0xfd}):
+		return &FileType{Ext: "zst", MIME: mimeZstd}
+	case bytes.HasPrefix(fc, []byte{0xed, 0xab, 0xee, 0xdb}):
+		return &FileType{Ext: "rpm", MIME: mimeRPM}
+	case bytes.HasPrefix(fc, []byte("!<arch>\ndebian-binary")):
+		return &FileType{Ext: "deb", MIME: mimeDeb}
+	case isTarHeader(fc):
+		return &FileType{Ext: "tar", MIME: mimeTar}
+	}
+	return nil
+}
+
+// isBzip2 reports whether fc begins a bzip2 stream: its header, then the magic
+// of a block or of the end of the stream.
+func isBzip2(fc []byte) bool {
+	if len(fc) < 10 || !bytes.HasPrefix(fc, []byte("BZh")) || fc[3] < '1' || fc[3] > '9' {
+		return false
+	}
+	magic := fc[4:10]
+	return bytes.Equal(magic, []byte{0x31, 0x41, 0x59, 0x26, 0x53, 0x59}) ||
+		bytes.Equal(magic, []byte{0x17, 0x72, 0x45, 0x38, 0x50, 0x90})
+}
+
+// isTarHeader reports whether fc begins with a tar header: the ustar magic, or
+// a checksum that matches the header block as tar computes it.
+func isTarHeader(fc []byte) bool {
+	const block = 512
+	if len(fc) < block {
+		return false
+	}
+	hdr := fc[:block]
+	if bytes.HasPrefix(hdr[257:], []byte("ustar")) {
+		return true
+	}
+	field := strings.Trim(string(hdr[148:156]), " \x00")
+	want, err := strconv.ParseInt(field, 8, 64)
+	if err != nil || field == "" {
+		return false
+	}
+	var unsigned, signed int64
+	for i, c := range hdr {
+		if i >= 148 && i < 156 {
+			c = ' '
+		}
+		unsigned += int64(c)
+		signed += int64(int8(c))
+	}
+	return want == unsigned || want == signed
+}
+
+// hasAppendedZip reports whether fc ends with a zip archive that does not
+// start fc: an end-of-central-directory record in its last 64 KiB whose
+// central directory lies within fc, whether its offsets count from the start
+// of fc or from the start of the zip.
+func hasAppendedZip(fc []byte) bool {
+	const eocdLen = 22
+	tail := fc[max(0, len(fc)-(eocdLen+65535)):]
+	i := bytes.LastIndex(tail, []byte("PK\x05\x06"))
+	if i < 0 || len(tail)-i < eocdLen {
+		return false
+	}
+	end := tail[i:]
+	eocd := len(fc) - len(tail) + i
+	size := int(binary.LittleEndian.Uint32(end[12:]))
+	offset := int(binary.LittleEndian.Uint32(end[16:]))
+	if size == 0 || size > eocd || offset > eocd {
+		return false
+	}
+	central := []byte("PK\x01\x02")
+	base := eocd - size - offset
+	return bytes.HasPrefix(fc[offset:], central) || (base > 0 && bytes.HasPrefix(fc[base+offset:], central))
 }

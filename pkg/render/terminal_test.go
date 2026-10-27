@@ -5,6 +5,8 @@ package render
 
 import (
 	"bytes"
+	"context"
+	"errors"
 	"io"
 	"os"
 	"strings"
@@ -207,14 +209,15 @@ func TestRenderFileSummaryDiffMode(t *testing.T) {
 			},
 		}
 	}
-	// Unchanged behaviors are hidden, removed ones lose their evidence, and a
-	// namespace whose risk changed shows the transition. A namespace whose
-	// behaviors were all removed falls to NONE.
-	changedBody := "│-    ▼ execution [MEDIUM → NONE]\n" +
+	// Unchanged behaviors are hidden and removed ones lose their evidence.
+	// Each namespace shows the highest risk among the behaviors listed under
+	// it, without a transition or a diff marker, because a diff lists only
+	// the behaviors that changed.
+	changedBody := terminalNS + "≡ execution [MEDIUM]\n" +
 		"│-      " + riskEmoji(2) + " shell — runs a shell\n" +
-		terminalNS + "▲ networking [LOW → HIGH]\n" +
+		terminalNS + "≡ networking [HIGH]\n" +
 		"│+      " + riskEmoji(3) + " connect — connects: AF_INET\n" +
-		"│+    ▲ cryptography [NONE → HIGH]\n" +
+		terminalNS + "≡ cryptography [HIGH]\n" +
 		"│+      " + riskEmoji(3) + " aes — uses AES\n" +
 		"│\n"
 
@@ -231,7 +234,7 @@ func TestRenderFileSummaryDiffMode(t *testing.T) {
 			want:  "├─ " + riskEmoji(3) + " Changed (2 added, 1 removed): /bin/mod [MEDIUM → HIGH]\n" + changedBody,
 		},
 		{
-			name: "namespace whose highest-risk behavior was removed shows the fall",
+			name: "namespace shows the risk of its removed behavior, not a fall to the unlisted rest",
 			fr: &malcontent.FileReport{
 				Path:      "/bin/mod",
 				RiskScore: 1,
@@ -243,7 +246,7 @@ func TestRenderFileSummaryDiffMode(t *testing.T) {
 			},
 			title: "Changed (0 added, 1 removed): /bin/mod [HIGH → LOW]",
 			want: "├─ " + riskEmoji(1) + " Changed (0 added, 1 removed): /bin/mod [HIGH → LOW]\n" +
-				terminalNS + "▼ networking [HIGH → LOW]\n" +
+				terminalNS + "≡ networking [HIGH]\n" +
 				"│-      " + riskEmoji(3) + " connect — connects\n" +
 				"│\n",
 		},
@@ -282,19 +285,35 @@ func TestRenderFileSummaryDiffMode(t *testing.T) {
 				"│\n",
 		},
 		{
-			name: "harmless unchanged behaviors do not mark other namespaces as changed",
+			name: "namespace with only unchanged behaviors is left out",
 			fr: &malcontent.FileReport{
 				Path:      "/bin/new",
 				RiskScore: 3,
 				RiskLevel: report.LevelHIGH,
 				Behaviors: []*malcontent.Behavior{
-					{ID: "net/ping", Description: "pings hosts", RiskScore: 0, RiskLevel: report.LevelNONE},
+					{ID: "net/ping", Description: "pings hosts", RiskScore: 3, RiskLevel: report.LevelHIGH},
+					{ID: "crypto/aes", Description: "uses AES", RiskScore: 1, RiskLevel: report.LevelLOW, DiffAdded: true},
+				},
+			},
+			title: "Changed (1 added, 0 removed): /bin/new",
+			want: "├─ " + riskEmoji(3) + " Changed (1 added, 0 removed): /bin/new\n" +
+				terminalNS + "≡ cryptography [LOW]\n" +
+				"│+      " + riskEmoji(1) + " aes — uses AES\n" +
+				"│\n",
+		},
+		{
+			name: "namespace risk ignores an unlisted higher-risk behavior",
+			fr: &malcontent.FileReport{
+				Path:      "/bin/new",
+				RiskScore: 3,
+				RiskLevel: report.LevelHIGH,
+				Behaviors: []*malcontent.Behavior{
+					{ID: "crypto/rc4", Description: "uses RC4", RiskScore: 4, RiskLevel: report.LevelCRITICAL},
 					{ID: "crypto/aes", Description: "uses AES", RiskScore: 3, RiskLevel: report.LevelHIGH, DiffAdded: true},
 				},
 			},
 			title: "Changed (1 added, 0 removed): /bin/new",
 			want: "├─ " + riskEmoji(3) + " Changed (1 added, 0 removed): /bin/new\n" +
-				terminalNS + "≡ networking [NONE]\n" +
 				terminalNS + "≡ cryptography [HIGH]\n" +
 				"│+      " + riskEmoji(3) + " aes — uses AES\n" +
 				"│\n",
@@ -514,4 +533,57 @@ func TestPaletteMatchesColorLibrary(t *testing.T) {
 	if plainPalette != (palette{}) {
 		t.Errorf("plainPalette: got = %+v, want = no escape sequences", plainPalette)
 	}
+}
+
+// terminalCancelOnWrite cancels a context on its first write and keeps what it is given.
+type terminalCancelOnWrite struct {
+	cancel context.CancelFunc
+	buf    bytes.Buffer
+}
+
+func (w *terminalCancelOnWrite) Write(p []byte) (int, error) {
+	w.cancel()
+	return w.buf.Write(p)
+}
+
+func TestTerminalFullReturnsCancellation(t *testing.T) {
+	t.Parallel()
+	tool := func(path string, added bool) *malcontent.FileReport {
+		return &malcontent.FileReport{Path: path, RiskScore: 3, RiskLevel: report.LevelHIGH, Behaviors: []*malcontent.Behavior{
+			{ID: "net/connect", Description: "connects", RiskScore: 3, RiskLevel: report.LevelHIGH, DiffAdded: added},
+		}}
+	}
+	tests := []struct {
+		name string
+		diff *malcontent.DiffReport
+		want string
+	}{
+		{name: "deleted files", diff: renderDiff([]*malcontent.FileReport{tool("/a", false), tool("/b", false)}, nil, nil), want: "Deleted: /a"},
+		{name: "added files", diff: renderDiff(nil, []*malcontent.FileReport{tool("/a", false), tool("/b", false)}, nil), want: "Added: /a"},
+		{name: "changed files", diff: renderDiff(nil, nil, []*malcontent.FileReport{tool("/a", true), tool("/b", true)}), want: "Changed (1 added, 0 removed): /a"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			ctx, cancel := context.WithCancel(t.Context())
+			defer cancel()
+			w := &terminalCancelOnWrite{cancel: cancel}
+			err := NewTerminal(w).Full(ctx, &malcontent.Config{}, &malcontent.Report{Diff: tt.diff})
+			if !errors.Is(err, context.Canceled) {
+				t.Errorf("Full error: got = %v, want = %v", err, context.Canceled)
+			}
+			got := renderStripANSI(w.buf.String())
+			if !strings.Contains(got, tt.want) || strings.Contains(got, "/b") {
+				t.Errorf("Full output: got = %q, want only the first file, %q", got, tt.want)
+			}
+		})
+	}
+	t.Run("complete diff returns nil", func(t *testing.T) {
+		t.Parallel()
+		var buf bytes.Buffer
+		rep := &malcontent.Report{Diff: renderDiff([]*malcontent.FileReport{tool("/a", false)}, nil, nil)}
+		if err := NewTerminal(&buf).Full(t.Context(), &malcontent.Config{}, rep); err != nil {
+			t.Errorf("Full error: got = %v, want = nil", err)
+		}
+	})
 }

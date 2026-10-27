@@ -65,9 +65,9 @@ func (r *TerminalBrief) File(ctx context.Context, fr *malcontent.FileReport) err
 		b.WriteString(briefLinePrefix)
 		rs.wrap(b, "•")
 		b.WriteByte(' ')
-		rs.wrap(b, bh.ID)
+		rs.wrap(b, sanitizeTerminal(bh.ID))
 		b.WriteString(" — ")
-		b.WriteString(bh.Description)
+		b.WriteString(sanitizeTerminal(bh.Description))
 		end := b.Len()
 
 		e := sanitizeTerminal(evidenceString(bh.MatchStrings, bh.Description))

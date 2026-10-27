@@ -89,7 +89,8 @@ func TestZipExtractFileCancellationPolling(t *testing.T) {
 			defer root.Close()
 
 			ctx := &zipCountdownCtx{Context: t.Context(), live: tt.live}
-			err = extractFile(ctx, rc.File[0], testEntryRoots(t, root), clog.FromContext(t.Context()), &file.ArchiveCounter{}, nil)
+			x := &zipExtraction{ctx: ctx, logger: clog.FromContext(t.Context()), paths: testPaths(t, root), budget: testBudget(0)}
+			err = x.extractFile(zipEntry{zf: rc.File[0], name: "data.bin", path: "data.bin"})
 			if !errors.Is(err, tt.wantErr) {
 				t.Fatalf("extractFile error: got = %v, want = %v", err, tt.wantErr)
 			}

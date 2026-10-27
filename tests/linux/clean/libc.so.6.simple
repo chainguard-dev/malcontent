@@ -61,7 +61,7 @@ fs/path/etc_resolv.conf: low
 fs/path/var: low
 fs/path/var_log: medium
 fs/permission/chown: low
-fs/permission/modify: low
+fs/permission/modify: medium
 fs/proc/meminfo: medium
 fs/proc/mounts: medium
 fs/proc/stat: medium

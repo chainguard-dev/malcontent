@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"maps"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -73,37 +74,33 @@ func TestExtractDebLayout(t *testing.T) {
 	pkgsWantSameFile(t, filepath.Join(bin, "tool"), filepath.Join(bin, "hard"))
 }
 
-func TestExtractDebRejectsUnsafeEntries(t *testing.T) {
+func TestExtractDebKeepsUnsafeEntriesBeneathTheRoot(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
 		name    string
 		entries []tarEntry
-		wantErr string
-		absent  string
+		want    map[string]string
 	}{
 		{
-			name:    "absolute member path",
+			name:    "absolute member path is written beneath the root",
 			entries: []tarEntry{{name: "/etc/evil", typeflag: tar.TypeReg, body: "evil"}},
-			wantErr: "path is absolute",
-			absent:  filepath.Join("etc", "evil"),
+			want:    map[string]string{"etc": "/", "etc/evil": "evil"},
 		},
 		{
-			name:    "member path climbing out of the directory",
+			name:    "member path climbing out of the directory is written beneath it",
 			entries: []tarEntry{{name: "../evil", typeflag: tar.TypeReg, body: "evil"}},
-			wantErr: "relative path traversal",
+			want:    map[string]string{"evil": "evil"},
 		},
 		{
-			name:    "symlink escaping the directory",
+			name:    "symlink escaping the directory is skipped",
 			entries: []tarEntry{{name: "./esc", typeflag: tar.TypeSymlink, linkname: "../../outside"}},
-			wantErr: "failed to create symlink",
-			absent:  "esc",
+			want:    map[string]string{},
 		},
 		{
-			name:    "hardlink to a file outside the directory",
+			name:    "hard link to a file outside the directory is skipped",
 			entries: []tarEntry{{name: "./hard", typeflag: tar.TypeLink, linkname: "../outside"}},
-			wantErr: "failed to create hardlink",
-			absent:  "hard",
+			want:    map[string]string{},
 		},
 	}
 
@@ -111,12 +108,14 @@ func TestExtractDebRejectsUnsafeEntries(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			out := t.TempDir()
-			err := ExtractDeb(t.Context(), out, pkgsDeb(t, tt.entries))
-			if err == nil || !strings.Contains(err.Error(), tt.wantErr) {
-				t.Fatalf("ExtractDeb error: got = %v, want = error containing %q", err, tt.wantErr)
+			if err := ExtractDeb(t.Context(), out, pkgsDeb(t, tt.entries)); err != nil {
+				t.Fatalf("ExtractDeb error: got = %v, want = nil", err)
 			}
-			if tt.absent != "" {
-				pkgsWantAbsent(t, filepath.Join(out, tt.absent))
+			got := treeContents(t, out)
+			delete(got, "control")
+			delete(got, "control/control")
+			if !maps.Equal(got, tt.want) {
+				t.Errorf("tree: got = %q, want = %q besides control", got, tt.want)
 			}
 		})
 	}

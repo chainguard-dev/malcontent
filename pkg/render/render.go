@@ -5,11 +5,13 @@ package render
 
 import (
 	"cmp"
+	"context"
 	"fmt"
 	"io"
 	"slices"
 	"strconv"
 	"strings"
+	"unicode"
 	"unicode/utf8"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
@@ -79,22 +81,22 @@ func isPlainASCII(s string, except byte) bool {
 	return true
 }
 
-// isBiDiControl reports whether r is a BiDi embedding, override, isolate, or
-// mark character, which can make displayed text read differently from its bytes.
+// isBiDiControl reports whether r is a Unicode Bidi_Control character: an
+// embedding, override, isolate, or mark, such as U+202E or U+061C, which can
+// make displayed text read differently from its bytes.
 func isBiDiControl(r rune) bool {
-	return (r >= 0x202A && r <= 0x202E) || // LRE, RLE, PDF, LRO, RLO
-		(r >= 0x2066 && r <= 0x2069) || // LRI, RLI, FSI, PDI
-		r == 0x200E || r == 0x200F // LRM, RLM
+	return unicode.Is(unicode.Bidi_Control, r)
 }
 
-// sanitizeTerminal makes untrusted text from scanned files safe to print to a
-// terminal. Like sanitizeUTF8, it replaces invalid UTF-8 with U+FFFD and drops
-// BiDi controls. It also replaces C0 controls (including tab and newline), DEL,
-// and C1 controls, which terminals act on by moving the cursor, setting the
-// window title, or opening hyperlinks, with the visible escapes strconv.Quote
-// uses, such as \x1b, \r, and \u009b. A backslash becomes \\ so an escape
-// spelled out in the input reads differently from an escaped control
-// character. Other printable text is unchanged.
+// sanitizeTerminal makes untrusted text from scanned files or report files
+// safe to print to a terminal. Like sanitizeUTF8, it replaces invalid UTF-8
+// with U+FFFD and drops BiDi controls. It also replaces C0 controls (including
+// tab and newline), DEL, and C1 controls, which terminals act on by moving the
+// cursor, setting the window title, or opening hyperlinks, and the other
+// invisible format characters, such as U+200B, with the visible escapes
+// strconv.Quote uses, such as \x1b, \r, and \u009b. A backslash becomes \\
+// so an escape spelled out in the input reads differently from an escaped
+// control character. Other printable text is unchanged.
 func sanitizeTerminal(s string) string {
 	// Printable ASCII other than a backslash passes through unchanged.
 	if isPlainASCII(s, '\\') {
@@ -113,7 +115,7 @@ func sanitizeTerminal(s string) string {
 			b.WriteString(`\\`)
 			continue
 		}
-		if r < 0x20 || r == 0x7f || (r >= 0x80 && r <= 0x9f) {
+		if r < 0x20 || r == 0x7f || (r >= 0x80 && r <= 0x9f) || unicode.Is(unicode.Cf, r) {
 			q := strconv.QuoteRune(r)
 			b.WriteString(q[1 : len(q)-1])
 			continue
@@ -149,21 +151,15 @@ func New(kind string, w io.Writer) (malcontent.Renderer, error) {
 	}
 }
 
-// sanitizeFileReport sanitizes a file report entry and stores it in files.
-func sanitizeFileReport(path string, r *malcontent.FileReport, files map[string]*malcontent.FileReport) {
-	if r == nil || r.Skipped != "" {
-		return
-	}
-	sanitizeReport(r)
-	files[sanitizeUTF8(path)] = r
-}
-
 // sanitizeReport prepares r for serialization in place: it drops the
-// absolute paths and sanitizes the text fields that come from scanned files.
+// absolute paths and sanitizes the text fields that come from scanned files
+// or report files.
 func sanitizeReport(r *malcontent.FileReport) {
 	r.ArchiveRoot = ""
 	r.FullPath = ""
 	r.Path = sanitizeUTF8(r.Path)
+	r.PreviousPath = sanitizeUTF8(r.PreviousPath)
+	r.PreviousRelPath = sanitizeUTF8(r.PreviousRelPath)
 
 	for _, b := range r.Behaviors {
 		if b != nil {
@@ -171,6 +167,121 @@ func sanitizeReport(r *malcontent.FileReport) {
 			b.Description = sanitizeUTF8(b.Description)
 		}
 	}
+}
+
+// uniqueKeys returns the sanitizeUTF8 form of each of raw, kept distinct so
+// that no report is lost when distinct keys sanitize alike. Of the raw keys
+// that sanitize to the same key, the one sanitizing leaves unchanged keeps
+// it, or else the first in raw does. The others, in the order of raw, get
+// the suffix " (2)", " (3)", and so on: the lowest number that gives a key
+// that neither sanitizes from raw nor was given before. The result depends
+// only on raw and its order.
+func uniqueKeys(raw []string) []string {
+	keys := make([]string, len(raw))
+	// owner maps each key in use to the index of the entry that has it.
+	owner := make(map[string]int, len(raw))
+	for i, r := range raw {
+		k := sanitizeUTF8(r)
+		keys[i] = k
+		if j, taken := owner[k]; !taken || (r == k && raw[j] != k) {
+			owner[k] = i
+		}
+	}
+	if len(owner) == len(raw) {
+		return keys
+	}
+
+	// next holds the next suffix number worth trying for a key.
+	next := map[string]int{}
+	for i, k := range keys {
+		if owner[k] == i {
+			continue
+		}
+		n := max(next[k], 2)
+		for {
+			suffixed := k + " (" + strconv.Itoa(n) + ")"
+			if _, taken := owner[suffixed]; !taken {
+				owner[suffixed] = i
+				keys[i] = suffixed
+				break
+			}
+			n++
+		}
+		next[k] = n + 1
+	}
+	return keys
+}
+
+// sanitizedDiff returns d for serialization: its reports sanitized in place
+// as scan reports are, under keys made distinct by uniqueKeys in each of its
+// maps. It stops with the context's error when ctx is canceled.
+func sanitizedDiff(ctx context.Context, d *malcontent.DiffReport) (*malcontent.DiffReport, error) {
+	if d == nil {
+		return nil, nil
+	}
+	added, err := sanitizedDiffMap(ctx, d.Added)
+	if err != nil {
+		return nil, err
+	}
+	removed, err := sanitizedDiffMap(ctx, d.Removed)
+	if err != nil {
+		return nil, err
+	}
+	modified, err := sanitizedDiffMap(ctx, d.Modified)
+	if err != nil {
+		return nil, err
+	}
+	return &malcontent.DiffReport{Added: added, Removed: removed, Modified: modified}, nil
+}
+
+// sanitizedDiffMap returns the entries of m in order, with their reports
+// sanitized in place and their keys made distinct by uniqueKeys. A nil map
+// stays nil, so it is still left out of the output.
+func sanitizedDiffMap(ctx context.Context, m *malcontent.OrderedFileReports) (*malcontent.OrderedFileReports, error) {
+	if m == nil {
+		return nil, nil
+	}
+	raw := make([]string, 0, m.Len())
+	reports := make([]*malcontent.FileReport, 0, m.Len())
+	for p := m.Oldest(); p != nil; p = p.Next() {
+		if err := ctx.Err(); err != nil {
+			return nil, err
+		}
+		if p.Value != nil {
+			sanitizeReport(p.Value)
+		}
+		raw = append(raw, p.Key)
+		reports = append(reports, p.Value)
+	}
+	out := new(malcontent.OrderedFileReports)
+	for i, k := range uniqueKeys(raw) {
+		out.Set(k, reports[i])
+	}
+	return out, nil
+}
+
+// diffCounts returns how many of bs are marked added and how many removed.
+func diffCounts(bs []*malcontent.Behavior) (added, removed int) {
+	for _, bh := range bs {
+		if bh.DiffAdded {
+			added++
+		}
+		if bh.DiffRemoved {
+			removed++
+		}
+	}
+	return added, removed
+}
+
+// diffTitle returns the title of a modified file in a diff without its risk
+// levels, with its paths escaped by escape: "Moved (a added, r removed):
+// previous -> path" for a file found under a new path, and "Changed (a
+// added, r removed): path" otherwise.
+func diffTitle(fr *malcontent.FileReport, added, removed int, escape func(string) string) string {
+	if fr.PreviousPath != "" {
+		return fmt.Sprintf("Moved (%d added, %d removed): %s -> %s", added, removed, escape(fr.PreviousPath), escape(fr.Path))
+	}
+	return fmt.Sprintf("Changed (%d added, %d removed): %s", added, removed, escape(fr.Path))
 }
 
 func riskEmoji(score int) string {

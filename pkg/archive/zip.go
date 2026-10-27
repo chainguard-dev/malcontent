@@ -4,53 +4,39 @@
 package archive
 
 import (
+	"bytes"
 	"cmp"
 	"context"
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"io"
-	"io/fs"
-	"iter"
 	"os"
-	"path/filepath"
 	"runtime"
 	"slices"
-	"strconv"
 	"strings"
-	"sync"
 
 	"github.com/chainguard-dev/clog"
 	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
-	"github.com/chainguard-dev/malcontent/pkg/programkind"
 	zip "github.com/klauspost/compress/zip"
+	"github.com/klauspost/compress/zstd"
+	"github.com/ulikunitz/xz/lzma"
 	"golang.org/x/sync/errgroup"
 )
 
-var zipMIME = map[string]struct{}{
-	"application/jar":              {},
-	"application/java-archive":     {},
-	"application/x-wheel+zip":      {},
-	"application/x-zip":            {},
-	"application/x-zip-compressed": {},
-	"application/zip":              {},
-}
+// Compression methods beyond store and deflate that zip writers such as
+// 7-Zip, WinZip, and Python's zipfile use.
+const (
+	zipMethodBzip2 uint16 = 12
+	zipMethodLZMA  uint16 = 14
+	zipMethodXZ    uint16 = 95
+)
 
-// defaultMaxArchiveBytes seeds ExtractZip's per-archive byte cap. It is a var
-// (not a const) so tests can shrink the cap to a synthesizable bound; the
-// production value is file.DefaultMaxArchiveBytes (32 GiB).
+// defaultMaxArchiveBytes seeds the byte cap. It is a var (not a const) so
+// tests can shrink the cap to a synthesizable bound; the production value is
+// file.DefaultMaxArchiveBytes (32 GiB).
 var defaultMaxArchiveBytes = file.DefaultMaxArchiveBytes
-
-// caseInsensitiveFS reports whether the extraction filesystem may fold case,
-// as macOS volumes do by default. There, entries such as META-INF/LICENSE and
-// META-INF/license/ name the same path, so ExtractZip assigns sibling names
-// to entries and directories whose path is already taken (see
-// zipFoldedPaths). It is a var so tests can enable the handling on any
-// platform.
-var caseInsensitiveFS = runtime.GOOS == "darwin"
-
-// maxCollisionNames bounds the sibling names tried for one entry.
-const maxCollisionNames = 1024
 
 // resolveArchiveCaps returns the effective byte and ratio caps for an archive
 // extraction. Caller-supplied Config values take precedence over defaults; a
@@ -70,15 +56,32 @@ func resolveArchiveCaps(ctx context.Context) (maxBytes int64, maxRatio float64) 
 	return maxBytes, maxRatio
 }
 
-// ExtractZip extracts zip-format archives (.ear, .jar, .war, .whl, .zip).
-func ExtractZip(ctx context.Context, d string, f string) error {
-	return extractZipWithKind(ctx, d, f, detectFileType(ctx, f))
+// zipEntry is a file entry of a zip archive and the path reserved for it.
+type zipEntry struct {
+	zf   *zip.File
+	name string // the cleaned name
+	path string
 }
 
-// extractZipWithKind is ExtractZip with the archive's detected type reported by
-// fileType, so that a caller which already detected it need not read the
-// archive again.
-func extractZipWithKind(ctx context.Context, d, f string, fileType func() *programkind.FileType) (err error) {
+// zipExtraction writes the entries of one zip archive beneath one root.
+type zipExtraction struct {
+	ctx    context.Context
+	logger *clog.Logger
+	src    *os.File // the archive
+	paths  *entryPaths
+	budget *budget
+}
+
+// ExtractZip extracts zip-format archives (.ear, .jar, .war, .whl, .zip, and
+// any file whose content is a zip, including one with data such as a launcher
+// script prepended). Every entry is written as a file, under a cleaned name
+// when its own would leave the extraction directory, and under a sibling name
+// when another entry took its path, as on a filesystem that folds case. An
+// entry is a directory only when its name ends in "/"; a symlink entry is
+// written as a file holding its bytes, as Python's zipfile writes it. Entries
+// the central directory omits are extracted from their local headers, and
+// archive and entry comments are written to the metadata sidecar.
+func ExtractZip(ctx context.Context, d string, f string) (err error) {
 	defer recoverExtractor(ctx, "zip", f, &err)
 	if ctx.Err() != nil {
 		return ctx.Err()
@@ -87,37 +90,23 @@ func extractZipWithKind(ctx context.Context, d, f string, fileType func() *progr
 	logger := clog.FromContext(ctx).With("dir", d, "file", f)
 	logger.Debug("extracting zip")
 
-	fi, err := file.Stat(f)
+	zfh, fi, err := openRegular(f)
 	if err != nil {
-		return fmt.Errorf("failed to stat file %s: %w", f, err)
+		return fmt.Errorf("failed to open zip file %q: %w", f, err)
 	}
+	defer zfh.Close()
 	if fi.Size() == 0 {
 		return nil
 	}
 
-	var isZip bool
-	if ft := fileType(); ft != nil {
-		_, isZip = zipMIME[ft.MIME]
-	}
-
-	if !isZip {
-		return fmt.Errorf("not a valid zip archive: %s", f)
-	}
-
-	zfh, err := file.Open(f)
+	read, err := zip.NewReader(zfh, fi.Size())
 	if err != nil {
-		return fmt.Errorf("failed to open zip file %s: %w", f, err)
-	}
-	defer zfh.Close()
-	zfi, err := zfh.Stat()
-	if err != nil {
-		return fmt.Errorf("failed to open zip file %s: %w", f, err)
-	}
-	read, err := zip.NewReader(zfh, zfi.Size())
-	if err != nil {
-		return fmt.Errorf("failed to open zip file %s: %w", f, err)
+		return fmt.Errorf("not a valid zip archive: %q: %w", f, err)
 	}
 	read.RegisterDecompressor(zip.Deflate, newZipInflater)
+	read.RegisterDecompressor(zipMethodBzip2, func(r io.Reader) io.ReadCloser { return newBzip2Reader(ctx, r) })
+	read.RegisterDecompressor(zstd.ZipMethodWinZip, zstd.ZipDecompressor(zstdOptions()...))
+	read.RegisterDecompressor(zstd.ZipMethodPKWare, zstd.ZipDecompressor(zstdOptions()...))
 
 	root, err := openRoot(d)
 	if err != nil {
@@ -127,58 +116,22 @@ func extractZipWithKind(ctx context.Context, d, f string, fileType func() *progr
 	er := newEntryRoots(root)
 	defer er.close()
 
-	// folded stays nil on case-sensitive filesystems, where every entry is
-	// written at the path it names.
-	var folded *zipFoldedPaths
-	if caseInsensitiveFS {
-		folded = newZipFoldedPaths(root)
+	x := &zipExtraction{
+		ctx:    ctx,
+		logger: logger,
+		src:    zfh,
+		paths:  newEntryPaths(er),
+		// Shared counter across all entries enforces a uniform ratio ceiling;
+		// InputBytes seeds the ratio denominator from the archive size.
+		budget: newArchiveCounter(ctx, fi.Size()),
 	}
 
-	for _, zf := range read.File {
-		if zf.Mode().IsDir() {
-			clean := zipEntryPath(zf.Name)
-			if strings.Contains(clean, "..") {
-				logger.Warnf("skipping potentially unsafe directory path: %s", zf.Name)
-				continue
-			}
-
-			target := filepath.Join(d, clean)
-			if !er.validPath(target, d) {
-				logger.Warnf("skipping directory path outside extraction directory: %s", target)
-				continue
-			}
-
-			if folded != nil {
-				if _, err := folded.dir(clean); err != nil {
-					return fmt.Errorf("failed to create directory structure: %w", err)
-				}
-				continue
-			}
-			if err := root.MkdirAll(clean, 0o700); err != nil {
-				return fmt.Errorf("failed to create directory structure: %w", err)
-			}
-		}
-	}
-
-	// Shared counter across all entries enforces a uniform byte and ratio
-	// ceiling. InputBytes seeds the ratio denominator from the outer archive
-	// size. Caps prefer ctx-attached Config values; absent/zero values fall
-	// back to the package defaults so zero-config callers still receive a
-	// finite cap.
-	counter := newArchiveCounter(ctx, fi.Size())
-
-	var entries, symlinks []*zip.File
-	for _, zf := range read.File {
-		switch {
-		case zf.Mode().IsDir():
-		case zf.Mode()&os.ModeSymlink != 0:
-			// Symlinks are created one at a time after every other entry so
-			// that no concurrent write can change what a link resolves to
-			// while it is validated.
-			symlinks = append(symlinks, zf)
-		default:
-			entries = append(entries, zf)
-		}
+	// Directories are created and every file's path reserved in archive
+	// order, so that the paths entries are written to, sibling names among
+	// them, are the same however the concurrent writes interleave.
+	entries, err := x.plan(read.File)
+	if err != nil {
+		return err
 	}
 
 	// An extraction that fails is scanned as far as it got, so what it leaves
@@ -186,36 +139,74 @@ func extractZipWithKind(ctx context.Context, d, f string, fileType func() *progr
 	// together are extracted concurrently, and a failed entry does not stop
 	// the others. The rest are extracted one at a time, smallest first, until
 	// the caps stop them.
-	fit, over := splitByCaps(entries, counter.Available())
-	if err := extractEntries(ctx, fit, f, er, logger, counter, folded); err != nil {
-		return fmt.Errorf("extraction failed: %w", err)
+	fit, over := splitByCaps(entries, x.budget.Available())
+	errs := extractEntries(ctx, fit, f, x)
+	for _, e := range over {
+		err := x.extractFile(e)
+		errs = append(errs, err)
+		if err != nil && fatalExtractionError(ctx, err) {
+			break
+		}
 	}
-	for _, zf := range over {
-		if err := extractFile(ctx, zf, er, logger, counter, folded); err != nil {
+	var lost []error
+	for _, err := range errs {
+		switch {
+		case err == nil:
+		case fatalExtractionError(ctx, err):
 			return fmt.Errorf("extraction failed: %w", err)
+		default:
+			lost = append(lost, err)
 		}
 	}
 
-	for _, zf := range symlinks {
-		if err := extractFile(ctx, zf, er, logger, counter, folded); err != nil {
-			return fmt.Errorf("extraction failed: %w", err)
-		}
+	var sc sidecar
+	sc.add("zip comment", []byte(read.Comment))
+	for _, zf := range read.File {
+		sc.add(fmt.Sprintf("zip entry %q comment", zf.Name), []byte(zf.Comment))
 	}
 
-	if err := zipUnaccountedBytes(f, fi.Size()); err != nil {
-		return fmt.Errorf("%w in %s: %w", ErrUnaccountedBytes, filepath.Base(f), err)
+	auditErr := x.auditRegions(fi.Size())
+	results := []error{auditErr, sc.writeIn(x.paths, ".", x.budget), sc.err()}
+	if len(lost) > 0 {
+		results = append(results, fmt.Errorf("%w: extraction failed: %w", ErrUnaccountedBytes, errors.Join(lost...)))
 	}
-
-	return nil
+	return errors.Join(results...)
 }
 
-// zipEntryPath returns the cleaned path, relative to the extraction
-// directory, that an entry named name is extracted to. Like unzip, it
-// extracts an absolute name beneath the directory rather than skipping it,
-// which would leave what it holds unscanned; no root call accepts an
-// absolute name.
-func zipEntryPath(name string) string {
-	return cmp.Or(strings.TrimPrefix(filepath.Clean(filepath.ToSlash(name)), "/"), ".")
+// plan creates the directories that entries name and reserves the path of
+// every file entry, in archive order, charging each entry's fixed cost.
+func (x *zipExtraction) plan(files []*zip.File) ([]zipEntry, error) {
+	var entries []zipEntry
+	for _, zf := range files {
+		if err := x.budget.Entry(); err != nil {
+			return nil, fmt.Errorf("zip extraction aborted on %q: %w", zf.Name, err)
+		}
+		if strings.HasSuffix(zf.Name, "/") && zf.UncompressedSize64 == 0 {
+			clean, changed := entryName(zf.Name)
+			if changed {
+				x.logger.Warnf("extracting zip directory %q as %q", zf.Name, clean)
+			}
+			if _, err := x.paths.dir(clean); err != nil {
+				x.logger.Warnf("skipping zip directory %q: %v", zf.Name, err)
+			}
+			continue
+		}
+		// A directory entry carrying data, or any other entry, is written as
+		// a file, so that its content is scanned.
+		clean, changed := fileEntryName(strings.TrimSuffix(zf.Name, "/"))
+		path, err := x.paths.reserve(clean, kindFile)
+		if err != nil {
+			return nil, fmt.Errorf("failed to reserve a path for %q: %w", zf.Name, err)
+		}
+		switch {
+		case path != clean:
+			x.logger.Warnf("extracting zip entry %q as %q because the path is already taken", zf.Name, path)
+		case changed:
+			x.logger.Warnf("extracting zip entry %q as %q", zf.Name, path)
+		}
+		entries = append(entries, zipEntry{zf: zf, name: clean, path: path})
+	}
+	return entries, nil
 }
 
 // splitByCaps divides entries into those that fit within budget bytes
@@ -223,28 +214,28 @@ func zipEntryPath(name string) string {
 // zip reader returns no more of an entry than its declared size, so however
 // the extraction of the entries that fit interleaves, they cannot exceed the
 // caps.
-func splitByCaps(entries []*zip.File, budget int64) (fit, over []*zip.File) {
+func splitByCaps(entries []zipEntry, budget int64) (fit, over []zipEntry) {
 	bySize := slices.Clone(entries)
-	slices.SortStableFunc(bySize, func(a, b *zip.File) int {
-		return cmp.Compare(a.UncompressedSize64, b.UncompressedSize64)
+	slices.SortStableFunc(bySize, func(a, b zipEntry) int {
+		return cmp.Compare(a.zf.UncompressedSize64, b.zf.UncompressedSize64)
 	})
 	left := uint64(max(budget, 0))
 	n := 0
-	for ; n < len(bySize) && bySize[n].UncompressedSize64 <= left; n++ {
-		left -= bySize[n].UncompressedSize64
+	for ; n < len(bySize) && bySize[n].zf.UncompressedSize64 <= left; n++ {
+		left -= bySize[n].zf.UncompressedSize64
 	}
 	return bySize[:n], bySize[n:]
 }
 
-// extractEntries extracts entries of the archive f concurrently. A failed
-// entry does not stop the others; the error returned is that of the first
-// failed entry in entries.
-func extractEntries(ctx context.Context, entries []*zip.File, f string, er *entryRoots, logger *clog.Logger, counter *file.ArchiveCounter, folded *zipFoldedPaths) error {
+// extractEntries extracts entries of the archive f concurrently and returns
+// each entry's error, in the order of entries. A failed entry does not stop
+// the others.
+func extractEntries(ctx context.Context, entries []zipEntry, f string, x *zipExtraction) []error {
 	var g errgroup.Group
 	g.SetLimit(EffectiveMaxConcurrency(runtime.GOMAXPROCS(0)))
 	sem := extractionSemaphore()
 	errs := make([]error, len(entries))
-	for i, zf := range entries {
+	for i, e := range entries {
 		g.Go(func() error {
 			errs[i] = func() (err error) {
 				defer recoverExtractor(ctx, "zip", f, &err)
@@ -255,249 +246,89 @@ func extractEntries(ctx context.Context, entries []*zip.File, f string, er *entr
 					return err
 				}
 				defer sem.Release(1)
-				return extractFile(ctx, zf, er, logger, counter, folded)
+				return x.extractFile(e)
 			}()
 			return nil
 		})
 	}
 	_ = g.Wait()
-	for _, err := range errs {
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+	return errs
 }
 
-// extractFile writes one file or symlink entry beneath er's root. A nil
-// folded writes the entry at the path it names; otherwise folded assigns the
-// path.
-func extractFile(ctx context.Context, zf *zip.File, er *entryRoots, logger *clog.Logger, counter *file.ArchiveCounter, folded *zipFoldedPaths) error {
-	if ctx.Err() != nil {
-		return ctx.Err()
+// extractFile writes one file entry to the path reserved for it.
+func (x *zipExtraction) extractFile(e zipEntry) error {
+	if err := x.ctx.Err(); err != nil {
+		return err
 	}
 
-	clean := zipEntryPath(zf.Name)
-	if strings.Contains(clean, "..") {
-		logger.Warnf("skipping potentially unsafe file path: %s", zf.Name)
-		return nil
-	}
-
-	target := filepath.Join(er.root.Name(), clean)
-	if !er.validPath(target, er.root.Name()) {
-		logger.Warnf("skipping file path outside extraction directory: %s", target)
-		return nil
-	}
-
-	if zf.Mode()&os.ModeSymlink != 0 {
-		src, err := zf.Open()
-		if err != nil {
-			return fmt.Errorf("failed to open symlink entry: %w", err)
-		}
-		defer src.Close()
-
-		const maxSymlinkTarget int64 = 4096
-		linkTarget, err := io.ReadAll(io.LimitReader(src, maxSymlinkTarget))
-		if err != nil {
-			return fmt.Errorf("failed to read symlink target: %w", err)
-		}
-
-		name := clean
-		if folded != nil {
-			if name, err = folded.symlinkName(clean); err != nil {
-				return fmt.Errorf("failed to create symlink: %w", err)
-			}
-		}
-
-		// The link may replace an entry that other names led through.
-		defer er.close()
-		if err := handleSymlink(er.root, name, string(linkTarget)); err != nil {
-			return fmt.Errorf("failed to create symlink: %w", err)
-		}
-		return nil
-	}
-
-	buf := extractPool.Get()
-	defer extractPool.Put(buf)
-
-	src, err := zf.Open()
+	src, err := x.openEntry(e.zf)
 	if err != nil {
-		return fmt.Errorf("failed to open archived file: %w", err)
+		return fmt.Errorf("failed to open archived file %q: %w", e.zf.Name, err)
 	}
 	defer src.Close()
 
-	var dst *os.File
-	name := clean
-	if folded != nil {
-		dst, name, err = folded.createFile(clean)
-	} else {
-		dst, err = er.createFile(clean)
-	}
+	dst, _, err := x.paths.createAt(e.name, e.path)
 	if err != nil {
-		return err
+		return fmt.Errorf("zip entry %q: %w", e.zf.Name, err)
 	}
 	defer dst.Close()
-	if name != clean {
-		logger.Debugf("writing %s as %s because the path is already taken", clean, name)
+
+	buf := extractPool.Get()
+	defer extractPool.Put(buf)
+	if err := copyCounted(x.ctx, dst, src, x.budget, buf, e.path); err != nil {
+		return fmt.Errorf("zip entry %q: %w", e.zf.Name, err)
 	}
-
-	for {
-		if err := ctx.Err(); err != nil {
-			return err
-		}
-
-		n, err := src.Read(buf)
-		if n > 0 {
-			if capErr := counter.Add(n); capErr != nil {
-				return fmt.Errorf("zip extraction aborted on %s: %w", target, capErr)
-			}
-
-			if _, writeErr := dst.Write(buf[:n]); writeErr != nil {
-				return fmt.Errorf("failed to write file contents: %w", writeErr)
-			}
-		}
-
-		if errors.Is(err, io.EOF) {
-			break
-		}
-
-		if err != nil {
-			return fmt.Errorf("failed to read file contents: %w", err)
-		}
-	}
-
 	return nil
 }
 
-// zipFoldedPaths assigns output paths beneath root on a filesystem that folds
-// case, where differently cased entry names can claim the same path. A file
-// or symlink whose path is taken gets a sibling name. A directory whose path
-// holds anything other than a directory gets a new sibling directory, which
-// every entry beneath it then shares. All operations go through root.
-type zipFoldedPaths struct {
-	root *os.Root
-	mu   sync.Mutex
-	// dirs maps each directory, as entries name it and folded to lower case,
-	// to the directory created for it. Guarded by mu.
-	dirs map[string]string
-}
-
-func newZipFoldedPaths(root *os.Root) *zipFoldedPaths {
-	return &zipFoldedPaths{root: root, dirs: map[string]string{}}
-}
-
-// dir returns the directory created for name, a cleaned relative path,
-// creating it and any missing parents. Like root, it rejects absolute names,
-// which also guarantees that walking up the parents ends at ".".
-func (p *zipFoldedPaths) dir(name string) (string, error) {
-	if name == "." {
-		return name, nil
-	}
-	if !filepath.IsLocal(name) {
-		return "", fmt.Errorf("failed to create directory: path outside extraction directory: %s", name)
-	}
-	p.mu.Lock()
-	defer p.mu.Unlock()
-	return p.dirLocked(name)
-}
-
-func (p *zipFoldedPaths) dirLocked(name string) (string, error) {
-	if name == "." {
-		return name, nil
-	}
-	key := strings.ToLower(name)
-	if got, ok := p.dirs[key]; ok {
-		return got, nil
-	}
-	parent, err := p.dirLocked(filepath.Dir(name))
-	if err != nil {
-		return "", err
-	}
-	want := filepath.Join(parent, filepath.Base(name))
-	for candidate := range zipCollisionNames(want) {
-		err := p.root.Mkdir(candidate, 0o700)
-		if errors.Is(err, fs.ErrExist) {
-			// Only the wanted name may be reused, and only when it is a real
-			// directory; a sibling must be new so renamed contents stay apart.
-			if candidate != want || !p.isDir(candidate) {
-				continue
-			}
-			err = nil
-		}
+// openEntry returns the decompressed content of zf. LZMA and xz entries are
+// decoded from their raw bytes after their declared dictionary is checked;
+// every other method is decoded by the zip reader.
+func (x *zipExtraction) openEntry(zf *zip.File) (io.ReadCloser, error) {
+	switch zf.Method {
+	case zipMethodLZMA:
+		raw, err := zf.OpenRaw()
 		if err != nil {
-			return "", fmt.Errorf("failed to create directory: %w", err)
+			return nil, err
 		}
-		p.dirs[key] = candidate
-		return candidate, nil
-	}
-	return "", fmt.Errorf("failed to create directory: no unused name derived from %s", want)
-}
-
-func (p *zipFoldedPaths) isDir(name string) bool {
-	fi, err := p.root.Lstat(name)
-	return err == nil && fi.IsDir()
-}
-
-// createFile creates the file for name, a cleaned relative path, in the
-// directory created for its parent, under the first free name derived from
-// it, and returns the file and the name used. Exclusive creation keeps
-// concurrent workers from sharing a file and never follows a symlink.
-func (p *zipFoldedPaths) createFile(name string) (*os.File, string, error) {
-	parent, err := p.dir(filepath.Dir(name))
-	if err != nil {
-		return nil, "", err
-	}
-	for candidate := range zipCollisionNames(filepath.Join(parent, filepath.Base(name))) {
-		out, err := p.root.OpenFile(candidate, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600)
-		if err == nil {
-			return out, candidate, nil
-		}
-		if !errors.Is(err, fs.ErrExist) {
-			return nil, "", fmt.Errorf("failed to create file: %w", err)
-		}
-	}
-	return nil, "", fmt.Errorf("failed to create file: no unused name derived from %s", name)
-}
-
-// symlinkName returns the first free name derived from name, a cleaned
-// relative path, in the directory created for its parent. ExtractZip creates
-// symlinks one at a time after every other entry, so the name stays free
-// until the link is made.
-func (p *zipFoldedPaths) symlinkName(name string) (string, error) {
-	parent, err := p.dir(filepath.Dir(name))
-	if err != nil {
-		return "", err
-	}
-	for candidate := range zipCollisionNames(filepath.Join(parent, filepath.Base(name))) {
-		_, err := p.root.Lstat(candidate)
-		if errors.Is(err, fs.ErrNotExist) {
-			return candidate, nil
-		}
+		r, err := newZipLZMAReader(raw, zf.UncompressedSize64)
 		if err != nil {
-			return "", fmt.Errorf("failed to inspect %s: %w", candidate, err)
+			return nil, err
 		}
+		return io.NopCloser(io.LimitReader(r, clampInt64(zf.UncompressedSize64))), nil
+	case zipMethodXZ:
+		offset, err := zf.DataOffset()
+		if err != nil {
+			return nil, err
+		}
+		size := clampInt64(zf.CompressedSize64)
+		r, err := newXZReader(io.NewSectionReader(x.src, offset, size), size)
+		if err != nil {
+			return nil, err
+		}
+		return io.NopCloser(io.LimitReader(r, clampInt64(zf.UncompressedSize64))), nil
+	default:
+		return zf.Open()
 	}
-	return "", fmt.Errorf("no unused name derived from %s", name)
 }
 
-// zipCollisionNames yields name and then up to maxCollisionNames sibling names
-// derived from it. Each suffix goes before the extension programkind reports,
-// so a renamed nested archive is still recognized by its name.
-func zipCollisionNames(name string) iter.Seq[string] {
-	return func(yield func(string) bool) {
-		if !yield(name) {
-			return
-		}
-		dir, base := filepath.Split(name)
-		ext := programkind.GetExt(base)
-		if len(ext) >= len(base) || !strings.HasSuffix(base, ext) {
-			ext = ""
-		}
-		stem := strings.TrimSuffix(base, ext)
-		for i := range maxCollisionNames {
-			if !yield(dir + stem + "_" + strconv.Itoa(i+1) + ext) {
-				return
-			}
-		}
+// newZipLZMAReader returns a decoder of the LZMA data of a zip entry: a
+// version, a properties size, and the properties, then the stream. It checks
+// the declared dictionary and hands the decoder the classic header it
+// expects, holding the entry's uncompressed size.
+func newZipLZMAReader(raw io.Reader, size uint64) (io.Reader, error) {
+	var hdr [9]byte
+	if _, err := io.ReadFull(raw, hdr[:]); err != nil {
+		return nil, fmt.Errorf("lzma header: %w", err)
 	}
+	if binary.LittleEndian.Uint16(hdr[2:4]) != 5 {
+		return nil, errors.New("lzma header: unexpected properties size")
+	}
+	if err := checkLZMADict(binary.LittleEndian.Uint32(hdr[5:9])); err != nil {
+		return nil, err
+	}
+	classic := make([]byte, 13)
+	copy(classic, hdr[4:9])
+	binary.LittleEndian.PutUint64(classic[5:], size)
+	return lzma.NewReader(io.MultiReader(bytes.NewReader(classic), raw))
 }

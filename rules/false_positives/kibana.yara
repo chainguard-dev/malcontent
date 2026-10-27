@@ -14,14 +14,15 @@ rule kibana_powershell_evasion_rule: override {
 
 rule security_solution_plugin: override {
   meta:
-    linux_rootkit_terms = "low"
-    masscan             = "low"
-    reverse_shell       = "low"
-    grayware_sites      = "low"
-    http_url_with_exe   = "low"
-    exotic_tld          = "low"
-    download_sites      = "low"
-    description         = "securitySolution.chunk.*.js"
+    linux_rootkit_terms      = "low"
+    masscan                  = "low"
+    reverse_shell            = "low"
+    grayware_sites           = "low"
+    http_url_with_exe        = "low"
+    http_url_with_powershell = "low"
+    exotic_tld               = "low"
+    download_sites           = "low"
+    description              = "securitySolution.chunk.*.js"
 
   strings:
     $license           = /Copyright Elasticsearch B\.V\. and\/or licensed to Elasticsearch B\.V\./

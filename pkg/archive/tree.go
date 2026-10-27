@@ -5,6 +5,7 @@ package archive
 
 import (
 	"context"
+	"crypto/sha256"
 	"fmt"
 	"io/fs"
 	"os"
@@ -14,7 +15,6 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
-	"github.com/minio/sha256-simd"
 	"github.com/puzpuzpuz/xsync/v4"
 )
 
@@ -62,7 +62,11 @@ func (n Nested) Rel() string {
 // OpenTree extracts the archive at path into a new temporary directory,
 // reading the archive once to detect its kind and digest its content. An
 // archive that cannot be extracted is retained in the directory, to be
-// scanned as a file, unless c.ExitExtraction is set. Nested archives are left
+// scanned as a file, unless c.ExitExtraction is set; so is one whose
+// extraction produces no file, such as a file named like an archive that
+// holds none. A path whose content and name show no format OpenTree extracts
+// is reported as ErrUnsupportedArchive, and one that is not a regular file,
+// such as a FIFO, as an error, without reading it. Nested archives are left
 // for ExtractNested.
 func OpenTree(ctx context.Context, c malcontent.Config, path string) (*Tree, error) {
 	if ctx.Err() != nil {
@@ -76,24 +80,18 @@ func OpenTree(ctx context.Context, c malcontent.Config, path string) (*Tree, err
 		return nil, err
 	}
 
-	var extract func(context.Context, string, string) error
-	switch {
-	case ft != nil && ft.MIME == "application/zlib":
-		extract = ExtractZlib
-	case ft != nil && ft.MIME == "application/x-upx":
-		extract = ExtractUPX
-	default:
-		extract = extractorFor(programkind.GetExt(path), ft)
-	}
-
-	if extract == nil {
-		return nil, fmt.Errorf("unsupported archive type: %s", path)
+	extract, err := chooseExtractor(path, ft)
+	if err != nil {
+		return nil, err
 	}
 
 	// The scanned archive contains every archive in the tree, so a copy of it
 	// nested inside itself is scanned as it is rather than extracted again.
+	// Every extraction in the tree charges one byte counter, so that nesting
+	// cannot multiply what the scanned archive writes.
 	tree := newNestedTree(xsync.NewMap[string, bool]())
 	tree.root = &ancestry{digest: digest}
+	tree.budget = newTreeCounter(ctx, &c)
 
 	// The directory is created only once extraction is certain to be
 	// attempted, so the early returns above leave nothing behind.
@@ -105,8 +103,9 @@ func OpenTree(ctx context.Context, c malcontent.Config, path string) (*Tree, err
 
 	err = func() (extractErr error) {
 		defer recoverExtractor(ctx, "top-level", path, &extractErr)
-		return extract(ctx, tmpDir, path)
+		return extract(tree.withBudget(ctx), tmpDir, path)
 	}()
+	retain := err != nil
 	if err != nil {
 		if c.ExitExtraction {
 			cleanupTempDir(ctx, tmpDir)
@@ -118,6 +117,14 @@ func OpenTree(ctx context.Context, c malcontent.Config, path string) (*Tree, err
 		// this, anything the extractor could not account for leaves the corpus
 		// entirely and the scan reports nothing.
 		logger.Warnf("extraction failed for %s, retaining archive for scanning: %s", path, err)
+	} else if root, rerr := os.OpenRoot(tmpDir); rerr == nil {
+		retain = !holdsRegularFile(root, ".")
+		_ = root.Close()
+		if retain {
+			logger.Warnf("extracting %s produced no files, retaining archive for scanning", path)
+		}
+	}
+	if retain {
 		retained, retainErr := retainArchive(tmpDir, path)
 		if retainErr != nil {
 			cleanupTempDir(ctx, tmpDir)
@@ -137,39 +144,29 @@ func OpenTree(ctx context.Context, c malcontent.Config, path string) (*Tree, err
 }
 
 // sniffArchive returns the kind of the archive at path, as programkind.File
-// detects it, and the SHA-256 digest of its content. A regular, non-empty
-// archive is read once for both.
+// detects it, and the SHA-256 digest of its content, reading it once for
+// both. Anything other than a regular file is reported without being read.
 func sniffArchive(ctx context.Context, path string) (*programkind.FileType, [sha256.Size]byte, error) {
 	var digest [sha256.Size]byte
-	fi, err := file.Stat(path)
-	if err != nil || !fi.Mode().IsRegular() || fi.Size() == 0 {
-		ft, err := programkind.File(ctx, path)
-		if err != nil {
-			return nil, digest, fmt.Errorf("failed to determine file type: %w", err)
-		}
-		f, err := file.Open(path)
-		if err != nil {
-			return nil, digest, fmt.Errorf("failed to open archive for hashing: %w", err)
-		}
-		defer f.Close()
-		digest, err = contentDigest(f)
-		return ft, digest, err
-	}
-
-	f, err := file.Open(path)
+	f, fi, err := openRegular(path)
 	if err != nil {
-		return nil, digest, fmt.Errorf("failed to determine file type: open: %w", err)
+		return nil, digest, fmt.Errorf("failed to determine file type: %w", err)
 	}
-	contents, err := file.ReadContents(f, fi.Size())
-	_ = f.Close()
-	if err != nil {
+	if fi.Size() == 0 {
+		_ = f.Close()
+		// programkind.File reports no kind for an empty file.
+		return nil, sha256.Sum256(nil), nil
+	}
+	defer f.Close()
+	var ft *programkind.FileType
+	if err := file.InspectContents(f, fi.Size(), func(b []byte) error {
+		ft = programkind.Detect(ctx, path, b)
+		digest = sha256.Sum256(b)
+		return nil
+	}); err != nil {
 		return nil, digest, fmt.Errorf("failed to determine file type: file contents: %w", err)
 	}
-	defer contents.Close()
-
-	b := contents.Bytes()
-	ft := programkind.Detect(ctx, path, b[:min(int64(len(b)), file.MaxBytes)])
-	return ft, sha256.Sum256(b), nil
+	return ft, digest, nil
 }
 
 // Dir returns the tree's temporary directory.

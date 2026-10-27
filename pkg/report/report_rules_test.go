@@ -5,14 +5,19 @@ package report
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"fmt"
+	"io"
 	"maps"
+	"os"
 	"reflect"
 	"slices"
 	"strings"
 	"testing"
 
+	"github.com/chainguard-dev/malcontent/pkg/file"
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/chainguard-dev/malcontent/pkg/programkind"
 
@@ -44,11 +49,12 @@ func reportRuleSrc(name, tags, meta, literal string) string {
 	return fmt.Sprintf("%s {\n%s  strings:\n    $s = %q\n  condition:\n    $s\n}\n", head, body, literal)
 }
 
-// reportGenerate scans fc with the compiled sources and returns the report.
-func reportGenerate(t *testing.T, sources map[string]string, fc []byte, path string, c malcontent.Config, kind *programkind.FileType) *malcontent.FileReport {
+// reportGenerate scans fc with the compiled sources and returns the report
+// for a file at test/path.
+func reportGenerate(t *testing.T, sources map[string]string, fc []byte, c malcontent.Config, kind *programkind.FileType) *malcontent.FileReport {
 	t.Helper()
 	mrs := scanBuf(t, compileTestRules(t, sources), fc)
-	fr, err := Generate(t.Context(), path, mrs, c, "", nil, fc, int64(len(fc)), "cksum", kind, 0)
+	fr, err := Generate(t.Context(), "test/path", mrs, c, "", fc, int64(len(fc)), "cksum", kind)
 	if err != nil {
 		t.Fatalf("Generate: %v", err)
 	}
@@ -316,20 +322,16 @@ rule vendor_override_partial: override {
 `,
 }
 
-func TestReportBuilderBehavior(t *testing.T) {
+func TestRuleInfoBehavior(t *testing.T) {
 	t.Parallel()
 	rules := reportRulesByName(t, reportMetadataRulesSrc)
 	const ref = "v0.0.0-test"
 
-	// matching lists the identifiers of the rules that matched the file; edit
-	// applies the expected changes to the behavior the rule starts from.
+	// edit applies the expected changes to the behavior the rule starts from.
 	tests := []struct {
 		name           string
 		rule           string
-		matching       []string
 		edit           func(b *malcontent.Behavior)
-		wantInvalid    bool
-		wantTargets    map[string]int
 		wantMalcontent bool
 		wantPledges    []string
 		wantSyscalls   []string
@@ -398,81 +400,13 @@ func TestReportBuilderBehavior(t *testing.T) {
 			edit: func(b *malcontent.Behavior) { b.Description = "kept after empty values" },
 		},
 		{
-			name:           "malcontent marker set to true flags the file",
+			name:           "malcontent marker set to true flags the rule",
 			rule:           "self_marker",
 			wantMalcontent: true,
 		},
 		{
-			name: "malcontent marker set to false leaves the file unflagged",
+			name: "malcontent marker set to false leaves the rule unflagged",
 			rule: "self_marker_false",
-		},
-		{
-			name:     "override of a matching rule applies its severity",
-			rule:     "override_target",
-			matching: []string{"target"},
-			edit: func(b *malcontent.Behavior) {
-				b.RiskScore = MEDIUM
-				b.RiskLevel = LevelMEDIUM
-				b.Override = []string{"target"}
-			},
-			wantTargets: map[string]int{"target": MEDIUM},
-		},
-		{
-			// The override rule's own behavior is dropped in handleOverrides.
-			// Each target carries the severity of its own key.
-			name:     "override records each key with its own severity",
-			rule:     "override_mixed",
-			matching: []string{"target", "other_target"},
-			edit: func(b *malcontent.Behavior) {
-				b.RiskScore = LOW
-				b.RiskLevel = LevelLOW
-				b.Override = []string{"target", "other_target"}
-			},
-			wantTargets: map[string]int{"target": MEDIUM, "other_target": LOW},
-		},
-		{
-			name:        "override of a rule that did not match is invalid",
-			rule:        "override_target",
-			wantInvalid: true,
-		},
-		{
-			name:     "override naming a missing rule first still records a later matching rule",
-			rule:     "override_missing_first",
-			matching: []string{"target"},
-			edit: func(b *malcontent.Behavior) {
-				b.RiskScore = MEDIUM
-				b.RiskLevel = LevelMEDIUM
-				b.Override = []string{"target"}
-			},
-			wantInvalid: true,
-			wantTargets: map[string]int{"target": MEDIUM},
-		},
-		{
-			name:     "override skips scoping and severity keys",
-			rule:     "override_scoped",
-			matching: []string{"target"},
-			edit: func(b *malcontent.Behavior) {
-				b.RiskScore = LOW
-				b.RiskLevel = LevelLOW
-				b.Override = []string{"target"}
-			},
-			wantTargets: map[string]int{"target": LOW},
-		},
-		{
-			name:     "third-party override is not applied",
-			rule:     "vendor_override",
-			matching: []string{"target"},
-		},
-		{
-			name:        "third-party override naming a missing rule after a matching one is invalid",
-			rule:        "vendor_override_partial",
-			matching:    []string{"target"},
-			wantInvalid: true,
-		},
-		{
-			name:     "non-override rule naming a matching rule is not an override",
-			rule:     "named_target",
-			matching: []string{"target"},
 		},
 		{
 			name: "unknown keys on a non-override rule are ignored",
@@ -486,58 +420,79 @@ func TestReportBuilderBehavior(t *testing.T) {
 			if r == nil {
 				t.Fatalf("rule %q not compiled", tt.rule)
 			}
-			matching := make([]*yarax.Rule, 0, len(tt.matching))
-			for _, n := range tt.matching {
-				matching = append(matching, rules[n])
-			}
 			risk := matchRisk(r)
+			// A rule without a description gets one from its name.
 			want := malcontent.Behavior{
-				ID:        generateKey(r.Namespace(), r.Identifier()),
-				RuleName:  tt.rule,
-				RuleURL:   generateRuleURL(ref, r.Namespace(), r.Identifier()),
-				RiskScore: risk,
-				RiskLevel: RiskLevels[risk],
+				ID:          generateKey(r.Namespace(), r.Identifier()),
+				RuleName:    tt.rule,
+				RuleURL:     generateRuleURL(ref, r.Namespace(), r.Identifier()),
+				RiskScore:   risk,
+				RiskLevel:   RiskLevels[risk],
+				Description: strings.ReplaceAll(tt.rule, "_", " "),
 			}
 			if tt.edit != nil {
 				tt.edit(&want)
 			}
 			ri := newRuleInfo(r, ref, 0)
+			if !reflect.DeepEqual(ri.behavior, want) {
+				t.Errorf("behavior: got = %+v, want = %+v", ri.behavior, want)
+			}
+			if ri.isMalcontent != tt.wantMalcontent {
+				t.Errorf("isMalcontent: got = %v, want = %v", ri.isMalcontent, tt.wantMalcontent)
+			}
+			if !slices.Equal(ri.pledges, tt.wantPledges) {
+				t.Errorf("pledges: got = %q, want = %q", ri.pledges, tt.wantPledges)
+			}
+			if !slices.Equal(ri.syscalls, tt.wantSyscalls) {
+				t.Errorf("syscalls: got = %q, want = %q", ri.syscalls, tt.wantSyscalls)
+			}
+			if !slices.Equal(ri.caps, tt.wantCaps) {
+				t.Errorf("caps: got = %q, want = %q", ri.caps, tt.wantCaps)
+			}
+		})
+	}
+}
+
+func TestReportBuilderClassifyRecordsOverrides(t *testing.T) {
+	t.Parallel()
+	rules := reportRulesByName(t, reportMetadataRulesSrc)
+	tests := []struct {
+		name     string
+		rule     string
+		matching []string
+		want     map[string]int
+	}{
+		{"an override of a matching rule records its severity", "override_target", []string{"target"}, map[string]int{"target": MEDIUM}},
+		{"an override of a rule that did not match records nothing", "override_target", nil, map[string]int{}},
+		{"an override records each key with its own severity", "override_mixed", []string{"target", "other_target"}, map[string]int{"target": MEDIUM, "other_target": LOW}},
+		{"an override naming a missing rule first still records a later matching rule", "override_missing_first", []string{"target"}, map[string]int{"target": MEDIUM}},
+		{"an override skips scoping and severity keys", "override_scoped", []string{"target"}, map[string]int{"target": LOW}},
+		{"a third-party rule tagged override records nothing", "vendor_override", []string{"target"}, map[string]int{}},
+		{"a third-party rule tagged override naming a missing rule records nothing", "vendor_override_partial", []string{"target"}, map[string]int{}},
+		{"a rule without the override tag records nothing", "named_target", []string{"target"}, map[string]int{}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			r := rules[tt.rule]
+			if r == nil {
+				t.Fatalf("rule %q not compiled", tt.rule)
+			}
+			matching := []*yarax.Rule{r}
+			for _, n := range tt.matching {
+				matching = append(matching, rules[n])
+			}
 			rb := newReportBuilder(&malcontent.FileReport{}, nil, matching)
-
-			b, valid := rb.behavior(ri)
-			fr, overrides := rb.fr, rb.overrides
-			pledges, caps, syscalls := rb.pledges, rb.caps, rb.syscalls
-
-			if valid == tt.wantInvalid {
-				t.Errorf("valid: got = %v, want = %v", valid, !tt.wantInvalid)
-			}
-			if !reflect.DeepEqual(*b, want) {
-				t.Errorf("behavior: got = %+v, want = %+v", *b, want)
-			}
-			gotTargets := map[string]int{}
-			for _, o := range overrides {
-				if o.rule != b {
-					t.Errorf("override %q source: got = %p, want = %p", o.target, o.rule, b)
+			rb.classify(malcontent.Config{}, nil, "")
+			got := map[string]int{}
+			for _, o := range rb.overrides {
+				if o.source.rule != r {
+					t.Errorf("override %q source: got = %s, want = %s", o.target, o.source.rule.Identifier(), tt.rule)
 				}
-				gotTargets[o.target] = o.score
+				got[o.target] = o.score
 			}
-			if !maps.Equal(gotTargets, tt.wantTargets) {
-				t.Errorf("override targets: got = %v, want = %v", gotTargets, tt.wantTargets)
-			}
-			if len(fr.Overrides) != 0 {
-				t.Errorf("fr.Overrides: got = %d entries, want = 0", len(fr.Overrides))
-			}
-			if fr.IsMalcontent != tt.wantMalcontent {
-				t.Errorf("IsMalcontent: got = %v, want = %v", fr.IsMalcontent, tt.wantMalcontent)
-			}
-			if !slices.Equal(pledges, tt.wantPledges) {
-				t.Errorf("pledges: got = %q, want = %q", pledges, tt.wantPledges)
-			}
-			if !slices.Equal(syscalls, tt.wantSyscalls) {
-				t.Errorf("syscalls: got = %q, want = %q", syscalls, tt.wantSyscalls)
-			}
-			if !slices.Equal(caps, tt.wantCaps) {
-				t.Errorf("caps: got = %q, want = %q", caps, tt.wantCaps)
+			if !maps.Equal(got, tt.want) {
+				t.Errorf("override targets: got = %v, want = %v", got, tt.want)
 			}
 		})
 	}
@@ -670,7 +625,7 @@ func TestGenerateBehaviorFields(t *testing.T) {
 		"alpha/one":     reportRuleSrc("alpha_rule", "low", `description = "alpha description"`, "alpha"),
 		"bravo/two":     reportRuleSrc("bravo_rule", "medium", "", "bravo"),
 		"charlie/three": reportRuleSrc("charlie_rule", "high", "", "charlie"),
-	}, fc, "test/path", malcontent.Config{MinRisk: LOW}, nil)
+	}, fc, malcontent.Config{MinRisk: LOW}, nil)
 
 	type view struct {
 		ID           string
@@ -780,7 +735,7 @@ func TestGenerateDropsRules(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			fr := reportGenerate(t, tt.sources, []byte("aaa bbb ccc"), "test/path", tt.c, tt.kind)
+			fr := reportGenerate(t, tt.sources, []byte("aaa bbb ccc"), tt.c, tt.kind)
 			if got := reportSortedNames(fr); !slices.Equal(got, tt.wantNames) {
 				t.Errorf("behaviors: got = %v, want = %v", got, tt.wantNames)
 			}
@@ -817,12 +772,32 @@ func TestGenerateQuantityIncreasesRisk(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			c := malcontent.Config{MinRisk: LOW, QuantityIncreasesRisk: tt.qir}
-			fr := reportGenerate(t, sources, []byte(tt.fc), "test/path", c, nil)
+			fr := reportGenerate(t, sources, []byte(tt.fc), c, nil)
 			if fr.RiskScore != tt.want || fr.RiskLevel != RiskLevels[tt.want] {
 				t.Errorf("file risk: got = %d/%s, want = %d/%s", fr.RiskScore, fr.RiskLevel, tt.want, RiskLevels[tt.want])
 			}
 		})
 	}
+}
+
+// runningBinarySHA256 returns the hex SHA-256 of the running test binary,
+// computed apart from the code under test.
+func runningBinarySHA256(t *testing.T) string {
+	t.Helper()
+	exe, err := os.Executable()
+	if err != nil {
+		t.Fatalf("os.Executable: %v", err)
+	}
+	f, err := file.Open(exe)
+	if err != nil {
+		t.Fatalf("open %s: %v", exe, err)
+	}
+	defer f.Close()
+	h := sha256.New()
+	if _, err := io.Copy(h, f); err != nil {
+		t.Fatalf("hash %s: %v", exe, err)
+	}
+	return hex.EncodeToString(h.Sum(nil))
 }
 
 func TestGenerateIgnoreSelf(t *testing.T) {
@@ -835,28 +810,38 @@ func TestGenerateIgnoreSelf(t *testing.T) {
   condition:
     $a
 }`
-	self := map[string]string{"internal/malcontent": "rule malcontent: harmless {" + marked}
-	impostor := map[string]string{"other/impostor": "rule impostor: harmless {" + marked}
+	self := map[string]string{
+		"internal/malcontent":  "rule malcontent: harmless {" + marked,
+		"malware/payload.yara": reportRuleSrc("payload", "critical", "", "PAYLOADMARK"),
+	}
 	unmarked := map[string]string{"internal/malcontent": `rule malcontent: harmless { strings: $a = "selfmark" condition: $a }`}
+	exe := runningBinarySHA256(t)
 
 	tests := []struct {
 		name           string
 		sources        map[string]string
 		path           string
+		checksum       string
 		ignoreSelf     bool
 		wantSkipped    string
 		wantMalcontent bool
 	}{
-		{"malcontent rule on the mal binary is skipped", self, "/usr/local/bin/mal", true, "ignoring malcontent binary", true},
-		{"disabled self-ignore keeps the mal binary", self, "/usr/local/bin/mal", false, "", true},
-		{"malcontent rule on another binary is kept", self, "/usr/bin/ls", true, "", true},
-		{"marker from a differently named rule does not skip", impostor, "/usr/local/bin/mal", true, "", true},
-		{"malcontent rule without the marker does not skip", unmarked, "/usr/local/bin/mal", true, "", false},
+		{"the running executable is skipped", self, "/usr/local/bin/mal", exe, true, "ignoring malcontent binary", true},
+		{"the running executable is skipped under any name", self, "/tmp/renamed", exe, true, "ignoring malcontent binary", true},
+		{"disabled self-ignore keeps the running executable", self, "/usr/local/bin/mal", exe, false, "", true},
+		{"another file named mal is kept", self, "/usr/local/bin/mal", "cksum", true, "", true},
+		{"another file named malcontent is kept", self, "/opt/MALCONTENT", "cksum", true, "", true},
+		{"the running executable without the marker rule is kept", unmarked, "/usr/local/bin/mal", exe, true, "", false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			fr := reportGenerate(t, tt.sources, []byte("selfmark"), tt.path, malcontent.Config{IgnoreSelf: tt.ignoreSelf}, nil)
+			fc := []byte("selfmark PAYLOADMARK")
+			mrs := scanBuf(t, compileTestRules(t, tt.sources), fc)
+			fr, err := Generate(t.Context(), tt.path, mrs, malcontent.Config{IgnoreSelf: tt.ignoreSelf, MinRisk: LOW}, "", fc, int64(len(fc)), tt.checksum, nil)
+			if err != nil {
+				t.Fatalf("Generate: %v", err)
+			}
 			if fr.Skipped != tt.wantSkipped {
 				t.Errorf("Skipped: got = %q, want = %q", fr.Skipped, tt.wantSkipped)
 			}
@@ -910,7 +895,7 @@ rule unrelated_reference {
     $s
 }`,
 	}
-	fr := reportGenerate(t, sources, []byte("aaa bbb ccc ddd"), "test/path", malcontent.Config{MinRisk: LOW}, nil)
+	fr := reportGenerate(t, sources, []byte("aaa bbb ccc ddd"), malcontent.Config{MinRisk: LOW}, nil)
 	byRule := make(map[string]*malcontent.Behavior, len(fr.Behaviors))
 	for _, b := range fr.Behaviors {
 		byRule[b.RuleName] = b
@@ -970,8 +955,7 @@ func TestGenerateScanKeepsHighWithoutQuantityRisk(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			c := malcontent.Config{Scan: true, QuantityIncreasesRisk: tt.qir, MinRisk: LOW}
-			highest := HighestMatchRisk(mrs, nil, "test/path", "", c)
-			fr, err := Generate(t.Context(), "test/path", mrs, c, "", nil, fc, int64(len(fc)), "cksum", nil, highest)
+			fr, err := Generate(t.Context(), "test/path", mrs, c, "", fc, int64(len(fc)), "cksum", nil)
 			if err != nil {
 				t.Fatalf("Generate: %v", err)
 			}
@@ -1040,7 +1024,7 @@ func TestGenerateOverrideSeverities(t *testing.T) {
 			t.Parallel()
 			sources := maps.Clone(targets)
 			maps.Copy(sources, tt.overrides)
-			fr := reportGenerate(t, sources, []byte("aaa bbb ccc"), "test/path", malcontent.Config{MinRisk: HARMLESS}, nil)
+			fr := reportGenerate(t, sources, []byte("aaa bbb ccc"), malcontent.Config{MinRisk: HARMLESS}, nil)
 
 			gotRisk := make(map[string]int, len(fr.Behaviors))
 			for _, b := range fr.Behaviors {
@@ -1071,35 +1055,34 @@ func TestGenerateOverrideSeverities(t *testing.T) {
 	}
 }
 
-// TestReportBuilderRenderTiming checks that add renders the match strings of
-// override rules at once, so override entries carry them, and leaves every
-// other behavior to finish, which renders only the behaviors that remain.
+// TestReportBuilderRenderTiming checks that resolve builds behaviors without
+// rendering their match strings, and that finish renders them only for the
+// behaviors that remain, along with the strings of the override rules behind
+// the override entries.
 func TestReportBuilderRenderTiming(t *testing.T) {
 	t.Parallel()
 	yrs := compileTestRules(t, map[string]string{
-		"render/target.yara": reportRuleSrc("render_target", "high", "", "TARGETMARK"),
-		"render/fp.yara":     reportRuleSrc("render_fp", "override", `render_target = "medium"`, "FPMARK"),
+		"render/target.yara":  reportRuleSrc("render_target", "high", "", "TARGETMARK"),
+		"render/dropped.yara": reportRuleSrc("render_dropped", "low", "", "DROPMARK"),
+		"render/fp.yara":      reportRuleSrc("render_fp", "override", `render_target = "medium"`, "FPMARK"),
 	})
-	fc := []byte("TARGETMARK FPMARK")
+	fc := []byte("TARGETMARK DROPMARK FPMARK")
 	matching := scanBuf(t, yrs, fc).MatchingRules()
-	infos := ruleInfosFor(nil)
 	rb := newReportBuilder(initFileReport("test/path", "cksum", int64(len(fc)), len(matching)), fc, matching)
-	for _, m := range matching {
-		rb.add(m, infos.get(m), nil)
-	}
+	c := malcontent.Config{MinRisk: MEDIUM}
+	rb.classify(c, nil, "test/path")
+	rb.resolve(nil)
 
-	added := make(map[string][]string, len(rb.fr.Behaviors))
+	if got, want := reportSortedNames(rb.fr), []string{"render_dropped", "render_target"}; !slices.Equal(got, want) {
+		t.Fatalf("behaviors after resolve: got = %v, want = %v", got, want)
+	}
 	for _, b := range rb.fr.Behaviors {
-		added[b.RuleName] = b.MatchStrings
-	}
-	if got, ok := added["render_target"]; !ok || got != nil {
-		t.Errorf("render_target MatchStrings after add: got = %q (present: %v), want = nil", got, ok)
-	}
-	if got, want := added["render_fp"], []string{"FPMARK"}; !slices.Equal(got, want) {
-		t.Errorf("render_fp MatchStrings after add: got = %q, want = %q", got, want)
+		if b.MatchStrings != nil {
+			t.Errorf("%s MatchStrings after resolve: got = %q, want = nil", b.RuleName, b.MatchStrings)
+		}
 	}
 
-	fr := rb.finish(LOW, false)
+	fr := rb.finish(c)
 	if len(fr.Behaviors) != 1 {
 		t.Fatalf("behaviors after finish: got = %v, want only %q", reportSortedNames(fr), "render_target")
 	}
@@ -1131,7 +1114,7 @@ func TestGenerateDedupRendersStoredRule(t *testing.T) {
 			yrs := compileTestRules(t, map[string]string{"dup/rules.yara": tt.src})
 			fc := []byte("MEDMARK HIGHMARK")
 			c := malcontent.Config{MinRisk: LOW, Rules: yrs}
-			fr, err := Generate(t.Context(), "test/path", scanBuf(t, yrs, fc), c, "", nil, fc, int64(len(fc)), "cksum", nil, 0)
+			fr, err := Generate(t.Context(), "test/path", scanBuf(t, yrs, fc), c, "", fc, int64(len(fc)), "cksum", nil)
 			if err != nil {
 				t.Fatalf("Generate: %v", err)
 			}
@@ -1166,8 +1149,7 @@ func TestGenerateScanMarksLowRiskFileSkipped(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			highest := HighestMatchRisk(mrs, nil, "test/path", "", tt.c)
-			fr, err := Generate(t.Context(), "test/path", mrs, tt.c, "", nil, fc, int64(len(fc)), "cksum", nil, highest)
+			fr, err := Generate(t.Context(), "test/path", mrs, tt.c, "", fc, int64(len(fc)), "cksum", nil)
 			if err != nil {
 				t.Fatalf("Generate: %v", err)
 			}
@@ -1195,7 +1177,7 @@ func TestGenerateRejectsInvalidInput(t *testing.T) {
 		t.Parallel()
 		ctx, cancel := context.WithCancel(t.Context())
 		cancel()
-		fr, err := Generate(ctx, "test/path", mrs, c, "", nil, fc, int64(len(fc)), "cksum", nil, 0)
+		fr, err := Generate(ctx, "test/path", mrs, c, "", fc, int64(len(fc)), "cksum", nil)
 		if !errors.Is(err, context.Canceled) {
 			t.Errorf("error: got = %v, want = %v", err, context.Canceled)
 		}
@@ -1206,7 +1188,7 @@ func TestGenerateRejectsInvalidInput(t *testing.T) {
 
 	t.Run("missing scan results yield no report", func(t *testing.T) {
 		t.Parallel()
-		fr, err := Generate(t.Context(), "test/path", nil, c, "", nil, fc, int64(len(fc)), "cksum", nil, 0)
+		fr, err := Generate(t.Context(), "test/path", nil, c, "", fc, int64(len(fc)), "cksum", nil)
 		if err == nil {
 			t.Error("error: got = nil, want an error")
 		}
@@ -1214,4 +1196,310 @@ func TestGenerateRejectsInvalidInput(t *testing.T) {
 			t.Errorf("report: got = %+v, want = nil", fr)
 		}
 	})
+}
+
+// reportPipeline scans fc with the compiled sources and returns the report
+// Generate builds from the matches.
+func reportPipeline(t *testing.T, sources map[string]string, fc []byte, c malcontent.Config) *malcontent.FileReport {
+	t.Helper()
+	rules := compileTestRules(t, sources)
+	mrs := scanBuf(t, rules, fc)
+	c.Rules = rules
+	fr, err := Generate(t.Context(), "test/path", mrs, c, "", fc, int64(len(fc)), "cksum", nil)
+	if err != nil {
+		t.Fatalf("Generate: %v", err)
+	}
+	return fr
+}
+
+// behaviorRisks maps each behavior ID in fr to its risk score.
+func behaviorRisks(fr *malcontent.FileReport) map[string]int {
+	risks := make(map[string]int, len(fr.Behaviors))
+	for _, b := range fr.Behaviors {
+		risks[b.ID] = b.RiskScore
+	}
+	return risks
+}
+
+// scanFilterSources hold a CRITICAL rule that overrides, ignored rules, or
+// ignored tags dismiss, real HIGH and MEDIUM findings, and override rules
+// that lower or raise them.
+var scanFilterSources = map[string]string{
+	"exec/fp/crit.yara":          reportRuleSrc("crit_fp", "critical windows", "", "CRITMARK"),
+	"net/real/high.yara":         reportRuleSrc("real_high", "high", "", "HIGHMARK"),
+	"net/real/medium.yara":       reportRuleSrc("real_medium", "medium", "", "MEDMARK"),
+	"false_positives/low.yara":   reportRuleSrc("crit_fp_low", "override", `crit_fp = "low"`, "FPLOW"),
+	"false_positives/high.yara":  reportRuleSrc("crit_fp_high", "override", `crit_fp = "high"`, "FPHIGH"),
+	"false_positives/raise.yara": reportRuleSrc("medium_raise", "override", `real_medium = "critical"`, "FPRAISE"),
+}
+
+func TestGenerateScanFiltersAfterOverridesAndIgnores(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name        string
+		fc          string
+		c           malcontent.Config
+		wantRisks   map[string]int
+		wantRisk    int
+		wantSkipped string
+	}{
+		{
+			name:      "an unmodified CRITICAL match keeps only CRITICAL behaviors",
+			fc:        "CRITMARK HIGHMARK",
+			wantRisks: map[string]int{"exec/fp/crit": CRITICAL},
+			wantRisk:  CRITICAL,
+		},
+		{
+			name:      "a rule ignored by name no longer hides a HIGH match",
+			fc:        "CRITMARK HIGHMARK",
+			c:         malcontent.Config{IgnoreRules: []string{"crit_fp"}},
+			wantRisks: map[string]int{"net/real/high": HIGH},
+			wantRisk:  HIGH,
+		},
+		{
+			name:      "a rule ignored by tag no longer hides a HIGH match",
+			fc:        "CRITMARK HIGHMARK",
+			c:         malcontent.Config{IgnoreTags: []string{"windows"}},
+			wantRisks: map[string]int{"net/real/high": HIGH},
+			wantRisk:  HIGH,
+		},
+		{
+			name:      "an override lowering the top match keeps the HIGH match",
+			fc:        "CRITMARK HIGHMARK FPLOW",
+			wantRisks: map[string]int{"net/real/high": HIGH},
+			wantRisk:  HIGH,
+		},
+		{
+			name:      "an override lowering the top match to HIGH keeps both HIGH behaviors",
+			fc:        "CRITMARK HIGHMARK FPHIGH",
+			wantRisks: map[string]int{"exec/fp/crit": HIGH, "net/real/high": HIGH},
+			wantRisk:  HIGH,
+		},
+		{
+			name:      "an override raising a MEDIUM match puts it on top",
+			fc:        "HIGHMARK MEDMARK FPRAISE",
+			wantRisks: map[string]int{"net/real/medium": CRITICAL},
+			wantRisk:  CRITICAL,
+		},
+		{
+			name:        "a file whose matches all stay below HIGH is skipped",
+			fc:          "MEDMARK",
+			wantRisks:   map[string]int{},
+			wantSkipped: "overall risk too low for scan",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			c := tt.c
+			c.Scan, c.MinRisk = true, LOW
+			fr := reportPipeline(t, scanFilterSources, []byte(tt.fc), c)
+			if got := behaviorRisks(fr); !maps.Equal(got, tt.wantRisks) {
+				t.Errorf("behaviors: got = %v, want = %v", got, tt.wantRisks)
+			}
+			if fr.RiskScore != tt.wantRisk {
+				t.Errorf("RiskScore: got = %d, want = %d", fr.RiskScore, tt.wantRisk)
+			}
+			if fr.Skipped != tt.wantSkipped {
+				t.Errorf("Skipped: got = %q, want = %q", fr.Skipped, tt.wantSkipped)
+			}
+		})
+	}
+}
+
+func TestHighestMatchRiskFollowsOverridesAndIgnores(t *testing.T) {
+	t.Parallel()
+	rules := compileTestRules(t, scanFilterSources)
+	tests := []struct {
+		name string
+		fc   string
+		c    malcontent.Config
+		want int
+	}{
+		{"an unmodified CRITICAL match is the highest", "CRITMARK HIGHMARK", malcontent.Config{}, CRITICAL},
+		{"a rule ignored by name does not count", "CRITMARK HIGHMARK", malcontent.Config{IgnoreRules: []string{"crit_fp"}}, HIGH},
+		{"a rule ignored by tag does not count", "CRITMARK HIGHMARK", malcontent.Config{IgnoreTags: []string{"windows"}}, HIGH},
+		{"an override counts at the risk it assigns", "CRITMARK HIGHMARK FPLOW", malcontent.Config{}, HIGH},
+		{"an override raising a match counts at the raised risk", "MEDMARK FPRAISE", malcontent.Config{}, CRITICAL},
+		{"an override rule alone counts nothing", "FPLOW", malcontent.Config{}, 0},
+		{"no matches count nothing", "nothing here", malcontent.Config{}, 0},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			mrs := scanBuf(t, rules, []byte(tt.fc))
+			for _, c := range []malcontent.Config{tt.c, {IgnoreRules: tt.c.IgnoreRules, IgnoreTags: tt.c.IgnoreTags, Rules: rules}} {
+				c.Scan = true
+				if got := HighestMatchRisk(mrs, nil, "test/path", "", c); got != tt.want {
+					t.Errorf("HighestMatchRisk (cached: %v): got = %d, want = %d", c.Rules != nil, got, tt.want)
+				}
+			}
+		})
+	}
+}
+
+func TestGenerateOverrideKeepsSiblingBehaviors(t *testing.T) {
+	t.Parallel()
+	// Rules in one file share a behavior ID.
+	sources := map[string]string{
+		"exec/shell/shell.yara": reportRuleSrc("sib_critical", "critical", "", "SIBCRIT") +
+			reportRuleSrc("sib_high", "high", "", "SIBHIGH") +
+			reportRuleSrc("sib_medium", "medium", "", "SIBMED"),
+		"false_positives/lower.yara": reportRuleSrc("sib_lower", "override", `sib_critical = "low"`, "FPLOWER"),
+		"false_positives/raise.yara": reportRuleSrc("sib_raise", "override", `sib_medium = "critical"`, "FPRAISE"),
+	}
+	tests := []struct {
+		name        string
+		fc          string
+		wantRule    string
+		wantRisk    int
+		wantStrings []string
+	}{
+		{"without overrides the highest sibling holds the behavior", "SIBCRIT SIBHIGH", "sib_critical", CRITICAL, []string{"SIBCRIT"}},
+		{"lowering the highest sibling hands the behavior to the next", "SIBCRIT SIBHIGH FPLOWER", "sib_high", HIGH, []string{"SIBHIGH"}},
+		{"raising a lower sibling hands it the behavior", "SIBHIGH SIBMED FPRAISE", "sib_medium", CRITICAL, []string{"SIBMED"}},
+		{"lowering the only matching sibling lowers the behavior", "SIBCRIT FPLOWER", "sib_critical", LOW, []string{"SIBCRIT"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			fr := reportPipeline(t, sources, []byte(tt.fc), malcontent.Config{MinRisk: LOW})
+			if len(fr.Behaviors) != 1 {
+				t.Fatalf("behaviors: got = %v, want only %q", reportSortedNames(fr), tt.wantRule)
+			}
+			b := fr.Behaviors[0]
+			if b.RuleName != tt.wantRule || b.RiskScore != tt.wantRisk || !slices.Equal(b.MatchStrings, tt.wantStrings) {
+				t.Errorf("behavior: got = %s/%d/%q, want = %s/%d/%q", b.RuleName, b.RiskScore, b.MatchStrings, tt.wantRule, tt.wantRisk, tt.wantStrings)
+			}
+			if fr.RiskScore != tt.wantRisk {
+				t.Errorf("RiskScore: got = %d, want = %d", fr.RiskScore, tt.wantRisk)
+			}
+		})
+	}
+}
+
+func TestGenerateQuantityCountsReportedHighBehaviors(t *testing.T) {
+	t.Parallel()
+	// Each fixture is under 1 KiB, where a second HIGH behavior upgrades the
+	// file to CRITICAL.
+	sources := map[string]string{
+		"exec/a/one.yara":         reportRuleSrc("high_one", "high", "", "HONE"),
+		"net/b/two.yara":          reportRuleSrc("high_two", "high noisy", "", "HTWO"),
+		"net/c/pair.yara":         reportRuleSrc("pair_first", "high", "", "PAIRA") + reportRuleSrc("pair_second", "high", "", "PAIRB"),
+		"false_positives/fp.yara": reportRuleSrc("high_two_low", "override", `high_two = "low"`, "FPTWO"),
+	}
+	tests := []struct {
+		name string
+		fc   string
+		c    malcontent.Config
+		want int
+	}{
+		{"two reported HIGH behaviors upgrade to CRITICAL", "HONE HTWO", malcontent.Config{}, CRITICAL},
+		{"an overridden HIGH match does not count", "HONE HTWO FPTWO", malcontent.Config{}, HIGH},
+		{"a HIGH match ignored by tag does not count", "HONE HTWO", malcontent.Config{IgnoreTags: []string{"noisy"}}, HIGH},
+		{"a HIGH match ignored by name does not count", "HONE HTWO", malcontent.Config{IgnoreRules: []string{"high_two"}}, HIGH},
+		{"HIGH rules sharing one behavior count once", "PAIRA PAIRB", malcontent.Config{}, HIGH},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			c := tt.c
+			c.MinRisk, c.QuantityIncreasesRisk = LOW, true
+			if fr := reportPipeline(t, sources, []byte(tt.fc), c); fr.RiskScore != tt.want {
+				t.Errorf("RiskScore: got = %d, want = %d (behaviors %v)", fr.RiskScore, tt.want, behaviorRisks(fr))
+			}
+		})
+	}
+}
+
+func TestGenerateKeepsBehaviorsSharingRuleName(t *testing.T) {
+	t.Parallel()
+	sources := map[string]string{
+		"exec/a/one.yara":         reportRuleSrc("shared_name", "critical", "", "SHAREDA"),
+		"net/b/two.yara":          reportRuleSrc("shared_name", "low", "", "SHAREDB"),
+		"false_positives/fp.yara": reportRuleSrc("shared_fp", "override", `shared_name = "medium"`, "FPSHARED"),
+	}
+	tests := []struct {
+		name      string
+		fc        string
+		wantRisks map[string]int
+		wantRisk  int
+	}{
+		{"both behaviors are kept", "SHAREDA SHAREDB", map[string]int{"exec/a/one": CRITICAL, "net/b/two": LOW}, CRITICAL},
+		{"an override naming the identifier applies to both", "SHAREDA SHAREDB FPSHARED", map[string]int{"exec/a/one": MEDIUM, "net/b/two": MEDIUM}, MEDIUM},
+		{"one match keeps one behavior", "SHAREDB", map[string]int{"net/b/two": LOW}, LOW},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			fr := reportPipeline(t, sources, []byte(tt.fc), malcontent.Config{MinRisk: LOW})
+			if got := behaviorRisks(fr); !maps.Equal(got, tt.wantRisks) {
+				t.Errorf("behaviors: got = %v, want = %v", got, tt.wantRisks)
+			}
+			if fr.RiskScore != tt.wantRisk {
+				t.Errorf("RiskScore: got = %d, want = %d", fr.RiskScore, tt.wantRisk)
+			}
+		})
+	}
+}
+
+func TestGenerateDedupKeepsOwnDescription(t *testing.T) {
+	t.Parallel()
+	sources := map[string]string{
+		"dup/rules.yara": reportRuleSrc("first_rule", "high", `description = "short"`, "FIRSTMARK") +
+			reportRuleSrc("second_rule", "high", `description = "a much longer description"`, "SECONDMARK") +
+			reportRuleSrc("third_rule", "critical", `description = "third"`, "THIRDMARK"),
+	}
+	tests := []struct {
+		name        string
+		fc          string
+		wantRule    string
+		wantDesc    string
+		wantStrings []string
+	}{
+		{"equal risk keeps the first rule with its own description", "FIRSTMARK SECONDMARK", "first_rule", "short", []string{"FIRSTMARK"}},
+		{"a higher-risk rule brings its own description", "FIRSTMARK THIRDMARK", "third_rule", "third", []string{"THIRDMARK"}},
+		{"a lone rule keeps its description", "SECONDMARK", "second_rule", "a much longer description", []string{"SECONDMARK"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			fr := reportPipeline(t, sources, []byte(tt.fc), malcontent.Config{MinRisk: LOW})
+			if len(fr.Behaviors) != 1 {
+				t.Fatalf("behaviors: got = %v, want only %q", reportSortedNames(fr), tt.wantRule)
+			}
+			b := fr.Behaviors[0]
+			if b.RuleName != tt.wantRule || b.Description != tt.wantDesc || !slices.Equal(b.MatchStrings, tt.wantStrings) {
+				t.Errorf("behavior: got = %s/%q/%q, want = %s/%q/%q", b.RuleName, b.Description, b.MatchStrings, tt.wantRule, tt.wantDesc, tt.wantStrings)
+			}
+		})
+	}
+}
+
+func TestGenerateIgnoresUnknownOverrideLevels(t *testing.T) {
+	t.Parallel()
+	sources := map[string]string{
+		"exec/shell/target.yara":    reportRuleSrc("target_rule", "critical", "", "TARGETMARK"),
+		"false_positives/typo.yara": reportRuleSrc("typo_fp", "override", `target_rule = "hgih"`, "FPTYPO"),
+		"false_positives/case.yara": reportRuleSrc("case_fp", "override", `target_rule = "High"`, "FPCASE"),
+		"false_positives/good.yara": reportRuleSrc("good_fp", "override", `target_rule = "low"`, "FPGOOD"),
+	}
+	tests := []struct {
+		name string
+		fc   string
+		want int
+	}{
+		{"a misspelled level leaves the target's risk", "TARGETMARK FPTYPO", CRITICAL},
+		{"a level in the wrong case leaves the target's risk", "TARGETMARK FPCASE", CRITICAL},
+		{"a known level applies", "TARGETMARK FPGOOD", LOW},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			fr := reportPipeline(t, sources, []byte(tt.fc), malcontent.Config{MinRisk: LOW})
+			if got, want := behaviorRisks(fr), map[string]int{"exec/shell/target": tt.want}; !maps.Equal(got, want) {
+				t.Errorf("behaviors: got = %v, want = %v", got, want)
+			}
+		})
+	}
 }

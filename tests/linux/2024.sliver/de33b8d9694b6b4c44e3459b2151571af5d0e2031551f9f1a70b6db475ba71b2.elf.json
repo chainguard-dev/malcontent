@@ -22,7 +22,37 @@
                 {
                     "Description": "Identifies binaries obfuscated with gobfuscate",
                     "MatchStrings": [
-                        "$s1"
+                        "\\x0f\\xb6T\\x04z\\x0f\\xb6t\\x04\\\\1\\xd6@\\x88t\\x04\\\\H\\xff\\xc0H\\x83\\xf8\\x1e|\\xe6H",
+                        "\\x0f\\xb6T\\x04=\\x0f\\xb6t\\x04*1\\xd6@\\x88t\\x04*H\\xff\\xc0H\\x83\\xf8\\x13|\\xe6H",
+                        "\\x0f\\xb6T\\x04\u003e\\x0f\\xb6t\\x04,1\\xd6@\\x88t\\x04,H\\xff\\xc0H\\x83\\xf8\\x12|\\xe6H",
+                        "\\x0f\\xb6T\\x04@\\x0f\\xb6t\\x04(1\\xd6@\\x88t\\x04(H\\xff\\xc0H\\x83\\xf8\\x18|\\xe6H",
+                        "\\x0f\\xb6T\\x04J\\x0f\\xb6t\\x04\u003c1\\xd6@\\x88t\\x04\u003cH\\xff\\xc0H\\x83\\xf8\\x0e|\\xe6H",
+                        "\\x0f\\xb6T\\x04P\\x0f\\xb6t\\x04@1\\xd6@\\x88t\\x04@H\\xff\\xc0H\\x83\\xf8\\x10|\\xe6H",
+                        "\\x0f\\xb6T\\x04T\\x0f\\xb6t\\x0481\\xd6@\\x88t\\x048H\\xff\\xc0H\\x83\\xf8\\x1c|\\xe6H",
+                        "\\x0f\\xb6T\\x04W\\x0f\\xb6t\\x04\u003e1\\xd6@\\x88t\\x04\u003eH\\xff\\xc0H\\x83\\xf8\\x19|\\xe6H",
+                        "\\x0f\\xb6T\\x04b\\x0f\\xb6t\\x04D1\\xd6@\\x88t\\x04DH\\xff\\xc0H\\x83\\xf8\\x1e|\\xe6H",
+                        "\\x0f\\xb6T\\x04i\\x0f\\xb6t\\x04R1\\xd6@\\x88t\\x04RH\\xff\\xc0H\\x83\\xf8\\x17|\\xe6H",
+                        "\\x0f\\xb6T\\x04~\\x0f\\xb6t\\x04\\\\1\\xd6@\\x88t\\x04\\\\H\\xff\\xc0H\\x83\\xf8\\\"|\\xe6H",
+                        "\\x0f\\xb6T\\x04\u003e\\x0f\\xb6t\\x0441\\xd6@\\x88t\\x044H\\xff\\xc0H\\x83\\xf8\\n|\\xe6H",
+                        "\\x0f\\xb6T\\x04]\\x0f\\xb6t\\x04T1\\xd6@\\x88t\\x04TH\\xff\\xc0H\\x83\\xf8\\t|\\xe6H",
+                        "\\x0f\\xb6T\\x04_\\x0f\\xb6t\\x04V1\\xd6@\\x88t\\x04VH\\xff\\xc0H\\x83\\xf8\\t|\\xe6H",
+                        "\\x0f\\xb6T\\f0\\x0f\\xb6t\\f 1\\xd6@\\x88t\\f H\\xff\\xc1H\\x83\\xf9\\x10|\\xe6H",
+                        "\\x0f\\xb6T\\fD\\x0f\\xb6t\\f01\\xd6@\\x88t\\f0H\\xff\\xc1H\\x83\\xf9\\x14|\\xe6H",
+                        "\\x0f\\xb6T\\fN\\x0f\\xb6t\\f41\\xd6@\\x88t\\f4H\\xff\\xc1H\\x83\\xf9\\x1a|\\xe6H",
+                        "\\x0f\\xb6T\\f[\\x0f\\xb6t\\f\u003e1\\xd6@\\x88t\\f\u003eH\\xff\\xc1H\\x83\\xf9\\x1d|\\xe6H",
+                        "\\x0f\\xb6T\\ff\\x0f\\xb6t\\f\\\\1\\xd6@\\x88t\\f\\\\H\\xff\\xc1H\\x83\\xf9\\n|\\xe6H",
+                        "\\x0f\\xb6T\\fo\\x0f\\xb6t\\f^1\\xd6@\\x88t\\f^H\\xff\\xc1H\\x83\\xf9\\x11|\\xe6H",
+                        "\\x0f\\xb6T\\fy\\x0f\\xb6t\\fj1\\xd6@\\x88t\\fjH\\xff\\xc1H\\x83\\xf9\\x0f|\\xe6H",
+                        "\\x0f\\xb6T\\f\\\\\\x0f\\xb6t\\f~1\\xd6@\\x88t\\f~H\\xff\\xc1H\\x83\\xf9\\\"|\\xe6H",
+                        "\\x0f\\xb6T\\f4\\x0f\\xb6t\\f(1\\xd6@\\x88t\\f(H\\xff\\xc1H\\x83\\xf9\\f|\\xe6H",
+                        "\\x0f\\xb6T\\fC\\x0f\\xb6t\\f61\\xd6@\\x88t\\f6H\\xff\\xc1H\\x83\\xf9\\r|\\xe6H",
+                        "\\x0f\\xb6T\\fE\\x0f\\xb6t\\f:1\\xd6@\\x88t\\f:H\\xff\\xc1H\\x83\\xf9\\v|\\xe6H",
+                        "\\x0f\\xb6T\\fS\\x0f\\xb6t\\fF1\\xd6@\\x88t\\fFH\\xff\\xc1H\\x83\\xf9\\r|\\xe6H",
+                        "\\x0f\\xb6T\\fV\\x0f\\xb6t\\fL1\\xd6@\\x88t\\fLH\\xff\\xc1H\\x83\\xf9\\n|\\xe6H",
+                        "\\x0f\\xb6T\\f^\\x0f\\xb6t\\fR1\\xd6@\\x88t\\fRH\\xff\\xc1H\\x83\\xf9\\f|\\xe6H",
+                        "\\x0f\\xb6T\\fh\\x0f\\xb6t\\f`1\\xd6@\\x88t\\f`H\\xff\\xc1H\\x83\\xf9\\b|\\xe6H",
+                        "\\x0f\\xb6T\\fp\\x0f\\xb6t\\ff1\\xd6@\\x88t\\ffH\\xff\\xc1H\\x83\\xf9\\n|\\xe6H",
+                        "\\x0f\\xb6T\\fP\\x0f\\xb6t\\f 1\\xd6@\\x88t\\f H\\xff\\xc1H\\x83\\xf90|\\xe6H"
                     ],
                     "RiskScore": 4,
                     "RiskLevel": "CRITICAL",
@@ -546,7 +576,7 @@
                     "RuleName": "random"
                 },
                 {
-                    "Description": "Linux ELF binary packed with UPX",
+                    "Description": "Binary is packed with UPX",
                     "MatchStrings": [
                         "This file is packed",
                         "executable packer",

@@ -106,7 +106,7 @@ func (r *StringMatches) File(ctx context.Context, fr *malcontent.FileReport) err
 	writeMatchCounts(b, p, fr.RiskLevel, len(matches), "rule")
 	b.WriteString(":\n")
 	for _, m := range matches {
-		p.hiCyan.wrap(b, m.Rule)
+		p.hiCyan.wrap(b, sanitizeTerminal(m.Rule))
 		b.WriteByte(' ')
 		writeMatchCounts(b, p, riskLevels[m.Risk], len(m.Strings), "string")
 		b.WriteString(": \n")
@@ -123,12 +123,13 @@ func (r *StringMatches) File(ctx context.Context, fr *malcontent.FileReport) err
 	return r.out.write(b.Bytes())
 }
 
-// writeMatchCounts writes a bracketed risk level followed by a count of noun
-// in parentheses, such as "[HIGH] (2 rules)".
+// writeMatchCounts writes a bracketed risk level, escaped by
+// sanitizeTerminal, followed by a count of noun in parentheses, such as
+// "[HIGH] (2 rules)".
 func writeMatchCounts(b *bytes.Buffer, p *palette, level string, n int, noun string) {
 	s, label := p.briefRisk(level)
 	p.hiBlack.wrap(b, "[")
-	s.wrap(b, label)
+	s.wrap(b, sanitizeTerminal(label))
 	p.hiBlack.wrap(b, "]")
 	b.WriteByte(' ')
 	p.hiBlack.wrap(b, "(")

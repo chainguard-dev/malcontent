@@ -90,7 +90,7 @@ func StartProfiling(ctx context.Context, config *Config) (*Profiler, error) {
 	// right afterward still stops the profiler.
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
-	go p.handleSignals(sigChan)
+	go p.handleSignals(sigChan, signal.Stop)
 
 	return p, nil
 }
@@ -219,12 +219,17 @@ func writeGoroutineDump(w io.Writer, buf []byte, limit int) []byte {
 	return buf
 }
 
-func (p *Profiler) handleSignals(sigChan <-chan os.Signal) {
+// handleSignals stops the profiler on the first signal sent to sigChan. It
+// calls stop, signal.Stop in production, to stop relaying signals to sigChan
+// as soon as that signal arrives, or the profiler stops without one, so a
+// later signal has its default effect.
+func (p *Profiler) handleSignals(sigChan chan os.Signal, stop func(chan<- os.Signal)) {
 	select {
 	case <-sigChan:
+		stop(sigChan)
 		p.Stop()
 	case <-p.ctx.Done():
-		return
+		stop(sigChan)
 	}
 }
 

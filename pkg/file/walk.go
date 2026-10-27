@@ -13,6 +13,10 @@ import (
 // directory to walk.
 var errNotWalkable = errors.New("current entry is not a directory to walk")
 
+// ErrPseudoFS reports a directory on a pseudo filesystem, such as proc or
+// sysfs, that a Walker set to skip them neither enters nor detaches.
+var ErrPseudoFS = errors.New("skipped pseudo filesystem")
+
 // A Walker walks a tree beneath a root as fs.WalkDir walks it: depth first,
 // in lexical order, with slash-separated paths, without following symlinks
 // below where it starts, and reporting a directory it cannot read as a second
@@ -41,6 +45,9 @@ type Walker struct {
 	// started reports whether the entry NewWalker starts with was yielded.
 	started bool
 	done    bool
+	// skipPseudo leaves out the directories on pseudo filesystems that the
+	// walk reaches below where it starts.
+	skipPseudo bool
 }
 
 // walkFrame is a directory and the entries it has left to yield.
@@ -48,16 +55,48 @@ type walkFrame struct {
 	dir     *os.Root
 	entries []fs.DirEntry
 	prefix  int // the length of the directory's path, as its entries' paths begin
+	dev     devID
 }
 
 // walkDir is a directory yet to be read: dir when it is open, or elem
-// beneath parent, which is closed once dir is opened when owned.
+// beneath parent, which is closed once dir is opened when owned. mount
+// reports a directory on another device than its parent: the root of a
+// mounted filesystem.
 type walkDir struct {
 	dir    *os.Root
 	parent *os.Root
 	owned  bool
 	elem   string
 	prefix int
+	dev    devID
+	mount  bool
+}
+
+// devID is the device holding a directory, when known.
+type devID struct {
+	dev   uint64
+	known bool
+}
+
+// entryDev returns the device holding the file d describes.
+func entryDev(d fs.DirEntry) devID {
+	fi, err := d.Info()
+	if err != nil {
+		return devID{}
+	}
+	return infoDev(fi)
+}
+
+// infoDev returns the device holding the file fi describes.
+func infoDev(fi fs.FileInfo) devID {
+	dev, ok := devOf(fi)
+	return devID{dev: dev, known: ok}
+}
+
+// crosses reports whether child, a directory beneath one on parent, lies on
+// another filesystem.
+func crosses(parent, child devID) bool {
+	return parent.known && child.known && parent.dev != child.dev
 }
 
 // prefixOf returns how much of path the paths of the entries beneath it
@@ -83,7 +122,7 @@ func NewWalker(r *os.Root, name string) *Walker {
 	}
 	w.d = fs.FileInfoToDirEntry(info)
 	if w.d.IsDir() {
-		w.next = &walkDir{parent: r, elem: name, prefix: prefixOf(name)}
+		w.next = &walkDir{parent: r, elem: name, prefix: prefixOf(name), dev: infoDev(info)}
 	}
 	return w
 }
@@ -93,7 +132,20 @@ func NewWalker(r *os.Root, name string) *Walker {
 // except as an entry with an error when dir cannot be read. The Walker owns
 // dir and closes it.
 func NewDirWalker(dir *os.Root, name string, d fs.DirEntry) *Walker {
-	return &Walker{path: []byte(name), d: d, started: true, next: &walkDir{dir: dir, prefix: prefixOf(name)}}
+	return &Walker{path: []byte(name), d: d, started: true, next: &walkDir{dir: dir, prefix: prefixOf(name), dev: entryDev(d)}}
+}
+
+// SkipPseudoFilesystems makes w leave out the directories it reaches on
+// pseudo filesystems, such as proc and sysfs, whose files are kernel state
+// rather than stored content. Such a directory is yielded a second time with
+// ErrPseudoFS, and Detach refuses it with that error. Where the walk starts
+// is walked whatever its filesystem. Call it before the first call to Next.
+func (w *Walker) SkipPseudoFilesystems() { w.skipPseudo = true }
+
+// pseudo reports whether dir, which n names, is a pseudo filesystem w skips.
+// Only the root of a mounted filesystem is examined.
+func (w *Walker) pseudo(n *walkDir, dir *os.Root) bool {
+	return w.skipPseudo && n.mount && isPseudoFS(dir)
 }
 
 // Next advances to the next entry and reports whether there is one.
@@ -131,11 +183,16 @@ func (w *Walker) read(n *walkDir) bool {
 			_ = n.parent.Close()
 		}
 	}
+	if err == nil && w.pseudo(n, dir) {
+		_ = dir.Close()
+		w.err, w.failed = ErrPseudoFS, &walkFrame{}
+		return true
+	}
 	var entries []fs.DirEntry
 	if err == nil {
 		entries, err = ReadDir(dir)
 	}
-	f := walkFrame{dir: dir, entries: entries, prefix: n.prefix}
+	f := walkFrame{dir: dir, entries: entries, prefix: n.prefix, dev: n.dev}
 	if err != nil {
 		w.err, w.failed = err, &f
 		return true
@@ -177,7 +234,7 @@ func (w *Walker) advance() bool {
 	top := &w.stack[i]
 	e := top.entries[0]
 	top.entries = top.entries[1:]
-	parent, prefix := top.dir, top.prefix
+	parent, prefix, dev := top.dir, top.prefix, top.dev
 	last := len(top.entries) == 0
 	if last {
 		w.stack[i] = walkFrame{}
@@ -192,7 +249,8 @@ func (w *Walker) advance() bool {
 	w.d, w.inStack = e, !last
 	switch {
 	case e.IsDir():
-		w.next = &walkDir{parent: parent, owned: last, elem: e.Name(), prefix: len(w.path)}
+		child := entryDev(e)
+		w.next = &walkDir{parent: parent, owned: last, elem: e.Name(), prefix: len(w.path), dev: child, mount: crosses(dev, child)}
 	case last:
 		_ = parent.Close()
 	}
@@ -244,6 +302,10 @@ func (w *Walker) Detach() (*os.Root, error) {
 	dir, err := n.parent.OpenRoot(n.elem)
 	if n.owned {
 		_ = n.parent.Close()
+	}
+	if err == nil && w.pseudo(n, dir) {
+		_ = dir.Close()
+		return nil, ErrPseudoFS
 	}
 	return dir, err
 }

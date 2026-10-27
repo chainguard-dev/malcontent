@@ -34,7 +34,7 @@ func touchPages(b []byte) byte {
 }
 
 // BenchmarkReadContents compares reading into a pooled buffer, mapping, and
-// ReadContents' own choice, which maps only above mapThreshold.
+// MapContents' own choice, which maps only above mapThreshold.
 func BenchmarkReadContents(b *testing.B) {
 	strategies := []struct {
 		name    string
@@ -58,7 +58,7 @@ func BenchmarkReadContents(b *testing.B) {
 			if _, err := f.Seek(0, io.SeekStart); err != nil {
 				return nil, err
 			}
-			return ReadContents(f, size)
+			return MapContents(f, size)
 		}},
 	}
 	for _, s := range strategies {

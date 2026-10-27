@@ -13,8 +13,7 @@ import (
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/puzpuzpuz/xsync/v4"
-	orderedmap "github.com/wk8/go-ordered-map/v2"
-	"gopkg.in/yaml.v3"
+	"go.yaml.in/yaml/v3"
 )
 
 // FuzzRenderDifferential ensures JSON and YAML renderers produce semantically equivalent output.
@@ -79,9 +78,9 @@ func FuzzRenderDifferential(f *testing.F) {
 
 		if hasDiff {
 			report.Diff = &malcontent.DiffReport{
-				Added:    orderedmap.New[string, *malcontent.FileReport](),
-				Removed:  orderedmap.New[string, *malcontent.FileReport](),
-				Modified: orderedmap.New[string, *malcontent.FileReport](),
+				Added:    new(malcontent.OrderedFileReports),
+				Removed:  new(malcontent.OrderedFileReports),
+				Modified: new(malcontent.OrderedFileReports),
 			}
 		}
 
@@ -177,12 +176,12 @@ func compareDiffReports(t *testing.T, jsonDiff, yamlDiff *malcontent.DiffReport)
 		return
 	}
 
-	jsonAddedLen := orderedMapLen(jsonDiff.Added)
-	yamlAddedLen := orderedMapLen(yamlDiff.Added)
-	jsonRemovedLen := orderedMapLen(jsonDiff.Removed)
-	yamlRemovedLen := orderedMapLen(yamlDiff.Removed)
-	jsonModifiedLen := orderedMapLen(jsonDiff.Modified)
-	yamlModifiedLen := orderedMapLen(yamlDiff.Modified)
+	jsonAddedLen := jsonDiff.Added.Len()
+	yamlAddedLen := yamlDiff.Added.Len()
+	jsonRemovedLen := jsonDiff.Removed.Len()
+	yamlRemovedLen := yamlDiff.Removed.Len()
+	jsonModifiedLen := jsonDiff.Modified.Len()
+	yamlModifiedLen := yamlDiff.Modified.Len()
 
 	if jsonAddedLen != yamlAddedLen {
 		t.Errorf("Diff Added count mismatch: JSON=%d YAML=%d", jsonAddedLen, yamlAddedLen)
@@ -193,14 +192,6 @@ func compareDiffReports(t *testing.T, jsonDiff, yamlDiff *malcontent.DiffReport)
 	if jsonModifiedLen != yamlModifiedLen {
 		t.Errorf("Diff Modified count mismatch: JSON=%d YAML=%d", jsonModifiedLen, yamlModifiedLen)
 	}
-}
-
-// orderedMapLen returns the length of an ordered map, or 0 if nil.
-func orderedMapLen[K comparable, V any](m *orderedmap.OrderedMap[K, V]) int {
-	if m == nil {
-		return 0
-	}
-	return m.Len()
 }
 
 // FuzzSanitizeUTF8 tests that sanitizeUTF8 always produces valid, safe output.

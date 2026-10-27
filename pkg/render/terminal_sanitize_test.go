@@ -93,6 +93,12 @@ func TestSanitizersAndLineLength(t *testing.T) {
 		{name: "BiDi override, isolate, and mark", in: "bidi\u202Eoverride\u2066isolate\u200Emark", wantUTF8: "bidioverrideisolatemark", wantTerminal: "bidioverrideisolatemark", wantLength: 32},
 		{name: "invalid UTF-8", in: "invalid\xff\xfeutf8", wantUTF8: "invalid\uFFFDutf8", wantTerminal: "invalid\uFFFDutf8", wantLength: 13},
 		{name: "C1 control", in: "c1\u009bcontrol", wantUTF8: "c1\u009bcontrol", wantTerminal: `c1\u009bcontrol`, wantLength: 11},
+		// U+061C ARABIC LETTER MARK, written as its UTF-8 bytes.
+		{name: "Arabic letter mark is a BiDi control", in: "arabic\xd8\x9cmark", wantUTF8: "arabicmark", wantTerminal: "arabicmark", wantLength: 12},
+		// U+200B ZERO WIDTH SPACE and U+FEFF ZERO WIDTH NO-BREAK SPACE.
+		{name: "zero-width space and byte order mark", in: "zero\xe2\x80\x8bwidth\xef\xbb\xbf", wantUTF8: "zero\xe2\x80\x8bwidth\xef\xbb\xbf", wantTerminal: "zero\\u200bwidth\\ufeff", wantLength: 15},
+		// U+00AD SOFT HYPHEN.
+		{name: "soft hyphen", in: "soft\xc2\xadhyphen", wantUTF8: "soft\xc2\xadhyphen", wantTerminal: "soft\\u00adhyphen", wantLength: 12},
 		{name: "multibyte text", in: "naïve 😈 文件", wantUTF8: "naïve 😈 文件", wantTerminal: "naïve 😈 文件", wantLength: 18},
 		{name: "ASCII punctuation", in: punctuation, wantUTF8: punctuation, wantTerminal: punctuation, wantLength: 31},
 		{name: "long", in: long, wantUTF8: long, wantTerminal: long, wantLength: 1000},
@@ -249,7 +255,7 @@ func TestTextRenderersEscapeTerminalControls(t *testing.T) {
 			render: func(t *testing.T) string {
 				t.Helper()
 				var buf bytes.Buffer
-				renderFileSummaryTea(t.Context(), terminalEvilReport(false), &buf)
+				teaRender(t.Context(), terminalEvilReport(false), &buf)
 				return buf.String()
 			},
 			want: []string{terminalEvilPathShown, terminalEvilMatchShown},
@@ -262,6 +268,163 @@ func TestTextRenderersEscapeTerminalControls(t *testing.T) {
 				return m.View()
 			},
 			want: []string{"Scanning: " + terminalEvilPathShown},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			out := tt.render(t)
+			terminalRequireNoControls(t, out)
+			shown := terminalSGRRe.ReplaceAllString(out, "")
+			for _, w := range tt.want {
+				if !strings.Contains(shown, w) {
+					t.Errorf("output: got = %q, want it to contain %q", shown, w)
+				}
+			}
+		})
+	}
+}
+
+const (
+	terminalEvilNS          = "n\x1b[1As"
+	terminalEvilNSShown     = `n\x1b[1As`
+	terminalEvilRest        = "x\x1b]0;pwned\x07y"
+	terminalEvilRestShown   = `x\x1b]0;pwned\ay`
+	terminalEvilDesc        = "desc\x1b[2J\x1b[H"
+	terminalEvilDescShown   = `desc\x1b[2J\x1b[H`
+	terminalEvilAuthor      = "\x1b]8;;https://evil.example\x07click\x1b]8;;\x07"
+	terminalEvilAuthorShown = `\x1b]8;;https://evil.example\aclick\x1b]8;;\a`
+	terminalEvilLevel       = "HIGH\x1b[2J"
+	terminalEvilLevelShown  = `HIGH\x1b[2J`
+	terminalEvilRule        = "rule\x1b[2K"
+	terminalEvilRuleShown   = `rule\x1b[2K`
+)
+
+// terminalEvilBehaviorReport returns a report with a plain path whose
+// behavior fields and risk levels carry terminal control sequences, as a
+// report file given to mal diff --report can.
+func terminalEvilBehaviorReport(diffAdded bool) *malcontent.FileReport {
+	return &malcontent.FileReport{
+		Path:              "/bin/x",
+		RiskScore:         3,
+		RiskLevel:         terminalEvilLevel,
+		PreviousRiskScore: 1,
+		PreviousRiskLevel: terminalEvilLevel,
+		Behaviors: []*malcontent.Behavior{{
+			ID:           terminalEvilNS + "/" + terminalEvilRest,
+			Description:  terminalEvilDesc,
+			RuleAuthor:   terminalEvilAuthor,
+			RuleName:     terminalEvilRule,
+			MatchStrings: []string{"evidence"},
+			RiskScore:    3,
+			RiskLevel:    terminalEvilLevel,
+			DiffAdded:    diffAdded,
+		}},
+	}
+}
+
+func TestTextRenderersEscapeBehaviorFields(t *testing.T) {
+	t.Parallel()
+	evilDiff := func() *malcontent.Report {
+		return &malcontent.Report{Diff: renderDiff(
+			[]*malcontent.FileReport{terminalEvilBehaviorReport(false)},
+			nil,
+			[]*malcontent.FileReport{terminalEvilBehaviorReport(true)},
+		)}
+	}
+	behaviorLine := terminalEvilRestShown + " — " + terminalEvilDescShown + ", by " + terminalEvilAuthorShown
+	evilID := terminalEvilNSShown + "/" + terminalEvilRestShown
+	tests := []struct {
+		name   string
+		render func(t *testing.T) string
+		want   []string
+	}{
+		{
+			name: "terminal file",
+			render: func(t *testing.T) string {
+				t.Helper()
+				var buf bytes.Buffer
+				if err := NewTerminal(&buf).File(t.Context(), terminalEvilBehaviorReport(false)); err != nil {
+					t.Fatalf("File: got err = %v, want = nil", err)
+				}
+				return buf.String()
+			},
+			want: []string{"/bin/x [" + terminalEvilLevelShown + "]", terminalEvilNSShown + " [HIGH]", behaviorLine},
+		},
+		{
+			name: "terminal diff",
+			render: func(t *testing.T) string {
+				t.Helper()
+				var buf bytes.Buffer
+				if err := NewTerminal(&buf).Full(t.Context(), &malcontent.Config{}, evilDiff()); err != nil {
+					t.Fatalf("Full: got err = %v, want = nil", err)
+				}
+				return buf.String()
+			},
+			want: []string{
+				"Deleted: /bin/x [" + terminalEvilLevelShown + "]",
+				behaviorLine,
+				"Changed (1 added, 0 removed): /bin/x [" + terminalEvilLevelShown + " → " + terminalEvilLevelShown + "]",
+				terminalEvilNSShown + " [HIGH]",
+			},
+		},
+		{
+			name: "terminal brief file",
+			render: func(t *testing.T) string {
+				t.Helper()
+				var buf bytes.Buffer
+				if err := NewTerminalBrief(&buf).File(t.Context(), terminalEvilBehaviorReport(false)); err != nil {
+					t.Fatalf("File: got err = %v, want = nil", err)
+				}
+				return buf.String()
+			},
+			want: []string{evilID + " — " + terminalEvilDescShown},
+		},
+		{
+			name: "simple file",
+			render: func(t *testing.T) string {
+				t.Helper()
+				var buf bytes.Buffer
+				if err := NewSimple(&buf).File(t.Context(), terminalEvilBehaviorReport(false)); err != nil {
+					t.Fatalf("File: got err = %v, want = nil", err)
+				}
+				return buf.String()
+			},
+			want: []string{"# /bin/x: " + `high\x1b[2j` + "\n", evilID + ": " + `high\x1b[2j` + "\n"},
+		},
+		{
+			name: "simple diff",
+			render: func(t *testing.T) string {
+				t.Helper()
+				var buf bytes.Buffer
+				if err := NewSimple(&buf).Full(t.Context(), &malcontent.Config{}, evilDiff()); err != nil {
+					t.Fatalf("Full: got err = %v, want = nil", err)
+				}
+				return buf.String()
+			},
+			want: []string{"-" + evilID + "\n", "+" + evilID + "\n"},
+		},
+		{
+			name: "string matches file",
+			render: func(t *testing.T) string {
+				t.Helper()
+				var buf bytes.Buffer
+				if err := NewStringMatches(&buf).File(t.Context(), terminalEvilBehaviorReport(false)); err != nil {
+					t.Fatalf("File: got err = %v, want = nil", err)
+				}
+				return buf.String()
+			},
+			want: []string{"Matches for /bin/x [" + terminalEvilLevelShown + "]", terminalEvilRuleShown + " [HIGH]"},
+		},
+		{
+			name: "interactive file summary",
+			render: func(t *testing.T) string {
+				t.Helper()
+				var buf bytes.Buffer
+				teaRender(t.Context(), terminalEvilBehaviorReport(false), &buf)
+				return buf.String()
+			},
+			want: []string{terminalEvilLevelShown, terminalEvilNSShown, terminalEvilRestShown, terminalEvilDescShown, terminalEvilAuthorShown},
 		},
 	}
 	for _, tt := range tests {

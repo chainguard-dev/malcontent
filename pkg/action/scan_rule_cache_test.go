@@ -9,6 +9,7 @@ import (
 	"io/fs"
 	"path/filepath"
 	"runtime"
+	"slices"
 	"strings"
 	"testing"
 	"testing/fstest"
@@ -22,7 +23,36 @@ import (
 // scanTestClearRuleCache empties the package-level compiled rule cache so the
 // next CachedRules call compiles again.
 func scanTestClearRuleCache() {
-	compiledRuleCache.Store(nil)
+	compileMu.Lock()
+	defer compileMu.Unlock()
+	ruleSets = nil
+	lastRuleSet.Store(nil)
+}
+
+// scanTestCacheRules caches yrs as the rules compiled from fss. The caller
+// holds compileMu when held is set.
+func scanTestCacheRules(fss []fs.FS, yrs *yarax.Rules, held bool) {
+	if !held {
+		compileMu.Lock()
+		defer compileMu.Unlock()
+	}
+	rs := &ruleSet{fss: fss, rules: yrs}
+	ruleSets = append(ruleSets, rs)
+	lastRuleSet.Store(rs)
+}
+
+// scanTestSaveRuleCache restores the package-level rule cache when t ends.
+func scanTestSaveRuleCache(t *testing.T) {
+	t.Helper()
+	compileMu.Lock()
+	saved, last := slices.Clone(ruleSets), lastRuleSet.Load()
+	compileMu.Unlock()
+	t.Cleanup(func() {
+		compileMu.Lock()
+		defer compileMu.Unlock()
+		ruleSets = saved
+		lastRuleSet.Store(last)
+	})
 }
 
 // scanTestWaitForLockWaiter returns once a goroutine is acquiring a mutex
@@ -50,33 +80,43 @@ func TestCachedRulesCompileOnFirstUse(t *testing.T) {
 	// Not parallel: replaces the package-level rule cache and redirects the
 	// on-disk compile cache away from the user's cache directory.
 	yrs, _ := scanTestRules(t)
-	saved := compiledRuleCache.Load()
-	t.Cleanup(func() {
-		compiledRuleCache.Store(saved)
-	})
+	scanTestSaveRuleCache(t)
 	cacheHome := t.TempDir()
 	t.Setenv("XDG_CACHE_HOME", cacheHome)
 	t.Setenv("HOME", cacheHome)
 
 	valid := []fs.FS{fstest.MapFS{"valid.yara": {Data: []byte("rule scan_test_valid {\n  strings:\n    $a = \"scan-test-marker\"\n  condition:\n    $a\n}\n")}}}
+	other := []fs.FS{fstest.MapFS{"other.yara": {Data: []byte("rule scan_test_other {\n  strings:\n    $a = \"scan-test-other\"\n  condition:\n    $a\n}\n")}}}
 	invalid := []fs.FS{fstest.MapFS{"invalid.yara": {Data: []byte("rule scan_test_invalid {\n  condition:\n")}}}
 	path := scanTestWriteFile(t, filepath.Join(t.TempDir(), "locale.sh"), []byte(scanTestLocaleScript))
 
-	t.Run("first compile returns the compiled rules", func(t *testing.T) {
+	t.Run("each set of rule sources is compiled once", func(t *testing.T) {
 		scanTestClearRuleCache()
 		got, err := CachedRules(t.Context(), valid)
-		if err != nil {
+		if err != nil || got == nil {
+			t.Fatalf("CachedRules: got = %p, %v, want compiled rules", got, err)
+		}
+		again, err := CachedRules(t.Context(), valid)
+		if err != nil || again != got {
+			t.Errorf("rules from the same sources: got = %p, %v, want cached %p", again, err, got)
+		}
+		otherRules, err := CachedRules(t.Context(), other)
+		if err != nil || otherRules == nil || otherRules == got {
+			t.Errorf("rules from other sources: got = %p, %v, want rules compiled from them, not %p", otherRules, err, got)
+		}
+		if back, err := CachedRules(t.Context(), valid); err != nil || back != got {
+			t.Errorf("rules from the first sources again: got = %p, %v, want cached %p", back, err, got)
+		}
+	})
+
+	t.Run("rule sources that do not compile are not served another set's rules", func(t *testing.T) {
+		scanTestClearRuleCache()
+		if _, err := CachedRules(t.Context(), valid); err != nil {
 			t.Fatalf("CachedRules: %v", err)
 		}
-		if got == nil {
-			t.Fatal("rules: got = nil, want = compiled rules")
-		}
-		again, err := CachedRules(t.Context(), invalid)
-		if err != nil {
-			t.Fatalf("CachedRules after compile: %v", err)
-		}
-		if again != got {
-			t.Errorf("rules after compile: got = %p, want cached %p", again, got)
+		got, err := CachedRules(t.Context(), invalid)
+		if err == nil || got != nil {
+			t.Errorf("CachedRules(invalid): got = %p, %v, want a compile error", got, err)
 		}
 	})
 
@@ -111,7 +151,7 @@ func TestCachedRulesCompileOnFirstUse(t *testing.T) {
 	})
 
 	t.Run("canceled context is reported with rules cached", func(t *testing.T) {
-		compiledRuleCache.Store(yrs)
+		scanTestCacheRules(valid, yrs, false)
 		ctx, cancel := context.WithCancel(t.Context())
 		cancel()
 		got, err := CachedRules(ctx, valid)
@@ -135,7 +175,7 @@ func TestCachedRulesCompileOnFirstUse(t *testing.T) {
 			done <- result{rules: rules, err: err}
 		}()
 		scanTestWaitForLockWaiter(t, "action.CachedRules")
-		compiledRuleCache.Store(yrs)
+		scanTestCacheRules(invalid, yrs, true)
 		compileMu.Unlock()
 		if got := <-done; got.err != nil || got.rules != yrs {
 			t.Errorf("CachedRules: got = %p, %v, want = %p, nil", got.rules, got.err, yrs)

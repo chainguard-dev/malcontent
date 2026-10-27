@@ -43,7 +43,7 @@ func TestHandleFile_NilCounter(t *testing.T) {
 	tr := makeTarStream(t, "a.txt", body)
 	root := openTestRoot(t, dir)
 
-	if err := handleFile(testEntryRoots(t, root), "a.txt", tr, nil); err != nil {
+	if err := handleFile(testPaths(t, root), "a.txt", tr, nil); err != nil {
 		t.Fatalf("handleFile(nil counter): %v", err)
 	}
 	got, err := root.ReadFile("a.txt")
@@ -63,11 +63,11 @@ func TestHandleFile_WithCounter(t *testing.T) {
 	body := []byte("hello-counter")
 	tr := makeTarStream(t, "b.txt", body)
 
-	counter := &file.ArchiveCounter{}
-	if err := handleFile(testEntryRoots(t, openTestRoot(t, dir)), "b.txt", tr, counter); err != nil {
+	counter := testBudget(0)
+	if err := handleFile(testPaths(t, openTestRoot(t, dir)), "b.txt", tr, counter); err != nil {
 		t.Fatalf("handleFile(counter): %v", err)
 	}
-	if got := counter.Total.Load(); got != int64(len(body)) {
+	if got := counter.tree.Total.Load(); got != int64(len(body)) {
 		t.Fatalf("counter.Total: got %d want %d", got, len(body))
 	}
 }
@@ -90,8 +90,8 @@ func TestHandleFile_ArchiveBudgetBoundsPerMemberWrite(t *testing.T) {
 	tr := makeTarStream(t, "oversize.bin", body)
 	root := openTestRoot(t, dir)
 
-	counter := &file.ArchiveCounter{MaxBytes: archiveCap, InputBytes: 1 << 20}
-	err := handleFile(testEntryRoots(t, root), "oversize.bin", tr, counter)
+	counter := testBudget(archiveCap)
+	err := handleFile(testPaths(t, root), "oversize.bin", tr, counter)
 	if err == nil {
 		t.Fatalf("handleFile succeeded; want error for member exceeding archive cap")
 	}
@@ -125,8 +125,8 @@ func TestHandleFile_MemberWithinBudgetExtractsFully(t *testing.T) {
 	tr := makeTarStream(t, "within_budget.bin", body)
 	root := openTestRoot(t, dir)
 
-	counter := &file.ArchiveCounter{MaxBytes: budget, InputBytes: 1 << 20}
-	if err := handleFile(testEntryRoots(t, root), "within_budget.bin", tr, counter); err != nil {
+	counter := testBudget(budget)
+	if err := handleFile(testPaths(t, root), "within_budget.bin", tr, counter); err != nil {
 		t.Fatalf("handleFile returned error for member within budget: %v", err)
 	}
 
@@ -140,7 +140,7 @@ func TestHandleFile_MemberWithinBudgetExtractsFully(t *testing.T) {
 	if !bytes.Equal(got, body) {
 		t.Fatal("extracted content does not match original member body")
 	}
-	if total := counter.Total.Load(); total != int64(memberSize) {
+	if total := counter.tree.Total.Load(); total != int64(memberSize) {
 		t.Fatalf("counter.Total = %d, want %d", total, memberSize)
 	}
 }
@@ -179,7 +179,7 @@ func TestHandleFile_TruncatedMember(t *testing.T) {
 			}
 			root := openTestRoot(t, t.TempDir())
 
-			err := handleFile(testEntryRoots(t, root), "cut.bin", tr, nil)
+			err := handleFile(testPaths(t, root), "cut.bin", tr, nil)
 			if got := err != nil; got != tt.wantErr {
 				t.Fatalf("handleFile error: got = %v, want error = %v", err, tt.wantErr)
 			}
@@ -210,8 +210,8 @@ func TestHandleFile_MemberExceedsBudgetErrors(t *testing.T) {
 	body := make([]byte, memberSize)
 	tr := makeTarStream(t, "over_budget.bin", body)
 
-	counter := &file.ArchiveCounter{MaxBytes: budget, InputBytes: 1 << 20}
-	err := handleFile(testEntryRoots(t, openTestRoot(t, dir)), "over_budget.bin", tr, counter)
+	counter := testBudget(budget)
+	err := handleFile(testPaths(t, openTestRoot(t, dir)), "over_budget.bin", tr, counter)
 	if err == nil {
 		t.Fatal("handleFile succeeded; want error for member exceeding counter budget")
 	}

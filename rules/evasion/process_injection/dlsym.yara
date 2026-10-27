@@ -1,4 +1,4 @@
-rule locate_dlsym: high link {
+rule locate_dlsym: high linux {
   meta:
     description = "searches for dynamic library symbols"
 

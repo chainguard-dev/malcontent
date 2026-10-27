@@ -17,6 +17,7 @@ import (
 	"runtime"
 	"slices"
 	"strings"
+	"syscall"
 	"testing"
 
 	"github.com/chainguard-dev/malcontent/pkg/file"
@@ -164,10 +165,10 @@ func TestProcessInfoChildProcess(t *testing.T) {
 			if pi.AdvertisedPath != tt.wantAdvertised {
 				t.Errorf("AdvertisedPath: got = %q, want = %q", pi.AdvertisedPath, tt.wantAdvertised)
 			}
-			// The executable reported by the process table is preferred over
-			// the procfs alias, which would also resolve to the same file.
-			if strings.HasPrefix(pi.ScanPath, "/proc/") {
-				t.Errorf("ScanPath: got = %q, want the executable path rather than a procfs alias", pi.ScanPath)
+			// Linux scans what the process runs through the kernel's link to
+			// it; elsewhere the executable's path stands for it.
+			if want := fmt.Sprintf("/proc/%d/exe", pid); (runtime.GOOS == "linux") != (pi.ScanPath == want) {
+				t.Errorf("ScanPath: got = %q, want the procfs link %q only on Linux", pi.ScanPath, want)
 			}
 			if !processTestSameFile(t, pi.ScanPath, exe) {
 				t.Errorf("ScanPath: got = %q, want the test executable %q", pi.ScanPath, exe)
@@ -291,7 +292,7 @@ func TestProcessInfoMissingProcess(t *testing.T) {
 	if pi != nil {
 		t.Errorf("processInfo: got = %+v, want nil", pi)
 	}
-	want := fmt.Sprintf("<unknown>: unable to stat %q", scanPath)
+	want := fmt.Sprintf("<unknown>[%d]: unable to stat %q", pid, scanPath)
 	if err == nil || err.Error() != want {
 		t.Errorf("processInfo error: got = %v, want = %s", err, want)
 	}
@@ -400,9 +401,13 @@ func TestProcessInfoFromProcessData(t *testing.T) {
 	// No platform assigns PIDs this large, so it has no procfs entry.
 	const absent int32 = math.MaxInt32
 	linux := runtime.GOOS == "linux"
-	absentAlias := ""
-	if linux {
-		absentAlias = fmt.Sprintf("/proc/%d/exe", absent)
+	// scanned is the path processInfo scans for process pid running exe:
+	// on Linux the kernel's link to what the process runs, elsewhere exe.
+	scanned := func(pid int32, exe string) string {
+		if linux {
+			return fmt.Sprintf("/proc/%d/exe", pid)
+		}
+		return exe
 	}
 	// kernelThread is what processInfo returns for a kernel thread off Linux,
 	// where kernel threads are not skipped.
@@ -417,39 +422,44 @@ func TestProcessInfoFromProcessData(t *testing.T) {
 		name      string
 		pid       int32
 		src       processTestSource
-		linuxOnly bool
+		otherOnly bool // the process data is fake, which only the executable's path reports off Linux
 		want      *ProcessInfo
 		wantErr   string
 	}{
 		{
-			name: "executable that can be stat'd is scanned",
-			pid:  100,
-			src:  processTestSource{name: "tool", ppid: 1, cmdline: []string{exe, "-v"}, exe: exe},
-			want: &ProcessInfo{PID: 100, PPID: 1, Name: "tool", ScanPath: exe, AdvertisedPath: exe, CmdLine: []string{exe, "-v"}},
+			name:      "executable that can be stat'd is scanned",
+			pid:       100,
+			src:       processTestSource{name: "tool", ppid: 1, cmdline: []string{exe, "-v"}, exe: exe},
+			otherOnly: true,
+			want:      &ProcessInfo{PID: 100, PPID: 1, Name: "tool", ScanPath: exe, AdvertisedPath: exe, CmdLine: []string{exe, "-v"}},
 		},
 		{
-			name: "relative argv0 is not advertised",
-			pid:  100,
-			src:  processTestSource{name: "tool", ppid: 1, cmdline: []string{"tool"}, exe: exe},
-			want: &ProcessInfo{PID: 100, PPID: 1, Name: "tool", ScanPath: exe, CmdLine: []string{"tool"}},
+			name:      "relative argv0 is not advertised",
+			pid:       100,
+			src:       processTestSource{name: "tool", ppid: 1, cmdline: []string{"tool"}, exe: exe},
+			otherOnly: true,
+			want:      &ProcessInfo{PID: 100, PPID: 1, Name: "tool", ScanPath: exe, CmdLine: []string{"tool"}},
 		},
 		{
-			name: "failed name lookup is reported as unknown",
-			pid:  100,
-			src:  processTestSource{ppid: 1, exe: exe},
-			want: &ProcessInfo{PID: 100, PPID: 1, Name: "<unknown>", ScanPath: exe},
+			name:      "failed name lookup is reported as unknown",
+			pid:       100,
+			src:       processTestSource{ppid: 1, exe: exe},
+			otherOnly: true,
+			want:      &ProcessInfo{PID: 100, PPID: 1, Name: "<unknown>", ScanPath: exe},
 		},
 		{
-			name: "failed parent lookup records parent -1",
-			pid:  100,
-			src:  processTestSource{name: "tool", ppidErr: errProcessTestLookup, exe: exe},
-			want: &ProcessInfo{PID: 100, PPID: -1, Name: "tool", ScanPath: exe},
+			name:      "failed parent lookup records parent -1",
+			pid:       100,
+			src:       processTestSource{name: "tool", ppidErr: errProcessTestLookup, exe: exe},
+			otherOnly: true,
+			want:      &ProcessInfo{PID: 100, PPID: -1, Name: "tool", ScanPath: exe},
 		},
 		{
-			name: "child of init is kept",
-			pid:  100,
-			src:  processTestSource{name: "kthread", ppid: 1, exe: exe},
-			want: &ProcessInfo{PID: 100, PPID: 1, Name: "kthread", ScanPath: exe},
+			name:      "child of init is kept",
+			pid:       100,
+			src:       processTestSource{name: "kthread", ppid: 1, exe: exe},
+			otherOnly: true,
+			want:      &ProcessInfo{PID: 100, PPID: 1, Name: "kthread", ScanPath: exe},
 		},
 		{
 			name: "child of kthreadd is skipped on Linux",
@@ -464,31 +474,43 @@ func TestProcessInfoFromProcessData(t *testing.T) {
 			want: kernelThread(2, 0),
 		},
 		{
-			name:      "executable that cannot be stat'd falls back to the procfs alias",
-			pid:       self,
-			src:       processTestSource{name: "tool", ppid: 1, exe: missing},
-			linuxOnly: true,
-			want:      &ProcessInfo{PID: self, PPID: 1, Name: "tool", ScanPath: fmt.Sprintf("/proc/%d/exe", self)},
-		},
-		{
-			name: "advertised path is scanned when nothing else can be stat'd",
-			pid:  absent,
+			// On Linux the kernel's link reaches what the process runs, so the
+			// path the executable once had does not matter.
+			name: "the running executable is scanned whatever its path now names",
+			pid:  self,
 			src:  processTestSource{name: "tool", ppid: 1, cmdline: []string{exe}, exe: missing},
-			want: &ProcessInfo{PID: absent, PPID: 1, Name: "tool", ScanPath: exe, AdvertisedPath: exe, CmdLine: []string{exe}},
+			want: func() *ProcessInfo {
+				if !linux {
+					return nil
+				}
+				return &ProcessInfo{PID: self, PPID: 1, Name: "tool", ScanPath: scanned(self, missing), AdvertisedPath: exe, CmdLine: []string{exe}}
+			}(),
+			wantErr: func() string {
+				if linux {
+					return ""
+				}
+				return fmt.Sprintf("tool[%d]: unable to stat %q", self, missing)
+			}(),
 		},
 		{
-			name:    "advertised path that cannot be stat'd is named in the error",
+			name:    "argv0 is never scanned in place of an executable that cannot be stat'd",
+			pid:     absent,
+			src:     processTestSource{name: "tool", ppid: 1, cmdline: []string{exe}, exe: missing},
+			wantErr: fmt.Sprintf("tool[%d]: unable to stat %q", absent, scanned(absent, missing)),
+		},
+		{
+			name:    "a process without an executable is named in the error",
 			pid:     absent,
 			src:     processTestSource{name: "tool", ppid: 1, cmdline: []string{missing}},
-			wantErr: fmt.Sprintf("tool[%d]: unable to stat %q or %q", absent, absentAlias, missing),
+			wantErr: fmt.Sprintf("tool[%d]: unable to stat %q", absent, scanned(absent, "")),
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			if tt.linuxOnly && !linux {
-				t.Skip("the procfs alias exists only on Linux")
+			if tt.otherOnly && linux {
+				t.Skip("Linux reads executables through /proc, which fake process data has no entry in")
 			}
 			got, err := processInfo(t.Context(), tt.pid, tt.src)
 			gotErr := ""
@@ -538,6 +560,149 @@ func TestActiveProcessesProcessTable(t *testing.T) {
 			}
 			if tt.wantErr != nil && ps != nil {
 				t.Errorf("ActiveProcesses: got = %v, want nil on failure", ps)
+			}
+		})
+	}
+}
+
+func TestInterpreterOf(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name   string
+		exe    string
+		argv   []string
+		want   string
+		wantOK bool
+	}{
+		{name: "a shell", exe: "/bin/bash", want: "bash", wantOK: true},
+		{name: "a busybox shell applet", exe: "/usr/bin/busybox", argv: []string{"sh", "x.sh"}, want: "sh", wantOK: true},
+		{name: "a busybox applet that is no interpreter", exe: "/usr/bin/busybox", argv: []string{"/bin/sleep", "60"}, want: "sleep"},
+		{name: "argv[0] names no interpreter for any other program", exe: "/usr/sbin/sshd", argv: []string{"bash"}, want: "sshd"},
+		{name: "a versioned python", exe: "/usr/bin/python3.12", want: "python", wantOK: true},
+		{name: "a deleted interpreter", exe: "/usr/bin/perl5.36 (deleted)", want: "perl", wantOK: true},
+		{name: "node by its Debian name", exe: "/usr/bin/nodejs", want: "nodejs", wantOK: true},
+		{name: "a compiled program is no interpreter", exe: "/usr/sbin/sshd", want: "sshd"},
+		{name: "a program named like a prefix of an interpreter is none", exe: "/usr/bin/shred", want: "shred"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got, ok := interpreterOf(tt.exe, tt.argv)
+			if got != tt.want || ok != tt.wantOK {
+				t.Errorf("interpreterOf(%q, %q): got = (%q, %t), want = (%q, %t)", tt.exe, tt.argv, got, ok, tt.want, tt.wantOK)
+			}
+		})
+	}
+}
+
+func TestScriptOperand(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name   string
+		interp string
+		argv   []string
+		want   string
+	}{
+		{name: "a shell script", interp: "sh", argv: []string{"sh", "/tmp/x.sh"}, want: "/tmp/x.sh"},
+		{name: "a shell script after options", interp: "bash", argv: []string{"bash", "-x", "--norc", "run.sh", "arg"}, want: "run.sh"},
+		{name: "inline shell code runs no script", interp: "bash", argv: []string{"bash", "-c", "curl x | sh"}},
+		{name: "inline shell code among clustered options runs no script", interp: "sh", argv: []string{"sh", "-ec", "id"}},
+		{name: "a python script", interp: "python", argv: []string{"python3", "-u", "app.py"}, want: "app.py"},
+		{name: "a python module runs no script", interp: "python", argv: []string{"python3", "-m", "http.server"}},
+		{name: "inline perl runs no script", interp: "perl", argv: []string{"perl", "-ne", "print"}},
+		{name: "node evaluating code runs no script", interp: "node", argv: []string{"node", "--eval", "1"}},
+		{name: "node after a long option", interp: "node", argv: []string{"node", "--inspect", "server.js"}, want: "server.js"},
+		{name: "standard input runs no script", interp: "ruby", argv: []string{"ruby", "-"}},
+		{name: "the operand after -- is the script", interp: "php", argv: []string{"php", "--", "-odd.php"}, want: "-odd.php"},
+		{name: "no operand runs no script", interp: "dash", argv: []string{"dash"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			if got := scriptOperand(tt.interp, tt.argv); got != tt.want {
+				t.Errorf("scriptOperand(%q, %q): got = %q, want = %q", tt.interp, tt.argv, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestParseProcPath(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name    string
+		path    string
+		wantPID int32
+		wantSub string
+		wantOK  bool
+	}{
+		{name: "an executable link", path: "/proc/42/exe", wantPID: 42, wantSub: "exe", wantOK: true},
+		{name: "a file below a process root", path: "/proc/42/root/app/x.py", wantPID: 42, wantSub: "root/app/x.py", wantOK: true},
+		{name: "a process directory alone", path: "/proc/42"},
+		{name: "a name in place of a pid", path: "/proc/self/exe"},
+		{name: "a pid of zero", path: "/proc/0/exe"},
+		{name: "a pid past 32 bits", path: "/proc/4294967296/exe"},
+		{name: "a path outside /proc", path: "/usr/bin/ls"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			pid, sub, ok := parseProcPath(tt.path)
+			if pid != tt.wantPID || sub != tt.wantSub || ok != tt.wantOK {
+				t.Errorf("parseProcPath(%q): got = (%d, %q, %t), want = (%d, %q, %t)", tt.path, pid, sub, ok, tt.wantPID, tt.wantSub, tt.wantOK)
+			}
+		})
+	}
+}
+
+// TestResolveInRoot checks that a process's file is found as the process
+// would find it: an absolute symlink starts again at the process's root, and
+// ".." goes no higher than it.
+func TestResolveInRoot(t *testing.T) {
+	t.Parallel()
+	dir := t.TempDir()
+	scanTestWriteFile(t, filepath.Join(dir, "srv", "app", "x.py"), []byte("print(1)\n"))
+	root, err := os.OpenRoot(dir)
+	if err != nil {
+		t.Fatalf("open root: %v", err)
+	}
+	t.Cleanup(func() { _ = root.Close() })
+	for _, link := range []struct{ target, name string }{
+		{"/srv/app", "app"},             // absolute, as containers' files often are
+		{"../../srv/app", "up"},         // climbs past the top
+		{"srv/app/x.py", "relative.py"}, // relative
+		{"/loop", "loop"},               // never resolves
+		{"/srv/missing.py", "dangling"}, // leads nowhere
+	} {
+		if err := os.Symlink(link.target, filepath.Join(dir, link.name)); err != nil {
+			t.Fatalf("symlink: %v", err)
+		}
+	}
+
+	tests := []struct {
+		name    string
+		path    string
+		want    string
+		wantErr error
+	}{
+		{name: "a plain path", path: "srv/app/x.py", want: "srv/app/x.py"},
+		{name: "an absolute symlink starts at the root", path: "app/x.py", want: "srv/app/x.py"},
+		{name: "dot-dot stops at the root", path: "up/x.py", want: "srv/app/x.py"},
+		{name: "a relative symlink", path: "relative.py", want: "srv/app/x.py"},
+		{name: "a symlink loop is refused", path: "loop", wantErr: syscall.ELOOP},
+		{name: "a dangling symlink is missing", path: "dangling", wantErr: fs.ErrNotExist},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got, err := resolveInRoot(root, tt.path)
+			if tt.wantErr != nil {
+				if !errors.Is(err, tt.wantErr) {
+					t.Errorf("resolveInRoot(%q): got = (%q, %v), want an error wrapping %v", tt.path, got, err, tt.wantErr)
+				}
+				return
+			}
+			if err != nil || got != tt.want {
+				t.Errorf("resolveInRoot(%q): got = (%q, %v), want = %q", tt.path, got, err, tt.want)
 			}
 		})
 	}

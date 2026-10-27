@@ -5,10 +5,11 @@ package render
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
-	"slices"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -27,6 +28,9 @@ type scanUpdateMsg struct {
 type resultUpdateMsg struct {
 	content  string
 	isResult bool
+	// isError marks content that reports a file the scan skipped, which the
+	// viewer keeps apart from the results.
+	isError bool
 }
 
 type scanCompleteMsg struct{}
@@ -130,8 +134,7 @@ func (m mainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case resultUpdateMsg:
 		content := strings.TrimSpace(msg.content)
-		if strings.Contains(content, ": permission denied") ||
-			strings.Contains(content, "skipped") {
+		if msg.isError {
 			m.errors = append(m.errors, content)
 		} else {
 			m.content = append(m.content, content)
@@ -215,28 +218,14 @@ func (m *mainModel) performSearch() {
 		return
 	}
 
-	term := strings.ToLower(m.searchTerm)
+	re := regexp.MustCompile("(?i)" + regexp.QuoteMeta(m.searchTerm))
 	var matchedLines []string
 	var foundMatch bool
 
 	for _, line := range m.content {
-		lowerLine := strings.ToLower(line)
-		if strings.Contains(lowerLine, term) {
+		if highlighted, ok := highlightMatches(line, re); ok {
 			foundMatch = true
-			lastIndex := 0
-			var resultLine strings.Builder
-			for {
-				index := strings.Index(strings.ToLower(line[lastIndex:]), term)
-				if index == -1 {
-					resultLine.WriteString(line[lastIndex:])
-					break
-				}
-				resultLine.WriteString(line[lastIndex : lastIndex+index])
-				matchText := line[lastIndex+index : lastIndex+index+len(term)]
-				resultLine.WriteString(matchStyle.Render(matchText))
-				lastIndex += index + len(term)
-			}
-			matchedLines = append(matchedLines, resultLine.String())
+			matchedLines = append(matchedLines, highlighted)
 		} else if foundMatch {
 			matchedLines = append(matchedLines, line)
 			foundMatch = false
@@ -248,6 +237,36 @@ func (m *mainModel) performSearch() {
 	} else {
 		m.viewport.SetContent("No matches found for: " + m.searchTerm)
 	}
+}
+
+// ansiEscapeRe matches the CSI escape sequences that styled lines carry, such
+// as SGR color sequences.
+var ansiEscapeRe = regexp.MustCompile(`\x1b\[[0-?]*[ -/]*[@-~]`)
+
+// highlightMatches returns line with each match of re in its visible text
+// highlighted, and whether there was one. It matches on the line itself, so
+// case folding cannot shift a match off the bytes it covers, and it skips the
+// escape sequences in the line, so a term cannot match or split one.
+func highlightMatches(line string, re *regexp.Regexp) (string, bool) {
+	var b strings.Builder
+	found := false
+	last := 0
+	// The final pair stands for an empty sequence at the end of the line.
+	escapes := append(ansiEscapeRe.FindAllStringIndex(line, -1), []int{len(line), len(line)})
+	for _, esc := range escapes {
+		text := line[last:esc[0]]
+		at := 0
+		for _, match := range re.FindAllStringIndex(text, -1) {
+			found = true
+			b.WriteString(text[at:match[0]])
+			b.WriteString(matchStyle.Render(text[match[0]:match[1]]))
+			at = match[1]
+		}
+		b.WriteString(text[at:])
+		b.WriteString(line[esc[0]:esc[1]])
+		last = esc[1]
+	}
+	return b.String(), found
 }
 
 func (m *mainModel) resetContent() {
@@ -295,14 +314,20 @@ func (m mainModel) View() string {
 	return fmt.Sprintf("%s\n%s", strings.TrimRight(b.String(), "\n"), footer)
 }
 
+// Interactive shows the reports in a full-screen viewer, which runs from
+// Start until the user quits it or Stop ends it.
 type Interactive struct {
 	writer  io.Writer
 	model   *mainModel
 	program *tea.Program
 	mu      sync.Mutex
 	wg      sync.WaitGroup
+	// runErr is the error the viewer ended with. It is set before wg is
+	// done, so it may be read once wg.Wait returns.
+	runErr error
 }
 
+// NewInteractive returns a viewer that draws to w, or to os.Stdout when w is nil.
 func NewInteractive(w io.Writer) *Interactive {
 	if w == nil {
 		w = os.Stdout
@@ -311,6 +336,7 @@ func NewInteractive(w io.Writer) *Interactive {
 	program := tea.NewProgram(
 		model,
 		tea.WithAltScreen(),
+		tea.WithOutput(w),
 	)
 
 	return &Interactive{
@@ -324,12 +350,20 @@ func (r *Interactive) Name() string {
 	return "Interactive"
 }
 
+// Start runs the viewer in the background. Full returns the error it ends
+// with, such as one for a panic it recovered from.
 func (r *Interactive) Start() {
 	r.wg.Go(func() {
-		if _, err := r.program.Run(); err != nil {
-			fmt.Fprintf(os.Stderr, "Error running program: %v\n", err)
-		}
+		_, r.runErr = r.program.Run()
 	})
+}
+
+// Stop ends the viewer started by Start without waiting for the user and
+// returns once it has restored the terminal. It does nothing more when the
+// viewer has already ended.
+func (r *Interactive) Stop() {
+	r.program.Quit()
+	r.wg.Wait()
 }
 
 func (r *Interactive) Scanning(ctx context.Context, path string) {
@@ -353,29 +387,29 @@ func (r *Interactive) File(ctx context.Context, fr *malcontent.FileReport) error
 
 	// Render before taking the lock, so concurrent File calls render in
 	// parallel and only their messages are sent one at a time.
-	var content string
+	var msg resultUpdateMsg
 	if fr.Skipped != "" {
-		content = "skipped " + sanitizeTerminal(fr.Path) + ": " + sanitizeTerminal(fr.Skipped)
+		msg = resultUpdateMsg{content: "skipped " + sanitizeTerminal(fr.Path) + ": " + sanitizeTerminal(fr.Skipped), isError: true}
 	} else if len(fr.Behaviors) > 0 {
 		var builder strings.Builder
-		renderFileSummaryTea(ctx, fr, &builder)
-		content = strings.TrimSpace(builder.String())
+		renderFileSummaryTea(ctx, fr, teaScanHeader(fr), &builder)
+		msg = resultUpdateMsg{content: strings.TrimSpace(builder.String()), isResult: true}
 	}
 
-	if content == "" {
+	if msg.content == "" {
 		return nil
 	}
 
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	r.program.Send(resultUpdateMsg{
-		content:  content,
-		isResult: len(fr.Behaviors) > 0,
-	})
+	r.program.Send(msg)
 	return nil
 }
 
-func (r *Interactive) Full(ctx context.Context, _ *malcontent.Config, rep *malcontent.Report) error {
+// Full sends the files of a diff whose behaviors changed, titled as the
+// terminal renderer titles them, then waits for the viewer to end and
+// returns the error it ended with.
+func (r *Interactive) Full(ctx context.Context, _ *malcontent.Config, rep *malcontent.Report) (err error) {
 	if ctx.Err() != nil {
 		return ctx.Err()
 	}
@@ -383,55 +417,43 @@ func (r *Interactive) Full(ctx context.Context, _ *malcontent.Config, rep *malco
 	defer func() {
 		r.program.Send(scanCompleteMsg{})
 		r.wg.Wait()
+		err = errors.Join(err, r.runErr)
 	}()
 
-	if rep == nil {
+	if rep == nil || rep.Diff == nil {
 		return nil
 	}
 
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	processFile := func(fr *malcontent.FileReport) {
-		if fr != nil {
-			var builder strings.Builder
-			renderFileSummaryTea(ctx, fr, &builder)
-			content := strings.TrimSpace(builder.String())
-			r.program.Send(resultUpdateMsg{
-				content:  content,
-				isResult: true,
-			})
+	send := func(fr *malcontent.FileReport, header string) {
+		var builder strings.Builder
+		renderFileSummaryTea(ctx, fr, header, &builder)
+		if content := strings.TrimSpace(builder.String()); content != "" {
+			r.program.Send(resultUpdateMsg{content: content, isResult: true})
 		}
 	}
 
-	if rep.Diff != nil {
-		// Process all diffs, handling any potential nil values
-		for removed := rep.Diff.Removed.Oldest(); removed != nil; removed = removed.Next() {
-			if len(removed.Value.Behaviors) == 0 {
+	for _, section := range []struct {
+		files *malcontent.OrderedFileReports
+		label string
+	}{{rep.Diff.Removed, "Deleted: "}, {rep.Diff.Added, "Added: "}} {
+		for p := section.files.Oldest(); p != nil; p = p.Next() {
+			if len(p.Value.Behaviors) == 0 {
 				continue
 			}
-
-			processFile(removed.Value)
+			send(p.Value, teaHeader(section.label+sanitizeTerminal(p.Key), p.Value.RiskLevel))
 		}
+	}
 
-		for added := rep.Diff.Added.Oldest(); added != nil; added = added.Next() {
-			if len(added.Value.Behaviors) == 0 {
-				continue
-			}
-
-			processFile(added.Value)
+	// Like the other renderers, only report modified files whose behaviors changed.
+	for p := rep.Diff.Modified.Oldest(); p != nil; p = p.Next() {
+		added, removed := diffCounts(p.Value.Behaviors)
+		if added == 0 && removed == 0 {
+			continue
 		}
-
-		for modified := rep.Diff.Modified.Oldest(); modified != nil; modified = modified.Next() {
-			// Like the other renderers, only report modified files whose behaviors changed.
-			if !slices.ContainsFunc(modified.Value.Behaviors, func(b *malcontent.Behavior) bool {
-				return b.DiffAdded || b.DiffRemoved
-			}) {
-				continue
-			}
-
-			processFile(modified.Value)
-		}
+		send(p.Value, teaDiffHeader(p.Value, added, removed))
 	}
 
 	return nil

@@ -20,7 +20,6 @@ import (
 	"testing/iotest"
 
 	"github.com/chainguard-dev/malcontent/pkg/file"
-	"github.com/chainguard-dev/malcontent/pkg/programkind"
 	kflate "github.com/klauspost/compress/flate"
 	zip "github.com/klauspost/compress/zip"
 	"github.com/klauspost/compress/zstd"
@@ -98,6 +97,9 @@ func TestDecodersExtractIdenticalContent(t *testing.T) {
 	tarball := decTar(t, entries)
 	cpioball := decCPIO(t, entries)
 	tree := decWant(entries)
+	// Debian packages also yield their control tarball, in control/.
+	debTree := maps.Clone(tree)
+	debTree["control/control"] = []byte(pkgsDebControl)
 	const split = 70001
 
 	first, second := pkgsNoise(100000), streamsPayload(150000)
@@ -130,13 +132,7 @@ func TestDecodersExtractIdenticalContent(t *testing.T) {
 		{name: "bzip2 file split across streams", extract: ExtractBz2, file: "payload.bin.bz2", data: bz, want: map[string][]byte{"src/payload.bin": bzWant}},
 		{name: "zstd file split across frames", extract: ExtractZstd, file: "payload.bin.zst", data: decZstd(t, first, second), want: map[string][]byte{"src/payload.bin": joined}},
 		{name: "gzip file split across members", extract: ExtractGzip, file: "payload.bin.gz", data: decGzip(t, first, second), want: map[string][]byte{"payload.bin": joined}},
-		{
-			name:    "zlib file followed by bytes the stream does not cover",
-			extract: ExtractZlib,
-			file:    "payload.bin.zlib",
-			data:    slices.Concat(decZlib(t, joined), []byte("trailing")),
-			want:    map[string][]byte{"payload.bin": joined},
-		},
+		{name: "zlib file", extract: ExtractZlib, file: "payload.bin.zlib", data: decZlib(t, joined), want: map[string][]byte{"payload.bin": joined}},
 		{name: "rpm with a gzip payload", extract: ExtractRPM, file: "pkg.rpm", data: pkgsRPM(pkgsCPIOFormat, pkgsGzip, decGzip(t, cpioball)), want: tree},
 		{
 			name:    "rpm with an xz payload split across streams",
@@ -152,9 +148,9 @@ func TestDecodersExtractIdenticalContent(t *testing.T) {
 			data:    pkgsRPM(pkgsCPIOFormat, pkgsZstd, decZstd(t, cpioball[:split], cpioball[split:])),
 			want:    tree,
 		},
-		{name: "deb with gzip members", extract: ExtractDeb, file: "pkg.deb", data: decDeb(t, ".gz", decGzip, tarball), want: tree},
-		{name: "deb with xz members", extract: ExtractDeb, file: "pkg.deb", data: decDeb(t, ".xz", decXZ, tarball), want: tree},
-		{name: "deb with zstd members", extract: ExtractDeb, file: "pkg.deb", data: decDeb(t, ".zst", decZstd, tarball), want: tree},
+		{name: "deb with gzip members", extract: ExtractDeb, file: "pkg.deb", data: decDeb(t, ".gz", decGzip, tarball), want: debTree},
+		{name: "deb with xz members", extract: ExtractDeb, file: "pkg.deb", data: decDeb(t, ".xz", decXZ, tarball), want: debTree},
+		{name: "deb with zstd members", extract: ExtractDeb, file: "pkg.deb", data: decDeb(t, ".zst", decZstd, tarball), want: debTree},
 		{name: "zip with deflated and stored entries", extract: ExtractZip, file: "pkg.zip", data: decZip(t, decZipEntries(entries)), want: tree},
 	}
 
@@ -412,10 +408,9 @@ func TestReadAheadReaderAtBatchesSmallReads(t *testing.T) {
 	}
 }
 
-// TestExtractTarDetectsTypeOnlyForGzipNames checks that the detected type is
-// consulted only for .tar.gz and .tgz names that are not .apk packages, where
-// it alone decides whether the archive is read as gzip.
-func TestExtractTarDetectsTypeOnlyForGzipNames(t *testing.T) {
+// TestExtractTarDecompressesAsContentShows checks that the content alone
+// decides how a tar is decompressed, whatever its name says.
+func TestExtractTarDecompressesAsContentShows(t *testing.T) {
 	t.Parallel()
 
 	noise := string(pkgsNoise(4096))
@@ -424,50 +419,28 @@ func TestExtractTarDetectsTypeOnlyForGzipNames(t *testing.T) {
 		{name: "note.txt", typeflag: tar.TypeReg, body: "note"},
 	})
 	gz := decGzip(t, plain)
-	gzipType := &programkind.FileType{Ext: "gz", MIME: "application/gzip"}
-	tarType := &programkind.FileType{Ext: "tar", MIME: "application/x-tar"}
 
 	tests := []struct {
-		name      string
-		file      string
-		data      []byte
-		ft        *programkind.FileType
-		wantCalls int
-		// wantErr is a substring of the expected error; empty means the
-		// archive's members are extracted.
-		wantErr string
+		name string
+		file string
+		data []byte
 	}{
-		{name: "plain tar name skips detection", file: "pkg.tar", data: plain},
-		{name: "apk name reads gzip without detection", file: "pkg.apk", data: gz},
-		{name: "apk name ending in tar.gz reads gzip without detection", file: "pkg.apk.tar.gz", data: gz},
-		{name: "xz tar name skips detection", file: "pkg.tar.xz", data: decXZ(t, plain)},
-		{name: "tar.gz name detected as gzip reads gzip", file: "pkg.tar.gz", data: gz, ft: gzipType, wantCalls: 1},
-		{name: "tgz name detected as gzip reads gzip", file: "pkg.tgz", data: gz, ft: gzipType, wantCalls: 1},
-		{name: "tar.gz name detected as tar reads a plain tar", file: "plain.tar.gz", data: plain, ft: tarType, wantCalls: 1},
-		{name: "tar.gz name whose detection failed reads a plain tar", file: "pkg.tar.gz", data: gz, wantCalls: 1, wantErr: "failed to read tar header"},
+		{name: "plain tar under a tar name", file: "pkg.tar", data: plain},
+		{name: "gzip tar under an Alpine package name", file: "pkg.apk", data: gz},
+		{name: "gzip tar under an Alpine package name ending in tar.gz", file: "pkg.apk.tar.gz", data: gz},
+		{name: "xz tar under an xz tar name", file: "pkg.tar.xz", data: decXZ(t, plain)},
+		{name: "gzip tar under a gzip tar name", file: "pkg.tar.gz", data: gz},
+		{name: "gzip tar under a tgz name", file: "pkg.tgz", data: gz},
+		{name: "plain tar under a gzip tar name", file: "plain.tar.gz", data: plain},
+		{name: "gzip tar under a plain tar name", file: "gz.tar", data: gz},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			calls := 0
-			fileType := func() *programkind.FileType {
-				calls++
-				return tt.ft
-			}
 			out := t.TempDir()
-			err := extractTarWithKind(t.Context(), out, decWrite(t, tt.file, tt.data), fileType)
-			if calls != tt.wantCalls {
-				t.Errorf("detections: got = %d, want = %d", calls, tt.wantCalls)
-			}
-			if tt.wantErr != "" {
-				if err == nil || !strings.Contains(err.Error(), tt.wantErr) {
-					t.Errorf("extractTarWithKind error: got = %v, want = error containing %q", err, tt.wantErr)
-				}
-				return
-			}
-			if err != nil {
-				t.Fatalf("extractTarWithKind error: got = %v, want = nil", err)
+			if err := ExtractTar(t.Context(), out, decWrite(t, tt.file, tt.data)); err != nil {
+				t.Fatalf("ExtractTar error: got = %v, want = nil", err)
 			}
 			pkgsWantFile(t, filepath.Join(out, "noise.bin"), noise)
 			pkgsWantFile(t, filepath.Join(out, "note.txt"), "note")
@@ -475,55 +448,36 @@ func TestExtractTarDetectsTypeOnlyForGzipNames(t *testing.T) {
 	}
 }
 
-// TestExtractorsDecideByReportedType checks that the gzip and zip extractors
-// accept or reject an archive by the type fileType reports, detecting it once,
-// so a caller that already detected the type can supply it.
-func TestExtractorsDecideByReportedType(t *testing.T) {
+// TestExtractorsDecideByContent checks that the gzip and zip extractors
+// accept or reject a file by its content, whatever it is named.
+func TestExtractorsDecideByContent(t *testing.T) {
 	t.Parallel()
 
-	payload := []byte("reported type payload\n")
+	payload := []byte("content decides payload\n")
 	gz := decGzip(t, payload)
 	zipped := decZip(t, []decZipEntry{{name: "a.txt", method: zip.Deflate, body: payload}})
 
 	tests := []struct {
 		name     string
-		extract  func(context.Context, string, string, func() *programkind.FileType) error
+		extract  func(context.Context, string, string) error
 		file     string
 		data     []byte
-		ft       *programkind.FileType
 		wantFile string // holds payload when extraction succeeds
 		wantErr  string
 	}{
-		{name: "gzip reported as gzip is extracted", extract: extractGzipWithKind, file: "p.txt.gz", data: gz, ft: &programkind.FileType{MIME: "application/gzip"}, wantFile: "p.txt"},
-		{name: "gzip reported as x-gzip is extracted", extract: extractGzipWithKind, file: "p.txt.gz", data: gz, ft: &programkind.FileType{MIME: "application/x-gzip"}, wantFile: "p.txt"},
-		{name: "gzip reported as another type is rejected", extract: extractGzipWithKind, file: "p.txt.gz", data: gz, ft: &programkind.FileType{MIME: "application/octet-stream"}, wantErr: "not a valid gzip archive"},
-		{name: "gzip whose detection failed is rejected", extract: extractGzipWithKind, file: "p.txt.gz", data: gz, wantErr: "not a valid gzip archive"},
-		{name: "zip reported as zip is extracted", extract: extractZipWithKind, file: "p.zip", data: zipped, ft: &programkind.FileType{MIME: "application/zip"}, wantFile: "a.txt"},
-		{name: "zip reported as a java archive is extracted", extract: extractZipWithKind, file: "p.jar", data: zipped, ft: &programkind.FileType{MIME: "application/java-archive"}, wantFile: "a.txt"},
-		{
-			name:    "zip reported as an office document is rejected",
-			extract: extractZipWithKind,
-			file:    "p.zip",
-			data:    zipped,
-			ft:      &programkind.FileType{MIME: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"},
-			wantErr: "not a valid zip archive",
-		},
-		{name: "zip whose detection failed is rejected", extract: extractZipWithKind, file: "p.zip", data: zipped, wantErr: "not a valid zip archive"},
+		{name: "gzip content is extracted", extract: ExtractGzip, file: "p.txt.gz", data: gz, wantFile: "p.txt"},
+		{name: "other content under a gzip name is rejected", extract: ExtractGzip, file: "p.txt.gz", data: payload, wantErr: "not a valid gzip archive"},
+		{name: "zip content is extracted", extract: ExtractZip, file: "p.zip", data: zipped, wantFile: "a.txt"},
+		{name: "zip content under a java archive name is extracted", extract: ExtractZip, file: "p.jar", data: zipped, wantFile: "a.txt"},
+		{name: "zip content under an office document name is extracted", extract: ExtractZip, file: "p.docx", data: zipped, wantFile: "a.txt"},
+		{name: "other content under a zip name is rejected", extract: ExtractZip, file: "p.zip", data: payload, wantErr: "not a valid zip archive"},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			calls := 0
-			fileType := func() *programkind.FileType {
-				calls++
-				return tt.ft
-			}
 			out := t.TempDir()
-			err := tt.extract(t.Context(), out, decWrite(t, tt.file, tt.data), fileType)
-			if calls != 1 {
-				t.Errorf("detections: got = %d, want = 1", calls)
-			}
+			err := tt.extract(t.Context(), out, decWrite(t, tt.file, tt.data))
 			if tt.wantErr != "" {
 				if err == nil || !strings.Contains(err.Error(), tt.wantErr) {
 					t.Errorf("extract error: got = %v, want = error containing %q", err, tt.wantErr)

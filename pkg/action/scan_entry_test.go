@@ -7,6 +7,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io/fs"
+	"os"
 	"path/filepath"
 	"runtime"
 	"slices"
@@ -108,6 +110,12 @@ func TestScanUnresolvableScanPath(t *testing.T) {
 	fx := newScanTestFixture(t, yrs, rfs)
 	// A path below a regular file cannot be resolved.
 	unresolvable := filepath.Join(fx.clean, "sub")
+	other := t.TempDir()
+	missing := filepath.Join(other, "missing")
+	dangling := filepath.Join(other, "dangling")
+	if err := os.Symlink(missing, dangling); err != nil {
+		t.Fatalf("symlink: %v", err)
+	}
 
 	tests := []struct {
 		name        string
@@ -117,8 +125,11 @@ func TestScanUnresolvableScanPath(t *testing.T) {
 		wantKeys    []string
 	}{
 		{name: "sole unresolvable scan path fails the scan", scanPaths: []string{unresolvable}, wantErr: syscall.ENOTDIR},
-		{name: "unresolvable scan path among several is skipped", scanPaths: []string{unresolvable, fx.root}, wantKeys: []string{fx.clean, fx.hit}},
-		{name: "interactive renderer keeps partial results instead of failing", scanPaths: []string{unresolvable}, interactive: true},
+		{name: "unresolvable scan path among several fails the scan before any is scanned", scanPaths: []string{fx.root, unresolvable}, wantErr: syscall.ENOTDIR},
+		{name: "interactive renderer gets the error with the report", scanPaths: []string{unresolvable}, interactive: true, wantErr: syscall.ENOTDIR},
+		{name: "resolvable scan paths are scanned", scanPaths: []string{fx.root}, wantKeys: []string{fx.clean, fx.hit}},
+		{name: "a missing scan path fails the scan", scanPaths: []string{fx.root, missing}, wantErr: fs.ErrNotExist},
+		{name: "a dangling symlink scan path is passed over", scanPaths: []string{dangling, fx.root}, wantKeys: []string{fx.clean, fx.hit}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -131,9 +142,6 @@ func TestScanUnresolvableScanPath(t *testing.T) {
 			r, err := Scan(t.Context(), c)
 			if !errors.Is(err, tt.wantErr) {
 				t.Fatalf("Scan error: got = %v, want = %v", err, tt.wantErr)
-			}
-			if tt.wantErr != nil {
-				return
 			}
 			if r == nil {
 				t.Fatal("report: got = nil, want = non-nil")
@@ -255,10 +263,16 @@ func TestScanExitCriteriaReturnOnlyTheMatch(t *testing.T) {
 		root         string
 		exitHit      bool
 		exitMiss     bool
+		minFileRisk  int
+		categories   []string
+		noMatch      bool // the scan finishes without meeting the exit criteria
 		wantKeys     []string
 		wantRendered []string
 	}{
 		{name: "exit-first-hit returns and renders the hit as the only file", root: fx.root, exitHit: true, wantKeys: []string{fx.hit}, wantRendered: []string{fx.hit}},
+		// The exit criteria judge what the filters leave of each file.
+		{name: "exit-first-hit is not met by a hit below the minimum file risk", root: fx.root, exitHit: true, minFileRisk: fx.hitRisk + 1, noMatch: true},
+		{name: "exit-first-hit is not met by a hit the category filter empties", root: fx.root, exitHit: true, categories: []string{"scan-test-no-such-category"}, noMatch: true},
 		{name: "exit-first-miss returns no files", root: cleanRoot, exitMiss: true},
 	}
 	for _, tt := range tests {
@@ -266,18 +280,20 @@ func TestScanExitCriteriaReturnOnlyTheMatch(t *testing.T) {
 			t.Parallel()
 			rnd := &scanTestRenderer{}
 			c := malcontent.Config{
-				Concurrency:   1,
-				ExitFirstHit:  tt.exitHit,
-				ExitFirstMiss: tt.exitMiss,
-				Renderer:      rnd,
-				Rules:         yrs,
-				RuleFS:        rfs,
-				ScanPaths:     []string{tt.root},
+				Concurrency:    1,
+				ExitFirstHit:   tt.exitHit,
+				ExitFirstMiss:  tt.exitMiss,
+				MinFileRisk:    tt.minFileRisk,
+				Renderer:       rnd,
+				RuleCategories: tt.categories,
+				Rules:          yrs,
+				RuleFS:         rfs,
+				ScanPaths:      []string{tt.root},
 			}
 
 			r, err := Scan(t.Context(), c)
-			if !errors.Is(err, ErrMatchedCondition) || errors.Is(err, context.Canceled) {
-				t.Fatalf("Scan error: got = %v, want = %v", err, ErrMatchedCondition)
+			if errors.Is(err, ErrMatchedCondition) != !tt.noMatch || errors.Is(err, context.Canceled) {
+				t.Fatalf("Scan error: got = %v, want a match = %t", err, !tt.noMatch)
 			}
 			if got := scanTestKeys(r.Files); !slices.Equal(got, tt.wantKeys) {
 				t.Errorf("report keys: got = %v, want = %v", got, tt.wantKeys)

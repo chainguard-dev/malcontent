@@ -86,6 +86,7 @@ net/ip/resolve: low
 net/ip/string: medium
 net/proxy/socks5: medium
 net/proxy/tunnel: medium
+net/proxy/tunnel_create: medium
 net/remote_control/vnc: medium
 net/resolve/hostname: low
 net/resolve/hostport_parse: low

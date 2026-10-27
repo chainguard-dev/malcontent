@@ -12,8 +12,7 @@ import (
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
 	"github.com/puzpuzpuz/xsync/v4"
-	orderedmap "github.com/wk8/go-ordered-map/v2"
-	"gopkg.in/yaml.v3"
+	"go.yaml.in/yaml/v3"
 )
 
 func TestYAMLStreamsIn64KiBWrites(t *testing.T) {
@@ -243,9 +242,9 @@ func TestYAMLRendererWithDiff(t *testing.T) {
 	ctx := t.Context()
 	cfg := &malcontent.Config{Stats: true}
 	diff := &malcontent.DiffReport{
-		Added:    orderedmap.New[string, *malcontent.FileReport](),
-		Removed:  orderedmap.New[string, *malcontent.FileReport](),
-		Modified: orderedmap.New[string, *malcontent.FileReport](),
+		Added:    new(malcontent.OrderedFileReports),
+		Removed:  new(malcontent.OrderedFileReports),
+		Modified: new(malcontent.OrderedFileReports),
 	}
 	diff.Added.Set("/bin/added", &malcontent.FileReport{Path: "/bin/added", RiskScore: 2})
 	diff.Removed.Set("/bin/removed", &malcontent.FileReport{Path: "/bin/removed", RiskScore: 1})
@@ -297,9 +296,9 @@ func TestYAMLRendererDiffWithNilFiles(t *testing.T) {
 	ctx := t.Context()
 	cfg := &malcontent.Config{}
 	diff := &malcontent.DiffReport{
-		Added:    orderedmap.New[string, *malcontent.FileReport](),
-		Removed:  orderedmap.New[string, *malcontent.FileReport](),
-		Modified: orderedmap.New[string, *malcontent.FileReport](),
+		Added:    new(malcontent.OrderedFileReports),
+		Removed:  new(malcontent.OrderedFileReports),
+		Modified: new(malcontent.OrderedFileReports),
 	}
 	diff.Added.Set("/bin/added", &malcontent.FileReport{Path: "/bin/added", RiskScore: 2})
 	// Mirror what action.Diff() actually returns: Diff set, Files nil

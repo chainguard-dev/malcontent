@@ -5,6 +5,7 @@ package action
 
 import (
 	"context"
+	"errors"
 	"slices"
 	"strings"
 	"sync"
@@ -33,9 +34,9 @@ type scopedRules struct {
 }
 
 // scopedSet is a rule set compiled once for one combination of scopes, with
-// scanners kept for reuse.
+// scanners kept for reuse. mu guards rules and err while the set compiles.
 type scopedSet struct {
-	once     sync.Once
+	mu       sync.Mutex
 	rules    *yarax.Rules
 	err      error
 	scanners sync.Pool
@@ -117,16 +118,25 @@ func (sr *scopedRules) applicable(kind *programkind.FileType, path, expath strin
 }
 
 // set returns the rule set for the scoped rules at indices, compiling it on
-// first use.
+// first use. A compile that ctx's end cut short is not kept, so that the
+// next scan that needs the set compiles it; any other outcome is.
 func (sr *scopedRules) set(ctx context.Context, key string, indices []int) (*yarax.Rules, error) {
 	set, _ := sr.sets.LoadOrCompute(key, func() (*scopedSet, bool) { return &scopedSet{}, false })
-	set.once.Do(func() {
-		set.rules, set.err = sr.split.CompileScoped(ctx, indices)
-		if set.err == nil {
-			scopedSets.Store(set.rules, set)
-		}
-	})
-	return set.rules, set.err
+	set.mu.Lock()
+	defer set.mu.Unlock()
+	if set.rules != nil || set.err != nil {
+		return set.rules, set.err
+	}
+	rules, err := sr.split.CompileScoped(ctx, indices)
+	switch {
+	case err == nil:
+		set.rules = rules
+		scopedSets.Store(rules, set)
+	case errors.Is(err, context.Canceled), errors.Is(err, context.DeadlineExceeded):
+	default:
+		set.err = err
+	}
+	return rules, err
 }
 
 // with runs scan with one of the set's scanners, which is destroyed

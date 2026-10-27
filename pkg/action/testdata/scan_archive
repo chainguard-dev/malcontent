@@ -491,8 +491,7 @@
                 {
                     "Description": "Zstandard: fast real-time compression algorithm",
                     "MatchStrings": [
-                        "$magic_bytes",
-                        "$ref",
+                        "(\\xb5/\\xfd",
                         "zstd"
                     ],
                     "RiskScore": 1,
@@ -537,7 +536,7 @@
                 {
                     "Description": "Contains compressed content in ZStandard format",
                     "MatchStrings": [
-                        "$ref"
+                        "(\\xb5/\\xfd"
                     ],
                     "RiskScore": 2,
                     "RiskLevel": "MEDIUM",
@@ -1946,7 +1945,7 @@
                     "RuleName": "content_type"
                 },
                 {
-                    "Description": "makes HTTP requests with Bearer authentication",
+                    "Description": "makes HTTP requests with basic authentication",
                     "MatchStrings": [
                         "WWW-Authenticate",
                         "Www-Authenticate",
@@ -2051,7 +2050,7 @@
                     "RuleName": "packets"
                 },
                 {
-                    "Description": "connects to an arbitrary hostname:port",
+                    "Description": "connects to an arbitrary host:port",
                     "MatchStrings": [
                         "host to transport"
                     ],
@@ -2205,7 +2204,7 @@
                     "RuleName": "connect_tcp"
                 },
                 {
-                    "Description": "Uses crypto/ssh to connect to the SSH (secure shell) service",
+                    "Description": "Supports SSH (secure shell)",
                     "MatchStrings": [
                         "SSH"
                     ],
@@ -2523,7 +2522,7 @@
                     "RuleName": "linux_adjtimex"
                 },
                 {
-                    "Description": "lists crontab entries, may also persist",
+                    "Description": "supports crontab manipulation",
                     "MatchStrings": [
                         "crontab"
                     ],

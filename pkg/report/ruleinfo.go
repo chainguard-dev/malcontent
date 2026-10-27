@@ -5,6 +5,7 @@ package report
 
 import (
 	"fmt"
+	"log/slog"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -13,6 +14,7 @@ import (
 	"weak"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
+	"github.com/chainguard-dev/malcontent/pkg/programkind"
 	"github.com/chainguard-dev/malcontent/pkg/release"
 	"github.com/puzpuzpuz/xsync/v4"
 
@@ -31,24 +33,54 @@ type ruleInfo struct {
 	// and MatchStrings fields stay nil.
 	behavior malcontent.Behavior
 	scope    ruleScope
+	tags     []string
 	// order is the rule's index in its rule set's declaration order, which
 	// fixes the order Generate processes matches in.
-	order        int
-	risk         int
+	order int
+	risk  int
+	// override marks a first-party rule that rescores the rules it names. A
+	// third-party rule's tags and metadata follow its vendor's conventions,
+	// so it is never an override rule.
 	override     bool
 	thirdParty   bool
 	isMalcontent bool
 	// meta/ rules describe the file through metaKey and metaValue instead of
 	// adding a behavior.
-	isMeta              bool
-	metaKey             string
-	metaValue           string
-	fallbackDescription string
-	pledges             []string
-	caps                []string
-	syscalls            []string
-	// targets lists, in metadata order, the rules an override rule names.
+	isMeta    bool
+	metaKey   string
+	metaValue string
+	pledges   []string
+	caps      []string
+	syscalls  []string
+	// targets lists, in metadata order, the rules an override rule names
+	// with a known risk level.
 	targets []overrideKey
+	// problems describes the tags and metadata that reports cannot act on as
+	// written, such as a misspelled risk level.
+	problems []string
+}
+
+// logWarn emits warnings through the default slog logger. It is a variable
+// so tests can record the messages without replacing the process-wide
+// logger.
+var logWarn = slog.Warn
+
+// nonRiskTags are the first-party rule tags that set no risk level:
+// platforms, languages, categories, and the override marker. Any other tag
+// of a first-party rule must be a risk level from Levels.
+var nonRiskTags = map[string]struct{}{
+	"override": {},
+	"bsd":      {},
+	"linux":    {},
+	"macos":    {},
+	"posix":    {},
+	"windows":  {},
+	"java":     {},
+	"js":       {},
+	"php":      {},
+	"python":   {},
+	"ruby":     {},
+	"exfil":    {},
 }
 
 // overrideKey is one directive of an override rule: set the rule named rule
@@ -64,6 +96,7 @@ func newRuleInfo(m *yarax.Rule, ref string, order int) *ruleInfo {
 	ns, id := m.Namespace(), m.Identifier()
 	key := generateKey(ns, id)
 	risk := matchRisk(m)
+	tags, meta := m.Tags(), m.Metadata()
 	ri := &ruleInfo{
 		behavior: malcontent.Behavior{
 			ID:        key,
@@ -72,20 +105,62 @@ func newRuleInfo(m *yarax.Rule, ref string, order int) *ruleInfo {
 			RuleName:  id,
 			RuleURL:   generateRuleURL(ref, ns, id),
 		},
-		scope:               newRuleScope(m.Metadata()),
-		order:               order,
-		risk:                risk,
-		override:            slices.Contains(m.Tags(), "override"),
-		thirdParty:          thirdParty(ns),
-		fallbackDescription: strings.ReplaceAll(id, "_", " "),
+		scope:      newRuleScope(meta),
+		tags:       tags,
+		order:      order,
+		risk:       risk,
+		thirdParty: thirdParty(ns),
 	}
+	ri.override = !ri.thirdParty && slices.Contains(tags, "override")
 	if strings.HasPrefix(key, "meta/") {
 		ri.isMeta = true
 		ri.metaKey = strings.ReplaceAll(filepath.Dir(key), "meta/", "")
 		ri.metaValue = filepath.Base(key)
 	}
-	ri.applyMetadata(m.Metadata())
+	ri.applyMetadata(meta)
+	b := &ri.behavior
+	// Fix YARA Forge rules that record their author URL as reference URLs.
+	// An empty reference is a prefix of every URL, so it must not count.
+	if b.ReferenceURL != "" && strings.HasPrefix(b.RuleURL, b.ReferenceURL) {
+		b.RuleAuthorURL = b.ReferenceURL
+		b.ReferenceURL = ""
+	}
+	// If the rule does not have a description, make one up based on the rule name
+	if b.Description == "" {
+		b.Description = strings.ReplaceAll(id, "_", " ")
+	}
+	ri.checkTags()
+	ri.checkFiletypes()
+	for _, p := range ri.problems {
+		logWarn("Rule metadata problem", "rule", ns+":"+id, "problem", p)
+	}
 	return ri
+}
+
+// checkTags records a problem for each tag of a first-party rule that is
+// neither a risk level nor a known tag without one, such as a misspelled
+// level that would leave the rule at LOW.
+func (ri *ruleInfo) checkTags() {
+	if ri.thirdParty {
+		return
+	}
+	for _, tag := range ri.tags {
+		_, level := Levels[tag]
+		if _, known := nonRiskTags[tag]; !level && !known {
+			ri.problems = append(ri.problems, fmt.Sprintf("unknown tag %q", tag))
+		}
+	}
+}
+
+// checkFiletypes records a problem for each filetypes entry that file type
+// detection never yields, such as a MIME type, since the rule then never
+// applies to files of that type.
+func (ri *ruleInfo) checkFiletypes() {
+	for _, ext := range ri.scope.filetypes {
+		if kind := programkind.Path("file." + ext); kind == nil || kind.Ext != ext {
+			ri.problems = append(ri.problems, fmt.Sprintf("unknown filetypes entry %q", ext))
+		}
+	}
 }
 
 // applyMetadata records the behavior fields, file attributes, and override
@@ -146,10 +221,18 @@ func (ri *ruleInfo) applyMetadata(meta []yarax.Metadata) {
 			// directives.
 		default:
 			// Any other key of an override rule names the rule to override.
-			// Whether that rule matched is known only per file.
-			if ri.override {
-				ri.targets = append(ri.targets, overrideKey{rule: k, score: Levels[v]})
+			// Whether that rule matched is known only per file. A level
+			// outside Levels is skipped rather than read as HARMLESS, which
+			// would hide the rule it names.
+			if !ri.override {
+				continue
 			}
+			score, ok := Levels[v]
+			if !ok {
+				ri.problems = append(ri.problems, fmt.Sprintf("override of %q has unknown risk level %q", k, v))
+				continue
+			}
+			ri.targets = append(ri.targets, overrideKey{rule: k, score: score})
 		}
 	}
 }

@@ -25,10 +25,11 @@ func TestSymlinkExtraction(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			// Relative symlink that escapes the extraction directory should be rejected
-			name:    "relative symlink escaping directory is rejected",
+			// A relative symlink that escapes the extraction directory is
+			// skipped, and the rest of the archive extracted.
+			name:    "relative symlink escaping directory is skipped",
 			tarFile: "testdata/symlink_escape.tar",
-			wantErr: true,
+			wantErr: false,
 		},
 		{
 			name:    "valid symlink within directory",

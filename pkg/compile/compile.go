@@ -6,6 +6,7 @@ package compile
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
@@ -25,7 +26,6 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/minio/sha256-simd"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/chainguard-dev/clog"
@@ -100,48 +100,63 @@ var badRules = map[string]struct{}{
 	"RTF_File_Malformed_Header": {},
 }
 
-// rulesWithWarnings determines what to do with rules that have known warnings: true=keep, false=disable.
+// rulesWithWarnings lists rules with known yara-x compiler warnings: true
+// keeps a rule and leaves its warnings out of the debug log, false disables
+// it. Compiling logs the warnings of every other rule at debug level, and
+// TestBundledRuleWarningsAllowlisted fails on an unlisted rule with a warning
+// that marks it as broken, or a listed rule that no longer has warnings.
+//
+// The rules kept here are vendored third-party rules, left as upstream wrote
+// them: a condition, or part of one, that yara-x proves can never hold
+// (unsatisfiable_expr), or a pattern set such as ($a*) that also takes in
+// patterns named alike (unintended_pattern_in_set).
 var rulesWithWarnings = map[string]bool{
-	"base64_str_replace":                    true,
-	"DynastyPersist_offensive_tool_keyword": false,
-	"gzinflate_str_replace":                 true,
-	"hardcoded_ip_port":                     true,
-	"hardcoded_ip":                          true,
-	"Microsoft_Excel_with_Macrosheet":       false,
-	"nmap_offensive_tool_keyword":           false,
-	"opaque_binary":                         true,
-	"PDF_with_Embedded_RTF_OLE_Newlines":    true,
-	"php_short_concat_multiple":             true,
-	"php_short_concat":                      true,
-	"php_str_replace_obfuscation":           true,
-	"Powershell_Case":                       true,
-	"RDPassSpray_offensive_tool_keyword":    false,
-	"rot13_str_replace":                     true,
-	"sleep_and_background":                  true,
-	"str_replace_obfuscation":               true,
-	"systemd_no_comments_or_documentation":  true,
 	"Agenda_golang":                         false,
 	"bookworm_dll_UUID":                     false,
 	"cobaltstrike_offensive_tool_keyword":   false,
-	"amos_magic_var":                        true,
-	"echo_decode_bash":                      true,
-	"osascript_window_closer":               true,
-	"osascript_quitter":                     true,
-	"exfil_libcurl_elf":                     true,
-	"small_opaque_archaic_gcc":              true,
-	"bin_hardcoded_ip":                      true,
-	"python_hex_decimal":                    true,
-	"python_long_hex":                       true,
-	"python_long_hex_multiple":              true,
-	"pam_passwords":                         true,
-	"decompress_base64_entropy":             true,
-	"macho_opaque_binary":                   true,
-	"macho_opaque_binary_long_str":          true,
-	"long_str":                              true,
-	"macho_backdoor_libc_signature":         true,
-	"http_accept":                           true,
-	"hardcoded_host_port":                   true,
-	"hardcoded_host_port_over_10k":          true,
+	"DynastyPersist_offensive_tool_keyword": false,
+	"Microsoft_Excel_with_Macrosheet":       false,
+	"nmap_offensive_tool_keyword":           false,
+	"RDPassSpray_offensive_tool_keyword":    false,
+
+	// unsatisfiable_expr
+	"RUSSIANPANDA_Bandit_Stealer":                  true,
+	"SEKOIA_Apt_Apt31_Rekoobe":                     true,
+	"SIGNATURE_BASE_HKTL_Imphashes_Aug22_1":        true,
+	"TRELLIX_ARC_Apt_Nix_Elf_Derusbi":              true,
+	"TRELLIX_ARC_Apt_Nix_Elf_Derusbi_Kernelmodule": true,
+
+	// unintended_pattern_in_set
+	"ARKBIRD_SOLG_APT_APT34_RDAT_Feb_2021_1":               true,
+	"ARKBIRD_SOLG_APT_Aridviper_Installer_Feb_2020_1":      true,
+	"ARKBIRD_SOLG_APT_Donot_Downloader_May_2021_1":         true,
+	"ARKBIRD_SOLG_APT_Molerats_Feb_2021_1":                 true,
+	"ARKBIRD_SOLG_APT_Unknown_Middle_East_Feb_2020_1":      true,
+	"ARKBIRD_SOLG_Ran_Babuklockers_Jan_2021_1":             true,
+	"ARKBIRD_SOLG_Ran_Conti_Loader_V3_Nov_2020_1":          true,
+	"ARKBIRD_SOLG_Ran_Loader_Hades_Dec_2020_1":             true,
+	"ARKBIRD_SOLG_Ran_Mount_Locker_Nov_2020_1":             true,
+	"ARKBIRD_SOLG_Ran_Ranzy_Locker_Nov_2020_1":             true,
+	"ARKBIRD_SOLG_Ran_Ruyk_Oct_2020_1":                     true,
+	"BINARYALERT_Cobaltstrike_Template_Exe_PRIVATE":        true,
+	"BINARYALERT_Hacktool_Windows_Cobaltstrike_Powershell": true,
+	"CAPE_Dcrat":                                             true,
+	"CLUSTER25_APT29_Loader_87221_00001":                     true,
+	"DITEKSHEN_MALWARE_Win_Agentteslav3":                     true,
+	"DITEKSHEN_MALWARE_Win_Phonzy":                           true,
+	"DITEKSHEN_MALWARE_Win_Vanillarat":                       true,
+	"EMBEERESEARCH_Win_Nighthawk_Nov_2022":                   true,
+	"FIREEYE_RT_Dropper_HTA_Wildchild_1":                     true,
+	"JPCERTCC_Asyncrat":                                      true,
+	"malware_asyncrat":                                       true,
+	"SECUINFRA_SUS_Unsigned_APPX_MSIX_Installer_Feb23":       true,
+	"SEKOIA_Launcher_Win_Stealthmutant_Bat_Launcher":         true,
+	"SIGNATURE_BASE_MAL_LNX_Redmenshen_Bpfdoor_May23_1":      true,
+	"SIGNATURE_BASE_Shankar_Php_Php":                         true,
+	"SIGNATURE_BASE_SUSP_EXPL_OBFUSC_Dec21_1":                true,
+	"SIGNATURE_BASE_WEBSHELL_PAS_Webshell_Perlnetworkscript": true,
+	"SIGNATURE_BASE_WEBSHELL_PHP_Generic_Callback":           true,
+	"threat_runtime_obfuscation_steganography":               true,
 }
 
 // rulePatternFormat matches a whole rule declaration; %s is the alternation
@@ -314,17 +329,34 @@ func newCompiler() (*yarax.Compiler, error) {
 	return yxc, nil
 }
 
+// Recursive compiles every rule file in fss, each in a namespace named by its
+// path, and logs at debug level the compiler warnings of rules that
+// rulesWithWarnings does not allow.
 func Recursive(ctx context.Context, fss []fs.FS) (*yarax.Rules, error) {
+	yrs, ws, err := compileRecursive(ctx, fss)
+	if err != nil {
+		return nil, err
+	}
+	logRuleWarnings(ws, rulesWithWarnings)
+	return yrs, nil
+}
+
+// compileRecursive is Recursive, returning the compiler warnings instead of
+// logging them.
+func compileRecursive(ctx context.Context, fss []fs.FS) (*yarax.Rules, []ruleWarning, error) {
 	if ctx.Err() != nil {
-		return nil, ctx.Err()
+		return nil, nil, ctx.Err()
 	}
 
 	yxc, err := newCompiler()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	remover := defaultRuleRemover()
+	// roots records the filesystem of each namespace, so the source of a rule
+	// with warnings can be read again to name the rule.
+	roots := map[string]fs.FS{}
 
 	for _, root := range fss {
 		err = fs.WalkDir(root, ".", func(path string, d fs.DirEntry, err error) error {
@@ -352,6 +384,7 @@ func Recursive(ctx context.Context, fss []fs.FS) (*yarax.Rules, error) {
 				if err := yxc.AddSource(string(bs), yarax.WithOrigin(path)); err != nil {
 					return fmt.Errorf("failed to parse %s: %v", path, err)
 				}
+				roots[path] = root
 			}
 
 			return nil
@@ -362,7 +395,7 @@ func Recursive(ctx context.Context, fss []fs.FS) (*yarax.Rules, error) {
 	}
 
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	compileErrs := yxc.Errors()
@@ -373,10 +406,21 @@ func Recursive(ctx context.Context, fss []fs.FS) (*yarax.Rules, error) {
 	}
 
 	if len(errors) > 0 {
-		return nil, fmt.Errorf("compile errors encountered: %v", errors)
+		return nil, nil, fmt.Errorf("compile errors encountered: %v", errors)
 	}
 
-	return yrx.Build(yxc), nil
+	ws := attributeWarnings(yxc.Warnings(), func(origin string) []byte {
+		root, ok := roots[origin]
+		if !ok {
+			return nil
+		}
+		bs, err := fs.ReadFile(root, origin)
+		if err != nil {
+			return nil
+		}
+		return remover.remove(bs)
+	})
+	return yrx.Build(yxc), ws, nil
 }
 
 // openCacheDir creates the directory for storing compiled rules if needed

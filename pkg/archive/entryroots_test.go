@@ -6,9 +6,8 @@ package archive
 import (
 	"archive/tar"
 	"context"
-	"fmt"
+	"errors"
 	"io/fs"
-	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -63,90 +62,49 @@ func entryRootsTreeState(t *testing.T, d string) []string {
 	return state
 }
 
-func TestEntryRootsCreateFileMatchesCreateFile(t *testing.T) {
+func TestEntryRootsOpenExclusiveNeverReplaces(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
-		name string
-		path string
+		name    string
+		path    string
+		wantErr error
+		anyErr  bool // any error will do
 	}{
 		{name: "new file in an existing directory", path: filepath.Join("dir", "new")},
 		{name: "new file in new directories", path: filepath.Join("x", "y", "z", "new")},
 		{name: "new file in the root", path: "new"},
-		{name: "existing file", path: filepath.Join("dir", "existing")},
-		{name: "existing symlink", path: filepath.Join("dir", "link")},
-		{name: "beneath a file", path: filepath.Join("leaf", "new")},
+		{name: "existing file is kept", path: filepath.Join("dir", "existing"), wantErr: fs.ErrExist},
+		{name: "existing symlink is kept", path: filepath.Join("dir", "link"), wantErr: fs.ErrExist},
+		{name: "beneath a file", path: filepath.Join("leaf", "new"), anyErr: true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			want, got := entryRootsTestTree(t), entryRootsTestTree(t)
-			er := testEntryRoots(t, openTestRoot(t, got))
-			// Reach the directories first, so that they are open.
-			if _, _, release, err := er.dirs.Parent(tt.path); err == nil {
-				release()
+			d := entryRootsTestTree(t)
+			before := entryRootsTreeState(t, d)
+			er := testEntryRoots(t, openTestRoot(t, d))
+			f, err := er.openExclusive(tt.path)
+			if f != nil {
+				_ = f.Close()
 			}
-			_ = er.validPath(filepath.Join(got, tt.path), got)
-
-			wantFile, wantErr := createFile(openTestRoot(t, want), tt.path)
-			gotFile, gotErr := er.createFile(tt.path)
-			for _, f := range []*os.File{wantFile, gotFile} {
-				if f != nil {
-					if _, err := f.WriteString("new"); err != nil {
-						t.Errorf("write: %v", err)
-					}
-					_ = f.Close()
+			wantErr := tt.wantErr != nil || tt.anyErr
+			if wantErr != (err != nil) || tt.wantErr != nil && !errors.Is(err, tt.wantErr) {
+				t.Fatalf("openExclusive(%q) error: got = %v, want = %v", tt.path, err, tt.wantErr)
+			}
+			if wantErr {
+				if after := entryRootsTreeState(t, d); strings.Join(after, "\n") != strings.Join(before, "\n") {
+					t.Errorf("tree after a refused openExclusive(%q): got = %q, want = %q", tt.path, after, before)
 				}
-			}
-			if fmt.Sprint(gotErr) != fmt.Sprint(wantErr) {
-				t.Errorf("createFile(%q) error: got = %v, want = %v", tt.path, gotErr, wantErr)
-			}
-			if g, w := entryRootsTreeState(t, got), entryRootsTreeState(t, want); strings.Join(g, "\n") != strings.Join(w, "\n") {
-				t.Errorf("tree after createFile(%q): got = %q, want = %q", tt.path, g, w)
 			}
 		})
 	}
 }
 
-func TestEntryRootsValidPathMatchesIsValidPath(t *testing.T) {
+func TestExtractTarKeepsEntriesNamedLikeEarlierOnes(t *testing.T) {
 	t.Parallel()
-	d := entryRootsTestTree(t)
-	outside := t.TempDir()
-	r := openTestRoot(t, d)
-	if err := openTestRoot(t, outside).Symlink("/", "escape"); err != nil {
-		t.Fatalf("symlink: %v", err)
-	}
-	for _, link := range []struct{ target, name string }{
-		{target: "/", name: "abs"},
-		{target: outside, name: "outdir"},
-		{target: "dir", name: "indir"},
-	} {
-		if err := r.Symlink(link.target, link.name); err != nil {
-			t.Fatalf("symlink: %v", err)
-		}
-	}
-	er := testEntryRoots(t, r)
-	for _, name := range []string{
-		filepath.Join("dir", "existing"),
-		filepath.Join("dir", "link"),
-		filepath.Join("dir", "missing"),
-		filepath.Join("missing", "a", "b"),
-		"abs",
-		filepath.Join("outdir", "escape"),
-		filepath.Join("indir", "link"),
-		filepath.Join("leaf", "x"),
-		".",
-	} {
-		target := filepath.Join(d, name)
-		if got, want := er.validPath(target, d), IsValidPath(target, d); got != want {
-			t.Errorf("validPath(%q): got = %v, want = %v", name, got, want)
-		}
-	}
-}
-
-func TestExtractTarForgetsDirectoriesReplacedByFiles(t *testing.T) {
-	t.Parallel()
-	// "link/a" is written through the symlink, which the regular file "link"
-	// then replaces, so "link/b" names a path beneath a file.
+	// "link/a" is written through the symlink; the regular file "link" takes
+	// a sibling name rather than replacing it, so "link/b" is written through
+	// the symlink too.
 	archive := writeTar(t, []tarEntry{
 		{name: "real/", typeflag: tar.TypeDir},
 		{name: "link", typeflag: tar.TypeSymlink, linkname: "real"},
@@ -155,32 +113,22 @@ func TestExtractTarForgetsDirectoriesReplacedByFiles(t *testing.T) {
 		{name: "link/b", typeflag: tar.TypeReg, body: "b"},
 	})
 	d := t.TempDir()
-	err := ExtractTar(t.Context(), d, archive)
-	if err == nil || !strings.Contains(err.Error(), "not a directory") {
-		t.Errorf("ExtractTar error: got = %v, want one creating link/b beneath a file", err)
+	if err := ExtractTar(t.Context(), d, archive); err != nil {
+		t.Fatalf("ExtractTar error: got = %v, want = nil", err)
 	}
-	for name, want := range map[string]string{filepath.Join("real", "a"): "a", "link": "file"} {
-		if got, err := file.ReadFileIn(d, name); err != nil || string(got) != want {
-			t.Errorf("%s: got = (%q, %v), want = (%q, nil)", name, got, err, want)
-		}
-	}
-	if _, err := file.LstatIn(d, filepath.Join("real", "b")); err == nil {
-		t.Error("real/b: got it written through the replaced symlink, want it absent")
-	}
+	wantTree(t, d, map[string]string{"real": "/", "real/a": "a", "real/b": "b", "link": "-> real", "link_1": "file"})
 }
 
-// entryRootsLinkCases are archive layouts in which a link replaces an entry
-// that an earlier file was written through, and the file after it must be
-// written where the link now leads, or fail as the root would fail.
+// entryRootsLinkCases are archive layouts in which an entry is named like an
+// earlier link that files were written through. The later entry takes a
+// sibling name, so the link, and every file written through it, stays.
 var entryRootsLinkCases = []struct {
-	name     string
-	entries  []tarEntry
-	want     []string // files, beneath the extraction directory, that must exist
-	absent   []string
-	wantFail string // part of the error extraction must report, if any
+	name    string
+	entries []tarEntry
+	want    []string // entries, beneath the extraction directory, that must exist
 }{
 	{
-		name: "symlink pointed elsewhere",
+		name: "second symlink of one name",
 		entries: []tarEntry{
 			{name: "real1/", typeflag: tar.TypeDir},
 			{name: "real2/", typeflag: tar.TypeDir},
@@ -189,11 +137,10 @@ var entryRootsLinkCases = []struct {
 			{name: "link", typeflag: tar.TypeSymlink, linkname: "real2"},
 			{name: "link/b", typeflag: tar.TypeReg, body: "b"},
 		},
-		want:   []string{filepath.Join("real1", "a"), filepath.Join("real2", "b")},
-		absent: []string{filepath.Join("real1", "b")},
+		want: []string{filepath.Join("real1", "a"), filepath.Join("real1", "b"), "link_1"},
 	},
 	{
-		name: "symlink replaced by a hard link",
+		name: "hard link named like a symlink",
 		entries: []tarEntry{
 			{name: "real1/", typeflag: tar.TypeDir},
 			{name: "target", typeflag: tar.TypeReg, body: "t"},
@@ -202,13 +149,11 @@ var entryRootsLinkCases = []struct {
 			{name: "link", typeflag: tar.TypeLink, linkname: "target"},
 			{name: "link/b", typeflag: tar.TypeReg, body: "b"},
 		},
-		want:     []string{filepath.Join("real1", "a")},
-		absent:   []string{filepath.Join("real1", "b")},
-		wantFail: "not a directory",
+		want: []string{filepath.Join("real1", "a"), filepath.Join("real1", "b"), "link_1"},
 	},
 }
 
-func TestExtractFollowsLinksThatReplaceEntries(t *testing.T) {
+func TestExtractKeepsLinksNamedLikeLaterEntries(t *testing.T) {
 	t.Parallel()
 	formats := []struct {
 		name    string
@@ -224,18 +169,12 @@ func TestExtractFollowsLinksThatReplaceEntries(t *testing.T) {
 			t.Run(format.name+"/"+tt.name, func(t *testing.T) {
 				t.Parallel()
 				d := t.TempDir()
-				err := format.extract(t.Context(), d, format.archive(t, tt.entries))
-				if (err != nil) != (tt.wantFail != "") || (err != nil && !strings.Contains(err.Error(), tt.wantFail)) {
-					t.Errorf("extract error: got = %v, want one containing %q", err, tt.wantFail)
+				if err := format.extract(t.Context(), d, format.archive(t, tt.entries)); err != nil {
+					t.Errorf("extract error: got = %v, want = nil", err)
 				}
 				for _, name := range tt.want {
 					if _, err := file.LstatIn(d, name); err != nil {
 						t.Errorf("%s: got err = %v, want it written", name, err)
-					}
-				}
-				for _, name := range tt.absent {
-					if _, err := file.LstatIn(d, name); err == nil {
-						t.Errorf("%s: got it written through the replaced link, want it absent", name)
 					}
 				}
 			})

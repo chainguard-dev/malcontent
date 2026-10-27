@@ -4,9 +4,11 @@
 package report
 
 import (
+	"bytes"
 	"cmp"
 	"index/suffixarray"
 	"slices"
+	"strconv"
 	"strings"
 
 	yarax "github.com/VirusTotal/yara-x/go"
@@ -17,23 +19,25 @@ import (
 // length of the strings rather than with the square of their count.
 const maxLinearKeys = 64
 
+// maxMatchStrings bounds the match strings a behavior carries. A pattern can
+// match a large file hundreds of thousands of times; the longest strings are
+// kept, as the most telling, and the behavior records how many were cut.
+const maxMatchStrings = 1000
+
 // appendMatchedStrings appends the text of each of m's matches that lies
 // within fc to dst, in pattern order, and returns the extended slice. A match
-// containing unprintable bytes contributes the identifiers of the rule's
-// matched patterns instead. The appended strings are copies, so they stay
-// valid after fc is released. yara-x does not expose the matched text, as
-// rendering it would slow down scans that do not need it.
+// containing unprintable bytes is escaped (see escapeMatch). The appended
+// strings are copies, so they stay valid after fc is released. yara-x does
+// not expose the matched text, as rendering it would slow down scans that do
+// not need it.
 func appendMatchedStrings(dst []string, fc []byte, m *yarax.Rule) []string {
 	fcl := uint64(len(fc))
 	patterns := m.Patterns()
 
-	// The pattern identifiers are the same for every unprintable match, so
-	// they are collected on the first one.
-	var ids []string
-	haveIDs := false
-	// A pattern often matches the same text many times, so an identical
+	// A pattern often matches the same bytes many times, so an identical
 	// match reuses the previous copy.
-	prev := ""
+	var prevRaw []byte
+	prev, havePrev := "", false
 	for i := range patterns {
 		matches := patterns[i].Matches()
 		for j := range matches {
@@ -44,36 +48,26 @@ func appendMatchedStrings(dst []string, fc []byte, m *yarax.Rule) []string {
 				continue
 			}
 			b := fc[o : o+l]
-			if string(b) == prev {
-				dst = append(dst, prev)
-				continue
+			if !havePrev || !bytes.Equal(b, prevRaw) {
+				prevRaw, prev, havePrev = b, escapeMatch(b), true
 			}
-			if containsUnprintable(b) {
-				if !haveIDs {
-					ids, haveIDs = matchedPatternIDs(patterns), true
-				}
-				dst = append(dst, ids...)
-				continue
-			}
-			prev = string(b)
 			dst = append(dst, prev)
 		}
 	}
 	return dst
 }
 
-// matchedPatternIDs returns the identifiers of the patterns that have a
-// non-empty match, without adjacent repeats.
-func matchedPatternIDs(patterns []yarax.Pattern) []string {
-	ids := make([]string, 0, len(patterns))
-	for i := range patterns {
-		if slices.ContainsFunc(patterns[i].Matches(), func(m yarax.Match) bool {
-			return m.Length() > 0
-		}) {
-			ids = append(ids, patterns[i].Identifier())
-		}
+// escapeMatch returns the matched bytes b as text: verbatim when they are
+// printable ASCII, and otherwise with Go escapes for tabs, newlines, other
+// control bytes, non-ASCII characters, invalid UTF-8, quotes, and
+// backslashes, so binary and multi-line evidence stays readable and
+// unambiguous.
+func escapeMatch(b []byte) string {
+	if !containsUnprintable(b) {
+		return string(b)
 	}
-	return slices.Compact(ids)
+	q := strconv.AppendQuoteToASCII(make([]byte, 0, len(b)+2), string(b))
+	return string(q[1 : len(q)-1])
 }
 
 // containsUnprintable reports whether b holds a byte outside printable ASCII.
@@ -88,10 +82,6 @@ func containsUnprintable[T ~string | ~[]byte](b T) bool {
 
 // matchToString renders one matched string of the rule named ruleName.
 func matchToString(ruleName string, m string) string {
-	if containsUnprintable(m) {
-		return ruleName
-	}
-
 	switch {
 	case strings.Contains(ruleName, "base64"),
 		strings.Contains(ruleName, "xor"):
@@ -107,12 +97,13 @@ func matchToString(ruleName string, m string) string {
 }
 
 // matchStrings returns the match strings of a behavior of the rule named
-// ruleName: each matched string rendered by matchToString, keeping only the
-// longest distinct ones. It returns nil when ms is empty. It reorders and
-// overwrites ms, and the result never shares ms's backing array.
-func matchStrings(ruleName string, ms []string) []string {
+// ruleName, each matched string rendered by matchToString, keeping only the
+// longest distinct ones, at most maxMatchStrings of them, and how many more
+// there were. It returns nil when ms is empty. It reorders and overwrites ms,
+// and the result never shares ms's backing array.
+func matchStrings(ruleName string, ms []string) ([]string, int) {
 	if len(ms) == 0 {
-		return nil
+		return nil, 0
 	}
 
 	// longestUnique depends only on the set of rendered strings, so each
@@ -128,7 +119,9 @@ func matchStrings(ruleName string, ms []string) []string {
 			raw = append(raw, s)
 		}
 	}
-	return slices.Clone(longestUnique(raw))
+	kept := longestUnique(raw)
+	n := min(len(kept), maxMatchStrings)
+	return slices.Clone(kept[:n]), len(kept) - n
 }
 
 // longestUnique returns the distinct non-empty strings of raw that do not

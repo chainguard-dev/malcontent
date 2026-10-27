@@ -7,10 +7,13 @@ import (
 	"reflect"
 	"slices"
 	"strings"
+	"sync"
 	"testing"
 	"unicode/utf8"
 
 	"github.com/chainguard-dev/malcontent/pkg/malcontent"
+
+	yarax "github.com/VirusTotal/yara-x/go"
 )
 
 // FuzzLongestUnique tests the longestUnique function with random string inputs.
@@ -232,51 +235,47 @@ func FuzzReportLoad(f *testing.F) {
 	})
 }
 
-// FuzzHandleOverrides tests the handleOverrides function with fuzzed inputs.
-func FuzzHandleOverrides(f *testing.F) {
-	f.Add("rule_a", 3, "override_x", 1, "rule_a", 1, false)
-	f.Add("rule_a", 4, "override_x", 0, "rule_a", 0, true)
-	f.Add("rule_a", 2, "override_x", 3, "nonexistent", 1, false)
-	f.Add("", 0, "", 0, "", 0, false)
+// fuzzFilterRules compiles scanFilterSources once per test binary.
+var fuzzFilterRules = sync.OnceValues(func() (*yarax.Rules, error) {
+	return compileSources(scanFilterSources)
+})
 
-	f.Fuzz(func(t *testing.T, origName string, origRisk int, overName string, overRisk int, overTarget string, minScore int, scan bool) {
-		// Clamp values to valid ranges
-		origRisk = max(origRisk%5, 0)
-		overRisk = max(overRisk%5, 0)
-		minScore = max(minScore%5, 0)
+// FuzzGenerateFilters checks what Generate keeps for any content and
+// configuration: no override rule appears as a behavior, behavior IDs are
+// unique, analyses keep no behavior below the minimum risk, and scans keep
+// only the riskiest behaviors, none below HIGH.
+func FuzzGenerateFilters(f *testing.F) {
+	f.Add([]byte("CRITMARK HIGHMARK FPLOW"), LOW, false, false)
+	f.Add([]byte("HIGHMARK MEDMARK FPRAISE"), HARMLESS, true, true)
+	f.Add([]byte("CRITMARK HIGHMARK FPHIGH"), HIGH, true, false)
+	f.Add([]byte("MEDMARK FPLOW FPHIGH"), INVALID, false, true)
+	f.Add([]byte{}, CRITICAL, true, true)
 
-		if origName == "" || overName == "" {
-			return
+	f.Fuzz(func(t *testing.T, fc []byte, minRisk int, scan, quantity bool) {
+		yrs, err := fuzzFilterRules()
+		if err != nil {
+			t.Fatalf("compile rules: %v", err)
 		}
-
-		original := []*malcontent.Behavior{
-			{RuleName: origName, RiskScore: origRisk, RiskLevel: RiskLevels[origRisk], ID: "id1"},
+		c := malcontent.Config{MinRisk: min(max(minRisk, INVALID), CRITICAL), Scan: scan, QuantityIncreasesRisk: quantity, Rules: yrs}
+		fr, err := Generate(t.Context(), "fuzz/path", scanBuf(t, yrs, fc), c, "", fc, int64(len(fc)), "cksum", nil)
+		if err != nil {
+			t.Fatalf("Generate: %v", err)
 		}
-		override := []*malcontent.Behavior{
-			{RuleName: overName, RiskScore: overRisk, RiskLevel: RiskLevels[overRisk], Override: []string{overTarget}},
-		}
-
-		result := handleOverrides(original, override, minScore, scan)
-
-		// Result should never be longer than original
-		if len(result) > len(original) {
-			t.Errorf("result length %d exceeds original %d", len(result), len(original))
-		}
-
-		// Override rule itself should never appear in result
-		for _, b := range result {
-			if b.RuleName == overName {
-				t.Errorf("override rule %q should not be in result", overName)
+		top := highestBehaviorRisk(fr)
+		seen := map[string]struct{}{}
+		for _, b := range fr.Behaviors {
+			if _, dup := seen[b.ID]; dup {
+				t.Errorf("behavior ID %q appears twice", b.ID)
 			}
-		}
-
-		// All remaining behaviors should meet the filter criteria
-		for _, b := range result {
-			if scan && b.RiskScore < HIGH {
-				t.Errorf("scan: behavior %q has score %d < HIGH", b.RuleName, b.RiskScore)
+			seen[b.ID] = struct{}{}
+			if strings.HasPrefix(b.ID, "false_positives/") {
+				t.Errorf("override rule %q appears as a behavior", b.RuleName)
 			}
-			if !scan && b.RiskScore < minScore {
-				t.Errorf("non-scan: behavior %q has score %d < minScore %d", b.RuleName, b.RiskScore, minScore)
+			if scan && (b.RiskScore < HIGH || b.RiskScore != top) {
+				t.Errorf("scan kept %q at %d with the highest at %d", b.RuleName, b.RiskScore, top)
+			}
+			if !scan && b.RiskScore < c.MinRisk {
+				t.Errorf("analysis kept %q at %d below the minimum %d", b.RuleName, b.RiskScore, c.MinRisk)
 			}
 		}
 	})

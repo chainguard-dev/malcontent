@@ -1,4 +1,4 @@
-# npm/2024.bugsnagmw/index.js: critical
+# npm/2024.bugsnagmw/index.js: high
 3P/guarddog/threat_runtime_obfuscation_js_mangling: medium
 anti-static/obfuscation/bool: medium
 anti-static/obfuscation/hex: medium

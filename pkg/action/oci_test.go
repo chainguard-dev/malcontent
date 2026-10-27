@@ -14,7 +14,6 @@ import (
 	"github.com/chainguard-dev/malcontent/pkg/render"
 	"github.com/chainguard-dev/malcontent/rules"
 	thirdparty "github.com/chainguard-dev/malcontent/third_party"
-	"github.com/google/go-cmp/cmp"
 )
 
 func TestOCI(t *testing.T) {
@@ -53,10 +52,5 @@ func TestOCI(t *testing.T) {
 
 	got := out.String()
 
-	td := readTestFile(t, "testdata/scan_oci")
-	want := string(td)
-
-	if diff := cmp.Diff(want, got); diff != "" {
-		t.Errorf("Simple output mismatch: (-want +got):\n%s", diff)
-	}
+	compareGolden(t, "testdata/scan_oci", got)
 }

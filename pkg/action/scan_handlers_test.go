@@ -11,6 +11,7 @@ import (
 	"slices"
 	"strings"
 	"sync"
+	"syscall"
 	"testing"
 
 	"github.com/chainguard-dev/malcontent/pkg/file"
@@ -32,7 +33,7 @@ func TestExitIfHitOrMissMatchHasBehaviors(t *testing.T) {
 	hit := scanTestMatchReport(3, "net/http")
 	frs.Store(hit.Path, hit)
 
-	match, err := exitIfHitOrMiss(frs, "/scan", true, false)
+	match, err := exitIfHitOrMiss(frs, "/scan", true, false, 0)
 	if !errors.Is(err, ErrMatchedCondition) {
 		t.Fatalf("error: got = %v, want = %v", err, ErrMatchedCondition)
 	}
@@ -251,12 +252,17 @@ func TestHandleSingleFileProcessError(t *testing.T) {
 			var once sync.Once
 			c := malcontent.Config{Rules: yrs, RuleFS: rfs, TrimPrefixes: tt.trim}
 
+			// A file that cannot be scanned is recorded as skipped, and the
+			// scan goes on.
 			err := handleSingleFile(t.Context(), missing, scanPathInfo{originalPath: root, effectivePath: root}, c, r, matchChan, &once, logger)
-			if !errors.Is(err, fs.ErrNotExist) {
-				t.Fatalf("error: got = %v, want = %v", err, fs.ErrNotExist)
+			if err != nil {
+				t.Fatalf("error: got = %v, want = nil", err)
 			}
 			if got, want := scanTestKeys(r.Files), []string{tt.wantKey}; !slices.Equal(got, want) {
 				t.Errorf("stored keys: got = %v, want = %v", got, want)
+			}
+			if fr, _ := r.Files.Load(tt.wantKey); fr == nil || !strings.HasPrefix(fr.Skipped, errMsgScanFailed+": ") || !strings.Contains(fr.Skipped, syscall.ENOENT.Error()) {
+				t.Errorf("report: got = %+v, want one skipped for the missing file", fr)
 			}
 		})
 	}
@@ -346,7 +352,9 @@ func TestProcessPathArchiveExitConditions(t *testing.T) {
 		wantKeys []string
 	}{
 		{name: "archive with a hit and exit-first-hit sends the match", exitHit: true, wantErr: true},
-		{name: "archive with a hit and exit-first-miss is stored under archive and entry paths", exitMiss: true, wantKeys: inArchive(archivePath)},
+		// Each file of an archive is judged on its own, as walked files are.
+		{name: "archive with a clean file meets exit-first-miss on that file", exitMiss: true, wantErr: true},
+		{name: "archive files are stored under archive and entry paths", wantKeys: inArchive(archivePath)},
 		{name: "OCI archive is stored under the image and its path despite exit-first-hit", oci: true, exitHit: true, wantKeys: inArchive(scanTestImageURI + " ∴ /bundle.zip")},
 		{name: "trim prefixes shorten the archive path in entry keys", trim: []string{archiveDir}, wantKeys: inArchive("bundle.zip")},
 	}
@@ -378,8 +386,9 @@ func TestProcessPathArchiveExitConditions(t *testing.T) {
 				if got := len(matchChan); got != 1 {
 					t.Fatalf("sent matches: got = %d, want = 1", got)
 				}
-				if m := <-matchChan; m.fr == nil || len(m.fr.Behaviors) == 0 {
-					t.Errorf("sent match: got = %+v, want a report with behaviors", m.fr)
+				// A hit is sent with its report; a miss without one.
+				if m := <-matchChan; tt.exitHit != (m.fr != nil && len(m.fr.Behaviors) > 0) {
+					t.Errorf("sent match: got = %+v, want a report with behaviors = %t", m.fr, tt.exitHit)
 				}
 				if got := r.Files.Size(); got != 0 {
 					t.Errorf("stored reports: got = %d, want = 0", got)
@@ -552,7 +561,8 @@ func TestHandleOCIResults(t *testing.T) {
 		wantKeys    []string
 	}{
 		{name: "hit at the minimum file risk ends the scan with only the hit", withHit: true, exitHit: true, minFileRisk: 3, wantErr: true, wantKeys: []string{hitPath}},
-		{name: "hit below the minimum file risk ends the scan", withHit: true, exitHit: true, minFileRisk: 4, wantErr: true, wantKeys: []string{hitPath}},
+		{name: "hit below the minimum file risk is no hit", withHit: true, exitHit: true, minFileRisk: 4, wantKeys: []string{cleanPath, hitPath}},
+		{name: "hit below the minimum file risk is a miss", withHit: true, exitMiss: true, minFileRisk: 4, wantErr: true},
 		{name: "hit without a renderer ends the scan", withHit: true, exitHit: true, noRenderer: true, wantErr: true, wantKeys: []string{hitPath}},
 		{name: "image without hits ends the scan under exit-first-miss with no files", exitMiss: true, wantErr: true},
 		{name: "image with a hit completes under exit-first-miss", withHit: true, exitMiss: true, wantKeys: []string{cleanPath, hitPath}},
@@ -598,17 +608,21 @@ func TestProcessPathsEvaluatesOCIImageAsWhole(t *testing.T) {
 	fx := newScanTestFixture(t, yrs, rfs)
 	hitPath := scanTestImageURI + " ∴ /app/package.json"
 
+	allKeys := []string{scanTestImageURI + " ∴ /app/locale.sh", hitPath}
 	tests := []struct {
-		name     string
-		paths    []string
-		exitHit  bool
-		exitMiss bool
-		wantErr  bool
-		wantKeys []string
+		name        string
+		paths       []string
+		exitHit     bool
+		exitMiss    bool
+		minFileRisk int
+		wantErr     bool
+		wantKeys    []string
 	}{
 		{name: "image with a hit ends the scan under exit-first-hit", paths: []string{fx.hit, fx.clean}, exitHit: true, wantErr: true, wantKeys: []string{hitPath}},
+		{name: "image whose hit is below the minimum file risk completes under exit-first-hit", paths: []string{fx.hit, fx.clean}, exitHit: true, minFileRisk: fx.hitRisk + 1, wantKeys: allKeys},
 		{name: "image without a hit ends the scan under exit-first-miss", paths: []string{fx.clean}, exitMiss: true, wantErr: true},
-		{name: "image with a hit completes without exit flags", paths: []string{fx.hit, fx.clean}, wantKeys: []string{scanTestImageURI + " ∴ /app/locale.sh", hitPath}},
+		{name: "image whose hit is below the minimum file risk ends the scan under exit-first-miss", paths: []string{fx.hit, fx.clean}, exitMiss: true, minFileRisk: fx.hitRisk + 1, wantErr: true},
+		{name: "image with a hit completes without exit flags", paths: []string{fx.hit, fx.clean}, minFileRisk: fx.hitRisk + 1, wantKeys: allKeys},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -618,12 +632,12 @@ func TestProcessPathsEvaluatesOCIImageAsWhole(t *testing.T) {
 			matchChan := make(chan matchResult, 1)
 			var once sync.Once
 			scanInfo := scanPathInfo{originalPath: scanTestImageURI, effectivePath: fx.root, ociExtractPath: fx.root, imageURI: scanTestImageURI}
-			// Exit criteria do not depend on a renderer or the minimum file risk.
+			// Exit criteria judge what the minimum file risk leaves.
 			c := malcontent.Config{
 				Concurrency:   2,
 				ExitFirstHit:  tt.exitHit,
 				ExitFirstMiss: tt.exitMiss,
-				MinFileRisk:   fx.hitRisk + 1,
+				MinFileRisk:   tt.minFileRisk,
 				OCI:           true,
 				Rules:         yrs,
 				RuleFS:        rfs,
@@ -649,12 +663,14 @@ func TestProcessPathsExitMatchIsTheOnlyResult(t *testing.T) {
 	fx := newScanTestFixture(t, yrs, rfs)
 
 	tests := []struct {
-		name         string
-		categories   []string
-		wantRendered bool
+		name        string
+		categories  []string
+		minFileRisk int
+		wantMatch   bool
 	}{
-		{name: "match is stored and rendered once", wantRendered: true},
-		{name: "match left without behaviors by the category filter is stored but not rendered", categories: []string{"scan-test-no-such-category"}},
+		{name: "match is stored and rendered once", wantMatch: true},
+		{name: "a hit the category filter leaves without behaviors is no match", categories: []string{"scan-test-no-such-category"}},
+		{name: "a hit below the minimum file risk is no match", minFileRisk: fx.hitRisk + 1},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -664,23 +680,30 @@ func TestProcessPathsExitMatchIsTheOnlyResult(t *testing.T) {
 			matchChan := make(chan matchResult, 1)
 			var once sync.Once
 			rnd := &scanTestRenderer{}
-			c := malcontent.Config{Concurrency: 1, ExitFirstHit: true, Renderer: rnd, RuleCategories: tt.categories, Rules: yrs, RuleFS: rfs}
+			c := malcontent.Config{Concurrency: 1, ExitFirstHit: true, MinFileRisk: tt.minFileRisk, Renderer: rnd, RuleCategories: tt.categories, Rules: yrs, RuleFS: rfs}
 
 			paths := []string{fx.clean, fx.hit}
 			err := processTestPaths(t, paths, scanPathInfo{originalPath: fx.root, effectivePath: fx.root}, c, r, matchChan, &once, logger)
-			if !errors.Is(err, ErrMatchedCondition) {
-				t.Fatalf("error: got = %v, want = %v", err, ErrMatchedCondition)
+			if got := errors.Is(err, ErrMatchedCondition); got != tt.wantMatch {
+				t.Fatalf("match: got = %t (error %v), want = %t", got, err, tt.wantMatch)
+			}
+			if !tt.wantMatch {
+				// The scan finished: both files are stored and nothing left
+				// to show is rendered.
+				if got, want := scanTestKeys(r.Files), []string{fx.clean, fx.hit}; !slices.Equal(got, want) {
+					t.Errorf("stored keys: got = %v, want = %v", got, want)
+				}
+				if got := rnd.rendered(); len(got) != 0 {
+					t.Errorf("rendered reports: got = %d, want = 0", len(got))
+				}
+				return
 			}
 			if got, want := scanTestKeys(r.Files), []string{fx.hit}; !slices.Equal(got, want) {
 				t.Fatalf("stored keys: got = %v, want = %v", got, want)
 			}
 			fr, _ := r.Files.Load(fx.hit)
-			if got := len(fr.Behaviors) > 0; got != tt.wantRendered {
-				t.Errorf("match keeps behaviors after the category filter: got = %t, want = %t", got, tt.wantRendered)
-			}
-			got := rnd.rendered()
-			if len(got) > 1 || (len(got) == 1 && got[0] == fr) != tt.wantRendered {
-				t.Errorf("rendered reports: got = %d, want match rendered once = %t", len(got), tt.wantRendered)
+			if got := rnd.rendered(); len(got) != 1 || got[0] != fr {
+				t.Errorf("rendered reports: got = %d, want the match rendered once", len(got))
 			}
 		})
 	}

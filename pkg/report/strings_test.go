@@ -103,7 +103,7 @@ func TestMatchStringsResultIsIndependent(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			ms := slices.Clone(tt.ms)
-			got := matchStrings("rule", ms)
+			got, _ := matchStrings("rule", ms)
 			for i := range ms {
 				ms[i] = "overwritten"
 			}
