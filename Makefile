@@ -43,8 +43,8 @@ LINTERS :=
 FIXERS :=
 
 GOLANGCI_LINT_CONFIG := $(LINT_ROOT)/.golangci.yml
-GOLANGCI_LINT_VERSION ?= v2.14.0
-GOLANGCI_LINT_INSTALL_REF := 114493f9b3e7257d29e4130f2b4a4aadefbb6845
+GOLANGCI_LINT_VERSION ?= v2.15.0
+GOLANGCI_LINT_INSTALL_REF := 25c5369a93aacb8cccea0d46e1569ca4a194564d
 GOLANGCI_LINT_INSTALL_SHA256 := 1022ddb4d87ed252350ed03fc9677e250a4ae95cc6bcd4658c2a20a8a23d390f
 SHA256_CMD := $(shell command -v sha256sum || echo "shasum -a 256")
 GOLANGCI_LINT_BIN := $(LINT_ROOT)/out/linters/golangci-lint-$(GOLANGCI_LINT_VERSION)-$(LINT_ARCH)
@@ -201,7 +201,7 @@ verify:
 	CGO_LDFLAGS=$(LDFLAGS) \
 	CGO_CPPFLAGS=$(CPPFLAGS) \
 	PKG_CONFIG_PATH=$(PKGCONF_PATH) \
-	gosec ./...
+	gosec -exclude-generated ./...
 	gofumpt -w .
 	$(MAKE) _lint
 	$(MAKE) test
@@ -211,7 +211,7 @@ gosec:
 	CGO_LDFLAGS=$(LDFLAGS) \
 	CGO_CPPFLAGS=$(CPPFLAGS) \
 	PKG_CONFIG_PATH=$(PKGCONF_PATH) \
-	gosec ./...
+	gosec -exclude-generated ./...
 
 FUZZ_TIME ?= 10s
 .PHONY: fuzz

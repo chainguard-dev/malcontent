@@ -690,11 +690,6 @@ func configFromFlags() (malcontent.Config, error) {
 		Stats:                    statsFlag,
 	}
 
-	// always trim macOS' /private prefix
-	if runtime.GOOS == "darwin" {
-		mc.TrimPrefixes = append(mc.TrimPrefixes, "/private")
-	}
-
 	return mc, nil
 }
 

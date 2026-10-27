@@ -88,8 +88,8 @@ func FuzzLongestUnique(f *testing.F) {
 	})
 }
 
-// FuzzTrimPrefixes tests the TrimPrefixes function with random inputs.
-func FuzzTrimPrefixes(f *testing.F) {
+// FuzzDisplayPath tests DisplayPath with random inputs.
+func FuzzDisplayPath(f *testing.F) {
 	f.Add("/tmp/extract/path/to/file", "/tmp/extract")
 	f.Add("/home/user/file", "/home/user,/tmp")
 	f.Add("/absolute/path", "/absolute,./relative")
@@ -118,6 +118,8 @@ func FuzzTrimPrefixes(f *testing.F) {
 	f.Add("path/to/file/", "path/to/")
 	f.Add("/path/to/file/", "/path/to/")
 	f.Add("./path/to/file/", "./path/to/")
+	f.Add("/private/var/folders/x/file", "/var/folders")
+	f.Add("/var/x/file", "/private/var/x,/private")
 
 	f.Fuzz(func(t *testing.T, path, prefixesStr string) {
 		var prefixes []string
@@ -125,7 +127,7 @@ func FuzzTrimPrefixes(f *testing.F) {
 			prefixes = strings.Split(prefixesStr, ",")
 		}
 
-		result := TrimPrefixes(path, prefixes)
+		result := DisplayPath(path, prefixes)
 
 		if len(result) > len(path) {
 			t.Fatalf("result %q is longer than input %q", result, path)

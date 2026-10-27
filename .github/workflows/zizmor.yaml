@@ -35,9 +35,9 @@ jobs:
           egress-policy: block
           allowed-endpoints: >
             api.github.com:443
+            files.pythonhosted.org:443
             github.com:443
-            pkg-containers.githubusercontent.com:443
-            ghcr.io
+            pypi.org:443
 
       - name: Check out code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

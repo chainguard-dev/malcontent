@@ -10,6 +10,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"slices"
 	"sync"
 	"sync/atomic"
 )
@@ -102,11 +103,26 @@ func (c *RootCache) shard(dir string) *rootCacheShard {
 // Get returns the root on dir and the function that ends the caller's use of
 // it.
 func (c *RootCache) Get(dir string) (*os.Root, func(), error) {
+	return c.getWith(dir, c.open)
+}
+
+// lookup returns the open root on dir and the function that ends the
+// caller's use of it, or nil when no root on dir is open.
+func (c *RootCache) lookup(dir string) (*os.Root, func()) {
+	s := c.shard(dir)
+	if e := s.use(dir); e != nil {
+		return e.r, func() { s.release(e) }
+	}
+	return nil, nil
+}
+
+// getWith is Get, opening the root on dir with open when none is open.
+func (c *RootCache) getWith(dir string, open func(dir string) (*os.Root, error)) (*os.Root, func(), error) {
 	s := c.shard(dir)
 	if e := s.use(dir); e != nil {
 		return e.r, func() { s.release(e) }, nil
 	}
-	r, err := c.open(dir)
+	r, err := open(dir)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -216,21 +232,53 @@ func NewDirRoots(root *os.Root, maxIdle int) *DirRoots {
 // but with one lookup. A directory missing from its parent, or beneath a
 // missing parent, is missing from the root too, and is reported as the root
 // reports it. Any other failure, as for a symlink that leaves the parent but
-// not the root, is left to the root.
+// not the root, is left to the root. So is a path that is not local, such as
+// an absolute one, whose parents lead up to "/" rather than ".".
+//
+// The parents without an open root are opened in turn from the nearest one
+// with an open root, each through the last and kept for reuse, so that
+// opening a directory however deep takes neither stack nor descriptors in
+// proportion to its depth.
 func (d *DirRoots) open(dir string) (*os.Root, error) {
-	parent := filepath.Dir(dir)
-	if parent == "." {
+	if !filepath.IsLocal(dir) {
 		return d.root.OpenRoot(dir)
 	}
-	pr, release, err := d.cache.Get(parent)
-	if err == nil {
-		var r *os.Root
-		r, err = pr.OpenRoot(filepath.Base(dir))
-		release()
-		if err == nil {
-			return r, nil
+	var missing []string // parents without an open root, nearest first
+	pr, release := d.root, func() {}
+	for p := filepath.Dir(dir); p != "."; p = filepath.Dir(p) {
+		if r, rel := d.cache.lookup(p); r != nil {
+			pr, release = r, rel
+			break
 		}
+		missing = append(missing, p)
 	}
+	for _, p := range slices.Backward(missing) {
+		r, rel, err := d.cache.getWith(p, func(p string) (*os.Root, error) { return d.openIn(pr, p) })
+		release()
+		if err != nil {
+			return d.unreachable(dir, err)
+		}
+		pr, release = r, rel
+	}
+	r, err := d.openIn(pr, dir)
+	release()
+	return r, err
+}
+
+// openIn opens the root on dir through pr, the root on its parent, as open
+// does.
+func (d *DirRoots) openIn(pr *os.Root, dir string) (*os.Root, error) {
+	r, err := pr.OpenRoot(filepath.Base(dir))
+	if err != nil {
+		return d.unreachable(dir, err)
+	}
+	return r, nil
+}
+
+// unreachable reports dir, which could not be opened through its parent, or
+// lies beneath a parent that could not be opened, with err, as the root
+// reports it.
+func (d *DirRoots) unreachable(dir string, err error) (*os.Root, error) {
 	var pe *fs.PathError
 	if errors.As(err, &pe) && errors.Is(pe.Err, fs.ErrNotExist) {
 		return nil, &fs.PathError{Op: pe.Op, Path: dir, Err: pe.Err}

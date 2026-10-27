@@ -37,12 +37,12 @@ func BenchmarkMatchToString(b *testing.B) {
 	}
 }
 
-// BenchmarkTrimPrefixes exercises the prefix-strip helper at common cardinality.
-func BenchmarkTrimPrefixes(b *testing.B) {
+// BenchmarkDisplayPath exercises the display path helper at common cardinality.
+func BenchmarkDisplayPath(b *testing.B) {
 	path := "/private/var/folders/aa/bb/T/scan-abc/bin/payload"
 	prefixes := []string{"/private/var/folders/aa/bb/T/scan-abc", "/tmp", "/var/tmp"}
 	b.ReportAllocs()
 	for b.Loop() {
-		_ = TrimPrefixes(path, prefixes)
+		_ = DisplayPath(path, prefixes)
 	}
 }

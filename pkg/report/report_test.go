@@ -1074,7 +1074,7 @@ func TestIsValidURL(t *testing.T) {
 	}
 }
 
-func TestTrimPrefixes(t *testing.T) {
+func TestDisplayPath(t *testing.T) {
 	tests := []struct {
 		name     string
 		path     string
@@ -1135,13 +1135,21 @@ func TestTrimPrefixes(t *testing.T) {
 			prefixes: []string{"/samples"},
 			want:     "//samples/test.bin",
 		},
+		{name: "macOS private var is displayed as var", path: "/private/var/folders/x/f", want: "/var/folders/x/f"},
+		{name: "macOS private tmp is displayed as tmp", path: "/private/tmp", want: "/tmp"},
+		{name: "macOS private etc is displayed as etc", path: "/private/etc/hosts", want: "/etc/hosts"},
+		{name: "other private directories keep the prefix", path: "/private/foo/bar", want: "/private/foo/bar"},
+		{name: "private prefix ends at a directory boundary", path: "/private/variable/x", want: "/private/variable/x"},
+		{name: "resolved prefix trims an unresolved path", path: "/var/x/a.zip", prefixes: []string{"/private/var/x"}, want: "a.zip"},
+		{name: "unresolved prefix trims a resolved path", path: "/private/var/x/a.zip", prefixes: []string{"/var/x"}, want: "a.zip"},
+		{name: "prefixes after a private prefix are tried", path: "/srv/x/f", prefixes: []string{"/private", "/srv/x"}, want: "f"},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := TrimPrefixes(tt.path, tt.prefixes)
+			got := DisplayPath(tt.path, tt.prefixes)
 			if got != tt.want {
-				t.Errorf("TrimPrefixes() = %q, want %q", got, tt.want)
+				t.Errorf("DisplayPath(%q, %q): got = %q, want = %q", tt.path, tt.prefixes, got, tt.want)
 			}
 		})
 	}

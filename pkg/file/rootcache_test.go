@@ -9,6 +9,8 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"runtime/debug"
+	"slices"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -357,6 +359,42 @@ func TestDirRootsOpensThroughTheParentsRoot(t *testing.T) {
 	}
 }
 
+// TestDirRootsOpensDeepDirectoriesInBoundedStack opens a directory far below
+// any open root with the stack capped well below what recursing once per
+// parent would take. It must not call t.Parallel: the cap applies to every
+// goroutine.
+func TestDirRootsOpensDeepDirectoriesInBoundedStack(t *testing.T) {
+	const depth = 1000
+	dir := t.TempDir()
+	deep := filepath.Join(slices.Repeat([]string{"d"}, depth)...)
+	if err := MkdirAllIn(dir, deep, 0o700); err != nil {
+		t.Fatalf("mkdir: %v", err)
+	}
+	if err := WriteFileIn(dir, filepath.Join(deep, "f.txt"), []byte("f"), 0o600); err != nil {
+		t.Fatalf("write: %v", err)
+	}
+	root, err := os.OpenRoot(dir)
+	if err != nil {
+		t.Fatalf("OpenRoot: %v", err)
+	}
+	d := NewDirRoots(root, depth)
+	t.Cleanup(func() {
+		d.Close()
+		_ = root.Close()
+	})
+
+	prev := debug.SetMaxStack(128 << 10)
+	r, release, err := d.Dir(deep)
+	debug.SetMaxStack(prev)
+	if err != nil {
+		t.Fatalf("Dir: %v", err)
+	}
+	defer release()
+	if got, err := r.ReadFile("f.txt"); err != nil || string(got) != "f" {
+		t.Errorf("read: got = (%q, %v), want = (%q, nil)", got, err, "f")
+	}
+}
+
 func TestDirRootsReportsUnreachableDirectoriesAsTheRootDoes(t *testing.T) {
 	t.Parallel()
 	_, root, d := dirRootsTestTree(t)
@@ -369,6 +407,10 @@ func TestDirRootsReportsUnreachableDirectoriesAsTheRootDoes(t *testing.T) {
 		filepath.Join("a", "c", "missing", "z"),
 		"top.txt",
 		filepath.Join("a", "c", "h.txt", "x"),
+		// Walking up an absolute path's parents ends at "/", never at ".".
+		"/",
+		"/a",
+		"/a/c",
 	} {
 		_, _, got := d.Dir(dir)
 		_, want := root.OpenRoot(dir)

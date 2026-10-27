@@ -434,16 +434,35 @@ func mungeDescription(s string) string {
 	return s
 }
 
-// TrimPrefixes removes the specified prefix from a given path for the purposes of sample test data generation.
-// This function will only be used via the refresh package.
-func TrimPrefixes(path string, prefixes []string) string {
-	for _, prefix := range prefixes {
-		if prefix == "/private" {
-			return strings.TrimPrefix(path, prefix)
-		}
+// macOSPrivateDirs are the directories that macOS reaches through symlinks to
+// their counterparts beneath /private.
+var macOSPrivateDirs = []string{"etc", "tmp", "var"}
 
+// dropPrivate returns path without the /private that resolving symlinks
+// spells macOS' /etc, /tmp, and /var with.
+func dropPrivate(path string) string {
+	rest, ok := strings.CutPrefix(path, "/private/")
+	if !ok {
+		return path
+	}
+	for _, d := range macOSPrivateDirs {
+		if rest == d || strings.HasPrefix(rest, d+"/") {
+			return "/" + rest
+		}
+	}
+	return path
+}
+
+// DisplayPath returns path as reports display it, and so as report keys
+// spell it. It drops the /private that resolving symlinks spells macOS' /etc,
+// /tmp, and /var with, so that a path displays the same whether or not it was
+// resolved, on every platform. It then trims the first of prefixes, compared
+// in the same form, that path starts with.
+func DisplayPath(path string, prefixes []string) string {
+	path = dropPrivate(path)
+	for _, prefix := range prefixes {
 		// Strip ./ prefix; an empty prefix trims nothing
-		prefix = strings.TrimPrefix(prefix, "./")
+		prefix = dropPrivate(strings.TrimPrefix(prefix, "./"))
 		if prefix == "" {
 			continue
 		}
@@ -793,7 +812,7 @@ func trimDisplayPath(path string, expath string, c malcontent.Config) string {
 	if c.OCI {
 		displayPath = strings.TrimPrefix(path, expath)
 	}
-	return TrimPrefixes(displayPath, c.TrimPrefixes)
+	return DisplayPath(displayPath, c.TrimPrefixes)
 }
 
 func initFileReport(path string, checksum string, size int64, matchCount int) *malcontent.FileReport {

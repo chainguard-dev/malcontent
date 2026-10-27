@@ -293,13 +293,19 @@ func isRuleFile(path string) bool {
 // scan already computes it, with hardware acceleration).
 const FileSHA256 = "file_sha256"
 
+// guardDogEcosystem names the global variable that GuardDog rules compare
+// against the package ecosystem, such as "pypi". Malcontent scans files
+// rather than packages, so it stays empty, as GuardDog leaves it when no
+// ecosystem is given, and the conditions it gates never match.
+const guardDogEcosystem = "ecosystem"
+
 // newCompiler returns a compiler with the options every bundled rule set is
 // built with.
 func newCompiler() (*yarax.Compiler, error) {
 	yxc, err := yarax.NewCompiler(
 		yarax.ConditionOptimization(true),
 		yarax.EnableIncludes(true),
-		yarax.Globals(map[string]any{FileSHA256: ""}),
+		yarax.Globals(map[string]any{FileSHA256: "", guardDogEcosystem: ""}),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("yarax compiler: %w", err)

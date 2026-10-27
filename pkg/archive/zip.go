@@ -136,7 +136,7 @@ func extractZipWithKind(ctx context.Context, d, f string, fileType func() *progr
 
 	for _, zf := range read.File {
 		if zf.Mode().IsDir() {
-			clean := filepath.Clean(filepath.ToSlash(zf.Name))
+			clean := zipEntryPath(zf.Name)
 			if strings.Contains(clean, "..") {
 				logger.Warnf("skipping potentially unsafe directory path: %s", zf.Name)
 				continue
@@ -209,6 +209,15 @@ func extractZipWithKind(ctx context.Context, d, f string, fileType func() *progr
 	return nil
 }
 
+// zipEntryPath returns the cleaned path, relative to the extraction
+// directory, that an entry named name is extracted to. Like unzip, it
+// extracts an absolute name beneath the directory rather than skipping it,
+// which would leave what it holds unscanned; no root call accepts an
+// absolute name.
+func zipEntryPath(name string) string {
+	return cmp.Or(strings.TrimPrefix(filepath.Clean(filepath.ToSlash(name)), "/"), ".")
+}
+
 // splitByCaps divides entries into those that fit within budget bytes
 // together and the rest, both smallest first, with ties in archive order. The
 // zip reader returns no more of an entry than its declared size, so however
@@ -268,7 +277,7 @@ func extractFile(ctx context.Context, zf *zip.File, er *entryRoots, logger *clog
 		return ctx.Err()
 	}
 
-	clean := filepath.Clean(filepath.ToSlash(zf.Name))
+	clean := zipEntryPath(zf.Name)
 	if strings.Contains(clean, "..") {
 		logger.Warnf("skipping potentially unsafe file path: %s", zf.Name)
 		return nil
