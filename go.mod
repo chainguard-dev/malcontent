@@ -20,11 +20,11 @@ require (
 	github.com/klauspost/compress v1.20.3
 	github.com/klauspost/pgzip v1.3.0
 	github.com/puzpuzpuz/xsync/v4 v4.5.0
-	github.com/shirou/gopsutil/v4 v4.26.9
+	github.com/shirou/gopsutil/v4 v4.26.10
 	github.com/ulikunitz/xz v0.5.17
 	github.com/urfave/cli/v3 v3.14.0
 	go.uber.org/goleak v1.3.0
-	go.yaml.in/yaml/v3 v3.0.5
+	go.yaml.in/yaml/v3 v3.0.6
 	golang.org/x/sync v0.24.0
 	golang.org/x/sys v0.49.0
 	golang.org/x/term v0.47.0
