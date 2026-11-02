@@ -157,6 +157,7 @@ var rulesWithWarnings = map[string]bool{
 	"SIGNATURE_BASE_WEBSHELL_PAS_Webshell_Perlnetworkscript": true,
 	"SIGNATURE_BASE_WEBSHELL_PHP_Generic_Callback":           true,
 	"threat_runtime_obfuscation_steganography":               true,
+	"VOLEXITY_Apt_Malware_Apk_Badsolar_2Ndstage_Jun23":       true,
 }
 
 // rulePatternFormat matches a whole rule declaration; %s is the alternation
